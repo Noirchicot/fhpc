@@ -1,0 +1,370 @@
+{
+  "schema": "fh-char/1",
+  "id": "exemple-sylvane-aubelame",
+  "name": "Sylvane Aubelame",
+  "lang": "fr",
+  "units": { "distance": "m", "weight": "kg" },
+  "created": "2026-08-07T09:00:00Z",
+  "modified": "2026-08-07T09:42:00Z",
+  "resolved": {
+    "derivation": {
+      "at": "2026-08-07T09:42:00Z",
+      "stack": [
+        {
+          "id": "srd-5.2.1-fr",
+          "version": "5.2.1",
+          "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "SRD 5.2.1 (FR)"
+        },
+        {
+          "id": "exemple-homebrew-fr",
+          "version": "1.0.0",
+          "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+          "name": "Exemple — couche homebrew (FR)"
+        }
+      ]
+    },
+    "identity": {
+      "level": 1,
+      "species": "Elfe (haut-elfe)",
+      "background": "Sage",
+      "classes": [{ "name": "Magicien", "level": 1 }]
+    },
+    "abilities": {
+      "str": { "score": 8, "mod": -1 },
+      "dex": { "score": 14, "mod": 2 },
+      "con": { "score": 14, "mod": 2 },
+      "int": { "score": 17, "mod": 3 },
+      "wis": { "score": 12, "mod": 1 },
+      "cha": { "score": 10, "mod": 0 }
+    },
+    "proficiency": 2,
+    "ac": 12,
+    "vitals": { "hpMax": 9, "hpCurrent": 9, "tempHp": 0, "conditions": [] },
+    "speeds": { "walk": 9 },
+    "senses": [
+      { "id": "vision-dans-le-noir", "name": "Vision dans le noir", "value": 18, "unit": "m" },
+      { "id": "perception-passive", "name": "Perception passive", "value": 13 }
+    ],
+    "languages": [
+      { "id": "commun", "name": "Commun" },
+      { "id": "elfique", "name": "Elfique" },
+      { "id": "draconique", "name": "Draconique", "note": "Langue d'étude, choisie au titre de l'arrière-plan Sage." }
+    ],
+    "saves": {
+      "str": { "bonus": -1, "proficient": false },
+      "dex": { "bonus": 2, "proficient": false },
+      "con": { "bonus": 2, "proficient": false },
+      "int": { "bonus": 5, "proficient": true },
+      "wis": { "bonus": 3, "proficient": true },
+      "cha": { "bonus": 0, "proficient": false }
+    },
+    "skills": [
+      { "id": "acrobaties", "name": "Acrobaties", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "arcanes", "name": "Arcanes", "ability": "int", "bonus": 5, "proficiency": "proficient" },
+      { "id": "athletisme", "name": "Athlétisme", "ability": "str", "bonus": -1, "proficiency": "none" },
+      { "id": "discretion", "name": "Discrétion", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "dressage", "name": "Dressage", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "escamotage", "name": "Escamotage", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "histoire", "name": "Histoire", "ability": "int", "bonus": 5, "proficiency": "proficient" },
+      { "id": "intimidation", "name": "Intimidation", "ability": "cha", "bonus": 0, "proficiency": "none" },
+      { "id": "intuition", "name": "Intuition", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "investigation", "name": "Investigation", "ability": "int", "bonus": 5, "proficiency": "proficient" },
+      { "id": "medecine", "name": "Médecine", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "nature", "name": "Nature", "ability": "int", "bonus": 3, "proficiency": "none" },
+      { "id": "perception", "name": "Perception", "ability": "wis", "bonus": 3, "proficiency": "proficient" },
+      { "id": "persuasion", "name": "Persuasion", "ability": "cha", "bonus": 0, "proficiency": "none" },
+      { "id": "religion", "name": "Religion", "ability": "int", "bonus": 5, "proficiency": "proficient" },
+      { "id": "representation", "name": "Représentation", "ability": "cha", "bonus": 0, "proficiency": "none" },
+      { "id": "survie", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "tromperie", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" }
+    ],
+    "actions": [
+      {
+        "id": "attaque-dague",
+        "name": "Dague",
+        "economy": "action",
+        "category": "attack",
+        "ability": "dex",
+        "bonus": 4,
+        "damage": [{ "dice": "1d4+2", "type": "perforants" }],
+        "range": "corps à corps, ou lancer 6/18 m",
+        "properties": ["Finesse", "Lancer", "Légère"]
+      },
+      {
+        "id": "attaque-baton",
+        "name": "Bâton de combat",
+        "economy": "action",
+        "category": "attack",
+        "ability": "str",
+        "bonus": 1,
+        "damage": [{ "dice": "1d6-1", "type": "contondants" }],
+        "range": "corps à corps",
+        "properties": ["Polyvalente (1d8)"]
+      },
+      {
+        "id": "esquive",
+        "name": "Esquive",
+        "economy": "action",
+        "category": "utility",
+        "text": "Jusqu'au début de votre prochain tour, les jets d'attaque contre vous subissent le Désavantage et vous avez l'Avantage aux jets de sauvegarde de Dextérité."
+      },
+      {
+        "id": "attaque-d-opportunite",
+        "name": "Attaque d'opportunité",
+        "economy": "reaction",
+        "category": "attack",
+        "ability": "dex",
+        "bonus": 4,
+        "damage": [{ "dice": "1d4+2", "type": "perforants" }],
+        "range": "corps à corps"
+      }
+    ],
+    "spellcasting": {
+      "ability": "int",
+      "dc": 13,
+      "attackBonus": 5,
+      "slots": { "1": { "max": 2, "current": 2 } },
+      "spells": [
+        {
+          "id": "rayon-de-givre",
+          "name": "Rayon de givre",
+          "level": 0,
+          "prepared": true,
+          "castType": "attack",
+          "damage": [{ "dice": "1d8", "type": "froid" }],
+          "range": "18 m",
+          "castingTime": "action",
+          "duration": "instantanée",
+          "concentration": false,
+          "ritual": false,
+          "text": "La cible touchée voit sa Vitesse réduite de 3 m jusqu'au début de votre prochain tour."
+        },
+        {
+          "id": "lumiere",
+          "name": "Lumière",
+          "level": 0,
+          "prepared": true,
+          "castType": "none",
+          "range": "contact",
+          "castingTime": "action",
+          "duration": "1 heure",
+          "concentration": false,
+          "ritual": false
+        },
+        {
+          "id": "prestidigitation",
+          "name": "Prestidigitation",
+          "level": 0,
+          "prepared": true,
+          "castType": "none",
+          "range": "3 m",
+          "castingTime": "action",
+          "duration": "jusqu'à 1 heure",
+          "concentration": false,
+          "ritual": false
+        },
+        {
+          "id": "chuchotement-des-pages",
+          "name": "Chuchotement des pages",
+          "level": 0,
+          "prepared": true,
+          "castType": "none",
+          "range": "contact",
+          "castingTime": "action",
+          "duration": "instantanée",
+          "concentration": false,
+          "ritual": false,
+          "text": "Sort mineur obtenu par le don Initié à la magie. Il vient de la couche homebrew d'exemple, pas du SRD."
+        },
+        {
+          "id": "projectile-magique",
+          "name": "Projectile magique",
+          "level": 1,
+          "prepared": true,
+          "castType": "none",
+          "damage": [{ "dice": "1d4+1", "type": "force" }],
+          "range": "36 m",
+          "castingTime": "action",
+          "duration": "instantanée",
+          "concentration": false,
+          "ritual": false,
+          "text": "Trois fléchettes, chacune touchant automatiquement une cible visible à portée."
+        },
+        {
+          "id": "bouclier",
+          "name": "Bouclier",
+          "level": 1,
+          "prepared": true,
+          "castType": "none",
+          "range": "personnelle",
+          "castingTime": "réaction",
+          "duration": "1 round",
+          "concentration": false,
+          "ritual": false,
+          "text": "+5 à la CA jusqu'au début de votre prochain tour, y compris contre l'attaque déclenchante."
+        },
+        {
+          "id": "detection-de-la-magie",
+          "name": "Détection de la magie",
+          "level": 1,
+          "prepared": true,
+          "castType": "none",
+          "range": "personnelle (Émanation de 9 m)",
+          "castingTime": "action ou rituel",
+          "duration": "concentration, jusqu'à 10 minutes",
+          "concentration": true,
+          "ritual": true
+        },
+        {
+          "id": "sommeil",
+          "name": "Sommeil",
+          "level": 1,
+          "prepared": true,
+          "castType": "save",
+          "saveAbility": "wis",
+          "saveEffect": "none",
+          "range": "18 m",
+          "castingTime": "action",
+          "duration": "concentration, jusqu'à 1 minute",
+          "concentration": true,
+          "ritual": false
+        }
+      ]
+    },
+    "resources": [
+      { "id": "des-de-vie-d6", "name": "Dés de vie (d6)", "max": 1, "current": 1, "recharge": "long" },
+      { "id": "restauration-magique", "name": "Restauration magique", "max": 1, "current": 1, "recharge": "long" }
+    ],
+    "traits": [
+      {
+        "id": "ascendance-feerique",
+        "name": "Ascendance féerique",
+        "source": "Elfe",
+        "text": "Avantage aux jets de sauvegarde visant à éviter l'état Charmé ou à y mettre un terme."
+      },
+      {
+        "id": "sens-aiguises",
+        "name": "Sens aiguisés",
+        "source": "Elfe",
+        "text": "Maîtrise de la compétence Perception (choix fait à la création)."
+      },
+      {
+        "id": "transe",
+        "name": "Transe",
+        "source": "Elfe",
+        "text": "Repos long en 4 heures de méditation éveillée ; aucune magie ne peut vous endormir."
+      },
+      {
+        "id": "lignage-elfique",
+        "name": "Lignage elfique — haut-elfe",
+        "source": "Elfe",
+        "text": "Sort mineur Prestidigitation, échangeable à chaque Repos long. Caractéristique d'incantation du lignage : Intelligence."
+      },
+      {
+        "id": "savoir-rituel",
+        "name": "Savoir rituel",
+        "source": "Magicien",
+        "text": "Incantation en rituel des sorts de votre livre portant l'étiquette Rituel, sans les avoir préparés."
+      },
+      {
+        "id": "restauration-magique",
+        "name": "Restauration magique",
+        "source": "Magicien",
+        "text": "À la fin d'un Repos court, récupération d'emplacements de sort dont la somme des niveaux ne dépasse pas la moitié de votre bonus de maîtrise (arrondie au supérieur).",
+        "resourceId": "restauration-magique"
+      },
+      {
+        "id": "initie-a-la-magie",
+        "name": "Initié à la magie (Magicien)",
+        "source": "Arrière-plan Sage",
+        "text": "Un sort mineur et un sort de niveau 1 de la liste du Magicien ; le sort de niveau 1 est lançable une fois par Repos long sans emplacement."
+      },
+      {
+        "id": "lecteur-de-marges",
+        "name": "Lecteur de marges",
+        "source": "Couche homebrew d'exemple",
+        "text": "Dix minutes passées sur un document révèlent qui l'a annoté et dans quel ordre, si les marges le disent."
+      }
+    ],
+    "gear": [
+      { "id": "dague", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
+      { "id": "baton-de-combat", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
+      { "id": "livre-de-sorts", "name": "Livre de sorts", "quantity": 1, "equipped": false, "weight": 1.5 },
+      { "id": "sacoche-a-composantes", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
+      { "id": "materiel-de-calligraphe", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
+      { "id": "sac-a-dos", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
+      { "id": "rations", "name": "Rations", "quantity": 5, "equipped": false, "weight": 1 },
+      { "id": "torche", "name": "Torche", "quantity": 4, "equipped": false, "weight": 0.5 },
+      {
+        "id": "lanterne-pliante",
+        "name": "Lanterne pliante",
+        "quantity": 1,
+        "equipped": false,
+        "weight": 0.8,
+        "note": "Objet venu de la couche homebrew d'exemple."
+      }
+    ],
+    "craft": [],
+    "notes": "Recopie les marges du carnet de Maître Orlanne avant de rendre le volume. Ne pas montrer la lanterne pliante à la garde franche."
+  },
+  "build": {
+    "layers": [
+      {
+        "id": "srd-5.2.1-fr",
+        "version": "5.2.1",
+        "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "name": "SRD 5.2.1 (FR)"
+      },
+      {
+        "id": "exemple-homebrew-fr",
+        "version": "1.0.0",
+        "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+        "name": "Exemple — couche homebrew (FR)"
+      }
+    ],
+    "choices": [
+      { "path": "species", "ref": { "kind": "species", "id": "srd:species:fr:elfe" }, "label": "Elfe" },
+      { "path": "species.lineage", "value": "haut-elfe", "label": "Haut-elfe" },
+      { "path": "species.keenSenses", "value": "perception", "label": "Sens aiguisés : Perception" },
+      { "path": "class", "ref": { "kind": "class", "id": "srd:class:fr:magicien" }, "label": "Magicien" },
+      { "path": "background", "ref": { "kind": "background", "id": "srd:background:fr:sage" }, "label": "Sage" },
+      { "path": "background.feat", "ref": { "kind": "feat", "id": "srd:feat:fr:initie-a-la-magie" }, "label": "Initié à la magie (Magicien)" },
+      { "path": "abilities.mode", "value": "standard", "label": "Tableau standard" },
+      { "path": "abilities.str", "value": 8 },
+      { "path": "abilities.dex", "value": 14 },
+      { "path": "abilities.con", "value": 13 },
+      { "path": "abilities.int", "value": 15 },
+      { "path": "abilities.wis", "value": 12 },
+      { "path": "abilities.cha", "value": 10 },
+      { "path": "background.boost.int", "value": 2 },
+      { "path": "background.boost.con", "value": 1 },
+      { "path": "class.skills[0]", "value": "investigation" },
+      { "path": "class.skills[1]", "value": "religion" },
+      { "path": "class.cantrips[0]", "ref": { "kind": "spell", "id": "srd:spell:fr:rayon-de-givre" } },
+      { "path": "class.cantrips[1]", "ref": { "kind": "spell", "id": "srd:spell:fr:lumiere" } },
+      { "path": "class.cantrips[2]", "ref": { "kind": "spell", "id": "srd:spell:fr:prestidigitation" } },
+      { "path": "class.prepared[0]", "ref": { "kind": "spell", "id": "srd:spell:fr:projectile-magique" } },
+      { "path": "class.prepared[1]", "ref": { "kind": "spell", "id": "srd:spell:fr:bouclier" } },
+      { "path": "class.prepared[2]", "ref": { "kind": "spell", "id": "srd:spell:fr:detection-de-la-magie" } },
+      { "path": "class.prepared[3]", "ref": { "kind": "spell", "id": "srd:spell:fr:sommeil" } },
+      { "path": "feat.magicInitiate.cantrip", "ref": { "kind": "spell", "id": "exemple:spell:fr:chuchotement-des-pages" } },
+      { "path": "feat.extra", "ref": { "kind": "feat", "id": "exemple:feat:fr:lecteur-de-marges" }, "label": "Lecteur de marges (couche homebrew)" },
+      { "path": "languages[0]", "value": "draconique" }
+    ],
+    "overrides": [
+      {
+        "path": "resolved.vitals.hpMax",
+        "value": 9,
+        "note": "Le MJ accorde un point de vie de plus : la veillée d'étude compte comme un Repos long ici.",
+        "by": "gm"
+      },
+      {
+        "path": "resolved.gear[torche].quantity",
+        "value": 4,
+        "note": "Deux torches achetées en route.",
+        "by": "player"
+      }
+    ]
+  }
+}

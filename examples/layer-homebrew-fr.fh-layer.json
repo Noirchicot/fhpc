@@ -1,0 +1,72 @@
+{
+  "schema": "fh-layer/1",
+  "id": "exemple-homebrew-fr",
+  "version": "1.0.0",
+  "name": "Exemple — couche homebrew (FR)",
+  "lang": "fr",
+  "description": "Couche d'exemple neutre, écrite pour le lot B. Elle démontre les quatre gestes d'une couche : ajouter, patcher, désactiver, lever un drapeau. Aucun contenu Fate's Hand, aucun contenu tiers hors SRD : les seules références au SRD sont des identifiants de records visés par un patch et un disable.",
+  "flags": ["exemple.veillee"],
+  "attribution": {
+    "license": "CC0-1.0",
+    "text": "Contenu d'exemple original, versé au domaine public.",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "records": {
+    "gear": {
+      "exemple:gear:fr:lanterne-pliante": {
+        "op": "add",
+        "name": "Lanterne pliante",
+        "slug": "lanterne-pliante",
+        "data": {
+          "cost": "8 po",
+          "weight": "0,8 kg",
+          "description": "Une lanterne de laiton dont les panneaux se replient. Éclaire une Émanation de 3 m et une pénombre de 3 m supplémentaires ; se plie en une action Bonus pour ne plus laisser filtrer qu'un rai de lumière.",
+          "tags": ["éclairage", "veillée"]
+        }
+      }
+    },
+    "spell": {
+      "exemple:spell:fr:chuchotement-des-pages": {
+        "op": "add",
+        "name": "Chuchotement des pages",
+        "slug": "chuchotement-des-pages",
+        "data": {
+          "cantrip": true,
+          "level": 0,
+          "school": "divination",
+          "casting_time": "action",
+          "range": "contact",
+          "components": "S",
+          "duration": "instantanée",
+          "classes": ["Magicien"],
+          "description": "Vous effleurez un texte écrit et en entendez la première phrase, prononcée dans la langue où elle a été tracée. Le sort ne traduit rien et ne révèle rien d'un texte chiffré."
+        }
+      },
+      "srd:spell:fr:bouclier-de-feu": {
+        "op": "disable",
+        "reason": "À cette table, la magie de feu protectrice appartient à un ordre disparu : le sort n'est pas disponible aux personnages joueurs."
+      }
+    },
+    "feat": {
+      "exemple:feat:fr:lecteur-de-marges": {
+        "op": "add",
+        "name": "Lecteur de marges",
+        "slug": "lecteur-de-marges",
+        "data": {
+          "category": "general",
+          "prerequisite": "maîtrise de la compétence Histoire",
+          "description": "Quand vous consacrez au moins dix minutes à examiner un document, vous apprenez qui l'a annoté et dans quel ordre, si l'information figure dans les marges."
+        }
+      }
+    },
+    "weapon": {
+      "srd:weapon:fr:dague": {
+        "op": "patch",
+        "note": "Prix local : les dagues sont taxées à l'entrée de la ville franche.",
+        "changes": {
+          "data.cost": "3 po"
+        }
+      }
+    }
+  }
+}
