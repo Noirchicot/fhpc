@@ -1,0 +1,12 @@
+{
+  "name": "fhpc",
+  "version": "0.1.0",
+  "type": "module",
+  "private": false,
+  "description": "Fate's Hand Player Companion v2 — constructeur de personnage indépendant sur SRD 5.2",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
