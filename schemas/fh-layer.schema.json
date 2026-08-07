@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fhpc:schema:fh-layer/1",
+  "title": "fh-layer/1 — couche de règles FHPC",
+  "$comment": "INVARIANTS DE LA COUCHE (lot B, kickoff §3.2). (1) Une couche est de la DONNÉE, jamais du code : aucun champ exécutable, et les clefs de pollution de prototype sont refusées à toute profondeur (voir $defs/safeKey). Charger le homebrew d'un inconnu doit être inoffensif. (2) Une couche fait quatre choses et rien d'autre : AJOUTER un record, PATCHER un record par id, DÉSACTIVER un record, LEVER un drapeau de capacité. Les mécaniques nouvelles sont des modules moteur activés par les drapeaux — jamais du contenu de couche (décision Q4). (3) La clef d'un record EST son id : pas de champ `id` interne, donc pas de double source de vérité qui puisse diverger. (4) Une couche ne contient JAMAIS son propre hash : `build.layers[].hash` est le SHA-256 des octets du fichier, calculé au chargement par le bloc `layers`.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "version", "name", "lang", "flags", "attribution", "records"],
+  "properties": {
+    "schema": { "const": "fh-layer/1" },
+    "id": {
+      "$comment": "Identifiant stable de la couche, repris tel quel dans `build.layers[].id` d'un personnage.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$"
+    },
+    "version": {
+      "$comment": "Version de la couche, reprise de la source quand il y en a une (ex. `5.2.1` pour le SRD).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "lang": {
+      "$comment": "Langue des records. Une couche ne mélange pas les langues : le SRD fr et le SRD en sont deux couches.",
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+    },
+    "units": {
+      "$comment": "Facultatif. Unités des grandeurs numériques des records. En cas de désaccord, ce sont les `units` du document fh-char/1 qui font foi pour l'affichage.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "distance": { "enum": ["m", "ft"] },
+        "weight": { "enum": ["kg", "lb"] }
+      }
+    },
+    "flags": {
+      "$comment": "Drapeaux de capacité levés par la couche (ex. `fh.destiny`). Un drapeau ACTIVE un module moteur ; il ne transporte aucune mécanique. Tableau obligatoire, vide autorisé.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/flag" }
+    },
+    "attribution": {
+      "$comment": "Obligatoire au niveau couche : toute couche déclare sa licence. Un record peut la préciser ou la remplacer (cas d'une couche qui mélange des origines). Le SRD 5.2.1 est CC-BY-4.0 : son texte d'attribution voyage ici et, si besoin, par record.",
+      "$ref": "#/$defs/attribution"
+    },
+    "description": { "type": "string", "maxLength": 2000 },
+    "records": {
+      "$comment": "Records par genre, clef = id de record. Les 12 genres fh-srd sont énumérés explicitement : un genre inconnu (`spel`) est un rejet bruyant, pas une clef acceptée en silence. Les genres FH à venir entrent par une révision explicite de fh-layer/1.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "armor": { "$ref": "#/$defs/genre" },
+        "background": { "$ref": "#/$defs/genre" },
+        "class": { "$ref": "#/$defs/genre" },
+        "feat": { "$ref": "#/$defs/genre" },
+        "gear": { "$ref": "#/$defs/genre" },
+        "glossary": { "$ref": "#/$defs/genre" },
+        "item": { "$ref": "#/$defs/genre" },
+        "monster": { "$ref": "#/$defs/genre" },
+        "species": { "$ref": "#/$defs/genre" },
+        "spell": { "$ref": "#/$defs/genre" },
+        "tool": { "$ref": "#/$defs/genre" },
+        "weapon": { "$ref": "#/$defs/genre" }
+      }
+    }
+  },
+
+  "$defs": {
+    "flag": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
+      "maxLength": 60
+    },
+
+    "recordId": {
+      "$comment": "Forme `<couche>:<genre>:<lang>:<slug>` (convention fh-srd). Un `patch` ou un `disable` porte l'id du record VISÉ, qui vient normalement d'une couche située plus bas dans la pile.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*(:[a-z0-9][a-z0-9._-]*){2,3}$"
+    },
+
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["license"],
+      "properties": {
+        "license": {
+          "$comment": "Identifiant de licence en clair (ex. `CC-BY-4.0`, `CC0-1.0`, `all-rights-reserved`). Chaîne libre volontairement : le dépôt n'arbitre pas la liste des licences du monde.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "text": { "type": "string", "maxLength": 2000 },
+        "url": { "type": "string", "maxLength": 500 }
+      }
+    },
+
+    "source": {
+      "$comment": "D'où vient le record dans sa source d'origine — reprend `source_id`, `source_locator` et `srd_version` des exports fh-srd.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "locator": { "type": "string", "maxLength": 120 },
+        "version": { "type": "string", "maxLength": 40 }
+      }
+    },
+
+    "safeKey": {
+      "$comment": "Clefs refusées à toute profondeur dans les données d'un record : vecteurs de pollution de prototype, et noms qui invitent un consommateur naïf à exécuter la valeur. C'est ainsi que « jamais d'exécutable » devient un invariant de schéma et pas un vœu en commentaire.",
+      "type": "string",
+      "not": {
+        "pattern": "^(__proto__|constructor|prototype|script|Script|javascript|eval|exec|function|Function)$"
+      }
+    },
+
+    "safeValue": {
+      "$comment": "Valeur JSON quelconque, purgée des clefs dangereuses à toute profondeur.",
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "null" },
+        { "type": "array", "items": { "$ref": "#/$defs/safeValue" } },
+        {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/safeKey" },
+          "additionalProperties": { "$ref": "#/$defs/safeValue" }
+        }
+      ]
+    },
+
+    "genre": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/recordId" },
+      "additionalProperties": { "$ref": "#/$defs/entry" }
+    },
+
+    "entry": {
+      "$comment": "Trois opérations, `add` par défaut lorsqu'`op` est absent. `oneOf` strict : une entrée qui mélange les formes est un rejet.",
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/$defs/opAdd" },
+        { "$ref": "#/$defs/opPatch" },
+        { "$ref": "#/$defs/opDisable" }
+      ]
+    },
+
+    "opAdd": {
+      "title": "add",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "data"],
+      "properties": {
+        "op": { "const": "add" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$" },
+        "data": {
+          "$comment": "Le contenu du record, de forme propre à son genre. Ce schéma en garantit la sûreté (données pures, clefs saines), pas la sémantique : c'est le module moteur du genre qui la valide.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/safeKey" },
+          "additionalProperties": { "$ref": "#/$defs/safeValue" }
+        },
+        "attribution": { "$ref": "#/$defs/attribution" },
+        "source": { "$ref": "#/$defs/source" },
+        "contentHash": {
+          "$comment": "SHA-256 du contenu du record chez sa source (fh-srd en produit un). Sert au contrôle d'intégrité, jamais à l'identité — l'identité, c'est la clef.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+
+    "opPatch": {
+      "title": "patch",
+      "$comment": "`changes` est une carte chemin → valeur, avec la MÊME grammaire de chemin que les overrides de fh-char/1, enracinée dans le record visé (`name`, `data.cost`, `data.properties[legere]`). Une carte de chemins plutôt qu'un objet à fusionner : aucune sémantique de fusion à deviner, aucune fusion profonde qui écrase en silence.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "changes"],
+      "properties": {
+        "op": { "const": "patch" },
+        "changes": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9]*(\\.[a-zA-Z][a-zA-Z0-9]*|\\[[a-z][a-z0-9:_-]*\\])*$",
+            "maxLength": 200
+          },
+          "additionalProperties": { "$ref": "#/$defs/safeValue" }
+        },
+        "note": { "type": "string", "maxLength": 500 },
+        "attribution": { "$ref": "#/$defs/attribution" }
+      }
+    },
+
+    "opDisable": {
+      "title": "disable",
+      "$comment": "Retire le record de la pile pour les documents qui montent cette couche. Le record d'origine n'est pas modifié : une couche retirée rend ce qu'elle avait désactivé.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op"],
+      "properties": {
+        "op": { "const": "disable" },
+        "reason": { "type": "string", "maxLength": 500 }
+      }
+    }
+  }
+}

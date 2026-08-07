@@ -1,0 +1,834 @@
+{
+  "$generated": "INVENTAIRE DE CHAMPS — chemins et types SEULEMENT, aucune valeur. Produit par tests/tools/derive-v1-inventory.mjs à partir de ~/tools/fh-phb/builds/*.fh.json (sept personnages FH v1 réels, lecture seule). Aucun contenu Fate's Hand n'est reproduit ici : un chemin comme destiny.arcana.name est une clef, pas du contenu.",
+  "source": "~/tools/fh-phb/builds/*.fh.json",
+  "buildCount": 7,
+  "note": "Les clefs des cartes libres (nativeSkillTiers, builderState.tiers) sont normalisées en <clef>.",
+  "fields": [
+    {
+      "path": "background",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "background.abilityBoostFeatIds",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "background.abilityBoostFeatIds[]",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "background.originFeats",
+      "types": [
+        "array"
+      ],
+      "files": 6
+    },
+    {
+      "path": "background.originFeats[].id",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "background.originFeats[].key",
+      "types": [
+        "string"
+      ],
+      "files": 6
+    },
+    {
+      "path": "background.originFeats[].label",
+      "types": [
+        "string"
+      ],
+      "files": 6
+    },
+    {
+      "path": "background.otherOriginFeat",
+      "types": [
+        "string"
+      ],
+      "files": 6
+    },
+    {
+      "path": "background.replaceWithBlank",
+      "types": [
+        "boolean"
+      ],
+      "files": 7
+    },
+    {
+      "path": "background.story",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.CHA",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.CON",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.DEX",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.INT",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.STR",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.assign.WIS",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.CHA",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.CON",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.DEX",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.INT",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.STR",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.manual.WIS",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.mode",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.kept",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.keptIdx",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.keptIdx[]",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.kept[]",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.rerolls",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.rolls",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.rolls[].dice",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.rolls[].dice[]",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ab.set.rolls[].total",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.arcana",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.bonus1",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.boosts",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.boosts.CHA",
+      "types": [
+        "number"
+      ],
+      "files": 3
+    },
+    {
+      "path": "builderState.boosts.CON",
+      "types": [
+        "number"
+      ],
+      "files": 3
+    },
+    {
+      "path": "builderState.boosts.DEX",
+      "types": [
+        "number"
+      ],
+      "files": 4
+    },
+    {
+      "path": "builderState.boosts.INT",
+      "types": [
+        "number"
+      ],
+      "files": 2
+    },
+    {
+      "path": "builderState.boosts.STR",
+      "types": [
+        "number"
+      ],
+      "files": 2
+    },
+    {
+      "path": "builderState.boosts.WIS",
+      "types": [
+        "number"
+      ],
+      "files": 3
+    },
+    {
+      "path": "builderState.campaign",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.cls",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.ddbId",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.featP",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.glory",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.langPts",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.lvl",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.name",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.origin",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.origin2",
+      "types": [
+        "string"
+      ],
+      "files": 6
+    },
+    {
+      "path": "builderState.originOther",
+      "types": [
+        "string"
+      ],
+      "files": 6
+    },
+    {
+      "path": "builderState.other",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.race",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.raceP",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.story",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.tiers",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.tiers.<clef>",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.tiers.<clef>.l",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.tiers.<clef>.t",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "builderState.v",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.CHA",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.CON",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.DEX",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.INT",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.STR",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScores.WIS",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.abilityScoresRaw",
+      "types": [
+        "object"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.CHA",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.CON",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.DEX",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.INT",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.STR",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.abilityScoresRaw.WIS",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "character.campaign",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.ddbId",
+      "types": [
+        "null"
+      ],
+      "files": 7
+    },
+    {
+      "path": "character.name",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.id",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.impact",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.meaning",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.name",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.power",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.arcana.vibration",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.breakdown",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.breakdown[].label",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.breakdown[].value",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.notesText",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destiny.score",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats.diceFeats",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats.diceFeats[].id",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats.diceFeats[].name",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats.originFeatId",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "destinyFeats.originFeatIds",
+      "types": [
+        "array"
+      ],
+      "files": 6
+    },
+    {
+      "path": "destinyFeats.originFeatIds[]",
+      "types": [
+        "number"
+      ],
+      "files": 6
+    },
+    {
+      "path": "destinyFeats.score",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta.builder",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta.class",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta.level",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta.savedAt",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "meta.species",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "nativeSkillTiers",
+      "types": [
+        "object"
+      ],
+      "files": 7
+    },
+    {
+      "path": "nativeSkillTiers.<clef>",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "skills",
+      "types": [
+        "array"
+      ],
+      "files": 7
+    },
+    {
+      "path": "skills[].name",
+      "types": [
+        "string"
+      ],
+      "files": 7
+    },
+    {
+      "path": "skills[].proficiencyLevel",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "skills[].statId",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    },
+    {
+      "path": "skills[].type",
+      "types": [
+        "number"
+      ],
+      "files": 7
+    }
+  ]
+}
