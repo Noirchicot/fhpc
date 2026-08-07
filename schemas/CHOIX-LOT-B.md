@@ -187,7 +187,6 @@ Le hash de la couche SRD dans l'exemple de personnage est
 `0000…0000` — **placeholder assumé et visible** : la couche SRD n'existe qu'au
 lot D. Le second hash, lui, est réel et vérifié par la suite.
 
-> **Constat hors périmètre, pour l'architecte** : le squelette J0 ne contient ni
-> `src/kernel/registry.mjs`, ni `src/kernel/bus.mjs`, ni `tests/kernel.test.mjs`
-> (kickoff §2.7 et §2.8), alors que les six commits de `main` annoncent le lot
-> terminé. Le lot B n'y a pas touché — le noyau n'est pas son périmètre.
+La branche est coupée de `00f2eb5` ; `main` a depuis reçu le noyau J0
+(`e6eb03b`, `e7caa48`) et son README. Fusion d'essai rejouée après coup :
+aucun conflit, répertoires disjoints, les deux suites vertes ensemble.
