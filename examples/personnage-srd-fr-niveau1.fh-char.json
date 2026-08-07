@@ -4,11 +4,12 @@
   "name": "Sylvane Aubelame",
   "lang": "fr",
   "units": { "distance": "m", "weight": "kg" },
+  "generator": { "name": "exemple-lot-b", "version": "1.0.0" },
   "created": "2026-08-07T09:00:00Z",
-  "modified": "2026-08-07T09:42:00Z",
+  "modified": "2026-08-08T11:15:00Z",
   "resolved": {
     "derivation": {
-      "at": "2026-08-07T09:42:00Z",
+      "at": "2026-08-08T11:15:00Z",
       "stack": [
         {
           "id": "srd-5.2.1-fr",
@@ -79,6 +80,16 @@
       { "id": "survie", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "tromperie", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" }
     ],
+    "tools": [
+      {
+        "id": "materiel-de-calligraphe",
+        "name": "Matériel de calligraphe",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "proficient",
+        "note": "Maîtrise accordée par l'arrière-plan Sage."
+      }
+    ],
     "actions": [
       {
         "id": "attaque-dague",
@@ -121,6 +132,8 @@
       }
     ],
     "spellcasting": {
+      "id": "magicien",
+      "name": "Magicien",
       "ability": "int",
       "dc": 13,
       "attackBonus": 5,
@@ -305,10 +318,30 @@
         "note": "Objet venu de la couche homebrew d'exemple."
       }
     ],
+    "currency": { "cp": 4, "sp": 12, "gp": 8, "pp": 0 },
     "craft": [],
-    "notes": "Recopie les marges du carnet de Maître Orlanne avant de rendre le volume. Ne pas montrer la lanterne pliante à la garde franche."
+    "notes": [
+      {
+        "id": "histoire",
+        "title": "Histoire",
+        "text": "Copiste au scriptorium de Maître Orlanne pendant six ans. Partie le jour où un volume rendu ne portait plus les mêmes annotations qu'à son arrivée — et où personne d'autre ne l'a remarqué."
+      },
+      {
+        "id": "notes-de-table",
+        "text": "Recopier les marges du carnet d'Orlanne avant de rendre le volume. Ne pas montrer la lanterne pliante à la garde franche."
+      }
+    ]
   },
   "build": {
+    "external": {
+      "ddb": {
+        "characterId": 147258369,
+        "entityIds": {
+          "background.feat": 4001,
+          "feat.extra": 4002
+        }
+      }
+    },
     "layers": [
       {
         "id": "srd-5.2.1-fr",

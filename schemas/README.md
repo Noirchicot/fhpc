@@ -8,7 +8,8 @@ Deux documents, un seul JSON chacun, JSON Schema 2020-12.
 | `fh-layer.schema.json` | `fh-layer/1` — une couche de règles : manifeste + records par genre, en `add` / `patch` / `disable` |
 
 Exemples et suite : `examples/`, `tests/schemas.test.mjs`, `tests/v1-coverage.test.mjs`.
-Les choix de forme et les trous restant à arbitrer : **[`CHOIX-LOT-B.md`](CHOIX-LOT-B.md)**.
+Les choix de forme, les arbitrages et les cinq trous encore ouverts :
+**[`CHOIX-LOT-B.md`](CHOIX-LOT-B.md)**.
 
 ## Les trois choses à savoir avant d'écrire du code contre ces schémas
 
@@ -31,6 +32,19 @@ règles↔décision reste affichable.
 sélection, plateau, historique appartiennent au bloc `play` et ne voyagent pas.
 Tous les objets sont fermés (`additionalProperties: false`) : une clef inconnue
 est un rejet bruyant, jamais un strip silencieux.
+
+## Quatre pièges de forme, déjà payés une fois
+
+- **`resolved.notes` est une LISTE**, pas une chaîne : un personnage porte
+  plusieurs textes distincts, et une chaîne unique en écrase un à l'import.
+- **Les outils ont leur collection**, `resolved.tools[]`, séparée de `skills[]` :
+  `tool` est un genre de couche, une compétence non.
+- **La bourse `resolved.currency` est complète ou rien** : `{cp, sp, gp, pp}`,
+  zéros compris — « pas de champ » ne doit jamais vouloir dire « pas d'argent ».
+  Pas d'électrum, retiré des règles 2024.
+- **Le lien externe vit dans `build.external`**, pas dans le bloc `connect-ddb` :
+  ce bloc est détachable, la donnée ne l'est pas, sinon un ré-import fait un
+  doublon.
 
 ## Ce que le schéma ne peut pas dire
 

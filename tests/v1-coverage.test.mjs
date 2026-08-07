@@ -8,10 +8,15 @@
    classé dans exactement une des trois cases :
 
      mapped — il a une place dans fh-char/1, nommée ici ;
+     bloc:  — il appartient à un AUTRE bloc que `doc`, par décision d'architecte ;
      gap    — il n'en a pas : c'est un TROU DE SCHÉMA, remonté à l'architecte
               dans schemas/CHOIX-LOT-B.md, jamais bouché par une invention ;
      na     — encodage de l'outil source (identifiant interne DDB, doublon de
               saisie) qui n'appelle aucun équivalent.
+
+   Revue d'architecte du 2026-08-08 : cinq trous bouchés (notes en liste, outils,
+   générateur, lien externe, monnaie), un tranché hors document (la campagne),
+   cinq REPORTÉS au M2 parce qu'ils dépendent de la couche Fate's Hand.
 
    Un chemin v1 nouveau ou non classé fait ÉCHOUER la suite. C'est le point :
    personne ne peut ajouter un champ v1 dans le périmètre sans que la question
@@ -29,18 +34,16 @@ const inventory = JSON.parse(
   readFileSync(join(root, "tests/fixtures/v1-build-field-inventory.json"), "utf8")
 );
 
-/* Les dix trous, tels qu'ils sont détaillés dans schemas/CHOIX-LOT-B.md §3. */
+/* Les cinq trous encore ouverts, détaillés dans schemas/CHOIX-LOT-B.md §3.
+   Tous REPORTÉS AU M2 : chacun dépend de la couche Fate's Hand, et le SRD est
+   la base d'aujourd'hui (loi §0.12). Les cinq autres ont été bouchés, la
+   campagne a été tranchée hors document. */
 const GAPS = {
-  "GAP-EXT": "Identifiants externes (D&D Beyond) : id de fiche et ids numériques d'entités.",
-  "GAP-CAMP": "Appartenance de campagne : le document ne sait pas à quelle table il joue.",
   "GAP-DERIVED": "Statistique dérivée définie par une couche (score de Destinée et son détail).",
   "GAP-KIND": "Genre hors des 12 (arcana) : `kind` est une énumération fermée.",
-  "GAP-NOTES": "`resolved.notes` est une chaîne unique ; v1 porte deux textes distincts.",
   "GAP-ROLLS": "Historique des jets de création de caractéristiques.",
   "GAP-BUDGET": "Budgets de points de construction définis par une couche.",
-  "GAP-LOCK": "Provenance/verrou d'une maîtrise (accordée par une source, non dépensable).",
-  "GAP-GEN": "Provenance de l'outil auteur (nom et version du constructeur).",
-  "GAP-TOOLS": "Maîtrises d'outils, distinctes des compétences."
+  "GAP-LOCK": "Provenance/verrou d'une maîtrise (accordée par une source, non dépensable)."
 };
 
 /* Classement chemin v1 → destination fh-char/1. Les préfixes se terminant par
@@ -48,8 +51,8 @@ const GAPS = {
 const EXACT = {
   character: "structure",
   "character.name": "name",
-  "character.ddbId": "GAP-EXT",
-  "character.campaign": "GAP-CAMP",
+  "character.ddbId": "build.external.ddb.characterId",
+  "character.campaign": "bloc:table — le personnage ne porte pas sa table",
   "character.abilityScores": "resolved.abilities",
   "character.abilityScoresRaw": "build.choices[abilities.*].value",
 
@@ -58,7 +61,7 @@ const EXACT = {
   "destiny.breakdown": "GAP-DERIVED",
   "destiny.breakdown[].label": "GAP-DERIVED",
   "destiny.breakdown[].value": "GAP-DERIVED",
-  "destiny.notesText": "GAP-NOTES",
+  "destiny.notesText": "resolved.notes[].text",
   "destiny.arcana": "build.choices[destiny.arcana]",
   "destiny.arcana.id": "GAP-KIND",
   "destiny.arcana.name": "resolved.traits[].name",
@@ -69,14 +72,14 @@ const EXACT = {
 
   background: "structure",
   "background.replaceWithBlank": "build.choices[background].ref",
-  "background.abilityBoostFeatIds": "GAP-EXT",
-  "background.abilityBoostFeatIds[]": "GAP-EXT",
+  "background.abilityBoostFeatIds": "build.external.ddb.entityIds",
+  "background.abilityBoostFeatIds[]": "build.external.ddb.entityIds",
   "background.originFeats": "build.choices[background.originFeat[n]]",
   "background.originFeats[].key": "build.choices[background.originFeat[n]].ref.id",
   "background.originFeats[].label": "build.choices[background.originFeat[n]].label",
-  "background.originFeats[].id": "GAP-EXT",
+  "background.originFeats[].id": "build.external.ddb.entityIds",
   "background.otherOriginFeat": "build.choices[background.originFeat.other].value",
-  "background.story": "GAP-NOTES",
+  "background.story": "resolved.notes[].text",
 
   skills: "resolved.skills",
   "skills[].name": "resolved.skills[].name",
@@ -90,32 +93,32 @@ const EXACT = {
   destinyFeats: "structure",
   "destinyFeats.diceFeats": "resolved.traits",
   "destinyFeats.diceFeats[].name": "resolved.traits[].name",
-  "destinyFeats.diceFeats[].id": "GAP-EXT",
+  "destinyFeats.diceFeats[].id": "build.external.ddb.entityIds",
   "destinyFeats.score": "GAP-DERIVED",
-  "destinyFeats.originFeatId": "GAP-EXT",
-  "destinyFeats.originFeatIds": "GAP-EXT",
-  "destinyFeats.originFeatIds[]": "GAP-EXT",
+  "destinyFeats.originFeatId": "build.external.ddb.entityIds",
+  "destinyFeats.originFeatIds": "build.external.ddb.entityIds",
+  "destinyFeats.originFeatIds[]": "build.external.ddb.entityIds",
 
   meta: "structure",
-  "meta.builder": "GAP-GEN",
+  "meta.builder": "generator.name",
   "meta.savedAt": "modified",
   "meta.species": "resolved.identity.species",
   "meta.class": "resolved.identity.classes[0].name",
   "meta.level": "resolved.identity.level",
 
   builderState: "structure",
-  "builderState.v": "GAP-GEN",
+  "builderState.v": "generator.version",
   "builderState.name": "na — doublon de character.name",
-  "builderState.campaign": "GAP-CAMP",
+  "builderState.campaign": "bloc:table — le personnage ne porte pas sa table",
   "builderState.cls": "build.choices[class].ref",
   "builderState.race": "build.choices[species].ref",
   "builderState.lvl": "resolved.identity.level",
-  "builderState.ddbId": "GAP-EXT",
+  "builderState.ddbId": "build.external.ddb.characterId",
   "builderState.arcana": "GAP-KIND",
   "builderState.origin": "build.choices[background.originFeat[0]].ref",
   "builderState.origin2": "build.choices[background.originFeat[1]].ref",
   "builderState.originOther": "build.choices[background.originFeat.other].value",
-  "builderState.story": "GAP-NOTES",
+  "builderState.story": "resolved.notes[].text",
   "builderState.raceP": "GAP-BUDGET",
   "builderState.featP": "GAP-BUDGET",
   "builderState.langPts": "GAP-BUDGET",
@@ -137,8 +140,8 @@ const EXACT = {
   "builderState.ab.set.keptIdx": "GAP-ROLLS",
   "builderState.ab.set.keptIdx[]": "GAP-ROLLS",
   "builderState.ab.set.rerolls": "GAP-ROLLS",
-  "builderState.tiers": "GAP-TOOLS",
-  "builderState.tiers.<clef>": "GAP-TOOLS",
+  "builderState.tiers": "resolved.skills + resolved.tools",
+  "builderState.tiers.<clef>": "resolved.tools[] (clefs « Tool - … ») ou resolved.skills[]",
   "builderState.tiers.<clef>.t": "resolved.skills[].proficiency",
   "builderState.tiers.<clef>.l": "GAP-LOCK"
 };
@@ -176,7 +179,7 @@ test("chaque champ v1 est classé : place dans fh-char/1, trou nommé, ou sans o
   );
 });
 
-test("tout trou invoqué par le classement figure dans la liste des dix", () => {
+test("tout trou invoqué par le classement figure dans la liste des cinq", () => {
   for (const field of inventory.fields) {
     const target = classify(field.path);
     if (target.startsWith("GAP-")) {
@@ -185,7 +188,7 @@ test("tout trou invoqué par le classement figure dans la liste des dix", () => 
   }
 });
 
-test("les dix trous sont tous encore vivants (aucun n'a été bouché en douce)", () => {
+test("les cinq trous restants sont tous encore vivants (aucun bouché en douce)", () => {
   const invoked = new Set(
     inventory.fields.map((field) => classify(field.path)).filter((t) => t.startsWith("GAP-"))
   );
@@ -196,13 +199,32 @@ test("les dix trous sont tous encore vivants (aucun n'a été bouché en douce)"
   );
 });
 
-test("la majorité des champs v1 a bien une place dans fh-char/1", () => {
+/* REWRITTEN 2026-08-08 — la revue d'architecte a bouché cinq trous : le seuil de
+   0,4 décrivait l'état d'avant et ne mordrait plus. Réécrit à la nouvelle
+   vérité, pas relâché. */
+test("les cinq trous bouchés le sont vraiment (aucun chemin v1 ne les invoque plus)", () => {
+  const closed = ["GAP-NOTES", "GAP-TOOLS", "GAP-GEN", "GAP-EXT", "GAP-CAMP"];
+  const invoked = inventory.fields
+    .map((field) => ({ path: field.path, target: classify(field.path) }))
+    .filter((entry) => closed.includes(entry.target));
+  assert.deepEqual(invoked, [], "un trou déclaré bouché est encore invoqué par un chemin v1");
+});
+
+test("les deux tiers des champs v1 ont une place dans fh-char/1", () => {
   const total = inventory.fields.length;
-  const mapped = inventory.fields.filter((field) => {
+  const placed = inventory.fields.filter((field) => {
     const target = classify(field.path);
-    return !target.startsWith("GAP-") && !target.startsWith("na ") && target !== "structure";
+    return (
+      !target.startsWith("GAP-") &&
+      !target.startsWith("na ") &&
+      !target.startsWith("bloc:") &&
+      target !== "structure"
+    );
   }).length;
-  assert.ok(mapped >= total * 0.4, `seulement ${mapped}/${total} champs placés — la forme ne couvre pas v1`);
+  assert.ok(
+    placed >= total * 0.65,
+    `seulement ${placed}/${total} champs placés — la forme a régressé sur la couverture v1`
+  );
 });
 
 /* Garde-fou de dérive : quand les sept fichiers sont là (Mac d'Eric), on

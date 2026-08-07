@@ -190,6 +190,121 @@ test("ACCEPTÉ — personnage sans incantation (spellcasting: null)", () => {
   assertValid(validateChar, doc, "un personnage non lanceur");
 });
 
+/* ---------- les cinq trous bouchés après revue d'architecte ---------- */
+
+test("REJET — notes restées une chaîne unique (l'ancienne forme ne passe plus)", () => {
+  const doc = clone(charExample);
+  doc.resolved.notes = "Histoire et notes de table écrasées l'une par l'autre.";
+  assertRejected(validateChar, doc, "des notes en chaîne unique");
+});
+
+test("REJET — note sans texte", () => {
+  const doc = clone(charExample);
+  delete doc.resolved.notes[0].text;
+  assertRejected(validateChar, doc, "une note vide de texte");
+});
+
+test("REJET — note au titre vide (un titre vide n'est pas un titre)", () => {
+  const doc = clone(charExample);
+  doc.resolved.notes[0].title = "";
+  assertRejected(validateChar, doc, "une note au titre vide");
+});
+
+test("ACCEPTÉ — note sans titre (le cas courant à la table)", () => {
+  const doc = clone(charExample);
+  assert.equal(Object.hasOwn(doc.resolved.notes[1], "title"), false);
+  assertValid(validateChar, doc, "une note sans titre");
+});
+
+test("REJET — collection d'outils absente", () => {
+  const doc = clone(charExample);
+  delete doc.resolved.tools;
+  assertRejected(validateChar, doc, "une fiche sans collection d'outils");
+});
+
+test("REJET — outil sans caractéristique associée", () => {
+  const doc = clone(charExample);
+  delete doc.resolved.tools[0].ability;
+  assertRejected(validateChar, doc, "un outil sans caractéristique");
+});
+
+test("REJET — outil rangé dans une compétence par un champ inventé", () => {
+  const doc = clone(charExample);
+  doc.resolved.skills.push({
+    id: "outil-calligraphe",
+    name: "Matériel de calligraphe",
+    ability: "dex",
+    bonus: 4,
+    proficiency: "proficient",
+    category: "tool"
+  });
+  assertRejected(validateChar, doc, "un outil déguisé en compétence");
+});
+
+test("REJET — générateur sans version", () => {
+  const doc = clone(charExample);
+  delete doc.generator.version;
+  assertRejected(validateChar, doc, "un générateur anonyme de version");
+});
+
+test("ACCEPTÉ — document sans générateur (écrit à la main)", () => {
+  const doc = clone(charExample);
+  delete doc.generator;
+  assertValid(validateChar, doc, "un document sans générateur");
+});
+
+test("REJET — lien externe vers un système non énuméré", () => {
+  const doc = clone(charExample);
+  doc.build.external.roll20 = { characterId: 12 };
+  assertRejected(validateChar, doc, "un lien vers un système inconnu");
+});
+
+test("REJET — lien D&D Beyond sans identifiant de fiche", () => {
+  const doc = clone(charExample);
+  delete doc.build.external.ddb.characterId;
+  assertRejected(validateChar, doc, "un lien externe sans fiche visée");
+});
+
+test("REJET — identifiant externe rattaché à un chemin de choix mal formé", () => {
+  const doc = clone(charExample);
+  doc.build.external.ddb.entityIds["Background..Feat"] = 4003;
+  assertRejected(validateChar, doc, "un id externe sur un chemin mal formé");
+});
+
+test("ACCEPTÉ — document sans lien externe", () => {
+  const doc = clone(charExample);
+  delete doc.build.external;
+  assertValid(validateChar, doc, "un document jamais importé");
+});
+
+test("REJET — bourse incomplète (une dénomination manquante)", () => {
+  const doc = clone(charExample);
+  delete doc.resolved.currency.pp;
+  assertRejected(validateChar, doc, "une bourse à trois dénominations");
+});
+
+test("REJET — bourse négative", () => {
+  const doc = clone(charExample);
+  doc.resolved.currency.gp = -1;
+  assertRejected(validateChar, doc, "une bourse négative");
+});
+
+test("REJET — dénomination hors SRD 2024 (l'électrum a disparu)", () => {
+  const doc = clone(charExample);
+  doc.resolved.currency.ep = 3;
+  assertRejected(validateChar, doc, "des pièces d'électrum");
+});
+
+test("la charnière du multiclassage lanceur existe et reste facultative", () => {
+  // La porte de sortie : `spellcasting` pourra devenir un tableau sans invalider
+  // un seul document, et `id`/`name` nomment déjà la source d'incantation.
+  assert.equal(charExample.resolved.spellcasting.id, "magicien");
+  const doc = clone(charExample);
+  delete doc.resolved.spellcasting.id;
+  delete doc.resolved.spellcasting.name;
+  assertValid(validateChar, doc, "un bloc d'incantation sans identité de source");
+});
+
 /* ---------- fh-layer/1 : un cas de rejet par invariant ---------- */
 
 test("REJET — genre inconnu dans records (faute de frappe acceptée en silence)", () => {

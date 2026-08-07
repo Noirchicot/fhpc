@@ -28,6 +28,16 @@
         "weight": { "enum": ["kg", "lb"] }
       }
     },
+    "generator": {
+      "$comment": "Quel outil a écrit ce document, et dans quelle version. Facultatif : un document écrit à la main n'a pas de générateur, et inventer un nom serait pire que l'absence. Quand il est là, les deux champs sont exigés — « fh-builder » sans version ne dit rien d'utile le jour où on cherche quelle version a produit une fiche fausse.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 40 }
+      }
+    },
     "created": { "$ref": "#/$defs/timestamp" },
     "modified": { "$ref": "#/$defs/timestamp" },
     "resolved": { "$ref": "#/$defs/resolved" },
@@ -150,8 +160,8 @@
       "additionalProperties": false,
       "required": [
         "derivation", "identity", "abilities", "proficiency", "ac", "vitals",
-        "speeds", "senses", "languages", "saves", "skills", "actions",
-        "spellcasting", "resources", "traits", "gear", "craft", "notes"
+        "speeds", "senses", "languages", "saves", "skills", "tools", "actions",
+        "spellcasting", "resources", "traits", "gear", "currency", "craft", "notes"
       ],
       "properties": {
         "derivation": {
@@ -310,6 +320,24 @@
           }
         },
 
+        "tools": {
+          "$comment": "Maîtrises d'outils — collection SÉPARÉE des compétences, et non un drapeau `category` sur une entrée de compétence. Deux raisons : `tool` est l'un des 12 genres de couche (un outil est un record, une compétence n'en est pas un), et une collection commune ferait apparaître « Matériel de calligraphe » dans la liste des compétences au premier oubli de filtre. Même forme que `skills` : ce qui se joue pareil s'écrit pareil.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name", "ability", "bonus", "proficiency"],
+            "properties": {
+              "id": { "$ref": "#/$defs/slug" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "ability": { "$ref": "#/$defs/ability" },
+              "bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
+              "proficiency": { "enum": ["none", "half", "proficient", "expertise"] },
+              "note": { "type": "string", "maxLength": 200 }
+            }
+          }
+        },
+
         "actions": {
           "$comment": "Attaques ET actions dans une seule collection : une attaque est une action de catégorie `attack`. Vocabulaire porté du panneau v1 fh-panel-actions.js (economy action/bonus/reaction, catégories Attack/Check/Damage/Utility), mis en minuscules — clefs machine.",
           "type": "array",
@@ -341,7 +369,7 @@
         },
 
         "spellcasting": {
-          "$comment": "`null` pour un personnage sans incantation. Un seul bloc d'incantation, conformément à l'inventaire imposé (dc, attackBonus, slots, spells) : le multiclassage lanceur (DD par classe, emplacements partagés) N'EST PAS couvert par fh-char/1 et attend un arbitrage d'architecte.",
+          "$comment": "`null` pour un personnage sans incantation. Un seul bloc, conformément à l'inventaire imposé (dc, attackBonus, slots, spells) : le multiclassage lanceur n'est pas couvert — reconnu, volontairement non bouché. PORTE DE SORTIE, écrite ici pour qu'elle ne se referme pas : une révision pourra accepter `oneOf [null, objet, tableau d'objets]`, ce qui n'invalide AUCUN document déjà écrit. Les champs facultatifs `id` et `name` sont la charnière : ils nomment la source d'incantation dès aujourd'hui, pour que la migration soit un déplacement et non un devinement. Reste alors une seule règle à écrire le jour venu : les emplacements sont partagés en 5e, donc les `slots` de la PREMIÈRE source font foi et remontent d'un cran.",
           "oneOf": [
             { "type": "null" },
             {
@@ -349,6 +377,8 @@
               "additionalProperties": false,
               "required": ["ability", "dc", "attackBonus", "slots", "spells"],
               "properties": {
+                "id": { "$ref": "#/$defs/slug" },
+                "name": { "type": "string", "minLength": 1, "maxLength": 80 },
                 "ability": { "$ref": "#/$defs/ability" },
                 "dc": { "type": "integer", "minimum": 0, "maximum": 40 },
                 "attackBonus": { "type": "integer", "minimum": -20, "maximum": 30 },
@@ -449,6 +479,19 @@
           }
         },
 
+        "currency": {
+          "$comment": "La bourse. Quatre dénominations SRD 5.2.1, toutes obligatoires (une bourse vide s'écrit en zéros, elle ne s'omet pas). L'ÉLECTRUM est volontairement absent : il ne fait plus partie des règles 2024. ATTESTATION : les exports fh-srd n'emploient que `pc`, `pa` et `po` dans les coûts ; `pp` (platine) est le seul champ non attesté par les fichiers relus — à confirmer par le lot 4, qui lit le SRD entier.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cp", "sp", "gp", "pp"],
+          "properties": {
+            "cp": { "type": "integer", "minimum": 0 },
+            "sp": { "type": "integer", "minimum": 0 },
+            "gp": { "type": "integer", "minimum": 0 },
+            "pp": { "type": "integer", "minimum": 0 }
+          }
+        },
+
         "craft": {
           "$comment": "Panneau CRAFT : vide tant qu'aucune couche ne lève de drapeau d'artisanat. Chaque entrée nomme le drapeau (`flag`) qui l'active ; `data` est une charge utile OPAQUE, validée par le module moteur propriétaire de ce drapeau, jamais par ce schéma (décision Q4 : les mécaniques nouvelles sont des modules moteur, pas du contenu de couche).",
           "type": "array",
@@ -467,9 +510,18 @@
         },
 
         "notes": {
-          "$comment": "Panneau NOTES : texte libre du joueur. Une seule chaîne — pas de notes multiples en v1.",
-          "type": "string",
-          "maxLength": 20000
+          "$comment": "Panneau NOTES : une LISTE, pas une chaîne. Un personnage porte plusieurs textes distincts (histoire, notes de table, notes d'aptitude) ; une chaîne unique en écraserait un à l'import, silencieusement, alors qu'ils ont été saisis à la main. `title` est facultatif : la note sans titre est le cas courant à la table, et un champ obligatoire qu'on remplit de vide n'est pas une donnée.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text"],
+            "properties": {
+              "id": { "$ref": "#/$defs/slug" },
+              "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "text": { "type": "string", "maxLength": 20000 }
+            }
+          }
         }
       }
     },
@@ -487,6 +539,27 @@
       "additionalProperties": false,
       "required": ["layers", "choices", "overrides"],
       "properties": {
+        "external": {
+          "$comment": "Le lien vers un système externe, quand il y en a un. Il vit dans `build` et PAS dans le bloc `connect-ddb` : ce bloc est détachable pour raison juridique, la donnée ne l'est pas — un personnage importé garde son lien même quand le bloc est absent, sinon un ré-import crée un doublon. Système énuméré en dur (§1.16) : un `roll20` inconnu est un rejet, pas une clef avalée.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ddb": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["characterId"],
+              "properties": {
+                "characterId": { "type": "integer", "minimum": 1 },
+                "entityIds": {
+                  "$comment": "Carte chemin de choix → identifiant externe. Rattacher l'id au CHOIX qu'il représente (et non à une liste plate) empêche les orphelins : un choix retiré emporte son id, et rien ne reste à pointer un don que le personnage n'a plus.",
+                  "type": "object",
+                  "propertyNames": { "$ref": "#/$defs/choicePath" },
+                  "additionalProperties": { "type": "integer", "minimum": 1 }
+                }
+              }
+            }
+          }
+        },
         "layers": {
           "$comment": "L'ORDRE EST LA PILE : première entrée = base (SRD), dernière = la plus forte avant overrides.",
           "type": "array",
