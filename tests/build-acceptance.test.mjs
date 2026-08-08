@@ -10,22 +10,31 @@
    `dispatch("build.rebuild")`. Aucune fonction interne n'est appelée, aucun
    état n'est lu ailleurs que dans ce que les verbes rendent.
 
-   SUR LA VRAIE MATIÈRE : les deux vraies couches du dépôt (SRD FR, 1 309
-   records, et la couche d'exemple du lot 2), plus UNE couche d'échafaudage —
-   la fixture mécanique, qui tient la place du lot `8-srd-mecanique` en cours
-   d'écriture dans l'autre dépôt (contrat §7). Le geste de l'architecte à la
-   fusion : régénérer les couches, retirer la fixture, rejouer cette suite.
+   SUR LA VRAIE MATIÈRE, ET RIEN QUE SUR ELLE : la couche SRD FR régénérée
+   après la fusion du lot `8-srd-mecanique`, et la couche d'exemple du lot 2.
+   La confrontation annoncée par le contrat §7 a eu lieu le 2026-08-08 :
+   l'échafaudage qui tenait la place du lot 8 est démonté, et cette suite passe
+   sans lui.
 
-   ── ÉTAGE ATTEINT, DIT PLATEMENT ────────────────────────────────────────
+   ── ÉTAGE ATTEINT, DIT PLATEMENT — RÉVISÉ APRÈS LA FUSION DU LOT 8 ──────
    ÉTAGE 1 (dû) : `derivation`, `identity`, `abilities` (avec les boosts
    d'arrière-plan), `proficiency`, `saves`, `skills` (les 18, avec bonus et
    maîtrise), `tools`, `spellcasting` (DD, bonus d'attaque, emplacements,
    sorts), `vitals.hpMax`, `speeds`, `ac` sans armure, `gear`/`currency` depuis
    les choix, `craft` — **atteints, et identiques au fichier**.
    `resources` : **NON atteint**, et le test dit pourquoi (test 4).
-   ÉTAGE 2 : `traits` d'espèce **atteint** ; `senses` **NON atteint**, parce
-   que la forme du contrat §5 ne porte pas le `name` que le schéma exige
-   (test 4). */
+
+   ÉTAGE 2 — LES DEUX MOITIÉS ONT ÉCHANGÉ LEUR PLACE, et c'est la mesure qui a
+   bougé, pas le code :
+   · `senses` est passé de NON atteint à **ATTEINT**. La première passe rendait
+     une liste vide à raison — la forme du contrat §5 n'avait pas de `name`.
+     La sous-question a été retenue, `senses[].name` est entré au contrat, et
+     le lot 8 le livre. Le moteur recopie ce nom, il ne le fabrique pas.
+   · `traits` est passé d'ATTEINT à **non atteint, et déclaré**. Le lot 8 les a
+     refusés avec sa mesure (mise en page à deux colonnes aplatie, une espèce
+     qui déborde sur la suivante). Ce n'est pas une régression de ce lot : le
+     contrat §5 les classait en GROUPE B, refusable platement, et c'est ce qui
+     est arrivé. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -33,8 +42,7 @@ import assert from "node:assert/strict";
 import { dispatch, assertBlocks } from "../src/kernel/registry.mjs";
 import { registerLayers } from "../src/layers/index.mjs";
 import { registerBuild } from "../src/build/index.mjs";
-import { fileBytes, bytesOf, readJson, SRD_FR, HOMEBREW, EXAMPLE_CHAR } from "./build-harness.mjs";
-import { fixtureLayer } from "./build-fixture-mecanique.mjs";
+import { fileBytes, readJson, SRD_FR, HOMEBREW, EXAMPLE_CHAR } from "./build-harness.mjs";
 import { diffResolved } from "../src/build/diff.mjs";
 
 /** ⚠️ LA LEÇON DE LA REVUE DU 2026-08-08, OUTILLÉE.
@@ -62,10 +70,15 @@ registerLayers();
 let tick = 0;
 registerBuild({ now: () => `2026-08-08T13:00:${String(tick++).padStart(2, "0")}Z` });
 
+/* REWRITTEN 2026-08-08 (fusion du lot 8) — LA FIXTURE EST PARTIE.
+   `tests/build-fixture-mecanique.mjs` est SUPPRIMÉ : c'était un échafaudage
+   qui tenait la place du lot 8 pendant qu'il s'écrivait dans l'autre dépôt, et
+   un échafaudage qu'on laisse debout est du code mort (loi §0.6). Cette suite
+   tourne désormais sur les DEUX VRAIES COUCHES et la couche d'exemple, point.
+   C'est la confrontation à la vraie matière, et elle passe. */
 for (const file of [SRD_FR, HOMEBREW]) {
   dispatch("layers.register", { bytes: fileBytes(file), origin: file });
 }
-dispatch("layers.register", { bytes: bytesOf(fixtureLayer()), origin: "tests/build-fixture-mecanique.mjs" });
 
 const PILE = dispatch("layers.stack").map((layer) => ({
   id: layer.id, version: layer.version, hash: layer.hash, name: layer.name
@@ -186,59 +199,71 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
      de plus ou de moins fait rougir. Chaque famille est expliquée. */
   const ecarts = divergences(attendu.spells, got.spells, "spells");
   assert.deepEqual(ecarts, [
+    "spells[bouclier].castType",
     "spells[bouclier].castingTime",
-    "spells[bouclier].concentration",
     "spells[bouclier].text",
+    "spells[chuchotement-des-pages].castType",
     "spells[chuchotement-des-pages].concentration",
     "spells[chuchotement-des-pages].ritual",
     "spells[chuchotement-des-pages].text",
-    "spells[detection-de-la-magie].concentration",
+    "spells[detection-de-la-magie].castType",
     "spells[detection-de-la-magie].duration",
     "spells[detection-de-la-magie].range",
     "spells[detection-de-la-magie].text",
-    "spells[lumiere].concentration",
+    "spells[lumiere].castType",
     "spells[lumiere].text",
-    "spells[prestidigitation].concentration",
+    "spells[prestidigitation].castType",
     "spells[prestidigitation].duration",
     "spells[prestidigitation].text",
-    "spells[projectile-magique].concentration",
+    "spells[projectile-magique].castType",
     "spells[projectile-magique].damage",
     "spells[projectile-magique].text",
-    "spells[rayon-de-givre].concentration",
+    "spells[rayon-de-givre].castType",
     "spells[rayon-de-givre].damage",
     "spells[rayon-de-givre].text",
-    "spells[sommeil].concentration",
+    "spells[sommeil].castType",
     "spells[sommeil].duration",
     "spells[sommeil].saveAbility",
     "spells[sommeil].saveEffect",
     "spells[sommeil].text"
   ]);
 
-  /* Vingt-six écarts, et QUATRE FAMILLES SEULEMENT — la liste est exacte, mais
-     une liste exacte qu'on ne sait pas expliquer n'est qu'un cliché. On les
-     compte par famille : si un écart d'une cinquième nature apparaît, ce
-     compte-ci tombe avant que quiconque le découvre à la table.
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — LA CONCENTRATION A QUITTÉ CETTE
+     LISTE, et `castType` y est entré. Deux mouvements en sens contraire, tous
+     deux mesurés :
+     · `concentration` est DÉRIVÉE (339 sorts sur 339 chez le lot 8). Ses huit
+       écarts ont disparu ; il n'en reste UN, celui du sort de la couche
+       d'exemple, qui n'a pas été régénéré et ne porte pas le champ.
+     · `castType` a été REFUSÉ par le lot 8, mesure à l'appui, et l'architecte
+       lui a donné raison CONTRE SON PROPRE SCHÉMA : le champ n'est plus
+       obligatoire. Les huit sorts sont donc émis SANS lui, et le mode de
+       résolution se déclare inconnu — une fiche de magicien sans aucun sort
+       serait plus fausse qu'une fiche dont le mode est dit inconnu.
 
-     1. `concentration` (8) — le fichier la porte, la couche pas encore. Champ
-        COMMANDÉ AU LOT 8 le 2026-08-08 ; d'ici là déclaré non dérivé, et la
-        dérivation ne le déduit PAS de `duration`, qui est une phrase.
-     2. `text` (8) — porté depuis `description`, donc PRÉSENT, mais ce n'est
-        pas le même texte : le fichier porte des résumés éditoriaux courts, la
-        couche porte la règle entière. Le moteur recopie le record, il ne
-        résume pas.
-     3. `damage`, `saveAbility`, `saveEffect`, `ritual` (5) — non structurés
-        dans la source. `damage` est déclaré à chaque pli.
+     Vingt-sept écarts, QUATRE FAMILLES, et le compte par famille est la vraie
+     garantie : une liste exacte qu'on ne sait pas expliquer n'est qu'un
+     cliché. Si un écart d'une cinquième nature apparaît, ce compte-ci tombe.
+     1. `castType` (8) — refusé par le lot 8, déclaré à chaque pli.
+     2. `text` (8) — porté depuis `description`, donc PRÉSENT, mais ce n'est pas
+        le même texte : le fichier porte des résumés éditoriaux courts, la
+        couche porte la règle entière. Le moteur recopie, il ne résume pas.
+     3. `damage`, `saveAbility`, `saveEffect`, `ritual`, `concentration` (6) —
+        non structurés, ou absents de la seule couche non régénérée.
      4. `castingTime`, `duration`, `range` (5) — les phrases du fichier ont été
-        saisies à la main ; la couche transporte la source au caractère près,
-        apostrophe typographique comprise. C'est le record qui fait foi. */
+        saisies à la main ; la couche transporte la source au caractère près. */
   const famille = (suffixe) => ecarts.filter((path) => path.endsWith("." + suffixe)).length;
   assert.deepEqual(
-    { concentration: famille("concentration"), text: famille("text"),
-      nonStructure: famille("damage") + famille("saveAbility") + famille("saveEffect") + famille("ritual"),
+    { castType: famille("castType"), text: famille("text"),
+      nonStructure: famille("damage") + famille("saveAbility") + famille("saveEffect")
+        + famille("ritual") + famille("concentration"),
       phrases: famille("castingTime") + famille("duration") + famille("range") },
-    { concentration: 8, text: 8, nonStructure: 5, phrases: 5 }
+    { castType: 8, text: 8, nonStructure: 6, phrases: 5 }
   );
-  assert.equal(8 + 8 + 5 + 5, ecarts.length, "quatre familles, et RIEN d'autre");
+  assert.equal(8 + 8 + 6 + 5, ecarts.length, "quatre familles, et RIEN d'autre");
+
+  /* Le pendant positif de la concentration : elle est LÀ, et elle est juste. */
+  assert.equal(got.spells.find((spell) => spell.id === "sommeil").concentration, true);
+  assert.equal(got.spells.find((spell) => spell.id === "bouclier").concentration, false);
 
   /* Et le pendant positif : le texte est bien LÀ, et c'est celui du record. */
   for (const spell of got.spells) {
@@ -247,11 +272,35 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
   }
 });
 
-test("ACCEPTATION — les traits d'espèce (étage 2), et le sac depuis les choix", () => {
-  const got = reconstruire().resolved;
+test("ACCEPTATION — les SENS (étage 2), les traits REFUSÉS, et le sac depuis les choix", () => {
+  const out = reconstruire();
+  const got = out.resolved;
 
-  const espece = FICHIER.resolved.traits.filter((trait) => trait.source === "Elfe");
-  assert.deepEqual(got.traits, espece, "les quatre traits de l'Elfe, tels que le contrat §5 les porte");
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — L'ÉTAGE 2 A ÉCHANGÉ SES DEUX
+     MOITIÉS. L'ancienne assertion disait « les quatre traits de l'Elfe, tels
+     que le contrat §5 les porte » ; elle est devenue fausse, et c'est la
+     mesure qui a changé de camp, pas le code. */
+  assert.deepEqual(got.senses, [
+    { id: "darkvision", name: "Vision dans le noir", value: 18, unit: "m" }
+  ], "les sens SONT dérivés : le lot 8 livre `{id, name, range_m}`, et le nom vient du RECORD");
+
+  assert.deepEqual(got.traits, [], "les traits d'espèce sont REFUSÉS par le lot 8, pas devinés ici");
+  assert.match(
+    out.underived.find((entry) => entry.field === "traits (espèce)").reason,
+    /deux colonnes/,
+    "et le refus porte sa mesure ET son préalable — réparer l'extraction dans fh-srd"
+  );
+  assert.equal(FICHIER.resolved.traits.length, 8,
+    "le fichier en porte huit : quatre d'espèce, deux de classe, un de don, un de la couche homebrew — " +
+    "aucun n'a de champ mécanique dans le contrat aujourd'hui");
+
+  /* L'unique divergence de sens avec le fichier : l'IDENTIFIANT. Le fichier
+     dit `vision-dans-le-noir` (un slug français), le record dit `darkvision`
+     (un identifiant, le même dans les deux langues). C'est le record qui fait
+     foi — un id est une ancre d'override, pas un mot. */
+  assert.deepEqual(divergences(FICHIER.resolved.senses, got.senses, "senses"),
+    ["senses[darkvision]", "senses[perception-passive]", "senses[vision-dans-le-noir]"]);
+  assert.equal(got.senses.length, 1, "et la perception passive n'y est pas : son NOM ne vit dans aucun record");
 
   /* ⚠️ LE SAC, OBJET PAR OBJET. La chaîne « id×quantité » masquait le poids et
      les notes d'objet : `weight` est facultatif au schéma, donc l'omettre est
@@ -304,6 +353,18 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
 
   /* La liste EXACTE. Pas un « contient » : si la dérivation se met un jour à
      nourrir `senses`, ce test doit rougir pour qu'on retire la ligne. */
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — quatre mouvements dans cette
+     liste, tous mesurés, et ils vont dans LES DEUX SENS. C'est pour ça qu'on
+     l'asserte à l'identique plutôt qu'avec un « contient » : un champ qui
+     devient dérivable doit faire rougir ce test pour qu'on retire sa ligne,
+     exactement comme un champ qui cesse de l'être doit l'ajouter.
+     · `senses` SORT (dérivé : le lot 8 livre `{id, name, range_m}`) et laisse
+       derrière lui la seule perception passive, dont le nom n'est nulle part ;
+     · `traits (espèce)` ENTRE (refusé par le lot 8, mesure à l'appui) ;
+     · `spellcasting.spells[].castType` ENTRE (refusé aussi, et le schéma a
+       cédé : le champ n'est plus obligatoire) ;
+     · `spellcasting.spells[].concentration` RESTE, mais pour un seul sort —
+       celui de la couche d'exemple, qui n'a pas été régénérée. */
   assert.deepEqual(champs, [
     "actions",
     "craft",
@@ -312,25 +373,27 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "languages",
     "notes",
     "resources",
-    "senses",
+    "senses[perception-passive]",
+    "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
-    "traits (classe, don, arrière-plan)"
+    "traits (classe, don, arrière-plan)",
+    "traits (espèce)"
   ]);
-  /* REWRITTEN 2026-08-08 (revue d'architecte, défaut A) — l'entrée groupée
-     « damage / .text / .concentration » était FAUSSE sur un tiers : `text`
-     était disponible dans la couche et laissé tomber sans raison de données.
-     Il est porté, donc il sort de la liste ; `damage` et `concentration` sont
-     séparés parce qu'ils n'ont pas la même raison ni le même avenir. */
   assert.match(
-    out.underived.find((entry) => entry.field === "spellcasting.spells[].concentration").reason,
-    /lot 8/,
-    "la concentration a une DATE et un destinataire, ce n'est pas un refus définitif"
+    out.underived.find((entry) => entry.field === "spellcasting.spells[].castType").reason,
+    /refusé par le lot 8/,
+    "un refus argumenté et daté, pas un trou anonyme"
   );
   assert.match(
     out.underived.find((entry) => entry.field === "spellcasting.spells[].damage").reason,
     /ne sont structurés nulle part/,
     "les dégâts, eux, sont réellement hors d'atteinte"
+  );
+  assert.match(
+    out.underived.find((entry) => entry.field === "spellcasting.spells[].concentration").reason,
+    /chuchotement-des-pages/,
+    "et la concentration ne manque plus QUE sur la couche non régénérée — la raison NOMME les sorts"
   );
   for (const entry of out.underived) {
     assert.ok(entry.reason.length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
@@ -343,9 +406,11 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     if (!Array.isArray(valeur) || valeur.length > 0) continue;
     assert.ok(declares.has(nom), `resolved.${nom} est vide et rien ne le déclare`);
   }
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — `senses` n'est plus vide, `traits`
+     l'est devenu. Les deux moitiés de l'étage 2 ont échangé leur place. */
   assert.deepEqual(
     Object.entries(out.resolved).filter(([, v]) => Array.isArray(v) && v.length === 0).map(([k]) => k).sort(),
-    ["actions", "craft", "languages", "notes", "resources", "senses"]
+    ["actions", "craft", "languages", "notes", "resources", "traits"]
   );
 });
 

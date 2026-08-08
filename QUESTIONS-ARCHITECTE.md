@@ -5,6 +5,11 @@
 > chaque question garde sa mesure, et gagne la réponse. Deux défauts trouvés à
 > la revue (le texte des sorts laissé tomber, les assertions qui comparaient
 > des projections) sont corrigés et consignés en fin de fichier.
+>
+> 🔬 **LA CONFRONTATION À LA VRAIE MATIÈRE A EU LIEU** — lot 8 fusionné,
+> couches régénérées, échafaudage démonté. Le récit est en fin de fichier ; le
+> résumé tient en une ligne : **le test qui EST le M2 passe sans fixture**, et
+> trois champs ont changé de camp dans les deux sens.
 
 **Écrites le 2026-08-08.** Loi §0.10 : le lot n'invente ni valeur, ni nom, ni
 règle. Amendement de la session : Eric est absent, un arrêt franc gèlerait la
@@ -45,10 +50,10 @@ valide qui dit ce qu'il ne sait pas vaut mieux qu'un document invalide.
 ## 2. ✅ TRANCHÉE — `ability_key` francisé dans la couche FR
 
 Mesurée par le lot, puis arbitrée par l'architecte le **2026-08-08** :
-`ability_key` devient **canonique dans les deux langues**. La fixture écrit
-`str`/`wis`, le lot 8 corrigera les six records FR à la source, et la
-réécriture de `tests/layers-acceptance.test.mjs:99` (qui épingle `"sag"`) est
-le geste de l'architecte à la fusion.
+`ability_key` devient **canonique dans les deux langues**. ✅ **FAIT à la
+fusion** : le lot 8 a corrigé les six records FR à la source, et les dix-huit
+compétences portent maintenant une clef canonique — vérifié par une assertion
+qui les parcourt toutes.
 
 **Ce que le bloc en fait** : une clef **absente** se déclare ; une clef
 **hors des six** JETTE en nommant le record et la clef. Aucune table de
@@ -76,6 +81,17 @@ trous du **contrat**, pas du lot. `class.spellcasting_ability_key`,
 `tool.ability_key`, `spell.cast_type` et `senses[].name` sont **commandés au
 lot 8**, plus `spell.concentration`. Le contrat est amendé.
 
+✅ **SUITE DONNÉE À LA FUSION** — les cinq champs n'ont pas eu le même sort, et
+c'est la mesure qui a décidé de chacun :
+
+| Champ | Ce qu'il est devenu |
+|---|---|
+| `class.spellcasting_ability_key` | ✅ **livré** — l'incantation est dérivée de bout en bout |
+| `tool.ability_key` | ✅ **livré**, 25/25 |
+| `senses[].name` | ✅ **livré** — et donc `senses` est passé de non dérivé à **dérivé** |
+| `spell.concentration` | ✅ **livré**, 339/339 |
+| `spell.cast_type` | ❌ **REFUSÉ**, mesure à l'appui, et l'architecte a donné raison au lot 8 **contre son propre schéma** : le champ n'est plus obligatoire, parce qu'un champ obligatoire sans source force le moteur à deviner |
+
 **Sous-question, et c'est un vrai trou de forme.** §5 propose
 `senses: [{ "id": "darkvision", "range_m": 18 }]` — **sans `name`**. Or
 `resolved.senses[]` **exige** `name`, et la perception passive n'a de nom dans
@@ -83,8 +99,10 @@ aucun record. Le bloc refuse de fabriquer « Vision dans le noir » (loi §0.13)
 donc `senses` reste vide et déclaré. **Il faut soit un `name` dans la forme du
 §5, soit un `name` facultatif dans le schéma, soit une table de libellés côté
 interface** — c'est la seule des trois qui ne coûte rien au moteur.
-→ **Tranché** : `senses[].name` entre dans le contrat, commandé au lot 8. Le
-refus de fabriquer « Vision dans le noir » était la bonne réponse.
+→ **Tranché, puis LIVRÉ** : `senses[].name` est entré au contrat et le lot 8 le
+porte (6 espèces sur 9 ont un sens ; les trois autres n'en ont aucun, et c'est
+un fait, pas un trou). Le refus de fabriquer « Vision dans le noir » était la
+bonne réponse — le nom vient maintenant du record, et le moteur le recopie.
 
 ---
 
@@ -249,16 +267,64 @@ pas une garantie.
 
 ---
 
+---
+
+# La confrontation à la vraie matière — 2026-08-08
+
+Lot 8 fusionné, couches régénérées, branche rebasée, **échafaudage démonté**.
+
+**Ce qui passe sans rien** : le test qui EST le M2 — « le magicien elfe niveau 1
+est reconstruit depuis ses choix seuls, par verbes seuls » — plus les 18
+compétences nommément, les overrides en dernier, les divergences nommées, et
+`validate` qui ne trouve rien à redire. **Le jalon est atteint.**
+
+**Ce qui a changé de camp, dans les deux sens.** Un inventaire « dérivé / non
+dérivé » décrit la rencontre entre un moteur et une matière, pas seulement le
+moteur : il bouge quand la matière bouge, et c'est sain.
+
+| Champ | Avant | Après | Pourquoi |
+|---|---|---|---|
+| `senses` | non dérivé | ✅ **dérivé** | la sous-question sur `name` a été retenue et le lot 8 le livre |
+| `spells[].concentration` | non dérivée | ✅ **dérivée** (339/339) | livrée par le lot 8 |
+| `saves`, `speeds`, `vitals.hpMax`, `identity.size`, `tools`, `ac`, `spellcasting` | déclarés en pénurie | ✅ **dérivés** | les champs mécaniques sont arrivés |
+| `traits` d'espèce | dérivés | ❌ **refusés, déclarés** | mise en page à deux colonnes aplatie, une espèce déborde sur la suivante |
+| `spells[].castType` | dérivé | ❌ **refusé, déclaré** | cinq constructions ressemblent à une sauvegarde et une seule est le fait |
+
+**Et la prédiction de l'arbitrage n°6 est vérifiée, pas crue** : `hit_die`
+existe, donc `hpMax` est dérivé, donc l'override du MJ tweake bien quelque
+chose qui existe et ne jette plus. La règle stricte n'a pas été relâchée pour
+autant — sur une couche amputée de `hit_die`, le même override jette de
+nouveau, et le test le reprouve.
+
+## ⚠️ La leçon de cette fusion : un refus ne se prouve plus par la pénurie
+
+**Cinq preuves se sont évaporées le jour où la source s'est enrichie.** Elles
+s'appuyaient sur une couche qui ne portait aucun champ mécanique : il suffisait
+de la monter pour voir le bloc déclarer. Un test qui prouve un refus par un
+manque accidentel de la matière est un test qui disparaît sans bruit le jour où
+le manque est comblé — et la garantie avec lui.
+
+Chaque refus est donc reprouvé par une **couche de scénario délibérément
+amputée** : elle recouvre le record par un `add` qui ne garde que la prose
+(« d6 par niveau de Magicien », « 11 + modificateur de Dex »). L'amputation est
+alors **lisible**, elle est **ciblée** (`class-progression` n'est pas touchée,
+sinon le test prouverait seulement qu'une pile vide ne dérive rien), et chaque
+scénario porte son **pendant sur la vraie matière** — le champ y est bien
+dérivé. C'est la même famille de leçon que le « garde qui compte » : une
+garantie doit tenir à ce qui change autour d'elle.
+
+**Dix-huit attaques réelles de l'arbre, dix-huit rouges**, dont deux neuves
+visant nommément les champs qui viennent d'arriver : les sens relaissés tomber,
+et un `castType: "none"` deviné au lieu d'être déclaré.
+
+---
+
 ## Hors questions — deux remarques pour la fusion
 
-1. **La fixture est un échafaudage à jeter.** `tests/build-fixture-mecanique.mjs`
-   est une vraie couche `fh-layer/1` montée par-dessus le SRD et la couche
-   d'exemple, qui **patche** les records avec les champs du §3, écrits
-   exactement comme le contrat les nomme. Le geste de fusion : régénérer les
-   couches depuis `fh-srd`, retirer la fixture du harnais, rejouer
-   `build-acceptance`.
-2. **`tests/layers-acceptance.test.mjs:99`** épingle `ability_key === "sag"`
-   (« la clef est LANGUE-NATIVE — “sag”, pas “wis” »).
-   Cette assertion deviendra fausse dès la régénération des couches, et elle
-   devra être réécrite à la nouvelle vérité, marquée `REWRITTEN` **sur sa
-   propre ligne** — jamais relâchée. Ce lot n'a pas touché la suite d'un autre.
+1. ✅ **FAIT — l'échafaudage est démonté.** `tests/build-fixture-mecanique.mjs`
+   est **supprimé** : fichier, imports et mentions. Un échafaudage qu'on laisse
+   debout est du code mort (loi §0.6). La suite d'acceptation tourne sur la
+   couche SRD régénérée et la couche d'exemple, point.
+2. ✅ **FAIT par l'architecte** — `tests/layers-acceptance.test.mjs` épinglait
+   `ability_key === "sag"` ; l'assertion a été réécrite à la nouvelle vérité à
+   la fusion. Ce lot n'a pas touché la suite d'un autre.

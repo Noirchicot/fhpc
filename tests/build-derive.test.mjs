@@ -14,7 +14,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import Ajv2020 from "ajv/dist/2020.js";
 
-import { makeHarness, acceptanceDocument, readJson, manifestOf, SRD_FR } from "./build-harness.mjs";
+import { makeHarness, acceptanceDocument, readJson, manifestOf, uneCouche, ampute, SRD_FR } from "./build-harness.mjs";
 import { diffResolved } from "../src/build/diff.mjs";
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
@@ -73,19 +73,35 @@ test("sans CLASSE, et sans un seul des six scores, elle jette en nommant ce qui 
 });
 
 test("UNE CLEF DE CARACTÉRISTIQUE HORS DES SIX JETTE — le moteur ne la rattrape pas", () => {
-  /* ARBITRAGE DU 2026-08-08. La couche FR livrée porte encore `sag` et `for`
-     sur six compétences ; la fixture applique la décision. En la retirant, on
-     voit ce que le bloc fait d'une clef langue-native : il NOMME le record.
-     Une table `"sag" → "wis"` dans `src/build/` serait la faute que ce lot
-     existe pour éviter — le garde de vocabulaire la tient, ce test tient
-     l'autre bout. */
-  const h = makeHarness({ fixtureOptions: { corrigerClefsFr: false } });
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — LA MAUVAISE CLEF EST MAINTENANT
+     FABRIQUÉE, et c'est plus solide qu'avant. Ce test s'appuyait sur un DÉFAUT
+     DE LA SOURCE : la couche FR portait `sag` et `for` sur six compétences.
+     L'arbitrage a rendu `ability_key` canonique, le lot 8 a corrigé les six, et
+     le défaut a disparu — avec la preuve.
+
+     Un garde ne se relâche pas parce que le bug qu'il attrapait a été réparé :
+     la faute reste possible (une couche homebrew d'inconnu peut l'écrire), donc
+     on la fabrique délibérément. Une table `"sag" → "wis"` dans `src/build/`
+     serait la faute que ce lot existe pour éviter : le garde de vocabulaire
+     tient un bout, ce test tient l'autre. */
+  const h = makeHarness({
+    extra: uneCouche("scenario-clef-hors-catalogue",
+      ampute("skill", "srd:skill:fr:athletisme", "Athlétisme", { ability_key: "for" }))
+  });
   assert.throws(() => h.verbs.rebuild({ document: acceptanceDocument(h.layers) }), (error) => {
     assert.match(error.message, /srd:skill:fr:athletisme/, "la violation nomme le record");
     assert.match(error.message, /"for"/, "et la clef fautive");
     assert.match(error.message, /str, dex, con, int, wis, cha/, "et le catalogue des six");
     return true;
   });
+  /* Et le pendant : sur la vraie couche, les dix-huit clefs sont canoniques. */
+  const vraie = makeHarness();
+  const skills = vraie.dispatch("layers.query", { kind: "skill" });
+  assert.equal(skills.length, 18);
+  for (const view of skills) {
+    assert.ok(["str", "dex", "con", "int", "wis", "cha"].includes(view.record.data.ability_key),
+      `« ${view.id} » porte une clef canonique depuis la fusion du lot 8`);
+  }
 });
 
 test("la pile qui a bougé sous le personnage est une DÉGRADATION, pas une dérivation à tenter", () => {
@@ -112,17 +128,38 @@ test("un document jamais construit ADOPTE la pile montée — et c'est la seule 
 
 /* ── ce qui DÉGRADE : les champs mécaniques absents ─────────────────── */
 
-/** Le monde tel qu'il est AUJOURD'HUI : la vraie couche SRD, la seule
- *  correction que l'architecte a déjà tranchée (les clefs canoniques), et
- *  AUCUN des champs mécaniques du §3 — ils sont en cours d'écriture dans
- *  l'autre dépôt. */
-const AVANT_LOT_8 = { fixtureOptions: { seulesClefs: true } };
+/* REWRITTEN 2026-08-08 (fusion du lot 8) — LA PÉNURIE NE PROUVE PLUS RIEN.
+   Ces scénarios s'appuyaient sur une couche SRD qui ne portait aucun champ
+   mécanique : il suffisait de la monter pour voir le bloc déclarer. `hit_die`,
+   `saving_throw_keys`, `speed_m`, `size_key` et `spellcasting_ability_key`
+   sont arrivés, et ces preuves-là se sont évaporées avec eux.
+
+   On ne relâche pas une garantie parce que la source s'est enrichie : on la
+   reprouve autrement. La couche ci-dessous RECOUVRE les records par un `add`
+   qui ne garde que la prose — l'amputation est DÉLIBÉRÉE et lisible, au lieu
+   d'être un accident de la source dont la disparition passerait inaperçue. */
+const COUCHE_AMPUTEE = uneCouche("scenario-sans-champs-mecaniques", Object.assign(
+  ampute("class", "srd:class:fr:magicien", "Magicien", {
+    hit_point_die: "d6 par niveau de Magicien",
+    saving_throw_proficiencies: ["Intelligence", "Sagesse"],
+    primary_ability: "Intelligence"
+  }),
+  ampute("background", "srd:background:fr:sage", "Sage", {
+    skill_proficiencies: ["Arcanes", "Histoire"],
+    tool_proficiency: "matériel de calligraphe"
+  }),
+  ampute("species", "srd:species:fr:elfe", "Elfe", {
+    speed: "9 m",
+    size: "M (moyenne, entre 1,50 m et 1,80 m)"
+  })
+));
 
 test("SANS LES CHAMPS MÉCANIQUES DU §3, rien n'est deviné : tout ce qui manque est nommé", () => {
   /* La dérivation ne s'effondre pas et n'invente rien — elle rend ce qu'elle
-     peut et nomme le reste. C'est la mesure de l'architecte du 2026-08-08,
-     reproduite ici par le code du lot. */
-  const h = makeHarness(AVANT_LOT_8);
+     peut et nomme le reste. Les records amputés ne portent QUE la prose que la
+     source portait avant le lot 8 : « d6 par niveau de Magicien », « 9 m »,
+     des noms affichables. Le moteur ne la parse pas. */
+  const h = makeHarness({ extra: COUCHE_AMPUTEE });
   const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
   const champs = out.underived.map((entry) => entry.field);
 
@@ -137,42 +174,41 @@ test("SANS LES CHAMPS MÉCANIQUES DU §3, rien n'est deviné : tout ce qui manqu
     /hit_die/,
     "la raison nomme le champ mécanique attendu, pas un vague « données manquantes »"
   );
-  /* Le bonus de maîtrise, lui, vient de `class-progression` — un des trois
-     genres déjà propres. Il est là. */
-  assert.equal(out.resolved.proficiency, 2, "class-progression est complet depuis le lot 6");
+  /* Le bonus de maîtrise, lui, vient de `class-progression`, que la couche
+     amputée ne touche pas. Il est là — l'amputation est CIBLÉE, sinon le test
+     prouverait seulement qu'une pile vide ne dérive rien. */
+  assert.equal(out.resolved.proficiency, 2, "class-progression n'est pas amputée : la preuve est ciblée");
+  // Et sur la VRAIE matière, ces mêmes champs sont tous dérivés.
+  const vraie = makeHarness().verbs.rebuild({ document: acceptanceDocument(makeHarness().layers) });
+  for (const champ of ["saves", "speeds", "vitals.hpMax", "identity.size"]) {
+    assert.ok(!vraie.underived.some((entry) => entry.field === champ), `« ${champ} » EST dérivé depuis le lot 8`);
+  }
 });
 
 test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moitié", () => {
-  const h = makeHarness(AVANT_LOT_8);
-  const nu = h.verbs.rebuild({ document: sansOverrides(h.layers) });
-  assert.deepEqual(nu.resolved.tools, []);
-  assert.match(nu.underived.find((e) => e.field === "tools").reason, /tool_id/,
-    "sans `tool_id`, l'arrière-plan n'accorde aucun outil, et c'est ce qui est dit");
-
-  /* Et le cran d'après : l'arrière-plan accorde bien l'outil, mais le record
-     d'outil n'a pas de clef de caractéristique. `resolved.tools[].ability` est
-     obligatoire : on ne pose pas une entrée à moitié, on nomme l'outil sauté. */
-  h.layers.verbs.register({
-    bytes: Buffer.from(JSON.stringify({
-      schema: "fh-layer/1", id: "couche-outil", version: "1.0.0", name: "Outil", lang: "fr",
-      flags: [], attribution: { license: "CC0-1.0" },
-      records: {
-        background: {
-          "srd:background:fr:sage": {
-            op: "patch",
-            changes: { "data[tool_id]": "srd:tool:fr:materiel-de-calligraphe" }
-          }
-        }
-      }
-    }), "utf8"),
-    origin: "test"
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — `tool.ability_key` est arrivé,
+     25 outils sur 25. L'ancienne version prouvait le refus par l'absence du
+     champ dans la vraie couche ; elle prouverait maintenant le contraire.
+     L'outil est donc amputé DÉLIBÉRÉMENT — la garantie ne se relâche pas parce
+     que la source s'est enrichie. */
+  const h = makeHarness({
+    extra: uneCouche("scenario-outil-sans-clef",
+      ampute("tool", "srd:tool:fr:materiel-de-calligraphe", "Matériel de calligraphe",
+        { ability: "Dextérité", cost: "10 po" }))
   });
   const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
-  assert.deepEqual(out.resolved.tools, []);
+  assert.deepEqual(out.resolved.tools, [],
+    "`resolved.tools[].ability` est obligatoire : on ne pose pas une entrée à moitié");
   const entree = out.underived.find((e) => e.field === "tools[materiel-de-calligraphe]");
   assert.match(entree.reason, /ability_key/);
-  assert.match(entree.reason, /N'EST PAS DANS LE CONTRAT/,
-    "et la raison dit que le champ manque AU CONTRAT, pas seulement au record");
+
+  /* Et le pendant, sur la vraie matière : l'outil EST dérivé, avec son bonus. */
+  const vraie = makeHarness();
+  const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
+  assert.deepEqual(bon.resolved.tools, [{
+    id: "materiel-de-calligraphe", name: "Matériel de calligraphe",
+    ability: "dex", bonus: 4, proficiency: "proficient"
+  }]);
 });
 
 /* ── la classe d'armure, avec et sans armure ────────────────────────── */
@@ -180,35 +216,46 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
 test("la CA avec armure, et son refus platement quand le champ mécanique manque", () => {
   const h = makeHarness();
   const base = acceptanceDocument(h.layers);
-  /* La première place libre après le sac du fichier — lu, jamais supposé : un
+  /* La première place libre après le sac du fichier — lue, jamais supposée : un
      indice en dur se décalerait le jour où l'exemple gagne une ligne. */
   const index = base.build.choices
     .map((choice) => /^gear\[([0-9]+)\]$/.exec(choice.path))
     .filter(Boolean)
     .reduce((max, match) => Math.max(max, Number(match[1]) + 1), 0);
 
-  const avecArmure = structuredClone(base);
-  avecArmure.build.choices.push(
-    { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:fr:armure-de-cuir" } },
-    { path: `gear[${index}].quantity`, value: 1 },
-    { path: `gear[${index}].equipped`, value: true },
-    { path: `gear[${index + 1}]`, ref: { kind: "armor", id: "srd:armor:fr:bouclier" } },
-    { path: `gear[${index + 1}].quantity`, value: 1 },
-    { path: `gear[${index + 1}].equipped`, value: true }
-  );
-  const out = h.verbs.rebuild({ document: avecArmure });
+  const habiller = (doc) => {
+    doc.build.choices.push(
+      { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:fr:armure-de-cuir" } },
+      { path: `gear[${index}].quantity`, value: 1 },
+      { path: `gear[${index}].equipped`, value: true },
+      { path: `gear[${index + 1}]`, ref: { kind: "armor", id: "srd:armor:fr:bouclier" } },
+      { path: `gear[${index + 1}].quantity`, value: 1 },
+      { path: `gear[${index + 1}].equipped`, value: true }
+    );
+    return doc;
+  };
+
+  const out = h.verbs.rebuild({ document: habiller(structuredClone(base)) });
   assert.equal(out.resolved.ac, 15, "cuir 11 + Dex 2 (sans plafond) + bouclier 2 — arbitrage B4 : « +2 » est un modificateur");
 
-  /* Et sans les champs mécaniques : « 11 + modificateur de Dex » est une
-     phrase. Rendre 10 + Dex avec une armure sur le dos serait une fiche
-     fausse ET jouable, le pire des deux. */
-  const sansChamps = makeHarness(AVANT_LOT_8);
-  const doc = structuredClone(avecArmure);
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — `ac_base` est arrivé, donc la
+     seconde moitié de ce test ne peut plus s'appuyer sur son absence dans la
+     vraie couche. Les deux armures sont amputées DÉLIBÉRÉMENT : il ne leur
+     reste que « 11 + modificateur de Dex » et « +2 », des PHRASES. Rendre
+     10 + Dex avec une armure sur le dos serait une fiche fausse ET jouable,
+     le pire des deux. */
+  const nu = makeHarness({
+    extra: uneCouche("scenario-armures-sans-ca", Object.assign(
+      ampute("armor", "srd:armor:fr:armure-de-cuir", "Armure de cuir", { armor_class: "11 + modificateur de Dex" }),
+      ampute("armor", "srd:armor:fr:bouclier", "Bouclier", { armor_class: "+2" })
+    ))
+  });
+  const doc = habiller(acceptanceDocument(nu.layers));
   doc.build.overrides = [];
-  doc.build.layers = manifestOf(sansChamps.layers);
-  const degrade = sansChamps.verbs.rebuild({ document: doc });
+  const degrade = nu.verbs.rebuild({ document: doc });
   assert.equal(degrade.resolved.ac, undefined);
   assert.match(degrade.underived.find((e) => e.field === "ac").reason, /ac_base/);
+  assert.match(degrade.underived.find((e) => e.field === "ac").reason, /fiche fausse/);
 });
 
 /* ── les overrides ──────────────────────────────────────────────────── */
@@ -227,30 +274,39 @@ test("un override dans le vide JETTE — il tweake ce qui existe, il ne crée ri
   assert.throws(() => h.verbs.rebuild({ document: doc }), /resolved\.skills\[voltige\]/);
 });
 
-test("⚠️ QUESTION 6 — un override sur un champ NON DÉRIVÉ jette aujourd'hui, et ce test le montre", () => {
-  /* La conséquence mesurée de la règle « un override ne crée rien », posée
-     ici pour l'architecte plutôt que décidée par le lot (loi §0.10).
+test("QUESTION 6 — LA DISSOLUTION ANNONCÉE A EU LIEU, et la règle stricte mord toujours", () => {
+  /* REWRITTEN 2026-08-08 (fusion du lot 8) — ce test montrait une TENSION ;
+     il montre maintenant sa RÉSOLUTION, et l'ancienne assertion est devenue
+     fausse mot pour mot.
 
-     Le personnage d'exemple porte `resolved.vitals.hpMax = 9` en override du
-     MJ. Tant que la couche ne porte pas `hit_die`, la dérivation ne produit
-     PAS `hpMax` — et l'override, qui ne fabrique aucune case, jette.
+     Il disait : le personnage d'exemple porte `resolved.vitals.hpMax = 9` en
+     override du MJ, la couche ne portait pas `hit_die`, la dérivation ne
+     produisait pas `hpMax`, et l'override — qui ne fabrique aucune case —
+     jetait. Deux phrases de l'architecture s'affrontaient.
 
-     Deux lectures s'affrontent, et elles sont toutes deux dans l'architecture :
-     « un override tweake ce qui existe » d'un côté ; « un seul chemin
-     d'édition AVEC OU SANS couches : l'override » de l'autre. La seconde
-     ferait de l'override le chemin de secours du MJ quand la pile ne sait pas
-     nourrir un champ. Le lot n'a pas tranché : il tient la règle stricte, la
-     rend visible ici, et pose la question. */
-  const h = makeHarness(AVANT_LOT_8);
-  assert.throws(() => h.verbs.rebuild({ document: acceptanceDocument(h.layers) }), (error) => {
+     L'arbitrage a tenu la règle STRICTE et annoncé que la contradiction se
+     dissoudrait d'elle-même dès que le lot 8 livrerait `hit_die`. C'est fait :
+     `hpMax` EST dérivé, donc l'override tweake bien quelque chose qui existe.
+     La prédiction est vérifiée ici plutôt que crue. */
+  const h = makeHarness();
+  const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.equal(out.resolved.vitals.hpMax, 9, "l'override du MJ s'applique — plus aucun refus");
+  assert.deepEqual(out.overridesApplied.map((entry) => entry.path),
+    ["resolved.vitals.hpMax", "resolved.gear[torche].quantity"]);
+
+  /* ET LA RÈGLE STRICTE N'A PAS ÉTÉ RELÂCHÉE POUR AUTANT. Sur une couche
+     amputée de `hit_die`, `hpMax` redevient non dérivé — et le même override
+     jette de nouveau, en nommant sa cible. C'est la garantie qu'on aurait
+     perdue en assouplissant : elle est reprouvée, pas supposée. */
+  const nu = makeHarness({ extra: COUCHE_AMPUTEE });
+  assert.throws(() => nu.verbs.rebuild({ document: acceptanceDocument(nu.layers) }), (error) => {
     assert.match(error.message, /resolved\.vitals\.hpMax/);
     assert.match(error.message, /que la dérivation n'a pas produit/);
     return true;
   });
-  // Alors que la même pile, sans cet override, rend une fiche jouable et honnête.
-  const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
-  assert.equal(out.resolved.vitals.hpMax, undefined);
-  assert.ok(out.underived.some((entry) => entry.field === "vitals.hpMax"));
+  const sans = nu.verbs.rebuild({ document: sansOverrides(nu.layers) });
+  assert.equal(sans.resolved.vitals.hpMax, undefined);
+  assert.ok(sans.underived.some((entry) => entry.field === "vitals.hpMax"));
 });
 
 test("le verbe `override` exige de savoir QUI a écarté la règle", () => {
@@ -325,8 +381,8 @@ test("le `shadowed` de la pile REMONTE dans rebuild — il ne s'avale pas", () =
   assert.deepEqual(out.shadowed, [], "aucune couche n'en recouvre une autre dans cette pile");
   assert.deepEqual(out.warnings, [], "et l'événement a bien été reçu");
 
-  /* Et quand il y en a un : la fixture repose un record que le SRD portait
-     déjà, par `add`. */
+  /* Et quand il y en a un : une couche de table repose, par `add`, un record
+     que le SRD portait déjà. */
   const bytes = Buffer.from(JSON.stringify({
     schema: "fh-layer/1", id: "couche-de-table", version: "1.0.0", name: "Table", lang: "fr",
     flags: [], attribution: { license: "CC0-1.0" },
@@ -377,8 +433,7 @@ test("`validate` voit un ref mort, un don qui ne correspond pas, et ne change RI
 test("UN PERSONNAGE SRD PUR, SANS AUCUNE COUCHE FH, TRAVERSE LA DÉRIVATION DE BOUT EN BOUT", () => {
   /* La question de la loi §0.12, posée au code : « un personnage SRD pur,
      sans aucune couche FH chargée, traverse-t-il ce code de bout en bout ? »
-     Ici, même pas de couche d'exemple : le SRD et la fixture mécanique, rien
-     d'autre. Aucune ligne de `src/build/` ne cite la Destinée, le Chaos ni
+     Ici, même pas de couche d'exemple : la couche SRD, et rien d'autre. Aucune ligne de `src/build/` ne cite la Destinée, le Chaos ni
      l'Overreach — c'est le garde de vocabulaire de `build-block` qui le tient
      structurellement ; celui-ci le tient à l'exécution. */
   const h = makeHarness({ layers: [SRD_FR] });

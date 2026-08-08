@@ -455,14 +455,46 @@ export function derive({ query, stack, choices, at, units, previous }) {
   }
 
   /* ── SENS ──────────────────────────────────────────────────────────
-     ⚠️ MESURE DU LOT 9, à porter à l'architecte. La forme visée par le
-     contrat §5 est `{"id": "darkvision", "range_m": 18}` — SANS `name`. Or
-     `resolved.senses[]` exige `name`, et la perception passive n'a de nom
-     dans AUCUN record. Fabriquer « Vision dans le noir » ici violerait §0.13.
-     La collection est donc vide, et déclarée. */
-  resolved.senses = [];
-  underived.declare("senses", "le contrat §5 donne `{id, range_m}` sans `name`, et `resolved.senses[].name` est " +
-    "obligatoire ; la perception passive, elle, n'a de nom dans aucun record. Nommer ici violerait la loi §0.13.");
+     REWRITTEN 2026-08-08 (fusion du lot 8) — les sens SONT dérivés maintenant.
+     La première passe rendait une liste vide, à raison : la forme du contrat
+     §5 était `{id, range_m}` SANS `name`, que le schéma exige. La
+     sous-question a été retenue, `senses[].name` est entré au contrat, et le
+     lot 8 livre `{id, name, range_m}` sur 6 espèces / 9. Le moteur recopie ce
+     nom, il ne le fabrique pas.
+
+     La PORTÉE suit la même règle que la vitesse : la couche porte `range_m` ou
+     `range_ft`, le document dit dans quelle unité il vit, et la dérivation LIT
+     ce réglage au lieu de le deviner. */
+  const senses = [];
+  const rangeField = distanceUnit === "m" ? "range_m" : distanceUnit === "ft" ? "range_ft" : null;
+  if (speciesView && Array.isArray(speciesData.senses) && rangeField) {
+    for (const sense of speciesData.senses) {
+      if (!sense || typeof sense.id !== "string" || typeof sense.name !== "string") {
+        underived.declare("senses (espèce)", "une entrée de `senses` n'a ni `id` ni `name` exploitable (contrat §5).");
+        continue;
+      }
+      if (!Number.isInteger(sense[rangeField])) {
+        underived.declare(`senses[${sense.id}]`,
+          `l'entrée ne porte pas \`${rangeField}\` en entier, et \`resolved.senses[].value\` est obligatoire.`);
+        continue;
+      }
+      senses.push({ id: sense.id, name: sense.name, value: sense[rangeField], unit: distanceUnit });
+    }
+  } else if (speciesView && speciesData.senses !== undefined && !rangeField) {
+    underived.declare("senses", `le document ne dit pas son unité de distance (\`units.distance\` = ${JSON.stringify(distanceUnit)}).`);
+  }
+  resolved.senses = senses;
+  if (senses.length === 0 && !underived.has("senses")) {
+    underived.declare("senses", speciesView
+      ? "le record d'espèce ne porte pas de `senses` — trois espèces sur neuf n'en ont aucun, et c'est un fait, pas un trou."
+      : "aucun choix `species`.");
+  }
+  /* La PERCEPTION PASSIVE est calculable (10 + bonus de Perception) mais elle
+     n'a de nom dans AUCUN record : ce n'est pas un sens d'espèce, c'est une
+     ligne de fiche. La nommer ici violerait la loi §0.13. */
+  underived.declare("senses[perception-passive]",
+    "la perception passive se calcule (10 + le bonus de la compétence correspondante) mais son NOM ne vit dans " +
+    "aucun record — ce n'est pas un sens d'espèce, c'est une ligne de fiche, et l'interface la nomme.");
 
   /* ── LANGUES ───────────────────────────────────────────────────────
      Il n'existe pas de genre `language` parmi les 14. Le choix `languages[0]`
@@ -675,6 +707,7 @@ export function derive({ query, stack, choices, at, units, previous }) {
     }
     const spells = [];
     const spellsSansConcentration = [];
+    const spellsSansCastType = [];
     for (const entry of spellRefs) {
       entry.consumed = true;
       const view = reader.must("spell", entry.choice.ref.id, `le choix « ${entry.choice.path} »`);
@@ -684,12 +717,17 @@ export function derive({ query, stack, choices, at, units, previous }) {
         underived.declare(`spellcasting.spells[${view.id}]`, "le record de sort n'a ni `slug` ni `level` exploitable.");
         continue;
       }
-      if (typeof data.cast_type !== "string") {
-        underived.declare(`spellcasting.spells[${slug}]`, "le record de sort ne porte pas `cast_type` — ⚠️ CE CHAMP " +
-          "N'EST PAS DANS LE CONTRAT (question 3), et `castType` est obligatoire sur une entrée de sort.");
-        continue;
-      }
-      const spell = { id: slug, name: view.record.name, level: data.level, prepared: true, castType: data.cast_type };
+      const spell = { id: slug, name: view.record.name, level: data.level, prepared: true };
+      /* REWRITTEN 2026-08-08 (fusion du lot 8) — `castType` ne fait PLUS sauter
+         l'entrée. Le lot 8 a refusé le champ avec sa mesure, et l'architecte
+         lui a donné raison contre son propre schéma : cinq constructions
+         ressemblent à une sauvegarde et une seule est le fait, *Couteau de
+         glace* est génuinement attaque ET sauvegarde, et l'énumération ne sait
+         pas le dire. `castType` est donc devenu FACULTATIF — le mode de
+         résolution se DÉCLARE inconnu. Une fiche de magicien sans aucun sort
+         serait plus fausse qu'une fiche dont on dit ne pas connaître le mode. */
+      if (typeof data.cast_type === "string") spell.castType = data.cast_type;
+      else spellsSansCastType.push(slug);
       if (typeof data.range === "string") spell.range = data.range;
       if (typeof data.casting_time === "string") spell.castingTime = data.casting_time;
       if (typeof data.duration === "string") spell.duration = data.duration;
@@ -746,7 +784,18 @@ export function derive({ query, stack, choices, at, units, previous }) {
     if (spellsSansConcentration.length > 0) {
       underived.declare("spellcasting.spells[].concentration",
         `${spellsSansConcentration.length} sort(s) sans champ \`concentration\` (${spellsSansConcentration.join(", ")}) — ` +
-        "commandé au lot 8 le 2026-08-08. La dérivation ne le déduit pas de `duration`, qui est une phrase.");
+        "la dérivation ne le déduit pas de `duration`, qui est une phrase.");
+    }
+    /* Le MODE DE RÉSOLUTION. Refusé par le lot 8 avec sa mesure, et
+       l'architecte lui a donné raison : le champ est facultatif au schéma
+       depuis le 2026-08-08. Un sort sans `cast_type` est émis quand même, et
+       c'est le mode qui se déclare inconnu. */
+    if (spellsSansCastType.length > 0) {
+      underived.declare("spellcasting.spells[].castType",
+        `${spellsSansCastType.length} sort(s) sans champ \`cast_type\` (${spellsSansCastType.join(", ")}) — ` +
+        "refusé par le lot 8 le 2026-08-08, mesure à l'appui : cinq constructions ressemblent à une sauvegarde et " +
+        "une seule est le fait, et un sort peut être génuinement attaque ET sauvegarde. Le sort est émis sans son " +
+        "mode plutôt que sauté : une fiche sans sorts serait plus fausse qu'une fiche dont le mode est dit inconnu.");
     }
   }
 
@@ -777,8 +826,17 @@ export function derive({ query, stack, choices, at, units, previous }) {
       traits.push(entry);
     }
   } else if (speciesView) {
-    underived.declare("traits (espèce)", "le record d'espèce ne porte pas `traits` — le contrat §5 le classe en " +
-      "GROUPE B, et le lot 8 a le droit de le refuser platement.");
+    /* REWRITTEN 2026-08-08 (fusion du lot 8) — les traits d'espèce passent
+       d'« atteints » à « non dérivés et déclarés », et ce n'est pas une
+       régression : c'est la mesure qui a changé de camp. Le contrat §5 les
+       classait en GROUPE B, refusable platement, et le lot 8 les a refusés
+       avec sa mesure — la mise en page à deux colonnes du PDF est aplatie, et
+       la description anglaise de l'Humain finit sur le tableau du Tieffelin.
+       Un parseur approximatif sur neuf espèces dont trois seraient fausses est
+       exactement ce que le contrat interdit. */
+    underived.declare("traits (espèce)", "le record d'espèce ne porte pas `traits` — refusé par le lot 8 le " +
+      "2026-08-08, mesure à l'appui : la mise en page à deux colonnes est aplatie dans `description` et une " +
+      "espèce déborde sur la suivante. Préalable nommé : réparer l'extraction à deux colonnes dans `fh-srd`.");
   }
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "le contrat ne porte aucun champ de trait pour les genres " +

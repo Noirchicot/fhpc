@@ -159,8 +159,11 @@ promettre.
 
 ## Ce qui est dérivé, et ce qui ne l'est pas
 
-Inventaire mesuré sur le magicien elfe niveau 1, pile réelle + fixture
-mécanique (contrat §7).
+> ⚠️ **Inventaire RÉVISÉ le 2026-08-08, après la fusion du lot 8 et la
+> régénération des couches.** Il a bougé **dans les deux sens**, et c'est
+> normal : cet inventaire décrit la rencontre entre un moteur et une matière,
+> pas seulement le moteur. Mesuré sur le magicien elfe niveau 1, sur la
+> **vraie pile**, sans aucun échafaudage.
 
 **Dérivé, et identique au fichier d'exemple** : `derivation`, `identity`
 (niveau, espèce, arrière-plan, classes) + `identity.size`, `abilities` (avec
@@ -168,20 +171,30 @@ les boosts d'arrière-plan), `proficiency`, `ac` (sans armure, et avec —
 `ac_base`/`ac_dex_cap`/`ac_bonus`), `vitals.hpMax` (niveau 1), `speeds`,
 `saves`, `skills` (les 18, bonus et maîtrise), `tools`, `spellcasting`
 (id, name, ability, dc, attackBonus, slots, et les 8 sorts en id/name/level/
-prepared/castType/range/castingTime/duration/ritual/**text**), `gear` et
-`currency` depuis les choix, `craft`, `traits` d'espèce.
+prepared/range/castingTime/duration/ritual/**text**/**concentration**), `gear`
+et `currency` depuis les choix, `craft`, et **`senses`** d'espèce.
 
-**Deux divergences ASSUMÉES avec le fichier d'exemple**, assertées et non
+**Trois divergences ASSUMÉES avec le fichier d'exemple**, assertées et non
 contournées : `identity.species` ne porte pas le lignage et gagne
 `identity.size` (champ ajouté au schéma après l'écriture de l'exemple) ; les
 textes et phrases de sort viennent du **record**, pas des résumés éditoriaux
-saisis à la main dans le fichier.
+saisis à la main ; et `senses[].id` est `darkvision`, l'identifiant du record,
+là où le fichier écrivait le slug français `vision-dans-le-noir` — un id est
+une ancre d'override, pas un mot.
+
+**Deux mouvements en sens contraire au 2026-08-08** : `senses` est passé de
+non dérivé à **dérivé** (la sous-question sur `senses[].name` a été retenue et
+le lot 8 le livre) ; `traits` d'espèce est passé de dérivé à **refusé et
+déclaré**. Ce n'est pas une régression du bloc : c'est la mesure qui a changé
+de camp.
 
 **Non dérivé, déclaré, avec sa raison** :
 
 | Champ | Pourquoi |
 |---|---|
-| `senses` | le contrat §5 donne `{id, range_m}` **sans `name`**, que le schéma exige ; la perception passive n'a de nom dans aucun record |
+| `senses[perception-passive]` | elle se **calcule** (10 + le bonus de la compétence), mais son **nom** ne vit dans aucun record : ce n'est pas un sens d'espèce, c'est une ligne de fiche |
+| `traits` d'espèce | **refusés par le lot 8** le 2026-08-08, mesure à l'appui : la mise en page à deux colonnes du PDF est aplatie et une espèce déborde sur la suivante. Préalable nommé : réparer l'extraction dans `fh-srd` |
+| `spells[].castType` | **refusé par le lot 8**, mesure à l'appui — cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être génuinement les deux. Le schéma a cédé : le champ n'est plus obligatoire, le sort est émis **sans** son mode |
 | `languages` | aucun genre `language` parmi les 14 |
 | `actions` | aucun genre `action` ; composer une attaque demande une règle (Finesse, Lancer) que le contrat ne porte pas |
 | `resources` | dés de vie et usages d'aptitude n'ont aucun champ mécanique ; `class-progression.resources` porte des clefs sans nom affichable |
@@ -190,7 +203,7 @@ saisis à la main dans le fichier.
 | `identity.species` (lignage) | le lignage est un choix, pas un record ; le recoller serait composer un mot affichable |
 | `gear[].weight` et `.note` | « 0,5 kg » est une phrase ; les deux sont **facultatifs** au schéma, donc les omettre est légitime — mais ça se déclare |
 | `spells[].damage` | non structurés **nulle part** : ni dé, ni type, ni progression par niveau d'emplacement |
-| `spells[].concentration` | commandé au lot 8 le 2026-08-08 ; jamais déduit de `duration`, qui est une phrase |
+| `spells[].concentration` | **dérivée** depuis le lot 8 (339/339) ; il n'en manque plus que sur la couche d'exemple, non régénérée. Jamais déduite de `duration`, qui est une phrase |
 | `craft` | module moteur activé par un drapeau (Q4) ; aucun n'existe au M2 |
 
 ## Obligations de test
@@ -230,12 +243,20 @@ saisis à la main dans le fichier.
    promettait ce comparateur alors qu'il n'existait pas. Une promesse en
    commentaire n'est pas une garantie.)
 9. **L'attaque RÉELLE de l'arbre**, hors suite, journalisée dans le rapport de
-   lot : **seize** violations délibérées posées dans les vrais fichiers de
-   `src/build/`, seize rouges, arbre restauré. Un garde vert qui n'a jamais
-   échoué exprès ne prouve rien. Les quatre dernières visent nommément les
-   défauts trouvés à la revue : texte de sort relaissé tomber, `identity` qui
-   diverge d'un champ de plus, poids inventé sur chaque ligne du sac, plafond
-   de texte désaccordé du schéma.
+   lot : **dix-huit** violations délibérées posées dans les vrais fichiers de
+   `src/build/`, dix-huit rouges, arbre restauré. Un garde vert qui n'a jamais
+   échoué exprès ne prouve rien.
+10. ⚠️ **UN REFUS NE SE PROUVE PLUS PAR LA PÉNURIE DE LA SOURCE.** Avant la
+    fusion du lot 8, il suffisait de monter la vraie couche pour voir le bloc
+    déclarer : elle ne portait aucun champ mécanique. `hit_die`,
+    `saving_throw_keys`, `speed_m`, `size_key`, `tool.ability_key`, `ac_base`
+    sont arrivés, et **cinq preuves se sont évaporées avec eux**. On ne relâche
+    pas une garantie parce que la matière s'est améliorée : chaque refus est
+    reprouvé par une **couche de scénario délibérément amputée**, qui recouvre
+    le record par un `add` ne gardant que la prose. L'amputation devient
+    lisible au lieu d'être un accident dont la disparition passerait inaperçue,
+    et chaque scénario porte son **pendant sur la vraie matière** — le champ y
+    est bien dérivé.
 
 ## ⚠ Points ouverts, pour l'architecte
 

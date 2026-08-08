@@ -1,10 +1,10 @@
 /* Harnais du bloc `build` (lot 9).
 
-   IL MONTE LA VRAIE MATIÈRE. Les deux couches SRD (2 613 records) et la couche
+   IL MONTE LA VRAIE MATIÈRE, ET RIEN D'AUTRE. La couche SRD et la couche
    d'exemple du lot 2 sont lues depuis le dépôt, jamais recopiées : « une
-   fixture qui imite la matière finit toujours par diverger d'elle »
-   (layers-harness). Par-dessus, une SEULE couche d'échafaudage — la fixture
-   mécanique — porte les champs que le lot 8 écrit en parallèle.
+   copie qui imite la matière finit toujours par diverger d'elle »
+   (layers-harness). Depuis la fusion du lot 8, il n'y a plus d'échafaudage —
+   les champs mécaniques sont dans la vraie couche.
 
    LE BLOC NE PARLE À LA PILE QUE PAR `dispatch`. Le harnais fabrique donc un
    `dispatch` local qui route `layers.*` vers l'INSTANCE de la pile montée ici,
@@ -17,7 +17,6 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLayers } from "../src/layers/index.mjs";
 import { createBuild } from "../src/build/index.mjs";
-import { fixtureLayer, FIXTURE_ID } from "./build-fixture-mecanique.mjs";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SRD_FR = "layers/srd-5.2.1-fr.layer.json";
@@ -61,8 +60,8 @@ export function makeBus() {
 /**
  * Monte la pile et branche un bloc `build` dessus.
  * @param {object} [options]
- * @param {boolean} [options.fixture=true] monter la fixture mécanique du lot 8.
  * @param {string[]} [options.layers] les couches à monter, dans l'ordre.
+ * @param {object} [options.extra] une couche de plus, montée au-dessus.
  */
 export function makeHarness(options = {}) {
   const bus = makeBus();
@@ -86,18 +85,47 @@ export function makeHarness(options = {}) {
   const build = createBuild({ bus, dispatch, now });
 
   const files = options.layers || [SRD_FR, HOMEBREW];
-  const fixtureOptions = Object.assign(
-    { sansHomebrew: !files.includes(HOMEBREW) },
-    options.fixtureOptions || {}
-  );
   for (const file of files) layers.verbs.register({ bytes: fileBytes(file), origin: file });
-  if (options.fixture !== false) {
-    layers.verbs.register({
-      bytes: bytesOf(fixtureLayer(fixtureOptions)),
-      origin: "tests/build-fixture-mecanique.mjs"
-    });
-  }
-  return { bus, layers, build, verbs: build.verbs, dispatch, dispatched, files, fixtureId: FIXTURE_ID };
+  /* Une couche SUPPLÉMENTAIRE, fabriquée par le scénario. C'est par là
+     qu'entrent les couches AMPUTÉES qui prouvent les refus : depuis la fusion
+     du lot 8, la vraie matière porte les champs mécaniques, et un refus ne se
+     prouve plus par la pénurie de la source. */
+  if (options.extra) layers.verbs.register({ bytes: bytesOf(options.extra), origin: "couche du scénario" });
+  return { bus, layers, build, verbs: build.verbs, dispatch, dispatched, files };
+}
+
+/* ══ LES COUCHES DE SCÉNARIO ═══════════════════════════════════════════
+
+   ⚠️ POURQUOI ELLES EXISTENT, ET DEPUIS QUAND. Avant la fusion du lot 8, les
+   refus de la dérivation se prouvaient tout seuls : la vraie couche ne portait
+   aucun champ mécanique, donc il suffisait de la monter pour voir le bloc
+   déclarer. **La source s'est enrichie, et ces preuves-là se sont évaporées** —
+   `hit_die`, `saving_throw_keys`, `tool.ability_key`, `ac_base` sont arrivés.
+
+   On ne relâche pas une garantie parce que la matière s'est améliorée : on la
+   reprouve autrement. Une couche de scénario RECOUVRE un record par un `add`
+   (« le dernier qui parle gagne »), en n'y laissant que la prose. L'amputation
+   devient alors DÉLIBÉRÉE et LISIBLE, au lieu d'être un accident de la source
+   dont personne ne remarquerait la disparition. */
+
+/** Une couche minimale et valide, à monter par-dessus le reste. */
+export function uneCouche(id, records) {
+  return {
+    schema: "fh-layer/1",
+    id,
+    version: "1.0.0",
+    name: `Couche de scénario — ${id}`,
+    lang: "fr",
+    flags: [],
+    attribution: { license: "CC0-1.0" },
+    records
+  };
+}
+
+/** Recouvre un record par un `add` qui ne garde QUE les clefs nommées.
+ *  Ce qui n'est pas nommé disparaît — c'est l'amputation. */
+export function ampute(genre, id, name, data) {
+  return { [genre]: { [id]: { op: "add", name, slug: id.split(":").pop(), data } } };
 }
 
 /** La pile telle qu'un document doit la déclarer dans `build.layers`. */
