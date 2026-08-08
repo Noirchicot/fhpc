@@ -112,14 +112,27 @@ export const SPELL_TEXT_MAX = 4000;
       (un `ref` mort — à REFUSER). Un simple `null` confondrait les deux, et
       un contenu manquant se lirait comme un document faux.
 
-   2. `feats` — les records que les choix désignent par un `ref` de genre
-      `feat`, dans l'ordre du document, chacun avec le chemin qui l'a nommé.
-      Ils vivent HORS de tout namespace de module — `background.originFeat[0]`,
-      `feat.extra` : c'est la place que la table de couverture v1 ratifie —
-      donc aucun module ne pouvait les voir. L'autre issue aurait été de faire
-      déclarer le même don DEUX FOIS au personnage, une fois comme don et une
-      fois dans le namespace du module : deux places pour un seul fait, et la
-      dérive garantie. ⚠️ Question 1 du lot 20 à l'architecte.
+   2. `refs` — TOUS les records que le personnage désigne par un `ref` HORS du
+      namespace du module, dans l'ordre du document, chacun avec le chemin qui
+      l'a nommé et son `kind`. Le module filtre sur le genre qui l'intéresse.
+
+      ⚠️ GÉNÉRALISÉ PAR L'ARCHITECTE LE 2026-08-09, et c'était sa dette, pas
+      une amélioration de confort. Le lot 20 avait dû ouvrir un canal
+      `feats` — la seule forme que sa section autorisait — parce qu'un don
+      d'origine vit sous `background.originFeat[0]`, hors de tout namespace,
+      donc invisible à tout module. Il avait raison sur le besoin et il l'a
+      signalé. Mais `feats` était le PREMIER d'une série : le chapitre 4 a
+      exactement le même besoin pour la CLASSE (le pool vient d'elle) et pour
+      l'ARRIÈRE-PLAN (les choix imposés viennent de lui), et on aurait ouvert
+      `classes`, `backgrounds`… un champ par genre, à chaque lot.
+
+      L'autre issue — faire déclarer le même don DEUX FOIS au personnage, une
+      fois comme don et une fois dans le namespace du module — reste exclue :
+      deux places pour un seul fait, et la dérive garantie.
+
+      📌 Un `ref` mort JETTE ici, comme partout ailleurs dans le pli (`class`,
+      `species`, `gear[n]`, les sorts passent déjà par `must`). Ce n'est pas ce
+      canal qui invente cette règle, c'est lui qui cesse d'y échapper.
 
    ── ET CE QU'UN MODULE PEUT RÉCLAMER EN RETOUR ───────────────────────
    `consumed` : les chemins que le module a RÉELLEMENT lus hors de son
@@ -957,11 +970,14 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      à ce moment-là seulement que le choix cesse d'être signalé comme inerte.
      Le `ref` mort, lui, JETTE comme partout ailleurs : `class`, `species`,
      `gear[n]` et les sorts se lisent déjà par `must`. */
-  const featEntries = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "feat");
-  const featViews = featEntries.map((entry) => Object.assign(
-    { path: entry.choice.path },
-    flatView(reader.must(entry.choice.ref.kind, entry.choice.ref.id, `le choix « ${entry.choice.path} »`))
-  ));
+  /* Les `ref` du document, NON résolus ici — c'est délibéré et ça a été
+     mesuré : résoudre d'avance avec `must` VOLERAIT au module sa distinction
+     entre « la couche n'est pas montée » (le genre répond vide → à DÉCLARER)
+     et « le record n'existe pas » (un `ref` mort → à REFUSER). Un module lit
+     ses PROPRES `ref` par `records(kind, id)`, et c'est cette lecture-là qui
+     porte la nuance. La résolution n'a donc lieu que pour ce qu'on TEND au
+     module — hors de son namespace — et elle est faite par module, plus bas. */
+  const refEntries = picked.order.filter((entry) => entry.choice.ref);
   for (const statModule of statModules) {
     if (!statModule || typeof statModule.contribute !== "function" || typeof statModule.flag !== "string") {
       fail("un module de statistique doit déclarer `{flag, contribute}` — un module que la dérivation ne sait " +
@@ -972,10 +988,16 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     anyModuleActive = true;
     const own = picked.order.filter((entry) => statOwnsPath(statModule.flag, entry.choice.path));
     for (const entry of own) entry.consumed = true;
+    const outsideRefs = refEntries.filter((entry) => !statOwnsPath(statModule.flag, entry.choice.path));
     const outcome = statModule.contribute({
       proficiency,
       records: moduleRecords,
-      feats: featViews.map((view) => Object.assign({}, view)),
+      /* HORS de son namespace : ce qu'il y voit déjà lui arrive par `choices`,
+         et le lui tendre deux fois inviterait à le compter deux fois. */
+      refs: outsideRefs.map((entry) => Object.assign(
+        { path: entry.choice.path, kind: entry.choice.ref.kind },
+        flatView(reader.must(entry.choice.ref.kind, entry.choice.ref.id, `le choix « ${entry.choice.path} »`))
+      )),
       species: speciesView
         ? { id: speciesView.id, name: speciesView.record.name, slug: speciesView.record.slug, data: speciesData }
         : null,
@@ -1003,7 +1025,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         fail(`le module « ${statModule.flag} » rend un \`consumed\` qui n'est pas une liste de chemins.`);
       }
       for (const path of outcome.consumed) {
-        const claimed = featEntries.find((entry) => entry.choice.path === path);
+        const claimed = outsideRefs.find((entry) => entry.choice.path === path);
         if (!claimed) {
           fail(`le module « ${statModule.flag} » déclare avoir lu le choix « ${path} », que la dérivation ne lui a ` +
             "pas tendu. Un module ne réclame que ce qu'il a reçu : sinon il pourrait faire passer pour lu " +

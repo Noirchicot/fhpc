@@ -461,6 +461,80 @@ test("UN MODULE NE RÉCLAME QUE CE QU'ON LUI A TENDU — sinon il ferait taire n
     /`consumed` qui n'est pas une liste/);
 });
 
+/* ══ LE CANAL HORS-NAMESPACE EST GÉNÉRIQUE ════════════════════════════
+   Généralisation d'architecte du 2026-08-09. Le lot 20 avait dû ouvrir un
+   canal `feats` ; il est devenu `refs`, qui porte TOUS les genres. Ces deux
+   tests existent parce que le reste de la suite ne prouverait que l'absence
+   de casse : ils prouvent que la généralisation SERT À QUELQUE CHOSE. Sans
+   eux, le chapitre 4 découvrirait à ses dépens que le canal ne tend que des
+   dons. */
+
+test("UN MODULE VOIT LA CLASSE ET L'ARRIÈRE-PLAN, pas seulement les dons", () => {
+  /* C'est LE besoin du chapitre 4, vérifié avant qu'il soit écrit : le pool de
+     compétences vient de la classe, les choix imposés de l'arrière-plan, et
+     les deux sont désignés par un `ref` hors du namespace de tout module. */
+  let vus = null;
+  const espion = {
+    flag: FH_DESTINY_FLAG,
+    id: "espion:refs",
+    contribute: ({ refs }) => {
+      vus = refs;
+      return { stat: null, underived: [] };
+    }
+  };
+  const h = makeHarness({ layers: PILE_COMPLETE, modules: [espion] });
+  /* L'arrière-plan n'est pas dans la fixture partagée : on l'ajoute ICI plutôt
+     que de la modifier, parce que c'est CE test qui en a besoin — et c'est le
+     genre dont le chapitre 4 tirera les choix imposés. */
+  const arrierePlan = { path: "background", ref: { kind: "background", id: "srd:background:en:sage" }, label: "Sage" };
+  h.verbs.rebuild({ document: documentDe(h, [carte(HERMITE, "The Hermit"), don(DON), arrierePlan]) });
+
+  assert.ok(Array.isArray(vus), "le module reçoit bien `refs`");
+  const genres = [...new Set(vus.map((ref) => ref.kind))].sort();
+  for (const attendu of ["background", "class", "feat", "species"]) {
+    assert.ok(genres.includes(attendu), `le genre « ${attendu} » doit être tendu (genres vus : ${genres.join(", ")})`);
+  }
+
+  /* Et chaque entrée est UTILISABLE : le chemin qui l'a nommée, son genre, et
+     le contenu du record — sinon le module devrait le relire lui-même. */
+  const classe = vus.find((ref) => ref.kind === "class");
+  assert.match(classe.path, /^class/);
+  assert.ok(classe.id && classe.name && classe.data, "le record est aplati, pas un simple identifiant");
+
+  /* ⚠️ ET CE QUI EST DANS SON NAMESPACE N'Y EST PAS. La carte arrive par
+     `choices`, et la tendre DEUX FOIS inviterait à la compter deux fois. */
+  assert.equal(vus.some((ref) => ref.path.startsWith(FH_DESTINY_FLAG)), false,
+    "un `ref` du namespace du module ne repasse pas par `refs`");
+});
+
+test("ATTAQUE — le garde de réclamation mord sur TOUS les genres, pas seulement les dons", () => {
+  /* Le garde ne validait `consumed` que contre les dons. S'il était resté
+     ainsi, un module réclamant un chemin de CLASSE aurait été refusé pour la
+     mauvaise raison — et le jour où le chapitre 4 réclame légitimement sa
+     classe, on aurait relâché le garde au lieu de le corriger. */
+  const honnete = {
+    flag: FH_DESTINY_FLAG,
+    id: "honnete:refs",
+    contribute: ({ refs }) => ({
+      stat: null,
+      underived: [],
+      consumed: refs.filter((ref) => ref.kind === "class").map((ref) => ref.path)
+    })
+  };
+  const h = makeHarness({ layers: PILE_COMPLETE, modules: [honnete] });
+  assert.doesNotThrow(() => h.verbs.rebuild({ document: documentDe(h) }),
+    "réclamer un chemin de classe qu'on lui a TENDU est légitime");
+
+  /* Et l'inverse tient toujours : un chemin qui n'a pas de `ref` du tout ne se
+     réclame pas, quel que soit le genre invoqué. */
+  const menteur2 = Object.assign({}, honnete, {
+    contribute: () => ({ stat: null, underived: [], consumed: ["abilities.str"] })
+  });
+  const h2 = makeHarness({ layers: PILE_COMPLETE, modules: [menteur2] });
+  assert.throws(() => h2.verbs.rebuild({ document: documentDe(h2) }),
+    /déclare avoir lu le choix « abilities\.str »/);
+});
+
 /* ══ LE GARDE DE LA SOMME, NON MODIFIÉ, TOUJOURS VERT ═════════════════ */
 
 test("LE GARDE DE LA SOMME RESTE VERT SANS AVOIR ÉTÉ TOUCHÉ — et il mord encore sur ces termes-ci", () => {

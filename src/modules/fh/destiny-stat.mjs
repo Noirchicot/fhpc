@@ -380,10 +380,10 @@ export function createFhDestinyStat() {
      * @param {object|null} input.species      le record d'espèce choisi : `{id, name, slug, data}`
      * @param {Array}       input.choices      les choix sous `fh.destiny.*`, dans l'ordre du document
      * @param {Function}    input.records      `(kind, id?) => vue aplatie | null | liste du genre` (lot 20)
-     * @param {Array}       input.feats        les records `feat` que les choix désignent, `{path, id, name, slug, data}` (lot 20)
+     * @param {Array}       input.refs         les records que le personnage désigne HORS de ce namespace, `{path, kind, id, name, slug, data}` — ce module ne regarde que les `feat` (lot 20, généralisé par l'architecte le 2026-08-09)
      * @returns {{stat: object|null, underived: Array, consumed: string[]}}
      */
-    contribute({ proficiency, species, choices, records, feats }) {
+    contribute({ proficiency, species, choices, records, refs }) {
       const underived = [];
       const derivedLines = [];
       /* Les choix HORS namespace que ce module a réellement lus. La dérivation
@@ -429,7 +429,12 @@ export function createFhDestinyStat() {
          exacte, dès que le contenu ou le choix manque (voir les deux lecteurs
          plus haut). */
       arcanaLines(arcanaChoice, records, derivedLines, underived);
-      featLines(feats, derivedLines, underived, consumed);
+      /* Le canal est générique depuis le 2026-08-09 : c'est au module de dire
+         quel genre l'intéresse. Ici les dons, et eux seuls — une classe ou un
+         arrière-plan désignés par le personnage ne portent pas de valeur de
+         Destinée, et les lire ici fabriquerait un terme que rien ne motive. */
+      featLines((Array.isArray(refs) ? refs : []).filter((ref) => ref.kind === "feat"),
+        derivedLines, underived, consumed);
 
       /* 5. CE QUI N'EST DÉRIVABLE DE RIEN, déclaré au lieu d'être inventé.
          REWRITTEN 2026-08-10 (lot 20) — la raison disait « n'a pas plus de
