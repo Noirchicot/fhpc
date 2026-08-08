@@ -317,6 +317,47 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
    reste à décider **qui écrit le pont**, et si `ruleValues` remplace à terme
    le `layer.rules` du moteur.
 
+   ### ⚠️ CE QUI EST DÉJÀ VRAI, ET QU'IL NE FAUT PAS « RÉPARER » — mesuré le 2026-08-10
+
+   **Le chiffre de l'Épuisement N'EST PAS un trou de comportement.** Une sonde
+   d'architecte a monté les deux piles et lu la pénalité réelle :
+
+   | Pile montée | Niveau 3 | Par degré |
+   |---|---|---|
+   | SRD pur | −6 | **−2** (SRD 5.2.1 p.181) |
+   | avec la couche FH | −3 | **−1** (intention d'Eric, confirmée par lui le 2026-08-10) |
+
+   C'est **déjà câblé** par la surcharge `layer.rules` et **déjà épinglé par un
+   test** (`tests/play-srd-only.test.mjs:482-483`). Un document de passation a
+   décrit ça comme une « contradiction vive » où le moteur jouerait −2 en FH :
+   **c'est faux**, et l'erreur venait de la lecture de la constante
+   `SRD_EXHAUSTION_PER_LEVEL` (le **défaut** avant surcharge) prise pour la
+   valeur appliquée.
+
+   Ce qui manque n'est donc pas le chiffre, c'est **le chemin par les données** :
+   la valeur FH vit dans le **code** d'un module moteur, pas dans une couche.
+   Or `ruleValues` a été séparé de `flags` exprès pour répondre à « quel nombre
+   le moteur applique-t-il ? ». C'est ça, et seulement ça, le pont qui manque.
+
+   ### ⚠️⚠️ ET LE PIÈGE QUI ATTEND CELUI QUI ÉCRIRA CE PONT : LE SIGNE
+
+   **Les deux vocabulaires n'ont pas la même convention, et rien ne le dit.**
+
+   | Où | Écrit | Sens |
+   |---|---|---|
+   | couches (`ruleValues`) | `"fh.exhaustion": -1` | la pénalité, **signée** |
+   | moteur (`rules`) | `exhaustionPerLevel: 1` | un **multiplicateur positif**, appliqué par `-level * perLevel` (`session.mjs:179`) |
+
+   Un pont naïf — `exhaustionPerLevel = ruleValues["fh.exhaustion"]` — donnerait
+   `-3 × -1 = +3` : **un BONUS d'Épuisement**, silencieux et jouable. Le pont
+   doit donc **normaliser explicitement** et refuser bruyamment un signe
+   inattendu, jamais recopier la valeur.
+
+   📌 Nuance à ne pas sur-lire : les `-1` mesurés sont des **fixtures de test**
+   (`layers-document`, `layers-fold`). **Aucune couche livrée ne porte
+   `ruleValues`** — vérifié. Le piège est donc encore gratuit à désamorcer, et
+   il cesse de l'être le jour où une couche en porte.
+
 5. **La grammaire de chemin exclut le souligné des segments pointés**
    (`[a-zA-Z][a-zA-Z0-9]*`), alors que les exports fh-srd sont en snake_case :
    **1 544 des 14 145 clefs `data` de la couche SRD FR** (11 %) ne sont
