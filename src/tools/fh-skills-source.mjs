@@ -219,6 +219,99 @@ export const TOOLS_ADDED = [
   { slug: "mount-air", name: "Mount (Air)", ability: "wis", inherits: null }
 ];
 
+/* ══ LES POOLS DE POINTS — DU CONTENU, PAS UNE MÉCANIQUE ═══════════════
+   Le nombre qu'une classe accorde est du CONTENU, au même titre que la Base
+   de Destinée d'une espèce (`data.destiny.base`, lot 15) : c'est une donnée
+   du chapitre, elle vit dans la couche, et le moteur la LIT. Loi §0.13 — le
+   moteur ne connaît pas le mot « Rogue » ni le nombre 18.
+
+   ⚠️ CE QUE CETTE TABLE NE FAIT PAS. Elle ne dérive rien : elle ne dit pas
+   combien de points un personnage DONNÉ reçoit. Cette dérivation-là est
+   suspendue (INVENTAIRE-LOT-22.md, question 1 — `build.budgets` n'a aucun
+   chemin d'écriture), et poser la matière ne préjuge pas de sa destination.
+
+   ── LES QUATRE POOLS DE NIVEAU 1, ARRIÈRE-PLAN INCLUS ─────────────────
+   Rogue 18 · Bard 16 · Druid/Monk/Ranger 14 · toutes les autres 12.
+
+   ⛔ DOUZE LIGNES, PAS TREIZE. Le tableau du chapitre en porte une
+   quatorzième — l'Artificier — et elle ne peut pas exister ici : le SRD 5.2.1
+   ne porte que 12 classes (mesuré), et l'Artificier appartient à du contenu
+   WotC hors SRD. Le dépôt est public (loi §0.8). Il n'y a d'ailleurs rien à
+   retirer : une couche ne peut pas désactiver un record qui n'a jamais
+   existé, et un `patch` sur record absent est un échec bruyant.
+
+   ── LA PROGRESSION EST ÉNUMÉRÉE, PAS CALCULÉE ─────────────────────────
+   `by_level` donne le gain PALIER PAR PALIER, du niveau 2 au niveau 20. On
+   n'écrit nulle part « +2 tous les 4 niveaux » : une cadence dans le code
+   serait une règle de jeu dans le moteur, et le jour où Eric la change il
+   faudrait recompiler au lieu de rééditer une couche.
+
+   Deux sources se cumulent dans ces nombres, et le canon les tient séparées :
+   · le +2 universel aux niveaux 4, 8, 12, 16 et 20 ;
+   · le +1 par niveau du BARDE à partir du 2, qui remplace *Jack of All
+     Trades* (le trait disparaît).
+
+   Le barde reçoit donc 3 au niveau 4 (son +1 et le +2 universel). Vérifié
+   contre le tableau du chapitre, qui écrit « +1+2(21) » à cette ligne, et
+   dont le cumul au niveau 8 vaut 27 : 16 + 7×(+1) + 2×(+2) = 27.
+
+   📌 RÈGLE D'ERIC, Q15-8 : ces paliers sont ceux que le personnage a
+   TRAVERSÉS. Créé au niveau 5, il a ceux des niveaux ≤ 5 — pas celui du 6.
+   La table le permet ; c'est la dérivation qui devra le respecter. */
+
+const PALIERS_UNIVERSELS = [4, 8, 12, 16, 20];
+
+/** `{niveau: gain}` pour une classe, du niveau 2 au niveau 20. */
+function progression({ bardePlusUnParNiveau = false } = {}) {
+  const byLevel = {};
+  for (let niveau = 2; niveau <= 20; niveau += 1) {
+    let gain = 0;
+    if (PALIERS_UNIVERSELS.includes(niveau)) gain += 2;
+    if (bardePlusUnParNiveau) gain += 1;
+    if (gain > 0) byLevel[String(niveau)] = gain;
+  }
+  return byLevel;
+}
+
+export const CLASS_POOLS = [
+  { target: "srd:class:en:barbarian", base: 12 },
+  { target: "srd:class:en:bard", base: 16, bard: true },
+  { target: "srd:class:en:cleric", base: 12 },
+  { target: "srd:class:en:druid", base: 14 },
+  { target: "srd:class:en:fighter", base: 12 },
+  { target: "srd:class:en:monk", base: 14 },
+  { target: "srd:class:en:paladin", base: 12 },
+  { target: "srd:class:en:ranger", base: 14 },
+  { target: "srd:class:en:rogue", base: 18 },
+  { target: "srd:class:en:sorcerer", base: 12 },
+  { target: "srd:class:en:warlock", base: 12 },
+  { target: "srd:class:en:wizard", base: 12 }
+].map((entry) => ({
+  target: entry.target,
+  base: entry.base,
+  byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) })
+}));
+
+/* ══ CE QUE COÛTE UN PALIER DE COMPÉTENCE ══════════════════════════════
+   Demi-compétence 1 · compétence pleine 2 · expertise 4 (achetable par tous à
+   partir du niveau 4). Et la règle d'Eric du 2026-08-08 : un choix IMPOSÉ par
+   la classe ou l'arrière-plan pose 1 point — une demi-compétence — et ce point
+   se déduit du pool. « On n'est plus sous le joug de D&D Beyond. »
+
+   ⚠️ POSÉS ICI, LUS PAR PERSONNE POUR L'INSTANT, et c'est délibéré. Ces coûts
+   appartiennent à la dérivation suspendue. Ils ne sont PAS passés en
+   `ruleValues` : le bloc `layers` REFUSE le montage d'une couche qui porte une
+   valeur de règle que le moteur n'a pas déclaré savoir lire — et la
+   correspondance entre une clef de couche et une clef de règle du moteur
+   n'est écrite nulle part (question ouverte n°4 du bloc `layers`, que ce lot
+   n'a pas le droit de trancher). Les mettre en `ruleValues` ferait donc jeter
+   le montage, mesuré. Ils vivent dans le record de chaque classe, avec le
+   pool qu'ils dépensent. */
+export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4, imposed: 1 };
+
+/** Le niveau à partir duquel l'expertise s'achète, pour tous. */
+export const EXPERTISE_FROM_LEVEL = 4;
+
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════
    Déclarés ici pour que le générateur les CONFRONTE à ce qu'il a réellement
    produit, au lieu de les recompter à partir de ses propres listes — un
@@ -231,7 +324,9 @@ export const EXPECTED = {
   skills: 26,
   tools: 36,
   srdSkills: 18,
-  srdTools: 25
+  srdTools: 25,
+  /* ⛔ DOUZE. Si ce nombre devient 13, quelqu'un a fait entrer l'Artificier. */
+  classes: 12
 };
 
 /* Le drapeau que cette couche lève. Il n'active aucun module dans ce lot —

@@ -40,7 +40,10 @@ import { fileURLToPath } from "node:url";
 
 import {
   ABILITY_NAMES,
+  CLASS_POOLS,
+  EXPERTISE_FROM_LEVEL,
   EXPECTED,
+  TIER_COSTS,
   FH_SKILLS_FLAG,
   LAYER,
   SKILLS_ADDED,
@@ -270,6 +273,58 @@ function buildTools(srd) {
   return { tool, kept: kept.length, added: TOOLS_ADDED.length, total };
 }
 
+/* ══ LES POOLS DE POINTS, POSÉS SUR LES DOUZE CLASSES ══════════════════
+   Un `patch` étroit par classe : le pool de niveau 1 et sa progression
+   énumérée. Rien d'autre du record SRD n'est touché — ni `skill_choice`, qui
+   porte déjà les choix imposés de la classe, ni les aptitudes.
+
+   ⛔ ET LE GARDE QUI COMPTE POUR DE VRAI : le SRD doit porter EXACTEMENT 12
+   classes, et chacune doit recevoir son pool. Une 13ᵉ classe apparue dans une
+   régénération de `fh-srd` — un Artificier qui rentrerait par la porte de
+   derrière — ferait jeter ici, et pas trois mois plus tard sur une question
+   de licence (loi §0.8, dépôt public). */
+function buildClasses(srd) {
+  const srdClasses = (srd.records || {}).class || {};
+  const srdIds = Object.keys(srdClasses);
+  if (srdIds.length !== EXPECTED.classes) {
+    fail(`la couche SRD porte ${srdIds.length} classes, la source en attend ${EXPECTED.classes}. ` +
+      "Le chapitre 4 donne un pool à chacune des douze classes du SRD ; s'il y en a treize, la " +
+      "treizième n'a pas de pool — et si c'est l'Artificier, il n'a rien à faire dans un dépôt public.");
+  }
+
+  const klass = {};
+  const servis = new Set();
+
+  for (const entry of CLASS_POOLS) {
+    srdRecord(srd, "class", entry.target, `le pool de compétences de « ${entry.target} »`);
+    if (klass[entry.target]) fail(`la classe « ${entry.target} » reçoit deux pools.`);
+    if (!Number.isInteger(entry.base) || entry.base <= 0) {
+      fail(`« ${entry.target} » reçoit un pool qui n'est pas un entier positif (${entry.base}).`);
+    }
+    servis.add(entry.target);
+    klass[entry.target] = {
+      op: "patch",
+      changes: {
+        "data[fh_skill_pool]": {
+          base: entry.base,
+          by_level: entry.byLevel,
+          tier_costs: { ...TIER_COSTS },
+          expertise_from_level: EXPERTISE_FROM_LEVEL
+        }
+      },
+      note: `Fate's Hand — level-1 skill pool ${entry.base}, background included`
+    };
+  }
+
+  const oubliées = srdIds.filter((id) => !servis.has(id));
+  if (oubliées.length > 0) {
+    fail(`ces classes du SRD n'ont pas de pool : ${oubliées.join(", ")}. Un personnage de cette classe ` +
+      "n'aurait aucun point à dépenser, et rien ne le dirait (loi §0.5).");
+  }
+
+  return { class: klass, total: servis.size };
+}
+
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────
    Un record AJOUTÉ par Fate's Hand ne doit pas porter le texte éditorial du
    SRD, sauf par l'héritage déclaré ci-dessus. Le contrôle est fait sur le
@@ -312,6 +367,7 @@ export function buildLayer({ srd }) {
 
   const skills = buildSkills(srd);
   const tools = buildTools(srd);
+  const classes = buildClasses(srd);
 
   const layer = {
     schema: LAYER.schema,
@@ -330,12 +386,12 @@ export function buildLayer({ srd }) {
         "Instrument — have been removed, split or modified for this work."
     },
     description: LAYER.description,
-    records: { skill: skills.skill, tool: tools.tool }
+    records: { skill: skills.skill, tool: tools.tool, class: classes.class }
   };
 
   assertNoHandWrittenSrdText(layer, srd);
 
-  return { layer, skills, tools };
+  return { layer, skills, tools, classes };
 }
 
 export function serialize(layer) {
@@ -345,17 +401,18 @@ export function serialize(layer) {
 /** Génère la couche et l'ÉCRIT. `outDir` et `srdPath` sont des arguments : la
  *  suite génère dans un répertoire temporaire et compare là. */
 export function generate({ outDir = OUT_DIR, srdPath = SRD_PATH } = {}) {
-  const { layer, skills, tools } = buildLayer({ srd: readSrdLayer(srdPath) });
+  const { layer, skills, tools, classes } = buildLayer({ srd: readSrdLayer(srdPath) });
   mkdirSync(outDir, { recursive: true });
   const outPath = join(outDir, OUT_NAME);
   writeFileSync(outPath, serialize(layer));
-  return { outPath, skills, tools };
+  return { outPath, skills, tools, classes };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { outPath, skills, tools } = generate();
+  const { outPath, skills, tools, classes } = generate();
   console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
-    `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs) → ${outPath}`);
+    `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
+    `${classes.total} pools de classe → ${outPath}`);
 }
 
 export { OUT_NAME, SRD_PATH };

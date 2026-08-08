@@ -280,6 +280,298 @@
           "name": "Mount (Air)"
         }
       }
+    },
+    "class": {
+      "srd:class:en:barbarian": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:bard": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 16,
+            "by_level": {
+              "2": 1,
+              "3": 1,
+              "4": 3,
+              "5": 1,
+              "6": 1,
+              "7": 1,
+              "8": 3,
+              "9": 1,
+              "10": 1,
+              "11": 1,
+              "12": 3,
+              "13": 1,
+              "14": 1,
+              "15": 1,
+              "16": 3,
+              "17": 1,
+              "18": 1,
+              "19": 1,
+              "20": 3
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 16, background included"
+      },
+      "srd:class:en:cleric": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:druid": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 14,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 14, background included"
+      },
+      "srd:class:en:fighter": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:monk": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 14,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 14, background included"
+      },
+      "srd:class:en:paladin": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:ranger": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 14,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 14, background included"
+      },
+      "srd:class:en:rogue": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 18,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 18, background included"
+      },
+      "srd:class:en:sorcerer": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:warlock": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      },
+      "srd:class:en:wizard": {
+        "op": "patch",
+        "changes": {
+          "data[fh_skill_pool]": {
+            "base": 12,
+            "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "tier_costs": {
+              "half": 1,
+              "proficient": 2,
+              "expertise": 4,
+              "imposed": 1
+            },
+            "expertise_from_level": 4
+          }
+        },
+        "note": "Fate's Hand — level-1 skill pool 12, background included"
+      }
     }
   }
 }

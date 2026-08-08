@@ -298,6 +298,113 @@ test("acceptation 4 — `disable`/`enable` rendent la pile réversible, sans rem
   assert.deepEqual(layers.verbs.flags(), ["fh.skills"]);
 });
 
+/* ══ LES POOLS DE CLASSE — LA MATIÈRE, PAS LA DÉRIVATION ═══════════════
+   Ces suites vérifient que le CONTENU du chapitre est posé et juste. Elles ne
+   vérifient PAS qu'un personnage reçoit son pool : cette dérivation-là est
+   suspendue (question 1 de l'inventaire). La distinction est le cœur de ce
+   lot — la matière est livrée, la destination du nombre ne l'est pas. */
+
+/** Les douze pools de niveau 1, écrits depuis le canon. */
+const LES_12_POOLS = [
+  ["srd:class:en:barbarian", 12], ["srd:class:en:bard", 16], ["srd:class:en:cleric", 12],
+  ["srd:class:en:druid", 14], ["srd:class:en:fighter", 12], ["srd:class:en:monk", 14],
+  ["srd:class:en:paladin", 12], ["srd:class:en:ranger", 14], ["srd:class:en:rogue", 18],
+  ["srd:class:en:sorcerer", 12], ["srd:class:en:warlock", 12], ["srd:class:en:wizard", 12]
+];
+
+test("les douze classes portent leur pool de niveau 1, arrière-plan inclus", () => {
+  const verbs = pile();
+  const observé = LES_12_POOLS.map(([id]) => {
+    const vue = verbs.query({ kind: "class", id });
+    assert.ok(vue, `« ${id} » doit exister`);
+    return [id, vue.record.data.fh_skill_pool.base];
+  });
+  assert.deepEqual(observé, LES_12_POOLS, "Rogue 18 · Bard 16 · Druid/Monk/Ranger 14 · les autres 12");
+});
+
+test("⛔ DOUZE classes, pas treize — l'Artificier n'est ni au SRD ni dans la couche", () => {
+  const verbs = pile();
+  const classes = verbs.query({ kind: "class" });
+  assert.equal(classes.length, EXPECTED.classes);
+  assert.equal(verbs.query({ kind: "class", id: "srd:class:en:artificer" }), null);
+
+  /* Et il n'est mentionné NULLE PART dans la couche, pas même en commentaire :
+     le dépôt est public, et l'Artificier est du contenu WotC hors SRD. */
+  const octets = readFileSync(join(ROOT, FH_SKILLS_EN), "utf8");
+  assert.equal(/artificer/i.test(octets), false,
+    "le mot ne doit pas apparaître dans l'artefact publié (loi §0.8)");
+});
+
+test("la progression du barde vaut +1 par niveau dès le 2, en plus du +2 universel", () => {
+  const verbs = pile();
+  const barde = verbs.query({ kind: "class", id: "srd:class:en:bard" }).record.data.fh_skill_pool;
+
+  assert.equal(barde.by_level["2"], 1, "niveau 2 : le +1 du barde seul");
+  assert.equal(barde.by_level["3"], 1);
+  assert.equal(barde.by_level["4"], 3, "niveau 4 : son +1 ET le +2 universel — le chapitre écrit « +1+2(21) »");
+
+  /* Le cumul du chapitre : 27 au niveau 8. C'est la vérification qui attrape
+     une cadence fausse, là où les paliers isolés peuvent tous sembler bons. */
+  let cumul = barde.base;
+  for (let n = 2; n <= 8; n += 1) cumul += barde.by_level[String(n)] || 0;
+  assert.equal(cumul, 27, "16 + 7×(+1) + 2×(+2) = 27, exactement la ligne du tableau");
+});
+
+test("une classe sans le +1 du barde ne gagne qu'aux niveaux 4, 8, 12, 16 et 20", () => {
+  const verbs = pile();
+  const rogue = verbs.query({ kind: "class", id: "srd:class:en:rogue" }).record.data.fh_skill_pool;
+  assert.deepEqual(Object.keys(rogue.by_level).map(Number).sort((a, b) => a - b), [4, 8, 12, 16, 20]);
+  assert.ok(Object.values(rogue.by_level).every((v) => v === 2), "+2 à chaque palier");
+
+  let cumul = rogue.base;
+  for (let n = 2; n <= 8; n += 1) cumul += rogue.by_level[String(n)] || 0;
+  assert.equal(cumul, 22, "18 + 2 + 2 = 22 au niveau 8, comme le tableau du chapitre");
+});
+
+test("les coûts des paliers voyagent avec le pool qu'ils dépensent", () => {
+  const verbs = pile();
+  const pool = verbs.query({ kind: "class", id: "srd:class:en:wizard" }).record.data.fh_skill_pool;
+  assert.deepEqual(pool.tier_costs, { half: 1, proficient: 2, expertise: 4, imposed: 1 },
+    "½ = 1 · pleine = 2 · expertise = 4 · et un choix IMPOSÉ pose 1 point (décision d'Eric)");
+  assert.equal(pool.expertise_from_level, 4, "l'expertise s'achète par tous à partir du niveau 4");
+});
+
+test("le patch des pools est ÉTROIT — `skill_choice` du SRD n'est pas touché", () => {
+  const verbs = pile();
+  const srd = readSrdLayer(SRD_PATH);
+  for (const [id] of LES_12_POOLS) {
+    const vue = verbs.query({ kind: "class", id });
+    assert.deepEqual(vue.record.data.skill_choice, srd.records.class[id].data.skill_choice,
+      `${id} : les choix imposés de la classe restent ceux du SRD`);
+    assert.equal(vue.record.data.hit_die, srd.records.class[id].data.hit_die);
+  }
+});
+
+test("acceptation 4 — couche débrayée, aucune classe ne porte de pool", () => {
+  const verbs = pile({ fh: false });
+  for (const [id] of LES_12_POOLS) {
+    assert.equal(verbs.query({ kind: "class", id }).record.data.fh_skill_pool, undefined,
+      `${id} : un personnage SRD pur n'a pas de pool de points Fate's Hand`);
+  }
+});
+
+test("REFUS — une 13ᵉ classe au SRD ferait jeter, au lieu de rester sans pool", () => {
+  const srd = srdAmputé((s) => {
+    s.records.class["srd:class:en:artificer"] = { name: "X", slug: "x", data: {} };
+  });
+  assert.throws(() => buildLayer({ srd }), (err) => {
+    assert.match(err.message, /13 classes|douze|Artificier/i);
+    return true;
+  });
+});
+
+test("REFUS — une classe du SRD oubliée par la table des pools fait jeter", () => {
+  /* Renommer une classe la rend « non servie » sans changer le compte : c'est
+     le seul montage qui atteint CE garde plutôt que celui des douze. */
+  const srd = srdAmputé(renomme("class", "srd:class:en:monk", "srd:class:en:mystic"));
+  assert.throws(() => buildLayer({ srd }), /srd:class:en:monk/);
+});
+
 /* ══ LE GÉNÉRATEUR — REPRODUCTIBILITÉ ET REFUS ═════════════════════════ */
 
 test("le fichier commité est EXACTEMENT ce que le générateur produit", () => {
