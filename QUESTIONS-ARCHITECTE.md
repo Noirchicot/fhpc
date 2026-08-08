@@ -553,6 +553,79 @@ un besoin non formulé.
 
 ---
 
+## ⛔ HORS PÉRIMÈTRE, MAIS BLOQUANT POUR LA FUSION — `fh-srd` a bougé PENDANT ce lot
+
+**Mesuré le 2026-08-08, en fin de lot, et il faut le lire avant de fusionner
+quoi que ce soit.**
+
+`~/tools/fh-srd` a reçu trois commits **pendant que ce lot s'écrivait** :
+
+```
+e95350b  2026-08-08 12:43  Repair the two-column reading order, and name the 39 records it was corrupting
+df7ec71  2026-08-08 12:4x  Species traits and lineages, read from the page's geometry rather than its prose
+6f9f425  2026-08-08 12:50  Fusion du lot 11-srd-colonnes : l'ordre de lecture des pages à deux colonnes
+```
+
+C'est **le préalable que le lot 8 avait nommé** en refusant `traits (espèce)`
+(« mise en page à deux colonnes aplatie, une espèce qui déborde sur la
+suivante »). Il est levé. Les exports ont été réécrits à **12:50**.
+
+**Conséquence immédiate** : `layers/srd-5.2.1-*.layer.json`, tels qu'ils sont
+commités dans `fhpc`, sont **périmés**. Une régénération produit 613 lignes de
+différence — les tables de classe quittent la prose des aptitudes pour aller
+où elles doivent.
+
+### Deux défauts distincts, qu'il ne faut pas confondre
+
+**1. `tests/gen-srd-layer.test.mjs` ÉCRIT dans un artefact suivi par git.** Son
+dernier test appelle `generate()`, qui **écrase** `layers/*.layer.json`, *puis*
+compare. Quand la comparaison échoue — c'est-à-dire précisément quand elle a
+quelque chose à dire — **elle laisse l'arbre modifié**. Lancer `npm test` mute
+le dépôt.
+
+**2. Et comme `node --test` lance les fichiers EN PARALLÈLE, c'est une
+course.** Les suites qui *lisent* `layers/` (`build-acceptance`,
+`layers-acceptance`, et les deux miennes) les lisent pendant que
+`gen-srd-layer` les *réécrit*. Selon qui gagne, la même suite est verte ou
+rouge sans qu'une ligne ait changé. **Les deux ont été observées dans la même
+heure**, sur le même arbre.
+
+C'est exactement la leçon que ce chantier avait déjà payée, sous une autre
+forme : *une preuve peut cesser de prouver sans que personne n'y touche.* Ici
+elle peut même alterner.
+
+### Ce que ce lot a fait, et ce qu'il n'a PAS fait
+
+**Isolé, mesuré, et laissé intact.** Sur l'arbre **tel qu'il est commité** :
+
+| Ce qui a été lancé | Résultat | Arbre après |
+|---|---|---|
+| `build-acceptance` + `layers-acceptance` + les deux suites MCP, **sans** le générateur | **32/32 vertes** | **propre** |
+| `gen-srd-layer` **seul** | **11/12** — seul `generate() … laisse un arbre re-générable à l'identique` tombe | **`layers/` modifié** |
+
+**Ce lot n'a PAS régénéré les couches**, et c'est délibéré :
+
+- ce sont les artefacts d'un autre lot, et les régénérer **rebaserait la
+  dérivation** — `traits (espèce)` redevient probablement dérivable, donc la
+  liste `underived` de `build-acceptance` (lot 9) **et la mienne** deviennent
+  fausses, et les deux devront être réécrites `REWRITTEN` sur leur propre
+  ligne ;
+- c'est le rituel que ce dépôt appelle « la confrontation à la vraie matière »,
+  et il appartient à qui fusionne le lot `11-srd-colonnes` dans `fhpc`, pas à
+  un lot qui passait par là.
+
+### À commander
+
+1. **Régénérer les couches** et refaire la confrontation, comme après le lot 8.
+   Les deux listes `underived` (lot 9, lot 10) sont à réécrire à la nouvelle
+   vérité — pas à relâcher.
+2. **Faire en sorte que la suite n'écrive plus dans l'arbre.** Un test qui
+   vérifie la reproductibilité peut générer **à côté** et comparer, sans
+   toucher au fichier suivi. Tant qu'il écrit, `npm test` n'est pas idempotent
+   et la course reste ouverte.
+
+---
+
 ## Hors questions — deux remarques pour la fusion
 
 1. **`ajv` n'est pas installé dans le worktree.** `npm test` est vert parce
