@@ -758,33 +758,37 @@ function bindFh(engine, { chaosTables }) {
        pas le chemin commun — il ne sait pas ce qu'est un +2 maison. */
     if (cfg.plusTwo) entry.plusTwo = true;
 
-    const tilt = resolveTilt({ tilts: cfg.tilts, disadvantage: cfg.tiltDisadvantage });
-    /* Rien à dire d'un jet que personne n'a penché : ne rien écrire garde
-       `entry.tilt` absent, et l'absence est une assertion aussi lisible que
-       la présence. */
-    if (!tilt.tilts && !tilt.disadvantage) return null;
+    /* ⭐ LE MODE DÉJÀ POSÉ PAR UNE SOURCE SRD ENTRE DANS LA TABLE — il ne se
+       compare plus à elle. Décision d'Eric du 2026-08-09 : un Avantage vaut le
+       seuil atteint (« on peut pas faire mieux »), un Désavantage bascule sur
+       la deuxième colonne. Une seule règle d'annulation au lieu de deux, et le
+       refus que ce module opposait ici n'a plus lieu d'être. */
+    const srdAdvantage = cfg.d20Mode === "advantage";
+    const srdDisadvantage = cfg.d20Mode === "disadvantage";
+    const tilt = resolveTilt({
+      tilts: cfg.tilts,
+      disadvantage: !!cfg.tiltDisadvantage || srdDisadvantage,
+      advantage: srdAdvantage
+    });
+    /* Rien à dire d'un jet que Fate's Hand n'a pas penché. ⚠️ ON INTERROGE LES
+       ENTRÉES BRUTES, PAS LE RÉSULTAT : depuis que le mode SRD entre dans la
+       table, `tilt.disadvantage` peut être vrai sans qu'aucun Tilt n'ait été
+       donné — un désavantage purement SRD. Sortir ici laisse le moteur de base
+       appliquer SA règle sur SON jet, ce qui est exactement ce qu'on veut : le
+       Tilt ne s'invite pas dans un jet qui ne le concerne pas, et `entry.tilt`
+       reste absent plutôt que de peindre un badge sur un jet sans Tilt. */
+    if (!cfg.tilts && !cfg.tiltDisadvantage) return null;
 
     entry.tilt = { tilts: tilt.tilts, disadvantage: tilt.disadvantage, outcome: tilt.outcome };
     if (tilt.bonus) { cfg.plusTwo = true; entry.plusTwo = true; }
-    if (tilt.mode === "flat") return null;
 
-    /* §0.5 — DEUX SYSTÈMES D'ANNULATION NE SE MÉLANGENT PAS EN SILENCE. Le
-       Tilt porte SA règle d'annulation (« 1 ou plus + désavantage = tout
-       s'annule ») ; la 5e porte la sienne (avantage et désavantage se
-       neutralisent). Quand une source SRD a déjà penché ce jet dans l'AUTRE
-       sens, choisir laquelle des deux s'applique serait inventer une règle
-       qu'Eric n'a pas énoncée (loi §0.10). Le refus nomme les deux côtés pour
-       que la table tranche elle-même — en retirant l'un, ou en comptant le
-       désavantage comme celui du Tilt. */
-    if (cfg.d20Mode !== "flat" && cfg.d20Mode !== tilt.mode) {
-      throw new Error(
-        "fhpc/fh: this roll is already set to \"" + cfg.d20Mode + '" and the Tilt table resolves to "' + tilt.mode +
-        '" (' + tilt.tilts + " Tilt" + (tilt.tilts === 1 ? "" : "s") +
-        (tilt.disadvantage ? ", disadvantage present" : ", no disadvantage") + "). Fate's Hand cancels inside the " +
-        "Tilt table; 5e cancels between advantage and disadvantage. Nothing ratifies which one wins, so the " +
-        "engine will not pick: declare the SRD side as part of the Tilt, or drop it."
-      );
-    }
+    /* ⚠️ ET LA TABLE A LE DERNIER MOT, Y COMPRIS QUAND ELLE REND « À PLAT ».
+       C'est le piège de cette réécriture : l'ancienne version sortait ici sur
+       un `flat`, ce qui était juste tant que le mode SRD n'entrait pas dans la
+       table. Maintenant qu'il y entre, un `flat` peut être une ANNULATION
+       (« D + T = Flat ») — sortir sans écrire laisserait le Désavantage en
+       place et le jet partirait penché alors que la règle vient de le
+       redresser. */
     cfg.d20Mode = tilt.mode;
     /* L'entrée porte déjà une copie du mode, prise avant ce moment : sans
        cette ligne, la console rouverte sur cette ligne du flux proposerait

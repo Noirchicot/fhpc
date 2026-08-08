@@ -62,19 +62,28 @@ function rollWith(h, settings, ...dice) {
    ══════════════════════════════════════════════════════════════════════ */
 
 test("TABLE 1 — 0 Tilt, aucun désavantage : jet normal", () => {
+  /* REWRITTEN 2026-08-09 — le retour porte désormais `advantage`, l'entrée
+     ajoutée quand le mode SRD est entré dans la table (décision d'Eric du
+     2026-08-09). Les cinq lignes elles-mêmes n'ont pas bougé d'un chiffre. */
   assert.deepEqual(resolveTilt({ tilts: 0, disadvantage: false }),
-    { tilts: 0, disadvantage: false, outcome: "normal", mode: "flat", bonus: 0 });
+    { tilts: 0, disadvantage: false, advantage: false, outcome: "normal", mode: "flat", bonus: 0 });
 });
 
 test("TABLE 2 — 1 Tilt, aucun désavantage : +2", () => {
+  /* REWRITTEN 2026-08-09 — le retour porte désormais `advantage`, l'entrée
+     ajoutée quand le mode SRD est entré dans la table (décision d'Eric du
+     2026-08-09). Les cinq lignes elles-mêmes n'ont pas bougé d'un chiffre. */
   assert.deepEqual(resolveTilt({ tilts: 1, disadvantage: false }),
-    { tilts: 1, disadvantage: false, outcome: "plus-two", mode: "flat", bonus: 2 });
+    { tilts: 1, disadvantage: false, advantage: false, outcome: "plus-two", mode: "flat", bonus: 2 });
   assert.equal(TILT_BONUS, 2, "un Tilt seul vaut +2 — pas +1 par Tilt");
 });
 
 test("TABLE 3 — 2 Tilts ou plus, aucun désavantage : Avantage", () => {
+  /* REWRITTEN 2026-08-09 — le retour porte désormais `advantage`, l'entrée
+     ajoutée quand le mode SRD est entré dans la table (décision d'Eric du
+     2026-08-09). Les cinq lignes elles-mêmes n'ont pas bougé d'un chiffre. */
   assert.deepEqual(resolveTilt({ tilts: 2, disadvantage: false }),
-    { tilts: 2, disadvantage: false, outcome: "advantage", mode: "advantage", bonus: 0 });
+    { tilts: 2, disadvantage: false, advantage: false, outcome: "advantage", mode: "advantage", bonus: 0 });
   /* « 2 ou plus » est un SEUIL, pas un palier d'échelle : rien ne vient
      après, et trois Tilts ne valent pas plus que deux. C'est la moitié de la
      raison d'Eric — « ça évite aux humains des calculs trop compliqués ». */
@@ -86,13 +95,19 @@ test("TABLE 3 — 2 Tilts ou plus, aucun désavantage : Avantage", () => {
 });
 
 test("TABLE 4 — 0 Tilt, un désavantage présent : Désavantage", () => {
+  /* REWRITTEN 2026-08-09 — le retour porte désormais `advantage`, l'entrée
+     ajoutée quand le mode SRD est entré dans la table (décision d'Eric du
+     2026-08-09). Les cinq lignes elles-mêmes n'ont pas bougé d'un chiffre. */
   assert.deepEqual(resolveTilt({ tilts: 0, disadvantage: true }),
-    { tilts: 0, disadvantage: true, outcome: "disadvantage", mode: "disadvantage", bonus: 0 });
+    { tilts: 0, disadvantage: true, advantage: false, outcome: "disadvantage", mode: "disadvantage", bonus: 0 });
 });
 
 test("TABLE 5 — 1 Tilt ou plus contre un désavantage : tout s'annule", () => {
+  /* REWRITTEN 2026-08-09 — le retour porte désormais `advantage`, l'entrée
+     ajoutée quand le mode SRD est entré dans la table (décision d'Eric du
+     2026-08-09). Les cinq lignes elles-mêmes n'ont pas bougé d'un chiffre. */
   assert.deepEqual(resolveTilt({ tilts: 1, disadvantage: true }),
-    { tilts: 1, disadvantage: true, outcome: "normal", mode: "flat", bonus: 0 });
+    { tilts: 1, disadvantage: true, advantage: false, outcome: "normal", mode: "flat", bonus: 0 });
   /* ⚠️ LA LIGNE QUI SE DEVINE MAL, et c'est pour ça qu'elle est testée à part.
      Rien ne s'ADDITIONNE : deux Tilts contre un désavantage ne laissent PAS
      un Tilt net (+2), et cinq n'y laissent pas un Avantage. Le désavantage
@@ -258,18 +273,36 @@ test("ATTAQUE — un compte que le moteur ne sait pas lire est un refus, jamais 
     "et appeler la table sans rien lui donner est un refus, pas un jet normal");
 });
 
-test("ATTAQUE — deux systèmes d'annulation ne se mélangent pas en silence", () => {
-  /* Le Tilt annule DANS sa table ; la 5e annule entre avantage et désavantage.
-     Quand une source SRD a déjà penché le jet dans l'autre sens, choisir
-     laquelle des deux l'emporte serait inventer une règle qu'Eric n'a pas
-     énoncée (loi §0.10). Le moteur refuse et NOMME les deux côtés. */
+test("LA COMPOSITION AVEC LE SRD — une seule table, plus deux systèmes", () => {
+  /* REWRITTEN 2026-08-09 — ce test attaquait un REFUS, et le refus n'existe
+     plus : Eric a tranché la composition le 2026-08-09.
+       A + T = A · A + A = A · A + D = Flat · D + (2T = A) = Flat · D + T = Flat
+     La règle qui produit ces cinq lignes sans en inventer une sixième : un
+     AVANTAGE vaut le seuil déjà atteint (« 2 tilts = avantage = on peut pas
+     faire mieux »), un DÉSAVANTAGE bascule sur la deuxième colonne. L'ancienne
+     assertion exigeait un `throw` — elle est réécrite à la nouvelle vérité,
+     jamais relâchée : elle vérifie maintenant le RÉSULTAT de la composition,
+     ce qui est plus fort que vérifier un refus. */
   const h = fh();
   h.verbs.prepare({ name: "Stealth", ability: "DEX", bonus: 5, mode: "disadvantage" });
   h.verbs.configure({ tilts: 2 });
-  h.queueRolls(7, 13);
-  assert.throws(() => h.verbs.roll(),
-    /already set to "disadvantage" and the Tilt table resolves to "advantage"/,
-    "le moteur ne tranche pas à la place de la table");
+  h.queueRolls(7);
+  h.verbs.roll();
+  assert.equal(h.state.history[0].kept, 7, "D + (2T = A) : tout s'annule, un seul d20 et il est gardé");
+  assert.equal(h.state.history[0].d20Mode, "flat", "le Désavantage a été REDRESSÉ, pas laissé en place");
+  assert.equal(h.queueEmpty(), 0, "un jet à plat ne consomme qu'un dé");
+
+  /* ⭐ LE PLAFOND, et c'est la conséquence qu'Eric a énoncée lui-même : sur un
+     jet déjà en Avantage, un Tilt ne rapporte RIEN de plus — pas de +2 par
+     dessus. « On peut pas faire mieux / seuls les dés peuvent donner des bonus
+     supplémentaires. » */
+  const cap = resolveTilt({ tilts: 1, disadvantage: false, advantage: true });
+  assert.equal(cap.outcome, "advantage", "A + T = A");
+  assert.equal(cap.bonus, 0, "et le +2 du Tilt NE s'ajoute PAS à un Avantage — c'est le plafond");
+
+  /* Le cas qu'Eric n'a pas énoncé, et qui tombe juste sans qu'on l'invente. */
+  assert.equal(resolveTilt({ tilts: 1, disadvantage: true, advantage: true }).outcome, "normal",
+    "A + D + T = Flat, par la même règle et sans une ligne de plus");
 
   /* ET LE MÊME SENS PASSE, parce qu'il n'y a rien à trancher : l'Avantage ne
      s'empile pas sur l'Avantage en 5e, et deux sources qui disent la même

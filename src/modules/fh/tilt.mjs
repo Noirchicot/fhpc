@@ -45,11 +45,41 @@
           caractéristique, pas des modificateurs de jet.
       Aucun des deux ne passe par ce fichier, et aucun ne doit y passer.
 
-   ⚠️ CE QUI N'EST PAS TRANCHÉ, ET QUI N'EST DONC PAS ÉCRIT : ce que valent
-   DEUX Tilts sur le DC. Par symétrie ce serait un Désavantage pour celui qui
-   jette — mais Eric ne l'a pas dit, donc ce n'est pas gravé (loi §0.10). Le
-   côté DÉFENSEUR n'existe pas dans ce fichier : un Tilt sur l'AC ou sur le DC
-   est un nombre que la table donne au moteur, pas un calcul qu'il fait. */
+   ── ⭐ LA COMPOSITION AVEC LE SRD — tranchée par Eric le 2026-08-09 ────
+
+   « 2 tilts = avantage = on peut pas faire mieux / seuls les dés peuvent
+   donner des bonus supplémentaires. » Puis, en toutes lettres :
+
+     A + T = A   ·   A + A = A   ·   A + D = Flat
+     D + (2T = A) = Flat         ·   D + T = Flat
+
+   IL N'Y A PLUS DEUX SYSTÈMES D'ANNULATION, IL N'Y EN A QU'UN — et c'est ce
+   qui permet de supprimer le refus que ce module opposait jusqu'ici. La règle
+   tient en deux phrases, et la table ci-dessus ne change pas d'une ligne :
+
+     · un AVANTAGE, d'où qu'il vienne, vaut le SEUIL DÉJÀ ATTEINT (2 Tilts) ;
+     · un DÉSAVANTAGE, d'où qu'il vienne, bascule sur la deuxième colonne.
+
+   Les cinq lignes d'Eric en découlent sans exception : `A + T` fait 2+1 Tilts,
+   donc Avantage — et c'est là qu'est le PLAFOND, le +2 du Tilt ne s'ajoute
+   PAS par-dessus un Avantage, parce qu'« on peut pas faire mieux ». `A + D`
+   tombe sur « 1 ou plus + désavantage : tout s'annule ». `D + 2T` et `D + T`
+   aussi.
+
+   📌 ET UN CAS QU'ERIC N'A PAS ÉNONCÉ tombe juste tout seul, ce qui est le
+   signe que la règle est la bonne et non un placage : `A + D + T` donne Flat,
+   sans qu'on ait rien inventé pour lui.
+
+   ⚠️ CE QUE LE PLAFOND IMPLIQUE, DIT FRANCHEMENT : sur un jet déjà en
+   Avantage, un Tilt ne rapporte plus rien. C'est voulu — « seuls les dés
+   peuvent donner des bonus supplémentaires », donc Bardic, Tactical Mind et
+   la Destinée restent les seules voies au-delà du plafond.
+
+   ⚠️ CE QUI N'EST TOUJOURS PAS DANS CE FICHIER : le côté DÉFENSEUR. Un Tilt
+   sur l'AC ou sur le DC vaut +2, sans cumul (décision du 2026-08-09, l'idiome
+   du couvert SRD : « a target benefits only from the most protective
+   degree »). C'est un nombre que la table donne au moteur, pas un calcul
+   qu'il fait ici. */
 
 /** Les quatre résultats possibles, et il n'y en a pas de cinquième.
  *  Des IDENTIFIANTS, jamais des mots de joueur (loi §0.13) : le paquet de
@@ -80,10 +110,12 @@ function refuse(what) {
  *
  * @param {object}  input
  * @param {number}  input.tilts         combien de Tilts penchent en faveur du jet — un entier ≥ 0
- * @param {boolean} input.disadvantage  un désavantage est-il présent sur ce jet ?
- * @returns {{tilts: number, disadvantage: boolean, outcome: string, mode: "flat"|"advantage"|"disadvantage", bonus: 0|2}}
+ * @param {boolean} input.disadvantage  un désavantage est-il présent sur ce jet ? (D'OÙ QU'IL VIENNE)
+ * @param {boolean} [input.advantage]   un avantage est-il déjà présent ? (d'où qu'il vienne) Il vaut
+ *                                      le seuil atteint : « on peut pas faire mieux » (Eric, 2026-08-09).
+ * @returns {{tilts: number, disadvantage: boolean, advantage: boolean, outcome: string, mode: "flat"|"advantage"|"disadvantage", bonus: 0|2}}
  */
-export function resolveTilt({ tilts, disadvantage } = {}) {
+export function resolveTilt({ tilts, disadvantage, advantage = false } = {}) {
   /* §0.5 — un compte que le moteur ne sait pas lire est un REFUS, jamais un
      zéro consolant : un jet qui devait pencher et qui part à plat ne se
      remarque qu'à la table, une fois le dé tombé. */
@@ -111,20 +143,35 @@ export function resolveTilt({ tilts, disadvantage } = {}) {
       "disadvantage to weigh against the Tilt count."
     );
   }
+  if (typeof advantage !== "boolean") {
+    refuse(
+      "an advantage is a PRESENCE too — got " + JSON.stringify(advantage) + ". Two advantages are one " +
+      "advantage (Eric, 2026-08-09: « A + A = A »), so there is nothing to count here either."
+    );
+  }
+
+  /* ⭐ L'AVANTAGE VAUT LE SEUIL DÉJÀ ATTEINT. C'est toute la composition avec
+     le SRD, et elle tient en une ligne : « 2 tilts = avantage = on peut pas
+     faire mieux ». Un jet déjà en Avantage est donc, pour cette table, un jet
+     qui a déjà ses deux Tilts — d'où `A + T = A` sans que le +2 s'ajoute, et
+     d'où `A + A = A` sans qu'on ait à le dire à part. */
+  const effective = advantage ? Math.max(tilts, TILT_ADVANTAGE_AT) : tilts;
 
   /* Les cinq lignes, dans l'ordre où Eric les a écrites. La deuxième colonne
      de la table est un aiguillage, pas un terme d'une somme : un désavantage
      présent ne retire pas des Tilts, il change de ligne. */
   if (disadvantage) {
-    // « 1 ou plus » avec un désavantage : tout s'annule, et il n'en reste rien.
-    if (tilts >= 1) return outcome(tilts, true, TILT_NORMAL, "flat", 0);
-    return outcome(tilts, true, TILT_DISADVANTAGE, "disadvantage", 0);
+    /* « 1 ou plus » avec un désavantage : tout s'annule, et il n'en reste
+       rien. C'est aussi `A + D = Flat` : l'Avantage compte pour deux, donc on
+       est bien sur cette ligne — une seule règle d'annulation, pas deux. */
+    if (effective >= 1) return outcome(tilts, true, advantage, TILT_NORMAL, "flat", 0);
+    return outcome(tilts, true, advantage, TILT_DISADVANTAGE, "disadvantage", 0);
   }
-  if (tilts >= TILT_ADVANTAGE_AT) return outcome(tilts, false, TILT_ADVANTAGE, "advantage", 0);
-  if (tilts === 1) return outcome(tilts, false, TILT_PLUS_TWO, "flat", TILT_BONUS);
-  return outcome(tilts, false, TILT_NORMAL, "flat", 0);
+  if (effective >= TILT_ADVANTAGE_AT) return outcome(tilts, false, advantage, TILT_ADVANTAGE, "advantage", 0);
+  if (effective === 1) return outcome(tilts, false, advantage, TILT_PLUS_TWO, "flat", TILT_BONUS);
+  return outcome(tilts, false, advantage, TILT_NORMAL, "flat", 0);
 }
 
-function outcome(tilts, disadvantage, id, mode, bonus) {
-  return { tilts, disadvantage, outcome: id, mode, bonus };
+function outcome(tilts, disadvantage, advantage, id, mode, bonus) {
+  return { tilts, disadvantage, advantage, outcome: id, mode, bonus };
 }

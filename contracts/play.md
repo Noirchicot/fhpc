@@ -504,11 +504,36 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
     côté cible, et un Tilt sur l'AC ou le DC reste **un nombre que la table lui
     donne**. Ce qui change, c'est qu'il n'y a plus de question ouverte derrière.
 
-12. **Comment un Tilt compose-t-il avec un avantage accordé par une source
-    SRD ?** (lot 21) Deux systèmes d'annulation coexistent — celui de la table
-    du Tilt et celui de la 5e — et rien ne dit lequel l'emporte quand ils
-    penchent en sens contraires. Le moteur **jette** en nommant les deux plutôt
-    que de choisir (loi §0.10). **À trancher par Eric.**
+12. ~~**Comment un Tilt compose-t-il avec un avantage SRD ?**~~ ✅ **TRANCHÉ
+    PAR ERIC le 2026-08-09.** *« 2 tilts = avantage = on peut pas faire mieux /
+    seuls les dés peuvent donner des bonus supplémentaires. »*
+
+    | | | | | |
+    |---|---|---|---|---|
+    | `A + T = A` | `A + A = A` | `A + D = Flat` | `D + (2T = A) = Flat` | `D + T = Flat` |
+
+    **Il n'y a plus deux systèmes d'annulation, il n'y en a qu'un**, et le refus
+    que le moteur opposait est supprimé. La règle qui produit ces cinq lignes
+    sans en inventer une sixième :
+
+    > un **AVANTAGE**, d'où qu'il vienne, vaut le **seuil déjà atteint**
+    > (2 Tilts) ; un **DÉSAVANTAGE**, d'où qu'il vienne, bascule sur la
+    > **deuxième colonne** de la table.
+
+    ⚠️ **LE PLAFOND, et c'est un changement de comportement à connaître** : sur
+    un jet déjà en Avantage, un Tilt **ne rapporte plus rien** — le +2 ne
+    s'ajoute pas par-dessus. Au-delà du plafond, seuls les **dés** (Bardic,
+    Tactical Mind, Destinée) peuvent encore donner quelque chose.
+
+    📌 **Un cas qu'Eric n'a pas énoncé tombe juste tout seul** — `A + D + T`
+    donne Flat — ce qui est le signe que la règle est la bonne et non un
+    placage sur cinq cas.
+
+    ⚠️ **Et un piège payé en l'écrivant** : le module sortait sur un `mode ===
+    "flat"` sans écrire `cfg.d20Mode`. C'était juste tant que le mode SRD
+    n'entrait pas dans la table ; depuis, un `flat` peut être une **annulation**
+    (`D + T = Flat`), et sortir sans écrire aurait laissé le Désavantage en
+    place — un jet penché alors que la règle vient de le redresser.
 
 13. **`state.character` est-il le document ou `resolved` ?** (lot 21) La
     tranche d'état disait « référence `resolved` », `arcanaKnown()` a besoin de
