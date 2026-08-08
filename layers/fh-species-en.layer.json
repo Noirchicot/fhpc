@@ -1,0 +1,311 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-species-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Species (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.chaos",
+    "fh.destiny"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer modifies and extends material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Portions of the SRD material — including the Elf, Human, Gnome and Orc species — have been modified for this work."
+  },
+  "description": "The twelve playable species of Nymedes. Nine modify their SRD 5.2.1 counterparts; three (Araag, Loroka, Elestu) are new. Every species carries a Destiny Base of 2; the Elf, the Human and the Halfling each carry one additional Destiny power.",
+  "records": {
+    "species": {
+      "fh:species:en:araag": {
+        "name": "Araag",
+        "slug": "araag",
+        "data": {
+          "creature_type": "Humanoid",
+          "granted_skill_choice": {
+            "count": 1,
+            "from": "any"
+          },
+          "name": "Araag",
+          "senses": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "range_ft": 60
+            }
+          ],
+          "size": "Medium",
+          "size_key": "medium",
+          "speed": "30 feet",
+          "speed_ft": 30,
+          "traits": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "text": "You have Darkvision with a range of 60 feet."
+            },
+            {
+              "id": "fast-learner",
+              "name": "Fast Learner",
+              "text": "You gain 2 skill points at levels 1, 3 and 6."
+            },
+            {
+              "id": "necrotic-resistance",
+              "name": "Necrotic Resistance",
+              "text": "You have Resistance to Necrotic damage."
+            },
+            {
+              "id": "skillful",
+              "name": "Skillful",
+              "text": "You gain proficiency in one skill of your choice."
+            },
+            {
+              "id": "soulforged-affinity",
+              "name": "Soulforged Affinity",
+              "text": "You can Body Forge a Soulgem into your own flesh at no cost in Hit Points."
+            }
+          ],
+          "skill_points": {
+            "trait": "fast-learner",
+            "by_level": {
+              "1": 2,
+              "3": 2,
+              "6": 2
+            }
+          },
+          "destiny": {
+            "base": 2
+          }
+        }
+      },
+      "srd:species:en:dragonborn": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          }
+        },
+        "note": "Fate's Hand — Dragonborn"
+      },
+      "srd:species:en:dwarf": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          }
+        },
+        "note": "Fate's Hand — Dwarf"
+      },
+      "fh:species:en:elestu": {
+        "name": "Elestu",
+        "slug": "elestu",
+        "data": {
+          "creature_type": "Humanoid",
+          "granted_skill_choice": {
+            "count": 1,
+            "from": [
+              "srd:skill:en:survival",
+              "fh:skill:en:delve",
+              "fh:skill:en:vigilance"
+            ]
+          },
+          "name": "Elestu",
+          "senses": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "range_ft": 60
+            }
+          ],
+          "size": "Medium",
+          "size_key": "medium",
+          "speed": "30 feet",
+          "speed_ft": 30,
+          "traits": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "text": "You have Darkvision with a range of 60 feet."
+            },
+            {
+              "id": "fast-learner",
+              "name": "Fast Learner",
+              "text": "You gain 2 skill points at levels 1, 3 and 6."
+            },
+            {
+              "id": "fey-ancestry",
+              "name": "Fey Ancestry",
+              "text": "You have Advantage on saving throws you make to avoid or end the Charmed condition."
+            },
+            {
+              "id": "keen-senses",
+              "name": "Keen Senses",
+              "text": "You have proficiency in the Survival, Delve, or Vigilance skill."
+            },
+            {
+              "id": "trance",
+              "name": "Trance",
+              "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+            }
+          ],
+          "skill_points": {
+            "trait": "fast-learner",
+            "by_level": {
+              "1": 2,
+              "3": 2,
+              "6": 2
+            }
+          },
+          "destiny": {
+            "base": 2
+          }
+        }
+      },
+      "srd:species:en:elf": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2,
+            "base_bonus": 2,
+            "base_bonus_trait": "splinter-of-anon"
+          },
+          "data.traits[keen-senses].text": "You have proficiency in the Survival, Delve, or Vigilance skill.",
+          "data[fh_traits]": [
+            {
+              "id": "splinter-of-anon",
+              "name": "Splinter of Anon",
+              "text": "Your Destiny Base increases by 2, for a Destiny Base of 4 at character creation."
+            }
+          ],
+          "data[granted_skill_choice].from": [
+            "srd:skill:en:survival",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance"
+          ]
+        },
+        "note": "Fate's Hand — Elf"
+      },
+      "srd:species:en:goliath": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          }
+        },
+        "note": "Fate's Hand — Goliath"
+      },
+      "srd:species:en:halfling": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          },
+          "data[fh_traits]": [
+            {
+              "id": "outlasting",
+              "name": "Outlasting",
+              "text": "You have Advantage on Chaos rolls."
+            }
+          ]
+        },
+        "note": "Fate's Hand — Halfling"
+      },
+      "srd:species:en:gnome": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          },
+          "data.name": "Hoddon",
+          "data.traits[gnomish-cunning].name": "Hoddon Cunning",
+          "data.traits[gnomish-lineage].name": "Hoddon Lineage",
+          "name": "Hoddon",
+          "slug": "hoddon"
+        },
+        "note": "Fate's Hand — Hoddon"
+      },
+      "srd:species:en:human": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          },
+          "data[fh_traits]": [
+            {
+              "id": "educated",
+              "name": "Educated",
+              "text": "You gain 2 skill points at character creation."
+            },
+            {
+              "id": "twice-born",
+              "name": "Twice-Born",
+              "text": "You recover 2 Destiny Points on a Long Rest instead of 1."
+            }
+          ],
+          "data[skill_points]": {
+            "trait": "educated",
+            "by_level": {
+              "1": 2
+            }
+          }
+        },
+        "note": "Fate's Hand — Human"
+      },
+      "fh:species:en:loroka": {
+        "name": "Loroka",
+        "slug": "loroka",
+        "data": {
+          "creature_type": "Humanoid",
+          "name": "Loroka",
+          "senses": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "range_ft": 120
+            }
+          ],
+          "size": "Medium",
+          "size_key": "medium",
+          "speed": "30 feet",
+          "speed_ft": 30,
+          "traits": [
+            {
+              "id": "darkvision",
+              "name": "Darkvision",
+              "text": "You have Darkvision with a range of 120 feet."
+            },
+            {
+              "id": "relentless-endurance",
+              "name": "Relentless Endurance",
+              "text": "When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead. Once you use this trait, you can’t do so again until you finish a Long Rest."
+            },
+            {
+              "id": "versatile",
+              "name": "Versatile",
+              "text": "You gain an Origin feat of your choice (see “Feats”). Skilled is recommended."
+            }
+          ],
+          "destiny": {
+            "base": 2
+          }
+        }
+      },
+      "srd:species:en:orc": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          }
+        },
+        "note": "Fate's Hand — Orc"
+      },
+      "srd:species:en:tiefling": {
+        "op": "patch",
+        "changes": {
+          "data.destiny": {
+            "base": 2
+          }
+        },
+        "note": "Fate's Hand — Tiefling"
+      }
+    }
+  }
+}
