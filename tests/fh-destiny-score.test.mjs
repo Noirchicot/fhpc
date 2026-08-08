@@ -160,45 +160,64 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
   const h = pileFH();
   const out = h.verbs.rebuild({ document: documentFH(h) });
   const champs = out.underived.map((entry) => entry.field);
+  const raison = (champ) => out.underived.find((entry) => entry.field === champ).reason;
 
-  /* LES TROIS TERMES SANS SOURCE DE RÈGLE. Chacun est nommé, chacun dit
-     pourquoi. La mesure derrière eux : la couche FH ne porte QUE le genre
-     `species` — aucun don FH, aucun Arcane.
+  /* LES TROIS TERMES QUE CE PERSONNAGE-CI NE PEUT PAS ÉTABLIR. Chacun est
+     nommé, chacun dit pourquoi. La mesure derrière eux : la pile de CE test
+     monte SRD + la couche des espèces, et rien d'autre.
 
      REWRITTEN 2026-08-09 — LA RAISON A CHANGÉ DE NATURE, PAS LE VERDICT.
      Ce commentaire disait « le genre `arcana` n'existe pas dans l'énumération
      des 14 genres (trou GAP-KIND, toujours ouvert) ». L'architecte a ouvert
-     le genre dans les deux schémas ce jour-là : GAP-KIND est CLOS. Les trois
-     termes restent déclarés, mais pour une raison qui n'est plus la même —
-     ce n'est plus le CONTRAT qui manque, c'est le CONTENU (personne n'a
-     encore écrit la couche des 22 cartes). La distinction n'est pas
-     cosmétique : laisser l'ancienne raison enverrait le prochain lot réviser
-     un schéma déjà révisé. */
+     le genre dans les deux schémas ce jour-là : GAP-KIND est CLOS.
+
+     REWRITTEN 2026-08-10 (lot 20) — ET CETTE FOIS C'EST LA PORTÉE QUI CHANGE.
+     « Sans source de règle » est devenu FAUX pour deux des trois : la couche
+     des 22 cartes et la fiche du don sont dans le dépôt, et
+     `tests/fh-arcana.test.mjs` les dérive. Ce qui reste vrai ICI, et
+     seulement ici, c'est que CE personnage ne les établit pas — il ne nomme
+     aucune carte et ne choisit aucun don, sur une pile qui ne monte ni l'une
+     ni l'autre couche. La déclaration n'est donc PAS relâchée : elle est
+     rendue à sa vraie cause, et les assertions ci-dessous exigent maintenant
+     que la raison nomme LE CHOIX qui manque, et non plus un contenu absent
+     du dépôt. Une raison qui parlerait encore de couche manquante enverrait
+     le lecteur écrire un fichier déjà écrit. */
   for (const champ of [`stats[${FH_DESTINY_ID}].arcana`, `stats[${FH_DESTINY_ID}].feat`, `stats[${FH_DESTINY_ID}].other`]) {
     assert.ok(champs.includes(champ), `« ${champ} » doit être DÉCLARÉ, pas inventé`);
-    assert.ok(out.underived.find((entry) => entry.field === champ).reason.length > 40,
-      `« ${champ} » doit dire POURQUOI, pas seulement QUOI`);
+    assert.ok(raison(champ).length > 40, `« ${champ} » doit dire POURQUOI, pas seulement QUOI`);
   }
-  /* REWRITTEN 2026-08-09 — la raison ne doit plus dire que le genre manque.
-     Elle doit dire ce qui manque VRAIMENT : le contenu. Et elle doit nommer
-     GAP-KIND comme CLOS, pas comme ouvert, sinon la déclaration renvoie le
-     lecteur vers un travail déjà fait. */
-  assert.match(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].arcana`).reason,
-    /GAP-KIND clos/, "l'Arcane renvoie au trou NOMMÉ ET CLOS, pas à une excuse");
-  assert.doesNotMatch(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].arcana`).reason,
-    /toujours ouvert/, "le trou du contrat est bouché — le dire encore enverrait réviser un schéma déjà révisé");
+  assert.match(raison(`stats[${FH_DESTINY_ID}].arcana`), /aucun choix `fh\.destiny\.arcana`/,
+    "la raison nomme le CHOIX qui manque — c'est lui qui manque, la couche existe");
+  assert.match(raison(`stats[${FH_DESTINY_ID}].feat`), /aucun choix ne désigne de record `feat`/,
+    "idem pour le don : le personnage n'en choisit aucun");
+  /* REWRITTEN 2026-08-10 — ces deux assertions exigeaient que la raison de
+     l'Arcane cite « GAP-KIND clos ». Elle ne le cite plus ICI, et c'est
+     voulu : GAP-KIND ne dit rien à un personnage qui ne nomme aucune carte.
+     La citation N'EST PAS PERDUE — elle est déplacée là où elle est vraie, le
+     cas « le personnage nomme sa carte et la couche n'est pas montée », et
+     `tests/fh-arcana.test.mjs` l'exige mot pour mot. L'ancienne interdiction
+     (« toujours ouvert ») reste, elle, tenue partout. */
+  assert.doesNotMatch(raison(`stats[${FH_DESTINY_ID}].arcana`), /toujours ouvert/,
+    "le trou du contrat est bouché — le dire encore enverrait réviser un schéma déjà révisé");
+  assert.doesNotMatch(raison(`stats[${FH_DESTINY_ID}].arcana`), /couche.*n'est pas montée/,
+    "et le contenu existe désormais : accuser une couche absente enverrait écrire un fichier déjà écrit");
 
   /* LA MESURE, VÉRIFIÉE PLUTÔT QUE CRUE, ET ELLE A CHANGÉ DE FORME.
      REWRITTEN 2026-08-09 : ce test exigeait que `query({kind:"arcana"})` JETTE.
      Il ne jette plus — le genre est légal. La nouvelle vérité est plus forte,
      parce qu'elle distingue les deux échecs qu'on pouvait confondre : le
      genre RÉPOND (donc le contrat est là) et il répond VIDE (donc le contenu
-     manque). C'est exactement ce que la déclaration ci-dessus affirme. */
+     manque).
+     ⚠️ 2026-08-10 — CETTE ASSERTION N'A PAS BOUGÉ, et il faut dire pourquoi :
+     la couche des 22 cartes existe mais N'EST PAS MONTÉE sur cette pile-ci.
+     Le vide observé n'est donc plus une pénurie du dépôt, c'est un choix de
+     montage — ce qui la rend plus forte, pas plus faible. */
   assert.deepEqual(h.layers.verbs.query({ kind: "arcana" }), [],
-    "`arcana` est un genre légal : la pile n'en porte aucun record, elle ne le REFUSE pas");
+    "`arcana` est un genre légal : cette pile n'en porte aucun record, elle ne le REFUSE pas");
   const couche = JSON.parse(readFileSync(join(ROOT, FH_SPECIES_EN), "utf8"));
   assert.deepEqual(Object.keys(couche.records), ["species"],
-    "la couche FH ne porte QUE le genre `species` — pas un don, pas un Arcane");
+    "la couche des ESPÈCES porte toujours QUE le genre `species` — les cartes et le don vivent dans leurs " +
+    "propres couches, pas entassés dans celle-ci");
 
   // Et `stats` n'est PAS déclaré non dérivé : un module l'a nourri.
   assert.equal(champs.includes("stats"), false, "la collection n'est plus vide, donc elle n'est plus déclarée");

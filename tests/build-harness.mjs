@@ -27,6 +27,11 @@ export const EXAMPLE_CHAR = "examples/personnage-srd-fr-niveau1.fh-char.json";
    Destinée. Lue depuis le dépôt, jamais recopiée. */
 export const SRD_EN = "layers/srd-5.2.1-en.layer.json";
 export const FH_SPECIES_EN = "layers/fh-species-en.layer.json";
+/* Les deux couches du lot 20. Elles lèvent `fh.destiny` elles aussi — un
+   personnage peut donc porter sa carte SANS la couche des espèces, et c'est ce
+   qui permet de prouver chaque terme séparément. */
+export const FH_ARCANA_EN = "layers/fh-arcana-en.layer.json";
+export const FH_FEATS_EN = "layers/fh-feats-en.layer.json";
 
 export function fileBytes(rel) {
   return readFileSync(join(ROOT, rel));
