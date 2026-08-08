@@ -30,9 +30,11 @@ reste inerte et intact, les couches manquantes sont listées et affichées.
 
 ### Les couches `fh-layer/1` — données, jamais du code
 
-Manifeste + records par genre (les 12 genres `fh-srd` : armor, background,
-class, feat, gear, glossary, item, monster, species, spell, tool, weapon —
-plus les genres FH à venir). Une couche **ajoute** des records, **patche** un
+Manifeste + records par genre (les 14 genres `fh-srd` : armor, background,
+class, class-progression, feat, gear, glossary, item, monster, skill, species,
+spell, tool, weapon — plus les genres FH à venir ; `skill` et
+`class-progression` sont arrivés avec le lot `6-srd-tables` le 2026-08-08).
+Une couche **ajoute** des records, **patche** un
 record par id, **désactive** un record, **lève des drapeaux de capacités**
 (ex. `fh.destiny`). Jamais d'exécutable — un homebrew d'inconnu est inoffensif
 à charger. Les mécaniques nouvelles sont des **modules moteur** activés par les

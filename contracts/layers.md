@@ -249,3 +249,20 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
 7. **`ARCHITECTURE.md` dit encore « les 12 genres `fh-srd` ».** La révision du
    2026-08-08 en a fait 14 (`skill`, `class-progression`). Même remarque :
    fichier canonique, correction d'un mot, pas touché par ce lot.
+
+---
+
+## ✅ Arbitrage de l'architecte — 2026-08-08, avant le lancement du lot `9-bloc-build`
+
+Les sept points ci-dessus sont tranchés. Le bloc `build` hérite de ces réponses ;
+il ne les rouvre pas.
+
+| # | Décision | Pourquoi |
+|---|---|---|
+| **1** | **RATIFIÉ tel quel** : l'ordre d'enregistrement EST la pile ; aucun verbe de réordonnancement | Le document porte déjà l'ordre — `build.layers[]` dit « première entrée = base ». `build` monte dans l'ordre du document, il n'a rien à réordonner. Fabriquer le verbe serait construire pour un besoin que personne n'a formulé (loi §0.6) |
+| **2** | **RATIFIÉ tel quel** : `add` recouvrant = dernier gagne, **rapporté** dans `shadowed` ; `disable` dans le vide reste bruyant | Jeter interdirait un usage légitime : une couche FH qui remplace un record SRD entier le fait par `add`. ⚠️ **Obligation neuve pour `build`** : `shadowed` remonte dans le résultat de `rebuild`, il ne s'avale pas |
+| **3** | **RATIFIÉ** : un patch ne touche pas `attribution` | La loi §0.8 est de premier rang, et une couche homebrew ne décroche pas la notice CC-BY d'un record SRD dont elle dérive. ⏸️ **Le schéma suivra dans une passe ultérieure** — le code tient la règle aujourd'hui, et on ne touche pas à un schéma partagé à l'ouverture de deux lots |
+| **4** | **AJOURNÉ, sciemment et daté** : le pont `ruleValues` ↔ clefs de règle du moteur reste à écrire | Hors chemin critique du M2 : un personnage SRD pur niveau 1 ne charge **aucune** couche FH, donc aucune valeur de règle. La règle debout suffit d'ici là — le moteur déclare ses clefs, la pile refuse tout le reste bruyamment. À écrire quand la couche FH démarre, avec Eric |
+| **5** | **AJOURNÉ, sciemment et daté** : la grammaire de chemin garde `[a-zA-Z][a-zA-Z0-9]*` en segment pointé | La forme entre crochets **marche** (`data[example_uses]`) : c'est une commodité, pas un blocage. Élargir toucherait `paths.mjs` **et** `overridePath` de `fh-char/1` — une grammaire partagée par les couches et les overrides ne s'élargit pas le jour où deux lots partent. À reprendre au M3, quand l'interface exposera les overrides à un humain |
+| **6** | **FAIT** : le hash factice de l'exemple du lot 2 est remplacé par l'empreinte réelle `82cae6fe…` | Deux occurrences (`build.layers[0]` et `resolved.derivation.stack[0]`). L'exemple est la **cible d'acceptation** du lot 9 : il devait être vrai avant que le lot le lise |
+| **7** | **FAIT** : `ARCHITECTURE.md` dit 14 genres, et nomme les deux nouveaux venus | Fichier canonique |
