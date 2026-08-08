@@ -95,9 +95,18 @@ export const FH_DESTINY_ID = "fh:destiny";
  *  La forme `<terme>[n]` est celle des termes de séance, qui s'accumulent.
  *  ⚠️ LE GENRE EST VÉRIFIÉ. Un `ref` de genre `species` posé sous ce chemin
  *  irait lire `data.destiny.base` — la Base d'espèce, déjà comptée ailleurs —
- *  et le Score serait faux en ayant l'air juste. */
-const ARCANA_TAIL = "arcana";
-const ARCANA_KIND = "arcana";
+ *  et le Score serait faux en ayant l'air juste.
+ *
+ *  ⚠️ EXPORTÉS DEPUIS LE LOT 21, et pas par confort : le moteur de jeu doit
+ *  lire LE MÊME chemin pour savoir si le personnage a un Arcane connu (la
+ *  Vibration). Deux copies de `"fh.destiny.arcana"` dans le dépôt, c'est deux
+ *  chemins qui dérivent le jour où l'architecte en révise un — et le second à
+ *  dériver redeviendrait muet exactement comme `destinyBuild.arcana` l'était. */
+export const ARCANA_TAIL = "arcana";
+export const ARCANA_KIND = "arcana";
+
+/** Le chemin de choix complet, écrit UNE fois. */
+export const ARCANA_CHOICE_PATH = FH_DESTINY_FLAG + "." + ARCANA_TAIL;
 
 /** Le champ où un record de couche porte sa contribution au Score. La
  *  convention vient de la couche des espèces (`data.destiny.base`,

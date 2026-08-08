@@ -168,7 +168,7 @@ const loudEntry = {
   destiny: { sides: 8, result: 8, criticalSuccess: true, vibration: { sides: 8, level: 3 }, pointsBefore: 6, pointsAfter: 5, arcaneChoice: "chaos", chaos: { overreach: 3, dc: 14 } }
 };
 
-test("quinze règles déclarées, cinq familles visuelles, des ids uniques", () => {
+test("seize règles déclarées, cinq familles visuelles, des ids uniques", () => {
   /* REWRITTEN 2026-08-08 (lot 5) — treize règles en v1, quatorze ici, et le
      compte reste le point : c'est ce qui était treize `badges.push()` séparés
      dans le chemin de rendu. La quatorzième est `rerolled` : le SRD garde le
@@ -181,12 +181,18 @@ test("quinze règles déclarées, cinq familles visuelles, des ids uniques", () 
      AUCUNE trace. Le partage bouge d'un cran du côté de la couche — CINQ règles
      SRD, DIX de la couche — et c'est le bon côté : une Vibration n'existe pas
      sans Arcane, donc pas sans Fate's Hand. */
-  assert.equal(ROLL_BADGE_RULES.length, 15, "fifteen declared rules, one per badge");
+  /* REWRITTEN 2026-08-10 (lot 21) — seize. La seizième est `tilt` : la seule
+     façon dont Fate's Hand penche un jet depuis la ratification du 2026-08-09.
+     Elle DEVAIT laisser une trace — un « +2 » ou un avantage sans badge est un
+     jet dont la table ne peut pas relire la raison, et c'est précisément ce
+     que cette collection existe pour empêcher. Le partage bouge encore d'un
+     cran : CINQ règles SRD, ONZE de la couche. */
+  assert.equal(ROLL_BADGE_RULES.length, 16, "sixteen declared rules, one per badge");
   assert.equal(srdOnly.ROLL_BADGE_RULES.length, 5, "cinq d'entre elles seulement appartiennent au jeu de base");
   assert.equal(srdBadgeRules({ entryBonusDice: kit.entryBonusDice }).length, 5);
   assert.deepEqual([...new Set(ROLL_BADGE_RULES.map((rule) => rule.k))].sort(),
     ["adjusted", "chaos", "destiny", "manual", "n20"], "the five visual families of §3");
-  assert.equal(new Set(ROLL_BADGE_RULES.map((rule) => rule.id)).size, 15, "rule ids are unique");
+  assert.equal(new Set(ROLL_BADGE_RULES.map((rule) => rule.id)).size, 16, "rule ids are unique");
   ROLL_BADGE_RULES.forEach((rule) => {
     assert.equal(typeof rule.when, "function", rule.id + " declares its condition");
     /* REWRITTEN (lot 5, §0.13) — la règle déclarait `text`, une fonction qui

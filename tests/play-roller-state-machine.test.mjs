@@ -15,7 +15,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeHarness } from "./play-harness.mjs";
+import { makeHarness, fhCharacter } from "./play-harness.mjs";
 
 function natOne(id = "nat-one") {
   return {
@@ -363,7 +363,7 @@ test("un dé de Destinée ajouté à un jet posé est stagé, et son Overreach e
   assert.equal(h.t.pendingFate().length, 1, "cancelling a badge takes only that one");
 
   // The Overreach envelope resolves as a save in the tray, not as 2d6 on the Chaos table.
-  h.state.character = { destinyBuild: { arcana: { name: "The Hermit" } }, build: {}, abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 };
+  h.state.character = fhCharacter({ arcana: "fh:arcana:en:the-hermit", abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 });
   h.t.armPendingFate(h.t.pendingFate()[0].id);
   assert.equal(h.state.trayResults.length, 1, "an Overreach arms a single d20 save");
   assert.equal(h.state.trayResults[0].sides, 20);
@@ -652,7 +652,7 @@ test("refuser le destin va droit aux 2d6 — aucune sauvegarde d'Overreach sur c
 test("tenir la Trame coûte un niveau d'Épuisement ; l'échouer coûte à la table", () => {
   const h = makeHarness();
   h.reset(2, [h.die("hold-d8", 8, true)]);
-  h.state.character = { destinyBuild: { arcana: { name: "The Hermit" } }, build: {}, abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 };
+  h.state.character = fhCharacter({ arcana: "fh:arcana:en:the-hermit", abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 });
   h.t.addPendingFate({ kind: "overreach", entryId: "x", ability: "INT", dc: 13, overreach: 3 });
   h.t.armPendingFate(h.t.pendingFate()[0].id);
   h.queueRolls(11);
@@ -665,7 +665,7 @@ test("tenir la Trame coûte un niveau d'Épuisement ; l'échouer coûte à la ta
 
   // Failing it rolls 1d6 + Overreach on the table, with a red token for the Overreach.
   h.reset(2);
-  h.state.character = { destinyBuild: { arcana: { name: "The Hermit" } }, build: {}, abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 };
+  h.state.character = fhCharacter({ arcana: "fh:arcana:en:the-hermit", abilities: { STR: 10, DEX: 10, CON: 10, INT: 16, WIS: 10, CHA: 10 }, savingProficiencies: ["INT"], pb: 3 });
   h.t.addPendingFate({ kind: "overreach", entryId: "y", ability: "INT", dc: 18, overreach: 8 });
   h.t.armPendingFate(h.t.pendingFate()[0].id);
   h.queueRolls(2, 5);

@@ -117,7 +117,14 @@ test("ATTAQUE — le vocabulaire interdit couvre les formes QUE LE CODE EMPLOIE"
        temps qu'elle entre au moteur. Les deux formes que le code emploierait :
        le mot nu, et l'identifiant composé qui porte son niveau. */
     "const vibration = card.vibration;",
-    "entry.vibrationLevel = 3;"
+    "entry.vibrationLevel = 3;",
+    /* AJOUT 2026-08-10 (lot 21) — le Tilt, attaqué sous les trois formes que
+       le code emploie réellement : le mot nu, le composé de réglage, et
+       l'appel du résolveur (que seul le découpeur d'identifiants rend
+       visible — `resolveTilt` → « resolve Tilt »). */
+    "const tilt = cfg.tilts;",
+    "entry.tiltDisadvantage = true;",
+    "resolveTilt({ tilts: 2, disadvantage: false });"
   ];
   hostile.forEach((line, index) => {
     const hits = findForbidden([{ name: "probe-" + index + ".mjs", text: line }], HOUSE_MECHANICS);
@@ -194,6 +201,12 @@ test("ATTAQUE EN SENS INVERSE — l'élargissement ne mord pas sur le code légi
     "const destinataire = who;",
     "const updatedAt = now();",
     "const chapterIndex = 1;",
+    /* AJOUT 2026-08-10 (lot 21) — le voisinage de `tilt` : aucune frontière de
+       mot ne s'ouvre au milieu de `untilted`, et « until » ne contient pas le
+       motif. Sans ces deux-là, l'ajout serait posé sans qu'on sache s'il mord
+       au-delà de sa cible. */
+    "while (i < n) untilted += 1;",
+    "const until = Date.now() + 1000;",
     'import { readFileSync } from "node:fs";',
     'throw new Error("fhpc/build: le document doit porter build.layers");'
   ];

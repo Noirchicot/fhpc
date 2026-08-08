@@ -10,7 +10,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeHarness } from "./play-harness.mjs";
+import { makeHarness, fhCharacter } from "./play-harness.mjs";
 
 const entry = (over = {}) => Object.assign({
   id: "e1", kind: "d20", name: "Hunting", ability: "WIS", baseBonus: 5, total: 27, natural: 12,
@@ -45,7 +45,8 @@ test("`fh-roll/1` est la VUE, exportée telle quelle", () => {
   const h = makeHarness();
   h.reset();
   h.state.campaign = "FH2";
-  h.state.character = { name: "Yedrivel", destinyBuild: {}, build: {} };
+  // REWRITTEN 2026-08-10 (lot 21) — un `fh-char/1` réel : `destinyBuild` est un champ v1 que le schéma ignore.
+  h.state.character = fhCharacter({ name: "Yedrivel" });
   const view = h.derive.export(entry({ dc: 15, outcome: "Success" }));
   assert.equal(view.schema, "fh-roll/1", "the display layer is exported unchanged");
   assert.equal(view.id, "e1");

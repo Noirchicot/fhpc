@@ -19,12 +19,21 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeHarness } from "./play-harness.mjs";
+import { makeHarness, fhCharacter } from "./play-harness.mjs";
 
-/* Un personnage dont l'Arcane est connu, et dont la carte porte un TEXTE
+/* Un personnage dont l'Arcane est connu, et dont le choix porte un TEXTE
    PIÈGE. Aucun test ne demande ce texte : il est là pour qu'on puisse exiger
    qu'il ne ressorte NULLE PART. Si un jour le moteur se met à lire le contenu
-   d'une carte, c'est cette chaîne qui le dira. */
+   d'une carte, c'est cette chaîne qui le dira.
+
+   REWRITTEN 2026-08-10 (lot 21) — LE PIÈGE A CHANGÉ DE PLACE PARCE QUE LA
+   CARTE A CHANGÉ DE PLACE. Il vivait sur `destinyBuild.arcana.vibration`, un
+   objet-carte recopié dans la fiche : un chemin v1 que le schéma `fh-char/1`
+   ne connaît pas. En v2 le personnage ne PORTE pas sa carte, il la NOMME par
+   un `ref` — le seul mot du document qui pourrait fuir est le `label` du
+   choix, et c'est donc là que le piège se pose désormais. L'assertion n'est
+   pas relâchée : elle vise le même fait — aucun mot de carte ne traverse le
+   moteur — sur le seul endroit du document v2 où un mot existe encore. */
 const PROBE_VIBRATION = "PROBE — Silent Image, and no engine should ever read this";
 /* ⚠️ CES DEUX-LÀ S'APPLIQUENT APRÈS `reset()`, JAMAIS AVANT — `reset()`
    RESÈME `state.character` avec sa propre fiche, et un Arcane posé avant lui
@@ -32,15 +41,12 @@ const PROBE_VIBRATION = "PROBE — Silent Image, and no engine should ever read 
    fichier étaient VERTES en testant l'Arcane du harnais au lieu du leur, donc
    le texte piège ci-dessus n'avait jamais approché le moteur. */
 const withArcana = (h) => {
-  h.state.character = {
-    destinyBuild: { arcana: { numeral: "IX", name: "The Hermit", vibration: PROBE_VIBRATION } },
-    build: {}
-  };
-  assert.equal(h.state.character.destinyBuild.arcana.vibration, PROBE_VIBRATION);
+  h.state.character = fhCharacter({ name: "Probe", arcana: "fh:arcana:en:the-hermit", label: PROBE_VIBRATION });
+  assert.equal(h.t.arcanaKnown(), true, "le document v2 nomme bien une carte par le chemin ratifié");
   return h;
 };
 const withoutArcana = (h) => {
-  h.state.character = { destinyBuild: {}, build: {} };
+  h.state.character = fhCharacter({ name: "Probe", arcana: null });
   assert.equal(h.t.arcanaKnown(), false, "la fiche du harnais porte un Arcane : le retirer est le sujet du test");
   return h;
 };
@@ -392,4 +398,122 @@ test("LE PENDANT — les cinq dés de la table passent, eux", () => {
     assert.doesNotThrow(() => h.t.adjustDestinyDie(sides, 1), `le d${sides} est un dé de Destinée légitime`);
   }
   assert.equal(h.queueEmpty(), 0);
+});
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOT 21 — LA VIBRATION LISAIT UN CHEMIN MORT
+   ══════════════════════════════════════════════════════════════════════
+   Les tests ci-dessus existaient déjà et ils étaient VERTS. Ils testaient
+   pourtant une mécanique qui ne s'est jamais déclenchée sur un document réel :
+   le harnais posait `character.destinyBuild.arcana`, `arcanaKnown()` lisait
+   `character.destinyBuild.arcana`, et les deux côtés de l'assertion
+   recopiaient le même chemin v1. ZÉRO occurrence de `destinyBuild` dans
+   `schemas/fh-char.schema.json`, ZÉRO dans `examples/*.json`.
+
+   Ce qui suit se refuse cette facilité : les documents sont construits par
+   `fhCharacter()`, qui n'écrit QUE le chemin ratifié du 2026-08-09. */
+
+test("ACCEPTATION A — un document v2 qui NOMME sa carte signale une Vibration", () => {
+  const h = makeHarness();
+  h.reset(6, [h.die("acc-d10", 10, true)]);
+  /* Le document est écrit ici, à la main et en entier, plutôt que par le
+     constructeur du harnais : c'est le point du test, et un lecteur doit voir
+     la forme exacte sans aller la chercher ailleurs. */
+  h.state.character = {
+    schema: "fh-char/1", id: "test:char:acc", name: "Acc", lang: "en",
+    pb: 2, abilities: { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 }, savingProficiencies: [],
+    build: {
+      external: [], layers: [], budgets: [], overrides: [],
+      choices: [{ path: "fh.destiny.arcana", ref: { kind: "arcana", id: "fh:arcana:en:the-hermit" }, label: "The Hermit" }]
+    }
+  };
+  assert.equal(JSON.stringify(h.state.character).includes("destinyBuild"), false,
+    "le document ne porte AUCUN champ v1 — sinon ce test s'auto-satisferait comme les précédents");
+
+  h.queueRolls(10);
+  const spent = h.t.spendDestinyDie("acc-d10", true);
+  assert.equal(spent.criticalSuccess, true);
+  assert.deepEqual(spent.vibration, { sides: 10, level: 4 }, "d10 → niveau 4, lu depuis `build.choices[]`");
+  assert.equal(h.queueEmpty(), 0);
+});
+
+test("ACCEPTATION A — le MÊME personnage sans ce choix n'en signale aucune, et son critique a lieu", () => {
+  const h = makeHarness();
+  h.reset(6, [h.die("acc-d10", 10, true)]);
+  // Le même document, à un choix près. C'est la seule variable.
+  h.state.character = fhCharacter({ name: "Acc", arcana: null });
+  assert.deepEqual(h.state.character.build.choices, [], "aucune carte nommée");
+
+  h.queueRolls(10);
+  const spent = h.t.spendDestinyDie("acc-d10", true);
+  assert.equal(spent.criticalSuccess, true, "le critique arcanique a lieu quand même");
+  assert.equal(spent.vibration, null, "mais rien n'est signalé : aucun effet n'est listé");
+  assert.equal(spent.cost, 1, "et il coûte son point, exactement comme avec une carte");
+  assert.equal(h.state.destiny.points, 5);
+  assert.equal(h.queueEmpty(), 0);
+});
+
+test("ATTAQUE — le chemin v1 ne réveille plus rien, et le chemin v2 est le seul qui compte", () => {
+  /* LE TEST QUI AURAIT DÛ EXISTER. Un document qui porte l'ANCIEN champ et
+     rien d'autre doit être MUET : s'il déclenchait encore, le chemin v1
+     survivrait en repli (loi §0.6) et la panne pourrait revenir par la porte
+     de derrière. */
+  const h = makeHarness();
+  h.reset(6, [h.die("v1-d6", 6, true)]);
+  h.state.character = Object.assign(fhCharacter({ name: "Legacy", arcana: null }), {
+    destinyBuild: { arcana: { numeral: "IX", name: "The Hermit" } }
+  });
+  h.queueRolls(6);
+  assert.equal(h.t.spendDestinyDie("v1-d6", true).vibration, null,
+    "`destinyBuild.arcana` ne fait plus rien — le chemin v1 est SUPPRIMÉ, pas gardé en secours");
+
+  /* Et l'inverse, dans le même souffle : le chemin v2 seul suffit. */
+  const v2 = makeHarness();
+  v2.reset(6, [v2.die("v2-d6", 6, true)]);
+  v2.state.character = fhCharacter({ name: "Modern", arcana: "fh:arcana:en:the-hermit" });
+  v2.queueRolls(6);
+  assert.deepEqual(v2.t.spendDestinyDie("v2-d6", true).vibration, { sides: 6, level: 2 });
+  assert.equal(h.queueEmpty(), 0);
+  assert.equal(v2.queueEmpty(), 0);
+});
+
+test("ATTAQUE — on ne peut pas rendre la Vibration muette en tendant le mauvais objet", () => {
+  /* §0.5. La panne a duré parce qu'un lecteur qui ne trouvait pas son chemin
+     répondait « non » au lieu de dire qu'il ne comprenait pas ce qu'on lui
+     tendait. Chacune des formes ci-dessous JETTE désormais, et le message
+     NOMME ce qui manque. */
+  const bad = (character, motif, why) => {
+    const h = makeHarness();
+    h.reset(6, [h.die("x-d6", 6, true)]);
+    h.state.character = character;
+    h.queueRolls(6);
+    assert.throws(() => h.t.spendDestinyDie("x-d6", true), motif, why);
+  };
+
+  // 1. La tranche `resolved` tendue à la place du document — le piège le plus probable.
+  bad({ abilities: {}, proficiency: 2, saves: {}, stats: [] },
+    /is not an fh-char\/1/,
+    "un objet sans `build.choices` n'est pas un personnage muet, c'est le mauvais objet");
+  // 2. Une fiche v1 entière.
+  bad({ name: "Old", destinyBuild: { arcana: { name: "The Hermit" } }, build: {} },
+    /is not an fh-char\/1/,
+    "`build: {}` sans `choices` : le schéma rend `choices` obligatoire");
+  // 3. Un choix qui écrit un scalaire là où le contrat veut un `ref`.
+  bad(fhCharacter({ name: "Scalar", choices: [{ path: "fh.destiny.arcana", value: "The Hermit" }] }),
+    /carries a value, not a `ref`/,
+    "une carte est un record de la pile, pas une chaîne recopiée dans la fiche");
+  // 4. Un `ref` vers un record d'un autre genre.
+  const wrongKind = fhCharacter({ name: "Wrong", arcana: null });
+  wrongKind.build.choices.push({ path: "fh.destiny.arcana", ref: { kind: "species", id: "srd:species:en:elf" } });
+  bad(wrongKind, /designates a "species" record/, "seul le genre `arcana` porte une carte");
+
+  /* ET LE CAS LÉGITIME, dans le même test : aucun personnage chargé du tout.
+     Une séance ouverte sur un plateau libre n'est pas une fiche cassée. */
+  const bare = makeHarness();
+  bare.reset(6, [bare.die("bare-d6", 6, true)]);
+  bare.state.character = null;
+  bare.queueRolls(6);
+  assert.equal(bare.t.spendDestinyDie("bare-d6", true).vibration, null,
+    "pas de personnage, pas de carte — et surtout pas de refus bruyant");
+  assert.equal(bare.queueEmpty(), 0);
 });

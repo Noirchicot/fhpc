@@ -31,12 +31,18 @@ import {
   fhTrayDice, fhDecorateBase, fhTrayDiceForKind, fhSignature
 } from "./lexicon.mjs";
 import { SRD_VERDICTS } from "../../play/lexicon.mjs";
+import { resolveTilt } from "./tilt.mjs";
+import { ARCANA_CHOICE_PATH, ARCANA_KIND } from "./destiny-stat.mjs";
 
 /* Le module de CONSTRUCTION de la couche (lot 19). Il ne s'inscrit pas sur les
    moments de `play` — il est injecté dans le bloc `build`, qui ne l'active que
    si la pile lève `fh.destiny`. Réexporté ici pour que la couche ait UNE porte
    d'entrée, comme `createFhLayer` l'est pour le moteur de jeu. */
 export { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "./destiny-stat.mjs";
+
+/* Le Tilt (lot 21). Une table de cinq lignes, pure, sans état : elle est
+   testable seule et la couche l'APPLIQUE, elle ne la réécrit pas. */
+export { resolveTilt, TILT_OUTCOMES, TILT_BONUS } from "./tilt.mjs";
 
 /* Les deux chaînes face-machine que les entrées de sauvegarde portent en dur
    depuis la v1. Elles sont LUES ICI, pas recopiées : une seule table de
@@ -54,7 +60,11 @@ export function createFhLayer({ chaosTables = null } = {}) {
     /* Les drapeaux que la couche LÈVE. Le chemin commun ne les lit jamais pour
        décider quoi faire — ils disent au document quelles capacités ont servi
        (`fh-char/1`, `$defs/flag`). */
-    flags: ["fh.arcana", "fh.chaos", "fh.destiny", "fh.exhaustion", "fh.overreach"],
+    /* `fh.tilt` entre au lot 21. C'est bien une CAPACITÉ et pas un nombre : le
+       Tilt allume un module, il ne remplace aucune valeur de règle (ça, c'est
+       `rules`, et `fh.exhaustion` est le seul de la liste à jouer ce rôle).
+       Le motif de `$defs/flag` l'admet sans révision de schéma — vérifié. */
+    flags: ["fh.arcana", "fh.chaos", "fh.destiny", "fh.exhaustion", "fh.overreach", "fh.tilt"],
 
     labels: FH_EN,
     sources: FH_SOURCES,
@@ -72,7 +82,7 @@ export function createFhLayer({ chaosTables = null } = {}) {
     /* Les clefs que la couche écrit sur une entrée. Quand une séquence
        d'ajustement travaille sur une COPIE de l'entrée, le chemin commun doit
        recopier ce que la couche y a mis — sans savoir ce que c'est. */
-    entryKeys: ["destiny", "natChoice", "transformed", "originalKept", "destinyPointChange", "awakening", "chaosRoll", "chaosTotal", "chaosRow", "plusTwo"],
+    entryKeys: ["destiny", "natChoice", "transformed", "originalKept", "destinyPointChange", "awakening", "chaosRoll", "chaosTotal", "chaosRow", "plusTwo", "tilt"],
 
     /* ⚠️ VALEUR DE RÈGLE SURCHARGÉE, et c'en est la seule.
        Le SRD 5.2.1 (`srd:glossary:en:exhaustion`, p.181) dit : « When you make
@@ -337,10 +347,75 @@ function bindFh(engine, { chaosTables }) {
   /* « an effect listed on YOUR Arcana » : sans Arcane connu, il n'y a aucun
      effet listé, donc rien à signaler. Ce n'est pas un repli silencieux, c'est
      la condition d'existence de la règle — et le critique arcanique, lui, a
-     bien lieu dans les deux cas. */
+     bien lieu dans les deux cas.
+
+     ⚠️ RÉÉCRIT AU LOT 21, ET LA VIBRATION ÉTAIT MORTE JUSQUE-LÀ. Ce lecteur
+     lisait `state.character.destinyBuild.arcana` — un nom de champ v1. Mesuré
+     avant d'écrire une ligne : ZÉRO occurrence de `destinyBuild` dans
+     `schemas/fh-char.schema.json`, ZÉRO dans `examples/*.json`. Sur un
+     document v2 il rendait donc `false` À TOUS LES COUPS, et aucune Vibration
+     ne s'est jamais signalée. Le critique arcanique, lui, avait bien lieu :
+     c'est ce qui a rendu la panne invisible — la ligne du flux disait tout
+     sauf la seule chose qui manquait.
+
+     LE CHEMIN RATIFIÉ, et il n'a demandé aucun champ neuf (révision
+     d'architecte du 2026-08-09, `contracts/play.md` §9) : le personnage nomme
+     SA carte comme il nomme son espèce, sa classe et son historique —
+
+       { "path": "fh.destiny.arcana", "ref": { "kind": "arcana", "id": "…" } }
+
+     Le chemin n'est PAS recopié ici : il est importé du module qui le possède
+     (`destiny-stat.mjs`), pour que la prochaine révision n'ait qu'un endroit
+     à toucher.
+
+     ⚠️ CE QUI EST LU, ET C'EST TOUT : QU'UNE CARTE EST NOMMÉE. Ni son nom, ni
+     son `power`, ni son effet, ni son texte — décision Q4, le moteur porte la
+     mécanique et les couches portent le contenu. Le niveau de Vibration se
+     calcule depuis LA TAILLE DU DÉ, jamais depuis la carte. */
+  function arcanaChoiceEntry() {
+    const character = state.character;
+    /* Aucun personnage chargé : il n'y a pas de carte à chercher. C'est un
+       état légitime (un plateau libre, une séance qui n'a pas encore ouvert de
+       fiche), pas une fiche muette. */
+    if (!character) return null;
+    const choices = character.build && character.build.choices;
+    /* §0.5 — LE REFUS QUI EMPÊCHE CETTE PANNE DE REVENIR. `build.choices` est
+       REQUIS par `fh-char/1` (`$defs/build.required`), donc un personnage qui
+       n'en porte pas n'est pas un `fh-char/1` : c'est un autre objet qu'on a
+       tendu au moteur — la tranche `resolved`, une fiche v1, un fragment de
+       test. Rendre `false` dans ce cas serait EXACTEMENT le bug qu'on répare,
+       à l'identique et tout aussi silencieux. */
+    if (!Array.isArray(choices)) {
+      throw new Error(
+        "fhpc/fh: the session was opened on something that is not an fh-char/1 — `character.build.choices` is " +
+        JSON.stringify(choices) + " and the schema makes it required. The Vibration is read on the ratified " +
+        'choice "' + ARCANA_CHOICE_PATH + '", so a character without that array cannot be asked whether it ' +
+        "knows an Arcana. Answering « no » here is how this mechanic died once already."
+      );
+    }
+    const entry = choices.find((choice) => choice && choice.path === ARCANA_CHOICE_PATH);
+    if (!entry) return null;
+    /* Les deux refus que le module de Score fait déjà sur le même chemin, et
+       pour les mêmes raisons : une carte est un RECORD de la pile, et seul le
+       genre `arcana` en porte une. Un choix mal formé ici ne doit pas coûter
+       sa Vibration au personnage sans un mot. */
+    if (entry.ref === undefined) {
+      throw new Error(
+        'fhpc/fh: the choice "' + ARCANA_CHOICE_PATH + '" carries a value, not a `ref` — a Major Arcana is a ' +
+        "record of the stack, named by `{kind, id}`. A scalar written there is content posing as a rule."
+      );
+    }
+    if (entry.ref.kind !== ARCANA_KIND) {
+      throw new Error(
+        'fhpc/fh: the choice "' + ARCANA_CHOICE_PATH + '" designates a "' + entry.ref.kind + '" record — this ' +
+        'path names a card, and only the "' + ARCANA_KIND + '" genre carries one.'
+      );
+    }
+    return entry;
+  }
+
   function arcanaKnown() {
-    const build = state.character && state.character.destinyBuild;
-    return !!(build && build.arcana);
+    return !!arcanaChoiceEntry();
   }
 
   function vibrationFor(sides) {
@@ -647,6 +722,75 @@ function bindFh(engine, { chaosTables }) {
       // Un 1 ou le maximum sur un dé de Destinée règle le jet sur place.
       settled: !!(spent.criticalSuccess || spent.criticalFailure)
     };
+  }
+
+  /* ══ LE TILT, APPLIQUÉ ═════════════════════════════════════════════
+     Lot 21. La table vit dans `tilt.mjs`, pure et sans état ; ce gestionnaire
+     est tout ce qui la relie à un jet — et il tient dans une vingtaine de
+     lignes parce qu'il ne RÉIMPLÉMENTE rien : l'Avantage, le Désavantage et
+     le bonus plat existent déjà dans le moteur, le Tilt les PRODUIT.
+
+     POURQUOI `pre-roll` ET PAS `mount` : le moment `mount` est déclaré dans
+     `MOMENTS` mais `sequence.run("mount", …)` n'est appelé NULLE PART —
+     mesuré. S'y inscrire aurait été du code mort à l'inscription (§0.6).
+     `pre-roll`, lui, tourne juste avant que `rollSequenceRemaining` lise
+     `cfg.d20Mode` pour fabriquer le plan du d20 : c'est le dernier instant où
+     pencher un jet veut encore dire quelque chose.
+
+     PRIORITÉ 40 : AVANT le dé de Destinée (100), qui peut RÉCLAMER la
+     séquence et la rendre lui-même. Après lui, le d20 serait déjà planifié
+     avec l'ancien mode et le Tilt s'appliquerait à un jet qui n'existe plus. */
+  function onTilt({ cfg, entry, adjustment }) {
+    /* Un AJUSTEMENT travaille sur un d20 DÉJÀ TOMBÉ. Pencher un jet après
+       coup n'est pas une règle : le Tilt se déclare avant, ou il ne se
+       déclare pas. L'entrée garde donc celui qu'elle portait déjà — et comme
+       `configFromEntry` le restitue à la console, le rappliquer ici le
+       compterait deux fois. */
+    if (adjustment) return null;
+
+    /* ⚠️ LE +2 DE LA COUCHE N'ATTEIGNAIT PAS L'ENTRÉE, ET C'EST MESURÉ (lot
+       21). `cfg.plusTwo` était réglable, il peignait un jeton « FH bonus »
+       dans le plateau en attente, et `runConfiguredRoll` ne le recopiait
+       jamais sur l'entrée : `fhTotal` lit `entry.plusTwo`, qui restait
+       `undefined`. Sonde : d20=10, bonus 3, `plusTwo: true` → total 13 au
+       lieu de 15. Le Tilt rend un +2 ; sans ce fil, il serait mort-né comme
+       la Vibration. C'est la couche qui écrit sa propre clef sur l'entrée,
+       pas le chemin commun — il ne sait pas ce qu'est un +2 maison. */
+    if (cfg.plusTwo) entry.plusTwo = true;
+
+    const tilt = resolveTilt({ tilts: cfg.tilts, disadvantage: cfg.tiltDisadvantage });
+    /* Rien à dire d'un jet que personne n'a penché : ne rien écrire garde
+       `entry.tilt` absent, et l'absence est une assertion aussi lisible que
+       la présence. */
+    if (!tilt.tilts && !tilt.disadvantage) return null;
+
+    entry.tilt = { tilts: tilt.tilts, disadvantage: tilt.disadvantage, outcome: tilt.outcome };
+    if (tilt.bonus) { cfg.plusTwo = true; entry.plusTwo = true; }
+    if (tilt.mode === "flat") return null;
+
+    /* §0.5 — DEUX SYSTÈMES D'ANNULATION NE SE MÉLANGENT PAS EN SILENCE. Le
+       Tilt porte SA règle d'annulation (« 1 ou plus + désavantage = tout
+       s'annule ») ; la 5e porte la sienne (avantage et désavantage se
+       neutralisent). Quand une source SRD a déjà penché ce jet dans l'AUTRE
+       sens, choisir laquelle des deux s'applique serait inventer une règle
+       qu'Eric n'a pas énoncée (loi §0.10). Le refus nomme les deux côtés pour
+       que la table tranche elle-même — en retirant l'un, ou en comptant le
+       désavantage comme celui du Tilt. */
+    if (cfg.d20Mode !== "flat" && cfg.d20Mode !== tilt.mode) {
+      throw new Error(
+        "fhpc/fh: this roll is already set to \"" + cfg.d20Mode + '" and the Tilt table resolves to "' + tilt.mode +
+        '" (' + tilt.tilts + " Tilt" + (tilt.tilts === 1 ? "" : "s") +
+        (tilt.disadvantage ? ", disadvantage present" : ", no disadvantage") + "). Fate's Hand cancels inside the " +
+        "Tilt table; 5e cancels between advantage and disadvantage. Nothing ratifies which one wins, so the " +
+        "engine will not pick: declare the SRD side as part of the Tilt, or drop it."
+      );
+    }
+    cfg.d20Mode = tilt.mode;
+    /* L'entrée porte déjà une copie du mode, prise avant ce moment : sans
+       cette ligne, la console rouverte sur cette ligne du flux proposerait
+       « à plat » un jet qui a été lancé avec Avantage. */
+    entry.d20Mode = tilt.mode;
+    return null;
   }
 
   /* Le MOMENT `pre-roll` : ce qui se lance AVANT le d20. En v1, `runConfiguredRoll`
@@ -962,7 +1106,8 @@ function bindFh(engine, { chaosTables }) {
      siennes. Ce n'est pas la surface publique : celle-là, c'est `verbs`. */
   const internals = {
     makeDestinySlots, normalizeDestiny, recoverLowestDie, adjustDestinyDie,
-    setDestinyPoints, recoverDestinyPoints, vibrationFor, arcanaKnown,
+    setDestinyPoints, recoverDestinyPoints, vibrationFor, arcanaKnown, arcanaChoiceEntry,
+    resolveTilt, onTilt,
     GAIN_RECOVERED, GAIN_TEMPORARY, GAIN_DECLARED, LONG_REST_RECOVERY,
     updateDestinyField, spendDestinyDie, arcaneDecision, destinyPlanFor,
     destinyEventSpecs, resolveArcaneOne, settleAwakening, naturalDestiny: (entry) => {
@@ -1035,10 +1180,25 @@ function bindFh(engine, { chaosTables }) {
 
     /* Les réglages que la couche ajoute à une console de jet, et les dés
        qu'elle y fait attendre. */
-    configDefaults: () => ({ plusTwo: false, destinyDieId: "", destinyConfirmed: false, destinyMode: "flat", destinyForcedResult: null }),
-    configSettings: { plusTwo: (v) => !!v, destinyDieId: (v) => String(v || ""), destinyMode: (v) => String(v || "flat"), destinyForcedResult: (v) => (v == null || v === "" ? null : Math.round(Number(v) || 0)) },
+    configDefaults: () => ({ plusTwo: false, tilts: 0, tiltDisadvantage: false, destinyDieId: "", destinyConfirmed: false, destinyMode: "flat", destinyForcedResult: null }),
+    configSettings: {
+      plusTwo: (v) => !!v,
+      /* ⚠️ CE LECTEUR NE RATTRAPE RIEN, ET C'EST LE POINT. `AS.int` du moteur
+         arrondit en silence ; ici un −1 n'est pas une valeur hors bornes, c'est
+         quelqu'un qui croit qu'un Tilt négatif existe. Le refus vient de la
+         table elle-même, avec la phrase qui dit où le malus se donne. */
+      tilts: (v) => resolveTilt({ tilts: typeof v === "number" ? v : Number(v), disadvantage: false }).tilts,
+      tiltDisadvantage: (v) => !!v,
+      destinyDieId: (v) => String(v || ""), destinyMode: (v) => String(v || "flat"), destinyForcedResult: (v) => (v == null || v === "" ? null : Math.round(Number(v) || 0))
+    },
     configFromEntry: (entry) => ({
-      plusTwo: !!entry.plusTwo, destinyDieId: "", destinyConfirmed: false,
+      plusTwo: !!entry.plusTwo,
+      /* Rouvrir une ligne du flux rend la console telle qu'elle était : un jet
+         penché se relit penché, sinon l'ajustement effacerait le Tilt sans
+         qu'on le voie passer. */
+      tilts: entry.tilt ? entry.tilt.tilts : 0,
+      tiltDisadvantage: entry.tilt ? entry.tilt.disadvantage : false,
+      destinyDieId: "", destinyConfirmed: false,
       destinyMode: (entry.destiny && entry.destiny.advantageMode) || "flat",
       destinyForcedResult: entry.destiny && entry.destiny.forced ? entry.destiny.result : null
     }),
@@ -1071,6 +1231,9 @@ function bindFh(engine, { chaosTables }) {
       { moment: "session-open", handler: ({ destiny, character }) => { state.destiny = normalizeDestiny(destiny, character || {}); } },
       { moment: "session-snapshot", handler: () => ({ contribute: { destiny: state.destiny } }) },
       { moment: "session-clear", handler: () => { state.destinyStaged = null; state.pendingArmed = null; } },
+      /* Le Tilt penche le jet AVANT que le dé de Destinée puisse réclamer la
+         séquence — d'où 40 contre 100 (défaut). */
+      { moment: "pre-roll", priority: 40, handler: onTilt },
       { moment: "pre-roll", handler: onPreRoll },
       { moment: "result", handler: onResult },
       { moment: "reopen", handler: onReopen }
