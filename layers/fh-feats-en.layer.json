@@ -11,14 +11,14 @@
     "license": "all-rights-reserved",
     "text": "Original Fate's Hand content: all rights reserved. This layer adds a record of its own and modifies NO material from the System Reference Document 5.2.1 — it patches no SRD feat and disables none."
   },
-  "description": "The Fate's Hand feats that carry a Destiny value. One so far: Destiny Touched (fh), which grants +2 to the Destiny Score.",
+  "description": "The Fate's Hand feats that carry a Destiny value. One so far: Auspicious (fh), which grants +2 to the Destiny Score.",
   "records": {
     "feat": {
-      "fh:feat:en:destiny-touched": {
-        "name": "Destiny Touched (fh)",
-        "slug": "destiny-touched",
+      "fh:feat:en:auspicious": {
+        "name": "Auspicious (fh)",
+        "slug": "auspicious",
         "data": {
-          "name": "Destiny Touched (fh)",
+          "name": "Auspicious (fh)",
           "destiny": {
             "bonus": 2
           },

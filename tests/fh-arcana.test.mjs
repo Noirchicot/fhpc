@@ -3,7 +3,7 @@
    en étaient sortis « déclarés non dérivables ». Deux d'entre eux étaient du
    CONTENU manquant, pas du contrat : l'impact de l'Arcane majeur (7 des 7
    personnages réels d'Eric en portent un, et il vaut 0, 1 ou 2 SELON LA CARTE)
-   et le don Destiny Touched (fh), +2. Ce lot pose ce contenu et apprend au
+   et le don Auspicious (fh), +2. Ce lot pose ce contenu et apprend au
    module à le lire. Cette suite dit s'il a réussi.
 
    LE TEST QUI COMPTE EST LE DEUXIÈME, et il est le pendant du premier : un
@@ -34,7 +34,10 @@ const CARTES = JSON.parse(readFileSync(join(ROOT, FH_ARCANA_EN), "utf8"));
 const DONS = JSON.parse(readFileSync(join(ROOT, FH_FEATS_EN), "utf8"));
 
 const HERMITE = "fh:arcana:en:the-hermit";
-const DON = "fh:feat:en:destiny-touched";
+/* REWRITTEN 2026-08-10 — le don est renommé « Auspicious (fh) » (décision
+   d'Eric). L'id suit le nom : rien ne l'ancrait encore, et un id
+   `destiny-touched` sous un nom `Auspicious` serait deux noms pour une chose. */
+const DON = "fh:feat:en:auspicious";
 
 /* ── LE PERSONNAGE ───────────────────────────────────────────────────
    La même elfe magicienne de niveau 1 que le lot 19 — l'Elfe parce qu'elle est
@@ -184,7 +187,7 @@ test("ACCEPTATION 1 — la carte et le don entrent dans le Score, chacun citant 
     { label: "Destiny Base · Elf", value: 2, source: { kind: "species", id: "srd:species:en:elf" } },
     { label: "Splinter of Anon", value: 2, source: { kind: "species", id: "srd:species:en:elf" } },
     { label: "The Hermit", value: 2, source: { kind: "arcana", id: HERMITE } },
-    { label: "Destiny Touched (fh)", value: 2, source: { kind: "feat", id: DON } }
+    { label: "Auspicious (fh)", value: 2, source: { kind: "feat", id: DON } }
   ]);
   assert.equal(stat.value, 10);
   assert.equal(stat.value, somme(stat), "et `value` EST la somme de son détail");
@@ -192,10 +195,10 @@ test("ACCEPTATION 1 — la carte et le don entrent dans le Score, chacun citant 
   /* LES DEUX MOTS SONT RECOPIÉS DES RECORDS, pas fabriqués — la règle que le
      lot 19 avait appliquée au bonus de l'Elfe (loi §0.13). */
   assert.equal(ligne(stat, "The Hermit").label, CARTES.records.arcana[HERMITE].name);
-  assert.equal(ligne(stat, "Destiny Touched (fh)").label, DONS.records.feat[DON].name);
+  assert.equal(ligne(stat, "Auspicious (fh)").label, DONS.records.feat[DON].name);
   /* ET LES DEUX NOMBRES SONT LUS DANS LES RECORDS, pas écrits en dur. */
   assert.equal(ligne(stat, "The Hermit").value, CARTES.records.arcana[HERMITE].data.destiny.impact);
-  assert.equal(ligne(stat, "Destiny Touched (fh)").value, DONS.records.feat[DON].data.destiny.bonus);
+  assert.equal(ligne(stat, "Auspicious (fh)").value, DONS.records.feat[DON].data.destiny.bonus);
 
   /* Les deux termes ne sont PLUS déclarés non dérivés : ils le sont. La ligne
      « Other », elle, reste — elle n'est pas de ce lot. */
@@ -221,7 +224,7 @@ test("ACCEPTATION 1 (suite) — le total SURVIT À DEUX RECONSTRUCTIONS DE SUITE
     assert.equal(stat.value, 10, `${rang} pli`);
     assert.equal(stat.value, somme(stat), `${rang} pli : le total se démontre encore`);
     assert.deepEqual(ligne(stat, "The Hermit").source, { kind: "arcana", id: HERMITE }, `${rang} pli`);
-    assert.deepEqual(ligne(stat, "Destiny Touched (fh)").source, { kind: "feat", id: DON }, `${rang} pli`);
+    assert.deepEqual(ligne(stat, "Auspicious (fh)").source, { kind: "feat", id: DON }, `${rang} pli`);
   }
   /* CE QUI REND LA SURVIE POSSIBLE : les deux termes vivent dans
      `build.choices`, que la reconstruction RELIT et ne réécrit jamais. */
@@ -283,7 +286,7 @@ test("ACCEPTATION 2 — SANS LA COUCHE DES CARTES, aucun nombre n'est fabriqué 
   const stat = scoreDe(out.resolved);
 
   assert.deepEqual(stat.breakdown.map((line) => line.label),
-    ["Proficiency Bonus", "Destiny Base · Elf", "Splinter of Anon", "Destiny Touched (fh)"],
+    ["Proficiency Bonus", "Destiny Base · Elf", "Splinter of Anon", "Auspicious (fh)"],
     "la ligne de la carte est ABSENTE, pas nulle");
   assert.equal(stat.value, 8, "et le total ne contient pas d'impact fantôme");
   assert.equal(stat.value, somme(stat));
@@ -414,7 +417,7 @@ test("UN DON QUI ANNONCE UNE VALEUR DE DESTINÉE SANS SAVOIR LA DIRE JETTE", () 
   ]) {
     const h = pile(PILE_COMPLETE, {
       extra: uneCouche("scenario-lot20-don", {
-        feat: { [DON]: { op: "add", name: "Destiny Touched (fh)", slug: "destiny-touched", data: { destiny } } }
+        feat: { [DON]: { op: "add", name: "Auspicious (fh)", slug: "auspicious", data: { destiny } } }
       })
     });
     assert.throws(() => h.verbs.rebuild({ document: documentDe(h, [don(DON)]) }), motif);

@@ -24,7 +24,7 @@
      3. l'IMPACT DE L'ARCANE MAJEUR — `data.destiny.impact` de la carte que le
         choix `fh.destiny.arcana` désigne par un `ref` (lot 20) ;
      4. le bonus d'un DON qui en porte un — `data.destiny.bonus`, aujourd'hui
-        le seul *Destiny Touched (fh)*, +2 (lot 20).
+        le seul *Auspicious (fh)*, +2 (lot 20 ; renommé le 2026-08-10).
 
    DE SÉANCE (ils entrent par `build.choices`, voir plus bas)
      5. la GLOIRE / DAMNATION — décidée par le MJ, UN terme SIGNÉ ;
@@ -347,11 +347,11 @@ function featLines(feats, lines, underived, consumed) {
       field: `stats[${FH_DESTINY_ID}].feat`,
       reason: chosen.length === 0
         ? "aucun choix ne désigne de record `feat` : la valeur de Destinée d'un don est portée par le don " +
-          "(`data.destiny.bonus`), et un personnage sans don n'en a aucune à lire. Le +2 de Destiny Touched (fh) " +
+          "(`data.destiny.bonus`), et un personnage sans don n'en a aucune à lire. Le +2 d'Auspicious (fh) " +
           "est une règle connue, mais elle appartient à son record — pas à une constante du moteur."
         : `aucun des dons choisis ne porte \`data.${DESTINY_DATA}.bonus\` (${chosen.join(", ")}) : les dons du SRD ` +
           "n'ont aucune valeur de Destinée, et c'est un FAIT, pas un trou. Le don qui en porte une est " +
-          "`fh:feat:en:destiny-touched`, dans la couche `fh-feats-en` — si le personnage le joue, c'est que " +
+          "`fh:feat:en:auspicious`, dans la couche `fh-feats-en` — si le personnage le joue, c'est que " +
           "la couche n'est pas montée ou que le choix ne le désigne pas."
     });
     return;
