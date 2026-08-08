@@ -159,6 +159,27 @@ function bindFh(engine, { chaosTables }) {
 
   function adjustDestinyDie(sides, direction) {
     sides = Number(sides); direction = Number(direction);
+    /* ⚠️ LA RÉSERVE DE DESTINÉE VA DU d4 AU d12, ET C'EST LA PORTE D'ENTRÉE.
+       Règle d'Eric, tranchée le 2026-08-08 en réponse à la question laissée
+       ouverte par le RELECTEUR Adverserial : « pour FH tu bornes du d4 au
+       d12 ».
+
+       C'est ce verbe qui manquait le contrôle — et c'était le SEUL chemin par
+       lequel un dé que les règles ne dimensionnent pas entrait dans une
+       réserve. La lecture d'un personnage, elle, ramenait déjà tout dé
+       étranger dans `DIE_SEQUENCE` (voir plus haut) ; la porte manuelle, non.
+
+       Le refus est BRUYANT et nomme les dés admis (loi §0.5) : accepter en
+       silence un d20 qu'aucune table ne sait noter, c'est fabriquer un dé
+       qu'aucune règle ne peut résoudre, et le joueur ne l'apprendrait qu'au
+       moment de le dépenser. */
+    if (!DIE_SEQUENCE.includes(sides)) {
+      throw new Error(
+        "fhpc/fh: a Destiny die is a d" + DIE_SEQUENCE.join(", a d") +
+        " — a d" + sides + " has no place in the pool, and the Vibration table sizes none. " +
+        "Ranging outside the sequence would put a die in the reserve that no rule can resolve."
+      );
+    }
     const matching = state.destiny.dice.filter((die) => die.sides === sides);
     let changed = false;
     if (direction > 0) {

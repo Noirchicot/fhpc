@@ -358,3 +358,38 @@ test("RÉGRESSION — un critique arcanique n'est PAS un Éveil, et le moteur av
   assert.equal(events[0].kind, "awakening");
   assert.equal(h.queueEmpty(), 0);
 });
+
+/* ══ LA RÉSERVE VA DU d4 AU d12 — RÈGLE D'ERIC, 2026-08-08 ═══════════════
+   Réponse à la question que le RELECTEUR Adverserial avait laissée ouverte
+   plutôt que de l'inventer : « pour FH tu bornes du d4 au d12 ».
+
+   Ce test existe parce que le verbe manuel était la SEULE porte par laquelle
+   un dé hors table entrait dans une réserve — la lecture d'un personnage
+   ramenait déjà tout dé étranger dans la séquence. */
+
+test("ATTAQUE — le verbe manuel REFUSE un dé hors de la séquence, et ne touche à rien", () => {
+  const h = makeHarness();
+  h.reset(6);
+  const avant = h.state.destiny.dice.map((die) => die.sides + ":" + die.available).join(",");
+
+  for (const sides of [20, 3, 100, 0]) {
+    assert.throws(() => h.t.adjustDestinyDie(sides, 1),
+      /a Destiny die is a d4/,
+      `un d${sides} doit être refusé en nommant les dés admis`);
+  }
+
+  /* ⚠️ LE REFUS N'A RIEN BOUGÉ — la même doctrine que le refus du d20 plus
+     haut, et la raison pour laquelle ce test ne s'arrête pas au `throws`. */
+  assert.equal(h.state.destiny.dice.map((die) => die.sides + ":" + die.available).join(","), avant,
+    "un refus ne laisse aucun dé derrière lui");
+});
+
+test("LE PENDANT — les cinq dés de la table passent, eux", () => {
+  const h = makeHarness();
+  h.reset(6);
+  /* Sans ce test, le précédent passerait sur un verbe qui refuse TOUT. */
+  for (const sides of [4, 6, 8, 10, 12]) {
+    assert.doesNotThrow(() => h.t.adjustDestinyDie(sides, 1), `le d${sides} est un dé de Destinée légitime`);
+  }
+  assert.equal(h.queueEmpty(), 0);
+});
