@@ -1,0 +1,411 @@
+/* ══ LE BLOC `doc` — LES PERSONNAGES AU REPOS ══════════════════════════
+   Lot 14-bloc-doc. C'est le bloc qui rend vraie la thèse du produit : « le
+   joueur peut se balader partout avec ses persos. » Sans lui, un personnage
+   n'existe que le temps d'un processus.
+
+   CE QUE LE BLOC POSSÈDE
+   - ses VERBES : `open`, `save`, `list`, `import`, `export`, `duplicate`.
+   - son ÉTAT : les documents AU REPOS — mais il ne les tient pas en mémoire
+     (voir plus bas) ; sa tranche privée est le registre de ce qu'il a
+     réellement observé dans le magasin.
+   - ses ÉVÉNEMENTS : `doc-opened`, `doc-saved`.
+
+   ── D1 : IL POSSÈDE LE STOCKAGE, IL NE CODE PAS LE DISQUE ───────────────
+   `src/doc/` n'importe JAMAIS `node:fs` et ne nomme aucun chemin. Le magasin
+   arrive INJECTÉ (`createDoc({storage})`), exactement comme `layers` reçoit
+   son bus, `build` son `dispatch` et son horloge. Trois raisons, et aucune
+   n'est de l'abstraction pour l'abstraction :
+
+     · c'est l'idiome mesuré de ce dépôt — aucun bloc ne touche le disque, et
+       `bin/fhpc-mcp.mjs` est le seul fichier du chemin MCP qui le lise ;
+     · le garde structurel reste UNIFORME : « zéro disque dans src/ » est une
+       ligne qu'on peut attaquer, « zéro disque sauf ici » n'en est pas une ;
+     · une suite éprouve le magasin entier SANS ÉCRIRE UN OCTET, ce que le
+       veilleur d'arbre (`tests/tree-immuable.test.mjs`) rend obligatoire.
+
+   L'implémentation système de fichiers est livrée, HORS du bloc :
+   `src/storage/fs.mjs`.
+
+   ── D2 : AUCUN CHEMIN EN DUR, JAMAIS ────────────────────────────────────
+   Pas de `~/.fhpc`, pas de répertoire par défaut, pas de nom de fichier, pas
+   d'extension. La racine vient de l'appelant, et le bloc ne la voit même pas.
+   C'est la décision 3 d'Eric : *le personnage appartient au joueur, il héberge
+   ses propres données.* Un bloc qui choisit où vivent les fichiers de
+   quelqu'un a déjà décidé à sa place.
+
+   ── LA CLEF EST L'IDENTITÉ, ET LES DEUX SONT VÉRIFIÉES L'UNE PAR L'AUTRE ─
+   Le schéma dit de `id` : « l'unicité est garantie par le bloc `doc`, pas par
+   le schéma ». Ce bloc la garantit de la seule façon qui ne demande aucun
+   index : **la clef du magasin EST le `id` du document**. Deux documents de
+   même id sont donc le même emplacement, et la question « lequel gagne ? »
+   devient la question de la collision d'écriture — traitée, pas subie.
+   L'accord clef ↔ contenu est vérifié AUX DEUX BOUTS : à l'écriture, et à la
+   lecture (un magasin trafiqué à la main est nommé et refusé).
+
+   ── LE BLOC NE TIENT AUCUN PERSONNAGE OUVERT ────────────────────────────
+   `build` possède déjà « le personnage ouvert ». En tenir un second ici ferait
+   deux propriétaires pour une seule chose, et la carte l'interdit (« toute
+   feature écrit l'état d'UN seul bloc »). `open` LIT et REND ; ce que le bloc
+   retient, c'est uniquement l'empreinte de ce qu'il a vu — le témoin qui rend
+   la collision d'écriture détectable.
+
+   ── HORS PÉRIMÈTRE, ET C'EST ÉCRIT POUR QUE PERSONNE NE L'INVENTE ───────
+   Aucun réseau, aucune synchronisation : la baseline du voyage est le fichier
+   (loi §0.6). Aucun instantané pris depuis `play` : cette décision est prise,
+   elle appartient au M4, quand la vue de jeu existera. Aucun câblage MCP : le
+   lot 10 s'est délibérément interdit `open`/`save` pour laisser cette tranche
+   libre, et le branchement est un lot d'après (contracts/doc.md §« Comment le
+   MCP s'y branchera »). */
+
+import { DocError } from "./errors.mjs";
+import { compileSchema, readFromSchema } from "./schema.mjs";
+import { asBytes, digest, parseDocument, toBytes } from "./serialize.mjs";
+import { platformNow } from "./clock.mjs";
+import { charInvariantViolations } from "../schemas/invariants.mjs";
+
+const STORAGE_METHODS = ["list", "read", "write"];
+
+function fail(what) {
+  throw new DocError(`fhpc/doc: ${what}`);
+}
+
+function short(hash) {
+  return hash === null ? "aucune" : `${hash.slice(0, 12)}…`;
+}
+
+export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
+  if (!storage || typeof storage !== "object") {
+    fail("createDoc needs a storage — le bloc possède le stockage mais ne code pas le disque (décision D1). " +
+      `Le port attendu porte ${STORAGE_METHODS.join(", ")} ; une implémentation système de fichiers est ` +
+      "livrée dans src/storage/fs.mjs.");
+  }
+  for (const method of STORAGE_METHODS) {
+    if (typeof storage[method] !== "function") {
+      fail(`createDoc : le magasin injecté n'a pas de \`${method}\` — le port de stockage est ` +
+        `{${STORAGE_METHODS.join(", ")}}, et un port incomplet est un refus, pas un cas à contourner.`);
+    }
+  }
+  if (!bus || typeof bus.emit !== "function") {
+    fail("createDoc needs a bus — un document qui s'ouvre ou se sauvegarde sans l'annoncer est un changement " +
+      "que personne ne peut suivre, et `doc-opened`/`doc-saved` sont le seul moyen pour les autres blocs de savoir.");
+  }
+  if (typeof now !== "function") fail("createDoc : `now` doit être une fonction rendant un horodatage ISO.");
+
+  /* LA RÈGLE VIENT DU SCHÉMA, ET RIEN N'EN EST RECOPIÉ ICI (leçon n°3). Le
+     schéma est injecté pour la même raison que le magasin : `src/doc/` ne lit
+     pas le disque, et un fichier de schéma est un fichier. */
+  if (!schema || typeof schema !== "object") {
+    fail("createDoc needs a schema — le document `fh-char/1`, chargé par l'appelant. Le bloc VALIDE tout ce " +
+      "qui entre (décision D3) et il ne recopie aucune règle : sa liste blanche est GÉNÉRÉE du schéma. " +
+      "Sans schéma, il ne saurait pas ce qu'il accepte, et accepter sans savoir est exactement le contraire " +
+      "de ce que ce bloc existe pour faire.");
+  }
+  const compiled = compileSchema(schema, "fh-char/1");
+  const SCHEMA_TAG = readFromSchema(schema, ["properties", "schema", "const"]);
+  const ID_PATTERN = new RegExp(readFromSchema(schema, ["properties", "id", "pattern"]), "u");
+  const FORBIDDEN_KEY = new RegExp(readFromSchema(schema, ["$defs", "safeKey", "not", "pattern"]), "u");
+
+  /* L'ÉTAT PRIVÉ, ET IL TIENT EN UNE LIGNE : ce que le bloc a réellement LU
+     ou ÉCRIT, par id. Ce n'est pas un cache — rien n'est servi depuis lui — ;
+     c'est le témoin qui permet de dire « ce document a changé sous toi »
+     plutôt que d'écraser en silence. Il ne sort jamais d'ici. */
+  const seen = new Map();
+
+  function assertId(id, verb) {
+    if (typeof id !== "string" || !ID_PATTERN.test(id)) {
+      fail(`${verb} : « ${id === undefined ? "(absent)" : String(id)} » n'est pas un identifiant de document ` +
+        `(forme ${ID_PATTERN.source}). La clef du magasin EST l'id du document : un id que le contrat refuse ` +
+        "n'a pas d'emplacement.");
+    }
+    return id;
+  }
+
+  /** Ce que le magasin porte sous cette clef, ou `null`. */
+  function stored(id, verb) {
+    const raw = storage.read(id);
+    if (raw === null || raw === undefined) return null;
+    const bytes = asBytes(raw, `${verb} : l'entrée « ${id} » du magasin`);
+    return { bytes, hash: digest(bytes), size: bytes.length };
+  }
+
+  function inventory() {
+    const keys = storage.list();
+    if (!Array.isArray(keys)) {
+      fail("le magasin injecté rend autre chose qu'une liste de clefs — `list()` rend un tableau de chaînes.");
+    }
+    return keys.slice().sort();
+  }
+
+  function knownIds() {
+    const keys = inventory();
+    if (keys.length === 0) return "le magasin est vide";
+    const head = keys.slice(0, 12).join(", ");
+    return keys.length > 12 ? `${head}… (${keys.length} au total)` : head;
+  }
+
+  /** LE SEUL CHEMIN D'ADMISSION D'UN DOCUMENT. Rien n'entre dans le magasin,
+   *  et rien n'en sort, sans passer par ici (décision D3). Un refus NOMME
+   *  toutes ses raisons d'un coup : un document recopié à la main a rarement
+   *  une seule faute, et les découvrir une par une coûte un aller-retour
+   *  chacune. */
+  function assertValid(document, origin) {
+    if (document === null || typeof document !== "object" || Array.isArray(document)) {
+      fail(`${origin} : un document \`${SCHEMA_TAG}\` est un objet.`);
+    }
+    if (document.schema !== SCHEMA_TAG) {
+      fail(`${origin} : le document déclare \`schema\` = ${JSON.stringify(document.schema)} — ce bloc ` +
+        `n'ouvre que des documents \`${SCHEMA_TAG}\`. Un schéma inconnu n'est pas un document à moitié ` +
+        "compatible : c'est un document dont on ne sait rien.");
+    }
+    const violations = compiled.validate(document, "document")
+      .concat(charInvariantViolations(document));
+    if (violations.length > 0) {
+      fail(`${origin} : le document ne valide pas contre \`${SCHEMA_TAG}\` — ${violations.length} refus :\n- ` +
+        violations.join("\n- "));
+    }
+    return document;
+  }
+
+  /** Octets → document admis. */
+  function admit(bytes, origin) {
+    const parsed = parseDocument(bytes, FORBIDDEN_KEY, origin);
+    assertValid(parsed.document, origin);
+    return parsed;
+  }
+
+  /** L'accord clef ↔ contenu, vérifié aux deux bouts. */
+  function assertSameId(id, document, origin) {
+    if (document.id !== id) {
+      fail(`${origin} : le magasin range ce document sous « ${id} » et le document se dit ` +
+        `« ${document.id} ». La clef du magasin EST l'id du document : deux réponses à « qui es-tu ? » ` +
+        "ne se départagent pas toutes seules.");
+    }
+  }
+
+  /* ── LA COLLISION D'ÉCRITURE ────────────────────────────────────────
+     LE DERNIER NE GAGNE PAS EN SILENCE. La leçon n°1 dit que le vide ne bat
+     jamais le rempli SANS CHOIX EXPLICITE DE L'UTILISATEUR : ce qui suit est
+     la forme de ce choix explicite, et c'est un témoin d'empreinte, pas un
+     verrou (un verrou dans un magasin de fichiers ment dès qu'un processus
+     meurt).
+
+       · le bloc SAIT ce qu'il a lu ou écrit (`seen`) : la boucle ordinaire
+         open → modifier → save ne demande donc rien de plus ;
+       · quand il ne sait pas — le document a été posé là par quelqu'un
+         d'autre, ou par une session précédente — il REFUSE, et il dit
+         comment déclarer ce qu'on écrase : `{expect: "<empreinte>"}`, que
+         `list()` donne ;
+       · quand ce qu'il sait ne correspond plus, il REFUSE en montrant les
+         deux empreintes : quelqu'un a écrit entre-temps. */
+  function guardWrite(id, verb, expect) {
+    const current = stored(id, verb);
+    const found = current ? current.hash : null;
+    const declared = expect !== undefined;
+    if (declared && expect !== null && typeof expect !== "string") {
+      fail(`${verb} : \`expect\` est une empreinte (chaîne) ou \`null\` pour « je crée », reçu ${typeof expect}.`);
+    }
+    const expected = declared ? expect : (seen.has(id) ? seen.get(id) : null);
+
+    if (expected === found) return { found, replaced: found !== null };
+
+    if (found === null) {
+      fail(`${verb} : le magasin ne porte aucun « ${id} », alors que l'écriture en attendait un ` +
+        `(empreinte ${short(expected)}). Il a été retiré depuis la lecture — relire la liste avant d'écrire ` +
+        "plutôt que de recréer un document qu'on croyait modifier.");
+    }
+    if (expected === null) {
+      fail(`${verb} : le magasin porte déjà « ${id} » (empreinte ${short(found)}) et ce bloc ne l'a pas lu. ` +
+        "Écraser un document qu'on n'a pas lu, c'est laisser le vide battre le rempli sans choix explicite " +
+        "(leçon n°1). Deux issues, toutes deux explicites : l'ouvrir d'abord (`open`), ou déclarer ce qu'on " +
+        `écrase — \`{expect: "${found}"}\`, empreinte que \`list()\` rend.`);
+    }
+    fail(`${verb} : « ${id} » a changé dans le magasin depuis la dernière lecture (attendu ${
+      short(expected)}, trouvé ${short(found)}). Deux écritures se croisent, et la dernière ne gagne pas en ` +
+      "silence : relire, rejouer la modification sur ce qui est là, réécrire.");
+  }
+
+  function commit({ id, bytes, hash, reason, replaced, document }) {
+    storage.write(id, bytes);
+    seen.set(id, hash);
+    bus.emit("doc-saved", { id, hash, size: bytes.length, reason, replaced });
+    return { id, hash, size: bytes.length, replaced, document };
+  }
+
+  /* ── LES VERBES ───────────────────────────────────────────────────── */
+
+  const verbs = {
+    /** Lit un document du magasin et le rend. Ne garde rien d'autre que
+     *  l'empreinte de ce qu'il a vu. */
+    open(payload) {
+      const { id } = payload || {};
+      assertId(id, "open");
+      const current = stored(id, "open");
+      if (!current) {
+        fail(`open : aucun document « ${id} » dans le magasin (${knownIds()}).`);
+      }
+      const { document } = admit(current.bytes, `open « ${id} »`);
+      assertSameId(id, document, `open « ${id} »`);
+      seen.set(id, current.hash);
+      bus.emit("doc-opened", { id, hash: current.hash, size: current.size });
+      return { id, document, hash: current.hash, size: current.size };
+    },
+
+    /** Écrit un document EN MÉMOIRE dans le magasin, en octets canoniques.
+     *  Ne touche à rien du contenu — pas même `modified` : un bloc qui
+     *  réécrit ce qu'on lui confie rend deux sauvegardes du même document
+     *  différentes, et l'empreinte cesse d'être un témoin. */
+    save(payload) {
+      const options = payload || {};
+      const document = options.document;
+      assertValid(document, "save");
+      const id = document.id;
+      assertId(id, "save");
+      const bytes = toBytes(document);
+      const hash = digest(bytes);
+      const { replaced } = guardWrite(id, "save", options.expect);
+      return commit({ id, bytes, hash, reason: "save", replaced, document: structuredClone(document) });
+    },
+
+    /** L'inventaire du magasin. C'est le SEUL verbe qui ne jette pas sur un
+     *  document illisible : une entrée cassée est RAPPORTÉE (`ok: false` et
+     *  sa raison), jamais sautée. Un inventaire qui cache un fichier est pire
+     *  qu'un inventaire qui montre un fichier cassé — et le refus, lui, reste
+     *  entier à `open` et à `export`. */
+    list() {
+      return inventory().map((id) => {
+        let current = null;
+        try {
+          current = stored(id, "list");
+        } catch (error) {
+          return { id, ok: false, hash: null, size: 0, reason: error.message };
+        }
+        if (!current) {
+          return {
+            id, ok: false, hash: null, size: 0,
+            reason: `l'entrée « ${id} » est listée par le magasin et sa lecture ne rend rien.`
+          };
+        }
+        try {
+          const { document } = admit(current.bytes, `list « ${id} »`);
+          assertSameId(id, document, `list « ${id} »`);
+          /* La projection d'un CHOISISSEUR : de quoi reconnaître son
+             personnage dans une liste, et rien de plus. Tout le reste est
+             derrière `open` — projeter davantage serait fabriquer une seconde
+             lecture du document, qui divergerait de la première. */
+          return {
+            id, ok: true, hash: current.hash, size: current.size,
+            name: document.name,
+            lang: document.lang,
+            level: document.resolved.identity.level,
+            created: document.created,
+            modified: document.modified
+          };
+        } catch (error) {
+          return { id, ok: false, hash: current.hash, size: current.size, reason: error.message };
+        }
+      });
+    },
+
+    /** Fait ENTRER des octets étrangers. Ils sont validés, puis stockés TELS
+     *  QUELS : c'est ce qui rend « exporté ailleurs, réimporté ici,
+     *  byte-identique » vrai. `as` renomme — et le renommage réécrit alors le
+     *  `id` DANS le document, parce qu'une clef et un contenu qui se
+     *  contredisent sont un magasin qu'on ne peut plus relire. */
+    import(payload) {
+      const options = payload || {};
+      if (options.bytes === undefined) {
+        fail("import attend `{bytes}` — les octets du fichier de personnage. Le bloc ne lit pas le disque : " +
+          "ouvrir un fichier appartient à qui le possède (décision D1).");
+      }
+      let { document, bytes, hash } = admit(options.bytes, "import");
+      let renamed = false;
+      let id = document.id;
+
+      if (options.as !== undefined) {
+        assertId(options.as, "import");
+        if (options.as !== document.id) {
+          document = structuredClone(document);
+          document.id = options.as;
+          assertValid(document, `import (renommé en « ${options.as} »)`);
+          bytes = toBytes(document);
+          hash = digest(bytes);
+          renamed = true;
+        }
+        id = options.as;
+      }
+      assertSameId(id, document, "import");
+
+      const { replaced } = guardWrite(id, "import", options.expect);
+      const result = commit({ id, bytes, hash, reason: "import", replaced, document: structuredClone(document) });
+      result.renamed = renamed;
+      return result;
+    },
+
+    /** REND DES OCTETS, JAMAIS UN CHEMIN — et c'est la seule réponse cohérente
+     *  avec D1 : le bloc ne connaît pas le disque, il ne peut donc pas nommer
+     *  un endroit où il aurait écrit. Il ne nomme pas non plus de fichier :
+     *  choisir un nom de fichier, c'est déjà décider à la place du joueur.
+     *  Les octets rendus sont EXACTEMENT ceux du magasin — aucune
+     *  re-sérialisation, sans quoi « byte-identique » serait un vœu. */
+    export(payload) {
+      const { id } = payload || {};
+      assertId(id, "export");
+      const current = stored(id, "export");
+      if (!current) {
+        fail(`export : aucun document « ${id} » dans le magasin (${knownIds()}).`);
+      }
+      const { document } = admit(current.bytes, `export « ${id} »`);
+      assertSameId(id, document, `export « ${id} »`);
+      return { id, bytes: Buffer.from(current.bytes), hash: current.hash, size: current.size };
+    },
+
+    /** Une COPIE, sous un id neuf que l'appelant nomme. Le bloc n'en fabrique
+     *  aucun : un id est un nom, et ce lot n'invente ni nom ni valeur
+     *  (loi §0.10). ⚠️ Question ouverte n°2 pour l'architecte. */
+    duplicate(payload) {
+      const options = payload || {};
+      const { id, as } = options;
+      assertId(id, "duplicate");
+      if (as === undefined) {
+        fail("duplicate attend `{id, as}` — l'id de la copie. Ce bloc ne fabrique aucun identifiant : un id " +
+          "est un nom, il est porté par le document pour toujours, et l'inventer serait décider à la place " +
+          "du joueur (loi §0.10).");
+      }
+      assertId(as, "duplicate");
+      if (as === id) {
+        fail(`duplicate : « ${as} » est déjà l'id de la source — une copie sous le même id n'est pas une ` +
+          "copie, c'est une écriture, et l'écriture s'appelle `save`.");
+      }
+      const source = stored(id, "duplicate");
+      if (!source) fail(`duplicate : aucun document « ${id} » dans le magasin (${knownIds()}).`);
+      const { document } = admit(source.bytes, `duplicate « ${id} »`);
+      assertSameId(id, document, `duplicate « ${id} »`);
+
+      const at = now();
+      const copy = structuredClone(document);
+      copy.id = as;
+      /* LES DEUX SEULS CHAMPS QUE CE BLOC ÉCRIT DANS UN DOCUMENT, et ils se
+         justifient l'un par l'autre : une copie est un document NEUF, et un
+         document neuf qui prétend avoir été créé avant d'exister est un
+         mensonge daté que plus rien ne corrigera. */
+      copy.created = at;
+      copy.modified = at;
+      assertValid(copy, `duplicate → « ${as} »`);
+
+      const taken = stored(as, "duplicate");
+      if (taken) {
+        fail(`duplicate : « ${as} » existe déjà dans le magasin (empreinte ${short(taken.hash)}). Une copie ` +
+          "ne se pose pas SUR quelqu'un : choisir un autre id, ou écraser délibérément par `save`/`import` " +
+          "avec `expect`.");
+      }
+      const bytes = toBytes(copy);
+      const result = commit({
+        id: as, bytes, hash: digest(bytes), reason: "duplicate", replaced: false, document: structuredClone(copy)
+      });
+      result.from = id;
+      return result;
+    }
+  };
+
+  return { name: "doc", verbs };
+}

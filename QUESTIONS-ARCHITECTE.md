@@ -755,3 +755,173 @@ que dans un arbre déjà cassé.
 dans ce worktree, et `npm test` est vert parce que Node remonte l'arbre jusqu'à
 une copie d'`ajv` hors du dépôt. La version réellement exécutée n'est donc pas
 forcément la **8.20.0** épinglée. Un `npm ci` avant la fusion lèverait le doute.
+
+---
+---
+
+# Questions du lot `14-bloc-doc` à l'architecte
+
+**Écrites le 2026-08-08.** Loi §0.10 : le lot n'invente ni valeur, ni nom, ni
+règle. Les **cinq décisions d'architecte** du mandat (D1 à D5) n'ont pas été
+rouvertes ; ce qui suit est ce que le mandat laissait explicitement au lot, ou
+ce que le lot a rencontré et n'avait pas le droit de trancher seul. À chaque
+fois : la règle la plus stricte a été tenue, et rendue **visible par un test**
+plutôt que décidée en silence.
+
+Numérotées comme dans `contracts/doc.md`.
+
+---
+
+## 1. Le SCHÉMA est injecté, comme le magasin
+
+**Le fait.** D1 dit que `src/doc/` n'importe jamais `node:fs` et ne nomme aucun
+chemin. D3 dit que la liste blanche est **une seule, générée du schéma**. Les
+deux ensemble n'ont qu'une issue : **le fichier de schéma est un fichier**, donc
+le bloc ne peut pas le lire, donc il le **reçoit** — `createDoc({schema})`.
+
+**Ce qui a été écarté, et pourquoi.**
+
+- *Recopier les règles en code, comme `src/layers/document.mjs`.* C'est
+  l'idiome existant : deux copies plus un garde de dérive. Il tient tant que le
+  garde existe. Mais la leçon n°3 de `ARCHITECTURE.md` dit « une seule liste
+  blanche **générée** du schéma », et ce lot l'a prise au mot.
+- *`import schema from "…/fh-char.schema.json" with {type:"json"}`.* Un
+  spécificateur de module **est** un chemin. Le garde D2 l'aurait vu, et
+  l'exempter aurait ouvert exactement la porte que D2 ferme.
+
+**Ce que ça coûte.** `src/doc/schema.mjs` est un validateur de **sous-ensemble**
+JSON Schema 2020-12 : 24 mot-clefs, ceux et seulement ceux que `fh-char/1`
+emploie. Il ne prétend pas être général, et **il jette à la compilation sur
+tout mot-clef qu'il ne saurait pas appliquer**, en le nommant. C'est ce refus
+qui rend l'approche tenable : une règle ajoutée au contrat ne peut pas rester
+silencieusement inappliquée.
+
+**Ce que ça rapporte.** `ajv` reste juge : les deux validateurs sont confrontés
+sur 45 documents et le moindre désaccord rougit. Et un test exige que la liste
+des mot-clefs supportés couvre **exactement** ce que le schéma emploie — dans
+les deux sens.
+
+**À ratifier.** Si l'architecte préfère l'idiome `layers` (recopie + garde de
+dérive), le remplacement est local : `schema.mjs` et `store.mjs`.
+
+---
+
+## 2. `duplicate` EXIGE `as` — le bloc ne fabrique aucun identifiant
+
+**La question posée** : *« que rend `duplicate` — un id neuf, forcément, mais
+lequel, et qui le fabrique ? »*
+
+**La réponse du lot** : l'appelant. `duplicate({id, as})`, et `as` est
+obligatoire. Un id est un **nom** : il est porté par le document pour toujours,
+il apparaît dans les listes du joueur, et §0.10 interdit d'inventer un nom.
+
+**Les deux fabriques envisagées, et pourquoi elles ont été écartées.**
+
+- *`${source}-${now()}`* — valide au regard de `$defs/id`
+  (`exemple-sylvane-aubelame-2026-08-08T14:22:31Z` passe le motif), déterministe
+  puisque l'horloge est injectée. Mais elle grave l'heure dans un identifiant
+  que le joueur verra toujours, et elle collisionne si l'on duplique deux fois
+  dans la même seconde — ce qui redevient un refus, donc un cas à traiter pour
+  n'avoir pas voulu en traiter un.
+- *un compteur (`…-2`, `…-3`)* — il faut relire le magasin pour savoir où en
+  est le compte, et le résultat dépend alors de ce que le magasin contient au
+  moment du geste. Un identifiant qui dépend de l'état d'un répertoire n'est
+  pas un identifiant, c'est un rang.
+
+**Ce que le lot a livré en attendant** : un refus qui **dit** ce qu'il attend.
+Si l'architecte veut une fabrique, elle s'ajoute **sans rien casser** — `as`
+deviendrait facultatif, et le port `newId` s'injecterait comme le reste.
+
+**Conséquence pour le câblage MCP** : tant que la question n'est pas tranchée,
+l'outil `doc.duplicate` a un argument obligatoire de plus.
+
+---
+
+## 3. `doc-saved` porte une `reason` plutôt qu'un troisième type d'événement
+
+`ARCHITECTURE.md` donne à ce bloc **deux** événements : `doc-opened`,
+`doc-saved`. Or trois verbes écrivent (`save`, `import`, `duplicate`), et un
+abonné a de bonnes raisons de vouloir les distinguer — une UI n'annonce pas un
+import comme une sauvegarde.
+
+Inventer `doc-imported` aurait été inventer un nom (§0.10). Le champ `reason`
+est l'idiome **déjà employé** par `layers-changed` (`"register"`, `"enable"`,
+`"disable"`), donc il n'invente rien.
+
+**À ratifier**, comme tout ajout de charge utile.
+
+---
+
+## 4. Aucun verbe de suppression, et le port n'a pas de `remove`
+
+Le kickoff donne six verbes et aucun n'efface. Le port de stockage a donc
+**trois** méthodes — `list`, `read`, `write` — et pas une quatrième.
+
+Ce n'est pas un oubli : c'est §0.6 (« pas de code mort derrière un
+interrupteur », pas de feature pour un besoin que personne n'a formulé) et
+c'est aussi la prudence la plus élémentaire dans un bloc dont le métier est
+« les personnages du joueur ». Le jour où quelqu'un formule le besoin, la
+question à trancher **avec** sera : effacer, ou archiver ?
+
+Conséquence assumée : un magasin ne se vide que depuis l'extérieur (le
+répertoire est celui du joueur).
+
+---
+
+## 5. `export` ne prend qu'un `id`, jamais un document en mémoire
+
+Un `export({document})` serait commode : « donne-moi le fichier du personnage
+que je viens de construire, sans le sauvegarder ». Il n'a pas été fabriqué.
+
+Deux raisons. D'abord §0.6 : le besoin formulé est « partir avec ses persos »,
+c'est-à-dire exporter ce qui est **au repos**. Ensuite la cohérence : un export
+qui ne passe pas par le magasin rend des octets dont l'empreinte ne désigne
+rien — et l'empreinte est le témoin sur lequel tout le reste du bloc s'appuie.
+
+La marche à suivre existe et n'est pas pénible : `save` puis `export`. Elle a
+même une vertu — le personnage est **au repos** avant de voyager.
+
+---
+
+## 6. ⚠️ LES OCTETS À TRAVERS MCP — la question que le câblage devra trancher
+
+Ce lot ne touche pas à `src/mcp/` (décision D5), mais il laisse une question
+posée pour le lot qui câblera :
+
+`export` rend des **octets** (~18 Ko pour le personnage d'exemple, et rien ne
+borne un personnage de niveau 20 avec ses notes). MCP transporte du JSON-RPC en
+lignes. Trois voies, aucune inventée par ce lot :
+
+1. **texte UTF-8 dans le `structuredContent`** — le précédent existe et il est
+   mesuré : `layers.register` fait passer **3,08 Mo** de texte en une ligne, en
+   ~100 ms (contrats/mcp.md) ;
+2. **une resource** `fh-char:///<id>` — plus propre au regard de la
+   spécification, mais le lot 10 note que `resources/list` ne porte
+   aujourd'hui **qu'une** entrée, et en faire une liste est un changement de
+   surface ;
+3. **les deux**, ce qui ferait deux adresses pour une même chose — exactement
+   ce que l'invariant 12 de `contracts/mcp.md` refuse (« le document ne repart
+   jamais dans un résultat d'outil : il a deux adresses, pas une troisième »).
+
+**Rien n'est décidé ici.** Le contrat de `doc` dit seulement ce que le bloc
+rend ; la forme sur le fil appartient au lot de câblage.
+
+---
+
+## Hors questions — trois remarques pour la fusion
+
+1. **`src/storage/` est un répertoire NEUF**, hors du bloc, et il n'est sous
+   aucun garde structurel existant. C'est voulu (c'est là que le disque vit),
+   mais ça mérite d'être vu à la fusion : il faudra veiller à ce qu'aucun bloc
+   ne l'importe. Le garde de `doc` interdit déjà `../storage/`.
+2. **`bin/fhpc-mcp.mjs` n'a PAS été touché** : le bloc `doc` n'est donc monté
+   sur le noyau par personne aujourd'hui, et `registerDoc` n'est appelé que par
+   la suite. C'est la conséquence directe de D5 — le câblage est un lot
+   d'après. Si l'architecte veut que le serveur monte `doc` dès maintenant, il
+   faudra lui donner une racine de magasin, et c'est **cette racine** qui est
+   la vraie décision (D2 : elle vient de l'appelant, jamais d'un défaut).
+3. **La remarque `ajv` des lots 10 et 13 tient toujours** : ce worktree n'a pas
+   de `node_modules/` propre, et Node remonte l'arbre jusqu'à une copie d'`ajv`
+   hors du dépôt. Ce lot en dépend plus que les précédents — `ajv` y est
+   **juge** du validateur maison. Un `npm ci` avant la fusion lèverait le
+   doute.
