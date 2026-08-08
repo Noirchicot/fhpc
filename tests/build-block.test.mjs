@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 
 import { createBuild } from "../src/build/index.mjs";
 import { CHOICE_PATH, OVERRIDE_PATH } from "../src/build/paths.mjs";
+import { SPELL_TEXT_MAX } from "../src/build/derive.mjs";
 import { loadSources, findForbidden } from "./source-scan.mjs";
 import { makeHarness, acceptanceDocument } from "./build-harness.mjs";
 
@@ -206,4 +207,16 @@ test("les deux grammaires de chemin sont celles du SCHÉMA, mot pour mot", () =>
   const schema = JSON.parse(fs.readFileSync(path.join(here, "..", "schemas", "fh-char.schema.json"), "utf8"));
   assert.equal(CHOICE_PATH.source, schema.$defs.choicePath.pattern);
   assert.equal(OVERRIDE_PATH.source, schema.$defs.overridePath.pattern);
+
+  /* Même raison pour le plafond du texte de sort : la dérivation doit DÉCIDER
+     (porter le texte, ou le déclarer trop long), pas seulement valider — elle
+     en porte donc une copie. Ce comparateur est ce qui empêche les deux
+     nombres de diverger.
+     📌 Écrit après coup : une attaque a montré que le commentaire de
+     `derive.mjs` promettait ce test alors qu'il n'existait pas. Une promesse
+     en commentaire n'est pas une garantie. */
+  assert.equal(
+    SPELL_TEXT_MAX,
+    schema.$defs.resolved.properties.spellcasting.oneOf[1].properties.spells.items.properties.text.maxLength
+  );
 });

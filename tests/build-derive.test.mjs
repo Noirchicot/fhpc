@@ -14,10 +14,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import Ajv2020 from "ajv/dist/2020.js";
 
-import {
-  makeHarness, acceptanceDocument, readJson, manifestOf,
-  COMPLEMENT, COMPLEMENT_NIVEAU, COMPLEMENT_EQUIPEMENT, COMPLEMENT_BOURSE, SRD_FR
-} from "./build-harness.mjs";
+import { makeHarness, acceptanceDocument, readJson, manifestOf, SRD_FR } from "./build-harness.mjs";
 import { diffResolved } from "../src/build/diff.mjs";
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
@@ -183,7 +180,12 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
 test("la CA avec armure, et son refus platement quand le champ mécanique manque", () => {
   const h = makeHarness();
   const base = acceptanceDocument(h.layers);
-  const index = COMPLEMENT_EQUIPEMENT.length / 3;
+  /* La première place libre après le sac du fichier — lu, jamais supposé : un
+     indice en dur se décalerait le jour où l'exemple gagne une ligne. */
+  const index = base.build.choices
+    .map((choice) => /^gear\[([0-9]+)\]$/.exec(choice.path))
+    .filter(Boolean)
+    .reduce((max, match) => Math.max(max, Number(match[1]) + 1), 0);
 
   const avecArmure = structuredClone(base);
   avecArmure.build.choices.push(
@@ -381,18 +383,22 @@ test("UN PERSONNAGE SRD PUR, SANS AUCUNE COUCHE FH, TRAVERSE LA DÉRIVATION DE B
      structurellement ; celui-ci le tient à l'exécution. */
   const h = makeHarness({ layers: [SRD_FR] });
   const exemple = readJson("examples/personnage-srd-fr-niveau1.fh-char.json");
+
+  /* On retire du personnage d'exemple TOUT ce qui vient de la couche
+     homebrew — et les lignes d'équipement qui en dépendent avec, sans quoi un
+     `gear[8].quantity` resterait orphelin de son `gear[8]`. */
+  const horsSrd = new Set(exemple.build.choices
+    .map((choice) => (choice.ref && !choice.ref.id.startsWith("srd:") ? /^(gear\[[0-9]+\])$/.exec(choice.path) : null))
+    .filter(Boolean).map((match) => match[1]));
   const choices = exemple.build.choices
     .filter((choice) => !choice.ref || choice.ref.id.startsWith("srd:"))
-    .filter((choice) => choice.path !== "feat.magicInitiate.cantrip" && choice.path !== "feat.extra");
+    .filter((choice) => !choice.path.startsWith("feat."))
+    .filter((choice) => ![...horsSrd].some((prefix) => choice.path.startsWith(prefix)));
 
   const doc = {
     schema: "fh-char/1", id: "srd-pur", name: "SRD pur", lang: "fr",
     units: exemple.units, created: exemple.created, modified: exemple.modified,
-    build: {
-      layers: manifestOf(h.layers),
-      choices: [...choices, ...COMPLEMENT_NIVEAU, ...COMPLEMENT_BOURSE],
-      overrides: []
-    }
+    build: { layers: manifestOf(h.layers), choices, overrides: [] }
   };
   const out = h.verbs.rebuild({ document: doc });
   assert.equal(out.resolved.proficiency, 2);

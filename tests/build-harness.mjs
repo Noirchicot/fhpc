@@ -109,66 +109,25 @@ export function manifestOf(layers) {
 
 /* ══ LE PERSONNAGE D'ACCEPTATION ═══════════════════════════════════════
 
-   ⚠️ LE COMPLÉMENT, ET POURQUOI IL EXISTE. Le magicien elfe du lot 2 est la
-   cible d'acceptation ; ses `build.choices` sont repris MOT POUR MOT. Mais
-   trois familles de décisions manquent à sa liste, et aucune ne se devine :
+   Le magicien elfe du lot 2 est la cible d'acceptation, et ses `build.choices`
+   sont repris MOT POUR MOT — plus rien n'est ajouté ici.
 
-   1. **le NIVEAU** — aucun choix ne le porte, et rien ne le dérive (ni le
-      bonus de maîtrise, ni les emplacements, ni les points de vie ne s'en
-      passent) ;
-   2. **l'ÉQUIPEMENT et la BOURSE** — le contrat §6 dit que `resolved.gear` et
-      `resolved.currency` sont « nourris par `build.choices` qui nomment
-      directement des ids d'objets et un montant » ; ces choix-là ne sont pas
-      dans le fichier ;
-   3. rien pour les **notes** — et c'est mesuré : `build.choices[].value` est
-      plafonné à 200 caractères par le schéma, donc un choix ne PEUT PAS
-      porter une note de personnage. Elles restent non dérivées.
+   ⚠️ ÇA N'A PAS TOUJOURS ÉTÉ LE CAS. La première passe de ce lot a dû porter
+   un « complément » dans ce harnais, parce que trois familles de décisions
+   manquaient au fichier et qu'aucune ne se devine : le NIVEAU (rien ne le
+   dérive — ni le bonus de maîtrise, ni les emplacements, ni les points de vie
+   ne s'en passent), l'ÉQUIPEMENT et la BOURSE (que le contrat §6 dit pourtant
+   nourris par les choix). L'architecte a tranché le 2026-08-08 : le fichier
+   est la cible d'acceptation de TOUS les lots suivants, donc il doit être
+   constructible tel quel, et le complément a été versé dedans.
 
-   Le complément est nommé, isolé, et une suite tourne SANS lui pour prouver
-   que la dérivation refuse platement au lieu de combler. Les trois manques
-   sont remontés à l'architecte (QUESTIONS-ARCHITECTE.md, question 5). */
-
-export const COMPLEMENT_NIVEAU = [
-  { path: "level", value: 1 }
-];
-
-/* Le sac du magicien, tel que `resolved.gear` du fichier le liste. Chaque
-   ligne cite un record de la pile ; « Livre de sorts » n'existe PAS dans le
-   SRD exporté (le genre `gear` porte « Livre »), et cette ligne-là est donc
-   la seule divergence assumée avec le fichier — elle est nommée dans la suite
-   d'acceptation plutôt que maquillée. */
-const SAC = [
-  ["weapon", "srd:weapon:fr:dague", 1, true],
-  ["weapon", "srd:weapon:fr:baton-de-combat", 1, true],
-  ["gear", "srd:gear:fr:livre", 1, false],
-  ["gear", "srd:gear:fr:sacoche-a-composantes", 1, true],
-  ["tool", "srd:tool:fr:materiel-de-calligraphe", 1, false],
-  ["gear", "srd:gear:fr:sac-a-dos", 1, true],
-  ["gear", "srd:gear:fr:rations", 5, false],
-  /* Deux torches au départ : l'override du MJ en fera quatre, et c'est ce qui
-     prouve que les overrides passent APRÈS la dérivation. */
-  ["gear", "srd:gear:fr:torche", 2, false],
-  ["gear", "exemple:gear:fr:lanterne-pliante", 1, false]
-];
-
-export const COMPLEMENT_EQUIPEMENT = SAC.flatMap(([kind, id, quantity, equipped], index) => [
-  { path: `gear[${index}]`, ref: { kind, id } },
-  { path: `gear[${index}].quantity`, value: quantity },
-  { path: `gear[${index}].equipped`, value: equipped }
-]);
-
-export const COMPLEMENT_BOURSE = [
-  { path: "currency.cp", value: 4 },
-  { path: "currency.sp", value: 12 },
-  { path: "currency.gp", value: 8 },
-  { path: "currency.pp", value: 0 }
-];
-
-export const COMPLEMENT = [...COMPLEMENT_NIVEAU, ...COMPLEMENT_EQUIPEMENT, ...COMPLEMENT_BOURSE];
+   Ce qui reste dehors, et c'est mesuré : les NOTES. `build.choices[].value`
+   est plafonné à 200 caractères par le schéma et la note « Histoire » en fait
+   déjà 188. Une note appartient au bloc `doc`, pas à la dérivation. */
 
 /** Le document d'acceptation : les choix et les overrides du fichier
- *  d'exemple, le complément nommé ci-dessus, et la pile RÉELLEMENT montée. */
-export function acceptanceDocument(layers, { complement = COMPLEMENT } = {}) {
+ *  d'exemple, tels quels, et la pile RÉELLEMENT montée. */
+export function acceptanceDocument(layers) {
   const example = readJson(EXAMPLE_CHAR);
   return {
     schema: example.schema,
@@ -185,7 +144,7 @@ export function acceptanceDocument(layers, { complement = COMPLEMENT } = {}) {
     build: {
       external: example.build.external,
       layers: manifestOf(layers),
-      choices: [...structuredClone(example.build.choices), ...structuredClone(complement)],
+      choices: structuredClone(example.build.choices),
       overrides: structuredClone(example.build.overrides)
     }
   };

@@ -33,10 +33,25 @@ import assert from "node:assert/strict";
 import { dispatch, assertBlocks } from "../src/kernel/registry.mjs";
 import { registerLayers } from "../src/layers/index.mjs";
 import { registerBuild } from "../src/build/index.mjs";
-import {
-  fileBytes, bytesOf, readJson, SRD_FR, HOMEBREW, EXAMPLE_CHAR, COMPLEMENT
-} from "./build-harness.mjs";
+import { fileBytes, bytesOf, readJson, SRD_FR, HOMEBREW, EXAMPLE_CHAR } from "./build-harness.mjs";
 import { fixtureLayer } from "./build-fixture-mecanique.mjs";
+import { diffResolved } from "../src/build/diff.mjs";
+
+/** ⚠️ LA LEÇON DE LA REVUE DU 2026-08-08, OUTILLÉE.
+ *
+ *  La première passe de ce lot comparait des PROJECTIONS : `identity` contre
+ *  un littéral, `gear` contre une chaîne `id×quantité`, un sort contre cinq
+ *  de ses douze champs. Résultat : quatre champs divergeaient du fichier sans
+ *  que rien ne rougisse ni ne le déclare — la parente exacte du « garde qui
+ *  compte », qu'un autre lot avait déjà payée.
+ *
+ *  Ici on compare l'OBJET ENTIER au fichier, et on assert la liste EXACTE de
+ *  ce qui diffère. Une divergence non prévue fait rougir ; une divergence
+ *  prévue est écrite, avec sa raison, à l'endroit où on la voit. */
+function divergences(attendu, obtenu, racine) {
+  return diffResolved({ [racine]: attendu }, { [racine]: obtenu })
+    .map((change) => change.path.replace(/^resolved\./, ""));
+}
 
 const FICHIER = readJson(EXAMPLE_CHAR);
 
@@ -74,7 +89,7 @@ function documentVierge() {
 /** Rejoue toutes les décisions PAR LES VERBES, puis reconstruit. */
 function reconstruire({ overrides = FICHIER.build.overrides } = {}) {
   let payload = { document: documentVierge() };
-  for (const choice of [...FICHIER.build.choices, ...COMPLEMENT]) {
+  for (const choice of FICHIER.build.choices) {
     const verb = choice.ref !== undefined ? "build.choose" : "build.set";
     dispatch(verb, Object.assign({}, payload, choice));
     payload = {};
@@ -109,13 +124,11 @@ test("ACCEPTATION — le magicien elfe niveau 1 est reconstruit depuis ses choix
   assert.deepEqual(got.derivation.stack, out.document.build.layers,
     "resolved.derivation.stack EST build.layers");
 
-  assert.deepEqual(got.identity, {
-    level: 1,
-    classes: [{ name: "Magicien", level: 1 }],
-    species: "Elfe",
-    size: "medium",
-    background: "Sage"
-  });
+  /* `identity` comparée AU FICHIER, pas à un littéral — c'est le littéral qui
+     avait masqué la divergence. Deux écarts, et deux seulement ; ils sont
+     expliqués dans la suite « LES DIVERGENCES … » plus bas. */
+  assert.deepEqual(divergences(attendu.identity, got.identity, "identity"),
+    ["identity.size", "identity.species"]);
   assert.equal(got.identity.level, attendu.identity.level);
   assert.deepEqual(got.identity.classes, attendu.identity.classes);
   assert.equal(got.identity.background, attendu.identity.background);
@@ -165,15 +178,73 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
 
   assert.deepEqual(got.spells.map((spell) => spell.id), attendu.spells.map((spell) => spell.id),
     "les huit sorts, dans l'ordre du fichier : les mineurs d'abord, le sort du don compris");
-  for (const spell of attendu.spells) {
-    const trouve = got.spells.find((candidate) => candidate.id === spell.id);
-    assert.equal(trouve.name, spell.name);
-    assert.equal(trouve.level, spell.level);
-    assert.equal(trouve.prepared, spell.prepared);
-    assert.equal(trouve.castType, spell.castType);
-  }
   assert.equal(got.spells.find((spell) => spell.id === "chuchotement-des-pages").level, 0,
     "le sort mineur du don vient de la couche homebrew : la pile le sert comme les autres");
+
+  /* ⚠️ LES SORTS, OBJET PAR OBJET — c'est ici que la projection à cinq champs
+     avait caché quatre divergences. La liste ci-dessous est EXACTE : un champ
+     de plus ou de moins fait rougir. Chaque famille est expliquée. */
+  const ecarts = divergences(attendu.spells, got.spells, "spells");
+  assert.deepEqual(ecarts, [
+    "spells[bouclier].castingTime",
+    "spells[bouclier].concentration",
+    "spells[bouclier].text",
+    "spells[chuchotement-des-pages].concentration",
+    "spells[chuchotement-des-pages].ritual",
+    "spells[chuchotement-des-pages].text",
+    "spells[detection-de-la-magie].concentration",
+    "spells[detection-de-la-magie].duration",
+    "spells[detection-de-la-magie].range",
+    "spells[detection-de-la-magie].text",
+    "spells[lumiere].concentration",
+    "spells[lumiere].text",
+    "spells[prestidigitation].concentration",
+    "spells[prestidigitation].duration",
+    "spells[prestidigitation].text",
+    "spells[projectile-magique].concentration",
+    "spells[projectile-magique].damage",
+    "spells[projectile-magique].text",
+    "spells[rayon-de-givre].concentration",
+    "spells[rayon-de-givre].damage",
+    "spells[rayon-de-givre].text",
+    "spells[sommeil].concentration",
+    "spells[sommeil].duration",
+    "spells[sommeil].saveAbility",
+    "spells[sommeil].saveEffect",
+    "spells[sommeil].text"
+  ]);
+
+  /* Vingt-six écarts, et QUATRE FAMILLES SEULEMENT — la liste est exacte, mais
+     une liste exacte qu'on ne sait pas expliquer n'est qu'un cliché. On les
+     compte par famille : si un écart d'une cinquième nature apparaît, ce
+     compte-ci tombe avant que quiconque le découvre à la table.
+
+     1. `concentration` (8) — le fichier la porte, la couche pas encore. Champ
+        COMMANDÉ AU LOT 8 le 2026-08-08 ; d'ici là déclaré non dérivé, et la
+        dérivation ne le déduit PAS de `duration`, qui est une phrase.
+     2. `text` (8) — porté depuis `description`, donc PRÉSENT, mais ce n'est
+        pas le même texte : le fichier porte des résumés éditoriaux courts, la
+        couche porte la règle entière. Le moteur recopie le record, il ne
+        résume pas.
+     3. `damage`, `saveAbility`, `saveEffect`, `ritual` (5) — non structurés
+        dans la source. `damage` est déclaré à chaque pli.
+     4. `castingTime`, `duration`, `range` (5) — les phrases du fichier ont été
+        saisies à la main ; la couche transporte la source au caractère près,
+        apostrophe typographique comprise. C'est le record qui fait foi. */
+  const famille = (suffixe) => ecarts.filter((path) => path.endsWith("." + suffixe)).length;
+  assert.deepEqual(
+    { concentration: famille("concentration"), text: famille("text"),
+      nonStructure: famille("damage") + famille("saveAbility") + famille("saveEffect") + famille("ritual"),
+      phrases: famille("castingTime") + famille("duration") + famille("range") },
+    { concentration: 8, text: 8, nonStructure: 5, phrases: 5 }
+  );
+  assert.equal(8 + 8 + 5 + 5, ecarts.length, "quatre familles, et RIEN d'autre");
+
+  /* Et le pendant positif : le texte est bien LÀ, et c'est celui du record. */
+  for (const spell of got.spells) {
+    assert.ok(typeof spell.text === "string" && spell.text.length > 0,
+      `« ${spell.id} » doit porter son texte — il vient de \`description\`, sans raison de le laisser tomber`);
+  }
 });
 
 test("ACCEPTATION — les traits d'espèce (étage 2), et le sac depuis les choix", () => {
@@ -182,13 +253,26 @@ test("ACCEPTATION — les traits d'espèce (étage 2), et le sac depuis les choi
   const espece = FICHIER.resolved.traits.filter((trait) => trait.source === "Elfe");
   assert.deepEqual(got.traits, espece, "les quatre traits de l'Elfe, tels que le contrat §5 les porte");
 
-  assert.deepEqual(
-    got.gear.map((item) => `${item.id}×${item.quantity}${item.equipped ? " (porté)" : ""}`),
-    [
-      "dague×1 (porté)", "baton-de-combat×1 (porté)", "livre×1", "sacoche-a-composantes×1 (porté)",
-      "materiel-de-calligraphe×1", "sac-a-dos×1 (porté)", "rations×5", "torche×4", "lanterne-pliante×1"
-    ]
-  );
+  /* ⚠️ LE SAC, OBJET PAR OBJET. La chaîne « id×quantité » masquait le poids et
+     les notes d'objet : `weight` est facultatif au schéma, donc l'omettre est
+     LÉGITIME — mais ça ne rend pas `gear` « identique au fichier », et c'est
+     ici qu'on le dit. La liste est exacte. */
+  assert.deepEqual(divergences(FICHIER.resolved.gear, got.gear, "gear"), [
+    "gear[baton-de-combat].weight",
+    "gear[dague].weight",
+    "gear[lanterne-pliante].note",
+    "gear[lanterne-pliante].weight",
+    "gear[livre].weight",
+    "gear[materiel-de-calligraphe].weight",
+    "gear[rations].weight",
+    "gear[sac-a-dos].weight",
+    "gear[sacoche-a-composantes].weight",
+    "gear[torche].weight"
+  ], "AUCUNE différence d'id, de quantité ni de port — seulement le poids (facultatif) et une note d'objet");
+
+  // Les identités, les quantités et le port, eux, sont ceux du fichier.
+  const nu = (item) => ({ id: item.id, name: item.name, quantity: item.quantity, equipped: item.equipped });
+  assert.deepEqual(got.gear, FICHIER.resolved.gear.map(nu));
 });
 
 test("LES OVERRIDES PASSENT EN DERNIER, ET SURVIVENT À LA RECONSTRUCTION", () => {
@@ -229,9 +313,25 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "notes",
     "resources",
     "senses",
-    "spellcasting.spells[].damage / .text / .concentration",
+    "spellcasting.spells[].concentration",
+    "spellcasting.spells[].damage",
     "traits (classe, don, arrière-plan)"
   ]);
+  /* REWRITTEN 2026-08-08 (revue d'architecte, défaut A) — l'entrée groupée
+     « damage / .text / .concentration » était FAUSSE sur un tiers : `text`
+     était disponible dans la couche et laissé tomber sans raison de données.
+     Il est porté, donc il sort de la liste ; `damage` et `concentration` sont
+     séparés parce qu'ils n'ont pas la même raison ni le même avenir. */
+  assert.match(
+    out.underived.find((entry) => entry.field === "spellcasting.spells[].concentration").reason,
+    /lot 8/,
+    "la concentration a une DATE et un destinataire, ce n'est pas un refus définitif"
+  );
+  assert.match(
+    out.underived.find((entry) => entry.field === "spellcasting.spells[].damage").reason,
+    /ne sont structurés nulle part/,
+    "les dégâts, eux, sont réellement hors d'atteinte"
+  );
   for (const entry of out.underived) {
     assert.ok(entry.reason.length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
   }
@@ -264,19 +364,22 @@ test("LES DIVERGENCES AVEC LE FICHIER D'EXEMPLE SONT NOMMÉES, PAS MAQUILLÉES",
   assert.equal(FICHIER.resolved.identity.size, undefined);
   assert.equal(got.identity.size, "medium");
 
-  /* 3. Le LIVRE DE SORTS. Le fichier porte « Livre de sorts » ; le SRD exporté
-     ne connaît que « Livre » (genre `gear`). Le choix nomme donc `livre`, et
-     l'écart est ici plutôt que dans un record inventé. */
-  assert.ok(FICHIER.resolved.gear.some((item) => item.id === "livre-de-sorts"));
+  /* 3. Le LIVRE DE SORTS. Le fichier portait « Livre de sorts », que le SRD
+     exporté ne connaît pas — le genre `gear` porte « Livre ». Corrigé DANS le
+     fichier sur arbitrage du 2026-08-08 : un exemple qui nomme un objet
+     inexistant fait repayer la découverte à chaque lot suivant. */
+  assert.ok(!FICHIER.resolved.gear.some((item) => item.id === "livre-de-sorts"));
   assert.ok(got.gear.some((item) => item.id === "livre"));
-  assert.ok(!got.gear.some((item) => item.id === "livre-de-sorts"));
 
   /* 4. Le POIDS et les NOTES d'objet ne sont pas dérivés : « 0,5 kg » est une
-     phrase, et le contrat ne nomme aucun champ de masse. */
+     phrase, et le contrat ne nomme aucun champ de masse. Les deux sont
+     FACULTATIFS au schéma — leur absence est légitime, et déclarée. */
   for (const item of got.gear) {
     assert.equal(item.weight, undefined);
     assert.equal(item.note, undefined);
   }
+  const schema = readJson("schemas/fh-char.schema.json").$defs.resolved.properties.gear.items;
+  assert.ok(!schema.required.includes("weight"), "`weight` est bien facultatif — sinon l'omettre serait une faute");
 });
 
 test("`validate` ne trouve rien à redire au personnage d'acceptation", () => {

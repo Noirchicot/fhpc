@@ -168,8 +168,14 @@ les boosts d'arrière-plan), `proficiency`, `ac` (sans armure, et avec —
 `ac_base`/`ac_dex_cap`/`ac_bonus`), `vitals.hpMax` (niveau 1), `speeds`,
 `saves`, `skills` (les 18, bonus et maîtrise), `tools`, `spellcasting`
 (id, name, ability, dc, attackBonus, slots, et les 8 sorts en id/name/level/
-prepared/castType/range/castingTime/duration/ritual), `gear` et `currency`
-depuis les choix, `craft`, `traits` d'espèce.
+prepared/castType/range/castingTime/duration/ritual/**text**), `gear` et
+`currency` depuis les choix, `craft`, `traits` d'espèce.
+
+**Deux divergences ASSUMÉES avec le fichier d'exemple**, assertées et non
+contournées : `identity.species` ne porte pas le lignage et gagne
+`identity.size` (champ ajouté au schéma après l'écriture de l'exemple) ; les
+textes et phrases de sort viennent du **record**, pas des résumés éditoriaux
+saisis à la main dans le fichier.
 
 **Non dérivé, déclaré, avec sa raison** :
 
@@ -182,8 +188,9 @@ depuis les choix, `craft`, `traits` d'espèce.
 | `notes` | du texte saisi à la main — et un choix ne peut pas le porter : `build.choices[].value` est plafonné à **200 caractères** |
 | `traits` de classe, de don, d'arrière-plan | le contrat ne porte aucun champ de trait pour `class`, `feat`, `background` |
 | `identity.species` (lignage) | le lignage est un choix, pas un record ; le recoller serait composer un mot affichable |
-| `gear[].weight` et `.note` | « 0,5 kg » est une phrase |
-| `spells[].damage`, `.text`, `.concentration` | prose (`description`, `duration`) |
+| `gear[].weight` et `.note` | « 0,5 kg » est une phrase ; les deux sont **facultatifs** au schéma, donc les omettre est légitime — mais ça se déclare |
+| `spells[].damage` | non structurés **nulle part** : ni dé, ni type, ni progression par niveau d'emplacement |
+| `spells[].concentration` | commandé au lot 8 le 2026-08-08 ; jamais déduit de `duration`, qui est une phrase |
 | `craft` | module moteur activé par un drapeau (Q4) ; aucun n'existe au M2 |
 
 ## Obligations de test
@@ -192,8 +199,15 @@ depuis les choix, `craft`, `traits` d'espèce.
    **par `dispatch` uniquement** : le document part avec `choices` et
    `overrides` **vides**, chaque décision est rejouée par `choose`/`set`/
    `override`, puis `rebuild`. Les **dix-huit compétences nommément**, pas un
-   compte. Les divergences avec le fichier d'exemple sont **assertées**, pas
-   contournées.
+   compte.
+   ⚠️ **ON COMPARE L'OBJET, JAMAIS UNE PROJECTION.** Leçon de la revue du
+   2026-08-08 : la première passe comparait `identity` à un littéral, `gear` à
+   une chaîne `id×quantité` et un sort à cinq de ses douze champs — quatre
+   divergences avec le fichier passaient donc sans rougir NI être déclarées.
+   C'est la parente exacte du « garde qui compte ». Désormais chaque
+   collection est diffée **entière** contre le fichier et la liste des écarts
+   est **exacte** ; les écarts de sort sont en plus comptés **par famille**,
+   pour qu'un écart d'une cinquième nature tombe avant la table.
 2. **Les overrides en dernier** : la dérivation seule donne 8 PV et 2 torches,
    le fichier en porte 9 et 4 ; et une seconde reconstruction ne les efface pas.
 3. **Les refus** (`build-derive`) : niveau, classe, score, clef hors
@@ -210,24 +224,45 @@ depuis les choix, `craft`, `traits` d'espèce.
    périmètre est une **liste de noms**, attaqué à vide et amputé ; l'exemption
    de `clock.mjs` prouvée dans les deux sens.
 8. **Le garde de dérive schéma ↔ code** : les deux grammaires de chemin du
-   code sont comparées, source pour source, aux `pattern` du schéma.
+   code sont comparées, source pour source, aux `pattern` du schéma — et
+   `SPELL_TEXT_MAX` au `maxLength` du texte de sort. (Celui-là a été écrit
+   *après coup* : une attaque a montré qu'un commentaire de `derive.mjs`
+   promettait ce comparateur alors qu'il n'existait pas. Une promesse en
+   commentaire n'est pas une garantie.)
 9. **L'attaque RÉELLE de l'arbre**, hors suite, journalisée dans le rapport de
-   lot : douze violations délibérées posées dans les vrais fichiers de
-   `src/build/`, douze rouges, arbre restauré. Un garde vert qui n'a jamais
-   échoué exprès ne prouve rien.
+   lot : **seize** violations délibérées posées dans les vrais fichiers de
+   `src/build/`, seize rouges, arbre restauré. Un garde vert qui n'a jamais
+   échoué exprès ne prouve rien. Les quatre dernières visent nommément les
+   défauts trouvés à la revue : texte de sort relaissé tomber, `identity` qui
+   diverge d'un champ de plus, poids inventé sur chaque ligne du sac, plafond
+   de texte désaccordé du schéma.
 
 ## ⚠ Points ouverts, pour l'architecte
 
 Repris en détail, avec leur mesure, dans `QUESTIONS-ARCHITECTE.md` à la racine
 du worktree. En résumé :
 
-1. La ligne « nombre absent / collection vide déclarée ».
-2. ✅ Tranché le 2026-08-08 : `ability_key` canonique dans les deux langues.
-3. Quatre champs **hors contrat** que la fixture porte
-   (`class.spellcasting_ability_key`, `tool.ability_key`, `spell.cast_type`) —
-   à ratifier ou à renommer.
-4. `choose` / `set` comme deux moitiés de « `ref` OU `value` ».
-5. Trois familles de décisions absentes du personnage d'exemple : le
-   **niveau**, l'**équipement** et la **bourse**.
-6. Un override sur un champ **non dérivé** : refus ou chemin de secours ?
-7. La règle de reconnaissance d'un choix de compétence (racine + légalité).
+**LES SEPT SONT TRANCHÉES** (arbitrage de l'architecte, 2026-08-08). Le détail
+et la mesure de chacune restent dans `QUESTIONS-ARCHITECTE.md`, qui vaut
+désormais comme journal de décision.
+
+1. ✅ **RATIFIÉE telle quelle** — nombre absent / collection vide **plus**
+   déclaration obligatoire / structure jamais à moitié émise. Le `required` du
+   schéma ne bouge pas : un document valide qui dit ce qu'il ne sait pas vaut
+   mieux qu'un document invalide.
+2. ✅ `ability_key` canonique dans les deux langues, appliqué.
+3. ✅ **LES QUATRE NOMS RATIFIÉS** et commandés au lot 8 —
+   `class.spellcasting_ability_key`, `tool.ability_key`, `spell.cast_type`,
+   `senses[].name`, plus `spell.concentration`. Trous du contrat, pas du lot.
+4. ✅ **DEUX VERBES** — le MCP v0 hérite de cette forme.
+5. ✅ **Le fichier d'exemple est complété** (niveau, équipement, bourse,
+   `livre-de-sorts` → `livre`) ; les notes restent dehors, le plafond mesuré à
+   200 caractères contre 188 le tranche.
+6. ✅ **RÈGLE STRICTE RATIFIÉE** — un override ne crée rien. La contradiction
+   se dissout dès que le lot 8 livre `hit_die` : `hpMax` sera dérivé, donc
+   l'override du MJ tweakera bien quelque chose qui existe. La suite
+   `⚠️ QUESTION 6` sera à réécrire à la nouvelle vérité, marquée `REWRITTEN`
+   sur sa propre ligne.
+7. ✅ **RÈGLE RATIFIÉE, parade REFUSÉE** — `granted_skill_choice.path`
+   demanderait au SRD de porter une convention du constructeur, que le PDF ne
+   dit pas. La faille reste étroite et datée.

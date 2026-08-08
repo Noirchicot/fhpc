@@ -78,6 +78,11 @@ function assertAbilityKey(key, recordId, field) {
 /** Les quatre dénominations de `$defs/currency`. */
 export const CURRENCY_KEYS = ["cp", "sp", "gp", "pp"];
 
+/** `$defs/resolved.spellcasting.spells[].text.maxLength`. Recopié ici parce
+ *  que la dérivation doit DÉCIDER (porter ou déclarer) et non seulement
+ *  valider ; un test compare les deux nombres. */
+export const SPELL_TEXT_MAX = 4000;
+
 /** Les racines de choix qui FONT CHOISIR une compétence. L'arrière-plan n'y
  *  est pas : le contrat §3 lui donne `skill_ids` (il ACCORDE, il ne fait pas
  *  choisir), et fabriquer ici la branche d'un `granted_skill_choice`
@@ -669,6 +674,7 @@ export function derive({ query, stack, choices, at, units, previous }) {
         "`spell_slots` au niveau demandé — la magie de pacte vit un cran plus bas, en scalaire (schéma, `slotsRecharge`).");
     }
     const spells = [];
+    const spellsSansConcentration = [];
     for (const entry of spellRefs) {
       entry.consumed = true;
       const view = reader.must("spell", entry.choice.ref.id, `le choix « ${entry.choice.path} »`);
@@ -688,6 +694,30 @@ export function derive({ query, stack, choices, at, units, previous }) {
       if (typeof data.casting_time === "string") spell.castingTime = data.casting_time;
       if (typeof data.duration === "string") spell.duration = data.duration;
       if (typeof data.ritual === "boolean") spell.ritual = data.ritual;
+      /* LE TEXTE DU SORT vient de `description`, tel quel. Il était laissé
+         tomber par la première passe de ce lot SANS AUCUNE RAISON DE DONNÉES —
+         défaut trouvé par l'architecte au comparateur intégral, là où mes
+         assertions ne regardaient que cinq champs sur douze. Mesuré avant de
+         le porter : les 339 sorts de la pile en ont une, la plus longue fait
+         3 967 caractères, et `resolved.spellcasting.spells[].text` en accepte
+         4 000. Un texte plus long ne serait pas TRONQUÉ — tronquer un texte de
+         règle est un mensonge silencieux : il est sauté et déclaré. */
+      if (typeof data.description === "string") {
+        if (data.description.length > SPELL_TEXT_MAX) {
+          underived.declare(`spellcasting.spells[${slug}].text`,
+            `la description fait ${data.description.length} caractères et le schéma en accepte ${SPELL_TEXT_MAX} ; ` +
+            "tronquer un texte de règle serait un mensonge silencieux.");
+        } else {
+          spell.text = data.description;
+        }
+      } else {
+        underived.declare(`spellcasting.spells[${slug}].text`, "le record de sort ne porte pas de `description`.");
+      }
+      /* `concentration` est un BOOLÉEN de la couche, commandé au lot 8. La
+         dérivation ne le déduit PAS de `duration` : « Concentration, jusqu'à
+         10 minutes » est une phrase, et la lire serait un parseur de prose. */
+      if (typeof data.concentration === "boolean") spell.concentration = data.concentration;
+      else spellsSansConcentration.push(slug);
       spells.push(spell);
     }
     /* Tri STABLE par niveau : les sorts mineurs d'abord, puis les sorts de
@@ -706,9 +736,18 @@ export function derive({ query, stack, choices, at, units, previous }) {
       slots,
       spells
     };
-    underived.declare("spellcasting.spells[].damage / .text / .concentration",
-      "aucun champ mécanique de sort dans le contrat : les dégâts, le texte de jeu et la concentration ne vivent " +
-      "que dans `description` et dans `duration`, en prose.");
+    /* LES DÉGÂTS : le seul des trois qui soit RÉELLEMENT hors d'atteinte. Ils
+       ne sont structurés nulle part dans la source — ni dé, ni type, ni
+       échelle par niveau d'emplacement. Le contrat ne les nomme pas et le lot
+       8 ne peut pas les émettre : ils se déclarent, à chaque pli. */
+    underived.declare("spellcasting.spells[].damage",
+      "les dégâts d'un sort ne sont structurés nulle part dans la source : ni dé, ni type, ni progression par " +
+      "niveau d'emplacement. Ils ne vivent que dans `description`, en prose, et on ne parse pas la prose.");
+    if (spellsSansConcentration.length > 0) {
+      underived.declare("spellcasting.spells[].concentration",
+        `${spellsSansConcentration.length} sort(s) sans champ \`concentration\` (${spellsSansConcentration.join(", ")}) — ` +
+        "commandé au lot 8 le 2026-08-08. La dérivation ne le déduit pas de `duration`, qui est une phrase.");
+    }
   }
 
   /* ── RESSOURCES ────────────────────────────────────────────────────
