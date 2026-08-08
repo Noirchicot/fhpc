@@ -1,5 +1,5 @@
 /* ══ LE TILT — LES TESTS D'ACCEPTATION DU LOT 21 ══════════════════════
-   La règle d'Eric, ratifiée le 2026-08-09 (logbook « FHV2 - Couche FH »,
+   La règle d'Eric, ratifiée le 2026-08-08 (logbook « FHV2 - Couche FH »,
    section « ⭐ Le mécanisme s'appelle Tilt »). Elle remplace TOUS les malus
    chiffrés situationnels du système par une table à cinq lignes :
 
@@ -21,7 +21,7 @@
 
    ⚠️ CE QUE CETTE SUITE NE TESTE PAS, ET C'EST DÉLIBÉRÉ :
      · l'ÉPUISEMENT reste un modificateur chiffré (−1 par degré sous FH,
-       tranché par Eric le 2026-08-09 puis reconfirmé le 2026-08-10). Il ne
+       tranché par Eric le 2026-08-08 puis reconfirmé le 2026-08-09). Il ne
        devient PAS un Tilt, il est déjà juste, et `play-srd-only` le tient ;
      · les −2 des Tables de Fatalité sont des séquelles sur une
        caractéristique, pas des modificateurs de jet. Ils restent tels quels ;
@@ -362,9 +362,9 @@ test("`prepare` honore les réglages des modules montés, comme `configure`", ()
 });
 
 test("RÉGRESSION — l'Épuisement N'EST PAS un Tilt, et il garde son chiffre", () => {
-  /* Tranché par Eric le 2026-08-09 : « il ne convertit PAS l'Épuisement en
+  /* Tranché par Eric le 2026-08-08 : « il ne convertit PAS l'Épuisement en
      Tilt — c'est un modificateur appliqué au jet, pas un +2 au DC », et il a
-     reconfirmé −1 le 2026-08-10. Ce test est là pour que « il n'y a plus de
+     reconfirmé −1 le 2026-08-09. Ce test est là pour que « il n'y a plus de
      −2 » ne serve pas un jour à « corriger » un chiffre qui est juste. */
   const h = fh();
   assert.equal(h.derive.rules().exhaustionPerLevel, 1, "Fate's Hand : −1 par degré, et c'est un NOMBRE");

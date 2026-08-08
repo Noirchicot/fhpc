@@ -46,7 +46,7 @@ export const FIXTURE_CHAOS = {
    bug des deux côtés de l'assertion.
 
    Ce constructeur rend un `fh-char/1` MINIMAL mais RÉEL — la carte est nommée
-   par le chemin ratifié du 2026-08-09, `build.choices[]` + `ref`, et par lui
+   par le chemin ratifié du 2026-08-08, `build.choices[]` + `ref`, et par lui
    seul. Les champs plats (`abilities`, `pb`, `savingProficiencies`) restent :
    c'est ce que `saveInfo` lit aujourd'hui, et ce lot ne prétend pas régler
    cette question-là (voir INVENTAIRE-LOT-21, question n°1).

@@ -471,7 +471,7 @@ test("les deux moteurs tournent côte à côte, et ne se parlent pas", () => {
   fh.verbs.open({ character: { name: "Nodren", pb: 2 }, pseudo: "Nodren" });
 
   assert.deepEqual(srd.play.flags, []);
-  /* REWRITTEN 2026-08-10 (lot 21) — `fh.tilt` entre dans la liste le jour où
+  /* REWRITTEN 2026-08-09 (lot 21) — `fh.tilt` entre dans la liste le jour où
      le Tilt entre dans la couche. L'assertion n'est pas relâchée : elle reste
      une égalité EXACTE, et c'est elle qui force chaque capacité neuve à se
      déclarer ici plutôt que d'arriver en passager clandestin. Le Tilt est bien

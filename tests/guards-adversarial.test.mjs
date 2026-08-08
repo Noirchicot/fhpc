@@ -118,7 +118,7 @@ test("ATTAQUE — le vocabulaire interdit couvre les formes QUE LE CODE EMPLOIE"
        le mot nu, et l'identifiant composé qui porte son niveau. */
     "const vibration = card.vibration;",
     "entry.vibrationLevel = 3;",
-    /* AJOUT 2026-08-10 (lot 21) — le Tilt, attaqué sous les trois formes que
+    /* AJOUT 2026-08-09 (lot 21) — le Tilt, attaqué sous les trois formes que
        le code emploie réellement : le mot nu, le composé de réglage, et
        l'appel du résolveur (que seul le découpeur d'identifiants rend
        visible — `resolveTilt` → « resolve Tilt »). */
@@ -201,7 +201,7 @@ test("ATTAQUE EN SENS INVERSE — l'élargissement ne mord pas sur le code légi
     "const destinataire = who;",
     "const updatedAt = now();",
     "const chapterIndex = 1;",
-    /* AJOUT 2026-08-10 (lot 21) — le voisinage de `tilt` : aucune frontière de
+    /* AJOUT 2026-08-09 (lot 21) — le voisinage de `tilt` : aucune frontière de
        mot ne s'ouvre au milieu de `untilted`, et « until » ne contient pas le
        motif. Sans ces deux-là, l'ajout serait posé sans qu'on sache s'il mord
        au-delà de sa cible. */

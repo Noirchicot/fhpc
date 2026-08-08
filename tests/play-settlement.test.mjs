@@ -45,7 +45,7 @@ test("`fh-roll/1` est la VUE, exportée telle quelle", () => {
   const h = makeHarness();
   h.reset();
   h.state.campaign = "FH2";
-  // REWRITTEN 2026-08-10 (lot 21) — un `fh-char/1` réel : `destinyBuild` est un champ v1 que le schéma ignore.
+  // REWRITTEN 2026-08-09 (lot 21) — un `fh-char/1` réel : `destinyBuild` est un champ v1 que le schéma ignore.
   h.state.character = fhCharacter({ name: "Yedrivel" });
   const view = h.derive.export(entry({ dc: 15, outcome: "Success" }));
   assert.equal(view.schema, "fh-roll/1", "the display layer is exported unchanged");

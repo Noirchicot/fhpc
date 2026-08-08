@@ -1,5 +1,5 @@
 /* ══ LE TILT — la seule façon dont Fate's Hand penche un jet ══════════
-   Règle d'Eric, ratifiée le 2026-08-09 (logbook « FHV2 - Couche FH »,
+   Règle d'Eric, ratifiée le 2026-08-08 (logbook « FHV2 - Couche FH »,
    section « ⭐ Le mécanisme s'appelle Tilt »). LA TABLE, telle qu'elle est
    écrite, et rien d'autre :
 

@@ -181,8 +181,8 @@ test("seize règles déclarées, cinq familles visuelles, des ids uniques", () =
      AUCUNE trace. Le partage bouge d'un cran du côté de la couche — CINQ règles
      SRD, DIX de la couche — et c'est le bon côté : une Vibration n'existe pas
      sans Arcane, donc pas sans Fate's Hand. */
-  /* REWRITTEN 2026-08-10 (lot 21) — seize. La seizième est `tilt` : la seule
-     façon dont Fate's Hand penche un jet depuis la ratification du 2026-08-09.
+  /* REWRITTEN 2026-08-09 (lot 21) — seize. La seizième est `tilt` : la seule
+     façon dont Fate's Hand penche un jet depuis la ratification du 2026-08-08.
      Elle DEVAIT laisser une trace — un « +2 » ou un avantage sans badge est un
      jet dont la table ne peut pas relire la raison, et c'est précisément ce
      que cette collection existe pour empêcher. Le partage bouge encore d'un

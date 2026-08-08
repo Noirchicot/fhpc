@@ -34,7 +34,7 @@ const CARTES = JSON.parse(readFileSync(join(ROOT, FH_ARCANA_EN), "utf8"));
 const DONS = JSON.parse(readFileSync(join(ROOT, FH_FEATS_EN), "utf8"));
 
 const HERMITE = "fh:arcana:en:the-hermit";
-/* REWRITTEN 2026-08-10 — le don est renommé « Auspicious (fh) » (décision
+/* REWRITTEN 2026-08-09 — le don est renommé « Auspicious (fh) » (décision
    d'Eric). L'id suit le nom : rien ne l'ancrait encore, et un id
    `destiny-touched` sous un nom `Auspicious` serait deux noms pour une chose. */
 const DON = "fh:feat:en:auspicious";
@@ -69,7 +69,7 @@ const CHOIX_DE_BASE = [
 ];
 
 /** La carte, par `ref`. C'est la forme que l'espèce, la classe et l'historique
- *  emploient déjà — la révision du 2026-08-09 l'a rendue légale sans ajouter
+ *  emploient déjà — la révision du 2026-08-08 l'a rendue légale sans ajouter
  *  un seul champ au schéma. */
 const carte = (id, label) => ({ path: `${FH_DESTINY_FLAG}.arcana`, ref: { kind: "arcana", id }, label });
 
@@ -91,8 +91,8 @@ function documentDe(h, choices = []) {
     lang: "en",
     units: { distance: "ft", weight: "lb" },
     generator: { name: "tests/fh-arcana", version: "1.0.0" },
-    created: "2026-08-10T09:00:00Z",
-    modified: "2026-08-10T09:00:00Z",
+    created: "2026-08-09T09:00:00Z",
+    modified: "2026-08-09T09:00:00Z",
     build: {
       layers: manifestOf(h.layers),
       choices: structuredClone(CHOIX_DE_BASE).concat(structuredClone(choices)),
@@ -465,7 +465,7 @@ test("UN MODULE NE RÉCLAME QUE CE QU'ON LUI A TENDU — sinon il ferait taire n
 });
 
 /* ══ LE CANAL HORS-NAMESPACE EST GÉNÉRIQUE ════════════════════════════
-   Généralisation d'architecte du 2026-08-09. Le lot 20 avait dû ouvrir un
+   Généralisation d'architecte du 2026-08-08. Le lot 20 avait dû ouvrir un
    canal `feats` ; il est devenu `refs`, qui porte TOUS les genres. Ces deux
    tests existent parce que le reste de la suite ne prouverait que l'absence
    de casse : ils prouvent que la généralisation SERT À QUELQUE CHOSE. Sans

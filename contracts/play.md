@@ -169,7 +169,7 @@ niveau.
 `character.destinyBuild.arcana`, un chemin **v1** : zéro occurrence dans
 `schemas/fh-char.schema.json`, zéro dans `examples/*.json`. Sur un document v2
 il rendait `false` à tous les coups, et **aucune Vibration ne s'est jamais
-signalée**. Il lit désormais le choix ratifié le 2026-08-09 (§9 ci-dessous) :
+signalée**. Il lit désormais le choix ratifié le 2026-08-08 (§9 ci-dessous) :
 
 ```json
 { "path": "fh.destiny.arcana", "ref": { "kind": "arcana", "id": "…" } }
@@ -186,7 +186,7 @@ silencieux.
 
 ### Le Tilt — la seule façon dont Fate's Hand penche un jet (lot 21)
 
-Règle d'Eric, **ratifiée le 2026-08-09**. Elle remplace tous les malus chiffrés
+Règle d'Eric, **ratifiée le 2026-08-08**. Elle remplace tous les malus chiffrés
 **situationnels** du système.
 
 | Tilts | Désavantage présent ? | Résultat |
@@ -218,7 +218,7 @@ outcome}`, et le badge `tilt` le rend lisible à la table.
 > ⚠️ **Ce que le Tilt ne touche pas, et c'est tranché.** « Il n'y a plus de −2 »
 > ne vise QUE les malus situationnels. L'**Épuisement** reste un modificateur
 > chiffré appliqué au jet (−1 par degré sous FH, `rules.exhaustionPerLevel`) —
-> Eric, 2026-08-09, reconfirmé le 2026-08-10. Les **−2 des Tables de Fatalité**
+> Eric, 2026-08-08, reconfirmé le 2026-08-09. Les **−2 des Tables de Fatalité**
 > sont des séquelles du Chaos sur une caractéristique, pas des modificateurs de
 > jet : ils restent tels quels. **Aucune synergie n'est modélisée** — « 1 = +2 ·
 > 2 = avantage » est décidé à la table, le moteur reçoit un compte.
@@ -452,7 +452,7 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
    phrase derrière lui.
 
 9. ~~**Où vit l'Arcane du personnage ?**~~ (lot 16) — ✅ **RÉPONDU LE
-   2026-08-09 par révision d'architecte.** La question était : la Vibration se
+   2026-08-08 par révision d'architecte.** La question était : la Vibration se
    déclenche si `character.destinyBuild.arcana` existe — un chemin v1 — alors
    que le schéma nommait **GAP-KIND** et que l'Arcane n'avait aucune place
    ratifiée dans `fh-char/1`.

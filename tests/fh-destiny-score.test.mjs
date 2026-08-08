@@ -166,12 +166,12 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
      nommé, chacun dit pourquoi. La mesure derrière eux : la pile de CE test
      monte SRD + la couche des espèces, et rien d'autre.
 
-     REWRITTEN 2026-08-09 — LA RAISON A CHANGÉ DE NATURE, PAS LE VERDICT.
+     REWRITTEN 2026-08-08 — LA RAISON A CHANGÉ DE NATURE, PAS LE VERDICT.
      Ce commentaire disait « le genre `arcana` n'existe pas dans l'énumération
      des 14 genres (trou GAP-KIND, toujours ouvert) ». L'architecte a ouvert
      le genre dans les deux schémas ce jour-là : GAP-KIND est CLOS.
 
-     REWRITTEN 2026-08-10 (lot 20) — ET CETTE FOIS C'EST LA PORTÉE QUI CHANGE.
+     REWRITTEN 2026-08-09 (lot 20) — ET CETTE FOIS C'EST LA PORTÉE QUI CHANGE.
      « Sans source de règle » est devenu FAUX pour deux des trois : la couche
      des 22 cartes et la fiche du don sont dans le dépôt, et
      `tests/fh-arcana.test.mjs` les dérive. Ce qui reste vrai ICI, et
@@ -190,7 +190,7 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
     "la raison nomme le CHOIX qui manque — c'est lui qui manque, la couche existe");
   assert.match(raison(`stats[${FH_DESTINY_ID}].feat`), /aucun choix ne désigne de record `feat`/,
     "idem pour le don : le personnage n'en choisit aucun");
-  /* REWRITTEN 2026-08-10 — ces deux assertions exigeaient que la raison de
+  /* REWRITTEN 2026-08-09 — ces deux assertions exigeaient que la raison de
      l'Arcane cite « GAP-KIND clos ». Elle ne le cite plus ICI, et c'est
      voulu : GAP-KIND ne dit rien à un personnage qui ne nomme aucune carte.
      La citation N'EST PAS PERDUE — elle est déplacée là où elle est vraie, le
@@ -203,12 +203,12 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
     "et le contenu existe désormais : accuser une couche absente enverrait écrire un fichier déjà écrit");
 
   /* LA MESURE, VÉRIFIÉE PLUTÔT QUE CRUE, ET ELLE A CHANGÉ DE FORME.
-     REWRITTEN 2026-08-09 : ce test exigeait que `query({kind:"arcana"})` JETTE.
+     REWRITTEN 2026-08-08 : ce test exigeait que `query({kind:"arcana"})` JETTE.
      Il ne jette plus — le genre est légal. La nouvelle vérité est plus forte,
      parce qu'elle distingue les deux échecs qu'on pouvait confondre : le
      genre RÉPOND (donc le contrat est là) et il répond VIDE (donc le contenu
      manque).
-     ⚠️ 2026-08-10 — CETTE ASSERTION N'A PAS BOUGÉ, et il faut dire pourquoi :
+     ⚠️ 2026-08-09 — CETTE ASSERTION N'A PAS BOUGÉ, et il faut dire pourquoi :
      la couche des 22 cartes existe mais N'EST PAS MONTÉE sur cette pile-ci.
      Le vide observé n'est donc plus une pénurie du dépôt, c'est un choix de
      montage — ce qui la rend plus forte, pas plus faible. */

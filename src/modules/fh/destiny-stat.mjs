@@ -24,7 +24,7 @@
      3. l'IMPACT DE L'ARCANE MAJEUR — `data.destiny.impact` de la carte que le
         choix `fh.destiny.arcana` désigne par un `ref` (lot 20) ;
      4. le bonus d'un DON qui en porte un — `data.destiny.bonus`, aujourd'hui
-        le seul *Auspicious (fh)*, +2 (lot 20 ; renommé le 2026-08-10).
+        le seul *Auspicious (fh)*, +2 (lot 20 ; renommé le 2026-08-09).
 
    DE SÉANCE (ils entrent par `build.choices`, voir plus bas)
      5. la GLOIRE / DAMNATION — décidée par le MJ, UN terme SIGNÉ ;
@@ -35,9 +35,9 @@
         règle à lire. Un Score qui l'inventerait serait un Score FAUX qui
         aurait l'air juste. Elle se déclare, avec sa raison, à chaque pli.
 
-   ⚠️ RÉÉCRIT LE 2026-08-09 PUIS LE 2026-08-10, ET LES DEUX FOIS LA RAISON A
+   ⚠️ RÉÉCRIT LE 2026-08-08 PUIS LE 2026-08-09, ET LES DEUX FOIS LA RAISON A
    CHANGÉ DE NATURE. Les termes 3 et 4 étaient ici sous « NON DÉRIVABLES ».
-   Le 2026-08-09 l'architecte a ouvert le genre `arcana` dans les deux
+   Le 2026-08-08 l'architecte a ouvert le genre `arcana` dans les deux
    schémas : ce n'était plus le CONTRAT qui manquait (trou GAP-KIND, clos)
    mais le CONTENU. Le lot 20 pose ce contenu — les 22 cartes et la fiche du
    don — et les deux termes se dérivent. Garder l'ancienne déclaration
@@ -143,7 +143,7 @@ function readSessionChoice(entry) {
   }
   const term = match[1];
   if (!Object.hasOwn(SESSION_TERMS, term)) {
-    /* REWRITTEN 2026-08-10 (lot 20) — l'ancienne raison disait « The Arcana
+    /* REWRITTEN 2026-08-09 (lot 20) — l'ancienne raison disait « The Arcana
        impact, the Destiny Touched feat and the Other line have no rule source
        to read ». Les deux premiers EN ONT UNE depuis ce lot, et un refus qui
        ment sur la raison envoie chercher au mauvais endroit. Le refus lui-même
@@ -157,7 +157,7 @@ function readSessionChoice(entry) {
       "channel for it would be inventing a rule.");
   }
   if (entry.ref !== undefined) {
-    /* REWRITTEN 2026-08-10 (lot 20) — LE GARDE EST RESTREINT, PAS OUVERT.
+    /* REWRITTEN 2026-08-09 (lot 20) — LE GARDE EST RESTREINT, PAS OUVERT.
        L'ancienne raison disait qu'AUCUN record de la pile ne porte un terme du
        Score ; c'est devenu faux pour la carte, qui EST un record. Elle reste
        vraie mot pour mot pour la Gloire et l'Éveil : ce sont des nombres
@@ -249,14 +249,14 @@ function speciesLines(species, lines, underived) {
 /* ── L'ARCANE MAJEUR, LU SUR LE RECORD QUE LE CHOIX DÉSIGNE ──────────
    Lot 20. Le personnage nomme SA carte par un `ref`, exactement comme il nomme
    son espèce, sa classe et son historique — la forme que la révision du
-   2026-08-09 a rendue légale sans ajouter un seul champ.
+   2026-08-08 a rendue légale sans ajouter un seul champ.
 
    TROIS SITUATIONS, ET ELLES NE SE RESSEMBLENT PAS. Les confondre serait le
    défaut du lot :
      · AUCUN CHOIX → le personnage ne nomme aucune carte. Déclaré.
      · UN CHOIX, ET LE GENRE RÉPOND VIDE → la couche des 22 cartes n'est pas
        montée. Déclaré, en nommant le contenu qui manque : le contrat, lui,
-       est là depuis la révision du 2026-08-09 (GAP-KIND clos).
+       est là depuis la révision du 2026-08-08 (GAP-KIND clos).
      · UN CHOIX, LE GENRE EST PEUPLÉ, ET LA CARTE N'Y EST PAS → c'est un `ref`
        MORT. Il JETTE : le personnage a été construit sur une couche qui n'est
        plus là, et compter 0 lui volerait jusqu'à 2 points en silence. */
@@ -289,7 +289,7 @@ function arcanaLines(entry, records, lines, underived) {
     underived.push({
       field: `stats[${FH_DESTINY_ID}].arcana`,
       reason: `le personnage nomme la carte « ${entry.ref.id} » et AUCUNE couche montée ne porte de record ` +
-        "`arcana`. Le genre, lui, EXISTE depuis la révision du 2026-08-09 (trou GAP-KIND clos) : il répond, " +
+        "`arcana`. Le genre, lui, EXISTE depuis la révision du 2026-08-08 (trou GAP-KIND clos) : il répond, " +
         "et il répond VIDE. Ce qui manque est le CONTENU — la couche des 22 cartes (`fh-arcana-en`) n'est pas " +
         "montée. L'impact vaut 0, 1 ou 2 selon la carte : un nombre posé ici serait inventé."
     });
@@ -389,7 +389,7 @@ export function createFhDestinyStat() {
      * @param {object|null} input.species      le record d'espèce choisi : `{id, name, slug, data}`
      * @param {Array}       input.choices      les choix sous `fh.destiny.*`, dans l'ordre du document
      * @param {Function}    input.records      `(kind, id?) => vue aplatie | null | liste du genre` (lot 20)
-     * @param {Array}       input.refs         les records que le personnage désigne HORS de ce namespace, `{path, kind, id, name, slug, data}` — ce module ne regarde que les `feat` (lot 20, généralisé par l'architecte le 2026-08-09)
+     * @param {Array}       input.refs         les records que le personnage désigne HORS de ce namespace, `{path, kind, id, name, slug, data}` — ce module ne regarde que les `feat` (lot 20, généralisé par l'architecte le 2026-08-08)
      * @returns {{stat: object|null, underived: Array, consumed: string[]}}
      */
     contribute({ proficiency, species, choices, records, refs }) {
@@ -429,7 +429,7 @@ export function createFhDestinyStat() {
       const sessionLines = sessionChoices.map(readSessionChoice);
 
       /* 4. L'ARCANE ET LE DON, lus sur leurs records — jamais écrits en dur.
-         REWRITTEN 2026-08-10 (lot 20) : ces deux termes étaient DÉCLARÉS non
+         REWRITTEN 2026-08-09 (lot 20) : ces deux termes étaient DÉCLARÉS non
          dérivables ici même, et la déclaration disait vrai le jour où elle a
          été écrite. Elle est devenue fausse dès que la couche des 22 cartes et
          la fiche du don sont entrées dans le dépôt — et une déclaration fausse
@@ -438,7 +438,7 @@ export function createFhDestinyStat() {
          exacte, dès que le contenu ou le choix manque (voir les deux lecteurs
          plus haut). */
       arcanaLines(arcanaChoice, records, derivedLines, underived);
-      /* Le canal est générique depuis le 2026-08-09 : c'est au module de dire
+      /* Le canal est générique depuis le 2026-08-08 : c'est au module de dire
          quel genre l'intéresse. Ici les dons, et eux seuls — une classe ou un
          arrière-plan désignés par le personnage ne portent pas de valeur de
          Destinée, et les lire ici fabriquerait un terme que rien ne motive. */
@@ -446,7 +446,7 @@ export function createFhDestinyStat() {
         derivedLines, underived, consumed);
 
       /* 5. CE QUI N'EST DÉRIVABLE DE RIEN, déclaré au lieu d'être inventé.
-         REWRITTEN 2026-08-10 (lot 20) — la raison disait « n'a pas plus de
+         REWRITTEN 2026-08-09 (lot 20) — la raison disait « n'a pas plus de
          source de règle que les deux précédentes ». Les deux précédentes en
          ONT une désormais, et la comparaison devenait un aveu à l'envers : le
          lecteur en aurait déduit qu'il suffit d'écrire une couche. Ce n'est

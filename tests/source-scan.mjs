@@ -240,7 +240,7 @@ export function findForbidden(sources, patterns) {
    aucune suite ne rougit. Pas d'ancre finale, pour la même raison que les
    autres (`vibrations`, `vibrationLevel`) ; le mot ne préfixe rien du
    vocabulaire SRD. */
-/* ⚠️ AJOUT DU 2026-08-10 (lot 21) — `tilt`, et il entre le jour même où la
+/* ⚠️ AJOUT DU 2026-08-09 (lot 21) — `tilt`, et il entre le jour même où la
    mécanique entre. C'est la leçon de la Vibration appliquée EN AVANCE plutôt
    qu'après coup : elle avait été perdue au portage, puis retrouvée, et le mot
    n'était entré dans cette liste qu'à ce moment-là. Le Tilt est la seule façon

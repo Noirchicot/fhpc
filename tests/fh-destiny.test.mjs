@@ -26,7 +26,7 @@ import { makeHarness, fhCharacter } from "./play-harness.mjs";
    qu'il ne ressorte NULLE PART. Si un jour le moteur se met à lire le contenu
    d'une carte, c'est cette chaîne qui le dira.
 
-   REWRITTEN 2026-08-10 (lot 21) — LE PIÈGE A CHANGÉ DE PLACE PARCE QUE LA
+   REWRITTEN 2026-08-09 (lot 21) — LE PIÈGE A CHANGÉ DE PLACE PARCE QUE LA
    CARTE A CHANGÉ DE PLACE. Il vivait sur `destinyBuild.arcana.vibration`, un
    objet-carte recopié dans la fiche : un chemin v1 que le schéma `fh-char/1`
    ne connaît pas. En v2 le personnage ne PORTE pas sa carte, il la NOMME par
@@ -411,7 +411,7 @@ test("LE PENDANT — les cinq dés de la table passent, eux", () => {
    `schemas/fh-char.schema.json`, ZÉRO dans `examples/*.json`.
 
    Ce qui suit se refuse cette facilité : les documents sont construits par
-   `fhCharacter()`, qui n'écrit QUE le chemin ratifié du 2026-08-09. */
+   `fhCharacter()`, qui n'écrit QUE le chemin ratifié du 2026-08-08. */
 
 test("ACCEPTATION A — un document v2 qui NOMME sa carte signale une Vibration", () => {
   const h = makeHarness();

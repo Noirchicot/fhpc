@@ -359,7 +359,7 @@ function bindFh(engine, { chaosTables }) {
      sauf la seule chose qui manquait.
 
      LE CHEMIN RATIFIÉ, et il n'a demandé aucun champ neuf (révision
-     d'architecte du 2026-08-09, `contracts/play.md` §9) : le personnage nomme
+     d'architecte du 2026-08-08, `contracts/play.md` §9) : le personnage nomme
      SA carte comme il nomme son espèce, sa classe et son historique —
 
        { "path": "fh.destiny.arcana", "ref": { "kind": "arcana", "id": "…" } }

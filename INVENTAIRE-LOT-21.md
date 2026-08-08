@@ -50,7 +50,7 @@ morte.
 
 ### Ce qui a changé
 
-- `arcanaChoiceEntry()` lit `build.choices[]` au chemin ratifié le 2026-08-09,
+- `arcanaChoiceEntry()` lit `build.choices[]` au chemin ratifié le 2026-08-08,
   par son `ref` de genre `arcana`. Le chemin n'est **pas recopié** : il est
   exporté par le module qui le possède (`destiny-stat.mjs`,
   `ARCANA_CHOICE_PATH`) — deux copies auraient dérivé à la prochaine révision.
