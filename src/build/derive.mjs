@@ -83,6 +83,25 @@ export const CURRENCY_KEYS = ["cp", "sp", "gp", "pp"];
  *  valider ; un test compare les deux nombres. */
 export const SPELL_TEXT_MAX = 4000;
 
+/* ── LES MODULES DE STATISTIQUE, ET LA FRONTIÈRE QU'ILS TIENNENT ──────
+   Lot 19. Une statistique dérivée est produite par un MODULE MOTEUR activé
+   par un drapeau de couche (décision Q4) — jamais par le pli lui-même. Ce
+   fichier ne connaît donc AUCUN module : il reçoit une liste par injection,
+   il lit les drapeaux que la pile lève, et il n'appelle que ceux dont le
+   drapeau est levé. Le garde de frontière du bloc interdit déjà nommément un
+   import de `src/modules/` ici (`tests/build-block.test.mjs`).
+
+   Un module déclare `{flag, id, contribute(input)}` et rend
+   `{stat, underived}`. Ce qu'il reçoit est ce que le pli a DÉJÀ su lire — la
+   maîtrise, le record d'espèce, ses propres choix — et rien du document.
+
+   ⚠️ UN DRAPEAU LEVÉ QUE PERSONNE NE SERT SE DÉCLARE. Une couche qui demande
+   une capacité qu'aucun module ne fournit produirait sinon une fiche muette
+   sur ce qui lui manque. */
+function statOwnsPath(flag, path) {
+  return path === flag || path.startsWith(`${flag}.`) || path.startsWith(`${flag}[`);
+}
+
 /** Les racines de choix qui FONT CHOISIR une compétence. L'arrière-plan n'y
  *  est pas : le contrat §3 lui donne `skill_ids` (il ACCORDE, il ne fait pas
  *  choisir), et fabriquer ici la branche d'un `granted_skill_choice`
@@ -231,9 +250,11 @@ function allowedSlugs(declaration, skills) {
  * @param {string} input.at        l'horodatage de la dérivation
  * @param {object} [input.units]   les unités du document (`{distance}`)
  * @param {object} [input.previous] la tranche `resolved` précédente — l'état de jeu en est REPRIS
+ * @param {string[]} [input.flags] les drapeaux de capacité que la pile lève (`layers.flags`)
+ * @param {Array}  [input.modules] les modules de statistique injectés, `{flag, id, contribute}`
  * @returns {{resolved:object, underived:Array<{field:string,reason:string}>, unconsumed:string[]}}
  */
-export function derive({ query, stack, choices, at, units, previous }) {
+export function derive({ query, stack, choices, at, units, previous, flags, modules }) {
   if (typeof query !== "function") fail("la dérivation a besoin du verbe `layers.query` — c'est son seul chemin de lecture.");
   const reader = makeReader(query);
   const underived = new Underived();
@@ -857,18 +878,79 @@ export function derive({ query, stack, choices, at, units, previous }) {
     "aucun module d'artisanat n'existe au M2.");
 
   /* ── STATISTIQUES DÉRIVÉES DE COUCHE ───────────────────────────────
-     Même raison que l'artisanat, et même forme : une statistique dérivée est
-     produite par un MODULE MOTEUR activé par un drapeau (décision Q4), pas par
-     le pli des couches. Le Score de Destinée en est la première — et il n'est
-     PAS une fonction de la construction : deux de ses termes naissent en
-     séance (la Gloire, décidée par le MJ ; le +1 de chaque Éveil arcanique
-     majeur, décidé par les dés). La dérivation ne peut donc pas les inventer,
-     et une reconstruction ne doit pas les effacer : ils entrent par `build`,
-     comme tout ce qui doit survivre à un `rebuild`. */
-  resolved.stats = [];
-  underived.declare("stats", "une statistique dérivée de couche vient d'un module moteur activé par un drapeau " +
-    "(décision Q4) ; aucun module n'en publie au M2. ⚠️ Le Score de Destinée n'est PAS dérivable de la seule " +
-    "construction : la Gloire et les Éveils naissent en séance.");
+     REWRITTEN 2026-08-08 (lot 19) — LA PREMIÈRE EST PUBLIÉE. L'ancienne
+     déclaration disait « aucun module n'en publie au M2 », et c'était vrai le
+     jour où elle a été écrite ; elle est devenue FAUSSE dès qu'un module a été
+     injecté, et une déclaration fausse est pire qu'aucune.
+
+     La forme, elle, n'a pas bougé et c'est la décision Q4 : une statistique
+     dérivée est produite par un MODULE activé par un DRAPEAU, jamais par le
+     pli lui-même. Ce fichier n'en nomme aucun — il lit les drapeaux que la
+     pile lève, appelle les modules dont le drapeau y est, et RECOPIE ce qu'ils
+     rendent. Les termes qu'un module ne peut pas dériver reviennent dans le
+     même carnet que les nôtres, avec leur raison.
+
+     ⚠️ LES CHOIX D'UN MODULE LUI APPARTIENNENT. Ceux dont le chemin est
+     enraciné dans son drapeau (`fh.destiny.glory[0]`) lui sont passés ET
+     marqués consommés : c'est lui qui les juge, et un chemin qu'il ne sait pas
+     lire est un refus qui le nomme — jamais une ligne ignorée (loi §0.5). Un
+     drapeau ÉTEINT ne consomme rien : les choix restent alors `unconsumed`, et
+     `validate` dit qu'ils ne changent rien à la fiche. */
+  const raisedFlags = Array.isArray(flags) ? flags : [];
+  const statModules = Array.isArray(modules) ? modules : [];
+  const stats = [];
+  const servedFlags = new Set();
+  let anyModuleActive = false;
+  for (const statModule of statModules) {
+    if (!statModule || typeof statModule.contribute !== "function" || typeof statModule.flag !== "string") {
+      fail("un module de statistique doit déclarer `{flag, contribute}` — un module que la dérivation ne sait " +
+        "pas appeler est un refus, pas un module qu'on saute.");
+    }
+    servedFlags.add(statModule.flag);
+    if (!raisedFlags.includes(statModule.flag)) continue;
+    anyModuleActive = true;
+    const own = picked.order.filter((entry) => statOwnsPath(statModule.flag, entry.choice.path));
+    for (const entry of own) entry.consumed = true;
+    const outcome = statModule.contribute({
+      proficiency,
+      species: speciesView
+        ? { id: speciesView.id, name: speciesView.record.name, slug: speciesView.record.slug, data: speciesData }
+        : null,
+      choices: own.map((entry) => ({
+        path: entry.choice.path,
+        /* Le chemin PRIVÉ DE SON PRÉFIXE. Le point de séparation est retiré
+           quand il y en a un, et pas autrement : `fh.destiny[0]` est dans le
+           namespace lui aussi, et lui couper un caractère de trop donnerait au
+           module un `tail` tronqué à refuser pour la mauvaise raison. */
+        tail: entry.choice.path.slice(statModule.flag.length).replace(/^\./, ""),
+        value: entry.choice.value,
+        ref: entry.choice.ref,
+        label: entry.choice.label
+      }))
+    });
+    if (outcome && outcome.stat) stats.push(outcome.stat);
+    if (outcome && Array.isArray(outcome.underived)) {
+      for (const entry of outcome.underived) underived.declare(entry.field, entry.reason);
+    }
+  }
+  resolved.stats = stats;
+  /* La collection est vide et AUCUN module n'a tourné : c'est le cas du
+     personnage SRD pur, et la liste vide doit se déclarer comme les autres
+     (règle de refus n°2). Un module qui a tourné sans rien publier, lui, a
+     déjà dit pourquoi sous son propre nom — le redire ici serait un doublon.
+
+     ⚠️ LA RAISON NOMME LES DEUX LISTES, et ce n'est pas de la décoration :
+     « aucune statistique » a deux causes opposées — la pile ne lève rien, ou
+     elle lève un drapeau que personne n'a injecté. Sans les deux listes, un
+     personnage FH monté sans son module rendrait exactement le même carnet
+     qu'un personnage SRD pur, et l'oubli serait invisible. */
+  if (stats.length === 0 && !anyModuleActive) {
+    const served = [...servedFlags].sort();
+    underived.declare("stats", "aucun module de statistique actif n'a publié d'entrée : une statistique dérivée " +
+      "vient d'un module moteur activé par un drapeau de couche (décision Q4). " +
+      `Drapeaux levés par la pile : ${raisedFlags.length ? raisedFlags.join(", ") : "aucun"}. ` +
+      `Drapeaux servis par les modules injectés : ${served.length ? served.join(", ") : "aucun"}.`);
+  }
 
   /* ── NOTES ─────────────────────────────────────────────────────────
      ⚠️ MESURE DU LOT 9. On aurait pu les faire entrer par des choix — sauf que

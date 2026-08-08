@@ -28,13 +28,22 @@
    `dispatch("layers.query", …)` est son SEUL chemin de lecture du contenu, et
    `dispatch("layers.stack")` son seul moyen de savoir sur quoi il plie. Un
    import direct ferait de la pile une dépendance de compilation du
-   dériveur — garde structurel dans `tests/build-block.test.mjs`. */
+   dériveur — garde structurel dans `tests/build-block.test.mjs`.
+
+   ⚠️ REWRITTEN 2026-08-08 (lot 19) — UNE TROISIÈME ROUTE, ET UNE SEULE :
+   `dispatch("layers.flags")`. Une statistique dérivée est produite par un
+   module activé par un DRAPEAU DE COUCHE (décision Q4) ; sans lire les
+   drapeaux, le bloc ne peut pas savoir quel module la pile réclame, et il
+   n'aurait le choix qu'entre tout allumer (loi §0.12 rompue) ou tout
+   éteindre. Le verbe existe depuis le lot B et il est au contrat `layers` ;
+   ce qui change, c'est que le bloc `build` s'en sert. */
 
 import { BuildError } from "./errors.mjs";
 import { derive, ABILITY_KEYS } from "./derive.mjs";
 import { applyOverride, parseChoicePath, parseOverridePath } from "./paths.mjs";
 import { diffResolved } from "./diff.mjs";
 import { platformNow } from "./clock.mjs";
+import { statSumViolations } from "./validate.mjs";
 import { charInvariantViolations } from "../schemas/invariants.mjs";
 
 const ABILITY_SET = new Set(ABILITY_KEYS);
@@ -47,7 +56,19 @@ function layerKey(layer) {
   return `${layer.id}@${layer.version}#${layer.hash}`;
 }
 
-export function createBuild({ bus, dispatch, now = platformNow } = {}) {
+/* ── LES MODULES DE STATISTIQUE, INJECTÉS ────────────────────────────
+   Même partage qu'au bloc `play` avec ses couches (loi §0.12) : AUCUN module
+   n'est monté par défaut. `createBuild()` sans `modules` est le pli SRD nu, et
+   `resolved.stats` y est vide — un personnage SRD pur le traverse de bout en
+   bout sans qu'une seule ligne du bloc cite une mécanique maison. Monter un
+   module est un geste explicite de l'appelant :
+
+     import { createFhDestinyStat } from "../modules/fh/destiny-stat.mjs";
+     createBuild({ bus, dispatch, modules: [createFhDestinyStat()] });
+
+   Le bloc ne les appelle pas non plus lui-même : il les passe au pli, qui
+   n'active que ceux dont le drapeau est levé par la pile montée. */
+export function createBuild({ bus, dispatch, now = platformNow, modules = [] } = {}) {
   if (!bus || typeof bus.emit !== "function" || typeof bus.on !== "function") {
     fail("createBuild needs a bus — une fiche qui change sans l'annoncer est un changement que personne ne peut " +
       "suivre, et `char-rebuilt` est le seul moyen pour les autres blocs de savoir.");
@@ -214,8 +235,22 @@ export function createBuild({ bus, dispatch, now = platformNow } = {}) {
         choices: document.build.choices,
         at,
         units: document.units,
-        previous: document.resolved
+        previous: document.resolved,
+        flags: dispatch("layers.flags"),
+        modules
       });
+
+      /* ⚠️ LE GARDE DE LA SOMME MORD AVANT LES OVERRIDES. Un module qui
+         publierait un `value` que son propre détail contredit écrirait un
+         chiffre faux qui a l'air juste, et le schéma ne sait pas additionner
+         ($defs/resolved.stats[].value). Le refus est donc bruyant, ICI, à
+         l'endroit exact où le Score vient d'être fabriqué. Après les
+         overrides, ce n'est plus le même sujet : la parole du MJ bat le JSON,
+         et c'est `validate` qui la NOMME sans la jeter. */
+      const sums = statSumViolations(outcome.resolved);
+      if (sums.length > 0) {
+        fail(`rebuild : une statistique dérivée ne vaut pas la somme de son détail :\n- ${sums.join("\n- ")}`);
+      }
 
       /* LES OVERRIDES EN DERNIER. C'est l'invariant n°2 de l'architecture, et
          c'est le seul endroit du dépôt où il est tenu. */
@@ -280,6 +315,15 @@ export function createBuild({ bus, dispatch, now = platformNow } = {}) {
       const violations = charInvariantViolations(document);
       const warnings = [];
 
+      /* L'INVARIANT QUE LE SCHÉMA ÉCRIT SANS SAVOIR L'EXÉCUTER (lot 19).
+         `$defs/resolved.stats[].value` dit « `value` est la somme des
+         `breakdown[].value` » puis reconnaît que JSON Schema ne sait pas
+         additionner, et met l'invariant à la charge de ce verbe. Il est jugé
+         ici sur la tranche que le personnage JOUE — overrides compris : un MJ
+         qui écrase un total sans poser le terme qui le justifie l'apprend,
+         plutôt que de le découvrir à la table. */
+      violations.push(...statSumViolations(document.resolved));
+
       /* Chaque `ref` doit désigner un record que la pile porte. Un ref mort
          est la forme la plus discrète du « personnage construit avec une
          couche qui n'est plus là ». */
@@ -299,7 +343,9 @@ export function createBuild({ bus, dispatch, now = platformNow } = {}) {
           choices: document.build.choices,
           at: now(),
           units: document.units,
-          previous: document.resolved
+          previous: document.resolved,
+          flags: dispatch("layers.flags"),
+          modules
         });
       } catch (error) {
         violations.push(error.message);

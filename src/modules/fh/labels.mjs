@@ -90,6 +90,22 @@ export const FH_EN = {
   "fh.outcome.destiny-spent": "Destiny spent",
   "fh.outcome.chaos": (d) => "Chaos " + d.total,
 
+  /* ── LE SCORE DE DESTINÉE, ET SES TERMES DÉRIVÉS (lot 19) ──────────
+     Deux mots seulement, et ils sont ici pour une raison de loi : les termes
+     que la SÉANCE apporte portent le `label` que l'humain a écrit (règle
+     d'Eric, transporté tel quel), mais les termes DÉRIVÉS n'ont personne pour
+     les nommer. La maîtrise n'est le `name` d'aucun record ; sans un mot ici,
+     le moteur devrait en fabriquer un — la faute exacte que §0.13 interdit.
+     C'est la couche qui porte ses mots, et c'est ce fichier.
+
+     La Base d'espèce, elle, RECOPIE le nom du record (« Elf ») dans la phrase
+     de la couche : le mot vient de la pile, la phrase vient d'ici. Le bonus de
+     Base n'a besoin d'aucune clef — son libellé EST le nom du trait qui le
+     porte (« Splinter of Anon »), recopié sans un mot ajouté. */
+  "fh.destiny.score": "Destiny Score",
+  "fh.destiny.term.proficiency": "Proficiency Bonus",
+  "fh.destiny.term.base": (d) => "Destiny Base · " + d.species,
+
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,
   "fh.reason.arcane-critical-failure": (d) => "Arcane Critical Failure d" + d.sides,

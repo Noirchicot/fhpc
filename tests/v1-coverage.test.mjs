@@ -49,7 +49,15 @@ const GAPS = {
 };
 
 /* Classement chemin v1 → destination fh-char/1. Les préfixes se terminant par
-   « . » couvrent leur sous-arbre ; une entrée exacte l'emporte sur un préfixe. */
+   « . » couvrent leur sous-arbre ; une entrée exacte l'emporte sur un préfixe.
+
+   REWRITTEN 2026-08-08 (lot 19) — l'ancre du Score s'écrit `fh:destiny` et non
+   `fh.destiny`. Ce n'est pas un goût : `stats[].id` est un `$defs/slug`
+   (`^[a-z][a-z0-9:_-]{0,79}$`) et le sélecteur d'un chemin d'override
+   (`[a-z][a-z0-9:_-]*`) N'ADMET PAS LE POINT. Les chemins écrits ici avec un
+   point désignaient donc une case que le schéma refuse et qu'aucun override ne
+   peut atteindre. Le DRAPEAU, lui, reste `fh.destiny` — il voyage dans le champ
+   `flag` de l'entrée. */
 const EXACT = {
   character: "structure",
   "character.name": "name",
@@ -58,11 +66,11 @@ const EXACT = {
   "character.abilityScores": "resolved.abilities",
   "character.abilityScoresRaw": "build.choices[abilities.*].value",
 
-  destiny: "resolved.stats[fh.destiny]",
-  "destiny.score": "resolved.stats[fh.destiny].value",
-  "destiny.breakdown": "resolved.stats[fh.destiny].breakdown",
-  "destiny.breakdown[].label": "resolved.stats[fh.destiny].breakdown[].label",
-  "destiny.breakdown[].value": "resolved.stats[fh.destiny].breakdown[].value",
+  destiny: "resolved.stats[fh:destiny]",
+  "destiny.score": "resolved.stats[fh:destiny].value",
+  "destiny.breakdown": "resolved.stats[fh:destiny].breakdown",
+  "destiny.breakdown[].label": "resolved.stats[fh:destiny].breakdown[].label",
+  "destiny.breakdown[].value": "resolved.stats[fh:destiny].breakdown[].value",
   "destiny.notesText": "resolved.notes[].text",
   "destiny.arcana": "build.choices[destiny.arcana]",
   "destiny.arcana.id": "GAP-KIND",
@@ -70,7 +78,7 @@ const EXACT = {
   "destiny.arcana.power": "resolved.traits[].text",
   "destiny.arcana.vibration": "resolved.traits[].text",
   "destiny.arcana.meaning": "resolved.traits[].text",
-  "destiny.arcana.impact": "resolved.stats[fh.destiny].breakdown[].value",
+  "destiny.arcana.impact": "resolved.stats[fh:destiny].breakdown[].value",
 
   background: "structure",
   "background.replaceWithBlank": "build.choices[background].ref",
@@ -96,7 +104,7 @@ const EXACT = {
   "destinyFeats.diceFeats": "resolved.traits",
   "destinyFeats.diceFeats[].name": "resolved.traits[].name",
   "destinyFeats.diceFeats[].id": "build.external.ddb.entityIds",
-  "destinyFeats.score": "resolved.stats[fh.destiny].value",
+  "destinyFeats.score": "resolved.stats[fh:destiny].value",
   "destinyFeats.originFeatId": "build.external.ddb.entityIds",
   "destinyFeats.originFeatIds": "build.external.ddb.entityIds",
   "destinyFeats.originFeatIds[]": "build.external.ddb.entityIds",
@@ -125,8 +133,8 @@ const EXACT = {
   "builderState.featP": "build.budgets[fh.featP]",
   "builderState.langPts": "build.budgets[fh.langPts]",
   "builderState.bonus1": "build.budgets[fh.bonus1]",
-  "builderState.glory": "resolved.stats[fh.destiny].breakdown[] (by: gm)",
-  "builderState.other": "resolved.stats[fh.destiny].breakdown[] (by: gm)",
+  "builderState.glory": "resolved.stats[fh:destiny].breakdown[] (by: gm)",
+  "builderState.other": "resolved.stats[fh:destiny].breakdown[] (by: gm)",
   "builderState.boosts": "build.choices[background.boost.*].value",
   "builderState.ab": "structure",
   "builderState.ab.mode": "build.choices[abilities.mode].value",

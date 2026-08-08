@@ -209,8 +209,14 @@ test("l'adaptateur n'atteint le domaine QUE par dispatch — et seulement par le
   client.ok("layers.stack");
   client.ok("layers.query", { kind: "species", id: "srd:species:fr:elfe" });
   client.ok("build.validate", { document: documentVierge(client.ok("layers.stack")) });
-  assert.deepEqual([...new Set(routes)].sort(), ["layers.query", "layers.stack", "build.validate"].sort(),
-    "aucune route qui ne soit celle de l'outil appelé");
+  /* REWRITTEN 2026-08-08 (lot 19) — `layers.flags` s'ajoute, et elle n'est PAS
+     empruntée par l'adaptateur : c'est `build.validate` qui la prend, en aval,
+     pour savoir quels modules de statistique la pile réclame (décision Q4).
+     Le garde compte les routes vues par le `dispatch` du harnais, donc il voit
+     aussi celles des blocs appelés — l'assertion reste une liste EXACTE, et
+     elle continue de mordre sur toute route que l'outil n'aurait pas motivée. */
+  assert.deepEqual([...new Set(routes)].sort(), ["layers.query", "layers.stack", "layers.flags", "build.validate"].sort(),
+    "aucune route qui ne soit celle de l'outil appelé, ou celle que l'outil appelé motive");
 });
 
 test("CHAQUE ROUTE DU CATALOGUE EXISTE VRAIMENT — le garde de dérive catalogue ↔ blocs", () => {

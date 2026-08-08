@@ -32,6 +32,12 @@ import {
 } from "./lexicon.mjs";
 import { SRD_VERDICTS } from "../../play/lexicon.mjs";
 
+/* Le module de CONSTRUCTION de la couche (lot 19). Il ne s'inscrit pas sur les
+   moments de `play` — il est injecté dans le bloc `build`, qui ne l'active que
+   si la pile lève `fh.destiny`. Réexporté ici pour que la couche ait UNE porte
+   d'entrée, comme `createFhLayer` l'est pour le moteur de jeu. */
+export { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "./destiny-stat.mjs";
+
 /* Les deux chaînes face-machine que les entrées de sauvegarde portent en dur
    depuis la v1. Elles sont LUES ICI, pas recopiées : une seule table de
    verdicts, un seul mot sur le fil (invariant 7 du contrat `play`). */
