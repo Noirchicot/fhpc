@@ -9,10 +9,16 @@
    Le générateur est relancé ici (pas seulement lu depuis layers/ commité) :
    un test qui ne relit que la sortie déjà écrite ne prouve pas que la
    génération elle-même est reproductible.
+
+   ⚠️ …ET IL EST RELANCÉ DANS UN RÉPERTOIRE TEMPORAIRE, jamais dans `layers/`.
+   Cette suite y écrivait, et l'exécution suivante héritait de la mutation ;
+   le récit complet et le garde qui l'interdit sont dans tests/tree-watch.mjs
+   et tests/tree-immuable.test.mjs.
 */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -162,16 +168,50 @@ test("déterminisme — deux générations produisent des objets byte-identiques
   }
 });
 
-test("generate() écrit les deux fichiers de couche et laisse un arbre re-générable à l'identique", () => {
-  const before = {
+/* REWRITTEN 2026-08-08 (lot 13) — CE TEST ÉCRIVAIT DANS `layers/`.
+   Il appelait `generate()`, dont la destination était en dur, donc il
+   ÉCRASAIT les deux couches commitées, puis comparait avant/après. Défaut
+   mesuré et reproductible par l'architecte, avec deux conséquences :
+
+     · la suite laissait l'arbre SALE à chaque exécution ;
+     · l'exécution SUIVANTE héritait de la mutation — deux passes d'affilée
+       sans nettoyage : 307 vertes / 1 rouge, puis 304 vertes / 4 rouges. La
+       même suite, deux verdicts, sans qu'une ligne ait changé.
+
+   CE QUE LE TEST PROUVE N'A PAS BOUGÉ ; L'ENDROIT OÙ IL L'ÉCRIT, SI. Il
+   génère dans un répertoire temporaire — `generate()` prend sa destination en
+   argument depuis ce lot — et compare la sortie fraîche aux fichiers
+   commités. C'est même un peu plus fort qu'avant : l'ancienne version
+   comparait le disque à lui-même APRÈS l'avoir écrasé, donc elle ne pouvait
+   plus rougir sur une couche commitée périmée ; celle-ci le peut.
+
+   Le garde qui interdit la rechute — pour cette suite et pour toutes les
+   autres — est tests/tree-immuable.test.mjs. */
+test("generate() écrit les deux couches DANS SA DESTINATION, et les fichiers commités sont ceux-là", () => {
+  const tmp = mkdtempSync(join(tmpdir(), "fhpc-gen-srd-"));
+  const avant = {
     fr: readFileSync(join(root, "layers/srd-5.2.1-fr.layer.json"), "utf8"),
     en: readFileSync(join(root, "layers/srd-5.2.1-en.layer.json"), "utf8")
   };
-  generate();
-  const after = {
-    fr: readFileSync(join(root, "layers/srd-5.2.1-fr.layer.json"), "utf8"),
-    en: readFileSync(join(root, "layers/srd-5.2.1-en.layer.json"), "utf8")
-  };
-  assert.equal(after.fr, before.fr, "un re-run ne doit rien changer au fichier FR");
-  assert.equal(after.en, before.en, "un re-run ne doit rien changer au fichier EN");
+  try {
+    const results = generate({ outDir: tmp });
+    assert.deepEqual(Object.keys(results).sort(), ["en", "fr"], "les deux langues sont écrites, pas une");
+
+    for (const lang of LANGS) {
+      const attendu = join(tmp, `srd-5.2.1-${lang}.layer.json`);
+      assert.equal(results[lang].outPath, attendu, "le générateur DIT où il a écrit");
+      assert.equal(existsSync(attendu), true, `le fichier ${lang} doit exister dans la destination donnée`);
+      assert.equal(readFileSync(attendu, "utf8"), avant[lang],
+        `la couche ${lang} commitée n'est plus celle que le générateur produit — régénérer, ou dire ce qui a bougé`);
+    }
+
+    /* ET IL N'A ÉCRIT QUE LÀ. La preuve du lot : les deux couches commitées
+       sont intactes après l'appel. Sans cette assertion, la réparation elle-
+       même reposerait sur la confiance. */
+    assert.equal(readFileSync(join(root, "layers/srd-5.2.1-fr.layer.json"), "utf8"), avant.fr,
+      "`generate({outDir})` ne doit RIEN écrire dans layers/");
+    assert.equal(readFileSync(join(root, "layers/srd-5.2.1-en.layer.json"), "utf8"), avant.en);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });

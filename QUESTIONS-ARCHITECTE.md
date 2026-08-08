@@ -451,7 +451,18 @@ comparateur qui n'existait pas).
 
 ---
 
-## 5. ⚠️ DÉFAUT MESURÉ DANS UN GARDE PARTAGÉ — `HOUSE_MECHANICS` ne voit pas les formes camelCase
+## 5. ✅ COMMANDÉE AU LOT 13, ET FAITE — `HOUSE_MECHANICS` ne voyait pas les formes camelCase
+
+> **Réparé le 2026-08-08 par le lot 13.** Les deux bouts du mot lâchaient :
+> la tête (`spendDestiny`) est reprise par un **découpeur d'identifiants**
+> (camel, `_`, acronymes) que `findForbidden` balaye **en plus** du texte brut ;
+> la queue (`destinyDie`) par le **retrait de l'ancre finale**. Attaqué dans
+> les deux sens (`tests/guards-adversarial.test.mjs`, défaut n°5), et mesuré
+> avant d'être posé : **zéro occurrence nouvelle** dans tout `src/` et `bin/`.
+> Le test qui MESURAIT le trou (`tests/mcp-block.test.mjs`) est réécrit — il
+> interrogeait les regex nues et serait resté vert après le durcissement.
+> Ce qui suit est l'état d'avant, conservé pour le récit.
+
 
 **Trouvé en attaquant le garde §0.12 de ce lot.** `tests/source-scan.mjs`
 cherche `\bdestin(y|ies)\b`, `\bchaos\b`, `\barcan(a|e|es|um)\b`… : dans
@@ -640,3 +651,107 @@ elle peut même alterner.
    Une suite qui pend est pire qu'une suite rouge — elle ne dit même pas ce qui
    ne va pas. Le harnais prend désormais le contexte du test et ferme à la
    sortie, avec un `SIGKILL` de secours.
+
+---
+---
+
+# Questions du lot `13-confrontation` à l'architecte
+
+Trois chantiers commandés, trois chantiers faits : les quatre suites réécrites
+à la nouvelle vérité, la suite qui mutait `layers/` réparée **et** gardée, le
+garde §0.12 élargi aux formes composées. Ce qui suit est ce que le lot a
+**décidé** et qui demande ratification, plus ce qu'il a **mesuré** sans le
+réparer.
+
+---
+
+## 1. ⚠️ DÉCISION PRISE — un trait qui accorde un sens paraît DEUX FOIS, et la dérivation ne trie pas
+
+**La question posée par l'architecte.** La couche rend **cinq** traits pour
+l'Elfe (Ascendance féerique, Lignage elfique, Sens aiguisés, Transe, **Vision
+dans le noir**) ; le personnage d'exemple n'en portait que **quatre** — la
+Vision dans le noir y était en `senses`, pas en `traits`. Les deux sont vrais
+dans le livre.
+
+**Ce que la dérivation produit, et pourquoi.** Les **cinq**. Quatre raisons,
+dans l'ordre de leur force :
+
+1. **Rien ne lie un trait au sens qu'il accorde.** Le contrat §5 ne porte aucun
+   champ de ce genre. Pour retirer le trait, le moteur devrait rapprocher
+   `vision-dans-le-noir` de `darkvision` — **deux identifiants différents** —
+   donc les rapprocher par leur **nom affichable**. La loi §0.13 l'interdit, et
+   ce serait faux dès la première couche qui les nomme autrement.
+2. **Ce ne sont pas des doublons.** Le trait porte la **règle** (`text`) ; le
+   sens porte le **nombre** (18 m) que la fiche affiche sur sa ligne. Une fiche
+   montre les deux, à deux endroits différents.
+3. **La dérivation recopie une liste, elle ne l'arbitre pas.** Filtrer serait un
+   jugement — « celui-là est déjà représenté ailleurs » — que rien dans la pile
+   ne fonde.
+4. **Le livre les liste tous les cinq.**
+
+**Ce que le lot a fait de l'exemple.** Il l'a **complété** :
+`examples/personnage-srd-fr-niveau1.fh-char.json` porte désormais neuf traits
+(cinq d'espèce, deux de classe, un de don, un de la couche homebrew). Sans ça,
+la cible d'acceptation de tous les lots suivants **affirmerait que l'Elfe a
+quatre traits**, ce que ni le livre ni la couche ne disent — même famille
+exactement que le « Livre de sorts » corrigé le 2026-08-08, et la leçon écrite
+ce jour-là : « un exemple qui nomme un objet inexistant fait repayer la
+découverte à chaque lot suivant ». **Le `hash` de pile n'a pas été touché.**
+
+**À ratifier** : la règle (« la dérivation recopie la liste du record ») et le
+complément de l'exemple.
+
+---
+
+## 2. `contracts/build.md` a été mis à jour — un contrat non ratifié ne fait pas foi
+
+Trois passages du contrat décrivaient les traits d'espèce comme **refusés par
+le lot 8**, avec la mesure des deux colonnes et le préalable nommé. Le préalable
+est levé (lot 11), donc ces trois passages **mentaient** : les laisser aurait
+fait chercher un refus qui n'existe plus. Ils sont réécrits, et le contrat porte
+maintenant la règle du point 1 ci-dessus.
+
+**À ratifier**, comme tout contrat (CLAUDE.md).
+
+---
+
+## 3. ⚠️ MESURÉ, NON RÉPARÉ — le garde d'arbre ne surveille pas les fichiers non suivis hors des quatre répertoires d'artefacts
+
+`tests/tree-immuable.test.mjs` rejoue toute la suite entre deux relevés de
+l'arbre. Son périmètre est : **les fichiers suivis par git** (modification,
+disparition) **plus tout ce qui se trouve sous `layers/`, `examples/`,
+`schemas/` et `contracts/`**, suivi ou non (apparition comprise).
+
+**Ce qu'il ne voit pas** : un fichier **non suivi** déposé ailleurs, par exemple
+dans `src/` ou à la racine. Ce n'est pas un oubli — `tests/mcp-block.test.mjs`
+crée et retire un `src/mcp/sous/porte-de-sortie.mjs` pour attaquer son propre
+arpenteur, et `node --test` fait tourner les suites **en parallèle** : le
+surveiller ferait battre le garde au hasard de l'ordonnancement. **Un garde qui
+bat se fait désactiver, et c'est alors la garantie entière qui est perdue.**
+
+**À trancher si ça vous gêne** : soit on force la sérialisation des suites, soit
+on déclare une liste d'emplacements de travail autorisés. Le lot n'a fabriqué
+ni l'une ni l'autre.
+
+---
+
+## 4. Le garde d'arbre rejoue toute la suite — coût mesuré, et il double l'affichage d'un échec
+
+**Coût** : la suite entière tourne deux fois. Mesuré à **~1,4 s par passe** sur
+ce Mac, soit ~2,8 s au total — le prix a paru dérisoire devant un test qui rend
+deux verdicts différents sans qu'une ligne ait changé.
+
+**Effet de bord assumé** : le garde exige que le sous-processus soit **vert**
+avant de conclure, parce qu'un relevé identique après une suite rouge ne prouve
+rien (le code qui mute n'a peut-être pas été atteint). Conséquence : quand une
+suite est déjà rouge, l'échec est affiché **deux fois**. Le doublon ne se paye
+que dans un arbre déjà cassé.
+
+---
+
+## Hors questions — une remarque pour la fusion
+
+**La remarque `ajv` du lot 10 tient toujours** : `node_modules/` n'existe pas
+dans ce worktree, et `npm test` est vert parce que Node remonte l'arbre jusqu'à
+une copie d'`ajv` hors du dépôt. La version réellement exécutée n'est donc pas
+forcément la **8.20.0** épinglée. Un `npm ci` avant la fusion lèverait le doute.

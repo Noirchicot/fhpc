@@ -185,6 +185,37 @@ test("SANS LES CHAMPS MÉCANIQUES DU §3, rien n'est deviné : tout ce qui manqu
   }
 });
 
+test("UN RECORD D'ESPÈCE SANS `traits` est déclaré — et la privation est DÉLIBÉRÉE", () => {
+  /* REWRITTEN 2026-08-08 (lot 13) — LA PREUVE A CHANGÉ DE SUPPORT. Le refus des
+     traits d'espèce se prouvait tout seul depuis la fusion du lot 8 : la couche
+     SRD n'en portait aucun, il suffisait de la monter. Le lot 11 a réparé
+     l'extraction à deux colonnes dans `fh-srd`, l'architecte a régénéré les
+     couches, et cette preuve-là s'est évaporée avec la pénurie qui la portait.
+
+     C'est le piège nommé au §3 du mandat : « une preuve peut cesser de prouver
+     sans que personne n'y touche ». La déclaration résiduelle existe toujours
+     dans le moteur — une couche tierce peut parfaitement décrire une espèce
+     sans `traits` — et c'est ici, sur une AMPUTATION VOULUE, qu'elle se prouve.
+     `COUCHE_AMPUTEE` recouvre l'Elfe par un `add` qui ne garde que la prose. */
+  const h = makeHarness({ extra: COUCHE_AMPUTEE });
+  const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
+
+  assert.deepEqual(out.resolved.traits, [],
+    "aucun trait n'est fabriqué depuis `description` : ce serait la fiche fausse que le contrat interdit");
+  const entree = out.underived.find((entry) => entry.field === "traits (espèce)");
+  assert.ok(entree, "et la liste vide ne reste pas muette — une liste vide muette ressemble à une réponse");
+  assert.match(entree.reason, /\{id, name, text\}/, "la raison nomme la FORME attendue par le contrat §5");
+  assert.ok(entree.reason.length > 40);
+
+  /* ET LE PENDANT, SUR LA VRAIE MATIÈRE : les cinq traits sont là, et rien ne
+     les déclare. Sans ce second bout, le test ne prouverait que « une couche
+     amputée ne dérive rien », ce qui est vrai de n'importe quel champ. */
+  const vraie = makeHarness();
+  const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
+  assert.equal(bon.resolved.traits.length, 5);
+  assert.equal(bon.underived.some((entry) => entry.field === "traits (espèce)"), false);
+});
+
 test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moitié", () => {
   /* REWRITTEN 2026-08-08 (fusion du lot 8) — `tool.ability_key` est arrivé,
      25 outils sur 25. L'ancienne version prouvait le refus par l'absence du

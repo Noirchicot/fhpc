@@ -91,9 +91,22 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
   assert.equal(got.vitals.hpMax, 9, "l'override du MJ a traversé le tuyau, et il passe toujours en dernier");
   assert.equal(got.gear.find((item) => item.id === "torche").quantity, 4);
 
-  /* `underived` traverse le TUYAU aussi — c'est tout l'intérêt du M2. */
-  assert.equal(out.underived.length, 13);
-  assert.ok(out.underived.some((entry) => entry.field === "traits (espèce)"));
+  /* `underived` traverse le TUYAU aussi — c'est tout l'intérêt du M2.
+     REWRITTEN 2026-08-08 (lot 13) — l'assertion demandait que `traits (espèce)`
+     soit DANS la liste. Elle est devenue fausse quand l'architecte a régénéré
+     les couches sur un `fh-srd` dont le lot 11 avait réparé l'extraction à deux
+     colonnes : les traits sont dérivés, donc plus déclarés. On ne relâche pas
+     la preuve pour autant — on la retourne. Elle dit maintenant les deux
+     choses : le champ N'EST PLUS déclaré, ET les cinq traits sont réellement
+     arrivés au bout du tuyau. Une preuve qui ne fait que compter (13 → 12)
+     resterait verte sur une liste de douze champs faux. */
+  assert.equal(out.underived.length, 12);
+  assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);
+  assert.deepEqual(got.traits.map((trait) => trait.id),
+    ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
+    "LES CINQ TRAITS DE L'ELFE ONT TRAVERSÉ 3,1 Mo DE COUCHE ET UN TUYAU JSON-RPC");
+  assert.match(got.traits.find((trait) => trait.id === "transe").text, /Repos long/,
+    "et leur texte est celui du record, pas un résumé — le tuyau ne le tronque pas");
   assert.deepEqual(out.shadowed, [], "aucun recouvrement sur cette pile-ci ; le pendant délibéré est dans mcp-block");
 
   /* Le document ressort ENTIER par la resource, et il vaut celui de l'outil. */

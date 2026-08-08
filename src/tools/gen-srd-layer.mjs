@@ -150,13 +150,25 @@ function serialize(layer) {
   return JSON.stringify(layer, null, 2) + "\n";
 }
 
-export function generate() {
+/** Génère les deux couches et les ÉCRIT.
+ *
+ *  `outDir` est la destination, et elle est un ARGUMENT depuis le lot 13. Elle
+ *  ne l'était pas : la destination était `OUT_DIR` en dur, et la suite qui
+ *  vérifiait la reproductibilité du générateur n'avait donc pas d'autre moyen
+ *  que d'écraser `layers/` pour l'observer. Le défaut mesuré est décrit dans
+ *  tests/gen-srd-layer.test.mjs — un test qui mutait un artefact commité, et
+ *  dont l'exécution suivante héritait de la mutation.
+ *
+ *  Le défaut `OUT_DIR` reste la destination de PRODUCTION, celle de l'appel en
+ *  ligne de commande ci-dessous : ce n'est pas un repli, c'est la destination
+ *  documentée du générateur, et elle est nommée à un seul endroit. */
+export function generate({ outDir = OUT_DIR } = {}) {
   verifyManifest();
-  mkdirSync(OUT_DIR, { recursive: true });
+  mkdirSync(outDir, { recursive: true });
   const results = {};
   for (const lang of LANGS) {
     const { layer, total, countsByGenre } = buildLayer(lang);
-    const outPath = join(OUT_DIR, `srd-${SRD_VERSION}-${lang}.layer.json`);
+    const outPath = join(outDir, `srd-${SRD_VERSION}-${lang}.layer.json`);
     writeFileSync(outPath, serialize(layer));
     results[lang] = { outPath, total, countsByGenre };
   }

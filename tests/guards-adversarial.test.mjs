@@ -21,7 +21,15 @@
         `src/play/utils.mjs` passait sans un mot.
 
    Le dépouilleur, lui, EFFAÇAIT DU CODE (défaut n°4) : deux cas ordinaires
-   suffisaient à rendre le garde zéro-DOM aveugle sur une zone entière. */
+   suffisaient à rendre le garde zéro-DOM aveugle sur une zone entière.
+
+   ── DÉFAUT n°5, AJOUTÉ LE 2026-08-08 (lot 13) ─────────────────────────
+   Le vocabulaire §0.12 employait des FRONTIÈRES DE MOT : `spendDestiny`,
+   `resolveArcana`, `settleAwakening`, `applyOverreach`, `rollChaos` et
+   `const destinyDie = 1` traversaient tous le garde de la loi la plus haute
+   du chantier sans le faire ciller. Trouvé par le lot 10, vérifié et aggravé
+   par l'architecte, réparé ici — et attaqué DANS LES DEUX SENS : une
+   violation composée doit rougir, et le code légitime doit rester vert. */
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -30,7 +38,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  stripComments, walkSources, loadSources, findForbidden,
+  stripComments, splitIdentifiers, walkSources, loadSources, findForbidden,
   HOUSE_MECHANICS, LAYER_NAMES
 } from "./source-scan.mjs";
 
@@ -116,6 +124,94 @@ test("ATTAQUE — le vocabulaire interdit couvre les formes QUE LE CODE EMPLOIE"
     assert.deepEqual(findForbidden([{ name: "srd.mjs", text: line }], HOUSE_MECHANICS), [],
       "un mot du SRD n'est pas une mécanique maison : " + line);
   });
+});
+
+/* ── DÉFAUT n°5 — les FORMES COMPOSÉES traversaient la frontière de mot ── */
+
+test("ATTAQUE — un identifiant COMPOSÉ ne cache plus une mécanique maison", () => {
+  /* TROISIÈME RETOUR DE LA MÊME FAMILLE (`arcane` contre `arcana`, le balayage
+     à plat, et maintenant la frontière de mot). Le garde cherchait
+     `\bdestiny\b` : dans `spendDestiny` il n'y a AUCUNE frontière avant le
+     « D », et `_` est lui aussi un caractère de mot — `FH_DESTINY` passait.
+     Le tableau ci-dessous est celui que l'architecte a mesuré, plus les formes
+     voisines que la même cause laissait passer. */
+  const violations = [
+    "export function spendDestiny(n) { return n; }",
+    "const points = setDestinyPoints(p);",
+    "resolveArcana(state);",
+    "settleAwakening(entry);",
+    "applyOverreach(entry);",
+    "const d = rollChaos(dice);",
+    "addPendingFate(f);",
+    "const destinyDie = 1;",
+    "const FH_DESTINY = 1;",
+    "let destiny_die = 2;",
+    "export const chaosTable = [];",
+    "import { resolveArcana } from './x.mjs';"
+  ];
+  violations.forEach((line, index) => {
+    const hits = findForbidden([{ name: "probe-" + index + ".mjs", text: line }], HOUSE_MECHANICS);
+    assert.ok(hits.length > 0, "forme composée non vue par le garde §0.12 : " + line);
+  });
+
+  /* ET UNE VIOLATION COMPOSÉE DANS UN VRAI FICHIER, sur le vrai chemin du
+     garde (`loadSources` → `findForbidden`) : une ligne de code n'est pas un
+     fichier, et c'est par le fichier que le défaut n°1 était passé. */
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-compose-"));
+  try {
+    fs.writeFileSync(path.join(tmp, "moteur.mjs"),
+      "export function stage(entry) {\n  return spendDestinyDie(entry) + entry.chaosPool;\n}\n");
+    const hits = findForbidden(loadSources([tmp], tmp), HOUSE_MECHANICS);
+    assert.ok(hits.some((hit) => hit.name === "moteur.mjs"),
+      "le fichier entier doit rougir, pas seulement la ligne isolée");
+    assert.ok(hits.some((hit) => hit.label === "Destiny") && hits.some((hit) => hit.label === "Chaos"),
+      "et les DEUX mécaniques sont nommées, pas la première seulement");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("ATTAQUE EN SENS INVERSE — l'élargissement ne mord pas sur le code légitime", () => {
+  /* Un garde qui crie au loup se fait désactiver, et c'est alors la garantie
+     ENTIÈRE qui est perdue — pas seulement le cas qui criait. L'élargissement
+     a donc son attaque dans les deux sens. Les cas ci-dessous sont ceux que
+     les deux mécanismes du durcissement auraient pu mordre : le retrait de
+     l'ancre finale (`fatal`, `destination`) et le découpage d'identifiants,
+     qui insère des frontières là où il n'y en avait pas (`isFatalError` →
+     « is Fatal Error »). */
+  const legitimes = [
+    "const exhaustion = 0;",
+    "const inspiration = 1;",
+    "const advantage = true;",
+    "throw new FatalError('x');",
+    "if (isFatalError(e)) return;",
+    "const destination = new URL(href);",
+    "const destinataire = who;",
+    "const updatedAt = now();",
+    "const chapterIndex = 1;",
+    'import { readFileSync } from "node:fs";',
+    'throw new Error("fhpc/build: le document doit porter build.layers");'
+  ];
+  legitimes.forEach((line, index) => {
+    assert.deepEqual(findForbidden([{ name: "sain-" + index + ".mjs", text: line }], HOUSE_MECHANICS), [],
+      "le garde §0.12 mord sur du code légitime : " + line);
+  });
+
+  /* Le découpeur lui-même, sur ses trois règles — parce qu'un découpage faux
+     déplacerait les frontières de TOUS les gardes qui passent par lui. */
+  assert.equal(splitIdentifiers("spendDestiny"), "spend Destiny");
+  assert.equal(splitIdentifiers("FH_DESTINY"), "FH DESTINY");
+  assert.equal(splitIdentifiers("HTTPArcana"), "HTTP Arcana");
+  assert.equal(splitIdentifiers("const a = 1;"), "const a = 1;", "et il ne touche pas au code ordinaire");
+
+  /* ⚠️ LE DÉCOUPAGE S'AJOUTE AU TEXTE BRUT, IL NE LE REMPLACE PAS. Insérer une
+     frontière peut CASSER un match : découpé, `fhTotal` devient « fh Total »,
+     que `/\bfh[A-Z_]/` ne voit plus. Le garde §L5.3 doit continuer de le voir
+     — c'est la preuve que `findForbidden` balaye bien les deux. */
+  assert.ok(
+    findForbidden([{ name: "utils.mjs", text: 'import { fhTotal } from "./x.mjs";' }], LAYER_NAMES).length > 0,
+    "le durcissement du garde §0.12 ne doit pas avoir aveuglé le garde §L5.3"
+  );
 });
 
 /* ── DÉFAUT n°3 — le garde §L5.3 gardait un chemin mort ───────────── */

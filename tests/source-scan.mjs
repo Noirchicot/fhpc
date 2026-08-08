@@ -116,6 +116,34 @@ function skipRegex(text, start) {
   return text.length;
 }
 
+/* ── Le découpeur d'identifiants ──────────────────────────────────────
+   Un garde de vocabulaire cherche des MOTS ; le code, lui, écrit des
+   IDENTIFIANTS. `\bdestiny\b` ne voit rien dans `spendDestiny` : entre le `d`
+   de `spend` et le `D` de `Destiny`, il n'y a aucune frontière de mot — les
+   deux sont des caractères de mot. Idem pour `_` (`FH_DESTINY`), qui EST un
+   caractère de mot en expression régulière.
+
+   Ce découpage rétablit les frontières que les conventions de nommage
+   effacent, et rien d'autre :
+
+     · une minuscule ou un chiffre suivi d'une majuscule → `spendDestiny`
+     · une suite de majuscules suivie d'un mot capitalisé → `HTTPArcana`
+     · le souligné → `FH_DESTINY`, `destiny_die`
+
+   Le trait d'union n'est pas traité : ce n'est pas un caractère de mot, `\b`
+   y tombe déjà.
+
+   ⚠️ IL NE REMPLACE PAS LE TEXTE BRUT, IL S'Y AJOUTE — `findForbidden` balaye
+   les deux. Insérer une frontière peut CRÉER un match, mais peut aussi en
+   casser un : `/\bfh[A-Z_]/` ne voit plus `fhTotal` une fois découpé en
+   « fh Total ». Balayer les deux ne peut que trouver PLUS, jamais moins. */
+export function splitIdentifiers(text) {
+  return text
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/_/g, " ");
+}
+
 /* ── L'arpenteur ─────────────────────────────────────────────────────
    RÉCURSIF, et ce n'est pas un détail de confort : à plat, un sous-répertoire
    est une porte de sortie silencieuse hors de toute loi structurelle. */
@@ -140,12 +168,21 @@ export function loadSources(roots, base) {
 
 /** Applique une liste `[regex, libellé]` et rend une violation par couple
  *  (fichier, motif) trouvé. Rendre la LISTE plutôt qu'asserter sur place, pour
- *  que la même fonction serve au garde et à l'attaque du garde. */
+ *  que la même fonction serve au garde et à l'attaque du garde.
+ *
+ *  ⚠️ DURCI LE 2026-08-08 (lot 13) — chaque motif est essayé sur le texte
+ *  DÉPOUILLÉ **et** sur le même texte passé au découpeur d'identifiants. Une
+ *  seule violation est rendue par couple (fichier, motif) : ce sont deux
+ *  regards sur le même fichier, pas deux fautes. Le texte brut est essayé en
+ *  premier pour que le `match` rapporté soit la forme réellement écrite dans
+ *  le fichier quand elle suffit — un garde qui cite un texte que personne n'a
+ *  écrit fait chercher au mauvais endroit. */
 export function findForbidden(sources, patterns) {
   const hits = [];
   for (const { name, text } of sources) {
+    const words = splitIdentifiers(text);
     for (const [pattern, label] of patterns) {
-      const found = text.match(pattern);
+      const found = text.match(pattern) || words.match(pattern);
       if (found) hits.push({ name, label, match: found[0] });
     }
   }
@@ -160,14 +197,46 @@ export function findForbidden(sources, patterns) {
    Or l'identifiant réel de la mécanique dans ce dépôt est `fh.arcana`, et
    `state.arcana` traversait le garde sans le faire ciller. La règle qu'on en
    tire : un garde de vocabulaire se teste sur les FORMES QUE LE CODE EMPLOIE,
-   pas sur le mot du cahier des charges. */
+   pas sur le mot du cahier des charges.
+
+   ⚠️ DURCI DE NOUVEAU LE 2026-08-08 (lot 13), TROISIÈME RETOUR DE LA MÊME
+   FAMILLE. La leçon ci-dessus avait été écrite, et la liste n'avait été
+   durcie que sur un mot : les FRONTIÈRES DE MOT restaient, et n'importe quel
+   identifiant composé passait au travers. Mesuré : `destiny` ✅ mais
+   `spendDestiny`, `resolveArcana`, `settleAwakening`, `applyOverreach`,
+   `rollChaos` ⛔, et `const destinyDie = 1` ⛔ aussi.
+
+   Les deux bouts du mot lâchaient, et chacun est repris par son moyen :
+
+     · EN TÊTE — c'est le découpeur d'identifiants qui rend la frontière
+       (`spendDestiny` → « spend Destiny »), pas un motif plus large ; la
+       liste reste lisible ;
+     · EN QUEUE — l'ancre finale est RETIRÉE ici. `\bdestin(y|ies)` suffit à
+       voir `destinyDie` dans le texte brut, sans découpage.
+
+   POURQUOI RETIRER L'ANCRE FINALE NE FABRIQUE PAS DE FAUX POSITIFS : chaque
+   motif garde son ancre de TÊTE et un discriminant qui le sort du vocabulaire
+   ordinaire. `destin` seul mordrait « destination » et « destinataire » — d'où
+   `destin(y|ies)`, qui ne matche ni l'un ni l'autre, ni le français
+   « destinée ». `fate` ne préfixe que `fated`/`fateful`, jamais `fatal`.
+   `arcan(a|e|um)` ne préfixe qu'`arcane`/`arcanes`/`arcana`/`arcanum`.
+
+   MESURÉ AVANT DE DURCIR, sur tout `src/` et `bin/` : le durcissement ne rend
+   AUCUNE suite rouge — zéro occurrence nouvelle hors de `src/modules/fh/`,
+   qui a le droit de nommer FH et n'est sous aucun de ces gardes. Un garde qui
+   crie au loup se fait désactiver ; celui-ci a été mesuré avant d'être posé.
+
+   CE QU'IL NE VOIT TOUJOURS PAS, et c'est dit plutôt que masqué : une
+   concaténation tout en minuscules et sans séparateur (`destinydie`) n'offre
+   aucune frontière à rétablir. Aucune convention du dépôt ne l'écrit ainsi ;
+   le jour où l'une le ferait, c'est ici que ça se réparerait. */
 export const HOUSE_MECHANICS = [
-  [/\bdestin(y|ies)\b/i, "Destiny"],
-  [/\bchaos\b/i, "Chaos"],
-  [/\boverreach(ed|es)?\b/i, "Overreach"],
-  [/\barcan(a|e|es|um)\b/i, "Arcana"],
-  [/\bawaken(ing|ed)?\b/i, "Awakening"],
-  [/\bfate(s|d)?\b/i, "Fate"]
+  [/\bdestin(y|ies)/i, "Destiny"],
+  [/\bchaos/i, "Chaos"],
+  [/\boverreach/i, "Overreach"],
+  [/\barcan(a|e|um)/i, "Arcana"],
+  [/\bawaken/i, "Awakening"],
+  [/\bfate/i, "Fate"]
 ];
 
 /* §L5.3 : les modules s'inscrivent, ils ne sont pas appelés — donc aucun

@@ -453,35 +453,52 @@ test("ATTAQUE DU GARDE — chacun des interdits, violé une fois, est vu et NOMM
   }]), []);
 });
 
-test("⚠️ MESURE — le garde §0.12 PARTAGÉ ne voit pas les formes camelCase, et c'est écrit ici", () => {
-  /* TROUVÉ EN ATTAQUANT CE GARDE, le 2026-08-08. `HOUSE_MECHANICS`
-     (tests/source-scan.mjs) cherche `\b destiny \b` : dans `spendDestiny`,
-     il n'y a AUCUNE frontière de mot avant le « D », donc rien n'est vu.
-     Toutes les formes composées passent — et ce sont précisément celles que
-     le code emploie (`spendDestinyDie`, `setDestinyPoints`, `addPendingFate`,
-     `createChaos`).
+/* REWRITTEN 2026-08-08 (lot 13) — LE TROU EST BOUCHÉ, LA MESURE CHANGE DE SENS.
+   Ce test s'appelait « ⚠️ MESURE — le garde §0.12 PARTAGÉ ne voit pas les
+   formes camelCase », il constatait le trou et le portait à l'architecte
+   (QUESTIONS-ARCHITECTE.md, question 5). Il avait demandé lui-même à être
+   réécrit le jour du durcissement ; c'est ce jour-là, et le durcissement a été
+   commandé à ce lot.
 
-     C'EST LA PARENTE EXACTE du défaut corrigé le même jour sur `arcane?` :
-     « un garde de vocabulaire se teste sur les FORMES QUE LE CODE EMPLOIE,
-     pas sur le mot du cahier des charges. » La leçon avait été écrite ; la
-     liste, elle, n'avait été durcie que sur un mot.
+   ⚠️ ET IL S'ÉTAIT TROMPÉ DE SURFACE, ce qui est la vraie leçon à garder. Il
+   interrogeait les REGEX NUES (`pattern.test(mot)`), pas le garde. Résultat :
+   après le durcissement il serait resté VERT — les regex nues ne voient
+   toujours pas `spendDestiny`, c'est le découpeur d'identifiants de
+   `findForbidden` qui rétablit la frontière. Une mesure verte sur un trou
+   bouché est un mensonge tranquille. On teste donc le GARDE, par la porte que
+   les vrais gardes empruntent : `findForbidden`. */
+test("le garde §0.12 PARTAGÉ voit les formes COMPOSÉES — et ne mord pas sur le vocabulaire ordinaire", () => {
+  const vu = (code) => findForbidden([{ name: "sonde.mjs", text: code }], HOUSE_MECHANICS);
 
-     CE LOT NE TOUCHE PAS AU GARDE D'UN AUTRE LOT. Il MESURE le trou, pour
-     qu'il ne puisse pas disparaître ni s'élargir en silence, et il le porte à
-     l'architecte (QUESTIONS-ARCHITECTE.md, question 5). Mesuré aussi, et
-     c'est ce qui rend la question actionnable : durcir la liste aujourd'hui
-     ne rendrait AUCUNE suite rouge — les seules occurrences camelCase du
-     dépôt sont dans `src/modules/fh/`, qui a le droit de nommer FH.
+  // Les formes nues, qui n'ont jamais posé de problème.
+  for (const nue of ["const destiny = 1;", "state.Destiny", "const chaos = 0;"]) {
+    assert.ok(vu(nue).length > 0, `la forme nue doit rester vue : ${nue}`);
+  }
 
-     ⚠️ Le jour où la liste est durcie, ce test devient FAUX : il faudra le
-     réécrire à la nouvelle vérité et le marquer `REWRITTEN` sur sa propre
-     ligne. C'est voulu — un trou qu'on bouche doit faire rougir la mesure qui
-     le décrivait. */
-  const voit = (mot) => HOUSE_MECHANICS.some(([pattern]) => pattern.test(mot));
-  assert.equal(voit("destiny"), true, "la forme nue est bien vue");
-  assert.equal(voit("Destiny"), true);
-  for (const compose of ["spendDestiny", "setDestinyPoints", "resolveArcana", "settleAwakening", "onOverreach", "addPendingFate"]) {
-    assert.equal(voit(compose), false, `TROU MESURÉ : « ${compose} » traverse le garde §0.12 sans le faire ciller`);
+  /* LES SIX FORMES DU TABLEAU DE L'ARCHITECTE, une à une. Cinq passent par le
+     découpeur (frontière de tête), la sixième par le retrait de l'ancre finale
+     (`destinyDie` est vu dans le texte brut, sans découpage). */
+  for (const compose of [
+    "spendDestiny(1);", "setDestinyPoints(p);", "resolveArcana(state);",
+    "settleAwakening(e);", "applyOverreach(e);", "onOverreach(e);",
+    "rollChaos(d);", "addPendingFate(f);", "const destinyDie = 1;",
+    "const FH_DESTINY = 1;", "let destiny_die = 2;", "export const chaosTable = [];"
+  ]) {
+    assert.ok(vu(compose).length > 0, `forme composée non vue par le garde §0.12 : ${compose}`);
+  }
+
+  /* L'AUTRE SENS, ET IL COMPTE AUTANT. Un garde qui crie au loup se fait
+     désactiver : le vocabulaire SRD et le vocabulaire ordinaire du dépôt
+     doivent rester VERTS, y compris les mots que le retrait de l'ancre finale
+     aurait pu mordre (`fatal` n'est pas `fate`, `destination` n'est pas
+     `destiny`). */
+  for (const sain of [
+    "const exhaustion = 0;", "const inspiration = 1;", "const advantage = true;",
+    "throw new FatalError('x');", "const isFatal = true;",
+    "const destination = url;", "const destinataire = who;",
+    "const updated = true;", "const chapter = 1;"
+  ]) {
+    assert.deepEqual(vu(sain), [], `le garde §0.12 ne doit pas mordre sur : ${sain}`);
   }
 });
 

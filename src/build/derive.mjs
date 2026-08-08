@@ -826,17 +826,21 @@ export function derive({ query, stack, choices, at, units, previous }) {
       traits.push(entry);
     }
   } else if (speciesView) {
-    /* REWRITTEN 2026-08-08 (fusion du lot 8) — les traits d'espèce passent
-       d'« atteints » à « non dérivés et déclarés », et ce n'est pas une
-       régression : c'est la mesure qui a changé de camp. Le contrat §5 les
-       classait en GROUPE B, refusable platement, et le lot 8 les a refusés
-       avec sa mesure — la mise en page à deux colonnes du PDF est aplatie, et
-       la description anglaise de l'Humain finit sur le tableau du Tieffelin.
-       Un parseur approximatif sur neuf espèces dont trois seraient fausses est
-       exactement ce que le contrat interdit. */
-    underived.declare("traits (espèce)", "le record d'espèce ne porte pas `traits` — refusé par le lot 8 le " +
-      "2026-08-08, mesure à l'appui : la mise en page à deux colonnes est aplatie dans `description` et une " +
-      "espèce déborde sur la suivante. Préalable nommé : réparer l'extraction à deux colonnes dans `fh-srd`.");
+    /* REWRITTEN 2026-08-08 (lot 13) — LE REFUS DU LOT 8 EST LEVÉ, ET SA RAISON
+       AVEC. Le lot 8 avait refusé les traits d'espèce avec sa mesure : la mise
+       en page à deux colonnes du PDF était aplatie dans `description`, et la
+       description anglaise de l'Humain finissait sur le tableau du Tieffelin.
+       Il avait nommé son préalable — réparer l'extraction à deux colonnes dans
+       `fh-srd`. Le lot 11 l'a fait, la couche porte les traits, et le refus
+       n'a plus de raison d'être : il aurait menti.
+
+       Ce qui reste ici est la déclaration résiduelle, et elle est étroite : un
+       record d'espèce qui ne porte PAS de `traits`. Ce n'est plus l'état de la
+       couche SRD — c'est une couche tierce ou amputée, et la privation qui le
+       prouve est délibérée (tests/build-derive.test.mjs, `COUCHE_AMPUTEE`). */
+    underived.declare("traits (espèce)", "le record d'espèce ne porte pas `traits` : le contrat §5 les attend " +
+      "sous la forme `[{id, name, text}]`, et `description` est de la prose dont un parseur approximatif ferait " +
+      "une fiche fausse. La couche SRD, elle, les porte depuis la réparation de l'extraction à deux colonnes.");
   }
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "le contrat ne porte aucun champ de trait pour les genres " +

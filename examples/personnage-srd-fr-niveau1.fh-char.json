@@ -275,6 +275,12 @@
         "text": "Sort mineur Prestidigitation, échangeable à chaque Repos long. Caractéristique d'incantation du lignage : Intelligence."
       },
       {
+        "id": "vision-dans-le-noir",
+        "name": "Vision dans le noir",
+        "source": "Elfe",
+        "text": "Vision dans le noir sur 18 m."
+      },
+      {
         "id": "savoir-rituel",
         "name": "Savoir rituel",
         "source": "Magicien",
