@@ -1,0 +1,285 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-skills-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Skills & Tools (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.skills"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer modifies and extends material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Portions of the SRD material — including the Perception skill, the Gaming Set and the Musical Instrument — have been removed, split or modified for this work."
+  },
+  "description": "The twenty-six skills and thirty-six tools of Fate's Hand. Perception is removed and split into Vigilance, Delve and Hunting; nine skills are new. The generic Gaming Set and Musical Instrument are split into seven named tools, three tools change their default ability, and vehicles and mounts are added for land, water and air.",
+  "records": {
+    "skill": {
+      "srd:skill:en:perception": {
+        "op": "disable",
+        "reason": "Fate's Hand replaces Perception with three specialised skills — Vigilance (immediate threat detection), Delve (built structures and ruins) and Hunting (tracking and motionless camouflage). Survival already covered the wilderness."
+      },
+      "fh:skill:en:might": {
+        "name": "Might",
+        "slug": "might",
+        "data": {
+          "ability": "Strength",
+          "ability_key": "str",
+          "example_uses": "Raw power—lifting gates, pushing boulders, tearing down obstacles.",
+          "name": "Might"
+        }
+      },
+      "fh:skill:en:appraise": {
+        "name": "Appraise",
+        "slug": "appraise",
+        "data": {
+          "ability": "Intelligence",
+          "ability_key": "int",
+          "example_uses": "Determining the value, authenticity, or quality of items (treasure, art, goods).",
+          "name": "Appraise"
+        }
+      },
+      "fh:skill:en:academics": {
+        "name": "Academics",
+        "slug": "academics",
+        "data": {
+          "ability": "Intelligence",
+          "ability_key": "int",
+          "example_uses": "Formal learning: reading, research, and theoretical knowledge, accounting, mathematics, commerce.",
+          "name": "Academics"
+        }
+      },
+      "fh:skill:en:tactics": {
+        "name": "Tactics",
+        "slug": "tactics",
+        "data": {
+          "ability": "Intelligence",
+          "ability_key": "int",
+          "example_uses": "Battlefield strategy, military history, assessing enemy strength, planning maneuvers.",
+          "name": "Tactics"
+        }
+      },
+      "fh:skill:en:hunting": {
+        "name": "Hunting",
+        "slug": "hunting",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "example_uses": "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush).",
+          "name": "Hunting"
+        }
+      },
+      "fh:skill:en:vigilance": {
+        "name": "Vigilance",
+        "slug": "vigilance",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "example_uses": "Immediate threat detection: spotting ambushes or fleeting danger.",
+          "name": "Vigilance"
+        }
+      },
+      "fh:skill:en:delve": {
+        "name": "Delve",
+        "slug": "delve",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "example_uses": "Exploring urban areas, ruins and built structures, finding hidden passages and traps, and navigating through them.",
+          "name": "Delve"
+        }
+      },
+      "fh:skill:en:streetwise": {
+        "name": "Streetwise",
+        "slug": "streetwise",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "example_uses": "Urban survival, black markets, navigating the underworld.",
+          "name": "Streetwise"
+        }
+      },
+      "fh:skill:en:leadership": {
+        "name": "Leadership",
+        "slug": "leadership",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "example_uses": "Command presence, rallying allies, coordinating teams.",
+          "name": "Leadership"
+        }
+      }
+    },
+    "tool": {
+      "srd:tool:en:gaming-set": {
+        "op": "disable",
+        "reason": "Fate's Hand splits the generic Gaming Set into its four SRD variants, so that proficiency names an actual game rather than a category."
+      },
+      "srd:tool:en:musical-instrument": {
+        "op": "disable",
+        "reason": "Fate's Hand splits the generic Musical Instrument into three families (wind, strings, other), so that proficiency names how the instrument is played."
+      },
+      "srd:tool:en:mason-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.ability": "Intelligence",
+          "data[ability_key]": "int"
+        },
+        "note": "Fate's Hand — default ability str → int"
+      },
+      "srd:tool:en:tinker-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.ability": "Intelligence",
+          "data[ability_key]": "int"
+        },
+        "note": "Fate's Hand — default ability dex → int"
+      },
+      "srd:tool:en:potter-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.ability": "Wisdom",
+          "data[ability_key]": "wis"
+        },
+        "note": "Fate's Hand — default ability int → wis"
+      },
+      "fh:tool:en:gaming-set-dice": {
+        "name": "Dice Set",
+        "slug": "gaming-set-dice",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Dice Set",
+          "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:gaming-set-cards": {
+        "name": "Card Set",
+        "slug": "gaming-set-cards",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Card Set",
+          "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:gaming-set-dragonchess": {
+        "name": "Dragonchess Set",
+        "slug": "gaming-set-dragonchess",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Dragonchess Set",
+          "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:gaming-set-three-dragon": {
+        "name": "Three-Dragon Ante Set",
+        "slug": "gaming-set-three-dragon",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Three-Dragon Ante Set",
+          "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:instrument-wind": {
+        "name": "Wind Instrument",
+        "slug": "instrument-wind",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "name": "Wind Instrument",
+          "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:instrument-strings": {
+        "name": "String Instrument",
+        "slug": "instrument-strings",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "name": "String Instrument",
+          "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:instrument-other": {
+        "name": "Other Instrument",
+        "slug": "instrument-other",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "name": "Other Instrument",
+          "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
+          "cost": "Varies",
+          "weight": "Varies"
+        }
+      },
+      "fh:tool:en:vehicles-land": {
+        "name": "Vehicles (Land)",
+        "slug": "vehicles-land",
+        "data": {
+          "ability": "Dexterity",
+          "ability_key": "dex",
+          "name": "Vehicles (Land)"
+        }
+      },
+      "fh:tool:en:vehicles-water": {
+        "name": "Vehicles (Water)",
+        "slug": "vehicles-water",
+        "data": {
+          "ability": "Dexterity",
+          "ability_key": "dex",
+          "name": "Vehicles (Water)"
+        }
+      },
+      "fh:tool:en:vehicles-air": {
+        "name": "Vehicles (Air)",
+        "slug": "vehicles-air",
+        "data": {
+          "ability": "Intelligence",
+          "ability_key": "int",
+          "name": "Vehicles (Air)"
+        }
+      },
+      "fh:tool:en:mount-land": {
+        "name": "Mount (Land)",
+        "slug": "mount-land",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Mount (Land)"
+        }
+      },
+      "fh:tool:en:mount-water": {
+        "name": "Mount (Water)",
+        "slug": "mount-water",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Mount (Water)"
+        }
+      },
+      "fh:tool:en:mount-air": {
+        "name": "Mount (Air)",
+        "slug": "mount-air",
+        "data": {
+          "ability": "Wisdom",
+          "ability_key": "wis",
+          "name": "Mount (Air)"
+        }
+      }
+    }
+  }
+}
