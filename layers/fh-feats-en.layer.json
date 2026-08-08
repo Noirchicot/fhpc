@@ -1,0 +1,30 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-feats-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Feats (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.destiny"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds a record of its own and modifies NO material from the System Reference Document 5.2.1 — it patches no SRD feat and disables none."
+  },
+  "description": "The Fate's Hand feats that carry a Destiny value. One so far: Destiny Touched (fh), which grants +2 to the Destiny Score.",
+  "records": {
+    "feat": {
+      "fh:feat:en:destiny-touched": {
+        "name": "Destiny Touched (fh)",
+        "slug": "destiny-touched",
+        "data": {
+          "name": "Destiny Touched (fh)",
+          "destiny": {
+            "bonus": 2
+          },
+          "description": "+2 Destiny · fate leans toward you (replaces Lucky)"
+        }
+      }
+    }
+  }
+}

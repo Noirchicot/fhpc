@@ -1,0 +1,327 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-arcana-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Major Arcana (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.destiny"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds records of its own and modifies NO material from the System Reference Document 5.2.1 — the twenty-two Major Arcana exist in no SRD, and nothing here patches, extends or reproduces SRD text."
+  },
+  "description": "The twenty-two Major Arcana of Fate's Hand, in the canonical order of the deck (0 to XXI). Each card carries its Destiny impact — 5 cards at 0, 9 at 1, 8 at 2 — plus its meaning, its power and its vibration. The impact is a term of the Destiny Score; the three texts are read at the table.",
+  "records": {
+    "arcana": {
+      "fh:arcana:en:the-fool": {
+        "name": "The Fool",
+        "slug": "the-fool",
+        "data": {
+          "name": "The Fool",
+          "numeral": "0",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "innocence, beginnings, carefreeness, freedom. Unlimited potential, stepping into the unknown without fear. Exploration without attachments, trust in chance.",
+          "power": "once per long rest, roll 2 Destiny dice at once, take the total of both as a bonus, and pay only the price of the highest.",
+          "vibration": "luck effect (Bless or Guidance depending on level)."
+        }
+      },
+      "fh:arcana:en:the-magician": {
+        "name": "The Magician",
+        "slug": "the-magician",
+        "data": {
+          "name": "The Magician",
+          "numeral": "I",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "ingenuity, creativity, mastery of tools. The intellect shapes reality. The initiator of change through willpower.",
+          "power": "once per long rest, adjust the size of a Destiny die of a willing creature (d4 into d12 or vice-versa).",
+          "vibration": "minor illusion effect (Silent Image)."
+        }
+      },
+      "fh:arcana:en:the-high-priestess": {
+        "name": "The High Priestess",
+        "slug": "the-high-priestess",
+        "data": {
+          "name": "The High Priestess",
+          "numeral": "II",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "hidden knowledge, intuition, mystery. Inner wisdom, revelation through patient study. Silence and secrets of the soul.",
+          "power": "roll a Destiny die in secret and store it; you may use the result before the end of the next long rest.",
+          "vibration": "divination effect (Detect Evil and Good, Augury)."
+        }
+      },
+      "fh:arcana:en:the-empress": {
+        "name": "The Empress",
+        "slug": "the-empress",
+        "data": {
+          "name": "The Empress",
+          "numeral": "III",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "fertility, abundance, growth, prosperity. Support, harmony, generosity.",
+          "power": "recover an additional Destiny Point after a long rest if you have 2 or less.",
+          "vibration": "healing or reinforcement (Cure Wounds, Heroism)."
+        }
+      },
+      "fh:arcana:en:the-emperor": {
+        "name": "The Emperor",
+        "slug": "the-emperor",
+        "data": {
+          "name": "The Emperor",
+          "numeral": "IV",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "authority, order, stable power. Construction, organization, protection.",
+          "power": "once per long rest, sacrifice a die to obtain the highest possible bonus non-critical result.",
+          "vibration": "defensive effect (Mage Armor, Shield minor effect)."
+        }
+      },
+      "fh:arcana:en:the-hierophant": {
+        "name": "The Hierophant",
+        "slug": "the-hierophant",
+        "data": {
+          "name": "The Hierophant",
+          "numeral": "V",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "tradition, teaching, spiritual guidance. Faith, rituals, sacred order.",
+          "power": "once per short rest, as a reaction within 30 feet, convert one of your Destiny dice into healing and add it to one individual short-rest dice (+ Constitution bonus), with no cost in Destiny Points.",
+          "vibration": "sacred blessing (Bless, Protection from Evil and Good)."
+        }
+      },
+      "fh:arcana:en:the-lovers": {
+        "name": "The Lovers",
+        "slug": "the-lovers",
+        "data": {
+          "name": "The Lovers",
+          "numeral": "VI",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "choice, harmony, relationships, moral dilemmas. Union, sacrifice, cooperation.",
+          "power": "once per long rest, as a reaction, roll a Destiny die to the benefit of one party member within 30 ft of you, while another (including you) suffers the cost.",
+          "vibration": "social charm / inspiration (Charm Person)."
+        }
+      },
+      "fh:arcana:en:the-chariot": {
+        "name": "The Chariot",
+        "slug": "the-chariot",
+        "data": {
+          "name": "The Chariot",
+          "numeral": "VII",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "victory, determination, triumph. Active control, moving toward success.",
+          "power": "once per long rest, you have advantage on a Destiny die. Choose either the lowest or the highest.",
+          "vibration": "acceleration (Longstrider, Expeditious Retreat)."
+        }
+      },
+      "fh:arcana:en:strength": {
+        "name": "Strength",
+        "slug": "strength",
+        "data": {
+          "name": "Strength",
+          "numeral": "VIII",
+          "destiny": {
+            "impact": 0
+          },
+          "meaning": "courage, mastery of instincts, perseverance, moral and physical endurance.",
+          "power": "the critical range of your Destiny dice is doubled (3 or 4 on a d4, 5 or 6 on a d6).",
+          "vibration": "physical enhancement (Enhance Ability — Strength)."
+        }
+      },
+      "fh:arcana:en:the-hermit": {
+        "name": "The Hermit",
+        "slug": "the-hermit",
+        "data": {
+          "name": "The Hermit",
+          "numeral": "IX",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "introspection, solitude, search for truth. Knowledge found in inner calm.",
+          "power": "once per long rest, store the result of your lowest available Destiny die and use it later.",
+          "vibration": "clairvoyance / guidance (e.g. Guidance)."
+        }
+      },
+      "fh:arcana:en:wheel-of-fortune": {
+        "name": "Wheel of Fortune",
+        "slug": "wheel-of-fortune",
+        "data": {
+          "name": "Wheel of Fortune",
+          "numeral": "X",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "change, unstable destiny, opportunity, unpredictability. Embracing the cycle of ups and downs.",
+          "power": "on the first Destiny roll of the day choose advantage or disadvantage, then a cycle is in place. That same day, any individual (including you) within 30 ft rolling a Destiny die rolls with advantage if you chose disadvantage, or the contrary.",
+          "vibration": "random yet beneficial effect (e.g. advantage on the next roll)."
+        }
+      },
+      "fh:arcana:en:justice": {
+        "name": "Justice",
+        "slug": "justice",
+        "data": {
+          "name": "Justice",
+          "numeral": "XI",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "fairness, responsibility, moral order. Evaluating, assuming responsibility, restoring balance.",
+          "power": "after a long rest, transfer up to 2 Destiny Points and 2 Destiny dice from the strongest to the weakest. Recipients may be willing or not. You may freely rule on ties. Up to 4 individuals.",
+          "vibration": "restore balance (e.g. Lesser Restoration)."
+        }
+      },
+      "fh:arcana:en:the-hanged-man": {
+        "name": "The Hanged Man",
+        "slug": "the-hanged-man",
+        "data": {
+          "name": "The Hanged Man",
+          "numeral": "XII",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "sacrifice, letting go, new perspective. Renouncing to gain understanding.",
+          "power": "if you invoke Chaos on a natural 1, you do not lose but immediately regain 2 Destiny Points and just roll 1d6 on the Chaos table.",
+          "vibration": "neutralization (e.g. targeted Slow)."
+        }
+      },
+      "fh:arcana:en:death": {
+        "name": "Death",
+        "slug": "death",
+        "data": {
+          "name": "Death",
+          "numeral": "XIII",
+          "destiny": {
+            "impact": 0
+          },
+          "meaning": "transformation, end of a cycle, rebirth. Radical change, not absolute finality.",
+          "power": "you are immune to everything above 6 on the Chaos table, and trigger an Awakening on a 12.",
+          "vibration": "survival / minor necromancy effect (e.g. False Life)."
+        }
+      },
+      "fh:arcana:en:temperance": {
+        "name": "Temperance",
+        "slug": "temperance",
+        "data": {
+          "name": "Temperance",
+          "numeral": "XIV",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "moderation, harmony, compromise. Finding balance and the right measure.",
+          "power": "once per long rest, in a 30 ft radius, as a reaction roll a Destiny die that acts as a buffer limiting the Destiny cost.",
+          "vibration": "purification (e.g. Protection from Poison)."
+        }
+      },
+      "fh:arcana:en:the-devil": {
+        "name": "The Devil",
+        "slug": "the-devil",
+        "data": {
+          "name": "The Devil",
+          "numeral": "XV",
+          "destiny": {
+            "impact": 0
+          },
+          "meaning": "temptation, illusions, voluntary servitude. Power at the cost of freedom.",
+          "power": "once per short rest, roll a Destiny die in advance if you have one, and give it to anyone within 30 ft. It costs the recipient one Destiny Point; you collect this as a temporary Destiny Point, and your die is blocked until they use it or their next long rest ends. When used it acts as their own; your die then resets. An infernal Awakening may have strange consequences.",
+          "vibration": "minor curse (e.g. Bane)."
+        }
+      },
+      "fh:arcana:en:the-tower": {
+        "name": "The Tower",
+        "slug": "the-tower",
+        "data": {
+          "name": "The Tower",
+          "numeral": "XVI",
+          "destiny": {
+            "impact": 0
+          },
+          "meaning": "shock, collapse, brutal revelation. Destruction to rebuild on truth.",
+          "power": "once per long rest, as a reaction, sacrifice all your Destiny Points to transform any successful roll into a critical failure within 30 ft. Ignore the Chaos Effect.",
+          "vibration": "controlled destruction (e.g. Thunderwave)."
+        }
+      },
+      "fh:arcana:en:the-star": {
+        "name": "The Star",
+        "slug": "the-star",
+        "data": {
+          "name": "The Star",
+          "numeral": "XVII",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "hope, inspiration, celestial guidance. A beacon in the night, trust in the future.",
+          "power": "once per long rest, take the average (rounded up) of a Destiny die instead of rolling.",
+          "vibration": "minor inspiration / healing (e.g. Healing Word, Guidance)."
+        }
+      },
+      "fh:arcana:en:the-moon": {
+        "name": "The Moon",
+        "slug": "the-moon",
+        "data": {
+          "name": "The Moon",
+          "numeral": "XVIII",
+          "destiny": {
+            "impact": 2
+          },
+          "meaning": "illusions, dreams, nocturnal mysteries. The unconscious mind, distorted perception.",
+          "power": "except for a critical Fail / Success, the Destiny cost is reduced by 1.",
+          "vibration": "illusion (e.g. Silent Image)."
+        }
+      },
+      "fh:arcana:en:the-sun": {
+        "name": "The Sun",
+        "slug": "the-sun",
+        "data": {
+          "name": "The Sun",
+          "numeral": "XIX",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "success, vitality, clarity, joy. Dispels shadows, brings optimism and truth.",
+          "power": "once per short rest, add +2 to the result of a Destiny die without any additional cost.",
+          "vibration": "minor light and healing (e.g. Light + small heal)."
+        }
+      },
+      "fh:arcana:en:judgement": {
+        "name": "Judgement",
+        "slug": "judgement",
+        "data": {
+          "name": "Judgement",
+          "numeral": "XX",
+          "destiny": {
+            "impact": 0
+          },
+          "meaning": "rebirth, higher calling, final reckoning. Weighing the past, offering redemption or judgment.",
+          "power": "once per short rest, spend a Destiny die with no cost in Destiny Points to replace any d20 roll by a 10.",
+          "vibration": "moral command (e.g. Command)."
+        }
+      },
+      "fh:arcana:en:the-world": {
+        "name": "The World",
+        "slug": "the-world",
+        "data": {
+          "name": "The World",
+          "numeral": "XXI",
+          "destiny": {
+            "impact": 1
+          },
+          "meaning": "accomplishment, wholeness, unity. The end of one cycle, opening to a new beginning.",
+          "power": "after a long rest, restore one Destiny Point to group members excluding yourself. Roll a die: 1d4 for 1-4 people, 1d6 for 5-6, 1d8 for 7-8, 1d10 for 9-10, 1d12 for 11-12. You pay the price rolled.",
+          "vibration": "versatile beneficial effect (small global buff)."
+        }
+      }
+    }
+  }
+}

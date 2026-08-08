@@ -95,11 +95,51 @@ export const SPELL_TEXT_MAX = 4000;
    `{stat, underived}`. Ce qu'il reçoit est ce que le pli a DÉJÀ su lire — la
    maîtrise, le record d'espèce, ses propres choix — et rien du document.
 
+   ── DEUX AJOUTS DU LOT 20, ET ILS SONT DÉLIBÉRÉMENT GÉNÉRIQUES ────────
+   Ce fichier ne nomme AUCUNE mécanique de couche (§0.12) : il ouvre un
+   chemin, il ne s'en sert pas.
+
+   1. `records` — LE MÊME CHEMIN DE LECTURE QUE LE PLI, pas un second.
+      Un module qui recevait un `ref` dans un de ses choix ne pouvait rien en
+      faire : il tenait un identifiant et n'avait aucun moyen d'atteindre le
+      record. Sa seule issue aurait été d'écrire la valeur EN DUR dans le
+      module — très exactement ce que la collection `stats[]` existe pour
+      éviter. Il rend la vue APLATIE (`{id, name, slug, data}`), comme
+      `species`, pour que la forme interne des couches reste au bloc `layers`.
+      ⚠️ SANS `id`, IL REND LA LISTE DU GENRE, et ce n'est pas un confort :
+      c'est ce qui distingue « le genre répond VIDE » (le contenu n'est pas
+      monté — à DÉCLARER) de « le genre est peuplé et ce record n'y est pas »
+      (un `ref` mort — à REFUSER). Un simple `null` confondrait les deux, et
+      un contenu manquant se lirait comme un document faux.
+
+   2. `feats` — les records que les choix désignent par un `ref` de genre
+      `feat`, dans l'ordre du document, chacun avec le chemin qui l'a nommé.
+      Ils vivent HORS de tout namespace de module — `background.originFeat[0]`,
+      `feat.extra` : c'est la place que la table de couverture v1 ratifie —
+      donc aucun module ne pouvait les voir. L'autre issue aurait été de faire
+      déclarer le même don DEUX FOIS au personnage, une fois comme don et une
+      fois dans le namespace du module : deux places pour un seul fait, et la
+      dérive garantie. ⚠️ Question 1 du lot 20 à l'architecte.
+
+   ── ET CE QU'UN MODULE PEUT RÉCLAMER EN RETOUR ───────────────────────
+   `consumed` : les chemins que le module a RÉELLEMENT lus hors de son
+   namespace. Sans lui, un don qui compte dans une statistique ressortirait
+   `unconsumed`, et `validate` dirait de lui « il ne change rien à la fiche »
+   — un faux témoignage, pas une omission. Un module ne peut réclamer QUE ce
+   que la dérivation lui a tendu : le garde est vérifié en le violant.
+
    ⚠️ UN DRAPEAU LEVÉ QUE PERSONNE NE SERT SE DÉCLARE. Une couche qui demande
    une capacité qu'aucun module ne fournit produirait sinon une fiche muette
    sur ce qui lui manque. */
 function statOwnsPath(flag, path) {
   return path === flag || path.startsWith(`${flag}.`) || path.startsWith(`${flag}[`);
+}
+
+/** La vue d'une couche, APLATIE pour un module : il lit un record, il n'a pas
+ *  à connaître la forme interne du bloc `layers`. C'est la même forme que le
+ *  pli donne déjà à `input.species`. */
+function flatView(view) {
+  return { id: view.id, name: view.record.name, slug: view.record.slug, data: view.record.data || {} };
 }
 
 /** Les racines de choix qui FONT CHOISIR une compétence. L'arrière-plan n'y
@@ -901,6 +941,27 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const stats = [];
   const servedFlags = new Set();
   let anyModuleActive = false;
+
+  /* Le chemin de lecture tendu aux modules. Avec `id` : la vue aplatie ou
+     `null` ; sans : la liste du genre — la différence entre un genre vide et
+     un record absent, voir l'en-tête. */
+  const moduleRecords = (kind, id) => {
+    if (id === undefined) return reader.all(kind).map(flatView);
+    const view = reader.maybe(kind, id);
+    return view === null || view === undefined ? null : flatView(view);
+  };
+
+  /* LES DONS QUE LES CHOIX DÉSIGNENT. Ils ne sont PAS marqués consommés ici :
+     ce fichier n'en tire rien pour `resolved` (les traits d'un don sont de la
+     prose, déclarée plus haut). Un module qui en lit un le RÉCLAME, et c'est
+     à ce moment-là seulement que le choix cesse d'être signalé comme inerte.
+     Le `ref` mort, lui, JETTE comme partout ailleurs : `class`, `species`,
+     `gear[n]` et les sorts se lisent déjà par `must`. */
+  const featEntries = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "feat");
+  const featViews = featEntries.map((entry) => Object.assign(
+    { path: entry.choice.path },
+    flatView(reader.must(entry.choice.ref.kind, entry.choice.ref.id, `le choix « ${entry.choice.path} »`))
+  ));
   for (const statModule of statModules) {
     if (!statModule || typeof statModule.contribute !== "function" || typeof statModule.flag !== "string") {
       fail("un module de statistique doit déclarer `{flag, contribute}` — un module que la dérivation ne sait " +
@@ -913,6 +974,8 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     for (const entry of own) entry.consumed = true;
     const outcome = statModule.contribute({
       proficiency,
+      records: moduleRecords,
+      feats: featViews.map((view) => Object.assign({}, view)),
       species: speciesView
         ? { id: speciesView.id, name: speciesView.record.name, slug: speciesView.record.slug, data: speciesData }
         : null,
@@ -931,6 +994,23 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (outcome && outcome.stat) stats.push(outcome.stat);
     if (outcome && Array.isArray(outcome.underived)) {
       for (const entry of outcome.underived) underived.declare(entry.field, entry.reason);
+    }
+    /* CE QUE LE MODULE A RÉCLAMÉ HORS DE SON NAMESPACE — et le garde qui
+       l'empêche d'en réclamer plus. Sans lui, un module pourrait faire taire
+       n'importe quel choix du document en le nommant. */
+    if (outcome && outcome.consumed !== undefined) {
+      if (!Array.isArray(outcome.consumed)) {
+        fail(`le module « ${statModule.flag} » rend un \`consumed\` qui n'est pas une liste de chemins.`);
+      }
+      for (const path of outcome.consumed) {
+        const claimed = featEntries.find((entry) => entry.choice.path === path);
+        if (!claimed) {
+          fail(`le module « ${statModule.flag} » déclare avoir lu le choix « ${path} », que la dérivation ne lui a ` +
+            "pas tendu. Un module ne réclame que ce qu'il a reçu : sinon il pourrait faire passer pour lu " +
+            "n'importe quel choix du document, et `validate` cesserait de dire qu'il ne change rien à la fiche.");
+        }
+        claimed.consumed = true;
+      }
     }
   }
   resolved.stats = stats;
