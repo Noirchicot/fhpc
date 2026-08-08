@@ -531,3 +531,31 @@ test("D.2 — la transaction de jet reste ROUVRABLE, et sans la couche aussi", (
   assert.equal(entry.total, 18, "la boucle rouvre autant de fois qu'il le faut");
   assert.equal(h.queueEmpty(), 0);
 });
+
+test("D.5 — la provenance survit à un aller-retour DANS `play`, et bute sur le schéma", () => {
+  /* Le bloc rend au document ce qui lui appartient (`snapshot`) et le reprend
+     (`open`). La provenance traverse ce trajet-là : elle est normalisée dans
+     les deux sens, et rien ne l'élague en route.
+     ⚠️ Là où elle NE passe PAS, c'est au schéma : `resolved.resources[]` de
+     `fh-char/1` porte `additionalProperties: false` et n'a aucun champ de
+     provenance. Ce test fixe la forme dont le moteur a besoin ; c'est
+     l'architecte qui l'écrit au contrat (COUPE-LOT-5.md §8). */
+  const h = srdOnly();
+  const received = h.verbs.receiveDie({
+    schema: "fh-die-gift/1", from: "Lyra", to: "Aldra", timing: "ahead", givenAt: "2026-08-08T00:00:00.000Z",
+    die: { source: "bardic", sides: 6, label: "Bardic", tint: "violet", kind: "die", count: 1, correction: "bardic" }
+  });
+  const kept = h.verbs.snapshot();
+  const carried = kept.poolResources.find((res) => res.id === received.id);
+  assert.ok(carried, "la ressource fait partie de ce que la séance rend au document");
+  assert.equal(carried.origin.from, "Lyra");
+
+  // Et elle revient telle quelle à l'ouverture suivante.
+  const next = makeHarness({ layers: [] });
+  next.verbs.open({ character: { name: "Aldra" }, pseudo: "Aldra", poolResources: kept.poolResources });
+  const reopened = next.t.poolList()[0];
+  assert.deepEqual(reopened.origin, {
+    from: "Lyra", source: "bardic", timing: "ahead",
+    givenAt: carried.origin.givenAt, expiresAt: null
+  }, "qui l'a donné, quelle source, quelle fenêtre — rien n'est tombé en route");
+});
