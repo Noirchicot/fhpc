@@ -174,9 +174,57 @@ function bindFh(engine, { chaosTables }) {
     emitPool("destiny-dice");
   }
 
-  function setDestinyPoints(next, reason, recover, silent) {
+  /* ══ LE SCORE PLAFONNE LA RÉCUPÉRATION, ET RIEN D'AUTRE ════════════
+     Règle d'Eric, tranchée le 2026-08-08 (logbook « FHV2 - Couche FH »,
+     chapitre 3), et §2 des règles : « Cap & overflow: long rest and most
+     recovery cannot exceed your Score. The exceptions — Arcana cards and
+     Natural 1s — grant temporary points that may push you above your Score. »
+
+     ⭐ LA PHRASE QUI RÈGLE L'IMPLÉMENTATION, mot pour mot : « tant que je ne
+     suis pas au-dessus de mon score, les temporaires se comportent comme des
+     récupérations ». Il n'y a donc RIEN À DISTINGUER SOUS LE PLAFOND — et le
+     moteur ne tient PAS deux compteurs. Un seul total ; le Score borne
+     seulement CE QUI RENTRE PAR RÉCUPÉRATION. Ce qui dépasse reste jusqu'à ce
+     qu'on le dépense, et c'est exactement ce que dit `max(score, before)` :
+     une récupération ne franchit pas le Score, et elle ne fait pas non plus
+     redescendre quelqu'un qui est déjà au-dessus.
+
+     Une BAISSE n'a pas de nature : dépenser n'est jamais plafonné.
+
+     ⚠️ Écart mesuré le 2026-08-08 en confrontant le chapitre au code :
+     `state.destiny.score` existait, un Arcane majeur le montait, et
+     `setDestinyPoints` NE LE CONSULTAIT JAMAIS. La règle du plafond n'était
+     appliquée nulle part. */
+  const GAIN_RECOVERED = "recovered";   // repos long, et tout ce que la règle appelle « recovery »
+  const GAIN_TEMPORARY = "temporary";   // pioche d'Arcane, 1 naturel, le +1 de l'« Accept » (§3.4)
+  /* Une valeur POSÉE À LA MAIN par le joueur ou le MJ. Elle n'est ni une
+     récupération ni un point temporaire : c'est une correction, et la borner
+     empêcherait de rattraper un état de séance. ⚠️ Non couvert par les règles
+     d'Eric — question ouverte, `QUESTIONS-ARCHITECTE.md`, lot 16. */
+  const GAIN_DECLARED = "declared";
+  const GAIN_KINDS = [GAIN_RECOVERED, GAIN_TEMPORARY, GAIN_DECLARED];
+
+  /* Le plancher §2 : « Long rest: regain +1 Destiny Point ». C'est le seul
+     nombre que la règle écrite chiffre. Ce qu'une espèce (Humain : 2/jour) ou
+     un Arcane (l'Impératrice) y ajoute est du CONTENU de couche, et il arrive
+     par le paramètre — le moteur ne le devine pas. */
+  const LONG_REST_RECOVERY = 1;
+
+  function ceilingForGain(next, before, gain) {
+    if (gain === GAIN_RECOVERED) return Math.min(next, Math.max(Number(state.destiny.score) || 0, before));
+    if (gain === GAIN_TEMPORARY || gain === GAIN_DECLARED) return next;
+    throw new Error(
+      "fhpc/fh: a rise in Destiny Points must declare where it comes from — got " + JSON.stringify(gain) +
+      " instead of one of " + GAIN_KINDS.join(", ") +
+      "; the Score caps recovery and nothing else, and a rise the engine cannot classify would pick a side in silence"
+    );
+  }
+
+  function setDestinyPoints(next, reason, recover, silent, gain) {
     const before = Number(state.destiny.points) || 0;
     next = Math.max(-99, Math.min(999, Number(next) || 0));
+    // Seule une HAUSSE se réclame d'une source, et seule une récupération est bornée.
+    if (next > before) next = ceilingForGain(next, before, gain);
     /* Les points ne tombent jamais sous zéro. Ce qu'ils auraient dépassé est
        enregistré comme Overreach, que le Chaos lit pour poser son DD. */
     const shortfall = next < 0 ? -next : 0;
@@ -198,8 +246,86 @@ function bindFh(engine, { chaosTables }) {
 
   function updateDestinyField(field, value, reason) {
     if (field === "score") state.destiny.score = clamp(value, 0, 99);
-    else setDestinyPoints(value, reason || t("fh.reason.manual-correction"), true);
+    else setDestinyPoints(value, reason || t("fh.reason.manual-correction"), true, false, GAIN_DECLARED);
     emitPool("destiny-field");
+  }
+
+  /* LA RÉCUPÉRATION — le seul chemin que le Score borne, et il n'existait pas.
+     Sans lui, la borne serait du code mort derrière une intention (loi §0.6) :
+     les trois hausses que le moteur portait sont toutes des TEMPORAIRES.
+
+     `amount` est ce que la table accorde ; le défaut est le +1 de §2. Un
+     nombre illégal JETTE plutôt que de retomber sur 1 — un repos silencieux
+     qui rend le mauvais nombre de points est pire qu'un refus bruyant. */
+  function recoverDestinyPoints(amount, reason) {
+    const asked = amount == null ? LONG_REST_RECOVERY : Number(amount);
+    if (!isFinite(asked) || asked < 0 || Math.round(asked) !== asked) {
+      throw new Error(
+        "fhpc/fh: a Destiny recovery must declare a whole, non-negative number of Points — got " + JSON.stringify(amount)
+      );
+    }
+    const before = Number(state.destiny.points) || 0;
+    const recovered = setDestinyPoints(before + asked, reason || t("fh.reason.recovery"), true, true, GAIN_RECOVERED);
+    const after = Number(state.destiny.points) || 0;
+    if (after > before) {
+      pushEvent(
+        [t("fh.event.points-moved", { change: after - before }), t("fh.event.points-current", { points: after })].join(" · "),
+        "gain"
+      );
+    }
+    /* Le plafond qui mord est un REFUS, et un refus se dit. Sans cette ligne,
+       un repos long qui ne rend rien serait indiscernable d'un repos oublié. */
+    if (after < before + asked) {
+      pushEvent(t("fh.event.recovery-capped", { score: state.destiny.score, points: after, lost: before + asked - after }), "info");
+    }
+    if (recovered) pushEvent(t("fh.event.die-gained", { sides: recovered.sides }), "die-gain");
+    emitPool("destiny-recovery");
+    return after;
+  }
+
+  /* ══ LA VIBRATION ══════════════════════════════════════════════════
+     `The Major Arcana.md` : « Vibration — an optional temporary effect on a
+     critical Destiny roll, equivalent to a spell (spell level matches the die
+     size) », avec sa table : d4 → 1, d6 → 2, d8 → 3, d10 → 4, d12 → 5.
+
+     ⚠️ CE N'EST PAS L'ÉVEIL, et les confondre est l'erreur qui a été faite le
+     2026-08-08 puis retirée :
+
+       · Éveil arcanique — Points à 0 APRÈS UN 20 NATUREL AU D20 → pioche dans
+         les 78 cartes. C'est `onResult`, et il a raison de ne rien déclencher
+         sur un critique arcanique.
+       · Vibration — un CRITIQUE ARCANIQUE (le maximum d'un dé de Destinée) →
+         l'effet de sort listé sur l'Arcane du personnage, au niveau du dé.
+
+     ⚠️ LE MOTEUR NE CONNAÎT AUCUN TEXTE DE CARTE (décision Q4 : les couches
+     portent le contenu, le moteur porte la mécanique). Il déclenche et il
+     calcule le NIVEAU — rien d'autre. Il n'a pas non plus à désigner la carte :
+     un seul Arcane majeur est actif à la fois (§5), donc l'effet est celui du
+     personnage, et c'est la surface qui va le lire là où il vit déjà.
+
+     Cette mécanique avait été PERDUE AU PORTAGE : zéro occurrence dans `src/`,
+     alors que le dock v1 la portait pour les 22 cartes. */
+  const VIBRATION_LEVEL_BY_SIDES = { 4: 1, 6: 2, 8: 3, 10: 4, 12: 5 };
+
+  /* « an effect listed on YOUR Arcana » : sans Arcane connu, il n'y a aucun
+     effet listé, donc rien à signaler. Ce n'est pas un repli silencieux, c'est
+     la condition d'existence de la règle — et le critique arcanique, lui, a
+     bien lieu dans les deux cas. */
+  function arcanaKnown() {
+    const build = state.character && state.character.destinyBuild;
+    return !!(build && build.arcana);
+  }
+
+  function vibrationFor(sides) {
+    if (!arcanaKnown()) return null;
+    const level = VIBRATION_LEVEL_BY_SIDES[Number(sides)];
+    if (!level) {
+      throw new Error(
+        "fhpc/fh: no Vibration spell level is written for a d" + sides +
+        " — the table runs d4→1 … d12→5, and choosing a level for a die the rules never sized would be inventing a rule"
+      );
+    }
+    return { sides: Number(sides), level };
   }
 
   /* ══ Dépenser un dé de Destinée ════════════════════════════════════ */
@@ -211,13 +337,17 @@ function bindFh(engine, { chaosTables }) {
     const plan = rolled || makeDiePlan(die.sides, "flat", null);
     const result = Number(plan.result);
     const before = Number(state.destiny.points) || 0;
-    let cost, criticalSuccess = false, criticalFailure = false, chaosRisk = null, recovered = null;
+    let cost, criticalSuccess = false, criticalFailure = false, chaosRisk = null, recovered = null, vibration = null;
     if (result === die.sides) {
       cost = 1; criticalSuccess = true;
+      vibration = vibrationFor(die.sides);
       recovered = setDestinyPoints(before - 1, t("fh.reason.arcane-critical-success", { sides: die.sides }), true, !!silent);
     } else if (result === 1) {
       cost = -1; criticalFailure = true;
-      recovered = setDestinyPoints(before + 1, t("fh.reason.arcane-critical-failure", { sides: die.sides }), true, !!silent);
+      /* Le +1 de l'« Accept » (§3.4) est TEMPORAIRE — tranché par Eric le
+         2026-08-08. Il est accordé à l'instant où le 1 tombe ; refuser le
+         reprend. Il peut donc dépasser le Score. */
+      recovered = setDestinyPoints(before + 1, t("fh.reason.arcane-critical-failure", { sides: die.sides }), true, !!silent, GAIN_TEMPORARY);
     } else {
       cost = result;
       recovered = setDestinyPoints(before - result, t("fh.reason.destiny-die", { sides: die.sides }), true, !!silent);
@@ -232,7 +362,7 @@ function bindFh(engine, { chaosTables }) {
       advantageMode: plan.mode === "advantage" || plan.mode === "disadvantage" || plan.mode === "choice" ? plan.mode : "flat",
       forced: !!plan.forced, cost,
       pointsBefore: before, pointsAfter: state.destiny.points,
-      criticalSuccess, criticalFailure, chaos: chaosRisk, recovered
+      criticalSuccess, criticalFailure, vibration, chaos: chaosRisk, recovered
     };
   }
 
@@ -265,6 +395,10 @@ function bindFh(engine, { chaosTables }) {
     if (spent.criticalSuccess) parts.push(t("fh.CRITINF"), t("fh.event.destiny-rolled", { sides: spent.sides, result: spent.result }));
     else if (spent.criticalFailure) parts.push(t("fh.FUMBLEINF"), t("fh.event.destiny-rolled", { sides: spent.sides, result: 1 }));
     else parts.push(t("fh.event.destiny-rolled", { sides: spent.sides, result: spent.result }));
+    /* La Vibration est OPTIONNELLE : la ligne l'OFFRE, elle ne l'applique pas.
+       Le niveau est tout ce que le moteur en sait ; l'effet est celui que porte
+       l'Arcane du personnage, et aucun mot de carte ne passe par ici. */
+    if (spent.vibration) parts.push(t("fh.event.vibration", { sides: spent.vibration.sides, level: spent.vibration.level }));
     /* Un échec encore en attente de sa réponse annonce le jet et rien d'autre :
        les points qu'il a bougés peuvent être défaits, et une ligne ne doit pas
        affirmer ce qui peut être défait. */
@@ -389,7 +523,9 @@ function bindFh(engine, { chaosTables }) {
     const before = state.destiny.score;
     // Seul un majeur monte le Score maximum. Un mineur donne des points et une Brique.
     if (card.arcana === "major") state.destiny.score = clamp(before + 1, 0, 99);
-    setDestinyPoints((Number(state.destiny.points) || 0) + grantedPoints, t("fh.reason.awakening"), true, true);
+    /* §2 : une carte d'Arcane donne des points TEMPORAIRES, qui « may push you
+       above your Score ». C'est l'une des deux exceptions nommées au plafond. */
+    setDestinyPoints((Number(state.destiny.points) || 0) + grantedPoints, t("fh.reason.awakening"), true, true, GAIN_TEMPORARY);
     state.destiny.awakeningOwed = Math.max(0, (Number(state.destiny.awakeningOwed) || 0) - 1);
     const named = [card.numeral, card.name].filter(Boolean).join(" · ");
     state.trayPrompt = null;
@@ -553,7 +689,9 @@ function bindFh(engine, { chaosTables }) {
     const events = [];
     if (choice === "accept") {
       const before = state.destiny.points;
-      const recovered = setDestinyPoints(before + 1, t("fh.reason.fate-accepted"), true, true);
+      /* §2 : l'autre exception nommée. Un 1 naturel accepté rend un point
+         TEMPORAIRE, qui passe au-dessus du Score. */
+      const recovered = setDestinyPoints(before + 1, t("fh.reason.fate-accepted"), true, true, GAIN_TEMPORARY);
       entry.natChoice = "accept";
       entry.destinyPointChange = { before, after: state.destiny.points, reason: t("fh.reason.fate-accepted") };
       const accepted = [t("fh.event.fate-accepted"), t("fh.event.gained-one-point"), t("fh.event.points-current", { points: state.destiny.points })];
@@ -772,6 +910,7 @@ function bindFh(engine, { chaosTables }) {
     stageDestinyDie: (p) => stageDestinyDie(p.dieId),
     adjustDestinyDie: (p) => adjustDestinyDie(p.sides, p.direction),
     setDestinyField: (p) => updateDestinyField(p.field, p.value, p.reason),
+    recoverDestiny: (p) => recoverDestinyPoints(p && p.amount, p && p.reason),
     settleAwakening: (p) => settleAwakening(p && p.card),
     resolveNatOne: (p) => resolveNatOne(p.entryId, p.choice),
     resolveArcaneOne: (p) => resolveArcaneOne(p.entryId, p.choice),
@@ -788,7 +927,9 @@ function bindFh(engine, { chaosTables }) {
      siennes. Ce n'est pas la surface publique : celle-là, c'est `verbs`. */
   const internals = {
     makeDestinySlots, normalizeDestiny, recoverLowestDie, adjustDestinyDie,
-    setDestinyPoints, updateDestinyField, spendDestinyDie, arcaneDecision, destinyPlanFor,
+    setDestinyPoints, recoverDestinyPoints, vibrationFor, arcanaKnown,
+    GAIN_RECOVERED, GAIN_TEMPORARY, GAIN_DECLARED, LONG_REST_RECOVERY,
+    updateDestinyField, spendDestinyDie, arcaneDecision, destinyPlanFor,
     destinyEventSpecs, resolveArcaneOne, settleAwakening, naturalDestiny: (entry) => {
       const answer = onResult({ entry });
       return (answer && answer.events) || [];

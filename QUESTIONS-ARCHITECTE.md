@@ -925,3 +925,112 @@ rend ; la forme sur le fil appartient au lot de câblage.
    hors du dépôt. Ce lot en dépend plus que les précédents — `ajv` y est
    **juge** du validateur maison. Un `npm ci` avant la fusion lèverait le
    doute.
+
+---
+
+# Questions du lot `16-moteur-destinee` à l'architecte
+
+**Écrites le 2026-08-08.** Le lot répare **deux écarts mesurés** entre le
+chapitre 3 (Destinée) et le moteur. Les règles qui font foi sont celles
+qu'Eric a tranchées phrase par phrase le 2026-08-08 (logbook « FHV2 - Couche
+FH ») ; tout ce qu'elles ne couvrent pas est **ci-dessous**, pas dans le code.
+
+Loi §0.10 : le lot n'invente ni valeur, ni nom, ni règle. Deux affirmations
+confiantes ont déjà été démenties sur ce chapitre — dont deux de l'architecte.
+
+---
+
+## 0. Ce qui a été fait, en deux lignes
+
+- **A — le Score plafonne désormais la RÉCUPÉRATION, et rien d'autre.** Toute
+  hausse de points **déclare sa nature** (`recovered` / `temporary` /
+  `declared`) ; une hausse muette **jette**. **Un seul compteur** : rien n'est
+  distingué sous le plafond, conformément à « tant que je ne suis pas
+  au-dessus de mon score, les temporaires se comportent comme des
+  récupérations ».
+- **B — la Vibration est revenue.** Un critique arcanique signale
+  `{sides, level}` (d4→1 … d12→5). **Le moteur ne lit aucun texte de carte** ;
+  un test le prouve avec un texte-piège posé sur l'Arcane du personnage.
+
+## 1. ⚠️ Il n'existait AUCUN chemin de récupération dans le moteur
+
+**Le fait.** Les trois seules hausses que le moteur portait — pioche d'Arcane,
+1 naturel accepté, +1 de l'« Accept » — sont **toutes des temporaires**. Le
+plafond aurait donc été du **code mort derrière une intention** (loi §0.6).
+
+**Ce que le lot a fait.** Un verbe `recoverDestiny({amount?, reason?})`, seul
+chemin borné par le Score. `amount` vaut **1** par défaut, et c'est le seul
+nombre que la règle écrite chiffre (§2). Ce qu'une espèce (**Twice-Born** :
+2/jour) ou un Arcane (**l'Impératrice**) y ajoute **descend de la couche** par
+`amount` — le moteur ne le devine pas.
+
+**À ratifier** : le nom du verbe, et le fait qu'il ne connaisse pas la notion
+de « repos long ». Il connaît **une récupération**, ce que la règle plafonne.
+
+## 2. Une valeur de points POSÉE À LA MAIN est-elle plafonnée ?
+
+`setDestinyField` la traite comme `declared`, donc **non bornée** : la borner
+empêcherait de rattraper un état de séance, et **aucune règle d'Eric ne couvre
+ce cas**. C'est le seul des trois chemins qui n'a pas de phrase derrière lui.
+**Non tranché par le lot.**
+
+## 3. Un critique arcanique OBTENU PAR REFUS déclenche-t-il une Vibration ?
+
+Refuser un 1 sur un dé de Destinée (§3.4) fait lire le 1 comme la face la plus
+haute : les règles l'appellent explicitement un **Arcane Critical Success**.
+Mais ce n'est pas un maximum **lancé**, et la Vibration est décrite comme
+« an optional temporary effect **on a critical Destiny roll** ».
+
+**Le moteur ne signale rien dans ce cas** — le choix conservateur, faute de
+phrase. **À trancher par Eric**, et c'est une vraie question de jeu : refuser
+coûte déjà tous les points et un 2d6 de Chaos.
+
+## 4. Où vit l'Arcane du personnage ?
+
+La Vibration se déclenche si `character.destinyBuild.arcana` existe — **le
+chemin de la v1**, celui que le moteur lit déjà pour `destinyBuild.score`. Le
+schéma, lui, nomme **GAP-KIND** (`destiny.arcana.id`, `schemas/CHOIX-LOT-B.md`)
+: l'Arcane n'a **pas encore de place ratifiée** dans `fh-char/1`.
+
+Le lot **n'a rien écrit au schéma** (`schemas/` appartient à l'architecte). Il
+lit un chemin v1 en attendant, et **rien du contenu de la carte**.
+
+## 5. « Peut-être une ou deux exceptions de plus » — je n'en ai trouvé aucune
+
+Eric a nommé trois sources temporaires et laissé la porte ouverte. En relisant
+les deux chapitres, **une seule candidate** apparaît, et elle est **hors
+moteur** : §2 cite le sort **[Ceremony](https://www.dndbeyond.com/spells/14760-ceremony)**
+(une fois par repos long, meilleur avec un sacrifice plus riche) comme autre
+source de points temporaires. C'est du **contenu de sort**, pas une mécanique
+de moteur : il appellerait `recoverDestiny`… ou une hausse `temporary`,
+**selon ce que l'architecte décide**. Elle est **remontée, pas classée**.
+
+*(Les points d'un Éveil — mineur comme majeur — sont déjà couverts : ils
+passent par `settleAwakening`, en `temporary`.)*
+
+## 6. Le vocabulaire interdit a gagné un mot, et il fallait le mesurer
+
+`HOUSE_MECHANICS` ne portait pas `vibration` — **pour la bonne raison qu'aucun
+fichier ne l'écrivait**. Un vocabulaire interdit ne peut pas garder un mot que
+personne n'a encore écrit ; le jour où la mécanique rentre, il doit rentrer
+avec elle, sinon le premier `entry.vibrationLevel` posé dans `src/play/`
+passerait exactement comme `arcana` est passé.
+
+**Mesuré avant de poser** : zéro occurrence hors de `src/modules/fh/`, aucune
+suite ne rougit. Deux probes hostiles ajoutés à `guards-adversarial`.
+
+---
+
+## Hors questions — deux remarques pour la fusion
+
+1. **Le compte de badges passe de 14 à 15** (`play-roll-vocabulary`), et le
+   partage bouge d'un cran vers la couche : **5 SRD + 10 FH**. Le badge
+   `vibration` est déclaré à la priorité 75, entre la dépense de Destinée (70)
+   et le refus arcanique (80). `contracts/play.md` est à jour, marqué
+   `REWRITTEN`.
+2. **Deux de mes propres tests étaient VERTS EN NE PROUVANT RIEN** avant d'être
+   corrigés : ils posaient l'Arcane du personnage **avant** `h.reset()`, qui
+   resème `state.character` avec la fiche du harnais. Le texte-piège n'avait
+   donc jamais approché le moteur. C'est la même famille que le piège
+   « une preuve peut cesser de prouver sans que personne n'y touche », et le
+   commentaire qui l'explique est resté dans `tests/fh-destiny.test.mjs`.

@@ -45,6 +45,7 @@ export const FH_EN = {
   "badge.destiny-spend": (d) =>
     (d.criticalSuccess ? "∞ critical" : d.criticalFailure ? "∞ fumble" : "Destiny d" + d.sides + "=" + d.result)
     + (d.change ? " · " + (d.change > 0 ? "+" : "") + d.change + " pt → " + d.pointsAfter : ""),
+  "badge.vibration": (d) => "Vibration · d" + d.sides + " · spell level " + d.level,
   "badge.arcane-fate-refused": (d) => "Arcane fate refused · 1 → " + d.sides,
   "badge.overreach": (d) => "Overreach " + d.overreach + " · save DC " + d.dc,
   "badge.destiny-points": (d) => d.reason + " · Destiny " + d.after,
@@ -96,6 +97,7 @@ export const FH_EN = {
   "fh.reason.manual-pool": (d) => "Manual d" + d.sides + " pool correction",
   "fh.reason.correction": "Correction",
   "fh.reason.manual-correction": "Manual correction",
+  "fh.reason.recovery": "Destiny recovery",
   "fh.reason.fate-refused": "Arcane fate refused",
   "fh.reason.fate-accepted": "Fumble 1 accepted",
   "fh.reason.invoked-chaos": "Invoked Chaos",
@@ -112,6 +114,11 @@ export const FH_EN = {
   "fh.event.points-current": (d) => "Current " + d.points,
   "fh.event.destiny-rolled": (d) => "Destiny d" + d.sides + " rolled " + d.result,
   "fh.event.arcane-critical": (d) => "∞ CRITICAL · Destiny d" + d.sides + " rolled " + d.result,
+  /* La Vibration est un NIVEAU, jamais un sort : le moteur ne connaît aucun
+     texte de carte, et ce mot-ci n'en nomme aucun non plus. */
+  "fh.event.vibration": (d) => "VIBRATION · d" + d.sides + " · spell level " + d.level + " · optional",
+  "fh.event.recovery-capped": (d) =>
+    "RECOVERY CAPPED · Destiny Score " + d.score + " · " + points(d.lost) + " not recovered · Current " + d.points,
   "fh.event.arcane-fumble": (d) => "∞ FUMBLE · Destiny d" + d.sides + " rolled 1",
   "fh.event.chaos-risk": (d) =>
     "CHAOS RISK · Overreach " + d.overreach + " · " + (d.ability || "Ability") + " save DC " + d.dc + " · pending",

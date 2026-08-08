@@ -58,6 +58,10 @@ export const FH_BADGES = [
       };
     }
   },
+  /* La Vibration sur la ligne du jet. `data` rend le NIVEAU et la taille du dé,
+     et c'est tout ce que le moteur en sait : l'effet est celui que porte
+     l'Arcane du personnage, et il vit dans une couche de contenu. */
+  { id: "vibration", k: "destiny", spoiler: true, priority: 75, when: (e) => !!(e.destiny && e.destiny.vibration), data: (e) => ({ sides: e.destiny.vibration.sides, level: e.destiny.vibration.level }) },
   { id: "arcane-fate-refused", k: "chaos", spoiler: true, priority: 80, when: (e) => !!(e.destiny && e.destiny.arcaneChoice === "chaos"), data: (e) => ({ sides: e.destiny.sides }) },
   { id: "overreach", k: "chaos", spoiler: true, priority: 90, when: (e) => !!(e.destiny && e.destiny.chaos), data: (e) => ({ overreach: e.destiny.chaos.overreach, dc: e.destiny.chaos.dc }) },
   { id: "destiny-points", k: "destiny", spoiler: true, priority: 100, when: (e) => !!e.destinyPointChange, data: (e) => ({ reason: e.destinyPointChange.reason, after: e.destinyPointChange.after }) },
