@@ -159,13 +159,13 @@ promettre.
 
 ## Les modules de statistique — le protocole d'injection
 
-> ⚠️ **Porté au contrat le 2026-08-10, et c'était une dette de l'architecte.**
+> ⚠️ **Porté au contrat le 2026-08-09, et c'était une dette de l'architecte.**
 > Ce protocole vivait dans l'en-tête de `src/build/derive.mjs` et dans
 > `INVENTAIRE-LOT-19.md` §2 — un commentaire et un rapport daté, ni l'un ni
 > l'autre ratifiés. Le lot 20 a demandé sa mise au contrat **explicitement**, et
 > il avait raison : deux lots ont déjà écrit contre cette forme sans qu'elle
 > soit nulle part opposable. ⚠️ Et l'inventaire du lot 19 décrit la forme
-> **d'avant** la généralisation du 2026-08-09 : il ne connaît ni `records`, ni
+> **d'avant** la généralisation du 2026-08-08 : il ne connaît ni `records`, ni
 > `refs`, ni `consumed`. **Ne le lis plus comme le contrat** — c'est ici.
 
 Une statistique dérivée est produite par un **module activé par un drapeau**,

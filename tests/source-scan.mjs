@@ -272,7 +272,7 @@ export const LAYER_NAMES = [
 ];
 
 /* ── §0.12 CONTRE L'ÉNUMÉRATION FERMÉE DES GENRES ────────────────────
-   LA COLLISION, MESURÉE LE 2026-08-09, en ouvrant le genre `arcana`.
+   LA COLLISION, MESURÉE LE 2026-08-08, en ouvrant le genre `arcana`.
 
    Deux règles vraies se contredisent à la lettre :
 
@@ -300,7 +300,7 @@ export const LAYER_NAMES = [
 
    ⚠️ PORTÉE : le masque ne s'applique qu'à `src/layers/`, LE BLOC QUI POSSÈDE
    le vocabulaire des genres. Aucun autre bloc n'a le droit de nommer un
-   genre, et aucun ne le fait — vérifié le 2026-08-09 en retirant la liste
+   genre, et aucun ne le fait — vérifié le 2026-08-08 en retirant la liste
    des genres de la description MCP, où elle n'était qu'une copie du contrat
    (et où elle avait DÉJÀ dérivé : elle annonçait 14 genres après la révision
    qui en avait fait 15). */

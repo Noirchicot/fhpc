@@ -317,7 +317,7 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
    reste à décider **qui écrit le pont**, et si `ruleValues` remplace à terme
    le `layer.rules` du moteur.
 
-   ### ⚠️ CE QUI EST DÉJÀ VRAI, ET QU'IL NE FAUT PAS « RÉPARER » — mesuré le 2026-08-10
+   ### ⚠️ CE QUI EST DÉJÀ VRAI, ET QU'IL NE FAUT PAS « RÉPARER » — mesuré le 2026-08-09
 
    **Le chiffre de l'Épuisement N'EST PAS un trou de comportement.** Une sonde
    d'architecte a monté les deux piles et lu la pénalité réelle :
@@ -325,7 +325,7 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
    | Pile montée | Niveau 3 | Par degré |
    |---|---|---|
    | SRD pur | −6 | **−2** (SRD 5.2.1 p.181) |
-   | avec la couche FH | −3 | **−1** (intention d'Eric, confirmée par lui le 2026-08-10) |
+   | avec la couche FH | −3 | **−1** (intention d'Eric, confirmée par lui le 2026-08-09) |
 
    C'est **déjà câblé** par la surcharge `layer.rules` et **déjà épinglé par un
    test** (`tests/play-srd-only.test.mjs:482-483`). Un document de passation a
@@ -376,7 +376,7 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
 7. **`ARCHITECTURE.md` dit encore « les 12 genres `fh-srd` ».** La révision du
    2026-08-08 en a fait 14 (`skill`, `class-progression`). Même remarque :
    fichier canonique, correction d'un mot, pas touché par ce lot.
-   ✅ **CORRIGÉ le 2026-08-09**, en même temps que l'ouverture d'`arcana` :
+   ✅ **CORRIGÉ le 2026-08-08**, en même temps que l'ouverture d'`arcana` :
    `ARCHITECTURE.md` dit 15 genres, et distingue les 14 qui viennent de
    `fh-srd` du premier qui vient de Fate's Hand.
 

@@ -110,7 +110,7 @@ son défaut :
 | Situation | Verdict | Pourquoi |
 |---|---|---|
 | **Aucun choix** `fh.destiny.arcana` | **déclaré**, en nommant le choix qui manque | le personnage ne nomme aucune carte |
-| **Un choix, et le genre répond VIDE** | **déclaré**, en nommant la carte portée, `GAP-KIND clos` et la couche `fh-arcana-en` à monter | le contrat est là depuis le 2026-08-09 ; c'est le **contenu** qui n'est pas monté |
+| **Un choix, et le genre répond VIDE** | **déclaré**, en nommant la carte portée, `GAP-KIND clos` et la couche `fh-arcana-en` à monter | le contrat est là depuis le 2026-08-08 ; c'est le **contenu** qui n'est pas monté |
 | **Un choix, le genre est peuplé, la carte n'y est pas** | **JETTE** | `ref` **mort** : le personnage a été construit sur une couche qui n'est plus là, et compter 0 lui volerait jusqu'à 2 points |
 
 C'est `records(kind)` **sans id** qui permet de séparer les deux derniers : le

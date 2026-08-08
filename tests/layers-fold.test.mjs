@@ -181,7 +181,7 @@ test("ATTAQUE — un genre hors de l'énumération JETTE, il ne rend pas une lis
   const { verbs } = makeBlock();
   verbs.register({ bytes: socle, origin: "socle" });
   rejects(() => verbs.query({ kind: "spel" }), /genre inconnu/, "une requête sur « spel »");
-  /* REWRITTEN 2026-08-09 — `arcana` était l'exemple du « genre FH à venir ».
+  /* REWRITTEN 2026-08-08 — `arcana` était l'exemple du « genre FH à venir ».
      Il est VENU : l'architecte l'a ouvert dans les deux schémas (trou
      GAP-KIND clos). L'assertion n'est pas relâchée, elle change de sujet —
      `boon` prend le rôle, c'est un genre FH réellement absent de
@@ -193,13 +193,13 @@ test("ATTAQUE — un genre hors de l'énumération JETTE, il ne rend pas une lis
   assert.deepEqual(verbs.query({ kind: "spell" }), [], "un genre vrai que la pile ne porte pas rend une liste vide");
   assert.equal(verbs.query({ kind: "spell", id: "socle:spell:fr:x" }), null);
 
-  /* AJOUTÉ 2026-08-09 — LA RÉCIPROQUE, sur le genre qui vient d'être ouvert.
+  /* AJOUTÉ 2026-08-08 — LA RÉCIPROQUE, sur le genre qui vient d'être ouvert.
      C'est la moitié qui se serait perdue : `arcana` ne jette plus, et il ne
      doit pas non plus faire semblant de porter quelque chose. Tant qu'aucune
      couche ne monte les 22 cartes, il répond une liste VIDE — la réponse
      « ce genre existe, la pile n'en porte rien », qui est exactement ce que
      le module de Destinée déclare aujourd'hui. */
-  assert.deepEqual(verbs.query({ kind: "arcana" }), [], "`arcana` est légal depuis le 2026-08-09 : vide, pas un refus");
+  assert.deepEqual(verbs.query({ kind: "arcana" }), [], "`arcana` est légal depuis le 2026-08-08 : vide, pas un refus");
   assert.equal(verbs.query({ kind: "arcana", id: "fh:arcana:en:the-hermit" }), null);
 });
 

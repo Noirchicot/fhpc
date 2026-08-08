@@ -30,7 +30,7 @@ import { createHash } from "node:crypto";
 
 /* Les 15 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
-   du lot 6-srd-tables. RÉVISION DU 2026-08-09 : `arcana` est le genre 15 — et
+   du lot 6-srd-tables. RÉVISION DU 2026-08-08 : `arcana` est le genre 15 — et
    le PREMIER qui ne vienne pas de fh-srd. Les 14 autres sont les 14 fichiers
    d'export SRD ; celui-ci porte les 22 Arcanes majeurs de Fate's Hand, qui
    n'existent dans aucun SRD. `src/tools/gen-srd-layer.mjs` garde donc sa

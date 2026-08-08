@@ -101,7 +101,7 @@ const FORBIDDEN = [
  *  `src/mcp/`, alors que `src/layers/` EST le bloc qui porte le SRD. Mesuré
  *  avant de poser, comme le veut la règle : zéro occurrence dans les quatre
  *  fichiers du bloc, aucune suite ne rougit. */
-/* RÉVISION DU 2026-08-09 — le masque du vocabulaire des genres.
+/* RÉVISION DU 2026-08-08 — le masque du vocabulaire des genres.
    `src/layers/` est LE bloc qui possède l'énumération fermée, et depuis que
    `arcana` y est entré, le garde §0.12 mordait sur une clef de vocabulaire.
    Le masque retire le genre ENTRE GUILLEMETS et rien d'autre ; sa liste est
@@ -208,7 +208,7 @@ test("ATTAQUE DU GARDE — chacun des interdits, violé une fois, est vu et NOMM
 });
 
 test("ATTAQUE DU MASQUE DE VOCABULAIRE — il exempte la clef de genre, RIEN d'autre", () => {
-  /* Le masque ajouté le 2026-08-09 est une EXEMPTION à une loi ratifiée
+  /* Le masque ajouté le 2026-08-08 est une EXEMPTION à une loi ratifiée
      (§0.12). Une exemption qu'on n'attaque pas est une porte ouverte qu'on a
      décrite comme une serrure — d'où ce test, écrit en même temps qu'elle.
 

@@ -116,7 +116,7 @@ export const SPELL_TEXT_MAX = 4000;
       namespace du module, dans l'ordre du document, chacun avec le chemin qui
       l'a nommé et son `kind`. Le module filtre sur le genre qui l'intéresse.
 
-      ⚠️ GÉNÉRALISÉ PAR L'ARCHITECTE LE 2026-08-09, et c'était sa dette, pas
+      ⚠️ GÉNÉRALISÉ PAR L'ARCHITECTE LE 2026-08-08, et c'était sa dette, pas
       une amélioration de confort. Le lot 20 avait dû ouvrir un canal
       `feats` — la seule forme que sa section autorisait — parce qu'un don
       d'origine vit sous `background.originFeat[0]`, hors de tout namespace,

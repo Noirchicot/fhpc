@@ -119,7 +119,7 @@ test("ATTAQUE — un genre inconnu, et le presque-genre qui ressemble au vrai", 
   /* Et TOUS les vrais passent — un garde qui refuse tout est aussi faux qu'un
      garde qui accepte tout. La boucle lit `GENRES`, elle ne compte pas : un
      compte écrit à la main serait faux au prochain genre ouvert (il l'a été
-     le 2026-08-09, avec `arcana`). */
+     le 2026-08-08, avec `arcana`). */
   const records = {};
   for (const genre of GENRES) records[genre] = {};
   assert.doesNotThrow(() => assertLayerShape(aLayer({ records }), "t"));
@@ -209,7 +209,7 @@ test("ATTAQUE DU GARDE DE DÉRIVE — il voit un genre de plus ajouté au schém
   /* La leçon du 2026-08-08 : un garde vert qu'on n'a jamais violé ne prouve
      rien. On le viole ici, sur chacune des deux formes qu'il compare.
 
-     REWRITTEN 2026-08-09 — LE FANTÔME ÉTAIT DEVENU RÉEL. L'attaque ajoutait
+     REWRITTEN 2026-08-08 — LE FANTÔME ÉTAIT DEVENU RÉEL. L'attaque ajoutait
      `arcana` au schéma seul ; depuis que l'architecte a ouvert ce genre,
      `GENRES.concat("arcana")` ne fabrique plus un genre inconnu mais un
      DOUBLON. Le test serait resté VERT — pour la mauvaise raison, en

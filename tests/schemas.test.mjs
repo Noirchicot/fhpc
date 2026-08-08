@@ -150,7 +150,7 @@ test("REJET — choix ne portant ni ref ni value", () => {
 
 test("REJET — référence de choix vers un genre hors de l'énumération", () => {
   const doc = clone(charExample);
-  /* REWRITTEN 2026-08-09 — le cobaye était `arcana`, et il est devenu LÉGAL
+  /* REWRITTEN 2026-08-08 — le cobaye était `arcana`, et il est devenu LÉGAL
      (révision d'architecte, trou GAP-KIND clos). Garder ce test tel quel
      l'aurait rendu vert pour la mauvaise raison le jour où le schéma aurait
      re-fermé le genre par accident. `boon` prend le rôle : genre FH réel,
@@ -160,7 +160,7 @@ test("REJET — référence de choix vers un genre hors de l'énumération", () 
 });
 
 test("ACCEPTÉ — un personnage DIT quel Arcane il porte, par le mécanisme de choix", () => {
-  /* AJOUTÉ 2026-08-09. C'est l'assertion qui démontre ce que la révision du
+  /* AJOUTÉ 2026-08-08. C'est l'assertion qui démontre ce que la révision du
      genre `arcana` ouvre RÉELLEMENT, et elle valait mieux qu'un commentaire :
      la question « où vit l'Arcane du personnage ? » (QUESTIONS-ARCHITECTE §4,
      ouverte depuis le lot 16) n'appelait AUCUN champ neuf. `$defs/kind` est

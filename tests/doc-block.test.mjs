@@ -511,16 +511,16 @@ test("duplicate — un id neuf que L'APPELANT nomme, et une copie qui date d'auj
   source.modified = "2026-02-02T00:00:00Z";
   verbs.save({ document: source });
 
-  now.set("2026-08-09T09:30:00Z");
+  now.set("2026-08-08T09:30:00Z");
   const copie = verbs.duplicate({ id: "aldra", as: "aldra-variante" });
   assert.equal(copie.from, "aldra");
   assert.equal(copie.id, "aldra-variante");
 
   const document = verbs.open({ id: "aldra-variante" }).document;
   assert.equal(document.id, "aldra-variante");
-  assert.equal(document.created, "2026-08-09T09:30:00Z",
+  assert.equal(document.created, "2026-08-08T09:30:00Z",
     "une copie est un document NEUF : le laisser prétendre avoir été créé avant d'exister est un mensonge daté");
-  assert.equal(document.modified, "2026-08-09T09:30:00Z");
+  assert.equal(document.modified, "2026-08-08T09:30:00Z");
   assert.equal(document.name, "Aldra", "tout le reste est recopié à l'identique");
   assert.deepEqual(document.build, source.build);
 
