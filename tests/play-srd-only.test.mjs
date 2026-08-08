@@ -323,11 +323,11 @@ test("D.5 — le donneur décrémente sa ressource, le receveur reçoit un dé Q
     poolResources: [{ id: "bardic-uses", label: "Bardic", kind: "count", sides: 6, count: 3, tint: "violet", correction: "bardic" }]
   });
 
-  const gift = giver.verbs.giveDie({ source: "bardic", poolResourceId: "bardic-uses", to: "Aldra", timing: "ahead" });
+  const gift = giver.verbs.giveDie({ source: "bardic", poolResourceId: "bardic-uses", to: "Aldra", timing: "advance" });
   assert.equal(gift.schema, "fh-die-gift/1");
   assert.equal(gift.from, "Lyra", "le don sait de qui il vient");
   assert.equal(gift.to, "Aldra");
-  assert.equal(gift.timing, "ahead");
+  assert.equal(gift.timing, "advance");   // REWRITTEN 2026-08-08 : `ahead` → `advance`, aligné sur le contrat
   assert.equal(giver.t.poolResourceById("bardic-uses").count, 2, "le DONNEUR décrémente SA ressource, et personne d'autre");
   assert.ok(giver.emitted.some((event) => event.type === "die-given"), "et il émet un événement — le transport est du bloc `table`");
 
@@ -347,7 +347,7 @@ test("D.5 — le donneur décrémente sa ressource, le receveur reçoit un dé Q
   assert.deepEqual(Object.keys(received.origin).sort(), ["expiresAt", "from", "givenAt", "source", "timing"]);
   assert.equal(received.origin.from, "Lyra", "et elle porte qui l'a donné");
   assert.equal(received.origin.source, "bardic", "quelle source");
-  assert.equal(received.origin.timing, "ahead", "et quelle fenêtre de validité");
+  assert.equal(received.origin.timing, "advance", "et quelle fenêtre de validité");   // REWRITTEN 2026-08-08
 
   // Un dé reçu se dépense exactement comme un dé qu'on possédait déjà.
   receiver.queueRolls(5);
@@ -370,11 +370,11 @@ test("D.5 — « à l'avance » et « en réaction » sont DEUX portes, pas une"
   const h = srdOnly();
 
   // À l'avance : le dé attend, rien n'est stagé.
-  const ahead = h.verbs.receiveDie({
-    schema: "fh-die-gift/1", from: "Lyra", to: "Aldra", timing: "ahead", givenAt: "2026-08-08T00:00:00.000Z",
+  const advance = h.verbs.receiveDie({
+    schema: "fh-die-gift/1", from: "Lyra", to: "Aldra", timing: "advance", givenAt: "2026-08-08T00:00:00.000Z",
     die: { source: "bardic", sides: 6, label: "Bardic", tint: "violet", kind: "die", count: 1, correction: "bardic" }
   });
-  assert.equal(h.t.poolResourceById(ahead.id).count, 1, "il attend sur la fiche");
+  assert.equal(h.t.poolResourceById(advance.id).count, 1, "il attend sur la fiche");
   assert.equal(h.t.stagedList().length, 0, "et rien n'est posé dans une main qui n'existe pas encore");
 
   // En réaction, sur un jet OUVERT : il se pose tout de suite.
@@ -530,17 +530,20 @@ test("D.2 — la transaction de jet reste ROUVRABLE, et sans la couche aussi", (
   assert.equal(h.queueEmpty(), 0);
 });
 
-test("D.5 — la provenance survit à un aller-retour DANS `play`, et bute sur le schéma", () => {
+/* REWRITTEN 2026-08-08 (architecte) — le titre disait « et bute sur le schéma »,
+   et ce n'est plus vrai : le contrat a accueilli la provenance. Le RELECTEUR
+   Adverserial a montré que les deux bouts ne parlaient pas la même langue, et
+   l'écart est réconcilié — `timing` des deux côtés, `advance` au lieu de
+   `ahead`, `givenAt` entré au contrat. La conformité est désormais prouvée par
+   tests/frontiere-doc-moteur.test.mjs, qui compile une sortie de `snapshot()`
+   contre `fh-char/1`. Assertions réécrites à la nouvelle vérité, pas relâchées. */
+test("D.5 — la provenance survit à un aller-retour DANS `play`, et passe le schéma", () => {
   /* Le bloc rend au document ce qui lui appartient (`snapshot`) et le reprend
      (`open`). La provenance traverse ce trajet-là : elle est normalisée dans
-     les deux sens, et rien ne l'élague en route.
-     ⚠️ Là où elle NE passe PAS, c'est au schéma : `resolved.resources[]` de
-     `fh-char/1` porte `additionalProperties: false` et n'a aucun champ de
-     provenance. Ce test fixe la forme dont le moteur a besoin ; c'est
-     l'architecte qui l'écrit au contrat (COUPE-LOT-5.md §8). */
+     les deux sens, et rien ne l'élague en route. */
   const h = srdOnly();
   const received = h.verbs.receiveDie({
-    schema: "fh-die-gift/1", from: "Lyra", to: "Aldra", timing: "ahead", givenAt: "2026-08-08T00:00:00.000Z",
+    schema: "fh-die-gift/1", from: "Lyra", to: "Aldra", timing: "advance", givenAt: "2026-08-08T00:00:00.000Z",
     die: { source: "bardic", sides: 6, label: "Bardic", tint: "violet", kind: "die", count: 1, correction: "bardic" }
   });
   const kept = h.verbs.snapshot();
@@ -553,7 +556,7 @@ test("D.5 — la provenance survit à un aller-retour DANS `play`, et bute sur l
   next.verbs.open({ character: { name: "Aldra" }, pseudo: "Aldra", poolResources: kept.poolResources });
   const reopened = next.t.poolList()[0];
   assert.deepEqual(reopened.origin, {
-    from: "Lyra", source: "bardic", timing: "ahead",
+    from: "Lyra", source: "bardic", timing: "advance",
     givenAt: carried.origin.givenAt, expiresAt: null
   }, "qui l'a donné, quelle source, quelle fenêtre — rien n'est tombé en route");
 });

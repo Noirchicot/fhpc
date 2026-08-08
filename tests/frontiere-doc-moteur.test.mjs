@@ -58,44 +58,52 @@ function engineOrigin() {
 }
 
 test("le contrat SAIT décrire une provenance — le sous-schéma n'est pas cassé", () => {
-  /* Le témoin : la forme que l'architecte a écrite passe. Sans lui, un rejet
-     ci-dessous ne prouverait rien (un schéma qui refuse tout « détecte » tout). */
-  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", window: "advance" }), true,
+  /* Le témoin : sans lui, une VALIDATION ci-dessous ne prouverait rien de plus
+     qu'un rejet ne le faisait (un schéma qui accepte tout « valide » tout). */
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", timing: "advance" }), true,
     ajv.errorsText(validateOrigin.errors));
-  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", window: "reaction", expires: "2026-08-08T01:00:00.000Z" }), true,
-    ajv.errorsText(validateOrigin.errors));
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic" }), true,
+    "une provenance minimale — qui a donné, quelle règle — suffit");
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", timing: "plus tard" }), false,
+    "et le contrat refuse toujours une fenêtre inventée : ce témoin-ci mord dans l'autre sens");
 });
 
-test("FRONTIÈRE — la provenance que le moteur PERSISTE ne valide PAS contre fh-char/1", () => {
+/* REWRITTEN 2026-08-08 (architecte) — ce fichier épinglait une DIVERGENCE.
+   Le RELECTEUR Adverserial l'avait écrit pour que la frontière ne puisse plus
+   être invisible, en demandant explicitement qu'on le réécrive à la nouvelle
+   vérité le jour où quelqu'un réconcilierait les deux bouts (loi §0.7).
+   C'est fait : le moteur dit désormais `window`/`advance` comme le contrat, et
+   le contrat a accueilli `givenAt` et `expiresAt: null`. Le test change donc de
+   sens — il ne constate plus l'écart, il interdit qu'il revienne. */
+test("FRONTIÈRE — la provenance que le moteur PERSISTE valide contre fh-char/1", () => {
   const origin = engineOrigin();
 
   // Ce que le moteur écrit, aujourd'hui, mot pour mot.
   assert.deepEqual(Object.keys(origin).sort(), ["expiresAt", "from", "givenAt", "source", "timing"]);
-  assert.equal(origin.timing, "ahead");
+  assert.equal(origin.timing, "advance");
 
-  const ok = validateOrigin(origin);
-  assert.equal(ok, false,
-    "si ce test devient rouge ICI, c'est que quelqu'un a réconcilié les deux bouts : réécrire ce fichier à la nouvelle vérité (loi §0.7), ne pas le supprimer");
-
-  /* Les quatre divergences, nommées une à une — un « ça ne valide pas » global
-     ne dirait pas QUOI réconcilier. */
-  const rejected = new Set(validateOrigin.errors.map((e) => e.params.additionalProperty).filter(Boolean));
-  assert.ok(rejected.has("timing"), "le moteur dit `timing`, le contrat dit `window`");
-  assert.ok(rejected.has("expiresAt"), "le moteur dit `expiresAt`, le contrat dit `expires`");
-  assert.ok(rejected.has("givenAt"),
-    "TROU DE CONTRAT — `givenAt` n'a aucun champ d'accueil dans fh-char/1 : c'est la seule des quatre qui ne se règle pas par un renommage (question ouverte à l'architecte)");
-
-  // Et la valeur elle-même n'est pas dans l'énumération du contrat.
-  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", window: origin.timing }), false,
-    "le moteur dit `ahead`, le contrat énumère `advance` | `reaction`");
+  assert.equal(validateOrigin(origin), true,
+    "LA POIGNÉE DE MAIN A LIEU POUR DE VRAI : " + ajv.errorsText(validateOrigin.errors));
 });
 
-test("FRONTIÈRE — `expiresAt: null` ne passe pas non plus, même une fois renommé", () => {
-  /* Le moteur écrit `null` quand le dé ne périme pas ; le contrat exprime la
-     même chose par l'ABSENCE du champ (`$comment` : « Quand elle est absente,
-     le dé ne périme pas de lui-même »). Deux façons de dire « pas
-     d'échéance » : c'est la cinquième chose à trancher, et la moins visible. */
-  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", expires: null }), false);
+test("FRONTIÈRE — `expiresAt: null` est admis, et il ne veut pas dire la même chose qu'absent", () => {
+  /* Le moteur écrit `null` quand le dé ne périme pas. Le contrat l'admet
+     EXPLICITEMENT plutôt que d'exiger l'absence : `null` dit « j'ai regardé, il
+     n'y en a pas », l'absence dirait « personne n'a regardé ». Les deux sont
+     valides, ils ne portent pas la même information. */
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", expiresAt: null }), true,
+    ajv.errorsText(validateOrigin.errors));
   assert.equal(validateOrigin({ from: "Lyra", source: "bardic" }), true,
-    "l'absence est la façon dont le contrat dit « pas d'échéance »");
+    "l'absence reste valide elle aussi");
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", expires: null }), false,
+    "en revanche l'ANCIEN nom est mort : `expires` n'existe plus, il fait paire avec givenAt sous le nom expiresAt");
+});
+
+test("FRONTIÈRE — le trou de contrat `givenAt` est bouché, et il porte une vraie date", () => {
+  const origin = engineOrigin();
+  assert.match(origin.givenAt, /^\d{4}-\d{2}-\d{2}T/, "le moteur horodate le don");
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", givenAt: origin.givenAt }), true,
+    ajv.errorsText(validateOrigin.errors));
+  assert.equal(validateOrigin({ from: "Lyra", source: "bardic", givenAt: "hier" }), false,
+    "et le contrat ne prend pas n'importe quoi pour une date — sans quoi expiresAt ne se calcule sur rien");
 });

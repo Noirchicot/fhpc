@@ -483,13 +483,20 @@
                     "$comment": "La règle qui autorise le don, en identifiant machine — jamais un libellé affichable (loi §0.13). Ex. `bardic-inspiration`. C'est elle qui dit comment le dé se dépense, pas ce champ.",
                     "$ref": "#/$defs/slug"
                   },
-                  "window": {
-                    "$comment": "Quand le dé peut servir. `advance` : donné à l'avance, il attend. `reaction` : donné pendant une transaction de jet ouverte. Absent = pas de contrainte de fenêtre connue, et le moteur DOIT le dire plutôt que d'en supposer une.",
+                  "timing": {
+                    "$comment": "Quand le dé peut servir. `advance` : donné à l'avance, il attend. `reaction` : donné pendant une transaction de jet ouverte. Absent = pas de contrainte connue, et le moteur DOIT le dire plutôt que d'en supposer une. ⚠️ NOMMÉ `timing` ET NON `window`, et ce n'est pas un détail : l'architecte avait d'abord écrit `window`, et le garde zéro-DOM de src/play/ l'a refusé en quelques minutes — `window` est l'identifiant du global navigateur, et un champ qui le porte ressemblera éternellement au DOM, pour un scanner comme pour un lecteur.",
                     "enum": ["advance", "reaction"]
                   },
-                  "expires": {
-                    "$comment": "Échéance facultative — un dé de Bardic vaut « une heure » dans le SRD. Quand elle est absente, le dé ne périme pas de lui-même.",
+                  "givenAt": {
+                    "$comment": "AJOUT DU 2026-08-08 — trou de contrat trouvé par le RELECTEUR Adverserial. Le moteur écrivait `givenAt` depuis le lot 5 et le contrat l'ignorait, donc `additionalProperties: false` rejetait toute provenance persistée. C'était le défaut de l'architecte : il avait écrit ce sous-schéma depuis le DOCUMENT du lot 5 au lieu de son CODE, et aucune suite ne confrontait les deux bouts — la poignée de main avait eu lieu dans le vide. Ce champ n'est pas décoratif : `expiresAt` ne se vérifie pas sans le moment du don.",
                     "$ref": "#/$defs/timestamp"
+                  },
+                  "expiresAt": {
+                    "$comment": "Échéance facultative — un dé de Bardic vaut « une heure » dans le SRD. `null` est EXPLICITEMENT admis et ne vaut pas absence : le moteur qui écrit `null` dit « j'ai regardé, il n'y en a pas », là où un champ absent dirait « personne n'a regardé ». Nommé `expiresAt` et non `expires` pour faire paire avec `givenAt` — deux instants, un seul suffixe.",
+                    "oneOf": [
+                      { "$ref": "#/$defs/timestamp" },
+                      { "type": "null" }
+                    ]
                   }
                 }
               }

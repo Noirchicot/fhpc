@@ -520,7 +520,7 @@ test("don de dé — une ressource reçue porte sa provenance", () => {
   const doc = clone(charExample);
   doc.resolved.resources.push({
     id: "bardic-recu", name: "Inspiration bardique", max: 1, current: 1,
-    origin: { from: "Ellora", source: "bardic-inspiration", window: "advance" }
+    origin: { from: "Ellora", source: "bardic-inspiration", timing: "advance" }
   });
   assertValid(validateChar, doc, "le receveur détient un dé qui dit d'où il vient");
 });

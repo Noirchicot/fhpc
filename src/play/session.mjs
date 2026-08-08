@@ -969,9 +969,19 @@ export function createPlay({
     };
   }
 
+  /* ARBITRÉ PAR L'ARCHITECTE le 2026-08-08, après que le RELECTEUR Adverserial
+     a montré que ce moteur et `fh-char/1` ne parlaient PAS la même langue —
+     `timing`/`ahead` ici, `window`/`advance` au contrat, `givenAt` nulle part.
+     Chaque bout était testé chez lui et aucune suite ne les confrontait : la
+     poignée de main avait eu lieu dans le vide. Le défaut venait de
+     l'architecte, qui avait écrit le schéma depuis le DOCUMENT du lot 5 au lieu
+     de son CODE. C'est le moteur qui se déplace sur les deux noms — `window`
+     dit ce que le consommateur a besoin de savoir (quand le dé peut servir),
+     et c'est le mot de la décision d'Eric — et c'est le contrat qui accueille
+     `givenAt`, sans lequel `expiresAt` ne se calcule pas. */
   function normalizeOrigin(raw) {
     if (!raw || typeof raw !== "object") return undefined;
-    const timing = raw.timing === "reaction" ? "reaction" : "ahead";
+    const timing = raw.timing === "reaction" ? "reaction" : "advance";
     return {
       from: String(raw.from || "").slice(0, 60),
       source: String(raw.source || "").slice(0, 40),
@@ -1182,12 +1192,12 @@ export function createPlay({
      directement.
 
      Deux fenêtres, et ce sont DEUX PORTES, comme en D.1 :
-     - `ahead`    : le dé ATTEND sur la fiche du receveur, ressource comptée ;
+     - `advance`  : le dé ATTEND sur la fiche du receveur, ressource comptée ;
      - `reaction` : le dé arrive PENDANT une transaction ouverte et se stage. */
 
   /* Le bout DONNEUR : il décrémente SA ressource et émet un événement. Il ne
      touche à aucun autre document — le personnage appartient au joueur. */
-  function giveDie({ source, to, timing = "ahead", poolResourceId, dieId } = {}) {
+  function giveDie({ source, to, timing = "advance", poolResourceId, dieId } = {}) {
     const gift = giftSources[source];
     let offered = null;
     if (gift) {
