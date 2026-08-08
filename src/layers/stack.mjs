@@ -39,7 +39,7 @@
    ceinture qui rend la faute impossible même si la bretelle cède. */
 
 import { readLayer, assertGenre, GENRES } from "./document.mjs";
-import { applyChanges } from "./paths.mjs";
+import { applyPatch } from "./paths.mjs";
 import { LayerError } from "./document.mjs";
 
 const RECORD_FIELDS = ["name", "slug", "data", "attribution", "source", "contentHash"];
@@ -92,10 +92,13 @@ export function createLayers({ bus, ruleValueKeys } = {}) {
   let folded = fold([]);
 
   /* ── LE PLI ──────────────────────────────────────────────────────────
-     Le dernier qui parle gagne. `add` pose, `patch` modifie par id, `disable`
-     retire. Un `patch` ou un `disable` qui vise un record absent est un ÉCHEC
-     BRUYANT (§L7.2) : sans lui, une couche homebrew écrite pour une autre pile
-     s'appliquerait à moitié, en silence, et la table jouerait une fiche fausse. */
+     Le dernier qui parle gagne. `add` pose, `patch` modifie par id — et depuis
+     le lot 17, un `patch` peut aussi RETIRER (`remove`, une liste de chemins ;
+     voir `paths.mjs`) —, `disable` retire le record entier. Un `patch` ou un
+     `disable` qui vise un record absent est un ÉCHEC BRUYANT (§L7.2), et un
+     chemin de `remove` qui ne vise rien aussi : sans eux, une couche homebrew
+     écrite pour une autre pile s'appliquerait à moitié, en silence, et la table
+     jouerait une fiche fausse. */
   function fold(active) {
     const byGenre = new Map();
     const shadowed = [];
@@ -159,17 +162,21 @@ export function createLayers({ bus, ruleValueKeys } = {}) {
                 "sous elle — un patch dans le vide est un échec, pas un silence (§L7.2).");
             }
             const where = `la couche « ${layer.id} », patch de ${genre} « ${id} »`;
-            const { record, applied } = applyChanges(current.record, entry.changes, where);
+            /* `applyPatch` applique les RETRAITS puis les modifications —
+               l'ordre est démontré dans `paths.mjs` : c'est le seul des deux
+               qui fasse crier un patch qui se contredit, dans les deux sens. */
+            const { record, applied, removed } = applyPatch(current.record, entry, where);
             /* Le contentHash certifie le contenu CHEZ SA SOURCE. Le record
-               vient d'être modifié : le certificat ne le décrit plus, il tombe.
-               Le laisser serait affirmer une intégrité qu'on vient de rompre. */
+               vient d'être modifié ou amputé : le certificat ne le décrit plus,
+               il tombe. Le laisser serait affirmer une intégrité qu'on vient de
+               rompre — et retirer une aptitude la rompt autant qu'en changer une. */
             delete record.contentHash;
             records.set(id, {
               kind: genre, id,
               record,
               provenance: {
                 from: current.provenance.from,
-                patchedBy: current.provenance.patchedBy.concat({ by: layer.id, applied })
+                patchedBy: current.provenance.patchedBy.concat({ by: layer.id, applied, removed })
               }
             });
             continue;

@@ -16,7 +16,7 @@ import { createLayers } from "./stack.mjs";
 
 export { createLayers } from "./stack.mjs";
 export { GENRES, FORBIDDEN_KEYS, readLayer, assertLayerShape, sha256, LayerError } from "./document.mjs";
-export { PATCHABLE_ROOTS, parseChangePath, applyChanges } from "./paths.mjs";
+export { PATCHABLE_ROOTS, parseChangePath, applyChanges, applyRemoval, applyPatch } from "./paths.mjs";
 
 export function registerLayers(options = {}) {
   const layers = createLayers(Object.assign({ bus: kernelBus }, options));

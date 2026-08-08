@@ -71,7 +71,14 @@ export const CHANGE_PATH = PATTERNS.changePath;
    rejet, pas un champ ignoré (même discipline que la liste fermée de réglages
    par type de jet, lot 5 exigence A). */
 const KEYS_ADD = new Set(["op", "name", "slug", "data", "attribution", "source", "contentHash"]);
-const KEYS_PATCH = new Set(["op", "changes", "note", "attribution"]);
+/* `remove` est entré le 2026-08-08 (lot 17) : une clef SŒUR de `changes`, une
+   liste de chemins de la même grammaire. Les deux peuvent coexister ; au moins
+   l'une des deux doit être là, sans quoi le patch ne change rien.
+   EXPORTÉE pour le garde de dérive : une clef ajoutée au schéma sans l'être ici
+   serait acceptée par la norme et refusée par son exécution — et l'écart ne se
+   verrait qu'au chargement d'une vraie couche, chez quelqu'un d'autre. */
+export const PATCH_KEYS = ["op", "changes", "remove", "note", "attribution"];
+const KEYS_PATCH = new Set(PATCH_KEYS);
 const KEYS_DISABLE = new Set(["op", "reason"]);
 const KEYS_LAYER = new Set([
   "schema", "id", "version", "name", "lang", "units", "flags", "ruleValues",
@@ -179,12 +186,34 @@ function assertEntry(entry, { origin, genre, id }) {
 
   if (op === "patch") {
     assertClosedKeys(entry, KEYS_PATCH, { origin, what });
-    if (!isPlainObject(entry.changes)) fail(origin, `${what}.changes doit être un objet chemin → valeur.`);
-    const paths = Object.keys(entry.changes);
-    if (paths.length === 0) fail(origin, `${what}.changes est vide — un patch qui ne change rien n'est pas un patch.`);
-    for (const path of paths) {
-      if (path.length > 200 || !CHANGE_PATH.test(path)) {
-        fail(origin, `${what}.changes : chemin mal formé « ${path} ».`);
+    if (entry.changes === undefined && entry.remove === undefined) {
+      fail(origin, `${what} ne porte ni changes ni remove — un patch qui ne change rien n'est pas un patch.`);
+    }
+    if (entry.changes !== undefined) {
+      if (!isPlainObject(entry.changes)) fail(origin, `${what}.changes doit être un objet chemin → valeur.`);
+      const paths = Object.keys(entry.changes);
+      if (paths.length === 0) fail(origin, `${what}.changes est vide — un patch qui ne change rien n'est pas un patch.`);
+      for (const path of paths) {
+        if (path.length > 200 || !CHANGE_PATH.test(path)) {
+          fail(origin, `${what}.changes : chemin mal formé « ${path} ».`);
+        }
+      }
+    }
+    /* `remove` : une LISTE de chemins, de la même grammaire que `changes`.
+       Un tableau vide est refusé pour la même raison qu'un `changes` vide —
+       une clef posée qui ne fait rien est une intention qu'on croit tenue. */
+    if (entry.remove !== undefined) {
+      if (!Array.isArray(entry.remove)) {
+        fail(origin, `${what}.remove doit être un tableau de chemins — la clef sœur de changes, ` +
+          "et jamais une valeur sentinelle posée DANS changes.");
+      }
+      if (entry.remove.length === 0) {
+        fail(origin, `${what}.remove est vide — un retrait qui ne retire rien n'est pas un retrait.`);
+      }
+      for (const path of entry.remove) {
+        if (typeof path !== "string" || path.length > 200 || !CHANGE_PATH.test(path)) {
+          fail(origin, `${what}.remove : chemin mal formé « ${path} ».`);
+        }
       }
     }
     if (entry.attribution !== undefined) assertAttribution(entry.attribution, { origin, what: `${what}.attribution` });
