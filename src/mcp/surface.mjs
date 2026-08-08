@@ -25,13 +25,40 @@
    rend `{name, handle}` — un message entre par `handle`, point. ⚠ question 3.
 
    ── LE DOCUMENT OUVERT : UN MIROIR, PAS UNE POSSESSION (décision D2) ────
-   Le bloc `doc` n'existe pas au M2, et ce lot ne le préempte pas : **aucun
-   accès disque ici**, aucun verbe `open`/`save`. L'adaptateur garde en
-   mémoire le DERNIER document que `build` lui a rendu, pour deux usages et
-   deux seulement : le servir en resource, et le rendre par `mcp.document`.
-   Il ne l'écrit jamais, ne le dérive jamais, ne le repasse jamais à un verbe.
-   « Le personnage appartient au joueur » : c'est l'appelant qui l'enregistre
-   où il veut, et rien ne survit à l'arrêt du processus.
+   **Aucun accès disque ici**, et ça n'a pas bougé. L'adaptateur garde en
+   mémoire le DERNIER document que le domaine lui a rendu. Il ne l'écrit
+   jamais, ne le dérive jamais, ne fonde aucune règle dessus.
+
+   ⚠️ **AMENDÉ LE 2026-08-08 — le câblage MCP → `doc`.** Le lot 10 écrivait
+   « le bloc `doc` n'existe pas au M2, et ce lot ne le préempte pas » : c'était
+   juste, et le lot 14 a depuis livré le bloc. Deux choses changent, une seule
+   est structurelle :
+
+   1. Le miroir a un TROISIÈME usage — il est REMIS TEL QUEL à `doc.save`
+      quand l'appelant n'a pas passé de document. Il ne gagne aucune autorité
+      pour autant : rien n'en est dérivé, et le bloc `doc` valide tout ce qui
+      entre, d'où qu'il vienne. La raison est mesurée, elle est dans
+      `tools.mjs` en face de `doc.save` : 18 634 caractères de JSON à
+      retranscrire, sinon, par un modèle de langue.
+   2. `open` se remplit désormais aussi depuis `doc.open`, par le même chemin
+      générique que `build` — un verbe qui rend `{document}` alimente le
+      miroir, sans que l'adaptateur sache lequel.
+
+   Ce qui NE change pas : `src/mcp/` ne nomme ni `node:fs`, ni un chemin, ni
+   un nom de fichier. Le magasin est monté par la racine de composition et
+   atteint par `dispatch`, comme tout le reste. Le garde structurel de
+   `tests/mcp-block.test.mjs` le vérifie, et il interdit aussi l'import direct
+   de `src/doc/`.
+
+   ── UN CATALOGUE QUI DIT LA VÉRITÉ (`blocks`) ──────────────────────────
+   Un serveur monté SANS magasin ne peut pas enregistrer. Deux réponses
+   possibles, et une seule est honnête : publier quand même `doc.save` et
+   refuser à l'appel, ou ne pas le publier. La première promet une porte qui
+   n'ouvre sur rien — et une IA qui lit un catalogue le lit comme un contrat.
+   L'adaptateur reçoit donc de la racine de composition la liste des blocs
+   RÉELLEMENT montés, et ne publie que les outils qu'elle couvre. C'est le
+   pendant, côté surface, de la loi §0.6 : pas de porte morte derrière un
+   interrupteur.
 
    ⚠️ MCP 2026-07-28 EST STATELESS et demande que l'état traversant plusieurs
    requêtes soit porté par l'appelant. La décision D2 a été prise avant la
@@ -68,19 +95,30 @@ const CHARACTER_RESOURCE = {
   mimeType: "application/json"
 };
 
-const INSTRUCTIONS = [
-  "FHPC construit un personnage D&D 5.2 SRD par couches de règles empilables. Le serveur ne lit ni n'écrit",
-  "aucun fichier : c'est toi qui possèdes le stockage, et rien ne survit à l'arrêt du processus.",
-  "",
-  "Le chemin : 1. layers.register (le TEXTE du fichier de couche SRD, puis les couches du dessus, dans l'ordre) ;",
-  "2. layers.stack pour recopier {id, version, hash} dans build.layers[] d'un document fh-char/1 neuf ;",
-  "3. layers.query pour connaître les identifiants à choisir ; 4. build.choose / build.set pour chaque décision,",
-  "build.override pour la parole du MJ ; 5. build.rebuild pour dériver la fiche ; 6. mcp.document pour récupérer",
-  "le document et l'enregistrer toi-même.",
-  "",
-  "Lis toujours `underived` et `shadowed` que rend build.rebuild : ils nomment ce que la pile n'a PAS su",
-  "nourrir et ce qu'une couche haute a recouvert. Rien n'est deviné ici — un champ absent est un champ déclaré."
-].join("\n");
+/** Les instructions du serveur — écrites en fonction de CE QU'IL SAIT FAIRE.
+ *  Un texte figé annoncerait un magasin à un serveur qui n'en a pas, ou le
+ *  tairait à celui qui en a un : dans les deux cas l'appelant travaillerait
+ *  sur une description fausse de son outil. */
+function instructionsFor(mounted) {
+  const persiste = mounted.has("doc");
+  return [
+    "FHPC construit un personnage D&D 5.2 SRD par couches de règles empilables.",
+    persiste
+      ? "Ce serveur a un magasin local : doc.list, doc.open et doc.save y lisent et y écrivent des personnages. Rien d'autre n'écrit sur disque, et le personnage ouvert ne survit pas à l'arrêt du processus tant qu'il n'est pas enregistré."
+      : "Ce serveur n'a PAS de magasin : il ne lit ni n'écrit aucun fichier, c'est toi qui possèdes le stockage, et rien ne survit à l'arrêt du processus.",
+    "",
+    "Le chemin : 1. layers.register (le TEXTE du fichier de couche SRD, puis les couches du dessus, dans l'ordre) ;",
+    "2. layers.stack pour recopier {id, version, hash} dans build.layers[] d'un document fh-char/1 neuf ;",
+    "3. layers.query pour connaître les identifiants à choisir ; 4. build.choose / build.set pour chaque décision,",
+    "build.override pour la parole du MJ ; 5. build.rebuild pour dériver la fiche ;",
+    persiste
+      ? "6. doc.save pour l'enregistrer — sans argument, il enregistre le personnage que tu viens de dériver, et tu n'as donc jamais à recopier le document toi-même."
+      : "6. mcp.document pour récupérer le document et l'enregistrer toi-même.",
+    "",
+    "Lis toujours `underived` et `shadowed` que rend build.rebuild : ils nomment ce que la pile n'a PAS su",
+    "nourrir et ce qu'une couche haute a recouvert. Rien n'est deviné ici — un champ absent est un champ déclaré."
+  ].join("\n");
+}
 
 function isPlainObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -95,7 +133,7 @@ function toolResult(text, structured, isError) {
   return result;
 }
 
-export function createMcp({ dispatch, serverInfo } = {}) {
+export function createMcp({ dispatch, serverInfo, blocks } = {}) {
   if (typeof dispatch !== "function") {
     throw new McpError(CODES.internalError,
       "createMcp needs a dispatch — l'adaptateur n'atteint le domaine que par le noyau. Un import direct de " +
@@ -111,9 +149,37 @@ export function createMcp({ dispatch, serverInfo } = {}) {
       "dans chaque résultat, et un serveur anonyme n'est diagnosticable par personne.");
   }
 
+  /* ── LES BLOCS MONTÉS, ET DONC LE CATALOGUE ────────────────────────────
+     La racine de composition est le SEUL endroit du dépôt qui sache ce qui
+     est monté ; elle le dit ici. Un défaut permissif (« si tu ne dis rien, je
+     publie tout ») rendrait le catalogue faux dans le cas exact qu'on veut
+     éviter, donc il n'y en a pas. */
+  if (!Array.isArray(blocks) || blocks.length === 0
+      || blocks.some((name) => typeof name !== "string" || name.length === 0)) {
+    throw new McpError(CODES.internalError,
+      "createMcp needs a blocks: [\"layers\", \"build\", …] — la liste des blocs que la racine de composition a " +
+      "réellement montés. L'adaptateur ne publie que les outils qu'elle couvre : un catalogue qui annonce un " +
+      "outil dont le bloc n'est pas monté promet une porte qui n'ouvre sur rien, et une IA lit un catalogue " +
+      "comme un contrat.");
+  }
+  const mounted = new Set(blocks);
+
+  /** Le bloc qu'un outil atteint — la partie avant le point de sa route.
+   *  `mcp.document` n'a pas de route : il est toujours servi, puisque c'est
+   *  l'adaptateur lui-même qui le rend. */
+  function blockOf(tool) {
+    return tool.route === null ? null : tool.route.slice(0, tool.route.indexOf("."));
+  }
+
+  const catalog = TOOLS.filter((tool) => {
+    const block = blockOf(tool);
+    return block === null || mounted.has(block);
+  });
+  const byName = new Map(catalog.map((tool) => [tool.name, tool]));
+
   /* LE MIROIR. Ce n'est pas la tranche d'état d'un bloc : personne ne le lit
      à travers un verbe, rien n'en est dérivé, et il ne fait autorité sur
-     rien. C'est la dernière photo que `build` a rendue. */
+     rien. C'est la dernière photo que le domaine a rendue. */
   let open = null;
 
   /* ── LES OUTILS ─────────────────────────────────────────────────────── */
@@ -138,16 +204,36 @@ export function createMcp({ dispatch, serverInfo } = {}) {
     if (typeof name !== "string") {
       throw new McpError(CODES.invalidParams, "`params.name` manque ou n'est pas une chaîne.");
     }
-    const tool = TOOLS_BY_NAME.get(name);
+    const tool = byName.get(name);
     if (!tool) {
+      /* DEUX REFUS, ET PAS UN SEUL : « cet outil n'existe nulle part » et
+         « il existe mais son bloc n'est pas monté ici » appellent des gestes
+         différents chez l'appelant. Les confondre sous « Unknown tool »
+         enverrait une IA chercher une faute de frappe là où il n'y en a pas —
+         un diagnostic faux coûte plus cher qu'un diagnostic absent. */
+      const known = TOOLS_BY_NAME.get(name);
+      if (known) {
+        throw new McpError(CODES.invalidParams,
+          `L'outil « ${name} » existe, mais le bloc « ${blockOf(known)} » n'est pas monté sur ce serveur — ` +
+          `il porte ${[...mounted].join(", ")}. Ce n'est pas une faute de frappe : ce serveur a été lancé sans ` +
+          "cette capacité, et c'est à qui l'a lancé de la lui donner.");
+      }
       throw new McpError(CODES.invalidParams,
-        `Unknown tool: ${name} — les outils de ce serveur sont ${TOOLS.map((item) => item.name).join(", ")}.`);
+        `Unknown tool: ${name} — les outils de ce serveur sont ${catalog.map((item) => item.name).join(", ")}.`);
     }
-    const args = params.arguments === undefined ? {} : params.arguments;
+    let args = params.arguments === undefined ? {} : params.arguments;
     if (!isPlainObject(args)) {
       throw new McpError(CODES.invalidParams, "`params.arguments` doit être un objet.");
     }
     assertKnownArguments(tool, args);
+
+    /* LE MIROIR REMIS AU DOMAINE — le seul endroit où il ressort d'ici, et il
+       ressort TEL QUEL. `currentDocument()` jette en nommant quoi faire s'il
+       n'y a rien d'ouvert : « enregistre » sans personnage est un refus, pas
+       un fichier vide. */
+    if (tool.fromOpenDocument && args.document === undefined) {
+      args = Object.assign({}, args, { document: currentDocument() });
+    }
 
     let out;
     try {
@@ -227,11 +313,11 @@ export function createMcp({ dispatch, serverInfo } = {}) {
       return {
         supportedVersions: SUPPORTED_VERSIONS.slice(),
         capabilities: { tools: {}, resources: {} },
-        instructions: INSTRUCTIONS
+        instructions: instructionsFor(mounted)
       };
     },
     "tools/list"() {
-      return { tools: publishedTools() };
+      return { tools: publishedTools(catalog) };
     },
     "tools/call"(params) {
       return callTool(params);

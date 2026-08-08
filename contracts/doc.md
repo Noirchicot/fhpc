@@ -9,6 +9,16 @@
 > lot 10** : au M2 aucun bloc ne possédait le stockage, et l'adaptateur MCP
 > s'est délibérément interdit un verbe `open`/`save` pour laisser cette
 > tranche-ci libre. Ce lot ne touche pas à `src/mcp/`.
+>
+> ✅ **CÂBLÉ LE 2026-08-08 par l'architecte.** La tranche laissée libre est
+> désormais atteinte : `doc.open`, `doc.save` et `doc.list` sont exposés en
+> outils MCP, **et eux seuls** — `import`, `export` et `duplicate` restent hors
+> surface faute de besoin (`export` attend en plus une décision d'encodage des
+> octets). Rien du bloc n'a changé : l'adaptateur **route**, il n'a pas gagné
+> une ligne de disque, et le magasin est monté par `bin/fhpc-mcp.mjs` sur
+> `--store`. Sans magasin, le bloc n'est pas monté du tout et ses outils ne
+> sont pas publiés — la décision D2 (*aucun défaut, aucun dossier deviné*) tient
+> jusque dans le catalogue. Preuves : `tests/mcp-doc.test.mjs`.
 
 ## Nom
 

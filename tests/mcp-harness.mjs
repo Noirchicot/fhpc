@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 
 import { registerLayers } from "../src/layers/index.mjs";
 import { registerBuild } from "../src/build/index.mjs";
+import { registerDoc } from "../src/doc/index.mjs";
 import { connectMcp, META, PROTOCOL_VERSION } from "../src/mcp/index.mjs";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,12 +50,25 @@ export function requestMeta(overrides = {}) {
 /* ══ LE CLIENT EN MÉMOIRE ══════════════════════════════════════════════ */
 
 /** Monte les blocs du domaine sur le noyau et rend un adaptateur câblé
- *  dessus. C'est ce que fait `bin/fhpc-mcp.mjs`, sans le processus. */
-export function openSurface({ now } = {}) {
+ *  dessus. C'est ce que fait `bin/fhpc-mcp.mjs`, sans le processus.
+ *
+ *  ⚠️ `defineBlock` jette sur un double enregistrement (c'est une bonne loi
+ *  pour une application) : une seule `openSurface` par fichier de suite.
+ *
+ *  `storage` monte le bloc `doc` — exactement comme `--store` côté binaire.
+ *  Omis, le serveur n'a pas de magasin et ne publie pas les outils `doc.*` :
+ *  les deux montages sont donc éprouvés par les suites, pas seulement celui
+ *  qui a un magasin. */
+export function openSurface({ now, storage } = {}) {
   registerLayers();
   let tick = 0;
   registerBuild({ now: now || (() => `2026-08-08T14:00:${String(tick++).padStart(2, "0")}Z`) });
-  return connectMcp({ serverInfo: { name: "fhpc", version: "0.1.0" } });
+  const blocks = ["layers", "build"];
+  if (storage) {
+    registerDoc({ storage, schema: readJson("schemas/fh-char.schema.json") });
+    blocks.push("doc");
+  }
+  return connectMcp({ serverInfo: { name: "fhpc", version: "0.1.0" }, blocks });
 }
 
 export function makeClient(mcp) {

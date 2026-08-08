@@ -53,12 +53,16 @@ modèle sur une spécification qui bouge a une date de péremption »*.
 ## Construction
 
 ```js
-createMcp({ dispatch, serverInfo })   // une instance, avec son propre dispatch
-connectMcp({ serverInfo })            // l'instance câblée sur le dispatch DU NOYAU
+createMcp({ dispatch, serverInfo, blocks })   // une instance, avec son propre dispatch
+connectMcp({ serverInfo, blocks })            // l'instance câblée sur le dispatch DU NOYAU
 serveStdio({ input, output, log, mcp, onClose })   // la boucle de transport
 ```
 
 - `dispatch` : **obligatoire**. Seul chemin vers le domaine.
+- `blocks` : **obligatoire** — la liste des blocs que la racine de composition
+  a réellement montés (`["layers","build"]`, plus `"doc"` s'il y a un magasin).
+  L'adaptateur **ne publie que les outils qu'elle couvre**. Pas de défaut
+  permissif : il rendrait le catalogue faux dans le seul cas qui compte.
 - `serverInfo` `{name, version}` : **obligatoire**. Sur un protocole sans
   session, c'est dans **chaque** résultat que le serveur s'identifie ; un
   serveur anonyme n'est diagnosticable par personne.
@@ -69,13 +73,28 @@ serveStdio({ input, output, log, mcp, onClose })   // la boucle de transport
   `process`. Une suite fait donc tourner le transport entier en mémoire.
 
 **La racine de composition est `bin/fhpc-mcp.mjs`, et elle est HORS du bloc.**
-Elle enregistre `layers` puis `build` sur le noyau, lit `package.json`, et
-passe `process.stdin/stdout/stderr`. Elle est le seul fichier du chemin MCP
+Elle enregistre `layers` puis `build` sur le noyau — et `doc` **si et seulement
+si** on lui a donné un magasin —, lit `package.json`, et passe
+`process.stdin/stdout/stderr`. Elle est le seul fichier du chemin MCP
 qui nomme `process` et le seul qui lise le disque — les deux sont interdits
 dans `src/mcp/`. *Un adaptateur qui monte lui-même le domaine qu'il adapte
 n'est plus un adaptateur.*
 
-Lancement : `node bin/fhpc-mcp.mjs`
+Lancement :
+
+```
+node bin/fhpc-mcp.mjs                              # sans magasin
+node bin/fhpc-mcp.mjs --store <dossier>            # avec magasin
+node bin/fhpc-mcp.mjs --store <dossier> --create   # …en créant le dossier
+```
+
+⚠️ **Le magasin n'a AUCUN défaut** — pas de `~/.fhpc`, pas de dossier courant
+(décision D2 du bloc `doc` : *le personnage appartient au joueur*). Sans
+`--store`, le bloc `doc` n'est pas monté et ses outils ne sont pas publiés :
+le serveur ne promet pas une porte qui n'ouvre sur rien. Une option inconnue
+est un **refus, code de sortie 2** — un serveur lancé avec `--stroe` qui
+démarrerait quand même ferait croire au magasin jusqu'au premier `doc.save`,
+c'est-à-dire jusqu'au moment où quelqu'un croit enregistrer.
 
 ## Verbes
 
@@ -94,7 +113,7 @@ notification, à laquelle il ne **DOIT** rien être répondu. ⚠ question 3.
 | Méthode | Rend | Notes |
 |---|---|---|
 | `server/discover` | `{supportedVersions, capabilities, instructions}` | **exigé** par la spécification. `capabilities` = `{tools:{}, resources:{}}` — ni `listChanged` ni `subscribe` : la liste d'outils ne change jamais, et rien ne s'abonne au M2 |
-| `tools/list` | `{tools:[…]}` | liste **fixe** et ordonnée ; elle ne varie ni par connexion ni par effet de bord |
+| `tools/list` | `{tools:[…]}` | ordonnée, et **fixe pour un serveur donné** : elle ne varie ni par connexion ni par effet de bord. Elle dépend en revanche des **blocs montés au démarrage** (câblage `doc`, 2026-08-08) — deux serveurs lancés différemment publient des catalogues différents, et chacun dit vrai sur lui-même |
 | `tools/call` | `{content, structuredContent?, isError}` | voir « Les outils » |
 | `resources/list` | `{resources:[la fiche ouverte]}` | une seule entrée, toujours la même |
 | `resources/read` | `{contents:[{uri, mimeType, text}]}` | `-32602` si l'URI est inconnue **ou** si aucun personnage n'est ouvert |
@@ -120,6 +139,9 @@ d'outil et en donne l'exemple (`admin.tools.list`). **Garde dédié**, attaqué.
 | `build.override` | `{path, value, by, note?, document?}` | `build.override` | `{override}` |
 | `build.rebuild` | `{document?}` | `build.rebuild` | `{resolved, underived, unconsumed, overridesApplied, shadowed, warnings, diff}` |
 | `build.validate` | `{document?}` | `build.validate` | `{ok, violations, warnings}` |
+| `doc.open` ¹ | `{id}` | `doc.open` | `{id, hash, size}` — le document part au miroir, jamais au résultat |
+| `doc.save` ¹ | `{document?, expect?}` | `doc.save` | `{id, hash, size, replaced}` |
+| `doc.list` ¹ | — | `doc.list` | l'inventaire, une entrée par personnage, `ok:false` + `reason` pour les illisibles |
 | `mcp.document` | — | **aucune** | le document `fh-char/1` ouvert, entier |
 
 > ⚠ **`layer` est le TEXTE du fichier de couche, pas un objet.** Le bloc
@@ -132,9 +154,25 @@ d'outil et en donne l'exemple (`admin.tools.list`). **Garde dédié**, attaqué.
 > rien casser d'autre.
 
 > ⚠ **`mcp.document` est le seul outil sans route**, et il porte le nom du
-> bloc qui le fabrique. Au M2 aucun bloc ne possède le stockage : c'est
-> l'adaptateur qui rend le document qu'il tient (décision D2). Le préfixe
-> `mcp.` ne pourra jamais être confondu avec un futur verbe du bloc `doc`.
+> bloc qui le fabrique : il rend le document que l'**adaptateur** tient en
+> mémoire, ce qu'aucun bloc ne peut faire à sa place. Le préfixe `mcp.` ne se
+> confond pas avec les verbes du bloc `doc`, arrivés depuis et routés sous
+> leurs propres noms.
+
+> ¹ **Les trois outils `doc` ne sont publiés que si le serveur a un magasin.**
+> Câblage du 2026-08-08 : le lot 10 s'était interdit `open`/`save` pour ne pas
+> préempter une tranche qui n'existait pas encore ; le lot 14 a livré le bloc,
+> ces outils ne fabriquent donc plus rien — ils **routent**, comme les huit
+> autres. `src/mcp/` ne gagne pas une ligne de disque.
+>
+> ⚠️ **`doc.save` sans argument enregistre le personnage OUVERT**, et c'est la
+> seule entorse — mesurée — à « le miroir ne fait autorité sur rien » : le
+> personnage d'exemple pèse **18 634 caractères**. Exiger que l'appelant le
+> repasse, c'est le faire retranscrire par un modèle de langue entre
+> `build.rebuild` et `doc.save`, alors que les deux bouts l'ont déjà exact —
+> et un caractère faux donnerait un document corrompu **qui resterait valide au
+> schéma**. Le miroir est remis **tel quel** au bloc, qui valide tout ce qui
+> entre : il ne gagne aucune autorité, il évite une retranscription.
 
 ### Ce que la surface expose — et ce qu'elle n'expose pas
 
@@ -148,7 +186,7 @@ couches**, les cinq verbes de `build`, le document ouvert. Une resource.
 | `layers.enable`, `layers.disable` | aucun besoin formulé au M2 (loi §0.6). Elles s'ajouteront le jour où une couche FH se monte et se démonte pour de vrai |
 | `layers.flags`, `layers.ruleValues` | idem — et le pont clef de couche ↔ clef de règle du moteur est **ajourné** par l'arbitrage n°4 du lot 7 |
 | tous les verbes de `play` | le bloc `play` n'est pas sur le chemin critique du M2. `ARCHITECTURE.md` l'annonce pour le bloc `mcp` ; ce lot ne l'a pas fabriqué faute de besoin formulé (⚠ question 6) |
-| un verbe `open` / `save` | fabriquerait la tranche du bloc `doc` (décision D2, loi §0.6) |
+| `doc.import`, `doc.export`, `doc.duplicate` | aucun besoin formulé (loi §0.6). `export` porte **en plus une décision non prise** : il rend des **octets**, et un octet ne traverse pas JSON-RPC sans un encodage à choisir (base64 ? texte ?). La choisir sans besoin serait inventer (loi §0.10) — elle se prendra le jour où quelqu'un veut le byte-identique de bout en bout |
 | `outputSchema` sur les outils | ce serait une **deuxième copie** de la forme que `build` et `layers` rendent déjà, et **rien ne la comparerait**. Deux copies d'une règle divergent toujours sauf si quelque chose les compare (leçon `layers-document`) (⚠ question 4) |
 | `prompts/*`, `subscriptions/*`, pagination, `resources/templates/list` | facultatifs, et sans besoin. Le M2 ne les demande pas |
 
@@ -161,17 +199,20 @@ couches**, les cinq verbes de `build`, le document ouvert. Une resource.
 
 ## Tranche d'état
 
-**Aucune de domaine.** Le bloc tient **un miroir** : le dernier document que
-`build` lui a rendu (ou celui que l'appelant vient de lui passer).
+**Aucune de domaine.** Le bloc tient **un miroir** : le dernier document que le
+domaine lui a rendu (ou celui que l'appelant vient de lui passer).
 
 | Champ | Forme | Note |
 |---|---|---|
-| le miroir | un document `fh-char/1`, ou `null` | servi par la resource et par `mcp.document`. **Jamais écrit, jamais dérivé, jamais repassé à un verbe** |
+| le miroir | un document `fh-char/1`, ou `null` | servi par la resource et par `mcp.document`, et remis **tel quel** à `doc.save` quand l'appelant n'a pas passé de document. **Jamais écrit ici, jamais dérivé, jamais consulté par une règle** |
 
 Le miroir se met à jour **aux deux bouts** — sur l'argument `document` reçu
 **et** sur le `document` rendu. Il le faut : `build.validate({document})`
 change le personnage ouvert du bloc `build` sans rien rendre, et ne suivre que
-les résultats laisserait le miroir en retard sur ce que le domaine tient.
+les résultats laisserait le miroir en retard sur ce que le domaine tient. Le
+même chemin générique le remplit depuis `doc.open`, **sans que l'adaptateur
+sache de quel verbe il vient** : un verbe qui rend `{document}` alimente le
+miroir, point.
 
 ⚠️ **L'instance ne rend que `{name, handle}`.** Pas de `state`, pas de
 poignée. Même forme que `layers` et `build`, et pour la même raison : c'est la

@@ -20,12 +20,13 @@ import Ajv2020 from "ajv/dist/2020.js";
 
 import { createLayers } from "../src/layers/index.mjs";
 import { createBuild } from "../src/build/index.mjs";
+import { createDoc } from "../src/doc/index.mjs";
 import { createMcp, TOOLS, PROTOCOL_VERSION, META, CODES } from "../src/mcp/index.mjs";
 import { loadSources, findForbidden, stripComments, HOUSE_MECHANICS } from "./source-scan.mjs";
 import { makeBus } from "./build-harness.mjs";
 import {
   FICHIER, HOMEBREW, SRD_FR,
-  documentVierge, fileText, makeClient, requestMeta, toolFor
+  documentVierge, fileText, makeClient, readJson, requestMeta, toolFor
 } from "./mcp-harness.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -45,9 +46,17 @@ const FORBIDDEN = [
   [/\.\.\/modules\//, "un import de src/modules/"],
   [/\.\.\/schemas\//, "un import de src/schemas/"],
   [/\.\.\/tools\//, "un import de src/tools/"],
+  /* ⚠️ AJOUTÉ AU CÂBLAGE DU 2026-08-08. Le bloc `doc` est celui que
+     l'adaptateur vient d'atteindre : c'est donc exactement celui qu'il serait
+     le plus tentant d'importer « juste pour valider un id ». Il l'atteint par
+     `dispatch` comme les autres, ou il ne l'atteint pas. */
+  [/\.\.\/doc\//, "un import de src/doc/"],
+  [/\.\.\/storage\//, "un import de src/storage/"],
   /* LE DISQUE. « Le personnage appartient au joueur » : c'est l'appelant qui
-     possède le stockage, et le bloc `doc` n'existe pas au M2. Fabriquer ici
-     un `open`/`save` préempterait sa tranche (décision D2, loi §0.6). */
+     possède le stockage. Le bloc `doc` le possède désormais pour lui, mais
+     TOUJOURS PAS l'adaptateur : le magasin est monté par la racine de
+     composition, et `src/mcp/` ne nomme ni un chemin, ni un nom de fichier
+     (décisions D2 et D3). */
   [/node:fs\b/, "node:fs"],
   [/node:path\b/, "node:path"],
   [/\breadFileSync\b/, "readFileSync"],
@@ -113,10 +122,15 @@ const BYPASS = [
   [/\bdispatch\s*\(/, "un appel direct au noyau"],
   [/\.verbs\b/, "un accès direct aux verbes d'un bloc"],
   [/\bderive\s*\(/, "un appel direct au dériveur"],
-  [/\.\.\/src\/(build|layers|play|modules)\/(?!index\.mjs)/, "un import d'un rouage interne d'un bloc"]
+  [/\.\.\/src\/(build|layers|play|modules|doc)\/(?!index\.mjs)/, "un import d'un rouage interne d'un bloc"]
 ];
 
-const PROVEN_BY_MCP_ONLY = ["mcp-acceptance.test.mjs", "mcp-harness.mjs"];
+/* ⚠️ `mcp-doc.test.mjs` REJOINT LA LISTE au câblage du 2026-08-08. C'est le
+   fichier qui prouve qu'un personnage arrive sur le DISQUE — donc celui où la
+   tentation d'« appeler juste une fois la vraie fonction pour vérifier » est
+   la plus forte. S'il n'était pas tenu au même standard, sa preuve vaudrait
+   ce que vaut la discipline de qui l'a écrit. */
+const PROVEN_BY_MCP_ONLY = ["mcp-acceptance.test.mjs", "mcp-doc.test.mjs", "mcp-harness.mjs"];
 function bypasses(list) {
   return findForbidden(list, BYPASS).map(({ name, label }) => `tests/${name} : « ${label} »`);
 }
@@ -133,7 +147,7 @@ function suiteSources() {
    On câble donc des INSTANCES et un `dispatch` local — c'est le même chemin
    qu'en production, avec un aiguillage différent (même partage qu'au
    `build-harness` du lot 9). */
-function localSurface({ layers: files = [SRD_FR, HOMEBREW], extra } = {}) {
+function localSurface({ layers: files = [SRD_FR, HOMEBREW], extra, blocks } = {}) {
   const bus = makeBus();
   const layers = createLayers({ bus });
   const routes = [];
@@ -159,7 +173,13 @@ function localSurface({ layers: files = [SRD_FR, HOMEBREW], extra } = {}) {
   if (extra) {
     layers.verbs.register({ bytes: JSON.stringify(extra, null, 2) + "\n", origin: "couche du scénario" });
   }
-  const mcp = createMcp({ dispatch, serverInfo: { name: "fhpc", version: "0.0.0-test" } });
+  /* `blocks` DÉCRIT CE QUE LE SCÉNARIO A VRAIMENT MONTÉ, et pas plus : ce
+     harnais n'a ni magasin ni bloc `doc`, donc le catalogue qu'il publie n'a
+     pas d'outil `doc.*`. C'est ce qui rend vérifiable, plus bas, qu'un
+     serveur sans magasin ne promet rien qu'il ne sait faire. */
+  const mcp = createMcp({
+    dispatch, serverInfo: { name: "fhpc", version: "0.0.0-test" }, blocks: blocks || ["layers", "build"]
+  });
   return { mcp, client: makeClient(mcp), routes, bus };
 }
 
@@ -209,7 +229,15 @@ test("CHAQUE ROUTE DU CATALOGUE EXISTE VRAIMENT — le garde de dérive catalogu
   const bus = makeBus();
   const verbsOf = {
     layers: new Set(Object.keys(createLayers({ bus }).verbs)),
-    build: new Set(Object.keys(createBuild({ bus, dispatch: () => {} }).verbs))
+    build: new Set(Object.keys(createBuild({ bus, dispatch: () => {} }).verbs)),
+    /* `doc` entre dans le comparateur au câblage du 2026-08-08. Son magasin
+       est ici un objet en mémoire : ce test compare des NOMS DE VERBES, il
+       n'écrit aucun fichier et n'a pas à en écrire un. */
+    doc: new Set(Object.keys(createDoc({
+      bus,
+      schema: readJson("schemas/fh-char.schema.json"),
+      storage: { list: () => [], read: () => null, write: () => {} }
+    }).verbs))
   };
   const attendues = [];
   for (const tool of TOOLS) {
@@ -221,10 +249,27 @@ test("CHAQUE ROUTE DU CATALOGUE EXISTE VRAIMENT — le garde de dérive catalogu
       `(verbes réels : ${[...verbsOf[block]].sort().join(", ")})`);
     attendues.push(tool.route);
   }
+  /* REWRITTEN 2026-08-08 — câblage MCP → `doc` (architecte).
+     Trois routes de plus. L'assertion n'est pas relâchée : elle reste une
+     liste EXACTE, dans l'ordre du catalogue, et elle a fait exactement ce
+     qu'on lui demande — elle a rougi la première fois que le catalogue a
+     bougé sous elle. */
   assert.deepEqual(attendues, [
     "layers.register", "layers.stack", "layers.query",
-    "build.choose", "build.set", "build.override", "build.rebuild", "build.validate"
+    "build.choose", "build.set", "build.override", "build.rebuild", "build.validate",
+    "doc.open", "doc.save", "doc.list"
   ], "et la liste des routes est exacte : un outil de plus ou de moins se voit");
+
+  /* ET LE PENDANT DU CÂBLAGE : les trois verbes que le bloc `doc` porte et
+     que le catalogue N'EXPOSE PAS. Ils existent bel et bien — l'absence est
+     un choix (loi §0.6), pas un oubli, et si quelqu'un les expose un jour
+     cette ligne le lui rappellera. */
+  for (const verb of ["import", "export", "duplicate"]) {
+    assert.equal(verbsOf.doc.has(verb), true, `le bloc doc porte bien « ${verb} »`);
+    assert.equal(attendues.includes(`doc.${verb}`), false,
+      `« doc.${verb} » n'est délibérément pas exposé : aucun besoin formulé, et \`export\` attend en plus une ` +
+      "décision d'encodage des octets");
+  }
 
   /* LE PENDANT : la liste des verbes n'est pas complaisante. Un verbe qui
      n'existe pas est bien absent d'elle. */

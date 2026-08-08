@@ -11,16 +11,26 @@
    d'outil et en donne l'exemple (`admin.tools.list`).
 
    Une SEULE exception, et elle porte le nom du bloc qui la fabrique :
-   `mcp.document`. Elle ne correspond à aucun verbe parce qu'aucun bloc ne
-   possède le stockage au M2 (décision D2) — c'est l'adaptateur lui-même qui
-   rend le document qu'il tient. Le préfixe `mcp.` dit exactement ça, et il ne
-   pourra jamais être confondu avec un futur verbe du bloc `doc`.
+   `mcp.document`. Elle ne correspond à aucun verbe parce qu'elle rend le
+   document que l'ADAPTATEUR tient en mémoire, ce qu'aucun bloc ne peut faire à
+   sa place. Le préfixe `mcp.` dit exactement ça, et le lot 10 avait raison de
+   le choisir : il ne se confond pas avec les verbes du bloc `doc`, arrivés
+   depuis et routés ici sous leurs propres noms.
+
+   ⚠️ **CE QUI A CHANGÉ LE 2026-08-08** (câblage MCP → `doc`, architecte). Le
+   lot 10 écrivait « aucun bloc ne possède le stockage au M2 » : c'était vrai
+   ce jour-là et ça ne l'est plus depuis le lot 14. Un serveur monté avec un
+   magasin porte donc `doc.open`, `doc.save` et `doc.list` EN PLUS — et un
+   serveur monté sans magasin ne les porte pas du tout. Le catalogue dit la
+   vérité sur ce que le serveur sait faire, il ne promet jamais une porte qui
+   n'ouvre sur rien.
 
    ── CE QUI N'EST PAS EXPOSÉ, ET POURQUOI ───────────────────────────────
    `layers.enable`, `layers.disable`, `layers.flags`, `layers.ruleValues` :
    aucun besoin formulé au M2 (loi §0.6 — on ne construit pas la porte d'une
    pièce que personne n'a demandée). Elles s'ajouteront le jour où une couche
-   FH se monte et se démonte pour de vrai.
+   FH se monte et se démonte pour de vrai. Même raison pour `doc.import`,
+   `doc.export` et `doc.duplicate` — voir la note devant les outils `doc`.
 
    ── PAS D'`outputSchema` ───────────────────────────────────────────────
    La spécification le permet et exige alors que le `structuredContent` s'y
@@ -43,7 +53,8 @@ const DOCUMENT_ARG = {
   description:
     "Le document fh-char/1 complet sur lequel travailler. Facultatif : le serveur garde ouvert le dernier " +
     "document qu'il a rendu. Le passer à chaque appel rend l'échange sans état, ce que le protocole préfère ; " +
-    "l'omettre reprend le personnage ouvert. Le stockage appartient à l'appelant : le serveur n'écrit aucun fichier."
+    "l'omettre reprend le personnage ouvert. Aucun outil n'écrit de fichier de lui-même : seul doc.save le fait, " +
+    "et seulement quand on l'appelle."
 };
 
 function textOf(lines) {
@@ -194,7 +205,6 @@ export const TOOLS = [
       additionalProperties: false
     },
     route: "build.choose",
-    holdsDocument: true,
     payload(args) {
       const request = { path: args.path, ref: args.ref };
       if (args.label !== undefined) request.label = args.label;
@@ -226,7 +236,6 @@ export const TOOLS = [
       additionalProperties: false
     },
     route: "build.set",
-    holdsDocument: true,
     payload(args) {
       const request = { path: args.path, value: args.value };
       if (args.label !== undefined) request.label = args.label;
@@ -261,7 +270,6 @@ export const TOOLS = [
       additionalProperties: false
     },
     route: "build.override",
-    holdsDocument: true,
     payload(args) {
       const request = { path: args.path, value: args.value, by: args.by };
       if (args.note !== undefined) request.note = args.note;
@@ -286,7 +294,6 @@ export const TOOLS = [
       additionalProperties: false
     },
     route: "build.rebuild",
-    holdsDocument: true,
     payload(args) {
       return args.document !== undefined ? { document: args.document } : {};
     },
@@ -332,7 +339,6 @@ export const TOOLS = [
       additionalProperties: false
     },
     route: "build.validate",
-    holdsDocument: false,
     payload(args) {
       return args.document !== undefined ? { document: args.document } : {};
     },
@@ -348,14 +354,132 @@ export const TOOLS = [
     }
   },
 
+  /* ══ LES TROIS VERBES DE `doc` — LE CÂBLAGE DU 2026-08-08 ══════════════
+     Le lot 10 s'était délibérément interdit `open`/`save` : le bloc `doc`
+     n'existait pas, et fabriquer ici sa tranche l'aurait préemptée (D2). Il
+     existe depuis le lot 14. Ces trois outils ne fabriquent donc plus rien —
+     ils ROUTENT vers des verbes déjà écrits, testés et contractés, comme les
+     sept autres. `src/mcp/` ne gagne pas une ligne de disque : c'est la
+     racine de composition qui monte le magasin.
+
+     ── POURQUOI TROIS, ET PAS SIX ─────────────────────────────────────────
+     Le bloc porte aussi `import`, `export` et `duplicate`. Ils ne sont pas
+     exposés : aucun besoin formulé (loi §0.6, la même raison qui laisse
+     `layers.enable` de côté). `export` porte en plus une décision non prise —
+     il rend des OCTETS, et un octet ne traverse pas JSON-RPC sans un encodage
+     qu'il faudrait choisir (base64 ? texte ?). La choisir sans besoin serait
+     inventer (loi §0.10). Elle se prendra le jour où quelqu'un veut le
+     byte-identique de bout en bout. */
+
+  {
+    name: "doc.open",
+    title: "Ouvrir un personnage du magasin",
+    description:
+      "Lit un personnage du magasin local et le rend ouvert : il devient le document courant du serveur, " +
+      "lisible par la resource fh-char:///open et par mcp.document. C'est aussi ce qui autorise un doc.save " +
+      "ultérieur sur ce même id — le bloc refuse d'écraser un document qu'il n'a pas lu.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string", description: "L'identifiant du personnage, tel que doc.list le rend." }
+      },
+      required: ["id"],
+      additionalProperties: false
+    },
+    route: "doc.open",
+    payload(args) { return { id: args.id }; },
+    render(out) {
+      return textOf([
+        `Personnage « ${out.id} » ouvert — ${out.size} octets, empreinte ${out.hash}.`,
+        "Son contenu est à la resource fh-char:///open et à l'outil mcp.document."
+      ]);
+    }
+  },
+
+  {
+    name: "doc.save",
+    title: "Enregistrer le personnage dans le magasin",
+    description:
+      "Écrit le personnage dans le magasin local, sous son propre id. Sans argument, enregistre le personnage " +
+      "OUVERT — celui que build vient de dériver. " +
+      "⚠️ Le bloc REFUSE d'écraser un document qu'il n'a pas lu, et refuse aussi si le fichier a changé depuis : " +
+      "dans les deux cas il nomme l'empreinte trouvée, à repasser dans `expect` pour écraser délibérément. " +
+      "Ce n'est pas un obstacle, c'est ce qui empêche deux sessions de s'effacer l'une l'autre en silence.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        document: DOCUMENT_ARG,
+        expect: {
+          type: ["string", "null"],
+          description:
+            "L'empreinte qu'on croit écraser (doc.list la rend), ou null pour « je crée ce document ». " +
+            "Omise, le bloc se fie à ce qu'il a lui-même lu ou écrit."
+        }
+      },
+      additionalProperties: false
+    },
+    route: "doc.save",
+    /* ⚠️ LE SEUL OUTIL QUI PREND LE MIROIR EN ENTRÉE, et il faut le justifier
+       parce que le miroir « ne fait autorité sur rien » (D2).
+
+       La mesure qui tranche : le personnage d'exemple du dépôt pèse **18 634
+       caractères**. Exiger que l'appelant repasse le document pour
+       l'enregistrer, c'est le faire RETRANSCRIRE 18 634 caractères de JSON par
+       un modèle de langue, entre `build.rebuild` et `doc.save`, alors que les
+       deux bouts de la chaîne l'ont déjà exact. Un caractère faux et le
+       document est corrompu — et il serait corrompu SILENCIEUSEMENT, puisqu'il
+       resterait valide au schéma.
+
+       Le miroir ne gagne aucune autorité pour autant : il n'est ni dérivé ni
+       consulté par une règle : il est REMIS TEL QUEL au bloc qui, lui, valide
+       tout ce qui entre. Et l'appelant garde la main — passer `document`
+       explicitement reste conforme au protocole stateless. */
+    fromOpenDocument: true,
+    payload(args) {
+      const request = { document: args.document };
+      if (args.expect !== undefined) request.expect = args.expect;
+      return request;
+    },
+    render(out) {
+      return textOf([
+        `Personnage « ${out.id} » enregistré — ${out.size} octets, empreinte ${out.hash}.`,
+        out.replaced ? "Un document du même id a été REMPLACÉ." : "C'est une création : le magasin ne portait pas cet id."
+      ]);
+    }
+  },
+
+  {
+    name: "doc.list",
+    title: "Lister les personnages du magasin",
+    description:
+      "L'inventaire du magasin local : id, nom, langue, niveau, dates et empreinte. " +
+      "⚠️ Une entrée illisible est RAPPORTÉE avec `ok: false` et sa raison, jamais sautée — un inventaire qui " +
+      "cache un fichier cassé est pire qu'un inventaire qui le montre.",
+    inputSchema: { type: "object", additionalProperties: false },
+    route: "doc.list",
+    payload() { return undefined; },
+    render(out) {
+      if (count(out) === 0) return "Le magasin est vide.";
+      const broken = out.filter((entry) => !entry.ok);
+      return textOf([
+        `${out.length} personnage(s) dans le magasin :`,
+        ...out.map((entry) => entry.ok
+          ? `  · ${entry.id} — ${entry.name}, niveau ${entry.level} (${entry.lang}) — empreinte ${entry.hash}`
+          : `  · ${entry.id} — ⚠️ ILLISIBLE : ${entry.reason}`),
+        ...(broken.length === 0 ? [] : ["", `${broken.length} entrée(s) illisible(s) ci-dessus : elles existent, elles ne s'ouvriront pas.`])
+      ]);
+    }
+  },
+
   {
     name: "mcp.document",
     title: "Rendre le document du personnage ouvert",
     description:
       "Rend le document fh-char/1 complet que le serveur tient ouvert, en JSON. C'est le même contenu que la " +
       "resource fh-char:///open. " +
-      "⚠️ Le serveur n'écrit AUCUN fichier : le personnage appartient au joueur, et c'est à toi de l'enregistrer " +
-      "où tu veux. Rien n'est persisté à l'arrêt du processus.",
+      "⚠️ Ce que le serveur tient est EN MÉMOIRE et ne survit pas à son arrêt. Si l'outil doc.save est présent " +
+      "dans ce catalogue, le serveur a un magasin local et peut enregistrer pour toi ; s'il est absent, il n'en " +
+      "a pas, et c'est à toi de conserver ce JSON. Dans les deux cas le personnage appartient au joueur.",
     inputSchema: { type: "object", additionalProperties: false },
     /* Le seul outil sans route : aucun bloc ne possède le stockage au M2, donc
        personne d'autre que l'adaptateur ne peut rendre ce document (D2). */
@@ -373,9 +497,16 @@ export const TOOLS = [
 export const TOOLS_BY_NAME = new Map(TOOLS.map((tool) => [tool.name, tool]));
 
 /** La forme qu'un `tools/list` publie : les champs du protocole, et eux
- *  seuls. `route`, `payload` et `render` sont de la cuisine interne. */
-export function publishedTools() {
-  return TOOLS.map((tool) => ({
+ *  seuls. `route`, `payload`, `render` et `fromOpenDocument` sont de la
+ *  cuisine interne.
+ *
+ *  ⚠️ Le catalogue est un ARGUMENT depuis le câblage `doc` : ce que le serveur
+ *  publie dépend des blocs que sa racine de composition a montés, et cette
+ *  fonction ne décide pas à sa place. Par défaut, tous les outils — c'est le
+ *  cas des lecteurs qui veulent l'inventaire du dépôt, pas celui d'un serveur
+ *  en train de répondre. */
+export function publishedTools(tools = TOOLS) {
+  return tools.map((tool) => ({
     name: tool.name,
     title: tool.title,
     description: tool.description,
