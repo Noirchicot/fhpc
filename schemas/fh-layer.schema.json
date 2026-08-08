@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:fhpc:schema:fh-layer/1",
   "title": "fh-layer/1 — couche de règles FHPC",
-  "$comment": "INVARIANTS DE LA COUCHE (lot B, kickoff §3.2). (1) Une couche est de la DONNÉE, jamais du code : aucun champ exécutable, et les clefs de pollution de prototype sont refusées à toute profondeur (voir $defs/safeKey). Charger le homebrew d'un inconnu doit être inoffensif. (2) Une couche fait quatre choses et rien d'autre : AJOUTER un record, PATCHER un record par id, DÉSACTIVER un record, LEVER un drapeau de capacité. Les mécaniques nouvelles sont des modules moteur activés par les drapeaux — jamais du contenu de couche (décision Q4). (3) La clef d'un record EST son id : pas de champ `id` interne, donc pas de double source de vérité qui puisse diverger. (4) Une couche ne contient JAMAIS son propre hash : `build.layers[].hash` est le SHA-256 des octets du fichier, calculé au chargement par le bloc `layers`.",
+  "$comment": "INVARIANTS DE LA COUCHE (lot B, kickoff §3.2). (1) Une couche est de la DONNÉE, jamais du code : aucun champ exécutable, et les clefs de pollution de prototype sont refusées à toute profondeur (voir $defs/safeKey). Charger le homebrew d'un inconnu doit être inoffensif. (2) Une couche fait quatre choses et rien d'autre : AJOUTER un record, PATCHER un record par id — poser, modifier, et depuis le lot 17 RETIRER (`opPatch.remove`), qui reste du patch et n'ouvre pas une quatrième opération —, DÉSACTIVER un record, LEVER un drapeau de capacité. Les mécaniques nouvelles sont des modules moteur activés par les drapeaux — jamais du contenu de couche (décision Q4). (3) La clef d'un record EST son id : pas de champ `id` interne, donc pas de double source de vérité qui puisse diverger. (4) Une couche ne contient JAMAIS son propre hash : `build.layers[].hash` est le SHA-256 des octets du fichier, calculé au chargement par le bloc `layers`.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema", "id", "version", "name", "lang", "flags", "attribution", "records"],
@@ -189,10 +189,14 @@
 
     "opPatch": {
       "title": "patch",
-      "$comment": "`changes` est une carte chemin → valeur, avec la MÊME grammaire de chemin que les overrides de fh-char/1, enracinée dans le record visé (`name`, `data.cost`, `data.properties[legere]`). Une carte de chemins plutôt qu'un objet à fusionner : aucune sémantique de fusion à deviner, aucune fusion profonde qui écrase en silence.",
+      "$comment": "`changes` est une carte chemin → valeur, avec la MÊME grammaire de chemin que les overrides de fh-char/1, enracinée dans le record visé (`name`, `data.cost`, `data.properties[legere]`). Une carte de chemins plutôt qu'un objet à fusionner : aucune sémantique de fusion à deviner, aucune fusion profonde qui écrase en silence. RÉVISION DU 2026-08-08 (lot 17-couche-fh-retrait, seule extension autorisée à ce schéma par ce lot) : `remove` entre comme clef SŒUR de `changes`. Le manque était mesuré — un patch savait poser et modifier, pas SUPPRIMER, donc une couche ne pouvait pas retirer une aptitude qu'une couche du dessous accorde (l'Humain de Fate's Hand perd `Resourceful`). Trois choix de forme, chacun contre une ambiguïté : (a) PAS de valeur sentinelle, et surtout pas de `null` qui voudrait dire « retire » — `null` est une valeur JSON légitime, et confondre « pose null » avec « retire » est le genre d'ambiguïté qui se paye trois mois plus tard ; (b) une LISTE DE CHEMINS, symétrique de `changes`, avec la MÊME grammaire — donc l'identité entre crochets, jamais l'index ; (c) `changes` et `remove` peuvent coexister, et alors LES RETRAITS S'APPLIQUENT D'ABORD : c'est le seul des deux ordres où un patch qui se contredit (retirer X et écrire sous X, ou créer X et le retirer) ÉCHOUE BRUYAMMENT au lieu de s'annuler en silence. Un chemin de `remove` qui ne vise rien est un échec bruyant qui le nomme (même doctrine que le patch dans le vide, §L7.2), les interdits de racine du patch valent pour le retrait (ni `attribution`, ni `source`, ni `contentHash`), et on ne retire pas une racine entière — `opAdd` EXIGE `name` et `data`, un pli qui les ôterait produirait un record que ce schéma ne saurait pas exprimer. Ces trois refus vivent dans le code (`src/layers/paths.mjs`), qui est l'exécution de ce schéma au chargement. Enfin, le `anyOf` ci-dessous dit « au moins l'une des deux clefs » — un patch qui ne porte ni `changes` ni `remove` ne change rien. Chaque branche y redéclare sa propriété en schéma booléen `true` : ce n'est pas un tic de style, c'est que le mode STRICT d'ajv refuse un `required` dont la propriété n'est pas définie dans le MÊME objet de schéma (`strictRequired`), et ce dépôt compile ses schémas en strict précisément pour que ce genre d'étourderie se voie.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["op", "changes"],
+      "required": ["op"],
+      "anyOf": [
+        { "required": ["changes"], "properties": { "changes": true } },
+        { "required": ["remove"], "properties": { "remove": true } }
+      ],
       "properties": {
         "op": { "const": "patch" },
         "changes": {
@@ -204,6 +208,16 @@
             "maxLength": 200
           },
           "additionalProperties": { "$ref": "#/$defs/safeValue" }
+        },
+        "remove": {
+          "$comment": "Les chemins que ce patch RETIRE du record visé, dans l'ordre de la liste — un tableau porte déjà l'ordre que son auteur a écrit, là où `changes` est une carte dont l'ordre ne se lit pas à l'œil (d'où son tri). Même grammaire que `changes` : sur un objet la clef part, sur une collection c'est l'élément trouvé PAR IDENTITÉ qui part.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9]*(\\.[a-zA-Z][a-zA-Z0-9]*|\\[[a-z][a-z0-9:_-]*\\])*$",
+            "maxLength": 200
+          }
         },
         "note": { "type": "string", "maxLength": 500 },
         "attribution": { "$ref": "#/$defs/attribution" }

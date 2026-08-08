@@ -96,8 +96,14 @@ tenaient déjà en v1.
 ```js
 { kind, id, record: {name, slug?, data, attribution?, source?, contentHash?}, provenance }
 provenance = { from: <id de la couche qui a posé le record>,
-               patchedBy: [{by: <id de couche>, applied: [{path, created}]}] }
+               patchedBy: [{by: <id de couche>,
+                            applied: [{path, created}],
+                            removed: [path]}] }
 ```
+
+`removed` est **toujours présent, vide compris** : une forme de provenance qui
+apparaît et disparaît selon le contenu oblige chaque lecteur à la tester avant
+de la lire.
 
 La vue est **gelée en profondeur** (le pli partage ses records avec les
 documents analysés : un consommateur qui muterait ce qu'il a reçu corromprait
@@ -105,21 +111,83 @@ la pile de tout le monde). Le gel est **paresseux**, à la lecture — geler
 2 613 records dont personne ne lira la moitié serait payer plein tarif pour une
 garantie qu'on ne consomme pas.
 
+## La grammaire d'un patch — `changes` **et** `remove`
+
+> Section ajoutée par le lot **`17-couche-fh-retrait`** (2026-08-08). Le retrait
+> est un **verbe de la grammaire**, il entre donc au contrat.
+
+Un `patch` porte deux clefs sœurs, dont **au moins une** :
+
+| Clef | Forme | Ce qu'elle fait |
+|---|---|---|
+| `changes` | carte **chemin → valeur** | pose ou modifie ce que le chemin désigne |
+| `remove` | **liste de chemins** | retire ce que le chemin désigne |
+
+**La même grammaire de chemin pour les deux** : segments séparés par `.`,
+sélection dans une collection **par l'identité entre crochets** — jamais par
+l'index. Sur un objet, la clef part ; sur une collection, l'élément *trouvé par
+identité* part. Retirer plusieurs éléments d'une même liste marche donc sans
+surprise : aucun retrait ne s'appuie sur la position d'un autre.
+
+**Pourquoi une liste de chemins, et pas une valeur sentinelle.** Un `null` qui
+voudrait dire « retire » confondrait deux choses différentes — `null` est une
+valeur JSON parfaitement légitime qu'un patch **pose**. Cette ambiguïté-là se
+paye trois mois plus tard.
+
+### ⭐ L'ordre : **les retraits d'abord, les modifications ensuite**
+
+Ce n'est pas un goût, et le critère est vérifiable : c'est **le seul des deux
+ordres où un patch qui se contredit est ENTENDU**.
+
+| Le patch dit | retraits d'abord | modifications d'abord |
+|---|---|---|
+| retirer `X`, puis écrire **sous** `X` | **jette** — l'intermédiaire n'existe plus | réussit, puis s'efface : **silence** |
+| poser `X`, puis retirer `X` | **jette** — le retrait ne vise rien | réussit, puis s'annule : **silence** |
+
+Le retrait décrit d'ailleurs l'état de **départ** (ce que la couche du dessous
+accordait), `changes` l'état d'**arrivée**.
+
+### ⚠️ Trois gestes voisins, trois mots — à ne pas confondre
+
+| Ce qu'on écrit | Ce que ça retire |
+|---|---|
+| `layers.disable({id})` — **le verbe** | une **couche** de la pile active |
+| `{"op": "disable"}` — **dans** une couche | un **record entier** |
+| `{"op": "patch", "remove": [...]}` | **un morceau** d'un record |
+
+Le troisième est arrivé le dernier et porte exprès un mot à lui : appeler
+`disable` un retrait de champ aurait fait trois gestes différents sous deux
+mots, et la confusion se paye.
+
+**À l'intérieur**, deux ordres et deux raisons : `changes` est une **carte**,
+dont l'ordre ne se lit pas à l'œil — d'où son tri (invariant 10) ; `remove` est
+un **tableau**, qui porte déjà l'ordre que son auteur a écrit — le trier
+remplacerait une intention lisible par une convention.
+
 ## Invariants
 
 1. **`query` est le seul chemin de lecture du contenu.** Un genre hors des 14
    **jette** : une requête sur `spel` rendrait une liste vide, et une liste
    vide ressemble à une réponse.
 2. **La pile est ordonnée et le pli est le sien.** Le dernier qui parle gagne.
-   `add` pose, `patch` modifie par id, `disable` retire.
+   `add` pose, `patch` modifie **et retire** par id, `disable` retire le record
+   entier.
 3. **Un `patch` ou un `disable` qui vise un record absent est un échec
    bruyant** (§L7.2). Sans lui, une couche écrite pour une autre pile
    s'appliquerait à moitié, en silence, et la table jouerait une fiche fausse.
    ⚠ Le disable-dans-le-vide n'est pas nommé par §L7 ; ce lot l'a rendu
    bruyant par le même raisonnement (point ouvert 2).
+   **Un chemin de `remove` qui ne vise rien l'est aussi** (lot 17), et par le
+   même raisonnement : un retrait qui ne retire rien est une couche écrite pour
+   une autre pile, et il vaut mieux l'apprendre au pli qu'à la table. Le refus
+   **nomme le chemin**.
 4. **Retirer une couche rend ce qu'elle avait pris.** Vrai *par
    reconstruction* : le pli est recalculé de zéro, il n'y a aucun état
-   d'annulation à tenir.
+   d'annulation à tenir. **Cela vaut pour un `remove` sans une ligne de code en
+   plus** — le record amputé n'est jamais écrit nulle part, il est recalculé ;
+   c'est le rendement du « gros marteau » du pli, et `layers-remove` le prouve
+   plutôt que de le promettre (le record rendu redevient celui du socle, **y
+   compris son `contentHash`**).
 5. **Le pli est transactionnel.** Une couche qui échoue est démontée et
    l'erreur remonte : jamais de pile à moitié pliée.
 6. **`flags` et `ruleValues` sont deux surfaces séparées** (révision du
@@ -142,9 +210,20 @@ garantie qu'on ne consomme pas.
    dans un autre livre ; `contentHash` parce qu'on ne signe pas soi-même le
    paquet qu'on vient de modifier. **Un record patché perd son `contentHash`** :
    le certificat ne décrit plus son contenu.
+   **Ces interdits valent MOT POUR MOT pour `remove`** (lot 17) — un interdit
+   qui ne vaudrait que pour l'écriture se contournerait par la suppression. Et
+   **un record amputé perd son `contentHash`** exactement comme un record
+   patché : retirer une aptitude rompt la description autant qu'en changer une.
 10. **Le déterminisme du pli.** Les chemins d'un `changes` sont appliqués dans
-    l'ordre trié : deux exécutions donnent le même record, même si deux chemins
-    se recouvrent.
+    l'ordre trié, ceux d'un `remove` dans l'ordre de la liste : deux exécutions
+    donnent le même record, même si deux chemins se recouvrent.
+11. **On ne retire pas une RACINE entière** (`data`, `name`, `slug` seuls) —
+    lot 17. `fh-layer/1` **exige** `name` et `data` sur un record
+    (`$defs/opAdd.required`) : un pli qui les ôterait produirait un record que
+    son propre schéma ne saurait pas exprimer. `slug` y est joint par symétrie,
+    et le refus est **réversible vers le laxisme** — l'inverse ne l'est pas
+    (même raisonnement que l'arbitrage n°2). ⚠ **À ratifier** : voir la
+    question du lot 17 dans `QUESTIONS-ARCHITECTE.md`.
 
 ## Dépendances interdites
 
@@ -183,6 +262,13 @@ garantie qu'on ne consomme pas.
 4. **Les chemins de patch** : identité jamais index, création au bout
    rapportée, création en profondeur refusée, racines fermées, `snake_case`
    entre crochets (`layers-fold`).
+4-bis. **Le retrait** (`layers-remove`, lot 17) : retirer ce que la couche du
+   dessous accordait **en nommant les traits gardés**, et le RENDRE en retirant
+   la couche ; le retrait dans le vide qui nomme le chemin ; `attribution`,
+   `source`, `contentHash` et les racines entières refusés un par un ; l'ordre
+   retrait-avant-`changes` prouvé par les **deux sens** de la contradiction ;
+   le pli transactionnel sur un retrait qui échoue ; et la preuve que `null`
+   **pose** toujours, il ne retire pas.
 5. **Les gardes STRUCTURELS, et leurs ATTAQUES** (`layers-block`). Chaque
    interdit est violé une fois dans une source fabriquée et doit être vu **et
    nommé** ; le périmètre est une **liste de noms**, attaquée à vide et

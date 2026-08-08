@@ -31,7 +31,8 @@ import Ajv2020 from "ajv/dist/2020.js";
 import { ROOT, SRD_EN, fileBytes, bytes, aLayer, makeBlock } from "./layers-harness.mjs";
 import {
   buildLayer, generate, serialize, readSrdLayer, liftTrait, srdSpecies,
-  assertSrdLayer, wholesaleRecopies, assertNoWholesale, WHOLESALE_PATHS, OUT_NAME, SRD_PATH
+  assertSrdLayer, wholesaleRecopies, assertNoWholesale, WHOLESALE_PATHS, OUT_NAME, SRD_PATH,
+  substitute, survivors, handWrittenDescriptions, assertNoHandWritten
 } from "../src/tools/gen-fh-species-layer.mjs";
 import { TWELVE_NAMES, KEEN_SENSES_SKILLS, DESTINY_BASE } from "../src/tools/fh-species-source.mjs";
 
@@ -298,10 +299,15 @@ test("ACCEPTATION — les traits SRD que FH ne touche pas sont intacts, mot pour
   const { verbs } = pileFH();
   const srd = srdDoc();
 
-  /* Sept des neuf espèces SRD ne reçoivent QUE leur Base : leurs traits
-     doivent être ceux du SRD, à l'octet près. C'est la décision D1 rendue
-     vérifiable — « la couche ne porte QUE la différence ». */
-  for (const slug of ["dragonborn", "dwarf", "goliath", "halfling", "human", "orc", "tiefling"]) {
+  /* ⚠️ RÉÉCRIT PAR LE LOT 17, et non relâché. L'Humain était dans cette liste,
+     et l'assertion « ses traits sont ceux du SRD » est devenue FAUSSE le jour
+     où Eric lui a retiré Resourceful. Elle est donc réécrite à la nouvelle
+     vérité juste en dessous, avec ce qu'elle doit maintenant prouver — jamais
+     supprimée, jamais élargie (TRAPS.md : une note en milieu de ligne avait
+     déjà rendu une suite verte sur un garde qui ne tournait plus).
+     Six des neuf espèces SRD ne reçoivent QUE leur Base : leurs traits doivent
+     être ceux du SRD, à l'octet près. C'est la décision D1 rendue vérifiable. */
+  for (const slug of ["dragonborn", "dwarf", "goliath", "halfling", "orc", "tiefling"]) {
     const id = `srd:species:en:${slug}`;
     assert.deepEqual(dataOf(verbs, id).traits, srd.records.species[id].data.traits,
       `${slug} : la couche FH ne réécrit AUCUN trait SRD`);
@@ -334,7 +340,14 @@ test("ACCEPTATION — retirer la couche FH rend le Gnome, et emporte les trois e
 
 test("D1 — aucun patch ne remplace un bloc SRD en entier", () => {
   assert.deepEqual(wholesaleRecopies(fhLayer()), []);
-  assert.ok(WHOLESALE_PATHS.length >= 3, "la liste des recopies interdites n'est pas vide");
+  /* ⚠️ RÉÉCRIT PAR LE LOT 17, et DURCI au passage. L'assertion disait
+     « au moins trois chemins », c'est-à-dire un COMPTE — et un compte reste
+     vert quand on le pointe ailleurs (TRAPS.md). Elle NOMME maintenant les
+     chemins, ce qui dit aussi lequel a bougé : `data.description` a quitté
+     cette liste pour passer sous un garde plus serré
+     (`handWrittenDescriptions`), et ce test est l'endroit où ce déplacement
+     se lit. */
+  assert.deepEqual(WHOLESALE_PATHS.map(([path]) => path), ["data.traits", "data.senses"]);
 });
 
 test("ATTAQUE — le garde anti-recopie rougit, et NOMME le record et le chemin", () => {
@@ -342,18 +355,23 @@ test("ATTAQUE — le garde anti-recopie rougit, et NOMME le record et le chemin"
      l'attaque ne prouverait qu'un garde qui crie tout le temps. */
   assert.doesNotThrow(() => assertNoWholesale(fhLayer()));
 
+  /* ⚠️ RÉÉCRIT PAR LE LOT 17. `data.description` a QUITTÉ cette liste — pas
+     par relâchement, mais parce qu'un garde plus serré l'a reprise
+     (`handWrittenDescriptions`, attaqué plus bas) : l'ancien interdit disait
+     « n'écris pas ce chemin » et empêchait donc la correction qu'Eric
+     demandait. L'attaque porte maintenant sur les deux chemins qui restent. */
   const truquee = fhLayer();
   truquee.records.species["srd:species:en:dwarf"].changes["data.traits"] = [{ id: "x", name: "X", text: "X" }];
-  truquee.records.species["srd:species:en:orc"].changes["data.description"] = "réécrite";
+  truquee.records.species["srd:species:en:orc"].changes["data.senses"] = [{ id: "y" }];
 
   assert.deepEqual(wholesaleRecopies(truquee).map((h) => `${h.id} → ${h.path}`),
-    ["srd:species:en:dwarf → data.traits", "srd:species:en:orc → data.description"]);
+    ["srd:species:en:dwarf → data.traits", "srd:species:en:orc → data.senses"]);
 
   /* Et le générateur REFUSE une telle couche, il ne se contente pas de la
      signaler : `buildLayer` passe par ce même garde avant de rendre. */
   assert.throws(() => assertNoWholesale(truquee), (error) => {
     assert.match(error.message, /srd:species:en:dwarf → data\.traits/);
-    assert.match(error.message, /srd:species:en:orc → data\.description/);
+    assert.match(error.message, /srd:species:en:orc → data\.senses/);
     return true;
   });
 });
@@ -495,6 +513,220 @@ test("la couche FH ne touche AUCUN autre genre que species", () => {
     assert.equal(verbs.query({ kind: genre }).length, Object.keys(srd.records[genre]).length,
       `${genre} : la couche des espèces ne doit rien y ajouter ni rien y retirer`);
   }
+});
+
+/* ══ 7. LE LOT 17 — CE QUE L'HUMAIN PERD, ET CE QUE LA PROSE DIT ═══════
+   Deux demandes d'Eric du 2026-08-08 : « l'humain perd Resourceful, il a
+   Educated à la place », et les descriptions du Hoddon et de l'Elfe
+   corrigées. La première a attendu que la grammaire sache RETIRER (lot 17,
+   `opPatch.remove`) ; la seconde a attendu qu'on sache corriger une prose
+   sans la recopier. */
+
+/** OÙ un mot survit dans un record plié, chemin par chemin. Un garde qui rend
+ *  « oui/non » oblige à rechercher ce qu'il vient de trouver ; celui-ci NOMME
+ *  les endroits, et c'est ce qui permet de distinguer « c'est réparé » de
+ *  « il reste ceci, et on sait quoi ». */
+export function whereSurvives(value, word, prefix = "data") {
+  if (typeof value === "string") return value.includes(word) ? [prefix] : [];
+  if (Array.isArray(value)) {
+    return value.flatMap((item, i) => whereSurvives(item, word,
+      `${prefix}[${item && typeof item === "object" && item.id ? item.id : i}]`));
+  }
+  if (value && typeof value === "object") {
+    return Object.entries(value).flatMap(([key, v]) => whereSurvives(v, word, `${prefix}.${key}`));
+  }
+  return [];
+}
+
+test("ACCEPTATION B1 — l'Humain NE PORTE PLUS Resourceful, et porte Educated", () => {
+  const { verbs } = pileFH();
+  const humain = dataOf(verbs, "srd:species:en:human");
+
+  /* NOMMÉ, PAS COMPTÉ : « deux traits SRD » resterait vert si la pile en
+     rendait deux mauvais. */
+  assert.deepEqual(humain.traits.map((trait) => trait.id), ["skillful", "versatile"],
+    "Resourceful est parti ; Skillful et Versatile sont restés");
+  assert.deepEqual(traitNames(humain).sort(), ["Educated", "Skillful", "Twice-Born", "Versatile"],
+    "et Educated a bien pris sa place (Eric, 2026-08-08)");
+
+  /* LE POINT DE TOUT L'EXERCICE : les deux traits gardés sont ceux du SRD, MOT
+     POUR MOT. C'est pour ne PAS avoir à les recopier que le lot 15 avait
+     refusé de retirer Resourceful à la main. */
+  const srd = srdDoc().records.species["srd:species:en:human"].data.traits;
+  assert.deepEqual(humain.traits, srd.filter((trait) => trait.id !== "resourceful"),
+    "retirer n'est pas réécrire : aucun texte SRD n'a été recopié pour ça");
+
+  /* Et la couche le fait par la GRAMMAIRE, pas par une réécriture du tableau. */
+  const entry = fhLayer().records.species["srd:species:en:human"];
+  assert.deepEqual(entry.remove, ["data.traits[resourceful]"]);
+  assert.equal(Object.hasOwn(entry.changes, "data.traits"), false,
+    "le tableau des traits n'est jamais réécrit — c'est l'élément qui est désigné, par son identité");
+});
+
+test("ACCEPTATION B1 — retirer la couche FH REND Resourceful à l'Humain", () => {
+  const { verbs } = pileFH();
+  verbs.disable({ id: "fh-species-en" });
+  assert.deepEqual(dataOf(verbs, "srd:species:en:human").traits.map((t) => t.id),
+    ["resourceful", "skillful", "versatile"],
+    "« une couche retirée rend ce qu'elle avait retiré » — vrai par reconstruction du pli");
+  verbs.enable({ id: "fh-species-en" });
+  assert.deepEqual(dataOf(verbs, "srd:species:en:human").traits.map((t) => t.id), ["skillful", "versatile"]);
+});
+
+test("ACCEPTATION B2 — la description du Hoddon ne dit plus Gnome, celle de l'Elfe ne dit plus Perception", () => {
+  const { verbs } = pileFH();
+
+  const hoddon = dataOf(verbs, "srd:species:en:gnome");
+  assert.equal(hoddon.description.includes("Gnome"), false, "le Hoddon ne se dit plus Gnome");
+  assert.equal(hoddon.description.includes("Gnomish"), false, "…ni Gnomish, qui ne contient pas « Gnome »");
+  assert.match(hoddon.description, /^As a Hoddon, you have these special traits\./);
+  assert.match(hoddon.description, /Hoddon Cunning\./);
+  assert.match(hoddon.description, /Hoddon Lineage\./);
+
+  const elfe = dataOf(verbs, "srd:species:en:elf");
+  assert.equal(elfe.description.includes("Perception"), false,
+    "Perception n'existe pas dans Fate's Hand — la prose ne peut pas continuer à l'offrir");
+  for (const skill of ["Vigilance", "Delve", "Survival"]) {
+    assert.ok(elfe.description.includes(skill), `la description de l'Elfe doit citer ${skill}`);
+  }
+  assert.ok(elfe.description.includes("Keen Senses. You have proficiency in the Survival, Delve, or Vigilance skill."),
+    "et elle dit exactement la même chose que data.traits[keen-senses].text — une seule forme, un seul endroit");
+
+  /* CONSÉQUENCE DU RETRAIT, et non demande d'Eric : la prose de l'Humain
+     décrivait Resourceful. La laisser aurait fait dire au record, dans le même
+     souffle, qu'il n'a pas le trait et qu'il l'a. */
+  const humain = dataOf(verbs, "srd:species:en:human");
+  assert.equal(humain.description.includes("Resourceful"), false);
+  assert.equal(humain.description.includes("\n\n\n"), false, "et pas de trou laissé par la phrase ôtée");
+  assert.ok(humain.description.includes("Skillful."), "les deux traits gardés sont toujours décrits");
+  assert.ok(humain.description.includes("Versatile."));
+});
+
+test("ACCEPTATION B2 — les mots interdits qui SURVIVENT encore sont nommés, un par un", () => {
+  /* Un « plus aucune occurrence » global serait faux, et un silence serait
+     pire. On NOMME donc les endroits, ce qui distingue « c'est réparé » de
+     « il reste ceci, et on sait quoi ». */
+  const { verbs } = pileFH();
+
+  assert.deepEqual(whereSurvives(dataOf(verbs, "srd:species:en:elf"), "Perception"), [],
+    "l'Elfe : plus une seule Perception, nulle part dans le record plié");
+  assert.deepEqual(whereSurvives(dataOf(verbs, "srd:species:en:human"), "Resourceful"), [],
+    "l'Humain : le trait est parti et la prose qui le décrivait aussi");
+
+  /* ⚠️ LE RÉSIDU CONNU, ÉCRIT PLUTÔT QUE MASQUÉ. Le texte du trait
+     `gnomish-lineage` nomme encore les deux sous-lignées « Forest Gnome » et
+     « Rock Gnome ». Eric a demandé les DESCRIPTIONS ; renommer deux
+     sous-lignées dans le texte d'un trait est une décision qu'il n'a pas
+     prise (question Q17-3). Le jour où elle sera prise, c'est CE test qui
+     dira que la liste a changé. */
+  assert.deepEqual(whereSurvives(dataOf(verbs, "srd:species:en:gnome"), "Gnome"),
+    ["data.traits[gnomish-lineage].text"],
+    "un seul résidu, nommé — la description, elle, est propre");
+});
+
+test("ROUGIT — si le texte SRD change SOUS la substitution, la génération jette en nommant le motif", () => {
+  /* LA PREUVE DEMANDÉE, et c'est elle qui justifie tout le dispositif : une
+     copie figée aurait survécu à ce changement SANS RIEN DIRE, et la table
+     aurait joué une fiche qui contredit sa source. */
+  const srd = srdDoc();
+  const elfe = srd.records.species["srd:species:en:elf"];
+  elfe.data.description = elfe.data.description.replace(
+    "You have proficiency in the Insight, Perception, or Survival skill.",
+    "You have proficiency in the Insight, Perception, or Nature skill.");
+
+  assert.throws(() => buildLayer({ srd }), (error) => {
+    assert.match(error.message, /Insight, Perception, or Survival/, "l'erreur nomme le MOTIF introuvable");
+    assert.match(error.message, /srd:species:en:elf/, "…le record où il manque");
+    assert.match(error.message, /Elf/, "…et l'espèce");
+    assert.match(error.message, /Vigilance/, "…et la RAISON déclarée de la substitution");
+    return true;
+  });
+
+  /* LE TÉMOIN : sur le SRD intact, la même génération passe. Sans lui, on ne
+     prouverait qu'un générateur qui refuse tout. */
+  assert.doesNotThrow(() => buildLayer({ srd: srdDoc() }));
+});
+
+test("ROUGIT — une phrase NEUVE du SRD qui redit le mot interdit est attrapée par le second filet", () => {
+  /* Le trou que les substitutions seules ne peuvent pas voir : tous les motifs
+     déclarés trouvent encore leur cible, et le mot survit quand même. */
+  const srd = srdDoc();
+  const gnome = srd.records.species["srd:species:en:gnome"];
+  gnome.data.description += "\n\nGnomes are famously curious.";
+
+  assert.throws(() => buildLayer({ srd }), (error) => {
+    assert.match(error.message, /« Gnome »/, "l'erreur nomme le mot qui a survécu");
+    assert.match(error.message, /Hoddon/, "…et l'espèce concernée");
+    assert.match(error.message, /substitution de plus/, "…et ce qu'il faut faire : une substitution, pas un silence");
+    return true;
+  });
+});
+
+test("ROUGIT — une description SRD disparue, et un trait visé par un retrait qui n'y est plus", () => {
+  const sansProse = srdDoc();
+  delete sansProse.records.species["srd:species:en:gnome"].data.description;
+  assert.throws(() => buildLayer({ srd: sansProse }), (error) => {
+    assert.match(error.message, /data\.description/);
+    assert.match(error.message, /Hoddon/);
+    return true;
+  });
+
+  /* Et le retrait est vérifié À LA GÉNÉRATION, pas seulement au pli : mieux
+     vaut ne jamais produire un retrait qui ne pourra pas s'appliquer. */
+  const sansTrait = srdDoc();
+  const humain = sansTrait.records.species["srd:species:en:human"];
+  humain.data.traits = humain.data.traits.filter((trait) => trait.id !== "resourceful");
+  assert.throws(() => buildLayer({ srd: sansTrait }), (error) => {
+    assert.match(error.message, /resourceful/, "l'erreur nomme le trait qu'on voulait retirer");
+    assert.match(error.message, /Human/, "…et l'espèce");
+    return true;
+  });
+});
+
+test("ATTAQUE — le garde « aucune prose écrite à la main » rougit, et nomme le record", () => {
+  const srd = srdDoc();
+  /* LE TÉMOIN, D'ABORD : la vraie couche est entièrement re-dérivable. */
+  assert.deepEqual(handWrittenDescriptions(fhLayer(), srd), []);
+  assert.doesNotThrow(() => assertNoHandWritten(fhLayer(), srd));
+
+  /* (a) une prose posée à la main sur un record pour lequel AUCUNE
+     substitution n'est déclarée — le cas que ce garde existe pour attraper. */
+  const aLaMain = fhLayer();
+  aLaMain.records.species["srd:species:en:orc"].changes["data.description"] =
+    "As an Orc, you have these special traits.";
+
+  /* (b) une copie FIGÉE : les substitutions sont bien déclarées, mais le texte
+     commité n'est plus celui qu'elles produisent. C'est la dérive silencieuse
+     qu'une recopie ordinaire aurait offerte. */
+  aLaMain.records.species["srd:species:en:elf"].changes["data.description"] += " (vieille copie)";
+
+  assert.deepEqual(handWrittenDescriptions(aLaMain, srd).map((hit) => hit.id).sort(),
+    ["srd:species:en:elf", "srd:species:en:orc"]);
+  assert.throws(() => assertNoHandWritten(aLaMain, srd), (error) => {
+    assert.match(error.message, /srd:species:en:orc : aucune substitution/);
+    assert.match(error.message, /srd:species:en:elf : le texte de la couche n'est pas celui/);
+    return true;
+  });
+
+  /* (c) et le SRD qui bouge sous une couche COMMITÉE et par ailleurs saine :
+     le garde le voit sans qu'on ait touché à la couche. */
+  const bouge = srdDoc();
+  const gnome = bouge.records.species["srd:species:en:gnome"];
+  gnome.data.description = gnome.data.description.replace("As a Gnome", "As a gnome");
+  assert.deepEqual(handWrittenDescriptions(fhLayer(), bouge).map((hit) => hit.id),
+    ["srd:species:en:gnome"]);
+});
+
+test("les deux moteurs de substitution, nus et attaqués", () => {
+  /* Un test qui mesure un trou doit passer par LE GARDE, pas par une regex qui
+     imiterait son verdict — d'où l'appel direct aux deux fonctions. */
+  const subs = [{ find: "Gnome", put: "Hoddon", why: "renommage" }];
+  assert.deepEqual(substitute("A Gnome and a Gnome.", subs),
+    { text: "A Hoddon and a Hoddon.", misses: [] }, "TOUTES les occurrences, pas la première");
+  assert.deepEqual(substitute("A Dwarf.", subs).misses, subs, "un motif introuvable est RENDU, pas avalé");
+  assert.deepEqual(survivors("A Hoddon.", ["Gnome"]), [], "rien ne survit");
+  assert.deepEqual(survivors("A Gnome and Gnomish things.", ["Gnome", "Gnomish"]), ["Gnome", "Gnomish"],
+    "et les deux formes sont rendues — « Gnomish » ne contient pas « Gnome »");
 });
 
 test("un exemple de bout en bout : l'Elestu, mi-Araag mi-Elfe, tel qu'il sort de la pile", () => {

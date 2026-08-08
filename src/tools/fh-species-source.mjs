@@ -28,11 +28,11 @@
    incomplète.
 
    ── CE QUE LA COUCHE NE FAIT PAS, ET POURQUOI ────────────────────────
-   · Elle ne touche pas `data.description`. C'est la prose SRD, qui redit les
-     traits en toutes lettres ; la corriger serait la RECOPIER. FH rend ses
-     fiches depuis `traits`/`fh_traits`. ⚠️ Conséquence assumée et signalée à
-     l'architecte : la description du Hoddon dit encore « As a Gnome », celle
-     de l'Elfe dit encore « Perception ». Question Q15-4.
+   · ⚠️ RÉVISION DU 2026-08-08 (lot 17). Elle touche MAINTENANT
+     `data.description`, sur trois records — et pas en la recopiant. Voir
+     « LES DESCRIPTIONS » plus bas : le prix est réel, l'architecte l'a dit à
+     Eric et l'assume, et il est payé par une SUBSTITUTION DÉCLARÉE que le
+     générateur recalcule à chaque exécution depuis le texte SRD courant.
    · Elle ne retire pas la compétence Perception (elle n'existe pas en FH,
      remplacée par Vigilance / Delve / Survival). Le SRD la porte aussi dans
      son glossaire et `resolved.senses` la transporte : ce n'est pas un
@@ -200,6 +200,86 @@ const NECROTIC_RESISTANCE = {
   text: "You have Resistance to Necrotic damage."
 };
 
+/* ── LES DESCRIPTIONS — DÉCLARÉES, JAMAIS RECOPIÉES ──────────────────
+   Lot 17, sur demande d'Eric du 2026-08-08.
+
+   LE PROBLÈME QUE LE LOT 15 A NOMMÉ ET LAISSÉ OUVERT (Q15-4). Chaque record
+   d'espèce SRD porte un blob `data.description` qui REDIT ses traits en
+   toutes lettres. Le Hoddon dit donc encore « As a Gnome » et l'Elfe cite
+   encore « Perception », alors que Fate's Hand a remplacé la Perception par
+   Vigilance / Delve / Survival. Eric veut le texte corrigé.
+
+   LE PRIX, DIT ET ASSUMÉ PAR L'ARCHITECTE : patcher `data.description`, c'est
+   RECOPIER la prose du SRD avec quelques mots changés. Le jour où `fh-srd`
+   retouche ce texte, une copie figée ne bouge pas — et personne ne le voit.
+
+   D'OÙ LA FORME : ON NE RECOPIE PAS, ON DÉCLARE LA SUBSTITUTION.
+   Ce fichier ne contient AUCUNE phrase du SRD. Il déclare, par record, ce
+   qu'on cherche, ce qu'on pose à la place, et POURQUOI. Le générateur lit le
+   texte SRD COURANT, applique les substitutions, et écrit le résultat.
+
+   ET C'EST L'ALARME QUI FAIT TOUT LE TRAVAIL :
+   · une substitution qui ne trouve pas sa cible fait JETER le générateur, en
+     nommant le motif, le record, et la raison déclarée. Une dérive silencieuse
+     devient un échec bruyant ;
+   · `mustNotContain` est le second filet, et il attrape ce que le premier ne
+     peut pas voir : si le SRD ajoute une PHRASE NEUVE qui dit « Gnome », tous
+     les motifs déclarés trouvent encore leur cible — et le mot survit quand
+     même. Le résultat est donc relu, et le mot interdit fait jeter.
+
+   ⚠️ CE QUI N'ENTRE PAS DANS LA DESCRIPTION. Les traits FH (Educated,
+   Twice-Born, Splinter of Anon, Outlasting) n'y sont PAS ajoutés : les
+   écrire serait écrire de la prose à la main, ce que ce dispositif existe
+   précisément pour interdire. FH rend ses fiches depuis `data.traits` +
+   `data.fh_traits` ; `description` reste de la PROVENANCE.
+
+   ⚠️ RÉSIDU CONNU ET NOMMÉ : le texte du trait `gnomish-lineage` dit encore
+   « Forest Gnome » et « Rock Gnome ». Eric a demandé les DESCRIPTIONS, et
+   renommer les deux sous-lignées dans le texte d'un trait est une décision
+   qu'il n'a pas prise. Question Q17-3. */
+
+const HODDON_DESCRIPTION = {
+  substitutions: [
+    { find: "As a Gnome", put: "As a Hoddon",
+      why: "le Hoddon EST le Gnome, renommé (Eric, chapitre 2 : « Hoddon = Gnome, simple renommage »)" },
+    { find: "Gnomish Cunning", put: "Hoddon Cunning",
+      why: "la couche renomme déjà ce trait dans data.traits[gnomish-cunning].name ; la prose disait le contraire" },
+    { find: "Gnomish Lineage", put: "Hoddon Lineage",
+      why: "idem, data.traits[gnomish-lineage].name" },
+    { find: "Forest Gnome", put: "Forest Hoddon",
+      why: "sous-lignée : le mot « Gnome » ne doit plus figurer dans la description du Hoddon" },
+    { find: "Rock Gnome", put: "Rock Hoddon",
+      why: "idem" }
+  ],
+  /* Les deux formes, parce que « Gnomish » ne contient pas « Gnome ». */
+  mustNotContain: ["Gnome", "Gnomish"]
+};
+
+const ELF_DESCRIPTION = {
+  substitutions: [
+    { find: "Keen Senses. You have proficiency in the Insight, Perception, or Survival skill.",
+      put: `Keen Senses. ${KEEN_SENSES_TEXT}`,
+      why: "Perception n'existe pas dans Fate's Hand — elle est remplacée par Vigilance, Delve et " +
+        "Survival, et la couche porte déjà cette forme dans data.traits[keen-senses].text" }
+  ],
+  mustNotContain: ["Perception"]
+};
+
+/* ⚠️ CELLE-CI N'EST PAS UNE CORRECTION DEMANDÉE : C'EST LA CONSÉQUENCE DU
+   RETRAIT. Eric retire Resourceful à l'Humain ; la description SRD le décrit
+   encore, phrase entière. La laisser ferait dire au record, dans le même
+   souffle, qu'il n'a pas le trait et qu'il l'a. La contradiction serait CRÉÉE
+   PAR CE LOT — c'est à lui de ne pas la livrer. La phrase entière part, saut
+   de paragraphe compris, pour ne pas laisser un blanc double. Question Q17-2. */
+const HUMAN_DESCRIPTION = {
+  substitutions: [
+    { find: "Resourceful. You gain Heroic Inspiration whenever you finish a Long Rest.\n\n", put: "",
+      why: "l'Humain PERD Resourceful (Eric, 2026-08-08) — le trait est retiré de data.traits, " +
+        "la prose qui le décrit ne peut pas rester" }
+  ],
+  mustNotContain: ["Resourceful"]
+};
+
 /* ── LES DOUZE ESPÈCES ───────────────────────────────────────────────
    Ordre du chapitre d'Eric (alphabétique). Les Eluzi n'y sont PAS : ils ne
    sont pas une espèce de départ, on y arrive en jeu.
@@ -281,6 +361,7 @@ export const SPECIES = [
     op: "patch",
     target: srdSpeciesId("elf"),
     keenSenses: true,
+    description: ELF_DESCRIPTION,
     fhTraits: [SPLINTER_OF_ANON],
     destinyBaseBonus: { value: 2, trait: SPLINTER_OF_ANON.id }
   },
@@ -311,13 +392,23 @@ export const SPECIES = [
         "gnomish-cunning": "Hoddon Cunning",
         "gnomish-lineage": "Hoddon Lineage"
       }
-    }
+    },
+    description: HODDON_DESCRIPTION
   },
 
   {
     fhName: "Human",
     op: "patch",
     target: srdSpeciesId("human"),
+    /* ⭐ LE RETRAIT, décidé par Eric le 2026-08-08 : « l'humain perd
+       Resourceful, il a Educated à la place ». Le chapitre le disait déjà
+       (« Resourceful (Heroic Inspiration on each long rest) — retiré ») et le
+       lot 15 avait REFUSÉ de le faire, faute de moyen : un patch ne savait pas
+       supprimer, et réécrire `data.traits` en entier aurait recopié le texte
+       SRD de Skillful et Versatile. Le moyen existe depuis le lot 17
+       (`opPatch.remove`), et il désigne le trait PAR SON IDENTITÉ. */
+    removeTraits: ["resourceful"],
+    description: HUMAN_DESCRIPTION,
     fhTraits: [EDUCATED_TRAIT, TWICE_BORN],
     skillPoints: EDUCATED
   },

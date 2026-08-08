@@ -1270,3 +1270,107 @@ implicites y sont enterrés, et ils engagent les lots suivants :
 
 **La question.** Laquelle ? Et d'où vient la **version** d'une couche FH — il
 n'y a pas de « SRD 5.2.1 » à recopier, et `0.1.0` est un choix par défaut.
+
+---
+
+# Questions du lot `17-couche-fh-retrait` à l'architecte
+
+**Écrites le 2026-08-08.** Le lot livre l'opération de retrait
+(`opPatch.remove`) et s'en sert pour finir les espèces d'Eric : l'Humain perd
+`Resourceful`, et les descriptions du Hoddon, de l'Elfe et de l'Humain sont
+**recalculées** depuis le SRD par substitution déclarée.
+
+Deux questions du lot 15 sont **fermées** par celui-ci :
+**Q15-5** (le moyen de retirer) et **Q15-4** (les deux descriptions
+contradictoires) — cette dernière par une **quatrième voie** que les trois
+proposées n'avaient pas : ni assumer, ni composer à l'affichage, ni recopier,
+mais **déclarer la substitution et la recalculer**. Les cinq ci-dessous sont ce
+que le lot a posé **sans mandat explicite** et n'a pas voulu poser en silence.
+
+---
+
+## Q17-1 — Le retrait d'une **racine entière** est refusé : règle posée par ce lot
+
+**Le fait.** `remove` partage la liste fermée de racines du patch — `name`,
+`slug`, `data`, et rien d'autre. Restait à décider si un chemin d'**un seul
+segment** (`data`, `name`) peut retirer la racine elle-même.
+
+**Ce que le lot a fait : REFUSER**, avec un argument sourcé plutôt qu'un goût —
+`fh-layer/1` **exige** `name` et `data` sur un record (`$defs/opAdd.required`),
+donc un pli qui les ôterait produirait un record que **son propre schéma ne
+saurait pas exprimer**. `slug`, qui n'est pas requis, y est joint **par
+symétrie** : le refus est réversible vers le laxisme, l'inverse ne l'est pas
+(le raisonnement de l'arbitrage n°2).
+
+**La question.** L'architecte ratifie-t-il ? Et faut-il **exempter `slug`**,
+seule racine que le schéma n'exige pas ? C'est une ligne dans `paths.mjs`.
+
+---
+
+## Q17-2 — La description de l'**Humain** a été corrigée sans qu'Eric le demande
+
+**Le fait.** Eric a demandé les descriptions du **Hoddon** et de l'**Elfe**. Il
+n'a pas parlé de l'Humain. Mais la prose SRD de l'Humain **décrit Resourceful**
+en toutes lettres (« Resourceful. You gain Heroic Inspiration whenever you
+finish a Long Rest. ») — et c'est **ce lot** qui retire le trait.
+
+**Ce que le lot a fait.** La phrase entière part, par la même substitution
+déclarée que les deux autres. Sans quoi le record dirait, dans le même souffle,
+qu'il n'a pas le trait et qu'il l'a — **une contradiction créée par ce lot**, et
+c'est à lui de ne pas la livrer.
+
+**La question.** Ratifié ? C'est la seule des trois substitutions qu'Eric n'a
+pas commandée, et elle est réversible en supprimant quatre lignes de
+`fh-species-source.mjs`.
+
+---
+
+## Q17-3 — « Forest Gnome » et « Rock Gnome » survivent dans le TEXTE d'un trait
+
+**Le fait, mesuré.** Après le pli, le mot « Gnome » ne survit plus qu'à **un
+seul endroit** du record Hoddon : `data.traits[gnomish-lineage].text`, qui nomme
+les deux sous-lignées **Forest Gnome** et **Rock Gnome**. La **description**,
+elle, est propre — c'est ce qu'Eric a demandé, et un test le NOMME.
+
+**Pourquoi le lot s'est arrêté là.** Renommer deux sous-lignées est une décision
+de contenu qu'Eric n'a pas prise ; son chapitre dit « peut-être des sous-espèces
+plus tard ». Le dispositif de substitution saurait le faire en trois lignes.
+
+**La question.** Les sous-lignées du Hoddon s'appellent-elles **Forest Hoddon**
+et **Rock Hoddon** ? Si oui, la même substitution s'applique au texte du trait.
+⚠️ La description, elle, **les nomme déjà ainsi** — parce que le critère
+d'acceptation exigeait qu'elle ne porte plus le mot « Gnome ». Les deux textes
+du même record ne se disent donc pas la même chose tant que la réponse n'est
+pas venue, et c'est écrit plutôt que masqué.
+
+---
+
+## Q17-4 — Une description corrigée ne **décrit pas** les traits FH
+
+**Le fait.** La prose du Hoddon, de l'Elfe et de l'Humain ne mentionne ni
+**Educated**, ni **Twice-Born**, ni **Splinter of Anon** — les traits que la
+couche FH ajoute. Les y écrire serait **écrire de la prose à la main**, ce que
+tout le dispositif de substitution existe pour interdire.
+
+**La position du lot** : `description` reste de la **provenance** ; FH rend ses
+fiches depuis `data.traits` + `data.fh_traits`. C'est la position du lot 15,
+inchangée — le lot 17 n'a corrigé que ce qui était **faux**, pas ce qui était
+**incomplet**.
+
+**La question.** Confirmé ? Le jour où une interface affichera `description`,
+elle sera juste mais incomplète — et ça ne se devine pas plus qu'avant.
+
+---
+
+## Q17-5 — Deux formes qu'aucun besoin n'a encore éprouvées
+
+**(a) Un chemin listé deux fois dans `remove`.** Le second ne vise plus rien,
+donc il **jette** — cohérent avec « un retrait dans le vide est un échec ». Le
+schéma pourrait l'attraper plus tôt (`uniqueItems: true`), au prix d'une règle
+de plus à tenir des deux côtés du garde de dérive. Le lot a préféré **une seule
+règle qui couvre les deux cas**. À confirmer.
+
+**(b) `layers-changed` ne rapporte pas les retraits.** Un `add` recouvert
+remonte dans `shadowed` (arbitrage n°2) ; un retrait, lui, ne remonte que dans
+la **provenance** du record (`patchedBy[].removed`), que `query` rend. Le bloc
+`build` devra-t-il en faire quelque chose, comme il fait de `shadowed` ?

@@ -15,7 +15,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  readLayer, assertLayerShape, sha256, GENRES, FORBIDDEN_KEYS, PATTERNS
+  readLayer, assertLayerShape, sha256, GENRES, FORBIDDEN_KEYS, PATTERNS, PATCH_KEYS
 } from "../src/layers/document.mjs";
 import { parseChangePath } from "../src/layers/paths.mjs";
 import { aLayer, anAdd, fileBytes, readJson, HOMEBREW, SRD_FR } from "./layers-harness.mjs";
@@ -189,6 +189,11 @@ test("aucune dérive entre le validateur en code et fh-layer.schema.json", () =>
     "les 14 genres": [GENRES, schemaGenres],
     "les clefs interdites": [FORBIDDEN_KEYS, safeKey],
     "le chemin d'un patch": [PATTERNS.changePath.source, schema.$defs.opPatch.properties.changes.propertyNames.pattern],
+    /* AJOUT DU LOT 17. `remove` est une clef sœur de `changes` et porte la MÊME
+       grammaire : deux copies d'une grammaire ne restent égales que si quelque
+       chose les compare — et il y en a maintenant trois. */
+    "le chemin d'un retrait": [PATTERNS.changePath.source, schema.$defs.opPatch.properties.remove.items.pattern],
+    "les clefs d'un patch": [PATCH_KEYS, Object.keys(schema.$defs.opPatch.properties)],
     "l'id d'un record": [PATTERNS.recordId.source, schema.$defs.recordId.pattern],
     "un drapeau": [PATTERNS.flag.source, schema.$defs.flag.pattern],
     "l'id d'une couche": [PATTERNS.layerId.source, schema.properties.id.pattern],
@@ -210,6 +215,16 @@ test("ATTAQUE DU GARDE DE DÉRIVE — il voit un quinzième genre ajouté au sch
 
   const withPattern = drift({ "le chemin d'un patch": [PATTERNS.changePath.source, "^.*$"] }, {});
   assert.equal(withPattern.length, 1, "une grammaire relâchée d'un côté doit se voir");
+
+  /* Et les deux couples ajoutés par le lot 17, violés eux aussi : un garde
+     qu'on ajoute sans le voir rougir n'a jamais été éprouvé. */
+  const withLooseRemove = drift({ "le chemin d'un retrait": [PATTERNS.changePath.source, "^.*$"] }, {});
+  assert.equal(withLooseRemove.length, 1, "un `remove` dont la grammaire s'écarterait de `changes` doit se voir");
+
+  const withGhostKey = drift({ "les clefs d'un patch": [PATCH_KEYS, PATCH_KEYS.concat("effets")] }, {});
+  assert.equal(withGhostKey.length, 1);
+  assert.match(withGhostKey[0], /effets/, "une clef ouverte dans le schéma seul serait acceptée par la norme " +
+    "et refusée par son exécution — l'écart doit se voir ici, pas chez quelqu'un d'autre");
 
   assert.deepEqual(drift({ "rien n'a bougé": [GENRES, GENRES] }, {}), [],
     "et il reste muet quand les deux disent la même chose");
