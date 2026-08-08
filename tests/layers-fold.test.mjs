@@ -177,16 +177,30 @@ test("ATTAQUE — monter deux fois la même couche est refusé", () => {
 
 /* ── `query` : le seul chemin de lecture ────────────────────────────── */
 
-test("ATTAQUE — un genre hors des 14 JETTE, il ne rend pas une liste vide", () => {
+test("ATTAQUE — un genre hors de l'énumération JETTE, il ne rend pas une liste vide", () => {
   const { verbs } = makeBlock();
   verbs.register({ bytes: socle, origin: "socle" });
   rejects(() => verbs.query({ kind: "spel" }), /genre inconnu/, "une requête sur « spel »");
-  rejects(() => verbs.query({ kind: "arcana", id: "x" }), /genre inconnu/, "une requête sur un genre FH à venir");
+  /* REWRITTEN 2026-08-09 — `arcana` était l'exemple du « genre FH à venir ».
+     Il est VENU : l'architecte l'a ouvert dans les deux schémas (trou
+     GAP-KIND clos). L'assertion n'est pas relâchée, elle change de sujet —
+     `boon` prend le rôle, c'est un genre FH réellement absent de
+     l'énumération (les Boons and Flaws d'Eric n'ont pas encore de place). */
+  rejects(() => verbs.query({ kind: "boon", id: "x" }), /genre inconnu/, "une requête sur un genre FH à venir");
   rejects(() => verbs.query({}), /genre inconnu/, "une requête sans genre");
   /* Une liste vide ressemble à une réponse ; un genre vrai mais vide en est
      une, et les deux ne doivent pas se confondre. */
   assert.deepEqual(verbs.query({ kind: "spell" }), [], "un genre vrai que la pile ne porte pas rend une liste vide");
   assert.equal(verbs.query({ kind: "spell", id: "socle:spell:fr:x" }), null);
+
+  /* AJOUTÉ 2026-08-09 — LA RÉCIPROQUE, sur le genre qui vient d'être ouvert.
+     C'est la moitié qui se serait perdue : `arcana` ne jette plus, et il ne
+     doit pas non plus faire semblant de porter quelque chose. Tant qu'aucune
+     couche ne monte les 22 cartes, il répond une liste VIDE — la réponse
+     « ce genre existe, la pile n'en porte rien », qui est exactement ce que
+     le module de Destinée déclare aujourd'hui. */
+  assert.deepEqual(verbs.query({ kind: "arcana" }), [], "`arcana` est légal depuis le 2026-08-09 : vide, pas un refus");
+  assert.equal(verbs.query({ kind: "arcana", id: "fh:arcana:en:the-hermit" }), null);
 });
 
 test("ATTAQUE — ce que `query` rend est IMMUABLE, jusqu'au fond", () => {

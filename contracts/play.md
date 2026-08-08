@@ -377,11 +377,26 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
    d'Eric ne couvre ce cas. C'est le seul endroit du plafond qui n'a pas de
    phrase derrière lui.
 
-9. **Où vit l'Arcane du personnage ?** (lot 16) La Vibration se déclenche si
-   `character.destinyBuild.arcana` existe — le chemin de la v1. Le schéma, lui,
-   nomme **GAP-KIND** (`destiny.arcana.id`) : l'Arcane n'a pas encore de place
-   ratifiée dans `fh-char/1`. Le moteur lit donc un chemin v1 en attendant, et
-   il ne lit **rien** du contenu de la carte.
+9. ~~**Où vit l'Arcane du personnage ?**~~ (lot 16) — ✅ **RÉPONDU LE
+   2026-08-09 par révision d'architecte.** La question était : la Vibration se
+   déclenche si `character.destinyBuild.arcana` existe — un chemin v1 — alors
+   que le schéma nommait **GAP-KIND** et que l'Arcane n'avait aucune place
+   ratifiée dans `fh-char/1`.
+
+   **La réponse n'a demandé AUCUN champ neuf**, et c'est le point qui valait
+   d'être mesuré plutôt que supposé : `$defs/kind` gouverne déjà
+   `build.choices[].ref.kind`. Ouvrir le genre `arcana` a donc suffi à donner
+   sa place à la carte, dans la forme exacte qu'emploient déjà l'espèce, la
+   classe et l'historique :
+
+   ```json
+   { "path": "fh.destiny.arcana", "ref": { "kind": "arcana", "id": "…" }, "label": "The Hermit" }
+   ```
+
+   Le préfixe `fh.destiny.` n'est pas décoratif : c'est le namespace du module
+   de Destinée (lot 19), et un choix posé hors de ce préfixe ressortirait
+   `unconsumed`. **Reste au moteur** à cesser de lire `character.destinyBuild.arcana`
+   — c'est du code, pas du contrat, et donc le travail d'un lot.
 
 10. **Un critique arcanique OBTENU PAR REFUS déclenche-t-il une Vibration ?**
     (lot 16) Refuser un 1 sur un dé de Destinée (§3.4) fait lire le 1 comme la

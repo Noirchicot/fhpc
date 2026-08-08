@@ -59,10 +59,11 @@
     },
     "description": { "type": "string", "maxLength": 2000 },
     "records": {
-      "$comment": "Records par genre, clef = id de record. Les 14 genres fh-srd sont énumérés explicitement : un genre inconnu (`spel`) est un rejet bruyant, pas une clef acceptée en silence. Les genres FH à venir entrent par une révision explicite de fh-layer/1. RÉVISION DU 2026-08-08 (lot 6-srd-tables fusionné, fh-srd main = 4651a43) : `skill` et `class-progression` ajoutés. Ce ne sont pas des commodités — sans eux un personnage ne pouvait ni choisir ses compétences ni recevoir ses emplacements de sorts, et le builder ne dérivait rien.",
+      "$comment": "Records par genre, clef = id de record. Les 15 genres sont énumérés explicitement : un genre inconnu (`spel`) est un rejet bruyant, pas une clef acceptée en silence. Les genres FH à venir entrent par une révision explicite de fh-layer/1. RÉVISION DU 2026-08-08 (lot 6-srd-tables fusionné, fh-srd main = 4651a43) : `skill` et `class-progression` ajoutés. Ce ne sont pas des commodités — sans eux un personnage ne pouvait ni choisir ses compétences ni recevoir ses emplacements de sorts, et le builder ne dérivait rien.\n\nRÉVISION DU 2026-08-09 — `arcana`, et c'est LE PREMIER GENRE QUI NE VIENT PAS DE fh-srd. Les 14 autres sont les 14 fichiers d'export SRD ; celui-ci porte les 22 Arcanes majeurs de Fate's Hand, qui n'existent dans aucun SRD. Conséquence à ne pas rater : `src/tools/gen-srd-layer.mjs` garde SA PROPRE liste de 14 et ne doit jamais recevoir `arcana` — un générateur SRD qui produirait un genre FH mélangerait les deux couches, ce que la loi §0.12 interdit. Le trou s'appelait GAP-KIND et il bloquait le terme le plus important du Score de Destinée : mesuré sur les 7 personnages réels d'Eric, 7 sur 7 portent un Arcane, et son impact vaut 0, 1 ou 2 SELON LA CARTE — jamais codable en dur, donc il lui faut un record à lire.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "arcana": { "$ref": "#/$defs/genre" },
         "armor": { "$ref": "#/$defs/genre" },
         "background": { "$ref": "#/$defs/genre" },
         "class": { "$ref": "#/$defs/genre" },

@@ -28,12 +28,18 @@
 
 import { createHash } from "node:crypto";
 
-/* Les 14 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
+/* Les 15 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
-   du lot 6-srd-tables. Un genre inconnu est un rejet bruyant, jamais une clef
-   acceptée en silence — c'est la seule défense contre `spel`. */
+   du lot 6-srd-tables. RÉVISION DU 2026-08-09 : `arcana` est le genre 15 — et
+   le PREMIER qui ne vienne pas de fh-srd. Les 14 autres sont les 14 fichiers
+   d'export SRD ; celui-ci porte les 22 Arcanes majeurs de Fate's Hand, qui
+   n'existent dans aucun SRD. `src/tools/gen-srd-layer.mjs` garde donc sa
+   propre liste de 14 et ne doit jamais recevoir `arcana` : un générateur SRD
+   qui produirait un genre FH mélangerait les deux couches (loi §0.12).
+   Un genre inconnu est un rejet bruyant, jamais une clef acceptée en silence
+   — c'est la seule défense contre `spel`. */
 export const GENRES = [
-  "armor", "background", "class", "class-progression", "feat", "gear",
+  "arcana", "armor", "background", "class", "class-progression", "feat", "gear",
   "glossary", "item", "monster", "skill", "species", "spell", "tool", "weapon"
 ];
 const GENRE_SET = new Set(GENRES);
@@ -276,7 +282,7 @@ export function assertLayerShape(doc, origin = "(couche)") {
   let total = 0;
   for (const [genre, entries] of Object.entries(doc.records)) {
     if (!GENRE_SET.has(genre)) {
-      fail(origin, `genre inconnu « ${genre} » — les 14 genres sont ${GENRES.join(", ")}. ` +
+      fail(origin, `genre inconnu « ${genre} » — les ${GENRES.length} genres sont ${GENRES.join(", ")}. ` +
         "Un genre neuf entre par une révision explicite de fh-layer/1, jamais par une faute de frappe acceptée.");
     }
     if (!isPlainObject(entries)) fail(origin, `records.${genre} doit être un objet id → record.`);
@@ -308,7 +314,7 @@ export function isGenre(kind) {
 export function assertGenre(kind) {
   if (typeof kind !== "string" || !GENRE_SET.has(kind)) {
     throw new LayerError(
-      `fhpc/layers: genre inconnu « ${kind} » — les 14 genres sont ${GENRES.join(", ")}.`
+      `fhpc/layers: genre inconnu « ${kind} » — les ${GENRES.length} genres sont ${GENRES.join(", ")}.`
     );
   }
   return kind;

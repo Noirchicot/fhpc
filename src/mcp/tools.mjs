@@ -138,16 +138,19 @@ export const TOOLS = [
     description:
       "Le SEUL chemin de lecture du contenu des couches, et donc le seul moyen de connaître les identifiants à " +
       "poser dans un choix. Avec `id` : la vue pliée de ce record, ou null. Sans `id` : TOUTES les vues du genre — " +
-      "attention, un genre entier peut peser plusieurs mégaoctets (le genre `spell` du SRD porte 339 records). " +
-      "Un genre hors des 14 est un refus, jamais une liste vide.",
+      "attention, un genre entier peut peser plusieurs mégaoctets (le genre des sorts du SRD porte 339 records). " +
+      "Un genre hors de l'énumération est un refus, jamais une liste vide. LA RÉCIPROQUE COMPTE AUTANT : un " +
+      "genre LÉGAL que la pile montée ne porte pas rend une liste VIDE, jamais un refus — ne conclus donc pas " +
+      "d'une liste vide que le genre n'existe pas, ni que le serveur est en faute.",
     inputSchema: {
       type: "object",
       properties: {
         kind: {
           type: "string",
           description:
-            "Le genre de record. Les 14 genres : armor, background, class, class-progression, feat, gear, " +
-            "glossary, item, monster, skill, species, spell, tool, weapon."
+            "Le genre de record, tel que l'énumération fermée de `fh-layer/1` le déclare. La liste n'est PAS " +
+            "recopiée ici : elle l'était, et elle avait déjà dérivé d'un genre. Un genre inconnu est refusé " +
+            "en le NOMMANT, et le refus énumère les genres légaux — c'est là qu'il faut lire la liste vraie."
         },
         id: { type: "string", description: "L'identifiant du record (par exemple srd:species:fr:elfe). Omis, tout le genre est rendu." }
       },

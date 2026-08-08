@@ -163,21 +163,39 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
 
   /* LES TROIS TERMES SANS SOURCE DE RÈGLE. Chacun est nommé, chacun dit
      pourquoi. La mesure derrière eux : la couche FH ne porte QUE le genre
-     `species` — aucun don FH, aucun Arcane — et le genre `arcana` n'existe pas
-     dans l'énumération des 14 genres (trou GAP-KIND, toujours ouvert). */
+     `species` — aucun don FH, aucun Arcane.
+
+     REWRITTEN 2026-08-09 — LA RAISON A CHANGÉ DE NATURE, PAS LE VERDICT.
+     Ce commentaire disait « le genre `arcana` n'existe pas dans l'énumération
+     des 14 genres (trou GAP-KIND, toujours ouvert) ». L'architecte a ouvert
+     le genre dans les deux schémas ce jour-là : GAP-KIND est CLOS. Les trois
+     termes restent déclarés, mais pour une raison qui n'est plus la même —
+     ce n'est plus le CONTRAT qui manque, c'est le CONTENU (personne n'a
+     encore écrit la couche des 22 cartes). La distinction n'est pas
+     cosmétique : laisser l'ancienne raison enverrait le prochain lot réviser
+     un schéma déjà révisé. */
   for (const champ of [`stats[${FH_DESTINY_ID}].arcana`, `stats[${FH_DESTINY_ID}].feat`, `stats[${FH_DESTINY_ID}].other`]) {
     assert.ok(champs.includes(champ), `« ${champ} » doit être DÉCLARÉ, pas inventé`);
     assert.ok(out.underived.find((entry) => entry.field === champ).reason.length > 40,
       `« ${champ} » doit dire POURQUOI, pas seulement QUOI`);
   }
+  /* REWRITTEN 2026-08-09 — la raison ne doit plus dire que le genre manque.
+     Elle doit dire ce qui manque VRAIMENT : le contenu. Et elle doit nommer
+     GAP-KIND comme CLOS, pas comme ouvert, sinon la déclaration renvoie le
+     lecteur vers un travail déjà fait. */
   assert.match(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].arcana`).reason,
-    /GAP-KIND/, "l'Arcane majeur renvoie au trou nommé, pas à une excuse");
+    /GAP-KIND clos/, "l'Arcane renvoie au trou NOMMÉ ET CLOS, pas à une excuse");
+  assert.doesNotMatch(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].arcana`).reason,
+    /toujours ouvert/, "le trou du contrat est bouché — le dire encore enverrait réviser un schéma déjà révisé");
 
-  /* LA MESURE, VÉRIFIÉE PLUTÔT QUE CRUE : la pile ne porte réellement aucun
-     genre `arcana`, et la couche FH n'ajoute aucun `feat`. Le jour où l'un des
-     deux entre, ce test rougit et la déclaration doit être levée. */
-  assert.throws(() => h.layers.verbs.query({ kind: "arcana" }),
-    "le genre `arcana` n'existe pas dans les 14 genres — c'est le trou GAP-KIND");
+  /* LA MESURE, VÉRIFIÉE PLUTÔT QUE CRUE, ET ELLE A CHANGÉ DE FORME.
+     REWRITTEN 2026-08-09 : ce test exigeait que `query({kind:"arcana"})` JETTE.
+     Il ne jette plus — le genre est légal. La nouvelle vérité est plus forte,
+     parce qu'elle distingue les deux échecs qu'on pouvait confondre : le
+     genre RÉPOND (donc le contrat est là) et il répond VIDE (donc le contenu
+     manque). C'est exactement ce que la déclaration ci-dessus affirme. */
+  assert.deepEqual(h.layers.verbs.query({ kind: "arcana" }), [],
+    "`arcana` est un genre légal : la pile n'en porte aucun record, elle ne le REFUSE pas");
   const couche = JSON.parse(readFileSync(join(ROOT, FH_SPECIES_EN), "utf8"));
   assert.deepEqual(Object.keys(couche.records), ["species"],
     "la couche FH ne porte QUE le genre `species` — pas un don, pas un Arcane");

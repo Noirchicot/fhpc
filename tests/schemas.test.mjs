@@ -148,10 +148,47 @@ test("REJET — choix ne portant ni ref ni value", () => {
   assertRejected(validateChar, doc, "un choix vide");
 });
 
-test("REJET — référence de choix vers un genre hors des 12", () => {
+test("REJET — référence de choix vers un genre hors de l'énumération", () => {
   const doc = clone(charExample);
-  doc.build.choices[0].ref = { kind: "arcana", id: "fh:arcana:fr:ix" };
+  /* REWRITTEN 2026-08-09 — le cobaye était `arcana`, et il est devenu LÉGAL
+     (révision d'architecte, trou GAP-KIND clos). Garder ce test tel quel
+     l'aurait rendu vert pour la mauvaise raison le jour où le schéma aurait
+     re-fermé le genre par accident. `boon` prend le rôle : genre FH réel,
+     toujours hors de l'énumération. */
+  doc.build.choices[0].ref = { kind: "boon", id: "fh:boon:fr:ix" };
   assertRejected(validateChar, doc, "une référence vers un genre inconnu");
+});
+
+test("ACCEPTÉ — un personnage DIT quel Arcane il porte, par le mécanisme de choix", () => {
+  /* AJOUTÉ 2026-08-09. C'est l'assertion qui démontre ce que la révision du
+     genre `arcana` ouvre RÉELLEMENT, et elle valait mieux qu'un commentaire :
+     la question « où vit l'Arcane du personnage ? » (QUESTIONS-ARCHITECTE §4,
+     ouverte depuis le lot 16) n'appelait AUCUN champ neuf. `$defs/kind` est
+     référencé par `build.choices[].ref.kind` ; ouvrir le genre a donc donné
+     sa place à la carte, dans la forme exacte que l'espèce, la classe et
+     l'historique utilisent déjà. */
+  const doc = clone(charExample);
+  doc.build.choices.push({
+    path: "fh.destiny.arcana",
+    ref: { kind: "arcana", id: "fh:arcana:en:the-hermit" },
+    label: "The Hermit"
+  });
+  assert.equal(validateChar(doc), true, ajv.errorsText(validateChar.errors));
+
+  /* Et l'autre moitié : le terme de l'Arcane dans le Score peut CITER sa
+     carte. `$defs/kind` gouverne aussi `resolved.stats[].breakdown[].source`,
+     sans quoi l'impact serait un nombre nu que rien ne justifierait. */
+  const avecScore = clone(charExample);
+  avecScore.resolved.stats = [{
+    id: "fh:destiny",
+    flag: "fh.destiny",
+    name: "Destiny Score",
+    value: 2,
+    breakdown: [
+      { label: "The Hermit", value: 2, source: { kind: "arcana", id: "fh:arcana:en:the-hermit" } }
+    ]
+  }];
+  assert.equal(validateChar(avecScore), true, ajv.errorsText(validateChar.errors));
 });
 
 test("REJET — couche du build sans hash", () => {

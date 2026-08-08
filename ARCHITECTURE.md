@@ -30,10 +30,14 @@ reste inerte et intact, les couches manquantes sont listées et affichées.
 
 ### Les couches `fh-layer/1` — données, jamais du code
 
-Manifeste + records par genre (les 14 genres `fh-srd` : armor, background,
-class, class-progression, feat, gear, glossary, item, monster, skill, species,
-spell, tool, weapon — plus les genres FH à venir ; `skill` et
-`class-progression` sont arrivés avec le lot `6-srd-tables` le 2026-08-08).
+Manifeste + records par genre — **15 genres**, dont 14 viennent de `fh-srd`
+(armor, background, class, class-progression, feat, gear, glossary, item,
+monster, skill, species, spell, tool, weapon ; `skill` et `class-progression`
+sont arrivés avec le lot `6-srd-tables` le 2026-08-08) **et un vient de Fate's
+Hand : `arcana`**, ouvert par révision d'architecte le 2026-08-09 pour porter
+les 22 Arcanes majeurs. C'est le premier genre qui n'existe dans aucun SRD, et
+la frontière qu'il pose vaut pour tous ceux qui suivront : le générateur de la
+couche SRD garde **sa propre liste de 14** et ne produit jamais un genre FH.
 Une couche **ajoute** des records, **patche** un
 record par id, **désactive** un record, **lève des drapeaux de capacités**
 (ex. `fh.destiny`). Jamais d'exécutable — un homebrew d'inconnu est inoffensif

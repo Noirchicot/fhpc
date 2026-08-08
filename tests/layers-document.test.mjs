@@ -116,8 +116,10 @@ test("ATTAQUE — un genre inconnu, et le presque-genre qui ressemble au vrai", 
   rejects(() => assertLayerShape(aLayer({ records: { spel: {} } }), "t"), /spel/, "le genre « spel »");
   rejects(() => assertLayerShape(aLayer({ records: { skil: {} } }), "t"), /skil/,
     "« skil » n'entre pas en silence sous prétexte que « skill » existe");
-  /* Et les 14 vrais passent — un garde qui refuse tout est aussi faux qu'un
-     garde qui accepte tout. */
+  /* Et TOUS les vrais passent — un garde qui refuse tout est aussi faux qu'un
+     garde qui accepte tout. La boucle lit `GENRES`, elle ne compte pas : un
+     compte écrit à la main serait faux au prochain genre ouvert (il l'a été
+     le 2026-08-09, avec `arcana`). */
   const records = {};
   for (const genre of GENRES) records[genre] = {};
   assert.doesNotThrow(() => assertLayerShape(aLayer({ records }), "t"));
@@ -186,7 +188,7 @@ test("aucune dérive entre le validateur en code et fh-layer.schema.json", () =>
   /* `safeKey` s'écrit en négatif dans le schéma : `not: {pattern: "^(a|b|…)$"}`. */
   const safeKey = schema.$defs.safeKey.not.pattern.replace(/^\^\(|\)\$$/g, "").split("|");
   const pairs = {
-    "les 14 genres": [GENRES, schemaGenres],
+    "les genres": [GENRES, schemaGenres],
     "les clefs interdites": [FORBIDDEN_KEYS, safeKey],
     "le chemin d'un patch": [PATTERNS.changePath.source, schema.$defs.opPatch.properties.changes.propertyNames.pattern],
     /* AJOUT DU LOT 17. `remove` est une clef sœur de `changes` et porte la MÊME
@@ -203,12 +205,20 @@ test("aucune dérive entre le validateur en code et fh-layer.schema.json", () =>
   assert.deepEqual(drift(pairs, {}), [], "le code et le schéma doivent dire la même chose, mot pour mot");
 });
 
-test("ATTAQUE DU GARDE DE DÉRIVE — il voit un quinzième genre ajouté au schéma seul", () => {
+test("ATTAQUE DU GARDE DE DÉRIVE — il voit un genre de plus ajouté au schéma seul", () => {
   /* La leçon du 2026-08-08 : un garde vert qu'on n'a jamais violé ne prouve
-     rien. On le viole ici, sur chacune des deux formes qu'il compare. */
-  const withGhost = drift({ "les 14 genres": [GENRES, GENRES.concat("arcana")] }, {});
+     rien. On le viole ici, sur chacune des deux formes qu'il compare.
+
+     REWRITTEN 2026-08-09 — LE FANTÔME ÉTAIT DEVENU RÉEL. L'attaque ajoutait
+     `arcana` au schéma seul ; depuis que l'architecte a ouvert ce genre,
+     `GENRES.concat("arcana")` ne fabrique plus un genre inconnu mais un
+     DOUBLON. Le test serait resté VERT — pour la mauvaise raison, en
+     démontrant que le garde voit une répétition et non un intrus. `tarot`
+     prend le rôle : il n'est déclaré nulle part, et il ne le sera pas. */
+  const withGhost = drift({ "les genres": [GENRES, GENRES.concat("tarot")] }, {});
   assert.equal(withGhost.length, 1);
-  assert.match(withGhost[0], /arcana/);
+  assert.match(withGhost[0], /tarot/);
+  assert.equal(GENRES.includes("tarot"), false, "le fantôme doit rester un fantôme");
 
   const withLooseKey = drift({ "les clefs interdites": [FORBIDDEN_KEYS, FORBIDDEN_KEYS.filter((k) => k !== "eval")] }, {});
   assert.equal(withLooseKey.length, 1, "retirer `eval` du schéma sans le retirer du code doit se voir");

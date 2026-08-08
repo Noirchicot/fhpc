@@ -28,9 +28,14 @@
 
    NON DÉRIVABLES, ET DÉCLARÉS PLUTÔT QU'INVENTÉS
      5. l'impact de l'ARCANE MAJEUR — la couche FH ne porte que le genre
-        `species` ; le genre `arcana` n'existe même pas dans l'énumération des
-        14 genres (trou GAP-KIND, toujours ouvert). Aucune source de règle à
-        lire, donc aucun nombre à écrire ;
+        `species`, donc aucune carte à lire.
+        ⚠️ RÉÉCRIT LE 2026-08-09, et la RAISON A CHANGÉ DE NATURE : ce terme
+        était bloqué par le CONTRAT (le genre `arcana` n'existait pas dans
+        l'énumération fermée — trou GAP-KIND). L'architecte a ouvert le genre
+        dans les deux schémas ce jour-là, et GAP-KIND est CLOS. Ce qui reste
+        est du CONTENU : personne n'a encore écrit la couche des 22 cartes.
+        La distinction n'est pas cosmétique — dire encore « le genre n'existe
+        pas » enverrait le prochain lot réviser un schéma déjà révisé ;
      6. le don DESTINY TOUCHED (fh) — les 17 dons SRD ne portent aucune
         valeur de Destinée, et la couche FH n'ajoute aucun `feat` ;
      7. la ligne OTHER (objet magique, boon, sous-classe) — même mesure.
@@ -235,9 +240,10 @@ export function createFhDestinyStat() {
       /* 4. CE QUI N'EST DÉRIVABLE DE RIEN, déclaré au lieu d'être inventé. */
       underived.push({
         field: `stats[${FH_DESTINY_ID}].arcana`,
-        reason: "l'impact du Arcane majeur n'a AUCUNE source de règle à lire : la couche FH ne porte que le " +
-          "genre `species`, et le genre `arcana` n'existe pas dans l'énumération des 14 genres de " +
-          "`fh-layer/1` (trou GAP-KIND, toujours ouvert). Un nombre écrit ici serait inventé."
+        reason: "l'impact de l'Arcane majeur n'a AUCUNE source de règle à lire : aucune couche montée ne porte " +
+          "de record `arcana`. Le genre, lui, EXISTE depuis la révision du 2026-08-09 (trou GAP-KIND clos) : " +
+          "ce qui manque est le CONTENU, une couche portant les 22 cartes, et non une place au schéma. " +
+          "L'impact vaut 0, 1 ou 2 selon la carte — un nombre écrit ici serait inventé."
       });
       underived.push({
         field: `stats[${FH_DESTINY_ID}].feat`,

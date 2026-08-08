@@ -49,7 +49,7 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 | `register` | `{bytes, origin?}` | Lit, valide, empreinte, **empile au-dessus** et replie. Rend `{id, version, hash, name, lang, records}` — les trois premiers sont exactement ce que `build.layers[]` exige. `origin` est un libellé pour les messages (un chemin de fichier, en général). | pas d'octets, JSON illisible, forme invalide, clef interdite, id déjà monté, pli impossible → **jette** |
 | `enable` | `{id}` | Fait re-participer une couche montée, **à sa place** dans la pile. Rend `{id, enabled, changed}`. | id non monté → **jette** en nommant la pile |
 | `disable` | `{id}` | Retire une couche de la pile **active** ; elle reste montée, à sa place. Rend `{id, enabled, changed}`. | idem |
-| `query` | `{kind, id?}` | **Le seul chemin de lecture du contenu.** Avec `id` : la vue pliée, ou `null`. Sans : toutes les vues du genre. | `kind` hors des 14 genres → **jette** |
+| `query` | `{kind, id?}` | **Le seul chemin de lecture du contenu.** Avec `id` : la vue pliée, ou `null`. Sans : toutes les vues du genre. | `kind` hors des **15** genres → **jette**. ⚠️ La réciproque : un genre légal que la pile ne porte pas rend une **liste vide**, jamais un refus (cas d'`arcana` tant qu'aucune couche ne monte les 22 cartes) |
 | ⚠ `flags` | — | Les drapeaux levés par la pile active, triés, sans doublon. | — |
 | ⚠ `ruleValues` | — | Les valeurs de règle de la pile active. | — |
 | ⚠ `stack` | — | Le manifeste de la pile, dans l'ordre : `{id, version, hash, name, lang, enabled, flags, records}`. | — |
@@ -335,6 +335,9 @@ Le bloc `build` arrive derrière ce lot et héritera de ces choix de forme.
 7. **`ARCHITECTURE.md` dit encore « les 12 genres `fh-srd` ».** La révision du
    2026-08-08 en a fait 14 (`skill`, `class-progression`). Même remarque :
    fichier canonique, correction d'un mot, pas touché par ce lot.
+   ✅ **CORRIGÉ le 2026-08-09**, en même temps que l'ouverture d'`arcana` :
+   `ARCHITECTURE.md` dit 15 genres, et distingue les 14 qui viennent de
+   `fh-srd` du premier qui vient de Fate's Hand.
 
 ---
 

@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { dispatch, assertBlocks } from "../src/kernel/registry.mjs";
 import { registerLayers, createLayers } from "../src/layers/index.mjs";
 import { fileBytes, aLayer, anAdd, HOMEBREW, SRD_FR } from "./layers-harness.mjs";
-import { loadSources, findForbidden, HOUSE_MECHANICS } from "./source-scan.mjs";
+import { loadSources, findForbidden, HOUSE_MECHANICS, genreVocabulary, maskGenreVocabulary } from "./source-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const layersDir = path.join(here, "..", "src", "layers");
@@ -101,8 +101,21 @@ const FORBIDDEN = [
  *  `src/mcp/`, alors que `src/layers/` EST le bloc qui porte le SRD. Mesuré
  *  avant de poser, comme le veut la règle : zéro occurrence dans les quatre
  *  fichiers du bloc, aucune suite ne rougit. */
+/* RÉVISION DU 2026-08-09 — le masque du vocabulaire des genres.
+   `src/layers/` est LE bloc qui possède l'énumération fermée, et depuis que
+   `arcana` y est entré, le garde §0.12 mordait sur une clef de vocabulaire.
+   Le masque retire le genre ENTRE GUILLEMETS et rien d'autre ; sa liste est
+   lue dans le schéma, jamais tenue à la main. Le raisonnement complet est
+   dans tests/source-scan.mjs, et l'attaque qui prouve qu'il ne fuit pas est
+   juste en dessous du garde. */
+const GENRE_VOCABULARY = genreVocabulary(path.join(here, "..", "schemas", "fh-layer.schema.json"));
+
 function inspect(sources) {
-  return findForbidden(sources, FORBIDDEN.concat(HOUSE_MECHANICS))
+  const masked = sources.map((source) => ({
+    ...source,
+    text: maskGenreVocabulary(source.text, GENRE_VOCABULARY)
+  }));
+  return findForbidden(masked, FORBIDDEN.concat(HOUSE_MECHANICS))
     .map(({ name, label }) => `src/layers/${name} : « ${label} »`);
 }
 
@@ -192,6 +205,44 @@ test("ATTAQUE DU GARDE — chacun des interdits, violé une fois, est vu et NOMM
   assert.deepEqual(inspect([
     { name: "sain.mjs", text: 'import { readLayer } from "./document.mjs";\nconst id = layer.document.id;' }
   ]), [], "« document » comme mot du domaine n'est pas le DOM");
+});
+
+test("ATTAQUE DU MASQUE DE VOCABULAIRE — il exempte la clef de genre, RIEN d'autre", () => {
+  /* Le masque ajouté le 2026-08-09 est une EXEMPTION à une loi ratifiée
+     (§0.12). Une exemption qu'on n'attaque pas est une porte ouverte qu'on a
+     décrite comme une serrure — d'où ce test, écrit en même temps qu'elle.
+
+     Ce qui PASSE : le genre entre guillemets, la forme d'une clef dans une
+     énumération fermée. C'est le seul cas que l'arbitrage couvre. */
+  assert.deepEqual(
+    inspect([{ name: "vocabulaire.mjs", text: 'export const GENRES = ["arcana", "armor", "spell"];' }]),
+    [],
+    "un genre entre guillemets est du vocabulaire, pas une mécanique"
+  );
+
+  /* Ce qui MORD ENCORE, et c'est la moitié qui compte. Les trois formes par
+     lesquelles une vraie mécanique essaierait de passer sous le masque. */
+  const fuites = [
+    ["identifiant.mjs", "export function resolveArcana(entry) { return entry; }"],
+    ["compose.mjs", "const pool = entry.arcanaPool;"],
+    ["mot-nu.mjs", "const champ = arcana;"],
+    ["autre-mecanique.mjs", 'const champ = "destiny";']
+  ];
+  for (const [name, source] of fuites) {
+    assert.ok(
+      inspect([{ name, text: source }]).length > 0,
+      `« ${source} » n'est PAS une clef de genre et doit rester vu`
+    );
+  }
+
+  /* Et le masque ne peut pas grossir en douce : sa liste EST celle du schéma.
+     Un genre inventé dans le code ne s'exempte pas lui-même. */
+  assert.ok(
+    inspect([{ name: "invente.mjs", text: 'const g = "arcanum";' }]).length > 0,
+    "« arcanum » n'est pas un genre déclaré au schéma — aucune exemption"
+  );
+  assert.equal(GENRE_VOCABULARY.includes("arcana"), true);
+  assert.equal(GENRE_VOCABULARY.includes("arcanum"), false);
 });
 
 test("ATTAQUE DU PÉRIMÈTRE — le garde refuse d'être pointé sur le vide ou sur un répertoire amputé", () => {

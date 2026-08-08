@@ -42,8 +42,14 @@ const inventory = JSON.parse(
    déplacer les classements ci-dessous est le geste qui empêche le schéma et
    cette couverture de diverger en silence. Sans lui, boucher un trou dans le
    schéma laisserait cette suite verte en le déclarant toujours ouvert. */
+/* REWRITTEN 2026-08-09 — LA RÉVISION DU GENRE `arcana` EN A BOUCHÉ UN
+   TROISIÈME. GAP-KIND disait « genre hors des 14 : `kind` est une énumération
+   fermée » ; l'énumération en compte 15 et `arcana` en fait partie. Il en
+   reste DEUX. Et c'est très exactement le geste que l'avertissement ci-dessus
+   annonce : la suite serait restée VERTE en déclarant ouvert un trou que le
+   schéma avait bouché — mesuré ce jour-là, la révision faite, les 440 tests
+   au vert, celui-ci compris. */
 const GAPS = {
-  "GAP-KIND": "Genre hors des 14 (arcana) : `kind` est une énumération fermée.",
   "GAP-ROLLS": "Historique des jets de création de caractéristiques.",
   "GAP-LOCK": "Provenance/verrou d'une maîtrise (accordée par une source, non dépensable)."
 };
@@ -72,8 +78,15 @@ const EXACT = {
   "destiny.breakdown[].label": "resolved.stats[fh:destiny].breakdown[].label",
   "destiny.breakdown[].value": "resolved.stats[fh:destiny].breakdown[].value",
   "destiny.notesText": "resolved.notes[].text",
-  "destiny.arcana": "build.choices[destiny.arcana]",
-  "destiny.arcana.id": "GAP-KIND",
+  /* REWRITTEN 2026-08-09 — GAP-KIND EST BOUCHÉ, et le chemin est corrigé.
+     Deux choses d'un coup, parce qu'elles sont le même fait : (1) `arcana`
+     est entré dans l'énumération fermée, donc `ref.kind` l'accepte et l'id
+     de la carte a sa place ; (2) le préfixe DOIT être `fh.destiny.` et non
+     `destiny.` — c'est le namespace du module de Destinée (lot 19), et un
+     choix posé hors de ce préfixe ressortirait `unconsumed` au lieu d'être
+     lu. L'ancienne ligne désignait une case qu'aucun module n'irait lire. */
+  "destiny.arcana": "build.choices[fh.destiny.arcana]",
+  "destiny.arcana.id": "build.choices[fh.destiny.arcana].ref.id",
   "destiny.arcana.name": "resolved.traits[].name",
   "destiny.arcana.power": "resolved.traits[].text",
   "destiny.arcana.vibration": "resolved.traits[].text",
@@ -124,7 +137,8 @@ const EXACT = {
   "builderState.race": "build.choices[species].ref",
   "builderState.lvl": "resolved.identity.level",
   "builderState.ddbId": "build.external.ddb.characterId",
-  "builderState.arcana": "GAP-KIND",
+  // REWRITTEN 2026-08-09 — même bouchon que `destiny.arcana.id` : GAP-KIND clos.
+  "builderState.arcana": "build.choices[fh.destiny.arcana].ref.id",
   "builderState.origin": "build.choices[background.originFeat[0]].ref",
   "builderState.origin2": "build.choices[background.originFeat[1]].ref",
   "builderState.originOther": "build.choices[background.originFeat.other].value",
@@ -210,7 +224,8 @@ test("tout trou invoqué par le classement figure dans la liste des cinq", () =>
    Autrement dit il garde « aucun trou ne disparaît en douce », pas « aucun
    chemin ne change de maison ». Pour ce second besoin, c'est la couverture
    chiffrée plus bas qui parle. */
-test("les TROIS trous restants sont tous encore vivants (aucun bouché en douce)", () => {
+// REWRITTEN 2026-08-09 — trois trous restants sont devenus DEUX (GAP-KIND bouché).
+test("les DEUX trous restants sont tous encore vivants (aucun bouché en douce)", () => {
   const invoked = new Set(
     inventory.fields.map((field) => classify(field.path)).filter((t) => t.startsWith("GAP-"))
   );
@@ -224,10 +239,14 @@ test("les TROIS trous restants sont tous encore vivants (aucun bouché en douce)
 /* REWRITTEN 2026-08-08 — la revue d'architecte a bouché cinq trous : le seuil de
    0,4 décrivait l'état d'avant et ne mordrait plus. Réécrit à la nouvelle
    vérité, pas relâché. */
-test("les SEPT trous bouchés le sont vraiment (aucun chemin v1 ne les invoque plus)", () => {
+// REWRITTEN 2026-08-09 — sept trous bouchés sont devenus HUIT.
+test("les HUIT trous bouchés le sont vraiment (aucun chemin v1 ne les invoque plus)", () => {
   /* REWRITTEN 2026-08-08 — deux de plus : la révision du schéma a donné leur
-     place au Score de Destinée et aux budgets de construction. */
-  const closed = ["GAP-NOTES", "GAP-TOOLS", "GAP-GEN", "GAP-EXT", "GAP-CAMP", "GAP-DERIVED", "GAP-BUDGET"];
+     place au Score de Destinée et aux budgets de construction.
+     REWRITTEN 2026-08-09 — un de plus : `GAP-KIND`, bouché par l'ouverture du
+     genre `arcana` dans les deux schémas. C'est ce test-ci qui EXIGE que plus
+     aucun chemin v1 ne le réclame — la contrepartie du retrait de `GAPS`. */
+  const closed = ["GAP-NOTES", "GAP-TOOLS", "GAP-GEN", "GAP-EXT", "GAP-CAMP", "GAP-DERIVED", "GAP-BUDGET", "GAP-KIND"];
   const invoked = inventory.fields
     .map((field) => ({ path: field.path, target: classify(field.path) }))
     .filter((entry) => closed.includes(entry.target));

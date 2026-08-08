@@ -270,3 +270,51 @@ export const LAYER_NAMES = [
   [/\.fh\b/, "lecture d'une couche par son nom (`engine.layers.fh`)"],
   [/createFhLayer/, "constructeur de la couche"]
 ];
+
+/* ── §0.12 CONTRE L'ÉNUMÉRATION FERMÉE DES GENRES ────────────────────
+   LA COLLISION, MESURÉE LE 2026-08-09, en ouvrant le genre `arcana`.
+
+   Deux règles vraies se contredisent à la lettre :
+
+     - §0.12 interdit le vocabulaire Fate's Hand dans le chemin commun, et
+       le garde a été DURCI deux fois pour mordre sur `"destiny"` nu comme
+       sur `resolveArcana` ;
+     - l'énumération des genres est FERMÉE par choix (c'est la seule défense
+       contre `spel`), elle est recopiée à l'identique dans
+       `src/layers/document.mjs`, et un garde de dérive compare les deux
+       listes mot pour mot. `arcana` DOIT donc être écrit dans `src/layers/`.
+
+   L'arbitrage de l'architecte, et son critère : §0.12 se teste par « un
+   personnage SRD pur traverse-t-il ce code de bout en bout ? ». Un nom de
+   genre dans une énumération est une CLEF DE VOCABULAIRE, pas une mécanique
+   — aucune règle ne s'exécute, le genre reste un seau vide qu'aucune couche
+   SRD ne remplit. Le garde mordait sur le MOT alors qu'il vise le CODE.
+
+   LE MASQUE EST DONC ÉTROIT, ET SA FORME EST LE CRITÈRE : seul le genre
+   ENTRE GUILLEMETS est retiré, parce que c'est la forme qu'a une clef dans
+   une énumération. Tout le reste continue de mordre — l'identifiant
+   (`resolveArcana`), le composé (`entry.arcanaPool`), le mot nu sans
+   guillemets. Et la liste des exemptions n'est PAS tenue à la main : elle
+   est lue dans le schéma, donc elle ne peut couvrir que ce que le contrat
+   déclare déjà.
+
+   ⚠️ PORTÉE : le masque ne s'applique qu'à `src/layers/`, LE BLOC QUI POSSÈDE
+   le vocabulaire des genres. Aucun autre bloc n'a le droit de nommer un
+   genre, et aucun ne le fait — vérifié le 2026-08-09 en retirant la liste
+   des genres de la description MCP, où elle n'était qu'une copie du contrat
+   (et où elle avait DÉJÀ dérivé : elle annonçait 14 genres après la révision
+   qui en avait fait 15). */
+export function genreVocabulary(schemaPath) {
+  const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
+  const genres = Object.keys(schema.properties.records.properties);
+  if (genres.length === 0) {
+    throw new Error(`source-scan: aucun genre lu dans ${schemaPath} — le masque serait vide sans le dire.`);
+  }
+  return genres;
+}
+
+export function maskGenreVocabulary(text, genres) {
+  let out = text;
+  for (const genre of genres) out = out.split(`"${genre}"`).join('""');
+  return out;
+}
