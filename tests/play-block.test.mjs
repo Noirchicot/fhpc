@@ -15,17 +15,25 @@ import { registerPlay } from "../src/play/index.mjs";
 import { makeHarness, FIXTURE_CHAOS } from "./play-harness.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const playDir = path.join(here, "..", "src", "play");
+const srcDir = path.join(here, "..", "src");
+/* REWRITTEN (lot 5) — le garde inspectait `src/play/*.mjs` à plat. La coupe a
+   sorti les mécaniques maison dans `src/layers/fh/`, et elles doivent tenir la
+   MÊME loi : zéro DOM, zéro réseau. Le garde marche donc l'arbre. */
+function walk(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((item) => {
+    const full = path.join(dir, item.name);
+    return item.isDirectory() ? walk(full) : (item.name.endsWith(".mjs") ? [full] : []);
+  });
+}
 /* Les commentaires sont retirés avant l'inspection : ils NOMMENT ce qui a été
    remplacé (« plus de `window` », « remplace localStorage »), et un garde qui
    les lit interdirait d'expliquer la frontière qu'il défend. Ce qui est jugé
    ici, c'est du code. */
 const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
-const sources = fs.readdirSync(playDir)
-  .filter((name) => name.endsWith(".mjs"))
-  .map((name) => {
-    const raw = fs.readFileSync(path.join(playDir, name), "utf8");
-    return { name, raw, text: stripComments(raw) };
+const sources = [path.join(srcDir, "play"), path.join(srcDir, "layers")].flatMap(walk)
+  .map((file) => {
+    const raw = fs.readFileSync(file, "utf8");
+    return { name: path.relative(srcDir, file), raw, text: stripComments(raw) };
   });
 
 test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
@@ -34,7 +42,13 @@ test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
   // Un verbe atteint bien la fonction, par la route « bloc.verbe ».
   dispatch("play.open", { character: { pb: 3, build: {} }, campaign: "FH1", pseudo: "Harness" });
   const shape = dispatch("play.snapshot");
-  assert.ok(shape.destiny, "open a semé la Destinée");
+  /* REWRITTEN (lot 5) — l'assertion disait « open a semé la Destinée ». Elle
+     est devenue FAUSSE, et c'est tout le lot : `registerPlay()` sans couche est
+     le moteur SRD nu. Rien ne sème la Destinée parce que rien ne la connaît.
+     La nouvelle vérité est plus forte que l'ancienne : elle ne dit pas que le
+     verbe ne fait rien, elle dit qu'il N'EXISTE PAS (loi §0.6). */
+  assert.equal(shape.destiny, undefined, "un moteur SRD nu ne sème aucune tranche de couche");
+  assert.equal(typeof dispatch("play.snapshot").vitals, "object", "il sème bien la sienne");
   assert.ok(Array.isArray(shape.history));
   // Et un verbe inconnu jette en le NOMMANT — jamais un échec muet (loi §0.5).
   assert.throws(() => dispatch("play.nonsense"), /unknown verb "nonsense" on block "play"/);
@@ -47,6 +61,12 @@ test("les verbes sont le seul point d'entrée, et ils portent le vocabulaire dat
      doivent exister sous ces noms. */
   ["stageDie", "roll", "spendDestiny", "resolvePending"].forEach((verb) => {
     assert.equal(typeof h.verbs[verb], "function", verb + " est un verbe du bloc");
+  });
+  /* REWRITTEN (lot 5) — deux de ces quatre verbes appartiennent désormais à la
+     COUCHE. Ils sont là parce que le harnais la monte ; ils n'existent pas sans
+     elle, et c'est la suite `play-srd-only` qui le prouve. */
+  ["addDie", "rerollDie", "mountDie", "giveDie", "receiveDie"].forEach((verb) => {
+    assert.equal(typeof h.verbs[verb], "function", verb + " est un verbe SRD du bloc (D.1 / D.5)");
   });
   // `roll` est un aiguillage : il route vers le chemin vivant, comme ROLL en v1.
   h.reset(5, [h.die("v-d6", 6, true)]);
@@ -76,22 +96,22 @@ test("ZÉRO DOM, ZÉRO window, ZÉRO réseau dans src/play/", () => {
   ];
   sources.forEach(({ name, text }) => {
     forbidden.forEach(([pattern, label]) => {
-      assert.equal(pattern.test(text), false, "src/play/" + name + " ne doit pas contenir « " + label + " »");
+      assert.equal(pattern.test(text), false, "src/" + name + " ne doit pas contenir « " + label + " »");
     });
   });
-  assert.ok(sources.length >= 6, "les modules du bloc sont bien tous inspectés");
+  assert.ok(sources.length >= 10, "les modules du bloc ET de ses couches sont bien tous inspectés");
 });
 
 test("le hasard et l'horloge sont injectés — aucun module ne va les chercher", () => {
   /* `platformRandomUint32` et `platformUuid` (utils.mjs) sont les défauts, et
      ils sont le SEUL endroit qui lit `globalThis.crypto`. Un module qui le
      lirait ailleurs rendrait une suite non déterministe sans le dire. */
-  sources.filter(({ name }) => name !== "utils.mjs").forEach(({ name, text }) => {
-    assert.equal(/globalThis\s*\.\s*crypto/.test(text), false, "src/play/" + name + " ne lit pas crypto directement");
-    assert.equal(/Math\.random/.test(text), false, "src/play/" + name + " ne tire pas de Math.random");
+  sources.filter(({ name }) => !name.endsWith("utils.mjs")).forEach(({ name, text }) => {
+    assert.equal(/globalThis\s*\.\s*crypto/.test(text), false, "src/" + name + " ne lit pas crypto directement");
+    assert.equal(/Math\.random/.test(text), false, "src/" + name + " ne tire pas de Math.random");
   });
   // Et sans CSPRNG du tout, on JETTE plutôt que de rouler des dés prévisibles.
-  const utils = sources.find((s) => s.name === "utils.mjs").raw;
+  const utils = sources.find((s) => s.name.endsWith("utils.mjs")).raw;
   assert.match(utils, /no CSPRNG available/, "l'absence de source de hasard est une erreur nommée, pas un repli sur Math.random");
 });
 

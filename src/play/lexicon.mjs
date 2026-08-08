@@ -1,17 +1,31 @@
-/* ══ LE LEXIQUE DE JET ═══════════════════════════════════════════════
+/* ══ LE LEXIQUE DE JET — LA MOITIÉ SRD ═══════════════════════════════
    Porté de fh-phb `docs/javascripts/fh-player-sheet.js` (main), §1 « source
    tokens », §3 « badges », §5 « verdicts / Ruling ». UI-ROLL-VOCABULARY.md,
-   ratifié 2026-08-02.
+   ratifié 2026-08-02. RECOUPÉ par le lot 5.
 
    Tout ce qui suit est DÉCLARÉ UNE FOIS et lu par toutes les surfaces. Trois
    surfaces qui dessinent chacune leur badge, ce sont trois vérités sur le même
    jet. C'est la raison d'être de ce fichier, et la raison pour laquelle il ne
    dessine rien lui-même.
 
-   LA LIGNE QUI COUPE CE FICHIER : `verdict` est de l'AFFICHAGE et peut être
-   renommé ; les chaînes `outcome` sont LUES PAR DES PROGRAMMES (le fil, les
-   docks des autres joueurs, `intentOutcome` qui les regex-match) et ne
-   bougent pas. Renommer ce que lit un humain ; geler ce que lit un programme. */
+   DEUX LIGNES COUPENT CE FICHIER, ET ELLES SONT DIFFÉRENTES :
+
+   1. **SRD / FH** (loi §0.12). Ce fichier ne déclare QUE des règles SRD. Les
+      verdicts et badges de Destinée, de Chaos, d'Éveil et de refus du destin
+      sont apportés par la couche (`src/layers/fh/lexicon.mjs`) et insérés par
+      PRIORITÉ dans la même table. Un personnage SRD pur produit la table
+      courte, et rien dans ce fichier ne cite une mécanique maison.
+
+   2. **Identifiants / mots** (loi §0.13). Une règle porte un `id` et un
+      `priority` ; elle ne porte AUCUN mot. Les mots vivent dans un paquet de
+      libellés (`labels.mjs`) que `derive` applique à la frontière. Avant le
+      lot 5, `verdict: "FATE REFUSED"` était écrit en dur au milieu de
+      verdicts qui passaient déjà, eux, par la table.
+
+   CE QUI N'A PAS BOUGÉ, ET NE DOIT PAS : les chaînes `outcome` sont LUES PAR
+   DES PROGRAMMES (le fil, les docks des autres joueurs, `intentOutcome` qui
+   les regex-match). Elles restent gelées au bit près. Renommer ce que lit un
+   humain ; geler ce que lit un programme. */
 
 import { signed } from "./utils.mjs";
 
@@ -19,137 +33,223 @@ import { signed } from "./utils.mjs";
    Chaque dé porte sa provenance. Un jeton par source, ici, une fois.
    LE GLYPHE PORTE L'IDENTITÉ, LA COULEUR NE FAIT QUE LA RENFORCER : à 12px,
    bleu et violet ne se distinguent pas de façon fiable. `tone` ne voyage donc
-   jamais sans `glyph`/`letter`. */
-export const ROLL_SOURCES = {
-  destiny: { key: "destiny", label: "Destiny", tone: "destiny", glyph: "destiny" },
-  guidance: { key: "guidance", label: "Guidance", tone: "guidance", glyph: "guidance" },
-  bardic: { key: "bardic", label: "Bardic", tone: "bardic", glyph: "bardic" },
-  tactical: { key: "tactical", label: "Tactical", tone: "tactical", glyph: "tactical" },
-  "other-1": { key: "other-1", label: "Bonus I", tone: "bonus", letter: "I" },
-  "other-2": { key: "other-2", label: "Bonus II", tone: "bonus", letter: "II" },
-  "other-3": { key: "other-3", label: "Bonus III", tone: "bonus", letter: "III" }
+   jamais sans `glyph`/`letter`. Le libellé, lui, est devenu un ID (§0.13). */
+export const SRD_ROLL_SOURCES = {
+  guidance: { key: "guidance", labelId: "source.guidance", tone: "guidance", glyph: "guidance" },
+  bardic: { key: "bardic", labelId: "source.bardic", tone: "bardic", glyph: "bardic" },
+  tactical: { key: "tactical", labelId: "source.tactical", tone: "tactical", glyph: "tactical" },
+  "other-1": { key: "other-1", labelId: "source.other-1", tone: "bonus", letter: "I" },
+  "other-2": { key: "other-2", labelId: "source.other-2", tone: "bonus", letter: "II" },
+  "other-3": { key: "other-3", labelId: "source.other-3", tone: "bonus", letter: "III" }
 };
 
-export const UNKNOWN_SOURCE = { key: "", label: "Other", tone: "bonus", glyph: "other" };
+export const UNKNOWN_SOURCE = { key: "", labelId: "source.unknown", tone: "bonus", glyph: "other" };
 
-/* Ce qu'un joueur peut sceller sur un dé BONUS. Destiny est absent exprès :
-   un dé de Destinée se prend dans la réserve, ce n'est pas un autocollant. */
-export const SEALABLE_SOURCES = ["guidance", "bardic", "tactical", "other-1", "other-2", "other-3"];
+/* ── D.3 — CE QU'UN JOUEUR PEUT SCELLER SUR UN DÉ BONUS ──────────────
+   La liste tombe de six à DEUX, et c'est une vraie coupe, pas un ménage.
 
-export function rollSource(key) {
-  return ROLL_SOURCES[String(key || "")] || UNKNOWN_SOURCE;
-}
+   Sous la définition tranchée par Eric le 2026-08-08, un dé de correction est
+   un dé qu'on dépense APRÈS COUP sur un jet déjà connu comme raté, adossé à
+   une ressource comptée. Seuls `bardic` (Barde, SRD) et `tactical` (Guerrier
+   niveau 2 — Tactical Mind, SRD) répondent à cette définition.
 
-/* Le nom qu'un dé scellé prend, lu sur la table des sources — un nom par
-   source, ici comme partout ailleurs. */
-export function sealLabel(seal) {
-  return ROLL_SOURCES[String(seal || "")] ? ROLL_SOURCES[String(seal)].label : "Bonus";
-}
+   Ce qui est parti, et pourquoi :
+   - `guidance` : le sort se lance AVANT le jet. C'est un bonus de MONTAGE, pas
+     une correction — il a sa propre porte (`mountDie`, D.1 ligne 3). Le
+     sceller après coup était précisément la confusion que D.1 existe pour
+     empêcher.
+   - `other-1`, `other-2`, `other-3` : de l'habillage d'affichage. Un dé bonus
+     anonyme garde son jeton de source (il faut bien le nommer sur le plateau),
+     mais « sceller un Bonus II » ne décrit aucune mécanique.
 
-/* ── Le lexique ratifié, en constantes (L88, Eric 2026-08-06) ────────
-   Les quatre mots ratifiés écrits UNE FOIS : le prochain renommage est une
-   édition, pas un inventaire. La grammaire est « famille + ce qui l'a
-   produit » — le nombre est le résultat naturel du d20, l'∞ est le dé de
-   Destinée. Rien d'autre ne peut se lire comme un nom de famille. */
-export const LEX = {
-  crit20: "Crit 20", CRIT20: "CRITICAL 20", crit20Short: "CRIT 20",
-  fumble1: "Fumble 1", FUMBLE1: "FUMBLE 1",
-  critInf: "∞ critical", CRITINF: "∞ CRITICAL",
-  fumbleInf: "∞ fumble", FUMBLEINF: "∞ FUMBLE"
+   Supprimé, pas désactivé (loi §0.6). `destiny` reste absent pour la raison
+   qu'il a toujours eue : un dé de Destinée se prend dans la réserve, ce n'est
+   pas un autocollant — et il n'existe qu'avec la couche FH montée. */
+export const SEALABLE_SOURCES = ["bardic", "tactical"];
+
+/* Les dés de correction, avec leur fenêtre et leur remboursement. C'est la
+   table que `addDie` (D.1, verbe n°1) consulte, et elle est SRD de bout en
+   bout : les deux sources citées sont dans `fh-srd/exports/srd/en/class.json`.
+
+   `refundIfStillFails` : Tactical Mind n'est PAS dépensé si le test échoue
+   quand même (SRD, Guerrier niv. 2 — « If the check still fails, this use of
+   Second Wind isn't expended »). Bardic, lui, « is expended when it's rolled »,
+   sans condition. Les deux phrases sont dans la source ; c'est la seule raison
+   pour laquelle ce champ existe (D.4). */
+export const CORRECTION_DICE = {
+  bardic: { key: "bardic", sides: 6, refundIfStillFails: false, appliesTo: ["check", "attack", "spell"] },
+  tactical: { key: "tactical", sides: 10, refundIfStillFails: true, appliesTo: ["check"] }
 };
 
-export function rollHasDc(entry) {
-  return entry.dc !== "" && isFinite(Number(entry.dc));
-}
-
-/* ── §5 La moitié verdict du Ruling ─────────────────────────────────
+/* ── §5 Les verdicts SRD ─────────────────────────────────────────────
    Une table, deux lectures, et c'est tout l'intérêt. `outcome` est la chaîne
-   face-machine que le fil et les tons consomment déjà ; `verdict` est ce que
-   le Ruling dit à voix haute, et il a le droit d'être plus fort et plus précis.
-   Les déclarer CÔTE À CÔTE est ce qui empêche les deux de diverger.
+   face-machine que le fil et les tons consomment déjà ; le mot que le Ruling
+   dit à voix haute est désormais un ID résolu par le paquet de libellés.
 
-   L'ORDRE EST L'ORDRE DE JUGEMENT et il porte du sens : un critique arcanique
-   prime un 20 naturel, et un DD n'est consulté que si rien de plus fort ne
-   s'est produit. */
-export const ROLL_VERDICTS = [
-  { id: "arcane-critical-failure", when: (e) => !!(e.destiny && e.destiny.criticalFailure), outcome: "Critical failure", verdict: LEX.FUMBLEINF },
-  { id: "arcane-critical-success", when: (e) => !!(e.destiny && e.destiny.criticalSuccess), outcome: "Critical success", verdict: LEX.CRITINF },
-  { id: "fate-refused", when: (e) => e.natChoice === "chaos", outcome: "Critical success · Chaos", verdict: "FATE REFUSED" },
-  { id: "natural-20", when: (e) => e.natural === 20, outcome: "Natural 20", verdict: LEX.CRIT20 },
-  { id: "natural-1-accepted", when: (e) => e.natural === 1 && e.natChoice === "accept", outcome: "Critical failure · Fate accepted", verdict: LEX.FUMBLE1 },
-  /* Un 1 auquel personne n'a encore répondu est indécis, et le Ruling le dit
-     plutôt que de choisir à la place du joueur. */
-  { id: "natural-1-open", when: (e) => e.natural === 1, outcome: "Natural 1 · choose fate", verdict: LEX.FUMBLE1 + " · CHOOSE" },
-  { id: "success", when: (e) => rollHasDc(e) && e.total >= Number(e.dc), outcome: "Success", verdict: "SUCCESS" },
-  { id: "failure", when: rollHasDc, outcome: "Failure", verdict: "FAILURE" }
+   `priority` A REMPLACÉ L'ORDRE DU TABLEAU, et il porte le même sens : c'est
+   l'ordre de JUGEMENT. Un critique arcanique prime un 20 naturel, et un DD
+   n'est consulté que si rien de plus fort ne s'est produit. Les nombres
+   laissent des trous exprès : une couche s'insère entre deux règles SRD sans
+   qu'aucune des deux ne bouge. */
+export const SRD_VERDICTS = [
+  /* Un 20 / un 1 naturel sur un jet d'ATTAQUE sont des règles SRD à part
+     entière (`srd:glossary:en:critical-hit`, p.179). Sur les autres tests de
+     d20, le SRD ne leur donne aucun effet : les deux règles ci-dessous ne se
+     déclenchent donc que sur le type `attack`. */
+  { id: "critical-hit", priority: 40, when: (e) => e.rollType === "attack" && e.natural === 20, outcome: "Critical hit", intent: "critical-success" },
+  { id: "critical-miss", priority: 45, when: (e) => e.rollType === "attack" && e.natural === 1, outcome: "Critical miss", intent: "critical-failure" },
+  /* Sur un test ordinaire, un naturel extrême ne DÉCIDE rien — il RAPPORTE ce
+     que le dé a fait. C'est ce qui lui permet de rester SRD : il ne réclame
+     aucune conséquence. Le `intent` d'un 20 est gelé depuis la v1 (les docks
+     des autres joueurs le lisent) ; un 1 nu, lui, ne prétend rien : `null`. */
+  { id: "natural-20", priority: 50, when: (e) => e.natural === 20, outcome: "Natural 20", intent: "critical-success" },
+  { id: "natural-1", priority: 60, when: (e) => e.natural === 1, outcome: "Natural 1", intent: null },
+  /* ⚠️ `rollWasMade` : un sort à sauvegarde n'a PAS de jet du lanceur — c'est
+     la CIBLE qui lance, et son dé n'est pas dans ce document. Comparer le
+     total du lanceur (zéro) à son propre DD de sauvegarde donnerait « échec »
+     à chaque boule de feu. Le seuil reste affiché ; le verdict, lui, attend un
+     dé qui a été lancé. */
+  { id: "success", priority: 70, when: (e) => rollWasMade(e) && rollHasThreshold(e) && e.total >= rollThreshold(e), outcome: "Success", intent: "success" },
+  { id: "failure", priority: 80, when: (e) => rollWasMade(e) && rollHasThreshold(e), outcome: "Failure", intent: "failure" }
 ];
 
-export function rollVerdict(entry) {
-  if (!entry) return null;
-  for (let i = 0; i < ROLL_VERDICTS.length; i++) if (ROLL_VERDICTS[i].when(entry)) return ROLL_VERDICTS[i];
-  return null;
+/* Le seuil d'un jet : le DD d'une compétence, la CA d'une attaque, le DD de
+   sauvegarde d'un sort. Un seul nom pour la même idée — sans quoi `success`
+   devrait citer trois champs et le troisième serait oublié le jour où il
+   arriverait. */
+export function rollThreshold(entry) {
+  if (!entry) return NaN;
+  const raw = entry.rollType === "attack" ? entry.ac : entry.rollType === "spell" ? entry.saveDc : entry.dc;
+  return Number(raw);
+}
+export function rollHasThreshold(entry) {
+  if (!entry) return false;
+  const raw = entry.rollType === "attack" ? entry.ac : entry.rollType === "spell" ? entry.saveDc : entry.dc;
+  return raw !== "" && raw != null && isFinite(Number(raw));
+}
+/* Un jet a-t-il été LANCÉ par celui qui possède cette entrée ? Un sort à
+   sauvegarde répond non : le d20 appartient à la cible. */
+export function rollWasMade(entry) {
+  return !!entry && (entry.kept != null || entry.natural != null);
 }
 
-export function outcomeFor(entry) {
-  const found = rollVerdict(entry);
-  return found ? found.outcome : "";
-}
+/* Le nom historique, gardé : `dc` reste ce que 90 % des jets utilisent et ce
+   que les surfaces appellent déjà. */
+export const rollHasDc = rollHasThreshold;
 
-/* Les badges qui rapportent ce que le jet a DONNÉ, par opposition à la façon
-   dont il a été monté : ceux-là, une ligne encore en l'air doit les taire. */
-export const SPOILER_BADGE_KINDS = { n20: true, chaos: true, destiny: true };
-
-/* ── §3 Badges : dérivés, pas émis ──────────────────────────────────
-   Ces treize-là étaient treize `badges.push(...)` éparpillés dans le rendu.
-   Chaque surface les RECALCULAIT, et rien ne garantissait que le plateau et
-   le flux disent la même chose du même jet.
+/* ── §3 Badges SRD : dérivés, pas émis ───────────────────────────────
+   Ces règles étaient autant de `badges.push(...)` éparpillés dans le rendu.
+   Chaque surface les RECALCULAIT, et rien ne garantissait que le plateau et le
+   flux disent la même chose du même jet.
 
    UN BADGE EST UNE PROPRIÉTÉ DU JET, PAS DE SON RENDU. D'où : une table
    condition → badge, évaluée une fois sur l'entrée, et toutes les surfaces
    rendent la même liste parce qu'elles lisent la même liste. Une règle qui
-   rend "" n'émet rien. L'ordre est l'ordre de lecture et fait partie de la
-   déclaration. */
-export function createLexicon({ entryBonusDice }) {
-  const ROLL_BADGE_RULES = [
-    { id: "natural-20", k: "n20", when: (e) => e.natural === 20, text: () => LEX.CRIT20 },
-    { id: "natural-1-accepted", k: "chaos", when: (e) => e.natural === 1 && e.natChoice === "accept", text: () => LEX.fumble1 + " accepted" },
-    { id: "fate-refused", k: "chaos", when: (e) => e.natChoice === "chaos", text: () => "Fate refused" },
-    { id: "chaos-roll", k: "chaos", when: (e) => !!e.chaosRoll, text: (e) => "Chaos 2d6 = " + (e.chaosRoll[0] + e.chaosRoll[1]) },
-    /* La ligne sur laquelle les dés sont tombés, citée plutôt que liée — le
-       flux est ce que le joueur relit après la séance. */
-    { id: "chaos-row", k: "chaos", when: (e) => !!e.chaosRow, text: (e) => e.chaosRow },
-    { id: "exhaustion", k: "manual", when: (e) => !!e.exhaustion, text: (e) => "Exhaustion " + e.exhaustion + " · −" + e.exhaustion },
+   rend `null` n'émet rien. Le `priority` est l'ordre de lecture et fait partie
+   de la déclaration.
+
+   `data` remplace `text` : la règle rend les FAITS, le paquet rend les mots. */
+export function srdBadgeRules({ entryBonusDice }) {
+  return [
+    /* `spoiler` : ce badge rapporte ce que le jet a DONNÉ, par opposition à la
+       façon dont il a été monté — une ligne encore en l'air doit le taire.
+       REWRITTEN (lot 5) : c'était une table de FAMILLES (`SPOILER_BADGE_KINDS`)
+       tenue à côté des règles, et deux de ses trois entrées étaient des noms de
+       mécaniques maison — dans le moteur SRD. Le drapeau est descendu SUR la
+       règle, où il a toujours voulu être : c'est la règle qui sait si elle
+       divulgue un résultat. */
+    { id: "natural-20", k: "n20", priority: 10, spoiler: true, when: (e) => e.natural === 20, data: () => ({}) },
+    { id: "exhaustion", k: "manual", priority: 60, when: (e) => !!e.exhaustion, data: (e) => ({ level: e.exhaustion, penalty: Math.abs(Number(e.exhaustionPenalty) || Number(e.exhaustion)) }) },
+    /* Ce qu'une relance a réellement changé, sur la ligne du jet : sans lui, un
+       Point d'inspiration héroïque dépensé serait invisible dans le flux. */
+    { id: "rerolled", k: "adjusted", priority: 115, when: (e) => !!(e.rerolls && e.rerolls.length), data: (e) => {
+      const last = e.rerolls[e.rerolls.length - 1];
+      return { label: last.label, before: last.before, after: last.after };
+    } },
     {
-      id: "destiny-spend", k: "destiny", when: (e) => !!e.destiny,
-      text: (e) => {
-        const spent = e.destiny;
-        const change = Number(spent.pointsAfter) - Number(spent.pointsBefore);
-        const head = spent.criticalSuccess ? LEX.critInf : spent.criticalFailure ? LEX.fumbleInf : "Destiny d" + spent.sides + "=" + spent.result;
-        return head + (isFinite(change) && change ? " · " + (change > 0 ? "+" : "") + change + " pt → " + spent.pointsAfter : "");
-      }
-    },
-    { id: "arcane-fate-refused", k: "chaos", when: (e) => !!(e.destiny && e.destiny.arcaneChoice === "chaos"), text: (e) => "Arcane fate refused · 1 → " + e.destiny.sides },
-    { id: "overreach", k: "chaos", when: (e) => !!(e.destiny && e.destiny.chaos), text: (e) => "Overreach " + e.destiny.chaos.overreach + " · save DC " + e.destiny.chaos.dc },
-    { id: "destiny-points", k: "destiny", when: (e) => !!e.destinyPointChange, text: (e) => e.destinyPointChange.reason + " · Destiny " + e.destinyPointChange.after },
-    { id: "awakening", k: "n20", when: (e) => !!e.awakening, text: () => "ARCANE AWAKENING" },
-    {
-      id: "manual", k: "manual",
-      when: (e) => !!e.d20Forced || !!(e.destiny && e.destiny.forced)
+      id: "manual", k: "manual", priority: 120,
+      when: (e) => !!e.d20Forced
         || entryBonusDice(e).some((die) => die.forced)
         || (e.dice || []).some((die) => die.forced),
-      text: () => "MANUAL"
+      data: () => ({})
     },
-    { id: "adjusted", k: "adjusted", when: (e) => !!e.adjusted, text: () => "adjusted" }
+    { id: "adjusted", k: "adjusted", priority: 130, when: (e) => !!e.adjusted, data: () => ({}) }
   ];
+}
+
+/* ── L'ASSEMBLAGE ────────────────────────────────────────────────────
+   Le lexique d'une séance est le lexique SRD PLUS ce que les modules montés
+   apportent, trié par priorité. Une couche ne remplace jamais la table : elle
+   s'y insère. Deux règles sur la même priorité est une ambiguïté, et elle
+   jette ici plutôt que de dépendre de l'ordre de montage. */
+function assemble(base, extra, what) {
+  const all = base.concat(extra || []);
+  const seen = new Map();
+  all.forEach((rule) => {
+    if (seen.has(rule.priority)) {
+      throw new Error(
+        "fhpc/play: two " + what + ' rules share priority ' + rule.priority +
+        ' ("' + seen.get(rule.priority) + '" and "' + rule.id + '") — the judgement order must not depend on mount order'
+      );
+    }
+    seen.set(rule.priority, rule.id);
+  });
+  return all.sort((a, b) => a.priority - b.priority);
+}
+
+export function createLexicon({ entryBonusDice, labels, modules = [] }) {
+  const t = labels;
+
+  const ROLL_SOURCES = Object.assign({}, SRD_ROLL_SOURCES);
+  modules.forEach((module) => Object.assign(ROLL_SOURCES, module.sources || {}));
+
+  const ROLL_VERDICTS = assemble(SRD_VERDICTS, modules.flatMap((m) => m.verdicts || []), "verdict");
+  const ROLL_BADGE_RULES = assemble(srdBadgeRules({ entryBonusDice }), modules.flatMap((m) => m.badges || []), "badge");
+  /* Ce que les modules ajoutent au TOTAL, aux PARTS, aux DÉS du plateau et à
+     la SIGNATURE de règlement. Le chemin commun ne cite ainsi jamais un dé de
+     Destinée ni un +2 maison : il additionne ce qu'on lui donne. */
+  const totalHooks = modules.map((m) => m.total).filter(Boolean);
+  const partHooks = modules.map((m) => m.parts).filter(Boolean);
+  const tailHooks = modules.map((m) => m.rulingTail).filter(Boolean);
+  /* Une mécanique qui a RÉÉCRIT le d20 dit ici comment il se lit. Sans ce
+     crochet, le chemin commun devrait porter la phrase « 1 → Fate refused →
+     20 », c'est-à-dire citer une règle maison dans sa propre dérivation. */
+  const baseValueHooks = modules.map((m) => m.baseValue).filter(Boolean);
+  const signatureHooks = modules.map((m) => m.signature).filter(Boolean);
+
+  function rollSource(key) { return ROLL_SOURCES[String(key || "")] || UNKNOWN_SOURCE; }
+  function sourceLabel(key) { return t(rollSource(key).labelId); }
+  /* Le nom qu'un dé scellé prend, lu sur la table des sources — un nom par
+     source, ici comme partout ailleurs. */
+  function sealLabel(seal) {
+    const source = ROLL_SOURCES[String(seal || "")];
+    return source ? t(source.labelId) : t("seal.unknown");
+  }
+
+  function rollVerdict(entry) {
+    if (!entry) return null;
+    for (let i = 0; i < ROLL_VERDICTS.length; i++) if (ROLL_VERDICTS[i].when(entry)) return ROLL_VERDICTS[i];
+    return null;
+  }
+  function outcomeFor(entry) {
+    const found = rollVerdict(entry);
+    return found ? found.outcome : "";
+  }
+  function verdictText(entry) {
+    const found = rollVerdict(entry);
+    return found ? t("verdict." + found.id) : "";
+  }
 
   function rollBadges(entry) {
     if (!entry) return [];
     const badges = [];
     ROLL_BADGE_RULES.forEach((rule) => {
       if (!rule.when(entry)) return;
-      const text = rule.text(entry);
+      const data = rule.data(entry);
+      if (data == null) return;
+      const text = t("badge." + rule.id, data);
       if (text == null || text === "") return;
-      badges.push({ t: String(text), k: rule.k, id: rule.id, spoiler: !!SPOILER_BADGE_KINDS[rule.k] });
+      badges.push({ t: String(text), k: rule.k, id: rule.id, spoiler: !!rule.spoiler });
     });
     return badges;
   }
@@ -159,11 +259,9 @@ export function createLexicon({ entryBonusDice }) {
        direct : changer le niveau plus tard ne doit pas réécrire un jet déjà
        dans le flux. */
     let total = (Number(entry.kept) || 0) + (Number(entry.baseBonus) || 0)
-      + (entry.plusTwo ? 2 : 0) + (Number(entry.custom) || 0) - (Number(entry.exhaustion) || 0);
-    const bonusDice = entryBonusDice(entry);
-    if (bonusDice.length) bonusDice.forEach((die) => { total += Number(die.result) || 0; });
-    else [entry.guidance, entry.bardic].forEach((die) => { if (die) total += Number(die.result) || 0; });
-    if (entry.destiny) total += Number(entry.destiny.result) || 0;
+      + (Number(entry.custom) || 0) + (Number(entry.exhaustionPenalty) || 0);
+    entryBonusDice(entry).forEach((die) => { total += Number(die.result) || 0; });
+    totalHooks.forEach((hook) => { total += Number(hook(entry)) || 0; });
     return total;
   }
 
@@ -171,23 +269,19 @@ export function createLexicon({ entryBonusDice }) {
     const parts = [];
     if (entry.kind === "d20") {
       const mode = entry.d20Mode && entry.d20Mode !== "flat"
-        ? " (" + (entry.d20Mode === "advantage" ? "adv" : entry.d20Mode === "choice" ? "A/D" : "dis") + ")" : "";
+        ? " (" + t("part.mode." + entry.d20Mode) + ")" : "";
       let value = (entry.d20s || []).join(" / ");
       if ((entry.d20s || []).length > 1) value += " → " + entry.kept;
-      if (entry.transformed) value = (entry.originalKept != null ? entry.originalKept : 1) + " → Fate refused → 20";
-      parts.push({ k: "d20" + mode + (entry.d20Forced ? " · MANUAL" : ""), v: value });
+      baseValueHooks.forEach((hook) => { const own = hook(entry, t); if (own != null) value = own; });
+      parts.push({ k: "d20" + mode + (entry.d20Forced ? " · " + t("part.manual") : ""), v: value });
       parts.push({ k: entry.name, v: signed(entry.baseBonus) });
-      entryBonusDice(entry).forEach((die) => parts.push({ k: die.label + " d" + die.sides + (die.forced ? " · MANUAL" : ""), v: String(die.result) }));
-      if (entry.plusTwo) parts.push({ k: "FH", v: "+2" });
-      if (entry.exhaustion) parts.push({ k: "Exhaustion " + entry.exhaustion, v: "−" + entry.exhaustion });
-      if (entry.custom) parts.push({ k: "Mod", v: signed(entry.custom) });
-      if (entry.destiny) parts.push({ k: "Destiny d" + entry.destiny.sides + (entry.destiny.forced ? " · MANUAL" : ""), v: String(entry.destiny.result) });
+      entryBonusDice(entry).forEach((die) => parts.push({ k: die.label + " d" + die.sides + (die.forced ? " · " + t("part.manual") : ""), v: String(die.result) }));
+      if (entry.exhaustion) parts.push({ k: t("modifier.exhaustion") + " " + entry.exhaustion, v: String(entry.exhaustionPenalty) });
+      if (entry.custom) parts.push({ k: t("modifier.manual"), v: signed(entry.custom) });
     } else if (entry.kind === "tray") {
       (entry.dice || []).forEach((die) => parts.push({ k: "d" + die.sides, v: String(die.result) }));
-      if (entry.flatBonus) parts.push({ k: "Overreach", v: signed(entry.flatBonus) });
-    } else if (entry.destiny) {
-      parts.push({ k: "Destiny d" + entry.destiny.sides, v: String(entry.destiny.result) });
     }
+    partHooks.forEach((hook) => (hook(entry, t) || []).forEach((part) => parts.push(part)));
     return parts;
   }
 
@@ -207,24 +301,17 @@ export function createLexicon({ entryBonusDice }) {
      et le titre au survol. `display` est le même compte SANS elle : à l'écran
      les dés parlent d'eux-mêmes (lot texte T1). */
   function rollRuling(entry) {
-    if (!entry) return { verdict: "", verdictId: "", title: "Roll", account: [], display: [] };
+    if (!entry) return { verdict: "", verdictId: "", title: t("tray.roll"), account: [], display: [] };
+    const verdict = verdictText(entry);
     const found = rollVerdict(entry);
-    const verdict = found ? found.verdict : "";
-    const title = (entry.name || "Roll") + (entry.total == null ? "" : " " + entry.total);
+    const title = (entry.name || t("tray.roll")) + (entry.total == null ? "" : " " + entry.total);
     const head = verdict ? [title] : [];
     const parts = rollParts(entry).map((part) => part.k + " " + part.v);
     const tail = [];
-    const spent = entry.destiny;
-    if (spent) {
-      const change = Number(spent.pointsAfter) - Number(spent.pointsBefore);
-      if (isFinite(change) && change) {
-        const moved = Math.abs(change);
-        tail.push((change < 0 ? "Lost " : "Gained ") + moved + " Destiny Point" + (moved === 1 ? "" : "s"));
-        tail.push("Current " + spent.pointsAfter);
-      }
+    tailHooks.forEach((hook) => (hook(entry, t) || []).forEach((line) => tail.push(line)));
+    if (rollHasThreshold(entry)) {
+      tail.push(entry.rollType === "attack" ? t("ruling.ac", { ac: entry.ac }) : t("ruling.dc", { dc: rollThreshold(entry) }));
     }
-    if (entry.destinyPointChange) tail.push(entry.destinyPointChange.reason + " · Destiny " + entry.destinyPointChange.after);
-    if (rollHasDc(entry) && entry.dc != null) tail.push("DC " + entry.dc);
     /* L87 : la déduplication comparait des TEXTES, et le jour où le verdict a
        été renommé sans que son badge le soit, la comparaison a cessé de
        matcher et le flanc a re-énoncé le même fait sous deux noms. L'id de
@@ -240,5 +327,14 @@ export function createLexicon({ entryBonusDice }) {
     return { badges: rollBadges(entry), ruling, verdict: ruling.verdict };
   }
 
-  return { ROLL_BADGE_RULES, rollBadges, entryTotal, rollParts, rollRuling, rollVocabulary };
+  function moduleSignature(entry) {
+    return signatureHooks.map((hook) => String(hook(entry) == null ? "" : hook(entry))).join("|");
+  }
+
+  return {
+    ROLL_SOURCES, ROLL_VERDICTS, ROLL_BADGE_RULES, SEALABLE_SOURCES,
+    rollSource, sourceLabel, sealLabel, rollVerdict, outcomeFor, verdictText,
+    rollBadges, entryTotal, rollParts, rollRuling, rollVocabulary, moduleSignature,
+    rollHasThreshold, rollThreshold
+  };
 }

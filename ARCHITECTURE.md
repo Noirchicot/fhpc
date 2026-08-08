@@ -50,10 +50,17 @@ dans `contracts/`.
 | `doc` | open, save, list, import, export, duplicate | documents au repos (stockage local) | doc-opened, doc-saved |
 | `layers` | register, enable, disable, query(kind, id) | contenu des couches chargées, pile active | layers-changed |
 | `build` | choose, set, override, rebuild, validate | tranche `build` du perso ouvert | char-rebuilt (avec diff) |
-| `play` | vocabulaire `data-*` v1 nommé : stageDie, roll, spendDestiny, resolvePending… | état de séance : transaction, pools, main, tray, historique | roll-settled (`fh-roll/1` + `intent`), pool-changed |
+| `play` | vocabulaire `data-*` v1 nommé : stageDie, roll, addDie, rerollDie, mountDie, giveDie… | état de séance : transaction, pools, main, tray, historique | roll-settled (`fh-roll/1` + `intent`), pool-changed, die-given |
 | `table` | share, join, goLive | état de livraison, LIVE/RECENT/OFF | feed-updated, table-status |
 | `mcp` | adaptateur : doc/build/play en tools+resources | aucun | — |
 | `connect-ddb` | pull, push (détachable, jamais diffusé) | état de liaison | — |
+
+> ⚠️ **`play` est le moteur SRD ; Fate's Hand est une COUCHE montée par
+> l'appelant** (loi §0.12, lot `5-moteur-srd-fh`). Les verbes d'une couche —
+> `spendDestiny`, `resolvePending`, `settleAwakening`… — **n'existent pas** tant
+> qu'elle n'est pas montée : ce n'est pas un interrupteur, c'est une absence
+> (§0.6). Une couche s'inscrit sur des MOMENTS, elle n'est jamais appelée.
+> Détail : `contracts/play.md` et `COUPE-LOT-5.md`.
 
 UI (consommatrices, jamais propriétaires) : `ui-builder-desktop` (premier,
 iPad compris), `ui-builder-mobile` (plus tard, pensé différemment — « on ne

@@ -1,25 +1,38 @@
-/* ══ LE BLOC `play` — le moteur de jets, sans DOM ═════════════════════
-   Porté de fh-phb `docs/javascripts/fh-player-sheet.js` (main, ~5 645 l.) :
-   transaction de jet et ses gardes, phases de séquence, Destinée, Chaos,
-   Overreach, réserves comptées, règlement, historique.
+/* ══ LE BLOC `play` — LE MOTEUR DE JETS SRD ══════════════════════════
+   Porté de fh-phb `docs/javascripts/fh-player-sheet.js` (main, ~5 645 l.) par
+   le lot 3, puis RECOUPÉ par le lot 5.
 
-   PORTÉ, PAS RÉÉCRIT. Le comportement est la vérité et les suites en sont la
-   preuve : les noms de fonctions v1 sont conservés pour que le diff reste
-   auditable, y compris quand un nom français aurait mieux dit la chose.
+   ⚠️ CE FICHIER EST SRD, ET SEULEMENT SRD (loi §0.12). Il ne contient pas les
+   mots Destiny, Chaos, Overreach, Arcane ni Awakening, et le garde structurel
+   de `tests/play-srd-only.test.mjs` le vérifie sur les octets. Un personnage
+   SRD pur, sans aucune couche chargée, traverse ce code de bout en bout.
 
-   Ce que le bloc n'a PAS le droit de faire (loi du lot C) : toucher le DOM,
-   lire `window`, atteindre le réseau. Ce qui remplace ces trois choses :
-   - le rendu → des ÉVÉNEMENTS sur le bus, l'UI s'abonne ;
-   - `window.crypto` / `window.FH_CHAOS` → des DÉPENDANCES injectées ;
-   - le fil réseau → l'événement `roll-settled`, que le bloc `table` porte.
+   CE QUE LE LOT 5 A ENLEVÉ D'ICI, ET OÙ C'EST PARTI :
+   - la Destinée (réserve, points, dés, dépense, Éveil), le Chaos, l'Overreach,
+     le 1 naturel qui pose une question, le +2 maison → `src/layers/fh/`.
+   - les MOTS (verdicts, badges, lignes de flux, refus) → `labels.mjs`, un
+     paquet de données que `derive` applique à la frontière (loi §0.13).
+   Ce qui reste ici est le jeu de base : le d20, l'avantage, le modificateur,
+   le seuil, les dés bonus, les dégâts, l'Épuisement, l'historique, et LA
+   TRANSACTION DE JET.
 
-   Les DEUX POINTS DE RÈGLEMENT sont `openRollState` et la branche
+   COMMENT UNE COUCHE ENTRE. Elle ne s'appelle pas, elle S'INSCRIT : le chemin
+   commun invoque un MOMENT (`src/play/sequence.mjs`) et n'a jamais entendu
+   parler d'un module. Pas un seul `if (fh)`.
+
+   LES DEUX POINTS DE RÈGLEMENT sont `openRollState` et la branche
    `finish-sequence` de `runQueueDone`, tous deux gardés par la transaction.
    PIÈGE CONNU, gravé ici : le règlement n'est PAS dans `addHistory`.
-   `finishRolledEntry` appelle `addHistory` puis RETOURNE sur un 1 naturel, en
-   laissant le joueur accepter ou défier — régler là montrerait à la table un
-   échec critique qui devient silencieusement un 20. Et un jet ajusté ne passe
-   jamais par `addHistory` : `completeHistoryAdjustment` mute l'entrée en place. */
+   `finishRolledEntry` appelle `addHistory` puis RETOURNE quand une couche
+   pose une question — régler là montrerait à la table un résultat que le
+   joueur peut encore renverser. Et un jet ajusté ne passe jamais par
+   `addHistory` : `completeHistoryAdjustment` mute l'entrée en place.
+
+   ⚠️ D.2 — LA TRANSACTION DE JET EST ROUVRABLE, ET C'EST INTOUCHABLE. Un jet
+   réglé n'est pas figé : il doit pouvoir recevoir un dé et CHANGER DE VERDICT.
+   `adjustment-choice` est une phase bloquante, `completeHistoryAdjustment` en
+   est la sortie, `entry.adjusted` est posé aux deux points, et le badge
+   `adjusted` le dit. Rien de tout cela n'a bougé au lot 5. */
 
 import { clamp, mod, signed, makeRollDie, platformRandomUint32, platformUuid } from "./utils.mjs";
 import {
@@ -27,15 +40,20 @@ import {
   createDiceKit, dieColour, rollMode, forcedDieResult, chooseDiePlan,
   trayDiceForPlan, pendingTrayDice
 } from "./dice.mjs";
-import { LEX, ROLL_SOURCES, SEALABLE_SOURCES, sealLabel, rollVerdict, outcomeFor, rollHasDc, createLexicon } from "./lexicon.mjs";
-import { createChaos } from "./chaos.mjs";
+import { createLexicon, SEALABLE_SOURCES, CORRECTION_DICE, rollHasThreshold, rollThreshold, rollWasMade } from "./lexicon.mjs";
+import { createLabels, EN_SRD } from "./labels.mjs";
+import { createSequence } from "./sequence.mjs";
+import { rollTypeFor, applySettings, damagePlanFor, ROLL_TYPE_IDS } from "./rolltypes.mjs";
 import { createExport } from "./export.mjs";
 
 const ABILITY_NAMES = { STR: "Strength", DEX: "Dexterity", CON: "Constitution", INT: "Intelligence", WIS: "Wisdom", CHA: "Charisma" };
+/* SRD 5.2.1, `srd:glossary:en:exhaustion` (p.181) : six niveaux, la mort au
+   sixième, et « the roll is reduced by 2 times your Exhaustion level ». Le
+   multiplicateur est une valeur de RÈGLE : une couche a le droit de le
+   remplacer (Fate's Hand joue à −1), la condition reste celle du SRD. */
 const MAX_EXHAUSTION = 6;
+const SRD_EXHAUSTION_PER_LEVEL = 2;
 const MAX_EVENTS = 10;
-const MAX_PENDING = 4;
-const MAX_PINNED = 6;
 const POOL_DIE_SIDES = [4, 6, 8, 10, 12];
 const MAX_POOL_RESOURCES = 12;
 const MAX_POOL_COUNT = 9;
@@ -46,13 +64,14 @@ const SOURCE_TINT = { guidance: "azure", bardic: "violet", tactical: "crimson" }
 
 /* Un jet OUVERT ne verrouille plus le dock : il a déjà atteint le flux, et
    CLEAR TRAY ou le jet suivant sont ses deux sorties légitimes. Les seules
-   phases qui tiennent encore la transaction sont les quatre qui posent
-   véritablement une question au joueur. */
-const BLOCKING_PHASES = { nat1: 1, arcane1: 1, "roll-choice": 1, "destiny-choice": 1, "adjustment-choice": 1 };
+   phases qui tiennent encore la transaction sont celles qui posent
+   véritablement une question au joueur — celles du chemin commun, plus celles
+   qu'une couche ouvre par une décision. */
+const BLOCKING_PHASES = { "roll-choice": 1, "adjustment-choice": 1 };
 
 export function createPlay({
   bus,
-  chaosTables = null,
+  layers = [],
   randomUint32 = platformRandomUint32,
   uuid = platformUuid,
   now = () => new Date().toISOString()
@@ -61,34 +80,65 @@ export function createPlay({
     throw new Error("fhpc/play: createPlay needs a bus with emit()");
   }
 
+  /* ── Le montage des couches ──────────────────────────────────────────
+     Trois passes, dans cet ordre, parce que chacune a besoin de la
+     précédente : les DÉCLARATIONS d'abord (elles sont pures), puis le lexique
+     et les dés qui les lisent, puis le BRANCHEMENT qui leur tend les rouages. */
+  const sequence = createSequence();
+  const declarations = layers.slice();
+  const labels = createLabels(EN_SRD, ...declarations.map((layer) => layer.labels || {}));
+  const t = labels;
+
+  /* Les valeurs de règle qu'une couche remplace. Deux couches qui voudraient
+     la même valeur est une ambiguïté, et elle jette (loi §0.5). */
+  const rules = { exhaustionPerLevel: SRD_EXHAUSTION_PER_LEVEL };
+  const ruleOwner = {};
+  declarations.forEach((layer) => {
+    Object.entries(layer.rules || {}).forEach(([key, value]) => {
+      if (rules[key] === undefined) throw new Error('fhpc/play: layer "' + layer.name + '" overrides unknown rule "' + key + '"');
+      if (ruleOwner[key]) {
+        throw new Error('fhpc/play: "' + ruleOwner[key] + '" and "' + layer.name + '" both override rule "' + key + '"');
+      }
+      ruleOwner[key] = layer.name;
+      rules[key] = value;
+    });
+  });
+
   const rollDie = makeRollDie(randomUint32);
-  const kit = createDiceKit({ rollDie, uuid });
+  const kit = createDiceKit({ rollDie, uuid, labels, modules: declarations });
   const {
     newFreeDie, normalizeFreeDie, newBonusDie, normalizeBonusDie,
     makeDiePlan, entryBonusDice, mirrorNamedBonusDice, trayDiceFromEntry
   } = kit;
-  const lexicon = createLexicon({ entryBonusDice });
-  const { rollBadges, entryTotal, rollParts, rollRuling, rollVocabulary } = lexicon;
-  const chaos = createChaos(chaosTables);
-  const { chaosRowText, chaosVerdict } = chaos;
-  const exporter = createExport({ trayDiceFromEntry, rollParts, rollBadges, rollRuling, entryBonusDice });
+  const lexicon = createLexicon({ entryBonusDice, labels, modules: declarations });
+  const {
+    ROLL_SOURCES, ROLL_VERDICTS, ROLL_BADGE_RULES,
+    rollSource, sealLabel, rollVerdict, outcomeFor, verdictText,
+    rollBadges, entryTotal, rollParts, rollRuling, rollVocabulary, moduleSignature
+  } = lexicon;
+  const exporter = createExport({
+    trayDiceFromEntry, rollParts, rollBadges, rollRuling, entryBonusDice,
+    rollVerdict, rollThreshold, rollHasThreshold, moduleSignature
+  });
   const { rollExport, intentFor, rollSignature } = exporter;
 
   /* ── La tranche d'état ───────────────────────────────────────────────
      Tout est de la séance : rien ici ne voyage dans le document `fh-char/1`.
      `character` est la seule chose que `play` LIT sans jamais l'écrire — c'est
-     `resolved`, semé par `open`, et il n'en garde qu'une référence. */
+     `resolved`, semé par `open`, et il n'en garde qu'une référence.
+     Une couche montée AJOUTE ses propres clefs ; le chemin commun n'en déclare
+     aucune, et c'est ce qui rend la coupe vérifiable sur les octets. */
   const state = {
     character: null,
     campaign: "", pseudo: "",
-    destiny: null, vitals: null,
+    vitals: null,
     history: [], events: [],
     prefs: { bardicSides: 6 },
     poolResources: [],
-    traySelection: [], trayLabel: "Damage roll",
-    trayResults: [], trayTitle: "Dice Tray", trayResultText: "", trayVerdict: "", trayQuietTitle: "",
+    traySelection: [], trayLabel: t("tray.free-label"),
+    trayResults: [], trayTitle: t("tray.idle"), trayResultText: "", trayVerdict: "", trayQuietTitle: "",
     trayPrompt: null, queueDone: "", rollSequence: null, rollConfig: null,
-    pendingArmed: null, destinyStaged: null, diePrompt: null,
+    diePrompt: null,
     message: "", messageKind: "",
     settled: {}
   };
@@ -102,49 +152,13 @@ export function createPlay({
   }
   function clearNotice() { state.message = ""; state.messageKind = ""; }
   function emitPool(reason) {
-    bus.emit("pool-changed", { reason, destiny: state.destiny, vitals: state.vitals, poolResources: state.poolResources });
+    bus.emit("pool-changed", Object.assign(
+      { reason, vitals: state.vitals, poolResources: state.poolResources },
+      harvestLayers()
+    ));
   }
 
-  /* ══ Destinée : réserve, points, dés ═══════════════════════════════ */
-
-  function makeDestinySlots(score, points) {
-    const slotCount = Math.min(15, Math.max(5, Math.ceil(Math.max(0, Number(score) || 0) / 2), Math.ceil(Math.max(0, Number(points) || 0) / 2)));
-    const fullCount = Math.min(15, Math.max(0, Math.floor((Number(points) || 0) / 2)));
-    const slots = [];
-    for (let i = 0; i < slotCount; i++) slots.push({ id: uuid(), sides: DIE_SEQUENCE[i % DIE_SEQUENCE.length], available: i < fullCount });
-    return slots;
-  }
-
-  function normalizeDestiny(raw, ch) {
-    const buildScore = Number(ch && ch.destinyBuild && ch.destinyBuild.score)
-      || Number(ch && ch.build && ch.build.destinyFeats && ch.build.destinyFeats.score)
-      || (Number(ch && ch.pb) || 2) + 2;
-    raw = raw && typeof raw === "object" ? raw : {};
-    const score = raw.score != null ? Number(raw.score) : buildScore;
-    const points = raw.points != null ? Number(raw.points) : score;
-    const counts = {};
-    let dice = Array.isArray(raw.dice)
-      ? raw.dice.map((die, i) => ({
-        id: die.id || uuid(),
-        sides: DIE_SEQUENCE.indexOf(Number(die.sides)) >= 0 ? Number(die.sides) : DIE_SEQUENCE[i % DIE_SEQUENCE.length],
-        available: !!die.available
-      })).filter((die) => { counts[die.sides] = (counts[die.sides] || 0) + 1; return counts[die.sides] <= 3; })
-      : makeDestinySlots(score, points);
-    if (!dice.length) dice = makeDestinySlots(score, points);
-    // Un profil sauvegardé d'avant le plancher peut encore porter des points négatifs.
-    const overreach = Math.max(0, Number(raw.overreach) || 0, points < 0 ? -points : 0);
-    // Destin différé : Chaos et sauvegardes d'Overreach sont PORTÉS, pas lancés sur place.
-    const pending = Array.isArray(raw.pending)
-      ? raw.pending.filter((item) => item && (item.kind === "chaos" || item.kind === "overreach" || item.kind === "note")).slice(0, MAX_PENDING + 2)
-      : [];
-    /* Un COMPTE de tirages d'Arcane dus, pas un drapeau : un second 20 naturel
-       à 0 avant que la première carte soit tirée en doit un second. */
-    return {
-      score, points: Math.max(0, points), dice, overreach, pending,
-      awakeningOwed: Math.max(0, Number(raw.awakeningOwed) || 0),
-      lastChange: raw.lastChange || null
-    };
-  }
+  /* ══ Les vitaux et l'Épuisement ════════════════════════════════════ */
 
   function normalizeVitals(raw) {
     raw = raw && typeof raw === "object" ? raw : {};
@@ -152,20 +166,23 @@ export function createPlay({
     let current = raw.current == null || raw.current === "" ? null : Math.round(Number(raw.current) || 0);
     if (current != null) current = Math.max(-999, max == null ? current : Math.min(current, max));
     if (max != null && current == null) current = max;
-    /* Épuisement maison : six niveaux, −1 plat chacun, le niveau 6 est la mort.
-       Le repos court qui peut effacer un niveau est dépensé jusqu'au long. */
+    /* Six niveaux, le sixième est la mort. Le repos court qui peut effacer un
+       niveau est dépensé jusqu'au long : `play` porte le drapeau, l'effacement
+       est un geste, pas un automatisme. */
     return { current, max, exhaustion: clamp(raw.exhaustion, 0, MAX_EXHAUSTION), shortRestUsed: !!raw.shortRestUsed };
   }
 
   function exhaustionLevel() { return clamp(state.vitals && state.vitals.exhaustion, 0, MAX_EXHAUSTION); }
-  /* Chaque niveau est un −1 plat sur tout test de d20 : le malus voyage avec
-     les dés du jet au lieu d'être retenu par le joueur. */
-  function exhaustionPenalty() { return -exhaustionLevel(); }
-  function exhaustionNote(level) {
-    if (level >= MAX_EXHAUSTION) return "level 6 is death";
-    return level ? "−" + level + " on every d20 test" : "clear";
+  /* Chaque niveau est un malus plat sur tout test de d20 : il voyage avec les
+     dés du jet au lieu d'être retenu par le joueur. Le CHIFFRE est une valeur
+     de règle (SRD : 2 par niveau) qu'une couche peut remplacer. */
+  function exhaustionPenalty() { return -exhaustionLevel() * rules.exhaustionPerLevel; }
+  function exhaustionText(level, reason) {
+    return t("event.exhaustion", {
+      level, reason: reason || "Adjusted", max: MAX_EXHAUSTION,
+      penalty: level * rules.exhaustionPerLevel
+    });
   }
-  function exhaustionText(level, reason) { return "EXHAUSTION " + level + " · " + (reason || "Adjusted") + " · " + exhaustionNote(level); }
   /* `silent` laisse un appelant replier l'annonce dans son propre lot, pour que
      la conséquence atterrisse AU-DESSUS de sa cause dans une liste newest-first. */
   function setExhaustion(level, reason, silent) {
@@ -194,12 +211,11 @@ export function createPlay({
   /* ══ La zone d'événements ══════════════════════════════════════════
      Plus une file de popups : une LISTE. Un événement informatif est une ligne
      qui s'annonce et s'empile sous la précédente, ne coûte aucun clic et ne
-     bloque rien. Seule une vraie décision — un 1 naturel, un échec critique
-     arcanique, un choix A/D — tient le jet. */
+     bloque rien. Seule une vraie décision tient le jet. */
   function recordEvent(spec) {
     const event = {
       id: uuid(), text: spec.text, kind: spec.kind || "info", entryId: spec.entryId || null,
-      chaosRoll: spec.chaosRoll || null, tag: spec.tag || "", createdAt: now()
+      tag: spec.tag || "", createdAt: now()
     };
     state.events.unshift(event);
     state.events = state.events.slice(0, MAX_EVENTS);
@@ -222,10 +238,15 @@ export function createPlay({
     state.queueDone = "";
     runQueueDone(next);
   }
+  /* Une décision ouverte par une couche TIENT la transaction, sans que le
+     chemin commun sache de quelle question il s'agit : `blocking` est déclaré
+     par le type de la décision, pas deviné à partir de son nom. */
+  const blockingDecisions = {};
   function openDecision(decision) {
     state.rollSequence = state.rollSequence || {};
     if (decision.entryId) state.rollSequence.entryId = decision.entryId;
     state.rollSequence.phase = decision.type;
+    blockingDecisions[decision.type] = 1;
     state.trayPrompt = Object.assign({}, decision);
   }
   function closeDecision() {
@@ -234,14 +255,14 @@ export function createPlay({
     state.trayPrompt = null;
     /* La question est répondue, donc la phase doit cesser de tenir le dock,
        même quand rien n'était garé derrière elle. */
-    if (state.rollSequence && BLOCKING_PHASES[state.rollSequence.phase]) state.rollSequence.phase = "open-after-events";
+    if (state.rollSequence && phaseBlocks(state.rollSequence.phase)) state.rollSequence.phase = "open-after-events";
     return done;
   }
+  function phaseBlocks(phase) { return !!(BLOCKING_PHASES[phase] || blockingDecisions[phase]); }
 
   /* Un seul endroit recalcule une entrée après réécriture — par un Portent posé
-     sur un dé tombé, ou par un échec arcanique refusé. Un jet libre garde son
-     propre verdict ; un test regagne son résultat depuis les nombres.
-     `flatBonus` est ce qu'un jet de Chaos ajoute par-dessus son dé : l'Overreach. */
+     sur un dé tombé, ou par une décision de couche. Un jet libre garde son
+     propre verdict ; un test regagne son résultat depuis les nombres. */
   function recomputeEntry(entry) {
     if (!entry) return;
     if (entry.kind === "tray") {
@@ -258,228 +279,9 @@ export function createPlay({
     setTrayFromEntry(entry);
   }
 
-  function recoverLowestDie() {
-    for (let missingIndex = 0; missingIndex < DIE_SEQUENCE.length; missingIndex++) {
-      const missingSides = DIE_SEQUENCE[missingIndex];
-      const missing = state.destiny.dice.find((die) => die.sides === missingSides && !die.available);
-      if (missing) { missing.available = true; return missing; }
-    }
-    for (let round = 0; round < 3; round++) {
-      for (let i = 0; i < DIE_SEQUENCE.length; i++) {
-        const sides = DIE_SEQUENCE[i];
-        const count = state.destiny.dice.filter((die) => die.sides === sides).length;
-        if (count <= round) { const die = { id: uuid(), sides, available: true }; state.destiny.dice.push(die); return die; }
-      }
-    }
-    return null;
-  }
-
-  function adjustDestinyDie(sides, direction) {
-    sides = Number(sides); direction = Number(direction);
-    const matching = state.destiny.dice.filter((die) => die.sides === sides);
-    let changed = false;
-    if (direction > 0) {
-      const spent = matching.find((die) => !die.available);
-      if (spent) { spent.available = true; changed = true; }
-      else if (matching.length < 3) { state.destiny.dice.push({ id: uuid(), sides, available: true }); changed = true; }
-    } else {
-      const full = matching.slice().reverse().find((die) => die.available);
-      if (full) { full.available = false; changed = true; }
-    }
-    if (changed) pushEvent((direction > 0 ? "Gained " : "Removed ") + "a Destiny d" + sides, direction > 0 ? "die-gain" : "die-loss");
-    state.destiny.lastChange = { reason: "Manual d" + sides + " pool correction", at: now() };
-    emitPool("destiny-dice");
-  }
-
-  function setDestinyPoints(next, reason, recover, silent) {
-    const before = Number(state.destiny.points) || 0;
-    next = Math.max(-99, Math.min(999, Number(next) || 0));
-    /* Les points ne tombent jamais sous zéro. Ce qu'ils auraient dépassé est
-       enregistré comme Overreach, que le Chaos lit pour poser son DD. */
-    const shortfall = next < 0 ? -next : 0;
-    state.destiny.overreach = shortfall
-      ? (Number(state.destiny.overreach) || 0) + shortfall
-      : (next > before ? 0 : Number(state.destiny.overreach) || 0);
-    next = Math.max(0, next);
-    state.destiny.points = next;
-    let recovered = null;
-    if (recover !== false && next > before && next > 0 && next % 2 === 0) recovered = recoverLowestDie();
-    if (!silent && next !== before) {
-      pushEvent((next > before ? "Gained " : "Lost ") + Math.abs(next - before) + " Destiny Point" + (Math.abs(next - before) === 1 ? "" : "s"), next > before ? "gain" : "loss");
-    }
-    if (!silent && recovered) pushEvent("Gained a Destiny d" + recovered.sides, "die-gain");
-    state.destiny.lastChange = { before, after: next, reason: reason || "Correction", recovered: recovered && recovered.id, at: now() };
-    emitPool("destiny-points");
-    return recovered;
-  }
-
-  function updateDestinyField(field, value, reason) {
-    if (field === "score") state.destiny.score = clamp(value, 0, 99);
-    else setDestinyPoints(value, reason || "Manual correction", true);
-    emitPool("destiny-field");
-  }
-
-  /* ══ Dépenser un dé de Destinée ════════════════════════════════════ */
-
-  function spendDestinyDie(dieId, silent, rolled) {
-    const die = state.destiny.dice.find((item) => item.id === dieId && item.available);
-    if (!die) return null;
-    die.available = false;
-    const plan = rolled || makeDiePlan(die.sides, "flat", null);
-    const result = Number(plan.result);
-    const before = Number(state.destiny.points) || 0;
-    let cost, criticalSuccess = false, criticalFailure = false, chaosRisk = null, recovered = null;
-    if (result === die.sides) {
-      cost = 1; criticalSuccess = true;
-      recovered = setDestinyPoints(before - 1, "Arcane Critical Success d" + die.sides, true, !!silent);
-    } else if (result === 1) {
-      cost = -1; criticalFailure = true;
-      recovered = setDestinyPoints(before + 1, "Arcane Critical Failure d" + die.sides, true, !!silent);
-    } else {
-      cost = result;
-      recovered = setDestinyPoints(before - result, "Destiny d" + die.sides, true, !!silent);
-      const over = Number(state.destiny.overreach) || 0;
-      if (over > 0) chaosRisk = { overreach: over, dc: 10 + over };
-    }
-    if (!silent && criticalSuccess) pushEvent(LEX.CRITINF + " · Destiny d" + die.sides + " rolled " + result, "arcane-critical-success");
-    else if (!silent && criticalFailure) pushEvent(LEX.FUMBLEINF + " · Destiny d" + die.sides + " rolled 1", "arcane-critical-failure");
-    return {
-      dieId: die.id, sides: die.sides, result, rolls: (plan.rolls || [result]).slice(),
-      chosenIndex: plan.chosenIndex == null ? 0 : plan.chosenIndex,
-      advantageMode: rollMode(plan.mode), forced: !!plan.forced, cost,
-      pointsBefore: before, pointsAfter: state.destiny.points,
-      criticalSuccess, criticalFailure, chaos: chaosRisk, recovered
-    };
-  }
-
-  /* Un 1 sur un dé de Destinée n'est plus un verdict, c'est une OFFRE — le
-     miroir du 1 naturel. L'accepter et l'échec critique tient pour +1 point de
-     Destinée ; le refuser et le 1 se lit comme la face la plus haute du dé, un
-     succès critique arcanique payé de tous les points de Destinée et d'un 2d6
-     sur le Chaos. */
-  function arcaneDecision(spent, entryId) {
-    if (!spent || !spent.criticalFailure || spent.arcaneChoice) return null;
-    return { type: "arcane1", entryId, sides: spent.sides };
-  }
-
   function entryById(id) {
     if (state.rollSequence && state.rollSequence.entry && state.rollSequence.entry.id === id) return state.rollSequence.entry;
     return state.history.find((item) => item.id === id) || null;
-  }
-
-  /* Un dé de Destinée posé dans le plateau garde ce que son propre menu lui a
-     donné. L'A/D est l'exception : choisir après coup demande un résolveur que
-     ce chemin n'a pas, donc son menu ne l'offre jamais et une valeur égarée
-     retombe à plat. */
-  function destinyPlanFor(item) {
-    const mode = rollMode(item && item.advantageMode);
-    return makeDiePlan(item.sides, mode === "choice" ? "flat" : mode, item && item.forcedResult);
-  }
-
-  function destinyEventSpecs(spent, entryId) {
-    if (!spent) return [];
-    const change = spent.pointsAfter - spent.pointsBefore;
-    const events = [], parts = [];
-    const rollEntry = (state.rollSequence && state.rollSequence.entry) || state.history.find((entry) => entry.id === entryId);
-    const offered = !!arcaneDecision(spent, entryId);
-    if (spent.criticalSuccess) parts.push(LEX.CRITINF, "Destiny d" + spent.sides + " rolled " + spent.result);
-    else if (spent.criticalFailure) parts.push(LEX.FUMBLEINF, "Destiny d" + spent.sides + " rolled 1");
-    else parts.push("Destiny d" + spent.sides + " rolled " + spent.result);
-    /* Un échec encore en attente de sa réponse annonce le jet et rien d'autre :
-       les points qu'il a bougés peuvent être défaits, et une ligne ne doit pas
-       affirmer ce qui peut être défait. */
-    if (!offered) {
-      if (change) parts.push((change > 0 ? "Gained " : "Lost ") + Math.abs(change) + " Destiny Point" + (Math.abs(change) === 1 ? "" : "s"), "Current " + spent.pointsAfter);
-      if (spent.recovered) parts.push("Gained a Destiny d" + spent.recovered.sides);
-    }
-    events.push({
-      text: parts.join(" · "),
-      kind: spent.criticalSuccess ? "arcane-critical-success" : spent.criticalFailure ? "arcane-critical-failure" : "destiny",
-      entryId
-    });
-    // La sauvegarde elle-même est différée derrière un marqueur ; cette ligne ne fait que l'annoncer.
-    if (spent.chaos) {
-      const saveAbility = (rollEntry && rollEntry.ability) || "";
-      addPendingFate({ kind: "overreach", entryId, ability: saveAbility, dc: spent.chaos.dc, overreach: spent.chaos.overreach });
-      events.push({ text: "CHAOS RISK · Overreach " + spent.chaos.overreach + " · " + (saveAbility || "Ability") + " save DC " + spent.chaos.dc + " · pending", kind: "chaos", entryId });
-    }
-    return events;
-  }
-
-  /* Les deux réponses sont déjà à moitié appliquées : spendDestinyDie a accordé
-     le point à l'instant où le 1 est tombé, donc accepter n'a qu'à l'annoncer
-     et refuser doit le reprendre — ainsi que le dé qu'il a pu ramener. */
-  function resolveArcaneOne(id, choice) {
-    const entry = entryById(id), spent = entry && entry.destiny;
-    if (!entry || !spent || !spent.criticalFailure || spent.arcaneChoice) return;
-    const events = [];
-    if (choice === "accept") {
-      spent.arcaneChoice = "accept";
-      const accepted = ["∞ FATE ACCEPTED · " + LEX.fumbleInf, "Gained 1 Destiny Point", "Current " + state.destiny.points];
-      if (spent.recovered) accepted.push("Gained a Destiny d" + spent.recovered.sides);
-      events.push({ text: accepted.join(" · "), kind: "arcane-critical-failure", entryId: entry.id });
-    } else {
-      if (spent.recovered) {
-        const back = state.destiny.dice.find((die) => die.id === spent.recovered.id);
-        if (back) back.available = false;
-      }
-      spent.arcaneChoice = "chaos"; spent.transformed = true; spent.originalResult = spent.result;
-      spent.result = spent.sides; spent.rolls = [spent.sides]; spent.chosenIndex = 0; spent.recovered = null;
-      spent.criticalFailure = false; spent.criticalSuccess = true;
-      const hadPoints = state.destiny.points;
-      setDestinyPoints(0, "Arcane fate refused", false, true);
-      /* Le Ruling et le badge de dépense lisent tous deux `pointsAfter` sur ce
-         relevé ; refuser vide la réserve, donc le relevé doit le dire ou toute
-         surface citera éternellement le solde d'avant le refus. */
-      spent.pointsAfter = state.destiny.points;
-      addPendingFate({ kind: "chaos", entryId: entry.id, ability: entry.ability || "", name: entry.name || "Arcane failure refused" });
-      events.push(
-        { text: "∞ FATE REFUSED · The 1 becomes " + spent.sides + " · " + LEX.critInf + (hadPoints ? " · Destiny becomes 0" : ""), kind: "arcane-critical-success", entryId: entry.id },
-        { text: "CHAOS IS PENDING · 1 fatigue point per round until you face it", kind: "chaos", entryId: entry.id }
-      );
-    }
-    recomputeEntry(entry);
-    const done = closeDecision();
-    if (state.history.indexOf(entry) >= 0) refreshEntryTray(entry);
-    announceEvents(events, done);
-  }
-
-  function naturalDestiny(entry) {
-    const events = [];
-    if (entry.natural === 20) {
-      const before = state.destiny.points;
-      const recovered = setDestinyPoints(before - 1, LEX.crit20, true, true);
-      entry.destinyPointChange = { before, after: state.destiny.points, reason: LEX.crit20 };
-      entry.awakening = state.destiny.points === 0;
-      // Le tirage est dû à partir de cet instant et jusqu'à ce que la carte soit donnée.
-      if (entry.awakening) state.destiny.awakeningOwed = (Number(state.destiny.awakeningOwed) || 0) + 1;
-      const parts = [
-        entry.awakening ? "ARCANE AWAKENING · " + LEX.crit20 + " at Destiny 0" : LEX.CRIT20 + " · Fate bends in your favor",
-        "Lost 1 Destiny Point", "Current " + state.destiny.points
-      ];
-      if (recovered) parts.push("Gained a Destiny d" + recovered.sides);
-      events.push({ text: parts.join(" · "), kind: entry.awakening ? "awakening" : "nat20", entryId: entry.id });
-    } else if (entry.natural === 1) entry.natChoice = null;
-    return events;
-  }
-
-  /* La moitié MOTEUR de `keepArcana` v1 : un tirage règle exactement UN Éveil
-     dû — un second 20 naturel tombé avant que cette carte soit donnée doit
-     encore le sien. Le paquet des 22 Arcanes est du CONTENU (il vivait dans
-     `window.FH_ARCANA`), et le choix de garder ou d'échanger la carte
-     appartient au document : ils ne sont pas entrés. La carte n'arrive ici que
-     par son identité, pour la ligne d'annonce. */
-  function settleAwakening(card) {
-    if (!state.destiny) return null;
-    const before = state.destiny.score;
-    state.destiny.score = clamp(before + 1, 0, 99);
-    setDestinyPoints((Number(state.destiny.points) || 0) + 10, "Arcane Awakening", true, true);
-    state.destiny.awakeningOwed = Math.max(0, (Number(state.destiny.awakeningOwed) || 0) - 1);
-    const named = card && (card.name || card.numeral)
-      ? "Drew " + [card.numeral, card.name].filter(Boolean).join(" · ") + " · " : "";
-    state.trayPrompt = null;
-    announceEvents([{ text: "ARCANE AWAKENING · " + named + "Score " + state.destiny.score + " · +10 temporary Points", kind: "awakening" }], "");
-    return state.destiny.awakeningOwed;
   }
 
   function addHistory(entry) {
@@ -493,8 +295,8 @@ export function createPlay({
     const results = trayDiceFromEntry(entry);
     /* Le Ruling est dérivé ici, une fois, depuis l'entrée. `trayVerdict` est ce
        qui permet de distinguer un verdict du moteur d'une consigne écrite dans
-       le même emplacement (« Roll 2d6 and read the Chaos table ») : le style de
-       verdict ne se pose que quand le titre EST le verdict du Ruling. */
+       le même emplacement : le style de verdict ne se pose que quand le titre
+       EST le verdict du Ruling. */
     const ruling = rollVocabulary(entry).ruling;
     state.trayResults = results;
     state.trayTitle = ruling.verdict || ruling.title;
@@ -502,67 +304,47 @@ export function createPlay({
     state.trayResultText = ruling.display.join(" · ");
     state.trayVerdict = ruling.verdict;
     // Le nom seul, pour l'instant où les dés sont encore en l'air.
-    state.trayQuietTitle = entry.name || "Roll";
+    state.trayQuietTitle = entry.name || t("tray.roll");
   }
 
   function prepareTrayForConfig(cfg) {
     if (!cfg) return;
-    if (cfg.editingId) {
-      const original = state.history.find((item) => item.id === cfg.editingId);
-      if (!original) return;
-      const locked = [];
+    const original = cfg.editingId ? state.history.find((item) => item.id === cfg.editingId) : null;
+    if (cfg.editingId && !original) return;
+    const dice = [];
+    if (original) {
       const originalD20 = original.d20Roll || {
         sides: 20, rolls: original.d20s || [original.kept], result: original.kept,
         chosenIndex: original.d20Choice != null ? original.d20Choice : (original.d20s || []).indexOf(original.kept),
         mode: original.d20Mode, forced: !!original.d20Forced
       };
-      trayDiceForPlan(originalD20, "d20", { dieRole: "base" }).forEach((die) => { die.natural = die.result; locked.push(die); });
+      trayDiceForPlan(originalD20, "d20", { dieRole: "base" }).forEach((die) => { die.natural = die.result; dice.push(die); });
       const existingIds = {};
       entryBonusDice(original).forEach((die) => {
         existingIds[die.id] = true;
-        trayDiceForPlan(die, die.label, { dieRole: "bonus" }).forEach((item) => locked.push(item));
+        trayDiceForPlan(die, die.label, { dieRole: "bonus" }).forEach((item) => dice.push(item));
       });
       (cfg.bonusDice || []).filter((die) => !existingIds[die.id]).forEach((die) => {
         pendingTrayDice(die.sides, die.label, die.advantageMode, die.forcedResult, { dieRole: "bonus", sourceIcon: die.sourceIcon, colour: die.colour || "", bonusId: die.id })
-          .forEach((item) => locked.push(item));
+          .forEach((item) => dice.push(item));
       });
-      if (original.destiny) {
-        trayDiceForPlan(original.destiny, "Destiny", {
-          dieRole: "destiny",
-          special: original.destiny.criticalSuccess ? "arcane-critical-success" : original.destiny.criticalFailure ? "arcane-critical-failure" : ""
-        }).forEach((item) => locked.push(item));
-      } else if (cfg.destinyDieId) {
-        const pendingDestiny = state.destiny.dice.find((item) => item.id === cfg.destinyDieId);
-        if (pendingDestiny) {
-          pendingTrayDice(pendingDestiny.sides, "Destiny", cfg.destinyMode, cfg.destinyForcedResult, { flash: true, destinyDieId: pendingDestiny.id, dieRole: "destiny" })
-            .forEach((item) => locked.push(item));
-        }
-      }
-      if (cfg.plusTwo) locked.push({ kind: "modifier", result: 2, label: "FH bonus", pending: !original.plusTwo });
-      if (Number(cfg.custom)) locked.push({ kind: "modifier", result: Number(cfg.custom), label: "Manual", tone: "mod", pending: Number(original.custom) !== Number(cfg.custom) });
-      state.traySelection = [];
-      state.trayResults = locked;
-      state.trayTitle = cfg.name + " " + signed(cfg.baseBonus);
-      state.trayResultText = "Original d20 locked";
-      return;
+    } else {
+      pendingTrayDice(20, "d20", cfg.d20Mode, cfg.d20ForcedResult, { dieRole: "base" }).forEach((item) => dice.push(item));
+      (cfg.bonusDice || []).forEach((bonusDie) => {
+        pendingTrayDice(bonusDie.sides, bonusDie.label, bonusDie.advantageMode, bonusDie.forcedResult, { dieRole: "bonus", sourceIcon: bonusDie.sourceIcon, colour: bonusDie.colour || "", bonusId: bonusDie.id })
+          .forEach((item) => dice.push(item));
+      });
     }
-    const dice = pendingTrayDice(20, "d20", cfg.d20Mode, cfg.d20ForcedResult, { dieRole: "base" });
-    (cfg.bonusDice || []).forEach((bonusDie) => {
-      pendingTrayDice(bonusDie.sides, bonusDie.label, bonusDie.advantageMode, bonusDie.forcedResult, { dieRole: "bonus", sourceIcon: bonusDie.sourceIcon, colour: bonusDie.colour || "", bonusId: bonusDie.id })
-        .forEach((item) => dice.push(item));
-    });
-    if (cfg.destinyDieId) {
-      const die = state.destiny.dice.find((item) => item.id === cfg.destinyDieId);
-      if (die) pendingTrayDice(die.sides, "Destiny", cfg.destinyMode, cfg.destinyForcedResult, { flash: true, destinyDieId: die.id, dieRole: "destiny" }).forEach((item) => dice.push(item));
-    }
-    if (cfg.plusTwo) dice.push({ kind: "modifier", result: 2, label: "FH bonus", pending: true });
+    /* Ce qu'une couche fait attendre dans le plateau. Le chemin commun ne sait
+       pas ce que c'est ; il sait seulement où ça se pose. */
+    configTrayHooks.forEach((hook) => (hook(cfg, original) || []).forEach((item) => dice.push(item)));
     // Le +X manuel bat sa pièce dès qu'il est tapé (R2) ; un zéro n'en bat aucune.
-    if (Number(cfg.custom)) dice.push({ kind: "modifier", result: Number(cfg.custom), label: "Manual", tone: "mod", pending: true });
-    if (exhaustionLevel()) dice.push({ kind: "modifier", result: exhaustionPenalty(), label: "Exhaustion", tone: "exhaustion", pending: true });
+    if (Number(cfg.custom)) dice.push({ kind: "modifier", result: Number(cfg.custom), label: t("modifier.manual"), tone: "mod", pending: !original || Number(original.custom) !== Number(cfg.custom) });
+    if (!original && exhaustionLevel()) dice.push({ kind: "modifier", result: exhaustionPenalty(), label: t("modifier.exhaustion"), tone: "exhaustion", pending: true });
     state.traySelection = [];
     state.trayResults = dice;
     state.trayTitle = cfg.name + " " + signed(cfg.baseBonus);
-    state.trayResultText = "Ready";
+    state.trayResultText = original ? t("tray.d20-locked") : t("tray.ready");
   }
 
   /* CLEAR TRAY vide la main et, avec elle, le commentaire courant au-dessus des
@@ -572,46 +354,48 @@ export function createPlay({
     recreditPendingPoolDice();
     state.traySelection = [];
     state.trayResults = [];
-    state.trayTitle = "Dice Tray";
+    state.trayTitle = t("tray.idle");
     state.trayResultText = "";
     state.trayQuietTitle = "";
     state.trayVerdict = "";
     state.trayPrompt = null;
     state.queueDone = "";
     state.rollSequence = null;
-    state.pendingArmed = null;
     state.diePrompt = null;
-    state.destinyStaged = null;
     state.events = [];
+    sequence.run("session-clear", {});
     if (closeConsole !== false) state.rollConfig = null;
   }
 
   function rollTransactionActive() {
-    const sequence = state.rollSequence;
-    return !!(sequence && BLOCKING_PHASES[sequence.phase]);
+    const seq = state.rollSequence;
+    return !!(seq && phaseBlocks(seq.phase));
   }
-  function warnRollLocked() { notify("Finish the current roll before starting or clearing another one.", "warn"); }
+  function warnRollLocked() { notify(t("notice.roll-locked"), "warn"); }
 
   /* ══ Le jet ouvert ═════════════════════════════════════════════════
      Un jet posé ne finit plus par un popup bloquant. Il reste OUVERT : le
-     plateau garde ses dés et toute source d'un nouveau dé reste vive. Seules
-     trois choses bloquent encore : le choix A/D, un 1 naturel, et les
-     conséquences d'un dé de Destinée. */
+     plateau garde ses dés et toute source d'un nouveau dé reste vive. Seule
+     une vraie question bloque encore. */
 
   function stagedList() {
-    const sequence = state.rollSequence;
-    return sequence && Array.isArray(sequence.staged) ? sequence.staged : [];
+    const seq = state.rollSequence;
+    return seq && Array.isArray(seq.staged) ? seq.staged : [];
+  }
+  function setStaged(next) {
+    state.rollSequence = state.rollSequence || {};
+    state.rollSequence.staged = next;
   }
   function rollOpen() { return !!(state.rollSequence && state.rollSequence.phase === "open"); }
   function openEntry() {
-    const sequence = state.rollSequence;
-    if (!sequence) return null;
-    return state.history.find((item) => item.id === sequence.entryId) || null;
+    const seq = state.rollSequence;
+    if (!seq) return null;
+    return state.history.find((item) => item.id === seq.entryId) || null;
   }
-  function stagedBonusCount() { return stagedList().filter((item) => item.kind !== "destiny").length; }
+  function stagedBonusCount() { return stagedList().filter((item) => item.kind === "bonus").length; }
   function openStatusText(entry) {
     const staged = stagedList().length, base = rollDetailText(entry);
-    return base + (staged ? (base ? " · " : "") + staged + " new " + (staged === 1 ? "die" : "dice") + " ready" : "");
+    return base + (staged ? (base ? " · " : "") + t("tray.staged-count", { count: staged }) : "");
   }
   function rollVerdictText(entry) { const ruling = rollRuling(entry); return ruling.verdict || ruling.title; }
   function rollDetailText(entry) { return rollRuling(entry).display.join(" · "); }
@@ -620,12 +404,12 @@ export function createPlay({
     setTrayFromEntry(entry);
     stagedList().forEach((item) => {
       const dice = pendingTrayDice(item.sides, item.label, item.advantageMode || "flat", null, {
-        dieRole: item.kind === "destiny" ? "destiny" : "bonus",
+        dieRole: item.kind === "bonus" ? "bonus" : item.kind,
         sourceIcon: item.sourceIcon || "", colour: item.colour || "",
-        flash: item.kind === "destiny", stagedId: item.id
+        flash: item.kind !== "bonus", stagedId: item.id
       });
-      /* Ordre de construction strict (Eric, 2026-08-04) : un dé de Destinée
-         stagé prend sa place chronologique à la fin, comme tout autre dé. */
+      /* Ordre de construction strict (Eric, 2026-08-04) : un dé stagé prend sa
+         place chronologique à la fin, comme tout autre dé. */
       dice.forEach((die) => state.trayResults.push(die));
     });
     state.trayResultText = openStatusText(entry);
@@ -669,20 +453,20 @@ export function createPlay({
     if (!rollOpen() || !entry) return;
     sides = Number(sides);
     if (ROLL_DIE_SIZES.indexOf(sides) < 0 || sides === 20 || sides === 100) {
-      notify("The d20 is the base die; d% stays a free roll.", "warn"); return;
+      notify(t("notice.d20-is-base"), "warn"); return;
     }
     if (entryBonusDice(entry).length + stagedBonusCount() >= MAX_BONUS_DICE) {
-      notify("A roll carries at most " + MAX_BONUS_DICE + " bonus dice.", "warn"); return;
+      notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return;
     }
     const used = entryBonusDice(entry).concat(stagedList()).map((die) => {
       const match = String(die.sourceIcon || "").match(/^other-([123])$/);
       return match ? Number(match[1]) : 0;
     });
     const slot = [1, 2, 3].find((value) => used.indexOf(value) < 0) || 1;
-    state.rollSequence.staged = stagedList().concat([{
-      id: uuid(), kind: "bonus", label: label || ("Bonus " + ["", "I", "II", "III"][slot]),
+    setStaged(stagedList().concat([{
+      id: uuid(), kind: "bonus", label: label || t("source.other-" + slot),
       sides, sourceIcon: sourceIcon || ("other-" + slot)
-    }]);
+    }]));
     refreshOpenTray(entry);
   }
 
@@ -691,58 +475,15 @@ export function createPlay({
     if (!rollOpen() || !entry) return false;
     const staged = stagedList();
     for (let i = staged.length - 1; i >= 0; i--) {
-      if (staged[i].kind !== "destiny" && Number(staged[i].sides) === Number(sides)) {
+      if (staged[i].kind === "bonus" && Number(staged[i].sides) === Number(sides)) {
         recreditPoolDie(staged[i]);
+        dropEventsTagged(staged[i].tag);
         staged.splice(i, 1);
         refreshOpenTray(entry);
         return true;
       }
     }
     return false;
-  }
-
-  function stageDestinyDie(dieId) {
-    const entry = openEntry();
-    if (!rollOpen() || !entry || entry.destiny) return;
-    if (stagedList().some((item) => item.kind === "destiny")) return;
-    const die = state.destiny.dice.find((item) => item.id === dieId && item.available);
-    if (!die) return;
-    state.rollSequence.staged = stagedList().concat([{
-      id: uuid(), kind: "destiny", destinyDieId: die.id, label: "Destiny", sides: die.sides,
-      advantageMode: "flat", forcedResult: null
-    }]);
-    refreshOpenTray(entry);
-  }
-
-  /* ── La réserve de Destinée se comporte comme le sélecteur blanc ─────
-     Cliquer un dé d'or ne le dépense jamais et ne pose aucune question : il met
-     le dé dans le plateau, dans celui des trois contextes qui est vivant. ROLL
-     est la seule chose qui dépense de la Destinée, et c'est ce qui rend
-     l'annulation gratuite. */
-  function announceStagedDestiny(die) {
-    dropEventsTagged("staged-destiny");
-    recordEvent({ text: "Destiny d" + die.sides + " waits in the tray · nothing is spent until ROLL", kind: "destiny", tag: "staged-destiny" });
-  }
-
-  function stageDestinyFromPool(dieId) {
-    const die = state.destiny.dice.find((item) => item.id === dieId && item.available);
-    if (!die) { notify("That Destiny die is no longer available.", "warn"); return; }
-    if (rollOpen()) {
-      const entry = openEntry();
-      if (!entry || entry.destiny || stagedList().some((item) => item.kind === "destiny")) {
-        notify("This roll already carries a Destiny die.", "warn"); return;
-      }
-      stageDestinyDie(dieId); announceStagedDestiny(die); return;
-    }
-    const cfg = state.rollConfig;
-    if (cfg) {
-      const edited = cfg.editingId && state.history.find((item) => item.id === cfg.editingId);
-      if (edited && edited.destiny) { notify("This roll already carries a Destiny die.", "warn"); return; }
-      cfg.destinyDieId = die.id; cfg.destinyConfirmed = true; cfg.destinyForcedResult = null;
-      prepareTrayForConfig(cfg); announceStagedDestiny(die); return;
-    }
-    state.destinyStaged = { dieId: die.id, sides: die.sides, advantageMode: "flat", forcedResult: null };
-    announceStagedDestiny(die);
   }
 
   /* Le jet a atterri mais reste ouvert. Rien n'a à être « appliqué » — c'est
@@ -755,30 +496,29 @@ export function createPlay({
   /* ROLL sur un jet ouvert : seuls les dés fraîchement stagés quittent la main,
      et ils rejoignent la MÊME entrée de flux. Sans rien de stagé, cela relance
      simplement le même test comme une entrée neuve — le bouton dit ROLL, donc
-     il lance. */
+     il lance.
+
+     ⚠️ D.2 : C'EST LA MOITIÉ « ROUVRIR » DE LA TRANSACTION ROUVRABLE. Elle ne
+     bouge pas. */
   function rollStagedDice() {
     const entry = openEntry(), staged = stagedList();
     if (!rollOpen() || !entry) return;
     if (!staged.length) { repeatOpenRoll(entry); return; }
-    let events = [], settled = false, decision = null;
+    /* Ce que les couches font des dés qui leur appartiennent, avant que les
+       dés bonus ordinaires soient lancés. */
+    const moment = sequence.run("reopen", { entry, staged });
+    let events = moment.events.slice();
+    const decision = moment.decision;
+    const settled = moment.settled;
     staged.forEach((item) => {
-      if (item.kind === "destiny") {
-        if (entry.destiny) return;
-        const spent = spendDestinyDie(item.destinyDieId, true, destinyPlanFor(item));
-        if (!spent) return;
-        entry.destiny = spent;
-        dropEventsTagged("staged-destiny");
-        events = events.concat(destinyEventSpecs(spent, entry.id));
-        decision = decision || arcaneDecision(spent, entry.id);
-        // Un 1 ou le maximum sur un dé de Destinée règle le jet sur place.
-        if (spent.criticalSuccess || spent.criticalFailure) settled = true;
-        return;
-      }
+      if (item.kind !== "bonus") return;
       if (entryBonusDice(entry).length >= MAX_BONUS_DICE) return;
       const plan = Object.assign(
         newBonusDie(item.label, item.sides, item.sourceIcon, item.colour),
         makeDiePlan(item.sides, item.advantageMode || "flat", item.forcedResult)
       );
+      plan.poolResourceId = item.poolResourceId;
+      plan.correction = item.correction || null;
       entry.bonusDice = entryBonusDice(entry).concat([plan]);
     });
     mirrorNamedBonusDice(entry);
@@ -786,7 +526,8 @@ export function createPlay({
     entry.outcome = outcomeFor(entry);
     entry.adjusted = true;
     entry.adjustedAt = now();
-    state.rollSequence.staged = [];
+    setStaged([]);
+    events = events.concat(settleCorrections(entry));
     setTrayFromEntry(entry);
     if (events.length || decision) {
       state.rollSequence.phase = "open-after-events";
@@ -797,6 +538,32 @@ export function createPlay({
     openRollState(entry);
   }
 
+  /* ── D.4 — LE REMBOURSEMENT CONDITIONNEL ─────────────────────────────
+     VÉRIFIÉ dans le moteur porté : il n'existait pas. `recreditPoolDie` ne
+     rendait une ressource que si son dé n'avait PAS de résultat — un dé lancé
+     était dépensé, point. C'est juste pour Bardic (« expended when it's
+     rolled »), et faux pour Tactical Mind : « If the check still fails, this
+     use of Second Wind isn't expended » (SRD, Guerrier niv. 2).
+
+     L'invariant 4 de `fh-char/1` dit « décrémenté AU RÈGLEMENT ». Un règlement
+     qui REND la ressource selon le résultat n'était écrit nulle part : le
+     voici. Il tourne au moment où le verdict est connu, et lui seul. */
+  function settleCorrections(entry) {
+    const events = [];
+    entryBonusDice(entry).forEach((die) => {
+      const rule = die.correction && CORRECTION_DICE[die.correction];
+      if (!rule || !rule.refundIfStillFails || die.refunded) return;
+      const stillFails = rollHasThreshold(entry) && entry.total < rollThreshold(entry);
+      if (!stillFails) return;
+      die.refunded = true;
+      const source = entry.bonusDice.find((item) => item.id === die.id);
+      if (source) source.refunded = true;
+      if (die.poolResourceId) recreditPoolResource(die.poolResourceId);
+      events.push({ text: t("event.refund", { label: sealLabel(die.correction) }), kind: "gain", entryId: entry.id });
+    });
+    return events;
+  }
+
   /* ROLL à nouveau sur le même test : le montage est gardé, les dés ne le sont
      pas — et les dés BONUS sont des dés, pas du montage (M1, décision Eric
      2026-08-06). Une robe scellée est une faveur accordée pour UN jet : le
@@ -805,9 +572,9 @@ export function createPlay({
      ensureConfigBonusDice les rajouterait discrètement. */
   function repeatOpenRoll(entry) {
     const cfg = configFromEntry(entry);
-    cfg.editingId = null; cfg.d20ForcedResult = null; cfg.destinyForcedResult = null;
-    cfg.destinyDieId = ""; cfg.destinyConfirmed = false;
+    cfg.editingId = null; cfg.d20ForcedResult = null;
     cfg.bonusDice = []; cfg.guidance = false; cfg.bardic = false;
+    configResetHooks.forEach((reset) => Object.assign(cfg, reset()));
     releaseRoll();
     state.rollConfig = cfg;
     prepareTrayForConfig(cfg);
@@ -821,20 +588,22 @@ export function createPlay({
     setTrayFromEntry(entry);
     state.rollConfig = configFromEntry(entry);
     clearNotice();
-    /* PIÈGE : on RETOURNE ici sur un 1 naturel. Rien n'est réglé — le joueur
-       doit encore accepter ou défier, et un 20 peut encore sortir de ce 1. */
-    if (entry.natural === 1) {
-      state.rollSequence = state.rollSequence || {};
-      state.rollSequence.entryId = entry.id;
-      state.rollSequence.phase = "nat1";
-      state.trayPrompt = { type: "nat1", entryId: entry.id };
-      return;
-    }
-    events = (events || []).concat(naturalDestiny(entry));
-    entry.outcome = outcomeFor(entry);
-    state.trayResultText = "Total " + entry.total + (entry.outcome ? " · " + entry.outcome : "");
+    /* Le MOMENT `result`. Une couche peut y POSER UNE QUESTION, et alors rien
+       n'est réglé : le joueur doit répondre, et sa réponse peut renverser le
+       jet. C'est le piège du lot 3, gravé : régler ici montrerait à la table
+       un résultat qui change silencieusement. */
+    const moment = sequence.run("result", { entry });
+    events = (events || []).concat(moment.events);
     state.rollSequence = state.rollSequence || {};
     state.rollSequence.entryId = entry.id;
+    if (moment.decision) {
+      state.queueDone = "";
+      openDecision(moment.decision);
+      return;
+    }
+    events = events.concat(runDamagePhase(entry));
+    entry.outcome = outcomeFor(entry);
+    recomputeTrayText(entry);
     if (events.length) {
       state.rollSequence.phase = "open-after-events";
       announceEvents(events, "open-roll");
@@ -843,42 +612,87 @@ export function createPlay({
     openRollState(entry);
   }
 
+  function recomputeTrayText(entry) {
+    state.trayResultText = t("tray.total", { total: entry.total, outcome: entry.outcome });
+  }
+
+  /* ── Exigence A — LA SECONDE PHASE D'UNE ATTAQUE ─────────────────────
+     Toucher, puis des dégâts : DEUX JETS LIÉS, une seule entrée de flux. Le
+     critique double les DÉS et jamais le bonus (SRD p.179). Les dégâts ne sont
+     pas lancés quand le seuil est connu ET manqué ; quand il ne l'est pas, le
+     MJ tient la CA et le moteur lance — il ne devine pas un échec. */
+  function runDamagePhase(entry) {
+    const damage = entry.damage;
+    if (!damage || entry.damageDice) return [];
+    /* Un coup dont on SAIT qu'il a manqué ne fait pas de dégâts. Quand le
+       seuil est inconnu — c'est le MJ qui tient la CA — le moteur lance : il
+       ne devine pas un échec. Et un sort à sauvegarde n'a pas de jet du
+       lanceur du tout : ses dégâts ne dépendent pas d'un dé qu'il n'a pas. */
+    if (rollWasMade(entry) && rollHasThreshold(entry) && entry.total < rollThreshold(entry)) return [];
+    const critical = entry.rollType === "attack" && entry.natural === 20;
+    const plan = damagePlanFor(damage, { critical });
+    entry.damageDice = plan.dice.map((die) => ({ sides: die.sides, result: rollDie(die.sides) }));
+    entry.damageCritical = critical;
+    entry.damageTotal = entry.damageDice.reduce((sum, die) => sum + die.result, 0) + plan.bonus;
+    const events = [];
+    if (critical) events.push({ text: t("event.critical-hit", { name: entry.name }), kind: "nat20", entryId: entry.id });
+    events.push({ text: t("event.damage", { name: entry.name, total: entry.damageTotal, type: damage.type }), kind: "result", entryId: entry.id });
+    return events;
+  }
+
   function quickRoll(name, ability, bonus, note) {
     clearDiceTray(false);
     state.rollConfig = null;
     const natural = rollDie(20);
-    const entry = {
-      id: uuid(), kind: "d20", name, ability, baseBonus: Number(bonus) || 0, exhaustion: exhaustionLevel(),
+    const entry = newEntry("check", {
+      name, ability, baseBonus: Number(bonus) || 0,
       d20Mode: "flat", d20s: [natural],
       d20Roll: { sides: 20, mode: "flat", rolls: [natural], result: natural, chosenIndex: 0, forced: false },
-      d20Choice: 0, d20Forced: false, kept: natural, natural, plusTwo: false, custom: 0,
-      bonusDice: [], guidance: null, bardic: null, destiny: null, dc: "", note: note || "",
-      createdAt: now(), adjusted: false
-    };
+      d20Choice: 0, d20Forced: false, kept: natural, natural, note: note || ""
+    });
     state.rollSequence = { phase: "remaining", entryId: entry.id };
     finishRolledEntry(entry, []);
+  }
+
+  function newEntry(rollType, fields) {
+    return Object.assign({
+      id: uuid(), kind: "d20", rollType,
+      name: "", ability: "", baseBonus: 0, custom: 0, dc: "", note: "",
+      exhaustion: exhaustionLevel(), exhaustionPenalty: exhaustionPenalty(),
+      d20Mode: "flat", d20s: [], kept: null, natural: null,
+      bonusDice: [], guidance: null, bardic: null, rerolls: [],
+      createdAt: now(), adjusted: false
+    }, fields);
   }
 
   /* ══ La configuration d'un jet ═════════════════════════════════════ */
 
   function rollInput(name, ability, bonus, options) {
     options = options || {};
-    return {
-      name, ability, baseBonus: Number(bonus) || 0, d20Mode: rollMode(options.mode), d20ForcedResult: null,
-      plusTwo: !!options.plusTwo, guidance: false, bardic: false,
+    const type = rollTypeFor(options.rollType);
+    const cfg = Object.assign({
+      rollType: type.id, name, ability, baseBonus: Number(bonus) || 0,
+      d20Mode: rollMode(options.mode), d20ForcedResult: null,
+      guidance: false, bardic: false,
       bardicSides: Number(state.prefs.bardicSides) || 6, bonusDice: [],
-      destinyDieId: "", destinyConfirmed: false, destinyMode: "flat", destinyForcedResult: null, custom: 0,
-      dc: options.dc != null ? String(options.dc) : "", note: options.note || "", editingId: null
-    };
+      custom: 0, dc: options.dc != null ? String(options.dc) : "",
+      note: options.note || "", editingId: null
+    }, ...configDefaultHooks.map((hook) => hook()));
+    /* Les réglages propres au type, lus par la liste FERMÉE du type — jamais
+       recopiés en vrac depuis les options (exigence A). */
+    const typed = {};
+    Object.keys(type.settings).forEach((key) => { if (options[key] !== undefined) typed[key] = options[key]; });
+    applySettings(type, cfg, typed);
+    return cfg;
   }
 
   function ensureConfigBonusDice(cfg) {
     cfg.bonusDice = (Array.isArray(cfg.bonusDice) ? cfg.bonusDice : []).slice(0, MAX_BONUS_DICE);
     if (cfg.guidance && !cfg.bonusDice.some((die) => String(die.label).toLowerCase() === "guidance") && cfg.bonusDice.length < MAX_BONUS_DICE) {
-      cfg.bonusDice.push(newBonusDie("Guidance", 4));
+      cfg.bonusDice.push(newBonusDie(t("source.guidance"), 4));
     }
     if (cfg.bardic && !cfg.bonusDice.some((die) => String(die.label).toLowerCase() === "bardic") && cfg.bonusDice.length < MAX_BONUS_DICE) {
-      cfg.bonusDice.push(newBonusDie("Bardic", Number(cfg.bardicSides) || 6));
+      cfg.bonusDice.push(newBonusDie(t("source.bardic"), Number(cfg.bardicSides) || 6));
     }
     return cfg;
   }
@@ -900,56 +714,65 @@ export function createPlay({
 
   function configFromEntry(entry) {
     const dice = entryBonusDice(entry).map((die) => { die.locked = true; return die; });
-    return {
-      editingId: entry.id, name: entry.name, ability: entry.ability, baseBonus: entry.baseBonus,
+    return Object.assign({
+      editingId: entry.id, rollType: entry.rollType || "check",
+      name: entry.name, ability: entry.ability, baseBonus: entry.baseBonus,
       d20Mode: entry.d20Mode || "flat", d20ForcedResult: entry.d20Forced ? entry.kept : null,
-      plusTwo: !!entry.plusTwo, guidance: !!entry.guidance, bardic: !!entry.bardic,
+      guidance: !!entry.guidance, bardic: !!entry.bardic,
       bardicSides: entry.bardic ? entry.bardic.sides : Number(state.prefs.bardicSides) || 6,
-      bonusDice: dice, destinyDieId: "", destinyConfirmed: false,
-      destinyMode: (entry.destiny && entry.destiny.advantageMode) || "flat",
-      destinyForcedResult: entry.destiny && entry.destiny.forced ? entry.destiny.result : null,
-      custom: Number(entry.custom) || 0, dc: entry.dc, note: entry.note || ""
-    };
+      bonusDice: dice,
+      custom: Number(entry.custom) || 0, dc: entry.dc, ac: entry.ac, note: entry.note || "",
+      damage: entry.damage || null
+    }, ...configEntryHooks.map((hook) => hook(entry)));
   }
 
   function showDieChoice(target, index, plan, label) {
-    state.rollSequence.phase = target === "destiny" ? "destiny-choice" : target === "adjustment" ? "adjustment-choice" : "roll-choice";
+    state.rollSequence.phase = target === "d20" || target === "bonus" ? "roll-choice"
+      : target === "adjustment" ? "adjustment-choice" : target + "-choice";
+    blockingDecisions[state.rollSequence.phase] = 1;
     state.trayPrompt = {
       type: "die-choice", target, index, label, sides: plan.sides, mode: plan.mode, rolls: plan.rolls.slice(),
-      dieRole: target === "destiny" ? "destiny" : target === "d20" ? "base" : "bonus"
+      dieRole: target === "d20" ? "base" : target === "adjustment" ? "bonus" : target
     };
   }
 
   function continueRemainingChoices() {
-    const sequence = state.rollSequence;
-    if (!sequence || !sequence.entry) return;
-    const next = (sequence.choiceQueue || []).shift();
+    const seq = state.rollSequence;
+    if (!seq || !seq.entry) return;
+    const next = (seq.choiceQueue || []).shift();
     if (next) {
-      const plan = next.target === "d20" ? sequence.entry.d20Roll : sequence.entry.bonusDice[next.index];
+      const plan = next.target === "d20" ? seq.entry.d20Roll : seq.entry.bonusDice[next.index];
       showDieChoice(next.target, next.index, plan, next.label);
       return;
     }
-    const entry = sequence.entry;
+    const entry = seq.entry;
     entry.kept = entry.d20Roll.result;
     entry.natural = entry.kept;
     entry.d20Choice = entry.d20Roll.chosenIndex;
     entry.d20Forced = !!entry.d20Roll.forced;
     mirrorNamedBonusDice(entry);
     state.trayPrompt = null;
-    sequence.phase = "result";
+    seq.phase = "result";
     finishRolledEntry(entry, []);
   }
 
+  /* ⚠️ D.2 — L'AUTRE MOITIÉ DE LA TRANSACTION ROUVRABLE : la sortie. Un jet
+     déjà dans le flux est MUTÉ EN PLACE, jamais dupliqué, et il recalcule son
+     verdict. Intouchable. */
   function completeHistoryAdjustment(entry, cfg, plans) {
     // Un simple dé bonus ne bloque jamais : il atterrit dans le plateau et la boucle rouvre.
     const existing = entryBonusDice(entry), events = [];
-    entry.plusTwo = cfg.plusTwo; entry.custom = cfg.custom; entry.dc = cfg.dc;
+    entry.custom = cfg.custom; entry.dc = cfg.dc;
     entry.bonusDice = existing.concat(plans || []).slice(0, MAX_BONUS_DICE).map(normalizeBonusDie);
     mirrorNamedBonusDice(entry);
     entry.total = entryTotal(entry);
     entry.adjusted = true;
     entry.adjustedAt = now();
     entry.outcome = outcomeFor(entry);
+    /* D.4 sur l'AUTRE porte de réouverture : un dé de correction ajouté par la
+       console d'ajustement se rembourse aux mêmes conditions que celui qui
+       passe par les dés stagés. Deux portes, un seul règlement. */
+    settleCorrections(entry).forEach((spec) => events.push(spec));
     state.trayPrompt = null;
     setTrayFromEntry(entry);
     state.rollSequence.entryId = entry.id;
@@ -958,23 +781,26 @@ export function createPlay({
   }
 
   function continueAdjustmentChoices() {
-    const sequence = state.rollSequence;
-    if (!sequence || !sequence.entry) return;
-    const next = (sequence.choiceQueue || []).shift();
-    if (next) { showDieChoice("adjustment", next.index, sequence.adjustmentPlans[next.index], next.label); return; }
-    completeHistoryAdjustment(sequence.entry, sequence.cfg, sequence.adjustmentPlans || []);
+    const seq = state.rollSequence;
+    if (!seq || !seq.entry) return;
+    const next = (seq.choiceQueue || []).shift();
+    if (next) { showDieChoice("adjustment", next.index, seq.adjustmentPlans[next.index], next.label); return; }
+    completeHistoryAdjustment(seq.entry, seq.cfg, seq.adjustmentPlans || []);
   }
 
   function resolveDieChoice(index) {
-    const prompt = state.trayPrompt, sequence = state.rollSequence;
-    if (!prompt || prompt.type !== "die-choice" || !sequence) return;
+    const prompt = state.trayPrompt, seq = state.rollSequence;
+    if (!prompt || prompt.type !== "die-choice" || !seq) return;
     state.trayPrompt = null;
-    if (prompt.target === "destiny") { chooseDiePlan(sequence.destinyPlan, index); rollSequenceDestiny(); return; }
-    if (prompt.target === "d20") chooseDiePlan(sequence.entry.d20Roll, index);
-    else if (prompt.target === "bonus") chooseDiePlan(sequence.entry.bonusDice[prompt.index], index);
-    else if (prompt.target === "adjustment") { chooseDiePlan(sequence.adjustmentPlans[prompt.index], index); continueAdjustmentChoices(); return; }
-    setTrayFromEntry(sequence.entry);
-    state.trayResultText = "Choice recorded";
+    /* Une couche qui a un dé à faire choisir déclare sa cible ; le chemin
+       commun n'en connaît que deux, le d20 et un dé bonus. */
+    const owned = dieChoiceTargets[prompt.target];
+    if (owned) { owned(seq, index); return; }
+    if (prompt.target === "d20") chooseDiePlan(seq.entry.d20Roll, index);
+    else if (prompt.target === "bonus") chooseDiePlan(seq.entry.bonusDice[prompt.index], index);
+    else if (prompt.target === "adjustment") { chooseDiePlan(seq.adjustmentPlans[prompt.index], index); continueAdjustmentChoices(); return; }
+    setTrayFromEntry(seq.entry);
+    state.trayResultText = t("tray.choice-recorded");
     continueRemainingChoices();
   }
 
@@ -984,71 +810,71 @@ export function createPlay({
     ensureConfigBonusDice(cfg);
     if (state.rollSequence && state.rollSequence.phase && state.rollSequence.phase !== "resolved") return;
     if (cfg.editingId) { applyHistoryAdjustment(cfg); return; }
-    const entry = {
-      id: uuid(), kind: "d20", name: cfg.name, ability: cfg.ability, baseBonus: cfg.baseBonus,
-      exhaustion: exhaustionLevel(), d20Mode: cfg.d20Mode, d20s: [], kept: null, natural: null,
-      plusTwo: cfg.plusTwo, custom: cfg.custom, dc: cfg.dc, note: cfg.note, createdAt: now(),
-      adjusted: false, bonusDice: [], guidance: null, bardic: null, destiny: null
-    };
-    state.rollSequence = { phase: cfg.destinyDieId ? "destiny" : "remaining", cfg: snapshotRollConfig(cfg), entry, entryId: entry.id };
-    if (cfg.destinyDieId) rollSequenceDestiny(); else rollSequenceRemaining();
+    const type = rollTypeFor(cfg.rollType);
+    const entry = newEntry(type.id, {
+      name: cfg.name, ability: cfg.ability, baseBonus: cfg.baseBonus,
+      d20Mode: cfg.d20Mode, custom: cfg.custom, dc: cfg.dc, ac: cfg.ac,
+      saveAbility: cfg.saveAbility, saveDc: cfg.saveDc, slotLevel: cfg.slotLevel,
+      concentration: !!cfg.concentration, damage: cfg.damage || null, note: cfg.note
+    });
+    state.rollSequence = { phase: "mount", cfg: snapshotRollConfig(cfg), entry, entryId: entry.id };
+    const opened = runSlotPhase(entry, cfg);
+    /* Le MOMENT `pre-roll` : ce qui se lance AVANT le d20. Une couche peut
+       RÉCLAMER la séquence ici (elle a un dé à lancer d'abord) ; elle la rend
+       ensuite par `roll-remaining`. */
+    const moment = sequence.run("pre-roll", { cfg: state.rollSequence.cfg, entry, sequence: state.rollSequence });
+    if (moment.claimed) return;
+    if (opened.length) { announceEvents(opened, "roll-remaining"); return; }
+    state.rollSequence.phase = "remaining";
+    rollSequenceRemaining();
   }
 
-  function rollSequenceDestiny() {
-    const sequence = state.rollSequence;
-    if (!sequence || !sequence.cfg) return;
-    const cfg = sequence.cfg;
-    const die = state.destiny.dice.find((item) => item.id === cfg.destinyDieId && item.available);
-    if (!die) { pushEvent("That Destiny die is no longer available.", "error"); state.rollSequence = null; return; }
-    if (!sequence.destinyPlan) sequence.destinyPlan = makeDiePlan(die.sides, cfg.destinyMode, cfg.destinyForcedResult);
-    prepareTrayForConfig(cfg);
-    state.trayResults = state.trayResults.filter((item) => item.destinyDieId !== die.id);
-    trayDiceForPlan(sequence.destinyPlan, "Destiny", { flash: true, destinyDieId: die.id, dieRole: "destiny" })
-      .forEach((item) => state.trayResults.push(item));
-    state.trayResultText = sequence.destinyPlan.result == null ? "Choose the Destiny result" : "Destiny result selected";
-    if (sequence.destinyPlan.result == null) { showDieChoice("destiny", 0, sequence.destinyPlan, "Destiny d" + die.sides); return; }
-    const spent = spendDestinyDie(cfg.destinyDieId, true, sequence.destinyPlan);
-    if (!spent) { pushEvent("That Destiny die is no longer available.", "error"); state.rollSequence = null; return; }
-    sequence.entry.destiny = spent;
-    sequence.phase = "destiny-events";
-    prepareTrayForConfig(sequence.cfg);
-    state.trayResults = state.trayResults.filter((item) => item.destinyDieId !== spent.dieId);
-    trayDiceForPlan(spent, "Destiny", {
-      destinyDieId: spent.dieId, dieRole: "destiny",
-      special: spent.criticalSuccess ? "arcane-critical-success" : spent.criticalFailure ? "arcane-critical-failure" : ""
-    }).forEach((item) => state.trayResults.push(item));
-    state.trayResultText = "Destiny d" + spent.sides + " = " + spent.result;
-    announceEvents(
-      destinyEventSpecs(spent, sequence.entry.id),
-      sequence.adjustment ? "adjustment-remaining" : "roll-remaining",
-      arcaneDecision(spent, sequence.entry.id)
-    );
+  /* La phase `slot` d'un sort : l'emplacement est consommé au lancement, pas
+     au résultat. Sans `slotResourceId` déclaré, le moteur ANNONCE la dépense
+     sans décrémenter quoi que ce soit — il n'invente pas l'identifiant d'une
+     ressource qu'on ne lui a pas nommée (loi §0.10). */
+  function runSlotPhase(entry, cfg) {
+    if (entry.rollType !== "spell") return [];
+    const events = [];
+    if (cfg.slotLevel) {
+      if (cfg.slotResourceId) spendPoolResourceSilently(cfg.slotResourceId);
+      events.push({ text: t("event.slot-spent", { slotLevel: cfg.slotLevel, name: entry.name }), kind: "loss", entryId: entry.id });
+    }
+    if (cfg.concentration) events.push({ text: t("event.concentration", { name: entry.name }), kind: "info", entryId: entry.id });
+    if (cfg.resolution === "save" && cfg.saveAbility) {
+      events.push({ text: t("event.save-dc", { name: entry.name, ability: cfg.saveAbility, dc: cfg.saveDc }), kind: "info", entryId: entry.id });
+    }
+    return events;
   }
 
   function rollSequenceRemaining() {
-    const sequence = state.rollSequence;
-    if (!sequence || !sequence.cfg || !sequence.entry) return;
-    const cfg = sequence.cfg, entry = sequence.entry;
+    const seq = state.rollSequence;
+    if (!seq || !seq.cfg || !seq.entry) return;
+    const cfg = seq.cfg, entry = seq.entry;
+    /* Un sort à sauvegarde n'a PAS de jet du lanceur : la cible sauvegarde. La
+       séquence saute donc la phase `d20` et va droit aux dégâts. */
+    if (entry.rollType === "spell" && cfg.resolution === "save") {
+      entry.kept = null; entry.natural = null; entry.d20s = [];
+      finishRolledEntry(entry, []);
+      return;
+    }
     entry.d20Roll = makeDiePlan(20, cfg.d20Mode, cfg.d20ForcedResult);
     entry.d20s = entry.d20Roll.rolls.slice();
     entry.bonusDice = (cfg.bonusDice || []).map((die, index) => Object.assign(normalizeBonusDie(die, index), makeDiePlan(die.sides, die.advantageMode, die.forcedResult)));
-    sequence.choiceQueue = [];
-    if (entry.d20Roll.result == null) sequence.choiceQueue.push({ target: "d20", index: 0, label: "d20" });
-    entry.bonusDice.forEach((die, index) => { if (die.result == null) sequence.choiceQueue.push({ target: "bonus", index, label: die.label + " d" + die.sides }); });
+    seq.choiceQueue = [];
+    if (entry.d20Roll.result == null) seq.choiceQueue.push({ target: "d20", index: 0, label: "d20" });
+    entry.bonusDice.forEach((die, index) => { if (die.result == null) seq.choiceQueue.push({ target: "bonus", index, label: die.label + " d" + die.sides }); });
     setTrayFromEntry(entry);
-    state.trayResultText = sequence.choiceQueue.length ? "Choose which result to keep" : "Rolling…";
+    state.trayResultText = seq.choiceQueue.length ? t("tray.choose-keep") : t("tray.rolling");
     continueRemainingChoices();
   }
 
   function applyHistoryAdjustment(cfg) {
     const entry = state.history.find((item) => item.id === cfg.editingId);
     if (!entry || entry.kind !== "d20") return;
-    if (!entry.destiny && cfg.destinyDieId) {
-      state.rollSequence = { phase: "destiny", cfg: snapshotRollConfig(cfg), entry, entryId: entry.id, adjustment: true };
-      rollSequenceDestiny();
-      return;
-    }
     state.rollSequence = { phase: "adjustment", cfg: snapshotRollConfig(cfg), entry, entryId: entry.id, adjustment: true };
+    const moment = sequence.run("pre-roll", { cfg: state.rollSequence.cfg, entry, sequence: state.rollSequence, adjustment: true });
+    if (moment.claimed) return;
     applyHistoryAdjustmentRemaining(entry, cfg);
   }
 
@@ -1059,97 +885,40 @@ export function createPlay({
       .filter((die) => !existingIds[die.id])
       .slice(0, Math.max(0, MAX_BONUS_DICE - entryBonusDice(entry).length))
       .map((die, index) => Object.assign(normalizeBonusDie(die, index), makeDiePlan(die.sides, die.advantageMode, die.forcedResult)));
-    const sequence = state.rollSequence || { phase: "adjustment", entry, cfg: snapshotRollConfig(cfg), entryId: entry.id, adjustment: true };
-    state.rollSequence = sequence;
-    sequence.entry = entry;
-    sequence.cfg = snapshotRollConfig(cfg);
-    sequence.adjustmentPlans = plans;
-    sequence.choiceQueue = [];
-    plans.forEach((die, index) => { if (die.result == null) sequence.choiceQueue.push({ target: "adjustment", index, label: die.label + " d" + die.sides }); });
-    if (sequence.choiceQueue.length) {
+    const seq = state.rollSequence || { phase: "adjustment", entry, cfg: snapshotRollConfig(cfg), entryId: entry.id, adjustment: true };
+    state.rollSequence = seq;
+    seq.entry = entry;
+    seq.cfg = snapshotRollConfig(cfg);
+    seq.adjustmentPlans = plans;
+    seq.choiceQueue = [];
+    plans.forEach((die, index) => { if (die.result == null) seq.choiceQueue.push({ target: "adjustment", index, label: die.label + " d" + die.sides }); });
+    if (seq.choiceQueue.length) {
       setTrayFromEntry(entry);
       plans.forEach((die) => trayDiceForPlan(die, die.label, { dieRole: "bonus" }).forEach((item) => state.trayResults.push(item)));
-      state.trayResultText = "Original d20 locked · choose bonus";
+      state.trayResultText = t("tray.d20-locked-choose");
       continueAdjustmentChoices();
       return;
     }
     completeHistoryAdjustment(entry, cfg, plans);
   }
 
-  /* ROLL sur un dé de Destinée qui attend dans le plateau, rien d'autre de
-     préparé. Le clic qui l'y a mis n'a rien dépensé ; c'est ici qu'il l'est. */
-  function standaloneDestiny(dieId, plan) {
-    clearDiceTray(false);
-    state.rollConfig = null;
-    const spent = spendDestinyDie(dieId, true, plan);
-    if (!spent) return;
-    const entry = {
-      id: uuid(), kind: "destiny", name: "Destiny d" + spent.sides, createdAt: now(), destiny: spent,
-      total: spent.result,
-      outcome: spent.criticalSuccess ? "Arcane Critical Success" : spent.criticalFailure ? "Arcane Critical Failure" : spent.chaos ? "Chaos risk" : "Destiny spent"
-    };
-    addHistory(entry);
-    setTrayFromEntry(entry);
-    state.rollSequence = { phase: "standalone", entryId: entry.id };
-    const decision = arcaneDecision(spent, entry.id);
-    let specs = destinyEventSpecs(spent, entry.id);
-    // La ligne de verdict attend quand le verdict est encore au joueur de le donner.
-    if (!decision) specs = specs.concat([{ text: entry.name + " · " + entry.outcome, kind: "result", entryId: entry.id }]);
-    announceEvents(specs, "finish-sequence", decision);
-  }
-
-  function resolveNatOne(id, choice) {
-    const entry = state.history.find((item) => item.id === id);
-    if (!entry || entry.natural !== 1 || entry.natChoice) return;
-    const events = [];
-    if (choice === "accept") {
-      const before = state.destiny.points;
-      const recovered = setDestinyPoints(before + 1, LEX.fumble1 + " accepted", true, true);
-      entry.natChoice = "accept";
-      entry.destinyPointChange = { before, after: state.destiny.points, reason: LEX.fumble1 + " accepted" };
-      const accepted = ["FATE ACCEPTED · " + LEX.fumble1, "Gained 1 Destiny Point", "Current " + state.destiny.points];
-      if (recovered) accepted.push("Gained a Destiny d" + recovered.sides);
-      events.push({ text: accepted.join(" · "), kind: "nat1", entryId: entry.id });
-    } else {
-      /* Défier le destin ne lance plus le Chaos sur place : les 2d6 sont
-         différés derrière un marqueur, pour que la table ne soit jamais
-         bloquée au milieu d'un tour. */
-      const oldPoints = state.destiny.points;
-      entry.natChoice = "chaos";
-      entry.originalKept = entry.kept;
-      entry.transformed = true;
-      entry.kept = 20;
-      setDestinyPoints(0, "Invoked Chaos", false, true);
-      entry.total = entryTotal(entry);
-      addPendingFate({ kind: "chaos", entryId: entry.id, ability: entry.ability || "", name: entry.name || "Defied roll" });
-      events.push(
-        { text: "FATE DEFIED · The 1 becomes 20" + (oldPoints ? " · Destiny becomes 0" : ""), kind: "nat1", entryId: entry.id },
-        { text: "CHAOS IS PENDING · 1 fatigue point per round until you face it", kind: "chaos", entryId: entry.id }
-      );
-    }
-    setTrayFromEntry(entry);
-    entry.outcome = outcomeFor(entry);
-    state.trayPrompt = null;
-    state.rollSequence = state.rollSequence || {};
-    state.rollSequence.entryId = entry.id;
-    state.rollSequence.phase = "open-after-events";
-    announceEvents(events, "open-roll");
-  }
-
   /* ── POINT DE RÈGLEMENT n°2 : la branche `finish-sequence` ─────────── */
   function runQueueDone(action) {
-    if (action === "roll-remaining") { rollSequenceRemaining(); return; }
+    if (action === "roll-remaining") {
+      if (state.rollSequence) state.rollSequence.phase = "remaining";
+      rollSequenceRemaining(); return;
+    }
     if (action === "adjustment-remaining") {
-      const sequence = state.rollSequence;
-      const adjusted = (sequence && state.history.find((item) => item.id === sequence.entryId)) || (sequence && sequence.entry);
-      if (adjusted && sequence && sequence.cfg) {
-        if (sequence.entry && sequence.entry.destiny) adjusted.destiny = sequence.entry.destiny;
-        applyHistoryAdjustmentRemaining(adjusted, sequence.cfg);
+      const seq = state.rollSequence;
+      const adjusted = (seq && state.history.find((item) => item.id === seq.entryId)) || (seq && seq.entry);
+      if (adjusted && seq && seq.cfg) {
+        if (seq.entry) adoptSequenceEntry(adjusted, seq.entry);
+        applyHistoryAdjustmentRemaining(adjusted, seq.cfg);
       }
       return;
     }
     if (action === "open-roll") { const landed = openEntry(); if (landed) openRollState(landed); return; }
-    // Un dé de Destinée isolé n'ouvre jamais de jet : il se règle ici.
+    // Un jet qui n'ouvre pas de transaction se règle ici.
     if (action === "finish-sequence") {
       const settled = state.rollSequence && state.history.find((item) => item.id === state.rollSequence.entryId);
       if (settled) settleEntry(settled);
@@ -1158,159 +927,13 @@ export function createPlay({
     }
   }
 
-  /* ══ Destin différé : Chaos et Overreach ═══════════════════════════
-     Ils n'interrompent plus le tour. Ils sont portés comme un marqueur : le
-     plateau reste libre, un bouton rouge attend, et le joueur paie un point de
-     fatigue par round jusqu'à ce que ce soit résolu. Les deux mécaniques
-     restent séparées — un 1 naturel défié résout 2d6 sur la table du Chaos,
-     un Overreach résout une sauvegarde contre 10 + Overreach. */
-
-  function pendingFate() { return (state.destiny && Array.isArray(state.destiny.pending)) ? state.destiny.pending : []; }
-
-  function addPendingFate(spec) {
-    if (!state.destiny) return null;
-    const item = Object.assign({ id: uuid(), createdAt: now() }, spec);
-    const next = pendingFate().concat([item]);
-    /* La bande en tient quatre ; une dette qui tombe par l'avant DOIT le dire —
-       un jet de Chaos ou une sauvegarde d'Overreach qui s'éteint en silence est
-       exactement le repli muet que le handoff interdit, pas un détail de ménage. */
-    if (next.length > MAX_PENDING) {
-      const dropped = next.shift();
-      pushEvent("A pending " + pendingLabel(dropped) + " debt was never faced and has expired.", "chaos");
-    }
-    state.destiny.pending = next;
-    emitPool("pending");
-    return item;
-  }
-
-  function dropPendingFate(id) {
-    if (!state.destiny) return;
-    state.destiny.pending = pendingFate().filter((item) => item.id !== id);
-    emitPool("pending");
-  }
-
-  /* Un champ sert les deux cartes : avec un id il renomme ce badge, sans id il
-     épingle une note. Un libellé vide n'est pas un badge. */
-  function savePendingLabel(id, rawLabel) {
-    const label = String(rawLabel || "").trim().slice(0, 24);
-    if (!label) { notify("Give the badge a name first.", "warn"); return false; }
-    if (id) {
-      const item = pendingFate().find((entry) => entry.id === id);
-      if (item) item.label = label;
-    } else if (pendingFate().length >= MAX_PINNED) {
-      notify("Six badges is the most the strip holds.", "warn"); return false;
-    } else {
-      addPendingFate({ kind: "note", label });
-    }
-    state.trayPrompt = null;
-    return true;
-  }
-
-  function pendingLabel(item) {
-    if (item.label) return String(item.label).slice(0, 24);
-    return item.kind === "chaos" ? "CHAOS" : item.kind === "overreach" ? "OVERREACH " + (Number(item.overreach) || 0) : "NOTE";
-  }
-  function pendingResolvable(item) { return item.kind === "chaos" || item.kind === "overreach"; }
-  function pendingTitle(item) {
-    if (item.kind === "note") return "A reminder you pinned yourself. Click to open · right click to rename or cancel it.";
-    return (item.kind === "chaos" ? "Chaos is pending" : "An Overreach save is pending, DC " + (Number(item.dc) || 10))
-      + " — 1 fatigue point per round until you face it. Click to resolve · right click to rename or cancel it.";
-  }
-
-  /* Armer un marqueur ne fait que remplir le plateau — ROLL reste l'appel du joueur. */
-  function armPendingFate(id) {
-    const item = pendingFate().find((entry) => entry.id === id);
-    if (!item || !pendingResolvable(item)) return;
-    if (rollTransactionActive()) { warnRollLocked(); return; }
-    state.trayPrompt = null;
-    state.rollConfig = null;
-    state.traySelection = [];
-    if (item.kind === "chaos") {
-      state.pendingArmed = { id: item.id, kind: "chaos", sides: [6, 6], ability: item.ability || "" };
-      state.trayResults = [0, 1].map((index) => ({ sides: 6, result: null, label: "Chaos #" + (index + 1), pending: true, special: "chaos", dieRole: "chaos" }));
-      state.trayTitle = "Chaos";
-      state.trayResultText = "Roll 2d6 and read the Chaos table";
-    } else {
-      state.pendingArmed = { id: item.id, kind: "overreach", sides: [20], dc: Number(item.dc) || 10, ability: item.ability || "", overreach: Number(item.overreach) || 0 };
-      state.trayResults = [{ sides: 20, result: null, label: (item.ability || "") + " save", pending: true, dieRole: "base" }];
-      state.trayTitle = "Overreach save";
-      state.trayResultText = "DC " + (Number(item.dc) || 10) + " — roll to hold the Weave";
-    }
-  }
-
-  function rollPendingFate() {
-    const armed = state.pendingArmed;
-    if (!armed) return;
-    const item = pendingFate().find((entry) => entry.id === armed.id);
-    const entry = item && state.history.find((row) => row.id === item.entryId);
-    /* Refuser le destin — un 1 naturel ou un échec critique arcanique — saute
-       entièrement la sauvegarde d'Overreach et va droit aux 2d6 sur la table. */
-    if (armed.kind === "chaos") {
-      const chaosAbility = armed.ability || (item && item.ability) || (entry && entry.ability) || "";
-      const roll = [rollDie(6), rollDie(6)], total = roll[0] + roll[1];
-      if (entry) { entry.chaosRoll = roll; entry.chaosTotal = total; }
-      state.trayResults = roll.map((result, index) => ({ sides: 6, result, label: "Chaos #" + (index + 1), special: "chaos", dieRole: "chaos" }));
-      const chaosEntry = {
-        id: uuid(), kind: "tray",
-        name: "Chaos" + (chaosAbility ? " · " + chaosAbility : "") + (item && item.name ? " · " + item.name : ""),
-        ability: chaosAbility, dice: roll.map((result) => ({ sides: 6, result })), flatBonus: 0, total,
-        createdAt: now(), outcome: "Chaos " + total, chaosRow: chaosRowText(chaosAbility, total)
-      };
-      state.trayTitle = "Chaos";
-      state.trayResultText = "2d6 = " + roll.join(" + ") + " = " + total;
-      addHistory(chaosEntry);
-      if (item) dropPendingFate(item.id);
-      state.pendingArmed = null;
-      state.rollSequence = { phase: "free-tray", entryId: chaosEntry.id };
-      announceEvents([{ text: "CHAOS RESOLVED · 2d6 = " + roll.join(" + ") + " = " + total + " · " + chaosVerdict(chaosAbility, total), kind: "chaos", entryId: chaosEntry.id }], "finish-sequence");
-      return;
-    }
-    const ability = armed.ability || "";
-    let save = { bonus: 0 };
-    try { if (ability && state.character) save = saveInfo(ability, state.character); } catch (error) { /* une fiche incomplète ne casse pas la sauvegarde */ }
-    const overreach = Number(armed.overreach) || Number(item && item.overreach) || 0;
-    const natural = rollDie(20);
-    const total = natural + (Number(save.bonus) || 0) - exhaustionLevel();
-    const dc = Number(armed.dc) || 10;
-    const held = total >= dc;
-    const saveEntry = {
-      id: uuid(), kind: "d20", name: "Overreach save" + (ability ? " · " + ability : ""), ability,
-      exhaustion: exhaustionLevel(), baseBonus: Number(save.bonus) || 0, d20Mode: "flat", d20s: [natural],
-      d20Roll: { sides: 20, mode: "flat", rolls: [natural], result: natural, chosenIndex: 0, forced: false },
-      d20Choice: 0, d20Forced: false, kept: natural, natural, plusTwo: false, custom: 0, bonusDice: [],
-      guidance: null, bardic: null, destiny: null, dc: String(dc), note: "Deferred Overreach",
-      createdAt: now(), adjusted: false, total, outcome: held ? "Success" : "Failure"
-    };
-    addHistory(saveEntry);
-    setTrayFromEntry(saveEntry);
-    if (item) dropPendingFate(item.id);
-    state.pendingArmed = null;
-    const saveEvents = [{ text: (held ? "WEAVE HELD" : "OVERREACH BREAKS") + " · " + (ability || "Save") + " " + total + " vs DC " + dc, kind: held ? "result" : "chaos", entryId: saveEntry.id }];
-    /* Tenir la Trame n'est pas gratuit : les règles le paient en Épuisement. */
-    if (held) {
-      state.rollSequence = { phase: "free-tray", entryId: saveEntry.id };
-      const beforeLevel = exhaustionLevel();
-      const after = setExhaustion(beforeLevel + 1, "Overreach held", true);
-      if (after !== beforeLevel) saveEvents.push({ text: exhaustionText(after, "Overreach held"), kind: after >= MAX_EXHAUSTION ? "nat1" : "loss", entryId: saveEntry.id });
-      announceEvents(saveEvents, "finish-sequence");
-      return;
-    }
-    /* L'échouer lance 1d6 + Overreach sur la table — un seul geste, parce que la
-       sauvegarde et sa conséquence sont un seul moment à la table. */
-    const chaosDie = rollDie(6), chaosTotal = chaosDie + overreach;
-    const breakEntry = {
-      id: uuid(), kind: "tray", name: "Chaos" + (ability ? " · " + ability : ""), ability,
-      dice: [{ sides: 6, result: chaosDie }], flatBonus: overreach, total: chaosTotal,
-      createdAt: now(), outcome: "Chaos " + chaosTotal, chaosRow: chaosRowText(ability, chaosTotal)
-    };
-    addHistory(breakEntry);
-    state.trayResults = [{ sides: 6, result: chaosDie, label: "Chaos", special: "chaos", dieRole: "chaos" }];
-    if (overreach) state.trayResults.push({ kind: "modifier", result: overreach, label: "Overreach", tone: "overreach" });
-    state.trayTitle = "Chaos";
-    state.trayResultText = "d6 " + chaosDie + (overreach ? " + Overreach " + overreach : "") + " = " + chaosTotal;
-    state.rollSequence = { phase: "free-tray", entryId: breakEntry.id };
-    saveEvents.push({ text: "CHAOS · d6 " + chaosDie + (overreach ? " + Overreach " + overreach : "") + " = " + chaosTotal + " · " + chaosVerdict(ability, chaosTotal), kind: "chaos", entryId: breakEntry.id });
-    announceEvents(saveEvents, "finish-sequence");
+  /* Une couche qui a écrit sur l'entrée de séquence pendant sa phase doit
+     retrouver son travail sur l'entrée de l'historique. Le chemin commun ne
+     sait pas ce qu'elle a écrit : il recopie les clefs qu'elle déclare. */
+  const adoptedKeys = declarations.flatMap((layer) => layer.entryKeys || []);
+  function adoptSequenceEntry(target, source) {
+    if (target === source) return;
+    adoptedKeys.forEach((key) => { if (source[key] !== undefined) target[key] = source[key]; });
   }
 
   /* ══ La réserve comptée (phase 4) ══════════════════════════════════ */
@@ -1330,7 +953,32 @@ export function createPlay({
     const label = String(raw.label || "Resource").slice(0, 14);
     const short = String(raw.short == null ? "" : raw.short).trim().slice(0, 7) || label.split(/\s+/)[0].slice(0, 7);
     const tint = dieColour(raw.tint) && raw.tint !== "gold" ? raw.tint : "ash";
-    return { id: raw.id || uuid(), label, short, kind, sides, count, tint, origin: raw.origin || undefined };
+    return {
+      id: raw.id || uuid(), label, short, kind, sides, count, tint,
+      correction: CORRECTION_DICE[raw.correction] ? raw.correction : undefined,
+      /* ── D.5 — LA PROVENANCE D'UN DÉ REÇU ────────────────────────────
+         Un dé donné par un autre joueur est, chez le receveur, une ressource
+         comptée ORDINAIRE — qui porte SA PROVENANCE. Le champ existait déjà
+         dans ce normaliseur (`origin`) et n'était jamais rempli ; le lot 5 le
+         remplit et en fixe la forme.
+         ⚠️ `resolved.resources[]` de `fh-char/1` n'a PAS ce champ, et son
+         `additionalProperties` est `false` : la forme ci-dessous est LIVRÉE À
+         L'ARCHITECTE, elle n'est pas écrite dans le schéma par ce lot
+         (loi §0.10). Voir COUPE-LOT-5.md § « la forme de provenance ». */
+      origin: normalizeOrigin(raw.origin)
+    };
+  }
+
+  function normalizeOrigin(raw) {
+    if (!raw || typeof raw !== "object") return undefined;
+    const timing = raw.timing === "reaction" ? "reaction" : "ahead";
+    return {
+      from: String(raw.from || "").slice(0, 60),
+      source: String(raw.source || "").slice(0, 40),
+      timing,
+      givenAt: raw.givenAt || now(),
+      expiresAt: raw.expiresAt || null
+    };
   }
 
   function normalizePoolResources(raw) {
@@ -1344,7 +992,8 @@ export function createPlay({
   }
 
   /* Un dé de réserve encore EN ATTENTE (sans résultat) qui quitte la main rend
-     son usage. Un dé lancé ne revient jamais — il était dépensé, comme la Destinée. */
+     son usage. Un dé lancé ne revient jamais — sauf remboursement conditionnel
+     déclaré par sa source (D.4). */
   function recreditPoolResource(id) {
     const res = poolResourceById(id);
     if (!res) return;
@@ -1374,31 +1023,39 @@ export function createPlay({
     state.poolResources = poolList().filter((res) => Number(res.count) > 0 || poolResourceReferenced(res.id));
   }
 
+  function spendPoolResourceSilently(id) {
+    const res = poolResourceById(id);
+    if (!res || Number(res.count) < 1) { notify(t("notice.pool-spent"), "warn"); return false; }
+    res.count = Number(res.count) - 1;
+    emitPool("pool-spend");
+    return true;
+  }
+
   /* Dépenser : le dé est STAGÉ, où que vive la main — un jet ouvert, une
      console préparée, ou rien du tout. Le décrément se fait maintenant ; ROLL
      le rend définitif, la reprise l'annule. */
   function spendPoolResource(id) {
     const res = poolResourceById(id);
-    if (!res || Number(res.count) < 1) { notify("That pool resource is spent.", "warn"); return; }
+    if (!res || Number(res.count) < 1) { notify(t("notice.pool-spent"), "warn"); return; }
     const icon = poolSourceIconFor(res), colour = icon ? "" : (res.tint || "");
     if (rollOpen()) {
       const entry = openEntry();
       if (!entry) return;
       if (entryBonusDice(entry).length + stagedBonusCount() >= MAX_BONUS_DICE) {
-        notify("A roll carries at most " + MAX_BONUS_DICE + " bonus dice.", "warn"); return;
+        notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return;
       }
       res.count = Number(res.count) - 1;
-      state.rollSequence.staged = stagedList().concat([{
+      setStaged(stagedList().concat([{
         id: uuid(), kind: "bonus", label: res.label, short: res.short, sides: res.sides,
-        sourceIcon: icon, colour, poolResourceId: res.id
-      }]);
+        sourceIcon: icon, colour, poolResourceId: res.id, correction: res.correction || null
+      }]));
       refreshOpenTray(entry);
       emitPool("pool-spend");
       return;
     }
     const cfg = state.rollConfig;
     if (cfg && !cfg.editingId) {
-      if ((cfg.bonusDice || []).length >= MAX_BONUS_DICE) { notify("A roll carries at most " + MAX_BONUS_DICE + " bonus dice.", "warn"); return; }
+      if ((cfg.bonusDice || []).length >= MAX_BONUS_DICE) { notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return; }
       res.count = Number(res.count) - 1;
       const bonus = newBonusDie(res.label, res.sides, icon || undefined, colour);
       bonus.short = res.short;
@@ -1409,7 +1066,7 @@ export function createPlay({
       emitPool("pool-spend");
       return;
     }
-    if (state.traySelection.length >= MAX_FREE_DICE) { pushEvent("The free-roll tray holds at most " + MAX_FREE_DICE + " dice", "warn"); return; }
+    if (state.traySelection.length >= MAX_FREE_DICE) { pushEvent(t("notice.free-cap", { max: MAX_FREE_DICE }), "warn"); return; }
     res.count = Number(res.count) - 1;
     const free = newFreeDie(res.sides, colour || SOURCE_TINT[icon] || "");
     free.label = res.label;
@@ -1418,6 +1075,163 @@ export function createPlay({
     state.traySelection.push(free);
     state.trayResults = [];
     emitPool("pool-spend");
+  }
+
+  /* ══ D.1 — LES TROIS VERBES DE DÉ, ET ILS NE SE RAMÈNENT PAS L'UN À L'AUTRE
+     ══════════════════════════════════════════════════════════════════════
+     Tranché par Eric le 2026-08-08. Trois fenêtres, trois cibles, trois portes.
+     Un moteur qui les traite pareil laissera passer un Bardic sur un succès.
+
+     | Verbe    | Fenêtre                          | Cible              |
+     |----------|----------------------------------|--------------------|
+     | addDie   | APRÈS un échec                   | le TOTAL           |
+     | rerollDie| IMMÉDIATEMENT après ce dé        | N'IMPORTE QUEL dé  |
+     | mountDie | AVANT le jet                     | le d20 / le montage|
+  */
+
+  /* ── Verbe n°1 : AJOUTER un dé après un échec ───────────────────────
+     Bardic Inspiration (Barde) et Tactical Mind (Guerrier niv. 2). La FENÊTRE
+     est une garde réelle, pas un commentaire : un Bardic dépensé sur un succès
+     est un dé perdu pour rien, et c'est le bug que D.1 existe pour empêcher.
+
+     Quand le jet N'A PAS de seuil, le moteur ne peut pas savoir s'il a échoué —
+     c'est le MJ qui tient le DD. Il autorise alors le dé, et le dit ici plutôt
+     que de faire semblant de vérifier. */
+  function addDie(source, { sides, poolResourceId } = {}) {
+    const rule = CORRECTION_DICE[source];
+    if (!rule) throw new Error('fhpc/play: "' + source + '" is not a correction die — one of ' + Object.keys(CORRECTION_DICE).join(", "));
+    const entry = openEntry();
+    if (!rollOpen() || !entry) { notify(t("notice.correction-needs-landed", { label: sealLabel(source) }), "warn"); return false; }
+    if (rule.appliesTo.indexOf(entry.rollType || "check") < 0) {
+      notify(t("notice.correction-needs-failure", { label: sealLabel(source) }), "warn"); return false;
+    }
+    if (rollHasThreshold(entry) && entry.total >= rollThreshold(entry)) {
+      notify(t("notice.correction-needs-failure", { label: sealLabel(source) }), "warn"); return false;
+    }
+    if (entryBonusDice(entry).length + stagedBonusCount() >= MAX_BONUS_DICE) {
+      notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return false;
+    }
+    setStaged(stagedList().concat([{
+      id: uuid(), kind: "bonus", label: sealLabel(source), sides: Number(sides) || rule.sides,
+      sourceIcon: source, correction: source, poolResourceId: poolResourceId || null
+    }]));
+    refreshOpenTray(entry);
+    return true;
+  }
+
+  /* ── Verbe n°2 : RELANCER un dé déjà tombé ──────────────────────────
+     Point d'inspiration héroïque (SRD 5.2, `srd:glossary:en:heroic-inspiration`,
+     p.183) : « expend it to reroll any die immediately after rolling it, and
+     you must use the new roll ».
+
+     N'IMPORTE QUEL dé : le d20, un dé bonus, un dé de dégâts. C'est ce qui le
+     sépare des deux autres verbes, et c'est pour cela qu'il traverse le même
+     mécanisme de réécriture en place que le Portent — l'entrée est MUTÉE, elle
+     n'est jamais dupliquée, et le verdict est recalculé.
+
+     ⚠️ Fate's Hand a RETIRÉ cette mécanique, et le SRD la garde. Elle vit donc
+     ici, dans le chemin commun, et elle doit marcher AVEC LA COUCHE DÉBRAYÉE.
+     C'est le troisième test d'acceptation du lot. */
+  function rerollDie({ entryId, dieKey, poolResourceId, source = "heroic-inspiration" } = {}) {
+    const entry = entryById(entryId) || openEntry();
+    if (!entry) { notify(t("notice.reroll-needs-landed"), "warn"); return false; }
+    const target = landedDiePart(entry, dieKey);
+    if (!target || target.result == null) { notify(t("notice.reroll-unknown-die"), "warn"); return false; }
+    if (poolResourceId && !spendPoolResourceSilently(poolResourceId)) return false;
+    const before = target.result;
+    const after = rollDie(target.sides);
+    writeLandedDie(entry, dieKey, after);
+    entry.rerolls = (entry.rerolls || []).concat([{ dieKey, label: target.label, before, after, source, at: now() }]);
+    entry.adjusted = true;
+    entry.adjustedAt = now();
+    recomputeEntry(entry);
+    refreshEntryTray(entry);
+    const events = [{ text: t("event.reroll", { source, label: target.label, before, after }), kind: "adjusted", entryId: entry.id }];
+    state.rollSequence = state.rollSequence || {};
+    state.rollSequence.entryId = entry.id;
+    if (!rollOpen()) state.rollSequence.phase = "open-after-events";
+    announceEvents(events, "open-roll");
+    return true;
+  }
+
+  /* ── Verbe n°3 : MONTER un dé avant le jet ──────────────────────────
+     Guidance, l'avantage : ce sont des décisions prises AVANT que les dés
+     quittent la main. Les offrir après coup était l'ancien bug — et c'est
+     exactement la raison pour laquelle `guidance` a quitté SEALABLE_SOURCES
+     (D.3). La fenêtre est donc l'inverse de celle d'`addDie` : il faut une
+     console préparée et RIEN de lancé. */
+  function mountDie({ source = "guidance", sides, mode } = {}) {
+    const cfg = state.rollConfig;
+    if (!cfg || cfg.editingId || rollOpen()) {
+      notify(t("notice.mount-after-roll", { label: sealLabel(source) }), "warn"); return false;
+    }
+    if (mode) { cfg.d20Mode = rollMode(mode); prepareTrayForConfig(cfg); return true; }
+    if ((cfg.bonusDice || []).length >= MAX_BONUS_DICE) { notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return false; }
+    cfg.bonusDice.push(newBonusDie(sealLabel(source), Number(sides) || 4, source));
+    syncPresetFlags(cfg);
+    prepareTrayForConfig(cfg);
+    return true;
+  }
+
+  /* ══ D.5 — LE DON D'UN DÉ ENTRE JOUEURS ════════════════════════════
+     « Le dé de Bardic est donné par un barde au joueur : il faudrait qu'un
+     joueur puisse donner un dé à un autre joueur. »
+
+     LE LOT 5 CONSTRUIT LES DEUX BOUTS, PAS LE TRANSPORT. Faire voyager le dé
+     d'une machine à l'autre est du bloc `table` (M4). Ici, un dé reçu se pose
+     directement.
+
+     Deux fenêtres, et ce sont DEUX PORTES, comme en D.1 :
+     - `ahead`    : le dé ATTEND sur la fiche du receveur, ressource comptée ;
+     - `reaction` : le dé arrive PENDANT une transaction ouverte et se stage. */
+
+  /* Le bout DONNEUR : il décrémente SA ressource et émet un événement. Il ne
+     touche à aucun autre document — le personnage appartient au joueur. */
+  function giveDie({ source, to, timing = "ahead", poolResourceId, dieId } = {}) {
+    const gift = giftSources[source];
+    let offered = null;
+    if (gift) {
+      offered = gift({ dieId, poolResourceId, to, timing });
+      if (!offered) return null;
+    } else {
+      const res = poolResourceById(poolResourceId);
+      if (!res || Number(res.count) < 1) { notify(t("notice.no-such-resource", { label: source || "die" }), "warn"); return null; }
+      res.count = Number(res.count) - 1;
+      emitPool("pool-given");
+      offered = { source: source || res.correction || "", sides: res.sides, label: res.label, tint: res.tint, kind: res.kind, count: 1, correction: res.correction };
+    }
+    const record = {
+      schema: "fh-die-gift/1",
+      from: (state.character && state.character.name) || state.pseudo || "",
+      to: String(to || ""), timing,
+      die: offered, givenAt: now()
+    };
+    pushEvent(t("event.die-given", { label: offered.label, sides: offered.sides, to: record.to, timing }), "loss");
+    bus.emit("die-given", record);
+    return record;
+  }
+
+  /* Le bout RECEVEUR : le dé reçu est une ressource comptée ORDINAIRE qui
+     porte sa provenance. Rien de neuf dans le moteur — c'est le point : un dé
+     donné se dépense exactement comme un dé qu'on possédait déjà. */
+  function receiveDie(record) {
+    if (!record || !record.die) throw new Error("fhpc/play: receiveDie needs a fh-die-gift/1 record");
+    const die = record.die;
+    const resource = normalizePoolResource({
+      id: uuid(), label: die.label, short: die.short, kind: die.kind || "die",
+      sides: die.sides, count: die.count == null ? 1 : die.count, tint: die.tint,
+      correction: die.correction,
+      origin: { from: record.from, source: die.source || "", timing: record.timing, givenAt: record.givenAt }
+    });
+    if (poolList().length >= MAX_POOL_RESOURCES) { notify(t("notice.pool-spent"), "warn"); return null; }
+    poolList().push(resource);
+    emitPool("pool-received");
+    pushEvent(t("event.die-received", { label: resource.label, sides: resource.sides, from: record.from, timing: record.timing }), "gain");
+    /* La fenêtre « en réaction » n'est pas la même que « à l'avance » : un dé
+       donné en réaction arrive PENDANT une transaction ouverte et se pose tout
+       de suite ; un dé donné à l'avance attend sur la fiche. */
+    if (record.timing === "reaction" && rollOpen()) spendPoolResource(resource.id);
+    return resource;
   }
 
   /* ══ Le plateau libre ══════════════════════════════════════════════ */
@@ -1429,19 +1243,19 @@ export function createPlay({
        réserve libre. */
     const cfg = state.rollConfig;
     if (cfg && !cfg.editingId) {
-      if (sides === 20 || sides === 100) { notify("The d20 is the base die; d% stays a free roll.", "warn"); return; }
-      if ((cfg.bonusDice || []).length >= MAX_BONUS_DICE) { notify("A roll carries at most " + MAX_BONUS_DICE + " bonus dice.", "warn"); return; }
+      if (sides === 20 || sides === 100) { notify(t("notice.d20-is-base"), "warn"); return; }
+      if ((cfg.bonusDice || []).length >= MAX_BONUS_DICE) { notify(t("notice.bonus-cap", { max: MAX_BONUS_DICE }), "warn"); return; }
       const used = (cfg.bonusDice || []).map((die) => {
         const match = String(die.sourceIcon || "").match(/^other-([123])$/);
         return match ? Number(match[1]) : 0;
       });
       const slot = [1, 2, 3].find((value) => used.indexOf(value) < 0) || Math.min(3, cfg.bonusDice.length + 1);
-      cfg.bonusDice.push(newBonusDie("Bonus " + ["", "I", "II", "III"][slot], sides, "other-" + slot));
+      cfg.bonusDice.push(newBonusDie(t("source.other-" + slot), sides, "other-" + slot));
       syncPresetFlags(cfg);
       prepareTrayForConfig(cfg);
       return;
     }
-    if (state.traySelection.length >= MAX_FREE_DICE) { pushEvent("The free-roll tray holds at most " + MAX_FREE_DICE + " dice", "warn"); return; }
+    if (state.traySelection.length >= MAX_FREE_DICE) { pushEvent(t("notice.free-cap", { max: MAX_FREE_DICE }), "warn"); return; }
     state.traySelection.push(newFreeDie(sides));
     state.trayResults = [];
   }
@@ -1479,17 +1293,8 @@ export function createPlay({
   }
 
   function rollTrayDice(label) {
-    /* Un dé de Destinée qui attend dans le plateau libre est exactement ce à
-       quoi ROLL sert : il se résout seul, aux conditions de la réserve. */
-    if (state.destinyStaged) {
-      const waiting = state.destinyStaged;
-      state.destinyStaged = null;
-      dropEventsTagged("staged-destiny");
-      standaloneDestiny(waiting.dieId, destinyPlanFor(waiting));
-      return;
-    }
     if (!state.traySelection.length) state.traySelection = [newFreeDie(20)];
-    if (label != null) state.trayLabel = String(label || "Damage roll").slice(0, 48);
+    if (label != null) state.trayLabel = String(label || t("tray.free-label")).slice(0, 48);
     const dice = state.traySelection.map((die) => {
       const plan = makeDiePlan(die.sides, die.advantageMode, die.forcedResult);
       return {
@@ -1500,7 +1305,7 @@ export function createPlay({
       };
     });
     const entry = {
-      id: uuid(), kind: "tray", name: state.trayLabel || "Damage roll", dice,
+      id: uuid(), kind: "tray", name: state.trayLabel || t("tray.free-label"), dice,
       total: dice.reduce((sum, die) => sum + (Number(die.result) || 0), 0),
       createdAt: now(), outcome: "Free roll"
     };
@@ -1512,11 +1317,8 @@ export function createPlay({
     setTrayFromEntry(entry);
     const special = dice.find((die) => die.sides === 20 && (die.result === 1 || die.result === 20));
     const events = [];
-    if (special) {
-      events.push({
-        text: (special.result === 20 ? LEX.CRIT20 + " IN THE TRAY" : LEX.FUMBLE1 + " IN THE TRAY") + " · " + entry.name + " · Total " + entry.total,
-        kind: special.result === 20 ? "nat20" : "nat1", entryId: entry.id
-      });
+    if (special && die20Notice(special)) {
+      events.push({ text: die20Notice(special) + " · " + entry.name + " · Total " + entry.total, kind: special.result === 20 ? "nat20" : "nat1", entryId: entry.id });
     }
     state.rollSequence = null;
     state.queueDone = "";
@@ -1524,6 +1326,11 @@ export function createPlay({
       state.rollSequence = { phase: "free-tray", entryId: entry.id };
       announceEvents(events, "finish-sequence");
     }
+  }
+  /* Un naturel extrême dans le plateau libre est un FAIT annoncé, pas un
+     verdict : la table libre n'a ni seuil ni conséquence. */
+  function die20Notice(die) {
+    return die.result === 20 ? t("verdict.natural-20") + " IN THE TRAY" : t("verdict.natural-1") + " IN THE TRAY";
   }
 
   /* ══ Le menu d'un dé ═══════════════════════════════════════════════
@@ -1537,23 +1344,18 @@ export function createPlay({
       if (!cfg || cfg.editingId) return null;
       return { scope: "base", sides: 20, label: "Base d20", advantageMode: cfg.d20Mode || "flat", forcedResult: cfg.d20ForcedResult, colour: cfg.d20Colour || "", sourceIcon: "" };
     }
-    if (prompt.destinyDieId) {
-      if (!cfg) return null;
-      const poolDie = state.destiny.dice.find((die) => die.id === prompt.destinyDieId && die.available);
-      if (!poolDie || cfg.destinyDieId !== poolDie.id) return null;
-      return { scope: "destiny", sides: poolDie.sides, label: "Destiny d" + poolDie.sides, advantageMode: cfg.destinyMode || "flat", forcedResult: cfg.destinyForcedResult, colour: "", sourceIcon: "" };
+    /* Les portées qu'une couche possède. Le chemin commun n'en connaît que
+       cinq : la base, un dé stagé, un dé bonus de console, un dé libre, un dé
+       tombé. */
+    for (const key of Object.keys(dieScopes)) {
+      const found = dieScopes[key].find(prompt);
+      if (found) return found;
     }
-    /* Un dé de Destinée stagé répond au clic droit comme tout autre dé de la
-       main — c'est tout l'intérêt qu'il ne soit plus un popup. */
+    /* Un dé stagé répond au clic droit comme tout autre dé de la main — c'est
+       tout l'intérêt qu'il ne soit plus un popup. */
     if (prompt.stagedId) {
       const item = stagedList().find((die) => die.id === prompt.stagedId);
-      return item ? Object.assign({ scope: item.kind === "destiny" ? "staged-destiny" : "staged" }, item) : null;
-    }
-    if (prompt.poolId) {
-      const waiting = state.destinyStaged;
-      if (!waiting || waiting.dieId !== prompt.poolId) return null;
-      if (!state.destiny.dice.some((die) => die.id === waiting.dieId && die.available)) return null;
-      return { scope: "pool-destiny", sides: waiting.sides, label: "Destiny d" + waiting.sides, advantageMode: waiting.advantageMode || "flat", forcedResult: waiting.forcedResult, colour: "", sourceIcon: "" };
+      return item ? Object.assign({ scope: item.kind === "bonus" ? "staged" : "staged-" + item.kind }, item) : null;
     }
     if (prompt.bonusId) {
       const bonus = cfg && (cfg.bonusDice || []).find((die) => die.id === prompt.bonusId && !die.locked);
@@ -1563,8 +1365,9 @@ export function createPlay({
       const free = state.traySelection.find((die) => die.id === prompt.freeId);
       return free ? Object.assign({ scope: "free", label: "d" + free.sides, sourceIcon: "" }, free) : null;
     }
-    /* Un dé déjà tombé. Rien de lui ne peut être relancé ni re-scellé, mais un
-       Devin peut encore remplacer ce qu'il lit. */
+    /* Un dé déjà tombé. Rien de lui ne peut être relancé par un sceau ni
+       re-monté, mais un Devin peut encore remplacer ce qu'il lit — et un Point
+       d'inspiration héroïque peut le relancer (D.1, verbe n°2). */
     if (prompt.landedKey) {
       const landed = entryById(prompt.entryId), part = landedDiePart(landed, prompt.landedKey);
       if (!part) return null;
@@ -1576,8 +1379,8 @@ export function createPlay({
     return null;
   }
 
-  /* Les trois sortes de dé qu'une entrée résolue possède, adressées par une
-     clef stable pour que le menu atteigne le même dé après n'importe quel rendu. */
+  /* Les sortes de dé qu'une entrée résolue possède, adressées par une clef
+     stable pour que le menu atteigne le même dé après n'importe quel rendu. */
   function landedDiePart(entry, key) {
     if (!entry || !key) return null;
     if (key === "d20") return entry.kind === "d20" ? { sides: 20, label: "d20", result: entry.kept, forced: !!entry.d20Forced, colour: entry.d20Colour || "" } : null;
@@ -1586,12 +1389,48 @@ export function createPlay({
       const die = entryBonusDice(entry).find((item) => item.id === bonus[1]);
       return die ? { sides: die.sides, label: die.label, result: die.result, forced: !!die.forced, colour: die.colour || "", sourceIcon: die.sourceIcon || "" } : null;
     }
+    const damage = String(key).match(/^damage:(\d+)$/);
+    if (damage) {
+      const item = (entry.damageDice || [])[Number(damage[1])];
+      return item ? { sides: item.sides, label: t("tray.damage"), result: item.result, forced: !!item.forced, colour: "" } : null;
+    }
     const free = String(key).match(/^free:(\d+)$/);
     if (free) {
       const item = (entry.dice || [])[Number(free[1])];
       return item ? { sides: item.sides, label: "d" + item.sides, result: item.result, forced: !!item.forced, colour: item.colour || "" } : null;
     }
     return null;
+  }
+
+  /* Écrire un nouveau résultat sur un dé TOMBÉ, quelle que soit sa sorte. Un
+     seul endroit — le Portent et la relance en dépendent tous les deux, et
+     deux implémentations de la même écriture divergeraient. */
+  function writeLandedDie(entry, key, value) {
+    if (key === "d20") {
+      entry.d20Roll = { sides: 20, mode: "flat", rolls: [value], result: value, chosenIndex: 0, forced: false };
+      entry.d20s = [value]; entry.d20Choice = 0; entry.d20Mode = "flat"; entry.kept = value; entry.natural = value;
+      return;
+    }
+    const bonus = String(key).match(/^bonus:(.+)$/);
+    if (bonus) {
+      const die = (entry.bonusDice || []).find((item) => item.id === bonus[1]);
+      if (die) { die.rolls = [value]; die.result = value; die.chosenIndex = 0; mirrorNamedBonusDice(entry); }
+      return;
+    }
+    const damage = String(key).match(/^damage:(\d+)$/);
+    if (damage) {
+      const die = (entry.damageDice || [])[Number(damage[1])];
+      if (die) {
+        die.result = value;
+        entry.damageTotal = entry.damageDice.reduce((sum, item) => sum + item.result, 0) + ((entry.damage && entry.damage.bonus) || 0);
+      }
+      return;
+    }
+    const free = String(key).match(/^free:(\d+)$/);
+    if (free) {
+      const die = (entry.dice || [])[Number(free[1])];
+      if (die) { die.rolls = [value]; die.result = value; die.chosenIndex = 0; }
+    }
   }
 
   /* Remplacer un dé tombé réécrit l'entrée EN PLACE, pour que la ligne de flux
@@ -1647,15 +1486,13 @@ export function createPlay({
     const prompt = state.diePrompt, target = findStagedDie(prompt), cfg = state.rollConfig;
     if (!target) return;
     if (target.scope === "landed") { retuneLandedDie(prompt, patch); return; }
-    if (target.scope === "pool-destiny") { Object.assign(state.destinyStaged, patch); return; }
+    const owned = dieScopes[target.scope];
+    if (owned) { owned.mutate(prompt, patch, target); refreshTrayForState(); return; }
     if (target.scope === "base") {
       if (patch.advantageMode != null) cfg.d20Mode = patch.advantageMode;
       if (patch.forcedResult !== undefined) cfg.d20ForcedResult = forcedDieResult(patch.forcedResult, 20);
       if (patch.colour != null) cfg.d20Colour = patch.colour;
-    } else if (target.scope === "destiny") {
-      if (patch.advantageMode != null) cfg.destinyMode = patch.advantageMode;
-      if (patch.forcedResult !== undefined) cfg.destinyForcedResult = forcedDieResult(patch.forcedResult, target.sides);
-    } else if (target.scope === "staged" || target.scope === "staged-destiny") {
+    } else if (target.scope.indexOf("staged") === 0) {
       const item = stagedList().find((die) => die.id === prompt.stagedId);
       if (item) Object.assign(item, patch);
     } else if (target.scope === "bonus") {
@@ -1672,18 +1509,19 @@ export function createPlay({
     const prompt = state.diePrompt, target = findStagedDie(prompt);
     if (!target) return;
     // Le d20 de base EST le jet — il ne peut pas être sorti de son propre plateau.
-    if (target.scope === "base") { notify("The d20 is the roll — it cannot be removed.", "warn"); return; }
+    if (target.scope === "base") { notify(t("notice.base-die-immovable"), "warn"); return; }
     // Un dé déjà tombé appartient à un jet résolu : il peut être remplacé, jamais retiré.
-    if (target.scope === "landed") { notify("A die that has fallen stays in its roll.", "warn"); return; }
-    if (target.scope === "pool-destiny") { state.destinyStaged = null; dropEventsTagged("staged-destiny"); }
-    else if (target.scope === "destiny") {
-      const cfg = state.rollConfig;
-      cfg.destinyDieId = ""; cfg.destinyConfirmed = false; cfg.destinyForcedResult = null;
-      dropEventsTagged("staged-destiny");
-    } else if (target.scope === "staged" || target.scope === "staged-destiny") {
-      recreditPoolDie(stagedList().find((die) => die.id === prompt.stagedId));
-      state.rollSequence.staged = stagedList().filter((die) => die.id !== prompt.stagedId);
-      if (target.scope === "staged-destiny") dropEventsTagged("staged-destiny");
+    if (target.scope === "landed") { notify(t("notice.landed-die-immovable"), "warn"); return; }
+    const owned = dieScopes[target.scope];
+    if (owned) owned.drop(prompt, target);
+    else if (target.scope.indexOf("staged") === 0) {
+      const staged = stagedList().find((die) => die.id === prompt.stagedId);
+      recreditPoolDie(staged);
+      /* Une ligne qui n'avait de sens que tant que ce dé attendait s'en va avec
+         lui. En v1 le nom de l'étiquette était écrit en dur ici, dans le chemin
+         commun ; il voyage désormais SUR le dé, posé par qui l'a stagé. */
+      if (staged) dropEventsTagged(staged.tag);
+      setStaged(stagedList().filter((die) => die.id !== prompt.stagedId));
     } else if (target.scope === "bonus") {
       const config = state.rollConfig;
       recreditPoolDie((config.bonusDice || []).find((die) => die.id === prompt.bonusId));
@@ -1697,19 +1535,18 @@ export function createPlay({
     refreshTrayForState();
   }
 
-  /* Sceller un dé « Destiny » n'est pas décoratif : cela sort un dé de la
-     réserve. Rien n'est dépensé par le sceau non plus — le dé de réserve passe
-     simplement dans la main, et ROLL reste ce qui le dépense. */
+  /* Sceller un dé, c'est déclarer CE QU'IL EST : un dé de Bardic, un dé de
+     Tactical. La liste est fermée à ces deux-là (D.3) et un sceau inconnu est
+     un refus nommé, pas un habillage silencieux. */
   function sealStagedDie(seal) {
     const target = findStagedDie(state.diePrompt);
     if (!target) return;
+    if (SEALABLE_SOURCES.indexOf(String(seal)) < 0) {
+      notify(t("notice.no-such-resource", { label: String(seal) }), "warn"); return;
+    }
     /* Choisir une robe scellée habille le dé ENTIER (R6) : la teinte du sceau
        revient, donc la couleur manuelle est effacée. */
-    if (seal !== "destiny") { mutateStagedDie({ sourceIcon: seal, label: sealLabel(seal), colour: "" }); return; }
-    const poolDie = state.destiny.dice.find((die) => die.available && die.sides === target.sides);
-    if (!poolDie) { notify("No Destiny d" + target.sides + " is available in the pool.", "warn"); return; }
-    dropStagedDie();
-    stageDestinyFromPool(poolDie.id);
+    mutateStagedDie({ sourceIcon: seal, label: sealLabel(seal), colour: "", correction: seal });
   }
 
   /* ══ Ouvrir / fermer une séance ════════════════════════════════════ */
@@ -1717,49 +1554,119 @@ export function createPlay({
   /* Le document appartient aux blocs `doc`/`build`. `play` reçoit ce dont il a
      besoin pour jouer et le rend quand la séance se ferme ; il ne va rien
      chercher tout seul, et il ne persiste rien. */
-  function open({ character = null, destiny = null, vitals = null, history = null, poolResources = null, campaign = "", pseudo = "" } = {}) {
+  function open(payload = {}) {
+    const { character = null, vitals = null, history = null, poolResources = null, campaign = "", pseudo = "" } = payload;
     state.character = character;
     state.campaign = campaign;
     state.pseudo = pseudo;
-    state.destiny = normalizeDestiny(destiny, character || {});
     state.vitals = normalizeVitals(vitals);
     state.history = Array.isArray(history) ? history.slice(0, MAX_HISTORY) : [];
     state.events = [];
     state.poolResources = normalizePoolResources(poolResources);
     state.traySelection = [newFreeDie(20)];
     state.settled = {};
+    /* Le MOMENT `session-open` : chaque couche sème SA tranche. Le chemin
+       commun ne sait pas ce qu'elle sème, seulement quand. */
+    sequence.run("session-open", payload);
     clearDiceTray(true);
     emitPool("open");
   }
 
+  /* Ce que les couches déclarent posséder, demandé UNE fois. Le chemin commun
+     n'en connaît ni les clefs ni le contenu : il les recopie. */
+  function harvestLayers() {
+    const contributions = Object.values(sequence.run("session-snapshot", {}).contributions);
+    return contributions.length ? Object.assign({}, ...contributions) : {};
+  }
+
   /* Ce que la séance rend au document : les ressources comptées et
-     l'historique. L'état de séance (transaction, main, sélection) ne voyage
-     pas — règle de persistance n°4. */
+     l'historique, plus ce que chaque couche déclare posséder. L'état de séance
+     (transaction, main, sélection) ne voyage pas — règle de persistance n°4. */
   function snapshot() {
     prunePoolResources();
-    return {
-      destiny: state.destiny,
+    return Object.assign({
       vitals: state.vitals,
       history: state.history.slice(0, MAX_HISTORY),
       poolResources: poolList()
-    };
+    }, harvestLayers());
   }
+
+  /* ══ Le branchement des couches ════════════════════════════════════ */
+
+  const engine = {
+    state, t, uuid, now, rollDie, clamp, emit: bus.emit,
+    makeDiePlan, trayDiceForPlan, pendingTrayDice, chooseDiePlan, forcedDieResult, DIE_SEQUENCE,
+    entryById, addHistory, recomputeEntry, refreshEntryTray, setTrayFromEntry, prepareTrayForConfig,
+    rollOpen, openEntry, stagedList, setStaged, refreshOpenTray, openRollState, releaseRoll,
+    settleEntry, clearDiceTray, announceEvents, recordEvent, pushEvent, dropEventsTagged,
+    openDecision, closeDecision, notify, clearNotice, emitPool, entryTotal, outcomeFor,
+    exhaustionLevel, exhaustionPenalty, exhaustionText, setExhaustion, setVitals, saveInfo,
+    rollTransactionActive, warnRollLocked, showDieChoice, snapshotRollConfig,
+    spendPoolResource, recreditPoolResource, poolResourceById
+  };
+
+  const layerVerbs = {};
+  const layerDerive = {};
+  const layerInternals = {};
+  const dieScopes = {};
+  const dieChoiceTargets = {};
+  const giftSources = {};
+  const configDefaultHooks = [];
+  const configResetHooks = [];
+  const configEntryHooks = [];
+  const configTrayHooks = [];
+  const configSettings = {};
+  const claims = [];
+
+  declarations.forEach((layer) => {
+    if (typeof layer.bind !== "function") throw new Error('fhpc/play: layer "' + layer.name + '" has no bind()');
+    const bound = layer.bind(engine);
+    Object.assign(layerVerbs, bound.verbs || {});
+    Object.assign(layerDerive, bound.derive || {});
+    layerInternals[layer.name] = bound.internals || {};
+    Object.assign(dieScopes, bound.dieScopes || {});
+    Object.assign(dieChoiceTargets, bound.dieChoiceTargets || {});
+    Object.assign(giftSources, bound.giftSources || {});
+    Object.assign(configSettings, bound.configSettings || {});
+    if (bound.configDefaults) { configDefaultHooks.push(bound.configDefaults); configResetHooks.push(bound.configDefaults); }
+    if (bound.configFromEntry) configEntryHooks.push(bound.configFromEntry);
+    if (bound.configTrayDice) configTrayHooks.push(bound.configTrayDice);
+    (bound.rollClaims || []).forEach((claim) => claims.push(claim));
+    sequence.mount({ name: layer.name, flags: layer.flags, register: bound.register || [] });
+  });
+
+  /* L'aiguillage de ROLL, par priorité déclarée. En v1 le verbe branchait
+     lui-même sur deux mécaniques maison ; il ne connaît plus que des
+     réclamations, et les siennes sont dans la même liste que les autres. */
+  claims.push(
+    { priority: 50, when: () => rollOpen(), run: rollStagedDice },
+    { priority: 60, when: () => !!state.rollConfig, run: runConfiguredRoll },
+    { priority: 100, when: () => true, run: () => rollTrayDice() }
+  );
+  claims.sort((a, b) => a.priority - b.priority);
 
   /* ── Les verbes : le seul point d'entrée du bloc ────────────────────
      Nommés depuis le vocabulaire `data-*` v1 (voir contracts/play.md pour la
-     table de correspondance complète). */
-  const verbs = {
+     table de correspondance complète). Les verbes d'une couche entrent ICI, et
+     seulement si elle est montée : sans elle, ils N'EXISTENT PAS. */
+  const verbs = Object.assign({
     open: (p) => open(p || {}),
     snapshot: () => snapshot(),
 
     // le jet
     prepare: (p) => { clearDiceTray(false); state.rollConfig = rollInput(p.name, p.ability, p.bonus, p); prepareTrayForConfig(state.rollConfig); clearNotice(); },
-    configure: (p) => { if (state.rollConfig) Object.assign(state.rollConfig, p || {}); },
+    /* ⚠️ Exigence A : `configure` n'accepte plus un patch quelconque. Chaque
+       réglage est lu par la liste FERMÉE du type courant, et une clef inconnue
+       jette en nommant ce que ce type accepte. */
+    configure: (p) => {
+      if (!state.rollConfig) return;
+      const type = rollTypeFor(state.rollConfig.rollType);
+      const closed = Object.assign({}, type.settings, configSettings);
+      applySettings({ settings: closed, label: type.label }, state.rollConfig, p || {});
+    },
     roll: () => {
-      if (state.pendingArmed) return rollPendingFate();
-      if (rollOpen()) return rollStagedDice();
-      if (state.rollConfig) return runConfiguredRoll();
-      return rollTrayDice();
+      const claim = claims.find((item) => item.when());
+      return claim ? claim.run() : undefined;
     },
     quickRoll: (p) => quickRoll(p.name, p.ability, p.bonus, p.note),
     rollTray: (p) => rollTrayDice(p && p.label),
@@ -1776,24 +1683,17 @@ export function createPlay({
     sealDie: (p) => sealStagedDie(p.seal),
     dropDie: () => dropStagedDie(),
 
-    // la Destinée
-    spendDestiny: (p) => stageDestinyFromPool(p.dieId),
-    stageDestinyDie: (p) => stageDestinyDie(p.dieId),
-    adjustDestinyDie: (p) => adjustDestinyDie(p.sides, p.direction),
-    setDestinyField: (p) => updateDestinyField(p.field, p.value, p.reason),
-    settleAwakening: (p) => settleAwakening(p && p.card),
+    // D.1 — les trois verbes de dé, et leurs trois fenêtres
+    addDie: (p) => addDie(p.source, p),
+    rerollDie: (p) => rerollDie(p || {}),
+    mountDie: (p) => mountDie(p || {}),
+
+    // D.5 — le don, aux deux bouts, sans le transport
+    giveDie: (p) => giveDie(p || {}),
+    receiveDie: (p) => receiveDie(p),
 
     // les décisions
     resolveDieChoice: (p) => resolveDieChoice(p.index),
-    resolveNatOne: (p) => resolveNatOne(p.entryId, p.choice),
-    resolveArcaneOne: (p) => resolveArcaneOne(p.entryId, p.choice),
-
-    // le destin différé
-    armPending: (p) => armPendingFate(p.id),
-    resolvePending: () => rollPendingFate(),
-    addPending: (p) => addPendingFate(p),
-    dropPending: (p) => dropPendingFate(p.id),
-    renamePending: (p) => savePendingLabel(p.id, p.label),
 
     // la réserve comptée
     spendPoolResource: (p) => spendPoolResource(p.id),
@@ -1802,49 +1702,45 @@ export function createPlay({
     // les vitaux
     setVitals: (p) => setVitals(p.patch, p.message),
     setExhaustion: (p) => setExhaustion(p.level, p.reason, p.silent)
-  };
+  }, layerVerbs);
 
   /* Les DÉRIVATIONS : lecture seule sur une entrée, pour les surfaces. Aucune
      ne touche l'état — c'est ce qui garantit qu'une surface ne peut pas
      recalculer un badge pour son compte. */
-  const derive = {
+  const derive = Object.assign({
     badges: rollBadges, ruling: rollRuling, vocabulary: rollVocabulary, verdict: rollVerdict,
     outcome: outcomeFor, total: entryTotal, parts: rollParts, trayDice: trayDiceFromEntry,
     export: (entry) => rollExport(entry, { campaign: state.campaign, character: (state.character && state.character.name) || state.pseudo }),
     intent: intentFor,
     verdictText: rollVerdictText, detailText: rollDetailText,
-    chaosRow: chaosRowText, chaosVerdict,
-    pendingLabel, pendingTitle, pendingResolvable, sealLabel,
-    poolTitle, visiblePoolResources
-  };
+    sealLabel, source: rollSource, label: t,
+    poolTitle, visiblePoolResources,
+    flags: () => sequence.flags(), rules: () => Object.assign({}, rules)
+  }, layerDerive);
 
   /* Les ROUAGES. Exposés délibérément : les suites portées les tiennent
-     directement (comme la v1 les tenait par son hook `__fhRollMachine`), et la
-     décision Q4 veut que les mécaniques neuves soient des MODULES MOTEUR
-     activés par drapeaux — ils entreront par ici, pas par du contenu de couche.
+     directement (comme la v1 les tenait par son hook `__fhRollMachine`).
      Ce n'est pas la surface publique du bloc : celle-là, c'est `verbs`. */
-  const engine = {
+  const engineHandles = Object.assign({}, engine, {
     rollTransactionActive, rollOpen, openEntry, stagedList, stagedBonusCount, entryById,
-    makeDestinySlots, normalizeDestiny, normalizeVitals, normalizePoolResources,
-    spendDestinyDie, destinyEventSpecs, arcaneDecision, naturalDestiny, destinyPlanFor,
-    setDestinyPoints, recoverLowestDie, adjustDestinyDie, settleAwakening,
+    normalizeVitals, normalizePoolResources, normalizePoolResource,
     exhaustionLevel, exhaustionPenalty, exhaustionText, setExhaustion, setVitals,
     announceEvents, recordEvent, pushEvent, dropEventsTagged, openDecision, closeDecision, runQueueDone,
-    pendingFate, addPendingFate, dropPendingFate, armPendingFate, rollPendingFate,
     rollInput, ensureConfigBonusDice, snapshotRollConfig, configFromEntry, syncPresetFlags,
-    runConfiguredRoll, rollSequenceDestiny, rollSequenceRemaining, resolveDieChoice,
+    runConfiguredRoll, rollSequenceRemaining, resolveDieChoice,
     applyHistoryAdjustment, applyHistoryAdjustmentRemaining, completeHistoryAdjustment,
-    finishRolledEntry, quickRoll, standaloneDestiny, resolveNatOne, resolveArcaneOne,
-    openRollState, settleEntry, releaseRoll, repeatOpenRoll, rollStagedDice,
-    stageBonusDie, unstageDie, stageDestinyDie, stageDestinyFromPool,
+    finishRolledEntry, quickRoll, openRollState, settleEntry, releaseRoll, repeatOpenRoll, rollStagedDice,
+    stageBonusDie, unstageDie, addDie, rerollDie, mountDie, giveDie, receiveDie,
     addTrayDie, removeTrayDie, dropTrayDie, rollTrayDice, clearDiceTray,
     setTrayFromEntry, prepareTrayForConfig, refreshOpenTray, refreshEntryTray, refreshTrayForState,
-    findStagedDie, landedDiePart, retuneLandedDie, mutateStagedDie, dropStagedDie, sealStagedDie,
+    findStagedDie, landedDiePart, writeLandedDie, retuneLandedDie, mutateStagedDie, dropStagedDie, sealStagedDie,
     poolList, poolResourceById, spendPoolResource, recreditPoolDie, prunePoolResources,
-    recomputeEntry, addHistory, entryTotal, outcomeFor, rollDie, saveInfo,
+    recomputeEntry, addHistory, entryTotal, outcomeFor, rollDie, saveInfo, runDamagePhase,
     BLOCKING_PHASES, MAX_EXHAUSTION, MAX_BONUS_DICE, MAX_FREE_DICE, MAX_HISTORY,
-    ROLL_SOURCES, SEALABLE_SOURCES, LEX, rollHasDc
-  };
+    ROLL_SOURCES, ROLL_VERDICTS, ROLL_BADGE_RULES, SEALABLE_SOURCES, CORRECTION_DICE,
+    ROLL_TYPE_IDS, rollHasDc: rollHasThreshold, rollHasThreshold, rollThreshold,
+    sequence, layers: layerInternals
+  });
 
-  return { name: "play", state, verbs, derive, engine };
+  return { name: "play", state, verbs, derive, engine: engineHandles, flags: sequence.flags() };
 }

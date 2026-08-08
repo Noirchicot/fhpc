@@ -10,16 +10,22 @@
       public à ce stade (KICKOFF §0.8, et §3 : « aucun contenu FH, il arrive
       avec Eric au M2 »).
 
+   DÉPLACÉ PAR LE LOT 5 de `src/play/` vers `src/layers/fh/` : le Chaos est une
+   mécanique maison, et `src/play/` ne doit plus en porter une seule ligne
+   (loi §0.12). Le fichier lui-même n'a pas changé de comportement — seuls ses
+   deux textes de dégradation sont passés par le paquet de libellés (§0.13).
+
    Forme attendue, identique à la v1 :
      { max: 12, tables: { STR: { name, rows: { "1": "…", … "12": "…" } }, … } }
 
    Une table absente dégrade vers le renvoi (« read the … Chaos table »),
    jamais vers un plantage — et jamais en silence : la phrase le dit. */
 
-import { clamp } from "./utils.mjs";
+import { clamp } from "../../play/utils.mjs";
 
-export function createChaos(chaosTables) {
+export function createChaos(chaosTables, labels) {
   const data = chaosTables && typeof chaosTables === "object" ? chaosTables : null;
+  const t = labels;
 
   function chaosTableFor(ability) {
     if (!data || !data.tables) return null;
@@ -38,8 +44,8 @@ export function createChaos(chaosTables) {
   function chaosVerdict(ability, total) {
     const row = chaosRowText(ability, total);
     const top = Number(data && data.max) || 12;
-    const capped = total > top ? " (table stops at " + top + ")" : "";
-    return row ? row + capped : "read the " + (ability || "matching") + " Chaos table";
+    const capped = total > top ? t("fh.chaos.capped", { max: top }) : "";
+    return row ? row + capped : t("fh.chaos.unknown-table", { ability });
   }
 
   return { chaosTableFor, chaosRowText, chaosVerdict };

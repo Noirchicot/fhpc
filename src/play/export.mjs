@@ -11,9 +11,16 @@
 
    Portés de fh-phb `docs/javascripts/fh-player-sheet.js` (main). L'identité de
    table (campagne, personnage) est passée en argument : elle appartient au
-   bloc `table`, pas à `play`. */
+   bloc `table`, pas à `play`.
 
-export function createExport({ trayDiceFromEntry, rollParts, rollBadges, rollRuling, entryBonusDice }) {
+   RECOUPÉ PAR LE LOT 5. `intentOutcome` énumérait à la main la Destinée, le
+   refus du destin et les naturels — une deuxième table de jugement, tenue
+   séparément de celle des verdicts, et donc condamnée à en diverger. Elle a
+   été supprimée : chaque règle de verdict déclare désormais son `intent`, et
+   ce fichier le LIT. Une couche qui ajoute un verdict apporte son intent avec
+   lui, et le chemin commun ne cite aucune de ses mécaniques. */
+
+export function createExport({ trayDiceFromEntry, rollParts, rollBadges, rollRuling, entryBonusDice, rollVerdict, rollThreshold, rollHasThreshold, moduleSignature }) {
   /* Les dés d'un jet, à plat pour le fil. Le plateau est la surface partagée
      de la table, donc le dock d'un autre joueur les dessine au lieu de
      deviner des dés dans les chaînes d'affichage. */
@@ -34,9 +41,9 @@ export function createExport({ trayDiceFromEntry, rollParts, rollBadges, rollRul
   function rollExport(entry, { campaign = "", character = "" } = {}) {
     return {
       schema: "fh-roll/1", id: entry.id, ts: entry.createdAt, campaign, character,
-      kind: entry.kind, title: entry.name, ability: entry.ability || null,
+      kind: entry.kind, rollType: entry.rollType || null, title: entry.name, ability: entry.ability || null,
       total: entry.total,
-      dc: entry.dc === "" || entry.dc == null ? null : Number(entry.dc),
+      dc: rollHasThreshold(entry) ? rollThreshold(entry) : null,
       outcome: entry.outcome || null,
       natural: entry.natural == null ? null : entry.natural,
       bonus: entry.kind === "d20" ? Number(entry.baseBonus) || 0 : null,
@@ -51,35 +58,40 @@ export function createExport({ trayDiceFromEntry, rollParts, rollBadges, rollRul
     };
   }
 
+  /* Une seule table de jugement, lue deux fois. `intent` est déclaré PAR LA
+     RÈGLE DE VERDICT ; un verdict sans intent est un verdict qui ne prétend
+     rien, et `null` est alors la bonne réponse — pas une devinette. */
   function intentOutcome(entry) {
-    if (entry.destiny && entry.destiny.criticalFailure) return "critical-failure";
-    if (entry.destiny && entry.destiny.criticalSuccess) return "critical-success";
-    if (entry.natChoice === "chaos" || entry.natural === 20) return "critical-success";
-    if (entry.natural === 1) return entry.natChoice === "accept" ? "critical-failure" : null;
-    if (entry.dc !== "" && entry.dc != null && isFinite(Number(entry.dc))) return entry.total >= Number(entry.dc) ? "success" : "failure";
-    return null;
+    const found = rollVerdict(entry);
+    return (found && found.intent) || null;
   }
 
   function intentFor(entry) {
     if (entry.kind !== "d20") return null;
     return {
-      kind: "check", check: entry.name || null, ability: entry.ability || null,
+      kind: entry.rollType === "attack" ? "attack" : entry.rollType === "spell" ? "spell" : "check",
+      check: entry.name || null, ability: entry.ability || null,
       total: Number(entry.total) || 0,
       natural: entry.natural == null ? null : entry.natural,
-      dc: entry.dc === "" || entry.dc == null ? null : Number(entry.dc),
+      dc: rollHasThreshold(entry) ? rollThreshold(entry) : null,
       outcome: intentOutcome(entry)
     };
   }
 
   /* La signature de ce que la table peut RÉELLEMENT voir. Un jet ouvert peut
      légitimement se régler plusieurs fois (il accrète des dés stagés), d'où
-     les révisions : régler une entrée inchangée ne coûte rien. */
+     les révisions : régler une entrée inchangée ne coûte rien.
+
+     Ce que les MODULES ajoutent au jet entre dans la signature par leur propre
+     contribution — sans quoi dépenser un dé de Destinée sur un jet déjà réglé
+     ne se verrait pas passer sur le fil. */
   function rollSignature(entry) {
     return [
       entry.total, entry.outcome || "", entry.natural == null ? "" : entry.natural,
-      entry.dc === "" || entry.dc == null ? "" : entry.dc, entry.adjusted ? 1 : 0,
-      entry.natChoice || "", entryBonusDice(entry).length,
-      entry.destiny ? entry.destiny.result : ""
+      rollHasThreshold(entry) ? rollThreshold(entry) : "", entry.adjusted ? 1 : 0,
+      entryBonusDice(entry).length, (entry.rerolls || []).length,
+      (entry.damageDice || []).length,
+      moduleSignature ? moduleSignature(entry) : ""
     ].join("|");
   }
 
