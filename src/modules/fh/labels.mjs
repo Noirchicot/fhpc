@@ -46,6 +46,15 @@ export const FH_EN = {
     (d.criticalSuccess ? "∞ critical" : d.criticalFailure ? "∞ fumble" : "Destiny d" + d.sides + "=" + d.result)
     + (d.change ? " · " + (d.change > 0 ? "+" : "") + d.change + " pt → " + d.pointsAfter : ""),
   "badge.vibration": (d) => "Vibration · d" + d.sides + " · spell level " + d.level,
+  /* Le Tilt (lot 21). Le badge dit CE QUI A ÉTÉ DÉCLARÉ puis CE QUE ÇA A
+     DONNÉ — les deux, parce que la moitié de la règle est justement que la
+     seconde ne se devine pas depuis la première. « 2 Tilts · Advantage »,
+     « 1 Tilt · disadvantage · cancelled ». */
+  "badge.tilt": (d) => d.tilts + " Tilt" + (d.tilts === 1 ? "" : "s")
+    + (d.disadvantage ? " · disadvantage" : "")
+    + " · " + (d.outcome === "plus-two" ? "+2"
+      : d.outcome === "advantage" ? "Advantage"
+        : d.outcome === "disadvantage" ? "Disadvantage" : "cancelled"),
   "badge.arcane-fate-refused": (d) => "Arcane fate refused · 1 → " + d.sides,
   "badge.overreach": (d) => "Overreach " + d.overreach + " · save DC " + d.dc,
   "badge.destiny-points": (d) => d.reason + " · Destiny " + d.after,

@@ -240,6 +240,17 @@ export function findForbidden(sources, patterns) {
    aucune suite ne rougit. Pas d'ancre finale, pour la même raison que les
    autres (`vibrations`, `vibrationLevel`) ; le mot ne préfixe rien du
    vocabulaire SRD. */
+/* ⚠️ AJOUT DU 2026-08-10 (lot 21) — `tilt`, et il entre le jour même où la
+   mécanique entre. C'est la leçon de la Vibration appliquée EN AVANCE plutôt
+   qu'après coup : elle avait été perdue au portage, puis retrouvée, et le mot
+   n'était entré dans cette liste qu'à ce moment-là. Le Tilt est la seule façon
+   dont Fate's Hand penche un jet — s'il s'écrivait un jour dans `src/play/`,
+   le chemin commun porterait une règle maison sans qu'un test bronche.
+
+   MESURÉ AVANT DE POSER, sur `src/` et `bin/` en entier : ZÉRO occurrence de
+   « tilt » hors de `src/modules/fh/`, et aucune suite ne rougit. Pas d'ancre
+   finale, comme les six autres (`tilts`, `tiltDisadvantage`) ; le mot ne
+   préfixe rien du vocabulaire SRD — ni du français du dépôt. */
 export const HOUSE_MECHANICS = [
   [/\bdestin(y|ies)/i, "Destiny"],
   [/\bchaos/i, "Chaos"],
@@ -247,7 +258,8 @@ export const HOUSE_MECHANICS = [
   [/\barcan(a|e|um)/i, "Arcana"],
   [/\bawaken/i, "Awakening"],
   [/\bfate/i, "Fate"],
-  [/\bvibration/i, "Vibration"]
+  [/\bvibration/i, "Vibration"],
+  [/\btilt/i, "Tilt"]
 ];
 
 /* §L5.3 : les modules s'inscrivent, ils ne sont pas appelés — donc aucun

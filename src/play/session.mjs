@@ -679,10 +679,19 @@ export function createPlay({
       note: options.note || "", editingId: null
     }, ...configDefaultHooks.map((hook) => hook()));
     /* Les réglages propres au type, lus par la liste FERMÉE du type — jamais
-       recopiés en vrac depuis les options (exigence A). */
+       recopiés en vrac depuis les options (exigence A).
+
+       ⚠️ LA LISTE FERMÉE EST CELLE DU TYPE **PLUS CELLE DES MODULES MONTÉS**,
+       exactement comme dans `configure`. Mesuré avant de corriger : les deux
+       listes avaient DIVERGÉ, et un réglage de module posé à l'ouverture de la
+       console était SILENCIEUSEMENT PERDU — le contrat annonce pourtant
+       `prepare({… plusTwo?})` depuis le lot 5. Rien ici ne nomme un module :
+       `configSettings` est ce que les montés ont déclaré, et il est vide quand
+       rien n'est monté. */
+    const closed = Object.assign({}, type.settings, configSettings);
     const typed = {};
-    Object.keys(type.settings).forEach((key) => { if (options[key] !== undefined) typed[key] = options[key]; });
-    applySettings(type, cfg, typed);
+    Object.keys(closed).forEach((key) => { if (options[key] !== undefined) typed[key] = options[key]; });
+    applySettings({ settings: closed, label: type.label }, cfg, typed);
     return cfg;
   }
 

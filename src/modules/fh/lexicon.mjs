@@ -64,6 +64,12 @@ export const FH_BADGES = [
   { id: "vibration", k: "destiny", spoiler: true, priority: 75, when: (e) => !!(e.destiny && e.destiny.vibration), data: (e) => ({ sides: e.destiny.vibration.sides, level: e.destiny.vibration.level }) },
   { id: "arcane-fate-refused", k: "chaos", spoiler: true, priority: 80, when: (e) => !!(e.destiny && e.destiny.arcaneChoice === "chaos"), data: (e) => ({ sides: e.destiny.sides }) },
   { id: "overreach", k: "chaos", spoiler: true, priority: 90, when: (e) => !!(e.destiny && e.destiny.chaos), data: (e) => ({ overreach: e.destiny.chaos.overreach, dc: e.destiny.chaos.dc }) },
+  /* Le Tilt sur la ligne du jet (lot 21). `data` rend LES FAITS — le compte,
+     la présence d'un désavantage, l'identifiant du résultat — et le paquet en
+     fait la phrase. La table doit pouvoir relire POURQUOI ce jet a eu un
+     avantage : sans ce badge, un Tilt ne laisserait aucune trace derrière
+     lui, et un « +2 » orphelin dans les parts ne dit pas d'où il vient. */
+  { id: "tilt", k: "manual", priority: 95, when: (e) => !!e.tilt, data: (e) => ({ tilts: e.tilt.tilts, disadvantage: e.tilt.disadvantage, outcome: e.tilt.outcome }) },
   { id: "destiny-points", k: "destiny", spoiler: true, priority: 100, when: (e) => !!e.destinyPointChange, data: (e) => ({ reason: e.destinyPointChange.reason, after: e.destinyPointChange.after }) },
   { id: "awakening", k: "n20", spoiler: true, priority: 110, when: (e) => !!e.awakening, data: () => ({}) }
 ];

@@ -36,6 +36,40 @@ export const FIXTURE_CHAOS = {
    la couche n'existent pas tant qu'elle n'est pas montée. Les suites portées
    testent le comportement Fate's Hand : elles montent la couche, et c'est ce
    qui rend la suite `play-srd-only` intéressante — elle, ne la monte pas. */
+/* ⚠️ RÉÉCRIT AU LOT 21 — LA FIXTURE QUI CACHAIT LA PANNE.
+   Ce harnais posait `character: { destinyBuild: { arcana: { name: "The
+   Hermit" } }, build: {} }`. `destinyBuild` est un nom de champ v1 : ZÉRO
+   occurrence dans `schemas/fh-char.schema.json`, ZÉRO dans `examples/*.json`.
+   La fixture satisfaisait donc le lecteur v1 du moteur, les suites voyaient
+   des Vibrations partout, et AUCUN document réel n'en a jamais produit une.
+   Une fixture qui écrit le chemin qu'on teste ne teste rien : elle recopie le
+   bug des deux côtés de l'assertion.
+
+   Ce constructeur rend un `fh-char/1` MINIMAL mais RÉEL — la carte est nommée
+   par le chemin ratifié du 2026-08-09, `build.choices[]` + `ref`, et par lui
+   seul. Les champs plats (`abilities`, `pb`, `savingProficiencies`) restent :
+   c'est ce que `saveInfo` lit aujourd'hui, et ce lot ne prétend pas régler
+   cette question-là (voir INVENTAIRE-LOT-21, question n°1).
+
+   ⚠️ `arcana: null` n'est PAS « la clef absente » : c'est un personnage qui ne
+   nomme aucune carte, et c'est un cas de test à part entière. */
+export function fhCharacter({
+  arcana = null, name = "Nodren", choices = [], label,
+  pb = 2, abilities = { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 }, savingProficiencies = []
+} = {}) {
+  const built = choices.slice();
+  if (arcana) {
+    const choice = { path: "fh.destiny.arcana", ref: { kind: "arcana", id: arcana } };
+    if (label !== undefined) choice.label = label;
+    built.push(choice);
+  }
+  return {
+    schema: "fh-char/1", id: "test:char:" + name.toLowerCase(), name, lang: "en",
+    pb, abilities, savingProficiencies,
+    build: { external: [], layers: [], choices: built, budgets: [], overrides: [] }
+  };
+}
+
 export function makeHarness({ chaosTables = FIXTURE_CHAOS, layers } = {}) {
   const bucket = [];
   let uuidCounter = 0;
@@ -83,7 +117,7 @@ export function makeHarness({ chaosTables = FIXTURE_CHAOS, layers } = {}) {
       queueDone: "", rollSequence: null, pendingArmed: null,
       message: "", messageKind: "", settled: {},
       vitals: { current: null, max: null, exhaustion: 0, shortRestUsed: false },
-      character: { destinyBuild: { arcana: { name: "The Hermit" } }, build: {} }
+      character: fhCharacter({ arcana: "fh:arcana:en:the-hermit" })
     });
   }
 
