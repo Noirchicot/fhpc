@@ -478,11 +478,31 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
     pas un maximum **lancé**. Le moteur ne signale **aucune** Vibration dans ce
     cas — le choix conservateur, faute de phrase. **À trancher par Eric.**
 
-11. **Que valent DEUX Tilts sur le DC ?** (lot 21) Par symétrie avec la table,
-    ce serait un Désavantage pour celui qui jette — **mais Eric ne l'a pas
-    dit**, donc ce n'est pas gravé et le moteur ne le modélise pas. Il ne
-    connaît que le côté du LANCEUR : un Tilt sur l'AC ou sur le DC est un
-    nombre que la table lui donne. **À trancher par Eric.**
+11. ~~**Que valent DEUX Tilts sur le DC ?**~~ ✅ **TRANCHÉ PAR ERIC le
+    2026-08-09 : « on dit +2 au DC et basta ».**
+
+    **Le côté cible ne connaît pas la table du Tilt.** Un Tilt sur le DC (ou
+    sur l'AC) vaut **+2**, un point c'est tout : deux Tilts valent **+2**, pas
+    un Désavantage. La table à cinq lignes — 1 = +2, 2+ = avantage — gouverne le
+    **côté du LANCEUR** et lui seul. La symétrie que le lot proposait est
+    explicitement écartée.
+
+    📌 **Et ce n'est pas une exception au SRD, c'est son idiome** — Eric l'a
+    justifié en le citant, et la mesure lui donne raison. `srd:glossary:en:cover`
+    dit : *Half Cover* **+2** à l'AC et aux sauvegardes de Dex, *Three-Quarters
+    Cover* **+5**, *Total Cover* pas de bonus du tout (on ne peut pas être
+    ciblé) — et surtout : *« If behind more than one degree of cover, a target
+    benefits only from the most protective degree. »* **Le SRD refuse déjà le
+    cumul des protections.** Un Tilt côté cible se comporte donc comme le
+    couvert : un bonus **numérique, fixe, non cumulatif**.
+
+    ⚠️ **Précision de nommage, pour que personne ne l'écrive faux** : le **+5**
+    appartient à *Three-Quarters Cover*, pas à un « full cover ». Le *Total
+    Cover* du SRD n'accorde aucun bonus — il rend la cible **inciblable**.
+
+    **Conséquence pour le moteur** : rien à construire. Il ne modélise pas le
+    côté cible, et un Tilt sur l'AC ou le DC reste **un nombre que la table lui
+    donne**. Ce qui change, c'est qu'il n'y a plus de question ouverte derrière.
 
 12. **Comment un Tilt compose-t-il avec un avantage accordé par une source
     SRD ?** (lot 21) Deux systèmes d'annulation coexistent — celui de la table
