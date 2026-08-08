@@ -298,6 +298,62 @@ test("LE DISQUE EXISTE BIEN QUELQUE PART — `src/storage/fs.mjs` le nomme, et c
   assert.match(text, /\.fh-char\.json|SUFFIX/, "et c'est LUI qui connaît l'extension, pas le bloc");
 });
 
+/* ── §0.12 SUR LE MAGASIN, QUI N'ÉTAIT SOUS AUCUN GARDE ──────────────── */
+
+const storageSources = () => loadSources([storageDir], storageDir);
+const MUST_INSPECT_STORAGE = ["fs.mjs"];
+function storageGaps(list) {
+  const seen = new Set(list.map((source) => source.name));
+  return MUST_INSPECT_STORAGE.filter((name) => !seen.has(name));
+}
+
+test("§0.12 — le magasin de fichiers ne connaît AUCUNE mécanique maison", () => {
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). `src/storage/`
+     n'était sous AUCUN garde structurel : le test au-dessus vérifie seulement
+     qu'il NOMME le disque, ce qui est l'inverse d'un interdit. Mesuré avant de
+     poser ce garde : un `export const spendDestiny = (n) => n + 1;` déposé dans
+     `src/storage/fs.mjs` laissait les 409 tests du dépôt VERTS.
+
+     Le magasin transporte des OCTETS. Il est sur le chemin d'un personnage SRD
+     pur de bout en bout, donc il tombe sous la loi §0.12 comme `doc` lui-même —
+     et il y tombe déjà en fait : mesuré, zéro occurrence dans le fichier. Le
+     garde ne fait que rendre vrai par construction ce qui n'était vrai que par
+     chance. */
+  assert.deepEqual(
+    findForbidden(storageSources(), HOUSE_MECHANICS).map(({ name, label }) => `src/storage/${name} : « ${label} »`),
+    []);
+
+  /* LE PÉRIMÈTRE, PAR SON NOM — pas par un compte, et pas par la confiance
+     qu'un répertoire pointé est le bon (la leçon du 2026-08-08). */
+  assert.deepEqual(storageGaps(storageSources()), [], "le vrai répertoire est complet");
+  assert.deepEqual(storageGaps([]), MUST_INSPECT_STORAGE, "un périmètre vide n'est jamais une réussite");
+
+  /* ET L'ATTAQUE, sans laquelle le garde ci-dessus ne prouverait rien de plus
+     qu'un répertoire actuellement propre. Les deux bouts du défaut n°5 : le
+     mot nu, et l'identifiant composé. */
+  for (const violation of [
+    'const champ = "destiny";',
+    "export function spendDestinyDie(n) { return n + 1; }",
+    "const table = rollChaos(dice);",
+    "entry.vibrationLevel = 3;"
+  ]) {
+    assert.ok(findForbidden([{ name: "sonde.mjs", text: violation }], HOUSE_MECHANICS).length > 0,
+      "le magasin ne doit pas pouvoir nommer une mécanique maison : " + violation);
+  }
+
+  /* ET LE PENDANT : le vocabulaire ordinaire du magasin reste vert, sans quoi
+     le garde se ferait désactiver et c'est la garantie entière qui partirait. */
+  assert.deepEqual(findForbidden([{
+    name: "sain.mjs",
+    text: [
+      'import fs from "node:fs";',
+      'export const SUFFIX = ".fh-char.json";',
+      "const SAFE_KEY = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;",
+      "fs.renameSync(temporary, file);"
+    ].join("\n")
+  }], HOUSE_MECHANICS), []);
+});
+
 /* ── LA CONSTRUCTION : CE QUE LE BLOC EXIGE, ET POURQUOI ─────────────── */
 
 test("createDoc REFUSE ce qu'il ne peut pas tenir — magasin, port incomplet, schéma, bus", () => {
