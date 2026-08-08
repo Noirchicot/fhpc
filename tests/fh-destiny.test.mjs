@@ -50,6 +50,31 @@ const eventText = (h) => h.state.events.map((event) => event.text).join(" ⏎ ")
    A — LE SCORE PLAFONNE LA RÉCUPÉRATION, ET RIEN D'AUTRE
    ══════════════════════════════════════════════════════════════════════ */
 
+test("le repos long rend UN point — le seul nombre que la règle écrite chiffre", () => {
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). Le test
+     d'acceptation A cite §2 (« Long rest: regain +1 Destiny Point ») dans son
+     message, mais il mesure une récupération QUI EST DÉJÀ BORNÉE PAR LE SCORE :
+     à 3 points sous un Score 4, +1 et +2 donnent tous deux 4, et la ligne
+     « 1 Destiny Point not recovered » est la même dans les deux cas. Mesuré :
+     `LONG_REST_RECOVERY = 2` laissait les 409 tests VERTS. Le +1 était donc
+     une intention, pas une garantie.
+
+     Il se pince ici, SOUS le plafond, là où le nombre est seul à décider. */
+  const h = makeHarness();
+  h.reset(3, [h.die("d4", 4, false)]);
+  h.state.destiny.score = 8;
+
+  assert.equal(h.verbs.recoverDestiny(), 4, "§2 : un repos long rend UN point, et un seul");
+  assert.equal(h.state.destiny.points, 4);
+  assert.equal(/RECOVERY CAPPED/.test(eventText(h)), false,
+    "sous le Score, rien n'est plafonné : c'est le +1 qu'on mesure, pas la borne");
+
+  /* Et ce qu'une couche ACCORDE en plus arrive par le paramètre — le moteur ne
+     le devine pas (Humain : 2/jour). Les deux chemins sont donc distingués. */
+  assert.equal(h.verbs.recoverDestiny({ amount: 2 }), 6, "3 + 1 + 2 : le nombre accordé passe par l'argument");
+  assert.equal(h.queueEmpty(), 0);
+});
+
 test("ACCEPTATION A — Score 4, 3 points, repos long : il monte à 4, pas à 5", () => {
   const h = makeHarness();
   /* Le d4 est DÉPENSÉ : le total pair rendra le plus bas manquant, et ça permet
@@ -239,6 +264,30 @@ test("ATTAQUE — un dé hors de la table JETTE plutôt que d'inventer un niveau
   assert.throws(() => h.t.spendDestinyDie("rogue-d20", true),
     /no Vibration spell level is written for a d20/,
     "un dé hors table doit rougir en se nommant");
+  assert.equal(h.queueEmpty(), 0);
+
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). L'ancienne
+     version de ce test s'arrêtait au `throws` — et le refus MANGEAIT LE DÉ.
+     `spendDestinyDie` posait `die.available = false` AVANT de calculer la
+     Vibration : le refus partait, le dé restait dépensé, aucun point n'était
+     retiré et aucune ligne n'était annoncée. Un joueur perdait un dé de
+     Destinée sur une erreur du moteur, sans rien pour le lui dire.
+
+     La doctrine est écrite deux fois dans ce fichier même — « l'arbre est
+     restauré : le refus n'a rien bougé », « et rien n'a bougé ». Elle vaut ici
+     aussi, et c'est ce qui est vérifié maintenant. */
+  assert.equal(h.state.destiny.dice.find((die) => die.id === "rogue-d20").available, true,
+    "un refus ne DÉPENSE pas le dé qu'il refuse de résoudre");
+  assert.equal(h.state.destiny.points, 6, "…ne retire aucun point…");
+  assert.deepEqual(h.state.events, [], "…et n'annonce rien : il n'y a rien à annoncer");
+
+  /* LE TÉMOIN : le refus n'a pas non plus rendu le moteur inutilisable. Le
+     même dé, rendu légal, se dépense normalement — sans quoi « l'arbre est
+     restauré » ne voudrait rien dire. */
+  h.state.destiny.dice = [h.die("bon-d12", 12, true)];
+  h.queueRolls(12);
+  const spent = h.t.spendDestinyDie("bon-d12", true);
+  assert.deepEqual(spent.vibration, { sides: 12, level: 5 });
   assert.equal(h.queueEmpty(), 0);
 });
 
