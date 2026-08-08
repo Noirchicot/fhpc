@@ -477,6 +477,7 @@ export function createPlay({
     for (let i = staged.length - 1; i >= 0; i--) {
       if (staged[i].kind === "bonus" && Number(staged[i].sides) === Number(sides)) {
         recreditPoolDie(staged[i]);
+        dropEventsTagged(staged[i].tag);
         staged.splice(i, 1);
         refreshOpenTray(entry);
         return true;
@@ -768,6 +769,10 @@ export function createPlay({
     entry.adjusted = true;
     entry.adjustedAt = now();
     entry.outcome = outcomeFor(entry);
+    /* D.4 sur l'AUTRE porte de réouverture : un dé de correction ajouté par la
+       console d'ajustement se rembourse aux mêmes conditions que celui qui
+       passe par les dés stagés. Deux portes, un seul règlement. */
+    settleCorrections(entry).forEach((spec) => events.push(spec));
     state.trayPrompt = null;
     setTrayFromEntry(entry);
     state.rollSequence.entryId = entry.id;
@@ -1510,7 +1515,12 @@ export function createPlay({
     const owned = dieScopes[target.scope];
     if (owned) owned.drop(prompt, target);
     else if (target.scope.indexOf("staged") === 0) {
-      recreditPoolDie(stagedList().find((die) => die.id === prompt.stagedId));
+      const staged = stagedList().find((die) => die.id === prompt.stagedId);
+      recreditPoolDie(staged);
+      /* Une ligne qui n'avait de sens que tant que ce dé attendait s'en va avec
+         lui. En v1 le nom de l'étiquette était écrit en dur ici, dans le chemin
+         commun ; il voyage désormais SUR le dé, posé par qui l'a stagé. */
+      if (staged) dropEventsTagged(staged.tag);
       setStaged(stagedList().filter((die) => die.id !== prompt.stagedId));
     } else if (target.scope === "bonus") {
       const config = state.rollConfig;

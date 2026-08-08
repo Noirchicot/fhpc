@@ -431,7 +431,11 @@ function bindFh(engine, { chaosTables }) {
     if (!die) return;
     setStaged(stagedList().concat([{
       id: uuid(), kind: "destiny", destinyDieId: die.id, label: t("fh.tray.destiny"), sides: die.sides,
-      advantageMode: "flat", forcedResult: null
+      advantageMode: "flat", forcedResult: null,
+      /* L'étiquette de la ligne « ce dé attend dans le plateau » voyage SUR le
+         dé : le retirer emporte sa ligne, sans que le chemin commun ait à
+         connaître le nom de l'étiquette. */
+      tag: "staged-destiny"
     }]));
     engine.refreshOpenTray(entry);
   }

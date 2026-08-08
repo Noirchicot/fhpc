@@ -559,3 +559,24 @@ test("D.5 — la provenance survit à un aller-retour DANS `play`, et bute sur l
     givenAt: carried.origin.givenAt, expiresAt: null
   }, "qui l'a donné, quelle source, quelle fenêtre — rien n'est tombé en route");
 });
+
+test("un dé stagé qu'on retire emporte SA ligne, et le chemin commun n'en connaît pas le nom", () => {
+  /* La v1 écrivait `dropEventsTagged("staged-destiny")` dans le chemin commun :
+     le moteur connaissait le nom d'une étiquette posée par une mécanique
+     maison. L'étiquette voyage désormais SUR le dé — donc n'importe quelle
+     couche peut en poser une, et le moteur n'en sait rien. */
+  const h = srdOnly();
+  h.queueRolls(4);
+  h.verbs.prepare({ name: "Athletics", ability: "STR", bonus: 2, dc: 18 });
+  h.verbs.roll();
+  const before = h.state.events.length;
+  h.verbs.stageDie({ sides: 6, label: "Bardic", sourceIcon: "bardic" });
+  h.t.stagedList()[0].tag = "waiting";
+  h.t.recordEvent({ text: "a die waits", kind: "info", tag: "waiting" });
+  assert.equal(h.state.events.length, before + 1);
+  h.verbs.selectDie({ stagedId: h.t.stagedList()[0].id });
+  h.verbs.dropDie();
+  assert.equal(h.t.stagedList().length, 0, "le dé est retiré");
+  assert.equal(h.state.events.length, before, "et sa ligne part avec lui — pas un mensonge laissé à l'écran");
+  assert.equal(h.queueEmpty(), 0);
+});
