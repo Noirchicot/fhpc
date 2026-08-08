@@ -300,6 +300,25 @@ test("L'ORDRE — les retraits suivent la LISTE, les modifications suivent le tr
   rejects(() => applyPatch(cible(), { remove: ["data.traits[a]", "data.traits[a]"] }, "doublon"),
     /data\.traits\[a\]/, "un chemin listé deux fois : le second retrait ne vise plus rien");
 
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). L'assertion
+     ci-dessus porte deux chemins IDENTIQUES — elle prouve qu'un retrait dans le
+     vide crie, pas que la LISTE est suivie. Mesuré : trier `entry.remove`
+     laissait les 409 tests VERTS, alors que le fichier de règles écrit noir sur
+     blanc « l'ordre interne des retraits est celui de la liste, et non un tri ».
+     Le titre de ce test promettait donc davantage que son corps.
+
+     L'ordre déclaré est observable à deux endroits, et les deux sont vérifiés :
+     dans `removed`, que la provenance transporte jusqu'à `layers-changed`, et
+     dans le message du PREMIER retrait qui échoue. Les deux couples ci-dessous
+     sont écrits À REBOURS de l'ordre alphabétique — un tri les retournerait. */
+  const deuxChamps = () => ({ name: "X", data: { zeta: 1, alpha: 2 } });
+  assert.deepEqual(applyPatch(deuxChamps(), { remove: ["data.zeta", "data.alpha"] }, "ordre").removed,
+    ["data.zeta", "data.alpha"],
+    "`removed` rapporte les retraits dans l'ordre où l'auteur les a écrits, pas dans l'ordre alphabétique");
+
+  rejects(() => applyPatch(deuxChamps(), { remove: ["data.zzz", "data.aaa"] }, "premier"),
+    /data\.zzz/, "c'est le PREMIER de la liste qui échoue, et son chemin se lit dans le message");
+
   /* Et deux plis du même patch rendent le même record : le déterminisme ne
      tient pas au hasard de l'ordre des clefs. */
   const un = applyPatch(cible(), { remove: ["data.traits[b]"], changes: { "data.vitesse": 1, "data.taille": 2 } }, "d");

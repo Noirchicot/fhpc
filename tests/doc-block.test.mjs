@@ -565,6 +565,46 @@ test("COLLISION — un document posé par quelqu'un d'autre n'est jamais écras�
   assert.equal(autre.verbs.open({ id: "aldra" }).document.name, "Troisième");
 });
 
+test("COLLISION — le bloc sait ce qu'il a ÉCRIT, pas seulement ce qu'il a lu", () => {
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). Le témoin
+     d'empreinte a deux moitiés, et une seule était sous test : le `seen.set`
+     d'`open`. Celui de `commit` n'était couvert par rien — mesuré en le
+     retirant, les 409 tests restaient VERTS. Or c'est lui qui rend possible la
+     boucle ordinaire que le fichier promet en toutes lettres (« le bloc SAIT ce
+     qu'il a lu OU ÉCRIT : la boucle ordinaire open → modifier → save ne demande
+     donc rien de plus »). Sans lui, les trois portes d'écriture se referment
+     derrière elles : on ne peut plus sauvegarder deux fois de suite, ni écrire
+     par-dessus ce qu'on vient d'importer ou de dupliquer, sans redéclarer une
+     empreinte à chaque tour.
+
+     Les trois portes sont donc éprouvées, chacune SANS `expect` et SANS `open`
+     intercalé — c'est tout le propos. */
+  const { verbs } = makeDoc();
+
+  verbs.save({ document: characterNamed("aldra", "Aldra") });
+  verbs.save({ document: characterNamed("aldra", "Aldra corrigée") });
+  assert.equal(verbs.open({ id: "aldra" }).document.name, "Aldra corrigée",
+    "save → save : le bloc écrase ce qu'IL a écrit, sans avoir à le relire");
+
+  verbs.import({ bytes: exampleBytes() });
+  const importe = characterNamed("exemple-sylvane-aubelame", "Sylvane retouchée");
+  verbs.save({ document: importe });
+  assert.equal(verbs.open({ id: "exemple-sylvane-aubelame" }).document.name, "Sylvane retouchée",
+    "import → save : importer est une écriture, et le bloc s'en souvient comme d'une écriture");
+
+  verbs.duplicate({ id: "aldra", as: "aldra-variante" });
+  verbs.save({ document: characterNamed("aldra-variante", "Variante retouchée") });
+  assert.equal(verbs.open({ id: "aldra-variante" }).document.name, "Variante retouchée",
+    "duplicate → save : la copie aussi est une écriture du bloc");
+
+  /* ET LE PENDANT, sans lequel ce test serait la preuve d'un bloc qui accepte
+     tout : ce que le bloc n'a NI lu NI écrit reste refusé. */
+  const storage = memoryStorage();
+  const autre = makeDoc({ storage });
+  storage.plant("etranger", Buffer.from(JSON.stringify(characterNamed("etranger", "Posé à la main")), "utf8"));
+  refuse(() => autre.verbs.save({ document: characterNamed("etranger", "Écrasé") }), /ne l'a pas lu/);
+});
+
 test("COLLISION — deux écritures qui se croisent : la seconde est refusée en montrant les DEUX empreintes", () => {
   const storage = memoryStorage();
   const moi = makeDoc({ storage });
