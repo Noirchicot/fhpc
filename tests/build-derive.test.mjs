@@ -484,7 +484,7 @@ test("UN PERSONNAGE SRD PUR, SANS AUCUNE COUCHE FH, TRAVERSE LA DÉRIVATION DE B
   const doc = {
     schema: "fh-char/1", id: "srd-pur", name: "SRD pur", lang: "fr",
     units: exemple.units, created: exemple.created, modified: exemple.modified,
-    build: { layers: manifestOf(h.layers), choices, overrides: [] }
+    build: { layers: manifestOf(h.layers), choices, budgets: {}, overrides: [] }
   };
   const out = h.verbs.rebuild({ document: doc });
   assert.equal(out.resolved.proficiency, 2);

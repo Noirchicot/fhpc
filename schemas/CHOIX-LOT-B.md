@@ -174,7 +174,7 @@ Les deux chemins v1 concernés sont désormais classés « appartient au bloc
 
 ---
 
-## §3bis — Les cinq trous encore ouverts (M2, couche FH)
+## §3bis — Les trous encore ouverts (M2, couche FH) — **trois, depuis le 2026-08-08**
 
 Tous dépendent de la couche Fate's Hand, qui n'est pas le chemin d'aujourd'hui :
 le SRD est la base, FH est une couche par-dessus (loi §0.12). La suite exige
@@ -182,13 +182,13 @@ qu'ils restent **tous invoqués** — aucun ne peut être bouché en douce.
 
 | Trou | Champs v1 | Ce qui manque | Piste (non implémentée) |
 |---|---|---|---|
-| **GAP-DERIVED** (7) | `destiny.score`, `destiny.breakdown[]`, `destiny.arcana.impact`, `destinyFeats.score` | une statistique dérivée définie par une couche, avec son détail de calcul affichable | `resolved.stats[]` `{id, flag, name, value, breakdown[]}`, namespacé comme `craft[]` |
+| ~~**GAP-DERIVED**~~ (7) | ✅ **BOUCHÉ le 2026-08-08** → `resolved.stats[]` `{id, flag, name, value, breakdown[]}`, chaque terme du `breakdown` portant son `label` motivé, son `value`, et `by` quand c'est une décision de MJ | | |
 | **GAP-ROLLS** (10) | `builderState.ab.set.*` | l'historique des jets de création de caractéristiques — état de construction persistant, pas état de séance | `build.creation` ; à trancher : le document porte-t-il la trace de sa fabrication ? |
-| **GAP-BUDGET** (6) | `raceP`, `featP`, `langPts`, `bonus1`, `glory`, `other` | les budgets de points de construction définis par une couche | `build.budgets` `{<flag>.<id>: number}` |
+| ~~**GAP-BUDGET**~~ (6) | ✅ **BOUCHÉ le 2026-08-08** → `build.budgets`, clef `<drapeau>` → entier. ⚠️ `glory` et `other` n'y sont PAS allés : ce ne sont pas des budgets mais des **termes du Score**, donc des entrées de `breakdown` avec `by: "gm"` | | |
 | **GAP-KIND** (2) | `destiny.arcana.id`, `builderState.arcana` | un genre hors des 12 (`arcana`) : l'énumération est fermée par choix (§1.16) | ajouter les genres FH à `kind` et `records`, en schéma révisé |
 | **GAP-LOCK** (1) | `builderState.tiers.<clef>.l` | la provenance/verrou d'une maîtrise (accordée par une source, non dépensable) | champ `grantedBy`, ou dérivé de `build.choices` |
 
-**Couverture actuelle des 118 chemins v1** : 82 placés dans `fh-char/1`
+**Couverture au 2026-08-07 (avant la révision du 08)** des 118 chemins v1 : 82 placés dans `fh-char/1`
 (69 %, contre 66 avant la revue), 2 renvoyés au bloc `table`, 6 structurels,
 2 sans objet, **26 dans les cinq trous restants**.
 

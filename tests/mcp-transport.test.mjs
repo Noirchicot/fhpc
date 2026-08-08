@@ -100,7 +100,12 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      choses : le champ N'EST PLUS déclaré, ET les cinq traits sont réellement
      arrivés au bout du tuyau. Une preuve qui ne fait que compter (13 → 12)
      resterait verte sur une liste de douze champs faux. */
-  assert.equal(out.underived.length, 12);
+  /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED) : `stats` est le
+     treizième champ déclaré non dérivé. La preuve garde ses DEUX moitiés — le
+     compte ET les noms — pour la raison écrite juste au-dessus : un compte seul
+     resterait vert sur une liste de treize champs faux. */
+  assert.equal(out.underived.length, 13);
+  assert.equal(out.underived.some((entry) => entry.field === "stats"), true);
   assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);
   assert.deepEqual(got.traits.map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],

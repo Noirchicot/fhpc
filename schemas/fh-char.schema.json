@@ -161,7 +161,7 @@
       "required": [
         "derivation", "identity", "abilities", "proficiency", "ac", "vitals",
         "speeds", "senses", "languages", "saves", "skills", "tools", "actions",
-        "spellcasting", "resources", "traits", "gear", "currency", "craft", "notes"
+        "spellcasting", "resources", "traits", "gear", "currency", "craft", "stats", "notes"
       ],
       "properties": {
         "derivation": {
@@ -570,6 +570,57 @@
           }
         },
 
+        "stats": {
+          "$comment": "GAP-DERIVED, bouché le 2026-08-08. Les statistiques DÉRIVÉES qu'une couche définit — le Score de Destinée en est la première, et c'est elle qui a dicté la forme. ⚠️ UNE COLLECTION AVEC SON DÉTAIL, PAS UN CHAMP, et ce n'est pas du confort d'affichage : DEUX des termes du Score ne sont récupérables par AUCUN autre moyen que ce détail. Vide tant qu'aucune couche ne lève de drapeau, comme `craft`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "flag", "name", "value", "breakdown"],
+            "properties": {
+              "id": { "$ref": "#/$defs/slug" },
+              "flag": { "$ref": "#/$defs/flag" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "value": {
+                "$comment": "⚠️ INVARIANT NON TENU PAR CE SCHÉMA : `value` est la somme des `breakdown[].value`. JSON Schema ne sait pas additionner. L'invariant est donc à la charge de `build.validate`, et un invariant écrit ici sans être exécuté là-bas ne serait qu'une INTENTION — leçon du RELECTEUR Adverserial, 2026-08-08. Le garde est nommé et dû ; tant qu'il manque, il est inscrit au tableau de bord, pas caché dans ce commentaire.",
+                "type": "integer",
+                "minimum": -99,
+                "maximum": 99
+              },
+              "breakdown": {
+                "$comment": "LE DÉTAIL DU CALCUL, terme par terme — et chaque terme PORTE SA MOTIVATION. Règle d'Eric, 2026-08-08 : « le +X qu'on va donner au score sera motivé par une entrée dans la fiche de perso : \"+1 Gloire, a sauvé la région de la destruction\" ». `label` est cette entrée : elle se lit à la table ET elle compte dans le total. Un terme discrétionnaire sans trace ne peut être ni contesté ni corrigé.\n\n⚠️ AU MOINS UN TERME. Un Score sans détail serait exactement l'objet que cette collection existe pour remplacer.",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["label", "value"],
+                  "properties": {
+                    "label": { "type": "string", "minLength": 1, "maxLength": 200 },
+                    "value": { "type": "integer", "minimum": -99, "maximum": 99 },
+                    "source": {
+                      "$comment": "D'où vient le terme, quand il vient d'un record — l'espèce, l'Arcane, le don. Absent pour un terme qu'aucun record ne porte : la Gloire décidée par le MJ n'a pas de source de règle, et lui en inventer une serait mentir sur son origine.",
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["kind", "id"],
+                      "properties": {
+                        "kind": { "$ref": "#/$defs/kind" },
+                        "id": { "$ref": "#/$defs/recordId" }
+                      }
+                    },
+                    "by": {
+                      "$comment": "Qui a posé ce terme, quand ce n'est pas une règle qui l'a produit. La Gloire est une décision de MJ (Eric, 2026-08-08 : « c'est décidé par le MJ — un haut fait peut rajouter 1 »), et on doit toujours savoir de qui vient un terme discrétionnaire.",
+                      "type": "string",
+                      "enum": ["player", "gm"]
+                    },
+                    "note": { "type": "string", "maxLength": 2000 }
+                  }
+                }
+              }
+            }
+          }
+        },
+
         "notes": {
           "$comment": "Panneau NOTES : une LISTE, pas une chaîne. Un personnage porte plusieurs textes distincts (histoire, notes de table, notes d'aptitude) ; une chaîne unique en écraserait un à l'import, silencieusement, alors qu'ils ont été saisis à la main. `title` est facultatif : la note sans titre est le cas courant à la table, et un champ obligatoire qu'on remplit de vide n'est pas une donnée.",
           "type": "array",
@@ -598,7 +649,7 @@
       "$comment": "L'étage des règles. Une reconstruction relit ce contenu et réécrit `resolved` ; elle ne modifie JAMAIS `build`. Ouvert sans ses couches, cet étage reste inerte et intact.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["layers", "choices", "overrides"],
+      "required": ["layers", "choices", "budgets", "overrides"],
       "properties": {
         "external": {
           "$comment": "Le lien vers un système externe, quand il y en a un. Il vit dans `build` et PAS dans le bloc `connect-ddb` : ce bloc est détachable pour raison juridique, la donnée ne l'est pas — un personnage importé garde son lien même quand le bloc est absent, sinon un ré-import crée un doublon. Système énuméré en dur (§1.16) : un `roll20` inconnu est un rejet, pas une clef avalée.",
@@ -659,6 +710,12 @@
               { "required": ["value"], "properties": { "value": true, "ref": false } }
             ]
           }
+        },
+        "budgets": {
+          "$comment": "GAP-BUDGET, bouché le 2026-08-08. Les BUDGETS DE POINTS qu'une couche définit — le pool de compétences de Fate's Hand en est le premier consommateur concret. Clef `<drapeau>.<nom>` (ex. `fh.skillPoints`), valeur entière : combien de points la construction accorde. Vide tant qu'aucune couche n'en définit.\n\n⚠️ POURQUOI DANS `build` ET PAS DANS `resolved` : un budget est une ressource de CONSTRUCTION, pas une case de la fiche jouable. Il dit ce qu'on avait à dépenser, et les dépenses elles-mêmes sont des `choices`. Le mettre dans `resolved` en ferait une valeur qu'une reconstruction réécrit, alors que c'est une donnée d'entrée.\n\n📌 RÈGLE D'ERIC, 2026-08-08 (question Q15-8, restée ouverte jusque-là) : un personnage créé à un niveau donné reçoit les paliers qu'il a TRAVERSÉS. Créé au niveau 5, il a le palier 1 et le palier 3 — PAS celui du niveau 6. `by_level` se cumule donc sur les niveaux ≤ niveau courant, et « à la création » ne veut pas dire « au niveau 1 ».",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/flag" },
+          "additionalProperties": { "type": "integer", "minimum": -999, "maximum": 999 }
         },
         "overrides": {
           "$comment": "La parole du MJ bat le JSON. Appliqués EN DERNIER sur `resolved`, ils survivent à toute reconstruction et l'écart règles↔décision reste affichable. `path` unique dans la liste — invariant tenu par les tests, JSON Schema ne sait pas l'exprimer.",

@@ -326,6 +326,7 @@
     ],
     "currency": { "cp": 4, "sp": 12, "gp": 8, "pp": 0 },
     "craft": [],
+    "stats": [],
     "notes": [
       {
         "id": "histoire",
@@ -426,6 +427,7 @@
       { "path": "currency.gp", "value": 8 },
       { "path": "currency.pp", "value": 0 }
     ],
+    "budgets": {},
     "overrides": [
       {
         "path": "resolved.vitals.hpMax",

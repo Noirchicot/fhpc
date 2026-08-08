@@ -460,7 +460,7 @@ test("un document mutilé fait dire une VIOLATION, jamais planter le validateur"
      sortait en TypeError — un validateur qui plante sur une entrée hostile ne
      valide pas cette entrée, et c'est une entrée hostile qu'on lui donne. */
   const hostile = {
-    build: { layers: [null], choices: [], overrides: [] },
+    build: { layers: [null], choices: [], budgets: {}, overrides: [] },
     resolved: { derivation: { stack: [{ id: "srd", version: "5.2.1", hash: "abc" }] } }
   };
   let violations;

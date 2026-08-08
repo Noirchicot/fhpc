@@ -259,6 +259,7 @@ export function documentVierge(stack) {
     build: {
       layers: stack.map((layer) => ({ id: layer.id, version: layer.version, hash: layer.hash, name: layer.name })),
       choices: [],
+      budgets: {},
       overrides: []
     }
   };

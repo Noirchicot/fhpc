@@ -97,7 +97,7 @@ function documentVierge() {
     units: FICHIER.units,
     created: FICHIER.created,
     modified: FICHIER.modified,
-    build: { layers: structuredClone(PILE), choices: [], overrides: [] }
+    build: { layers: structuredClone(PILE), choices: [], budgets: {}, overrides: [] }
   };
 }
 
@@ -410,6 +410,11 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
        a cédé : le champ n'est plus obligatoire) ;
      · `spellcasting.spells[].concentration` reste, mais pour un seul sort —
        celui de la couche d'exemple, qui n'a pas été régénérée. */
+  /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED, architecte).
+     `resolved.stats` rejoint la liste : une statistique dérivée de couche vient
+     d'un module moteur activé par un drapeau, et aucun module n'en publie au M2.
+     L'assertion n'est pas relâchée — elle reste une LISTE EXACTE, et c'est elle
+     qui a rougi la première quand le champ est apparu. */
   assert.deepEqual(champs, [
     "actions",
     "craft",
@@ -422,6 +427,7 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
+    "stats",
     "traits (classe, don, arrière-plan)"
   ]);
   assert.match(
@@ -456,7 +462,8 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
      sont pleines. */
   assert.deepEqual(
     Object.entries(out.resolved).filter(([, v]) => Array.isArray(v) && v.length === 0).map(([k]) => k).sort(),
-    ["actions", "craft", "languages", "notes", "resources"]
+    /* REWRITTEN 2026-08-08 — `stats` est une collection vide de plus (GAP-DERIVED). */
+    ["actions", "craft", "languages", "notes", "resources", "stats"]
   );
 });
 

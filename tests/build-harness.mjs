@@ -173,6 +173,7 @@ export function acceptanceDocument(layers) {
       external: example.build.external,
       layers: manifestOf(layers),
       choices: structuredClone(example.build.choices),
+      budgets: structuredClone(example.build.budgets),
       overrides: structuredClone(example.build.overrides)
     }
   };

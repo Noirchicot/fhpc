@@ -180,6 +180,11 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      mesuré, préalable nommé), il en sort ici, le lot 11 ayant réparé
      l'extraction à deux colonnes dans `fh-srd`. La liste du bloc `build` et
      celle qui traverse jusqu'à l'IA sont la MÊME : elles bougent ensemble. */
+  /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED, architecte).
+     `resolved.stats` rejoint la liste : une statistique dérivée de couche vient
+     d'un module moteur activé par un drapeau, et aucun module n'en publie au M2.
+     L'assertion n'est pas relâchée — elle reste une LISTE EXACTE, et c'est elle
+     qui a rougi la première quand le champ est apparu. */
   assert.deepEqual(underived.map((entry) => entry.field), [
     "actions",
     "craft",
@@ -192,6 +197,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
+    "stats",
     "traits (classe, don, arrière-plan)"
   ]);
   for (const entry of underived) {
@@ -204,7 +210,10 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      serait le repli silencieux que ce chantier combat. */
   const texte = result.content[0].text;
   assert.equal(result.content[0].type, "text");
-  assert.match(texte, /NON DÉRIVÉ \(12\)/);
+  /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED) : `stats` est le
+     treizième champ non dérivé. Le compte est réécrit à la nouvelle vérité, pas
+     relâché en `/NON DÉRIVÉ \(\d+\)/` — un compte flou ne verrait plus rien. */
+  assert.match(texte, /NON DÉRIVÉ \(13\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(entry.reason), `le texte doit porter la RAISON de « ${entry.field} »`);

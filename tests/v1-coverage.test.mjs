@@ -34,15 +34,17 @@ const inventory = JSON.parse(
   readFileSync(join(root, "tests/fixtures/v1-build-field-inventory.json"), "utf8")
 );
 
-/* Les cinq trous encore ouverts, détaillés dans schemas/CHOIX-LOT-B.md §3.
-   Tous REPORTÉS AU M2 : chacun dépend de la couche Fate's Hand, et le SRD est
-   la base d'aujourd'hui (loi §0.12). Les cinq autres ont été bouchés, la
-   campagne a été tranchée hors document. */
+/* REWRITTEN 2026-08-08 — LA RÉVISION DU SCHÉMA EN A BOUCHÉ DEUX. `GAP-DERIVED`
+   et `GAP-BUDGET` ont désormais leur place dans `fh-char/1` : `resolved.stats[]`
+   avec son détail terme par terme, et `build.budgets`. Il en reste TROIS.
+
+   ⚠️ Ce test compare sa propre table à elle-même, il ne lit pas le schéma :
+   déplacer les classements ci-dessous est le geste qui empêche le schéma et
+   cette couverture de diverger en silence. Sans lui, boucher un trou dans le
+   schéma laisserait cette suite verte en le déclarant toujours ouvert. */
 const GAPS = {
-  "GAP-DERIVED": "Statistique dérivée définie par une couche (score de Destinée et son détail).",
-  "GAP-KIND": "Genre hors des 12 (arcana) : `kind` est une énumération fermée.",
+  "GAP-KIND": "Genre hors des 14 (arcana) : `kind` est une énumération fermée.",
   "GAP-ROLLS": "Historique des jets de création de caractéristiques.",
-  "GAP-BUDGET": "Budgets de points de construction définis par une couche.",
   "GAP-LOCK": "Provenance/verrou d'une maîtrise (accordée par une source, non dépensable)."
 };
 
@@ -56,11 +58,11 @@ const EXACT = {
   "character.abilityScores": "resolved.abilities",
   "character.abilityScoresRaw": "build.choices[abilities.*].value",
 
-  destiny: "GAP-DERIVED",
-  "destiny.score": "GAP-DERIVED",
-  "destiny.breakdown": "GAP-DERIVED",
-  "destiny.breakdown[].label": "GAP-DERIVED",
-  "destiny.breakdown[].value": "GAP-DERIVED",
+  destiny: "resolved.stats[fh.destiny]",
+  "destiny.score": "resolved.stats[fh.destiny].value",
+  "destiny.breakdown": "resolved.stats[fh.destiny].breakdown",
+  "destiny.breakdown[].label": "resolved.stats[fh.destiny].breakdown[].label",
+  "destiny.breakdown[].value": "resolved.stats[fh.destiny].breakdown[].value",
   "destiny.notesText": "resolved.notes[].text",
   "destiny.arcana": "build.choices[destiny.arcana]",
   "destiny.arcana.id": "GAP-KIND",
@@ -68,7 +70,7 @@ const EXACT = {
   "destiny.arcana.power": "resolved.traits[].text",
   "destiny.arcana.vibration": "resolved.traits[].text",
   "destiny.arcana.meaning": "resolved.traits[].text",
-  "destiny.arcana.impact": "GAP-DERIVED",
+  "destiny.arcana.impact": "resolved.stats[fh.destiny].breakdown[].value",
 
   background: "structure",
   "background.replaceWithBlank": "build.choices[background].ref",
@@ -94,7 +96,7 @@ const EXACT = {
   "destinyFeats.diceFeats": "resolved.traits",
   "destinyFeats.diceFeats[].name": "resolved.traits[].name",
   "destinyFeats.diceFeats[].id": "build.external.ddb.entityIds",
-  "destinyFeats.score": "GAP-DERIVED",
+  "destinyFeats.score": "resolved.stats[fh.destiny].value",
   "destinyFeats.originFeatId": "build.external.ddb.entityIds",
   "destinyFeats.originFeatIds": "build.external.ddb.entityIds",
   "destinyFeats.originFeatIds[]": "build.external.ddb.entityIds",
@@ -119,12 +121,12 @@ const EXACT = {
   "builderState.origin2": "build.choices[background.originFeat[1]].ref",
   "builderState.originOther": "build.choices[background.originFeat.other].value",
   "builderState.story": "resolved.notes[].text",
-  "builderState.raceP": "GAP-BUDGET",
-  "builderState.featP": "GAP-BUDGET",
-  "builderState.langPts": "GAP-BUDGET",
-  "builderState.bonus1": "GAP-BUDGET",
-  "builderState.glory": "GAP-BUDGET",
-  "builderState.other": "GAP-BUDGET",
+  "builderState.raceP": "build.budgets[fh.raceP]",
+  "builderState.featP": "build.budgets[fh.featP]",
+  "builderState.langPts": "build.budgets[fh.langPts]",
+  "builderState.bonus1": "build.budgets[fh.bonus1]",
+  "builderState.glory": "resolved.stats[fh.destiny].breakdown[] (by: gm)",
+  "builderState.other": "resolved.stats[fh.destiny].breakdown[] (by: gm)",
   "builderState.boosts": "build.choices[background.boost.*].value",
   "builderState.ab": "structure",
   "builderState.ab.mode": "build.choices[abilities.mode].value",
@@ -188,7 +190,19 @@ test("tout trou invoqué par le classement figure dans la liste des cinq", () =>
   }
 });
 
-test("les cinq trous restants sont tous encore vivants (aucun bouché en douce)", () => {
+/* ⚠️ CE QUE CE GARDE COUVRE, ET CE QU'IL NE COUVRE PAS — mesuré en l'attaquant
+   le 2026-08-08, et écrit ici pour qu'on ne lui fasse pas plus confiance qu'il
+   n'en mérite. Il est ENSEMBLISTE : il compare l'ensemble des trous invoqués à
+   l'ensemble des trous déclarés.
+
+   · Retirer le DERNIER chemin d'un trou → il rougit (vérifié en le faisant).
+   · Retirer UN chemin sur deux → il reste VERT, et c'est normal : le trou est
+     toujours invoqué par l'autre.
+
+   Autrement dit il garde « aucun trou ne disparaît en douce », pas « aucun
+   chemin ne change de maison ». Pour ce second besoin, c'est la couverture
+   chiffrée plus bas qui parle. */
+test("les TROIS trous restants sont tous encore vivants (aucun bouché en douce)", () => {
   const invoked = new Set(
     inventory.fields.map((field) => classify(field.path)).filter((t) => t.startsWith("GAP-"))
   );
@@ -202,8 +216,10 @@ test("les cinq trous restants sont tous encore vivants (aucun bouché en douce)"
 /* REWRITTEN 2026-08-08 — la revue d'architecte a bouché cinq trous : le seuil de
    0,4 décrivait l'état d'avant et ne mordrait plus. Réécrit à la nouvelle
    vérité, pas relâché. */
-test("les cinq trous bouchés le sont vraiment (aucun chemin v1 ne les invoque plus)", () => {
-  const closed = ["GAP-NOTES", "GAP-TOOLS", "GAP-GEN", "GAP-EXT", "GAP-CAMP"];
+test("les SEPT trous bouchés le sont vraiment (aucun chemin v1 ne les invoque plus)", () => {
+  /* REWRITTEN 2026-08-08 — deux de plus : la révision du schéma a donné leur
+     place au Score de Destinée et aux budgets de construction. */
+  const closed = ["GAP-NOTES", "GAP-TOOLS", "GAP-GEN", "GAP-EXT", "GAP-CAMP", "GAP-DERIVED", "GAP-BUDGET"];
   const invoked = inventory.fields
     .map((field) => ({ path: field.path, target: classify(field.path) }))
     .filter((entry) => closed.includes(entry.target));

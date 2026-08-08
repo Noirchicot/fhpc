@@ -856,6 +856,20 @@ export function derive({ query, stack, choices, at, units, previous }) {
   underived.declare("craft", "une entrée d'artisanat vient d'un module moteur activé par un drapeau (décision Q4) ; " +
     "aucun module d'artisanat n'existe au M2.");
 
+  /* ── STATISTIQUES DÉRIVÉES DE COUCHE ───────────────────────────────
+     Même raison que l'artisanat, et même forme : une statistique dérivée est
+     produite par un MODULE MOTEUR activé par un drapeau (décision Q4), pas par
+     le pli des couches. Le Score de Destinée en est la première — et il n'est
+     PAS une fonction de la construction : deux de ses termes naissent en
+     séance (la Gloire, décidée par le MJ ; le +1 de chaque Éveil arcanique
+     majeur, décidé par les dés). La dérivation ne peut donc pas les inventer,
+     et une reconstruction ne doit pas les effacer : ils entrent par `build`,
+     comme tout ce qui doit survivre à un `rebuild`. */
+  resolved.stats = [];
+  underived.declare("stats", "une statistique dérivée de couche vient d'un module moteur activé par un drapeau " +
+    "(décision Q4) ; aucun module n'en publie au M2. ⚠️ Le Score de Destinée n'est PAS dérivable de la seule " +
+    "construction : la Gloire et les Éveils naissent en séance.");
+
   /* ── NOTES ─────────────────────────────────────────────────────────
      ⚠️ MESURE DU LOT 9. On aurait pu les faire entrer par des choix — sauf que
      `$defs/build.choices.items.value` plafonne une valeur de choix à 200
@@ -902,7 +916,7 @@ export function derive({ query, stack, choices, at, units, previous }) {
   const ordered = {};
   for (const key of ["derivation", "identity", "abilities", "proficiency", "ac", "vitals", "speeds", "senses",
     "languages", "saves", "skills", "tools", "actions", "spellcasting", "resources", "traits", "gear",
-    "currency", "craft", "notes"]) {
+    "currency", "craft", "stats", "notes"]) {
     if (Object.hasOwn(resolved, key)) ordered[key] = resolved[key];
   }
 
