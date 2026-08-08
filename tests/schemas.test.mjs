@@ -412,6 +412,65 @@ test("REJET (hors schéma) — la même couche montée deux fois", () => {
   assert.ok(violations.some((v) => /apparaît deux fois/.test(v)));
 });
 
+/* ══ ATTAQUE DU 2026-08-08 (RELECTEUR Adverserial) ═════════════════════
+   Les invariants hors-schéma couvraient l'unicité dans `build` — les chemins
+   de choix, les chemins d'override, les ids de couche — et PAS celle des ids
+   de `resolved`, alors que ce sont eux les ancres que les overrides visent.
+   Les quatre mutilations ci-dessous passaient schéma ET invariants. */
+
+test("REJET (hors schéma) — deux compétences portent le même id (ancre d'override ambiguë)", () => {
+  const doc = clone(charExample);
+  const twin = clone(doc.resolved.skills[0]);
+  twin.name = "Homonyme";
+  twin.bonus = 9; // une valeur DIFFÉRENTE, et légale : c'est l'ambiguïté qu'on teste, pas la borne
+  doc.resolved.skills.push(twin);
+  assertValid(validateChar, doc, "le document (le schéma seul ne voit pas le doublon d'ancre)");
+  const violations = charInvariantViolations(doc);
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /resolved\.skills.*acrobaties.*aucune ne gagne/);
+});
+
+test("REJET (hors schéma) — le doublon d'ancre est vu dans TOUTE collection de resolved", () => {
+  /* Générique exprès : la prochaine collection ajoutée à `resolved` est
+     couverte sans qu'on ait à y penser — c'est ce que le compte en dur d'un
+     garde ne sait jamais faire. */
+  for (const name of ["resources", "traits", "actions", "gear", "notes", "languages", "senses", "tools", "craft"]) {
+    const doc = clone(charExample);
+    const collection = doc.resolved[name];
+    if (!Array.isArray(collection) || collection.length === 0) continue;
+    collection.push(clone(collection[0]));
+    const violations = charInvariantViolations(doc);
+    assert.ok(violations.some((v) => v.startsWith(`resolved.${name} :`)),
+      `un id dupliqué dans resolved.${name} doit être NOMMÉ`);
+  }
+});
+
+test("un id absent n'est pas un doublon — deux entrées sans id ne s'accusent pas l'une l'autre", () => {
+  /* Le pendant du rejet : `duplicates` ne compte que les chaînes, donc deux
+     entrées d'une collection facultative sans id restent silencieuses. Sans
+     ce test, durcir l'unicité aurait pu rendre tout document ordinaire
+     fautif. */
+  const doc = clone(charExample);
+  doc.resolved.notes = [{ text: "une" }, { text: "deux" }];
+  assert.deepEqual(charInvariantViolations(doc), []);
+});
+
+test("un document mutilé fait dire une VIOLATION, jamais planter le validateur", () => {
+  /* Mesuré le 2026-08-08 : `build.layers: [null]` avec un `stack` présent
+     sortait en TypeError — un validateur qui plante sur une entrée hostile ne
+     valide pas cette entrée, et c'est une entrée hostile qu'on lui donne. */
+  const hostile = {
+    build: { layers: [null], choices: [], overrides: [] },
+    resolved: { derivation: { stack: [{ id: "srd", version: "5.2.1", hash: "abc" }] } }
+  };
+  let violations;
+  assert.doesNotThrow(() => { violations = charInvariantViolations(hostile); });
+  assert.ok(violations.some((v) => /périmé/.test(v)), "et la divergence de pile est bien celle qui est nommée");
+
+  assert.deepEqual(charInvariantViolations(null), ["build absent : un document fh-char/1 porte toujours ses deux étages."]);
+  assert.doesNotThrow(() => charInvariantViolations({ build: {}, resolved: "pas un objet" }));
+});
+
 /* ══ RÉVISION DES SCHÉMAS DU 2026-08-08 (architecte) ═══════════════════
    Cinq ajouts, chacun avec son accept ET son rejet — un champ qu'on n'a
    vérifié qu'en acceptation ne prouve rien, c'est le rejet qui porte la
