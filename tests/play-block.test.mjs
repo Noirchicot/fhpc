@@ -7,40 +7,29 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dispatch, assertBlocks } from "../src/kernel/registry.mjs";
 import { registerPlay } from "../src/play/index.mjs";
 import { makeHarness, FIXTURE_CHAOS } from "./play-harness.mjs";
+import { loadSources } from "./source-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const srcDir = path.join(here, "..", "src");
 /* REWRITTEN (lot 5) — le garde inspectait `src/play/*.mjs` à plat. La coupe a
    sorti les mécaniques maison dans `src/modules/fh/`, et elles doivent tenir la
-   MÊME loi : zéro DOM, zéro réseau. Le garde marche donc l'arbre. */
-function walk(dir) {
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((item) => {
-    const full = path.join(dir, item.name);
-    return item.isDirectory() ? walk(full) : (item.name.endsWith(".mjs") ? [full] : []);
-  });
-}
-/* Les commentaires sont retirés avant l'inspection : ils NOMMENT ce qui a été
-   remplacé (« plus de `window` », « remplace localStorage »), et un garde qui
-   les lit interdirait d'expliquer la frontière qu'il défend. Ce qui est jugé
-   ici, c'est du code. */
-const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
+   MÊME loi : zéro DOM, zéro réseau. Le garde marche donc l'arbre.
+   REWRITTEN 2026-08-08 (RELECTEUR Adverserial) — l'arpenteur et le dépouilleur
+   sont partis dans tests/source-scan.mjs. Ils étaient en trois copies inline,
+   et les trois avaient déjà divergé : celle-ci marchait l'arbre, les deux de
+   play-srd-only lisaient à plat. Le dépouilleur, lui, effaçait du code réel. */
 /* `modules` et non `layers` depuis le 2026-08-08 : l'architecte a déplacé les
    modules moteur de la couche FH vers `src/modules/fh/` pour rendre
    `src/layers/` disponible au BLOC `layers` (celui qui enregistre et interroge
    les documents de couche). Deux choses différentes portaient le même mot.
    📌 Ce garde a détecté le déplacement tout seul, sur son compte de fichiers
    inspectés — c'est exactement ce qu'on lui demande. */
-const sources = [path.join(srcDir, "play"), path.join(srcDir, "modules")].flatMap(walk)
-  .map((file) => {
-    const raw = fs.readFileSync(file, "utf8");
-    return { name: path.relative(srcDir, file), raw, text: stripComments(raw) };
-  });
+const sources = loadSources([path.join(srcDir, "play"), path.join(srcDir, "modules")], srcDir);
 
 test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
   registerPlay({ chaosTables: FIXTURE_CHAOS, randomUint32: () => 11, uuid: () => "k-1", now: () => "2026-08-07T00:00:00.000Z" });

@@ -12,10 +12,10 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeHarness } from "./play-harness.mjs";
+import { loadSources, findForbidden, HOUSE_MECHANICS, LAYER_NAMES } from "./source-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -419,44 +419,42 @@ test("A — `configure` refuse un réglage qui n'appartient pas au type courant"
 
 /* ══ LE GARDE STRUCTUREL — ce qui empêche la coupe de se refermer ════ */
 
+/* REWRITTEN 2026-08-08 (RELECTEUR Adverserial) — les deux gardes ci-dessous
+   étaient CREUX, et verts. Ils lisaient `src/play/` à plat (un sous-répertoire
+   sortait du périmètre), leur vocabulaire ne couvrait pas `arcana` —
+   l'identifiant que le code emploie réellement — et le second cherchait encore
+   `layers/fh`, chemin mort depuis le déplacement des modules dans
+   `src/modules/fh/`. Mesure de l'attaque : 170/170 verts avec un
+   `src/play/utils.mjs` qui importait la couche et manipulait `arcana`.
+   L'arpenteur, le dépouilleur et les deux vocabulaires vivent maintenant dans
+   tests/source-scan.mjs, et sont eux-mêmes attaqués par
+   tests/guards-adversarial.test.mjs. */
+const playSources = () => loadSources([path.join(here, "..", "src", "play")], path.join(here, ".."));
+
 test("§0.12 — aucun fichier de src/play/ ne cite une mécanique Fate's Hand", () => {
   /* Le garde qui manquait au lot 3. Il est structurel exprès : c'est la seule
      forme qui survit au prochain qui éditera ces fichiers sans avoir lu le
      kickoff. Les commentaires sont retirés d'abord — ils NOMMENT ce qui est
      parti, et un garde qui les lit interdirait d'expliquer la frontière qu'il
      défend. */
-  const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
-  const playDir = path.join(here, "..", "src", "play");
-  const HOUSE = [
-    [/\bdestiny\b/i, "Destiny"],
-    [/\bchaos\b/i, "Chaos"],
-    [/\boverreach\b/i, "Overreach"],
-    [/\barcane?\b/i, "Arcane"],
-    [/\bawakening\b/i, "Awakening"],
-    [/\bfate\b/i, "Fate"]
-  ];
-  const files = fs.readdirSync(playDir).filter((name) => name.endsWith(".mjs"));
-  assert.ok(files.length >= 7, "tous les modules du moteur sont inspectés");
-  files.forEach((name) => {
-    const text = stripComments(fs.readFileSync(path.join(playDir, name), "utf8"));
-    HOUSE.forEach(([pattern, label]) => {
-      assert.equal(pattern.test(text), false,
-        "src/play/" + name + " cite « " + label + " » — le SRD est la base, FH est une couche par-dessus (loi §0.12)");
-    });
-  });
+  const sources = playSources();
+  assert.ok(sources.some((s) => s.name === "src/play/session.mjs"),
+    "le moteur lui-même est dans le périmètre — si les fichiers ont bougé, ce garde bouge avec eux, il ne les perd pas");
+  const hits = findForbidden(sources, HOUSE_MECHANICS);
+  assert.deepEqual(hits, [],
+    "le SRD est la base, FH est une couche par-dessus (loi §0.12) — " +
+    hits.map((hit) => `${hit.name} cite « ${hit.label} » (${hit.match})`).join(" ; "));
 });
 
 test("§L5.3 — les modules s'inscrivent, ils ne sont pas appelés", () => {
   /* « Pas de `if (fh) … else …` semé dans le code : c'est la forme dégradée de
      la même erreur. » Le garde le vérifie sur les octets : aucun fichier du
-     moteur ne nomme une couche, ni par son nom ni par son drapeau. */
-  const playDir = path.join(here, "..", "src", "play");
-  fs.readdirSync(playDir).filter((name) => name.endsWith(".mjs")).forEach((name) => {
-    const text = fs.readFileSync(path.join(playDir, name), "utf8")
-      .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
-    assert.equal(/["'`]fh["'`]|layers\/fh|createFhLayer|fh\./.test(text), false,
-      "src/play/" + name + " nomme une couche : le chemin commun ne doit connaître que des MOMENTS");
-  });
+     moteur ne nomme une couche, ni par son nom, ni par son drapeau, ni par le
+     chemin de son module. */
+  const hits = findForbidden(playSources(), LAYER_NAMES);
+  assert.deepEqual(hits, [],
+    "le chemin commun ne doit connaître que des MOMENTS — " +
+    hits.map((hit) => `${hit.name} nomme la couche (${hit.label} : ${hit.match})`).join(" ; "));
 });
 
 test("les deux moteurs tournent côte à côte, et ne se parlent pas", () => {
