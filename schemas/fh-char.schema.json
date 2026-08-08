@@ -430,7 +430,8 @@
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["id", "name", "level", "prepared", "castType"],
+                    "$comment": "⚠️ `castType` était REQUIS jusqu'au 2026-08-08. Retiré des obligatoires par l'architecte, à la fusion des lots 8 et 9, et c'est le SCHÉMA qui avait tort. Mesuré par le lot 8 : la prose du SRD porte au moins CINQ constructions qui ressemblent à une sauvegarde et une seule est le fait (le sort lui-même, la sauvegarde d'une créature invoquée dans un bloc encastré, un bonus qui donne l'avantage AUX sauvegardes comme Bénédiction, un test de caractéristique contre le DD, la sauvegarde d'un tiers) — et Couteau de glace comme Main arcanique sont GÉNUINEMENT les deux à la fois, ce que l'énumération ne sait pas dire. Un champ obligatoire sans source force le moteur à deviner : c'est le schéma qui pousse le code au mensonge. Et une fiche de magicien SANS AUCUN SORT (l'entrée serait sautée, invariant 5 du bloc build) est plus fausse qu'une fiche dont le mode de résolution est inconnu ET DÉCLARÉ. L'énumération elle-même est reconnue insuffisante : point ouvert daté.",
+                    "required": ["id", "name", "level", "prepared"],
                     "properties": {
                       "id": { "$ref": "#/$defs/slug" },
                       "name": { "type": "string", "minLength": 1, "maxLength": 100 },

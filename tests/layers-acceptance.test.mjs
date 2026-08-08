@@ -96,7 +96,14 @@ test("query rend les DIX-HUIT compétences, nommément", () => {
 
   const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
   assert.equal(perception.record.name, "Perception");
-  assert.equal(perception.record.data.ability_key, "sag", "la clef est LANGUE-NATIVE — « sag », pas « wis » (layers/TRADUCTION.md)");
+  // REWRITTEN 2026-08-08 — arbitrage de l'architecte, à la fusion du lot 8.
+  // L'assertion épinglait « sag » et invoquait layers/TRADUCTION.md : c'était une
+  // erreur de catégorie. La clef n'est pas un enjeu INTER-langues — `resolved.abilities`
+  // de fh-char/1 est additionalProperties:false sur str/dex/con/int/wis/cha, REQUIS
+  // dans les deux langues. Une compétence FR qui disait « sag » ne pouvait pas adresser
+  // les caractéristiques de son PROPRE document. Réécrite à la nouvelle vérité, jamais relâchée.
+  assert.equal(perception.record.data.ability_key, "wis", "la clef est CANONIQUE dans les deux langues — « wis », joignable à resolved.abilities");
+  assert.equal(perception.record.data.ability, "Sagesse", "et le mot affichable reste français : le moteur produit des identifiants, l'interface des mots (loi §0.13)");
   assert.equal(perception.provenance.from, "srd-5.2.1-fr");
   assert.deepEqual(perception.provenance.patchedBy, [], "personne ne l'a encore touchée");
   assert.equal(perception.record.attribution.license, "CC-BY-4.0", "et sa notice CC-BY voyage avec elle");
@@ -115,7 +122,9 @@ test("une couche de table patche une compétence et en désactive une autre — 
 
   const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
   assert.match(perception.record.data.example_uses, /^Le MJ annonce/, "le patch a pris");
-  assert.equal(perception.record.data.ability_key, "sag", "et n'a rien emporté d'autre — pas de fusion profonde");
+  // REWRITTEN 2026-08-08 — même arbitrage. Ce que l'assertion PROUVE ne change pas
+  // (un patch n'emporte rien d'autre) ; seule la valeur attendue suit la source.
+  assert.equal(perception.record.data.ability_key, "wis", "et n'a rien emporté d'autre — pas de fusion profonde");
   assert.equal(perception.record.name, "Perception");
   assert.equal(perception.provenance.from, "srd-5.2.1-fr", "la provenance dit d'où vient le record");
   assert.deepEqual(perception.provenance.patchedBy.map((p) => p.by), ["table-eric"], "et qui l'a modifié");
