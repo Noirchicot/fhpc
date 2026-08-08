@@ -18,6 +18,7 @@ import { createBuild } from "./block.mjs";
 
 export { createBuild } from "./block.mjs";
 export { derive, ABILITY_KEYS, CURRENCY_KEYS } from "./derive.mjs";
+export { statSumViolations } from "./validate.mjs";
 export { diffResolved } from "./diff.mjs";
 export { BuildError } from "./errors.mjs";
 export { CHOICE_PATH, OVERRIDE_PATH, parseChoicePath, parseOverridePath, applyOverride } from "./paths.mjs";

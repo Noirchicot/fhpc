@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { createBuild } from "../src/build/index.mjs";
 import { CHOICE_PATH, OVERRIDE_PATH } from "../src/build/paths.mjs";
 import { SPELL_TEXT_MAX } from "../src/build/derive.mjs";
-import { loadSources, findForbidden } from "./source-scan.mjs";
+import { loadSources, findForbidden, HOUSE_MECHANICS, LAYER_NAMES } from "./source-scan.mjs";
 import { makeHarness, acceptanceDocument } from "./build-harness.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -80,7 +80,12 @@ function inspect(list) {
 
 /* ── GARDE 2 : LE PÉRIMÈTRE, PAR SES NOMS ───────────────────────────── */
 
-const MUST_INSPECT = ["block.mjs", "clock.mjs", "derive.mjs", "diff.mjs", "errors.mjs", "index.mjs", "paths.mjs"];
+/* REWRITTEN 2026-08-08 (lot 19) — `validate.mjs` entre dans la liste le jour
+   où il entre dans le répertoire. Un fichier neuf est DÉJÀ jugé par GARDE 1
+   (le périmètre ne borne pas ce qui est inspecté), mais tant qu'il n'est pas
+   nommé ici, sa DISPARITION passerait inaperçue — et c'est lui qui porte le
+   seul contrôle exécuté de l'invariant de somme. */
+const MUST_INSPECT = ["block.mjs", "clock.mjs", "derive.mjs", "diff.mjs", "errors.mjs", "index.mjs", "paths.mjs", "validate.mjs"];
 function perimeterGaps(list) {
   const seen = new Set(list.map((source) => source.name));
   return MUST_INSPECT.filter((name) => !seen.has(name));
@@ -117,12 +122,22 @@ test("createBuild refuse de se construire sans bus et sans dispatch", () => {
   assert.throws(() => createBuild({ bus: { emit() {}, on() {} } }), /needs a dispatch/);
 });
 
-test("le bloc ne lit la pile QUE par dispatch — et seulement par `layers.query` et `layers.stack`", () => {
+/* REWRITTEN 2026-08-08 (lot 19) — `layers.flags` ENTRE DANS LA LISTE, et
+   l'assertion n'est pas relâchée : elle reste une liste EXACTE, et c'est elle
+   qui a rougi la première quand la troisième route est apparue.
+
+   La route est due, pas commode. Une statistique dérivée est produite par un
+   module activé par un DRAPEAU DE COUCHE (décision Q4) : sans lire les
+   drapeaux, le bloc n'aurait le choix qu'entre allumer tous les modules
+   injectés (loi §0.12 rompue — un personnage SRD pur porterait alors une
+   mécanique maison) et n'en allumer aucun. Ce qui reste interdit n'a pas
+   changé : ni `register`, ni `enable`, ni `disable`, ni `ruleValues`. */
+test("le bloc ne lit la pile QUE par dispatch — et seulement par `layers.query`, `layers.stack` et `layers.flags`", () => {
   const h = makeHarness();
   h.dispatched.length = 0;
   h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
-  assert.deepEqual([...new Set(h.dispatched)].sort(), ["layers.query", "layers.stack"],
-    "aucune autre route n'est empruntée : ni `register`, ni `enable`, ni `flags`");
+  assert.deepEqual([...new Set(h.dispatched)].sort(), ["layers.flags", "layers.query", "layers.stack"],
+    "aucune autre route n'est empruntée : ni `register`, ni `enable`, ni `ruleValues`");
 });
 
 /* ── les gardes, et leurs attaques ──────────────────────────────────── */
@@ -195,6 +210,57 @@ test("ATTAQUE DU GARDE DE VOCABULAIRE — la faute que ce lot existe pour évite
   assert.deepEqual(findForbidden([
     { name: "sain.mjs", text: 'const ABILITY_KEYS = ["str","dex","con","int","wis","cha"];' }
   ], FRENCH_GAME_WORDS), []);
+});
+
+/* ── GARDE 4 : LA LOI §0.12 DANS LE PLI ─────────────────────────────────
+   AJOUTÉ LE 2026-08-08 (lot 19). « LE SRD EST LA BASE, FH EST UNE COUCHE
+   PAR-DESSUS » : le garde existait pour `src/play/` et `src/doc/`, il ne
+   couvrait pas `src/build/`. Il le couvre maintenant, et c'est le lot qui l'a
+   rendu nécessaire — la première mécanique maison du pli, le Score de
+   Destinée, vient d'y entrer par un MODULE injecté.
+
+   MESURÉ AVANT DE POSER : zéro occurrence dans le vrai `src/build/`, aucune
+   suite ne rougit. Un garde qui crie au loup se fait désactiver.
+
+   Les deux listes vont ensemble et elles gardent deux choses différentes :
+   HOUSE_MECHANICS interdit le VOCABULAIRE de la maison (Destiny, Chaos,
+   Arcana…), LAYER_NAMES interdit de NOMMER la couche — c'est ce dernier qui
+   ferme la porte par laquelle un `import { createFhDestinyStat } from
+   "../modules/fh/…"` entrerait, en plus du motif `../modules/` de GARDE 1. */
+
+test("LOI §0.12 — aucune mécanique Fate's Hand n'est citée dans src/build/", () => {
+  assert.deepEqual(findForbidden(sources(), HOUSE_MECHANICS), [],
+    "le pli est le chemin commun : un personnage SRD pur doit le traverser de bout en bout");
+  assert.deepEqual(findForbidden(sources(), LAYER_NAMES), [],
+    "et il ne nomme aucune couche — les modules s'INJECTENT, ils ne s'importent pas");
+});
+
+test("ATTAQUE DU GARDE §0.12 — la faute passe par le pli, une fois chacune, et elle est vue", () => {
+  const violations = [
+    ["derive.mjs", "const score = entry.destinyBase + proficiency;", "Destiny"],
+    ["derive.mjs", "if (spendDestiny) return null;", "Destiny"],
+    ["derive.mjs", "const table = rollChaos();", "Chaos"],
+    ["derive.mjs", "const impact = card.arcana;", "Arcana"],
+    ["derive.mjs", "settleAwakening(card);", "Awakening"],
+    ["derive.mjs", "const over = applyOverreach(x);", "Overreach"]
+  ];
+  for (const [name, text, label] of violations) {
+    const found = findForbidden([{ name, text }], HOUSE_MECHANICS);
+    assert.equal(found.length, 1, `« ${text} » aurait dû être vu`);
+    assert.equal(found[0].label, label);
+  }
+  // L'import du module, lui, est vu DEUX FOIS : par le périmètre et par le nom.
+  const importFh = [{ name: "derive.mjs", text: 'import { createFhDestinyStat } from "../modules/fh/destiny-stat.mjs";' }];
+  assert.equal(inspect(importFh).length, 1, "GARDE 1 voit le répertoire");
+  assert.ok(findForbidden(importFh, LAYER_NAMES).length > 0, "et GARDE 4 voit le nom de la couche");
+
+  /* LE PENDANT, sans lequel le garde ne serait qu'un refus universel : le
+     vocabulaire du pli passe entier, y compris `fate` là où il n'est pas le
+     mot de la maison — et ce dernier cas est celui qui a failli manquer. */
+  assert.deepEqual(findForbidden([{
+    name: "sain.mjs",
+    text: "const stats = []; for (const statModule of modules) { if (!flags.includes(statModule.flag)) continue; }"
+  }], HOUSE_MECHANICS.concat(LAYER_NAMES)), [], "un pli qui parle de modules et de drapeaux ne nomme aucune couche");
 });
 
 /* ── le garde de dérive schéma ↔ code ───────────────────────────────── */

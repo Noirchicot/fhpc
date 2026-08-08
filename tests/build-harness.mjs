@@ -22,6 +22,11 @@ export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SRD_FR = "layers/srd-5.2.1-fr.layer.json";
 export const HOMEBREW = "examples/layer-homebrew-fr.fh-layer.json";
 export const EXAMPLE_CHAR = "examples/personnage-srd-fr-niveau1.fh-char.json";
+/* La pile Fate's Hand du lot 15 : SRD anglais dessous, couche FH par-dessus.
+   C'est elle qui lève `fh.destiny`, et c'est la seule qui porte les Bases de
+   Destinée. Lue depuis le dépôt, jamais recopiée. */
+export const SRD_EN = "layers/srd-5.2.1-en.layer.json";
+export const FH_SPECIES_EN = "layers/fh-species-en.layer.json";
 
 export function fileBytes(rel) {
   return readFileSync(join(ROOT, rel));
@@ -62,6 +67,10 @@ export function makeBus() {
  * @param {object} [options]
  * @param {string[]} [options.layers] les couches à monter, dans l'ordre.
  * @param {object} [options.extra] une couche de plus, montée au-dessus.
+ * @param {Array}  [options.modules] les modules de statistique injectés dans le bloc (lot 19).
+ *   ⚠️ AUCUN PAR DÉFAUT, et c'est la loi §0.12 rendue littérale : le harnais
+ *   par défaut monte le pli SRD nu, et un module Fate's Hand n'y entre que si
+ *   le scénario le demande.
  */
 export function makeHarness(options = {}) {
   const bus = makeBus();
@@ -82,7 +91,7 @@ export function makeHarness(options = {}) {
      construit après coup a manqué les `layers-changed` déjà émis, et il ne
      connaît donc pas les recouvrements de la pile — `rebuild` le DIT alors,
      dans ses `warnings` (une suite le vérifie). */
-  const build = createBuild({ bus, dispatch, now });
+  const build = createBuild({ bus, dispatch, now, modules: options.modules || [] });
 
   const files = options.layers || [SRD_FR, HOMEBREW];
   for (const file of files) layers.verbs.register({ bytes: fileBytes(file), origin: file });

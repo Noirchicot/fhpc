@@ -578,11 +578,14 @@
             "additionalProperties": false,
             "required": ["id", "flag", "name", "value", "breakdown"],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
+              "id": {
+                "$comment": "⚠️ C'EST UN `slug`, ET LE POINT N'Y EST PAS ADMIS — mesuré au lot 19. L'id du Score de Destinée s'écrit donc `fh:destiny` et NON `fh.destiny` : le deux-points est le séparateur de namespace du dépôt (`srd:species:en:elf`), il passe ici ET dans le sélecteur d'un chemin d'override (`resolved.stats[fh:destiny].value`), là où le point serait rejeté des deux côtés. Le DRAPEAU, lui, garde le point — il voyage dans `flag`.",
+                "$ref": "#/$defs/slug"
+              },
               "flag": { "$ref": "#/$defs/flag" },
               "name": { "type": "string", "minLength": 1, "maxLength": 100 },
               "value": {
-                "$comment": "⚠️ INVARIANT NON TENU PAR CE SCHÉMA : `value` est la somme des `breakdown[].value`. JSON Schema ne sait pas additionner. L'invariant est donc à la charge de `build.validate`, et un invariant écrit ici sans être exécuté là-bas ne serait qu'une INTENTION — leçon du RELECTEUR Adverserial, 2026-08-08. Le garde est nommé et dû ; tant qu'il manque, il est inscrit au tableau de bord, pas caché dans ce commentaire.",
+                "$comment": "⚠️ INVARIANT NON TENU PAR CE SCHÉMA : `value` est la somme des `breakdown[].value`. JSON Schema ne sait pas additionner. L'invariant est donc à la charge de `build.validate`, et un invariant écrit ici sans être exécuté là-bas ne serait qu'une INTENTION — leçon du RELECTEUR Adverserial, 2026-08-08. ✅ EXÉCUTÉ DEPUIS LE LOT 19 : `src/build/validate.mjs` (`statSumViolations`), appelé par `build.rebuild` AVANT les overrides — un module ne peut pas écrire un total que son détail contredit, le refus est bruyant — et par `build.validate` sur la fiche jouable, overrides compris : la parole du MJ n'y est pas jetée, elle est NOMMÉE. Le garde est attaqué sur une somme fabriquée fausse (tests/fh-destiny-score.test.mjs).",
                 "type": "integer",
                 "minimum": -99,
                 "maximum": 99

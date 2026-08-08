@@ -1374,3 +1374,94 @@ règle qui couvre les deux cas**. À confirmer.
 remonte dans `shadowed` (arbitrage n°2) ; un retrait, lui, ne remonte que dans
 la **provenance** du record (`patchedBy[].removed`), que `query` rend. Le bloc
 `build` devra-t-il en faire quelque chose, comme il fait de `shadowed` ?
+
+---
+
+# Questions du lot `19-score-destinee` à l'architecte
+
+**Écrites le 2026-08-08.** Loi §0.10 : le lot n'invente ni valeur, ni nom, ni
+règle. Aucune de ces trois questions n'a été tranchée en silence — chacune est
+**rendue visible par un test**, et la règle la plus stricte a été tenue en
+attendant la réponse.
+
+---
+
+## Q19-1 — L'id du Score s'écrit `fh:destiny`, pas `fh.destiny` (mesuré)
+
+**Le fait, mesuré avant d'écrire une ligne.** Le kickoff du lot dit « une entrée
+`resolved.stats[]` **d'id `fh.destiny`** ». Elle est impossible :
+
+- `stats[].id` est un `$defs/slug` → `^[a-z][a-z0-9:_-]{0,79}$` — **pas de
+  point**. Vérifié à l'`ajv` : `fh.destiny` **false**, `fh:destiny` **true**.
+- le sélecteur d'un `$defs/overridePath` est `\[[a-z][a-z0-9:_-]*\]` — **pas de
+  point non plus**. Un id pointé serait donc **inadressable par un override** :
+  `resolved.stats[fh.destiny].value` n'est pas un chemin légal.
+
+**Ce que le lot a fait.** `fh:destiny`. Le deux-points est le séparateur de
+namespace du dépôt (`srd:species:en:elf`), il passe des deux côtés, et il garde
+le namespace visible. Le **drapeau** garde son point — il voyage dans `flag`,
+qui est un `$defs/flag` et l'exige. `tests/v1-coverage.test.mjs` a été réécrit
+en conséquence : ses neuf chemins de classement désignaient une case que le
+schéma refuse.
+
+**La question.** Ratifié ? Les deux autres sorties possibles étaient
+`fh-destiny` (perd le namespace) et une révision de `slug` pour admettre le
+point (casse la grammaire d'override, donc non).
+
+---
+
+## Q19-2 — Deux conventions pour l'Éveil, et elles ne se rejoignent pas
+
+**Le fait.** Le kickoff nomme le canal `fh.destiny.awakening[n]`, `value` = le
+nombre signé, `label` = la motivation. Mais `settleAwakening`
+(`src/modules/fh/index.mjs`, §C) émet **déjà** un choix à enregistrer, et il ne
+porte ni ce chemin ni cette forme :
+
+```js
+choice: { path: "fh.awakenings[" + n + "]", value: card.id || named || card.arcana }
+```
+
+— un chemin hors du namespace `fh.destiny.`, une valeur qui est **l'identifiant
+de la carte** et non un nombre, et **aucun `label`**. Les deux conventions
+disent la même chose de deux façons incompatibles.
+
+**Ce que le lot a fait.** Il a implémenté **exactement** ce que le kickoff dit,
+et il n'a **pas touché** `settleAwakening` : changer ce que le moteur de jeu
+émet est une décision hors de la section de ce lot. L'écart ne se perd pas pour
+autant — `fh.awakenings[0]` tombe hors du namespace du module, donc il ressort
+**`unconsumed`** et `validate` dit qu'il ne change rien à la fiche. Un test le
+NOMME.
+
+**La question.** Laquelle des deux gagne ?
+(a) `settleAwakening` émet désormais `fh.destiny.awakening[n]` avec `value: 1` et
+`label` = le nom de la carte — mais on perd alors *quelle* carte a été tirée, que
+`value: card.id` portait ;
+(b) le module apprend à lire `fh.awakenings[n]` et compte +1 par entrée dont la
+carte est **majeure** — sauf qu'il ne peut pas le savoir : aucun record ne dit
+si une carte est majeure ou mineure (c'est le trou **GAP-KIND**) ;
+(c) les deux coexistent : `fh.awakenings[n]` garde la trace de la carte,
+`fh.destiny.awakening[n]` porte le terme du Score.
+
+---
+
+## Q19-3 — Trois formes qu'aucune règle écrite ne borne
+
+**(a) La magnitude d'un terme d'Éveil.** Le kickoff dit « le **+1** de chaque
+Éveil arcanique majeur », et la table de décision dit « `value` = le nombre,
+**signé** », sans distinguer les termes. Le lot a suivi la table — il accepte
+tout entier signé sous `awakening[n]` — parce qu'imposer « exactement 1 » aurait
+été **inventer une règle de validation** que la décision d'architecte ne porte
+pas. Faut-il la poser ?
+
+**(b) `fh.destiny.other[n]` est REFUSÉ.** La ligne « Other » est explicitement
+déclarée non dérivable, donc le lot n'a pas ouvert de canal pour elle : un
+`fh.destiny.other[0]` est un refus qui nomme les deux termes admis. Mais un MJ
+qui veut porter « +1, anneau de Destinée » aujourd'hui n'a **que** `glory` pour
+le faire, ce qui l'étiquette « Gloire » à tort. Faut-il un troisième terme
+(`other`, sans `by`, ou avec `by: "gm"`) ?
+
+**(c) Un total hors de −99…+99.** Le schéma borne `value` ET chaque
+`breakdown[].value` à ±99. Une somme qui dépasserait la borne ne serait vue
+**qu'à la validation de schéma**, pas par le module ni par `statSumViolations`.
+Le lot ne l'a pas gardé : la borne est atteignable en théorie (cinquante termes
+de séance) et jamais en pratique. À confirmer.
