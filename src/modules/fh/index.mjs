@@ -333,14 +333,22 @@ function bindFh(engine, { chaosTables }) {
   function spendDestinyDie(dieId, silent, rolled) {
     const die = state.destiny.dice.find((item) => item.id === dieId && item.available);
     if (!die) return null;
-    die.available = false;
     const plan = rolled || makeDiePlan(die.sides, "flat", null);
     const result = Number(plan.result);
+    /* ⚠️ LA VIBRATION SE CALCULE AVANT QUE LE DÉ SOIT CONSOMMÉ, et c'est un
+       correctif, pas un goût (RELECTEUR Adverserial, 2026-08-08). `vibrationFor`
+       JETTE sur un dé que la table ne dimensionne pas (d20), et
+       `die.available = false` était posé plus haut : le refus partait en ayant
+       déjà mangé le dé, sans retirer de point ni annoncer quoi que ce soit. La
+       doctrine de ce lot est écrite deux fois dans sa propre suite — « l'arbre
+       est restauré : le refus n'a rien bougé » —, et elle vaut ici aussi. Le
+       jet, lui, a bien eu lieu : c'est ce que le dé a fait qui décide du refus. */
+    const vibration = result === die.sides ? vibrationFor(die.sides) : null;
+    die.available = false;
     const before = Number(state.destiny.points) || 0;
-    let cost, criticalSuccess = false, criticalFailure = false, chaosRisk = null, recovered = null, vibration = null;
+    let cost, criticalSuccess = false, criticalFailure = false, chaosRisk = null, recovered = null;
     if (result === die.sides) {
       cost = 1; criticalSuccess = true;
-      vibration = vibrationFor(die.sides);
       recovered = setDestinyPoints(before - 1, t("fh.reason.arcane-critical-success", { sides: die.sides }), true, !!silent);
     } else if (result === 1) {
       cost = -1; criticalFailure = true;

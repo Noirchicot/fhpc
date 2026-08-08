@@ -19,21 +19,29 @@ import { fileURLToPath } from "node:url";
 import { dispatch, assertBlocks } from "../src/kernel/registry.mjs";
 import { registerLayers, createLayers } from "../src/layers/index.mjs";
 import { fileBytes, aLayer, anAdd, HOMEBREW, SRD_FR } from "./layers-harness.mjs";
+import { loadSources, findForbidden, HOUSE_MECHANICS } from "./source-scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const layersDir = path.join(here, "..", "src", "layers");
 
-/* Les commentaires sont retirés avant l'inspection — ils NOMMENT ce qui est
-   interdit (« le bloc ne lit pas le disque ») et un garde qui les lit
-   interdirait d'expliquer la frontière qu'il défend. Même règle qu'au bloc
-   `play`. */
-const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
+/* REWRITTEN 2026-08-08 (RELECTEUR Adverserial, seconde passe) — ce fichier
+   portait ENCORE l'arpenteur à plat et le dépouilleur à regex, seul des six
+   gardes de bloc à ne pas être passé sur `tests/source-scan.mjs`. Les deux
+   défauts du 2026-08-08 y vivaient donc intacts, et ils ont été MESURÉS ici
+   même, sur ce garde-ci, avant d'être réparés :
 
+     · l'arpenteur lisait `src/layers/` À PLAT. Un fichier posé dans
+       `src/layers/sous/` nommant `node:fs`, `document.getElementById`,
+       `Date.now` ET `Math.random` laissait les 8 tests de ce fichier VERTS ;
+     · le dépouilleur à regex EFFAÇAIT DU CODE. Sur les deux littéraux
+       ordinaires du défaut n°4 (une regex contenant une ouverture de
+       commentaire, une chaîne contenant deux barres obliques), `Math.random`
+       et `Date.now` disparaissaient de la zone inspectée.
+
+   L'arpenteur et le dépouilleur partagés sont sous test dans
+   tests/guards-adversarial.test.mjs ; il n'y a plus de copie ici. */
 function readSources(dir) {
-  return fs.readdirSync(dir).filter((name) => name.endsWith(".mjs")).map((name) => {
-    const raw = fs.readFileSync(path.join(dir, name), "utf8");
-    return { name, raw, text: stripComments(raw) };
-  });
+  return loadSources([dir], dir);
 }
 
 /* ── LES DEUX GARDES, PURS ET ATTAQUABLES ───────────────────────────── */
@@ -78,15 +86,24 @@ const FORBIDDEN = [
 ];
 
 /** Rend la liste des violations, jamais un booléen : un garde doit dire QUOI
- *  et OÙ, sinon il oblige à rechercher ce qu'il vient de trouver. */
+ *  et OÙ, sinon il oblige à rechercher ce qu'il vient de trouver.
+ *
+ *  REWRITTEN 2026-08-08 (RELECTEUR Adverserial, seconde passe) — passe par
+ *  `findForbidden`, qui essaie chaque motif sur le texte dépouillé ET sur le
+ *  même texte passé au découpeur d'identifiants (défaut n°5). Un `pattern.test`
+ *  nu, comme ici avant, perdait ce durcissement.
+ *
+ *  ⚠️ §0.12 EST AJOUTÉE ICI, ET ELLE N'Y ÉTAIT PAS. Mesuré le 2026-08-08 :
+ *  un `export const destinyScoreFor = (r) => r.data.arcana ? r.data.chaosPool : 0`
+ *  posé dans `src/layers/stack.mjs` laissait les 409 tests du dépôt VERTS. La
+ *  loi la plus haute du chantier — « un personnage SRD pur traverse-t-il ce
+ *  code de bout en bout ? » — n'était tenue que sur `src/play/`, `src/doc/` et
+ *  `src/mcp/`, alors que `src/layers/` EST le bloc qui porte le SRD. Mesuré
+ *  avant de poser, comme le veut la règle : zéro occurrence dans les quatre
+ *  fichiers du bloc, aucune suite ne rougit. */
 function inspect(sources) {
-  const found = [];
-  for (const { name, text } of sources) {
-    for (const [pattern, label] of FORBIDDEN) {
-      if (pattern.test(text)) found.push(`src/layers/${name} : « ${label} »`);
-    }
-  }
-  return found;
+  return findForbidden(sources, FORBIDDEN.concat(HOUSE_MECHANICS))
+    .map(({ name, label }) => `src/layers/${name} : « ${label} »`);
 }
 
 /** Le périmètre. C'est LUI qui a menti ailleurs le 2026-08-08 : un compte de
@@ -158,7 +175,12 @@ test("ATTAQUE DU GARDE — chacun des interdits, violé une fois, est vu et NOMM
     ["hasard.mjs", "const r = Math.random();"],
     ["appariement.mjs", 'const pairs = { translation_of: "x" };'],
     ["langue.mjs", 'const langs = ["fr", "en"];'],
-    ["couche.mjs", 'const base = "srd-5.2.1-fr";']
+    ["couche.mjs", 'const base = "srd-5.2.1-fr";'],
+    /* §0.12 — AJOUTÉ LE 2026-08-08 (seconde passe adversariale). Les deux
+       bouts de la leçon du défaut n°5 : le mot nu, et l'identifiant composé,
+       que la frontière de mot laissait passer. */
+    ["maison-fh.mjs", 'const champ = "destiny";'],
+    ["maison-composee.mjs", "export function resolveArcana(entry) { return entry.chaosPool; }"]
   ];
   for (const [name, source] of violations) {
     const found = inspect([{ name, text: source }]);
@@ -189,6 +211,25 @@ test("ATTAQUE DU PÉRIMÈTRE — le garde refuse d'être pointé sur le vide ou 
   const withNew = readSources(layersDir).concat({ name: "neuf.mjs", text: "import fs from 'node:fs';" });
   assert.deepEqual(perimeterGaps(withNew), []);
   assert.equal(inspect(withNew).length, 1, "et il est jugé comme les autres");
+
+  /* ⚠️ AJOUTÉ LE 2026-08-08 (RELECTEUR Adverserial, seconde passe). L'arpenteur
+     de ce fichier lisait `src/layers/` À PLAT, et la violation ci-dessous a
+     RÉELLEMENT laissé les huit tests verts avant le correctif. On ne croit donc
+     pas `loadSources` sur parole : le sous-répertoire est créé, jugé, retiré,
+     et l'arbre est reconstaté propre — comme au bloc `doc`. */
+  const sous = path.join(layersDir, "sous");
+  const piege = path.join(sous, "porte-de-sortie.mjs");
+  fs.mkdirSync(sous, { recursive: true });
+  try {
+    fs.writeFileSync(piege, "import fs from \"node:fs\";\nexport const at = Date.now();\n", "utf8");
+    const found = inspect(readSources(layersDir));
+    assert.equal(found.length, 2, "un sous-répertoire n'est PAS une porte de sortie hors de la loi");
+    assert.ok(found.every((line) => /sous\/porte-de-sortie\.mjs/.test(line)),
+      "et les deux violations nomment le fichier enfoui : " + found.join(" / "));
+  } finally {
+    fs.rmSync(sous, { recursive: true, force: true });
+  }
+  assert.deepEqual(inspect(readSources(layersDir)), [], "et l'arbre est restauré");
 });
 
 test("le bloc ne dépend d'aucun autre bloc", () => {
