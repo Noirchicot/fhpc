@@ -35,9 +35,23 @@
       }
     },
     "flags": {
-      "$comment": "Drapeaux de capacité levés par la couche (ex. `fh.destiny`). Un drapeau ACTIVE un module moteur ; il ne transporte aucune mécanique. Tableau obligatoire, vide autorisé.",
+      "$comment": "Drapeaux de capacité levés par la couche (ex. `fh.destiny`). Un drapeau ACTIVE un module moteur ; il ne transporte aucune mécanique, et il n'a pas de valeur — il est levé ou il ne l'est pas. Tableau obligatoire, vide autorisé. ⚠️ Un drapeau ne remplace JAMAIS un nombre : pour ça, voir `ruleValues`.",
       "type": "array",
       "items": { "$ref": "#/$defs/flag" }
+    },
+    "ruleValues": {
+      "$comment": "ARBITRAGE DU 2026-08-08, sur une question posée par le lot 5-moteur-srd-fh et qu'il a eu raison de ne pas trancher (COUPE-LOT-5.md §7). Quatre des cinq drapeaux FH allument un module ; le cinquième, `fh.exhaustion`, n'allume rien — il REMPLACE UN NOMBRE que le SRD imprime (−1 par degré d'épuisement au lieu de −2). Ce sont deux natures différentes, elles reçoivent deux vocabulaires. Un drapeau répond « ce module tourne-t-il ? » ; une valeur de règle répond « quel nombre le moteur applique-t-il ? ». Les confondre coûterait cher plus tard : on ne peut pas donner une valeur à un booléen sans inventer une convention par cas, et une convention par cas est ce que la v1 a payé sous le nom de « 43 tailles de police inventées ». Clef = identifiant pointé comme un drapeau ; valeur = nombre ou booléen, jamais un objet et jamais du texte affichable (loi §0.13). Le MOTEUR déclare quelles clefs il sait lire et REJETTE BRUYAMMENT une clef inconnue (loi §0.5) — sans quoi une faute de frappe dans une couche homebrew deviendrait un réglage silencieusement ignoré. Objet facultatif, vide autorisé.",
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/$defs/flag" },
+      "patternProperties": {
+        "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "boolean" }
+          ]
+        }
+      }
     },
     "attribution": {
       "$comment": "Obligatoire au niveau couche : toute couche déclare sa licence. Un record peut la préciser ou la remplacer (cas d'une couche qui mélange des origines). Le SRD 5.2.1 est CC-BY-4.0 : son texte d'attribution voyage ici et, si besoin, par record.",
@@ -45,18 +59,20 @@
     },
     "description": { "type": "string", "maxLength": 2000 },
     "records": {
-      "$comment": "Records par genre, clef = id de record. Les 12 genres fh-srd sont énumérés explicitement : un genre inconnu (`spel`) est un rejet bruyant, pas une clef acceptée en silence. Les genres FH à venir entrent par une révision explicite de fh-layer/1.",
+      "$comment": "Records par genre, clef = id de record. Les 14 genres fh-srd sont énumérés explicitement : un genre inconnu (`spel`) est un rejet bruyant, pas une clef acceptée en silence. Les genres FH à venir entrent par une révision explicite de fh-layer/1. RÉVISION DU 2026-08-08 (lot 6-srd-tables fusionné, fh-srd main = 4651a43) : `skill` et `class-progression` ajoutés. Ce ne sont pas des commodités — sans eux un personnage ne pouvait ni choisir ses compétences ni recevoir ses emplacements de sorts, et le builder ne dérivait rien.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "armor": { "$ref": "#/$defs/genre" },
         "background": { "$ref": "#/$defs/genre" },
         "class": { "$ref": "#/$defs/genre" },
+        "class-progression": { "$ref": "#/$defs/genre" },
         "feat": { "$ref": "#/$defs/genre" },
         "gear": { "$ref": "#/$defs/genre" },
         "glossary": { "$ref": "#/$defs/genre" },
         "item": { "$ref": "#/$defs/genre" },
         "monster": { "$ref": "#/$defs/genre" },
+        "skill": { "$ref": "#/$defs/genre" },
         "species": { "$ref": "#/$defs/genre" },
         "spell": { "$ref": "#/$defs/genre" },
         "tool": { "$ref": "#/$defs/genre" },

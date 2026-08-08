@@ -188,6 +188,24 @@
             "level": { "type": "integer", "minimum": 1, "maximum": 20 },
             "species": { "type": "string", "maxLength": 80 },
             "background": { "type": "string", "maxLength": 80 },
+            "size": {
+              "$comment": "AJOUT DU 2026-08-08, demandé par le conseiller VTT. Foundry et Owlbear en ont besoin pour poser un pion à la bonne échelle : une Grande créature occupe quatre cases. Aujourd'hui la taille n'existe nulle part dans le document, donc tout export arrive en Moyen par défaut — silencieusement faux pour un joueur goliath ou une forme sauvage.",
+              "enum": ["tiny", "small", "medium", "large", "huge", "gargantuan"]
+            },
+            "creatureType": {
+              "$comment": "AJOUT DU 2026-08-08 (conseiller VTT). Ce que la créature EST au sens des règles — un mort-vivant, un humanoïde. Un sort qui ne vise que les morts-vivants ne peut pas être filtré sans lui. Chaîne libre et non énumérée EXPRÈS : une couche homebrew a le droit d'inventer un type, et une énumération fermée ici en ferait un rejet bruyant pour rien.",
+              "type": "string",
+              "maxLength": 60
+            },
+            "portrait": {
+              "$comment": "AJOUT DU 2026-08-08 (conseiller VTT) : Foundry ET Owlbear demandent une image, et le document n'en portait aucune — un personnage exporté arrivait anonyme. DEUX images, pas une : le portrait est le buste de la fiche, le token est la vignette vue de dessus sur la carte, et un VTT qui reçoit l'un pour l'autre affiche un buste écrasé dans un rond. RÉFÉRENCES SEULEMENT, jamais d'octets : un document de personnage est un fichier qu'on s'échange, et y coller du base64 le ferait grossir sans limite. `url` accepte aussi une référence locale — c'est au consommateur de dire s'il sait la résoudre, et de le DIRE quand il ne sait pas (jamais de repli silencieux).",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "portraitUrl": { "type": "string", "maxLength": 500 },
+                "tokenUrl": { "type": "string", "maxLength": 500 }
+              }
+            },
             "classes": {
               "type": "array",
               "minItems": 1,
@@ -363,6 +381,10 @@
               "resourceId": {
                 "$comment": "Ancre vers `resolved.resources[<id>]` : une action qui consomme une ressource ne compte pas elle-même, elle pointe la ressource qui compte.",
                 "$ref": "#/$defs/slug"
+              },
+              "gearId": {
+                "$comment": "AJOUT DU 2026-08-08, demandé par le conseiller VTT : l'objet qui PORTE cette action, ancre vers `resolved.gear[<id>]`. Sans lui, `gear` est mécaniquement inerte — une épée est une ligne d'inventaire, l'attaque qu'elle permet est une autre ligne, et rien ne les relie : désarmer un personnage ne retire aucune attaque, et un VTT ne sait pas quelle icône poser sur quel bouton. FACULTATIF ET DANS CE SENS-LÀ, jamais l'inverse : beaucoup d'actions n'ont pas d'objet (Se précipiter, Se désengager), et faire pointer l'objet vers ses actions obligerait à tenir une liste à deux endroits. Une ancre morte est une erreur de dérivation, pas un cas à absorber en silence (loi §0.5).",
+                "$ref": "#/$defs/slug"
               }
             }
           }
@@ -382,7 +404,12 @@
                 "ability": { "$ref": "#/$defs/ability" },
                 "dc": { "type": "integer", "minimum": 0, "maximum": 40 },
                 "attackBonus": { "type": "integer", "minimum": -20, "maximum": 30 },
+                "slotsRecharge": {
+                  "$comment": "AJOUT DU 2026-08-08 — trou trouvé à la REVUE DU LOT 6, en poursuivant une collision de nom dans les données SRD. Chez un lanceur plein, `class-progression` porte `spell_slots` comme un TABLEAU de 9 ; chez l'occultiste cette clef est ABSENTE et la magie de pacte vit un cran plus bas, en scalaire, avec son `slot_level`. La donnée est juste et fidèle au livre — la table imprimée de l'occultiste a bien une colonne « Spell Slots ». Mais la FORME invite l'erreur : un builder qui demande « cette classe a-t-elle des emplacements ? » de la façon évidente conclura qu'un OCCULTISTE n'en a AUCUN. En creusant, un vrai trou est apparu ici : `slots` n'avait aucune notion de recharge, alors que les emplacements de pacte reviennent sur un REPOS COURT et pas long. Sans ce champ, un occultiste dérivé correctement ne récupérerait quand même jamais ses emplacements. La valeur par défaut, quand le champ est absent, est `long` — la règle générale du SRD. Un occultiste DOIT porter `short` : c'est ce qui rend la différence lisible dans le document au lieu de la laisser tapie dans la source.",
+                  "enum": ["short", "long"]
+                },
                 "slots": {
+                  "$comment": "Clef = niveau de sort, valeur = compteur. La magie de pacte s'écrit ici comme tout le reste — un occultiste niveau 17 porte simplement `{ \"5\": { max: 4, current: 4 } }` — et c'est `slotsRecharge: \"short\"` qui la distingue, pas une forme à part. Un seul chemin de lecture pour toutes les classes : voir le $comment de `slotsRecharge` pour ce que ce choix évite.",
                   "type": "object",
                   "additionalProperties": false,
                   "propertyNames": { "pattern": "^[1-9]$" },
@@ -439,7 +466,33 @@
               "name": { "type": "string", "minLength": 1, "maxLength": 100 },
               "max": { "type": "integer", "minimum": 0 },
               "current": { "type": "integer", "minimum": 0 },
-              "recharge": { "enum": ["none", "short", "long", "day"] }
+              "recharge": { "enum": ["none", "short", "long", "day"] },
+              "origin": {
+                "$comment": "AJOUT DU 2026-08-08 — décision ratifiée par Eric : « il faudrait qu'un joueur puisse donner un dé à un autre joueur » (dé de Bardic ; et, par l'Arcane du Diable, un dé de Destinée, en réaction ou à l'avance). Forme demandée par le lot 5-moteur-srd-fh (COUPE-LOT-5.md §8), écrite ici parce qu'un lot ne s'écrit pas son propre contrat (loi §0.10). C'EST LA PREMIÈRE RESSOURCE QUI TRAVERSE DEUX DOCUMENTS `fh-char/1`, ce que la décision 3 (le personnage appartient au joueur) n'avait pas prévu. Découpage : le verbe de don vit chez le DONNEUR et décrémente SA ressource ; ici on décrit seulement ce que le RECEVEUR détient. Absent = la ressource est la sienne, et c'est le cas de tout le reste de la fiche. ⚠️ `window` n'est pas de la décoration : « à l'avance » et « en réaction » sont DEUX portes différentes — un dé donné à l'avance attend sur la fiche, un dé donné en réaction arrive pendant une transaction ouverte. Un moteur qui les confond laissera passer une réaction hors de son tour.",
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "source"],
+                "properties": {
+                  "from": {
+                    "$comment": "QUI a donné le dé — le nom affichable du personnage donneur. Un nom et non un identifiant : le donneur est un document qui vit sur une AUTRE machine (décision 3), et exiger son id créerait une dépendance qu'on ne peut pas résoudre hors ligne.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "source": {
+                    "$comment": "La règle qui autorise le don, en identifiant machine — jamais un libellé affichable (loi §0.13). Ex. `bardic-inspiration`. C'est elle qui dit comment le dé se dépense, pas ce champ.",
+                    "$ref": "#/$defs/slug"
+                  },
+                  "window": {
+                    "$comment": "Quand le dé peut servir. `advance` : donné à l'avance, il attend. `reaction` : donné pendant une transaction de jet ouverte. Absent = pas de contrainte de fenêtre connue, et le moteur DOIT le dire plutôt que d'en supposer une.",
+                    "enum": ["advance", "reaction"]
+                  },
+                  "expires": {
+                    "$comment": "Échéance facultative — un dé de Bardic vaut « une heure » dans le SRD. Quand elle est absente, le dé ne périme pas de lui-même.",
+                    "$ref": "#/$defs/timestamp"
+                  }
+                }
+              }
             }
           }
         },
@@ -618,10 +671,10 @@
     },
 
     "kind": {
-      "$comment": "Les 12 genres fh-srd. Les genres FH à venir entrent par une révision explicite de fh-char/1 et fh-layer/1 — pas par un joker qui accepterait `spel` en silence.",
+      "$comment": "Les 14 genres fh-srd. Les genres FH à venir entrent par une révision explicite de fh-char/1 et fh-layer/1 — pas par un joker qui accepterait `spel` en silence. RÉVISION DU 2026-08-08 : `class-progression` et `skill` ajoutés après la fusion du lot 6-srd-tables.",
       "enum": [
-        "armor", "background", "class", "feat", "gear", "glossary",
-        "item", "monster", "species", "spell", "tool", "weapon"
+        "armor", "background", "class", "class-progression", "feat", "gear", "glossary",
+        "item", "monster", "skill", "species", "spell", "tool", "weapon"
       ]
     }
   }

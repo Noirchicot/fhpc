@@ -411,3 +411,123 @@ test("REJET (hors schéma) — la même couche montée deux fois", () => {
   const violations = charInvariantViolations(doc);
   assert.ok(violations.some((v) => /apparaît deux fois/.test(v)));
 });
+
+/* ══ RÉVISION DES SCHÉMAS DU 2026-08-08 (architecte) ═══════════════════
+   Cinq ajouts, chacun avec son accept ET son rejet — un champ qu'on n'a
+   vérifié qu'en acceptation ne prouve rien, c'est le rejet qui porte la
+   garantie (même discipline que le lot 2, ci-dessus).
+
+   Provenance : genres 13 et 14 du lot `6-srd-tables` ; les trois manques
+   relevés par le conseiller VTT ; la décision d'Eric sur le don de dé ; et
+   deux trous trouvés à la revue — la collision `spell_slots` et la nature
+   de `fh.exhaustion`. */
+
+test("genres 13 et 14 — une couche peut porter `skill` et `class-progression`", () => {
+  const layer = clone(layerExample);
+  const record = clone(Object.values(layer.records[Object.keys(layer.records)[0]])[0]);
+  layer.records.skill = { "srd:skill:fr:athletisme": record };
+  layer.records["class-progression"] = { "srd:class-progression:fr:magicien": clone(record) };
+  assertValid(validateLayer, layer, "les deux genres neufs sont acceptés");
+});
+
+test("REJET — un genre inconnu reste un rejet bruyant", () => {
+  const layer = clone(layerExample);
+  layer.records.skil = {};
+  assertRejected(validateLayer, layer, "`skil` n'entre pas en silence sous prétexte que `skill` existe");
+});
+
+test("valeurs de règle — une couche peut remplacer un NOMBRE, pas seulement lever un drapeau", () => {
+  const layer = clone(layerExample);
+  layer.ruleValues = { "fh.exhaustion": -1, "fh.destiny": true };
+  assertValid(validateLayer, layer, "un nombre et un booléen sont les deux seules formes");
+});
+
+test("REJET — une valeur de règle n'est ni du texte ni un objet", () => {
+  /* Du texte ici serait un mot affichable au milieu d'un réglage moteur
+     (loi §0.13) ; un objet rouvrirait la porte à une mécanique transportée
+     par une couche, ce que la décision Q4 ferme. */
+  const bad = clone(layerExample);
+  bad.ruleValues = { "fh.exhaustion": "moins un" };
+  assertRejected(validateLayer, bad, "une valeur de règle textuelle est refusée");
+  const worse = clone(layerExample);
+  worse.ruleValues = { "fh.exhaustion": { par: "degre", valeur: -1 } };
+  assertRejected(validateLayer, worse, "un objet est refusé");
+  const unnamed = clone(layerExample);
+  unnamed.ruleValues = { exhaustion: -1 };
+  assertRejected(validateLayer, unnamed, "une clef sans préfixe de couche est refusée");
+});
+
+test("don de dé — une ressource reçue porte sa provenance", () => {
+  const doc = clone(charExample);
+  doc.resolved.resources.push({
+    id: "bardic-recu", name: "Inspiration bardique", max: 1, current: 1,
+    origin: { from: "Ellora", source: "bardic-inspiration", window: "advance" }
+  });
+  assertValid(validateChar, doc, "le receveur détient un dé qui dit d'où il vient");
+});
+
+test("REJET — une provenance sans donneur, et une fenêtre inventée", () => {
+  const orphan = clone(charExample);
+  orphan.resolved.resources.push({
+    id: "orphelin", name: "Dé sans père", max: 1, current: 1,
+    origin: { source: "bardic-inspiration" }
+  });
+  assertRejected(validateChar, orphan, "un dé reçu de personne n'est pas un dé reçu");
+
+  const bogus = clone(charExample);
+  bogus.resolved.resources.push({
+    id: "fenetre", name: "Dé", max: 1, current: 1,
+    origin: { from: "Ellora", source: "bardic-inspiration", window: "plus tard" }
+  });
+  assertRejected(validateChar, bogus, "« à l'avance » et « en réaction » sont les deux seules portes");
+});
+
+test("magie de pacte — les emplacements peuvent revenir sur un repos COURT", () => {
+  /* Trouvé en revue du lot 6 : sans ce champ, un occultiste correctement
+     dérivé ne récupérerait jamais ses emplacements. */
+  const doc = clone(charExample);
+  doc.resolved.spellcasting = {
+    ability: "cha", dc: 13, attackBonus: 5, slotsRecharge: "short",
+    slots: { 1: { max: 1, current: 1 } }, spells: []
+  };
+  assertValid(validateChar, doc, "un occultiste niveau 1 s'écrit");
+});
+
+test("REJET — une recharge d'emplacements qui n'existe pas dans les règles", () => {
+  const doc = clone(charExample);
+  doc.resolved.spellcasting = {
+    ability: "cha", dc: 13, attackBonus: 5, slotsRecharge: "day",
+    slots: { 1: { max: 1, current: 1 } }, spells: []
+  };
+  assertRejected(validateChar, doc, "`day` vaut pour une ressource, jamais pour des emplacements");
+});
+
+test("interopérabilité VTT — taille, type de créature, portrait et jeton", () => {
+  const doc = clone(charExample);
+  doc.resolved.identity.size = "large";
+  doc.resolved.identity.creatureType = "humanoïde";
+  doc.resolved.identity.portrait = { portraitUrl: "https://x/buste.png", tokenUrl: "https://x/pion.png" };
+  assertValid(validateChar, doc, "Foundry et Owlbear ont de quoi poser un pion à la bonne échelle");
+});
+
+test("REJET — une taille inventée, et des octets d'image dans le document", () => {
+  const size = clone(charExample);
+  size.resolved.identity.size = "enormous";
+  assertRejected(validateChar, size, "les six tailles du SRD, pas une septième");
+
+  const bytes = clone(charExample);
+  bytes.resolved.identity.portrait = { portraitUrl: "https://x/a.png", data: "iVBORw0KGgo=" };
+  assertRejected(validateChar, bytes, "un portrait est une RÉFÉRENCE — un document qu'on s'échange ne grossit pas sans limite");
+});
+
+test("une action peut nommer l'objet qui la porte — et l'ancre reste un slug", () => {
+  const doc = clone(charExample);
+  /* Pas de `if` ici : un test qui se saute quand la fixture change est un
+     garde creux, et un garde creux est pire que pas de garde. */
+  assert.ok(doc.resolved.actions.length > 0, "l'exemple porte des actions — sinon ce test ne prouve rien");
+  const action = doc.resolved.actions[0];
+  action.gearId = "epee-longue";
+  assertValid(validateChar, doc, "désarmer un personnage peut enfin retirer une attaque");
+  action.gearId = "Épée Longue !!";
+  assertRejected(validateChar, doc, "une ancre est un identifiant machine, pas un libellé");
+});
