@@ -16,7 +16,7 @@
    n'a pas annoncé doit échouer bruyamment, pas tirer au hasard. */
 
 import { createPlay } from "../src/play/index.mjs";
-import { createFhLayer } from "../src/layers/fh/index.mjs";
+import { createFhLayer } from "../src/modules/fh/index.mjs";
 
 /* Table de Chaos NEUTRE. Les vraies tables sont du contenu Fate's Hand (IP
    d'Eric) et n'entrent pas dans ce dépôt public à ce stade — KICKOFF §0.8 et

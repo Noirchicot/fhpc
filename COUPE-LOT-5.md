@@ -33,14 +33,14 @@ Ce qui a été classé, ligne par ligne, avant d'écrire quoi que ce soit :
 
 | Ce qui est **Fate's Hand** | Où c'est parti |
 |---|---|
-| la réserve de Destinée, ses points, ses dés, leur récupération | `src/layers/fh/index.mjs` |
-| le 1 naturel qui **pose une question** (accepter / défier) | `src/layers/fh/index.mjs` |
-| l'échec critique arcanique et son offre | `src/layers/fh/index.mjs` |
-| le Chaos, ses tables, ses dettes portées | `src/layers/fh/{index,chaos}.mjs` |
-| l'Overreach, sa sauvegarde, son coût en Épuisement | `src/layers/fh/index.mjs` |
-| l'Éveil arcanique et son compteur de tirages dus | `src/layers/fh/index.mjs` |
-| le **+2 maison** (`plusTwo`) | `src/layers/fh/lexicon.mjs` |
-| les verdicts ∞, `FATE REFUSED`, `FUMBLE 1 · CHOOSE` | `src/layers/fh/lexicon.mjs` |
+| la réserve de Destinée, ses points, ses dés, leur récupération | `src/modules/fh/index.mjs` |
+| le 1 naturel qui **pose une question** (accepter / défier) | `src/modules/fh/index.mjs` |
+| l'échec critique arcanique et son offre | `src/modules/fh/index.mjs` |
+| le Chaos, ses tables, ses dettes portées | `src/modules/fh/{index,chaos}.mjs` |
+| l'Overreach, sa sauvegarde, son coût en Épuisement | `src/modules/fh/index.mjs` |
+| l'Éveil arcanique et son compteur de tirages dus | `src/modules/fh/index.mjs` |
+| le **+2 maison** (`plusTwo`) | `src/modules/fh/lexicon.mjs` |
+| les verdicts ∞, `FATE REFUSED`, `FUMBLE 1 · CHOOSE` | `src/modules/fh/lexicon.mjs` |
 
 ### Ce qui ne se rangeait pas tout seul — et comment c'est tranché
 
@@ -122,18 +122,18 @@ s'inscrit sur une phase » ne décrivait qu'un cinquième du besoin réel.
 
 | Fonction v1 | Classement | Où elle vit maintenant |
 |---|---|---|
-| `makeDestinySlots`, `normalizeDestiny` | FH | `layers/fh` — semée au moment `session-open` |
-| `spendDestinyDie`, `destinyPlanFor`, `destinyEventSpecs` | FH | `layers/fh` |
-| `arcaneDecision`, `resolveArcaneOne` | FH | `layers/fh` — décision ouverte au moment `reopen`/`pre-roll` |
-| `naturalDestiny` | FH | `layers/fh` → gestionnaire du moment `result` |
-| `resolveNatOne` | FH | `layers/fh` — le SRD n'a rien à dire d'un 1 hors attaque |
-| `settleAwakening` | FH | `layers/fh` — **réécrite**, voir §5 |
-| `setDestinyPoints`, `recoverLowestDie`, `adjustDestinyDie`, `updateDestinyField` | FH | `layers/fh` |
-| `pendingFate` & cie (7 fonctions), `armPendingFate`, `rollPendingFate` | FH | `layers/fh` |
-| `createChaos` | FH | `layers/fh/chaos.mjs` (déplacé, comportement inchangé) |
-| `stageDestinyDie`, `stageDestinyFromPool`, `standaloneDestiny`, `announceStagedDestiny` | FH | `layers/fh` |
-| `rollSequenceDestiny` | FH | `layers/fh` → réclame le moment `pre-roll` |
-| `LEX` (les huit lexèmes ∞ / Crit 20 / Fumble 1) | FH | `layers/fh/labels.mjs` |
+| `makeDestinySlots`, `normalizeDestiny` | FH | `modules/fh` — semée au moment `session-open` |
+| `spendDestinyDie`, `destinyPlanFor`, `destinyEventSpecs` | FH | `modules/fh` |
+| `arcaneDecision`, `resolveArcaneOne` | FH | `modules/fh` — décision ouverte au moment `reopen`/`pre-roll` |
+| `naturalDestiny` | FH | `modules/fh` → gestionnaire du moment `result` |
+| `resolveNatOne` | FH | `modules/fh` — le SRD n'a rien à dire d'un 1 hors attaque |
+| `settleAwakening` | FH | `modules/fh` — **réécrite**, voir §5 |
+| `setDestinyPoints`, `recoverLowestDie`, `adjustDestinyDie`, `updateDestinyField` | FH | `modules/fh` |
+| `pendingFate` & cie (7 fonctions), `armPendingFate`, `rollPendingFate` | FH | `modules/fh` |
+| `createChaos` | FH | `modules/fh/chaos.mjs` (déplacé, comportement inchangé) |
+| `stageDestinyDie`, `stageDestinyFromPool`, `standaloneDestiny`, `announceStagedDestiny` | FH | `modules/fh` |
+| `rollSequenceDestiny` | FH | `modules/fh` → réclame le moment `pre-roll` |
+| `LEX` (les huit lexèmes ∞ / Crit 20 / Fumble 1) | FH | `modules/fh/labels.mjs` |
 
 **Ce qui a été SUPPRIMÉ, pas déplacé** (loi §0.6) :
 
@@ -301,7 +301,7 @@ Aucune n'a été relâchée ni supprimée.
 | Suite | Assertion | Nouvelle vérité |
 |---|---|---|
 | `play-block` | « open a semé la Destinée » | `registerPlay()` sans couche est le moteur SRD nu : la tranche n'est pas semée, et le verbe **n'existe pas**. Plus forte que l'ancienne. |
-| `play-block` | le garde structurel inspectait `src/play/*.mjs` à plat | il marche l'arbre : `src/layers/fh/` tient la **même** loi zéro-DOM |
+| `play-block` | le garde structurel inspectait `src/play/*.mjs` à plat | il marche l'arbre : `src/modules/fh/` tient la **même** loi zéro-DOM |
 | `play-settlement` | `h.t.rollTrayDice()` sur un dé d'or en attente | l'aiguillage passe par des **réclamations déclarées** ; `verbs.roll()` les consulte. Ce qui est vérifié n'a pas bougé. |
 | `play-roller-state-machine` | idem, sur `stageDestinyFromPool` | idem |
 | `play-roller-state-machine` | « le libellé suit le sceau vers `other-1` » | `other-1` n'est plus un sceau (D.3). Le retour se fait vers l'autre vrai sceau, et sceller hors liste est un **refus nommé**. |

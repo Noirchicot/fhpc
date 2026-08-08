@@ -9,7 +9,7 @@
 
    CE QUE LE LOT 5 A ENLEVÉ D'ICI, ET OÙ C'EST PARTI :
    - la Destinée (réserve, points, dés, dépense, Éveil), le Chaos, l'Overreach,
-     le 1 naturel qui pose une question, le +2 maison → `src/layers/fh/`.
+     le 1 naturel qui pose une question, le +2 maison → `src/modules/fh/`.
    - les MOTS (verdicts, badges, lignes de flux, refus) → `labels.mjs`, un
      paquet de données que `derive` applique à la frontière (loi §0.13).
    Ce qui reste ici est le jeu de base : le d20, l'avantage, le modificateur,

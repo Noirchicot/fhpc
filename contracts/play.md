@@ -34,7 +34,7 @@ badge, ses verbes, et **s'inscrit sur des MOMENTS** — il n'est jamais appelé
 par le chemin commun.
 
 ```js
-import { createFhLayer } from "../layers/fh/index.mjs";
+import { createFhLayer } from "../modules/fh/index.mjs";
 createPlay({ bus, layers: [createFhLayer({ chaosTables })] });
 ```
 

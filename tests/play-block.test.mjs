@@ -17,7 +17,7 @@ import { makeHarness, FIXTURE_CHAOS } from "./play-harness.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const srcDir = path.join(here, "..", "src");
 /* REWRITTEN (lot 5) — le garde inspectait `src/play/*.mjs` à plat. La coupe a
-   sorti les mécaniques maison dans `src/layers/fh/`, et elles doivent tenir la
+   sorti les mécaniques maison dans `src/modules/fh/`, et elles doivent tenir la
    MÊME loi : zéro DOM, zéro réseau. Le garde marche donc l'arbre. */
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((item) => {
@@ -30,7 +30,13 @@ function walk(dir) {
    les lit interdirait d'expliquer la frontière qu'il défend. Ce qui est jugé
    ici, c'est du code. */
 const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
-const sources = [path.join(srcDir, "play"), path.join(srcDir, "layers")].flatMap(walk)
+/* `modules` et non `layers` depuis le 2026-08-08 : l'architecte a déplacé les
+   modules moteur de la couche FH vers `src/modules/fh/` pour rendre
+   `src/layers/` disponible au BLOC `layers` (celui qui enregistre et interroge
+   les documents de couche). Deux choses différentes portaient le même mot.
+   📌 Ce garde a détecté le déplacement tout seul, sur son compte de fichiers
+   inspectés — c'est exactement ce qu'on lui demande. */
+const sources = [path.join(srcDir, "play"), path.join(srcDir, "modules")].flatMap(walk)
   .map((file) => {
     const raw = fs.readFileSync(file, "utf8");
     return { name: path.relative(srcDir, file), raw, text: stripComments(raw) };
@@ -99,7 +105,16 @@ test("ZÉRO DOM, ZÉRO window, ZÉRO réseau dans src/play/", () => {
       assert.equal(pattern.test(text), false, "src/" + name + " ne doit pas contenir « " + label + " »");
     });
   });
+  /* ⚠️ DURCI LE 2026-08-08 par l'architecte, après l'avoir attaqué. L'assertion
+     ne comptait que les fichiers (`>= 10`) : pointée sur `src/kernel` au lieu
+     des modules de couche, elle restait VERTE, parce que le compte tenait
+     quand même. Le garde croyait donc vérifier les modules FH et ne vérifiait
+     qu'un nombre — un déplacement de répertoire les aurait sortis de la loi
+     zéro-DOM sans un mot. On nomme maintenant ce qui doit être là. */
   assert.ok(sources.length >= 10, "les modules du bloc ET de ses couches sont bien tous inspectés");
+  assert.ok(sources.some((s) => /^play\//.test(s.name)), "le bloc play est dans le périmètre");
+  assert.ok(sources.some((s) => /^modules\/fh\//.test(s.name)),
+    "les modules de la couche FH sont dans le périmètre — s'ils ont bougé, ce garde doit bouger avec eux, pas les perdre");
 });
 
 test("le hasard et l'horloge sont injectés — aucun module ne va les chercher", () => {

@@ -10,7 +10,7 @@
       public à ce stade (KICKOFF §0.8, et §3 : « aucun contenu FH, il arrive
       avec Eric au M2 »).
 
-   DÉPLACÉ PAR LE LOT 5 de `src/play/` vers `src/layers/fh/` : le Chaos est une
+   DÉPLACÉ PAR LE LOT 5 de `src/play/` vers `src/modules/fh/` : le Chaos est une
    mécanique maison, et `src/play/` ne doit plus en porter une seule ligne
    (loi §0.12). Le fichier lui-même n'a pas changé de comportement — seuls ses
    deux textes de dégradation sont passés par le paquet de libellés (§0.13).

@@ -18,7 +18,7 @@
    ── REWRITTEN 2026-08-08 (lot 5) ─────────────────────────────────────
    La suite montait un lexique unique. Il en existe désormais DEUX MOITIÉS :
    celle du SRD, déclarée dans `src/play/lexicon.mjs`, et celle de la couche,
-   déclarée dans `src/layers/fh/lexicon.mjs` et INSÉRÉE PAR PRIORITÉ. La suite
+   déclarée dans `src/modules/fh/lexicon.mjs` et INSÉRÉE PAR PRIORITÉ. La suite
    monte donc l'assemblage — c'est ce que voit un joueur Fate's Hand — et
    vérifie en plus, à la fin, ce que voit un joueur SRD pur : une table plus
    courte, et pas un mot de la maison dedans.
@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 import { createLexicon, SRD_VERDICTS, srdBadgeRules, SEALABLE_SOURCES, CORRECTION_DICE } from "../src/play/lexicon.mjs";
 import { createLabels, EN_SRD } from "../src/play/labels.mjs";
 import { createDiceKit } from "../src/play/dice.mjs";
-import { createFhLayer } from "../src/layers/fh/index.mjs";
+import { createFhLayer } from "../src/modules/fh/index.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const lexiconSource = fs.readFileSync(path.join(here, "..", "src", "play", "lexicon.mjs"), "utf8");

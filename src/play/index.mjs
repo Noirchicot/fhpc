@@ -13,7 +13,7 @@
    bout, et les verbes de Fate's Hand n'existent pas. Monter la couche est un
    geste explicite de l'appelant :
 
-     import { createFhLayer } from "../layers/fh/index.mjs";
+     import { createFhLayer } from "../modules/fh/index.mjs";
      createPlay({ bus, layers: [createFhLayer({ chaosTables })] }); */
 
 import { defineBlock } from "../kernel/registry.mjs";

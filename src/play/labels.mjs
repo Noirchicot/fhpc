@@ -16,7 +16,7 @@
    d'une table en séance, et personne ne saurait d'où ça vient.
 
    Ce paquet-ci est le paquet SRD. La couche FH apporte le sien
-   (`src/layers/fh/labels.mjs`) et a le droit d'en PATCHER une entrée — c'est
+   (`src/modules/fh/labels.mjs`) et a le droit d'en PATCHER une entrée — c'est
    ce que fait une couche : elle ajoute et elle patche. */
 
 /* Le paquet SRD anglais. Une entrée est une chaîne, ou une fonction des

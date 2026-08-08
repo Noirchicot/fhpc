@@ -12,7 +12,7 @@
 
    1. **SRD / FH** (loi §0.12). Ce fichier ne déclare QUE des règles SRD. Les
       verdicts et badges de Destinée, de Chaos, d'Éveil et de refus du destin
-      sont apportés par la couche (`src/layers/fh/lexicon.mjs`) et insérés par
+      sont apportés par la couche (`src/modules/fh/lexicon.mjs`) et insérés par
       PRIORITÉ dans la même table. Un personnage SRD pur produit la table
       courte, et rien dans ce fichier ne cite une mécanique maison.
 
