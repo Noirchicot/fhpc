@@ -415,7 +415,7 @@ test("une transaction de Destinée sérialisée reprend exactement une fois apr�
   assert.equal(h.queueEmpty(), 0);
 });
 
-test("un sceau renomme le dé à chaque fois, y compris au retour vers un bonus nu", () => {
+test("un sceau renomme le dé à chaque fois — et la liste des sceaux est tombée à deux", () => {
   const h = makeHarness();
   assert.equal(h.derive.sealLabel("bardic"), "Bardic");
   assert.equal(h.derive.sealLabel("other-1"), "Bonus I");
@@ -426,8 +426,23 @@ test("un sceau renomme le dé à chaque fois, y compris au retour vers un bonus 
   h.state.diePrompt = { stagedId: "s1" };
   h.t.sealStagedDie("bardic");
   assert.equal(h.t.stagedList()[0].label, "Bardic");
+  /* REWRITTEN (lot 5, D.3) — la v1 scellait aussi `other-1`, et l'assertion
+     vérifiait « le libellé suit le sceau en arrière, au lieu de rester
+     Bardic ». Sous la définition tranchée par Eric le 2026-08-08, un sceau
+     déclare qu'un dé EST un dé de correction ; « Bonus I » n'en est pas un,
+     c'est de l'habillage d'affichage. Il a été SUPPRIMÉ de la liste, pas
+     désactivé (loi §0.6) — et le retour se fait désormais vers l'autre vrai
+     sceau. Ce que l'assertion protégeait — le libellé suit le sceau à chaque
+     fois — est intact, une source plus loin. */
+  h.t.sealStagedDie("tactical");
+  assert.equal(h.t.stagedList()[0].label, "Tactical", "the label follows the seal, instead of staying Bardic");
+  assert.equal(h.t.stagedList()[0].correction, "tactical", "et le sceau déclare la SOURCE de correction, pas seulement un nom");
+  // Et sceller ce qui n'est pas un dé de correction est un refus NOMMÉ.
   h.t.sealStagedDie("other-1");
-  assert.equal(h.t.stagedList()[0].label, "Bonus I", "the label follows the seal back, instead of staying Bardic");
+  assert.equal(h.t.stagedList()[0].label, "Tactical", "un sceau hors liste ne renomme rien");
+  assert.match(h.state.message, /other-1/, "et il le dit — jamais un habillage silencieux");
+  h.t.sealStagedDie("guidance");
+  assert.equal(h.t.stagedList()[0].label, "Tactical", "Guidance se lance AVANT le jet : ce n'est pas un sceau de correction (D.1)");
 
   /* R6 (2026-08-05): SEAL and COLOUR are ONE row of robes. Les assertions v1
      qui suivaient lisaient renderEventContent() — quelle pastille est allumée,
@@ -462,7 +477,9 @@ test("un dé de Destinée se prend et se repose comme un blanc ; rien n'est dép
   // ROLL is what spends it.
   h.t.stageDestinyFromPool("pool-d6");
   h.queueRolls(4);
-  h.t.rollTrayDice();
+  // REWRITTEN (lot 5) : l'aiguillage de ROLL passe par des réclamations
+  // déclarées, plus par un test de mécanique maison au début du plateau libre.
+  h.verbs.roll();
   assert.equal(h.state.destiny.dice[0].available, false, "ROLL spends the die");
   assert.equal(h.state.history[0].destiny.result, 4);
   settle(h);

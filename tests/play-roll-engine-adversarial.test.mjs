@@ -39,15 +39,67 @@ test("un Éveil dû est un COMPTE, pas un drapeau", () => {
      tirait dans le paquet des 22 Arcanes (`window.FH_ARCANA`) et écrivait la
      carte gardée dans le profil. Le paquet est du CONTENU et le profil est le
      document : ni l'un ni l'autre n'entre dans `play`. Le verbe porte la moitié
-     MOTEUR — score +1, +10 points, un Éveil dû réglé, plancher à zéro — et la
-     carte n'arrive que par son identité. La garantie testée est inchangée. */
-  h.t.settleAwakening({ name: "The Fool", numeral: "0" });
+     MOTEUR — un Éveil dû réglé, plancher à zéro — et la carte n'arrive que par
+     son identité.
+     REWRITTEN 2026-08-08 (lot 5, §C) : la carte doit désormais DÉCLARER ce
+     qu'elle donne. `keepArcana` appliquait `score+1 / points+10` sans regarder
+     la carte, ce qui n'était juste que parce que le paquet v1 ne contenait que
+     les 22 majeurs ; avec les 78 cartes, tout mineur aurait donné +1 au Score.
+     Le COMPTE testé ici n'a pas bougé d'un pouce. */
+  const major = { id: "arc-0", name: "The Fool", numeral: "0", arcana: "major", points: 10 };
+  h.t.settleAwakening(major);
   assert.equal(h.state.destiny.awakeningOwed, 1, "drawing once settles exactly one owed Awakening");
-  h.t.settleAwakening({ name: "The Fool", numeral: "0" });
+  h.t.settleAwakening(major);
   assert.equal(h.state.destiny.awakeningOwed, 0, "and the second draw settles the second — nothing is lost, nothing goes negative");
-  h.t.settleAwakening({ name: "The Fool", numeral: "0" });
+  h.t.settleAwakening(major);
   assert.equal(h.state.destiny.awakeningOwed, 0, "et un tirage de trop ne descend pas sous zéro");
   assert.equal(h.queueEmpty(), 0);
+});
+
+test("§C — un mineur ne monte PAS le Score, et une carte muette jette", () => {
+  /* Le bug garanti que §L5 exigeait d'empêcher, trouvé par l'expert Fate's Hand
+     le 2026-08-08 : `keepArcana()` v1 appliquait `score+1` INCONDITIONNELLEMENT.
+     Porté avec les 78 cartes, tout mineur aurait donné +1 au Score maximum.
+     La correction n'est pas un `if` de plus : la partie chiffrée est FONCTION
+     DE LA CARTE, et elle n'existe pas tant que la carte n'est pas connue. */
+  const h = makeHarness();
+  h.reset();
+  h.state.destiny = { score: 8, points: 0, dice: [], pending: [], overreach: 0, awakeningOwed: 2, lastChange: null };
+
+  h.t.settleAwakening({ id: "min-3", name: "Three of Cups", arcana: "minor", points: 4, brick: true });
+  assert.equal(h.state.destiny.score, 8, "REGRESSION §C : un Arcane MINEUR ne touche pas au Score maximum");
+  assert.equal(h.state.destiny.points, 4, "il donne des points temporaires, et ceux de la carte");
+  assert.equal(h.state.destiny.awakeningOwed, 1, "et il règle bien un Éveil dû");
+
+  h.t.settleAwakening({ id: "maj-1", name: "The Magician", numeral: "I", arcana: "major", points: 10 });
+  assert.equal(h.state.destiny.score, 9, "seul un MAJEUR monte le Score maximum");
+  assert.equal(h.state.destiny.points, 14, "et il donne ce que SA carte déclare");
+
+  /* Une carte muette est une erreur bruyante, pas un repli sur « major » —
+     retomber sur l'ancienne constante par défaut serait exactement le bug. */
+  assert.throws(() => h.t.settleAwakening({ name: "Unnamed" }), /major.*minor/,
+    "une carte qui ne déclare pas son arcane jette au lieu de supposer");
+  assert.throws(() => h.t.settleAwakening({ arcana: "major" }), /temporary Points/,
+    "et une carte qui ne déclare pas ses points aussi — « +10 » était une constante de paquet, pas une règle");
+  assert.equal(h.state.destiny.score, 9, "aucun de ces deux refus n'a rien appliqué à moitié");
+});
+
+test("§C — le +1 au Score est un acquis SANS SOURCE DE RÈGLE : il part au document", () => {
+  /* Invariant 1 de `fh-char/1` : `resolved` n'est écrit que par la dérivation.
+     Un +1 permanent écrit seulement là serait effacé à la prochaine
+     reconstruction. L'historique des Éveils doit vivre en `build.choices`
+     scalaires — donc `play` ÉMET le choix à enregistrer, il ne l'écrit pas :
+     le document ne lui appartient pas. */
+  const h = makeHarness();
+  h.reset();
+  h.state.destiny = { score: 8, points: 0, dice: [], pending: [], overreach: 0, awakeningOwed: 1, lastChange: null };
+  h.t.settleAwakening({ id: "maj-21", name: "The World", numeral: "XXI", arcana: "major", points: 10 });
+  const announced = h.emitted.filter((event) => event.type === "awakening-settled");
+  assert.equal(announced.length, 1, "l'Éveil réglé est annoncé une fois");
+  assert.equal(announced[0].granted.score, 1, "ce qu'il a donné est chiffré sur l'événement");
+  assert.equal(announced[0].granted.points, 10);
+  assert.ok(announced[0].choice.path.startsWith("fh.awakenings["), "et il porte le CHOIX scalaire que `build` doit enregistrer");
+  assert.equal(announced[0].choice.value, "maj-21", "identifié par la carte, pas par son texte");
 });
 
 test("une dette de destin ne tombe jamais en silence", () => {

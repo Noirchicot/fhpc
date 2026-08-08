@@ -98,7 +98,13 @@ test("un dé de Destinée isolé se règle sur la branche finish-sequence, pas p
   h.reset(6, [h.die("solo-d6", 6, true)]);
   h.t.stageDestinyFromPool("solo-d6");
   h.queueRolls(4);
-  h.t.rollTrayDice();
+  /* REWRITTEN (lot 5) — la v1 (et le lot 3) faisaient commencer `rollTrayDice`
+     par « et si un dé de Destinée attend ? ». C'était le chemin commun qui
+     citait une mécanique maison. L'aiguillage passe désormais par des
+     RÉCLAMATIONS déclarées, et c'est `roll` qui les consulte : la couche
+     réclame en priorité 70, le plateau libre reste à 100. Ce qui est vérifié
+     — un dé d'or seul se règle seul — n'a pas bougé d'un pouce. */
+  h.verbs.roll();
   assert.equal(h.state.history[0].kind, "destiny");
   assert.equal(h.settledEvents().length, 1, "un jet de Destinée isolé n'ouvre pas de jet : il se règle en fin de séquence");
   assert.equal(h.settledEvents()[0].roll.kind, "destiny");

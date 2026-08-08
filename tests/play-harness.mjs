@@ -16,6 +16,7 @@
    n'a pas annoncé doit échouer bruyamment, pas tirer au hasard. */
 
 import { createPlay } from "../src/play/index.mjs";
+import { createFhLayer } from "../src/layers/fh/index.mjs";
 
 /* Table de Chaos NEUTRE. Les vraies tables sont du contenu Fate's Hand (IP
    d'Eric) et n'entrent pas dans ce dépôt public à ce stade — KICKOFF §0.8 et
@@ -29,7 +30,13 @@ export const FIXTURE_CHAOS = {
   ]))
 };
 
-export function makeHarness({ chaosTables = FIXTURE_CHAOS } = {}) {
+/* REWRITTEN (lot 5) — le harnais monte désormais la couche Fate's Hand
+   EXPLICITEMENT. Avant la coupe, le moteur ÉTAIT Fate's Hand et il n'y avait
+   rien à monter ; depuis, `createPlay()` nu est le moteur SRD et les verbes de
+   la couche n'existent pas tant qu'elle n'est pas montée. Les suites portées
+   testent le comportement Fate's Hand : elles montent la couche, et c'est ce
+   qui rend la suite `play-srd-only` intéressante — elle, ne la monte pas. */
+export function makeHarness({ chaosTables = FIXTURE_CHAOS, layers } = {}) {
   const bucket = [];
   let uuidCounter = 0;
   let clock = 0;
@@ -46,7 +53,7 @@ export function makeHarness({ chaosTables = FIXTURE_CHAOS } = {}) {
 
   const play = createPlay({
     bus,
-    chaosTables,
+    layers: layers === undefined ? [createFhLayer({ chaosTables })] : layers,
     randomUint32: () => {
       if (!bucket.length) throw new Error("Deterministic roll queue exhausted");
       return bucket.shift();
@@ -81,7 +88,12 @@ export function makeHarness({ chaosTables = FIXTURE_CHAOS } = {}) {
   }
 
   return {
-    play, state: play.state, t: play.engine, verbs: play.verbs, derive: play.derive,
+    play, state: play.state, verbs: play.verbs, derive: play.derive,
+    /* `t` reste le hublot sur les rouages, comme le hook `__fhRollMachine` de
+       la v1. Depuis la coupe il en a DEUX : ceux du moteur SRD, et ceux de la
+       couche montée — qui n'existent que si elle l'est. */
+    t: Object.assign({}, play.engine, play.engine.layers.fh || {}),
+    engine: play.engine, fh: play.engine.layers.fh || null,
     queueRolls, reset, die, emitted,
     queueEmpty: () => bucket.length,
     settledEvents: () => emitted.filter((event) => event.type === "roll-settled"),

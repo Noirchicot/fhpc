@@ -16,16 +16,23 @@ export const MAX_HISTORY = 20;
 
 /* Les noms de matières admis pour la teinte d'un dé. La v1 validait contre
    `DIE_MATERIAL`, la table de palettes SVG ; ici seule la LISTE fait règle —
-   les palettes restent une affaire d'UI (fh-dice-visual.js). `white` et
-   `chaos` sont exclus par `dieColour` : ce sont des matières du moteur, pas
-   des robes qu'un joueur choisit. */
+   les palettes restent une affaire d'UI (fh-dice-visual.js). `white` est exclu
+   par `dieColour` : c'est une matière du moteur, pas une robe qu'un joueur
+   choisit.
+
+   REWRITTEN (lot 5) — la liste portait une matière nommée d'après une
+   mécanique maison, et `dieColour` l'excluait explicitement juste après. Elle
+   est SORTIE de la liste : le résultat est identique au bit près (les deux
+   chemins rendaient ""), et `src/play/` cesse de nommer une règle qu'il ne
+   possède pas (loi §0.12). Les dés d'une couche portent leur matière par leur
+   propre `special`, comme ils l'ont toujours fait. */
 export const DIE_MATERIAL_NAMES = [
-  "ivory", "gold", "green", "crit", "fumble", "chaos", "white",
+  "ivory", "gold", "green", "crit", "fumble", "white",
   "crimson", "azure", "violet", "slate", "ash"
 ];
 
 export function dieColour(value) {
-  return DIE_MATERIAL_NAMES.indexOf(value) >= 0 && value !== "white" && value !== "chaos" ? value : "";
+  return DIE_MATERIAL_NAMES.indexOf(value) >= 0 && value !== "white" ? value : "";
 }
 
 /* « choice » est l'A/D d'Eric : on lance deux dés, on décide après. Avantage
@@ -109,8 +116,19 @@ export function pendingTrayDice(sides, label, mode, forced, extra) {
   return dice;
 }
 
-/* Le kit : tout ce qui a besoin de hasard ou d'un identifiant. */
-export function createDiceKit({ rollDie, uuid }) {
+/* Le kit : tout ce qui a besoin de hasard ou d'un identifiant.
+
+   `modules` est ce qui permet à ce fichier de ne citer AUCUNE mécanique
+   maison (loi §0.12). Avant le lot 5, `trayDiceFromEntry` connaissait le dé
+   de Destinée, le jeton « FH bonus » et la transformation d'un 1 en 20. Les
+   trois sont devenus des CONTRIBUTIONS : un module rend les dés de sa
+   mécanique, décore la base s'il l'a réécrite, et déclare les sortes d'entrée
+   qui lui appartiennent. Sans module monté, rien de tout cela n'existe. */
+export function createDiceKit({ rollDie, uuid, labels, modules = [] }) {
+  const t = labels;
+  const trayHooks = modules.map((m) => m.trayDice).filter(Boolean);
+  const baseHooks = modules.map((m) => m.decorateBase).filter(Boolean);
+  const kindHooks = modules.map((m) => m.trayDiceForKind).filter(Boolean);
   function newFreeDie(sides, colour) {
     return { id: uuid(), sides: Number(sides), colour: dieColour(colour), advantageMode: "flat", forcedResult: null };
   }
@@ -156,7 +174,12 @@ export function createDiceKit({ rollDie, uuid }) {
       forced: !!die.forced, origin: die.origin || undefined,
       sourceIcon: bonusSourceFor(label, index, die.sourceIcon), colour: dieColour(die.colour),
       short: die.short ? String(die.short).slice(0, 7) : undefined,
-      poolResourceId: die.poolResourceId || undefined
+      poolResourceId: die.poolResourceId || undefined,
+      /* D.4 : la SOURCE de correction voyage avec le dé. Sans elle, le
+         règlement ne saurait pas qu'un Tactical Mind se rembourse quand le
+         test échoue quand même. */
+      correction: die.correction || undefined,
+      refunded: die.refunded || undefined
     };
   }
 
@@ -190,6 +213,13 @@ export function createDiceKit({ rollDie, uuid }) {
      `rollExport` mette la même liste sur le fil. */
   function trayDiceFromEntry(entry) {
     const results = [];
+    /* Une sorte d'entrée qui appartient à un module (un dé de Destinée isolé)
+       est rendue par ce module, et par lui seul. Demandé AVANT tout le reste :
+       le chemin commun ne connaît que `d20` et `tray`. */
+    for (const hook of kindHooks) {
+      const own = hook(entry, { trayDiceForPlan, t });
+      if (own) return own;
+    }
     if (entry.kind === "d20") {
       const d20Plan = entry.d20Roll || {
         sides: 20, rolls: entry.d20s || [entry.kept], result: entry.kept,
@@ -198,31 +228,30 @@ export function createDiceKit({ rollDie, uuid }) {
       };
       /* Chaque dé tombé porte la clef à laquelle son propre menu répond : un
          Portent posé dessus plus tard atteint cette entrée et aucune autre. */
-      trayDiceForPlan(d20Plan, "d20", { dieRole: "base", colour: entry.d20Colour || "", landedKey: "d20", entryId: entry.id })
-        .forEach((die, index) => {
-          die.natural = die.result;
-          if (entry.transformed && index === Number(d20Plan.chosenIndex)) { die.label = "Original d20"; die.dropped = true; }
-          results.push(die);
-        });
-      if (entry.transformed) results.push({ sides: 20, result: 20, label: "FATE 1→20", natural: 20, special: "transformed" });
+      const base = trayDiceForPlan(d20Plan, "d20", { dieRole: "base", colour: entry.d20Colour || "", landedKey: "d20", entryId: entry.id });
+      base.forEach((die) => { die.natural = die.result; });
+      /* Une mécanique qui a RÉÉCRIT le d20 (un 1 qui se lit 20) le dit ici,
+         sur les dés qu'elle a réécrits — le chemin commun ne connaît pas sa
+         règle, seulement qu'un module a le droit de décorer sa propre base. */
+      baseHooks.forEach((hook) => hook(entry, base, { plan: d20Plan, t }));
+      base.forEach((die) => results.push(die));
       bonusDiceOf(entry).forEach((die) => {
         trayDiceForPlan(die, die.label, { dieRole: "bonus", landedKey: "bonus:" + die.id, entryId: entry.id })
           .forEach((item) => results.push(item));
       });
-      if (entry.destiny) {
-        trayDiceForPlan(entry.destiny, "Destiny", {
-          dieRole: "destiny",
-          special: entry.destiny.criticalSuccess ? "arcane-critical-success" : entry.destiny.criticalFailure ? "arcane-critical-failure" : ""
-        }).forEach((item) => results.push(item));
-      }
-      if (entry.plusTwo) results.push({ kind: "modifier", result: 2, label: "FH bonus" });
-      if (Number(entry.custom)) results.push({ kind: "modifier", result: Number(entry.custom), label: "Manual", tone: "mod" });
-      if (entry.exhaustion) results.push({ kind: "modifier", result: -Number(entry.exhaustion), label: "Exhaustion", tone: "exhaustion" });
-    } else if (entry.kind === "destiny") {
-      return trayDiceForPlan(entry.destiny, "Destiny", {
-        dieRole: "destiny",
-        special: entry.destiny.criticalSuccess ? "arcane-critical-success" : entry.destiny.criticalFailure ? "arcane-critical-failure" : ""
+      trayHooks.forEach((hook) => (hook(entry, { trayDiceForPlan, t }) || []).forEach((item) => results.push(item)));
+      if (Number(entry.custom)) results.push({ kind: "modifier", result: Number(entry.custom), label: t("modifier.manual"), tone: "mod" });
+      if (entry.exhaustion) results.push({ kind: "modifier", result: Number(entry.exhaustionPenalty) || -Number(entry.exhaustion), label: t("modifier.exhaustion"), tone: "exhaustion" });
+      /* Les dégâts d'une attaque ou d'un sort sont des dés du MÊME jet : ils
+         se posent à la suite, pas dans une seconde ligne de flux (exigence A). */
+      (entry.damageDice || []).forEach((die, index) => {
+        trayDiceForPlan({ sides: die.sides, rolls: [die.result], result: die.result, chosenIndex: 0, mode: "flat", forced: !!die.forced },
+          t("tray.damage"), { dieRole: "damage", landedKey: "damage:" + index, entryId: entry.id })
+          .forEach((item) => results.push(item));
       });
+      if (entry.damage && Number(entry.damage.bonus)) {
+        results.push({ kind: "modifier", result: Number(entry.damage.bonus), label: t("modifier.damage-bonus"), tone: "mod" });
+      }
     } else if (entry.kind === "tray") {
       /* R31 : un dé libre qui porte un NOM (une ressource de réserve dépensée
          au repos — « Bardic », « Tactical ») le garde sur la ligne tombée,
