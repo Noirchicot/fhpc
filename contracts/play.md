@@ -165,6 +165,69 @@ Un Arcane inconnu ne signale rien — le critique arcanique, lui, a lieu quand
 même. Une taille de dé hors de la table **jette** plutôt que d'inventer un
 niveau.
 
+**OÙ LE MOTEUR LIT « ton Arcane » — corrigé au lot 21.** Il lisait
+`character.destinyBuild.arcana`, un chemin **v1** : zéro occurrence dans
+`schemas/fh-char.schema.json`, zéro dans `examples/*.json`. Sur un document v2
+il rendait `false` à tous les coups, et **aucune Vibration ne s'est jamais
+signalée**. Il lit désormais le choix ratifié le 2026-08-09 (§9 ci-dessous) :
+
+```json
+{ "path": "fh.destiny.arcana", "ref": { "kind": "arcana", "id": "…" } }
+```
+
+Le moteur y vérifie **seulement qu'une carte est nommée** — pas son nom, pas
+son `power`, pas son effet. Trois formes **jettent** au lieu de rendre « pas de
+carte » (loi §0.5), parce que répondre « non » à une question mal posée est
+exactement ainsi que cette mécanique est morte une fois : un `character` qui ne
+porte pas `build.choices` (ce n'est pas un `fh-char/1` — la tranche `resolved`,
+une fiche v1) ; un choix qui porte un `value` au lieu d'un `ref` ; un `ref`
+d'un autre genre que `arcana`. **Aucun `character` du tout** reste légitime et
+silencieux.
+
+### Le Tilt — la seule façon dont Fate's Hand penche un jet (lot 21)
+
+Règle d'Eric, **ratifiée le 2026-08-09**. Elle remplace tous les malus chiffrés
+**situationnels** du système.
+
+| Tilts | Désavantage présent ? | Résultat |
+|---|---|---|
+| 0 | non | jet normal |
+| **1** | non | **+2** |
+| **2 ou plus** | non | **Avantage** |
+| 0 | **oui** | **Désavantage** |
+| **1 ou plus** | **oui** | **jet normal** — tout s'annule |
+
+⭐ **Il n'existe pas de Tilt négatif.** Un malus s'exprime toujours en donnant
+un Tilt à l'**autre** côté : un Tilt sur l'AC du défenseur, ou un Tilt sur le
+DC (soit **+2 au DC**). La raison d'Eric gouverne la forme du code : *« ça
+évite aux humains des calculs trop compliqués »* — rien ne s'additionne, c'est
+une présence ou une absence, comme l'Avantage en 5e.
+
+**Drapeau** : `fh.tilt`. **Réglages de console** (🜂, ils n'existent pas sans la
+couche) : `tilts` — un entier ≥ 0 ; `tiltDisadvantage` — un booléen. Un compte
+négatif ou illisible **jette**, et le refus dit où le malus se donne.
+
+**Ce que le moteur en fait** : la table est une fonction pure
+(`src/modules/fh/tilt.mjs`) qui rend `{outcome, mode, bonus}`. La couche
+l'applique au moment `pre-roll`, priorité 40 — avant que le dé de Destinée
+puisse réclamer la séquence. Elle **ne réimplémente ni l'Avantage ni le
+Désavantage** : elle produit le `d20Mode` que le moteur SRD résout déjà. Le
++2 voyage sur `plusTwo`, le fait sur `entry.tilt = {tilts, disadvantage,
+outcome}`, et le badge `tilt` le rend lisible à la table.
+
+> ⚠️ **Ce que le Tilt ne touche pas, et c'est tranché.** « Il n'y a plus de −2 »
+> ne vise QUE les malus situationnels. L'**Épuisement** reste un modificateur
+> chiffré appliqué au jet (−1 par degré sous FH, `rules.exhaustionPerLevel`) —
+> Eric, 2026-08-09, reconfirmé le 2026-08-10. Les **−2 des Tables de Fatalité**
+> sont des séquelles du Chaos sur une caractéristique, pas des modificateurs de
+> jet : ils restent tels quels. **Aucune synergie n'est modélisée** — « 1 = +2 ·
+> 2 = avantage » est décidé à la table, le moteur reçoit un compte.
+
+> ⚠️ **Le moteur refuse de trancher une collision.** Si une source SRD a déjà
+> posé `d20Mode` dans l'**autre** sens que le Tilt, il **jette** en nommant les
+> deux : Fate's Hand annule dans sa table, la 5e annule entre avantage et
+> désavantage, et rien ne ratifie laquelle l'emporte (loi §0.10).
+
 > ⚠️ **Vibration ≠ Éveil arcanique**, et les confondre est une erreur déjà
 > commise. L'**Éveil** se déclenche sur des **Points à 0 après un 20 naturel
 > au d20** et fait piocher dans **les 78 cartes** ; la **Vibration** se
@@ -216,7 +279,7 @@ jamais par `addHistory` — `completeHistoryAdjustment` mute l'entrée en place.
 
 | Champ | Forme | Note |
 |---|---|---|
-| `character` | référence `resolved` | **LU, jamais écrit.** Sert aux bonus de sauvegarde. |
+| `character` | le document `fh-char/1` | **LU, jamais écrit.** Sert aux bonus de sauvegarde **et** — depuis le lot 21 — à savoir si le personnage nomme un Arcane (`build.choices[]`). ⚠ **Cette ligne disait « référence `resolved` », et le lot 21 la corrige à ce que le code exige désormais.** Elle n'a jamais été exacte : `saveInfo` lit `abilities`/`pb`/`savingProficiencies`, des noms **plats de la v1** qui ne sont ni au sommet de `fh-char/1` ni dans `resolved` (`resolved.abilities.str` est `{score, mod}`, `resolved.proficiency`, `resolved.saves`). Aucun appelant de production n'existe encore : le seul écrivain est `open()`. **À ratifier, avec le portage de `saveInfo`** — voir `INVENTAIRE-LOT-21.md`, question n°1. |
 | 🜂 `destiny` | `{score, points, dice[], overreach, pending[], awakeningOwed, lastChange}` | ⚠ **écrit par la couche, pas par le moteur.** Sans elle, la clef n'existe pas. |
 | `vitals` | `{current, max, exhaustion, shortRestUsed}` | ⚠ idem |
 | `history` | `[]`, 20 max, plus récent d'abord | rendu par `snapshot` |
@@ -298,7 +361,7 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
 2. Déduplication par signature et révisions d'un même jet.
 3. La machine à états complète : Destinée, Chaos, Overreach, A/D, Portent,
    dés stagés, M1 (`play-roller-state-machine`).
-4. Le vocabulaire : **15** règles de badge (5 SRD + 10 de la couche), **11**
+4. Le vocabulaire : **16** règles de badge (5 SRD + 11 de la couche), **11**
    verdicts (6 SRD + 5), les `outcome` inchangés au bit près, et les MOTS dans
    le paquet et non sur la règle (`play-roll-vocabulary`).
    REWRITTEN
@@ -306,6 +369,10 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
    dock v1 la portait pour les 22 Arcanes, la couche v2 n'en avait aucune
    trace. Elle descend de la couche, comme il se doit : pas d'Arcane, pas de
    Vibration.)*
+   REWRITTEN
+   *(lot 21 : quinze → seize. La seizième est `tilt`. Un +2 ou un avantage sans
+   badge est un jet dont la table ne peut pas relire la raison — c'est
+   exactement ce que cette collection existe pour empêcher.)*
 5. Les régressions adversariales du Package 9 (`play-roll-engine-adversarial`).
 6. La réserve comptée et **tous** les chemins de reprise
    (`play-dice-pool`).
@@ -330,6 +397,13 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
     des cinq niveaux de Vibration, l'absence de Vibration sans Arcane, et la
     **régression Éveil ≠ Vibration** — un critique arcanique ne doit toujours
     pas déclencher d'Éveil.
+13. **Le lot 21** (`fh-tilt`, plus la section « lot 21 » de `fh-destiny`) : les
+    **cinq lignes** de la table du Tilt, chacune sous son nom, jusqu'au total
+    du jet ; **son pendant** — la couche débrayée, un personnage SRD pur
+    traverse un jet entier, `configure({tilts})` **jette** en nommant ce que le
+    type accepte, et aucune ligne de `src/play/` ne cite le mot ; la Vibration
+    lue sur un **document v2 réel** et muette sur le chemin v1 ; la **régression
+    Épuisement** — il garde son chiffre et ne devient pas un Tilt.
 
 ## ⚠ Points ouverts, pour l'architecte
 
@@ -403,3 +477,30 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
     face la plus haute : c'est un **Arcane Critical Success**, mais ce n'est
     pas un maximum **lancé**. Le moteur ne signale **aucune** Vibration dans ce
     cas — le choix conservateur, faute de phrase. **À trancher par Eric.**
+
+11. **Que valent DEUX Tilts sur le DC ?** (lot 21) Par symétrie avec la table,
+    ce serait un Désavantage pour celui qui jette — **mais Eric ne l'a pas
+    dit**, donc ce n'est pas gravé et le moteur ne le modélise pas. Il ne
+    connaît que le côté du LANCEUR : un Tilt sur l'AC ou sur le DC est un
+    nombre que la table lui donne. **À trancher par Eric.**
+
+12. **Comment un Tilt compose-t-il avec un avantage accordé par une source
+    SRD ?** (lot 21) Deux systèmes d'annulation coexistent — celui de la table
+    du Tilt et celui de la 5e — et rien ne dit lequel l'emporte quand ils
+    penchent en sens contraires. Le moteur **jette** en nommant les deux plutôt
+    que de choisir (loi §0.10). **À trancher par Eric.**
+
+13. **`state.character` est-il le document ou `resolved` ?** (lot 21) La
+    tranche d'état disait « référence `resolved` », `arcanaKnown()` a besoin de
+    `build.choices` (donc du document), et `saveInfo` lit des champs **plats de
+    la v1** qui n'existent dans ni l'un ni l'autre. Aucun appelant de
+    production n'existe encore pour arbitrer. Le lot 21 a tranché **pour la
+    Vibration** — le document — et l'a écrit au contrat ; `saveInfo` reste sur
+    ses noms v1. **À ratifier par l'architecte**, avec le portage de `saveInfo`.
+
+14. **Le moment `mount` n'est invoqué nulle part.** (lot 21) Il est déclaré
+    dans `MOMENTS` (`src/play/sequence.mjs`) et `sequence.run("mount", …)`
+    n'apparaît dans aucun fichier — mesuré. `runConfiguredRoll` pose bien
+    `phase: "mount"`, mais ne répartit rien. S'y inscrire serait du code mort à
+    l'inscription (loi §0.6) : le Tilt s'inscrit donc sur `pre-roll`. **Le
+    moment est à brancher ou à retirer.**
