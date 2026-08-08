@@ -157,6 +157,98 @@ promettre.
   table `"Sagesse" → wis` est la faute que ce lot existe pour éviter
   (`DERIVATION-FIELDS.md` §1). Garde dédié, attaqué.
 
+## Les modules de statistique — le protocole d'injection
+
+> ⚠️ **Porté au contrat le 2026-08-10, et c'était une dette de l'architecte.**
+> Ce protocole vivait dans l'en-tête de `src/build/derive.mjs` et dans
+> `INVENTAIRE-LOT-19.md` §2 — un commentaire et un rapport daté, ni l'un ni
+> l'autre ratifiés. Le lot 20 a demandé sa mise au contrat **explicitement**, et
+> il avait raison : deux lots ont déjà écrit contre cette forme sans qu'elle
+> soit nulle part opposable. ⚠️ Et l'inventaire du lot 19 décrit la forme
+> **d'avant** la généralisation du 2026-08-09 : il ne connaît ni `records`, ni
+> `refs`, ni `consumed`. **Ne le lis plus comme le contrat** — c'est ici.
+
+Une statistique dérivée est produite par un **module activé par un drapeau**,
+jamais par le pli (décision Q4). `src/build/` **n'importe aucun module** — le
+garde de frontière nomme `../modules/` dans `FORBIDDEN`. Il est **injecté** :
+
+```js
+createBuild({ bus, dispatch, modules: [createFhDestinyStat()] });
+```
+
+Le pli lit les drapeaux par `dispatch("layers.flags")` et n'appelle **que** les
+modules dont le drapeau est levé. Ce fichier ne nomme aucune mécanique de
+couche (loi §0.12) : il ouvre un chemin, il ne s'en sert pas.
+
+### Ce qu'un module déclare
+
+| | |
+|---|---|
+| `flag` | le drapeau de couche qui l'allume. |
+| `contribute(input)` | sa seule porte. Un module qui ne déclare pas **les deux** est un **refus nommé**, jamais un module qu'on saute — *« UN MODULE QUE LA DÉRIVATION NE SAIT PAS APPELER EST UN REFUS »*. |
+
+### Ce qu'il reçoit — `input`
+
+| Entrée | Ce qu'elle porte |
+|---|---|
+| `proficiency` | `resolved.proficiency`, ou `null` si le pli ne l'a pas dérivée. Un module qui ne l'a pas **déclare** son terme au lieu de poser 0 — *« SANS MAÎTRISE DÉRIVÉE, LE TERME SE DÉCLARE »*. |
+| `species` | `{id, name, slug, data}` du record d'espèce, ou `null`. |
+| `choices` | **les choix de son namespace** (chemin `=== flag`, ou préfixé `flag.` / `flag[`), chacun `{path, tail, value, ref, label}`. `tail` est le chemin privé de son préfixe, le point de séparation retiré **seulement s'il y en a un** (`fh.destiny[0]` reste dans le namespace). Ils sont marqués **consommés d'office** : c'est le module qui les juge, et un chemin qu'il ne sait pas lire est un refus qui le nomme (loi §0.5). |
+| `records(kind, id?)` | **le même chemin de lecture que le pli**, vue aplatie `{id, name, slug, data}`. ⚠️ **Avec `id`** : le record ou `null`. **Sans `id`** : la liste du genre — et ce n'est pas un confort. C'est ce qui distingue *« le genre répond vide »* (le contenu n'est pas monté → **DÉCLARER**) de *« le genre est peuplé et ce record n'y est pas »* (un `ref` mort → **REFUSER**). Un `null` unique confondrait les deux, et un contenu manquant se lirait comme un document faux. |
+| `refs` | tous les records que le personnage désigne par un `ref` **hors** du namespace du module, dans l'ordre du document, chacun avec son `path` et son `kind`, déjà aplati. Le module filtre le genre qui l'intéresse. Ce qu'il voit déjà par `choices` ne lui est **pas** tendu deux fois — le lui donner inviterait à le compter deux fois. |
+
+**Pourquoi `refs` est générique et pas un canal par genre.** Le lot 20 avait dû
+ouvrir un canal `feats`, seule forme que sa section autorisait, parce qu'un don
+d'origine vit sous `background.originFeat[0]` — hors de tout namespace, donc
+invisible à tout module. Le besoin était juste ; la forme ne l'était pas.
+`feats` était le **premier d'une série** : le chapitre 4 a le même besoin pour
+la **classe** (le pool vient d'elle) et pour l'**arrière-plan** (les choix
+imposés viennent de lui). On aurait ouvert `classes`, `backgrounds`… un champ
+par genre, à chaque lot. *(Prouvé : « UN MODULE VOIT LA CLASSE ET
+L'ARRIÈRE-PLAN, pas seulement les dons ».)*
+
+L'autre issue — faire déclarer le même don **deux fois** au personnage, une fois
+comme don et une fois dans le namespace du module — reste exclue : deux places
+pour un seul fait, et la dérive garantie.
+
+📌 **Un `ref` mort JETTE**, ici comme partout ailleurs dans le pli (`class`,
+`species`, `gear[n]`, les sorts passent déjà par `must`). Ce canal n'invente pas
+cette règle : il cesse d'y échapper.
+
+⚠️ **Et la résolution est PARESSEUSE, par module — pas faite d'avance.** La
+première version de l'architecte résolvait tous les `ref` en amont avec `must`.
+**Deux tests ont rougi, et ils avaient raison** : résoudre d'avance vole au
+module la distinction ci-dessus entre couche absente et record inexistant. La
+généralisation qui « résout tout d'avance » est la faute à ne pas refaire.
+
+### Ce qu'il rend
+
+| Retour | |
+|---|---|
+| `stat` | l'entrée `resolved.stats[]`, ou `null` s'il n'a pas **un seul** terme à publier (le schéma exige `minItems: 1` sur `breakdown`). |
+| `underived` | ses propres déclarations, versées dans le carnet commun. |
+| `consumed` | les chemins qu'il a **réellement lus hors de son namespace**. Sans lui, un don qui compte dans une statistique ressortirait `unconsumed` et `validate` dirait de lui « il ne change rien à la fiche » — **un faux témoignage, pas une omission**. |
+
+⚠️ **Le garde de réclamation.** Un module ne réclame que ce que la dérivation
+lui a **tendu** ; réclamer autre chose est un refus qui le nomme. Sans ce garde,
+un module pourrait faire taire n'importe quel choix du document. Il est vérifié
+**en le violant**, et il mord sur **tous** les genres — pas seulement les dons
+*(« UN MODULE NE RÉCLAME QUE CE QU'ON LUI A TENDU », « ATTAQUE — le garde de
+réclamation mord sur TOUS les genres »)*. Un `consumed` qui n'est pas une liste
+est également refusé.
+
+### Les propriétés que des tests tiennent
+
+1. **Drapeau éteint** → le module ne tourne pas, `stats` est vide, et ses choix
+   ressortent `unconsumed` — signalés, pas avalés.
+2. **Couche montée sans son module** → `stats` vide, et la déclaration nomme
+   **les deux listes** (drapeaux levés / drapeaux servis) : sans ça, un
+   personnage FH monté sans son module rendrait le même carnet qu'un personnage
+   SRD pur, et l'oubli serait invisible.
+3. **Un drapeau levé que personne ne sert se déclare.**
+4. **`stats: []` pour un personnage SRD pur**, et rien du chemin commun ne cite
+   une mécanique de couche.
+
 ## Ce qui est dérivé, et ce qui ne l'est pas
 
 > ⚠️ **Inventaire RÉVISÉ le 2026-08-08, après la fusion du lot 8 et la
