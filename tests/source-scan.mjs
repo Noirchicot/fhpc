@@ -230,13 +230,24 @@ export function findForbidden(sources, patterns) {
    concaténation tout en minuscules et sans séparateur (`destinydie`) n'offre
    aucune frontière à rétablir. Aucune convention du dépôt ne l'écrit ainsi ;
    le jour où l'une le ferait, c'est ici que ça se réparerait. */
+/* ⚠️ AJOUT DU 2026-08-08 (lot 16) — `vibration`. Elle n'était dans aucune
+   liste parce qu'elle n'était dans aucun fichier : la mécanique avait été
+   PERDUE AU PORTAGE, et un vocabulaire interdit ne peut pas garder un mot que
+   personne n'a encore écrit. Elle rentre dans le moteur par
+   `src/modules/fh/`, donc elle rentre ici en même temps — sinon le premier
+   `entry.vibrationLevel` posé dans `src/play/` passerait comme `arcana` est
+   passé. MESURÉ AVANT DE POSER : zéro occurrence hors de `src/modules/fh/`,
+   aucune suite ne rougit. Pas d'ancre finale, pour la même raison que les
+   autres (`vibrations`, `vibrationLevel`) ; le mot ne préfixe rien du
+   vocabulaire SRD. */
 export const HOUSE_MECHANICS = [
   [/\bdestin(y|ies)/i, "Destiny"],
   [/\bchaos/i, "Chaos"],
   [/\boverreach/i, "Overreach"],
   [/\barcan(a|e|um)/i, "Arcana"],
   [/\bawaken/i, "Awakening"],
-  [/\bfate/i, "Fate"]
+  [/\bfate/i, "Fate"],
+  [/\bvibration/i, "Vibration"]
 ];
 
 /* §L5.3 : les modules s'inscrivent, ils ne sont pas appelés — donc aucun

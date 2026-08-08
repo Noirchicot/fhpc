@@ -112,7 +112,12 @@ test("ATTAQUE — le vocabulaire interdit couvre les formes QUE LE CODE EMPLOIE"
     "const awakened = true;",
     "overreaches += 1;",
     "const chaos = 0;",
-    "fates.push(1);"
+    "fates.push(1);",
+    /* REWRITTEN 2026-08-08 (lot 16) — la Vibration entre au vocabulaire en même
+       temps qu'elle entre au moteur. Les deux formes que le code emploierait :
+       le mot nu, et l'identifiant composé qui porte son niveau. */
+    "const vibration = card.vibration;",
+    "entry.vibrationLevel = 3;"
   ];
   hostile.forEach((line, index) => {
     const hits = findForbidden([{ name: "probe-" + index + ".mjs", text: line }], HOUSE_MECHANICS);

@@ -136,8 +136,9 @@ l'architecte, pas une entrée écrite par ce lot — voir `COUPE-LOT-5.md` §8.
 | 🜂 `spendDestiny` | `{dieId}` | **Ne dépense rien.** Pose le dé d'or dans celui des trois contextes qui est vivant (jet ouvert, console, plateau libre). ROLL seul dépense. | dé indisponible, jet portant déjà de la Destinée → `state.message` |
 | 🜂 `stageDestinyDie` | `{dieId}` | Le stage sur un jet ouvert (chemin interne de `spendDestiny`). | — |
 | 🜂 `adjustDestinyDie` | `{sides, direction}` | Correction manuelle de la réserve. Émet `pool-changed`. | — |
-| 🜂 `setDestinyField` | `{field, value, reason?}` | `score` ou points. Émet `pool-changed`. | — |
-| 🜂 `settleAwakening` | `{card?}` | Règle **un** Éveil dû : score +1, +10 points, compteur −1 (plancher 0). ⚠ voir points ouverts. | — |
+| 🜂 `setDestinyField` | `{field, value, reason?}` | `score` ou points. Une valeur posée à la main est **déclarée**, donc **non plafonnée** (⚠ voir points ouverts n°8). Émet `pool-changed`. | — |
+| 🜂 `recoverDestiny` | `{amount?, reason?}` | **Le seul chemin que le Score borne.** Rend des points de **récupération** ; `amount` vaut **1** par défaut (§2 : « Long rest: regain +1 Destiny Point »). Ce qu'une espèce ou un Arcane y ajoute descend de la couche par `amount`. Un plafond qui mord **laisse une ligne**. Émet `pool-changed`. | `amount` non entier, négatif ou illisible → **jette** |
+| 🜂 `settleAwakening` | `{card}` | Règle **un** Éveil dû : la **carte** déclare ce qu'elle donne (seul un **majeur** monte le Score de +1 ; les points sont **temporaires** et peuvent dépasser le Score), compteur −1 (plancher 0). ⚠ voir points ouverts. | carte absente, `arcana` hors `major`/`minor`, points non déclarés → **jette** |
 
 ### Les décisions — `data-die-choice`, `data-nat-choice`, `data-arcane-fate`
 
@@ -148,6 +149,28 @@ Ce sont les **seules** choses qui tiennent la transaction.
 | `resolveDieChoice` | `{index}` | Tranche un A/D (d20, bonus, Destinée, ajustement). | hors prompt `die-choice` : sans effet |
 | 🜂 `resolveNatOne` | `{entryId, choice: "accept"\|"chaos"}` | Accepter : +1 point. Défier : le 1 devient 20, points à 0, **Chaos porté** (jamais lancé sur place). | entrée non-1 ou déjà répondue : sans effet |
 | 🜂 `resolveArcaneOne` | `{entryId, choice: "accept"\|"chaos"}` | Accepter : l'échec tient, le +1 reste. Refuser : le 1 lit la face max, réserve vidée, Chaos porté. | idem |
+
+### La Vibration — ce qu'un critique arcanique OFFRE (lot 16)
+
+Le **maximum** d'un dé de Destinée est un **critique arcanique** ; si le
+personnage a un Arcane connu, il signale en plus une **Vibration** : un effet
+de sort **optionnel**, de niveau égal à la taille du dé — **d4→1 · d6→2 ·
+d8→3 · d10→4 · d12→5** (`The Major Arcana.md`).
+
+Elle voyage sur `entry.destiny.vibration = {sides, level}`, s'annonce dans le
+flux et porte le badge `vibration`. **Le moteur ne connaît aucun texte de
+carte** : il déclenche et calcule le niveau, l'effet est celui que porte
+l'Arcane du personnage et c'est une **couche de contenu** qui le rend (Q4).
+Un Arcane inconnu ne signale rien — le critique arcanique, lui, a lieu quand
+même. Une taille de dé hors de la table **jette** plutôt que d'inventer un
+niveau.
+
+> ⚠️ **Vibration ≠ Éveil arcanique**, et les confondre est une erreur déjà
+> commise. L'**Éveil** se déclenche sur des **Points à 0 après un 20 naturel
+> au d20** et fait piocher dans **les 78 cartes** ; la **Vibration** se
+> déclenche sur un **critique arcanique** et rend l'effet listé sur **ton**
+> Arcane. Le moteur a **raison** de ne pas déclencher d'Éveil sur un critique
+> arcanique.
 
 ### Le destin différé — `data-pending-*`
 
@@ -217,6 +240,20 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
    de réserve reprise avant le jet. C'est ce qui rend l'annulation gratuite.
 3. **Les points de Destinée ne tombent jamais sous zéro** ; le manque devient
    l'Overreach, qui pose le DD du Chaos.
+3 bis. **Le Score de Destinée plafonne la RÉCUPÉRATION, et rien d'autre**
+   (lot 16, règle tranchée par Eric le 2026-08-08). Toute **hausse** de points
+   déclare sa nature ; une hausse qui n'en déclare aucune **jette**. Une
+   **baisse** n'en déclare aucune — dépenser n'est jamais plafonné.
+   · `recovered` — bornée par `max(score, points actuels)` : elle ne franchit
+     pas le Score, et ne fait pas redescendre qui est déjà au-dessus ;
+   · `temporary` — pioche d'Arcane, 1 naturel, **et le +1 de l'« Accept » sur
+     un dé de Destinée** (§3.4) : **non bornée**, et ce qui dépasse le Score
+     **reste jusqu'à ce qu'on le dépense** ;
+   · `declared` — une valeur posée à la main (⚠ point ouvert n°8).
+   **UN SEUL COMPTEUR, PAS DEUX** : « tant que je ne suis pas au-dessus de mon
+   score, les temporaires se comportent comme des récupérations » — il n'y a
+   donc rien à distinguer sous le plafond, et le moteur ne tient aucune
+   comptabilité de points temporaires.
 4. **Chaos et Overreach sont deux mécaniques séparées**, et toutes deux
    DIFFÉRÉES : la table n'est jamais bloquée au milieu d'un tour.
 5. **Aucune dette ne disparaît en silence** : une éviction laisse une ligne.
@@ -261,9 +298,14 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
 2. Déduplication par signature et révisions d'un même jet.
 3. La machine à états complète : Destinée, Chaos, Overreach, A/D, Portent,
    dés stagés, M1 (`play-roller-state-machine`).
-4. Le vocabulaire : **14** règles de badge (5 SRD + 9 de la couche), **11**
+4. Le vocabulaire : **15** règles de badge (5 SRD + 10 de la couche), **11**
    verdicts (6 SRD + 5), les `outcome` inchangés au bit près, et les MOTS dans
    le paquet et non sur la règle (`play-roll-vocabulary`).
+   REWRITTEN
+   *(lot 16 : quatorze → quinze. La quinzième est `vibration`, retrouvée — le
+   dock v1 la portait pour les 22 Arcanes, la couche v2 n'en avait aucune
+   trace. Elle descend de la couche, comme il se doit : pas d'Arcane, pas de
+   Vibration.)*
 5. Les régressions adversariales du Package 9 (`play-roll-engine-adversarial`).
 6. La réserve comptée et **tous** les chemins de reprise
    (`play-dice-pool`).
@@ -283,6 +325,11 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
 11. D.1 (les trois fenêtres), D.2 (la transaction rouvrable, **sans** la
     couche), D.4 (le remboursement conditionnel), D.5 (les deux bouts du don et
     la survie de la provenance), A (la liste fermée par type).
+12. **Les deux écarts du lot 16** (`fh-destiny`) : le plafond de récupération
+    (dont l'attaque du garde — une hausse sans nature doit rougir), la table
+    des cinq niveaux de Vibration, l'absence de Vibration sans Arcane, et la
+    **régression Éveil ≠ Vibration** — un critique arcanique ne doit toujours
+    pas déclencher d'Éveil.
 
 ## ⚠ Points ouverts, pour l'architecte
 
@@ -323,3 +370,21 @@ n'a le droit d'en recalculer une pour son compte — c'est la leçon des treize
    quelle ressource comptée le porte. Le type le déclare, le lot **n'invente
    aucune convention d'identifiant** — sans lui, la dépense est annoncée sans
    être décrémentée.
+
+8. **Une valeur de points POSÉE À LA MAIN est-elle plafonnée ?** (lot 16)
+   `setDestinyField` la traite comme `declared` — non bornée — parce que la
+   borner empêcherait de rattraper un état de séance, et parce qu'aucune règle
+   d'Eric ne couvre ce cas. C'est le seul endroit du plafond qui n'a pas de
+   phrase derrière lui.
+
+9. **Où vit l'Arcane du personnage ?** (lot 16) La Vibration se déclenche si
+   `character.destinyBuild.arcana` existe — le chemin de la v1. Le schéma, lui,
+   nomme **GAP-KIND** (`destiny.arcana.id`) : l'Arcane n'a pas encore de place
+   ratifiée dans `fh-char/1`. Le moteur lit donc un chemin v1 en attendant, et
+   il ne lit **rien** du contenu de la carte.
+
+10. **Un critique arcanique OBTENU PAR REFUS déclenche-t-il une Vibration ?**
+    (lot 16) Refuser un 1 sur un dé de Destinée (§3.4) fait lire le 1 comme la
+    face la plus haute : c'est un **Arcane Critical Success**, mais ce n'est
+    pas un maximum **lancé**. Le moteur ne signale **aucune** Vibration dans ce
+    cas — le choix conservateur, faute de phrase. **À trancher par Eric.**

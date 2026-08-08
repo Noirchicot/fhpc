@@ -40,9 +40,13 @@ test("ACCEPTATION 1 — un personnage SRD pur lance une compétence de bout en b
   /* Ce que « aucune couche chargée » veut dire, littéralement : les verbes de
      la maison N'EXISTENT PAS. Pas « ne font rien » — n'existent pas. C'est la
      loi §0.6 (pas de code mort derrière un interrupteur) rendue vérifiable. */
-  ["spendDestiny", "stageDestinyDie", "adjustDestinyDie", "setDestinyField", "settleAwakening",
-    "resolveNatOne", "resolveArcaneOne", "armPending", "resolvePending", "addPending",
-    "dropPending", "renamePending"].forEach((verb) => {
+  /* REWRITTEN 2026-08-08 (lot 16) — `recoverDestiny` entre dans la liste le
+     jour où il entre dans la couche. Un verbe neuf qui n'est pas dans ce
+     tableau est un verbe dont personne ne vérifie qu'il DISPARAÎT avec sa
+     couche — et la liste, ici, est la seule chose qui le vérifie. */
+  ["spendDestiny", "stageDestinyDie", "adjustDestinyDie", "setDestinyField", "recoverDestiny",
+    "settleAwakening", "resolveNatOne", "resolveArcaneOne", "armPending", "resolvePending",
+    "addPending", "dropPending", "renamePending"].forEach((verb) => {
     assert.equal(h.verbs[verb], undefined, "le verbe « " + verb + " » n'existe pas sans sa couche");
   });
   assert.deepEqual(h.play.flags, [], "et aucun drapeau de capacité n'est levé");

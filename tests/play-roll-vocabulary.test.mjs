@@ -161,10 +161,14 @@ const loudEntry = {
   d20s: [20], kept: 20, total: 31, dc: 15, exhaustion: 2, adjusted: true, awakening: true,
   chaosRoll: [4, 5], chaosRow: "The Weave shudders", d20Forced: true, bonusDice: [],
   destinyPointChange: { reason: "Awakening", after: 0 },
-  destiny: { sides: 8, result: 8, criticalSuccess: true, pointsBefore: 6, pointsAfter: 5, arcaneChoice: "chaos", chaos: { overreach: 3, dc: 14 } }
+  /* REWRITTEN 2026-08-08 (lot 16) — l'entrée porte désormais sa Vibration : la
+     quinzième règle ne tirerait sur AUCUNE entrée de cette suite sans elle, et
+     une règle qu'aucun cas ne déclenche est une règle que le compte protège
+     sans que personne ne l'ait vue s'allumer. */
+  destiny: { sides: 8, result: 8, criticalSuccess: true, vibration: { sides: 8, level: 3 }, pointsBefore: 6, pointsAfter: 5, arcaneChoice: "chaos", chaos: { overreach: 3, dc: 14 } }
 };
 
-test("quatorze règles déclarées, cinq familles visuelles, des ids uniques", () => {
+test("quinze règles déclarées, cinq familles visuelles, des ids uniques", () => {
   /* REWRITTEN 2026-08-08 (lot 5) — treize règles en v1, quatorze ici, et le
      compte reste le point : c'est ce qui était treize `badges.push()` séparés
      dans le chemin de rendu. La quatorzième est `rerolled` : le SRD garde le
@@ -172,12 +176,17 @@ test("quatorze règles déclarées, cinq familles visuelles, des ids uniques", (
      ne laisse aucune trace dans le flux est une dépense invisible.
      Le partage compte autant que le total : CINQ règles sont SRD, NEUF
      descendent de la couche. */
-  assert.equal(ROLL_BADGE_RULES.length, 14, "fourteen declared rules, one per badge");
+  /* REWRITTEN 2026-08-08 (lot 16) — quinze. La quinzième est `vibration`,
+     retrouvée : le dock v1 portait les 22 Vibrations et la couche v2 n'en avait
+     AUCUNE trace. Le partage bouge d'un cran du côté de la couche — CINQ règles
+     SRD, DIX de la couche — et c'est le bon côté : une Vibration n'existe pas
+     sans Arcane, donc pas sans Fate's Hand. */
+  assert.equal(ROLL_BADGE_RULES.length, 15, "fifteen declared rules, one per badge");
   assert.equal(srdOnly.ROLL_BADGE_RULES.length, 5, "cinq d'entre elles seulement appartiennent au jeu de base");
   assert.equal(srdBadgeRules({ entryBonusDice: kit.entryBonusDice }).length, 5);
   assert.deepEqual([...new Set(ROLL_BADGE_RULES.map((rule) => rule.k))].sort(),
     ["adjusted", "chaos", "destiny", "manual", "n20"], "the five visual families of §3");
-  assert.equal(new Set(ROLL_BADGE_RULES.map((rule) => rule.id)).size, 14, "rule ids are unique");
+  assert.equal(new Set(ROLL_BADGE_RULES.map((rule) => rule.id)).size, 15, "rule ids are unique");
   ROLL_BADGE_RULES.forEach((rule) => {
     assert.equal(typeof rule.when, "function", rule.id + " declares its condition");
     /* REWRITTEN (lot 5, §0.13) — la règle déclarait `text`, une fonction qui
@@ -209,9 +218,12 @@ test("le chemin de rendu ne peut plus inventer un badge", () => {
 
 test("une entrée, tout à la fois : les treize tirent ensemble et dans l'ordre déclaré", () => {
   const loud = rollVocabulary(loudEntry);
+  /* REWRITTEN 2026-08-08 (lot 16) — `vibration` s'insère entre la dépense de
+     Destinée (70) et le refus arcanique (80), et l'ordre est ce qui se lit :
+     ce que le dé a coûté, puis ce qu'il OFFRE. */
   assert.deepEqual(loud.badges.map((b) => b.id), [
     "natural-20", "fate-refused", "chaos-roll", "chaos-row", "exhaustion", "destiny-spend",
-    "arcane-fate-refused", "overreach", "destiny-points", "awakening", "manual", "adjusted"
+    "vibration", "arcane-fate-refused", "overreach", "destiny-points", "awakening", "manual", "adjusted"
   ], "every rule that applies fires, in the declared reading order");
   /* REWRITTEN 2026-08-06 (lot R34-R39) — the badge followed its verdict. L17
      renamed the n20 badge « CRITICAL 20 » in the same ratification that renamed
@@ -229,6 +241,9 @@ test("une entrée, tout à la fois : les treize tirent ensemble et dans l'ordre 
   /* REWRITTEN 2026-08-06 (lot R34-R39) — L23 : the destiny badge's HEAD takes
      the ∞ family. The tail — the points and where they leave you — is untouched. */
   assert.equal(loud.badges.find((b) => b.id === "destiny-spend").t, "∞ critical · -1 pt → 5");
+  /* Le badge dit le NIVEAU et rien d'autre : nommer un sort ici ferait entrer
+     le contenu des 22 cartes dans le paquet de libellés du moteur. */
+  assert.equal(loud.badges.find((b) => b.id === "vibration").t, "Vibration · d8 · spell level 3");
   assert.equal(loud.badges.find((b) => b.id === "overreach").t, "Overreach 3 · save DC 14");
 });
 
