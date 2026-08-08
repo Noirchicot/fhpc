@@ -504,10 +504,10 @@
         "name": "Barbare",
         "data": {
           "armor_training": "Armures légères, intermédiaires et boucliers",
-          "description": "Devenir Barbare…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Barbare.\n\nAptitudes du Barbare\n\n• Recevez les aptitudes de niveau 1 du Barbare, qui figurent dans la table « Aptitudes du Barbare ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Barbare : Dé de vie, maîtrise des armes de guerre et port des boucliers. • Recevez les aptitudes de niveau 1 du Barbare, qui figurent dans la table « Aptitudes du Barbare ». Aptitudes de classe du Barbare\n\nEn tant que Barbare, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Barbare spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Barbare ».",
+          "description": "Devenir Barbare…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Barbare.\n\n• Recevez les aptitudes de niveau 1 du Barbare, qui figurent dans la table « Aptitudes du Barbare ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Barbare : Dé de vie, maîtrise des armes de guerre et port des boucliers. • Recevez les aptitudes de niveau 1 du Barbare, qui figurent dans la table « Aptitudes du Barbare ». Aptitudes de classe du Barbare\n\nEn tant que Barbare, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Barbare spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Barbare ».",
           "features": [
             {
-              "description": "Vous pouvez vous animer d’une force primitive appelée Rage, qui vous investit d’une puissance et d’une résistance accrues. Vous pouvez entrer en Rage, par une action Bonus, si vous ne portez pas d’armure lourde. Vous pouvez entrer en Rage autant de fois par jour qu’indiqué dans la colonne Rages de la table Aptitudes du Barbare, pour votre niveau de Barbare. Vous en regagnez une utilisation lorsque vous terminez un Repos court, et récupérez tout le quota en terminant un Repos long. Tant que votre Rage est active, les règles suivantes s’appliquent. Résistance aux dégâts. Vous bénéficiez de la Résistance aux dégâts contondants, perforants et tranchants. Dégâts de Rage. Lorsque vous effectuez une attaque basée sur la Force, que ce soit avec une arme ou à mains nues, et que vous infligez des dégâts à la cible, vous bénéficiez pour ces dégâts d’un bonus qui augmente lorsque vous gagnez des niveaux de Barbare, comme indiqué à la colonne Dégâts de Rage de la table Aptitudes du Barbare. Avantage en Force. Vous avez l’Avantage aux tests de Force et aux jets de sauvegarde de Force. Ni Concentration ni sorts. Vous ne pouvez pas maintenir votre Concentration ni lancer de sorts. Durée. La Rage persiste jusqu’à la fin de votre tour suivant, mais se termine prématurément si vous enfilez une armure lourde ou subissez l’état Neutralisé. Si votre Rage est encore active lorsque votre tour suivant intervient, vous pouvez la prolonger d’un round par n’importe laquelle des choses suivantes :\n\n• Effectuer un jet d’attaque contre un ennemi. • Contraindre un ennemi à effectuer un jet de sauvegarde. • Entreprendre une action Bonus pour prolonger votre Rage.\n\nChaque fois que la Rage est prolongée, elle persiste jusqu’à la fin de votre tour suivant. Vous pouvez maintenir votre Rage pendant un maximum de 10 minutes.",
+              "description": "Vous pouvez vous animer d’une force primitive appelée Rage, qui vous investit d’une puissance et d’une résistance accrues. Vous pouvez entrer en Rage, par une action Bonus, si vous ne portez pas d’armure lourde. Vous pouvez entrer en Rage autant de fois par jour qu’indiqué dans la colonne Rages de la table Aptitudes du Barbare, pour votre niveau de Barbare. Vous en regagnez une utilisation lorsque vous terminez un Repos court, et récupérez tout le quota en terminant un Repos long. Tant que votre Rage est active, les règles suivantes s’appliquent.\n\nAptitudes du Barbare\n\nNiveau Bonus de maîtrise Aptitudes de classe Rages Dégâts de Rage Bottes d’arme\n\n1 +2 Rage, Bottes d’arme, Défense sans armure 2 +2 2\n\n2 +2 Sens du danger, Témérité 2 +2 2\n\n3 +2 Savoir primal, Sous-classe de Barbare 3 +2 2\n\n4 +2 Amélioration de caractéristique 3 +2 3\n\n5 +3 Attaque supplémentaire, Déplacement rapide 3 +2 3\n\n6 +3 Aptitude de sous-classe 4 +2 3\n\n7 +3 Bond agressif, Instinct sauvage 4 +2 3\n\n8 +3 Amélioration de caractéristique 4 +2 3\n\n9 +4 Coup brutal 4 +3 3\n\n10 +4 Aptitude de sous-classe 4 +3 4\n\n11 +4 Rage implacable 4 +3 4\n\n12 +4 Amélioration de caractéristique 5 +3 4\n\n13 +5 Coup brutal amélioré 5 +3 4\n\n14 +5 Aptitude de sous-classe 5 +3 4\n\n15 +5 Rage persistante 5 +3 4\n\n16 +5 Amélioration de caractéristique 5 +4 4\n\n17 +6 Coup brutal amélioré 6 +4 4\n\n18 +6 Puissance indomptable 6 +4 4\n\n19 +6 Faveur épique 6 +4 4\n\n20 +6 Champion primitif 6 +4 4 Résistance aux dégâts. Vous bénéficiez de la Résistance aux dégâts contondants, perforants et tranchants. Dégâts de Rage. Lorsque vous effectuez une attaque basée sur la Force, que ce soit avec une arme ou à mains nues, et que vous infligez des dégâts à la cible, vous bénéficiez pour ces dégâts d’un bonus qui augmente lorsque vous gagnez des niveaux de Barbare, comme indiqué à la colonne Dégâts de Rage de la table Aptitudes du Barbare. Avantage en Force. Vous avez l’Avantage aux tests de Force et aux jets de sauvegarde de Force. Ni Concentration ni sorts. Vous ne pouvez pas maintenir votre Concentration ni lancer de sorts. Durée. La Rage persiste jusqu’à la fin de votre tour suivant, mais se termine prématurément si vous enfilez une armure lourde ou subissez l’état Neutralisé. Si votre Rage est encore active lorsque votre tour suivant intervient, vous pouvez la prolonger d’un round par n’importe laquelle des choses suivantes :\n\n• Effectuer un jet d’attaque contre un ennemi. • Contraindre un ennemi à effectuer un jet de sauvegarde. • Entreprendre une action Bonus pour prolonger votre Rage.\n\nChaque fois que la Rage est prolongée, elle persiste jusqu’à la fin de votre tour suivant. Vous pouvez maintenir votre Rage pendant un maximum de 10 minutes.",
               "level": 1,
               "name": "Rage",
               "page": 30
@@ -674,7 +674,7 @@
                 "page": 32
               },
               {
-                "description": "Par une action Bonus, vous pouvez inspirer la terreur chez autrui grâce à votre présence et votre puissance primale. Ce faisant, chaque créature de votre choix dans une Émanation de 9 m centrée sur vous effectue un jet de sauvegarde de Sagesse (DD 8 plus votre modificateur de Force et votre bonus de maîtrise). En cas d’échec, la créature subit l’état Effrayé pendant 1 minute. À la fin de chacun des tours d’une créature Effrayée, celle-ci réitère le JS et met un terme à l’effet sur elle-même en cas de réussite. Une fois cette aptitude utilisée, vous devez terminer un Repos long ou dépenser une utilisation de votre Rage (pas d’action requise) pour en récupérer l’usage. Bonus de maîtrise Dé bardique Sorts mineurs Sorts préparés —Emplacements par niveau de sort— Niveau Aptitudes de classe 1 2 3 4 5 6 7 8 9\n\n1 +2 Inspiration bardique, Sorts d6 2 4 2 — — — — — — — —\n\n2 +2 Expertise, Touche-à-tout d6 2 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Barde d6 2 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique d6 3 7 4 3 — — — — — — —\n\n5 +3 Source d’inspiration d8 3 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe d8 3 10 4 3 3 — — — — — —\n\n7 +3 Contre-charme d8 3 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique d8 3 12 4 3 3 2 — — — — —\n\n9 +4 Expertise d8 3 14 4 3 3 3 1 — — — —\n\n10 +4 Secrets magiques d10 4 15 4 3 3 3 2 — — — —\n\n11 +4 — d10 4 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique d10 4 16 4 3 3 3 2 1 — — —\n\n13 +5 — d10 4 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe d10 4 17 4 3 3 3 2 1 1 — —\n\n15 +5 — d12 4 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique d12 4 18 4 3 3 3 2 1 1 1 —\n\n17 +6 — d12 4 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Inspiration supérieure d12 4 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique d12 4 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Verbe de la création d12 4 22 4 3 3 3 3 2 2 1 1\n\nBarde",
+                "description": "Par une action Bonus, vous pouvez inspirer la terreur chez autrui grâce à votre présence et votre puissance primale. Ce faisant, chaque créature de votre choix dans une Émanation de 9 m centrée sur vous effectue un jet de sauvegarde de Sagesse (DD 8 plus votre modificateur de Force et votre bonus de maîtrise). En cas d’échec, la créature subit l’état Effrayé pendant 1 minute. À la fin de chacun des tours d’une créature Effrayée, celle-ci réitère le JS et met un terme à l’effet sur elle-même en cas de réussite. Une fois cette aptitude utilisée, vous devez terminer un Repos long ou dépenser une utilisation de votre Rage (pas d’action requise) pour en récupérer l’usage. Barde",
                 "level": 14,
                 "name": "Présence intimidante",
                 "page": 32
@@ -695,13 +695,13 @@
           "locator": "p.30",
           "version": "5.2.1"
         },
-        "contentHash": "c7dde8783fa7656a0d5b2be06b02c5779e319f09b731242ab822a3b1109f3cba"
+        "contentHash": "ad8f22c254c0b8bf460105bc754634ff23c18f2331c76548b4f1212d04e158cd"
       },
       "srd:class:fr:barde": {
         "name": "Barde",
         "data": {
           "armor_training": "Armures légères",
-          "description": "Aptitudes du Barde\n\nDevenir Barde…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Barde. • Recevez les aptitudes de niveau 1 du Barde, qui figurent dans la table « Aptitudes du Barde ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Barde : Dé de vie, maîtrise d’une compétence au choix, maîtrise d’un instrument de musique au choix et formation aux armures légères. • Recevez les aptitudes de niveau 1 du Barde, qui figurent dans la table « Aptitudes du Barde ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Barde\n\nEn tant que Barde, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Barde spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Barde ».",
+          "description": "Devenir Barde…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Barde. • Recevez les aptitudes de niveau 1 du Barde, qui figurent dans la table « Aptitudes du Barde ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Barde : Dé de vie, maîtrise d’une compétence au choix, maîtrise d’un instrument de musique au choix et formation aux armures légères. • Recevez les aptitudes de niveau 1 du Barde, qui figurent dans la table « Aptitudes du Barde ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Barde\n\nEn tant que Barde, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Barde spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Barde ».\n\nAptitudes du Barde\n\nBonus de maîtrise Dé bardique Sorts mineurs Sorts préparés —Emplacements par niveau de sort— Niveau Aptitudes de classe 1 2 3 4 5 6 7 8 9\n\n1 +2 Inspiration bardique, Sorts d6 2 4 2 — — — — — — — —\n\n2 +2 Expertise, Touche-à-tout d6 2 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Barde d6 2 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique d6 3 7 4 3 — — — — — — —\n\n5 +3 Source d’inspiration d8 3 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe d8 3 10 4 3 3 — — — — — —\n\n7 +3 Contre-charme d8 3 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique d8 3 12 4 3 3 2 — — — — —\n\n9 +4 Expertise d8 3 14 4 3 3 3 1 — — — —\n\n10 +4 Secrets magiques d10 4 15 4 3 3 3 2 — — — —\n\n11 +4 — d10 4 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique d10 4 16 4 3 3 3 2 1 — — —\n\n13 +5 — d10 4 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe d10 4 17 4 3 3 3 2 1 1 — —\n\n15 +5 — d12 4 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique d12 4 18 4 3 3 3 2 1 1 1 —\n\n17 +6 — d12 4 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Inspiration supérieure d12 4 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique d12 4 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Verbe de la création d12 4 22 4 3 3 3 3 2 2 1 1",
           "features": [
             {
               "description": "Vous pouvez inspirer autrui, surnaturellement, par vos paroles, votre musique ou vos danses. Cette inspiration est représentée par votre dé d’Inspiration bardique, un d6. Utilisation de l’Inspiration bardique. Par une action Bonus, vous pouvez inspirer une autre créature qui vous voit ou vous entend dans un rayon de 18 m. Cette créature reçoit l’un de vos dés d’Inspiration bardique. Une même créature ne peut pas disposer de plus d’un dé d’Inspiration bardique à la fois. Une fois au cours de l’heure à venir, lorsque la créature rate un Test d20, elle peut lancer le dé d’Inspiration bardique pour en ajouter le résultat au Test d20, ce qui peut convertir l’échec en réussite. Le dé d’Inspiration bardique est dépensé dès qu’il est lancé. Nombre d’utilisations. Vous pouvez conférer l’Inspiration bardique autant de fois que votre modificateur de Charisme (minimum d’une fois) et vous récupérez ce quota en terminant un Repos long. À plus haut niveau. Votre dé d’Inspiration bardique change lorsque vous atteignez certains niveaux de Barde, comme indiqué à la colonne Dé d’inspiration de la table « Aptitudes du Barde ». Le dé devient un d8 au niveau 5, un d10 au niveau 10 et un d12 au niveau 15.",
@@ -817,7 +817,7 @@
                 "page": 37
               },
               {
-                "description": "Lorsque vous effectuez un test de caractéristique ou un jet d’attaque et que vous le ratez, vous pouvez dépenser une utilisation d’Inspiration bardique ; lancez le dé d’Inspiration bardique et ajoutez-en le résultat au Test d20 concerné, ce qui peut convertir l’échec en réussite. En cas d’échec final, l’Inspiration bardique n’est pas dépensée. 1 +2 Sorts, Ordre divin — 3 4 2 — — — — — — — —\n\n2 +2 Conduit divin 2 3 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Clerc 2 3 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 2 4 7 4 3 — — — — — — —\n\n5 +3 Calcination de Mort-vivant 2 4 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 3 4 10 4 3 3 — — — — — —\n\n7 +3 Impacts bénis 3 4 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 3 4 12 4 3 3 2 — — — — —\n\n9 +4 — 3 4 14 4 3 3 3 1 — — — —\n\n10 +4 Intervention divine 3 5 15 4 3 3 3 2 — — — —\n\n11 +4 — 3 5 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 3 5 16 4 3 3 3 2 1 — — —\n\n13 +5 — 3 5 17 4 3 3 3 2 1 1 — —\n\n14 +5 Impacts bénis améliorés 3 5 17 4 3 3 3 2 1 1 — —\n\n15 +5 — 3 5 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 3 5 18 4 3 3 3 2 1 1 1 —\n\n17 +6 Aptitude de sous-classe 3 5 19 4 3 3 3 2 1 1 1 1\n\n18 +6 — 4 5 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 4 5 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Intervention divine suprême 4 5 22 4 3 3 3 3 2 2 1 1\n\nClerc",
+                "description": "Lorsque vous effectuez un test de caractéristique ou un jet d’attaque et que vous le ratez, vous pouvez dépenser une utilisation d’Inspiration bardique ; lancez le dé d’Inspiration bardique et ajoutez-en le résultat au Test d20 concerné, ce qui peut convertir l’échec en réussite. En cas d’échec final, l’Inspiration bardique n’est pas dépensée. Clerc",
                 "level": 14,
                 "name": "Compétence hors pair",
                 "page": 37
@@ -838,13 +838,13 @@
           "locator": "p.33",
           "version": "5.2.1"
         },
-        "contentHash": "4ed606491f479107a54a181a36f425c9bd2750b589e5a1ed971411689a995519"
+        "contentHash": "2341d6f666a744797b7c05d2c404baa9f91fe3cfb1d221da1f5f4d197540af9e"
       },
       "srd:class:fr:clerc": {
         "name": "Clerc",
         "data": {
           "armor_training": "Armures légères, intermédiaires et boucliers",
-          "description": "Aptitudes du Clerc\n\nNiveau Bonus de maîtrise Aptitudes de classe Conduit divin Sorts mineurs Sorts préparés\n\nDevenir Clerc…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Clerc. • Recevez les aptitudes de niveau 1 du Clerc, qui figurent dans la table « Aptitudes du Clerc ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Clerc : Dé de vie, formation aux armures légères et intermédiaires, et port des boucliers. • Recevez les aptitudes de niveau 1 du Clerc, qui figurent dans la table « Aptitudes du Clerc ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Clerc\n\nEn tant que Clerc, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Clerc spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Clerc ».\n\n—Emplacements par niveau de sort—\n\n1 2 3 4 5 6 7 8 9",
+          "description": "Devenir Clerc…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Clerc. • Recevez les aptitudes de niveau 1 du Clerc, qui figurent dans la table « Aptitudes du Clerc ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Clerc : Dé de vie, formation aux armures légères et intermédiaires, et port des boucliers. • Recevez les aptitudes de niveau 1 du Clerc, qui figurent dans la table « Aptitudes du Clerc ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Clerc\n\nEn tant que Clerc, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Clerc spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Clerc ».\n\nAptitudes du Clerc\n\nNiveau Bonus de maîtrise Aptitudes de classe Conduit divin Sorts mineurs Sorts préparés\n\n1 2 3 4 5 6 7 8 9\n\n1 +2 Sorts, Ordre divin — 3 4 2 — — — — — — — —\n\n2 +2 Conduit divin 2 3 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Clerc 2 3 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 2 4 7 4 3 — — — — — — —\n\n5 +3 Calcination de Mort-vivant 2 4 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 3 4 10 4 3 3 — — — — — —\n\n7 +3 Impacts bénis 3 4 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 3 4 12 4 3 3 2 — — — — —\n\n9 +4 — 3 4 14 4 3 3 3 1 — — — —\n\n10 +4 Intervention divine 3 5 15 4 3 3 3 2 — — — —\n\n11 +4 — 3 5 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 3 5 16 4 3 3 3 2 1 — — —\n\n13 +5 — 3 5 17 4 3 3 3 2 1 1 — —\n\n14 +5 Impacts bénis améliorés 3 5 17 4 3 3 3 2 1 1 — —\n\n15 +5 — 3 5 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 3 5 18 4 3 3 3 2 1 1 1 —\n\n17 +6 Aptitude de sous-classe 3 5 19 4 3 3 3 2 1 1 1 1\n\n18 +6 — 4 5 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 4 5 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Intervention divine suprême 4 5 22 4 3 3 3 3 2 2 1 1\n\n—Emplacements par niveau de sort—",
           "features": [
             {
               "description": "Vous avez appris à lancer des sorts grâce à la prière et à la méditation. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts de Clerc, qui figurent dans la liste Sorts de Clerc, plus loin dans le descriptif de la classe. Sorts mineurs. Vous connaissez trois sorts mineurs que vous choisissez dans la liste de sorts du Clerc. Assistance, flamme sacrée et thaumaturgie sont recommandés. Chaque fois que vous gagnez un niveau de Clerc, vous pouvez remplacer l’un de vos sorts mineurs par un autre sort mineur de votre choix dans la liste du Clerc. Lorsque vous atteignez le niveau 4 de Clerc, puis le niveau 10, vous apprenez un autre sort mineur de votre choix issu de la liste du Clerc, comme indiqué à la colonne Sorts mineurs de la table « Aptitudes du Clerc ». Emplacements de sort. La table « Aptitudes du Clerc » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez quatre sorts du 1er niveau issus de la liste de sorts du Clerc. Bénédiction, bouclier de la foi, rayon traçant et soins sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux de Clerc, comme l’indique la colonne Sorts préparés de la table « Aptitudes du Clerc ». Chaque fois que ce nombre augmente, choisissez des sorts de Clerc supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table. Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Clerc de niveau 3, votre liste de sorts préparés peut inclure six sorts de Clerc du 1er ou 2e niveau, répartis à votre guise. Si une autre aptitude de Clerc vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts de Clerc. Modification des sorts préparés. Chaque fois que vous terminez un Repos long, vous pouvez changer votre liste de sorts préparés en remplaçant des sorts par d’autres sorts de clerc pour lesquels vous disposez d’emplacements. Caractéristique d’incantation. La Sagesse est la caractéristique d’incantation de vos sorts de clerc. Focaliseur d’incantation. Vous pouvez vous servir d’un symbole sacré comme focaliseur d’incantation de vos sorts de clerc.",
@@ -987,7 +987,7 @@
           "locator": "p.38",
           "version": "5.2.1"
         },
-        "contentHash": "acd98905a6bdbf368c4be618a8768f5768c80e1afa47ef2ea50f18fecc2a850c"
+        "contentHash": "746782c5d77be12355e4b376e25a6b1fbd7bcf8e7d57989ccdfe5d7bb417da5a"
       },
       "srd:class:fr:druide": {
         "name": "Druide",
@@ -1002,7 +1002,7 @@
               "page": 43
             },
             {
-              "description": "Vous connaissez le druidique, la langue secrète des Druides. En apprenant cette langue ancestrale, vous avez aussi percé les mystères magiques de la conversation animale ; le sort communication avec les animaux est toujours préparé en ce qui vous concerne. Vous pouvez recourir au druidique pour laisser des messages cachés. Vous et tous ceux qui connaissent cet idiome repérez automatiquement de tels messages. D’autres peuvent aussi détecter la présence de tels signes en réussissant un test d’Intelligence (Investigation) DD 15, mais sont incapables d’en déchiffrer le sens. 1 +2 Sorts, Druidique, Ordre primitif — 2 4 2 — — — — — — — —\n\n2 +2 Compagnon sauvage, Forme sauvage 2 2 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Druide 2 2 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 2 3 7 4 3 — — — — — — —\n\n5 +3 Regain sauvage 2 3 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 3 3 10 4 3 3 — — — — — —\n\n7 +3 Fureur élémentaire 3 3 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 3 3 12 4 3 3 2 — — — — —\n\n9 +4 — 3 3 14 4 3 3 3 1 — — — —\n\n10 +4 Aptitude de sous-classe 3 4 15 4 3 3 3 2 — — — —\n\n11 +4 — 3 4 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 3 4 16 4 3 3 3 2 1 — — —\n\n13 +5 — 3 4 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 3 4 17 4 3 3 3 2 1 1 — —\n\n15 +5 Fureur élémentaire améliorée 3 4 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 3 4 18 4 3 3 3 2 1 1 1 —\n\n17 +6 — 4 4 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Incantation animale 4 4 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 4 4 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Archidruide 4 4 22 4 3 3 3 3 2 2 1 1\n\nAptitudes du Druide\n\nNiveau Bonus de maîtrise Aptitudes de classe Forme sauvage Sorts mineurs Sorts préparés",
+              "description": "Vous connaissez le druidique, la langue secrète des Druides. En apprenant cette langue ancestrale, vous avez aussi percé les mystères magiques de la conversation animale ; le sort communication avec les animaux est toujours préparé en ce qui vous concerne. Vous pouvez recourir au druidique pour laisser des messages cachés. Vous et tous ceux qui connaissent cet idiome repérez automatiquement de tels messages. D’autres peuvent aussi détecter la présence de tels signes en réussissant un test d’Intelligence (Investigation) DD 15, mais sont incapables d’en déchiffrer le sens. Aptitudes du Druide\n\nNiveau Bonus de maîtrise Aptitudes de classe Forme sauvage Sorts mineurs Sorts préparés\n\n1 2 3 4 5 6 7 8 9\n\n1 +2 Sorts, Druidique, Ordre primitif — 2 4 2 — — — — — — — —\n\n2 +2 Compagnon sauvage, Forme sauvage 2 2 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Druide 2 2 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 2 3 7 4 3 — — — — — — —\n\n5 +3 Regain sauvage 2 3 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 3 3 10 4 3 3 — — — — — —\n\n7 +3 Fureur élémentaire 3 3 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 3 3 12 4 3 3 2 — — — — —\n\n9 +4 — 3 3 14 4 3 3 3 1 — — — —\n\n10 +4 Aptitude de sous-classe 3 4 15 4 3 3 3 2 — — — —\n\n11 +4 — 3 4 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 3 4 16 4 3 3 3 2 1 — — —\n\n13 +5 — 3 4 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 3 4 17 4 3 3 3 2 1 1 — —\n\n15 +5 Fureur élémentaire améliorée 3 4 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 3 4 18 4 3 3 3 2 1 1 1 —\n\n17 +6 — 4 4 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Incantation animale 4 4 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 4 4 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Archidruide 4 4 22 4 3 3 3 3 2 2 1 1",
               "level": 1,
               "name": "Druidique",
               "page": 43
@@ -1014,7 +1014,7 @@
               "page": 44
             },
             {
-              "description": "Le pouvoir de la nature vous permet d’adopter la forme d’un animal. Par une action Bonus, vous vous métamorphosez en Bête, forme apprise par le biais de cette aptitude (cf. Formes connues, plus loin). Vous restez sous cette forme autant d’heures que la moitié de votre niveau de Druide, mais la quittez prématurément si vous recourez de nouveau à Forme sauvage, subissez l’état Neutralisé ou mourez. Vous pouvez aussi quitter la forme par une action Bonus.\n\n—Emplacements par niveau de sort—\n\n1 2 3 4 5 6 7 8 9\n\nNombre d’utilisations. Vous pouvez recourir deux fois à Forme sauvage. Vous en regagnez une utilisation lorsque vous terminez un Repos court, et récupérez tout le quota en terminant un Repos long. Vous en recevez des utilisations supplémentaires à certains niveaux de Druide, comme indiqué à la colonne Forme sauvage de la table « Aptitudes du Druide ». Formes connues. Vous connaissez quatre formes de Bête pour cette aptitude, choisies parmi les profils de Bête dont le facteur de puissance n’excède pas 1/4 et dépourvus de Vitesse de vol (voir « Animaux » de la section « Monstres » pour quelques options). Araignée, cheval de selle, loup et rat sont recommandés. Chaque fois que vous terminez un Repos long, vous pouvez remplacer l’une de vos formes connues par une autre forme autorisée. Lorsque vous atteignez certains niveaux de Druide, votre nombre de formes connues et le facteur de puissance maximal associé augmentent, comme indiqué sur la table Formes de bête. De plus, à partir du niveau 8, vous pouvez adopter une forme dotée d’une Vitesse de vol. Si votre maître de jeu l’autorise, vous pouvez consulter d’autres sources pour choisir vos formes connues.\n\nFormes de bête\n\nNiveau de Druide Formes connues FP max. Vitesse de vol\n\n2 4 1/4 Non\n\n4 6 1/2 Non\n\n8 8 1 Oui\n\nRègles sous métamorphose. Tant que vous êtes sous forme de bête, vous conservez votre personnalité, vos souvenirs et votre faculté de parole, et les règles suivantes s’appliquent :\n\nPoints de vie temporaires. Lorsque vous adoptez une Forme sauvage, vous recevez autant de points de vie temporaires que votre niveau de Druide. Profil de jeu. Votre profil est remplacé par celui de la Bête choisie, mais vous conservez les aspects suivants : type de créature ; points de vie ; dés de vie ; valeurs d’Intelligence, Sagesse et Charisme ; aptitudes de classe ; langues ; et dons. Vous conservez aussi vos maîtrises de compétence et de jet de sauvegarde, et appliquez le bonus de maîtrise correspondant, et vous recevez les maîtrises de la créature. Quand le modificateur de compétence ou de JS du profil de Bête est supérieur au vôtre, celui de la Bête s’applique. Pas d’incantation. Vous ne pouvez pas lancer de sorts, mais la métamorphose ne rompt pas votre Concentration, pas plus qu’elle n’interfère avec les sorts que vous avez déjà lancés. Objets. Votre faculté de manipuler des objets dépend des membres et appendices de la forme et non plus des vôtres. En outre, vous décidez si votre équipement tombe dans votre espace, fusionne avec votre nouvelle forme ou est porté par elle. L’équipement porté fonctionne normalement, mais c’est au MJ de décider si une pièce d’équipement donnée peut être portée par la créature, en fonction de la forme et de la taille de celle-ci. Votre équipement ne change pas de taille ni de forme pour s’adapter à votre silhouette animale ; toute pièce d’équipement que la forme sauvage ne peut pas porter doit soit tomber au sol, soit fusionner avec elle. L’équipement qui fusionne avec la forme reste sans effet tant que vous restez sous cette forme.",
+              "description": "Le pouvoir de la nature vous permet d’adopter la forme d’un animal. Par une action Bonus, vous vous métamorphosez en Bête, forme apprise par le biais de cette aptitude (cf. Formes connues, plus loin). Vous restez sous cette forme autant d’heures que la moitié de votre niveau de Druide, mais la quittez prématurément si vous recourez de nouveau à Forme sauvage, subissez l’état Neutralisé ou mourez. Vous pouvez aussi quitter la forme par une action Bonus.\n\n—Emplacements par niveau de sort—\n\nNombre d’utilisations. Vous pouvez recourir deux fois à Forme sauvage. Vous en regagnez une utilisation lorsque vous terminez un Repos court, et récupérez tout le quota en terminant un Repos long. Vous en recevez des utilisations supplémentaires à certains niveaux de Druide, comme indiqué à la colonne Forme sauvage de la table « Aptitudes du Druide ». Formes connues. Vous connaissez quatre formes de Bête pour cette aptitude, choisies parmi les profils de Bête dont le facteur de puissance n’excède pas 1/4 et dépourvus de Vitesse de vol (voir « Animaux » de la section « Monstres » pour quelques options). Araignée, cheval de selle, loup et rat sont recommandés. Chaque fois que vous terminez un Repos long, vous pouvez remplacer l’une de vos formes connues par une autre forme autorisée. Lorsque vous atteignez certains niveaux de Druide, votre nombre de formes connues et le facteur de puissance maximal associé augmentent, comme indiqué sur la table Formes de bête. De plus, à partir du niveau 8, vous pouvez adopter une forme dotée d’une Vitesse de vol. Si votre maître de jeu l’autorise, vous pouvez consulter d’autres sources pour choisir vos formes connues.\n\nFormes de bête\n\nNiveau de Druide Formes connues FP max. Vitesse de vol\n\n2 4 1/4 Non\n\n4 6 1/2 Non\n\n8 8 1 Oui\n\nRègles sous métamorphose. Tant que vous êtes sous forme de bête, vous conservez votre personnalité, vos souvenirs et votre faculté de parole, et les règles suivantes s’appliquent :\n\nPoints de vie temporaires. Lorsque vous adoptez une Forme sauvage, vous recevez autant de points de vie temporaires que votre niveau de Druide. Profil de jeu. Votre profil est remplacé par celui de la Bête choisie, mais vous conservez les aspects suivants : type de créature ; points de vie ; dés de vie ; valeurs d’Intelligence, Sagesse et Charisme ; aptitudes de classe ; langues ; et dons. Vous conservez aussi vos maîtrises de compétence et de jet de sauvegarde, et appliquez le bonus de maîtrise correspondant, et vous recevez les maîtrises de la créature. Quand le modificateur de compétence ou de JS du profil de Bête est supérieur au vôtre, celui de la Bête s’applique. Pas d’incantation. Vous ne pouvez pas lancer de sorts, mais la métamorphose ne rompt pas votre Concentration, pas plus qu’elle n’interfère avec les sorts que vous avez déjà lancés. Objets. Votre faculté de manipuler des objets dépend des membres et appendices de la forme et non plus des vôtres. En outre, vous décidez si votre équipement tombe dans votre espace, fusionne avec votre nouvelle forme ou est porté par elle. L’équipement porté fonctionne normalement, mais c’est au MJ de décider si une pièce d’équipement donnée peut être portée par la créature, en fonction de la forme et de la taille de celle-ci. Votre équipement ne change pas de taille ni de forme pour s’adapter à votre silhouette animale ; toute pièce d’équipement que la forme sauvage ne peut pas porter doit soit tomber au sol, soit fusionner avec elle. L’équipement qui fusionne avec la forme reste sans effet tant que vous restez sous cette forme.",
               "level": 2,
               "name": "Forme sauvage",
               "page": 44
@@ -1151,7 +1151,7 @@
           "locator": "p.43",
           "version": "5.2.1"
         },
-        "contentHash": "57b9d71106d9ce8bfd089fa848277bd549fb5d812cbc37da2901bb5df367f3be"
+        "contentHash": "9366ac2e24d24abe088407b66f8e33fd18e69599b067e336a8195946d8db6797"
       },
       "srd:class:fr:ensorceleur": {
         "name": "Ensorceleur",
@@ -1160,7 +1160,7 @@
           "description": "Devenir Ensorceleur…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base de l’Ensorceleur. • Recevez les aptitudes de niveau 1 de l’Ensorceleur, qui figurent dans la table « Aptitudes de l’Ensorceleur ».\n\nEn tant que personnage multiclassé • Recevez le trait Dé de vie de l’encadré Traits de base de l’Ensorceleur. • Recevez les aptitudes de niveau 1 de l’Ensorceleur, qui figurent dans la table « Aptitudes de l’Ensorceleur ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe de l’Ensorceleur\n\nEn tant qu’Ensorceleur, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux d’Ensorceleur spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes de l’Ensorceleur ».",
           "features": [
             {
-              "description": "C’est en puisant dans votre magie innée que vous lancez vos sorts. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts d’Ensorceleur, qui figurent dans la liste Sorts d’Ensorceleur, plus loin dans le descriptif de la classe. Sorts mineurs. Vous connaissez quatre sorts mineurs d’Ensorceleur de votre choix. Éruption ensorcelée, lumière, poigne électrique et prestidigitation sont recommandés. Chaque fois que vous gagnez un niveau d’Ensorceleur, vous pouvez remplacer l’un de vos sorts 1 +2 Sorts, Sorcellerie innée — 4 2 2 — — — — — — — —\n\n2 +2 Réserve arcanique, Métamagie 2 4 4 3 — — — — — — — —\n\n3 +2 Sous-classe d’Ensorceleur 3 4 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 4 5 7 4 3 — — — — — — —\n\n5 +3 Restauration ensorcelée 5 5 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 6 5 10 4 3 3 — — — — — —\n\n7 +3 Sorcellerie incarnée 7 5 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 8 5 12 4 3 3 2 — — — — —\n\n9 +4 — 9 5 14 4 3 3 3 1 — — — —\n\n10 +4 Métamagie 10 6 15 4 3 3 3 2 — — — —\n\n11 +4 — 11 6 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 12 6 16 4 3 3 3 2 1 — — —\n\n13 +5 — 13 6 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 14 6 17 4 3 3 3 2 1 1 — —\n\n15 +5 — 15 6 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 16 6 18 4 3 3 3 2 1 1 1 —\n\n17 +6 Métamagie 17 6 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Aptitude de sous-classe 18 6 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 19 6 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Apothéose arcanique 20 6 22 4 3 3 3 3 2 2 1 1\n\nAptitudes de l’Ensorceleur\n\nNiveau Bonus de maîtrise Aptitudes de classe Points de Sorcellerie Sorts mineurs Sorts préparés\n\nmineurs de cette aptitude par un autre sort mineur d’Ensorceleur de votre choix. Lorsque vous atteignez les niveaux 4 et 10 d’Ensorceleur, vous apprenez un autre sort mineur d’Ensorceleur de votre choix, comme indiqué en colonne Sorts mineurs de la table « Aptitudes de l’Ensorceleur ». Emplacements de sort. La table « Aptitudes de l’Ensorceleur » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez deux sorts d’Ensorceleur du\n\n—Emplacements par niveau de sort—\n\n1 2 3 4 5 6 7 8 9\n\n1er niveau. Détection de la magie et mains brûlantes sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux d’Ensorceleur, comme l’indique la colonne Sorts préparés de la table « Aptitudes de l’Ensorceleur ». Chaque fois que ce nombre augmente, choisissez des sorts d’Ensorceleur supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table « Aptitudes de l’Ensorceleur ». Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Ensorceleur de niveau 3, votre liste de sorts préparés peut inclure six sorts d’Ensorceleur du 1er ou 2e niveau, répartis à votre guise. Si une autre aptitude d’Ensorceleur vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts d’Ensorceleur. Modification des sorts préparés. Chaque fois que vous gagnez un niveau d’Ensorceleur, vous pouvez remplacer un sort de votre liste par un autre sort d’Ensorceleur pour lequel vous disposez d’au moins un emplacement. Caractéristique d’incantation. Le Charisme est la caractéristique d’incantation de vos sorts d’Ensorceleur. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique comme focaliseur d’incantation de vos sorts d’Ensorceleur.",
+              "description": "C’est en puisant dans votre magie innée que vous lancez vos sorts. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts d’Ensorceleur, qui figurent dans la liste Sorts d’Ensorceleur, plus loin dans le descriptif de la classe. Sorts mineurs. Vous connaissez quatre sorts mineurs d’Ensorceleur de votre choix. Éruption ensorcelée, lumière, poigne électrique et prestidigitation sont recommandés. Chaque fois que vous gagnez un niveau d’Ensorceleur, vous pouvez remplacer l’un de vos sorts Aptitudes de l’Ensorceleur\n\nNiveau Bonus de maîtrise Aptitudes de classe Points de Sorcellerie Sorts mineurs Sorts préparés\n\n1 2 3 4 5 6 7 8 9\n\n1 +2 Sorts, Sorcellerie innée — 4 2 2 — — — — — — — —\n\n2 +2 Réserve arcanique, Métamagie 2 4 4 3 — — — — — — — —\n\n3 +2 Sous-classe d’Ensorceleur 3 4 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 4 5 7 4 3 — — — — — — —\n\n5 +3 Restauration ensorcelée 5 5 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 6 5 10 4 3 3 — — — — — —\n\n7 +3 Sorcellerie incarnée 7 5 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 8 5 12 4 3 3 2 — — — — —\n\n9 +4 — 9 5 14 4 3 3 3 1 — — — —\n\n10 +4 Métamagie 10 6 15 4 3 3 3 2 — — — —\n\n11 +4 — 11 6 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 12 6 16 4 3 3 3 2 1 — — —\n\n13 +5 — 13 6 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 14 6 17 4 3 3 3 2 1 1 — —\n\n15 +5 — 15 6 18 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 16 6 18 4 3 3 3 2 1 1 1 —\n\n17 +6 Métamagie 17 6 19 4 3 3 3 2 1 1 1 1\n\n18 +6 Aptitude de sous-classe 18 6 20 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 19 6 21 4 3 3 3 3 2 1 1 1\n\n20 +6 Apothéose arcanique 20 6 22 4 3 3 3 3 2 2 1 1\n\nmineurs de cette aptitude par un autre sort mineur d’Ensorceleur de votre choix. Lorsque vous atteignez les niveaux 4 et 10 d’Ensorceleur, vous apprenez un autre sort mineur d’Ensorceleur de votre choix, comme indiqué en colonne Sorts mineurs de la table « Aptitudes de l’Ensorceleur ». Emplacements de sort. La table « Aptitudes de l’Ensorceleur » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez deux sorts d’Ensorceleur du\n\n—Emplacements par niveau de sort—\n\n1er niveau. Détection de la magie et mains brûlantes sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux d’Ensorceleur, comme l’indique la colonne Sorts préparés de la table « Aptitudes de l’Ensorceleur ». Chaque fois que ce nombre augmente, choisissez des sorts d’Ensorceleur supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table « Aptitudes de l’Ensorceleur ». Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Ensorceleur de niveau 3, votre liste de sorts préparés peut inclure six sorts d’Ensorceleur du 1er ou 2e niveau, répartis à votre guise. Si une autre aptitude d’Ensorceleur vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts d’Ensorceleur. Modification des sorts préparés. Chaque fois que vous gagnez un niveau d’Ensorceleur, vous pouvez remplacer un sort de votre liste par un autre sort d’Ensorceleur pour lequel vous disposez d’au moins un emplacement. Caractéristique d’incantation. Le Charisme est la caractéristique d’incantation de vos sorts d’Ensorceleur. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique comme focaliseur d’incantation de vos sorts d’Ensorceleur.",
               "level": 1,
               "name": "Sorts",
               "page": 49
@@ -1274,7 +1274,7 @@
                 "page": 55
               },
               {
-                "description": "Vous pouvez lancer convocation de dragon sans composante matérielle. Vous pouvez aussi le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Chaque fois que vous commencez à lancer ce sort, vous pouvez en modifier l’incantation afin qu’elle ne nécessite pas la Concentration. Ce faisant, la durée du sort passe à 1 minute pour cette incantation. Niveau Bonus de maîtrise Aptitudes de classe Second souffle Bottes d’arme\n\n1 +2 Bottes d’arme, Second souffle, Style de combat 2 3\n\n2 +2 Fougue (une utilisation), Sens tactique 2 3\n\n3 +2 Sous-classe de Guerrier 2 3\n\n4 +2 Amélioration de caractéristique 3 4\n\n5 +3 Attaque supplémentaire, Décalage tactique 3 4\n\n6 +3 Amélioration de caractéristique 3 4\n\n7 +3 Aptitude de sous-classe 3 4\n\n8 +3 Amélioration de caractéristique 3 4\n\n9 +4 Botte tactique, Inflexible (une utilisation) 3 4\n\n10 +4 Aptitude de sous-classe 4 5\n\n11 +4 Double attaque supplémentaire 4 5\n\n12 +4 Amélioration de caractéristique 4 5\n\n13 +5 Attaques avisées, Inflexible (deux utilisations) 4 5\n\n14 +5 Amélioration de caractéristique 4 5\n\n15 +5 Aptitude de sous-classe 4 5\n\n16 +5 Amélioration de caractéristique 4 6\n\n17 +6 Fougue (deux utilisations), Inflexible (trois utilisations) 4 6\n\n18 +6 Aptitude de sous-classe 4 6\n\n19 +6 Faveur épique 4 6\n\n20 +6 Triple attaque supplémentaire 4 6\n\nGuerrier",
+                "description": "Vous pouvez lancer convocation de dragon sans composante matérielle. Vous pouvez aussi le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Chaque fois que vous commencez à lancer ce sort, vous pouvez en modifier l’incantation afin qu’elle ne nécessite pas la Concentration. Ce faisant, la durée du sort passe à 1 minute pour cette incantation. Guerrier",
                 "level": 18,
                 "name": "Compagnon draconique",
                 "page": 55
@@ -1295,16 +1295,16 @@
           "locator": "p.49",
           "version": "5.2.1"
         },
-        "contentHash": "3f0cf8bb0ca7f3c269ac0efbc1acca2a1bb9b9068425c3a0dab0f5a39ba8322c"
+        "contentHash": "3d76f0d99a8f38a9ed0754e0f043f1e97666945f6ba6fbd3059d92371edca128"
       },
       "srd:class:fr:guerrier": {
         "name": "Guerrier",
         "data": {
           "armor_training": "Armures légères, intermédiaires et lourdes, boucliers",
-          "description": "Aptitudes du Guerrier\n\nDevenir Guerrier…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Guerrier. • Recevez les aptitudes de niveau 1 du Guerrier, qui figurent dans la table « Aptitudes du Guerrier ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Guerrier : Dé de vie, maîtrise des armes de guerre, formation aux armures légères, intermédiaires et aux boucliers. • Recevez les aptitudes de niveau 1 du Guerrier, qui figurent dans la table « Aptitudes du Guerrier ». Aptitudes de classe du Guerrier\n\nEn tant que Guerrier, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Guerrier spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Guerrier ».",
+          "description": "Devenir Guerrier…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Guerrier. • Recevez les aptitudes de niveau 1 du Guerrier, qui figurent dans la table « Aptitudes du Guerrier ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Guerrier : Dé de vie, maîtrise des armes de guerre, formation aux armures légères, intermédiaires et aux boucliers. • Recevez les aptitudes de niveau 1 du Guerrier, qui figurent dans la table « Aptitudes du Guerrier ». Aptitudes de classe du Guerrier\n\nEn tant que Guerrier, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Guerrier spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Guerrier ».",
           "features": [
             {
-              "description": "Vous avez affûté vos techniques martiales et recevez le don de Style de combat de votre choix (cf. « Dons »). Défense est recommandé. Chaque fois que vous recevez un niveau de Guerrier, vous pouvez remplacer le don choisi par un don différent de Style de combat.",
+              "description": "Vous avez affûté vos techniques martiales et recevez le don de Style de combat de votre choix (cf. « Dons »). Défense est recommandé. Chaque fois que vous recevez un niveau de Guerrier, vous pouvez remplacer le don choisi par un don différent de Style de combat.\n\nAptitudes du Guerrier\n\nNiveau Bonus de maîtrise Aptitudes de classe Second souffle Bottes d’arme\n\n1 +2 Bottes d’arme, Second souffle, Style de combat 2 3\n\n2 +2 Fougue (une utilisation), Sens tactique 2 3\n\n3 +2 Sous-classe de Guerrier 2 3\n\n4 +2 Amélioration de caractéristique 3 4\n\n5 +3 Attaque supplémentaire, Décalage tactique 3 4\n\n6 +3 Amélioration de caractéristique 3 4\n\n7 +3 Aptitude de sous-classe 3 4\n\n8 +3 Amélioration de caractéristique 3 4\n\n9 +4 Botte tactique, Inflexible (une utilisation) 3 4\n\n10 +4 Aptitude de sous-classe 4 5\n\n11 +4 Double attaque supplémentaire 4 5\n\n12 +4 Amélioration de caractéristique 4 5\n\n13 +5 Attaques avisées, Inflexible (deux utilisations) 4 5\n\n14 +5 Amélioration de caractéristique 4 5\n\n15 +5 Aptitude de sous-classe 4 5\n\n16 +5 Amélioration de caractéristique 4 6\n\n17 +6 Fougue (deux utilisations), Inflexible (trois utilisations) 4 6\n\n18 +6 Aptitude de sous-classe 4 6\n\n19 +6 Faveur épique 4 6\n\n20 +6 Triple attaque supplémentaire 4 6",
               "level": 1,
               "name": "Style de combat",
               "page": 56
@@ -1477,7 +1477,7 @@
           "locator": "p.56",
           "version": "5.2.1"
         },
-        "contentHash": "c7d4b9471bce319d95bb7130ef1dd86c9a3e1c0568297400b1d49e565733e942"
+        "contentHash": "51d6458d0adcc1d0a2e3c0852e8a90325f2eaa75a3d61fa060a2c1cdeee7f921"
       },
       "srd:class:fr:magicien": {
         "name": "Magicien",
@@ -1486,7 +1486,7 @@
           "description": "Devenir Magicien…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Magicien. • Recevez les aptitudes de niveau 1 du Magicien, qui figurent dans la table « Aptitudes du Magicien ».\n\nEn tant que personnage multiclassé • Recevez le trait Dé de vie de l’encadré Traits de base du Magicien. • Recevez les aptitudes de niveau 1 du Magicien, qui figurent dans la table « Aptitudes du Magicien ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Magicien\n\nEn tant que Magicien, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Magicien spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Magicien ».",
           "features": [
             {
-              "description": "En tant qu’étudiant de la magie profane, vous avez appris à lancer des sorts. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts de Magicien, qui figurent dans la liste Sorts de Magicien, plus loin dans le descriptif de la classe. 1 +2 Sorts, Savoir rituel, Restauration magique 3 4 2 — — — — — — — —\n\n2 +2 Érudition 3 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Magicien 3 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 4 7 4 3 — — — — — — —\n\n5 +3 Mémorisation de sort 4 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 4 10 4 3 3 — — — — — —\n\n7 +3 — 4 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 4 12 4 3 3 2 — — — — —\n\n9 +4 — 4 14 4 3 3 3 1 — — — —\n\n10 +4 Aptitude de sous-classe 5 15 4 3 3 3 2 — — — —\n\n11 +4 — 5 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 5 16 4 3 3 3 2 1 — — —\n\n13 +5 — 5 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 5 18 4 3 3 3 2 1 1 — —\n\n15 +5 — 5 19 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 5 21 4 3 3 3 2 1 1 1 —\n\n17 +6 — 5 22 4 3 3 3 2 1 1 1 1\n\n18 +6 Maîtrise des sorts 5 23 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 5 24 4 3 3 3 3 2 1 1 1\n\n20 +6 Sorts de prédilection 5 25 4 3 3 3 3 2 2 1 1\n\nAptitudes du Magicien\n\nNiveau Bonus de maîtrise Sorts mineurs Sorts préparés\n\nSorts mineurs. Vous connaissez trois sorts mineurs de Magicien de votre choix. Lumière, main du mage et rayon de givre sont recommandés. Chaque fois que vous terminez un Repos long, vous pouvez remplacer l’un de vos sorts mineurs de cette aptitude par un autre sort mineur de Magicien de votre choix. Lorsque vous atteignez les niveaux 4 et 10 de Magicien, vous apprenez un autre sort mineur de Magicien de votre choix, comme indiqué en colonne Sorts mineurs de la table « Aptitudes du Magicien ». Grimoire. Votre apprentissage de Magicien s’est conclu par la création d’un livre unique : votre grimoire. Cet objet de taille TP pèse 1,5 kg, contient 100 pages et ne peut être lu que par vous-même ou une tierce personne lançant le sort identification. Vous déterminez l’aspect et les matériaux employés dans la confection du grimoire : il peut s’agir d’un ouvrage doré à l’or fin comme d’un recueil de feuilles de vélin reliées par de la ficelle. Le grimoire contient les sorts du 1er niveau et plus que vous connaissez. Il commence avec six sorts de Magicien du 1er niveau de votre choix. Armure du mage, détection de la magie, feuille morte, projectile magique, sommeil et vague tonnante sont recommandés. Chaque fois que vous gagnez un niveau de Magicien après le premier, ajoutez deux sorts de Magicien de votre choix à votre grimoire. Chacun doit être d’un\n\n—Emplacements par niveau de sort—\n\nAptitudes de classe 1 2 3 4 5 6 7 8 9\n\nniveau pour lequel vous disposez d’emplacements de sort, comme indiqué sur la table « Aptitudes du Magicien ». Ces sorts sont l’aboutissement des recherches arcaniques que vous menez régulièrement. Emplacements de sort. La table « Aptitudes du Magicien » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. À cette fin, choisissez quatre sorts de votre grimoire. Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux de Magicien, comme l’indique la colonne Sorts préparés de la table « Aptitudes du Magicien ». Chaque fois que ce nombre augmente, choisissez des sorts de Magicien supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table. Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Magicien de niveau 3, votre liste de sorts préparés peut inclure six sorts de Magicien du 1er ou 2e niveau choisis dans votre grimoire, répartis à votre guise. Si une autre aptitude de Magicien vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts de Magicien. Modification des sorts préparés. Chaque fois que vous terminez un Repos long, vous pouvez changer votre liste de sorts préparés en remplaçant des sorts par d’autres sorts de Magicien de votre grimoire. Caractéristique d’incantation. L’Intelligence est la caractéristique d’incantation de vos sorts de Magicien. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique ou de votre grimoire comme focaliseur d’incantation de vos sorts de Magicien.",
+              "description": "En tant qu’étudiant de la magie profane, vous avez appris à lancer des sorts. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts de Magicien, qui figurent dans la liste Sorts de Magicien, plus loin dans le descriptif de la classe. Aptitudes du Magicien\n\nNiveau Bonus de maîtrise Sorts mineurs Sorts préparés\n\nAptitudes de classe 1 2 3 4 5 6 7 8 9\n\n1 +2 Sorts, Savoir rituel, Restauration magique 3 4 2 — — — — — — — —\n\n2 +2 Érudition 3 5 3 — — — — — — — —\n\n3 +2 Sous-classe de Magicien 3 6 4 2 — — — — — — —\n\n4 +2 Amélioration de caractéristique 4 7 4 3 — — — — — — —\n\n5 +3 Mémorisation de sort 4 9 4 3 2 — — — — — —\n\n6 +3 Aptitude de sous-classe 4 10 4 3 3 — — — — — —\n\n7 +3 — 4 11 4 3 3 1 — — — — —\n\n8 +3 Amélioration de caractéristique 4 12 4 3 3 2 — — — — —\n\n9 +4 — 4 14 4 3 3 3 1 — — — —\n\n10 +4 Aptitude de sous-classe 5 15 4 3 3 3 2 — — — —\n\n11 +4 — 5 16 4 3 3 3 2 1 — — —\n\n12 +4 Amélioration de caractéristique 5 16 4 3 3 3 2 1 — — —\n\n13 +5 — 5 17 4 3 3 3 2 1 1 — —\n\n14 +5 Aptitude de sous-classe 5 18 4 3 3 3 2 1 1 — —\n\n15 +5 — 5 19 4 3 3 3 2 1 1 1 —\n\n16 +5 Amélioration de caractéristique 5 21 4 3 3 3 2 1 1 1 —\n\n17 +6 — 5 22 4 3 3 3 2 1 1 1 1\n\n18 +6 Maîtrise des sorts 5 23 4 3 3 3 3 1 1 1 1\n\n19 +6 Faveur épique 5 24 4 3 3 3 3 2 1 1 1\n\n20 +6 Sorts de prédilection 5 25 4 3 3 3 3 2 2 1 1\n\nSorts mineurs. Vous connaissez trois sorts mineurs de Magicien de votre choix. Lumière, main du mage et rayon de givre sont recommandés. Chaque fois que vous terminez un Repos long, vous pouvez remplacer l’un de vos sorts mineurs de cette aptitude par un autre sort mineur de Magicien de votre choix. Lorsque vous atteignez les niveaux 4 et 10 de Magicien, vous apprenez un autre sort mineur de Magicien de votre choix, comme indiqué en colonne Sorts mineurs de la table « Aptitudes du Magicien ». Grimoire. Votre apprentissage de Magicien s’est conclu par la création d’un livre unique : votre grimoire. Cet objet de taille TP pèse 1,5 kg, contient 100 pages et ne peut être lu que par vous-même ou une tierce personne lançant le sort identification. Vous déterminez l’aspect et les matériaux employés dans la confection du grimoire : il peut s’agir d’un ouvrage doré à l’or fin comme d’un recueil de feuilles de vélin reliées par de la ficelle. Le grimoire contient les sorts du 1er niveau et plus que vous connaissez. Il commence avec six sorts de Magicien du 1er niveau de votre choix. Armure du mage, détection de la magie, feuille morte, projectile magique, sommeil et vague tonnante sont recommandés. Chaque fois que vous gagnez un niveau de Magicien après le premier, ajoutez deux sorts de Magicien de votre choix à votre grimoire. Chacun doit être d’un\n\n—Emplacements par niveau de sort—\n\nniveau pour lequel vous disposez d’emplacements de sort, comme indiqué sur la table « Aptitudes du Magicien ». Ces sorts sont l’aboutissement des recherches arcaniques que vous menez régulièrement. Emplacements de sort. La table « Aptitudes du Magicien » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. À cette fin, choisissez quatre sorts de votre grimoire. Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux de Magicien, comme l’indique la colonne Sorts préparés de la table « Aptitudes du Magicien ». Chaque fois que ce nombre augmente, choisissez des sorts de Magicien supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table. Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Magicien de niveau 3, votre liste de sorts préparés peut inclure six sorts de Magicien du 1er ou 2e niveau choisis dans votre grimoire, répartis à votre guise. Si une autre aptitude de Magicien vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts de Magicien. Modification des sorts préparés. Chaque fois que vous terminez un Repos long, vous pouvez changer votre liste de sorts préparés en remplaçant des sorts par d’autres sorts de Magicien de votre grimoire. Caractéristique d’incantation. L’Intelligence est la caractéristique d’incantation de vos sorts de Magicien. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique ou de votre grimoire comme focaliseur d’incantation de vos sorts de Magicien.",
               "level": 1,
               "name": "Sorts",
               "page": 58
@@ -1601,7 +1601,7 @@
                 "page": 64
               },
               {
-                "description": "Vous savez désormais augmenter la puissance de vos sorts. Lorsque vous lancez un sort de Magicien avec un emplacement de sort du 1er au 5e niveau et infligeant des dégâts, vous pouvez infliger le maximum de dégâts avec ce sort au tour où vous le lancez. La première fois que vous procédez ainsi, vous ne subissez aucun effet indésirable. Si vous recourez de nouveau à cette aptitude avant d’avoir terminé un Repos long, vous subissez 2d12 dégâts nécrotiques pour chaque niveau de l’emplacement de sort, aussitôt après l’avoir lancé. Ces dégâts ne sont pas affectés par la Résistance et l’Immunité. Chaque fois que vous réutilisez cette aptitude avant de terminer un Repos long, les dégâts nécrotiques par niveau de sort augmentent de 1d12. Niveau Bonus de maîtrise Aptitudes de classe Arts martiaux Points de Credo Déplacement sans armure\n\n1 +2 Arts martiaux, Défense sans armure 1d6 — —\n\n2 +2 Déplacement sans armure, Credo du Moine, Métabolisme surnaturel 1d6 2 +3 m\n\n3 +2 Déviation d’assaut, Sous-classe de Moine 1d6 3 +3 m\n\n4 +2 Amélioration de caractéristique, Chute ralentie 1d6 4 +3 m\n\n5 +3 Attaque supplémentaire, Frappe étourdissante 1d8 5 +3 m\n\n6 +3 Aptitude de sous-classe, Frappes renforcées 1d8 6 +4,50 m\n\n7 +3 Esquive totale 1d8 7 +4,50 m\n\n8 +3 Amélioration de caractéristique 1d8 8 +4,50 m\n\n9 +4 Mouvement acrobatique 1d8 9 +4,50 m\n\n10 +4 Autosubsistance, Credo accru 1d8 10 +6 m\n\n11 +4 Aptitude de sous-classe 1d10 11 +6 m\n\n12 +4 Amélioration de caractéristique 1d10 12 +6 m\n\n13 +5 Parade énergétique 1d10 13 +6 m\n\n14 +5 Survivant discipliné 1d10 14 +7,50 m\n\n15 +5 Credo parachevé 1d10 15 +7,50 m\n\n16 +5 Amélioration de caractéristique 1d10 16 +7,50 m\n\n17 +6 Aptitude de sous-classe 1d12 17 +7,50 m\n\n18 +6 Défense supérieure 1d12 18 +9 m\n\n19 +6 Faveur épique 1d12 19 +9 m\n\n20 +6 Esprit et corps 1d12 20 +9 m\n\nMoine",
+                "description": "Vous savez désormais augmenter la puissance de vos sorts. Lorsque vous lancez un sort de Magicien avec un emplacement de sort du 1er au 5e niveau et infligeant des dégâts, vous pouvez infliger le maximum de dégâts avec ce sort au tour où vous le lancez. La première fois que vous procédez ainsi, vous ne subissez aucun effet indésirable. Si vous recourez de nouveau à cette aptitude avant d’avoir terminé un Repos long, vous subissez 2d12 dégâts nécrotiques pour chaque niveau de l’emplacement de sort, aussitôt après l’avoir lancé. Ces dégâts ne sont pas affectés par la Résistance et l’Immunité. Chaque fois que vous réutilisez cette aptitude avant de terminer un Repos long, les dégâts nécrotiques par niveau de sort augmentent de 1d12. Moine",
                 "level": 14,
                 "name": "Surcharge magique",
                 "page": 64
@@ -1622,16 +1622,16 @@
           "locator": "p.58",
           "version": "5.2.1"
         },
-        "contentHash": "6553ceb2a771880aad46618f05112670a8be41980aefebccde24e19d61fa79f2"
+        "contentHash": "3748085586b41a37ffc36e7e2906f3ae4b87a9b4792c40b757b98ed0f48f0e8a"
       },
       "srd:class:fr:moine": {
         "name": "Moine",
         "data": {
           "armor_training": "Aucune",
-          "description": "Aptitudes du Moine\n\nDevenir Moine…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Moine. • Recevez les aptitudes de niveau 1 du Moine, qui figurent dans la table « Aptitudes du Moine ».\n\nEn tant que personnage multiclassé • Recevez le trait Dé de vie de l’encadré Traits de base du Moine. • Recevez les aptitudes de niveau 1 du Moine, qui figurent dans la table « Aptitudes du Moine ». Aptitudes de classe du Moine\n\nEn tant que Moine, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Moine spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Moine ».",
+          "description": "Devenir Moine…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Moine. • Recevez les aptitudes de niveau 1 du Moine, qui figurent dans la table « Aptitudes du Moine ».\n\nEn tant que personnage multiclassé • Recevez le trait Dé de vie de l’encadré Traits de base du Moine. • Recevez les aptitudes de niveau 1 du Moine, qui figurent dans la table « Aptitudes du Moine ». Aptitudes de classe du Moine\n\nEn tant que Moine, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Moine spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Moine ».",
           "features": [
             {
-              "description": "Votre pratique des arts martiaux vous permet de maîtriser des styles de combat axés sur vos attaques à mains nues et vos armes de Moine, à savoir :\n\n• Les armes courantes de corps à corps • Les armes de guerre de corps à corps dotées de la propriété Légère Tant que vous combattez à mains nues ou avec des armes de Moine et que vous ne portez ni armure ni bouclier, vous recevez les bénéfices suivants. Attaque à mains nues supplémentaire. Vous pouvez effectuer une attaque à mains nues par une action Bonus. Dé d’Arts martiaux. Vous pouvez lancer 1d6 à la place des dégâts normaux de votre attaque à mains nues et de vos armes de Moine. Ce dé évolue à mesure que vous gagnez des niveaux de Moine, comme indiqué dans la colonne Arts martiaux de la table « Aptitudes du Moine ». Attaques lestes. Vous pouvez appliquer votre modificateur de Dextérité au lieu de celui de Force pour les jets d’attaque et de dégâts si vous attaquez à mains nues ou avec des armes de Moine. De plus, lorsque vous recourez à l’option Bousculade ou Lutte de votre attaque à mains nues, vous pouvez appliquer votre modificateur de Dextérité au lieu de celui de Force pour en déterminer le DD de sauvegarde.",
+              "description": "Votre pratique des arts martiaux vous permet de maîtriser des styles de combat axés sur vos attaques à mains nues et vos armes de Moine, à savoir :\n\n• Les armes courantes de corps à corps • Les armes de guerre de corps à corps dotées de la propriété Légère\n\nAptitudes du Moine\n\nNiveau Bonus de maîtrise Aptitudes de classe Arts martiaux Points de Credo Déplacement sans armure\n\n1 +2 Arts martiaux, Défense sans armure 1d6 — —\n\n2 +2 Déplacement sans armure, Credo du Moine, Métabolisme surnaturel 1d6 2 +3 m\n\n3 +2 Déviation d’assaut, Sous-classe de Moine 1d6 3 +3 m\n\n4 +2 Amélioration de caractéristique, Chute ralentie 1d6 4 +3 m\n\n5 +3 Attaque supplémentaire, Frappe étourdissante 1d8 5 +3 m\n\n6 +3 Aptitude de sous-classe, Frappes renforcées 1d8 6 +4,50 m\n\n7 +3 Esquive totale 1d8 7 +4,50 m\n\n8 +3 Amélioration de caractéristique 1d8 8 +4,50 m\n\n9 +4 Mouvement acrobatique 1d8 9 +4,50 m\n\n10 +4 Autosubsistance, Credo accru 1d8 10 +6 m\n\n11 +4 Aptitude de sous-classe 1d10 11 +6 m\n\n12 +4 Amélioration de caractéristique 1d10 12 +6 m\n\n13 +5 Parade énergétique 1d10 13 +6 m\n\n14 +5 Survivant discipliné 1d10 14 +7,50 m\n\n15 +5 Credo parachevé 1d10 15 +7,50 m\n\n16 +5 Amélioration de caractéristique 1d10 16 +7,50 m\n\n17 +6 Aptitude de sous-classe 1d12 17 +7,50 m\n\n18 +6 Défense supérieure 1d12 18 +9 m\n\n19 +6 Faveur épique 1d12 19 +9 m\n\n20 +6 Esprit et corps 1d12 20 +9 m Tant que vous combattez à mains nues ou avec des armes de Moine et que vous ne portez ni armure ni bouclier, vous recevez les bénéfices suivants. Attaque à mains nues supplémentaire. Vous pouvez effectuer une attaque à mains nues par une action Bonus. Dé d’Arts martiaux. Vous pouvez lancer 1d6 à la place des dégâts normaux de votre attaque à mains nues et de vos armes de Moine. Ce dé évolue à mesure que vous gagnez des niveaux de Moine, comme indiqué dans la colonne Arts martiaux de la table « Aptitudes du Moine ». Attaques lestes. Vous pouvez appliquer votre modificateur de Dextérité au lieu de celui de Force pour les jets d’attaque et de dégâts si vous attaquez à mains nues ou avec des armes de Moine. De plus, lorsque vous recourez à l’option Bousculade ou Lutte de votre attaque à mains nues, vous pouvez appliquer votre modificateur de Dextérité au lieu de celui de Force pour en déterminer le DD de sauvegarde.",
               "level": 1,
               "name": "Arts martiaux",
               "page": 65
@@ -1831,7 +1831,7 @@
           "locator": "p.65",
           "version": "5.2.1"
         },
-        "contentHash": "5a5948307684c99227f220f669649afcb67af4b63bab5d43cf47a7af57b15723"
+        "contentHash": "b70f5c111fe1062fa9433d7b91e2de8ef6df380113d5ed42a737b5fa52d0fe24"
       },
       "srd:class:fr:occultiste": {
         "name": "Occultiste",
@@ -1840,13 +1840,13 @@
           "description": "Devenir Occultiste…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base de l’Occultiste. • Recevez les aptitudes de niveau 1 de l’Occultiste, qui figurent dans la table « Aptitudes de l’Occultiste ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base de l’Occultiste : Dé de vie et formation aux armures légères. • Recevez les aptitudes de niveau 1 de l’Occultiste, qui figurent dans la table « Aptitudes de l’Occultiste ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe de l’Occultiste\n\nEn tant qu’Occultiste, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux d’Occultiste spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes de l’Occultiste ».",
           "features": [
             {
-              "description": "Vos recherches ésotériques vous ont permis de dénicher des Manifestations occultes, fragments de savoir interdit qui vous octroient divers pouvoirs magiques. Vous recevez une manifestation de votre choix, comme Pacte du grimoire. Ces manifestations sont décrites en section « Options de Manifestation occulte », plus loin dans le descriptif de cette classe. 1 +2 Manifestations occultes, Magie de pacte 1 2 2 1 1\n\n2 +2 Rouerie magique 3 2 3 2 1\n\n3 +2 Sous-classe d’Occultiste 3 2 4 2 2\n\n4 +2 Amélioration de caractéristique 3 3 5 2 2\n\n5 +3 — 5 3 6 2 3\n\n6 +3 Aptitude de sous-classe 5 3 7 2 3\n\n7 +3 — 6 3 8 2 4\n\n8 +3 Amélioration de caractéristique 6 3 9 2 4\n\n9 +4 Communication avec le protecteur 7 3 10 2 5\n\n10 +4 Aptitude de sous-classe 7 4 10 2 5\n\n11 +4 Arcanum mystique (sort du 6e niveau) 7 4 11 3 5\n\n12 +4 Amélioration de caractéristique 8 4 11 3 5\n\n13 +5 Arcanum mystique (sort du 7e niveau) 8 4 12 3 5\n\n14 +5 Aptitude de sous-classe 8 4 12 3 5\n\n15 +5 Arcanum mystique (sort du 8e niveau) 9 4 13 3 5\n\n16 +5 Amélioration de caractéristique 9 4 13 3 5\n\n17 +6 Arcanum mystique (sort du 9e niveau) 9 4 14 4 5\n\n18 +6 — 10 4 14 4 5\n\n19 +6 Faveur épique 10 4 15 4 5\n\n20 +6 Maître de l’occulte 10 4 15 4 5\n\nAptitudes de l’Occultiste\n\nNiveau Bonus de maîtrise Aptitudes de classe\n\nPrérequis. Si une manifestation s’accompagne d’un prérequis, vous devez le remplir pour pouvoir l’apprendre. Si, par exemple, une manifestation nécessite que vous soyez un Occultiste de niveau 5 ou supérieur, vous ne pourrez choisir cette manifestation qu’une fois atteint le niveau 5 dans cette classe. Remplacer et recevoir des manifestations. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer l’une de vos manifestations par une autre pour laquelle vous remplissez les conditions. Vous ne pouvez pas remplacer une manifestation si elle est un prérequis à une autre manifestation dont vous disposez. Vous en apprendrez d’autres que vous choisirez à plus haut niveau, comme le montre la colonne Manifestations de la table « Aptitudes de l’Occultiste ». Vous ne pouvez pas choisir la même manifestation plus d’une fois, sauf si sa description précise le contraire.",
+              "description": "Vos recherches ésotériques vous ont permis de dénicher des Manifestations occultes, fragments de savoir interdit qui vous octroient divers pouvoirs magiques. Vous recevez une manifestation de votre choix, comme Pacte du grimoire. Ces manifestations sont décrites en section « Options de Manifestation occulte », plus loin dans le descriptif de cette classe. Aptitudes de l’Occultiste\n\nNiveau Bonus de maîtrise Aptitudes de classe\n\nNiveau des emplacements\n\nEmplacements de sort\n\nManifestations occultes Sorts mineurs Sorts préparés\n\n1 +2 Manifestations occultes, Magie de pacte 1 2 2 1 1\n\n2 +2 Rouerie magique 3 2 3 2 1\n\n3 +2 Sous-classe d’Occultiste 3 2 4 2 2\n\n4 +2 Amélioration de caractéristique 3 3 5 2 2\n\n5 +3 — 5 3 6 2 3\n\n6 +3 Aptitude de sous-classe 5 3 7 2 3\n\n7 +3 — 6 3 8 2 4\n\n8 +3 Amélioration de caractéristique 6 3 9 2 4\n\n9 +4 Communication avec le protecteur 7 3 10 2 5\n\n10 +4 Aptitude de sous-classe 7 4 10 2 5\n\n11 +4 Arcanum mystique (sort du 6e niveau) 7 4 11 3 5\n\n12 +4 Amélioration de caractéristique 8 4 11 3 5\n\n13 +5 Arcanum mystique (sort du 7e niveau) 8 4 12 3 5\n\n14 +5 Aptitude de sous-classe 8 4 12 3 5\n\n15 +5 Arcanum mystique (sort du 8e niveau) 9 4 13 3 5\n\n16 +5 Amélioration de caractéristique 9 4 13 3 5\n\n17 +6 Arcanum mystique (sort du 9e niveau) 9 4 14 4 5\n\n18 +6 — 10 4 14 4 5\n\n19 +6 Faveur épique 10 4 15 4 5\n\n20 +6 Maître de l’occulte 10 4 15 4 5\n\nPrérequis. Si une manifestation s’accompagne d’un prérequis, vous devez le remplir pour pouvoir l’apprendre. Si, par exemple, une manifestation nécessite que vous soyez un Occultiste de niveau 5 ou supérieur, vous ne pourrez choisir cette manifestation qu’une fois atteint le niveau 5 dans cette classe. Remplacer et recevoir des manifestations. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer l’une de vos manifestations par une autre pour laquelle vous remplissez les conditions. Vous ne pouvez pas remplacer une manifestation si elle est un prérequis à une autre manifestation dont vous disposez. Vous en apprendrez d’autres que vous choisirez à plus haut niveau, comme le montre la colonne Manifestations de la table « Aptitudes de l’Occultiste ». Vous ne pouvez pas choisir la même manifestation plus d’une fois, sauf si sa description précise le contraire.",
               "level": 1,
               "name": "Manifestations occultes",
               "page": 68
             },
             {
-              "description": "Lors d’une cérémonie impie, vous avez scellé un pacte avec une mystérieuse entité afin de recevoir des pouvoirs magiques. Si l’entité est une voix ténébreuse dont l’identité reste obscure, la faveur qu’elle vous octroie est on ne peut plus tangible : l’aptitude à lancer des sorts. Reportez-vous à la section « Sorts » pour\n\nNiveau des emplacements\n\nEmplacements de sort\n\nManifestations occultes Sorts mineurs Sorts préparés\n\nles règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts d’Occultiste, qui figurent dans la liste Sorts d’Occultiste, plus loin dans le descriptif de la classe. Sorts mineurs. Vous connaissez deux sorts mineurs d’Occultiste de votre choix. Décharge occulte et prestidigitation sont recommandés. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer l’un de vos sorts mineurs de cette aptitude par un autre sort mineur d’Occultiste de votre choix. Lorsque vous atteignez les niveaux 4 et 10 d’Occultiste, vous apprenez un autre sort mineur d’Occultiste de votre choix, comme indiqué en colonne Sorts mineurs de la table Aptitudes de l’Occultiste. Emplacements de sort. La table « Aptitudes de l’Occultiste » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts d’Occultiste du 1er au 5e niveau. La table indique en outre le niveau de ces emplacements, qui sont tous du même niveau. Vous récupérez tous les emplacements de sort de Magie de pacte dépensés en terminant un Repos court ou long. En tant qu’Occultiste de niveau 5, par exemple, vous disposez de deux emplacements de sorts du 3e niveau. Pour lancer le sort du 1er niveau charme-personne, vous devez dépenser l’un de ces emplacements et vous le lancez comme un sort du 3e niveau. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez deux sorts du 1er niveau de l’Occultiste. Charme-personne et maléfice sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux d’Occultiste, comme l’indique la colonne Sorts préparés de la table « Aptitudes de l’Occultiste ». Chaque fois que ce nombre augmente, choisissez des sorts d’Occultiste supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table « Aptitudes de l’Occultiste ». Les sorts choisis ne doivent pas être d’un niveau supérieur à ce qui figure dans la colonne Niveau des emplacements pour votre niveau. Lorsque vous atteignez le niveau 6, par exemple, vous apprenez un nouveau sort d’Occultiste, qui peut être du 1er au 3e niveau. Si une autre aptitude d’Occultiste vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts d’Occultiste. Modification des sorts préparés. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer un sort de votre liste par un autre sort d’Occultiste de niveau conforme. Caractéristique d’incantation. Le Charisme est la caractéristique d’incantation de vos sorts d’Occultiste. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique comme focaliseur d’incantation de vos sorts d’Occultiste.",
+              "description": "Lors d’une cérémonie impie, vous avez scellé un pacte avec une mystérieuse entité afin de recevoir des pouvoirs magiques. Si l’entité est une voix ténébreuse dont l’identité reste obscure, la faveur qu’elle vous octroie est on ne peut plus tangible : l’aptitude à lancer des sorts. Reportez-vous à la section « Sorts » pour\n\nles règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts d’Occultiste, qui figurent dans la liste Sorts d’Occultiste, plus loin dans le descriptif de la classe. Sorts mineurs. Vous connaissez deux sorts mineurs d’Occultiste de votre choix. Décharge occulte et prestidigitation sont recommandés. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer l’un de vos sorts mineurs de cette aptitude par un autre sort mineur d’Occultiste de votre choix. Lorsque vous atteignez les niveaux 4 et 10 d’Occultiste, vous apprenez un autre sort mineur d’Occultiste de votre choix, comme indiqué en colonne Sorts mineurs de la table Aptitudes de l’Occultiste. Emplacements de sort. La table « Aptitudes de l’Occultiste » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts d’Occultiste du 1er au 5e niveau. La table indique en outre le niveau de ces emplacements, qui sont tous du même niveau. Vous récupérez tous les emplacements de sort de Magie de pacte dépensés en terminant un Repos court ou long. En tant qu’Occultiste de niveau 5, par exemple, vous disposez de deux emplacements de sorts du 3e niveau. Pour lancer le sort du 1er niveau charme-personne, vous devez dépenser l’un de ces emplacements et vous le lancez comme un sort du 3e niveau. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez deux sorts du 1er niveau de l’Occultiste. Charme-personne et maléfice sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux d’Occultiste, comme l’indique la colonne Sorts préparés de la table « Aptitudes de l’Occultiste ». Chaque fois que ce nombre augmente, choisissez des sorts d’Occultiste supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table « Aptitudes de l’Occultiste ». Les sorts choisis ne doivent pas être d’un niveau supérieur à ce qui figure dans la colonne Niveau des emplacements pour votre niveau. Lorsque vous atteignez le niveau 6, par exemple, vous apprenez un nouveau sort d’Occultiste, qui peut être du 1er au 3e niveau. Si une autre aptitude d’Occultiste vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts d’Occultiste. Modification des sorts préparés. Chaque fois que vous gagnez un niveau d’Occultiste, vous pouvez remplacer un sort de votre liste par un autre sort d’Occultiste de niveau conforme. Caractéristique d’incantation. Le Charisme est la caractéristique d’incantation de vos sorts d’Occultiste. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur arcanique comme focaliseur d’incantation de vos sorts d’Occultiste.",
               "level": 1,
               "name": "Magie de pacte",
               "page": 69
@@ -1970,7 +1970,7 @@
           "locator": "p.68",
           "version": "5.2.1"
         },
-        "contentHash": "34516854e363ab6dc80246e6b16a15d88ba2de2f6fc2de78134088ad3e1b9d8c"
+        "contentHash": "3e3c0b09bf8468cedfba3b9686941936a0bdaa34e651dee9b0e28f67535e5e18"
       },
       "srd:class:fr:paladin": {
         "name": "Paladin",
@@ -1979,7 +1979,7 @@
           "description": "Devenir Paladin…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Paladin. • Recevez les aptitudes de niveau 1 du Paladin, qui figurent dans la table « Aptitudes du Paladin ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Paladin : Dé de vie, maîtrise des armes de guerre, formation aux armures légères, intermédiaires et aux boucliers. • Recevez les aptitudes de niveau 1 du Paladin, qui figurent dans la table « Aptitudes du Paladin ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Paladin\n\nEn tant que Paladin, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Paladin spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Paladin ».",
           "features": [
             {
-              "description": "Votre contact béni peut soigner les blessures. Vous disposez d’une réserve de puissance curatrice qui se reconstitue lorsque vous terminez un Repos long. Cette réserve vous permet de restituer un total de points de vie égal à cinq fois votre niveau de Paladin. Par une action Bonus, vous pouvez puiser tout ou partie de cette réserve et, d’un simple contact, restituer autant de points de vie à une créature (qui peut être vous-même) à concurrence du maximum de cette réserve. Niveau Aptitudes de classe 1 2 3 4 5\n\n1 +2 Bottes d’arme, Imposition des mains, Sorts — 2 2 — — — —\n\n2 +2 Châtiment de paladin, Style de combat — 3 2 — — — —\n\n3 +2 Conduit divin, Sous-classe de Paladin 2 4 3 — — — —\n\n4 +2 Amélioration de caractéristique 2 5 3 — — — —\n\n5 +3 Attaque supplémentaire, Fidèle destrier 2 6 4 2 — — —\n\n6 +3 Aura de protection 2 6 4 2 — — —\n\n7 +3 Aptitude de sous-classe 2 7 4 3 — — —\n\n8 +3 Amélioration de caractéristique 2 7 4 3 — — —\n\n9 +4 Abjuration d’ennemis 2 9 4 3 2 — —\n\n10 +4 Aura de courage 2 9 4 3 2 — —\n\n11 +4 Frappes radiantes 3 10 4 3 3 — —\n\n12 +4 Amélioration de caractéristique 3 10 4 3 3 — —\n\n13 +5 — 3 11 4 3 3 1 —\n\n14 +5 Toucher réparateur 3 11 4 3 3 1 —\n\n15 +5 Aptitude de sous-classe 3 12 4 3 3 2 —\n\n16 +5 Amélioration de caractéristique 3 12 4 3 3 2 —\n\n17 +6 — 3 14 4 3 3 3 1\n\n18 +6 Aura étendue 3 14 4 3 3 3 1\n\n19 +6 Faveur épique 3 15 4 3 3 3 2\n\n20 +6 Aptitude de sous-classe 3 15 4 3 3 3 2\n\nAptitudes du Paladin\n\nBonus de maîtrise Conduit divin Sorts préparés\n\nVous pouvez également dépenser 5 points de vie de la réserve de puissance curatrice pour supprimer l’état Empoisonné affectant la créature ; ces points ne font pas récupérer de pv à la créature.",
+              "description": "Votre contact béni peut soigner les blessures. Vous disposez d’une réserve de puissance curatrice qui se reconstitue lorsque vous terminez un Repos long. Cette réserve vous permet de restituer un total de points de vie égal à cinq fois votre niveau de Paladin. Par une action Bonus, vous pouvez puiser tout ou partie de cette réserve et, d’un simple contact, restituer autant de points de vie à une créature (qui peut être vous-même) à concurrence du maximum de cette réserve. Aptitudes du Paladin\n\nBonus de maîtrise Conduit divin Sorts préparés\n\nNiveau Aptitudes de classe 1 2 3 4 5\n\n1 +2 Bottes d’arme, Imposition des mains, Sorts — 2 2 — — — —\n\n2 +2 Châtiment de paladin, Style de combat — 3 2 — — — —\n\n3 +2 Conduit divin, Sous-classe de Paladin 2 4 3 — — — —\n\n4 +2 Amélioration de caractéristique 2 5 3 — — — —\n\n5 +3 Attaque supplémentaire, Fidèle destrier 2 6 4 2 — — —\n\n6 +3 Aura de protection 2 6 4 2 — — —\n\n7 +3 Aptitude de sous-classe 2 7 4 3 — — —\n\n8 +3 Amélioration de caractéristique 2 7 4 3 — — —\n\n9 +4 Abjuration d’ennemis 2 9 4 3 2 — —\n\n10 +4 Aura de courage 2 9 4 3 2 — —\n\n11 +4 Frappes radiantes 3 10 4 3 3 — —\n\n12 +4 Amélioration de caractéristique 3 10 4 3 3 — —\n\n13 +5 — 3 11 4 3 3 1 —\n\n14 +5 Toucher réparateur 3 11 4 3 3 1 —\n\n15 +5 Aptitude de sous-classe 3 12 4 3 3 2 —\n\n16 +5 Amélioration de caractéristique 3 12 4 3 3 2 —\n\n17 +6 — 3 14 4 3 3 3 1\n\n18 +6 Aura étendue 3 14 4 3 3 3 1\n\n19 +6 Faveur épique 3 15 4 3 3 3 2\n\n20 +6 Aptitude de sous-classe 3 15 4 3 3 3 2\n\nVous pouvez également dépenser 5 points de vie de la réserve de puissance curatrice pour supprimer l’état Empoisonné affectant la créature ; ces points ne font pas récupérer de pv à la créature.",
               "level": 1,
               "name": "Imposition des mains",
               "page": 75
@@ -2135,7 +2135,7 @@
                 "page": 79
               },
               {
-                "description": "Par une action Bonus, votre Aura de protection est renforcée de puissance sacrée, ce qui octroie les bénéfices ci-après pendant 10 minutes ou jusqu’à ce que vous décidiez d’y mettre fin (pas d’action requise). Une fois que vous avez utilisé cette aptitude, vous devez terminer un Repos long pour pouvoir y recourir de nouveau. Vous pouvez également retrouver son usage en dépensant un emplacement de sort du 5e niveau (pas d’action requise). Dégâts radiants. Chaque fois qu’un ennemi débute son tour dans l’aura, cette créature subit un total de dégâts radiants égal à votre modificateur de Charisme + votre bonus de maîtrise. Lumière du soleil. L’aura est inondée d’une Lumière vive qui est la lumière du soleil. Périmètre sacré. Vous bénéficiez de l’Avantage à tout jet de sauvegarde que vous contraint d’effectuer un Fiélon ou un Mort-vivant. Niveau Aptitudes de classe 1 2 3 4 5\n\n1 +2 Sorts, Ennemi juré, Bottes d’arme 2 2 2 — — — —\n\n2 +2 Fin explorateur, Style de combat 2 3 2 — — — —\n\n3 +2 Sous-classe de Rôdeur 2 4 3 — — — —\n\n4 +2 Amélioration de caractéristique 2 5 3 — — — —\n\n5 +3 Attaque supplémentaire 3 6 4 2 — — —\n\n6 +3 Arpenteur 3 6 4 2 — — —\n\n7 +3 Aptitude de sous-classe 3 7 4 3 — — —\n\n8 +3 Amélioration de caractéristique 3 7 4 3 — — —\n\n9 +4 Expertise 4 9 4 3 2 — —\n\n10 +4 Infatigable 4 9 4 3 2 — —\n\n11 +4 Aptitude de sous-classe 4 10 4 3 3 — —\n\n12 +4 Amélioration de caractéristique 4 10 4 3 3 — —\n\n13 +5 Chasseur implacable 5 11 4 3 3 1 —\n\n14 +5 Voile de la nature 5 11 4 3 3 1 —\n\n15 +5 Aptitude de sous-classe 5 12 4 3 3 2 —\n\n16 +5 Amélioration de caractéristique 5 12 4 3 3 2 —\n\n17 +6 Chasseur précis 6 14 4 3 3 3 1\n\n18 +6 Sens sauvages 6 14 4 3 3 3 1\n\n19 +6 Faveur épique 6 15 4 3 3 3 2\n\n20 +6 Tueur implacable 6 15 4 3 3 3 2\n\nRôdeur",
+                "description": "Par une action Bonus, votre Aura de protection est renforcée de puissance sacrée, ce qui octroie les bénéfices ci-après pendant 10 minutes ou jusqu’à ce que vous décidiez d’y mettre fin (pas d’action requise). Une fois que vous avez utilisé cette aptitude, vous devez terminer un Repos long pour pouvoir y recourir de nouveau. Vous pouvez également retrouver son usage en dépensant un emplacement de sort du 5e niveau (pas d’action requise). Dégâts radiants. Chaque fois qu’un ennemi débute son tour dans l’aura, cette créature subit un total de dégâts radiants égal à votre modificateur de Charisme + votre bonus de maîtrise. Lumière du soleil. L’aura est inondée d’une Lumière vive qui est la lumière du soleil. Périmètre sacré. Vous bénéficiez de l’Avantage à tout jet de sauvegarde que vous contraint d’effectuer un Fiélon ou un Mort-vivant. Rôdeur",
                 "level": 20,
                 "name": "Nimbe sacré",
                 "page": 79
@@ -2156,13 +2156,13 @@
           "locator": "p.75",
           "version": "5.2.1"
         },
-        "contentHash": "6b7f0fa7bf01aa32f9fa7c02aa10287b33fb6be249b5404590ff9969d9b2a122"
+        "contentHash": "b51f1d70a58e3f3306669f853db213c8723023b6e410b4028fdcf91031cd836b"
       },
       "srd:class:fr:rodeur": {
         "name": "Rôdeur",
         "data": {
           "armor_training": "Armures légères, intermédiaires et boucliers",
-          "description": "Aptitudes du Rôdeur\n\nBonus de maîtrise Ennemi juré Sorts préparés\n\nDevenir Rôdeur…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Rôdeur. • Recevez les aptitudes de niveau 1 du Rôdeur, qui figurent dans la table « Aptitudes du Rôdeur ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Rôdeur : Dé de vie, maîtrise des armes de guerre, maîtrise d’une compétence de votre choix dans la liste des compétences de Rôdeur, formation aux armures légères, intermédiaires et port des boucliers. • Recevez les aptitudes de niveau 1 du Rôdeur, qui figurent dans la table « Aptitudes du Rôdeur ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Rôdeur\n\nEn tant que Rôdeur, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Rôdeur spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Rôdeur ».\n\n—Emplacements par niveau de sort—",
+          "description": "Devenir Rôdeur…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Rôdeur. • Recevez les aptitudes de niveau 1 du Rôdeur, qui figurent dans la table « Aptitudes du Rôdeur ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Rôdeur : Dé de vie, maîtrise des armes de guerre, maîtrise d’une compétence de votre choix dans la liste des compétences de Rôdeur, formation aux armures légères, intermédiaires et port des boucliers. • Recevez les aptitudes de niveau 1 du Rôdeur, qui figurent dans la table « Aptitudes du Rôdeur ». Référez-vous aux règles du multiclassage (cf. « Création de personnage ») pour déterminer vos emplacements de sort disponibles. Aptitudes de classe du Rôdeur\n\nEn tant que Rôdeur, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Rôdeur spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Rôdeur ».\n\nAptitudes du Rôdeur\n\nBonus de maîtrise Ennemi juré Sorts préparés\n\nNiveau Aptitudes de classe 1 2 3 4 5\n\n1 +2 Sorts, Ennemi juré, Bottes d’arme 2 2 2 — — — —\n\n2 +2 Fin explorateur, Style de combat 2 3 2 — — — —\n\n3 +2 Sous-classe de Rôdeur 2 4 3 — — — —\n\n4 +2 Amélioration de caractéristique 2 5 3 — — — —\n\n5 +3 Attaque supplémentaire 3 6 4 2 — — —\n\n6 +3 Arpenteur 3 6 4 2 — — —\n\n7 +3 Aptitude de sous-classe 3 7 4 3 — — —\n\n8 +3 Amélioration de caractéristique 3 7 4 3 — — —\n\n9 +4 Expertise 4 9 4 3 2 — —\n\n10 +4 Infatigable 4 9 4 3 2 — —\n\n11 +4 Aptitude de sous-classe 4 10 4 3 3 — —\n\n12 +4 Amélioration de caractéristique 4 10 4 3 3 — —\n\n13 +5 Chasseur implacable 5 11 4 3 3 1 —\n\n14 +5 Voile de la nature 5 11 4 3 3 1 —\n\n15 +5 Aptitude de sous-classe 5 12 4 3 3 2 —\n\n16 +5 Amélioration de caractéristique 5 12 4 3 3 2 —\n\n17 +6 Chasseur précis 6 14 4 3 3 3 1\n\n18 +6 Sens sauvages 6 14 4 3 3 3 1\n\n19 +6 Faveur épique 6 15 4 3 3 3 2\n\n20 +6 Tueur implacable 6 15 4 3 3 3 2\n\n—Emplacements par niveau de sort—",
           "features": [
             {
               "description": "Vous avez appris à lancer des sorts en canalisant l’essence magique de la nature. Reportez-vous à la section « Sorts » pour les règles d’incantation. Les informations ci-après expliquent comment utiliser ces règles avec les sorts de Rôdeur, qui figurent dans la liste Sorts de Rôdeur, plus loin dans le descriptif de la classe. Emplacements de sort. La table « Aptitudes du Rôdeur » vous indique le nombre d’emplacements de sort dont vous disposez pour lancer vos sorts du 1er niveau et supérieur. Vous récupérez tous les emplacements dépensés en terminant un Repos long. Sorts préparés du 1er niveau et plus. Vous devez préparer la liste des sorts du 1er niveau et supérieur que cette aptitude vous permet de lancer. Pour commencer, choisissez deux sorts du 1er niveau du Rôdeur. Frappe piégeuse et soins sont recommandés. Le nombre de sorts de votre liste augmente à mesure que vous recevez des niveaux de Rôdeur, comme l’indique la colonne Sorts préparés de la table « Aptitudes du Rôdeur ». Chaque fois que ce nombre augmente, choisissez des sorts de Rôdeur supplémentaires jusqu’à ce que le nombre de sorts de votre liste corresponde au nombre indiqué dans la table « Aptitudes du Rôdeur ». Ces sorts doivent être d’un niveau pour lequel vous disposez d’emplacements de sort. Si, par exemple, vous êtes un Rôdeur de niveau 5, votre liste de sorts préparés peut inclure six sorts de Rôdeur du 1er ou 2e niveau, répartis à votre guise. Si une autre aptitude de Rôdeur vous octroie des sorts toujours préparés, ces sorts ne sont pas décomptés du nombre de sorts que vous pouvez préparer avec la présente aptitude, mais ils sont considérés pour vous comme des sorts de Rôdeur. Modification des sorts préparés. Chaque fois que vous terminez un Repos long, vous pouvez remplacer l’un des sorts de votre liste par un autre sort de Rôdeur pour lequel vous disposez d’emplacements de sort. Caractéristique d’incantation. La Sagesse est la caractéristique d’incantation de vos sorts de Rôdeur. Focaliseur d’incantation. Vous pouvez vous servir d’un focaliseur druidique comme focaliseur d’incantation de vos sorts de Rôdeur.",
@@ -2323,7 +2323,7 @@
                 "page": 83
               },
               {
-                "description": "Quand vous subissez des dégâts, vous pouvez jouer votre Réaction pour vous octroyer la Résistance aux éventuels autres dégâts du même type jusqu’à la fin de ce tour. Niveau Bonus de maîtrise Aptitudes de classe Attaque sournoise\n\nRoublard",
+                "description": "Quand vous subissez des dégâts, vous pouvez jouer votre Réaction pour vous octroyer la Résistance aux éventuels autres dégâts du même type jusqu’à la fin de ce tour. Roublard",
                 "level": 15,
                 "name": "Défense de chasseur supérieure",
                 "page": 83
@@ -2344,16 +2344,16 @@
           "locator": "p.80",
           "version": "5.2.1"
         },
-        "contentHash": "e03fe92d7f5106bda3e0b7972181bfe40a3ac289267b2ca5b2d0d93ef280fb1c"
+        "contentHash": "5d978e868cc5f953e16469b2e600b13e8abbfdc7ce1b7e2e8362ba7d8c82ed61"
       },
       "srd:class:fr:roublard": {
         "name": "Roublard",
         "data": {
           "armor_training": "Armures légères",
-          "description": "Aptitudes du Roublard\n\n1 +2 Argot des voleurs, Attaque sournoise, Bottes d’arme, Expertise 1d6\n\n2 +2 Ruse 1d6\n\n3 +2 Sous-classe de Roublard, Visée appliquée 2d6\n\n4 +2 Amélioration de caractéristique 2d6\n\n5 +3 Frappe malicieuse, Esquive instinctive 3d6\n\n6 +3 Expertise 3d6\n\n7 +3 Esquive totale, Savoir-faire 4d6\n\n8 +3 Amélioration de caractéristique 4d6\n\n9 +4 Aptitude de sous-classe 5d6\n\n10 +4 Amélioration de caractéristique 5d6\n\n11 +4 Frappe malicieuse améliorée 6d6\n\n12 +4 Amélioration de caractéristique 6d6\n\n13 +5 Aptitude de sous-classe 7d6\n\n14 +5 Coups vicieux 7d6\n\n15 +5 Esprit fuyant 8d6\n\n16 +5 Amélioration de caractéristique 8d6\n\n17 +6 Aptitude de sous-classe 9d6\n\n18 +6 Insaisissable 9d6\n\n19 +6 Faveur épique 10d6\n\n20 +6 Coup de chance 10d6\n\nDevenir Roublard…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Roublard. • Recevez les aptitudes de niveau 1 du Roublard, qui figurent dans la table « Aptitudes du Roublard ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Roublard : Dé de vie, maîtrise d’une compétence de votre choix dans la liste des compétences du Roublard, maîtrise des outils de voleur et formation aux armures légères. • Recevez les aptitudes de niveau 1 du Roublard, qui figurent dans la table « Aptitudes du Roublard ». Aptitudes de classe du Roublard\n\nEn tant que Roublard, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Roublard spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Roublard ».",
+          "description": "Devenir Roublard…\n\nEn tant que personnage de niveau 1 • Recevez tous les traits de l’encadré Traits de base du Roublard. • Recevez les aptitudes de niveau 1 du Roublard, qui figurent dans la table « Aptitudes du Roublard ».\n\nEn tant que personnage multiclassé • Recevez les traits suivants de l’encadré Traits de base du Roublard : Dé de vie, maîtrise d’une compétence de votre choix dans la liste des compétences du Roublard, maîtrise des outils de voleur et formation aux armures légères. • Recevez les aptitudes de niveau 1 du Roublard, qui figurent dans la table « Aptitudes du Roublard ». Aptitudes de classe du Roublard\n\nEn tant que Roublard, vous recevez les aptitudes de classe ci-après lorsque vous atteignez les niveaux de Roublard spécifiés. Ces aptitudes sont répertoriées dans la table « Aptitudes du Roublard ».",
           "features": [
             {
-              "description": "Vous recevez l’Expertise dans deux de vos maîtrises de compétence au choix. Escamotage et Discrétion sont recommandés si vous en avez la maîtrise. Au niveau 6 de Roublard, vous recevez l’Expertise dans deux maîtrises de compétences supplémentaires au choix.",
+              "description": "Vous recevez l’Expertise dans deux de vos maîtrises de compétence au choix. Escamotage et Discrétion sont recommandés si vous en avez la maîtrise. Au niveau 6 de Roublard, vous recevez l’Expertise dans deux maîtrises de compétences supplémentaires au choix.\n\nAptitudes du Roublard\n\nNiveau Bonus de maîtrise Aptitudes de classe Attaque sournoise\n\n1 +2 Argot des voleurs, Attaque sournoise, Bottes d’arme, Expertise 1d6\n\n2 +2 Ruse 1d6\n\n3 +2 Sous-classe de Roublard, Visée appliquée 2d6\n\n4 +2 Amélioration de caractéristique 2d6\n\n5 +3 Frappe malicieuse, Esquive instinctive 3d6\n\n6 +3 Expertise 3d6\n\n7 +3 Esquive totale, Savoir-faire 4d6\n\n8 +3 Amélioration de caractéristique 4d6\n\n9 +4 Aptitude de sous-classe 5d6\n\n10 +4 Amélioration de caractéristique 5d6\n\n11 +4 Frappe malicieuse améliorée 6d6\n\n12 +4 Amélioration de caractéristique 6d6\n\n13 +5 Aptitude de sous-classe 7d6\n\n14 +5 Coups vicieux 7d6\n\n15 +5 Esprit fuyant 8d6\n\n16 +5 Amélioration de caractéristique 8d6\n\n17 +6 Aptitude de sous-classe 9d6\n\n18 +6 Insaisissable 9d6\n\n19 +6 Faveur épique 10d6\n\n20 +6 Coup de chance 10d6",
               "level": 1,
               "name": "Expertise",
               "page": 84
@@ -2539,7 +2539,7 @@
           "locator": "p.84",
           "version": "5.2.1"
         },
-        "contentHash": "deaf8dd2d2cc4b8ea8c0ce7a3dc0cb1437688854148a1f24cb486945985ad96b"
+        "contentHash": "73ceee3af17fb0ff78606e26bceadbec4835ca8b35ec4a4719810a9038514230"
       }
     },
     "class-progression": {
@@ -11905,7 +11905,7 @@
       "srd:glossary:fr:zone-d-effet": {
         "name": "Zone d’effet",
         "data": {
-          "description": "Les descriptions de nombreux sorts et aptitudes précisent qu’ils ont une zone d’effet, qui prend en règle générale l’une des six formes ci-après. Ces formes sont définies ailleurs dans le présent glossaire :\n\nCône Cube Cylindre Émanation Ligne Sphère\n\nChaque zone d’effet a un point d’origine, position depuis laquelle se déploient les énergies de l’effet. Les règles propres à chaque forme spécifient comment positionner ce point d’origine. Si toutes les lignes droites reliant le point d’origine à un endroit de la zone d’effet sont bloquées, cet endroit n’est pas inclus dans la zone d’effet. Pour bloquer une ligne, un obstacle doit offrir un Abri total. Lire aussi « Abri ». Si le créateur d’une zone d’effet place celle-ci en un point qu’il ne voit pas et qu’une obstruction (comme un mur) se dresse entre lui et ce point, le point d’origine se manifeste en réalité de son côté de l’obstacle. Environnement Allure maximale Distance de rencontre DD d’alimentation DD d’orientation DD d’observation\n\nArctique Rapide* 6d6 × 3 m 20 10 10\n\nCollines Normale 2d10 × 3 m 15 10 15\n\nDésert Normale 6d6 × 3 m 20 10 10\n\nForêt Normale 2d8 × 3 m 10 15 15\n\nLittoral Normale 2d10 × 3 m 10 5 15\n\nMarais Lente 2d8 × 3 m 10 15 20\n\nMontagnes Lente 4d10 × 3 m 20 15 20\n\nOutreterre Normale 2d6 × 3 m 20 10 20\n\nPlaine Rapide 6d6 × 3 m 15 5 15\n\nUrbain Normale 2d6 × 3 m 20 15 15\n\nVoie d’eau Spéciale† 6d6 × 3 m 15 10 15",
+          "description": "Les descriptions de nombreux sorts et aptitudes précisent qu’ils ont une zone d’effet, qui prend en règle générale l’une des six formes ci-après. Ces formes sont définies ailleurs dans le présent glossaire :\n\nCône Cube Cylindre Émanation Ligne Sphère\n\nChaque zone d’effet a un point d’origine, position depuis laquelle se déploient les énergies de l’effet. Les règles propres à chaque forme spécifient comment positionner ce point d’origine. Si toutes les lignes droites reliant le point d’origine à un endroit de la zone d’effet sont bloquées, cet endroit n’est pas inclus dans la zone d’effet. Pour bloquer une ligne, un obstacle doit offrir un Abri total. Lire aussi « Abri ». Si le créateur d’une zone d’effet place celle-ci en un point qu’il ne voit pas et qu’une obstruction (comme un mur) se dresse entre lui et ce point, le point d’origine se manifeste en réalité de son côté de l’obstacle.",
           "name": "Zone d’effet",
           "tag": null
         },
@@ -11919,7 +11919,7 @@
           "locator": "p.202",
           "version": "5.2.1"
         },
-        "contentHash": "754776675aa4a191ec64ed81cdae10e5781af38cc30f0acd427d31e0ad021d90"
+        "contentHash": "f99830bb25f04ed39d36768e8a49da1bef318f99104f943228e3a3a315b7f444"
       }
     },
     "item": {
@@ -17230,7 +17230,7 @@
         "data": {
           "attunement": false,
           "category": "wondrous-item",
-          "description": "Cet objet ressemble de prime abord à un baril hermétique en fer d’un poids de 250 kg. Le tonneau est doté d’un loquet caché que l’on trouve à condition de réussir un test d’Intelligence (Investigation) DD 20. Actionner le loquet déverrouille une écoutille sur l’une des faces rondes du baril, ce qui permet à deux créatures de taille M ou inférieure de ramper à l’intérieur. Dix leviers sont disposés en ligne au fond du baril, chacun en position neutre et que l’on peut actionner vers le haut ou le bas. Lorsque certains leviers sont actionnés, l’appareil se transforme pour prendre l’apparence d’un homard géant. Le submersible du Crabe est un objet de taille G avec le profil suivant : CA 20, 200 pv, Vitesse 9 m, nage 9 m (ou 0 m pour les deux si les pattes ne sont pas déployées) ; Immunité contre les dégâts psychiques et de poison. Pour être utilisé comme véhicule, le submersible nécessite un pilote. Tant que la trappe est fermée, le compartiment est étanche à l’air et à l’eau. Le compartiment contient suffisamment d’air pour 10 heures de ventilation, divisées par le nombre de créatures qui respirent à l’intérieur. 1 Les pattes se déploient et le submersible est apte à la marche comme à la nage. Les pattes se rétractent, ce qui réduit la Vitesse et la Vitesse de nage du submersible à 0 m et l’empêche de bénéficier d’un quelconque bonus de vitesse.\n\n3 Les volets des hublots latéraux s’ouvrent (deux par côté). Les volets des hublots latéraux se ferment (deux par côté).\n\n6 Le submersible marche ou nage vers l’avant à condition que ses pattes soient déployées. Le submersible marche ou nage vers l’arrière à condition que ses pattes soient déployées.\n\n7 Le submersible pivote de 90 degrés vers la gauche à condition que ses pattes soient déployées. Le submersible pivote de 90 degrés vers la droite à condition que ses pattes soient déployées.\n\n9 Le submersible descend de 6 m s’il évolue dans l’élément liquide. Le submersible remonte de 6 m s’il évolue dans l’élément liquide.\n\n10 L’écoutille arrière s’ouvre. L’écoutille arrière se ferme hermétiquement.\n\nLeviers du submersible\n\nLevier Haut Bas\n\n2 Le volet du hublot avant s’ouvre. Le volet du hublot avant se ferme.\n\n4 Deux pinces se déploient depuis les côtés, à l’avant du submersible. Les pinces se rétractent.\n\n5 Chaque pince déployée effectue l’attaque de corps à corps suivante : +8 pour toucher, allonge 1,50 m. Touché : 7 (2d6) dégâts contondants.\n\n8 Des yeux mécaniques émettent une Lumière vive dans un rayon de 9 m et une Lumière faible sur 9 m de plus. La lumière s’éteint.\n\nLe submersible flotte sur l’eau. Il peut également être immergé jusqu’à une profondeur de 270 m. Plus profondément, le véhicule, soumis à une trop forte pression, subit chaque minute 2d6 dégâts contondants. Une créature dans le compartiment peut consacrer l’action Utilisation à activer un ou deux des leviers du submersible vers le haut ou le bas. Après chaque utilisation, un levier revient en position neutre. Chaque levier, de gauche à droite, fonctionne comme indiqué dans la table « Leviers du submersible ».",
+          "description": "Cet objet ressemble de prime abord à un baril hermétique en fer d’un poids de 250 kg. Le tonneau est doté d’un loquet caché que l’on trouve à condition de réussir un test d’Intelligence (Investigation) DD 20. Actionner le loquet déverrouille une écoutille sur l’une des faces rondes du baril, ce qui permet à deux créatures de taille M ou inférieure de ramper à l’intérieur. Dix leviers sont disposés en ligne au fond du baril, chacun en position neutre et que l’on peut actionner vers le haut ou le bas. Lorsque certains leviers sont actionnés, l’appareil se transforme pour prendre l’apparence d’un homard géant. Le submersible du Crabe est un objet de taille G avec le profil suivant : CA 20, 200 pv, Vitesse 9 m, nage 9 m (ou 0 m pour les deux si les pattes ne sont pas déployées) ; Immunité contre les dégâts psychiques et de poison. Pour être utilisé comme véhicule, le submersible nécessite un pilote. Tant que la trappe est fermée, le compartiment est étanche à l’air et à l’eau. Le compartiment contient suffisamment d’air pour 10 heures de ventilation, divisées par le nombre de créatures qui respirent à l’intérieur. Leviers du submersible\n\nLevier Haut Bas\n\n1 Les pattes se déploient et le submersible est apte à la marche comme à la nage. Les pattes se rétractent, ce qui réduit la Vitesse et la Vitesse de nage du submersible à 0 m et l’empêche de bénéficier d’un quelconque bonus de vitesse.\n\n2 Le volet du hublot avant s’ouvre. Le volet du hublot avant se ferme.\n\n3 Les volets des hublots latéraux s’ouvrent (deux par côté). Les volets des hublots latéraux se ferment (deux par côté).\n\n4 Deux pinces se déploient depuis les côtés, à l’avant du submersible. Les pinces se rétractent.\n\n5 Chaque pince déployée effectue l’attaque de corps à corps suivante : +8 pour toucher, allonge 1,50 m. Touché : 7 (2d6) dégâts contondants.\n\nChaque pince déployée effectue l’attaque de corps à corps suivante : +8 pour toucher, allonge 1,50 m. Touché : La cible subit l’état Agrippé (évasion DD 15).\n\n6 Le submersible marche ou nage vers l’avant à condition que ses pattes soient déployées. Le submersible marche ou nage vers l’arrière à condition que ses pattes soient déployées.\n\n7 Le submersible pivote de 90 degrés vers la gauche à condition que ses pattes soient déployées. Le submersible pivote de 90 degrés vers la droite à condition que ses pattes soient déployées.\n\n8 Des yeux mécaniques émettent une Lumière vive dans un rayon de 9 m et une Lumière faible sur 9 m de plus. La lumière s’éteint.\n\n9 Le submersible descend de 6 m s’il évolue dans l’élément liquide. Le submersible remonte de 6 m s’il évolue dans l’élément liquide.\n\n10 L’écoutille arrière s’ouvre. L’écoutille arrière se ferme hermétiquement.\n\nLe submersible flotte sur l’eau. Il peut également être immergé jusqu’à une profondeur de 270 m. Plus profondément, le véhicule, soumis à une trop forte pression, subit chaque minute 2d6 dégâts contondants. Une créature dans le compartiment peut consacrer l’action Utilisation à activer un ou deux des leviers du submersible vers le haut ou le bas. Après chaque utilisation, un levier revient en position neutre. Chaque levier, de gauche à droite, fonctionne comme indiqué dans la table « Leviers du submersible ».",
           "name": "Submersible du Crabe",
           "rarity": "légendaire",
           "subtype": null
@@ -17245,7 +17245,7 @@
           "locator": "p.261",
           "version": "5.2.1"
         },
-        "contentHash": "cfcfa76f8889a1c4097650a15f5fca7938e2fb01bc74516d9766e15bb6f7bfd9"
+        "contentHash": "6655cc5e2083a291c600ace44539d08eeedb120e986d33869165a33e8ee5ca02"
       },
       "srd:item:fr:talisman-de-la-sphere": {
         "name": "Talisman de la sphère",
@@ -17274,7 +17274,7 @@
         "data": {
           "attunement": true,
           "category": "wondrous-item",
-          "description": "Ce talisman est un puissant symbole de bonté. Un Fiélon ou un Mort-vivant qui touche le talisman subit 8d6 dégâts radiants, et en subit autant chaque fois qu’il termine son tour en tenant ou en portant le talisman. Réprimande pure. Le talisman dispose de 7 charges. Lorsque vous portez ou tenez le talisman, vous pouvez entreprendre l’action Magie pour dépenser 1 charge et cibler une créature que vous voyez en contact avec le sol dans un rayon de 36 m. Une faille ardente s’ouvre sous la cible, qui effectue un jet de sauvegarde de Dextérité DD 20. Si la cible est un Fiélon ou un Mortvivant, elle subit le Désavantage au JS. En cas d’échec, elle tombe dans la faille, ce qui la détruit sans en laisser la moindre trace. En cas de réussite, la cible n’est pas précipitée dans la faille mais l’épreuve lui inflige 4d6 dégâts psychiques. Dans un cas comme dans l’autre, la faille se referme alors, ne laissant aucune trace de son existence. Lorsque vous dépensez sa\n\nChaque pince déployée effectue l’attaque de corps à corps suivante : +8 pour toucher, allonge 1,50 m. Touché : La cible subit l’état Agrippé (évasion DD 15).\n\ndernière charge, le talisman se désagrège en particules de lumière dorée, détruit à jamais. Symbole sacré. Vous pouvez utiliser le talisman comme symbole sacré. Vous recevez un bonus de +2 aux jets d’attaque de sort lorsque vous le portez ou le tenez.",
+          "description": "Ce talisman est un puissant symbole de bonté. Un Fiélon ou un Mort-vivant qui touche le talisman subit 8d6 dégâts radiants, et en subit autant chaque fois qu’il termine son tour en tenant ou en portant le talisman. Réprimande pure. Le talisman dispose de 7 charges. Lorsque vous portez ou tenez le talisman, vous pouvez entreprendre l’action Magie pour dépenser 1 charge et cibler une créature que vous voyez en contact avec le sol dans un rayon de 36 m. Une faille ardente s’ouvre sous la cible, qui effectue un jet de sauvegarde de Dextérité DD 20. Si la cible est un Fiélon ou un Mortvivant, elle subit le Désavantage au JS. En cas d’échec, elle tombe dans la faille, ce qui la détruit sans en laisser la moindre trace. En cas de réussite, la cible n’est pas précipitée dans la faille mais l’épreuve lui inflige 4d6 dégâts psychiques. Dans un cas comme dans l’autre, la faille se referme alors, ne laissant aucune trace de son existence. Lorsque vous dépensez sa\n\ndernière charge, le talisman se désagrège en particules de lumière dorée, détruit à jamais. Symbole sacré. Vous pouvez utiliser le talisman comme symbole sacré. Vous recevez un bonus de +2 aux jets d’attaque de sort lorsque vous le portez ou le tenez.",
           "name": "Talisman du bien ultime",
           "rarity": "légendaire (Harmonisation requise avec un Clerc ou Paladin)",
           "subtype": null
@@ -17289,7 +17289,7 @@
           "locator": "p.262",
           "version": "5.2.1"
         },
-        "contentHash": "257e7c54519695e85cbd99015e940419af1ec625e287f1c460c1bfe8f3976be1"
+        "contentHash": "bc11d54d4a333ccea2cefcb3a0a5c8afb8329c85edc0c0630ced5da7ab6b23b1"
       },
       "srd:item:fr:talisman-du-mal-absolu": {
         "name": "Talisman du mal absolu",
@@ -46788,7 +46788,34 @@
           "size": "M (moyenne, entre 1,50 m et 2,10 m)",
           "size_key": "medium",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "ascendance-draconique",
+              "name": "Ascendance draconique",
+              "text": "Votre lignée remonte à un géniteur dragon. Choisissez le type de dragon dans la table « Ancêtres draconiques ». Ce choix affecte vos traits Souffle et Résistance aux dégâts, ainsi que votre apparence.\n\nAncêtres draconiques\n\nDragon Type de dégâts Dragon Type de dégâts\n\nAirain Feu Cuivre Acide\n\nArgent Froid Noir Acide\n\nBlanc Froid Or Feu\n\nBleu Foudre Rouge Feu\n\nBronze Foudre Vert Poison"
+            },
+            {
+              "id": "resistance-aux-degats",
+              "name": "Résistance aux dégâts",
+              "text": "Vous bénéficiez de la résistance au type de dégâts déterminé par votre trait Ascendance draconique."
+            },
+            {
+              "id": "souffle",
+              "name": "Souffle",
+              "text": "Lorsque vous entreprenez l’action Attaque à votre tour, vous pouvez remplacer l’une de vos attaques par une expiration d’énergie magique sous la forme d’un Cône de 4,50 m ou d’une Ligne de 9 m de long et 1,50 m de large (choisissez la forme à chaque\n\nfois). Chaque créature prise dans la zone effectue un jet de sauvegarde de Dextérité (DD 8 + votre modificateur de Constitution + votre bonus de maîtrise). En cas d’échec, la créature subit 1d10 dégâts du type déterminé par votre trait Ascendance draconique. En cas de réussite, elle ne subit que la moitié de ces dégâts. Les dégâts augmentent de 1d10 lorsque vous atteignez les niveaux de personnage 5 (2d10), 11 (3d10) et 17 (4d10). Vous pouvez recourir à ce Souffle autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos long."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 18 m."
+            },
+            {
+              "id": "vol-draconique",
+              "name": "Vol draconique",
+              "text": "Lorsque vous atteignez le niveau de personnage 5, vous pouvez canaliser la magie draconique pour vous octroyer le vol de façon temporaire. Par une action Bonus, il vous pousse des ailes spectrales dans le dos qui persistent 10 minutes ou jusqu’à ce que vous rétractiez ces ailes (pas d’action requise) ou subissiez l’état Neutralisé. Pour toute la durée, vous disposez d’une Vitesse de vol égale à votre Vitesse. Ces ailes semblent être faites de la même énergie que votre souffle. Une fois ce trait utilisé, vous devez terminer un Repos long pour pouvoir y recourir de nouveau."
+            }
+          ]
         },
         "slug": "drakeide",
         "attribution": {
@@ -46800,13 +46827,13 @@
           "locator": "p.88",
           "version": "5.2.1"
         },
-        "contentHash": "251eb6c0e470067f3032ae4919aeac581ff49e271868d1d928fce4383a55bb5c"
+        "contentHash": "f095771a327e0188bbc034adfb31175cc3ff4db7342ba5f9ace43b994e6f675f"
       },
       "srd:species:fr:elfe": {
         "name": "Elfe",
         "data": {
           "creature_type": "Humanoïde",
-          "description": "En tant qu’elfe, vous disposez des traits spéciaux suivants. Ascendance féerique. Vous avez l’Avantage aux jets de sauvegarde visant à éviter l’état Charmé ou à y mettre un terme. Lignage elfique. Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez-en un dans la table « Lignages elfiques ». Vous recevez le bénéfice du niveau 1 de ce lignage. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours considéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage). Sens aiguisés. Vous bénéficiez de la maîtrise de la compétence Intuition, Perception ou Survie au choix. Transe. Vous vous passez de sommeil et la magie ne peut pas vous endormir. Vous pouvez terminer un Repos long en 4 heures si vous les passez en transe méditative durant laquelle vous restez en éveil. Lignage Niveau 1 Niveau 3 Niveau 5\n\nElfe sylvestre Votre Vitesse passe à 10,50 m. Vous connaissez également le sort mineur druidisme. grande foulée passage sans trace\n\nLignages elfiques\n\nDrow La portée de votre Vision dans le noir passe à 36 m. Vous connaissez également le sort mineur lumières dansantes.\n\nHaut-elfe Vous connaissez le sort mineur prestidigitation. Chaque fois que vous terminez un Repos long, vous pouvez remplacer ce sort mineur par un autre sort mineur de la liste de sorts du Magicien.\n\nVision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.",
+          "description": "En tant qu’elfe, vous disposez des traits spéciaux suivants. Ascendance féerique. Vous avez l’Avantage aux jets de sauvegarde visant à éviter l’état Charmé ou à y mettre un terme. Lignage elfique. Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez-en un dans la table « Lignages elfiques ». Vous recevez le bénéfice du niveau 1 de ce lignage. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours considéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage). Sens aiguisés. Vous bénéficiez de la maîtrise de la compétence Intuition, Perception ou Survie au choix. Transe. Vous vous passez de sommeil et la magie ne peut pas vous endormir. Vous pouvez terminer un Repos long en 4 heures si vous les passez en transe méditative durant laquelle vous restez en éveil. Lignages elfiques\n\nLignage Niveau 1 Niveau 3 Niveau 5\n\nDrow La portée de votre Vision dans le noir passe à 36 m. Vous connaissez également le sort mineur lumières dansantes.\n\nlueurs féeriques ténèbres\n\nElfe sylvestre Votre Vitesse passe à 10,50 m. Vous connaissez également le sort mineur druidisme. grande foulée passage sans trace\n\nHaut-elfe Vous connaissez le sort mineur prestidigitation. Chaque fois que vous terminez un Repos long, vous pouvez remplacer ce sort mineur par un autre sort mineur de la liste de sorts du Magicien.\n\ndétection de la magie foulée brumeuse\n\nVision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.",
           "granted_skill_choice": {
             "count": 1,
             "from": [
@@ -46815,6 +46842,35 @@
               "srd:skill:fr:survie"
             ]
           },
+          "lineages": [
+            {
+              "id": "drow",
+              "levels": {
+                "1": "La portée de votre Vision dans le noir passe à 36 m. Vous connaissez également le sort mineur lumières dansantes.",
+                "3": "lueurs féeriques",
+                "5": "ténèbres"
+              },
+              "name": "Drow"
+            },
+            {
+              "id": "elfe-sylvestre",
+              "levels": {
+                "1": "Votre Vitesse passe à 10,50 m. Vous connaissez également le sort mineur druidisme.",
+                "3": "grande foulée",
+                "5": "passage sans trace"
+              },
+              "name": "Elfe sylvestre"
+            },
+            {
+              "id": "haut-elfe",
+              "levels": {
+                "1": "Vous connaissez le sort mineur prestidigitation. Chaque fois que vous terminez un Repos long, vous pouvez remplacer ce sort mineur par un autre sort mineur de la liste de sorts du Magicien.",
+                "3": "détection de la magie",
+                "5": "foulée brumeuse"
+              },
+              "name": "Haut-elfe"
+            }
+          ],
           "name": "Elfe",
           "senses": [
             {
@@ -46826,7 +46882,34 @@
           "size": "M (moyenne, entre 1,50 m et 1,80 m)",
           "size_key": "medium",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "ascendance-feerique",
+              "name": "Ascendance féerique",
+              "text": "Vous avez l’Avantage aux jets de sauvegarde visant à éviter l’état Charmé ou à y mettre un terme."
+            },
+            {
+              "id": "lignage-elfique",
+              "name": "Lignage elfique",
+              "text": "Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez-en un dans la table « Lignages elfiques ». Vous recevez le bénéfice du niveau 1 de ce lignage. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours considéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage)."
+            },
+            {
+              "id": "sens-aiguises",
+              "name": "Sens aiguisés",
+              "text": "Vous bénéficiez de la maîtrise de la compétence Intuition, Perception ou Survie au choix."
+            },
+            {
+              "id": "transe",
+              "name": "Transe",
+              "text": "Vous vous passez de sommeil et la magie ne peut pas vous endormir. Vous pouvez terminer un Repos long en 4 heures si vous les passez en transe méditative durant laquelle vous restez en éveil."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 18 m."
+            }
+          ]
         },
         "slug": "elfe",
         "attribution": {
@@ -46838,13 +46921,13 @@
           "locator": "p.88",
           "version": "5.2.1"
         },
-        "contentHash": "57f5d36b0ba1f2d9dc1fe8ee59696735fc822ec2a9e1c8a27206920d0b043c38"
+        "contentHash": "6a742ae1d9d74fb3ca28724d83a58766521d56f24ab017fb67b69fe6e554412f"
       },
       "srd:species:fr:gnome": {
         "name": "Gnome",
         "data": {
           "creature_type": "Humanoïde",
-          "description": "En tant que gnome, vous disposez des traits spéciaux suivants. Lignage gnome. Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez l’une des options ci-après ; quelle que soit celle que vous choisissez, l’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage) :\n\nGnome des forêts. Vous connaissez le sort mineur illusion mineure. Le sort communication avec les animaux est en outre considéré pour vous comme toujours préparé. Vous pouvez le lancer sans emplacement de sort autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos long. Vous pouvez en outre dépenser les emplacements de sort adaptés dont vous disposez pour lancer ce sort. Gnome des roches. Vous connaissez les sorts mineurs prestidigitation et réparation. Vous pouvez en outre consacrer 10 minutes à lancer prestidigitation pour créer un appareil mécanique de taille TP (CA 5, 1 pv) tel qu’un jouet, un allume-feu ou une boîte à musique. Lorsque vous créez l’appareil, vous déterminez sa fonction en choisissant un effet parmi ceux de prestidigitation ; l’appareil produit cet effet chaque fois que vous-même ou une autre créature entreprenez une action Bonus pour l’activer par simple contact. Lorsque l’effet choisi comporte des options, vous devez en choisir une pour l’appareil à sa création. Si vous choisissez l’effet « allumage-extinction » du sort, par exemple, vous devez déterminer si l’appareil allume ou éteint le feu ; il ne peut pas faire les deux. Vous pouvez avoir trois appareils actifs de ce type à la fois, et chacun tombe en morceaux 8 heures après sa création ou lorsque vous le démantelez par simple contact en entreprenant l’action Utilisation.\n\nlueurs féeriques ténèbres\n\ndétection de la magie foulée brumeuse\n\nRuse gnome. Vous avez l’Avantage aux jets de sauvegarde d’Intelligence, de Sagesse et de Charisme. Vision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.",
+          "description": "En tant que gnome, vous disposez des traits spéciaux suivants. Lignage gnome. Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez l’une des options ci-après ; quelle que soit celle que vous choisissez, l’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage) :\n\nGnome des forêts. Vous connaissez le sort mineur illusion mineure. Le sort communication avec les animaux est en outre considéré pour vous comme toujours préparé. Vous pouvez le lancer sans emplacement de sort autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos long. Vous pouvez en outre dépenser les emplacements de sort adaptés dont vous disposez pour lancer ce sort. Gnome des roches. Vous connaissez les sorts mineurs prestidigitation et réparation. Vous pouvez en outre consacrer 10 minutes à lancer prestidigitation pour créer un appareil mécanique de taille TP (CA 5, 1 pv) tel qu’un jouet, un allume-feu ou une boîte à musique. Lorsque vous créez l’appareil, vous déterminez sa fonction en choisissant un effet parmi ceux de prestidigitation ; l’appareil produit cet effet chaque fois que vous-même ou une autre créature entreprenez une action Bonus pour l’activer par simple contact. Lorsque l’effet choisi comporte des options, vous devez en choisir une pour l’appareil à sa création. Si vous choisissez l’effet « allumage-extinction » du sort, par exemple, vous devez déterminer si l’appareil allume ou éteint le feu ; il ne peut pas faire les deux. Vous pouvez avoir trois appareils actifs de ce type à la fois, et chacun tombe en morceaux 8 heures après sa création ou lorsque vous le démantelez par simple contact en entreprenant l’action Utilisation.\n\nRuse gnome. Vous avez l’Avantage aux jets de sauvegarde d’Intelligence, de Sagesse et de Charisme. Vision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.",
           "name": "Gnome",
           "senses": [
             {
@@ -46856,7 +46939,24 @@
           "size": "P (petite, entre 90 cm et 1,20 m)",
           "size_key": "small",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "lignage-gnome",
+              "name": "Lignage gnome",
+              "text": "Vous appartenez à un lignage qui vous octroie des aptitudes surnaturelles. Choisissez l’une des options ci-après ; quelle que soit celle que vous choisissez, l’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection du lignage) :\n\nGnome des forêts. Vous connaissez le sort mineur illusion mineure. Le sort communication avec les animaux est en outre considéré pour vous comme toujours préparé. Vous pouvez le lancer sans emplacement de sort autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos long. Vous pouvez en outre dépenser les emplacements de sort adaptés dont vous disposez pour lancer ce sort. Gnome des roches. Vous connaissez les sorts mineurs prestidigitation et réparation. Vous pouvez en outre consacrer 10 minutes à lancer prestidigitation pour créer un appareil mécanique de taille TP (CA 5, 1 pv) tel qu’un jouet, un allume-feu ou une boîte à musique. Lorsque vous créez l’appareil, vous déterminez sa fonction en choisissant un effet parmi ceux de prestidigitation ; l’appareil produit cet effet chaque fois que vous-même ou une autre créature entreprenez une action Bonus pour l’activer par simple contact. Lorsque l’effet choisi comporte des options, vous devez en choisir une pour l’appareil à sa création. Si vous choisissez l’effet « allumage-extinction » du sort, par exemple, vous devez déterminer si l’appareil allume ou éteint le feu ; il ne peut pas faire les deux. Vous pouvez avoir trois appareils actifs de ce type à la fois, et chacun tombe en morceaux 8 heures après sa création ou lorsque vous le démantelez par simple contact en entreprenant l’action Utilisation."
+            },
+            {
+              "id": "ruse-gnome",
+              "name": "Ruse gnome",
+              "text": "Vous avez l’Avantage aux jets de sauvegarde d’Intelligence, de Sagesse et de Charisme."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 18 m."
+            }
+          ]
         },
         "slug": "gnome",
         "attribution": {
@@ -46868,7 +46968,7 @@
           "locator": "p.89",
           "version": "5.2.1"
         },
-        "contentHash": "599352663df9573221730c1856e59c9d5f8aec6fde998711e34747f31baa9f4b"
+        "contentHash": "9cf1bee9741dbd2d6f4b43c2f0e991ee84a518a1f79a6b6354323406abb5cafc"
       },
       "srd:species:fr:goliath": {
         "name": "Goliath",
@@ -46879,7 +46979,24 @@
           "size": "M (moyenne, entre 2,10 m et 2,40 m)",
           "size_key": "medium",
           "speed": "10,50 m",
-          "speed_m": 10.5
+          "speed_m": 10.5,
+          "traits": [
+            {
+              "id": "ascendance-gigante",
+              "name": "Ascendance gigante",
+              "text": "Vous êtes un lointain descendant des géants. Choisissez l’un des bénéfices ci-après, une faveur surnaturelle liée à vos ancêtres ; vous pouvez recourir à ce bénéfice autant de fois que votre bonus de maîtrise et récupérez ce quota en terminant un Repos long :\n\nBrûlure ignée (géants du feu). Lorsque vous touchez une cible avec un jet d’attaque et lui infligez des dégâts, vous pouvez infliger 1d10 dégâts de feu supplémentaires à cette cible. Endurance de la pierre (géants des pierres). Lorsque vous subissez des dégâts, vous pouvez jouer votre Réaction pour lancer 1d12. Ajoutez votre modificateur de Constitution au résultat du dé et réduisez les dégâts de la somme obtenue. Froid mordant (géants du givre). Lorsque vous touchez une cible avec un jet d’attaque et lui infligez des dégâts, vous pouvez infliger 1d6 dégâts de froid supplémentaires à cette cible et réduire sa vitesse de 3 m jusqu’au début de votre tour suivant. Renversement des coteaux (géants des collines). Lorsque vous touchez une créature de taille G ou inférieure avec un jet d’attaque et lui infligez des dégâts, vous pouvez faire subir à cette cible l’état À terre. Saut des nuées (géants des nuages). Par une action Bonus, vous pouvez vous téléporter magiquement d’un maximum de 9 m dans un espace inoccupé que vous voyez. Tonnerre des cieux (géants des tempêtes). Lorsque vous subissez des dégâts de la part d’une créature dans un rayon de 18 m, vous pouvez jouer votre Réaction pour lui infliger 1d8 dégâts de tonnerre."
+            },
+            {
+              "id": "forme-de-geant",
+              "name": "Forme de géant",
+              "text": "À partir du niveau de personnage 5, vous pouvez changer de catégorie de taille et devenir de taille G par une action Bonus, à condition que l’espace que vous occupez soit suffisamment vaste. Cette transformation dure 10 minutes ou jusqu’à ce que vous y mettiez un terme (pas d’action requise). Pour toute la durée, vous avez l’Avantage aux tests de Force et votre Vitesse augmente de 3 m. Une fois ce trait utilisé, vous devez terminer un Repos long pour pouvoir y recourir de nouveau."
+            },
+            {
+              "id": "forte-carrure",
+              "name": "Forte carrure",
+              "text": "Vous avez l’Avantage à tous les tests de caractéristique que vous effectuez pour mettre un terme à l’état Agrippé. Votre catégorie de taille est en outre considérée comme du cran immédiatement supérieur pour ce qui est de définir votre capacité de charge."
+            }
+          ]
         },
         "slug": "goliath",
         "attribution": {
@@ -46891,7 +47008,7 @@
           "locator": "p.89",
           "version": "5.2.1"
         },
-        "contentHash": "670bf37a9ed1efd96433c23a73036664b01363148e03ba334fa0bee851eea534"
+        "contentHash": "05130b572124ce4c8dff4d827f672ae289ee3903a4be695c648d4651f880fb02"
       },
       "srd:species:fr:halfelin": {
         "name": "Halfelin",
@@ -46902,7 +47019,29 @@
           "size": "P (petite, entre 60 cm et 90 cm)",
           "size_key": "small",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "agilite-halfeline",
+              "name": "Agilité halfeline",
+              "text": "Vous pouvez vous déplacer dans l’espace de toute créature d’une catégorie de taille supérieure à la vôtre, mais ne pouvez pas vous arrêter dans le même espace que celle-ci."
+            },
+            {
+              "id": "brave",
+              "name": "Brave",
+              "text": "Vous avez l’Avantage aux jets de sauvegarde visant à éviter l’état Effrayé ou à y mettre un terme."
+            },
+            {
+              "id": "chance",
+              "name": "Chance",
+              "text": "Lorsque vous obtenez un 1 au d20 d’un Test d20, vous pouvez relancer le dé, mais devez utiliser le nouveau résultat."
+            },
+            {
+              "id": "discretion-naturelle",
+              "name": "Discrétion naturelle",
+              "text": "Il vous suffit d’être dans l’ombre d’une créature dont la catégorie de taille est d’au moins un cran supérieure à la vôtre pour pouvoir entreprendre l’action Furtivité."
+            }
+          ]
         },
         "slug": "halfelin",
         "attribution": {
@@ -46914,7 +47053,7 @@
           "locator": "p.90",
           "version": "5.2.1"
         },
-        "contentHash": "ccf1541cd7abb020835db880d6b3416f28fd5d06b7b859362f76ace7cfa149d6"
+        "contentHash": "fd13528025f7eb6bdf8a950b650b7e81054c7ac8c77c0bd68fcd693442f8bcbb"
       },
       "srd:species:fr:humain": {
         "name": "Humain",
@@ -46928,7 +47067,24 @@
           "name": "Humain",
           "size": "M (moyenne, entre 1,20 m et 2,10 m) ou P (petite, de 60 cm à 1,20 m), à choisir lors de la sélection de l’espèce",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "competent",
+              "name": "Compétent",
+              "text": "Vous recevez la maîtrise d’une compétence de votre choix."
+            },
+            {
+              "id": "ingenieux",
+              "name": "Ingénieux",
+              "text": "Vous recevez l’Inspiration héroïque chaque fois que vous terminez un Repos long."
+            },
+            {
+              "id": "polyvalent",
+              "name": "Polyvalent",
+              "text": "Vous recevez le don d’origines de votre choix (cf. « Dons »). Doué est recommandé."
+            }
+          ]
         },
         "slug": "humain",
         "attribution": {
@@ -46940,7 +47096,7 @@
           "locator": "p.90",
           "version": "5.2.1"
         },
-        "contentHash": "d4f042c3b3a5f61eb04e614d61f682b4e198035b382664028c5c8391411fdd83"
+        "contentHash": "a9cbe1fef934bad5f0ad31bdafcd94b4d872b60b0996522bcb02ce665b0110e4"
       },
       "srd:species:fr:nain": {
         "name": "Nain",
@@ -46958,7 +47114,29 @@
           "size": "M (moyenne, entre 1,20 m et 1,50 m)",
           "size_key": "medium",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "connaissance-de-la-pierre",
+              "name": "Connaissance de la pierre",
+              "text": "Par une action Bonus, vous recevez la Perception des vibrations à 18 m pendant 10 minutes. Cette Perception des vibrations nécessite que vous soyez sur une surface en pierre ou en contact physique avec une telle surface. Cette pierre peut être naturelle ou façonnée. Vous pouvez recourir à cette action Bonus autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos long."
+            },
+            {
+              "id": "resistance-naine",
+              "name": "Résistance naine",
+              "text": "Vous bénéficiez de la Résistance aux dégâts de poison. Vous avez en outre l’Avantage aux jets de sauvegarde visant à éviter l’état Empoisonné ou à y mettre un terme sur vous-même."
+            },
+            {
+              "id": "tenacite-naine",
+              "name": "Ténacité naine",
+              "text": "Votre maximum de points de vie augmente de 1, et augmente encore de 1 chaque fois que vous gagnez un niveau."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 36 m."
+            }
+          ]
         },
         "slug": "nain",
         "attribution": {
@@ -46970,7 +47148,7 @@
           "locator": "p.90",
           "version": "5.2.1"
         },
-        "contentHash": "d064ef5767983534a0d0d218a1dde55f00999ec189b0e7f2d0cdbd801a79a992"
+        "contentHash": "c155ee5d01853758f94e5a0b3d7b67d7c2ac4d3673336d88413b698312e0e186"
       },
       "srd:species:fr:orc": {
         "name": "Orc",
@@ -46988,7 +47166,24 @@
           "size": "M (moyenne, entre 1,80 m et 2,10 m)",
           "size_key": "medium",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "acharnement",
+              "name": "Acharnement",
+              "text": "Si vous tombez à 0 point de vie sans être tué sur le coup, vous pouvez en fait vous retrouver à 1 point de vie. Une fois ce trait utilisé, vous devez terminer un Repos long pour pouvoir y recourir de nouveau."
+            },
+            {
+              "id": "poussee-d-adrenaline",
+              "name": "Poussée d’adrénaline",
+              "text": "Vous pouvez entreprendre l’action Pointe par une action Bonus. Quand vous faites ainsi, vous recevez un nombre de points de vie temporaires égal à votre bonus de maîtrise. Vous pouvez recourir à ce trait autant de fois que votre bonus de maîtrise, et récupérez ce quota en terminant un Repos court ou long."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 36 m."
+            }
+          ]
         },
         "slug": "orc",
         "attribution": {
@@ -47000,13 +47195,42 @@
           "locator": "p.90",
           "version": "5.2.1"
         },
-        "contentHash": "df1e589856c430088cba7651eba4c3fd9a7125f3bc93f6968d0acaf2f48e6e15"
+        "contentHash": "f1233734d2d64b208682106f65bc2a4575b2fda74ffb980833d2a18c917afe7a"
       },
       "srd:species:fr:tieffelin": {
         "name": "Tieffelin",
         "data": {
           "creature_type": "Humanoïde",
-          "description": "En tant que tieffelin, vous disposez des traits spéciaux suivants. Héritage fiélon. Votre héritage vous octroie des aptitudes surnaturelles. Choisissez un héritage dans la table Héritages fiélons. Vous recevez le bénéfice de niveau 1 de l’héritage choisi. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours\n\nHéritages fiélons\n\nHéritage Niveau 1 Niveau 3 Niveau 5\n\nAbyssal Vous bénéficiez de la Résistance aux dégâts de poison. Vous connaissez en outre le sort mineur bouffée de poison.\n\nChtonien Vous bénéficiez de la Résistance aux dégâts nécrotiques. Vous connaissez en outre le sort mineur contact glacial.\n\nInfernal Vous bénéficiez de la Résistance aux dégâts de feu. Vous connaissez en outre le sort mineur trait de feu. représailles infernales ténèbres\n\nconsidéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection de l’héritage). Présence d’outre-monde. Vous connaissez le sort mineur thaumaturgie. Lorsque vous le lancez avec ce trait, le sort utilise la même caractéristique d’incantation que celle du trait Héritage fiélon. Vision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.\n\nrayon empoisonné immobilisation de personne\n\nsimulacre de vie rayon affaiblissant",
+          "description": "En tant que tieffelin, vous disposez des traits spéciaux suivants. Héritage fiélon. Votre héritage vous octroie des aptitudes surnaturelles. Choisissez un héritage dans la table Héritages fiélons. Vous recevez le bénéfice de niveau 1 de l’héritage choisi. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours\n\nconsidéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection de l’héritage). Présence d’outre-monde. Vous connaissez le sort mineur thaumaturgie. Lorsque vous le lancez avec ce trait, le sort utilise la même caractéristique d’incantation que celle du trait Héritage fiélon. Vision dans le noir. Vous disposez de la Vision dans le noir sur 18 m.\n\nHéritages fiélons\n\nHéritage Niveau 1 Niveau 3 Niveau 5\n\nAbyssal Vous bénéficiez de la Résistance aux dégâts de poison. Vous connaissez en outre le sort mineur bouffée de poison.\n\nrayon empoisonné immobilisation de personne\n\nChtonien Vous bénéficiez de la Résistance aux dégâts nécrotiques. Vous connaissez en outre le sort mineur contact glacial.\n\nsimulacre de vie rayon affaiblissant\n\nInfernal Vous bénéficiez de la Résistance aux dégâts de feu. Vous connaissez en outre le sort mineur trait de feu. représailles infernales ténèbres",
+          "lineages": [
+            {
+              "id": "abyssal",
+              "levels": {
+                "1": "Vous bénéficiez de la Résistance aux dégâts de poison. Vous connaissez en outre le sort mineur bouffée de poison.",
+                "3": "rayon empoisonné",
+                "5": "immobilisation de personne"
+              },
+              "name": "Abyssal"
+            },
+            {
+              "id": "chtonien",
+              "levels": {
+                "1": "Vous bénéficiez de la Résistance aux dégâts nécrotiques. Vous connaissez en outre le sort mineur contact glacial.",
+                "3": "simulacre de vie",
+                "5": "rayon affaiblissant"
+              },
+              "name": "Chtonien"
+            },
+            {
+              "id": "infernal",
+              "levels": {
+                "1": "Vous bénéficiez de la Résistance aux dégâts de feu. Vous connaissez en outre le sort mineur trait de feu.",
+                "3": "représailles infernales",
+                "5": "ténèbres"
+              },
+              "name": "Infernal"
+            }
+          ],
           "name": "Tieffelin",
           "senses": [
             {
@@ -47017,7 +47241,24 @@
           ],
           "size": "M (moyenne, entre 1,20 m et 2,10 m) ou P (petite, de 90 cm à 1,20 m), à choisir lors de la sélection de l’espèce",
           "speed": "9 m",
-          "speed_m": 9
+          "speed_m": 9,
+          "traits": [
+            {
+              "id": "heritage-fielon",
+              "name": "Héritage fiélon",
+              "text": "Votre héritage vous octroie des aptitudes surnaturelles. Choisissez un héritage dans la table Héritages fiélons. Vous recevez le bénéfice de niveau 1 de l’héritage choisi. Lorsque vous atteignez les niveaux de personnage 3 et 5, vous apprenez un sort de niveau supérieur, comme indiqué sur la table. Ce sort est toujours\n\nconsidéré comme préparé pour vous. Vous pouvez le lancer une fois sans dépenser d’emplacement de sort et récupérez cette aptitude en terminant un Repos long. Vous pouvez également le lancer avec vos éventuels emplacements de sort de niveau adéquat. L’Intelligence, la Sagesse ou le Charisme est votre caractéristique d’incantation pour les sorts que vous lancez avec ce trait (décidez de la caractéristique lors de la sélection de l’héritage)."
+            },
+            {
+              "id": "presence-d-outre-monde",
+              "name": "Présence d’outre-monde",
+              "text": "Vous connaissez le sort mineur thaumaturgie. Lorsque vous le lancez avec ce trait, le sort utilise la même caractéristique d’incantation que celle du trait Héritage fiélon."
+            },
+            {
+              "id": "vision-dans-le-noir",
+              "name": "Vision dans le noir",
+              "text": "Vous disposez de la Vision dans le noir sur 18 m."
+            }
+          ]
         },
         "slug": "tieffelin",
         "attribution": {
@@ -47029,7 +47270,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "5115e6baf4be954d740396d99cb1e68b518dd3e2121cc112394f6aabb23369f0"
+        "contentHash": "487f9ec70c19b79c36fb2274eef4f4a9642768e77dc3917fe448511cd38890d3"
       }
     },
     "spell": {
