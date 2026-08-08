@@ -111,6 +111,31 @@ parseur d'essai jetable.
 
 ---
 
+### Amendement du 2026-08-08, après la livraison du lot 8
+
+Trois précisions, nées de questions que le lot a posées au lieu d'inventer.
+
+- **`skill.ability_key` est CANONIQUE** (`str dex con int wis cha`) **dans les
+  deux langues.** Le lot 6 l'avait laissé langue-natif en FR (`sag`, `for`) en
+  invoquant l'autonomie des langues. La prémisse est fausse : ce n'est pas une
+  question inter-langues. `resolved.abilities` de `fh-char/1` est
+  `additionalProperties: false` sur les six clefs canoniques, **requis dans les
+  deux langues** — un document français clefe sa Sagesse `wis`. Une compétence
+  FR qui dit `sag` **ne peut pas adresser les caractéristiques de son propre
+  document**. Le mot affichable reste : `data.ability` dit toujours « Sagesse ».
+  ⚠️ **Aucun consommateur n'écrit de table `sag → wis`** — ce serait des mots
+  français en dur dans le moteur (loi §0.13).
+- **`background.feat_option`** : `{kind, id}`, une **référence de record**, jamais
+  la chaîne `"(Magicien)"`. Sans elle, l'Acolyte et le Sage rendent le même
+  `feat_id` et deux magiciens niveau 1 reçoivent la même liste de sorts alors
+  qu'ils devraient différer. Si la parenthèse ne résout vers aucun record, **le
+  champ n'est pas émis** et l'absence est rapportée.
+- **`tool_choice.from` est une liste d'ids de records**, comme `skill_choice.from`.
+  `from` a **un seul type quel que soit le genre** — sinon chaque consommateur
+  branche par genre. Le consommateur lit ensuite `variants` sur le record pointé.
+
+---
+
 ## 4. Les quatre irrégularités — ARBITRÉES, à ne pas « corriger »
 
 Elles ne sont **pas** des défauts de parseur : ce sont des faits de la source,
