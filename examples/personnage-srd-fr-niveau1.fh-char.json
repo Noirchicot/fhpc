@@ -303,7 +303,7 @@
     "gear": [
       { "id": "dague", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
       { "id": "baton-de-combat", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
-      { "id": "livre-de-sorts", "name": "Livre de sorts", "quantity": 1, "equipped": false, "weight": 1.5 },
+      { "id": "livre", "name": "Livre", "quantity": 1, "equipped": false, "weight": 2.5 },
       { "id": "sacoche-a-composantes", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
       { "id": "materiel-de-calligraphe", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
       { "id": "sac-a-dos", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
@@ -383,7 +383,42 @@
       { "path": "class.prepared[3]", "ref": { "kind": "spell", "id": "srd:spell:fr:sommeil" } },
       { "path": "feat.magicInitiate.cantrip", "ref": { "kind": "spell", "id": "exemple:spell:fr:chuchotement-des-pages" } },
       { "path": "feat.extra", "ref": { "kind": "feat", "id": "exemple:feat:fr:lecteur-de-marges" }, "label": "Lecteur de marges (couche homebrew)" },
-      { "path": "languages[0]", "value": "draconique" }
+      { "path": "languages[0]", "value": "draconique" },
+
+      { "path": "level", "value": 1, "label": "Niveau 1" },
+
+      { "path": "gear[0]", "ref": { "kind": "weapon", "id": "srd:weapon:fr:dague" } },
+      { "path": "gear[0].quantity", "value": 1 },
+      { "path": "gear[0].equipped", "value": true },
+      { "path": "gear[1]", "ref": { "kind": "weapon", "id": "srd:weapon:fr:baton-de-combat" } },
+      { "path": "gear[1].quantity", "value": 1 },
+      { "path": "gear[1].equipped", "value": true },
+      { "path": "gear[2]", "ref": { "kind": "gear", "id": "srd:gear:fr:livre" } },
+      { "path": "gear[2].quantity", "value": 1 },
+      { "path": "gear[2].equipped", "value": false },
+      { "path": "gear[3]", "ref": { "kind": "gear", "id": "srd:gear:fr:sacoche-a-composantes" } },
+      { "path": "gear[3].quantity", "value": 1 },
+      { "path": "gear[3].equipped", "value": true },
+      { "path": "gear[4]", "ref": { "kind": "tool", "id": "srd:tool:fr:materiel-de-calligraphe" } },
+      { "path": "gear[4].quantity", "value": 1 },
+      { "path": "gear[4].equipped", "value": false },
+      { "path": "gear[5]", "ref": { "kind": "gear", "id": "srd:gear:fr:sac-a-dos" } },
+      { "path": "gear[5].quantity", "value": 1 },
+      { "path": "gear[5].equipped", "value": true },
+      { "path": "gear[6]", "ref": { "kind": "gear", "id": "srd:gear:fr:rations" } },
+      { "path": "gear[6].quantity", "value": 5 },
+      { "path": "gear[6].equipped", "value": false },
+      { "path": "gear[7]", "ref": { "kind": "gear", "id": "srd:gear:fr:torche" } },
+      { "path": "gear[7].quantity", "value": 2 },
+      { "path": "gear[7].equipped", "value": false },
+      { "path": "gear[8]", "ref": { "kind": "gear", "id": "exemple:gear:fr:lanterne-pliante" } },
+      { "path": "gear[8].quantity", "value": 1 },
+      { "path": "gear[8].equipped", "value": false },
+
+      { "path": "currency.cp", "value": 4 },
+      { "path": "currency.sp", "value": 12 },
+      { "path": "currency.gp", "value": 8 },
+      { "path": "currency.pp", "value": 0 }
     ],
     "overrides": [
       {
