@@ -23,6 +23,22 @@
       espèce. Sans quoi une espèce neuve perdrait une aptitude en silence et
       la table jouerait une fiche fausse (loi §0.5).
 
+   ── AJOUT DU LOT 17 : LES DESCRIPTIONS SE RECALCULENT ────────────────
+   Eric veut le texte du Hoddon et de l'Elfe corrigés. Patcher
+   `data.description`, c'est RECOPIER la prose du SRD — l'architecte l'a dit à
+   Eric et l'assume. Le prix se paie donc autrement : la source DÉCLARE des
+   substitutions (le motif cherché, le texte posé, et pourquoi), et c'est ICI
+   qu'on lit le texte SRD courant pour les appliquer. Aucune phrase du SRD
+   n'est écrite à la main nulle part.
+
+   Deux alarmes, et elles ne gardent pas la même chose :
+   · une substitution qui NE TROUVE PAS sa cible jette, en nommant le motif —
+     c'est ce qui transforme une dérive silencieuse en alarme ;
+   · un mot que le résultat NE DOIT PLUS PORTER (`mustNotContain`) est relu sur
+     le texte final — parce qu'une phrase NEUVE ajoutée par le SRD laisserait
+     tous les motifs déclarés satisfaits et ferait quand même dire « Gnome » au
+     Hoddon.
+
    Usage :  node src/tools/gen-fh-species-layer.mjs
 */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -130,6 +146,63 @@ function assertTargetField(srd, target, field, why) {
   }
 }
 
+/* ── LES DESCRIPTIONS, RECALCULÉES ───────────────────────────────────── */
+
+/** Applique une liste de substitutions à un texte. NE JETTE PAS : rend le
+ *  texte obtenu et la liste des motifs INTROUVABLES. Séparer le calcul du
+ *  refus est ce qui permet au même code de servir au générateur (qui jette) et
+ *  au garde anti-recopie (qui rapporte) — et d'être attaqué sans être piégé. */
+export function substitute(text, substitutions) {
+  const misses = [];
+  let out = text;
+  for (const sub of substitutions) {
+    if (!out.includes(sub.find)) {
+      misses.push(sub);
+      continue;
+    }
+    out = out.split(sub.find).join(sub.put);
+  }
+  return { text: out, misses };
+}
+
+/** Les mots interdits qui SURVIVENT dans un texte. Le second filet : une
+ *  phrase neuve du SRD laisserait tous les motifs déclarés satisfaits et ferait
+ *  quand même dire « Gnome » au Hoddon. */
+export function survivors(text, mustNotContain = []) {
+  return mustNotContain.filter((word) => text.includes(word));
+}
+
+/** Le `data.description` du record VISÉ, lu dans le SRD et re-substitué.
+ *  Jette en nommant le record, le motif et la RAISON DÉCLARÉE — une alarme qui
+ *  ne dit pas pourquoi la substitution existait oblige à retrouver l'intention. */
+export function describedBy(srd, target, description, who) {
+  const record = srd.records.species[target];
+  if (!record) fail(`la couche FH décrit « ${target} », qui n'est pas dans la couche « ${srd.id} ».`);
+  const source = record.data && record.data.description;
+  if (typeof source !== "string") {
+    fail(`« ${target} » n'a pas de data.description dans la couche « ${srd.id} » — ` +
+      `la description de « ${who} » se calcule DEPUIS ce texte, elle ne s'invente pas.`);
+  }
+
+  const { text, misses } = substitute(source, description.substitutions);
+  if (misses.length > 0) {
+    fail(`description de « ${who} » (${target}) : ` +
+      misses.map((sub) => `le motif « ${sub.find} » est introuvable dans le texte SRD ` +
+        `(substitution déclarée parce que : ${sub.why})`).join(" ; ") +
+      ". Le SRD a bougé sous la substitution : c'est une dérive, et elle se dit — " +
+      "on ne recopie pas la prose, on la recalcule, et une substitution qui rate ne s'ignore pas.");
+  }
+
+  const restants = survivors(text, description.mustNotContain);
+  if (restants.length > 0) {
+    fail(`description de « ${who} » (${target}) : le texte obtenu porte encore ${
+      restants.map((word) => `« ${word} »`).join(", ")} — toutes les substitutions déclarées ont ` +
+      "pourtant trouvé leur cible, donc le SRD porte une phrase que personne n'avait vue. " +
+      "Il faut une substitution de plus, pas un mot fermé les yeux.");
+  }
+  return text;
+}
+
 /* ── LA DESTINÉE D'UN RECORD ─────────────────────────────────────────── */
 
 /** `{base}` pour onze espèces ; l'Elfe y ajoute son bonus, NOMMÉ par le trait
@@ -204,6 +277,16 @@ function addEntry(srd, entry) {
  *  `granted_skill_choice`. */
 function patchEntry(srd, entry) {
   const changes = {};
+  /* LES RETRAITS. Ils sortent dans l'ordre déclaré par la source — un tableau
+     porte déjà l'ordre que son auteur a écrit, là où `changes` est une carte
+     qu'on trie (contrat `layers`, invariant 10). Chaque trait visé est vérifié
+     PRÉSENT ici : le pli le refuserait aussi, mais plus tard et sur une couche
+     déjà écrite. */
+  const remove = [];
+  for (const traitId of entry.removeTraits || []) {
+    assertTargetTrait(srd, entry.target, traitId, `retrait de « ${entry.fhName} »`);
+    remove.push(`data.traits[${traitId}]`);
+  }
 
   if (entry.rename) {
     changes["name"] = entry.rename.name;
@@ -222,16 +305,27 @@ function patchEntry(srd, entry) {
     changes["data[granted_skill_choice].from"] = KEEN_SENSES_SKILLS.slice();
   }
 
+  /* LA DESCRIPTION. Elle n'est jamais écrite ici : elle est LUE dans le SRD et
+     re-substituée (voir `describedBy`). Le jour où le SRD retouche ce texte,
+     la substitution le suit — ou elle rate, et alors elle crie. */
+  if (entry.description) {
+    changes["data.description"] = describedBy(srd, entry.target, entry.description, entry.fhName);
+  }
+
   changes["data.destiny"] = destinyOf(entry);
   if (entry.skillPoints) changes["data[skill_points]"] = structuredClone(entry.skillPoints);
   if (entry.fhTraits) changes["data[fh_traits]"] = structuredClone(entry.fhTraits);
 
   /* Les chemins sont émis TRIÉS, dans l'ordre même où le pli les appliquera
-     (`applyChanges` trie ses clefs). Le fichier se lit alors comme il
-     s'exécute. */
+     (`applyPatch` trie les clefs de `changes`). Le fichier se lit alors comme
+     il s'exécute — et `remove`, qui passe AVANT dans le pli, est écrit avant. */
   const sorted = {};
   for (const path of Object.keys(changes).sort()) sorted[path] = changes[path];
-  return { op: "patch", changes: sorted, note: `Fate's Hand — ${entry.fhName}` };
+  const patch = { op: "patch" };
+  if (remove.length > 0) patch.remove = remove;
+  patch.changes = sorted;
+  patch.note = `Fate's Hand — ${entry.fhName}`;
+  return patch;
 }
 
 /* ── LE GARDE « ON NE RECOPIE PAS LE SRD » (décision D1) ─────────────── */
@@ -244,9 +338,18 @@ function patchEntry(srd, entry) {
  *  serve au garde et à l'attaque du garde. */
 export const WHOLESALE_PATHS = [
   ["data.traits", "le tableau des traits SRD, en entier"],
-  ["data.description", "la prose SRD de l'espèce"],
   ["data.senses", "les sens SRD, en entier"]
 ];
+
+/* ⚠️ `data.description` ÉTAIT DANS CETTE LISTE, ET N'Y EST PLUS (lot 17).
+   Ce n'est pas un relâchement : c'est un déplacement vers un garde PLUS
+   SERRÉ. L'interdit d'origine disait « n'écris pas ce chemin » ; il empêchait
+   la recopie en interdisant la correction, et Eric voulait la correction.
+   Le garde qui le remplace (`handWrittenDescriptions`) ne demande pas si le
+   chemin est écrit — il demande si le texte écrit est bien CELUI QUE LES
+   SUBSTITUTIONS DÉCLARÉES PRODUISENT à partir du SRD courant. Une phrase
+   posée à la main dans un fichier de couche échoue à cette question, et une
+   copie figée qui ne suit plus le SRD y échoue aussi. */
 
 export function wholesaleRecopies(layer) {
   const hits = [];
@@ -272,6 +375,68 @@ export function assertNoWholesale(layer) {
     fail("cette couche recopierait le SRD au lieu de le patcher — " +
       recopies.map((hit) => `${hit.id} → ${hit.path} (${hit.label})`).join(" ; ") +
       ". Une règle recopiée diverge un jour de son original (décision D1).");
+  }
+  return layer;
+}
+
+/* ── LE GARDE « AUCUNE PROSE ÉCRITE À LA MAIN » (lot 17) ─────────────── */
+
+/** L'index des substitutions déclarées, par record visé. */
+function declaredDescriptions() {
+  const byTarget = new Map();
+  for (const entry of SPECIES) {
+    if (entry.description) byTarget.set(entry.target, entry);
+  }
+  return byTarget;
+}
+
+/** Les descriptions d'une couche qui NE SONT PAS re-dérivables du SRD courant
+ *  par les substitutions déclarées. Rend la LISTE plutôt que d'asserter sur
+ *  place, pour que la même fonction serve au garde et à l'attaque du garde.
+ *
+ *  Trois façons d'y figurer, et chacune est une vraie faute :
+ *  · un record décrit sans qu'aucune substitution soit déclarée pour lui —
+ *    quelqu'un a écrit de la prose à la main ;
+ *  · une substitution qui ne trouve plus sa cible dans le SRD ;
+ *  · un texte qui n'est pas celui que les substitutions produisent — une copie
+ *    figée qui a cessé de suivre sa source. */
+export function handWrittenDescriptions(layer, srd) {
+  const declared = declaredDescriptions();
+  const hits = [];
+  for (const [id, entry] of Object.entries(layer.records.species)) {
+    if (entry.op !== "patch" || !entry.changes) continue;
+    if (!Object.hasOwn(entry.changes, "data.description")) continue;
+
+    const source = declared.get(id);
+    if (!source) {
+      hits.push({ id, why: "aucune substitution n'est déclarée pour ce record — cette prose a été écrite à la main" });
+      continue;
+    }
+    const record = srd.records.species[id];
+    const srdText = record && record.data && record.data.description;
+    if (typeof srdText !== "string") {
+      hits.push({ id, why: `le SRD n'a plus de data.description pour ce record — rien d'où re-dériver` });
+      continue;
+    }
+    const { text, misses } = substitute(srdText, source.description.substitutions);
+    if (misses.length > 0) {
+      hits.push({ id, why: `substitution introuvable dans le SRD : ${misses.map((s) => `« ${s.find} »`).join(", ")}` });
+      continue;
+    }
+    if (entry.changes["data.description"] !== text) {
+      hits.push({ id, why: "le texte de la couche n'est pas celui que les substitutions déclarées produisent" });
+    }
+  }
+  return hits;
+}
+
+/** Le refus, séparé de la détection — même discipline que `assertNoWholesale`. */
+export function assertNoHandWritten(layer, srd) {
+  const hits = handWrittenDescriptions(layer, srd);
+  if (hits.length > 0) {
+    fail("une description de cette couche n'est pas re-dérivable du SRD — " +
+      hits.map((hit) => `${hit.id} : ${hit.why}`).join(" ; ") +
+      ". On ne recopie pas la prose du SRD, on déclare la substitution et on la recalcule.");
   }
   return layer;
 }
@@ -307,6 +472,7 @@ export function buildLayer({ srd } = {}) {
   };
 
   assertNoWholesale(layer);
+  assertNoHandWritten(layer, srd);
 
   return { layer, total: Object.keys(species).length };
 }
