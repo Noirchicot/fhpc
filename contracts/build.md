@@ -172,28 +172,43 @@ les boosts d'arrière-plan), `proficiency`, `ac` (sans armure, et avec —
 `saves`, `skills` (les 18, bonus et maîtrise), `tools`, `spellcasting`
 (id, name, ability, dc, attackBonus, slots, et les 8 sorts en id/name/level/
 prepared/range/castingTime/duration/ritual/**text**/**concentration**), `gear`
-et `currency` depuis les choix, `craft`, et **`senses`** d'espèce.
+et `currency` depuis les choix, `craft`, **`senses`** d'espèce et — depuis le
+lot 13 — les **`traits`** d'espèce (5/5 pour l'Elfe, `{id, name, source, text}`,
+`source` = le nom du record d'espèce).
 
 **Trois divergences ASSUMÉES avec le fichier d'exemple**, assertées et non
 contournées : `identity.species` ne porte pas le lignage et gagne
 `identity.size` (champ ajouté au schéma après l'écriture de l'exemple) ; les
-textes et phrases de sort viennent du **record**, pas des résumés éditoriaux
-saisis à la main ; et `senses[].id` est `darkvision`, l'identifiant du record,
-là où le fichier écrivait le slug français `vision-dans-le-noir` — un id est
-une ancre d'override, pas un mot.
+textes et phrases de sort — et depuis le lot 13 les **textes de trait**, plus
+le `name` de `lignage-elfique` — viennent du **record**, pas des résumés
+éditoriaux saisis à la main ; et `senses[].id` est `darkvision`, l'identifiant
+du record, là où le fichier écrivait le slug français `vision-dans-le-noir` —
+un id est une ancre d'override, pas un mot.
 
-**Deux mouvements en sens contraire au 2026-08-08** : `senses` est passé de
-non dérivé à **dérivé** (la sous-question sur `senses[].name` a été retenue et
-le lot 8 le livre) ; `traits` d'espèce est passé de dérivé à **refusé et
-déclaré**. Ce n'est pas une régression du bloc : c'est la mesure qui a changé
-de camp.
+**Deux mouvements au 2026-08-08, et le second est reparti dans l'autre sens le
+même jour** : `senses` est passé de non dérivé à **dérivé** (la sous-question
+sur `senses[].name` a été retenue et le lot 8 le livre) ; `traits` d'espèce est
+passé de dérivé à **refusé et déclaré** par le lot 8 — puis **de nouveau
+dérivé** (lot 13), le lot 11 ayant réparé dans `fh-srd` l'extraction à deux
+colonnes que le lot 8 avait nommée comme son préalable. Le bloc n'a pas changé
+d'avis : c'est la matière qui a changé, et la déclaration l'a suivie **dans les
+deux sens**.
+
+**Un trait qui accorde un sens paraît DEUX FOIS, et c'est voulu.** L'Elfe porte
+cinq traits, dont « Vision dans le noir », **et** un sens `darkvision` de 18 m.
+Les deux sont vrais : le trait porte la **règle** (`text`), le sens porte le
+**nombre** que la fiche affiche sur sa ligne. Le contrat ne lie aucun trait au
+sens qu'il accorde ; retirer le trait obligerait le moteur à rapprocher
+`vision-dans-le-noir` de `darkvision` par leur **nom affichable**, ce que la loi
+§0.13 interdit. La dérivation **recopie la liste du record**, elle ne la trie
+pas.
 
 **Non dérivé, déclaré, avec sa raison** :
 
 | Champ | Pourquoi |
 |---|---|
 | `senses[perception-passive]` | elle se **calcule** (10 + le bonus de la compétence), mais son **nom** ne vit dans aucun record : ce n'est pas un sens d'espèce, c'est une ligne de fiche |
-| `traits` d'espèce | **refusés par le lot 8** le 2026-08-08, mesure à l'appui : la mise en page à deux colonnes du PDF est aplatie et une espèce déborde sur la suivante. Préalable nommé : réparer l'extraction dans `fh-srd` |
+| `traits` d'espèce | **plus dans cette table depuis le lot 13** — ils sont **dérivés**. Ne subsiste que la déclaration résiduelle : un record d'espèce qui ne porte pas `traits` du tout (couche tierce ou amputée), prouvée par une privation délibérée |
 | `spells[].castType` | **refusé par le lot 8**, mesure à l'appui — cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être génuinement les deux. Le schéma a cédé : le champ n'est plus obligatoire, le sort est émis **sans** son mode |
 | `languages` | aucun genre `language` parmi les 14 |
 | `actions` | aucun genre `action` ; composer une attaque demande une règle (Finesse, Lancer) que le contrat ne porte pas |

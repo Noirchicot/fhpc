@@ -122,6 +122,17 @@ test("ACCEPTATION — le magicien elfe niveau 1 est construit par la SURFACE MCP
      déclarée non dérivée (test suivant). */
   assert.deepEqual(got.senses, [{ id: "darkvision", name: "Vision dans le noir", value: 18, unit: "m" }]);
 
+  /* REWRITTEN 2026-08-08 (lot 13) — LES TRAITS AUSSI, maintenant qu'ils sont
+     dérivés. Ils n'étaient pas assertés ici tant qu'ils étaient refusés : seule
+     leur ligne dans `underived` l'était. La liste est exacte, et « Vision dans
+     le noir » y figure EN PLUS du sens du même nom — un trait qui accorde un
+     sens paraît des deux côtés de la fiche, et le moteur ne les rapproche pas
+     (il faudrait comparer des noms affichables, loi §0.13). */
+  assert.deepEqual(got.traits.map((trait) => trait.id),
+    ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"]);
+  assert.deepEqual([...new Set(got.traits.map((trait) => trait.source))], ["Elfe"],
+    "`source` est le nom du record d'espèce, recopié — les traits de classe et de don, eux, sont déclarés non dérivés");
+
   /* LES DIX-HUIT COMPÉTENCES NOMMÉMENT, entrées comprises — un compte reste
      vert si la pile en rend dix-huit mauvaises. */
   assert.deepEqual(got.skills, attendu.skills);
@@ -163,7 +174,12 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
 
   /* La liste EXACTE, pas un « contient ». Si un champ devient dérivable, ce
      test doit rougir pour qu'on retire sa ligne — exactement comme il doit
-     l'ajouter quand un champ cesse de l'être. */
+     l'ajouter quand un champ cesse de l'être.
+     REWRITTEN 2026-08-08 (lot 13) — et c'est arrivé, sur le même champ, dans
+     les deux sens : `traits (espèce)` était entré à la fusion du lot 8 (refus
+     mesuré, préalable nommé), il en sort ici, le lot 11 ayant réparé
+     l'extraction à deux colonnes dans `fh-srd`. La liste du bloc `build` et
+     celle qui traverse jusqu'à l'IA sont la MÊME : elles bougent ensemble. */
   assert.deepEqual(underived.map((entry) => entry.field), [
     "actions",
     "craft",
@@ -176,8 +192,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
-    "traits (classe, don, arrière-plan)",
-    "traits (espèce)"
+    "traits (classe, don, arrière-plan)"
   ]);
   for (const entry of underived) {
     assert.ok(entry.reason.length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
@@ -189,7 +204,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
      serait le repli silencieux que ce chantier combat. */
   const texte = result.content[0].text;
   assert.equal(result.content[0].type, "text");
-  assert.match(texte, /NON DÉRIVÉ \(13\)/);
+  assert.match(texte, /NON DÉRIVÉ \(12\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(entry.reason), `le texte doit porter la RAISON de « ${entry.field} »`);

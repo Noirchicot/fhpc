@@ -14,7 +14,7 @@
         {
           "id": "srd-5.2.1-fr",
           "version": "5.2.1",
-          "hash": "b090f53a8bbd226dd557508fb1ee99a45e78f6e2c0dd0e55c83ee673107a62d9",
+          "hash": "42249f8361fcc6ae33d6ed06c5f84ae03f506903456677cd14b707b3dc534cf7",
           "name": "SRD 5.2.1 (FR)"
         },
         {
@@ -275,6 +275,12 @@
         "text": "Sort mineur Prestidigitation, échangeable à chaque Repos long. Caractéristique d'incantation du lignage : Intelligence."
       },
       {
+        "id": "vision-dans-le-noir",
+        "name": "Vision dans le noir",
+        "source": "Elfe",
+        "text": "Vision dans le noir sur 18 m."
+      },
+      {
         "id": "savoir-rituel",
         "name": "Savoir rituel",
         "source": "Magicien",
@@ -346,7 +352,7 @@
       {
         "id": "srd-5.2.1-fr",
         "version": "5.2.1",
-        "hash": "b090f53a8bbd226dd557508fb1ee99a45e78f6e2c0dd0e55c83ee673107a62d9",
+        "hash": "42249f8361fcc6ae33d6ed06c5f84ae03f506903456677cd14b707b3dc534cf7",
         "name": "SRD 5.2.1 (FR)"
       },
       {

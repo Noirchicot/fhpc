@@ -24,17 +24,19 @@
    les choix, `craft` — **atteints, et identiques au fichier**.
    `resources` : **NON atteint**, et le test dit pourquoi (test 4).
 
-   ÉTAGE 2 — LES DEUX MOITIÉS ONT ÉCHANGÉ LEUR PLACE, et c'est la mesure qui a
-   bougé, pas le code :
+   ÉTAGE 2 — LES DEUX MOITIÉS SONT ATTEINTES, et c'est la mesure qui a bougé,
+   pas le code :
    · `senses` est passé de NON atteint à **ATTEINT**. La première passe rendait
      une liste vide à raison — la forme du contrat §5 n'avait pas de `name`.
      La sous-question a été retenue, `senses[].name` est entré au contrat, et
      le lot 8 le livre. Le moteur recopie ce nom, il ne le fabrique pas.
-   · `traits` est passé d'ATTEINT à **non atteint, et déclaré**. Le lot 8 les a
-     refusés avec sa mesure (mise en page à deux colonnes aplatie, une espèce
-     qui déborde sur la suivante). Ce n'est pas une régression de ce lot : le
-     contrat §5 les classait en GROUPE B, refusable platement, et c'est ce qui
-     est arrivé. */
+   · REWRITTEN 2026-08-08 (lot 13) — `traits` a fait L'ALLER ET LE RETOUR. Il
+     était atteint ; le lot 8 l'a refusé avec sa mesure (mise en page à deux
+     colonnes aplatie, une espèce qui déborde sur la suivante) EN NOMMANT SON
+     PRÉALABLE ; le lot 11 a réparé l'extraction dans `fh-srd`, l'architecte a
+     régénéré les couches, et les traits sont **de nouveau ATTEINTS**. Ce
+     va-et-vient est exactement ce que la liste exacte de `underived` sert à
+     rendre visible : elle a rougi dans les deux sens, à chaque fois. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -272,27 +274,68 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
   }
 });
 
-test("ACCEPTATION — les SENS (étage 2), les traits REFUSÉS, et le sac depuis les choix", () => {
+test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac depuis les choix", () => {
   const out = reconstruire();
   const got = out.resolved;
 
-  /* REWRITTEN 2026-08-08 (fusion du lot 8) — L'ÉTAGE 2 A ÉCHANGÉ SES DEUX
-     MOITIÉS. L'ancienne assertion disait « les quatre traits de l'Elfe, tels
-     que le contrat §5 les porte » ; elle est devenue fausse, et c'est la
-     mesure qui a changé de camp, pas le code. */
   assert.deepEqual(got.senses, [
     { id: "darkvision", name: "Vision dans le noir", value: 18, unit: "m" }
   ], "les sens SONT dérivés : le lot 8 livre `{id, name, range_m}`, et le nom vient du RECORD");
 
-  assert.deepEqual(got.traits, [], "les traits d'espèce sont REFUSÉS par le lot 8, pas devinés ici");
-  assert.match(
-    out.underived.find((entry) => entry.field === "traits (espèce)").reason,
-    /deux colonnes/,
-    "et le refus porte sa mesure ET son préalable — réparer l'extraction dans fh-srd"
+  /* REWRITTEN 2026-08-08 (lot 13) — L'ANCIENNE ASSERTION DISAIT `traits: []`,
+     « refusés par le lot 8 ». Elle est devenue fausse le jour où l'architecte a
+     régénéré les couches sur un `fh-srd` dont le lot 11 avait réparé
+     l'extraction à deux colonnes. Le refus du lot 8 avait nommé ce préalable ;
+     il est levé, et la déclaration part avec lui (elle aurait menti).
+
+     ⚠️ CINQ TRAITS, PAS QUATRE — et « Vision dans le noir » y est DEUX FOIS
+     dans la fiche : une fois en trait (la règle), une fois en sens (le nombre).
+     Les deux sont vrais dans le livre, et rien dans le contrat ne lie un trait
+     au sens qu'il accorde. Retirer le trait obligerait le moteur à rapprocher
+     `vision-dans-le-noir` de `darkvision` — deux identifiants différents — donc
+     à les rapprocher par leur NOM AFFICHABLE, ce que la loi §0.13 interdit. La
+     dérivation recopie la liste du record ; elle ne la trie pas. */
+  assert.deepEqual(got.traits.map((trait) => trait.id),
+    ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
+    "les CINQ traits de l'Elfe, dans l'ordre du record");
+  assert.equal(got.traits.length, 5);
+  for (const trait of got.traits) {
+    assert.equal(trait.source, "Elfe", "`source` est le NOM DU RECORD d'espèce, recopié, jamais composé");
+    assert.ok(typeof trait.text === "string" && trait.text.length > 0,
+      `« ${trait.id} » doit porter son texte — il vient du record, sans raison de le laisser tomber`);
+  }
+  assert.equal(
+    out.underived.some((entry) => entry.field === "traits (espèce)"), false,
+    "et plus rien ne les déclare non dérivés : une déclaration qui survit à son refus est un mensonge"
   );
-  assert.equal(FICHIER.resolved.traits.length, 8,
-    "le fichier en porte huit : quatre d'espèce, deux de classe, un de don, un de la couche homebrew — " +
-    "aucun n'a de champ mécanique dans le contrat aujourd'hui");
+
+  /* REWRITTEN 2026-08-08 (lot 13) — le fichier en portait HUIT et il lui
+     manquait la Vision dans le noir : il affirmait que l'Elfe a quatre traits,
+     ce que ni le livre ni la couche ne disent. Complété — même famille que le
+     « Livre de sorts » corrigé le même jour : un exemple faux fait repayer la
+     découverte à chaque lot suivant. Son `hash` de pile, lui, n'a pas bougé. */
+  assert.equal(FICHIER.resolved.traits.length, 9,
+    "le fichier en porte neuf : cinq d'espèce, deux de classe, un de don, un de la couche homebrew");
+
+  /* LA LISTE EXACTE DES DIVERGENCES avec le fichier, comme partout ailleurs
+     dans cette suite. Les quatre traits présents SEULEMENT dans le fichier sont
+     ceux que `traits (classe, don, arrière-plan)` déclare ; sur les cinq
+     traits d'espèce, tout est identique SAUF les textes — éditoriaux dans le
+     fichier, de la prose du record dans la dérivation — et le `name` du
+     lignage, que le fichier complète par le lignage choisi (« Lignage elfique
+     — haut-elfe »), exactement comme il complète `identity.species`. */
+  assert.deepEqual(divergences(FICHIER.resolved.traits, got.traits, "traits"), [
+    "traits[ascendance-feerique].text",
+    "traits[initie-a-la-magie]",
+    "traits[lecteur-de-marges]",
+    "traits[lignage-elfique].name",
+    "traits[lignage-elfique].text",
+    "traits[restauration-magique]",
+    "traits[savoir-rituel]",
+    "traits[sens-aiguises].text",
+    "traits[transe].text",
+    "traits[vision-dans-le-noir].text"
+  ], "AUCUNE différence d'id ni de `source` sur les cinq traits d'espèce");
 
   /* L'unique divergence de sens avec le fichier : l'IDENTIFIANT. Le fichier
      dit `vision-dans-le-noir` (un slug français), le record dit `darkvision`
@@ -353,17 +396,19 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
 
   /* La liste EXACTE. Pas un « contient » : si la dérivation se met un jour à
      nourrir `senses`, ce test doit rougir pour qu'on retire la ligne. */
-  /* REWRITTEN 2026-08-08 (fusion du lot 8) — quatre mouvements dans cette
-     liste, tous mesurés, et ils vont dans LES DEUX SENS. C'est pour ça qu'on
-     l'asserte à l'identique plutôt qu'avec un « contient » : un champ qui
-     devient dérivable doit faire rougir ce test pour qu'on retire sa ligne,
-     exactement comme un champ qui cesse de l'être doit l'ajouter.
-     · `senses` SORT (dérivé : le lot 8 livre `{id, name, range_m}`) et laisse
-       derrière lui la seule perception passive, dont le nom n'est nulle part ;
-     · `traits (espèce)` ENTRE (refusé par le lot 8, mesure à l'appui) ;
-     · `spellcasting.spells[].castType` ENTRE (refusé aussi, et le schéma a
-       cédé : le champ n'est plus obligatoire) ;
-     · `spellcasting.spells[].concentration` RESTE, mais pour un seul sort —
+  /* REWRITTEN 2026-08-08 (lot 13) — CETTE LISTE A FAIT SON TRAVAIL, et c'est
+     pour ça qu'on l'asserte à l'identique plutôt qu'avec un « contient ».
+     `traits (espèce)` y était ENTRÉ à la fusion du lot 8 (refus mesuré) ; il en
+     SORT ici, l'architecte ayant régénéré les couches sur un `fh-srd` dont le
+     lot 11 a réparé l'extraction à deux colonnes — le préalable que le refus
+     avait lui-même nommé. Un aller, un retour, deux rougissements : c'est
+     exactement l'usage de cette liste.
+     Les autres n'ont pas bougé depuis la fusion du lot 8 :
+     · `senses` est SORTI (dérivé) et laisse derrière lui la seule perception
+       passive, dont le nom n'est dans aucun record ;
+     · `spellcasting.spells[].castType` est ENTRÉ (refus du lot 8, et le schéma
+       a cédé : le champ n'est plus obligatoire) ;
+     · `spellcasting.spells[].concentration` reste, mais pour un seul sort —
        celui de la couche d'exemple, qui n'a pas été régénérée. */
   assert.deepEqual(champs, [
     "actions",
@@ -377,8 +422,7 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
-    "traits (classe, don, arrière-plan)",
-    "traits (espèce)"
+    "traits (classe, don, arrière-plan)"
   ]);
   assert.match(
     out.underived.find((entry) => entry.field === "spellcasting.spells[].castType").reason,
@@ -406,11 +450,13 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     if (!Array.isArray(valeur) || valeur.length > 0) continue;
     assert.ok(declares.has(nom), `resolved.${nom} est vide et rien ne le déclare`);
   }
-  /* REWRITTEN 2026-08-08 (fusion du lot 8) — `senses` n'est plus vide, `traits`
-     l'est devenu. Les deux moitiés de l'étage 2 ont échangé leur place. */
+  /* REWRITTEN 2026-08-08 (lot 13) — `traits` n'est PLUS vide : il l'était
+     devenu à la fusion du lot 8, il ne l'est plus depuis la régénération des
+     couches. `senses` ne l'est pas non plus. Les deux moitiés de l'étage 2
+     sont pleines. */
   assert.deepEqual(
     Object.entries(out.resolved).filter(([, v]) => Array.isArray(v) && v.length === 0).map(([k]) => k).sort(),
-    ["actions", "craft", "languages", "notes", "resources", "traits"]
+    ["actions", "craft", "languages", "notes", "resources"]
   );
 });
 

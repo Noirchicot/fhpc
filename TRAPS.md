@@ -58,3 +58,17 @@ la v2 **même en partant de zéro** :
 | **Jamais de repli silencieux** | Service injoignable → on le dit et on refuse. Jamais rouler en local pendant que les joueurs croient que la table a vu |
 | **Un glyphe se juge sur son raster 12px, jamais sur son chemin** | Bords droits et sommets plats survivent ; les courbes non |
 | **Une note `// REWRITTEN` en milieu de ligne** a commenté quatre assertions et **rendu une suite verte alors que le garde ne tournait plus** | Les marques vont sur leur propre ligne. Quand un changement rend une assertion fausse : la réécrire à la nouvelle vérité et la marquer — jamais la relâcher, jamais la supprimer |
+
+---
+
+## Source : le dépôt `fhpc` lui-même — pièges payés ici, dans les tests
+
+*Ajoutés à mesure. Chaque ligne est un défaut qui a été mesuré dans ce dépôt,
+pas une précaution théorique.*
+
+| Piège | Ce qui se passe | La règle |
+|---|---|---|
+| **Une suite qui écrit dans un artefact commité** (2026-08-08, lot 13) | `gen-srd-layer.test.mjs` appelait `generate()`, dont la destination était en dur, donc il écrasait `layers/*.layer.json` avant de comparer. La suite laissait l'arbre sale, et **l'exécution suivante héritait de la mutation** : deux passes d'affilée sans nettoyage ont rendu **307/1 puis 304/4**, sans qu'une ligne ait changé. Un test qui ment dans les deux sens | Un test qui vérifie une génération **génère dans un répertoire temporaire** et compare là. La destination d'un générateur est un **argument**, jamais une constante que seul le disque peut recevoir. Gardé par `tests/tree-immuable.test.mjs`, qui rejoue toute la suite entre deux relevés de l'arbre |
+| **Une preuve qui cesse de prouver sans que personne n'y touche** (2026-08-08, lots 8 → 13) | Les refus de la dérivation se prouvaient tout seuls tant que la couche SRD était pauvre : il suffisait de la monter. La source s'est enrichie deux fois (lot 8, puis lot 11 + régénération), et ces preuves-là se sont évaporées **en restant vertes** | Un test qui montre un refus s'appuie sur une **privation délibérée** — une couche de scénario qui ampute un record — jamais sur une pénurie de circonstance. Voir `ampute()` dans `tests/build-harness.mjs` |
+| **Un garde de vocabulaire calé sur le mot du cahier des charges** (2026-08-08, trois fois) | `arcane?` ne voyait pas `arcana`, l'arpenteur à plat ne voyait pas les sous-répertoires, et `\bdestiny\b` ne voyait **aucune forme composée** — `spendDestiny`, `rollChaos`, `FH_DESTINY`, `destinyDie`. Trois retours de la même famille sur la loi la plus haute du chantier | Un garde se teste sur **les formes que le code emploie**, et il s'attaque **dans les deux sens** : la violation doit rougir, le code légitime doit rester vert. Un garde qui crie au loup se fait désactiver, et c'est la garantie entière qui part avec lui |
+| **Une suite verte sur des artefacts périmés** (2026-08-08) | `fh-srd` a bougé pendant un lot ; les couches commitées ne venaient plus de la source, et rien ne rougissait | Vérifier qu'un build a **réellement réussi** avant de croire son silence. `gen-srd-layer.test.mjs` compare désormais la sortie fraîche aux fichiers commités — il peut rougir sur une couche périmée, ce que l'ancienne version ne pouvait plus |
