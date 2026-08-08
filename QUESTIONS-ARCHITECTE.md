@@ -1034,3 +1034,239 @@ suite ne rougit. Deux probes hostiles ajoutés à `guards-adversarial`.
    donc jamais approché le moteur. C'est la même famille que le piège
    « une preuve peut cesser de prouver sans que personne n'y touche », et le
    commentaire qui l'explique est resté dans `tests/fh-destiny.test.mjs`.
+
+---
+
+# Questions du lot `15-couche-fh-especes` à l'architecte
+
+**Écrites le 2026-08-08.** Premier lot de CONTENU du dépôt : c'est la première
+fois que les règles maison d'Eric entrent dans le produit. Loi §0.10 —
+« n'invente ni règle, ni nombre, ni nom ». Le lot a donc fait **tout ce qui ne
+dépendait pas** de ces dix questions, et a tenu la règle la plus stricte à
+chaque fois : quand il fallait choisir, il n'a pas choisi — il a laissé la
+chose absente et l'a écrite ici.
+
+Livré : `layers/fh-species-en.layer.json` (12 records),
+`src/tools/fh-species-source.mjs` (le canon déclaré),
+`src/tools/gen-fh-species-layer.mjs` (le générateur), `tests/fh-species.test.mjs`
+(29 tests). Inventaire complet : `INVENTAIRE-LOT-15.md`.
+
+---
+
+## Q15-1 — La TAILLE des trois espèces neuves est la seule valeur qu'Eric n'a pas écrite
+
+**Le fait.** Le chapitre donne, pour chaque espèce, ses aptitudes et sa Base de
+Destinée. Il donne la vitesse **collectivement** (« every species […] keeps its
+standard speed ») et jamais la taille. Pour l'Araag, le Loroka et l'Elestu, qui
+n'ont aucun record SRD dessous, il faut pourtant les deux.
+
+**Ce que le lot a fait.** Vitesse, type de créature, sens et choix de
+compétence sont **PRIS dans le SRD** à la génération (l'Araag chez l'Humain, le
+Loroka chez l'Orc, l'Elestu chez l'Elfe) — aucune valeur inventée, et le
+générateur **jette en nommant le champ** s'il ne l'y trouve plus. Seule la
+taille est **déclarée** : `size: "Medium"`, `size_key: "medium"`.
+
+**La question.** Eric confirme-t-il Medium pour les trois ? C'est une ligne
+dans `fh-species-source.mjs`. (Rappel : le Hoddon est Small, il l'hérite du
+Gnome et le lot n'y a pas touché.)
+
+---
+
+## Q15-2 — Les drapeaux levés : `fh.destiny` **et** `fh.chaos`
+
+**Le fait.** La couche lève deux drapeaux, et chacun se justifie par un contenu
+d'elle-même : `fh.destiny` (les douze portent une Base), `fh.chaos`
+(« Outlasting » donne l'avantage aux **jets de Chaos** — sans le module, le
+trait nomme une mécanique qui ne tourne pas, c'est-à-dire la dégradation
+silencieuse que ce dépôt refuse). Les trois autres drapeaux FH (`fh.arcana`,
+`fh.exhaustion`, `fh.overreach`) ne sont **pas** levés : aucun contenu d'ici ne
+les appelle.
+
+**La question.** Une couche de CONTENU a-t-elle vocation à allumer un module,
+ou est-ce le travail de la future couche de RÈGLES ? Les drapeaux se cumulent
+sans doublon dans le pli : lever les deux ici n'empêche rien. Mais si
+l'architecte préfère qu'une couche de chapitre ne lève que ce qui la concerne
+strictement, `fh.chaos` se retire en un mot.
+
+---
+
+## Q15-3 — `fh:skill:en:delve` et `fh:skill:en:vigilance` sont des références **EN AVANCE**
+
+**Le fait, mesuré.** Perception n'existe pas dans Fate's Hand : elle est
+remplacée par **Vigilance**, **Delve** et **Survival**. Le SRD fait pointer
+*Keen Senses* (Elfe) vers `[insight, perception, survival]`, dans le trait
+**et** dans `data.granted_skill_choice.from`. Laisser ce champ intact ferait
+offrir à l'Elfe FH une compétence qui n'existe pas.
+
+**Ce que le lot a fait.** Il patche les deux, chez l'Elfe et chez l'Elestu,
+vers `["srd:skill:en:survival", "fh:skill:en:delve", "fh:skill:en:vigilance"]`.
+**Les deux ids `fh:` ne correspondent à aucun record aujourd'hui** : le
+chapitre des compétences est un lot d'après. Le lot des compétences **doit**
+les honorer tels quels, sinon deux références pendent.
+
+**Et la conséquence qui n'est PAS de ce lot, signalée comme demandé** :
+`disable`-r la compétence Perception ne suffira pas. Le SRD porte la Perception
+**passive** dans son glossaire (`srd:glossary:en:*`) et `resolved.senses` la
+transporte : c'est un chantier de moteur, pas un `disable` de record.
+
+**La question.** L'architecte valide-t-il ces deux ids comme contrat entre les
+deux lots ? Et qui porte la Perception passive ?
+
+---
+
+## Q15-4 — `data.description` n'est PAS patchée, et deux records se contredisent en prose
+
+**Le fait, sans détour.** Chaque record d'espèce SRD porte un blob
+`data.description` qui **redit ses traits en toutes lettres**. La couche ne le
+touche pas — le corriger serait le **recopier**, c'est-à-dire exactement la
+divergence que la décision D1 interdit. Conséquence visible :
+
+- la description du **Hoddon** commence toujours par « As a **Gnome**, you have
+  these special traits » et nomme « Gnomish Cunning » ;
+- celle de l'**Elfe** dit toujours « Keen Senses. You have proficiency in the
+  Insight, **Perception**, or Survival skill ».
+
+**La position du lot** : FH rend ses fiches depuis `data.traits` +
+`data.fh_traits`, et `description` est de la **provenance**, pas de
+l'affichage. C'est tenable, mais ça ne se devine pas, et le jour où une
+interface affichera `description`, elle mentira.
+
+**La question.** Trois voies : (a) l'assumer et l'écrire dans le contrat ;
+(b) composer la description à l'affichage depuis les traits, et retirer le
+champ de l'usage ; (c) accepter une recopie ponctuelle pour ces deux records.
+
+---
+
+## Q15-5 — L'Humain : le chapitre retire **Resourceful**, et un patch ne sait pas SUPPRIMER
+
+**Le fait.** Le chapitre d'Eric liste pour l'Humain : Skillful, Versatile,
+Destiny. Le SRD en porte **trois** : `resourceful`, `skillful`, `versatile`.
+L'encart d'édition du chapitre est explicite : *« Resourceful (Heroic
+Inspiration on each long rest) — **retiré** »*. C'est la seule espèce dont la
+liste d'Eric est plus courte que celle du SRD.
+
+**Ce que le lot a fait : RIEN**, et c'est délibéré. Le mandat énumérait les
+traits FH de l'Humain (Twice-Born, Educated) sans parler de retirer quoi que ce
+soit, et **la mécanique ne le permet pas proprement** : un chemin de patch
+désigne un élément de collection par son identité et n'en supprime aucun
+(`paths.mjs`). Retirer `resourceful` supposerait de réécrire `data.traits` en
+entier — donc de recopier le texte SRD des deux traits gardés (interdit par
+D1). L'Humain de la pile porte donc encore Resourceful.
+
+**La question.** Eric confirme-t-il le retrait ? Si oui, il faut une décision
+d'architecte sur le **moyen** : une sémantique de suppression dans la grammaire
+de chemin (`op:"remove"` ou une valeur sentinelle), ou un champ
+`data.disabled_traits` que le consommateur soustrait. Aucune des deux n'est
+inventée ici.
+
+---
+
+## Q15-6 — La forme d'un trait FH, et l'invention de `data.fh_traits`
+
+**Ce que le lot propose, avec son argument.** Un trait FH a **exactement la
+forme d'un trait SRD** — `{id, name, text}`, celle que le lot 11 a livrée.
+Aucune grammaire d'« effets » n'a été inventée : les trois pouvoirs de Destinée
+sont hétérogènes (un change un nombre, un change un taux de récupération, un
+change un jet) et une mini-langue de règles pour trois cas serait précisément
+la « convention par cas » que la v1 a payée sous le nom de « 43 tailles de
+police inventées ». Ce qui est **chiffré** vit dans un champ de `data` dédié.
+
+**Et `data.fh_traits` est une NÉCESSITÉ mesurée, pas un goût.** Un patch ne
+peut pas **ajouter** un élément à `data.traits` : `paths.mjs` refuse de créer
+un élément dans un tableau (« on désigne un élément existant par son identité,
+on n'en crée pas un par un chemin »). Poser Splinter of Anon dans `data.traits`
+imposerait de réécrire tout le tableau. D'où la règle de lecture, **totale et
+sans exception** : *les traits d'une espèce sont `data.traits` puis
+`data.fh_traits`* — le second n'existant que là où une couche ajoute un trait à
+un record qu'elle ne possède pas (donc jamais sur les trois espèces neuves).
+
+⚠️ **Effet de bord à connaître** : `fh_traits`, `skill_points` et
+`granted_skill_choice` portent un souligné, donc leurs chemins de patch
+s'écrivent **entre crochets** (`data[fh_traits]`). C'est le point ouvert n°5 de
+`contracts/layers.md`, ajourné au M3 — voici son premier consommateur réel, et
+il confirme que « ça marche mais ça ne se devine pas ».
+
+**La question.** L'architecte ratifie-t-il `fh_traits` et sa règle de lecture ?
+
+---
+
+## Q15-7 — « Twice-Born » ne porte AUCUN nombre déclaré, faute de défaut ratifié
+
+**Le fait.** Trois pouvoirs, trois natures :
+
+| Pouvoir | Nature | Ce que la couche déclare |
+|---|---|---|
+| **Splinter of Anon** | un nombre autonome | `destiny.base_bonus: 2` + `destiny.base_bonus_trait` |
+| **Twice-Born** | un taux **relatif à un défaut** | rien de chiffré — l'id `twice-born` et son texte |
+| **Outlasting** | un jet | rien de chiffré — l'id `outlasting` et son texte |
+
+**Pourquoi rien pour Twice-Born.** « 2 points récupérés par repos long **au lieu
+d'un** » est un nombre dont le **défaut vit ailleurs** — et ce défaut n'est pas
+ratifié : le logbook place « la récupération par défaut et son éventuel
+plafond » dans ce qui est **en attente de l'expert Fate's Hand**. Déclarer
+`recovery_per_long_rest: 2` aujourd'hui, c'est écrire une valeur absolue qui
+deviendrait un **no-op silencieux** le jour où le défaut passerait à 2.
+
+**La question.** Quel est le défaut de récupération, et le champ doit-il être
+absolu (`2`) ou différentiel (`+1`) ? En attendant, le moteur doit se caler sur
+l'**id du trait**, qui est stable et testé.
+
+---
+
+## Q15-8 — `skill_points.by_level` : « à la création » veut-il dire « au niveau 1 » ?
+
+**Le fait.** Eric a tranché deux effets qui se **contredisaient** entre ses
+chapitres 2 et 4 : *Educated* (Humain) = **+2 à la création, et c'est tout** ;
+*Fast Learner* (Araag, Elestu) = **+2 aux niveaux 1, 3 et 6**.
+
+**Ce que le lot a fait.** Une forme unique, parce que le contraste entre les
+deux EST le contenu : `skill_points: {trait, by_level}` — `{1: 2}` pour
+Educated, `{1: 2, 3: 2, 6: 2}` pour Fast Learner.
+
+**La question.** Un personnage **créé au niveau 5** reçoit-il les +2 des paliers
+qu'il n'a pas traversés ? « À la création » et « au niveau 1 » ne disent pas la
+même chose dès qu'on ne commence pas au 1. Sans réponse, le consommateur
+devinera — et il n'existe pas encore : **`build.budgets` est le trou
+GAP-BUDGET**, et le pool de points de compétence en est le premier
+consommateur concret.
+
+---
+
+## Q15-9 — La LICENCE de la couche FH (posée au plus strict, à confirmer)
+
+**Le fait.** `attribution.license` est **obligatoire** au niveau couche. Le
+logbook dit « la couche FH de base est **PUBLIQUE** », ce qui décrit un accès,
+pas une licence. Et la couche est **dérivée** de matière CC-BY : neuf records
+sur douze sont des patchs de records SRD, et les trois espèces neuves héritent
+de traits SRD (l'Elestu a Fey Ancestry et Trance, le Loroka a Relentless
+Endurance et Versatile).
+
+**Ce que le lot a fait**, au plus strict et sans rien affirmer de faux :
+`license: "all-rights-reserved"` — le défaut légal d'une œuvre originale non
+licenciée, cité en exemple par le schéma — avec un `text` qui **transporte la
+notice CC-BY 4.0 du SRD** et nomme les espèces modifiées. CC-BY autorise les
+dérivés sous n'importe quelle licence tant que l'attribution voyage : les deux
+sont donc cohérents. Les patchs, eux, ne peuvent **pas** toucher
+l'`attribution` des records SRD (invariant 9 du contrat `layers`) — la notice
+CC-BY reste accrochée à chacun d'eux, ce qui est exactement voulu.
+
+**La question.** Eric confirme-t-il `all-rights-reserved`, ou veut-il ouvrir la
+couche de base (CC-BY-4.0, CC0…) ? C'est une décision d'Eric, pas d'architecte.
+
+---
+
+## Q15-10 — Une couche FH par chapitre, ou une seule ? Et sa version ?
+
+**Le fait.** Le lot livre `fh-species-en` en version `0.1.0`. Deux choix
+implicites y sont enterrés, et ils engagent les lots suivants :
+
+1. **L'id porte sa langue** (`fh-species-en`), comme les couches SRD — une
+   couche ne mélange jamais deux langues, et le français viendra après coup.
+2. **Une couche par CHAPITRE.** Le chapitre des compétences serait
+   `fh-skills-en`, etc. L'alternative est une couche `fh-en` unique que chaque
+   lot enrichit — plus simple à monter pour le joueur (une ligne dans
+   `build.layers[]` au lieu de six), mais deux lots ne peuvent alors plus
+   écrire en parallèle dans le même fichier.
+
+**La question.** Laquelle ? Et d'où vient la **version** d'une couche FH — il
+n'y a pas de « SRD 5.2.1 » à recopier, et `0.1.0` est un choix par défaut.
