@@ -307,6 +307,60 @@ test("ATTAQUE — un Tilt déclaré APRÈS coup ne penche pas un d20 déjà tomb
   assert.equal(h.queueEmpty(), 0);
 });
 
+/* ══════════════════════════════════════════════════════════════════════
+   LE +2 DE LA COUCHE — TROUVÉ EN ATTAQUANT MES PROPRES GARDES
+   ══════════════════════════════════════════════════════════════════════
+   Ces deux tests n'étaient PAS prévus par la commande du lot. Ils existent
+   parce qu'une mutation a laissé la suite verte : retirer
+   `if (cfg.plusTwo) entry.plusTwo = true;` du gestionnaire ne faisait rougir
+   personne, puisque tous les tests du Tilt passent par la branche qui pose
+   `entry.plusTwo` de son côté. Le +2 MANUEL — celui qui existait AVANT ce lot
+   et qui n'arrivait jamais — restait donc sans témoin, exactement comme la
+   Vibration l'était.
+
+   Un garde qui n'a pas été violé une fois ne vaut pas ce qu'il coûte ; celui-ci
+   n'existait pas du tout, et c'est l'attaque qui l'a dit. */
+
+test("le +2 de la couche, déclaré À LA MAIN, atteint le total du jet", () => {
+  /* ⚠️ MESURÉ AVANT CORRECTION : `cfg.plusTwo` était réglable, il peignait un
+     jeton « FH bonus » dans le plateau EN ATTENTE, et il ne montait jamais sur
+     l'entrée — `fhTotal` lit `entry.plusTwo`, qui restait `undefined`. Le
+     joueur voyait donc son +2 avant le jet, et pas après. */
+  const h = fh();
+  const entry = rollWith(h, { plusTwo: true }, 10);
+  assert.equal(entry.plusTwo, true, "la couche écrit SA clef sur l'entrée — le chemin commun ne sait pas ce qu'est un +2 maison");
+  assert.equal(entry.total, 17, "10 + 5 + 2 : le jeton du plateau et le total disent enfin la même chose");
+  assert.equal(entry.tilt, undefined, "et ce +2-là n'est pas un Tilt : personne n'en a déclaré");
+  assert.ok(h.derive.ruling(entry).account.includes("FH +2"),
+    "il se relit dans le compte du Ruling, sous le nom que le paquet lui donne");
+});
+
+test("`prepare` honore les réglages des modules montés, comme `configure`", () => {
+  /* Le contrat annonce `prepare({name, ability, bonus, mode?, dc?, note?,
+     plusTwo?})` depuis le lot 5. Mesuré : `rollInput` ne recopiait que les
+     clefs de la liste fermée DU TYPE, donc tout réglage de module posé à
+     l'ouverture de la console était perdu SANS UN MOT — le repli silencieux
+     que §0.5 interdit, dans le verbe qui ouvre chaque jet. */
+  const h = fh();
+  h.verbs.prepare({ name: "Stealth", ability: "DEX", bonus: 5, plusTwo: true, tilts: 2 });
+  assert.equal(h.state.rollConfig.plusTwo, true, "le réglage de couche entre par `prepare`");
+  assert.equal(h.state.rollConfig.tilts, 2);
+  h.queueRolls(7, 13);
+  h.verbs.roll();
+  assert.equal(h.state.history[0].kept, 13, "et il agit : deux Tilts ont bien produit l'Avantage");
+  assert.equal(h.queueEmpty(), 0);
+
+  /* ET LA LISTE RESTE FERMÉE : `prepare` n'est pas devenu une porte ouverte.
+     Une clef qu'aucun type ni aucun module ne déclare est simplement ignorée
+     à l'ouverture (elle n'a jamais été lue), mais `configure` la refuse — et
+     c'est `configure` qui porte le refus depuis l'exigence A du lot 5. */
+  const srd = makeHarness({ layers: [] });
+  srd.verbs.open({ character: { name: "Aldra", pb: 2 } });
+  srd.verbs.prepare({ name: "X", ability: "DEX", bonus: 0, plusTwo: true });
+  assert.equal(srd.state.rollConfig.plusTwo, undefined,
+    "sans module monté, la liste fermée est celle du type seul — le réglage n'existe pas");
+});
+
 test("RÉGRESSION — l'Épuisement N'EST PAS un Tilt, et il garde son chiffre", () => {
   /* Tranché par Eric le 2026-08-09 : « il ne convertit PAS l'Épuisement en
      Tilt — c'est un modificateur appliqué au jet, pas un +2 au DC », et il a
