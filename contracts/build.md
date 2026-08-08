@@ -157,6 +157,49 @@ promettre.
   table `"Sagesse" → wis` est la faute que ce lot existe pour éviter
   (`DERIVATION-FIELDS.md` §1). Garde dédié, attaqué.
 
+## ⛔ Où vit un POOL DE POINTS — arbitrage du 2026-08-09
+
+**Question posée par le lot 22, qui a refusé de construire sans elle (loi
+§0.10). Il a eu raison, et la commande de l'architecte avait tort.**
+
+La commande affirmait qu'il n'y avait « aucun trou de contrat » parce que
+`build.budgets` **existe** au schéma. Mesurer l'existence d'un champ n'est pas
+mesurer sa **jouabilité** — et les trois faits, revérifiés par l'architecte,
+disent l'inverse :
+
+| Fait | Mesure |
+|---|---|
+| `budgets` est **`required`** | `$defs/build.required` |
+| **Personne ne l'écrit ni ne le lit** | `grep -rn "budgets" src/` → **aucune occurrence** |
+| **Aucune dérivation ne PEUT l'écrire** | invariant 4 ci-dessous : *une reconstruction ne modifie jamais `build`* |
+
+**L'argument qui tranche est le BARDE** : son pool change à **chaque** niveau
+(+1 dès le 2). Un budget figé à la création serait faux dès le niveau 2, à
+moins que quelque chose le réécrive — ce que l'invariant 4 interdit
+précisément. **Un nombre qui se recalcule à chaque niveau n'est pas une donnée
+d'entrée, c'est une dérivation.**
+
+### → La règle, désormais opposable
+
+> **Un pool de points dérivé se publie dans `resolved.stats[]`, par un module à
+> drapeau — jamais dans `build.budgets`.**
+
+Chemin déjà ratifié et déjà testé (le Score de Destinée, lot 19) : **zéro
+contrat neuf**. Et le `breakdown` porte le **pourquoi** du nombre — pool de
+classe, paliers traversés, bumps d'espèce, imposés déduits — ce qu'un entier nu
+ne fera jamais.
+
+`build.budgets` garde un sens étroit : un budget **qu'on accorde** (« le MJ
+donne 3 points »), ce qui est une vraie donnée d'entrée. ⚠️ Si aucun
+consommateur de cette nature n'apparaît, la **loi §0.6** devra se poser sur lui.
+
+⚠️ **Et une seconde erreur du même commentaire d'architecte, trouvée par le
+lot** : il donnait `fh.skillPoints` en exemple de clef. `propertyNames` pointe
+sur `$defs/flag`, motif `^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$` — **pas de
+majuscule**. `fh.skillPoints` serait **rejeté** par le validateur du dépôt.
+Même piège que le lot 19 avait payé sur `stats[].id`. Toute clef de budget
+s'écrit **en minuscules**.
+
 ## Les modules de statistique — le protocole d'injection
 
 > ⚠️ **Porté au contrat le 2026-08-09, et c'était une dette de l'architecte.**
