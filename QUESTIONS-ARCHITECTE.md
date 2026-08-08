@@ -328,3 +328,315 @@ et un `castType: "none"` deviné au lieu d'être déclaré.
 2. ✅ **FAIT par l'architecte** — `tests/layers-acceptance.test.mjs` épinglait
    `ability_key === "sag"` ; l'assertion a été réécrite à la nouvelle vérité à
    la fusion. Ce lot n'a pas touché la suite d'un autre.
+
+---
+---
+
+# Questions du lot `10-mcp-v0` à l'architecte
+
+**Écrites le 2026-08-08**, après la fusion du lot 9. Même discipline que
+ci-dessus : loi §0.10, le lot n'invente ni valeur, ni nom, ni règle ; Eric est
+à distance, donc le lot a fait **tout ce qui ne dépendait pas** de ces
+questions, a tenu la règle la plus stricte à chaque fois, et l'a rendue
+**visible par un test** plutôt que de la décider en silence.
+
+Numérotées comme dans `contracts/mcp.md`.
+
+---
+
+## 0. ⚠️ LE FAIT QUI DOMINE TOUT LE RESTE — la spécification MCP a changé de nature
+
+**Mesuré le 2026-08-08**, en allant lire la source comme la §3 du mandat
+l'exigeait. La révision courante du protocole est **`2026-07-28`** (publiée le
+28 juillet 2026, elle remplace `2025-11-25`), et elle **supprime la poignée de
+main `initialize` et la session de protocole**. MCP est désormais **stateless**
+au sens fort :
+
+> « Servers **MUST NOT** rely on prior requests over the same connection to
+> establish context. […] State that needs to span multiple requests **MUST**
+> be referenced by an explicit identifier the client passes on each request. »
+> — et, dans la même page : *« an open connection, such as a STDIO process, is
+> not a conversation or session »*.
+
+Quatre conséquences déjà appliquées, sans arbitrage nécessaire : chaque requête
+porte sa version et les capacités du client dans `params._meta` ; tout `result`
+porte un `resultType` ; `server/discover` **doit** être implémenté ; une
+resource absente rend `-32602` (et `-32002` est **interdit d'émission**).
+
+**Sans cette vérification, ce lot aurait écrit une poignée de main qui n'existe
+plus.** C'est exactement le risque que le mandat nommait, et il était réel.
+
+---
+
+## 1. ⚠️ LA DÉCISION D2 A ÉTÉ PRISE AVANT CETTE LECTURE — et elle la contredit
+
+**Le fait.** D2 dit : *« Ton serveur tient UN document ouvert en mémoire pour
+la durée de la session. »* La révision `2026-07-28` dit : il n'y a **pas** de
+session, et un état qui traverse plusieurs requêtes **doit** être désigné par
+un identifiant que le client repasse à chaque appel (le motif « handle » que la
+spécification décrit dans *Stateful Tools*).
+
+**Ce que le lot a fait, sans trancher.** Les deux tiennent debout ensemble,
+et sans qu'aucune soit maquillée :
+
+- **le document ouvert existe**, comme D2 l'ordonne : il est servi par la
+  resource `fh-char:///open` et par `mcp.document` ;
+- **et chaque outil de `build` accepte `document` en argument.** Ce n'est pas
+  une invention : c'est **la forme exacte des verbes du lot 9**
+  (`{document?}` — le premier appel qui en porte un l'adopte, les suivants
+  s'en passent), recopiée. Un client qui passe `document` à chaque appel est
+  donc **strictement conforme à la révision courante** ; un client qui l'omet
+  retombe sur le document ouvert.
+
+**Ce qui reste à trancher.** Faut-il aller jusqu'au bout du motif de la
+spécification — un **identifiant de document** rendu à la création et repassé
+à chaque appel, plusieurs personnages ouverts en parallèle ? Ce serait un nom
+et une règle neufs (loi §0.10), et surtout ça mordrait sur la tranche du bloc
+`doc`, que D2 interdit explicitement de préempter. **Le lot n'a donc rien
+fabriqué.** La question est : la décision n°3 d'Eric (« le personnage
+appartient au joueur ») est-elle mieux servie par le document ouvert, ou par
+un handle explicite ?
+
+⚠️ Corollaire pratique : tant que le document ouvert existe, **deux clients qui
+partageraient le même processus se marcheraient dessus**. Aujourd'hui c'est
+sans conséquence — un serveur stdio est lancé par un seul client — mais ça
+cesse d'être vrai le jour où un transport HTTP arrive.
+
+---
+
+## 2. L'URI de la resource : `fh-char:///open`
+
+**Le fait.** La spécification demande un schéma d'URI conforme à la RFC 3986 et
+**déconseille `https://`** dès que le client ne peut pas aller chercher la
+ressource lui-même — c'est exactement le cas : ce document ne vit nulle part
+ailleurs qu'en mémoire.
+
+**Ce que le lot a posé** : `fh-char:///open` — le schéma porte le nom du format
+qu'il sert, l'autorité est vide (comme `file:///`), le chemin dit ce que c'est.
+**À ratifier ou à renommer.** C'est un nom public : il apparaîtra dans les
+configurations des clients, et le changer plus tard cassera les leurs.
+
+---
+
+## 3. Le bloc `mcp` n'a **aucun verbe** et ne s'enregistre pas sur le noyau
+
+**Le fait.** `ARCHITECTURE.md` lui donne « adaptateur : doc/build/play en
+tools+resources », **aucun verbe**, **aucun événement**, **aucun état**.
+`defineBlock` exige des verbes : sans verbe, il n'y a rien à enregistrer.
+
+**Ce que le lot a fait.** L'instance rend `{name, handle}`. Le constructeur
+câblé sur le noyau s'appelle **`connectMcp`** et non `registerMcp`, parce qu'il
+n'enregistre rien — « connecter » est le mot que la carte emploie déjà pour un
+bloc de frontière (`connect-ddb`), donc aucun vocabulaire neuf.
+
+**À ratifier.** Et une remarque de cohérence : la carte dit « état possédé :
+aucun » pour ce bloc, alors qu'il tient un **miroir** du document ouvert (D2).
+Le contrat le nomme miroir et pas tranche — il n'est jamais écrit, jamais
+dérivé, jamais repassé à un verbe — mais la carte mérite peut-être un mot.
+
+---
+
+## 4. Pas d'`outputSchema` sur les outils
+
+**Le fait.** La spécification le permet, et exige alors que le
+`structuredContent` s'y conforme. Le décrire serait une **deuxième copie** de
+la forme que `build` et `layers` rendent déjà — et **rien ne la comparerait**.
+Ce dépôt a mesuré deux fois que deux copies d'une règle divergent, sauf si
+quelque chose les compare (`layers-document`, puis le garde de dérive
+schéma↔code du lot 9, écrit *après coup* parce qu'un commentaire promettait un
+comparateur qui n'existait pas).
+
+**Ce que le lot a fait** : aucun `outputSchema`, et la raison écrite au contrat.
+**À ratifier** — ou à commander avec son comparateur, jamais sans.
+
+---
+
+## 5. ⚠️ DÉFAUT MESURÉ DANS UN GARDE PARTAGÉ — `HOUSE_MECHANICS` ne voit pas les formes camelCase
+
+**Trouvé en attaquant le garde §0.12 de ce lot.** `tests/source-scan.mjs`
+cherche `\bdestin(y|ies)\b`, `\bchaos\b`, `\barcan(a|e|es|um)\b`… : dans
+`spendDestiny`, il n'y a **aucune frontière de mot** avant le « D ». Toutes les
+formes composées passent — et ce sont **précisément celles que le code
+emploie**.
+
+Mesuré, échantillon complet dans `tests/mcp-block.test.mjs` :
+
+| Forme | Vue par le garde |
+|---|---|
+| `destiny`, `Destiny` | ✅ oui |
+| `spendDestiny`, `setDestinyPoints`, `resolveArcana`, `settleAwakening`, `onOverreach`, `addPendingFate` | ❌ **non** |
+
+**C'est la parente exacte du défaut corrigé le même jour** sur `arcane?` — la
+leçon (« un garde de vocabulaire se teste sur les FORMES QUE LE CODE EMPLOIE »)
+avait été écrite, mais la liste n'avait été durcie que sur un mot.
+
+**Ce que le lot a fait, et pas fait.** Il **n'a pas touché au garde d'un autre
+lot** : durcir une liste partagée à l'aveugle sortirait de son périmètre. Il a
+**mesuré le trou dans un test dédié**, pour qu'il ne puisse ni disparaître ni
+s'élargir en silence, et il a vérifié ce qui rend la question actionnable :
+**durcir la liste aujourd'hui ne rendrait aucune suite rouge** — les seules
+occurrences camelCase du dépôt sont dans `src/modules/fh/`, qui a le droit de
+nommer FH.
+
+**À commander** : le durcissement, et à quel lot.
+
+---
+
+## 6. Le bloc `play` n'est pas exposé
+
+**Le fait.** `ARCHITECTURE.md` annonce pour le bloc `mcp` : « adaptateur :
+**doc/build/play** en tools et resources ». `doc` n'existe pas au M2 (D2 le
+dit). `play`, lui, existe — mais aucun besoin de jet n'est formulé pour ce lot,
+dont le titre et le test d'acceptation portent sur **la fabrication d'un
+personnage**.
+
+**Ce que le lot a fait** : rien, et il le déclare. Fabriquer une dizaine
+d'outils de jet pour un besoin que personne n'a formulé serait exactement la
+loi §0.6. **À commander** quand la vue de jeu arrive.
+
+---
+
+## 7. `layers.query` sans `id` peut rendre 611 Ko
+
+**Mesuré** sur la couche SRD FR : `spell` = 339 records = **611 Ko** de
+résultat JSON ; `class` = **175 Ko** ; `gear` = 63 Ko ; `species` = 21 Ko ; un
+seul record = 3,1 Ko.
+
+**Pourquoi l'outil existe quand même** : sans lui, une IA ne peut pas connaître
+les identifiants à poser dans un choix — elle devrait les **deviner**, et
+deviner est ce que ce dépôt paye le plus cher. La surface serait un dispositif
+de rejeu, pas un constructeur.
+
+**Ce que le lot a fait** : il expose le verbe **tel quel**, sans projeter ni
+tronquer. Projeter serait un élagage silencieux, et l'appelant ne saurait pas
+ce qui a disparu (loi §0.5). L'appelant choisit, l'appelant paye.
+
+**À trancher** : faut-il une forme « index » (identifiant + nom seuls) ? Ce
+serait un nouveau verbe ou un nouvel argument, donc une invention — le lot n'en
+a pas fabriqué.
+
+---
+
+## 8. `LayerError` ne pose pas son `name`, `BuildError` si
+
+**Mesuré le 2026-08-08.** `BuildError` fait `this.name = "BuildError"` ;
+`LayerError extends Error {}` ne fait rien, donc `error.name === "Error"`. Les
+deux doivent pourtant arriver **nommées** à l'IA : « niveau absent » doit se
+lire comme le refus d'un bloc, pas comme un incident anonyme.
+
+**Ce que le lot a fait** : il lit `constructor.name`, qui donne les deux (et
+qui tient parce que ce dépôt n'a **aucune étape de compilation** susceptible de
+renommer une classe — loi §0.11). Il n'a **pas** corrigé `LayerError` : c'est
+le fichier d'un autre lot, et la correction est d'une ligne.
+
+**À commander** si l'asymétrie doit disparaître.
+
+---
+
+## 9. En quelle langue parle la surface à l'IA ?
+
+**Le fait.** Les descriptions d'outils, les titres, les `instructions` de
+`server/discover` et les résumés textuels sont des **mots**, et c'est
+légitime : la loi §0.13 dit « le moteur produit des identifiants,
+**l'interface produit des mots** », et ce bloc **est** l'interface. Mais rien
+ne dit **quelle langue**.
+
+**Ce que le lot a fait** : français, la langue de travail du dépôt, et **à un
+seul endroit** (le catalogue `src/mcp/tools.mjs`) pour qu'une traduction reste
+un seul geste. Les messages de refus, eux, arrivent tels que les blocs les
+écrivent — donc en français aussi.
+
+**À trancher** : anglais pour la surface publique (les clients MCP et les
+modèles sont majoritairement anglophones) ? Un lexique comme
+`src/play/labels.mjs` ? Le lot n'a pas inventé de mécanisme de traduction pour
+un besoin non formulé.
+
+---
+
+## ⛔ HORS PÉRIMÈTRE, MAIS BLOQUANT POUR LA FUSION — `fh-srd` a bougé PENDANT ce lot
+
+**Mesuré le 2026-08-08, en fin de lot, et il faut le lire avant de fusionner
+quoi que ce soit.**
+
+`~/tools/fh-srd` a reçu trois commits **pendant que ce lot s'écrivait** :
+
+```
+e95350b  2026-08-08 12:43  Repair the two-column reading order, and name the 39 records it was corrupting
+df7ec71  2026-08-08 12:4x  Species traits and lineages, read from the page's geometry rather than its prose
+6f9f425  2026-08-08 12:50  Fusion du lot 11-srd-colonnes : l'ordre de lecture des pages à deux colonnes
+```
+
+C'est **le préalable que le lot 8 avait nommé** en refusant `traits (espèce)`
+(« mise en page à deux colonnes aplatie, une espèce qui déborde sur la
+suivante »). Il est levé. Les exports ont été réécrits à **12:50**.
+
+**Conséquence immédiate** : `layers/srd-5.2.1-*.layer.json`, tels qu'ils sont
+commités dans `fhpc`, sont **périmés**. Une régénération produit 613 lignes de
+différence — les tables de classe quittent la prose des aptitudes pour aller
+où elles doivent.
+
+### Deux défauts distincts, qu'il ne faut pas confondre
+
+**1. `tests/gen-srd-layer.test.mjs` ÉCRIT dans un artefact suivi par git.** Son
+dernier test appelle `generate()`, qui **écrase** `layers/*.layer.json`, *puis*
+compare. Quand la comparaison échoue — c'est-à-dire précisément quand elle a
+quelque chose à dire — **elle laisse l'arbre modifié**. Lancer `npm test` mute
+le dépôt.
+
+**2. Et comme `node --test` lance les fichiers EN PARALLÈLE, c'est une
+course.** Les suites qui *lisent* `layers/` (`build-acceptance`,
+`layers-acceptance`, et les deux miennes) les lisent pendant que
+`gen-srd-layer` les *réécrit*. Selon qui gagne, la même suite est verte ou
+rouge sans qu'une ligne ait changé. **Les deux ont été observées dans la même
+heure**, sur le même arbre.
+
+C'est exactement la leçon que ce chantier avait déjà payée, sous une autre
+forme : *une preuve peut cesser de prouver sans que personne n'y touche.* Ici
+elle peut même alterner.
+
+### Ce que ce lot a fait, et ce qu'il n'a PAS fait
+
+**Isolé, mesuré, et laissé intact.** Sur l'arbre **tel qu'il est commité** :
+
+| Ce qui a été lancé | Résultat | Arbre après |
+|---|---|---|
+| `build-acceptance` + `layers-acceptance` + les deux suites MCP, **sans** le générateur | **32/32 vertes** | **propre** |
+| `gen-srd-layer` **seul** | **11/12** — seul `generate() … laisse un arbre re-générable à l'identique` tombe | **`layers/` modifié** |
+
+**Ce lot n'a PAS régénéré les couches**, et c'est délibéré :
+
+- ce sont les artefacts d'un autre lot, et les régénérer **rebaserait la
+  dérivation** — `traits (espèce)` redevient probablement dérivable, donc la
+  liste `underived` de `build-acceptance` (lot 9) **et la mienne** deviennent
+  fausses, et les deux devront être réécrites `REWRITTEN` sur leur propre
+  ligne ;
+- c'est le rituel que ce dépôt appelle « la confrontation à la vraie matière »,
+  et il appartient à qui fusionne le lot `11-srd-colonnes` dans `fhpc`, pas à
+  un lot qui passait par là.
+
+### À commander
+
+1. **Régénérer les couches** et refaire la confrontation, comme après le lot 8.
+   Les deux listes `underived` (lot 9, lot 10) sont à réécrire à la nouvelle
+   vérité — pas à relâcher.
+2. **Faire en sorte que la suite n'écrive plus dans l'arbre.** Un test qui
+   vérifie la reproductibilité peut générer **à côté** et comparer, sans
+   toucher au fichier suivi. Tant qu'il écrit, `npm test` n'est pas idempotent
+   et la course reste ouverte.
+
+---
+
+## Hors questions — deux remarques pour la fusion
+
+1. **`ajv` n'est pas installé dans le worktree.** `npm test` est vert parce
+   qu'une copie **8.18.0** traîne dans `/Users/Eric/node_modules` et que Node
+   remonte l'arbre pour résoudre — alors que `package.json` épingle **8.20.0**.
+   Ce n'est pas un faux vert (la dépendance est bien déclarée), mais la version
+   réellement exécutée n'est pas celle qui est épinglée. Un `npm ci` avant la
+   fusion lèverait le doute.
+2. **Le harnais de transport ferme ses processus enfants.** Mesuré en écrivant
+   ce lot : une assertion qui échouait sautait par-dessus le `close()`,
+   l'enfant restait vivant, et le lanceur de tests **attendait indéfiniment**.
+   Une suite qui pend est pire qu'une suite rouge — elle ne dit même pas ce qui
+   ne va pas. Le harnais prend désormais le contexte du test et ferme à la
+   sortie, avec un `SIGKILL` de secours.
