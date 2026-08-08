@@ -111,6 +111,31 @@ parseur d'essai jetable.
 
 ---
 
+### Amendement du 2026-08-08 (2) — quatre trous de CE contrat, trouvés par le lot 9
+
+Le lot 9 a buté sur quatre champs que `resolved` **exige** et que ce contrat
+n'avait pas nommés. Il ne les a pas inventés : il a proposé un nom et l'a lu
+défensivement. Les quatre sont ratifiés, plus un cinquième que la revue ajoute.
+
+| Champ | Genre | Pourquoi il est dû |
+|---|---|---|
+| `spellcasting_ability_key` | `class` | `primary_ability` est un mot affichable — **et la caractéristique primaire n'est pas celle d'incantation** (un paladin est primaire en Force). Sans lui, aucun DD ni bonus d'attaque de sort |
+| `ability_key` | `tool` | même notion, **même nom** que dans `skill`. `resolved.tools[].ability` est obligatoire |
+| `cast_type` | `spell` | `castType` est obligatoire sur une entrée de sort |
+| `concentration` | `spell` | booléen. **133 sorts** le portent dans `duration` — une règle du jeu, que la dérivation n'a pas le droit de parser |
+| `name` dans `senses[]` | `species` | ⚠️ **correction du §5 ci-dessous** : `resolved.senses[]` exige `id, name, value`. La forme `{id, range_m}` ne peut produire aucun sens valide. Le nom vient de la **source**, jamais du moteur (loi §0.13) |
+
+**Deux refus, et leurs raisons.** `gear[].weight` n'est pas commandé :
+`resolved.gear[].weight` est **facultatif** au schéma, et l'encombrement n'est
+pas un besoin du niveau 1 — l'omission se **déclare**, elle ne se comble pas.
+Et `granted_skill_choice` ne portera **pas** de champ `path` : `keenSenses` est
+une convention du vocabulaire de choix du **constructeur**, pas un fait du SRD.
+Le PDF ne dit pas ça, donc `fh-srd` ne peut pas l'émettre fidèlement.
+
+**Hors d'atteinte au M2, et déclaré comme tel** : `spellcasting.spells[].damage`.
+Les dégâts d'un sort ne sont structurés nulle part — ils vivent dans la prose de
+`description`. Le texte, lui, est disponible et doit être porté.
+
 ### Amendement du 2026-08-08, après la livraison du lot 8
 
 Trois précisions, nées de questions que le lot a posées au lieu d'inventer.
