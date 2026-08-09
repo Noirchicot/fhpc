@@ -235,6 +235,7 @@ couche (loi §0.12) : il ouvre un chemin, il ne s'en sert pas.
 | Entrée | Ce qu'elle porte |
 |---|---|
 | `proficiency` | `resolved.proficiency`, ou `null` si le pli ne l'a pas dérivée. Un module qui ne l'a pas **déclare** son terme au lieu de poser 0 — *« SANS MAÎTRISE DÉRIVÉE, LE TERME SE DÉCLARE »*. |
+| `level` | ⚠️ **AJOUT DU LOT 23, ratification demandée.** Le niveau du personnage, entier 1–20 — toujours présent : le pli **jette** sans lui (« le niveau n'est dérivable de rien »), il n'y a donc pas de cas `null` à traiter. **Ce n'est pas du confort : `proficiency` NE DIT PAS le niveau.** Les niveaux 5 à 8 la donnent tous à 3, et une statistique qui s'accumule *par niveau* — un pool de points, une ressource de progression — vaut des choses différentes aux deux bouts de cette tranche. Sans ce champ, un module n'a qu'une issue : une table de niveaux **écrite en dur**, très exactement ce que `stats[]` existe pour éviter. Mesuré par le lot 23 : son test d'acceptation 2 (le barde créé au niveau 5) est **impossible** sans lui. |
 | `species` | `{id, name, slug, data}` du record d'espèce, ou `null`. |
 | `choices` | **les choix de son namespace** (chemin `=== flag`, ou préfixé `flag.` / `flag[`), chacun `{path, tail, value, ref, label}`. `tail` est le chemin privé de son préfixe, le point de séparation retiré **seulement s'il y en a un** (`fh.destiny[0]` reste dans le namespace). Ils sont marqués **consommés d'office** : c'est le module qui les juge, et un chemin qu'il ne sait pas lire est un refus qui le nomme (loi §0.5). |
 | `records(kind, id?)` | **le même chemin de lecture que le pli**, vue aplatie `{id, name, slug, data}`. ⚠️ **Avec `id`** : le record ou `null`. **Sans `id`** : la liste du genre — et ce n'est pas un confort. C'est ce qui distingue *« le genre répond vide »* (le contenu n'est pas monté → **DÉCLARER**) de *« le genre est peuplé et ce record n'y est pas »* (un `ref` mort → **REFUSER**). Un `null` unique confondrait les deux, et un contenu manquant se lirait comme un document faux. |
@@ -338,6 +339,28 @@ sens qu'il accorde ; retirer le trait obligerait le moteur à rapprocher
 §0.13 interdit. La dérivation **recopie la liste du record**, elle ne la trie
 pas.
 
+**`resolved.stats[]` — ce que les modules y publient au 2026-08-09** : deux
+entrées, chacune sous son drapeau et son ancre.
+
+| Ancre | Drapeau | Lot | Ce que le total vaut |
+|---|---|---|---|
+| `fh:destiny` | `fh.destiny` | 19/20 | le Score de Destinée : maîtrise + Base d'espèce + Arcane + don |
+| `fh:skill-points` | `fh.skills` | 23 | **ce qu'il RESTE à répartir** : pool de classe + paliers **traversés** + bumps d'espèce − imposés |
+
+⚠️ **Le total du pool n'est PAS le pool brut.** Un Roublard niveau 1 a un *pool
+de classe* de 18 et publie **11** — 4 imposés de classe, 2 compétences et 1
+outil d'arrière-plan, à 1 point chacun (`tier_costs.imposed`, lu sur le record).
+Mesure indépendante qui le confirme : Eric chiffre le résultat attendu de sa
+réforme à « environ 2 points libres à **7–10** » ; magicien 12−5 = 7, druide
+14−5 = 9, roublard 18−7 = 11. Publier 18 ne dirait rien de ce que le joueur
+peut dépenser.
+
+⚠️ **Les paliers se cumulent sur les niveaux TRAVERSÉS** (règle Q15-8 d'Eric) :
+créé au niveau 5, un personnage a les paliers ≤ 5, pas celui du 6. « À la
+création » ne veut **pas** dire « au niveau 1 ». Chaque palier est **une ligne
+du `breakdown`**, avec son niveau — un terme unique « paliers traversés : +6 »
+serait exact et indémontrable.
+
 **Non dérivé, déclaré, avec sa raison** :
 
 | Champ | Pourquoi |
@@ -346,7 +369,10 @@ pas.
 | `traits` d'espèce | **plus dans cette table depuis le lot 13** — ils sont **dérivés**. Ne subsiste que la déclaration résiduelle : un record d'espèce qui ne porte pas `traits` du tout (couche tierce ou amputée), prouvée par une privation délibérée |
 | `spells[].castType` | **refusé par le lot 8**, mesure à l'appui — cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être génuinement les deux. Le schéma a cédé : le champ n'est plus obligatoire, le sort est émis **sans** son mode |
 | `languages` | aucun genre `language` parmi les 14. ⚠️ Le chapitre 4 leur donne pourtant une règle (**gratuites à la création, 1 point ensuite**) : la règle existe, le genre qui la porterait n'existe pas. Le lot 22 ne l'a pas inventé (loi §0.10) |
-| `build.budgets` | **⚠️ AUCUN CHEMIN D'ÉCRITURE, mesuré par le lot 22.** Le champ est `required` au schéma, vide dans le seul document d'exemple, et `grep -rn budgets src/` ne rend **rien** : aucun des cinq verbes ne le touche, et l'invariant 4 ci-dessus interdit à une reconstruction de modifier `build`. Le pool de compétences de Fate's Hand — que le `$comment` du champ nomme comme son « premier consommateur concret » — n'a donc pas où atterrir. **Question 1 de `INVENTAIRE-LOT-22.md`, en attente d'arbitrage.** La *matière* est livrée (les 12 pools, leur progression et leurs coûts vivent dans `layers/fh-skills-en.layer.json`) ; seule la dérivation est suspendue |
+| `build.budgets` | **⚠️ AUCUN CHEMIN D'ÉCRITURE, mesuré par le lot 22, et TOUJOURS AUCUN.** Le champ est `required` au schéma, vide dans le seul document d'exemple, et `grep -rn budgets src/` ne rend **rien**. ✅ **La question 1 est TRANCHÉE** (arbitrage du 2026-08-09, §« Où vit un POOL DE POINTS ») : le pool de compétences **n'atterrit pas ici**, il se publie dans `resolved.stats[]` — et le lot 23 l'y publie. Le `$comment` du champ, qui le nomme comme son « premier consommateur concret », est donc **périmé** : `budgets` n'a plus aucun consommateur connu, et la **loi §0.6** se pose désormais sur lui. ⚠ Point ouvert pour l'architecte |
+| `stats[fh:skill-points].imposed.species` | **⛔ DÉCISION NON PRISE (lot 23, loi §0.10).** L'Araag (`Skillful`) et l'Elestu (`Keen Senses`) portent un `granted_skill_choice` — une maîtrise que l'ESPÈCE impose. La règle d'Eric du 2026-08-08 nomme « la classe ou l'arrière-plan », et le canon dit « les bases du SRD fixent les compétences et outils imposés (Guerrier 2 au choix, Rogue 4…) » : l'espèce n'est nommée nulle part. Le déduire inventerait une règle, le taire serait un repli silencieux. **Question à l'architecte** |
+| `stats[fh:skill-points].imposed.class-tools` | aucun champ **mécanique** d'outil sur la classe : `tool_proficiencies` est une phrase (« Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe pas d'équivalent de `skill_choice`. Les compter demanderait de lire une phrase anglaise dans le moteur |
+| le **multiclassage** du pool | hors de portée, et pas par choix du lot 23 : **le pli lui-même ne dérive qu'UNE classe** (`takeRef("class")`, `identity.classes = [{name, level}]`). Le canon le tranche pourtant (« le +1 du Barde suit ses niveaux de barde, le +2 d'espèce suit le niveau de personnage »), et ⚠ le `by_level` de la couche a **fusionné** le +1 du barde avec le +2 universel — donc il ne se découpe pas par classe tel quel. À rouvrir le jour où le pli portera le multiclassage |
 | `actions` | aucun genre `action` ; composer une attaque demande une règle (Finesse, Lancer) que le contrat ne porte pas |
 | `resources` | dés de vie et usages d'aptitude n'ont aucun champ mécanique ; `class-progression.resources` porte des clefs sans nom affichable |
 | `notes` | du texte saisi à la main — et un choix ne peut pas le porter : `build.choices[].value` est plafonné à **200 caractères** |
