@@ -35,7 +35,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 
-import { ROOT, SRD_EN, FH_SPECIES_EN, makeHarness, manifestOf, uneCouche } from "./build-harness.mjs";
+import { ROOT, SRD_EN, FH_SPECIES_EN, FH_FEATS_EN, makeHarness, manifestOf, uneCouche } from "./build-harness.mjs";
 import { createFhSkillPoolStat, FH_SKILLS_FLAG, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 import { createFhDestinyStat, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
 import { statSumViolations } from "../src/build/validate.mjs";
@@ -54,6 +54,14 @@ function pilePool(options = {}) {
     layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN],
     modules: [createFhSkillPoolStat()]
   }, options));
+}
+
+/** La même pile, avec la couche des DONS montée en plus (lot 24) — c'est elle
+ *  qui patche `srd:feat:en:skilled` à +6. Les acceptations 1 à 5 et les
+ *  attaques du lot 23 ne la montent pas : elle n'existait pas encore, et un
+ *  personnage sans don d'origine choisi n'en a de toute façon rien à lire. */
+function pilePoolAvecDons(options = {}) {
+  return pilePool(Object.assign({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_FEATS_EN] }, options));
 }
 
 /** Les choix d'un personnage. `class`, `species` et `background` sont des
@@ -98,6 +106,11 @@ function documentDe(h, choices) {
     build: { layers: manifestOf(h.layers), choices: structuredClone(choices), budgets: {}, overrides: [] }
   };
 }
+
+/** Le don d'origine, à SA place (`background.originFeat[n]`), hors du
+ *  namespace de ce module — même convention que `fh-arcana.test.mjs` (lot 20),
+ *  qui l'a ouverte pour le Score de Destinée. */
+const donDe = (id, index = 0) => ({ path: `background.originFeat[${index}]`, ref: { kind: "feat", id }, label: "Origin feat" });
 
 const poolDe = (resolved) => resolved.stats.find((stat) => stat.id === FH_SKILL_POOL_ID);
 const somme = (stat) => stat.breakdown.reduce((total, line) => total + line.value, 0);
@@ -289,20 +302,31 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
   const araag = construire("fh:species:en:araag");
   const humain = construire("srd:species:en:human");
 
+  /* ⚠️ LE NET ZÉRO (lot 24) : l'Araag porte AUSSI un `granted_skill_choice`
+     (`Skillful`), et ses deux lignes s'annulent sur le total — l'écart entre
+     les deux personnages reste donc EXACTEMENT le bonus de trait, pas plus. */
   assert.notEqual(araag.stat.value, humain.stat.value, "les deux pools DIFFÈRENT");
-  assert.equal(araag.stat.value, 11, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 5 d'imposés");
+  assert.equal(araag.stat.value, 11, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 5 d'imposés (grant net zéro)");
   assert.equal(humain.stat.value, 9, "Humain : 12 de pool + 2 du seul palier de création − 5 d'imposés");
-  assert.equal(araag.stat.value - humain.stat.value, 2, "et l'écart vaut exactement un palier d'espèce");
+  assert.equal(araag.stat.value - humain.stat.value, 2, "et l'écart vaut exactement un palier d'espèce, PAS le grant");
 
-  /* L'ÉCART CITE LE TRAIT — et le mot vient du RECORD, recopié (loi §0.13). */
+  /* L'ÉCART CITE LE TRAIT — et le mot vient du RECORD, recopié (loi §0.13).
+     ⚠️ L'HUMAIN AUSSI PORTE UN `granted_skill_choice` — c'est `Skillful`
+     (« one skill of your choice »), du SRD lui-même, indépendant de la
+     couche FH. Les DEUX espèces portent donc la paire net zéro ; c'est
+     justement pourquoi elle ne doit RIEN changer à l'écart mesuré plus haut. */
   const lignesEspece = (stat) => stat.breakdown.filter((line) => line.source && line.source.kind === "species");
   assert.deepEqual(lignesEspece(araag.stat), [
     { label: "Fast Learner · Level 1", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Fast Learner · Level 3", value: 2, source: { kind: "species", id: "fh:species:en:araag" } }
-  ], "l'Araag porte DEUX paliers traversés, chacun nommé par son trait");
+    { label: "Fast Learner · Level 3", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
+    { label: "Araag · 1 granted choice", value: 1, source: { kind: "species", id: "fh:species:en:araag" } },
+    { label: "Araag · 1 imposed choice", value: -1, source: { kind: "species", id: "fh:species:en:araag" } }
+  ], "l'Araag porte DEUX paliers traversés ET les deux lignes du net zéro — pas zéro, pas une");
   assert.deepEqual(lignesEspece(humain.stat), [
-    { label: "Educated · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } }
-  ], "l'Humain n'en porte qu'un, et son trait ne s'appelle pas pareil");
+    { label: "Educated · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } },
+    { label: "Human · 1 granted choice", value: 1, source: { kind: "species", id: "srd:species:en:human" } },
+    { label: "Human · 1 imposed choice", value: -1, source: { kind: "species", id: "srd:species:en:human" } }
+  ], "l'Humain porte lui aussi son net zéro (`Skillful`), et un seul palier — son trait ne s'appelle pas pareil");
 
   /* LE MOT EST CELUI DU RECORD, PAS UN MOT DU MOTEUR. */
   const traitDe = (h, id, champ, traitId) => {
@@ -318,15 +342,14 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
   assert.equal(bumps.by_level["6"], 2, "la couche porte bien un palier d'espèce au niveau 6");
   assert.equal(terme(araag.stat, "Fast Learner · Level 6"), undefined, "et l'Araag niveau 3 ne l'a pas traversé");
 
-  /* ⚠️ ET LE `granted_skill_choice` DE L'ARAAG SE DÉCLARE — il n'est ni compté
-     ni tu. Aucune décision ne dit si une maîtrise imposée par l'ESPÈCE se
-     déduit du pool (la règle d'Eric nomme la classe et l'arrière-plan). */
+  /* ⚠️ ET LE `granted_skill_choice` DE L'ARAAG N'EST PLUS UNE DÉCLARATION
+     (lot 24) : la question qu'il posait est tranchée, la paire de lignes
+     remplace l'ancienne déclaration `imposed.species`. */
   const champ = `stats[${FH_SKILL_POOL_ID}].imposed.species`;
-  const raison = araag.underived.find((entry) => entry.field === champ);
-  assert.ok(raison, "la maîtrise imposée par l'espèce est DÉCLARÉE, pas avalée");
-  assert.match(raison.reason, /QUESTION À L'ARCHITECTE/, "et la déclaration dit que c'est une décision non prise");
-  assert.equal(araag.stat.breakdown.some((line) => line.value < 0 && line.source.kind === "species"), false,
-    "aucune déduction d'espèce n'est publiée — la déclarer, c'est refuser de l'inventer");
+  assert.equal(araag.underived.find((entry) => entry.field === champ), undefined,
+    "la déclaration du lot 23 n'a plus lieu d'être : la question qu'elle posait est tranchée");
+  assert.equal(araag.stat.breakdown.some((line) => line.value < 0 && line.source.kind === "species"), true,
+    "et le pool PUBLIE désormais une déduction d'espèce — le placement du grant");
 });
 
 /* ══ ACCEPTATION 4 — LE SRD PUR ═══════════════════════════════════════ */
@@ -417,6 +440,111 @@ test("ACCEPTATION 5 — drapeau levé, couche des compétences absente : le term
   /* Et le drapeau, lui, est bien levé — sinon ce test prouverait le test 4. */
   assert.ok(h.dispatch("layers.flags", {}).includes(FH_SKILLS_FLAG),
     "le drapeau EST levé : c'est ce qui distingue ce scénario du SRD pur");
+});
+
+/* ══ ACCEPTATION 6 — LE DON D'ORIGINE (lot 24) ═══════════════════════
+   « Un don d'origine doit pouvoir donner des points de compétence. » Même
+   canal `refs` que le Score de Destinée (lot 20) : le don vit sous
+   `background.originFeat[n]`, hors du namespace de ce module. */
+
+test("ACCEPTATION 6 — un Human Wizard avec Skilled publie 15, et son détail porte « Skilled » nommé ; sans le don, 9", () => {
+  const avecDon = pilePoolAvecDons();
+  const out = avecDon.verbs.rebuild({
+    document: documentDe(avecDon, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }).concat([donDe("srd:feat:en:skilled")]))
+  });
+  const stat = poolDe(out.resolved);
+
+  /* LE 6 EST NOMMÉ, PAS UN COMPTE — la ligne porte le nom du don, recopié
+     (loi §0.13), exactement comme `destiny-stat.mjs` nomme la sienne. */
+  assert.deepEqual(terme(stat, "Skilled"),
+    { label: "Skilled", value: 6, source: { kind: "feat", id: "srd:feat:en:skilled" } });
+  assert.equal(stat.value, 15, "12 de pool + 2 d'Educated + 6 de Skilled − 5 d'imposés (2 classe, 2+1 arrière-plan)");
+  assert.equal(stat.value, somme(stat), "`value` EST la somme de son détail");
+
+  /* LE DON EST RÉCLAMÉ : il compte dans le pool, il ne doit pas ressortir
+     « il ne change rien à la fiche » (même garde que le lot 20 sur le Score
+     de Destinée). */
+  assert.equal(out.unconsumed.includes("background.originFeat[0]"), false, "le module l'a lu, donc il l'a réclamé");
+
+  /* SANS LE DON : 9, et aucun terme « Skilled » — la ligne 12 + 2 − 5 du
+     Human Wizard nu (test 1, calibré sur le Halfling, redonne le même compte
+     une fois l'espèce remplacée par l'Humain). */
+  const sansDon = pilePoolAvecDons();
+  const statNu = poolDe(sansDon.verbs.rebuild({
+    document: documentDe(sansDon, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }))
+  }).resolved);
+  assert.equal(statNu.value, 9, "sans le don : 12 de pool + 2 d'Educated − 5 d'imposés");
+  assert.equal(terme(statNu, "Skilled"), undefined, "et aucune ligne « Skilled » n'apparaît");
+});
+
+test("ACCEPTATION 7 — un Human Rogue avec Skilled publie 19", () => {
+  const h = pilePoolAvecDons();
+  const stat = poolDe(h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }).concat([donDe("srd:feat:en:skilled")]))
+  }).resolved);
+  assert.equal(stat.value, 19, "18 de pool + 2 d'Educated + 6 de Skilled − 7 d'imposés (4 classe, 2+1 arrière-plan)");
+  assert.equal(stat.value, somme(stat));
+  assert.equal(terme(stat, "Skilled").value, 6);
+});
+
+test("ACCEPTATION 8 — un don SANS `data.skill_points` ne casse rien : seize dons du SRD traversent muets", () => {
+  /* LES SEIZE AUTRES DONS DU SRD — `Skilled` est le dix-septième, et c'est
+     le SEUL patché. Un don muet ne doit ni jeter, ni ajouter de terme, ni
+     changer le total : il est un fait, pas un trou. */
+  const autresDons = [
+    "srd:feat:en:ability-score-improvement", "srd:feat:en:alert", "srd:feat:en:archery",
+    "srd:feat:en:boon-of-combat-prowess", "srd:feat:en:boon-of-dimensional-travel",
+    "srd:feat:en:boon-of-fate", "srd:feat:en:boon-of-irresistible-offense",
+    "srd:feat:en:boon-of-spell-recall", "srd:feat:en:boon-of-the-night-spirit",
+    "srd:feat:en:boon-of-truesight", "srd:feat:en:defense", "srd:feat:en:grappler",
+    "srd:feat:en:great-weapon-fighting", "srd:feat:en:magic-initiate",
+    "srd:feat:en:savage-attacker", "srd:feat:en:two-weapon-fighting"
+  ];
+  assert.equal(autresDons.length, 16, "et ils sont bien seize — le dix-septième feat du SRD est `Skilled`");
+
+  for (const id of autresDons) {
+    const h = pilePoolAvecDons();
+    const out = h.verbs.rebuild({
+      document: documentDe(h, choixDe({
+        level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      }).concat([donDe(id)]))
+    });
+    const stat = poolDe(out.resolved);
+    assert.equal(stat.value, 9, `« ${id} » ne change rien au total`);
+    assert.equal(stat.breakdown.some((line) => line.source && line.source.kind === "feat"), false,
+      `« ${id} » n'ajoute aucun terme`);
+
+    /* ET LA DÉCLARATION NOMME LE DON REGARDÉ — pas un vague « aucun don ». */
+    const declaration = out.underived.find((entry) => entry.field === `stats[${FH_SKILL_POOL_ID}].feat`);
+    assert.ok(declaration, `« ${id} » : la déclaration existe`);
+    assert.match(declaration.reason, new RegExp(id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      `« ${id} » : la déclaration le NOMME`);
+  }
+});
+
+test("ACCEPTATION 9 — un don qui annonce une valeur de points illisible JETTE", () => {
+  const h = pilePoolAvecDons({
+    extra: Object.assign(uneCouche("scenario-don-valeur-illisible", {
+      feat: {
+        "srd:feat:en:skilled": { op: "patch", changes: { "data[skill_points]": { bonus: "six" } } }
+      }
+    }), { flags: [] })
+  });
+  assert.throws(() => h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }).concat([donDe("srd:feat:en:skilled")]))
+  }), (erreur) => {
+    assert.match(erreur.message, /srd:feat:en:skilled/, "le refus NOMME le don fautif");
+    assert.match(erreur.message, /not a whole number/, "et il dit ce qui cloche");
+    return true;
+  });
 });
 
 /* ══ LES ATTAQUES ═════════════════════════════════════════════════════
@@ -586,4 +714,66 @@ test("DEUX MODULES COHABITENT — le pool ne remplace pas le Score de Destinée"
   });
   assert.deepEqual(out.resolved.stats.map((stat) => stat.id).sort(), [FH_DESTINY_ID, FH_SKILL_POOL_ID].sort());
   assert.deepEqual(statSumViolations(out.resolved), [], "les deux totaux se démontrent");
+});
+
+/* ══ LES ATTAQUES DU LOT 24 ═══════════════════════════════════════════ */
+
+test("ATTAQUE — le +6 de Skilled vient du record, pas du module : on le change dans la couche et le total suit", () => {
+  /* MÊME DÉFAUT NOMMÉ QU'AU LOT 20 : un module qui porterait « Skilled → 6 »
+     écrit dans son source rendrait exactement le même nombre qu'avant, et
+     l'assertion de total seule ne l'aurait jamais vu. On change la valeur à 9
+     DANS LA COUCHE, rien dans `src/`. */
+  const h = pilePoolAvecDons({
+    extra: Object.assign(uneCouche("scenario-skilled-vaut-neuf", {
+      feat: {
+        "srd:feat:en:skilled": { op: "patch", changes: { "data[skill_points]": { bonus: 9 } } }
+      }
+    }), { flags: [] })
+  });
+  const stat = poolDe(h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }).concat([donDe("srd:feat:en:skilled")]))
+  }).resolved);
+  assert.equal(terme(stat, "Skilled").value, 9, "la ligne SUIT le record — elle n'est pas écrite dans le module");
+  assert.equal(stat.value, 18, "12 + 2 + 9 − 5 : le total suit le record, lui aussi");
+});
+
+test("ATTAQUE — un don sans nom JETTE : la ligne ne disparaît pas en silence", () => {
+  /* LE NOMBRE est connu et le MOT manque — même garde que pour un trait
+     d'espèce sans nom (ACCEPTATION 3). Sauter la ligne rendrait un pool court
+     d'exactement ce bonus, sans un mot. */
+  const h = pilePoolAvecDons({
+    extra: Object.assign(uneCouche("scenario-don-sans-nom", {
+      feat: {
+        "srd:feat:en:skilled": { op: "patch", changes: { name: "", "data[skill_points]": { bonus: 6 } } }
+      }
+    }), { flags: [] })
+  });
+  assert.throws(() => h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+    }).concat([donDe("srd:feat:en:skilled")]))
+  }), /srd:feat:en:skilled/, "le refus nomme le don dont la ligne ne peut pas se libeller");
+});
+
+test("ATTAQUE — un `granted_skill_choice.count` illisible JETTE au lieu de fausser le net zéro", () => {
+  /* SANS CE GARDE, un `count` non entier romprait le net zéro : la ligne de
+     grant et celle de placement ne s'annuleraient plus, et le pool serait
+     faux d'un nombre que rien n'expliquerait. */
+  const cas = [["une chaîne", "un"], ["zéro", 0], ["négatif", -1]];
+  for (const [index, [nom, count]] of cas.entries()) {
+    const h = pilePool({
+      extra: Object.assign(uneCouche(`scenario-grant-illisible-${index}`, {
+        species: {
+          "fh:species:en:araag": { op: "patch", changes: { "data[granted_skill_choice].count": count } }
+        }
+      }), { flags: [] })
+    });
+    assert.throws(() => h.verbs.rebuild({
+      document: documentDe(h, choixDe({
+        level: 1, classId: "srd:class:en:fighter", speciesId: "fh:species:en:araag", backgroundId: ACOLYTE
+      }))
+    }), /fh:species:en:araag/, `« ${nom} » doit JETER en nommant le record`);
+  }
 });

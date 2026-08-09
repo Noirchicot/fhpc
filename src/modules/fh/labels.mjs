@@ -129,13 +129,27 @@ export const FH_EN = {
 
      Le bump d'espèce recopie le nom du TRAIT qui le porte (« Fast Learner »,
      « Educated »), jamais un mot fabriqué : c'est la règle que le lot 19 a
-     appliquée au bonus de Base de l'Elfe. */
+     appliquée au bonus de Base de l'Elfe.
+
+     ⚠️ LE DON D'ORIGINE (lot 24) NE PASSE PAS PAR ICI : sa ligne est nommée
+     directement d'après le `name` du record (« Skilled »), exactement comme
+     `destiny-stat.mjs` nomme la sienne — aucune clef n'est nécessaire pour un
+     libellé qui EST déjà le nom d'un record.
+
+     LE GRANT D'ESPÈCE, LUI, EST UN COUPLE (lot 24) : « Araag · 1 granted
+     choice » ENTRE dans le pool, « Araag · 1 imposed choice » en SORT — même
+     phrase que l'imposé de classe/arrière-plan, parce que c'en est un une
+     fois entré (règle d'Eric du 2026-08-09, net zéro). Le mot source est le
+     `name` de l'ESPÈCE, pas du trait : `granted_skill_choice` ne porte aucun
+     id de trait à recopier, contrairement à `skill_points.trait`. */
   "fh.skills.pool": "Skill Points",
   "fh.skills.term.class": (d) => "Class Pool · " + d.class,
   "fh.skills.term.level": (d) => "Level " + d.level,
   "fh.skills.term.species": (d) => d.trait + " · Level " + d.level,
   "fh.skills.term.imposed": (d) =>
     d.source + " · " + d.count + " imposed choice" + (d.count === 1 ? "" : "s"),
+  "fh.skills.term.granted": (d) =>
+    d.source + " · " + d.count + " granted choice" + (d.count === 1 ? "" : "s"),
 
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,

@@ -11,7 +11,7 @@
     "license": "all-rights-reserved",
     "text": "Original Fate's Hand content: all rights reserved. This layer adds a record of its own and modifies NO material from the System Reference Document 5.2.1 — it patches no SRD feat and disables none."
   },
-  "description": "The Fate's Hand feats that carry a Destiny value. One so far: Auspicious (fh), which grants +2 to the Destiny Score.",
+  "description": "The Fate's Hand feats that carry a Destiny value or a skill pool bonus. Auspicious (fh) grants +2 to the Destiny Score; Skilled is patched to grant +6 skill points, at parity with its SRD text.",
   "records": {
     "feat": {
       "fh:feat:en:auspicious": {
@@ -24,6 +24,15 @@
           },
           "description": "+2 Destiny · fate leans toward you (replaces Lucky)"
         }
+      },
+      "srd:feat:en:skilled": {
+        "op": "patch",
+        "changes": {
+          "data[skill_points]": {
+            "bonus": 6
+          }
+        },
+        "note": "Fate's Hand — Skilled grants 6 skill points (3 proficiencies × tier_costs.proficient of 2), at exact parity with its SRD text of three skills or tools of the player's choice. It imposes nothing: the points are the player's to spend."
       }
     }
   }
