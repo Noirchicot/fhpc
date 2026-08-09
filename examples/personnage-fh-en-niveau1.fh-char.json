@@ -1,0 +1,947 @@
+{
+  "schema": "fh-char/1",
+  "id": "example-ilyra-fh-en",
+  "name": "Ilyra Duskleaf",
+  "lang": "en",
+  "units": {
+    "distance": "ft",
+    "weight": "lb"
+  },
+  "generator": {
+    "name": "src/tools/exemple-fh-en",
+    "version": "1.0.0"
+  },
+  "created": "2026-08-09T09:00:00Z",
+  "modified": "2026-08-09T09:00:00Z",
+  "build": {
+    "layers": [
+      {
+        "id": "srd-5.2.1-en",
+        "version": "5.2.1",
+        "hash": "bb9d2d242adbcfd331bd15385b6d4486a5c8d53f0d080bc540b5d55bfeffc1c1",
+        "name": "SRD 5.2.1 (EN)"
+      },
+      {
+        "id": "fh-species-en",
+        "version": "0.1.0",
+        "hash": "bce41951da0666546d0a2561f83e534534b29b9f3ee53828c168352f9c4f6401",
+        "name": "Fate's Hand — Species (EN)"
+      },
+      {
+        "id": "fh-skills-en",
+        "version": "0.1.0",
+        "hash": "fbe2aaecd2f1c7676d8430c1ffd4dcf8cd2dbc9ce4d124746bbaa6b8de9b74f2",
+        "name": "Fate's Hand — Skills & Tools (EN)"
+      },
+      {
+        "id": "fh-arcana-en",
+        "version": "0.1.0",
+        "hash": "e18a2e3d2783e54ed1c10d9c85b15cfc84e5dcb82e6c8b084136607bd25f99e6",
+        "name": "Fate's Hand — Major Arcana (EN)"
+      },
+      {
+        "id": "fh-feats-en",
+        "version": "0.1.0",
+        "hash": "1681a1c13e7893c921869d98a0fa03d02a611ac95e02ceb4c1527a0ad5b48c6c",
+        "name": "Fate's Hand — Feats (EN)"
+      }
+    ],
+    "choices": [
+      {
+        "path": "level",
+        "value": 1,
+        "label": "Level 1"
+      },
+      {
+        "path": "class",
+        "ref": {
+          "kind": "class",
+          "id": "srd:class:en:wizard"
+        },
+        "label": "Wizard"
+      },
+      {
+        "path": "species",
+        "ref": {
+          "kind": "species",
+          "id": "srd:species:en:elf"
+        },
+        "label": "Elf"
+      },
+      {
+        "path": "species.lineage",
+        "value": "high-elf",
+        "label": "High Elf"
+      },
+      {
+        "path": "species.keenSenses",
+        "value": "survival",
+        "label": "Keen Senses: Survival"
+      },
+      {
+        "path": "background",
+        "ref": {
+          "kind": "background",
+          "id": "srd:background:en:sage"
+        },
+        "label": "Sage"
+      },
+      {
+        "path": "background.originFeat[0]",
+        "ref": {
+          "kind": "feat",
+          "id": "fh:feat:en:auspicious"
+        },
+        "label": "Origin feat"
+      },
+      {
+        "path": "fh.destiny.arcana",
+        "ref": {
+          "kind": "arcana",
+          "id": "fh:arcana:en:the-hermit"
+        },
+        "label": "The Hermit"
+      },
+      {
+        "path": "abilities.mode",
+        "value": "standard",
+        "label": "Standard array"
+      },
+      {
+        "path": "abilities.str",
+        "value": 8
+      },
+      {
+        "path": "abilities.dex",
+        "value": 14
+      },
+      {
+        "path": "abilities.con",
+        "value": 13
+      },
+      {
+        "path": "abilities.int",
+        "value": 15
+      },
+      {
+        "path": "abilities.wis",
+        "value": 12
+      },
+      {
+        "path": "abilities.cha",
+        "value": 10
+      },
+      {
+        "path": "background.boost.int",
+        "value": 2
+      },
+      {
+        "path": "background.boost.con",
+        "value": 1
+      },
+      {
+        "path": "class.skills[0]",
+        "value": "arcana"
+      },
+      {
+        "path": "class.skills[1]",
+        "value": "investigation"
+      },
+      {
+        "path": "class.cantrips[0]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:ray-of-frost"
+        }
+      },
+      {
+        "path": "class.cantrips[1]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:light"
+        }
+      },
+      {
+        "path": "class.cantrips[2]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:prestidigitation"
+        }
+      },
+      {
+        "path": "class.prepared[0]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:magic-missile"
+        }
+      },
+      {
+        "path": "class.prepared[1]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:shield"
+        }
+      },
+      {
+        "path": "class.prepared[2]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:detect-magic"
+        }
+      },
+      {
+        "path": "class.prepared[3]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:sleep"
+        }
+      },
+      {
+        "path": "languages[0]",
+        "value": "draconic"
+      },
+      {
+        "path": "gear[0]",
+        "ref": {
+          "kind": "weapon",
+          "id": "srd:weapon:en:dagger"
+        }
+      },
+      {
+        "path": "gear[0].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[0].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[1]",
+        "ref": {
+          "kind": "weapon",
+          "id": "srd:weapon:en:quarterstaff"
+        }
+      },
+      {
+        "path": "gear[1].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[1].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[2]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:book"
+        }
+      },
+      {
+        "path": "gear[2].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[2].equipped",
+        "value": false
+      },
+      {
+        "path": "gear[3]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:component-pouch"
+        }
+      },
+      {
+        "path": "gear[3].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[3].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[4]",
+        "ref": {
+          "kind": "tool",
+          "id": "srd:tool:en:calligrapher-s-supplies"
+        }
+      },
+      {
+        "path": "gear[4].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[4].equipped",
+        "value": false
+      },
+      {
+        "path": "gear[5]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:backpack"
+        }
+      },
+      {
+        "path": "gear[5].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[5].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[6]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:rations"
+        }
+      },
+      {
+        "path": "gear[6].quantity",
+        "value": 5
+      },
+      {
+        "path": "gear[6].equipped",
+        "value": false
+      },
+      {
+        "path": "gear[7]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:torch"
+        }
+      },
+      {
+        "path": "gear[7].quantity",
+        "value": 2
+      },
+      {
+        "path": "gear[7].equipped",
+        "value": false
+      },
+      {
+        "path": "currency.cp",
+        "value": 4
+      },
+      {
+        "path": "currency.sp",
+        "value": 12
+      },
+      {
+        "path": "currency.gp",
+        "value": 8
+      },
+      {
+        "path": "currency.pp",
+        "value": 0
+      }
+    ],
+    "budgets": {},
+    "overrides": [
+      {
+        "path": "resolved.vitals.hpMax",
+        "value": 9,
+        "note": "The GM grants one extra hit point: the night of study counts as a Long Rest here.",
+        "by": "gm"
+      },
+      {
+        "path": "resolved.gear[torch].quantity",
+        "value": 4,
+        "note": "Two more torches bought on the road.",
+        "by": "player"
+      }
+    ]
+  },
+  "resolved": {
+    "derivation": {
+      "at": "2026-08-09T09:00:00Z",
+      "stack": [
+        {
+          "id": "srd-5.2.1-en",
+          "version": "5.2.1",
+          "hash": "bb9d2d242adbcfd331bd15385b6d4486a5c8d53f0d080bc540b5d55bfeffc1c1",
+          "name": "SRD 5.2.1 (EN)"
+        },
+        {
+          "id": "fh-species-en",
+          "version": "0.1.0",
+          "hash": "bce41951da0666546d0a2561f83e534534b29b9f3ee53828c168352f9c4f6401",
+          "name": "Fate's Hand — Species (EN)"
+        },
+        {
+          "id": "fh-skills-en",
+          "version": "0.1.0",
+          "hash": "fbe2aaecd2f1c7676d8430c1ffd4dcf8cd2dbc9ce4d124746bbaa6b8de9b74f2",
+          "name": "Fate's Hand — Skills & Tools (EN)"
+        },
+        {
+          "id": "fh-arcana-en",
+          "version": "0.1.0",
+          "hash": "e18a2e3d2783e54ed1c10d9c85b15cfc84e5dcb82e6c8b084136607bd25f99e6",
+          "name": "Fate's Hand — Major Arcana (EN)"
+        },
+        {
+          "id": "fh-feats-en",
+          "version": "0.1.0",
+          "hash": "1681a1c13e7893c921869d98a0fa03d02a611ac95e02ceb4c1527a0ad5b48c6c",
+          "name": "Fate's Hand — Feats (EN)"
+        }
+      ]
+    },
+    "identity": {
+      "level": 1,
+      "classes": [
+        {
+          "name": "Wizard",
+          "level": 1
+        }
+      ],
+      "species": "Elf",
+      "size": "medium",
+      "background": "Sage"
+    },
+    "abilities": {
+      "str": {
+        "score": 8,
+        "mod": -1
+      },
+      "dex": {
+        "score": 14,
+        "mod": 2
+      },
+      "con": {
+        "score": 14,
+        "mod": 2
+      },
+      "int": {
+        "score": 17,
+        "mod": 3
+      },
+      "wis": {
+        "score": 12,
+        "mod": 1
+      },
+      "cha": {
+        "score": 10,
+        "mod": 0
+      }
+    },
+    "proficiency": 2,
+    "ac": 12,
+    "vitals": {
+      "hpMax": 9,
+      "hpCurrent": 9,
+      "tempHp": 0,
+      "conditions": []
+    },
+    "speeds": {
+      "walk": 30
+    },
+    "senses": [
+      {
+        "id": "darkvision",
+        "name": "Darkvision",
+        "value": 60,
+        "unit": "ft"
+      }
+    ],
+    "languages": [],
+    "saves": {
+      "str": {
+        "bonus": -1,
+        "proficient": false
+      },
+      "dex": {
+        "bonus": 2,
+        "proficient": false
+      },
+      "con": {
+        "bonus": 2,
+        "proficient": false
+      },
+      "int": {
+        "bonus": 5,
+        "proficient": true
+      },
+      "wis": {
+        "bonus": 3,
+        "proficient": true
+      },
+      "cha": {
+        "bonus": 0,
+        "proficient": false
+      }
+    },
+    "skills": [
+      {
+        "id": "academics",
+        "name": "Academics",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "acrobatics",
+        "name": "Acrobatics",
+        "ability": "dex",
+        "bonus": 2,
+        "proficiency": "none"
+      },
+      {
+        "id": "animal-handling",
+        "name": "Animal Handling",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "appraise",
+        "name": "Appraise",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "arcana",
+        "name": "Arcana",
+        "ability": "int",
+        "bonus": 5,
+        "proficiency": "proficient"
+      },
+      {
+        "id": "athletics",
+        "name": "Athletics",
+        "ability": "str",
+        "bonus": -1,
+        "proficiency": "none"
+      },
+      {
+        "id": "deception",
+        "name": "Deception",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "delve",
+        "name": "Delve",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "history",
+        "name": "History",
+        "ability": "int",
+        "bonus": 5,
+        "proficiency": "proficient"
+      },
+      {
+        "id": "hunting",
+        "name": "Hunting",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "insight",
+        "name": "Insight",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "intimidation",
+        "name": "Intimidation",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "investigation",
+        "name": "Investigation",
+        "ability": "int",
+        "bonus": 5,
+        "proficiency": "proficient"
+      },
+      {
+        "id": "leadership",
+        "name": "Leadership",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "medicine",
+        "name": "Medicine",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "might",
+        "name": "Might",
+        "ability": "str",
+        "bonus": -1,
+        "proficiency": "none"
+      },
+      {
+        "id": "nature",
+        "name": "Nature",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "performance",
+        "name": "Performance",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "persuasion",
+        "name": "Persuasion",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "religion",
+        "name": "Religion",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "sleight-of-hand",
+        "name": "Sleight of Hand",
+        "ability": "dex",
+        "bonus": 2,
+        "proficiency": "none"
+      },
+      {
+        "id": "stealth",
+        "name": "Stealth",
+        "ability": "dex",
+        "bonus": 2,
+        "proficiency": "none"
+      },
+      {
+        "id": "streetwise",
+        "name": "Streetwise",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "survival",
+        "name": "Survival",
+        "ability": "wis",
+        "bonus": 3,
+        "proficiency": "proficient"
+      },
+      {
+        "id": "tactics",
+        "name": "Tactics",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "vigilance",
+        "name": "Vigilance",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      }
+    ],
+    "tools": [
+      {
+        "id": "calligrapher-s-supplies",
+        "name": "Calligrapher’s Supplies",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "proficient"
+      }
+    ],
+    "actions": [],
+    "spellcasting": {
+      "id": "wizard",
+      "name": "Wizard",
+      "ability": "int",
+      "dc": 13,
+      "attackBonus": 5,
+      "slots": {
+        "1": {
+          "max": 2,
+          "current": 2
+        }
+      },
+      "spells": [
+        {
+          "id": "ray-of-frost",
+          "name": "Ray of Frost",
+          "level": 0,
+          "prepared": true,
+          "range": "60 feet",
+          "castingTime": "Action",
+          "duration": "Instantaneous",
+          "ritual": false,
+          "text": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 1d8 Cold damage, and its Speed is reduced by 10 feet until the start of your next turn.\n\nCantrip Upgrade. The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).",
+          "concentration": false
+        },
+        {
+          "id": "light",
+          "name": "Light",
+          "level": 0,
+          "prepared": true,
+          "range": "Touch",
+          "castingTime": "Action",
+          "duration": "1 hour",
+          "ritual": false,
+          "text": "You touch one Large or smaller object that isn’t being worn or carried by someone else. Until the spell ends, the object sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The light can be colored as you like.\n\nCovering the object with something opaque blocks the light. The spell ends if you cast it again.",
+          "concentration": false
+        },
+        {
+          "id": "prestidigitation",
+          "name": "Prestidigitation",
+          "level": 0,
+          "prepared": true,
+          "range": "10 feet",
+          "castingTime": "Action",
+          "duration": "Up to 1 hour",
+          "ritual": false,
+          "text": "You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.\n\nSensory Effect. You create an instantaneous, harmless sensory effect, such as a shower of sparks, a puff of wind, faint musical notes, or an odd odor. Fire Play. You instantaneously light or snuff out a candle, a torch, or a small campfire.\n\nClean or Soil. You instantaneously clean or soil an object no larger than 1 cubic foot.\n\nMinor Sensation. You chill, warm, or flavor up to 1 cubic foot of nonliving material for 1 hour.\n\nMagic Mark. You make a color, a small mark, or a symbol appear on an object or a surface for 1 hour.\n\nMinor Creation. You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.",
+          "concentration": false
+        },
+        {
+          "id": "magic-missile",
+          "name": "Magic Missile",
+          "level": 1,
+          "prepared": true,
+          "range": "120 feet",
+          "castingTime": "Action",
+          "duration": "Instantaneous",
+          "ritual": false,
+          "text": "You create three glowing darts of magical force. Each dart strikes a creature of your choice that you can see within range. A dart deals 1d4 + 1 Force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.\n\nUsing a Higher-Level Spell Slot. The spell creates one more dart for each spell slot level above 1.",
+          "concentration": false
+        },
+        {
+          "id": "shield",
+          "name": "Shield",
+          "level": 1,
+          "prepared": true,
+          "range": "Self",
+          "castingTime": "Reaction, which you take when you are hit by an attack roll or targeted by the Magic Missile spell",
+          "duration": "1 round",
+          "ritual": false,
+          "text": "An imperceptible barrier of magical force protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from Magic Missile.",
+          "concentration": false
+        },
+        {
+          "id": "detect-magic",
+          "name": "Detect Magic",
+          "level": 1,
+          "prepared": true,
+          "range": "Self",
+          "castingTime": "Action or Ritual",
+          "duration": "Concentration, up to 10 minutes",
+          "ritual": true,
+          "text": "For the duration, you sense the presence of magical effects within 30 feet of yourself. If you sense such effects, you can take the Magic action to see a faint aura around any visible creature or object in the area that bears the magic, and if an effect was created by a spell, you learn the spell’s school of magic.\n\nThe spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.",
+          "concentration": true
+        },
+        {
+          "id": "sleep",
+          "name": "Sleep",
+          "level": 1,
+          "prepared": true,
+          "range": "60 feet",
+          "castingTime": "Action",
+          "duration": "Concentration, up to 1 minute",
+          "ritual": false,
+          "text": "Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at which point it must repeat the save. If the target fails the second save, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet of it takes an action to shake it out of the spell’s effect.\n\nCreatures that don’t sleep, such as elves, or that have Immunity to the Exhaustion condition automatically succeed on saves against this spell.",
+          "concentration": true
+        }
+      ]
+    },
+    "resources": [],
+    "traits": [
+      {
+        "id": "darkvision",
+        "name": "Darkvision",
+        "source": "Elf",
+        "text": "You have Darkvision with a range of 60 feet."
+      },
+      {
+        "id": "elven-lineage",
+        "name": "Elven Lineage",
+        "source": "Elf",
+        "text": "You are part of a lineage that grants you supernatural abilities. Choose a lineage from the Elven Lineages table. You gain the level 1 benefit of that lineage.\n\nWhen you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level.\n\nIntelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage)."
+      },
+      {
+        "id": "fey-ancestry",
+        "name": "Fey Ancestry",
+        "source": "Elf",
+        "text": "You have Advantage on saving throws you make to avoid or end the Charmed condition."
+      },
+      {
+        "id": "keen-senses",
+        "name": "Keen Senses",
+        "source": "Elf",
+        "text": "You have proficiency in the Survival, Delve, or Vigilance skill."
+      },
+      {
+        "id": "trance",
+        "name": "Trance",
+        "source": "Elf",
+        "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+      }
+    ],
+    "gear": [
+      {
+        "id": "dagger",
+        "name": "Dagger",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "id": "quarterstaff",
+        "name": "Quarterstaff",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "id": "book",
+        "name": "Book",
+        "quantity": 1,
+        "equipped": false
+      },
+      {
+        "id": "component-pouch",
+        "name": "Component Pouch",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "id": "calligrapher-s-supplies",
+        "name": "Calligrapher’s Supplies",
+        "quantity": 1,
+        "equipped": false
+      },
+      {
+        "id": "backpack",
+        "name": "Backpack",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "id": "rations",
+        "name": "Rations",
+        "quantity": 5,
+        "equipped": false
+      },
+      {
+        "id": "torch",
+        "name": "Torch",
+        "quantity": 4,
+        "equipped": false
+      }
+    ],
+    "currency": {
+      "cp": 4,
+      "sp": 12,
+      "gp": 8,
+      "pp": 0
+    },
+    "craft": [],
+    "stats": [
+      {
+        "id": "fh:destiny",
+        "flag": "fh.destiny",
+        "name": "Destiny Score",
+        "value": 10,
+        "breakdown": [
+          {
+            "label": "Proficiency Bonus",
+            "value": 2
+          },
+          {
+            "label": "Destiny Base · Elf",
+            "value": 2,
+            "source": {
+              "kind": "species",
+              "id": "srd:species:en:elf"
+            }
+          },
+          {
+            "label": "Splinter of Anon",
+            "value": 2,
+            "source": {
+              "kind": "species",
+              "id": "srd:species:en:elf"
+            }
+          },
+          {
+            "label": "The Hermit",
+            "value": 2,
+            "source": {
+              "kind": "arcana",
+              "id": "fh:arcana:en:the-hermit"
+            }
+          },
+          {
+            "label": "Auspicious (fh)",
+            "value": 2,
+            "source": {
+              "kind": "feat",
+              "id": "fh:feat:en:auspicious"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fh:skill-points",
+        "flag": "fh.skills",
+        "name": "Skill Points",
+        "value": 7,
+        "breakdown": [
+          {
+            "label": "Class Pool · Wizard",
+            "value": 12,
+            "source": {
+              "kind": "class",
+              "id": "srd:class:en:wizard"
+            }
+          },
+          {
+            "label": "Wizard · 2 imposed choices",
+            "value": -2,
+            "source": {
+              "kind": "class",
+              "id": "srd:class:en:wizard"
+            }
+          },
+          {
+            "label": "Sage · 2 imposed choices",
+            "value": -2,
+            "source": {
+              "kind": "background",
+              "id": "srd:background:en:sage"
+            }
+          },
+          {
+            "label": "Sage · 1 imposed choice",
+            "value": -1,
+            "source": {
+              "kind": "background",
+              "id": "srd:background:en:sage"
+            }
+          }
+        ]
+      }
+    ],
+    "notes": []
+  }
+}
