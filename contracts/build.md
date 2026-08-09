@@ -54,7 +54,20 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 | `override` | `{document?, path, value, by, note?}` | Pose la parole du MJ dans `build.overrides`. Rend `{document, override}`. | `by` hors `player`/`gm`, `value` absente, chemin d'override hors grammaire (**index interdit**) → **jette** |
 | `clear` | `{document?, path, kind}` | Retire une entrée de `build.choices` (`kind: "choice"`) ou de `build.overrides` (`kind: "override"`), jamais des deux à l'aveugle. Rend `{document, cleared:{path, kind, removed}}`. Un chemin absent n'est **pas** une faute : `removed` vaut `false`, le verbe ne jette pas. | `kind` hors `choice`/`override`, chemin hors grammaire de la collection visée → **jette** |
 | `rebuild` | `{document?}` | **Le seul chemin d'écriture de `resolved`.** Plie la pile et les choix, applique les overrides **en dernier**, écrit `resolved` et `modified`. Émet `char-rebuilt`. Rend `{document, resolved, underived, unconsumed, overridesApplied, shadowed, warnings, diff}`. | niveau ou classe absents, score de caractéristique absent, clef de caractéristique hors catalogue, ref mort, pile ≠ `build.layers`, override dans le vide, invariant violé → **jette** |
-| `validate` | `{document?}` | Dit ce qui cloche **sans rien écrire**. Rend `{ok, violations, warnings}`. | — (un refus est un résultat ; même une erreur de dérivation devient une violation) |
+| `validate` | `{document?}` | Dit ce qui cloche **sans rien écrire**. Rend `{ok, violations, warnings}` ; chaque violation est `{key, params, path?}`. | — (un refus est un résultat ; même une erreur de dérivation devient une violation) |
+
+### Violations de `validate`
+
+`violations[]` est une collection structurée : jamais une phrase nue. Chaque
+entrée porte une `key` de la forme `^[a-z][a-z0-9.:_-]{0,79}$`, un objet `params`
+plat de scalaires, et `path` seulement lorsqu'un contrôle précis est fautif.
+Les mots vivent dans le paquet de libellés commun ; une clef inconnue jette.
+Ainsi l'interface et MCP reçoivent le chemin et les paramètres, tout en
+continuant à rendre le texte français historique au caractère près.
+
+`document.invariant-violated` enveloppe à cette frontière une violation rendue
+par `charInvariantViolations`. Il porte `{message}` et n'invente pas de `path` :
+le validateur d'invariants reste une collection distincte, inchangée.
 
 > ⚠ **Pourquoi DEUX verbes pour un seul geste.** `$defs/build.choices` exige
 > « `ref` OU `value`, jamais les deux, jamais aucun ». `choose` et `set` sont
