@@ -1,0 +1,526 @@
+/* ══ LE POOL DE POINTS DE COMPÉTENCE — LE MODULE QUI LE PUBLIE ════════
+   Lot 23-pool-competences. Deuxième consommateur de `resolved.stats[]`, après
+   le Score de Destinée (lot 19), et il suit exactement le même chemin.
+
+   ── L'ARBITRAGE QUI DONNE SA FORME À CE FICHIER ──────────────────────
+   Le lot 22 a REFUSÉ de construire cette dérivation, et il a eu raison : la
+   commande annonçait `build.budgets` comme sa destination, et ce champ n'a
+   aucun chemin d'écriture (`required` au schéma, `grep -rn budgets src/` →
+   rien, et l'invariant 4 interdit à une reconstruction d'écrire `build`).
+   L'arbitrage rendu le 2026-08-09 est au contrat, §« Où vit un POOL DE
+   POINTS » : *un pool de points dérivé se publie dans `resolved.stats[]`, par
+   un module à drapeau — jamais dans `build.budgets`*.
+
+   L'argument qui tranche est le BARDE : son pool change à CHAQUE niveau. Un
+   nombre qui se recalcule à chaque niveau n'est pas une donnée d'entrée, c'est
+   une dérivation. ⛔ Ce fichier n'écrit donc rien dans `build`, et il n'a aucun
+   moyen de le faire : un module rend `{stat, underived, consumed}`, rien d'autre
+   n'est recopié.
+
+   ── CE QUE CE MODULE PUBLIE, ET CE QU'IL NE PUBLIE PAS ───────────────
+   Il publie CE DONT LE JOUEUR DISPOSE. Il ne calcule PAS la dépense (quelle
+   compétence à quel palier) : c'est de l'interface et du bloc `build`, plus
+   tard. `expertise_from_level` et les coûts `half`/`proficient`/`expertise`
+   sont lus par personne ici — seul `imposed` sert, parce qu'un imposé se
+   DÉDUIT du pool et change donc le nombre publié.
+
+   ── LES TERMES, ET LA SOURCE DE CHACUN ───────────────────────────────
+   AUCUN NOMBRE N'EST ÉCRIT DANS CE FICHIER. Tous vivent dans des records —
+   c'est exactement ce que `stats[]` existe pour rendre possible, et le lot 20
+   s'est fait prendre sur ce point.
+
+     1. LE POOL DE CLASSE — `data[fh_skill_pool].base` du record de classe,
+        atteint par `refs` (la classe est hors du namespace de ce module).
+        18 pour le Roublard, 16 pour le Barde, 14 pour Druide/Moine/Rôdeur,
+        12 pour les huit autres. ARRIÈRE-PLAN INCLUS (décision d'Eric,
+        point 9) : il n'y a pas de conversion à ajouter par-dessus.
+     2. LES PALIERS TRAVERSÉS — `by_level`, cumulé sur les niveaux ≤ niveau
+        courant, UNE LIGNE PAR PALIER. Voir la règle Q15-8 plus bas.
+     3. LES BUMPS D'ESPÈCE — `data.skill_points.by_level` du record d'espèce.
+        Araag et Elestu portent `Fast Learner` (+2 aux niveaux 1, 3 et 6),
+        l'Humain porte `Educated` (+2 au niveau 1 seulement). Le libellé EST
+        le nom du trait, recopié du record.
+     4. LES CHOIX IMPOSÉS, DÉDUITS — règle d'Eric du 2026-08-08 : « un choix
+        imposé ne pose plus 2 points (compétent), il pose 1 point
+        (demi-compétence), et ce point se déduit du pool à répartir. Idem pour
+        les outils imposés. » Le 1 n'est pas écrit ici : c'est
+        `fh_skill_pool.tier_costs.imposed`, lu sur le record de classe.
+
+   📌 LE TOTAL PUBLIÉ EST CE QUI RESTE À RÉPARTIR, pas le pool brut. Un
+   Roublard niveau 1 a un POOL DE CLASSE de 18 et publie 11 (4 imposés de
+   classe, 2 compétences et 1 outil d'arrière-plan). ⚠️ MESURE QUI LE CONFIRME,
+   et elle est indépendante : Eric chiffre le résultat attendu de sa propre
+   réforme à « environ 2 points libres à 7–10 » (vault, § « Plus de compétences,
+   plus de points »). Magicien 12−5 = 7, Druide 14−5 = 9, Roublard 18−7 = 11.
+   Un module qui publierait 18 ne dirait rien de ce que le joueur peut dépenser.
+
+   ── ⚠️ LA RÈGLE Q15-8 D'ERIC, ET C'EST LE PIÈGE DU LOT ────────────────
+   « Un personnage créé à un niveau donné reçoit les paliers qu'il a TRAVERSÉS.
+   Créé au niveau 5 : il a le palier 1 ET le palier 3 — pas celui du niveau 6. »
+
+   « À la création » ne veut donc PAS dire « au niveau 1 ». Un barde créé
+   directement au niveau 5 porte les paliers 2, 3, 4 et 5 — quatre lignes
+   distinctes dans le détail, pour que l'absence du palier 6 SE VOIE. Un terme
+   unique « paliers traversés : +6 » serait juste et indémontrable, et le bon
+   nombre obtenu de la mauvaise façon passerait sans rougir.
+
+   ⚠️ ET L'ARITHMÉTIQUE DU BARDE N'EST PAS ÉCRITE ICI. La couche a déjà fusionné
+   son +1 par niveau avec le +2 universel des niveaux 4/8/12/16/20 : elle donne
+   `{"2":1,"3":1,"4":3,…}`. Ce module LIT le champ, il ne le recompose pas —
+   « +2 tous les 4 niveaux » écrit dans le moteur serait une règle de jeu dans
+   le moteur, exactement ce que le lot 22 a refusé d'y mettre.
+
+   ── LES DEUX MANQUES, ET POURQUOI ILS NE SE RESSEMBLENT PAS ──────────
+   La distinction est celle que `records(kind)` SANS id rend possible, et elle
+   est le cœur de la loi §0.5 pour ce module :
+
+     · AUCUNE classe de la pile ne porte `fh_skill_pool` → la couche des
+       compétences n'est pas montée. Le pool se DÉCLARE, et rien n'est publié.
+     · D'AUTRES classes en portent un et PAS celle-ci → le record est amputé
+       ou vient d'une couche tierce. Ça JETTE : un pool absent d'une seule
+       classe est du contenu faux, pas un contenu qui manque.
+
+   ⛔ ET RIEN N'EST PUBLIÉ SANS SON POOL DE CLASSE. Un personnage araag dont la
+   couche des compétences n'est pas montée aurait un détail non vide (ses bumps
+   d'espèce vivent dans une AUTRE couche) : publier « Skill Points : 4 » serait
+   un nombre qui ressemble à un pool et n'en est pas un. La ligne 1 est donc la
+   condition de publication, et son absence est une déclaration. */
+
+import { createLabels } from "../../play/labels.mjs";
+import { FH_EN } from "./labels.mjs";
+
+const t = createLabels(FH_EN);
+
+/** Le drapeau qui allume ce module. Levé par `layers/fh-skills-en.layer.json`. */
+export const FH_SKILLS_FLAG = "fh.skills";
+
+/** L'ancre de l'entrée dans `resolved.stats[]`.
+ *
+ *  ⚠️ PAS DE POINT, ET C'EST MESURÉ — le lot 19 a payé ce piège. `stats[].id`
+ *  est un `$defs/slug` (`^[a-z][a-z0-9:_-]{0,79}$`) : le point y est refusé, et
+ *  il l'est aussi dans le sélecteur d'un chemin d'override. Le deux-points est
+ *  le séparateur de namespace du dépôt, le tiret est admis des deux côtés. Un
+ *  MJ écrit donc `resolved.stats[fh:skill-points].value`.
+ *
+ *  ⚠️ Et ce n'est PAS la clef `fh.skillPoints` du `$comment` de `build.budgets`,
+ *  que le lot 22 a mesurée comme non conforme à sa propre grammaire (majuscule
+ *  refusée par `$defs/flag`). Cette clef-là n'a plus de destination : le pool
+ *  ne va pas dans `budgets`. */
+export const FH_SKILL_POOL_ID = "fh:skill-points";
+
+/** Le champ que la couche des compétences pose sur les douze records de classe
+ *  (lot 22). La convention est celle de `data.destiny` sur les espèces : un
+ *  namespace, puis des noms de termes. */
+const POOL_FIELD = "fh_skill_pool";
+
+/** Le champ que la couche des espèces pose sur les trois espèces qui donnent
+ *  des points — `{trait, by_level}`. Le `trait` est l'id du trait qui les
+ *  accorde, et c'est SON nom qui libelle la ligne. */
+const SPECIES_FIELD = "skill_points";
+
+/** Le chemin de choix qui désigne la classe, et celui qui désigne
+ *  l'arrière-plan. Ce sont ceux du pli (`takeRef("class")`,
+ *  `takeRef("background")`), pas une convention inventée ici : un document qui
+ *  porterait un `ref` de genre `class` sous un AUTRE chemin ne désigne pas la
+ *  classe du personnage, et la compter serait un pool faux. */
+const CLASS_PATH = "class";
+const BACKGROUND_PATH = "background";
+
+const MAX_LEVEL = 20;
+
+function fail(what) {
+  throw new Error(`fhpc/fh: ${what}`);
+}
+
+/* ── UN `by_level`, LU ET CUMULÉ SUR LES NIVEAUX TRAVERSÉS ────────────
+   Rend la liste `[{level, gain}]` des paliers de niveau ≤ `level`, en ordre de
+   niveau. Le même lecteur sert la classe et l'espèce : les deux portent la même
+   forme, et en écrire deux les ferait diverger.
+
+   ⚠️ TOUT ÉCART DE FORME JETTE (loi §0.5). Un `by_level` malformé, c'est un
+   personnage dont le pool est plus petit que la règle ne le dit, sans un mot.
+   `who` nomme le record fautif dans le refus. */
+function traversedTiers(byLevel, level, who, field) {
+  if (byLevel === undefined) return [];
+  if (byLevel === null || typeof byLevel !== "object" || Array.isArray(byLevel)) {
+    fail(`the record "${who}" carries \`${field}\` = ${JSON.stringify(byLevel)}, which is not a table of ` +
+      "`{level: gain}` — the skill pool progression is enumerated level by level, and a malformed table " +
+      "would silently cost the character every tier it holds.");
+  }
+  const tiers = [];
+  for (const key of Object.keys(byLevel)) {
+    if (!/^[0-9]+$/.test(key)) {
+      fail(`the record "${who}" carries \`${field}\` with the key ${JSON.stringify(key)}, which is not a level — ` +
+        "the table is read as `{level: gain}`, and a key the engine cannot compare to the character's level " +
+        "is a tier it would drop without a word.");
+    }
+    const tierLevel = Number(key);
+    if (tierLevel < 1 || tierLevel > MAX_LEVEL) {
+      fail(`the record "${who}" carries \`${field}\` with the level ${tierLevel}, outside 1–${MAX_LEVEL}.`);
+    }
+    const gain = byLevel[key];
+    if (!Number.isInteger(gain)) {
+      fail(`the record "${who}" carries \`${field}["${key}"]\` = ${JSON.stringify(gain)}, which is not a whole ` +
+        "number of skill points. A gain the engine cannot add is bad content, not a tier to skip.");
+    }
+    /* ⚠️ LA RÈGLE Q15-8, ET C'EST LA SEULE LIGNE QUI LA PORTE. `<=`, pas `===` :
+       un personnage créé au niveau 5 a TRAVERSÉ les paliers 2, 3, 4 et 5. Un
+       `===` ne lui donnerait que le dernier, et le pool serait faux de tous
+       les autres — pour un barde niveau 5, faux de 5 points sur 6. */
+    if (tierLevel <= level) tiers.push({ level: tierLevel, gain });
+  }
+  return tiers.sort((a, b) => a.level - b.level);
+}
+
+/* ── LE POOL DE CLASSE ────────────────────────────────────────────────
+   Rend `{pool, record}` quand il est lisible, `null` quand il se déclare. La
+   distinction entre « la couche n'est pas montée » et « ce record est amputé »
+   est faite ici, et elle a besoin de la LISTE du genre — voir l'en-tête. */
+function readClassPool(classRef, records, underived) {
+  if (!classRef) {
+    /* Le pli JETTE déjà sans choix `class` (« une dérivation impossible »),
+       donc ce cas ne vient pas d'un document : il vient d'un `ref` de classe
+       posé sous un autre chemin, ou d'un câblage. On le dit plutôt que de
+       supposer. */
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}]`,
+      reason: `aucun \`ref\` de genre \`class\` sous le chemin « ${CLASS_PATH} » : le pool de points vient de la ` +
+        "CLASSE (`data[" + POOL_FIELD + "].base`), et un personnage dont la classe n'est pas désignée là où le " +
+        "pli la lit n'en a aucun à lire."
+    });
+    return null;
+  }
+  const pool = (classRef.data || {})[POOL_FIELD];
+  if (pool === undefined) {
+    /* LA DISTINCTION, et elle vaut le détour par la liste du genre. */
+    const bearers = (typeof records === "function" ? records("class") : [])
+      .filter((view) => view && view.data && view.data[POOL_FIELD] !== undefined);
+    if (bearers.length > 0) {
+      fail(`the class record "${classRef.id}" carries no \`data[${POOL_FIELD}]\`, and ${bearers.length} other ` +
+        "class records of the stack do — so the layer IS mounted and this record is amputated, or it comes " +
+        "from a third-party layer. A class without a pool is bad content, not missing content: the character " +
+        "would silently have no points to spend at all.");
+    }
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}]`,
+      reason: `la classe « ${classRef.id} » ne porte pas \`data[${POOL_FIELD}]\`, et AUCUNE classe de la pile n'en ` +
+        "porte : la couche des compétences (`fh-skills-en`) n'est pas montée. Ce qui manque est le CONTENU — " +
+        "le drapeau `" + FH_SKILLS_FLAG + "` est levé par une couche qui ne l'apporte pas. Les douze pools " +
+        "valent 12, 14, 16 ou 18 selon la classe : un nombre posé ici serait inventé."
+    });
+    return null;
+  }
+  if (pool === null || typeof pool !== "object" || Array.isArray(pool)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}]\` = ${JSON.stringify(pool)}, which is ` +
+      "not an object — the convention of this layer is `{base, by_level, tier_costs, expertise_from_level}`, " +
+      "and a scalar there hides which term of the pool it was meant to be.");
+  }
+  if (!Number.isInteger(pool.base)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].base\` = ${JSON.stringify(pool.base)}, ` +
+      "which is not a whole number — a class pool that cannot be added is bad content, not a missing field.");
+  }
+  return pool;
+}
+
+/* ── LE COÛT D'UN IMPOSÉ, LU SUR LE RECORD ───────────────────────────
+   ⛔ LE 1 N'EST PAS ÉCRIT DANS CE FICHIER. « Un choix imposé pose 1 point » est
+   une règle de jeu d'Eric, et une règle de jeu vit dans la couche. La couche la
+   porte sous `tier_costs.imposed`, dans le record de chaque classe, avec le
+   pool qu'elle dépense (lot 22). Le jour où Eric la passe à 2, aucun fichier de
+   `src/` ne bouge. */
+function imposedCost(classRef, pool) {
+  const costs = pool.tier_costs;
+  if (costs === null || typeof costs !== "object" || Array.isArray(costs)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].tier_costs\` = ` +
+      `${JSON.stringify(costs)}, which is not a table of tier costs. An imposed choice is DEDUCTED from the ` +
+      "pool, so its cost cannot be assumed: assuming 1 would restate a rule that belongs to content.");
+  }
+  if (!Number.isInteger(costs.imposed)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].tier_costs.imposed\` = ` +
+      `${JSON.stringify(costs.imposed)}, which is not a whole number of points. Eric's rule of 2026-08-08 ` +
+      "says an imposed choice costs a half-skill and is deducted from the pool — the NUMBER lives in the " +
+      "record, and a pool computed without it would be too generous by exactly the imposed count.");
+  }
+  return costs.imposed;
+}
+
+/* ── LES BUMPS D'ESPÈCE ──────────────────────────────────────────────
+   Trois espèces sur douze en portent. Une espèce SANS `skill_points` n'est pas
+   un trou : c'est un FAIT, et la déclaration le dit ainsi — comme le lot 19 le
+   fait pour les dix-sept dons du SRD qui ne touchent pas au Score. */
+function speciesLines(species, level, lines, underived) {
+  if (!species) {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].species`,
+      reason: "aucun choix `species` : les points de compétence d'espèce sont une donnée de l'espèce " +
+        `(\`data.${SPECIES_FIELD}\`), et un personnage sans espèce n'en a aucune à lire.`
+    });
+    return;
+  }
+  const data = species.data || {};
+  const bumps = data[SPECIES_FIELD];
+  if (bumps === undefined) {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].species`,
+      reason: `l'espèce « ${species.id} » ne porte pas \`data.${SPECIES_FIELD}\`, et c'est un FAIT, pas un trou : ` +
+        "neuf des douze espèces ne donnent aucun point de compétence. Les trois qui en donnent sont l'Araag " +
+        "et l'Elestu (`fast-learner`) et l'Humain (`educated`), dans la couche `fh-species-en`."
+    });
+    return;
+  }
+  if (bumps === null || typeof bumps !== "object" || Array.isArray(bumps)) {
+    fail(`the species record "${species.id}" carries \`data.${SPECIES_FIELD}\` = ${JSON.stringify(bumps)}, which ` +
+      "is not an object — the convention of this layer is `{trait, by_level}`.");
+  }
+  /* Le libellé EST le nom du trait, recopié (loi §0.13). Le trait vit dans
+     `data.traits` pour les espèces neuves et dans `data[fh_traits]` pour les
+     espèces SRD que la couche patche — les deux sont lues, comme au lot 19. */
+  const traitId = bumps.trait;
+  const traits = [...(Array.isArray(data.fh_traits) ? data.fh_traits : []),
+    ...(Array.isArray(data.traits) ? data.traits : [])];
+  const trait = traits.find((item) => item && item.id === traitId);
+  if (!trait || typeof trait.name !== "string" || trait.name.trim() === "") {
+    fail(`the species record "${species.id}" grants skill points through \`${SPECIES_FIELD}.trait\` = ` +
+      `${JSON.stringify(traitId)}, and no trait of that id carries a name. Dropping the lines would leave the ` +
+      "pool short by exactly those points, silently; naming them after the id would put an identifier where " +
+      "a human reads a reason.");
+  }
+  const tiers = traversedTiers(bumps.by_level, level, species.id, `${SPECIES_FIELD}.by_level`);
+  if (tiers.length === 0) {
+    /* Le trait existe et AUCUN de ses paliers n'est traversé — l'Humain au
+       niveau 0 n'existe pas, mais l'Araag n'a rien gagné au niveau 2 qu'il
+       n'ait déjà au niveau 1. La déclaration nomme le trait ET le niveau :
+       sans le niveau, elle se lirait comme « cette espèce ne donne rien ». */
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].species`,
+      reason: `l'espèce « ${species.id} » accorde des points par « ${trait.name} », et AUCUN de ses paliers n'est ` +
+        `atteint au niveau ${level} (règle Q15-8 : seuls comptent les paliers TRAVERSÉS).`
+    });
+    return;
+  }
+  for (const tier of tiers) {
+    lines.push({
+      label: t("fh.skills.term.species", { trait: trait.name, level: tier.level }),
+      value: tier.gain,
+      source: { kind: "species", id: species.id }
+    });
+  }
+}
+
+/* ── LES CHOIX IMPOSÉS, DÉDUITS DU POOL ──────────────────────────────
+   Trois sources MESURÉES dans la pile réelle, et une quatrième déclarée :
+
+     · la CLASSE fait choisir `skill_choice.count` compétences (Roublard 4,
+       Barde 3, les autres 2). Un choix contraint reste un imposé : Eric écrit
+       « les choix restent attachés au choix de classe, mais un choix imposé
+       pose 1 point » ;
+     · l'ARRIÈRE-PLAN accorde `skill_ids` (deux, partout dans le SRD) ;
+     · l'ARRIÈRE-PLAN accorde ou fait choisir UN outil (`tool_id` /
+       `tool_choice`) — « l'outil du background est déjà semé à 1 » ;
+     · les OUTILS DE CLASSE, eux, se DÉCLARENT : `tool_proficiencies` est une
+       PHRASE (« Choose 3 Musical Instruments », `null` pour le magicien), et
+       aucun champ mécanique ne dit combien. Les compter demanderait de lire
+       une phrase anglaise dans le moteur.
+
+   ⚠️ L'ESPÈCE N'EST PAS COMPTÉE, ET C'EST UNE DÉCISION QUI N'EST PAS PRISE.
+   La règle d'Eric nomme « la classe ou l'arrière-plan », et la mesure du canon
+   dit la même chose : « les bases du SRD fixent les compétences et outils
+   imposés (Guerrier 2 au choix, Rogue 4…) ». L'Araag (`Skillful`, une
+   compétence au choix) et l'Elestu (`Keen Senses`, une parmi trois) portent
+   pourtant un `granted_skill_choice`. Les déduire d'office inventerait une
+   règle ; les taire serait le repli silencieux que §0.5 interdit. Ils se
+   DÉCLARENT, en nommant la question — loi §0.10. */
+function imposedLines(classRef, backgroundRef, species, cost, lines, underived) {
+  const choice = (classRef.data || {}).skill_choice;
+  if (choice && typeof choice === "object" && Number.isInteger(choice.count)) {
+    if (choice.count > 0) {
+      lines.push({
+        label: t("fh.skills.term.imposed", { source: classRef.name, count: choice.count }),
+        value: -(choice.count * cost),
+        source: { kind: "class", id: classRef.id }
+      });
+    }
+  } else {
+    /* DÉCLARÉ, PAS JETÉ, et c'est délibéré : `skill_choice` est du contenu SRD,
+       et le pli lui-même le DÉCLARE quand il ne sait pas le lire (« porte un
+       `skill_choice` que la dérivation ne sait pas lire »). Deux verdicts
+       opposés sur le même champ dans le même document seraient un défaut. Les
+       champs du pool, eux, JETTENT : ils viennent de la couche FH, que ce
+       dépôt génère lui-même — malformés, c'est le générateur qui est cassé. */
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].imposed.class`,
+      reason: `la classe « ${classRef.id} » ne porte pas de \`skill_choice.count\` lisible : le nombre de ` +
+        "compétences que la classe IMPOSE se déduit du pool à 1 point chacune (règle d'Eric, 2026-08-08), " +
+        "et sans lui le pool publié est trop généreux d'exactement ce nombre."
+    });
+  }
+
+  if (!backgroundRef) {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].imposed.background`,
+      reason: `aucun \`ref\` de genre \`background\` sous le chemin « ${BACKGROUND_PATH} » : l'arrière-plan est ` +
+        "INCLUS dans le pool de classe (décision d'Eric, point 9), et les maîtrises qu'il accorde s'en " +
+        "déduisent. Un personnage sans arrière-plan n'en déduit aucune — mais son pool a été calibré en " +
+        "supposant qu'il en aurait un."
+    });
+    return;
+  }
+  const backgroundData = backgroundRef.data || {};
+  if (Array.isArray(backgroundData.skill_ids)) {
+    if (backgroundData.skill_ids.length > 0) {
+      lines.push({
+        label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: backgroundData.skill_ids.length }),
+        value: -(backgroundData.skill_ids.length * cost),
+        source: { kind: "background", id: backgroundRef.id }
+      });
+    }
+  } else {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].imposed.background`,
+      reason: `l'arrière-plan « ${backgroundRef.id} » ne porte pas \`skill_ids\` (contrat §3) ; ` +
+        "`skill_proficiencies` n'y donne que des noms affichables, et le moteur ne compte pas des mots."
+    });
+  }
+
+  /* L'OUTIL D'ARRIÈRE-PLAN. `tool_id` l'accorde, `tool_choice` le fait choisir
+     — dans les deux cas c'est UN outil (le pli n'en résout qu'un), et dans les
+     deux cas il est imposé : le personnage n'a pas le droit de ne pas l'avoir. */
+  const hasTool = typeof backgroundData.tool_id === "string" || backgroundData.tool_choice !== undefined;
+  if (hasTool) {
+    lines.push({
+      label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: 1 }),
+      value: -cost,
+      source: { kind: "background", id: backgroundRef.id }
+    });
+  } else {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].imposed.tool`,
+      reason: `l'arrière-plan « ${backgroundRef.id} » ne porte ni \`tool_id\` ni \`tool_choice\` (contrat §3) : ` +
+        "un outil imposé coûte 1 point comme une compétence imposée (règle d'Eric), et « le minimum 1 point " +
+        "en outils à la création » devient redondant précisément parce que cet outil-là est semé à 1."
+    });
+  }
+
+  /* Les outils que la CLASSE impose — jamais comptés, toujours déclarés. */
+  underived.push({
+    field: `stats[${FH_SKILL_POOL_ID}].imposed.class-tools`,
+    reason: `la classe « ${classRef.id} » ne porte aucun champ MÉCANIQUE d'outil : \`tool_proficiencies\` est une ` +
+      "phrase (« Thieves' Tools », « Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe " +
+      "pas d'équivalent de `skill_choice` pour les outils. Les outils imposés par la classe coûteraient 1 " +
+      "point chacun comme les autres ; les compter demanderait de lire une phrase anglaise dans le moteur."
+  });
+
+  /* L'espèce — la décision qui n'est pas prise. */
+  if (species && (species.data || {}).granted_skill_choice !== undefined) {
+    underived.push({
+      field: `stats[${FH_SKILL_POOL_ID}].imposed.species`,
+      reason: `l'espèce « ${species.id} » porte un \`granted_skill_choice\` (une maîtrise que l'espèce impose), et ` +
+        "AUCUNE décision ne dit s'il se déduit du pool. La règle d'Eric du 2026-08-08 nomme « la classe ou " +
+        "l'arrière-plan », et le canon dit « les bases du SRD fixent les compétences et outils imposés " +
+        "(Guerrier 2 au choix, Rogue 4…) » — l'espèce n'est nommée nulle part. Le déduire inventerait une " +
+        "règle, le taire serait un repli silencieux. ⛔ QUESTION À L'ARCHITECTE (loi §0.10)."
+    });
+  }
+}
+
+/**
+ * Le module de statistique dérivée que le bloc `build` reçoit par injection.
+ *
+ * Même forme que `createFhDestinyStat()` : on lui passe ce que le pli a déjà su
+ * lire, il rend UNE entrée `resolved.stats[]` et la liste de ce qu'il n'a pas
+ * pu dériver.
+ */
+export function createFhSkillPoolStat() {
+  return {
+    flag: FH_SKILLS_FLAG,
+    id: FH_SKILL_POOL_ID,
+
+    /**
+     * @param {object} input
+     * @param {number} input.level    `resolved.identity.level` — le niveau du personnage
+     * @param {object|null} input.species le record d'espèce choisi : `{id, name, slug, data}`
+     * @param {Array}  input.choices  les choix sous `fh.skills.*`, dans l'ordre du document
+     * @param {Function} input.records `(kind, id?) => vue aplatie | null | liste du genre`
+     * @param {Array}  input.refs     les records que le personnage désigne HORS de ce namespace — ce module lit la CLASSE et l'ARRIÈRE-PLAN
+     * @returns {{stat: object|null, underived: Array, consumed: string[]}}
+     */
+    contribute({ level, species, choices, records, refs }) {
+      const underived = [];
+      const lines = [];
+
+      /* ⚠️ `level` EST UN AJOUT DE CE LOT AU PROTOCOLE D'INJECTION, et il est
+         indispensable : les paliers se cumulent sur les niveaux TRAVERSÉS, et
+         `proficiency` ne dit pas le niveau — 5 et 8 valent 3 tous les deux, et
+         un barde n'a pas le même pool aux deux. Voir `contracts/build.md`
+         §« Ce qu'il reçoit », et l'inventaire du lot pour la ratification. */
+      if (!Number.isInteger(level) || level < 1 || level > MAX_LEVEL) {
+        fail(`the derivation handed this module a level of ${JSON.stringify(level)} — the skill pool accumulates ` +
+          `the tiers the character has TRAVERSED (Eric's rule Q15-8), so it cannot be computed without one. ` +
+          "This is a wiring failure, not missing content.");
+      }
+
+      /* LES CHOIX DE CE NAMESPACE. Il n'y en a AUCUN de légitime : ce module
+         publie ce dont le joueur DISPOSE, et la dépense (quelle compétence à
+         quel palier) n'est pas de ce lot. Un chemin qu'on ne sait pas lire est
+         un refus qui le nomme, jamais une ligne qu'on avale (loi §0.5). */
+      for (const entry of Array.isArray(choices) ? choices : []) {
+        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module carries no term ` +
+          "that a choice can set: the skill point pool is DERIVED whole from the class, the level and the " +
+          "species. What the player SPENDS the points on is not published here — that is the builder's " +
+          "business, and it has no channel yet. A path this module cannot read is a refusal, not a line it " +
+          "quietly drops.");
+      }
+
+      const outside = Array.isArray(refs) ? refs : [];
+      const classRef = outside.find((ref) => ref.path === CLASS_PATH && ref.kind === "class") || null;
+      const backgroundRef = outside.find((ref) => ref.path === BACKGROUND_PATH && ref.kind === "background") || null;
+
+      /* 1. LE POOL DE CLASSE — la condition de publication. */
+      const pool = readClassPool(classRef, records, underived);
+      if (pool === null) {
+        /* ⛔ RIEN N'EST PUBLIÉ. Les bumps d'espèce vivent dans une AUTRE couche
+           et seraient donc lisibles ici : publier « Skill Points : 4 » sans son
+           pool de classe donnerait un nombre qui ressemble à un pool. */
+        return { stat: null, underived, consumed: [] };
+      }
+      lines.push({
+        label: t("fh.skills.term.class", { class: classRef.name }),
+        value: pool.base,
+        source: { kind: "class", id: classRef.id }
+      });
+
+      /* 2. LES PALIERS TRAVERSÉS — une ligne chacun (règle Q15-8). */
+      for (const tier of traversedTiers(pool.by_level, level, classRef.id, `data[${POOL_FIELD}].by_level`)) {
+        lines.push({
+          label: t("fh.skills.term.level", { level: tier.level }),
+          value: tier.gain,
+          source: { kind: "class", id: classRef.id }
+        });
+      }
+
+      /* 3. LES BUMPS D'ESPÈCE. */
+      speciesLines(species, level, lines, underived);
+
+      /* 4. LES IMPOSÉS, DÉDUITS — au coût que le record porte. */
+      imposedLines(classRef, backgroundRef, species, imposedCost(classRef, pool), lines, underived);
+
+      return {
+        stat: {
+          id: FH_SKILL_POOL_ID,
+          flag: FH_SKILLS_FLAG,
+          name: t("fh.skills.pool"),
+          value: lines.reduce((total, line) => total + line.value, 0),
+          breakdown: lines
+        },
+        underived,
+        /* ⚠️ RIEN N'EST RÉCLAMÉ, ET C'EST MESURÉ. `consumed` existe pour qu'un
+           choix lu par un module cesse de ressortir « il ne change rien à la
+           fiche ». Or `class`, `species` et `background` sont déjà consommés
+           par le pli lui-même (`takeRef`) : les réclamer ne changerait aucun
+           témoignage et ajouterait du bruit. Le lot 19 réclame ses dons parce
+           que le pli, lui, n'en tire rien. */
+        consumed: []
+      };
+    }
+  };
+}

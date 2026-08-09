@@ -92,8 +92,15 @@ export const SPELL_TEXT_MAX = 4000;
    import de `src/modules/` ici (`tests/build-block.test.mjs`).
 
    Un module déclare `{flag, id, contribute(input)}` et rend
-   `{stat, underived}`. Ce qu'il reçoit est ce que le pli a DÉJÀ su lire — la
-   maîtrise, le record d'espèce, ses propres choix — et rien du document.
+   `{stat, underived}`. Ce qu'il reçoit est ce que le pli a DÉJÀ su lire — le
+   NIVEAU, la maîtrise, le record d'espèce, ses propres choix — et rien du
+   document.
+
+   ⚠️ REWRITTEN 2026-08-09 (lot 23) — « la maîtrise, le record d'espèce » était
+   la liste complète, et elle est devenue insuffisante. Le NIVEAU s'y ajoute,
+   parce que la maîtrise ne le dit pas : les niveaux 5 à 8 la donnent tous à 3.
+   Une statistique qui s'accumule par niveau n'était donc pas dérivable, et le
+   module n'avait qu'une issue — une table de niveaux EN DUR.
 
    ── DEUX AJOUTS DU LOT 20, ET ILS SONT DÉLIBÉRÉMENT GÉNÉRIQUES ────────
    Ce fichier ne nomme AUCUNE mécanique de couche (§0.12) : il ouvre un
@@ -991,6 +998,15 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     const outsideRefs = refEntries.filter((entry) => !statOwnsPath(statModule.flag, entry.choice.path));
     const outcome = statModule.contribute({
       proficiency,
+      /* AJOUT DU LOT 23, et il n'est pas de confort : `proficiency` NE DIT PAS
+         le niveau. Les niveaux 5 à 8 la donnent tous à 3, et une statistique
+         qui s'accumule PAR NIVEAU — un pool de points, une ressource de
+         progression — vaut des choses différentes aux deux bouts de cette
+         tranche. Sans ce champ, un module n'a qu'une issue : écrire une table
+         de niveaux EN DUR, exactement ce que `stats[]` existe pour éviter.
+         C'est un nombre que le pli a DÉJÀ su lire, comme la maîtrise, et ce
+         fichier ne nomme toujours aucune mécanique de couche (§0.12). */
+      level,
       records: moduleRecords,
       /* HORS de son namespace : ce qu'il y voit déjà lui arrive par `choices`,
          et le lui tendre deux fois inviterait à le compter deux fois. */
