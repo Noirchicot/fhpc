@@ -166,10 +166,23 @@ test("LES 22 CARTES ENTRENT, ET LEURS IMPACTS SE RÉPARTISSENT SUR 0, 1 ET 2", (
   /* AUCUN `disable`. Mesuré par l'architecte : la note « replaces Lucky » vise
      le don *Lucky* du PHB 2024, qui n'est PAS dans le SRD 5.2 — il n'y a rien
      à désactiver, et désactiver un record absent serait un geste sans objet
-     qui ferait croire à une dépendance. */
-  const entrees = Object.values(CARTES.records.arcana).concat(Object.values(DONS.records.feat));
-  for (const entree of entrees) {
-    assert.equal(entree.op, undefined, "chaque record est un `add` — aucune couche n'est patchée ni désactivée");
+     qui ferait croire à une dépendance.
+
+     ⚠️ LES CARTES SONT TOUJOURS DES `add` PURS, ET C'EST TOUJOURS VRAI DES
+     DONS — SAUF UN. Le lot 24 patche `srd:feat:en:skilled` (il porte un id
+     SRD, il ne peut donc être qu'un `patch`, jamais un `add`) pour lui donner
+     `data.skill_points.bonus`. Ce n'est pas une régression de la garantie
+     « aucun disable » : c'est une exception nommée, la seule. */
+  for (const entree of Object.values(CARTES.records.arcana)) {
+    assert.equal(entree.op, undefined, "chaque carte est un `add` — la couche des Arcanes ne patche rien");
+  }
+  for (const [id, entree] of Object.entries(DONS.records.feat)) {
+    if (id === "srd:feat:en:skilled") {
+      assert.equal(entree.op, "patch", "« Skilled » est LE seul don patché (lot 24), et il l'est bien");
+    } else {
+      assert.equal(entree.op, undefined, `« ${id} » est un \`add\` — seul Skilled est patché`);
+    }
+    assert.notEqual(entree.op, "disable", `« ${id} » n'est jamais désactivé`);
   }
   assert.equal(h.layers.verbs.query({ kind: "feat", id: "srd:feat:en:lucky" }), null,
     "*Lucky* n'existe pas dans le SRD 5.2 : la note du don le dit, et le dépôt n'a rien à désactiver");

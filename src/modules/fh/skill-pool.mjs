@@ -45,6 +45,19 @@
         (demi-compétence), et ce point se déduit du pool à répartir. Idem pour
         les outils imposés. » Le 1 n'est pas écrit ici : c'est
         `fh_skill_pool.tier_costs.imposed`, lu sur le record de classe.
+     5. LE DON D'ORIGINE (lot 24) — `data.skill_points.bonus` sur un record de
+        `feat`, tendu par `refs` comme le fait déjà `destiny-stat.mjs` (même
+        canal, même raison : le don vit sous `background.originFeat[n]`, hors
+        du namespace de ce module). MÊME CHAMP que le bump d'espèce
+        (`skill_points`) — la FORME distingue les genres, exactement comme
+        `data.destiny` sert `{base}` à une espèce et `{bonus}` à un don. Un
+        seul don du SRD le porte aujourd'hui : `Skilled`, à parité SRD
+        (3 proficiencies × `tier_costs.proficient` = 6).
+     6. LE GRANT D'ESPÈCE, EN NET ZÉRO (lot 24, arbitrage d'Eric du
+        2026-08-09) — `data.granted_skill_choice` (Araag, Elestu, Elf) SE
+        RAJOUTE au pool PUIS SE PLACE au coût d'un imposé : deux lignes, un
+        total inchangé. Ça remplace la déclaration que le lot 23 posait sur ce
+        champ — la question qu'elle nommait est tranchée.
 
    📌 LE TOTAL PUBLIÉ EST CE QUI RESTE À RÉPARTIR, pas le pool brut. Un
    Roublard niveau 1 a un POOL DE CLASSE de 18 et publie 11 (4 imposés de
@@ -410,16 +423,92 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
       "point chacun comme les autres ; les compter demanderait de lire une phrase anglaise dans le moteur."
   });
 
-  /* L'espèce — la décision qui n'est pas prise. */
-  if (species && (species.data || {}).granted_skill_choice !== undefined) {
+  /* L'espèce — LE NET ZÉRO (lot 24, arbitrage d'Eric du 2026-08-09, contrat
+     §⭐ THE SKILL POOL). Le lot 23 déclarait cette question ouverte ; elle ne
+     l'est plus : un `granted_skill_choice` d'espèce SE RAJOUTE au pool PUIS
+     SE PLACE au coût d'un imposé — deux lignes, un total inchangé. ⛔ LE
+     GRANT NE SE CONVERTIT PAS EN POINTS LIBRES : le placer au même coût que
+     son entrée est ce qui préserve sa restriction (`Keen Senses` ne tire que
+     dans {survival, delve, vigilance}) — un module qui n'ajouterait QUE la
+     ligne d'entrée transformerait un choix restreint en points dépensables
+     partout. */
+  if (species) {
+    const grant = (species.data || {}).granted_skill_choice;
+    if (grant !== undefined) {
+      if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
+        fail(`the species record "${species.id}" carries \`data.granted_skill_choice\` = ${JSON.stringify(grant)}, ` +
+          "which is not an object — the convention of this layer is `{count, from}`, and a scalar there hides " +
+          "how many choices the species grants.");
+      }
+      if (!Number.isInteger(grant.count) || grant.count <= 0) {
+        fail(`the species record "${species.id}" carries \`data.granted_skill_choice.count\` = ` +
+          `${JSON.stringify(grant.count)}, which is not a positive whole number — a grant the engine cannot ` +
+          "count is bad content, not a grant to skip: dropping only its placement half would leave the pool " +
+          "too generous by exactly that count.");
+      }
+      lines.push({
+        label: t("fh.skills.term.granted", { source: species.name, count: grant.count }),
+        value: grant.count * cost,
+        source: { kind: "species", id: species.id }
+      });
+      lines.push({
+        label: t("fh.skills.term.imposed", { source: species.name, count: grant.count }),
+        value: -(grant.count * cost),
+        source: { kind: "species", id: species.id }
+      });
+    }
+  }
+}
+
+/* ── LE DON QUI PORTE DES POINTS DE COMPÉTENCE ───────────────────────
+   Lot 24. Même canal que le Score de Destinée (lot 20, `destiny-stat.mjs`) :
+   le don d'origine vit sous `background.originFeat[n]`, hors du namespace de
+   ce module, donc la dérivation le tend par `refs` et ce module RÉCLAME ceux
+   qu'il a lus.
+
+   MÊME CHAMP QUE LE BUMP D'ESPÈCE (`SPECIES_FIELD`, "skill_points") — la
+   FORME distingue les genres, comme `data.destiny` sert déjà `{base}` à une
+   espèce, `{bonus}` à un don et `{impact}` à une Arcane. Un don SANS
+   `data.skill_points` n'est pas un refus : c'est le cas des seize autres dons
+   du SRD (et de tous ceux à venir) — le champ absent dit « ce don ne donne
+   aucun point », et c'est un fait, pas un trou. */
+function featLines(feats, lines, underived, consumed) {
+  const bearers = [];
+  for (const feat of Array.isArray(feats) ? feats : []) {
+    const bonus = feat && feat.data ? feat.data[SPECIES_FIELD] : undefined;
+    if (bonus === undefined) continue;
+    if (bonus === null || typeof bonus !== "object" || Array.isArray(bonus)) {
+      fail(`the feat record "${feat.id}" carries \`data.${SPECIES_FIELD}\` = ${JSON.stringify(bonus)}, which is ` +
+        `not an object — the convention of this layer is \`data.${SPECIES_FIELD}.bonus\`, and a scalar there ` +
+        "hides which term of the pool it was meant to be.");
+    }
+    if (!Number.isInteger(bonus.bonus)) {
+      fail(`the feat record "${feat.id}" carries \`data.${SPECIES_FIELD}.bonus\` = ${JSON.stringify(bonus.bonus)}, ` +
+        "which is not a whole number of skill points. A feat that announces a pool bonus and cannot state it is " +
+        "bad content, not a feat to skip: skipping it would leave the pool short by exactly it, silently.");
+    }
+    if (typeof feat.name !== "string" || feat.name.trim() === "") {
+      fail(`the feat record "${feat.id}" grants ${bonus.bonus} skill points and carries no usable \`name\` — the ` +
+        "breakdown line is labelled with it, copied from the record (loi §0.13).");
+    }
+    bearers.push({ feat, bonus: bonus.bonus });
+  }
+  if (bearers.length === 0) {
+    const chosen = (Array.isArray(feats) ? feats : []).map((feat) => feat.id);
     underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].imposed.species`,
-      reason: `l'espèce « ${species.id} » porte un \`granted_skill_choice\` (une maîtrise que l'espèce impose), et ` +
-        "AUCUNE décision ne dit s'il se déduit du pool. La règle d'Eric du 2026-08-08 nomme « la classe ou " +
-        "l'arrière-plan », et le canon dit « les bases du SRD fixent les compétences et outils imposés " +
-        "(Guerrier 2 au choix, Rogue 4…) » — l'espèce n'est nommée nulle part. Le déduire inventerait une " +
-        "règle, le taire serait un repli silencieux. ⛔ QUESTION À L'ARCHITECTE (loi §0.10)."
+      field: `stats[${FH_SKILL_POOL_ID}].feat`,
+      reason: chosen.length === 0
+        ? "aucun choix ne désigne de record `feat` : les points de compétence d'un don d'origine sont portés par " +
+          `le don (\`data.${SPECIES_FIELD}.bonus\`), et un personnage sans don n'en a aucun à lire.`
+        : `aucun des dons choisis ne porte \`data.${SPECIES_FIELD}.bonus\` (${chosen.join(", ")}) : seul ` +
+          "\`srd:feat:en:skilled\` en porte un, patché par la couche \`fh-feats-en\` — les autres dons du SRD " +
+          "n'en donnent aucun, et c'est un FAIT, pas un trou."
     });
+    return;
+  }
+  for (const { feat, bonus } of bearers) {
+    lines.push({ label: feat.name, value: bonus, source: { kind: "feat", id: feat.id } });
+    if (typeof feat.path === "string") consumed.push(feat.path);
   }
 }
 
@@ -447,6 +536,11 @@ export function createFhSkillPoolStat() {
     contribute({ level, species, choices, records, refs }) {
       const underived = [];
       const lines = [];
+      /* Les chemins HORS namespace que ce module a réellement lus — seul le
+         don d'origine (lot 24) alimente cette liste : `class`, `species` et
+         `background` sont déjà consommés par le pli lui-même (`takeRef`), les
+         réclamer ici ajouterait du bruit sans changer aucun témoignage. */
+      const consumed = [];
 
       /* ⚠️ `level` EST UN AJOUT DE CE LOT AU PROTOCOLE D'INJECTION, et il est
          indispensable : les paliers se cumulent sur les niveaux TRAVERSÉS, et
@@ -501,7 +595,12 @@ export function createFhSkillPoolStat() {
       /* 3. LES BUMPS D'ESPÈCE. */
       speciesLines(species, level, lines, underived);
 
-      /* 4. LES IMPOSÉS, DÉDUITS — au coût que le record porte. */
+      /* 3b. LE DON D'ORIGINE (lot 24) — même canal `refs` que le Score de
+         Destinée, filtré sur son propre genre. */
+      featLines(outside.filter((ref) => ref.kind === "feat"), lines, underived, consumed);
+
+      /* 4. LES IMPOSÉS, DÉDUITS — au coût que le record porte, PUIS le grant
+         d'espèce en net zéro (lot 24). */
       imposedLines(classRef, backgroundRef, species, imposedCost(classRef, pool), lines, underived);
 
       return {
@@ -513,13 +612,7 @@ export function createFhSkillPoolStat() {
           breakdown: lines
         },
         underived,
-        /* ⚠️ RIEN N'EST RÉCLAMÉ, ET C'EST MESURÉ. `consumed` existe pour qu'un
-           choix lu par un module cesse de ressortir « il ne change rien à la
-           fiche ». Or `class`, `species` et `background` sont déjà consommés
-           par le pli lui-même (`takeRef`) : les réclamer ne changerait aucun
-           témoignage et ajouterait du bruit. Le lot 19 réclame ses dons parce
-           que le pli, lui, n'en tire rien. */
-        consumed: []
+        consumed
       };
     }
   };
