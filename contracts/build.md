@@ -345,7 +345,7 @@ entrées, chacune sous son drapeau et son ancre.
 | Ancre | Drapeau | Lot | Ce que le total vaut |
 |---|---|---|---|
 | `fh:destiny` | `fh.destiny` | 19/20 | le Score de Destinée : maîtrise + Base d'espèce + Arcane + don |
-| `fh:skill-points` | `fh.skills` | 23 | **ce qu'il RESTE à répartir** : pool de classe + paliers **traversés** + bumps d'espèce − imposés |
+| `fh:skill-points` | `fh.skills` | 23 | **ce qu'il RESTE à répartir** : pool de classe + paliers **traversés** + bumps d'espèce − imposés. ⚠️ **Incomplet depuis la ratification du 2026-08-09** : il manque le terme **origin feat** (`Skilled` = +6) et les deux lignes « net zero » des granted choices — lot 24 |
 
 ⚠️ **Le total du pool n'est PAS le pool brut.** Un Roublard niveau 1 a un *pool
 de classe* de 18 et publie **11** — 4 imposés de classe, 2 compétences et 1
@@ -354,6 +354,71 @@ Mesure indépendante qui le confirme : Eric chiffre le résultat attendu de sa
 réforme à « environ 2 points libres à **7–10** » ; magicien 12−5 = 7, druide
 14−5 = 9, roublard 18−7 = 11. Publier 18 ne dirait rien de ce que le joueur
 peut dépenser.
+
+### ⭐ THE SKILL POOL — l'algorithme canonique, ratifié par Eric le 2026-08-09
+
+**Écrit en terminologie anglaise à sa demande explicite** (« utilise la
+terminologie anglaise pour les règles »). C'est **sa** présentation, recopiée,
+pas une reformulation d'architecte :
+
+```
+skill pool  =  class base                (the background's flat 6 is INSIDE it)
+            +  species bonus             (points — Educated, Fast Learner)
+            +  origin feat bonus         (points — Skilled = +6)
+
+imposed placements, 1 point each (tier ½, `tier_costs.imposed`) :
+            −  class      skill_choice.count
+            −  background skill_ids + tool
+            −  granted choices from a trait or a feat    ⟵ NET ZERO
+
+remaining   =  what the player distributes
+```
+
+**La décomposition du `base`, mesurée sur les douze records** : le background
+est une constante de **6**, la part de classe est variable — Rogue 12, Bard 10,
+Druid/Monk/Ranger 8, les huit autres 6. La note de chaque record le dit déjà
+(*« level-1 skill pool 18, background included »*). **Aucun changement de
+donnée n'est dû** : Eric décrivait la composition d'un nombre qui existait.
+
+⚠️ **LE « NET ZERO » EST LA CLEF, et il réconcilie deux formulations d'Eric qui
+semblaient se contredire.** Il a écrit « imposé par l'espèce **se rajoute** au
+pool », puis « tu **places** les points imposés par certains traits ou feats ».
+Les deux sont vraies ensemble : le pool grossit du grant, le placement le
+reprend. Net zéro sur le total, **deux lignes dans le `breakdown`** — et c'est
+la seule lecture qui n'oppose pas ses deux phrases. Conséquence pratique : le
+nombre publié par le lot 23 est **déjà juste** ; ce qui manque est la paire de
+lignes qui montre le raisonnement.
+
+⚠️ **Un grant restreint ne se convertit PAS en points.** Le `Keen Senses` de
+l'Elestu tire dans `{survival, delve, vigilance}` ; un point est dépensable
+partout. Convertir le grant en points effacerait la restriction, donc la
+saveur de l'espèce. Le grant reste un grant.
+
+**`Skilled` — vérifié au SRD avant d'être chiffré** : `srd:feat:en:skilled`,
+`category: "origin"`, *« three skills or tools of your choice »*. Il **n'impose
+rien** (Eric l'avait dit, le texte le confirme), et 3 proficiencies × 2
+(`tier_costs.proficient`) = **+6**. La valeur est donc à **parité exacte** avec
+le SRD, pas une inflation.
+
+#### La mesure d'équilibrage, montrée parce qu'elle surprend
+
+| Personnage niveau 1 | base | species | Skilled | imposés | **reste** |
+|---|---|---|---|---|---|
+| Wizard nu | 12 | — | — | 2+3 | **7** |
+| Rogue nu | 18 | — | — | 4+3 | **11** |
+| Human Wizard + Skilled | 12 | +2 | +6 | 2+3 | **15** |
+| Human Rogue + Skilled | 18 | +2 | +6 | 4+3 | **19** |
+
+La fourchette « 7–10 » qu'Eric visait décrit **le cas nu**. Empiler species
+bonus et Skilled double le reste, et **il l'assume** : les outils se paient sur
+le même pool (36 en catalogue), l'expertise coûte 4, et — mesuré — **elle est
+verrouillée jusqu'au niveau 4 sur les douze classes**
+(`expertise_from_level: 4`). Un niveau 1 ne peut donc acheter que du ½ et du
+plein : 19 points, c'est de la **largeur**, jamais de la profondeur. Le SRD
+fait l'inverse pour un Rogue — moins de compétences, mais **Expertise dès le
+niveau 1**. Deux courbes différentes, un total comparable.
+⚠️ *Cette divergence Expertise-au-niveau-1 est un choix d'Eric, pas un oubli :
+notée ici pour qu'aucun lot ne la « corrige ».*
 
 ⚠️ **Les paliers se cumulent sur les niveaux TRAVERSÉS** (règle Q15-8 d'Eric) :
 créé au niveau 5, un personnage a les paliers ≤ 5, pas celui du 6. « À la
