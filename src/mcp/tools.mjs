@@ -1,3 +1,5 @@
+import { renderBuildViolation } from "../labels.mjs";
+
 /* ══ LE CATALOGUE D'OUTILS — ET RIEN QUE LE CATALOGUE ══════════════════
    Lot 10-mcp-v0.
 
@@ -394,7 +396,7 @@ export const TOOLS = [
       const warnings = Array.isArray(out.warnings) ? out.warnings : [];
       return textOf([
         out.ok ? "Aucune violation." : `${violations.length} VIOLATION(S) :`,
-        ...violations.map((line) => `  · ${line}`),
+        ...violations.map((violation) => `  · ${renderBuildViolation(violation)}`),
         warnings.length === 0 ? "Aucun avertissement." : `AVERTISSEMENTS (${warnings.length}) :`,
         ...warnings.map((line) => `  · ${line}`)
       ]);

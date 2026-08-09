@@ -1,3 +1,7 @@
+import { createLabels } from "../labels.mjs";
+
+export { createLabels };
+
 /* ══ LES MOTS, EN DONNÉES ════════════════════════════════════════════
    Loi §0.13 : « le moteur produit des IDENTIFIANTS, l'interface produit des
    MOTS ». Avant ce lot, `lexicon.mjs` déclarait `verdict: "FATE REFUSED"` à
@@ -115,20 +119,3 @@ export const EN_SRD = {
   "part.mode.choice": "A/D",
   "part.manual": "MANUAL"
 };
-
-/* Le paquet est appliqué ICI et nulle part ailleurs. `t` est la seule fonction
-   qui transforme un id en mot ; tout ce qui l'appelle est, par définition, une
-   frontière d'affichage. */
-export function createLabels(...packs) {
-  const table = Object.assign({}, ...packs);
-  function t(id, data) {
-    const entry = table[id];
-    if (entry === undefined) {
-      throw new Error('fhpc/play: no label for "' + id + '" — the engine names ids, a pack must carry the words');
-    }
-    return typeof entry === "function" ? entry(data || {}) : entry;
-  }
-  t.has = (id) => table[id] !== undefined;
-  t.ids = () => Object.keys(table).sort();
-  return t;
-}

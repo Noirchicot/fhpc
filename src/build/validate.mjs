@@ -1,3 +1,5 @@
+import { renderBuildViolation } from "../labels.mjs";
+
 /* ══ LES INVARIANTS QUE LE SCHÉMA ÉCRIT SANS SAVOIR LES EXÉCUTER ══════
    Lot 19-score-destinee.
 
@@ -28,11 +30,67 @@ function showTerm(term) {
   return `${JSON.stringify(term.label)} = ${JSON.stringify(term.value)}`;
 }
 
+function shown(value) {
+  const text = JSON.stringify(value);
+  return text === undefined ? String(value) : text;
+}
+
+function scalar(value) {
+  return value === null || ["string", "number", "boolean"].includes(typeof value);
+}
+
+function validKey(key) {
+  return typeof key === "string" && /^[a-z][a-z0-9.:_-]{0,79}$/.test(key);
+}
+
+/** Une violation reste une donnée sérialisable. Sa coercition textuelle est
+ *  non énumérable : elle conserve les cinq assertions historiques, tandis que
+ *  JSON/MCP ne publient que {key, params, path?}. */
+export function buildViolation(key, params, path) {
+  if (!validKey(key)) {
+    throw new TypeError(`fhpc/build: violation key invalide : ${String(key)}.`);
+  }
+  if (!params || typeof params !== "object" || Array.isArray(params) ||
+    Object.values(params).some((value) => !scalar(value))) {
+    throw new TypeError("fhpc/build: les paramètres d'une violation doivent être plats et scalaires.");
+  }
+  if (path !== undefined && typeof path !== "string") {
+    throw new TypeError("fhpc/build: le chemin d'une violation doit être une chaîne ou absent.");
+  }
+  const violation = path === undefined ? { key, params } : { key, params, path };
+  Object.defineProperty(violation, "toString", {
+    enumerable: false,
+    value() { return renderBuildViolation(violation); }
+  });
+  return violation;
+}
+
+/** Le garde de collection : aucune chaîne nue ne rejoint `validate`. */
+export function buildViolationList() {
+  const entries = [];
+  function add(violation) {
+    if (!violation || typeof violation !== "object" || Array.isArray(violation) ||
+      !validKey(violation.key) || !violation.params || typeof violation.params !== "object" ||
+      Array.isArray(violation.params) || Object.values(violation.params).some((value) => !scalar(value)) ||
+      (violation.path !== undefined && typeof violation.path !== "string")) {
+      throw new TypeError("fhpc/build: une violation doit être {key, params, path?}, jamais une chaîne.");
+    }
+    entries.push(violation);
+  }
+  return {
+    add,
+    addMany(list) {
+      for (const violation of list) add(violation);
+    },
+    values() { return entries.slice(); }
+  };
+}
+
 /**
  * `value` est-il la somme de son détail, pour chaque statistique dérivée ?
  *
  * @param {object} resolved la tranche `resolved` à juger (peut être absente)
- * @returns {string[]} liste vide = conforme ; sinon une phrase par violation.
+ * @returns {object[]} liste vide = conforme ; sinon une violation structurée.
  */
 export function statSumViolations(resolved) {
   const violations = [];
@@ -40,22 +98,20 @@ export function statSumViolations(resolved) {
 
   for (const stat of stats) {
     if (!stat || typeof stat !== "object") {
-      violations.push(`resolved.stats : une entrée n'est pas une statistique (${JSON.stringify(stat)}).`);
+      violations.push(buildViolation("stat.entry-not-stat", { stat: shown(stat) }, "resolved.stats"));
       continue;
     }
-    const anchor = typeof stat.id === "string" ? stat.id : JSON.stringify(stat.id);
+    const anchor = typeof stat.id === "string" ? stat.id : shown(stat.id);
     const terms = Array.isArray(stat.breakdown) ? stat.breakdown : null;
     if (terms === null || terms.length === 0) {
-      violations.push(`resolved.stats[${anchor}] : aucun détail — le schéma en exige au moins un terme, ` +
-        "et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer.");
+      violations.push(buildViolation("stat.breakdown-missing", { anchor }, `resolved.stats[${anchor}]`));
       continue;
     }
     let sum = 0;
     let addable = true;
     for (const term of terms) {
       if (!term || typeof term !== "object" || !Number.isInteger(term.value)) {
-        violations.push(`resolved.stats[${anchor}] : le terme ${showTerm(term)} ne porte pas de valeur entière — ` +
-          "un terme qui ne s'additionne pas rend le total indémontrable.");
+        violations.push(buildViolation("stat.term-not-integer", { anchor, term: showTerm(term) }, `resolved.stats[${anchor}]`));
         addable = false;
         continue;
       }
@@ -63,14 +119,15 @@ export function statSumViolations(resolved) {
     }
     if (!addable) continue;
     if (!Number.isInteger(stat.value)) {
-      violations.push(`resolved.stats[${anchor}] : \`value\` vaut ${JSON.stringify(stat.value)} et le détail somme ` +
-        `à ${sum} — une statistique dérivée est un entier.`);
+      violations.push(buildViolation("stat.value-not-integer", {
+        anchor, value: shown(stat.value), sum
+      }, `resolved.stats[${anchor}]`));
       continue;
     }
     if (stat.value !== sum) {
-      violations.push(`resolved.stats[${anchor}] : \`value\` vaut ${stat.value}, et son détail somme à ${sum} ` +
-        `(${terms.map(showTerm).join(" ; ")}). Le schéma le dit et ne sait pas l'additionner : ` +
-        "un total que son propre détail contredit est un chiffre faux qui a l'air juste.");
+      violations.push(buildViolation("stat.value-mismatch", {
+        anchor, value: stat.value, sum, terms: terms.map(showTerm).join(" ; ")
+      }, `resolved.stats[${anchor}]`));
     }
   }
 

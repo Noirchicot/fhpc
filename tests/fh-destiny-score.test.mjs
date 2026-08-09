@@ -379,9 +379,9 @@ test("ATTAQUE DU GARDE DE LA SOMME — une somme fausse est vue, nommée, et la 
   faux.value = 6;
   const vu = statSumViolations({ stats: [faux] });
   assert.equal(vu.length, 1, "une somme fausse est VUE");
-  assert.match(vu[0], /resolved\.stats\[x\]/, "et la violation nomme l'entrée");
-  assert.match(vu[0], /vaut 6.*somme à 5/, "elle donne les deux nombres, pas un verdict nu");
-  assert.match(vu[0], /"un" = 2 ; "deux" = 3/, "et le détail qui la démontre");
+  assert.match(String(vu[0]), /resolved\.stats\[x\]/, "et la violation nomme l'entrée");
+  assert.match(String(vu[0]), /vaut 6.*somme à 5/, "elle donne les deux nombres, pas un verdict nu");
+  assert.match(String(vu[0]), /"un" = 2 ; "deux" = 3/, "et le détail qui la démontre");
 
   faux.value = 5;
   assert.deepEqual(statSumViolations({ stats: [faux] }), [], "restauré, l'arbre est vert : le garde ne crie pas au loup");

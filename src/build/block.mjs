@@ -43,8 +43,9 @@ import { derive, ABILITY_KEYS } from "./derive.mjs";
 import { applyOverride, parseChoicePath, parseOverridePath } from "./paths.mjs";
 import { diffResolved } from "./diff.mjs";
 import { platformNow } from "./clock.mjs";
-import { statSumViolations } from "./validate.mjs";
+import { buildViolation, buildViolationList, statSumViolations } from "./validate.mjs";
 import { charInvariantViolations } from "../schemas/invariants.mjs";
+import { renderBuildViolation } from "../labels.mjs";
 
 const ABILITY_SET = new Set(ABILITY_KEYS);
 
@@ -281,7 +282,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
          et c'est `validate` qui la NOMME sans la jeter. */
       const sums = statSumViolations(outcome.resolved);
       if (sums.length > 0) {
-        fail(`rebuild : une statistique dérivée ne vaut pas la somme de son détail :\n- ${sums.join("\n- ")}`);
+        fail(`rebuild : une statistique dérivée ne vaut pas la somme de son détail :\n- ${sums.map(renderBuildViolation).join("\n- ")}`);
       }
 
       /* LES OVERRIDES EN DERNIER. C'est l'invariant n°2 de l'architecture, et
@@ -344,7 +345,9 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
     validate(payload) {
       const options = payload || {};
       const document = current(options, "validate");
-      const violations = charInvariantViolations(document);
+      const reported = buildViolationList();
+      reported.addMany(charInvariantViolations(document).map((message) =>
+        buildViolation("document.invariant-violated", { message })));
       const warnings = [];
 
       /* L'INVARIANT QUE LE SCHÉMA ÉCRIT SANS SAVOIR L'EXÉCUTER (lot 19).
@@ -354,7 +357,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
          ici sur la tranche que le personnage JOUE — overrides compris : un MJ
          qui écrase un total sans poser le terme qui le justifie l'apprend,
          plutôt que de le découvrir à la table. */
-      violations.push(...statSumViolations(document.resolved));
+      reported.addMany(statSumViolations(document.resolved));
 
       /* Chaque `ref` doit désigner un record que la pile porte. Un ref mort
          est la forme la plus discrète du « personnage construit avec une
@@ -363,8 +366,15 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         if (!choice || !choice.ref) continue;
         let view = null;
         try { view = query({ kind: choice.ref.kind, id: choice.ref.id }); }
-        catch (error) { violations.push(`choix « ${choice.path} » : ${error.message}`); continue; }
-        if (!view) violations.push(`choix « ${choice.path} » : la pile ne porte aucun ${choice.ref.kind} « ${choice.ref.id} ».`);
+        catch (error) {
+          reported.add(buildViolation("choice.query-threw", { path: choice.path, message: error.message }, choice.path));
+          continue;
+        }
+        if (!view) {
+          reported.add(buildViolation("choice.ref-missing", {
+            path: choice.path, kind: choice.ref.kind, id: choice.ref.id
+          }, choice.path));
+        }
       }
 
       let outcome = null;
@@ -380,7 +390,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
           modules
         });
       } catch (error) {
-        violations.push(error.message);
+        reported.add(buildViolation("derive.threw", { message: error.message }));
       }
 
       if (outcome) {
@@ -391,8 +401,9 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
           if (!declaration || !Number.isInteger(declaration.count)) continue;
           const answers = outcome.grants.chosenBy[root] || [];
           if (answers.length !== declaration.count) {
-            violations.push(`« ${root} » fait choisir ${declaration.count} compétence(s) et les choix en désignent ` +
-              `${answers.length} (${answers.join(", ") || "aucune"}).`);
+            reported.add(buildViolation("skill-grant.count-mismatch", {
+              root, declared: declaration.count, actual: answers.length, answers: answers.join(", ") || "aucune"
+            }, root));
           }
         }
 
@@ -408,8 +419,9 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
                six canoniques est une faute de contenu, dans toutes les langues. */
             for (const key of keys) {
               if (!ABILITY_SET.has(key)) {
-                violations.push(`l'arrière-plan « ${view.id} » porte \`ability_keys\` = ${JSON.stringify(key)}, ` +
-                  `qui n'est pas une clef de caractéristique (${ABILITY_KEYS.join(", ")}).`);
+                reported.add(buildViolation("background.ability-key-invalid", {
+                  backgroundId: view.id, key: JSON.stringify(key), abilityKeys: ABILITY_KEYS.join(", ")
+                }));
               }
             }
             const allowed = new Set(keys);
@@ -417,8 +429,9 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
               const match = choice && /^[a-z][a-zA-Z0-9]*\.boost\.([a-z]{3})$/.exec(choice.path || "");
               if (!match || !ABILITY_SET.has(match[1])) continue;
               if (!allowed.has(match[1])) {
-                violations.push(`le choix « ${choice.path} » augmente une caractéristique que l'arrière-plan ` +
-                  `« ${view.id} » ne nomme pas (il nomme : ${keys.join(", ")}).`);
+                reported.add(buildViolation("background.boost-disallowed", {
+                  path: choice.path, backgroundId: view.id, abilityKeys: keys.join(", ")
+                }, choice.path));
               }
             }
           } else {
@@ -428,8 +441,9 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
           const featId = view && view.record.data && view.record.data.feat_id;
           const featChoice = document.build.choices.find((choice) => choice && choice.path === "background.feat");
           if (typeof featId === "string" && featChoice && featChoice.ref && featChoice.ref.id !== featId) {
-            violations.push(`le choix « background.feat » désigne « ${featChoice.ref.id} », alors que l'arrière-plan ` +
-              `« ${view.id} » accorde « ${featId} ».`);
+            reported.add(buildViolation("background.feat-mismatch", {
+              selectedId: featChoice.ref.id, backgroundId: view.id, featId
+            }, "background.feat"));
           }
         }
 
@@ -442,6 +456,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         }
       }
 
+      const violations = reported.values();
       return { ok: violations.length === 0, violations, warnings };
     }
   };
