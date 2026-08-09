@@ -77,6 +77,16 @@ function placed(entry, verb) {
   return `${verb} « ${entry.path} » — ${entry.replaced ? "décision REMPLACÉE" : "décision posée"} (${entry.kind}).`;
 }
 
+/** Le pendant de `placed` pour `clear` : `removed` remplace `replaced`, et un
+ *  chemin absent n'est pas une faute — juste un geste qui n'avait rien à faire. */
+function cleared(entry) {
+  if (!entry) return "Clear : rien à rapporter.";
+  const collection = entry.kind === "choice" ? "build.choices" : "build.overrides";
+  return entry.removed
+    ? `Retiré « ${entry.path} » de ${collection}.`
+    : `Rien à retirer : « ${entry.path} » n'était pas dans ${collection}.`;
+}
+
 export const TOOLS = [
   {
     name: "layers.register",
@@ -280,6 +290,40 @@ export const TOOLS = [
       return request;
     },
     render(out) { return placed(out.override, "Override"); }
+  },
+
+  {
+    name: "build.clear",
+    title: "Retirer une décision ou un override",
+    description:
+      "Retire une entrée de build.choices (kind: \"choice\") ou de build.overrides (kind: \"override\"), " +
+      "jamais des deux à l'aveugle : le geste nomme sa cible. Un chemin absent n'est pas un refus — l'outil " +
+      "réussit et rend `removed: false`. C'est le seul verbe qui ENLÈVE une décision plutôt que de la remplacer : " +
+      "sans lui, une décision posée ou un override levé par erreur était définitif.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        path: {
+          type: "string",
+          description: "Le chemin à retirer — un chemin de choix si kind vaut \"choice\", un chemin d'override sinon."
+        },
+        kind: {
+          type: "string",
+          enum: ["choice", "override"],
+          description: "La collection visée : build.choices ou build.overrides."
+        },
+        document: DOCUMENT_ARG
+      },
+      required: ["path", "kind"],
+      additionalProperties: false
+    },
+    route: "build.clear",
+    payload(args) {
+      const request = { path: args.path, kind: args.kind };
+      if (args.document !== undefined) request.document = args.document;
+      return request;
+    },
+    render(out) { return cleared(out.cleared); }
   },
 
   {

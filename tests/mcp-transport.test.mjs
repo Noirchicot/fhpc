@@ -139,7 +139,7 @@ test("SUR LA LIGNE — un refus de règle revient en RÉSULTAT en échec, et le 
 
   /* LE PENDANT, et c'est lui qui compte : le serveur répond encore APRÈS. */
   const encore = await server.send("tools/list");
-  assert.equal(encore.result.tools.length, 9, "le serveur a survécu au refus");
+  assert.equal(encore.result.tools.length, 10, "le serveur a survécu au refus");
 
   /* Un refus du bloc `layers` traverse aussi, sous SON nom. */
   const genre = await server.call("layers.query", { kind: "spel" });
@@ -210,7 +210,7 @@ test("SUR LA LIGNE — le cadrage lui-même : JSON illisible, ligne vide, notifi
     "\n\n" + JSON.stringify({
       jsonrpc: "2.0", id: 4242, method: "tools/list", params: { _meta: requestMeta() }
     }) + "\n", 4242);
-  assert.equal(apres.result.tools.length, 9);
+  assert.equal(apres.result.tools.length, 10);
 
   /* Une NOTIFICATION (pas d'`id`) ne reçoit aucune réponse. On le prouve en
      envoyant la notification PUIS une requête, et en vérifiant que la seule

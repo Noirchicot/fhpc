@@ -73,9 +73,9 @@ test("la surface se présente : discover, tools/list, resources/list", () => {
   const tools = client.request("tools/list").result.tools.map((tool) => tool.name);
   assert.deepEqual(tools, [
     "layers.register", "layers.stack", "layers.query",
-    "build.choose", "build.set", "build.override", "build.rebuild", "build.validate",
+    "build.choose", "build.set", "build.override", "build.clear", "build.rebuild", "build.validate",
     "mcp.document"
-  ], "les cinq verbes de `build`, deux de `layers` plus la lecture de contenu, et le document");
+  ], "les six verbes de `build`, deux de `layers` plus la lecture de contenu, et le document");
 
   const resources = client.request("resources/list").result.resources;
   assert.equal(resources.length, 1);
@@ -276,4 +276,18 @@ test("le personnage se relit et se reconstruit sans jamais repasser le document"
   const encore = client.ok("build.rebuild", {});
   assert.equal(encore.resolved.vitals.hpMax, 9);
   assert.equal(encore.resolved.gear.find((item) => item.id === "torche").quantity, 4);
+});
+
+test("`build.clear` lève l'override du MJ SUR LA LIGNE — la fiche revient aux règles", () => {
+  construire();
+  const clear = client.call("build.clear", { path: "resolved.gear[torche].quantity", kind: "override" });
+  assert.equal(clear.isError, false);
+  assert.deepEqual(Object.keys(clear.structuredContent), ["cleared"],
+    "comme les cinq autres verbes, aucun outil ne rend le document dans son résultat");
+  assert.deepEqual(clear.structuredContent.cleared,
+    { path: "resolved.gear[torche].quantity", kind: "override", removed: true });
+
+  const encore = client.ok("build.rebuild", {});
+  assert.equal(encore.resolved.gear.find((item) => item.id === "torche").quantity, 2,
+    "l'override levé, la quantité redevient celle que les règles ont produite");
 });
