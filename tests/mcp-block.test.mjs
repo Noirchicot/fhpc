@@ -262,7 +262,7 @@ test("CHAQUE ROUTE DU CATALOGUE EXISTE VRAIMENT — le garde de dérive catalogu
      bougé sous elle. */
   assert.deepEqual(attendues, [
     "layers.register", "layers.stack", "layers.query",
-    "build.choose", "build.set", "build.override", "build.rebuild", "build.validate",
+    "build.choose", "build.set", "build.override", "build.clear", "build.rebuild", "build.validate",
     "doc.open", "doc.save", "doc.list"
   ], "et la liste des routes est exacte : un outil de plus ou de moins se voit");
 
@@ -380,7 +380,7 @@ test("les champs `_meta` de protocole sont exigés SUR CHAQUE REQUÊTE, séparé
     "la version manquante est nommée pour elle-même");
   assert.match(ask({ [META.protocolVersion]: PROTOCOL_VERSION }).error.message, /clientCapabilities.*manque/s,
     "les capacités manquantes aussi — un message qui dit « _meta invalide » oblige à deviner laquelle");
-  assert.equal(ask(requestMeta()).result.tools.length, 9);
+  assert.equal(ask(requestMeta()).result.tools.length, 10);
 
   /* ⚠️ LE PIÈGE DE LA VERSION : ce n'est pas parce que la révision courante
      est la seule supportée que le refus se prouve tout seul. On l'éprouve sur

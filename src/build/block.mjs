@@ -3,7 +3,7 @@
    `layers` → `build` → MCP v0.
 
    CE QUE LE BLOC POSSÈDE
-   - ses VERBES : `choose`, `set`, `override`, `rebuild`, `validate`.
+   - ses VERBES : `choose`, `set`, `override`, `clear`, `rebuild`, `validate`.
    - son ÉTAT : la tranche `build` du personnage OUVERT, et lui seul écrit
      `resolved`.
    - son ÉVÉNEMENT : `char-rebuilt`, avec son diff.
@@ -132,6 +132,20 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
     return { path: entry.path, replaced: index >= 0, kind: label };
   }
 
+  /* Le contraire de `place` : retire au lieu de poser. Même garde À L'ENTRÉE
+     — un chemin mal formé jette ici, jamais à la reconstruction — et même
+     forme de rapport : `place` NOMME s'il a remplacé ou posé (`replaced`),
+     `clear` NOMME s'il a trouvé quelque chose à retirer (`removed`). Un
+     chemin absent n'est pas une faute (le lot 26 l'a tranché) : une
+     interface qui nettoie plusieurs chemins d'un coup, ou un MJ qui relève
+     un override déjà relevé, n'a rien à se faire reprocher. */
+  function unplace(list, path, label, check) {
+    check(path);
+    const index = list.findIndex((item) => item && item.path === path);
+    if (index >= 0) list.splice(index, 1);
+    return { path, removed: index >= 0, kind: label };
+  }
+
   const verbs = {
     /** Pose un RECORD sur un point de décision. */
     choose(payload) {
@@ -184,6 +198,24 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
       if (typeof note === "string") entry.note = note;
       const placed = place(document.build.overrides, entry, "override", parseOverridePath);
       return { document: structuredClone(document), override: placed };
+    },
+
+    /** Retire une décision. Le sixième verbe : sans lui, une décision posée
+     *  ou un override levé par erreur ne pouvait plus être ENLEVÉ, seulement
+     *  remplacé — un joueur ne pouvait pas changer d'avis. `kind` NOMME sa
+     *  cible : jamais les deux collections à l'aveugle. */
+    clear(payload) {
+      const options = payload || {};
+      const document = current(options, "clear");
+      const { path, kind } = options;
+      if (kind !== "choice" && kind !== "override") {
+        fail(`clear attend \`{path, kind}\` avec \`kind\` valant "choice" ou "override" (reçu ${JSON.stringify(kind)}) — ` +
+          "le geste doit nommer sa cible, jamais retirer d'une collection à l'aveugle.");
+      }
+      const list = kind === "choice" ? document.build.choices : document.build.overrides;
+      const check = kind === "choice" ? parseChoicePath : parseOverridePath;
+      const cleared = unplace(list, path, kind, check);
+      return { document: structuredClone(document), cleared };
     },
 
     /** LE SEUL CHEMIN D'ÉCRITURE DE `resolved`. */

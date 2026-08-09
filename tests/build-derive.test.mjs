@@ -350,6 +350,91 @@ test("le verbe `override` exige de savoir QUI a écarté la règle", () => {
   assert.equal(h.verbs.rebuild({}).resolved.ac, 18);
 });
 
+/* ── `clear`, le sixième verbe : ENLEVER une décision ─────────────────
+   Lot 26. Sans lui, une décision posée ou un override levé par erreur ne
+   pouvait plus être RETIRÉ, seulement remplacé — un joueur ne pouvait pas
+   changer d'avis, et un MJ qui avait forcé une valeur par erreur ne pouvait
+   plus la lever. */
+
+test("`clear` retire un CHOIX — son effet disparaît de la fiche reconstruite", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.equal(h.verbs.rebuild({}).resolved.skills.find((skill) => skill.id === "religion").proficiency,
+    "proficient", "avant : le second choix de compétence de la classe est posé");
+
+  const out = h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
+  assert.deepEqual(out.cleared, { path: "class.skills[1]", kind: "choice", removed: true });
+  assert.equal(out.document.build.choices.some((choice) => choice.path === "class.skills[1]"), false);
+
+  const rebuilt = h.verbs.rebuild({});
+  assert.equal(rebuilt.resolved.skills.find((skill) => skill.id === "religion").proficiency, "none",
+    "le choix retiré ne nourrit plus la dérivation — la parole du joueur est réversible");
+});
+
+test("`clear` lève un OVERRIDE — la valeur revient à celle des règles", () => {
+  const h = makeHarness();
+  const avecOverride = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.equal(avecOverride.resolved.vitals.hpMax, 9, "l'override du MJ tient d'abord");
+
+  const out = h.verbs.clear({ path: "resolved.vitals.hpMax", kind: "override" });
+  assert.deepEqual(out.cleared, { path: "resolved.vitals.hpMax", kind: "override", removed: true });
+  assert.equal(out.document.build.overrides.some((override) => override.path === "resolved.vitals.hpMax"), false);
+
+  const rebuilt = h.verbs.rebuild({});
+  assert.equal(rebuilt.resolved.vitals.hpMax, 8, "« la parole du MJ bat le JSON » — jusqu'à ce qu'elle soit levée");
+});
+
+test("`clear` ne touche pas l'AUTRE collection — un override et un choix au même chemin cohabitent", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  // Les deux grammaires de chemin acceptent « resolved.ac » — un choix ET un override peuvent porter EXACTEMENT le même chemin.
+  h.verbs.set({ path: "resolved.ac", value: 99 });
+  h.verbs.override({ path: "resolved.ac", value: 18, by: "gm" });
+  const avant = h.verbs.rebuild({}).document;
+  assert.equal(avant.build.choices.some((choice) => choice.path === "resolved.ac"), true);
+  assert.equal(avant.build.overrides.some((override) => override.path === "resolved.ac"), true);
+
+  const out = h.verbs.clear({ path: "resolved.ac", kind: "override" });
+  assert.equal(out.document.build.overrides.some((override) => override.path === "resolved.ac"), false,
+    "l'override a disparu");
+  assert.equal(out.document.build.choices.some((choice) => choice.path === "resolved.ac"), true,
+    "le choix du MÊME chemin, dans l'AUTRE collection, n'a pas bougé — `clear` nomme sa cible, il ne devine pas");
+});
+
+test("`clear` sur un chemin ABSENT n'est pas un refus — `removed` le dit, comme `replaced` le dit pour `choose`/`set`/`override`", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  // Aucun override ne porte « resolved.ac » dans le document d'acceptation.
+  const out = h.verbs.clear({ path: "resolved.ac", kind: "override" });
+  assert.deepEqual(out.cleared, { path: "resolved.ac", kind: "override", removed: false });
+  assert.deepEqual(out.document.build.overrides, h.verbs.rebuild({}).document.build.overrides,
+    "rien n'a bougé : une interface qui nettoie plusieurs chemins d'un coup n'a rien à se faire reprocher");
+});
+
+test("`clear` exige un `kind` NOMMÉ — jamais une collection devinée", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.throws(() => h.verbs.clear({ path: "species" }), /"choice" ou "override"/);
+  assert.throws(() => h.verbs.clear({ path: "species", kind: "record" }), /"choice" ou "override"/);
+});
+
+test("`clear` vérifie le chemin À L'ENTRÉE, comme `place()` — un chemin mal formé est refusé au geste, pas à la reconstruction", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  assert.throws(() => h.verbs.clear({ path: "Class.skills", kind: "choice" }), /chemin de choix mal formé/);
+  assert.throws(() => h.verbs.clear({ path: "class.__proto__", kind: "choice" }), /clef interdite/);
+  assert.throws(() => h.verbs.clear({ path: "ac", kind: "override" }), /chemin d'override mal formé/);
+  assert.throws(() => h.verbs.clear({ path: "resolved.skills[0].bonus", kind: "override" }), /jamais par un index/);
+});
+
+test("`clear` ne fait PAS suivre `rebuild` — symétrique de `choose`/`set`/`override`", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  h.dispatched.length = 0;
+  h.verbs.clear({ path: "resolved.vitals.hpMax", kind: "override" });
+  assert.deepEqual(h.dispatched, [], "`clear` ne lit même pas la pile — aucune route empruntée");
+});
+
 /* ── l'état de jeu ──────────────────────────────────────────────────── */
 
 test("UNE RECONSTRUCTION NE SOIGNE PERSONNE — l'état de jeu traverse le pli", () => {

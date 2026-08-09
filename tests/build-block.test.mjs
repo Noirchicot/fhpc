@@ -113,7 +113,7 @@ test("l'instance ne rend que {name, verbs} — l'état du bloc n'a aucune poign�
   const h = makeHarness();
   assert.deepEqual(Object.keys(h.build).sort(), ["name", "verbs"]);
   assert.equal(h.build.name, "build");
-  assert.deepEqual(Object.keys(h.build.verbs).sort(), ["choose", "override", "rebuild", "set", "validate"]);
+  assert.deepEqual(Object.keys(h.build.verbs).sort(), ["choose", "clear", "override", "rebuild", "set", "validate"]);
 });
 
 test("createBuild refuse de se construire sans bus et sans dispatch", () => {

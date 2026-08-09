@@ -52,6 +52,7 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 | `choose` | `{document?, path, ref:{kind,id}, label?}` | Pose un **record** sur un point de décision. Remplace la décision précédente sur le même chemin. Rend `{document, choice:{path, replaced, kind}}`. | `value` en plus de `ref`, `ref` malformé, chemin de choix hors grammaire, segment interdit → **jette** |
 | `set` | `{document?, path, value, label?}` | Pose un **scalaire**. Même remplacement. Rend `{document, choice}`. | `ref` en plus de `value`, `value` absente, `value` non scalaire, chemin hors grammaire → **jette** |
 | `override` | `{document?, path, value, by, note?}` | Pose la parole du MJ dans `build.overrides`. Rend `{document, override}`. | `by` hors `player`/`gm`, `value` absente, chemin d'override hors grammaire (**index interdit**) → **jette** |
+| `clear` | `{document?, path, kind}` | Retire une entrée de `build.choices` (`kind: "choice"`) ou de `build.overrides` (`kind: "override"`), jamais des deux à l'aveugle. Rend `{document, cleared:{path, kind, removed}}`. Un chemin absent n'est **pas** une faute : `removed` vaut `false`, le verbe ne jette pas. | `kind` hors `choice`/`override`, chemin hors grammaire de la collection visée → **jette** |
 | `rebuild` | `{document?}` | **Le seul chemin d'écriture de `resolved`.** Plie la pile et les choix, applique les overrides **en dernier**, écrit `resolved` et `modified`. Émet `char-rebuilt`. Rend `{document, resolved, underived, unconsumed, overridesApplied, shadowed, warnings, diff}`. | niveau ou classe absents, score de caractéristique absent, clef de caractéristique hors catalogue, ref mort, pile ≠ `build.layers`, override dans le vide, invariant violé → **jette** |
 | `validate` | `{document?}` | Dit ce qui cloche **sans rien écrire**. Rend `{ok, violations, warnings}`. | — (un refus est un résultat ; même une erreur de dérivation devient une violation) |
 
@@ -61,7 +62,9 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 > rendue vérifiable qu'à l'exécution. **À ratifier** (question 4).
 
 > ⚠ Le kickoff écrit `choose, set, override, rebuild, validate` — les cinq y
-> sont, sous ces noms, et il n'y en a pas un sixième.
+> sont, sous ces noms. **Mis à jour par le lot `26-verbe-clear`** : un
+> sixième s'y est ajouté depuis, `clear` — sans lui une décision posée ou un
+> override levé par erreur ne pouvait plus être ENLEVÉ, seulement remplacé.
 
 ## Événements
 
