@@ -115,6 +115,28 @@ export const FH_EN = {
   "fh.destiny.term.proficiency": "Proficiency Bonus",
   "fh.destiny.term.base": (d) => "Destiny Base · " + d.species,
 
+  /* ── LE POOL DE POINTS DE COMPÉTENCE, ET SES TERMES (lot 23) ───────
+     Même raison de loi qu'au-dessus, et même partage : la PHRASE vient d'ici,
+     le NOM vient du record. « Class Pool · Rogue » — « Rogue » est le `name`
+     du record de classe, recopié ; aucun des vingt-six noms de compétence
+     n'apparaît ici, ni nulle part dans le moteur (loi §0.13).
+
+     ⚠️ UN PALIER PORTE SON NIVEAU, et c'est la règle Q15-8 rendue lisible :
+     un personnage créé au niveau 5 montre les paliers 2, 3, 4 et 5 — quatre
+     lignes — et l'absence du palier 6 se VOIT. Un terme unique « paliers
+     traversés : +6 » serait exact et indémontrable, et le nombre juste
+     obtenu de la mauvaise façon passerait sans rougir.
+
+     Le bump d'espèce recopie le nom du TRAIT qui le porte (« Fast Learner »,
+     « Educated »), jamais un mot fabriqué : c'est la règle que le lot 19 a
+     appliquée au bonus de Base de l'Elfe. */
+  "fh.skills.pool": "Skill Points",
+  "fh.skills.term.class": (d) => "Class Pool · " + d.class,
+  "fh.skills.term.level": (d) => "Level " + d.level,
+  "fh.skills.term.species": (d) => d.trait + " · Level " + d.level,
+  "fh.skills.term.imposed": (d) =>
+    d.source + " · " + d.count + " imposed choice" + (d.count === 1 ? "" : "s"),
+
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,
   "fh.reason.arcane-critical-failure": (d) => "Arcane Critical Failure d" + d.sides,
