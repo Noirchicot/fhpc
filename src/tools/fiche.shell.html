@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  LA COQUILLE — lot 25.
+
+  Elle ne calcule rien et ne connaît aucun champ du document : elle reçoit la
+  chaîne rendue par `render()` à la place du marqueur ci-dessous, et lui donne
+  de quoi être lue. Laideur assumée : ce lot livre l'ADRESSAGE, pas la mise en
+  page. Ce qui sera jeté à la tranche suivante est cette feuille de style ; ce
+  qui restera, ce sont les `data-path`.
+
+  ⚠️ POURQUOI LE CONTENU EST INJECTÉ ET NON IMPORTÉ. Une coquille qui ferait
+  `import { render } from "./render-fiche.mjs"` ou un `fetch` du document ne
+  marcherait PAS en `file://` — les navigateurs refusent les modules ESM et les
+  requêtes d'origine locale, et il faudrait un serveur. Un lot d'affichage qui
+  oblige à lancer un serveur pour REGARDER n'a pas livré ce qu'on lui demande.
+  D'où l'injection : `node src/tools/fiche.mjs` rend une page autonome.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FHPC — fiche (lot 25)</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; padding: 1.5rem; }
+  h1 { font-size: 1.4rem; margin: 0 0 .5rem; }
+  h2 { font-size: 1rem; margin: 0 0 .4rem; text-transform: uppercase; letter-spacing: .04em; }
+  header, section { border: 1px solid currentColor; padding: .6rem .8rem; margin: 0 0 .7rem; }
+  section > h2 > code.cle { font-weight: normal; opacity: .55; text-transform: none; letter-spacing: 0; }
+  .bloc { border-left: 2px solid currentColor; margin: .3rem 0 .3rem .6rem; padding: .1rem 0 .1rem .6rem; }
+  .ligne, .feuille { padding: .12rem 0; }
+  .cells { display: flex; flex-wrap: wrap; gap: .1rem .9rem; }
+  .cell { white-space: nowrap; }
+  .cell b, .feuille .val { margin-left: .35rem; }
+  code.chemin { font-size: .82em; opacity: .68; }
+  code.chemin.ko { opacity: 1; text-decoration: underline wavy; }
+  code.chemin.ko::after { content: " ⛔"; }
+  code.chemin.surcharge::after { content: " ✎"; }
+  .badge { font-size: .78em; border: 1px solid currentColor; padding: 0 .3rem; margin-left: .4rem; }
+  .rien { opacity: .6; }
+  .alerte { border: 2px solid currentColor; padding: .5rem; font-weight: bold; }
+  .declare { margin: .3rem 0; }
+  .declare ul, ul.warn { margin: .2rem 0; padding-left: 1.2rem; }
+  .muette { font-weight: bold; }
+  .note, .compte { opacity: .7; margin: .3rem 0 0; }
+  [data-bloc="rapport"] { border-width: 2px; }
+</style>
+</head>
+<body>
+<!--FICHE-->
+</body>
+</html>
