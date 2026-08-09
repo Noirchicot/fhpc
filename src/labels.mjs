@@ -34,6 +34,10 @@ export const FR_BUILD = {
     `« ${d.backgroundId} » ne nomme pas (il nomme : ${d.abilityKeys}).`,
   "background.feat-mismatch": (d) => `le choix « background.feat » désigne « ${d.selectedId} », alors que l'arrière-plan ` +
     `« ${d.backgroundId} » accorde « ${d.featId} ».`,
+  "decision.kind-mismatch": (d) => `la décision « ${d.path} » attend un record de genre ${d.expectedKind}, ` +
+    `pas ${d.actualKind}.`,
+  "decision.option-unavailable": (d) => `la décision « ${d.path} » porte l'option « ${d.selected} », ` +
+    `absente des options disponibles (${d.options}).`,
   "stat.entry-not-stat": (d) => `resolved.stats : une entrée n'est pas une statistique (${d.stat}).`,
   "stat.breakdown-missing": (d) => `resolved.stats[${d.anchor}] : aucun détail — le schéma en exige au moins un terme, ` +
     "et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer.",

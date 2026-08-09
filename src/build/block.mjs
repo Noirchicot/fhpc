@@ -46,6 +46,7 @@ import { platformNow } from "./clock.mjs";
 import { buildViolation, buildViolationList, statSumViolations } from "./validate.mjs";
 import { charInvariantViolations } from "../schemas/invariants.mjs";
 import { renderBuildViolation } from "../labels.mjs";
+import { projectDecisions } from "./decisions.mjs";
 
 const ABILITY_SET = new Set(ABILITY_KEYS);
 
@@ -322,6 +323,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
       const result = {
         document: structuredClone(document),
         resolved: structuredClone(resolved),
+        decisions: projectDecisions({ query, choices: document.build.choices }),
         underived: outcome.underived,
         unconsumed: outcome.unconsumed,
         overridesApplied: applied,
