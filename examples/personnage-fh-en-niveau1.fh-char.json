@@ -42,7 +42,7 @@
       {
         "id": "fh-feats-en",
         "version": "0.1.0",
-        "hash": "1681a1c13e7893c921869d98a0fa03d02a611ac95e02ceb4c1527a0ad5b48c6c",
+        "hash": "e41d45c4d7a43b8582c3734df0f50264f2f96b7486b7755b705fd5e5e8be0f5c",
         "name": "Fate's Hand — Feats (EN)"
       }
     ],
@@ -384,7 +384,7 @@
         {
           "id": "fh-feats-en",
           "version": "0.1.0",
-          "hash": "1681a1c13e7893c921869d98a0fa03d02a611ac95e02ceb4c1527a0ad5b48c6c",
+          "hash": "e41d45c4d7a43b8582c3734df0f50264f2f96b7486b7755b705fd5e5e8be0f5c",
           "name": "Fate's Hand — Feats (EN)"
         }
       ]
@@ -937,6 +937,22 @@
             "source": {
               "kind": "background",
               "id": "srd:background:en:sage"
+            }
+          },
+          {
+            "label": "Elf · 1 granted choice",
+            "value": 1,
+            "source": {
+              "kind": "species",
+              "id": "srd:species:en:elf"
+            }
+          },
+          {
+            "label": "Elf · 1 imposed choice",
+            "value": -1,
+            "source": {
+              "kind": "species",
+              "id": "srd:species:en:elf"
             }
           }
         ]
