@@ -61,3 +61,12 @@ comparateur.
   maintenant `String(violation)`. C'est l'unique adaptation inévitable :
   `assert.match` exige une primitive chaîne, alors que la sortie publique est
   désormais un objet. Le texte vérifié ne change pas.
+
+## Correction post-revue
+
+Une ancre de statistique absente passait par `JSON.stringify(undefined)`, qui
+rend `undefined` (une non-valeur) et ne pouvait donc plus satisfaire les
+paramètres scalaires du nouveau contrat. `shown()` est désormais appliqué à
+l'ancre aussi : elle rend la chaîne historique `undefined`. Les cas id absent,
+numérique, objet, `breakdown` absent et `stats:[undefined]` sont tous couverts
+par un test explicite de non-jet et de texte exact.

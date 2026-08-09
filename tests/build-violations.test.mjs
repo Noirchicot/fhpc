@@ -87,3 +87,24 @@ test("LOT 27 — MCP rend le texte historique et publie la structure", () => {
     path: "class.cantrips[0]"
   }]);
 });
+
+test("CORRECTION POST-REVUE — les ancres hostiles gardent le texte historique", () => {
+  const cases = [
+    [{ value: 0, breakdown: [] },
+      "resolved.stats[undefined] : aucun détail — le schéma en exige au moins un terme, et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer."],
+    [{ id: 7, value: 0, breakdown: [] },
+      "resolved.stats[7] : aucun détail — le schéma en exige au moins un terme, et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer."],
+    [{ id: { hostile: true }, value: 0, breakdown: [] },
+      "resolved.stats[{\"hostile\":true}] : aucun détail — le schéma en exige au moins un terme, et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer."],
+    [{ id: "sans-detail", value: 0 },
+      "resolved.stats[sans-detail] : aucun détail — le schéma en exige au moins un terme, et une statistique sans détail est exactement l'objet que cette collection existe pour remplacer."],
+    [undefined, "resolved.stats : une entrée n'est pas une statistique (undefined)."]
+  ];
+
+  for (const [stat, expected] of cases) {
+    let violations;
+    assert.doesNotThrow(() => { violations = statSumViolations({ stats: [stat] }); });
+    assert.equal(violations.length, 1);
+    assert.equal(renderBuildViolation(violations[0]), expected);
+  }
+});

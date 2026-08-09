@@ -101,7 +101,7 @@ export function statSumViolations(resolved) {
       violations.push(buildViolation("stat.entry-not-stat", { stat: shown(stat) }, "resolved.stats"));
       continue;
     }
-    const anchor = typeof stat.id === "string" ? stat.id : JSON.stringify(stat.id);
+    const anchor = typeof stat.id === "string" ? stat.id : shown(stat.id);
     const terms = Array.isArray(stat.breakdown) ? stat.breakdown : null;
     if (terms === null || terms.length === 0) {
       violations.push(buildViolation("stat.breakdown-missing", { anchor }, `resolved.stats[${anchor}]`));
