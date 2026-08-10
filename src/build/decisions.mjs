@@ -202,6 +202,78 @@ function backgroundToolPlan(choices, view) {
   return [finish(entry, lock)];
 }
 
+/* ══ LOT 34 — LE BUDGET CAPTIF D'ESPÈCE (Keen Senses) ═══════════════════════
+   `granted_skill_budget = {points, from}` n'est pas un `multiPlan` : ce n'est
+   pas N maîtrises pleines à choisir, c'est un budget de points, dépensé à
+   ½ ou Plein sur une liste fermée. Contrat §4e : « un groupe DISTINCT, pas
+   mélangé aux lignes du pool de classe » — c'est un plan à PART, sous
+   `species.skillBudget`, jamais fusionné avec `species.skills`. */
+const BUDGET_TIER_COST = { half: 1, proficient: 2 };
+
+function speciesBudgetPlan(choices, speciesView, skills) {
+  const budget = speciesView.record.data && speciesView.record.data.granted_skill_budget;
+  if (!budget || typeof budget !== "object" || Array.isArray(budget) ||
+    !Number.isInteger(budget.points) || budget.points <= 0) {
+    return [];
+  }
+  const options = skillOptions(budget, skills); // ne lit que `.from` — la même fonction que le choix compté
+  if (options === null) return [];
+
+  const prefix = "species.skillBudget.";
+  const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+    choice.path.startsWith(prefix) && typeof choice.value === "string");
+  const from = recordProvenance("offered", "species", speciesView, "granted_skill_budget");
+
+  let spent = 0;
+  const selected = [];
+  const steps = [];
+  let planLock = null;
+  for (const choice of candidates) {
+    const slug = choice.path.slice(prefix.length);
+    const value = choice.value;
+    let lock = null;
+    if (!options.includes(slug)) {
+      lock = buildViolation("skill-budget.option-unavailable", {
+        path: choice.path, selected: slug, options: options.join(", ") || "none"
+      }, choice.path);
+    } else if (!Object.hasOwn(BUDGET_TIER_COST, value)) {
+      lock = buildViolation("skill-budget.tier-invalid", { path: choice.path, value: String(value) }, choice.path);
+    } else {
+      selected.push(slug);
+      spent += BUDGET_TIER_COST[value];
+    }
+    steps.push(finish({
+      path: choice.path, options: Object.keys(BUDGET_TIER_COST), selected: lock ? [] : [value],
+      expected: 1, answered: lock ? 0 : 1, provenance: from
+    }, lock));
+    planLock ||= lock;
+  }
+  if (!planLock && spent > budget.points) {
+    planLock = buildViolation("skill-budget.overspent", {
+      path: "species.skillBudget", spent, points: budget.points
+    }, "species.skillBudget");
+  }
+  const plan = finish({
+    path: "species.skillBudget", options, selected: sorted(selected), expected: budget.points, answered: spent,
+    provenance: from
+  }, planLock);
+  return [plan, ...steps];
+}
+
+/* ⚠️ LOT 34 — CE QUI N'EST DÉLIBÉRÉMENT PAS ICI. Le canal de dépense du pool
+   principal (`class.skillSpend.<slug>`) et son verrou de palier le plus haut
+   ne sont PAS projetés par ce carnet. Mesuré, pas oublié : ce fichier vit
+   dans `src/build/`, et `tests/fh-skill-pool.test.mjs` y interdit
+   littéralement le VOCABULAIRE d'une mécanique de couche (le nom du champ de
+   pool, le nom de ses coûts, le nom de son verrou) — la même loi §0.12 qui
+   tient `derive.mjs`. Juger cette dépense demande de lire CE champ-là, donc
+   ce carnet ne peut pas le faire sans le nommer. Le refus keyé existe quand
+   même : `src/modules/fh/skill-pool.mjs` (hors `src/build/`, donc hors du
+   garde) le rend via `outcome.violations`, un canal générique de plus dans
+   le même protocole que `skillTiers` — `derive.mjs` le recopie tel quel,
+   sans jamais nommer ce qu'il transporte. Voir `INVENTAIRE-LOT-34.md`,
+   arbitrage n°4 : la frontière est mesurée, pas devinée. */
+
 /** Rend le septième carnet de `rebuild`, trié et sans chemin en double. */
 export function projectDecisions({ query, choices }) {
   const list = Array.isArray(choices) ? choices : [];
@@ -232,6 +304,8 @@ export function projectDecisions({ query, choices }) {
         provenance: recordProvenance("offered", "species", speciesView, "granted_skill_choice"), cost: explicitCost(declaration)
       }));
     }
+    // LOT 34 — le budget captif (Keen Senses), un groupe DISTINCT (contrat §4e).
+    entries.push(...speciesBudgetPlan(list, speciesView, skills));
   }
 
   const backgroundChoice = list.find((choice) => choice && choice.path === "background" && choice.ref && choice.ref.kind === "background");
