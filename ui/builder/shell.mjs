@@ -12,16 +12,20 @@
 
    Zéro framework, zéro build (loi Q3 du chantier) : DOM natif, ESM natif. */
 
+/* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
+   en anglais, décidé de longue date pour la couche FH — l'écran réel qui
+   servira à la table doit être dans la même langue dès le départ, pas
+   traduit après coup. */
 const STEPS = [
-  { id: "universe",   label: "Univers & couches" },
+  { id: "universe",   label: "Universe & Layers" },
   { id: "concept",    label: "Concept" },
-  { id: "class",      label: "Classe" },
-  { id: "species",    label: "Espèce" },
-  { id: "background", label: "Historique" },
-  { id: "abilities",  label: "Caractéristiques" },
-  { id: "destiny",    label: "Destinée" },
-  { id: "skills",     label: "Compétences" },
-  { id: "review",     label: "Revue" }
+  { id: "class",      label: "Class" },
+  { id: "species",    label: "Species" },
+  { id: "background", label: "Background" },
+  { id: "abilities",  label: "Abilities" },
+  { id: "destiny",    label: "Destiny" },
+  { id: "skills",     label: "Skills" },
+  { id: "review",     label: "Review" }
 ];
 
 const state = { step: 0, planOpen: false };
@@ -52,7 +56,7 @@ function button(label, onClick, disabled) {
    des étapes et leur statut de navigation (fait / courante / à venir). */
 function renderBelt() {
   const belt = el("nav", "belt");
-  belt.setAttribute("aria-label", "Étapes de création");
+  belt.setAttribute("aria-label", "Character creation steps");
   STEPS.forEach((step, index) => {
     const item = button(
       "",
@@ -69,7 +73,7 @@ function renderBelt() {
 
 function renderToggle() {
   return el("div", "toggle-bar", [
-    button(state.planOpen ? "Masquer le plan" : "Voir le plan",
+    button(state.planOpen ? "Hide plan" : "Show plan",
       () => { state.planOpen = !state.planOpen; render(); })
   ]);
 }
@@ -79,12 +83,12 @@ function renderStage() {
   const card = el("section", "decision-card");
   card.innerHTML = `
     <h1>${step.label}</h1>
-    <p class="placeholder">Cette étape lira le carnet <code>decisions[]</code>
-      (lot 28) pour ses options, son coût et ses verrous — non branché ici.</p>
+    <p class="placeholder">This step will read the <code>decisions[]</code>
+      ledger (lot 28) for its options, cost and locks — not wired here.</p>
   `;
   const nav = el("div", "stage-nav", [
-    button("Retour", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
-    button(state.step === STEPS.length - 1 ? "Ouvrir la fiche" : "Continuer",
+    button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
+    button(state.step === STEPS.length - 1 ? "Open the sheet" : "Continue",
       () => { state.step = Math.min(STEPS.length - 1, state.step + 1); render(); })
   ]);
   return el("main", "stage", [renderToggle(), card, nav]);
@@ -95,11 +99,11 @@ function renderStage() {
    contenu, même verbes des deux côtés — jamais un second builder. */
 function renderPlan() {
   const aside = el("aside", "plan");
-  aside.setAttribute("aria-label", "Plan des décisions");
+  aside.setAttribute("aria-label", "Decision plan");
   aside.hidden = !state.planOpen;
 
   const header = el("div", "plan-header", [el("h2", null, [document.createTextNode("Plan")])]);
-  header.append(button("Fermer", () => { state.planOpen = false; render(); }));
+  header.append(button("Close", () => { state.planOpen = false; render(); }));
 
   const list = el("ol", "plan-list");
   STEPS.forEach((step, index) => {
