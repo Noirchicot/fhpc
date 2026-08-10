@@ -26,7 +26,17 @@
    ne rend pas les octets d'origine, et l'empreinte deviendrait une empreinte
    de rien. */
 
-import { createHash } from "node:crypto";
+/* ⚠️ PAS DE `node:crypto`, ET C'EST DÉLIBÉRÉ (lot 32). Ce fichier est le seul
+   du chemin `build/decisions` à toucher un module Node — l'engin, sinon, est
+   du JS portable pur (aucun `fs`, aucun `process`), ce que le builder v2
+   exploite en le chargeant DIRECTEMENT dans la page (loi Q3 : zéro serveur,
+   zéro build). `sha256Portable` est un SHA-256 (FIPS 180-4) synchrone,
+   dépendance zéro, vérifié BYTE-À-BYTE contre `node:crypto` sur cinq
+   vecteurs dont un vrai fichier de couche (INVENTAIRE-LOT-32.md). Il ne
+   remplace `node:crypto` que parce que Web Crypto (`crypto.subtle.digest`)
+   est ASYNCHRONE et `readLayer`/`register` sont un contrat SYNCHRONE que ce
+   lot ne rouvre pas. */
+import { sha256Portable } from "./sha256.mjs";
 
 /* Les 15 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
@@ -99,17 +109,21 @@ function fail(origin, what) {
 }
 
 export function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
+  return sha256Portable(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
 }
 
 /* Octets → texte. Une couche arrive en octets (c'est un fichier) ; une chaîne
    est acceptée pour les suites, et son empreinte est celle de son encodage
    UTF-8. Tout le reste est refusé : un objet déjà analysé n'a pas d'octets,
-   donc pas d'empreinte (voir l'en-tête). */
+   donc pas d'empreinte (voir l'en-tête).
+   ⚠️ Rend un `Uint8Array` NU, pas un `Buffer` Node (lot 32) — `Buffer` EST un
+   `Uint8Array`, donc rien qui ne lisait que la forme commune ne casse ; ce
+   qui aurait cassé, c'est un appelant qui utilisait une méthode PROPRE à
+   `Buffer` (`.toString("utf8")` notamment) — le seul appelant, `readLayer`,
+   est corrigé dans le même lot. */
 function bytesOf(input, origin) {
-  if (typeof input === "string") return Buffer.from(input, "utf8");
-  if (Buffer.isBuffer(input)) return input;
-  if (input instanceof Uint8Array) return Buffer.from(input);
+  if (typeof input === "string") return new TextEncoder().encode(input);
+  if (input instanceof Uint8Array) return input;
   fail(origin, "register attend les OCTETS du fichier de couche (Buffer, Uint8Array ou chaîne UTF-8), " +
     "pas un document déjà analysé : l'empreinte de build.layers[].hash est celle des octets.");
 }
@@ -301,7 +315,7 @@ export function assertLayerShape(doc, origin = "(couche)") {
 export function readLayer(input, origin = "(couche sans nom de fichier)") {
   const bytes = bytesOf(input, origin);
   const hash = sha256(bytes);
-  const document = parseSafely(bytes.toString("utf8"), origin);
+  const document = parseSafely(new TextDecoder("utf-8").decode(bytes), origin);
   const named = `${origin} [${typeof document.id === "string" ? document.id : "id illisible"}]`;
   const { counts, total } = assertLayerShape(document, named);
   return { document, hash, counts, total, origin };
