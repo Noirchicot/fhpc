@@ -24,7 +24,7 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "bce41951da0666546d0a2561f83e534534b29b9f3ee53828c168352f9c4f6401",
+        "hash": "556b97c40c0242fbeb586836a1c40042da5d99e60e3896ff0e1f08f1f4d2bae6",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -74,9 +74,14 @@
         "label": "High Elf"
       },
       {
-        "path": "species.keenSenses",
-        "value": "survival",
-        "label": "Keen Senses: Survival"
+        "path": "species.skillBudget.survival",
+        "value": "half",
+        "label": "Keen Senses: Survival (half)"
+      },
+      {
+        "path": "species.skillBudget.vigilance",
+        "value": "half",
+        "label": "Keen Senses: Vigilance (half)"
       },
       {
         "path": "background",
@@ -366,7 +371,7 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "bce41951da0666546d0a2561f83e534534b29b9f3ee53828c168352f9c4f6401",
+          "hash": "556b97c40c0242fbeb586836a1c40042da5d99e60e3896ff0e1f08f1f4d2bae6",
           "name": "Fate's Hand — Species (EN)"
         },
         {
@@ -506,8 +511,8 @@
         "id": "arcana",
         "name": "Arcana",
         "ability": "int",
-        "bonus": 5,
-        "proficiency": "proficient"
+        "bonus": 4,
+        "proficiency": "half"
       },
       {
         "id": "athletics",
@@ -534,8 +539,8 @@
         "id": "history",
         "name": "History",
         "ability": "int",
-        "bonus": 5,
-        "proficiency": "proficient"
+        "bonus": 4,
+        "proficiency": "half"
       },
       {
         "id": "hunting",
@@ -562,8 +567,8 @@
         "id": "investigation",
         "name": "Investigation",
         "ability": "int",
-        "bonus": 5,
-        "proficiency": "proficient"
+        "bonus": 4,
+        "proficiency": "half"
       },
       {
         "id": "leadership",
@@ -639,8 +644,8 @@
         "id": "survival",
         "name": "Survival",
         "ability": "wis",
-        "bonus": 3,
-        "proficiency": "proficient"
+        "bonus": 2,
+        "proficiency": "half"
       },
       {
         "id": "tactics",
@@ -653,8 +658,8 @@
         "id": "vigilance",
         "name": "Vigilance",
         "ability": "wis",
-        "bonus": 1,
-        "proficiency": "none"
+        "bonus": 2,
+        "proficiency": "half"
       }
     ],
     "tools": [
@@ -937,22 +942,6 @@
             "source": {
               "kind": "background",
               "id": "srd:background:en:sage"
-            }
-          },
-          {
-            "label": "Elf · 1 granted choice",
-            "value": 1,
-            "source": {
-              "kind": "species",
-              "id": "srd:species:en:elf"
-            }
-          },
-          {
-            "label": "Elf · 1 imposed choice",
-            "value": -1,
-            "source": {
-              "kind": "species",
-              "id": "srd:species:en:elf"
             }
           }
         ]

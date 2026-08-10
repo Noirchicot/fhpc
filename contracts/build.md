@@ -448,6 +448,76 @@ l'Elestu tire dans `{survival, delve, vigilance}` ; un point est dépensable
 partout. Convertir le grant en points effacerait la restriction, donc la
 saveur de l'espèce. Le grant reste un grant.
 
+⚠️ **RÉVISÉ PAR LE LOT 34 (2026-08-10) — Keen Senses N'EST PLUS un
+`granted_skill_choice`.** Eric a redit en toutes lettres, le soir même, que
+Keen Senses n'est pas « une maîtrise pleine au choix parmi trois » : ce sont
+**2 points CAPTIFS** de la liste `{survival, delve, vigilance}`, dépensables
+à ½ (1 pt) ou Plein (2 pts) — donc ½ sur deux des trois, OU Plein sur une
+seule. Le paragraphe ci-dessus (le grant NE SE CONVERTIT PAS en points
+libres) reste vrai ; ce qui change est que le grant LUI-MÊME est maintenant
+un budget de points, pas un choix de N pleines maîtrises.
+
+#### ⭐ LOT 34 — LA GRILLE À QUATRE PALIERS, ET SES DEUX FORMES DE GRANT
+
+Le champ `granted_skill_choice` se scinde en DEUX formes, selon que le grant
+est un budget captif ou non — **mesuré, pas deviné** : les deux usages réels
+de la pile (Araag/Human « Skillful » et Elf/Elestu « Keen Senses ») ne
+demandent PAS la même mécanique.
+
+| Forme | Qui la porte | Ce qu'elle veut dire |
+|---|---|---|
+| `granted_skill_choice: {count, from}` | Araag, Human (« Skillful ») | N maîtrises PLEINES à choisir dans `from` (`"any"` = les vingt-six). **Inchangée.** Aucun autre cas réel de la pile n'utilise cette forme pour autre chose — mesuré, `grep -rn granted_skill_choice layers/` après régénération ne montre plus qu'Araag et Human. |
+| `granted_skill_budget: {points, from}` | Elf, Elestu (« Keen Senses ») | Un budget de `points` CAPTIFS d'une liste restreinte, dépensé par le joueur À N'IMPORTE QUEL palier (`half` ou `proficient`, jamais `expertise` — le budget est trop petit pour l'acheter). |
+
+Les deux champs ne se recouvrent JAMAIS sur un même record — le générateur
+(`gen-fh-species-layer.mjs`) **retire** `granted_skill_choice` du record SRD
+patché de l'Elf (`remove: ["data[granted_skill_choice]"]`) avant de poser
+`granted_skill_budget` : on ne réinterprète pas une forme, on la remplace.
+
+**Le canal de dépense du budget captif** — `species.skillBudget.<slug>` =
+`"half"|"proficient"`, restreint aux slugs de `granted_skill_budget.from`.
+Ne touche **jamais** `fh:skill-points` : c'est un budget SÉPARÉ du pool de
+classe (« un choix accordé par l'espèce est supplémentaire »), et le module
+`fh:skill-points` ne le lit ni ne le publie. `decisions.mjs` l'expose comme
+un groupe DISTINCT, `species.skillBudget`, jamais mélangé aux lignes
+`species.skills` du choix compté.
+
+**Le canal de dépense du pool principal** — `fh.skills.spend.<slug>` =
+`"half"|"proficient"|"expertise"`, dans le namespace du module lui-même
+(`fh.skills.*`). Une ligne déjà imposée (plancher ½) se MONTE au coût de la
+DIFFÉRENCE (`tier_costs[palier] − tier_costs[plancher]`) ; une ligne neuve
+se paie plein tarif. Un chemin illégal (compétence inconnue, palier hors
+grille, palier SOUS le plancher, ou l'expertise achetée avant
+`expertise_from_level`) N'EST PAS APPLIQUÉ — le module rend un refus KEYÉ
+(`{key, params, path}`, lot 27) via un canal générique, `outcome.violations`,
+que `derive.mjs` recopie tel quel dans `moduleViolations` (résultat de
+`build.rebuild`) et que `build.validate` fusionne dans ses propres
+violations. Trois clefs : `skill-spend.option-unavailable`,
+`skill-spend.tier-invalid`, `skill-spend.below-floor`,
+`skill-spend.tier-locked` (le verrou d'expertise).
+
+⚠️ **POURQUOI CE CANAL N'EST PAS DANS `decisions.mjs`.** Mesuré, pas deviné :
+`tests/fh-skill-pool.test.mjs` (ACCEPTATION 4) interdit littéralement le
+VOCABULAIRE d'une mécanique de couche dans **tout** fichier de `src/build/`
+— `fh_skill_pool`, `tier_costs`, le mot `expertise`, y compris en
+commentaire. Juger la légalité d'une dépense sur le pool principal exige de
+lire `expertise_from_level` : un fichier de `src/build/` ne peut donc pas le
+faire. Le refus keyé vit dans le module (`src/modules/fh/skill-pool.mjs`,
+hors du garde), et remonte par un canal générique — la même discipline que
+`skillTiers` (ci-dessous). `species.skillBudget`, lui, RESTE dans
+`decisions.mjs` : `granted_skill_budget` est un champ de CONTENU générique
+(comme `granted_skill_choice` déjà), pas un nom de mécanique.
+
+**Le canal de correction des paliers** — `resolved.skills[]` est construit
+par le pli, SRD-générique (un imposé = maîtrisé plein), puis un module actif
+peut rendre `skillTiers: {slug: {proficiency, bonusTerm}}` en plus de
+`{stat, underived, consumed}` : `derive.mjs` l'applique en second passage,
+additionnant `bonusTerm` (déjà calculé par le module) au modificateur de
+caractéristique — il ne connaît jamais le nom d'un palier au-dessus de
+`half`. Un personnage dont la classe ne porte pas `fh_skill_pool` (SRD pur,
+ou classe non patchée) ne voit STRICTEMENT rien bouger : le plancher reste
+`proficient`, comme avant ce lot.
+
 **`Skilled` — vérifié au SRD avant d'être chiffré** : `srd:feat:en:skilled`,
 `category: "origin"`, *« three skills or tools of your choice »*. Il **n'impose
 rien** (Eric l'avait dit, le texte le confirme), et 3 proficiencies × 2

@@ -72,7 +72,11 @@ const CHOIX = [
   { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" }, label: "Wizard" },
   { path: "species", ref: { kind: "species", id: "srd:species:en:elf" }, label: "Elf" },
   { path: "species.lineage", value: "high-elf", label: "High Elf" },
-  { path: "species.keenSenses", value: "survival", label: "Keen Senses: Survival" },
+  /* LOT 34 — Keen Senses est un budget captif de 2 points sur trois
+     compétences (survival, delve, vigilance), plus un choix compté :
+     ½ sur deux d'entre elles est l'une des deux répartitions légales. */
+  { path: "species.skillBudget.survival", value: "half", label: "Keen Senses: Survival (half)" },
+  { path: "species.skillBudget.vigilance", value: "half", label: "Keen Senses: Vigilance (half)" },
   { path: "background", ref: { kind: "background", id: "srd:background:en:sage" }, label: "Sage" },
   /* Le don d'origine est à SA place — celle que la table de couverture v1
      range sous `background.originFeat[n]`, et pas dans le namespace d'un
