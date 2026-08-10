@@ -49,31 +49,11 @@
 
 import { BuildError } from "./errors.mjs";
 import { parseChoicePath } from "./paths.mjs";
+import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 
-/** Les six clefs machine de `$defs/ability`. Ce ne sont pas des mots : c'est
- *  l'énumération du schéma, la même dans toutes les langues.
- *
- *  ⚠️ ARBITRAGE DE L'ARCHITECTE, 2026-08-08 : `ability_key` est CANONIQUE dans
- *  toutes les langues. Une couche FR qui dirait `sag` porterait une clef que
- *  `resolved.abilities` ne peut pas adresser — ce dernier est
- *  `additionalProperties: false` sur ces six-là, dans les deux langues. Le mot
- *  affichable reste disponible ailleurs (`skill.data.ability`). */
-export const ABILITY_KEYS = ["str", "dex", "con", "int", "wis", "cha"];
+export { ABILITY_KEYS };
+
 const ABILITY_SET = new Set(ABILITY_KEYS);
-
-/** Une clef de caractéristique HORS des six canoniques est une erreur
- *  bruyante qui NOMME le record — jamais une valeur à rattraper (arbitrage du
- *  2026-08-08). Une table de correspondance ici serait exactement la faute que
- *  ce lot existe pour éviter. Absente, la clef se DÉCLARE ; fausse, elle JETTE :
- *  un champ qui manque est un travail à finir, un champ hors catalogue est un
- *  contenu faux. */
-function assertAbilityKey(key, recordId, field) {
-  if (key === undefined || key === null) return false;
-  if (ABILITY_SET.has(key)) return true;
-  fail(`le record « ${recordId} » porte \`${field}\` = ${JSON.stringify(key)}, qui n'est pas une clef de ` +
-    `caractéristique (les six, dans toutes les langues : ${ABILITY_KEYS.join(", ")}). ` +
-    "Le moteur ne rattrape pas une clef hors catalogue : il la nomme.");
-}
 
 /** Les quatre dénominations de `$defs/currency`. */
 export const CURRENCY_KEYS = ["cp", "sp", "gp", "pp"];
@@ -251,55 +231,8 @@ function makeReader(query) {
 }
 
 /* ── LES COMPÉTENCES DE LA PILE ──────────────────────────────────────
-   Un index par id de record ET par slug : le contrat désigne les compétences
-   par id (`skill_ids`, `skill_choice.from`), tandis que les choix du joueur
-   les nomment par slug (`class.skills[0] = "investigation"`) et que
-   `resolved.skills[].id` est ce même slug. Sans les deux entrées, il faudrait
-   deviner de quel côté on se trouve. */
-function indexSkills(reader, underived) {
-  const byId = new Map();
-  const bySlug = new Map();
-  const list = [];
-  for (const view of reader.all("skill")) {
-    const abilityKey = view.record.data && view.record.data.ability_key;
-    const slug = view.record.slug;
-    if (typeof slug !== "string") {
-      underived.declare(`skills[${view.id}]`,
-        "le record de compétence ne porte pas de `slug`, et `resolved.skills[].id` en est l'ancre d'override.");
-      continue;
-    }
-    if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
-      underived.declare(`skills[${slug}]`,
-        "le record ne porte pas de `ability_key` — la caractéristique d'une compétence est un identifiant, " +
-        "jamais le mot affichable de `data.ability` (contrat §3, genre `skill`).");
-      continue;
-    }
-    const entry = { id: slug, name: view.record.name, ability: abilityKey, recordId: view.id };
-    byId.set(view.id, entry);
-    bySlug.set(slug, entry);
-    list.push(entry);
-  }
-  list.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  return { byId, bySlug, list };
-}
-
-/* Une déclaration de choix de compétence (`skill_choice`,
-   `granted_skill_choice`) → l'ensemble des slugs légaux. `"any"` est le cas
-   B1 du contrat, arbitré : le barde choisit parmi TOUTES les compétences, et
-   la source ne donne pas de liste — on ne lui en fabrique pas une. */
-function allowedSlugs(declaration, skills) {
-  if (!declaration || typeof declaration !== "object") return null;
-  const from = declaration.from;
-  if (from === "any") return new Set(skills.list.map((entry) => entry.id));
-  if (!Array.isArray(from)) return null;
-  const slugs = new Set();
-  for (const recordId of from) {
-    const entry = skills.byId.get(recordId);
-    if (entry) slugs.add(entry.id);
-  }
-  return slugs;
-}
-
+   L'index et la liste des options légales vivent dans `skills.mjs`, partagés
+   avec la projection publique. */
 /**
  * Le pli.
  *
@@ -615,7 +548,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      viennent de trois sources : l'arrière-plan les ACCORDE (`skill_ids`), la
      classe et l'espèce en font CHOISIR (`skill_choice`,
      `granted_skill_choice`). */
-  const skills = indexSkills(reader, underived);
+  const skills = indexSkills(reader.all("skill"), underived);
   const proficientSkills = new Map(); // slug → la racine qui l'accorde
 
   const grantSlugs = (recordIds, sourceRoot) => {

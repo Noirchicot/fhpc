@@ -225,6 +225,20 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
   assert.equal(result.isError, false, "un rebuild qui réussit n'est pas un échec, et il le dit");
 });
 
+test("LOT 28 — `decisions` traverse MCP avec ses chemins, compteurs et statuts", () => {
+  const result = construire().rebuilt;
+  const decisions = result.structuredContent.decisions;
+  assert.equal(Array.isArray(decisions), true);
+  const skills = decisions.find((entry) => entry.path === "class.skills");
+  assert.deepEqual({ status: skills.status, expected: skills.expected, answered: skills.answered, remaining: skills.remaining },
+    { status: "answered", expected: 2, answered: 2, remaining: 0 });
+  assert.deepEqual(skills.options,
+    ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"]);
+  assert.match(result.content[0].text, /DÉCISIONS \(13\)/,
+    "l'IA n'a pas à deviner qu'un septième carnet existe dans structuredContent");
+  assert.match(result.content[0].text, /class\.skills : answered, 2\/2/);
+});
+
 test("`build.validate` ne trouve rien à redire — et un refus reste un RÉSULTAT", () => {
   construire();
   const result = client.call("build.validate", {});
@@ -261,7 +275,7 @@ test("le document sort par `mcp.document` ET par la resource — le même, au ca
 test("AUCUN OUTIL NE REND LE DOCUMENT DANS SON RÉSULTAT — il est à la resource, à un seul endroit", () => {
   const { rebuilt } = construire();
   assert.equal(rebuilt.structuredContent.document, undefined,
-    "`rebuild` rend `resolved`, `underived`, `shadowed`… mais le document a une adresse, et une seule");
+    "`rebuild` rend `resolved`, `decisions`, `underived`, `shadowed`… mais le document a une adresse, et une seule");
   const choix = client.call("build.choose",
     { path: "species", ref: { kind: "species", id: "srd:species:fr:elfe" }, label: "Elfe" });
   assert.equal(choix.structuredContent.document, undefined);

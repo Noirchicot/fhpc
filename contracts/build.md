@@ -53,7 +53,7 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 | `set` | `{document?, path, value, label?}` | Pose un **scalaire**. Même remplacement. Rend `{document, choice}`. | `ref` en plus de `value`, `value` absente, `value` non scalaire, chemin hors grammaire → **jette** |
 | `override` | `{document?, path, value, by, note?}` | Pose la parole du MJ dans `build.overrides`. Rend `{document, override}`. | `by` hors `player`/`gm`, `value` absente, chemin d'override hors grammaire (**index interdit**) → **jette** |
 | `clear` | `{document?, path, kind}` | Retire une entrée de `build.choices` (`kind: "choice"`) ou de `build.overrides` (`kind: "override"`), jamais des deux à l'aveugle. Rend `{document, cleared:{path, kind, removed}}`. Un chemin absent n'est **pas** une faute : `removed` vaut `false`, le verbe ne jette pas. | `kind` hors `choice`/`override`, chemin hors grammaire de la collection visée → **jette** |
-| `rebuild` | `{document?}` | **Le seul chemin d'écriture de `resolved`.** Plie la pile et les choix, applique les overrides **en dernier**, écrit `resolved` et `modified`. Émet `char-rebuilt`. Rend `{document, resolved, underived, unconsumed, overridesApplied, shadowed, warnings, diff}`. | niveau ou classe absents, score de caractéristique absent, clef de caractéristique hors catalogue, ref mort, pile ≠ `build.layers`, override dans le vide, invariant violé → **jette** |
+| `rebuild` | `{document?}` | **Le seul chemin d'écriture de `resolved`.** Plie la pile et les choix, applique les overrides **en dernier**, écrit `resolved` et `modified`. Émet `char-rebuilt`. Rend `{document, resolved, decisions, underived, unconsumed, overridesApplied, shadowed, warnings, diff}`. | niveau ou classe absents, score de caractéristique absent, clef de caractéristique hors catalogue, ref mort, pile ≠ `build.layers`, override dans le vide, invariant violé → **jette** |
 | `validate` | `{document?}` | Dit ce qui cloche **sans rien écrire**. Rend `{ok, violations, warnings}` ; chaque violation est `{key, params, path?}`. | — (un refus est un résultat ; même une erreur de dérivation devient une violation) |
 
 ### Violations de `validate`
@@ -68,6 +68,44 @@ continuant à rendre le texte français historique au caractère près.
 `document.invariant-violated` enveloppe à cette frontière une violation rendue
 par `charInvariantViolations`. Il porte `{message}` et n'invente pas de `path` :
 le validateur d'invariants reste une collection distincte, inchangée.
+
+### Le carnet `decisions` de `rebuild`
+
+`decisions[]` est le **septième carnet public** de la reconstruction, à côté
+de `underived`, `unconsumed`, `overridesApplied`, `shadowed`, `warnings` et
+`diff`. Il ne vit pas dans le document et ne modifie jamais `build.choices` :
+c'est une projection recalculée après chaque `choose`, `set` ou `clear` suivi
+d'un `rebuild`.
+
+Chaque chemin paraît au plus une fois et porte :
+
+| Champ | Forme | Sens |
+|---|---|---|
+| `path` | chemin de choix | ancre à donner à `choose`, `set` ou `clear` ; les chemins déjà posés sont conservés |
+| `options` | identifiants triés | valeurs ou ids de records effectivement posables, jamais leurs noms affichables |
+| `selected` | identifiants | réponses déjà présentes ou accordées |
+| `expected`, `answered`, `remaining` | entiers | compte attendu, répondu et restant ; une décision complète vaut `remaining: 0` |
+| `status` | `pending`, `answered`, `locked` | état machine ; une décision complète reste `answered`, jamais une fausse étape `pending` |
+| `lock` | `{key, params, path?}` | présent seulement pour `locked` ; même contrat de violation structurée et même paquet de libellés que le lot 27 |
+| `provenance` | `{mode, kind, id, field}` | présente lorsqu'un record a offert (`offered`) ou imposé (`required`) la décision |
+| `cost` | entier, facultatif | recopié seulement lorsqu'une déclaration mécanique le porte ; jamais simulé depuis un palier |
+
+Une décision multiple publie le plan entier **et** les étapes consommables.
+Le plan donne les comptes ; chaque étape garde son chemin concret, y compris
+un chemin déjà répondu, afin que `clear` et le remplacement ferment la boucle.
+
+La projection se limite aux champs mécaniques réels suivants : les trois
+`takeRef` (`class`, `species`, `background`), `class.skill_choice`,
+`species.granted_skill_choice`, `background.ability_keys`,
+`background.feat_id`, et `background.tool_id` / `tool_choice`. Elle ne projette
+ni sorts, ni équipement, ni paliers de progression, ni dépenses de points. Le
+cas `from: "any"` ouvre les identifiants du genre `skill` effectivement monté ;
+une liste `from` reste cette liste et rien de plus.
+
+`validate` ne rend **jamais** ce carnet. Il conserve ses contrôles historiques
+(dont son appel interne au pli pour compter les grants) et sa forme publique
+reste exactement `{ok, violations, warnings}` : la projection appartient au
+rapport de reconstruction, pas à un second rapport de validation.
 
 > ⚠ **Pourquoi DEUX verbes pour un seul geste.** `$defs/build.choices` exige
 > « `ref` OU `value`, jamais les deux, jamais aucun ». `choose` et `set` sont

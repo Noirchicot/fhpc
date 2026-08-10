@@ -115,8 +115,8 @@ function instructionsFor(mounted) {
       ? "6. doc.save pour l'enregistrer — sans argument, il enregistre le personnage que tu viens de dériver, et tu n'as donc jamais à recopier le document toi-même."
       : "6. mcp.document pour récupérer le document et l'enregistrer toi-même.",
     "",
-    "Lis toujours `underived` et `shadowed` que rend build.rebuild : ils nomment ce que la pile n'a PAS su",
-    "nourrir et ce qu'une couche haute a recouvert. Rien n'est deviné ici — un champ absent est un champ déclaré."
+    "Lis toujours `decisions`, `underived` et `shadowed` que rend build.rebuild : ils nomment les choix encore",
+    "attendus, ce que la pile n'a PAS su nourrir et ce qu'une couche haute a recouvert. Rien n'est deviné ici."
   ].join("\n");
 }
 

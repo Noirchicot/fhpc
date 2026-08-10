@@ -137,7 +137,7 @@ d'outil et en donne l'exemple (`admin.tools.list`). **Garde dédié**, attaqué.
 | `build.choose` | `{path, ref:{kind,id}, label?, document?}` | `build.choose` | `{choice:{path, replaced, kind}}` |
 | `build.set` | `{path, value, label?, document?}` | `build.set` | `{choice}` |
 | `build.override` | `{path, value, by, note?, document?}` | `build.override` | `{override}` |
-| `build.rebuild` | `{document?}` | `build.rebuild` | `{resolved, underived, unconsumed, overridesApplied, shadowed, warnings, diff}` |
+| `build.rebuild` | `{document?}` | `build.rebuild` | `{resolved, decisions, underived, unconsumed, overridesApplied, shadowed, warnings, diff}` |
 | `build.validate` | `{document?}` | `build.validate` | `{ok, violations, warnings}` |
 | `doc.open` ¹ | `{id}` | `doc.open` | `{id, hash, size}` — le document part au miroir, jamais au résultat |
 | `doc.save` ¹ | `{document?, expect?}` | `doc.save` | `{id, hash, size, replaced}` |
@@ -244,10 +244,11 @@ se promettre.
    comme un `Error` nu. On lit donc `constructor.name`. Aucun `instanceof`
    n'est possible (invariant 1), et il n'y a aucune étape de compilation qui
    pourrait renommer une classe (loi §0.11). ⚠ question 8.
-6. **`underived` et `shadowed` traversent jusqu'à l'IA**, dans le
+6. **`decisions`, `underived` et `shadowed` traversent jusqu'à l'IA**, dans le
    `structuredContent` **et nommés dans le texte**. C'est tout l'intérêt du
-   M2 : la machine doit savoir ce qui n'a **pas** pu être dérivé. Les avaler
-   serait le repli silencieux que ce chantier combat. Éprouvé sur un
+   M2 : la machine doit savoir ce qu'elle peut encore choisir et ce qui n'a
+   **pas** pu être dérivé. Les avaler serait le repli silencieux que ce
+   chantier combat. Éprouvé sur une décision réelle et sur un
    recouvrement **délibéré**, pas sur une pile qui n'en produit pas.
 7. **Un argument inconnu est un REFUS**, jamais un argument ignoré. La liste
    des clefs vient du **schéma de l'outil**, jamais d'une seconde liste.
@@ -342,10 +343,11 @@ et la loi §0.11 est absolue.
 5. **Le cadrage lui-même** : JSON illisible → `-32700` avec `id: null` ; ligne
    vide → **rien** ; notification → **rien** ; message sérialisé sans saut de
    ligne littéral, vérifié sur un texte long et multiligne.
-6. **`underived` et `shadowed` traversent** — et `shadowed` est éprouvé sur
-   une **couche de scénario qui recouvre délibérément** un record du SRD, avec
-   son **pendant** (sans elle, la liste est vide). ⚠️ Un test qui montre un
-   refus ne s'appuie jamais sur une pénurie de circonstance.
+6. **`decisions`, `underived` et `shadowed` traversent** — `decisions` est
+   éprouvé sur le vrai plan de compétences, et `shadowed` sur une **couche de
+   scénario qui recouvre délibérément** un record du SRD, avec son **pendant**
+   (sans elle, la liste est vide). ⚠️ Un test qui montre un refus ne
+   s'appuie jamais sur une pénurie de circonstance.
 7. **Les gardes STRUCTURELS et leurs ATTAQUES** (`mcp-block`) : chaque
    interdit violé une fois dans une source fabriquée, vu **et nommé** ; le
    périmètre est une **liste de noms**, attaqué à vide et amputé ; l'arpenteur

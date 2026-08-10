@@ -334,6 +334,8 @@ export const TOOLS = [
     description:
       "LE SEUL chemin d'écriture de `resolved`. Plie la pile et les choix, applique les overrides en dernier, " +
       "écrit la fiche jouable et la date de modification. " +
+      "Lis `decisions` pour connaître les choix encore attendus, les options identifiables et les verrous " +
+      "structurés ; ce carnet se recalcule après chaque choose, set ou clear suivi d'un rebuild. " +
       "⚠️ Lis `underived` : il nomme, avec sa raison, tout ce que la pile n'a PAS su nourrir — ces champs ne " +
       "sont pas sur la fiche, et rien ne les devine. Lis aussi `shadowed` : les records qu'une couche haute a " +
       "recouverts. Les avaler serait jouer une fiche dont on ignore les trous.",
@@ -347,6 +349,7 @@ export const TOOLS = [
       return args.document !== undefined ? { document: args.document } : {};
     },
     render(out) {
+      const decisions = Array.isArray(out.decisions) ? out.decisions : [];
       const underived = Array.isArray(out.underived) ? out.underived : [];
       const shadowed = Array.isArray(out.shadowed) ? out.shadowed : [];
       const unconsumed = Array.isArray(out.unconsumed) ? out.unconsumed : [];
@@ -357,6 +360,12 @@ export const TOOLS = [
         "Fiche reconstruite.",
         `Overrides appliqués (${applied.length}) : ${names(applied, (entry) => entry.path)}.`,
         `Champs changés depuis la dernière fiche (${diff.length}).`,
+        "",
+        `DÉCISIONS (${decisions.length}) — projection des choix réels de la pile :`,
+        ...(decisions.length === 0
+          ? ["  aucune."]
+          : decisions.map((entry) => `  · ${entry.path} : ${entry.status}, ${entry.answered}/${entry.expected}` +
+            `${entry.remaining ? `, reste ${entry.remaining}` : ""}${entry.lock ? `, verrou ${entry.lock.key}` : ""}`)),
         "",
         `NON DÉRIVÉ (${underived.length}) — ce que la pile n'a pas su nourrir, et qui n'est donc PAS sur la fiche :`,
         ...(underived.length === 0
