@@ -99,8 +99,8 @@
         "slug": "elestu",
         "data": {
           "creature_type": "Humanoid",
-          "granted_skill_choice": {
-            "count": 1,
+          "granted_skill_budget": {
+            "points": 2,
             "from": [
               "srd:skill:en:survival",
               "fh:skill:en:delve",
@@ -161,6 +161,9 @@
       },
       "srd:species:en:elf": {
         "op": "patch",
+        "remove": [
+          "data[granted_skill_choice]"
+        ],
         "changes": {
           "data.description": "As an Elf, you have these special traits.\n\nDarkvision. You have Darkvision with a range of 60 feet.\n\nElven Lineage. You are part of a lineage that grants you supernatural abilities. Choose a lineage from the Elven Lineages table. You gain the level 1 benefit of that lineage.\n\nWhen you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Elven Lineages\n\nLineage Level 1 Level 3 Level 5\n\nDrow The range of your Darkvision increases to 120 feet. ​ You also know the Dancing Lights cantrip. Faerie Fire Darkness\n\nHigh Elf You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.\n\nDetect Magic Misty Step\n\nWood Elf Your Speed increases to 35 feet. You also know the Druidcraft cantrip. Longstrider Pass without Trace\n\nIntelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage).\n\nFey Ancestry. You have Advantage on saving throws you make to avoid or end the Charmed condition.\n\nKeen Senses. You have proficiency in the Survival, Delve, or Vigilance skill.\n\nTrance. You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness.",
           "data.destiny": {
@@ -176,11 +179,14 @@
               "text": "Your Destiny Base increases by 2, for a Destiny Base of 4 at character creation."
             }
           ],
-          "data[granted_skill_choice].from": [
-            "srd:skill:en:survival",
-            "fh:skill:en:delve",
-            "fh:skill:en:vigilance"
-          ]
+          "data[granted_skill_budget]": {
+            "points": 2,
+            "from": [
+              "srd:skill:en:survival",
+              "fh:skill:en:delve",
+              "fh:skill:en:vigilance"
+            ]
+          }
         },
         "note": "Fate's Hand — Elf"
       },

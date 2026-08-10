@@ -145,6 +145,17 @@ export const KEEN_SENSES_SKILLS = [
 ];
 export const KEEN_SENSES_TEXT = "You have proficiency in the Survival, Delve, or Vigilance skill.";
 
+/* ── LOT 34 — KEEN SENSES EST UN BUDGET, PAS UN CHOIX ────────────────
+   ⭐ Précision d'Eric (2026-08-09, redite en toutes lettres) : Keen Senses
+   n'accorde PAS une maîtrise pleine au choix parmi les trois — ce sont
+   **2 points à répartir** sur `KEEN_SENSES_SKILLS`, dépensables à ½ (1 pt)
+   ou Plein (2 pts). Donc ½ sur deux des trois, OU Plein sur une seule.
+   `granted_skill_budget = {points, from}` porte cette forme ; elle est
+   distincte de `granted_skill_choice = {count, from}` (Araag, Human —
+   Skillful, qui reste un choix plein et non restreint par palier). Voir
+   `INVENTAIRE-LOT-34.md` pour l'arbitrage complet. */
+export const KEEN_SENSES_BUDGET_POINTS = 2;
+
 /* ── LES TROIS POUVOIRS DE DESTINÉE ──────────────────────────────────
    « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir
    supplémentaire sur la Destinée »), pas un trait mécanique. Les trois noms
@@ -343,7 +354,7 @@ export const SPECIES = [
     size: "Medium",
     size_key: "medium",
     senses: { from: "elf" },
-    grantedSkillChoice: { count: 1, from: KEEN_SENSES_SKILLS },
+    grantedSkillBudget: { points: KEEN_SENSES_BUDGET_POINTS, from: KEEN_SENSES_SKILLS },
     traits: [
       { lift: { from: "elf", trait: "darkvision" } },
       { lift: { from: "elf", trait: "fey-ancestry" } },

@@ -244,7 +244,9 @@ test("acceptation 1 — les deux `ref` que la couche des espèces avait déjà p
   const verbs = pile();
   const elestu = JSON.parse(readFileSync(join(ROOT, "layers/fh-species-en.layer.json"), "utf8"))
     .records.species["fh:species:en:elestu"];
-  const visés = elestu.data.granted_skill_choice.from;
+  /* LOT 34 — Keen Senses est un `granted_skill_budget` (budget captif de
+     2 points), plus un `granted_skill_choice` compté. */
+  const visés = elestu.data.granted_skill_budget.from;
   assert.deepEqual(visés, ["srd:skill:en:survival", "fh:skill:en:delve", "fh:skill:en:vigilance"],
     "le trio de Keen Senses, tel que la couche des espèces le déclare");
 
