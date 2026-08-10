@@ -5,7 +5,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  acceptanceDocument, makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN
+  acceptanceDocument, makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche
 } from "./build-harness.mjs";
 import { renderBuildViolation } from "../src/labels.mjs";
 
@@ -138,6 +138,42 @@ test("un faux choix reste dans le carnet, locked, avec une clef du paquet commun
   decisions = byPath(out);
   assert.equal(decisions.has("class.skills[7]"), false, "le faux chemin ne laisse aucun statut fantôme");
   assert.equal(decisions.get("class.skills").status, "answered");
+});
+
+test("une compétence sans `ability_key` reste illégale pour le pli ET pour la projection", () => {
+  const h = makeHarness({
+    extra: uneCouche("scenario-competence-sans-clef", {
+      skill: {
+        "srd:skill:fr:arcanes": {
+          op: "add", name: "Arcanes sans clef", slug: "arcanes", data: { ability: "Intelligence" }
+        }
+      }
+    })
+  });
+  let out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  let decisions = byPath(out);
+  assert.equal(decisions.get("class.skills").options.includes("arcanes"), false,
+    "la projection n'annonce jamais une compétence que le pli doit sauter");
+  assert.equal(out.resolved.skills.some((skill) => skill.id === "arcanes"), false,
+    "le comportement historique de derive reste le saut de l'entrée incomplète");
+  const underived = out.underived.find((entry) => entry.field === "skills[arcanes]");
+  assert.match(underived.reason, /ability_key/, "le saut conserve sa raison historique explicite");
+
+  h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
+  h.verbs.set({ path: "class.skills[1]", value: "arcanes" });
+  out = h.verbs.rebuild({});
+  decisions = byPath(out);
+  assert.equal(decisions.get("class.skills").status, "locked",
+    "un choix devenu illégal ne transforme pas la boucle en faux pending");
+  assert.equal(decisions.get("class.skills[1]").lock.key, "decision.option-unavailable");
+  assert.equal(out.unconsumed.includes("class.skills[1]"), true,
+    "derive continue de laisser honnêtement le choix illégal non consommé");
+
+  h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
+  h.verbs.set({ path: "class.skills[1]", value: "religion" });
+  out = h.verbs.rebuild({});
+  assert.equal(byPath(out).get("class.skills").status, "answered",
+    "un choix légal referme toujours la boucle");
 });
 
 test("Araag `any` ouvre tout le catalogue ; Elestu garde sa liste de trois", () => {

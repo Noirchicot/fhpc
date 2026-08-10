@@ -55,3 +55,21 @@ déclarations, donc le moteur n'en invente aucun depuis `tier_costs`.
 - MCP : chemin, options, compte et statut dans `structuredContent`, carnet
   nommé dans le texte.
 - `validate` : absence stricte de `decisions` dans sa forme publique.
+
+## Correction post-revue — légalité partagée
+
+La première version de `decisions.mjs` indexait toute compétence dotée d'un
+`slug`, alors que `derive.mjs` saute historiquement celles qui n'ont pas de
+`ability_key`. La projection pouvait donc annoncer une option que le pli ne
+consommerait jamais.
+
+La correction choisit la voie partagée : l'indexation des compétences et
+`allowedSlugs` ont été déplacés, sans réécriture de règle, dans
+`src/build/skills.mjs`. `derive` lui passe son collecteur `underived` et garde
+donc exactement son saut et ses raisons historiques ; la projection consomme
+le même index sans produire ce carnet. Il n'y a plus de copie à maintenir.
+
+Une preuve monte désormais une vraie pile recouverte par un record `skill`
+sans `ability_key` : le slug n'est pas annoncé, `derive` le déclare et le
+saute, un choix déjà posé reste `unconsumed` et la projection le garde
+`locked`, puis un choix légal referme la boucle.

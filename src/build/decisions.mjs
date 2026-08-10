@@ -14,6 +14,7 @@
    identifiants ; les verrous sont les violations structurées du lot 27. */
 
 import { buildViolation } from "./validate.mjs";
+import { allowedSlugs, indexSkills } from "./skills.mjs";
 
 const STATUS = Object.freeze({ pending: "pending", answered: "answered", locked: "locked" });
 
@@ -65,22 +66,12 @@ function refPlan(query, choices, kind) {
 }
 
 function skillsIndex(query) {
-  const byRecord = new Map();
-  const all = [];
-  for (const view of viewsOf(query, "skill")) {
-    const slug = view && view.record && view.record.slug;
-    if (typeof slug !== "string") continue;
-    byRecord.set(view.id, slug);
-    all.push(slug);
-  }
-  return { byRecord, all: sorted(all) };
+  return indexSkills(viewsOf(query, "skill"));
 }
 
 function skillOptions(declaration, skills) {
-  if (!declaration || typeof declaration !== "object") return null;
-  if (declaration.from === "any") return skills.all;
-  if (!Array.isArray(declaration.from)) return null;
-  return sorted(declaration.from.map((id) => skills.byRecord.get(id)));
+  const allowed = allowedSlugs(declaration, skills);
+  return allowed === null ? null : sorted([...allowed]);
 }
 
 function multiPlan({ choices, root, basePath, options, expected, provenance: from, cost }) {
