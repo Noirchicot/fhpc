@@ -1,16 +1,18 @@
-/* ══ LA COQUILLE DU BUILDER — lot 30 ══════════════════════════════════
+/* ══ LA COQUILLE DU BUILDER — lots 30/31/33 ═══════════════════════════
    Assistant pur + plan escamotable, forme ratifiée le 2026-08-10. AUCUN
    bandeau permanent (loi du builder) : la seule chose visible en dehors de
    la décision courante est le repère de progression (belt menu) et le
    bouton du plan, fermé par défaut.
 
-   ⛔ CE FICHIER N'EST PAS BRANCHÉ AU MOTEUR. Il ne connaît ni `build.choices`,
-   ni le carnet `decisions` du lot 28, ni le MCP. Il prouve la FORME —
-   navigation, ouverture/fermeture du plan, responsive — sur un contenu de
-   remplacement. Le branchement au document réel est un lot séparé : chaque
-   étape lira alors `decisions[]` (lot 28) pour ses options et ses verrous.
+   DEPUIS LE LOT 33 : le moteur tourne DANS la page (lot 32, prouvé
+   portable) et l'étape Compétences lit le VRAI carnet `decisions[]`
+   (lot 28) sur le VRAI document d'exemple EN+FH. Les huit autres étapes
+   restent des placeholders — un lot par étape, sur ce même modèle.
 
    Zéro framework, zéro build (loi Q3 du chantier) : DOM natif, ESM natif. */
+
+import { bootEngine, loadExampleDocument } from "./engine.mjs";
+import { renderSkillsStep } from "./skills-step.mjs";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -28,8 +30,37 @@ const STEPS = [
   { id: "review",     label: "Review" }
 ];
 
-const state = { step: 0, planOpen: false };
+const state = {
+  step: 0,
+  planOpen: false,
+  engine: null,       // { build, layers, bus } — set once bootEngine() resolves
+  document: null,      // the live fh-char/1 document
+  decisions: [],        // the last rebuild()'s carnet
+  engineError: null
+};
 const app = document.getElementById("app");
+
+/** Re-runs `rebuild` on the current document and refreshes `decisions`.
+ *  The ONLY place that mutates `state.document`/`state.decisions` — every
+ *  skill click goes through this, never touches the document by hand. */
+function rebuild() {
+  const out = state.engine.build.verbs.rebuild({ document: state.document });
+  state.document = out.document;
+  state.decisions = out.decisions || [];
+}
+
+function applyDecisionAction(action) {
+  const verbs = state.engine.build.verbs;
+  /* Chaque verbe REND `{document}` — il ne mute pas en place (contracts/
+     build.md). C'est ce document-là qui doit passer à `rebuild`, jamais
+     celui d'avant. */
+  const out = action.kind === "set"
+    ? verbs.set({ document: state.document, path: action.path, value: action.value })
+    : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
+  state.document = out.document;
+  rebuild();
+  render();
+}
 
 function isMobile() {
   return window.matchMedia("(max-width: 720px)").matches;
@@ -81,11 +112,21 @@ function renderToggle() {
 function renderStage() {
   const step = STEPS[state.step];
   const card = el("section", "decision-card");
-  card.innerHTML = `
-    <h1>${step.label}</h1>
-    <p class="placeholder">This step will read the <code>decisions[]</code>
-      ledger (lot 28) for its options, cost and locks — not wired here.</p>
-  `;
+  const heading = el("h1", null, [document.createTextNode(step.label)]);
+  card.append(heading);
+
+  if (step.id === "skills" && state.engine) {
+    card.append(renderSkillsStep(state.decisions, applyDecisionAction));
+  } else if (step.id === "skills" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "skills") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "This step will read the decisions[] ledger (lot 28) for its options, cost and locks — not wired yet.")]));
+  }
+
   const nav = el("div", "stage-nav", [
     button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
     button(state.step === STEPS.length - 1 ? "Open the sheet" : "Continue",
@@ -133,3 +174,19 @@ function render() {
 
 window.addEventListener("resize", render);
 render();
+
+/* Le moteur charge en tâche de fond ; l'écran s'affiche immédiatement
+   (placeholder « Loading… » sur l'étape Compétences) et se corrige une
+   fois la pile montée et le premier `rebuild` fait. */
+(async () => {
+  try {
+    const engine = await bootEngine();
+    const document = await loadExampleDocument();
+    state.engine = engine;
+    state.document = document;
+    rebuild();
+  } catch (error) {
+    state.engineError = error.message;
+  }
+  render();
+})();

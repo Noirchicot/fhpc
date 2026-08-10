@@ -90,6 +90,27 @@ button { font: inherit; }
 .stage-nav button:last-child { background: var(--accent); color: #fff; border-color: var(--accent); }
 .stage-nav button:disabled { opacity: .4; cursor: default; }
 
+/* ── L'ÉTAPE COMPÉTENCES (lot 33) ────────────────────────────────── */
+.skills-step { max-width: 60ch; }
+.skill-group { margin-bottom: 22px; }
+.skill-group h3 { margin: 0 0 4px; font-size: 14px; text-transform: capitalize; color: var(--text-dim); }
+.skill-budget { margin: 0 0 8px; font-size: 13px; color: var(--text-dim); }
+.skill-slot { margin-bottom: 8px; }
+.skill-slot[data-status="locked"] { opacity: .6; }
+.skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.skill-chip[data-chosen="true"] { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.skill-chip:disabled { cursor: default; opacity: .5; }
+.skill-lock { margin: 4px 0 0; font-size: 12px; color: var(--decide, #b3543b); font-family: ui-monospace, monospace; }
+
 /* ── LE PLAN ESCAMOTABLE (desktop = colonne) ─────────────────────── */
 .plan {
   border-left: 1px solid var(--border);
