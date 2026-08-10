@@ -326,6 +326,10 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         decisions: projectDecisions({ query, choices: document.build.choices }),
         underived: outcome.underived,
         unconsumed: outcome.unconsumed,
+        /* LOT 34 — ce qu'un module a jugé illégal SANS jeter (canal générique
+           `outcome.violations`, lot 27) : `{key, params, path}`, jamais une
+           phrase. Vide quand aucun module n'en a rendu. */
+        moduleViolations: Array.isArray(outcome.violations) ? outcome.violations : [],
         overridesApplied: applied,
         shadowed: lastShadowed === null ? [] : lastShadowed.slice(),
         warnings,
@@ -456,6 +460,10 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         for (const entry of outcome.underived) {
           warnings.push(`non dérivé — ${entry.field} : ${entry.reason}`);
         }
+        /* LOT 34 — CE QU'UN MODULE A JUGÉ ILLÉGAL SANS JETER (canal générique
+           `outcome.violations`). Déjà `{key, params, path?}` : `reported` les
+           accepte tel quel. */
+        if (Array.isArray(outcome.violations)) reported.addMany(outcome.violations);
       }
 
       const violations = reported.values();

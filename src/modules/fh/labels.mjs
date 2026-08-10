@@ -150,6 +150,10 @@ export const FH_EN = {
     d.source + " · " + d.count + " imposed choice" + (d.count === 1 ? "" : "s"),
   "fh.skills.term.granted": (d) =>
     d.source + " · " + d.count + " granted choice" + (d.count === 1 ? "" : "s"),
+  /* LOT 34 — le canal de dépense (`fh.skills.spend.<slug>`). Le mot source
+     est le `name` de la COMPÉTENCE, jamais son slug — même règle §0.13 que
+     les autres lignes de ce détail. */
+  "fh.skills.term.spend": (d) => d.skill + " · spent to " + d.tier,
 
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,
