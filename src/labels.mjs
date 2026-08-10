@@ -47,7 +47,23 @@ export const FR_BUILD = {
     `à ${d.sum} — une statistique dérivée est un entier.`,
   "stat.value-mismatch": (d) => `resolved.stats[${d.anchor}] : \`value\` vaut ${d.value}, et son détail somme à ${d.sum} ` +
     `(${d.terms}). Le schéma le dit et ne sait pas l'additionner : ` +
-    "un total que son propre détail contredit est un chiffre faux qui a l'air juste."
+    "un total que son propre détail contredit est un chiffre faux qui a l'air juste.",
+
+  /* ── LOT 34 — LA GRILLE À QUATRE PALIERS ──────────────────────────── */
+  "skill-budget.option-unavailable": (d) => `le choix « ${d.path} » porte la compétence « ${d.selected} », absente ` +
+    `du budget captif (${d.options}).`,
+  "skill-budget.tier-invalid": (d) => `le choix « ${d.path} » porte le palier « ${d.value} », et un budget captif ` +
+    "ne dépense qu'à ½ ou Plein.",
+  "skill-budget.overspent": (d) => `le budget captif « ${d.path} » dépense ${d.spent} point(s) pour ${d.points} ` +
+    "accordé(s) — la répartition dépasse le budget.",
+  "skill-spend.option-unavailable": (d) => `le choix « ${d.path} » désigne la compétence « ${d.selected} », que la ` +
+    "pile ne porte pas.",
+  "skill-spend.tier-invalid": (d) => `le choix « ${d.path} » porte le palier « ${d.value} », qui n'est ni ½, ni ` +
+    "Plein, ni le palier le plus haut.",
+  "skill-spend.below-floor": (d) => `le choix « ${d.path} » demande le palier « ${d.value} », sous le plancher ` +
+    `« ${d.floor} » déjà imposé — un palier imposé se MONTE, il ne descend pas.`,
+  "skill-spend.tier-locked": (d) => `le choix « ${d.path} » achète le palier le plus haut sur « ${d.skillId} » au ` +
+    `niveau ${d.level}, alors que la classe ne l'autorise qu'à partir du niveau ${d.unlockLevel}.`
 };
 
 const buildLabels = createLabels(FR_BUILD);

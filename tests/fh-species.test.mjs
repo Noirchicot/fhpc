@@ -241,7 +241,14 @@ test("ACCEPTATION — Perception n'existe pas en FH : Keen Senses pointe vers Vi
     const keen = [...(data.traits || []), ...(data.fh_traits || [])].find((t) => t.id === "keen-senses");
     assert.ok(keen, `${data.name} devrait porter Keen Senses`);
     assert.equal(keen.text, forme, "et cette forme vaut pour TOUTES les espèces FH qui le portent");
-    assert.deepEqual(data.granted_skill_choice.from, KEEN_SENSES_SKILLS);
+    /* LOT 34 — Keen Senses n'est plus un `granted_skill_choice` (« une
+       maîtrise pleine au choix parmi trois ») : c'est un `granted_skill_budget`
+       captif de 2 points sur la même liste, dépensable à ½ ou Plein. Voir
+       `INVENTAIRE-LOT-34.md`. */
+    assert.equal(data.granted_skill_choice, undefined,
+      `${data.name} ne doit plus porter \`granted_skill_choice\` — c'est un budget maintenant`);
+    assert.deepEqual(data.granted_skill_budget.from, KEEN_SENSES_SKILLS);
+    assert.equal(data.granted_skill_budget.points, 2);
   }
 
   assert.deepEqual(perceptionReferences(verbs.query({ kind: "species" })), [],
@@ -249,13 +256,17 @@ test("ACCEPTATION — Perception n'existe pas en FH : Keen Senses pointe vers Vi
 });
 
 /** Les espèces qui offrent encore la compétence Perception, NOMMÉES. Extraite
- *  pour être attaquée : un garde qu'on n'a pas vu rougir est une intention. */
+ *  pour être attaquée : un garde qu'on n'a pas vu rougir est une intention.
+ *  LOT 34 : Keen Senses est passé de `granted_skill_choice` à
+ *  `granted_skill_budget` — les DEUX champs sont regardés, sans quoi le
+ *  garde deviendrait aveugle au budget captif qui porte la même liste. */
 export function perceptionReferences(vues) {
   const hits = [];
   for (const vue of vues) {
-    const choix = vue.record.data.granted_skill_choice;
-    const from = choix && choix.from;
-    if (Array.isArray(from) && from.some((id) => id.endsWith(":perception"))) {
+    const froms = [vue.record.data.granted_skill_choice, vue.record.data.granted_skill_budget]
+      .map((declaration) => declaration && declaration.from)
+      .filter((from) => Array.isArray(from));
+    if (froms.some((from) => from.some((id) => id.endsWith(":perception")))) {
       hits.push(vue.record.name);
     }
   }
@@ -270,6 +281,15 @@ test("ATTAQUE — le garde « plus de Perception » rougit sur une espèce qui l
   ];
   assert.deepEqual(perceptionReferences(vues), ["Elf"],
     "le garde doit NOMMER l'espèce fautive, pas rendre un booléen");
+});
+
+test("ATTAQUE (lot 34) — le garde mord AUSSI sur `granted_skill_budget`, pas seulement `granted_skill_choice`", () => {
+  const vues = [
+    { record: { name: "Elestu", data: { granted_skill_budget: { points: 2, from: ["srd:skill:en:perception"] } } } },
+    { record: { name: "Elf", data: { granted_skill_budget: { points: 2, from: ["fh:skill:en:vigilance"] } } } }
+  ];
+  assert.deepEqual(perceptionReferences(vues), ["Elestu"],
+    "un garde qui ne regarderait que `granted_skill_choice` deviendrait aveugle depuis que Keen Senses est un budget");
 });
 
 test("ACCEPTATION — les trois espèces neuves sont des records de plein droit, les neuf autres restent SRD", () => {

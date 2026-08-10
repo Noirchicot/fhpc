@@ -47,7 +47,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   LAYER, SPECIES, SRD_LAYER_ID, DESTINY_BASE,
-  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, srdSpeciesId
+  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, KEEN_SENSES_BUDGET_POINTS, srdSpeciesId
 } from "./fh-species-source.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -247,6 +247,10 @@ function addEntry(srd, entry) {
   data.creature_type = lifted.creature_type;
   if (entry.grantedSkillChoice) data.granted_skill_choice = structuredClone(entry.grantedSkillChoice);
   else if (lifted.granted_skill_choice) data.granted_skill_choice = lifted.granted_skill_choice;
+  /* LOT 34 — le budget captif (Keen Senses de l'Elestu) est un champ à part,
+     `granted_skill_budget = {points, from}` : une forme différente pour un
+     genre différent de grant, jamais une réinterprétation de `count`. */
+  if (entry.grantedSkillBudget) data.granted_skill_budget = structuredClone(entry.grantedSkillBudget);
   data.name = entry.fhName;
   data.senses = liftField(srd, entry.senses.from, "senses");
   data.size = entry.size;
@@ -300,9 +304,18 @@ function patchEntry(srd, entry) {
 
   if (entry.keenSenses) {
     assertTargetTrait(srd, entry.target, "keen-senses", `Keen Senses de « ${entry.fhName} »`);
+    /* LOT 34 — Keen Senses n'est plus un `granted_skill_choice` hérité du
+       SRD (« une compétence pleine parmi trois ») : c'est un BUDGET de 2
+       points, restreint à `KEEN_SENSES_SKILLS`, dépensable à ½ ou Plein
+       (voir `fh-species-source.mjs`). Le champ SRD est donc RETIRÉ — pas
+       réécrit — et remplacé par `granted_skill_budget`, une forme distincte
+       pour un grant distinct. `assertTargetField` vérifie encore que le SRD
+       porte bien le champ qu'on retire : un retrait dans le vide reste un
+       échec bruyant (§L7.2 de `src/layers/paths.mjs`). */
     assertTargetField(srd, entry.target, "granted_skill_choice", `Keen Senses de « ${entry.fhName} »`);
     changes["data.traits[keen-senses].text"] = KEEN_SENSES_TEXT;
-    changes["data[granted_skill_choice].from"] = KEEN_SENSES_SKILLS.slice();
+    changes["data[granted_skill_budget]"] = { points: KEEN_SENSES_BUDGET_POINTS, from: KEEN_SENSES_SKILLS.slice() };
+    remove.push("data[granted_skill_choice]");
   }
 
   /* LA DESCRIPTION. Elle n'est jamais écrite ici : elle est LUE dans le SRD et

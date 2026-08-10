@@ -188,12 +188,28 @@ test("Araag `any` ouvre tout le catalogue ; Elestu garde sa liste de trois", () 
   assert.equal(araagPlan.options.length, 26);
   assert.equal(araagPlan.status, "pending");
 
-  const elestu = make("fh:species:en:elestu", "delve");
-  const elestuPlan = byPath(elestu.out).get("species.skills");
-  assert.deepEqual(elestuPlan.options, ["delve", "survival", "vigilance"]);
-  assert.equal(elestuPlan.status, "answered");
-  assert.equal(byPath(elestu.out).get("species.granted").status, "answered",
-    "le chemin consommable déjà pris reste adressable pour clear/set");
+  /* LOT 34 — Keen Senses (l'Elestu) n'est plus un `species.skills` compté :
+     c'est un `species.skillBudget` captif de 2 points, un groupe DISTINCT
+     (contrat §4e). `species.skills` n'existe donc plus du tout pour lui —
+     `granted_skill_choice` a été retiré au profit de `granted_skill_budget`. */
+  const hElestu = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN] });
+  const docElestu = englishDocument(hElestu, "fh:species:en:elestu");
+  docElestu.build.choices.push(
+    { path: "species.skillBudget.survival", value: "half" },
+    { path: "species.skillBudget.vigilance", value: "half" }
+  );
+  const outElestu = hElestu.verbs.rebuild({ document: docElestu });
+  const decisionsElestu = byPath(outElestu);
+  assert.equal(decisionsElestu.has("species.skills"), false,
+    "l'Elestu ne porte plus de `granted_skill_choice` — aucun plan compté à ce chemin");
+  const budgetPlan = decisionsElestu.get("species.skillBudget");
+  assert.deepEqual(budgetPlan.options, ["delve", "survival", "vigilance"]);
+  assert.equal(budgetPlan.expected, 2, "le budget capté est de 2 points (Eric, 2026-08-09)");
+  assert.equal(budgetPlan.answered, 2, "½ + ½ = 2 points dépensés");
+  assert.deepEqual(budgetPlan.selected, ["survival", "vigilance"]);
+  assert.equal(budgetPlan.status, "answered");
+  assert.equal(decisionsElestu.get("species.skillBudget.survival").status, "answered");
+  assert.equal(decisionsElestu.get("species.skillBudget.vigilance").status, "answered");
 });
 
 test("choose / clear / rebuild pilotent aussi le `tool_choice` réel du Soldat", () => {

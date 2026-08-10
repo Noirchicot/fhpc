@@ -101,6 +101,15 @@
 
 import { createLabels } from "../../play/labels.mjs";
 import { FH_EN } from "./labels.mjs";
+/* LOT 34 — `buildViolation` est un CONSTRUCTEUR GÉNÉRIQUE (lot 27), pas une
+   règle : `{key, params, path?}`, la même forme partout dans le dépôt (voir
+   `decisions.mjs`). Ce module l'utilise pour rendre un refus keyé sur un
+   choix de dépense qu'il est le SEUL à pouvoir juger — `src/build/` n'a pas
+   le droit de connaître le nom de son propre pool (§0.12, mesuré :
+   `tests/fh-skill-pool.test.mjs`, ACCEPTATION 4). L'import va du module vers
+   `src/build/`, jamais l'inverse : c'est le sens que la loi autorise déjà
+   (`derive.mjs` n'importe rien d'ici). */
+import { buildViolation } from "../../build/validate.mjs";
 
 const t = createLabels(FH_EN);
 
@@ -255,6 +264,50 @@ function imposedCost(classRef, pool) {
       "record, and a pool computed without it would be too generous by exactly the imposed count.");
   }
   return costs.imposed;
+}
+
+/* ── LE COÛT D'UN PALIER DE LA GRILLE (lot 34) ───────────────────────
+   `none` ne vit dans AUCUN record — c'est l'absence de maîtrise, elle ne
+   coûte rien par construction, pas par convention de contenu. Les trois
+   autres sont lus sur `tier_costs`, comme `imposedCost` le fait déjà pour
+   `imposed` : le nombre vient de la couche, jamais du module. */
+function tierPointCost(classRef, costs, tier) {
+  if (tier === "none") return 0;
+  if (!costs || typeof costs !== "object" || Array.isArray(costs) || !Number.isInteger(costs[tier])) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].tier_costs.${tier}\` = ` +
+      `${JSON.stringify(costs && costs[tier])}, which is not a whole number of points — a tier the engine cannot ` +
+      "price is a tier it cannot place.");
+  }
+  return costs[tier];
+}
+
+/* ── LE VERROU D'EXPERTISE (lot 34) ──────────────────────────────────
+   `expertise_from_level` était lu par personne avant ce lot (mesuré,
+   commande du lot). Il vit sur le MÊME record que le reste de la grille —
+   pas un nombre de plus dans ce fichier. */
+function expertiseFromLevel(classRef, pool) {
+  const level = pool.expertise_from_level;
+  if (!Number.isInteger(level) || level < 1) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].expertise_from_level\` = ` +
+      `${JSON.stringify(level)}, which is not a whole level — the expertise lock cannot compare a character's ` +
+      "level to a rule it cannot read.");
+  }
+  return level;
+}
+
+/* ── LE BONUS D'UN PALIER (lot 34) ───────────────────────────────────
+   Générique au schéma `fh-char/1`, pas une règle de maison : un palier ½
+   coupe le bonus de maîtrise en deux (arrondi au sol), un palier plein le
+   donne en entier, le palier le plus haut le double — c'est la même
+   arithmétique que le SRD applique à l'Expertise du Roublard, non
+   réinventée ici. `derive.mjs` reçoit le résultat tout fait (`bonusTerm`) et
+   ne connaît donc jamais le nom des trois paliers au-dessus de « aucun ». */
+function tierBonusTerm(tier, proficiency) {
+  if (!Number.isInteger(proficiency)) return 0;
+  if (tier === "half") return Math.floor(proficiency / 2);
+  if (tier === "proficient") return proficiency;
+  if (tier === "expertise") return proficiency * 2;
+  return 0;
 }
 
 /* ── LES BUMPS D'ESPÈCE ──────────────────────────────────────────────
@@ -531,9 +584,11 @@ export function createFhSkillPoolStat() {
      * @param {Array}  input.choices  les choix sous `fh.skills.*`, dans l'ordre du document
      * @param {Function} input.records `(kind, id?) => vue aplatie | null | liste du genre`
      * @param {Array}  input.refs     les records que le personnage désigne HORS de ce namespace — ce module lit la CLASSE et l'ARRIÈRE-PLAN
-     * @returns {{stat: object|null, underived: Array, consumed: string[]}}
+     * @param {string[]} [input.imposedSkillSlugs] les slugs que le pli a déjà placés en maîtrise pleine
+     *   (arrière-plan, classe, espèce) — lot 34, le PLANCHER de la grille à quatre paliers.
+     * @returns {{stat: object|null, underived: Array, consumed: string[], skillTiers?: object}}
      */
-    contribute({ level, species, choices, records, refs }) {
+    contribute({ level, species, choices, records, refs, imposedSkillSlugs, proficiency }) {
       const underived = [];
       const lines = [];
       /* Les chemins HORS namespace que ce module a réellement lus — seul le
@@ -553,16 +608,24 @@ export function createFhSkillPoolStat() {
           "This is a wiring failure, not missing content.");
       }
 
-      /* LES CHOIX DE CE NAMESPACE. Il n'y en a AUCUN de légitime : ce module
-         publie ce dont le joueur DISPOSE, et la dépense (quelle compétence à
-         quel palier) n'est pas de ce lot. Un chemin qu'on ne sait pas lire est
-         un refus qui le nomme, jamais une ligne qu'on avale (loi §0.5). */
+      /* LES CHOIX DE CE NAMESPACE (lot 34) — LE CANAL DE DÉPENSE.
+         `fh.skills.spend.<slug>` = "half"|"proficient"|"expertise" MONTE un
+         imposé au-dessus de son plancher, ou achète une ligne neuve, au coût
+         de la DIFFÉRENCE (contrat §⭐ THE SKILL POOL). Tout AUTRE chemin de ce
+         namespace reste un refus qui le nomme (loi §0.5) : ce module ne porte
+         toujours qu'UN terme de choix. */
+      const SPEND_PREFIX = "spend.";
+      const TIER_ORDER = ["none", "half", "proficient", "expertise"];
+      const tierRank = (tier) => TIER_ORDER.indexOf(tier);
+      const spendEntries = [];
       for (const entry of Array.isArray(choices) ? choices : []) {
-        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module carries no term ` +
-          "that a choice can set: the skill point pool is DERIVED whole from the class, the level and the " +
-          "species. What the player SPENDS the points on is not published here — that is the builder's " +
-          "business, and it has no channel yet. A path this module cannot read is a refusal, not a line it " +
-          "quietly drops.");
+        if (typeof entry.tail === "string" && entry.tail.startsWith(SPEND_PREFIX)) {
+          spendEntries.push({ slug: entry.tail.slice(SPEND_PREFIX.length), value: entry.value, path: entry.path });
+          continue;
+        }
+        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module only carries one ` +
+          `term a choice can set: "${FH_SKILLS_FLAG}.spend.<skill>" (half, proficient or expertise). A path it ` +
+          "cannot read is a refusal, not a line it quietly drops.");
       }
 
       const outside = Array.isArray(refs) ? refs : [];
@@ -603,6 +666,70 @@ export function createFhSkillPoolStat() {
          d'espèce en net zéro (lot 24). */
       imposedLines(classRef, backgroundRef, species, imposedCost(classRef, pool), lines, underived);
 
+      /* 5. LA GRILLE À QUATRE PALIERS (lot 34) — le plancher, puis la dépense.
+         ⚠️ Le plancher (« half ») N'EST PAS écrit dans `resolved.skills[]`
+         comme un fait acquis : ce bloc rend « proficient » pour un imposé
+         tant qu'aucun module ne le corrige (§0.12, voir `derive.mjs`). C'est
+         CE module, activé par le drapeau, qui republie le bon palier pour
+         chaque slug — le plancher d'abord, la dépense du joueur ensuite. */
+      const tierBySlug = {}; // slug → nom de palier, USAGE INTERNE seulement
+      for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "half";
+      const violations = [];
+
+      if (spendEntries.length > 0) {
+        const skillCatalog = typeof records === "function" ? records("skill") : [];
+        const skillByslug = new Map(skillCatalog.map((view) => [view.slug, view]));
+        for (const { slug, value, path } of spendEntries) {
+          const target = skillByslug.get(slug);
+          /* Un slug inconnu ou un palier illégal N'EST PAS APPLIQUÉ — le canal
+             ne fabrique pas une ligne fausse pour un choix que le catalogue ne
+             reconnaît pas — MAIS il est NOMMÉ en verrou keyé (lot 27), ici,
+             parce que `src/build/` n'a pas le droit de connaître le nom de ce
+             champ (§0.12, voir `INVENTAIRE-LOT-34.md`) : ce module est le seul
+             endroit qui peut juger cette dépense, donc le seul qui peut le
+             dire. Ce module, lui, ne JETTE pas pour un choix de joueur. */
+          if (!target) {
+            violations.push(buildViolation("skill-spend.option-unavailable", { path, selected: slug, options: "" }, path));
+            continue;
+          }
+          if (typeof value !== "string" || !TIER_ORDER.includes(value) || value === "none") {
+            violations.push(buildViolation("skill-spend.tier-invalid", { path, value: String(value) }, path));
+            continue;
+          }
+          const floor = tierBySlug[slug] || "none";
+          if (tierRank(value) < tierRank(floor)) {
+            violations.push(buildViolation("skill-spend.below-floor", { path, value, floor }, path));
+            continue;
+          }
+          if (value === "expertise" && level < expertiseFromLevel(classRef, pool)) {
+            violations.push(buildViolation("skill-spend.tier-locked", {
+              path, skillId: slug, level, unlockLevel: expertiseFromLevel(classRef, pool)
+            }, path));
+            continue;
+          }
+          tierBySlug[slug] = value;
+          const costs = pool.tier_costs;
+          const delta = tierPointCost(classRef, costs, value) - tierPointCost(classRef, costs, floor);
+          if (delta === 0) continue;
+          lines.push({
+            label: t("fh.skills.term.spend", { skill: target.name, tier: value }),
+            value: -delta,
+            source: { kind: "skill", id: target.id }
+          });
+        }
+      }
+
+      /* LA FORME PUBLIÉE : `{proficiency, bonusTerm}`. `derive.mjs` ne connaît
+         pas le vocabulaire d'un palier (§0.12, deux gardes littéraux) — il
+         additionne `bonusTerm` au modificateur de caractéristique, un point
+         c'est tout. Ce module, lui, connaît la formule (le palier double la
+         maîtrise, la demi-compétence la coupe en deux) et la calcule ici, à
+         partir du `proficiency` que la dérivation lui a déjà tendu. */
+      const skillTiers = {};
+      for (const [slug, tier] of Object.entries(tierBySlug)) {
+        skillTiers[slug] = { proficiency: tier, bonusTerm: tierBonusTerm(tier, proficiency) };
+      }
+
       return {
         stat: {
           id: FH_SKILL_POOL_ID,
@@ -612,7 +739,9 @@ export function createFhSkillPoolStat() {
           breakdown: lines
         },
         underived,
-        consumed
+        consumed,
+        skillTiers,
+        violations
       };
     }
   };

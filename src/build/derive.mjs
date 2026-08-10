@@ -544,10 +544,25 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
 
   /* ── COMPÉTENCES ───────────────────────────────────────────────────
-     Les DIX-HUIT, chacune avec son bonus, maîtrisée ou non. Les maîtrises
-     viennent de trois sources : l'arrière-plan les ACCORDE (`skill_ids`), la
-     classe et l'espèce en font CHOISIR (`skill_choice`,
-     `granted_skill_choice`). */
+     Les DIX-HUIT (vingt-six en Fate's Hand), chacune avec son bonus,
+     maîtrisée ou non. Les maîtrises viennent de trois sources : l'arrière-
+     plan les ACCORDE (`skill_ids`), la classe et l'espèce en font CHOISIR
+     (`skill_choice`, `granted_skill_choice`).
+
+     ⚠️ LOT 34 : CE BLOC RESTE SRD-GÉNÉRIQUE (loi §0.12 — deux gardes
+     littéraux, mot par mot, le vérifient : `tests/build-block.test.mjs` ET
+     `tests/fh-skill-pool.test.mjs`, qui interdit même le VOCABULAIRE d'une
+     mécanique de couche dans `src/build/`, en commentaire compris). Ce bloc
+     rend « maîtrisé plein » pour tout imposé, exactement comme avant ce lot
+     — aucun champ de couche propre à une classe n'est lu ici, aucun mot qui
+     le nommerait n'est écrit ici. Une grille de paliers plus fine EST une
+     MÉCANIQUE (décision Q4) : elle vit dans un module à part, activé par un
+     drapeau, et elle CORRIGE `resolved.skills[]` après coup, plus bas
+     (§ « STATISTIQUES DÉRIVÉES »), via le canal générique `outcome.skillTiers`
+     que tout module peut rendre — la même discipline que
+     `outcome.stat`/`outcome.underived`/`outcome.consumed`. Un personnage dont
+     la pile ne lève aucun drapeau (SRD pur) ne voit donc STRICTEMENT RIEN
+     bouger ici. */
   const skills = indexSkills(reader.all("skill"), underived);
   const proficientSkills = new Map(); // slug → la racine qui l'accorde
 
@@ -575,7 +590,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      d'espèce sous `species.keenSenses`, un chemin propre à l'Elfe, tandis que
      la classe répond sous `class.skills[0]`. Une source qui déclare
      `{count, from}` sait déjà ce qui est légal — c'est elle qu'on écoute, pas
-     la forme du chemin. */
+     la forme du chemin.
+
+     ⚠️ LOT 34 : `granted_skill_choice` D'ESPÈCE NE PORTE PLUS KEEN SENSES —
+     seuls l'Araag et l'Humain (Skillful, `{count, from:"any"}`, un choix
+     plein et non restreint par palier) le portent encore. L'Elfe et
+     l'Elestu (Keen Senses) portent `granted_skill_budget` désormais, traité
+     plus bas, séparément — un budget CAPTIF n'est pas un choix compté. */
   const declarations = {
     species: { data: speciesData.granted_skill_choice, view: speciesView, key: "granted_skill_choice" },
     class: { data: classData.skill_choice, view: classView, key: "skill_choice" }
@@ -603,6 +624,57 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     chosenBy[root] = answers;
   }
 
+  /* Les imposés, GÉNÉRIQUEMENT (aucun mot de FH) : la liste plate des slugs
+     que ce bloc vient de placer, tous root confondus. C'est l'unique donnée
+     qu'un module a besoin de recevoir pour savoir OÙ poser un plancher — la
+     RÈGLE du plancher (demi-compétence, montable) reste de son ressort. */
+  const imposedSkillSlugs = [...proficientSkills.keys()];
+
+  /* ── LE BUDGET CAPTIF D'ESPÈCE (Keen Senses, lot 34) ─────────────────
+     `granted_skill_budget = {points, from}` — des points CAPTIFS d'une
+     liste, dépensés par le joueur sur `species.skillBudget.<slug>` =
+     "half"|"proficient". Ce champ, comme `granted_skill_choice`, est du
+     CONTENU générique (aucune racine de son nom ne cite une mécanique de
+     couche) : le lire ici est la même discipline que la ligne juste
+     au-dessus. Ne touche JAMAIS `fh:skill-points` (contrat §4e : « un choix
+     accordé par l'espèce est supplémentaire ») — ce bloc ne lui ajoute ni ne
+     lui retire une ligne, et le pool de classe est identique avec ou sans ce
+     budget dépensé.
+
+     Un choix illégal (compétence hors liste, palier hors {half,
+     proficient}, budget dépassé) est IGNORÉ ici — même discipline que la
+     boucle juste au-dessus pour un choix de classe hors catalogue : ce bloc
+     ne dérive jamais une intention illégale, il la laisse `unconsumed`.
+     `decisions.mjs` la NOMME en verrou keyé (lot 27), il ne jette pas pour
+     un choix de joueur. */
+  const budgetTier = new Map(); // slug → "half"|"proficient"
+  const budget = speciesData.granted_skill_budget;
+  if (budget !== undefined) {
+    if (budget === null || typeof budget !== "object" || Array.isArray(budget) ||
+      !Number.isInteger(budget.points) || budget.points <= 0) {
+      fail(`the species record "${speciesView.id}" carries \`data.granted_skill_budget\` = ` +
+        `${JSON.stringify(budget)}, which is not a \`{points, from}\` table with a positive whole number of ` +
+        "points — a captive budget the engine cannot count would place a floor it cannot justify.");
+    }
+    const allowedBudget = allowedSlugs(budget, skills);
+    if (allowedBudget === null) {
+      fail(`the species record "${speciesView.id}" carries \`data.granted_skill_budget.from\` = ` +
+        `${JSON.stringify(budget.from)}, which is not a list of skill ids (or "any") — a captive budget with no ` +
+        "legal list would let the player spend its points anywhere, erasing the restriction the grant exists to carry.");
+    }
+    const BUDGET_TIER_COST = { half: 1, proficient: 2 };
+    const budgetPrefix = "species.skillBudget.";
+    for (const entry of picked.byRoot.get("species") || []) {
+      const path = entry.choice.path;
+      if (typeof path !== "string" || !path.startsWith(budgetPrefix)) continue;
+      const slug = path.slice(budgetPrefix.length);
+      const value = entry.choice.value;
+      if (!allowedBudget.has(slug) || !Object.hasOwn(BUDGET_TIER_COST, value)) continue; // decisions.mjs le NOMME
+      entry.consumed = true;
+      budgetTier.set(slug, value);
+    }
+  }
+
   if (skills.list.length === 0) {
     underived.declare("skills", "la pile ne porte aucune compétence exploitable — le genre `skill` est vide ou " +
       "ses records n'ont pas de `ability_key`.");
@@ -612,14 +684,24 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       "maîtrisées valent comme les autres serait une fiche fausse et jouable.");
     resolved.skills = [];
   } else {
+    /* `half` n'existe QUE par le budget captif à ce stade (aucun palier SRD
+       n'en produit, et `budgetTier` ne rend jamais que « half » ou
+       « proficient » — sa légalité est vérifiée plus haut). La formule est
+       générique au schéma (`resolved.skills[].proficiency`), pas une règle
+       de maison. */
+    const skillTierBonus = (tier) => {
+      if (tier === "half") return Math.floor(proficiency / 2);
+      if (tier === "proficient") return proficiency;
+      return 0;
+    };
     resolved.skills = skills.list.map((entry) => {
-      const isProficient = proficientSkills.has(entry.id);
+      const tier = budgetTier.get(entry.id) || (proficientSkills.has(entry.id) ? "proficient" : "none");
       return {
         id: entry.id,
         name: entry.name,
         ability: entry.ability,
-        bonus: abilities[entry.ability].mod + (isProficient ? proficiency : 0),
-        proficiency: isProficient ? "proficient" : "none"
+        bonus: abilities[entry.ability].mod + skillTierBonus(tier),
+        proficiency: tier
       };
     });
   }
@@ -918,6 +1000,23 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      porte la nuance. La résolution n'a donc lieu que pour ce qu'on TEND au
      module — hors de son namespace — et elle est faite par module, plus bas. */
   const refEntries = picked.order.filter((entry) => entry.choice.ref);
+  /* LOT 34 — LES PALIERS DE COMPÉTENCE, RENDUS PAR UN MODULE, APPLIQUÉS ICI.
+     Un module peut rendre `skillTiers: {slug: {proficiency, bonusTerm}}` en
+     plus de `{stat, underived, consumed}` — la MÊME discipline générique, un
+     canal de plus dans le même protocole. `proficiency` est le mot du schéma
+     que la ligne doit porter, `bonusTerm` est CE QUE CE PALIER AJOUTE au
+     bonus — le module le calcule (il en connaît la règle), ce fichier ne fait
+     que l'ADDITIONNER au modificateur de caractéristique, exactement comme il
+     additionne déjà `proficiency` pour `resolved.saves`/`resolved.tools`.
+     Fusionné dans l'ordre des modules (le dernier qui parle gagne, comme un
+     override), puis appliqué à `resolved.skills[]` juste après la boucle :
+     c'est ce qui permet à un module FLAG-GATÉ de corriger une collection que
+     le pli construit sans lui, sans que ce fichier ait besoin de nommer sa
+     mécanique — ni même le VOCABULAIRE de ses paliers — pour le lire (loi
+     §0.12, deux gardes littéraux : `tests/build-block.test.mjs` et
+     `tests/fh-skill-pool.test.mjs`). */
+  const skillTierOverrides = new Map();
+  const moduleViolations = [];
   for (const statModule of statModules) {
     if (!statModule || typeof statModule.contribute !== "function" || typeof statModule.flag !== "string") {
       fail("un module de statistique doit déclarer `{flag, contribute}` — un module que la dérivation ne sait " +
@@ -950,6 +1049,12 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       species: speciesView
         ? { id: speciesView.id, name: speciesView.record.name, slug: speciesView.record.slug, data: speciesData }
         : null,
+      /* LOT 34, GÉNÉRIQUE : les slugs que le pli a DÉJÀ placés en maîtrise
+         pleine (arrière-plan, classe, espèce — voir § « COMPÉTENCES »
+         au-dessus). Un module qui gère une grille de paliers en a besoin
+         pour savoir OÙ poser un plancher ; ce fichier ne dit toujours pas
+         CE QUE le plancher vaut. */
+      imposedSkillSlugs: imposedSkillSlugs.slice(),
       choices: own.map((entry) => ({
         path: entry.choice.path,
         /* Le chemin PRIVÉ DE SON PRÉFIXE. Le point de séparation est retiré
@@ -965,6 +1070,21 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (outcome && outcome.stat) stats.push(outcome.stat);
     if (outcome && Array.isArray(outcome.underived)) {
       for (const entry of outcome.underived) underived.declare(entry.field, entry.reason);
+    }
+    if (outcome && outcome.skillTiers && typeof outcome.skillTiers === "object") {
+      for (const [slug, entry] of Object.entries(outcome.skillTiers)) {
+        if (entry && typeof entry.proficiency === "string" && Number.isInteger(entry.bonusTerm)) {
+          skillTierOverrides.set(slug, entry);
+        }
+      }
+    }
+    /* CANAL GÉNÉRIQUE DE PLUS (lot 34) : un module peut rendre `violations`,
+       une liste de `{key, params, path?}` (lot 27) — un choix de joueur que
+       ce module a jugé illégal SANS jeter (loi §0.5, même discipline que le
+       reste de `derive`). Recopié tel quel : ce fichier ne nomme jamais la
+       mécanique qui l'a produit. */
+    if (outcome && Array.isArray(outcome.violations)) {
+      moduleViolations.push(...outcome.violations);
     }
     /* CE QUE LE MODULE A RÉCLAMÉ HORS DE SON NAMESPACE — et le garde qui
        l'empêche d'en réclamer plus. Sans lui, un module pourrait faire taire
@@ -985,6 +1105,26 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
   }
   resolved.stats = stats;
+
+  /* LOT 34 — LA CORRECTION DES PALIERS, APPLIQUÉE APRÈS COUP. `resolved.skills`
+     a déjà été construit (§ « COMPÉTENCES », en SRD générique — maîtrisé ou
+     pas). Un module actif peut avoir rendu `skillTiers` : on corrige alors
+     `proficiency` ET `bonus` des lignes visées — le `bonusTerm` est déjà
+     calculé par le module, ce fichier ne fait que l'ADDITIONNER au
+     modificateur de caractéristique. Une entrée dont le module ne parle pas
+     garde exactement ce que le pli lui avait donné. */
+  if (skillTierOverrides.size > 0 && Array.isArray(resolved.skills)) {
+    resolved.skills = resolved.skills.map((skill) => {
+      const override = skillTierOverrides.get(skill.id);
+      if (!override || proficiency === null) return skill;
+      return {
+        ...skill,
+        proficiency: override.proficiency,
+        bonus: abilities[skill.ability].mod + override.bonusTerm
+      };
+    });
+  }
+
   /* La collection est vide et AUCUN module n'a tourné : c'est le cas du
      personnage SRD pur, et la liste vide doit se déclarer comme les autres
      (règle de refus n°2). Un module qui a tourné sans rien publier, lui, a
@@ -1059,6 +1199,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     unconsumed: picked.order.filter((entry) => !entry.consumed).map((entry) => entry.choice.path),
     /* Ce que la dérivation a LU dans les déclarations de choix — `validate` en
        a besoin pour dire « tu devais en choisir 2, tu en as choisi 1 ». */
-    grants: { chosenBy, declarations: Object.fromEntries(GRANT_ROOTS.map((root) => [root, declarations[root].data])) }
+    grants: { chosenBy, declarations: Object.fromEntries(GRANT_ROOTS.map((root) => [root, declarations[root].data])) },
+    /* LOT 34 — CE QU'UN MODULE A JUGÉ ILLÉGAL, SANS JETER. Recopié tel quel
+       depuis `outcome.violations` (canal générique) ; vide quand aucun module
+       n'en a rendu. */
+    violations: moduleViolations
   };
 }
