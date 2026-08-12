@@ -13,6 +13,18 @@
 
 import { bootEngine, loadExampleDocument } from "./engine.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
+/* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
+   §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
+   antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
+   §0.1). La coquille est déjà le seul endroit du builder qui pose du HTML en
+   chaîne (`item.innerHTML` du repère de progression, `app.innerHTML = ""`
+   plus bas) : l'étape Review suit exactement ce précédent, dans `shell.mjs`
+   seul — jamais dans un module testé par `tests/dom-stub.mjs`, qui ne connaît
+   pas `innerHTML` par construction (son propre commentaire le dit). */
+/* Aliasé : `shell.mjs` a déjà son propre `render()` (la fonction de redessin
+   de la page, plus bas) — deux fonctions distinctes, un seul nom aurait
+   masqué l'une des deux. */
+import { render as renderFiche } from "../../src/tools/render-fiche.mjs";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -29,6 +41,11 @@ const STEPS = [
   { id: "skills",     label: "Skills" },
   { id: "review",     label: "Review" }
 ];
+/* LOT 40 — trouvé PAR l'id, jamais par la position. `STEPS.length - 1`
+   désigne le même index aujourd'hui (review est le dernier pas de la
+   ceinture), mais le bouton final (§3c) doit mener à Review PARCE QUE c'est
+   Review, pas parce qu'un index de tableau coïncide avec elle. */
+const REVIEW_INDEX = STEPS.findIndex((step) => step.id === "review");
 
 const state = {
   step: 0,
@@ -37,6 +54,8 @@ const state = {
   document: null,      // the live fh-char/1 document
   decisions: [],        // the last rebuild()'s carnet
   resolved: null,        // the last rebuild()'s fiche — lot 39 needs it whole, not just decisions[]
+  report: null,          // LOT 40 — the whole last rebuild() output: {underived, warnings,
+                          // unconsumed, …}, exactly the shape render-fiche.mjs's `report` wants
   violations: [],          // the last validate()'s refusals — {key, params, path?}
   engineError: null
 };
@@ -47,13 +66,16 @@ const app = document.getElementById("app");
  *  skill click goes through this, never touches the document by hand.
  *  LOT 39 — also runs `validate()` right after: the Skills step displays its
  *  refusals (§3d of its command), and `validate()` needs the freshly rebuilt
- *  document, not the one before the click. */
+ *  document, not the one before the click.
+ *  LOT 40 — also keeps the WHOLE rebuild() output as `state.report`: the
+ *  Review step passes it straight to `render()`, unread and unrecomputed. */
 function rebuild() {
   const verbs = state.engine.build.verbs;
   const out = verbs.rebuild({ document: state.document });
   state.document = out.document;
   state.decisions = out.decisions || [];
   state.resolved = out.resolved;
+  state.report = out;
   state.violations = verbs.validate({ document: state.document }).violations || [];
 }
 
@@ -158,6 +180,20 @@ function renderStage() {
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "skills") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "review" && state.document && state.report) {
+    /* LOT 40 — §3a. `render()` rend une CHAÎNE, jamais recalculée : la loi
+       que ses 27+8 tests gardent (« un total menteur s'affiche MENTEUR »)
+       tient tant que ce module ne fait qu'AFFICHER `state.document`/
+       `state.report`, sans y toucher. Mots en anglais (§3b) : c'est la
+       langue du builder, pas celle par défaut de `render()`. */
+    const fiche = el("div", "review-fiche", []);
+    fiche.innerHTML = renderFiche(state.document, state.report, "en");
+    card.append(fiche);
+  } else if (step.id === "review" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "review") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else {
     card.append(el("p", "placeholder", [document.createTextNode(
       "This step will read the decisions[] ledger (lot 28) for its options, cost and locks — not wired yet.")]));
@@ -165,8 +201,14 @@ function renderStage() {
 
   const nav = el("div", "stage-nav", [
     button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
+    /* §3c — le pas final MÈNE À REVIEW, par id (`REVIEW_INDEX`), jamais par
+       une coïncidence de longueur de tableau. Aucun autre effet : la
+       sauvegarde et l'export appartiennent au bloc `doc`, pas à ce lot. */
     button(state.step === STEPS.length - 1 ? "Open the sheet" : "Continue",
-      () => { state.step = Math.min(STEPS.length - 1, state.step + 1); render(); })
+      () => {
+        state.step = state.step === STEPS.length - 1 ? REVIEW_INDEX : Math.min(STEPS.length - 1, state.step + 1);
+        render();
+      })
   ]);
   return el("main", "stage", [renderToggle(), card, nav]);
 }
