@@ -1,0 +1,170 @@
+# Inventaire — Lot 45 (`45-ecrans-hasard`)
+
+Worktree : `~/tools/fhpc-worktrees/45-ecrans-hasard`, branche `45-ecrans-hasard`,
+coupée de `main` à `cf31ddb` (remesuré au départ, conforme à la commande).
+Lot 42 déjà fusionné avant le départ (`carnet.mjs` présent) ; aucun conflit
+avec le lot 43 (`layers/`, `src/build/`, `examples/`, `contracts/`) — ce lot
+n'a touché que `ui/builder/` et `tests/`.
+
+## Tests — départ et arrivée
+
+- **Départ** : `npm ci` (déjà fait) puis `npm test` → **694 tests, 694 pass, 0 fail**.
+- **Arrivée** : `npm test` → **723 tests, 723 pass, 0 fail** (694 + 29 neufs :
+  11 dans `tests/dice.test.mjs`, 9 dans `tests/abilities-step.test.mjs`, 9 dans
+  `tests/destiny-step.test.mjs`). Aucun test préexistant modifié.
+
+## Comment le hasard est rendu testable
+
+Toute la mécanique de tirage vit dans **`ui/builder/dice.mjs`**, un module
+qui ne connaît **aucun DOM** et ne connaît **aucune règle de jeu** — quatre
+fonctions pures :
+
+- `rollThreeD6(rng)` / `rollTen(rng)` — un jet, dix jets, sur une source
+  d'aléa **injectée** (jamais `Math.random()` appelé dans ce fichier).
+- `markKept(rolls)` — les six meilleurs totaux, égalité tranchée par l'ordre
+  du jet (déterministe sur un lot donné).
+- `rollAbilitySet(rng)` — la méthode d'Eric complète (dix jets, relance du
+  lot ENTIER si aucun n'atteint 15), qui compte ses relances (`rerollCount`)
+  sans jamais garder le contenu des lots rejetés.
+- `drawArcana(catalog, rng)` — tire un index dans le **catalogue reçu**
+  (jamais un 22 câblé), même discipline d'injection.
+
+`tests/dice.test.mjs` les attaque avec des sources d'aléa **scriptées**
+(`scriptedRng`, une suite fixe de nombres qui boucle) : le test qui compte
+(« ⚔️ ATTAQUE — un lot dont aucun des dix jets n'atteint 15 est REJETÉ EN
+ENTIER ») scripte un premier lot où les dix totaux valent 6, suivi d'un
+second où le premier jet vaut 18, et prouve que `rollAbilitySet` rend le
+**second** lot avec `rerollCount: 1` — jamais le premier, jamais un jet
+remplacé seul. Un test séparé rejoue `rollThreeD6(Math.random)` mille fois
+pour les bornes physiques [3,18] (hasard réel, volontaire : ce test-là ne
+prouve pas la règle de relance, seulement que les dés sont de vrais d6).
+
+Les écrans (`abilities-step.mjs`, `destiny-step.mjs`) ne font QUE consommer
+ces fonctions et afficher leur résultat — `tests/abilities-step.test.mjs`
+et `tests/destiny-step.test.mjs` leur passent un `rollBatch`/`rng` fabriqué
+à la main (jamais un vrai tirage) pour vérifier le rendu et le câblage vers
+`onAction`, exactement le patron de `tests/skills-step.test.mjs`.
+
+## Pourquoi le hasard dans l'écran n'est pas une entorse à « le moteur prononce, l'écran affiche »
+
+Cette loi porte sur les **règles opposables** — ce que `validate()` peut
+refuser. Rien de ce que `dice.mjs` produit n'est une règle : c'est un
+**générateur de nombres/d'index**, dont la sortie n'atteint le document que
+par les MÊMES verbes que Class/Species utilisent déjà (`set`/`choose`), qui
+la traitent identiquement, qu'elle vienne d'un dé ou d'un clavier. Mesuré en
+tête de commande (§0) : `abilities.mode` vaut `unconsumed` — le moteur ne
+sait même pas QUE le joueur a tiré plutôt que choisi, et ne peut donc pas
+« prononcer » sur une méthode qu'il ne voit pas. La preuve la plus directe :
+le test 5 (« saisie directe pose EXACTEMENT le même chemin ») — un
+`set({path:"abilities.dex", value:17})` posé à la main et un `set` posé
+après un tirage sont, pour le moteur, un seul et même geste.
+
+## La déclaration du plafond de 18
+
+**Non implémenté dans ce lot, comme demandé** (§3c) — mesuré à nouveau ici :
+`abilities.int = 20` passe toujours avec zéro refus. L'écran se contente
+d'une **alerte cosmétique**, jamais un blocage :
+
+- `renderCapWarning()` (`abilities-step.mjs`) compare `resolved.abilities[key]
+  .score` (le score **final**, boosts compris, tel que le moteur le rend —
+  jamais le score brut posé) à `18`, et affiche `> 18 at creation` en rouge
+  quand il le dépasse.
+- Testé (`"un score final > 18 affiche une alerte, et onAction PART quand
+  même"`) : le clic qui reposerait une autre valeur au-dessus produit bien
+  un appel — rien n'empêche le geste.
+- Vérifié à l'écran (voir « ce qui a surpris ») : `abilities.int = 18` posé
+  sur le personnage d'exemple (qui porte déjà `background.boost.int = 2`)
+  affiche `+6 > 18 at creation` — l'alerte réagit au score COMPOSÉ, pas à
+  la seule saisie du joueur, conformément à la décision du 2026-08-13
+  (« un personnage créé au niveau 5 a des augmentations légitimes… »).
+
+Cette décision (2026-08-13, postérieure à la commande écrite) est citée
+littéralement en tête de `abilities-step.mjs`.
+
+## Ce qui a surpris en regardant l'écran
+
+Servi avec `python3 -m http.server` + le Chrome piloté (le port du
+`.claude/launch.json` était déjà pris par une autre session ; serveur monté
+à la main sur un port libre, même contenu).
+
+1. **Un vrai risque de crash, trouvé en écrivant le test d'assignation
+   avant même d'ouvrir le navigateur** : `rebuild()` JETTE si l'une des six
+   caractéristiques manque (`"les six scores de caractéristique sont des
+   CHOIX, et ceux-ci manquent…"`), et `applyDecisionAction` (`shell.mjs`)
+   appelle `rebuild()` sans filet après chaque `clear`. `renderPicker`
+   pose un tiret d'effacement par défaut dès qu'on lui passe `onClear` —
+   je l'avais câblé par réflexe sur les six lignes, exactement comme les
+   lignes de Compétences. **Retiré avant même le premier test DOM** : une
+   valeur d'ability ne se REMPLACE (`set`, qui écrase la même clef) que
+   jamais ne s'EFFACE depuis cet écran. Sondé une fois avec le vrai moteur
+   pour confirmer le message d'erreur exact avant d'écrire le commentaire
+   qui l'explique dans le code.
+2. **Le personnage d'exemple porte déjà `abilities.mode: "standard"`** —
+   une méthode que ce lot n'implémente pas (héritage d'un autre outil,
+   `src/tools/exemple-fh-en.mjs`, écrit avant que « la liste » soit
+   tranchée). Sans repli, l'écran se serait ouvert sur un mode qui ne
+   correspond à aucun des deux blocs rendus. Vérifié à l'écran : la note
+   « Method "standard" isn't built by this screen yet — showing Roll (3d6 ×
+   10, keep 6) instead. » s'affiche bien, et c'est très exactement la
+   clause « rien ne se cache » du chantier appliquée à un cas que je
+   n'avais pas anticipé en écrivant la commande.
+3. **Avant tout tirage, les six scores déjà posés (8, 14, 13, 15, 12, 10)
+   disparaissaient de l'écran** au lieu de s'y afficher actifs — le pool
+   d'options d'une ligne vient du lot tiré (`rollBatch`), et tant qu'aucun
+   lot n'existe, ce pool est vide. Trouvé en construisant le premier test
+   DOM (pas encore dans le navigateur) : `renderAssignRow` repêche
+   maintenant la valeur déjà posée si elle n'est pas dans le pool courant.
+4. **La distinction visuelle « retenu vs écarté » sur les dix dés était
+   trop faible** à l'écran (`--tier-2` sur la bordure seule, sur un jeton de
+   quelques pixels) — vue en écran réel, pas en DOM stub. Ajouté
+   `opacity: .55` sur les dés écartés (`data-kept="false"`), même famille
+   que `.ability-method-block[data-status="inactive"]` déjà dans le fichier.
+5. **`fh.destiny.mode` fait JETER `rebuild()`**, contrairement à
+   `abilities.mode` — sondé AVANT d'écrire `destiny-step.mjs` (voir « ce que
+   j'ai changé »), pas une surprise visuelle mais une mesure qui a
+   directement changé la forme du fichier.
+6. Ce qui a marché du premier coup, sans surprise : le tirage de carte
+   change le Destiny Score sous les yeux (10 → 8 sur « The Hermit » →
+   « Judgement »), les 22 cartes s'affichent toutes en mode choix, et
+   passer de tirage à choix n'a rien cassé dans un sens comme dans l'autre.
+
+## Ce que j'ai changé de la commande
+
+1. **Le mode de Destinée n'est PAS écrit au document** — la commande
+   traitait `abilities.mode`/`fh.destiny` en miroir (« les deux modes, sur
+   les deux écrans », ADDENDUMS §4). Mesuré avant d'écrire une ligne de
+   `destiny-step.mjs` : `set({path:"fh.destiny.mode", value:"draw"})` suivi
+   d'un `rebuild()` **jette** — `fh.destiny.*` est un namespace STRICT
+   (`src/modules/fh/destiny-stat.mjs`), qui ne reconnaît que
+   `arcana`/`glory[n]`/`awakening[n]`/`other[n]`, et refuse tout le reste.
+   `abilities.*`, lui, est un préfixe générique (pas de module dédié qui le
+   parse) : `abilities.mode` y traverse `rebuild()` sans encombre,
+   simplement `unconsumed`. Le mode Destinée vit donc **hors document**
+   (`shell.mjs`, `state.destinyMode`, exactement comme `state.planOpen`) —
+   c'est un écart mesuré, pas un oubli, cité en tête de `destiny-step.mjs`
+   et testé (`"basculer de mode appelle onModeChange, JAMAIS un verbe de
+   document"`, qui rejoue la mesure du throw).
+2. **Retiré le tiret d'effacement (`onClear`) sur les lignes Abilities**
+   (roll ET manuel) — voir « ce qui a surpris » n°1. Ni la commande ni les
+   dix tests qu'elle liste ne le demandaient explicitement ; l'omettre est
+   la seule façon de ne jamais produire un document à cinq caractéristiques.
+3. **La saisie manuelle réutilise `renderPicker`** (une plage 1..20
+   cliquable) plutôt qu'un `<input type="number">`. Aucun écran du builder
+   n'utilise d'élément de saisie de texte aujourd'hui (`dom-stub.mjs` ne
+   porte d'ailleurs pas de valeur `.value` pour un `<input>` par
+   construction — il aurait fallu l'étendre), et cette forme rend le test 5
+   (« la saisie directe pose EXACTEMENT le même chemin ») trivial : les
+   deux modes partagent le même geste de clic, la même fonction `onSelect`.
+   Signalé, pas caché : la borne à 20 (au lieu de 18) est un choix de
+   widget assumé, pour que l'alerte de plafond ait une chance de se
+   déclencher sans qu'aucun bouton ne soit retiré (retirer les valeurs > 18
+   SERAIT le blocage que §3c interdit).
+4. Rien d'autre. Les dix tests listés par la commande (§4) sont tous
+   couverts ; le mode est une liste (`ABILITY_METHODS`/`ARCANA_METHODS`,
+   deux entrées chacune aujourd'hui) ; le plafond de 18 est déclaré, jamais
+   implémenté.
+
+## Commits
+
+Voir `git log --oneline` sur la branche — arbre propre après le dernier
+commit, aucun `git push`, aucune fusion.
