@@ -44,9 +44,9 @@
      ⛔ DÉCLARÉE ici, CONSOMMÉE par le lot 39 (arbitrage d'architecte, voir
      INVENTAIRE-LOT-38.md). Un « training » n'a AUCUN palier : pas de
      quatrième lavis, le tiret (aucun) ne porte pas d'encre. */
-  --tier-1: #7d5431; /* demi (½)   — 4,90:1 sur --sunken jour */
-  --tier-2: #583b22; /* plein (●)  — 7,56:1 */
-  --tier-3: #332314; /* expertise (★) — 11,21:1 */
+  --tier-1: #765299; /* demi (½)   — 4,54:1 sur --sunken jour */
+  --tier-2: #60437d; /* plein (●)  — 6,01:1 */
+  --tier-3: #49335f; /* expertise (★) — 8,12:1 */
 
   /* ── L'ÉCHELLE DE TYPE — T1…T7, ratifiée le 2026-08-13 (§3c). Sept
      barreaux, six continus + un grand nombre à part. Valeurs LOCALES à
@@ -120,9 +120,9 @@
     --critical: #dd6a58;
     --info: #5f90c7;
 
-    --tier-1: #bc8452; /* demi   — 4,71:1 sur --sunken nuit */
-    --tier-2: #cea682; /* plein  — 6,75:1 */
-    --tier-3: #dec3ab; /* expertise — 8,97:1 */
+    --tier-1: #9e81bb; /* demi   — 4,53:1 sur --sunken nuit */
+    --tier-2: #b29bc9; /* plein  — 6,05:1 */
+    --tier-3: #c7b7d8; /* expertise — 8,03:1 */
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
