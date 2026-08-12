@@ -38,6 +38,12 @@ import { join } from "node:path";
 import { ROOT, makeHarness, acceptanceDocument } from "./build-harness.mjs";
 import { render, modele, rubriqueDe, echappe, LIBELLES, MOTS } from "../src/tools/render-fiche.mjs";
 import { exempleFhEn, octetsDe, SORTIE } from "../src/tools/exemple-fh-en.mjs";
+/* LOT 41 — `underived[].reason` → `{key, params}`. La même composition que
+   `render-fiche.mjs` applique pour `lang="fr"` (défaut). */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+import { FH_UNDERIVED_FR } from "../src/modules/fh/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8"));
 /* LUE DANS LE SCHÉMA, JAMAIS RECOPIÉE — idiome de tests/build-derive.test.mjs.
@@ -171,10 +177,15 @@ test("privé d'une rubrique, l'écran affiche la RAISON du moteur — jamais un 
   const declaration = sortie.underived.find((entree) => entree.field === "stats");
   assert.ok(declaration, "et le moteur, lui, dit pourquoi");
 
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` ; en
+     français, la table générique+FH composée rend EXACTEMENT la même phrase
+     qu'avant (c'est le test §4.1 de la commande), donc la preuve ne change
+     pas de nature ici — seulement de forme d'accès. */
   const html = render(sortie.document, sortie);
   const bloc = section(html, "stats");
+  const raison = renderUnderived(declaration, frUnderived);
   assert.ok(bloc.includes(echappe(MOTS.nonDerive)), "la rubrique porte l'en-tête des déclarations");
-  assert.ok(bloc.includes(echappe(declaration.reason)), "et la RAISON, mot pour mot, telle que le moteur l'a écrite");
+  assert.ok(bloc.includes(echappe(raison)), "et la RAISON, mot pour mot, telle que le moteur l'a écrite");
   assert.ok(!bloc.includes(echappe(MOTS.videSansRaison)), "elle n'est donc pas signalée comme vide sans raison");
 
   /* LE CONTRE-ÉPREUVE, ET C'EST ELLE QUI FAIT MAL : le MÊME document, relu
@@ -182,7 +193,7 @@ test("privé d'une rubrique, l'écran affiche la RAISON du moteur — jamais un 
      part où le garder. L'écran ne fabrique alors AUCUNE raison : il dit qu'il
      n'en a pas. Voir INVENTAIRE-LOT-25.md, trou n°1. */
   const sansRapport = section(render(sortie.document), "stats");
-  assert.ok(!sansRapport.includes(echappe(declaration.reason)), "sans rapport, la raison a disparu du monde");
+  assert.ok(!sansRapport.includes(echappe(raison)), "sans rapport, la raison a disparu du monde");
   assert.ok(sansRapport.includes(echappe(MOTS.videSansRaison)), "et l'écran le DIT au lieu de laisser une case vide");
 });
 
@@ -323,9 +334,10 @@ test("aucune déclaration `underived` n'est perdue entre le moteur et l'écran",
   assert.equal(placees + vue.rapport.orphelines.length, exemple.report.underived.length,
     "chaque déclaration est soit rangée dans sa rubrique, soit affichée au bloc commun");
 
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
   const html = render(exemple.document, exemple.report);
   for (const entree of exemple.report.underived) {
-    assert.ok(html.includes(echappe(entree.reason)), `la raison de « ${entree.field} » est à l'écran`);
+    assert.ok(html.includes(echappe(renderUnderived(entree, frUnderived))), `la raison de « ${entree.field} » est à l'écran`);
   }
 
   /* L'aiguillage lui-même, sur les formes que le moteur emploie réellement. */

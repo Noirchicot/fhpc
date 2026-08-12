@@ -50,10 +50,15 @@
 import { BuildError } from "./errors.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
+/* LOT 41 — le mécanisme des mots (lot 27), réemployé pour `underived`. Import
+   du RACINE de `src/`, jamais de `src/modules/fh/` : c'est la frontière que
+   §0.12 garde sur les octets, commentaires compris. */
+import { createLabels, underivedEntry, renderUnderived, FR_UNDERIVED } from "../labels.mjs";
 
 export { ABILITY_KEYS };
 
 const ABILITY_SET = new Set(ABILITY_KEYS);
+const frUnderivedGeneric = createLabels(FR_UNDERIVED);
 
 /** Les quatre dénominations de `$defs/currency`. */
 export const CURRENCY_KEYS = ["cp", "sp", "gp", "pp"];
@@ -158,12 +163,32 @@ function modOf(score) {
 
 /* ── LE CARNET DES NON-DÉRIVÉS ───────────────────────────────────────
    Il n'accumule pas des chaînes libres : chaque entrée porte le CHAMP visé et
-   la RAISON. Une liste de phrases sans champ obligerait à relire le code pour
-   savoir quoi réparer. */
+   une RAISON KEYÉE. Une liste de phrases sans champ obligerait à relire le
+   code pour savoir quoi réparer — et une phrase nue, avant le lot 41, forçait
+   le français jusque dans un personnage anglais (loi §0.13, lot 41).
+
+   `declare(field, key, params)` pousse `{field, key, params}` — la même forme
+   que `buildViolation` (lot 27), à ceci près que `field` reste le premier
+   champ (invariant de ce carnet depuis le lot 9) et que `path` n'existe pas
+   ici : `underived` n'accuse jamais un chemin de choix, il déclare un champ
+   du document. Le `toString` non énumérable est lié à la table FRANÇAISE
+   GÉNÉRIQUE de `src/labels.mjs` par défaut — jamais à celle d'un module FH,
+   pour que `src/build/` ne compile contre aucun mot de couche (§0.12).
+
+   ⚠️ LE QUATRIÈME ARGUMENT, ET POURQUOI IL EXISTE. Un module FH construit
+   déjà ses propres entrées avec SON `toString` (lié à SA table, dans
+   `src/modules/fh/labels.mjs`) — voir la boucle de recopie, plus bas
+   (§ « STATISTIQUES DÉRIVÉES »). Sans ce paramètre, `declare()` les
+   RECONSTRUIRAIT en écrasant leur `toString` par la table générique, qui ne
+   connaît pas les clefs FH : `renderUnderived` jetterait « no label for » sur
+   le premier personnage FH venu. `render` est donc TOUJOURS fourni par
+   l'appelant qui sait d'où vient l'entrée ; ce fichier ne choisit une table
+   par défaut que pour ses PROPRES déclarations. */
 class Underived {
   constructor() { this.entries = []; }
-  declare(field, reason) {
-    this.entries.push({ field, reason });
+  declare(field, key, params, render) {
+    const rendu = typeof render === "function" ? render : (entry) => renderUnderived(entry, frUnderivedGeneric);
+    this.entries.push(underivedEntry(field, key, params || {}, rendu));
     return undefined;
   }
   has(field) { return this.entries.some((entry) => entry.field === field); }
@@ -245,7 +270,7 @@ function makeReader(query) {
  * @param {object} [input.previous] la tranche `resolved` précédente — l'état de jeu en est REPRIS
  * @param {string[]} [input.flags] les drapeaux de capacité que la pile lève (`layers.flags`)
  * @param {Array}  [input.modules] les modules de statistique injectés, `{flag, id, contribute}`
- * @returns {{resolved:object, underived:Array<{field:string,reason:string}>, unconsumed:string[]}}
+ * @returns {{resolved:object, underived:Array<{field:string,key:string,params:object}>, unconsumed:string[]}}
  */
 export function derive({ query, stack, choices, at, units, previous, flags, modules }) {
   if (typeof query !== "function") fail("la dérivation a besoin du verbe `layers.query` — c'est son seul chemin de lecture.");
@@ -311,20 +336,17 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   if (speciesView) {
     identity.species = speciesView.record.name;
     if (picked.byPath.has("species.lineage")) {
-      underived.declare("identity.species (lignage)",
-        "le lignage est un choix, pas un record : le recoller au nom de l'espèce (« Elfe (haut-elfe) ») " +
-        "reviendrait à composer un mot affichable dans le moteur (loi §0.13). La composition appartient à l'interface.");
+      underived.declare("identity.species (lignage)", "underived.lineage-not-composed", {});
     }
     const sizeKey = speciesData.size_key;
     if (typeof sizeKey === "string") identity.size = sizeKey;
-    else underived.declare("identity.size", "le record d'espèce ne porte pas `size_key` (contrat §3, genre `species`) ; " +
-      "`data.size` est une phrase (« M (moyenne, entre 1,50 m et 1,80 m) »), pas une clef.");
+    else underived.declare("identity.size", "underived.species-missing-size-key", {});
   } else {
-    underived.declare("identity.species", "aucun choix `species`.");
-    underived.declare("identity.size", "aucun choix `species`.");
+    underived.declare("identity.species", "underived.no-choice", { root: "species" });
+    underived.declare("identity.size", "underived.no-choice", { root: "species" });
   }
   if (backgroundView) identity.background = backgroundView.record.name;
-  else underived.declare("identity.background", "aucun choix `background`.");
+  else underived.declare("identity.background", "underived.no-choice", { root: "background" });
 
   /* ── CARACTÉRISTIQUES ──────────────────────────────────────────────
      Les scores de base sont des choix ; les augmentations d'arrière-plan sont
@@ -365,9 +387,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     proficiency = levelRow.proficiency_bonus;
     resolved.proficiency = proficiency;
   } else {
-    underived.declare("proficiency", progression
-      ? `la table de progression de « ${classView.id} » ne donne pas de \`proficiency_bonus\` au niveau ${level}.`
-      : `aucun record \`class-progression\` ne pointe la classe « ${classView.id} » (\`data.class\`).`);
+    underived.declare("proficiency", ...(progression
+      ? ["underived.progression-field-missing-at-level", { classId: classView.id, field: "proficiency_bonus", level }]
+      : ["underived.no-progression-record", { classId: classView.id }]));
   }
 
   /* ── CLASSE D'ARMURE ───────────────────────────────────────────────
@@ -388,7 +410,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     entry.consumed = true;
     const ref = entry.choice.ref;
     if (!ref) {
-      underived.declare(`gear[${index}]`, `le choix « ${entry.choice.path} » porte une valeur, pas un \`ref\` vers un record.`);
+      underived.declare(`gear[${index}]`, "underived.choice-not-ref", { path: entry.choice.path });
       continue;
     }
     const view = reader.must(ref.kind, ref.id, `le choix « ${entry.choice.path} »`);
@@ -398,20 +420,16 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (!Number.isInteger(quantity)) missing.push(`gear[${index}].quantity`);
     if (typeof equipped !== "boolean") missing.push(`gear[${index}].equipped`);
     if (missing.length > 0) {
-      underived.declare(`gear[${view.record.slug || ref.id}]`,
-        `${missing.join(" et ")} manque(nt) — la quantité et le port sont des décisions du joueur, ` +
-        "et « 1, non équipé » serait un défaut inventé.");
+      underived.declare(`gear[${view.record.slug || ref.id}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
       continue;
     }
     gear.push({ id: view.record.slug || ref.id, name: view.record.name, quantity, equipped });
     if (ref.kind === "armor" && equipped) armorPieces.push(view);
   }
   if (gear.length === 0) {
-    underived.declare("gear", "aucun choix `gear[n]` n'a produit de ligne d'équipement — l'équipement de départ est " +
-      "un CHOIX du joueur, pas une dérivation (contrat §6, hors périmètre du M2).");
+    underived.declare("gear", "underived.no-gear-choices", {});
   } else {
-    underived.declare("gear[].weight", "le poids d'un objet est une phrase dans la source (« 0,5 kg ») et le contrat " +
-      "ne nomme aucun champ mécanique de masse — on ne parse pas la prose.");
+    underived.declare("gear[].weight", "underived.weight-is-phrase", {});
   }
 
   const currency = {};
@@ -423,8 +441,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
   if (missingCurrency.length === 0) resolved.currency = currency;
   else {
-    underived.declare("currency", `${missingCurrency.join(", ")} — une bourse vide s'écrit en zéros SI on les a choisis ; ` +
-      "on ne les invente pas (contrat §6 : le montant de départ est un choix).");
+    underived.declare("currency", "underived.currency-incomplete", { missing: missingCurrency.join(", ") });
   }
 
   /* ── POINTS DE VIE ─────────────────────────────────────────────────
@@ -434,11 +451,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const hitDie = classData.hit_die;
   const vitals = {};
   if (!Number.isInteger(hitDie)) {
-    underived.declare("vitals.hpMax", "le record de classe ne porte pas `hit_die` (contrat §3) ; `hit_point_die` " +
-      "est une phrase (« d6 par niveau de Magicien »), et on ne parse pas la prose.");
+    underived.declare("vitals.hpMax", "underived.class-missing-hit-die", {});
   } else if (level > 1) {
-    underived.declare("vitals.hpMax", `le personnage est de niveau ${level} : la progression des points de vie ` +
-      "au-delà du niveau 1 n'est portée par aucun champ mécanique du contrat.");
+    underived.declare("vitals.hpMax", "underived.hp-progression-unsupported", { level });
   } else {
     vitals.hpMax = hitDie + abilities.con.mod;
   }
@@ -457,13 +472,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const distanceUnit = (units && units.distance) || null;
   const speedField = distanceUnit === "m" ? "speed_m" : distanceUnit === "ft" ? "speed_ft" : null;
   if (!speciesView) {
-    underived.declare("speeds", "aucun choix `species`.");
+    underived.declare("speeds", "underived.no-choice", { root: "species" });
   } else if (!speedField) {
-    underived.declare("speeds", `le document ne dit pas son unité de distance (\`units.distance\` = ${JSON.stringify(distanceUnit)}) : ` +
-      "la couche porte `speed_m` OU `speed_ft`, et choisir pour elle serait deviner.");
+    underived.declare("speeds", "underived.no-distance-unit", { distanceUnit: JSON.stringify(distanceUnit) });
   } else if (!Number.isInteger(speciesData[speedField])) {
-    underived.declare("speeds", `le record d'espèce ne porte pas \`${speedField}\` en entier (contrat §3) ; ` +
-      "`data.speed` est une phrase (« 9 m »).");
+    underived.declare("speeds", "underived.species-missing-speed-field", { speedField });
   } else {
     resolved.speeds = { walk: speciesData[speedField] };
   }
@@ -484,38 +497,34 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   if (speciesView && Array.isArray(speciesData.senses) && rangeField) {
     for (const sense of speciesData.senses) {
       if (!sense || typeof sense.id !== "string" || typeof sense.name !== "string") {
-        underived.declare("senses (espèce)", "une entrée de `senses` n'a ni `id` ni `name` exploitable (contrat §5).");
+        underived.declare("senses (espèce)", "underived.senses-entry-invalid", {});
         continue;
       }
       if (!Number.isInteger(sense[rangeField])) {
-        underived.declare(`senses[${sense.id}]`,
-          `l'entrée ne porte pas \`${rangeField}\` en entier, et \`resolved.senses[].value\` est obligatoire.`);
+        underived.declare(`senses[${sense.id}]`, "underived.senses-missing-range-field", { rangeField });
         continue;
       }
       senses.push({ id: sense.id, name: sense.name, value: sense[rangeField], unit: distanceUnit });
     }
   } else if (speciesView && speciesData.senses !== undefined && !rangeField) {
-    underived.declare("senses", `le document ne dit pas son unité de distance (\`units.distance\` = ${JSON.stringify(distanceUnit)}).`);
+    underived.declare("senses", "underived.no-distance-unit-short", { distanceUnit: JSON.stringify(distanceUnit) });
   }
   resolved.senses = senses;
   if (senses.length === 0 && !underived.has("senses")) {
-    underived.declare("senses", speciesView
-      ? "le record d'espèce ne porte pas de `senses` — trois espèces sur neuf n'en ont aucun, et c'est un fait, pas un trou."
-      : "aucun choix `species`.");
+    underived.declare(...(speciesView
+      ? ["senses", "underived.species-no-senses", {}]
+      : ["senses", "underived.no-choice", { root: "species" }]));
   }
   /* La PERCEPTION PASSIVE est calculable (10 + bonus de Perception) mais elle
      n'a de nom dans AUCUN record : ce n'est pas un sens d'espèce, c'est une
      ligne de fiche. La nommer ici violerait la loi §0.13. */
-  underived.declare("senses[perception-passive]",
-    "la perception passive se calcule (10 + le bonus de la compétence correspondante) mais son NOM ne vit dans " +
-    "aucun record — ce n'est pas un sens d'espèce, c'est une ligne de fiche, et l'interface la nomme.");
+  underived.declare("senses[perception-passive]", "underived.passive-perception-unnamed", {});
 
   /* ── LANGUES ───────────────────────────────────────────────────────
      Il n'existe pas de genre `language` parmi les 14. Le choix `languages[0]`
      nomme un slug que rien dans la pile ne peut résoudre. */
   resolved.languages = [];
-  underived.declare("languages", "aucun genre `language` parmi les 14 genres de couche : un slug de langue " +
-    "(`languages[0] = \"draconique\"`) ne se résout contre rien, et son nom affichable n'existe nulle part.");
+  underived.declare("languages", "underived.no-language-genre", {});
 
   /* ── JETS DE SAUVEGARDE ────────────────────────────────────────────
      `saving_throw_keys` est un jeu FERMÉ de deux clefs (contrat §3, 12/12).
@@ -527,8 +536,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
   if (Array.isArray(saveKeys) && saveKeys.every((key) => ABILITY_SET.has(key))) {
     if (proficiency === null) {
-      underived.declare("saves", "le bonus de maîtrise n'a pas été dérivé : un jet de sauvegarde maîtrisé sans lui " +
-        "vaudrait le jet non maîtrisé, en silence.");
+      underived.declare("saves", "underived.proficiency-not-derived-saves", {});
     } else {
       const saves = {};
       const proficientSaves = new Set(saveKeys);
@@ -539,8 +547,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       resolved.saves = saves;
     }
   } else {
-    underived.declare("saves", "le record de classe ne porte pas `saving_throw_keys` (contrat §3) ; " +
-      "`saving_throw_proficiencies` n'y donne que des noms affichables, et le moteur ne les traduit pas en clefs.");
+    underived.declare("saves", "underived.class-missing-saving-throw-keys", {});
   }
 
   /* ── COMPÉTENCES ───────────────────────────────────────────────────
@@ -570,8 +577,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     for (const recordId of recordIds) {
       const entry = skills.byId.get(recordId);
       if (!entry) {
-        underived.declare(`skills[${recordId}]`,
-          `l'arrière-plan accorde la compétence « ${recordId} », que la pile ne porte pas.`);
+        underived.declare(`skills[${recordId}]`, "underived.background-grants-unknown-skill", { recordId });
         continue;
       }
       proficientSkills.set(entry.id, sourceRoot);
@@ -579,8 +585,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   };
   if (Array.isArray(backgroundData.skill_ids)) grantSlugs(backgroundData.skill_ids, "background");
   else if (backgroundView) {
-    underived.declare("skills (arrière-plan)", "le record d'arrière-plan ne porte pas `skill_ids` (contrat §3) ; " +
-      "`skill_proficiencies` y donne des noms affichables.");
+    underived.declare("skills (arrière-plan)", "underived.background-missing-skill-ids", {});
   }
 
   /* Les choix. ⚠️ RÈGLE DE CE LOT, à ratifier (question 2) : un choix est un
@@ -607,8 +612,8 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     const allowed = allowedSlugs(declaration.data, skills);
     if (allowed === null) {
       if (declaration.view && declaration.data !== undefined) {
-        underived.declare(`skills (${root})`, `« ${declaration.view.id} » porte un \`${declaration.key}\` que la ` +
-          "dérivation ne sait pas lire : la forme attendue est `{count, from}` (contrat §3/§5).");
+        underived.declare(`skills (${root})`, "underived.skill-declaration-unreadable",
+          { recordId: declaration.view.id, field: declaration.key });
       }
       chosenBy[root] = [];
       continue;
@@ -676,12 +681,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
 
   if (skills.list.length === 0) {
-    underived.declare("skills", "la pile ne porte aucune compétence exploitable — le genre `skill` est vide ou " +
-      "ses records n'ont pas de `ability_key`.");
+    underived.declare("skills", "underived.no-usable-skills", {});
     resolved.skills = [];
   } else if (proficiency === null) {
-    underived.declare("skills", "le bonus de maîtrise n'a pas été dérivé : rendre dix-huit compétences dont les " +
-      "maîtrisées valent comme les autres serait une fiche fausse et jouable.");
+    underived.declare("skills", "underived.proficiency-not-derived-skills", {});
     resolved.skills = [];
   } else {
     /* `half` n'existe QUE par le budget captif à ce stade (aucun palier SRD
@@ -722,25 +725,20 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         answer.consumed = true;
         toolViews.push(reader.must("tool", answer.choice.ref.id, `le choix « ${answer.choice.path} »`));
       } else {
-        underived.declare("tools", "l'arrière-plan demande de CHOISIR un outil (`tool_choice`, arbitrage B2) et " +
-          "aucun choix sous `background.*` ne désigne un record `tool`.");
+        underived.declare("tools", "underived.background-tool-choice-unanswered", {});
       }
     } else {
-      underived.declare("tools", "le record d'arrière-plan ne porte ni `tool_id` ni `tool_choice` (contrat §3) ; " +
-        "`tool_proficiency` y est une phrase.");
+      underived.declare("tools", "underived.background-missing-tool-field", {});
     }
   }
   for (const view of toolViews) {
     const abilityKey = view.record.data && view.record.data.ability_key;
     if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
-      underived.declare(`tools[${view.record.slug || view.id}]`,
-        "le record d'outil ne porte pas `ability_key` — ⚠️ CE CHAMP N'EST PAS DANS LE CONTRAT " +
-        "(question 3 à l'architecte) ; `data.ability` y est un mot affichable, et " +
-        "`resolved.tools[].ability` exige une clef.");
+      underived.declare(`tools[${view.record.slug || view.id}]`, "underived.tool-missing-ability-key", {});
       continue;
     }
     if (proficiency === null) {
-      underived.declare(`tools[${view.record.slug || view.id}]`, "le bonus de maîtrise n'a pas été dérivé.");
+      underived.declare(`tools[${view.record.slug || view.id}]`, "underived.proficiency-not-derived-tools", {});
       continue;
     }
     tools.push({
@@ -768,8 +766,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      l'Attaque d'opportunité, leur texte ne vit que dans le glossaire, en
      prose. */
   resolved.actions = [];
-  underived.declare("actions", "aucun genre `action` parmi les 14 ; composer une attaque depuis une arme demande " +
-    "une règle (Finesse, Lancer) que le contrat ne porte pas, et `weapon.properties` est une phrase.");
+  underived.declare("actions", "underived.no-action-genre", {});
 
   /* ── INCANTATION ───────────────────────────────────────────────────
      `dc` = 8 + maîtrise + modificateur ; `attackBonus` = maîtrise +
@@ -783,14 +780,12 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
 
   if (!assertAbilityKey(castingKey, classView.id, "data.spellcasting_ability_key")) {
     if (spellRefs.length > 0 || (slotRow && slotRow.some((count) => count > 0))) {
-      underived.declare("spellcasting", "le record de classe ne porte pas `spellcasting_ability_key` — ⚠️ CE CHAMP " +
-        "N'EST PAS DANS LE CONTRAT (question 3) ; `primary_ability` y est un mot affichable, et la caractéristique " +
-        "primaire d'une classe n'est de toute façon pas toujours sa caractéristique d'incantation.");
+      underived.declare("spellcasting", "underived.class-missing-spellcasting-key", {});
     } else {
       resolved.spellcasting = null; // Dérivé, pas consolant : ni sort choisi, ni emplacement.
     }
   } else if (proficiency === null) {
-    underived.declare("spellcasting", "le bonus de maîtrise n'a pas été dérivé : le DD et le bonus d'attaque en dépendent.");
+    underived.declare("spellcasting", "underived.proficiency-not-derived-spellcasting", {});
   } else {
     const mod = abilities[castingKey].mod;
     const slots = {};
@@ -802,8 +797,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         slots[key] = { max: count, current: (kept && Number.isInteger(kept.current)) ? kept.current : count };
       });
     } else {
-      underived.declare("spellcasting.slots", `la table de progression de « ${classView.id} » ne porte pas ` +
-        "`spell_slots` au niveau demandé — la magie de pacte vit un cran plus bas, en scalaire (schéma, `slotsRecharge`).");
+      underived.declare("spellcasting.slots", "underived.progression-missing-spell-slots", { classId: classView.id });
     }
     const spells = [];
     const spellsSansConcentration = [];
@@ -814,7 +808,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       const data = view.record.data || {};
       const slug = view.record.slug;
       if (typeof slug !== "string" || !Number.isInteger(data.level)) {
-        underived.declare(`spellcasting.spells[${view.id}]`, "le record de sort n'a ni `slug` ni `level` exploitable.");
+        underived.declare(`spellcasting.spells[${view.id}]`, "underived.spell-record-invalid", {});
         continue;
       }
       const spell = { id: slug, name: view.record.name, level: data.level, prepared: true };
@@ -842,14 +836,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
          règle est un mensonge silencieux : il est sauté et déclaré. */
       if (typeof data.description === "string") {
         if (data.description.length > SPELL_TEXT_MAX) {
-          underived.declare(`spellcasting.spells[${slug}].text`,
-            `la description fait ${data.description.length} caractères et le schéma en accepte ${SPELL_TEXT_MAX} ; ` +
-            "tronquer un texte de règle serait un mensonge silencieux.");
+          underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-text-too-long",
+            { length: data.description.length, max: SPELL_TEXT_MAX });
         } else {
           spell.text = data.description;
         }
       } else {
-        underived.declare(`spellcasting.spells[${slug}].text`, "le record de sort ne porte pas de `description`.");
+        underived.declare(`spellcasting.spells[${slug}].text`, "underived.spell-missing-description", {});
       }
       /* `concentration` est un BOOLÉEN de la couche, commandé au lot 8. La
          dérivation ne le déduit PAS de `duration` : « Concentration, jusqu'à
@@ -862,8 +855,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        niveau 1, chacun dans l'ordre où le joueur les a choisis. */
     spells.sort((a, b) => a.level - b.level);
     if (spells.length === 0) {
-      underived.declare("spellcasting.spells", "aucun choix ne désigne de record `spell` — un lanceur sans sort est " +
-        "une liste vide, pas une liste devinée.");
+      underived.declare("spellcasting.spells", "underived.no-spell-choices", {});
     }
     resolved.spellcasting = {
       id: classView.record.slug || classView.id,
@@ -878,24 +870,18 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        ne sont structurés nulle part dans la source — ni dé, ni type, ni
        échelle par niveau d'emplacement. Le contrat ne les nomme pas et le lot
        8 ne peut pas les émettre : ils se déclarent, à chaque pli. */
-    underived.declare("spellcasting.spells[].damage",
-      "les dégâts d'un sort ne sont structurés nulle part dans la source : ni dé, ni type, ni progression par " +
-      "niveau d'emplacement. Ils ne vivent que dans `description`, en prose, et on ne parse pas la prose.");
+    underived.declare("spellcasting.spells[].damage", "underived.spell-damage-unstructured", {});
     if (spellsSansConcentration.length > 0) {
-      underived.declare("spellcasting.spells[].concentration",
-        `${spellsSansConcentration.length} sort(s) sans champ \`concentration\` (${spellsSansConcentration.join(", ")}) — ` +
-        "la dérivation ne le déduit pas de `duration`, qui est une phrase.");
+      underived.declare("spellcasting.spells[].concentration", "underived.spells-missing-concentration",
+        { count: spellsSansConcentration.length, ids: spellsSansConcentration.join(", ") });
     }
     /* Le MODE DE RÉSOLUTION. Refusé par le lot 8 avec sa mesure, et
        l'architecte lui a donné raison : le champ est facultatif au schéma
        depuis le 2026-08-08. Un sort sans `cast_type` est émis quand même, et
        c'est le mode qui se déclare inconnu. */
     if (spellsSansCastType.length > 0) {
-      underived.declare("spellcasting.spells[].castType",
-        `${spellsSansCastType.length} sort(s) sans champ \`cast_type\` (${spellsSansCastType.join(", ")}) — ` +
-        "refusé par le lot 8 le 2026-08-08, mesure à l'appui : cinq constructions ressemblent à une sauvegarde et " +
-        "une seule est le fait, et un sort peut être génuinement attaque ET sauvegarde. Le sort est émis sans son " +
-        "mode plutôt que sauté : une fiche sans sorts serait plus fausse qu'une fiche dont le mode est dit inconnu.");
+      underived.declare("spellcasting.spells[].castType", "underived.spells-missing-cast-type",
+        { count: spellsSansCastType.length, ids: spellsSansCastType.join(", ") });
     }
   }
 
@@ -905,9 +891,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      clefs sans nom affichable (`sorts_mineurs: 3`), et `resolved.resources[]`
      exige un `name`. */
   resolved.resources = [];
-  underived.declare("resources", "les ressources du personnage (dés de vie, usages d'aptitude) n'ont pas de champ " +
-    "mécanique dans le contrat ; `class-progression.levels[].resources` porte des clefs sans nom affichable, et " +
-    "`resolved.resources[].name` est obligatoire.");
+  underived.declare("resources", "underived.no-resources-field", {});
 
   /* ── TRAITS ────────────────────────────────────────────────────────
      Le contrat §5 (GROUPE B, refusable) porte les traits d'espèce sous la
@@ -918,7 +902,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   if (speciesView && Array.isArray(speciesData.traits)) {
     for (const trait of speciesData.traits) {
       if (!trait || typeof trait.id !== "string" || typeof trait.name !== "string") {
-        underived.declare("traits (espèce)", "un trait d'espèce n'a ni `id` ni `name` exploitable (contrat §5).");
+        underived.declare("traits (espèce)", "underived.trait-entry-invalid", {});
         continue;
       }
       const entry = { id: trait.id, name: trait.name, source: speciesView.record.name };
@@ -938,13 +922,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        record d'espèce qui ne porte PAS de `traits`. Ce n'est plus l'état de la
        couche SRD — c'est une couche tierce ou amputée, et la privation qui le
        prouve est délibérée (tests/build-derive.test.mjs, `COUCHE_AMPUTEE`). */
-    underived.declare("traits (espèce)", "le record d'espèce ne porte pas `traits` : le contrat §5 les attend " +
-      "sous la forme `[{id, name, text}]`, et `description` est de la prose dont un parseur approximatif ferait " +
-      "une fiche fausse. La couche SRD, elle, les porte depuis la réparation de l'extraction à deux colonnes.");
+    underived.declare("traits (espèce)", "underived.species-missing-traits", {});
   }
   resolved.traits = traits;
-  underived.declare("traits (classe, don, arrière-plan)", "le contrat ne porte aucun champ de trait pour les genres " +
-    "`class`, `feat` et `background` : `features[].description` et `feat.description` sont de la prose.");
+  underived.declare("traits (classe, don, arrière-plan)", "underived.no-trait-field-for-class-feat-background", {});
 
   resolved.gear = gear;
 
@@ -953,8 +934,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      un drapeau de couche, jamais du contenu de couche. Aucun module
      d'artisanat n'existe au M2 — la collection est vide, et c'est dit. */
   resolved.craft = [];
-  underived.declare("craft", "une entrée d'artisanat vient d'un module moteur activé par un drapeau (décision Q4) ; " +
-    "aucun module d'artisanat n'existe au M2.");
+  underived.declare("craft", "underived.no-craft-module", {});
 
   /* ── STATISTIQUES DÉRIVÉES DE COUCHE ───────────────────────────────
      REWRITTEN 2026-08-08 (lot 19) — LA PREMIÈRE EST PUBLIÉE. L'ancienne
@@ -1073,7 +1053,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     });
     if (outcome && outcome.stat) stats.push(outcome.stat);
     if (outcome && Array.isArray(outcome.underived)) {
-      for (const entry of outcome.underived) underived.declare(entry.field, entry.reason);
+      /* Le module a DÉJÀ lié son propre `toString` (sa propre table, dans
+         `src/modules/fh/labels.mjs`) au moment où il a construit `entry` —
+         on le TRANSMET, on ne le RECONSTRUIT pas (voir le commentaire de
+         `Underived.declare`, plus haut). */
+      for (const entry of outcome.underived) underived.declare(entry.field, entry.key, entry.params, () => entry.toString());
     }
     if (outcome && outcome.skillTiers && typeof outcome.skillTiers === "object") {
       for (const [slug, entry] of Object.entries(outcome.skillTiers)) {
@@ -1177,9 +1161,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       if (!view) continue; // le module a déjà refusé un slug hors catalogue (skill-spend.option-unavailable)
       const abilityKey = view.record.data && view.record.data.ability_key;
       if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
-        underived.declare(`tools[${slug}]`,
-          "le record d'outil acheté au pool ne porte pas `ability_key` — même trou que l'outil d'arrière-plan " +
-          "(question 3 à l'architecte).");
+        underived.declare(`tools[${slug}]`, "underived.tool-missing-ability-key-pool", {});
         continue;
       }
       tools.push({
@@ -1193,7 +1175,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
 
   if (resolved.tools.length === 0 && !underived.has("tools")) {
-    underived.declare("tools", "aucune maîtrise d'outil accordée par les choix.");
+    underived.declare("tools", "underived.no-tool-granted", {});
   }
 
   /* La collection est vide et AUCUN module n'a tourné : c'est le cas du
@@ -1208,10 +1190,8 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      qu'un personnage SRD pur, et l'oubli serait invisible. */
   if (stats.length === 0 && !anyModuleActive) {
     const served = [...servedFlags].sort();
-    underived.declare("stats", "aucun module de statistique actif n'a publié d'entrée : une statistique dérivée " +
-      "vient d'un module moteur activé par un drapeau de couche (décision Q4). " +
-      `Drapeaux levés par la pile : ${raisedFlags.length ? raisedFlags.join(", ") : "aucun"}. ` +
-      `Drapeaux servis par les modules injectés : ${served.length ? served.join(", ") : "aucun"}.`);
+    underived.declare("stats", "underived.no-active-stat-module",
+      { raisedFlags: raisedFlags.join(", "), servedFlags: served.join(", ") });
   }
 
   /* ── NOTES ─────────────────────────────────────────────────────────
@@ -1221,8 +1201,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      centaines. Les notes appartiennent donc à un verbe d'édition de la fiche
      (l'override, ou un verbe du bloc `doc`), pas à la dérivation. */
   resolved.notes = [];
-  underived.declare("notes", "une note est du texte saisi à la main, pas une dérivation ; et un choix ne peut pas " +
-    "la porter — `build.choices[].value` est plafonné à 200 caractères par le schéma.");
+  underived.declare("notes", "underived.notes-not-derivable", {});
 
   /* ── CLASSE D'ARMURE, une fois l'équipement connu ──────────────────
      Sans armure : 10 + Dex. Avec : `ac_base` + Dex plafonné par `ac_dex_cap`,
@@ -1230,24 +1209,22 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      modificateur, pas une base). */
   const acBases = [];
   let acBonus = 0;
-  let acRefused = null;
+  let acRefusedArmorId = null;
   for (const view of armorPieces) {
     const data = view.record.data || {};
     const hasBase = Number.isInteger(data.ac_base);
     const hasBonus = Number.isInteger(data.ac_bonus);
     if (!hasBase && !hasBonus) {
-      acRefused = `« ${view.id} » est équipé mais son record ne porte ni \`ac_base\` ni \`ac_bonus\` (contrat §3) ; ` +
-        "`armor_class` y est une phrase. Rendre 10 + Dex avec une armure sur le dos serait une fiche fausse.";
+      acRefusedArmorId = view.id;
       break;
     }
     if (hasBase) acBases.push({ base: data.ac_base, cap: data.ac_dex_cap });
     if (hasBonus) acBonus += data.ac_bonus;
   }
-  if (acRefused) {
-    underived.declare("ac", acRefused);
+  if (acRefusedArmorId) {
+    underived.declare("ac", "underived.armor-missing-ac-fields", { armorId: acRefusedArmorId });
   } else if (acBases.length > 1) {
-    underived.declare("ac", "deux armures de base sont équipées en même temps : laquelle porte la CA n'est pas " +
-      "une question que la dérivation a le droit de trancher toute seule.");
+    underived.declare("ac", "underived.ac-ambiguous-multiple-armor", {});
   } else if (acBases.length === 1) {
     const { base, cap } = acBases[0];
     const dex = cap === null || cap === undefined ? abilities.dex.mod : Math.min(abilities.dex.mod, cap);

@@ -1,4 +1,12 @@
 import { renderBuildViolation } from "../labels.mjs";
+/* LOT 41 — `underived[].reason` n'existe plus (`{field, key, params}`).
+   MESURÉ AVANT D'ÉCRIRE : `tests/mcp-block.test.mjs` interdit déjà
+   `../modules/` ici (GARDE 1, « le domaine »), exactement comme §0.12 le fait
+   pour `src/build/` — `src/mcp/` ne compose donc PAS les deux paquets de
+   mots. Chaque entrée porte déjà, depuis sa construction (`derive.mjs` ou un
+   module FH), un `toString` non énumérable lié à SA propre table : la
+   coercition `${entry}` suffit, sans que ce fichier importe un seul mot de
+   couche — la même solution que `src/build/block.mjs` (lot 41). */
 
 /* ══ LE CATALOGUE D'OUTILS — ET RIEN QUE LE CATALOGUE ══════════════════
    Lot 10-mcp-v0.
@@ -370,7 +378,7 @@ export const TOOLS = [
         `NON DÉRIVÉ (${underived.length}) — ce que la pile n'a pas su nourrir, et qui n'est donc PAS sur la fiche :`,
         ...(underived.length === 0
           ? ["  aucun."]
-          : underived.map((entry) => `  · ${entry.field} : ${entry.reason}`)),
+          : underived.map((entry) => `  · ${entry.field} : ${entry}`)),
         "",
         `RECORDS RECOUVERTS (${shadowed.length}) — une couche haute a remplacé un record d'une couche basse :`,
         ...(shadowed.length === 0

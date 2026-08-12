@@ -42,7 +42,12 @@
    des mots affichés vient du document. */
 
 import { OVERRIDE_PATH } from "../build/paths.mjs";
-import { createLabels } from "../labels.mjs";
+import { createLabels, renderUnderived, FR_UNDERIVED, EN_UNDERIVED } from "../labels.mjs";
+/* LOT 41 — `underived[].reason` est devenu `{key, params}` (loi §0.13, le
+   moteur produit des identifiants). Ce fichier EST l'interface : c'est ici,
+   et seulement ici, que la clef redevient un mot — dans la langue choisie
+   par `lang`, exactement comme `LIBELLES`/`MOTS` depuis le lot 40. */
+import { FH_UNDERIVED_FR, FH_UNDERIVED_EN } from "../modules/fh/labels.mjs";
 
 /* ══ LA MARCHE ════════════════════════════════════════════════════════
 
@@ -286,14 +291,14 @@ function noeudHtml(noeud, overrides, mots) {
   return `<div class="bloc">${chemin(noeud, override, mots)}${badgeOverride(override, mots)}${corps}</div>`;
 }
 
-function declarationsHtml(declarations, mots) {
+function declarationsHtml(declarations, mots, raison) {
   if (declarations.length === 0) return "";
   const items = declarations.map((entree) =>
-    `<li><code>${ech(entree.field)}</code> — ${ech(entree.reason)}</li>`).join("");
+    `<li><code>${ech(entree.field)}</code> — ${ech(raison(entree))}</li>`).join("");
   return `<div class="declare"><strong>${ech(mots("nonDerive"))}</strong><ul>${items}</ul></div>`;
 }
 
-function rubriqueHtml(rubrique, overrides, mots) {
+function rubriqueHtml(rubrique, overrides, mots, raison) {
   const titre = rubrique.titre === null
     ? `<code>${ech(rubrique.cle)}</code> <em class="rien">${ech(mots("sansLibelle"))}</em>`
     : ech(rubrique.titre);
@@ -305,12 +310,12 @@ function rubriqueHtml(rubrique, overrides, mots) {
     : "";
   return `<section data-rubrique="${ech(rubrique.cle)}">` +
     `<h2>${titre} <code class="cle">${ech(rubrique.cle)}</code></h2>` +
-    declarationsHtml(rubrique.declarations, mots) + muette +
+    declarationsHtml(rubrique.declarations, mots, raison) + muette +
     noeudHtml(rubrique.racine, overrides, mots) +
     "</section>";
 }
 
-function rapportHtml(rapport, mots) {
+function rapportHtml(rapport, mots, raison) {
   const lignes = [];
   if (!rapport.present) {
     lignes.push(`<p class="alerte">${ech(mots("rapportAbsent"))}</p>`);
@@ -327,7 +332,7 @@ function rapportHtml(rapport, mots) {
     if (rapport.orphelines.length > 0) {
       lignes.push(`<div class="declare"><strong>${ech(mots("orphelines"))}</strong><ul>` +
         rapport.orphelines.map((entree) =>
-          `<li><code>${ech(entree.field)}</code> — ${ech(entree.reason)}</li>`).join("") +
+          `<li><code>${ech(entree.field)}</code> — ${ech(raison(entree))}</li>`).join("") +
         "</ul></div>");
     }
   }
@@ -363,7 +368,10 @@ function enteteHtml(entete, mots) {
    à faire jeter. */
 
 function packFor(lang) {
-  const pack = { fr: { libelles: LIBELLES, mots: MOTS_T_FR }, en: { libelles: LIBELLES_EN, mots: MOTS_T_EN } }[lang];
+  const pack = {
+    fr: { libelles: LIBELLES, mots: MOTS_T_FR, underived: UNDERIVED_T_FR },
+    en: { libelles: LIBELLES_EN, mots: MOTS_T_EN, underived: UNDERIVED_T_EN }
+  }[lang];
   if (pack === undefined) {
     throw new Error(`fhpc/render-fiche: no word pack for lang "${lang}" (known: fr, en).`);
   }
@@ -384,12 +392,13 @@ function packFor(lang) {
  * @returns {string} un fragment HTML — la coquille s'occupe du reste.
  */
 export function render(document, report, lang = "fr") {
-  const { libelles, mots } = packFor(lang);
+  const { libelles, mots, underived } = packFor(lang);
+  const raison = (entree) => renderUnderived(entree, underived);
   const vue = modele(document, report, libelles);
   const corps = vue.manquant
     ? `<p class="alerte">${ech(mots("resolvedAbsent"))}</p>`
-    : vue.rubriques.map((rubrique) => rubriqueHtml(rubrique, vue.overrides, mots)).join("");
-  return `<article class="fiche">${enteteHtml(vue.entete, mots)}${rapportHtml(vue.rapport, mots)}${corps}</article>`;
+    : vue.rubriques.map((rubrique) => rubriqueHtml(rubrique, vue.overrides, mots, raison)).join("");
+  return `<article class="fiche">${enteteHtml(vue.entete, mots)}${rapportHtml(vue.rapport, mots, raison)}${corps}</article>`;
 }
 
 /* ══ LES MOTS DE L'INTERFACE — TOUS ICI, ET NULLE PART AILLEURS ═══════
@@ -521,3 +530,12 @@ export const MOTS_EN = {
    HTML consulte, jamais `MOTS.xxx`/`MOTS_EN.xxx` en dur. */
 const MOTS_T_FR = createLabels(MOTS);
 const MOTS_T_EN = createLabels(MOTS_EN);
+
+/* LOT 41 — la table de lecture d'`underived`, une par langue, chacune
+   composant le paquet GÉNÉRIQUE (`src/build/derive.mjs`) et le paquet FH
+   (`src/modules/fh/*.mjs`) — le carnet d'un personnage FH mélange les deux
+   clefs, et cette page est le seul endroit du dépôt qui a le droit de
+   connaître les deux à la fois (§3d de la commande : composées au point de
+   lecture, jamais de compilation croisée vers `src/build/`). */
+const UNDERIVED_T_FR = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
+const UNDERIVED_T_EN = createLabels(EN_UNDERIVED, FH_UNDERIVED_EN);

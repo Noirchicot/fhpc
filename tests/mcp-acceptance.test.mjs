@@ -200,8 +200,13 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "stats",
     "traits (classe, don, arrière-plan)"
   ]);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. Chaque
+     entrée porte son propre `toString` non énumérable (lié à sa table
+     d'origine, générique ou FH) depuis sa construction : `${entry}` suffit,
+     exactement ce que `src/mcp/tools.mjs` fait pour composer son texte —
+     ce test vérifie donc la MÊME chaîne que le client MCP reçoit. */
   for (const entry of underived) {
-    assert.ok(entry.reason.length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
+    assert.ok(String(entry).length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
   }
 
   /* ⚠️ ET DANS LE TEXTE. Tout l'intérêt du M2 est qu'une machine sache ce qui
@@ -216,7 +221,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
   assert.match(texte, /NON DÉRIVÉ \(13\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
-    assert.ok(texte.includes(entry.reason), `le texte doit porter la RAISON de « ${entry.field} »`);
+    assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);
   }
   assert.match(texte, /RECORDS RECOUVERTS \(\d+\)/, "et `shadowed` a sa ligne, même vide");
   assert.match(texte, /CHOIX NON CONSOMMÉS \(5\)/,

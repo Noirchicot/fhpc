@@ -16,6 +16,14 @@ import Ajv2020 from "ajv/dist/2020.js";
 
 import { makeHarness, acceptanceDocument, readJson, manifestOf, uneCouche, ampute, SRD_FR } from "./build-harness.mjs";
 import { diffResolved } from "../src/build/diff.mjs";
+/* LOT 41 — `underived[].reason` n'existe plus (`{field, key, params}`, voir
+   `src/labels.mjs`). Les assertions qui lisaient la phrase la reconstruisent
+   via `renderUnderived`, sur la MÊME table que `derive.mjs` utilise pour son
+   `toString` non énumérable — la garantie de texte reste testée, la forme a
+   changé. */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED);
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
 const validateChar = ajv.compile(readJson("schemas/fh-char.schema.json"));
@@ -169,8 +177,11 @@ test("SANS LES CHAMPS MÉCANIQUES DU §3, rien n'est deviné : tout ce qui manqu
   assert.equal(out.resolved.vitals.hpMax, undefined, "un nombre qu'on ne sait pas calculer est ABSENT, pas nul");
   assert.equal(out.resolved.saves, undefined, "et six sauvegardes non maîtrisées ne sont pas un défaut acceptable");
   assert.equal(out.resolved.speeds, undefined);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` est devenu `{key, params}` ;
+     la phrase se relit via `renderUnderived` sur la même table que le
+     `toString` de `derive.mjs`, la garantie de texte ne bouge pas. */
   assert.match(
-    out.underived.find((entry) => entry.field === "vitals.hpMax").reason,
+    renderUnderived(out.underived.find((entry) => entry.field === "vitals.hpMax"), frUnderived),
     /hit_die/,
     "la raison nomme le champ mécanique attendu, pas un vague « données manquantes »"
   );
@@ -204,8 +215,12 @@ test("UN RECORD D'ESPÈCE SANS `traits` est déclaré — et la privation est D�
     "aucun trait n'est fabriqué depuis `description` : ce serait la fiche fausse que le contrat interdit");
   const entree = out.underived.find((entry) => entry.field === "traits (espèce)");
   assert.ok(entree, "et la liste vide ne reste pas muette — une liste vide muette ressemble à une réponse");
-  assert.match(entree.reason, /\{id, name, text\}/, "la raison nomme la FORME attendue par le contrat §5");
-  assert.ok(entree.reason.length > 40);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` ; la clef
+     PRÉCISE remplace le motif de phrase, `renderUnderived` porte le contrôle
+     de longueur (le mot doit encore dire quelque chose, pas juste exister). */
+  assert.equal(entree.key, "underived.species-missing-traits");
+  assert.match(renderUnderived(entree, frUnderived), /\{id, name, text\}/, "la raison nomme la FORME attendue par le contrat §5");
+  assert.ok(renderUnderived(entree, frUnderived).length > 40);
 
   /* ET LE PENDANT, SUR LA VRAIE MATIÈRE : les cinq traits sont là, et rien ne
      les déclare. Sans ce second bout, le test ne prouverait que « une couche
@@ -231,7 +246,8 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
   assert.deepEqual(out.resolved.tools, [],
     "`resolved.tools[].ability` est obligatoire : on ne pose pas une entrée à moitié");
   const entree = out.underived.find((e) => e.field === "tools[materiel-de-calligraphe]");
-  assert.match(entree.reason, /ability_key/);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(entree, frUnderived), /ability_key/);
 
   /* Et le pendant, sur la vraie matière : l'outil EST dérivé, avec son bonus. */
   const vraie = makeHarness();
@@ -285,8 +301,11 @@ test("la CA avec armure, et son refus platement quand le champ mécanique manque
   doc.build.overrides = [];
   const degrade = nu.verbs.rebuild({ document: doc });
   assert.equal(degrade.resolved.ac, undefined);
-  assert.match(degrade.underived.find((e) => e.field === "ac").reason, /ac_base/);
-  assert.match(degrade.underived.find((e) => e.field === "ac").reason, /fiche fausse/);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  const acEntry = degrade.underived.find((e) => e.field === "ac");
+  assert.equal(acEntry.key, "underived.armor-missing-ac-fields");
+  assert.match(renderUnderived(acEntry, frUnderived), /ac_base/);
+  assert.match(renderUnderived(acEntry, frUnderived), /fiche fausse/);
 });
 
 /* ── les overrides ──────────────────────────────────────────────────── */

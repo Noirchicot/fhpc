@@ -46,6 +46,10 @@ import { registerLayers } from "../src/layers/index.mjs";
 import { registerBuild } from "../src/build/index.mjs";
 import { fileBytes, readJson, SRD_FR, HOMEBREW, EXAMPLE_CHAR } from "./build-harness.mjs";
 import { diffResolved } from "../src/build/diff.mjs";
+/* LOT 41 — `underived[].reason` → `{key, params}`. */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED);
 
 /** ⚠️ LA LEÇON DE LA REVUE DU 2026-08-08, OUTILLÉE.
  *
@@ -430,23 +434,25 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "stats",
     "traits (classe, don, arrière-plan)"
   ]);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` ; la phrase
+     se relit via `renderUnderived`, la garantie de contenu ne bouge pas. */
   assert.match(
-    out.underived.find((entry) => entry.field === "spellcasting.spells[].castType").reason,
+    renderUnderived(out.underived.find((entry) => entry.field === "spellcasting.spells[].castType"), frUnderived),
     /refusé par le lot 8/,
     "un refus argumenté et daté, pas un trou anonyme"
   );
   assert.match(
-    out.underived.find((entry) => entry.field === "spellcasting.spells[].damage").reason,
+    renderUnderived(out.underived.find((entry) => entry.field === "spellcasting.spells[].damage"), frUnderived),
     /ne sont structurés nulle part/,
     "les dégâts, eux, sont réellement hors d'atteinte"
   );
   assert.match(
-    out.underived.find((entry) => entry.field === "spellcasting.spells[].concentration").reason,
+    renderUnderived(out.underived.find((entry) => entry.field === "spellcasting.spells[].concentration"), frUnderived),
     /chuchotement-des-pages/,
     "et la concentration ne manque plus QUE sur la couche non régénérée — la raison NOMME les sorts"
   );
   for (const entry of out.underived) {
-    assert.ok(entry.reason.length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
+    assert.ok(renderUnderived(entry, frUnderived).length > 40, `« ${entry.field} » doit dire POURQUOI, pas seulement QUOI`);
   }
 
   /* L'INVARIANT DU LOT : aucune collection vide n'est rendue sans une

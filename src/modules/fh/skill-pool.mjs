@@ -100,7 +100,7 @@
    condition de publication, et son absence est une déclaration. */
 
 import { createLabels } from "../../play/labels.mjs";
-import { FH_EN } from "./labels.mjs";
+import { FH_EN, FH_UNDERIVED_FR } from "./labels.mjs";
 /* LOT 34 — `buildViolation` est un CONSTRUCTEUR GÉNÉRIQUE (lot 27), pas une
    règle : `{key, params, path?}`, la même forme partout dans le dépôt (voir
    `decisions.mjs`). Ce module l'utilise pour rendre un refus keyé sur un
@@ -108,10 +108,15 @@ import { FH_EN } from "./labels.mjs";
    le droit de connaître le nom de son propre pool (§0.12, mesuré :
    `tests/fh-skill-pool.test.mjs`, ACCEPTATION 4). L'import va du module vers
    `src/build/`, jamais l'inverse : c'est le sens que la loi autorise déjà
-   (`derive.mjs` n'importe rien d'ici). */
+   (`derive.mjs` n'importe rien d'ici). LOT 41 : `underivedEntry`/`renderUnderived`
+   suivent exactement le même sens — ce module en a déjà l'habitude. */
 import { buildViolation } from "../../build/validate.mjs";
+import { underivedEntry, renderUnderived } from "../../labels.mjs";
 
 const t = createLabels(FH_EN);
+const frUnderivedFh = createLabels(FH_UNDERIVED_FR);
+const declareUnderived = (field, key, params) =>
+  underivedEntry(field, key, params || {}, (entry) => renderUnderived(entry, frUnderivedFh));
 
 /** Le drapeau qui allume ce module. Levé par `layers/fh-skills-en.layer.json`. */
 export const FH_SKILLS_FLAG = "fh.skills";
@@ -204,12 +209,7 @@ function readClassPool(classRef, records, underived) {
        donc ce cas ne vient pas d'un document : il vient d'un `ref` de classe
        posé sous un autre chemin, ou d'un câblage. On le dit plutôt que de
        supposer. */
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}]`,
-      reason: `aucun \`ref\` de genre \`class\` sous le chemin « ${CLASS_PATH} » : le pool de points vient de la ` +
-        "CLASSE (`data[" + POOL_FIELD + "].base`), et un personnage dont la classe n'est pas désignée là où le " +
-        "pli la lit n'en a aucun à lire."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}]`, "underived.fh.skillpool-no-class-ref", {}));
     return null;
   }
   const pool = (classRef.data || {})[POOL_FIELD];
@@ -223,13 +223,8 @@ function readClassPool(classRef, records, underived) {
         "from a third-party layer. A class without a pool is bad content, not missing content: the character " +
         "would silently have no points to spend at all.");
     }
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}]`,
-      reason: `la classe « ${classRef.id} » ne porte pas \`data[${POOL_FIELD}]\`, et AUCUNE classe de la pile n'en ` +
-        "porte : la couche des compétences (`fh-skills-en`) n'est pas montée. Ce qui manque est le CONTENU — " +
-        "le drapeau `" + FH_SKILLS_FLAG + "` est levé par une couche qui ne l'apporte pas. Les douze pools " +
-        "valent 12, 14, 16 ou 18 selon la classe : un nombre posé ici serait inventé."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}]`, "underived.fh.skillpool-layer-not-mounted",
+      { classId: classRef.id }));
     return null;
   }
   if (pool === null || typeof pool !== "object" || Array.isArray(pool)) {
@@ -349,22 +344,14 @@ function tierBonusTerm(tier, proficiency) {
    fait pour les dix-sept dons du SRD qui ne touchent pas au Score. */
 function speciesLines(species, level, lines, underived) {
   if (!species) {
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].species`,
-      reason: "aucun choix `species` : les points de compétence d'espèce sont une donnée de l'espèce " +
-        `(\`data.${SPECIES_FIELD}\`), et un personnage sans espèce n'en a aucune à lire.`
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].species`, "underived.fh.skillpool-species-no-choice", {}));
     return;
   }
   const data = species.data || {};
   const bumps = data[SPECIES_FIELD];
   if (bumps === undefined) {
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].species`,
-      reason: `l'espèce « ${species.id} » ne porte pas \`data.${SPECIES_FIELD}\`, et c'est un FAIT, pas un trou : ` +
-        "neuf des douze espèces ne donnent aucun point de compétence. Les trois qui en donnent sont l'Araag " +
-        "et l'Elestu (`fast-learner`) et l'Humain (`educated`), dans la couche `fh-species-en`."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].species`, "underived.fh.skillpool-species-no-field",
+      { speciesId: species.id }));
     return;
   }
   if (bumps === null || typeof bumps !== "object" || Array.isArray(bumps)) {
@@ -390,11 +377,8 @@ function speciesLines(species, level, lines, underived) {
        niveau 0 n'existe pas, mais l'Araag n'a rien gagné au niveau 2 qu'il
        n'ait déjà au niveau 1. La déclaration nomme le trait ET le niveau :
        sans le niveau, elle se lirait comme « cette espèce ne donne rien ». */
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].species`,
-      reason: `l'espèce « ${species.id} » accorde des points par « ${trait.name} », et AUCUN de ses paliers n'est ` +
-        `atteint au niveau ${level} (règle Q15-8 : seuls comptent les paliers TRAVERSÉS).`
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].species`, "underived.fh.skillpool-species-tier-not-reached",
+      { speciesId: species.id, traitName: trait.name, level }));
     return;
   }
   for (const tier of tiers) {
@@ -446,22 +430,12 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
        opposés sur le même champ dans le même document seraient un défaut. Les
        champs du pool, eux, JETTENT : ils viennent de la couche FH, que ce
        dépôt génère lui-même — malformés, c'est le générateur qui est cassé. */
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].imposed.class`,
-      reason: `la classe « ${classRef.id} » ne porte pas de \`skill_choice.count\` lisible : le nombre de ` +
-        "compétences que la classe IMPOSE se déduit du pool à 1 point chacune (règle d'Eric, 2026-08-08), " +
-        "et sans lui le pool publié est trop généreux d'exactement ce nombre."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.class`, "underived.fh.skillpool-class-choice-unreadable",
+      { classId: classRef.id }));
   }
 
   if (!backgroundRef) {
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].imposed.background`,
-      reason: `aucun \`ref\` de genre \`background\` sous le chemin « ${BACKGROUND_PATH} » : l'arrière-plan est ` +
-        "INCLUS dans le pool de classe (décision d'Eric, point 9), et les maîtrises qu'il accorde s'en " +
-        "déduisent. Un personnage sans arrière-plan n'en déduit aucune — mais son pool a été calibré en " +
-        "supposant qu'il en aurait un."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`, "underived.fh.skillpool-no-background-ref", {}));
     return;
   }
   const backgroundData = backgroundRef.data || {};
@@ -474,11 +448,8 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
       });
     }
   } else {
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].imposed.background`,
-      reason: `l'arrière-plan « ${backgroundRef.id} » ne porte pas \`skill_ids\` (contrat §3) ; ` +
-        "`skill_proficiencies` n'y donne que des noms affichables, et le moteur ne compte pas des mots."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`,
+      "underived.fh.skillpool-background-missing-skill-ids", { backgroundId: backgroundRef.id }));
   }
 
   /* L'OUTIL D'ARRIÈRE-PLAN. `tool_id` l'accorde, `tool_choice` le fait choisir
@@ -492,22 +463,13 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
       source: { kind: "background", id: backgroundRef.id }
     });
   } else {
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].imposed.tool`,
-      reason: `l'arrière-plan « ${backgroundRef.id} » ne porte ni \`tool_id\` ni \`tool_choice\` (contrat §3) : ` +
-        "un outil imposé coûte 1 point comme une compétence imposée (règle d'Eric), et « le minimum 1 point " +
-        "en outils à la création » devient redondant précisément parce que cet outil-là est semé à 1."
-    });
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.tool`, "underived.fh.skillpool-background-missing-tool",
+      { backgroundId: backgroundRef.id }));
   }
 
   /* Les outils que la CLASSE impose — jamais comptés, toujours déclarés. */
-  underived.push({
-    field: `stats[${FH_SKILL_POOL_ID}].imposed.class-tools`,
-    reason: `la classe « ${classRef.id} » ne porte aucun champ MÉCANIQUE d'outil : \`tool_proficiencies\` est une ` +
-      "phrase (« Thieves' Tools », « Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe " +
-      "pas d'équivalent de `skill_choice` pour les outils. Les outils imposés par la classe coûteraient 1 " +
-      "point chacun comme les autres ; les compter demanderait de lire une phrase anglaise dans le moteur."
-  });
+  underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.class-tools`, "underived.fh.skillpool-class-tools-unmechanical",
+    { classId: classRef.id }));
 
   /* L'espèce — LE NET ZÉRO (lot 24, arbitrage d'Eric du 2026-08-09, contrat
      §⭐ THE SKILL POOL). Le lot 23 déclarait cette question ouverte ; elle ne
@@ -581,15 +543,9 @@ function featLines(feats, lines, underived, consumed) {
   }
   if (bearers.length === 0) {
     const chosen = (Array.isArray(feats) ? feats : []).map((feat) => feat.id);
-    underived.push({
-      field: `stats[${FH_SKILL_POOL_ID}].feat`,
-      reason: chosen.length === 0
-        ? "aucun choix ne désigne de record `feat` : les points de compétence d'un don d'origine sont portés par " +
-          `le don (\`data.${SPECIES_FIELD}.bonus\`), et un personnage sans don n'en a aucun à lire.`
-        : `aucun des dons choisis ne porte \`data.${SPECIES_FIELD}.bonus\` (${chosen.join(", ")}) : seul ` +
-          "\`srd:feat:en:skilled\` en porte un, patché par la couche \`fh-feats-en\` — les autres dons du SRD " +
-          "n'en donnent aucun, et c'est un FAIT, pas un trou."
-    });
+    underived.push(...(chosen.length === 0
+      ? [declareUnderived(`stats[${FH_SKILL_POOL_ID}].feat`, "underived.fh.skillpool-feat-no-choice", {})]
+      : [declareUnderived(`stats[${FH_SKILL_POOL_ID}].feat`, "underived.fh.skillpool-feat-no-bonus", { featIds: chosen.join(", ") })]));
     return;
   }
   for (const { feat, bonus } of bearers) {

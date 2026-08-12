@@ -39,6 +39,11 @@ import { ROOT, SRD_EN, FH_SPECIES_EN, FH_FEATS_EN, makeHarness, manifestOf, uneC
 import { createFhSkillPoolStat, FH_SKILLS_FLAG, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 import { createFhDestinyStat, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
 import { statSumViolations } from "../src/build/validate.mjs";
+/* LOT 41 — `underived[].reason` → `{key, params}`, deux paquets composés. */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+import { FH_UNDERIVED_FR } from "../src/modules/fh/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
 
@@ -377,8 +382,9 @@ test("ACCEPTATION 4 — couche FH débrayée : `stats` est VIDE et la déclarati
   assert.ok(declaration, "la liste vide se DÉCLARE, comme les autres refus");
   /* LA DÉCLARATION NOMME LES DEUX LISTES. Sans ça, un personnage FH monté sans
      son module rendrait le même carnet qu'un personnage SRD pur. */
-  assert.match(declaration.reason, /Drapeaux levés par la pile : aucun/);
-  assert.match(declaration.reason, new RegExp(`Drapeaux servis par les modules injectés : ${FH_SKILLS_FLAG}`
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux levés par la pile : aucun/);
+  assert.match(renderUnderived(declaration, frUnderived), new RegExp(`Drapeaux servis par les modules injectés : ${FH_SKILLS_FLAG}`
     .replace(/\./g, "\\.")));
   /* Et AUCUNE déclaration du module lui-même : il n'a pas tourné. */
   assert.equal(out.underived.some((entry) => entry.field.startsWith(`stats[${FH_SKILL_POOL_ID}]`)), false,
@@ -428,14 +434,16 @@ test("ACCEPTATION 5 — drapeau levé, couche des compétences absente : le term
   const champ = `stats[${FH_SKILL_POOL_ID}]`;
   const declaration = out.underived.find((entry) => entry.field === champ);
   assert.ok(declaration, `« ${champ} » est DÉCLARÉ`);
-  assert.ok(declaration.reason.length > 40, "et la déclaration dit POURQUOI, pas seulement QUOI");
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.equal(declaration.key, "underived.fh.skillpool-layer-not-mounted");
+  assert.ok(renderUnderived(declaration, frUnderived).length > 40, "et la déclaration dit POURQUOI, pas seulement QUOI");
   /* LA RAISON NOMME LA BONNE CAUSE : c'est le CONTENU qui manque, pas le
      contrat. Une raison qui parlerait de contrat enverrait le lecteur écrire
      un arbitrage déjà rendu. */
-  assert.match(declaration.reason, /fh-skills-en/, "la raison nomme la couche qui manque");
-  assert.match(declaration.reason, /AUCUNE classe de la pile n'en porte/,
+  assert.match(renderUnderived(declaration, frUnderived), /fh-skills-en/, "la raison nomme la couche qui manque");
+  assert.match(renderUnderived(declaration, frUnderived), /AUCUNE classe de la pile n'en porte/,
     "et elle dit la MESURE qui distingue une couche absente d'un record amputé");
-  assert.doesNotMatch(declaration.reason, /budgets/,
+  assert.doesNotMatch(renderUnderived(declaration, frUnderived), /budgets/,
     "elle ne parle plus de `build.budgets` : l'arbitrage du 2026-08-09 a tranché");
 
   /* ⚠️ LES BUMPS D'ESPÈCE ÉTAIENT LISIBLES, ET RIEN N'A ÉTÉ PUBLIÉ AVEC. Un
@@ -538,7 +546,8 @@ test("ACCEPTATION 8 — un don SANS `data.skill_points` ne casse rien : seize do
     /* ET LA DÉCLARATION NOMME LE DON REGARDÉ — pas un vague « aucun don ». */
     const declaration = out.underived.find((entry) => entry.field === `stats[${FH_SKILL_POOL_ID}].feat`);
     assert.ok(declaration, `« ${id} » : la déclaration existe`);
-    assert.match(declaration.reason, new RegExp(id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+    assert.match(renderUnderived(declaration, frUnderived), new RegExp(id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
       `« ${id} » : la déclaration le NOMME`);
   }
 });

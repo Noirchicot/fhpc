@@ -250,6 +250,16 @@ se promettre.
    **pas** pu être dérivé. Les avaler serait le repli silencieux que ce
    chantier combat. Éprouvé sur une décision réelle et sur un
    recouvrement **délibéré**, pas sur une pile qui n'en produit pas.
+   ⚠️ **LOT 41** : `underived[]` porte `{field, key, params}`, pas une phrase
+   (voir `contracts/build.md`, « Le carnet `underived` de `rebuild` »). Le
+   `structuredContent` publie la forme structurée telle quelle — une IA qui
+   garde un personnage lit désormais un identifiant, pas une phrase figée en
+   français. Le **texte**, lui, continue de porter la raison en clair : ce
+   fichier n'est ni `src/build/` ni `src/mcp/` (les deux s'interdisent
+   `../modules/`, GARDE 1 de `tests/mcp-block.test.mjs`) — `src/mcp/tools.mjs`
+   compose donc la ligne texte via la coercition `${entry}` de chaque entrée,
+   qui porte déjà, depuis sa construction, le rendu FRANÇAIS lié à sa propre
+   table (générique ou FH) — jamais en import direct d'un paquet de mots.
 7. **Un argument inconnu est un REFUS**, jamais un argument ignoré. La liste
    des clefs vient du **schéma de l'outil**, jamais d'une seconde liste.
    Sans cette règle, `build.choose({pathh: …})` rendrait un succès sur une

@@ -34,6 +34,12 @@ import Ajv2020 from "ajv/dist/2020.js";
 import { ROOT, SRD_EN, FH_SPECIES_EN, makeHarness, manifestOf, uneCouche } from "./build-harness.mjs";
 import { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
 import { statSumViolations } from "../src/build/validate.mjs";
+/* LOT 41 — `underived[].reason` → `{key, params}`, deux paquets composés
+   (générique + FH) comme partout ailleurs dans cette suite. */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+import { FH_UNDERIVED_FR } from "../src/modules/fh/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
 const validateChar = ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8")));
@@ -160,7 +166,9 @@ test("CE QUI N'EST DÉRIVABLE DE RIEN EST DÉCLARÉ — jamais fabriqué", () =>
   const h = pileFH();
   const out = h.verbs.rebuild({ document: documentFH(h) });
   const champs = out.underived.map((entry) => entry.field);
-  const raison = (champ) => out.underived.find((entry) => entry.field === champ).reason;
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` ; la phrase
+     se relit via `renderUnderived` sur les deux paquets composés. */
+  const raison = (champ) => renderUnderived(out.underived.find((entry) => entry.field === champ), frUnderived);
 
   /* LES TROIS TERMES QUE CE PERSONNAGE-CI NE PEUT PAS ÉTABLIR. Chacun est
      nommé, chacun dit pourquoi. La mesure derrière eux : la pile de CE test
@@ -339,8 +347,9 @@ test("DRAPEAU ÉTEINT, MODULE MUET — et les choix de séance le disent au lieu
   assert.deepEqual(out.resolved.stats, [], "aucune entrée fantôme");
   assert.ok(out.unconsumed.includes("fh.destiny.glory[0]"), "le choix est signalé, pas avalé");
   const declaration = out.underived.find((entry) => entry.field === "stats");
-  assert.match(declaration.reason, /Drapeaux levés par la pile : aucun/);
-  assert.match(declaration.reason, /Drapeaux servis par les modules injectés : fh\.destiny/,
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux levés par la pile : aucun/);
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux servis par les modules injectés : fh\.destiny/,
     "les deux listes, pour qu'un module oublié se distingue d'une pile sans couche");
 });
 
@@ -354,7 +363,8 @@ test("ACCEPTATION 3 — un personnage SRD PUR rend `stats: []`, et rien ne cite 
   assert.deepEqual(out.resolved.stats, [], "pas d'entrée fantôme");
   const declaration = out.underived.find((entry) => entry.field === "stats");
   assert.ok(declaration, "une collection vide se DÉCLARE (règle de refus n°2)");
-  assert.match(declaration.reason, /Drapeaux servis par les modules injectés : aucun/);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux servis par les modules injectés : aucun/);
   assert.equal(validateChar(out.document), true, ajv.errorsText(validateChar.errors));
 
   /* Le pendant du garde structurel : le bloc `build` ne peut pas importer
@@ -445,8 +455,10 @@ test("UNE ESPÈCE SANS BASE DE DESTINÉE SE DÉCLARE — le moteur ne lui invent
   assert.deepEqual(stat.breakdown, [{ label: "Proficiency Bonus", value: 2 }], "la maîtrise seule");
   assert.equal(stat.value, 2, "et le total ne contient pas de Base fantôme");
   const declaration = out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].base`);
-  assert.match(declaration.reason, /ne porte pas `data\.destiny`/);
-  assert.match(declaration.reason, /couche tierce ou amputée/, "la privation est nommée pour ce qu'elle est");
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.equal(declaration.key, "underived.fh.destiny-base-missing-data");
+  assert.match(renderUnderived(declaration, frUnderived), /ne porte pas `data\.destiny`/);
+  assert.match(renderUnderived(declaration, frUnderived), /couche tierce ou amputée/, "la privation est nommée pour ce qu'elle est");
 });
 
 test("UN BONUS DE BASE DONT LE TRAIT N'A PAS DE NOM JETTE — le sauter rendrait le Score court en silence", () => {
@@ -467,7 +479,9 @@ test("SANS ESPÈCE, LA BASE SE DÉCLARE — poser 2 ferait passer la valeur d'Er
   document.build.choices = document.build.choices.filter((choice) => choice.path !== "species");
   const out = h.verbs.rebuild({ document });
   const declaration = out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].base`);
-  assert.match(declaration.reason, /aucun choix `species`/);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.equal(declaration.key, "underived.fh.destiny-base-no-species");
+  assert.match(renderUnderived(declaration, frUnderived), /aucun choix `species`/);
   assert.equal(scoreDe(out.resolved).value, 2, "le Score n'est plus que la maîtrise, et il le dit");
 });
 
@@ -489,7 +503,8 @@ test("SANS MAÎTRISE DÉRIVÉE, LE TERME SE DÉCLARE — 0 rendrait un Score plu
   assert.deepEqual(stat.breakdown.map((line) => line.label), ["Destiny Base · Elf", "Splinter of Anon"],
     "la ligne de maîtrise est ABSENTE, pas nulle");
   assert.equal(stat.value, 4);
-  assert.match(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].proficiency`).reason,
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(out.underived.find((entry) => entry.field === `stats[${FH_DESTINY_ID}].proficiency`), frUnderived),
     /le compter pour 0/);
 });
 
@@ -506,8 +521,9 @@ test("LE MODULE NE S'ALLUME QUE SUR SON DRAPEAU — monté sans la couche, il ne
   const out = h.verbs.rebuild({ document: documentFH(h) });
   assert.deepEqual(out.resolved.stats, []);
   const declaration = out.underived.find((entry) => entry.field === "stats");
-  assert.match(declaration.reason, /Drapeaux levés par la pile : fh\.chaos, fh\.destiny/);
-  assert.match(declaration.reason, /Drapeaux servis par les modules injectés : aucun/,
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux levés par la pile : fh\.chaos, fh\.destiny/);
+  assert.match(renderUnderived(declaration, frUnderived), /Drapeaux servis par les modules injectés : aucun/,
     "un module oublié se distingue d'une pile sans couche — sinon l'oubli serait invisible");
 });
 

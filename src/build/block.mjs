@@ -471,8 +471,17 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
           warnings.push(`le choix « ${path} » n'a été consommé par aucune règle de la dérivation — ` +
             "il ne change rien à la fiche.");
         }
+        /* LOT 41 — `entry.reason` n'existe plus (`{field, key, params}`). Ce
+           fichier est `src/build/` : il ne peut PAS savoir si l'entrée vient
+           de `derive.mjs` (paquet générique) ou d'un module FH (paquet FH),
+           et §0.12 lui interdit d'importer le second pour trancher. C'est
+           exactement ce que le `toString` non énumérable (lot 27, repris ici)
+           existe pour résoudre : CHAQUE entrée porte déjà le rendu qui va
+           avec sa propre source, liée au moment où elle a été construite —
+           la coercition de chaîne `${entry}` suffit, sans jamais nommer
+           quel paquet a parlé. */
         for (const entry of outcome.underived) {
-          warnings.push(`non dérivé — ${entry.field} : ${entry.reason}`);
+          warnings.push(`non dérivé — ${entry.field} : ${entry}`);
         }
         /* LOT 34 — CE QU'UN MODULE A JUGÉ ILLÉGAL SANS JETER (canal générique
            `outcome.violations`). Déjà `{key, params, path?}` : `reported` les
