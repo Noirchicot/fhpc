@@ -799,7 +799,7 @@ export function createFhSkillPoolStat() {
           const costs = pool.tier_costs;
           const delta = tierPointCost(classRef, costs, value) - tierPointCost(classRef, costs, floor);
           if (delta === 0) continue;
-          spentTotal += delta; // §3a — la dépense compte, refusée ou non (comportement 2a)
+          spentTotal += delta; // §3a — ce qui est RÉELLEMENT appliqué : les refus ont déjà `continue`
           lines.push({
             label: t("fh.skills.term.spend", { skill: target.name, tier: value }),
             value: -delta,
