@@ -46,7 +46,7 @@ export function assertAbilityKey(key, recordId, field) {
    mot pour mot. La légalité, elle, ne varie pas. */
 export function indexSkills(views, underived) {
   const declare = underived && typeof underived.declare === "function"
-    ? (field, reason) => underived.declare(field, reason)
+    ? (field, key, params) => underived.declare(field, key, params)
     : () => undefined;
   const byId = new Map();
   const bySlug = new Map();
@@ -55,14 +55,11 @@ export function indexSkills(views, underived) {
     const abilityKey = view.record.data && view.record.data.ability_key;
     const slug = view.record.slug;
     if (typeof slug !== "string") {
-      declare(`skills[${view.id}]`,
-        "le record de compétence ne porte pas de `slug`, et `resolved.skills[].id` en est l'ancre d'override.");
+      declare(`skills[${view.id}]`, "underived.skill-missing-slug", {});
       continue;
     }
     if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
-      declare(`skills[${slug}]`,
-        "le record ne porte pas de `ability_key` — la caractéristique d'une compétence est un identifiant, " +
-        "jamais le mot affichable de `data.ability` (contrat §3, genre `skill`).");
+      declare(`skills[${slug}]`, "underived.skill-missing-ability-key", {});
       continue;
     }
     const entry = { id: slug, name: view.record.name, ability: abilityKey, recordId: view.id };
