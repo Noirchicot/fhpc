@@ -71,7 +71,14 @@ export const FR_BUILD = {
   "skill-train.value-invalid": (d) => `le choix « ${d.path} » porte la valeur « ${d.value} », qui n'est ni vrai ni ` +
     "faux — un training n'a pas de palier, sa seule valeur possible est un booléen.",
   "skill-train.level-locked": (d) => `le choix « ${d.path} » achète le training « ${d.trainingId} » au niveau ` +
-    `${d.level}, alors qu'il ne s'acquiert qu'à partir du niveau ${d.unlockLevel}.`
+    `${d.level}, alors qu'il ne s'acquiert qu'à partir du niveau ${d.unlockLevel}.`,
+
+  /* ── LOT 37 — LES DEUX GARDES DU POOL ─────────────────────────────── */
+  "skill-pool.overspent": (d) => `le pool dépense ${d.spent} point(s) pour ${d.available} disponible(s) — ` +
+    `${d.over} point(s) de trop. La répartition reste possible, mais la sortie de création exige un total ` +
+    "positif ou nul.",
+  "skill-pool.no-tool": () => "aucun outil n'est maîtrisé à un palier autre que « aucun » — le personnage doit " +
+    "porter au moins un point en outils."
 };
 
 const buildLabels = createLabels(FR_BUILD);

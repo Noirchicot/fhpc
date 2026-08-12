@@ -203,7 +203,13 @@ test("`false` est une valeur booléenne légale (commande §3a) — même effet 
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: "fh.skills.train.garrote", value: false }]
+      /* Un point en outils satisfait la garde §3b du lot 37 — ce test ne
+         porte QUE sur `false` en training, la garde d'outil n'est pas son
+         sujet. */
+      extra: [
+        { path: "fh.skills.train.garrote", value: false },
+        { path: "fh.skills.spend.calligrapher-s-supplies", value: "half" }
+      ]
     }))
   });
   assert.equal(trainingDe(out.resolved, "garrote"), undefined, "`false` n'acquiert rien");

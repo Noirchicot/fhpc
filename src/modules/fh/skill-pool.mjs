@@ -726,6 +726,22 @@ export function createFhSkillPoolStat() {
          `skillTiers`). */
       const acquiredTraits = [];
 
+      /* LOT 37, §3a — LE POINT DE DÉPART DE LA GARDE DE NÉGATIF. Tout ce qui
+         est publié JUSQU'ICI (classe, paliers, espèce, don, imposés) est ce
+         que le joueur a À RÉPARTIR ; `spentTotal` accumule ce que les deux
+         dépenses libres (`spend.*`, `train.*`) lui coûtent. La somme finale
+         des lignes est TOUJOURS `preSpendTotal - spentTotal` — aucune ligne
+         n'est ajoutée par un autre canal après ce point. */
+      const preSpendTotal = lines.reduce((total, line) => total + line.value, 0);
+      let spentTotal = 0;
+
+      /* LOT 37, §3b — LE CATALOGUE DES OUTILS, LU ICI, INCONDITIONNELLEMENT.
+         Le contrôle « au moins un outil » ne dépend pas de la présence de
+         `spend.*` dans les choix : un personnage qui n'a RIEN dépensé sur un
+         outil est justement le cas que ce contrôle doit refuser. */
+      const toolCatalog = typeof records === "function" ? records("tool") : [];
+      const toolSlugs = new Set(toolCatalog.map((view) => view.slug));
+
       if (spendEntries.length > 0) {
         /* LOT 35 — LE MÊME CANAL PORTE LES DEUX GENRES. `skillTiers` rend déjà
            `{slug: {proficiency, bonusTerm}}`, et les slugs des deux genres ne
@@ -736,7 +752,6 @@ export function createFhSkillPoolStat() {
            genres se paient au MÊME barème (`pool.tier_costs`, décision
            d'Eric) : aucune branche de coût séparée n'est nécessaire ici. */
         const skillCatalog = typeof records === "function" ? records("skill") : [];
-        const toolCatalog = typeof records === "function" ? records("tool") : [];
         const catalogBySlug = new Map();
         for (const view of skillCatalog) catalogBySlug.set(view.slug, { view, genre: "skill" });
         /* ⛔ LE GARDE DE COLLISION, ET IL EST BRUYANT. Zéro collision entre les
@@ -784,6 +799,7 @@ export function createFhSkillPoolStat() {
           const costs = pool.tier_costs;
           const delta = tierPointCost(classRef, costs, value) - tierPointCost(classRef, costs, floor);
           if (delta === 0) continue;
+          spentTotal += delta; // §3a — la dépense compte, refusée ou non (comportement 2a)
           lines.push({
             label: t("fh.skills.term.spend", { skill: target.name, tier: value }),
             value: -delta,
@@ -828,6 +844,7 @@ export function createFhSkillPoolStat() {
             continue;
           }
           const cost = trainingCost(target);
+          spentTotal += cost; // §3a — même comptage que le canal `spend.*`
           lines.push({
             label: t("fh.skills.term.train", { training: target.name }),
             value: -cost,
@@ -850,6 +867,30 @@ export function createFhSkillPoolStat() {
       const skillTiers = {};
       for (const [slug, tier] of Object.entries(tierBySlug)) {
         skillTiers[slug] = { proficiency: tier, bonusTerm: tierBonusTerm(tier, proficiency) };
+      }
+
+      /* 7. LES DEUX GARDES DU LOT 37 QUE CE MODULE PORTE (contrat §3, §3a et
+         §3b — le §3c vit dans `decisions.mjs` depuis le lot 34 ; ce qui
+         manquait n'était pas le refus, c'est que `validate()` ne le lisait
+         pas, voir `block.mjs`). APRÈS les deux dépenses libres, jamais avant :
+         elles jugent ce qui a été RÉELLEMENT appliqué, dépense refusée
+         comprise (comportement 2a — le refus ne bloque rien, `validate()`
+         refuse à la SORTIE). */
+
+      /* §3a — LE POOL NE PEUT PAS FINIR NÉGATIF. UN SEUL refus sur le TOTAL :
+         aucune dépense n'est « la » fautive, donc AUCUN chemin (ARBITRÉ,
+         commande §3a — révocable, à signaler dans l'inventaire). */
+      if (preSpendTotal - spentTotal < 0) {
+        violations.push(buildViolation("skill-pool.overspent",
+          { available: preSpendTotal, spent: spentTotal, over: spentTotal - preSpendTotal }));
+      }
+
+      /* §3b — AU MOINS UN POINT EN OUTILS, TOUJOURS (ARBITRÉ, commande §3b :
+         une propriété du personnage, pas un instant de la création — un
+         personnage créé après le niveau 1 n'y échappe pas). */
+      const hasToolTier = Object.entries(tierBySlug).some(([slug, tier]) => tier !== "none" && toolSlugs.has(slug));
+      if (!hasToolTier) {
+        violations.push(buildViolation("skill-pool.no-tool", {}));
       }
 
       return {
