@@ -191,6 +191,63 @@ test("ACCEPTÉ — un personnage DIT quel Arcane il porte, par le mécanisme de 
   assert.equal(validateChar(avecScore), true, ajv.errorsText(validateChar.errors));
 });
 
+/* ══ LE GENRE `training` — RÉVISION D'ARCHITECTE DU 2026-08-12 ════════
+   Symétrique exact de l'ouverture d'`arcana` : ce n'est pas un commentaire de
+   schéma qui prouve qu'un genre est ouvert, ce sont les deux endroits où
+   `$defs/kind` est référencé. Sans ces assertions, refermer le genre par
+   accident laisserait la suite verte. */
+
+test("ACCEPTÉ — un personnage DIT quel training il a acquis, par le mécanisme de choix", () => {
+  const doc = clone(charExample);
+  doc.build.choices.push({
+    path: "fh.skills.train.garrote",
+    ref: { kind: "training", id: "fh:training:en:garrote" },
+    label: "Garrote"
+  });
+  assert.equal(validateChar(doc), true, ajv.errorsText(validateChar.errors));
+
+  /* Et l'autre moitié : la ligne de dépense du pool peut CITER le training
+     qu'elle paie, au lieu d'être un nombre nu que rien ne justifie. */
+  const avecPool = clone(charExample);
+  avecPool.resolved.stats = [{
+    id: "fh:skill-points",
+    flag: "fh.skills",
+    name: "Skill Points",
+    value: 11,
+    breakdown: [
+      { label: "Garrote", value: -1, source: { kind: "training", id: "fh:training:en:garrote" } }
+    ]
+  }];
+  assert.equal(validateChar(avecPool), true, ajv.errorsText(validateChar.errors));
+});
+
+test("ACCEPTÉ — une couche porte des records de genre `training`", () => {
+  const couche = clone(layerExample);
+  couche.records.training = {
+    "fh:training:en:garrote": {
+      op: "add",
+      slug: "garrote",
+      name: "Garrote",
+      data: { cost: 1 }
+    }
+  };
+  assertValid(validateLayer, couche, "une couche portant un training");
+});
+
+test("REJET — `trainng` reste un rejet bruyant, dans le schéma comme dans le code", () => {
+  /* La faute de frappe est la seule chose contre laquelle une énumération
+     fermée protège vraiment — c'est la défense contre `spel`, et elle doit
+     valoir des DEUX côtés : le schéma qui valide les octets, et la liste
+     `GENRES` que le bloc `layers` lit à l'exécution. */
+  const couche = clone(layerExample);
+  couche.records.trainng = { "fh:trainng:en:x": { op: "add", slug: "x", name: "X", data: {} } };
+  assertRejected(validateLayer, couche, "un genre mal orthographié dans une couche");
+
+  const doc = clone(charExample);
+  doc.build.choices[0].ref = { kind: "trainng", id: "fh:trainng:en:x" };
+  assertRejected(validateChar, doc, "une référence vers un genre mal orthographié");
+});
+
 test("REJET — couche du build sans hash", () => {
   const doc = clone(charExample);
   delete doc.build.layers[1].hash;

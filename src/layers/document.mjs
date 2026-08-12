@@ -38,7 +38,7 @@
    lot ne rouvre pas. */
 import { sha256Portable } from "./sha256.mjs";
 
-/* Les 15 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
+/* Les 16 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
    du lot 6-srd-tables. RÉVISION DU 2026-08-08 : `arcana` est le genre 15 — et
    le PREMIER qui ne vienne pas de fh-srd. Les 14 autres sont les 14 fichiers
@@ -47,10 +47,21 @@ import { sha256Portable } from "./sha256.mjs";
    propre liste de 14 et ne doit jamais recevoir `arcana` : un générateur SRD
    qui produirait un genre FH mélangerait les deux couches (loi §0.12).
    Un genre inconnu est un rejet bruyant, jamais une clef acceptée en silence
-   — c'est la seule défense contre `spel`. */
+   — c'est la seule défense contre `spel`.
+
+   ⭐ RÉVISION DU 2026-08-12 — `training` est le genre 16, et le SECOND qui ne
+   vienne pas de fh-srd. Il porte la TROISIÈME dépense du pool de compétences
+   d'Eric : une langue supplémentaire, une arme exotique, le Garrot. Un
+   training n'a NI PALIER NI BONUS — il débloque, il ne bonifie pas — et c'est
+   exactement pourquoi il ne pouvait pas être un `tool` avec un champ en moins :
+   tout lecteur aurait dû tester un champ pour savoir ce qu'il tenait (§0.6).
+   Il coûte un nombre variable de points, et ne s'achète qu'à partir du niveau
+   4 sauf dérogation portée par du contenu. Comme `arcana`, ouvrir le genre est
+   du CONTRAT : le travail de l'architecte, et il précède le lot de contenu.
+   `gen-srd-layer.mjs` garde ses 14 et ne doit jamais le recevoir non plus. */
 export const GENRES = [
   "arcana", "armor", "background", "class", "class-progression", "feat", "gear",
-  "glossary", "item", "monster", "skill", "species", "spell", "tool", "weapon"
+  "glossary", "item", "monster", "skill", "species", "spell", "tool", "training", "weapon"
 ];
 const GENRE_SET = new Set(GENRES);
 
