@@ -192,10 +192,14 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton Continue fait rougir SEUL
   assert.deepEqual(displayNoneViolations(mutated), displayNoneViolations(shellCssRaw), "ni celui de display:none");
 });
 
-test("⚔️ ATTAQUE 2 — remettre font-size: 13px sur .skill-chip fait rougir SEULEMENT le garde de type", () => {
+test("⚔️ ATTAQUE 2 — remettre font-size: 13px sur .skills-budget-note fait rougir SEULEMENT le garde de type", () => {
+  /* La cible d'origine (`.skill-chip`, lot 33) n'existe plus : le lot 39 a
+     réécrit l'étape Compétences et retiré les classes du lot 33 qu'elle ne
+     consomme plus (loi §0.6 — pas de sélecteur mort). La cible est reportée
+     sur une règle du lot 39 qui porte le même jeton `--t3`. */
   const mutated = shellCssRaw.replace(
-    "font-size: var(--t3); /* 13px → T3, même raisonnement que skill-budget */",
-    "font-size: 13px;"
+    ".skills-budget-note { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }",
+    ".skills-budget-note { margin: 0 0 var(--sp-8); font-size: 13px; color: var(--text-muted); }"
   );
   assert.notEqual(mutated, shellCssRaw);
 

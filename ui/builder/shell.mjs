@@ -36,17 +36,25 @@ const state = {
   engine: null,       // { build, layers, bus } — set once bootEngine() resolves
   document: null,      // the live fh-char/1 document
   decisions: [],        // the last rebuild()'s carnet
+  resolved: null,        // the last rebuild()'s fiche — lot 39 needs it whole, not just decisions[]
+  violations: [],          // the last validate()'s refusals — {key, params, path?}
   engineError: null
 };
 const app = document.getElementById("app");
 
 /** Re-runs `rebuild` on the current document and refreshes `decisions`.
  *  The ONLY place that mutates `state.document`/`state.decisions` — every
- *  skill click goes through this, never touches the document by hand. */
+ *  skill click goes through this, never touches the document by hand.
+ *  LOT 39 — also runs `validate()` right after: the Skills step displays its
+ *  refusals (§3d of its command), and `validate()` needs the freshly rebuilt
+ *  document, not the one before the click. */
 function rebuild() {
-  const out = state.engine.build.verbs.rebuild({ document: state.document });
+  const verbs = state.engine.build.verbs;
+  const out = verbs.rebuild({ document: state.document });
   state.document = out.document;
   state.decisions = out.decisions || [];
+  state.resolved = out.resolved;
+  state.violations = verbs.validate({ document: state.document }).violations || [];
 }
 
 function applyDecisionAction(action) {
@@ -54,6 +62,21 @@ function applyDecisionAction(action) {
   /* Chaque verbe REND `{document}` — il ne mute pas en place (contracts/
      build.md). C'est ce document-là qui doit passer à `rebuild`, jamais
      celui d'avant. */
+  if (action.kind === "resetSkills") {
+    /* LOT 39, décision n°2 — *Reset* ne rend que les points DÉPENSÉS : une
+       suite de `clear` sur le MÊME document, un seul `rebuild` à la fin.
+       `clear` sur un chemin jamais posé n'est pas une faute (`build.mjs`),
+       donc balayer les 62 chemins possibles ne coûte rien de plus qu'un
+       clear unique. */
+    let document = state.document;
+    for (const path of action.paths) {
+      document = verbs.clear({ document, path, kind: "choice" }).document;
+    }
+    state.document = document;
+    rebuild();
+    render();
+    return;
+  }
   const out = action.kind === "set"
     ? verbs.set({ document: state.document, path: action.path, value: action.value })
     : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
@@ -124,7 +147,12 @@ function renderStage() {
   card.append(heading);
 
   if (step.id === "skills" && state.engine) {
-    card.append(renderSkillsStep(state.decisions, applyDecisionAction));
+    card.append(renderSkillsStep({
+      resolved: state.resolved,
+      decisions: state.decisions,
+      violations: state.violations,
+      query: state.engine.layers.verbs.query
+    }, applyDecisionAction));
   } else if (step.id === "skills" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));

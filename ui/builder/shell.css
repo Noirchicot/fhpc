@@ -48,7 +48,12 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 }
 
 /* ── LA DÉCISION COURANTE ────────────────────────────────────────── */
-.stage { padding: var(--sp-24) var(--sp-32); display: flex; flex-direction: column; gap: var(--sp-20); }
+/* `min-width: 0`, même correctif — `.stage` est un ENFANT DE GRILLE de
+   `.app` (lot 30), et une grille pose le même piège qu'un flex (`min-width`
+   initial `auto`) : sans lui, `.stage` refuse de descendre sous la largeur
+   intrinsèque de son plus large descendant, et l'aurait déjà fait avant ce
+   lot si une étape avait porté un contenu large (mesuré au lot 39, §3f). */
+.stage { padding: var(--sp-24) var(--sp-32); display: flex; flex-direction: column; gap: var(--sp-20); min-width: 0; }
 .toggle-bar { display: flex; justify-content: flex-end; }
 .decision-card {
   background: var(--surface);
@@ -56,6 +61,16 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   border-radius: var(--radius-md);
   padding: var(--sp-32); /* 28px d'origine : à mi-chemin de sp-24/sp-32, arrondi au cran du dessus */
   max-width: var(--measure); /* MESURE DE PROSE, pas une largeur de grille (§3e) — 62ch, zéro changement visible */
+  /* CORRECTIF, mesuré au lot 39 à 360px : `.stage` est `display:flex` (lot
+     30), et un enfant flex a un `min-width` initial de `auto` — il refuse de
+     rétrécir sous la largeur intrinsèque de son PLUS LARGE descendant.
+     `.decision-card` ne l'avait jamais rencontré avant ce lot (les étapes
+     placeholder n'ont pas de contenu large) ; la grille de compétences, elle,
+     porte des lignes flex à plusieurs colonnes fixes qui le révèlent : sans
+     ce correctif, la carte entière refuse de descendre sous ~550px et déborde
+     à 360px. Zéro changement visible ailleurs — `min-width:0` ne fait
+     RIEN tant que rien ne le pousse à rétrécir. */
+  min-width: 0;
 }
 .decision-card h1 { margin: 0 0 var(--sp-12); font-size: var(--t6); } /* 10px → sp-12, même arrondi que le belt-item */
 .placeholder { color: var(--text-soft); font-size: var(--t3); } /* une PHRASE de description, pas une mention courte */
@@ -73,26 +88,83 @@ button { font: inherit; }
 .stage-nav button:last-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } /* CORRECTIF défaut n°1 : #fff en dur échouait 2,44:1 en sombre, voir l'inventaire */
 .stage-nav button:disabled { opacity: .4; cursor: default; }
 
-/* ── L'ÉTAPE COMPÉTENCES (lot 33 — pas reconstruite ici, lot 39) ──── */
-.skills-step { max-width: var(--grid-w); } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) — 60ch, zéro changement visible */
-.skill-group { margin-bottom: var(--sp-24); } /* 22px : à mi-chemin de sp-20/sp-24, arrondi au cran du dessus */
-.skill-group h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); text-transform: capitalize; color: var(--text-muted); }
-.skill-budget { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); } /* 13px → T3, voir l'inventaire : rejoint skill-chip, pas de nouvel écart créé */
-.skill-slot { margin-bottom: var(--sp-8); }
-.skill-slot[data-status="locked"] { opacity: .6; }
-.skill-chips { display: flex; flex-wrap: wrap; gap: var(--sp-8); } /* 6px : à mi-chemin de sp-4/sp-8, arrondi au cran du dessus */
-.skill-chip {
-  border: 1px solid var(--border-strong); /* un chip est un CONTRÔLE (cliquable), cible 3:1 */
-  background: var(--surface);
-  color: var(--text-muted);
-  border-radius: var(--radius-pill);
-  padding: var(--sp-4) var(--sp-12); /* 5px → sp-4 (plus proche, pas d'égalité) */
-  font-size: var(--t3); /* 13px → T3, même raisonnement que skill-budget */
-  cursor: pointer;
-}
-.skill-chip[data-chosen="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; } /* CORRECTIF défaut n°1, seconde occurrence */
-.skill-chip:disabled { cursor: default; opacity: .5; }
-.skill-lock { margin: var(--sp-4) 0 0; font-size: var(--t2); color: var(--critical); font-family: ui-monospace, monospace; } /* CORRECTIF défaut n°2 : `--decide` n'était défini nulle part, replis sur un hex qui échouait AA */
+/* ── L'ÉTAPE COMPÉTENCES (lot 39) ──────────────────────────────────
+   3 colonnes (Skill/Tool · Invested · Cost, décision n°2) : la colonne
+   « Cost » n'existe pas comme cellule à part — la rampe de paliers PORTE
+   son coût par son rang (voir `.skills-tiers` plus bas), une valeur
+   numérique en dehors des jetons de rang serait le littéral que le garde
+   interdit. Les anciennes classes du lot 33 (`.skill-group`/`.skill-chip`/
+   `.skill-slot`/`.skill-lock`/`.skill-budget`) ne sont plus consommées par
+   `skills-step.mjs`, réécrit ce lot — retirées plutôt que gardées mortes
+   derrière un sélecteur qui ne matche plus rien (loi §0.6). */
+.skills-step { max-width: var(--grid-w); position: relative; } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) */
+
+/* La barre de catégories : le COMPOSANT molette du lot 38 (`.belt`), pas un
+   second — seule une classe de plus (`position: sticky`) la distingue de
+   la ceinture d'étapes, dont elle réutilise la forme plate à l'identique. */
+.skills-category-bar { position: sticky; top: 0; z-index: 1; background: var(--bg); flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: var(--sp-8) 0; margin-bottom: var(--sp-16); }
+.skills-category-bar .belt-item { scroll-snap-align: center; flex: none; }
+
+/* Le compteur — collé AVEC la barre (décision n°5) : il défile ensemble,
+   ni l'un ni l'autre ne survit à l'étape (pas de bandeau permanent, loi de
+   la coquille). */
+.skills-counter { display: flex; flex-wrap: wrap; gap: var(--sp-16); padding: var(--sp-8) 0 var(--sp-16); border-bottom: 1px solid var(--border); margin-bottom: var(--sp-16); }
+.skills-counter-line { display: flex; flex-direction: column; gap: var(--sp-2); }
+.skills-counter-label { font-size: var(--t2); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+.skills-counter-value { font-size: var(--t5); font-weight: 600; }
+.skills-counter-line[data-over="true"] .skills-counter-value { color: var(--critical); }
+
+.skills-rogue-notice { font-size: var(--t3); color: var(--text-soft); margin: 0 0 var(--sp-16); }
+
+.skills-reset { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); border-radius: var(--radius-md); padding: var(--sp-4) var(--sp-12); font-size: var(--t3); cursor: pointer; margin-bottom: var(--sp-16); }
+
+/* Un refus keyé (§3d) — jamais un calcul, le mot vient de `REFUSAL_WORDS`
+   (voir `skills-step.mjs` en tête, pourquoi ce n'est pas `src/labels.mjs`). */
+.skills-refusal { font-size: var(--t2); color: var(--critical); margin: var(--sp-4) 0 0; font-family: ui-monospace, monospace; }
+.skills-refusal-pool { font-size: var(--t3); font-family: inherit; }
+
+.skills-budget-block { margin-bottom: var(--sp-24); padding: var(--sp-16); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.skills-budget-block h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.skills-budget-note { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+
+.skills-grid { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
+/* `.skills-group` est un enfant flex de `.skills-grid` — même correctif
+   `min-width: 0` (§3f, mesuré à 360px). */
+.skills-group { margin-bottom: var(--sp-24); scroll-margin-top: var(--sp-32); min-width: 0; } /* l'ancre du scrollspy passe sous la barre collante */
+.skills-group h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); text-transform: capitalize; color: var(--text-muted); }
+.skills-rows { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+/* `.skills-row` est un enfant flex de `.skills-rows` — même correctif
+   `min-width: 0` : sans lui, une ligne à long nom (« Sleight of Hand » + 4
+   boutons de palier) refuse de rétrécir et pousse toute la carte plus large
+   que 360px, alors même que chacun de ses ENFANTS sait déjà se comprimer. */
+.skills-row { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-4) 0; border-bottom: 1px solid var(--border); font-size: var(--t4); min-width: 0; }
+/* `min-width: 0`, même correctif qu'au-dessus (§3f, mesuré à 360px) : sans
+   lui, un nom de compétence long (« Sleight of Hand ») refuse de passer à la
+   ligne et pousse TOUTE la carte plus large que le téléphone. */
+.skills-row-name { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
+.skills-row-ability { width: 3ch; color: var(--text-muted); font-size: var(--t3); }
+.skills-row-bonus { width: 4ch; text-align: right; font-variant-numeric: tabular-nums; }
+.skills-row-static { width: 8ch; text-align: right; color: var(--text-muted); font-size: var(--t3); }
+.skills-lock { font-size: var(--t2); color: var(--text-muted); }
+
+/* La rampe des paliers — trois jetons DE RANG (`--tier-1/2/3`, lot 38),
+   jamais un nom de palier : le rang 0 est le tiret, sans encre. */
+.skills-tiers { display: flex; gap: var(--sp-4); align-items: center; }
+.skills-tier-btn { width: var(--sp-24); height: var(--sp-24); border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); font-size: var(--t3); cursor: pointer; padding: 0; }
+.skills-tier-btn[data-rung="1"][data-active="true"] { background: var(--tier-1); color: var(--on-accent); border-color: var(--tier-1); }
+.skills-tier-btn[data-rung="2"][data-active="true"] { background: var(--tier-2); color: var(--on-accent); border-color: var(--tier-2); }
+.skills-tier-btn[data-rung="3"][data-active="true"] { background: var(--tier-3); color: var(--on-accent); border-color: var(--tier-3); }
+.skills-tier-btn[data-rung="none"][data-active="true"] { color: var(--text); font-weight: 600; }
+
+.skills-tools-trainings h3 { margin: 0 0 var(--sp-8); }
+.skills-tools-block, .skills-languages-block, .skills-trainings-block { margin-bottom: var(--sp-16); }
+.skills-tools-block h4, .skills-languages-block h4, .skills-trainings-block h4 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.skills-languages-note, .skills-trainings-note { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+.skills-languages-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
+/* Grisé AVEC sa raison (décision n°4) — jamais caché : l'opacité seule,
+   même pratique que `.skill-slot[data-status="locked"]` au lot 38. */
+.skills-trainings-block[data-status="locked"] { opacity: .6; }
 
 /* ── LE PLAN ESCAMOTABLE (desktop = colonne) ─────────────────────── */
 .plan {
