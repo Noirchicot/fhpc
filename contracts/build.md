@@ -635,6 +635,67 @@ serait exact et indémontrable.
 | `spells[].concentration` | **dérivée** depuis le lot 8 (339/339) ; il n'en manque plus que sur la couche d'exemple, non régénérée. Jamais déduite de `duration`, qui est une phrase |
 | `craft` | module moteur activé par un drapeau (Q4) ; aucun n'existe au M2 |
 
+#### ⭐ LOT 36 — LES TRAININGS, LA TROISIÈME DÉPENSE DU POOL
+
+**Un canal à part, pas une troisième valeur sur `spend.*`.** `fh.skills.train.<slug>`
+(ARBITRÉ le 2026-08-12) — valeur **booléenne** (`true` acquiert, `false` ne
+fait rien, même effet que l'absence du choix) ou **absente**. `spend.*` porte
+un mot de la grille à quatre paliers ; un training **n'a ni palier ni bonus**
+(commande §2) — le faire transiter par le même canal aurait accepté
+`"proficient"` sur un objet qui n'en a pas, un mensonge de forme. Tout autre
+chemin du namespace `fh.skills` reste un refus **nommé**, comme `spend.*`
+le fait déjà (`skill-train.option-unavailable`, `skill-train.value-invalid`,
+`skill-train.level-locked`).
+
+**Le coût, porté par le record, jamais par une table.** `data.cost` sur le
+record `training` (`1` pour le Garrot) — même discipline que `tier_costs` sur
+la classe : un training que le moteur ne peut pas chiffrer est un refus de
+contenu (`fail()`), pas un training à sauter.
+
+**Le verrou de niveau, MÊME FORME qu'`expertise_from_level`.** `data.from_level`
+sur le record `training` — **absent** par défaut, le plancher générique de la
+commande (**4**) s'applique alors (`DEFAULT_TRAINING_FROM_LEVEL`,
+`skill-pool.mjs`) ; **présent**, c'est la dérogation : une couche de
+sous-classe qui patche le Garrot à `from_level: 3` (`Silent Blade`, non
+construite — commande §3e, hors périmètre de ce lot) le fait passer sans une
+ligne de moteur en plus, exactement comme le Rogue reçoit son
+`expertise_from_level: 1` par un `patch` de classe (lot 35), jamais par une
+branche `if` sur son id.
+
+**`resolved.traits[]`, avec un champ neuf `category` — ARBITRÉ le 2026-08-12,
+PAS de rubrique neuve.** Ni `skills[]` ni `tools[]` (ni palier ni bonus, un
+lecteur devrait tester un champ pour savoir ce qu'il tient) ; ni une
+troisième rubrique du contrat (`resolved` passerait de 21 à 22 clefs
+obligatoires, et le prix est déjà tracé deux fois — le choix, la ligne du
+`breakdown` — qu'une troisième copie ici ne ferait qu'imiter). `traits[]`
+porte déjà « aptitudes, dons, traits d'espèce » : un training y entre tel
+quel. `category` est un **identifiant fermé**, une seule valeur aujourd'hui
+(`"training"`), **facultatif** — les traits d'espèce existants n'en portent
+aucun, et ce lot ne les catégorise pas. Publié par le **canal générique**
+`outcome.traits` (symétrique d'`outcome.skillTiers`) : `derive.mjs` recopie
+la liste dans `resolved.traits[]` sans jamais nommer la mécanique qui l'a
+produite (§0.12).
+
+**Ce que ce lot NE construit PAS, mesuré plutôt que deviné** :
+- **Les langues.** `resolved.languages[]` existe déjà et fonctionne ; le
+  training est le **droit** acheté, la langue choisie reste dans
+  `languages[]` — la déplacer mettrait la même langue à deux endroits.
+- **Les maîtrises d'armes et d'armures.** Elles sont aussi des trainings,
+  mais **octroyées, jamais achetées** — et le moteur n'en porte aucune
+  aujourd'hui, ni rubrique ni champ. Ce lot pose le mécanisme
+  (`resolved.traits[]` + `category: "training"` accueille un training
+  octroyé exactement comme un training acheté, sans champ de plus) ; le
+  contenu et le point d'octroi restent à un lot ultérieur.
+- **Les Dark Rituals.** Prérequis nommant des sous-classes non construites
+  (`Moonkeeper`, `Land Druid`) — hors périmètre, M4.
+- **Le Garrot gratuit au niveau 3.** Il appartient à `Silent Blade`, non
+  construite ; le training existe sans elle, la dérogation attendra la
+  sous-classe.
+
+**La cinquième colonne de l'écran (« Tools & Trainings ») assemble donc TROIS
+rubriques** — `tools[]`, `languages[]`, et les `traits[]` de catégorie
+`training` — et c'est un travail d'interface, pas de ce lot.
+
 ## Obligations de test
 
 1. **Le test d'acceptation** (`build-acceptance`), sur la vraie matière et
