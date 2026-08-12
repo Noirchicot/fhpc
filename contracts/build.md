@@ -199,7 +199,7 @@ promettre.
    dit. La ligne de partage, posée par ce lot (⚠ question 1) :
    - un **nombre** qu'on ne sait pas calculer est **absent** de `resolved` ;
    - une **collection** qu'on ne sait pas nourrir est **vide**, et sa
-     déclaration est **obligatoire** — les vingt clefs de `resolved` sont
+     déclaration est **obligatoire** — les vingt-et-une clefs de `resolved` sont
      requises par le schéma, et un document invalide est injouable ;
    - une **structure** dont un champ obligatoire manque n'est **pas émise à
      moitié** : l'entrée est sautée et nommée ;
@@ -817,7 +817,7 @@ qui prouve qu'aucun des trois refus ne peut apparaître sans la couche FH.
    n'est deviné, tout ce qui manque est nommé, et la raison cite le **champ
    mécanique attendu**, pas un vague « données manquantes ».
 5. **Le document produit valide `fh-char/1`** (ajv, dépendance de dév), et ses
-   clefs de `resolved` sont exactement les vingt requises.
+   clefs de `resolved` sont exactement les vingt-et-une requises.
 6. **La loi §0.12** : un personnage SRD pur, sans la couche d'exemple, sans
    aucun drapeau levé, traverse la dérivation de bout en bout.
 7. **Les gardes STRUCTURELS, et leurs ATTAQUES** (`build-block`) : chaque
