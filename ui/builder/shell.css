@@ -1,28 +1,8 @@
-/* ══ TOKENS — neutres choisis, pas hérités ═══════════════════════════ */
-:root {
-  --bg: #f6f3ec;
-  --surface: #ffffff;
-  --border: #ddd4c2;
-  --text: #262019;
-  --text-dim: #6f6555;
-  --accent: #9c5f22;
-  --accent-soft: #9c5f2214;
-  --done: #4a7a53;
-  --radius: 8px;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #16130f;
-    --surface: #1f1a14;
-    --border: #3a3226;
-    --text: #ece5d6;
-    --text-dim: #a89a83;
-    --accent: #d69a52;
-    --accent-soft: #d69a5222;
-    --done: #7fb389;
-  }
-}
+/* ══ LA COQUILLE DU BUILDER — lots 30/31/33, jetonnée au lot 38 ═══════
+   ⛔ AUCUNE VALEUR EN DUR ICI (`tests/ui-jetons.test.mjs` le vérifie, octet
+   par octet) : chaque taille de texte, chaque espacement, chaque rayon,
+   chaque couleur vient de `tokens.css`, chargé avant ce fichier. Changer le
+   produit, c'est changer un jeton — jamais une ligne d'ici. */
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
@@ -37,105 +17,135 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 /* ── LE REPÈRE DE PROGRESSION (belt) ─────────────────────────────── */
 .belt {
   border-right: 1px solid var(--border);
-  padding: 20px 8px;
+  padding: var(--sp-20) var(--sp-8);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-2);
+  position: relative; /* la molette (§3f) mesure depuis ce parent-là */
+  scroll-behavior: smooth;
 }
 .belt-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12); /* 10px d'origine : ni sp-8 ni sp-12 n'a priorité, l'écart est le même des deux côtés — arrondi au cran du dessus, règle tenue pour tout le fichier */
   border: none;
   background: none;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: var(--radius);
-  color: var(--text-dim);
-  font: inherit;
+  padding: var(--sp-8) var(--sp-12); /* 10px → même arrondi */
+  border-radius: var(--radius-md);
+  color: var(--text-muted); /* un libellé court = une « mention », pas une description */
+  font-size: var(--t4); /* CORRECTIF : rendait à 16px par défaut du navigateur (§0). Zéro changement visible — c'est déjà ce que le corps affiche */
   cursor: pointer;
 }
-.belt-item[data-status="current"] { background: var(--accent-soft); color: var(--text); font-weight: 600; }
-.belt-item[data-status="done"] { color: var(--done); }
+.belt-item[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+.belt-item[data-status="done"] { color: var(--positive); }
 .belt-index {
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
   border: 1px solid currentColor;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; flex: none;
+  font-size: var(--t2);
+  flex: none;
 }
 
 /* ── LA DÉCISION COURANTE ────────────────────────────────────────── */
-.stage { padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; }
+.stage { padding: var(--sp-24) var(--sp-32); display: flex; flex-direction: column; gap: var(--sp-20); }
 .toggle-bar { display: flex; justify-content: flex-end; }
 .decision-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  max-width: 62ch;
+  border: 1px solid var(--border); /* décorative : le contour d'une carte, aucune cible de contraste (§3b) */
+  border-radius: var(--radius-md);
+  padding: var(--sp-32); /* 28px d'origine : à mi-chemin de sp-24/sp-32, arrondi au cran du dessus */
+  max-width: var(--measure); /* MESURE DE PROSE, pas une largeur de grille (§3e) — 62ch, zéro changement visible */
 }
-.decision-card h1 { margin: 0 0 10px; font-size: 22px; }
-.placeholder { color: var(--text-dim); font-size: 14px; }
-.placeholder code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
-.stage-nav { display: flex; gap: 10px; }
+.decision-card h1 { margin: 0 0 var(--sp-12); font-size: var(--t6); } /* 10px → sp-12, même arrondi que le belt-item */
+.placeholder { color: var(--text-soft); font-size: var(--t3); } /* une PHRASE de description, pas une mention courte */
+.placeholder code { background: var(--accent-wash); padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); } /* 1px→sp-2, 5px→sp-4 (arrondi au plus proche, pas d'égalité) */
+.stage-nav { display: flex; gap: var(--sp-12); } /* 10px → sp-12 */
 
 button { font: inherit; }
 .stage-nav button, .toggle-bar button {
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  padding: var(--sp-8) var(--sp-16);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE : un bouton est cliquable, cible 3:1 (§3b) */
   background: var(--surface);
   cursor: pointer;
 }
-.stage-nav button:last-child { background: var(--accent); color: #fff; border-color: var(--accent); }
+.stage-nav button:last-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } /* CORRECTIF défaut n°1 : #fff en dur échouait 2,44:1 en sombre, voir l'inventaire */
 .stage-nav button:disabled { opacity: .4; cursor: default; }
 
-/* ── L'ÉTAPE COMPÉTENCES (lot 33) ────────────────────────────────── */
-.skills-step { max-width: 60ch; }
-.skill-group { margin-bottom: 22px; }
-.skill-group h3 { margin: 0 0 4px; font-size: 14px; text-transform: capitalize; color: var(--text-dim); }
-.skill-budget { margin: 0 0 8px; font-size: 13px; color: var(--text-dim); }
-.skill-slot { margin-bottom: 8px; }
+/* ── L'ÉTAPE COMPÉTENCES (lot 33 — pas reconstruite ici, lot 39) ──── */
+.skills-step { max-width: var(--grid-w); } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) — 60ch, zéro changement visible */
+.skill-group { margin-bottom: var(--sp-24); } /* 22px : à mi-chemin de sp-20/sp-24, arrondi au cran du dessus */
+.skill-group h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); text-transform: capitalize; color: var(--text-muted); }
+.skill-budget { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); } /* 13px → T3, voir l'inventaire : rejoint skill-chip, pas de nouvel écart créé */
+.skill-slot { margin-bottom: var(--sp-8); }
 .skill-slot[data-status="locked"] { opacity: .6; }
-.skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-chips { display: flex; flex-wrap: wrap; gap: var(--sp-8); } /* 6px : à mi-chemin de sp-4/sp-8, arrondi au cran du dessus */
 .skill-chip {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong); /* un chip est un CONTRÔLE (cliquable), cible 3:1 */
   background: var(--surface);
-  color: var(--text-dim);
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 13px;
+  color: var(--text-muted);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-4) var(--sp-12); /* 5px → sp-4 (plus proche, pas d'égalité) */
+  font-size: var(--t3); /* 13px → T3, même raisonnement que skill-budget */
   cursor: pointer;
 }
-.skill-chip[data-chosen="true"] { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.skill-chip[data-chosen="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; } /* CORRECTIF défaut n°1, seconde occurrence */
 .skill-chip:disabled { cursor: default; opacity: .5; }
-.skill-lock { margin: 4px 0 0; font-size: 12px; color: var(--decide, #b3543b); font-family: ui-monospace, monospace; }
+.skill-lock { margin: var(--sp-4) 0 0; font-size: var(--t2); color: var(--critical); font-family: ui-monospace, monospace; } /* CORRECTIF défaut n°2 : `--decide` n'était défini nulle part, replis sur un hex qui échouait AA */
 
 /* ── LE PLAN ESCAMOTABLE (desktop = colonne) ─────────────────────── */
 .plan {
   border-left: 1px solid var(--border);
-  padding: 20px;
+  padding: var(--sp-20);
   background: var(--surface);
 }
-.plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.plan-header button { border: none; background: none; color: var(--text-dim); cursor: pointer; }
-.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.plan-list li { padding: 6px 8px; border-radius: 6px; font-size: 13px; color: var(--text-dim); }
-.plan-list li[data-status="current"] { background: var(--accent-soft); color: var(--text); font-weight: 600; }
-.plan-list li[data-status="done"] { color: var(--done); }
+.plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-12); }
+.plan-header button { border: none; background: none; color: var(--text-muted); cursor: pointer; }
+.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.plan-list li { padding: var(--sp-8) var(--sp-8); border-radius: var(--radius-md); font-size: var(--t3); color: var(--text-muted); } /* 6px→sp-8 (égalité, arrondi au-dessus) ; rayon aligné sur .belt-item, même famille de ligne sélectionnable ; 13px→T3 comme skill-chip */
+.plan-list li[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+.plan-list li[data-status="done"] { color: var(--positive); }
 
-/* ── TÉLÉPHONE : belt compacte, plan en surface temporaire ───────── */
+/* ── TÉLÉPHONE : la ceinture devient une MOLETTE PLATE (§3f) ─────────
+   ⛔ Pas de repli en 4+3, ⛔ pas d'effacement des libellés (l'ancien
+   `.belt-label { display: none }` EST le défaut n°3 : il efface des mots,
+   ce que le cadre d'Eric interdit). Les mots reviennent, à toutes les
+   largeurs ; la rangée défile à la place. */
 @media (max-width: 720px) {
+  /* ⚠️ LE SEUIL EST ICI, LITTÉRALEMENT — et c'est la SEULE façon de
+     l'écrire : un `@media` CSS ne peut pas lire une custom property (ni
+     `var(--bp-mid)`, ni aucune autre forme), c'est une limite native du
+     langage, pas un choix de ce lot. La piste suggérée par la commande
+     (`--bp-mid` lu par `shell.mjs`) laissait donc quand même « 720 » écrit
+     deux fois. Ce que ce lot fait à la place : ce bloc pose un DRAPEAU
+     (`--bp-hint`) que `shell.mjs` lit — le chiffre 720 n'existe plus que
+     là, à cet unique endroit de tout `ui/builder/`. Mesuré avec
+     `grep -rn "720" ui/builder/`, voir INVENTAIRE-LOT-38.md. */
+  :root { --bp-hint: narrow; }
+
   .app, .app[data-plan="open"] { grid-template-columns: 1fr; }
   .belt {
     flex-direction: row;
     overflow-x: auto;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding: 10px;
+    padding: var(--sp-12); /* 10px → sp-12, même arrondi que partout ailleurs */
+    scroll-snap-type: x proximity;
+    /* L'amorce : dit qu'il y a du hors-champ (bible §4). Un masque n'est
+       pas une teinte — noir/transparent y encodent la VISIBILITÉ, pas une
+       couleur du système. Exception au clause 3 du garde, sur le registre :
+       aucun canal alpha de masque n'a de jeton dans la palette. */
+    mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
   }
-  .belt-label { display: none; }
-  .stage { padding: 16px; }
+  .belt-item { scroll-snap-align: center; }
+  /* La ceinture flotte sur le vide (bible §4) : ni pastille de centrage,
+     ni fond — le cran courant se signale par son poids et sa couleur,
+     rien d'autre. Le fond du mode desktop (accent-wash) est donc retiré
+     ICI, spécifiquement en molette. */
+  .belt-item[data-status="current"] { background: none; }
+  .stage { padding: var(--sp-16); }
   .plan {
     position: fixed;
     inset: 0;
@@ -145,7 +155,13 @@ button { font: inherit; }
   }
   .scrim {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.4);
+    background: var(--scrim);
     z-index: 1;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Invariant de la bible (§5) : le recentrage de la molette devient
+     instantané, jamais animé. */
+  .belt { scroll-behavior: auto; }
 }

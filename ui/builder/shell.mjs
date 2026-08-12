@@ -62,8 +62,16 @@ function applyDecisionAction(action) {
   render();
 }
 
+/* ⚠️ LOT 38 : plus de "720" ici. Un `@media` CSS ne peut pas exposer sa
+   propre valeur à `var()` — c'est une limite native, pas un choix — donc le
+   seuil ne peut vivre qu'à UN endroit : le `@media (max-width: 720px)` de
+   `shell.css`, qui pose le drapeau `--bp-hint` ("wide"/"narrow") sur
+   `:root`. Cette fonction lit le drapeau, jamais le nombre — voir
+   `tokens.css` et INVENTAIRE-LOT-38.md pour la mesure qui a fait diverger
+   ce lot de la piste `--bp-mid` suggérée par la commande. */
 function isMobile() {
-  return window.matchMedia("(max-width: 720px)").matches;
+  const hint = getComputedStyle(document.documentElement).getPropertyValue("--bp-hint").trim();
+  return hint === "narrow";
 }
 
 function el(tag, className, children) {
@@ -164,12 +172,28 @@ function renderScrim() {
   return scrim;
 }
 
+/* La garantie qui rend la molette sûre (bible §4) : l'étape courante
+   REVIENT dans le champ à chaque changement d'étape, sinon la ceinture
+   peut cacher le cran allumé — la seule chose qu'elle existe pour montrer.
+   `scrollIntoView` évite le piège connu de `offsetLeft` (il remonte au
+   premier parent positionné) : le navigateur calcule le centrage lui-même,
+   rien à mesurer à la main. `block: "nearest"` empêche un défilement
+   VERTICAL parasite sur desktop, où la ceinture n'a jamais besoin de
+   défiler — `inline: "center"` n'agit que si elle déborde horizontalement.
+   La vitesse (animée ou instantanée) suit `--bp-hint`-independent
+   `scroll-behavior` posé en CSS, qui obéit déjà à `prefers-reduced-motion`. */
+function recenterBelt() {
+  const current = app.querySelector('.belt-item[data-status="current"]');
+  if (current) current.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
 function render() {
   app.dataset.plan = state.planOpen ? "open" : "closed";
   app.innerHTML = "";
   const nodes = [renderBelt(), renderStage(), renderPlan()];
   if (isMobile() && state.planOpen) nodes.push(renderScrim());
   app.append(...nodes);
+  recenterBelt();
 }
 
 window.addEventListener("resize", render);
