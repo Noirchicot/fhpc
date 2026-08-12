@@ -42,6 +42,7 @@
    des mots affichés vient du document. */
 
 import { OVERRIDE_PATH } from "../build/paths.mjs";
+import { createLabels } from "../labels.mjs";
 
 /* ══ LA MARCHE ════════════════════════════════════════════════════════
 
@@ -130,8 +131,13 @@ export function rubriqueDe(field) {
  * @param {object} document un `fh-char/1`.
  * @param {object|null} report le rendu de `build.rebuild` — `{underived,
  *   warnings, …}`. ABSENT est le cas ordinaire : le document ne le porte pas.
+ * @param {object} [libelles] le paquet de TITRES de rubrique — `LIBELLES`
+ *   (français) par défaut. Lot 40 : `render()` passe `LIBELLES_EN` pour la
+ *   langue anglaise. ⚠️ Ce paquet reste un objet ordinaire, jamais un
+ *   accesseur qui jette : une rubrique que le contrat ajouterait demain doit
+ *   pouvoir s'afficher quand même, sous sa clef nue (voir plus bas).
  */
-export function modele(document, report) {
+export function modele(document, report, libelles = LIBELLES) {
   const doc = document && typeof document === "object" ? document : {};
   const resolved = doc.resolved && typeof doc.resolved === "object" ? doc.resolved : null;
 
@@ -164,7 +170,7 @@ export function modele(document, report) {
       for (const entree of declarations) places.add(entree);
       rubriques.push({
         cle,
-        titre: LIBELLES[cle] === undefined ? null : LIBELLES[cle],
+        titre: libelles[cle] === undefined ? null : libelles[cle],
         racine,
         vide: estVide(resolved[cle]),
         declarations
@@ -219,124 +225,149 @@ const ech = echappe;
 
 /** Une valeur de feuille, telle qu'elle est. `null` et la chaîne vide se
  *  DISENT, ils ne se rendent pas en blanc : un blanc se confond avec « pas
- *  affiché », et le document ne dit pas la même chose dans les deux cas. */
-function valeurHtml(valeur) {
-  if (valeur === null) return `<em class="rien">${ech(MOTS.nul)}</em>`;
-  if (valeur === "") return `<em class="rien">${ech(MOTS.chaineVide)}</em>`;
-  if (typeof valeur === "boolean") return `<span class="bool">${valeur ? ech(MOTS.oui) : ech(MOTS.non)}</span>`;
+ *  affiché », et le document ne dit pas la même chose dans les deux cas.
+ *  `mots(id)` est l'accesseur du paquet ACTIF (voir `packFor`, en bas de ce
+ *  fichier) — il jette si `id` n'y a pas de mot, jamais un blanc silencieux. */
+function valeurHtml(valeur, mots) {
+  if (valeur === null) return `<em class="rien">${ech(mots("nul"))}</em>`;
+  if (valeur === "") return `<em class="rien">${ech(mots("chaineVide"))}</em>`;
+  if (typeof valeur === "boolean") return `<span class="bool">${valeur ? ech(mots("oui")) : ech(mots("non"))}</span>`;
   return ech(valeur);
 }
 
 /** L'étiquette d'une valeur : le CHEMIN, et son verdict d'adressabilité. */
-function chemin(noeud, override) {
+function chemin(noeud, override, mots) {
   const classes = ["chemin", noeud.adressable ? "ok" : "ko"];
   if (override !== undefined) classes.push("surcharge");
   const titre = noeud.adressable
-    ? MOTS.adressable
-    : (noeud.sansIdentite ? MOTS.sansIdentite : MOTS.horsGrammaire);
+    ? mots("adressable")
+    : (noeud.sansIdentite ? mots("sansIdentite") : mots("horsGrammaire"));
   return `<code class="${classes.join(" ")}" data-path="${ech(noeud.chemin)}" ` +
     `data-adressable="${noeud.adressable ? "oui" : "non"}" title="${ech(titre)}">${ech(noeud.chemin)}</code>`;
 }
 
-function badgeOverride(override) {
+function badgeOverride(override, mots) {
   if (override === undefined) return "";
   const qui = typeof override.by === "string" ? override.by : "?";
   const note = typeof override.note === "string" && override.note.length > 0 ? ` — ${ech(override.note)}` : "";
-  return `<span class="badge">${ech(MOTS.surcharge)} · ${ech(qui)}${note}</span>`;
+  return `<span class="badge">${ech(mots("surcharge"))} · ${ech(qui)}${note}</span>`;
 }
 
-function feuilleHtml(noeud, overrides) {
+function feuilleHtml(noeud, overrides, mots) {
   const override = overrides.get(noeud.chemin);
-  return `<div class="feuille">${chemin(noeud, override)}` +
-    `<span class="val">${valeurHtml(noeud.valeur)}</span>${badgeOverride(override)}</div>`;
+  return `<div class="feuille">${chemin(noeud, override, mots)}` +
+    `<span class="val">${valeurHtml(noeud.valeur, mots)}</span>${badgeOverride(override, mots)}</div>`;
 }
 
 /** Une tranche de feuilles voisines : UNE ligne, une cellule par feuille. Le
  *  nom de la clef est affiché parce qu'il vient du DOCUMENT — ce n'est pas un
  *  mot d'interface. */
-function ligneHtml(feuilles, overrides) {
+function ligneHtml(feuilles, overrides, mots) {
   const cellules = feuilles.map((enfant) => {
     const override = overrides.get(enfant.chemin);
-    return `<span class="cell">${chemin(enfant, override)}` +
-      `<b>${valeurHtml(enfant.valeur)}</b>${badgeOverride(override)}</span>`;
+    return `<span class="cell">${chemin(enfant, override, mots)}` +
+      `<b>${valeurHtml(enfant.valeur, mots)}</b>${badgeOverride(override, mots)}</span>`;
   }).join("");
   return `<div class="ligne"><div class="cells">${cellules}</div></div>`;
 }
 
-function noeudHtml(noeud, overrides) {
-  if (noeud.forme === "feuille") return feuilleHtml(noeud, overrides);
+function noeudHtml(noeud, overrides, mots) {
+  if (noeud.forme === "feuille") return feuilleHtml(noeud, overrides, mots);
   if (noeud.enfants.length === 0) {
-    return `<div class="ligne vide">${chemin(noeud, overrides.get(noeud.chemin))}` +
-      `<em class="rien">${ech(noeud.forme === "liste" ? MOTS.listeVide : MOTS.objetVide)}</em></div>`;
+    return `<div class="ligne vide">${chemin(noeud, overrides.get(noeud.chemin), mots)}` +
+      `<em class="rien">${ech(noeud.forme === "liste" ? mots("listeVide") : mots("objetVide"))}</em></div>`;
   }
   const corps = tranches(noeud)
     .map((tranche) => (tranche.ligne
-      ? ligneHtml(tranche.noeuds, overrides)
-      : noeudHtml(tranche.noeuds[0], overrides)))
+      ? ligneHtml(tranche.noeuds, overrides, mots)
+      : noeudHtml(tranche.noeuds[0], overrides, mots)))
     .join("");
   const override = overrides.get(noeud.chemin);
-  return `<div class="bloc">${chemin(noeud, override)}${badgeOverride(override)}${corps}</div>`;
+  return `<div class="bloc">${chemin(noeud, override, mots)}${badgeOverride(override, mots)}${corps}</div>`;
 }
 
-function declarationsHtml(declarations) {
+function declarationsHtml(declarations, mots) {
   if (declarations.length === 0) return "";
   const items = declarations.map((entree) =>
     `<li><code>${ech(entree.field)}</code> — ${ech(entree.reason)}</li>`).join("");
-  return `<div class="declare"><strong>${ech(MOTS.nonDerive)}</strong><ul>${items}</ul></div>`;
+  return `<div class="declare"><strong>${ech(mots("nonDerive"))}</strong><ul>${items}</ul></div>`;
 }
 
-function rubriqueHtml(rubrique, overrides) {
+function rubriqueHtml(rubrique, overrides, mots) {
   const titre = rubrique.titre === null
-    ? `<code>${ech(rubrique.cle)}</code> <em class="rien">${ech(MOTS.sansLibelle)}</em>`
+    ? `<code>${ech(rubrique.cle)}</code> <em class="rien">${ech(mots("sansLibelle"))}</em>`
     : ech(rubrique.titre);
   /* UNE RUBRIQUE VIDE ET SANS RAISON EST UN DÉFAUT, ET ELLE LE DIT. C'est la
      seule façon pour l'écran de rester aussi honnête que le moteur : « vide »
      n'est une information que lorsqu'on sait pourquoi. */
   const muette = rubrique.vide && rubrique.declarations.length === 0
-    ? `<div class="muette">${ech(MOTS.videSansRaison)}</div>`
+    ? `<div class="muette">${ech(mots("videSansRaison"))}</div>`
     : "";
   return `<section data-rubrique="${ech(rubrique.cle)}">` +
     `<h2>${titre} <code class="cle">${ech(rubrique.cle)}</code></h2>` +
-    declarationsHtml(rubrique.declarations) + muette +
-    noeudHtml(rubrique.racine, overrides) +
+    declarationsHtml(rubrique.declarations, mots) + muette +
+    noeudHtml(rubrique.racine, overrides, mots) +
     "</section>";
 }
 
-function rapportHtml(rapport) {
+function rapportHtml(rapport, mots) {
   const lignes = [];
   if (!rapport.present) {
-    lignes.push(`<p class="alerte">${ech(MOTS.rapportAbsent)}</p>`);
+    lignes.push(`<p class="alerte">${ech(mots("rapportAbsent"))}</p>`);
   } else {
     lignes.push(rapport.warnings.length === 0
-      ? `<p class="rien">${ech(MOTS.aucunAvertissement)}</p>`
+      ? `<p class="rien">${ech(mots("aucunAvertissement"))}</p>`
       : `<ul class="warn">${rapport.warnings.map((mot) => `<li>${ech(mot)}</li>`).join("")}</ul>`);
-    lignes.push(`<p class="compte">${ech(MOTS.compteNonDerive)} ${rapport.underived.length}</p>`);
+    lignes.push(`<p class="compte">${ech(mots("compteNonDerive"))} ${rapport.underived.length}</p>`);
     if (rapport.unconsumed.length > 0) {
-      lignes.push(`<div class="declare"><strong>${ech(MOTS.nonConsommes)}</strong><ul>` +
+      lignes.push(`<div class="declare"><strong>${ech(mots("nonConsommes"))}</strong><ul>` +
         rapport.unconsumed.map((chemin) => `<li><code>${ech(chemin)}</code></li>`).join("") +
         "</ul></div>");
     }
     if (rapport.orphelines.length > 0) {
-      lignes.push(`<div class="declare"><strong>${ech(MOTS.orphelines)}</strong><ul>` +
+      lignes.push(`<div class="declare"><strong>${ech(mots("orphelines"))}</strong><ul>` +
         rapport.orphelines.map((entree) =>
           `<li><code>${ech(entree.field)}</code> — ${ech(entree.reason)}</li>`).join("") +
         "</ul></div>");
     }
   }
-  return `<section data-bloc="rapport"><h2>${ech(MOTS.titreRapport)}</h2>${lignes.join("")}</section>`;
+  return `<section data-bloc="rapport"><h2>${ech(mots("titreRapport"))}</h2>${lignes.join("")}</section>`;
 }
 
-function enteteHtml(entete) {
+function enteteHtml(entete, mots) {
   /* `<b class="meta">` et non `<b>` : ces valeurs-là n'ont PAS de chemin, et un
      test compte les `<b>` nus pour interdire qu'une valeur de `resolved` soit
      un jour rendue sans le sien. Les deux ne doivent pas se confondre. */
   const champs = Object.keys(entete)
     .map((cle) => `<span class="cell"><span class="cle">${ech(cle)}</span>` +
-      `<b class="meta">${valeurHtml(entete[cle] === undefined ? null : entete[cle])}</b></span>`)
+      `<b class="meta">${valeurHtml(entete[cle] === undefined ? null : entete[cle], mots)}</b></span>`)
     .join("");
-  return `<header data-bloc="entete"><h1>${ech(entete.nom === undefined ? MOTS.sansNom : entete.nom)}</h1>` +
+  return `<header data-bloc="entete"><h1>${ech(entete.nom === undefined ? mots("sansNom") : entete.nom)}</h1>` +
     `<div class="cells">${champs}</div>` +
-    `<p class="note">${ech(MOTS.enteteHorsResolved)}</p></header>`;
+    `<p class="note">${ech(mots("enteteHorsResolved"))}</p></header>`;
+}
+
+/* ══ LES PAQUETS DE MOTS, PAR LANGUE — LOT 40 ═════════════════════════
+
+   `LIBELLES`/`MOTS` (français) existaient depuis le lot 25 ; ce lot y ajoute
+   `LIBELLES_EN`/`MOTS_EN`, SANS toucher au français (loi de la commande :
+   « ne traduis pas en place »). Le mécanisme est celui de `src/labels.mjs`,
+   littéralement réemployé plutôt qu'imité — `createLabels` produit un
+   accesseur qui JETTE sur un identifiant sans mot, au lieu de rendre un blanc
+   ou l'identifiant nu. C'est le paquet MOTS qui passe par cet accesseur : un
+   ID de mot d'interface est un ensemble FERMÉ, connu du code, donc une
+   absence est une faute du paquet. `LIBELLES`, lui, reste un objet ordinaire
+   consulté par clef nue : ses clefs sont celles de `resolved`, un ensemble
+   OUVERT que le contrat peut agrandir, et une rubrique sans libellé s'affiche
+   quand même, marquée comme telle (voir `rubriqueHtml`) — pas une régression
+   à faire jeter. */
+
+function packFor(lang) {
+  const pack = { fr: { libelles: LIBELLES, mots: MOTS_T_FR }, en: { libelles: LIBELLES_EN, mots: MOTS_T_EN } }[lang];
+  if (pack === undefined) {
+    throw new Error(`fhpc/render-fiche: no word pack for lang "${lang}" (known: fr, en).`);
+  }
+  return pack;
 }
 
 /**
@@ -345,14 +376,20 @@ function enteteHtml(entete) {
  *
  * @param {object} document un `fh-char/1`.
  * @param {object} [report] `{underived, warnings, …}` du dernier `rebuild`.
+ * @param {"fr"|"en"} [lang] la langue des MOTS D'INTERFACE — "fr" par défaut
+ *   (comportement du lot 25, inchangé). "en" est le paquet du lot 40 : c'est
+ *   celui que le builder (mots anglais, arbitrage d'Eric 2026-08-10) emploie.
+ *   ⚠️ Ne traduit jamais le DOCUMENT — seulement les mots que ce fichier
+ *   ajoute autour de lui.
  * @returns {string} un fragment HTML — la coquille s'occupe du reste.
  */
-export function render(document, report) {
-  const vue = modele(document, report);
+export function render(document, report, lang = "fr") {
+  const { libelles, mots } = packFor(lang);
+  const vue = modele(document, report, libelles);
   const corps = vue.manquant
-    ? `<p class="alerte">${ech(MOTS.resolvedAbsent)}</p>`
-    : vue.rubriques.map((rubrique) => rubriqueHtml(rubrique, vue.overrides)).join("");
-  return `<article class="fiche">${enteteHtml(vue.entete)}${rapportHtml(vue.rapport)}${corps}</article>`;
+    ? `<p class="alerte">${ech(mots("resolvedAbsent"))}</p>`
+    : vue.rubriques.map((rubrique) => rubriqueHtml(rubrique, vue.overrides, mots)).join("");
+  return `<article class="fiche">${enteteHtml(vue.entete, mots)}${rapportHtml(vue.rapport, mots)}${corps}</article>`;
 }
 
 /* ══ LES MOTS DE L'INTERFACE — TOUS ICI, ET NULLE PART AILLEURS ═══════
@@ -414,3 +451,73 @@ export const MOTS = {
   horsGrammaire: "INADRESSABLE : ce chemin n'entre pas dans la grammaire de `$defs/overridePath`.",
   enteteHorsResolved: "Ces champs vivent hors de `resolved` : aucun override ne peut les viser."
 };
+
+/* ══ LE PAQUET ANGLAIS — LOT 40 ═══════════════════════════════════════
+   Les mots d'interface du BUILDER sont en anglais (arbitrage d'Eric,
+   2026-08-10 : sa table joue en anglais). `render-fiche.mjs` restait le seul
+   endroit encore en français que l'écran réel du joueur allait consommer.
+
+   ⛔ Le français ci-dessus n'a pas bougé, et ce paquet n'en est pas une
+   traduction posée « à côté sans lien » : c'est le MÊME jeu de clefs — un
+   test (`tests/render-fiche-en.test.mjs`) le garde, comme `LIBELLES`/`MOTS`
+   sont déjà gardés l'un contre l'autre par le schéma. */
+export const LIBELLES_EN = {
+  derivation: "Derivation",
+  identity: "Identity",
+  abilities: "Abilities",
+  proficiency: "Proficiency bonus",
+  ac: "Armor Class",
+  vitals: "Hit points and conditions",
+  speeds: "Speeds",
+  senses: "Senses",
+  languages: "Languages",
+  saves: "Saving throws",
+  skills: "Skills",
+  tools: "Tools",
+  actions: "Actions",
+  spellcasting: "Spellcasting",
+  resources: "Resources",
+  traits: "Traits and features",
+  gear: "Gear",
+  currency: "Currency",
+  craft: "Craft",
+  stats: "Derived stats",
+  notes: "Notes"
+};
+
+export const MOTS_EN = {
+  titreRapport: "Derivation report",
+  rapportAbsent: "NO DERIVATION REPORT ACCOMPANIES THIS DOCUMENT. " +
+    "`fh-char/1` has nowhere to keep it: the “underived” declarations and " +
+    "warnings are the output of `build.rebuild`, and they are lost the moment the file is closed. " +
+    "What follows is therefore silent about what the engine knew.",
+  aucunAvertissement: "No warnings.",
+  compteNonDerive: "“Underived” declarations received:",
+  nonConsommes: "Player choices no rule consumed — they leave NO trace on the sheet:",
+  orphelines: "Declarations that attach to no section of this document:",
+  nonDerive: "Underived — what the engine could not establish, and why:",
+  videSansRaison: "Empty, and the report gives no reason for it.",
+  resolvedAbsent: "THIS DOCUMENT CARRIES NO `resolved`: there is no sheet to display.",
+  listeVide: "empty list",
+  objetVide: "empty object",
+  nul: "null",
+  chaineVide: "empty string",
+  oui: "true",
+  non: "false",
+  sansNom: "(unnamed)",
+  sansLibelle: "(section without a label)",
+  surcharge: "overridden",
+  adressable: "Valid override path.",
+  sansIdentite: "UNADDRESSABLE: this element has no `id` — the override grammar names it by " +
+    "identity and refuses an index.",
+  horsGrammaire: "UNADDRESSABLE: this path does not fit the grammar of `$defs/overridePath`.",
+  enteteHorsResolved: "These fields live outside `resolved`: no override can target them."
+};
+
+/* Les accesseurs qui JETTENT — le mécanisme de `src/labels.mjs`, réemployé
+   tel quel plutôt qu'imité (voir `packFor`, plus haut). `MOTS`/`MOTS_EN`
+   restent des objets ordinaires exportés pour que les tests (et le garde de
+   couverture) les comparent clef à clef ; ce sont CES accesseurs que le rendu
+   HTML consulte, jamais `MOTS.xxx`/`MOTS_EN.xxx` en dur. */
+const MOTS_T_FR = createLabels(MOTS);
+const MOTS_T_EN = createLabels(MOTS_EN);
