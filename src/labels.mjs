@@ -63,7 +63,15 @@ export const FR_BUILD = {
   "skill-spend.below-floor": (d) => `le choix « ${d.path} » demande le palier « ${d.value} », sous le plancher ` +
     `« ${d.floor} » déjà imposé — un palier imposé se MONTE, il ne descend pas.`,
   "skill-spend.tier-locked": (d) => `le choix « ${d.path} » achète le palier le plus haut sur « ${d.skillId} » au ` +
-    `niveau ${d.level}, alors que la classe ne l'autorise qu'à partir du niveau ${d.unlockLevel}.`
+    `niveau ${d.level}, alors que la classe ne l'autorise qu'à partir du niveau ${d.unlockLevel}.`,
+
+  /* ── LOT 36 — LES TRAININGS, LA TROISIÈME DÉPENSE DU POOL ─────────── */
+  "skill-train.option-unavailable": (d) => `le choix « ${d.path} » désigne le training « ${d.selected} », que la ` +
+    "pile ne porte pas.",
+  "skill-train.value-invalid": (d) => `le choix « ${d.path} » porte la valeur « ${d.value} », qui n'est ni vrai ni ` +
+    "faux — un training n'a pas de palier, sa seule valeur possible est un booléen.",
+  "skill-train.level-locked": (d) => `le choix « ${d.path} » achète le training « ${d.trainingId} » au niveau ` +
+    `${d.level}, alors qu'il ne s'acquiert qu'à partir du niveau ${d.unlockLevel}.`
 };
 
 const buildLabels = createLabels(FR_BUILD);

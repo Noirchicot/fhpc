@@ -506,7 +506,7 @@
         },
 
         "traits": {
-          "$comment": "Aptitudes, dons, traits d'espèce. Un trait à usages limités ne compte PAS lui-même : il pointe sa ressource par `resourceId` (une seule source de vérité).",
+          "$comment": "Aptitudes, dons, traits d'espèce. Un trait à usages limités ne compte PAS lui-même : il pointe sa ressource par `resourceId` (une seule source de vérité).\n\nRÉVISION DU 2026-08-12 (lot 36) — `category`, un champ FACULTATIF. Un training (langue de plus, arme exotique, le Garrot) n'a ni palier ni bonus (`resolved.skills[]`/`tools[]` l'auraient forcé à mentir sur une caractéristique qu'il n'a pas) et son prix est déjà tracé deux fois (le choix, la ligne de coût du pool) — une rubrique neuve en aurait fait une troisième copie. `traits[]` porte déjà la phrase « aptitudes, dons, traits d'espèce » : un training y entre tel quel. `category` est un IDENTIFIANT, jamais un mot affichable (§0.13) — l'écran choisit son propre libellé. Une seule valeur aujourd'hui ; les traits d'espèce existants restent SANS catégorie, `category` ne les redéfinit pas.",
           "type": "array",
           "items": {
             "type": "object",
@@ -517,7 +517,8 @@
               "name": { "type": "string", "minLength": 1, "maxLength": 100 },
               "text": { "type": "string", "maxLength": 4000 },
               "source": { "type": "string", "maxLength": 80 },
-              "resourceId": { "$ref": "#/$defs/slug" }
+              "resourceId": { "$ref": "#/$defs/slug" },
+              "category": { "enum": ["training"] }
             }
           }
         },
