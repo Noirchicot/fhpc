@@ -166,6 +166,47 @@ button { font: inherit; }
    même pratique que `.skill-slot[data-status="locked"]` au lot 38. */
 .skills-trainings-block[data-status="locked"] { opacity: .6; }
 
+/* ── LES ÉTAPES CLASS / SPECIES (lot 42) ─────────────────────────────
+   `.record-list`/`.record-option` : le PICKER partagé de `carnet.mjs`
+   (`renderPicker`) — une seule feuille de style pour les 12-options (Class,
+   Species) ET les QCM par-dessus (`class.skills`, `species.skills`, le
+   budget captif d'espèce) : même geste partout, même habillage. */
+.class-step, .species-step { max-width: var(--measure); } /* PROSE, pas grille : une colonne de choix, pas un tableau (§3e du lot 39, même logique) */
+.record-choice-block { margin-bottom: var(--sp-24); }
+.record-choice-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+/* CORRECTIF, trouvé en servant le builder et en le regardant (§ finale de la
+   commande) : sur une ligne `.skills-row` à MULTIPLES options larges
+   (« animal-handling »… jusqu'à 26 pour le Barde), un `.record-list` sans
+   `flex-shrink` explicite pousse son voisin `.record-row-label` — qui n'a,
+   lui, AUCUN plancher (`min-width` par défaut « auto », déjà nul dans
+   `.skills-row-name` d'où ce fichier hérite l'habitude) — jusqu'à quelques
+   pixels : « Skill 1 » s'y brise alors lettre par lettre. `flex: 1 1 auto` +
+   `min-width: 0` ICI, un PLANCHER en face sur `.record-row-label` (jamais
+   `flex-shrink: 0` seul : un plancher trop bas romprait pareil un nom de
+   compétence long un jour). */
+.record-list { display: flex; flex-wrap: wrap; gap: var(--sp-8); flex: 1 1 auto; min-width: 0; }
+.record-row-label { flex: 0 0 auto; min-width: 8ch; max-width: 16ch; color: var(--text-muted); font-size: var(--t3); overflow-wrap: break-word; }
+.record-option {
+  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-12);
+  font-size: var(--t4);
+  cursor: pointer;
+}
+.record-option[data-active="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.record-option-none { color: var(--text-muted); }
+
+/* La boîte d'info technique de Class (§3b.4) — une carte à part, sous la
+   liste, jamais dans le flux de la grille (elle n'a ni ligne ni jeton). */
+.record-info { margin: 0 0 var(--sp-24); padding: var(--sp-16); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.record-info h3 { margin: 0 0 var(--sp-8); font-size: var(--t5); }
+.record-info-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.record-info-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
+.record-info-row dt { margin: 0; color: var(--text-muted); width: 14ch; flex: none; }
+.record-info-row dd { margin: 0; }
+
 /* ── LE PLAN ESCAMOTABLE (desktop = colonne) ─────────────────────── */
 .plan {
   border-left: 1px solid var(--border);
