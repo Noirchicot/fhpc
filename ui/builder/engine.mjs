@@ -7,7 +7,10 @@
    ⛔ AUCUNE RÈGLE ICI. Ce fichier ne fait que charger et brancher — toute
    décision de jeu vient de `rebuild()`, jamais de ce module. */
 
-const LAYER_FILES = [
+/* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
+   MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
+   pile montée comme la page » tient à cet import, pas à une recopie. */
+export const LAYER_FILES = [
   "srd-5.2.1-en.layer.json",
   "fh-species-en.layer.json",
   "fh-skills-en.layer.json",
@@ -31,10 +34,17 @@ function makeBus() {
   };
 }
 
+/* §3h (lot 38) — DÉFAUT n°3, remesuré : sans `modules:`, `resolved.stats`
+   revenait VIDE. L'écran ne perdait pas que le pool de compétences, il
+   perdait aussi le Score de Destinée — les deux sur le personnage
+   d'exemple. Mêmes modules que `src/tools/exemple-fh-en.mjs`, qui monte la
+   même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
   const { createLayers } = await import("../../src/layers/index.mjs");
   const { createBuild } = await import("../../src/build/index.mjs");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -43,7 +53,12 @@ export async function bootEngine({ root = "../.." } = {}) {
     if (block !== "layers") throw new Error(`engine: unexpected route "${route}"`);
     return layers.verbs[verb](payload);
   };
-  const build = createBuild({ bus, dispatch, now: () => new Date().toISOString() });
+  const build = createBuild({
+    bus,
+    dispatch,
+    now: () => new Date().toISOString(),
+    modules: [createFhDestinyStat(), createFhSkillPoolStat()]
+  });
 
   for (const file of LAYER_FILES) {
     const bytes = new Uint8Array(await (await fetch(`${root}/layers/${file}`)).arrayBuffer());
