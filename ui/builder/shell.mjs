@@ -13,6 +13,8 @@
 
 import { bootEngine, loadExampleDocument } from "./engine.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
+import { renderClassStep } from "./class-step.mjs";
+import { renderSpeciesStep } from "./species-step.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
    antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
@@ -35,7 +37,7 @@ const STEPS = [
   { id: "concept",    label: "Concept" },
   { id: "class",      label: "Class" },
   { id: "species",    label: "Species" },
-  { id: "background", label: "Background" },
+  { id: "background", label: "Inheritance" }, // LOT 42, §3d — l'arrière-plan n'existe plus en Fate's Hand ; le libellé change seul, l'écran reste un placeholder (un autre lot)
   { id: "abilities",  label: "Abilities" },
   { id: "destiny",    label: "Destiny" },
   { id: "skills",     label: "Skills" },
@@ -99,9 +101,16 @@ function applyDecisionAction(action) {
     render();
     return;
   }
-  const out = action.kind === "set"
-    ? verbs.set({ document: state.document, path: action.path, value: action.value })
-    : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
+  /* LOT 42, §0.3 — MESURÉ : cette fonction ne savait poser que `set`/`clear`,
+     jamais un RECORD. Class et Species posent leur choix avec `choose`
+     (`{path, ref:{kind, id}}`, `src/build/block.mjs`) — même forme que les
+     deux autres : le verbe rend `{document}`, c'est CE document qui repart
+     au `rebuild`, jamais l'ancien (test 6 de la commande). */
+  const out = action.kind === "choose"
+    ? verbs.choose({ document: state.document, path: action.path, ref: action.ref })
+    : action.kind === "set"
+      ? verbs.set({ document: state.document, path: action.path, value: action.value })
+      : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
   state.document = out.document;
   rebuild();
   render();
@@ -168,7 +177,32 @@ function renderStage() {
   const heading = el("h1", null, [document.createTextNode(step.label)]);
   card.append(heading);
 
-  if (step.id === "skills" && state.engine) {
+  /* LOT 42 — Class et Species suivent EXACTEMENT le patron Compétences
+     (lot 39) : même trio de branches (moteur prêt / en échec / en charge),
+     même `ctx` (`resolved` en moins — ni l'un ni l'autre écran n'en a
+     besoin, ils ne lisent que `decisions[]`), même verbe `applyDecisionAction`
+     pour les trois. */
+  if (step.id === "class" && state.engine) {
+    card.append(renderClassStep({
+      decisions: state.decisions,
+      query: state.engine.layers.verbs.query
+    }, applyDecisionAction));
+  } else if (step.id === "class" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "class") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "species" && state.engine) {
+    card.append(renderSpeciesStep({
+      decisions: state.decisions,
+      query: state.engine.layers.verbs.query
+    }, applyDecisionAction));
+  } else if (step.id === "species" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "species") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "skills" && state.engine) {
     card.append(renderSkillsStep({
       resolved: state.resolved,
       decisions: state.decisions,

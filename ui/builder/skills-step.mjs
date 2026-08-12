@@ -103,6 +103,12 @@ function refusalWord(violation) {
   return words ? words(violation.params || {}) : violation.key;
 }
 
+/* LOT 42 — `planAt`/`violationAt` étaient définies ICI (lignes 118/121) ;
+   trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
+   dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
+   neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
+import { planAt, violationAt } from "./carnet.mjs";
+
 function el(tag, className, children) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -112,15 +118,6 @@ function el(tag, className, children) {
 function text(value) { return document.createTextNode(String(value)); }
 function abilityLabel(key) { return typeof key === "string" ? key.slice(0, 3).toUpperCase() : "—"; }
 function signed(n) { return Number.isInteger(n) ? (n >= 0 ? `+${n}` : String(n)) : "—"; }
-
-/** Le carnet, indexé par chemin — jamais par « le dernier segment » (le
- *  bogue nommé en tête de l'ancien fichier, lot 33). */
-function planAt(decisions, path) {
-  return (Array.isArray(decisions) ? decisions : []).find((entry) => entry.path === path) || null;
-}
-function violationAt(violations, path) {
-  return (Array.isArray(violations) ? violations : []).find((v) => v.path === path) || null;
-}
 
 function findPoolStat(resolved) {
   const stats = resolved && Array.isArray(resolved.stats) ? resolved.stats : [];

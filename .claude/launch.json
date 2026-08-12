@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fhpc-builder-lot42",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "python3 -m http.server \"${PORT:-8936}\""],
+      "port": 8936,
+      "autoPort": true
+    }
+  ]
+}
