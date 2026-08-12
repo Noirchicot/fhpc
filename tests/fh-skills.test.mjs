@@ -492,10 +492,17 @@ test("REFUS — une classe du SRD oubliée par la table des pools fait jeter", (
 /* ══ L'ARRIÈRE-PLAN, ÉTEINT (lot 35) ═══════════════════════════════════
    Addendums §4 (Eric, 2026-08-12) : l'arrière-plan n'existe plus en Fate's
    Hand. Les quatre records SRD perdent `skill_ids` ; les trois qui portaient
-   `tool_id` (Acolyte, Criminal, Sage) le perdent aussi. Le Soldier n'en a
-   jamais porté (il CHOISIT le sien, `tool_choice`) — cette couche n'y touche
-   pas. `ability_keys` et `feat_id`/`feat_option` sont l'Inheritance : ils
-   restent, intacts. */
+   `tool_id` (Acolyte, Criminal, Sage) le perdent aussi.
+
+   ⭐ RÉVISION DE L'ARCHITECTE, 2026-08-12 : le Soldier perd son `tool_choice`.
+   La commande du lot 35 ne nommait que `skill_ids` et `tool_id` — le lot a
+   donc laissé le choix d'outil du Soldier intact et l'a SIGNALÉ, ce qui était
+   juste. Mais la décision d'Eric éteint TOUTE la partie choix d'arrière-plan,
+   et sans ce retrait le Soldier serait le seul arrière-plan à imposer encore
+   quelque chose au joueur. Éteint sur confirmation d'Eric.
+
+   `ability_keys` et `feat_id`/`feat_option` sont l'Inheritance : ils restent,
+   intacts. */
 
 test("les quatre arrière-plans du SRD ne portent plus `skill_ids`", () => {
   const verbs = pile();
@@ -515,11 +522,43 @@ test("les trois arrière-plans qui portaient `tool_id` ne le portent plus ; le S
       `« ${entry.target} » : la déclaration \`hasToolId\` doit correspondre à la réalité du SRD commité`);
     assert.equal(apres.tool_id, undefined, `« ${entry.target} » : plus d'outil imposé après extinction`);
   }
-  /* Le Soldier CHOISIT son outil (`tool_choice`) — cette couche ne le lui
-     retire pas : la source ne déclare que `tool_id`, jamais `tool_choice`. */
-  const soldier = verbs.query({ kind: "background", id: "srd:background:en:soldier" }).record.data;
-  assert.deepEqual(soldier.tool_choice, { from: ["srd:tool:en:gaming-set"] },
-    "le Soldier garde son `tool_choice` — cette extinction ne le vise pas");
+});
+
+/* REWRITTEN 2026-08-12 (architecte) — l'assertion précédente vérifiait que le
+   Soldier GARDAIT son `tool_choice`. Elle était vraie du lot 35 et fausse de la
+   règle : elle est réécrite à la nouvelle vérité, pas relâchée (loi §0.7). */
+test("le Soldier ne CHOISIT plus d'outil non plus — l'extinction vise aussi `tool_choice`", () => {
+  const verbs = pile();
+  const srd = readSrdLayer(SRD_PATH);
+  /* La mesure part du SRD commité : le Soldier est le SEUL à porter le champ,
+     et c'est ce qui rend le test dur — les trois autres ne prouveraient rien. */
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const avant = srd.records.background[entry.target].data;
+    assert.equal(Object.hasOwn(avant, "tool_choice"), entry.hasToolChoice,
+      `« ${entry.target} » : la déclaration \`hasToolChoice\` doit correspondre au SRD commité`);
+    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
+    assert.equal(apres.tool_choice, undefined,
+      `« ${entry.target} » : plus aucun choix d'outil imposé par l'arrière-plan`);
+  }
+  /* ⛔ ET LA VRAIE OBLIGATION, celle qui survivra à un renommage de champ :
+     AUCUN des quatre n'impose plus quoi que ce soit côté outils. */
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
+    assert.equal(apres.tool_id ?? apres.tool_choice, undefined,
+      `« ${entry.target} » : l'Inheritance ne donne ni n'offre d'outil`);
+  }
+});
+
+test("REFUS — déclarer `hasToolChoice` sur un arrière-plan qui n'en porte pas fait jeter", () => {
+  /* Le sens inverse du garde : la déclaration doit rester MESURÉE sur la
+     réalité du SRD commité. Si le SRD retirait le `tool_choice` du Soldier,
+     la source mentirait — et un retrait dans le vide doit crier. */
+  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:soldier"].data.tool_choice; });
+  assert.throws(() => buildLayer({ srd }), (err) => {
+    assert.match(err.message, /srd:background:en:soldier/, "le refus NOMME le record fautif");
+    assert.match(err.message, /tool_choice/, "et le CHAMP visé dans le vide");
+    return true;
+  });
 });
 
 test("les quatre arrière-plans gardent l'Inheritance — `ability_keys` et `feat_id`", () => {

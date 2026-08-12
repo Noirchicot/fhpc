@@ -170,21 +170,42 @@ test("REJET — un slug présent dans les deux genres (compétence ET outil) fai
 
 /* ══ 4 — `resolved.tools[]` NE PUBLIE JAMAIS LES 36 ══════════════════ */
 
-test("un personnage qui n'achète aucun outil et n'en possède qu'un garde UNE seule ligne, jamais 36", () => {
+/* REWRITTEN 2026-08-12 (architecte) — ce test passait par `background.tool`,
+   le choix d'outil du Soldier. L'architecte a éteint `tool_choice` juste après
+   la fusion du lot 35 (décision d'Eric : l'arrière-plan n'impose ET n'offre
+   plus rien), donc AUCUNE source d'outil ne subsiste au niveau 1 hors du pool.
+   L'assertion est réécrite à la nouvelle vérité, jamais relâchée (loi §0.7) :
+   son obligation réelle — `resolved.tools[]` ne publie JAMAIS le catalogue —
+   est intacte, et elle est même mieux servie ici, puisque l'unique ligne vient
+   maintenant du canal qu'on veut prouver. */
+test("un personnage qui achète UN outil en publie UN, jamais les 36 du catalogue", () => {
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
       backgroundId: "srd:background:en:soldier", skills: ["stealth", "investigation"],
-      extra: [{ path: "background.tool", ref: { kind: "tool", id: "fh:tool:en:gaming-set-dice" } }]
+      extra: [{ path: "fh.skills.spend.gaming-set-dice", value: "proficient" }]
     }))
   });
-  /* ⚠️ Le Soldier garde `tool_choice` (lot 35 ne le touche pas) — mais le
-     `ref` de choix du personnage doit désigner un outil du catalogue actuel,
-     et le Gaming Set générique du SRD est retiré par cette même couche : le
-     Dice Set (son héritier, `fh:tool:en:gaming-set-dice`) est la cible légale. */
-  assert.equal(out.resolved.tools.length, 1, "un seul outil publié — celui possédé, jamais les 36 du catalogue");
+  assert.equal(out.resolved.tools.length, 1, "un seul outil publié — celui acheté, jamais les 36 du catalogue");
   assert.equal(out.resolved.tools[0].id, "gaming-set-dice");
+  assert.equal(out.resolved.tools[0].proficiency, "proficient");
+});
+
+/* ⛔ ET LA CONSÉQUENCE DE L'EXTINCTION, mesurée plutôt que supposée : sans
+   achat, un personnage d'arrière-plan Soldier n'a PLUS AUCUN outil. C'est le
+   test qui tomberait le jour où un arrière-plan se remettrait à en donner. */
+test("sans achat, l'arrière-plan ne donne plus aucun outil — `resolved.tools` est vide", () => {
+  const h = pile();
+  const out = h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
+      backgroundId: "srd:background:en:soldier", skills: ["stealth", "investigation"]
+    }))
+  });
+  assert.deepEqual(out.resolved.tools, [], "l'Inheritance ne donne ni n'offre d'outil");
+  assert.ok(out.underived.some((entry) => entry.field === "tools"),
+    "et la collection vide se DÉCLARE, comme les autres refus (règle n°2)");
 });
 
 /* ══ 5 — LE ROGUE, DÈS LE NIVEAU 1 ; LES ONZE AUTRES, VERROUILLÉES ═══ */

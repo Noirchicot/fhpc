@@ -379,16 +379,28 @@ export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4, imposed: 1 };
 
    ⚠️ MESURÉ, PAS SUPPOSÉ (2026-08-12) : les QUATRE arrière-plans du SRD
    portent `data.skill_ids`. TROIS SEULEMENT portent `data.tool_id` — le
-   Soldier CHOISIT le sien (`data.tool_choice`), il ne le REÇOIT pas, et cette
-   couche ne touche donc pas `tool_choice`. Retirer un champ absent (`tool_id`
-   du Soldier) doit rester un échec bruyant : le générateur vérifie la
-   présence avant de retirer, comme `assertTargetField` le fait déjà pour les
+   Soldier CHOISIT le sien (`data.tool_choice`), il ne le REÇOIT pas.
+
+   ⭐ CORRECTION DE L'ARCHITECTE, 2026-08-12 (après la fusion du lot 35). La
+   commande du lot nommait `skill_ids` et `tool_id`, jamais `tool_choice` : le
+   lot a donc laissé le `tool_choice` du Soldier intact, ET l'a signalé plutôt
+   que d'élargir seul son périmètre — c'est le comportement attendu, la faute
+   était dans la commande. Or la décision d'Eric est « éteindre TOUTE la partie
+   choix d'arrière-plan », et un `tool_choice` EST un choix d'arrière-plan.
+   Sans ce retrait, le Soldier resterait le SEUL arrière-plan à encore imposer
+   quelque chose au joueur, ce qui contredit la règle. Éteint le 2026-08-12,
+   sur confirmation d'Eric.
+
+   Chaque champ est déclaré par entrée et VÉRIFIÉ DANS LES DEUX SENS : retirer
+   un champ absent est un échec bruyant, et déclarer absent un champ que le SRD
+   porte l'est aussi — sinon la déclaration cesse d'être mesurée sur la réalité
+   de la couche SRD commitée. Même doctrine qu'`assertTargetField` pour les
    espèces (`gen-fh-species-layer.mjs`). */
 export const BACKGROUNDS_EXTINGUISHED = [
-  { target: "srd:background:en:acolyte", hasToolId: true },
-  { target: "srd:background:en:criminal", hasToolId: true },
-  { target: "srd:background:en:sage", hasToolId: true },
-  { target: "srd:background:en:soldier", hasToolId: false }
+  { target: "srd:background:en:acolyte", hasToolId: true, hasToolChoice: false },
+  { target: "srd:background:en:criminal", hasToolId: true, hasToolChoice: false },
+  { target: "srd:background:en:sage", hasToolId: true, hasToolChoice: false },
+  { target: "srd:background:en:soldier", hasToolId: false, hasToolChoice: true }
 ];
 
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════

@@ -708,7 +708,7 @@
           "data[skill_ids]",
           "data[tool_id]"
         ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
       },
       "srd:background:en:criminal": {
         "op": "patch",
@@ -716,7 +716,7 @@
           "data[skill_ids]",
           "data[tool_id]"
         ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
       },
       "srd:background:en:sage": {
         "op": "patch",
@@ -724,14 +724,15 @@
           "data[skill_ids]",
           "data[tool_id]"
         ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
       },
       "srd:background:en:soldier": {
         "op": "patch",
         "remove": [
-          "data[skill_ids]"
+          "data[skill_ids]",
+          "data[tool_choice]"
         ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
       }
     }
   }

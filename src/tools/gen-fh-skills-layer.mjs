@@ -413,23 +413,37 @@ function buildBackgrounds(srd) {
     }
     const remove = ["data[skill_ids]"];
 
-    if (entry.hasToolId) {
-      if (!record.data || !Object.hasOwn(record.data, "tool_id")) {
-        fail(`l'extinction de « ${entry.target} » vise \`data.tool_id\`, absent du record SRD — un retrait ` +
-          "dans le vide reste un échec bruyant.");
+    /* ⭐ 2026-08-12 — LES CHAMPS OPTIONNELS SONT UNE TABLE, PLUS UN `if` PAR
+       CHAMP. Le lot 35 en portait un seul (`tool_id`) ; l'architecte a dû en
+       ajouter un second (`tool_choice`, le choix d'outil du Soldier) juste
+       après la fusion, et un troisième motif recopié aurait été le moment de
+       se tromper. Chaque champ est vérifié DANS LES DEUX SENS — retirer un
+       champ absent est un échec bruyant, déclarer absent un champ que le SRD
+       porte l'est aussi. */
+    const OPTIONNELS = [
+      { drapeau: "hasToolId", champ: "tool_id" },
+      { drapeau: "hasToolChoice", champ: "tool_choice" }
+    ];
+    for (const { drapeau, champ } of OPTIONNELS) {
+      const auSrd = Boolean(record.data && Object.hasOwn(record.data, champ));
+      if (entry[drapeau]) {
+        if (!auSrd) {
+          fail(`l'extinction de « ${entry.target} » vise \`data.${champ}\`, absent du record SRD — un retrait ` +
+            "dans le vide reste un échec bruyant.");
+        }
+        remove.push(`data[${champ}]`);
+      } else if (auSrd) {
+        fail(`« ${entry.target} » est déclaré SANS \`${champ}\` par la source, et le SRD lui en donne un — la ` +
+          "déclaration n'est plus mesurée sur la réalité de la couche SRD commitée.");
       }
-      remove.push("data[tool_id]");
-    } else if (record.data && Object.hasOwn(record.data, "tool_id")) {
-      fail(`« ${entry.target} » est déclaré SANS \`tool_id\` par la source, et le SRD lui en donne un — la ` +
-        "déclaration n'est plus mesurée sur la réalité de la couche SRD commitée.");
     }
 
     servis.add(entry.target);
     background[entry.target] = {
       op: "patch",
       remove,
-      note: "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool " +
-        "(addendums, Eric 2026-08-12)"
+      note: "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, " +
+        "no tool choice (addendums, Eric 2026-08-12)"
     };
   }
 
