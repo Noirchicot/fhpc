@@ -26,8 +26,15 @@ import {
   ROOT, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, makeHarness, manifestOf, uneCouche
 } from "./build-harness.mjs";
 import { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
+/* LOT 41 — `underived[].reason` → `{key, params}`. Le personnage de ce
+   fichier mélange des clefs génériques (`derive.mjs`) et des clefs FH
+   (`destiny-stat.mjs`) dans le MÊME carnet : la table de lecture compose
+   donc les deux paquets, exactement comme `render-fiche.mjs` le fera. */
+import { createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+import { FH_UNDERIVED_FR } from "../src/modules/fh/labels.mjs";
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
+const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 const validateChar = ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8")));
 
 const CARTES = JSON.parse(readFileSync(join(ROOT, FH_ARCANA_EN), "utf8"));
@@ -266,9 +273,12 @@ test("LE DON N'EST PLUS SIGNALÉ COMME INERTE — il compte, donc il est RÉCLAM
   assert.ok(ordinaire.unconsumed.includes("background.originFeat[1]"),
     "un don sans valeur de Destinée n'est réclamé par personne, et c'est dit");
   assert.equal(scoreDe(ordinaire.resolved).value, 8, "2 + 2 + 2 + 2 : *Skilled* n'ajoute rien au Score");
-  assert.match(declaration(ordinaire, `stats[${FH_DESTINY_ID}].feat`).reason,
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  const feat = declaration(ordinaire, `stats[${FH_DESTINY_ID}].feat`);
+  assert.equal(feat.key, "underived.fh.destiny-feat-no-bonus");
+  assert.match(renderUnderived(feat, frUnderived),
     /aucun des dons choisis ne porte/, "et la raison NOMME les dons regardés, au lieu de dire « aucun don »");
-  assert.match(declaration(ordinaire, `stats[${FH_DESTINY_ID}].feat`).reason, /srd:feat:en:skilled/);
+  assert.match(renderUnderived(feat, frUnderived), /srd:feat:en:skilled/);
 });
 
 test("LA LIGNE DE LA CARTE SUIT LE RECORD — ce n'est pas une constante", () => {
@@ -304,7 +314,10 @@ test("ACCEPTATION 2 — SANS LA COUCHE DES CARTES, aucun nombre n'est fabriqué 
   assert.equal(stat.value, 8, "et le total ne contient pas d'impact fantôme");
   assert.equal(stat.value, somme(stat));
 
-  const raison = declaration(out, `stats[${FH_DESTINY_ID}].arcana`).reason;
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  const arcanaEntry = declaration(out, `stats[${FH_DESTINY_ID}].arcana`);
+  assert.equal(arcanaEntry.key, "underived.fh.destiny-arcana-layer-not-mounted");
+  const raison = renderUnderived(arcanaEntry, frUnderived);
   assert.match(raison, /fh:arcana:en:the-hermit/, "la raison NOMME la carte que le personnage porte");
   assert.match(raison, /GAP-KIND clos/,
     "elle renvoie au trou NOMMÉ ET CLOS : le contrat est là, c'est le contenu qui n'est pas monté");
@@ -329,7 +342,9 @@ test("SANS LA COUCHE DES DONS, le don se DÉCLARE aussi — et le reste du Score
   assert.deepEqual(stat.breakdown.map((line) => line.label),
     ["Proficiency Bonus", "Destiny Base · Elf", "Splinter of Anon", "The Hermit"]);
   assert.equal(stat.value, 8);
-  assert.match(declaration(out, `stats[${FH_DESTINY_ID}].feat`).reason, /aucun choix ne désigne de record `feat`/);
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  assert.match(renderUnderived(declaration(out, `stats[${FH_DESTINY_ID}].feat`), frUnderived),
+    /aucun choix ne désigne de record `feat`/);
 });
 
 test("SANS CARTE NOMMÉE, le terme se déclare en nommant LE CHOIX — pas un contenu absent", () => {
@@ -338,7 +353,10 @@ test("SANS CARTE NOMMÉE, le terme se déclare en nommant LE CHOIX — pas un co
   const stat = scoreDe(out.resolved);
   assert.equal(stat.breakdown.some((line) => line.source && line.source.kind === "arcana"), false);
   assert.equal(stat.value, 8);
-  const raison = declaration(out, `stats[${FH_DESTINY_ID}].arcana`).reason;
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
+  const arcanaEntry = declaration(out, `stats[${FH_DESTINY_ID}].arcana`);
+  assert.equal(arcanaEntry.key, "underived.fh.destiny-arcana-no-choice");
+  const raison = renderUnderived(arcanaEntry, frUnderived);
   assert.match(raison, /aucun choix `fh\.destiny\.arcana`/);
   assert.match(raison, /0, 1 ou 2/, "et elle redit pourquoi aucun défaut n'est possible");
 });

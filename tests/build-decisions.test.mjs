@@ -7,7 +7,9 @@ import assert from "node:assert/strict";
 import {
   acceptanceDocument, makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche
 } from "./build-harness.mjs";
-import { renderBuildViolation } from "../src/labels.mjs";
+import { renderBuildViolation, createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+
+const frUnderived = createLabels(FR_UNDERIVED);
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
 
@@ -157,7 +159,10 @@ test("une compétence sans `ability_key` reste illégale pour le pli ET pour la 
   assert.equal(out.resolved.skills.some((skill) => skill.id === "arcanes"), false,
     "le comportement historique de derive reste le saut de l'entrée incomplète");
   const underived = out.underived.find((entry) => entry.field === "skills[arcanes]");
-  assert.match(underived.reason, /ability_key/, "le saut conserve sa raison historique explicite");
+  /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` (loi §0.13,
+     le moteur produit des identifiants). Le mot se relit via `renderUnderived`. */
+  assert.equal(underived.key, "underived.skill-missing-ability-key");
+  assert.match(renderUnderived(underived, frUnderived), /ability_key/, "le saut conserve sa raison historique explicite");
 
   h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
   h.verbs.set({ path: "class.skills[1]", value: "arcanes" });

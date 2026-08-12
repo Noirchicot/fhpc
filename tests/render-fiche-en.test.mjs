@@ -26,8 +26,12 @@ import { join } from "node:path";
 
 import { ROOT, makeHarness, acceptanceDocument } from "./build-harness.mjs";
 import { render, rubriqueDe, echappe, LIBELLES, MOTS, LIBELLES_EN, MOTS_EN } from "../src/tools/render-fiche.mjs";
-import { createLabels } from "../src/labels.mjs";
+import { createLabels, renderUnderived, EN_UNDERIVED } from "../src/labels.mjs";
+import { FH_UNDERIVED_EN } from "../src/modules/fh/labels.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
+
+/* LOT 41 — la même table que `render-fiche.mjs` compose pour `lang="en"`. */
+const enUnderived = createLabels(EN_UNDERIVED, FH_UNDERIVED_EN);
 
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8"));
 const RUBRIQUES = schema.$defs.resolved.required;
@@ -124,22 +128,34 @@ test("⚔️ ATTAQUE (anglais) — un total qui contredit son détail s'affiche 
 
 /* ══ 5 — UNE RUBRIQUE VIDE AFFICHE SA RAISON, EN ANGLAIS ══════════════ */
 
-test("privé d'une rubrique, l'écran anglais affiche la RAISON du moteur — jamais un blanc", () => {
+/* REWRITTEN 2026-08-13 (lot 41) — LE TITRE ET LA PREUVE ONT CHANGÉ DE SENS,
+   PAS SEULEMENT LA FORME. Avant ce lot, « le moteur ne traduit rien » disait
+   une vérité gênante : le moteur ne parlait QUE français, donc l'écran
+   anglais affichait une raison française au milieu d'une fiche anglaise —
+   exactement le défaut qu'Eric a tranché de corriger le 2026-08-13 (« je veux
+   que les persos soient en anglais »). Le moteur rend maintenant `{key,
+   params}` ; c'est CETTE page qui choisit le mot, dans la langue demandée.
+   La preuve n'est donc plus « le texte français traverse tel quel » mais
+   « le texte ANGLAIS du paquet EN_UNDERIVED apparaît, jamais le français ». */
+test("privé d'une rubrique, l'écran anglais affiche la RAISON en anglais — jamais un blanc, jamais du français", () => {
   const h = makeHarness();
   const sortie = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   assert.deepEqual(sortie.resolved.stats, [], "la privation a bien eu lieu : `stats` est vide");
 
   const declaration = sortie.underived.find((entree) => entree.field === "stats");
-  assert.ok(declaration, "et le moteur, lui, dit pourquoi");
+  assert.ok(declaration, "et le moteur, lui, dit pourquoi — avec une clef, pas une phrase");
 
   const html = render(sortie.document, sortie, "en");
   const bloc = section(html, "stats");
+  const raisonEn = renderUnderived(declaration, enUnderived);
   assert.ok(bloc.includes(echappe(MOTS_EN.nonDerive)), "la rubrique porte l'en-tête anglais des déclarations");
-  assert.ok(bloc.includes(echappe(declaration.reason)), "et la RAISON, mot pour mot, telle que le moteur l'a écrite — le moteur ne traduit rien");
+  assert.ok(bloc.includes(echappe(raisonEn)), "et la RAISON est le mot ANGLAIS du paquet EN_UNDERIVED");
+  assert.doesNotMatch(raisonEn, /[«»]|aucun module de statistique/,
+    "ce n'est plus la phrase française — un mot anglais authentique, pas une citation");
   assert.ok(!bloc.includes(echappe(MOTS_EN.videSansRaison)), "elle n'est donc pas signalée comme vide sans raison");
 
   const sansRapport = section(render(sortie.document, undefined, "en"), "stats");
-  assert.ok(!sansRapport.includes(echappe(declaration.reason)), "sans rapport, la raison a disparu du monde");
+  assert.ok(!sansRapport.includes(echappe(raisonEn)), "sans rapport, la raison a disparu du monde");
   assert.ok(sansRapport.includes(echappe(MOTS_EN.videSansRaison)), "et l'écran anglais le DIT au lieu de laisser une case vide");
 });
 
