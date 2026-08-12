@@ -64,9 +64,18 @@
    choix sans `label`. */
 
 import { createLabels } from "../../play/labels.mjs";
-import { FH_EN } from "./labels.mjs";
+import { FH_EN, FH_UNDERIVED_FR } from "./labels.mjs";
+/* LOT 41 — le mécanisme des mots (lot 27), depuis la racine de `src/` : ce
+   fichier importe déjà `createLabels` par ce chemin, donc `underivedEntry` /
+   `renderUnderived` n'ajoutent aucune dépendance neuve. `FH_UNDERIVED_FR`,
+   lui, vit à côté de `FH_EN` dans CE dossier — `src/build/` ne le voit
+   jamais (§0.12). */
+import { underivedEntry, renderUnderived } from "../../labels.mjs";
 
 const t = createLabels(FH_EN);
+const frUnderivedFh = createLabels(FH_UNDERIVED_FR);
+const declareUnderived = (field, key, params) =>
+  underivedEntry(field, key, params || {}, (entry) => renderUnderived(entry, frUnderivedFh));
 
 /** Le drapeau qui allume ce module. Levé par `layers/fh-species-en.layer.json`. */
 export const FH_DESTINY_FLAG = "fh.destiny";
@@ -189,23 +198,14 @@ function readSessionChoice(entry) {
    espèces, `{base, base_bonus, base_bonus_trait}` pour l'Elfe. */
 function speciesLines(species, lines, underived) {
   if (!species) {
-    underived.push({
-      field: `stats[${FH_DESTINY_ID}].base`,
-      reason: "aucun choix `species` : la Base de Destinée est une donnée de l'espèce (`data.destiny.base`), " +
-        "et un personnage sans espèce n'en a aucune à lire. Poser 2 par défaut ferait passer la valeur " +
-        "des douze espèces d'Eric pour une règle du moteur."
-    });
+    underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].base`, "underived.fh.destiny-base-no-species", {}));
     return;
   }
   const data = species.data || {};
   const destiny = data.destiny;
   if (!destiny || typeof destiny !== "object") {
-    underived.push({
-      field: `stats[${FH_DESTINY_ID}].base`,
-      reason: `le record d'espèce « ${species.id} » ne porte pas \`data.destiny\` : la couche FH le pose sur ` +
-        "les douze espèces (lot 15), et une espèce qui n'en a pas vient d'une couche tierce ou amputée. " +
-        "Le moteur ne lui invente pas de Base."
-    });
+    underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].base`, "underived.fh.destiny-base-missing-data",
+      { speciesId: species.id }));
     return;
   }
   if (!Number.isInteger(destiny.base)) {
@@ -262,12 +262,7 @@ function speciesLines(species, lines, underived) {
        plus là, et compter 0 lui volerait jusqu'à 2 points en silence. */
 function arcanaLines(entry, records, lines, underived) {
   if (!entry) {
-    underived.push({
-      field: `stats[${FH_DESTINY_ID}].arcana`,
-      reason: `aucun choix \`${FH_DESTINY_FLAG}.${ARCANA_TAIL}\` : l'impact de l'Arcane majeur est une donnée de LA ` +
-        "CARTE (`data.destiny.impact`), et un personnage qui n'en nomme aucune n'en a aucune à lire. " +
-        "L'impact vaut 0, 1 ou 2 selon la carte — jamais codable en dur, donc jamais supposé non plus."
-    });
+    underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].arcana`, "underived.fh.destiny-arcana-no-choice", {}));
     return;
   }
   if (entry.ref === undefined) {
@@ -286,13 +281,8 @@ function arcanaLines(entry, records, lines, underived) {
   }
   const pool = records(ARCANA_KIND);
   if (!Array.isArray(pool) || pool.length === 0) {
-    underived.push({
-      field: `stats[${FH_DESTINY_ID}].arcana`,
-      reason: `le personnage nomme la carte « ${entry.ref.id} » et AUCUNE couche montée ne porte de record ` +
-        "`arcana`. Le genre, lui, EXISTE depuis la révision du 2026-08-08 (trou GAP-KIND clos) : il répond, " +
-        "et il répond VIDE. Ce qui manque est le CONTENU — la couche des 22 cartes (`fh-arcana-en`) n'est pas " +
-        "montée. L'impact vaut 0, 1 ou 2 selon la carte : un nombre posé ici serait inventé."
-    });
+    underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].arcana`, "underived.fh.destiny-arcana-layer-not-mounted",
+      { cardId: entry.ref.id }));
     return;
   }
   const card = records(ARCANA_KIND, entry.ref.id);
@@ -352,17 +342,9 @@ function featLines(feats, lines, underived, consumed) {
   }
   if (bearers.length === 0) {
     const chosen = (Array.isArray(feats) ? feats : []).map((feat) => feat.id);
-    underived.push({
-      field: `stats[${FH_DESTINY_ID}].feat`,
-      reason: chosen.length === 0
-        ? "aucun choix ne désigne de record `feat` : la valeur de Destinée d'un don est portée par le don " +
-          "(`data.destiny.bonus`), et un personnage sans don n'en a aucune à lire. Le +2 d'Auspicious (fh) " +
-          "est une règle connue, mais elle appartient à son record — pas à une constante du moteur."
-        : `aucun des dons choisis ne porte \`data.${DESTINY_DATA}.bonus\` (${chosen.join(", ")}) : les dons du SRD ` +
-          "n'ont aucune valeur de Destinée, et c'est un FAIT, pas un trou. Le don qui en porte une est " +
-          "`fh:feat:en:auspicious`, dans la couche `fh-feats-en` — si le personnage le joue, c'est que " +
-          "la couche n'est pas montée ou que le choix ne le désigne pas."
-    });
+    underived.push(...(chosen.length === 0
+      ? [declareUnderived(`stats[${FH_DESTINY_ID}].feat`, "underived.fh.destiny-feat-no-choice", {})]
+      : [declareUnderived(`stats[${FH_DESTINY_ID}].feat`, "underived.fh.destiny-feat-no-bonus", { featIds: chosen.join(", ") })]));
     return;
   }
   for (const feat of bearers) {
@@ -406,11 +388,7 @@ export function createFhDestinyStat() {
       if (Number.isInteger(proficiency)) {
         derivedLines.push({ label: t("fh.destiny.term.proficiency"), value: proficiency });
       } else {
-        underived.push({
-          field: `stats[${FH_DESTINY_ID}].proficiency`,
-          reason: "le bonus de maîtrise n'a pas été dérivé, et il est un terme du Score : le compter pour 0 " +
-            "rendrait un Score plus bas de 2 à 6 points sans que rien ne le dise."
-        });
+        underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].proficiency`, "underived.fh.destiny-proficiency-not-derived", {}));
       }
 
       /* 2. LA BASE D'ESPÈCE, en une ou deux lignes. */
@@ -454,13 +432,7 @@ export function createFhDestinyStat() {
          familles de contenus (objet magique, boon, sous-classe) dont aucune
          n'a de genre, de champ ni de décision d'architecte. Le verdict ne
          bouge pas ; c'est la raison qui devient exacte. */
-      underived.push({
-        field: `stats[${FH_DESTINY_ID}].other`,
-        reason: "la ligne « Other » du builder v1 recouvre trois familles — objet magique, boon, sous-classe — et " +
-          "aucune ne porte de valeur de Destinée dans un champ que ce module pourrait lire. Ce n'est donc pas " +
-          "une couche qui manque, comme pour l'Arcane et le don : c'est une décision qui n'a pas été prise. " +
-          "Un MJ qui veut la porter aujourd'hui l'écrit comme un terme de séance motivé, pas comme une dérivation."
-      });
+      underived.push(declareUnderived(`stats[${FH_DESTINY_ID}].other`, "underived.fh.destiny-other-undecided", {}));
 
       const breakdown = derivedLines.concat(sessionLines);
       /* `$defs/resolved.stats[].breakdown` exige AU MOINS UN TERME : « un Score
@@ -468,12 +440,7 @@ export function createFhDestinyStat() {
          remplacer ». Sans une seule ligne, il n'y a donc pas d'entrée à publier
          — et c'est dit, pas tu. */
       if (breakdown.length === 0) {
-        underived.push({
-          field: `stats[${FH_DESTINY_ID}]`,
-          reason: "aucun terme du Score n'a pu être établi — ni la maîtrise, ni la Base d'espèce, ni l'Arcane, " +
-            "ni un don, et la table n'a inscrit aucun terme de séance. Le schéma exige au moins un terme de " +
-            "détail, et un Score sans détail est exactement ce que cette collection existe pour remplacer."
-        });
+        underived.push(declareUnderived(`stats[${FH_DESTINY_ID}]`, "underived.fh.destiny-no-terms", {}));
         return { stat: null, underived, consumed };
       }
 

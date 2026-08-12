@@ -227,3 +227,185 @@ export const FH_EN = {
   "fh.chaos.unknown-table": (d) => "read the " + (d.ability || "matching") + " Chaos table",
   "fh.chaos.capped": (d) => " (table stops at " + d.max + ")"
 };
+
+/* ══ LOT 41 — LES CLEFS `underived` DE LA COUCHE FH ═══════════════════
+   `destiny-stat.mjs` et `skill-pool.mjs` poussaient `{field, reason}`
+   directement sur le tableau `underived` que la dérivation leur tend —
+   jamais par `underived.declare(`, ce qui a fait manquer ces 19 sites au
+   premier comptage de la commande (voir INVENTAIRE-LOT-41.md, §2). Ce sont
+   les mêmes clefs, mêmes raisons, deux langues — le mécanisme de
+   `src/labels.mjs` (`underivedEntry`, `renderUnderived`), réemployé. Ce
+   paquet vit ICI, pas dans `src/labels.mjs` : les deux modules connaissent
+   déjà leur propre vocabulaire (`FH_EN` ci-dessus), et `src/build/` ne
+   l'importe JAMAIS (§0.12, gardée sur les octets). */
+export const FH_UNDERIVED_FR = {
+  "underived.fh.destiny-base-no-species": () =>
+    "aucun choix `species` : la Base de Destinée est une donnée de l'espèce (`data.destiny.base`), et un " +
+    "personnage sans espèce n'en a aucune à lire. Poser 2 par défaut ferait passer la valeur des douze espèces " +
+    "d'Eric pour une règle du moteur.",
+  "underived.fh.destiny-base-missing-data": (d) =>
+    `le record d'espèce « ${d.speciesId} » ne porte pas \`data.destiny\` : la couche FH le pose sur les douze ` +
+    "espèces (lot 15), et une espèce qui n'en a pas vient d'une couche tierce ou amputée. Le moteur ne lui " +
+    "invente pas de Base.",
+  "underived.fh.destiny-arcana-no-choice": () =>
+    "aucun choix `fh.destiny.arcana` : l'impact de l'Arcane majeur est une donnée de LA CARTE " +
+    "(`data.destiny.impact`), et un personnage qui n'en nomme aucune n'en a aucune à lire. L'impact vaut 0, 1 " +
+    "ou 2 selon la carte — jamais codable en dur, donc jamais supposé non plus.",
+  "underived.fh.destiny-arcana-layer-not-mounted": (d) =>
+    `le personnage nomme la carte « ${d.cardId} » et AUCUNE couche montée ne porte de record \`arcana\`. Le ` +
+    "genre, lui, EXISTE depuis la révision du 2026-08-08 (trou GAP-KIND clos) : il répond, et il répond VIDE. " +
+    "Ce qui manque est le CONTENU — la couche des 22 cartes (`fh-arcana-en`) n'est pas montée. L'impact vaut " +
+    "0, 1 ou 2 selon la carte : un nombre posé ici serait inventé.",
+  "underived.fh.destiny-feat-no-choice": () =>
+    "aucun choix ne désigne de record `feat` : la valeur de Destinée d'un don est portée par le don " +
+    "(`data.destiny.bonus`), et un personnage sans don n'en a aucune à lire. Le +2 d'Auspicious (fh) est une " +
+    "règle connue, mais elle appartient à son record — pas à une constante du moteur.",
+  "underived.fh.destiny-feat-no-bonus": (d) =>
+    `aucun des dons choisis ne porte \`data.destiny.bonus\` (${d.featIds}) : les dons du SRD n'ont aucune ` +
+    "valeur de Destinée, et c'est un FAIT, pas un trou. Le don qui en porte une est `fh:feat:en:auspicious`, " +
+    "dans la couche `fh-feats-en` — si le personnage le joue, c'est que la couche n'est pas montée ou que le " +
+    "choix ne le désigne pas.",
+  "underived.fh.destiny-proficiency-not-derived": () =>
+    "le bonus de maîtrise n'a pas été dérivé, et il est un terme du Score : le compter pour 0 rendrait un " +
+    "Score plus bas de 2 à 6 points sans que rien ne le dise.",
+  "underived.fh.destiny-other-undecided": () =>
+    "la ligne « Other » du builder v1 recouvre trois familles — objet magique, boon, sous-classe — et aucune " +
+    "ne porte de valeur de Destinée dans un champ que ce module pourrait lire. Ce n'est donc pas une couche qui " +
+    "manque, comme pour l'Arcane et le don : c'est une décision qui n'a pas été prise. Un MJ qui veut la " +
+    "porter aujourd'hui l'écrit comme un terme de séance motivé, pas comme une dérivation.",
+  "underived.fh.destiny-no-terms": () =>
+    "aucun terme du Score n'a pu être établi — ni la maîtrise, ni la Base d'espèce, ni l'Arcane, ni un don, et " +
+    "la table n'a inscrit aucun terme de séance. Le schéma exige au moins un terme de détail, et un Score sans " +
+    "détail est exactement ce que cette collection existe pour remplacer.",
+  "underived.fh.skillpool-no-class-ref": () =>
+    "aucun `ref` de genre `class` sous le chemin « class » : le pool de points vient de la CLASSE " +
+    "(`data[fh_skill_pool].base`), et un personnage dont la classe n'est pas désignée là où le pli la lit n'en " +
+    "a aucun à lire.",
+  "underived.fh.skillpool-layer-not-mounted": (d) =>
+    `la classe « ${d.classId} » ne porte pas \`data[fh_skill_pool]\`, et AUCUNE classe de la pile n'en porte : ` +
+    "la couche des compétences (`fh-skills-en`) n'est pas montée. Ce qui manque est le CONTENU — le drapeau " +
+    "`fh.skills` est levé par une couche qui ne l'apporte pas. Les douze pools valent 12, 14, 16 ou 18 selon " +
+    "la classe : un nombre posé ici serait inventé.",
+  "underived.fh.skillpool-species-no-choice": () =>
+    "aucun choix `species` : les points de compétence d'espèce sont une donnée de l'espèce " +
+    "(`data.skill_points`), et un personnage sans espèce n'en a aucune à lire.",
+  "underived.fh.skillpool-species-no-field": (d) =>
+    `l'espèce « ${d.speciesId} » ne porte pas \`data.skill_points\`, et c'est un FAIT, pas un trou : neuf des ` +
+    "douze espèces ne donnent aucun point de compétence. Les trois qui en donnent sont l'Araag et l'Elestu " +
+    "(`fast-learner`) et l'Humain (`educated`), dans la couche `fh-species-en`.",
+  "underived.fh.skillpool-species-tier-not-reached": (d) =>
+    `l'espèce « ${d.speciesId} » accorde des points par « ${d.traitName} », et AUCUN de ses paliers n'est ` +
+    `atteint au niveau ${d.level} (règle Q15-8 : seuls comptent les paliers TRAVERSÉS).`,
+  "underived.fh.skillpool-class-choice-unreadable": (d) =>
+    `la classe « ${d.classId} » ne porte pas de \`skill_choice.count\` lisible : le nombre de compétences que ` +
+    "la classe IMPOSE se déduit du pool à 1 point chacune (règle d'Eric, 2026-08-08), et sans lui le pool " +
+    "publié est trop généreux d'exactement ce nombre.",
+  "underived.fh.skillpool-no-background-ref": () =>
+    "aucun `ref` de genre `background` sous le chemin « background » : l'arrière-plan est INCLUS dans le pool " +
+    "de classe (décision d'Eric, point 9), et les maîtrises qu'il accorde s'en déduisent. Un personnage sans " +
+    "arrière-plan n'en déduit aucune — mais son pool a été calibré en supposant qu'il en aurait un.",
+  "underived.fh.skillpool-background-missing-skill-ids": (d) =>
+    `l'arrière-plan « ${d.backgroundId} » ne porte pas \`skill_ids\` (contrat §3) ; \`skill_proficiencies\` n'y ` +
+    "donne que des noms affichables, et le moteur ne compte pas des mots.",
+  "underived.fh.skillpool-background-missing-tool": (d) =>
+    `l'arrière-plan « ${d.backgroundId} » ne porte ni \`tool_id\` ni \`tool_choice\` (contrat §3) : un outil ` +
+    "imposé coûte 1 point comme une compétence imposée (règle d'Eric), et « le minimum 1 point en outils à la " +
+    "création » devient redondant précisément parce que cet outil-là est semé à 1.",
+  "underived.fh.skillpool-class-tools-unmechanical": (d) =>
+    `la classe « ${d.classId} » ne porte aucun champ MÉCANIQUE d'outil : \`tool_proficiencies\` est une phrase ` +
+    "(« Thieves' Tools », « Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe pas " +
+    "d'équivalent de `skill_choice` pour les outils. Les outils imposés par la classe coûteraient 1 point " +
+    "chacun comme les autres ; les compter demanderait de lire une phrase anglaise dans le moteur.",
+  "underived.fh.skillpool-feat-no-choice": () =>
+    "aucun choix ne désigne de record `feat` : les points de compétence d'un don d'origine sont portés par le " +
+    "don (`data.skill_points.bonus`), et un personnage sans don n'en a aucun à lire.",
+  "underived.fh.skillpool-feat-no-bonus": (d) =>
+    `aucun des dons choisis ne porte \`data.skill_points.bonus\` (${d.featIds}) : seul \`srd:feat:en:skilled\` ` +
+    "en porte un, patché par la couche `fh-feats-en` — les autres dons du SRD n'en donnent aucun, et c'est un " +
+    "FAIT, pas un trou."
+};
+
+/* Le paquet ANGLAIS — même jeu de clefs (gardé par `tests/underived-fh-labels.test.mjs`). */
+export const FH_UNDERIVED_EN = {
+  "underived.fh.destiny-base-no-species": () =>
+    "no `species` choice: the Destiny Base is a species datum (`data.destiny.base`), and a character with no " +
+    "species has none to read. Defaulting to 2 would pass off the value of Eric's twelve species as an engine rule.",
+  "underived.fh.destiny-base-missing-data": (d) =>
+    `the species record "${d.speciesId}" carries no \`data.destiny\`: the FH layer sets it on the twelve ` +
+    "species (lot 15), and a species without one comes from a third-party or amputated layer. The engine does " +
+    "not invent a Base for it.",
+  "underived.fh.destiny-arcana-no-choice": () =>
+    "no `fh.destiny.arcana` choice: the Major Arcana's impact is a datum of THE CARD (`data.destiny.impact`), " +
+    "and a character naming none has none to read. The impact is 0, 1 or 2 depending on the card — never " +
+    "hard-coded, so never assumed either.",
+  "underived.fh.destiny-arcana-layer-not-mounted": (d) =>
+    `the character names the card "${d.cardId}" and NO mounted layer carries an \`arcana\` record. The genre ` +
+    "itself HAS EXISTED since the 2026-08-08 revision (the GAP-KIND hole is closed): it answers, and it " +
+    "answers EMPTY. What is missing is the CONTENT — the layer of 22 cards (`fh-arcana-en`) is not mounted. " +
+    "The impact is 0, 1 or 2 depending on the card: a number written here would be invented.",
+  "underived.fh.destiny-feat-no-choice": () =>
+    "no choice designates a `feat` record: a feat's Destiny value is carried by the feat (`data.destiny.bonus`), " +
+    "and a character with no feat has none to read. Auspicious (fh)'s +2 is a known rule, but it belongs to " +
+    "its record — not to an engine constant.",
+  "underived.fh.destiny-feat-no-bonus": (d) =>
+    `none of the chosen feats carries \`data.destiny.bonus\` (${d.featIds}): SRD feats carry no Destiny value ` +
+    "at all, and that is a FACT, not a gap. The feat that carries one is `fh:feat:en:auspicious`, in the " +
+    "`fh-feats-en` layer — if the character plays it, the layer is not mounted or the choice does not designate it.",
+  "underived.fh.destiny-proficiency-not-derived": () =>
+    "the proficiency bonus was not derived, and it is a term of the Score: counting it as 0 would lower the " +
+    "Score by 2 to 6 points without saying so.",
+  "underived.fh.destiny-other-undecided": () =>
+    "the v1 builder's \"Other\" line covers three families — magic item, boon, subclass — and none carries a " +
+    "Destiny value in a field this module could read. This is not a missing layer, unlike the Arcana and the " +
+    "feat: it is a decision that has not been made. A GM who wants to carry it today writes it as a motivated " +
+    "session term, not as a derivation.",
+  "underived.fh.destiny-no-terms": () =>
+    "no term of the Score could be established — not the proficiency, not the species Base, not the Arcana, " +
+    "not a feat, and the table logged no session term. The schema requires at least one detail term, and a " +
+    "Score with no detail is exactly what this collection exists to replace.",
+  "underived.fh.skillpool-no-class-ref": () =>
+    "no `class`-genre `ref` under the path \"class\": the points pool comes from the CLASS " +
+    "(`data[fh_skill_pool].base`), and a character whose class is not designated where the fold reads it has " +
+    "none to read.",
+  "underived.fh.skillpool-layer-not-mounted": (d) =>
+    `the class "${d.classId}" carries no \`data[fh_skill_pool]\`, and NO class in the stack does: the skills ` +
+    "layer (`fh-skills-en`) is not mounted. What is missing is the CONTENT — the `fh.skills` flag is raised by " +
+    "a layer that does not carry it. The twelve pools are worth 12, 14, 16 or 18 depending on the class: a " +
+    "number written here would be invented.",
+  "underived.fh.skillpool-species-no-choice": () =>
+    "no `species` choice: species skill points are a species datum (`data.skill_points`), and a character with " +
+    "no species has none to read.",
+  "underived.fh.skillpool-species-no-field": (d) =>
+    `the species "${d.speciesId}" carries no \`data.skill_points\`, and that is a FACT, not a gap: nine of the ` +
+    "twelve species grant no skill points at all. The three that do are the Araag and Elestu (`fast-learner`) " +
+    "and the Human (`educated`), in the `fh-species-en` layer.",
+  "underived.fh.skillpool-species-tier-not-reached": (d) =>
+    `the species "${d.speciesId}" grants points through "${d.traitName}", and NONE of its tiers is reached at ` +
+    `level ${d.level} (rule Q15-8: only TRAVERSED tiers count).`,
+  "underived.fh.skillpool-class-choice-unreadable": (d) =>
+    `the class "${d.classId}" carries no readable \`skill_choice.count\`: the number of skills the class ` +
+    "IMPOSES is deducted from the pool at 1 point each (Eric's rule, 2026-08-08), and without it the published " +
+    "pool is too generous by exactly that count.",
+  "underived.fh.skillpool-no-background-ref": () =>
+    "no `background`-genre `ref` under the path \"background\": the background is INCLUDED in the class pool " +
+    "(Eric's decision, point 9), and the proficiencies it grants are deducted from it. A character with no " +
+    "background deducts none — but its pool was calibrated assuming it would have one.",
+  "underived.fh.skillpool-background-missing-skill-ids": (d) =>
+    `the background "${d.backgroundId}" carries no \`skill_ids\` (contract §3); \`skill_proficiencies\` there ` +
+    "only gives display names, and the engine does not count words.",
+  "underived.fh.skillpool-background-missing-tool": (d) =>
+    `the background "${d.backgroundId}" carries neither \`tool_id\` nor \`tool_choice\` (contract §3): an ` +
+    "imposed tool costs 1 point like an imposed skill (Eric's rule), and \"the minimum 1 point in tools at " +
+    "creation\" becomes redundant precisely because that tool is already seeded at 1.",
+  "underived.fh.skillpool-class-tools-unmechanical": (d) =>
+    `the class "${d.classId}" carries no MECHANICAL tool field: \`tool_proficiencies\` is a phrase ` +
+    "(\"Thieves' Tools\", \"Choose 3 Musical Instruments\", `null` for the Wizard) and there is no " +
+    "`skill_choice` equivalent for tools. Tools imposed by the class would cost 1 point each like the " +
+    "others; counting them would require reading an English phrase inside the engine.",
+  "underived.fh.skillpool-feat-no-choice": () =>
+    "no choice designates a `feat` record: an origin feat's skill points are carried by the feat " +
+    "(`data.skill_points.bonus`), and a character with no feat has none to read.",
+  "underived.fh.skillpool-feat-no-bonus": (d) =>
+    `none of the chosen feats carries \`data.skill_points.bonus\` (${d.featIds}): only \`srd:feat:en:skilled\` ` +
+    "carries one, patched by the `fh-feats-en` layer — the other SRD feats grant none, and that is a FACT, not a gap."
+};
