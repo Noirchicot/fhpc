@@ -69,6 +69,38 @@ continuant à rendre le texte français historique au caractère près.
 par `charInvariantViolations`. Il porte `{message}` et n'invente pas de `path` :
 le validateur d'invariants reste une collection distincte, inchangée.
 
+### Le carnet `underived` de `rebuild` — LOT 41
+
+`underived[]` (rendu par `rebuild` et porté par `char-rebuilt`) est une
+collection structurée depuis le lot 41, exactement comme `violations[]` l'est
+depuis le lot 27 : jamais une phrase nue. Chaque entrée porte
+**`{field, key, params}`** — `field` en premier (invariant du carnet depuis le
+lot 9), `key` de la forme `^[a-z][a-z0-9.:_-]{0,79}$`, `params` un objet plat
+de scalaires. Il n'y a pas de `path` : `underived` déclare un champ du
+document, il n'accuse jamais un chemin de choix (c'est `decisions[].lock` qui
+le fait, plus bas).
+
+⚠️ **Deux origines, deux paquets de mots, jamais de compilation croisée.**
+`derive.mjs` et son relais `skills.mjs` (58 sites) écrivent des clefs
+**génériques**, mot dans `FR_UNDERIVED`/`EN_UNDERIVED` (`src/labels.mjs`) ; les
+modules `src/modules/fh/*.mjs` (19 sites) écrivent des clefs **FH**, préfixées
+`underived.fh.`, mot dans `FH_UNDERIVED_FR`/`FH_UNDERIVED_EN`
+(`src/modules/fh/labels.mjs`). `src/build/` n'importe **jamais** le second
+paquet (§0.12, gardée sur les octets, testée par `tests/underived-labels.test.mjs`
+§7) ; une entrée FH transite intacte, avec son propre rendu déjà lié depuis sa
+construction (le `toString` non énumérable du lot 27, repris ici). Un
+consommateur qui veut lire N'IMPORTE QUELLE entrée du carnet (le cas ordinaire
+— un personnage FH mélange les deux) compose les deux paquets **au point de
+lecture** : c'est ce que fait `src/tools/render-fiche.mjs` (une table par
+langue) et, pour le texte historique français, `src/build/block.mjs` et
+`src/mcp/tools.mjs` (via la coercition `${entry}`, sans importer aucun mot).
+
+Le français ne disparaît pas : c'est un paquet de mots parmi deux, et il rend
+— au caractère près — les phrases que ce carnet portait avant le lot 41
+(`tests/underived-labels.test.mjs` §1/§4). Le document `fh-char/1`, lui, ne
+gagne aucune de ces clefs : `underived` reste un carnet **hors document**
+(§4/§6 de la même suite).
+
 ### Le carnet `decisions` de `rebuild`
 
 `decisions[]` est le **septième carnet public** de la reconstruction, à côté
@@ -122,6 +154,13 @@ rapport de reconstruction, pas à un second rapport de validation.
 | Type | Payload | Quand |
 |---|---|---|
 | `char-rebuilt` | `{id, at, diff, underived, unconsumed, shadowed, stack}` | À chaque `rebuild` réussi. |
+
+⚠️ **LOT 41** : `underived` sur cet événement porte désormais `{field, key,
+params}[]`, pas des phrases — voir « Le carnet `underived` de `rebuild` »
+plus haut. Un abonné qui gardait un personnage lisait ces raisons en
+français ; il lit maintenant une clef et compose le mot dans la langue de
+son choix (le mécanisme de `src/labels.mjs`, désormais accessible sans
+importer `src/build/`).
 
 `diff` est une **liste de chemins d'override** (`resolved.skills[nature].bonus`),
 jamais d'index : un abonné doit pouvoir recopier la ligne telle quelle pour
@@ -324,7 +363,7 @@ généralisation qui « résout tout d'avance » est la faute à ne pas refaire.
 | Retour | |
 |---|---|
 | `stat` | l'entrée `resolved.stats[]`, ou `null` s'il n'a pas **un seul** terme à publier (le schéma exige `minItems: 1` sur `breakdown`). |
-| `underived` | ses propres déclarations, versées dans le carnet commun. |
+| `underived` | ses propres déclarations, versées dans le carnet commun — depuis le lot 41, `{field, key, params}[]` (clefs préfixées `underived.fh.`, mot dans `src/modules/fh/labels.mjs`), pas des phrases. Le module construit chaque entrée avec `underivedEntry(field, key, params, render)` (`src/labels.mjs`), `render` liée à SA table : `derive.mjs` **transmet** l'entrée telle quelle, il ne la reconstruit jamais (sinon son propre `toString`, générique, écraserait le rendu FH et jetterait « no label for » — mesuré, voir `INVENTAIRE-LOT-41.md`). |
 | `consumed` | les chemins qu'il a **réellement lus hors de son namespace**. Sans lui, un don qui compte dans une statistique ressortirait `unconsumed` et `validate` dirait de lui « il ne change rien à la fiche » — **un faux témoignage, pas une omission**. |
 
 ⚠️ **Le garde de réclamation.** Un module ne réclame que ce que la dérivation
