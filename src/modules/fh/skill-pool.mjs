@@ -295,6 +295,39 @@ function expertiseFromLevel(classRef, pool) {
   return level;
 }
 
+/* ── LE COÛT D'UN TRAINING (lot 36) ──────────────────────────────────
+   Porté par le record LUI-MÊME, jamais par une table de ce fichier
+   (commande §2, « le coût vient du record ») : le Garrot vaut 1, une arme
+   exotique plus rare pourrait valoir davantage — ce module ne le sait pas
+   et n'a pas à le savoir. */
+function trainingCost(view) {
+  const cost = view.data ? view.data.cost : undefined;
+  if (!Number.isInteger(cost) || cost < 1) {
+    fail(`the training record "${view.id}" carries \`data.cost\` = ${JSON.stringify(cost)}, which is not a ` +
+      "positive whole number of points — a training the engine cannot price is a training it cannot sell.");
+  }
+  return cost;
+}
+
+/* ── LE VERROU DE NIVEAU D'UN TRAINING (lot 36) ──────────────────────
+   MÊME FORME QU'`expertiseFromLevel` (commande §2, ratifié par Eric) : une
+   valeur LUE, jamais figée dans le moteur. `data.from_level` est ABSENT
+   par défaut — le plancher générique de la commande (4) s'applique alors
+   — et SA PRÉSENCE sur le record EST la dérogation : le jour où une couche
+   de sous-classe patche le Garrot à `from_level: 3`, ce module lit le
+   nombre neuf sans qu'une seule de ses lignes ne bouge. */
+const DEFAULT_TRAINING_FROM_LEVEL = 4;
+function trainingFromLevel(view) {
+  const level = view.data ? view.data.from_level : undefined;
+  if (level === undefined) return DEFAULT_TRAINING_FROM_LEVEL;
+  if (!Number.isInteger(level) || level < 1 || level > MAX_LEVEL) {
+    fail(`the training record "${view.id}" carries \`data.from_level\` = ${JSON.stringify(level)}, which is not ` +
+      "a whole level between 1 and " + MAX_LEVEL + " — the training lock cannot compare a character's level to " +
+      "a rule it cannot read.");
+  }
+  return level;
+}
+
 /* ── LE BONUS D'UN PALIER (lot 34) ───────────────────────────────────
    Générique au schéma `fh-char/1`, pas une règle de maison : un palier ½
    coupe le bonus de maîtrise en deux (arrondi au sol), un palier plein le
@@ -586,7 +619,7 @@ export function createFhSkillPoolStat() {
      * @param {Array}  input.refs     les records que le personnage désigne HORS de ce namespace — ce module lit la CLASSE et l'ARRIÈRE-PLAN
      * @param {string[]} [input.imposedSkillSlugs] les slugs que le pli a déjà placés en maîtrise pleine
      *   (arrière-plan, classe, espèce) — lot 34, le PLANCHER de la grille à quatre paliers.
-     * @returns {{stat: object|null, underived: Array, consumed: string[], skillTiers?: object}}
+     * @returns {{stat: object|null, underived: Array, consumed: string[], skillTiers?: object, traits?: Array}}
      */
     contribute({ level, species, choices, records, refs, imposedSkillSlugs, proficiency }) {
       const underived = [];
@@ -615,17 +648,29 @@ export function createFhSkillPoolStat() {
          namespace reste un refus qui le nomme (loi §0.5) : ce module ne porte
          toujours qu'UN terme de choix. */
       const SPEND_PREFIX = "spend.";
+      /* LOT 36 — LA TROISIÈME DÉPENSE DU POOL. `train.<slug>` porte un
+         BOOLÉEN, jamais un palier (commande §3a, ARBITRÉ) : un training
+         n'a ni demi, ni plein, ni expertise, et le faire transiter par
+         `spend.*` accepterait un mot de la grille sur un objet qui n'en a
+         pas — un mensonge de forme que la commande interdit nommément. */
+      const TRAIN_PREFIX = "train.";
       const TIER_ORDER = ["none", "half", "proficient", "expertise"];
       const tierRank = (tier) => TIER_ORDER.indexOf(tier);
       const spendEntries = [];
+      const trainEntries = [];
       for (const entry of Array.isArray(choices) ? choices : []) {
         if (typeof entry.tail === "string" && entry.tail.startsWith(SPEND_PREFIX)) {
           spendEntries.push({ slug: entry.tail.slice(SPEND_PREFIX.length), value: entry.value, path: entry.path });
           continue;
         }
-        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module only carries one ` +
-          `term a choice can set: "${FH_SKILLS_FLAG}.spend.<skill>" (half, proficient or expertise). A path it ` +
-          "cannot read is a refusal, not a line it quietly drops.");
+        if (typeof entry.tail === "string" && entry.tail.startsWith(TRAIN_PREFIX)) {
+          trainEntries.push({ slug: entry.tail.slice(TRAIN_PREFIX.length), value: entry.value, path: entry.path });
+          continue;
+        }
+        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module only carries two ` +
+          `terms a choice can set: "${FH_SKILLS_FLAG}.spend.<skill>" (half, proficient or expertise) or ` +
+          `"${FH_SKILLS_FLAG}.train.<training>" (true). A path it cannot read is a refusal, not a line it quietly ` +
+          "drops.");
       }
 
       const outside = Array.isArray(refs) ? refs : [];
@@ -675,6 +720,11 @@ export function createFhSkillPoolStat() {
       const tierBySlug = {}; // slug → nom de palier, USAGE INTERNE seulement
       for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "half";
       const violations = [];
+      /* LOT 36 — les trainings acquis, à publier dans `resolved.traits[]`
+         par le canal générique que `derive.mjs` recopie sans jamais nommer
+         la mécanique qui l'a produit (§0.12, même discipline que
+         `skillTiers`). */
+      const acquiredTraits = [];
 
       if (spendEntries.length > 0) {
         /* LOT 35 — LE MÊME CANAL PORTE LES DEUX GENRES. `skillTiers` rend déjà
@@ -742,6 +792,55 @@ export function createFhSkillPoolStat() {
         }
       }
 
+      /* 6. LES TRAININGS (lot 36) — la troisième dépense. Catalogue à part :
+         le genre `training` a son propre espace de slugs, et le canal
+         `train.*` ne partage rien avec `spend.*` — pas de garde de
+         collision à écrire ici, il n'y a qu'un seul genre candidat. */
+      if (trainEntries.length > 0) {
+        const trainingCatalog = typeof records === "function" ? records("training") : [];
+        const trainingBySlug = new Map();
+        for (const view of trainingCatalog) trainingBySlug.set(view.slug, view);
+        for (const { slug, value, path } of trainEntries) {
+          const target = trainingBySlug.get(slug);
+          /* Même discipline que le canal `spend.*` : un slug inconnu ou une
+             valeur illisible N'EST PAS APPLIQUÉ, mais NOMMÉ en verrou keyé —
+             `src/build/` n'a pas le droit de connaître le nom de ce canal
+             (§0.12), donc c'est ce module qui le dit. */
+          if (!target) {
+            violations.push(buildViolation("skill-train.option-unavailable", { path, selected: slug }, path));
+            continue;
+          }
+          /* « valeur booléenne ou absente » (commande §3a) : `true` ET
+             `false` sont légaux — `false` ne fait rien, le même effet que
+             l'absence du choix — tout le reste (un mot de palier comme
+             "proficient", un nombre) est un refus nommé, pas une
+             acceptation silencieuse (commande §4, test 5). */
+          if (typeof value !== "boolean") {
+            violations.push(buildViolation("skill-train.value-invalid", { path, value: String(value) }, path));
+            continue;
+          }
+          if (value === false) continue;
+          const unlockLevel = trainingFromLevel(target);
+          if (level < unlockLevel) {
+            violations.push(buildViolation("skill-train.level-locked", {
+              path, trainingId: slug, level, unlockLevel
+            }, path));
+            continue;
+          }
+          const cost = trainingCost(target);
+          lines.push({
+            label: t("fh.skills.term.train", { training: target.name }),
+            value: -cost,
+            source: { kind: "training", id: target.id }
+          });
+          /* `resolved.traits[]` (commande §3d, ARBITRÉ) : pas de rubrique
+             neuve, pas de champ de plus — le prix est déjà tracé dans le
+             choix et dans la ligne ci-dessus, une troisième copie ici
+             mentirait sur ce que `traits[]` porte. */
+          acquiredTraits.push({ id: target.slug || target.id, name: target.name, category: "training" });
+        }
+      }
+
       /* LA FORME PUBLIÉE : `{proficiency, bonusTerm}`. `derive.mjs` ne connaît
          pas le vocabulaire d'un palier (§0.12, deux gardes littéraux) — il
          additionne `bonusTerm` au modificateur de caractéristique, un point
@@ -764,7 +863,8 @@ export function createFhSkillPoolStat() {
         underived,
         consumed,
         skillTiers,
-        violations
+        violations,
+        traits: acquiredTraits
       };
     }
   };

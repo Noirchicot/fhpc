@@ -154,6 +154,10 @@ export const FH_EN = {
      est le `name` de la COMPÉTENCE, jamais son slug — même règle §0.13 que
      les autres lignes de ce détail. */
   "fh.skills.term.spend": (d) => d.skill + " · spent to " + d.tier,
+  /* LOT 36 — le canal des trainings (`fh.skills.train.<slug>`). Pas de
+     palier à afficher : un training est acquis, un point. Le mot source
+     est le `name` du record, comme tous les autres (§0.13). */
+  "fh.skills.term.train": (d) => d.training,
 
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,

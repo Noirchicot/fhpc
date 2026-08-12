@@ -1082,6 +1082,19 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         }
       }
     }
+    /* CANAL GÉNÉRIQUE DE PLUS (lot 36) : un module peut rendre `traits`,
+       une liste d'entrées à AJOUTER à `resolved.traits[]` — même
+       discipline que `skillTiers` : ce fichier ne connaît ni la mécanique
+       ni le vocabulaire qui les a produites (§0.12), il recopie une forme
+       que le schéma gouverne, pas lui. `resolved.traits` existe déjà (les
+       traits d'espèce, plus haut) : ceci s'y AJOUTE, ça ne le remplace pas. */
+    if (outcome && Array.isArray(outcome.traits)) {
+      for (const entry of outcome.traits) {
+        if (entry && typeof entry.id === "string" && typeof entry.name === "string") {
+          resolved.traits.push(entry);
+        }
+      }
+    }
     /* CANAL GÉNÉRIQUE DE PLUS (lot 34) : un module peut rendre `violations`,
        une liste de `{key, params, path?}` (lot 27) — un choix de joueur que
        ce module a jugé illégal SANS jeter (loi §0.5, même discipline que le
