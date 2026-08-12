@@ -23,11 +23,11 @@
   --text: #2d2c2a;
   --text-soft: #605c54;
   --text-muted: #676258;
-  --border-strong: #857e6e; /* bordures de CONTRÔLE — cible 3:1 sur --sunken */
+  --border-strong: #847d6e; /* bordures de CONTRÔLE — cible 3:1 sur --sunken */
   --border: #d3c7ad;        /* bordures de CARTE — décorative, aucune cible */
   --accent: #845933;
   --on-accent: #ffffff;     /* ⚠️ JETON QUI BASCULE — jamais #fff en dur ailleurs */
-  --positive: #326e4b;
+  --positive: #326d4b;
   --caution: #736109;
   --critical: #aa3f2f;
   --info: #396496;

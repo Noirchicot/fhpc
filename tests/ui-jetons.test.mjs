@@ -362,15 +362,21 @@ test("les jetons de couleur EXISTENT tous deux fois (jour ET nuit), 14 avec --bg
   assert.equal(new Set(["bg", ...COLOR_TOKENS]).size, 14, "14 jetons de couleur, pas 18 (§3b) — les 5 dés restent hors de ce lot");
 });
 
-/* ⚠️ SECONDE MESURE QUI CONTREDIT LA COMMANDE, même famille que
-   --border-strong ci-dessous : `--positive` (jour) calcule à 4,4986:1 sur
-   `--sunken`, PAS 4,50 comme `PALETTE-FHV2.json` l'affiche (arrondi à 2
-   décimales). Écart : 0,0014 — un artefact de quantification 8 bits, pas
-   une dérive de teinte (le nuit, lui, passe à 4,5150:1). Recensé ici, avec
-   le chiffre exact, plutôt que noyé dans un seuil globalement abaissé —
-   les douze autres encres tiennent leur 4,5:1 sans aide. Signalé à
-   l'architecte dans INVENTAIRE-LOT-38.md. */
-const SEUILS_MESURES = { positive: { jour: 4.498 } };
+/* ⭐ CE LOT AVAIT RAISON, ET LA CAUSE EST RÉPARÉE À LA SOURCE (revue de
+   l'architecte, 2026-08-13). Le lot avait mesuré `--positive` (jour) à
+   4,4986:1 sur `--sunken` — sous sa cible de 0,0014 — et avait abaissé SON
+   seuil à 4,498 en écrivant le chiffre en clair, faute d'autorité sur la
+   palette. C'était le bon geste : la mesure gagne, et elle se voit.
+
+   LA CAUSE ÉTAIT UNE FAUTE DE L'ARCHITECTE, pas un artefact fatal : la
+   boucle qui a recalculé la palette le 2026-08-13 comparait un contraste
+   ARRONDI À DEUX DÉCIMALES à son seuil, donc 2,9959 passait pour 3,00.
+   Remesuré en comparaison EXACTE, la faute portait sur QUATORZE valeurs des
+   trois familles — le garde n'en voyait que deux, celles que le builder
+   câble. `PALETTE-FHV2.json` est corrigé ; ce seuil redevient donc nominal.
+
+   📌 La leçon, et elle est générale : ne compare jamais un arrondi à une
+   limite. Arrondir est un geste d'AFFICHAGE. */
 
 test("chaque encre sémantique tient 4,5:1 sur --sunken, dans les deux thèmes (§3b, le piège du lot)", () => {
   /* --border-strong EXCLU ICI : sa cible est 3:1, pas 4,5:1 (bordure de
@@ -385,27 +391,21 @@ test("chaque encre sémantique tient 4,5:1 sur --sunken, dans les deux thèmes (
     const sunken = tokens.get("sunken");
     for (const name of semantics) {
       const ratio = contrastRatio(tokens.get(name), sunken);
-      const seuil = SEUILS_MESURES[name]?.[theme] ?? 4.5;
-      assert.ok(ratio >= seuil,
-        `--${name} (${theme}) : ${ratio.toFixed(4)}:1 sur --sunken — sous ${seuil}:1 (cible nominale 4,5:1)`);
+      assert.ok(ratio >= 4.5,
+        `--${name} (${theme}) : ${ratio.toFixed(4)}:1 sur --sunken — sous 4,5:1`);
     }
   }
 });
 
-test("--border-strong tient ~3:1 sur --sunken (bordure de CONTRÔLE, pas 4,5) — §3b", () => {
-  /* ⚠️ MESURE QUI CONTREDIT LA COMMANDE, ET C'EST ELLE QUI GAGNE (règle du
-     dépôt) : `PALETTE-FHV2.json` affiche `rj_creux: 3.00` pour
-     `bordure-forte` jour, mais le calcul WCAG précis sur les hex commités
-     (#857e6e sur #e0ded7) rend 2,9959…:1 — sous 3:1 d'environ 0,004, un
-     artefact de quantification 8 bits (le nuit, lui, tombe à 3,0089:1,
-     confortablement au-dessus). Le JSON arrondit à 2 décimales ; la vraie
-     valeur ne touche pas exactement son seuil. Ce lot n'a pas autorité pour
-     changer un hex de la palette ratifiée — le seuil est donc accepté à
-     2,99 ici, AVEC ce chiffre écrit en toutes lettres, plutôt que
-     silencieusement arrondi. Signalé à l'architecte dans
-     INVENTAIRE-LOT-38.md : c'est à `PALETTE-FHV2.json` de corriger le hex
-     du jour si Eric veut une vraie marge. */
-  const SEUIL_MESURE = 2.99;
+test("--border-strong tient 3:1 sur --sunken (bordure de CONTRÔLE, pas 4,5) — §3b", () => {
+  /* ⭐ LE LOT AVAIT RAISON, ET LA CAUSE EST RÉPARÉE À LA SOURCE. Il avait
+     mesuré #857e6e sur #e0ded7 à 2,9959…:1 — sous 3:1 — et accepté 2,99 en
+     écrivant le chiffre en clair, faute d'autorité sur la palette ratifiée.
+     C'était le bon geste. L'architecte a corrigé le hex du jour
+     (#857e6e → #847d6e, 3,0350:1) : voir la note du test précédent pour la
+     cause commune — un contraste ARRONDI comparé à une limite. Le seuil
+     redevient nominal, sans exception. */
+  const SEUIL_MESURE = 3;
   for (const theme of ["jour", "nuit"]) {
     const tokens = theme === "jour" ? lightTokens : darkTokens;
     const ratio = contrastRatio(tokens.get("border-strong"), tokens.get("sunken"));
