@@ -402,12 +402,18 @@ entrées, chacune sous son drapeau et son ancre.
 | `fh:skill-points` | `fh.skills` | 23 | **ce qu'il RESTE à répartir** : pool de classe + paliers **traversés** + bumps d'espèce − imposés. ⚠️ **Incomplet depuis la ratification du 2026-08-09** : il manque le terme **origin feat** (`Skilled` = +6) et les deux lignes « net zero » des granted choices — lot 24 |
 
 ⚠️ **Le total du pool n'est PAS le pool brut.** Un Roublard niveau 1 a un *pool
-de classe* de 18 et publie **11** — 4 imposés de classe, 2 compétences et 1
-outil d'arrière-plan, à 1 point chacun (`tier_costs.imposed`, lu sur le record).
-Mesure indépendante qui le confirme : Eric chiffre le résultat attendu de sa
-réforme à « environ 2 points libres à **7–10** » ; magicien 12−5 = 7, druide
-14−5 = 9, roublard 18−7 = 11. Publier 18 ne dirait rien de ce que le joueur
-peut dépenser.
+de classe* de 18 et publie **14** — 4 imposés de classe, à 1 point chacun
+(`tier_costs.imposed`, lu sur le record). Publier 18 ne dirait rien de ce que
+le joueur peut dépenser.
+
+⚠️ **REWRITTEN — lot 35 (2026-08-12) : l'arrière-plan n'impose plus rien.**
+Avant ce lot, le Roublard publiait **11** (4 imposés de classe + 2 compétences
++ 1 outil d'arrière-plan) et la fourchette visée par Eric était « environ 2
+points libres à 7–10 » (magicien 12−5, druide 14−5, roublard 18−7). L'arrière-
+plan est éteint en Fate's Hand (addendums §4) : ses `skill_ids`/`tool_id` ont
+disparu de la couche, donc plus aucune ligne d'imposé n'en vient. Nouveaux
+totaux nus : magicien 12−2 = **10**, druide 14−2 = **12**, roublard 18−4 =
+**14** — mesuré sur le magicien d'exemple, qui passe de 7 à 10.
 
 ### ⭐ THE SKILL POOL — l'algorithme canonique, ratifié par Eric le 2026-08-09
 
@@ -422,11 +428,19 @@ skill pool  =  class base                (the background's flat 6 is INSIDE it)
 
 imposed placements, 1 point each (tier ½, `tier_costs.imposed`) :
             −  class      skill_choice.count
-            −  background skill_ids + tool
             −  granted choices from a trait or a feat    ⟵ NET ZERO
 
 remaining   =  what the player distributes
 ```
+
+⚠️ **REWRITTEN — lot 35 : la ligne `background skill_ids + tool` a disparu.**
+L'arrière-plan n'existe plus en Fate's Hand (addendums §4, Eric 2026-08-12) :
+l'étape ne pose plus qu'un don d'origine et des bonus de caracs (l'Inheritance).
+Les 4 records `background` du SRD ont perdu `skill_ids` (les 4) et `tool_id`
+(les 3 qui le portaient — le Soldier choisit le sien via `tool_choice`, non
+touché) ; `ability_keys` et `feat_id`/`feat_option` restent intacts. Le pool
+ne déduit donc plus rien de l'arrière-plan — voir la mesure chiffrée
+au-dessus.
 
 **La décomposition du `base`, mesurée sur les douze records** : le background
 est une constante de **6**, la part de classe est variable — Rogue 12, Bard 10,
@@ -524,25 +538,74 @@ rien** (Eric l'avait dit, le texte le confirme), et 3 proficiencies × 2
 (`tier_costs.proficient`) = **+6**. La valeur est donc à **parité exacte** avec
 le SRD, pas une inflation.
 
+#### ⭐ LOT 35 — LES OUTILS DANS LE CANAL, LES QUATRE CATÉGORIES, L'ARRIÈRE-PLAN ÉTEINT
+
+**Un seul canal, deux genres.** `fh.skills.spend.<slug>` résout désormais sa
+cible dans `records("skill")` **PUIS** `records("tool")` — les 26 compétences
+et les 36 outils se paient au **MÊME barème de paliers** (`pool.tier_costs`,
+décision d'Eric du 2026-08-12). Aucun champ neuf, aucune distinction de genre
+dans le pli : `skillTiers` reste `{slug: {proficiency, bonusTerm}}`, que le
+slug désigne une compétence ou un outil — les slugs des deux genres ne
+collisionnent JAMAIS (mesuré, 26 + 36 records) ; **si une couche tierce en
+créait une, le module `fail()` en la nommant**, plutôt que de choisir une
+cible en silence (loi §0.5).
+
+**`resolved.tools[]` publie les POSSÉDÉS OU DÉPENSÉS, jamais les 36.**
+`derive.mjs` corrige les paliers du même canal générique que les compétences
+(`skillTierOverrides`) : un slug non trouvé dans `resolved.skills[]` est
+cherché dans `resolved.tools[]` (correction en place, s'il est déjà possédé
+via l'arrière-plan) puis, à défaut, ajouté — nom et caractéristique **lus
+dans le catalogue `tool`**, exactement comme ce fichier le fait déjà pour
+l'outil d'arrière-plan. Ni `records/` ni ce fichier ne nomment une mécanique
+FH pour ça : `tool` est un genre du contrat, comme `class` ou `background`
+(§0.12 respecté).
+
+**Le Rogue, et lui seul, dès le niveau 1.** `expertise_from_level` n'est plus
+une constante unique : `CLASS_POOLS` (`fh-skills-source.mjs`) la porte
+**par classe**, `1` pour le Rogue, `4` (le défaut) pour les onze autres
+(addendums §1, EXCEPTION — LE ROGUE). **Aucun plafond de compte** : le moteur
+n'oppose que le pool, pas un nombre maximal de compétences à l'expertise —
+la notification (« tu as droit à l'expertise ») est un travail d'interface.
+
+**L'arrière-plan n'existe plus.** La couche FH retire `data.skill_ids` des 4
+records `background` du SRD et `data.tool_id` des 3 qui le portaient (Acolyte,
+Criminal, Sage — le Soldier choisit le sien via `tool_choice`, jamais touché).
+`ability_keys` et `feat_id`/`feat_option` restent : c'est l'Inheritance.
+Conséquence chiffrée : le pool du magicien d'exemple passe de **7 à 10**.
+
+**Le champ `category`, quatre valeurs, jamais cinq.** `knowledge` · `social`
+· `exploration` · `physical` — la cinquième colonne de l'écran, *Tools &
+Trainings*, range un **genre** (`tool`, puis `training`), pas une catégorie
+de compétence. Natif sur les 9 compétences FH, `patch` étroit (`data.category`
+seul) sur les 17 conservées du SRD — qui n'apparaissaient dans AUCUNE couche
+avant ce lot. Rangement seulement (loi §0.13, des identifiants, jamais des
+mots affichables) : aucun effet de règle.
+
 #### La mesure d'équilibrage, montrée parce qu'elle surprend
 
 | Personnage niveau 1 | base | species | Skilled | imposés | **reste** |
 |---|---|---|---|---|---|
-| Wizard nu | 12 | — | — | 2+3 | **7** |
-| Rogue nu | 18 | — | — | 4+3 | **11** |
-| Human Wizard + Skilled | 12 | +2 | +6 | 2+3 | **15** |
-| Human Rogue + Skilled | 18 | +2 | +6 | 4+3 | **19** |
+| Wizard nu | 12 | — | — | 2 | **10** |
+| Rogue nu | 18 | — | — | 4 | **14** |
+| Human Wizard + Skilled | 12 | +2 | +6 | 2 | **18** |
+| Human Rogue + Skilled | 18 | +2 | +6 | 4 | **22** |
 
-La fourchette « 7–10 » qu'Eric visait décrit **le cas nu**. Empiler species
-bonus et Skilled double le reste, et **il l'assume** : les outils se paient sur
-le même pool (36 en catalogue), l'expertise coûte 4, et — mesuré — **elle est
-verrouillée jusqu'au niveau 4 sur les douze classes**
-(`expertise_from_level: 4`). Un niveau 1 ne peut donc acheter que du ½ et du
-plein : 19 points, c'est de la **largeur**, jamais de la profondeur. Le SRD
-fait l'inverse pour un Rogue — moins de compétences, mais **Expertise dès le
-niveau 1**. Deux courbes différentes, un total comparable.
-⚠️ *Cette divergence Expertise-au-niveau-1 est un choix d'Eric, pas un oubli :
-notée ici pour qu'aucun lot ne la « corrige ».*
+⚠️ **REWRITTEN — lot 35 : la colonne « imposés » a perdu son terme
+d'arrière-plan** (l'ancienne table portait `2+3`/`4+3` : 2 ou 4 de classe, 3
+d'arrière-plan — éteint depuis, addendums §4). Les outils se paient sur le
+même pool (36 en catalogue), au même barème que les compétences.
+
+⛔ **REWRITTEN — l'exception du Rogue N'EST PLUS UNE DIVERGENCE NOTÉE POUR
+NE PAS ÊTRE CORRIGÉE, ELLE EST DEVENUE LA RÈGLE (lot 35).** Cette page disait
+jusqu'ici que l'expertise « est verrouillée jusqu'au niveau 4 sur les douze
+classes », et avertissait qu'aucun lot ne devait « corriger » l'écart avec le
+SRD (Rogue : Expertise dès le niveau 1). Eric a explicitement tranché
+l'inverse le 2026-08-10, précisé le 2026-08-12 (addendums §1, EXCEPTION — LE
+ROGUE, postérieur à cette page) : le Rogue achète l'expertise **dès le niveau
+1**, sans aucun plafond de compte — le pool est seul juge. Les **onze autres**
+classes restent verrouillées à `expertise_from_level: 4`.
+`CLASS_POOLS` (`fh-skills-source.mjs`) porte donc `expertiseFromLevel` **par
+classe**, `DEFAULT_EXPERTISE_FROM_LEVEL = 4` n'étant plus qu'un défaut.
 
 ⚠️ **Les paliers se cumulent sur les niveaux TRAVERSÉS** (règle Q15-8 d'Eric) :
 créé au niveau 5, un personnage a les paliers ≤ 5, pas celui du 6. « À la
