@@ -677,10 +677,33 @@ export function createFhSkillPoolStat() {
       const violations = [];
 
       if (spendEntries.length > 0) {
+        /* LOT 35 — LE MÊME CANAL PORTE LES DEUX GENRES. `skillTiers` rend déjà
+           `{slug: {proficiency, bonusTerm}}`, et les slugs des deux genres ne
+           collisionnent PAS (mesuré, `INVENTAIRE-LOT-35.md`) : nul besoin d'un
+           champ neuf ni d'une distinction de genre dans le pli — `derive.mjs`
+           cherche le slug dans `resolved.skills[]` PUIS `resolved.tools[]`,
+           une recherche générique qui ne nomme aucune mécanique FH. Les DEUX
+           genres se paient au MÊME barème (`pool.tier_costs`, décision
+           d'Eric) : aucune branche de coût séparée n'est nécessaire ici. */
         const skillCatalog = typeof records === "function" ? records("skill") : [];
-        const skillByslug = new Map(skillCatalog.map((view) => [view.slug, view]));
+        const toolCatalog = typeof records === "function" ? records("tool") : [];
+        const catalogBySlug = new Map();
+        for (const view of skillCatalog) catalogBySlug.set(view.slug, { view, genre: "skill" });
+        /* ⛔ LE GARDE DE COLLISION, ET IL EST BRUYANT. Zéro collision entre les
+           26 compétences et les 36 outils aujourd'hui (mesuré) — mais une
+           couche homebrew tierce en créerait une, et un canal muet choisirait
+           alors une cible en silence (loi §0.5). */
+        for (const view of toolCatalog) {
+          const existing = catalogBySlug.get(view.slug);
+          if (existing) {
+            fail(`le slug « ${view.slug} » est porté à la fois par la compétence « ${existing.view.id} » et par ` +
+              `l'outil « ${view.id} » — le canal de dépense ne saurait pas choisir sa cible sans le dire.`);
+          }
+          catalogBySlug.set(view.slug, { view, genre: "tool" });
+        }
         for (const { slug, value, path } of spendEntries) {
-          const target = skillByslug.get(slug);
+          const entry = catalogBySlug.get(slug);
+          const target = entry ? entry.view : null;
           /* Un slug inconnu ou un palier illégal N'EST PAS APPLIQUÉ — le canal
              ne fabrique pas une ligne fausse pour un choix que le catalogue ne
              reconnaît pas — MAIS il est NOMMÉ en verrou keyé (lot 27), ici,
@@ -714,7 +737,7 @@ export function createFhSkillPoolStat() {
           lines.push({
             label: t("fh.skills.term.spend", { skill: target.name, tier: value }),
             value: -delta,
-            source: { kind: "skill", id: target.id }
+            source: { kind: entry.genre, id: target.id }
           });
         }
       }
