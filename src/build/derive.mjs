@@ -751,10 +751,14 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       proficiency: "proficient"
     });
   }
+  /* LOT 35 — LA DÉCLARATION « AUCUN OUTIL » EST DIFFÉRÉE, PLUS BAS. `tools`
+     ne porte ici que les outils POSSÉDÉS (l'arrière-plan) ; le pool de points
+     peut encore lui en AJOUTER un (§ « STATISTIQUES DÉRIVÉES », le même canal
+     générique `outcome.skillTiers` que les compétences). Déclarer maintenant
+     dirait « aucune maîtrise » sur une collection pas encore finale — même
+     tableau, RÉFÉRENCE PARTAGÉE avec `resolved.tools`, pour que l'ajout d'un
+     outil acheté plus tard s'y voie sans réassignation. */
   resolved.tools = tools;
-  if (tools.length === 0 && !underived.has("tools")) {
-    underived.declare("tools", "aucune maîtrise d'outil accordée par les choix.");
-  }
 
   /* ── ACTIONS ───────────────────────────────────────────────────────
      Il n'existe pas de genre `action`. Composer une attaque à partir d'une
@@ -1113,16 +1117,70 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      calculé par le module, ce fichier ne fait que l'ADDITIONNER au
      modificateur de caractéristique. Une entrée dont le module ne parle pas
      garde exactement ce que le pli lui avait donné. */
+  const skillTierMatched = new Set();
   if (skillTierOverrides.size > 0 && Array.isArray(resolved.skills)) {
     resolved.skills = resolved.skills.map((skill) => {
       const override = skillTierOverrides.get(skill.id);
-      if (!override || proficiency === null) return skill;
+      if (!override) return skill;
+      skillTierMatched.add(skill.id);
+      if (proficiency === null) return skill;
       return {
         ...skill,
         proficiency: override.proficiency,
         bonus: abilities[skill.ability].mod + override.bonusTerm
       };
     });
+  }
+
+  /* LOT 35 — LE MÊME CANAL, ÉTENDU AUX OUTILS. Un slug que `skillTierOverrides`
+     porte et qu'AUCUNE compétence ne réclame est un outil acheté au pool —
+     `derive.mjs` ne nomme toujours aucune mécanique FH (§0.12) : il cherche le
+     slug dans `resolved.skills[]` PUIS dans `resolved.tools[]`, une recherche
+     générique dans deux collections du contrat, pas une règle de couche. `tool`
+     est un genre du schéma comme `class` ou `background` (contrat `layers`,
+     déjà lu par ce fichier pour l'arrière-plan) — le lire ici n'ouvre aucune
+     brèche à §0.12.
+
+     ⛔ `resolved.tools[]` NE PUBLIE QUE LES OUTILS POSSÉDÉS OU DÉPENSÉS, jamais
+     les 36 du catalogue (commande §4b). Un slug déjà présent (l'outil
+     d'arrière-plan, avant ce lot) est CORRIGÉ en place ; un slug absent des
+     deux collections est un outil neuf, et son nom/sa caractéristique se
+     LISENT dans le catalogue `tool` — exactement comme ce fichier le fait déjà
+     pour l'outil d'arrière-plan, quelques lignes plus haut. */
+  if (skillTierOverrides.size > 0 && proficiency !== null && Array.isArray(resolved.tools)) {
+    for (const [slug, override] of skillTierOverrides) {
+      if (skillTierMatched.has(slug)) continue;
+      const existingIndex = tools.findIndex((tool) => tool.id === slug);
+      if (existingIndex !== -1) {
+        const existing = tools[existingIndex];
+        tools[existingIndex] = {
+          ...existing,
+          proficiency: override.proficiency,
+          bonus: abilities[existing.ability].mod + override.bonusTerm
+        };
+        continue;
+      }
+      const view = reader.all("tool").find((candidate) => (candidate.record.slug || candidate.id) === slug);
+      if (!view) continue; // le module a déjà refusé un slug hors catalogue (skill-spend.option-unavailable)
+      const abilityKey = view.record.data && view.record.data.ability_key;
+      if (!assertAbilityKey(abilityKey, view.id, "data.ability_key")) {
+        underived.declare(`tools[${slug}]`,
+          "le record d'outil acheté au pool ne porte pas `ability_key` — même trou que l'outil d'arrière-plan " +
+          "(question 3 à l'architecte).");
+        continue;
+      }
+      tools.push({
+        id: view.record.slug || view.id,
+        name: view.record.name,
+        ability: abilityKey,
+        bonus: abilities[abilityKey].mod + override.bonusTerm,
+        proficiency: override.proficiency
+      });
+    }
+  }
+
+  if (resolved.tools.length === 0 && !underived.has("tools")) {
+    underived.declare("tools", "aucune maîtrise d'outil accordée par les choix.");
   }
 
   /* La collection est vide et AUCUN module n'a tourné : c'est le cas du

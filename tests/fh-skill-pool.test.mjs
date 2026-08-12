@@ -116,9 +116,10 @@ const poolDe = (resolved) => resolved.stats.find((stat) => stat.id === FH_SKILL_
 const somme = (stat) => stat.breakdown.reduce((total, line) => total + line.value, 0);
 const terme = (stat, label) => stat.breakdown.find((line) => line.label === label);
 
-/* L'ACOLYTE est l'arrière-plan de tous les scénarios : deux compétences
-   accordées (`skill_ids`) et UN outil accordé (`tool_id`). Trois imposés, donc,
-   et le nombre est LU sur le record ci-dessous, jamais supposé. */
+/* REWRITTEN 2026-08-12 (lot 35) — L'ACOLYTE reste l'arrière-plan de tous les
+   scénarios, mais l'Inheritance (addendums §4, Eric 2026-08-12) a éteint son
+   `skill_ids` et son `tool_id` : il n'impose plus rien au pool. Son seul rôle
+   ici est de fournir un `ref` de genre `background` valide au module. */
 const ACOLYTE = "srd:background:en:acolyte";
 
 /* ══ ACCEPTATION 1 ════════════════════════════════════════════════════
@@ -131,21 +132,22 @@ const ACOLYTE = "srd:background:en:acolyte";
    les imposés se déduisent. Les deux affirmations ne peuvent pas être vraies du
    même nombre.
 
-   La mesure qui tranche est d'Eric et elle est indépendante du code : sa
-   réforme fait passer un personnage « d'environ 2 points libres à 7–10 »
-   (vault, § « Plus de compétences, plus de points »). Magicien 12−5 = 7,
-   Druide 14−5 = 9, Roublard 18−7 = 11. C'est le TOTAL qui atterrit dans sa
-   fourchette, pas le pool brut. Ce test asserte donc LES DEUX : le terme nommé
-   ET le total, terme par terme. */
+   REWRITTEN 2026-08-12 (lot 35) — L'arrière-plan n'impose plus rien
+   (addendums §4, « L'arrière-plan n'existe plus en Fate's Hand ») : seuls les
+   imposés de CLASSE se déduisent désormais. La fourchette « 7–10 » qu'Eric
+   visait au lot 23 décrivait le cas AVEC arrière-plan imposé ; la mesure du
+   2026-08-12 la remplace : Wizard 12−2 = 10 (contre 7 avant ce lot), Druide
+   14−2 = 12, Rogue 18−4 = 14. Ce test asserte LES DEUX : le terme nommé ET le
+   total, terme par terme. */
 
 test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son détail", () => {
   /* La table attendue. `imposedSkills` est le `skill_choice.count` de la
      classe, RELU sur la pile plus bas : l'écrire ici et le relire là est ce qui
      empêche le test de se prouver à lui-même. */
   const attendu = [
-    { classId: "srd:class:en:rogue", nom: "Rogue", base: 18, imposes: 4, total: 11 },
-    { classId: "srd:class:en:wizard", nom: "Wizard", base: 12, imposes: 2, total: 7 },
-    { classId: "srd:class:en:druid", nom: "Druid", base: 14, imposes: 2, total: 9 }
+    { classId: "srd:class:en:rogue", nom: "Rogue", base: 18, imposes: 4, total: 14 },
+    { classId: "srd:class:en:wizard", nom: "Wizard", base: 12, imposes: 2, total: 10 },
+    { classId: "srd:class:en:druid", nom: "Druid", base: 14, imposes: 2, total: 12 }
   ];
 
   for (const cas of attendu) {
@@ -165,16 +167,16 @@ test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son d
 
     /* ⛔ LE DÉTAIL ENTIER, COMPARÉ COMME UN OBJET — jamais une projection.
        C'est la leçon de la revue du 2026-08-08 : comparer un sous-ensemble
-       laisse passer un terme surnuméraire sans rougir. */
+       laisse passer un terme surnuméraire sans rougir.
+       REWRITTEN 2026-08-12 (lot 35) — plus de lignes Acolyte : l'Inheritance
+       n'impose plus de compétences ni d'outil (addendums §4). */
     assert.deepEqual(stat.breakdown, [
       { label: `Class Pool · ${cas.nom}`, value: cas.base, source: { kind: "class", id: cas.classId } },
       {
         label: `${cas.nom} · ${cas.imposes} imposed choices`,
         value: -cas.imposes,
         source: { kind: "class", id: cas.classId }
-      },
-      { label: "Acolyte · 2 imposed choices", value: -2, source: { kind: "background", id: ACOLYTE } },
-      { label: "Acolyte · 1 imposed choice", value: -1, source: { kind: "background", id: ACOLYTE } }
+      }
     ], `le détail de « ${cas.nom} », terme par terme`);
 
     /* LE POOL DE CLASSE EST BIEN 18/12/14, NOMMÉMENT. */
@@ -190,9 +192,11 @@ test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son d
     assert.equal(classe.fh_skill_pool.base, cas.base, "le pool vient du record de classe");
     assert.equal(classe.skill_choice.count, cas.imposes, "le nombre d'imposés vient du record de classe");
     assert.equal(classe.fh_skill_pool.tier_costs.imposed, 1, "et leur coût unitaire aussi");
+    /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien : ces
+       deux champs ont disparu du record avec l'extinction (addendums §4). */
     const fond = h.layers.verbs.query({ kind: "background", id: ACOLYTE }).record.data;
-    assert.equal(fond.skill_ids.length, 2, "les deux compétences imposées viennent du record d'arrière-plan");
-    assert.equal(typeof fond.tool_id, "string", "et son outil imposé aussi");
+    assert.equal(fond.skill_ids, undefined, "l'Inheritance a éteint les compétences imposées de l'arrière-plan");
+    assert.equal(fond.tool_id, undefined, "et l'outil imposé aussi");
 
     /* Au niveau 1 le document valide, et c'est ce qui prouve que l'ancre
        `fh:skill-points` est adressable et pas seulement plausible. */
@@ -225,18 +229,18 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
 
   /* LE NOMBRE SE DÉMONTRE TERME PAR TERME. Quatre paliers, chacun sur sa
      ligne, chacun avec son niveau — c'est ce qui rend l'absence du sixième
-     VISIBLE au lieu d'être une soustraction qu'il faut croire sur parole. */
+     VISIBLE au lieu d'être une soustraction qu'il faut croire sur parole.
+     REWRITTEN 2026-08-12 (lot 35) — plus de lignes Acolyte : l'Inheritance
+     n'impose plus rien (addendums §4). */
   assert.deepEqual(stat.breakdown, [
     { label: "Class Pool · Bard", value: 16, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 2", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 3", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 4", value: 3, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Bard · 3 imposed choices", value: -3, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Acolyte · 2 imposed choices", value: -2, source: { kind: "background", id: ACOLYTE } },
-    { label: "Acolyte · 1 imposed choice", value: -1, source: { kind: "background", id: ACOLYTE } }
+    { label: "Bard · 3 imposed choices", value: -3, source: { kind: "class", id: "srd:class:en:bard" } }
   ]);
-  assert.equal(stat.value, 16, "16 de pool + 6 de paliers traversés − 6 d'imposés");
+  assert.equal(stat.value, 19, "16 de pool + 6 de paliers traversés − 3 d'imposés (lot 35 : l'arrière-plan n'en impose plus)");
   assert.equal(stat.value, somme(stat));
 
   /* ⛔ LE PALIER DU NIVEAU 6 EXISTE DANS LA COUCHE, ET IL N'EST PAS LÀ. C'est
@@ -264,7 +268,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
     level: 6, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
   }));
   const stat6 = poolDe(h6.verbs.rebuild({ document: doc6 }).resolved);
-  assert.equal(stat6.value, 17, "au niveau 6, un point de plus");
+  assert.equal(stat6.value, 20, "au niveau 6, un point de plus (REWRITTEN 2026-08-12, lot 35 : base 19 + 1)");
   assert.deepEqual(terme(stat6, "Level 6"),
     { label: "Level 6", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     "et c'est la ligne du palier 6 qui l'apporte, nommée");
@@ -305,9 +309,12 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
   /* ⚠️ LE NET ZÉRO (lot 24) : l'Araag porte AUSSI un `granted_skill_choice`
      (`Skillful`), et ses deux lignes s'annulent sur le total — l'écart entre
      les deux personnages reste donc EXACTEMENT le bonus de trait, pas plus. */
+  /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
+     (addendums §4) : seul l'imposé de CLASSE (2, le Fighter) se déduit
+     encore, là où 5 se déduisaient avant ce lot (2 classe + 2+1 arrière-plan). */
   assert.notEqual(araag.stat.value, humain.stat.value, "les deux pools DIFFÈRENT");
-  assert.equal(araag.stat.value, 11, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 5 d'imposés (grant net zéro)");
-  assert.equal(humain.stat.value, 9, "Humain : 12 de pool + 2 du seul palier de création − 5 d'imposés");
+  assert.equal(araag.stat.value, 14, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 2 d'imposés (grant net zéro)");
+  assert.equal(humain.stat.value, 12, "Humain : 12 de pool + 2 du seul palier de création − 2 d'imposés");
   assert.equal(araag.stat.value - humain.stat.value, 2, "et l'écart vaut exactement un palier d'espèce, PAS le grant");
 
   /* L'ÉCART CITE LE TRAIT — et le mot vient du RECORD, recopié (loi §0.13).
@@ -460,7 +467,9 @@ test("ACCEPTATION 6 — un Human Wizard avec Skilled publie 15, et son détail p
      (loi §0.13), exactement comme `destiny-stat.mjs` nomme la sienne. */
   assert.deepEqual(terme(stat, "Skilled"),
     { label: "Skilled", value: 6, source: { kind: "feat", id: "srd:feat:en:skilled" } });
-  assert.equal(stat.value, 15, "12 de pool + 2 d'Educated + 6 de Skilled − 5 d'imposés (2 classe, 2+1 arrière-plan)");
+  /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
+     (addendums §4) : seul l'imposé de classe (2, le Wizard) se déduit. */
+  assert.equal(stat.value, 18, "12 de pool + 2 d'Educated + 6 de Skilled − 2 d'imposés (classe seule)");
   assert.equal(stat.value, somme(stat), "`value` EST la somme de son détail");
 
   /* LE DON EST RÉCLAMÉ : il compte dans le pool, il ne doit pas ressortir
@@ -477,18 +486,22 @@ test("ACCEPTATION 6 — un Human Wizard avec Skilled publie 15, et son détail p
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
     }))
   }).resolved);
-  assert.equal(statNu.value, 9, "sans le don : 12 de pool + 2 d'Educated − 5 d'imposés");
+  /* REWRITTEN 2026-08-12 (lot 35) — même correction : 12 + 2 − 2, l'arrière-plan
+     n'impose plus rien. */
+  assert.equal(statNu.value, 12, "sans le don : 12 de pool + 2 d'Educated − 2 d'imposés (classe seule)");
   assert.equal(terme(statNu, "Skilled"), undefined, "et aucune ligne « Skilled » n'apparaît");
 });
 
-test("ACCEPTATION 7 — un Human Rogue avec Skilled publie 19", () => {
+test("ACCEPTATION 7 — un Human Rogue avec Skilled publie 22", () => {
   const h = pilePoolAvecDons();
   const stat = poolDe(h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
     }).concat([donDe("srd:feat:en:skilled")]))
   }).resolved);
-  assert.equal(stat.value, 19, "18 de pool + 2 d'Educated + 6 de Skilled − 7 d'imposés (4 classe, 2+1 arrière-plan)");
+  /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
+     (addendums §4) : seul l'imposé de classe (4, le Rogue) se déduit. */
+  assert.equal(stat.value, 22, "18 de pool + 2 d'Educated + 6 de Skilled − 4 d'imposés (classe seule)");
   assert.equal(stat.value, somme(stat));
   assert.equal(terme(stat, "Skilled").value, 6);
 });
@@ -516,7 +529,9 @@ test("ACCEPTATION 8 — un don SANS `data.skill_points` ne casse rien : seize do
       }).concat([donDe(id)]))
     });
     const stat = poolDe(out.resolved);
-    assert.equal(stat.value, 9, `« ${id} » ne change rien au total`);
+    /* REWRITTEN 2026-08-12 (lot 35) — 12 + 2 − 2 depuis l'extinction de
+       l'arrière-plan (addendums §4), comme ACCEPTATION 6. */
+    assert.equal(stat.value, 12, `« ${id} » ne change rien au total`);
     assert.equal(stat.breakdown.some((line) => line.source && line.source.kind === "feat"), false,
       `« ${id} » n'ajoute aucun terme`);
 
@@ -616,7 +631,10 @@ test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le co
      de 12 à 13, et un imposé de 1 à 2 points. Un module qui porterait une
      table « wizard → 12 » ou un coût « 1 » écrit dans son source rendrait
      exactement les mêmes nombres qu'avant, et l'assertion de total seule ne
-     l'aurait jamais vu.  Attendu : 13 − (2+2+1)×2 = 3. */
+     l'aurait jamais vu.
+     REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
+     (addendums §4) : seul l'imposé de classe compte désormais. Attendu :
+     13 − 2×2 = 9. */
   const h = pilePool({
     extra: Object.assign(uneCouche("scenario-pool-et-couts-changes", {
       class: {
@@ -638,9 +656,8 @@ test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le co
   }).resolved);
   assert.equal(terme(stat, "Class Pool · Wizard").value, 13, "le pool SUIT le record — il n'est pas écrit ici");
   assert.equal(terme(stat, "Wizard · 2 imposed choices").value, -4, "deux imposés à 2 points font −4");
-  assert.equal(terme(stat, "Acolyte · 2 imposed choices").value, -4);
-  assert.equal(terme(stat, "Acolyte · 1 imposed choice").value, -2);
-  assert.equal(stat.value, 3, "13 − 10 : les deux nombres sont LUS, aucun n'est dans le module");
+  assert.equal(terme(stat, "Acolyte · 2 imposed choices"), undefined, "l'arrière-plan n'impose plus rien (lot 35)");
+  assert.equal(stat.value, 9, "13 − 4 : les deux nombres sont LUS, aucun n'est dans le module");
 });
 
 test("ATTAQUE — un trait d'espèce sans nom JETTE : la ligne ne disparaît pas en silence", () => {
@@ -736,7 +753,9 @@ test("ATTAQUE — le +6 de Skilled vient du record, pas du module : on le change
     }).concat([donDe("srd:feat:en:skilled")]))
   }).resolved);
   assert.equal(terme(stat, "Skilled").value, 9, "la ligne SUIT le record — elle n'est pas écrite dans le module");
-  assert.equal(stat.value, 18, "12 + 2 + 9 − 5 : le total suit le record, lui aussi");
+  /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
+     (addendums §4) : 12 + 2 + 9 − 2, pas − 5. */
+  assert.equal(stat.value, 21, "12 + 2 + 9 − 2 : le total suit le record, lui aussi");
 });
 
 test("ATTAQUE — un don sans nom JETTE : la ligne ne disparaît pas en silence", () => {

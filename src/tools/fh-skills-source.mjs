@@ -87,18 +87,21 @@ export const SKILLS_ADDED = [
     slug: "might",
     name: "Might",
     ability: "str",
+    category: "physical",
     exampleUses: "Raw power—lifting gates, pushing boulders, tearing down obstacles."
   },
   {
     slug: "appraise",
     name: "Appraise",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Determining the value, authenticity, or quality of items (treasure, art, goods)."
   },
   {
     slug: "academics",
     name: "Academics",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Formal learning: reading, research, and theoretical knowledge, accounting, " +
       "mathematics, commerce."
   },
@@ -106,24 +109,28 @@ export const SKILLS_ADDED = [
     slug: "tactics",
     name: "Tactics",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Battlefield strategy, military history, assessing enemy strength, planning maneuvers."
   },
   {
     slug: "hunting",
     name: "Hunting",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush)."
   },
   {
     slug: "vigilance",
     name: "Vigilance",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Immediate threat detection: spotting ambushes or fleeting danger."
   },
   {
     slug: "delve",
     name: "Delve",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Exploring urban areas, ruins and built structures, finding hidden passages and " +
       "traps, and navigating through them."
   },
@@ -131,14 +138,54 @@ export const SKILLS_ADDED = [
     slug: "streetwise",
     name: "Streetwise",
     ability: "cha",
+    category: "social",
     exampleUses: "Urban survival, black markets, navigating the underworld."
   },
   {
     slug: "leadership",
     name: "Leadership",
     ability: "cha",
+    category: "social",
     exampleUses: "Command presence, rallying allies, coordinating teams."
   }
+];
+
+/* ══ LE RANGEMENT DES COMPÉTENCES — QUATRE CATÉGORIES (lot 35) ═════════
+   Addendums, « Le rangement des compétences — 5 catégories » (Eric,
+   2026-08-12), précisé par la commande du lot 35 : la cinquième colonne de
+   l'écran, *Tools & Trainings*, range un GENRE (`tool`, et plus tard
+   `training`), pas une compétence — `category` sur un record de compétence
+   n'en porte donc que QUATRE. Rangement seulement (loi §0.13, ce sont des
+   identifiants, jamais des mots affichables) — aucun effet de règle : aucune
+   catégorie ne change un coût, un palier ou un bonus.
+
+   Classement proposé par l'architecte, VALIDÉ par Eric le 2026-08-12 : déduit
+   du schéma de fiche d'Eric, où *Investigation* range sous *Exploration* et
+   pas sous *Knowledge*. */
+export const SKILL_CATEGORIES = ["knowledge", "social", "exploration", "physical"];
+
+/** Les DIX-SEPT compétences CONSERVÉES du SRD — absentes de `skill{}` avant ce
+ *  lot (une couche ne porte que ses deltas), elles reçoivent maintenant un
+ *  `patch` ÉTROIT qui ne pose QUE `data.category`. Rien d'autre du record SRD
+ *  n'est touché. */
+export const SKILLS_KEPT_CATEGORIES = [
+  { target: "srd:skill:en:arcana", category: "knowledge" },
+  { target: "srd:skill:en:history", category: "knowledge" },
+  { target: "srd:skill:en:medicine", category: "knowledge" },
+  { target: "srd:skill:en:nature", category: "knowledge" },
+  { target: "srd:skill:en:religion", category: "knowledge" },
+  { target: "srd:skill:en:deception", category: "social" },
+  { target: "srd:skill:en:insight", category: "social" },
+  { target: "srd:skill:en:intimidation", category: "social" },
+  { target: "srd:skill:en:performance", category: "social" },
+  { target: "srd:skill:en:persuasion", category: "social" },
+  { target: "srd:skill:en:animal-handling", category: "exploration" },
+  { target: "srd:skill:en:investigation", category: "exploration" },
+  { target: "srd:skill:en:survival", category: "exploration" },
+  { target: "srd:skill:en:acrobatics", category: "physical" },
+  { target: "srd:skill:en:athletics", category: "physical" },
+  { target: "srd:skill:en:sleight-of-hand", category: "physical" },
+  { target: "srd:skill:en:stealth", category: "physical" }
 ];
 
 /* ══ LES OUTILS QUI CHANGENT DE CARACTÉRISTIQUE ════════════════════════
@@ -273,6 +320,18 @@ function progression({ bardePlusUnParNiveau = false } = {}) {
   return byLevel;
 }
 
+/** Le niveau à partir duquel l'expertise s'achète, par défaut.
+ *
+ *  ⚠️ CE N'EST PLUS UNE CONSTANTE UNIQUE (lot 35). Le Rogue déroge — son
+ *  Expertise SRD de niveau 1 est comptée dans son pool (addendums §1, EXCEPTION
+ *  — LE ROGUE, ratifiée par Eric le 2026-08-10, précisée le 2026-08-12) — et
+ *  c'est du CONTENU, comme le pool de classe lui-même : `CLASS_POOLS` porte
+ *  donc `expertiseFromLevel` PAR CLASSE, cette constante n'en restant que le
+ *  DÉFAUT pour les onze qui ne dérogent pas. Aucun plafond de compte n'existe
+ *  pour le Rogue (décision d'Eric) : seul le niveau de déverrouillage change,
+ *  le pool reste la seule économie qui arbitre. */
+export const DEFAULT_EXPERTISE_FROM_LEVEL = 4;
+
 export const CLASS_POOLS = [
   { target: "srd:class:en:barbarian", base: 12 },
   { target: "srd:class:en:bard", base: 16, bard: true },
@@ -282,14 +341,15 @@ export const CLASS_POOLS = [
   { target: "srd:class:en:monk", base: 14 },
   { target: "srd:class:en:paladin", base: 12 },
   { target: "srd:class:en:ranger", base: 14 },
-  { target: "srd:class:en:rogue", base: 18 },
+  { target: "srd:class:en:rogue", base: 18, expertiseFromLevel: 1 },
   { target: "srd:class:en:sorcerer", base: 12 },
   { target: "srd:class:en:warlock", base: 12 },
   { target: "srd:class:en:wizard", base: 12 }
 ].map((entry) => ({
   target: entry.target,
   base: entry.base,
-  byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) })
+  byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) }),
+  expertiseFromLevel: entry.expertiseFromLevel || DEFAULT_EXPERTISE_FROM_LEVEL
 }));
 
 /* ══ CE QUE COÛTE UN PALIER DE COMPÉTENCE ══════════════════════════════
@@ -309,8 +369,27 @@ export const CLASS_POOLS = [
    pool qu'ils dépensent. */
 export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4, imposed: 1 };
 
-/** Le niveau à partir duquel l'expertise s'achète, pour tous. */
-export const EXPERTISE_FROM_LEVEL = 4;
+/* ══ L'ARRIÈRE-PLAN — ÉTEINT EN FATE'S HAND (lot 35) ═══════════════════════
+   Addendums §4, « L'arrière-plan n'existe plus en Fate's Hand » (Eric,
+   2026-08-12). L'étape ne pose plus qu'un don d'origine et des bonus de
+   caractéristiques — elle peut s'appeler Inheritance. Tout le reste du choix
+   d'arrière-plan SRD s'éteint : plus de compétences imposées, plus d'outil
+   imposé. `ability_keys` et `feat_id`/`feat_option` SURVIVENT intacts — c'est
+   l'Inheritance, elle ne bouge pas.
+
+   ⚠️ MESURÉ, PAS SUPPOSÉ (2026-08-12) : les QUATRE arrière-plans du SRD
+   portent `data.skill_ids`. TROIS SEULEMENT portent `data.tool_id` — le
+   Soldier CHOISIT le sien (`data.tool_choice`), il ne le REÇOIT pas, et cette
+   couche ne touche donc pas `tool_choice`. Retirer un champ absent (`tool_id`
+   du Soldier) doit rester un échec bruyant : le générateur vérifie la
+   présence avant de retirer, comme `assertTargetField` le fait déjà pour les
+   espèces (`gen-fh-species-layer.mjs`). */
+export const BACKGROUNDS_EXTINGUISHED = [
+  { target: "srd:background:en:acolyte", hasToolId: true },
+  { target: "srd:background:en:criminal", hasToolId: true },
+  { target: "srd:background:en:sage", hasToolId: true },
+  { target: "srd:background:en:soldier", hasToolId: false }
+];
 
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════
    Déclarés ici pour que le générateur les CONFRONTE à ce qu'il a réellement
@@ -326,7 +405,9 @@ export const EXPECTED = {
   srdSkills: 18,
   srdTools: 25,
   /* ⛔ DOUZE. Si ce nombre devient 13, quelqu'un a fait entrer l'Artificier. */
-  classes: 12
+  classes: 12,
+  /* Les quatre arrière-plans du SRD 5.2.1 — mesuré (lot 35). */
+  backgrounds: 4
 };
 
 /* Le drapeau que cette couche lève. Il n'active aucun module dans ce lot —
