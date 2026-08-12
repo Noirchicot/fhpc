@@ -150,6 +150,68 @@ test("acceptation 1 — les 9 neuves portent chacune leur caractéristique", () 
   }
 });
 
+/* ══ LE RANGEMENT — QUATRE CATÉGORIES (lot 35) ═══════════════════════ */
+
+const LES_4_CATEGORIES = ["knowledge", "social", "exploration", "physical"];
+
+/** Le classement validé par Eric le 2026-08-12 — voir `fh-skills-source.mjs`,
+ *  `SKILLS_KEPT_CATEGORIES` et `SKILLS_ADDED`. Recopié ici comme une donnée
+ *  ÉPINGLÉE, jamais recalculée depuis la source qu'elle vérifie. */
+const CATEGORIE_ATTENDUE = {
+  Academics: "knowledge", Appraise: "knowledge", Arcana: "knowledge", History: "knowledge",
+  Medicine: "knowledge", Nature: "knowledge", Religion: "knowledge", Tactics: "knowledge",
+  Deception: "social", Insight: "social", Intimidation: "social", Leadership: "social",
+  Performance: "social", Persuasion: "social", Streetwise: "social",
+  "Animal Handling": "exploration", Delve: "exploration", Hunting: "exploration",
+  Investigation: "exploration", Survival: "exploration", Vigilance: "exploration",
+  Acrobatics: "physical", Athletics: "physical", Might: "physical",
+  "Sleight of Hand": "physical", Stealth: "physical"
+};
+
+test("les 26 compétences portent chacune une catégorie, et c'est exactement le classement validé", () => {
+  const verbs = pile();
+  const vues = verbs.query({ kind: "skill" });
+  assert.equal(vues.length, EXPECTED.skills);
+  assert.equal(Object.keys(CATEGORIE_ATTENDUE).length, EXPECTED.skills, "la table épinglée couvre les 26");
+
+  const observé = vues
+    .map((v) => [v.record.name, v.record.data.category])
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  const attendu = Object.entries(CATEGORIE_ATTENDUE).sort((a, b) => a[0].localeCompare(b[0]));
+  assert.deepEqual(observé, attendu, "chaque compétence, nommément, dans SA catégorie");
+});
+
+test("les catégories sont EXACTEMENT les quatre déclarées — Knowledge, Social, Exploration, Physical", () => {
+  const verbs = pile();
+  const catégories = new Set(verbs.query({ kind: "skill" }).map((v) => v.record.data.category));
+  assert.deepEqual([...catégories].sort(), [...LES_4_CATEGORIES].sort(),
+    "pas une cinquième — `Tools & Trainings` range un GENRE (`tool`), pas une catégorie de compétence");
+});
+
+test("une catégorie est un IDENTIFIANT, jamais un mot affichable (loi §0.13)", () => {
+  const verbs = pile();
+  for (const vue of verbs.query({ kind: "skill" })) {
+    const category = vue.record.data.category;
+    assert.match(category, /^[a-z]+$/, `« ${vue.record.name} » : « ${category} » doit être en minuscules, sans espace`);
+    assert.equal(category, category.toLowerCase());
+    assert.notEqual(category[0], category[0].toUpperCase(), "aucune majuscule — ni « Knowledge » ni un mot de fiche");
+  }
+});
+
+test("REFUS — une compétence conservée renommée au SRD fait jeter son patch de catégorie, en la nommant", () => {
+  /* MÊME MONTAGE QUE « REFUS — une classe du SRD oubliée par la table des
+     pools » (buildClasses) : renommer garde le COMPTE des 18 intact — la
+     compétence reste CONSERVÉE (ni retirée, ni neuve), donc toujours
+     candidate à un patch de catégorie, mais sa cible a disparu. Le générateur
+     refuse en la NOMMANT, exactement le sort d'une compétence dont la
+     catégorie manquerait (§5 point 10 de la commande). */
+  const srd = srdAmputé(renomme("skill", "srd:skill:en:religion", "srd:skill:en:spirituality"));
+  assert.throws(() => buildLayer({ srd }), (err) => {
+    assert.match(err.message, /srd:skill:en:religion/, "le refus NOMME la compétence dont la catégorie tombe dans le vide");
+    return true;
+  });
+});
+
 test("ATTAQUE — l'assertion des 26 rougit sur une liste truquée", () => {
   /* Le garde qui compte passerait avec 26 mauvaises. Celui-ci ne doit pas :
      on remplace UNE entrée par une compétence plausible et absente. */

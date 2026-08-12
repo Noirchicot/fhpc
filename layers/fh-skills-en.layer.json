@@ -24,6 +24,7 @@
         "data": {
           "ability": "Strength",
           "ability_key": "str",
+          "category": "physical",
           "example_uses": "Raw power—lifting gates, pushing boulders, tearing down obstacles.",
           "name": "Might"
         }
@@ -34,6 +35,7 @@
         "data": {
           "ability": "Intelligence",
           "ability_key": "int",
+          "category": "knowledge",
           "example_uses": "Determining the value, authenticity, or quality of items (treasure, art, goods).",
           "name": "Appraise"
         }
@@ -44,6 +46,7 @@
         "data": {
           "ability": "Intelligence",
           "ability_key": "int",
+          "category": "knowledge",
           "example_uses": "Formal learning: reading, research, and theoretical knowledge, accounting, mathematics, commerce.",
           "name": "Academics"
         }
@@ -54,6 +57,7 @@
         "data": {
           "ability": "Intelligence",
           "ability_key": "int",
+          "category": "knowledge",
           "example_uses": "Battlefield strategy, military history, assessing enemy strength, planning maneuvers.",
           "name": "Tactics"
         }
@@ -64,6 +68,7 @@
         "data": {
           "ability": "Wisdom",
           "ability_key": "wis",
+          "category": "exploration",
           "example_uses": "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush).",
           "name": "Hunting"
         }
@@ -74,6 +79,7 @@
         "data": {
           "ability": "Wisdom",
           "ability_key": "wis",
+          "category": "exploration",
           "example_uses": "Immediate threat detection: spotting ambushes or fleeting danger.",
           "name": "Vigilance"
         }
@@ -84,6 +90,7 @@
         "data": {
           "ability": "Wisdom",
           "ability_key": "wis",
+          "category": "exploration",
           "example_uses": "Exploring urban areas, ruins and built structures, finding hidden passages and traps, and navigating through them.",
           "name": "Delve"
         }
@@ -94,6 +101,7 @@
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
+          "category": "social",
           "example_uses": "Urban survival, black markets, navigating the underworld.",
           "name": "Streetwise"
         }
@@ -104,9 +112,129 @@
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
+          "category": "social",
           "example_uses": "Command presence, rallying allies, coordinating teams.",
           "name": "Leadership"
         }
+      },
+      "srd:skill:en:arcana": {
+        "op": "patch",
+        "changes": {
+          "data.category": "knowledge"
+        },
+        "note": "Fate's Hand — category: knowledge"
+      },
+      "srd:skill:en:history": {
+        "op": "patch",
+        "changes": {
+          "data.category": "knowledge"
+        },
+        "note": "Fate's Hand — category: knowledge"
+      },
+      "srd:skill:en:medicine": {
+        "op": "patch",
+        "changes": {
+          "data.category": "knowledge"
+        },
+        "note": "Fate's Hand — category: knowledge"
+      },
+      "srd:skill:en:nature": {
+        "op": "patch",
+        "changes": {
+          "data.category": "knowledge"
+        },
+        "note": "Fate's Hand — category: knowledge"
+      },
+      "srd:skill:en:religion": {
+        "op": "patch",
+        "changes": {
+          "data.category": "knowledge"
+        },
+        "note": "Fate's Hand — category: knowledge"
+      },
+      "srd:skill:en:deception": {
+        "op": "patch",
+        "changes": {
+          "data.category": "social"
+        },
+        "note": "Fate's Hand — category: social"
+      },
+      "srd:skill:en:insight": {
+        "op": "patch",
+        "changes": {
+          "data.category": "social"
+        },
+        "note": "Fate's Hand — category: social"
+      },
+      "srd:skill:en:intimidation": {
+        "op": "patch",
+        "changes": {
+          "data.category": "social"
+        },
+        "note": "Fate's Hand — category: social"
+      },
+      "srd:skill:en:performance": {
+        "op": "patch",
+        "changes": {
+          "data.category": "social"
+        },
+        "note": "Fate's Hand — category: social"
+      },
+      "srd:skill:en:persuasion": {
+        "op": "patch",
+        "changes": {
+          "data.category": "social"
+        },
+        "note": "Fate's Hand — category: social"
+      },
+      "srd:skill:en:animal-handling": {
+        "op": "patch",
+        "changes": {
+          "data.category": "exploration"
+        },
+        "note": "Fate's Hand — category: exploration"
+      },
+      "srd:skill:en:investigation": {
+        "op": "patch",
+        "changes": {
+          "data.category": "exploration"
+        },
+        "note": "Fate's Hand — category: exploration"
+      },
+      "srd:skill:en:survival": {
+        "op": "patch",
+        "changes": {
+          "data.category": "exploration"
+        },
+        "note": "Fate's Hand — category: exploration"
+      },
+      "srd:skill:en:acrobatics": {
+        "op": "patch",
+        "changes": {
+          "data.category": "physical"
+        },
+        "note": "Fate's Hand — category: physical"
+      },
+      "srd:skill:en:athletics": {
+        "op": "patch",
+        "changes": {
+          "data.category": "physical"
+        },
+        "note": "Fate's Hand — category: physical"
+      },
+      "srd:skill:en:sleight-of-hand": {
+        "op": "patch",
+        "changes": {
+          "data.category": "physical"
+        },
+        "note": "Fate's Hand — category: physical"
+      },
+      "srd:skill:en:stealth": {
+        "op": "patch",
+        "changes": {
+          "data.category": "physical"
+        },
+        "note": "Fate's Hand — category: physical"
       }
     },
     "tool": {

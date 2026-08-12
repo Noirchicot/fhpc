@@ -46,7 +46,9 @@ import {
   TIER_COSTS,
   FH_SKILLS_FLAG,
   LAYER,
+  SKILL_CATEGORIES,
   SKILLS_ADDED,
+  SKILLS_KEPT_CATEGORIES,
   SKILLS_REMOVED,
   TOOLS_ADDED,
   TOOLS_RECHARACTERISED,
@@ -101,6 +103,18 @@ function abilityName(key, who) {
   return name;
 }
 
+/** Une catégorie hors des quatre déclarées est du contenu faux — même
+ *  doctrine que `abilityName` juste au-dessus. Un mot qui n'est ni
+ *  `knowledge`, ni `social`, ni `exploration`, ni `physical` rangerait une
+ *  compétence dans une colonne que l'écran ne porte pas. */
+function assertCategory(category, who) {
+  if (!SKILL_CATEGORIES.includes(category)) {
+    fail(`« ${who} » reçoit la catégorie « ${category} », qui n'est pas une des quatre déclarées ` +
+      `(${SKILL_CATEGORIES.join(", ")}).`);
+  }
+  return category;
+}
+
 /** Lit un record du SRD, ou jette en le nommant AVEC son rôle. « le record
  *  visé par le retrait de Perception » se corrige ; « record introuvable » se
  *  cherche. */
@@ -146,21 +160,52 @@ function buildSkills(srd) {
       data: {
         ability: abilityName(entry.ability, entry.name),
         ability_key: entry.ability,
+        category: assertCategory(entry.category, id),
         example_uses: entry.exampleUses,
         name: entry.name
       }
     };
   }
 
+  /* ══ LE RANGEMENT DES COMPÉTENCES (lot 35) ═══════════════════════════
+     Les DIX-SEPT conservées reçoivent un `patch` ÉTROIT qui ne pose QUE
+     `data.category` — rien d'autre du record SRD n'est touché. Une
+     compétence conservée qui n'apparaissait NULLE PART dans cette couche
+     avant ce lot y apparaît donc maintenant, mais seulement pour ranger : le
+     texte, le coût, tout le reste reste au SRD, inchangé. */
+  for (const entry of SKILLS_KEPT_CATEGORIES) {
+    srdRecord(srd, "skill", entry.target, `la catégorie de « ${entry.target} »`);
+    if (removed.has(entry.target)) {
+      fail(`« ${entry.target} » reçoit une catégorie ET un retrait — une compétence RETIRÉE n'a plus de colonne ` +
+        "où ranger quoi que ce soit.");
+    }
+    if (skill[entry.target]) {
+      fail(`« ${entry.target} » reçoit un patch de catégorie en plus d'un autre traitement de cette couche — ` +
+        "une compétence CONSERVÉE ne devrait porter QUE ce patch.");
+    }
+    skill[entry.target] = {
+      op: "patch",
+      changes: { "data.category": assertCategory(entry.category, entry.target) },
+      note: `Fate's Hand — category: ${entry.category}`
+    };
+  }
+
   /* LE GARDE QUI COMPTE. Toute compétence du SRD est soit retirée, soit
-     conservée telle quelle — et « conservée » veut dire ABSENTE de cette
-     couche. Ce qu'on vérifie ici, c'est qu'aucune n'est arrivée sans qu'on
-     sache quoi en faire. */
+     conservée — et « conservée » veut dire un patch ÉTROIT qui ne pose que
+     sa catégorie (lot 35 ; avant ce lot, ABSENTE de cette couche). Ce qu'on
+     vérifie ici, c'est qu'aucune n'est arrivée sans qu'on sache quoi en
+     faire, ET qu'aucune conservée n'est restée sans catégorie — une
+     compétence orpheline disparaîtrait silencieusement de l'écran. */
   const kept = srdIds.filter((id) => !removed.has(id));
   const total = kept.length + SKILLS_ADDED.length;
   if (total !== EXPECTED.skills) {
     fail(`la couche rend ${total} compétences (${kept.length} conservées du SRD + ${SKILLS_ADDED.length} ` +
       `neuves), la source en attend ${EXPECTED.skills}.`);
+  }
+  const sansCategorie = kept.filter((id) => !skill[id] || skill[id].op !== "patch");
+  if (sansCategorie.length > 0) {
+    fail(`ces compétences conservées du SRD n'ont pas de catégorie déclarée : ${sansCategorie.join(", ")}. ` +
+      "Une compétence sans `category` disparaîtrait silencieusement de l'écran (loi §0.5).");
   }
 
   for (const id of CLAIMED_BY_OTHER_LAYERS) {

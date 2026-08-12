@@ -87,18 +87,21 @@ export const SKILLS_ADDED = [
     slug: "might",
     name: "Might",
     ability: "str",
+    category: "physical",
     exampleUses: "Raw power—lifting gates, pushing boulders, tearing down obstacles."
   },
   {
     slug: "appraise",
     name: "Appraise",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Determining the value, authenticity, or quality of items (treasure, art, goods)."
   },
   {
     slug: "academics",
     name: "Academics",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Formal learning: reading, research, and theoretical knowledge, accounting, " +
       "mathematics, commerce."
   },
@@ -106,24 +109,28 @@ export const SKILLS_ADDED = [
     slug: "tactics",
     name: "Tactics",
     ability: "int",
+    category: "knowledge",
     exampleUses: "Battlefield strategy, military history, assessing enemy strength, planning maneuvers."
   },
   {
     slug: "hunting",
     name: "Hunting",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush)."
   },
   {
     slug: "vigilance",
     name: "Vigilance",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Immediate threat detection: spotting ambushes or fleeting danger."
   },
   {
     slug: "delve",
     name: "Delve",
     ability: "wis",
+    category: "exploration",
     exampleUses: "Exploring urban areas, ruins and built structures, finding hidden passages and " +
       "traps, and navigating through them."
   },
@@ -131,14 +138,54 @@ export const SKILLS_ADDED = [
     slug: "streetwise",
     name: "Streetwise",
     ability: "cha",
+    category: "social",
     exampleUses: "Urban survival, black markets, navigating the underworld."
   },
   {
     slug: "leadership",
     name: "Leadership",
     ability: "cha",
+    category: "social",
     exampleUses: "Command presence, rallying allies, coordinating teams."
   }
+];
+
+/* ══ LE RANGEMENT DES COMPÉTENCES — QUATRE CATÉGORIES (lot 35) ═════════
+   Addendums, « Le rangement des compétences — 5 catégories » (Eric,
+   2026-08-12), précisé par la commande du lot 35 : la cinquième colonne de
+   l'écran, *Tools & Trainings*, range un GENRE (`tool`, et plus tard
+   `training`), pas une compétence — `category` sur un record de compétence
+   n'en porte donc que QUATRE. Rangement seulement (loi §0.13, ce sont des
+   identifiants, jamais des mots affichables) — aucun effet de règle : aucune
+   catégorie ne change un coût, un palier ou un bonus.
+
+   Classement proposé par l'architecte, VALIDÉ par Eric le 2026-08-12 : déduit
+   du schéma de fiche d'Eric, où *Investigation* range sous *Exploration* et
+   pas sous *Knowledge*. */
+export const SKILL_CATEGORIES = ["knowledge", "social", "exploration", "physical"];
+
+/** Les DIX-SEPT compétences CONSERVÉES du SRD — absentes de `skill{}` avant ce
+ *  lot (une couche ne porte que ses deltas), elles reçoivent maintenant un
+ *  `patch` ÉTROIT qui ne pose QUE `data.category`. Rien d'autre du record SRD
+ *  n'est touché. */
+export const SKILLS_KEPT_CATEGORIES = [
+  { target: "srd:skill:en:arcana", category: "knowledge" },
+  { target: "srd:skill:en:history", category: "knowledge" },
+  { target: "srd:skill:en:medicine", category: "knowledge" },
+  { target: "srd:skill:en:nature", category: "knowledge" },
+  { target: "srd:skill:en:religion", category: "knowledge" },
+  { target: "srd:skill:en:deception", category: "social" },
+  { target: "srd:skill:en:insight", category: "social" },
+  { target: "srd:skill:en:intimidation", category: "social" },
+  { target: "srd:skill:en:performance", category: "social" },
+  { target: "srd:skill:en:persuasion", category: "social" },
+  { target: "srd:skill:en:animal-handling", category: "exploration" },
+  { target: "srd:skill:en:investigation", category: "exploration" },
+  { target: "srd:skill:en:survival", category: "exploration" },
+  { target: "srd:skill:en:acrobatics", category: "physical" },
+  { target: "srd:skill:en:athletics", category: "physical" },
+  { target: "srd:skill:en:sleight-of-hand", category: "physical" },
+  { target: "srd:skill:en:stealth", category: "physical" }
 ];
 
 /* ══ LES OUTILS QUI CHANGENT DE CARACTÉRISTIQUE ════════════════════════
