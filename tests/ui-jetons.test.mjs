@@ -121,7 +121,17 @@ function colorViolations(cssText) {
   const hits = [];
   for (const match of text.matchAll(/#[0-9a-fA-F]{3,8}\b/g)) hits.push(match[0]);
   for (const match of text.matchAll(/\b(rgb|rgba|hsl|hsla)\(/gi)) hits.push(match[0]);
-  for (const match of text.matchAll(/\b(white|black)\b/gi)) hits.push(match[0]);
+  /* ⚠️ CORRIGÉ LE 2026-08-13 — LE GARDE AVAIT LA FAUTE QU'IL EXISTE POUR
+     ATTRAPER. Son motif était `/\b(white|black)\b/` : il matchait `white`
+     DANS `white-space: nowrap`, qui est un NOM DE PROPRIÉTÉ et pas une
+     couleur. Mesuré en ajoutant une règle légitime — le garde a rougi à tort.
+     Le nom de couleur ne se cherche donc plus n'importe où : SEULEMENT dans
+     la VALEUR d'une déclaration, après son `:`. C'est la même faute que
+     l'architecte a commise quatre fois ce jour-là — chercher une sous-chaîne
+     sans l'ancrer à ce qu'on veut vraiment mesurer. */
+  for (const declaration of text.matchAll(/:([^;{}]*)/g)) {
+    for (const match of declaration[1].matchAll(/\b(white|black)\b/gi)) hits.push(match[0]);
+  }
   return hits;
 }
 

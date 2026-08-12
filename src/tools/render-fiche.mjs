@@ -188,11 +188,17 @@ export function modele(document, report, libelles = LIBELLES) {
        chemin d'override ne peut les viser, et le rendu ne prétend pas le
        contraire (il ne leur attribue aucun chemin). */
     entete: {
-      nom: doc.name,
+      /* ⚠️ CES CLEFS SONT LES CHAMPS DU DOCUMENT, PAS DES MOTS (loi §0.13).
+         Elles s'affichent telles quelles, comme les chemins du reste de la
+         fiche — donc elles se disent dans la langue du FORMAT, jamais dans
+         celle du lecteur. Elles étaient `nom` et `modifie` : deux mots
+         français qui échappaient aux deux paquets parce qu'ils n'étaient pas
+         des mots mais des noms de propriété. Corrigé le 2026-08-13. */
+      name: doc.name,
       id: doc.id,
       lang: doc.lang,
       schema: doc.schema,
-      modifie: doc.modified
+      modified: doc.modified
     },
     manquant: resolved === null,
     rubriques,
@@ -347,7 +353,7 @@ function enteteHtml(entete, mots) {
     .map((cle) => `<span class="cell"><span class="cle">${ech(cle)}</span>` +
       `<b class="meta">${valeurHtml(entete[cle] === undefined ? null : entete[cle], mots)}</b></span>`)
     .join("");
-  return `<header data-bloc="entete"><h1>${ech(entete.nom === undefined ? mots("sansNom") : entete.nom)}</h1>` +
+  return `<header data-bloc="entete"><h1>${ech(entete.name === undefined ? mots("sansNom") : entete.name)}</h1>` +
     `<div class="cells">${champs}</div>` +
     `<p class="note">${ech(mots("enteteHorsResolved"))}</p></header>`;
 }

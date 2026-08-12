@@ -237,3 +237,19 @@ button { font: inherit; }
      instantané, jamais animé. */
   .belt { scroll-behavior: auto; }
 }
+
+/* ── LA FICHE, DANS LE BUILDER (lot 40) ───────────────────────────────
+   Le lot 40 a cable le BALISAGE de la fiche sans sa feuille : les 23 regles
+   de `src/tools/fiche.shell.html` ne sont chargees que par l'outil autonome,
+   et l'ecran Review les perd. Mesure du 2026-08-13 : l'etiquette et sa valeur
+   se SOUDENT (« nameIlyra Duskleafidexample-… »), parce que `.cell` est en
+   `display: inline` sans separation.
+
+   ⛔ ON NE RECOPIE PAS LES 23 REGLES ICI. Trier la fiche — « ca reste visible,
+   ca part derriere un onglet » — est le geste d'Eric, plus tard, devant la
+   page. Ce bloc ne paie que la LISIBILITE, et rien d'autre. */
+.review-fiche .cells { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-16); }
+.review-fiche .cell { white-space: nowrap; }
+.review-fiche .cell b,
+.review-fiche .feuille .val { margin-left: var(--sp-4); }
+.review-fiche .cle { color: var(--text-muted); }

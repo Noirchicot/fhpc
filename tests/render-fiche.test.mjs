@@ -85,6 +85,29 @@ function toutesLesFeuilles(vue) {
 
 /* ══ 1 — LES 21 RUBRIQUES ═════════════════════════════════════════════ */
 
+/* ⚠️ AJOUTÉ LE 2026-08-13, PARCE QU'IL MANQUAIT ET QUE ÇA A COÛTÉ. En
+   renommant le champ `nom` de l'en-tête en `name` (deux mots français qui
+   survivaient au rendu anglais), l'architecte a renommé la propriété SANS son
+   lecteur : le titre de la fiche est passé à « (unnamed) » — et les 684 tests
+   sont restés VERTS. Le nom du personnage, l'élément le plus visible de la
+   page, n'était gardé par rien. Trouvé à l'œil, dans le navigateur.
+
+   📌 La leçon vaut au-delà de ce champ : une suite peut couvrir 21 rubriques
+   et laisser le TITRE sans garde, parce que personne ne pense à tester ce
+   qu'on voit en premier. */
+test("le nom du personnage s'affiche en titre — et son absence se dit", () => {
+  const html = render(exemple.document, exemple.report);
+  assert.match(html, /<h1>Ilyra Duskleaf<\/h1>/,
+    "le titre porte le nom du document, pas un repli");
+
+  /* REJET : un document sans nom dit qu'il n'en a pas, il ne rend pas un
+     blanc ni le mot d'une autre langue. */
+  const anonyme = structuredClone(exemple.document);
+  delete anonyme.name;
+  assert.match(render(anonyme, exemple.report), new RegExp(`<h1>${MOTS.sansNom.replace(/[()]/g, "\\$&")}</h1>`),
+    "sans nom, le titre le DIT — et le mot vient du paquet, jamais du code");
+});
+
 test("les 21 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
   assert.equal(RUBRIQUES.length, 21, "le contrat en déclare 21 — si ce nombre bouge, c'est ici qu'on l'apprend");
   const html = render(exemple.document, exemple.report);
