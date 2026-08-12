@@ -383,6 +383,20 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         }
       }
 
+      /* LOT 37 — LES VERROUS DU CARNET DE DÉCISIONS, ENFIN LUS ICI. `rebuild`
+         projette déjà ce carnet (`decisions: projectDecisions(...)`, plus
+         haut) ; ce verbe-ci ne le lisait pas — un plan en faute (le budget
+         captif d'espèce dépassé, une option hors catalogue, un palier
+         illisible) restait invisible à la sortie de création, alors que
+         `decisions.mjs` le NOMME depuis le lot 27/34. Un plan simplement
+         INCOMPLET (`answered < expected`, sans verrou) N'A PAS de `.lock` —
+         `finish()` ne le pose que sur un plan ou une étape en FAUTE (contrat
+         §2b de la commande `37-pool-garde`) : un personnage encore en cours
+         de répartition reste donc valide, exactement comme avant ce lot. */
+      for (const entry of projectDecisions({ query, choices: document.build.choices })) {
+        if (entry && entry.lock) reported.add(entry.lock);
+      }
+
       let outcome = null;
       try {
         outcome = derive({
