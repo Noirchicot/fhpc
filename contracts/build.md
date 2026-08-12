@@ -696,6 +696,65 @@ produite (§0.12).
 rubriques** — `tools[]`, `languages[]`, et les `traits[]` de catégorie
 `training` — et c'est un travail d'interface, pas de ce lot.
 
+#### ⭐ LOT 37 — LES GARDES DE SORTIE : LE POOL NÉGATIF, LE MINIMUM D'OUTILS,
+     ET UN REFUS DÉJÀ ÉCRIT QUE `validate()` NE LISAIT PAS
+
+Le canal de refus keyé fonctionnait déjà de bout en bout (lot 27, mesuré par
+le lot 36) ; ce qui manquait n'était pas le mécanisme, c'était **trois
+contrôles** — et un seul des trois avait besoin d'un CODE NEUF.
+
+**§3a — Le pool ne peut pas finir NÉGATIF.** `skill-pool.overspent`, rendu
+par `src/modules/fh/skill-pool.mjs`. Le dépassement reste **TOLÉRÉ pendant
+la répartition** — l'écran affiche `N OVER` en rouge, aucune règle dans
+l'interface (décision d'Eric, 2026-08-12) — et **refusé seulement à la
+sortie**, quand `validate()` regarde `resolved.stats[fh:skill-points].value`
+strictement négatif. **UN SEUL refus, sur le TOTAL** : aucune dépense
+(`fh.skills.spend.*` ni `fh.skills.train.*`) n'est « la » fautive, donc
+**aucun `path`** — le champ est facultatif depuis le lot 27. Paramètres
+`{available, spent, over}` : `available` est ce que les lignes fixes du pool
+(classe, paliers, espèce, don, imposés) laissent à répartir ; `spent` est ce
+que les deux dépenses libres ont réellement coûté, refusées comprises
+(comportement 2a : le refus ne défait rien) ; `over = spent − available`.
+
+**§3b — Au moins un point en OUTILS, TOUJOURS.** `skill-pool.no-tool`, même
+module, sans paramètre utile. **ARBITRAGE, révocable par Eric** : les
+addendums écrivent « à la création », et le moteur ne voit pas un instant,
+il voit un document — la règle est donc lue comme une **propriété du
+personnage**, vraie à tout niveau, pas seulement au niveau 1. Un personnage
+créé directement au niveau 5 sans outil est refusé au même titre qu'un
+niveau 1.
+
+**§3c — Le budget captif d'espèce (Keen Senses) ne dépasse pas son
+plafond.** ⚠️ **CE N'EST PAS UN CONTRÔLE NEUF.** `skill-budget.overspent`
+existe dans `src/build/decisions.mjs` (`speciesBudgetPlan`) depuis le
+lot 34, et compare déjà `spent` à `budget.points` sur `species.skillBudget.*`.
+Le trou mesuré par la commande (l'Elfe magicien, trois paliers pleins sur
+2 points de Keen Senses, `moduleViolations: []`, `validate.ok: true`)
+n'était donc pas l'absence du verrou — **c'était que le verbe `validate` de
+`src/build/block.mjs` n'appelait jamais `projectDecisions`**, le seul chemin
+qui le rend. `rebuild` le projette déjà (`decisions: projectDecisions(...)`),
+`validate` ne le lisait pas. Le correctif tient en une boucle : chaque entrée
+du carnet qui porte un `.lock` (posé par `finish()`, decisions.mjs) rejoint
+`reported`. ⭐ **La distinction que la commande demandait de vérifier est
+réglée par la FORME, pas par du code neuf** : `finish()` ne pose `.lock` que
+sur un plan ou une étape **en faute** — un plan simplement incomplet
+(`answered < expected`, aucune valeur illégale) reste `status: "pending"`,
+sans `.lock`, et ne remonte donc jamais. Un personnage encore en cours de
+répartition reste valide, exactement comme avant ce lot.
+
+⭐ **Ce correctif ferme plus que le budget captif.** `skill-budget.option-unavailable`
+et `skill-budget.tier-invalid` (même carnet) étaient tout aussi invisibles à
+`validate()`, et le sont désormais aussi peu que `skill-budget.overspent` —
+et tout verrou que `decisions.mjs` posera à l'avenir remontera de la même
+façon, sans qu'aucun verbe n'ait besoin d'y penser.
+
+**Tests** — `tests/fh-skill-pool-guards.test.mjs` : ACCEPT/REJET pour §3a et
+§3b (le REJET de §3a vérifie aussi que le refus ne défait pas la dépense) ;
+ACCEPT/REJET pour §3c, contre `h.verbs.validate()` — pas `moduleViolations`,
+puisque le refus vit dans un canal différent — et une vérification que le
+pool principal ne bouge pas quand le budget captif déborde ; un test SRD pur
+qui prouve qu'aucun des trois refus ne peut apparaître sans la couche FH.
+
 ## Obligations de test
 
 1. **Le test d'acceptation** (`build-acceptance`), sur la vraie matière et
