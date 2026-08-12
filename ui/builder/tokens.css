@@ -1,0 +1,133 @@
+/* ══ LES JETONS DU BUILDER — lot 38 ═══════════════════════════════════
+   TOUTES les valeurs de conception de la coquille vivent ICI, et nulle part
+   ailleurs dans `ui/builder/`. `tests/ui-jetons.test.mjs` vérifie que
+   `shell.css` n'en recopie aucune en dur — c'est la « porte de
+   l'habillage » : un seul fichier à changer pour changer le produit.
+
+   ⛔ Chargé AVANT `shell.css` (voir `index.html`). Pas de sélecteur de
+   thème ([data-theme], bascule, préférence enregistrée) — deux blocs
+   suffisent : `:root` pour le jour, `@media (prefers-color-scheme: dark)`
+   pour la nuit. Un troisième bloc pour un thème qui n'existe pas encore
+   serait du code mort derrière un interrupteur (loi §0.6). */
+
+:root {
+  /* ── COULEURS — jour. Famille `parchemin`, ratifiée le 2026-08-12.
+     SOURCE UNIQUE DES VALEURS : fh-phb/PALETTE-FHV2.json.
+     ⚠️ Corrigées le 2026-08-13 : chaque encre tient son seuil contre
+     `--sunken` (le pire fond qu'elle rencontre), pas contre `--bg`. Voir
+     INVENTAIRE-LOT-38.md pour les chiffres mesurés indépendamment ce jour —
+     ils confirment le JSON, aucune divergence trouvée. */
+  --bg: #f6f3ec;
+  --surface: #ebe8e1;
+  --sunken: #e0ded7;
+  --text: #2d2c2a;
+  --text-soft: #605c54;
+  --text-muted: #676258;
+  --border-strong: #857e6e; /* bordures de CONTRÔLE — cible 3:1 sur --sunken */
+  --border: #d3c7ad;        /* bordures de CARTE — décorative, aucune cible */
+  --accent: #845933;
+  --on-accent: #ffffff;     /* ⚠️ JETON QUI BASCULE — jamais #fff en dur ailleurs */
+  --positive: #326e4b;
+  --caution: #736109;
+  --critical: #aa3f2f;
+  --info: #396496;
+
+  /* Le seul jeton DÉRIVÉ (§3b) : l'accent à 10 % d'alpha. Une seule
+     source pour l'accent — le changer change le lavis avec lui, dans les
+     DEUX thèmes, sans redéclaration (voir la note sous le bloc sombre). */
+  --accent-wash: color-mix(in srgb, var(--accent) 10%, transparent);
+
+  /* ── LA RAMPE DES PALIERS (§3i) — une seule teinte (celle de l'accent,
+     28°/44 %), trois lavis obtenus en variant SEULEMENT la clarté. Chaque
+     lavis tient 4,5:1 sur --sunken (mesuré, voir l'inventaire) — c'est le
+     seul invariant qui compte, la teinte exacte n'est pas un seuil.
+     ⛔ DÉCLARÉE ici, CONSOMMÉE par le lot 39 (arbitrage d'architecte, voir
+     INVENTAIRE-LOT-38.md). Un « training » n'a AUCUN palier : pas de
+     quatrième lavis, le tiret (aucun) ne porte pas d'encre. */
+  --tier-1: #7d5431; /* demi (½)   — 4,90:1 sur --sunken jour */
+  --tier-2: #583b22; /* plein (●)  — 7,56:1 */
+  --tier-3: #332314; /* expertise (★) — 11,21:1 */
+
+  /* ── L'ÉCHELLE DE TYPE — T1…T7, ratifiée le 2026-08-13 (§3c). Sept
+     barreaux, six continus + un grand nombre à part. Valeurs LOCALES à
+     cette zone (le builder est plein écran ; le dock est une fenêtre
+     flottante et ne partage que les NOMS, pas les nombres). */
+  --t1: 10px; /* micro */
+  --t2: 12px; /* mention — étiquette, verdict, coût */
+  --t3: 14px; /* libellé */
+  --t4: 16px; /* corps — la ligne qu'on lit */
+  --t5: 18px; /* accent — entre le corps et le titre */
+  --t6: 22px; /* titre */
+  --t7: 44px; /* grand nombre */
+
+  /* ── L'ÉCHELLE D'ESPACEMENT — grille de 4, cran de 2 en dessous (§3d).
+     Le nom EST la valeur : rien à mémoriser, un garde peut le vérifier. */
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+
+  /* ── RAYONS — trois, contre 7 valeurs en v1 (§3d). */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+
+  /* ── LES DEUX LARGEURS DU §3e — CE N'EN EST PAS UNE (bible §6b) :
+     `--measure` est une mesure de PROSE (caractères par ligne confortable),
+     `--grid-w` est la largeur d'une GRILLE (3 colonnes). Une grille n'a pas
+     de mesure, elle a une largeur — deux jetons, deux natures. */
+  --measure: 62ch; /* .decision-card — valeur déjà en place, zéro changement visible */
+  --grid-w: 60ch;  /* .skills-step — la grille à 3 colonnes du lot 39 */
+
+  /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
+     bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
+     "narrow") que `shell.mjs` lit ; il ne porte jamais le chiffre 720. Un
+     `@media` CSS ne peut pas consommer une custom property (limite native,
+     pas un choix), donc le nombre ne peut vivre qu'à UN endroit : dans le
+     `@media (max-width: 720px)` de shell.css lui-même. C'est la mesure qui
+     a fait diverger ce lot de la piste suggérée par la commande — voir
+     INVENTAIRE-LOT-38.md, section « ce qui a changé ». */
+  --bp-hint: wide;
+
+  /* ── UTILITAIRE HORS PALETTE — le voile derrière le plan escamotable
+     (`.scrim`). Ni une encre du §3b ni un dérivé de l'accent : c'est un
+     assombrissement neutre, identique dans les deux thèmes (comme avant ce
+     lot). Ajouté pour que shell.css n'ait plus AUCUNE couleur en dur — pas
+     un des 14 jetons de la palette, donc signalé à part. */
+  --scrim: rgba(0, 0, 0, 0.4);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14120e;
+    --surface: #1f1c16;
+    --sunken: #2a261d;
+    --text: #d8d3c9;
+    --text-soft: #989286;
+    --text-muted: #928c7f;
+    --border-strong: #746f62;
+    --border: #37342d;
+    --accent: #bb804c;
+    --on-accent: #14120e;
+    --positive: #469d6a;
+    --caution: #a48b0d;
+    --critical: #dd6a58;
+    --info: #5f90c7;
+
+    --tier-1: #bc8452; /* demi   — 4,71:1 sur --sunken nuit */
+    --tier-2: #cea682; /* plein  — 6,75:1 */
+    --tier-3: #dec3ab; /* expertise — 8,97:1 */
+
+    /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
+       l'usage, pas à la déclaration — `var(--accent)` dans le calcul
+       ci-dessus lit déjà l'accent DE NUIT ici. Mesuré : le texte sur le
+       lavis tient 11,14:1 la nuit (11,06:1 le jour), très au-dessus de la
+       cible 4,5:1 — voir l'inventaire. */
+  }
+}
