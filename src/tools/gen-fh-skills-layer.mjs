@@ -40,8 +40,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   ABILITY_NAMES,
+  BACKGROUNDS_EXTINGUISHED,
   CLASS_POOLS,
-  EXPERTISE_FROM_LEVEL,
   EXPECTED,
   TIER_COSTS,
   FH_SKILLS_FLAG,
@@ -301,6 +301,10 @@ function buildClasses(srd) {
     if (!Number.isInteger(entry.base) || entry.base <= 0) {
       fail(`« ${entry.target} » reçoit un pool qui n'est pas un entier positif (${entry.base}).`);
     }
+    if (!Number.isInteger(entry.expertiseFromLevel) || entry.expertiseFromLevel <= 0) {
+      fail(`« ${entry.target} » reçoit un \`expertiseFromLevel\` qui n'est pas un entier positif ` +
+        `(${entry.expertiseFromLevel}).`);
+    }
     servis.add(entry.target);
     klass[entry.target] = {
       op: "patch",
@@ -309,7 +313,12 @@ function buildClasses(srd) {
           base: entry.base,
           by_level: entry.byLevel,
           tier_costs: { ...TIER_COSTS },
-          expertise_from_level: EXPERTISE_FROM_LEVEL
+          /* LOT 35 — PAR CLASSE, plus une constante unique. Le Rogue déroge
+             (addendums §1, EXCEPTION — LE ROGUE) : son Expertise SRD de
+             niveau 1 est comptée dans son pool, donc `expertiseFromLevel: 1`
+             sur son seul record de `CLASS_POOLS` — les onze autres reçoivent
+             `DEFAULT_EXPERTISE_FROM_LEVEL` (4) par le `.map` de la source. */
+          expertise_from_level: entry.expertiseFromLevel
         }
       },
       note: `Fate's Hand — level-1 skill pool ${entry.base}, background included`
@@ -323,6 +332,69 @@ function buildClasses(srd) {
   }
 
   return { class: klass, total: servis.size };
+}
+
+/* ══ L'ARRIÈRE-PLAN, ÉTEINT (lot 35) ═══════════════════════════════════
+   Addendums §4 (Eric, 2026-08-12) : l'arrière-plan n'existe plus en Fate's
+   Hand. Un `patch` étroit par record — RETRAIT de `skill_ids` (les quatre) et
+   de `tool_id` (les trois qui le portent) — et rien d'autre du record SRD
+   n'est touché : ni `ability_keys`, ni `feat_id`/`feat_option`, qui sont
+   l'Inheritance et restent. `tool_choice` (le Soldier) n'est PAS visé : la
+   source ne le déclare pas, et ce générateur ne retire que ce qu'elle nomme.
+
+   ⛔ LE GARDE QUI COMPTE : le SRD doit porter EXACTEMENT quatre arrière-plans,
+   et chacun d'eux doit être éteint. Un cinquième apparu dans une régénération
+   de `fh-srd` resterait sinon intact en silence — un arrière-plan qui garde
+   ses compétences et son outil imposés est un personnage dont le pool est
+   faux d'exactement ce qui n'a pas été déduit (loi §0.5). */
+function buildBackgrounds(srd) {
+  const srdBackgrounds = (srd.records || {}).background || {};
+  const srdIds = Object.keys(srdBackgrounds);
+  if (srdIds.length !== EXPECTED.backgrounds) {
+    fail(`la couche SRD porte ${srdIds.length} arrière-plans, la source en attend ${EXPECTED.backgrounds}. ` +
+      "L'Inheritance éteint les quatre du SRD ; un cinquième n'aurait pas d'extinction déclarée.");
+  }
+
+  const background = {};
+  const servis = new Set();
+
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const record = srdRecord(srd, "background", entry.target, `l'extinction de « ${entry.target} »`);
+    if (background[entry.target]) fail(`l'arrière-plan « ${entry.target} » est éteint deux fois.`);
+
+    if (!record.data || !Object.hasOwn(record.data, "skill_ids")) {
+      fail(`l'extinction de « ${entry.target} » vise \`data.skill_ids\`, absent du record SRD — un retrait ` +
+        "dans le vide reste un échec bruyant.");
+    }
+    const remove = ["data[skill_ids]"];
+
+    if (entry.hasToolId) {
+      if (!record.data || !Object.hasOwn(record.data, "tool_id")) {
+        fail(`l'extinction de « ${entry.target} » vise \`data.tool_id\`, absent du record SRD — un retrait ` +
+          "dans le vide reste un échec bruyant.");
+      }
+      remove.push("data[tool_id]");
+    } else if (record.data && Object.hasOwn(record.data, "tool_id")) {
+      fail(`« ${entry.target} » est déclaré SANS \`tool_id\` par la source, et le SRD lui en donne un — la ` +
+        "déclaration n'est plus mesurée sur la réalité de la couche SRD commitée.");
+    }
+
+    servis.add(entry.target);
+    background[entry.target] = {
+      op: "patch",
+      remove,
+      note: "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool " +
+        "(addendums, Eric 2026-08-12)"
+    };
+  }
+
+  const oubliés = srdIds.filter((id) => !servis.has(id));
+  if (oubliés.length > 0) {
+    fail(`ces arrière-plans du SRD ne sont pas éteints : ${oubliés.join(", ")}. Un personnage qui les choisit ` +
+      "garderait des compétences et un outil imposés que l'Inheritance ne prévoit plus.");
+  }
+
+  return { background, total: servis.size };
 }
 
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────
@@ -368,6 +440,7 @@ export function buildLayer({ srd }) {
   const skills = buildSkills(srd);
   const tools = buildTools(srd);
   const classes = buildClasses(srd);
+  const backgrounds = buildBackgrounds(srd);
 
   const layer = {
     schema: LAYER.schema,
@@ -386,12 +459,12 @@ export function buildLayer({ srd }) {
         "Instrument — have been removed, split or modified for this work."
     },
     description: LAYER.description,
-    records: { skill: skills.skill, tool: tools.tool, class: classes.class }
+    records: { skill: skills.skill, tool: tools.tool, class: classes.class, background: backgrounds.background }
   };
 
   assertNoHandWrittenSrdText(layer, srd);
 
-  return { layer, skills, tools, classes };
+  return { layer, skills, tools, classes, backgrounds };
 }
 
 export function serialize(layer) {
@@ -401,18 +474,18 @@ export function serialize(layer) {
 /** Génère la couche et l'ÉCRIT. `outDir` et `srdPath` sont des arguments : la
  *  suite génère dans un répertoire temporaire et compare là. */
 export function generate({ outDir = OUT_DIR, srdPath = SRD_PATH } = {}) {
-  const { layer, skills, tools, classes } = buildLayer({ srd: readSrdLayer(srdPath) });
+  const { layer, skills, tools, classes, backgrounds } = buildLayer({ srd: readSrdLayer(srdPath) });
   mkdirSync(outDir, { recursive: true });
   const outPath = join(outDir, OUT_NAME);
   writeFileSync(outPath, serialize(layer));
-  return { outPath, skills, tools, classes };
+  return { outPath, skills, tools, classes, backgrounds };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { outPath, skills, tools, classes } = generate();
+  const { outPath, skills, tools, classes, backgrounds } = generate();
   console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
     `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
-    `${classes.total} pools de classe → ${outPath}`);
+    `${classes.total} pools de classe, ${backgrounds.total} arrière-plans éteints → ${outPath}`);
 }
 
 export { OUT_NAME, SRD_PATH };

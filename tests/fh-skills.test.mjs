@@ -49,6 +49,7 @@ import {
   GenError
 } from "../src/tools/gen-fh-skills-layer.mjs";
 import {
+  BACKGROUNDS_EXTINGUISHED,
   EXPECTED,
   SKILLS_ADDED,
   TOOLS_ADDED
@@ -371,6 +372,25 @@ test("les coûts des paliers voyagent avec le pool qu'ils dépensent", () => {
   assert.equal(pool.expertise_from_level, 4, "l'expertise s'achète par tous à partir du niveau 4");
 });
 
+/* ══ LE ROGUE — EXPERTISE DÈS LE NIVEAU 1 (lot 35) ═════════════════════
+   Addendums §1, EXCEPTION — LE ROGUE (Eric, 2026-08-10, précisée le
+   2026-08-12) : son Expertise SRD de niveau 1 est comptée dans son pool.
+   `expertise_from_level` n'est donc plus une constante unique — c'est du
+   CONTENU par classe, comme le pool lui-même. */
+
+test("le Rogue achète l'expertise dès le niveau 1 ; les onze autres classes, dès le niveau 4", () => {
+  const verbs = pile();
+  const rogue = verbs.query({ kind: "class", id: "srd:class:en:rogue" }).record.data.fh_skill_pool;
+  assert.equal(rogue.expertise_from_level, 1, "l'exception du Rogue, addendums §1");
+
+  const onzeAutres = LES_12_POOLS.filter(([id]) => id !== "srd:class:en:rogue");
+  assert.equal(onzeAutres.length, 11);
+  for (const [id] of onzeAutres) {
+    const pool = verbs.query({ kind: "class", id }).record.data.fh_skill_pool;
+    assert.equal(pool.expertise_from_level, 4, `« ${id} » reste au défaut — seul le Rogue déroge`);
+  }
+});
+
 test("le patch des pools est ÉTROIT — `skill_choice` du SRD n'est pas touché", () => {
   const verbs = pile();
   const srd = readSrdLayer(SRD_PATH);
@@ -405,6 +425,89 @@ test("REFUS — une classe du SRD oubliée par la table des pools fait jeter", (
      le seul montage qui atteint CE garde plutôt que celui des douze. */
   const srd = srdAmputé(renomme("class", "srd:class:en:monk", "srd:class:en:mystic"));
   assert.throws(() => buildLayer({ srd }), /srd:class:en:monk/);
+});
+
+/* ══ L'ARRIÈRE-PLAN, ÉTEINT (lot 35) ═══════════════════════════════════
+   Addendums §4 (Eric, 2026-08-12) : l'arrière-plan n'existe plus en Fate's
+   Hand. Les quatre records SRD perdent `skill_ids` ; les trois qui portaient
+   `tool_id` (Acolyte, Criminal, Sage) le perdent aussi. Le Soldier n'en a
+   jamais porté (il CHOISIT le sien, `tool_choice`) — cette couche n'y touche
+   pas. `ability_keys` et `feat_id`/`feat_option` sont l'Inheritance : ils
+   restent, intacts. */
+
+test("les quatre arrière-plans du SRD ne portent plus `skill_ids`", () => {
+  const verbs = pile();
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const data = verbs.query({ kind: "background", id: entry.target }).record.data;
+    assert.equal(data.skill_ids, undefined, `« ${entry.target} » : plus de compétences imposées`);
+  }
+});
+
+test("les trois arrière-plans qui portaient `tool_id` ne le portent plus ; le Soldier n'en avait pas", () => {
+  const verbs = pile();
+  const srd = readSrdLayer(SRD_PATH);
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const avant = srd.records.background[entry.target].data;
+    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
+    assert.equal(typeof avant.tool_id === "string", entry.hasToolId,
+      `« ${entry.target} » : la déclaration \`hasToolId\` doit correspondre à la réalité du SRD commité`);
+    assert.equal(apres.tool_id, undefined, `« ${entry.target} » : plus d'outil imposé après extinction`);
+  }
+  /* Le Soldier CHOISIT son outil (`tool_choice`) — cette couche ne le lui
+     retire pas : la source ne déclare que `tool_id`, jamais `tool_choice`. */
+  const soldier = verbs.query({ kind: "background", id: "srd:background:en:soldier" }).record.data;
+  assert.deepEqual(soldier.tool_choice, { from: ["srd:tool:en:gaming-set"] },
+    "le Soldier garde son `tool_choice` — cette extinction ne le vise pas");
+});
+
+test("les quatre arrière-plans gardent l'Inheritance — `ability_keys` et `feat_id`", () => {
+  const verbs = pile();
+  const srd = readSrdLayer(SRD_PATH);
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const avant = srd.records.background[entry.target].data;
+    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
+    assert.deepEqual(apres.ability_keys, avant.ability_keys, `« ${entry.target} » : les bonus de caracs restent`);
+    assert.equal(apres.feat_id, avant.feat_id, `« ${entry.target} » : le don d'origine reste`);
+    assert.deepEqual(apres.feat_option, avant.feat_option, `« ${entry.target} » : son option reste aussi`);
+  }
+});
+
+test("REFUS — un retrait dans le vide (le champ déclaré n'est pas au SRD) fait jeter, nommément", () => {
+  /* La commande vise « retirer `tool_id` du Soldier » — il n'en a jamais eu,
+     et la source ne le déclare pas pour lui (§ ci-dessus). Le MÊME garde se
+     mesure en amputant l'un des trois qui SONT déclarés porter `tool_id` :
+     si le SRD change sous nos pieds et que Sage perd son outil, un retrait
+     dans le vide doit rester un échec bruyant, pas un patch qui s'applique à
+     moitié. */
+  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:sage"].data.tool_id; });
+  assert.throws(() => buildLayer({ srd }), (err) => {
+    assert.match(err.message, /srd:background:en:sage/, "le refus NOMME le record fautif");
+    assert.match(err.message, /tool_id/, "et le CHAMP visé dans le vide");
+    return true;
+  });
+});
+
+test("REFUS — un retrait de `skill_ids` dans le vide fait jeter, nommément", () => {
+  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:criminal"].data.skill_ids; });
+  assert.throws(() => buildLayer({ srd }), (err) => {
+    assert.match(err.message, /srd:background:en:criminal/);
+    assert.match(err.message, /skill_ids/);
+    return true;
+  });
+});
+
+test("REFUS — un cinquième arrière-plan au SRD ferait jeter, au lieu de rester intact en silence", () => {
+  const srd = srdAmputé((s) => {
+    s.records.background["srd:background:en:hermit"] = {
+      name: "Hermit", slug: "hermit", data: { skill_ids: [], ability_keys: ["wis"] }
+    };
+  });
+  assert.throws(() => buildLayer({ srd }), /5 arrière-plans|quatre/i);
+});
+
+test("REFUS — un arrière-plan du SRD oublié par la table d'extinction fait jeter", () => {
+  const srd = srdAmputé(renomme("background", "srd:background:en:criminal", "srd:background:en:outlaw"));
+  assert.throws(() => buildLayer({ srd }), /srd:background:en:criminal/);
 });
 
 /* ══ LE GÉNÉRATEUR — REPRODUCTIBILITÉ ET REFUS ═════════════════════════ */

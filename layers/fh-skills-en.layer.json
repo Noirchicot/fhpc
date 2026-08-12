@@ -498,7 +498,7 @@
               "expertise": 4,
               "imposed": 1
             },
-            "expertise_from_level": 4
+            "expertise_from_level": 1
           }
         },
         "note": "Fate's Hand — level-1 skill pool 18, background included"
@@ -571,6 +571,39 @@
           }
         },
         "note": "Fate's Hand — level-1 skill pool 12, background included"
+      }
+    },
+    "background": {
+      "srd:background:en:acolyte": {
+        "op": "patch",
+        "remove": [
+          "data[skill_ids]",
+          "data[tool_id]"
+        ],
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+      },
+      "srd:background:en:criminal": {
+        "op": "patch",
+        "remove": [
+          "data[skill_ids]",
+          "data[tool_id]"
+        ],
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+      },
+      "srd:background:en:sage": {
+        "op": "patch",
+        "remove": [
+          "data[skill_ids]",
+          "data[tool_id]"
+        ],
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
+      },
+      "srd:background:en:soldier": {
+        "op": "patch",
+        "remove": [
+          "data[skill_ids]"
+        ],
+        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool (addendums, Eric 2026-08-12)"
       }
     }
   }

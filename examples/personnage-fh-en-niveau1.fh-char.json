@@ -30,7 +30,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "fbe2aaecd2f1c7676d8430c1ffd4dcf8cd2dbc9ce4d124746bbaa6b8de9b74f2",
+        "hash": "0538e2d1776176eeb8685681290dacaa1cd563cc498d605bfbaded24a361e0ad",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -377,7 +377,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "fbe2aaecd2f1c7676d8430c1ffd4dcf8cd2dbc9ce4d124746bbaa6b8de9b74f2",
+          "hash": "0538e2d1776176eeb8685681290dacaa1cd563cc498d605bfbaded24a361e0ad",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -539,8 +539,8 @@
         "id": "history",
         "name": "History",
         "ability": "int",
-        "bonus": 4,
-        "proficiency": "half"
+        "bonus": 3,
+        "proficiency": "none"
       },
       {
         "id": "hunting",
@@ -662,15 +662,7 @@
         "proficiency": "half"
       }
     ],
-    "tools": [
-      {
-        "id": "calligrapher-s-supplies",
-        "name": "Calligrapher’s Supplies",
-        "ability": "dex",
-        "bonus": 4,
-        "proficiency": "proficient"
-      }
-    ],
+    "tools": [],
     "actions": [],
     "spellcasting": {
       "id": "wizard",
@@ -910,7 +902,7 @@
         "id": "fh:skill-points",
         "flag": "fh.skills",
         "name": "Skill Points",
-        "value": 7,
+        "value": 10,
         "breakdown": [
           {
             "label": "Class Pool · Wizard",
@@ -926,22 +918,6 @@
             "source": {
               "kind": "class",
               "id": "srd:class:en:wizard"
-            }
-          },
-          {
-            "label": "Sage · 2 imposed choices",
-            "value": -2,
-            "source": {
-              "kind": "background",
-              "id": "srd:background:en:sage"
-            }
-          },
-          {
-            "label": "Sage · 1 imposed choice",
-            "value": -1,
-            "source": {
-              "kind": "background",
-              "id": "srd:background:en:sage"
             }
           }
         ]
