@@ -251,3 +251,85 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
   assert.equal(speciesNode.querySelectorAll(".skills-budget-block").length, 1);
   assert.equal(speciesNode.querySelectorAll(".skills-budget-block h3")[0].textContent, "Species skill");
 });
+
+/* ══ LOT 46 — LA CONFIRMATION QUAND ON CHANGE DE CLASSE ══════════════════
+   Décision d'Eric, 2026-08-13 : les `class.skills[n]` devenus invalides
+   après un changement de classe (verrouillés, `decision.option-unavailable`
+   — voir l'en-tête de `class-step.mjs`, mesuré au lot 42) s'effacent, MAIS
+   seulement après confirmation. Rejoué sur EXACTEMENT la mesure du lot 42/43
+   (`class = rogue`, `class.skills[0] = arcana` invalide, `class.skills[1] =
+   investigation` valide) : c'est le même document que
+   `tests/inheritance-lot43.test.mjs` (`rogueMesure`) exerce côté moteur, ici
+   exercé côté écran. */
+
+function rogueAvecArcaneInvalide() {
+  return rebuild(docWith({
+    id: "rogue-confirm", classId: "srd:class:en:rogue", classSkills: ["arcana", "investigation"]
+  }));
+}
+
+test("un créneau `class.skills[n]` verrouillé (`decision.option-unavailable`) fait apparaître LA confirmation, nommant le don perdu", () => {
+  const report = rogueAvecArcaneInvalide();
+  const decisions = report.decisions;
+  const slot0 = decisions.find((d) => d.path === "class.skills[0]");
+  assert.equal(slot0.status, "locked");
+  assert.equal(slot0.lock.key, "decision.option-unavailable");
+  assert.equal(slot0.lock.params.selected, "arcana", "sonde : c'est bien ce nom que la confirmation doit citer");
+
+  const node = renderClassStep({ decisions, query }, () => {});
+  const dialog = node.querySelectorAll(".confirm-dialog")[0];
+  assert.ok(dialog, "la confirmation s'affiche — le carnet a désigné un créneau à perdre");
+  const items = dialog.querySelectorAll(".confirm-dialog-items li").map((li) => li.textContent);
+  /* ⚠️ MESURÉ EN ÉCRIVANT CE TEST, ET C'EST UN ÉCART PRÉEXISTANT (pas
+     introduit par ce lot) : `skillLabel` (`class-step.mjs`, lot 39/42)
+     cherche `query({kind:"skill", id})` avec le SLUG brut (« arcana »),
+     alors que le catalogue indexe par id COMPLET (« srd:skill:en:arcana »)
+     — la recherche échoue donc TOUJOURS et retombe sur le slug lui-même.
+     Le même défaut affecte déjà, AUJOURD'HUI, les boutons du QCM de classe
+     lui-même (ligne au-dessus). Ce lot ne le corrige pas (`skillLabel`
+     n'est pas « le geste de changer de classe », seule raison pour
+     laquelle la commande autorise à toucher ce fichier) — voir
+     INVENTAIRE-LOT-46.md, « ce qui t'a surpris en regardant l'écran ». */
+  assert.deepEqual(items, ["arcana"]);
+});
+
+test("« Confirm » efface EXACTEMENT les créneaux verrouillés, et EUX SEULS — jamais le créneau valide, jamais un futur créneau vide", () => {
+  const report = rogueAvecArcaneInvalide();
+  const calls = [];
+  const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
+  node.querySelectorAll(".confirm-dialog-confirm")[0].click();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0], { kind: "resetSkills", paths: ["class.skills[0]"] },
+    "SEUL le créneau verrouillé (arcana) part — pas `class.skills[1]` (investigation, valide), pas un créneau neuf vide");
+
+  /* Et l'EFFET RÉEL, joué avec les vrais verbes (même geste que
+     `resetSkills` dans `shell.mjs`) : le créneau fautif disparaît du
+     carnet (`clear` retire le choix, il ne le remplace pas — le prochain
+     `rebuild` republie un slot neuf à un AUTRE index, §3e-bis de la
+     commande du lot 43), et le créneau valide n'a pas bougé. */
+  let document = report.document;
+  for (const path of calls[0].paths) document = build.verbs.clear({ document, path, kind: "choice" }).document;
+  const after = rebuild(document);
+  const slots = after.decisions.filter((d) => /^class\.skills\[[0-9]+\]$/.test(d.path));
+  assert.equal(slots.some((s) => s.selected.includes("arcana")), false, "« arcana » n'est plus posé nulle part");
+  const slot1After = after.decisions.find((d) => d.path === "class.skills[1]");
+  assert.deepEqual(slot1After.selected, ["investigation"], "le créneau valide n'a JAMAIS été touché — même index, même valeur");
+  const groupAfter = after.decisions.find((d) => d.path === "class.skills");
+  assert.equal(slots.length, groupAfter.expected, "le compte de créneaux reste EXACTEMENT `expected` (§3e-bis, lot 43) — rien de plus effacé, rien de plus qu'un slot neuf");
+});
+
+test("⚔️ « Cancel » NE TOUCHE RIEN — aucun `onAction` n'est appelé, le document reste identique à l'octet", () => {
+  const report = rogueAvecArcaneInvalide();
+  const before = JSON.stringify(report.document);
+  const calls = [];
+  const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
+  node.querySelectorAll(".confirm-dialog-cancel")[0].click();
+  assert.deepEqual(calls, [], "aucun verbe n'est parti — Annuler ne connaît aucun geste de document");
+  assert.equal(JSON.stringify(report.document), before, "le document, jamais réassigné, est identique octet pour octet");
+});
+
+test("sans créneau verrouillé (le personnage d'exemple, une classe jamais changée) : aucune confirmation ne s'affiche", () => {
+  const report = rebuild(fixture.document);
+  const node = renderClassStep({ decisions: report.decisions, query }, () => {});
+  assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
+});
