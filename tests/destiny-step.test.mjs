@@ -109,6 +109,32 @@ test("mode tirage : cliquer « Draw » pose EXACTEMENT un `choose({path:\"fh.des
   assert.ok(stat, "le Score se recalcule bien avec la carte tirée");
 });
 
+/* ══ LOT 55, §3 — LES DEUX BOUTONS « Draw a card » NE SONT PLUS IDENTIQUES
+   MESURÉ À L'ÉCRAN (commande §3) : le SÉLECTEUR de mode (face à « Choose a
+   card ») et le bouton d'ACTION juste en dessous portaient tous deux le
+   texte « Draw a card » — même style orange, l'un sous l'autre, aucun mot
+   pour dire lequel change de mode et lequel tire une carte.
+
+   MÊME PATRON QU'ABILITIES (déjà correct : « Roll (3d6 × 10, keep 6) », le
+   sélecteur, face à « Roll », l'action) : le sélecteur GARDE son nom complet
+   (`ARCANA_METHODS`, inchangé — le test plus bas, ligne ~175, le vérifie
+   déjà), l'action devient un seul mot, « Draw ». */
+
+test("le bouton d'action (mode tirage) et le bouton du sélecteur de mode ne portent plus le même texte", () => {
+  const report = rebuild(fixture.document);
+  const node = renderDestinyStep(ctxFrom(report.document, report, { mode: "draw" }), () => {});
+  const drawBtn = node.querySelectorAll(".card-draw-btn")[0];
+  // Le sélecteur de mode : `renderModeSwitch` rend un `renderPicker` (carnet.mjs)
+  // à même le `<section>`, chaque option en `.record-option[data-value]`.
+  const modeBtn = node.querySelectorAll(".record-option").find((b) => b.dataset.value === "draw");
+  assert.ok(drawBtn, "le bouton d'action existe");
+  assert.ok(modeBtn, "le bouton du sélecteur de mode « draw » existe");
+  assert.notEqual(drawBtn.textContent, modeBtn.textContent,
+    `les deux boutons partagent encore le même texte (« ${drawBtn.textContent} ») — c'est exactement le doublon mesuré §3`);
+  assert.equal(drawBtn.textContent, "Draw", "le bouton d'action porte désormais un verbe seul, comme « Roll » sur Abilities");
+  assert.equal(modeBtn.textContent, "Draw a card", "le sélecteur de mode garde son libellé descriptif, inchangé");
+});
+
 test("mode choix : cliquer une carte pose le MÊME `choose` que le tirage", () => {
   const report = rebuild(fixture.document);
   const calls = [];

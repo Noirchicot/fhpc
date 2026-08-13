@@ -103,7 +103,14 @@ function renderDrawMode(ctx) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "card-draw-btn";
-  btn.textContent = "Draw a card";
+  /* LOT 55, §3 — même patron qu'Abilities (voir son en-tête, `ABILITY_METHODS`
+     vs le bouton « Roll ») : le SÉLECTEUR de mode nomme le GESTE au sens
+     large (« Draw a card », face à « Choose a card », toutes deux dans
+     `ARCANA_METHODS`), l'ACTION en dessous nomme le VERBE, un mot de moins,
+     jamais la même chaîne que le sélecteur. Avant ce lot, les deux boutons
+     portaient « Draw a card » — deux gestes différents, un seul texte, côte
+     à côte, même style orange (mesuré à l'écran, commande §3). */
+  btn.textContent = "Draw";
   btn.addEventListener("click", () => {
     const chosen = drawArcana(catalog, rng);
     if (!chosen) return;

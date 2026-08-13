@@ -121,3 +121,55 @@ test("11 — applyLayerStack pose bien layers.enable/disable PUIS build.layers =
   assert.match(shellText, /layersVerbs\.disable\(\s*\{\s*id\s*\}\s*\)/);
   assert.match(shellText, /build:\s*\{\s*\.\.\.state\.document\.build,\s*layers:\s*\[\]\s*\}/);
 });
+
+/* ══ LOT 55, §1 — LE BOUTON FINAL NE SE POINTE PLUS SUR LUI-MÊME ═══════════
+   `shell.mjs` n'a AUCUN harnais de rendu (voir la tête de ce fichier) — même
+   patron que les gardes 7/8/9/10/11 ci-dessus : un garde d'OCTETS, pas une
+   exécution.
+
+   LE DÉFAUT MESURÉ (commande §1) : AVANT ce lot, le libellé ET le saut
+   partageaient la MÊME expression, `state.step === STEPS.length - 1` — qui
+   coïncide avec `REVIEW_INDEX` (9 === 9) PAR LA LONGUEUR du tableau, pas par
+   l'id. Sur Review, la condition était vraie : le bouton affichait « Open
+   the sheet » et REMETTAIT `state.step` à sa propre valeur — un clic qui ne
+   change rien, zéro erreur en console (vérifié dans le navigateur, commande
+   §1). La cause exacte, GARDÉE ICI PAR SON OCTET, jamais RETROUVÉE PAR
+   HASARD : le bouton comparait sa condition de LIBELLÉ à `STEPS.length - 1`,
+   une coïncidence de position, plutôt qu'à `REVIEW_INDEX`, trouvé par id
+   (lot 40, le commentaire au-dessus de la déclaration de `STEPS`). */
+
+test("12 — ⛔ le bouton final n'utilise plus `STEPS.length - 1` pour décider quoi que ce soit sur `state.step`", () => {
+  /* Le motif exact du défaut d'origine : `state.step === STEPS.length - 1`
+     comparé pour choisir le LIBELLÉ ou la CIBLE du saut. `REVIEW_INDEX` (une
+     variable à part, trouvée par id) reste légitime partout ailleurs dans le
+     fichier — ce garde ne vise QUE la comparaison à la longueur du tableau. */
+  assert.doesNotMatch(shellText, /state\.step\s*===\s*STEPS\.length\s*-\s*1/,
+    "le bouton final ne doit plus comparer state.step à STEPS.length - 1 — c'est exactement la coïncidence qui le faisait pointer sur lui-même");
+});
+
+test("13 — le bouton final compare désormais sa condition à REVIEW_INDEX, par id, comme Back compare la sienne à 0", () => {
+  assert.match(shellText, /state\.step\s*===\s*REVIEW_INDEX\s*\?\s*"Open the sheet"\s*:\s*"Continue"/,
+    "le libellé doit trancher sur REVIEW_INDEX (par id), jamais sur une longueur de tableau");
+});
+
+test("14 — sur Review, le bouton final est DÉSACTIVÉ — même geste que Back désactivé à l'étape 0 (disabled === true, mesuré)", () => {
+  /* `button(label, onClick, disabled)` — le TROISIÈME argument porte l'état
+     désactivé (voir sa définition, plus haut dans ce fichier). Back le pose
+     déjà en dur : `state.step === 0`. Ce test exige la SYMÉTRIE nommée par
+     la commande (§1) : le bouton final le pose aussi, sur REVIEW_INDEX. */
+  assert.match(shellText,
+    /button\(state\.step === REVIEW_INDEX \? "Open the sheet" : "Continue",\s*\n\s*\(\) => \{ state\.step = Math\.min\(REVIEW_INDEX, state\.step \+ 1\); render\(\); \},\s*\n\s*state\.step === REVIEW_INDEX\)/,
+    "le bouton final doit passer `state.step === REVIEW_INDEX` en troisième argument (disabled) à button(), exactement comme Back passe `state.step === 0`");
+});
+
+test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la condition du bouton final fait rougir 12, lui seul", () => {
+  const mutated = shellText.replace(
+    /state\.step === REVIEW_INDEX \? "Open the sheet" : "Continue"/,
+    'state.step === STEPS.length - 1 ? "Open the sheet" : "Continue"'
+  );
+  assert.notEqual(mutated, shellText, "témoin : le remplacement a bien eu lieu sur le vrai texte");
+  assert.match(mutated, /state\.step\s*===\s*STEPS\.length\s*-\s*1/, "l'attaque réintroduit bien le motif fautif");
+  // Et les gardes VOISINS (7 à 11, 13) ne sont pas concernés par cette attaque précise.
+  assert.match(mutated, /\bcreateDocWriters\b/);
+  for (const id of STEP_IDS) assert.match(mutated, new RegExp(`step\\.id === "${id}"`));
+});

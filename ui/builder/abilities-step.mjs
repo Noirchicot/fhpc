@@ -189,8 +189,14 @@ function renderModeSwitch(activeId, unknownRaw, onAction) {
     onSelect: (id) => onAction({ kind: "set", path: ABILITY_MODE_PATH, value: id })
   }));
   if (unknownRaw !== undefined) {
+    /* LOT 55, §2.1 — la phrase d'avant (« isn't built by this screen yet »)
+       est du langage de CHANTIER affiché au joueur : il n'a rien à faire de
+       ce qui est construit ou non, seulement de ce qu'il regarde et de ce
+       qu'il peut faire. Cette phrase-ci dit les deux : la méthode que le
+       personnage porte (`unknownRaw`), et laquelle est montrée à la place —
+       sans dire pourquoi, côté chantier, ce n'est pas la sienne. */
     wrap.append(el("p", "ability-mode-note", [text(
-      `Method “${unknownRaw}” isn't built by this screen yet — showing ${ABILITY_METHODS[0].label} instead.`
+      `“${unknownRaw}” isn't offered on this screen — showing ${ABILITY_METHODS[0].label} instead.`
     )]));
   }
   return wrap;
