@@ -141,6 +141,46 @@ function displayNoneViolations(cssText) {
   return [...text.matchAll(/display\s*:\s*none/g)].map((m) => m[0]);
 }
 
+/** Chaque règle qui HABILLE un `<button>` sans lui poser son encre — le
+ *  défaut n°4, mesuré sur la page DÉPLOYÉE le 2026-08-13.
+ *
+ *  ⚠️ POURQUOI CETTE CLAUSE EST ÉTROITE, ET DOIT LE RESTER. La loi générale
+ *  « tout fond s'accompagne d'une encre » serait FAUSSE ici : mesuré, 13 des
+ *  145 blocs de shell.css posent un fond sans encre, et ils ont raison —
+ *  `.decision-card`, `.plan`, `.record-info` héritent `var(--text)` du
+ *  `body`, ce qui est exactement le comportement voulu.
+ *
+ *  ⭐ Ce qui rend le bouton DIFFÉRENT, et c'est tout le fond de l'affaire :
+ *  un `<button>` N'HÉRITE PAS de `color`. L'agent utilisateur lui impose
+ *  `buttontext` — du noir. Un bouton habillé d'un fond sombre sans encre
+ *  déclarée rend donc du noir sur du sombre, quoi qu'en dise le `body`.
+ *
+ *  📌 Et c'est la forme d'erreur que les cinq autres clauses ne peuvent PAS
+ *  voir : elles cherchent une valeur INTERDITE, celle-ci cherche une
+ *  déclaration MANQUANTE. Le correctif du défaut n°1 (le `#fff` en dur du
+ *  bouton Continue) est passé sous les cinq clauses en laissant le bouton
+ *  secondaire sans aucune couleur — il avait mesuré le bouton PRINCIPAL,
+ *  pas la paire. Mesure de l'écart : `Back` et `Show plan` à **1,24:1**,
+ *  invisibles, avec 765 tests verts.
+ *
+ *  ⚠️ SA LIMITE, DITE PLUTÔT QUE TUE : la clause lit le TEXTE du sélecteur.
+ *  Un `<button>` habillé par sa seule classe lui échappe. Le dépôt en a un —
+ *  `.belt-item`, les 9 pastilles de la ceinture — et il est hors de danger
+ *  pour une raison mesurée, pas supposée : sa règle de base pose
+ *  `color: var(--text-muted)`. Un futur bouton de classe échapperait à cette
+ *  clause ; le balayage de contraste sur la page servie, lui, le verrait. */
+function buttonInkViolations(cssText) {
+  const text = stripComments(cssText);
+  const hits = [];
+  for (const [, selector, body] of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/\bbutton\b/.test(selector)) continue;
+    const setsBackground = /(^|[;\s])background(-color)?\s*:/.test(body);
+    const setsColor = /(^|[;\s])color\s*:/.test(body);
+    if (setsBackground && !setsColor) hits.push(selector.trim().replace(/\s+/g, " "));
+  }
+  return hits;
+}
+
 /* ══ 1-4 — LE GARDE, SUR LE VRAI shell.css ═══════════════════════════ */
 
 test("garde 1 — aucun font-size littéral dans shell.css", () => {
@@ -157,6 +197,11 @@ test("garde 3 — aucune couleur littérale dans shell.css", () => {
 
 test("garde 4 — aucun display:none dans shell.css (défaut n°3)", () => {
   assert.deepEqual(displayNoneViolations(shellCssRaw), []);
+});
+
+test("garde 6 — aucune règle n'habille un bouton sans lui poser son encre (défaut n°4)", () => {
+  assert.deepEqual(buttonInkViolations(shellCssRaw), [],
+    "un <button> n'hérite pas de `color` : sans encre déclarée, l'agent utilisateur lui impose du noir");
 });
 
 test("garde 5 — le seuil de bascule (720) n'apparaît qu'une fois dans tout ui/builder/", () => {
@@ -198,6 +243,28 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton Continue fait rougir SEUL
 
   assert.deepEqual(colorViolations(mutated), ["#fff"], "le garde couleur voit EXACTEMENT le défaut réintroduit");
   assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "le garde de type ne bouge pas");
+  assert.deepEqual(spacingRadiusViolations(mutated), spacingRadiusViolations(shellCssRaw), "ni celui d'espacement");
+  assert.deepEqual(displayNoneViolations(mutated), displayNoneViolations(shellCssRaw), "ni celui de display:none");
+});
+
+test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEULEMENT le garde du défaut n°4", () => {
+  /* ⭐ L'attaque REJOUE le défaut réel, à l'octet : la règle telle qu'elle
+     était sur la page déployée le 2026-08-13, avant le correctif. C'est la
+     seule forme d'attaque qui prouve quelque chose ici — les cinq autres
+     clauses étaient vertes SUR CE FICHIER-LÀ, et c'est bien le problème. */
+  const before = buttonInkViolations(shellCssRaw);
+  assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
+
+  const mutated = shellCssRaw.replace(
+    "  color: var(--text);\n  cursor: pointer;\n}",
+    "  cursor: pointer;\n}"
+  );
+  assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
+
+  assert.deepEqual(buttonInkViolations(mutated), [".stage-nav button, .toggle-bar button"],
+    "le garde voit EXACTEMENT la règle qui a produit les 1,24:1");
+  assert.deepEqual(colorViolations(mutated), colorViolations(shellCssRaw), "le garde couleur ne bouge pas — le défaut est une ABSENCE, pas un littéral");
+  assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "ni le garde de type");
   assert.deepEqual(spacingRadiusViolations(mutated), spacingRadiusViolations(shellCssRaw), "ni celui d'espacement");
   assert.deepEqual(displayNoneViolations(mutated), displayNoneViolations(shellCssRaw), "ni celui de display:none");
 });

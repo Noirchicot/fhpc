@@ -83,6 +83,13 @@ button { font: inherit; }
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong); /* bordure de CONTRÔLE : un bouton est cliquable, cible 3:1 (§3b) */
   background: var(--surface);
+  /* CORRECTIF défaut n°4 (mesuré sur la page DÉPLOYÉE, 2026-08-13) : un
+     `<button>` N'HÉRITE PAS de l'encre du corps — l'agent utilisateur lui
+     impose `buttontext` (noir). Sans cette ligne, `Back` et `Show plan`
+     rendaient `rgb(0,0,0)` sur `var(--surface)` = **1,24:1**, invisibles.
+     Le correctif du défaut n°1 avait posé la couleur sur `:last-child`
+     seul : il a mesuré le bouton PRINCIPAL, pas la paire. */
+  color: var(--text);
   cursor: pointer;
 }
 .stage-nav button:last-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } /* CORRECTIF défaut n°1 : #fff en dur échouait 2,44:1 en sombre, voir l'inventaire */
