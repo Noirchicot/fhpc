@@ -1,4 +1,4 @@
-/* ══ LES TESTS DES LOTS 45 ET 50 — L'ÉTAPE ABILITIES ══════════════════════
+/* ══ LES TESTS DES LOTS 45, 50 ET 51 — L'ÉTAPE ABILITIES ═════════════════
 
    Même patron que `tests/skills-step.test.mjs` : on teste la FONCTION
    (`renderAbilitiesStep`), pas la page — `tests/dom-stub.mjs`, aucun paquet
@@ -24,16 +24,45 @@
    (« optionsForRow(rollBatch, key) : … ») teste la NOUVELLE signature, par
    INDEX, et les tests qui suivent (§0 de la commande, dés de même valeur,
    valeur hors lot, réassignation, document sans champ neuf) couvrent
-   exactement ce que ces deux-là couvraient, plus le défaut lui-même. */
+   exactement ce que ces deux-là couvraient, plus le défaut lui-même.
+
+   ⭐ LOT 51 — LE DÉFAUT SUIVANT, TROUVÉ EN REGARDANT LA PAGE DÉPLOYÉE JUSTE
+   APRÈS LA FUSION DU LOT 50 : une fois les six dés distribués, ZÉRO option
+   restait cliquable sur les six rangées (§0 de sa commande). La cause :
+   `optionsForRow(rollBatch, key)` retirait du lot les index déjà pris par
+   LES AUTRES clefs — juste avant que « toutes distribuées » ne devienne
+   VIDE pour tout le monde, l'état NORMAL en fin d'étape. Le test « les dés
+   GARDÉS moins les index déjà pris » (ci-dessous, par clef) est retiré à
+   son tour : `optionsForRow(rollBatch)` ne prend plus de clef du tout,
+   elle rend TOUJOURS les six dés (§1a de la commande d'architecte) — c'est
+   `renderPicker` (via `selected`) qui distingue le sien (actif) des cinq
+   autres (cliquer ÉCHANGE, §1b, voir `shell.mjs`). Les tests qui suivent
+   (marqués « lot 51 ») couvrent le défaut lui-même, l'échange, le cas
+   limite d'une rangée non servie, et l'invariant « jamais deux rangées sur
+   le même dé ». */
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
+import { stripComments } from "./source-scan.mjs";
 
 globalThis.document = createTestDocument();
+
+/* LOT 51 — `shell.mjs` n'a AUCUN export et exécute son propre `render()` à
+   l'import (voir son bas de fichier) : il ne peut pas être importé ici pour
+   appeler `applyDecisionAction` en vrai (même limite que le test 5 plus bas,
+   et que « garde 11 » de `tests/ui-jetons.test.mjs`, qui lit ses OCTETS pour
+   la même raison). `UI_DIR`/`stripComments` servent au garde de l'échange,
+   plus bas — même patron que « garde 11 », posé dans ce fichier-ci parce que
+   c'est LUI qui est dans le périmètre de ce lot (`tests/ui-jetons.test.mjs`
+   ne l'est pas). */
+const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 
 const {
   renderAbilitiesStep, rollAbilitySet, ABILITY_METHODS, currentAbilityValue, currentAbilityMode, optionsForRow,
@@ -46,6 +75,30 @@ const { build } = fixture;
 function rebuild(document) { return build.verbs.rebuild({ document }); }
 function set(document, path, value) { return build.verbs.set({ document, path, value }).document; }
 function clear(document, path) { return build.verbs.clear({ document, path, kind: "choice" }).document; }
+
+/** Rejoue EXACTEMENT ce que `shell.mjs` (`applyDecisionAction`, action
+ *  `"assignAbilityRoll"`) fait d'un clic — lot 51, §1b/§1d. `shell.mjs` n'a
+ *  aucun harnais de rendu (voir le test 5 plus bas, et « garde 11 » de
+ *  `tests/ui-jetons.test.mjs`) : ce test rejoue donc sa logique À LA MAIN,
+ *  avec les VRAIS verbes — même patron que le test « après une assignation
+ *  complète » plus bas (déjà présent avant ce lot, pour `set` simple). Si
+ *  cette fonction diverge un jour de `shell.mjs`, c'est ELLE qu'il faut
+ *  corriger pour recoller à la source, jamais l'inverse. */
+function applyAssignAbilityRoll(document, assign, rollBatch, action) {
+  const prevIndex = assign[action.key] ?? null;
+  let holderKey = null;
+  for (const [otherKey, otherIndex] of Object.entries(assign)) {
+    if (otherKey !== action.key && otherIndex === action.rollIndex) { holderKey = otherKey; break; }
+  }
+  const newAssign = { ...assign, [action.key]: action.rollIndex };
+  if (holderKey) newAssign[holderKey] = prevIndex;
+  let newDocument = set(document, `abilities.${action.key}`, action.value);
+  if (holderKey && prevIndex !== null) {
+    const prevDie = rollBatch.rolls.find((r) => r.index === prevIndex);
+    if (prevDie) newDocument = set(newDocument, `abilities.${holderKey}`, prevDie.total);
+  }
+  return { document: newDocument, assign: newAssign };
+}
 
 function rows(node) { return node.querySelectorAll(".ability-row"); }
 function rowFor(node, key) { return node.querySelectorAll(`.ability-row[data-row="${key}"]`)[0] || null; }
@@ -88,17 +141,18 @@ function makeRollBatch(keptTotals, assign) {
 /* ══ optionsForRow — LA FONCTION PURE QUE LE LOT 50 REMPLACE ═════════════
    Par INDEX, jamais par VALEUR : le test qui le prouve directement. */
 
-test("optionsForRow(rollBatch, key) : les dés GARDÉS moins les index déjà pris par LES AUTRES clefs — jamais par valeur", () => {
+test("optionsForRow(rollBatch) : TOUJOURS les six dés gardés — lot 51, §1a, plus jamais filtré par `assign` ni par clef", () => {
   const rollBatch = makeRollBatch([14, 14, 15, 11, 8, 8], { str: 0, dex: null, con: 4, int: null, wis: null, cha: null });
-  // dex : ni l'index 0 (pris par str) ni l'index 4 (pris par con) — tout le reste.
-  assert.deepEqual(optionsForRow(rollBatch, "dex").sort((a, b) => a - b), [1, 2, 3, 5]);
-  // str : on ne retire QUE ce qui est posé AILLEURS — son propre index (0)
-  // reste dans SES options (cliquer dessus ne ferait rien, `renderPicker`
-  // le sait déjà : voir le test « distribuée/reconnaissable » plus bas).
-  assert.deepEqual(optionsForRow(rollBatch, "str").sort((a, b) => a - b), [0, 1, 2, 3, 5]);
+  // Les six index sont rendus, quelle que soit la clef qui regarde — y
+  // compris ceux déjà tenus par UNE AUTRE rangée (0 par str, 4 par con) :
+  // c'est la SEULE forme qui laisse un geste possible dans n'importe quel
+  // état de distribution (voir « LE TEST QUI PROUVE LE LOT 51 » plus bas —
+  // filtrer, comme avant ce lot, tombait à UNE option par rangée une fois
+  // les six posées).
+  assert.deepEqual(optionsForRow(rollBatch), [0, 1, 2, 3, 4, 5]);
   // Aucun tirage : aucune option, pour personne.
-  assert.deepEqual(optionsForRow(null, "dex"), []);
-  assert.deepEqual(optionsForRow({ rolls: [], assign: {} }, "dex"), []);
+  assert.deepEqual(optionsForRow(null), []);
+  assert.deepEqual(optionsForRow({ rolls: [], assign: {} }), []);
 });
 
 /* ══ ⚔️ LE TEST QUI PROUVE LE LOT (commande §0 et §3, test 1) ═════════════
@@ -189,7 +243,15 @@ test("emptyAbilityAssign() remet les six clefs à null — la carte que shell.mj
    `shell.mjs` REMPLACE l'entrée de `assign` au lieu de l'ajouter (`{
    ...assign, [key]: newIndex }`) — ce test simule exactement cet effet en
    rendant deux fois avec deux cartes qui ne diffèrent que par l'index de
-   str, sans passer par shell.mjs lui-même (hors périmètre, voir test 5). */
+   str, sans passer par shell.mjs lui-même (hors périmètre, voir test 5).
+
+   ⚠️ LOT 51 — l'assertion tient TOUJOURS, mais plus pour la même raison :
+   `optionsForRow` ne filtre plus rien (§1a), donc dex VOIT le dé 0 (12) que
+   str tient, mais son LIBELLÉ est « 12 (STR) », jamais « 12 » tout court
+   (§1c) — c'est pour ça que `optionLabels(...).filter(l => l === "12")`
+   reste à 0 : ce n'est plus une absence d'option, c'est un libellé qui ne
+   correspond plus. Voir le test dédié à l'échange plus bas pour la preuve
+   directe du libellé. */
 
 test("réassigner une rangée déjà servie libère le dé précédent pour les autres", () => {
   const keptTotals = [12, 11, 10, 9, 8, 7];
@@ -198,13 +260,159 @@ test("réassigner une rangée déjà servie libère le dé précédent pour les 
   const node1 = renderAbilitiesStep(ctxFrom(report.document, report, {
     rollBatch: makeRollBatch(keptTotals, { str: 0, dex: null, con: null, int: null, wis: null, cha: null })
   }), () => {});
-  assert.equal(optionLabels(rowFor(node1, "dex")).filter((l) => l === "12").length, 0, "str tient le dé 0 (12) : dex ne le voit pas");
+  assert.equal(optionLabels(rowFor(node1, "dex")).filter((l) => l === "12").length, 0, "str tient le dé 0 (12) : dex le voit nommé « 12 (STR) », jamais comme un 12 libre");
 
   const node2 = renderAbilitiesStep(ctxFrom(report.document, report, {
     rollBatch: makeRollBatch(keptTotals, { str: 2, dex: null, con: null, int: null, wis: null, cha: null })
   }), () => {});
-  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "12").length, 1, "str a changé pour le dé 2 (10) : le dé 0 (12) redevient disponible pour dex — le précédent est libéré");
-  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "10").length, 0, "et le dé 2 (10), désormais tenu par str, n'est plus offert à dex");
+  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "12").length, 1, "str a changé pour le dé 2 (10) : le dé 0 (12) redevient un « 12 » nu pour dex — le précédent est libéré");
+  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "10").length, 0, "et le dé 2 (10), désormais tenu par str, se nomme « 10 (STR) », plus offert nu à dex");
+});
+
+/* ══ LOT 51 — LE DÉFAUT, L'ÉCHANGE, ET SES CAS LIMITES (§0/§1/§2 de sa
+   commande) ═══════════════════════════════════════════════════════════ */
+
+/* ⚔️ LE TEST QUI PROUVE LE LOT 51 — commande §2, test 1 : « ce test doit
+   rougir sur le code d'aujourd'hui ». Rejoué sur `git show 33337a4:ui/
+   builder/abilities-step.mjs` (le code d'avant ce lot), il donne 1 option,
+   0 cliquable, sur les six rangées — exactement la mesure du §0 de la
+   commande sur la page déployée. */
+test("⚔️ LE TEST QUI PROUVE LE LOT 51 — après une distribution COMPLÈTE des six dés, chaque rangée offre encore six options, dont cinq cliquables", () => {
+  const keptTotals = [8, 9, 10, 11, 12, 13];
+  const assign = { str: 0, dex: 1, con: 2, int: 3, wis: 4, cha: 5 };
+  const rollBatch = makeRollBatch(keptTotals, assign);
+  const report = rebuild(fixture.document);
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
+  for (const key of ["str", "dex", "con", "int", "wis", "cha"]) {
+    const row = rowFor(node, key);
+    const options = optionButtons(row);
+    assert.equal(options.length, 6, `${key} : six options, MÊME toutes distribuées — c'était 1 sur le code d'avant ce lot (§0)`);
+    const clickable = options.filter((b) => b.getAttribute("data-active") !== "true");
+    assert.equal(clickable.length, 5, `${key} : cinq cliquables — la sienne reste active (cliquer ne fait rien), les cinq autres échangent`);
+  }
+});
+
+/* L'ÉCHANGE (§1b) — commande §2, test 2. */
+test("⚔️ L'ÉCHANGE — FOR tient le 10, DEX le 16 ; cliquer le 16 sur la ligne FOR donne FOR=16 ET DEX=10, jamais DEX vide, jamais deux rangées sur le même dé", () => {
+  const keptTotals = [10, 16, 11, 12, 13, 14]; // index 0 → 10 (str), index 1 → 16 (dex)
+  let assign = { str: 0, dex: 1, con: null, int: null, wis: null, cha: null };
+  let document = set(set(fixture.document, "abilities.str", 10), "abilities.dex", 16);
+  const rollBatch = makeRollBatch(keptTotals, assign);
+  const report = rebuild(document);
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
+
+  const strRow = rowFor(node, "str");
+  const btn16 = optionButtons(strRow).find((b) => b.textContent === "16 (DEX)");
+  assert.ok(btn16, "le 16 tenu par DEX se présente sur la ligne FOR, NOMMÉ comme tel (§1c) — jamais comme un dé libre");
+  btn16.click();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "str", rollIndex: 1, value: 16 });
+
+  // Ce que shell.mjs ferait de cet appel (§1b/§1d) :
+  const applied = applyAssignAbilityRoll(document, assign, rollBatch, calls[0]);
+  document = applied.document;
+  assign = applied.assign;
+
+  assert.deepEqual(assign, { str: 1, dex: 0, con: null, int: null, wis: null, cha: null },
+    "l'échange, à l'octet : str prend l'index que dex tenait, dex reprend celui que str tenait — jamais deux clefs sur le même index");
+
+  const finalReport = rebuild(document);
+  assert.equal(currentAbilityValue(finalReport.document, "str"), 16, "FOR vaut maintenant 16");
+  assert.equal(currentAbilityValue(finalReport.document, "dex"), 10, "DEX vaut maintenant 10 — jamais vide (§1b)");
+
+  // Commande §2, test 3 — aucun état intermédiaire indérivable.
+  const abilityChoices = finalReport.document.build.choices.filter((c) => ABILITY_KEYS.some((k) => c.path === `abilities.${k}`));
+  assert.equal(abilityChoices.length, 6, "les six abilities.<clef> restent toutes présentes après l'échange (§1d : le document ne gagne rien, mais ne PERD rien non plus)");
+});
+
+/* ⚠️ CE QUE LE TEST CI-DESSUS NE PROUVE PAS, ET POURQUOI UN GARDE SUPPLÉMENTAIRE
+   SUIT : `applyAssignAbilityRoll` (plus haut dans ce fichier) est une COPIE de
+   la logique de `shell.mjs`, écrite POUR ce test — elle prouve que la logique,
+   TELLE QUE RÉÉCRITE ICI, produit le bon résultat, mais ne relit JAMAIS le
+   fichier `shell.mjs` lui-même. Mesuré en ATTAQUANT `shell.mjs` (retirer
+   `newAssign[holderKey] = prevIndex`, la ligne qui fait l'échange) : LA SUITE
+   COMPLÈTE RESTE VERTE — aucun test, dans ce fichier ou ailleurs, n'aurait
+   accroché une régression RÉELLE dans `shell.mjs`. Ce n'est pas un trou
+   ouvert par ce lot : `shell.mjs` n'a aucun export et exécute son propre
+   `render()` à l'import (voir son bas de fichier) — AUCUN lot avant celui-ci
+   n'a pu lui donner de harnais de rendu (le test 5 plus haut le dit déjà pour
+   `roll`/`reroll`, et « garde 11 » de `tests/ui-jetons.test.mjs` existe
+   PRÉCISÉMENT pour cette raison — un garde d'octets, posé par l'architecte,
+   parce qu'aucun autre n'était possible).
+
+   Le garde ci-dessous suit le MÊME patron que « garde 11 » : il lit les
+   OCTETS de `shell.mjs`, pas son comportement. Il n'a donc PAS la force
+   d'un test de rendu — un octet qui a l'air juste peut encore être mal
+   branché — mais il accroche au moins l'attaque mesurée ci-dessus (la ligne
+   retirée), là où aucun autre test ne le faisait. Signalé plutôt que
+   contourné (§⭐ de la commande) : la preuve la plus forte de ce lot reste le
+   test manuel au navigateur (§3 de la commande, voir INVENTAIRE-LOT-51.md). */
+test("garde — shell.mjs ÉCHANGE vraiment (holderKey reprend l'index que la clef cliquée tenait avant), lot 51 §1b", () => {
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /newAssign\[holderKey\]\s*=\s*prevIndex/,
+    "sans cette ligne, un dé cliqué déjà tenu écraserait l'ancien titulaire sans jamais le libérer — " +
+    "deux clefs pourraient alors pointer vers le même index (mesuré : la suite complète reste verte sans elle)");
+});
+
+/* Commande §2, test 4 — l'acquis du lot 50 tient AUSSI à l'échange. */
+test("deux dés de même valeur restent distincts À L'ÉCHANGE — l'acquis du lot 50, l'échange ne le casse pas", () => {
+  const keptTotals = [14, 14, 11, 11, 11, 8]; // deux 14 : index 0 (tenu par str) et index 1 (libre)
+  const assign = { str: 0, dex: null, con: null, int: null, wis: null, cha: null };
+  const document = set(fixture.document, "abilities.str", 14);
+  const rollBatch = makeRollBatch(keptTotals, assign);
+  const report = rebuild(document);
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
+  const dexRow = rowFor(node, "dex");
+  const labels = optionLabels(dexRow);
+  assert.ok(labels.includes("14 (STR)"), "le 14 tenu par str se nomme sur la ligne dex — jamais confondu avec le second");
+  assert.ok(labels.includes("14"), "le second 14 (index 1), libre, reste une option NUE, distincte de « 14 (STR) »");
+  const freeBtn = optionButtons(dexRow).find((b) => b.textContent === "14");
+  freeBtn.click();
+  assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "dex", rollIndex: 1, value: 14 },
+    "dex pose bien sur le SECOND 14 (index 1), jamais sur celui que str tient (index 0)");
+});
+
+/* Commande §2, test 5 — le cas limite §1b : la rangée CIBLE (celle qu'on
+   édite) peut ne pas être servie par le lot. Décision mesurée et justifiée
+   dans INVENTAIRE-LOT-51.md : elle échange quand même (elle prend le dé),
+   mais comme elle n'avait RIEN à rendre, l'ancien titulaire redevient
+   simplement « pas de ce tirage », SANS que sa valeur déjà posée ne soit
+   effacée ni retouchée (aucun second `set` ne part : rien à y écrire de
+   plus vrai que ce qui y est déjà). */
+test("§1b, LE CAS LIMITE — une rangée NON SERVIE échange quand même : l'ancien titulaire redevient « pas de ce tirage » sur sa valeur déjà posée, rien n'est effacé", () => {
+  const keptTotals = [7, 12, 9, 15, 3, 6]; // index 1 → 12, tenu par wis
+  let assign = { str: null, dex: null, con: null, int: null, wis: 1, cha: null };
+  let document = set(fixture.document, "abilities.wis", 12); // wis a RÉELLEMENT reçu ce dé
+  const rollBatch = makeRollBatch(keptTotals, assign);
+  const report = rebuild(document);
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
+
+  const conRow = rowFor(node, "con");
+  assert.equal(conRow.dataset.assigned, "false", "mesure de départ : con n'a encore rien reçu de ce lot");
+  const btn12 = optionButtons(conRow).find((b) => b.textContent === "12 (WIS)");
+  assert.ok(btn12, "le 12 tenu par wis se nomme sur la ligne con, jamais présenté comme un dé libre");
+  btn12.click();
+  assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "con", rollIndex: 1, value: 12 });
+
+  const applied = applyAssignAbilityRoll(document, assign, rollBatch, calls[0]);
+  document = applied.document;
+  assign = applied.assign;
+
+  assert.deepEqual(assign, { str: null, dex: null, con: 1, int: null, wis: null, cha: null },
+    "con prend l'index de wis ; wis, qui n'a RIEN à recevoir en retour (con n'avait aucun dé), redevient non distribuée — jamais deux clefs sur le même index");
+
+  const finalReport = rebuild(document);
+  assert.equal(currentAbilityValue(finalReport.document, "con"), 12, "con vaut maintenant 12");
+  assert.equal(currentAbilityValue(finalReport.document, "wis"), 12, "wis GARDE sa valeur déjà posée — rien n'est effacé, même si elle n'est plus « de ce tirage »");
+
+  const finalNode = renderAbilitiesStep(ctxFrom(finalReport.document, finalReport, { rollBatch: { ...rollBatch, assign } }), () => {});
+  const wisRow = rowFor(finalNode, "wis");
+  assert.equal(wisRow.dataset.assigned, "false", "wis redevient « non distribuée » — rien ne se cache : la ligne le dit");
+  assert.match(wisRow.querySelectorAll(".ability-row-source")[0].textContent, /^12 — not from this roll$/,
+    "wis montre encore sa valeur (12), mais dit clairement qu'elle ne vient plus de CE lot");
 });
 
 /* ══ 7 — LE DOCUMENT NE GAGNE AUCUN CHAMP (commande §3, test 7) ══════════
