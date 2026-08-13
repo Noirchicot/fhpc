@@ -18,6 +18,8 @@ import { renderSpeciesStep } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
 import { renderDestinyStep } from "./destiny-step.mjs";
+import { renderEquipmentStep, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
    antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
@@ -44,6 +46,7 @@ const STEPS = [
   { id: "abilities",  label: "Abilities" },
   { id: "destiny",    label: "Destiny" },
   { id: "skills",     label: "Skills" },
+  { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
   { id: "review",     label: "Review" }
 ];
 /* LOT 40 — trouvé PAR l'id, jamais par la position. `STEPS.length - 1`
@@ -185,6 +188,62 @@ function applyDecisionAction(action) {
     let document = state.document;
     for (const path of action.paths) {
       document = verbs.clear({ document, path, kind: "choice" }).document;
+    }
+    state.document = document;
+    rebuild();
+    render();
+    return;
+  }
+  /* LOT 49 — poser une LIGNE D'ÉQUIPEMENT, trois chemins d'un coup
+     (`gear[N]`, `.quantity`, `.equipped` — §0.2 de sa commande : les trois
+     vont ensemble, sinon `derive.mjs` déclare la ligne incomplète et la
+     saute). Même patron que `resetSkills` juste au-dessus : une suite de
+     verbes sur le MÊME document, un seul `rebuild` à la fin. L'INDEX est
+     calculé ICI par `nextGearIndex` (importée d'`equipment-step.mjs`, jamais
+     une seconde copie) — du bookkeeping d'écran pur (où placer le prochain
+     élément d'un tableau), aucune règle de jeu. */
+  if (action.kind === "addGearLine") {
+    const index = nextGearIndex(state.document);
+    let document = state.document;
+    document = verbs.choose({ document, path: `gear[${index}]`, ref: action.ref }).document;
+    document = verbs.set({ document, path: `gear[${index}].quantity`, value: action.quantity }).document;
+    document = verbs.set({ document, path: `gear[${index}].equipped`, value: action.equipped }).document;
+    state.document = document;
+    rebuild();
+    render();
+    return;
+  }
+  /* Symétrique — MESURÉ sûr (INVENTAIRE-LOT-49.md, commande §3 test 7) :
+     `clear` sur `gear[N]` ne fait PAS jeter `rebuild`, contrairement aux six
+     caractéristiques (lot 45, `abilities.*`). Les trois chemins partent
+     ensemble pour ne laisser aucune entrée orpheline dans `build.choices`
+     (le `gear[N].quantity` qui resterait sans son `gear[N]`, mesuré dans
+     `tests/build-derive.test.mjs`, « SRD PUR »). */
+  if (action.kind === "removeGearLine") {
+    let document = state.document;
+    for (const suffix of ["", ".quantity", ".equipped"]) {
+      document = verbs.clear({ document, path: `gear[${action.index}]${suffix}`, kind: "choice" }).document;
+    }
+    state.document = document;
+    rebuild();
+    render();
+    return;
+  }
+  /* Les 50 PO ADDENDUMS §4 (commande §1b/§1c) — posées par l'écran, jamais
+     par le moteur. POSE LES QUATRE clefs (le piège de §0.2 : `gp` seul ne
+     produit aucune bourse) et n'ÉCRASE JAMAIS ce qui est déjà là : chaque
+     clef manquante part de 0, et seule `gp` reçoit le supplément (§0.1 — le
+     paquet de classe garde SON propre or, les deux s'additionnent, jamais
+     de collision). `INHERITED_PURSE_GP`/`currentCurrency` viennent
+     d'`equipment-step.mjs` — même carte que le rendu, jamais une seconde
+     copie du nombre. */
+  if (action.kind === "addInheritedPurse") {
+    const current = currentCurrency(state.document);
+    let document = state.document;
+    for (const key of CURRENCY_KEYS) {
+      const base = Number.isInteger(current[key]) ? current[key] : 0;
+      const value = key === "gp" ? base + INHERITED_PURSE_GP : base;
+      document = verbs.set({ document, path: `currency.${key}`, value }).document;
     }
     state.document = document;
     rebuild();
@@ -345,6 +404,22 @@ function renderStage() {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "skills") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "equipment" && state.engine) {
+    /* LOT 49 — même trio de branches que les étapes précédentes (moteur
+       prêt / en échec / en charge). `document`+`resolved`+`query` : la
+       phrase de classe et les lignes `gear[N]` viennent du document brut
+       (aucun plan `decisions[]` ne les republie, voir `equipment-step.mjs`
+       en tête), l'AC et la bourse dérivées viennent de `resolved`. */
+    card.append(renderEquipmentStep({
+      document: state.document,
+      resolved: state.resolved,
+      query: state.engine.layers.verbs.query
+    }, applyDecisionAction));
+  } else if (step.id === "equipment" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "equipment") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "review" && state.document && state.report) {
     /* LOT 40 — §3a. `render()` rend une CHAÎNE, jamais recalculée : la loi

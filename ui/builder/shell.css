@@ -466,3 +466,112 @@ button { font: inherit; }
 }
 .confirm-dialog-cancel { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); }
 .confirm-dialog-confirm { border: 1px solid var(--critical); background: var(--critical); color: var(--on-accent); }
+
+/* ── L'ÉTAPE EQUIPMENT (lot 49) ────────────────────────────────────────
+   `.equipment-gear-row`/`.equipment-search-result` réemploient la famille
+   `.skills-row` (flex, gap, bordure basse) — même geste qu'ailleurs, aucun
+   jeton de plus. Les deux champs natifs (`<input type="number">`,
+   `<input type="search">`) sont un patron NEUF dans ce fichier (aucune étape
+   avant celle-ci n'avait besoin d'une valeur libre, seulement de boutons) :
+   habillés avec les MÊMES jetons de bordure/rayon/texte que `.record-option`,
+   pour qu'un champ de saisie ne détonne pas à côté d'un bouton. */
+.equipment-step { max-width: var(--grid-w); } /* liste + chercheur, même largeur que Compétences (§3e) */
+
+.equipment-class-block { margin-bottom: var(--sp-24); }
+.equipment-class-block h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.equipment-class-name { margin: 0 0 var(--sp-4); font-size: var(--t5); font-weight: 600; }
+.equipment-class-phrase { margin: 0; font-size: var(--t4); color: var(--text-soft); white-space: pre-wrap; }
+.equipment-empty-note { margin: 0; font-size: var(--t3); color: var(--text-soft); }
+
+.equipment-gear-block, .equipment-currency-block { margin-bottom: var(--sp-24); }
+.equipment-gear-block h3, .equipment-currency-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.equipment-ac-readout { margin: 0 0 var(--sp-12); font-size: var(--t5); font-weight: 600; }
+
+.equipment-gear-list { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
+.equipment-gear-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-12);
+  padding: var(--sp-8) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t4);
+  min-width: 0;
+}
+.equipment-gear-row[data-on-sheet="false"] { color: var(--text-soft); }
+.equipment-gear-name { flex: 1 1 auto; min-width: 12ch; overflow-wrap: break-word; }
+.equipment-gear-meta { flex: none; font-size: var(--t2); color: var(--text-muted); }
+.equipment-gear-pending { flex: 1 1 100%; margin: 0; font-size: var(--t2); color: var(--caution); }
+
+.equipment-gear-qty, .equipment-currency-input {
+  width: 6ch;
+  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, même cible que .record-option (§3b du lot 38) */
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--t4);
+  font-family: inherit;
+}
+
+.equipment-gear-remove {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--critical);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-12);
+  font-size: var(--t3);
+  cursor: pointer;
+}
+
+.equipment-search-block h4 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.equipment-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-12);
+  font-size: var(--t4);
+  font-family: inherit;
+  margin-bottom: var(--sp-8);
+}
+.equipment-search-results { display: flex; flex-direction: column; gap: var(--sp-4); }
+.equipment-search-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-12);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t4);
+  min-width: 0;
+}
+.equipment-search-result-name { flex: 1 1 auto; min-width: 12ch; overflow-wrap: break-word; }
+.equipment-search-result-meta { flex: none; font-size: var(--t2); color: var(--text-muted); }
+.equipment-search-result-add {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-12);
+  font-size: var(--t3);
+  cursor: pointer;
+}
+.equipment-search-more { margin: var(--sp-8) 0 0; font-size: var(--t2); color: var(--text-muted); }
+
+.equipment-currency-row { display: flex; flex-wrap: wrap; gap: var(--sp-16); margin-bottom: var(--sp-8); }
+.equipment-currency-field { display: flex; flex-direction: column; gap: var(--sp-2); font-size: var(--t3); color: var(--text-muted); }
+.equipment-purse-readout { margin: 0 0 var(--sp-12); font-size: var(--t4); font-weight: 600; }
+.equipment-purse-btn {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-16);
+  font-size: var(--t4);
+  cursor: pointer;
+  margin-bottom: var(--sp-8);
+}
+.equipment-purse-note { margin: 0; font-size: var(--t2); color: var(--text-muted); }
