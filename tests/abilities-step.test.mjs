@@ -262,4 +262,77 @@ test("⚔️ PREUVE D'EXTENSIBILITÉ — une troisième méthode ajoutée SEULEM
   }
 });
 
+/* ══ ⚔️ ATTAQUE — LE CHOIX BRUT ET LE SCORE FINAL NE SE CONTREDISENT PLUS ═
+   Défaut mesuré par l'architecte à l'écran, sur le personnage d'exemple :
+   CON affichait « 13 » (le brut) à côté d'un modificateur « +2 » qui était
+   en réalité celui du score FINAL (14, `background.boost.con = 1`) — deux
+   registres différents, aucun mot pour le dire, et le 14 lui-même
+   n'apparaissait nulle part. Idem pour INT (15 brut → 17 final, boost +2).
+
+   Ce test prend le personnage d'exemple TEL QUEL (aucune fixture inventée :
+   les deux boosts y sont déjà, mesurés au §0 de la commande d'origine) et
+   exige que L'ÉCRAN MONTRE LES DEUX NOMBRES, jamais un seul qui ferait
+   croire à l'autre — sans qu'aucun des deux n'ait été recalculé ici : les
+   deux viennent directement de `report.resolved.abilities`, comparés au
+   choix brut lu par `currentAbilityValue`. */
+
+test("⚔️ ATTAQUE — CON et INT (boostés par l'Inheritance) affichent un score FINAL différent du choix brut, et les deux sont lisibles à la fois", () => {
+  const report = rebuild(fixture.document);
+
+  // Mesure de départ, sur le VRAI document — si ceci casse, l'attaque ne
+  // prouve plus rien (elle testerait un personnage qui n'a plus de boost).
+  assert.equal(currentAbilityValue(report.document, "con"), 13);
+  assert.equal(currentAbilityValue(report.document, "int"), 15);
+  assert.equal(report.resolved.abilities.con.score, 14, "mesure : le boost d'Inheritance porte bien CON à 14");
+  assert.equal(report.resolved.abilities.int.score, 17, "mesure : le boost d'Inheritance porte bien INT à 17");
+
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+
+  for (const [key, rawExpected, finalExpected, modExpected] of [
+    ["con", "13", "14 (+2)", true],
+    ["int", "15", "17 (+3)", true]
+  ]) {
+    const row = rowFor(node, key);
+    // 1) LE CHOIX BRUT RESTE ÉDITABLE, ET C'EST LUI QUE `set()` ÉCRIRAIT —
+    //    jamais inversé par cette correction (contrainte ferme n°1). Un
+    //    test séparé (« mode manuel : cliquer une valeur pose exactement
+    //    set(...) ») prouve déjà que le geste de clic sur le picker écrit
+    //    bien le CHEMIN brut ; celui-ci vérifie que le picker continue de
+    //    montrer le brut comme actif, jamais le final.
+    assert.equal(activeOption(row), rawExpected, `${key} : le picker montre encore le CHOIX BRUT, actif`);
+
+    // 2) LE SCORE FINAL EST LISIBLE — jamais absent, jamais recalculé.
+    const finalValue = row.querySelectorAll(".ability-row-final-value")[0];
+    assert.ok(finalValue, `${key} : la cellule « Final » existe`);
+    assert.equal(finalValue.textContent, finalExpected, `${key} : le final vient de resolved.abilities, à l'octet`);
+
+    // 3) LES DEUX NOMBRES NE SE CONTREDISENT PLUS : le brut affiché et le
+    //    nombre entre parenthèses de la cellule Final ne sont plus lus côte
+    //    à côte comme SI c'était le même registre — l'écart est ANNONCÉ.
+    const finalCell = row.querySelectorAll(".ability-row-final")[0];
+    assert.equal(finalCell.getAttribute("data-boosted"), String(modExpected), `${key} : l'écart brut/final est signalé`);
+  }
+
+  // ET LA RÉCIPROQUE : une carac SANS boost (STR, DEX, WIS, CHA) affiche le
+  // MÊME nombre des deux côtés, et `data-boosted` dit "false" — l'absence
+  // de boost est aussi lisible que sa présence, pas une case qui disparaît.
+  for (const key of ["str", "dex", "wis", "cha"]) {
+    const row = rowFor(node, key);
+    const raw = currentAbilityValue(report.document, key);
+    const finalCell = row.querySelectorAll(".ability-row-final")[0];
+    assert.ok(finalCell, `${key} : la cellule Final existe aussi sans boost`);
+    assert.equal(finalCell.getAttribute("data-boosted"), "false", `${key} : aucun écart, correctement signalé`);
+    assert.match(finalCell.querySelectorAll(".ability-row-final-value")[0].textContent, new RegExp(`^${raw} \\(`),
+      `${key} : sans boost, le final commence par le même nombre que le brut`);
+  }
+});
+
+test("mode manuel : la colonne Final apparaît aussi (même corps de ligne que le tirage)", () => {
+  const manualDoc = set(fixture.document, "abilities.mode", "manual");
+  const report = rebuild(manualDoc);
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+  const conRow = rowFor(node, "con");
+  assert.equal(conRow.querySelectorAll(".ability-row-final-value")[0].textContent, "14 (+2)");
+});
+
 /* ══ Le garde des jetons — vérifié par la suite complète, pas ici ═══════ */
