@@ -13,15 +13,55 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    `overflow: hidden` ici, qui rend la règle structurelle plutôt que
    convenue.
 
-   ⏳ B0.23a demande une IMAGE DE FOND FIXE, la fiche défilant par-dessus.
-   Aucune image n'existe dans le dépôt : pas de faux magasin. Le fond reste
-   `--bg`, et c'est ICI que l'image se posera le jour où elle existera. */
+   ✅ LOT 59 — L'IMAGE DE FOND EST LÀ (B0.23a). Elle est FIXE sans avoir
+   besoin de `background-attachment: fixed` : `.app` ne défile pas
+   (`overflow: hidden` ci-dessous, B0.21a — seule la scène défile), donc son
+   fond est immobile par construction. Une propriété de moins, et celle-là
+   est justement connue pour ramer sur mobile. */
 .app {
   display: flex;
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
 }
+
+/* ══ LES TROIS DALLES (III.2, bible §5) ════════════════════════════════
+   Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
+
+   🔴 LA RÈGLE QUE LE LOT 59 A MESURÉE, ET QUI N'EXISTAIT NULLE PART :
+   **SEUL `--text` SURVIT SUR DU VERRE.** Contraste au pire pixel du fond
+   servi, formule WCAG, les deux thèmes :
+
+     | encre           | voile 35 % | voile 50 % | voile 100 % | cible |
+     | --text          | 6,3 · 7,4  | 7,5 · 8,5  | 12,6 · 12,5 | 4,5 ✅ |
+     | --text-soft     | 3,0 · 3,6  | 3,6 · 4,1  |  6,0 · 6,1  | 4,5 ❌ |
+     | --text-muted    | 2,7 · 3,3  | 3,3 · 3,8  |  5,5 · 5,6  | 4,5 ❌ |
+     | --border-strong | 1,8 · 2,2  | 2,2 · 2,5  |  3,7 · 3,7  | 3,0 ❌ |
+     | --accent        | 2,7 · 3,3  | 3,3 · 3,8  |  5,5 · 5,6  | 4,5 ❌ |
+
+   ⛔ CE QUE ÇA INTERDIT, ET CE N'EST PAS NÉGOCIABLE PAR UN RÉGLAGE : une
+   dalle SIMPLE ou INTERMÉDIAIRE ne porte QUE de l'encre `--text`, et des
+   formes REMPLIES (un bouton, une pastille, une barre — l'encre y est
+   `--on-accent` sur un fond plein, jamais sur le verre). Un libellé en
+   `--text-muted`, une bordure de contrôle, un mot en accent : ils exigent
+   une dalle MAJEURE. Aucun voile intermédiaire ne les sauve — même à 50 %,
+   `--text-soft` plafonne à 4,1:1.
+
+   ⭐ ET C'EST EXACTEMENT CE QUE LA BIBLE DISAIT DÉJÀ, sans l'avoir chiffré :
+   « verre léger = les gros affichages — FOR/DEX, le Score, un grand nombre »
+   (des chiffres en `--text`, à T7) et « l'accent n'écrit jamais sur du
+   verre ». Le lot 59 étend la seconde règle aux encres douces, avec les
+   nombres.
+
+   📌 Conséquence de mise en page, dite ici parce qu'elle surprend : un écran
+   dense est une dalle MAJEURE, donc opaque, donc le fond ne le traverse
+   pas. **Le fond respire ENTRE et AUTOUR des dalles, pas à travers elles.*/
+.dalle-simple { background: var(--dalle-simple); border-radius: var(--radius-md); }
+.dalle-intermediaire { background: var(--dalle-inter); border-radius: var(--radius-md); }
+.dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
 
 /* ── LA MOLETTE DES ÉTAPES (B0.1-B0.5) — fixe, horizontale ────────
    ⚠️ ELLE GARDE SON NOM (`.belt`) : c'est le même composant qu'au lot 38, et
@@ -30,10 +70,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    même habillage — la faute que le dépôt paie depuis les deux échelles
    typographiques. Ce qui change est son COMPORTEMENT (fixe, horizontale à
    toutes les largeurs), pas son identité. */
+/* Le châssis (molette + ligne de commande) reste OPAQUE : ses libellés sont
+   en `--text-muted` et ses boutons portent une bordure de contrôle — deux
+   encres que la matrice des dalles interdit sur du verre. */
 .belt {
   flex: none;
   display: flex;
   align-items: center;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   position: relative; /* la molette (§3f) mesure depuis ce parent-là */
 }
@@ -105,6 +149,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   align-items: center;
   gap: var(--sp-12);
   padding: 0 var(--sp-12);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 .command-plan, .command-validate {
@@ -174,6 +219,9 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 }
 /* Le rail de navigation interne (B0.19) — FIXE, hors de la scène, donc il
    ne défile pas avec elle et `swapContent` ne le touche pas. */
+/* Le rail porte ses libellés en `--text-muted` : la matrice des dalles
+   l'oblige à rester OPAQUE. Il garde donc `--bg`, et le fond ne le traverse
+   pas — c'est le prix de la lisibilité, pas un oubli. */
 .stage-aside {
   position: absolute;
   left: 0; top: 0; bottom: 0;
@@ -228,8 +276,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    la carte, les boutons Back/Continue et la barre du plan — les trois sont
    partis : `Back` n'existe plus (I.5), `Continue` est devenu l'unique
    `Validate` de la ligne de commande (I.3), et `Show plan` y a suivi. */
+/* ⭐ `.decision-card` EST UNE DALLE MAJEURE, et la classe le dit maintenant
+   dans le DOM (`shell.mjs`, `renderStepContent`). Pourquoi majeure et pas
+   intermédiaire : elle porte des libellés en `--text-muted`, des bordures de
+   contrôle et des champs — la matrice ci-dessus les interdit sur du verre.
+   Son fond vient donc de `.dalle-majeure` ; cette règle-ci ne pose plus que
+   sa forme. */
 .decision-card {
-  background: var(--surface);
   border: 1px solid var(--border); /* décorative : le contour d'une carte, aucune cible de contraste (§3b) */
   border-radius: var(--radius-md);
   /* ⭐ 32 → 16 px, ET C'EST UNE MESURE D'ERIC APPLIQUÉE, PAS UN GOÛT
@@ -352,16 +405,29 @@ button { font: inherit; }
    `visible`, donc c'est `.stage` — le SEUL défilement (B0.21a) — qui le
    fait défiler. Aucune `100vh` ne traîne : la barre du haut est déjà
    déduite, par construction. */
+/* ⚠️ `border: none`, PAS `border-color: transparent` — mesuré au navigateur :
+   une bordure transparente OCCUPE TOUJOURS SES 2 px. Avec `box-sizing:
+   border-box`, la boîte de contenu tombait à 678 pour un champ de 680, donc
+   chaque fiche de classe perdait 2 px : le pas du défilement (678) cessait
+   d'égaler le champ (680) et les points d'aimantation dérivaient de 22 px
+   sur les douze. Invisible à l'œil sur une fiche, fatal sur douze. */
 .decision-card[data-bleed="true"] {
   height: 100%;
   padding: 0;
   margin: 0;
   max-width: none;
-  border-color: transparent;
+  border: none;
   background: none;
 }
 .decision-card[data-bleed="true"] > .class-step { height: 100%; }
 .class-cards { height: 100%; display: flex; flex-direction: column; }
+/* ⭐ LOT 59 — LA MARGE EST LE DÉCOR. Class est le seul écran déjà composé de
+   dalles (douze), donc le seul où le fond peut faire ce que B0.23b décrit :
+   « des dalles qui FLOTTENT ». Sans cette gouttière, les douze fiches se
+   touchaient bord à bord et le fond n'apparaissait nulle part.
+   `height: calc(...)` serait un nombre en dur ; `box-sizing: border-box`
+   (posé sur `*` en tête de fichier) fait que la marge se prend DANS les
+   100 %, sans arithmétique. */
 .class-card {
   height: 100%;
   flex: none;
@@ -371,6 +437,15 @@ button { font: inherit; }
   flex-direction: column;
   gap: var(--sp-12);
 }
+/* ⚠️ GOUTTIÈRE HORIZONTALE SEULEMENT, et c'est de la géométrie, pas du goût :
+   une chaque `.class-card` vaut EXACTEMENT une hauteur de champ (`height:
+   100%`), donc le pas du défilement égale le champ et chaque point
+   d'aimantation tombe juste. Un écart VERTICAL entre les fiches ajouterait
+   8 px au pas sans les ajouter au champ — les crans dériveraient. Les fiches
+   se touchent donc verticalement, et on ne le voit jamais : il n'y en a
+   qu'une à l'écran (B2.1f). Leurs coins arrondis suffisent à les séparer
+   pendant le geste. */
+.class-cards { padding: 0 var(--sp-8); }
 /* B0.23 — LA DALLE MAJEURE : « beaucoup de contenu, ou des images », voile
    100 %. ⏳ Les trois pourcentages sont NOTÉS, PAS ARRÊTÉS (Eric : « on verra
    quand on y sera ») — seule la majeure est construite, parce que seule elle

@@ -1,0 +1,68 @@
+{
+  "_": "Mesure des fonds SERVIS (flou 5 px déjà cuit dans le JPEG) — bible esthétique §5c.",
+  "_lien": "Le sha256 LIE la mesure au fichier : remplacer une image sans remesurer fait rougir tests/decor.test.mjs.",
+  "_extremes": "pixel_le_plus_sombre / _clair sont les DEUX pires cas possibles sous un voile. Le garde recalcule le contraste depuis eux — il n'a donc pas besoin de décoder l'image.",
+  "mesure_le": "2026-08-14",
+  "flou_cuit_px": 5,
+  "zone_mesuree": "recadrage 360:780, les ~19 % latéraux retirés",
+  "fichiers": {
+    "bg-day.jpg": {
+      "sha256": "a518943f04e5668b4de17393bf6876d999079c6f62d1f29fb747edf98f0c421b",
+      "octets": 23668,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        104,
+        190
+      ],
+      "min": 144,
+      "max": 167,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        129,
+        136,
+        144
+      ],
+      "pixel_le_plus_clair": [
+        152,
+        159,
+        167
+      ]
+    },
+    "bg-night.jpg": {
+      "sha256": "a6d5922e1d5eb6e565025e012b4ae1afe02134a264ddbb2ac0a70ca49890fca2",
+      "octets": 27059,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        45,
+        125
+      ],
+      "min": 76,
+      "max": 100,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        49,
+        63,
+        76
+      ],
+      "pixel_le_plus_clair": [
+        72,
+        84,
+        100
+      ]
+    }
+  }
+}

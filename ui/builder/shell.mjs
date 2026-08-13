@@ -453,7 +453,12 @@ function button(label, onClick, disabled) {
    dans `mountFrame()` et ne se redessine jamais. */
 function renderStepContent() {
   const step = STEPS[state.step];
-  const card = el("section", "decision-card");
+  /* LOT 59 — `dalle-majeure` est POSÉE DANS LE DOM, pas seulement supposée
+     par la feuille de style : le vocabulaire des trois dalles (III.2) doit
+     se lire sur l'élément, sinon personne ne sait quel régime porte un
+     écran. Majeure parce qu'un écran dense porte des libellés en
+     `--text-muted` — voir la matrice en tête de `shell.css`. */
+  const card = el("section", "decision-card dalle-majeure");
   /* ⭐ TROUVÉ EN REGARDANT LA PAGE, PAS EN LISANT UN TEST : la feuille de
      style du lot attendait `[data-bleed]` pour donner sa hauteur à la
      chaîne des fiches de classe, et personne ne l'écrivait — les 935 tests
