@@ -11,7 +11,9 @@
 
    Zéro framework, zéro build (loi Q3 du chantier) : DOM natif, ESM natif. */
 
-import { bootEngine, loadExampleDocument } from "./engine.mjs";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
+import { renderConceptStep } from "./concept-step.mjs";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
 import { renderClassStep } from "./class-step.mjs";
 import { renderSpeciesStep } from "./species-step.mjs";
@@ -20,6 +22,13 @@ import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abili
 import { renderDestinyStep } from "./destiny-step.mjs";
 import { renderEquipmentStep, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs";
+/* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
+   magasin, et le navigateur n'en a aucun (voir la tête de
+   `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
+   PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
+   via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
+   `node:crypto` : un import que le navigateur ne sait pas résoudre). */
+import { createDocWriters } from "../../src/doc/writers.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
    antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
@@ -75,7 +84,15 @@ const state = {
      le lot »). Ni l'un ni l'autre champ n'existe dans `document` — voir
      `abilities-step.mjs`, en-tête. */
   abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount, assign}), ou null
-  destinyMode: "draw"    // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
+  destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
+  /* LOT 54 — Concept/Universe. `docWriters` = `createDocWriters({schema})`,
+     construit UNE FOIS au boot (juste en dessous) : PUR, sans magasin ni bus
+     (voir shell.mjs, imports, et universe-step.mjs en tête). `fieldErrors`
+     et `pendingStack` sont de l'état d'ÉCRAN, comme `abilityRoll` —
+     jamais écrits au document, perdus si l'onglet ferme. */
+  docWriters: null,       // { rename, describe } une fois le schéma chargé, sinon null
+  fieldErrors: {},        // le dernier refus de rename/describe, par champ ({name, gender, alignment, campaign})
+  pendingStack: null      // "srd" pendant qu'une confirmation de passage à SRD est en attente, sinon null
 };
 const app = document.getElementById("app");
 
@@ -97,7 +114,104 @@ function rebuild() {
   state.violations = verbs.validate({ document: state.document }).violations || [];
 }
 
+/** `true` si CE personnage porte au moins un choix Fate's Hand nommable
+ *  (`fhRefChoices`, `universe-step.mjs`) — la seule question qu'il faut
+ *  trancher AVANT de savoir si passer à SRD mérite une confirmation. */
+function fhRefChoicesPresent(document) {
+  return fhRefChoices(document, state.engine.layers.verbs.query).length > 0;
+}
+
+/** LOT 54, §2b — CHANGE DE PILE, EN DEUX GESTES QUI VONT ENSEMBLE :
+ *  1. `layers.enable`/`disable` sur les quatre couches FH — c'est CE QUE
+ *     `build.verbs.rebuild` LIT (`dispatch("layers.stack")`, filtré sur
+ *     `enabled`), jamais `document.build.layers` en amont.
+ *  2. `document.build.layers = []` : `src/build/block.mjs` documente noir
+ *     sur blanc qu'un `build.layers` VIDE fait ADOPTER la pile montée SANS
+ *     RIEN ÉCRASER (« un document dont build.layers est VIDE n'a jamais
+ *     été construit ») — c'est la porte que ce lot emploie pour BASCULER
+ *     une pile déjà déclarée, pas seulement pour en adopter une la
+ *     première fois. Aucun verbe `build`/`doc` ne pose ce champ
+ *     directement : `build.layers` est STRUCTUREL (le schéma dit « l'ordre
+ *     est la pile »), pas un point de décision de `build.choices`. */
+function applyLayerStack(value) {
+  const layersVerbs = state.engine.layers.verbs;
+  for (const id of FH_LAYER_IDS) {
+    if (value === "srdfh") layersVerbs.enable({ id }); else layersVerbs.disable({ id });
+  }
+  state.document = { ...state.document, build: { ...state.document.build, layers: [] } };
+  rebuild();
+}
+
 function applyDecisionAction(action) {
+  /* LOT 54 — CONCEPT : `rename` écrit `document.name` par l'écrivain PUR
+     (`state.docWriters.rename`, `src/doc/writers.mjs`), jamais par
+     `build.set` (`name` n'est pas un point de décision — voir la tête de
+     `store.mjs`, lot 47). AUCUN `rebuild()` : `derive.mjs` ne lit ni `name`
+     ni `gender`/`alignment`/`campaign` (mesuré — zéro occurrence dans
+     `src/build/derive.mjs`), donc rien de dérivable n'a changé, même
+     patron que `roll`/`destinyMode` plus bas. Un refus (nom vide, plus de
+     200 caractères) NE TOUCHE PAS `state.document` — il se pose dans
+     `state.fieldErrors`, affiché par `concept-step.mjs`, jamais un silence
+     ni une valeur à moitié écrite. */
+  if (action.kind === "rename") {
+    try {
+      state.document = state.docWriters.rename({ document: state.document, name: action.name });
+      state.fieldErrors = { ...state.fieldErrors, name: null };
+    } catch (error) {
+      state.fieldErrors = { ...state.fieldErrors, name: error.message };
+    }
+    render();
+    return;
+  }
+  /* LOT 54 — CONCEPT (genre, alignement) ET UNIVERSE (campagne) : les trois
+     champs facultatifs de `describableFields(schema)`, un à la fois
+     (`action.field` ∈ {gender, alignment, campaign}). Même discipline que
+     `rename` juste au-dessus : aucun `rebuild()`, un refus reste dans
+     `state.fieldErrors` sans toucher `state.document`. */
+  if (action.kind === "describe") {
+    try {
+      state.document = state.docWriters.describe({ document: state.document, [action.field]: action.value });
+      state.fieldErrors = { ...state.fieldErrors, [action.field]: null };
+    } catch (error) {
+      state.fieldErrors = { ...state.fieldErrors, [action.field]: error.message };
+    }
+    render();
+    return;
+  }
+  /* LOT 54 — UNIVERSE, LA PILE DE RÈGLES (§2b de la commande). Un clic sur
+     un des deux boutons DEMANDE d'abord (`requestLayerStack`) : si aucun
+     choix Fate's Hand n'est en jeu (mesuré dans `universe-step.mjs`,
+     `fhRefChoices`), ou si la cible est « SRD + FH » (toujours sûr —
+     n'ENLÈVE jamais de couche), le changement s'applique tout de suite.
+     Sinon `state.pendingStack` s'ouvre et `universe-step.mjs` affiche la
+     confirmation (`confirm.mjs`, même composant que Class au lot 46) —
+     `confirmLayerStack`/`cancelLayerStack` la referment. */
+  if (action.kind === "requestLayerStack") {
+    if (currentStack(state.document) === action.value) { render(); return; } // déjà cette pile : rien à faire
+    const needsConfirm = action.value === "srd" && fhRefChoicesPresent(state.document);
+    if (needsConfirm) {
+      state.pendingStack = "srd";
+      render();
+      return;
+    }
+    applyLayerStack(action.value);
+    render();
+    return;
+  }
+  if (action.kind === "confirmLayerStack") {
+    applyLayerStack("srd");
+    state.pendingStack = null;
+    render();
+    return;
+  }
+  if (action.kind === "cancelLayerStack") {
+    /* Annuler NE TOUCHE RIEN — même loi que Class (lot 46, `confirm.mjs`
+       en tête) : aucun verbe, aucune mutation du document ni de la pile
+       montée dans `layers`. */
+    state.pendingStack = null;
+    render();
+    return;
+  }
   /* LOT 45 — DEUX GESTES QUI NE TOUCHENT JAMAIS LE DOCUMENT, traités ICI et
      RENDUS AVANT tout appel de verbe : `roll` régénère le lot de dix dés
      (`state.abilityRoll`), `destinyMode` bascule l'onglet Destinée
@@ -326,12 +440,40 @@ function renderStage() {
   const heading = el("h1", null, [document.createTextNode(step.label)]);
   card.append(heading);
 
+  /* LOT 54 — Concept et Universe suivent le MÊME trio de branches que les
+     autres étapes (moteur prêt / en échec / en charge), même si elles ne
+     lisent pas `decisions[]` : elles ont besoin de `state.docWriters`
+     (construit au même moment que `state.engine`, voir le bas de ce
+     fichier), donc du même garde. */
+  if (step.id === "concept" && state.engine) {
+    card.append(renderConceptStep({
+      document: state.document,
+      writers: state.docWriters,
+      fieldErrors: state.fieldErrors
+    }, applyDecisionAction));
+  } else if (step.id === "concept" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "concept") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "universe" && state.engine) {
+    card.append(renderUniverseStep({
+      document: state.document,
+      query: state.engine.layers.verbs.query,
+      fieldErrors: state.fieldErrors,
+      pendingStack: state.pendingStack
+    }, applyDecisionAction));
+  } else if (step.id === "universe" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "universe") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   /* LOT 42 — Class et Species suivent EXACTEMENT le patron Compétences
      (lot 39) : même trio de branches (moteur prêt / en échec / en charge),
      même `ctx` (`resolved` en moins — ni l'un ni l'autre écran n'en a
      besoin, ils ne lisent que `decisions[]`), même verbe `applyDecisionAction`
      pour les trois. */
-  if (step.id === "class" && state.engine) {
+  } else if (step.id === "class" && state.engine) {
     card.append(renderClassStep({
       decisions: state.decisions,
       query: state.engine.layers.verbs.query
@@ -435,10 +577,13 @@ function renderStage() {
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "review") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
-  } else {
-    card.append(el("p", "placeholder", [document.createTextNode(
-      "This step will read the decisions[] ledger (lot 28) for its options, cost and locks — not wired yet.")]));
   }
+  /* LOT 54 — AUCUN `else` FINAL : les neuf étapes (`STEPS`, plus « review »,
+     sa destination) sont toutes nommées ci-dessus. Un dixième `else`
+     générique aurait été un PLACEHOLDER qu'aucune étape ne peut plus
+     jamais atteindre — mort, mais toujours lisible comme si une étape
+     restait à câbler. Ce lot clôt le builder (commande, §0) : le garder
+     aurait menti sur ce qui reste à faire. */
 
   const nav = el("div", "stage-nav", [
     button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
@@ -515,10 +660,13 @@ render();
    fois la pile montée et le premier `rebuild` fait. */
 (async () => {
   try {
-    const engine = await bootEngine();
-    const document = await loadExampleDocument();
+    const [engine, document, schema] = await Promise.all([bootEngine(), loadExampleDocument(), loadDocSchema()]);
     state.engine = engine;
     state.document = document;
+    /* LOT 54 — construit UNE FOIS ; `rename`/`describe` ci-dessous
+       réutilisent la MÊME instance à chaque action, jamais reconstruite par
+       clic (le schéma ne change pas en cours de session). */
+    state.docWriters = createDocWriters({ schema });
     rebuild();
   } catch (error) {
     state.engineError = error.message;

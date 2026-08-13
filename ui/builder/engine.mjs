@@ -69,8 +69,21 @@ export async function bootEngine({ root = "../.." } = {}) {
 }
 
 /** Charge le personnage d'exemple EN+FH — la seule matière réelle
- *  disponible tant que l'étape `Universe & Layers` (0) et `doc.open` ne sont
- *  pas branchés. À remplacer par un vrai document ouvert/créé plus tard. */
+ *  disponible tant que `doc.open` n'est pas branché (voir `contracts/doc.md`,
+ *  « Comment le MCP s'y branchera » — hors périmètre de ce lot). À remplacer
+ *  par un vrai document ouvert/créé plus tard. */
 export async function loadExampleDocument({ root = "../.." } = {}) {
   return (await fetch(`${root}/examples/personnage-fh-en-niveau1.fh-char.json`)).json();
+}
+
+/* LOT 54 — Concept/Universe écrivent `document.name`/`.gender`/`.alignment`/
+   `.campaign` par `createDocWriters({schema})` (`src/doc/writers.mjs`), PAS
+   par `createDoc` : le bloc `doc` refuse de se construire sans magasin, et
+   le navigateur n'en a aucun (`src/doc/store.mjs`, tête de fichier). Ces
+   écrivains n'ont besoin QUE du schéma — chargé ici, comme les couches et
+   l'exemple, jamais recopié dans `ui/`. */
+/** Le schéma `fh-char/1`, tel qu'il est sur le disque — même geste que
+ *  `loadExampleDocument`. */
+export async function loadDocSchema({ root = "../.." } = {}) {
+  return (await fetch(`${root}/schemas/fh-char.schema.json`)).json();
 }
