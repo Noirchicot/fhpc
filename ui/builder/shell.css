@@ -294,3 +294,93 @@ button { font: inherit; }
 .review-fiche .cell b,
 .review-fiche .feuille .val { margin-left: var(--sp-4); }
 .review-fiche .cle { color: var(--text-muted); }
+
+/* ── L'ÉTAPE ABILITIES (lot 45) ──────────────────────────────────────
+   `.record-list`/`.record-option` (carnet.mjs, lot 42) portent déjà le
+   sélecteur de méthode ET les rangées d'assignation — même geste que
+   Class/Species, aucun composant de plus écrit ici. Ce bloc n'ajoute que ce
+   que `renderPicker` ne fournit pas : les dix dés, le bandeau de relance,
+   les libellés de ligne et l'alerte de plafond (§3c, déclarée jamais
+   opposée). */
+.abilities-step, .card-step { max-width: var(--measure); } /* PROSE : une colonne de lignes, pas un tableau (§3e) */
+
+.ability-mode-switch { margin-bottom: var(--sp-16); }
+.ability-mode-note { font-size: var(--t3); color: var(--text-soft); margin: var(--sp-4) 0 0; }
+
+.ability-method-block[data-status="inactive"] { opacity: .6; margin-bottom: var(--sp-16); }
+.ability-mode-summary, .card-mode-summary { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+
+.ability-roll-batch { margin-bottom: var(--sp-24); }
+.ability-roll-bar { margin-bottom: var(--sp-8); }
+.ability-roll-btn {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-16);
+  font-size: var(--t4);
+  cursor: pointer;
+}
+.ability-roll-empty { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+.ability-roll-note { font-size: var(--t3); color: var(--caution); margin: 0 0 var(--sp-8); } /* la relance s'est vue (§3a.1) — même famille que les mentions, jamais un refus (--critical) */
+
+.ability-dice { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
+.ability-die {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-8);
+  min-width: 5ch;
+}
+.ability-die[data-kept="true"] { border-color: var(--tier-2); background: var(--accent-wash); }
+.ability-die[data-kept="false"] { opacity: .55; } /* trouvé en servant le builder (INVENTAIRE-LOT-45.md) : la seule couleur de bordure se voyait trop peu à l'œil, sur dix petits jetons */
+.ability-die-detail { font-size: var(--t1); color: var(--text-muted); }
+.ability-die-total { font-size: var(--t5); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.ability-rows { display: flex; flex-direction: column; gap: var(--sp-8); }
+.ability-row { display: flex; align-items: center; gap: var(--sp-12); min-width: 0; }
+.ability-row-label { width: 4ch; flex: none; font-weight: 600; }
+.ability-row-mod { width: 4ch; flex: none; text-align: right; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.ability-cap-warning { font-size: var(--t2); color: var(--critical); }
+
+/* ── LA SECONDE ÉTAPE DU LOT 45 ──────────────────────────────────────
+   ⚠️ AUCUN NOM DE COUCHE ICI, EXPRÈS : `tests/ui-jetons.test.mjs` (test 10)
+   mord sur `destiny`/`arcana`/`fate`/… dans `shell.css` — « la feuille de
+   style ne connaît aucune couche ». Le fichier du module s'appelle
+   `destiny-step.mjs` et peut nommer sa mécanique en clair (il n'est pas
+   scanné) ; les classes qu'IL POSE sur ses nœuds, elles, sont neutres
+   (`card-…`) pour que ce fichier-ci n'ait jamais à écrire le mot qui les
+   décrit. */
+.card-score {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-8);
+  margin-bottom: var(--sp-16);
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--border);
+}
+.card-score-label { font-size: var(--t2); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+.card-score-value { font-size: var(--t7); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.card-method-block[data-status="inactive"] { opacity: .6; margin-bottom: var(--sp-16); }
+.card-draw { margin-bottom: var(--sp-16); }
+.card-draw-btn {
+  border: 1px solid var(--border-strong);
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-16);
+  font-size: var(--t4);
+  cursor: pointer;
+}
+.card-empty-note { font-size: var(--t3); color: var(--text-soft); margin: var(--sp-8) 0 0; }
+
+.card-detail { margin-top: var(--sp-24); padding: var(--sp-16); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.card-detail h3 { margin: 0 0 var(--sp-8); font-size: var(--t5); }
+.card-detail-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.card-detail-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
+.card-detail-row dt { margin: 0; color: var(--text-muted); width: 10ch; flex: none; }
+.card-detail-row dd { margin: 0; }

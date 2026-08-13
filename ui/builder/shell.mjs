@@ -15,6 +15,8 @@ import { bootEngine, loadExampleDocument } from "./engine.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
 import { renderClassStep } from "./class-step.mjs";
 import { renderSpeciesStep } from "./species-step.mjs";
+import { renderAbilitiesStep, rollAbilitySet } from "./abilities-step.mjs";
+import { renderDestinyStep } from "./destiny-step.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
    antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
@@ -59,7 +61,13 @@ const state = {
   report: null,          // LOT 40 — the whole last rebuild() output: {underived, warnings,
                           // unconsumed, …}, exactly the shape render-fiche.mjs's `report` wants
   violations: [],          // the last validate()'s refusals — {key, params, path?}
-  engineError: null
+  engineError: null,
+  /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
+     2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
+     Ces deux champs sont donc ici, hors de `document`, exactement comme
+     `planOpen` — perdus si l'onglet ferme, et c'est voulu. */
+  abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount}), ou null
+  destinyMode: "draw"    // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
 };
 const app = document.getElementById("app");
 
@@ -82,6 +90,22 @@ function rebuild() {
 }
 
 function applyDecisionAction(action) {
+  /* LOT 45 — DEUX GESTES QUI NE TOUCHENT JAMAIS LE DOCUMENT, traités ICI et
+     RENDUS AVANT tout appel de verbe : `roll` régénère le lot de dix dés
+     (`state.abilityRoll`), `destinyMode` bascule l'onglet Destinée
+     (`state.destinyMode`) — ni l'un ni l'autre n'est un choix `fh-char/1`
+     (voir l'en-tête de `abilities-step.mjs`/`destiny-step.mjs`). Aucun
+     `rebuild()` : rien dans le document n'a changé. */
+  if (action.kind === "roll") {
+    state.abilityRoll = rollAbilitySet(Math.random);
+    render();
+    return;
+  }
+  if (action.kind === "destinyMode") {
+    state.destinyMode = action.value;
+    render();
+    return;
+  }
   const verbs = state.engine.build.verbs;
   /* Chaque verbe REND `{document}` — il ne mute pas en place (contracts/
      build.md). C'est ce document-là qui doit passer à `rebuild`, jamais
@@ -201,6 +225,30 @@ function renderStage() {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "species") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "abilities" && state.engine) {
+    card.append(renderAbilitiesStep({
+      document: state.document,
+      resolved: state.resolved,
+      rollBatch: state.abilityRoll
+    }, applyDecisionAction));
+  } else if (step.id === "abilities" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "abilities") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "destiny" && state.engine) {
+    card.append(renderDestinyStep({
+      document: state.document,
+      resolved: state.resolved,
+      query: state.engine.layers.verbs.query,
+      mode: state.destinyMode,
+      onModeChange: (id) => applyDecisionAction({ kind: "destinyMode", value: id })
+    }, applyDecisionAction));
+  } else if (step.id === "destiny" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "destiny") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "skills" && state.engine) {
     card.append(renderSkillsStep({
