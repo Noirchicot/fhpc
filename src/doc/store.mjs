@@ -65,10 +65,10 @@
 import { randomUUID } from "node:crypto";
 
 import { DocError } from "./errors.mjs";
-import { compileSchema, deriveDraftSchema, describableFields, readFromSchema } from "./schema.mjs";
+import { readFromSchema } from "./schema.mjs";
+import { createDocWriters } from "./writers.mjs";
 import { asBytes, digest, parseDocument, toBytes } from "./serialize.mjs";
 import { platformNow } from "./clock.mjs";
-import { charInvariantViolations } from "../schemas/invariants.mjs";
 
 const STORAGE_METHODS = ["list", "read", "write"];
 
@@ -107,29 +107,20 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
       "Sans schéma, il ne saurait pas ce qu'il accepte, et accepter sans savoir est exactement le contraire " +
       "de ce que ce bloc existe pour faire.");
   }
-  /* LOT 47, §1b/§2c — LE VALIDATEUR ADMET LES DEUX FORMES, PAR UN SEUL
-     SCHÉMA. `deriveDraftSchema` ne change qu'une chose : `resolved` sort de
-     `required`. Tout le reste de `fh-char/1` — chaque `$defs`, chaque
-     contrainte de champ — est INCHANGÉ. Un personnage COMPLET (qui porte
-     `resolved`) est donc jugé exactement aussi strictement qu'avant : le
-     mot « brouillon » ne relâche rien de ce que le schéma dit d'un champ
-     PRÉSENT, il ne fait qu'admettre son ABSENCE. C'est pour ça qu'un seul
-     validateur suffit aux deux formes (§2c), et pour ça que §1c est
-     gratuit : dès que `rebuild` pose `resolved`, ce même validateur le
-     juge déjà à la rigueur complète de `fh-char/1`, sans qu'un octet ne
-     change ici. */
-  const compiled = compileSchema(deriveDraftSchema(schema), "fh-char/1 (brouillon dérivé, §1b)");
-  const SCHEMA_TAG = readFromSchema(schema, ["properties", "schema", "const"]);
+  /* LOT 54, §1 — `rename`/`describe` ET LEUR VALIDATEUR NE VIENNENT PLUS
+     D'ICI : ils sont PURS (ni magasin ni bus), et vivent dans
+     `src/doc/writers.mjs`, importables SANS construire de bloc `doc` — c'est
+     ce qui permet à `ui/builder/` de les atteindre sans magasin (le
+     navigateur n'en a aucun, voir la tête de ce fichier). `createDoc` les
+     RÉUTILISE tels quels ci-dessous (`verbs.rename = writers.rename`) :
+     même fonction, jamais une seconde copie qui pourrait diverger.
+     `createDocWriters` compile le MÊME validateur de brouillon (lot 47,
+     §1b/§2c) que ce bloc utilisait avant ce lot — `assertValid` en vient
+     directement, elle aussi partagée plutôt que recopiée. */
+  const writers = createDocWriters({ schema });
+  const { assertValid, rename, describe, DESCRIBABLE_FIELDS, SCHEMA_TAG } = writers;
   const ID_PATTERN = new RegExp(readFromSchema(schema, ["properties", "id", "pattern"]), "u");
   const FORBIDDEN_KEY = new RegExp(readFromSchema(schema, ["$defs", "safeKey", "not", "pattern"]), "u");
-  /* LOT 48, §1b — LA LISTE BLANCHE DE `describe`, LUE UNE FOIS À LA
-     CONSTRUCTION, JAMAIS RECOPIÉE. `describableFields` lit `properties` et
-     `required` du schéma RACINE injecté — pas du brouillon dérivé, dont
-     seul `required` change, jamais `properties` — et en tire les champs
-     facultatifs et descriptifs. `create` s'en sert aussi (§1c) : les deux
-     verbes qui écrivent hors des quatre champs D3 partagent la MÊME liste,
-     jamais deux copies qui pourraient diverger. */
-  const DESCRIBABLE_FIELDS = describableFields(schema);
 
   /* L'ÉTAT PRIVÉ, ET IL TIENT EN UNE LIGNE : ce que le bloc a réellement LU
      ou ÉCRIT, par id. Ce n'est pas un cache — rien n'est servi depuis lui — ;
@@ -195,28 +186,9 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
     return keys.length > 12 ? `${head}… (${keys.length} au total)` : head;
   }
 
-  /** LE SEUL CHEMIN D'ADMISSION D'UN DOCUMENT. Rien n'entre dans le magasin,
-   *  et rien n'en sort, sans passer par ici (décision D3). Un refus NOMME
-   *  toutes ses raisons d'un coup : un document recopié à la main a rarement
-   *  une seule faute, et les découvrir une par une coûte un aller-retour
-   *  chacune. */
-  function assertValid(document, origin) {
-    if (document === null || typeof document !== "object" || Array.isArray(document)) {
-      fail(`${origin} : un document \`${SCHEMA_TAG}\` est un objet.`);
-    }
-    if (document.schema !== SCHEMA_TAG) {
-      fail(`${origin} : le document déclare \`schema\` = ${JSON.stringify(document.schema)} — ce bloc ` +
-        `n'ouvre que des documents \`${SCHEMA_TAG}\`. Un schéma inconnu n'est pas un document à moitié ` +
-        "compatible : c'est un document dont on ne sait rien.");
-    }
-    const violations = compiled.validate(document, "document")
-      .concat(charInvariantViolations(document));
-    if (violations.length > 0) {
-      fail(`${origin} : le document ne valide pas contre \`${SCHEMA_TAG}\` — ${violations.length} refus :\n- ` +
-        violations.join("\n- "));
-    }
-    return document;
-  }
+  /* LE SEUL CHEMIN D'ADMISSION D'UN DOCUMENT — `assertValid`, importée de
+     `writers.mjs` (lot 54, §1) plutôt que définie ici : rien n'entre dans
+     le magasin, et rien n'en sort, sans passer par elle (décision D3). */
 
   /** Octets → document admis. */
   function admit(bytes, origin) {
@@ -353,22 +325,15 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
      *  être un brouillon ou un personnage complet (§2c, les deux valident) ;
      *  la sortie est validée comme toute admission (décision D3) — un nom
      *  vide ou de plus de 200 caractères est un refus NOMMÉ, jamais un
-     *  silence qui laisserait passer une fiche sans nom. */
-    rename(payload) {
-      const options = payload || {};
-      const { document, name } = options;
-      if (document === null || typeof document !== "object" || Array.isArray(document)) {
-        fail("rename attend `{document, name}` — un document `fh-char/1` (brouillon ou complet) et le nom à " +
-          "écrire à sa racine.");
-      }
-      if (typeof name !== "string") {
-        fail(`rename : \`name\` doit être une chaîne, reçu ${name === undefined ? "(absent)" : typeof name}.`);
-      }
-      const renamed = structuredClone(document);
-      renamed.name = name;
-      assertValid(renamed, "rename");
-      return structuredClone(renamed);
-    },
+     *  silence qui laisserait passer une fiche sans nom.
+     *
+     *  LOT 54, §1 — CE N'EST PLUS UNE FONCTION ÉCRITE ICI : `rename` vient
+     *  telle quelle de `src/doc/writers.mjs` (`createDocWriters`), qui ne
+     *  dépend que du schéma. Ce verbe EST cette fonction (même référence,
+     *  jamais une copie) — c'est ce qui permet à `ui/builder/` d'appeler le
+     *  MÊME code sans jamais construire de bloc `doc` (aucun magasin dans
+     *  le navigateur, voir la tête de ce fichier). */
+    rename,
 
     /** LOT 48, §1b — LE NEUVIÈME VERBE : les champs d'IDENTITÉ que `create`
      *  et `rename` ne portent pas — genre, alignement, nom de code de
@@ -390,12 +355,11 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
      *
      *  Payload `{document, ...champs}` : `champs` est un sous-ensemble de
      *  `DESCRIBABLE_FIELDS`. ⚔️ Toute clef HORS de cette liste est un refus
-     *  NOMMÉ (voir plus bas) — la liste blanche mord dans les DEUX sens :
-     *  elle ADMET ce que le schéma déclare, elle REFUSE le reste, jamais un
-     *  strip silencieux. Un champ omis du payload n'est PAS effacé : ce
-     *  verbe ÉCRIT ce qu'on lui donne, il ne réinitialise rien qu'on ne lui
-     *  a pas demandé de toucher (même discipline que `save`/`import`,
-     *  invariant 7).
+     *  NOMMÉ — la liste blanche mord dans les DEUX sens : elle ADMET ce que
+     *  le schéma déclare, elle REFUSE le reste, jamais un strip silencieux.
+     *  Un champ omis du payload n'est PAS effacé : ce verbe ÉCRIT ce qu'on
+     *  lui donne, il ne réinitialise rien qu'on ne lui a pas demandé de
+     *  toucher (même discipline que `save`/`import`, invariant 7).
      *
      *  Pure comme `rename` : ne touche ni le magasin ni `build.choices` —
      *  ces trois champs ne sont PAS des points de décision de `build`
@@ -403,28 +367,12 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
      *  reviennent jamais dans `unconsumed`. `document` peut être un
      *  brouillon ou un personnage complet ; la sortie est validée comme
      *  toute admission (décision D3) — un champ trop long est un refus
-     *  NOMMÉ, jamais un silence. */
-    describe(payload) {
-      const options = payload || {};
-      const { document, ...fields } = options;
-      if (document === null || typeof document !== "object" || Array.isArray(document)) {
-        fail("describe attend `{document, ...}` — un document `fh-char/1` (brouillon ou complet) et les " +
-          "champs descriptifs à écrire à sa racine.");
-      }
-      const unknown = Object.keys(fields).filter((key) => !DESCRIBABLE_FIELDS.includes(key));
-      if (unknown.length > 0) {
-        fail(`describe : ${unknown.map((key) => `« ${key} »`).join(", ")} — le schéma ne déclare ` +
-          `${unknown.length > 1 ? "aucun de ces champs" : "pas ce champ"} facultatif et descriptif à la ` +
-          "racine (§1b : la liste blanche mord dans les deux sens). Champs acceptés aujourd'hui : " +
-          `${DESCRIBABLE_FIELDS.length > 0 ? DESCRIBABLE_FIELDS.join(", ") : "aucun"}.`);
-      }
-      const described = structuredClone(document);
-      for (const key of DESCRIBABLE_FIELDS) {
-        if (Object.prototype.hasOwnProperty.call(fields, key)) described[key] = fields[key];
-      }
-      assertValid(described, "describe");
-      return structuredClone(described);
-    },
+     *  NOMMÉ, jamais un silence.
+     *
+     *  LOT 54, §1 — MÊME GESTE QUE `rename` JUSTE AU-DESSUS : cette fonction
+     *  vient de `src/doc/writers.mjs`, réutilisée telle quelle, jamais
+     *  recopiée. */
+    describe,
 
     /** Lit un document du magasin et le rend. Ne garde rien d'autre que
      *  l'empreinte de ce qu'il a vu. */

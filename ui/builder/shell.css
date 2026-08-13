@@ -575,3 +575,38 @@ button { font: inherit; }
   margin-bottom: var(--sp-8);
 }
 .equipment-purse-note { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+
+/* ── LES ÉTAPES CONCEPT / UNIVERSE & LAYERS (lot 54) ─────────────────────
+   `.doc-field*` est PARTAGÉ par les deux écrans (`concept-step.mjs` ET
+   `universe-step.mjs`) : nom, genre, alignement, campagne suivent tous le
+   même patron « label + champ texte + refus nommé ». `.doc-field-input`
+   réemploie EXACTEMENT les jetons de `.equipment-search-input` (bordure de
+   CONTRÔLE, rayon, texte) — un champ de saisie de plus, aucun jeton neuf.
+   `.doc-field-error` réemploie la famille `.skills-refusal` (encre critique,
+   monospace) : un refus se lit pareil partout dans le builder. */
+.concept-step, .universe-step { max-width: var(--measure); } /* PROSE, pas grille — même logique que Class/Species/Abilities (§3e) */
+
+.doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
+.doc-field-label { font-size: var(--t3); color: var(--text-muted); }
+.doc-field-input {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-12);
+  font-size: var(--t4);
+  font-family: inherit;
+}
+.doc-field-input[aria-invalid="true"] { border-color: var(--critical); }
+.doc-field-error { font-size: var(--t2); color: var(--critical); margin: 0; font-family: ui-monospace, monospace; }
+.doc-field-note { font-size: var(--t2); color: var(--text-muted); margin: var(--sp-4) 0 0; }
+
+.universe-stack-block { margin-bottom: var(--sp-24); }
+.universe-stack-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+
+.universe-locale-block { margin-top: var(--sp-8); }
+.universe-locale-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.universe-locale-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.universe-locale-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
+.universe-locale-row dt { margin: 0; color: var(--text-muted); width: 10ch; flex: none; }
+.universe-locale-row dd { margin: 0; }
