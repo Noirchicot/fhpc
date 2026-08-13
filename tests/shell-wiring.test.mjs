@@ -162,7 +162,7 @@ test("12 — ⛔ le bouton final n'utilise plus `STEPS.length - 1` pour décider
    non appliquée. */
 
 test("13 — la porte par défaut de `Validate` tranche sur REVIEW_INDEX, par id, jamais sur une longueur", () => {
-  assert.match(shellText, /return \{ ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
+  assert.match(shellText, /return \{ exists: true, ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
     "sur Review il n'y a pas de pas suivant : Validate doit s'y éteindre, et le savoir PAR L'ID");
 });
 
@@ -182,8 +182,8 @@ test("14 bis — et le saut lui-même est BORNÉ par REVIEW_INDEX, jamais par la
 
 test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de Validate fait rougir 12, lui seul", () => {
   const mutated = shellText.replace(
-    /return \{ ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
-    'return { ready: state.step === STEPS.length - 1, action: null, next: "step" };'
+    /return \{ exists: true, ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
+    'return { exists: true, ready: state.step === STEPS.length - 1, action: null, next: "step" };'
   );
   assert.notEqual(mutated, shellText, "témoin : le remplacement a bien eu lieu sur le vrai texte");
   assert.match(mutated, /state\.step\s*===\s*STEPS\.length\s*-\s*1/, "l'attaque réintroduit bien le motif fautif");

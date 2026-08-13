@@ -65,8 +65,10 @@ globalThis.document = createTestDocument();
 
 const { markPressed } = await import("../ui/builder/carnet.mjs");
 const { renderAbilitiesStep } = await import("../ui/builder/abilities-step.mjs");
-const { renderClassStep } = await import("../ui/builder/class-step.mjs");
-const { renderSpeciesStep } = await import("../ui/builder/species-step.mjs");
+const { renderClassChoices } = await import("../ui/builder/class-step.mjs");
+const { renderSpeciesChoices } = await import("../ui/builder/species-step.mjs");
+const { renderCatalogueCards } = await import("../ui/builder/catalogue.mjs");
+const { renderClassCardBody } = await import("../ui/builder/class-step.mjs");
 const { renderSkillsStep } = await import("../ui/builder/skills-step.mjs");
 const { renderInheritanceStep } = await import("../ui/builder/inheritance-step.mjs");
 const { renderDestinyStep } = await import("../ui/builder/destiny-step.mjs");
@@ -189,7 +191,7 @@ test("Class — les molettes du menu des choix (palier 2) s'annoncent", () => {
      ⭐ Le garde garde donc EXACTEMENT la même force — il exige toujours au
      moins un `[data-active]` sur cet écran, à l'endroit où l'écran en
      produit. Un palier 2 qui n'en produirait plus aucun le ferait rougir. */
-  const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, () => {});
+  const node = renderClassChoices({ decisions: report.decisions, query }, () => {});
   assertToutBoutonActifAnnonceSonEtat(node, "Class", 1);
 });
 
@@ -198,15 +200,15 @@ test("Class — le palier 1 ne produit AUCUN bouton : c'est l'invariant II.1, me
      futur lot remettait des boutons de sélection dans les douze fiches, le
      « défilement EST le choix » d'Eric serait mort sans qu'un seul test
      bronche. Celui-ci bronche. */
-  const node = renderClassStep({ decisions: report.decisions, query, palier: 1 }, () => {});
+  const node = renderCatalogueCards({ decisions: report.decisions, query, path: "class", kind: "class" }, renderClassCardBody);
   assert.equal(node.querySelectorAll("button").length, 0,
     "aucun bouton dans la fiche (B2.1e, I.3) — le seul Validate de l'interface est celui de la barre du haut");
   assert.ok(node.querySelectorAll("[data-snap]").length >= 12,
     "et les douze fiches portent bien leur point d'aimantation, le seul contrat avec le scrollspy");
 });
 
-test("Species — le choix d'espèce ET son QCM de compétences (renderSlotQcm → renderPicker) s'annoncent", () => {
-  const node = renderSpeciesStep({ decisions: report.decisions, query }, () => {});
+test("Species — le menu du 2ᵉ palier (bourse captive ou QCM) s'annonce", () => {
+  const node = renderSpeciesChoices({ decisions: report.decisions, query }, () => {});
   assertToutBoutonActifAnnonceSonEtat(node, "Species", 1);
 });
 

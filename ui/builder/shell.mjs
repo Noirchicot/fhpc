@@ -24,8 +24,11 @@ import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
-import { renderClassStep, renderClassRail, classValidate, initialCursor } from "./class-step.mjs";
-import { renderSpeciesStep } from "./species-step.mjs";
+import {
+  catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
+} from "./catalogue.mjs";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
 import { renderDestinyStep } from "./destiny-step.mjs";
@@ -126,11 +129,12 @@ const state = {
      que `innerHTML = ""` détruisait.
      · `palier` — où en est `Validate` sur l'écran courant (I.4). Remis à 1
        à chaque changement d'étape, jamais deviné.
-     · `classCursor` — le cran d'aimantation de l'écran Class. 🔴 ÉCRIT PAR
-       LE SCROLLSPY, ET PAR LUI SEUL, et il ne déclenche AUCUN redessin
+     · `cursor` — le cran d'aimantation de l'écran à CATALOGUE courant (Class
+       ou Species : le même écran, `catalogue.mjs`). 🔴 ÉCRIT PAR LE
+       SCROLLSPY, ET PAR LUI SEUL, et il ne déclenche AUCUN redessin
        (SOCLE.md, la troisième ligne des trois verbes). */
   palier: 1,
-  classCursor: 0
+  cursor: 0
 };
 const app = document.getElementById("app");
 
@@ -417,6 +421,28 @@ function applyDecisionAction(action) {
   refresh();
 }
 
+/* ══ LES DEUX ÉCRANS À CATALOGUE (B2 et B3) ══════════════════════════════
+   Eric : « l'étape 3 va être identique à la 2 ». Cette table est la SEULE
+   chose qui les distingue dans la coquille — le reste (fiches aimantées,
+   rail, paliers) vit dans `catalogue.mjs`, écrit une fois. Ajouter un
+   troisième écran à catalogue serait une ligne de plus ici. */
+const CATALOGUES = {
+  class: { ...CLASS_CATALOGUE, cardBody: renderClassCardBody, choices: renderClassChoices, palier2: classPalier2 },
+  species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 }
+};
+function catalogueCourant() {
+  return state.engine ? CATALOGUES[STEPS[state.step].id] || null : null;
+}
+/** Le `ctx` que les deux écrans et le catalogue partagent — composé ICI pour
+ *  qu'aucun appelant n'en oublie un morceau. */
+function catalogueCtx(cfg) {
+  return {
+    decisions: state.decisions, query: state.engine.layers.verbs.query,
+    path: cfg.path, kind: cfg.kind, label: cfg.label,
+    palier: state.palier, cursor: state.cursor
+  };
+}
+
 /* ⚠️ LOT 38 : plus de "720" ici. Un `@media` CSS ne peut pas exposer sa
    propre valeur à `var()` — c'est une limite native, pas un choix — donc le
    seuil ne peut vivre qu'à UN endroit : le `@media (max-width: 720px)` de
@@ -467,7 +493,7 @@ function renderStepContent() {
      PLEIN CADRE veut dire : la carte cesse d'être une carte (ni marge, ni
      bordure, ni mesure de prose) et prête sa hauteur à ce qu'elle
      contient. Aujourd'hui, seul le palier 1 de Class en a besoin. */
-  card.dataset.bleed = String(step.id === "class" && state.palier === 1);
+  card.dataset.bleed = String(Boolean(CATALOGUES[step.id]) && state.palier === 1);
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
@@ -507,32 +533,28 @@ function renderStepContent() {
      même `ctx` (`resolved` en moins — ni l'un ni l'autre écran n'en a
      besoin, ils ne lisent que `decisions[]`), même verbe `applyDecisionAction`
      pour les trois. */
-  } else if (step.id === "class" && state.engine) {
-    /* LOT 58 — DEUX CHAMPS DE PLUS QUE LES AUTRES ÉCRANS, et ce sont les
-       deux états d'écran du §RENDU : le PALIER de `Validate` (I.4) et le
-       CRAN d'aimantation que le scrollspy écrit (II.3). Ni l'un ni l'autre
-       n'existe dans le document — ils vivent dans `state`, hors du DOM,
-       donc ils survivent au remplacement du contenu. */
-    card.append(renderClassStep({
-      decisions: state.decisions,
-      query: state.engine.layers.verbs.query,
-      palier: state.palier,
-      cursor: state.classCursor
-    }, applyDecisionAction));
-  } else if (step.id === "class" && state.engineError) {
+  } else if (CATALOGUES[step.id] && state.engine) {
+    /* ⭐ UNE SEULE BRANCHE POUR CLASS ET SPECIES (lot 60) : « B3 = B2 ». Les
+       deux champs de plus que les autres écrans sont les deux états du
+       §RENDU — le PALIER de `Validate` (I.4) et le CRAN d'aimantation que le
+       scrollspy écrit (II.3). Ni l'un ni l'autre n'existe dans le document :
+       ils vivent dans `state`, hors du DOM, donc ils survivent au
+       remplacement du contenu. */
+    const cfg = CATALOGUES[step.id];
+    const ctx = catalogueCtx(cfg);
+    const section = el("section", "catalogue-step");
+    section.dataset.palier = String(state.palier === 2 ? 2 : 1);
+    if (state.palier === 2) {
+      section.append(cfg.choices(ctx, applyDecisionAction));
+    } else {
+      const cards = renderCatalogueCards(ctx, cfg.cardBody);
+      if (cards) section.append(cards);
+    }
+    card.append(section);
+  } else if ((step.id === "class" || step.id === "species") && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
-  } else if (step.id === "class") {
-    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
-  } else if (step.id === "species" && state.engine) {
-    card.append(renderSpeciesStep({
-      decisions: state.decisions,
-      query: state.engine.layers.verbs.query
-    }, applyDecisionAction));
-  } else if (step.id === "species" && state.engineError) {
-    card.append(el("p", "placeholder", [document.createTextNode(
-      "Engine failed to load: " + state.engineError)]));
-  } else if (step.id === "species") {
+  } else if (step.id === "class" || step.id === "species") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "background" && state.engine) {
     /* LOT 46 — même trio de branches que Class/Species/Compétences (moteur
@@ -739,9 +761,9 @@ function mountFrame() {
    défilement, qui rappelle le spy. Il écrit `state`, touche un attribut,
    et s'arrête là. */
 function onSnapSettle(index) {
-  if (STEPS[state.step].id !== "class") return;
-  state.classCursor = index;
-  const rail = frame.aside.querySelectorAll(".class-rail-item");
+  if (!catalogueCourant()) return;
+  state.cursor = index;
+  const rail = frame.aside.querySelectorAll(".catalogue-rail-item");
   rail.forEach((item, i) => item.setAttribute("aria-current", i === index ? "true" : "false"));
   /* Le cran courant revient dans le champ DU RAIL, et de lui seul —
      `keepInView`, jamais `scrollIntoView` (qui déplacerait la fiche avec,
@@ -754,11 +776,10 @@ function onSnapSettle(index) {
    que faisait le bouton `Continue` d'avant — donc aucun des neuf autres
    écrans ne ment sur des paliers qu'il n'a pas encore. Class en déclare
    deux (B2.4), et c'est le seul aujourd'hui. */
-function currentGate() {
-  if (STEPS[state.step].id === "class" && state.engine) {
-    return classValidate({ decisions: state.decisions, palier: state.palier, cursor: state.classCursor });
-  }
-  return { ready: state.step < REVIEW_INDEX, action: null, next: "step" };
+function currentGate(palier = state.palier) {
+  const cfg = catalogueCourant();
+  if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  return { exists: true, ready: state.step < REVIEW_INDEX, action: null, next: "step" };
 }
 
 function pressValidate() {
@@ -768,7 +789,17 @@ function pressValidate() {
      `rebuild()` puis `refresh()`, donc le carnet est à jour AVANT que le
      palier suivant ne le lise. */
   if (gate.action) applyDecisionAction(gate.action);
-  if (gate.next === "palier") { state.palier += 1; openSurface(); return; }
+  if (gate.next === "palier") {
+    /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
+       plan du 2ᵉ palier décrit le record CHOISI, pas celui qui était sous le
+       curseur. Une espèce qui n'accorde rien (Loroka) n'a donc qu'UN palier,
+       et on ne peut le savoir qu'ici — pousser vers un menu vide serait un
+       geste pour rien (I.4 : « un écran peut compter un, deux ou trois »). */
+    if (currentGate(state.palier + 1).exists === false) { goToStep(state.step + 1); return; }
+    state.palier += 1;
+    openSurface();
+    return;
+  }
   goToStep(state.step + 1);
 }
 
@@ -787,9 +818,10 @@ function goToStep(index) {
      arriver sur Class le posait devant Barbarian. Comme le défilement EST le
      choix (II.1), un `Validate` poussé sans regarder aurait écrasé sa classe
      en silence. Un écran qui reprend doit montrer où on en est. */
-  if (STEPS[target].id !== "class") { openSurface(); return; }
-  state.classCursor = initialCursor(state.decisions);
-  openSurface(state.classCursor);
+  const cfg = state.engine ? CATALOGUES[STEPS[target].id] : null;
+  if (!cfg) { openSurface(); return; }
+  state.cursor = catalogueCursor(state.decisions, cfg.path);
+  openSurface(state.cursor);
 }
 
 /* ══ LES PEINTRES — ILS N'ÉCRIVENT QUE DES ATTRIBUTS ════════════════════ */
@@ -831,11 +863,8 @@ function paintPlan() {
    Le SLOT ne bouge jamais — seul son contenu change, par `swapContent`
    comme la fiche. */
 function paintAside() {
-  const rail = STEPS[state.step].id === "class" && state.engine
-    ? renderClassRail({
-        decisions: state.decisions, query: state.engine.layers.verbs.query, cursor: state.classCursor
-      })
-    : null;
+  const cfg = catalogueCourant();
+  const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg)) : null;
   const show = Boolean(rail) && state.palier !== 2; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
   frame.area.dataset.aside = show ? "on" : "off";
