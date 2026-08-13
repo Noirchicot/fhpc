@@ -1,4 +1,4 @@
-/* ══ L'ÉTAPE ABILITIES — lot 45 ═══════════════════════════════════════
+/* ══ L'ÉTAPE ABILITIES — lot 45, corrigée lot 50 ═══════════════════════
    ⛔ ZÉRO plan `decisions[]` pour ce chemin (mesuré, commande §0) —
    contrairement à Compétences/Class/Species, cet écran ne descend PAS le
    carnet : il lit `document.build.choices` directement (le SEUL endroit où
@@ -6,6 +6,34 @@
    (le SEUL endroit où lire le score FINAL, boosts compris, tel que le
    moteur le rend — jamais recalculé ici, même loi que le compteur de
    `skills-step.mjs`).
+
+   ⭐ LOT 50 — LE DÉFAUT QU'ERIC A RENCONTRÉ : on ne pouvait pas distribuer
+   ses six dés sur ses six caractéristiques. Trois rangées restaient
+   bloquées sur les valeurs du personnage d'exemple (§0 de la commande,
+   mesuré sur la page déployée : `13`, `12`, `10` n'étaient dans le lot
+   d'AUCUN dé, et pourtant elles « mangeaient » un dé chacune).
+
+   LA PRÉMISSE QUI A CÉDÉ (lot 45, pas une négligence) : « un nombre suffit
+   à identifier un dé ». `optionsForRow` retirait du lot PAR LA VALEUR —
+   or une valeur qui ressemble à un dé (le `14` que DEX portait déjà, hors
+   de tout tirage) lui volait sa place, et une valeur qui ne ressemble à
+   rien (`13`, `12`, `10`) ne consommait jamais rien et revenait à vie
+   (`renderAssignRow`, `options.unshift(current)`).
+
+   LA FORME REPRISE — `~/tools/fh-skills/fh-skill-builder.html:731`, le
+   builder v1 : `assign: {STR:null, DEX:null, …}` — UNE CARACTÉRISTIQUE
+   POINTE VERS L'INDEX D'UN DÉ, JAMAIS VERS SA VALEUR. Deux dés à 14 sont
+   alors deux index distincts (jamais confondus), et une rangée non
+   distribuée porte `null` — un état que l'écran d'avant ne savait pas
+   exprimer, faute de mieux qu'une comparaison de nombres.
+
+   ⚖️ DÉCISION D'ARCHITECTE (2026-08-13, §2a) — cette carte `clef → index`
+   vit HORS DOCUMENT, au même endroit que le lot lui-même : `rollBatch`
+   (`state.abilityRoll` dans `shell.mjs`) porte maintenant un champ
+   `assign`. Elle meurt avec le lot — un `reroll` la remet entière à `null`
+   (§2b, voir `emptyAbilityAssign` plus bas) — et LE DOCUMENT NE GAGNE
+   AUCUN CHAMP : `set()` continue de poser le SCORE, exactement comme avant
+   (test « le document ne gagne aucun champ », `tests/abilities-step.test.mjs`).
 
    ⭐ LE MODE EST UNE LISTE (commande §3a-bis) : `ABILITY_METHODS` porte
    aujourd'hui deux entrées (`roll`, `manual`), et CHAQUE ENTRÉE PORTE SON
@@ -38,6 +66,18 @@ import { ABILITY_KEYS } from "../../src/build/index.mjs";
 import { rollAbilitySet } from "./dice.mjs";
 
 export { rollAbilitySet };
+
+/** La carte d'assignation VIDE — les six clefs à `null`, rien distribué.
+ *  Exportée pour que `shell.mjs` la pose sur `state.abilityRoll.assign` à
+ *  CHAQUE nouveau lot (`roll` ET `reroll` — commande §2b : « un nouveau lot
+ *  remet toute la carte à null »), sans dupliquer `ABILITY_KEYS` là-bas. Ce
+ *  fichier importe déjà `ABILITY_KEYS` (ligne ci-dessus) ; `shell.mjs` n'a
+ *  pas à le réimporter pour ce seul usage. */
+export function emptyAbilityAssign() {
+  const assign = {};
+  for (const key of ABILITY_KEYS) assign[key] = null;
+  return assign;
+}
 
 /** La liste des méthodes — voir l'en-tête. `render(ctx)` fabrique le CORPS
  *  de la méthode (au-delà du sélecteur commun) et REND UN TABLEAU DE
@@ -93,19 +133,31 @@ export function currentAbilityMode(document) {
   return { raw: entry.value, id: known ? entry.value : ABILITY_METHODS[0].id, known };
 }
 
-/** Les valeurs du lot ENCORE disponibles pour la ligne `key` : le lot des
- *  six retenues, MOINS celles déjà posées sur les AUTRES caractéristiques
- *  (multiset — deux jets à 15 restent deux options tant qu'un seul est
- *  posé). La valeur de CETTE ligne, si elle est déjà posée, n'est jamais
- *  retirée : c'est elle que `renderPicker` doit pouvoir montrer active. */
-export function optionsForRow(keptValues, assignedByKey, key) {
-  const pool = [...keptValues];
-  for (const [otherKey, value] of Object.entries(assignedByKey)) {
-    if (otherKey === key || value === undefined) continue;
-    const index = pool.indexOf(value);
-    if (index >= 0) pool.splice(index, 1);
+/** Les DÉS ENCORE LIBRES pour la ligne `key` — lot 50, la correction du
+ *  cœur du défaut. Rend une liste d'INDEX (dans `rollBatch.rolls`), jamais
+ *  de valeurs : les dés RETENUS moins ceux dont l'INDEX est déjà posé sur
+ *  une AUTRE clef de `rollBatch.assign` (multiset par construction — deux
+ *  dés à 14 sont deux index distincts, ni l'un ni l'autre ne se confond
+ *  avec une valeur du personnage qui n'a jamais été tirée). L'index de
+ *  CETTE ligne, s'il en a un, n'est jamais retiré de son propre résultat :
+ *  c'est lui que `renderPicker` doit pouvoir montrer actif.
+ *
+ *  ⛔ Cette fonction ne regarde JAMAIS `document`/`currentAbilityValue` —
+ *  c'est précisément ce que faisait l'ancienne version (par la VALEUR) et
+ *  c'est ce qui laissait une valeur hors lot (le `14` de DEX, jamais tiré)
+ *  voler la place d'un vrai dé (commande §0, « la cause, lue dans le code
+ *  et pas devinée »). Une rangée non distribuée n'a pas d'entrée utile dans
+ *  `assign` (elle vaut `null`/`undefined`) : elle ne retire donc rien au
+ *  pool de personne, y compris au sien. */
+export function optionsForRow(rollBatch, key) {
+  const kept = rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls.filter((roll) => roll.kept) : [];
+  const assign = (rollBatch && rollBatch.assign) || {};
+  const usedIndexes = new Set();
+  for (const [otherKey, index] of Object.entries(assign)) {
+    if (otherKey === key) continue;
+    if (index !== null && index !== undefined) usedIndexes.add(index);
   }
-  return pool;
+  return kept.filter((roll) => !usedIndexes.has(roll.index)).map((roll) => roll.index);
 }
 
 function abilityLabel(key) { return key.toUpperCase(); }
@@ -126,8 +178,15 @@ function renderModeSwitch(activeId, unknownRaw, onAction) {
   return wrap;
 }
 
+/* ⚖️ LOT 50, §2d — le plafond de 18 ne parle QU'AU NIVEAU 1 (Eric,
+   2026-08-13, postérieur à la commande d'origine) : au-delà, le SRD reprend
+   la main (plafond 20). `renderCapWarning` lisait déjà `resolved` pour le
+   score ; il lit maintenant AUSSI `resolved.identity.level` — même chemin
+   que `skills-step.mjs` (`resolved.identity.level`), jamais un `level`
+   recalculé ici. */
 function renderCapWarning(resolved, key) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
+  if (!resolved.identity || resolved.identity.level !== 1) return null;
   const score = resolved.abilities[key].score;
   if (typeof score !== "number" || score <= ABILITY_CAP) return null;
   /* ⛔ Alerte seulement — RIEN n'empêche `onAction` de partir plus haut.
@@ -174,32 +233,28 @@ export function renderFinalColumn(resolved, key, rawValue) {
   return cell;
 }
 
-/** UNE LIGNE — le corps commun à `roll` et `manual` : label, picker du
- *  CHOIX BRUT (seule différence entre les deux méthodes : la SOURCE de
- *  `options`, jamais le geste), colonne « Final », alerte de plafond.
- *  Dupliquer ce corps pour les deux méthodes serait exactement la
- *  divergence que ce fichier existe pour éviter (loi du chantier, citée
- *  par `carnet.mjs`). */
-function renderAbilityRow(key, { document, resolved, options, onAction }) {
+/** UNE LIGNE — le corps commun à `roll` et `manual` : label, note optionnelle
+ *  (lot 50 : « cette valeur ne vient pas du lot »), picker, colonne
+ *  « Final », alerte de plafond. Le picker lui-même (`pickerProps`) est
+ *  ENTIÈREMENT fabriqué par l'appelant — c'est LÀ que les deux méthodes
+ *  divergent depuis le lot 50 (`roll` pose `assignAbilityRoll` sur un
+ *  INDEX de dé, `manual` pose `set` sur une VALEUR), jamais dans ce corps
+ *  partagé. Dupliquer le SQUELETTE de la ligne (label/note/picker/final/
+ *  alerte) pour les deux méthodes serait, lui, exactement la divergence que
+ *  ce fichier existe pour éviter (loi du chantier, citée par `carnet.mjs`). */
+function renderAbilityRow(key, { document, resolved, pickerProps, note }) {
   const row = el("div", "ability-row");
   row.dataset.row = key;
   row.append(el("span", "ability-row-label", [text(abilityLabel(key))]));
+  if (note) row.append(note);
+  row.append(renderPicker(pickerProps));
+  /* ⛔ PAS de `onClear` (ni ici, ni dans les `pickerProps` des deux
+     méthodes) — mesuré en servant le builder (INVENTAIRE-LOT-45.md) :
+     `rebuild()` JETTE si l'une des six manque, et `applyDecisionAction`
+     (shell.mjs) appelle `rebuild()` sans filet après chaque `clear`. Une
+     rangée non distribuée garde donc TOUJOURS une valeur affichée (celle du
+     document) — jamais un tiret qui ferait planter l'écran au clic. */
   const current = currentAbilityValue(document, key);
-  row.append(renderPicker({
-    options,
-    selected: current !== undefined ? [current] : [],
-    labelOf: (v) => String(v),
-    onSelect: (value) => onAction({ kind: "set", path: `abilities.${key}`, value })
-    /* ⛔ PAS de `onClear` ICI — mesuré en servant le builder (INVENTAIRE-
-       LOT-45.md) : `rebuild()` JETTE si l'une des six manque (« un score ne
-       se dérive de rien »), et `applyDecisionAction` (shell.mjs) appelle
-       `rebuild()` sans filet après chaque `clear`. Offrir le tiret ferait
-       planter tout l'écran au premier clic. Reposer une AUTRE valeur au
-       même endroit (`set`, qui REMPLACE — `place()` dans `block.mjs`) est
-       la seule façon légale de changer d'avis ici ; cliquer l'option déjà
-       active ne fait donc RIEN (pas de second geste à apprendre, pas de
-       trou à six). */
-  }));
   const final = renderFinalColumn(resolved, key, current);
   if (final) row.append(final);
   const warning = renderCapWarning(resolved, key);
@@ -207,23 +262,69 @@ function renderAbilityRow(key, { document, resolved, options, onAction }) {
   return row;
 }
 
+/** UNE LIGNE DE TIRAGE — ⭐ le cœur du lot 50. `rollBatch.assign[key]` (un
+ *  INDEX de dé, ou `null`) est la SEULE source qui dit « cette ligne a reçu
+ *  un dé » — jamais une comparaison avec `currentAbilityValue` (c'était le
+ *  défaut : voir l'en-tête, et la forme reprise de
+ *  `~/tools/fh-skills/fh-skill-builder.html:731`).
+ *
+ *  - DISTRIBUÉE (`assign[key]` est un index) : le picker montre CE dé
+ *    actif ; `optionsForRow` l'inclut toujours dans ses propres options
+ *    (cliquer dessus ne fait rien — `renderPicker` n'appelle `onSelect` que
+ *    sur une option INACTIVE, donc pas de second geste à apprendre pour
+ *    changer d'avis : cliquer un AUTRE dé réassigne, voir le test dédié).
+ *  - NON DISTRIBUÉE : la note dit la valeur COURANTE du document (souvent
+ *    une valeur du personnage d'exemple, jamais un dé de CE lot) et
+ *    précise qu'elle ne vient pas du tirage (commande §2c : « rien ne se
+ *    cache »). Le picker offre alors TOUS les dés encore libres — pas un de
+ *    moins : c'est exactement le défaut mesuré au §0 (CON/WIS/CHA n'avaient
+ *    plus que des `11` à recevoir). */
 function renderAssignRow(key, ctx) {
-  const { document, resolved, keptValues, assignedByKey, onAction } = ctx;
+  const { document, resolved, rollBatch, onAction } = ctx;
   const current = currentAbilityValue(document, key);
-  /* Le pool du lot, MOINS ce qui est posé ailleurs — PLUS la valeur déjà
-     posée ICI si elle n'y figure pas (mesuré en servant le builder : le
-     personnage d'exemple porte déjà six scores sans qu'aucun lot n'ait
-     encore été tiré dans CETTE session — `keptValues` est alors vide, et
-     sans ce repêchage la valeur posée disparaîtrait de l'écran au lieu de
-     s'y afficher active. Voir INVENTAIRE-LOT-45.md). */
-  const options = optionsForRow(keptValues, assignedByKey, key);
-  if (current !== undefined && !options.includes(current)) options.unshift(current);
-  return renderAbilityRow(key, { document, resolved, options, onAction });
+  const assign = (rollBatch && rollBatch.assign) || {};
+  const assignedIndex = assign[key];
+  const fromRoll = assignedIndex !== null && assignedIndex !== undefined;
+  const dieByIndex = new Map(
+    (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).map((roll) => [roll.index, roll])
+  );
+  const note = el("span", "ability-row-source", [text(
+    fromRoll
+      ? "from this roll"
+      : current !== undefined ? `${current} — not from this roll` : "not assigned yet"
+  )]);
+  const row = renderAbilityRow(key, {
+    document, resolved, note,
+    pickerProps: {
+      options: optionsForRow(rollBatch, key),
+      selected: fromRoll ? [assignedIndex] : [],
+      labelOf: (index) => { const die = dieByIndex.get(index); return die ? String(die.total) : String(index); },
+      onSelect: (index) => {
+        const die = dieByIndex.get(index);
+        if (!die) return; // garde : une option ne peut désigner qu'un dé réellement gardé
+        /* Deux verbes, un seul clic (voir shell.mjs, §2a) : `assignAbilityRoll`
+           n'est PAS `set` — il porte l'INDEX (pour la carte hors document)
+           ET la VALEUR (pour le document, qui ne connaît que des scores). */
+        onAction({ kind: "assignAbilityRoll", key, rollIndex: index, value: die.total });
+      }
+    }
+  });
+  row.dataset.assigned = String(fromRoll);
+  return row;
 }
 
 function renderManualRow(key, ctx) {
   const { document, resolved, onAction } = ctx;
-  return renderAbilityRow(key, { document, resolved, options: MANUAL_ENTRY_RANGE, onAction });
+  const current = currentAbilityValue(document, key);
+  return renderAbilityRow(key, {
+    document, resolved,
+    pickerProps: {
+      options: MANUAL_ENTRY_RANGE,
+      selected: current !== undefined ? [current] : [],
+      labelOf: (v) => String(v),
+      onSelect: (value) => onAction({ kind: "set", path: `abilities.${key}`, value })
+    }
+  });
 }
 
 /** LE TIRAGE — dix jets rendus, six distingués (commande §4, test 1), et la
@@ -252,6 +353,11 @@ function renderRollBatch(rollBatch, onAction) {
       "none of the ten reached 15 before this one."
     )]));
   }
+  /* `data-assigned` — lot 50, pur affichage : quel dé une caractéristique
+     tient déjà (§4, « regarde-le »). Ne participe à AUCUNE règle : la seule
+     source de vérité pour « ce dé est pris » reste `rollBatch.assign`, lu
+     ici en lecture seule pour annoter le jeton, jamais recalculé. */
+  const usedIndexes = new Set(Object.values(rollBatch.assign || {}).filter((i) => i !== null && i !== undefined));
   const dice = el("div", "ability-dice");
   for (const roll of rollBatch.rolls) {
     const chip = el("div", "ability-die", [
@@ -259,6 +365,7 @@ function renderRollBatch(rollBatch, onAction) {
       el("span", "ability-die-total", [text(String(roll.total))])
     ]);
     chip.dataset.kept = String(roll.kept);
+    chip.dataset.assigned = String(usedIndexes.has(roll.index));
     dice.append(chip);
   }
   wrap.append(dice);
@@ -269,11 +376,10 @@ function renderRollBatch(rollBatch, onAction) {
  *  dés puis les six lignes d'assignation. Rend un TABLEAU de nœuds (pas un
  *  seul) : la boucle de `renderAbilitiesStep` ne fait que les ajouter,
  *  elle ne sait pas combien il y en a ni ce qu'ils contiennent. */
-function renderRollMethod({ document, resolved, rollBatch, assignedByKey, onAction }) {
-  const keptValues = rollBatch ? rollBatch.rolls.filter((r) => r.kept).map((r) => r.total) : [];
+function renderRollMethod({ document, resolved, rollBatch, onAction }) {
   const rows = el("div", "ability-rows");
   for (const key of ABILITY_KEYS) {
-    rows.append(renderAssignRow(key, { document, resolved, keptValues, assignedByKey, onAction }));
+    rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction }));
   }
   return [renderRollBatch(rollBatch, onAction), rows];
 }
@@ -294,8 +400,13 @@ function renderManualMethod({ document, resolved, onAction }) {
  * @param {object} ctx
  * @param {object} ctx.document   le document brut du dernier `rebuild()` — seule source des valeurs déjà posées
  * @param {object} ctx.resolved   la fiche dérivée du dernier `rebuild()` — score final, mod, plafond
- * @param {object} [ctx.rollBatch] le dernier lot tiré ({rolls, rerollCount}), ou `null` — vit hors document (shell.mjs)
- * @param {(action: {kind:"set"|"clear"|"roll", path?:string, value?:*}) => void} onAction
+ * @param {object} [ctx.rollBatch] le dernier lot tiré ({rolls, rerollCount, assign}), ou `null` — vit hors
+ *   document (shell.mjs, `state.abilityRoll`) ; `assign` (lot 50) est la carte `clef → index de dé`, HORS
+ *   document elle aussi (§2a de la commande) — voir l'en-tête du fichier.
+ * @param {(action: {kind:"set"|"clear"|"roll"|"assignAbilityRoll", path?:string, value?:*, key?:string, rollIndex?:number}) => void} onAction
+ *   `assignAbilityRoll` (lot 50) est LE geste du tirage : `key` la caractéristique, `rollIndex` l'index du dé
+ *   dans `rollBatch.rolls` (pour la carte hors document), `value` son total (pour `set({path:"abilities.<key>"})`,
+ *   la seule chose qui atteint le document — voir `shell.mjs`, `applyDecisionAction`).
  */
 export function renderAbilitiesStep(ctx, onAction) {
   const document = ctx.document || null;
@@ -306,9 +417,6 @@ export function renderAbilitiesStep(ctx, onAction) {
 
   const mode = currentAbilityMode(document);
   section.append(renderModeSwitch(mode.id, mode.known ? undefined : mode.raw, act));
-
-  const assignedByKey = {};
-  for (const key of ABILITY_KEYS) assignedByKey[key] = currentAbilityValue(document, key);
 
   /* ⭐ AUCUN BRANCHEMENT SUR L'ID ICI (revue d'architecte, voir l'en-tête et
      INVENTAIRE-LOT-45.md) — `method.id === mode.id` compare un ÉTAT
@@ -325,7 +433,7 @@ export function renderAbilitiesStep(ctx, onAction) {
       section.append(block);
       continue;
     }
-    block.append(...method.render({ document, resolved, rollBatch, assignedByKey, onAction: act }));
+    block.append(...method.render({ document, resolved, rollBatch, onAction: act }));
     section.append(block);
   }
 
