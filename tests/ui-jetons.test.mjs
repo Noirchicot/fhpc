@@ -589,3 +589,50 @@ test("aucun vocabulaire Fate's Hand dans tokens.css ni shell.css — la feuille 
     assert.equal(found, null, `${name} porte « ${found && found[0]} » — un jeton ne doit jamais nommer une couche`);
   }
 });
+
+/* ══ 11 — LE CÂBLAGE DE shell.mjs, PAS SEULEMENT SA FONCTION ══════════
+   Posé par l'ARCHITECTE à la revue du lot 50, après une attaque qui n'a
+   fait rougir AUCUN des 19 tests du lot.
+
+   L'ATTAQUE : remplacer, dans la branche `roll` de `shell.mjs`,
+   `assign: emptyAbilityAssign()` par une expression qui CONSERVE la carte
+   du lot précédent. Effet réel : une relance garde des index périmés, et
+   les six rangées affichent des assignations que le joueur n'a jamais
+   faites — pile la famille de défaut qu'Eric a rencontrée. Les 19 tests
+   sont restés VERTS.
+
+   POURQUOI ILS NE VOIENT RIEN, et le lot l'avait DÉCLARÉ lui-même
+   (`tests/abilities-step.test.mjs`, en tête de sa section 5) : « aucun
+   test `shell.mjs` n'existe nulle part dans ce dépôt ». Son test couvre
+   la fonction PURE `emptyAbilityAssign()` — elle rend bien six `null` —
+   mais rien ne vérifiait que `shell.mjs` l'APPELLE. Déclaré, pas caché :
+   c'est le geste qu'on veut d'un lot, et c'est la revue qui paie la
+   suite.
+
+   ⭐ LE PATRON EST DÉJÀ DANS CE FICHIER, dix lignes plus haut : le garde
+   « engine.mjs monte bien createFhDestinyStat et createFhSkillPoolStat
+   dans `modules:` — pas seulement possible, réellement écrit ». Même
+   défaut, même parade : une suite qui prouve qu'une chose est POSSIBLE
+   sans prouver qu'elle est FAITE laisse le produit faux à l'écran avec
+   des tests verts.
+
+   ⚠️ SA LIMITE, DITE PLUTÔT QUE TUE : c'est un garde d'OCTETS, il lit la
+   forme du code et non son comportement. Il tient parce que `ui/` n'a
+   aucun harnais de rendu ; le jour où `shell.mjs` en aura un, ce garde se
+   remplace par un vrai test d'enchaînement — il ne s'ajoute pas. */
+
+test("garde 11 — la branche `roll` de shell.mjs REMET la carte d'assignation à vide (pas seulement possible : réellement écrit)", () => {
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+
+  /* La forme exacte, sans rien entre `assign:` et l'appel — c'est ce
+     « rien » que l'attaque exploitait, en glissant un repli sur la carte
+     précédente (`state.abilityRoll.assign || emptyAbilityAssign()`). */
+  assert.match(shellText, /assign\s*:\s*emptyAbilityAssign\(\)/,
+    "la branche `roll` doit poser `assign: emptyAbilityAssign()` — un nouveau lot invalide l'assignation précédente");
+
+  /* ⚔️ ET LA MOITIÉ QUI MORD : aucun repli ne doit se glisser devant
+     l'appel. Sans cette seconde assertion, l'attaque passerait — elle
+     laissait `emptyAbilityAssign()` dans la ligne, derrière un `||`. */
+  assert.doesNotMatch(shellText, /assign\s*:\s*[^,}]*\|\|\s*emptyAbilityAssign\(\)/,
+    "un repli devant l'appel garderait les index du lot précédent : la relance cesserait de remettre à zéro");
+});
