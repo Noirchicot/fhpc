@@ -71,7 +71,7 @@ const { renderCatalogueCards } = await import("../ui/builder/catalogue.mjs");
 const { renderClassCardBody } = await import("../ui/builder/class-step.mjs");
 const { renderSkillsStep } = await import("../ui/builder/skills-step.mjs");
 const { renderInheritanceStep } = await import("../ui/builder/inheritance-step.mjs");
-const { renderDestinyStep } = await import("../ui/builder/destiny-step.mjs");
+const { renderDestinyStep, currentArcanaId } = await import("../ui/builder/destiny-step.mjs");
 const { renderEquipmentStep } = await import("../ui/builder/equipment-step.mjs");
 const { renderUniverseStep } = await import("../ui/builder/universe-step.mjs");
 
@@ -230,11 +230,22 @@ test("Inheritance — la carte de don d'origine (fabriquée à la main, TROISIÈ
   assertToutBoutonActifAnnonceSonEtat(node, "Inheritance", 1);
 });
 
-test("Destiny — le mode (Draw/Choose) et le choix d'arcane s'annoncent", () => {
+test("Destiny — ⛔ l'écran à carte ne produit AUCUN bouton à état, et c'est voulu", () => {
+  /* ⚠️ LOT 61 — CE TEST S'INVERSE, ET C'EST UNE DÉCISION. L'écran de B6 n'a
+     plus de sélecteur de mode à deux boutons : il a UNE carte qu'on tape, et
+     deux boutons d'ACTION (`Draw again`, `Choose yourself`) qui ne portent
+     aucun état — ils font, ils ne représentent pas. Un `aria-pressed` sur
+     eux mentirait : rien n'y reste « enfoncé ».
+     ⭐ Le garde reste utile en s'inversant : si quelqu'un remettait un état
+     sur ces boutons sans l'annoncer, `data-active` apparaîtrait ici et le
+     compte cesserait d'être zéro. */
   const node = renderDestinyStep({
-    document: report.document, resolved: report.resolved, query, mode: "draw", onModeChange: () => {}
+    document: report.document, resolved: report.resolved, query,
+    intro: false, drawnId: currentArcanaId(report.document), face: "up", revealed: true
   }, () => {});
-  assertToutBoutonActifAnnonceSonEtat(node, "Destiny", 1);
+  assert.equal(node.querySelectorAll("[data-active]").length, 0,
+    "aucun bouton à état sur cet écran — la carte est un geste, pas une bascule");
+  assert.equal(node.querySelectorAll(".card-action").length, 2, "témoin : les deux boutons d'action SONT là");
 });
 
 test("Equipment — les pickers de gear (renderPicker) s'annoncent", () => {

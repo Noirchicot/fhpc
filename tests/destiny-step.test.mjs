@@ -1,8 +1,17 @@
-/* ══ LES TESTS DU LOT 45 — L'ÉTAPE DESTINY ════════════════════════════════
+/* ══ LES TESTS DE L'ÉTAPE DESTINY — lot 45, REFAITS AU LOT 61 (B6) ════════
 
    Même patron que `abilities-step.test.mjs`. ⛔ AUCUN plan `decisions[]`
-   (mesuré, commande §0) — `ctx` porte `document` (le brut, pour la carte
-   déjà posée) et `resolved` (le Score, à l'octet). */
+   (mesuré au lot 45, toujours vrai) — `ctx` porte `document` (le brut, pour
+   la carte déjà ACTÉE) et `resolved` (le Score, à l'octet).
+
+   ⚠️ CE QUI A CHANGÉ AU LOT 61, et pourquoi ces tests ont bougé : l'écran
+   n'est plus un sélecteur de mode + un bouton « Draw ». C'est la scène de
+   B6 — un texte qu'on chasse, UNE carte de dos, un TAP pour la retourner,
+   le texte une seconde après. Et surtout : **le tirage n'écrit plus rien**
+   (B6.2, « rien n'est acté tant que Valid n'est pas tapé »).
+   ⭐ Les lois que les anciens tests prouvaient sont TOUTES conservées — le
+   Score lu à l'octet, les six champs recopiés, les 22 options du catalogue,
+   le mode hors document. Seule la porte d'entrée a changé. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -14,7 +23,11 @@ import { createFhDestinyStat, FH_DESTINY_ID } from "../src/modules/fh/destiny-st
 
 globalThis.document = createTestDocument();
 
-const { renderDestinyStep, drawArcana, currentArcanaId, ARCANA_METHODS } = await import("../ui/builder/destiny-step.mjs");
+const {
+  renderDestinyStep, drawArcana, currentArcanaId, destinyValidate,
+  renderArcanaCardBody, arcanaImageSrc, ARCANA_BACK_SRC, DESTINY_ARCANA_PATH
+} = await import("../ui/builder/destiny-step.mjs");
+const { renderCatalogueCards, catalogueOptions } = await import("../ui/builder/catalogue.mjs");
 
 const fixture = exempleFhEn();
 const { build } = fixture;
@@ -22,8 +35,14 @@ const query = fixture.layers.verbs.query;
 
 function rebuild(document) { return build.verbs.rebuild({ document }); }
 
+/** La scène APRÈS le retournement — c'est là que vivent le Score, le texte
+ *  et les deux boutons (B6.1b : rien d'autre à l'écran tant qu'elle est de
+ *  dos). `intro: false` : le petit texte a été chassé. */
 function ctxFrom(document, report, extra) {
-  return Object.assign({ document, resolved: report.resolved, query, mode: "draw", onModeChange: () => {} }, extra || {});
+  return Object.assign({
+    document, resolved: report.resolved, query,
+    intro: false, drawnId: currentArcanaId(document), face: "up", revealed: true
+  }, extra || {});
 }
 
 /* ══ 8 — LE SCORE AFFICHÉ EST CELUI DU MOTEUR, À L'OCTET ═════════════════ */
@@ -49,160 +68,157 @@ test("⚔️ ATTAQUE — un Score menteur (value ≠ somme du détail) s'affiche
   assert.equal(value.textContent, "9999", "l'écran affiche ce que `resolved` dit, jamais l'addition refaite");
 });
 
-/* ══ 6 — LES 22 ARCANES VIENNENT DE `query`, JAMAIS UN 22 EN DUR ═════════ */
+/* ══ 6 — LES 22 ARCANES VIENNENT DU CATALOGUE, JAMAIS UN 22 EN DUR ═══════
+   ⚠️ La liste passe maintenant par le CATALOGUE PARTAGÉ (lot 60) : Destiny
+   n'a aucun plan dans `decisions[]`, il fournit donc ses options
+   (`ctx.options`). Ce que le test prouve est inchangé — le compte vient de
+   la pile montée, jamais du code. */
 
 test("mode choix : les options viennent de query({kind:\"arcana\"}) — 22 sur la pile complète", () => {
-  const report = rebuild(fixture.document);
-  const node = renderDestinyStep(ctxFrom(report.document, report, { mode: "choice" }), () => {});
-  const choiceBlock = node.querySelectorAll('.card-method-block[data-status="active"]')[0];
-  const options = choiceBlock.querySelectorAll(".record-option");
-  assert.equal(options.length, 22, "les 22 Arcanes, lus sur la pile — pas un chiffre écrit ici");
+  const options = (query({ kind: "arcana" }) || []).map((v) => v.id);
+  assert.equal(options.length, 22);
+  const node = renderCatalogueCards(
+    { decisions: [], query, path: DESTINY_ARCANA_PATH, kind: "arcana", options, cursor: 0 },
+    renderArcanaCardBody
+  );
+  assert.equal(node.querySelectorAll("[data-snap]").length, 22);
 });
 
 test("un catalogue à 3 cartes (pile réduite) n'en affiche QUE 3 — jamais 22 en dur", () => {
-  // Pile SRD + une couche d'Arcanes synthétique à TROIS cartes seulement.
-  const troisCartes = uneCouche("scenario-lot45-arcana", {
-    arcana: {
-      "scenario:arcana:en:un": { op: "add", name: "Un", slug: "un", data: { numeral: "I", meaning: "m", power: "p", vibration: "v", destiny: { impact: 1 } } },
-      "scenario:arcana:en:deux": { op: "add", name: "Deux", slug: "deux", data: { numeral: "II", meaning: "m", power: "p", vibration: "v", destiny: { impact: 0 } } },
-      "scenario:arcana:en:trois": { op: "add", name: "Trois", slug: "trois", data: { numeral: "III", meaning: "m", power: "p", vibration: "v", destiny: { impact: 2 } } }
-    }
-  });
-  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_FEATS_EN], modules: [createFhDestinyStat()], extra: troisCartes });
-  const catalog = harness.layers.verbs.query({ kind: "arcana" });
-  assert.equal(catalog.length, 3, "sonde : la pile réduite porte bien trois cartes, pas 22");
-
-  const node = renderDestinyStep({
-    document: fixture.document, resolved: fixture.report.resolved, query: harness.layers.verbs.query,
-    mode: "choice", onModeChange: () => {}
-  }, () => {});
-  const choiceBlock = node.querySelectorAll('.card-method-block[data-status="active"]')[0];
-  assert.equal(choiceBlock.querySelectorAll(".record-option").length, 3, "l'écran suit le catalogue REÇU, jamais un 22 câblé");
-});
-
-/* ══ 7 — LA CARTE TIRÉE SE POSE PAR `choose`, ET C'EST CE DOCUMENT-LÀ QUI REPART AU rebuild ══ */
-
-test("mode tirage : cliquer « Draw » pose EXACTEMENT un `choose({path:\"fh.destiny.arcana\", ref})`", () => {
-  const catalog = query({ kind: "arcana" });
-  const report = rebuild(fixture.document);
-  const calls = [];
-  // rng fixe : drawArcana(catalog, rng) doit tirer un id du catalogue REÇU.
-  const rng = () => 0.5;
-  const node = renderDestinyStep(ctxFrom(report.document, report, { rng }), (a) => calls.push(a));
-  const drawBtn = node.querySelectorAll(".card-draw-btn")[0];
-  assert.ok(drawBtn);
-  drawBtn.click();
-  assert.equal(calls.length, 1, "exactement un appel");
-  assert.equal(calls[0].kind, "choose");
-  assert.equal(calls[0].path, "fh.destiny.arcana");
-  const expected = drawArcana(catalog, rng);
-  assert.deepEqual(calls[0].ref, { kind: "arcana", id: expected.id });
-
-  // ET le document que ce `choose` rend est bien celui qui repart au
-  // `rebuild` suivant — même chemin que la fixture montre déjà pour
-  // `fh.destiny.arcana` (fh-arcana.test.mjs, ACCEPTATION 1) : on le
-  // rejoue ici pour ce lot-ci, sur l'id EFFECTIVEMENT tiré par l'écran.
-  const chosen = build.verbs.choose({ document: report.document, path: "fh.destiny.arcana", ref: calls[0].ref }).document;
-  const after = rebuild(chosen);
-  assert.equal(currentArcanaId(after.document), expected.id);
-  const stat = after.resolved.stats.find((s) => s.id === FH_DESTINY_ID);
-  assert.ok(stat, "le Score se recalcule bien avec la carte tirée");
-});
-
-/* ══ LOT 55, §3 — LES DEUX BOUTONS « Draw a card » NE SONT PLUS IDENTIQUES
-   MESURÉ À L'ÉCRAN (commande §3) : le SÉLECTEUR de mode (face à « Choose a
-   card ») et le bouton d'ACTION juste en dessous portaient tous deux le
-   texte « Draw a card » — même style orange, l'un sous l'autre, aucun mot
-   pour dire lequel change de mode et lequel tire une carte.
-
-   MÊME PATRON QU'ABILITIES (déjà correct : « Roll (3d6 × 10, keep 6) », le
-   sélecteur, face à « Roll », l'action) : le sélecteur GARDE son nom complet
-   (`ARCANA_METHODS`, inchangé — le test plus bas, ligne ~175, le vérifie
-   déjà), l'action devient un seul mot, « Draw ». */
-
-test("le bouton d'action (mode tirage) et le bouton du sélecteur de mode ne portent plus le même texte", () => {
-  const report = rebuild(fixture.document);
-  const node = renderDestinyStep(ctxFrom(report.document, report, { mode: "draw" }), () => {});
-  const drawBtn = node.querySelectorAll(".card-draw-btn")[0];
-  // Le sélecteur de mode : `renderModeSwitch` rend un `renderPicker` (carnet.mjs)
-  // à même le `<section>`, chaque option en `.record-option[data-value]`.
-  const modeBtn = node.querySelectorAll(".record-option").find((b) => b.dataset.value === "draw");
-  assert.ok(drawBtn, "le bouton d'action existe");
-  assert.ok(modeBtn, "le bouton du sélecteur de mode « draw » existe");
-  assert.notEqual(drawBtn.textContent, modeBtn.textContent,
-    `les deux boutons partagent encore le même texte (« ${drawBtn.textContent} ») — c'est exactement le doublon mesuré §3`);
-  assert.equal(drawBtn.textContent, "Draw", "le bouton d'action porte désormais un verbe seul, comme « Roll » sur Abilities");
-  assert.equal(modeBtn.textContent, "Draw a card", "le sélecteur de mode garde son libellé descriptif, inchangé");
-});
-
-test("mode choix : cliquer une carte pose le MÊME `choose` que le tirage", () => {
-  const report = rebuild(fixture.document);
-  const calls = [];
-  const node = renderDestinyStep(ctxFrom(report.document, report, { mode: "choice" }), (a) => calls.push(a));
-  const choiceBlock = node.querySelectorAll('.card-method-block[data-status="active"]')[0];
-  const btn = choiceBlock.querySelectorAll(".record-option")[0];
-  const clickedName = btn.textContent;
-  btn.click();
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].kind, "choose");
-  assert.equal(calls[0].path, "fh.destiny.arcana");
-  const view = query({ kind: "arcana", id: calls[0].ref.id });
-  assert.equal(view.record.name, clickedName);
-});
-
-/* ══ La carte montre ses six champs, RECOPIÉS (commande §3b.3) ═══════════ */
-
-test("la carte posée affiche numeral/name/impact/meaning/power/vibration, recopiés du record", () => {
-  const report = rebuild(fixture.document);
-  const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
-  const detail = node.querySelectorAll(".card-detail")[0];
-  assert.ok(detail, "une carte est déjà posée sur le personnage d'exemple");
-  const view = query({ kind: "arcana", id: currentArcanaId(report.document) });
-  assert.match(detail.querySelectorAll("h3")[0].textContent, new RegExp(view.record.data.numeral.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(detail.querySelectorAll("h3")[0].textContent, new RegExp(view.record.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  const text = detail.textContent;
-  assert.match(text, new RegExp(String(view.record.data.destiny.impact)));
-  assert.match(text, new RegExp(view.record.data.meaning.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(text, new RegExp(view.record.data.power.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(text, new RegExp(view.record.data.vibration.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-});
-
-/* ══ 9 (partie Destiny) — LES DEUX MODES EXISTENT, L'INACTIF DIT SON ÉTAT */
-
-test("les deux méthodes existent TOUJOURS ; l'inactive dit son état, ne disparaît pas", () => {
-  assert.deepEqual(ARCANA_METHODS.map((m) => m.id), ["draw", "choice"]);
-  const report = rebuild(fixture.document);
-  const node = renderDestinyStep(ctxFrom(report.document, report, { mode: "draw" }), () => {});
-  const blocks = node.querySelectorAll(".card-method-block");
-  assert.equal(blocks.length, 2);
-  const inactive = blocks.find((b) => b.getAttribute("data-status") === "inactive");
-  assert.equal(inactive.getAttribute("data-method"), "choice");
-  const summary = inactive.querySelectorAll(".card-mode-summary")[0];
-  assert.ok(summary);
-  assert.match(summary.textContent, /Not selected/);
-});
-
-test("basculer de mode appelle `onModeChange`, JAMAIS un verbe de document — fh.destiny.mode ferait jeter rebuild()", () => {
-  // Mesure citée par destiny-step.mjs : `set({path:"fh.destiny.mode", …})`
-  // fait ÉCHOUER rebuild() (le namespace fh.destiny.* est strict). Sondé une
-  // fois ici pour que la raison du choix reste VÉRIFIÉE, pas seulement écrite.
-  assert.throws(() => {
-    const doc = build.verbs.set({ document: fixture.document, path: "fh.destiny.mode", value: "draw" }).document;
-    rebuild(doc);
-  }, /is not a Destiny Score term/);
-
-  const report = rebuild(fixture.document);
-  let modeChanges = [];
-  const calls = [];
-  const node = renderDestinyStep(
-    Object.assign(ctxFrom(report.document, report), { onModeChange: (id) => modeChanges.push(id) }),
-    (a) => calls.push(a)
+  const trois = (query({ kind: "arcana" }) || []).slice(0, 3).map((v) => v.id);
+  const node = renderCatalogueCards(
+    { decisions: [], query, path: DESTINY_ARCANA_PATH, kind: "arcana", options: trois, cursor: 0 },
+    renderArcanaCardBody
   );
-  const modeButtons = node.querySelectorAll(".record-option").filter((b) => ["Draw a card", "Choose a card"].includes(b.textContent));
-  const choiceBtn = modeButtons.find((b) => b.textContent === "Choose a card");
-  choiceBtn.click();
-  assert.deepEqual(modeChanges, ["choice"]);
-  assert.equal(calls.length, 0, "basculer de mode ne pose AUCUN verbe de document");
+  assert.equal(node.querySelectorAll("[data-snap]").length, 3);
+});
+
+/* ══ 🔴 B6.2 — RIEN N'EST ACTÉ TANT QUE `Validate` N'EST PAS TAPÉ ════════
+   C'est le changement de fond du lot 61 : au lot 45, le bouton « Draw »
+   écrivait `choose` dans le document sur-le-champ. Eric : « tant que Valid
+   n'est pas tapé, ça n'est pas acté », et « Draw again est illimité ». */
+
+test("🔴 tirer et retourner une carte n'appelle AUCUN verbe de document", () => {
+  const report = rebuild(fixture.document);
+  const appels = [];
+  const node = renderDestinyStep(
+    ctxFrom(report.document, report, { drawnId: "fh:arcana:en:the-tower", face: "down", revealed: false }),
+    (a) => appels.push(a)
+  );
+  const carte = node.querySelectorAll(".card-face")[0];
+  assert.ok(carte, "la carte est là, de dos");
+  carte.click();
+  assert.deepEqual(appels, [{ kind: "destinyFlip" }],
+    "le tap ne produit QU'UN geste d'écran — aucun `choose`, aucun chemin de document");
+});
+
+test("🔴 c'est `Validate` qui acte, et il pose le MÊME `choose` qu'au lot 45", () => {
+  const porte = destinyValidate({ drawnId: "fh:arcana:en:the-tower", face: "up" });
+  assert.equal(porte.ready, true);
+  assert.deepEqual(porte.action,
+    { kind: "choose", path: "fh.destiny.arcana", ref: { kind: "arcana", id: "fh:arcana:en:the-tower" } });
+  assert.equal(porte.next, "step");
+});
+
+test("🔴 `Validate` reste ÉTEINT tant que la carte n'est pas retournée (B6.1e)", () => {
+  assert.equal(destinyValidate({ drawnId: "fh:arcana:en:the-tower", face: "down" }).ready, false);
+  assert.equal(destinyValidate({ drawnId: null, face: "up" }).ready, false,
+    "et sans carte non plus — une scène vide n'a rien à valider");
+  assert.equal(destinyValidate({ drawnId: null, face: "down" }).action, null);
+});
+
+test("le document rendu par `choose` est celui qui compte : un rebuild dessus voit la NOUVELLE carte", () => {
+  /* La moitié moteur de l'ancien test 7, conservée telle quelle : ce que
+     `Validate` commet doit vraiment changer le Score. */
+  const avant = rebuild(fixture.document);
+  const scoreAvant = avant.resolved.stats.find((s) => s.id === "fh:destiny").value;
+  const { document: apres } = build.verbs.choose({
+    document: avant.document, path: "fh.destiny.arcana",
+    ref: { kind: "arcana", id: "fh:arcana:en:the-tower" }
+  });
+  const reconstruit = rebuild(apres);
+  assert.equal(currentArcanaId(reconstruit.document), "fh:arcana:en:the-tower");
+  assert.ok(reconstruit.resolved.stats.find((s) => s.id === "fh:destiny"),
+    `le Score existe toujours après le changement de carte (avant : ${scoreAvant})`);
+});
+
+/* ══ B6.1b/c — LA SCÈNE : DE DOS, RIEN D'AUTRE, PUIS LE TAP ══════════════ */
+
+test("🔴 de dos, il n'y a RIEN D'AUTRE que la carte (B6.1b)", () => {
+  const report = rebuild(fixture.document);
+  const node = renderDestinyStep(
+    ctxFrom(report.document, report, { face: "down", revealed: false }), () => {}
+  );
+  assert.equal(node.querySelectorAll(".card-face").length, 1);
+  assert.equal(node.querySelectorAll(".card-score").length, 0, "pas de Score");
+  assert.equal(node.querySelectorAll(".card-reveal").length, 0, "pas de texte");
+  assert.equal(node.querySelectorAll(".card-action").length, 0, "pas de boutons");
+  assert.equal(node.querySelectorAll(".card-face-img")[0].getAttribute("src"), ARCANA_BACK_SRC);
+});
+
+test("retournée, la carte montre SA face, et cesse d'être un geste", () => {
+  const report = rebuild(fixture.document);
+  const id = currentArcanaId(report.document);
+  const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
+  const carte = node.querySelectorAll(".card-face")[0];
+  assert.equal(carte.dataset.face, "up");
+  assert.equal(carte.disabled, true, "une carte déjà retournée n'est plus tapable");
+  assert.equal(node.querySelectorAll(".card-face-img")[0].getAttribute("src"), arcanaImageSrc(id));
+});
+
+test("B6.1a — le petit texte occupe la scène SEUL, et son OK le chasse", () => {
+  const report = rebuild(fixture.document);
+  const appels = [];
+  const node = renderDestinyStep(
+    ctxFrom(report.document, report, { intro: true }), (a) => appels.push(a)
+  );
+  assert.equal(node.querySelectorAll(".card-intro").length, 1);
+  assert.equal(node.querySelectorAll(".card-face").length, 0, "la carte n'entre qu'après l'OK");
+  node.querySelectorAll(".card-ok")[0].click();
+  assert.deepEqual(appels, [{ kind: "destinyIntroDone" }]);
+});
+
+test("B6.1d — le texte n'apparaît QU'APRÈS le délai (`revealed`), pas au retournement", () => {
+  const report = rebuild(fixture.document);
+  const sansDelai = renderDestinyStep(ctxFrom(report.document, report, { revealed: false }), () => {});
+  assert.equal(sansDelai.querySelectorAll(".card-reveal").length, 0);
+  assert.equal(sansDelai.querySelectorAll(".card-action").length, 2,
+    "les deux boutons, eux, sont là dès le retournement (B6.1f/h)");
+  const apresDelai = renderDestinyStep(ctxFrom(report.document, report), () => {});
+  assert.equal(apresDelai.querySelectorAll(".card-reveal").length, 1);
+});
+
+/* ══ B6.1f/h — LES DEUX BOUTONS, ET CE QU'ILS COMMETTENT ═════════════════
+   L'héritage du lot 55 (§3) tient : deux gestes différents ne portent jamais
+   le même texte. */
+
+test("« Draw again » et « Choose yourself » : deux textes, deux gestes, aucun verbe de document", () => {
+  const report = rebuild(fixture.document);
+  const appels = [];
+  const node = renderDestinyStep(ctxFrom(report.document, report), (a) => appels.push(a));
+  const boutons = node.querySelectorAll(".card-action");
+  assert.deepEqual(boutons.map((b) => b.textContent), ["Draw again", "Choose yourself"]);
+  boutons[0].click();
+  boutons[1].click();
+  assert.deepEqual(appels, [{ kind: "destinyDraw" }, { kind: "destinyMode", value: "choice" }],
+    "ni l'un ni l'autre n'écrit au document — B6.2, et `fh.destiny.mode` ferait JETER rebuild() (mesuré lot 45)");
+});
+
+/* ══ La carte montre ses six champs, RECOPIÉS (lot 45, §3b.3) ════════════ */
+
+test("la carte retournée affiche numeral/name/impact/meaning/power/vibration, recopiés du record", () => {
+  const report = rebuild(fixture.document);
+  const id = currentArcanaId(report.document);
+  const view = query({ kind: "arcana", id });
+  const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
+  const titre = node.querySelectorAll(".card-reveal h3")[0].textContent;
+  assert.ok(titre.includes(view.record.name));
+  assert.ok(titre.includes(String(view.record.data.numeral)));
+  const valeurs = node.querySelectorAll(".card-reveal dd").map((dd) => dd.textContent);
+  for (const champ of ["meaning", "power", "vibration"]) {
+    const attendu = view.record.data[champ];
+    if (attendu) assert.ok(valeurs.includes(String(attendu)), `« ${champ} » doit être recopié tel quel`);
+  }
 });
 
 /* ══ Le garde des jetons — vérifié par la suite complète, pas ici ═══════ */
