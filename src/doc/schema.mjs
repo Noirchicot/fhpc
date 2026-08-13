@@ -337,6 +337,67 @@ export function deriveDraftSchema(schema) {
   return { ...schema, required: required.filter((key) => key !== "resolved") };
 }
 
+/* ══ LES CHAMPS DESCRIPTIFS — LA LISTE BLANCHE DE `doc.describe`, LUE DANS
+   LE SCHÉMA (lot 48-champs-identite) ═════════════════════════════════════
+
+   Le lot 47 a refusé un verbe `describe` : « le mot suggère une action plus
+   large qu'écrire un seul champ … un nom de verbe trop large invite à y
+   accrocher autre chose plus tard » (`INVENTAIRE-LOT-47.md`). L'argument
+   tient tant que c'est le CODE qui décide de ce que le verbe accepte —
+   chaque champ accroché est une ligne écrite à la main dans `store.mjs`,
+   et rien n'empêche la prochaine d'être hors de propos.
+
+   Ici, c'est le SCHÉMA qui décide. `describableFields(schema)` LIT deux
+   choses que `fh-char.schema.json` dit déjà de lui-même — sans qu'aucune
+   des deux ne soit recopiée : quelles propriétés RACINE sont facultatives
+   (absentes de `required`, déjà lu par `deriveDraftSchema` ci-dessus) et
+   lesquelles sont DESCRIPTIVES (`type: "string"` — le mot que ce schéma
+   emploie déjà pour dire « chaîne libre », voir le `$comment` de
+   `resolved.identity.creatureType`). Un champ qui satisfait les deux
+   n'est écrivable par AUCUNE raison inventée en code : il l'est parce que
+   le schéma le déclare, exactement comme `deriveDraftSchema` amputait
+   `required` sans jamais recopier la liste qu'il filtre.
+
+   ⚠️ POURQUOI `type: "string"` ET NON UNE ANNOTATION INVENTÉE (`x-…`) :
+   une annotation neuve aurait dû rejoindre `SUPPORTED` (§ plus haut dans ce
+   fichier) pour ne pas faire jeter la compilation — un mot-clef de PLUS que
+   ce dépôt doit maintenir, pour un fait que le schéma dit déjà autrement.
+   `type: "string"` n'est pas un choix arbitraire : c'est le mot que ce
+   schéma emploie DEPUIS TOUJOURS pour dire « texte libre, non structuré »
+   (`creatureType`, `name`, `species`…), par opposition à un champ structuré
+   comme `generator` (`type: "object"`, deux sous-champs requis) qui n'a
+   objectivement rien d'un texte descriptif. Le test
+   `tests/doc-schema.test.mjs` (« la liste des mots-clefs pris en charge
+   couvre EXACTEMENT ce que le schéma emploie ») reste donc intact : cette
+   fonction n'ajoute AUCUN mot-clef à faire reconnaître par `compileSchema`.
+
+   ⚠️ CE QUI REND LA DÉRIVATION PROUVABLE, comme pour `deriveDraftSchema` :
+   ajouter demain une propriété racine facultative de type `string` au
+   schéma la rend AUSSITÔT descriptible — sans qu'une seule ligne d'ici ou
+   de `store.mjs` ne bouge. Une liste recopiée (`["gender", "alignment",
+   "campaign"]` écrite en dur dans `store.mjs`) n'aurait pas cette
+   propriété ; c'est exactement l'écart que le lot 47 dénonçait pour un nom
+   de verbe trop large — SAUF que la largeur, ici, appartient au schéma, qui
+   est relu, testé et ratifié à chaque changement, jamais au code muet
+   qu'un verbe générique laisserait grossir en silence. */
+
+/**
+ * Les propriétés RACINE que le schéma déclare facultatives (absentes de
+ * `required`) ET descriptives (`type: "string"`) — la liste blanche du
+ * verbe `doc.describe`. Triée pour un ordre stable et lisible dans les
+ * messages de refus.
+ * @param {object} schema `fh-char.schema.json`, tel qu'injecté par l'appelant.
+ * @returns {string[]}
+ */
+export function describableFields(schema) {
+  const properties = readFromSchema(schema, ["properties"]);
+  const required = new Set(readFromSchema(schema, ["required"]));
+  return Object.keys(properties)
+    .filter((key) => !required.has(key))
+    .filter((key) => isPlainObject(properties[key]) && properties[key].type === "string")
+    .sort();
+}
+
 /**
  * Extrait du schéma une valeur qu'on ne recopie donc PAS en code.
  * Jette en nommant le chemin quand elle n'y est pas : un bloc qui devine ce

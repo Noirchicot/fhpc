@@ -38,6 +38,21 @@
         "version": { "type": "string", "minLength": 1, "maxLength": 40 }
       }
     },
+    "gender": {
+      "$comment": "AJOUT DU 2026-08-13 (lot 48-champs-identite). Ce que le joueur écrit à l'étape CONCEPT, à côté de `name`. Chaîne LIBRE et NON énumérée EXPRÈS — même précédent que `resolved.identity.creatureType` (« une couche homebrew a le droit d'inventer un type ») : une liste fermée de genres rendrait « non-binaire, iel » ou tout pronom qu'une table invente invalide, et le document n'a pas à trancher ce que l'écran peut simplement PROPOSER. FACULTATIF : un personnage sans genre déclaré valide, avant comme après ce lot. Écrit par `doc.describe`, qui lit sa liste blanche DANS ce schéma (`src/doc/schema.mjs`, `describableFields`) — ajouter ce champ n'a demandé aucune ligne du verbe.",
+      "type": "string",
+      "maxLength": 60
+    },
+    "alignment": {
+      "$comment": "AJOUT DU 2026-08-13 (lot 48-champs-identite). Même étape que `gender` (CONCEPT). Chaîne LIBRE et NON énumérée EXPRÈS, pour la même raison : les neuf alignements classiques ne couvrent ni « Chaotic Good (mostly) » ni l'alignement d'une campagne homebrew qui en invente un dixième. La liste des neuf vit dans l'ÉCRAN, plus tard — jamais ici. FACULTATIF, comme `gender`, et écrit par le même verbe `doc.describe`.",
+      "type": "string",
+      "maxLength": 60
+    },
+    "campaign": {
+      "$comment": "AJOUT DU 2026-08-13 (lot 48-champs-identite). Le nom de code de la campagne, écrit par l'étape UNIVERSE (avec `lang`/`units`, pas avec `name`/`gender`/`alignment` de Concept). Chaîne LIBRE : une campagne se nomme comme sa table le décide. Ce mot est déjà du vocabulaire du bloc `play` (`state.campaign`, `src/play/session.mjs`) — aujourd'hui rempli à la main ou laissé vide ; ce champ lui donne enfin une source sur le document lui-même, mais le câblage entre les deux reste un lot d'après, celui-ci n'ouvre que le champ. FACULTATIF, même famille que `gender`/`alignment`, écrit par `doc.describe`.",
+      "type": "string",
+      "maxLength": 80
+    },
     "created": { "$ref": "#/$defs/timestamp" },
     "modified": { "$ref": "#/$defs/timestamp" },
     "resolved": { "$ref": "#/$defs/resolved" },

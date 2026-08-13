@@ -29,6 +29,19 @@
 > leur forme, et un personnage complet s'enregistre exactement comme avant
 > (§« Obligations de test », point 10 du lot 47). Preuves : `tests/doc-create.
 > test.mjs`.
+>
+> ✅ **ÉTENDU LE 2026-08-13 par le lot `48-champs-identite`.** Le genre,
+> l'alignement et le nom de code de campagne n'existaient nulle part — ni
+> dans `fh-char.schema.json`, ni dans aucun verbe. Trois propriétés RACINE
+> facultatives (`gender`, `alignment`, `campaign` — texte libre, non
+> énuméré, même précédent que `resolved.identity.creatureType`) et un
+> neuvième verbe, `describe` (§« Le neuvième verbe »), qui les écrit. Ce
+> verbe **lit sa liste blanche dans le schéma** (`describableFields`,
+> `src/doc/schema.mjs`) au lieu de la recopier en code — c'est ce qui
+> répond à l'objection du lot 47 contre un verbe `describe` trop large
+> (`INVENTAIRE-LOT-47.md`). `create` peut poser ces trois champs dès la
+> naissance, toujours facultatifs ; `rename` ne bouge pas. Rien de ce qui
+> précède ce paragraphe n'a changé. Preuves : `tests/doc-identity.test.mjs`.
 
 ## Nom
 
@@ -88,8 +101,9 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 
 | Verbe | Payload | Effet | Erreurs |
 |---|---|---|---|
-| `create` | `{name, lang, units, layers}` | **(lot 47)** Compose un document `fh-char/1` **neuf et vide** — sans `resolved`, `build.choices`/`overrides` vides. Ne touche PAS au magasin : « créer et sauvegarder sont deux gestes ». Rend le document (cloné). | un des quatre champs manque (aucun défaut deviné, décision D3), document composé invalide → **jette** |
-| `rename` | `{document, name}` | **(lot 47)** Écrit `name` à la racine d'une **copie** de `document` (brouillon ou complet). Pur : ne touche ni le magasin, ni `build.choices`. Rend le document renommé (cloné). | `document` absent/non-objet, `name` non-chaîne, nom vide ou > 200 caractères → **jette** |
+| `create` | `{name, lang, units, layers, …champs descriptifs?}` | **(lot 47, étendu lot 48)** Compose un document `fh-char/1` **neuf et vide** — sans `resolved`, `build.choices`/`overrides` vides. Les quatre premiers champs sont **requis** (décision D3) ; `gender`/`alignment`/`campaign` (ou tout champ que le schéma déclarera demain facultatif et descriptif à la racine) sont acceptés s'ils sont fournis, jamais exigés. Ne touche PAS au magasin. Rend le document (cloné). | un des quatre champs D3 manque, document composé invalide (y compris un champ descriptif trop long) → **jette** |
+| `rename` | `{document, name}` | **(lot 47)** Écrit `name` à la racine d'une **copie** de `document` (brouillon ou complet). Pur : ne touche ni le magasin, ni `build.choices`. Toute autre clef du payload (dont `gender`/`alignment`/`campaign`) est **ignorée**, pas écrite. Rend le document renommé (cloné). | `document` absent/non-objet, `name` non-chaîne, nom vide ou > 200 caractères → **jette** |
+| `describe` | `{document, ...champs}` | **(lot 48)** Écrit un sous-ensemble de `DESCRIBABLE_FIELDS` (aujourd'hui `alignment`, `campaign`, `gender` — **lus dans le schéma**, jamais recopiés) à la racine d'une **copie** de `document`. Pur : ne touche ni le magasin, ni `build.choices` — ces champs ne sont pas des points de décision. Un champ omis du payload n'est pas effacé. Rend le document décrit (cloné). | `document` absent/non-objet, une clef du payload **hors** de `DESCRIBABLE_FIELDS` (nommée), un champ trop long → **jette** |
 | `open` | `{id}` | Lit, valide, rend `{id, document, hash, size}`. Émet `doc-opened`. Retient l'empreinte lue (témoin de collision). | id hors forme, document absent, JSON illisible, schéma inconnu, document invalide, clef ≠ `document.id` → **jette** |
 | `save` | `{document, expect?}` | Sérialise en octets **canoniques** et écrit. Rend `{id, hash, size, replaced, document}`. Émet `doc-saved` (`reason: "save"`). | document invalide, collision d'écriture → **jette** |
 | `list` | — | L'inventaire : `[{id, ok, hash, size, name, lang, level, draft, created, modified}]`, trié par id. Une entrée cassée porte `ok:false` et sa `reason`. **Seul verbe qui ne jette pas.** `draft` **(lot 47)** dit si le document porte `resolved` ; `level` vaut `null` pour un brouillon (rien à lire). | le magasin lui-même en panne → **jette** |
@@ -104,6 +118,9 @@ Un verbe inconnu jette en le nommant (loi §0.5, tenu par le registre J0).
 > lot n'admettait un document *sans* `resolved` (voir « Le schéma de
 > brouillon », plus bas) : sans cette admission, un `create` n'aurait rendu
 > qu'un document que le bloc lui-même aurait refusé à la porte suivante.
+>
+> Le lot 48 en ajoute un neuvième, `describe` : voir « Le neuvième verbe »,
+> plus bas.
 
 **Tout ce qui sort est cloné** : documents (`structuredClone`) et octets
 (`Buffer.from`). L'appelant ne tient jamais l'objet du bloc.
@@ -271,6 +288,73 @@ modified}` — un joueur qui voit sa liste doit distinguer un brouillon d'un
 personnage fini sans ouvrir chaque entrée. `level` vaut `null` pour un
 brouillon plutôt que de faire planter le seul verbe qui ne jette jamais.
 
+### 5. Le neuvième verbe — `describe`, et sa liste blanche LUE dans le schéma (lot 48)
+
+**Trois propriétés RACINE facultatives, texte libre, sans énumération** :
+`gender`, `alignment`, `campaign` (`schemas/fh-char.schema.json`). Même
+précédent que `resolved.identity.creatureType` — une énumération fermée
+rendrait `Chaotic Good (mostly)` ou l'alignement d'une campagne homebrew
+invalide, et la liste des neuf alignements classiques reste un choix
+d'**écran**, jamais du document. Chacun porte une `maxLength` (60 pour
+`gender`/`alignment`, 80 pour `campaign` — un champ de texte sans borne dans
+un document qu'on s'échange est une porte ouverte). Ils ne sont **PAS**
+ajoutés à `required` : un document sans eux valide, avant comme après ce
+lot.
+
+**Pourquoi à la racine, et pas dans `resolved.identity`** : `resolved` n'est
+écrit QUE par la dérivation (invariant 1 de `contracts/build.md`), et rien
+ne dérive un genre. Les poser dans `resolved` obligerait soit à inventer une
+dérivation absurde, soit à violer l'invariant le plus fort du format. La
+racine porte déjà une métadonnée facultative du même genre : `generator`.
+
+**`doc.describe({document, ...champs})` les écrit.** Le lot 47 avait refusé
+le nom `describe` pour un verbe qui n'écrivait que `name` : *« le mot
+suggère une action plus large qu'écrire un seul champ … un nom de verbe
+trop large invite à y accrocher autre chose plus tard »*
+(`INVENTAIRE-LOT-47.md`). Ici, la largeur n'est plus une décision de CODE :
+`describe` accepte exactement les clefs que `describableFields(schema)`
+rend, et cette fonction ne fait que LIRE le schéma injecté — les propriétés
+RACINE absentes de `required` (facultatives) ET de `type: "string"`
+(descriptives, le mot que ce schéma emploie déjà pour dire « texte libre »).
+Rien n'est recopié : le même patron que `deriveDraftSchema` (lot 47) et que
+`readFromSchema` (lot 14), appliqué une troisième fois. « Accrocher autre
+chose plus tard » reste possible, mais ce n'est plus un geste de code caché
+dans `store.mjs` — c'est un changement de SCHÉMA, relu et testé comme tout
+changement de contrat.
+
+**La liste blanche mord dans les deux sens** : une propriété racine
+facultative de type `string` ajoutée au schéma devient AUSSITÔT écrivable
+par `describe`, sans qu'une ligne de `store.mjs` ne bouge (`tests/
+doc-identity.test.mjs`, test 1 — même geste que le test 8 du lot 47 sur
+`deriveDraftSchema`) ; et une clef qui N'EST PAS dans cette liste — y
+compris une clef qui existe au schéma mais qui n'y satisfait pas les DEUX
+critères (`name`, requis ; `generator`, structuré et non `string`) — est un
+**refus NOMMÉ**, jamais un strip silencieux ni un champ ignoré (test 5).
+
+**Pur, comme `rename`** : ne touche ni le magasin ni `build.choices`. Ces
+trois champs ne sont pas des points de décision de `build` — ils ne créent
+donc jamais de choix, et ne reviennent jamais dans `unconsumed` d'un
+`rebuild` (test 2bis, même attaque que le 6bis du lot 47 pour `name`). Un
+champ omis du payload n'est **pas** effacé : `describe` écrit ce qu'on lui
+donne, il ne réinitialise rien d'autre (même discipline que `save`/`import`,
+invariant 7).
+
+**`create` les accepte aussi, dès la naissance** (§1c de la commande du lot
+48) : `create({name, lang, units, layers, gender?, alignment?, campaign?})`
+les pose s'ils sont fournis, en lisant la MÊME liste blanche que `describe`
+— une seule fonction, deux verbes. Ils restent FACULTATIFS : `create` sans
+eux réussit exactement comme avant ce lot (décision D3 ne porte que sur les
+quatre champs qu'elle nomme). Toute autre clef du payload, hors de cette
+liste, reste **ignorée** par `create` — comme un `id` forcé l'était déjà
+avant ce lot (`tests/doc-create.test.mjs`) — et non refusée : `create`
+n'a jamais été strict sur un payload trop généreux, seul `describe` l'est.
+
+**`rename` ne bouge pas** (§1d) : il continue de n'écrire QUE `name`. Une
+clef `gender`/`alignment`/`campaign` glissée dans son payload est
+silencieusement **ignorée** (le destructuring de `rename` ne lit que
+`{document, name}`), jamais appliquée — le schéma coupe ces trois champs
+hors de `rename`, le verbe se coupe là aussi.
+
 ---
 
 ## Invariants
@@ -329,6 +413,12 @@ brouillon plutôt que de faire planter le seul verbe qui ne jette jamais.
     validateur en juge — DÉRIVÉ de `fh-char/1`, jamais recopié à côté.**
     `fh-char.schema.json` lui-même n'est pas modifié : `resolved` y reste
     `required`. Voir « Le schéma de brouillon », réponse 4 ci-dessus.
+13. **(lot 48) `describe` n'écrit QUE ce que le schéma déclare facultatif ET
+    descriptif à la racine — sa liste blanche est GÉNÉRÉE de `fh-char/1`,
+    jamais recopiée en code.** Une clef hors de `describableFields(schema)`
+    est un refus **nommé**, jamais un strip silencieux, y compris pour une
+    clef qui existe au schéma sans satisfaire les deux critères (`name`,
+    `generator`). Voir « Le neuvième verbe », réponse 5 ci-dessus.
 
 ## Dépendances interdites
 
@@ -447,6 +537,23 @@ existent bel et bien sur le bloc (`Object.keys(doc.verbs)`,
     une clef à `required` et en vérifiant qu'elle devient aussitôt requise
     au brouillon ; `list` distingue un brouillon d'un personnage complet, et
     un personnage complet s'enregistre exactement comme avant.
+11. **(lot 48, `doc-identity`)** : `describableFields(charSchema())` rend
+    exactement `["alignment", "campaign", "gender"]` ; ⚔️ une propriété
+    racine facultative de type `string` ajoutée au schéma devient AUSSITÔT
+    écrivable par `describe`, sans qu'une ligne de `store.mjs` ne bouge, et
+    la même clef reste un refus nommé sur le schéma réel non modifié ; les
+    trois champs s'écrivent et se relisent à la racine sans poser aucun
+    choix, et ne reviennent jamais dans `unconsumed` d'un `rebuild` complet ;
+    le personnage d'exemple réel (sans ces champs) valide toujours, et un
+    brouillon sans eux aussi ; un champ trop long est un refus nommé, la
+    borne exacte passe ; ⚔️ `describe` refuse une clef hors de sa liste
+    blanche — un champ totalement inconnu, mais aussi `generator` (existe,
+    structuré) et `name` (existe, requis) ; `create` les accepte dès la
+    naissance et réussit aussi sans eux, un seul à la fois ou aucun ;
+    `rename` les ignore s'ils traînent dans son payload ; `deriveDraftSchema`
+    n'a rien à changer, éprouvé par égalité stricte des trois propriétés
+    entre schéma brut et schéma dérivé. Les 13 tests du lot 47 restent
+    verts, inchangés.
 
 ## ⚠ Points ouverts, pour l'architecte
 

@@ -7,6 +7,9 @@
    - ses VERBES : `open`, `save`, `list`, `import`, `export`, `duplicate`, et
      depuis le lot 47, `create` et `rename` — les deux portes que le kickoff
      n'ouvrait pas : composer un document `fh-char/1` neuf, et écrire son nom.
+     Depuis le lot 48, `describe` : les champs d'identité que ni `create` ni
+     `rename` ne portent (genre, alignement, nom de code de campagne), et sa
+     liste blanche est LUE dans le schéma plutôt que recopiée ici.
    - son ÉTAT : les documents AU REPOS — mais il ne les tient pas en mémoire
      (voir plus bas) ; sa tranche privée est le registre de ce qu'il a
      réellement observé dans le magasin.
@@ -62,7 +65,7 @@
 import { randomUUID } from "node:crypto";
 
 import { DocError } from "./errors.mjs";
-import { compileSchema, deriveDraftSchema, readFromSchema } from "./schema.mjs";
+import { compileSchema, deriveDraftSchema, describableFields, readFromSchema } from "./schema.mjs";
 import { asBytes, digest, parseDocument, toBytes } from "./serialize.mjs";
 import { platformNow } from "./clock.mjs";
 import { charInvariantViolations } from "../schemas/invariants.mjs";
@@ -119,6 +122,14 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
   const SCHEMA_TAG = readFromSchema(schema, ["properties", "schema", "const"]);
   const ID_PATTERN = new RegExp(readFromSchema(schema, ["properties", "id", "pattern"]), "u");
   const FORBIDDEN_KEY = new RegExp(readFromSchema(schema, ["$defs", "safeKey", "not", "pattern"]), "u");
+  /* LOT 48, §1b — LA LISTE BLANCHE DE `describe`, LUE UNE FOIS À LA
+     CONSTRUCTION, JAMAIS RECOPIÉE. `describableFields` lit `properties` et
+     `required` du schéma RACINE injecté — pas du brouillon dérivé, dont
+     seul `required` change, jamais `properties` — et en tire les champs
+     facultatifs et descriptifs. `create` s'en sert aussi (§1c) : les deux
+     verbes qui écrivent hors des quatre champs D3 partagent la MÊME liste,
+     jamais deux copies qui pourraient diverger. */
+  const DESCRIBABLE_FIELDS = describableFields(schema);
 
   /* L'ÉTAT PRIVÉ, ET IL TIENT EN UNE LIGNE : ce que le bloc a réellement LU
      ou ÉCRIT, par id. Ce n'est pas un cache — rien n'est servi depuis lui — ;
@@ -312,6 +323,20 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
            `fh-char/1` moins `resolved`, et RIEN d'autre ne change à `build`. */
         build: { layers, choices: [], budgets: {}, overrides: [] }
       };
+      /* LOT 48, §1c — LES CHAMPS DESCRIPTIFS DÈS LA NAISSANCE, TOUJOURS
+         FACULTATIFS. Même liste blanche que `describe` (`DESCRIBABLE_FIELDS`,
+         lue dans le schéma, pas recopiée) : un joueur qui crée son
+         personnage peut donner son genre et son alignement dans le même
+         écran que son nom. ⛔ Mais `create` ne les EXIGE JAMAIS — la boucle
+         D3 ci-dessus, elle, jette sur les quatre champs qu'elle nomme, et
+         SEULEMENT eux : « facultatif » n'est pas « deviné », c'est
+         « absent » (commande §1c). Toute autre clef du payload — y compris
+         un `id` forcé, voir le test dédié — reste ignorée, exactement comme
+         avant ce lot : `create` n'a jamais refusé un payload trop généreux,
+         il en garde seulement ce qu'il sait nommer. */
+      for (const key of DESCRIBABLE_FIELDS) {
+        if (Object.prototype.hasOwnProperty.call(options, key)) document[key] = options[key];
+      }
       assertValid(document, "create");
       return structuredClone(document);
     },
@@ -343,6 +368,62 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
       renamed.name = name;
       assertValid(renamed, "rename");
       return structuredClone(renamed);
+    },
+
+    /** LOT 48, §1b — LE NEUVIÈME VERBE : les champs d'IDENTITÉ que `create`
+     *  et `rename` ne portent pas — genre, alignement, nom de code de
+     *  campagne — et tout autre champ que le schéma déclarera demain
+     *  facultatif et descriptif à la racine, SANS qu'une ligne d'ici ne
+     *  bouge (voir `describableFields`, `src/doc/schema.mjs`).
+     *
+     *  ⛔ CE QUI RÉPOND À L'OBJECTION DU LOT 47 (`INVENTAIRE-LOT-47.md`,
+     *  « le mot suggère une action plus large... invite à y accrocher autre
+     *  chose plus tard ») : ce verbe est aussi large que le SCHÉMA le
+     *  déclare, jamais un mot de plus. « Accrocher autre chose plus tard »
+     *  n'est plus un geste de CODE — aucune ligne de `describe` ne nomme
+     *  `gender`, `alignment` ou `campaign` — c'est un geste de SCHÉMA :
+     *  une propriété racine facultative de type `string` ajoutée à
+     *  `fh-char.schema.json` (relue, testée, ratifiée comme tout changement
+     *  de contrat) devient aussitôt écrivable ; rien d'autre ne peut
+     *  l'y faire entrer. `describe` ne PEUT PAS grossir en silence, ce
+     *  qu'un verbe dont la liste est recopiée en dur ne peut pas garantir.
+     *
+     *  Payload `{document, ...champs}` : `champs` est un sous-ensemble de
+     *  `DESCRIBABLE_FIELDS`. ⚔️ Toute clef HORS de cette liste est un refus
+     *  NOMMÉ (voir plus bas) — la liste blanche mord dans les DEUX sens :
+     *  elle ADMET ce que le schéma déclare, elle REFUSE le reste, jamais un
+     *  strip silencieux. Un champ omis du payload n'est PAS effacé : ce
+     *  verbe ÉCRIT ce qu'on lui donne, il ne réinitialise rien qu'on ne lui
+     *  a pas demandé de toucher (même discipline que `save`/`import`,
+     *  invariant 7).
+     *
+     *  Pure comme `rename` : ne touche ni le magasin ni `build.choices` —
+     *  ces trois champs ne sont PAS des points de décision de `build`
+     *  (§0.2 de la commande), donc ils ne créent jamais de choix et ne
+     *  reviennent jamais dans `unconsumed`. `document` peut être un
+     *  brouillon ou un personnage complet ; la sortie est validée comme
+     *  toute admission (décision D3) — un champ trop long est un refus
+     *  NOMMÉ, jamais un silence. */
+    describe(payload) {
+      const options = payload || {};
+      const { document, ...fields } = options;
+      if (document === null || typeof document !== "object" || Array.isArray(document)) {
+        fail("describe attend `{document, ...}` — un document `fh-char/1` (brouillon ou complet) et les " +
+          "champs descriptifs à écrire à sa racine.");
+      }
+      const unknown = Object.keys(fields).filter((key) => !DESCRIBABLE_FIELDS.includes(key));
+      if (unknown.length > 0) {
+        fail(`describe : ${unknown.map((key) => `« ${key} »`).join(", ")} — le schéma ne déclare ` +
+          `${unknown.length > 1 ? "aucun de ces champs" : "pas ce champ"} facultatif et descriptif à la ` +
+          "racine (§1b : la liste blanche mord dans les deux sens). Champs acceptés aujourd'hui : " +
+          `${DESCRIBABLE_FIELDS.length > 0 ? DESCRIBABLE_FIELDS.join(", ") : "aucun"}.`);
+      }
+      const described = structuredClone(document);
+      for (const key of DESCRIBABLE_FIELDS) {
+        if (Object.prototype.hasOwnProperty.call(fields, key)) described[key] = fields[key];
+      }
+      assertValid(described, "describe");
+      return structuredClone(described);
     },
 
     /** Lit un document du magasin et le rend. Ne garde rien d'autre que
