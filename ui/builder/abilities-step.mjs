@@ -135,20 +135,52 @@ function renderCapWarning(resolved, key) {
   return el("span", "ability-cap-warning", [text(`> ${ABILITY_CAP} at creation`)]);
 }
 
-function renderAssignRow(key, ctx) {
-  const { document, resolved, keptValues, assignedByKey, onAction } = ctx;
+/* ══ LA COLONNE « FINAL » — corrigée sur mesure d'architecte, 2026-08-13 ═
+   Le défaut mesuré à l'écran : la ligne montrait le CHOIX BRUT (13) à
+   côté d'un modificateur qui n'était PAS le sien (+2, celui du score
+   FINAL 14, boosts d'Inheritance compris) — deux registres différents,
+   aucun mot pour le dire, et le score final lui-même n'apparaissait nulle
+   part. Ce n'était pas un bug de calcul (chaque colonne avait raison dans
+   son registre) : un défaut d'affichage.
+
+   ⛔ DEUX LOIS TENUES ICI, LES DEUX FERMES (demande de l'architecte) :
+   1. le champ éditable (le picker, dans `renderAbilityRow`) reste le CHOIX
+      BRUT — jamais inversé, c'est lui que `set()` écrit ;
+   2. `score`/`mod` sont LUS dans `resolved.abilities[key]`, À L'OCTET —
+      jamais recalculés ici (même loi que les 20 tests du lot 40 : « un
+      total menteur s'affiche menteur »). Cette fonction ne fait AUCUNE
+      arithmétique — pas même la comparaison qui décide `data-boosted` ne
+      touche à aucun des deux nombres, elle les compare tels quels. */
+function renderFinalColumn(resolved, key, rawValue) {
+  if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
+  const { score, mod } = resolved.abilities[key];
+  if (typeof score !== "number") return null;
+  const modText = typeof mod === "number" ? (mod >= 0 ? `+${mod}` : String(mod)) : "—";
+  const cell = el("span", "ability-row-final");
+  /* Piste retenue parmi les trois de l'architecte : le brut reste éditable
+     (picker inchangé), et LE FINAL se lit dans une cellule à part, TITRÉE
+     (« Final »), toujours affichée — boosté ou non, pour que l'absence de
+     boost soit aussi lisible que sa présence, jamais une case qui
+     apparaît/disparaît. `data-boosted` ne fait qu'ANNONCER l'écart déjà lu
+     dans les deux valeurs, pour que l'œil s'y arrête sans qu'il ait à
+     comparer les deux nombres lui-même. */
+  cell.dataset.boosted = String(rawValue !== undefined && score !== rawValue);
+  cell.append(el("span", "ability-row-final-label", [text("Final")]));
+  cell.append(el("span", "ability-row-final-value", [text(`${score} (${modText})`)]));
+  return cell;
+}
+
+/** UNE LIGNE — le corps commun à `roll` et `manual` : label, picker du
+ *  CHOIX BRUT (seule différence entre les deux méthodes : la SOURCE de
+ *  `options`, jamais le geste), colonne « Final », alerte de plafond.
+ *  Dupliquer ce corps pour les deux méthodes serait exactement la
+ *  divergence que ce fichier existe pour éviter (loi du chantier, citée
+ *  par `carnet.mjs`). */
+function renderAbilityRow(key, { document, resolved, options, onAction }) {
   const row = el("div", "ability-row");
   row.dataset.row = key;
   row.append(el("span", "ability-row-label", [text(abilityLabel(key))]));
   const current = currentAbilityValue(document, key);
-  /* Le pool du lot, MOINS ce qui est posé ailleurs — PLUS la valeur déjà
-     posée ICI si elle n'y figure pas (mesuré en servant le builder : le
-     personnage d'exemple porte déjà six scores sans qu'aucun lot n'ait
-     encore été tiré dans CETTE session — `keptValues` est alors vide, et
-     sans ce repêchage la valeur posée disparaîtrait de l'écran au lieu de
-     s'y afficher active. Voir INVENTAIRE-LOT-45.md). */
-  const options = optionsForRow(keptValues, assignedByKey, key);
-  if (current !== undefined && !options.includes(current)) options.unshift(current);
   row.append(renderPicker({
     options,
     selected: current !== undefined ? [current] : [],
@@ -164,45 +196,30 @@ function renderAssignRow(key, ctx) {
        active ne fait donc RIEN (pas de second geste à apprendre, pas de
        trou à six). */
   }));
-  const mod = resolved && resolved.abilities && resolved.abilities[key]
-    ? resolved.abilities[key].mod : undefined;
-  if (typeof mod === "number") {
-    row.append(el("span", "ability-row-mod", [text(mod >= 0 ? `+${mod}` : String(mod))]));
-  }
+  const final = renderFinalColumn(resolved, key, current);
+  if (final) row.append(final);
   const warning = renderCapWarning(resolved, key);
   if (warning) row.append(warning);
   return row;
 }
 
+function renderAssignRow(key, ctx) {
+  const { document, resolved, keptValues, assignedByKey, onAction } = ctx;
+  const current = currentAbilityValue(document, key);
+  /* Le pool du lot, MOINS ce qui est posé ailleurs — PLUS la valeur déjà
+     posée ICI si elle n'y figure pas (mesuré en servant le builder : le
+     personnage d'exemple porte déjà six scores sans qu'aucun lot n'ait
+     encore été tiré dans CETTE session — `keptValues` est alors vide, et
+     sans ce repêchage la valeur posée disparaîtrait de l'écran au lieu de
+     s'y afficher active. Voir INVENTAIRE-LOT-45.md). */
+  const options = optionsForRow(keptValues, assignedByKey, key);
+  if (current !== undefined && !options.includes(current)) options.unshift(current);
+  return renderAbilityRow(key, { document, resolved, options, onAction });
+}
+
 function renderManualRow(key, ctx) {
   const { document, resolved, onAction } = ctx;
-  const row = el("div", "ability-row");
-  row.dataset.row = key;
-  row.append(el("span", "ability-row-label", [text(abilityLabel(key))]));
-  const current = currentAbilityValue(document, key);
-  row.append(renderPicker({
-    options: MANUAL_ENTRY_RANGE,
-    selected: current !== undefined ? [current] : [],
-    labelOf: (v) => String(v),
-    onSelect: (value) => onAction({ kind: "set", path: `abilities.${key}`, value })
-    /* ⛔ PAS de `onClear` ICI — mesuré en servant le builder (INVENTAIRE-
-       LOT-45.md) : `rebuild()` JETTE si l'une des six manque (« un score ne
-       se dérive de rien »), et `applyDecisionAction` (shell.mjs) appelle
-       `rebuild()` sans filet après chaque `clear`. Offrir le tiret ferait
-       planter tout l'écran au premier clic. Reposer une AUTRE valeur au
-       même endroit (`set`, qui REMPLACE — `place()` dans `block.mjs`) est
-       la seule façon légale de changer d'avis ici ; cliquer l'option déjà
-       active ne fait donc RIEN (pas de second geste à apprendre, pas de
-       trou à six). */
-  }));
-  const mod = resolved && resolved.abilities && resolved.abilities[key]
-    ? resolved.abilities[key].mod : undefined;
-  if (typeof mod === "number") {
-    row.append(el("span", "ability-row-mod", [text(mod >= 0 ? `+${mod}` : String(mod))]));
-  }
-  const warning = renderCapWarning(resolved, key);
-  if (warning) row.append(warning);
-  return row;
+  return renderAbilityRow(key, { document, resolved, options: MANUAL_ENTRY_RANGE, onAction });
 }
 
 /** LE TIRAGE — dix jets rendus, six distingués (commande §4, test 1), et la

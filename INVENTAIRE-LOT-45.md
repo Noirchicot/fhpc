@@ -202,6 +202,79 @@ cette preuve). Les 9 tests d'`abilities-step.test.mjs` de la première
 livraison sont un DIFF EN PUR AJOUT — vérifié à l'octet (`git diff`), rien
 au-dessus de la ligne 197 n'a bougé.
 
+## Correction post-fusion (branche `45b-abilities-affichage`, architecte, 2026-08-13)
+
+Lot 45 fusionné dans `main` à `91cf64e` (724 tests). L'architecte a ensuite
+**servi le builder et regardé l'écran Abilities** — la pratique que la
+commande d'origine désignait déjà comme « la plus rentable du chantier » —
+et y a mesuré un défaut d'affichage réel, pas un bug de calcul :
+
+```
+CON   13    +2   ⛔  (13 ne donne pas +2)
+INT   15    +3   ⛔  (15 ne donne pas +3)
+```
+
+**La cause, mesurée par l'architecte** : la ligne affichait le CHOIX BRUT
+(`currentAbilityValue`, ce que `set()` écrit — 13, 15) à côté du
+MODIFICATEUR FINAL (`resolved.abilities[key].mod`, boosts d'Inheritance
+compris — `background.boost.con = 1`, `background.boost.int = 2`) sans dire
+que c'étaient deux registres différents. **Et le score final lui-même (14,
+17) n'apparaissait nulle part** — le nombre qu'on lit pourtant à la table.
+
+**La correction, sur une branche neuve** (`45b-abilities-affichage`, coupée
+de `main` à `91cf64e` — l'ancien worktree avait été retiré à la fusion) :
+
+- Le picker (le champ éditable) **reste inchangé** — toujours le choix
+  brut, toujours ce que `onSelect` pose avec `set()`. Contrainte ferme n°1
+  tenue : rien n'est inversé.
+- Une **cellule « Final » à part, titrée**, toujours affichée (boostée ou
+  non — l'absence de boost doit être aussi lisible que sa présence, jamais
+  une case qui apparaît/disparaît) : `score (mod)`, LU dans
+  `resolved.abilities[key]` — AUCUN calcul dans `renderFinalColumn`, pas
+  même la comparaison `data-boosted` (elle compare deux valeurs déjà lues,
+  n'en fabrique aucune). Contrainte ferme n°2 tenue : rien n'est recalculé.
+- `data-boosted="true"` colore la cellule Final en accent quand
+  `score !== choix brut` — un signal, pas un chiffre de plus.
+- `renderAssignRow`/`renderManualRow` factorisés dans un `renderAbilityRow`
+  commun (leur corps était déjà identique à un mot près — même loi de
+  non-duplication que `carnet.mjs`) : la colonne Final n'a donc été écrite
+  QU'UNE FOIS, pour les deux méthodes.
+
+**Le test qui mord** (`tests/abilities-step.test.mjs`) : sur le personnage
+d'exemple TEL QUEL (aucune fixture inventée — CON/INT y sont déjà boostés,
+mesuré par l'architecte lui-même), vérifie que CON affiche `13` actif au
+picker ET `14 (+2)` dans la cellule Final avec `data-boosted="true"`, idem
+pour INT (`15` / `17 (+3)`), et que les quatre autres caracs (sans boost)
+affichent `data-boosted="false"` avec le même nombre des deux côtés. Un
+second test confirme que le mode manuel porte la même colonne (corps de
+ligne partagé).
+
+**Vérifié à l'écran** (builder servi à la main, port `.claude/launch.json`
+à nouveau pris par une autre session — même geste que la première
+livraison) : CON et INT s'affichent maintenant en accent avec leur « Final
+14 (+2) »/« Final 17 (+3) » lisibles, les quatre autres caracs en neutre
+avec leur final identique au brut — en mode Roll comme en mode Manual.
+
+**Non traité, par choix explicite** : la note de l'architecte sur
+`shell.css:89` (`.stage-nav button:disabled { opacity: .4; }`, le bouton
+« Back » peu lisible à l'étape 0). C'est une convention DE LA COQUILLE
+entière (lots 33/38), pas une régression de ce lot ni de cette correction —
+la commande de l'architecte la nommait explicitement « pas un blocage ».
+La retoucher changerait le contraste de TOUS les contrôles désactivés du
+builder, une décision de jeton de conception qui dépasse le périmètre
+« corrige l'écran Abilities » de cette branche. Laissée telle quelle,
+signalée ici pour qu'elle ne se perde pas.
+
+**Tests, avant/après cette correction** : 724 → **726** (+2 : l'attaque
+CON/INT et le test de la colonne Final en mode manuel). Les 10 tests
+préexistants d'`abilities-step.test.mjs` (les 9 d'origine + la preuve
+d'extensibilité de la revue précédente) sont un DIFF EN PUR AJOUT — vérifié
+(`git diff --stat` : « 73 insertions(+) », zéro suppression). La seule zone
+touchée d'`abilities-step.mjs` est le rendu des lignes (`renderCapWarning` →
+`renderFinalColumn`/`renderAbilityRow`) ; `renderRollMethod`/
+`renderManualMethod`/la boucle de `renderAbilitiesStep` (déjà corrigée à la
+revue précédente) n'ont pas bougé.
+
 ## Commits
 
 Voir `git log --oneline` sur la branche — arbre propre après le dernier

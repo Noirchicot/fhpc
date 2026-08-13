@@ -343,7 +343,16 @@ button { font: inherit; }
 .ability-rows { display: flex; flex-direction: column; gap: var(--sp-8); }
 .ability-row { display: flex; align-items: center; gap: var(--sp-12); min-width: 0; }
 .ability-row-label { width: 4ch; flex: none; font-weight: 600; }
-.ability-row-mod { width: 4ch; flex: none; text-align: right; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+/* La colonne « Final » — corrigée sur mesure d'architecte (INVENTAIRE-
+   LOT-45.md, « correction post-fusion ») : le brut (le picker, éditable)
+   et le score final (boosts compris, lu dans `resolved`) ne doivent plus
+   se lire comme deux nombres contradictoires côte à côte. `[data-boosted]`
+   n'annonce qu'un ÉCART DÉJÀ LU dans les deux valeurs (aucun calcul ici,
+   la couleur seule change) — jamais un ajout de chiffre. */
+.ability-row-final { display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-2); flex: none; min-width: 9ch; }
+.ability-row-final-label { font-size: var(--t1); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+.ability-row-final-value { font-variant-numeric: tabular-nums; }
+.ability-row-final[data-boosted="true"] .ability-row-final-value { color: var(--accent); font-weight: 600; }
 .ability-cap-warning { font-size: var(--t2); color: var(--critical); }
 
 /* ── LA SECONDE ÉTAPE DU LOT 45 ──────────────────────────────────────
