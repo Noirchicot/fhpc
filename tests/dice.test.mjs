@@ -48,17 +48,48 @@ test("rollTen rend exactement DIX jets, jamais recomposés depuis un total", () 
    il prouve seulement les bornes physiques de 3d6, sur assez de jets pour
    que les deux bornes soient vraiment atteintes. */
 
-test("chaque jet de 3d6 vaut entre 3 et 18 — vérifié sur mille jets, les deux bornes sont atteintes", () => {
-  let min = 99;
-  let max = 0;
+/* 🔴 CE TEST ÉTAIT L'« INSTABILITÉ DE SUITE » — nommée le 2026-08-13, portée
+   par trois passations comme un inconnu non résolu, et attribuée à tort au
+   voisinage d'un `git merge`. Corrigé le 2026-08-14, PRIS SUR LE FAIT sur la
+   passe qui a suivi la fusion du lot 57.
+
+   LA MESURE, et elle est nette : l'ancienne version tirait MILLE jets avec
+   `Math.random` RÉEL et EXIGEAIT que les deux bornes sortent. Or
+   P(3d6 = 3) = P(3d6 = 18) = 1/216, donc P(absente sur mille jets) ≈ 0,97 %
+   chacune. Simulé sur 200 000 répétitions : **1,96 % d'échec — une passe
+   rouge toutes les 51 exécutions.**
+
+   ⭐ ÇA EXPLIQUE LES TROIS OBSERVATIONS : c'est bien `dice.test.mjs` que le
+   lot 49 avait vu rouge ; c'est rare et jamais reproductible à la demande ;
+   et ça n'a AUCUN rapport avec `git merge` — le voisinage était une
+   coïncidence, exactement ce que la passation du 14 refusait d'écrire comme
+   une cause. Elle avait raison de refuser.
+
+   ⛔ LA RÉPARATION N'EST PAS « PLUS DE JETS ». Augmenter N rend l'échec plus
+   rare sans jamais l'éliminer : un test dont la réussite est probabiliste
+   reste un test qui ment de temps en temps, et celui-ci a coûté trois
+   passations d'enquête. UNE PROPRIÉTÉ DÉTERMINISTE SE PROUVE
+   DÉTERMINISTIQUEMENT — c'est ce que fait ce fichier partout ailleurs, avec
+   `scriptedRng`, depuis le premier jour.
+
+   Les deux moitiés sont donc séparées : les BORNES sont atteignables (fait
+   déterministe, prouvé par un rng scripté), et l'INTERVALLE tient sur du
+   hasard réel (propriété vraie de TOUT tirage, jamais probabiliste). */
+
+test("les deux bornes de 3d6 sont ATTEIGNABLES — prouvé sans hasard", () => {
+  assert.equal(rollThreeD6(scriptedRng([0])).total, 3, "3×1 = 3, la borne basse");
+  assert.equal(rollThreeD6(scriptedRng([0.999])).total, 18, "3×6 = 18, la borne haute");
+});
+
+test("chaque jet de 3d6 tombe dans [3,18] — mille jets de hasard RÉEL", () => {
+  /* Cette assertion-ci est vraie de CHAQUE tirage, donc elle ne peut pas
+     échouer par malchance : c'est ce qui la distingue de celle d'avant. */
   for (let i = 0; i < 1000; i += 1) {
-    const { total } = rollThreeD6(Math.random);
+    const { total, dice } = rollThreeD6(Math.random);
     assert.ok(total >= 3 && total <= 18, `un jet de 3d6 vaut ${total}, hors [3,18]`);
-    min = Math.min(min, total);
-    max = Math.max(max, total);
+    assert.equal(dice.length, 3, "trois dés, toujours");
+    assert.equal(dice.reduce((a, b) => a + b, 0), total, "le total EST la somme des dés jetés");
   }
-  assert.equal(min, 3, "le minimum (3×1) doit apparaître sur mille jets");
-  assert.equal(max, 18, "le maximum (3×6) doit apparaître sur mille jets");
 });
 
 /* ══ markKept — LES SIX MEILLEURS, ÉGALITÉ TRANCHÉE PAR L'ORDRE ═════════ */
