@@ -30,7 +30,7 @@ import { makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche } from "./bui
 import { createFhSkillPoolStat, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
-const ACOLYTE = "srd:background:en:acolyte";
+const INHERITANCE = "fh:background:en:inheritance";
 
 function pile(options = {}) {
   return makeHarness(Object.assign({
@@ -56,7 +56,12 @@ function choixDe({ level, classId, speciesId, backgroundId, extra = [] }) {
     { path: "currency.gp", value: 15 },
     { path: "currency.pp", value: 0 },
     { path: "class.skills[0]", value: "arcana" },
-    { path: "class.skills[1]", value: "history" }
+    { path: "class.skills[1]", value: "history" },
+    /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ; sans
+       eux `validate()` refuse un total absent (0 !== 3), et cette suite ne
+       teste pas les boosts eux-mêmes. */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 }
   ].concat(extra);
 }
 
@@ -83,7 +88,7 @@ const decisionsByPath = (out) => new Map(out.decisions.map((entry) => [entry.pat
 test("une ligne imposée (½, le plancher) se MONTE à Plein, au coût de la différence — débité et visible", () => {
   const h = pile();
   const sansMontée = h.verbs.rebuild({
-    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE }))
+    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE }))
   }).resolved;
 
   /* « arcana » est imposée par `class.skills[0]` : son PLANCHER est ½, pas
@@ -94,7 +99,7 @@ test("une ligne imposée (½, le plancher) se MONTE à Plein, au coût de la dif
 
   const avecMontée = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE,
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
       extra: [{ path: "fh.skills.spend.arcana", value: "proficient" }]
     }))
   }).resolved;
@@ -118,7 +123,7 @@ test("`resolved.skills[].proficiency` rend `half` ET `expertise`, chacun avec so
   const h = pile();
   const resolved = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE,
+      level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
       extra: [
         { path: "fh.skills.spend.leadership", value: "half" },
         { path: "fh.skills.spend.tactics", value: "expertise" }
@@ -141,7 +146,7 @@ test("Keen Senses — ½ sur deux des trois est légal", () => {
   const h = pile();
   const resolved = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE,
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
       extra: [
         { path: "species.skillBudget.survival", value: "half" },
         { path: "species.skillBudget.vigilance", value: "half" }
@@ -157,7 +162,7 @@ test("Keen Senses — Plein sur une seule est légal AUSSI", () => {
   const h = pile();
   const resolved = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE,
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
       extra: [{ path: "species.skillBudget.delve", value: "proficient" }]
     }))
   }).resolved;
@@ -169,7 +174,7 @@ test("Keen Senses — Plein sur une seule est légal AUSSI", () => {
 test("Keen Senses — une compétence HORS {survival, delve, vigilance} est un refus keyé, et n'est jamais appliquée", () => {
   const h = pile();
   const doc = documentDe(h, choixDe({
-    level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE,
+    level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
     extra: [{ path: "species.skillBudget.leadership", value: "half" }]
   }));
   const out = h.verbs.rebuild({ document: doc });
@@ -190,11 +195,11 @@ test("Keen Senses — une compétence HORS {survival, delve, vigilance} est un r
 test("le budget captif d'espèce ne change JAMAIS la valeur publiée de `fh:skill-points`", () => {
   const h = pile();
   const sans = h.verbs.rebuild({
-    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE }))
+    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE }))
   }).resolved;
   const avec = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE,
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
       extra: [
         { path: "species.skillBudget.survival", value: "half" },
         { path: "species.skillBudget.vigilance", value: "half" }
@@ -214,7 +219,7 @@ test("le verrou d'expertise refuse AVANT le niveau du record, et accepte APRÈS"
 
   const avant = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE,
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
       extra: [{ path: "fh.skills.spend.leadership", value: "expertise" }]
     }))
   });
@@ -231,7 +236,7 @@ test("le verrou d'expertise refuse AVANT le niveau du record, et accepte APRÈS"
 
   const apres = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE,
+      level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
       extra: [{ path: "fh.skills.spend.leadership", value: "expertise" }]
     }))
   });
@@ -249,7 +254,10 @@ test("un personnage SRD pur (aucune espèce FH, aucun budget captif) traverse la
      4 de `fh-skill-pool.test.mjs`) : c'est ce qui rend le test dur. */
   const h = makeHarness({ layers: [SRD_EN], modules: [createFhSkillPoolStat()] });
   const out = h.verbs.rebuild({
-    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: ACOLYTE }))
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf",
+      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+    }))
   });
   assert.deepEqual(out.resolved.stats, [], "aucun pool — le SRD n'en a pas");
   assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "proficient",
@@ -262,7 +270,10 @@ test("un personnage SRD pur (aucune espèce FH, aucun budget captif) traverse la
 test("un scénario où la couche des compétences n'est pas montée reste inchangé par ce lot", () => {
   const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN], modules: [createFhSkillPoolStat()] });
   const out = h.verbs.rebuild({
-    document: documentDe(h, choixDe({ level: 1, classId: "srd:class:en:wizard", speciesId: "fh:species:en:araag", backgroundId: ACOLYTE }))
+    document: documentDe(h, choixDe({
+      level: 1, classId: "srd:class:en:wizard", speciesId: "fh:species:en:araag",
+      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+    }))
   });
   assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "proficient",
     "sans `fh-skills-en`, la classe ne porte pas `fh_skill_pool` — le plancher ½ ne s'applique pas");

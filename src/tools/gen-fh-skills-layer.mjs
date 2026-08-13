@@ -40,6 +40,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   ABILITY_NAMES,
+  BACKGROUND_INHERITANCE,
   BACKGROUNDS_EXTINGUISHED,
   CLASS_POOLS,
   EXPECTED,
@@ -379,19 +380,20 @@ function buildClasses(srd) {
   return { class: klass, total: servis.size };
 }
 
-/* ══ L'ARRIÈRE-PLAN, ÉTEINT (lot 35) ═══════════════════════════════════
-   Addendums §4 (Eric, 2026-08-12) : l'arrière-plan n'existe plus en Fate's
-   Hand. Un `patch` étroit par record — RETRAIT de `skill_ids` (les quatre) et
-   de `tool_id` (les trois qui le portent) — et rien d'autre du record SRD
-   n'est touché : ni `ability_keys`, ni `feat_id`/`feat_option`, qui sont
-   l'Inheritance et restent. `tool_choice` (le Soldier) n'est PAS visé : la
-   source ne le déclare pas, et ce générateur ne retire que ce qu'elle nomme.
+/* ══ L'ARRIÈRE-PLAN, RETIRÉ — REMPLACÉ PAR L'INHERITANCE (lot 43) ══════
+   ⭐ RÉVISÉ 2026-08-13. Le lot 35 avait seulement PATCHÉ les quatre records
+   SRD (retrait de `skill_ids`, `tool_id`/`tool_choice`) : ils restaient
+   choisissables, avec `ability_keys` et `feat_id` intacts. Addendums §4,
+   réécrit le 2026-08-13 : « IL N'Y A PLUS DE RECORD D'ARRIÈRE-PLAN DU TOUT ».
+   Les quatre sont donc ÉTEINTS (`op: "disable"`, le patron déjà en place pour
+   Perception et le Gaming Set générique — `SKILLS_REMOVED` plus haut), et la
+   couche EN AJOUTE un cinquième : `fh:background:en:inheritance`, le seul
+   arrière-plan de la pile Fate's Hand.
 
    ⛔ LE GARDE QUI COMPTE : le SRD doit porter EXACTEMENT quatre arrière-plans,
    et chacun d'eux doit être éteint. Un cinquième apparu dans une régénération
-   de `fh-srd` resterait sinon intact en silence — un arrière-plan qui garde
-   ses compétences et son outil imposés est un personnage dont le pool est
-   faux d'exactement ce qui n'a pas été déduit (loi §0.5). */
+   de `fh-srd` resterait sinon intact en silence — un arrière-plan choisissable
+   de plus est exactement l'arrière-plan que l'Inheritance devait remplacer. */
 function buildBackgrounds(srd) {
   const srdBackgrounds = (srd.records || {}).background || {};
   const srdIds = Object.keys(srdBackgrounds);
@@ -404,56 +406,34 @@ function buildBackgrounds(srd) {
   const servis = new Set();
 
   for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const record = srdRecord(srd, "background", entry.target, `l'extinction de « ${entry.target} »`);
+    srdRecord(srd, "background", entry.target, `l'extinction de « ${entry.target} »`);
     if (background[entry.target]) fail(`l'arrière-plan « ${entry.target} » est éteint deux fois.`);
-
-    if (!record.data || !Object.hasOwn(record.data, "skill_ids")) {
-      fail(`l'extinction de « ${entry.target} » vise \`data.skill_ids\`, absent du record SRD — un retrait ` +
-        "dans le vide reste un échec bruyant.");
-    }
-    const remove = ["data[skill_ids]"];
-
-    /* ⭐ 2026-08-12 — LES CHAMPS OPTIONNELS SONT UNE TABLE, PLUS UN `if` PAR
-       CHAMP. Le lot 35 en portait un seul (`tool_id`) ; l'architecte a dû en
-       ajouter un second (`tool_choice`, le choix d'outil du Soldier) juste
-       après la fusion, et un troisième motif recopié aurait été le moment de
-       se tromper. Chaque champ est vérifié DANS LES DEUX SENS — retirer un
-       champ absent est un échec bruyant, déclarer absent un champ que le SRD
-       porte l'est aussi. */
-    const OPTIONNELS = [
-      { drapeau: "hasToolId", champ: "tool_id" },
-      { drapeau: "hasToolChoice", champ: "tool_choice" }
-    ];
-    for (const { drapeau, champ } of OPTIONNELS) {
-      const auSrd = Boolean(record.data && Object.hasOwn(record.data, champ));
-      if (entry[drapeau]) {
-        if (!auSrd) {
-          fail(`l'extinction de « ${entry.target} » vise \`data.${champ}\`, absent du record SRD — un retrait ` +
-            "dans le vide reste un échec bruyant.");
-        }
-        remove.push(`data[${champ}]`);
-      } else if (auSrd) {
-        fail(`« ${entry.target} » est déclaré SANS \`${champ}\` par la source, et le SRD lui en donne un — la ` +
-          "déclaration n'est plus mesurée sur la réalité de la couche SRD commitée.");
-      }
-    }
-
     servis.add(entry.target);
-    background[entry.target] = {
-      op: "patch",
-      remove,
-      note: "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, " +
-        "no tool choice (addendums, Eric 2026-08-12)"
-    };
+    background[entry.target] = { op: "disable", reason: entry.reason };
   }
 
   const oubliés = srdIds.filter((id) => !servis.has(id));
   if (oubliés.length > 0) {
     fail(`ces arrière-plans du SRD ne sont pas éteints : ${oubliés.join(", ")}. Un personnage qui les choisit ` +
-      "garderait des compétences et un outil imposés que l'Inheritance ne prévoit plus.");
+      "resterait sur un arrière-plan que l'Inheritance devait remplacer.");
   }
 
-  return { background, total: servis.size };
+  /* L'INHERITANCE, LA SEULE ADDITION. Pas d'`ability_keys` (§1c : absent =
+     les six caractéristiques) ; pas de `feat_id` (imposé) mais un
+     `feat_choice.from: "origin"` (libre parmi les dons de cette catégorie). */
+  const inheritanceId = BACKGROUND_INHERITANCE.id;
+  if (background[inheritanceId]) fail(`« ${inheritanceId} » est déjà un identifiant du SRD — collision.`);
+  background[inheritanceId] = {
+    name: BACKGROUND_INHERITANCE.name,
+    slug: BACKGROUND_INHERITANCE.slug,
+    data: {
+      name: BACKGROUND_INHERITANCE.name,
+      feat_choice: { from: "origin" },
+      description: BACKGROUND_INHERITANCE.description
+    }
+  };
+
+  return { background, extinguished: servis.size, total: servis.size + 1 };
 }
 
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────
@@ -544,7 +524,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const { outPath, skills, tools, classes, backgrounds } = generate();
   console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
     `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
-    `${classes.total} pools de classe, ${backgrounds.total} arrière-plans éteints → ${outPath}`);
+    `${classes.total} pools de classe, ${backgrounds.extinguished} arrière-plans éteints + l'Inheritance ` +
+    `(${backgrounds.total} au genre) → ${outPath}`);
 }
 
 export { OUT_NAME, SRD_PATH };

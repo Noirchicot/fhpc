@@ -49,6 +49,7 @@ import {
   GenError
 } from "../src/tools/gen-fh-skills-layer.mjs";
 import {
+  BACKGROUND_INHERITANCE,
   BACKGROUNDS_EXTINGUISHED,
   EXPECTED,
   SKILLS_ADDED,
@@ -489,113 +490,58 @@ test("REFUS — une classe du SRD oubliée par la table des pools fait jeter", (
   assert.throws(() => buildLayer({ srd }), /srd:class:en:monk/);
 });
 
-/* ══ L'ARRIÈRE-PLAN, ÉTEINT (lot 35) ═══════════════════════════════════
-   Addendums §4 (Eric, 2026-08-12) : l'arrière-plan n'existe plus en Fate's
-   Hand. Les quatre records SRD perdent `skill_ids` ; les trois qui portaient
-   `tool_id` (Acolyte, Criminal, Sage) le perdent aussi.
+/* ══ L'ARRIÈRE-PLAN, RETIRÉ — REMPLACÉ PAR L'INHERITANCE (lot 43) ══════
+   Addendums §4, réécrit le 2026-08-13 : « IL N'Y A PLUS DE RECORD
+   D'ARRIÈRE-PLAN DU TOUT ». Le lot 35 avait seulement PATCHÉ les quatre
+   records SRD (retrait de `skill_ids`, `tool_id`/`tool_choice`) : ils
+   restaient choisissables. Ce lot les ÉTEINT (`op: "disable"`) et ajoute
+   `fh:background:en:inheritance`, le seul arrière-plan de la pile FH,
+   livré et jamais choisi (contrat §1a). */
 
-   ⭐ RÉVISION DE L'ARCHITECTE, 2026-08-12 : le Soldier perd son `tool_choice`.
-   La commande du lot 35 ne nommait que `skill_ids` et `tool_id` — le lot a
-   donc laissé le choix d'outil du Soldier intact et l'a SIGNALÉ, ce qui était
-   juste. Mais la décision d'Eric éteint TOUTE la partie choix d'arrière-plan,
-   et sans ce retrait le Soldier serait le seul arrière-plan à imposer encore
-   quelque chose au joueur. Éteint sur confirmation d'Eric.
-
-   `ability_keys` et `feat_id`/`feat_option` sont l'Inheritance : ils restent,
-   intacts. */
-
-test("les quatre arrière-plans du SRD ne portent plus `skill_ids`", () => {
+test("les quatre arrière-plans du SRD sont ÉTEINTS — la pile FH ne les rend plus", () => {
   const verbs = pile();
   for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const data = verbs.query({ kind: "background", id: entry.target }).record.data;
-    assert.equal(data.skill_ids, undefined, `« ${entry.target} » : plus de compétences imposées`);
+    assert.equal(verbs.query({ kind: "background", id: entry.target }), null,
+      `« ${entry.target} » : disable() retire le record entier de la pile FH`);
+  }
+  /* ⛔ Et sous le SRD nu, sans la couche FH, les quatre existent toujours —
+     `disable` retire de la PILE, jamais du SRD commité (§L7, `op:"disable"`
+     rend « ce qu'elle avait désactivé » quand la couche se retire). */
+  const srdSeul = pile({ fh: false });
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    assert.ok(srdSeul.query({ kind: "background", id: entry.target }),
+      `« ${entry.target} » : intact sous le SRD pur, hors de la pile Fate's Hand`);
   }
 });
 
-test("les trois arrière-plans qui portaient `tool_id` ne le portent plus ; le Soldier n'en avait pas", () => {
+test("l'Inheritance est le SEUL arrière-plan de la pile Fate's Hand", () => {
   const verbs = pile();
-  const srd = readSrdLayer(SRD_PATH);
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const avant = srd.records.background[entry.target].data;
-    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
-    assert.equal(typeof avant.tool_id === "string", entry.hasToolId,
-      `« ${entry.target} » : la déclaration \`hasToolId\` doit correspondre à la réalité du SRD commité`);
-    assert.equal(apres.tool_id, undefined, `« ${entry.target} » : plus d'outil imposé après extinction`);
-  }
+  const tous = verbs.query({ kind: "background" });
+  assert.equal(tous.length, 1, "les quatre du SRD sont éteints, un seul record les remplace");
+  assert.equal(tous[0].id, BACKGROUND_INHERITANCE.id);
+  assert.equal(tous[0].record.name, "Inheritance");
 });
 
-/* REWRITTEN 2026-08-12 (architecte) — l'assertion précédente vérifiait que le
-   Soldier GARDAIT son `tool_choice`. Elle était vraie du lot 35 et fausse de la
-   règle : elle est réécrite à la nouvelle vérité, pas relâchée (loi §0.7). */
-test("le Soldier ne CHOISIT plus d'outil non plus — l'extinction vise aussi `tool_choice`", () => {
+test("l'Inheritance ne porte NI `ability_keys` NI `feat_id` — c'est la règle, pas un oubli", () => {
   const verbs = pile();
-  const srd = readSrdLayer(SRD_PATH);
-  /* La mesure part du SRD commité : le Soldier est le SEUL à porter le champ,
-     et c'est ce qui rend le test dur — les trois autres ne prouveraient rien. */
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const avant = srd.records.background[entry.target].data;
-    assert.equal(Object.hasOwn(avant, "tool_choice"), entry.hasToolChoice,
-      `« ${entry.target} » : la déclaration \`hasToolChoice\` doit correspondre au SRD commité`);
-    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
-    assert.equal(apres.tool_choice, undefined,
-      `« ${entry.target} » : plus aucun choix d'outil imposé par l'arrière-plan`);
-  }
-  /* ⛔ ET LA VRAIE OBLIGATION, celle qui survivra à un renommage de champ :
-     AUCUN des quatre n'impose plus quoi que ce soit côté outils. */
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
-    assert.equal(apres.tool_id ?? apres.tool_choice, undefined,
-      `« ${entry.target} » : l'Inheritance ne donne ni n'offre d'outil`);
-  }
+  const data = verbs.query({ kind: "background", id: BACKGROUND_INHERITANCE.id }).record.data;
+  /* §1c — l'absence D'`ability_keys` EST la règle : un record qui ne nomme pas
+     ses clefs ne les restreint pas, donc les SIX caractéristiques sont
+     proposées (`decisions.mjs`, `backgroundBoostPlan`). */
+  assert.equal(Object.hasOwn(data, "ability_keys"), false);
+  /* §1b/§3d — pas de `feat_id` (imposé) : à la place, `feat_choice.from`, le
+     don d'origine libre. */
+  assert.equal(Object.hasOwn(data, "feat_id"), false);
+  assert.deepEqual(data.feat_choice, { from: "origin" });
 });
 
-test("REFUS — déclarer `hasToolChoice` sur un arrière-plan qui n'en porte pas fait jeter", () => {
-  /* Le sens inverse du garde : la déclaration doit rester MESURÉE sur la
-     réalité du SRD commité. Si le SRD retirait le `tool_choice` du Soldier,
-     la source mentirait — et un retrait dans le vide doit crier. */
-  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:soldier"].data.tool_choice; });
-  assert.throws(() => buildLayer({ srd }), (err) => {
-    assert.match(err.message, /srd:background:en:soldier/, "le refus NOMME le record fautif");
-    assert.match(err.message, /tool_choice/, "et le CHAMP visé dans le vide");
-    return true;
-  });
-});
-
-test("les quatre arrière-plans gardent l'Inheritance — `ability_keys` et `feat_id`", () => {
-  const verbs = pile();
-  const srd = readSrdLayer(SRD_PATH);
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const avant = srd.records.background[entry.target].data;
-    const apres = verbs.query({ kind: "background", id: entry.target }).record.data;
-    assert.deepEqual(apres.ability_keys, avant.ability_keys, `« ${entry.target} » : les bonus de caracs restent`);
-    assert.equal(apres.feat_id, avant.feat_id, `« ${entry.target} » : le don d'origine reste`);
-    assert.deepEqual(apres.feat_option, avant.feat_option, `« ${entry.target} » : son option reste aussi`);
-  }
-});
-
-test("REFUS — un retrait dans le vide (le champ déclaré n'est pas au SRD) fait jeter, nommément", () => {
-  /* La commande vise « retirer `tool_id` du Soldier » — il n'en a jamais eu,
-     et la source ne le déclare pas pour lui (§ ci-dessus). Le MÊME garde se
-     mesure en amputant l'un des trois qui SONT déclarés porter `tool_id` :
-     si le SRD change sous nos pieds et que Sage perd son outil, un retrait
-     dans le vide doit rester un échec bruyant, pas un patch qui s'applique à
-     moitié. */
-  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:sage"].data.tool_id; });
-  assert.throws(() => buildLayer({ srd }), (err) => {
-    assert.match(err.message, /srd:background:en:sage/, "le refus NOMME le record fautif");
-    assert.match(err.message, /tool_id/, "et le CHAMP visé dans le vide");
-    return true;
-  });
-});
-
-test("REFUS — un retrait de `skill_ids` dans le vide fait jeter, nommément", () => {
-  const srd = srdAmputé((s) => { delete s.records.background["srd:background:en:criminal"].data.skill_ids; });
-  assert.throws(() => buildLayer({ srd }), (err) => {
-    assert.match(err.message, /srd:background:en:criminal/);
-    assert.match(err.message, /skill_ids/);
-    return true;
-  });
-});
+/* ⚠️ PAS DE TEST SÉPARÉ « disable() vise un record absent du SRD » ICI : le
+   supprimer changerait aussi le COMPTE (3 au lieu de 4), et c'est le contrôle
+   `EXPECTED.backgrounds` qui mordrait, jamais `srdRecord()`. C'est exactement
+   la mesure du commentaire de `renomme()` un peu plus bas. Le test « REFUS —
+   un arrière-plan du SRD oublié par la table d'extinction » l'exerce déjà en
+   RENOMMANT (compte inchangé, cible introuvable) : ce garde-là, pas un
+   nouveau. */
 
 test("REFUS — un cinquième arrière-plan au SRD ferait jeter, au lieu de rester intact en silence", () => {
   const srd = srdAmputé((s) => {

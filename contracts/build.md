@@ -129,10 +129,89 @@ un chemin déjà répondu, afin que `clear` et le remplacement ferment la boucle
 La projection se limite aux champs mécaniques réels suivants : les trois
 `takeRef` (`class`, `species`, `background`), `class.skill_choice`,
 `species.granted_skill_choice`, `background.ability_keys`,
-`background.feat_id`, et `background.tool_id` / `tool_choice`. Elle ne projette
-ni sorts, ni équipement, ni paliers de progression, ni dépenses de points. Le
-cas `from: "any"` ouvre les identifiants du genre `skill` effectivement monté ;
-une liste `from` reste cette liste et rien de plus.
+`background.feat_choice` / `background.feat_id`, et `background.tool_id` /
+`tool_choice`. Elle ne projette ni sorts, ni équipement, ni paliers de
+progression, ni dépenses de points. Le cas `from: "any"` ouvre les
+identifiants du genre `skill` effectivement monté ; une liste `from` reste
+cette liste et rien de plus.
+
+#### ⭐ LOT 43 — L'INHERITANCE : `background` SANS RECORD CHOISI, ET LE PLI GARDÉ
+
+Addendums §4, réécrit le 2026-08-13 : **l'arrière-plan n'existe plus.** La
+couche FH `disable` les quatre records SRD et `add` **un** record,
+`fh:background:en:inheritance` — le genre reste `background` (vocabulaire de
+moteur), et ce record est **livré, jamais choisi** parmi des alternatives.
+
+**Le repli à une option.** `projectDecisions` résout `background` sur le
+record explicitement choisi ; à défaut, et **seulement si le genre `background`
+de la pile montée ne porte plus qu'UN SEUL record**, ce record-là devient la
+vue utilisée pour les deux sous-plans — sans qu'un `choose` l'ait jamais posé.
+Un menu à plusieurs options (le SRD pur, quatre records ; une couche tierce
+qui en ajoute) ne se résout **jamais** tout seul : ce repli n'existe que pour
+un menu à un seul choix, jamais pour deviner parmi plusieurs. Sans lui, un
+personnage sans record choisi perd le GUIDE (aucun plan `background.boost` ni
+`background.originFeat[0]` publié), alors que les VALEURS de boost, elles,
+s'appliquaient déjà (`derive.mjs` lit tout chemin `<root>.boost.<clef>`,
+quel que soit le `root` — jamais restreint à `background` par construction).
+
+**`ability_keys` absent = les six caractéristiques (§1c).** Règle générique,
+écrite en vocabulaire de moteur : un record qui ne nomme pas ses clefs ne les
+restreint pas. `backgroundBoostPlan` lit `ABILITY_KEYS` (`src/build/skills.mjs`
+— le catalogue que le moteur tient déjà, jamais recopié) quand `ability_keys`
+n'est pas un tableau.
+
+**Deux refus neufs, `validate()` REFUSE désormais une répartition illégale
+(§1d).** Sur le patron du lot 37 (`skill-pool.overspent`, `skill-pool.no-tool`)
+— une clef pour le total, une pour le plafond par caractéristique :
+
+| Clef | Quand |
+|---|---|
+| `background.boost-cap-exceeded` | un candidat pose plus de 2 points sur UNE caractéristique |
+| `background.boost-total-mismatch` | le total des points posés (candidats valides) ne vaut pas exactement 3 — trop, **ou pas assez** |
+
+Un candidat déjà en faute (clef hors catalogue, valeur illisible, plafond
+dépassé) porte SON verrou ; le total n'est jugé qu'une fois le reste propre —
+un second verrou par-dessus accuserait le total d'une faute qui est en
+réalité celle d'un seul candidat. ⛔ **Le plafond de 18 en sortie de création
+N'EST PAS ici** : c'est une règle différente (ADDENDUMS §5 n°1), qui porte sur
+toutes les sources et se vérifie à la fin, pas sur les boosts seuls — un score
+de 24 en sortie de `backgroundBoostPlan` (ex. `+9`) passe la dérivation, et
+c'est assumé.
+
+**`background.feat` a disparu — et `background.feat-mismatch` avec lui
+(§1b).** Aucun consommateur ne lisait ce chemin : `skill-pool.mjs`,
+`destiny-stat.mjs` et le module des arcanes lisent tous
+`background.originFeat[n]`. Le don d'origine se projette désormais
+**exclusivement** sur `background.originFeat[0]`, en deux formes selon le
+record — jamais les deux à la fois :
+
+| Forme du record | Mode | Ce qui se passe |
+|---|---|---|
+| `feat_id` (SRD, imposé) | `required` | ANNONCÉ, sur le patron de `tool_id` (`backgroundToolPlan`) : `options`/`selected` valent `[feat_id]` sans jamais lire `choices` — un `feat_id` n'est plus JUGÉ contre un choix, il est un FAIT du record. Un personnage SRD pur ne perd rien : c'est sa condition de sortie n°6. |
+| `feat_choice: {from}` (FH, libre) | `offered` | `options` = tous les records de genre `feat` dont `data.category` vaut `from`, lus par `query` — un choix hors catalogue reste `decision.option-unavailable`, le refus générique. |
+
+**`Auspicious (fh)` porte `category: "origin"`** (`layers/fh-feats-en.layer.json`,
+§3b) : sans cette ligne, un écran qui filtre sur `origin` perdrait le don que
+5 des 7 personnages réels d'Eric portent — 4 dons SRD + Auspicious = 5 dons
+d'origine proposés, un compte **dérivé du contenu**, jamais écrit en dur.
+
+**`multiPlan` — deux défauts corrigés, trouvés en regardant l'écran (§3e-bis).**
+Une classe plus étroite qui succède à une plus large (les réponses d'un
+Magicien reprises par un Roublard) révélait deux fautes dans `class.skills` /
+`species.skills` :
+
+1. **Le compte de créneaux manquants** partait des réponses VALIDES
+   (`selected.length`), pas des candidats déjà rendus (valides ou non) — un
+   candidat invalide occupe pourtant un créneau réel. Corrigé :
+   `missingSlots = Math.max(0, expected − candidates.length)`. Un document
+   sans candidat invalide (le cas courant) ne voit rien bouger.
+2. **Le même refus, publié deux fois** — sur le plan du GROUPE (dont le
+   verrou NOMME le créneau fautif, pour que le groupe entier se montre
+   `locked`, jamais `pending`) et sur l'ÉTAPE fautive elle-même, construits
+   séparément mais identiques `{key, path, params}`. `block.mjs` déduplique
+   désormais par EMPREINTE (`key + path + JSON(params)`) avant d'ajouter un
+   verrou du carnet à `reported` — jamais par référence, pour ne rien avaler
+   qui se ressemble à moitié.
 
 `validate` ne rend **jamais** ce carnet. Il conserve ses contrôles historiques
 (dont son appel interne au pli pour compter les grants) et sa forme publique
@@ -481,6 +560,12 @@ touché) ; `ability_keys` et `feat_id`/`feat_option` restent intacts. Le pool
 ne déduit donc plus rien de l'arrière-plan — voir la mesure chiffrée
 au-dessus.
 
+⚠️ **DÉPASSÉ PAR LE LOT 43** — les quatre records ne sont plus PATCHÉS, ils
+sont ÉTEINTS (`op: "disable"`), et un cinquième record, l'Inheritance, les
+remplace. La conclusion sur le pool (rien n'en est déduit) reste vraie ; le
+« restent intacts » ci-dessus ne l'est plus — voir « L'INHERITANCE » plus haut
+(§ le carnet `decisions`).
+
 **La décomposition du `base`, mesurée sur les douze records** : le background
 est une constante de **6**, la part de classe est variable — Rogue 12, Bard 10,
 Druid/Monk/Ranger 8, les huit autres 6. La note de chaque record le dit déjà
@@ -611,6 +696,12 @@ records `background` du SRD et `data.tool_id` des 3 qui le portaient (Acolyte,
 Criminal, Sage — le Soldier choisit le sien via `tool_choice`, jamais touché).
 `ability_keys` et `feat_id`/`feat_option` restent : c'est l'Inheritance.
 Conséquence chiffrée : le pool du magicien d'exemple passe de **7 à 10**.
+
+⚠️ **DÉPASSÉ PAR LE LOT 43** — depuis, la couche n'ampute plus les quatre
+records SRD, elle les ÉTEINT (`op: "disable"`), et l'Inheritance
+(`fh:background:en:inheritance`) est un cinquième record qui les remplace,
+livré et jamais choisi. Le chiffre du pool (7 → 10) reste juste : ce lot ne
+touche à aucun terme du pool.
 
 **Le champ `category`, quatre valeurs, jamais cinq.** `knowledge` · `social`
 · `exploration` · `physical` — la cinquième colonne de l'écran, *Tools &

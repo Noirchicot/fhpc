@@ -344,7 +344,7 @@
       "ddb": {
         "characterId": 147258369,
         "entityIds": {
-          "background.feat": 4001,
+          "background.originFeat[0]": 4001,
           "feat.extra": 4002
         }
       }
@@ -369,7 +369,7 @@
       { "path": "species.keenSenses", "value": "perception", "label": "Sens aiguisés : Perception" },
       { "path": "class", "ref": { "kind": "class", "id": "srd:class:fr:magicien" }, "label": "Magicien" },
       { "path": "background", "ref": { "kind": "background", "id": "srd:background:fr:sage" }, "label": "Sage" },
-      { "path": "background.feat", "ref": { "kind": "feat", "id": "srd:feat:fr:initie-a-la-magie" }, "label": "Initié à la magie (Magicien)" },
+      { "path": "background.originFeat[0]", "ref": { "kind": "feat", "id": "srd:feat:fr:initie-a-la-magie" }, "label": "Initié à la magie (Magicien)" },
       { "path": "abilities.mode", "value": "standard", "label": "Tableau standard" },
       { "path": "abilities.str", "value": 8 },
       { "path": "abilities.dex", "value": 14 },

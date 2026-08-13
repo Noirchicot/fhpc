@@ -8,7 +8,14 @@ import { makeHarness, acceptanceDocument } from "./build-harness.mjs";
 
 const KEY = /^[a-z][a-z0-9.:_-]{0,79}$/;
 
-test("LOT 27 — les treize phrases restent strictement les mêmes", () => {
+/* LOT 43 — `background.feat-mismatch` A DISPARU AVEC `background.feat`
+   (contrat §1b : aucun consommateur ne lisait ce chemin). Deux clefs neuves
+   le remplacent dans ce carnet : `background.boost-cap-exceeded` (le
+   plafond par caractéristique) et `background.boost-total-mismatch` (le
+   total, ni trop ni trop peu) — contrat §1d. Le titre du test reste fidèle
+   au compte réel : quatorze phrases aujourd'hui, une de moins et deux de
+   plus que les treize d'origine. */
+test("LOT 27/43 — les quatorze phrases restent strictement les mêmes", () => {
   const cases = [
     [buildViolation("document.invariant-violated", { message: "build absent : un document fh-char/1 porte toujours ses deux étages." }),
       "build absent : un document fh-char/1 porte toujours ses deux étages."],
@@ -23,8 +30,10 @@ test("LOT 27 — les treize phrases restent strictement les mêmes", () => {
       "l'arrière-plan « srd:background:fr:sage » porte `ability_keys` = \"foo\", qui n'est pas une clef de caractéristique (str, dex, con, int, wis, cha)."],
     [buildViolation("background.boost-disallowed", { path: "background.boost.str", backgroundId: "srd:background:fr:sage", abilityKeys: "con, int, wis" }, "background.boost.str"),
       "le choix « background.boost.str » augmente une caractéristique que l'arrière-plan « srd:background:fr:sage » ne nomme pas (il nomme : con, int, wis)."],
-    [buildViolation("background.feat-mismatch", { selectedId: "exemple:feat:fr:lecteur-de-marges", backgroundId: "srd:background:fr:sage", featId: "srd:feat:fr:initie-a-la-magie" }, "background.feat"),
-      "le choix « background.feat » désigne « exemple:feat:fr:lecteur-de-marges », alors que l'arrière-plan « srd:background:fr:sage » accorde « srd:feat:fr:initie-a-la-magie »."],
+    [buildViolation("background.boost-cap-exceeded", { path: "background.boost.str", value: 3, cap: 2 }, "background.boost.str"),
+      "le choix « background.boost.str » pose 3 point(s) sur une seule caractéristique — le plafond est de 2 points par caractéristique."],
+    [buildViolation("background.boost-total-mismatch", { backgroundId: "fh:background:en:inheritance", total: 2, expected: 3 }, "background.boost"),
+      "l'arrière-plan « fh:background:en:inheritance » répartit 2 point(s) de caractéristique au total, et il en faut exactement 3 (+2/+1 ou +1/+1/+1)."],
     [buildViolation("stat.entry-not-stat", { stat: "null" }, "resolved.stats"),
       "resolved.stats : une entrée n'est pas une statistique (null)."],
     [buildViolation("stat.breakdown-missing", { anchor: "x" }, "resolved.stats[x]"),
@@ -37,7 +46,7 @@ test("LOT 27 — les treize phrases restent strictement les mêmes", () => {
       "resolved.stats[x] : `value` vaut 6, et son détail somme à 5 (\"un\" = 2 ; \"deux\" = 3). Le schéma le dit et ne sait pas l'additionner : un total que son propre détail contredit est un chiffre faux qui a l'air juste."]
   ];
 
-  assert.equal(cases.length, 13);
+  assert.equal(cases.length, 14);
   assert.deepEqual(cases.map(([violation]) => renderBuildViolation(violation)), cases.map(([, text]) => text));
 });
 

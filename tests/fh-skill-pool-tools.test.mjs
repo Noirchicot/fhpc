@@ -28,7 +28,7 @@ import { makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche } from "./bui
 import { createFhSkillPoolStat, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
-const ACOLYTE = "srd:background:en:acolyte";
+const INHERITANCE = "fh:background:en:inheritance";
 
 function pile(options = {}) {
   return makeHarness(Object.assign({
@@ -37,7 +37,7 @@ function pile(options = {}) {
   }, options));
 }
 
-/* REWRITTEN 2026-08-12 (lot 35) — L'ACOLYTE n'impose plus de compétences ni
+/* REWRITTEN 2026-08-12 (lot 35) — L'INHERITANCE n'impose plus de compétences ni
    d'outil (addendums §4) : cette fixture sert donc un pool purement de
    classe, exactement comme le reste de la suite du lot 35.
 
@@ -45,7 +45,7 @@ function pile(options = {}) {
    CLASSE — le Wizard et le Rogue n'ont pas la même liste (arcana/history ne
    sont pas dans celle du Rogue), et un slug hors liste ne devient jamais
    imposé : la dépense partirait du plancher « none », pas « half ». */
-function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = ["arcana", "history"], extra = [] }) {
+function choixDe({ level, classId, speciesId, backgroundId = INHERITANCE, skills = ["arcana", "history"], extra = [] }) {
   return [
     { path: "level", value: level },
     { path: "class", ref: { kind: "class", id: classId } },
@@ -62,7 +62,13 @@ function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = [
     { path: "currency.gp", value: 15 },
     { path: "currency.pp", value: 0 },
     { path: "class.skills[0]", value: skills[0] },
-    { path: "class.skills[1]", value: skills[1] }
+    { path: "class.skills[1]", value: skills[1] },
+    /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ;
+       validate() refuse désormais un total absent (0 !== 3). Cette suite ne
+       teste pas les boosts : +2/+1 sur deux caracs neutres suffit à rester
+       légal sans influencer les mesures du pool. */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 }
   ].concat(extra);
 }
 
@@ -183,7 +189,7 @@ test("un personnage qui achète UN outil en publie UN, jamais les 36 du catalogu
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      backgroundId: "srd:background:en:soldier", skills: ["stealth", "investigation"],
+      backgroundId: INHERITANCE, skills: ["stealth", "investigation"],
       extra: [{ path: "fh.skills.spend.gaming-set-dice", value: "proficient" }]
     }))
   });
@@ -200,7 +206,7 @@ test("sans achat, l'arrière-plan ne donne plus aucun outil — `resolved.tools`
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      backgroundId: "srd:background:en:soldier", skills: ["stealth", "investigation"]
+      backgroundId: INHERITANCE, skills: ["stealth", "investigation"]
     }))
   });
   assert.deepEqual(out.resolved.tools, [], "l'Inheritance ne donne ni n'offre d'outil");

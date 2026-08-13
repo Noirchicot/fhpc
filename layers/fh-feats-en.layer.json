@@ -19,6 +19,7 @@
         "slug": "auspicious",
         "data": {
           "name": "Auspicious (fh)",
+          "category": "origin",
           "destiny": {
             "bonus": 2
           },

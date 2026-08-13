@@ -77,8 +77,12 @@ const CHOIX = [
      ½ sur deux d'entre elles est l'une des deux répartitions légales. */
   { path: "species.skillBudget.survival", value: "half", label: "Keen Senses: Survival (half)" },
   { path: "species.skillBudget.vigilance", value: "half", label: "Keen Senses: Vigilance (half)" },
-  { path: "background", ref: { kind: "background", id: "srd:background:en:sage" }, label: "Sage" },
-  /* Le don d'origine est à SA place — celle que la table de couverture v1
+  /* LOT 43 — PLUS DE CHOIX `background`. L'Inheritance (`fh:background:en:
+     inheritance`) est le SEUL record du genre une fois les quatre du SRD
+     éteints : elle est livrée, jamais choisie (contrat §1a). `decisions.mjs`
+     la résout toute seule (le repli à une option) — c'est le document réel
+     qui exerce ce chemin, pas seulement une suite dédiée.
+     Le don d'origine est à SA place — celle que la table de couverture v1
      range sous `background.originFeat[n]`, et pas dans le namespace d'un
      module : un personnage ne déclare pas son don deux fois. */
   { path: "background.originFeat[0]", ref: { kind: "feat", id: "fh:feat:en:auspicious" }, label: "Origin feat" },

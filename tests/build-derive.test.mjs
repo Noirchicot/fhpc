@@ -545,18 +545,20 @@ test("`validate` compte les compétences à choisir, et refuse un boost illégal
     "l'arrière-plan Sage nomme con, int et wis — pas str");
 });
 
-test("`validate` voit un ref mort, un don qui ne correspond pas, et ne change RIEN", () => {
+/* LOT 43, §1b — LA SECONDE MOITIÉ DE CE TEST A DISPARU AVEC ELLE. Il vérifiait
+   qu'un don posé sur `background.feat` qui ne correspond pas à `feat_id`
+   lève `background.feat-mismatch` — ce chemin et ce refus n'existent plus
+   (`decisions.mjs:176` et `block.mjs:464`, retirés « aux deux endroits »,
+   contrat §1b) : `background.originFeat[0]` est le seul chemin lu, et un
+   `feat_id` imposé n'est plus JUGÉ contre un choix, il est ANNONCÉ (même
+   patron que `tool_id`, voir `backgroundToolPlan`). Ce qui reste ici — le ref
+   mort, et `validate` qui ne change rien — n'a jamais dépendu de ce mécanisme. */
+test("`validate` voit un ref mort, et ne change RIEN", () => {
   const h = makeHarness();
   const doc = acceptanceDocument(h.layers);
-  const avant = structuredClone(doc);
   h.verbs.choose({ document: doc, path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:fr:sort-fantome" } });
-  let verdict = h.verbs.validate({});
+  const verdict = h.verbs.validate({});
   assert.ok(verdict.violations.some((line) => /srd:spell:fr:sort-fantome/.test(line)));
-
-  h.verbs.rebuild({ document: structuredClone(avant) });
-  h.verbs.choose({ path: "background.feat", ref: { kind: "feat", id: "exemple:feat:fr:lecteur-de-marges" } });
-  verdict = h.verbs.validate({});
-  assert.ok(verdict.violations.some((line) => /background\.feat/.test(line) && /initie-a-la-magie/.test(line)));
 
   // `validate` n'écrit rien : le `resolved` du document n'a pas bougé.
   const apres = h.verbs.validate({});

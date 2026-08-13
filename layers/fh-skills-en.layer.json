@@ -703,36 +703,31 @@
     },
     "background": {
       "srd:background:en:acolyte": {
-        "op": "patch",
-        "remove": [
-          "data[skill_ids]",
-          "data[tool_id]"
-        ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
       },
       "srd:background:en:criminal": {
-        "op": "patch",
-        "remove": [
-          "data[skill_ids]",
-          "data[tool_id]"
-        ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
       },
       "srd:background:en:sage": {
-        "op": "patch",
-        "remove": [
-          "data[skill_ids]",
-          "data[tool_id]"
-        ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
       },
       "srd:background:en:soldier": {
-        "op": "patch",
-        "remove": [
-          "data[skill_ids]",
-          "data[tool_choice]"
-        ],
-        "note": "Fate's Hand — Inheritance replaces Background: no imposed skills, no imposed tool, no tool choice (addendums, Eric 2026-08-12)"
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      },
+      "fh:background:en:inheritance": {
+        "name": "Inheritance",
+        "slug": "inheritance",
+        "data": {
+          "name": "Inheritance",
+          "feat_choice": {
+            "from": "origin"
+          },
+          "description": "What you carry into adventure: a free origin feat of your choice, and 3 ability score points to distribute as +2/+1 or +1/+1/+1 on any abilities. Fate's Hand replaces the four SRD backgrounds with this single step (addendums §4, Eric 2026-08-13)."
+        }
       }
     }
   }

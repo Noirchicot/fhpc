@@ -131,7 +131,7 @@ test("§3 — ATTAQUE MANUELLE (jouée ici) : une clef retirée d'un seul paquet
 
 test("§4 — le personnage d'exemple (FH, anglais) rend ses 19 entrées, toutes keyées, zéro phrase nue", async () => {
   const { report } = await exempleFhEn();
-  assert.equal(report.underived.length, 19, "le compte mesuré par la commande, inchangé par ce lot");
+  assert.equal(report.underived.length, 17, "LOT 43 — la migration de l'exemple (plus de choix `background`) fait tomber ce compte de 19 à 17 : les trois déclarations que `background` déclenchait (skill_ids manquant, outil manquant, identity.background) se recomposent en deux (identity.background, skillpool-no-background-ref) — voir INVENTAIRE-LOT-43.md");
   for (const entry of report.underived) {
     assert.equal(typeof entry.field, "string");
     assert.match(entry.key, KEY, `« ${entry.field} » : la clef doit suivre \`${KEY}\``);
@@ -171,7 +171,7 @@ const FRENCH_TELLS = [
 test("§5 — ⚔️ ATTAQUE : le carnet rendu (anglais) du personnage d'exemple ne porte aucune prose française", async () => {
   const { document, report } = await exempleFhEn();
   const en = createLabels(EN_UNDERIVED, FH_UNDERIVED_EN);
-  assert.equal(report.underived.length, 19);
+  assert.equal(report.underived.length, 17);
   for (const entry of report.underived) {
     const mot = renderUnderived(entry, en);
     for (const tell of FRENCH_TELLS) {

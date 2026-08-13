@@ -91,7 +91,12 @@ function choixDe({ level, classId, speciesId, backgroundId, skills = [], species
     { path: "currency.cp", value: 0 },
     { path: "currency.sp", value: 0 },
     { path: "currency.gp", value: 15 },
-    { path: "currency.pp", value: 0 }
+    { path: "currency.pp", value: 0 },
+    /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ; sans
+       eux `validate()` refuse un total absent (0 !== 3), et cette suite ne
+       teste pas les boosts eux-mêmes. */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 }
   ];
   skills.forEach((slug, index) => choices.push({ path: `class.skills[${index}]`, value: slug }));
   if (speciesSkill) choices.push({ path: "species.granted", value: speciesSkill });
@@ -121,11 +126,11 @@ const poolDe = (resolved) => resolved.stats.find((stat) => stat.id === FH_SKILL_
 const somme = (stat) => stat.breakdown.reduce((total, line) => total + line.value, 0);
 const terme = (stat, label) => stat.breakdown.find((line) => line.label === label);
 
-/* REWRITTEN 2026-08-12 (lot 35) — L'ACOLYTE reste l'arrière-plan de tous les
+/* REWRITTEN 2026-08-12 (lot 35) — L'INHERITANCE reste l'arrière-plan de tous les
    scénarios, mais l'Inheritance (addendums §4, Eric 2026-08-12) a éteint son
    `skill_ids` et son `tool_id` : il n'impose plus rien au pool. Son seul rôle
    ici est de fournir un `ref` de genre `background` valide au module. */
-const ACOLYTE = "srd:background:en:acolyte";
+const INHERITANCE = "fh:background:en:inheritance";
 
 /* ══ ACCEPTATION 1 ════════════════════════════════════════════════════
    « Un Rogue niveau 1 publie un pool de 18 ; un Wizard niveau 1, 12 ; un
@@ -162,7 +167,7 @@ test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son d
        glisserait ferait rougir le total. */
     const out = h.verbs.rebuild({
       document: documentDe(h, choixDe({
-        level: 1, classId: cas.classId, speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+        level: 1, classId: cas.classId, speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
       }))
     });
     const stat = poolDe(out.resolved);
@@ -199,7 +204,7 @@ test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son d
     assert.equal(classe.fh_skill_pool.tier_costs.imposed, 1, "et leur coût unitaire aussi");
     /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien : ces
        deux champs ont disparu du record avec l'extinction (addendums §4). */
-    const fond = h.layers.verbs.query({ kind: "background", id: ACOLYTE }).record.data;
+    const fond = h.layers.verbs.query({ kind: "background", id: INHERITANCE }).record.data;
     assert.equal(fond.skill_ids, undefined, "l'Inheritance a éteint les compétences imposées de l'arrière-plan");
     assert.equal(fond.tool_id, undefined, "et l'outil imposé aussi");
 
@@ -226,7 +231,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
   const h = pilePool();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 5, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+      level: 5, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
     }))
   });
   const stat = poolDe(out.resolved);
@@ -270,7 +275,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
      un point de plus, et c'est la ligne du niveau 6 qui apparaît. */
   const h6 = pilePool();
   const doc6 = documentDe(h6, choixDe({
-    level: 6, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+    level: 6, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
   }));
   const stat6 = poolDe(h6.verbs.rebuild({ document: doc6 }).resolved);
   assert.equal(stat6.value, 20, "au niveau 6, un point de plus (REWRITTEN 2026-08-12, lot 35 : base 19 + 1)");
@@ -283,7 +288,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
   const hw = pilePool();
   const wizard5 = poolDe(hw.verbs.rebuild({
     document: documentDe(hw, choixDe({
-      level: 5, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+      level: 5, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
     }))
   }).resolved);
   assert.deepEqual(wizard5.breakdown.filter((line) => line.label.startsWith("Level ")),
@@ -303,7 +308,7 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
     const h = pilePool();
     const out = h.verbs.rebuild({
       document: documentDe(h, choixDe({
-        level: 3, classId: "srd:class:en:fighter", speciesId, backgroundId: ACOLYTE
+        level: 3, classId: "srd:class:en:fighter", speciesId, backgroundId: INHERITANCE
       }))
     });
     return { h, stat: poolDe(out.resolved), underived: out.underived };
@@ -373,7 +378,8 @@ test("ACCEPTATION 4 — couche FH débrayée : `stats` est VIDE et la déclarati
   const h = makeHarness({ layers: [SRD_EN], modules: [createFhSkillPoolStat()] });
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling",
+      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
     }))
   });
 
@@ -423,7 +429,8 @@ test("ACCEPTATION 5 — drapeau levé, couche des compétences absente : le term
   });
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 3, classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag", backgroundId: ACOLYTE
+      level: 3, classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag",
+      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
     }))
   });
 
@@ -466,7 +473,7 @@ test("ACCEPTATION 6 — un Human Wizard avec Skilled publie 15, et son détail p
   const avecDon = pilePoolAvecDons();
   const out = avecDon.verbs.rebuild({
     document: documentDe(avecDon, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }).concat([donDe("srd:feat:en:skilled")]))
   });
   const stat = poolDe(out.resolved);
@@ -491,7 +498,7 @@ test("ACCEPTATION 6 — un Human Wizard avec Skilled publie 15, et son détail p
   const sansDon = pilePoolAvecDons();
   const statNu = poolDe(sansDon.verbs.rebuild({
     document: documentDe(sansDon, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }))
   }).resolved);
   /* REWRITTEN 2026-08-12 (lot 35) — même correction : 12 + 2 − 2, l'arrière-plan
@@ -504,7 +511,7 @@ test("ACCEPTATION 7 — un Human Rogue avec Skilled publie 22", () => {
   const h = pilePoolAvecDons();
   const stat = poolDe(h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }).concat([donDe("srd:feat:en:skilled")]))
   }).resolved);
   /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
@@ -533,7 +540,7 @@ test("ACCEPTATION 8 — un don SANS `data.skill_points` ne casse rien : seize do
     const h = pilePoolAvecDons();
     const out = h.verbs.rebuild({
       document: documentDe(h, choixDe({
-        level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+        level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
       }).concat([donDe(id)]))
     });
     const stat = poolDe(out.resolved);
@@ -562,7 +569,7 @@ test("ACCEPTATION 9 — un don qui annonce une valeur de points illisible JETTE"
   });
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }).concat([donDe("srd:feat:en:skilled")]))
   }), (erreur) => {
     assert.match(erreur.message, /srd:feat:en:skilled/, "le refus NOMME le don fautif");
@@ -593,7 +600,7 @@ test("ATTAQUE — une classe amputée de son pool JETTE, elle ne se déclare pas
   });
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
     }))
   }), (erreur) => {
     assert.match(erreur.message, /srd:class:en:rogue/, "le refus NOMME le record fautif");
@@ -628,7 +635,7 @@ test("ATTAQUE — un `by_level` malformé JETTE au lieu de coûter des paliers e
     });
     assert.throws(() => h.verbs.rebuild({
       document: documentDe(h, choixDe({
-        level: 8, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+        level: 8, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
       }))
     }), /srd:class:en:wizard/, `« ${nom} » doit JETER en nommant le record`);
   }
@@ -660,7 +667,7 @@ test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le co
   });
   const stat = poolDe(h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
     }))
   }).resolved);
   assert.equal(terme(stat, "Class Pool · Wizard").value, 13, "le pool SUIT le record — il n'est pas écrit ici");
@@ -684,7 +691,7 @@ test("ATTAQUE — un trait d'espèce sans nom JETTE : la ligne ne disparaît pas
   });
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }))
   }), /srd:species:en:human/, "le refus nomme l'espèce dont le trait n'a pas de nom");
 });
@@ -695,7 +702,7 @@ test("ATTAQUE — un choix posé dans le namespace du module est REFUSÉ, jamais
      (loi §0.5) — sinon un builder croirait avoir dépensé des points. */
   const h = pilePool();
   const choices = choixDe({
-    level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", backgroundId: ACOLYTE
+    level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
   }).concat([{ path: "fh.skills.spend[0]", value: 4, label: "Stealth expertise" }]);
   assert.throws(() => h.verbs.rebuild({ document: documentDe(h, choices) }),
     /fh\.skills\.spend\[0\]/, "le refus NOMME le chemin fautif");
@@ -735,7 +742,7 @@ test("DEUX MODULES COHABITENT — le pool ne remplace pas le Score de Destinée"
   });
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }))
   });
   assert.deepEqual(out.resolved.stats.map((stat) => stat.id).sort(), [FH_DESTINY_ID, FH_SKILL_POOL_ID].sort());
@@ -758,7 +765,7 @@ test("ATTAQUE — le +6 de Skilled vient du record, pas du module : on le change
   });
   const stat = poolDe(h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }).concat([donDe("srd:feat:en:skilled")]))
   }).resolved);
   assert.equal(terme(stat, "Skilled").value, 9, "la ligne SUIT le record — elle n'est pas écrite dans le module");
@@ -780,7 +787,7 @@ test("ATTAQUE — un don sans nom JETTE : la ligne ne disparaît pas en silence"
   });
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: ACOLYTE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
     }).concat([donDe("srd:feat:en:skilled")]))
   }), /srd:feat:en:skilled/, "le refus nomme le don dont la ligne ne peut pas se libeller");
 });
@@ -800,7 +807,7 @@ test("ATTAQUE — un `granted_skill_choice.count` illisible JETTE au lieu de fau
     });
     assert.throws(() => h.verbs.rebuild({
       document: documentDe(h, choixDe({
-        level: 1, classId: "srd:class:en:fighter", speciesId: "fh:species:en:araag", backgroundId: ACOLYTE
+        level: 1, classId: "srd:class:en:fighter", speciesId: "fh:species:en:araag", backgroundId: INHERITANCE
       }))
     }), /fh:species:en:araag/, `« ${nom} » doit JETER en nommant le record`);
   }

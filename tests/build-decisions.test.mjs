@@ -22,7 +22,8 @@ function englishDocument(h, speciesId, speciesSkill) {
     { path: "level", value: 1 },
     { path: "class", ref: { kind: "class", id: "srd:class:en:fighter" } },
     { path: "species", ref: { kind: "species", id: speciesId } },
-    { path: "background", ref: { kind: "background", id: "srd:background:en:acolyte" } },
+    /* LOT 43 — plus de choix `background` : l'Inheritance est le seul record
+       du genre sous `fh-skills-en`, livrée, jamais choisie (contrat §1a). */
     { path: "class.skills[0]", value: "athletics" },
     { path: "class.skills[1]", value: "perception" },
     { path: "abilities.str", value: 14 }, { path: "abilities.dex", value: 12 },
@@ -48,7 +49,7 @@ test("le carnet SRD pur ne projette QUE les sept familles réelles demandées", 
   assert.equal(decisions.size, out.decisions.length, "aucun chemin n'apparaît deux fois");
   assert.deepEqual([...decisions.keys()], [
     "background", "background.boost", "background.boost.con", "background.boost.int",
-    "background.feat", "background.tool", "class", "class.skills", "class.skills[0]",
+    "background.originFeat[0]", "background.tool", "class", "class.skills", "class.skills[0]",
     "class.skills[1]", "species", "species.keenSenses", "species.skills"
   ]);
   assert.equal(out.decisions.some((entry) => /spell|gear|level|tier|fh\.skills/.test(entry.path)), false,
@@ -58,7 +59,10 @@ test("le carnet SRD pur ne projette QUE les sept familles réelles demandées", 
   assert.deepEqual(decisions.get("class.skills").provenance, {
     mode: "offered", kind: "class", id: "srd:class:fr:magicien", field: "skill_choice"
   });
-  assert.deepEqual(decisions.get("background.feat").provenance, {
+  /* LOT 43, §1b — `background.feat` a disparu ; le don d'origine se projette
+     désormais sur `background.originFeat[0]`, le SEUL chemin que les modules
+     lisaient déjà. Un `feat_id` imposé (le cas SRD) reste `required`. */
+  assert.deepEqual(decisions.get("background.originFeat[0]").provenance, {
     mode: "required", kind: "background", id: "srd:background:fr:sage", field: "feat_id"
   });
 });
@@ -100,18 +104,28 @@ test("les refs, le grant d'espèce, les boosts et le don ferment chacun clear / 
       restore: () => h.verbs.set({ path: "species.keenSenses", value: "perception" })
     },
     {
-      path: "background.boost.con", kind: "choice", projected: "background.boost",
+      /* LOT 43, §1d — retirer `background.boost.con` laisse le total à 2, et
+         2 ≠ 3 est maintenant un total illégal (`background.boost-total-
+         mismatch`), pas un plan simplement incomplet : `pending` décrivait un
+         garde qui ne comptait pas encore, avant ce lot. */
+      path: "background.boost.con", kind: "choice", projected: "background.boost", statusAfterClear: "locked",
       restore: () => h.verbs.set({ path: "background.boost.con", value: 1 })
     },
     {
-      path: "background.feat", kind: "choice", projected: "background.feat",
-      restore: () => h.verbs.choose({ path: "background.feat", ref: { kind: "feat", id: "srd:feat:fr:initie-a-la-magie" } })
+      /* LOT 43, §1b/§3d — `srd:background:fr:sage` porte `feat_id` (imposé) :
+         le plan l'ANNONCE (`options: [featId], selected: [featId]`) sur le
+         patron de `tool_id`, sans jamais lire `choices` — un `clear` n'a donc
+         RIEN à retirer, et le statut reste `answered` tout du long. C'est
+         `condition de sortie n°6` rendue observable : un SRD pur ne perd rien. */
+      path: "background.originFeat[0]", kind: "choice", projected: "background.originFeat[0]", statusAfterClear: "answered",
+      restore: () => h.verbs.choose({ path: "background.originFeat[0]", ref: { kind: "feat", id: "srd:feat:fr:initie-a-la-magie" } })
     }
   ];
   for (const scenario of cases) {
     h.verbs.clear({ path: scenario.path, kind: scenario.kind });
     let decisions = byPath(h.verbs.rebuild({}));
-    assert.equal(decisions.get(scenario.projected).status, "pending", `${scenario.path} retiré devient pending`);
+    assert.equal(decisions.get(scenario.projected).status, scenario.statusAfterClear || "pending",
+      `${scenario.path} retiré devient ${scenario.statusAfterClear || "pending"}`);
     scenario.restore();
     decisions = byPath(h.verbs.rebuild({}));
     assert.equal(decisions.get(scenario.projected).status, "answered", `${scenario.path} restauré redevient answered`);
