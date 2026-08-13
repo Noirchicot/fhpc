@@ -301,7 +301,40 @@ test("le périmètre inspecté par les gardes NOMME ce qu'il doit contenir", () 
    LE GARDE : aucun fichier de `src/` ne porte un caractère de contrôle
    hors tabulation, saut de ligne et retour chariot. La loi est sur les
    OCTETS, comme §0.12 — parce que c'est une propriété des octets, pas du
-   sens. */
+   sens.
+
+   ── LOT 56 (2026-08-14) — LE PÉRIMÈTRE S'ÉTEND À `ui/` ────────────────
+   Le garde ci-dessus ne couvrait que `src/`, et seulement les `.mjs`
+   (`walkSources`, importé de source-scan.mjs, filtre sur cette seule
+   extension — c'est correct pour les gardes de VOCABULAIRE de ce fichier,
+   qui ne lisent que du code, mais c'est le mauvais outil ICI). Or c'est
+   dans `ui/` — 4 505 lignes, le chantier actif — qu'on tire aujourd'hui
+   les conclusions « zéro occurrence ». Et `ui/` contient des `.css` et un
+   `.html`, exactement le genre de fichier qu'on interroge au grep en
+   croyant le lire.
+
+   ⭐ MESURÉ EN ÉTENDANT : `walkSources` (filtre `.mjs`) passait aussi à
+   côté de `src/tools/fiche.shell.html` — le défaut n°6 avait donc TOUJOURS
+   eu un angle mort dans `src/` lui-même, pas seulement dans `ui/` que la
+   commande visait. Réparé ici sans qu'on me le demande (voir le rapport).
+
+   LE CHOIX DE PÉRIMÈTRE — liste noire, pas liste blanche : plutôt que
+   d'énumérer les extensions couvertes (`.mjs`, `.css`, `.html`, … — une
+   liste qui prend le même risque que celle qu'on remplace : oublier une
+   entrée), `walkTousFichiersTexte` parcourt TOUT fichier sous la racine et
+   n'exclut que les extensions reconnues binaires. Un fichier neuf, quelle
+   que soit son extension, tombe SOUS le garde par défaut ; c'est
+   l'exclusion qui doit être nommée, jamais l'inclusion. C'est le sens de
+   « dérivé, pas recopié » demandé par la commande, poussé un cran plus
+   loin que les trois extensions qu'elle citait en exemple.
+
+   🔴 LA LIMITE DE CE GARDE, ÉCRITE ICI PARCE QU'ELLE NE SE VOIT PAS TOUTE
+   SEULE : il ne voit QUE les caractères de contrôle hors tabulation, saut
+   de ligne et retour chariot. Il ne dit RIEN d'un fichier lisible mais
+   FAUX — encodage cassé au-delà de l'ASCII de contrôle, UTF-8 mal formé,
+   BOM, fin de ligne mixte, contenu simplement erroné. Un fichier peut
+   passer ce garde et rester un mensonge ; le garde protège une seule
+   propriété, « grep peut le voir », pas « ce que grep voit est vrai ». */
 
 function premierOctetDeControle(bytes) {
   for (let i = 0; i < bytes.length; i += 1) {
@@ -313,16 +346,140 @@ function premierOctetDeControle(bytes) {
   return null;
 }
 
-test("DÉFAUT n°6 — aucun fichier de src/ n'est illisible au grep (pas d'octet de contrôle)", () => {
-  const srcDir = path.join(here, "..", "src");
-  const coupables = [];
-  for (const file of walkSources(srcDir)) {
-    const trouve = premierOctetDeControle(fs.readFileSync(file));
-    if (trouve) coupables.push(`${path.relative(srcDir, file)} : octet ${trouve.octet} à la position ${trouve.position}`);
+/* Extensions reconnues binaires PAR NATURE — un octet < 32 hors tab/LF/CR y
+   est attendu, pas une corruption. Tout le reste est considéré texte et
+   inspecté. Cette liste grandit sur preuve (un vrai binaire posé dans
+   src/ ou ui/ un jour), pas par anticipation : aujourd'hui aucun fichier
+   de ces deux arbres n'y correspond (voir le test de couverture ci-dessous
+   qui le vérifie). */
+const EXTENSIONS_BINAIRES = new Set([
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".svg",
+  ".woff", ".woff2", ".ttf", ".otf", ".eot",
+  ".pdf", ".zip", ".gz"
+]);
+
+/* Arpenteur générique, sœur de `walkSources` mais SANS filtre d'extension
+   positif : récursif (même raison que `walkSources` — un sous-répertoire à
+   plat est une porte de sortie silencieuse), et il ne retient que ce qui
+   n'est PAS explicitement binaire. */
+function walkTousFichiersTexte(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true })
+    .sort((a, b) => (a.name < b.name ? -1 : 1))
+    .flatMap((item) => {
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) return walkTousFichiersTexte(full);
+      return EXTENSIONS_BINAIRES.has(path.extname(item.name).toLowerCase()) ? [] : [full];
+    });
+}
+
+/* Les deux racines gardées. `src/` ET `ui/` — la commande du lot 56 : le
+   défaut n°6 protégeait la scène du crime (`src/`) mais pas le chantier
+   actif (`ui/`) où on mesure aujourd'hui. */
+const RACINES_GARDEES = [
+  { nom: "src", dir: path.join(here, "..", "src") },
+  { nom: "ui", dir: path.join(here, "..", "ui") }
+];
+
+for (const { nom, dir } of RACINES_GARDEES) {
+  test(`DÉFAUT n°6 — aucun fichier de ${nom}/ n'est illisible au grep (pas d'octet de contrôle)`, () => {
+    const coupables = [];
+    for (const file of walkTousFichiersTexte(dir)) {
+      const trouve = premierOctetDeControle(fs.readFileSync(file));
+      if (trouve) coupables.push(`${path.relative(dir, file)} : octet ${trouve.octet} à la position ${trouve.position}`);
+    }
+    assert.deepEqual(coupables, [],
+      "un octet de contrôle rend le fichier « data » : grep le saute EN SILENCE, et « zéro occurrence » cesse " +
+      "de vouloir dire « absent ». Écris la séquence d'échappement, jamais l'octet.");
+  });
+}
+
+/* ⚔️ COUVERTURE — le garde étendu voit-il vraiment les fichiers que la
+   commande nomme, et pas seulement les .mjs ? Une positive : si demain
+   quelqu'un remplace `walkTousFichiersTexte` par un filtre `.mjs` par
+   inadvertance (un copier-coller de `walkSources`), CE test rougit même
+   si aucun octet de contrôle n'est jamais planté — il prouve la PORTÉE,
+   pas seulement l'absence de violation. */
+test("DÉFAUT n°6 (couverture) — le garde voit bien les .css, le .html et les .mjs des deux racines, pas seulement les .mjs", () => {
+  const vus = {
+    ui: walkTousFichiersTexte(path.join(here, "..", "ui")).map((f) => path.relative(path.join(here, ".."), f)),
+    src: walkTousFichiersTexte(path.join(here, "..", "src")).map((f) => path.relative(path.join(here, ".."), f))
+  };
+  assert.ok(vus.ui.includes(path.join("ui", "builder", "shell.css")), "shell.css doit être vu");
+  assert.ok(vus.ui.includes(path.join("ui", "builder", "tokens.css")), "tokens.css doit être vu");
+  assert.ok(vus.ui.includes(path.join("ui", "builder", "index.html")), "index.html doit être vu");
+  assert.ok(vus.ui.includes(path.join("ui", "builder", "shell.mjs")), "shell.mjs doit rester vu (pas de régression sur les .mjs)");
+  assert.ok(vus.src.includes(path.join("src", "tools", "fiche.shell.html")),
+    "fiche.shell.html — angle mort de src/ lui-même, trouvé en étendant le garde à ui/, corrigé au passage");
+  assert.ok(vus.src.some((f) => f.endsWith(".mjs")), "les .mjs de src/ doivent rester vus");
+});
+
+/* ⚔️ ATTAQUE, RÉPÉTÉE SUR LES DEUX RACINES SÉPARÉMENT — l'attaque
+   existante (plus bas) ne prouve que la fonction `premierOctetDeControle`
+   elle-même. Elle ne prouve PAS que le nouvel arpenteur, sur CHAQUE
+   racine gardée, la fait vraiment tomber sous l'œil du garde. Le
+   2026-08-08, une attaque de garde a été lancée sur le mauvais fichier de
+   suite et est passée verte à tort — donc ici, l'attaque construit un
+   arbre temporaire qui IMITE la racine visée (mêmes extensions), y plante
+   la violation, fait tourner LE VRAI COUPLE arpenteur+détecteur dessus, et
+   vérifie qu'il rougit. Rien de réel dans src/ ou ui/ n'est touché. */
+for (const { nom, sousDossier, nomFichier } of [
+  { nom: "src", sousDossier: ["build"], nomFichier: "fautif.mjs" },
+  { nom: "ui", sousDossier: ["builder"], nomFichier: "fautif.css" }
+]) {
+  test(`⚔️ ATTAQUE du défaut n°6 étendu — un octet NUL planté dans un arbre imitant ${nom}/ fait rougir le couple arpenteur+détecteur`, () => {
+    const racine = fs.mkdtempSync(path.join(os.tmpdir(), `fhpc-${nom}-`));
+    try {
+      const dossier = path.join(racine, ...sousDossier);
+      fs.mkdirSync(dossier, { recursive: true });
+      fs.writeFileSync(path.join(dossier, "propre.mjs"), "export const ok = 1;\n");
+      fs.writeFileSync(path.join(dossier, nomFichier), Buffer.concat([
+        Buffer.from("body { content: \"a", "utf8"), Buffer.from([0]), Buffer.from("b\"; }\n", "utf8")
+      ]));
+
+      const coupables = [];
+      for (const file of walkTousFichiersTexte(racine)) {
+        const trouve = premierOctetDeControle(fs.readFileSync(file));
+        if (trouve) coupables.push(path.relative(racine, file));
+      }
+      assert.deepEqual(coupables, [path.join(...sousDossier, nomFichier)],
+        `le fichier fautif de l'arbre imitant ${nom}/ doit être signalé, et lui seul`);
+    } finally {
+      fs.rmSync(racine, { recursive: true, force: true });
+    }
+  });
+}
+
+/* ⭐ LA DÉRIVATION, PROUVÉE : un fichier d'une extension JAMAIS vue par ce
+   fichier de test (`.rules`, inventée pour l'occasion) est quand même
+   couvert — parce que le garde marche par EXCLUSION des binaires connus,
+   pas par inclusion d'une liste de types attendus. Si ce test échoue, le
+   garde a régressé vers une liste blanche. */
+test("DÉFAUT n°6 (dérivation) — une extension jamais énumérée tombe sous le garde sans qu'une liste bouge", () => {
+  const racine = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-derive-"));
+  try {
+    const fautif = path.join(racine, "nouveau.rules");
+    fs.writeFileSync(fautif, Buffer.concat([Buffer.from("a", "utf8"), Buffer.from([1]), Buffer.from("b", "utf8")]));
+    const vus = walkTousFichiersTexte(racine);
+    assert.deepEqual(vus, [fautif], "un fichier d'extension inconnue doit être vu par l'arpenteur, sans ajout à une liste");
+    assert.deepEqual(premierOctetDeControle(fs.readFileSync(fautif)), { octet: 1, position: 1 });
+  } finally {
+    fs.rmSync(racine, { recursive: true, force: true });
   }
-  assert.deepEqual(coupables, [],
-    "un octet de contrôle rend le fichier « data » : grep le saute EN SILENCE, et « zéro occurrence » cesse " +
-    "de vouloir dire « absent ». Écris la séquence d'échappement, jamais l'octet.");
+});
+
+/* Et l'inverse, pour que la limite du garde soit ÉCRITE, pas seulement
+   vécue : un octet de contrôle DANS un binaire déclaré (ex. une future
+   icône .png) n'est délibérément pas un objet du garde — c'est attendu
+   pour ce format, pas une corruption. Cette exclusion est nommée
+   (EXTENSIONS_BINAIRES), pas silencieuse. */
+test("DÉFAUT n°6 (limite écrite) — un octet de contrôle dans une extension binaire déclarée n'est pas remonté", () => {
+  const racine = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-bin-"));
+  try {
+    fs.writeFileSync(path.join(racine, "icone.png"), Buffer.from([137, 80, 78, 71, 0, 1, 2]));
+    assert.deepEqual(walkTousFichiersTexte(racine), [], "un .png n'est pas dans le périmètre — l'exclusion est nommée, pas un trou");
+  } finally {
+    fs.rmSync(racine, { recursive: true, force: true });
+  }
 });
 
 test("⚔️ ATTAQUE du défaut n°6 — le garde MORD sur un octet NUL, et PAS sur sa séquence d'échappement", () => {
