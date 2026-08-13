@@ -42,6 +42,28 @@
 > (`INVENTAIRE-LOT-47.md`). `create` peut poser ces trois champs dès la
 > naissance, toujours facultatifs ; `rename` ne bouge pas. Rien de ce qui
 > précède ce paragraphe n'a changé. Preuves : `tests/doc-identity.test.mjs`.
+>
+> ✅ **ÉTENDU LE 2026-08-13 par le lot `54-ecrans-concept-univers`.** Les
+> écrans Concept/Universe du builder devaient écrire `name`/`gender`/
+> `alignment`/`campaign`, mais `rename`/`describe` n'existaient que dans la
+> fermeture de `createDoc({storage, …})`, qui refuse de se construire sans
+> magasin — et le navigateur n'en a aucun. `rename`/`describe` sont pourtant
+> **purs** (ni magasin ni bus). `src/doc/writers.mjs` extrait `createDocWriters
+> ({schema})`, qui les construit à partir du seul schéma ; `createDoc` les
+> RÉUTILISE tels quels (`verbs.rename = rename`, même référence, jamais une
+> copie). `ui/builder/` importe `createDocWriters` directement — **jamais**
+> `createDoc`, gardé par un test sur les octets de `ui/`. Rien de ce qui
+> précède ce paragraphe n'a changé : les neuf verbes gardent leur forme et
+> leur comportement, prouvé par égalité stricte entre le verbe du bloc et
+> l'écrivain importable, refus compris. Preuves : `tests/doc-writers.test.mjs`.
+>
+> ⚠️ **Trou déclaré, pas bouché par ce lot** : `lang`/`units` sont des
+> propriétés racine REQUISES (`required`), donc hors de `describableFields`
+> (qui ne retient que les propriétés facultatives) — aucun verbe existant ne
+> peut les réécrire après `create`. L'écran Universe les affiche en lecture
+> seule ; un dixième verbe (ou l'élargissement de `describe`) est un
+> changement de contrat que ce lot n'a pas mandat d'ouvrir. Voir
+> `INVENTAIRE-LOT-54.md`.
 
 ## Nom
 
