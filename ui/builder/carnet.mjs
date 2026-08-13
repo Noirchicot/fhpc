@@ -80,6 +80,58 @@ function el(tag, className, children) {
 }
 function text(value) { return document.createTextNode(String(value)); }
 
+/* ══ LOT 57 — L'ÉTAT SE POSE UNE SEULE FOIS, POUR L'ŒIL ET POUR L'OREILLE ═
+   Mesure de la commande (§1.2) : `data-active` est écrit à SEPT endroits
+   de `ui/` (deux ici même, trois dans skills-step.mjs, un dans
+   universe-step.mjs, un dans inheritance-step.mjs) et le CSS s'y accroche
+   seul (`shell.css:162-165`, `:205`, `:441`) — l'œil sait déjà qui est
+   choisi. `aria-pressed` n'existait NULLE PART (`grep -rn "aria-pressed"
+   ui/` → 0, gardé par le garde d'octets du lot 56 pour que ce zéro reste
+   lisible).
+
+   ⛔ CE QUE CE LOT NE FAIT PAS : six réparations indépendantes, une par
+   site. C'est EXACTEMENT la divergence que le lot 53 a payée
+   (`carnet.mjs:108` et `:109`, deux lignes voisines qui ont dérivé l'une
+   de l'autre). `markPressed` est donc la SEULE fonction du dépôt qui pose
+   `data-active` — exportée d'ici parce que c'est déjà le carnet partagé
+   que `skills-step.mjs`, `class-step.mjs`, `species-step.mjs`,
+   `abilities-step.mjs`, `destiny-step.mjs`, `equipment-step.mjs` importent
+   tous. Les quatre fichiers qui écrivaient `dataset.active` en dur
+   (`carnet.mjs`, `skills-step.mjs`, `universe-step.mjs`,
+   `inheritance-step.mjs`) l'appellent maintenant tous ; aucun n'écrit plus
+   `.dataset.active = …` lui-même.
+
+   ⭐ ADDITIF, PAS UN REMPLACEMENT : la commande (§2.4) prévenait que
+   remplacer `data-active` demanderait de suivre dans le CSS, à l'œil. Ce
+   n'était pas nécessaire — `aria-pressed` s'AJOUTE à côté de
+   `data-active`, qui reste MOT POUR MOT ce qu'il était (même clef, même
+   valeur `"true"/"false"`, même sélecteur CSS). Zéro ligne de `shell.css`
+   ne bouge ; zéro pixel ne peut donc bouger. Vérifié à l'œil quand même
+   (`python3 -m http.server`, voir le rapport du lot) — la commande le
+   demandait explicitement, pas seulement au test.
+
+   ── LA FORME CHOISIE, ET POURQUOI PAS UN VRAI GROUPE RADIO (commande §2,
+   point 1, « dis-le et argumente si tu penses qu'un autre patron convient
+   mieux ») ──
+   Ces boutons sont des groupes à sélection unique (choisir une classe en
+   déchoisit une autre), le patron ARIA le plus proche EN APPARENCE est donc
+   `role="radiogroup"` + `role="radio"`/`aria-checked`. Mesuré avant de
+   choisir : ce patron engage un CONTRAT CLAVIER que ce dépôt n'a pas —
+   les flèches doivent déplacer le focus ET la sélection entre les
+   `role="radio"` d'un même groupe (WAI-ARIA APG, « Radio Group Pattern »),
+   alors que ces boutons sont aujourd'hui atteints au Tab, un par un
+   (§1.2 de la commande : « le clavier fonctionne déjà partout », mesuré
+   avec `<button>` ordinaires). Poser `role="radio"` sans le clavier qui va
+   avec romprait un contrat que le lecteur d'écran tient pour acquis — pire
+   que ne rien poser. Le « bouton à bascule » (`aria-pressed` sur un
+   `<button>` simple, WAI-ARIA APG « Toggle Button ») ne fait AUCUNE
+   promesse de navigation par flèches ; c'est le patron que la commande
+   suggérait, et rien ici ne le contredit : je le suis. */
+export function markPressed(btn, active) {
+  btn.dataset.active = String(active);
+  btn.setAttribute("aria-pressed", String(active));
+}
+
 /** LE PICKER — une rangée de boutons nommés, plus un tiret optionnel qui
  *  efface. MÊME bascule que `skills-step.mjs` (`renderTierButtons`) :
  *  cliquer l'option déjà active l'efface aussi, jamais un second geste à
@@ -93,7 +145,7 @@ export function renderPicker({ options, selected, labelOf, onSelect, onClear, lo
     const dash = document.createElement("button");
     dash.type = "button";
     dash.className = "record-option record-option-none";
-    dash.dataset.active = String(chosen.length === 0);
+    markPressed(dash, chosen.length === 0);
     dash.textContent = "—";
     /* Cas à part, LOT 53 §1c : « — » ne veut rien dire à l'oreille — cet
        `aria-label` n'est PAS l'identifiant machine (le tiret n'a pas de
@@ -108,7 +160,7 @@ export function renderPicker({ options, selected, labelOf, onSelect, onClear, lo
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "record-option";
-    btn.dataset.active = String(active);
+    markPressed(btn, active);
     /* LOT 53 — `data-value` porte l'IDENTIFIANT machine (ce que les tests
        cherchent, §0.2 de la commande) ; `textContent` porte le NOM et EST
        DÉJÀ le nom accessible d'un <button> — aucun `aria-label` ne lui est

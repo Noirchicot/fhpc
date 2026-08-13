@@ -28,7 +28,7 @@
    geste de choix de record. */
 
 import {
-  planAt, renderRecordChoice, renderPicker, decisionRefusalWord
+  planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
 } from "./carnet.mjs";
 import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs";
 
@@ -151,7 +151,7 @@ function renderOriginFeat(ctx, plan) {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "inheritance-feat-card";
-    card.dataset.active = String(active);
+    markPressed(card, active);
     /* LOT 53, TROISIÈME INSTANCE — payée par l'architecte à la revue, parce
        qu'elle était hors du périmètre du lot (elle ne vient pas de
        `renderPicker`, c'est une carte fabriquée à la main ici). Même défaut,
