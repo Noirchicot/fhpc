@@ -322,6 +322,37 @@ chose plus tard » reste possible, mais ce n'est plus un geste de code caché
 dans `store.mjs` — c'est un changement de SCHÉMA, relu et testé comme tout
 changement de contrat.
 
+### 🔴 SON ARÊTE, MESURÉE PAR L'ARCHITECTE À LA REVUE DU LOT 48
+
+**`describableFields` ne reconnaît qu'UNE des trois façons dont ce schéma
+déclare une chaîne.** Mesuré en ajoutant le même champ facultatif sous trois
+formes :
+
+| Comment le champ est déclaré | Vu par `describe` ? |
+|---|---|
+| `{ "type": "string" }` | ✅ **vu** |
+| `{ "$ref": "#/$defs/…" }` | 🔴 **invisible** |
+| `{ "type": ["string", "null"] }` | 🔴 **invisible** |
+
+⚠️ **Et ce n'est pas une forme exotique** : `lang` est déclaré par `$ref`
+dans ce schéma même. Un auteur qui suit l'idiome dominant du fichier
+ajoutera donc un champ que `describe` **refusera en silence** — il ne
+plantera pas, il ne dira rien, la clef sera simplement hors liste blanche.
+
+📌 **Le comportement d'aujourd'hui est JUSTE** — les trois champs ouverts
+par le lot 48 sont déclarés par `type` et fonctionnent. C'est le **prochain**
+champ qui tombe dedans.
+
+⭐ **La forme de la faute a un nom dans ce chantier** : *un motif bien ancré,
+mais sur une seule orthographe de ce qu'il cherche* — la règle de mesure n°2
+du mandat, née d'un `grep` qui annonçait 56 sites là où il y en avait 77.
+
+➡️ **Donc, tant que l'arête n'est pas payée : déclare tout champ descriptif
+avec `"type": "string"` en clair, jamais par `$ref`.** Le jour où
+`describableFields` résoudra les `$ref`, cette contrainte tombe — et c'est
+un vrai petit chantier, pas une ligne : il faut décider si suivre un `$ref`
+qui mène à autre chose qu'une chaîne est un refus ou un silence.
+
 **La liste blanche mord dans les deux sens** : une propriété racine
 facultative de type `string` ajoutée au schéma devient AUSSITÔT écrivable
 par `describe`, sans qu'une ligne de `store.mjs` ne bouge (`tests/
