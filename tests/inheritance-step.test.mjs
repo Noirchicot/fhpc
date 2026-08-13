@@ -109,14 +109,14 @@ test("le personnage d'exemple (pile FH réelle) offre bien les CINQ dons d'origi
     .filter((view) => view.record.data && view.record.data.category === "origin")
     .map((view) => view.id).sort();
   assert.equal(attendu.length, 5, "sonde : quatre du SRD + Auspicious (fh)");
-  const rendered = featCards(node).map((card) => card.getAttribute("aria-label")).sort();
+  const rendered = featCards(node).map((card) => card.getAttribute("data-value")).sort();
   assert.deepEqual(rendered, attendu, "les CINQ ids rendus sont EXACTEMENT ceux du plan, rien composé ici");
 });
 
 test("chaque carte de don porte son NOM et sa DESCRIPTION, lus par `query({kind:\"feat\", id})`", () => {
   const report = rebuild(fixture.document);
   const node = renderInheritanceStep(ctxFrom(report), () => {});
-  const auspicious = featCards(node).find((card) => card.getAttribute("aria-label") === "fh:feat:en:auspicious");
+  const auspicious = featCards(node).find((card) => card.getAttribute("data-value") === "fh:feat:en:auspicious");
   assert.ok(auspicious, "la carte Auspicious (fh) existe");
   const name = auspicious.querySelectorAll(".inheritance-feat-name")[0];
   assert.equal(name.textContent, "Auspicious (fh)");
@@ -125,6 +125,20 @@ test("chaque carte de don porte son NOM et sa DESCRIPTION, lus par `query({kind:
   assert.match(desc[0].textContent, /Destiny/, "c'est bien le texte du record, pas un résumé");
   /* Et le don CHOISI (l'exemple porte déjà Auspicious) se voit actif. */
   assert.equal(auspicious.getAttribute("data-active"), "true");
+
+  /* ⚔️ LOT 53, TROISIÈME INSTANCE (architecte, à la revue) — LA CARTE
+     N'ANNONCE PLUS SON IDENTIFIANT. Avant, elle portait
+     `aria-label="fh:feat:en:auspicious"` : un lecteur d'écran lisait l'id
+     au lieu du nom du don. L'identifiant est passé dans `data-value` (deux
+     lignes plus haut, c'est LUI qui retrouve la carte maintenant), et le
+     nom accessible redevient le contenu textuel — qui porte déjà
+     « Auspicious (fh) », assertion ci-dessus.
+
+     📌 Le défaut venait d'un CONFLIT D'USAGE, pas d'une étourderie : la
+     valeur brute était là parce que CE TEST s'en servait comme crochet. Un
+     attribut d'accessibilité réquisitionné en identifiant machine. */
+  assert.equal(auspicious.getAttribute("aria-label"), null,
+    "un `aria-label` qui contredit le texte visible est pire que pas d'aria-label du tout");
 });
 
 /* ══ 2 — LES SIX CARACS SONT PROPOSÉES, LE COMPTEUR LIT answered/expected ══ */

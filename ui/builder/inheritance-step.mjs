@@ -152,7 +152,14 @@ function renderOriginFeat(ctx, plan) {
     card.type = "button";
     card.className = "inheritance-feat-card";
     card.dataset.active = String(active);
-    card.setAttribute("aria-label", id);
+    /* LOT 53, TROISIÈME INSTANCE — payée par l'architecte à la revue, parce
+       qu'elle était hors du périmètre du lot (elle ne vient pas de
+       `renderPicker`, c'est une carte fabriquée à la main ici). Même défaut,
+       même patron : l'identifiant va dans `data-value`, sa vraie place, et
+       la carte n'a plus d'`aria-label` — son contenu textuelle porte déjà le
+       NOM du don (`inheritance-feat-name`), qui est ce qu'un lecteur d'écran
+       doit annoncer. Avant : la carte s'annonçait `fh:feat:en:auspicious`. */
+    card.dataset.value = id;
     card.append(el("span", "inheritance-feat-name", [text(featLabel(query, id))]));
     /* La prose SRD est parfois multi-paragraphes (`\n\n`) — un simple
        découpage en `<p>`, ZÉRO mise en forme de plus (pas de résumé, pas de
