@@ -55,6 +55,10 @@ test("ACCEPTATION — sauvegardé, listé, rouvert, exporté, réimporté dans u
     name: "Sylvane Aubelame",
     lang: "fr",
     level: 1,
+    /* LOT 47, §2c — un personnage COMPLET (il porte `resolved`) n'est pas un
+       brouillon : `list` le dit maintenant explicitement plutôt que de
+       laisser le joueur déduire l'état de sa fiche du seul champ `level`. */
+    draft: false,
     created: "2026-08-07T09:00:00Z",
     modified: "2026-08-08T11:15:00Z"
   });

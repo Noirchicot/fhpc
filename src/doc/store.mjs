@@ -4,7 +4,9 @@
    n'existe que le temps d'un processus.
 
    CE QUE LE BLOC POSSÈDE
-   - ses VERBES : `open`, `save`, `list`, `import`, `export`, `duplicate`.
+   - ses VERBES : `open`, `save`, `list`, `import`, `export`, `duplicate`, et
+     depuis le lot 47, `create` et `rename` — les deux portes que le kickoff
+     n'ouvrait pas : composer un document `fh-char/1` neuf, et écrire son nom.
    - son ÉTAT : les documents AU REPOS — mais il ne les tient pas en mémoire
      (voir plus bas) ; sa tranche privée est le registre de ce qu'il a
      réellement observé dans le magasin.
@@ -57,8 +59,10 @@
    libre, et le branchement est un lot d'après (contracts/doc.md §« Comment le
    MCP s'y branchera »). */
 
+import { randomUUID } from "node:crypto";
+
 import { DocError } from "./errors.mjs";
-import { compileSchema, readFromSchema } from "./schema.mjs";
+import { compileSchema, deriveDraftSchema, readFromSchema } from "./schema.mjs";
 import { asBytes, digest, parseDocument, toBytes } from "./serialize.mjs";
 import { platformNow } from "./clock.mjs";
 import { charInvariantViolations } from "../schemas/invariants.mjs";
@@ -100,7 +104,18 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
       "Sans schéma, il ne saurait pas ce qu'il accepte, et accepter sans savoir est exactement le contraire " +
       "de ce que ce bloc existe pour faire.");
   }
-  const compiled = compileSchema(schema, "fh-char/1");
+  /* LOT 47, §1b/§2c — LE VALIDATEUR ADMET LES DEUX FORMES, PAR UN SEUL
+     SCHÉMA. `deriveDraftSchema` ne change qu'une chose : `resolved` sort de
+     `required`. Tout le reste de `fh-char/1` — chaque `$defs`, chaque
+     contrainte de champ — est INCHANGÉ. Un personnage COMPLET (qui porte
+     `resolved`) est donc jugé exactement aussi strictement qu'avant : le
+     mot « brouillon » ne relâche rien de ce que le schéma dit d'un champ
+     PRÉSENT, il ne fait qu'admettre son ABSENCE. C'est pour ça qu'un seul
+     validateur suffit aux deux formes (§2c), et pour ça que §1c est
+     gratuit : dès que `rebuild` pose `resolved`, ce même validateur le
+     juge déjà à la rigueur complète de `fh-char/1`, sans qu'un octet ne
+     change ici. */
+  const compiled = compileSchema(deriveDraftSchema(schema), "fh-char/1 (brouillon dérivé, §1b)");
   const SCHEMA_TAG = readFromSchema(schema, ["properties", "schema", "const"]);
   const ID_PATTERN = new RegExp(readFromSchema(schema, ["properties", "id", "pattern"]), "u");
   const FORBIDDEN_KEY = new RegExp(readFromSchema(schema, ["$defs", "safeKey", "not", "pattern"]), "u");
@@ -116,6 +131,32 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
       fail(`${verb} : « ${id === undefined ? "(absent)" : String(id)} » n'est pas un identifiant de document ` +
         `(forme ${ID_PATTERN.source}). La clef du magasin EST l'id du document : un id que le contrat refuse ` +
         "n'a pas d'emplacement.");
+    }
+    return id;
+  }
+
+  /* LOT 47, §2a — L'ID DE `create`, ET POURQUOI IL DIFFÈRE DE CELUI DE
+     `duplicate`. `duplicate` copie un document que SON joueur a déjà nommé ;
+     inventer l'id de la copie déciderait à sa place (loi §0.10), donc
+     l'appelant nomme (`as`). `create` n'a RIEN à copier : il n'y a encore
+     personne à qui laisser le choix, et un document neuf sans id n'a pas
+     d'emplacement. Ce bloc le produit donc lui-même — un UUID v4, tiré du
+     CSPRNG de la plate-forme (`node:crypto`, déjà présent pour `digest` dans
+     `serialize.mjs` — aucune dépendance neuve). ⛔ Jamais `Math.random`,
+     interdit dans tout `src/doc/` (contrats/doc.md, dépendances interdites) :
+     un CSPRNG rend une collision non provoquée assez improbable pour ne
+     jamais arriver en pratique, ce qu'un PRNG ordinaire ne garantit pas.
+     `create` ne touche pas le magasin (§2a : « il ne dérive pas, il
+     n'enregistre pas ») : l'unicité RÉELLE contre ce qui existe déjà est
+     vérifiée plus tard, à `save`, par la garde de collision ordinaire
+     (`expect: null` — réponse 2 du contrat) ; ce générateur n'a donc qu'à
+     produire une forme que `ID_PATTERN` accepte, vérifié ci-dessous plutôt
+     que supposé. */
+  function freshId() {
+    const id = randomUUID();
+    if (!ID_PATTERN.test(id)) {
+      fail(`create : l'identifiant généré « ${id} » ne respecte pas ${ID_PATTERN.source} — un UUID v4 devrait ` +
+        "toujours passer ce motif ; si ce refus se déclenche, le motif de `id` a changé sous ce bloc.");
     }
     return id;
   }
@@ -234,6 +275,76 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
   /* ── LES VERBES ───────────────────────────────────────────────────── */
 
   const verbs = {
+    /** LOT 47, §2a — LE SEPTIÈME VERBE. Rend un document `fh-char/1` NEUF et
+     *  VIDE — sans `resolved` (il ne dérive rien) et sans toucher au magasin
+     *  (il n'enregistre rien : « créer et sauvegarder sont deux gestes »).
+     *  Prêt pour `build.projectDecisions({query, choices: document.build.
+     *  choices})`, qui n'a besoin ni de `resolved` ni d'une dérivation.
+     *
+     *  `{name, lang, units, layers}` — les quatre TOUS requis, aucun défaut
+     *  deviné (décision D3) : une langue ou des unités implicites seraient
+     *  une règle que ce bloc invente à la place du joueur. `layers` est le
+     *  MANIFESTE des couches actives, déjà composé par l'appelant — même
+     *  forme que `build.layers` ($defs/layerRef), même geste que
+     *  `src/tools/exemple-fh-en.mjs` (`stack().filter(enabled).map(...)`) :
+     *  ce bloc ne parle pas au bloc `layers` (dépendance interdite), il
+     *  reçoit le résultat déjà composé. */
+    create(payload) {
+      const options = payload || {};
+      const { name, lang, units, layers } = options;
+      for (const [key, value] of [["name", name], ["lang", lang], ["units", units], ["layers", layers]]) {
+        if (value === undefined) {
+          fail(`create attend \`{name, lang, units, layers}\` — « ${key} » manque. Aucun défaut n'est deviné ` +
+            "(décision D3) : un document neuf sans langue ou sans unités serait une règle inventée par ce " +
+            "bloc à la place du joueur.");
+        }
+      }
+      const at = now();
+      const document = {
+        schema: SCHEMA_TAG,
+        id: freshId(),
+        name,
+        lang,
+        units,
+        created: at,
+        modified: at,
+        /* La forme exacte mesurée au §0.1 de la commande : un brouillon est
+           `fh-char/1` moins `resolved`, et RIEN d'autre ne change à `build`. */
+        build: { layers, choices: [], budgets: {}, overrides: [] }
+      };
+      assertValid(document, "create");
+      return structuredClone(document);
+    },
+
+    /** LOT 47, §2b/§1d — LE HUITIÈME VERBE : `document.name` s'écrit ICI.
+     *  ⛔ PAS PAR `build.set` : `$defs/build.choices` est la grammaire d'un
+     *  POINT DE DÉCISION (`src/build/paths.mjs`), et `name` n'en est pas un —
+     *  rien ne le « consomme » jamais, et un `set({path:"name", …})` reste
+     *  pour toujours dans `unconsumed` (mesuré §0.2 de la commande). `name`
+     *  est une MÉTADONNÉE de document, comme `lang` et `units`, et le bloc
+     *  `doc` possède les documents (§1d) — donc c'est ici, pas dans `build`.
+     *
+     *  Pure : ne touche ni le magasin ni `build.choices`. `document` peut
+     *  être un brouillon ou un personnage complet (§2c, les deux valident) ;
+     *  la sortie est validée comme toute admission (décision D3) — un nom
+     *  vide ou de plus de 200 caractères est un refus NOMMÉ, jamais un
+     *  silence qui laisserait passer une fiche sans nom. */
+    rename(payload) {
+      const options = payload || {};
+      const { document, name } = options;
+      if (document === null || typeof document !== "object" || Array.isArray(document)) {
+        fail("rename attend `{document, name}` — un document `fh-char/1` (brouillon ou complet) et le nom à " +
+          "écrire à sa racine.");
+      }
+      if (typeof name !== "string") {
+        fail(`rename : \`name\` doit être une chaîne, reçu ${name === undefined ? "(absent)" : typeof name}.`);
+      }
+      const renamed = structuredClone(document);
+      renamed.name = name;
+      assertValid(renamed, "rename");
+      return structuredClone(renamed);
+    },
+
     /** Lit un document du magasin et le rend. Ne garde rien d'autre que
      *  l'empreinte de ce qu'il a vu. */
     open(payload) {
@@ -291,12 +402,21 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
           /* La projection d'un CHOISISSEUR : de quoi reconnaître son
              personnage dans une liste, et rien de plus. Tout le reste est
              derrière `open` — projeter davantage serait fabriquer une seconde
-             lecture du document, qui divergerait de la première. */
+             lecture du document, qui divergerait de la première.
+
+             LOT 47, §2c — `draft` DISTINGUE les deux formes que ce bloc admet
+             depuis ce lot : un brouillon n'a pas de `resolved`, donc pas de
+             niveau à lire — `level: null` le dit plutôt que de faire planter
+             `list` sur `undefined.identity` (le seul verbe qui NE JETTE
+             JAMAIS, invariant 8). Un joueur qui voit sa liste doit distinguer
+             un brouillon d'un personnage fini sans ouvrir chaque entrée. */
+          const draft = document.resolved === undefined;
           return {
             id, ok: true, hash: current.hash, size: current.size,
             name: document.name,
             lang: document.lang,
-            level: document.resolved.identity.level,
+            level: draft ? null : document.resolved.identity.level,
+            draft,
             created: document.created,
             modified: document.modified
           };
@@ -384,10 +504,15 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
       const at = now();
       const copy = structuredClone(document);
       copy.id = as;
-      /* LES DEUX SEULS CHAMPS QUE CE BLOC ÉCRIT DANS UN DOCUMENT, et ils se
+      /* LES DEUX SEULS CHAMPS QUE `duplicate` ÉCRIT DANS LE DOCUMENT QU'IL
+         COPIE (son `id` mis à part, posé juste au-dessus) — et ils se
          justifient l'un par l'autre : une copie est un document NEUF, et un
          document neuf qui prétend avoir été créé avant d'exister est un
-         mensonge daté que plus rien ne corrigera. */
+         mensonge daté que plus rien ne corrigera. ⚠️ Depuis le lot 47,
+         `duplicate` n'est plus le seul verbe qui écrit dans un document :
+         `create` en compose un entier et `rename` y écrit `name` — chacun
+         dans son périmètre propre, jamais mélangé (invariant 7 du contrat,
+         relu). */
       copy.created = at;
       copy.modified = at;
       assertValid(copy, `duplicate → « ${as} »`);

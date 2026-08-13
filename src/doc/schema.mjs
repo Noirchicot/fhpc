@@ -304,6 +304,39 @@ export function compileSchema(schema, where = "(schéma)") {
   };
 }
 
+/* ══ LE SCHÉMA DE BROUILLON — DÉRIVÉ, JAMAIS RECOPIÉ (lot 47) ═══════════
+   Décision d'architecte (§1b) : « un brouillon est `fh-char/1` MOINS
+   `resolved`. Deux schémas presque identiques, c'est deux copies d'une
+   règle — et la loi du dépôt est qu'elles divergent sauf si quelque chose
+   les compare. » Donc : pas de second fichier `.schema.json`, pas de copie
+   à la main de `required` amputée d'une entrée — une fonction qui LIT le
+   `required` réel au moment de l'appel et en rend un DÉRIVÉ.
+
+   ⚠️ CE QUI REND LA DÉRIVATION PROUVABLE : `required` est FILTRÉ, jamais
+   réécrit à la main. Ajouter demain une clef au `required` de `fh-char/1`
+   la rend donc AUSSITÔT required au brouillon aussi (sauf si cette clef
+   est précisément `resolved`) — sans qu'une seule ligne d'ici ne bouge.
+   Une liste recopiée n'aurait pas cette propriété.
+
+   ⛔ `fh-char.schema.json` LUI-MÊME n'est pas touché : `resolved` y reste
+   `required`, pour toujours (§1b — « rendre resolved facultatif dans
+   fh-char/1 est REFUSÉ, ça casserait la loi la plus forte du format »).
+   Cette fonction rend un objet DIFFÉRENT qui s'inspire du premier ; elle ne
+   mute rien de ce qu'on lui passe. */
+
+/**
+ * Le schéma de BROUILLON : `fh-char/1`, `resolved` retiré de `required`.
+ * Tout le reste — `$defs`, `properties`, chaque contrainte — est le MÊME
+ * objet (une copie superficielle seulement) : un document qui PORTE
+ * `resolved` reste jugé aussi strictement qu'avant, seule son ABSENCE
+ * cesse d'être un refus.
+ * @param {object} schema `fh-char.schema.json`, tel qu'injecté par l'appelant.
+ */
+export function deriveDraftSchema(schema) {
+  const required = readFromSchema(schema, ["required"]);
+  return { ...schema, required: required.filter((key) => key !== "resolved") };
+}
+
 /**
  * Extrait du schéma une valeur qu'on ne recopie donc PAS en code.
  * Jette en nommant le chemin quand elle n'y est pas : un bloc qui devine ce
