@@ -128,6 +128,15 @@ class FakeElement extends FakeNode {
   }
   get className() { return this._attrs.get("class") || ""; }
   set className(value) { this._attrs.set("class", value); }
+  /* ⚠️ LOT 61 — `src` et `alt` sont des propriétés MIROIR dans un vrai DOM :
+     écrire `img.src = …` pose l'attribut, et `getAttribute("src")` le relit.
+     Le stub s'était contenté d'une propriété JS ordinaire, donc une image
+     rendue par le code n'avait AUCUN attribut à inspecter — un test sur les
+     images passait à côté de son sujet sans le dire. */
+  get src() { return this._attrs.get("src") || ""; }
+  set src(value) { this._attrs.set("src", String(value)); }
+  get alt() { return this._attrs.get("alt") || ""; }
+  set alt(value) { this._attrs.set("alt", String(value)); }
   setAttribute(name, value) { this._attrs.set(name, String(value)); }
   getAttribute(name) { return this._attrs.has(name) ? this._attrs.get(name) : null; }
   hasAttribute(name) { return this._attrs.has(name); }

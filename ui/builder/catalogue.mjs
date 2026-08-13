@@ -39,7 +39,17 @@ function text(value) { return document.createTextNode(String(value)); }
  *  cet ordre-là que le rail, les fiches et le curseur partagent : un seul
  *  tableau, donc l'icône surlignée et la fiche validée ne PEUVENT pas
  *  diverger (II.3, « la même chose par construction »). */
-export function catalogueOptions(decisions, path) {
+export function catalogueOptions(decisions, path, fournies) {
+  /* ⚠️ LOT 61 — `fournies` EST UNE PORTE ÉTROITE, ET ELLE A UNE MESURE.
+     Destiny n'a AUCUN plan dans `decisions[]` pour `fh.destiny.arcana` : le
+     point de décision existe et fonctionne, mais `projectDecisions` n'en
+     publie pas (mesuré au lot 45, et toujours vrai). Son catalogue de 22
+     cartes vient donc du CATALOGUE DE COUCHES (`query({kind:"arcana"})`),
+     pas du carnet.
+     ⛔ Ce n'est pas une échappatoire pour composer une liste à la main : un
+     écran qui A un plan doit le lire. Class et Species ne passent jamais par
+     là — un garde le vérifie. */
+  if (Array.isArray(fournies)) return fournies;
   const plan = planAt(decisions, path);
   return plan && Array.isArray(plan.options) ? plan.options : [];
 }
@@ -70,7 +80,7 @@ export function recordName(query, kind, id) {
    se répare ICI, une fois, pour les deux écrans — c'est précisément ce que
    l'extraction achète. */
 export function renderCatalogueRail(ctx) {
-  const options = catalogueOptions(ctx.decisions, ctx.path);
+  const options = catalogueOptions(ctx.decisions, ctx.path, ctx.options);
   if (options.length === 0) return null;
   const cursor = Number.isInteger(ctx.cursor) ? ctx.cursor : 0;
   const list = el("ol", "catalogue-rail");
@@ -91,7 +101,7 @@ export function renderCatalogueRail(ctx) {
    prouve (`tests/catalogue.test.mjs`), même patron que `markPressed` au
    lot 57 : une brique, un écrivain, un garde. */
 export function renderCatalogueCards(ctx, renderCard) {
-  const options = catalogueOptions(ctx.decisions, ctx.path);
+  const options = catalogueOptions(ctx.decisions, ctx.path, ctx.options);
   if (options.length === 0) return null;
   const cards = el("div", "catalogue-cards");
   for (const id of options) {

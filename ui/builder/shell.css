@@ -577,6 +577,10 @@ button { font: inherit; }
      socle a ajoutés, ils obéissent au même réglage système. */
   .belt-track, .stage { scroll-behavior: auto; }
   .stage-chevrons { transition: none; }
+  /* Le retournement de la carte (B6.1c) suit le même réglage système : le
+     geste reste, le mouvement part. */
+  .card-face { transition: none; }
+  .card-face[data-face="up"] .card-face-img { animation: none; }
 }
 
 /* ── LA FICHE, DANS LE BUILDER (lot 40) ───────────────────────────────
@@ -671,7 +675,7 @@ button { font: inherit; }
    ⚠️ AUCUN NOM DE COUCHE ICI, EXPRÈS : `tests/ui-jetons.test.mjs` (test 10)
    mord sur `destiny`/`arcana`/`fate`/… dans `shell.css` — « la feuille de
    style ne connaît aucune couche ». Le fichier du module s'appelle
-   `destiny-step.mjs` et peut nommer sa mécanique en clair (il n'est pas
+   `card-step.mjs` et peut nommer sa mécanique en clair (il n'est pas
    scanné) ; les classes qu'IL POSE sur ses nœuds, elles, sont neutres
    (`card-…`) pour que ce fichier-ci n'ait jamais à écrire le mot qui les
    décrit. */
@@ -705,6 +709,90 @@ button { font: inherit; }
 .card-detail-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
 .card-detail-row dt { margin: 0; color: var(--text-muted); width: 10ch; flex: none; }
 .card-detail-row dd { margin: 0; }
+
+/* ══ L'ÉCRAN À CARTE — lot 61, B6 ═══════════════════════════════════════
+   ⚠️ AUCUN NOM DE COUCHE ICI, EXPRÈS (même raison qu'au lot 45, plus haut) :
+   `tests/ui-jetons.test.mjs` mord sur le vocabulaire maison dans shell.css.
+   Le module peut nommer sa mécanique en clair ; les classes qu'il POSE sont
+   neutres (`card-…`). Le garde a attrapé ce lot en flagrant délit.
+   L'écran théâtral. « Une seule carte, GRAND FORMAT, qui prend un maximum
+   d'espace, de dos, flottant sur une dalle MAJEURE. Rien d'autre à l'écran
+   que la carte » (B6.1b). */
+.card-step { display: flex; flex-direction: column; align-items: center; gap: var(--sp-16); }
+
+.card-intro { padding: var(--sp-16); max-width: var(--measure); }
+.card-intro p { margin: 0 0 var(--sp-12); font-size: var(--t4); }
+/* ⚠️ `--text` et non `--text-muted` : la dalle intermédiaire est du VERRE, et
+   la matrice du lot 59 n'y autorise que `--text`. */
+.card-intro { color: var(--text); }
+.card-ok {
+  min-height: var(--touch);
+  min-width: var(--touch);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--t4);
+  padding: 0 var(--sp-24);
+  cursor: pointer;
+}
+
+/* LA CARTE — un `<button>`, parce que le geste doit exister au clavier
+   (B6.3 est une exception de GESTE, pas une permission d'être inaccessible).
+   `max-height: 100%` la laisse prendre tout l'espace sans jamais déborder :
+   c'est la hauteur qui commande sur un téléphone, pas la largeur. */
+.card-face {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text); /* un <button> n'hérite pas de `color` — défaut n°4 */
+  cursor: pointer;
+  /* Le retournement. `prefers-reduced-motion` le coupe plus bas. */
+  transition: transform .45s;
+  transform-style: preserve-3d;
+}
+.card-face[data-face="down"] { transform: rotateY(0deg); }
+.card-face[data-face="up"] { transform: rotateY(0deg); cursor: default; }
+.card-face-img {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  border-radius: var(--radius-md);
+}
+/* L'animation vit sur l'IMAGE, pas sur le bouton : retourner le bouton
+   retournerait aussi son contour de focus, et le clavier perdrait sa marque. */
+.card-face[data-face="up"] .card-face-img { animation: card-flip .45s; }
+@keyframes card-flip {
+  from { transform: rotateY(90deg); }
+  to { transform: rotateY(0deg); }
+}
+
+/* B6.1d — ce que fait la carte, dans une fenêtre SIMPLE, en dessous.
+   ⚠️ VERRE : que de l'encre `--text` (matrice du lot 59). */
+.card-reveal { padding: var(--sp-16); max-width: var(--measure); color: var(--text); }
+.card-reveal h3 { margin: 0 0 var(--sp-8); font-size: var(--t5); }
+.card-reveal .catalogue-card-row dt { color: var(--text); }
+
+/* B6.1f/h — les deux petits boutons, chacun dans une fenêtre simple, et ils
+   RESTENT visibles. */
+.card-actions { display: flex; gap: var(--sp-12); flex-wrap: wrap; justify-content: center; }
+.card-action {
+  min-height: var(--touch);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--t3);
+  padding: 0 var(--sp-16);
+  cursor: pointer;
+}
+
+/* B6.1g — « Choose yourself fait défiler les cartes comme B2/B3 » : le
+   catalogue partagé, avec l'image en tête de chaque fiche. */
+.card-choice-img { display: block; max-width: 100%; max-height: 55%; width: auto; margin: 0 auto; border-radius: var(--radius-md); }
 
 /* ── L'ÉTAPE INHERITANCE (lot 46) ──────────────────────────────────────
    `.skills-budget-block`/`.skills-budget-note`/`.skills-refusal`/

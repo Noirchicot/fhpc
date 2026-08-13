@@ -31,7 +31,9 @@ import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
-import { renderDestinyStep } from "./destiny-step.mjs";
+import {
+  renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
+} from "./destiny-step.mjs";
 import { renderEquipmentStep, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
@@ -115,6 +117,14 @@ const state = {
      `abilities-step.mjs`, en-tête. */
   abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount, assign}), ou null
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
+  /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
+     DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
+     Le tirage vit donc ici et meurt avec l'onglet — cohérent avec la
+     décision du 2026-08-13, « seul le résultat compte, aucun historique ». */
+  destinyIntro: true,     // le petit texte de B6.1a, chassé par OK
+  destinyDraw: null,      // la carte TIRÉE, pas encore actée
+  destinyFace: "down",    // B6.1c — retournée ou non
+  destinyRevealed: false, // B6.1d — le texte arrive UNE SECONDE après
   /* LOT 54 — Concept/Universe. `docWriters` = `createDocWriters({schema})`,
      construit UNE FOIS au boot (juste en dessous) : PUR, sans magasin ni bus
      (voir shell.mjs, imports, et universe-step.mjs en tête). `fieldErrors`
@@ -328,7 +338,40 @@ function applyDecisionAction(action) {
   }
   if (action.kind === "destinyMode") {
     state.destinyMode = action.value;
+    if (action.value === "choice") state.cursor = destinyCursorDepart();
     refresh();
+    return;
+  }
+  /* ══ LOT 61 — LES TROIS GESTES DE DESTINY, ET AUCUN NE TOUCHE LE DOCUMENT
+     (B6.2). Même patron que `roll`/`destinyMode` : traités ICI, rendus AVANT
+     tout appel de verbe. */
+  if (action.kind === "destinyIntroDone") {
+    state.destinyIntro = false;
+    if (!state.destinyDraw) tirerUneCarte();
+    openSurface();
+    return;
+  }
+  if (action.kind === "destinyDraw") {
+    /* `Draw again` est ILLIMITÉ (Eric, B6.2). La carte repart DE DOS : le
+       geste de retournement est ce qui fait l'écran, le sauter le viderait. */
+    tirerUneCarte();
+    openSurface();
+    return;
+  }
+  if (action.kind === "destinyFlip") {
+    state.destinyFace = "up";
+    refresh();
+    /* B6.1d — « le texte apparaît UNE SECONDE APRÈS le retournement ».
+       ⚠️ Ce minuteur ne retient AUCUN nœud : il n'écrit que `state` et
+       rappelle `refresh()`. Un remplacement de contenu entre-temps ne le
+       casse donc pas — c'est la règle du socle (SOCLE.md, « ce qui doit
+       survivre »). */
+    if (destinyTimer !== null) clearTimeout(destinyTimer);
+    destinyTimer = setTimeout(() => {
+      destinyTimer = null;
+      state.destinyRevealed = true;
+      refresh();
+    }, DESTINY_REVEAL_MS);
     return;
   }
   const verbs = state.engine.build.verbs;
@@ -421,6 +464,31 @@ function applyDecisionAction(action) {
   refresh();
 }
 
+/* ══ DESTINY — le tirage, et le délai théâtral ═══════════════════════════ */
+export const DESTINY_REVEAL_MS = 1000; // B6.1d, « une seconde après »
+let destinyTimer = null;
+
+function arcanaCatalog() {
+  return state.engine ? (state.engine.layers.verbs.query({ kind: "arcana" }) || []) : [];
+}
+/** Tire une carte AU HASARD et la pose de dos. ⛔ Aucun verbe, aucun
+ *  document : B6.2. `drawArcana` vient de `dice.mjs`, la même source d'aléa
+ *  que le reste du builder. */
+function tirerUneCarte() {
+  const carte = drawArcana(arcanaCatalog(), Math.random);
+  state.destinyDraw = carte ? carte.id : null;
+  state.destinyFace = "down";
+  state.destinyRevealed = false;
+}
+/** En mode « Choose yourself », le catalogue s'ouvre devant la carte déjà
+ *  actée s'il y en a une — même loi que Class et Species. */
+function destinyCursorDepart() {
+  const options = arcanaCatalog().map((v) => v.id);
+  const pose = currentArcanaId(state.document);
+  const i = options.indexOf(pose);
+  return i >= 0 ? i : 0;
+}
+
 /* ══ LES DEUX ÉCRANS À CATALOGUE (B2 et B3) ══════════════════════════════
    Eric : « l'étape 3 va être identique à la 2 ». Cette table est la SEULE
    chose qui les distingue dans la coquille — le reste (fiches aimantées,
@@ -428,10 +496,27 @@ function applyDecisionAction(action) {
    troisième écran à catalogue serait une ligne de plus ici. */
 const CATALOGUES = {
   class: { ...CLASS_CATALOGUE, cardBody: renderClassCardBody, choices: renderClassChoices, palier2: classPalier2 },
-  species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 }
+  species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 },
+  /* Destiny n'a qu'UN palier : `palier2` rend `null`, donc `Validate` acte la
+     carte et passe à l'étape suivante (voir `pressValidate`). */
+  destiny: {
+    path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
+    cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
+  }
 };
 function catalogueCourant() {
-  return state.engine ? CATALOGUES[STEPS[state.step].id] || null : null;
+  if (!state.engine) return null;
+  /* ⭐ B6.1g — « Choose yourself fait défiler les cartes comme B2/B3 ». Le
+     mode « choice » de Destiny EST donc un catalogue, et il passe par le
+     module partagé : le garde du lot 60 interdit d'en écrire un second, et
+     c'est exactement ce qu'il doit faire ici.
+     ⚠️ Une seule différence, mesurée au lot 45 : Destiny n'a AUCUN plan dans
+     `decisions[]`, ses 22 options viennent donc du catalogue de couches
+     (`ctx.options`, voir `catalogueOptions`). */
+  if (STEPS[state.step].id === "destiny") {
+    return state.destinyMode === "choice" ? CATALOGUES.destiny : null;
+  }
+  return CATALOGUES[STEPS[state.step].id] || null;
 }
 /** Le `ctx` que les deux écrans et le catalogue partagent — composé ICI pour
  *  qu'aucun appelant n'en oublie un morceau. */
@@ -439,7 +524,10 @@ function catalogueCtx(cfg) {
   return {
     decisions: state.decisions, query: state.engine.layers.verbs.query,
     path: cfg.path, kind: cfg.kind, label: cfg.label,
-    palier: state.palier, cursor: state.cursor
+    palier: state.palier, cursor: state.cursor,
+    /* Seul Destiny en fournit — les autres lisent leur plan (voir
+       `catalogueOptions`, la porte étroite). */
+    options: cfg.kind === "arcana" ? arcanaCatalog().map((v) => v.id) : undefined
   };
 }
 
@@ -493,7 +581,11 @@ function renderStepContent() {
      PLEIN CADRE veut dire : la carte cesse d'être une carte (ni marge, ni
      bordure, ni mesure de prose) et prête sa hauteur à ce qu'elle
      contient. Aujourd'hui, seul le palier 1 de Class en a besoin. */
-  card.dataset.bleed = String(Boolean(CATALOGUES[step.id]) && state.palier === 1);
+  /* ⚠️ `catalogueCourant()`, PAS `CATALOGUES[step.id]` : Destiny est dans la
+     table mais n'EST un catalogue qu'en mode « Choose yourself ». Mesuré au
+     navigateur — la branche attrapait l'écran théâtral et n'affichait plus
+     rien du tout. */
+  card.dataset.bleed = String(Boolean(catalogueCourant()) && state.palier === 1);
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
@@ -533,14 +625,14 @@ function renderStepContent() {
      même `ctx` (`resolved` en moins — ni l'un ni l'autre écran n'en a
      besoin, ils ne lisent que `decisions[]`), même verbe `applyDecisionAction`
      pour les trois. */
-  } else if (CATALOGUES[step.id] && state.engine) {
+  } else if (catalogueCourant()) {
     /* ⭐ UNE SEULE BRANCHE POUR CLASS ET SPECIES (lot 60) : « B3 = B2 ». Les
        deux champs de plus que les autres écrans sont les deux états du
        §RENDU — le PALIER de `Validate` (I.4) et le CRAN d'aimantation que le
        scrollspy écrit (II.3). Ni l'un ni l'autre n'existe dans le document :
        ils vivent dans `state`, hors du DOM, donc ils survivent au
        remplacement du contenu. */
-    const cfg = CATALOGUES[step.id];
+    const cfg = catalogueCourant();
     const ctx = catalogueCtx(cfg);
     const section = el("section", "catalogue-step");
     section.dataset.palier = String(state.palier === 2 ? 2 : 1);
@@ -586,12 +678,17 @@ function renderStepContent() {
   } else if (step.id === "abilities") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "destiny" && state.engine) {
+    /* LOT 61 — le mode « choice » est rendu par la branche CATALOGUE
+       au-dessus (`catalogueCourant`) ; on n'arrive ici qu'en mode « draw »,
+       l'écran théâtral. */
     card.append(renderDestinyStep({
       document: state.document,
       resolved: state.resolved,
       query: state.engine.layers.verbs.query,
-      mode: state.destinyMode,
-      onModeChange: (id) => applyDecisionAction({ kind: "destinyMode", value: id })
+      intro: state.destinyIntro,
+      drawnId: state.destinyDraw,
+      face: state.destinyFace,
+      revealed: state.destinyRevealed
     }, applyDecisionAction));
   } else if (step.id === "destiny" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -779,6 +876,11 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B6.1e — sur Destiny en mode « draw », `Validate` s'allume quand la carte
+     est retournée, et c'est LUI qui l'acte (B6.2). */
+  if (STEPS[state.step].id === "destiny" && state.engine) {
+    return destinyValidate({ drawnId: state.destinyDraw, face: state.destinyFace });
+  }
   return { exists: true, ready: state.step < REVIEW_INDEX, action: null, next: "step" };
 }
 
@@ -818,6 +920,20 @@ function goToStep(index) {
      arriver sur Class le posait devant Barbarian. Comme le défilement EST le
      choix (II.1), un `Validate` poussé sans regarder aurait écrasé sa classe
      en silence. Un écran qui reprend doit montrer où on en est. */
+  if (STEPS[target].id === "destiny" && state.engine) {
+    /* La scène se rejoue à chaque arrivée — SAUF si la carte est déjà actée :
+       rejouer le théâtre devant un choix déjà pris serait le proposer à
+       nouveau sans le dire. */
+    const dejaActee = currentArcanaId(state.document);
+    state.destinyMode = "draw";
+    state.destinyIntro = !dejaActee;
+    state.destinyDraw = dejaActee || null;
+    state.destinyFace = dejaActee ? "up" : "down";
+    state.destinyRevealed = Boolean(dejaActee);
+    if (!dejaActee) tirerUneCarte();
+    openSurface();
+    return;
+  }
   const cfg = state.engine ? CATALOGUES[STEPS[target].id] : null;
   if (!cfg) { openSurface(); return; }
   state.cursor = catalogueCursor(state.decisions, cfg.path);

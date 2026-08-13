@@ -1,0 +1,216 @@
+{
+  "_": "Les 22 arcanes majeurs (Tarot de Marseille, domaine public) + le dos FH.",
+  "_mapping": "PAR NOM, jamais par numéro : Marseille met Justice en 8 et Force en 11, le moteur suit Rider-Waite (strength=VIII, justice=XI). Un mapping par numéro les intervertirait en silence.",
+  "_provisoire": "L'art FH d'Eric couvre 12 des 22 (statuts locked/pilot/approved). Marseille tient l'écran en attendant les 22 ; le remplacement est un échange de fichiers, l'écran ne change pas.",
+  "_dos": "Redimensionné à 720 px de large (arbitrage d'Eric) — la source fait 959 px, mais les faces de Marseille n'en font que 350 : un dos net sur des faces molles serait pire qu'un jeu homogène.",
+  "mesure_le": "2026-08-14",
+  "fichiers": {
+    "the-fool.jpg": {
+      "source": "22-le-mat",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 49901,
+      "sha256": "6c65be4d05f7e3ca81bbc0c773f13f5accce53e19b41419723cea04186d10b20"
+    },
+    "the-magician.jpg": {
+      "source": "1-le-bateleur",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 53013,
+      "sha256": "ff4f7185fe686089f153fb32d07e883f7a48c689e14c472e289fbf0891b074aa"
+    },
+    "the-high-priestess.jpg": {
+      "source": "2-la-papesse",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 52235,
+      "sha256": "f64bd930ec8ed0f7fe69b0e051470613afe6551be75d52a5b7a2c88e1e317172"
+    },
+    "the-empress.jpg": {
+      "source": "3-l-imperatrice",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 51762,
+      "sha256": "ef9593e95449f0d7cb3f44fda42cd603c5d10833e311abdc0fae86e184bba27e"
+    },
+    "the-emperor.jpg": {
+      "source": "4-l-empereur",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 49624,
+      "sha256": "b2150b11012e7708fcb57f1fdcce5eae6bb0f76657731e7a90d80769b3dac656"
+    },
+    "the-hierophant.jpg": {
+      "source": "5-le-pape",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 50946,
+      "sha256": "c718a12dc8e3781474a25fa8048d1ebe2f53ce2bf796eff58369c2a2d9613642"
+    },
+    "the-lovers.jpg": {
+      "source": "6-l-amoureux",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 54830,
+      "sha256": "bb814c38092ca142aa53b78d48e6ae55c01019d67f16362a0b94165e45559971"
+    },
+    "the-chariot.jpg": {
+      "source": "7-le-chariot",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 57499,
+      "sha256": "16b61e5f4968a3a644634f52aee2d49cf21fa016d8d135765a3935149223fd4a"
+    },
+    "strength.jpg": {
+      "source": "11-la-force",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 46820,
+      "sha256": "212ec54484822ab1c7b89721b61f411f164d41b0052143b195c3cc357d19ff00"
+    },
+    "the-hermit.jpg": {
+      "source": "9-l-hermite",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 43080,
+      "sha256": "3677aa683b4e75a4b79b9cee7f18fa73100c5c23b13552b44684476b764b9b76"
+    },
+    "wheel-of-fortune.jpg": {
+      "source": "10-la-roue-de-fortune",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 51210,
+      "sha256": "b974301f35b67acd32cf913acd0e9aebe80027de65c82883c969e796e64796da"
+    },
+    "justice.jpg": {
+      "source": "8-la-justice",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 49910,
+      "sha256": "80dd1965713368b0d88bf798f0b5f1410435f5fa2bf7de8657fad7597a0be9f9"
+    },
+    "the-hanged-man.jpg": {
+      "source": "12-le-pendu",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 44608,
+      "sha256": "15d97337153bc7bd469e218830fb9e832eed757bfbc7dd59e147689c886e1dcc"
+    },
+    "death.jpg": {
+      "source": "13-l-arcane-sans-nom",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 50205,
+      "sha256": "e00ad6ab0d6c9c9a98a1fabe311cdf4566aac8b2f7f39bcd333a04808f8d1774"
+    },
+    "temperance.jpg": {
+      "source": "14-la-temperance",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 49822,
+      "sha256": "60a7b5399dd0fc64ff78ee40781de4e8d514b9616361ad2531ec9e0237b11de0"
+    },
+    "the-devil.jpg": {
+      "source": "15-le-diable",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 55472,
+      "sha256": "557b0b1f0d449642251fc063d95804f9371e695efbdb41e56c4167dd05f11c8b"
+    },
+    "the-tower.jpg": {
+      "source": "16-la-maison-dieu",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 58917,
+      "sha256": "53e15768dfe248ed595f45c2046cb43d396715ea8921e9486f3539003cfc5379"
+    },
+    "the-star.jpg": {
+      "source": "17-l-etoile",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 53046,
+      "sha256": "1d348c701a12ec85c9ac74f132304e296fa48a87c0a8ba3345a8c1996d4b7395"
+    },
+    "the-moon.jpg": {
+      "source": "18-la-lune",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 53678,
+      "sha256": "572bbbc8fc0d55849dbcf64e323d9eaa9f64c0a97c22794e981df9b2df6f46ed"
+    },
+    "the-sun.jpg": {
+      "source": "19-le-soleil",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 58200,
+      "sha256": "cfa2048f3ba2934d1e33e2aa6d74f52322ad300e35ec12584c3b47ad92db6824"
+    },
+    "judgement.jpg": {
+      "source": "20-le-jugement",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 56843,
+      "sha256": "f6627fcce8609f7f8dc51bdbc773bb1b3fb91af9d777eca259114dbefa1f1662"
+    },
+    "the-world.jpg": {
+      "source": "21-le-monde",
+      "dimensions": [
+        350,
+        650
+      ],
+      "octets": 60678,
+      "sha256": "40d1c3e43627100a9057fb89a396ae05d262f9e0a9c0f2e87e1127cef90de967"
+    },
+    "back.jpg": {
+      "source": "FH-Tarot-Card-Back-Candidate-v1.png",
+      "dimensions": [
+        720,
+        1234
+      ],
+      "octets": 251962,
+      "sha256": "92bb397573c7bfdfa63752f0cb946ef35e7e2908a6813341cca79ea1de7a600b"
+    }
+  }
+}
