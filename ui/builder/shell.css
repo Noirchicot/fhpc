@@ -392,15 +392,15 @@ button { font: inherit; }
    même pratique que `.skill-slot[data-status="locked"]` au lot 38. */
 .skills-trainings-block[data-status="locked"] { opacity: .6; }
 
-/* ══ L'ÉCRAN CLASS — lot 58, B2 ════════════════════════════════════════
+/* ══ LES ÉCRANS À CATALOGUE — Class et Species, lots 58/60 ════════════════════════════════════════
    Deux colonnes (B2.1) : un rail étroit à gauche (dans `.stage-aside`, hors
    de la fiche), les fiches de classe à droite, UNE SEULE À L'ÉCRAN À LA FOIS
    (B2.1f), aimantées (B2.1h).
 
    🔴 LA CHAÎNE DE HAUTEURS EST DÉLIBÉRÉE, et c'est elle qui fait tenir le
    « une fiche par écran » sans qu'aucun nombre soit écrit : `.stage` a une
-   hauteur définie (`inset: 0`), `[data-bleed]` et `.class-step` la
-   descendent à 100 %, et chaque `.class-card` vaut 100 % de cette
+   hauteur définie (`inset: 0`), `[data-bleed]` et `.catalogue-step` la
+   descendent à 100 %, et chaque `.catalogue-card` vaut 100 % de cette
    hauteur-là. Le total (douze fois la hauteur du champ) déborde en
    `visible`, donc c'est `.stage` — le SEUL défilement (B0.21a) — qui le
    fait défiler. Aucune `100vh` ne traîne : la barre du haut est déjà
@@ -419,8 +419,8 @@ button { font: inherit; }
   border: none;
   background: none;
 }
-.decision-card[data-bleed="true"] > .class-step { height: 100%; }
-.class-cards { height: 100%; display: flex; flex-direction: column; }
+.decision-card[data-bleed="true"] > .catalogue-step { height: 100%; }
+.catalogue-cards { height: 100%; display: flex; flex-direction: column; }
 /* ⭐ LOT 59 — LA MARGE EST LE DÉCOR. Class est le seul écran déjà composé de
    dalles (douze), donc le seul où le fond peut faire ce que B0.23b décrit :
    « des dalles qui FLOTTENT ». Sans cette gouttière, les douze fiches se
@@ -428,7 +428,7 @@ button { font: inherit; }
    `height: calc(...)` serait un nombre en dur ; `box-sizing: border-box`
    (posé sur `*` en tête de fichier) fait que la marge se prend DANS les
    100 %, sans arithmétique. */
-.class-card {
+.catalogue-card {
   height: 100%;
   flex: none;
   scroll-snap-align: start;
@@ -438,14 +438,14 @@ button { font: inherit; }
   gap: var(--sp-12);
 }
 /* ⚠️ GOUTTIÈRE HORIZONTALE SEULEMENT, et c'est de la géométrie, pas du goût :
-   une chaque `.class-card` vaut EXACTEMENT une hauteur de champ (`height:
+   une chaque `.catalogue-card` vaut EXACTEMENT une hauteur de champ (`height:
    100%`), donc le pas du défilement égale le champ et chaque point
    d'aimantation tombe juste. Un écart VERTICAL entre les fiches ajouterait
    8 px au pas sans les ajouter au champ — les crans dériveraient. Les fiches
    se touchent donc verticalement, et on ne le voit jamais : il n'y en a
    qu'une à l'écran (B2.1f). Leurs coins arrondis suffisent à les séparer
    pendant le geste. */
-.class-cards { padding: 0 var(--sp-8); }
+.catalogue-cards { padding: 0 var(--sp-8); }
 /* B0.23 — LA DALLE MAJEURE : « beaucoup de contenu, ou des images », voile
    100 %. ⏳ Les trois pourcentages sont NOTÉS, PAS ARRÊTÉS (Eric : « on verra
    quand on y sera ») — seule la majeure est construite, parce que seule elle
@@ -453,39 +453,39 @@ button { font: inherit; }
    fond n'existe derrière (voir `.app`). */
 .dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
 
-.class-card-name { margin: 0; font-size: var(--t6); }
-.class-card-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
-.class-card-row { display: flex; gap: var(--sp-8); font-size: var(--t3); }
-.class-card-row dt { margin: 0; color: var(--text-muted); width: 13ch; flex: none; }
-.class-card-row dd { margin: 0; font-weight: 600; }
-.class-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
-.class-card-feature-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
+.catalogue-card-name { margin: 0; font-size: var(--t6); }
+.catalogue-card-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
+.catalogue-card-row { display: flex; gap: var(--sp-8); font-size: var(--t3); }
+.catalogue-card-row dt { margin: 0; color: var(--text-muted); width: 13ch; flex: none; }
+.catalogue-card-row dd { margin: 0; font-weight: 600; }
+.catalogue-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.catalogue-card-name-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
 
 /* LE RAIL (B2.1a/d/g) — un INDICATEUR, jamais un bouton : le seul geste de
    choix est le défilement (II.1). Pas de `cursor: pointer`, pas de bordure
    de contrôle : rien ici ne doit avoir l'air cliquable, parce que rien ne
    l'est. */
-.class-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
-.class-rail-item {
+.catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
+.catalogue-rail-item {
   font-size: var(--t2);
   color: var(--text-muted);
   padding: var(--sp-8) var(--sp-4);
   border-radius: var(--radius-sm);
   text-align: center;
 }
-.class-rail-item[aria-current="true"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+.catalogue-rail-item[aria-current="true"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
 
-.class-choices { display: flex; flex-direction: column; gap: var(--sp-16); }
+.catalogue-choices { display: flex; flex-direction: column; gap: var(--sp-16); }
 
-/* ── L'ÉTAPE SPECIES (lot 42) ────────────────────────────────────────
+/* ── LE PICKER PARTAGÉ (lot 42) ──────────────────────────────────────
    `.record-list`/`.record-option` : le PICKER partagé de `carnet.mjs`
    (`renderPicker`) — une seule feuille de style pour les 12-options
    (Species) ET les QCM par-dessus (`class.skills`, `species.skills`, le
    budget captif d'espèce) : même geste partout, même habillage.
-   ⚠️ Species N'A PAS ENCORE la forme de Class (B3 dit « B3 = B2 ») : son
-   écran reste celui du lot 42 jusqu'à son propre lot. Ce lot ne le refait
-   pas — il pose le socle et le prouve sur UN écran. */
-.species-step { max-width: var(--measure); } /* PROSE, pas grille : une colonne de choix, pas un tableau (§3e du lot 39, même logique) */
+   ✅ LOT 60 — Species a MAINTENANT la forme de Class (« B3 = B2 ») : les
+   deux passent par `.catalogue-*` ci-dessus. `.record-*` ne sert plus qu'aux
+   MENUS de 2ᵉ palier (les QCM, la bourse captive) et aux autres écrans.
+   ⛔ `.species-step` a disparu avec son balisage (loi §0.6). */
 .record-choice-block { margin-bottom: var(--sp-24); }
 .record-choice-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
 /* CORRECTIF, trouvé en servant le builder et en le regardant (§ finale de la
@@ -515,7 +515,7 @@ button { font: inherit; }
 /* ⛔ `.record-info*` A DISPARU AVEC SON BALISAGE (loi §0.6). C'était la
    boîte d'info technique de Class au lot 42 — une carte sous la liste des
    douze boutons. Les deux sont partis ensemble : l'info vit maintenant DANS
-   la fiche de classe (`.class-card-list`), qui EST la surface de lecture. */
+   la fiche de classe (`.catalogue-card-list`), qui EST la surface de lecture. */
 
 /* ── LE PLAN ESCAMOTABLE ──────────────────────────────────────────
    ⚠️ LOT 58 — IL EST UNE SURFACE TEMPORAIRE À TOUTES LES LARGEURS, plus une
