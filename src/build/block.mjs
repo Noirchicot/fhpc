@@ -443,9 +443,32 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
           }
         }
 
-        /* Les augmentations d'arrière-plan ne se posent que sur les
-           caractéristiques que l'arrière-plan nomme (contrat §3,
-           `ability_keys`). */
+        /* LOT 52, DETTE B (commande §2, mesuré par l'architecte) — LA MOITIÉ
+           « CHOIX DU JOUEUR » DE CE BLOC A DISPARU D'ICI, PAS DU CHANTIER.
+           Mesuré sur le fichier enfin lisible au grep (§0 de la commande) :
+           ce bloc recalculait `background.boost-disallowed` INDÉPENDAMMENT
+           de `decisions.mjs::backgroundBoostPlan`, qui produit déjà EXACTEMENT
+           le même refus (même clef, mêmes params) pour tout document où un
+           `background` explicitement choisi porte `ability_keys` — et cette
+           production-là est déjà lue et ajoutée à `reported` plus haut (la
+           boucle `projectDecisions`, quelques lignes au-dessus). Mesuré sur
+           le vrai pli, sans FH : un Magicien SRD choisissant l'arrière-plan
+           Sage puis boostant `str` (hors `con, int, wis`) rendait bien DEUX
+           violations `background.boost-disallowed` — un doublon EXACT, clef
+           et params identiques, jamais dédupliqué (le dédoublonnement par
+           empreinte, plus haut, ne porte QUE sur les verrous DE
+           `projectDecisions` entre eux ; il ne voit jamais ce second calcul,
+           qui les rejoignait par un `reported.add` séparé). `decisions.mjs`
+           gère aussi le cas `ability_keys` ABSENT (repli sur les six clefs
+           canoniques, contrat §1c, lot 43) — que cette copie ignorait
+           entièrement, sans même un refus : elle se contentait d'avertir.
+           `decisions.mjs` est donc la source UNIQUE désormais.
+
+           `background.ability-key-invalid`, lui, RESTE : ce n'est pas un
+           choix du joueur, c'est une faute de CONTENU (le record lui-même
+           nomme une clef hors des six canoniques), et `decisions.mjs` n'a
+           aucun équivalent — retirer ce garde rendrait un contenu cassé
+           muet. */
         const backgroundChoice = document.build.choices.find((choice) => choice && choice.path === "background");
         if (backgroundChoice && backgroundChoice.ref) {
           const view = query({ kind: backgroundChoice.ref.kind, id: backgroundChoice.ref.id });
@@ -458,16 +481,6 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
                 reported.add(buildViolation("background.ability-key-invalid", {
                   backgroundId: view.id, key: JSON.stringify(key), abilityKeys: ABILITY_KEYS.join(", ")
                 }));
-              }
-            }
-            const allowed = new Set(keys);
-            for (const choice of document.build.choices) {
-              const match = choice && /^[a-z][a-zA-Z0-9]*\.boost\.([a-z]{3})$/.exec(choice.path || "");
-              if (!match || !ABILITY_SET.has(match[1])) continue;
-              if (!allowed.has(match[1])) {
-                reported.add(buildViolation("background.boost-disallowed", {
-                  path: choice.path, backgroundId: view.id, abilityKeys: keys.join(", ")
-                }, choice.path));
               }
             }
           } else {

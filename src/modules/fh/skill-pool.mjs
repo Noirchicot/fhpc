@@ -434,38 +434,20 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
       { classId: classRef.id }));
   }
 
-  if (!backgroundRef) {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`, "underived.fh.skillpool-no-background-ref", {}));
-    return;
-  }
-  const backgroundData = backgroundRef.data || {};
-  if (Array.isArray(backgroundData.skill_ids)) {
-    if (backgroundData.skill_ids.length > 0) {
-      lines.push({
-        label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: backgroundData.skill_ids.length }),
-        value: -(backgroundData.skill_ids.length * cost),
-        source: { kind: "background", id: backgroundRef.id }
-      });
-    }
-  } else {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`,
-      "underived.fh.skillpool-background-missing-skill-ids", { backgroundId: backgroundRef.id }));
-  }
-
-  /* L'OUTIL D'ARRIÈRE-PLAN. `tool_id` l'accorde, `tool_choice` le fait choisir
-     — dans les deux cas c'est UN outil (le pli n'en résout qu'un), et dans les
-     deux cas il est imposé : le personnage n'a pas le droit de ne pas l'avoir. */
-  const hasTool = typeof backgroundData.tool_id === "string" || backgroundData.tool_choice !== undefined;
-  if (hasTool) {
-    lines.push({
-      label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: 1 }),
-      value: -cost,
-      source: { kind: "background", id: backgroundRef.id }
-    });
-  } else {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.tool`, "underived.fh.skillpool-background-missing-tool",
-      { backgroundId: backgroundRef.id }));
-  }
+  /* LOT 52, DETTE A (commande §1d, arbitrage de l'architecte) — RÉORDONNÉ,
+     PAS RAYÉ. Les deux blocs suivants (les outils de CLASSE, l'espèce) ne
+     LISENT PAS `backgroundRef` — c'est un fait de lecture : ni l'un ni
+     l'autre n'y touche. Le lot 43 a éteint les quatre arrière-plans SRD et
+     n'a posé aucun choix `background` sur le personnage d'exemple :
+     `backgroundRef` est donc absent pour TOUT LE MONDE, pas pour « un
+     personnage Araag/Humain sans background ». Sous l'ancien ordre, le
+     `return` juste en dessous (qui doit rester : ce qui suit LUI, `skill_ids`
+     et l'outil d'arrière-plan, lit vraiment `backgroundRef`) sautait aussi
+     ces deux blocs — rendant les deux `fail()` du bloc espèce (un
+     `granted_skill_choice` malformé) INATTEIGNABLES pour tout le monde, et
+     `skillpool-class-tools-unmechanical` jamais déclaré. Un garde qui ne peut
+     plus mordre est pire que pas de garde (loi de ce mandat) : ils sortent
+     donc de dessous le retour anticipé. */
 
   /* Les outils que la CLASSE impose — jamais comptés, toujours déclarés. */
   underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.class-tools`, "underived.fh.skillpool-class-tools-unmechanical",
@@ -505,6 +487,39 @@ function imposedLines(classRef, backgroundRef, species, cost, lines, underived) 
         source: { kind: "species", id: species.id }
       });
     }
+  }
+
+  if (!backgroundRef) {
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`, "underived.fh.skillpool-no-background-ref", {}));
+    return;
+  }
+  const backgroundData = backgroundRef.data || {};
+  if (Array.isArray(backgroundData.skill_ids)) {
+    if (backgroundData.skill_ids.length > 0) {
+      lines.push({
+        label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: backgroundData.skill_ids.length }),
+        value: -(backgroundData.skill_ids.length * cost),
+        source: { kind: "background", id: backgroundRef.id }
+      });
+    }
+  } else {
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`,
+      "underived.fh.skillpool-background-missing-skill-ids", { backgroundId: backgroundRef.id }));
+  }
+
+  /* L'OUTIL D'ARRIÈRE-PLAN. `tool_id` l'accorde, `tool_choice` le fait choisir
+     — dans les deux cas c'est UN outil (le pli n'en résout qu'un), et dans les
+     deux cas il est imposé : le personnage n'a pas le droit de ne pas l'avoir. */
+  const hasTool = typeof backgroundData.tool_id === "string" || backgroundData.tool_choice !== undefined;
+  if (hasTool) {
+    lines.push({
+      label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: 1 }),
+      value: -cost,
+      source: { kind: "background", id: backgroundRef.id }
+    });
+  } else {
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.tool`, "underived.fh.skillpool-background-missing-tool",
+      { backgroundId: backgroundRef.id }));
   }
 }
 
