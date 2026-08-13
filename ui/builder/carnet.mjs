@@ -58,7 +58,14 @@ export function planSlots(decisions, basePath) {
 const DECISION_REFUSAL_WORDS = {
   "decision.kind-mismatch": (p) => `Expected a “${p.expectedKind}”, got “${p.actualKind}”.`,
   "decision.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
-  "skill-grant.count-mismatch": (p) => `${p.actual} chosen, ${p.declared} expected (${p.answers}).`
+  "skill-grant.count-mismatch": (p) => `${p.actual} chosen, ${p.declared} expected (${p.answers}).`,
+  /* LOT 46 — les deux refus neufs de `background.boost` (`decisions.mjs`,
+     lot 43) : le moteur prononce, cette table ne fait que RECOMPOSER ses
+     propres `params` en anglais — même geste que les trois entrées
+     au-dessus, aucun recalcul (`value`/`cap`/`total`/`expected` viennent
+     tels quels du `lock`). */
+  "background.boost-cap-exceeded": (p) => `+${p.value} on one ability — the cap is +${p.cap}.`,
+  "background.boost-total-mismatch": (p) => `${p.total} points spent, ${p.expected} expected.`
 };
 export function decisionRefusalWord(violation) {
   const words = DECISION_REFUSAL_WORDS[violation.key];
