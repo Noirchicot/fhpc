@@ -30,7 +30,7 @@ import { makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN } from "./build-harness.
 import { createFhSkillPoolStat, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
-const ACOLYTE = "srd:background:en:acolyte";
+const INHERITANCE = "fh:background:en:inheritance";
 const CALLIGRAPHER = "calligrapher-s-supplies";
 const WIZARD = "srd:class:en:wizard";
 const HALFLING = "srd:species:en:halfling";
@@ -45,7 +45,7 @@ function pile(options = {}) {
 
 /* Même fixture que les lots 35/36 : l'Acolyte, patché par `fh-skills-en`,
    n'impose plus rien (addendums §4) — un pool purement de classe. */
-function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = ["arcana", "history"], extra = [] }) {
+function choixDe({ level, classId, speciesId, backgroundId = INHERITANCE, skills = ["arcana", "history"], extra = [] }) {
   return [
     { path: "level", value: level },
     { path: "class", ref: { kind: "class", id: classId } },
@@ -62,7 +62,13 @@ function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = [
     { path: "currency.gp", value: 15 },
     { path: "currency.pp", value: 0 },
     { path: "class.skills[0]", value: skills[0] },
-    { path: "class.skills[1]", value: skills[1] }
+    { path: "class.skills[1]", value: skills[1] },
+    /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ;
+       validate() refuse désormais un total absent (0 !== 3). Cette suite ne
+       teste pas les boosts : +2/+1 sur deux caracs neutres suffit à rester
+       légal sans influencer les mesures du pool. */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 }
   ].concat(extra);
 }
 
@@ -257,8 +263,13 @@ test("REJET — un budget captif dépassé : refus keyé (déjà posé par `deci
 
 test("un personnage SRD pur, sans la couche FH : aucun des trois refus ne peut apparaître", () => {
   const h = makeHarness({ layers: [SRD_EN], modules: [createFhSkillPoolStat()] });
+  /* ⚠️ Sans `fh-skills-en` montée, `fh:background:en:inheritance` n'existe
+     pas : le SRD pur choisit encore l'un des quatre arrière-plans du SRD,
+     eux, intacts hors de la pile Fate's Hand. */
   const out = h.verbs.rebuild({
-    document: documentDe(h, choixDe({ level: 1, classId: WIZARD, speciesId: HALFLING }))
+    document: documentDe(h, choixDe({
+      level: 1, classId: WIZARD, speciesId: HALFLING, backgroundId: "srd:background:en:acolyte"
+    }))
   });
   const cles = new Set(["skill-pool.overspent", "skill-pool.no-tool"]);
   assert.equal(out.moduleViolations.some((v) => cles.has(v.key)), false,

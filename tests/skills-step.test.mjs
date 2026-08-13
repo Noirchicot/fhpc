@@ -206,7 +206,10 @@ function rogueDocument() {
   const choices = [
     { path: "level", value: 1, label: "Level 1" },
     { path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }, label: "Rogue" },
-    { path: "background", ref: { kind: "background", id: "srd:background:en:sage" }, label: "Sage" },
+    /* LOT 43 — plus de choix `background` : l'Inheritance est le seul record
+       du genre, livrée par la couche FH, jamais choisie (contrat §1a). */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 },
     { path: "abilities.mode", value: "standard", label: "Standard array" },
     { path: "abilities.str", value: 10 }, { path: "abilities.dex", value: 15 },
     { path: "abilities.con", value: 13 }, { path: "abilities.int", value: 12 },

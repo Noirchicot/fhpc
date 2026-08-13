@@ -35,7 +35,7 @@ import { makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche } from "./bui
 import { createFhSkillPoolStat, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
-const ACOLYTE = "srd:background:en:acolyte";
+const INHERITANCE = "fh:background:en:inheritance";
 const GARROTE = "fh:training:en:garrote";
 const EXTRA_LANGUAGE = "fh:training:en:extra-language";
 const SILENT_TRAINING = "fh:training:en:scenario-early-unlock";
@@ -64,7 +64,7 @@ function pile(options = {}) {
   }, options));
 }
 
-function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = ["arcana", "history"], extra = [] }) {
+function choixDe({ level, classId, speciesId, backgroundId = INHERITANCE, skills = ["arcana", "history"], extra = [] }) {
   return [
     { path: "level", value: level },
     { path: "class", ref: { kind: "class", id: classId } },
@@ -81,7 +81,13 @@ function choixDe({ level, classId, speciesId, backgroundId = ACOLYTE, skills = [
     { path: "currency.gp", value: 15 },
     { path: "currency.pp", value: 0 },
     { path: "class.skills[0]", value: skills[0] },
-    { path: "class.skills[1]", value: skills[1] }
+    { path: "class.skills[1]", value: skills[1] },
+    /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ;
+       validate() refuse désormais un total absent (0 !== 3). Cette suite ne
+       teste pas les boosts : +2/+1 sur deux caracs neutres suffit à rester
+       légal sans influencer les mesures du pool. */
+    { path: "background.boost.int", value: 2 },
+    { path: "background.boost.con", value: 1 }
   ].concat(extra);
 }
 
