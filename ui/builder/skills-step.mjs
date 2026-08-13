@@ -68,6 +68,26 @@ const UNSORTED_LABEL = "Skills";
 const TIER_GLYPH = ["½", "●", "★"];
 const NONE_GLYPH = "—";
 
+/* ── LOT 57, §1.3 DE LA COMMANDE — LES TROIS CLEFS MACHINE ═══════════════
+   `renderTierButtons` posait `aria-label = tierKey` mot pour mot : un
+   lecteur d'écran annonçait « half », « proficient » ou « expertise » — la
+   clef que `src/modules/fh/skill-pool.mjs` (`tier_costs`, lignes 335-337)
+   utilise en interne, pas un mot pour une oreille humaine. Ces trois clefs
+   SONT closes (le moteur les compare littéralement — voir la même fonction,
+   `TIER_ORDER`), donc une table en dur ici n'est pas le littéral que la
+   commande interdit ailleurs pour du CONTENU (§3a de la commande du lot 39,
+   tête de fichier) : c'est du VOCABULAIRE D'ÉCRAN, au même titre que
+   `CATEGORY_LABEL` juste au-dessus. Repli sur la clef brute si le moteur
+   apprend un quatrième palier demain — même loi que `REFUSAL_WORDS`
+   (`refusalWord`, ligne 101) : jamais un écran qui plante sur une clef
+   inconnue. Le mot du tiret voisin (« No proficiency », ligne 244 plus bas,
+   inchangé) fixe le registre : cette table le prolonge. */
+const TIER_LABEL = {
+  half: "Half proficiency",
+  proficient: "Full proficiency",
+  expertise: "Expertise"
+};
+
 /* ── LE VOCABULAIRE DU BUDGET CAPTIF — et pourquoi ces deux mots-ci sont
    écrits ici, en dur, sans que ce soit la même faute que « tier_costts en
    dur ». `tier_costs` est du CONTENU (un NOMBRE qu'Eric peut changer par
@@ -107,7 +127,7 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt } from "./carnet.mjs";
+import { planAt, violationAt, markPressed } from "./carnet.mjs";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -239,7 +259,7 @@ function renderTierButtons({ currentTier, tiers, path, onAction, violation }) {
   dash.type = "button";
   dash.className = "skills-tier-btn";
   dash.dataset.rung = "none";
-  dash.dataset.active = String(currentTier === "none" || currentTier === undefined);
+  markPressed(dash, currentTier === "none" || currentTier === undefined);
   dash.textContent = NONE_GLYPH;
   dash.setAttribute("aria-label", "No proficiency");
   dash.addEventListener("click", () => onAction({ kind: "clear", path }));
@@ -250,9 +270,9 @@ function renderTierButtons({ currentTier, tiers, path, onAction, violation }) {
     btn.className = "skills-tier-btn";
     btn.dataset.rung = String(index + 1);
     btn.dataset.tier = tierKey;
-    btn.dataset.active = String(currentTier === tierKey);
+    markPressed(btn, currentTier === tierKey);
     btn.textContent = TIER_GLYPH[index] || "?";
-    btn.setAttribute("aria-label", tierKey);
+    btn.setAttribute("aria-label", TIER_LABEL[tierKey] || tierKey);
     btn.addEventListener("click", () => {
       if (currentTier === tierKey) onAction({ kind: "clear", path });
       else onAction({ kind: "set", path, value: tierKey });
@@ -432,7 +452,7 @@ function renderTrainingRow(view, acquiredIds, ctx) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "skills-tier-btn";
-  btn.dataset.active = String(acquired);
+  markPressed(btn, acquired);
   btn.textContent = acquired ? "★" : NONE_GLYPH;
   btn.setAttribute("aria-label", acquired ? "Trained" : "Not trained");
   btn.addEventListener("click", () => onAction({

@@ -129,7 +129,12 @@ test("un clic sur un palier produit exactement un appel de verbe, avec le bon ch
   const calls = [];
   const node = renderSkillsStep(ctxFrom(fixture.report, (action) => calls.push(action)));
   const stealth = rowFor(node, "stealth");
-  const proficientBtn = tierButtons(stealth).find((b) => b.getAttribute("aria-label") === "proficient");
+  /* LOT 57 — le repérage se fait sur `data-tier`, la clef MACHINE
+     (`dataset.tier`, jamais renommée par ce lot), pas sur `aria-label` :
+     ce dernier porte maintenant le MOT humain (« Full proficiency »), et
+     un test qui chercherait le bouton par ce mot casserait au premier
+     lot qui l'affine sans rien avoir changé au comportement. */
+  const proficientBtn = tierButtons(stealth).find((b) => b.dataset.tier === "proficient");
   assert.ok(proficientBtn, "le bouton « proficient » existe (lu dans tier_costs, pas en dur)");
   proficientBtn.click();
   assert.equal(calls.length, 1, "exactement un appel");
@@ -179,7 +184,11 @@ test("Keen Senses propose les TROIS compétences (survival · delve · vigilance
   for (const slug of slugs) {
     const row = rowFor(budget, slug);
     const labels = tierButtons(row).map((b) => b.getAttribute("aria-label"));
-    assert.deepEqual(labels, ["No proficiency", "half", "proficient"]);
+    /* LOT 57, §1.3 de la commande — c'était le défaut : le lecteur
+       d'écran annonçait « half »/« proficient », les clefs machine de
+       `tier_costs`, pas des mots. Ce test vérifiait la RÉGRESSION avant
+       ce lot ; il vérifie maintenant la CORRECTION. */
+    assert.deepEqual(labels, ["No proficiency", "Half proficiency", "Full proficiency"]);
   }
 });
 
@@ -196,7 +205,7 @@ test("le budget captif ne contamine pas le pool : dépenser dedans laisse fh:ski
 
   const node = renderSkillsStep(ctxFrom(report));
   const delveInBudget = rowFor(node.querySelectorAll(".skills-budget-block")[0], "delve");
-  assert.equal(activeTier(delveInBudget), "proficient");
+  assert.equal(activeTier(delveInBudget), "Full proficiency"); // LOT 57 — le mot humain, plus la clef machine
 });
 
 /* ══ 9 — LA NOTIFICATION DU ROGUE, ET PAS POUR LE MAGICIEN ═════════════ */

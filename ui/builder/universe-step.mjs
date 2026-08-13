@@ -43,6 +43,7 @@
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
 import { renderConfirmDialog } from "./confirm.mjs";
+import { markPressed } from "./carnet.mjs";
 
 /** Les cinq couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES`/`fh-species-en` etc. de `engine.mjs`, mais
@@ -133,7 +134,7 @@ function renderStackChoice({ stack, onPick }) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "record-option";
-    btn.dataset.active = String(stack === value);
+    markPressed(btn, stack === value);
     btn.textContent = label;
     btn.addEventListener("click", () => onPick(value));
     list.append(btn);
