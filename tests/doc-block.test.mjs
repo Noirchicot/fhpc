@@ -374,8 +374,10 @@ test("createDoc REFUSE ce qu'il ne peut pas tenir — magasin, port incomplet, s
   const doc = createDoc({ storage, schema, bus });
   assert.deepEqual(Object.keys(doc).sort(), ["name", "verbs"]);
   assert.equal(doc.name, "doc");
+  /* LOT 47 — deux verbes de plus : `create` (un document neuf et vide) et
+     `rename` (le nom qui entre). Les six du kickoff restent, à l'identique. */
   assert.deepEqual(Object.keys(doc.verbs).sort(),
-    ["duplicate", "export", "import", "list", "open", "save"]);
+    ["create", "duplicate", "export", "import", "list", "open", "rename", "save"]);
 });
 
 /* ── LES VERBES ─────────────────────────────────────────────────────── */
