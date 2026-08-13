@@ -344,12 +344,24 @@ button { font: inherit; }
 }
 .ability-die[data-kept="true"] { border-color: var(--tier-2); background: var(--accent-wash); }
 .ability-die[data-kept="false"] { opacity: .55; } /* trouvé en servant le builder (INVENTAIRE-LOT-45.md) : la seule couleur de bordure se voyait trop peu à l'œil, sur dix petits jetons */
+/* LOT 50 — un dé déjà distribué à une caractéristique se voit AUSSI sur le
+   jeton lui-même (§4, « regarde-le ») : pur affichage, la carte
+   `rollBatch.assign` reste la seule source de vérité (voir abilities-
+   step.mjs, renderRollBatch). Un dé peut être gardé ET assigné à la fois :
+   les deux styles se cumulent (bordure du tiers + trait plus fin dessous). */
+.ability-die[data-assigned="true"] { box-shadow: inset 0 -3px 0 var(--accent); }
 .ability-die-detail { font-size: var(--t1); color: var(--text-muted); }
 .ability-die-total { font-size: var(--t5); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .ability-rows { display: flex; flex-direction: column; gap: var(--sp-8); }
 .ability-row { display: flex; align-items: center; gap: var(--sp-12); min-width: 0; }
 .ability-row-label { width: 4ch; flex: none; font-weight: 600; }
+/* LOT 50 — la note « d'où vient cette valeur » (commande §2c : une rangée
+   non distribuée doit DIRE qu'elle ne vient pas du lot, une rangée
+   distribuée doit AUSSI être reconnaissable). Largeur fixe : les rangées
+   d'une même colonne restent alignées, distribuées ou non. */
+.ability-row-source { flex: none; min-width: 13ch; font-size: var(--t2); color: var(--text-soft); }
+.ability-row[data-assigned="true"] .ability-row-source { color: var(--tier-2); font-weight: 600; }
 /* La colonne « Final » — corrigée sur mesure d'architecte (INVENTAIRE-
    LOT-45.md, « correction post-fusion ») : le brut (le picker, éditable)
    et le score final (boosts compris, lu dans `resolved`) ne doivent plus

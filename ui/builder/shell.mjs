@@ -16,7 +16,7 @@ import { renderSkillsStep } from "./skills-step.mjs";
 import { renderClassStep } from "./class-step.mjs";
 import { renderSpeciesStep } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
-import { renderAbilitiesStep, rollAbilitySet } from "./abilities-step.mjs";
+import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
 import { renderDestinyStep } from "./destiny-step.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
@@ -67,7 +67,11 @@ const state = {
      2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
      Ces deux champs sont donc ici, hors de `document`, exactement comme
      `planOpen` — perdus si l'onglet ferme, et c'est voulu. */
-  abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount}), ou null
+  /* LOT 50 — `abilityRoll` porte maintenant aussi `assign` : la carte
+     `clef → index de dé` (commande §2a, « la carte vit au même endroit que
+     le lot »). Ni l'un ni l'autre champ n'existe dans `document` — voir
+     `abilities-step.mjs`, en-tête. */
+  abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount, assign}), ou null
   destinyMode: "draw"    // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
 };
 const app = document.getElementById("app");
@@ -98,7 +102,38 @@ function applyDecisionAction(action) {
      (voir l'en-tête de `abilities-step.mjs`/`destiny-step.mjs`). Aucun
      `rebuild()` : rien dans le document n'a changé. */
   if (action.kind === "roll") {
-    state.abilityRoll = rollAbilitySet(Math.random);
+    /* LOT 50, §2b — un nouveau lot (premier tirage OU relance) remet TOUTE
+       la carte d'assignation à `null` : relancer invalide l'assignation
+       précédente, `rerollCount` (dans `rollAbilitySet`) dit déjà au joueur
+       quand ça arrive. `emptyAbilityAssign()` vient d'`abilities-step.mjs`
+       — jamais une seconde liste de six clefs recopiée ici. */
+    state.abilityRoll = { ...rollAbilitySet(Math.random), assign: emptyAbilityAssign() };
+    render();
+    return;
+  }
+  if (action.kind === "assignAbilityRoll") {
+    /* LOT 50, §2a — DEUX gestes qui ne touchent jamais le même endroit,
+       traités ICI et RENDUS AVANT tout appel de verbe, même patron que
+       `roll`/`destinyMode` juste au-dessus :
+       1. la carte `state.abilityRoll.assign` reçoit l'INDEX du dé — hors
+          document, elle meurt avec le lot (§2a, non négociable) ;
+       2. le document reçoit la VALEUR, par le verbe `set` ORDINAIRE — même
+          chemin que la saisie manuelle (`abilities.<key>`), le document ne
+          gagne donc AUCUN champ (mesuré, `tests/abilities-step.test.mjs`).
+       Si `state.abilityRoll` est vide (aucun tirage), il n'y a rien à
+       cartographier : seule la valeur est posée — ne devrait pas arriver
+       (aucune option n'existe sans lot, voir `optionsForRow`), mais un
+       geste qui ne peut QUE poser un score reste toujours correct. */
+    if (state.abilityRoll) {
+      state.abilityRoll = {
+        ...state.abilityRoll,
+        assign: { ...state.abilityRoll.assign, [action.key]: action.rollIndex }
+      };
+    }
+    const verbs = state.engine.build.verbs;
+    const out = verbs.set({ document: state.document, path: `abilities.${action.key}`, value: action.value });
+    state.document = out.document;
+    rebuild();
     render();
     return;
   }
