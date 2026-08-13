@@ -395,13 +395,65 @@ export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4, imposed: 1 };
    un champ absent est un échec bruyant, et déclarer absent un champ que le SRD
    porte l'est aussi — sinon la déclaration cesse d'être mesurée sur la réalité
    de la couche SRD commitée. Même doctrine qu'`assertTargetField` pour les
-   espèces (`gen-fh-species-layer.mjs`). */
+   espèces (`gen-fh-species-layer.mjs`).
+
+   ⭐ RÉVISÉ PAR LE LOT 43 (2026-08-13) — « éteint » n'était encore qu'un
+   `patch` qui retirait deux ou trois champs (`skill_ids`, `tool_id` /
+   `tool_choice`) : le record SURVIVAIT, choisissable, avec son `ability_keys`
+   et son `feat_id` intacts. Addendums §4 (réécrit le 2026-08-13) : « IL N'Y A
+   PLUS DE RECORD D'ARRIÈRE-PLAN DU TOUT ». Les quatre records SRD sont donc
+   RETIRÉS de la pile (`op: "disable"`, le patron déjà en place pour Perception
+   et le Gaming Set générique, `SKILLS_REMOVED` plus haut) — plus de `patch`
+   étroit, plus de champ à énumérer par entrée : `hasToolId`/`hasToolChoice`
+   disparaissent avec lui, ils n'avaient de sens que pour un retrait partiel. */
 export const BACKGROUNDS_EXTINGUISHED = [
-  { target: "srd:background:en:acolyte", hasToolId: true, hasToolChoice: false },
-  { target: "srd:background:en:criminal", hasToolId: true, hasToolChoice: false },
-  { target: "srd:background:en:sage", hasToolId: true, hasToolChoice: false },
-  { target: "srd:background:en:soldier", hasToolId: false, hasToolChoice: true }
+  {
+    target: "srd:background:en:acolyte",
+    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
+      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
+      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+  },
+  {
+    target: "srd:background:en:criminal",
+    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
+      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
+      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+  },
+  {
+    target: "srd:background:en:sage",
+    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
+      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
+      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+  },
+  {
+    target: "srd:background:en:soldier",
+    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
+      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
+      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+  }
 ];
+
+/* ══ L'INHERITANCE — LE RECORD NEUF QUI REMPLACE LES QUATRE ═══════════
+   Lot 43. Un seul record de genre `background` (le genre reste du vocabulaire
+   de moteur — l'écran, lui, dira « Inheritance »), livré par la couche, JAMAIS
+   choisi parmi des alternatives : c'est le seul de son genre une fois les
+   quatre du SRD éteints.
+
+   ⛔ PAS D'`ability_keys` — l'absence est LA règle (contrat §1c, générique) :
+   un record qui ne nomme pas ses clefs ne les restreint pas, donc les SIX
+   caractéristiques sont proposées. ⛔ PAS de `feat_id` — à la place,
+   `feat_choice: {from: "origin"}`, sur le patron maison de `skill_choice` /
+   `granted_skill_choice` / `tool_choice` : le don d'origine est un choix
+   libre parmi les records de genre `feat` dont `data.category` vaut
+   `"origin"` (les quatre du SRD + `Auspicious (fh)`, patché §3b). */
+export const BACKGROUND_INHERITANCE = {
+  id: "fh:background:en:inheritance",
+  name: "Inheritance",
+  slug: "inheritance",
+  description: "What you carry into adventure: a free origin feat of your choice, and 3 ability " +
+    "score points to distribute as +2/+1 or +1/+1/+1 on any abilities. Fate's Hand replaces the " +
+    "four SRD backgrounds with this single step (addendums §4, Eric 2026-08-13)."
+};
 
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════
    Déclarés ici pour que le générateur les CONFRONTE à ce qu'il a réellement
