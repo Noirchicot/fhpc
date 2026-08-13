@@ -97,6 +97,34 @@
   --touch: 44px;
   --rail-w: 84px;
 
+  /* ══ LOT 59 — LE DÉCOR : le fond et les trois voiles ═══════════════════
+     B0.23a/B0.23c — une image de fond FIXE, qui CONTRASTE avec le parchemin
+     (Eric, 2026-08-14 : « le fond n'est pas parchemin, c'est mon thème, il
+     doit contraster avec ! »). Ardoise bleutée, `#87939E` le jour,
+     `#354551` la nuit.
+
+     ⭐ LE FLOU DE 5 px EST CUIT DANS LE JPEG, pas appliqué au runtime. La
+     bible §5 prévient que `backdrop-filter` coûte une passe GPU PAR SURFACE ;
+     un flou cuit coûte zéro, allège le fichier (23 et 26 Ko), et c'est
+     exactement l'image que la mesure a jugée. Voir
+     `assets/backgrounds.measured.json` — le sha256 y lie la mesure au
+     fichier servi. */
+  --bg-image: url("./assets/bg-day.jpg");
+
+  /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
+     Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
+     ⚠️ Le verre léger valait 20 % jusqu'au 2026-08-14 ; Eric l'a porté à
+     35 % parce qu'à 20 % une dalle claire posée sur un fond contrastant ne
+     lisait plus comme du parchemin — elle lisait comme le fond. */
+  --voile-simple: 35%;    /* verre léger  — les choix, les gros affichages */
+  --voile-inter: 50%;     /* verre moyen  — un peu de texte, pas de couleur */
+  --voile-majeure: 100%;  /* opaque       — beaucoup de contenu, ou des images */
+
+  /* Les surfaces dérivées, même patron que `--accent-wash` : une seule
+     source pour la surface, le voile la module. */
+  --dalle-simple: color-mix(in srgb, var(--surface) var(--voile-simple), transparent);
+  --dalle-inter: color-mix(in srgb, var(--surface) var(--voile-inter), transparent);
+
   /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
      bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
      "narrow") que `shell.mjs` lit ; il ne porte jamais le chiffre 720. Un
@@ -137,6 +165,13 @@
     --tier-1: #9e81bb; /* demi   — 4,53:1 sur --sunken nuit */
     --tier-2: #b29bc9; /* plein  — 6,05:1 */
     --tier-3: #c7b7d8; /* expertise — 8,03:1 */
+
+    /* LOT 59 — la SEULE chose du décor qui bascule : l'image. Les trois
+       voiles ne sont pas redéclarés (ce sont des pourcentages, pas des
+       teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
+       property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
+       surface DE NUIT ici — même mécanique que `--accent-wash`. */
+    --bg-image: url("./assets/bg-night.jpg");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
