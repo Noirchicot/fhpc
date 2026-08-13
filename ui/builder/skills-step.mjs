@@ -128,6 +128,7 @@ function refusalWord(violation) {
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
 import { planAt, violationAt, markPressed } from "./carnet.mjs";
+import { keepInView, scrollParent } from "./socle.mjs";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -508,9 +509,17 @@ function renderToolsAndTrainings(ctx) {
    molette du lot 38 (`.belt`/`.belt-item`, plate, scroll-snap, fondu de
    bords) — même classes, même mécanisme, jamais un second composant écrit
    ici (commande §3b : « n'en écris pas un second »). `IntersectionObserver`
-   fait le scrollspy ; un clic saute à la section avec `scrollIntoView`, et
-   respecte `prefers-reduced-motion` via le même `scroll-behavior` CSS que
-   la ceinture d'étapes (aucune animation codée à la main ici). */
+   fait le scrollspy ; un clic saute à la section, et respecte
+   `prefers-reduced-motion` via le même `scroll-behavior` CSS que la
+   ceinture d'étapes (aucune animation codée à la main ici).
+
+   ⚠️ LOT 58 — LE SAUT NE PASSE PLUS PAR `scrollIntoView`. Mesuré (défaut
+   A-1.3 d'ERGONOMIE-BUILDER.md) : un clic sur « Tools & Trainings »
+   catapultait de 6 111 px, `scroll 48 → 6159`. La cause n'est pas
+   l'ampleur du saut (la section EST loin) mais le fait que
+   `scrollIntoView` remonte TOUTE la chaîne des ancêtres et déplace donc
+   aussi ce qui contient la fiche. `keepInView` (socle.mjs) ne touche
+   qu'UN conteneur : celui que `shell.mjs` a marqué `data-scroller`. */
 function renderCategoryBar(sections) {
   const bar = el("nav", "belt skills-category-bar");
   bar.setAttribute("aria-label", "Skill categories");
@@ -524,7 +533,12 @@ function renderCategoryBar(sections) {
        ce navigateur minimal des tests (tests/dom-stub.mjs) ne porte pas cette
        méthode, et un nœud tenu en mémoire est de toute façon plus direct
        qu'un aller-retour par chaîne d'id. */
-    item.addEventListener("click", () => { if (node.scrollIntoView) node.scrollIntoView({ block: "start" }); });
+    /* `y-start`, pas `y` : un raccourci de table des matières pose la section
+       EN HAUT du champ. Mesuré au navigateur avec « au plus près » : cliquer
+       « Tools & Trainings » depuis 2 400 px REMONTAIT à 1 653 px, le haut de
+       la section restant hors du champ — un déplacement juste, mais pas ce
+       qu'on demande à un raccourci. */
+    item.addEventListener("click", () => keepInView(scrollParent(node), node, "y-start"));
     bar.append(item);
   });
   return bar;

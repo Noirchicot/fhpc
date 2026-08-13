@@ -100,6 +100,19 @@ class FakeElement extends FakeNode {
     this.disabled = false;
     this.type = "";
     this.hidden = false;
+    /* ══ LOT 58 — LE DÉFILEMENT, ET IL EST HONNÊTE ═══════════════════════
+       ⛔ UN `scrollTop` QUI SE CONTENTERAIT DE PERSISTER RENDRAIT LE GARDE
+       DU SOCLE CREUX : `swapContent` passerait sans rien faire, et un
+       remplacement naïf passerait aussi. Ce stub reproduit donc ce que fait
+       un VRAI navigateur, et c'est tout l'intérêt : vider les enfants d'un
+       conteneur met sa hauteur à zéro, et la position de défilement est
+       RABATTUE À 0 — voir `_clearChildren` plus bas.
+       ⚠️ CE N'EST TOUJOURS PAS UNE MISE EN PAGE : il n'y a ni hauteur, ni
+       rectangle, ni butée haute. Ce stub sait dire « la position a été
+       perdue » ou « elle a été gardée », rien de plus — et c'est
+       exactement la question que pose le §RENDU. */
+    this.scrollTop = 0;
+    this.scrollLeft = 0;
     const self = this;
     this.dataset = new Proxy({}, {
       get(_target, key) {
@@ -119,8 +132,20 @@ class FakeElement extends FakeNode {
   getAttribute(name) { return this._attrs.has(name) ? this._attrs.get(name) : null; }
   hasAttribute(name) { return this._attrs.has(name); }
   removeAttribute(name) { this._attrs.delete(name); }
-  set textContent(text) {
+  /** Vider un conteneur met sa hauteur à zéro : le navigateur RABAT la
+   *  position de défilement, et ne la rend jamais. Les deux seuls chemins de
+   *  vidage du stub passent par ici — sinon l'un des deux mentirait. */
+  _clearChildren() {
     this.childNodes = [];
+    this.scrollTop = 0;
+    this.scrollLeft = 0;
+  }
+  replaceChildren(...items) {
+    this._clearChildren();
+    this.append(...items);
+  }
+  set textContent(text) {
+    this._clearChildren();
     if (text !== "" && text !== undefined && text !== null) this.append(String(text));
   }
   get textContent() {
@@ -143,8 +168,24 @@ class FakeElement extends FakeNode {
   }
   /* Sans mise en page, « faire défiler jusqu'à » n'a pas de sens géométrique
      — no-op délibéré, comme le ferait un navigateur pour un élément déjà
-     visible. `skills-step.mjs` l'appelle sans vérifier de retour. */
+     visible.
+     ⚠️ LOT 58 — `scrollIntoView` a disparu de `ui/` (un garde le prouve,
+     `tests/socle.test.mjs` preuve D) ; ces trois-là restent parce que le
+     socle les appelle, et parce qu'un stub qui ne les porte pas ferait
+     jeter le code au lieu de le mesurer. `scrollTo`/`scrollBy` posent
+     vraiment la valeur : c'est ce que `keepInView` écrit, et un no-op
+     rendrait ses tests creux. */
   scrollIntoView() {}
+  scrollTo(options) {
+    if (!options) return;
+    if (typeof options.top === "number") this.scrollTop = options.top;
+    if (typeof options.left === "number") this.scrollLeft = options.left;
+  }
+  scrollBy(options) {
+    if (!options) return;
+    if (typeof options.top === "number") this.scrollTop += options.top;
+    if (typeof options.left === "number") this.scrollLeft += options.left;
+  }
   querySelectorAll(selector) {
     const pool = collectElements(this);
     const hasAncestorIn = (el, set) => {

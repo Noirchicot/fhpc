@@ -1,21 +1,30 @@
-/* ══ LA COQUILLE DU BUILDER — lots 30/31/33 ═══════════════════════════
-   Assistant pur + plan escamotable, forme ratifiée le 2026-08-10. AUCUN
-   bandeau permanent (loi du builder) : la seule chose visible en dehors de
-   la décision courante est le repère de progression (belt menu) et le
-   bouton du plan, fermé par défaut.
+/* ══ LA COQUILLE DU BUILDER — lots 30/31/33, REFONDUE AU LOT 58 ═══════
+   Zéro framework, zéro build (loi Q3 du chantier) : DOM natif, ESM natif.
 
-   DEPUIS LE LOT 33 : le moteur tourne DANS la page (lot 32, prouvé
-   portable) et l'étape Compétences lit le VRAI carnet `decisions[]`
-   (lot 28) sur le VRAI document d'exemple EN+FH. Les huit autres étapes
-   restent des placeholders — un lot par étape, sur ce même modèle.
+   🔴 CE QUI A CHANGÉ AU LOT 58, ET C'EST LA FONDATION DU RESTE.
+   Jusqu'ici, `render()` faisait `app.innerHTML = ""` : toute l'application
+   était détruite et reconstruite à chaque clic, et RIEN ne conservait la
+   position de défilement. C'était la cause commune de « ça saute » et « ça
+   remonte vers le haut » (ERGONOMIE-BUILDER.md, partie A §0), et ça
+   détruisait exactement les cinq choses que les invariants exigent de
+   garder.
 
-   Zéro framework, zéro build (loi Q3 du chantier) : DOM natif, ESM natif. */
+   ⛔ LE CADRE EST MAINTENANT CONSTRUIT UNE FOIS ET NE MEURT JAMAIS :
+   `mountFrame()`, plus bas. On y écrit des ATTRIBUTS, jamais des nœuds.
+   Seul l'intérieur de la fiche est encore remplacé d'un coup — et
+   `swapContent` (socle.mjs) y conserve le défilement.
+
+   📌 LES RÈGLES SONT ÉCRITES À CÔTÉ DU CODE : `ui/builder/SOCLE.md`. Qui
+   possède l'état · les trois verbes (`refresh` / `openSurface` / rien) ·
+   ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
+   ce fichier-là au lieu de deviner. */
 
 import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
-import { renderClassStep } from "./class-step.mjs";
+import { renderClassStep, renderClassRail, classValidate, initialCursor } from "./class-step.mjs";
 import { renderSpeciesStep } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
@@ -32,11 +41,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
    §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
    antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
-   §0.1). La coquille est déjà le seul endroit du builder qui pose du HTML en
-   chaîne (`item.innerHTML` du repère de progression, `app.innerHTML = ""`
-   plus bas) : l'étape Review suit exactement ce précédent, dans `shell.mjs`
-   seul — jamais dans un module testé par `tests/dom-stub.mjs`, qui ne connaît
-   pas `innerHTML` par construction (son propre commentaire le dit). */
+   §0.1). ⚠️ LOT 58 — la coquille n'a plus QUE CE `innerHTML`-là : les deux
+   autres sites sont partis (`app.innerHTML = ""` est remplacé par
+   `swapContent`, et les crans de la molette sont deux nœuds posés une fois).
+   L'étape Review reste dans `shell.mjs` seul — jamais dans un module testé
+   par `tests/dom-stub.mjs`, qui ne connaît pas `innerHTML` par construction. */
 /* Aliasé : `shell.mjs` a déjà son propre `render()` (la fonction de redessin
    de la page, plus bas) — deux fonctions distinctes, un seul nom aurait
    masqué l'une des deux. */
@@ -46,14 +55,32 @@ import { render as renderFiche } from "../../src/tools/render-fiche.mjs";
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
    servira à la table doit être dans la même langue dès le départ, pas
    traduit après coup. */
+/* 🔀 L'ORDRE EST CELUI QU'ERIC A DÉCIDÉ LE 2026-08-14 (ERGONOMIE-BUILDER.md,
+   « LE NOUVEL ORDRE DES ÉTAPES »). Quatre écrans changent de place, six ne
+   bougent pas : Abilities monte de la 5ᵉ à la 2ᵉ, Destiny de la 6ᵉ à la 4ᵉ,
+   Inheritance descend de la 4ᵉ à la 5ᵉ, Class de la 2ᵉ à la 6ᵉ.
+
+   ✅ MESURÉ SAIN AVANT D'ÊTRE APPLIQUÉ : les deux seuls écrans qui LISENT la
+   classe (`skills-step`, `equipment-step`) restent APRÈS elle ; les quatre
+   qui passent devant en comptent zéro occurrence. Et `REVIEW_INDEX` se
+   trouve par l'id (loi du lot 40) — c'est précisément le scénario que cette
+   loi protège, donc réordonner ce tableau SUFFIT.
+
+   ⛔ « Concept » N'EST PAS RENOMMÉ EN « Identity », alors que la décision
+   d'Eric le prévoit : `resolved.identity` existe DÉJÀ dans `fh-char/1` et ne
+   désigne pas la même chose (ERGONOMIE-BUILDER.md le signale lui-même :
+   « à trancher avant de coder, sinon c'est le piège des deux échelles
+   typographiques qui recommence »). Deux « identity » qui divergent ont déjà
+   coûté une fois sur ce chantier. Le renommage attend son arbitrage ; l'ordre
+   n'attendait rien. */
 const STEPS = [
   { id: "universe",   label: "Universe & Layers" },
   { id: "concept",    label: "Concept" },
-  { id: "class",      label: "Class" },
-  { id: "species",    label: "Species" },
-  { id: "background", label: "Inheritance" }, // LOT 42, §3d — l'arrière-plan n'existe plus en Fate's Hand ; le libellé change seul, l'écran reste un placeholder (un autre lot)
   { id: "abilities",  label: "Abilities" },
+  { id: "species",    label: "Species" },
   { id: "destiny",    label: "Destiny" },
+  { id: "background", label: "Inheritance" }, // LOT 42, §3d — l'arrière-plan n'existe plus en Fate's Hand ; le libellé change seul
+  { id: "class",      label: "Class" },
   { id: "skills",     label: "Skills" },
   { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
   { id: "review",     label: "Review" }
@@ -92,7 +119,18 @@ const state = {
      jamais écrits au document, perdus si l'onglet ferme. */
   docWriters: null,       // { rename, describe } une fois le schéma chargé, sinon null
   fieldErrors: {},        // le dernier refus de rename/describe, par champ ({name, gender, alignment, campaign})
-  pendingStack: null      // "srd" pendant qu'une confirmation de passage à SRD est en attente, sinon null
+  pendingStack: null,     // "srd" pendant qu'une confirmation de passage à SRD est en attente, sinon null
+  /* LOT 58 — DEUX ÉTATS D'ÉCRAN DE PLUS, ET ILS VIVENT ICI POUR UNE RAISON
+     (SOCLE.md, « qui possède quoi ») : hors du DOM, donc ils survivent à un
+     remplacement de contenu par construction. C'était deux des cinq choses
+     que `innerHTML = ""` détruisait.
+     · `palier` — où en est `Validate` sur l'écran courant (I.4). Remis à 1
+       à chaque changement d'étape, jamais deviné.
+     · `classCursor` — le cran d'aimantation de l'écran Class. 🔴 ÉCRIT PAR
+       LE SCROLLSPY, ET PAR LUI SEUL, et il ne déclenche AUCUN redessin
+       (SOCLE.md, la troisième ligne des trois verbes). */
+  palier: 1,
+  classCursor: 0
 };
 const app = document.getElementById("app");
 
@@ -160,7 +198,7 @@ function applyDecisionAction(action) {
     } catch (error) {
       state.fieldErrors = { ...state.fieldErrors, name: error.message };
     }
-    render();
+    refresh();
     return;
   }
   /* LOT 54 — CONCEPT (genre, alignement) ET UNIVERSE (campagne) : les trois
@@ -175,7 +213,7 @@ function applyDecisionAction(action) {
     } catch (error) {
       state.fieldErrors = { ...state.fieldErrors, [action.field]: error.message };
     }
-    render();
+    refresh();
     return;
   }
   /* LOT 54 — UNIVERSE, LA PILE DE RÈGLES (§2b de la commande). Un clic sur
@@ -187,21 +225,21 @@ function applyDecisionAction(action) {
      confirmation (`confirm.mjs`, même composant que Class au lot 46) —
      `confirmLayerStack`/`cancelLayerStack` la referment. */
   if (action.kind === "requestLayerStack") {
-    if (currentStack(state.document) === action.value) { render(); return; } // déjà cette pile : rien à faire
+    if (currentStack(state.document) === action.value) { refresh(); return; } // déjà cette pile : rien à faire
     const needsConfirm = action.value === "srd" && fhRefChoicesPresent(state.document);
     if (needsConfirm) {
       state.pendingStack = "srd";
-      render();
+      refresh();
       return;
     }
     applyLayerStack(action.value);
-    render();
+    refresh();
     return;
   }
   if (action.kind === "confirmLayerStack") {
     applyLayerStack("srd");
     state.pendingStack = null;
-    render();
+    refresh();
     return;
   }
   if (action.kind === "cancelLayerStack") {
@@ -209,7 +247,7 @@ function applyDecisionAction(action) {
        en tête) : aucun verbe, aucune mutation du document ni de la pile
        montée dans `layers`. */
     state.pendingStack = null;
-    render();
+    refresh();
     return;
   }
   /* LOT 45 — DEUX GESTES QUI NE TOUCHENT JAMAIS LE DOCUMENT, traités ICI et
@@ -225,7 +263,7 @@ function applyDecisionAction(action) {
        quand ça arrive. `emptyAbilityAssign()` vient d'`abilities-step.mjs`
        — jamais une seconde liste de six clefs recopiée ici. */
     state.abilityRoll = { ...rollAbilitySet(Math.random), assign: emptyAbilityAssign() };
-    render();
+    refresh();
     return;
   }
   if (action.kind === "assignAbilityRoll") {
@@ -281,12 +319,12 @@ function applyDecisionAction(action) {
     }
     state.document = document;
     rebuild();
-    render();
+    refresh();
     return;
   }
   if (action.kind === "destinyMode") {
     state.destinyMode = action.value;
-    render();
+    refresh();
     return;
   }
   const verbs = state.engine.build.verbs;
@@ -305,7 +343,7 @@ function applyDecisionAction(action) {
     }
     state.document = document;
     rebuild();
-    render();
+    refresh();
     return;
   }
   /* LOT 49 — poser une LIGNE D'ÉQUIPEMENT, trois chemins d'un coup
@@ -324,7 +362,7 @@ function applyDecisionAction(action) {
     document = verbs.set({ document, path: `gear[${index}].equipped`, value: action.equipped }).document;
     state.document = document;
     rebuild();
-    render();
+    refresh();
     return;
   }
   /* Symétrique — MESURÉ sûr (INVENTAIRE-LOT-49.md, commande §3 test 7) :
@@ -340,7 +378,7 @@ function applyDecisionAction(action) {
     }
     state.document = document;
     rebuild();
-    render();
+    refresh();
     return;
   }
   /* Les 50 PO ADDENDUMS §4 (commande §1b/§1c) — posées par l'écran, jamais
@@ -361,7 +399,7 @@ function applyDecisionAction(action) {
     }
     state.document = document;
     rebuild();
-    render();
+    refresh();
     return;
   }
   /* LOT 42, §0.3 — MESURÉ : cette fonction ne savait poser que `set`/`clear`,
@@ -376,7 +414,7 @@ function applyDecisionAction(action) {
       : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
   state.document = out.document;
   rebuild();
-  render();
+  refresh();
 }
 
 /* ⚠️ LOT 38 : plus de "720" ici. Un `@media` CSS ne peut pas exposer sa
@@ -407,38 +445,29 @@ function button(label, onClick, disabled) {
   return b;
 }
 
-/* ── LE REPÈRE DE PROGRESSION ─────────────────────────────────────────
-   PAS un bandeau de fiche : il ne montre aucune valeur du personnage, que
-   des étapes et leur statut de navigation (fait / courante / à venir). */
-function renderBelt() {
-  const belt = el("nav", "belt");
-  belt.setAttribute("aria-label", "Character creation steps");
-  STEPS.forEach((step, index) => {
-    const item = button(
-      "",
-      () => { state.step = index; render(); }
-    );
-    item.className = "belt-item";
-    item.dataset.status = index < state.step ? "done" : index === state.step ? "current" : "upcoming";
-    item.setAttribute("aria-current", index === state.step ? "step" : "false");
-    item.innerHTML = `<span class="belt-index">${index}</span><span class="belt-label">${step.label}</span>`;
-    belt.append(item);
-  });
-  return belt;
-}
-
-function renderToggle() {
-  return el("div", "toggle-bar", [
-    button(state.planOpen ? "Hide plan" : "Show plan",
-      () => { state.planOpen = !state.planOpen; render(); })
-  ]);
-}
-
-function renderStage() {
+/* ── LE CONTENU DE LA FICHE ───────────────────────────────────────────
+   ⚠️ CE N'EST PLUS LA SCÈNE ENTIÈRE. Avant le lot 58, cette fonction
+   rendait la ceinture, la barre du plan, la carte ET les boutons Back /
+   Continue — tout, à chaque clic. Elle ne rend plus que le CONTENU de
+   l'écran courant ; le cadre (molette, ligne de commande, chevrons) vit
+   dans `mountFrame()` et ne se redessine jamais. */
+function renderStepContent() {
   const step = STEPS[state.step];
   const card = el("section", "decision-card");
-  const heading = el("h1", null, [document.createTextNode(step.label)]);
-  card.append(heading);
+  /* ⭐ TROUVÉ EN REGARDANT LA PAGE, PAS EN LISANT UN TEST : la feuille de
+     style du lot attendait `[data-bleed]` pour donner sa hauteur à la
+     chaîne des fiches de classe, et personne ne l'écrivait — les 935 tests
+     restaient verts pendant que les douze fiches faisaient 299 px au lieu
+     de 680. « Une fiche par écran » (B2.1f) tombait, sans un mot.
+     PLEIN CADRE veut dire : la carte cesse d'être une carte (ni marge, ni
+     bordure, ni mesure de prose) et prête sa hauteur à ce qu'elle
+     contient. Aujourd'hui, seul le palier 1 de Class en a besoin. */
+  card.dataset.bleed = String(step.id === "class" && state.palier === 1);
+  /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
+     titre — le spy et le snap le rendent évident ». La molette du haut
+     porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
+     une barre qui l'affiche déjà coûtait une ligne de hauteur sur dix
+     écrans, à 360 px. */
 
   /* LOT 54 — Concept et Universe suivent le MÊME trio de branches que les
      autres étapes (moteur prêt / en échec / en charge), même si elles ne
@@ -474,9 +503,16 @@ function renderStage() {
      besoin, ils ne lisent que `decisions[]`), même verbe `applyDecisionAction`
      pour les trois. */
   } else if (step.id === "class" && state.engine) {
+    /* LOT 58 — DEUX CHAMPS DE PLUS QUE LES AUTRES ÉCRANS, et ce sont les
+       deux états d'écran du §RENDU : le PALIER de `Validate` (I.4) et le
+       CRAN d'aimantation que le scrollspy écrit (II.3). Ni l'un ni l'autre
+       n'existe dans le document — ils vivent dans `state`, hors du DOM,
+       donc ils survivent au remplacement du contenu. */
     card.append(renderClassStep({
       decisions: state.decisions,
-      query: state.engine.layers.verbs.query
+      query: state.engine.layers.verbs.query,
+      palier: state.palier,
+      cursor: state.classCursor
     }, applyDecisionAction));
   } else if (step.id === "class" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -585,84 +621,258 @@ function renderStage() {
      restait à câbler. Ce lot clôt le builder (commande, §0) : le garder
      aurait menti sur ce qui reste à faire. */
 
-  const nav = el("div", "stage-nav", [
-    button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
-    /* LOT 55 — §1 de la commande : SUR REVIEW IL N'Y A PAS DE PAS SUIVANT,
-       donc pas de bouton d'avance — même geste que `Back` ci-dessus, désactivé
-       à l'AUTRE bout de la ceinture (`state.step === 0`). Avant ce lot, la
-       condition du LIBELLÉ et la condition du SAUT étaient la même expression
-       (`state.step === STEPS.length - 1`), qui coïncidait avec `REVIEW_INDEX`
-       PAR LA LONGUEUR du tableau (lot 40, commentaire au-dessus de `STEPS`) :
-       sur Review, le bouton affichait « Open the sheet » et remettait
-       `state.step` À SA PROPRE VALEUR — un clic qui ne fait rien, zéro erreur
-       en console (mesuré dans le navigateur, commande §1).
-       ⛔ Toujours PAR `REVIEW_INDEX` (trouvé par id), jamais par
-       `STEPS.length - 1` (une coïncidence de position) : c'est la loi que le
-       lot 40 posait déjà sans la voir appliquée jusqu'ici. La sauvegarde et
-       l'export appartiennent au bloc `doc`, pas à ce lot — ce bouton
-       n'invente aucune destination : il s'arrête, honnêtement, à Review. */
-    button(state.step === REVIEW_INDEX ? "Open the sheet" : "Continue",
-      () => { state.step = Math.min(REVIEW_INDEX, state.step + 1); render(); },
-      state.step === REVIEW_INDEX)
-  ]);
-  return el("main", "stage", [renderToggle(), card, nav]);
+  return card;
 }
 
-/* ── LE PLAN ESCAMOTABLE ──────────────────────────────────────────────
-   Desktop : colonne. Téléphone : surface temporaire plein écran. Même
-   contenu, même verbes des deux côtés — jamais un second builder. */
-function renderPlan() {
-  const aside = el("aside", "plan");
-  aside.setAttribute("aria-label", "Decision plan");
-  aside.hidden = !state.planOpen;
+/* ══════════════════════════════════════════════════════════════════════
+   LE CADRE PERSISTANT (§N d'ERGONOMIE-BUILDER.md, B0.21)
+   ══════════════════════════════════════════════════════════════════════
+   ┌─────────────────────────────┐
+   │  ‹   ② Class   ③ Species  › │   LA MOLETTE — fixe, horizontale
+   ├──────┬──────────────────────┤   ← la ligne de séparation, COUPÉE par l'icône
+   │ Show │   Validate           │   LA LIGNE DE COMMANDE — fixe
+   │ plan │                      │
+   └──────┴──────────────────────┘
+                                     LA FICHE — le SEUL élément qui défile
+           ∧ / ∨ flottants           les chevrons flottent PAR-DESSUS elle
 
-  const header = el("div", "plan-header", [el("h2", null, [document.createTextNode("Plan")])]);
-  header.append(button("Close", () => { state.planOpen = false; render(); }));
+   🔴 CES NŒUDS SONT CRÉÉS UNE FOIS ET NE SONT JAMAIS REMPLACÉS. C'est tout
+   le socle. Les fonctions `paint*` plus bas n'écrivent que des ATTRIBUTS
+   dessus (`data-status`, `aria-current`, `data-lit`, `textContent`) —
+   jamais un nœud neuf. Voir SOCLE.md, « ce qui ne se redessine jamais ».
 
-  const list = el("ol", "plan-list");
-  STEPS.forEach((step, index) => {
-    const li = document.createElement("li");
-    li.dataset.status = index < state.step ? "done" : index === state.step ? "current" : "upcoming";
-    li.textContent = step.label;
-    list.append(li);
+   ⛔ `Back` N'EXISTE PLUS (I.5, B0.18) : le chevron gauche de la molette le
+   remplace. Et il n'y a QU'UN SEUL `Validate` dans toute l'interface (I.3,
+   répété deux fois par Eric) — celui-ci. Aucun écran n'a le droit d'en
+   poser un second ; c'est pourquoi il est construit ICI et pas là-bas. */
+const frame = mountFrame();
+
+function mountFrame() {
+  /* ── LA MOLETTE (B0.1-B0.5) ─────────────────────────────────────── */
+  const belt = el("nav", "belt");
+  belt.setAttribute("aria-label", "Character creation steps");
+  const prev = button("\u2039", () => goToStep(state.step - 1));
+  prev.className = "belt-chevron";
+  prev.setAttribute("aria-label", "Previous step");
+  const next = button("\u203a", () => goToStep(state.step + 1));
+  next.className = "belt-chevron";
+  next.setAttribute("aria-label", "Next step");
+  const track = el("div", "belt-track");
+  track.dataset.scroller = "belt";
+  const items = STEPS.map((step, index) => {
+    const item = button("", () => goToStep(index));
+    item.className = "belt-item";
+    /* Deux nœuds, posés une fois — jamais `innerHTML`, qui les recréerait
+       à chaque peinture et rendrait le cadre aussi jetable qu'avant. */
+    const num = el("span", "belt-index", [document.createTextNode(String(index))]);
+    const label = el("span", "belt-label", [document.createTextNode(step.label)]);
+    item.append(num, label);
+    track.append(item);
+    return item;
   });
+  belt.append(prev, track, next);
 
-  aside.append(header, list);
-  return aside;
-}
+  /* ── LA LIGNE DE COMMANDE (B0.6-B0.13) ──────────────────────────── */
+  const command = el("div", "command");
+  const plan = button("Show plan", () => { state.planOpen = !state.planOpen; refresh(); });
+  plan.className = "command-plan";
+  const validate = button("Validate", () => pressValidate());
+  validate.className = "command-validate";
+  command.append(plan, validate);
 
-function renderScrim() {
+  /* ── LA ZONE DE FICHE : le seul défilement de l'écran (B0.21a) ───── */
+  const area = el("div", "stage-area");
+  const stage = el("main", "stage");
+  stage.dataset.scroller = "stage";
+  /* Le rail de navigation interne (B0.19), FIXE lui aussi : un slot vide
+     que l'écran courant garnit, ou laisse vide. Il est HORS de la fiche,
+     donc il ne défile pas avec elle — et hors du contenu remplacé, donc
+     `swapContent` ne le touche pas. */
+  const aside = el("div", "stage-aside");
+  aside.hidden = true;
+  const chevrons = el("div", "stage-chevrons");
+  const up = button("\u2227", () => scroller.step(-1));
+  up.className = "stage-chevron";
+  up.setAttribute("aria-label", "Scroll up");
+  const down = button("\u2228", () => scroller.step(1));
+  down.className = "stage-chevron";
+  down.setAttribute("aria-label", "Scroll down");
+  chevrons.append(up, down);
+  area.append(aside, stage, chevrons);
+
+  /* ── LE PLAN ESCAMOTABLE — inchangé sur le fond (lots 30/31) ─────── */
+  const planPanel = el("aside", "plan");
+  planPanel.setAttribute("aria-label", "Decision plan");
+  const planHeader = el("div", "plan-header", [el("h2", null, [document.createTextNode("Plan")])]);
+  planHeader.append(button("Close", () => { state.planOpen = false; refresh(); }));
+  const planList = el("ol", "plan-list");
+  const planItems = STEPS.map((step) => {
+    const li = document.createElement("li");
+    li.textContent = step.label;
+    planList.append(li);
+    return li;
+  });
+  planPanel.append(planHeader, planList);
   const scrim = el("div", "scrim");
-  scrim.addEventListener("click", () => { state.planOpen = false; render(); });
-  return scrim;
+  scrim.addEventListener("click", () => { state.planOpen = false; refresh(); });
+
+  app.append(belt, command, area, planPanel, scrim);
+
+  /* LES DEUX ÉCOUTEURS QUI DOIVENT SURVIVRE — posés ICI, une fois, sur des
+     nœuds qui ne meurent pas. C'est la différence entre ce lot et tout ce
+     qui précède : avant, il n'y avait aucun endroit où les poser. */
+  const scroller = mountChevrons(chevrons, stage);
+  const spy = watchSnap(stage, onSnapSettle);
+
+  return { belt, prev, next, track, items, command, plan, validate, area, stage, aside, chevrons, planPanel, planItems, scrim, scroller, spy };
 }
 
-/* La garantie qui rend la molette sûre (bible §4) : l'étape courante
-   REVIENT dans le champ à chaque changement d'étape, sinon la ceinture
-   peut cacher le cran allumé — la seule chose qu'elle existe pour montrer.
-   `scrollIntoView` évite le piège connu de `offsetLeft` (il remonte au
-   premier parent positionné) : le navigateur calcule le centrage lui-même,
-   rien à mesurer à la main. `block: "nearest"` empêche un défilement
-   VERTICAL parasite sur desktop, où la ceinture n'a jamais besoin de
-   défiler — `inline: "center"` n'agit que si elle déborde horizontalement.
-   La vitesse (animée ou instantanée) suit `--bp-hint`-independent
-   `scroll-behavior` posé en CSS, qui obéit déjà à `prefers-reduced-motion`. */
-function recenterBelt() {
-  const current = app.querySelector('.belt-item[data-status="current"]');
-  if (current) current.scrollIntoView({ inline: "center", block: "nearest" });
+/* ══ LE SCROLLSPY EST LE SÉLECTEUR (II.3) ═══════════════════════════════
+   🔴 CETTE FONCTION NE REDESSINE RIEN, ET C'EST LA RÈGLE LA PLUS
+   IMPORTANTE DU SOCLE (SOCLE.md, « les trois verbes »). Un spy qui
+   appellerait `refresh()` se mordrait la queue : le redessin déplace le
+   défilement, qui rappelle le spy. Il écrit `state`, touche un attribut,
+   et s'arrête là. */
+function onSnapSettle(index) {
+  if (STEPS[state.step].id !== "class") return;
+  state.classCursor = index;
+  const rail = frame.aside.querySelectorAll(".class-rail-item");
+  rail.forEach((item, i) => item.setAttribute("aria-current", i === index ? "true" : "false"));
+  /* Le cran courant revient dans le champ DU RAIL, et de lui seul —
+     `keepInView`, jamais `scrollIntoView` (qui déplacerait la fiche avec,
+     le défaut §0 seconde moitié). */
+  if (rail[index]) keepInView(frame.aside, rail[index], "y");
 }
 
-function render() {
+/* ══ LES PALIERS DE `Validate` (I.4) ════════════════════════════════════
+   Un écran qui ne déclare rien a UN palier : avancer. C'est exactement ce
+   que faisait le bouton `Continue` d'avant — donc aucun des neuf autres
+   écrans ne ment sur des paliers qu'il n'a pas encore. Class en déclare
+   deux (B2.4), et c'est le seul aujourd'hui. */
+function currentGate() {
+  if (STEPS[state.step].id === "class" && state.engine) {
+    return classValidate({ decisions: state.decisions, palier: state.palier, cursor: state.classCursor });
+  }
+  return { ready: state.step < REVIEW_INDEX, action: null, next: "step" };
+}
+
+function pressValidate() {
+  const gate = currentGate();
+  if (!gate.ready) return;
+  /* L'ACTION D'ABORD, LE PALIER ENSUITE : `applyDecisionAction` appelle
+     `rebuild()` puis `refresh()`, donc le carnet est à jour AVANT que le
+     palier suivant ne le lise. */
+  if (gate.action) applyDecisionAction(gate.action);
+  if (gate.next === "palier") { state.palier += 1; openSurface(); return; }
+  goToStep(state.step + 1);
+}
+
+/* ⛔ TOUJOURS PAR `REVIEW_INDEX` (trouvé par id), jamais par
+   `STEPS.length - 1` : c'est la loi du lot 40, et le lot 55 a payé pour
+   l'avoir laissée non appliquée (le bouton final se pointait sur lui-même).
+   Elle compte double depuis que l'ordre des étapes a bougé (voir `STEPS`). */
+function goToStep(index) {
+  const target = Math.max(0, Math.min(REVIEW_INDEX, index));
+  if (target === state.step) return;
+  state.step = target;
+  /* Un écran neuf repart à son PREMIER palier, jamais à celui d'avant. */
+  state.palier = 1;
+  /* ⭐ ET IL REPART SUR LE CHOIX DÉJÀ POSÉ, PAS EN HAUT DE LA LISTE — trouvé
+     en regardant la page : le personnage d'exemple est un Magicien, et
+     arriver sur Class le posait devant Barbarian. Comme le défilement EST le
+     choix (II.1), un `Validate` poussé sans regarder aurait écrasé sa classe
+     en silence. Un écran qui reprend doit montrer où on en est. */
+  if (STEPS[target].id !== "class") { openSurface(); return; }
+  state.classCursor = initialCursor(state.decisions);
+  openSurface(state.classCursor);
+}
+
+/* ══ LES PEINTRES — ILS N'ÉCRIVENT QUE DES ATTRIBUTS ════════════════════ */
+
+function paintBelt() {
+  frame.items.forEach((item, index) => {
+    item.dataset.status = index < state.step ? "done" : index === state.step ? "current" : "upcoming";
+    item.setAttribute("aria-current", index === state.step ? "step" : "false");
+  });
+  /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la
+     dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
+     feuille de style : le garde 4 des jetons l'interdit dans `shell.css`,
+     et un bouton retiré du flux ne doit pas laisser sa place vide. */
+  frame.prev.hidden = state.step === 0;
+  frame.next.hidden = state.step === REVIEW_INDEX;
+  const current = frame.items[state.step];
+  if (current) keepInView(frame.track, current, "x");
+}
+
+function paintCommand() {
+  frame.plan.textContent = state.planOpen ? "Hide plan" : "Show plan";
+  /* B0.11, lu à travers I.4 : il s'allume quand les conditions DU PALIER
+     COURANT sont remplies, pas celles de l'écran entier. */
+  const gate = currentGate();
+  frame.validate.dataset.lit = String(gate.ready);
+  frame.validate.disabled = !gate.ready;
+}
+
+function paintPlan() {
   app.dataset.plan = state.planOpen ? "open" : "closed";
-  app.innerHTML = "";
-  const nodes = [renderBelt(), renderStage(), renderPlan()];
-  if (isMobile() && state.planOpen) nodes.push(renderScrim());
-  app.append(...nodes);
-  recenterBelt();
+  frame.planPanel.hidden = !state.planOpen;
+  frame.scrim.hidden = !(isMobile() && state.planOpen);
+  frame.planItems.forEach((li, index) => {
+    li.dataset.status = index < state.step ? "done" : index === state.step ? "current" : "upcoming";
+  });
 }
 
-window.addEventListener("resize", render);
-render();
+/* Le rail (B0.19) : garni par l'écran qui en a un, vidé pour les autres.
+   Le SLOT ne bouge jamais — seul son contenu change, par `swapContent`
+   comme la fiche. */
+function paintAside() {
+  const rail = STEPS[state.step].id === "class" && state.engine
+    ? renderClassRail({
+        decisions: state.decisions, query: state.engine.layers.verbs.query, cursor: state.classCursor
+      })
+    : null;
+  const show = Boolean(rail) && state.palier !== 2; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
+  frame.aside.hidden = !show;
+  frame.area.dataset.aside = show ? "on" : "off";
+  swapContent(frame.aside, show ? [rail] : []);
+}
+
+/* ══ LES DEUX SEULS VERBES DE REDESSIN (SOCLE.md) ═══════════════════════ */
+
+/** UNE MISE À JOUR — le défilement SURVIT. C'est ce qu'appelle chaque
+ *  clic de choix. */
+function refresh() {
+  paintBelt();
+  paintCommand();
+  paintPlan();
+  paintAside();
+  swapContent(frame.stage, [renderStepContent()]);
+  frame.spy.settle();
+}
+
+/** UNE NOUVELLE SURFACE — changement d'étape, ou changement de palier. Le
+ *  défilement repart EN HAUT, et c'est le SEUL endroit du dépôt qui le
+ *  décide (`swapContent` ne le fait jamais tout seul).
+ *
+ *  `at` : l'index du point d'aimantation sur lequel se poser, quand « en
+ *  haut » serait un mensonge — un écran qui reprend un choix déjà fait doit
+ *  s'ouvrir DEVANT ce choix. C'est le seul écart, il est nommé, et il passe
+ *  par `keepInView` (socle.mjs) plutôt que par un second calcul maison. */
+function openSurface(at) {
+  refresh();
+  const snaps = frame.stage.querySelectorAll("[data-snap]");
+  const target = Number.isInteger(at) ? snaps[at] : null;
+  if (target) keepInView(frame.stage, target, "y-start");
+  else frame.stage.scrollTo({ top: 0, behavior: "instant" }); // `instant` : arriver n'est pas voyager (voir swapContent)
+  frame.spy.settle();
+}
+
+/* ⚠️ `resize` appelle `refresh`, PAS `openSurface` : tourner le téléphone ne
+   doit pas renvoyer le joueur en haut d'un écran de 16 513 px. C'était le
+   cas avant ce lot (l'ancien `render` était branché tel quel sur `resize`),
+   et personne ne l'avait mesuré. */
+window.addEventListener("resize", refresh);
+refresh();
 
 /* Le moteur charge en tâche de fond ; l'écran s'affiche immédiatement
    (placeholder « Loading… » sur l'étape Compétences) et se corrige une
@@ -680,5 +890,5 @@ render();
   } catch (error) {
     state.engineError = error.message;
   }
-  render();
+  refresh();
 })();

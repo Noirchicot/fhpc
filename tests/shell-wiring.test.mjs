@@ -147,29 +147,76 @@ test("12 — ⛔ le bouton final n'utilise plus `STEPS.length - 1` pour décider
     "le bouton final ne doit plus comparer state.step à STEPS.length - 1 — c'est exactement la coïncidence qui le faisait pointer sur lui-même");
 });
 
-test("13 — le bouton final compare désormais sa condition à REVIEW_INDEX, par id, comme Back compare la sienne à 0", () => {
-  assert.match(shellText, /state\.step\s*===\s*REVIEW_INDEX\s*\?\s*"Open the sheet"\s*:\s*"Continue"/,
-    "le libellé doit trancher sur REVIEW_INDEX (par id), jamais sur une longueur de tableau");
+/* ⚠️ LOT 58 — LES TESTS 13/14/15 CHANGENT DE CIBLE, PAS DE LOI.
+   Le « bouton final » du lot 55 était `Continue`/`Open the sheet`, dans une
+   barre `.stage-nav` sous la carte. Les deux ont disparu, et pas par
+   commodité : l'invariant I.3 dit qu'il n'existe QU'UN SEUL `Validate` dans
+   toute l'interface, celui de la barre du haut, et l'invariant I.5 supprime
+   `Back` (la molette le remplace).
+
+   🔴 LA LOI QUE CES TROIS TESTS GARDENT EST INCHANGÉE, et elle compte
+   DOUBLE depuis ce lot : le dernier pas se trouve PAR SON ID
+   (`REVIEW_INDEX`), jamais par `STEPS.length - 1`. Le lot 58 réordonne
+   `STEPS` (décision d'Eric du 2026-08-14) — c'est exactement le scénario
+   que la loi du lot 40 protège, et le lot 55 a payé pour l'avoir laissée
+   non appliquée. */
+
+test("13 — la porte par défaut de `Validate` tranche sur REVIEW_INDEX, par id, jamais sur une longueur", () => {
+  assert.match(shellText, /return \{ ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
+    "sur Review il n'y a pas de pas suivant : Validate doit s'y éteindre, et le savoir PAR L'ID");
 });
 
-test("14 — sur Review, le bouton final est DÉSACTIVÉ — même geste que Back désactivé à l'étape 0 (disabled === true, mesuré)", () => {
-  /* `button(label, onClick, disabled)` — le TROISIÈME argument porte l'état
-     désactivé (voir sa définition, plus haut dans ce fichier). Back le pose
-     déjà en dur : `state.step === 0`. Ce test exige la SYMÉTRIE nommée par
-     la commande (§1) : le bouton final le pose aussi, sur REVIEW_INDEX. */
-  assert.match(shellText,
-    /button\(state\.step === REVIEW_INDEX \? "Open the sheet" : "Continue",\s*\n\s*\(\) => \{ state\.step = Math\.min\(REVIEW_INDEX, state\.step \+ 1\); render\(\); \},\s*\n\s*state\.step === REVIEW_INDEX\)/,
-    "le bouton final doit passer `state.step === REVIEW_INDEX` en troisième argument (disabled) à button(), exactement comme Back passe `state.step === 0`");
+test("14 — la molette masque son chevron d'avance sur Review, symétrique du chevron arrière à l'étape 0", () => {
+  /* B0.3 — « aucun chevron à gauche à la première étape, aucun à droite à la
+     dernière, les deux au milieu ». C'est la SYMÉTRIE que le lot 55 exigeait
+     du couple Back/Continue, portée par les deux chevrons qui les
+     remplacent. */
+  assert.match(shellText, /frame\.prev\.hidden = state\.step === 0;/);
+  assert.match(shellText, /frame\.next\.hidden = state\.step === REVIEW_INDEX;/);
 });
 
-test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la condition du bouton final fait rougir 12, lui seul", () => {
+test("14 bis — et le saut lui-même est BORNÉ par REVIEW_INDEX, jamais par la longueur du tableau", () => {
+  assert.match(shellText, /Math\.min\(REVIEW_INDEX, index\)/,
+    "un pas au-delà de Review doit s'arrêter à Review PARCE QUE c'est Review, pas parce qu'un index coïncide");
+});
+
+test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de Validate fait rougir 12, lui seul", () => {
   const mutated = shellText.replace(
-    /state\.step === REVIEW_INDEX \? "Open the sheet" : "Continue"/,
-    'state.step === STEPS.length - 1 ? "Open the sheet" : "Continue"'
+    /return \{ ready: state\.step < REVIEW_INDEX, action: null, next: "step" \};/,
+    'return { ready: state.step === STEPS.length - 1, action: null, next: "step" };'
   );
   assert.notEqual(mutated, shellText, "témoin : le remplacement a bien eu lieu sur le vrai texte");
   assert.match(mutated, /state\.step\s*===\s*STEPS\.length\s*-\s*1/, "l'attaque réintroduit bien le motif fautif");
-  // Et les gardes VOISINS (7 à 11, 13) ne sont pas concernés par cette attaque précise.
+  // Et les gardes VOISINS (7 à 11, 14) ne sont pas concernés par cette attaque précise.
   assert.match(mutated, /\bcreateDocWriters\b/);
+  assert.match(mutated, /frame\.next\.hidden = state\.step === REVIEW_INDEX;/);
   for (const id of STEP_IDS) assert.match(mutated, new RegExp(`step\\.id === "${id}"`));
+});
+
+/* ══ LOT 58 — DEUX GARDES DE PLUS, SUR CE QUE LE CADRE PROMET ═════════════ */
+
+test("16 — ⛔ UN SEUL `Validate` dans tout ui/ (I.3, répété deux fois par Eric)", () => {
+  /* « L'UNIQUE Validate tout en haut. » Aucun écran, aucune fenêtre majeure,
+     aucun menu de choix n'a le droit d'en poser un second. Le garde cherche
+     le MOT dans les chaînes de `ui/`, hors commentaires — la seule occurrence
+     légitime est le libellé du bouton de la ligne de commande. */
+  const files = walkSources(UI_DIR);
+  const porteurs = [];
+  for (const file of files) {
+    const text = stripComments(fs.readFileSync(file, "utf8"));
+    const n = (text.match(/"Validate"/g) || []).length;
+    if (n > 0) porteurs.push(`${path.relative(ROOT, file)} (${n})`);
+  }
+  assert.deepEqual(porteurs, ["ui/builder/shell.mjs (1)"],
+    "un second Validate posé par un écran romprait l'invariant I.3 — le bouton unique change de PALIER, il ne se dédouble pas");
+});
+
+test("17 — `Back` n'existe plus nulle part dans ui/ (I.5, B0.18)", () => {
+  const files = walkSources(UI_DIR);
+  const porteurs = [];
+  for (const file of files) {
+    const text = stripComments(fs.readFileSync(file, "utf8"));
+    if (/"Back"/.test(text)) porteurs.push(path.relative(ROOT, file));
+  }
+  assert.deepEqual(porteurs, [], "« la molette le remplace » — un bouton Back rouvrirait deux chemins de retour");
 });

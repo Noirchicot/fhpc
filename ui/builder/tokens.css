@@ -83,6 +83,20 @@
   --measure: 62ch; /* .decision-card — valeur déjà en place, zéro changement visible */
   --grid-w: 60ch;  /* .skills-step — la grille à 3 colonnes du lot 39 */
 
+  /* ── LOT 58 — DEUX MESURES QUE LE MOBILE IMPOSE (base 360 px, IV.4) ──
+     `--touch` : le seuil tactile d'Apple. Mesuré au §3quater
+     d'ERGONOMIE-BUILDER.md — les boutons de palier font 24×24 px, « exactement
+     le minimum absolu de WCAG 2.5.8, très en dessous du confortable tactile
+     (44 px Apple, 48 px Google) », et c'est invisible à la souris. ⏳ Ce lot
+     ne le pose que sur les commandes du CADRE (molette, Show plan, Validate,
+     chevrons) : la rampe des paliers de Compétences est l'affaire du lot qui
+     refera cet écran-là (B7.5 en dépend, et il a sa propre mesure).
+     `--rail-w` : la colonne étroite de gauche (B2.1a) — assez pour le plus
+     long nom de classe à T2, pas un pixel de plus : à 360 px, chaque pixel
+     du rail est un pixel de moins pour la fiche. */
+  --touch: 44px;
+  --rail-w: 84px;
+
   /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
      bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
      "narrow") que `shell.mjs` lit ; il ne porte jamais le chiffre 720. Un

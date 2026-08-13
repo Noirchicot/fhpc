@@ -7,22 +7,60 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
 
-.app {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  min-height: 100vh;
-}
-.app[data-plan="open"] { grid-template-columns: 220px 1fr 320px; }
+/* ══ LE CADRE — lot 58, §N d'ERGONOMIE-BUILDER.md (B0.21) ═══════════════
+   Molette · ligne de commande · fiche. 🔴 RIEN NE DÉFILE SAUF LA FICHE
+   (B0.21a, mot pour mot : « ils ne scrollent pas du tout ») — d'où
+   `overflow: hidden` ici, qui rend la règle structurelle plutôt que
+   convenue.
 
-/* ── LE REPÈRE DE PROGRESSION (belt) ─────────────────────────────── */
-.belt {
-  border-right: 1px solid var(--border);
-  padding: var(--sp-20) var(--sp-8);
+   ⏳ B0.23a demande une IMAGE DE FOND FIXE, la fiche défilant par-dessus.
+   Aucune image n'existe dans le dépôt : pas de faux magasin. Le fond reste
+   `--bg`, et c'est ICI que l'image se posera le jour où elle existera. */
+.app {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── LA MOLETTE DES ÉTAPES (B0.1-B0.5) — fixe, horizontale ────────
+   ⚠️ ELLE GARDE SON NOM (`.belt`) : c'est le même composant qu'au lot 38, et
+   `skills-step.mjs` réemploie `.belt`/`.belt-item` pour sa barre de
+   catégories. Le renommer en « wheel » aurait fait diverger deux copies du
+   même habillage — la faute que le dépôt paie depuis les deux échelles
+   typographiques. Ce qui change est son COMPORTEMENT (fixe, horizontale à
+   toutes les largeurs), pas son identité. */
+.belt {
+  flex: none;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
   position: relative; /* la molette (§3f) mesure depuis ce parent-là */
+}
+.belt-chevron {
+  flex: none;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: var(--t6);
+  cursor: pointer;
+  padding: 0;
+}
+.belt-track {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: var(--sp-8) 0;
   scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  /* L'amorce : dit qu'il y a du hors-champ (bible §4). Un masque n'est pas
+     une teinte — noir/transparent y encodent la VISIBILITÉ. */
+  mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
 }
 .belt-item {
   display: flex;
@@ -38,7 +76,12 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   cursor: pointer;
 }
 .belt-item[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
-.belt-item[data-status="done"] { color: var(--positive); }
+/* B0.4 — « quand une étape est validée, son NUMÉRO passe en vert ». C'est le
+   numéro seul qui change, pas la ligne : la ceinture disait « done » sur tout
+   le libellé, ce qui rendait deux étapes faites indiscernables d'une étape
+   courante à l'œil rapide. */
+.belt-item[data-status="done"] .belt-index { color: var(--positive); border-color: var(--positive); }
+.belt-item { scroll-snap-align: center; flex: none; }
 .belt-index {
   width: 22px; height: 22px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
   border: 1px solid currentColor;
@@ -47,20 +90,157 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex: none;
 }
 
+/* ── LA LIGNE DE COMMANDE (B0.6-B0.13, B0.21b/c) ──────────────────
+   Fixe, sous la molette. `Show plan` à gauche, `Validate` à sa droite, sur
+   la MÊME ligne horizontale (B0.10).
+
+   B0.9/B0.21c — « cette icône INTERROMPT la ligne de séparation ». La ligne
+   est le `border-bottom` de `.command` ; le bouton descend d'un pixel et
+   pose SA propre bordure basse couleur de fond, qui efface le segment
+   qu'il recouvre. C'est littéralement une interruption, pas un dessin qui
+   y ressemble. */
+.command {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  padding: 0 var(--sp-12);
+  border-bottom: 1px solid var(--border);
+}
+.command-plan, .command-validate {
+  min-height: var(--touch); /* le seuil tactile — voir `--touch` dans tokens.css */
+  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text); /* un <button> n'hérite pas de `color` — défaut n°4 */
+  font-size: var(--t3); /* B0.7 : la même taille que « Concept », le barreau des libellés de la molette */
+  padding: 0 var(--sp-12);
+  cursor: pointer;
+}
+/* B0.8 — « une icône rectangulaire plus petite que l'actuelle » : le rayon
+   descend d'un cran et le remplissage horizontal se resserre. Elle reste au
+   seuil tactile en hauteur — plus petite à l'œil, pas au doigt. */
+.command-plan {
+  position: relative;
+  top: 1px;
+  border-bottom: 1px solid var(--bg); /* ⭐ c'est CETTE ligne qui coupe la séparation */
+  padding: 0 var(--sp-8);
+}
+/* B0.11 lu à travers I.4 — il s'allume quand les conditions DU PALIER
+   COURANT sont remplies. Éteint, il reste lisible : un bouton qu'on ne peut
+   pas presser doit dire pourquoi par son apparence, pas disparaître. */
+.command-validate { margin-left: auto; }
+.command-validate[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.command-validate:disabled { opacity: .5; cursor: default; }
+
+/* ── LA SCÈNE — LE SEUL ÉLÉMENT QUI DÉFILE (B0.21a) ───────────────
+   `.stage` est le conteneur PERSISTANT : `swapContent` remplace son
+   contenu, jamais lui. C'est ce nœud-là qui porte la position de
+   défilement que tout le lot existe pour conserver.
+
+   🔴 POURQUOI `.stage` ET PAS `.fiche`, alors qu'Eric l'appelle « la fiche »
+   (B0.21) : `src/tools/render-fiche.mjs` émet DÉJÀ `<article class="fiche">`
+   — la feuille de personnage. TROUVÉ EN REGARDANT L'ÉCRAN Review : avec les
+   deux sous le même nom, la feuille héritait de `position: absolute` et
+   `inset: 0`, et l'écran affichait 114 626 caractères de HTML dans une boîte
+   de hauteur ZÉRO. C'est exactement le piège des deux échelles typographiques
+   (en-tête d'ERGONOMIE-BUILDER.md), en CSS et en une heure.
+   ⭐ `.stage` n'est pas un mot neuf : c'était le nom de cette même région
+   avant ce lot (`renderStage`, `.stage`). En français on continue de dire
+   « la fiche » — c'est le CODE qui devait départager. */
+.stage-area { position: relative; flex: 1 1 auto; min-height: 0; }
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  /* 🔴 II.1 — « LE DÉFILEMENT EST LE CHOIX », `scroll-snap`, tranché par
+     Eric le 2026-08-14. ⚠️ TROUVÉ EN REGARDANT LA PAGE : `scroll-snap-align`
+     était bien posé sur les douze fiches, et le conteneur n'avait AUCUN
+     `scroll-snap-type` — l'aimantation ne faisait donc rien du tout, sous
+     935 tests verts. Les deux propriétés vont par paire, et seule celle du
+     conteneur allume le mécanisme.
+     `proximity`, PAS `mandatory`, ET C'EST MESURÉ : une fiche plus haute que
+     le champ (Barbarian, la plus longue, frôle les 680 px du champ à 360 px)
+     deviendrait partiellement inatteignable au repos sous `mandatory` — le
+     navigateur ramènerait toujours le geste au bord de la fiche. `proximity`
+     aimante ce qui doit l'être et lâche prise quand le contenu déborde.
+     L'aimantation reste vraie, la fiche reste lisible.
+     📌 Et le sélecteur (II.3) n'en dépend pas : `nearestIndex` (socle.mjs)
+     désigne le cran le plus proche, aimanté ou non — il n'y a donc jamais
+     d'état où « la fiche courante » serait indéterminée. */
+  scroll-snap-type: y proximity;
+}
+/* Le rail de navigation interne (B0.19) — FIXE, hors de la scène, donc il
+   ne défile pas avec elle et `swapContent` ne le touche pas. */
+.stage-aside {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: var(--rail-w);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+.stage-area[data-aside="on"] .stage { left: var(--rail-w); }
+
+/* ── LES CHEVRONS FLOTTANTS (I.7, B0.22) ──────────────────────────
+   « À l'extrême droite de l'écran » (B0.22a) · « ils s'effacent après ~1 s »
+   (B0.22b) · « ils réapparaissent dès qu'on défile » (B0.22c). Ni barre, ni
+   gouttière : ils flottent PAR-DESSUS la fiche (B0.21d). */
+.stage-chevrons {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-8);
+  opacity: 1;
+  transition: opacity .25s;
+}
+.stage-chevrons[data-visible="false"] { opacity: 0; }
+/* ⛔ PAS `display: none` (défaut n°3, et le garde 4 des jetons l'interdit) :
+   un contrôle effacé reste dans le flux, il cesse seulement d'être là pour
+   le doigt — sinon la fiche se réagencerait deux fois par seconde. */
+.stage-chevrons[data-visible="false"] .stage-chevron { pointer-events: none; }
+.stage-chevron {
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--t4);
+  cursor: pointer;
+  padding: 0;
+}
+
 /* ── LA DÉCISION COURANTE ────────────────────────────────────────── */
 /* `min-width: 0`, même correctif — `.stage` est un ENFANT DE GRILLE de
    `.app` (lot 30), et une grille pose le même piège qu'un flex (`min-width`
    initial `auto`) : sans lui, `.stage` refuse de descendre sous la largeur
    intrinsèque de son plus large descendant, et l'aurait déjà fait avant ce
    lot si une étape avait porté un contenu large (mesuré au lot 39, §3f). */
-.stage { padding: var(--sp-24) var(--sp-32); display: flex; flex-direction: column; gap: var(--sp-20); min-width: 0; }
-.toggle-bar { display: flex; justify-content: flex-end; }
+/* ⛔ `.stage`, `.toggle-bar` et `.stage-nav` ONT DISPARU AVEC LEUR BALISAGE
+   (loi §0.6 : pas de sélecteur mort). `.stage` était la colonne qui portait
+   la carte, les boutons Back/Continue et la barre du plan — les trois sont
+   partis : `Back` n'existe plus (I.5), `Continue` est devenu l'unique
+   `Validate` de la ligne de commande (I.3), et `Show plan` y a suivi. */
 .decision-card {
   background: var(--surface);
   border: 1px solid var(--border); /* décorative : le contour d'une carte, aucune cible de contraste (§3b) */
   border-radius: var(--radius-md);
-  padding: var(--sp-32); /* 28px d'origine : à mi-chemin de sp-24/sp-32, arrondi au cran du dessus */
-  max-width: var(--measure); /* MESURE DE PROSE, pas une largeur de grille (§3e) — 62ch, zéro changement visible */
+  /* ⭐ 32 → 16 px, ET C'EST UNE MESURE D'ERIC APPLIQUÉE, PAS UN GOÛT
+     (ERGONOMIE-BUILDER.md, B4.3) : « le coupable n'est pas le nombre de
+     colonnes — c'est le PADDING de 32 px, qui mange 64 px, soit 18 % de la
+     largeur de l'écran ». À 360 px, la largeur utile passe de 264 à 296 px.
+     Le même padding est nommé une seconde fois en B7.5 (Compétences).
+     Il venait du desktop et n'avait jamais été repensé pour 360. */
+  padding: var(--sp-16);
+  margin: var(--sp-16);
+  max-width: var(--measure); /* MESURE DE PROSE, pas une largeur de grille (§3e) — 62ch */
   /* CORRECTIF, mesuré au lot 39 à 360px : `.stage` est `display:flex` (lot
      30), et un enfant flex a un `min-width` initial de `auto` — il refuse de
      rétrécir sous la largeur intrinsèque de son PLUS LARGE descendant.
@@ -72,28 +252,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      RIEN tant que rien ne le pousse à rétrécir. */
   min-width: 0;
 }
-.decision-card h1 { margin: 0 0 var(--sp-12); font-size: var(--t6); } /* 10px → sp-12, même arrondi que le belt-item */
+/* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
+   `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut
+   nomme déjà l'étape et la surligne, le répéter en T6 coûtait une ligne de
+   hauteur sur dix écrans, à 360 px. */
 .placeholder { color: var(--text-soft); font-size: var(--t3); } /* une PHRASE de description, pas une mention courte */
 .placeholder code { background: var(--accent-wash); padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); } /* 1px→sp-2, 5px→sp-4 (arrondi au plus proche, pas d'égalité) */
-.stage-nav { display: flex; gap: var(--sp-12); } /* 10px → sp-12 */
 
 button { font: inherit; }
-.stage-nav button, .toggle-bar button {
-  padding: var(--sp-8) var(--sp-16);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE : un bouton est cliquable, cible 3:1 (§3b) */
-  background: var(--surface);
-  /* CORRECTIF défaut n°4 (mesuré sur la page DÉPLOYÉE, 2026-08-13) : un
-     `<button>` N'HÉRITE PAS de l'encre du corps — l'agent utilisateur lui
-     impose `buttontext` (noir). Sans cette ligne, `Back` et `Show plan`
-     rendaient `rgb(0,0,0)` sur `var(--surface)` = **1,24:1**, invisibles.
-     Le correctif du défaut n°1 avait posé la couleur sur `:last-child`
-     seul : il a mesuré le bouton PRINCIPAL, pas la paire. */
-  color: var(--text);
-  cursor: pointer;
-}
-.stage-nav button:last-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); } /* CORRECTIF défaut n°1 : #fff en dur échouait 2,44:1 en sombre, voir l'inventaire */
-.stage-nav button:disabled { opacity: .4; cursor: default; }
 
 /* ── L'ÉTAPE COMPÉTENCES (lot 39) ──────────────────────────────────
    3 colonnes (Skill/Tool · Invested · Cost, décision n°2) : la colonne
@@ -173,12 +339,78 @@ button { font: inherit; }
    même pratique que `.skill-slot[data-status="locked"]` au lot 38. */
 .skills-trainings-block[data-status="locked"] { opacity: .6; }
 
-/* ── LES ÉTAPES CLASS / SPECIES (lot 42) ─────────────────────────────
+/* ══ L'ÉCRAN CLASS — lot 58, B2 ════════════════════════════════════════
+   Deux colonnes (B2.1) : un rail étroit à gauche (dans `.stage-aside`, hors
+   de la fiche), les fiches de classe à droite, UNE SEULE À L'ÉCRAN À LA FOIS
+   (B2.1f), aimantées (B2.1h).
+
+   🔴 LA CHAÎNE DE HAUTEURS EST DÉLIBÉRÉE, et c'est elle qui fait tenir le
+   « une fiche par écran » sans qu'aucun nombre soit écrit : `.stage` a une
+   hauteur définie (`inset: 0`), `[data-bleed]` et `.class-step` la
+   descendent à 100 %, et chaque `.class-card` vaut 100 % de cette
+   hauteur-là. Le total (douze fois la hauteur du champ) déborde en
+   `visible`, donc c'est `.stage` — le SEUL défilement (B0.21a) — qui le
+   fait défiler. Aucune `100vh` ne traîne : la barre du haut est déjà
+   déduite, par construction. */
+.decision-card[data-bleed="true"] {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  border-color: transparent;
+  background: none;
+}
+.decision-card[data-bleed="true"] > .class-step { height: 100%; }
+.class-cards { height: 100%; display: flex; flex-direction: column; }
+.class-card {
+  height: 100%;
+  flex: none;
+  scroll-snap-align: start;
+  padding: var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+/* B0.23 — LA DALLE MAJEURE : « beaucoup de contenu, ou des images », voile
+   100 %. ⏳ Les trois pourcentages sont NOTÉS, PAS ARRÊTÉS (Eric : « on verra
+   quand on y sera ») — seule la majeure est construite, parce que seule elle
+   est employée ici. `--surface` EST le voile opaque tant qu'aucune image de
+   fond n'existe derrière (voir `.app`). */
+.dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
+
+.class-card-name { margin: 0; font-size: var(--t6); }
+.class-card-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
+.class-card-row { display: flex; gap: var(--sp-8); font-size: var(--t3); }
+.class-card-row dt { margin: 0; color: var(--text-muted); width: 13ch; flex: none; }
+.class-card-row dd { margin: 0; font-weight: 600; }
+.class-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.class-card-feature-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
+
+/* LE RAIL (B2.1a/d/g) — un INDICATEUR, jamais un bouton : le seul geste de
+   choix est le défilement (II.1). Pas de `cursor: pointer`, pas de bordure
+   de contrôle : rien ici ne doit avoir l'air cliquable, parce que rien ne
+   l'est. */
+.class-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
+.class-rail-item {
+  font-size: var(--t2);
+  color: var(--text-muted);
+  padding: var(--sp-8) var(--sp-4);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.class-rail-item[aria-current="true"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+
+.class-choices { display: flex; flex-direction: column; gap: var(--sp-16); }
+
+/* ── L'ÉTAPE SPECIES (lot 42) ────────────────────────────────────────
    `.record-list`/`.record-option` : le PICKER partagé de `carnet.mjs`
-   (`renderPicker`) — une seule feuille de style pour les 12-options (Class,
-   Species) ET les QCM par-dessus (`class.skills`, `species.skills`, le
-   budget captif d'espèce) : même geste partout, même habillage. */
-.class-step, .species-step { max-width: var(--measure); } /* PROSE, pas grille : une colonne de choix, pas un tableau (§3e du lot 39, même logique) */
+   (`renderPicker`) — une seule feuille de style pour les 12-options
+   (Species) ET les QCM par-dessus (`class.skills`, `species.skills`, le
+   budget captif d'espèce) : même geste partout, même habillage.
+   ⚠️ Species N'A PAS ENCORE la forme de Class (B3 dit « B3 = B2 ») : son
+   écran reste celui du lot 42 jusqu'à son propre lot. Ce lot ne le refait
+   pas — il pose le socle et le prouve sur UN écran. */
+.species-step { max-width: var(--measure); } /* PROSE, pas grille : une colonne de choix, pas un tableau (§3e du lot 39, même logique) */
 .record-choice-block { margin-bottom: var(--sp-24); }
 .record-choice-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
 /* CORRECTIF, trouvé en servant le builder et en le regardant (§ finale de la
@@ -205,18 +437,22 @@ button { font: inherit; }
 .record-option[data-active="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
 .record-option-none { color: var(--text-muted); }
 
-/* La boîte d'info technique de Class (§3b.4) — une carte à part, sous la
-   liste, jamais dans le flux de la grille (elle n'a ni ligne ni jeton). */
-.record-info { margin: 0 0 var(--sp-24); padding: var(--sp-16); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
-.record-info h3 { margin: 0 0 var(--sp-8); font-size: var(--t5); }
-.record-info-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-.record-info-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
-.record-info-row dt { margin: 0; color: var(--text-muted); width: 14ch; flex: none; }
-.record-info-row dd { margin: 0; }
+/* ⛔ `.record-info*` A DISPARU AVEC SON BALISAGE (loi §0.6). C'était la
+   boîte d'info technique de Class au lot 42 — une carte sous la liste des
+   douze boutons. Les deux sont partis ensemble : l'info vit maintenant DANS
+   la fiche de classe (`.class-card-list`), qui EST la surface de lecture. */
 
-/* ── LE PLAN ESCAMOTABLE (desktop = colonne) ─────────────────────── */
+/* ── LE PLAN ESCAMOTABLE ──────────────────────────────────────────
+   ⚠️ LOT 58 — IL EST UNE SURFACE TEMPORAIRE À TOUTES LES LARGEURS, plus une
+   troisième colonne au-delà de 720 px. Base mobile (IV.4) : la forme
+   téléphone devient la forme, le desktop s'extrapolera ensuite. La règle
+   qui l'ouvrait en colonne (`grid-template-columns: 220px 1fr 320px`) est
+   partie avec la grille de `.app`. */
 .plan {
-  border-left: 1px solid var(--border);
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  overflow-y: auto;
   padding: var(--sp-20);
   background: var(--surface);
 }
@@ -227,10 +463,19 @@ button { font: inherit; }
 .plan-list li[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
 .plan-list li[data-status="done"] { color: var(--positive); }
 
-/* ── TÉLÉPHONE : la ceinture devient une MOLETTE PLATE (§3f) ─────────
-   ⛔ Pas de repli en 4+3, ⛔ pas d'effacement des libellés (l'ancien
-   `.belt-label { display: none }` EST le défaut n°3 : il efface des mots,
-   ce que le cadre d'Eric interdit). Les mots reviennent, à toutes les
+/* ── LE SCRIM DU PLAN ─────────────────────────────────────────────
+   Il n'est posé QUE sous le seuil étroit (`isMobile()`, shell.mjs) — le
+   plan est plein écran des deux côtés, mais seul le téléphone lui donne un
+   voile derrière lequel on tape pour fermer. */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 1; }
+
+/* ── TÉLÉPHONE : CE QUI RESTE SPÉCIFIQUE AU SEUIL ────────────────────
+   ⚠️ LOT 58 — CE BLOC A FONDU, ET C'EST LE SIGNE QUE LA BASE EST DEVENUE
+   MOBILE (IV.4) : la molette horizontale, le plan en surface temporaire et
+   le voile étaient ici ; ils sont maintenant la règle générale. Ne reste
+   que ce qui dépend VRAIMENT de la largeur.
+   ⛔ Pas d'effacement des libellés (l'ancien `.belt-label { display: none }`
+   EST le défaut n°3 : il efface des mots). Les mots restent, à toutes les
    largeurs ; la rangée défile à la place. */
 @media (max-width: 720px) {
   /* ⚠️ LE SEUIL EST ICI, LITTÉRALEMENT — et c'est la SEULE façon de
@@ -244,46 +489,19 @@ button { font: inherit; }
      `grep -rn "720" ui/builder/`, voir INVENTAIRE-LOT-38.md. */
   :root { --bp-hint: narrow; }
 
-  .app, .app[data-plan="open"] { grid-template-columns: 1fr; }
-  .belt {
-    flex-direction: row;
-    overflow-x: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: var(--sp-12); /* 10px → sp-12, même arrondi que partout ailleurs */
-    scroll-snap-type: x proximity;
-    /* L'amorce : dit qu'il y a du hors-champ (bible §4). Un masque n'est
-       pas une teinte — noir/transparent y encodent la VISIBILITÉ, pas une
-       couleur du système. Exception au clause 3 du garde, sur le registre :
-       aucun canal alpha de masque n'a de jeton dans la palette. */
-    mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
-  }
-  .belt-item { scroll-snap-align: center; }
-  /* La ceinture flotte sur le vide (bible §4) : ni pastille de centrage,
-     ni fond — le cran courant se signale par son poids et sa couleur,
-     rien d'autre. Le fond du mode desktop (accent-wash) est donc retiré
-     ICI, spécifiquement en molette. */
-  .belt-item[data-status="current"] { background: none; }
-  .stage { padding: var(--sp-16); }
-  .plan {
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    border-left: none;
-    overflow-y: auto;
-  }
-  .scrim {
-    position: fixed; inset: 0;
-    background: var(--scrim);
-    z-index: 1;
-  }
+  /* Le CADRE ne change pas de forme au seuil : il est né à 360 px. Ce qui
+     change, c'est la place que la fiche peut se permettre — et le rail, qui
+     est déjà à son minimum lisible, ne rétrécit pas davantage. */
+  .decision-card { margin: var(--sp-8); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   /* Invariant de la bible (§5) : le recentrage de la molette devient
-     instantané, jamais animé. */
-  .belt { scroll-behavior: auto; }
+     instantané, jamais animé. LOT 58 — la fiche et l'effacement des
+     chevrons suivent la même règle : ce sont les deux mouvements que le
+     socle a ajoutés, ils obéissent au même réglage système. */
+  .belt-track, .stage { scroll-behavior: auto; }
+  .stage-chevrons { transition: none; }
 }
 
 /* ── LA FICHE, DANS LE BUILDER (lot 40) ───────────────────────────────

@@ -20,7 +20,8 @@ import { manifestOf } from "./build-harness.mjs";
 
 globalThis.document = createTestDocument();
 
-const { renderClassStep } = await import("../ui/builder/class-step.mjs");
+const { renderClassStep, renderClassRail, classValidate, initialCursor, classOptions } =
+  await import("../ui/builder/class-step.mjs");
 const { renderSpeciesStep } = await import("../ui/builder/species-step.mjs");
 
 const fixture = exempleFhEn();
@@ -92,7 +93,7 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
   ];
   for (const [classId, expected] of cases) {
     const report = rebuild(docWith({ id: `count-${classId}`, classId }));
-    const node = renderClassStep({ decisions: report.decisions, query }, () => {});
+    const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, () => {});
     const note = node.querySelectorAll(".skills-budget-note")[0];
     assert.ok(note, `${classId} : le QCM de classe est rendu`);
     assert.ok(note.textContent.startsWith(`0 of ${expected} chosen`), `${classId} attend ${expected}, lu : « ${note.textContent} »`);
@@ -106,7 +107,7 @@ test("⚔️ ATTAQUE — un `expected` absurde forcé sur un plan fabriqué : l'
     { path: "class.skills", options: ["arcana"], selected: [], expected: 9999, answered: 0, status: "pending" },
     { path: "class.skills[0]", options: ["arcana"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
-  const node = renderClassStep({ decisions, query }, () => {});
+  const node = renderClassStep({ decisions, query, palier: 2 }, () => {});
   const note = node.querySelectorAll(".skills-budget-note")[0];
   assert.equal(note.textContent, "0 of 9999 chosen", "9999 s'affiche tel quel — l'écran ne sait pas que c'est absurde, et ne doit pas le savoir");
   /* Le nombre de LIGNES, lui, vient des slots RÉELLEMENT publiés par
@@ -123,7 +124,7 @@ test("les options viennent du plan : un plan dont les options sont [\"zzz\"] aff
     { path: "class.skills", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" },
     { path: "class.skills[0]", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
-  const node = renderClassStep({ decisions, query }, () => {});
+  const node = renderClassStep({ decisions, query, palier: 2 }, () => {});
   const row = node.querySelectorAll(".skills-row")[0];
   const values = optionValues(row);
   assert.deepEqual(values, ["zzz"], "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
@@ -186,7 +187,7 @@ test("les trois compétences de Keen Senses sont proposées à l'étape Species 
 
 test("un plan non répondu (answered < expected) se voit, et le dit — sur Class ET Species", () => {
   const report = rebuild(docWith({ id: "unanswered", classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag" }));
-  const classNode = renderClassStep({ decisions: report.decisions, query }, () => {});
+  const classNode = renderClassStep({ decisions: report.decisions, query, palier: 2 }, () => {});
   const classNote = classNode.querySelectorAll(".skills-budget-note")[0];
   assert.equal(classNote.textContent, "0 of 4 chosen");
   assert.equal(classNode.querySelectorAll(".skills-budget-block")[0].getAttribute("data-status"), "pending");
@@ -206,17 +207,96 @@ test("un plan non répondu (answered < expected) se voit, et le dit — sur Clas
    `applyDecisionAction` (`shell.mjs`, qui n'a pas de harnais DOM et n'est
    donc pas testable ici, voir `tests/dom-stub.mjs` en tête de fichier). */
 
-test("un clic sur une option de la liste (Class/Species) produit exactement un `choose`, avec le bon ref", () => {
-  const report = rebuild(docWith({ id: "click-class", classId: "srd:class:en:wizard" }));
+test("SPECIES — un clic sur une option de la liste produit exactement un `choose`, avec le bon ref", () => {
+  /* Species garde le picker du lot 42 : son écran n'a pas encore la forme de
+     Class (B3 dit « B3 = B2 », mais c'est un autre lot). Ce test est resté
+     tel quel, seulement recentré sur l'écran qui porte encore ce geste. */
+  const report = rebuild(docWith({ id: "click-species", classId: "srd:class:en:wizard", speciesId: "fh:species:en:araag" }));
   const calls = [];
-  const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
-  const rogueBtn = node.querySelectorAll(".record-choice-block .record-option")
-    .find((b) => b.getAttribute("data-value") === "srd:class:en:rogue");
-  assert.ok(rogueBtn, "le bouton Rogue existe (lu dans les 12 options du plan)");
-  assert.equal(rogueBtn.textContent, "Rogue", "§1c — le nom accessible (textContent) est le libellé humain, jamais l'id");
-  rogueBtn.click();
+  const node = renderSpeciesStep({ decisions: report.decisions, query }, (a) => calls.push(a));
+  const btn = node.querySelectorAll(".record-choice-block .record-option")
+    .find((b) => b.getAttribute("data-value") === "fh:species:en:loroka");
+  assert.ok(btn, "le bouton Loroka existe (lu dans les 12 options du plan)");
+  assert.equal(btn.textContent, "Loroka", "§1c — le nom accessible (textContent) est le libellé humain, jamais l'id");
+  btn.click();
   assert.equal(calls.length, 1, "exactement un appel");
-  assert.deepEqual(calls[0], { kind: "choose", path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } });
+  assert.deepEqual(calls[0], { kind: "choose", path: "species", ref: { kind: "species", id: "fh:species:en:loroka" } });
+});
+
+/* ══ LOT 58 — SUR CLASS, LE GESTE A CHANGÉ, PAS LE VERBE ═════════════════
+   🔴 « Il n'y a AUCUN geste de sélection » (invariant II.1, tranché par
+   Eric le 2026-08-14) : on défile jusqu'à la classe, le défilement
+   s'aimante, et `Validate` — l'unique, celui de la barre du haut — confirme
+   la fiche sur laquelle on s'est posé.
+
+   ⭐ CE QUE CES TESTS PROUVENT EST EXACTEMENT CE QUE PROUVAIT LE CLIC
+   D'AVANT : le `choose` qui part porte le bon `ref`, et il est unique. Le
+   verbe du moteur n'a pas bougé d'un octet — c'est le geste qui a changé,
+   et c'est tout le sens de II.1. */
+
+test("CLASS — `Validate 1` sur le cran d'aimantation produit LE MÊME `choose` que le clic d'avant", () => {
+  const report = rebuild(docWith({ id: "validate-class", classId: "srd:class:en:wizard" }));
+  const options = classOptions(report.decisions);
+  const rogue = options.indexOf("srd:class:en:rogue");
+  assert.ok(rogue >= 0, "sonde : Rogue est bien dans les 12 options du plan");
+
+  const gate = classValidate({ decisions: report.decisions, palier: 1, cursor: rogue });
+  assert.equal(gate.ready, true, "une fiche est toujours sous le doigt : un choix est toujours possible (B2.4)");
+  assert.deepEqual(gate.action, { kind: "choose", path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } },
+    "l'action est identique, à l'octet, à celle que produisait le clic du lot 42");
+  assert.equal(gate.next, "palier", "le 1ᵉʳ appui NE change pas d'étape : il ouvre le menu des choix (B2.2)");
+});
+
+test("CLASS — le curseur d'arrivée est la classe DÉJÀ posée, jamais la première de la liste", () => {
+  /* Arriver sur l'écran doit montrer où on en est. Un curseur qui repartait
+     de zéro ferait confirmer Barbarian à un magicien qui pousse Validate
+     sans regarder — un choix silencieusement écrasé. */
+  const report = rebuild(docWith({ id: "cursor-arrival", classId: "srd:class:en:rogue" }));
+  const options = classOptions(report.decisions);
+  assert.equal(options[initialCursor(report.decisions)], "srd:class:en:rogue");
+});
+
+test("CLASS — le rail suit le curseur, et un seul cran est courant à la fois (II.3)", () => {
+  const report = rebuild(docWith({ id: "rail", classId: "srd:class:en:wizard" }));
+  const rail = renderClassRail({ decisions: report.decisions, query, cursor: 4 });
+  const items = rail.querySelectorAll(".class-rail-item");
+  assert.equal(items.length, 12, "les douze classes, dans l'ordre du plan");
+  const courants = items.filter((li) => li.getAttribute("aria-current") === "true");
+  assert.equal(courants.length, 1, "un seul cran courant — jamais deux, jamais zéro");
+  assert.equal(courants[0].getAttribute("data-value"), classOptions(report.decisions)[4],
+    "et c'est le MÊME tableau d'options que les fiches : l'icône surlignée et la fiche validée ne peuvent pas diverger");
+});
+
+test("CLASS — la fiche du curseur et l'action de Validate désignent le même record, par construction", () => {
+  /* ⭐ C'EST L'INVARIANT II.3 RENDU MESURABLE : « l'icône surlignée à gauche
+     et la fiche validée sont la même chose par construction ». Le test le
+     vérifie en croisant les DEUX chemins — le DOM rendu et la porte de
+     Validate — sur le même curseur. */
+  const report = rebuild(docWith({ id: "spy-selector", classId: "srd:class:en:wizard" }));
+  const cursor = 7;
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 1, cursor }, () => {});
+  const cards = node.querySelectorAll("[data-snap]");
+  const gate = classValidate({ decisions: report.decisions, palier: 1, cursor });
+  assert.equal(cards[cursor].getAttribute("data-value"), gate.action.ref.id);
+});
+
+test("CLASS — `Validate 2` n'est prêt QUE quand le plan dit que les choix sont faits", () => {
+  /* « Validate 2 = features choisis » (B2.4). Le compte vient du plan, jamais
+     d'un recomptage ici — même loi que le QCM lui-même. */
+  const rogueVide = rebuild(docWith({ id: "v2-pending", classId: "srd:class:en:rogue" }));
+  assert.equal(classValidate({ decisions: rogueVide.decisions, palier: 2 }).ready, false,
+    "0 sur 4 : le palier n'est pas prêt");
+
+  const roguePlein = rebuild(docWith({
+    id: "v2-ready", classId: "srd:class:en:rogue",
+    classSkills: ["acrobatics", "athletics", "deception", "insight"]
+  }));
+  const plan = roguePlein.decisions.find((d) => d.path === "class.skills");
+  assert.equal(plan.answered, plan.expected, "sonde : le plan lui-même dit que le compte y est");
+  const gate = classValidate({ decisions: roguePlein.decisions, palier: 2 });
+  assert.equal(gate.ready, true);
+  assert.equal(gate.action, null, "le 2ᵉ appui ne pose AUCUN verbe : les choix sont déjà écrits, il ne fait qu'avancer");
+  assert.equal(gate.next, "step");
 });
 
 test("le document rendu par `choose` est celui qui compte : un `rebuild` dessus reflète le NOUVEAU choix, jamais l'ancien", () => {
@@ -260,9 +340,21 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
   const report = srdHarness.verbs.rebuild({ document });
   assert.equal(report.resolved.stats.length, 0, "mesure : aucun module FH monté");
 
-  const classNode = renderClassStep({ decisions: report.decisions, query: srdHarness.layers.verbs.query }, () => {});
-  assert.ok(classNode.querySelectorAll(".record-choice-block").length > 0, "la liste de classe s'affiche quand même");
-  assert.equal(classNode.querySelectorAll(".skills-budget-block").length, 1, "le QCM SRD (2 imposées) s'affiche — skill_choice est SRD, pas FH");
+  const srdQuery = srdHarness.layers.verbs.query;
+  const classNode = renderClassStep({ decisions: report.decisions, query: srdQuery, palier: 1 }, () => {});
+  assert.equal(classNode.querySelectorAll("[data-snap]").length, 12, "les douze fiches de classe s'affichent quand même");
+  /* ⭐ MESURE DU LOT 58, ET ELLE NE POUVAIT PAS EXISTER AVANT : la ligne
+     « Skill pool » d'une fiche vient de `data.fh_skill_pool.base`, que SEULE
+     la couche FH pose. Sur un personnage SRD pur, elle ne s'affiche pas —
+     jamais un zéro inventé pour remplir la ligne. C'est la question §0.12
+     posée à un écran neuf : « un personnage SRD pur le traverse-t-il de bout
+     en bout ? » Oui, et il y perd exactement ce que FH lui donnait. */
+  const libelles = classNode.querySelectorAll(".class-card-row dt").map((dt) => dt.textContent);
+  assert.equal(libelles.includes("Skill pool"), false, "aucune ligne de pool sans la couche qui la porte");
+  assert.ok(libelles.includes("Points de vie") || libelles.includes("Hit points"), "les lignes SRD, elles, sont bien là");
+
+  const classMenu = renderClassStep({ decisions: report.decisions, query: srdQuery, palier: 2 }, () => {});
+  assert.equal(classMenu.querySelectorAll(".skills-budget-block").length, 1, "le QCM SRD (2 imposées) s'affiche — skill_choice est SRD, pas FH");
 
   const speciesNode = renderSpeciesStep({ decisions: report.decisions, query: srdHarness.layers.verbs.query }, () => {});
   assert.ok(speciesNode.querySelectorAll(".record-choice-block").length > 0, "la liste d'espèce s'affiche quand même");
@@ -299,7 +391,7 @@ test("un créneau `class.skills[n]` verrouillé (`decision.option-unavailable`) 
   assert.equal(slot0.lock.key, "decision.option-unavailable");
   assert.equal(slot0.lock.params.selected, "arcana", "sonde : c'est bien ce nom que la confirmation doit citer");
 
-  const node = renderClassStep({ decisions, query }, () => {});
+  const node = renderClassStep({ decisions, query, palier: 2 }, () => {});
   const dialog = node.querySelectorAll(".confirm-dialog")[0];
   assert.ok(dialog, "la confirmation s'affiche — le carnet a désigné un créneau à perdre");
   const items = dialog.querySelectorAll(".confirm-dialog-items li").map((li) => li.textContent);
@@ -319,7 +411,7 @@ test("un créneau `class.skills[n]` verrouillé (`decision.option-unavailable`) 
 test("« Confirm » efface EXACTEMENT les créneaux verrouillés, et EUX SEULS — jamais le créneau valide, jamais un futur créneau vide", () => {
   const report = rogueAvecArcaneInvalide();
   const calls = [];
-  const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, (a) => calls.push(a));
   node.querySelectorAll(".confirm-dialog-confirm")[0].click();
   assert.equal(calls.length, 1);
   assert.deepEqual(calls[0], { kind: "resetSkills", paths: ["class.skills[0]"] },
@@ -345,7 +437,7 @@ test("⚔️ « Cancel » NE TOUCHE RIEN — aucun `onAction` n'est appelé, le 
   const report = rogueAvecArcaneInvalide();
   const before = JSON.stringify(report.document);
   const calls = [];
-  const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, (a) => calls.push(a));
   node.querySelectorAll(".confirm-dialog-cancel")[0].click();
   assert.deepEqual(calls, [], "aucun verbe n'est parti — Annuler ne connaît aucun geste de document");
   assert.equal(JSON.stringify(report.document), before, "le document, jamais réassigné, est identique octet pour octet");
@@ -353,6 +445,6 @@ test("⚔️ « Cancel » NE TOUCHE RIEN — aucun `onAction` n'est appelé, le 
 
 test("sans créneau verrouillé (le personnage d'exemple, une classe jamais changée) : aucune confirmation ne s'affiche", () => {
   const report = rebuild(fixture.document);
-  const node = renderClassStep({ decisions: report.decisions, query }, () => {});
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, () => {});
   assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
 });

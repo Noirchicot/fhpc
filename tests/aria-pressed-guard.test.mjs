@@ -178,9 +178,31 @@ test("Abilities — chaque bouton actif de la molette de mode et des rangées de
   assertToutBoutonActifAnnonceSonEtat(node, "Abilities", 1);
 });
 
-test("Class — le choix de classe (renderRecordChoice → renderPicker) s'annonce", () => {
-  const node = renderClassStep({ decisions: report.decisions, query }, () => {});
+test("Class — les molettes du menu des choix (palier 2) s'annoncent", () => {
+  /* ⚠️ PALIER 2, ET C'EST UN DÉPLACEMENT, PAS UN AFFAIBLISSEMENT (lot 58).
+     Le palier 1 de Class n'a PLUS AUCUN BOUTON : la rangée de douze options
+     du lot 42 a disparu, parce que l'invariant II.1 supprime le geste de
+     sélection — on défile jusqu'à la classe, le défilement s'aimante, et
+     `Validate` (unique, dans la barre du haut) confirme. Les boutons à état
+     de cet écran vivent maintenant au palier 2, le menu des choix
+     intrinsèques (B2.3) : c'est là qu'il faut aller les chercher.
+     ⭐ Le garde garde donc EXACTEMENT la même force — il exige toujours au
+     moins un `[data-active]` sur cet écran, à l'endroit où l'écran en
+     produit. Un palier 2 qui n'en produirait plus aucun le ferait rougir. */
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 2 }, () => {});
   assertToutBoutonActifAnnonceSonEtat(node, "Class", 1);
+});
+
+test("Class — le palier 1 ne produit AUCUN bouton : c'est l'invariant II.1, mesuré", () => {
+  /* Le pendant du test au-dessus, et il vaut mieux que sa parole : si un
+     futur lot remettait des boutons de sélection dans les douze fiches, le
+     « défilement EST le choix » d'Eric serait mort sans qu'un seul test
+     bronche. Celui-ci bronche. */
+  const node = renderClassStep({ decisions: report.decisions, query, palier: 1 }, () => {});
+  assert.equal(node.querySelectorAll("button").length, 0,
+    "aucun bouton dans la fiche (B2.1e, I.3) — le seul Validate de l'interface est celui de la barre du haut");
+  assert.ok(node.querySelectorAll("[data-snap]").length >= 12,
+    "et les douze fiches portent bien leur point d'aimantation, le seul contrat avec le scrollspy");
 });
 
 test("Species — le choix d'espèce ET son QCM de compétences (renderSlotQcm → renderPicker) s'annoncent", () => {

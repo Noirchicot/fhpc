@@ -163,17 +163,36 @@ function displayNoneViolations(cssText) {
  *  pas la paire. Mesure de l'écart : `Back` et `Show plan` à **1,24:1**,
  *  invisibles, avec 765 tests verts.
  *
- *  ⚠️ SA LIMITE, DITE PLUTÔT QUE TUE : la clause lit le TEXTE du sélecteur.
- *  Un `<button>` habillé par sa seule classe lui échappe. Le dépôt en a un —
- *  `.belt-item`, les 9 pastilles de la ceinture — et il est hors de danger
- *  pour une raison mesurée, pas supposée : sa règle de base pose
- *  `color: var(--text-muted)`. Un futur bouton de classe échapperait à cette
- *  clause ; le balayage de contraste sur la page servie, lui, le verrait. */
+ *  ⭐ L'ANGLE MORT EST FERMÉ AU LOT 58, ET C'EST CE LOT QUI L'AVAIT ÉLARGI.
+ *  L'ancienne clause lisait le TEXTE du sélecteur (`\bbutton\b`) : un
+ *  `<button>` habillé par sa SEULE CLASSE lui échappait. Sa propre note le
+ *  disait, et citait `.belt-item` comme le cas connu-mais-sans-danger. Le
+ *  lot 58 a déplacé la paire de boutons du défaut d'origine (`Back` +
+ *  `Show plan`) vers `.command-plan, .command-validate` — deux classes, zéro
+ *  « button » dans le sélecteur : L'ATTAQUE 6 EST DEVENUE VERTE À TORT,
+ *  mesuré en la rejouant. Un garde qu'un renommage désarme n'est pas un
+ *  garde.
+ *
+ *  LE SECOND CRITÈRE, ET POURQUOI C'EST CELUI-LÀ : `cursor: pointer`. C'est
+ *  le marqueur que ce dépôt pose sur TOUT ce qui se clique, sans exception
+ *  mesurée — et il ne se pose jamais sur une carte inerte. Il n'y a donc
+ *  aucun moyen d'habiller un contrôle sans passer sous l'un des deux
+ *  critères.
+ *
+ *  MESURÉ AVANT DE DURCIR (comme l'exige `tests/source-scan.mjs`) : ZÉRO
+ *  violation nouvelle sur le `shell.css` de ce lot — les 13 blocs qui posent
+ *  un fond sans encre (`.decision-card`, `.plan`, `.fiche-aside`…) n'ont
+ *  aucun `cursor: pointer`, et ils ont raison : ils HÉRITENT `var(--text)`
+ *  du `body`, ce qu'un `<button>` ne fait pas.
+ *
+ *  ⚠️ CE QU'IL NE VOIT TOUJOURS PAS : un contrôle sans `cursor: pointer` ET
+ *  sans « button » au sélecteur. Dit plutôt que masqué. */
 function buttonInkViolations(cssText) {
   const text = stripComments(cssText);
   const hits = [];
   for (const [, selector, body] of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-    if (!/\bbutton\b/.test(selector)) continue;
+    const looksLikeControl = /\bbutton\b/.test(selector) || /(^|[;\s])cursor\s*:\s*pointer/.test(body);
+    if (!looksLikeControl) continue;
     const setsBackground = /(^|[;\s])background(-color)?\s*:/.test(body);
     const setsColor = /(^|[;\s])color\s*:/.test(body);
     if (setsBackground && !setsColor) hits.push(selector.trim().replace(/\s+/g, " "));
@@ -231,13 +250,22 @@ test("garde 5 — le seuil de bascule (720) n'apparaît qu'une fois dans tout ui
    ROUGIT — SEULE. Rien n'est écrit sur le disque : la « restauration » est
    automatique, puisque `shellCssRaw` n'est jamais réassigné. */
 
-test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton Continue fait rougir SEULEMENT le garde couleur", () => {
+test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton principal fait rougir SEULEMENT le garde couleur", () => {
+  /* ⚠️ CIBLE REPORTÉE AU LOT 58, comme celle de l'ATTAQUE 2 avant elle : la
+     règle d'origine (`.stage-nav button:last-child`, le bouton `Continue`)
+     N'EXISTE PLUS — `Continue` est devenu l'unique `Validate` de la ligne de
+     commande (invariant I.3 : « il n'existe qu'un seul Validate dans toute
+     l'interface »), et `.stage-nav` est parti avec son balisage (loi §0.6).
+     ⭐ CE QUE L'ATTAQUE PROUVE NE CHANGE PAS D'UN IOTA : le bouton PRINCIPAL
+     du builder, celui qui porte l'accent, ne doit pas écrire son encre en
+     dur — `#fff` échouait 2,44:1 en thème sombre (défaut n°1, mesuré le
+     2026-08-13). C'est la même loi, sur le bouton qui a hérité du rôle. */
   const before = colorViolations(shellCssRaw);
   assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
 
   const mutated = shellCssRaw.replace(
-    ".stage-nav button:last-child { background: var(--accent); color: var(--on-accent);",
-    ".stage-nav button:last-child { background: var(--accent); color: #fff;"
+    '.command-validate[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
+    '.command-validate[data-lit="true"] { background: var(--accent); color: #fff;'
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
@@ -252,17 +280,24 @@ test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEUL
      était sur la page déployée le 2026-08-13, avant le correctif. C'est la
      seule forme d'attaque qui prouve quelque chose ici — les cinq autres
      clauses étaient vertes SUR CE FICHIER-LÀ, et c'est bien le problème. */
+  /* ⚠️ CIBLE REPORTÉE AU LOT 58 (même raison que l'ATTAQUE 1 ci-dessus) : la
+     PAIRE de boutons du défaut d'origine était `Back` + `Show plan`. `Back`
+     n'existe plus (invariant I.5, « la molette le remplace ») ; la paire
+     d'aujourd'hui est `Show plan` + `Validate`, habillée par une règle
+     unique. ⭐ Le défaut rejoué est le MÊME À L'OCTET : un fond posé sans
+     encre sur un `<button>`, qui rend alors du noir imposé par l'agent
+     utilisateur — 1,24:1, invisible, avec 765 tests verts. */
   const before = buttonInkViolations(shellCssRaw);
   assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
 
   const mutated = shellCssRaw.replace(
-    "  color: var(--text);\n  cursor: pointer;\n}",
-    "  cursor: pointer;\n}"
+    "  color: var(--text); /* un <button> n'hérite pas de `color` — défaut n°4 */\n",
+    ""
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
-  assert.deepEqual(buttonInkViolations(mutated), [".stage-nav button, .toggle-bar button"],
-    "le garde voit EXACTEMENT la règle qui a produit les 1,24:1");
+  assert.deepEqual(buttonInkViolations(mutated), [".command-plan, .command-validate"],
+    "le garde voit EXACTEMENT la règle qui produirait les 1,24:1");
   assert.deepEqual(colorViolations(mutated), colorViolations(shellCssRaw), "le garde couleur ne bouge pas — le défaut est une ABSENCE, pas un littéral");
   assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "ni le garde de type");
   assert.deepEqual(spacingRadiusViolations(mutated), spacingRadiusViolations(shellCssRaw), "ni celui d'espacement");
