@@ -215,8 +215,13 @@ export function renderUniverseStep(ctx, onAction) {
   dl.append(row("Distance", units.distance === "ft" ? "feet" : units.distance === "m" ? "meters" : String(units.distance)));
   dl.append(row("Weight", units.weight === "lb" ? "pounds" : units.weight === "kg" ? "kilograms" : String(units.weight)));
   locale.append(dl);
+  /* ⚠️ CE TEXTE EST LU PAR UN JOUEUR, PAS PAR LE CHANTIER. La première
+     rédaction renvoyait à `INVENTAIRE-LOT-54.md` — un document interne — dans
+     l'interface publiée ; trouvé à l'œil le 2026-08-14, invisible aux 876
+     tests. La référence de chantier reste dans le COMMENTAIRE ci-dessus, où
+     elle sert ; elle n'a rien à faire dans la page. */
   locale.append(el("p", "doc-field-note", [
-    text("Set once when the character is created — not editable here yet (measured gap, see INVENTAIRE-LOT-54.md).")
+    text("Set when the character is created; not editable here.")
   ]));
   section.append(locale);
 
