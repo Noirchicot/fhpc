@@ -393,3 +393,57 @@ button { font: inherit; }
 .card-detail-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
 .card-detail-row dt { margin: 0; color: var(--text-muted); width: 10ch; flex: none; }
 .card-detail-row dd { margin: 0; }
+
+/* ── L'ÉTAPE INHERITANCE (lot 46) ──────────────────────────────────────
+   `.skills-budget-block`/`.skills-budget-note`/`.skills-refusal`/
+   `.skills-rows`/`.skills-row`/`.record-row-label`/`.record-list`/
+   `.record-option` (lots 39/42) portent déjà les bonus de caracs — même
+   geste, aucun jeton de plus. Ce bloc n'ajoute que ce qu'ils ne fournissent
+   pas : le cadre (une mention, jamais un bouton) et les cartes de dons
+   d'origine (nom + description, que `.record-option` n'a pas la place de
+   porter). */
+.inheritance-step { max-width: var(--measure); } /* PROSE, pas grille — même logique que Class/Species/Abilities (§3e) */
+.inheritance-frame { margin: 0 0 var(--sp-24); font-size: var(--t5); color: var(--text-muted); }
+
+.inheritance-feat-block { margin-bottom: var(--sp-24); }
+.inheritance-feat-block h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.inheritance-feat-list { display: flex; flex-direction: column; gap: var(--sp-8); }
+.inheritance-feat-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: var(--sp-12) var(--sp-16);
+  cursor: pointer;
+}
+.inheritance-feat-card[data-active="true"] { border-color: var(--accent); background: var(--accent-wash); }
+.inheritance-feat-name { display: block; font-size: var(--t4); font-weight: 600; margin-bottom: var(--sp-4); }
+.inheritance-feat-desc { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-soft); }
+.inheritance-feat-desc:last-child { margin-bottom: 0; }
+
+/* ── LE COMPOSANT DE CONFIRMATION (lot 46, `confirm.mjs`) — la PREMIÈRE
+   boîte de dialogue du builder. Habillage neutre, exprès : rien ici ne
+   nomme la classe/l'espèce/la compétence qui l'utilise en premier
+   (class-step.mjs) — un futur écran la copie sans hériter d'un habillage
+   qui parlerait d'un autre cas. */
+.confirm-dialog {
+  margin-top: var(--sp-16);
+  padding: var(--sp-16);
+  background: var(--surface);
+  border: 1px solid var(--critical); /* un refus imminent — même encre que .skills-refusal, jamais une carte neutre */
+  border-radius: var(--radius-md);
+}
+.confirm-dialog-title { margin: 0 0 var(--sp-8); font-size: var(--t4); font-weight: 600; }
+.confirm-dialog-items { margin: 0 0 var(--sp-16); padding-left: var(--sp-20); font-size: var(--t4); }
+.confirm-dialog-actions { display: flex; gap: var(--sp-12); justify-content: flex-end; }
+.confirm-dialog-cancel, .confirm-dialog-confirm {
+  border-radius: var(--radius-md);
+  padding: var(--sp-8) var(--sp-16);
+  font-size: var(--t4);
+  cursor: pointer;
+}
+.confirm-dialog-cancel { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); }
+.confirm-dialog-confirm { border: 1px solid var(--critical); background: var(--critical); color: var(--on-accent); }

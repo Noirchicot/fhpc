@@ -15,6 +15,7 @@ import { bootEngine, loadExampleDocument } from "./engine.mjs";
 import { renderSkillsStep } from "./skills-step.mjs";
 import { renderClassStep } from "./class-step.mjs";
 import { renderSpeciesStep } from "./species-step.mjs";
+import { renderInheritanceStep } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet } from "./abilities-step.mjs";
 import { renderDestinyStep } from "./destiny-step.mjs";
 /* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
@@ -225,6 +226,24 @@ function renderStage() {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "species") {
+    card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "background" && state.engine) {
+    /* LOT 46 — même trio de branches que Class/Species/Compétences (moteur
+       prêt / en échec / en charge). `document`+`resolved` en plus de
+       `decisions`/`query` : Inheritance lit les points de boost déjà posés
+       dans `document.build.choices` (aucun plan ne les republie, voir
+       `inheritance-step.mjs`) et le score final dans `resolved.abilities`,
+       même paire que l'étape Abilities. */
+    card.append(renderInheritanceStep({
+      decisions: state.decisions,
+      document: state.document,
+      resolved: state.resolved,
+      query: state.engine.layers.verbs.query
+    }, applyDecisionAction));
+  } else if (step.id === "background" && state.engineError) {
+    card.append(el("p", "placeholder", [document.createTextNode(
+      "Engine failed to load: " + state.engineError)]));
+  } else if (step.id === "background") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "abilities" && state.engine) {
     card.append(renderAbilitiesStep({

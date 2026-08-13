@@ -20,7 +20,8 @@
    et le tiret de chaque ligne (`renderPicker`) suffit au joueur pour nettoyer
    lui-même l'ancien choix. Rien n'est cousu, rien n'est caché. */
 
-import { renderRecordChoice, renderSlotQcm } from "./carnet.mjs";
+import { renderRecordChoice, renderSlotQcm, planSlots } from "./carnet.mjs";
+import { renderConfirmDialog } from "./confirm.mjs";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -99,6 +100,34 @@ export function renderClassStep(ctx, onAction) {
     labelOf: (id) => skillLabel(query, id), onAction: act
   });
   if (qcm) section.append(qcm); // absent si la classe n'a aucun skill_choice publié (aucune classe SRD/FH aujourd'hui, mais un futur record pourrait)
+
+  /* ══ LOT 46 — LA PREMIÈRE CONFIRMATION DU BUILDER (voir confirm.mjs) ═══
+     Décision d'Eric, 2026-08-13 : les anciens `class.skills[n]` que le
+     paragraphe ci-dessus décrit (verrouillés, PAS nettoyés par le `choose`
+     qui change de classe) DOIVENT s'effacer — mais seulement APRÈS
+     confirmation, et en NOMMANT ce qui part (jamais un « êtes-vous sûr ? »).
+     ⛔ C'EST LE CARNET QUI DÉSIGNE QUOI EFFACER : un créneau porte
+     `decision.option-unavailable` si et seulement si son ancien choix n'est
+     plus dans les options de la nouvelle classe — cette ligne ne refait
+     AUCUNE comparaison, elle ne fait que FILTRER sur le verrou déjà posé. */
+  const orphanedSkills = planSlots(decisions, "class.skills")
+    .filter((slot) => slot.lock && slot.lock.key === "decision.option-unavailable");
+  if (orphanedSkills.length > 0) {
+    section.append(renderConfirmDialog({
+      title: "These skills are no longer valid for this class:",
+      items: orphanedSkills.map((slot) => skillLabel(query, slot.lock.params.selected)),
+      confirmLabel: "Clear them",
+      cancelLabel: "Keep them locked",
+      /* `resetSkills` existe déjà dans `shell.mjs` (lot 39, pour le bouton
+         Reset de Compétences) : générique, il ne fait qu'un `clear` par
+         chemin puis UN SEUL `rebuild` — exactement ce qu'il faut ici,
+         SANS toucher `shell.mjs`. */
+      onConfirm: () => act({ kind: "resetSkills", paths: orphanedSkills.map((slot) => slot.path) }),
+      /* Annuler NE TOUCHE RIEN — aucun `onAction`, donc aucun verbe, donc
+         aucune mutation du document (commande §3, test 8). */
+      onCancel: () => {}
+    }));
+  }
 
   return section;
 }

@@ -151,7 +151,11 @@ function renderCapWarning(resolved, key) {
       total menteur s'affiche menteur »). Cette fonction ne fait AUCUNE
       arithmétique — pas même la comparaison qui décide `data-boosted` ne
       touche à aucun des deux nombres, elle les compare tels quels. */
-function renderFinalColumn(resolved, key, rawValue) {
+/* Exportée au lot 46 — Inheritance pose des bonus de caracs (`background.
+   boost.<clef>`) et doit montrer LEUR EFFET « de la même façon » que cette
+   colonne (commande du lot 46, §0) : même octet de `resolved.abilities`,
+   même format, jamais une seconde fonction qui pourrait diverger. */
+export function renderFinalColumn(resolved, key, rawValue) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
   const { score, mod } = resolved.abilities[key];
   if (typeof score !== "number") return null;
