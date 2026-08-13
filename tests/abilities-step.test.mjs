@@ -508,6 +508,26 @@ test("les deux méthodes sont TOUJOURS rendues ; l'inactive affiche sa phrase d'
   assert.match(summary.textContent, /Not selected/);
 });
 
+/* ══ ⚔️ LOT 53, §2 test 1 — LE TEST QUI PROUVE LE LOT ═════════════════════
+   `.ability-mode-switch` est un `renderPicker` (`carnet.mjs`) dont
+   `labelOf` DIVERGE de la valeur : l'option affiche « Roll (3d6 × 10,
+   keep 6) » pour la valeur brute `"roll"` (le cas cité en tête de la
+   commande du lot). Un lecteur d'écran annonce le NOM ACCESSIBLE d'un
+   bouton — `aria-label` s'il existe, sinon `textContent`. Ce test rougit
+   sur le code d'avant ce lot (`btn.setAttribute("aria-label",
+   String(value))` posait `"roll"`, jamais le libellé) et est vert ici. */
+
+test("⚔️ LE TEST QUI PROUVE LE LOT — le nom accessible du bouton « Roll » est le libellé humain, jamais l'id `roll`", () => {
+  const report = rebuild(fixture.document);
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+  const rollBtn = node.querySelectorAll(".ability-mode-switch .record-option")
+    .find((b) => b.dataset.value === "roll");
+  assert.ok(rollBtn, "le bouton de la méthode `roll` existe (lu dans ABILITY_METHODS via data-value)");
+  const accessibleName = rollBtn.getAttribute("aria-label") || rollBtn.textContent;
+  assert.equal(accessibleName, "Roll (3d6 × 10, keep 6)", "le nom accessible EST le libellé humain — jamais l'identifiant brut");
+  assert.notEqual(accessibleName, "roll", "l'identifiant machine ne doit plus jamais être ce qu'un lecteur d'écran annonce");
+});
+
 test("basculer de méthode pose `set({path:\"abilities.mode\", value})` — abilities.mode reste ÉCRIT (commande §3a-bis)", () => {
   const report = rebuild(fixture.document);
   const calls = [];

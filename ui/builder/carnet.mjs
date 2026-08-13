@@ -95,6 +95,10 @@ export function renderPicker({ options, selected, labelOf, onSelect, onClear, lo
     dash.className = "record-option record-option-none";
     dash.dataset.active = String(chosen.length === 0);
     dash.textContent = "—";
+    /* Cas à part, LOT 53 §1c : « — » ne veut rien dire à l'oreille — cet
+       `aria-label` n'est PAS l'identifiant machine (le tiret n'a pas de
+       `value`, rien à mettre dans `data-value`), il reste un nom accessible
+       à part entière et SURVIT donc, dans les deux issues du §1c. */
     dash.setAttribute("aria-label", "None");
     dash.addEventListener("click", onClear);
     wrap.append(dash);
@@ -105,8 +109,15 @@ export function renderPicker({ options, selected, labelOf, onSelect, onClear, lo
     btn.type = "button";
     btn.className = "record-option";
     btn.dataset.active = String(active);
+    /* LOT 53 — `data-value` porte l'IDENTIFIANT machine (ce que les tests
+       cherchent, §0.2 de la commande) ; `textContent` porte le NOM et EST
+       DÉJÀ le nom accessible d'un <button> — aucun `aria-label` ne lui est
+       posé ici (§1c, issue « le retirer » : un `aria-label` redondant avec
+       le texte visible n'ajoute rien, un `aria-label` qui le contredit,
+       comme l'ancien `String(value)` quand `labelOf` existe, est pire que
+       rien). Le lecteur d'écran annonce donc toujours ce qui s'affiche. */
+    btn.dataset.value = String(value);
     btn.textContent = labelOf ? labelOf(value) : String(value);
-    btn.setAttribute("aria-label", String(value));
     btn.addEventListener("click", () => {
       if (active && onClear) onClear();
       else if (!active) onSelect(value);
