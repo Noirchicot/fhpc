@@ -30,7 +30,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "985901162418ae175526c817edfcfc8a931c8a857dd78a261499d2da1c5c62a5",
+        "hash": "17e1e6be5416add4541d97d01791954b305db2d9b8750a8c641c62fb990c3faf",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -42,7 +42,7 @@
       {
         "id": "fh-feats-en",
         "version": "0.1.0",
-        "hash": "e41d45c4d7a43b8582c3734df0f50264f2f96b7486b7755b705fd5e5e8be0f5c",
+        "hash": "6e74f5586edeb06b268b4d0183867ed2c6e14fd21c078d86a13d09a70383f47b",
         "name": "Fate's Hand — Feats (EN)"
       }
     ],
@@ -82,14 +82,6 @@
         "path": "species.skillBudget.vigilance",
         "value": "half",
         "label": "Keen Senses: Vigilance (half)"
-      },
-      {
-        "path": "background",
-        "ref": {
-          "kind": "background",
-          "id": "srd:background:en:sage"
-        },
-        "label": "Sage"
       },
       {
         "path": "background.originFeat[0]",
@@ -377,7 +369,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "985901162418ae175526c817edfcfc8a931c8a857dd78a261499d2da1c5c62a5",
+          "hash": "17e1e6be5416add4541d97d01791954b305db2d9b8750a8c641c62fb990c3faf",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -389,7 +381,7 @@
         {
           "id": "fh-feats-en",
           "version": "0.1.0",
-          "hash": "e41d45c4d7a43b8582c3734df0f50264f2f96b7486b7755b705fd5e5e8be0f5c",
+          "hash": "6e74f5586edeb06b268b4d0183867ed2c6e14fd21c078d86a13d09a70383f47b",
           "name": "Fate's Hand — Feats (EN)"
         }
       ]
@@ -403,8 +395,7 @@
         }
       ],
       "species": "Elf",
-      "size": "medium",
-      "background": "Sage"
+      "size": "medium"
     },
     "abilities": {
       "str": {
