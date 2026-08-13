@@ -587,14 +587,23 @@ function renderStage() {
 
   const nav = el("div", "stage-nav", [
     button("Back", () => { state.step = Math.max(0, state.step - 1); render(); }, state.step === 0),
-    /* §3c — le pas final MÈNE À REVIEW, par id (`REVIEW_INDEX`), jamais par
-       une coïncidence de longueur de tableau. Aucun autre effet : la
-       sauvegarde et l'export appartiennent au bloc `doc`, pas à ce lot. */
-    button(state.step === STEPS.length - 1 ? "Open the sheet" : "Continue",
-      () => {
-        state.step = state.step === STEPS.length - 1 ? REVIEW_INDEX : Math.min(STEPS.length - 1, state.step + 1);
-        render();
-      })
+    /* LOT 55 — §1 de la commande : SUR REVIEW IL N'Y A PAS DE PAS SUIVANT,
+       donc pas de bouton d'avance — même geste que `Back` ci-dessus, désactivé
+       à l'AUTRE bout de la ceinture (`state.step === 0`). Avant ce lot, la
+       condition du LIBELLÉ et la condition du SAUT étaient la même expression
+       (`state.step === STEPS.length - 1`), qui coïncidait avec `REVIEW_INDEX`
+       PAR LA LONGUEUR du tableau (lot 40, commentaire au-dessus de `STEPS`) :
+       sur Review, le bouton affichait « Open the sheet » et remettait
+       `state.step` À SA PROPRE VALEUR — un clic qui ne fait rien, zéro erreur
+       en console (mesuré dans le navigateur, commande §1).
+       ⛔ Toujours PAR `REVIEW_INDEX` (trouvé par id), jamais par
+       `STEPS.length - 1` (une coïncidence de position) : c'est la loi que le
+       lot 40 posait déjà sans la voir appliquée jusqu'ici. La sauvegarde et
+       l'export appartiennent au bloc `doc`, pas à ce lot — ce bouton
+       n'invente aucune destination : il s'arrête, honnêtement, à Review. */
+    button(state.step === REVIEW_INDEX ? "Open the sheet" : "Continue",
+      () => { state.step = Math.min(REVIEW_INDEX, state.step + 1); render(); },
+      state.step === REVIEW_INDEX)
   ]);
   return el("main", "stage", [renderToggle(), card, nav]);
 }
