@@ -112,27 +112,57 @@ function applyDecisionAction(action) {
     return;
   }
   if (action.kind === "assignAbilityRoll") {
-    /* LOT 50, §2a — DEUX gestes qui ne touchent jamais le même endroit,
-       traités ICI et RENDUS AVANT tout appel de verbe, même patron que
-       `roll`/`destinyMode` juste au-dessus :
+    /* LOT 50, §2a, ÉTENDU AU LOT 51 (§1b/§1d) — DEUX gestes qui ne touchent
+       jamais le même endroit, traités ICI et RENDUS AVANT tout appel de
+       verbe, même patron que `roll`/`destinyMode` juste au-dessus :
        1. la carte `state.abilityRoll.assign` reçoit l'INDEX du dé — hors
           document, elle meurt avec le lot (§2a, non négociable) ;
        2. le document reçoit la VALEUR, par le verbe `set` ORDINAIRE — même
-          chemin que la saisie manuelle (`abilities.<key>`), le document ne
-          gagne donc AUCUN champ (mesuré, `tests/abilities-step.test.mjs`).
+          chemin que la saisie manuelle (`abilities.<key>`).
        Si `state.abilityRoll` est vide (aucun tirage), il n'y a rien à
        cartographier : seule la valeur est posée — ne devrait pas arriver
        (aucune option n'existe sans lot, voir `optionsForRow`), mais un
-       geste qui ne peut QUE poser un score reste toujours correct. */
-    if (state.abilityRoll) {
-      state.abilityRoll = {
-        ...state.abilityRoll,
-        assign: { ...state.abilityRoll.assign, [action.key]: action.rollIndex }
-      };
-    }
+       geste qui ne peut QUE poser un score reste toujours correct.
+
+       ⭐ LOT 51, §1b — LE dé cliqué peut déjà être tenu par une AUTRE clef
+       (`abilities-step.mjs` offre maintenant les SIX dés à chaque rangée,
+       voir son en-tête). `holderKey` la retrouve dans `assign` (jamais
+       recalculée : c'est la SEULE carte qui sait « qui tient quoi »).
+       Si elle existe, c'est un ÉCHANGE : `holderKey` reprend l'index que
+       `action.key` tenait AVANT ce clic (`prevIndex`, `null` si `action.key`
+       n'avait encore rien reçu — §1b, le cas limite d'une rangée non
+       servie qui échange quand même). §1d — le document ne gagne toujours
+       AUCUN champ : au plus DEUX `set`, jamais un troisième chemin. Le
+       second `set` (celui de `holderKey`) ne part QUE si `prevIndex` désigne
+       un vrai dé — sinon `holderKey` n'a RIEN à recevoir en retour (`action.key`
+       ne lui cède qu'un `null`), et sa ligne redevient simplement « pas de ce
+       tirage », sur la valeur qu'elle portait déjà (jamais effacée, jamais
+       reposée pour rien : un `set` qui écrirait la même valeur ne prouverait
+       rien de plus, voir INVENTAIRE-LOT-51.md pour la mesure de ce choix). */
     const verbs = state.engine.build.verbs;
-    const out = verbs.set({ document: state.document, path: `abilities.${action.key}`, value: action.value });
-    state.document = out.document;
+    let document = state.document;
+    if (state.abilityRoll) {
+      const assign = state.abilityRoll.assign || {};
+      const prevIndex = assign[action.key] ?? null;
+      let holderKey = null;
+      for (const [otherKey, otherIndex] of Object.entries(assign)) {
+        if (otherKey !== action.key && otherIndex === action.rollIndex) { holderKey = otherKey; break; }
+      }
+      const newAssign = { ...assign, [action.key]: action.rollIndex };
+      if (holderKey) newAssign[holderKey] = prevIndex; // §1b — l'échange : jamais deux clefs sur le même index
+
+      document = verbs.set({ document, path: `abilities.${action.key}`, value: action.value }).document;
+      if (holderKey && prevIndex !== null) {
+        const prevDie = (state.abilityRoll.rolls || []).find((roll) => roll.index === prevIndex);
+        if (prevDie) {
+          document = verbs.set({ document, path: `abilities.${holderKey}`, value: prevDie.total }).document;
+        }
+      }
+      state.abilityRoll = { ...state.abilityRoll, assign: newAssign };
+    } else {
+      document = verbs.set({ document, path: `abilities.${action.key}`, value: action.value }).document;
+    }
+    state.document = document;
     rebuild();
     render();
     return;

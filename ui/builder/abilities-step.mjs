@@ -1,4 +1,4 @@
-/* ══ L'ÉTAPE ABILITIES — lot 45, corrigée lot 50 ═══════════════════════
+/* ══ L'ÉTAPE ABILITIES — lot 45, corrigée lot 50, corrigée lot 51 ═══════
    ⛔ ZÉRO plan `decisions[]` pour ce chemin (mesuré, commande §0) —
    contrairement à Compétences/Class/Species, cet écran ne descend PAS le
    carnet : il lit `document.build.choices` directement (le SEUL endroit où
@@ -59,7 +59,28 @@
    passe aujourd'hui avec ZÉRO refus (mesuré). Ce fichier se contente de
    DÉCLARER l'alerte — une phrase, jamais un blocage, jamais une ligne qui
    empêcherait `onAction` de partir. Tranché par Eric le 2026-08-13,
-   POSTÉRIEUR à la commande : l'écran prévient, le moteur laisse. */
+   POSTÉRIEUR à la commande : l'écran prévient, le moteur laisse.
+
+   ⭐ LOT 51 — LE DÉFAUT SUIVANT, TROUVÉ EN REGARDANT LA PAGE DÉPLOYÉE JUSTE
+   APRÈS LA FUSION DU LOT 50 : une fois les six dés distribués, ZÉRO option
+   restait cliquable sur les six rangées (§0 de sa commande, mesuré :
+   « str: 1 option, 0 cliquable », ×6). La cause, lue dans l'ancienne forme
+   d'`optionsForRow` (par CLEF, ci-dessus le fantôme dans l'historique) :
+   elle rendait « les dés non assignés, plus le sien » — et « non assignés »
+   devient VIDE une fois les six posées, qui est l'état NORMAL en fin
+   d'étape, pas un cas limite. Le lot 50 n'a pas mal travaillé : son test de
+   réassignation avait TOUJOURS un dé libre sous la main (voir
+   INVENTAIRE-LOT-51.md).
+
+   ⚖️ DÉCISION D'ARCHITECTE (§1a/§1b) — `optionsForRow` rend maintenant
+   TOUJOURS LES SIX dés du lot gardé, quel que soit l'état de la
+   distribution ; cliquer un dé déjà tenu par une AUTRE rangée les ÉCHANGE
+   (jamais « libère puis repose » — une rangée ne peut jamais rester vide,
+   `rebuild()` jette si l'une des six manque, §0 encore). Cette fonction et
+   `renderAssignRow` ne font QUE lister/nommer le geste ; le SWAP lui-même
+   (deux `set` sur le document, deux entrées de `assign` qui permutent —
+   §1d : le document ne gagne toujours aucun champ) vit dans `shell.mjs`,
+   `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
 
 import { renderPicker } from "./carnet.mjs";
 import { ABILITY_KEYS } from "../../src/build/index.mjs";
@@ -133,31 +154,28 @@ export function currentAbilityMode(document) {
   return { raw: entry.value, id: known ? entry.value : ABILITY_METHODS[0].id, known };
 }
 
-/** Les DÉS ENCORE LIBRES pour la ligne `key` — lot 50, la correction du
- *  cœur du défaut. Rend une liste d'INDEX (dans `rollBatch.rolls`), jamais
- *  de valeurs : les dés RETENUS moins ceux dont l'INDEX est déjà posé sur
- *  une AUTRE clef de `rollBatch.assign` (multiset par construction — deux
- *  dés à 14 sont deux index distincts, ni l'un ni l'autre ne se confond
- *  avec une valeur du personnage qui n'a jamais été tirée). L'index de
- *  CETTE ligne, s'il en a un, n'est jamais retiré de son propre résultat :
- *  c'est lui que `renderPicker` doit pouvoir montrer actif.
+/** Les DÉS GARDÉS — lot 51, §1a de la commande d'architecte. Rend TOUJOURS
+ *  les SIX index du lot retenu, quel que soit l'état de la distribution —
+ *  jamais « les libres plus le sien » (la forme du lot 50, ci-dessous en
+ *  commentaire historique). Cette dernière tombait à UNE SEULE option par
+ *  rangée dès que les six étaient posées (défaut mesuré §0 de LA COMMANDE
+ *  DE CE LOT, sur la page déployée juste après la fusion du lot 50) : zéro
+ *  geste restait possible pour changer d'avis, alors que « toutes
+ *  distribuées » est l'état NORMAL en fin d'étape, pas un cas limite.
  *
- *  ⛔ Cette fonction ne regarde JAMAIS `document`/`currentAbilityValue` —
- *  c'est précisément ce que faisait l'ancienne version (par la VALEUR) et
- *  c'est ce qui laissait une valeur hors lot (le `14` de DEX, jamais tiré)
- *  voler la place d'un vrai dé (commande §0, « la cause, lue dans le code
- *  et pas devinée »). Une rangée non distribuée n'a pas d'entrée utile dans
- *  `assign` (elle vaut `null`/`undefined`) : elle ne retire donc rien au
- *  pool de personne, y compris au sien. */
-export function optionsForRow(rollBatch, key) {
+ *  ⭐ « Toujours les six » est la SEULE forme où le geste reste possible
+ *  dans n'importe quel état (0 à 6 rangées servies) : filtrer emporterait
+ *  fatalement l'option qui permet d'ÉCHANGER (§1b — cliquer un dé déjà tenu
+ *  par une autre rangée échange les deux). C'est `selected` (dans
+ *  `renderAssignRow`) qui distingue « ce dé est déjà le mien » (actif,
+ *  cliquer ne fait rien) de « ce dé est ailleurs ou libre » (cliquer pose
+ *  ou échange) — `optionsForRow` ne fait plus ce tri, il ne fait plus QUE
+ *  lister. Ne regarde toujours pas `document`/`currentAbilityValue` : la
+ *  liste des dés ne dépend que du lot lui-même, jamais des valeurs déjà
+ *  posées au personnage (c'était la cause du défaut du lot 50). */
+export function optionsForRow(rollBatch) {
   const kept = rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls.filter((roll) => roll.kept) : [];
-  const assign = (rollBatch && rollBatch.assign) || {};
-  const usedIndexes = new Set();
-  for (const [otherKey, index] of Object.entries(assign)) {
-    if (otherKey === key) continue;
-    if (index !== null && index !== undefined) usedIndexes.add(index);
-  }
-  return kept.filter((roll) => !usedIndexes.has(roll.index)).map((roll) => roll.index);
+  return kept.map((roll) => roll.index);
 }
 
 function abilityLabel(key) { return key.toUpperCase(); }
@@ -262,23 +280,35 @@ function renderAbilityRow(key, { document, resolved, pickerProps, note }) {
   return row;
 }
 
-/** UNE LIGNE DE TIRAGE — ⭐ le cœur du lot 50. `rollBatch.assign[key]` (un
- *  INDEX de dé, ou `null`) est la SEULE source qui dit « cette ligne a reçu
- *  un dé » — jamais une comparaison avec `currentAbilityValue` (c'était le
- *  défaut : voir l'en-tête, et la forme reprise de
+/** UNE LIGNE DE TIRAGE — `rollBatch.assign[key]` (un INDEX de dé, ou
+ *  `null`) est la SEULE source qui dit « cette ligne a reçu un dé » —
+ *  jamais une comparaison avec `currentAbilityValue` (c'était le défaut du
+ *  lot 50 : voir l'en-tête, et la forme reprise de
  *  `~/tools/fh-skills/fh-skill-builder.html:731`).
  *
  *  - DISTRIBUÉE (`assign[key]` est un index) : le picker montre CE dé
  *    actif ; `optionsForRow` l'inclut toujours dans ses propres options
  *    (cliquer dessus ne fait rien — `renderPicker` n'appelle `onSelect` que
  *    sur une option INACTIVE, donc pas de second geste à apprendre pour
- *    changer d'avis : cliquer un AUTRE dé réassigne, voir le test dédié).
+ *    changer d'avis : cliquer un AUTRE dé RÉASSIGNE, voir le test dédié).
  *  - NON DISTRIBUÉE : la note dit la valeur COURANTE du document (souvent
  *    une valeur du personnage d'exemple, jamais un dé de CE lot) et
  *    précise qu'elle ne vient pas du tirage (commande §2c : « rien ne se
- *    cache »). Le picker offre alors TOUS les dés encore libres — pas un de
- *    moins : c'est exactement le défaut mesuré au §0 (CON/WIS/CHA n'avaient
- *    plus que des `11` à recevoir). */
+ *    cache »).
+ *
+ *  ⭐ LOT 51 — LE CŒUR DE CE LOT : `optionsForRow` rend maintenant TOUJOURS
+ *  les SIX dés (voir sa propre doc), y compris ceux DÉJÀ tenus par une
+ *  AUTRE rangée — c'est PRÉCISÉMENT le défaut de ce lot (§0 de sa commande :
+ *  une fois les six posées, il ne restait plus AUCUNE option cliquable
+ *  nulle part). `labelOf`, ci-dessous, dit QUI tient chaque dé qui n'est
+ *  pas le sien (§1c, « rien ne se cache, jamais en compressant un
+ *  libellé ») ; `onSelect` pose toujours la MÊME action qu'avant
+ *  (`assignAbilityRoll`, la forme du lot 50, inchangée) — c'est
+ *  `shell.mjs` qui, en la recevant, ÉCHANGE les deux rangées si le dé
+ *  cliqué appartenait à une autre (§1b, décision d'architecte : voir son
+ *  en-tête `applyDecisionAction`). Ce fichier ne fait QUE dire ce qui va se
+ *  passer et NOMMER le geste — jamais le document, jamais le swap
+ *  lui-même : cette ligne reste un pur rendu, comme le reste du fichier. */
 function renderAssignRow(key, ctx) {
   const { document, resolved, rollBatch, onAction } = ctx;
   const current = currentAbilityValue(document, key);
@@ -288,6 +318,16 @@ function renderAssignRow(key, ctx) {
   const dieByIndex = new Map(
     (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).map((roll) => [roll.index, roll])
   );
+  /* QUI TIENT CE DÉ, hors de CETTE rangée — lot 51, §1c. `null` veut dire
+     soit personne (dé libre), soit CETTE rangée elle-même (jamais annoncée
+     comme « prise » à soi-même — c'est `selected`/`data-active` qui porte
+     déjà cette information, sur le bouton lui-même). */
+  function holderOf(index) {
+    for (const [otherKey, otherIndex] of Object.entries(assign)) {
+      if (otherKey !== key && otherIndex === index) return otherKey;
+    }
+    return null;
+  }
   const note = el("span", "ability-row-source", [text(
     fromRoll
       ? "from this roll"
@@ -296,15 +336,27 @@ function renderAssignRow(key, ctx) {
   const row = renderAbilityRow(key, {
     document, resolved, note,
     pickerProps: {
-      options: optionsForRow(rollBatch, key),
+      options: optionsForRow(rollBatch),
       selected: fromRoll ? [assignedIndex] : [],
-      labelOf: (index) => { const die = dieByIndex.get(index); return die ? String(die.total) : String(index); },
+      /* §1c — un dé tenu ailleurs se LIT différemment (« 16 (DEX) »), pas
+         seulement en couleur ou en position : la compression est interdite
+         (§2 du chantier, garde 4 de shell.css contre `display:none`), donc
+         le mot qui dit « c'est pris, et par qui » doit être DANS le texte
+         du bouton, pas caché derrière un survol ou un attribut invisible. */
+      labelOf: (index) => {
+        const die = dieByIndex.get(index);
+        if (!die) return String(index);
+        const holder = holderOf(index);
+        return holder ? `${die.total} (${abilityLabel(holder)})` : String(die.total);
+      },
       onSelect: (index) => {
         const die = dieByIndex.get(index);
         if (!die) return; // garde : une option ne peut désigner qu'un dé réellement gardé
         /* Deux verbes, un seul clic (voir shell.mjs, §2a) : `assignAbilityRoll`
            n'est PAS `set` — il porte l'INDEX (pour la carte hors document)
-           ET la VALEUR (pour le document, qui ne connaît que des scores). */
+           ET la VALEUR (pour le document, qui ne connaît que des scores).
+           Même action qu'au lot 50, POSE ou ÉCHANGE selon l'état de `assign`
+           — `shell.mjs` seul décide lequel (lot 51, §1b). */
         onAction({ kind: "assignAbilityRoll", key, rollIndex: index, value: die.total });
       }
     }
