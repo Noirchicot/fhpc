@@ -14,7 +14,7 @@
    identifiants ; les verrous sont les violations structurées du lot 27. */
 
 import { buildViolation } from "./validate.mjs";
-import { allowedSlugs, indexSkills } from "./skills.mjs";
+import { ABILITY_KEYS, allowedSlugs, indexSkills } from "./skills.mjs";
 
 const STATUS = Object.freeze({ pending: "pending", answered: "answered", locked: "locked" });
 
@@ -112,7 +112,20 @@ function multiPlan({ choices, root, basePath, options, expected, provenance: fro
     const match = /\[([0-9]+)\]$/.exec(choice.path);
     if (match) next = Math.max(next, Number(match[1]) + 1);
   }
-  for (let missing = selected.length; missing < expected; missing += 1) {
+  /* LOT 43, §3e-bis — LE COMPTE DE CRÉNEAUX MANQUANTS, CORRIGÉ. AVANT : la
+     boucle partait de `selected.length` (les réponses VALIDES seulement), et
+     ignorait qu'un candidat INVALIDE occupe déjà un créneau réel (rendu, avec
+     son propre chemin) — un document dont une classe plus étroite succède à
+     une plus large (rogue reprenant les deux compétences d'un magicien) en
+     obtenait CINQ créneaux pour `expected: 4` : les deux candidats existants
+     (un valide, un invalide) PLUS `expected − selected.length = 3` neufs, au
+     lieu de `expected − candidates.length = 2`. APRÈS : chaque candidat, valide
+     ou non, compte comme un créneau déjà occupé — le compte de créneaux
+     RENDUS reste `expected`, quel que soit le nombre de candidats invalides
+     parmi eux. Un document sans aucun candidat invalide (le cas courant)
+     donne `candidates.length === selected.length` : ce chemin ne bouge pas. */
+  const missingSlots = Math.max(0, expected - candidates.length);
+  for (let missing = 0; missing < missingSlots; missing += 1) {
     while (entries.some((entry) => entry.path === `${basePath}[${next}]`)) next += 1;
     const step = { path: `${basePath}[${next}]`, options, selected: [], expected: 1, answered: 0, provenance: from };
     if (cost !== undefined) step.cost = cost;
@@ -122,60 +135,124 @@ function multiPlan({ choices, root, basePath, options, expected, provenance: fro
   return entries;
 }
 
+/* LOT 43, §1c — UN RECORD QUI NE NOMME PAS SES CLEFS NE LES RESTREINT PAS.
+   Règle GÉNÉRIQUE, écrite en vocabulaire de moteur (`ABILITY_KEYS`, lu là où
+   le moteur le tient déjà — `skills.mjs` — jamais recopié en dur) : ⛔ aucun
+   mot Fate's Hand ici. Avant ce lot, `ability_keys` absent faisait sortir tôt
+   avec `[]` — c'était le trou du §0.4 : sans plan, aucun boost ne pouvait
+   jamais être jugé, ni compté ni plafonné.
+
+   LOT 43, §1d — `validate()` DOIT REFUSER UNE RÉPARTITION ILLÉGALE. Deux
+   fautes possibles, deux clefs : un point posé sur UNE SEULE caractéristique
+   au-delà de 2 (`background.boost-cap-exceeded`, jugé par candidat — c'est le
+   patron du plafond par carac) et un TOTAL qui ne vaut pas exactement 3
+   (`background.boost-total-mismatch`, jugé une fois le reste propre — c'est
+   le patron du total, sur celui de `skill-grant.count-mismatch` : un compte
+   qui ne correspond pas se nomme, qu'il soit trop haut OU trop bas). */
+const BOOST_CAP = 2;
+const BOOST_TOTAL = 3;
+
 function backgroundBoostPlan(choices, view) {
   const data = view.record.data || {};
-  if (!Array.isArray(data.ability_keys)) return [];
-  const options = sorted(data.ability_keys);
+  const restricted = Array.isArray(data.ability_keys);
+  const options = sorted(restricted ? data.ability_keys : ABILITY_KEYS);
   const candidates = choices.filter((choice) => choice && /^background\.boost\.[a-z]{3}$/.test(choice.path || ""));
   const selected = [];
   let points = 0;
   let lock = null;
+  const stepLocks = new Map();
   for (const choice of candidates) {
     const key = choice.path.slice("background.boost.".length);
     if (!options.includes(key)) {
-      lock ||= buildViolation("background.boost-disallowed", {
+      const violation = buildViolation("background.boost-disallowed", {
         path: choice.path, backgroundId: view.id, abilityKeys: options.join(", ")
       }, choice.path);
+      stepLocks.set(choice.path, violation);
+      lock ||= violation;
       continue;
     }
-    if (Number.isInteger(choice.value) && choice.value > 0) {
-      selected.push(key);
-      points += choice.value;
-    } else {
-      lock ||= buildViolation("decision.option-unavailable", {
+    if (!Number.isInteger(choice.value) || choice.value <= 0) {
+      const violation = buildViolation("decision.option-unavailable", {
         path: choice.path, selected: String(choice.value), options: options.join(", ") || "none"
       }, choice.path);
+      stepLocks.set(choice.path, violation);
+      lock ||= violation;
+      continue;
     }
+    if (choice.value > BOOST_CAP) {
+      const violation = buildViolation("background.boost-cap-exceeded", {
+        path: choice.path, value: choice.value, cap: BOOST_CAP
+      }, choice.path);
+      stepLocks.set(choice.path, violation);
+      lock ||= violation;
+      continue;
+    }
+    selected.push(key);
+    points += choice.value;
+  }
+  /* LE TOTAL, JUGÉ UNE FOIS LE RESTE PROPRE. Un candidat déjà en faute (clef
+     hors catalogue, valeur illisible, plafond dépassé) a DÉJÀ son verrou — un
+     second verrou de total par-dessus accuserait le total d'une faute qui est
+     en réalité celle d'un seul candidat (exactement le défaut du §3e-bis). */
+  if (!lock && points !== BOOST_TOTAL) {
+    lock = buildViolation("background.boost-total-mismatch", {
+      backgroundId: view.id, total: points, expected: BOOST_TOTAL
+    }, "background.boost");
   }
   const from = recordProvenance("offered", "background", view, "ability_keys");
-  const plan = finish({ path: "background.boost", options, selected: sorted(selected), expected: 3, answered: points, provenance: from }, lock);
+  const plan = finish({ path: "background.boost", options, selected: sorted(selected), expected: BOOST_TOTAL, answered: points, provenance: from }, lock);
   const entries = [plan];
   for (const choice of candidates) {
     const key = choice.path.slice("background.boost.".length);
-    const valid = options.includes(key) && Number.isInteger(choice.value) && choice.value > 0;
+    const stepLock = stepLocks.get(choice.path) || null;
+    const valid = !stepLock;
     entries.push(finish({
       path: choice.path, options, selected: valid ? [key] : [], expected: 1, answered: valid ? 1 : 0, provenance: from
-    }, valid ? null : (options.includes(key)
-      ? buildViolation("decision.option-unavailable", {
-          path: choice.path, selected: String(choice.value), options: options.join(", ") || "none"
-        }, choice.path)
-      : buildViolation("background.boost-disallowed", {
-          path: choice.path, backgroundId: view.id, abilityKeys: options.join(", ")
-        }, choice.path))));
+    }, stepLock));
   }
   return entries;
 }
 
-function backgroundFeatPlan(choices, view) {
-  const featId = view.record.data && view.record.data.feat_id;
-  if (typeof featId !== "string") return [];
-  const choice = choices.find((entry) => entry && entry.path === "background.feat");
+/* LOT 43, §1b/§3d — LE DON D'ORIGINE, SUR `background.originFeat[0]`.
+   ⛔ `background.feat` ET SON REFUS `background.feat-mismatch` DISPARAISSENT :
+   aucun consommateur ne lisait ce chemin (`skill-pool.mjs`, `destiny-stat.mjs`
+   et le module des arcanes lisent tous `background.originFeat[n]`), et c'était
+   la SECONDE source du même refus (avec `block.mjs`, retiré avec lui).
+
+   DEUX FORMES, JAMAIS LES DEUX À LA FOIS sur un même record :
+   - `feat_id` (SRD, IMPOSÉ) — même patron que `background.tool` pour
+     `tool_id` : la valeur est un FAIT du record, pas un choix à juger. Aucun
+     verrou n'est possible ici — un personnage SRD pur ne perd rien (condition
+     de sortie n°6), et l'ancien refus de « mismatch » disparaît PARTOUT, pas
+     seulement côté Inheritance : ce que le record impose, `refs` l'applique
+     déjà (§0.1), ce plan ne fait plus que l'ANNONCER.
+   - `feat_choice: {from}` (FH, LIBRE) — `options` = tous les records de genre
+     `feat` dont `data.category` vaut la valeur demandée, lus par `query` ;
+     `mode: "offered"`, pas `"required"` : le joueur choisit, et un choix hors
+     catalogue reste le refus générique `decision.option-unavailable`. */
+function backgroundFeatPlan(query, choices, view) {
+  const data = view.record.data || {};
+  const PATH = "background.originFeat[0]";
+  const choice = choices.find((entry) => entry && entry.path === PATH);
   const selected = choice && choice.ref && choice.ref.kind === "feat" ? [choice.ref.id] : [];
-  const from = recordProvenance("required", "background", view, "feat_id");
-  const lock = selected.length > 0 && selected[0] !== featId
-    ? buildViolation("background.feat-mismatch", { selectedId: selected[0], backgroundId: view.id, featId }, "background.feat")
+
+  if (typeof data.feat_id === "string") {
+    const from = recordProvenance("required", "background", view, "feat_id");
+    return [finish({
+      path: PATH, options: [data.feat_id], selected: [data.feat_id], expected: 1, answered: 1, provenance: from
+    })];
+  }
+
+  const declaration = data.feat_choice;
+  if (!declaration || typeof declaration !== "object" || typeof declaration.from !== "string") return [];
+  const options = sorted(viewsOf(query, "feat")
+    .filter((featView) => featView.record.data && featView.record.data.category === declaration.from)
+    .map((featView) => featView.id));
+  const from = recordProvenance("offered", "background", view, "feat_choice");
+  const lock = selected.length > 0 && !options.includes(selected[0])
+    ? buildViolation("decision.option-unavailable", { path: PATH, selected: selected[0], options: options.join(", ") || "none" }, PATH)
     : null;
-  return [finish({ path: "background.feat", options: [featId], selected, expected: 1, answered: selected.length, provenance: from }, lock)];
+  return [finish({ path: PATH, options, selected, expected: 1, answered: selected.length, provenance: from }, lock)];
 }
 
 function backgroundToolPlan(choices, view) {
@@ -309,10 +386,23 @@ export function projectDecisions({ query, choices }) {
   }
 
   const backgroundChoice = list.find((choice) => choice && choice.path === "background" && choice.ref && choice.ref.kind === "background");
-  const backgroundView = backgroundChoice ? query({ kind: "background", id: backgroundChoice.ref.id }) : null;
+  let backgroundView = backgroundChoice ? query({ kind: "background", id: backgroundChoice.ref.id }) : null;
+  if (!backgroundView) {
+    /* LOT 43, §1a/§0.1 — L'INHERITANCE EST « livrée, non choisie ». Sans
+       `background` posé, ET quand le genre ne porte plus qu'UN SEUL record
+       (les quatre du SRD éteints par la couche FH), ce record-là EST
+       l'arrière-plan du personnage sans qu'un `choose` l'ait jamais désigné.
+       C'est le cœur du lot (§4, test 1) : sans ce repli, un personnage FH
+       publie ses boosts SANS le plan qui les juge (§0.1, le trou mesuré). Un
+       menu à PLUSIEURS options (SRD pur — quatre records, ou une couche
+       tierce qui en ajoute) ne se résout JAMAIS tout seul : ce repli n'existe
+       que pour un menu à un seul choix, jamais pour deviner parmi plusieurs. */
+    const onlyOption = viewsOf(query, "background");
+    if (onlyOption.length === 1) backgroundView = onlyOption[0];
+  }
   if (backgroundView) {
     entries.push(...backgroundBoostPlan(list, backgroundView));
-    entries.push(...backgroundFeatPlan(list, backgroundView));
+    entries.push(...backgroundFeatPlan(query, list, backgroundView));
     entries.push(...backgroundToolPlan(list, backgroundView));
   }
 

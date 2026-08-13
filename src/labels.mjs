@@ -32,8 +32,13 @@ export const FR_BUILD = {
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +
     `« ${d.backgroundId} » ne nomme pas (il nomme : ${d.abilityKeys}).`,
-  "background.feat-mismatch": (d) => `le choix « background.feat » désigne « ${d.selectedId} », alors que l'arrière-plan ` +
-    `« ${d.backgroundId} » accorde « ${d.featId} ».`,
+  /* ── LOT 43 — L'INHERITANCE : LES BONUS DE CARACS, ENFIN GARDÉS ──────
+     `background.feat-mismatch` a disparu avec `background.feat` (aucun
+     consommateur ne lisait ce chemin) — voir `contracts/build.md` §1b. */
+  "background.boost-cap-exceeded": (d) => `le choix « ${d.path} » pose ${d.value} point(s) sur une seule ` +
+    `caractéristique — le plafond est de ${d.cap} points par caractéristique.`,
+  "background.boost-total-mismatch": (d) => `l'arrière-plan « ${d.backgroundId} » répartit ${d.total} point(s) ` +
+    `de caractéristique au total, et il en faut exactement ${d.expected} (+2/+1 ou +1/+1/+1).`,
   "decision.kind-mismatch": (d) => `la décision « ${d.path} » attend un record de genre ${d.expectedKind}, ` +
     `pas ${d.actualKind}.`,
   "decision.option-unavailable": (d) => `la décision « ${d.path} » porte l'option « ${d.selected} », ` +

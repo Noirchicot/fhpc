@@ -392,9 +392,25 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
          INCOMPLET (`answered < expected`, sans verrou) N'A PAS de `.lock` —
          `finish()` ne le pose que sur un plan ou une étape en FAUTE (contrat
          §2b de la commande `37-pool-garde`) : un personnage encore en cours
-         de répartition reste donc valide, exactement comme avant ce lot. */
+         de répartition reste donc valide, exactement comme avant ce lot.
+
+         LOT 43, §3e-bis — DÉDUPLIQUÉ PAR EMPREINTE. `multiPlan` (`class.skills`,
+         `species.skills`) publie le MÊME défaut sur deux chemins quand un
+         candidat devient illégal : le plan du GROUPE porte un verrou qui NOMME
+         le créneau fautif (pour que le groupe entier se montre `locked`, pas
+         `pending` — la suite l'exige), et ce créneau porte le SIEN, construit
+         séparément mais identique {clef, chemin, params}. Un choix devenu
+         illégal doit produire UN refus, pas deux : l'empreinte (clef + chemin +
+         params sérialisés) est comparée AVANT `add`, et un doublon exact est
+         sauté — jamais un doublon qui ne se ressemble qu'à moitié, qui resterait
+         deux refus distincts pour deux fautes distinctes. */
+      const seenLocks = new Set();
       for (const entry of projectDecisions({ query, choices: document.build.choices })) {
-        if (entry && entry.lock) reported.add(entry.lock);
+        if (!entry || !entry.lock) continue;
+        const fingerprint = `${entry.lock.key} ${entry.lock.path || ""} ${JSON.stringify(entry.lock.params)}`;
+        if (seenLocks.has(fingerprint)) continue;
+        seenLocks.add(fingerprint);
+        reported.add(entry.lock);
       }
 
       let outcome = null;
@@ -458,13 +474,12 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
             warnings.push(`l'arrière-plan « ${backgroundChoice.ref.id} » ne porte pas \`ability_keys\` (contrat §3) : ` +
               "la légalité des augmentations n'a pas pu être vérifiée.");
           }
-          const featId = view && view.record.data && view.record.data.feat_id;
-          const featChoice = document.build.choices.find((choice) => choice && choice.path === "background.feat");
-          if (typeof featId === "string" && featChoice && featChoice.ref && featChoice.ref.id !== featId) {
-            reported.add(buildViolation("background.feat-mismatch", {
-              selectedId: featChoice.ref.id, backgroundId: view.id, featId
-            }, "background.feat"));
-          }
+          /* LOT 43, §1b/§3d — RETIRÉ : `background.feat` et son refus
+             `background.feat-mismatch`. Un `feat_id` imposé n'est plus jugé
+             ici contre un chemin de choix que personne ne consommait — voir
+             `decisions.mjs` (`backgroundFeatPlan`), qui traite `feat_id` sur
+             le patron déjà en place pour `tool_id` (`backgroundToolPlan`) :
+             une valeur du RECORD, jamais un choix à comparer. */
         }
 
         for (const path of outcome.unconsumed) {
