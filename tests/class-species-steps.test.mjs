@@ -65,11 +65,17 @@ function docWith({ id, classId, speciesId, classSkills }) {
 function realOptions(node) {
   return node.querySelectorAll(".record-option").filter((btn) => !(btn.className || "").includes("record-option-none"));
 }
-function optionLabels(node) {
-  return realOptions(node).map((btn) => btn.getAttribute("aria-label"));
+/* LOT 53 — ces deux lecteurs cherchaient l'IDENTIFIANT (« srd:class:en:rogue »,
+ *  « half »…) dans `aria-label`, un attribut d'accessibilité réquisitionné
+ *  comme crochet de test (commande §0.2). L'identifiant machine vit
+ *  maintenant dans `data-value` (`carnet.mjs`, `renderPicker`) — MÊME
+ *  ASSERTION, autre attribut ; ce que ces deux fonctions PROUVENT ne change
+ *  pas (§1b de la commande). */
+function optionValues(node) {
+  return realOptions(node).map((btn) => btn.getAttribute("data-value"));
 }
-function activeOptions(node) {
-  return realOptions(node).filter((btn) => btn.getAttribute("data-active") === "true").map((btn) => btn.getAttribute("aria-label"));
+function activeValues(node) {
+  return realOptions(node).filter((btn) => btn.getAttribute("data-active") === "true").map((btn) => btn.getAttribute("data-value"));
 }
 
 /* ══ 1 — LE COMPTE VIENT DU PLAN : ROUBLARD 4, BARDE 3, MAGICIEN 2 ═══════
@@ -119,8 +125,8 @@ test("les options viennent du plan : un plan dont les options sont [\"zzz\"] aff
   ];
   const node = renderClassStep({ decisions, query }, () => {});
   const row = node.querySelectorAll(".skills-row")[0];
-  const labels = optionLabels(row);
-  assert.deepEqual(labels, ["zzz"], "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
+  const values = optionValues(row);
+  assert.deepEqual(values, ["zzz"], "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
 });
 
 /* ══ 3 — LES TROIS ÉTATS D'ESPÈCE ═════════════════════════════════════════
@@ -144,6 +150,22 @@ test("les trois états d'espèce : bourse captive (Elestu), choix imposé (Araag
   assert.equal(lorokaNode.querySelectorAll(".skills-row").length, 0);
 });
 
+/* ══ 3b — LOT 53, §1c/§2 test 3 : LE TIRET GARDE SON « None » ════════════
+   `renderPicker` (`carnet.mjs`) ne pose plus d'`aria-label` brut sur les
+   VRAIES options (le nom accessible est déjà `textContent`) — mais le
+   tiret « — » de la bourse captive (Elestu, `onClear` posé) n'a pas de
+   texte qui parle : son `aria-label="None"` doit survivre tel quel. */
+
+test("le tiret « — » de la bourse Species garde son aria-label « None »", () => {
+  const elestu = rebuild(docWith({ id: "elestu-dash", classId: "srd:class:en:fighter", speciesId: "fh:species:en:elestu", classSkills: ["athletics", "history"] }));
+  const node = renderSpeciesStep({ decisions: elestu.decisions, query }, () => {});
+  const row = node.querySelectorAll(".skills-row")[0];
+  const dash = row.querySelectorAll(".record-option-none")[0];
+  assert.ok(dash, "le tiret existe (la bourse a un `onClear`)");
+  assert.equal(dash.textContent, "—");
+  assert.equal(dash.getAttribute("aria-label"), "None", "son nom accessible ne peut pas être le tiret lui-même");
+});
+
 /* ══ 4 — LES TROIS COMPÉTENCES DE KEEN SENSES, DELVE COMPRIS ═════════════
    ⚠️ §3c de la commande : « les trois compétences sont dans `options` — le
    builder v1 n'en montrait que deux et forçait le ½. C'est un bug de v1. » */
@@ -155,8 +177,8 @@ test("les trois compétences de Keen Senses sont proposées à l'étape Species 
   const slugs = rows.map((row) => row.getAttribute("data-row"));
   assert.deepEqual(new Set(slugs), new Set(["survival", "delve", "vigilance"]), "les TROIS, Delve compris — pas deux");
   for (const row of rows) {
-    const labels = optionLabels(row);
-    assert.deepEqual(new Set(labels), new Set(["half", "proficient"]), "palier LIBRE — jamais un seul ½ forcé (bug v1)");
+    const values = optionValues(row);
+    assert.deepEqual(new Set(values), new Set(["half", "proficient"]), "palier LIBRE — jamais un seul ½ forcé (bug v1)");
   }
 });
 
@@ -189,8 +211,9 @@ test("un clic sur une option de la liste (Class/Species) produit exactement un `
   const calls = [];
   const node = renderClassStep({ decisions: report.decisions, query }, (a) => calls.push(a));
   const rogueBtn = node.querySelectorAll(".record-choice-block .record-option")
-    .find((b) => b.getAttribute("aria-label") === "srd:class:en:rogue");
+    .find((b) => b.getAttribute("data-value") === "srd:class:en:rogue");
   assert.ok(rogueBtn, "le bouton Rogue existe (lu dans les 12 options du plan)");
+  assert.equal(rogueBtn.textContent, "Rogue", "§1c — le nom accessible (textContent) est le libellé humain, jamais l'id");
   rogueBtn.click();
   assert.equal(calls.length, 1, "exactement un appel");
   assert.deepEqual(calls[0], { kind: "choose", path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } });
