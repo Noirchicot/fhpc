@@ -93,8 +93,15 @@ test("REJET — état de séance dans le document (build)", () => {
 });
 
 test("REJET — clef inconnue à la racine (aucun strip silencieux)", () => {
+  /* ⚠️ MODIFIÉ PAR LE LOT 48-champs-identite (2026-08-13) : ce test employait
+     `campaign` comme témoin de clef inconnue. Ce lot fait de `campaign` un
+     champ RACINE légitime (facultatif, descriptif — voir `schemas/
+     fh-char.schema.json`), donc l'ancienne mutation validerait désormais et
+     ce test ne prouverait plus rien. `faction` n'est déclaré nulle part —
+     ni par ce lot ni par aucun précédent — et reste un bon témoin : un champ
+     d'identité plausible que le schéma n'a PAS ouvert. */
   const doc = clone(charExample);
-  doc.campaign = "n'importe laquelle";
+  doc.faction = "n'importe laquelle";
   assertRejected(validateChar, doc, "une clef racine inconnue");
 });
 

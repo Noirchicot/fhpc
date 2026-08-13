@@ -17,7 +17,7 @@ import { createDoc } from "./store.mjs";
 
 export { createDoc } from "./store.mjs";
 export { DocError } from "./errors.mjs";
-export { compileSchema, deriveDraftSchema, readFromSchema, SUPPORTED } from "./schema.mjs";
+export { compileSchema, deriveDraftSchema, describableFields, readFromSchema, SUPPORTED } from "./schema.mjs";
 export { asBytes, digest, parseDocument, toBytes } from "./serialize.mjs";
 export { platformNow } from "./clock.mjs";
 
