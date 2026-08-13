@@ -197,4 +197,69 @@ test("un score final > 18 affiche une alerte, et `onAction` PART quand même —
   }
 });
 
+/* ══ ⚔️ PREUVE D'EXTENSIBILITÉ (revue d'architecte, 2026-08-13) ══════════
+   Le défaut mesuré : `renderAbilitiesStep` branchait sur `method.id`
+   ("roll"/"manual") pour choisir QUOI rendre — la boucle lisait bien
+   `ABILITY_METHODS`, mais son CORPS décidait, pas le tableau. Corrigé :
+   chaque entrée porte maintenant son propre `render(ctx)`, et la boucle ne
+   compare `method.id` qu'à `mode.id` (un état, jamais un aiguillage).
+
+   LA SEULE PREUVE QUI VAUT (demandée par l'architecte) : ajouter une
+   TROISIÈME méthode ICI, dans ce test SEUL — jamais dans
+   `ui/builder/abilities-step.mjs` — et vérifier qu'elle s'affiche. Si ce
+   test passe sans qu'une ligne du fichier ait changé, la prochaine méthode
+   RÉELLE (Standard Array, Point Buy, 4d6-garder-3) coûtera vraiment une
+   entrée de tableau, pas une chirurgie.
+
+   `ABILITY_METHODS` est un tableau EXPORTÉ, donc une RÉFÉRENCE partagée
+   avec le module — le muter ici (`push`/`pop`) est vu par
+   `renderAbilitiesStep` sans qu'il ait besoin d'un paramètre d'injection
+   que la commande ne demande pas. `finally` restaure le tableau même si
+   une assertion échoue, pour ne polluer aucun test voisin. */
+
+test("⚔️ PREUVE D'EXTENSIBILITÉ — une troisième méthode ajoutée SEULEMENT ici s'affiche, sans une ligne changée dans abilities-step.mjs", () => {
+  const before = ABILITY_METHODS.length;
+  const rendered = [];
+  const fakeMethod = {
+    id: "test-double-fake-method",
+    label: "Fake Method (test double)",
+    summary: "Not selected — test double for the extensibility proof.",
+    render: (ctx) => {
+      rendered.push(ctx); // preuve que la boucle appelle bien CE `render`, avec le VRAI ctx
+      const marker = document.createElement("div");
+      marker.className = "fake-method-marker";
+      marker.textContent = "FAKE METHOD RENDERED";
+      return [marker];
+    }
+  };
+  ABILITY_METHODS.push(fakeMethod);
+  try {
+    assert.equal(ABILITY_METHODS.length, before + 1, "l'arrivée d'une méthode : UNE entrée de plus, rien d'autre");
+
+    const doc = set(fixture.document, "abilities.mode", fakeMethod.id);
+    const report = rebuild(doc);
+    const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+
+    const blocks = node.querySelectorAll(".ability-method-block");
+    assert.equal(blocks.length, before + 1, "les TROIS méthodes sont rendues, la fausse comprise");
+    const fakeBlock = blocks.find((b) => b.getAttribute("data-method") === fakeMethod.id);
+    assert.ok(fakeBlock, "le bloc de la fausse méthode existe");
+    assert.equal(fakeBlock.getAttribute("data-status"), "active", "abilities.mode la désigne : elle est ACTIVE");
+    const marker = fakeBlock.querySelectorAll(".fake-method-marker")[0];
+    assert.ok(marker, "son propre `render` a bien été appelé — jamais celui de \"roll\" ou \"manual\"");
+    assert.equal(marker.textContent, "FAKE METHOD RENDERED");
+    assert.equal(rendered.length, 1, "le `render` de la fausse méthode est appelé EXACTEMENT une fois");
+
+    // Et les DEUX vraies méthodes restent, elles, INACTIVES — la boucle ne
+    // les a pas oubliées pour autant.
+    const roll = blocks.find((b) => b.getAttribute("data-method") === "roll");
+    const manual = blocks.find((b) => b.getAttribute("data-method") === "manual");
+    assert.equal(roll.getAttribute("data-status"), "inactive");
+    assert.equal(manual.getAttribute("data-status"), "inactive");
+  } finally {
+    ABILITY_METHODS.pop();
+    assert.equal(ABILITY_METHODS.length, before, "le tableau est restauré — aucun test voisin n'hérite de la fausse méthode");
+  }
+});
+
 /* ══ Le garde des jetons — vérifié par la suite complète, pas ici ═══════ */

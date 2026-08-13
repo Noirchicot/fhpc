@@ -8,11 +8,17 @@
    `skills-step.mjs`).
 
    ⭐ LE MODE EST UNE LISTE (commande §3a-bis) : `ABILITY_METHODS` porte
-   aujourd'hui deux entrées (`roll`, `manual`). Une troisième méthode
-   (Standard Array, Point Buy, 4d6-garder-3…) est UNE ENTRÉE DE PLUS dans ce
-   tableau, jamais un `if (mode === …)` de plus — ce fichier ne branche
-   JAMAIS sur l'id d'une méthode ailleurs que dans le tableau lui-même et
-   dans les deux fonctions de rendu qu'il désigne.
+   aujourd'hui deux entrées (`roll`, `manual`), et CHAQUE ENTRÉE PORTE SON
+   PROPRE `render`. `renderAbilitiesStep` ne branche JAMAIS sur un id de
+   méthode — il ne compare QUE `method.id === mode.id` pour savoir laquelle
+   est ACTIVE (un état, pas un comportement) et appelle `method.render(...)`
+   sans jamais regarder lequel c'est. Une troisième méthode (Standard Array,
+   Point Buy, 4d6-garder-3…) est donc UNE ENTRÉE DE PLUS dans ce tableau,
+   jamais un `if`/`else if` de plus dans `renderAbilitiesStep` — corrigé sur
+   revue d'architecte (voir INVENTAIRE-LOT-45.md, « le branchement était
+   dans la boucle, pas dans le tableau ») et PROUVÉ par un test qui ajoute
+   une troisième méthode à `ABILITY_METHODS` (une fausse, avec son `render`)
+   SANS TOUCHER UNE LIGNE DE CE FICHIER (`tests/abilities-step.test.mjs`).
 
    ⚠️ LE HASARD VIT ICI, ET C'EST VOULU (commande §3a.4) : la loi « le
    moteur prononce, l'écran affiche » parle des RÈGLES OPPOSABLES
@@ -33,12 +39,17 @@ import { rollAbilitySet } from "./dice.mjs";
 
 export { rollAbilitySet };
 
-/** La liste des méthodes — voir l'en-tête. `render` fabrique le CORPS de la
- *  méthode (au-delà du sélecteur commun), `summary` la phrase d'état quand
- *  la méthode N'EST PAS active (§2 du chantier : « rien ne se cache »). */
+/** La liste des méthodes — voir l'en-tête. `render(ctx)` fabrique le CORPS
+ *  de la méthode (au-delà du sélecteur commun) et REND UN TABLEAU DE
+ *  NŒUDS — `renderAbilitiesStep` les ajoute avec `block.append(...)`, sans
+ *  jamais savoir ce qu'ils contiennent. `summary` est la phrase d'état
+ *  quand la méthode N'EST PAS active (§2 du chantier : « rien ne se
+ *  cache »). Les deux fonctions `renderRollMethod`/`renderManualMethod`
+ *  sont définies plus bas (hissées par la déclaration `function` — l'ordre
+ *  du fichier n'a pas d'importance pour ce tableau). */
 export const ABILITY_METHODS = [
-  { id: "roll", label: "Roll (3d6 × 10, keep 6)", summary: "Not selected — switch to it to draw ten dice." },
-  { id: "manual", label: "Manual entry", summary: "Not selected — switch to it to type six scores directly." }
+  { id: "roll", label: "Roll (3d6 × 10, keep 6)", summary: "Not selected — switch to it to draw ten dice.", render: renderRollMethod },
+  { id: "manual", label: "Manual entry", summary: "Not selected — switch to it to type six scores directly.", render: renderManualMethod }
 ];
 
 const ABILITY_MODE_PATH = "abilities.mode";
@@ -233,6 +244,31 @@ function renderRollBatch(rollBatch, onAction) {
   return wrap;
 }
 
+/** LE `render` DE LA MÉTHODE `roll`, dans `ABILITY_METHODS` — le lot de dix
+ *  dés puis les six lignes d'assignation. Rend un TABLEAU de nœuds (pas un
+ *  seul) : la boucle de `renderAbilitiesStep` ne fait que les ajouter,
+ *  elle ne sait pas combien il y en a ni ce qu'ils contiennent. */
+function renderRollMethod({ document, resolved, rollBatch, assignedByKey, onAction }) {
+  const keptValues = rollBatch ? rollBatch.rolls.filter((r) => r.kept).map((r) => r.total) : [];
+  const rows = el("div", "ability-rows");
+  for (const key of ABILITY_KEYS) {
+    rows.append(renderAssignRow(key, { document, resolved, keptValues, assignedByKey, onAction }));
+  }
+  return [renderRollBatch(rollBatch, onAction), rows];
+}
+
+/** LE `render` DE LA MÉTHODE `manual` — six lignes de saisie, même forme de
+ *  retour (un tableau) que `renderRollMethod`, MÊME QUAND IL N'Y A QU'UN
+ *  SEUL NŒUD : c'est ce qui rend les deux entrées interchangeables aux yeux
+ *  de la boucle. */
+function renderManualMethod({ document, resolved, onAction }) {
+  const rows = el("div", "ability-rows");
+  for (const key of ABILITY_KEYS) {
+    rows.append(renderManualRow(key, { document, resolved, onAction }));
+  }
+  return [rows];
+}
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document   le document brut du dernier `rebuild()` — seule source des valeurs déjà posées
@@ -253,6 +289,11 @@ export function renderAbilitiesStep(ctx, onAction) {
   const assignedByKey = {};
   for (const key of ABILITY_KEYS) assignedByKey[key] = currentAbilityValue(document, key);
 
+  /* ⭐ AUCUN BRANCHEMENT SUR L'ID ICI (revue d'architecte, voir l'en-tête et
+     INVENTAIRE-LOT-45.md) — `method.id === mode.id` compare un ÉTAT
+     (active/inactive, légitime), `method.render(...)` délègue TOUT le
+     comportement à l'entrée elle-même. Ajouter une méthode n'ajoute jamais
+     de branche ici : la boucle est déjà prête pour la troisième. */
   for (const method of ABILITY_METHODS) {
     const active = method.id === mode.id;
     const block = el("div", "ability-method-block");
@@ -263,21 +304,7 @@ export function renderAbilitiesStep(ctx, onAction) {
       section.append(block);
       continue;
     }
-    if (method.id === "roll") {
-      block.append(renderRollBatch(rollBatch, act));
-      const keptValues = rollBatch ? rollBatch.rolls.filter((r) => r.kept).map((r) => r.total) : [];
-      const rows = el("div", "ability-rows");
-      for (const key of ABILITY_KEYS) {
-        rows.append(renderAssignRow(key, { document, resolved, keptValues, assignedByKey, onAction: act }));
-      }
-      block.append(rows);
-    } else if (method.id === "manual") {
-      const rows = el("div", "ability-rows");
-      for (const key of ABILITY_KEYS) {
-        rows.append(renderManualRow(key, { document, resolved, onAction: act }));
-      }
-      block.append(rows);
-    }
+    block.append(...method.render({ document, resolved, rollBatch, assignedByKey, onAction: act }));
     section.append(block);
   }
 

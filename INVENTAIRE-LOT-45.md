@@ -9,9 +9,13 @@ n'a touché que `ui/builder/` et `tests/`.
 ## Tests — départ et arrivée
 
 - **Départ** : `npm ci` (déjà fait) puis `npm test` → **694 tests, 694 pass, 0 fail**.
-- **Arrivée** : `npm test` → **723 tests, 723 pass, 0 fail** (694 + 29 neufs :
+- **Première livraison** : `npm test` → **723 tests, 723 pass, 0 fail** (694 + 29 neufs :
   11 dans `tests/dice.test.mjs`, 9 dans `tests/abilities-step.test.mjs`, 9 dans
   `tests/destiny-step.test.mjs`). Aucun test préexistant modifié.
+- **Après correction d'architecte** (voir §« Correction post-revue » plus bas) :
+  **724 tests, 724 pass, 0 fail** (+1, la preuve d'extensibilité). Les 9 tests
+  originaux d'`abilities-step.test.mjs` n'ont pas bougé d'un octet (diff en
+  pur ajout, vérifié).
 
 ## Comment le hasard est rendu testable
 
@@ -163,6 +167,40 @@ Servi avec `python3 -m http.server` + le Chrome piloté (le port du
    couverts ; le mode est une liste (`ABILITY_METHODS`/`ARCANA_METHODS`,
    deux entrées chacune aujourd'hui) ; le plafond de 18 est déclaré, jamais
    implémenté.
+
+## Correction post-revue (architecte, 2026-08-13)
+
+**Le défaut, mesuré par l'architecte, lignes 302/310 de la première
+livraison** : la boucle de `renderAbilitiesStep` lisait bien
+`ABILITY_METHODS`, mais son CORPS branchait sur `method.id === "roll"` /
+`"manual"` pour choisir QUOI rendre — le tableau ne pilotait que l'ÉTAT
+actif/inactif, pas le RENDU. Ajouter une troisième méthode aurait donc coûté
+une entrée de tableau **et** un `else if` de plus dans ce fichier, exactement
+la « chirurgie » que la commande interdit (§3a-bis).
+
+**Corrigé** : chaque entrée d'`ABILITY_METHODS` porte maintenant son propre
+`render(ctx)` — `renderRollMethod`/`renderManualMethod`, tous deux déplacés
+depuis le corps de la boucle sans changer une ligne de leur logique interne
+(vérifié : les 9 tests DOM déjà écrits passent SANS ÊTRE TOUCHÉS). La boucle
+ne compare plus `method.id` qu'à `mode.id` (une comparaison d'ÉTAT,
+légitime — c'est elle qui dit si CE bloc est actif) et appelle
+`method.render({document, resolved, rollBatch, assignedByKey, onAction})`
+sans jamais regarder lequel c'est.
+
+**Preuve ajoutée** (`tests/abilities-step.test.mjs`, un seul test neuf) :
+une troisième entrée — fausse, avec son propre `render` — est poussée dans
+`ABILITY_METHODS` **depuis le test seul** (le tableau exporté est une
+référence partagée, le muter suffit ; aucun paramètre d'injection n'a été
+ajouté à `renderAbilitiesStep`). Elle s'affiche, active, avec son propre
+marqueur DOM, pendant que `roll`/`manual` restent rendus mais inactifs — le
+tout **sans qu'une ligne d'`ui/builder/abilities-step.mjs` n'ait dû
+changer** pour l'accueillir. Le tableau est restauré (`pop()`) dans un
+`finally`, pour qu'aucun test voisin n'hérite de la fausse méthode.
+
+**Tests, avant/après la correction** : 723 → 724 (le seul test neuf est
+cette preuve). Les 9 tests d'`abilities-step.test.mjs` de la première
+livraison sont un DIFF EN PUR AJOUT — vérifié à l'octet (`git diff`), rien
+au-dessus de la ligne 197 n'a bougé.
 
 ## Commits
 
