@@ -407,7 +407,7 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
       const seenLocks = new Set();
       for (const entry of projectDecisions({ query, choices: document.build.choices })) {
         if (!entry || !entry.lock) continue;
-        const fingerprint = `${entry.lock.key} ${entry.lock.path || ""} ${JSON.stringify(entry.lock.params)}`;
+        const fingerprint = `${entry.lock.key}\u0000${entry.lock.path || ""}\u0000${JSON.stringify(entry.lock.params)}`;
         if (seenLocks.has(fingerprint)) continue;
         seenLocks.add(fingerprint);
         reported.add(entry.lock);

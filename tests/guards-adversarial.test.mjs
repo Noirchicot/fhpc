@@ -271,3 +271,87 @@ test("le périmètre inspecté par les gardes NOMME ce qu'il doit contenir", () 
   });
   assert.ok(files.length >= 9);
 });
+
+/* ══ DÉFAUT n°6 — UN GARDE QUI NE PEUT PAS LIRE SON SUJET ════════════
+   Trouvé par l'architecte le 2026-08-13, et c'est un cran EN DESSOUS de
+   tout ce qui précède. Les défauts 1 à 5 sont des gardes qui cherchent
+   MAL. Celui-ci est un fichier que l'instrument ne lit PAS DU TOUT.
+
+   LA MESURE : `src/build/block.mjs` portait DEUX octets NUL bruts (à sa
+   ligne 410, un séparateur de clef composite écrit en octets au lieu de
+   sa séquence d'échappement). `file` le classait « data », donc grep le
+   sautait EN SILENCE — `grep -c ""` sur ce fichier rendait ZÉRO, et
+   `grep -c "export"` aussi.
+
+   🔴 CE QUE ÇA A COÛTÉ, ET C'EST MESURÉ : l'architecte a cherché au grep
+   les producteurs de `background.boost-disallowed`, n'en a trouvé QU'UN,
+   et en a conclu qu'une dette déclarée par le lot 43 était retirée.
+   FAUX — il y en a DEUX, et le second est dans ce fichier même. Un lot
+   allait être privé de sa raison d'être sur une mesure creuse.
+
+   ⭐ ET C'EST PIRE QU'UN FAUX NÉGATIF ORDINAIRE : dans tout ce chantier,
+   « zéro occurrence » se lit comme une PREUVE D'ABSENCE — c'est la forme
+   de la moitié des mesures du mandat. Un seul fichier illisible transforme
+   chacune d'elles en mensonge silencieux, et rien ne le signale.
+
+   LA CORRECTION : la séquence d'échappement au lieu de l'octet brut.
+   Valeur d'exécution identique (780 verts avant comme après), fichier
+   redevenu du texte, grep le revoit.
+
+   LE GARDE : aucun fichier de `src/` ne porte un caractère de contrôle
+   hors tabulation, saut de ligne et retour chariot. La loi est sur les
+   OCTETS, comme §0.12 — parce que c'est une propriété des octets, pas du
+   sens. */
+
+function premierOctetDeControle(bytes) {
+  for (let i = 0; i < bytes.length; i += 1) {
+    const b = bytes[i];
+    /* Autorisés : tabulation (9), saut de ligne (10), retour chariot (13).
+       Tout le reste sous 32 fait basculer le fichier en « data ». */
+    if (b < 32 && b !== 9 && b !== 10 && b !== 13) return { octet: b, position: i };
+  }
+  return null;
+}
+
+test("DÉFAUT n°6 — aucun fichier de src/ n'est illisible au grep (pas d'octet de contrôle)", () => {
+  const srcDir = path.join(here, "..", "src");
+  const coupables = [];
+  for (const file of walkSources(srcDir)) {
+    const trouve = premierOctetDeControle(fs.readFileSync(file));
+    if (trouve) coupables.push(`${path.relative(srcDir, file)} : octet ${trouve.octet} à la position ${trouve.position}`);
+  }
+  assert.deepEqual(coupables, [],
+    "un octet de contrôle rend le fichier « data » : grep le saute EN SILENCE, et « zéro occurrence » cesse " +
+    "de vouloir dire « absent ». Écris la séquence d'échappement, jamais l'octet.");
+});
+
+test("⚔️ ATTAQUE du défaut n°6 — le garde MORD sur un octet NUL, et PAS sur sa séquence d'échappement", () => {
+  /* Le garde ci-dessus est vert sur l'arbre réel. Vert ne prouve rien : on
+     lui redonne le fichier fautif tel qu'il était, et il doit rougir. */
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-nul-"));
+  try {
+    const fautif = path.join(tmp, "fautif.mjs");
+    fs.writeFileSync(fautif, Buffer.concat([
+      Buffer.from("const k = `a", "utf8"), Buffer.from([0]), Buffer.from("b`;\n", "utf8")
+    ]));
+    assert.deepEqual(premierOctetDeControle(fs.readFileSync(fautif)), { octet: 0, position: 12 },
+      "le garde doit voir le NUL, et dire OÙ");
+
+    /* ⭐ LA CONTRE-PREUVE QUI COMPTE : le même contenu écrit avec la
+       séquence d'échappement passe. C'est bien l'OCTET qu'on interdit, pas
+       la valeur — sans quoi le garde interdirait la correction elle-même. */
+    const propre = path.join(tmp, "propre.mjs");
+    fs.writeFileSync(propre, "const k = `a\\u0000b`;\n");
+    assert.equal(premierOctetDeControle(fs.readFileSync(propre)), null,
+      "la séquence d'échappement porte la même valeur SANS rendre le fichier illisible");
+
+    /* Et la valeur d'exécution est bien la même — sinon la correction
+       appliquée à block.mjs aurait changé le comportement en silence.
+       Les deux écritures doivent produire le MÊME octet. */
+    const parEchappement = "a\u0000b";
+    assert.equal(parEchappement.charCodeAt(1), 0);
+    assert.equal(parEchappement, "a" + String.fromCharCode(0) + "b");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
