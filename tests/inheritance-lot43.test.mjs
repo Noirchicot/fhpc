@@ -85,11 +85,27 @@ test("§4.1 — SANS `background` posé, la pile FH publie quand même `backgrou
   const h = pile();
   const out = h.verbs.rebuild({ document: documentDe(h, baseChoices()) });
   const decisions = byPath(out);
-  /* `background` lui-même reste projeté par `refPlan` (le même mécanisme que
-     `class`/`species`) : `options: [le seul id]`, `selected: []`, `pending`
-     — rien n'a changé là, et ce n'est pas ce que ce lot répare. Ce qui
-     change, c'est que les DEUX PLANS SOUS lui existent MALGRÉ ce `pending`. */
-  assert.equal(decisions.get("background").status, "pending");
+  /* ⚠️ RENVERSÉ AU LOT 71, ET C'EST LE LOT 43 QUI L'AVAIT ANNONCÉ. Ce test
+     exigeait `pending`, avec ce commentaire : « rien n'a changé là, et **ce
+     n'est pas ce que ce lot répare** ». Le report était donc conscient. Il a
+     fini par coûter, et à l'écran :
+
+       · le repli résout le record → `background.boost` et
+         `background.originFeat[0]` sortent « répondus » ;
+       · `refPlan` l'ignorait → `background` restait `0/1` POUR TOUJOURS ;
+       · Review, qui lit le carnet fidèlement, affichait « Inheritance :
+         0 of 1 · done · done » — **la seule étape non faite de tout
+         l'écran**, sur CHAQUE personnage de la pile FH.
+
+     Eric, 2026-08-15 : *« inheritance ne se valide pas »*. Un plan qui
+     réclame un choix que personne ne peut faire est un moteur qui ment.
+     `resolvedRef` répond désormais à la question une seule fois, pour
+     `refPlan` comme pour les sous-plans. La portée n'a pas bougé : un menu à
+     plusieurs options ne se résout jamais tout seul (test suivant). */
+  assert.equal(decisions.get("background").status, "answered");
+  assert.equal(decisions.get("background").delivered, true,
+    "et le plan DIT qu'il est livré, pas choisi — un écran doit pouvoir le distinguer (lot 43, « livrée, non choisie »)");
+  assert.deepEqual(decisions.get("background").selected, [INHERITANCE]);
   assert.deepEqual(decisions.get("background").options, [INHERITANCE]);
   assert.ok(decisions.has("background.boost"), "le plan de boost existe, SANS record choisi");
   assert.ok(decisions.has("background.originFeat[0]"), "le plan de don d'origine existe, SANS record choisi");

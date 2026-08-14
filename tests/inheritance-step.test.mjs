@@ -304,7 +304,13 @@ test("le plan `background` à une option (pile FH) : le nom s'affiche en mention
   const report = rebuild(fixture.document);
   const plan = report.decisions.find((d) => d.path === "background");
   assert.equal(plan.options.length, 1, "sonde : un seul record du genre sous la pile FH");
-  assert.equal(plan.status, "pending", "et il reste `pending` — aucun `choose` n'a jamais été posé (lot 43)");
+  /* ⚠️ LOT 71 — ce plan est désormais `answered` + `delivered`, et non plus
+     `pending`. Ce qui se joue à l'écran, en revanche, N'A PAS CHANGÉ : le
+     nom s'affiche en mention, sans liste ni bouton. C'est même la preuve que
+     le renversement était le bon — l'écran traitait déjà ce record comme
+     livré, seul le carnet disait le contraire. */
+  assert.equal(plan.status, "answered", "livré par la pile : un seul record du genre (lot 71)");
+  assert.equal(plan.delivered, true);
 
   const node = renderInheritanceStep(ctxFrom(report, { open: "boost" }), () => {});
   const frame = node.querySelectorAll(".inheritance-frame")[0];

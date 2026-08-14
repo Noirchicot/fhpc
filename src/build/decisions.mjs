@@ -46,10 +46,46 @@ function explicitCost(declaration) {
   return declaration && Number.isInteger(declaration.cost) ? declaration.cost : undefined;
 }
 
-function refPlan(query, choices, kind) {
+/* ══ LOT 71 — QUEL RECORD EST RETENU POUR UN GENRE : UN SEUL ÉCRIVAIN ═════
+   ⛔ CETTE FONCTION EXISTE PARCE QUE LA RÉPONSE ÉTAIT ÉCRITE À DEUX ENDROITS,
+   ET QUE LES DEUX SE CONTREDISAIENT.
+
+   Le lot 43 a tranché : *« l'inheritance est **livrée, non choisie** »*. Quand
+   un genre ne porte plus qu'UN SEUL record — ce que la couche FH fait
+   exprès : elle `disable` les quatre backgrounds du SRD et n'en publie qu'un,
+   `fh:background:en:inheritance` — ce record EST l'arrière-plan du
+   personnage, sans qu'aucun `choose` ne l'ait désigné. `projectDecisions`
+   appliquait bien ce repli **pour les sous-plans** (`background.boost`,
+   `background.originFeat[0]`), qui sortaient donc « répondus ».
+
+   🔴 **Mais `refPlan` l'ignorait**, et publiait `background` en `0/1` pour
+   toujours. Le carnet se contredisait lui-même, et ça se voyait à l'écran :
+   Review — qui lit le carnet, fidèlement — affichait « Inheritance : 0 of 1 ·
+   done · done », **la seule étape non faite**, pendant que l'écran
+   Inheritance montrait ses deux cercles cochés et laissait `Validate`
+   avancer. Signalé par Eric le 2026-08-15 : *« inheritance ne se valide
+   pas »*.
+
+   ⚠️ LA PORTÉE EST ÉTROITE, ET C'EST VOULU : **un menu à plusieurs options ne
+   se résout JAMAIS tout seul.** Avec douze classes ou neuf espèces, ce repli
+   ne se déclenche pas — il ne devinerait pas, il choisirait à la place du
+   joueur. Il ne vaut que pour un genre réduit à un seul record par sa pile.
+
+   📌 Et le plan le DIT : `delivered: true`. Un écran a le droit de savoir que
+   ce record est arrivé avec la pile plutôt que d'avoir été choisi — sans
+   quoi il afficherait un menu à une seule entrée, déjà cochée, qui ne sert à
+   rien. */
+export function resolvedRef(query, choices, kind) {
   const choice = choices.find((entry) => entry && entry.path === kind);
   const options = sorted(viewsOf(query, kind).map((view) => view.id));
-  const selected = choice && choice.ref && choice.ref.kind === kind ? [choice.ref.id] : [];
+  if (choice) return { id: choice.ref && choice.ref.kind === kind ? choice.ref.id : null, options, choice, delivered: false };
+  if (options.length === 1) return { id: options[0], options, choice: null, delivered: true };
+  return { id: null, options, choice: null, delivered: false };
+}
+
+function refPlan(query, choices, kind) {
+  const { choice, options, id, delivered } = resolvedRef(query, choices, kind);
+  const selected = id === null ? [] : [id];
   let lock = null;
   if (choice && selected.length === 0) {
     lock = buildViolation("decision.kind-mismatch", {
@@ -62,7 +98,9 @@ function refPlan(query, choices, kind) {
       path: kind, selected: selected[0], options: options.join(", ") || "none"
     }, kind);
   }
-  return finish({ path: kind, options, selected, expected: 1, answered: selected.length }, lock);
+  const plan = { path: kind, options, selected, expected: 1, answered: selected.length };
+  if (delivered) plan.delivered = true;
+  return finish(plan, lock);
 }
 
 function skillsIndex(query) {
@@ -385,21 +423,24 @@ export function projectDecisions({ query, choices }) {
     entries.push(...speciesBudgetPlan(list, speciesView, skills));
   }
 
-  const backgroundChoice = list.find((choice) => choice && choice.path === "background" && choice.ref && choice.ref.kind === "background");
-  let backgroundView = backgroundChoice ? query({ kind: "background", id: backgroundChoice.ref.id }) : null;
-  if (!backgroundView) {
-    /* LOT 43, §1a/§0.1 — L'INHERITANCE EST « livrée, non choisie ». Sans
-       `background` posé, ET quand le genre ne porte plus qu'UN SEUL record
-       (les quatre du SRD éteints par la couche FH), ce record-là EST
-       l'arrière-plan du personnage sans qu'un `choose` l'ait jamais désigné.
-       C'est le cœur du lot (§4, test 1) : sans ce repli, un personnage FH
-       publie ses boosts SANS le plan qui les juge (§0.1, le trou mesuré). Un
-       menu à PLUSIEURS options (SRD pur — quatre records, ou une couche
-       tierce qui en ajoute) ne se résout JAMAIS tout seul : ce repli n'existe
-       que pour un menu à un seul choix, jamais pour deviner parmi plusieurs. */
-    const onlyOption = viewsOf(query, "background");
-    if (onlyOption.length === 1) backgroundView = onlyOption[0];
-  }
+  /* ⭐ LOT 71 — LE MÊME ÉCRIVAIN QUE `refPlan` : `resolvedRef`. Ces deux
+     endroits répondaient séparément à « quel est l'arrière-plan ? », et ils
+     divergeaient — voir la tête de `resolvedRef`. Le repli du lot 43 est
+     conservé mot pour mot dans sa portée ; il a simplement cessé d'exister
+     en deux exemplaires. */
+  /* LOT 43, §1a/§0.1 — L'INHERITANCE EST « livrée, non choisie ». Sans
+     `background` posé, ET quand le genre ne porte plus qu'UN SEUL record
+     (les quatre du SRD éteints par la couche FH), ce record-là EST
+     l'arrière-plan du personnage sans qu'un `choose` l'ait jamais désigné.
+     C'était le cœur du lot 43 (§4, test 1) : sans ce repli, un personnage FH
+     publie ses boosts SANS le plan qui les juge.
+     ⭐ LOT 71 — le repli n'est plus écrit ici : il vit dans `resolvedRef`,
+     qui répond à cette question POUR TOUT LE MONDE, `refPlan` compris. Les
+     deux exemplaires divergeaient, et ça se voyait à l'écran (voir la tête
+     de `resolvedRef`). La portée n'a pas bougé d'un pouce : un menu à
+     PLUSIEURS options ne se résout jamais tout seul. */
+  const fond = resolvedRef(query, list, "background");
+  const backgroundView = fond.id ? query({ kind: "background", id: fond.id }) : null;
   if (backgroundView) {
     entries.push(...backgroundBoostPlan(list, backgroundView));
     entries.push(...backgroundFeatPlan(query, list, backgroundView));
