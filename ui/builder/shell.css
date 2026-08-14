@@ -139,6 +139,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   background: none;
   text-align: left;
   padding: var(--sp-8) var(--sp-12); /* 10px → même arrondi */
+  /* LOT 70 — le cran mesurait 38 px (padding 8+8 + pastille 22), sous le
+     seuil tactile que le CADRE s'impose depuis le lot 58 (--touch, 44 px
+     Apple). Défaut antérieur au lot 69, mesuré identique avant lui. La
+     ceinture grandit de 6 px ; le champ de la fiche les rend (mesuré :
+     680 → 674 à 360 × 780) et la chaîne d'aimantation suit, la fiche se
+     taille sur le champ, pas sur un nombre. */
+  min-height: var(--touch);
   border-radius: var(--radius-md);
   color: var(--text-muted); /* un libellé court = une « mention », pas une description */
   font-size: var(--t4); /* CORRECTIF : rendait à 16px par défaut du navigateur (§0). Zéro changement visible — c'est déjà ce que le corps affiche */
@@ -262,6 +269,20 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      d'état où « la fiche courante » serait indéterminée. */
   scroll-snap-type: y proximity;
 }
+/* LOT 70 — L'AMORCE DE LA FICHE : « il y a une suite ». À la souris, une
+   fiche qui remplit tout l'écran ressemble à une page sans suite — c'est ce
+   qu'Eric a exprimé par « pas de snap » : le mécanisme marchait, l'affordance
+   manquait. Même famille que le fondu des molettes (bible §4) : un MASQUE,
+   pas une teinte — le bas du contenu fond dans l'image de fond, le vrai
+   décor, sans jeton de couleur inventé. `data-more` est écrit par
+   `socle.mjs` seul (une image par rafale, jamais un redessin) ; le jeton
+   `--stage-amorce` vaut `none` à l'étroit — à 360, l'octet ne bouge pas —
+   et porte le fondu en Large. Au bout du défilement l'attribut retombe :
+   une amorce qui resterait mentirait sur la dernière ligne. */
+.stage[data-more="true"] {
+  -webkit-mask-image: var(--stage-amorce);
+  mask-image: var(--stage-amorce);
+}
 /* Le rail de navigation interne (B0.19) — FIXE, hors de la scène, donc il
    ne défile pas avec elle et `swapContent` ne le touche pas. */
 /* Le rail porte ses libellés en `--text-muted` : la matrice des dalles
@@ -305,7 +326,17 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 /* ── LES CHEVRONS FLOTTANTS (I.7, B0.22) ──────────────────────────
    « À l'extrême droite de l'écran » (B0.22a) · « ils s'effacent après ~1 s »
    (B0.22b) · « ils réapparaissent dès qu'on défile » (B0.22c). Ni barre, ni
-   gouttière : ils flottent PAR-DESSUS la fiche (B0.21d). */
+   gouttière : ils flottent PAR-DESSUS la fiche (B0.21d).
+
+   LOT 70 — LA POLARITÉ EST INVERSÉE : cachés tant que `socle.mjs` n'a pas
+   écrit `data-visible="true"`. L'ancien défaut visible (opacity: 1) faisait
+   flasher deux contrôles au chargement d'un écran qui ne défile pas
+   (mesuré à 1440 : Universe, champ 800/800) ; et sans JavaScript, des
+   chevrons qui ne peuvent pas faire défiler ne doivent pas exister.
+   L'HÔTE ne prend plus le pointeur : sa bande (60 × 112 px mesurés, posée
+   sur la fiche à 360) mangeait molette et balayages — la molette de souris
+   ne traverse pas un survol `pointer-events: auto`, même transparent. Seuls
+   les BOUTONS visibles reçoivent le geste. */
 .stage-chevrons {
   position: absolute;
   right: 0;
@@ -315,14 +346,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex-direction: column;
   gap: var(--sp-8);
   padding: var(--sp-8);
-  opacity: 1;
+  opacity: 0;
   transition: opacity .25s;
+  pointer-events: none;
 }
-.stage-chevrons[data-visible="false"] { opacity: 0; }
+.stage-chevrons[data-visible="true"] { opacity: 1; }
 /* ⛔ PAS `display: none` (défaut n°3, et le garde 4 des jetons l'interdit) :
    un contrôle effacé reste dans le flux, il cesse seulement d'être là pour
    le doigt — sinon la fiche se réagencerait deux fois par seconde. */
-.stage-chevrons[data-visible="false"] .stage-chevron { pointer-events: none; }
 .stage-chevron {
   min-width: var(--touch);
   min-height: var(--touch);
@@ -333,6 +364,18 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   font-size: var(--t4);
   cursor: pointer;
   padding: 0;
+  pointer-events: none;
+}
+.stage-chevrons[data-visible="true"] .stage-chevron { pointer-events: auto; }
+/* Un bout de course n'est pas une direction (socle.mjs, `relire`) : l'encre
+   s'éteint, la géométrie tient — retirer un bouton d'une pile flottante
+   ferait sauter l'autre sous le curseur. Encres de MENTION et bordure de
+   carte : la paire dit « présent, pas actionnable », jamais un troisième
+   gris inventé. */
+.stage-chevron:disabled {
+  color: var(--text-muted);
+  border-color: var(--border);
+  cursor: default;
 }
 
 /* ── LA DÉCISION COURANTE ────────────────────────────────────────── */

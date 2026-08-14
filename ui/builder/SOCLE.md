@@ -40,6 +40,7 @@ ne réclame aujourd'hui.
 | Le **cran d'aimantation** (quelle fiche est sous le doigt) | `state.classCursor` | **le scrollspy**, et lui seul |
 | La **position de défilement** | le nœud DOM lui-même | personne — elle se conserve, elle ne se stocke pas |
 | Le **minuteur** des chevrons | la fermeture de `mountChevrons` | lui-même |
+| La **vérité « ça défile »** (lot 70) : `data-visible` sur l'hôte des chevrons, `data-more` sur la scène, `disabled` sur les deux boutons | des attributs, sur des nœuds qui ne meurent pas | **`mountChevrons` seul** — un garde le prouve (`tests/chevrons.test.mjs`) |
 
 ## Les trois verbes, et rien d'autre
 
@@ -91,8 +92,18 @@ Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 - **`watchSnap(scroller, onSettle)`** + **`nearestIndex(offsets, target)`** —
   le scrollspy-sélecteur. La décision est une fonction **pure**, testée ; la
   géométrie se regarde dans le navigateur.
-- **`mountChevrons(host, scroller)`** — les chevrons flottants et leur
-  minuteur.
+- **`mountChevrons(host, scroller)`** — les chevrons flottants, leur
+  minuteur, **et la vérité « ça défile »** (lot 70) : pas de mou → tout
+  s'éteint (chevrons ET amorce `data-more`) ; un bout de course → la
+  direction s'éteint (`disabled`) ; la souris posée ou le focus **clavier**
+  (`:focus-visible` — un focus de clic ne retient pas, mesuré gelé sinon)
+  retiennent le minuteur. Il rend `{ step, settle }` : **`settle()`** relit
+  la géométrie après un remplacement (appelé par `refresh()`),
+  **`settle(true)`** annonce en plus une surface neuve qui défile — une
+  seconde de B0.22b, l'indicateur iOS qui flashe à l'ouverture d'une vue
+  (appelé par `openSurface()`). La machine à états est testée
+  (`tests/chevrons.test.mjs`) ; l'opacité et le masque se regardent au
+  navigateur.
 
 ⛔ **N'ajoute rien ici sans un écran qui en a besoin AUJOURD'HUI.** Le piège
 nommé par la commande du lot : un socle écrit pour des besoins imaginés,

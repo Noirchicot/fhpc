@@ -1311,6 +1311,11 @@ function refresh() {
   paintPopup();
   swapContent(frame.stage, [renderStepContent()]);
   frame.spy.settle();
+  /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
+     le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`
+     passe par ce verbe. SANS annonce — un choix cliqué n'est pas une
+     surface neuve. */
+  frame.scroller.settle();
 }
 
 /** UNE NOUVELLE SURFACE — changement d'étape, ou changement de palier. Le
@@ -1328,6 +1333,12 @@ function openSurface(at) {
   if (target) keepInView(frame.stage, target, "y-start");
   else frame.stage.scrollTo({ top: 0, behavior: "instant" }); // `instant` : arriver n'est pas voyager (voir swapContent)
   frame.spy.settle();
+  /* LOT 70 — AVEC annonce : une surface neuve qui défile se montre une
+     seconde (B0.22b, et la réserve de découvrabilité de l'architecte —
+     l'indicateur iOS qui flashe à l'ouverture d'une vue, la comparaison
+     d'Eric elle-même). Un écran qui tient en entier n'annonce RIEN :
+     mesuré à 1440, Universe flashait deux chevrons sur un champ 800/800. */
+  frame.scroller.settle(true);
 }
 
 /* ⚠️ `resize` appelle `refresh`, PAS `openSurface` : tourner le téléphone ne

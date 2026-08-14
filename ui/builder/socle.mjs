@@ -167,29 +167,137 @@ export function watchSnap(scroller, onSettle) {
    l'écran. Ils disparaissent au bout d'une seconde et réapparaissent dès
    qu'on scrolle. » (Eric, 2026-08-14)
 
-   LE MINUTEUR VIT ICI, dans la fermeture, posé UNE FOIS avec l'écouteur —
+   LE MINUTEUR VIT ICI, dans la fermeture, posé UNE FOIS avec les écouteurs —
    c'est la troisième des cinq choses que `innerHTML = ""` détruisait. Il ne
    peut plus être détruit par un redessin : rien ne remplace ce nœud-là.
 
-   ⚠️ RÉSERVE DE L'ARCHITECTE, NON TRANCHÉE PAR ERIC et reportée telle quelle
-   d'ERGONOMIE-BUILDER.md (B0.22) : un contrôle qui s'efface n'est pas
-   DÉCOUVRABLE — au premier écran, un joueur qui ne défile pas ne saura pas
-   qu'il existe. C'est pourquoi ils commencent VISIBLES (voir `mount`), et ne
-   s'effacent qu'après le premier repos : le cas du premier usage est ainsi
-   celui qui les montre, sans rien changer au comportement qu'Eric décrit. */
+   ══ LOT 70 — LA VÉRITÉ GÉOMÉTRIQUE, MESURÉE À 1440 × 900 ═══════════════
+   Trois mensonges du montage d'avant, tous vus à l'écran :
+     · les chevrons FLASHAIENT sur des écrans qui ne défilent pas (Universe
+       en Large : scrollHeight 800 == clientHeight 800) — une promesse de
+       défilement là où il n'y en a pas ;
+     · une fois effacés, ils étaient IRRÉCUPÉRABLES à la souris : les
+       boutons passent en `pointer-events: none`, et seul un geste de
+       molette les réveille — cliquer, attendre 1 s, voir le contrôle
+       mourir SOUS le curseur ;
+     · une direction impossible restait cliquable en apparence (∨ au pied
+       de Wizard, où chaque arrivée sur Class se pose).
+   Ce montage écrit donc la géométrie en ATTRIBUTS — jamais un nœud :
+     · `host[data-visible]`  — le minuteur B0.22b/c, inchangé sur le fond ;
+     · `scroller[data-more]` — « il reste du contenu plus bas ». C'est
+       l'interrupteur de l'AMORCE de la fiche (l'affordance bible §4, la
+       même famille que le fondu des molettes) : le CSS la consomme via
+       `--stage-amorce`, éteinte à l'étroit, allumée en Large ;
+     · `disabled` sur les deux boutons — un bout de course n'est pas une
+       direction. (La molette, elle, MASQUE en bout de course — B0.3 — mais
+       retirer un bouton d'une pile flottante ferait sauter l'autre ; ici
+       la géométrie tient, l'encre s'éteint.)
+
+   ⚠️ LA SOURIS POSÉE N'EST PAS DU REPOS (B0.22b, lu pour le desktop) :
+   `pointerover`/`pointerout` de type « mouse » retiennent le minuteur tant
+   que le curseur est sur un chevron — sans ça, le contrôle s'efface sous
+   la main qui allait recliquer (mesuré, c'était le « morts à 1440 »). Un
+   `pointerover` de type « touch » est ignoré : à 360, rien ne change. Le
+   focus clavier retient pareil — un contrôle qu'on atteint au Tab doit se
+   voir.
+
+   ⚠️ RÉSERVE DE L'ARCHITECTE (B0.22, découvrabilité) : un contrôle qui
+   s'efface n'est pas découvrable. L'ancien montage y répondait par UN
+   `show()` au montage — une seule fois PAR SESSION, sur un écran (Universe)
+   qui ne défile même pas en Large. La réponse vit désormais dans
+   `settle(true)`, que `openSurface` appelle : CHAQUE nouvelle surface qui
+   défile s'annonce une seconde — le comportement d'un indicateur iOS à
+   l'ouverture d'une vue, la comparaison d'Eric elle-même. */
 export const CHEVRON_REST_MS = 1000;
 
 export function mountChevrons(host, scroller) {
   let timer = null;
+  let survole = false;  // un pointeur de SOURIS est posé sur un chevron
+  let focalise = false; // un chevron a le focus clavier
+  const retenu = () => survole || focalise;
 
-  const show = () => {
-    host.dataset.visible = "true";
-    if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => { host.dataset.visible = "false"; timer = null; }, CHEVRON_REST_MS);
+  /* Les deux boutons, dans l'ordre où le cadre les pose : monter, puis
+     descendre. Capturés UNE fois — le cadre ne les remplace jamais
+     (SOCLE.md, « ce qui ne se redessine jamais »). Un hôte sans boutons
+     reste légal : la tenue de `data-more` ne dépend pas d'eux. */
+  const [monte, descend] = host.querySelectorAll(".stage-chevron");
+
+  /* Le mou : ce que le champ ne montre pas. Tolérance de 1 px — les
+     positions fractionnaires des écrans denses font mentir l'égalité
+     stricte. */
+  const mou = () => scroller.scrollHeight - scroller.clientHeight;
+  const peutDefiler = () => mou() > 1;
+
+  /* LA LECTURE : géométrie → attributs, et rien d'autre. C'est la ligne du
+     socle (« on écrit l'état, on touche un attribut, on s'arrête là »). */
+  const relire = () => {
+    const defilable = peutDefiler();
+    scroller.dataset.more = String(defilable && scroller.scrollTop < mou() - 1);
+    if (monte) monte.disabled = !defilable || scroller.scrollTop < 1;
+    if (descend) descend.disabled = !defilable || scroller.scrollTop >= mou() - 1;
+    return defilable;
   };
 
-  scroller.addEventListener("scroll", show, { passive: true });
-  show(); // ⭐ visibles à l'arrivée — voir la réserve ci-dessus
+  const cacher = () => { host.dataset.visible = "false"; timer = null; };
+  const armer = () => {
+    if (timer !== null) { clearTimeout(timer); timer = null; }
+    if (!retenu()) timer = setTimeout(cacher, CHEVRON_REST_MS);
+  };
+  const show = () => {
+    host.dataset.visible = "true";
+    armer();
+  };
+
+  /* `show()` à CHAQUE événement — le repos se mesure depuis le DERNIER
+     geste ; la géométrie, elle, se relit UNE image par rafale, jamais un
+     pixel (le même étranglement que `watchSnap`, même raison B5.2d). */
+  let pending = false;
+  scroller.addEventListener("scroll", () => {
+    show();
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; relire(); });
+  }, { passive: true });
+
+  /* `pointerover`/`out` BULLENT depuis les boutons (`pointerenter` ne bulle
+     pas) — l'hôte est en `pointer-events: none`, seuls les boutons visibles
+     reçoivent le pointeur : c'est aussi ce qui rend à la molette de souris
+     et au balayage la bande que l'hôte mangeait (mesurée : 60 × 112 px posés
+     sur la fiche, morts au geste). */
+  host.addEventListener("pointerover", (event) => {
+    if (event.pointerType !== "mouse") return;
+    survole = true;
+    if (timer !== null) { clearTimeout(timer); timer = null; }
+  });
+  host.addEventListener("pointerout", (event) => {
+    if (event.pointerType !== "mouse") return;
+    survole = false;
+    if (host.dataset.visible === "true") armer();
+  });
+  host.addEventListener("focusin", (event) => {
+    /* SEUL LE FOCUS CLAVIER RETIENT — trouvé en cliquant pour de vrai :
+       un clic (et un tap, sur Chrome) pose AUSSI le focus sur le bouton,
+       et `focalise` gelait alors les chevrons à l'écran pour toujours —
+       B0.22b mort après le premier usage, à 360 comme à 1440, sous une
+       suite verte. `:focus-visible` départage la main du clavier ; une
+       cible sans `matches` (le stub des tests) compte clavier — c'est le
+       sens du garde C ter. */
+    const clavier = !event.target || typeof event.target.matches !== "function"
+      || event.target.matches(":focus-visible");
+    if (!clavier) return;
+    focalise = true;
+    if (peutDefiler()) show();
+  });
+  host.addEventListener("focusout", () => {
+    focalise = false;
+    if (host.dataset.visible === "true") armer();
+  });
+
+  /* Au montage : cachés, et la géométrie dit vrai (la scène est encore
+     vide — rien à défiler, rien à promettre). L'annonce viendra de
+     `settle(true)`, pas d'un `show()` aveugle. */
+  host.dataset.visible = "false";
+  relire();
 
   return {
     /* Un cran = une hauteur de fiche : le défilement est aimanté (II.1),
@@ -202,6 +310,24 @@ export function mountChevrons(host, scroller) {
     step: (direction) => {
       scroller.scrollBy({ top: direction * scroller.clientHeight });
       show();
+    },
+
+    /* LE RATTRAPAGE — même contrat que `watchSnap().settle()` : à appeler
+       quand le CONTENU a changé sous les écouteurs (un remplacement n'émet
+       aucun `scroll`). `refresh()` l'appelle nu — la géométrie se remet à
+       jour, la visibilité ne bouge pas ; `openSurface(…)` l'appelle avec
+       `annonce` — une surface NEUVE qui défile se montre une seconde
+       (B0.22b), puis vit sa vie B0.22. Pas de défilement possible : tout
+       s'éteint, minuteur compris — des chevrons sur un écran qui tient en
+       entier sont un contrôle mort, mesuré tel. */
+    settle: (annonce = false) => {
+      const defilable = relire();
+      if (!defilable) {
+        if (timer !== null) { clearTimeout(timer); timer = null; }
+        cacher();
+        return;
+      }
+      if (annonce) show();
     }
   };
 }

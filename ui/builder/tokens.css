@@ -124,6 +124,18 @@
   --wheel-wrap: nowrap;
   --wheel-mask: linear-gradient(to right, black calc(100% - var(--sp-16)), transparent);
 
+  /* LOT 70 — L'AMORCE DE LA FICHE, le pendant VERTICAL du fondu ci-dessus :
+     « il reste du contenu plus bas ». À l'étroit elle vaut `none` — au doigt
+     on balaie et on découvre, et la base 360 ne bouge pas d'un octet ; en
+     Large elle porte le fondu — à la souris, une fiche qui remplit l'écran
+     ressemble à une page sans suite (le « pas de snap » d'Eric : le
+     mécanisme marchait, l'affordance manquait). Un masque n'est pas une
+     teinte — noir/transparent y encodent la VISIBILITÉ (même doctrine que
+     l'amorce des molettes) ; c'est l'image de fond, le vrai décor, qui
+     paraît au travers. L'interrupteur (`data-more`, socle.mjs) dit s'il
+     reste du contenu ; ce jeton dit si la grandeur veut l'annonce. */
+  --stage-amorce: none;
+
   /* Les gouttières calculées de la grandeur Large — à l'étroit, la valeur
      de base rend EXACTEMENT le remplissage d'avant ce lot. ⚠️ Résolues sur
      :root, donc elles ne référencent QUE des jetons globaux (jamais un
@@ -301,6 +313,16 @@
        l'amorce n'a plus rien à annoncer, elle s'éteint. */
     --wheel-wrap: wrap;
     --wheel-mask: none;
+
+    /* ── L'AMORCE DE LA FICHE S'ALLUME — le miroir exact de la molette :
+       elle, s'éteint en Large parce que tout tient ; la fiche, elle,
+       s'annonce en Large parce que la souris ne découvre rien au balayage
+       (mesuré à 1440 × 900 : barre de défilement invisible sur Mac, champ
+       rempli exactement par la fiche — « une page sans suite »). 32 px de
+       fondu sur un champ de ~800 : l'annonce, pas un voile. Noir/transparent
+       encodent la visibilité d'un masque, pas une couleur — le garde des
+       thèmes (forme hex/rgb/hsl/color-mix/url) reste muet, à raison. */
+    --stage-amorce: linear-gradient(to bottom, black calc(100% - var(--sp-32)), transparent);
 
     /* ── LES GOUTTIÈRES CALCULÉES — `max(le remplissage d'avant, la moitié
        du surplus)` : sous le seuil la formule rend exactement l'ancien
