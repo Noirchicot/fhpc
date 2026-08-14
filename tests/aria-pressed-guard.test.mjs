@@ -212,15 +212,24 @@ test("Species — le menu du 2ᵉ palier (bourse captive ou QCM) s'annonce", () 
   assertToutBoutonActifAnnonceSonEtat(node, "Species", 1);
 });
 
-test("Skills — la grille (paliers), le budget captif (Keen Senses) et les apprentissages s'annoncent", () => {
+test("Skills — chaque rond de palier s'annonce, et il n'y en a plus que trois par ligne", () => {
   const node = renderSkillsStep({
     resolved: report.resolved, decisions: report.decisions, violations: [], query, onAction: () => {}
   }, () => {});
-  /* Les 26 compétences + 36 outils, CHACUN avec son tiret + ses paliers
-     achetables (mesuré : au moins 4 boutons par ligne active pour un
-     magicien de niveau 1) — 200 est un plancher large, pas un compte exact
-     (ni la loi du dépôt, ni ce garde ne figent un total). */
-  assertToutBoutonActifAnnonceSonEtat(node, "Skills", 200);
+  /* ⚠️ LOT 62 — LE PLANCHER A BAISSÉ, ET C'EST UNE MESURE, PAS UN
+     RELÂCHEMENT. Le seuil valait 200 quand chaque ligne portait QUATRE ronds
+     (le tiret compris) et que la bourse captive s'affichait ici. B7.4 a
+     retiré le tiret, B7.2d a déménagé la bourse : le compte baisse
+     mécaniquement d'un quart. Le plancher suit la mesure, il ne la précède
+     pas — et il reste un plancher LARGE, pas un compte exact. */
+  assertToutBoutonActifAnnonceSonEtat(node, "Skills", 150);
+  const lignes = node.querySelectorAll(".skills-row");
+  assert.ok(lignes.length > 50, `témoin : la grille est bien peuplée (${lignes.length} lignes)`);
+  for (const ligne of lignes) {
+    const ronds = ligne.querySelectorAll(".skills-tier-btn");
+    assert.ok(ronds.length === 0 || ronds.length === 3,
+      `B7.4 : une ligne porte TROIS ronds, ou aucun (lignes sans palier achetable) — trouvé ${ronds.length}`);
+  }
 });
 
 test("Inheritance — la carte de don d'origine (fabriquée à la main, TROISIÈME instance du lot 53) s'annonce", () => {

@@ -58,6 +58,8 @@ const CATEGORY_LABEL = {
   physical: "Physical"
 };
 const UNSORTED_LABEL = "Skills";
+/* Le sixième cran de la molette (B7.1) — un label, pas un titre affiché. */
+const TOOLS_LABEL = "Tools & Trainings";
 
 /* ── LA RAMPE DES PALIERS — trois rangs, trois glyphes, trois jetons. Les
    jetons `tokens.css` sont nommés PAR RANG (`--tier-1/2/3`), pas par nom de
@@ -65,7 +67,21 @@ const UNSORTED_LABEL = "Skills";
    jamais besoin de connaître ces trois mots. `purchasableTiers()` lit
    `tier_costs` et les TRIE par coût croissant : le rang 0 est toujours le
    moins cher, quel que soit son nom. */
-const TIER_GLYPH = ["½", "●", "★"];
+/* ══ B7.4 — LE BOUTON « 0 » EST SUPPRIMÉ, ET ÇA DÉBLOQUE TOUT ═══════════
+   Eric, 2026-08-14 : « le bouton 0 est obsolète. Rien de rempli = 0. »
+   Il reste TROIS ronds, aux conventions D&D Beyond : demi-plein · plein ·
+   plein entouré. L'état « aucune maîtrise » n'est plus un bouton : c'est
+   l'ABSENCE de remplissage.
+
+   📌 Comment revient-on à 0 ? C'était DÉJÀ codé (carnet.mjs, lot 42, et ici
+   même) : re-toucher le rond actif l'efface. Rien à inventer.
+
+   ⭐ ET CE N'ÉTAIT PAS UN DÉTAIL D'AFFICHAGE. Mesure de B7.5 : avec QUATRE
+   ronds au seuil tactile (44 px), il ne restait que 76 px pour le nom — «
+   une ligne » et « touches au doigt » étaient INCOMPATIBLES à 360 px. Avec
+   trois, il en reste 124, et les deux passent. La suppression du 0 est ce
+   qui rend cet écran faisable au doigt. */
+const TIER_GLYPH = ["◐", "●", "◉"];
 const NONE_GLYPH = "—";
 
 /* ── LOT 57, §1.3 DE LA COMMANDE — LES TROIS CLEFS MACHINE ═══════════════
@@ -99,7 +115,6 @@ const TIER_LABEL = {
    AUCUNE entrée dans `decisions[]` : il n'existe donc aucun endroit vivant
    où lire cette paire avant le premier clic. Signalé, pas caché — voir
    INVENTAIRE-LOT-39.md. */
-const BUDGET_TIERS = ["half", "proficient"];
 
 const REFUSAL_WORDS = {
   "skill-pool.overspent": (p) => `Overspent by ${p.over} — ${p.spent} of ${p.available} spent.`,
@@ -118,6 +133,10 @@ const REFUSAL_WORDS = {
 
 /** Rend le mot d'un refus. Un `key` inconnu retombe sur lui-même — jamais
  *  un écran qui plante sur une clef que le moteur apprendrait demain. */
+/** Le mot d'un refus, EXPORTÉ pour la coquille : c'est elle qui réveille le
+ *  popup à chaque écart (B7.7c), mais le vocabulaire appartient à l'écran. */
+export function skillsRefusalWord(violation) { return refusalWord(violation); }
+
 function refusalWord(violation) {
   const words = REFUSAL_WORDS[violation.key];
   return words ? words(violation.params || {}) : violation.key;
@@ -216,19 +235,46 @@ function counterLine(label, value, over) {
   return line;
 }
 
-function renderCounter(counter, poolViolation) {
-  const wrap = el("div", "skills-counter");
+/* ══ B7.1 — CE QUI FLOTTE, ET CE QUI NE FLOTTE PAS ══════════════════════
+   Eric a coupé le compteur en DEUX, et la distinction est fine et voulue :
+
+     🔒 LIGNE 1 — `Pool · Invested · Left`, plus `Reset` : elle FLOTTE.
+     📜 LIGNE 2 — le calcul, écrit plus petit (`Class / Species = X`) : elle
+        DISPARAÎT dans le défilement.
+
+   ⭐ C'est sa réponse à son propre défaut A-1.1 (« je voudrais un flottant
+   pour voir le compte, ça disparaît ») : **on garde sous les yeux COMBIEN IL
+   RESTE, pas D'OÙ ÇA VIENT.**
+
+   ⛔ ET `Reset` EST DANS LA LIGNE 1 (B7.8), pas ailleurs. L'architecte avait
+   lu « à droite du calcul » comme la ligne 2 et bâti toute une justification
+   dessus (« Reset est destructeur, le sortir du champ permanent évite les
+   gestes accidentels ») — élégant et faux. Eric : « non, elle est dans la
+   barre du pool ». Il reste donc TOUJOURS atteignable, sans remonter. */
+function renderPoolBar(counter, poolViolation, ctx) {
+  const wrap = el("div", "skills-poolbar");
   wrap.dataset.status = counter.left < 0 ? "over" : "ok";
   wrap.append(counterLine("Pool", `${counter.spentPool}/${counter.availablePool}`));
-  if (counter.classPlan) wrap.append(counterLine("Class", `${counter.classPlan.answered}/${counter.classPlan.expected}`));
-  if (counter.speciesBudgetPlan) {
-    wrap.append(counterLine("Species", `${counter.speciesBudgetPlan.answered}/${counter.speciesBudgetPlan.expected}`));
-  }
   wrap.append(counterLine("Invested", String(counter.invested)));
   wrap.append(counterLine("Left", String(counter.left), counter.left < 0));
+  wrap.append(renderResetButton(ctx));
   /* ⛔ §3d, MESURÉ : `skill-pool.overspent` ne porte JAMAIS de `.path` — le
-     total est fautif, pas une ligne. Il se pose donc ICI, au compteur, et
-     nulle part sur la grille (test 6). */
+     total est fautif, pas une ligne. Il se pose donc sur la barre du pool,
+     et nulle part sur la grille. */
+  if (poolViolation) wrap.dataset.refus = "true";
+  return wrap;
+}
+
+/** LIGNE 2 — le calcul, plus petit, et il défile (B7.1). */
+function renderPoolDetail(counter, poolViolation) {
+  const wrap = el("div", "skills-pooldetail");
+  const morceaux = [];
+  if (counter.classPlan) morceaux.push(`Class ${counter.classPlan.answered}/${counter.classPlan.expected}`);
+  if (counter.speciesBudgetPlan) {
+    morceaux.push(`Species ${counter.speciesBudgetPlan.answered}/${counter.speciesBudgetPlan.expected}`);
+  }
+  morceaux.push(`Spent ${counter.spentPool}`);
+  wrap.append(el("p", "skills-pooldetail-line", [text(`${morceaux.join(" · ")} = ${counter.invested} invested`)]));
   if (poolViolation) wrap.append(el("p", "skills-refusal skills-refusal-pool", [text(refusalWord(poolViolation))]));
   return wrap;
 }
@@ -256,15 +302,8 @@ function renderRogueNotice(pool, classView, level) {
  *  cliquer le tiret efface aussi — le moteur dira si c'est illégal. */
 function renderTierButtons({ currentTier, tiers, path, onAction, violation }) {
   const wrap = el("div", "skills-tiers");
-  const dash = document.createElement("button");
-  dash.type = "button";
-  dash.className = "skills-tier-btn";
-  dash.dataset.rung = "none";
-  markPressed(dash, currentTier === "none" || currentTier === undefined);
-  dash.textContent = NONE_GLYPH;
-  dash.setAttribute("aria-label", "No proficiency");
-  dash.addEventListener("click", () => onAction({ kind: "clear", path }));
-  wrap.append(dash);
+  /* ⛔ PLUS DE TIRET (B7.4) : « rien de rempli = 0 ». Le quatrième bouton a
+     disparu, et avec lui les 48 px qui empêchaient la ligne de tenir. */
   tiers.forEach((tierKey, index) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -284,6 +323,27 @@ function renderTierButtons({ currentTier, tiers, path, onAction, violation }) {
   return wrap;
 }
 
+/** La rampe d'une ligne VERROUILLÉE : les trois ronds sont là (le joueur
+ *  doit voir ce qu'il a), mais aucun ne pose de verbe — ils réveillent le
+ *  popup. ⛔ Ni `disabled` ni retrait : un contrôle absent n'explique rien,
+ *  et un contrôle grisé ne se touche pas, donc ne peut rien dire. */
+function renderFloorTiers(skill, lock, onAction) {
+  const wrap = el("div", "skills-tiers");
+  wrap.dataset.floor = "true";
+  TIER_GLYPH.forEach((glyph, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "skills-tier-btn";
+    btn.dataset.rung = String(index + 1);
+    markPressed(btn, index === 0 && skill.proficiency !== "none");
+    btn.textContent = glyph;
+    btn.setAttribute("aria-label", `${skill.name} — ${lock}`);
+    btn.addEventListener("click", () => onAction({ kind: "popup", texte: `${skill.name} — ${lock}. Change it on that step.` }));
+    wrap.append(btn);
+  });
+  return wrap;
+}
+
 /* ══ LA GRILLE LIBRE — 3 colonnes, Skill/Tool · Invested · Cost ═════════
    Décision n°2 : pas de colonne Floor — un plancher est un cadenas sur la
    ligne, jamais une saisie. `Cost`, ici, n'est pas un nombre par ligne :
@@ -291,15 +351,31 @@ function renderTierButtons({ currentTier, tiers, path, onAction, violation }) {
    lu depuis `tier_costs`) — une colonne « Cost » numérique redirait ce que
    la rampe dit déjà, et écrire les nombres 1/2/4 en dehors des jetons de
    rang serait exactement le littéral que la commande interdit (§0). */
+/* ══ B7.2 — VERROUILLÉ, MAIS PAS MUET ════════════════════════════════════
+   « Species skills est DÉJÀ VERROUILLÉ. Si on y touche, un petit commentaire
+   s'affiche, qui REPOSE le choix au joueur s'il veut changer. Une couleur
+   spécifique marque le PLANCHER. »
+
+   ⛔ Le cadenas n'est plus un MOT sur la ligne (« Locked · Elf »), il est un
+   ÉTAT de la ligne (`data-floor`) que la couleur porte — c'est ce que dit
+   « une couleur spécifique marque le plancher », et ça rend au nom les
+   pixels que le mot lui prenait (B7.3c : une seule ligne). Le mot, lui,
+   revient dans le popup quand on touche. */
 function renderSkillRow(skill, ctx) {
   const { resolved, decisions, violations, tiers, onAction } = ctx;
   const row = el("div", "skills-row");
   row.dataset.row = skill.id;
+  const lock = lockLabel(decisions, resolved, skill.id);
+  if (lock) row.dataset.floor = "true";
   row.append(el("span", "skills-row-name", [text(skill.name)]));
   row.append(el("span", "skills-row-ability", [text(abilityLabel(skill.ability))]));
   row.append(el("span", "skills-row-bonus", [text(signed(skill.bonus))]));
-  const lock = lockLabel(decisions, resolved, skill.id);
-  if (lock) row.append(el("span", "skills-lock", [text(lock)]));
+  if (lock) {
+    /* Toucher un plancher ne change RIEN au document — ça réveille le popup,
+       qui nomme d'où vient le verrou et où le rouvrir (B7.2b). */
+    row.append(renderFloorTiers(skill, lock, onAction));
+    return row;
+  }
   if (tiers.length > 0) {
     const path = `fh.skills.spend.${skill.id}`;
     row.append(renderTierButtons({
@@ -311,10 +387,20 @@ function renderSkillRow(skill, ctx) {
   return row;
 }
 
+/* ══ B7.3a/b — UNE CATÉGORIE = UNE DALLE MAJEURE, SANS SON TITRE ════════
+   « Chaque catégorie flotte sur une dalle MAJEURE pleine largeur. »
+   ⛔ « Ne pas re-préciser Knowledge en titre — le spy et le snap le rendent
+   évident » : la molette du haut surligne déjà la catégorie courante, et le
+   défilement s'y aimante. Un titre de plus redirait ce que deux mécanismes
+   disent déjà, et coûterait une ligne par catégorie sur un écran qui en
+   compte six.
+   📌 `data-snap` est le contrat avec le scrollspy du socle — le MÊME que
+   celui des catalogues (SOCLE.md). Le label voyage en `data-label` : la
+   molette le lit, l'écran ne l'affiche pas. */
 function renderCategoryGroup(label, skills, ctx) {
-  const group = el("section", "skills-group");
-  group.id = `skills-cat-${label.toLowerCase().replace(/\s+/g, "-")}`;
-  group.append(el("h3", null, [text(label)]));
+  const group = el("section", "skills-group dalle-majeure");
+  group.dataset.snap = "skills";
+  group.dataset.label = label;
   const rows = el("div", "skills-rows");
   for (const skill of skills) rows.append(renderSkillRow(skill, ctx));
   group.append(rows);
@@ -350,38 +436,15 @@ function renderMainGrid(ctx) {
   return wrap;
 }
 
-/* ══ LE BUDGET CAPTIF D'ESPÈCE (Keen Senses…) — un groupe À PART ════════
-   `species.skillBudget` (decisions.mjs, lot 34) : PAS un `multiPlan`, un
-   budget de points dépensé à ½/Plein sur une liste fermée. Rendu ici, hors
-   de la grande grille (décision n°3), avec ses propres verbes sur
-   `species.skillBudget.<slug>`. */
-function renderSpeciesBudget(ctx) {
-  const { decisions, violations, query, onAction } = ctx;
-  const plan = planAt(decisions, "species.skillBudget");
-  if (!plan) return null;
-  const skillCatalog = query({ kind: "skill" }) || [];
-  const nameBySlug = new Map(skillCatalog.map((view) => [view.record.slug, view.record.name]));
-  const wrap = el("section", "skills-budget-block");
-  wrap.dataset.status = plan.status;
-  wrap.append(el("h3", null, [text("Species skill budget")]));
-  wrap.append(el("p", "skills-budget-note", [text(`${plan.answered} of ${plan.expected} points spent`)]));
-  if (plan.lock) wrap.append(el("p", "skills-refusal", [text(refusalWord(plan.lock))]));
-  const rows = el("div", "skills-rows");
-  for (const slug of plan.options) {
-    const path = `species.skillBudget.${slug}`;
-    const step = planAt(decisions, path);
-    const current = step && step.selected.length > 0 ? step.selected[0] : "none";
-    const row = el("div", "skills-row");
-    row.dataset.row = slug;
-    row.append(el("span", "skills-row-name", [text(nameBySlug.get(slug) || slug)]));
-    row.append(renderTierButtons({
-      currentTier: current, tiers: BUDGET_TIERS, path, onAction, violation: step ? step.lock : null
-    }));
-    rows.append(row);
-  }
-  wrap.append(rows);
-  return wrap;
-}
+/* ⛔ B7.2d — LE TABLEAU « SPECIES SKILL BUDGET » A DÉGAGÉ D'ICI, avec son
+   balisage (loi §0.6). Eric : « le tableau Species skill budget DÉGAGE ».
+   ⚠️ IL N'EST PAS SUPPRIMÉ DU PRODUIT : depuis le lot 60 il vit sur l'écran
+   SPECIES, au 2ᵉ palier de son `Validate` — c'est-à-dire à l'endroit où le
+   choix se prend. Ce qui part d'ici, c'est le DOUBLON : la même bourse
+   pilotée depuis deux écrans, sur les mêmes chemins
+   (`species.skillBudget.<slug>`), aurait fini par diverger.
+   📌 Son compte reste LU ici, en ligne 2 du compteur — savoir ce qu'on a
+   investi ailleurs n'oblige pas à pouvoir le changer ici. */
 
 /* ══ TOOLS & TRAININGS — un intertitre, trois sous-blocs (décision n°4) ═ */
 function renderToolRow(view, ctx) {
@@ -494,78 +557,54 @@ function renderTrainingsBlock(ctx) {
 }
 
 function renderToolsAndTrainings(ctx) {
-  const section = el("section", "skills-group skills-tools-trainings");
-  section.id = "skills-cat-tools-trainings";
-  section.append(el("h3", null, [text("Tools & Trainings")]));
+  /* Le sixième cran d'aimantation, même contrat que les cinq catégories.
+     ⛔ Pas de titre non plus (B7.3b) : la molette le porte déjà. Ses TROIS
+     sous-blocs, eux, gardent leurs intertitres — ils distinguent des choses
+     différentes DANS la même dalle, ce que la molette ne dit pas. */
+  const section = el("section", "skills-group skills-tools-trainings dalle-majeure");
+  section.dataset.snap = "skills";
+  section.dataset.label = TOOLS_LABEL;
   section.append(renderToolsBlock(ctx));
   section.append(renderLanguagesBlock(ctx));
   section.append(renderTrainingsBlock(ctx));
   return section;
 }
 
-/* ══ LA BARRE DE CATÉGORIES — réemploie la molette du lot 38 ════════════
-   Décision n°1 : une barre collante, dont le highlight suit le défilement
-   (scrollspy) et sert aussi de raccourci. ⭐ Elle réemploie le COMPOSANT
-   molette du lot 38 (`.belt`/`.belt-item`, plate, scroll-snap, fondu de
-   bords) — même classes, même mécanisme, jamais un second composant écrit
-   ici (commande §3b : « n'en écris pas un second »). `IntersectionObserver`
-   fait le scrollspy ; un clic saute à la section, et respecte
-   `prefers-reduced-motion` via le même `scroll-behavior` CSS que la
-   ceinture d'étapes (aucune animation codée à la main ici).
+/* ══ B7.1 — LA MOLETTE DE CATÉGORIES **FLOTTE** ═════════════════════════
+   Elle ne vit plus DANS le contenu (`position: sticky`, lot 39) : elle est
+   posée dans le slot horizontal FIXE du cadre (`.stage-topbar`,
+   `shell.mjs`). C'est ce que B7.1 demande, et c'est aussi ce qui répond au
+   défaut A-1.2 : elle portait la classe `belt` — la même que la ceinture
+   d'étapes, qui, elle, CHANGE DE VUE — alors qu'elle ne filtre rien.
 
-   ⚠️ LOT 58 — LE SAUT NE PASSE PLUS PAR `scrollIntoView`. Mesuré (défaut
-   A-1.3 d'ERGONOMIE-BUILDER.md) : un clic sur « Tools & Trainings »
-   catapultait de 6 111 px, `scroll 48 → 6159`. La cause n'est pas
-   l'ampleur du saut (la section EST loin) mais le fait que
-   `scrollIntoView` remonte TOUTE la chaîne des ancêtres et déplace donc
-   aussi ce qui contient la fiche. `keepInView` (socle.mjs) ne touche
-   qu'UN conteneur : celui que `shell.mjs` a marqué `data-scroller`. */
-function renderCategoryBar(sections) {
-  const bar = el("nav", "belt skills-category-bar");
+   ⭐ ET ELLE N'A PLUS SON PROPRE SCROLLSPY. `IntersectionObserver`
+   s'abonnait élément par élément, donc mourait à chaque remplacement de
+   contenu (le défaut §0). Le spy du socle (`watchSnap`) relit `[data-snap]`
+   à chaque lecture et ne retient aucun nœud : il survit par construction.
+
+   ⚠️ Les items ne sont PAS des boutons de filtre : cliquer AMÈNE la section
+   dans le champ, elle ne cache jamais les autres (les six sections sont
+   rendues ensemble, mesuré au lot 39). */
+export function renderSkillsTopbar(ctx, onAction) {
+  const act = onAction || ctx.onAction || (() => {});
+  const bar = el("nav", "skills-catbar");
   bar.setAttribute("aria-label", "Skill categories");
-  sections.forEach(({ node, label }, index) => {
+  (ctx.categories || []).forEach((label, index) => {
     const item = document.createElement("button");
     item.type = "button";
-    item.className = "belt-item";
-    item.dataset.status = index === 0 ? "current" : "upcoming";
-    item.append(el("span", "belt-label", [text(label)]));
-    /* La cible est le NŒUD lui-même (fermeture), jamais un `getElementById` —
-       ce navigateur minimal des tests (tests/dom-stub.mjs) ne porte pas cette
-       méthode, et un nœud tenu en mémoire est de toute façon plus direct
-       qu'un aller-retour par chaîne d'id. */
-    /* `y-start`, pas `y` : un raccourci de table des matières pose la section
-       EN HAUT du champ. Mesuré au navigateur avec « au plus près » : cliquer
-       « Tools & Trainings » depuis 2 400 px REMONTAIT à 1 653 px, le haut de
-       la section restant hors du champ — un déplacement juste, mais pas ce
-       qu'on demande à un raccourci. */
-    item.addEventListener("click", () => keepInView(scrollParent(node), node, "y-start"));
+    item.className = "skills-cat";
+    item.dataset.label = label;
+    item.setAttribute("aria-current", index === (ctx.cursor || 0) ? "true" : "false");
+    item.append(el("span", "skills-cat-label", [text(label)]));
+    item.addEventListener("click", () => act({ kind: "snapTo", index }));
     bar.append(item);
   });
-  return bar;
+  const wrap = el("div", "skills-topbar");
+  wrap.append(bar);
+  if (ctx.poolBar) wrap.append(ctx.poolBar);
+  return wrap;
 }
 
-function wireScrollspy(root, bar) {
-  if (typeof IntersectionObserver !== "function") return; // absent hors navigateur (tests) — dégradation silencieuse
-  const items = bar.querySelectorAll ? bar.querySelectorAll(".belt-item") : [];
-  const sections = root.querySelectorAll ? root.querySelectorAll(".skills-group") : [];
-  if (items.length === 0 || sections.length === 0) return;
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      const index = [...sections].indexOf(entry.target);
-      items.forEach((item, i) => { item.dataset.status = i === index ? "current" : "upcoming"; });
-    }
-  }, { rootMargin: "-40% 0px -55% 0px" });
-  for (const section of sections) observer.observe(section);
-}
-
-/** Le bouton *Reset* — ne rend que les points DÉPENSÉS (décision n°2) :
- *  toutes les portes `fh.skills.spend.<slug>` (compétences + outils) et
- *  `fh.skills.train.<slug>` (apprentissages acquis), jamais
- *  `class.skills[]` ni `species.skillBudget.*` — ces deux-là sont des
- *  imposés, pas une dépense. `clear` sur un chemin absent n'est pas une
- *  faute (`src/build/block.mjs`) : dépenser 62 `clear` sur des chemins
- *  jamais touchés ne coûte rien de plus qu'un `clear` unique. */
 function renderResetButton(ctx) {
   const { resolved, query, onAction } = ctx;
   const btn = document.createElement("button");
@@ -597,13 +636,34 @@ export function renderSkillsStep(ctx, onAction) {
   const decisions = ctx.decisions || [];
   const violations = ctx.violations || [];
   const query = ctx.query;
-  /* Deux conventions d'appel cohabitent : `shell.mjs` passe le verbe en
-     second argument (comme l'ancien fichier du lot 33) ; les tests, qui
-     construisent tout le `ctx` d'un coup, peuvent le porter dans
-     `ctx.onAction`. Les deux désignent le même geste. */
+  /* Deux conventions d'appel cohabitent (lot 39) : la coquille passe le
+     verbe en second argument, les tests peuvent le porter dans `ctx`. */
   const act = onAction || ctx.onAction || (() => {});
   const section = el("section", "skills-step");
 
+  const rowCtx = skillsRowCtx(ctx, act);
+  const counter = computeCounter(resolved, decisions);
+
+  /* 📜 LIGNE 2 — le calcul, et il DÉFILE (B7.1). La ligne 1 est ailleurs :
+     elle flotte dans le slot fixe du cadre, avec `Reset` (B7.8). */
+  if (counter) {
+    const poolViolation = violations.find((v) => v.key === "skill-pool.overspent" || v.key === "skill-pool.no-tool") || null;
+    section.append(renderPoolDetail(counter, poolViolation));
+    const notice = renderRogueNotice(rowCtx.pool, rowCtx.classView, resolved.identity && resolved.identity.level);
+    if (notice) section.append(notice);
+  }
+
+  section.append(renderMainGrid(rowCtx));
+  section.append(renderToolsAndTrainings(rowCtx));
+  return section;
+}
+
+/** Le `ctx` de ligne, composé UNE FOIS et partagé par le contenu ET la barre
+ *  fixe — les deux doivent lire le même pool, sinon la barre pourrait
+ *  afficher un compte que la grille contredit. */
+function skillsRowCtx(ctx, act) {
+  const resolved = ctx.resolved || {};
+  const query = ctx.query;
   const poolStat = findPoolStat(resolved);
   let pool = null;
   let classView = null;
@@ -614,43 +674,47 @@ export function renderSkillsStep(ctx, onAction) {
     pool = classView && classView.record.data ? classView.record.data.fh_skill_pool : null;
     tiers = purchasableTiers(pool);
   }
+  return {
+    resolved, decisions: ctx.decisions || [], violations: ctx.violations || [],
+    tiers, query, pool, classView, onAction: act
+  };
+}
 
-  const rowCtx = { resolved, decisions, violations, tiers, query, onAction: act };
+/** LES CATÉGORIES RÉELLEMENT RENDUES, dans l'ordre — la molette du cadre en
+ *  a besoin, et elle doit lire EXACTEMENT la même liste que la grille (une
+ *  catégorie vide ne reçoit pas de raccourci vers rien, loi du lot 39). */
+export function skillsCategories(ctx) {
+  const grille = renderMainGrid(skillsRowCtx(ctx, () => {}));
+  const groupes = grille.querySelectorAll ? grille.querySelectorAll("[data-snap]") : [];
+  const labels = [...groupes].map((n) => n.getAttribute("data-label"));
+  return labels.concat(TOOLS_LABEL);
+}
 
-  const counter = computeCounter(resolved, decisions);
-  if (counter) {
-    /* Les deux SEULS refus SANS `.path` (§3d, mesuré) — ils appartiennent
-       tous les deux au compteur, jamais à une ligne. */
-    const poolViolation = violations.find((v) => v.key === "skill-pool.overspent" || v.key === "skill-pool.no-tool") || null;
-    section.append(renderCounter(counter, poolViolation));
-    const level = resolved.identity && resolved.identity.level;
-    const notice = renderRogueNotice(pool, classView, level);
-    if (notice) section.append(notice);
-  }
+/** LA BARRE FIXE de l'écran (B7.1) : la molette de catégories + la ligne 1
+ *  du pool, `Reset` compris. C'est `shell.mjs` qui la pose dans le slot
+ *  horizontal du cadre — elle ne défile jamais. */
+export function renderSkillsBar(ctx, onAction) {
+  const act = onAction || ctx.onAction || (() => {});
+  const rowCtx = skillsRowCtx(ctx, act);
+  const counter = computeCounter(ctx.resolved || {}, ctx.decisions || []);
+  const violations = ctx.violations || [];
+  const poolViolation = violations.find((v) => v.key === "skill-pool.overspent" || v.key === "skill-pool.no-tool") || null;
+  return renderSkillsTopbar({
+    categories: skillsCategories(ctx),
+    cursor: ctx.cursor || 0,
+    poolBar: counter ? renderPoolBar(counter, poolViolation, rowCtx) : null
+  }, act);
+}
 
-  const budgetBlock = renderSpeciesBudget(rowCtx);
-  if (budgetBlock) section.append(budgetBlock);
-
-  if (counter) section.append(renderResetButton(rowCtx));
-
-  const mainGrid = renderMainGrid(rowCtx);
-  section.append(mainGrid);
-
-  const toolsAndTrainings = renderToolsAndTrainings(rowCtx);
-  section.append(toolsAndTrainings);
-
-  /* La barre de catégories — un item par groupe RÉELLEMENT rendu (une
-     catégorie vide, sur un personnage qui n'a pas encore de classe FH, ne
-     reçoit pas de raccourci vers rien). Les CIBLES sont les nœuds eux-mêmes
-     (fermeture), voir `renderCategoryBar`. */
-  const groupNodes = mainGrid.querySelectorAll ? [...mainGrid.querySelectorAll(".skills-group")] : [];
-  const sections = groupNodes.map((node) => ({
-    node, label: (node.querySelector("h3") && node.querySelector("h3").textContent) || ""
-  }));
-  sections.push({ node: toolsAndTrainings, label: "Tools & Trainings" });
-  const bar = renderCategoryBar(sections);
-  section.prepend(bar);
-  wireScrollspy(section, bar);
-
-  return section;
+/** LE PALIER UNIQUE DE COMPÉTENCES — B7.3d : « Valid s'illumine quand le
+ *  compte est bon ». Le compte vient du moteur (`Left`), jamais d'ici : un
+ *  pool négatif est un dépassement, et `validate()` le refuse déjà. */
+export function skillsValidate(ctx) {
+  const counter = computeCounter(ctx.resolved || {}, ctx.decisions || []);
+  return {
+    exists: true,
+    ready: Boolean(counter) && counter.left >= 0,
+    action: null,
+    next: "step"
+  };
 }

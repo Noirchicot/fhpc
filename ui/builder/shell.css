@@ -178,6 +178,19 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 .command-validate[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
 .command-validate:disabled { opacity: .5; cursor: default; }
 
+/* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
+   « Certaines fiches auront EN PLUS une navigation interne, fixe elle
+   aussi. Donc deux barres persistantes : les étapes au-dessus, les sections
+   de la fiche en dessous. » Compétences y met sa molette de catégories ET
+   sa barre de pool (B7.1).
+   ⚠️ OPAQUE, comme le reste du châssis : elle porte des libellés en
+   `--text-muted`, que la matrice des dalles interdit sur du verre. */
+.stage-topbar {
+  flex: none;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
 /* ── LA SCÈNE — LE SEUL ÉLÉMENT QUI DÉFILE (B0.21a) ───────────────
    `.stage` est le conteneur PERSISTANT : `swapContent` remplace son
    contenu, jamais lui. C'est ce nœud-là qui porte la position de
@@ -231,6 +244,25 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   background: var(--bg);
 }
 .stage-area[data-aside="on"] .stage { left: var(--rail-w); }
+
+/* ── LE POPUP (III.4) — « se ferme en cliquant dehors » ───────────
+   ⛔ À CODER UNE FOIS, PAS TROIS (l'invariant le dit en toutes lettres) :
+   trois écrans l'emploient déjà. Il flotte au-dessus de la scène, en bas —
+   là où le pouce ne le masque pas et où il ne recouvre pas ce qu'on vient
+   de toucher.
+   ⚠️ OPAQUE : il porte un refus, donc de l'encre `--critical`, que la
+   matrice du lot 59 interdit sur du verre. */
+.popup {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 3;
+  margin: var(--sp-16);
+  padding: var(--sp-12) var(--sp-16);
+  background: var(--surface);
+  border: 1px solid var(--critical);
+  border-radius: var(--radius-md);
+}
+.popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
 
 /* ── LES CHEVRONS FLOTTANTS (I.7, B0.22) ──────────────────────────
    « À l'extrême droite de l'écran » (B0.22a) · « ils s'effacent après ~1 s »
@@ -325,16 +357,50 @@ button { font: inherit; }
    derrière un sélecteur qui ne matche plus rien (loi §0.6). */
 .skills-step { max-width: var(--grid-w); position: relative; } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) */
 
-/* La barre de catégories : le COMPOSANT molette du lot 38 (`.belt`), pas un
-   second — seule une classe de plus (`position: sticky`) la distingue de
-   la ceinture d'étapes, dont elle réutilise la forme plate à l'identique. */
-.skills-category-bar { position: sticky; top: 0; z-index: 1; background: var(--bg); flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: var(--sp-8) 0; margin-bottom: var(--sp-16); }
-.skills-category-bar .belt-item { scroll-snap-align: center; flex: none; }
+/* ══ LA BARRE FIXE DE COMPÉTENCES (B7.1) ═══════════════════════════════
+   ⚠️ `.skills-category-bar` A DISPARU AVEC SON BALISAGE (loi §0.6). Elle
+   était `position: sticky` DANS le contenu et portait la classe `.belt` —
+   la même que la ceinture d'étapes, qui, elle, change de vue. C'était le
+   défaut A-1.2 mesuré : « elle ressemble à des onglets, mais n'en est pas ».
+   Elle vit maintenant dans le slot fixe du cadre, avec sa propre identité. */
+.skills-topbar { display: flex; flex-direction: column; }
+.skills-catbar {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: var(--sp-4) 0;
+  scroll-behavior: smooth;
+  mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
+}
+.skills-cat {
+  flex: none;
+  min-height: var(--touch);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: var(--t3);
+  padding: 0 var(--sp-12);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.skills-cat[aria-current="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
 
-/* Le compteur — collé AVEC la barre (décision n°5) : il défile ensemble,
-   ni l'un ni l'autre ne survit à l'étape (pas de bandeau permanent, loi de
-   la coquille). */
-.skills-counter { display: flex; flex-wrap: wrap; gap: var(--sp-16); padding: var(--sp-8) 0 var(--sp-16); border-bottom: 1px solid var(--border); margin-bottom: var(--sp-16); }
+/* 🔒 LIGNE 1 — elle FLOTTE, et `Reset` est DEDANS (B7.8). */
+.skills-poolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+  padding: var(--sp-4) var(--sp-12) var(--sp-8);
+}
+.skills-poolbar[data-refus="true"] { border-top: 1px solid var(--critical); }
+/* 📜 LIGNE 2 — le calcul, plus petit, et il DÉFILE avec le contenu. */
+.skills-pooldetail { margin-bottom: var(--sp-12); }
+.skills-pooldetail-line { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+
+/* ⚠️ `.skills-counter` A DISPARU AVEC SON BALISAGE : le compteur ne défile
+   plus « collé avec la barre » (décision n°5 du lot 39) — Eric l'a coupé en
+   deux le 2026-08-14, et sa moitié haute FLOTTE (B7.1, `.skills-poolbar`). */
 .skills-counter-line { display: flex; flex-direction: column; gap: var(--sp-2); }
 .skills-counter-label { font-size: var(--t2); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
 .skills-counter-value { font-size: var(--t5); font-weight: 600; }
@@ -342,7 +408,9 @@ button { font: inherit; }
 
 .skills-rogue-notice { font-size: var(--t3); color: var(--text-soft); margin: 0 0 var(--sp-16); }
 
-.skills-reset { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); border-radius: var(--radius-md); padding: var(--sp-4) var(--sp-12); font-size: var(--t3); cursor: pointer; margin-bottom: var(--sp-16); }
+/* B7.8 — `Reset` vit dans la barre du pool, donc il flotte : toujours
+   atteignable, sans remonter. */
+.skills-reset { margin-left: auto; min-height: var(--touch); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: var(--radius-md); padding: 0 var(--sp-12); font-size: var(--t2); cursor: pointer; }
 
 /* Un refus keyé (§3d) — jamais un calcul, le mot vient de `REFUSAL_WORDS`
    (voir `skills-step.mjs` en tête, pourquoi ce n'est pas `src/labels.mjs`). */
@@ -356,7 +424,7 @@ button { font: inherit; }
 .skills-grid { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
 /* `.skills-group` est un enfant flex de `.skills-grid` — même correctif
    `min-width: 0` (§3f, mesuré à 360px). */
-.skills-group { margin-bottom: var(--sp-24); scroll-margin-top: var(--sp-32); min-width: 0; } /* l'ancre du scrollspy passe sous la barre collante */
+.skills-group { margin: var(--sp-8); padding: var(--sp-8); min-width: 0; scroll-snap-align: start; }
 .skills-group h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); text-transform: capitalize; color: var(--text-muted); }
 .skills-rows { display: flex; flex-direction: column; gap: var(--sp-4); }
 
@@ -364,20 +432,42 @@ button { font: inherit; }
    `min-width: 0` : sans lui, une ligne à long nom (« Sleight of Hand » + 4
    boutons de palier) refuse de rétrécir et pousse toute la carte plus large
    que 360px, alors même que chacun de ses ENFANTS sait déjà se comprimer. */
-.skills-row { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-4) 0; border-bottom: 1px solid var(--border); font-size: var(--t4); min-width: 0; }
+/* 🔴 B7.3c — « LE TEXTE DES SKILLS DOIT TENIR SUR UNE LIGNE ». `nowrap` +
+   `text-overflow` : le nom se coupe plutôt que de casser la ligne. Mesuré en
+   B7.5 : le plus long (« Sleight of Hand ») fait ~109 px à T3, et il en
+   reste 124 — il tient, la coupe ne devrait jamais servir. Elle est là pour
+   le jour où une couche ajoutera un nom plus long, et pour que ce jour-là
+   l'écran plie sans se casser. */
+.skills-row { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-2) 0; border-bottom: 1px solid var(--border); font-size: var(--t3); min-width: 0; }
+.skills-row-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* B7.2c — « une couleur spécifique marque le PLANCHER ». Pas un mot sur la
+   ligne : une teinte, et le popup dit le reste quand on touche. */
+.skills-row[data-floor="true"] .skills-row-name { color: var(--info); }
+.skills-tiers[data-floor="true"] .skills-tier-btn { border-color: var(--info); }
 /* `min-width: 0`, même correctif qu'au-dessus (§3f, mesuré à 360px) : sans
    lui, un nom de compétence long (« Sleight of Hand ») refuse de passer à la
    ligne et pousse TOUTE la carte plus large que le téléphone. */
 .skills-row-name { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
-.skills-row-ability { width: 3ch; color: var(--text-muted); font-size: var(--t3); }
-.skills-row-bonus { width: 4ch; text-align: right; font-variant-numeric: tabular-nums; }
+.skills-row-ability { width: 3ch; flex: none; color: var(--text-muted); font-size: var(--t2); }
+.skills-row-bonus { width: 3ch; flex: none; text-align: right; font-variant-numeric: tabular-nums; }
 .skills-row-static { width: 8ch; text-align: right; color: var(--text-muted); font-size: var(--t3); }
 .skills-lock { font-size: var(--t2); color: var(--text-muted); }
 
 /* La rampe des paliers — trois jetons DE RANG (`--tier-1/2/3`, lot 38),
    jamais un nom de palier : le rang 0 est le tiret, sans encre. */
-.skills-tiers { display: flex; gap: var(--sp-4); align-items: center; }
-.skills-tier-btn { width: var(--sp-24); height: var(--sp-24); border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); font-size: var(--t3); cursor: pointer; padding: 0; }
+/* ⛔ AUCUN ÉCART ENTRE LES RONDS, et ce n'est pas de l'avarice : chaque
+   pixel repris ici retourne au NOM, que B7.3c veut sur une seule ligne. Les
+   ronds restent distincts (ils sont ronds et bordés), et leur cible tactile
+   reste entière — c'est l'espace ENTRE les cibles qui part, pas les cibles. */
+.skills-tiers { display: flex; gap: 0; align-items: center; flex: none; }
+/* ⭐ AU SEUIL TACTILE, ET C'EST LA SUPPRESSION DU « 0 » QUI LE PERMET.
+   Mesure du §3quater : les pastilles faisaient 24 × 24 px — « exactement le
+   minimum absolu de WCAG 2.5.8, très en dessous du confortable tactile »,
+   et invisible à la souris. B7.5 chiffre la suite : à 44 px, QUATRE ronds ne
+   laissaient que 76 px au nom (une ligne impossible) ; TROIS en laissent 124
+   (une ligne qui tient). Les deux contraintes d'Eric ne pouvaient pas
+   coexister avant qu'il retire le zéro. */
+.skills-tier-btn { width: var(--touch); height: var(--touch); border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); font-size: var(--t4); cursor: pointer; padding: 0; }
 .skills-tier-btn[data-rung="1"][data-active="true"] { background: var(--tier-1); color: var(--on-accent); border-color: var(--tier-1); }
 .skills-tier-btn[data-rung="2"][data-active="true"] { background: var(--tier-2); color: var(--on-accent); border-color: var(--tier-2); }
 .skills-tier-btn[data-rung="3"][data-active="true"] { background: var(--tier-3); color: var(--on-accent); border-color: var(--tier-3); }

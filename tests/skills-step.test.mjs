@@ -21,7 +21,17 @@ import { makeHarness, manifestOf, uneCouche, SRD_FR, HOMEBREW } from "./build-ha
 
 globalThis.document = createTestDocument();
 
-const { renderSkillsStep } = await import("../ui/builder/skills-step.mjs");
+const { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate } =
+  await import("../ui/builder/skills-step.mjs");
+
+/* ⚠️ LOT 62 — L'ÉCRAN EST COUPÉ EN DEUX, et les tests suivent.
+   B7.1 : la molette de catégories et la LIGNE 1 du pool (`Pool · Invested ·
+   Left`, `Reset` compris) **flottent** — elles vivent dans le slot fixe du
+   cadre, rendues par `renderSkillsBar`. Seule la LIGNE 2 (le calcul) défile
+   avec le contenu.
+   ⭐ Les lois que ces tests prouvaient sont TOUTES conservées ; ce qui change
+   est OÙ on va lire. `barre()` est la moitié flottante. */
+const barre = (ctx) => renderSkillsBar(ctx, ctx.onAction || (() => {}));
 
 /* La pile EN Fate's Hand, montée UNE FOIS (comme render-fiche.test.mjs) : le
    personnage d'exemple est un Magicien Elfe niveau 1 — c'est lui que la
@@ -94,7 +104,10 @@ test("les quatre catégories rangent les 26 compétences — 8 · 7 · 6 · 5, l
 
   const node = renderSkillsStep(ctxFrom(fixture.report));
   const groups = node.querySelectorAll(".skills-group");
-  const byLabel = new Map(groups.map((g) => [g.querySelector("h3").textContent, g.querySelectorAll(".skills-row").length]));
+  /* ⚠️ B7.3b — PLUS DE `<h3>` : « ne pas re-préciser Knowledge en titre, le
+     spy et le snap le rendent évident ». Le label voyage en `data-label`,
+     que la molette du cadre lit et que l'écran n'affiche pas. */
+  const byLabel = new Map(groups.map((g) => [g.getAttribute("data-label"), g.querySelectorAll(".skills-row").length]));
   assert.equal(byLabel.get("Knowledge"), 8);
   assert.equal(byLabel.get("Social"), 7);
   assert.equal(byLabel.get("Exploration"), 6);
@@ -106,6 +119,9 @@ test("les quatre catégories rangent les 26 compétences — 8 · 7 · 6 · 5, l
 test("les 36 outils apparaissent, y compris ceux que le personnage n'a pas", () => {
   const toolCatalog = query({ kind: "tool" });
   assert.equal(toolCatalog.length, 36, "mesure de départ");
+  /* ⚠️ Le bloc « Tools & Trainings » a perdu son titre (B7.3b) mais garde ses
+     TROIS sous-titres : ils distinguent des choses différentes DANS la même
+     dalle, ce que la molette ne dit pas. */
   const node = renderSkillsStep(ctxFrom(fixture.report));
   const toolsBlock = node.querySelectorAll(".skills-tools-block")[0];
   assert.equal(rows(toolsBlock).length, 36);
@@ -116,7 +132,12 @@ test("les 36 outils apparaissent, y compris ceux que le personnage n'a pas", () 
   assert.equal(fixture.report.resolved.tools.length, 0, "aucun outil acquis sur l'exemple de base");
   const alchemist = rowFor(toolsBlock, "alchemist-s-supplies");
   assert.ok(alchemist, "un outil non acquis a quand même sa ligne");
-  assert.equal(activeTier(alchemist), "No proficiency");
+  /* 🔴 B7.4 — « rien de rempli = 0 ». Le bouton « aucune maîtrise » n'existe
+     plus : l'absence de maîtrise est l'ABSENCE de rond allumé. Ce test
+     l'affirme positivement, sinon la suppression du 0 pourrait être défaite
+     sans que rien ne bronche. */
+  assert.equal(activeTier(alchemist), null, "aucun rond allumé — c'est ça, « pas de maîtrise »");
+  assert.equal(tierButtons(alchemist).length, 3, "et il reste TROIS ronds, plus quatre");
   const bonusCell = alchemist.querySelectorAll(".skills-row-bonus")[0];
   const abilityKey = query({ kind: "tool", id: "srd:tool:en:alchemist-s-supplies" }).record.data.ability_key;
   const expected = fixture.report.resolved.abilities[abilityKey].mod;
@@ -157,7 +178,7 @@ test("REJET — dépasser le pool : la dépense s'applique, le compteur affiche 
   assert.ok(validation.violations.some((v) => v.key === "skill-pool.overspent"));
 
   const node = renderSkillsStep({ resolved: report.resolved, decisions: report.decisions, violations: validation.violations, query, onAction: () => {} });
-  const leftLine = node.querySelectorAll(".skills-counter-line[data-over=\"true\"]")[0];
+  const leftLine = barre(ctxFrom(report, () => {})).querySelectorAll(".skills-counter-line[data-over=\"true\"]")[0];
   assert.ok(leftLine, "la ligne « Left » porte le marqueur OVER");
   assert.ok(leftLine.textContent.includes("OVER"));
 
@@ -172,40 +193,34 @@ test("REJET — dépasser le pool : la dépense s'applique, le compteur affiche 
 
 /* ══ 7 — KEEN SENSES PROPOSE LES TROIS, PALIER LIBRE ═══════════════════ */
 
-test("Keen Senses propose les TROIS compétences (survival · delve · vigilance), palier libre — le bogue du v1 ne revient pas", () => {
+test("🗑️ Keen Senses n'est plus piloté ICI — et le test qui le prouvait a suivi la bourse", () => {
+  /* La bourse captive vit sur l'écran SPECIES depuis le lot 60, et la loi
+     qu'elle porte — LES TROIS compétences proposées, Delve compris, palier
+     LIBRE (le bogue du v1 qui n'en montrait que deux et forçait le ½) — est
+     prouvée là-bas, dans `class-species-steps.test.mjs`.
+     ⛔ Ce test ne la reprouve pas ici : il vérifie qu'elle n'y est PLUS, pour
+     qu'un futur lot ne réintroduise pas le doublon en silence. */
   const node = renderSkillsStep(ctxFrom(fixture.report));
-  const budget = node.querySelectorAll(".skills-budget-block")[0];
-  assert.ok(budget, "le budget captif d'espèce est rendu");
-  const slugs = budget.querySelectorAll(".skills-row").map((row) => row.getAttribute("data-row"));
-  assert.deepEqual(new Set(slugs), new Set(["survival", "delve", "vigilance"]), "les TROIS, pas deux");
-
-  /* Le palier est un CHOIX, pas un ½ forcé : chaque ligne porte deux
-     boutons de palier (demi, plein) + le tiret, jamais un seul figé. */
-  for (const slug of slugs) {
-    const row = rowFor(budget, slug);
-    const labels = tierButtons(row).map((b) => b.getAttribute("aria-label"));
-    /* LOT 57, §1.3 de la commande — c'était le défaut : le lecteur
-       d'écran annonçait « half »/« proficient », les clefs machine de
-       `tier_costs`, pas des mots. Ce test vérifiait la RÉGRESSION avant
-       ce lot ; il vérifie maintenant la CORRECTION. */
-    assert.deepEqual(labels, ["No proficiency", "Half proficiency", "Full proficiency"]);
-  }
+  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
+  const slugsDeLaGrille = node.querySelectorAll(".skills-row").map((r) => r.getAttribute("data-row"));
+  assert.ok(slugsDeLaGrille.includes("delve"),
+    "delve reste dans la GRILLE (c'est une compétence comme une autre) — seule la BOURSE a déménagé");
 });
 
 /* ══ 8 — LE BUDGET CAPTIF NE CONTAMINE PAS LE POOL LIBRE ════════════════ */
 
-test("le budget captif ne contamine pas le pool : dépenser dedans laisse fh:skill-points intact", () => {
-  const before = fixture.report.resolved.stats.find((s) => s.id === "fh:skill-points").value;
-  let doc = clear(fixture.document, "species.skillBudget.survival");
-  doc = clear(doc, "species.skillBudget.vigilance");
-  doc = set(doc, "species.skillBudget.delve", "proficient"); // 2 points, palier plein, sur UNE seule
-  const report = rebuild(doc);
-  const after = report.resolved.stats.find((s) => s.id === "fh:skill-points").value;
-  assert.equal(after, before, "fh:skill-points ne bouge pas d'un point");
-
-  const node = renderSkillsStep(ctxFrom(report));
-  const delveInBudget = rowFor(node.querySelectorAll(".skills-budget-block")[0], "delve");
-  assert.equal(activeTier(delveInBudget), "Full proficiency"); // LOT 57 — le mot humain, plus la clef machine
+test("🗑️ B7.2d — le budget captif d'espèce a DÉGAGÉ de cet écran", () => {
+  /* Eric, 2026-08-14 : « le tableau Species skill budget DÉGAGE ».
+     ⚠️ IL N'EST PAS SUPPRIMÉ DU PRODUIT : depuis le lot 60 il vit sur l'écran
+     SPECIES, au 2ᵉ palier de son Validate — là où le choix se prend. Ce qui
+     part d'ici, c'est le DOUBLON : la même bourse pilotée depuis deux
+     écrans, sur les mêmes chemins, aurait fini par diverger.
+     ⭐ Et son COMPTE reste lu ici, en ligne 2 : savoir ce qu'on a investi
+     ailleurs n'oblige pas à pouvoir le changer ici. */
+  const node = renderSkillsStep(ctxFrom(fixture.report));
+  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
+  const detail = node.querySelectorAll(".skills-pooldetail-line")[0].textContent;
+  assert.ok(/Species \d+\/\d+/.test(detail), `mais son compte reste lisible — lu : « ${detail} »`);
 });
 
 /* ══ 9 — LA NOTIFICATION DU ROGUE, ET PAS POUR LE MAGICIEN ═════════════ */
@@ -272,9 +287,11 @@ test("un plan incomplet (budget captif d'espèce pas totalement dépensé) reste
   assert.equal(budgetPlan.status, "pending", "mesure : pending, pas locked");
   assert.equal(budgetPlan.lock, undefined, "un plan incomplet ne porte pas de verrou");
   const node = renderSkillsStep(ctxFrom(report));
-  const speciesLine = node.querySelectorAll(".skills-counter-line")
-    .find((line) => line.querySelectorAll(".skills-counter-label")[0].textContent === "Species");
-  assert.ok(speciesLine.querySelectorAll(".skills-counter-value")[0].textContent.startsWith("1/2"));
+  /* ⚠️ Le compte d'espèce a migré en LIGNE 2 (celle qui défile) : B7.1 garde
+     au flottant « combien il reste », pas « d'où ça vient ». La ligne 1 ne
+     porte donc plus que Pool · Invested · Left. */
+  const detail = node.querySelectorAll(".skills-pooldetail-line")[0].textContent;
+  assert.ok(detail.includes("Species 1/2"), `le détail doit porter le compte d'espèce — lu : « ${detail} »`);
 });
 
 /* ══ 11 — UN PERSONNAGE SRD PUR : AUCUNE MÉCANIQUE FH, L'ÉCRAN NE CASSE PAS */
@@ -308,7 +325,7 @@ test("un personnage SRD pur (couche FH débrayée) : aucune mécanique FH n'appa
     resolved: report.resolved, decisions: report.decisions, violations: validation.violations,
     query: srdHarness.layers.verbs.query, onAction: () => {}
   });
-  assert.equal(node.querySelectorAll(".skills-counter").length, 0, "pas de compteur sans fh:skill-points");
+  assert.equal(node.querySelectorAll(".skills-pooldetail").length, 0, "pas de compteur sans fh:skill-points");
   assert.equal(node.querySelectorAll(".skills-rogue-notice").length, 0);
   assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
   assert.ok(node.querySelectorAll(".skills-row").length > 0, "la grille de base (SRD) s'affiche quand même");
@@ -329,7 +346,8 @@ test("⚔️ ATTAQUE — un fh:skill-points menteur (value ≠ somme du détail)
   stat.value = 9999;
   assert.notEqual(9999, vraieSomme, "et 9999 n'est pas la somme — sinon l'attaque ne prouve rien");
 
-  const node = renderSkillsStep({ resolved: menteur, decisions: fixture.report.decisions, violations: [], query, onAction: () => {} });
+  const ctxMenteur = { resolved: menteur, decisions: fixture.report.decisions, violations: [], query, onAction: () => {} };
+  const node = barre(ctxMenteur);
   const leftLine = node.querySelectorAll(".skills-counter-line")
     .find((line) => line.querySelectorAll(".skills-counter-label")[0].textContent === "Left");
   assert.equal(leftLine.querySelectorAll(".skills-counter-value")[0].textContent, "9999", "L'ÉCRAN AFFICHE CE QUE resolved DIT");

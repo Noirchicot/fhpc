@@ -10,8 +10,10 @@
    la copie impossible à faire en silence.
 
    TROIS PREUVES :
-     A. STRUCTURELLE — `data-snap`, `.catalogue-card` et `.catalogue-rail`
-        ne sont écrits QUE par `catalogue.mjs`. Même patron que
+     A. STRUCTURELLE — `.catalogue-card` et `.catalogue-rail` ne sont écrits
+        QUE par `catalogue.mjs`. *(`data-snap` en a été RETIRÉ au lot 62 : ce
+        n'est pas un marqueur du catalogue mais du SOCLE, et Compétences s'en
+        sert légitimement sans être un catalogue.)* Même patron que
         `markPressed` (lot 57) : une brique, un écrivain, un garde.
      B. LES DEUX ÉCRANS SONT VRAIMENT LE MÊME — le catalogue rend la même
         FORME pour Class et pour Species, sur de vraies fixtures : même
@@ -60,8 +62,17 @@ const ctxDe = (cfg, cursor = 0) => ({ decisions, query, path: cfg.path, kind: cf
 
 /* ══ A — UN SEUL ÉCRIVAIN ═════════════════════════════════════════════════ */
 
+/* ⚠️ CORRIGÉ AU LOT 62, ET C'EST UNE ERREUR DU LOT 60 : `data-snap` était
+   dans cette liste. Il n'y avait rien à y faire — SOCLE.md le désigne
+   explicitement comme un contrat du SOCLE, pas du catalogue : « `data-snap`
+   sur les fiches d'un défilement aimanté. C'est ce que `watchSnap` lit — le
+   seul contrat entre un écran et le spy ». Compétences s'aimante sur ses
+   catégories sans être un catalogue (pas de records, pas de rail vertical),
+   et le garde le lui interdisait à tort.
+   ⭐ Ce qui reste interdit est le COMPOSANT : personne d'autre que
+   `catalogue.mjs` ne construit une fiche ou un rail de catalogue. C'est ça,
+   la loi « B3 = B2, point » — pas le monopole d'un attribut. */
 const MARQUEURS = [
-  [/\.dataset\.snap\s*=/, "data-snap — le contrat avec le scrollspy"],
   [/"catalogue-card /, "la fiche du catalogue"],
   [/"catalogue-rail"/, "le rail du catalogue"]
 ];
@@ -87,11 +98,11 @@ test("A — dans le vrai ui/builder/, seul catalogue.mjs construit un catalogue"
 test("⚔️ ATTAQUE A — un écran qui recopierait le catalogue est vu, sur une source inventée", () => {
   const source = {
     name: "inheritance-step.mjs",
-    text: 'const card = el("section", "catalogue-card dalle-majeure");\ncard.dataset.snap = "feat";'
+    text: 'const card = el("section", "catalogue-card dalle-majeure");\nconst rail = el("ol", "catalogue-rail");'
   };
   assert.deepEqual(ecrivainsHorsCatalogue([source]), [
-    "inheritance-step.mjs : data-snap — le contrat avec le scrollspy",
-    "inheritance-step.mjs : la fiche du catalogue"
+    "inheritance-step.mjs : la fiche du catalogue",
+    "inheritance-step.mjs : le rail du catalogue"
   ]);
 });
 
