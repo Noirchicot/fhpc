@@ -385,14 +385,26 @@ function extractCustomProps(cssText) {
   return props;
 }
 
-/* `tokens.css` n'a qu'un seul `@media`, celui du thème sombre : tout ce qui
-   le précède est le bloc jour, tout ce qui le suit (et vit dans son
-   `:root`) est le bloc nuit. */
+/* ⚠️ CORRIGÉ AU LOT 69 — CE COMMENTAIRE ÉTAIT DEVENU FAUX, ET LE DÉCOUPAGE
+   AVEC LUI. Il disait « `tokens.css` n'a qu'un seul `@media` » et prenait
+   donc TOUT ce qui suit le bloc sombre comme étant le bloc sombre. Depuis
+   que la grandeur Large existe (`@media (min-width: 1140px)`, posée APRÈS le
+   bloc sombre pour que ces gardes continuent de mesurer la base), ce
+   « tout ce qui suit » avalait aussi Large.
+
+   Aujourd'hui c'est sans conséquence — un garde du lot 69 interdit à Large
+   de porter la moindre couleur, et ces mesures-ci sont des couleurs. Mais le
+   piège était armé : le jour où Large toucherait un jeton coloré, la matrice
+   de contraste du thème sombre aurait mesuré une valeur qui n'est pas la
+   sienne, **sans qu'un test bronche**. On coupe donc au `@media` SUIVANT,
+   et non à la fin du fichier. */
 const strippedTokens = stripComments(tokensCssRaw);
 const darkIndex = strippedTokens.indexOf("@media (prefers-color-scheme: dark)");
 assert.ok(darkIndex > 0, "tokens.css doit porter le bloc sombre — sinon les tests suivants mesurent du vide");
+const apresSombre = strippedTokens.indexOf("@media", darkIndex + 1);
+const finDuSombre = apresSombre === -1 ? strippedTokens.length : apresSombre;
 const lightBlock = strippedTokens.slice(0, darkIndex);
-const darkBlock = strippedTokens.slice(darkIndex);
+const darkBlock = strippedTokens.slice(darkIndex, finDuSombre);
 const lightTokens = extractCustomProps(lightBlock);
 const darkTokens = extractCustomProps(darkBlock);
 
