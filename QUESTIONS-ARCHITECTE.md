@@ -1477,7 +1477,29 @@ révélé **réel et structurel — mais seulement pour `src/`**. Le lot a appli
 la conception tranchée là où elle tient, et dévié sur UN point, mesuré,
 réversible en un commit. À ratifier ou casser.
 
-## 75.1 — ⏳ La version des modules `src/` : import map générée plutôt que queries dans les sources
+## 75.1 — ✅ RATIFIÉ : import map générée, sources `src/` vierges
+
+> **Tranché par l'architecte le 2026-08-15, après vérification indépendante.**
+>
+> **Ratifié, et pour une raison de plus que celles avancées par le lot.**
+>
+> | | |
+> |---|---|
+> | **Le mandat prévoyait le piège** | il nommait « Node chargerait le module DEUX FOIS » comme piège n°1. Le lot l'a mesuré : **35 rouges**, serveur MCP compris. La clause de contradiction a été invoquée à bon droit |
+> | ⭐ **Et `src/` n'appartient pas au navigateur** | c'est ce que le lot n'a pas dit et qui emporte la décision : `src/` est **aussi** chargé par Node, par la suite et par le serveur MCP. Une query collée dans ses sources aurait pollué trois consommateurs pour le confort d'un seul. **La version est un fait de LIVRAISON, pas un fait de moteur** — elle a sa place dans `index.html`, qui est la livraison |
+> | ⭐ **Et ça se dégrade proprement** | un navigateur qui ignorerait l'import map résout les spécificateurs tels quels : ce sont des URL relatives valides. **La page marche quand même**, simplement sans version sur `src/`. Aucune dépendance dure à une fonctionnalité de plateforme |
+> | **Vérifié par l'architecte** | 58 ressources demandées, **58 versionnées**, **une seule version**, **zéro nue**, et l'app démarre. Le relevé du lot se reproduit |
+>
+> ⚠️ **La condition à tenir, et elle est gardée** : la map doit rester exacte
+> **dans les deux sens** — une entrée pour chaque fichier du graphe, aucune
+> entrée morte. `tests/versions-graphe.test.mjs` le vérifie ; sans lui, un
+> fichier `src/` ajouté demain se chargerait nu et rouvrirait le défaut en
+> silence.
+
+<details>
+<summary>La question telle que le lot 75 l'a posée</summary>
+
+## 75.1 — La version des modules `src/` : import map générée plutôt que queries dans les sources
 
 **Le fait, mesuré deux fois.**
 - Le graphe navigateur ne s'arrête pas aux « trois imports vers `../../src` »
@@ -1517,3 +1539,5 @@ ni trou, ni dérive (test 5, attaque 7), map avant le module (test 6).
 **La question.** L'import map générée est-elle ratifiée comme mécanisme de
 version pour `src/` ? Si non — dire quel prix payer parmi ceux mesurés
 ci-dessus : c'est un commit à casser, le reste du lot tient sans lui.
+
+</details>
