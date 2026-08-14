@@ -59,6 +59,10 @@ const DECISION_REFUSAL_WORDS = {
   "decision.kind-mismatch": (p) => `Expected a “${p.expectedKind}”, got “${p.actualKind}”.`,
   "decision.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
   "skill-grant.count-mismatch": (p) => `${p.actual} chosen, ${p.declared} expected (${p.answers}).`,
+  /* LOT 72 — le verrou de compte des SORTS (`decisions.mjs`,
+     `classSpellPlans`) : même recomposition que la ligne au-dessus, les
+     params sont les mêmes, seul l'objet compté change. */
+  "spell-grant.count-mismatch": (p) => `${p.actual} chosen, ${p.declared} expected (${p.answers}).`,
   /* LOT 46 — les deux refus neufs de `background.boost` (`decisions.mjs`,
      lot 43) : le moteur prononce, cette table ne fait que RECOMPOSER ses
      propres `params` en anglais — même geste que les trois entrées
@@ -185,10 +189,19 @@ export function renderPicker({ options, selected, labelOf, onSelect, onClear, lo
  *  case (§3b.2/§3c de la commande). `null` si le plan n'existe pas encore
  *  (aucune classe/espèce choisie, ou l'espèce n'impose rien) — l'appelant
  *  décide alors de ne rien rendre, jamais un cadre vide (§2, « rien ne se
- *  cache » ⇄ « pas de cadre pour rien »). */
-export function renderSlotQcm({ decisions, basePath, title, labelOf, onAction }) {
+ *  cache » ⇄ « pas de cadre pour rien »).
+ *
+ *  LOT 72 — deux paramètres de plus, MÊME loi que `renderPicker` (« ce module
+ *  ne connaît aucun verbe : c'est l'appelant qui choisit ») :
+ *  · `refKind` — présent, une case pose un RECORD (`choose` + `ref {kind,
+ *    id}`) au lieu d'un scalaire (`set` + `value`) : les sorts sont des refs,
+ *    les compétences des slugs, et le QCM est le même. Absent, rien ne bouge.
+ *  · `slotWord` — le mot d'une case (« Spell 2 », défaut « Skill ») : un
+ *    libellé, jamais une règle. */
+export function renderSlotQcm({ decisions, basePath, title, labelOf, onAction, refKind, slotWord }) {
   const plan = planAt(decisions, basePath);
   if (!plan) return null;
+  const word = slotWord || "Skill";
   const wrap = el("section", "skills-budget-block");
   wrap.dataset.status = plan.status;
   wrap.append(el("h3", null, [text(title)]));
@@ -200,12 +213,14 @@ export function renderSlotQcm({ decisions, basePath, title, labelOf, onAction })
   for (const slot of slots) {
     const row = el("div", "skills-row");
     row.dataset.row = slot.path;
-    row.append(el("span", "record-row-label", [text(multi ? `Skill ${slot.index + 1}` : "Skill")]));
+    row.append(el("span", "record-row-label", [text(multi ? `${word} ${slot.index + 1}` : word)]));
     row.append(renderPicker({
       options: slot.options,
       selected: slot.selected,
       labelOf,
-      onSelect: (value) => onAction({ kind: "set", path: slot.path, value }),
+      onSelect: (value) => onAction(refKind
+        ? { kind: "choose", path: slot.path, ref: { kind: refKind, id: value } }
+        : { kind: "set", path: slot.path, value }),
       onClear: () => onAction({ kind: "clear", path: slot.path }),
       lock: slot.lock
     }));

@@ -69,7 +69,11 @@ export const REVIEW_GROUPS = [
   { step: "species", label: "Species", paths: ["species", "species.skills", "species.skillBudget"] },
   { step: "destiny", label: "Destiny", paths: [] },
   { step: "background", label: "Inheritance", paths: ["background", "background.boost", "background.originFeat[0]"] },
-  { step: "class", label: "Class", paths: ["class", "class.skills"] },
+  /* LOT 72 — les sorts entrent au carnet (`class.cantrips`/`class.prepared`,
+     decisions.mjs) : Review les montre comme n'importe quelle autre étape.
+     Un non-lanceur n'a pas ces plans, `planAt` rend null, la ligne ne change
+     pas — même mécanique que les chemins déjà listés. */
+  { step: "class", label: "Class", paths: ["class", "class.skills", "class.cantrips", "class.prepared"] },
   { step: "skills", label: "Skills", paths: [] },
   { step: "equipment", label: "Equipment", paths: [] }
 ];

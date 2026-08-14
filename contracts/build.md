@@ -129,11 +129,63 @@ un chemin déjà répondu, afin que `clear` et le remplacement ferment la boucle
 La projection se limite aux champs mécaniques réels suivants : les trois
 `takeRef` (`class`, `species`, `background`), `class.skill_choice`,
 `species.granted_skill_choice`, `background.ability_keys`,
-`background.feat_choice` / `background.feat_id`, et `background.tool_id` /
-`tool_choice`. Elle ne projette ni sorts, ni équipement, ni paliers de
-progression, ni dépenses de points. Le cas `from: "any"` ouvre les
-identifiants du genre `skill` effectivement monté ; une liste `from` reste
+`background.feat_choice` / `background.feat_id`, `background.tool_id` /
+`tool_choice` — et, depuis le lot 72, les **sorts** (`class.cantrips[n]` /
+`class.prepared[n]`, section dédiée plus bas). Elle ne projette ni équipement,
+ni paliers de progression, ni dépenses de points. Le cas `from: "any"` ouvre
+les identifiants du genre `skill` effectivement monté ; une liste `from` reste
 cette liste et rien de plus.
+
+⚠️ **REWRITTEN — lot 72 : « Elle ne projette ni sorts » a vécu.** Cette phrase
+décrivait le trou que le lot 72 ferme : le moteur CONSOMMAIT déjà
+`class.cantrips[n]` / `class.prepared[n]` (les 7 sorts du magicien d'exemple
+deviennent `resolved.spellcasting.spells[]` depuis le lot 8) sans jamais
+publier le plan qui les GUIDE ni celui qui les JUGE — un magicien ne pouvait
+pas choisir ses sorts, et un Wizard passé Rogue gardait 7 choix orphelins
+qu'aucune confirmation ne savait nommer (mesuré le 2026-08-14 : 11
+`unconsumed` + 2 plans verrouillés dans Review, aucun pour les sorts).
+
+#### ⭐ LOT 72 — LES PLANS DE SORTS : `class.cantrips[n]` / `class.prepared[n]`
+
+**Ce qui est lu, et rien d'autre** (`classSpellPlans`, `decisions.mjs`) :
+
+| Donnée | Source | Note |
+|---|---|---|
+| le compte attendu | `class-progression.levels[<niveau>].resources.cantrips` / `.prepared_spells` | le niveau vient du choix `level` ; la progression est trouvée par son lien `data.class`, jamais par convention de nommage |
+| les options | croisement `spell.classes × spell.level` | ⚠️ `spell.classes` porte des **noms d'affichage** (« Wizard », « Magicien ») : l'appariement se fait contre `classView.record.name`, **jamais** contre une chaîne en dur |
+| le plafond préparable | `levels[].spell_slots` (tableau : index le plus haut > 0), à défaut `resources.slot_level` (magie de pacte, scalaire) | ni l'un ni l'autre déclaré → **pas de plafond** (§1c : on ne restreint pas à la place de la couche) |
+
+**Une classe que la progression n'appelle pas ne publie RIEN** — pas un plan
+vide : Rogue, Fighter, Barbarian, Monk n'ont aucune des deux ressources et
+leur carnet ne change pas d'un octet. **MAIS des réponses qui traînent sur ces
+chemins publient quand même le plan qui les juge** : chaque étape en faute
+porte `decision.option-unavailable` (ou `decision.kind-mismatch` pour un
+contenu qui n'est pas un `ref` de sort), le groupe se verrouille, `validate()`
+les remonte par la boucle du lot 37 — et la confirmation d'effacement de
+l'interface (lot 46, étendue aux sorts par ce lot) peut enfin les NOMMER.
+Jamais un effacement silencieux.
+
+⚠️ **LES CLEFS DE RESSOURCE SONT LANGUE-NATIVES** (`layers/TRADUCTION.md`,
+mesuré : la progression FR porte `sorts_mineurs` / `sorts_prepares`, pas
+`cantrips` / `prepared_spells`) **et aucune correspondance FR↔EN n'est
+inventée** — une table `sorts_mineurs → cantrips` dans le moteur serait la
+même faute que `"Sagesse" → wis` (dépendances interdites, plus haut). Sur une
+pile qui ne déclare pas les clefs lisibles, le compte n'existe donc pas pour
+le moteur : le plan **juge** les réponses posées (options du croisement,
+verrous) mais ne **guide** pas — `expected` reflète les réponses valides,
+aucun créneau manquant n'est inventé, aucun verrou de compte n'est possible,
+et pas de `provenance` (aucun record n'a offert de compte lisible). Le
+magicien d'exemple FR sort donc `answered` 3/3 et 4/4 ; le magicien EN (pile
+de l'UI) sort le plan complet — `expected` 3 et 4, créneaux manquants, verrou
+`spell-grant.count-mismatch` (la clef sœur de `skill-grant.count-mismatch` :
+même forme, l'objet compté change) quand on pose plus que le compte.
+
+**Les candidats sont pris PAR CHEMIN** (`class.cantrips[n]` indexé), jamais
+par valeur comme `multiPlan` : un sort est un `ref`, pas un scalaire, et le
+chemin nomme la décision — le contenu s'y juge. Un chemin non indexé
+(`class.cantrips` nu) n'est pas un candidat : son étape écraserait le plan du
+groupe dans la projection dédupliquée par chemin (piège hérité de `multiPlan`,
+constaté, pas imité).
 
 #### ⭐ LOT 43 — L'INHERITANCE : `background` SANS RECORD CHOISI, ET LE PLI GARDÉ
 

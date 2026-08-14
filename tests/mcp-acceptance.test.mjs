@@ -239,9 +239,12 @@ test("LOT 28 — `decisions` traverse MCP avec ses chemins, compteurs et statuts
     { status: "answered", expected: 2, answered: 2, remaining: 0 });
   assert.deepEqual(skills.options,
     ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"]);
-  assert.match(result.content[0].text, /DÉCISIONS \(13\)/,
+  /* LOT 72 — le carnet gagne les sorts : 13 + 2 groupes + 7 étapes = 22. */
+  assert.match(result.content[0].text, /DÉCISIONS \(22\)/,
     "l'IA n'a pas à deviner qu'un septième carnet existe dans structuredContent");
   assert.match(result.content[0].text, /class\.skills : answered, 2\/2/);
+  assert.match(result.content[0].text, /class\.cantrips : answered, 3\/3/,
+    "les plans de sorts traversent MCP comme les autres");
 });
 
 test("`build.validate` ne trouve rien à redire — et un refus reste un RÉSULTAT", () => {

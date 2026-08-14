@@ -28,6 +28,11 @@ export const FR_BUILD = {
   "derive.threw": (d) => d.message,
   "skill-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} compétence(s) et les choix en désignent ` +
     `${d.actual} (${d.answers}).`,
+  /* LOT 72 — la clef SŒUR pour les sorts : `skill-grant.count-mismatch` dit
+     « compétence(s) », et un verrou qui nomme mal ce qu'il compte est un
+     mensonge de mot. Même forme, même params, l'objet change. */
+  "spell-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} sort(s) et les choix en désignent ` +
+    `${d.actual} (${d.answers}).`,
   "background.ability-key-invalid": (d) => `l'arrière-plan « ${d.backgroundId} » porte \`ability_keys\` = ${d.key}, ` +
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +
