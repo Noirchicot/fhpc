@@ -649,8 +649,22 @@ function applyDecisionAction(action) {
   refresh();
 }
 
-/* ══ DESTINY — le tirage, et le délai théâtral ═══════════════════════════ */
-export const DESTINY_REVEAL_MS = 1000; // B6.1d, « une seconde après »
+/* ══ DESTINY — le tirage, et le délai théâtral ═══════════════════════════
+   ⚠️ ERIC A RÉVISÉ SA PROPRE SPEC LE 2026-08-15. B6.1d disait « le texte
+   apparaît UNE SECONDE APRÈS le retournement » ; à l'usage, il a mesuré
+   l'inverse de ce qu'il voulait :
+
+     *« On doit avoir le temps de la voir entière avant qu'elle rapetisse. »*
+
+   Le chiffre expliquait pourquoi. Le retournement dure **0,45 s** (`.card-face`,
+   `transition: transform .45s`) et le texte arrivait à 1 s : il restait
+   **550 ms** de carte entière. Et à cet instant `.card-face { flex: 0 1 auto }`
+   la fait rétrécir **d'un coup** — la transition du CSS porte sur `transform`,
+   pas sur la taille.
+
+   **Sa réponse : 3 secondes.** Le rétrécissement reste brutal ; c'est le délai
+   qu'il a choisi de corriger, pas la transition — l'option lui a été posée. */
+export const DESTINY_REVEAL_MS = 3000; // B6.1d RÉVISÉ par Eric, 2026-08-15
 let destinyTimer = null;
 
 /* ══ COMPÉTENCES — un `ctx` composé UNE FOIS pour le contenu ET la barre
