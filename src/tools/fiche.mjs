@@ -19,19 +19,17 @@ import { readFileSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { render } from "./render-fiche.mjs";
+import { injecte, render } from "./render-fiche.mjs";
 import { exempleFhEn } from "./exemple-fh-en.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const MARQUEUR = "<!--FICHE-->";
 
-/** La coquille, avec le fragment à la place du marqueur. */
+/** La coquille lue sur le disque, avec le fragment à la place du marqueur.
+ *  ⚠️ LOT 67 — l'injection elle-même vit dans `render-fiche.mjs` : le
+ *  builder produit la MÊME page dans le navigateur, où `node:fs` n'existe
+ *  pas. Ici il ne reste que la lecture du disque. */
 export function page(fragment) {
-  const coquille = readFileSync(join(ROOT, "src/tools/fiche.shell.html"), "utf8");
-  if (!coquille.includes(MARQUEUR)) {
-    throw new Error(`fiche : la coquille ne porte plus le marqueur « ${MARQUEUR} » — rien n'y serait injecté.`);
-  }
-  return coquille.replace(MARQUEUR, fragment);
+  return injecte(readFileSync(join(ROOT, "src/tools/fiche.shell.html"), "utf8"), fragment);
 }
 
 const cible = process.argv[2];

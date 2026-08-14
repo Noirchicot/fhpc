@@ -30,7 +30,16 @@
   .bloc { border-left: 2px solid currentColor; margin: .3rem 0 .3rem .6rem; padding: .1rem 0 .1rem .6rem; }
   .ligne, .feuille { padding: .12rem 0; }
   .cells { display: flex; flex-wrap: wrap; gap: .1rem .9rem; }
-  .cell { white-space: nowrap; }
+  /* ⚠️ LOT 67 — `white-space: nowrap` A ÉTÉ RETIRÉ D'ICI, ET C'EST MESURÉ.
+     Cette page est devenue un LIVRABLE : le builder la sort par « Export
+     HTML » et « Expert view » (B9.4/B9.5). Or le texte d'un sort est une
+     `.cell` comme une autre — Prestidigitation tenait sur UNE ligne de
+     7 746 px, et la page entière faisait 8 205 px de large dans une fenêtre
+     de 1 440. Sur un téléphone, l'adressage — qui est TOUT ce que cette page
+     livre — sortait de l'écran. Ce que `nowrap` protégeait (l'étiquette
+     collée à sa valeur) est déjà tenu par la gouttière de `.cells` et la
+     marge de `.cell b`. */
+  .cell { overflow-wrap: anywhere; }
   .cell b, .feuille .val { margin-left: .35rem; }
   code.chemin { font-size: .82em; opacity: .68; }
   code.chemin.ko { opacity: 1; text-decoration: underline wavy; }

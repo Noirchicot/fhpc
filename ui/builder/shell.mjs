@@ -22,7 +22,7 @@
 import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
 import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
 import { mountPopup } from "./popup.mjs";
-import { renderReviewStep, reviewValidate } from "./review-step.mjs";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs";
 import { rollAbilityBatch } from "./dice.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
@@ -54,7 +54,22 @@ import { createDocWriters } from "../../src/doc/writers.mjs";
    les crans de la molette au même lot, la fiche de Review ici.
    📌 `src/tools/render-fiche.mjs` VIT TOUJOURS et reste testé (35 tests) :
    c'est l'outil autonome de rendu de fiche, il n'a simplement plus de raison
-   d'être appelé depuis le builder. */
+   d'être appelé depuis le builder.
+
+   ── ⭐ LOT 67 — ET IL EN A RETROUVÉ UNE, HORS DE LA PAGE ─────────────────
+   B9.5 demande « un accès à un MODE EXPERT », B9.4 « possiblement un export
+   HTML ». Les deux sont ce rendu-là : chaque valeur avec son chemin. Il
+   revient donc — mais **jamais dans la coquille** : il part dans un onglet
+   ou dans un fichier. C'est ce qui permet de le rendre sans rouvrir le seul
+   `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
+   est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
+   commande. Le builder fait la même chose, avec le personnage vivant. */
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs";
+/* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
+   pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
+   corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
+import { canonicalText } from "../../src/doc/canonical.mjs";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -231,6 +246,70 @@ function applyLayerStack(value) {
   }
   state.document = { ...state.document, build: { ...state.document.build, layers: [] } };
   rebuild();
+}
+
+/* ══ LOT 67 — LES TROIS PORTES DE REVIEW ═════════════════════════════════
+   B9.4 et B9.5. Elles sortent des octets ; elles ne redessinent rien.
+
+   ⚠️ LA COQUILLE EST CHERCHÉE PAR `fetch`, ET ÇA MARCHE EXACTEMENT QUAND LE
+   BUILDER MARCHE. `fiche.shell.html` prévient qu'un `fetch` échoue en
+   `file://` — mais cette page-ci est en modules ESM, que `file://` refuse
+   AUSSI. Il n'existe donc aucun cas où le builder tourne et où la coquille
+   serait hors de portée. Elle est lue UNE fois et gardée : deux exports
+   d'affilée ne font pas deux allers-retours. */
+let coquilleCache = null;
+async function coquille() {
+  if (coquilleCache === null) {
+    const reponse = await fetch(new URL("../../src/tools/fiche.shell.html", import.meta.url));
+    if (!reponse.ok) throw new Error(`${reponse.status} ${reponse.statusText}`);
+    coquilleCache = await reponse.text();
+  }
+  return coquilleCache;
+}
+
+/** Le refus, DIT. ⛔ Jamais un `console.error` : le joueur ne lit pas la
+ *  console, et un bouton qui ne fait rien en silence est le faux magasin que
+ *  le mandat interdit. */
+function porteEnPanne(quoi, cause) {
+  state.popup = { titre: quoi, texte: `This did not work: ${cause}\n\nNothing was written, and your character is untouched.` };
+  refresh();
+}
+
+function exporterJson() {
+  if (!state.document) return porteEnPanne("Export JSON", "the engine has not finished loading.");
+  try {
+    telecharger({
+      nom: nomDeFichier(state.document, "fh-char.json"),
+      type: "application/json",
+      /* ⭐ LES OCTETS DU MOTEUR, PAS UN `JSON.stringify` D'ÉCRAN : c'est la
+         MÊME fonction que `toBytes` appelle (`canonical.mjs`, lot 67). Le
+         fichier exporté est donc byte-identique à celui que le bloc `doc`
+         écrirait — ce qui est la thèse du produit (« le joueur se balade
+         partout avec ses persos »), pas un détail. */
+      contenu: canonicalText(state.document)
+    });
+  } catch (cause) {
+    porteEnPanne("Export JSON", cause.message);
+  }
+}
+
+/** `Export HTML` et `Expert view` — LA MÊME PAGE, deux sorties. Une seule
+ *  fonction : deux chemins qui rendent « la même page » divergeraient. */
+function exporterFiche(sortie) {
+  const quoi = sortie === "tab" ? "Expert view" : "Export HTML";
+  if (!state.document || !state.report) return porteEnPanne(quoi, "the engine has not finished loading.");
+  coquille().then((html) => {
+    /* La LANGUE vient du document (`lang` est un champ racine REQUIS de
+       `fh-char/1`, lot 54) — jamais de l'écran, dont les mots sont en
+       anglais par arbitrage et ne disent rien du personnage. */
+    const page = injecte(html, renderFiche(state.document, state.report, state.document.lang));
+    const fichier = { nom: nomDeFichier(state.document, "fiche.html"), type: "text/html;charset=utf-8", contenu: page };
+    if (sortie === "download") return telecharger(fichier);
+    if (!ouvrirOnglet(fichier)) {
+      porteEnPanne(quoi, "your browser blocked the new tab. Use Export HTML instead — the file is the same page.");
+    }
+    return undefined;
+  }).catch((cause) => porteEnPanne(quoi, cause.message));
 }
 
 function applyDecisionAction(action) {
@@ -444,6 +523,13 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
+  /* ══ LOT 67 — LES TROIS PORTES DE REVIEW (B9.4, B9.5) ═══════════════════
+     Aucune ne touche le document, aucune ne redessine : elles SORTENT des
+     octets. Le seul retour à l'écran est un popup, et seulement quand ça
+     rate — un bouton qui échoue en silence est un faux magasin. */
+  if (action.kind === "exportJson") { exporterJson(); return; }
+  if (action.kind === "exportHtml") { exporterFiche("download"); return; }
+  if (action.kind === "expertView") { exporterFiche("tab"); return; }
   if (action.kind === "destinyIntroDone") {
     state.destinyIntro = false;
     if (!state.destinyDraw) tirerUneCarte();
