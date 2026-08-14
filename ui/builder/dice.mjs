@@ -30,6 +30,19 @@ export function rollThreeD6(rng) {
   return { dice, total: dice[0] + dice[1] + dice[2] };
 }
 
+/** B5.2b — LE 4D6, CONFIRMÉ PAR ERIC : « quatre dés, on ÉCARTE LE PLUS BAS
+ *  et on garde les trois meilleurs ». ⚠️ Sa dictée disait « keep one », il
+ *  manquait un mot ; la correction est la sienne, pas une déduction.
+ *  Les QUATRE dés reviennent, chacun avec `dropped` — le joueur doit voir
+ *  lequel a été écarté, sinon le total est une affirmation. */
+export function rollFourD6DropLowest(rng) {
+  const dice = [d6(rng), d6(rng), d6(rng), d6(rng)];
+  let bas = 0;
+  for (let i = 1; i < 4; i += 1) if (dice[i] < dice[bas]) bas = i;
+  const total = dice.reduce((somme, v, i) => somme + (i === bas ? 0 : v), 0);
+  return { dice, dropped: bas, total };
+}
+
 /** Les DIX jets d'un lot, sans jugement sur sa validité — `rollAbilitySet`
  *  applique seule la règle de relance. Exportée à part pour que le test
  *  « chaque jet vaut entre 3 et 18 » puisse tirer un grand nombre de jets
@@ -68,6 +81,31 @@ export function rollAbilitySet(rng) {
     rolls = rollTen(rng);
   }
   return { rolls: markKept(rolls), rerollCount };
+}
+
+/** B5.2 — LES DEUX MÉTHODES DE JET, et elles ne se ressemblent pas.
+ *  · `fh3d6` : dix jets de 3d6, on garde les six meilleurs, relance du lot
+ *    entier si aucun n'atteint 15 (la méthode d'Eric, ADDENDUMS §4) ;
+ *  · `4d6`   : SIX jets de 4d6 dont on écarte le plus bas — aucune relance,
+ *    aucun écarté au niveau du LOT (chaque jet produit un score, il n'y a
+ *    donc rien à trier).
+ *  ⚠️ La forme rendue est la MÊME des deux côtés (`{rolls, rerollCount}`,
+ *  chaque jet portant `kept`) : l'écran n'a pas à savoir laquelle il montre.
+ *  C'est ce qui permet aux six molettes d'être écrites une seule fois. */
+export const ROLLING_METHODS = [
+  { id: "fh3d6", label: "FH 3D6", summary: "Ten rolls of 3d6 — keep the six best. The whole batch is rerolled if none reaches 15." },
+  { id: "4d6", label: "4D6", summary: "Six rolls of 4d6 — the lowest die of each roll is dropped." }
+];
+
+export function rollAbilityBatch(methodId, rng) {
+  if (methodId === "4d6") {
+    const rolls = Array.from({ length: 6 }, (_, index) => {
+      const jet = rollFourD6DropLowest(rng);
+      return { ...jet, index, kept: true };
+    });
+    return { rolls, rerollCount: 0, method: "4d6" };
+  }
+  return { ...rollAbilitySet(rng), method: "fh3d6" };
 }
 
 /** LE TIRAGE D'UNE CARTE DE DESTINÉE — une parmi le CATALOGUE REÇU, jamais

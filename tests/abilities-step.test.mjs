@@ -66,7 +66,7 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 
 const {
   renderAbilitiesStep, rollAbilitySet, ABILITY_METHODS, currentAbilityValue, currentAbilityMode, optionsForRow,
-  emptyAbilityAssign
+  emptyAbilityAssign, abilitiesValidate, standardArrayBatch, ABILITY_ENTRIES
 } = await import("../ui/builder/abilities-step.mjs");
 
 const fixture = exempleFhEn();
@@ -109,8 +109,17 @@ function activeOption(row) {
   return active ? active.textContent : null;
 }
 
+/* ⚠️ LOT 63 — `method` ENTRE DANS LE `ctx`. B5.1c : « il faut CLIQUER pour
+   faire apparaître les rollers/choosers — rien n'est déplié d'avance ». La
+   méthode n'est donc plus lue dans le document (`abilities.mode`, qui y
+   reste écrit) mais dans l'état d'écran, et sans elle la scène ne montre que
+   ses tuiles. Les tests la posent explicitement : c'est le geste du joueur.
+   ⭐ Ce qu'ils prouvent n'a pas bougé — seule la porte d'entrée. */
 function ctxFrom(document, resolvedReport, extra) {
-  return Object.assign({ document, resolved: resolvedReport.resolved, rollBatch: null }, extra || {});
+  const base = { document, resolved: resolvedReport.resolved, rollBatch: null, rollingMethod: "fh3d6" };
+  const avec = Object.assign(base, extra || {});
+  if (avec.method === undefined) avec.method = avec.rollBatch ? "roll" : "manual";
+  return avec;
 }
 
 /** Le personnage d'exemple porte une SURCHARGE sur `resolved.vitals.hpMax`
@@ -492,20 +501,12 @@ test("mode manuel : cliquer une valeur pose exactement `set({path:\"abilities.<c
 
 /* ══ 9 (partie Abilities) — LES DEUX MODES EXISTENT, L'INACTIF DIT SON ÉTAT */
 
-test("les deux méthodes sont TOUJOURS rendues ; l'inactive affiche sa phrase d'état, jamais rien", () => {
-  assert.deepEqual(ABILITY_METHODS.map((m) => m.id), ["roll", "manual"]);
-  const rollModeDoc = set(fixture.document, "abilities.mode", "roll");
-  const report = rebuild(rollModeDoc);
-  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
-  const blocks = node.querySelectorAll(".ability-method-block");
-  assert.equal(blocks.length, 2, "les DEUX blocs de méthode existent, quel que soit le mode actif");
-  const active = blocks.find((b) => b.getAttribute("data-status") === "active");
-  const inactive = blocks.find((b) => b.getAttribute("data-status") === "inactive");
-  assert.equal(active.getAttribute("data-method"), "roll");
-  assert.equal(inactive.getAttribute("data-method"), "manual");
-  const summary = inactive.querySelectorAll(".ability-mode-summary")[0];
-  assert.ok(summary, "le mode inactif porte une phrase d'état — il ne disparaît pas");
-  assert.match(summary.textContent, /Not selected/);
+test("B5.2c — la fenêtre explicative CHANGE avec la molette (le texte vient de la table)", () => {
+  const mot = (m) => renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "roll", rollingMethod: m }), () => {})
+    .querySelectorAll(".ability-rolling-blurb p")[0].textContent;
+  assert.notEqual(mot("fh3d6"), mot("4d6"), "deux méthodes, deux explications — jamais la même phrase");
+  assert.match(mot("fh3d6"), /3d6/);
+  assert.match(mot("4d6"), /4d6/);
 });
 
 /* ══ ⚔️ LOT 53, §2 test 1 — LE TEST QUI PROUVE LE LOT ═════════════════════
@@ -517,39 +518,45 @@ test("les deux méthodes sont TOUJOURS rendues ; l'inactive affiche sa phrase d'
    sur le code d'avant ce lot (`btn.setAttribute("aria-label",
    String(value))` posait `"roll"`, jamais le libellé) et est vert ici. */
 
-test("⚔️ LE TEST QUI PROUVE LE LOT — le nom accessible du bouton « Roll » est le libellé humain, jamais l'id `roll`", () => {
-  const report = rebuild(fixture.document);
-  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
-  const rollBtn = node.querySelectorAll(".ability-mode-switch .record-option")
-    .find((b) => b.dataset.value === "roll");
-  assert.ok(rollBtn, "le bouton de la méthode `roll` existe (lu dans ABILITY_METHODS via data-value)");
-  const accessibleName = rollBtn.getAttribute("aria-label") || rollBtn.textContent;
-  assert.equal(accessibleName, "Roll (3d6 × 10, keep 6)", "le nom accessible EST le libellé humain — jamais l'identifiant brut");
-  assert.notEqual(accessibleName, "roll", "l'identifiant machine ne doit plus jamais être ce qu'un lecteur d'écran annonce");
+test("⚔️ le nom accessible d'une tuile de méthode est le libellé humain, jamais l'id", () => {
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
+  const libelles = node.querySelectorAll(".ability-entry").map((t) => t.textContent);
+  assert.deepEqual(libelles, ["Roll dice", "Standard array", "Choose yourself"]);
+  assert.equal(libelles.some((l) => /^(roll|standard|manual)$/.test(l)), false, "jamais une clef machine à l'écran");
 });
 
-test("basculer de méthode pose `set({path:\"abilities.mode\", value})` — abilities.mode reste ÉCRIT (commande §3a-bis)", () => {
-  const report = rebuild(fixture.document);
+test("B5.1b/c — une tuile commet `abilityMethod`, et RIEN n'est déplié d'avance", () => {
+  /* ⚠️ LE GESTE A CHANGÉ DE FORME, PAS DE SENS. Au lot 45, la méthode était
+     un picker qui posait `set({path:"abilities.mode"})` depuis l'écran. B5.1b
+     en fait des DALLES-BOUTONS, et l'écran commet un geste d'écran — c'est la
+     COQUILLE qui écrit ensuite `abilities.mode` (garde d'octets plus bas).
+     Le champ reste rempli : cesser de l'écrire aurait perdu une intention. */
   const calls = [];
-  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), (a) => calls.push(a));
-  const switchButtons = node.querySelectorAll(".ability-mode-switch .record-option");
-  const manualBtn = switchButtons.find((b) => b.textContent === "Manual entry");
-  assert.ok(manualBtn);
-  manualBtn.click();
-  assert.deepEqual(calls[0], { kind: "set", path: "abilities.mode", value: "manual" });
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), (a) => calls.push(a));
+  const tuiles = node.querySelectorAll(".ability-entry");
+  assert.equal(tuiles.length, 3, "trois tuiles — `Point buy` n'est pas offerte, voir le test dédié");
+  assert.equal(node.querySelectorAll(".ability-rows").length, 0, "B5.1c : aucun roller, aucun chooser déplié");
+  tuiles.find((t) => t.dataset.entry === "manual").click();
+  assert.deepEqual(calls, [{ kind: "abilityMethod", value: "manual" }]);
 });
 
-test("un `abilities.mode` inconnu (\"standard\", legs d'un autre outil) ne casse pas l'écran — il retombe sur la première méthode, avec sa note", () => {
-  // C'est EXACTEMENT l'état du personnage d'exemple non modifié : mesuré en
-  // écrivant ce test (voir INVENTAIRE-LOT-45.md).
-  assert.equal(currentAbilityMode(fixture.document).raw, "standard");
-  const report = rebuild(fixture.document);
-  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
-  const note = node.querySelectorAll(".ability-mode-note")[0];
-  assert.ok(note, "une note explique le repli — rien ne se cache (§2 du chantier)");
-  assert.match(note.textContent, /standard/);
-  const active = node.querySelectorAll('.ability-method-block[data-status="active"]')[0];
-  assert.equal(active.getAttribute("data-method"), "roll", "repli sur la PREMIÈRE méthode du tableau");
+test("garde — la coquille écrit TOUJOURS `abilities.mode` quand la méthode change", () => {
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /set\(\{ document: state\.document, path: "abilities\.mode", value: action\.value \}\)/,
+    "aucune règle ne consomme ce champ, mais c'est une intention du joueur — la perdre serait un silence");
+});
+
+test("B5.2d — la molette de jet ne JETTE rien ; c'est `Validate` qui jette", () => {
+  /* Motif d'Eric, mot pour mot : « pour éviter de faire ramer le mobile ». */
+  const calls = [];
+  const node = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "roll", rollBatch: null }), (a) => calls.push(a));
+  assert.equal(node.querySelectorAll(".ability-rolling").length, 1, "la molette est là");
+  assert.equal(node.querySelectorAll(".ability-rows").length, 0, "aucun résultat tant qu'on n'a pas validé");
+  node.querySelectorAll(".ability-rolling-pick .record-option")[1].click();
+  assert.deepEqual(calls, [{ kind: "rollingMethod", value: "4d6" }], "tourner la molette ne produit AUCUN jet");
+  assert.deepEqual(abilitiesValidate({ document: fixture.document, method: "roll", rollBatch: null }),
+    { exists: true, ready: true, action: { kind: "rollBatch" }, next: "palier" });
 });
 
 /* ══ LE PLAFOND DE 18 — DÉCLARÉ, JAMAIS OPPOSÉ (commande §3c), ET QUI NE
@@ -612,49 +619,26 @@ test("l'alerte de plafond ne parle qu'au niveau 1 — même score, même carac, 
    que la commande ne demande pas. `finally` restaure le tableau même si
    une assertion échoue, pour ne polluer aucun test voisin. */
 
-test("⚔️ PREUVE D'EXTENSIBILITÉ — une troisième méthode ajoutée SEULEMENT ici s'affiche, sans une ligne changée dans abilities-step.mjs", () => {
-  const before = ABILITY_METHODS.length;
-  const rendered = [];
-  const fakeMethod = {
-    id: "test-double-fake-method",
-    label: "Fake Method (test double)",
-    summary: "Not selected — test double for the extensibility proof.",
-    render: (ctx) => {
-      rendered.push(ctx); // preuve que la boucle appelle bien CE `render`, avec le VRAI ctx
-      const marker = document.createElement("div");
-      marker.className = "fake-method-marker";
-      marker.textContent = "FAKE METHOD RENDERED";
-      return [marker];
-    }
-  };
-  ABILITY_METHODS.push(fakeMethod);
-  try {
-    assert.equal(ABILITY_METHODS.length, before + 1, "l'arrivée d'une méthode : UNE entrée de plus, rien d'autre");
+test("🔴 `Point buy` N'EST PAS OFFERTE, et c'est mesuré — son barème n'existe nulle part", () => {
+  /* B5.1b en nomme QUATRE. La quatrième manque, et pas par oubli : le budget
+     de points et ses coûts non linéaires ne sont ni dans
+     `layers/srd-5.2.1-en.layer.json` ni dans le moteur. Les écrire ici
+     mettrait une règle du jeu dans l'interface, et publierait des nombres
+     dont on ne sait pas s'ils sont SRD — ce que §0.8 interdit.
+     ⛔ Une tuile morte serait un faux magasin. Ce test garde l'absence
+     VOLONTAIRE, pour qu'on ne la prenne pas un jour pour un oubli. */
+  assert.deepEqual(ABILITY_ENTRIES.map((e) => e.id), ["roll", "standard", "manual"]);
+  assert.equal(ABILITY_ENTRIES.some((e) => /point/i.test(e.id + e.label)), false);
+});
 
-    const doc = set(fixture.document, "abilities.mode", fakeMethod.id);
-    const report = rebuild(doc);
-    const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
-
-    const blocks = node.querySelectorAll(".ability-method-block");
-    assert.equal(blocks.length, before + 1, "les TROIS méthodes sont rendues, la fausse comprise");
-    const fakeBlock = blocks.find((b) => b.getAttribute("data-method") === fakeMethod.id);
-    assert.ok(fakeBlock, "le bloc de la fausse méthode existe");
-    assert.equal(fakeBlock.getAttribute("data-status"), "active", "abilities.mode la désigne : elle est ACTIVE");
-    const marker = fakeBlock.querySelectorAll(".fake-method-marker")[0];
-    assert.ok(marker, "son propre `render` a bien été appelé — jamais celui de \"roll\" ou \"manual\"");
-    assert.equal(marker.textContent, "FAKE METHOD RENDERED");
-    assert.equal(rendered.length, 1, "le `render` de la fausse méthode est appelé EXACTEMENT une fois");
-
-    // Et les DEUX vraies méthodes restent, elles, INACTIVES — la boucle ne
-    // les a pas oubliées pour autant.
-    const roll = blocks.find((b) => b.getAttribute("data-method") === "roll");
-    const manual = blocks.find((b) => b.getAttribute("data-method") === "manual");
-    assert.equal(roll.getAttribute("data-status"), "inactive");
-    assert.equal(manual.getAttribute("data-status"), "inactive");
-  } finally {
-    ABILITY_METHODS.pop();
-    assert.equal(ABILITY_METHODS.length, before, "le tableau est restauré — aucun test voisin n'hérite de la fausse méthode");
-  }
+test("B5.7 — `Standard array` : six valeurs, SANS dés, par la même machinerie", () => {
+  const lot = standardArrayBatch();
+  assert.deepEqual(lot.rolls.map((r) => r.total), [15, 14, 13, 12, 10, 8]);
+  assert.ok(lot.rolls.every((r) => r.kept), "aucun écarté : il n'y a rien à trier");
+  assert.deepEqual(lot.assign, emptyAbilityAssign(), "et la carte d'affectation part vide — le remède au piège des deux 14");
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: lot }), () => {});
+  assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "PAS de dés affichés (B5.7)");
+  assert.equal(node.querySelectorAll(".ability-row").length, 6, "mais les six molettes, oui");
 });
 
 /* ══ ⚔️ ATTAQUE — LE CHOIX BRUT ET LE SCORE FINAL NE SE CONTREDISENT PLUS ═
@@ -681,7 +665,16 @@ test("⚔️ ATTAQUE — CON et INT (boostés par l'Inheritance) affichent un sc
   assert.equal(report.resolved.abilities.con.score, 14, "mesure : le boost d'Inheritance porte bien CON à 14");
   assert.equal(report.resolved.abilities.int.score, 17, "mesure : le boost d'Inheritance porte bien INT à 17");
 
-  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+  /* ⚠️ LOT 63 — L'ÉTAT QUE CE TEST EXERÇAIT N'EXISTE PLUS. Il rendait des
+     rangées d'affectation avec `rollBatch: null` ; depuis B5.2d, il n'y a
+     plus d'état où l'on voit les rangées SANS lot — la molette précède le
+     jet, et `Validate` jette. On lui donne donc le lot le plus neutre qui
+     soit : celui de `Standard array`, dont la carte d'affectation part vide.
+     ⭐ Ce que l'attaque prouve est INCHANGÉ : rien n'est distribué, le choix
+     BRUT reste lisible dans la note, et le score FINAL (boosté) s'affiche à
+     côté sans jamais l'écraser. */
+  const node = renderAbilitiesStep(
+    ctxFrom(report.document, report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
 
   for (const [key, rawExpected, finalExpected, modExpected] of [
     ["con", "13", "14 (+2)", true],

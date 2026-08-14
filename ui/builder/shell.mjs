@@ -22,6 +22,7 @@
 import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
 import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
 import { mountPopup } from "./popup.mjs";
+import { rollAbilityBatch } from "./dice.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
 import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs";
@@ -31,7 +32,7 @@ import {
 import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs";
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs";
 import { renderInheritanceStep } from "./inheritance-step.mjs";
-import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign } from "./abilities-step.mjs";
+import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
 } from "./destiny-step.mjs";
@@ -117,6 +118,10 @@ const state = {
      le lot »). Ni l'un ni l'autre champ n'existe dans `document` — voir
      `abilities-step.mjs`, en-tête. */
   abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount, assign}), ou null
+  /* LOT 63 — B5.1c : « il faut CLIQUER pour faire apparaître les rollers ».
+     Tant que `abilityMethod` est nul, l'écran ne montre que ses tuiles. */
+  abilityMethod: null,   // "roll" | "standard" | "manual"
+  rollingMethod: "fh3d6",// B5.2a — réglé à la molette, jeté au palier (B5.2d)
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
      DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
@@ -299,6 +304,34 @@ function applyDecisionAction(action) {
      (`state.destinyMode`) — ni l'un ni l'autre n'est un choix `fh-char/1`
      (voir l'en-tête de `abilities-step.mjs`/`destiny-step.mjs`). Aucun
      `rebuild()` : rien dans le document n'a changé. */
+  /* ══ LOT 63 — LES TROIS GESTES DE B5, AUCUN NE TOUCHE LE DOCUMENT ═════ */
+  if (action.kind === "abilityMethod") {
+    state.abilityMethod = action.value;
+    /* ⚠️ `abilities.mode` RESTE ÉCRIT AU DOCUMENT, comme au lot 45. Aucune
+       règle ne le consomme (Review le classe dans « player choices no rule
+       consumed »), mais c'est un champ du schéma que le joueur a rempli :
+       cesser de l'écrire serait perdre une intention en silence. */
+    state.document = state.engine.build.verbs
+      .set({ document: state.document, path: "abilities.mode", value: action.value }).document;
+    rebuild();
+    /* `Standard array` n'a pas de dés : son lot est posé d'emblée, et il
+       passe par la MÊME machinerie d'affectation (B5.7). */
+    state.abilityRoll = action.value === "standard" ? standardArrayBatch() : null;
+    openSurface();
+    return;
+  }
+  if (action.kind === "rollingMethod") {
+    /* ⛔ TOURNER LA MOLETTE NE JETTE RIEN (B5.2d, motif d'Eric : « pour
+       éviter de faire ramer le mobile »). */
+    state.rollingMethod = action.value;
+    refresh();
+    return;
+  }
+  if (action.kind === "rollBatch") {
+    state.abilityRoll = { ...rollAbilityBatch(state.rollingMethod, Math.random), assign: emptyAbilityAssign() };
+    openSurface();
+    return;
+  }
   if (action.kind === "roll") {
     /* LOT 50, §2b — un nouveau lot (premier tirage OU relance) remet TOUTE
        la carte d'assignation à `null` : relancer invalide l'assignation
@@ -733,7 +766,9 @@ function renderStepContent() {
     card.append(renderAbilitiesStep({
       document: state.document,
       resolved: state.resolved,
-      rollBatch: state.abilityRoll
+      rollBatch: state.abilityRoll,
+      method: state.abilityMethod,
+      rollingMethod: state.rollingMethod
     }, applyDecisionAction));
   } else if (step.id === "abilities" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -968,6 +1003,12 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B5 — sur Abilities, `Validate` JETTE au premier palier, puis avance. */
+  if (STEPS[state.step].id === "abilities" && state.engine) {
+    return abilitiesValidate({
+      document: state.document, method: state.abilityMethod, rollBatch: state.abilityRoll
+    });
+  }
   /* B7.3d — sur Compétences, `Validate` s'illumine quand le compte est bon. */
   if (surCompetences()) return skillsValidate(skillsCtx());
   /* B6.1e — sur Destiny en mode « draw », `Validate` s'allume quand la carte
