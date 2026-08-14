@@ -111,8 +111,18 @@ class FakeElement extends FakeNode {
        rectangle, ni butée haute. Ce stub sait dire « la position a été
        perdue » ou « elle a été gardée », rien de plus — et c'est
        exactement la question que pose le §RENDU. */
-    this.scrollTop = 0;
+    this._scrollTop = 0;
     this.scrollLeft = 0;
+    /* ══ LOT 68 — LA GÉOMÉTRIE, ET ELLE EST OPTIONNELLE ═══════════════════
+       `_geometrie` reste `null` tant qu'un test ne la POSE pas (voir
+       `poserUneColonne` en bas de ce fichier). Tant qu'elle est nulle,
+       `getBoundingClientRect` **jette** au lieu de rendre des zéros.
+       ⛔ C'est délibéré : un rectangle de zéros laisserait un test du spy
+       « passer » en mesurant du vide — exactement le genre de garde creux
+       que ce dépôt a déjà payé deux fois (le `scroll-snap` mort sous 935
+       verts, la virgule sous 993). Un test qui a besoin d'une mise en page
+       doit la déclarer ; sinon il n'a rien à demander. */
+    this._geometrie = null;
     const self = this;
     this.dataset = new Proxy({}, {
       get(_target, key) {
@@ -125,6 +135,31 @@ class FakeElement extends FakeNode {
         return true;
       }
     });
+  }
+  /* ⚠️ LOT 68 — `scrollTop` ÉMET UN `scroll`, COMME UN VRAI NAVIGATEUR.
+     C'est le trou qui a laissé le spy sans test : le stub POSAIT la valeur
+     sans jamais prévenir personne, donc un écouteur `scroll` n'était appelé
+     par aucune suite. `watchSnap` — dont l'invariant II.3 dit « le
+     scrollspy EST le sélecteur » — n'avait donc AUCUN test, alors que son
+     arithmétique (`nearestIndex`), elle, en a cinq. L'arithmétique était
+     prouvée, le câblage qui la nourrit ne l'était pas. */
+  get scrollTop() { return this._scrollTop; }
+  set scrollTop(value) {
+    const avant = this._scrollTop;
+    this._scrollTop = value;
+    if (value !== avant) this.dispatchEvent({ type: "scroll", target: this });
+  }
+  /** La mise en page, UNIQUEMENT si un test l'a déclarée (`poserUneColonne`).
+   *  ⛔ Jette sinon — un rectangle de zéros ferait passer un test du spy en
+   *  mesurant du vide. */
+  getBoundingClientRect() {
+    const g = this._geometrie;
+    if (!g) {
+      throw new Error("dom-stub : getBoundingClientRect() sans géométrie déclarée. " +
+        "Ce stub ne fabrique pas de mise en page — appelle `poserUneColonne(scroller, …)` " +
+        "dans le test, ou ne demande pas de rectangle.");
+    }
+    return { top: g.top(), height: g.height, bottom: g.top() + g.height, left: 0, right: 0, width: 0 };
   }
   get className() { return this._attrs.get("class") || ""; }
   set className(value) { this._attrs.set("class", value); }
@@ -232,4 +267,27 @@ class FakeDocument {
 /** Un `document` neuf, isolé par test — aucun état partagé entre deux appels. */
 export function createTestDocument() {
   return new FakeDocument();
+}
+
+/* ══ LOT 68 — UNE COLONNE, ET RIEN DE PLUS ═══════════════════════════════
+   Le seul modèle de mise en page que ce stub accepte, et c'est exactement
+   celui du catalogue : des enfants de hauteur égale empilés dans un
+   conteneur qui défile. La formule est celle d'un vrai navigateur pour une
+   colonne simple — le haut d'un enfant, c'est le haut du champ, moins ce
+   qu'on a défilé, plus ce qui le précède :
+
+       enfant[i].top = champ.top − scrollTop + i × hauteur
+
+   ⛔ CE QU'IL NE MODÉLISE PAS, ET QU'IL NE FAUT PAS LUI FAIRE DIRE :
+   marges, `scroll-snap`, hauteurs inégales, `position: sticky`, transformées.
+   Un test qui aurait besoin de l'un de ceux-là ment s'il utilise ce
+   helper — il lui faut un vrai navigateur. Le spy, lui, ne lit QUE des
+   `top`, donc une colonne suffit à l'exercer honnêtement. */
+export function poserUneColonne(scroller, { top = 0, hauteurDuChamp = 800, hauteurDesEnfants = 800 } = {}) {
+  scroller._geometrie = { top: () => top, height: hauteurDuChamp };
+  const enfants = scroller.childNodes.filter((n) => n.nodeType === 1);
+  enfants.forEach((enfant, i) => {
+    enfant._geometrie = { top: () => top - scroller.scrollTop + i * hauteurDesEnfants, height: hauteurDesEnfants };
+  });
+  return enfants;
 }
