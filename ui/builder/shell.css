@@ -673,6 +673,30 @@ button { font: inherit; }
   .card-face[data-face="up"] .card-face-img { animation: none; }
 }
 
+/* ══ B9 — LE MASQUE DE REVIEW, lot 65 ══════════════════════════════════
+   « Un masque propre, TRÈS CLAIR · QUE DU TEXTE · sur une DALLE MAJEURE
+   UNIQUE. » Et l'exigence première : « une visibilité de ce qui est fait /
+   pas fait ». */
+.review-mask { margin: var(--sp-8); padding: var(--sp-16); }
+.review-name { margin: 0 0 var(--sp-16); font-size: var(--t6); }
+.review-heading { margin: var(--sp-16) 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
+.review-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.review-line {
+  display: flex; align-items: center; gap: var(--sp-8);
+  min-height: var(--touch);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t3);
+  cursor: pointer;
+}
+.review-line-label { flex: 1 1 auto; color: var(--text); }
+.review-line-state { color: var(--text-muted); font-size: var(--t2); text-align: right; }
+/* Ce qui est fait se voit d'un coup d'œil — c'est tout ce qu'Eric demande.
+   La couleur ne porte pas seule : le mot d'état la double toujours. */
+.review-line[data-done="true"] .review-line-state { color: var(--positive); }
+.review-line[data-done="false"] .review-line-state { color: var(--caution); }
+.review-refusals { margin: 0; padding-left: var(--sp-20); font-size: var(--t2); color: var(--critical); }
+
 /* ── LA FICHE, DANS LE BUILDER (lot 40) ───────────────────────────────
    Le lot 40 a cable le BALISAGE de la fiche sans sa feuille : les 23 regles
    de `src/tools/fiche.shell.html` ne sont chargees que par l'outil autonome,
@@ -683,11 +707,10 @@ button { font: inherit; }
    ⛔ ON NE RECOPIE PAS LES 23 REGLES ICI. Trier la fiche — « ca reste visible,
    ca part derriere un onglet » — est le geste d'Eric, plus tard, devant la
    page. Ce bloc ne paie que la LISIBILITE, et rien d'autre. */
-.review-fiche .cells { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-16); }
-.review-fiche .cell { white-space: nowrap; }
-.review-fiche .cell b,
-.review-fiche .feuille .val { margin-left: var(--sp-4); }
-.review-fiche .cle { color: var(--text-muted); }
+/* ⛔ LES QUATRE RÈGLES DE `.review-fiche` SONT PARTIES AVEC LEUR BALISAGE
+   (loi §0.6) : le builder n'appelle plus `renderFiche`. Elles payaient la
+   lisibilité d'un déversement de `resolved` que B9 remplace par un masque.
+   `src/tools/fiche.shell.html` garde les siennes, pour l'outil autonome. */
 
 /* ══ B5.1 — LA SCÈNE AU REPOS : un texte, puis des DALLES-BOUTONS ═══════
    ⛔ Rien n'est déplié d'avance (B5.1c) : tant qu'aucune tuile n'est

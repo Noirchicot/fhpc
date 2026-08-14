@@ -22,6 +22,7 @@
 import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
 import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
 import { mountPopup } from "./popup.mjs";
+import { renderReviewStep, reviewValidate } from "./review-step.mjs";
 import { rollAbilityBatch } from "./dice.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
@@ -45,18 +46,15 @@ import { CURRENCY_KEYS } from "../../src/build/index.mjs";
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
 import { createDocWriters } from "../../src/doc/writers.mjs";
-/* LOT 40 — `render()` rend une CHAÎNE HTML (voir src/tools/render-fiche.mjs,
-   §« LE HTML »), pas des nœuds : c'est une décision d'architecture du lot 25,
-   antérieure à ce lot, mesurée et non rouverte ici (voir INVENTAIRE-LOT-40.md
-   §0.1). ⚠️ LOT 58 — la coquille n'a plus QUE CE `innerHTML`-là : les deux
-   autres sites sont partis (`app.innerHTML = ""` est remplacé par
-   `swapContent`, et les crans de la molette sont deux nœuds posés une fois).
-   L'étape Review reste dans `shell.mjs` seul — jamais dans un module testé
-   par `tests/dom-stub.mjs`, qui ne connaît pas `innerHTML` par construction. */
-/* Aliasé : `shell.mjs` a déjà son propre `render()` (la fonction de redessin
-   de la page, plus bas) — deux fonctions distinctes, un seul nom aurait
-   masqué l'une des deux. */
-import { render as renderFiche } from "../../src/tools/render-fiche.mjs";
+/* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
+   histoire : l'étape Review l'appelait pour déverser `resolved` en entier
+   (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
+   dump. **La coquille ne contient donc plus AUCUN `innerHTML`** — les trois
+   sites ont disparu l'un après l'autre : `app.innerHTML = ""` au lot 58,
+   les crans de la molette au même lot, la fiche de Review ici.
+   📌 `src/tools/render-fiche.mjs` VIT TOUJOURS et reste testé (35 tests) :
+   c'est l'outil autonome de rendu de fiche, il n'a simplement plus de raison
+   d'être appelé depuis le builder. */
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -426,6 +424,13 @@ function applyDecisionAction(action) {
   if (action.kind === "snapTo") {
     const cibles = frame.stage.querySelectorAll("[data-snap]");
     if (cibles[action.index]) keepInView(frame.stage, cibles[action.index], "y-start");
+    return;
+  }
+  /* B9 — une ligne de Review mène à son écran. Voir qu'il manque quelque
+     chose sans pouvoir y aller ferait de Review un constat, pas un
+     récapitulatif. */
+  if (action.kind === "goToStepId") {
+    goToStep(STEPS.findIndex((step) => step.id === action.value));
     return;
   }
   if (action.kind === "popup") {
@@ -853,14 +858,16 @@ function renderStepContent() {
   } else if (step.id === "equipment") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "review" && state.document && state.report) {
-    /* LOT 40 — §3a. `render()` rend une CHAÎNE, jamais recalculée : la loi
-       que ses 27+8 tests gardent (« un total menteur s'affiche MENTEUR »)
-       tient tant que ce module ne fait qu'AFFICHER `state.document`/
-       `state.report`, sans y toucher. Mots en anglais (§3b) : c'est la
-       langue du builder, pas celle par défaut de `render()`. */
-    const fiche = el("div", "review-fiche", []);
-    fiche.innerHTML = renderFiche(state.document, state.report, "en");
-    card.append(fiche);
+    /* ⚠️ LOT 65 — `renderFiche` A QUITTÉ CET ÉCRAN, avec son `innerHTML`.
+       Il déversait `resolved` en entier : 11 894 px mesurés, 27 370 après
+       quelques choix de plus, et il GRANDISSAIT AVEC LE PERSONNAGE. B9
+       demande l'inverse — « un masque propre, TRÈS CLAIR, QUE DU TEXTE, sur
+       une DALLE MAJEURE UNIQUE ».
+       ⭐ Et la coquille n'a plus AUCUN `innerHTML` : c'était le dernier. */
+    card.append(renderReviewStep({
+      document: state.document, resolved: state.resolved,
+      decisions: state.decisions, report: state.report, violations: state.violations
+    }, applyDecisionAction));
   } else if (step.id === "review" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
@@ -1034,6 +1041,8 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B9 — Review est la destination : pas de pas suivant, donc pas de palier. */
+  if (STEPS[state.step].id === "review") return reviewValidate();
   /* B4 — sur Inheritance, `Validate` FERME le panneau ouvert, ou avance
      quand les deux cercles sont cochés. */
   if (STEPS[state.step].id === "background" && state.engine && state.inheritanceOpen !== "feat") {
