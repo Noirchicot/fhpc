@@ -230,6 +230,25 @@ toutes les sources et se vérifie à la fin, pas sur les boosts seuls — un sco
 de 24 en sortie de `backgroundBoostPlan` (ex. `+9`) passe la dérivation, et
 c'est assumé.
 
+**La borne de création des scores de base — 3..18 (Eric, 2026-08-15, lot 74).**
+`projectDecisions` publie six plans `abilities.<clef>` dont les `options` sont
+les seize valeurs entières 3..18 (`CREATION_SCORES`, exporté par
+`src/build/index.mjs` — l'écran Abilities LIT cette liste, il ne la réécrit
+jamais). Un choix `abilities.<clef>` hors de ces seize valeurs porte le verrou :
+
+| Clef | Quand |
+|---|---|
+| `abilities.score-out-of-creation-range` | un score de BASE posé hors de 3..18, à la création — `{path, value, min, max}` |
+
+⚠️ La borne juge le **choix** (le score de base), jamais `resolved.abilities` :
+la dérivation additionne les boosts par-dessus la base, et un 18 de base
+boosté à 20 par l'Inheritance reste légal — le plafond de sortie (ADDENDUMS
+§5 n°1, ci-dessus) est une autre règle, toujours pas implémentée. Et la borne
+parle **à la création seulement** : dès qu'un `level` entier > 1 est posé, ces
+six plans disparaissent — « au-delà, le SRD reprend la main (plafond 20) »
+(Eric, 2026-08-13). Un document sans `level` est un document en création : la
+borne y parle.
+
 **`background.feat` a disparu — et `background.feat-mismatch` avec lui
 (§1b).** Aucun consommateur ne lisait ce chemin : `skill-pool.mjs`,
 `destiny-stat.mjs` et le module des arcanes lisent tous

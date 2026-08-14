@@ -1,11 +1,14 @@
 /* ══ L'ÉTAPE ABILITIES — lot 45, corrigée lot 50, corrigée lot 51 ═══════
-   ⛔ ZÉRO plan `decisions[]` pour ce chemin (mesuré, commande §0) —
-   contrairement à Compétences/Class/Species, cet écran ne descend PAS le
-   carnet : il lit `document.build.choices` directement (le SEUL endroit où
-   vivent les six valeurs et la méthode choisie) et `resolved.abilities`
-   (le SEUL endroit où lire le score FINAL, boosts compris, tel que le
-   moteur le rend — jamais recalculé ici, même loi que le compteur de
-   `skills-step.mjs`).
+   ⚠️ LOT 74 A PÉRIMÉ L'ANCIEN « ZÉRO plan decisions[] pour ce chemin » :
+   le carnet publie désormais six plans `abilities.<clef>` — la borne de
+   création 3–18 (Eric, 2026-08-15), déclarée dans `src/build/decisions.mjs`
+   section LOT 74. Cet écran, lui, continue de lire `document.build.choices`
+   directement (le SEUL endroit où vivent les six valeurs et la méthode
+   choisie) et `resolved.abilities` (le SEUL endroit où lire le score FINAL,
+   boosts compris, tel que le moteur le rend — jamais recalculé ici, même
+   loi que le compteur de `skills-step.mjs`). Ce qu'il prend au moteur EN
+   PLUS depuis le lot 74 : `CREATION_SCORES`, la liste des valeurs offertes
+   à la saisie — PUBLIÉE par le moteur, jamais réécrite ici.
 
    ⭐ LOT 50 — LE DÉFAUT QU'ERIC A RENCONTRÉ : on ne pouvait pas distribuer
    ses six dés sur ses six caractéristiques. Trois rangées restaient
@@ -55,11 +58,14 @@
    dés lui-même ne survit dans AUCUN champ (Eric, 2026-08-13) : `rollBatch`
    vit dans `shell.mjs` (`state.abilityRoll`), jamais dans le document.
 
-   ⛔ LE PLAFOND DE 18 N'EST PAS ICI (commande §3c) : `abilities.str = 20`
-   passe aujourd'hui avec ZÉRO refus (mesuré). Ce fichier se contente de
-   DÉCLARER l'alerte — une phrase, jamais un blocage, jamais une ligne qui
-   empêcherait `onAction` de partir. Tranché par Eric le 2026-08-13,
-   POSTÉRIEUR à la commande : l'écran prévient, le moteur laisse.
+   ⛔ LE PLAFOND N'EST TOUJOURS PAS OPPOSÉ ICI (commande §3c) : ce fichier
+   se contente de DÉCLARER l'alerte — une phrase, jamais un blocage, jamais
+   une ligne qui empêcherait `onAction` de partir (Eric, 2026-08-13 :
+   l'écran prévient). ⚠️ LOT 74 : « abilities.str = 20 passe avec ZÉRO
+   refus » est PÉRIMÉ — le moteur NOMME désormais un score de BASE hors
+   3–18 à la création (`abilities.score-out-of-creation-range`,
+   decisions.mjs LOT 74). L'écran ne bloque toujours rien : le refus vit au
+   carnet et dans `validate()`, jamais dans un `if` d'écran.
 
    ⭐ LOT 51 — LE DÉFAUT SUIVANT, TROUVÉ EN REGARDANT LA PAGE DÉPLOYÉE JUSTE
    APRÈS LA FUSION DU LOT 50 : une fois les six dés distribués, ZÉRO option
@@ -84,7 +90,7 @@
 
 import { renderPicker, markPressed } from "./carnet.mjs";
 import { ROLLING_METHODS } from "./dice.mjs";
-import { ABILITY_KEYS } from "../../src/build/index.mjs";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs";
 import { rollAbilitySet } from "./dice.mjs";
 
 export { rollAbilitySet };
@@ -115,13 +121,17 @@ export const ABILITY_METHODS = [
 ];
 
 const ABILITY_MODE_PATH = "abilities.mode";
-const ABILITY_CAP = 18; // déclaré, jamais opposé — voir l'en-tête et INVENTAIRE-LOT-45.md
-/* La plage de la saisie manuelle : un choix COSMÉTIQUE de widget (jusqu'où
-   les boutons vont), PAS une règle. Elle dépasse volontairement le plafond
-   de 18 pour que l'alerte ait une chance de se déclencher sans qu'aucun
-   bouton ne soit retiré — retirer les valeurs > 18 SERAIT le blocage que
-   commande §3c interdit. */
-const MANUAL_ENTRY_RANGE = Array.from({ length: 20 }, (_, i) => i + 1); // 1..20
+/* LOT 74 — L'ANCIENNE PLAGE 1..20 EST MORTE, ET C'EST ERIC QUI L'A TUÉE
+   (2026-08-15 : « la borne est 3 à 18 »). Elle se disait « un choix
+   COSMÉTIQUE de widget, PAS une règle », et dépassait 18 exprès pour que
+   l'alerte puisse se déclencher. C'est désormais une RÈGLE, donc elle vit
+   au moteur (`src/build/decisions.mjs`, LOT 74) qui PUBLIE la liste —
+   `CREATION_SCORES`, importée en tête. Cet écran n'écrit plus un seul
+   nombre de plage : en réécrire un (`for (let i = 3; i <= 18; …)`) ne
+   ferait que déplacer la faute. L'alerte de plafond, elle, RESTE : un
+   score FINAL peut toujours dépasser 18 par boost d'Inheritance (mesuré :
+   base 18 + 2 → 20, légal), et elle le dit sans rien bloquer. */
+const ABILITY_CAP = CREATION_SCORE_MAX; // le même 18 arbitré, LU au moteur — jamais réécrit ici
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -378,7 +388,7 @@ function renderManualRow(key, ctx) {
   return renderAbilityRow(key, {
     document, resolved,
     pickerProps: {
-      options: MANUAL_ENTRY_RANGE,
+      options: CREATION_SCORES, // la borne 3–18 publiée par le moteur (LOT 74) — jamais réécrite ici
       selected: current !== undefined ? [current] : [],
       labelOf: (v) => String(v),
       onSelect: (value) => onAction({ kind: "set", path: `abilities.${key}`, value })
@@ -487,9 +497,11 @@ function renderManualMethod({ document, resolved, onAction }) {
 
    ⭐ `Standard array`, LUI, EST OFFERT, et la distinction se défend : ce
    n'est pas un barème à appliquer, c'est une LISTE DE SIX VALEURS que le
-   widget propose — la même famille que `MANUAL_ENTRY_RANGE` ci-dessus, qui
-   est déjà « un choix cosmétique de widget, PAS une règle ». Rien n'est
-   calculé, rien n'est opposé : le joueur pose six nombres, comme à la main.
+   widget propose. Rien n'est calculé, rien n'est opposé : le joueur pose
+   six nombres, comme à la main. ⚠️ LOT 74 : ses six valeurs tiennent dans
+   la borne de création publiée par le moteur (mesuré : 8..15 ⊂ 3..18) —
+   si elles en sortaient un jour, le carnet les nommerait
+   (`abilities.score-out-of-creation-range`), pas cet écran.
    ⏳ Le jour où ces six valeurs entrent dans une couche, elles se lisent là
    et cette liste disparaît. */
 
@@ -573,8 +585,21 @@ export function renderAbilitiesStep(ctx, onAction) {
   )])]));
   section.append(renderEntryTiles(ctx.method, act));
 
-  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE. */
-  if (!ctx.method) return section;
+  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE. Mais l'attente SE DIT (lot 74) :
+     mesuré sur le déployé, Abilities était le SEUL des dix écrans où
+     `Validate` arrive éteint sans qu'un mot ne dise pourquoi (Eric l'a
+     rencontré). L'état d'attente est VOULU — B5.1c —, donc on n'allume pas
+     le bouton pour faire joli (un `Validate` allumé qui ne fait rien serait
+     le « faux magasin ») : l'écran ÉCRIT ce qui manque, comme la barre de
+     pool compte et comme Review dit « 0 of 1 ». Le test du lot apparie les
+     deux : tant que `abilitiesValidate` rend `ready: false` à l'arrivée,
+     cette phrase existe — l'un sans l'autre rougit. */
+  if (!ctx.method) {
+    section.append(el("p", "ability-gate-note", [text(
+      "Validate has nothing to act on yet — pick one of the methods above to begin."
+    )]));
+    return section;
+  }
 
   if (ctx.method === "roll" && !rollBatch) {
     section.append(renderRollingChoice(ctx, act));

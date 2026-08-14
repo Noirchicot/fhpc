@@ -239,12 +239,15 @@ test("LOT 28 — `decisions` traverse MCP avec ses chemins, compteurs et statuts
     { status: "answered", expected: 2, answered: 2, remaining: 0 });
   assert.deepEqual(skills.options,
     ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"]);
-  /* LOT 72 — le carnet gagne les sorts : 13 + 2 groupes + 7 étapes = 22. */
-  assert.match(result.content[0].text, /DÉCISIONS \(22\)/,
+  /* LOT 72 — le carnet gagne les sorts : 13 + 2 groupes + 7 étapes = 22.
+     LOT 74 — puis les six scores de base (borne de création 3–18) : 28. */
+  assert.match(result.content[0].text, /DÉCISIONS \(28\)/,
     "l'IA n'a pas à deviner qu'un septième carnet existe dans structuredContent");
   assert.match(result.content[0].text, /class\.skills : answered, 2\/2/);
   assert.match(result.content[0].text, /class\.cantrips : answered, 3\/3/,
     "les plans de sorts traversent MCP comme les autres");
+  assert.match(result.content[0].text, /abilities\.str : answered, 1\/1/,
+    "la borne de création traverse MCP comme les autres plans (lot 74)");
 });
 
 test("`build.validate` ne trouve rien à redire — et un refus reste un RÉSULTAT", () => {

@@ -389,6 +389,67 @@ function speciesBudgetPlan(choices, speciesView, skills) {
    sans jamais nommer ce qu'il transporte. Voir `INVENTAIRE-LOT-34.md`,
    arbitrage n°4 : la frontière est mesurée, pas devinée. */
 
+/* ══ LOT 74 — LA BORNE DE CRÉATION DES SCORES DE BASE : 3–18 ═══════════════
+   Tranchée par ERIC (2026-08-15) : « Choose yourself proposait 1 à 20 —
+   c'est n'importe quoi. La borne est 3 à 18. » Une règle du jeu arbitrée,
+   écrite ICI sur le patron de `BOOST_CAP`/`BOOST_TOTAL` ci-dessus : le
+   moteur la prononce, l'écran la LIT (`CREATION_SCORES` est exporté via
+   `src/build/index.mjs`) — la liste ne se réécrit dans AUCUN écran, sinon
+   la faute serait seulement déplacée.
+
+   ⚠️ CE QUI EST JUGÉ, ET CE QUI NE L'EST PAS — mesuré avant d'écrire :
+   · la borne juge le CHOIX `abilities.<clef>` (le score de BASE), jamais
+     `resolved.abilities` : `derive.mjs` additionne les boosts PAR-DESSUS la
+     base (`scores[key] += entry.choice.value`), et le personnage d'exemple
+     a un INT final de 17 (+3) pour une base de 15. Une base de 18 boostée à
+     20 reste donc LÉGALE ici — borner le résolu casserait des personnages
+     valides. Le plafond de SORTIE de création (ADDENDUMS §5 n°1, « toutes
+     sources, à la fin ») est une AUTRE règle, toujours pas ici.
+   · la borne parle À LA CRÉATION : silence dès qu'un `level` ENTIER > 1
+     est posé — « au-delà, le SRD reprend la main (plafond 20) » (Eric,
+     2026-08-13, le même arbitrage que l'alerte de l'écran Abilities). Un
+     document SANS niveau est un document en création : la borne y parle.
+     ⭐ Cette condition est un GARDE testé (tests/build-decisions.test.mjs),
+     pas un commentaire — si le modèle de montée de niveau change un jour la
+     signification du choix de base, c'est le test qui rougira. */
+export const CREATION_SCORE_MIN = 3;
+export const CREATION_SCORE_MAX = 18;
+/** Les seize valeurs qu'un score de base peut prendre à la création — LA
+ *  liste que l'écran affiche et que ce plan oppose : un seul écrivain. */
+export const CREATION_SCORES = Object.freeze(Array.from(
+  { length: CREATION_SCORE_MAX - CREATION_SCORE_MIN + 1 },
+  (_, i) => CREATION_SCORE_MIN + i
+));
+
+function abilityScorePlans(choices) {
+  const levelChoice = choices.find((choice) => choice && choice.path === "level");
+  const level = levelChoice ? levelChoice.value : undefined;
+  if (Number.isInteger(level) && level > 1) return []; // au-delà de la création : pas arbitré ici
+  const entries = [];
+  for (const key of ABILITY_KEYS) {
+    const path = `abilities.${key}`;
+    const choice = choices.find((entry) => entry && entry.path === path);
+    let lock = null;
+    let selected = [];
+    if (choice !== undefined) {
+      if (CREATION_SCORES.includes(choice.value)) {
+        selected = [choice.value];
+      } else {
+        lock = buildViolation("abilities.score-out-of-creation-range", {
+          path,
+          value: typeof choice.value === "number" ? choice.value : String(choice.value),
+          min: CREATION_SCORE_MIN,
+          max: CREATION_SCORE_MAX
+        }, path);
+      }
+    }
+    entries.push(finish({
+      path, options: CREATION_SCORES, selected, expected: 1, answered: selected.length
+    }, lock));
+  }
+  return entries;
+}
+
 /* ══ LOT 72 — LES PLANS DE SORTS : `class.cantrips[n]` / `class.prepared[n]` ═
    Le côté LECTURE existait en entier (`derive.mjs` : tout choix
    `ref {kind: "spell"}` devient `resolved.spellcasting.spells[]`, et un
@@ -565,6 +626,9 @@ function classSpellPlans(query, choices, classView) {
 export function projectDecisions({ query, choices }) {
   const list = Array.isArray(choices) ? choices : [];
   const entries = [refPlan(query, list, "class"), refPlan(query, list, "species"), refPlan(query, list, "background")];
+  /* LOT 74 — les six scores de base entrent au carnet : la borne de création
+     3–18 (Eric, 2026-08-15) se juge ici, jamais dans un écran. */
+  entries.push(...abilityScorePlans(list));
   const skills = skillsIndex(query);
 
   const classChoice = list.find((choice) => choice && choice.path === "class" && choice.ref && choice.ref.kind === "class");

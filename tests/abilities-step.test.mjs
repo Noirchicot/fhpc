@@ -4,11 +4,13 @@
    (`renderAbilitiesStep`), pas la page — `tests/dom-stub.mjs`, aucun paquet
    de plus.
 
-   ⛔ AUCUN plan `decisions[]` pour ce chemin (mesuré, commande §0) : cette
-   suite ne construit donc PAS son `ctx` comme `skills-step.test.mjs`
-   (`decisions`, `violations`) — elle passe `document` (le brut, pour lire
-   les six valeurs déjà posées et la méthode) et `resolved` (le score final,
-   à l'octet).
+   ⚠️ LOT 74 : le carnet publie DÉSORMAIS des plans `abilities.<clef>` — la
+   borne de création 3–18 (Eric, 2026-08-15), testée dans
+   `build-decisions.test.mjs`. L'ÉCRAN, lui, ne descend toujours pas le
+   carnet : cette suite passe `document` (le brut, pour lire les six
+   valeurs déjà posées et la méthode) et `resolved` (le score final, à
+   l'octet) — et depuis le lot 74 l'écran importe `CREATION_SCORES` du
+   moteur pour la plage de saisie, jamais une plage à lui.
 
    ⭐ LOT 50 — LE DÉFAUT : on ne pouvait pas distribuer ses six dés sur ses
    six caractéristiques (commande §0, mesuré sur la page déployée). La
@@ -49,7 +51,7 @@ import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
-import { ABILITY_KEYS } from "../src/build/index.mjs";
+import { ABILITY_KEYS, CREATION_SCORES } from "../src/build/index.mjs";
 import { stripComments } from "./source-scan.mjs";
 
 globalThis.document = createTestDocument();
@@ -493,7 +495,7 @@ test("mode manuel : cliquer une valeur pose exactement `set({path:\"abilities.<c
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), (a) => calls.push(a));
   const dexRow = rowFor(node, "dex");
   const btn17 = optionButtons(dexRow).find((b) => b.textContent === "17");
-  assert.ok(btn17, "la plage 1..20 porte bien 17 comme option cliquable");
+  assert.ok(btn17, "la plage 3..18 (LOT 74) porte bien 17 comme option cliquable");
   btn17.click();
   assert.equal(calls.length, 1);
   assert.deepEqual(calls[0], { kind: "set", path: "abilities.dex", value: 17 });
@@ -729,3 +731,49 @@ test("mode manuel : la colonne Final apparaît aussi (même corps de ligne que l
 });
 
 /* ══ Le garde des jetons — vérifié par la suite complète, pas ici ═══════ */
+
+/* ══ LOT 74 — LA BORNE 3–18 EST LUE, JAMAIS RÉÉCRITE ; L'ATTENTE SE DIT ══
+   Deux défauts rencontrés par Eric sur le déployé (2026-08-15) :
+   `Choose yourself` proposait 1..20 (la borne est 3–18), et `Validate`
+   arrivait éteint sur cet écran sans qu'un mot ne dise pourquoi. */
+
+test("LOT 74 — la saisie manuelle offre EXACTEMENT la liste publiée par le moteur, pas une plage à elle", () => {
+  const manualDoc = set(fixture.document, "abilities.mode", "manual");
+  const report = rebuild(manualDoc);
+  const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch: null }), () => {});
+  for (const key of ABILITY_KEYS) {
+    const labels = optionLabels(rowFor(node, key));
+    /* La référence est L'IMPORT `CREATION_SCORES` — les seize chiffres ne
+       s'écrivent qu'une fois dans toute la suite (build-decisions.test.mjs) :
+       si la borne change au moteur, ce test suit sans qu'on le retouche. */
+    assert.deepEqual(labels, CREATION_SCORES.map(String),
+      `${key} : les options du picker SONT la liste publiée — un écran qui écrirait sa propre plage aurait déplacé la faute`);
+  }
+  const strLabels = optionLabels(rowFor(node, "str"));
+  assert.equal(strLabels.length, 16, "seize valeurs offertes — mesuré, c'était 20 avant ce lot");
+  for (const hors of ["1", "2", "19", "20"]) {
+    assert.equal(strLabels.includes(hors), false, `${hors} n'est plus offert à la création`);
+  }
+});
+
+test("LOT 74 — l'attente SE DIT : tant que `Validate` n'a rien à faire à l'arrivée, l'écran écrit pourquoi", () => {
+  /* L'APPARIEMENT est le garde : si un futur lot allume `Validate` au repos
+     (il ne doit pas — B5.1c) OU retire la phrase, l'un des deux asserts
+     rougit. Un bouton éteint ET muet est exactement le défaut mesuré. */
+  const gate = abilitiesValidate({ document: fixture.document, method: null, rollBatch: null });
+  assert.equal(gate.ready, false, "mesure : à l'arrivée (aucune méthode), le palier n'est pas prêt — c'est voulu (B5.1c)");
+  const auRepos = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
+  const note = auRepos.querySelectorAll(".ability-gate-note")[0];
+  assert.ok(note, "la phrase d'attente existe — un `Validate` éteint sans un mot était le défaut");
+  assert.match(note.textContent, /pick one of the methods above/i, "elle dit QUOI faire, pas un état interne");
+
+  /* Dès qu'une méthode est choisie, la phrase disparaît : elle décrit
+     l'attente, pas l'écran — la laisser mentirait sur l'état. */
+  const enManuel = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "manual" }), () => {});
+  assert.equal(enManuel.querySelectorAll(".ability-gate-note").length, 0,
+    "méthode choisie : plus de phrase d'attente");
+  /* Et au palier « roll avant jet », `Validate` est PRÊT (il jette) : pas
+     d'attente à dire là non plus. */
+  const gateRoll = abilitiesValidate({ document: fixture.document, method: "roll", rollBatch: null });
+  assert.equal(gateRoll.ready, true, "mesure : ce palier-là s'illumine (B5.2d) — l'attente muette n'existait qu'à l'arrivée");
+});

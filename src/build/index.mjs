@@ -19,7 +19,10 @@ import { createBuild } from "./block.mjs";
 export { createBuild } from "./block.mjs";
 export { derive, ABILITY_KEYS, CURRENCY_KEYS } from "./derive.mjs";
 export { statSumViolations } from "./validate.mjs";
-export { projectDecisions } from "./decisions.mjs";
+/* LOT 74 — la borne de création des scores de base (Eric, 2026-08-15) est
+   PUBLIÉE : l'écran Abilities lit `CREATION_SCORES`, il ne réécrit jamais
+   3..18 lui-même — voir `decisions.mjs`, section LOT 74. */
+export { projectDecisions, CREATION_SCORE_MIN, CREATION_SCORE_MAX, CREATION_SCORES } from "./decisions.mjs";
 export { diffResolved } from "./diff.mjs";
 export { BuildError } from "./errors.mjs";
 export { CHOICE_PATH, OVERRIDE_PATH, parseChoicePath, parseOverridePath, applyOverride } from "./paths.mjs";
