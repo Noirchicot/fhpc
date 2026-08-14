@@ -62,7 +62,11 @@ export function importsInterdits(entrees, root) {
       const spec = m[1];
       if (spec.startsWith("node:")) { fautes.push({ chaine: [...chaine, fichier], spec }); continue; }
       if (!spec.startsWith(".")) { fautes.push({ chaine: [...chaine, fichier], spec }); continue; }
-      marcher(path.resolve(path.dirname(fichier), spec), [...chaine, fichier]);
+      /* Lot 75 : les imports relatifs de `ui/` portent `?v=<N>` — la query
+         perce le cache HTTP (GitHub Pages, max-age=600 PAR fichier), elle
+         n'existe pas sur le disque. On la retire pour trouver le fichier ;
+         la cohérence des versions a son propre garde, `versions-graphe`. */
+      marcher(path.resolve(path.dirname(fichier), spec.split("?")[0]), [...chaine, fichier]);
     }
   };
   for (const e of entrees) marcher(e, []);

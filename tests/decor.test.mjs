@@ -146,8 +146,13 @@ test("2bis — les trois dalles existent en CSS et lisent leur voile, jamais un 
 test("2ter — l'image de fond bascule avec le thème, et vient d'un jeton", () => {
   assert.match(shellCss, /background-image:\s*var\(--bg-image\)/,
     "shell.css ne doit nommer aucun fichier — l'image est un jeton, comme une couleur");
-  assert.equal(JETONS.jour.get("bg-image"), 'url("./assets/bg-day.jpg")');
-  assert.equal(JETONS.nuit.get("bg-image"), 'url("./assets/bg-night.jpg")');
+  /* Lot 75 : l'url porte `?v=<N>` — la version du graphe (tête de
+     `ui/builder/version.mjs`). ICI on exige le BON FICHIER par thème et
+     la présence d'UNE version ; que le <N> soit LE MÊME partout est le
+     contrat d'un autre garde, `tests/versions-graphe.test.mjs` — pas de
+     chiffre en dur ici, sinon chaque publication rougirait ce test. */
+  assert.match(JETONS.jour.get("bg-image"), /^url\("\.\/assets\/bg-day\.jpg\?v=\d+"\)$/);
+  assert.match(JETONS.nuit.get("bg-image"), /^url\("\.\/assets\/bg-night\.jpg\?v=\d+"\)$/);
 });
 
 /* ══ 3 — ⭐ LA MATRICE, RECALCULÉE ICI ════════════════════════════════════

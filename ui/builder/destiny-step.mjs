@@ -23,8 +23,12 @@
    module ne reconnaît pas fait JETER `rebuild()`. Le mode vit en mémoire
    d'écran, jamais dans `build.choices`. */
 
-import { drawArcana } from "./dice.mjs";
-import { renderCardRows } from "./catalogue.mjs";
+import { drawArcana } from "./dice.mjs?v=1";
+import { renderCardRows } from "./catalogue.mjs?v=1";
+/* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
+   `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
+   cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
+import { versionQuery } from "./version.mjs?v=1";
 
 export { drawArcana };
 
@@ -37,9 +41,9 @@ const DESTINY_STAT_ID = "fh:destiny";
  *  Justice en 8 et la Force en 11, le moteur suit Rider-Waite). */
 export const ARCANA_DIR = "./assets/arcana";
 export function arcanaImageSrc(id) {
-  return `${ARCANA_DIR}/${String(id).replace("fh:arcana:en:", "")}.jpg`;
+  return `${ARCANA_DIR}/${String(id).replace("fh:arcana:en:", "")}.jpg${versionQuery(import.meta.url)}`;
 }
-export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.jpg`;
+export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.jpg${versionQuery(import.meta.url)}`;
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

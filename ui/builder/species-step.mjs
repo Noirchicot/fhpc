@@ -24,8 +24,8 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs";
-import { renderCardRows, renderCardNames } from "./catalogue.mjs";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=1";
+import { renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
