@@ -21,9 +21,10 @@
 
 import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs";
 import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs";
+import { mountPopup } from "./popup.mjs";
 import { renderConceptStep } from "./concept-step.mjs";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs";
-import { renderSkillsStep } from "./skills-step.mjs";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
 } from "./catalogue.mjs";
@@ -121,6 +122,10 @@ const state = {
      DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
      Le tirage vit donc ici et meurt avec l'onglet — cohérent avec la
      décision du 2026-08-13, « seul le résultat compte, aucun historique ». */
+  /* LOT 62 — LE POPUP (III.4, B7.7). Son état vit ICI et non dans le DOM :
+     c'est la quatrième des cinq choses que `innerHTML = ""` détruisait, et
+     SOCLE.md l'annonçait — « il vivra dans `state` comme le reste ». */
+  popup: null,            // { texte } quand il est ouvert, sinon null
   destinyIntro: true,     // le petit texte de B6.1a, chassé par OK
   destinyDraw: null,      // la carte TIRÉE, pas encore actée
   destinyFace: "down",    // B6.1c — retournée ou non
@@ -158,12 +163,36 @@ const app = document.getElementById("app");
  *  Review step passes it straight to `render()`, unread and unrecomputed. */
 function rebuild() {
   const verbs = state.engine.build.verbs;
+  const avant = state.violations.map((v) => v.key + (v.path || "")).join("|");
   const out = verbs.rebuild({ document: state.document });
   state.document = out.document;
   state.decisions = out.decisions || [];
   state.resolved = out.resolved;
   state.report = out;
   state.violations = verbs.validate({ document: state.document }).violations || [];
+  /* ══ B7.7c — LE POPUP « SE RÉVEILLE À CHAQUE ÉCART » ═══════════════════
+     « Chaque fois que le joueur tente quelque chose que les règles
+     refusent. » Le moteur sait déjà quand il y a écart : `validate()` publie
+     ses refus en `{key, params, path}`. Le popup a donc une SOURCE, il n'a
+     pas à deviner.
+     ⚠️ On compare aux refus D'AVANT : un refus qui PERSISTE n'est pas un
+     écart neuf. Sans ça, le popup se rouvrirait à chaque clic tant que le
+     pool reste dépassé — impossible à refermer, donc insupportable. */
+  const apres = state.violations.map((v) => v.key + (v.path || "")).join("|");
+  if (apres && apres !== avant) {
+    const mot = motDeRefus();
+    if (mot) state.popup = { texte: mot };
+  }
+}
+
+/** Le MOT d'un refus appartient à l'écran (chacun a son vocabulaire) — la
+ *  coquille ne fait que demander. Un écran qui n'en fournit pas n'ouvre
+ *  simplement pas de popup : mieux vaut aucun mot qu'une clef machine. */
+function motDeRefus() {
+  const v = state.violations[state.violations.length - 1];
+  if (!v) return null;
+  if (surCompetences()) return skillsRefusalWord(v);
+  return null;
 }
 
 /** `true` si CE personnage porte au moins un choix Fate's Hand nommable
@@ -345,6 +374,20 @@ function applyDecisionAction(action) {
   /* ══ LOT 61 — LES TROIS GESTES DE DESTINY, ET AUCUN NE TOUCHE LE DOCUMENT
      (B6.2). Même patron que `roll`/`destinyMode` : traités ICI, rendus AVANT
      tout appel de verbe. */
+  /* LOT 62 — DEUX GESTES DE POPUP, ET AUCUN NE TOUCHE LE DOCUMENT (III.4). */
+  /* Le raccourci de la molette de catégories (B7.1) : il AMÈNE la section
+     dans le champ, il ne filtre rien — les six sont rendues ensemble. Aucun
+     redessin : c'est un déplacement, pas un changement d'état. */
+  if (action.kind === "snapTo") {
+    const cibles = frame.stage.querySelectorAll("[data-snap]");
+    if (cibles[action.index]) keepInView(frame.stage, cibles[action.index], "y-start");
+    return;
+  }
+  if (action.kind === "popup") {
+    state.popup = action.texte ? { texte: action.texte } : null;
+    refresh();
+    return;
+  }
   if (action.kind === "destinyIntroDone") {
     state.destinyIntro = false;
     if (!state.destinyDraw) tirerUneCarte();
@@ -468,6 +511,19 @@ function applyDecisionAction(action) {
 export const DESTINY_REVEAL_MS = 1000; // B6.1d, « une seconde après »
 let destinyTimer = null;
 
+/* ══ COMPÉTENCES — un `ctx` composé UNE FOIS pour le contenu ET la barre
+   fixe : les deux doivent lire le même pool, sinon la barre afficherait un
+   compte que la grille contredit. */
+function skillsCtx() {
+  return {
+    resolved: state.resolved, decisions: state.decisions, violations: state.violations,
+    query: state.engine.layers.verbs.query, cursor: state.cursor
+  };
+}
+function surCompetences() {
+  return Boolean(state.engine) && STEPS[state.step].id === "skills";
+}
+
 function arcanaCatalog() {
   return state.engine ? (state.engine.layers.verbs.query({ kind: "arcana" }) || []) : [];
 }
@@ -585,7 +641,14 @@ function renderStepContent() {
      table mais n'EST un catalogue qu'en mode « Choose yourself ». Mesuré au
      navigateur — la branche attrapait l'écran théâtral et n'affichait plus
      rien du tout. */
-  card.dataset.bleed = String(Boolean(catalogueCourant()) && state.palier === 1);
+  /* ⭐ COMPÉTENCES EST EN PLEIN CADRE AUSSI, ET C'EST UNE MESURE : l'écran
+     est composé de SES PROPRES dalles (une par catégorie, B7.3a), donc la
+     carte-enveloppe n'ajoute qu'une marge et un remplissage. Mesuré au
+     navigateur : la ligne ne faisait plus que 286 px de large sur 360, et il
+     ne restait que 65 px au nom là où B7.5 en comptait 124. Trois
+     remplissages emboîtés — marge de carte, remplissage de carte,
+     remplissage de dalle — mangeaient 74 px. */
+  card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1) || step.id === "skills");
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
@@ -814,6 +877,16 @@ function mountFrame() {
      `swapContent` ne le touche pas. */
   const aside = el("div", "stage-aside");
   aside.hidden = true;
+  /* ⭐ LOT 62 — LA NAVIGATION INTERNE HORIZONTALE (B0.19), le second slot
+     fixe que SOCLE.md annonçait sans le construire : « la forme horizontale
+     n'est pas construite — elle demandera son propre slot, et ce lot ne
+     l'invente pas d'avance ». Compétences en a besoin AUJOURD'HUI (sa
+     molette de catégories et sa barre de pool doivent FLOTTER, B7.1), donc
+     il entre maintenant, et pas avant.
+     ⚠️ Il est HORS de la scène : il ne défile donc pas avec elle, et
+     `swapContent` ne le touche jamais. */
+  const topbar = el("div", "stage-topbar");
+  topbar.hidden = true;
   const chevrons = el("div", "stage-chevrons");
   const up = button("\u2227", () => scroller.step(-1));
   up.className = "stage-chevron";
@@ -822,7 +895,12 @@ function mountFrame() {
   down.className = "stage-chevron";
   down.setAttribute("aria-label", "Scroll down");
   chevrons.append(up, down);
-  area.append(aside, stage, chevrons);
+  /* La surface de popup (III.4) — persistante, au-dessus de tout, hors du
+     contenu remplacé. */
+  const popup = el("div", "popup");
+  popup.setAttribute("role", "status");
+  popup.hidden = true;
+  area.append(aside, stage, chevrons, popup);
 
   /* ── LE PLAN ESCAMOTABLE — inchangé sur le fond (lots 30/31) ─────── */
   const planPanel = el("aside", "plan");
@@ -840,15 +918,16 @@ function mountFrame() {
   const scrim = el("div", "scrim");
   scrim.addEventListener("click", () => { state.planOpen = false; refresh(); });
 
-  app.append(belt, command, area, planPanel, scrim);
+  app.append(belt, command, topbar, area, planPanel, scrim);
 
   /* LES DEUX ÉCOUTEURS QUI DOIVENT SURVIVRE — posés ICI, une fois, sur des
      nœuds qui ne meurent pas. C'est la différence entre ce lot et tout ce
      qui précède : avant, il n'y avait aucun endroit où les poser. */
   const scroller = mountChevrons(chevrons, stage);
+  const popupLayer = mountPopup(popup, () => { state.popup = null; refresh(); });
   const spy = watchSnap(stage, onSnapSettle);
 
-  return { belt, prev, next, track, items, command, plan, validate, area, stage, aside, chevrons, planPanel, planItems, scrim, scroller, spy };
+  return { belt, prev, next, track, items, command, plan, validate, area, stage, aside, topbar, popup, popupLayer, chevrons, planPanel, planItems, scrim, scroller, spy };
 }
 
 /* ══ LE SCROLLSPY EST LE SÉLECTEUR (II.3) ═══════════════════════════════
@@ -858,6 +937,19 @@ function mountFrame() {
    défilement, qui rappelle le spy. Il écrit `state`, touche un attribut,
    et s'arrête là. */
 function onSnapSettle(index) {
+  /* ⭐ DEUX PROPRIÉTAIRES DU CRAN, ET UN SEUL SPY. Les catalogues surlignent
+     leur rail VERTICAL ; Compétences surligne sa molette HORIZONTALE. Le
+     socle ne connaît ni l'un ni l'autre : il dit « on s'est posé sur le
+     n-ième `[data-snap]` », et c'est tout.
+     🔴 Et comme toujours : on écrit `state`, on touche un attribut, on
+     s'arrête là. Aucun redessin (SOCLE.md, la troisième ligne). */
+  if (surCompetences()) {
+    state.cursor = index;
+    const crans = frame.topbar.querySelectorAll(".skills-cat");
+    crans.forEach((item, i) => item.setAttribute("aria-current", i === index ? "true" : "false"));
+    if (crans[index]) keepInView(frame.topbar.querySelectorAll(".skills-catbar")[0], crans[index], "x");
+    return;
+  }
   if (!catalogueCourant()) return;
   state.cursor = index;
   const rail = frame.aside.querySelectorAll(".catalogue-rail-item");
@@ -876,6 +968,8 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B7.3d — sur Compétences, `Validate` s'illumine quand le compte est bon. */
+  if (surCompetences()) return skillsValidate(skillsCtx());
   /* B6.1e — sur Destiny en mode « draw », `Validate` s'allume quand la carte
      est retournée, et c'est LUI qui l'acte (B6.2). */
   if (STEPS[state.step].id === "destiny" && state.engine) {
@@ -934,6 +1028,7 @@ function goToStep(index) {
     openSurface();
     return;
   }
+  if (STEPS[target].id === "skills") { state.cursor = 0; openSurface(); return; }
   const cfg = state.engine ? CATALOGUES[STEPS[target].id] : null;
   if (!cfg) { openSurface(); return; }
   state.cursor = catalogueCursor(state.decisions, cfg.path);
@@ -975,6 +1070,22 @@ function paintPlan() {
   });
 }
 
+/** LE SLOT HORIZONTAL (B0.19) — garni par l'écran qui en a un, vidé pour
+ *  les autres. Aujourd'hui : Compétences seul. Le slot PERSISTE, ce qu'un
+ *  écran y met peut changer — même loi que le rail. */
+function paintTopbar() {
+  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction) : null;
+  frame.topbar.hidden = !barre;
+  swapContent(frame.topbar, barre ? [barre] : []);
+}
+
+/** Le popup (III.4) — montré ou caché selon `state.popup`, jamais selon un
+ *  nœud qui traînerait dans le contenu. */
+function paintPopup() {
+  if (!state.popup) { frame.popupLayer.hide(); return; }
+  frame.popupLayer.show([el("p", "popup-texte", [document.createTextNode(state.popup.texte)])]);
+}
+
 /* Le rail (B0.19) : garni par l'écran qui en a un, vidé pour les autres.
    Le SLOT ne bouge jamais — seul son contenu change, par `swapContent`
    comme la fiche. */
@@ -996,6 +1107,8 @@ function refresh() {
   paintCommand();
   paintPlan();
   paintAside();
+  paintTopbar();
+  paintPopup();
   swapContent(frame.stage, [renderStepContent()]);
   frame.spy.settle();
 }
