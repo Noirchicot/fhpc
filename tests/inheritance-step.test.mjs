@@ -31,7 +31,9 @@ import { decisionRefusalWord } from "../ui/builder/carnet.mjs";
 
 globalThis.document = createTestDocument();
 
-const { renderInheritanceStep } = await import("../ui/builder/inheritance-step.mjs");
+const { renderInheritanceStep, renderFeatCardBody, inheritanceValidate, INHERITANCE_PANELS } =
+  await import("../ui/builder/inheritance-step.mjs");
+const { renderCatalogueCards } = await import("../ui/builder/catalogue.mjs");
 
 const fixture = exempleFhEn();
 const { build, layers } = fixture;
@@ -76,13 +78,28 @@ function documentDe(h, choices) {
   };
 }
 
+/* ⚠️ LOT 64 — L'ÉCRAN A DEUX PANNEAUX, ET `open` DIT LEQUEL EST OUVERT.
+   B4.1 : au repos, on ne voit que deux dalles ; B4.2 : ouvrir l'une fait
+   DISPARAÎTRE l'autre. Les tests nomment donc le panneau qu'ils exercent.
+   ⭐ Et les dons ne sont plus des cartes empilées : B4.4 dit qu'ils se
+   choisissent « EXACTEMENT comme Class et Species » — c'est-à-dire par le
+   catalogue partagé (lot 60), fiche plein écran et défilement aimanté.
+   `cartesDeDon()` monte donc ce catalogue-là, avec le corps que cet écran
+   fournit. Ce que les tests prouvent ne bouge pas : les options viennent du
+   plan, chaque fiche porte son nom et sa description. */
 function ctxFrom(report, extra) {
   return Object.assign({ decisions: report.decisions, document: report.document, resolved: report.resolved, query }, extra || {});
 }
 
-function featCards(node) { return node.querySelectorAll(".inheritance-feat-card"); }
-function boostRow(node, key) { return node.querySelectorAll(`.skills-row[data-row="${key}"]`)[0] || null; }
-function boostButtons(row) { return row.querySelectorAll(".record-option"); }
+function cartesDeDon(ctx) {
+  return renderCatalogueCards(
+    { decisions: ctx.decisions, query: ctx.query, path: "background.originFeat[0]", kind: "feat", cursor: 0 },
+    renderFeatCardBody
+  );
+}
+function featCards(node) { return node.querySelectorAll("[data-snap]"); }
+function boostRow(node, key) { return node.querySelectorAll(`.inheritance-boost[data-row="${key}"]`)[0] || null; }
+function boostButtons(row) { return row.querySelectorAll(".inheritance-notch"); }
 
 /* ══ 1 — LES 5 DONS VIENNENT DU PLAN, JAMAIS D'UNE LISTE LOCALE ══════════ */
 
@@ -97,13 +114,13 @@ test("les dons d'origine viennent du plan : un plan à 2 options affiche 2 carte
       expected: 1, answered: 0, status: "pending"
     }
   ];
-  const node = renderInheritanceStep({ decisions, document: null, resolved: null, query: () => null }, () => {});
+  const node = cartesDeDon({ decisions, query: () => null });
   assert.equal(featCards(node).length, 2, "exactement les 2 du plan fabriqué, jamais les 5 réelles");
 });
 
 test("le personnage d'exemple (pile FH réelle) offre bien les CINQ dons d'origine", () => {
   const report = rebuild(fixture.document);
-  const node = renderInheritanceStep(ctxFrom(report), () => {});
+  const node = cartesDeDon(ctxFrom(report));
   assert.equal(featCards(node).length, 5);
   const attendu = layers.verbs.query({ kind: "feat" })
     .filter((view) => view.record.data && view.record.data.category === "origin")
@@ -113,18 +130,20 @@ test("le personnage d'exemple (pile FH réelle) offre bien les CINQ dons d'origi
   assert.deepEqual(rendered, attendu, "les CINQ ids rendus sont EXACTEMENT ceux du plan, rien composé ici");
 });
 
-test("chaque carte de don porte son NOM et sa DESCRIPTION, lus par `query({kind:\"feat\", id})`", () => {
+test("chaque fiche de don porte son NOM et sa DESCRIPTION, lus par `query({kind:\"feat\", id})`", () => {
   const report = rebuild(fixture.document);
-  const node = renderInheritanceStep(ctxFrom(report), () => {});
+  const node = cartesDeDon(ctxFrom(report));
   const auspicious = featCards(node).find((card) => card.getAttribute("data-value") === "fh:feat:en:auspicious");
-  assert.ok(auspicious, "la carte Auspicious (fh) existe");
-  const name = auspicious.querySelectorAll(".inheritance-feat-name")[0];
-  assert.equal(name.textContent, "Auspicious (fh)");
-  const desc = auspicious.querySelectorAll(".inheritance-feat-desc");
+  assert.ok(auspicious, "la fiche Auspicious (fh) existe");
+  assert.equal(auspicious.querySelectorAll(".catalogue-card-name")[0].textContent, "Auspicious (fh)");
+  const desc = auspicious.querySelectorAll(".catalogue-card-prose");
   assert.ok(desc.length > 0, "la description existe — pas seulement le nom");
   assert.match(desc[0].textContent, /Destiny/, "c'est bien le texte du record, pas un résumé");
-  /* Et le don CHOISI (l'exemple porte déjà Auspicious) se voit actif. */
-  assert.equal(auspicious.getAttribute("data-active"), "true");
+  /* ⚠️ LOT 64 — LE DON CHOISI NE SE MARQUE PLUS « ACTIF » SUR SA FICHE, et
+     c'est l'invariant II.1 : le choix, c'est le DÉFILEMENT. Le catalogue
+     s'ouvre DEVANT le don déjà posé (`catalogueCursor`), et c'est le rail
+     qui le surligne — un `data-active` sur la fiche redirait la même chose
+     avec un autre mécanisme, et les deux finiraient par diverger. */
 
   /* ⚔️ LOT 53, TROISIÈME INSTANCE (architecte, à la revue) — LA CARTE
      N'ANNONCE PLUS SON IDENTIFIANT. Avant, elle portait
@@ -145,11 +164,17 @@ test("chaque carte de don porte son NOM et sa DESCRIPTION, lus par `query({kind:
 
 test("les SIX caractéristiques sont les lignes de boost, et le compteur lit answered/expected au plan", () => {
   const report = rebuild(fixture.document); // 2 boosts déjà posés (int+2, con+1) = 3 points, légal
-  const node = renderInheritanceStep(ctxFrom(report), () => {});
-  const rows = node.querySelectorAll(".skills-budget-block .skills-row");
-  assert.equal(rows.length, 6, "les six clefs, pas seulement les deux boostées");
-  const note = node.querySelectorAll(".skills-budget-note")[0];
-  assert.equal(note.textContent, "3 of 3 points spent");
+  const node = renderInheritanceStep(ctxFrom(report, { open: "boost" }), () => {});
+  /* ⚠️ LOT 64 — B4.2 : ce ne sont plus des LIGNES mais SIX COLONNES côte à
+     côte, chacune avec sa molette verticale. Et 🔴 L'ORDRE EST CELUI DU SRD
+     (tranché par Eric), alors que le plan publie ses options en ordre
+     ALPHABÉTIQUE — mesuré : `cha, con, dex, int, str, wis`. */
+  const cols = node.querySelectorAll(".inheritance-boost");
+  assert.equal(cols.length, 6, "les six clefs, pas seulement les deux boostées");
+  assert.deepEqual(cols.map((c) => c.dataset.row), ["str", "dex", "con", "int", "wis", "cha"],
+    "ordre SRD à l'écran, quel que soit l'ordre du plan");
+  const explication = node.querySelectorAll(".inheritance-explain p")[0];
+  assert.match(explication.textContent, /3 points/, `lu : « ${explication.textContent} »`);
 });
 
 test("⚠️ SURPRISE, trouvée en regardant l'écran — sans AUCUN boost posé, le plan `background.boost` est déjà LOCKED (total-mismatch, 0 ≠ 3) : l'écran l'affiche quand même, tel quel", () => {
@@ -168,11 +193,11 @@ test("⚠️ SURPRISE, trouvée en regardant l'écran — sans AUCUN boost posé
   assert.equal(plan.lock.key, "background.boost-total-mismatch");
   assert.equal(plan.lock.params.total, 0);
 
-  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query }, () => {});
-  const note = node.querySelectorAll(".skills-budget-note")[0];
-  assert.equal(note.textContent, "0 of 3 points spent");
-  assert.equal(node.querySelectorAll(".skills-budget-block .skills-row").length, 6);
-  const refusal = node.querySelectorAll(".skills-budget-block .skills-refusal")[0];
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
+  const explication = node.querySelectorAll(".inheritance-explain p")[0];
+  assert.match(explication.textContent, /3 points/);
+  assert.equal(node.querySelectorAll(".inheritance-boost").length, 6);
+  const refusal = node.querySelectorAll(".skills-refusal")[0];
   assert.ok(refusal, "le refus s'affiche dès l'écran vide — le moteur prononce, l'écran ne le tait pas");
   assert.equal(refusal.textContent, "0 points spent, 3 expected.");
 });
@@ -185,7 +210,7 @@ test("cliquer « +1 » sur une carac au repos pose exactement `set({path:\"backg
   const before = documentDe(h, baseChoices());
   const out = h.verbs.rebuild({ document: before });
   const calls = [];
-  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query }, (a) => calls.push(a));
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, (a) => calls.push(a));
   const row = boostRow(node, "str");
   assert.ok(row, "la ligne STR existe");
   const plusOne = boostButtons(row).find((b) => b.textContent === "+1");
@@ -221,8 +246,8 @@ test("⚔️ ATTAQUE — `background.boost-cap-exceeded` s'affiche, mot pour mot
   assert.equal(plan.status, "locked");
   assert.equal(plan.lock.key, "background.boost-cap-exceeded", "sonde : c'est bien CE refus que ce test attaque");
 
-  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query }, () => {});
-  const refusal = node.querySelectorAll(".skills-budget-block .skills-refusal")[0];
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
+  const refusal = node.querySelectorAll(".skills-refusal")[0];
   assert.ok(refusal, "le refus s'affiche");
   /* ⛔ « sans le reformuler » : l'écran ne fait qu'appeler la MÊME fonction
      partagée que Class/Species/Compétences — la preuve que ce fichier n'a
@@ -242,8 +267,8 @@ test("⚔️ ATTAQUE — `background.boost-total-mismatch` s'affiche, mot pour m
   assert.equal(plan.status, "locked");
   assert.equal(plan.lock.key, "background.boost-total-mismatch", "sonde : c'est bien CE refus que ce test attaque");
 
-  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query }, () => {});
-  const refusal = node.querySelectorAll(".skills-budget-block .skills-refusal")[0];
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
+  const refusal = node.querySelectorAll(".skills-refusal")[0];
   assert.ok(refusal);
   assert.equal(refusal.textContent, decisionRefusalWord(plan.lock));
   assert.equal(refusal.textContent, "4 points spent, 3 expected.");
@@ -255,7 +280,7 @@ test("⚔️ ATTAQUE — un `resolved` MENTEUR s'affiche menteur : la cellule Fi
   const report = rebuild(fixture.document);
   const menteur = structuredClone(report.resolved);
   menteur.abilities.int = { score: 999, mod: 42 };
-  const node = renderInheritanceStep(ctxFrom(report, { resolved: menteur }), () => {});
+  const node = renderInheritanceStep(ctxFrom(report, { resolved: menteur, open: "boost" }), () => {});
   const row = boostRow(node, "int");
   const finalValue = row.querySelectorAll(".ability-row-final-value")[0];
   assert.ok(finalValue, "la cellule Final existe sur une ligne de boost — même composant qu'Abilities (lot 45)");
@@ -265,7 +290,7 @@ test("⚔️ ATTAQUE — un `resolved` MENTEUR s'affiche menteur : la cellule Fi
 test("la ligne CON (boostée par l'exemple) montre le score final RÉEL, à l'octet de `resolved`", () => {
   const report = rebuild(fixture.document);
   assert.equal(report.resolved.abilities.con.score, 14, "mesure : le boost d'Inheritance porte CON à 14 (13 brut +1)");
-  const node = renderInheritanceStep(ctxFrom(report), () => {});
+  const node = renderInheritanceStep(ctxFrom(report, { open: "boost" }), () => {});
   const row = boostRow(node, "con");
   const finalValue = row.querySelectorAll(".ability-row-final-value")[0];
   assert.equal(finalValue.textContent, "14 (+2)");
@@ -281,7 +306,7 @@ test("le plan `background` à une option (pile FH) : le nom s'affiche en mention
   assert.equal(plan.options.length, 1, "sonde : un seul record du genre sous la pile FH");
   assert.equal(plan.status, "pending", "et il reste `pending` — aucun `choose` n'a jamais été posé (lot 43)");
 
-  const node = renderInheritanceStep(ctxFrom(report), () => {});
+  const node = renderInheritanceStep(ctxFrom(report, { open: "boost" }), () => {});
   const frame = node.querySelectorAll(".inheritance-frame")[0];
   assert.ok(frame, "le cadre s'affiche — « ne le cache pas » (commande §0)");
   assert.equal(frame.textContent, "Inheritance", "le nom du record, lu par query()");
@@ -298,7 +323,7 @@ test("un personnage SRD pur (4 arrière-plans, aucun repli) : le lot 46 réutili
   const plan = out.decisions.find((d) => d.path === "background");
   assert.equal(plan.options.length, 4, "sonde : les quatre arrière-plans SRD, pas de repli à un seul");
 
-  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query }, () => {});
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
   assert.equal(node.querySelectorAll(".inheritance-frame").length, 0, "pas de mention silencieuse ici — c'est une VRAIE liste");
   const list = node.querySelectorAll(".record-choice-block")[0];
   assert.ok(list, "la liste des 4 arrière-plans s'affiche, même geste que Class/Species");
