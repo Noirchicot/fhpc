@@ -1,0 +1,457 @@
+/* ══ LES TESTS DU LOT 72 — LES PLANS DE SORTS ═════════════════════════════
+
+   Le moteur consommait déjà `class.cantrips[n]` / `class.prepared[n]`
+   (`derive.mjs`, lot 8) sans jamais publier le plan qui les guide ni celui
+   qui les juge. Mesuré avant ce lot, sur le personnage d'exemple EN passé de
+   Wizard à Rogue : les 7 sorts ressortent `unconsumed`, AUCUN plan ne les
+   verrouille, et la confirmation d'effacement (lot 46) n'a rien à lire —
+   13 lignes en souffrance dans Review, zéro geste possible.
+
+   Trois familles ici, dans l'ordre du lot :
+   1. le GUIDE (pile EN, clefs canoniques) — expected lu dans `resources`,
+      options au croisement `spell.classes × spell.level`, plafond par
+      `spell_slots` / `slot_level` ;
+   2. le JUGEMENT (le changement de classe, et la pile FR dont les clefs de
+      ressource sont langue-natives — `layers/TRADUCTION.md`) ;
+   3. l'ÉCRAN (QCM partagé, confirmation nommée, palier, Review). */
+
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { createTestDocument } from "./dom-stub.mjs";
+import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
+import { makeHarness, acceptanceDocument, manifestOf, uneCouche, readJson, EXAMPLE_CHAR } from "./build-harness.mjs";
+import { projectDecisions } from "../src/build/decisions.mjs";
+import { renderBuildViolation } from "../src/labels.mjs";
+
+globalThis.document = createTestDocument();
+
+const { renderClassChoices, classPalier2 } = await import("../ui/builder/class-step.mjs");
+const { renderReviewStep, REVIEW_GROUPS } = await import("../ui/builder/review-step.mjs");
+
+const fixture = exempleFhEn();
+const { layers, build } = fixture;
+const query = layers.verbs.query;
+const rebuild = (document) => build.verbs.rebuild({ document });
+const byPath = (out) => new Map(out.decisions.map((entry) => [entry.path, entry]));
+
+const BASE_ABILITIES = [
+  { path: "abilities.str", value: 10 }, { path: "abilities.dex", value: 15 },
+  { path: "abilities.con", value: 13 }, { path: "abilities.int", value: 12 },
+  { path: "abilities.wis", value: 10 }, { path: "abilities.cha", value: 8 }
+];
+
+function docWith({ id, classId, level = 1, extra = [] }) {
+  return {
+    schema: "fh-char/1", id, name: id, lang: "en",
+    units: { distance: "ft", weight: "lb" },
+    generator: { name: "tests/plans-sorts", version: "1.0.0" },
+    created: "2026-08-14T00:00:00Z", modified: "2026-08-14T00:00:00Z",
+    build: {
+      layers: manifestOf(layers),
+      choices: [{ path: "level", value: level }, { path: "class", ref: { kind: "class", id: classId } }, ...extra, ...BASE_ABILITIES],
+      budgets: {}, overrides: []
+    }
+  };
+}
+
+/* Le niveau d'un sort, RELU AU CATALOGUE — jamais une table locale : quand un
+   test affirme « aucune option au-dessus du niveau 1 », c'est le record qui
+   répond. */
+function spellLevel(id) {
+  return query({ kind: "spell", id }).record.data.level;
+}
+
+/* ══ 1 — LE GUIDE : expected, options, plafond, provenance ═══════════════ */
+
+test("Wizard niveau 1 : deux plans, comptés par la progression, options au croisement — jamais une liste locale", () => {
+  const out = rebuild(docWith({ id: "guide-wizard", classId: "srd:class:en:wizard" }));
+  const decisions = byPath(out);
+
+  const cantrips = decisions.get("class.cantrips");
+  const prepared = decisions.get("class.prepared");
+  assert.ok(cantrips && prepared, "les deux plans existent");
+  assert.deepEqual(
+    { expected: cantrips.expected, answered: cantrips.answered, status: cantrips.status },
+    { expected: 3, answered: 0, status: "pending" },
+    "le compte vient de `resources.cantrips` (3), pas d'un chiffre d'écran");
+  assert.equal(prepared.expected, 4, "et `resources.prepared_spells` donne 4");
+
+  /* LE CROISEMENT, REJOUÉ CONTRE LE CATALOGUE : chaque option des mineurs
+     est un sort de niveau 0 qui liste le NOM du record de classe — recompté
+     ici depuis `query`, pas recopié en dur. */
+  const className = query({ kind: "class", id: "srd:class:en:wizard" }).record.name;
+  const attendues = (query({ kind: "spell" }) || [])
+    .filter((view) => {
+      const data = view.record.data || {};
+      return Array.isArray(data.classes) && data.classes.includes(className) && data.level === 0;
+    })
+    .map((view) => view.id).sort();
+  assert.deepEqual(cantrips.options, attendues, "options mineurs = le croisement, exactement");
+  assert.equal(cantrips.options.length, 15, "la mesure de la commande : 15 sorts mineurs de Wizard");
+  assert.equal(prepared.options.length, 30, "30 sorts de niveau 1 — le plafond de préparation suit `spell_slots`");
+  assert.equal(prepared.options.includes("srd:spell:en:wish"), false,
+    "Wish (niveau 9) n'est PAS proposé à un magicien de niveau 1");
+
+  /* LES ÉTAPES MANQUANTES : un créneau par place attendue, chemins indexés. */
+  for (const path of ["class.cantrips[0]", "class.cantrips[1]", "class.cantrips[2]",
+    "class.prepared[0]", "class.prepared[1]", "class.prepared[2]", "class.prepared[3]"]) {
+    assert.ok(decisions.has(path), `le créneau ${path} est publié`);
+    assert.equal(decisions.get(path).status, "pending");
+  }
+
+  /* LA PROVENANCE : c'est la PROGRESSION qui offre la décision (le compte
+     vit chez elle), et elle nomme son champ. */
+  assert.deepEqual(cantrips.provenance, {
+    mode: "offered", kind: "class-progression", id: "srd:class-progression:en:wizard", field: "resources.cantrips"
+  });
+});
+
+test("une classe que la progression n'appelle pas ne publie RIEN — pas un plan vide", () => {
+  for (const classId of ["srd:class:en:rogue", "srd:class:en:fighter", "srd:class:en:barbarian", "srd:class:en:monk"]) {
+    const out = rebuild(docWith({ id: `rien-${classId}`, classId }));
+    assert.equal(out.decisions.some((entry) => /^class\.(cantrips|prepared)/.test(entry.path)), false,
+      `${classId} : aucun chemin de sort au carnet`);
+  }
+});
+
+test("Paladin : `prepared_spells` sans `cantrips` — un seul plan, jamais un cadre pour rien", () => {
+  const out = rebuild(docWith({ id: "guide-paladin", classId: "srd:class:en:paladin" }));
+  const decisions = byPath(out);
+  assert.equal(decisions.has("class.cantrips"), false, "pas de ressource → pas de plan mineurs");
+  assert.equal(decisions.get("class.prepared").expected, 2);
+});
+
+test("Warlock : le plafond vient de `resources.slot_level` — la magie de pacte n'a pas de tableau `spell_slots`", () => {
+  const out = rebuild(docWith({ id: "guide-warlock", classId: "srd:class:en:warlock" }));
+  const prepared = byPath(out).get("class.prepared");
+  assert.ok(prepared.options.length > 0);
+  assert.equal(prepared.options.every((id) => spellLevel(id) === 1), true,
+    "au niveau 1, aucune option au-dessus du niveau d'emplacement de pacte");
+});
+
+test("Wizard niveau 5 : le plafond SUIT `spell_slots` (niveaux 1 à 3), le compte suit la ligne de progression", () => {
+  const out = rebuild(docWith({ id: "guide-wizard-5", classId: "srd:class:en:wizard", level: 5 }));
+  const prepared = byPath(out).get("class.prepared");
+  const niveaux = [...new Set(prepared.options.map(spellLevel))].sort();
+  assert.deepEqual(niveaux, [1, 2, 3], "les emplacements du niveau 5 s'arrêtent au 3ᵉ cercle");
+  assert.equal(prepared.expected, 9, "la ligne de progression du niveau 5 dit 9 sorts préparés");
+});
+
+/* ══ 2 — LE JUGEMENT : changement de classe, sur-compte, mauvais genre ═══ */
+
+test("⭐ LE CAS D'ERIC — Wizard → Rogue : les 7 sorts deviennent `decision.option-unavailable`, et `validate` les remonte", () => {
+  /* AVANT ce lot (mesuré, 2026-08-14) : 11 `unconsumed` dont les 7 sorts,
+     2 plans verrouillés (les compétences seulement), zéro verrou de sort —
+     rien à lire pour une confirmation d'effacement. */
+  const out0 = rebuild(structuredClone(fixture.document));
+  assert.equal(out0.decisions.filter((d) => /^class\.(cantrips|prepared)/.test(d.path) && d.lock).length, 0,
+    "sonde : sur le Wizard, aucun sort n'est en faute");
+
+  const { document } = build.verbs.choose({
+    document: out0.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  });
+  const out = build.verbs.rebuild({ document });
+
+  const verrous = out.decisions.filter((d) => /^class\.(cantrips|prepared)/.test(d.path) && d.lock);
+  assert.equal(verrous.length, 9, "2 groupes + 7 étapes, tous verrouillés");
+  assert.equal(verrous.every((d) => d.lock.key === "decision.option-unavailable"), true);
+  assert.equal(byPath(out).get("class.cantrips").options.length, 0,
+    "le croisement d'un Rogue est VIDE — c'est le contenu qui le dit, pas une liste de classes castantes");
+
+  /* Les 7 sorts restent AUSSI `unconsumed` (la dérivation d'un Rogue ne lit
+     aucun sort) — signalés des deux côtés, avalés nulle part. */
+  const orphelins = out.unconsumed.filter((path) => /^class\.(cantrips|prepared)/.test(path));
+  assert.equal(orphelins.length, 7);
+
+  /* Et la sortie de création les refuse UN PAR UN (la boucle du lot 37 lit
+     les verrous du carnet), dédupliqués par empreinte : 7 étapes, pas 9
+     (le verrou d'un groupe NOMME son premier créneau fautif — même
+     empreinte, même refus). */
+  const v = build.verbs.validate({ document: out.document });
+  const refusSorts = v.violations.filter((violation) => /^class\.(cantrips|prepared)\[/.test(violation.path || ""));
+  assert.equal(refusSorts.length, 7);
+});
+
+test("Wizard → Cleric : le jugement est PARTIEL — Light et Detect Magic survivent, les cinq autres se verrouillent", () => {
+  const out0 = rebuild(structuredClone(fixture.document));
+  const { document } = build.verbs.choose({
+    document: out0.document, path: "class", ref: { kind: "class", id: "srd:class:en:cleric" }
+  });
+  const decisions = byPath(build.verbs.rebuild({ document }));
+
+  const attendus = {
+    "class.cantrips[0]": "locked",   // Ray of Frost — Sorcerer/Wizard
+    "class.cantrips[1]": "answered", // Light — Bard/Cleric/Sorcerer/Wizard
+    "class.cantrips[2]": "locked",   // Prestidigitation — pas Cleric
+    "class.prepared[0]": "locked",   // Magic Missile
+    "class.prepared[1]": "locked",   // Shield
+    "class.prepared[2]": "answered", // Detect Magic — huit classes, Cleric compris
+    "class.prepared[3]": "locked"    // Sleep
+  };
+  for (const [path, status] of Object.entries(attendus)) {
+    assert.equal(decisions.get(path).status, status, `${path} : ${status}`);
+  }
+  assert.equal(decisions.get("class.cantrips").status, "locked",
+    "le groupe ne prétend pas être simplement pending quand une étape est illégale");
+});
+
+test("le sur-compte a SA clef : 4 mineurs posés pour 3 attendus → `spell-grant.count-mismatch`, dit en sorts, pas en compétences", () => {
+  const out = rebuild(docWith({
+    id: "sur-compte", classId: "srd:class:en:wizard",
+    extra: [
+      { path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:light" } },
+      { path: "class.cantrips[1]", ref: { kind: "spell", id: "srd:spell:en:mage-hand" } },
+      { path: "class.cantrips[2]", ref: { kind: "spell", id: "srd:spell:en:message" } },
+      { path: "class.cantrips[3]", ref: { kind: "spell", id: "srd:spell:en:mending" } }
+    ]
+  }));
+  const plan = byPath(out).get("class.cantrips");
+  assert.equal(plan.status, "locked");
+  assert.equal(plan.lock.key, "spell-grant.count-mismatch");
+  assert.match(renderBuildViolation(plan.lock), /sort\(s\)/,
+    "le mot français compte des SORTS — `skill-grant.count-mismatch` aurait menti sur l'objet");
+  /* Chaque étape reste individuellement VALIDE (4 vrais sorts mineurs de
+     Wizard) : la faute est le compte, elle vit sur le groupe. */
+  assert.equal(out.decisions.filter((d) => /^class\.cantrips\[/.test(d.path) && d.status === "answered").length, 4);
+});
+
+test("un contenu qui n'est pas un ref de sort sur un chemin de sort : `decision.kind-mismatch`, en nommant les genres", () => {
+  const out = rebuild(docWith({
+    id: "mauvais-genre", classId: "srd:class:en:wizard",
+    extra: [{ path: "class.cantrips[0]", value: "light" }]
+  }));
+  const step = byPath(out).get("class.cantrips[0]");
+  assert.equal(step.lock.key, "decision.kind-mismatch");
+  assert.deepEqual(
+    { expectedKind: step.lock.params.expectedKind, actualKind: step.lock.params.actualKind },
+    { expectedKind: "spell", actualKind: "value" });
+});
+
+test("le croisement se fait par le NOM DU RECORD de classe — prouvé par une classe fabriquée, jamais par une liste en dur", () => {
+  /* Une classe « Zzz » qu'aucune table du moteur ne peut connaître : si son
+     plan sort quand même, c'est que l'appariement lit le contenu. */
+  const h = makeHarness({
+    extra: uneCouche("test-sorts-zzz", {
+      class: { "test:class:zz:zzz": { op: "add", name: "Zzz", slug: "zzz", data: {} } },
+      "class-progression": {
+        "test:prog:zz:zzz": {
+          op: "add", name: "Zzz — progression", slug: "zzz-progression",
+          data: { class: "test:class:zz:zzz", levels: [{ level: 1, resources: { cantrips: 1 }, spell_slots: [1] }] }
+        }
+      },
+      spell: {
+        "test:spell:zz:etincelle": {
+          op: "add", name: "Étincelle", slug: "etincelle",
+          data: { classes: ["Zzz"], level: 0, school: "évocation" }
+        }
+      }
+    })
+  });
+  const decisions = projectDecisions({
+    query: h.layers.verbs.query,
+    choices: [{ path: "level", value: 1 }, { path: "class", ref: { kind: "class", id: "test:class:zz:zzz" } }]
+  });
+  const plan = decisions.find((entry) => entry.path === "class.cantrips");
+  assert.ok(plan, "la classe fabriquée publie son plan");
+  assert.deepEqual(plan.options, ["test:spell:zz:etincelle"],
+    "une seule option : le sort qui liste « Zzz » — les 339 du SRD n'y entrent pas");
+  assert.equal(plan.expected, 1);
+});
+
+/* ══ 2b — LA PILE FR : les clefs de ressource sont langue-natives ═════════
+   `layers/TRADUCTION.md`, mesuré : la progression FR porte `sorts_mineurs` /
+   `sorts_prepares`. Le moteur ne porte AUCUNE table `sorts_mineurs →
+   cantrips` (la même faute que `"Sagesse" → wis`) : sur cette pile le compte
+   n'existe pas pour lui — il JUGE ce qui est posé, il n'invente ni créneau
+   manquant ni verrou de compte. */
+
+test("pile FR — le magicien d'exemple est JUGÉ sans compte inventé : 3/3 et 4/4, answered, sans provenance", () => {
+  const h = makeHarness();
+  const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  const decisions = byPath(out);
+  const cantrips = decisions.get("class.cantrips");
+  assert.deepEqual(
+    { expected: cantrips.expected, answered: cantrips.answered, status: cantrips.status },
+    { expected: 3, answered: 3, status: "answered" },
+    "expected reflète les réponses valides — la couche ne déclare pas de compte lisible");
+  assert.equal("provenance" in cantrips, false, "aucun record n'a offert de compte lisible : pas de provenance");
+  assert.equal(decisions.get("class.prepared").answered, 4);
+  /* 16, pas 15 : la couche homebrew du harnais ajoute « Chuchotement des
+     pages » (niveau 0, classes ["Magicien"]) — le croisement embarque
+     l'homebrew SANS une ligne de moteur en plus, et c'est le point. */
+  assert.equal(cantrips.options.length, 16, "le croisement, lui, fonctionne en FR — « Magicien » est le nom du record");
+  assert.equal(cantrips.options.includes("exemple:spell:fr:chuchotement-des-pages"), true,
+    "le sort homebrew est une option comme les autres");
+  assert.equal(decisions.has("class.cantrips[3]"), false, "aucun créneau manquant inventé");
+});
+
+test("pile FR — un magicien SANS sort posé ne reçoit AUCUN plan : rien à guider, rien à juger", () => {
+  const h = makeHarness();
+  const example = readJson(EXAMPLE_CHAR);
+  const document = acceptanceDocument(h.layers);
+  document.build.choices = example.build.choices.filter((choice) => !/^class\.(cantrips|prepared)/.test(choice.path));
+  const out = h.verbs.rebuild({ document });
+  assert.equal(out.decisions.some((entry) => /^class\.(cantrips|prepared)/.test(entry.path)), false);
+});
+
+test("pile FR — magicien → roublard : les 7 sorts sont verrouillés quand même, le jugement ne dépend pas du compte", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  h.verbs.choose({ path: "class", ref: { kind: "class", id: "srd:class:fr:roublard" } });
+  const out = h.verbs.rebuild({});
+  const verrous = out.decisions.filter((d) => /^class\.(cantrips|prepared)/.test(d.path) && d.lock);
+  assert.equal(verrous.length, 9, "2 groupes + 7 étapes");
+  assert.equal(verrous.every((d) => d.lock.key === "decision.option-unavailable"), true);
+});
+
+/* ══ 3 — L'ÉCRAN : le QCM partagé, la confirmation nommée, le palier, Review ═ */
+
+function menuDe(decisions, act = () => {}) {
+  return renderClassChoices({ decisions, query }, act);
+}
+
+test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, préparés — et les cases posent des `choose` de records", () => {
+  const out = rebuild(docWith({ id: "ecran-wizard", classId: "srd:class:en:wizard" }));
+  const calls = [];
+  const node = menuDe(out.decisions, (action) => calls.push(action));
+
+  const blocs = node.querySelectorAll(".skills-budget-block");
+  assert.equal(blocs.length, 3);
+  const titres = node.querySelectorAll(".skills-budget-block h3").map((h) => h.textContent);
+  assert.deepEqual(titres, ["Class skills", "Cantrips", "Prepared spells"]);
+
+  /* Les cases du bloc mineurs : 3 créneaux (« Cantrip 1 »…), 15 options
+     chacune, nommées par le RECORD (« Ray of Frost »), identifiées par
+     `data-value` (l'id complet). */
+  const mineurs = blocs[1];
+  const lignes = mineurs.querySelectorAll(".skills-row");
+  assert.equal(lignes.length, 3);
+  assert.equal(mineurs.querySelectorAll(".record-row-label")[0].textContent, "Cantrip 1");
+  const boutons = lignes[0].querySelectorAll(".record-option").filter((b) => !(b.className || "").includes("record-option-none"));
+  assert.equal(boutons.length, 15);
+  const rayOfFrost = boutons.find((b) => b.getAttribute("data-value") === "srd:spell:en:ray-of-frost");
+  assert.equal(rayOfFrost.textContent, "Ray of Frost", "le nom vient du record — l'id de sort est un id COMPLET, `query` le trouve");
+
+  /* Le clic pose un RECORD — `choose` + ref, jamais un `set` scalaire. */
+  rayOfFrost.click();
+  assert.deepEqual(calls, [{
+    kind: "choose", path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ray-of-frost" }
+  }]);
+});
+
+test("un Rogue n'affiche NI bloc de sorts NI confirmation quand rien ne traîne", () => {
+  const out = rebuild(docWith({ id: "ecran-rogue", classId: "srd:class:en:rogue" }));
+  const node = menuDe(out.decisions);
+  assert.equal(node.querySelectorAll(".skills-budget-block").length, 1, "le seul bloc est celui des compétences");
+  assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
+});
+
+test("⭐ Wizard → Rogue : la confirmation NOMME les 7 sorts perdus, et « Clear them » efface EXACTEMENT leurs chemins", () => {
+  const out0 = rebuild(structuredClone(fixture.document));
+  const { document } = build.verbs.choose({
+    document: out0.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  });
+  const out = build.verbs.rebuild({ document });
+
+  const calls = [];
+  const node = menuDe(out.decisions, (action) => calls.push(action));
+  const dialogs = node.querySelectorAll(".confirm-dialog");
+  assert.equal(dialogs.length, 2, "celle des compétences (lot 46) ET celle des sorts (ce lot) — chacune nomme SES pertes");
+
+  const sorts = dialogs[1];
+  assert.equal(sorts.querySelectorAll(".confirm-dialog-title")[0].textContent,
+    "These spells are no longer valid for this class:");
+  assert.deepEqual(sorts.querySelectorAll(".confirm-dialog-items li").map((li) => li.textContent),
+    ["Ray of Frost", "Light", "Prestidigitation", "Magic Missile", "Shield", "Detect Magic", "Sleep"],
+    "les pertes sont NOMMÉES — jamais un compte, jamais « êtes-vous sûr ? »");
+
+  sorts.querySelectorAll(".confirm-dialog-confirm")[0].click();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].kind, "resetSkills", "le même geste que les compétences : « efface ces chemins, un rebuild »");
+  assert.deepEqual(calls[0].paths, [
+    "class.cantrips[0]", "class.cantrips[1]", "class.cantrips[2]",
+    "class.prepared[0]", "class.prepared[1]", "class.prepared[2]", "class.prepared[3]"
+  ]);
+
+  /* L'EFFET RÉEL, joué avec les vrais verbes (le geste de `resetSkills` dans
+     `shell.mjs`) : après l'effacement, plus AUCUN chemin de sort au carnet
+     (un Rogue ne publie rien), plus aucun sort dans `unconsumed` — et le
+     personnage repasse de 13 lignes en souffrance à ce que les compétences
+     seules justifient. */
+  let cleaned = out.document;
+  for (const path of calls[0].paths) cleaned = build.verbs.clear({ document: cleaned, path, kind: "choice" }).document;
+  const after = build.verbs.rebuild({ document: cleaned });
+  assert.equal(after.decisions.some((d) => /^class\.(cantrips|prepared)/.test(d.path)), false);
+  assert.equal(after.unconsumed.some((path) => /^class\.(cantrips|prepared)/.test(path)), false);
+});
+
+test("⚔️ « Keep them locked » ne touche rien : aucun verbe ne part, le document reste identique à l'octet", () => {
+  const out0 = rebuild(structuredClone(fixture.document));
+  const { document } = build.verbs.choose({
+    document: out0.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  });
+  const out = build.verbs.rebuild({ document });
+  const before = JSON.stringify(out.document);
+  const calls = [];
+  const node = menuDe(out.decisions, (action) => calls.push(action));
+  node.querySelectorAll(".confirm-dialog")[1].querySelectorAll(".confirm-dialog-cancel")[0].click();
+  assert.deepEqual(calls, []);
+  assert.equal(JSON.stringify(out.document), before);
+});
+
+test("le palier 2 attend AUSSI les sorts : 2/2 compétences ne suffisent plus à un Wizard", () => {
+  const sansSorts = rebuild(docWith({
+    id: "palier-sans-sorts", classId: "srd:class:en:wizard",
+    extra: [
+      { path: "class.skills[0]", value: "arcana" },
+      { path: "class.skills[1]", value: "investigation" }
+    ]
+  }));
+  assert.deepEqual(classPalier2(sansSorts.decisions), { ready: false },
+    "compétences faites, sorts à 0/3 et 0/4 : pas prêt");
+
+  const complet = rebuild(structuredClone(fixture.document));
+  assert.deepEqual(classPalier2(complet.decisions), { ready: true },
+    "le personnage d'exemple a tout choisi : prêt");
+
+  /* Un non-lanceur garde exactement l'ancienne règle : ses compétences. */
+  const rogue = rebuild(docWith({
+    id: "palier-rogue", classId: "srd:class:en:rogue",
+    extra: [
+      { path: "class.skills[0]", value: "acrobatics" }, { path: "class.skills[1]", value: "athletics" },
+      { path: "class.skills[2]", value: "deception" }, { path: "class.skills[3]", value: "insight" }
+    ]
+  }));
+  assert.deepEqual(classPalier2(rogue.decisions), { ready: true },
+    "aucun plan de sorts : ils ne bloquent pas un Rogue");
+});
+
+test("Review route les deux chemins de sorts vers l'étape Class, et les montre comme n'importe quelle décision", () => {
+  const groupe = REVIEW_GROUPS.find((entry) => entry.step === "class");
+  assert.deepEqual(groupe.paths, ["class", "class.skills", "class.cantrips", "class.prepared"]);
+
+  /* Sur le personnage d'exemple : la ligne Class est FAITE, quatre états
+     « done ». Sur le même passé Rogue sans nettoyage : elle crie. */
+  const complet = rebuild(structuredClone(fixture.document));
+  let review = renderReviewStep({
+    document: complet.document, resolved: complet.resolved, decisions: complet.decisions,
+    report: complet, violations: []
+  });
+  let ligne = review.querySelectorAll(".review-line").find((li) => li.getAttribute("data-step") === "class");
+  assert.equal(ligne.getAttribute("data-done"), "true");
+  assert.equal(ligne.querySelectorAll(".review-line-state")[0].textContent, "done · done · done · done");
+
+  const { document } = build.verbs.choose({
+    document: complet.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  });
+  const casse = build.verbs.rebuild({ document });
+  review = renderReviewStep({
+    document: casse.document, resolved: casse.resolved, decisions: casse.decisions,
+    report: casse, violations: []
+  });
+  ligne = review.querySelectorAll(".review-line").find((li) => li.getAttribute("data-step") === "class");
+  assert.equal(ligne.getAttribute("data-done"), "false");
+  assert.match(ligne.querySelectorAll(".review-line-state")[0].textContent, /needs attention/,
+    "les sorts orphelins se voient dans Review — c'était la moitié du problème d'Eric");
+});

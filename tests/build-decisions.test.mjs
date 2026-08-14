@@ -40,20 +40,30 @@ function englishDocument(h, speciesId, speciesSkill) {
   };
 }
 
-test("le carnet SRD pur ne projette QUE les sept familles réelles demandées", () => {
+test("le carnet SRD pur projette les familles réelles — sorts compris depuis le lot 72", () => {
   const h = makeHarness();
   const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   const decisions = byPath(out);
 
   assert.deepEqual([...decisions.keys()], [...decisions.keys()].sort(), "le chemin indexe une liste stable");
   assert.equal(decisions.size, out.decisions.length, "aucun chemin n'apparaît deux fois");
+  /* LOT 72 — « Elle ne projette ni sorts » est mort : les 7 sorts du magicien
+     d'exemple entrent au carnet (2 groupes + 7 étapes). ⚠️ Sur la pile FR, le
+     compte n'est PAS lu (les clefs de ressource sont langue-natives,
+     `layers/TRADUCTION.md` — la progression FR dit `sorts_mineurs`, pas
+     `cantrips`) : le plan JUGE les réponses posées sans inventer de compte,
+     donc pas de créneau manquant ici — les neuf chemins sont ceux du
+     document. */
   assert.deepEqual([...decisions.keys()], [
     "background", "background.boost", "background.boost.con", "background.boost.int",
-    "background.originFeat[0]", "background.tool", "class", "class.skills", "class.skills[0]",
+    "background.originFeat[0]", "background.tool", "class",
+    "class.cantrips", "class.cantrips[0]", "class.cantrips[1]", "class.cantrips[2]",
+    "class.prepared", "class.prepared[0]", "class.prepared[1]", "class.prepared[2]", "class.prepared[3]",
+    "class.skills", "class.skills[0]",
     "class.skills[1]", "species", "species.keenSenses", "species.skills"
   ]);
-  assert.equal(out.decisions.some((entry) => /spell|gear|level|tier|fh\.skills/.test(entry.path)), false,
-    "ni sorts, ni équipement, ni niveau, ni dépense de palier simulée");
+  assert.equal(out.decisions.some((entry) => /gear|level|tier|fh\.skills/.test(entry.path)), false,
+    "ni équipement, ni niveau, ni dépense de palier simulée");
   assert.equal(out.decisions.every((entry) => entry.status === "answered"), true,
     "une décision complète reste visible answered, sans fausse étape pending");
   assert.deepEqual(decisions.get("class.skills").provenance, {

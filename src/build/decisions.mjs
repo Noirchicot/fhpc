@@ -389,6 +389,178 @@ function speciesBudgetPlan(choices, speciesView, skills) {
    sans jamais nommer ce qu'il transporte. Voir `INVENTAIRE-LOT-34.md`,
    arbitrage n°4 : la frontière est mesurée, pas devinée. */
 
+/* ══ LOT 72 — LES PLANS DE SORTS : `class.cantrips[n]` / `class.prepared[n]` ═
+   Le côté LECTURE existait en entier (`derive.mjs` : tout choix
+   `ref {kind: "spell"}` devient `resolved.spellcasting.spells[]`, et un
+   lanceur sans sort déclare `underived.no-spell-choices`). Ce qui manquait
+   était le côté « QUOI choisir » : aucun plan publié, donc aucun écran
+   possible, aucun jugement — et les sorts d'une ancienne classe traînaient
+   dans `unconsumed` sans qu'aucune confirmation puisse les nommer (mesuré,
+   2026-08-14 : Wizard → Rogue sur le personnage d'exemple EN, les 7 sorts
+   ressortent `unconsumed` et AUCUN plan ne les verrouille).
+
+   CE QUI EST LU, ET RIEN D'AUTRE :
+   · le COMPTE attendu — `class-progression.levels[<niveau>].resources.cantrips`
+     et `.prepared_spells`, les clefs mécaniques que RECORD-SHAPES documente
+     pour la couche EN. ⚠️ Ces clefs de ressource sont LANGUE-NATIVES
+     (`layers/TRADUCTION.md`, mesuré : la progression FR porte `sorts_mineurs`
+     / `sorts_prepares`) et AUCUNE correspondance FR↔EN n'est inventée ici —
+     une table `sorts_mineurs → cantrips` serait la même faute que
+     `"Sagesse" → wis` (dépendances interdites du contrat). Une pile qui ne
+     déclare pas ces clefs-là ne déclare donc PAS de compte lisible : §1c, un
+     record qui ne nomme pas ses clefs ne restreint pas — le plan JUGE les
+     réponses posées (options, verrous) mais ne GUIDE pas le compte (pas de
+     créneau manquant inventé, pas de verrou de compte, `expected` = les
+     réponses valides).
+   · les OPTIONS — le croisement `spell.classes × spell.level`. ⚠️ FRAGILITÉ
+     NOMMÉE : `spell.classes` liste des NOMS D'AFFICHAGE (« Wizard »,
+     « Magicien »), pas des ids. L'appariement se fait contre le nom du
+     record de classe (`classView.record.name`), JAMAIS contre une chaîne
+     écrite en dur — les deux couches sont cohérentes chacune dans sa langue
+     (mesuré : 8 classes castantes × 2 langues), et c'est le record qui parle.
+   · le PLAFOND de niveau préparable — `levels[].spell_slots` (tableau,
+     langue-neutre : l'index le plus haut à compte > 0), à défaut
+     `resources.slot_level` (la magie de pacte vit en scalaire — schéma,
+     `slotsRecharge`). Ni l'un ni l'autre déclaré → pas de plafond : même
+     règle §1c, on ne restreint pas à la place de la couche.
+
+   UNE CLASSE QUE LA PROGRESSION N'APPELLE PAS NE PUBLIE RIEN — pas un plan
+   vide (Rogue, Fighter, Barbarian, Monk : aucune des deux ressources). MAIS
+   des réponses qui TRAÎNENT sur ces chemins publient quand même le plan qui
+   les juge : c'est lui qui porte les `decision.option-unavailable` que la
+   confirmation d'effacement lit (`ui/builder/class-step.mjs`) — sans lui,
+   l'ancien Wizard passé Rogue garde ses 7 sorts pour toujours, signalés
+   nulle part ailleurs que dans `unconsumed`.
+
+   LES CANDIDATS SONT PRIS PAR CHEMIN (`class.cantrips[n]`), JAMAIS par
+   valeur comme `multiPlan` : un sort est un `ref`, pas un scalaire, et les
+   options des deux groupes se recouvrent assez peu pour qu'une capture par
+   contenu re-range en silence un choix mal posé — le chemin nomme la
+   décision, le contenu s'y juge. Un chemin NON indexé (`class.cantrips` nu)
+   n'est pas un candidat : son étape écraserait le plan du groupe dans la
+   projection dédupliquée par chemin (le même piège existe dans `multiPlan`,
+   hérité, pas imité). */
+const SPELL_GROUPS = Object.freeze([
+  { basePath: "class.cantrips", resource: "cantrips", cantrip: true },
+  { basePath: "class.prepared", resource: "prepared_spells", cantrip: false }
+]);
+
+function classSpellPlans(query, choices, classView) {
+  const levelChoice = choices.find((choice) => choice && choice.path === "level");
+  const level = levelChoice && Number.isInteger(levelChoice.value) ? levelChoice.value : null;
+
+  /* La progression pointe SA classe (`data.class`) — le même lien que
+     `derive.mjs`, jamais une convention de nommage d'identifiant. */
+  const progression = viewsOf(query, "class-progression")
+    .find((view) => view.record.data && view.record.data.class === classView.id) || null;
+  const row = progression && level !== null && Array.isArray(progression.record.data.levels)
+    ? progression.record.data.levels.find((entry) => entry && entry.level === level) || null
+    : null;
+  const resources = row && row.resources && typeof row.resources === "object" && !Array.isArray(row.resources)
+    ? row.resources
+    : {};
+
+  /* Le plafond de niveau préparable, lu — jamais déduit d'une table à moi. */
+  let slotCap = null;
+  if (row && Array.isArray(row.spell_slots)) {
+    slotCap = 0;
+    row.spell_slots.forEach((count, index) => {
+      if (Number.isInteger(count) && count > 0) slotCap = index + 1;
+    });
+  } else if (Number.isInteger(resources.slot_level) && resources.slot_level > 0) {
+    slotCap = resources.slot_level;
+  }
+
+  const className = classView.record.name;
+  const spellViews = viewsOf(query, "spell").filter((view) => {
+    const data = view.record.data || {};
+    return Array.isArray(data.classes) && data.classes.includes(className) && Number.isInteger(data.level);
+  });
+
+  const entries = [];
+  for (const group of SPELL_GROUPS) {
+    const declared = resources[group.resource];
+    const expected = Number.isInteger(declared) && declared > 0 ? declared : null;
+
+    const prefix = `${group.basePath}[`;
+    const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+      choice.path.startsWith(prefix));
+    if (expected === null && candidates.length === 0) continue; // rien à guider, rien à juger
+
+    const options = sorted(spellViews
+      .filter((view) => {
+        const spellLevel = view.record.data.level;
+        if (group.cantrip) return spellLevel === 0;
+        return spellLevel >= 1 && (slotCap === null || spellLevel <= slotCap);
+      })
+      .map((view) => view.id));
+
+    const from = expected !== null && progression
+      ? recordProvenance("offered", "class-progression", progression, `resources.${group.resource}`)
+      : null;
+
+    const selected = [];
+    const steps = [];
+    let planLock = null;
+    let next = 0;
+    for (const choice of candidates) {
+      const ref = choice.ref;
+      let lock = null;
+      if (!ref || ref.kind !== "spell") {
+        lock = buildViolation("decision.kind-mismatch", {
+          path: choice.path, expectedKind: "spell",
+          actualKind: ref && typeof ref.kind === "string" ? ref.kind : "value"
+        }, choice.path);
+      } else if (!options.includes(ref.id)) {
+        lock = buildViolation("decision.option-unavailable", {
+          path: choice.path, selected: ref.id, options: options.join(", ") || "none"
+        }, choice.path);
+      } else {
+        selected.push(ref.id);
+      }
+      const step = {
+        path: choice.path, options, selected: lock ? [] : [ref.id],
+        expected: 1, answered: lock ? 0 : 1
+      };
+      if (from) step.provenance = from;
+      steps.push(finish(step, lock));
+      planLock ||= lock;
+      const match = /\[([0-9]+)\]$/.exec(choice.path);
+      if (match) next = Math.max(next, Number(match[1]) + 1);
+    }
+    if (!planLock && expected !== null && selected.length > expected) {
+      planLock = buildViolation("spell-grant.count-mismatch", {
+        root: group.basePath, declared: expected, actual: selected.length,
+        answers: selected.join(", ") || "none"
+      }, group.basePath);
+    }
+
+    const plan = {
+      path: group.basePath, options, selected: selected.slice(),
+      expected: expected !== null ? expected : selected.length,
+      answered: selected.length
+    };
+    if (from) plan.provenance = from;
+    entries.push(finish(plan, planLock), ...steps);
+
+    /* Les créneaux MANQUANTS — seulement quand la couche déclare le compte :
+       sans déclaration, en inventer serait guider avec un chiffre deviné.
+       Même règle que `multiPlan` §3e-bis : chaque candidat, valide ou non,
+       occupe un créneau réel. */
+    if (expected !== null) {
+      const missingSlots = Math.max(0, expected - candidates.length);
+      for (let missing = 0; missing < missingSlots; missing += 1) {
+        while (entries.some((entry) => entry.path === `${group.basePath}[${next}]`)) next += 1;
+        const step = { path: `${group.basePath}[${next}]`, options, selected: [], expected: 1, answered: 0 };
+        if (from) step.provenance = from;
+        entries.push(finish(step));
+        next += 1;
+      }
+    }
+  }
+  return entries;
+}
+
 /** Rend le septième carnet de `rebuild`, trié et sans chemin en double. */
 export function projectDecisions({ query, choices }) {
   const list = Array.isArray(choices) ? choices : [];
@@ -406,6 +578,10 @@ export function projectDecisions({ query, choices }) {
         provenance: recordProvenance("offered", "class", classView, "skill_choice"), cost: explicitCost(declaration)
       }));
     }
+    /* LOT 72 — les sorts lisent LE MÊME `classView` que `class.skills` :
+       une seule réponse à « quelle est la classe ? » (leçon du lot 71,
+       `resolvedRef` — deux écrivains divergent, et ça se voit à l'écran). */
+    entries.push(...classSpellPlans(query, list, classView));
   }
 
   const speciesChoice = list.find((choice) => choice && choice.path === "species" && choice.ref && choice.ref.kind === "species");

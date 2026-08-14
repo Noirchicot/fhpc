@@ -113,18 +113,26 @@ function activeValues(node) {
    remet `2` en dur un jour. */
 
 test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — jamais 2 en dur", () => {
+  /* LOT 72 — le menu porte maintenant AUSSI les QCM de sorts (Cantrips /
+     Prepared spells) : le compte de lignes se lit donc DANS le bloc
+     `class.skills` (le premier — l'ordre d'append de `renderClassChoices`),
+     plus jamais sur le menu entier. Le nombre de BLOCS devient une assertion
+     à part entière : un non-lanceur n'en a qu'un, un lanceur en a trois —
+     jamais un cadre vide pour un Rogue. */
   const cases = [
-    ["srd:class:en:rogue", 4],
-    ["srd:class:en:bard", 3],
-    ["srd:class:en:wizard", 2]
+    ["srd:class:en:rogue", 4, 1],
+    ["srd:class:en:bard", 3, 3],
+    ["srd:class:en:wizard", 2, 3]
   ];
-  for (const [classId, expected] of cases) {
+  for (const [classId, expected, blocs] of cases) {
     const report = rebuild(docWith({ id: `count-${classId}`, classId }));
     const node = menu(report.decisions, "class");
-    const note = node.querySelectorAll(".skills-budget-note")[0];
+    const blocsRendus = node.querySelectorAll(".skills-budget-block");
+    assert.equal(blocsRendus.length, blocs, `${classId} : ${blocs} bloc(s) de QCM — sorts seulement si la progression les appelle`);
+    const note = blocsRendus[0].querySelectorAll(".skills-budget-note")[0];
     assert.ok(note, `${classId} : le QCM de classe est rendu`);
     assert.ok(note.textContent.startsWith(`0 of ${expected} chosen`), `${classId} attend ${expected}, lu : « ${note.textContent} »`);
-    assert.equal(node.querySelectorAll(".skills-row").length, expected, `${classId} : ${expected} lignes de slot, pas 2`);
+    assert.equal(blocsRendus[0].querySelectorAll(".skills-row").length, expected, `${classId} : ${expected} lignes de slot, pas 2`);
   }
 });
 

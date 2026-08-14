@@ -36,6 +36,23 @@ function skillLabel(query, id) {
   return view && view.record ? view.record.name : id;
 }
 
+/* LOT 72 — le même geste pour un sort : le NOM vient du record, jamais
+   recomposé ici (loi §0.13 côté écran : on descend des mots, on n'en
+   fabrique pas). */
+function spellLabel(query, id) {
+  const view = query({ kind: "spell", id });
+  return view && view.record ? view.record.name : id;
+}
+
+/* LOT 72 — les deux groupes de sorts du 2ᵉ palier. UNE TABLE, pas deux
+   copies : le QCM, la confirmation d'effacement et le palier lisent la
+   même liste — en ajouter un troisième (un jour : les sorts d'un lignage ?)
+   est une ligne ici, pas un écran neuf. */
+const SPELL_QCMS = [
+  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip" },
+  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell" }
+];
+
 export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes" };
 
 /** LE CORPS D'UNE FICHE DE CLASSE — les quatre que B2 nomme (« skill pool ·
@@ -74,6 +91,18 @@ export function renderClassChoices(ctx, onAction) {
   });
   if (qcm) menu.append(qcm);
 
+  /* ══ LOT 72 — LES SORTS, LE MÊME QCM ═══════════════════════════════════
+     `renderSlotQcm` rend `null` sans plan : un Rogue n'affiche RIEN ici —
+     jamais un cadre vide. `refKind: "spell"` fait poser un `choose` (un sort
+     est un record), le reste est mot pour mot le geste de `class.skills`. */
+  for (const groupe of SPELL_QCMS) {
+    const bloc = renderSlotQcm({
+      decisions, basePath: groupe.basePath, title: groupe.title, slotWord: groupe.slotWord,
+      refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act
+    });
+    if (bloc) menu.append(bloc);
+  }
+
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════
      Les anciens `class.skills[n]` que le `choose` ne nettoie pas
      (verrouillés) DOIVENT s'effacer — après confirmation, en NOMMANT ce qui
@@ -92,15 +121,45 @@ export function renderClassChoices(ctx, onAction) {
       onCancel: () => {}
     }));
   }
+
+  /* ══ LOT 72 — LA MÊME CONFIRMATION POUR LES SORTS — jamais un effacement
+     silencieux : on NOMME ce qui part, et on demande (le patron du lot 46,
+     étendu, pas un mécanisme neuf). C'était le trou mesuré par Eric le
+     2026-08-14 : Wizard → Rogue, 7 sorts orphelins listés dans Review, aucun
+     moyen de s'en débarrasser. Le carnet les verrouille désormais (lot 72,
+     `decisions.mjs`) ; cette boîte ne fait que LIRE le verrou — une boîte À
+     PART de celle des compétences, parce qu'elle nomme d'autres pertes, pas
+     parce que le geste diffère (`resetSkills` = « efface ces chemins, un
+     seul rebuild », il n'a jamais su ce qu'est une compétence). */
+  const sortsOrphelins = SPELL_QCMS.flatMap((groupe) => planSlots(decisions, groupe.basePath))
+    .filter((slot) => slot.lock && slot.lock.key === "decision.option-unavailable");
+  if (sortsOrphelins.length > 0) {
+    menu.append(renderConfirmDialog({
+      title: "These spells are no longer valid for this class:",
+      items: sortsOrphelins.map((slot) => spellLabel(query, slot.lock.params.selected)),
+      confirmLabel: "Clear them",
+      cancelLabel: "Keep them locked",
+      onConfirm: () => act({ kind: "resetSkills", paths: sortsOrphelins.map((slot) => slot.path) }),
+      onCancel: () => {}
+    }));
+  }
   return menu;
 }
 
 /** LE 2ᵉ PALIER DE CLASS : « Validate 2 = features choisis » (B2.4). Le plan
  *  dit combien sont attendus et combien sont répondus — jamais un compte
  *  refait ici. `null` si la classe ne publie aucun choix : elle n'a alors
- *  qu'UN palier (voir `catalogueValidate`). */
+ *  qu'UN palier (voir `catalogueValidate`).
+ *
+ *  LOT 72 — le palier lit TOUS les plans du menu (compétences ET sorts) :
+ *  un magicien à 3/3 compétences mais 0/3 sorts mineurs n'est pas prêt.
+ *  Même règle qu'avant pour chacun (`answered >= expected`), appliquée à
+ *  chaque plan présent — un plan absent (Rogue : pas de sorts) ne compte
+ *  pas, et une classe sans AUCUN plan garde son palier unique. */
 export function classPalier2(decisions) {
-  const plan = planAt(decisions, "class.skills");
-  if (!plan) return null;
-  return { ready: plan.answered >= plan.expected };
+  const plans = ["class.skills", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
+    .map((path) => planAt(decisions, path))
+    .filter(Boolean);
+  if (plans.length === 0) return null;
+  return { ready: plans.every((plan) => plan.answered >= plan.expected) };
 }
