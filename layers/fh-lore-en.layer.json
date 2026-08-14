@@ -1,0 +1,259 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-lore-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Lore (EN)",
+  "lang": "en",
+  "flags": [],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds a `data.lore` field to species and class records defined in the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd, licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode, and to the Araag, Elestu and Loroka species original to Fate's Hand. No SRD text is reproduced anywhere in this layer: every lore text is original prose, written for this layer, at most informed by SRD concepts summarized in the author's own words."
+  },
+  "description": "Original narrative lore for the twelve playable species and twelve classes of Fate's Hand: the full-page text shown when a player opens a species or class in the character builder.",
+  "records": {
+    "species": {
+      "srd:species:en:dragonborn": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Dragonborn) + Theymoron.md's Nymedes-wide draconic cycle; original prose.",
+        "changes": {
+          "data.lore": {
+            "text": "Dragon-blooded wanderers, dragonborn carry a breath and a bloodline that trace back to no living dragon in particular — only to the ancestry itself, restless and proud. On Nymedes, true dragons are rare and remote enough that most dragonborn meet them as legends before they meet them as neighbors: the world's red dragons live by an old and exacting law of their own, where each dying wyrm chooses a mortal protector before its clutch of eggs rises from the remains. Dragonborn are shaped by that inheritance without ever quite belonging to it, scaled in colors from black to gold and marked from birth as something apart.\n\nAbility comes as naturally as breath. Every dragonborn can exhale their ancestry's element in place of a blow, shrug off a measure of what that same element would do to lesser flesh, and see clearly in the dark where others need a torch. A few, reaching maturity, learn to call up a memory of wings for a few reckless minutes. Whatever land raised them — the Empire, the Marche, or somewhere between the two — a dragonborn tends to measure a stranger first by their bearing and only second by their blood, and to answer any doubt about either with a temper that catches like tinder.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:dwarf": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Dwarf); original prose expanding the vault blurb.",
+        "changes": {
+          "data.lore": {
+            "text": "Stone-patient and famously hard to hurry, the dwarves of Nymedes measure history in seams of ore rather than reigns of kings. Their halls outlasted ages the surface world did not — sealed doors and deep galleries that kept clans fed and armed through wars fought under a sky they never saw. What their ancestors found in the very deepest seams, and what (if anything) still moves down there, is not a story told to outsiders, and a dwarf who's heard it tends to change the subject with a speed that belies their reputation for patience.\n\nToughness runs in the stone as much as the blood. A dwarf's body shrugs off poison that would fell a larger creature, hardens further with every year of adventuring, and can feel danger moving through solid rock the way others feel a draft through a door. Darkvision reaches twice as far for a dwarf as it does for most peoples, a small mercy in halls where the last lamp oil ran out generations ago. Dwarven clans keep their own exact count of debts, favors, and grudges — ledgers as precise as any counting-house's — and a dwarf who calls you kin has usually already decided you're worth the seam.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:elf": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Elf) + `_Tableau des Dieux (canon).md` (Anon kept conditional, per the vault's own GM-secret note).",
+        "changes": {
+          "data.lore": {
+            "text": "Elves are truly immortal, and vanishingly rare — for elves cannot conceive with one another. Only a union with a human or an Araag quickens an elven womb, and what is born of that union is Elestu, never elf. What remains, then, is an ancient people that almost never grows in number and never grows old in the way mortals mean it: centuries pass over an elf the way seasons pass over a mountain, in traces rather than damage, until the oldest among them finally withdraw from the world altogether — some into a centuries-long sleep, others into a quiet madness no healer's art can touch.\n\nAn elf never truly rests as shorter-lived people do: four hours of waking trance replace a night's sleep, no spell can force one under, and eyes built for centuries read the dark as easily as the day. Fey blood grants a stubborn resistance to being charmed, keen instinct sharpens whichever discipline an elf chooses to master, and every elf carries an inherited thread of magic from their lineage — drow, high, or wood — that deepens as they age. Old traditions name the elves children of a sleeping god, and whisper that a dying elf's soulgem is the finest thing a soulforger will ever hold, carrying some splinter of a memory sealed away since the First Age. Scholars, as ever, disagree.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:gnome": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Hoddon). Backstory kept deliberately vague, matching the vault's own site-parity note — see `Peuples de la forêt des démons.md` if that changes.",
+        "changes": {
+          "data.lore": {
+            "text": "Most people on Nymedes have never met a Hoddon, and plenty will insist to your face that nobody has. The little folk keep to hidden family-holds buried deep in the old forests, guarding fragments of a banned craft left behind by the vanished humans of the First Age — remnants the Empire of Huitzlika has hunted for centuries, and hunted the Hoddon alongside them for just as long. What exactly is kept in those holds, and what it costs to keep it, is not a subject a Hoddon discusses with strangers, or often with each other.\n\nA Hoddon encountered on the open road is a rare thing, and rarely there by accident: quiet, watchful, and carrying more forbidden knowledge in their satchel than most imperial archives hold under lock. Their minds resist charm, deception, and coercion with an ease that unsettles interrogators, their eyes read the dark as clearly as the hidden holds they're built into, and a cunning runs in the blood alongside a knack for craft. Every Hoddon lineage leans one of two ways — some toward the deep woods and the creatures in them, some toward small clever machines that do far more than their size suggests — and either way, a Hoddon who trusts you with a demonstration is paying you a compliment few outsiders ever receive.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:goliath": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Goliath / Ghost Tribe); original prose expanding the vault blurb.",
+        "changes": {
+          "data.lore": {
+            "text": "The goliaths of Nymedes are a people without a hearth. In the giant-ruled forests of the far north, the fire giants of Jaar hunt them for slaves, and hill giant hordes burn down what little they try to build — so the people the world calls the Ghost Tribe sleep in dug-out caches and half-forgotten ruins, move like fog between the trees, and carry their history as scars and murmured songs instead of stone monuments that giants would only tear down again. Stone giant prophets are said to guide the Tribe's wanderings, and the forest's own spirits sometimes hide their tracks when the hunt draws close.\n\nEvery goliath met beyond that forest is, by definition, a survivor of the long hunt — and carries both the patience that survival demands and a quiet, stubborn dream of one day building a house that stands in daylight. Their bodies remember the hunt even when their minds try to rest: a goliath can call on their ancestry's particular gift the moment a battle turns dangerous, grow briefly to a giant's own scale in true extremity, and shrug off a grip that would pin down almost anyone else. Speed comes easily to a people who have spent generations learning to be somewhere else by the time trouble arrives.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:halfling": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Halfling) + `fh-species-en.layer.json` (Chaos-roll Destiny trait).",
+        "changes": {
+          "data.lore": {
+            "text": "Small, unhurried, and remarkably hard to rattle, halfling communities have a habit of outlasting the empires that spring up around them — quietly farming the same valley for a thousand years while dynasties a few days' walk away rise, posture, and fall. Ask a halfling their secret and they'll tell you it isn't luck so much as patience wearing luck's coat: showing up, staying calm, and letting louder, faster, angrier people wear themselves out first.\n\nThat patience has a mechanical honesty to it. A halfling who stumbles today shrugs and tries again tomorrow, and treats a run of bad luck as weather rather than doom — which turns out to be the most accurate reading of Chaos that anyone on Nymedes has found: halflings meet its wildest swings with a genuine edge nobody else gets, as if ill fortune simply loses interest in them first. They slip through a battlefield built for larger bodies as though the war weren't really about them, keep their nerve when fear sends bigger folk running, and vanish behind cover that wouldn't hide a child of any other people — including, on occasion, behind the very allies who thought they were protecting them. Underestimating a halfling is a mistake made exactly once.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:human": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Human) + `Theymoron.md` (White Void / An 4053 figures).",
+        "changes": {
+          "data.lore": {
+            "text": "Humanity vanished from Nymedes at the end of the First Age, and for millennia the world got on without it. Then, a century ago, some ten thousand souls walked back out of the White Void that had swallowed them, refusing to disappear a second time. They remain few — a rounding error next to the Empire's millions — and loud about it: young human cities rise fast and argue louder, as if volume could stand in for numbers. Theymoron's rice terraces, Dreideldorf's workshops, Atalante's crowded harbors — nowhere humans have settled stays quiet for long.\n\nTwice-born, humans carry that history in more than memory: something in having been unmade and remade at all seems to leave a person harder to unmake again, and a human's grip on their own Destiny recovers faster after a hard night than anyone else's does. They tend to throw themselves at whatever's in front of them — a trade, a cause, a fight not strictly theirs — with the particular urgency of people who've already lost everything once and have decided not to sit still waiting for it to happen again. Ask a human what they're building and you will rarely get a short answer.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:orc": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Orc); original prose expanding the vault blurb.",
+        "changes": {
+          "data.lore": {
+            "text": "The full-blooded kin of the Loroka, orcs endure where the land gives nothing back — hard plains, high cold passes, borders nobody else much wants to hold. Their reputation for ferocity is mostly other people's word for stamina: an orc does not, as a matter of principle, stop first. Where the Loroka settled into Theymoron's terraces generations ago, most orcs still keep to the harder country beyond easy roads, though plenty walk into cities and simply stay, unbothered by the mismatch between their size and everyone else's assumptions about it.\n\nAn orc's body is built for the long fight rather than the quick one: a burst of speed and a little borrowed toughness carry them into danger faster than most, and where anyone else would drop, an orc's instinct for survival lets them cling to one more hit point and one more second on their feet — once, at least, before the body demands its due. Darkvision reaches far into the cold-country dark they favor. Orcs measure people by what they can carry and how far, and have very little patience for anyone who talks a longer game than they're prepared to walk themselves.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:species:en:tiefling": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Tiefling); original prose expanding the vault blurb.",
+        "changes": {
+          "data.lore": {
+            "text": "Fiend-touched by pact, curse, or ancestry too many generations back to name, tieflings spend a startling amount of their lives being mistaken for Araags — and correcting people, wearily, that their mark came by an older and altogether different road. The confusion is understandable and exhausting in equal measure: both peoples wear an unmistakable trace of something not-quite-human, and most strangers don't much care to learn the difference before they've already decided what it means about you.\n\nThat constant, low-grade suspicion teaches a lesson most tieflings learn young: be twice as charming as anyone expects, because you'll be trusted about half as much regardless. It shows in how they carry themselves — a fluency with people, a talent for reading a room before it's decided anything about them — backed by something stranger underneath: eyes that read darkness as easily as daylight, and blood that answers to one of several old bloodlines, each granting its own resistance and its own small thread of borrowed magic. Even the least devout tiefling can conjure a flicker of the uncanny with nothing but a gesture and a word, a party trick that reliably makes strangers take one step back.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "fh:species:en:araag": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Araag) + `Naissance des Araags (Éric).md`, kept deliberately allusive; traits per `fh-species-en.layer.json`.",
+        "changes": {
+          "data.lore": {
+            "text": "Marked by the Harvest that unmade the last free humans, the Araags were once mistaken for tieflings — a resemblance neither people has ever much enjoyed. Their origin sits at the hinge point of Nymedes's history, where the last free human is said to have dissolved, in agony, into the great white light — and something new rose from that ending, soul-touched from the very first breath. Whatever the truth of the old stories, Araags are common as dust within the Empire that bears their name, and stared at — carefully, uneasily — everywhere else: unmistakably other, and rarely trusted to explain why in a way that satisfies the asker.\n\nThat closeness to soul and Harvest is no mere legend; it's a working part of an Araag's body. An Araag can bond a soulgem directly into their own flesh without it costing them a drop of blood or a moment of pain, shrugs off necrotic wounds that would rot lesser flesh outright, and sees easily in the dark their ancestors once fled through. Quick to pick up any skill they set their mind to, and quicker still to master it, Araags treat learning as a survival trait rather than a luxury — which, for a people born from an ending, it always has been.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "fh:species:en:elestu": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Elestu) + `Theymoron.md` (university/Moonkeeper quarter, demographics).",
+        "changes": {
+          "data.lore": {
+            "text": "The Elestu are what an elven union actually produces — never an elf, always something else. Born of scattered pairings between elves and humans, or elves and Araags, they are too mortal for the elves who half-acknowledge them and too strange for everyone else to fully claim, so most end up building their own quiet place between both worlds instead of waiting for either to make room. In Theymoron, that place is visible on the map: Elestu gravitate to the university quarter and its Moonkeeper circles, a small community — barely more than one resident in forty — with an outsized presence in its lecture halls and on its stages alike.\n\nThey inherit real fragments of elven nature without the full weight of it: a fey resistance to being charmed, eyes that pierce the dark as well as any elf's, a trance that stands in for sleep on nights when there's a book, a song, or a conversation worth finishing instead. Fast learners by temperament as much as by gift, most Elestu end up bards, scholars, or — often enough — both in the same person, treating the gap between two peoples not as a wound but as a vantage point nobody else quite has.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "fh:species:en:loroka": {
+        "op": "patch",
+        "note": "Vault: `D&D 5+ Races & Species.md` (Loroka) + `Theymoron.md` (demographics, the Front).",
+        "changes": {
+          "data.lore": {
+            "text": "The old blood of the Theymoron highlands, Loroka were farming these terraced valleys, driving herds through these passes, and building these hillside towns long before the Marche of Theymoron had a name to call itself. Descended heavily from the Sira — the low caste of a distant Empire most of them have never seen — they were once the plurality of a conquered people. Now they're the plurality of a free city instead: the single largest population in Theymoron's own capital, roughly one resident in three, with the Araags who share their old country close behind.\n\nEndurance runs deeper in Loroka than in almost anyone else who'll stand next to them in a shield line: dropped to the edge of death, a Loroka's body finds one more hit point out of sheer refusal to finish the fight on someone else's terms, at least once before it needs a full night's rest to do it again. Darkvision reaches far past what most peoples need. Loroka answer the Front's call when war demands soldiers, then go home afterward to the same terraces, the same rice paddies, the same roofs that needed fixing before the fighting started — soldiering is what a Loroka does when asked, not what a Loroka is.",
+            "provenance": "vault"
+          }
+        }
+      }
+    },
+    "class": {
+      "srd:class:en:barbarian": {
+        "op": "patch",
+        "note": "SRD 5.2.1 class identity (Rage), summarized in original words; no FH-specific barbarian material found in the vault.",
+        "changes": {
+          "data.lore": {
+            "text": "A barbarian trusts the body's oldest argument: hit first, hit harder, and let training-heavy opponents wonder how someone who never drilled a fighting style keeps winning anyway. Rage is the engine — a battle-fury that shrugs off pain, turns blunt force into a blur of reckless momentum, and burns hottest in exactly the fights a more careful warrior would think twice about entering. It isn't mindless, whatever it looks like from outside; it's a barbarian's whole self, focused down to a single uncomplicated question, answered as many times as it takes.\n\nNymedes gives that fury plenty of work. It surfaces in the Front's shield-lines and the Empire's legions as readily as it does in quieter places — a hunter who's faced something in the deep woods and decided fear was the wrong response, a survivor of the giant-haunted north who simply refuses to stay down. What separates a barbarian from every other kind of fighter isn't strength alone but a certain refusal: to overthink a fight already underway, to stay down when staying down is the smart move, to let anyone else's idea of a fair fight decide how this one ends.",
+            "provenance": "srd-summary"
+          }
+        }
+      },
+      "srd:class:en:bard": {
+        "op": "patch",
+        "note": "Vault: `Theymoron.md` (the university trains \"bardes et mages\" under the cult of Ono).",
+        "changes": {
+          "data.lore": {
+            "text": "A bard's magic is an argument that art matters as much as steel or scripture — that a well-placed word, note, or story can open a door no amount of force will move. Where a wizard studies and a cleric prays, a bard performs, drawing power from the same well as every audience they've ever moved: proof, repeated onstage and off, that meaning shapes reality just as surely as muscle does. It's a broad, improvisational kind of magic, as comfortable talking a guard out of a search as it is calling down real fire.\n\nTheymoron makes the case better than most places on Nymedes. Its small university — kept alive by the cult of Ono, old red god of transformation and magic — teaches literature, rhetoric, music, and history alongside practical spellcraft, and prizes lived experience over dusty book-learning; it turns out bards, and more than a few mages, in numbers well past its modest size. Elestu students crowd its halls especially, drawn to a craft that rewards a foot in two worlds at once. Wherever a bard actually trained, though, the trade stays the same: carry the story, and the story carries you.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:cleric": {
+        "op": "patch",
+        "note": "Vault: `_Tableau des Dieux (canon).md` (Saints of AVA / Red Gods) + `Theymoron.md` (Clergy of Forgon, \"presque exclusivement des Clercs\").",
+        "changes": {
+          "data.lore": {
+            "text": "Every cleric on Nymedes has picked a side in an old and unfinished argument, whether they think of it that way or not. On one hand stand the Saints of AVA: twenty-two ascended mortals, one for every face of the tarot, who traded the self for dissolution into something larger and ask nothing back in return but that others try the same road. On the other stand the Red Gods: nine dragon-shaped primordial powers, mostly dead now or transformed beyond recognition, whose corpses and memories still hang overhead as the moons — worshipped, in the old way, with a devotion as old as the sky itself.\n\nA cleric's power is that choice made manifest: conviction thick enough to bend the world a little, channeled through rites, oaths, and the plain fact of showing up when a god's people need someone to. In Theymoron, an entire clergy serves Forgon, red god of war and struggle, governing a nation nearly as much as any king does — proof that a cleric's calling is as often political as it is personal. Whichever altar a cleric kneels at, they are never quite a private citizen again.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:druid": {
+        "op": "patch",
+        "note": "Vault: `Dark Rituals.md` (\"druids once walked the living wood by its consent\").",
+        "changes": {
+          "data.lore": {
+            "text": "Long before the Empire's mages learned to force a road through hostile woodland — zombies marching ahead, a swath of forest cowering back in terror on either side — druids walked those same paths a different way, and the wood let them, because they asked first. That contrast is the whole of what a druid is on Nymedes: proof that nature can be worked with instead of only worked upon, if the one asking is willing to listen before they take.\n\nThe oldest druidic gift is the ability to stop being human-shaped entirely — to answer a threat as a bear answers it, or a hawk, or a creature with teeth built for exactly this problem — and to keep doing it long after a less committed shapeshifter would have to stop and rest. Alongside that sits a working command of storm, root, and flame that owes nothing to any god or patron, drawn instead from a world that is, on Nymedes as everywhere, more alive and more opinionated than the people walking across it tend to assume. A druid's loyalty runs to the land itself before it runs to any nation drawn on top of it, which makes them unpredictable allies and worse enemies than most kingdoms account for.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:fighter": {
+        "op": "patch",
+        "note": "Vault: `Class Modifications.md` (Fighter/Ranger/Paladin share Great Weapon Fighting) + `Theymoron.md` (the Front, conscription, Doctrine of Janis).",
+        "changes": {
+          "data.lore": {
+            "text": "There is no single school of the sword on Nymedes, because a fighter's whole gift is refusing to specialize. Where other warriors lean on magic, a sacred oath, or one trained instinct, a fighter simply becomes excellent at hitting things and not being hit in return, and keeps that edge sharp through sheer repetition long after subtler talents have plateaued. It shows in the details: a fighter recovers between exchanges that would leave other classes still reeling, and can find one further burst of action exactly when a battle needs it most.\n\nTheymoron's Front supplies a working demonstration of what that looks like at scale. Every citizen serves two years at fifteen, and the discipline that keeps a shield line from breaking runs on fighter-shaped competence: forts, watchtowers, pegasus relays, and a doctrine — Janis's own — that a Marche does not win through conquest, only by refusing to lose. Trained in the same heavy-weapon forms as the Front's rangers and paladins, a fighter fits equally well into a standing army, a mercenary company, or no company at all: competence, on Nymedes as anywhere, always finds work.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:monk": {
+        "op": "patch",
+        "note": "Vault: `Class Modifications.md` (Monk — Deflect).",
+        "changes": {
+          "data.lore": {
+            "text": "A monk's weapon is a body trained past the point where most people stop training theirs. Years of discipline in breath, stance, and stillness turn simple unarmed technique into something that keeps pace with steel — and monks on Nymedes take that a step further than most, drilling the exact timing needed to read an incoming blow and answer it, in the same instant, by sending the force of it back the way it came. It's less a trick than a philosophy made physical: violence directed at a trained body doesn't have to be absorbed. It can be redirected, returned, refused outright.\n\nThat discipline runs on an internal reserve monks call ki — a focus that lets them strike faster than the body should reasonably allow, shrug off a hit that would stagger someone in heavier armor, and eventually walk through hazards that would kill an untrained traveler outright. Monastic traditions on Nymedes vary as widely as the peoples who practice them, but the throughline holds everywhere: a monk's body is the finished project, built in solitude and tested constantly, and the rest of their life is simply what they do with the result.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:paladin": {
+        "op": "patch",
+        "note": "Vault: `Class Modifications.md` (Paladin) + `Theymoron.md` (Janis's dragon-oath) + `_Tableau des Dieux (canon).md`.",
+        "changes": {
+          "data.lore": {
+            "text": "A paladin's power runs entirely on a promise kept. Somewhere in every paladin's past is an oath — sworn to one of the Saints of AVA and the single virtue that Saint embodies, to an old Red God's ancient concept, or simply to a person, a place, or a code the paladin decided was worth more than their own comfort — and the magic follows the conviction, not the other way around. Break the oath and the power frays with it; that's not a metaphor on Nymedes, it's simply how the magic answers.\n\nThe clearest example of what an oath can build sits at the heart of Theymoron's founding: the royal line of Janis, bound for a hundred years to protect the dragons that chose their ancestor as protector — and, once those dragons reach maturity, bound to be served by them for a hundred years in turn. A promise that outlasts the one who made it, kept anyway. Most paladins never swear anything nearly so large, but the shape stays the same at any size: a line drawn, and a will strong enough to stand on the near side of it no matter the cost of standing there.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:ranger": {
+        "op": "patch",
+        "note": "Vault: `Class Modifications.md` (Ranger) + `Theymoron.md` (the Front's deliberately-burned woodlands) + `Nymedes's Primordial Forces.md`.",
+        "changes": {
+          "data.lore": {
+            "text": "A ranger's craft is reading ground that would tell most people nothing at all — which matters more on Nymedes than in most places, because the ground itself doesn't always stay read. Along Theymoron's Front, whole stretches of forest were burned deliberately, years ago, just to deny an enemy army the cover; further out, the wilds carry stranger hazards still — drifting banks of soul-hungry mist that move toward the living after dark, and pockets of a paler nothing that can unmake a stretch of country overnight and hand back something else in its place, dreamed into being by forces nobody fully controls. A ranger who works those borders learns to read danger the way other people read weather.\n\nThat expertise comes paired with a fighting style built for exactly this work: a favored quarry tracked with real precision, a home terrain crossed faster and more quietly than anyone chasing them can manage, and a thin thread of nature magic layered over sound martial skill. Rangers keep company with beasts more easily than most people keep company with each other, and tend to trust a good trail marker over a good speech.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:rogue": {
+        "op": "patch",
+        "note": "Vault: `Class Modifications.md` (Rogue — Sneak Critical; Assassin — free Garrot at level 3).",
+        "changes": {
+          "data.lore": {
+            "text": "A rogue's edge is precision, not power — knowing exactly where to place a blade, a lie, or a lockpick, and exactly when. Every rogue leans on the same core trick: a moment's advantage, seized cleanly, turns an ordinary strike into something far worse for whoever's on the receiving end. Rogues trained on Nymedes push that trick further than most; their training widens the killing edge of a sneak attack, so the same opening that only wounds someone else's rogue finishes the job for one trained here.\n\nThose who commit fully to the Assassin's path skip the apprenticeship most killers serve: rather than saving up for the tools of the trade, they're handed a garrote outright the moment their training earns it, and expected to already know what to do with it. Outside of combat, a rogue's real advantage is breadth — a working fluency in half a dozen skills that a specialist would need a lifetime to match individually, plus the nerve to walk into a locked room, a guarded vault, or a hostile negotiation and trust that fluency to get them back out again. Rogues rarely win the fight anyone expected them to be in.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:sorcerer": {
+        "op": "patch",
+        "note": "Vault: `Lunar Sorcery revised.md` (Moonkeeper subclass) + `Theymoron.md` (Moonkeepers) + `_Tableau des Dieux (canon).md` (moon-gods).",
+        "changes": {
+          "data.lore": {
+            "text": "A sorcerer never studied for this — the magic was simply always there, inherited, inborn, or woken by something that happened once and can't be undone. Where a wizard reasons their way to a spell, a sorcerer already knows it the way a person knows their own name, and pays for that shortcut with a magic that runs less predictably: powerful, personal, and only partly within the sorcerer's own control even after years of learning to aim it.\n\nOn Nymedes, nowhere shows that better than the Moonkeepers — sorcerers whose gift answers directly to the sky. Five moons wheel overhead, remnants of the old red gods, one of them showing two faces rather than one, and a Moonkeeper binds their magic to a single face: gold Aulmyria, its grey twin Ur-Nozgul, red Forgon, green Trien, blue Ono, or black Cerkato, each granting its own school of magic and its own particular gift when that moon rides dominant in the sky. Moonkeepers hold no temple, answer to no council, and matter anyway — a scattered, unregulated presence whose influence on art, ideas, and quiet political leverage outweighs their numbers by a wide margin. Every sorcerer, moon-bound or not, carries that same trait in miniature: power that showed up uninvited and simply has to be lived with.",
+            "provenance": "vault"
+          }
+        }
+      },
+      "srd:class:en:warlock": {
+        "op": "patch",
+        "note": "SRD 5.2.1 class identity (Pact Magic), summarized in original words; patron kept open by design, as in the SRD itself. No FH-specific warlock material found in the vault.",
+        "changes": {
+          "data.lore": {
+            "text": "A warlock's power comes from somewhere else, on loan from something that wanted a foothold in the world and found a willing, or at least a bargaining, partner. The exact shape of that arrangement — patron, price, and the fine print neither side says aloud — is the one question every warlock answers differently, and usually not in full, even to their closest allies. What's consistent is the result: invocations that work like permanent shortcuts around the ordinary rules of magic, a pact-forged weapon or gift, and spellcasting that recovers on a warlock's own schedule rather than everyone else's.\n\nNymedes is not a world short of somethings worth bargaining with — fallen gods, a Saint who fell rather than ascended, and older powers still that never made it onto any list at all, each with reasons of their own for wanting a hand in mortal affairs again. A warlock rarely advertises which of these they answer to, and for good reason: the bargain is usually the least comfortable thing about them once people start asking questions. What every warlock shares, whatever sits on the other end of the pact, is the particular confidence of someone who no longer negotiates from a position of only having themselves to rely on.",
+            "provenance": "srd-summary"
+          }
+        }
+      },
+      "srd:class:en:wizard": {
+        "op": "patch",
+        "note": "Vault: `Soulforge Crafting.md` + `Dark Rituals.md` (\"Necromancer Wizard\") + `Circle Magic.md`.",
+        "changes": {
+          "data.lore": {
+            "text": "A wizard's magic is earned the slow way: years spent decoding a discipline that rewards precision over instinct, recorded in a spellbook that is as much a wizard's autobiography as their toolkit. What separates a wizard from every other kind of caster is range — given enough study, enough time, and enough pages, a wizard can eventually reach for nearly anything magic is capable of, at the cost of never getting to rely on raw talent to cover a gap in the research.\n\nOn Nymedes, that research runs in some unusual directions. Soulforging — binding a slain creature's harvested essence into a crafted item, grown across years rather than replaced — sits naturally in wizardly hands, alongside circle-casting rites where several trained spellcasters pool their effort into a single spell, stretching its range, duration, or raw force well past what any one of them could manage alone. A darker current runs through the same tradition: the necromancer's path, working alongside Karagall's Harvest and the soul-price it demands, is a wizard's road as much as anyone's, though most who study at a desk instead of an altar would rather not be reminded of the family resemblance.",
+            "provenance": "vault"
+          }
+        }
+      }
+    }
+  }
+}

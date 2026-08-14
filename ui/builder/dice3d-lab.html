@@ -6,68 +6,199 @@
 <title>dice3d — banc d'essai</title>
 <link rel="stylesheet" href="./dice3d.css?v=1">
 <style>
-  body { margin: 0; padding: 24px; background: #354551; color: #eef2f6;
-         font: 14px system-ui, sans-serif; }
-  h1 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
-  #temoin { font-variant-numeric: tabular-nums; margin: 0 0 20px; color: #9fb3c4; }
-  #temoin.mort { color: #ff8a8a; font-weight: 700; }
-  #plateau { display: flex; gap: 18px; align-items: center; margin-bottom: 24px; }
-  .fh-cd-static-die { --fh-static-die-size: 72px; }
-  #verdict { white-space: pre; font-family: ui-monospace, monospace; font-size: 12px; }
+  :root { --ecart: 18px; --taille: 72px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: #354551; color: #eef2f6;
+         font: 15px/1.45 system-ui, sans-serif; overflow-x: hidden; }
+  h1 { font-size: 17px; font-weight: 600; margin: 0 0 2px; }
+  .sous { color: #9fb3c4; font-size: 13px; margin: 0 0 14px; }
+  .sous.mort { color: #ff8a8a; font-weight: 700; }
+
+  #plateau { display: flex; gap: var(--ecart); align-items: center;
+             justify-content: center; min-height: 96px; margin-bottom: 6px; }
+  .fh-cd-static-die { --fh-static-die-size: var(--taille); }
+
+  /* LA MESURE QUI COMPTE : le liseré dit où le plateau finit. S'il touche
+     les bords, c'est trop large — c'est ce qu'Eric a vu sur son SE. */
+  #cadre { border: 1px dashed #5d7183; border-radius: 8px; padding: 8px 0;
+           margin-bottom: 14px; }
+  #largeur { text-align: center; font-size: 12px; color: #9fb3c4;
+             font-variant-numeric: tabular-nums; }
+
+  .boutons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  button { flex: 1 1 auto; min-height: 44px; padding: 0 14px; border: 0;
+           border-radius: 8px; background: #f3ead6; color: #3a2606;
+           font: 600 15px system-ui; cursor: pointer; }
+  button.second { background: #4d6070; color: #eef2f6; }
+  button:disabled { opacity: .45; }
+
+  .reglages { display: grid; gap: 10px; margin-bottom: 16px; font-size: 13px; }
+  .reglages label { display: grid; grid-template-columns: 74px 1fr 52px;
+                    gap: 10px; align-items: center; }
+  .reglages output { text-align: right; font-variant-numeric: tabular-nums;
+                     color: #cfe0ee; }
+  input[type=range] { width: 100%; }
+
+  #resultats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+               font-variant-numeric: tabular-nums; }
+  #resultats span { min-width: 34px; padding: 4px 6px; border-radius: 6px;
+                    background: #2b3945; text-align: center; font-size: 13px; }
+  #resultats span.jete { opacity: .4; text-decoration: line-through; }
+
+  pre { white-space: pre-wrap; word-break: break-word; margin: 0;
+        font: 12px/1.5 ui-monospace, monospace; color: #cfe0ee; }
 </style>
 </head>
 <body>
-  <h1>dice3d.mjs — trois d6, un jet de 3d6</h1>
-  <!-- LE TÉMOIN : un volet masqué gèle requestAnimationFrame et rend des
-       mesures cohérentes ET FAUSSES (quatre fois le 15 août). Si ce compteur
-       reste à 0, TOUTE mesure prise sur cette page est à jeter. -->
-  <p id="temoin">images rendues : <span id="frames">0</span></p>
-  <div id="plateau"></div>
-  <div id="verdict">…</div>
+  <h1>dice3d — banc d'essai</h1>
+  <!-- LE TÉMOIN. Un volet masqué gèle requestAnimationFrame et rend des
+       mesures cohérentes ET FAUSSES. S'il reste bas, tout est à jeter. -->
+  <p class="sous" id="temoin">images rendues : <span id="frames">0</span></p>
+
+  <div id="cadre"><div id="plateau"></div></div>
+  <p id="largeur">…</p>
+
+  <div class="boutons">
+    <button id="roll">ROLL</button>
+    <button id="roll10">ROLL 10</button>
+    <button id="clear" class="second">CLEAR</button>
+    <button id="son" class="second">tester le son</button>
+  </div>
+
+  <div class="reglages">
+    <label>taille
+      <input id="rTaille" type="range" min="40" max="88" step="2" value="72">
+      <output id="oTaille">72 px</output></label>
+    <label>écart
+      <input id="rEcart" type="range" min="0" max="28" step="2" value="18">
+      <output id="oEcart">18 px</output></label>
+    <label>pause/jet
+      <input id="rPause" type="range" min="1000" max="3000" step="100" value="2000">
+      <output id="oPause">2000 ms</output></label>
+  </div>
+
+  <div id="resultats"></div>
+  <pre id="verdict">Appuie sur ROLL.</pre>
 
 <script type="module">
-import { mount, createDieHost, rollDurationMs, supportedSides, materialNames } from "./dice3d.mjs?v=1";
+import { mount, createDieHost, rollDurationMs, sound } from "./dice3d.mjs?v=1";
 
+/* ── LE TÉMOIN ─────────────────────────────────────────────────────── */
 let frames = 0;
-const compteur = document.getElementById("frames");
-(function tic() { frames++; compteur.textContent = frames; requestAnimationFrame(tic); })();
+const elFrames = document.getElementById("frames");
+(function tic() { frames++; elFrames.textContent = frames; requestAnimationFrame(tic); })();
 
-const resultats = [3, 4, 2];               // ceux du croquis d'Eric
-const plateau = document.getElementById("plateau");
-resultats.forEach((valeur, i) => {
-  plateau.append(createDieHost({ sides: 6, result: valeur, sizePx: 72, index: i }));
-});
-mount(plateau);
+const $ = (id) => document.getElementById(id);
+const plateau = $("plateau"), verdict = $("verdict"), bacResultats = $("resultats");
+const d6 = () => 1 + Math.floor(Math.random() * 6);
 
-/* Le verdict se prend APRÈS la fin de l'animation, et il refuse de conclure
-   si le témoin est resté à zéro. */
-setTimeout(() => {
-  /* ⛔ PAS DE RELECTURE DE PIXELS. Le contexte est créé sans
-     `preserveDrawingBuffer` : après composition, un `drawImage(canvas)` relit
-     un buffer VIDE. Le premier essai rendait « pixels opaques=0 » alors que
-     les trois dés étaient bel et bien à l'écran — une mesure cohérente et
-     fausse, exactement le piège du témoin. La preuve visuelle est la capture. */
-  const des = [...plateau.querySelectorAll(".fh-cd-static-die")];
-  const lignes = des.map((de, i) => {
-    const canvas = de.querySelector("canvas");
-    const repli = de.querySelector(".fh-cd-static-die-fallback");
-    return `dé ${i + 1} : attendu ${resultats[i]}` +
-      ` · webgl=${de.classList.contains("is-webgl")}` +
-      ` · posé=${de.classList.contains("is-settled")}` +
-      ` · chiffre="${(de.querySelector(".fh-cd-static-die-result") || {}).textContent ?? "—"}"` +
-      ` · canvas=${canvas ? canvas.width + "×" + canvas.height : "aucun"}` +
-      ` · repli=${repli ? getComputedStyle(repli).display : "aucun"}`;
+let lot = [];          // les totaux des jets faits
+let enCours = false;
+let annule = false;    // CLEAR « même en plein milieu » (Eric, 2026-08-15)
+
+function taille() { return Number($("rTaille").value); }
+function pause()  { return Number($("rPause").value); }
+
+/* UN JET = TROIS DÉS. `settleSizePx` fait libérer le contexte WebGL à la
+   pose — sans lui, dix jets épuisent la réserve du navigateur (~16) et le
+   plateau cesse de rendre SANS erreur. */
+function jetterUneFois() {
+  const des = [d6(), d6(), d6()];
+  plateau.replaceChildren();
+  des.forEach((valeur, i) => {
+    plateau.append(createDieHost({
+      sides: 6, result: valeur, sizePx: taille(),
+      index: i, animate: true, settleSizePx: taille()
+    }));
   });
-  const vivant = frames > 10;
-  document.getElementById("temoin").classList.toggle("mort", !vivant);
-  document.getElementById("verdict").textContent =
-    (vivant ? "" : "⛔ TÉMOIN MORT — le volet ne rend pas, JETER CES MESURES\n\n") +
-    lignes.join("\n") +
-    `\n\ndurée annoncée : ${rollDurationMs} ms` +
-    `\nfaces portées : ${supportedSides.join(", ")}` +
-    `\nmatières : ${materialNames.length}` +
-    `\nimages rendues : ${frames}`;
-}, 2200);
+  mount(plateau);
+  return des;
+}
+
+function poserResultats() {
+  const tries = lot.map((total, i) => ({ total, i })).sort((a, b) => b.total - a.total);
+  const gardes = new Set(tries.slice(0, 6).map((r) => r.i));
+  bacResultats.replaceChildren(...lot.map((total, i) => {
+    const s = document.createElement("span");
+    s.textContent = `${i + 1}·${total}`;
+    if (lot.length >= 7 && !gardes.has(i)) s.className = "jete";
+    return s;
+  }));
+}
+
+async function sequence(nombre) {
+  if (enCours) return;
+  enCours = true; annule = false;
+  $("roll").disabled = $("roll10").disabled = true;
+  const depart = performance.now();
+  for (let n = 0; n < nombre; n++) {
+    if (annule) break;
+    const des = jetterUneFois();
+    lot.push(des[0] + des[1] + des[2]);
+    poserResultats();
+    verdict.textContent = `jet ${lot.length}${nombre > 1 ? ` / ${nombre} de cette salve` : ""}` +
+      ` — ${des.join(" + ")} = ${des[0] + des[1] + des[2]}`;
+    await new Promise((ok) => setTimeout(ok, pause()));
+  }
+  const duree = Math.round(performance.now() - depart);
+  enCours = false;
+  $("roll").disabled = $("roll10").disabled = false;
+  verdict.textContent =
+    (annule ? "CLEAR a interrompu la salve.\n" : "") +
+    `${nombre} jet(s) en ${(duree / 1000).toFixed(1)} s` +
+    ` (animation ${rollDurationMs} ms + pause ${pause()} ms)\n` +
+    `total au lot : ${lot.length} jets\n` +
+    `son coupé : ${sound.isMuted()}\n` +
+    `images rendues : ${frames}${frames < 60 ? "  ⛔ TÉMOIN BAS — mesures douteuses" : ""}`;
+  $("temoin").classList.toggle("mort", frames < 60);
+}
+
+$("roll").onclick = () => sequence(1);
+$("roll10").onclick = () => sequence(10);
+$("clear").onclick = () => {
+  annule = true; lot = [];
+  plateau.replaceChildren(); bacResultats.replaceChildren();
+  verdict.textContent = "Lot remis à zéro.";
+};
+
+/* ── LE DIAGNOSTIC DE SON ──────────────────────────────────────────────
+   Le moteur avale le refus de lecture (`playback.catch(function(){})`), donc
+   un blocage d'autoplay ne laisse AUCUNE trace. Ici on rejoue le même geste
+   à découvert et on DIT ce que le navigateur répond. */
+$("son").onclick = async () => {
+  const url = new URL("./assets/audio/dice/dice-throw-1.mp3", import.meta.url).href;
+  const lignes = [`fichier : ${url}`, `son coupé (localStorage) : ${sound.isMuted()}`];
+  try {
+    const reponse = await fetch(url, { method: "HEAD" });
+    lignes.push(`servi : HTTP ${reponse.status}`);
+  } catch (e) { lignes.push(`servi : échec réseau — ${e.message}`); }
+  try {
+    const audio = new Audio(url);
+    audio.volume = 0.55;
+    await audio.play();
+    lignes.push("lecture : ✅ acceptée — tu devrais l'entendre");
+  } catch (e) {
+    lignes.push(`lecture : ⛔ REFUSÉE — ${e.name} : ${e.message}`);
+    lignes.push("(un « NotAllowedError » = le navigateur exige un geste avant tout son)");
+  }
+  verdict.textContent = lignes.join("\n");
+};
+
+/* ── LES RÉGLAGES ─────────────────────────────────────────────────────── */
+function mesurer() {
+  $("oTaille").textContent = `${taille()} px`;
+  $("oEcart").textContent = `${$("rEcart").value} px`;
+  $("oPause").textContent = `${pause()} ms`;
+  document.documentElement.style.setProperty("--taille", `${taille()}px`);
+  document.documentElement.style.setProperty("--ecart", `${$("rEcart").value}px`);
+  const large = 3 * taille() + 2 * Number($("rEcart").value);
+  $("largeur").textContent =
+    `plateau ${large} px sur une fenêtre de ${window.innerWidth} px` +
+    ` — ${large <= window.innerWidth - 32 ? "✅ ça tient" : "⚠️ trop large"}`;
+}
+["rTaille", "rEcart", "rPause"].forEach((id) => { $(id).oninput = mesurer; });
+window.addEventListener("resize", mesurer);
+mesurer();
 </script>
 </body>
 </html>

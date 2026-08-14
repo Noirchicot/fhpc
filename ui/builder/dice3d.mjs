@@ -766,9 +766,20 @@ const CLASSE_HOTE = "fh-cd-static-die";
  * @param {boolean} [o.animate] `false` → le dé prend la pose du résultat, sans
  *                            tomber (c'est aussi ce que fait
  *                            `prefers-reduced-motion`, géré par le corps)
+ * @param {number} [o.settleSizePx] ⭐ **CE QUI REND `ROLL 10` POSSIBLE.** Posé,
+ *                            le dé se fige en image dès la fin du jet ET
+ *                            LIBÈRE SON CONTEXTE WebGL (`settleToSnapshot` →
+ *                            `loseCanvasContext`). Le navigateur en plafonne
+ *                            ~16 : sans ça, dix jets de trois dés en épuisent
+ *                            la réserve et le plateau cesse de rendre, sans
+ *                            une erreur. Avec, il n'y en a jamais plus de
+ *                            trois vivants. La valeur est la taille de
+ *                            l'image figée — la même que `sizePx` garde le
+ *                            dé tel quel, une plus grande le fait grandir en
+ *                            se posant (la feuille anime la transition).
  * @returns {HTMLElement} à insérer, PUIS à passer par `mount(scope)`
  */
-export function createDieHost({ sides, result, sizePx = 52, material = "ivory", index = 0, animate = true }) {
+export function createDieHost({ sides, result, sizePx = 52, material = "ivory", index = 0, animate = true, settleSizePx = null }) {
   const host = document.createElement("span");
   host.className = CLASSE_HOTE + (Number(sides) === 100 ? " is-percentile" : "");
   host.dataset.sides = String(sides);
@@ -777,6 +788,7 @@ export function createDieHost({ sides, result, sizePx = 52, material = "ivory", 
   host.dataset.index = String(index);
   host.dataset.animate = animate ? "1" : "0";
   host.dataset.pending = "0";
+  if (settleSizePx !== null) host.dataset.settleSize = String(settleSizePx);
   host.style.setProperty("--fh-static-die-size", `${sizePx}px`);
   host.setAttribute("role", "img");
   host.setAttribute("aria-label", `d${sides} result ${result}`);
