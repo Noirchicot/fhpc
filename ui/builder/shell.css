@@ -258,16 +258,32 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      `scroll-snap-type` — l'aimantation ne faisait donc rien du tout, sous
      935 tests verts. Les deux propriétés vont par paire, et seule celle du
      conteneur allume le mécanisme.
-     `proximity`, PAS `mandatory`, ET C'EST MESURÉ : une fiche plus haute que
-     le champ (Barbarian, la plus longue, frôle les 680 px du champ à 360 px)
-     deviendrait partiellement inatteignable au repos sous `mandatory` — le
-     navigateur ramènerait toujours le geste au bord de la fiche. `proximity`
-     aimante ce qui doit l'être et lâche prise quand le contenu déborde.
-     L'aimantation reste vraie, la fiche reste lisible.
+     ⚠️ LOT 73 — `proximity` EST DEVENU `mandatory`, ET C'EST LA MÊME MESURE
+     QUI LE DIT. Le lot 58 avait écrit : *« une fiche plus haute que le champ
+     (Barbarian, la plus longue, frôle les 680 px du champ à 360 px)
+     deviendrait partiellement inatteignable au repos sous `mandatory` »*.
+     C'était vrai **quand une fiche pouvait dépasser le champ**. Depuis les
+     lots 69/70, ce n'est plus le cas — mesuré sur le site déployé, Species
+     ET Class, aux deux grandeurs :
+
+       douze fiches, TOUTES exactement la hauteur du champ (614 = 614),
+       ZÉRO plus haute que le champ, ZÉRO dont le contenu déborde.
+
+     Le danger que `proximity` évitait n'existe donc plus, et son prix, lui,
+     se voyait : Eric, 2026-08-15 — *« le snap défilement n'est pas fluide,
+     ça s'arrête n'importe où »*. `proximity` lâche prise dès qu'on relâche
+     loin d'un cran ; avec des fiches d'exactement un champ, **il n'y a aucun
+     endroit légitime où s'arrêter entre deux**.
+
+     🔴 ET CE CHOIX A UNE CONDITION, QUI EST DÉSORMAIS GARDÉE : « une fiche
+     fait un champ ». Le jour où une fiche redeviendrait plus haute que le
+     champ, `mandatory` rendrait son bas inatteignable — le danger du lot 58,
+     revenu par la fenêtre. `tests/snap.test.mjs` refuse ce cas plutôt que de
+     le laisser réapparaître en silence.
      📌 Et le sélecteur (II.3) n'en dépend pas : `nearestIndex` (socle.mjs)
      désigne le cran le plus proche, aimanté ou non — il n'y a donc jamais
      d'état où « la fiche courante » serait indéterminée. */
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
 }
 /* LOT 70 — L'AMORCE DE LA FICHE : « il y a une suite ». À la souris, une
    fiche qui remplit tout l'écran ressemble à une page sans suite — c'est ce
