@@ -8,6 +8,9 @@ import {
   acceptanceDocument, makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche
 } from "./build-harness.mjs";
 import { renderBuildViolation, createLabels, renderUnderived, FR_UNDERIVED } from "../src/labels.mjs";
+/* LOT 74 — la borne de création publiée : les tests comparent le carnet à
+   l'export public, jamais à une copie locale des seize valeurs. */
+import { projectDecisions, CREATION_SCORES, CREATION_SCORE_MIN, CREATION_SCORE_MAX } from "../src/build/index.mjs";
 
 const frUnderived = createLabels(FR_UNDERIVED);
 
@@ -54,7 +57,12 @@ test("le carnet SRD pur projette les familles réelles — sorts compris depuis 
      `cantrips`) : le plan JUGE les réponses posées sans inventer de compte,
      donc pas de créneau manquant ici — les neuf chemins sont ceux du
      document. */
+  /* LOT 74 — les six scores de base entrent au carnet (borne de création
+     3–18, Eric 2026-08-15) : six chemins `abilities.<clef>` de plus, en
+     tête de tri. Le document d'acceptation est niveau 1, six scores posés
+     dans la borne — six plans `answered`, aucun verrou. */
   assert.deepEqual([...decisions.keys()], [
+    "abilities.cha", "abilities.con", "abilities.dex", "abilities.int", "abilities.str", "abilities.wis",
     "background", "background.boost", "background.boost.con", "background.boost.int",
     "background.originFeat[0]", "background.tool", "class",
     "class.cantrips", "class.cantrips[0]", "class.cantrips[1]", "class.cantrips[2]",
@@ -266,4 +274,110 @@ test("`validate` ne publie jamais le carnet de projection", () => {
   const verdict = h.verbs.validate({ document: out.document });
   assert.equal(Object.hasOwn(verdict, "decisions"), false);
   assert.deepEqual(Object.keys(verdict).sort(), ["ok", "violations", "warnings"]);
+});
+
+/* ══ LOT 74 — LA BORNE DE CRÉATION DES SCORES DE BASE : 3–18 ═════════════
+   Tranchée par Eric le 2026-08-15 (« Choose yourself proposait 1 à 20 —
+   la borne est 3 à 18 »). Ces tests sont le GARDE de la décision et de sa
+   CONDITION — pas des commentaires : si le modèle de niveau ou le sens du
+   choix de base bougent, c'est ici que ça rougit. */
+
+test("LOT 74 — le carnet publie SEIZE valeurs, 3..18, et c'est la même liste que l'export public", () => {
+  const h = makeHarness();
+  const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  const plan = byPath(out).get("abilities.str");
+  assert.ok(plan, "le plan `abilities.str` existe au carnet d'un document de création");
+  /* LE SEUL endroit de la suite où la borne s'écrit en chiffres : partout
+     ailleurs on compare à `CREATION_SCORES` — un seul écrivain. */
+  assert.deepEqual([...plan.options], [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+    "seize valeurs, de 3 à 18 — jamais 1..20");
+  assert.equal(plan.options.length, 16);
+  assert.equal(CREATION_SCORE_MIN, 3);
+  assert.equal(CREATION_SCORE_MAX, 18);
+  assert.deepEqual([...CREATION_SCORES], [...plan.options],
+    "l'écran lit `CREATION_SCORES` : ce que le carnet oppose et ce que l'export publie sont LA MÊME liste");
+  assert.equal(Object.isFrozen(CREATION_SCORES), true,
+    "la liste publiée est gelée — la muter jette en ESM, personne ne la corrige en douce");
+  assert.equal(plan.status, "answered", "le document d'acceptation (six scores dans la borne) ne porte aucun verrou");
+});
+
+test("LOT 74 — un score de base hors borne porte le verrou, dans les DEUX sens (2 et 20)", () => {
+  const h = makeHarness();
+  const doc = acceptanceDocument(h.layers);
+  doc.build.choices = doc.build.choices.map((choice) =>
+    choice.path === "abilities.str" ? { path: "abilities.str", value: 2 }
+      : choice.path === "abilities.dex" ? { path: "abilities.dex", value: 20 }
+        : choice);
+  const out = h.verbs.rebuild({ document: doc });
+  const decisions = byPath(out);
+
+  const bas = decisions.get("abilities.str");
+  assert.equal(bas.status, "locked", "2 est SOUS la borne : verrouillé");
+  assert.equal(bas.lock.key, "abilities.score-out-of-creation-range");
+  assert.deepEqual(bas.lock.params, { path: "abilities.str", value: 2, min: 3, max: 18 });
+
+  const haut = decisions.get("abilities.dex");
+  assert.equal(haut.status, "locked", "20 est AU-DESSUS de la borne : verrouillé");
+  assert.equal(haut.lock.params.value, 20);
+
+  /* Le libellé parle français et nomme la borne — même circuit que
+     `background.boost-cap-exceeded` (labels.mjs). */
+  assert.match(renderBuildViolation(bas.lock), /entre 3 et 18/);
+
+  /* Et le verrou VOYAGE jusqu'à `validate()` — le fil du lot 37, prouvé
+     pour cette clef, jamais supposé. */
+  const verdict = h.verbs.validate({ document: out.document });
+  const refus = verdict.violations.filter((v) => v.key === "abilities.score-out-of-creation-range");
+  assert.equal(refus.length, 2, "deux scores hors borne → deux refus nommés, pas un silence");
+  assert.equal(verdict.ok, false);
+});
+
+test("LOT 74 — la borne juge le CHOIX, jamais le résolu : base 18 + boost = 20, et c'est LÉGAL", () => {
+  const h = makeHarness();
+  h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
+  /* Le document d'acceptation porte `background.boost.int = 2` : une base
+     de 18 fait donc un score FINAL de 20 — exactement ce que la commande
+     du lot interdit de casser (« si tu bornes le mauvais nombre, tu casses
+     des personnages valides »). */
+  h.verbs.set({ path: "abilities.int", value: 18 });
+  const out = h.verbs.rebuild({});
+  assert.equal(out.resolved.abilities.int.score, 20, "mesure : 18 de base + 2 de boost = 20 au résolu");
+  const plan = byPath(out).get("abilities.int");
+  assert.equal(plan.status, "answered", "la base 18 est DANS la borne — aucun verrou, boost ou pas");
+  assert.deepEqual(plan.selected, [18]);
+  const verdict = h.verbs.validate({ document: out.document });
+  assert.equal(verdict.violations.some((v) => v.key === "abilities.score-out-of-creation-range"), false,
+    "un final de 20 par boost ne déclenche JAMAIS la borne de création — elle ne lit pas `resolved`");
+});
+
+test("LOT 74 — le GARDE de la condition : la borne parle à la création, se tait au-delà du niveau 1", () => {
+  const h = makeHarness();
+  const query = (payload) => h.layers.verbs.query(payload);
+
+  /* Niveau 5 posé : PLUS AUCUN plan `abilities.*` — « au-delà, le SRD
+     reprend la main (plafond 20) » (Eric, 2026-08-13). Un str de 20 y est
+     l'affaire du SRD, pas de cette borne. */
+  const auNiveau5 = projectDecisions({
+    query,
+    choices: [{ path: "level", value: 5 }, { path: "abilities.str", value: 20 }]
+  });
+  assert.equal(auNiveau5.some((entry) => entry.path.startsWith("abilities.")), false,
+    "niveau 5 : la borne de création a disparu du carnet, elle n'a pas seulement ravalé son verrou");
+
+  /* Niveau ABSENT : un document sans `level` est un document en création —
+     la borne y parle. */
+  const sansNiveau = projectDecisions({
+    query,
+    choices: [{ path: "abilities.str", value: 25 }]
+  });
+  const plan = sansNiveau.find((entry) => entry.path === "abilities.str");
+  assert.ok(plan, "sans niveau posé, le plan existe : la création est l'état par défaut");
+  assert.equal(plan.status, "locked");
+  assert.equal(plan.lock.key, "abilities.score-out-of-creation-range");
+
+  /* Et les clefs jamais posées restent des plans EN ATTENTE, pas des
+     fautes : un personnage en cours de répartition est valide (lot 37). */
+  const attente = sansNiveau.find((entry) => entry.path === "abilities.dex");
+  assert.equal(attente.status, "pending");
+  assert.equal(attente.lock, undefined, "aucun verrou sur un score simplement pas encore posé");
 });

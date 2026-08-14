@@ -42,6 +42,10 @@ export const FR_BUILD = {
      consommateur ne lisait ce chemin) — voir `contracts/build.md` §1b. */
   "background.boost-cap-exceeded": (d) => `le choix « ${d.path} » pose ${d.value} point(s) sur une seule ` +
     `caractéristique — le plafond est de ${d.cap} points par caractéristique.`,
+  /* LOT 74 — la borne de création des scores de base (Eric, 2026-08-15) :
+     elle juge le CHOIX, jamais le score résolu — un 18 boosté à 20 est légal. */
+  "abilities.score-out-of-creation-range": (d) => `le choix « ${d.path} » pose ${d.value} — à la création, ` +
+    `un score de base se choisit entre ${d.min} et ${d.max}.`,
   "background.boost-total-mismatch": (d) => `l'arrière-plan « ${d.backgroundId} » répartit ${d.total} point(s) ` +
     `de caractéristique au total, et il en faut exactement ${d.expected} (+2/+1 ou +1/+1/+1).`,
   "decision.kind-mismatch": (d) => `la décision « ${d.path} » attend un record de genre ${d.expectedKind}, ` +
