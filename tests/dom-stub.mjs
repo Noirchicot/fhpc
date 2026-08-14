@@ -161,6 +161,30 @@ class FakeElement extends FakeNode {
     }
     return { top: g.top(), height: g.height, bottom: g.top() + g.height, left: 0, right: 0, width: 0 };
   }
+  /* ══ LOT 70 — LE CHAMP ET LE CONTENU, même loi que le rectangle ═════════
+     `mountChevrons` (socle.mjs) lit `clientHeight` (la hauteur du champ) et
+     `scrollHeight` (la hauteur du contenu) pour dire s'il RESTE quelque
+     chose à défiler. Un zéro par défaut ferait dire « rien à défiler » à un
+     test qui a oublié sa géométrie — le même garde creux que le rectangle
+     de zéros, donc le même refus. `poserUneColonne` déclare les deux. */
+  get clientHeight() {
+    const g = this._geometrie;
+    if (!g) {
+      throw new Error("dom-stub : clientHeight sans géométrie déclarée. " +
+        "Appelle `poserUneColonne(scroller, …)` dans le test.");
+    }
+    return g.height;
+  }
+  get scrollHeight() {
+    const g = this._geometrie;
+    if (!g) {
+      throw new Error("dom-stub : scrollHeight sans géométrie déclarée. " +
+        "Appelle `poserUneColonne(scroller, …)` dans le test.");
+    }
+    /* Un élément sans contenu déclaré a la hauteur de son champ — comme un
+       vrai navigateur : scrollHeight ne descend jamais sous clientHeight. */
+    return Math.max(g.height, g.contenu ?? 0);
+  }
   get className() { return this._attrs.get("class") || ""; }
   set className(value) { this._attrs.set("class", value); }
   /* ⚠️ LOT 61 — `src` et `alt` sont des propriétés MIROIR dans un vrai DOM :
@@ -284,8 +308,16 @@ export function createTestDocument() {
    helper — il lui faut un vrai navigateur. Le spy, lui, ne lit QUE des
    `top`, donc une colonne suffit à l'exercer honnêtement. */
 export function poserUneColonne(scroller, { top = 0, hauteurDuChamp = 800, hauteurDesEnfants = 800 } = {}) {
-  scroller._geometrie = { top: () => top, height: hauteurDuChamp };
   const enfants = scroller.childNodes.filter((n) => n.nodeType === 1);
+  /* LOT 70 — la colonne déclare aussi sa hauteur de CONTENU : c'est elle
+     que `scrollHeight` rend, et c'est la différence contenu − champ (le
+     « mou ») que `mountChevrons` mesure. Une colonne vide n'a que son
+     champ : rien à défiler, et il faut pouvoir le dire honnêtement. */
+  scroller._geometrie = {
+    top: () => top,
+    height: hauteurDuChamp,
+    contenu: enfants.length * hauteurDesEnfants
+  };
   enfants.forEach((enfant, i) => {
     enfant._geometrie = { top: () => top - scroller.scrollTop + i * hauteurDesEnfants, height: hauteurDesEnfants };
   });
