@@ -7,6 +7,12 @@
    ⛔ AUCUNE RÈGLE ICI. Ce fichier ne fait que charger et brancher — toute
    décision de jeu vient de `rebuild()`, jamais de ce module. */
 
+/* Lot 75 — les `fetch` d'exécution portent la version du graphe, lue dans
+   l'URL de CE module : sans elle, un moteur frais pouvait recharger des
+   couches de la version d'avant, servies par le cache (max-age=600 PAR
+   fichier). Voir la tête de `version.mjs`. */
+import { versionQuery } from "./version.mjs?v=1";
+
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
    pile montée comme la page » tient à cet import, pas à une recopie. */
@@ -41,10 +47,10 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs");
-  const { createBuild } = await import("../../src/build/index.mjs");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=1");
+  const { createBuild } = await import("../../src/build/index.mjs?v=1");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=1");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=1");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -61,7 +67,7 @@ export async function bootEngine({ root = "../.." } = {}) {
   });
 
   for (const file of LAYER_FILES) {
-    const bytes = new Uint8Array(await (await fetch(`${root}/layers/${file}`)).arrayBuffer());
+    const bytes = new Uint8Array(await (await fetch(`${root}/layers/${file}${versionQuery(import.meta.url)}`)).arrayBuffer());
     layers.verbs.register({ bytes, origin: file });
   }
 
@@ -73,7 +79,7 @@ export async function bootEngine({ root = "../.." } = {}) {
  *  « Comment le MCP s'y branchera » — hors périmètre de ce lot). À remplacer
  *  par un vrai document ouvert/créé plus tard. */
 export async function loadExampleDocument({ root = "../.." } = {}) {
-  return (await fetch(`${root}/examples/personnage-fh-en-niveau1.fh-char.json`)).json();
+  return (await fetch(`${root}/examples/personnage-fh-en-niveau1.fh-char.json${versionQuery(import.meta.url)}`)).json();
 }
 
 /* LOT 54 — Concept/Universe écrivent `document.name`/`.gender`/`.alignment`/
@@ -85,5 +91,5 @@ export async function loadExampleDocument({ root = "../.." } = {}) {
 /** Le schéma `fh-char/1`, tel qu'il est sur le disque — même geste que
  *  `loadExampleDocument`. */
 export async function loadDocSchema({ root = "../.." } = {}) {
-  return (await fetch(`${root}/schemas/fh-char.schema.json`)).json();
+  return (await fetch(`${root}/schemas/fh-char.schema.json${versionQuery(import.meta.url)}`)).json();
 }

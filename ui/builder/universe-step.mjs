@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs";
-import { markPressed } from "./carnet.mjs";
+import { renderConfirmDialog } from "./confirm.mjs?v=1";
+import { markPressed } from "./carnet.mjs?v=1";
 
 /** Les cinq couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES`/`fh-species-en` etc. de `engine.mjs`, mais

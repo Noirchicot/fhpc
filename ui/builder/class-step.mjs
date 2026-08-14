@@ -20,9 +20,9 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs";
-import { renderCardRows, renderCardNames } from "./catalogue.mjs";
-import { renderConfirmDialog } from "./confirm.mjs";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=1";
+import { renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
+import { renderConfirmDialog } from "./confirm.mjs?v=1";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

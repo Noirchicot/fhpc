@@ -4,11 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FHPC — Builder</title>
-<link rel="stylesheet" href="./tokens.css">
-<link rel="stylesheet" href="./shell.css">
+<!-- ?v=<N> : LA version du graphe (lot 75, voir ui/builder/version.mjs).
+     Tout ce que cette page charge porte le MÊME <N> — c'est ce qui rend
+     impossible le mélange neuf/cache vécu le 15 août. Publier = incrémenter
+     <N> PARTOUT d'un coup : `node bin/nouvelle-version.mjs`, puis `npm test`
+     (le garde tests/versions-graphe.test.mjs rougit si une ligne manque). -->
+<link rel="stylesheet" href="./tokens.css?v=1">
+<link rel="stylesheet" href="./shell.css?v=1">
 </head>
 <body>
   <div id="app" class="app" data-plan="closed"></div>
-  <script type="module" src="./shell.mjs"></script>
+  <script type="module" src="./shell.mjs?v=1"></script>
 </body>
 </html>
