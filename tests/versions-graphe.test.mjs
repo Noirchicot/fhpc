@@ -253,10 +253,25 @@ test("2 — 🔴 UNE seule version dans tout le graphe, map comprise — deux <N
     "le geste est `node bin/nouvelle-version.mjs`, jamais une ligne à la main");
 });
 
-test("3 — index.html, le décideur, porte la version sur ses trois chargements", () => {
+test("3 — index.html, le décideur : AUCUN chargement ne part sans version", () => {
   const refs = releveHtml(fs.readFileSync(path.join(BUILDER, "index.html"), "utf8"));
-  assert.equal(refs.length, 3, "deux feuilles de style + un module (mesuré au lot 75)");
-  assert.deepEqual(refs.filter((r) => r.v === null), []);
+
+  /* LA PROPRIÉTÉ, et c'est elle qui compte : un seul chargement nu suffit à
+     rendre le déploiement mi-neuf mi-caché — le défaut du 15 août. */
+  assert.deepEqual(refs.filter((r) => r.v === null), [],
+    "un chargement d'index.html ne porte pas `?v=<N>` — c'est la moitié périmée du 15 août");
+
+  /* LE RECENSEMENT, et il n'est PAS la propriété : il ne dit pas qu'un
+     chargement est correct, seulement qu'on a remarqué qu'il arrivait.
+     ⚠️ Le faire monter est LÉGITIME quand un fichier entre — encore faut-il
+     que quelqu'un ait regardé. Le compte force ce regard ; c'est tout ce
+     qu'il fait, et c'est déjà utile.
+       · lot 75 : 3 — tokens.css, shell.css, shell.mjs
+       · 2026-08-15 : 4 — `dice3d.css` entre avec le portage du plateau 3D
+         (`dice3d.mjs`, lui, est importé par l'écran, pas par la page). */
+  assert.equal(refs.length, 4,
+    `index.html porte ${refs.length} chargements, 4 attendus — si tu viens d'en ajouter un, ` +
+    "mets ce compte à jour ET dis pourquoi juste au-dessus ; si tu n'as rien ajouté, cherche qui l'a fait");
 });
 
 /* ══ 2 — LA FERMETURE src/ : SOURCES VIERGES, MAP EXACTE ═════════════════ */

@@ -1,0 +1,83 @@
+/* ══ LE DÉ 3D — LA FEUILLE PORTÉE AVEC SON MOTEUR ══════════════════════
+   Compagne de `dice3d.mjs`. Même origine : `fh-phb`,
+   `docs/stylesheets/companion-dock.css`, commit `07b2d80`.
+
+   ⛔ MÊME LOI QUE LE MOTEUR : on ne retouche pas ces règles ici. Elles
+   portent le calibrage que ses valeurs disent — le `top` et la taille du
+   chiffre sont RÉGLÉS FACE PAR FACE (d4 51 %, d6 41 %, d10/d100 62 %…), et
+   le doc du vault l'écrit noir sur blanc : « do not normalize them into one
+   universal number size without new visual validation from Eric ».
+
+   📌 UNE SEULE VARIABLE VIENT DU DEHORS : `--fh-static-die-size`. C'est
+   l'appelant qui la pose sur l'hôte — la feuille ne décide d'aucune taille,
+   elle les dérive toutes de celle-là.
+
+   🗑️ CE QUI N'A PAS SUIVI, ET POURQUOI : deux règles d'ombre portée
+   accrochées à `.fh-cd-frame.is-judgment`, le cadre du dock de `fh-phb`. Ce
+   cadre n'existe pas dans le builder, les règles n'auraient jamais mordu.
+   Elles sont recopiées ci-dessous, en commentaire, pour qu'on sache quoi
+   reprendre si le plateau gagne un jour un fond de table. */
+
+.fh-cd-static-die{position:relative;display:block;width:var(--fh-static-die-size);height:var(--fh-static-die-size)}
+
+.fh-cd-static-die[data-sides="6"]{transform:scale(.8)}
+
+.fh-cd-static-die.is-percentile{width:calc(var(--fh-static-die-size) * 1.42)}
+
+.fh-cd-static-die-part{position:relative;display:none;flex:0 0 calc(var(--fh-static-die-size) * .78);width:calc(var(--fh-static-die-size) * .78);height:calc(var(--fh-static-die-size) * .78)}
+
+.fh-cd-static-die.is-percentile.is-webgl{display:flex;align-items:center;justify-content:center}
+
+.fh-cd-static-die.is-percentile.is-webgl .fh-cd-static-die-part{display:block}
+
+.fh-cd-static-die-part+.fh-cd-static-die-part{margin-left:calc(var(--fh-static-die-size) * -.14)}
+
+.fh-cd-static-die canvas{display:none;width:100%;height:100%;filter:drop-shadow(0 5px 6px rgba(0,0,0,.55))}
+
+.fh-cd-static-die.is-webgl canvas{display:block}
+
+.fh-cd-static-die-fallback{display:block}
+
+.fh-cd-static-die.is-webgl .fh-cd-static-die-fallback{display:none}
+
+.fh-cd-static-die-result{position:absolute;z-index:2;left:50%;top:49%;display:block;min-width:1.35em;transform:translate(-50%,-47%) perspective(calc(var(--fh-static-die-size) * 4)) rotateX(7deg) scale(.7);opacity:0;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:calc(var(--fh-static-die-size) * .28);font-weight:700;line-height:1;text-align:center;text-shadow:0 1px rgba(255,255,255,.2),0 2px 3px rgba(0,0,0,.2);transition:opacity .16s ease,transform .2s ease}
+
+.fh-cd-static-die[data-sides="4"] .fh-cd-static-die-result{top:51%}
+
+.fh-cd-static-die[data-sides="6"] .fh-cd-static-die-result{top:41%;font-size:calc(var(--fh-static-die-size) * .324)}
+
+.fh-cd-static-die[data-sides="10"] .fh-cd-static-die-result{top:62%;font-size:calc(var(--fh-static-die-size) * .24)}
+
+.fh-cd-static-die[data-sides="12"] .fh-cd-static-die-result{top:53%;font-size:calc(var(--fh-static-die-size) * .24)}
+
+.fh-cd-static-die[data-sides="20"] .fh-cd-static-die-result{top:53%;font-size:calc(var(--fh-static-die-size) * .20)}
+
+.fh-cd-static-die[data-sides="100"] .fh-cd-static-die-result{top:62%;font-size:calc(var(--fh-static-die-size) * .19)}
+
+.fh-cd-static-die.is-settled .fh-cd-static-die-result{transform:translate(-50%,-47%) perspective(calc(var(--fh-static-die-size) * 4)) rotateX(7deg) scale(1);opacity:1}
+
+/* The snapshot die: a cached bitmap where a live canvas is not allowed.
+   Same box, same numeral overlay, no context. */
+.fh-cd-static-die img.fh-cd-static-snap{display:none;width:100%;height:100%;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+
+.fh-cd-static-die.is-webgl img.fh-cd-static-snap{display:block}
+
+.fh-cd-static-die.is-percentile img.fh-cd-static-snap{width:100%}
+
+[data-snapshot="1"].fh-cd-static-die.is-percentile{display:block;width:calc(var(--fh-static-die-size) * 1.42)}
+
+/* Roll small, stop, ZOOM: the size var rides a transition, so the settle
+   swap from live canvas to bigger snapshot glides instead of popping. */
+.fh-cd-static-die{transition:width .28s ease,height .28s ease}
+
+.fh-cd-static-die img.fh-cd-static-snap{transition:width .28s ease,height .28s ease}
+
+/* ── Laissées à l'amont (le cadre `is-judgment` n'existe pas ici) ──
+   /* The dice sit ON the sheet: a light drop shadow, nothing else. */
+   .fh-cd-frame.is-judgment .fh-cd-static-die{filter:drop-shadow(0 2px 3px rgba(60,40,10,.35))}
+   
+   /* The dice are lifted off the seat again, not pressed into a sheet. */
+   .fh-cd-frame.is-judgment .fh-cd-static-die,
+   .fh-cd-frame.is-judgment .fh-cd-die svg,
+   .fh-cd-frame.is-judgment .fh-cd-judgeask .fh-cd-die{filter:drop-shadow(0 3px 5px rgba(10,7,3,.55))}
+*/

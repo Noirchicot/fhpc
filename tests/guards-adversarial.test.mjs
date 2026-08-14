@@ -355,7 +355,14 @@ function premierOctetDeControle(bytes) {
 const EXTENSIONS_BINAIRES = new Set([
   ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".svg",
   ".woff", ".woff2", ".ttf", ".otf", ".eot",
-  ".pdf", ".zip", ".gz"
+  ".pdf", ".zip", ".gz",
+  /* `.mp3` — LA PREUVE EST ARRIVÉE, et c'est ce que le paragraphe ci-dessus
+     demandait : les quatre sons de jet (Kenney, CC0) sont entrés dans
+     `ui/builder/assets/audio/dice/` avec le portage du plateau 3D. Un vrai
+     binaire dans `ui/`, pas une anticipation. ⛔ On n'ajoute PAS `.ogg` /
+     `.wav` / `.m4a` au passage : le jour où l'un d'eux arrive, il apportera
+     sa propre preuve. */
+  ".mp3"
 ]);
 
 /* Arpenteur générique, sœur de `walkSources` mais SANS filtre d'extension

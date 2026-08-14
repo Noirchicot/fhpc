@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dice3d — banc d'essai</title>
+<link rel="stylesheet" href="./dice3d.css?v=1">
+<style>
+  body { margin: 0; padding: 24px; background: #354551; color: #eef2f6;
+         font: 14px system-ui, sans-serif; }
+  h1 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  #temoin { font-variant-numeric: tabular-nums; margin: 0 0 20px; color: #9fb3c4; }
+  #temoin.mort { color: #ff8a8a; font-weight: 700; }
+  #plateau { display: flex; gap: 18px; align-items: center; margin-bottom: 24px; }
+  .fh-cd-static-die { --fh-static-die-size: 72px; }
+  #verdict { white-space: pre; font-family: ui-monospace, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>dice3d.mjs — trois d6, un jet de 3d6</h1>
+  <!-- LE TÉMOIN : un volet masqué gèle requestAnimationFrame et rend des
+       mesures cohérentes ET FAUSSES (quatre fois le 15 août). Si ce compteur
+       reste à 0, TOUTE mesure prise sur cette page est à jeter. -->
+  <p id="temoin">images rendues : <span id="frames">0</span></p>
+  <div id="plateau"></div>
+  <div id="verdict">…</div>
+
+<script type="module">
+import { mount, createDieHost, rollDurationMs, supportedSides, materialNames } from "./dice3d.mjs?v=1";
+
+let frames = 0;
+const compteur = document.getElementById("frames");
+(function tic() { frames++; compteur.textContent = frames; requestAnimationFrame(tic); })();
+
+const resultats = [3, 4, 2];               // ceux du croquis d'Eric
+const plateau = document.getElementById("plateau");
+resultats.forEach((valeur, i) => {
+  plateau.append(createDieHost({ sides: 6, result: valeur, sizePx: 72, index: i }));
+});
+mount(plateau);
+
+/* Le verdict se prend APRÈS la fin de l'animation, et il refuse de conclure
+   si le témoin est resté à zéro. */
+setTimeout(() => {
+  /* ⛔ PAS DE RELECTURE DE PIXELS. Le contexte est créé sans
+     `preserveDrawingBuffer` : après composition, un `drawImage(canvas)` relit
+     un buffer VIDE. Le premier essai rendait « pixels opaques=0 » alors que
+     les trois dés étaient bel et bien à l'écran — une mesure cohérente et
+     fausse, exactement le piège du témoin. La preuve visuelle est la capture. */
+  const des = [...plateau.querySelectorAll(".fh-cd-static-die")];
+  const lignes = des.map((de, i) => {
+    const canvas = de.querySelector("canvas");
+    const repli = de.querySelector(".fh-cd-static-die-fallback");
+    return `dé ${i + 1} : attendu ${resultats[i]}` +
+      ` · webgl=${de.classList.contains("is-webgl")}` +
+      ` · posé=${de.classList.contains("is-settled")}` +
+      ` · chiffre="${(de.querySelector(".fh-cd-static-die-result") || {}).textContent ?? "—"}"` +
+      ` · canvas=${canvas ? canvas.width + "×" + canvas.height : "aucun"}` +
+      ` · repli=${repli ? getComputedStyle(repli).display : "aucun"}`;
+  });
+  const vivant = frames > 10;
+  document.getElementById("temoin").classList.toggle("mort", !vivant);
+  document.getElementById("verdict").textContent =
+    (vivant ? "" : "⛔ TÉMOIN MORT — le volet ne rend pas, JETER CES MESURES\n\n") +
+    lignes.join("\n") +
+    `\n\ndurée annoncée : ${rollDurationMs} ms` +
+    `\nfaces portées : ${supportedSides.join(", ")}` +
+    `\nmatières : ${materialNames.length}` +
+    `\nimages rendues : ${frames}`;
+}, 2200);
+</script>
+</body>
+</html>
