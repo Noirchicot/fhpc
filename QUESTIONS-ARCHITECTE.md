@@ -1465,3 +1465,55 @@ le faire, ce qui l'étiquette « Gloire » à tort. Faut-il un troisième terme
 **qu'à la validation de schéma**, pas par le module ni par `statSumViolations`.
 Le lot ne l'a pas gardé : la borne est atteignable en théorie (cinquante termes
 de séance) et jamais en pratique. À confirmer.
+
+---
+
+# Question du lot `75-versions-modules` à l'architecte
+
+**Écrite le 2026-08-15.** Le mandat tranchait : « chaque import relatif de
+`ui/` porte `?v=<N>` », et donnait au lot le droit de contredire si le piège
+n°1 (double chargement Node) se révélait insoluble proprement. Il s'est
+révélé **réel et structurel — mais seulement pour `src/`**. Le lot a appliqué
+la conception tranchée là où elle tient, et dévié sur UN point, mesuré,
+réversible en un commit. À ratifier ou casser.
+
+## 75.1 — ⏳ La version des modules `src/` : import map générée plutôt que queries dans les sources
+
+**Le fait, mesuré deux fois.**
+- Le graphe navigateur ne s'arrête pas aux « trois imports vers `../../src` »
+  du mandat : la fermeture réelle fait **28 fichiers `src/`** (7 entrées + 21
+  enfants internes). Premier relevé réseau (`performance.getEntriesByType`) :
+  **21 modules `src/` chargés SANS version** — chacun sur son propre compteur
+  de cache. Le mélange du 15 août restait possible un étage plus bas
+  (`src/build/index.mjs?v=7` neuf important un `block.mjs` d'avant).
+- Étendre les queries aux imports internes de `src/` : **35 tests rouges**.
+  Node tient `registry.mjs` et `registry.mjs?v=1` pour DEUX modules ; le
+  kernel (`blocks = new Map()`) se dédouble — « missing block(s): layers » —
+  et le serveur MCP **sur le tuyau réel** casse avec. Ce n'est pas un défaut
+  de tests : `bin/fhpc-mcp.mjs` et les tests importent `src/` nu, à bon
+  droit, et le feront toujours.
+
+**Les remèdes écartés, avec leur prix.** Des tests qui importent `?v=<N>` :
+le <N> churne à chaque publication dans ~40 fichiers de tests. Un hook de
+résolution Node qui gomme les queries : mécanique d'exécution porteuse en
+production (le MCP en dépendrait pour être correct), et il aveugle les
+preuves fonctionnelles du garde (`import.meta.url` perdrait son `?v=888`).
+Dé-étatiser le kernel : réécrire des contrats ratifiés, hors mandat. Laisser
+`src/` nu : le défaut d'origine persiste, prouvé par le relevé.
+
+**Ce que le lot a fait.** La conception du mandat est ENTIÈRE sur `ui/`
+(50 imports `?v=<N>`, `index.html`, `url()` CSS, `fetch` d'exécution par
+`versionQuery(import.meta.url)`). Pour `src/` : les sources restent
+**vierges** — c'est l'**import map d'`index.html`**, générée par
+`bin/nouvelle-version.mjs` depuis le graphe réel, qui épingle les 21 modules
+internes sur leur URL versionnée. La propriété du mandat est conservée à
+l'identique : seul `index.html`, fichier unique, décide du graphe entier —
+un graphe ancien reste entièrement ancien, aucun hybride. Preuve au
+navigateur : 58 ressources demandées, **une seule version vue, zéro URL
+nue**, aux deux tailles. Gardé par `tests/versions-graphe.test.mjs` :
+sources `src/` vierges (test 4, attaque 8), map exacte dans les deux sens —
+ni trou, ni dérive (test 5, attaque 7), map avant le module (test 6).
+
+**La question.** L'import map générée est-elle ratifiée comme mécanisme de
+version pour `src/` ? Si non — dire quel prix payer parmi ceux mesurés
+ci-dessus : c'est un commit à casser, le reste du lot tient sans lui.

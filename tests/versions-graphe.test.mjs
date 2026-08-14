@@ -10,28 +10,40 @@
    fausse. Vécu deux fois le 15 août : « 1 à 20 » à l'écran quand le fichier
    livré disait « 3 à 18 ».
 
-   LE REMÈDE EST UNE PROPRIÉTÉ DE GRAPHE, PAS UN RÉGLAGE : tout ce que `ui/`
-   référence en relatif — imports statiques ET dynamiques, `href`/`src`
-   d'`index.html`, `url()` des CSS — porte `?v=<N>`, et tous portent LE MÊME
-   <N>. Un `shell.mjs` ancien en cache importe `./socle.mjs` ancien ; un
-   frais importe du frais ; l'hybride est impossible parce que le seul
-   décideur est `index.html`, fichier unique qui ne peut pas être « à
-   moitié » à jour. Les chargements d'EXÉCUTION (couches, exemple, schéma,
-   coquille de fiche, arcanes) lisent le même <N> dans `import.meta.url` du
-   module appelant — `ui/builder/version.mjs` — JAMAIS dans une constante
-   recopiée, qui serait une deuxième source de vérité libre de mentir.
+   LE REMÈDE EST UNE PROPRIÉTÉ DE GRAPHE, PAS UN RÉGLAGE : tout ce que la
+   page charge porte `?v=<N>`, et tous portent LE MÊME <N>. Un graphe ancien
+   reste entièrement ancien ; un frais, entièrement frais ; l'hybride est
+   impossible parce que le seul décideur est `index.html`, fichier unique
+   qui ne peut pas être « à moitié » à jour.
 
-   POURQUOI UN GARDE : le <N> est dupliqué sur une cinquantaine de lignes,
-   et c'est le prix assumé du remède. Cette duplication n'est tenable QUE
-   surveillée : le premier import ajouté sans `?v=` rouvrirait le défaut EN
-   SILENCE — la page marche en local (pas de cache), marche au premier
-   déploiement (rien d'ancien à mélanger), et ment au deuxième. Ce dépôt a
-   déjà payé plusieurs fois ce genre d'oubli ; celui-ci ne se verrait JAMAIS
-   en test, uniquement chez un joueur, dix minutes après une publication.
+   LA VERSION VIT À DEUX ENDROITS, ET LA FRONTIÈRE EST MESURÉE :
+   · `ui/` — chaque import relatif, statique ou dynamique, porte `?v=<N>` en
+     toutes lettres, comme les `href`/`src` d'`index.html` et les `url()`
+     des CSS. Sans danger côté Node : aucun module de `ui/` ne tient d'état
+     de niveau module hors `shell.mjs`, que rien n'importe en versionné.
+   · `src/` — les SOURCES RESTENT VIERGES DE QUERY. Les versionner a
+     DÉDOUBLÉ le kernel sous Node (`registry.mjs` : `blocks = new Map()`
+     atteint nu par les tests et en `?v=1` par les entrées → « missing
+     block(s): layers », 35 tests rouges, serveur MCP sur le tuyau compris —
+     mesuré au lot 75). C'est l'IMPORT MAP générée d'`index.html` qui donne
+     au navigateur leurs URL versionnées : mêmes propriétés, zéro query dans
+     ce que Node importe. Les chargements d'EXÉCUTION (couches, exemple,
+     schéma, coquille, arcanes) lisent le <N> dans `import.meta.url` du
+     module appelant — `ui/builder/version.mjs`, jamais une constante.
+
+   POURQUOI UN GARDE : le <N> est dupliqué sur une cinquantaine de lignes de
+   `ui/` plus une map d'une vingtaine d'entrées, et c'est le prix assumé du
+   remède. Cette duplication n'est tenable QUE surveillée : le premier
+   import ajouté sans `?v=`, ou le premier module `src/` qui entre dans le
+   graphe sans entrer dans la map, rouvrirait le défaut EN SILENCE — la page
+   marche en local (pas de cache), marche au premier déploiement (rien
+   d'ancien à mélanger), et ment au deuxième. Ce défaut ne se verrait JAMAIS
+   en test : uniquement chez un joueur, dix minutes après une publication.
 
    📌 LE GESTE DE PUBLICATION, NOIR SUR BLANC (pour Eric ou un fil futur) :
 
-       node bin/nouvelle-version.mjs      ← incrémente <N> PARTOUT, d'un coup
+       node bin/nouvelle-version.mjs      ← incrémente <N> PARTOUT, d'un
+                                            coup, et RECALCULE la map
        npm test                           ← CE fichier vérifie le résultat
        commit — puis push, geste d'Eric.
 
@@ -52,6 +64,7 @@ import { createTestDocument } from "./dom-stub.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui");
+const BUILDER = path.join(UI, "builder");
 
 /* ── LES RELEVÉS ──────────────────────────────────────────────────────────
    Ils rendent des listes plutôt que d'asserter sur place : la même fonction
@@ -118,7 +131,7 @@ function fichiersUi() {
   return liste;
 }
 
-/** Le relevé de l'arbre réel : `[{ fichier, ref, v }]`. */
+/** Le relevé de l'arbre `ui/` réel : `[{ fichier, ref, v }]`. */
 function releveArbre() {
   const entrees = [];
   for (const f of fichiersUi()) {
@@ -149,6 +162,65 @@ export function fetchsSansVersion(texteMjs) {
     .filter((l) => /\bfetch\s*\(/.test(l) && !/versionQuery\(import\.meta\.url\)/.test(l));
 }
 
+/* ── LA FERMETURE ET LA MAP ──────────────────────────────────────────────
+   Le même graphe que la page : depuis chaque module de `ui/builder/`, tous
+   les imports relatifs, query mise de côté pour trouver le fichier. Rendu :
+   les fichiers `src/` atteints et leurs arêtes internes. */
+
+export function fermetureNavigateur() {
+  const vus = new Set();
+  const aretesSrc = [];
+  const marcher = (fichier) => {
+    if (vus.has(fichier)) return;
+    vus.add(fichier);
+    for (const { ref } of releveImports(fs.readFileSync(fichier, "utf8"))) {
+      const cible = path.resolve(path.dirname(fichier), ref.split("?")[0]);
+      if (!fichier.startsWith(UI)) aretesSrc.push({ de: path.relative(ROOT, fichier), ref, cible });
+      marcher(cible);
+    }
+  };
+  for (const f of fs.readdirSync(BUILDER).filter((f) => f.endsWith(".mjs"))) {
+    marcher(path.join(BUILDER, f));
+  }
+  return { fichiers: [...vus], aretesSrc };
+}
+
+/** Les clefs que la map DOIT porter : chaque cible d'arête interne à
+ *  `src/`, en URL vue depuis `ui/builder/` — triées, uniques. */
+export function clefsAttendues(aretesSrc) {
+  return [...new Set(aretesSrc.map((a) => "../../" + path.relative(ROOT, a.cible).split(path.sep).join("/")))].sort();
+}
+
+/** Les arêtes de `src/` qui portent une query — interdites : Node importe
+ *  ces fichiers nus, une query y dédouble les instances (kernel compris). */
+export function querysDansSrc(aretesSrc) {
+  return aretesSrc.filter((a) => a.ref.includes("?")).map((a) => `${a.de} → ${a.ref}`);
+}
+
+/** La map d'`index.html`, parsée — `null` si absente. */
+export function carteDIndex(texteHtml) {
+  const m = texteHtml.match(/<script type="importmap">\s*([\s\S]*?)\s*<\/script>/);
+  if (!m) return null;
+  return JSON.parse(m[1]).imports ?? {};
+}
+
+/** Les fautes de la map, NOMMÉES : clef manquante (un module src/ entré
+ *  dans le graphe sans entrer dans la map — le défaut du 15 août, un étage
+ *  plus bas), clef en trop (une map qui dérive du graphe réel), valeur qui
+ *  n'est pas `clef?v=<N>`. */
+export function fautesDeCarte(attendues, imports) {
+  const fautes = [];
+  const presentes = Object.keys(imports).sort();
+  for (const c of attendues) if (!(c in imports)) fautes.push(`manquante : ${c}`);
+  for (const c of presentes) if (!attendues.includes(c)) fautes.push(`en trop : ${c}`);
+  for (const [clef, valeur] of Object.entries(imports)) {
+    if (!new RegExp(`^${clef.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\?v=\\d+$`).test(valeur)) {
+      fautes.push(`valeur fausse : ${clef} → ${valeur}`);
+    }
+  }
+  return fautes;
+}
+
 /* ══ 1 — LA LOI, SUR L'ARBRE RÉEL ════════════════════════════════════════ */
 
 test("1 — 🔴 TOUT ce que ui/ référence en relatif porte `?v=<N>` — une ligne nue rouvre le mélange", () => {
@@ -168,37 +240,76 @@ test("1 — 🔴 TOUT ce que ui/ référence en relatif porte `?v=<N>` — une l
   assert.ok(parFamille.css >= 2, `relevé .css suspect : ${parFamille.css} url() (2 au lot 75)`);
 });
 
-test("2 — 🔴 UNE seule version dans tout le graphe — deux <N> = deux moitiés de déploiement", () => {
-  const versions = versionsDistinctes(releveArbre());
+test("2 — 🔴 UNE seule version dans tout le graphe, map comprise — deux <N> = deux moitiés de déploiement", () => {
+  const html = fs.readFileSync(path.join(BUILDER, "index.html"), "utf8");
+  const carte = carteDIndex(html) ?? {};
+  const entrees = [
+    ...releveArbre(),
+    ...Object.values(carte).map((valeur) => lireV(valeur))
+  ];
+  const versions = versionsDistinctes(entrees);
   assert.equal(versions.length, 1,
     `le graphe porte ${versions.length} versions distinctes (${versions.join(", ")}) — ` +
     "le geste est `node bin/nouvelle-version.mjs`, jamais une ligne à la main");
 });
 
 test("3 — index.html, le décideur, porte la version sur ses trois chargements", () => {
-  const refs = releveHtml(fs.readFileSync(path.join(UI, "builder", "index.html"), "utf8"));
+  const refs = releveHtml(fs.readFileSync(path.join(BUILDER, "index.html"), "utf8"));
   assert.equal(refs.length, 3, "deux feuilles de style + un module (mesuré au lot 75)");
   assert.deepEqual(refs.filter((r) => r.v === null), []);
 });
 
-/* ══ 2 — LES URL D'EXÉCUTION LISENT LEUR MODULE, PAS UNE CONSTANTE ═══════
+/* ══ 2 — LA FERMETURE src/ : SOURCES VIERGES, MAP EXACTE ═════════════════ */
+
+test("4 — 🔴 les sources src/ de la fermeture restent VIERGES de query — Node les importe nues", () => {
+  const { aretesSrc } = fermetureNavigateur();
+  assert.deepEqual(querysDansSrc(aretesSrc), [],
+    "une query dans src/ dédouble les instances sous Node — kernel/registry.mjs l'a payé : " +
+    "« missing block(s): layers », 35 tests rouges, serveur MCP compris (mesuré lot 75)");
+  assert.ok(aretesSrc.length >= 30, `fermeture suspecte : ${aretesSrc.length} arêtes src/ (46 au lot 75)`);
+});
+
+test("5 — 🔴 la map épingle EXACTEMENT les modules src/ du graphe réel — ni trou, ni dérive", () => {
+  const { aretesSrc } = fermetureNavigateur();
+  const html = fs.readFileSync(path.join(BUILDER, "index.html"), "utf8");
+  const carte = carteDIndex(html);
+  assert.ok(carte, "index.html doit porter la map générée — voir bin/nouvelle-version.mjs");
+  assert.deepEqual(fautesDeCarte(clefsAttendues(aretesSrc), carte), [],
+    "un module src/ hors map se chargerait NU, par son propre compteur de cache — " +
+    "le geste qui répare : node bin/nouvelle-version.mjs (la map est recalculée du graphe)");
+  assert.ok(Object.keys(carte).length >= 20,
+    `map suspecte : ${Object.keys(carte).length} entrées (21 au lot 75)`);
+});
+
+test("6 — la map précède le <script type=module> — déclarée après lui, elle ne s'appliquerait pas", () => {
+  /* Commentaires décapés d'abord : la prose d'index.html CITE la balise
+     module (« elle doit précéder le <script type=module> ») et un indexOf
+     naïf mesurait la citation, pas la balise — payé à l'écriture du garde. */
+  const html = fs.readFileSync(path.join(BUILDER, "index.html"), "utf8").replace(/<!--[\s\S]*?-->/g, " ");
+  const map = html.indexOf('<script type="importmap">');
+  const module_ = html.indexOf('<script type="module"');
+  assert.ok(map >= 0 && module_ >= 0, "les deux balises existent");
+  assert.ok(map < module_, "l'import map doit être déclarée AVANT le module qui en dépend");
+});
+
+/* ══ 3 — LES URL D'EXÉCUTION LISENT LEUR MODULE, PAS UNE CONSTANTE ═══════
    `import.meta.url` d'un module chargé en `?v=888` PORTE ce `?v=888` : on
    importe donc les vrais modules sous une version inventée et on regarde
    les URL qu'ils fabriquent. C'est aussi la MESURE du piège n°1 du mandat
-   (double chargement sous Node) : ces imports créent une DEUXIÈME instance
-   de chaque module à côté de celle, sans query, des autres tests — et tout
-   reste juste, parce qu'aucun module de `ui/` ne tient d'état de niveau
-   module hors `shell.mjs`, que personne n'importe deux fois. */
+   côté ui/ : ces imports créent une DEUXIÈME instance de chaque module à
+   côté de celle, sans query, des autres tests — et tout reste juste, parce
+   qu'aucun module de `ui/` ne tient d'état de niveau module hors
+   `shell.mjs`, que personne n'importe deux fois. */
 
 globalThis.document = globalThis.document ?? createTestDocument();
 
-test("4 — versionQuery lit l'URL qu'on lui donne, et rend «» sans query (Node, tests)", async () => {
+test("7 — versionQuery lit l'URL qu'on lui donne, et rend «» sans query (Node, tests)", async () => {
   const { versionQuery } = await import("../ui/builder/version.mjs");
   assert.equal(versionQuery("https://exemple.test/ui/builder/engine.mjs?v=42"), "?v=42");
   assert.equal(versionQuery("file:///depot/ui/builder/engine.mjs"), "");
 });
 
-test("5 — les arcanes portent la version du module qui les demande", async () => {
+test("8 — les arcanes portent la version du module qui les demande", async () => {
   const frais = await import("../ui/builder/destiny-step.mjs?v=888");
   assert.equal(frais.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.jpg?v=888");
   assert.ok(frais.ARCANA_BACK_SRC.endsWith("/back.jpg?v=888"), frais.ARCANA_BACK_SRC);
@@ -208,7 +319,7 @@ test("5 — les arcanes portent la version du module qui les demande", async () 
   assert.equal(nu.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.jpg");
 });
 
-test("6 — le moteur demande couches, exemple et schéma SOUS SA version — la pile monte quand même", async () => {
+test("9 — le moteur demande couches, exemple et schéma SOUS SA version — la pile monte quand même", async () => {
   const vraiFetch = globalThis.fetch;
   const demandees = [];
   globalThis.fetch = async (url) => {
@@ -231,15 +342,13 @@ test("6 — le moteur demande couches, exemple et schéma SOUS SA version — la
     assert.equal(demandees.length, LAYER_FILES.length + 2, "cinq couches + l'exemple + le schéma");
     assert.deepEqual(demandees.filter((u) => !u.endsWith("?v=888")), [],
       "une URL d'exécution sans la version du module rechargerait la pièce d'AVANT depuis le cache");
-    /* La pile a réellement monté — avec des modules `src` dédoublés par la
-       query (piège n°1) : des fabriques pures, instanciées par appel. */
     assert.ok(build && layers, "bootEngine rend { build, layers }");
   } finally {
     globalThis.fetch = vraiFetch;
   }
 });
 
-test("7 — toute ligne `fetch(` de ui/ lit sa version — la coquille de fiche comprise", () => {
+test("10 — toute ligne `fetch(` de ui/ lit sa version — la coquille de fiche comprise", () => {
   const fautes = [];
   for (const f of fichiersUi().filter((f) => f.endsWith(".mjs"))) {
     for (const ligne of fetchsSansVersion(fs.readFileSync(f, "utf8"))) {
@@ -250,12 +359,12 @@ test("7 — toute ligne `fetch(` de ui/ lit sa version — la coquille de fiche 
     "un fetch nu se charge par son propre compteur de cache — même famille que l'import nu");
   /* Et la coquille, nommément : `new URL(relatif, base)` JETTE la query de
      la base (mesuré lot 75) — la version doit être DANS le chemin. */
-  const shell = stripComments(fs.readFileSync(path.join(UI, "builder", "shell.mjs"), "utf8"));
+  const shell = stripComments(fs.readFileSync(path.join(BUILDER, "shell.mjs"), "utf8"));
   assert.match(shell, /fiche\.shell\.html\$\{versionQuery\(import\.meta\.url\)\}/,
     "la coquille doit porter la version dans son CHEMIN, import.meta.url en base ne la transmet pas");
 });
 
-/* ══ 3 — ⚔️ LES ATTAQUES : chaque famille d'oubli, nommée par le garde ═══
+/* ══ 4 — ⚔️ LES ATTAQUES : chaque famille d'oubli, nommée par le garde ═══
    Fixtures en chaînes pures — aucun fichier temporaire : les relevés
    travaillent sur du texte, on les attaque sur du texte. Les `?v=888` de
    ce fichier vivent hors de `ui/` : `bin/nouvelle-version.mjs` ne les
@@ -301,4 +410,34 @@ test("⚔️ ATTAQUE 5 — un fetch qui ne lit pas sa version est nommé, celui 
 test("⚔️ ATTAQUE 6 — une version qui n'est pas un entier (`?v=beta`) compte comme NUE", () => {
   assert.deepEqual(referencesNues(releveImports('import { a } from "./socle.mjs?v=beta";')),
     ["(fixture) → ./socle.mjs?v=beta"]);
+});
+
+test("⚔️ ATTAQUE 7 — la map : clef manquante, clef en trop, valeur d'un autre <N> que sa clef — trois fautes NOMMÉES", () => {
+  const attendues = ["../../src/build/block.mjs", "../../src/kernel/registry.mjs"];
+  const imports = {
+    "../../src/kernel/registry.mjs": "../../src/kernel/registry.mjs?v=7",
+    "../../src/doc/errors.mjs": "../../src/doc/errors.mjs?v=7",
+    "../../src/layers/stack.mjs": "../../autre/chemin.mjs?v=7"
+  };
+  const fautes = fautesDeCarte(attendues, imports);
+  assert.deepEqual(fautes, [
+    "manquante : ../../src/build/block.mjs",
+    "en trop : ../../src/doc/errors.mjs",
+    "en trop : ../../src/layers/stack.mjs",
+    "valeur fausse : ../../src/layers/stack.mjs → ../../autre/chemin.mjs?v=7"
+  ]);
+  /* Et le demi-geste : une valeur restée à l'ancien <N> sort par le garde 2
+     (versions distinctes), prouvé sur fixture ici. */
+  assert.deepEqual(versionsDistinctes([
+    lireV("../../src/kernel/registry.mjs?v=7"),
+    lireV("../../src/build/block.mjs?v=8")
+  ]).sort(), ["7", "8"]);
+});
+
+test("⚔️ ATTAQUE 8 — une query glissée dans une arête src/ est nommée avec son fichier", () => {
+  const aretes = [
+    { de: "src/build/index.mjs", ref: "./block.mjs?v=7", cible: "/x/src/build/block.mjs" },
+    { de: "src/build/index.mjs", ref: "./errors.mjs", cible: "/x/src/build/errors.mjs" }
+  ];
+  assert.deepEqual(querysDansSrc(aretes), ["src/build/index.mjs → ./block.mjs?v=7"]);
 });
