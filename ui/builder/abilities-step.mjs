@@ -82,7 +82,8 @@
    §1d : le document ne gagne toujours aucun champ) vit dans `shell.mjs`,
    `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
 
-import { renderPicker } from "./carnet.mjs";
+import { renderPicker, markPressed } from "./carnet.mjs";
+import { ROLLING_METHODS } from "./dice.mjs";
 import { ABILITY_KEYS } from "../../src/build/index.mjs";
 import { rollAbilitySet } from "./dice.mjs";
 
@@ -466,6 +467,100 @@ function renderManualMethod({ document, resolved, onAction }) {
  *   dans `rollBatch.rolls` (pour la carte hors document), `value` son total (pour `set({path:"abilities.<key>"})`,
  *   la seule chose qui atteint le document — voir `shell.mjs`, `applyDecisionAction`).
  */
+/* ══════════════════════════════════════════════════════════════════════
+   L'ÉCRAN DE B5 — lot 63
+   ══════════════════════════════════════════════════════════════════════
+   B5.1 : un texte explicatif dans une dalle SIMPLE, puis des DALLES-BOUTONS.
+   ⛔ B5.1c : « il faut CLIQUER pour faire apparaître les rollers/choosers —
+   rien n'est déplié d'avance ». Tant qu'aucune méthode n'est choisie, la
+   scène ne montre QUE le texte et les tuiles.
+
+   🔴 UNE MÉTHODE SUR QUATRE MANQUE, ET C'EST DÉLIBÉRÉ. B5.1b en nomme
+   quatre : `Roll dice`, `Standard array`, `Point buy`, `Choose yourself`.
+   **`Point buy` n'est pas offert.** Mesuré : son barème (budget de points et
+   coûts non linéaires) n'existe NULLE PART dans le dépôt — ni dans
+   `layers/srd-5.2.1-en.layer.json`, ni dans le moteur. L'écrire ici mettrait
+   une règle du jeu dans l'interface (loi du dépôt : « le moteur prononce,
+   l'écran affiche ») et, pire, publierait des nombres dont on ne sait pas
+   s'ils sont SRD — ce que la loi §0.8 interdit. Une tuile morte serait un
+   faux magasin ; il n'y en a donc que trois. **Question posée à Eric.**
+
+   ⭐ `Standard array`, LUI, EST OFFERT, et la distinction se défend : ce
+   n'est pas un barème à appliquer, c'est une LISTE DE SIX VALEURS que le
+   widget propose — la même famille que `MANUAL_ENTRY_RANGE` ci-dessus, qui
+   est déjà « un choix cosmétique de widget, PAS une règle ». Rien n'est
+   calculé, rien n'est opposé : le joueur pose six nombres, comme à la main.
+   ⏳ Le jour où ces six valeurs entrent dans une couche, elles se lisent là
+   et cette liste disparaît. */
+
+const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+
+export const ABILITY_ENTRIES = [
+  { id: "roll", label: "Roll dice", blurb: "Ten rolls of 3d6, or six rolls of 4d6 — then spread the results." },
+  { id: "standard", label: "Standard array", blurb: "Six fixed scores to spread as you like." },
+  { id: "manual", label: "Choose yourself", blurb: "Type the six scores directly." }
+];
+
+/** B5.1a/b — LA SCÈNE AU REPOS : un texte, puis les tuiles. */
+function renderEntryTiles(active, act) {
+  const wrap = el("div", "ability-entries");
+  for (const entry of ABILITY_ENTRIES) {
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "ability-entry dalle-simple";
+    tile.dataset.entry = entry.id;
+    markPressed(tile, entry.id === active);
+    tile.append(el("span", "ability-entry-label", [text(entry.label)]));
+    tile.addEventListener("click", () => act({ kind: "abilityMethod", value: entry.id }));
+    wrap.append(tile);
+  }
+  return wrap;
+}
+
+/* ══ B5.2 — `Roll dice` : la molette de méthode, PUIS le jet ═════════════
+   « Valid s'illumine, et on clique — pour éviter de faire ramer le mobile.
+   Le résultat ne se recalcule pas en continu pendant qu'on tourne la
+   molette. » C'est donc un PALIER : on règle la molette, on valide, ça jette.
+   ⛔ Tourner la molette ne jette RIEN. */
+function renderRollingChoice(ctx, act) {
+  const wrap = el("div", "ability-rolling");
+  const box = el("section", "ability-rolling-pick dalle-intermediaire");
+  box.append(el("h3", null, [text("Rolling method")]));
+  box.append(renderPicker({
+    options: ROLLING_METHODS.map((m) => m.id),
+    selected: [ctx.rollingMethod],
+    labelOf: (id) => ROLLING_METHODS.find((m) => m.id === id).label,
+    onSelect: (id) => act({ kind: "rollingMethod", value: id })
+  }));
+  wrap.append(box);
+  /* B5.2c — « une fenêtre explicative pleine largeur dont LE CONTENU CHANGE
+     selon le choix ». Le texte vient de la table, jamais d'un `if`. */
+  const courant = ROLLING_METHODS.find((m) => m.id === ctx.rollingMethod) || ROLLING_METHODS[0];
+  wrap.append(el("section", "ability-rolling-blurb dalle-simple", [el("p", null, [text(courant.summary)])]));
+  return wrap;
+}
+
+/** B5.7 — `Standard array` : « plus ou moins la même chose, MAIS SANS DÉS ».
+ *  Le temps 1 (tirer/garder) disparaît ; le temps 2 (affecter) demeure —
+ *  et il passe par la MÊME machinerie que les dés, `assign` compris, donc
+ *  par le même remède au piège des deux 14 (B5.6). */
+export function standardArrayBatch() {
+  return {
+    rolls: STANDARD_ARRAY.map((total, index) => ({ dice: [], total, index, kept: true })),
+    rerollCount: 0,
+    method: "standard",
+    assign: emptyAbilityAssign()
+  };
+}
+
+/**
+ * @param {object} ctx
+ * @param {object} ctx.document   le document brut — les valeurs déjà posées
+ * @param {object} ctx.resolved   la fiche dérivée — score final, mod, plafond
+ * @param {string} [ctx.method]   la méthode choisie (B5.1c) — `null` au repos
+ * @param {string} [ctx.rollingMethod] "fh3d6" | "4d6" (B5.2a)
+ * @param {object} [ctx.rollBatch] le lot en cours, ou `null`
+ */
 export function renderAbilitiesStep(ctx, onAction) {
   const document = ctx.document || null;
   const resolved = ctx.resolved || null;
@@ -473,27 +568,46 @@ export function renderAbilitiesStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const section = el("section", "abilities-step");
 
-  const mode = currentAbilityMode(document);
-  section.append(renderModeSwitch(mode.id, mode.known ? undefined : mode.raw, act));
+  section.append(el("section", "ability-intro dalle-simple", [el("p", null, [text(
+    "Six scores make your character. Pick how you want to find them — nothing is written until you validate."
+  )])]));
+  section.append(renderEntryTiles(ctx.method, act));
 
-  /* ⭐ AUCUN BRANCHEMENT SUR L'ID ICI (revue d'architecte, voir l'en-tête et
-     INVENTAIRE-LOT-45.md) — `method.id === mode.id` compare un ÉTAT
-     (active/inactive, légitime), `method.render(...)` délègue TOUT le
-     comportement à l'entrée elle-même. Ajouter une méthode n'ajoute jamais
-     de branche ici : la boucle est déjà prête pour la troisième. */
-  for (const method of ABILITY_METHODS) {
-    const active = method.id === mode.id;
-    const block = el("div", "ability-method-block");
-    block.dataset.status = active ? "active" : "inactive";
-    block.dataset.method = method.id;
-    if (!active) {
-      block.append(el("p", "ability-mode-summary", [text(method.summary)]));
-      section.append(block);
-      continue;
-    }
-    block.append(...method.render({ document, resolved, rollBatch, onAction: act }));
-    section.append(block);
+  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE. */
+  if (!ctx.method) return section;
+
+  if (ctx.method === "roll" && !rollBatch) {
+    section.append(renderRollingChoice(ctx, act));
+    return section; // le jet attend le palier — voir `abilitiesValidate`
   }
-
+  if (ctx.method === "manual") {
+    const rows = el("div", "ability-rows");
+    for (const key of ABILITY_KEYS) rows.append(renderManualRow(key, { document, resolved, onAction: act }));
+    section.append(rows);
+    return section;
+  }
+  /* B5.4/B5.5 — le temps 2 : affecter. Les six molettes, ordre SRD, et la
+     carte `assign` qui distingue les deux 14 (B5.6, déjà résolue au lot 50). */
+  if (rollBatch) {
+    if (rollBatch.method !== "standard") section.append(renderRollBatch(rollBatch, act));
+    const rows = el("div", "ability-rows");
+    for (const key of ABILITY_KEYS) {
+      rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction: act }));
+    }
+    section.append(rows);
+  }
   return section;
+}
+
+/** LES PALIERS DE B5 — un ou deux selon la méthode.
+ *  · `roll`, avant le jet : `Validate` JETTE (B5.2d — « le résultat ne se
+ *    recalcule pas en continu ») ;
+ *  · partout ailleurs : `Validate` avance quand les six scores sont posés. */
+export function abilitiesValidate(ctx) {
+  if (ctx.method === "roll" && !ctx.rollBatch) {
+    return { exists: true, ready: true, action: { kind: "rollBatch" }, next: "palier" };
+  }
+  const document = ctx.document;
+  const toutesPosees = ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
+  return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };
 }
