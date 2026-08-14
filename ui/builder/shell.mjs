@@ -31,7 +31,7 @@ import {
 } from "./catalogue.mjs";
 import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs";
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs";
-import { renderInheritanceStep } from "./inheritance-step.mjs";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs";
 import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
@@ -121,6 +121,9 @@ const state = {
   /* LOT 63 — B5.1c : « il faut CLIQUER pour faire apparaître les rollers ».
      Tant que `abilityMethod` est nul, l'écran ne montre que ses tuiles. */
   abilityMethod: null,   // "roll" | "standard" | "manual"
+  /* LOT 64 — B4.1/B4.2 : quel panneau d'Inheritance est ouvert. Fermé, on
+     voit les deux dalles ; ouvert, l'AUTRE disparaît. */
+  inheritanceOpen: null, // "boost" | "feat" | null
   rollingMethod: "fh3d6",// B5.2a — réglé à la molette, jeté au palier (B5.2d)
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
@@ -305,6 +308,15 @@ function applyDecisionAction(action) {
      (voir l'en-tête de `abilities-step.mjs`/`destiny-step.mjs`). Aucun
      `rebuild()` : rien dans le document n'a changé. */
   /* ══ LOT 63 — LES TROIS GESTES DE B5, AUCUN NE TOUCHE LE DOCUMENT ═════ */
+  /* ══ LOT 64 — OUVRIR ET FERMER UN PANNEAU D'INHERITANCE (B4.1/B4.2) ═══
+     ⭐ L'ORDRE EST LIBRE (Eric, B4.1c) : rien ici n'impose de commencer par
+     l'un ou par l'autre. */
+  if (action.kind === "inheritanceOpen") {
+    state.inheritanceOpen = action.value;
+    if (action.value === "feat") state.cursor = inheritanceFeatCursor();
+    openSurface();
+    return;
+  }
   if (action.kind === "abilityMethod") {
     state.abilityMethod = action.value;
     /* ⚠️ `abilities.mode` RESTE ÉCRIT AU DOCUMENT, comme au lot 45. Aucune
@@ -557,6 +569,12 @@ function surCompetences() {
   return Boolean(state.engine) && STEPS[state.step].id === "skills";
 }
 
+/** Le catalogue du don d'origine s'ouvre devant celui qui est déjà posé —
+ *  même loi que Class, Species et Destiny. */
+function inheritanceFeatCursor() {
+  return catalogueCursor(state.decisions, "background.originFeat[0]");
+}
+
 function arcanaCatalog() {
   return state.engine ? (state.engine.layers.verbs.query({ kind: "arcana" }) || []) : [];
 }
@@ -588,6 +606,12 @@ const CATALOGUES = {
   species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 },
   /* Destiny n'a qu'UN palier : `palier2` rend `null`, donc `Validate` acte la
      carte et passe à l'étape suivante (voir `pressValidate`). */
+  /* Le don d'origine : UN palier (B4.4 — « une seule validation suffit »),
+     donc `palier2` rend `null` et `Validate` ferme le panneau. */
+  feat: {
+    path: "background.originFeat[0]", kind: "feat", label: "Origin feats",
+    cardBody: renderFeatCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
+  },
   destiny: {
     path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
     cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
@@ -604,6 +628,12 @@ function catalogueCourant() {
      (`ctx.options`, voir `catalogueOptions`). */
   if (STEPS[state.step].id === "destiny") {
     return state.destinyMode === "choice" ? CATALOGUES.destiny : null;
+  }
+  /* B4.4, étape 4 — le don d'origine « se choisit EXACTEMENT comme Class et
+     Species : défilement aimanté + scrollspy ». C'est donc le catalogue
+     partagé, et pas une troisième copie. */
+  if (STEPS[state.step].id === "background") {
+    return state.inheritanceOpen === "feat" ? CATALOGUES.feat : null;
   }
   return CATALOGUES[STEPS[state.step].id] || null;
 }
@@ -755,7 +785,8 @@ function renderStepContent() {
       decisions: state.decisions,
       document: state.document,
       resolved: state.resolved,
-      query: state.engine.layers.verbs.query
+      query: state.engine.layers.verbs.query,
+      open: state.inheritanceOpen
     }, applyDecisionAction));
   } else if (step.id === "background" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -1003,6 +1034,11 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B4 — sur Inheritance, `Validate` FERME le panneau ouvert, ou avance
+     quand les deux cercles sont cochés. */
+  if (STEPS[state.step].id === "background" && state.engine && state.inheritanceOpen !== "feat") {
+    return inheritanceValidate({ decisions: state.decisions, open: state.inheritanceOpen });
+  }
   /* B5 — sur Abilities, `Validate` JETTE au premier palier, puis avance. */
   if (STEPS[state.step].id === "abilities" && state.engine) {
     return abilitiesValidate({
@@ -1026,6 +1062,10 @@ function pressValidate() {
      `rebuild()` puis `refresh()`, donc le carnet est à jour AVANT que le
      palier suivant ne le lise. */
   if (gate.action) applyDecisionAction(gate.action);
+  /* B4.4, étape 2 — « toutes les fenêtres intermédiaires disparaissent ».
+     Fermer n'est ni un palier ni une étape : c'est le troisième mouvement de
+     `Validate`, et il n'existe que sur cet écran. */
+  if (gate.next === "close") { state.inheritanceOpen = null; openSurface(); return; }
   if (gate.next === "palier") {
     /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
        plan du 2ᵉ palier décrit le record CHOISI, pas celui qui était sous le
@@ -1070,6 +1110,9 @@ function goToStep(index) {
     return;
   }
   if (STEPS[target].id === "skills") { state.cursor = 0; openSurface(); return; }
+  /* Arriver sur Inheritance montre TOUJOURS les deux dalles (B4.1) — jamais
+     un panneau resté ouvert d'une visite précédente. */
+  if (STEPS[target].id === "background") { state.inheritanceOpen = null; openSurface(); return; }
   const cfg = state.engine ? CATALOGUES[STEPS[target].id] : null;
   if (!cfg) { openSurface(); return; }
   state.cursor = catalogueCursor(state.decisions, cfg.path);
