@@ -101,11 +101,36 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   padding: var(--sp-8) 0;
   scroll-behavior: smooth;
   scroll-snap-type: x proximity;
+  /* LOT 69 — `safe center` : quand les dix étapes TIENNENT (Large), la
+     rangée se centre au lieu de coller à gauche ; dès qu'elles débordent,
+     `safe` retombe sur l'alignement de départ — sans lui, un centrage
+     débordant couperait la PREMIÈRE étape des deux côtés, inatteignable au
+     défilement. Navigateur trop vieux pour `safe` : déclaration ignorée,
+     comportement d'avant ce lot. */
+  justify-content: safe center;
   /* L'amorce : dit qu'il y a du hors-champ (bible §4). Un masque n'est pas
      une teinte — noir/transparent y encodent la VISIBILITÉ. */
   mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
 }
+/* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
+   rangées-molettes (étapes, catégories de Compétences, catégories
+   d'Equipment) ont DÉJÀ leurs affordances ratifiées : chevrons ‹ › (B0.2)
+   et amorce en fondu (bible §4). Sur les plateformes à barres classiques
+   (vu au navigateur : une bande blanche pleine largeur sous la ceinture,
+   par-dessus le thème), la barre native s'ajoutait par-dessus — du chrome
+   étranger, pas une information. La molette reste défilable (geste, molette
+   de souris, chevrons) : on retire la BARRE, pas le défilement — et pas de
+   `display: none` (garde 4) : des dimensions nulles suffisent au moteur
+   WebKit, `scrollbar-width` aux autres.
+   ⛔ CELLE DE LA FICHE (.stage) RESTE : c'est aujourd'hui le seul indicateur
+   de position sur desktop, et la question « sans barre, comment sait-on où
+   on en est ? » est posée à Eric, sans réponse (ERGONOMIE-BUILDER.md, §N
+   fin) — ce lot ne la tranche pas en douce. */
+.belt-track, .skills-catbar, .equipment-catbar { scrollbar-width: none; }
+.belt-track::-webkit-scrollbar,
+.skills-catbar::-webkit-scrollbar,
+.equipment-catbar::-webkit-scrollbar { width: 0; height: 0; }
 .belt-item {
   display: flex;
   align-items: center;
@@ -148,7 +173,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   display: flex;
   align-items: center;
   gap: var(--sp-12);
-  padding: 0 var(--sp-12);
+  /* LOT 69 — le remplissage vient du jeton de gouttière : à l'étroit il VAUT
+     l'ancien `var(--sp-12)` (aucun changement) ; en Large la formule centre
+     les deux boutons sur la colonne de contenu (--frame-w) — Validate était
+     à ~1400 px du contenu qu'il valide, au bord de la fenêtre. B0.13 (« la
+     ligne est fixe ») parle de DÉFILEMENT, pas d'alignement : elle ne
+     défile toujours pas. Et B0.9 tient : le trait est le border-bottom
+     pleine largeur, Show plan le coupe où qu'il se pose. */
+  padding: 0 var(--gutter-frame);
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
@@ -254,9 +286,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    matrice du lot 59 interdit sur du verre. */
 .popup {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  /* LOT 69 — les côtés viennent du jeton de gouttière : à l'étroit il vaut
+     `var(--sp-16)`, soit EXACTEMENT l'ancienne boîte (left/right 0 + marge
+     16) ; en Large la formule le centre sur la mesure. Pourquoi pas des
+     marges `auto` : en positionnement absolu avec `left/right` posés et
+     largeur automatique, elles se résolvent à ZÉRO (CSS 10.3.7) — le popup
+     aurait perdu ses gouttières à 360. */
+  left: var(--gutter-popup); right: var(--gutter-popup); bottom: 0;
   z-index: 3;
-  margin: var(--sp-16);
+  margin: var(--sp-16) 0;
   padding: var(--sp-12) var(--sp-16);
   background: var(--surface);
   border: 1px solid var(--critical);
@@ -323,9 +361,18 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      largeur de l'écran ». À 360 px, la largeur utile passe de 264 à 296 px.
      Le même padding est nommé une seconde fois en B7.5 (Compétences).
      Il venait du desktop et n'avait jamais été repensé pour 360. */
-  padding: var(--sp-16);
+  padding: var(--card-pad); /* LOT 69 — 16 px à l'étroit (B4.3, inchangé), 24 en Large : le jeton porte la grandeur */
   margin: var(--sp-16);
-  max-width: var(--measure); /* MESURE DE PROSE, pas une largeur de grille (§3e) — 62ch */
+  /* LOT 69 — LE CENTRAGE, et pourquoi il est inoffensif à 360 : des marges
+     `auto` ne partagent que le MOU. À l'étroit la carte remplit déjà tout
+     (max-width > champ), le mou est nul, rien ne bouge — et le bloc étroit
+     plus bas ré-écrit `margin: var(--sp-8)`, qui écrase ce `auto` là où il
+     s'applique. Dès qu'il y a du mou (Moyenne, Large), la carte cesse de
+     coller à gauche — mesuré à 1440 × 900 : 625 px de contenu et ~780 px de
+     vide À DROITE, une dalle qui lisait comme un accident, pas une mise en
+     page. */
+  margin-inline: auto;
+  max-width: var(--card-w); /* LOT 69 — mesure de prose à l'étroit (62ch, inchangé), largeur de carte en Large (§3e : une carte n'est pas toujours de la prose) */
   /* CORRECTIF, mesuré au lot 39 à 360px : `.stage` est `display:flex` (lot
      30), et un enfant flex a un `min-width` initial de `auto` — il refuse de
      rétrécir sous la largeur intrinsèque de son PLUS LARGE descendant.
@@ -337,6 +384,19 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      RIEN tant que rien ne le pousse à rétrécir. */
   min-width: 0;
 }
+/* LOT 69 — DEUX ÉCRANS NE SONT PAS DE LA PROSE : une rangée d'Abilities est
+   une étiquette + une molette de six boutons + une colonne finale ; une
+   ligne d'Equipment porte quantité, Equipped/Stowed et Remove. Leur carte
+   prend la largeur de PANNEAU (--panel-w = --measure à l'étroit : aucun
+   changement ; 88ch en Large). Les écrans-prose (Concept, Universe,
+   Inheritance, Review, Destiny) gardent la carte générique.
+   ⚠️ `:has()` est DANS le plancher navigateur du dépôt : cette feuille
+   exige déjà `color-mix()` et `100dvh`, plus récents que lui. Le jeton est
+   surchargé SUR la carte, donc le `max-width: var(--card-w)` ci-dessus le
+   lit par élément — et un navigateur sans `:has()` rend simplement la
+   carte générique (le défaut d'avant ce lot, pas une casse). */
+.decision-card:has(> .abilities-step),
+.decision-card:has(> .equipment-step) { --card-w: var(--panel-w); }
 /* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
    `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut
    nomme déjà l'étape et la surligne, le répéter en T6 coûtait une ligne de
@@ -355,7 +415,7 @@ button { font: inherit; }
    `.skill-slot`/`.skill-lock`/`.skill-budget`) ne sont plus consommées par
    `skills-step.mjs`, réécrit ce lot — retirées plutôt que gardées mortes
    derrière un sélecteur qui ne matche plus rien (loi §0.6). */
-.skills-step { max-width: var(--grid-w); position: relative; } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) */
+.skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; } /* LARGEUR DE GRILLE, pas une mesure de prose (§3e) ; centrage LOT 69 — no-op à 360, la grille cesse de coller à gauche dès qu'il y a du mou */
 
 /* ══ LA BARRE FIXE DE COMPÉTENCES (B7.1) ═══════════════════════════════
    ⚠️ `.skills-category-bar` A DISPARU AVEC SON BALISAGE (loi §0.6). Elle
@@ -364,6 +424,14 @@ button { font: inherit; }
    défaut A-1.2 mesuré : « elle ressemble à des onglets, mais n'en est pas ».
    Elle vit maintenant dans le slot fixe du cadre, avec sa propre identité. */
 .skills-topbar { display: flex; flex-direction: column; }
+/* LOT 69 — LES BARRES SUIVENT LEUR COLONNE. Une barre pleine fenêtre expédie
+   ses contrôles aux bords : mesuré à 1440 px, `Reset` (marge auto) était à
+   ~1400 px des compteurs qu'il accompagne, la loupe d'Equipment pareil. Le
+   plafond est CELUI DE LA GRILLE (--grid-w) : la barre et sa colonne bougent
+   d'un seul jeton. No-op à 360 (60ch > l'écran, aucun mou). Le trait de
+   séparation, lui, reste pleine largeur : il est sur `.stage-topbar`. */
+.skills-catbar, .skills-poolbar,
+.equipment-purse-bar, .equipment-catbar { max-width: var(--grid-w); margin-inline: auto; width: 100%; }
 .skills-catbar {
   display: flex;
   gap: var(--sp-2);
@@ -526,6 +594,16 @@ button { font: inherit; }
   display: flex;
   flex-direction: column;
   gap: var(--sp-12);
+  /* LOT 69 — LA FICHE FLOTTE AU LIEU D'OCCULTER. À 1440 px la dalle majeure
+     couvrait 1356 px pour ~500 px de contenu : le fond (B0.23a/b) n'existait
+     plus sur cet écran. `width` et PAS `max-width` : la fiche est un enfant
+     flex en colonne, et des marges `auto` y coupent l'étirement — avec
+     `max-width` seule, elle rétrécissait sur son contenu (~300 px, mesuré,
+     l'air d'un bout de papier). À l'étroit `--fiche-w` vaut 100 % : la
+     chaîne de hauteurs et le pas d'aimantation (commentaire ci-dessus) ne
+     bougent pas d'un octet — le pas est VERTICAL, la largeur n'y entre pas. */
+  width: min(var(--fiche-w), 100%);
+  margin-inline: auto;
 }
 /* ⚠️ GOUTTIÈRE HORIZONTALE SEULEMENT, et c'est de la géométrie, pas du goût :
    une chaque `.catalogue-card` vaut EXACTEMENT une hauteur de champ (`height:
@@ -624,6 +702,12 @@ button { font: inherit; }
 .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-12); }
 .plan-header button { border: none; background: none; color: var(--text-muted); cursor: pointer; }
 .plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+/* LOT 69 — le plan est plein écran (surface temporaire), mais son CONTENU
+   suit le cadre (--frame-w = 100 % à l'étroit, no-op) : à 1440 px, dix
+   lignes étirées bord à bord avec « Close » au bout du monde n'étaient pas
+   une liste, c'était une nappe. ⚠️ APRÈS la règle `.plan-list` : son
+   `margin: 0` (shorthand) écraserait le `margin-inline: auto` posé avant. */
+.plan-header, .plan-list { max-width: var(--frame-w); margin-inline: auto; }
 .plan-list li { padding: var(--sp-8) var(--sp-8); border-radius: var(--radius-md); font-size: var(--t3); color: var(--text-muted); } /* 6px→sp-8 (égalité, arrondi au-dessus) ; rayon aligné sur .belt-item, même famille de ligne sélectionnable ; 13px→T3 comme skill-chip */
 .plan-list li[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
 .plan-list li[data-status="done"] { color: var(--positive); }
@@ -761,7 +845,14 @@ button { font: inherit; }
    que `renderPicker` ne fournit pas : les dix dés, le bandeau de relance,
    les libellés de ligne et l'alerte de plafond (§3c, déclarée jamais
    opposée). */
-.abilities-step, .card-step { max-width: var(--measure); } /* PROSE : une colonne de lignes, pas un tableau (§3e) */
+/* LOT 69 — LA PAIRE EST SCINDÉE : Destiny (.card-step) est bien de la prose
+   (une carte, un texte, deux boutons) ; Abilities ne l'a jamais été — c'est
+   le « standard array marche pas, pas de molette » d'Eric, mesuré :
+   scrollWidth 382 > clientWidth 310, deux valeurs sur six coupées à
+   1440 px. Le panneau prend --panel-w (= --measure à l'étroit : rien ne
+   bouge à 360). `margin-inline: auto` : no-op sans mou, centre avec. */
+.abilities-step { max-width: var(--panel-w); margin-inline: auto; }
+.card-step { max-width: var(--measure); margin-inline: auto; } /* PROSE : une colonne de lignes, pas un tableau (§3e) */
 
 .ability-mode-switch { margin-bottom: var(--sp-16); }
 .ability-mode-note { font-size: var(--t3); color: var(--text-soft); margin: var(--sp-4) 0 0; }
@@ -809,14 +900,21 @@ button { font: inherit; }
 /* B5.5 — « chacune portant une MOLETTE ». Une molette DÉFILE, elle ne se
    replie pas : avec `flex-wrap`, les six valeurs s'empilaient en colonne et
    chaque rangée faisait six lignes de haut (vu à l'écran). `nowrap` +
-   défilement horizontal, et la rangée reprend une hauteur de rangée. */
+   défilement horizontal, et la rangée reprend une hauteur de rangée.
+   ⚠️ LOT 69 — ÇA, C'EST LE RÉGIME DU DOIGT (base 360, où une seule valeur
+   tient). En grandeur Large, les jetons basculent (`wrap`, amorce éteinte) :
+   à la souris, une molette masquée cachait « 10 (DEX) » et « 8 » sans
+   rien annoncer — c'est le « standard array marche pas » d'Eric. Enroulée,
+   TOUTE liste tient, quel que soit le nombre d'options (mesuré : le mode
+   « choose » en a vingt, 941 px > 442 de champ). La colonne de dalles
+   reste : « choix identique ⇒ dalle identique » (III.2) n'est pas touché. */
 .ability-row { display: flex; align-items: center; gap: var(--sp-8); min-width: 0; padding: var(--sp-4) 0; }
 .ability-row .record-list {
-  flex-wrap: nowrap;
+  flex-wrap: var(--wheel-wrap);
   overflow-x: auto;
   scroll-snap-type: x proximity;
-  mask-image: linear-gradient(to right, black calc(100% - var(--sp-16)), transparent);
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - var(--sp-16)), transparent);
+  mask-image: var(--wheel-mask);
+  -webkit-mask-image: var(--wheel-mask);
 }
 .ability-row .record-option { flex: none; scroll-snap-align: center; min-height: var(--touch); }
 .ability-row-label { width: 4ch; flex: none; font-weight: 600; }
@@ -1015,7 +1113,7 @@ button { font: inherit; }
 .inheritance-boost .ability-row-final-label { font-size: var(--t1); }
 .inheritance-boost .ability-row-final-value { font-size: var(--t2); text-align: center; }
 
-.catalogue-card-prose { margin: 0; font-size: var(--t3); color: var(--text); }
+.catalogue-card-prose { margin: 0; font-size: var(--t3); color: var(--text); max-width: var(--measure); } /* LOT 69 — la PROSE de la fiche garde sa mesure même quand la fiche s'élargit (88ch en Large) : une ligne de lecture ne suit pas la dalle, elle suit l'œil (§3e) */
 
 /* ── L'ÉTAPE INHERITANCE (lot 46) ──────────────────────────────────────
    `.skills-budget-block`/`.skills-budget-note`/`.skills-refusal`/
@@ -1025,7 +1123,7 @@ button { font: inherit; }
    pas : le cadre (une mention, jamais un bouton) et les cartes de dons
    d'origine (nom + description, que `.record-option` n'a pas la place de
    porter). */
-.inheritance-step { max-width: var(--measure); } /* PROSE, pas grille — même logique que Class/Species/Abilities (§3e) */
+.inheritance-step { max-width: var(--measure); margin-inline: auto; } /* PROSE, pas grille (§3e) ; centrage LOT 69, no-op à 360 */
 .inheritance-frame { margin: 0 0 var(--sp-24); font-size: var(--t5); color: var(--text-muted); }
 
 .inheritance-feat-block { margin-bottom: var(--sp-24); }
@@ -1112,7 +1210,7 @@ button { font: inherit; }
    avant celle-ci n'avait besoin d'une valeur libre, seulement de boutons) :
    habillés avec les MÊMES jetons de bordure/rayon/texte que `.record-option`,
    pour qu'un champ de saisie ne détonne pas à côté d'un bouton. */
-.equipment-step { max-width: var(--grid-w); } /* liste + chercheur, même largeur que Compétences (§3e) */
+.equipment-step { max-width: var(--grid-w); margin-inline: auto; } /* liste + chercheur, même largeur que Compétences (§3e) ; centrage LOT 69, no-op à 360 */
 
 .equipment-class-block { margin-bottom: var(--sp-24); }
 .equipment-class-block h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
@@ -1221,7 +1319,7 @@ button { font: inherit; }
    CONTRÔLE, rayon, texte) — un champ de saisie de plus, aucun jeton neuf.
    `.doc-field-error` réemploie la famille `.skills-refusal` (encre critique,
    monospace) : un refus se lit pareil partout dans le builder. */
-.concept-step, .universe-step { max-width: var(--measure); } /* PROSE, pas grille — même logique que Class/Species/Abilities (§3e) */
+.concept-step, .universe-step { max-width: var(--measure); margin-inline: auto; } /* PROSE, pas grille (§3e) ; centrage LOT 69, no-op à 360 */
 
 .doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
 .doc-field-label { font-size: var(--t3); color: var(--text-muted); }

@@ -5,10 +5,20 @@
    l'habillage » : un seul fichier à changer pour changer le produit.
 
    ⛔ Chargé AVANT `shell.css` (voir `index.html`). Pas de sélecteur de
-   thème ([data-theme], bascule, préférence enregistrée) — deux blocs
-   suffisent : `:root` pour le jour, `@media (prefers-color-scheme: dark)`
-   pour la nuit. Un troisième bloc pour un thème qui n'existe pas encore
-   serait du code mort derrière un interrupteur (loi §0.6). */
+   thème ([data-theme], bascule, préférence enregistrée) — deux blocs de
+   THÈME suffisent : `:root` pour le jour, `@media (prefers-color-scheme:
+   dark)` pour la nuit. Un troisième bloc pour un thème qui n'existe pas
+   encore serait du code mort derrière un interrupteur (loi §0.6).
+   ⚠️ LOT 69 — un bloc de LARGEUR s'ajoute en FIN de fichier (`@media
+   (min-width: 1140px)`, la grandeur Large de la bible §3). Ce n'est pas un
+   thème : il ne redéfinit QUE des jetons de taille et de mise en page,
+   jamais une couleur ni un voile — la matrice du verre (lot 59) est
+   calculée par thème, pas par largeur, et un jeton de couleur conditionné
+   à la largeur la rendrait fausse en silence. Un garde le vérifie
+   (`tests/ui-grandeur-large.test.mjs`). Il vit APRÈS le bloc sombre parce
+   que les gardes existants découpent le fichier à ce `@media`-là et lisent
+   l'échelle de type dans ce qui le PRÉCÈDE — l'échelle de base reste donc
+   mesurée telle quelle. */
 
 :root {
   /* ── COULEURS — jour. Famille `parchemin`, ratifiée le 2026-08-12.
@@ -82,6 +92,45 @@
      de mesure, elle a une largeur — deux jetons, deux natures. */
   --measure: 62ch; /* .decision-card — valeur déjà en place, zéro changement visible */
   --grid-w: 60ch;  /* .skills-step — la grille à 3 colonnes du lot 39 */
+
+  /* ── LOT 69 — LES LARGEURS DE LA GRANDEUR (bible §3) ──────────────────
+     La bible définit TROIS grandeurs (Large ≥ 1140 · Moyenne 720–1140 ·
+     Étroite < 720, dessinée à 360) ; jusqu'à ce lot, seule l'étroite était
+     construite, et le desktop rendait la base 360 étirée — mesuré à
+     1440 × 900 : 625 px de contenu dans un champ de 1356, et la molette
+     d'Abilities coupée (scrollWidth 382 > clientWidth 310, deux valeurs
+     sur six hors champ ; le mode « choose » : 941 > 442).
+
+     ICI LES VALEURS DE BASE = LE COMPORTEMENT D'AUJOURD'HUI, à l'octet :
+     chaque jeton vaut ce que la règle qu'il remplace rendait déjà. Le bloc
+     `@media (min-width: 1140px)` en fin de fichier les rehausse pour la
+     grandeur Large — c'est le SEUL endroit où le desktop existe.
+
+     ⚠️ POURQUOI UNE RANGÉE DE CARACTÉRISTIQUE N'EST PAS DE LA PROSE :
+     `--measure` mesure des lignes de TEXTE. Une rangée d'Abilities est une
+     étiquette + une molette de six boutons + une colonne finale — elle a
+     besoin d'une LARGEUR (comme `--grid-w`), pas d'une mesure. D'où
+     `--panel-w`, la troisième nature de largeur. */
+  --card-w: var(--measure);   /* .decision-card — la carte générique */
+  --panel-w: var(--measure);  /* écrans à CONTRÔLES (Abilities, Equipment) */
+  --fiche-w: 100%;            /* la fiche de catalogue (Class/Species) : pleine largeur à l'étroit */
+  --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
+  --card-pad: var(--sp-16);   /* remplissage de carte — B4.3 l'a mesuré : 16 à l'étroit */
+
+  /* La molette d'une rangée d'Abilities : à l'étroit elle DÉFILE sous une
+     amorce (B5.5 — « une molette ») ; en Large elle S'ENROULE, parce qu'au
+     doigt on balaie mais qu'à la souris rien ne dit qu'il y a du contenu à
+     droite (mesuré : deux valeurs sur six inatteignables sans le savoir). */
+  --wheel-wrap: nowrap;
+  --wheel-mask: linear-gradient(to right, black calc(100% - var(--sp-16)), transparent);
+
+  /* Les gouttières calculées de la grandeur Large — à l'étroit, la valeur
+     de base rend EXACTEMENT le remplissage d'avant ce lot. ⚠️ Résolues sur
+     :root, donc elles ne référencent QUE des jetons globaux (jamais un
+     jeton surchargé par élément — le `%` et le `ch` restent, eux, résolus
+     à l'usage). */
+  --gutter-frame: var(--sp-12);  /* .command — était `padding: 0 var(--sp-12)` */
+  --gutter-popup: var(--sp-16);  /* .popup — était `margin: var(--sp-16)` sur `left/right: 0` */
 
   /* ── LOT 58 — DEUX MESURES QUE LE MOBILE IMPOSE (base 360 px, IV.4) ──
      `--touch` : le seuil tactile d'Apple. Mesuré au §3quater
@@ -178,5 +227,87 @@
        ci-dessus lit déjà l'accent DE NUIT ici. Mesuré : le texte sur le
        lavis tient 11,14:1 la nuit (11,06:1 le jour), très au-dessus de la
        cible 4,5:1 — voir l'inventaire. */
+  }
+}
+
+/* ══ LOT 69 — LA GRANDEUR LARGE (bible §3 : ≥ 1140 px) ═══════════════════
+   Le builder a été refait base 360 (IV.4) ; ce bloc est l'extrapolation
+   desktop que la même décision annonçait (« le desktop s'extrapole
+   ensuite »). Tout le régime Large tient dans CES jetons : `shell.css` les
+   consomme sans jamais connaître le chiffre — comme `--bp-hint` pour 720.
+
+   🔴 LE SEUIL 1140 N'EXISTE QU'ICI, dans tout `ui/builder/` — même règle
+   que le 720 de `shell.css` (garde 5 des jetons), même raison : un `@media`
+   CSS ne peut pas lire une custom property, donc le nombre doit être écrit
+   quelque part, et ce quelque part est UNIQUE. Un garde le mesure
+   (`tests/ui-grandeur-large.test.mjs`).
+
+   ⚠️ ENTRE 720 ET 1140 (la grandeur Moyenne — l'iPad d'Eric), RIEN ne
+   change ici : la carte se contente de se CENTRER (marges auto, shell.css),
+   et les molettes gardent leur défilement au doigt — c'est un écran
+   tactile, l'amorce et le balayage y font leur travail. Le régime Large
+   est celui de la souris.
+
+   ⛔ QUE DES TAILLES ET DES LARGEURS. Jamais une couleur, un voile, une
+   image : la matrice du verre (lot 59, tête de shell.css) est mesurée par
+   THÈME — la conditionner à la largeur la fausserait sans qu'aucun garde
+   de contraste ne le voie. */
+@media (min-width: 1140px) {
+  :root {
+    /* ── LA TYPO DE LA GRANDEUR — §3ter d'ERGONOMIE-BUILDER.md : « la
+       typographie est plate », et à 1440 px un titre de 22 px dans un champ
+       de 1356 n'a plus l'air d'un titre. La bible §1 (ratifiée le
+       2026-08-12) donne le mécanisme : « le même nom vaut une valeur
+       différente selon la grandeur » — un nom dit un RÔLE, jamais un nombre.
+       ⚠️ IV.1 (T1–T7 = 10·12·14·16·18·22·44) reste le barème de RÉFÉRENCE,
+       celui de la base 360 : le bloc jour ci-dessus le porte intact, et le
+       garde des sept barreaux le mesure LÀ-BAS, pas ici.
+       ⛔ T1–T4 NE BOUGENT PAS : micro, mention, libellé et corps sont des
+       tailles de LECTURE — 16 px se lit pareil à 360 et à 1440. Seuls les
+       deux barreaux d'AFFICHAGE montent (accent, titre), pour que la
+       hiérarchie se voie de loin. Les rapports restent croissants :
+       16→20 = 1,25 · 20→28 = 1,40 · 28→44 = 1,57 (le principe du
+       conseiller : « le rapport doit s'ouvrir en montant »). */
+    --t5: 20px;
+    --t6: 28px;
+
+    /* ── LES LARGEURS — mesurées, pas choisies :
+       `--panel-w` 88ch = 887 px : la rangée d'Abilities au PIRE cas mesuré
+       (six options toutes annotées ≈ 562 px de molette + étiquette 43 +
+       source 104 + finale 91 + gouttières) tient sur UNE ligne, sans
+       défilement. `--grid-w` 76ch : la ligne d'Equipment la plus longue
+       (« Calligrapher's Supplies » + quantité + Equipped/Stowed + Remove)
+       cesse de casser. `--fiche-w` 88ch : la fiche de classe flotte sur le
+       fond au lieu de l'occulter (B0.23b) — l'ardoise respire des deux
+       côtés. `--card-w` 76ch : la carte générique respire sans étirer la
+       prose (les écrans-prose gardent leur `--measure` de 62ch, centrés
+       dedans). `--frame-w` 96ch : Show plan et Validate encadrent la
+       colonne de contenu au lieu des bords de la fenêtre (Validate était à
+       1400 px du contenu). */
+    --card-w: 76ch;
+    --panel-w: 88ch;
+    --grid-w: 76ch;
+    --fiche-w: 88ch;
+    --frame-w: 96ch;
+    --rail-w: 120px;          /* le rail de catalogue : 84 px était « pas un
+                                 pixel de plus » POUR 360 — la contrainte
+                                 tombe quand la place existe */
+    --card-pad: var(--sp-24); /* B4.3 : le padding de 32 « venait du desktop » ;
+                                 24 rend l'air sans reprendre le défaut */
+
+    /* ── LA MOLETTE S'ENROULE — au doigt on balaie, à la souris rien ne
+       dit qu'il y a du contenu à droite (mesuré : « 10 (DEX) » et « 8 »
+       inatteignables). En Large les options se posent toutes à l'écran ;
+       l'amorce n'a plus rien à annoncer, elle s'éteint. */
+    --wheel-wrap: wrap;
+    --wheel-mask: none;
+
+    /* ── LES GOUTTIÈRES CALCULÉES — `max(le remplissage d'avant, la moitié
+       du surplus)` : sous le seuil la formule rend exactement l'ancien
+       remplissage, au-dessus elle centre. Le `%` se résout à l'USAGE
+       (contre la boîte de l'élément), seuls les jetons globaux sont
+       substitués ici. */
+    --gutter-frame: max(var(--sp-12), calc((100% - var(--frame-w)) / 2));
+    --gutter-popup: max(var(--sp-16), calc((100% - var(--measure)) / 2));
   }
 }
