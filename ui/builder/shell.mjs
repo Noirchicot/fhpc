@@ -37,7 +37,7 @@ import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign, abilitiesValid
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
 } from "./destiny-step.mjs";
-import { renderEquipmentStep, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
@@ -122,6 +122,10 @@ const state = {
   /* LOT 64 — B4.1/B4.2 : quel panneau d'Inheritance est ouvert. Fermé, on
      voit les deux dalles ; ouvert, l'AUTRE disparaît. */
   inheritanceOpen: null, // "boost" | "feat" | null
+  /* LOT 66 — B8.1 : le filtre de la molette d'équipement, et la barre de
+     recherche invoquée par la loupe. Deux états d'écran, hors document. */
+  equipmentCategory: "all",
+  equipmentSearch: false,
   rollingMethod: "fh3d6",// B5.2a — réglé à la molette, jeté au palier (B5.2d)
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
@@ -429,12 +433,14 @@ function applyDecisionAction(action) {
   /* B9 — une ligne de Review mène à son écran. Voir qu'il manque quelque
      chose sans pouvoir y aller ferait de Review un constat, pas un
      récapitulatif. */
+  if (action.kind === "equipmentCategory") { state.equipmentCategory = action.value; refresh(); return; }
+  if (action.kind === "equipmentSearch") { state.equipmentSearch = !state.equipmentSearch; refresh(); return; }
   if (action.kind === "goToStepId") {
     goToStep(STEPS.findIndex((step) => step.id === action.value));
     return;
   }
   if (action.kind === "popup") {
-    state.popup = action.texte ? { texte: action.texte } : null;
+    state.popup = action.texte ? { texte: action.texte, titre: action.titre || null } : null;
     refresh();
     return;
   }
@@ -568,6 +574,12 @@ function skillsCtx() {
   return {
     resolved: state.resolved, decisions: state.decisions, violations: state.violations,
     query: state.engine.layers.verbs.query, cursor: state.cursor
+  };
+}
+function equipmentCtx() {
+  return {
+    document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query,
+    category: state.equipmentCategory, search: state.equipmentSearch
   };
 }
 function surCompetences() {
@@ -847,11 +859,7 @@ function renderStepContent() {
        phrase de classe et les lignes `gear[N]` viennent du document brut
        (aucun plan `decisions[]` ne les republie, voir `equipment-step.mjs`
        en tête), l'AC et la bourse dérivées viennent de `resolved`. */
-    card.append(renderEquipmentStep({
-      document: state.document,
-      resolved: state.resolved,
-      query: state.engine.layers.verbs.query
-    }, applyDecisionAction));
+    card.append(renderEquipmentStep(equipmentCtx(), applyDecisionAction));
   } else if (step.id === "equipment" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
@@ -1041,6 +1049,8 @@ function onSnapSettle(index) {
 function currentGate(palier = state.palier) {
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  /* B8 — rien n'est obligatoire sur Equipment : la porte est toujours prête. */
+  if (STEPS[state.step].id === "equipment" && state.engine) return equipmentValidate();
   /* B9 — Review est la destination : pas de pas suivant, donc pas de palier. */
   if (STEPS[state.step].id === "review") return reviewValidate();
   /* B4 — sur Inheritance, `Validate` FERME le panneau ouvert, ou avance
@@ -1167,7 +1177,10 @@ function paintPlan() {
  *  les autres. Aujourd'hui : Compétences seul. Le slot PERSISTE, ce qu'un
  *  écran y met peut changer — même loi que le rail. */
 function paintTopbar() {
-  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction) : null;
+  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction)
+    : (STEPS[state.step].id === "equipment" && state.engine)
+      ? renderEquipmentBar(equipmentCtx(), applyDecisionAction)
+      : null;
   frame.topbar.hidden = !barre;
   swapContent(frame.topbar, barre ? [barre] : []);
 }
@@ -1176,7 +1189,15 @@ function paintTopbar() {
  *  nœud qui traînerait dans le contenu. */
 function paintPopup() {
   if (!state.popup) { frame.popupLayer.hide(); return; }
-  frame.popupLayer.show([el("p", "popup-texte", [document.createTextNode(state.popup.texte)])]);
+  const contenu = [];
+  if (state.popup.titre) contenu.push(el("h3", "popup-titre", [document.createTextNode(state.popup.titre)]));
+  /* Le texte peut porter des sauts de ligne (la prose d'un record, le
+     « what you already have ») : chacun devient un paragraphe, jamais un
+     `innerHTML` — la coquille n'en a plus aucun depuis le lot 65. */
+  for (const paragraphe of String(state.popup.texte).split("\n").filter((l) => l.trim() !== "")) {
+    contenu.push(el("p", "popup-texte", [document.createTextNode(paragraphe)]));
+  }
+  frame.popupLayer.show(contenu);
 }
 
 /* Le rail (B0.19) : garni par l'écran qui en a un, vidé pour les autres.

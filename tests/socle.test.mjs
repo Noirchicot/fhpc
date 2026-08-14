@@ -287,3 +287,53 @@ test("E quater — le cadre est monté UNE FOIS : `mountFrame()` n'est appelée 
   const appels = shellText.match(/mountFrame\(\)/g) || [];
   assert.equal(appels.length, 2, "sa déclaration et son unique appel — pas un troisième site qui remonterait le cadre");
 });
+
+/* ══ F — ⭐ CHAQUE MODULE DE `ui/` SE PARSE, ET LA COQUILLE AUSSI ══════════
+
+   🔴 TROUVÉ EN SE PRENANT LE MUR, DEUX FOIS DANS LA MÊME SÉANCE (lot 66) :
+   une **virgule manquante** dans `state` a tué toute l'application — page
+   blanche, aucun cran de molette, rien — et **les 993 tests sont restés
+   verts**. Un import oublié (`rollAbilityBatch`, lot 63) était passé pareil.
+
+   La cause est structurelle, et elle était déjà écrite dans le dépôt sans
+   qu'on en tire la conséquence : `shell.mjs` n'a AUCUN harnais de rendu, et
+   tous ses gardes le lisent **en octets**. Personne ne l'IMPORTE. Un fichier
+   qu'aucun test n'importe peut donc être syntaxiquement mort sans qu'une
+   seule suite bronche.
+
+   ⚠️ CE QUE CE GARDE NE FAIT PAS : il ne monte pas la coquille (elle a
+   besoin d'un vrai DOM, d'un `fetch`, d'un `window`). Il ne prouve donc
+   AUCUN comportement. Il prouve seulement que **le fichier est du
+   JavaScript valide** — ce qui, mesuré aujourd'hui, était le maillon
+   manquant entre « 993 verts » et « l'écran s'affiche ». */
+
+test("F — tous les modules de ui/builder/ se parsent, la coquille comprise", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const fichiers = loadSources([UI_DIR], ROOT).map((s) => path.join(ROOT, s.name));
+  assert.ok(fichiers.length >= 10, "garde-fou de portée");
+  const casses = [];
+  for (const fichier of fichiers) {
+    try {
+      execFileSync(process.execPath, ["--check", fichier], { stdio: "pipe" });
+    } catch (erreur) {
+      casses.push(`${path.relative(ROOT, fichier)} : ${String(erreur.stderr).split("\n").find((l) => /Error/.test(l)) || "parse error"}`);
+    }
+  }
+  assert.deepEqual(casses, [],
+    "un module qui ne se parse pas rend la page BLANCHE, et aucun autre test ne le voit — " +
+    "ils lisent shell.mjs en octets, personne ne l'importe");
+});
+
+test("⚔️ ATTAQUE F — une virgule manquante dans un module est bien vue", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const os = await import("node:os");
+  const dossier = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-parse-"));
+  const fautif = path.join(dossier, "shell.mjs");
+  /* La faute EXACTE du lot 66, rejouée : une virgule oubliée entre deux
+     champs d'un objet littéral. */
+  fs.writeFileSync(fautif, "const state = {\n  equipmentSearch: false\n  rollingMethod: \"fh3d6\"\n};\n");
+  let vu = false;
+  try { execFileSync(process.execPath, ["--check", fautif], { stdio: "pipe" }); } catch { vu = true; }
+  fs.rmSync(dossier, { recursive: true, force: true });
+  assert.ok(vu, "sans ça, le garde F ne prouverait rien");
+});

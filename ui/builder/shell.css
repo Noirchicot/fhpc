@@ -1056,6 +1056,39 @@ button { font: inherit; }
 .confirm-dialog-cancel { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); }
 .confirm-dialog-confirm { border: 1px solid var(--critical); background: var(--critical); color: var(--on-accent); }
 
+/* ══ B8.1 — LE BANDEAU FIXE D'EQUIPMENT, lot 66 ════════════════════════
+   La bourse « sans trop prendre de place », le `?`, la loupe, la molette. */
+.equipment-topbar { display: flex; flex-direction: column; }
+.equipment-purse-bar { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-4) var(--sp-12); }
+.equipment-purse-value { flex: 1 1 auto; font-size: var(--t2); color: var(--text); font-variant-numeric: tabular-nums; }
+.equipment-help, .equipment-magnifier {
+  min-width: var(--touch); min-height: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font-size: var(--t4); cursor: pointer; padding: 0;
+}
+.equipment-catbar { display: flex; gap: var(--sp-2); overflow-x: auto; padding: 0 var(--sp-8) var(--sp-4); }
+.equipment-cat {
+  flex: none; min-height: var(--touch); border: none; background: none;
+  color: var(--text-muted); font-size: var(--t3); padding: 0 var(--sp-12);
+  border-radius: var(--radius-md); cursor: pointer;
+}
+.equipment-cat[aria-current="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
+
+/* ══ B8.3 — DEUX LIGNES PAR ITEM, `+` et 👁 sur toute la hauteur ════════
+   ⛔ Et la contrainte d'une seule ligne (B7.3c) ne s'applique PAS ici :
+   Compétences comprime, Equipment empile. C'est délibéré. */
+.equipment-item-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.equipment-item-name { font-size: var(--t3); color: var(--text); overflow-wrap: break-word; }
+.equipment-item-meta { font-size: var(--t2); color: var(--text-muted); }
+.equipment-item-add, .equipment-item-eye {
+  flex: none; align-self: stretch;      /* « ils occupent les deux lignes en hauteur » */
+  min-width: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font-size: var(--t4); cursor: pointer; padding: 0;
+}
+.popup-titre { margin: 0 0 var(--sp-4); font-size: var(--t4); color: var(--text); }
+.popup-texte + .popup-texte { margin-top: var(--sp-8); }
+
 /* ── L'ÉTAPE EQUIPMENT (lot 49) ────────────────────────────────────────
    `.equipment-gear-row`/`.equipment-search-result` réemploient la famille
    `.skills-row` (flex, gap, bordure basse) — même geste qu'ailleurs, aucun
