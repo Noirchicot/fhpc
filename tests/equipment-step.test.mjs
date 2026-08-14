@@ -35,7 +35,7 @@ globalThis.document = createTestDocument();
 const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 
 const {
-  renderEquipmentStep, currentGearLines, currentCurrency, nextGearIndex, INHERITED_PURSE_GP
+  renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex, INHERITED_PURSE_GP
 } = await import("../ui/builder/equipment-step.mjs");
 
 const fixture = exempleFhEn();
@@ -85,8 +85,15 @@ function applyAddInheritedPurse(document) {
 
 /* ── LES SÉLECTEURS DU DOM-STUB, MÊME PATRON QUE `class-species-steps.test.mjs` ── */
 function rows(node, selector) { return node.querySelectorAll(selector); }
+/* ⏳ LOT 66 — `search: true` PAR DÉFAUT DANS LES TESTS. La barre de
+   recherche est REPLIÉE DERRIÈRE LA LOUPE (B8.1) : Eric l'avait posé au
+   conditionnel — « si on a la place pour poser une loupe dans les flottants
+   pour invoquer la barre de recherche » — et la place existe, ce qui évite
+   une CINQUIÈME barre fixe (le cumul que B7.6 signale).
+   ⭐ Les tests la demandent donc explicitement : c'est le geste du joueur,
+   et ce qu'ils prouvent ne change pas d'une ligne. */
 function ctxFrom(document, report, extra) {
-  return Object.assign({ document, resolved: report ? report.resolved : null, query }, extra || {});
+  return Object.assign({ document, resolved: report ? report.resolved : null, query, search: true }, extra || {});
 }
 
 /* ══ 1 — UNE LIGNE D'ÉQUIPEMENT SE POSE (commande §3, test 1) ═══════════
@@ -167,29 +174,34 @@ test("5 — une armure posée equipped: true change resolved.ac — la preuve qu
   assert.equal(after.resolved.ac, 16, "Chain Mail : ac_base 16, ac_dex_cap 0 — le Dex du personnage n'y entre pas");
 });
 
-/* ══ 6 — LA PHRASE DE CLASSE, TELLE QUELLE, LES DOUZE (commande §3, test 6) ═ */
+/* ══ 6 — LA PHRASE DE CLASSE, TELLE QUELLE, LES DOUZE ═══════════════════
+   ⚠️ LOT 66 — ELLE A MIGRÉ DANS « WHAT YOU ALREADY HAVE » (B8.2), et ce
+   n'est pas une perte : Eric décrit une FENÊTRE qui « dit ce qu'on possède
+   déjà ET EXPLIQUE POURQUOI », qui « apparaît au début », se ferme en
+   cliquant dehors, et que le `?` rappelle. Le paquet de la classe est
+   exactement ça — un POURQUOI. En bloc permanent, il coûtait de la hauteur
+   à un écran qui en manque déjà.
+   ⭐ Ce que ces deux tests prouvent est INCHANGÉ : la phrase est recopiée
+   TELLE QUELLE, les douze, sans troncature ni « A ou B » supposé. */
 test("6 — les douze classes affichent leur phrase EXACTE, aucune troncature, aucun « A ou B » supposé", () => {
   const classes = query({ kind: "class" });
   assert.equal(classes.length, 12);
   for (const view of classes) {
     const phrase = view.record.data.starting_equipment;
     const doc = { build: { choices: [{ path: "class", ref: { kind: "class", id: view.id } }] } };
-    const node = renderEquipmentStep(ctxFrom(doc, null), () => {});
-    const phraseNode = rows(node, ".equipment-class-phrase")[0];
-    assert.ok(phraseNode, `${view.id} devrait rendre sa phrase`);
-    assert.equal(phraseNode.textContent, phrase, `${view.id} : la phrase doit être recopiée telle quelle`);
+    const texte = whatYouHave({ document: doc, query });
+    assert.ok(texte.includes(phrase), `${view.id} : la phrase doit être recopiée telle quelle`);
   }
 });
 
 test("6b — ⚔️ ATTAQUE : le Fighter a TROIS options, la phrase le dit toujours, rien ne suppose deux", () => {
   const fighter = query({ kind: "class", id: "srd:class:en:fighter" });
   const doc = { build: { choices: [{ path: "class", ref: { kind: "class", id: fighter.id } }] } };
-  const node = renderEquipmentStep(ctxFrom(doc, null), () => {});
-  const phraseNode = rows(node, ".equipment-class-phrase")[0];
-  assert.match(phraseNode.textContent, /Choose A, B, or C/);
-  assert.doesNotMatch(phraseNode.textContent, /Choose A or B/,
+  const texte = whatYouHave({ document: doc, query });
+  assert.match(texte, /Choose A, B, or C/);
+  assert.doesNotMatch(texte, /Choose A or B[^,]/,
     "le Fighter ne doit JAMAIS se lire comme s'il n'avait que deux options");
-  assert.equal(phraseNode.textContent, fighter.record.data.starting_equipment);
+  assert.ok(texte.includes(fighter.record.data.starting_equipment), "la phrase entière, jamais un extrait");
 });
 
 /* ══ 7 — RETIRER UNE LIGNE (commande §3, test 7) ═════════════════════════
@@ -228,13 +240,16 @@ test("7b — le bouton Remove d'une ligne dispatche removeGearLine avec le bon i
 });
 
 /* ══ 8 — UNE CLASSE NON CHOISIE (commande §3, test 8) ═════════════════════ */
-test("8 — sans classe choisie, l'étape ne plante pas et le dit en toutes lettres", () => {
+test("8 — sans classe choisie, l'étape ne plante pas, et « what you have » le dit", () => {
+  /* ⚠️ Même migration qu'au test 6 : le mot est dans la fenêtre, plus dans un
+     bloc permanent. Ce qu'il prouve — l'écran ne plante pas, et il DIT
+     l'absence au lieu de la taire — ne bouge pas. */
   const doc = { build: { choices: [] } };
   assert.doesNotThrow(() => {
-    const node = renderEquipmentStep(ctxFrom(doc, null), () => {});
-    const note = rows(node, ".equipment-class-block .equipment-empty-note")[0];
-    assert.ok(note, "une phrase doit dire qu'aucune classe n'est encore choisie");
-    assert.match(note.textContent, /choose a class/i);
+    renderEquipmentStep(ctxFrom(doc, null), () => {});
+    const texte = whatYouHave({ document: doc, query });
+    assert.ok(texte.length > 0, "la fenêtre dit quelque chose, jamais rien");
+    assert.match(texte, /not added anything yet/i, "et elle nomme l'absence plutôt que de la taire");
   });
 });
 
@@ -247,17 +262,30 @@ test("8b — sans classe choisie, le sac et la bourse restent utilisables (gear/
 
 /* ══ LES GESTES DE L'ÉCRAN, VUS DEPUIS LE DOM ══════════════════════════ */
 
-test("chercheur — taper un nom filtre les 133 résultats, cachés par défaut", () => {
+/* ⏳ LOT 66 — LA BARRE EST REPLIÉE DERRIÈRE LA LOUPE (B8.1), donc les tests
+   du chercheur la DEMANDENT (`search: true`). Eric l'avait posé au
+   conditionnel — « si on a la place » — et la place existe : c'est ce qui
+   évite une CINQUIÈME barre fixe. Ce que ces tests prouvent ne change pas. */
+test("chercheur — RIEN n'est rendu tant qu'on n'a pas cherché, puis seuls les résultats", () => {
+  /* 🔴 LOT 66 — LE TEST S'INVERSE, ET C'EST UNE MESURE. Il exigeait que les
+     133 lignes soient TOUTES rendues puis masquées par `hidden`. Vu à
+     l'écran : `[hidden]` NE BAT PAS un `display: flex` d'auteur — les 133
+     lignes prenaient **7 054 px** tout en étant « repliées ». Et on ne peut
+     pas y répondre par un `display: none`, que le garde des jetons interdit
+     (défaut n°3). La bonne réponse est de ne pas les construire.
+     ⭐ Ce que le test prouve reste le même : au départ on ne voit rien, et
+     après « dagger » on ne voit que des dagues. */
   const report = rebuild(fixture.document);
   const node = renderEquipmentStep(ctxFrom(report.document, report), () => {});
-  const results = rows(node, ".equipment-search-result");
-  assert.ok(results.length > 100, "les 133 records sont tous rendus (gear+weapon+armor)");
-  assert.ok(results.every((r) => r.hidden === true), "repliés par défaut — une liste de 133 boutons d'un coup cacherait tout en la montrant tout");
+  assert.equal(rows(node, ".equipment-search-result").length, 0,
+    "une liste de 133 lignes d'un coup cacherait tout en montrant tout");
+  const titre = rows(node, ".equipment-search-block h4")[0].textContent;
+  assert.match(titre, /133 records/, "le compte, lui, est annoncé — l'absence n'est pas un silence");
 
   const input = rows(node, ".equipment-search-input")[0];
   input.value = "dagger";
   input.dispatchEvent({ type: "input" });
-  const visible = results.filter((r) => r.hidden !== true);
+  const visible = rows(node, ".equipment-search-result");
   assert.ok(visible.length > 0, "taper « dagger » doit révéler au moins un résultat");
   assert.ok(visible.every((r) => r.textContent.toLowerCase().includes("dagger")));
 });
@@ -272,7 +300,7 @@ test("chercheur — cliquer Add dispatche addGearLine avec quantity:1, equipped:
   /* `hidden` est posé sur la RANGÉE (`.equipment-search-result`), jamais sur
      le bouton lui-même — on retrouve le bouton DANS la rangée visible. */
   const visibleRow = rows(node, ".equipment-search-result").find((r) => r.hidden !== true);
-  const addBtn = visibleRow.querySelectorAll(".equipment-search-result-add")[0];
+  const addBtn = visibleRow.querySelectorAll(".equipment-item-add")[0];
   addBtn.click();
   assert.equal(calls.length, 1);
   assert.equal(calls[0].kind, "addGearLine");

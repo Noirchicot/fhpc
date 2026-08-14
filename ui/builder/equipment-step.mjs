@@ -45,6 +45,7 @@
 
 import { renderPicker } from "./carnet.mjs";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs";
+import { swapContent } from "./socle.mjs";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -260,67 +261,113 @@ function renderGearRow(line, { query, onAction }) {
    Repliée par défaut (une liste de 133 boutons au premier coup d'œil serait
    le défaut inverse de « rien ne se cache » : tout montrer d'un coup revient
    à ne rien distinguer). */
-function renderGearSearch({ query, onAction }) {
+function renderGearSearch({ query, onAction, category, search }) {
   const wrap = el("section", "equipment-search-block");
-  wrap.append(el("h4", null, [text("Add from the catalogue")]));
 
-  const items = catalogue(query);
+  /* ⭐ B8.1 — LA MOLETTE FILTRE VRAIMENT. Sans ça elle serait un décor : les
+     133 records s'affichaient tous, et l'écran faisait 7 099 px. Le filtre
+     est un `kind`, lu sur l'item — jamais un test sur son nom. */
+  const tous = catalogue(query);
+  const items = !category || category === "all" ? tous : tous.filter((i) => i.kind === category);
+  wrap.append(el("h4", null, [text(`Add from the catalogue — ${items.length} records`)]));
   const emptyNote = el("p", "equipment-empty-note", [
     text(`Type a name to search the ${items.length} gear, weapon and armor records.`)
   ]);
   const resultsWrap = el("div", "equipment-search-results");
+  /* 🔴 ON NE REND QUE CE QUI S'AFFICHE, et c'est une mesure : les 133 lignes
+     étaient construites puis masquées par `hidden` — sauf qu'`[hidden]` ne
+     bat pas un `display: flex` d'auteur. Résultat vu à l'écran : **7 054 px**
+     de lignes invisibles mais présentes. Et on ne peut pas y répondre par un
+     `display: none` — le garde des jetons l'interdit dans `shell.css`
+     (défaut n°3 : effacer des mots). La bonne réponse était de ne pas les
+     construire.
+     ⛔ Le remplissage passe par `swapContent` (socle.mjs) : le garde du lot
+     58 n'autorise `replaceChildren` que là, et il a raison ici aussi. */
   const indexed = items.map((item) => ({
     name: (recordLabel(item.view) || "").toLowerCase(),
-    row: renderSearchResultRow(item, onAction)
+    item
   }));
-  for (const { row } of indexed) {
-    row.hidden = true;
-    resultsWrap.append(row);
-  }
 
   const MAX_SHOWN = 25;
   const moreNote = el("p", "equipment-search-more", []);
+  const afficher = (needle) => {
+    const trouves = needle.length === 0 ? [] : indexed.filter((e) => e.name.includes(needle));
+    swapContent(resultsWrap, trouves.slice(0, MAX_SHOWN).map((e) => renderSearchResultRow(e.item, onAction)));
+    emptyNote.hidden = needle.length > 0;
+    moreNote.textContent = trouves.length > MAX_SHOWN
+      ? `${trouves.length} matches — showing the first ${MAX_SHOWN}. Refine your search to see the rest.`
+      : "";
+  };
   const input = searchField({
     placeholder: "Search gear, weapons, armor…",
     className: "equipment-search-input",
     ariaLabel: "Search the equipment catalogue",
-    onInput: (raw) => {
-      const needle = raw.trim().toLowerCase();
-      emptyNote.hidden = needle.length > 0;
-      let matches = 0;
-      let shown = 0;
-      for (const { name, row } of indexed) {
-        const isMatch = needle.length > 0 && name.includes(needle);
-        if (isMatch) matches += 1;
-        const display = isMatch && shown < MAX_SHOWN;
-        if (display) shown += 1;
-        row.hidden = !display;
-      }
-      moreNote.hidden = matches <= MAX_SHOWN;
-      moreNote.textContent = matches > MAX_SHOWN
-        ? `${matches} matches — showing the first ${MAX_SHOWN}. Refine your search to see the rest.`
-        : "";
-    }
+    onInput: (raw) => afficher(raw.trim().toLowerCase())
   });
 
-  wrap.append(input, emptyNote, resultsWrap, moreNote);
+  /* ⏳ B8.1 — la barre de recherche est REPLIÉE DERRIÈRE LA LOUPE, et c'est
+     ce qui évite une CINQUIÈME barre fixe (le cumul que B7.6 signale). Eric
+     l'a formulé au conditionnel — « si on a la place » : la place existe,
+     mesurée, et la loupe la rend. */
+  if (search) wrap.append(input);
+  wrap.append(emptyNote, resultsWrap, moreNote);
   return wrap;
 }
 
+/* ══ B8.3 — CHAQUE ITEM TIENT SUR DEUX LIGNES ════════════════════════════
+   « Ligne 1 : le titre. Ligne 2 : prix et poids. `+` et `👁` à droite, et ils
+   occupent les deux lignes en hauteur. »
+
+   ⭐ ET LA CONTRAINTE DE B7.3c NE S'APPLIQUE PAS ICI, c'est écrit noir sur
+   blanc : Compétences COMPRIME (une ligne), Equipment EMPILE (deux). Les
+   deux écrans les plus denses résolvent le même problème de largeur
+   différemment, et c'est délibéré — ⛔ ne pas « harmoniser ».
+   📌 C'est aussi ce qui règle les trois noms d'outils que Compétences devait
+   couper (`Calligrapher's Supplies`…) : ici, ils ont la ligne entière. */
 function renderSearchResultRow({ kind, view }, onAction) {
   const row = el("div", "equipment-search-result");
   const name = recordLabel(view) || view.id;
-  row.append(el("span", "equipment-search-result-name", [text(name)]));
+  const texte = el("div", "equipment-item-text");
+  texte.append(el("span", "equipment-item-name", [text(name)]));
   const meta = [recordCost(view), recordWeight(view)].filter(Boolean).join(" · ");
-  if (meta) row.append(el("span", "equipment-search-result-meta", [text(meta)]));
-  row.append(button("Add", "equipment-search-result-add",
+  texte.append(el("span", "equipment-item-meta", [text(meta || "—")]));
+  row.append(texte);
+  row.append(button("+", "equipment-item-add",
     () => onAction({ kind: "addGearLine", ref: { kind, id: view.id }, quantity: 1, equipped: false }),
     `Add ${name}`));
+  /* B8.3d/e — « l'œil ouvre une GROSSE fenêtre en overlay avec le texte
+     associé », et « elle se ferme si on tape ou clique dehors ». C'est le
+     popup partagé (III.4, lot 62) — la troisième de ses trois occurrences
+     annoncées, et il n'a pas fallu en écrire une ligne de plus. */
+  row.append(button("\u{1F441}", "equipment-item-eye",
+    () => onAction({ kind: "popup", titre: name, texte: recordProse(view) }),
+    `About ${name}`));
   return row;
 }
 
+/** LE TEXTE ASSOCIÉ À UN RECORD — recopié, jamais résumé. Les genres n'ont
+ *  pas les mêmes champs : une arme porte ses dégâts et ses propriétés, une
+ *  armure sa CA et son malus de discrétion (mesuré au §B8.0). On lit ce qui
+ *  existe, dans l'ordre où le record le porte. */
+function recordProse(view) {
+  const data = (view && view.record && view.record.data) || {};
+  const lignes = [];
+  if (typeof data.description === "string" && data.description) lignes.push(data.description);
+  for (const [label, valeur] of [
+    ["Damage", data.damage],
+    ["Mastery", data.mastery],
+    ["Properties", Array.isArray(data.properties) ? data.properties.join(", ") : data.properties],
+    ["AC", data.ac_base],
+    ["Strength", data.strength],
+    ["Stealth", data.stealth_disadvantage ? "disadvantage" : null]
+  ]) {
+    if (valeur !== undefined && valeur !== null && valeur !== "") lignes.push(`${label}: ${valeur}`);
+  }
+  return lignes.length > 0 ? lignes.join("\n") : "No further detail on this record.";
+}
+
 /* ══ LE SAC — la liste des lignes déjà posées, plus le chercheur ═════════ */
-function renderGearBlock({ document, resolved, query, onAction }) {
+function renderGearBlock({ document, resolved, query, onAction, category, search }) {
   const wrap = el("section", "equipment-gear-block");
   wrap.append(el("h3", null, [text("Gear")]));
 
@@ -342,7 +389,7 @@ function renderGearBlock({ document, resolved, query, onAction }) {
     for (const line of lines) list.append(renderGearRow(line, { query, onAction }));
   }
   wrap.append(list);
-  wrap.append(renderGearSearch({ query, onAction }));
+  wrap.append(renderGearSearch({ query, onAction, category, search }));
   return wrap;
 }
 
@@ -405,6 +452,89 @@ function renderCurrencyBlock({ document, resolved, onAction }) {
  * @param {(action:{kind:string, [key:string]:*}) => void} onAction  `set`/`clear` ordinaires, plus les trois gestes
  *   composites de `shell.mjs` : `addGearLine` ({ref,quantity,equipped}), `removeGearLine` ({index}), `addInheritedPurse` ()
  */
+/* ══ B8.1 — LE BANDEAU DU HAUT, ET IL FLOTTE ════════════════════════════
+   « Le budget en pièces, SANS TROP PRENDRE DE PLACE » · « une molette
+   horizontale qui catégorise les équipements » · « un point d'interrogation
+   à côté du budget » qui rappelle « What you already have ».
+
+   ⏳ LA LOUPE — Eric l'a formulée AU CONDITIONNEL : « SI on a la place pour
+   poser une loupe dans les flottants pour invoquer la barre de recherche, ce
+   serait pas mal ». C'est donc une PRÉFÉRENCE, pas une exigence — et la
+   place existe, mesurée : le bandeau tient sur deux lignes de 44 px comme
+   celui de Compétences. La loupe est là, et elle évite une CINQUIÈME barre
+   fixe (le point que B7.6 signalait). */
+
+export const EQUIPMENT_CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "weapon", label: "Weapons" },
+  { id: "armor", label: "Armor" },
+  { id: "gear", label: "Gear" }
+];
+
+/** LA BARRE FIXE de l'écran : la bourse, le `?`, la loupe, la molette. */
+export function renderEquipmentBar(ctx, onAction) {
+  const act = onAction || ctx.onAction || (() => {});
+  const wrap = el("div", "equipment-topbar");
+
+  const ligne = el("div", "equipment-purse-bar");
+  const purse = currentCurrency(ctx.document);
+  const pieces = CURRENCY_KEYS.map((k) => `${purse[k] || 0} ${k.toUpperCase()}`).join(" · ");
+  ligne.append(el("span", "equipment-purse-value", [text(pieces)]));
+  /* B8.1 — le point d'interrogation, À CÔTÉ DU BUDGET, qui rappelle la
+     fenêtre. B8.2d, mot pour mot. */
+  ligne.append(button("?", "equipment-help",
+    () => act({ kind: "popup", titre: "What you already have", texte: whatYouHave(ctx) }),
+    "What you already have"));
+  ligne.append(button("\u{1F50D}", "equipment-magnifier",
+    () => act({ kind: "equipmentSearch" }), "Search the catalogue"));
+  wrap.append(ligne);
+
+  const bar = el("nav", "equipment-catbar");
+  bar.setAttribute("aria-label", "Equipment categories");
+  for (const cat of EQUIPMENT_CATEGORIES) {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "equipment-cat";
+    item.dataset.value = cat.id;
+    item.setAttribute("aria-current", cat.id === (ctx.category || "all") ? "true" : "false");
+    item.textContent = cat.label;
+    item.addEventListener("click", () => act({ kind: "equipmentCategory", value: cat.id }));
+    bar.append(item);
+  }
+  wrap.append(bar);
+  return wrap;
+}
+
+/** B8.2 — « une fenêtre qui dit ce qu'on POSSÈDE DÉJÀ, et explique
+ *  POURQUOI ». Le pourquoi vient du document : le paquet de la classe et les
+ *  50 PO d'héritage sont deux origines distinctes, et le joueur doit savoir
+ *  laquelle lui a donné quoi. */
+export function whatYouHave(ctx) {
+  const doc = ctx.document;
+  const lignes = currentGearLines(doc);
+  const purse = currentCurrency(doc);
+  const morceaux = [];
+  const classRef = currentClassRef(doc);
+  if (classRef) {
+    const view = ctx.query({ kind: "class", id: classRef.id });
+    const phrase = view && view.record && view.record.data && view.record.data.starting_equipment;
+    if (phrase) morceaux.push(`From your class:\n${phrase}`);
+  }
+  morceaux.push(`In your purse: ${CURRENCY_KEYS.map((k) => `${purse[k] || 0} ${k.toUpperCase()}`).join(" · ")}`);
+  morceaux.push(lignes.length > 0
+    ? `You have added ${lignes.length} line${lignes.length === 1 ? "" : "s"} of gear.`
+    : "You have not added anything yet.");
+  return morceaux.join("\n\n");
+}
+
+/**
+ * @param {object} ctx
+ * @param {object} ctx.document   le document brut
+ * @param {object} ctx.resolved   la fiche dérivée — l'AC et la bourse
+ * @param {Function} ctx.query    `layers.verbs.query`
+ * @param {string} [ctx.category] le filtre courant de la molette
+ * @param {boolean} [ctx.search]  la barre de recherche est-elle invoquée
+ */
 export function renderEquipmentStep(ctx, onAction) {
   const doc = ctx.document || null;
   const resolved = ctx.resolved || null;
@@ -412,9 +542,15 @@ export function renderEquipmentStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const section = el("section", "equipment-step");
 
-  section.append(renderClassPhrase(query, currentClassRef(doc)));
-  section.append(renderGearBlock({ document: doc, resolved, query, onAction: act }));
+  section.append(renderGearBlock({ document: doc, resolved, query, onAction: act, category: ctx.category, search: ctx.search }));
   section.append(renderCurrencyBlock({ document: doc, resolved, onAction: act }));
-
   return section;
+}
+
+/** LE PALIER — un seul, et il est toujours prêt : **rien n'est obligatoire
+ *  ici**. Un personnage sans équipement est incomplet, pas fautif — et le
+ *  moteur ne refuse rien sur ce chemin (mesuré : aucune violation
+ *  `gear.*`). */
+export function equipmentValidate() {
+  return { exists: true, ready: true, action: null, next: "step" };
 }
