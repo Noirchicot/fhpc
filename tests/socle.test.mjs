@@ -68,7 +68,13 @@ const SHELL_PATH = path.join(UI_DIR, "shell.mjs");
    crierait au loup, et un garde qui crie au loup se fait désactiver
    (`tests/source-scan.mjs`, loi du dépôt). */
 const REMPLACEMENTS_INTERDITS = [
-  [/\.innerHTML\s*=\s*(""|'')/, "vider un nœud par innerHTML — le défaut §0 lui-même"],
+  /* ⭐ DURCI AU LOT 65 : PLUS AUCUN `innerHTML`, vide ou plein. Le motif ne
+     visait que l'assignation VIDE, parce qu'un seul site garnissait
+     légitimement — l'étape Review, qui posait la chaîne de `renderFiche`.
+     B9 a remplacé ce déversement par un masque, ce site a disparu, et la
+     coquille n'en contient plus un seul. Le garde peut donc fermer la porte
+     entièrement au lieu de la laisser entrebâillée. */
+  [/\.innerHTML\s*=/, "innerHTML — la coquille n'en contient plus aucun depuis le lot 65"],
   [/\.replaceChildren\s*\(/, "replaceChildren hors socle.mjs — passe à côté de la conservation"],
   [/\.removeChild\s*\(/, "removeChild hors socle.mjs — la même chose, en boucle"]
 ];
@@ -94,7 +100,7 @@ test("A — dans le vrai ui/builder/, seul socle.mjs remplace le contenu d'un n�
 test("⚔️ ATTAQUE A — le détecteur voit `app.innerHTML = \"\"` réintroduit, sur une source inventée", () => {
   const source = { name: "un-nouveau-fichier.mjs", text: 'app.innerHTML = "";\napp.append(node);' };
   assert.deepEqual(remplacantsHorsSocle([source]),
-    ['un-nouveau-fichier.mjs : vider un nœud par innerHTML — le défaut §0 lui-même']);
+    ["un-nouveau-fichier.mjs : innerHTML — la coquille n'en contient plus aucun depuis le lot 65"]);
 });
 
 test("⚔️ ATTAQUE A bis — il voit aussi un `replaceChildren` direct, le contournement moderne du même geste", () => {
@@ -103,13 +109,15 @@ test("⚔️ ATTAQUE A bis — il voit aussi un `replaceChildren` direct, le con
     ["autre.mjs : replaceChildren hors socle.mjs — passe à côté de la conservation"]);
 });
 
-test("A ter — le GARNISSAGE légitime de Review ne fait PAS rougir le garde (pas de loup)", () => {
-  /* La ligne réelle de `shell.mjs`, recopiée telle quelle : elle assigne une
-     CHAÎNE NON VIDE à un `<div>` créé la ligne d'avant. Si un durcissement
-     futur la faisait rougir, c'est CE test qui le dirait — avant que
-     quelqu'un ne désactive le garde entier. */
-  const source = { name: "shell.mjs", text: 'const fiche = el("div", "review-fiche", []);\nfiche.innerHTML = renderFiche(state.document, state.report, "en");' };
-  assert.deepEqual(remplacantsHorsSocle([source]), []);
+test("A ter — ⭐ ZÉRO `innerHTML` DANS TOUT ui/, et c'est la fin du défaut §0", () => {
+  /* Les trois sites ont disparu l'un après l'autre : `app.innerHTML = ""`
+     (lot 58, la cause de fond), les crans de la molette (même lot), et la
+     fiche de Review (lot 65, remplacée par le masque de B9).
+     ⛔ Ce test remplace celui qui gardait l'exception : il n'y en a plus. */
+  const sources = loadSources([UI_DIR], ROOT);
+  const restants = sources.filter((s) => /\.innerHTML/.test(s.text)).map((s) => s.name);
+  assert.deepEqual(restants, [],
+    "un `innerHTML` qui revient, c'est un nœud qu'on ne contrôle plus — et le défaut §0 rouvert par la fenêtre");
 });
 
 /* ══ B — COMPORTEMENTALE : LA POSITION SURVIT ═════════════════════════════ */
