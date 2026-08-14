@@ -697,6 +697,21 @@ button { font: inherit; }
 .review-line[data-done="false"] .review-line-state { color: var(--caution); }
 .review-refusals { margin: 0; padding-left: var(--sp-20); font-size: var(--t2); color: var(--critical); }
 
+/* ── LOT 67 — LES TROIS PORTES (B9.4, B9.5) ───────────────────────────
+   « Tout en bas », et DANS la dalle : B9.3 dit « une dalle majeure UNIQUE,
+   pas plusieurs ». Elles s'enroulent plutôt que de déborder — à 360 px,
+   trois libellés anglais sur une ligne ne tiennent pas, mesuré. */
+.review-portes {
+  display: flex; flex-wrap: wrap; gap: var(--sp-8);
+  margin-top: var(--sp-24); padding-top: var(--sp-16);
+  border-top: 1px solid var(--border);
+}
+.review-porte {
+  flex: 1 1 auto; min-height: var(--touch); padding: 0 var(--sp-12);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text); font-size: var(--t3); cursor: pointer;
+}
+
 /* ── LA FICHE, DANS LE BUILDER (lot 40) ───────────────────────────────
    Le lot 40 a cable le BALISAGE de la fiche sans sa feuille : les 23 regles
    de `src/tools/fiche.shell.html` ne sont chargees que par l'outil autonome,

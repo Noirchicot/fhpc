@@ -22,13 +22,30 @@
    `Validate` et celle qui remplit Review — auraient divergé au premier lot
    suivant. Le carnet est la seule qui existe.
 
-   ⏳ CE QUE CE LOT NE FAIT PAS, ET C'EST NOMMÉ :
-     · **B9.4, l'export** — « POSSIBLEMENT un export JSON ou HTML, tout en
-       bas ». *Possiblement* n'est pas *décidé*, et le mandat est ferme :
-       « pas de faux magasin — ne publier un bouton d'export que s'il exporte
-       vraiment ». Aucun bouton n'est posé.
-     · **B9.5, `sheet` et `mode expert`** — mentionnés, jamais spécifiés, et
-       la charte réserve la fiche jouable à une décision d'Eric. */
+   ── LOT 67 — LES TROIS PORTES DU BAS (B9.4, B9.5) ───────────────────────
+   Le lot 65 les avait laissées ouvertes, faute de savoir si elles ouvraient
+   sur quelque chose. Elles ouvrent — et **aucune des trois ne construit un
+   rendu neuf** :
+
+     · **`Expert view`** et **`Export HTML`** rendent la MÊME page :
+       `render(document, report)` de `src/tools/render-fiche.mjs`, dans sa
+       coquille. ⭐ **C'est exactement ce que cet écran déversait avant le
+       lot 65** — chaque valeur avec son chemin, `underived`, `warnings`, les
+       ancres d'override. Le masque ne l'a donc pas supprimé : il l'a mis
+       derrière une porte. L'une l'ouvre, l'autre l'enregistre.
+     · **`Export JSON`** rend le document, dans **les octets canoniques du
+       moteur** (`canonicalText`, partagé avec `toBytes` — lot 67).
+
+   ⛔ POURQUOI PAS DE BOUTON `sheet`. B9.5 demande « un accès à `sheet` », et
+   `sheet` est **la fiche v2 jouable** — que la charte réserve explicitement
+   à une décision d'Eric, et qui n'existe pas. Un bouton vers rien serait le
+   « faux magasin » que le mandat interdit deux fois. **Il n'y en a pas, et
+   c'est le seul point de B9 qui reste ouvert.**
+
+   📌 ET B9.2 (« QUE DU TEXTE ») N'EST PAS CONTREDIT : il gouverne le
+   RÉCAPITULATIF, pas les portes — c'est Eric lui-même qui pose un export et
+   deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
+   MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
 import { planAt } from "./carnet.mjs";
 
@@ -170,8 +187,41 @@ export function renderReviewStep(ctx, onAction) {
     dalle.append(ul);
   }
 
+  dalle.append(renderPortes(act));
   section.append(dalle);
   return section;
+}
+
+/* ══ LE NOM DU FICHIER QUI SORT ══════════════════════════════════════════
+   Il vient du nom du personnage, et de rien d'autre : un horodatage ferait
+   deux exports du même personnage se ranger comme deux personnages, et le
+   joueur ne saurait plus lequel est à jour. Écraser est le comportement
+   voulu — c'est SON fichier.
+   ⚠️ `.fh-char.json` est la forme des fichiers du dépôt (`examples/`), pas
+   une invention de cet écran. */
+export function nomDeFichier(document, suffixe) {
+  const brut = document && typeof document.name === "string" ? document.name : "";
+  const slug = brut.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return `${slug || "character"}.${suffixe}`;
+}
+
+/* Les trois portes. ⛔ Elles n'ont AUCUNE condition d'affichage : un
+   personnage à peine commencé s'exporte aussi — c'est un brouillon valide
+   (schéma dérivé, lot 47), et le cacher jusqu'à « fini » ferait de l'export
+   une récompense au lieu d'une sortie. */
+function renderPortes(act) {
+  const portes = el("div", "review-portes");
+  portes.append(bouton("Expert view", "review-porte", () => act({ kind: "expertView" })));
+  portes.append(bouton("Export JSON", "review-porte", () => act({ kind: "exportJson" })));
+  portes.append(bouton("Export HTML", "review-porte", () => act({ kind: "exportHtml" })));
+  return portes;
+}
+
+function bouton(libelle, className, onClick) {
+  const b = el("button", className, [text(libelle)]);
+  b.type = "button";
+  b.addEventListener("click", onClick);
+  return b;
 }
 
 /** Review est la DESTINATION : il n'y a pas de pas suivant, donc pas de

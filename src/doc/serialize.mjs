@@ -27,6 +27,7 @@
 
 import { createHash } from "node:crypto";
 
+import { canonicalText } from "./canonical.mjs";
 import { DocError } from "./errors.mjs";
 
 function fail(what) {
@@ -51,23 +52,16 @@ export function digest(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-/** Les octets canoniques d'un document en mémoire : JSON indenté de deux
- *  espaces, terminé par un saut de ligne — la forme des fichiers du dépôt.
- *  L'ORDRE DES CLEFS N'EST PAS TRIÉ : il n'a aucune valeur sémantique en JSON,
- *  et le trier réécrirait silencieusement un fichier que quelqu'un a rangé à
- *  la main. */
+/** Les octets canoniques d'un document en mémoire.
+ *
+ *  ⚠️ LOT 67 — LE TEXTE EST SORTI D'ICI, dans `canonical.mjs`, et rien
+ *  d'autre n'a changé. La raison est le navigateur : le builder doit
+ *  exporter LE MÊME fichier (B9.4), et ce module-ci importe `node:crypto`
+ *  pour `digest`, donc une page ne peut pas le charger. Sortir le texte
+ *  plutôt que le recopier, c'est garder UNE écriture de la forme canonique
+ *  — un export de builder qui divergerait ne serait relu par aucune suite. */
 export function toBytes(document) {
-  let text;
-  try {
-    text = JSON.stringify(document, null, 2);
-  } catch (cause) {
-    fail(`sérialisation impossible — ${cause.message}. Un document de personnage est du JSON pur : ` +
-      "ni cycle, ni valeur que JSON ne sait pas écrire.");
-  }
-  if (text === undefined) {
-    fail("sérialisation impossible : la valeur ne produit aucun JSON (undefined, fonction ou symbole).");
-  }
-  return Buffer.from(`${text}\n`, "utf8");
+  return Buffer.from(canonicalText(document), "utf8");
 }
 
 /**

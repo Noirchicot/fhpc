@@ -407,6 +407,23 @@ export function render(document, report, lang = "fr") {
   return `<article class="fiche">${enteteHtml(vue.entete, mots)}${rapportHtml(vue.rapport, mots, raison)}${corps}</article>`;
 }
 
+/* ══ L'INJECTION DANS LA COQUILLE — sortie de `fiche.mjs` au lot 67 ══════
+   `fiche.mjs` lit la coquille sur le DISQUE (`node:fs`), donc il ne
+   s'importe pas dans une page. Le builder, lui, doit produire exactement la
+   même page (B9.4/B9.5) : il va chercher la coquille par `fetch` et appelle
+   la fonction ci-dessous. Le MARQUEUR n'est donc écrit qu'une fois — deux
+   copies auraient tenu jusqu'au jour où la coquille change de marqueur, et
+   l'un des deux appelants aurait rendu une page vide sans rien dire. */
+export const MARQUEUR = "<!--FICHE-->";
+
+/** La coquille, avec le fragment à la place du marqueur. */
+export function injecte(coquille, fragment) {
+  if (!String(coquille).includes(MARQUEUR)) {
+    throw new Error(`fiche : la coquille ne porte plus le marqueur « ${MARQUEUR} » — rien n'y serait injecté.`);
+  }
+  return String(coquille).replace(MARQUEUR, fragment);
+}
+
 /* ══ LES MOTS DE L'INTERFACE — TOUS ICI, ET NULLE PART AILLEURS ═══════
 
    Loi §0.13 : aucun nom de règle n'est écrit dans un rendu. Ce qui suit n'est
