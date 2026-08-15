@@ -50,26 +50,41 @@
   --fiche-image-w: 100px; /* l'image — 242 − 8 − 118 − 8 − 8 */
   --fiche-blurb-h: 160px; /* la boîte du blurb : 10 lignes de 16 px, FIXE */
 
-  /* ⭐ LE JOUR — Ch1, Eric le 2026-08-15 : *« je veux voir un jour au-dessus
-     et en dessous »*, et *« problème de chevauchement entre dalles »*.
+  /* ⭐ LA GOUTTIÈRE — Ch1, Eric le 2026-08-15 : *« problème de chevauchement
+     entre dalles »*.
+
+     🔴 ET LES VOISINES NE SE VOIENT PAS. Eric a d'abord demandé *« un jour
+     au-dessus et en dessous »*, l'a REGARDÉ, puis a tranché l'inverse :
+     *« ne pas voir la fiche du dessus et du dessous serait bien »*. Sa
+     seconde lecture vaut — c'est celle qui a vu la chose.
+
+     ⛔ LES DEUX NE TIENNENT PAS ENSEMBLE, et c'est de la géométrie : montrer
+     un jour EXIGE une dalle plus courte que la scène ; ne rien montrer EXIGE
+     qu'elle la remplisse. On ne choisit donc pas une valeur intermédiaire —
+     on choisit un camp.
+
+     ⭐ LA SORTIE : la BOÎTE remplit la scène, la PEINTURE non. La dalle vaut
+     100 % moins la gouttière, avec une demi-gouttière de marge en haut et en
+     bas. Le pas du défilement redevient exactement une scène — donc une
+     fiche à l'écran, pas un pixel de la suivante — pendant que 4 px de fond
+     respirent à chaque bord. `B0.23b` (*« des dalles qui FLOTTENT »*) est
+     tenu sans qu'on voie les voisines.
+
      Mesuré avant : l'écart entre deux fiches valait **0 px** sur les quatre
      paires testées, et la fiche faisait EXACTEMENT la hauteur de la scène
      (606 sur 606). Deux bordures arrondies qui se touchent se lisent comme
      un chevauchement — c'est ce qu'il a vu.
 
-     🔴 CE QUE CE NOMBRE RETIRE À LA FICHE, IL LE REND AU FOND. La fiche
-     cesse de valoir 100 % de la scène : elle vaut 100 % MOINS ce jour. Le
-     pas du défilement reste **uniforme** (toutes les fiches ont la même
-     hauteur), et c'est la seule propriété dont l'aimantation a besoin.
-
-     ⚠️ LA FEUILLE DISAIT LE CONTRAIRE, ET SON ARGUMENT NE TENAIT PLUS :
+     ⚠️ LA FEUILLE INTERDISAIT CET ÉCART, ET SON ARGUMENT NE TENAIT PLUS :
      *« un écart vertical ajouterait 8 px au pas sans les ajouter au champ,
      les crans dériveraient »*. Vérifié dans `socle.mjs` : `watchSnap` relit
      les rectangles RÉELS de chaque `[data-snap]` à chaque lecture — il ne
      calcule jamais `index × pas`. La dérive redoutée supposait une
      arithmétique que le code ne fait pas. ⛔ Une précaution n'est pas une
-     mesure : celle-ci a coûté la gouttière pendant deux lots. */
-  --fiche-jour: 56px;
+     mesure : celle-ci a coûté la gouttière pendant deux lots.
+     ⭐ Et ici l'objection tombe deux fois : marge comprise, la fiche vaut
+     EXACTEMENT une scène. Le pas n'a pas bougé d'un pixel. */
+  --fiche-gouttiere: 8px;
 
   /* La dalle prend SA cote, elle ne prend plus toute la place offerte. Sans
      cette ligne elle mesurait 266 px (mesuré) : le contenu tombait juste
@@ -222,36 +237,31 @@
    recomposer). */
 .fiche-action[disabled] { opacity: .55; cursor: default; }
 
-/* ── LE JOUR ET LA GOUTTIÈRE — Ch1, 2026-08-15 ────────────────────────── */
-/* ⛔ POSÉ ICI ET PAS DANS `shell.css` : `.catalogue-card` y sert AUSSI
+/* ── LA GOUTTIÈRE — Ch1, 2026-08-15 ───────────────────────────────────── */
+/* ⛔ POSÉE ICI ET PAS DANS `shell.css` : `.catalogue-card` y sert AUSSI
    Destiny et le don d'origine, dont les cartes n'ont ni image ni bloc de
-   stats. Le sélecteur `[data-snap="class"|"species"]` limite ce jour aux
-   deux écrans à fiche, comme le reste de ce fichier.
+   stats. Le sélecteur `[data-snap="class"|"species"]` limite cette
+   géométrie aux deux écrans à fiche, comme le reste de ce fichier.
 
-   ⭐ `scroll-snap-align: CENTER` et non `start` : à `start`, la fiche colle
-   en haut et le jour tombe entièrement en bas — on ne voit QUE la suivante.
-   Eric demande un jour **au-dessus ET en dessous** ; centrer le partage en
-   deux. La lecture du scrollspy n'en souffre pas : `nearestIndex` prend la
-   fiche dont le haut est le plus proche du haut de la scène, et la fiche
-   centrée reste de loin la plus proche. */
+   🔴 LA MARGE EST DANS LE PAS, PAS EN PLUS. `height` retire la gouttière,
+   `margin-block` la remet **par moitiés** : la boîte + ses marges vaut donc
+   exactement une scène. C'est ce qui fait qu'on ne voit **jamais** la fiche
+   du dessus ni celle du dessous (Eric, 2026-08-15, après l'avoir regardé),
+   tout en laissant 4 px de fond respirer à chaque bord.
+
+   ⛔ NE PAS REMPLACER PAR UN `gap` SUR LE CONTENEUR : un `gap` s'ajoute au
+   pas sans s'ajouter au champ — c'est exactement la dérive que l'ancienne
+   feuille redoutait, et là elle aurait eu raison.
+
+   ⭐ `scroll-snap-align: START`, et « centrage auto » est le même geste
+   (Eric) : quand la fiche vaut la scène, se coller en haut ET être centrée
+   sont la même position. `scroll-snap-type: y mandatory` (shell.css) fait le
+   reste — on relâche, ça se pose tout seul. Pas de calcul à écrire. */
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"] {
-  height: calc(100% - var(--fiche-jour));
-  scroll-snap-align: center;
-}
-/* La gouttière, elle, est un VRAI écart — le fond passe entre les dalles.
-   `B0.23b` le demandait déjà : *« des dalles qui FLOTTENT »*.
-
-   ⛔ UN FRÈRE ADJACENT, ET PAS `:has()` SUR LE CONTENEUR. Les deux disent la
-   même chose, mais `:has()` **échoue en silence** sur un navigateur qui ne le
-   porte pas : la gouttière disparaîtrait sans un mot, et c'est exactement le
-   genre de défaut qu'on ne voit qu'en capture d'écran, un mois plus tard.
-   Le combinateur `+` est porté partout depuis toujours.
-   ⭐ Et il dit mieux ce qu'on veut : un écart ENTRE deux fiches — donc pas
-   avant la première, pas après la dernière. */
-.catalogue-card[data-snap="class"] + .catalogue-card[data-snap="class"],
-.catalogue-card[data-snap="species"] + .catalogue-card[data-snap="species"] {
-  margin-top: var(--sp-8);
+  height: calc(100% - var(--fiche-gouttiere));
+  margin-block: calc(var(--fiche-gouttiere) / 2);
+  scroll-snap-align: start;
 }
 
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
