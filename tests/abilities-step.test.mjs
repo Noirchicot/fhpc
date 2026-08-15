@@ -463,12 +463,30 @@ test("⚔️ après une assignation complète, le document ne porte QUE six abil
 
 /* ══ 1 — DIX JETS RENDUS, SIX RETENUS DISTINGUÉS ═════════════════════════ */
 
-test("le lot tiré : dix dés rendus, les six retenus marqués `data-kept=\"true\"`", () => {
+/* ⚠️ CES DEUX TESTS ONT ÉTÉ REPOINTÉS SUR LE PLATEAU (croquis B d'Eric,
+   2026-08-15) — leur VÉRITÉ n'a pas bougé d'un pouce : dix jets rendus, six
+   retenus distingués, et un lot rejeté qui ne laisse aucune trace. Seul le
+   vocabulaire du DOM change, parce que l'organe change : `.ability-die`
+   (les jetons plats de `renderRollBatch`) devient `.tray-case` (les dix
+   cases numérotées sous les trois dés 3D).
+
+   📌 `renderRollBatch` n'est pas mort pour autant : il sert toujours `4d6`,
+   qui est une AUTRE mécanique (six jets, on retire le plus bas). Le test du
+   §aiguillage plus bas le prouve. */
+
+test("le lot tiré : dix cases rendues, les six retenus marqués `data-garde=\"true\"`", () => {
   const rollBatch = rollAbilitySet((() => { let n = 0; const seq = [0.9, 0.9, 0.9, 0, 0, 0, 0.5, 0.5, 0.5, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0]; return () => seq[n++ % seq.length]; })());
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), () => {});
-  const dice = node.querySelectorAll(".ability-die");
-  assert.equal(dice.length, 10, "les dix jets sont rendus");
-  assert.equal(dice.filter((d) => d.getAttribute("data-kept") === "true").length, 6, "six, et seulement six, sont marqués retenus");
+  const cases = node.querySelectorAll(".tray-case");
+  assert.equal(cases.length, 10, "les dix jets sont rendus");
+  assert.equal(cases.filter((c) => c.getAttribute("data-garde") === "true").length, 6, "six, et seulement six, sont marqués retenus");
+  /* ⭐ LE GARDE QUI COMPTE VRAIMENT : un lot rangé dans `state` est TOUJOURS
+     FINI, donc il se peint ENTIER. La version d'avant ne peignait que
+     `revele` cases — et `revele` vaut 0 ici, puisque ce lot n'est pas né
+     d'une salve à l'écran. La moitié des dix disparaissait au premier
+     redessin (une assignation suffisait). */
+  assert.equal(cases.filter((c) => c.getAttribute("data-etat") === "plein").length, 10,
+    "les dix sont PLEINES sans qu'aucune salve n'ait tourné — `revele` ne décrit qu'une salve en cours, jamais ce qu'on affiche");
 });
 
 test("⚔️ ATTAQUE — la relance mord : un lot rejeté ne laisse AUCUNE trace dans l'écran, seul le résultat rendu s'affiche", () => {
@@ -479,11 +497,66 @@ test("⚔️ ATTAQUE — la relance mord : un lot rejeté ne laisse AUCUNE trace
   const rollBatch = rollAbilitySet(rng);
   assert.equal(rollBatch.rerollCount, 1);
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), () => {});
-  const note = node.querySelectorAll(".ability-roll-note")[0];
+  const note = node.querySelectorAll(".tray-relance")[0];
   assert.ok(note, "la bannière de relance existe — le joueur voit que le lot a changé (§3a.1)");
-  assert.match(note.textContent, /1 time/);
-  const totals = node.querySelectorAll(".ability-die-total").map((n) => n.textContent);
+  assert.equal(note.hidden, false, "et elle est VISIBLE : `ecrisMention` ne la démasque que si `rerollCount > 0`");
+  assert.match(note.textContent, /One set of ten was discarded/);
+  const totals = node.querySelectorAll(".tray-case-total").map((n) => n.textContent);
   assert.equal(totals[0], "18", "le lot RENDU (dont le premier jet vaut 18) est bien celui affiché, jamais le lot rejeté (tout à 6)");
+});
+
+/* ══ 🔴 LE GARDE DU LOT — LE PLATEAU EST SUR LE CHEMIN VIVANT ════════════
+   Le défaut mesuré, et il a résisté à quatre branchements : `renderTray`
+   était IMPORTÉ par `abilities-step.mjs` et câblé dans un `renderRollMethod`
+   que **personne n'appelait**. `ABILITY_METHODS[].render` n'a jamais eu
+   d'appelant ; `renderAbilitiesStep` gardait son propre corps, avec les
+   jetons plats. Le plateau était donc écrit, importé, testable — et
+   invisible. Une suite verte ne prouve rien sur ce que personne n'importe.
+
+   ⛔ CE TEST PASSE PAR LA PORTE DU JOUEUR (`renderAbilitiesStep`), jamais par
+   `renderTray` en direct : c'est précisément le branchement qui manquait, et
+   un test qui appellerait le module directement serait resté vert pendant
+   tout le temps où l'écran ne le montrait pas. */
+
+test("🔴 `Roll dice` + FH 3d6 : le PLATEAU est rendu, avec les quatre boutons d'Eric", () => {
+  const node = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "roll", rollingMethod: "fh3d6", rollBatch: null }), () => {});
+  assert.equal(node.querySelectorAll(".tray").length, 1, "le plateau est sur le chemin vivant de l'écran");
+  const libelles = node.querySelectorAll(".tray-bouton").map((b) => b.textContent);
+  assert.deepEqual(libelles, ["roll 3d6", "roll 10 x 3d6", "flash roll", "reset"],
+    "les quatre libellés sont ceux d'Eric, mot pour mot (2026-08-15)");
+  assert.equal(node.querySelectorAll(".tray-case").length, 10, "les dix cases existent DÈS LE DÉPART, vides");
+  assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "et les jetons plats ont cédé la place");
+  /* ⛔ AUCUN DÉ N'EST NÉ AU RENDU. `createDieHost` + `mount` demandent un vrai
+     canvas WebGL : les faire tourner ici casserait ce test — c'est le garde
+     qui tient la règle « les dés ne naissent que d'un GESTE ». */
+  assert.equal(node.querySelectorAll(".tray-des")[0].childNodes.length, 0,
+    "le plateau est vide tant que le joueur ne l'a pas touché");
+});
+
+test("⚠️ `4d6` n'est PAS le plateau — c'est une autre mécanique, et elle garde son organe", () => {
+  /* Six jets de 4d6 dont on retire le plus bas : ni dix jets, ni lot rejeté,
+     ni règle des 15. Le plateau ne saurait pas la rendre, et le gabarit ne la
+     décrit pas. La molette échange l'organe ; elle ne le reconfigure pas. */
+  const node = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "roll", rollingMethod: "4d6", rollBatch: null }), () => {});
+  assert.equal(node.querySelectorAll(".tray").length, 0, "aucun plateau en 4d6");
+  assert.equal(node.querySelectorAll(".ability-roll-batch").length, 1, "`renderRollBatch` reste intact et sert 4d6");
+});
+
+test("⚔️ ATTAQUE — le bouton `Roll` de 4d6 lit la MOLETTE, jamais un 3d6 en douce", () => {
+  /* Le défaut était couvert par un chemin qu'on vient de supprimer : le
+     palier `rollBatch` était method-aware, ce bouton-ci ne l'était pas
+     (`rollAbilitySet`, du 3d6, quelle que soit la molette). En retirant le
+     palier, ce bouton devient le SEUL chemin de 4d6 — et il aurait servi du
+     3d6 en silence. 📌 Un défaut couvert par un chemin qu'on supprime. */
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /rollAbilityBatch\(state\.rollingMethod, Math\.random\)/,
+    "le jet lit la méthode choisie");
+  assert.equal(/rollAbilitySet\(/.test(shellText), false,
+    "et plus aucun jet en dur du 3d6 dans la coquille — c'est la molette qui décide");
+  assert.equal(/kind === "rollBatch"/.test(shellText), false,
+    "le palier qui jetait a bien disparu : un seul propriétaire du lot");
 });
 
 /* ══ 5 — LA SAISIE DIRECTE POSE EXACTEMENT LE MÊME CHEMIN ═══════════════ */
@@ -548,17 +621,27 @@ test("garde — la coquille écrit TOUJOURS `abilities.mode` quand la méthode c
     "aucune règle ne consomme ce champ, mais c'est une intention du joueur — la perdre serait un silence");
 });
 
-test("B5.2d — la molette de jet ne JETTE rien ; c'est `Validate` qui jette", () => {
-  /* Motif d'Eric, mot pour mot : « pour éviter de faire ramer le mobile ». */
+test("B5.2d — la molette de jet ne JETTE rien ; et depuis le plateau, `Validate` non plus", () => {
+  /* Motif d'Eric, mot pour mot : « pour éviter de faire ramer le mobile ».
+     ⭐ CE MOTIF EST INTACT — c'est son IMPLÉMENTATION qui a changé. Le test
+     d'avant scellait `action: { kind: "rollBatch" }` : `Validate` était le
+     jeteur. Le plateau (croquis B) en est un second, et DEUX PROPRIÉTAIRES
+     DU MÊME LOT est la cause racine des quatre branchements ratés. Le palier
+     a cessé de tirer ; il ne reste qu'un jeteur, celui que le joueur presse. */
   const calls = [];
   const node = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: "roll", rollBatch: null }), (a) => calls.push(a));
   assert.equal(node.querySelectorAll(".ability-rolling").length, 1, "la molette est là");
-  assert.equal(node.querySelectorAll(".ability-rows").length, 0, "aucun résultat tant qu'on n'a pas validé");
+  assert.equal(node.querySelectorAll(".ability-rows").length, 0, "aucune ligne d'affectation tant qu'aucun lot n'existe");
   node.querySelectorAll(".ability-rolling-pick .record-option")[1].click();
   assert.deepEqual(calls, [{ kind: "rollingMethod", value: "4d6" }], "tourner la molette ne produit AUCUN jet");
-  assert.deepEqual(abilitiesValidate({ document: fixture.document, method: "roll", rollBatch: null }),
-    { exists: true, ready: true, action: { kind: "rollBatch" }, next: "palier" });
+  /* 🔴 LE GARDE DU LOT : plus AUCUN palier ne porte d'action de jet. C'est
+     une propriété du palier, pas de cet écran — si un futur lot rebranche un
+     `{ kind: "rollBatch" }` sur `Validate`, ce test rougit avant que les deux
+     jeteurs ne recommencent à se contredire. */
+  const gate = abilitiesValidate({ document: fixture.document, method: "roll", rollBatch: null });
+  assert.equal(gate.action, null, "le palier ne jette plus — le plateau est le seul jeteur");
+  assert.equal(gate.next, "step", "et il n'y a plus qu'un palier : avancer quand les six sont posées");
 });
 
 /* ══ LE PLAFOND DE 18 — DÉCLARÉ, JAMAIS OPPOSÉ (commande §3c), ET QUI NE
@@ -772,8 +855,11 @@ test("LOT 74 — l'attente SE DIT : tant que `Validate` n'a rien à faire à l'a
   const enManuel = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "manual" }), () => {});
   assert.equal(enManuel.querySelectorAll(".ability-gate-note").length, 0,
     "méthode choisie : plus de phrase d'attente");
-  /* Et au palier « roll avant jet », `Validate` est PRÊT (il jette) : pas
-     d'attente à dire là non plus. */
+  /* Et une fois la méthode choisie, `Validate` est PRÊT : pas d'attente à
+     dire là non plus. ⚠️ LA RAISON A CHANGÉ, PAS LE RÉSULTAT — il s'allumait
+     parce qu'il allait JETER ; il s'allume maintenant parce que les six
+     scores du personnage d'exemple sont déjà posés. Le jet appartient au
+     plateau (voir le test B5.2d). */
   const gateRoll = abilitiesValidate({ document: fixture.document, method: "roll", rollBatch: null });
-  assert.equal(gateRoll.ready, true, "mesure : ce palier-là s'illumine (B5.2d) — l'attente muette n'existait qu'à l'arrivée");
+  assert.equal(gateRoll.ready, true, "mesure : les six sont posées, donc le palier s'illumine — l'attente muette n'existait qu'à l'arrivée");
 });

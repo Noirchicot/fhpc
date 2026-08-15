@@ -7,15 +7,24 @@
    ⚠️ `reset` et non `CLEAR` : le croquis B disait `CLEAR`, sa liste est
    postérieure et c'est elle qui vaut.
 
-   📏 ET ILS TIENNENT SUR UNE RANGÉE, MAIS SEULEMENT À T2. Mesuré à 360 sur
-   une dalle de 312 utiles, rembourrage 10, gouttière 6 : **300 px**, 12 de
-   reste. `roll 10 x 3d6` est le coupable, à 93 px.
-   ⛔ **T3 ne passe dans AUCUNE combinaison** (+9 px au mieux), alors que le
-   gabarit prévoit T3 pour les actions : quatre actions sur une rangée à 360
-   l'interdisent. C'est un écart AU GABARIT, assumé et mesuré.
-   ⭐ Les 44 px de cible tactile restent intacts en HAUTEUR — c'est la
-   largeur qui se resserre, jamais le doigt. L'autre issue était T3 sur deux
-   rangées, à +52 px de hauteur : trop cher pour un barreau.
+   📏 ET ILS TIENNENT SUR UNE RANGÉE, À T3 — DONC SANS DÉROGER AU GABARIT.
+   Mesuré à 360 sur une dalle de 312 utiles, rembourrage 8, gouttière 4 :
+   **292,4 px**, 19,6 de reste. `roll 10 x 3d6` est le plus large, à 79,3 px.
+
+   ⚠️ CORRECTION D'UNE MESURE FAUSSE — 2026-08-15, le jour même. Cet en-tête
+   annonçait `roll 10 x 3d6` à **93 px en T2** et concluait « T3 ne passe dans
+   AUCUNE combinaison », en assumant un écart au gabarit. Repris au
+   `measureText` dans la police réelle : T2 → 69,6 · T3 → 79,3 · T4 → 88,8.
+   **Le 93 correspond à du 16 px.** La mesure avait été prise au mauvais
+   barreau, et l'exception s'est construite dessus.
+
+   📌 LA FORME DE LA FAUTE : une exception documentée, argumentée, et fondée
+   sur un seul nombre que personne n'a repris. Elle a survécu plus longtemps
+   qu'un simple oubli l'aurait fait — c'est le raisonnement autour qui la
+   rendait crédible. Même famille que « pixels opaques = 0 ».
+
+   ⭐ Les 44 px de cible tactile restent intacts en hauteur, et aucun bouton
+   ne se comprime sous son texte (`flex: 1 0 auto`, voir `shell.css`).
 
    ══ CE QUI A DÉCIDÉ DE LA FORME ════════════════════════════════════════
 
@@ -149,7 +158,12 @@ function caseDeResultat(numero) {
  */
 export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot, onClear }) {
   const dalle = el("section", "tray dalle-majeure");
-  dalle.style.setProperty("--tray-ecart", `${REGLAGES.ecart}px`);
+  /* ⛔ PAS DE STYLE EN LIGNE ICI — l'écart des dés vit dans `shell.css`
+     (`--tray-ecart`). Le DOM des tests (`tests/dom-stub.mjs`) n'a pas de
+     `.style` : un `setProperty` posé AU RENDU faisait tomber seize tests
+     d'un coup, pour du décor. Le décor va dans la feuille, toujours.
+     📌 `REGLAGES.ecart` reste la valeur d'Eric et reste ici : c'est le
+     fichier qui la porte, et la feuille la recopie sous son nom. */
 
   /* ── La rangée des boutons, SEULE sur sa ligne (choix A d'Eric) ────── */
   const barre = el("div", "tray-boutons");
@@ -195,11 +209,24 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   });
   dalle.append(rangee);
 
-  /* ── L'ÉTAT DÉJÀ DÉCOUVERT, repeint sans animation ─────────────────── */
+  /* ── ⭐ UN LOT RANGÉ DANS `state` EST TOUJOURS FINI ────────────────────
+     `revele` ne décrit qu'une salve EN COURS — jamais ce qu'on affiche. Un
+     lot qui arrive par les props a fini de tomber (le plateau ne le remonte
+     qu'au dixième jet, ou d'un coup au flash), donc **il se peint entier**,
+     ses six gardés compris. Peindre `revele` cases était la quatrième
+     tentative de branchement : au premier redessin — une assignation, un
+     tour de molette — la moitié des dix disparaissait.
+
+     ⛔ ET AUCUN DÉ NE NAÎT ICI. `createDieHost` + `mount` demandent un vrai
+     canvas WebGL : les faire tourner au RENDU casse les tests et, au
+     navigateur, allume trois contextes que personne n'a demandés. **Les dés
+     ne naissent que d'un GESTE** — `sequence()` ou `flashRoll()`, jamais le
+     rendu. Le joueur qui revient sur l'écran retrouve ses dix totaux ; le
+     plateau, lui, reste vide jusqu'à ce qu'il le touche. */
   if (lot) {
     ecrisMention(mention, lot);
-    for (let i = 0; i < revele; i += 1) ecrisCase(cases[i], lot.rolls[i], lot, revele);
-    if (revele > 0) poserLesDes(hote, lot.rolls[revele - 1].dice, false);
+    lot.rolls.forEach((jet, i) => { if (cases[i]) ecrisCase(cases[i], jet); });
+    peinsLesGardes(cases, lot);
   }
 
   /* ══ LA SÉQUENCE — elle écrit à la main, elle ne redessine JAMAIS ════
@@ -226,7 +253,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
       tentative.push(jet);
       poserLesDes(hote, jet.dice, true);
       revele += 1; faits += 1;
-      ecrisCase(cases[revele - 1], jet, null, revele);
+      ecrisCase(cases[revele - 1], jet);
       await attendre(REGLAGES.pauseMs);
       if (annule) break;
       if (revele < 10) continue;
@@ -264,7 +291,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
     tentative = [...lot.rolls];
     revele = 10;
     videLesCases(cases);
-    lot.rolls.forEach((jet, i) => ecrisCase(cases[i], jet, null, i + 1));
+    lot.rolls.forEach((jet, i) => ecrisCase(cases[i], jet));
     peinsLesGardes(cases, lot);
     mention.hidden = true;              // ⛔ « on ne voit pas les erreurs »
     delete mention.dataset.echec;
@@ -326,19 +353,24 @@ function ecrisMention(node, lot) {
     : `${n} sets of ten were discarded: none of their rolls reached 15. These are the dice you keep.`;
 }
 
-/** Écrit UNE case — et remet à jour les « barrés », qui ne se connaissent
- *  qu'une fois les dix découverts (les six gardés se décident sur le lot
- *  entier, pas au fil de l'eau). */
-function ecrisCase(box, jet, lot, revele) {
+/** Écrit UNE case : son total et sa provenance, rien d'autre.
+ *
+ *  🔴 ELLE NE DÉCIDE PLUS DES GARDÉS, ET C'EST LA CORRECTION DU LOT. La
+ *  version d'avant prenait un `lot` et un `revele` pour repeindre les six
+ *  retenus quand la dixième case tombait — mais ses TROIS appelants lui
+ *  passaient `lot: null`, et elle lisait `lot.rolls.length` à la ligne
+ *  suivante. **`TypeError` sur le premier dé, dans les trois modes.** Le
+ *  module n'avait jamais tourné : rien ne l'appelait, donc rien ne l'a dit.
+ *
+ *  📌 La forme de la faute : une fonction qui fait DEUX choses (écrire une
+ *  case · trancher sur le lot entier) n'a pas de signature honnête — l'une
+ *  des deux finit appelée avec les paramètres de l'autre. Les six gardés se
+ *  décident sur le lot entier ; c'est `peinsLesGardes` qui les peint, et
+ *  elle seule. Une brique, un écrivain. */
+function ecrisCase(box, jet) {
   box.dataset.etat = "plein";
   box.querySelector(".tray-case-total").textContent = String(jet.total);
   box.title = jet.dice.join(" + ");
-  if (revele < lot.rolls.length) return;
-  const rangee = box.parentElement;
-  lot.rolls.forEach((r, i) => {
-    const c = rangee.children[i];
-    if (c) c.dataset.garde = String(r.kept);
-  });
 }
 
 export const ROLL_DURATION_MS = rollDurationMs;

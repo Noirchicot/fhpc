@@ -1348,3 +1348,113 @@ button { font: inherit; }
 .universe-locale-row { display: flex; gap: var(--sp-8); font-size: var(--t4); }
 .universe-locale-row dt { margin: 0; color: var(--text-muted); width: 10ch; flex: none; }
 .universe-locale-row dd { margin: 0; }
+
+/* ══ LE PLATEAU DE DÉS D'ABILITIES — croquis B d'Eric, 2026-08-15 ═════════
+   ⛔ TOUT LE DÉCOR DU PLATEAU EST ICI, ET AUCUN AILLEURS. `abilities-tray.mjs`
+   posait `--tray-ecart` en STYLE EN LIGNE au rendu : le DOM des tests
+   (`tests/dom-stub.mjs`) n'a pas de `.style`, et seize tests tombaient d'un
+   coup — pour un écart de 4 px. Un module rend des NŒUDS ; la feuille les
+   habille. 📌 La valeur reste celle d'Eric (`REGLAGES.ecart`), mesurée sur
+   son iPhone SE ; elle est recopiée ici sous son nom, pas réinventée. */
+.tray {
+  --tray-ecart: 4px;
+  --tray-de: 72px;              /* mobile — le réglage d'Eric, § 4sexies du gabarit */
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-8);
+  margin-bottom: var(--sp-12);
+}
+@media (min-width: 768px) { .tray { --tray-de: 82px; } }
+
+/* LES BOUTONS PRENNENT LEUR PROPRE RANGÉE — choix A d'Eric, et c'est une
+   MESURE, pas un goût : la colonne `ROLL`/`ROLL 10` fait 80 px et `CLEAR` 70
+   sur 312 utiles à 360 ; les laisser border le plateau n'y laisserait que
+   146 px, soit des dés de 46. Aucune taille acceptable ne tient autrement. */
+/* ⭐ LES QUATRE BOUTONS TIENNENT EN T3, ET LE GABARIT EST DONC RESPECTÉ.
+   ⚠️ CORRECTION D'UNE MESURE FAUSSE, 2026-08-15. L'en-tête d'`abilities-tray.mjs`
+   annonçait `roll 10 x 3d6` à **93 px en T2** et concluait « T3 ne passe dans
+   AUCUNE combinaison » — un écart au gabarit assumé, documenté, et faux. Repris
+   au `measureText` dans la police réelle du builder :
+
+     T2 · 12px → le plus large 69,6 · les quatre 266,1 sur 312 · reste 45,9
+     T3 · 14px → le plus large 79,3 · les quatre 292,4 sur 312 · reste 19,6 ✅
+     T4 · 16px → le plus large 88,8 · les quatre 318,2 sur 312 · DÉBORDE
+
+   📌 **Le 93 px correspond à du 16 px**, pas à T2 : la mesure d'origine avait
+   été prise au mauvais barreau, et l'exception s'est construite dessus. Le
+   gabarit dit « `LORE`/`CHOOSE` à T3, ce sont des actions » — il n'y a plus de
+   raison d'y déroger. 📌 Même famille que « pixels opaques = 0 » : mesurer
+   proprement la mauvaise chose.
+   ⚠️ Les 19,6 px de reste sont mesurés dans le navigateur du Mac. À confirmer
+   sur l'iPhone SE d'Eric — c'est lui qui tranche ce qui est lisible.
+
+   Le rembourrage (8) et la gouttière (4) sont sur l'ÉCHELLE du dépôt
+   (2/4/8/12/16…), là où le 10 et le 6 du calcul d'origine n'y étaient pas :
+   le garde `ui-jetons` les a refusés, et il avait raison. */
+.tray-boutons { display: flex; gap: var(--sp-4); }
+.tray-bouton {
+  flex: 1 0 auto;               /* ⛔ `1 1 0` DONNAIT QUATRE PARTS ÉGALES DE 71 px
+                                   et écrasait `roll 10 x 3d6` (79,3). Aucun
+                                   bouton ne se comprime sous son texte : s'il
+                                   devait un jour déborder, ça se VOIT — un
+                                   libellé rogné en silence serait pire. */
+  min-height: 44px;             /* ⛔ LA CIBLE TACTILE NE SE NÉGOCIE JAMAIS */
+  padding: 0 var(--sp-8);
+  font: inherit;
+  font-size: var(--t3);         /* le gabarit : les actions sont à T3 */
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--dalle-simple);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.tray-bouton:disabled { opacity: 0.45; cursor: default; }
+
+/* LA MENTION DE RELANCE — « le joueur est informé de l'échec des dix jets »
+   (Eric). Informé, pas spectateur : on ne lui rejoue pas les lots rejetés. */
+.tray-relance { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+.tray-relance[data-echec="true"] { color: var(--critical); }
+
+/* LE PLATEAU — trois dés, au centre. Sa hauteur est RÉSERVÉE même vide :
+   sans ça la dalle sauterait de 72 px au premier jet, et le pouce viserait
+   un bouton qui vient de bouger. */
+.tray-des {
+  display: flex;
+  justify-content: center;
+  gap: var(--tray-ecart);
+  min-height: var(--tray-de);
+}
+
+/* LES DIX CASES NUMÉROTÉES. Elles existent dès le départ, vides : c'est ce
+   qui permet à la révélation d'écrire dedans sans reconstruire la rangée —
+   et donc sans tuer les canvas WebGL voisins en pleine animation. */
+.tray-cases {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tray-case {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) 0;
+  border-radius: var(--radius-md);
+  background: var(--dalle-simple);
+}
+.tray-case-num { font-size: var(--t1); color: var(--text-muted); }
+.tray-case-total { font-size: var(--t2); color: var(--text); }
+.tray-case[data-etat="vide"] .tray-case-total { color: var(--text-muted); }
+
+/* LES QUATRE ÉCARTÉS SONT BARRÉS — le croquis les montre rayés, pas cachés.
+   ⛔ L'ACCENT NE PORTE JAMAIS LE NOMBRE : sur ces voiles il tient 3,3 · 3,8
+   contre 4,5 exigé (chiffres de la bible, lot 59). Il ne sert qu'à REMPLIR
+   une forme — ici le liseré d'un gardé. Le total reste en `--text`, seule
+   encre qui survit au verre. */
+.tray-case[data-garde="false"] .tray-case-total { text-decoration: line-through; opacity: 0.55; }
+.tray-case[data-garde="true"] { box-shadow: inset 0 0 0 1px var(--accent); }

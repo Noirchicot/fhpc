@@ -614,9 +614,52 @@ export function renderAbilitiesStep(ctx, onAction) {
     return section;
   }
 
-  if (ctx.method === "roll" && !rollBatch) {
+  /** Les six lignes d'affectation — B5.4/B5.5, le temps 2. ⛔ Elles
+   *  n'apparaissent QUE lorsqu'un lot existe : six molettes sans aucune
+   *  option seraient le « faux magasin » que ce dépôt interdit. Les six
+   *  cases VIDES du croquis B viendront avec le glisser-déposer, où elles
+   *  sont une DESTINATION — pas un choix mort. */
+  const lignesDAffectation = (lot) => {
+    const rows = el("div", "ability-rows");
+    for (const key of ABILITY_KEYS) {
+      rows.append(renderAssignRow(key, { document, resolved, rollBatch: lot, onAction: act }));
+    }
+    return rows;
+  };
+
+  /* ══ `Roll dice` — LA MOLETTE ET L'ORGANE DE JET SUR LA MÊME SURFACE ═══
+     ✅ TRANCHÉ PAR ERIC, 2026-08-15. Avant ce lot, cette branche s'arrêtait
+     sur la molette et c'est `Validate` qui jetait (`{kind:"rollBatch"}`).
+
+     🔴 C'ÉTAIT LA CAUSE RACINE DES QUATRE BRANCHEMENTS RATÉS : le palier
+     tirait ET le plateau voulait tirer. Deux propriétaires du même lot, donc
+     deux vérités sur « qui a jeté quoi », donc un écran qui se contredisait
+     dès le premier redessin. **Le palier a cessé de tirer** (voir
+     `abilitiesValidate`) ; il ne reste qu'un jeteur, et c'est le bouton que
+     le joueur voit.
+
+     ⭐ ET LE MOTIF DE B5.2d SURVIT INTACT — « le résultat ne se recalcule pas
+     en continu pendant qu'on tourne la molette », dit Eric pour ne pas faire
+     ramer le mobile. Tourner la molette ne jette toujours RIEN : seul `ROLL`
+     jette. C'est l'implémentation du palier qui meurt, jamais sa règle.
+
+     ⚠️ LE PLATEAU NE SERT QUE FH 3d6. `4d6` est une AUTRE mécanique (six
+     jets de 4d6, on retire le plus bas — ni dix jets, ni lot rejeté, ni
+     règle des 15) : elle garde `renderRollBatch` tel quel. La molette
+     échange donc l'organe, elle ne le reconfigure pas. */
+  if (ctx.method === "roll") {
     section.append(renderRollingChoice(ctx, act));
-    return section; // le jet attend le palier — voir `abilitiesValidate`
+    section.append(ctx.rollingMethod === "4d6"
+      ? renderRollBatch(rollBatch, act)
+      : renderTray({
+        lot: rollBatch,
+        revele: ctx.revele || 0,
+        onNouveauLot: (lot) => act({ kind: "abilityLot", lot }),
+        onRevele: (valeur) => act({ kind: "abilityRevele", valeur }),
+        onClear: () => act({ kind: "abilityClear" })
+      }));
+    if (rollBatch) section.append(lignesDAffectation(rollBatch));
+    return section;
   }
   if (ctx.method === "manual") {
     const rows = el("div", "ability-rows");
@@ -628,23 +671,32 @@ export function renderAbilitiesStep(ctx, onAction) {
      carte `assign` qui distingue les deux 14 (B5.6, déjà résolue au lot 50). */
   if (rollBatch) {
     if (rollBatch.method !== "standard") section.append(renderRollBatch(rollBatch, act));
-    const rows = el("div", "ability-rows");
-    for (const key of ABILITY_KEYS) {
-      rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction: act }));
-    }
-    section.append(rows);
+    section.append(lignesDAffectation(rollBatch));
   }
   return section;
 }
 
-/** LES PALIERS DE B5 — un ou deux selon la méthode.
- *  · `roll`, avant le jet : `Validate` JETTE (B5.2d — « le résultat ne se
- *    recalcule pas en continu ») ;
- *  · partout ailleurs : `Validate` avance quand les six scores sont posés. */
+/** LE PALIER DE B5 — il n'y en a plus qu'UN : *avancer quand les six scores
+ *  sont posés*. C'est le palier par défaut du socle, celui qu'un écran qui
+ *  n'en déclare aucun reçoit gratuitement.
+ *
+ *  🔴 CE QUI A DISPARU, ET POURQUOI C'EST LE CŒUR DU LOT. Il existait un
+ *  premier palier — `roll` sans lot ⇒ `Validate` rendait
+ *  `{ kind: "rollBatch" }`, et la coquille JETAIT. Le plateau de dés jette
+ *  lui aussi, par le bouton que le joueur presse.
+ *
+ *  ⛔ **DEUX PROPRIÉTAIRES DU MÊME LOT.** Quatre tentatives de branchement
+ *  s'y sont cassées : le palier posait un lot que le plateau n'avait pas vu
+ *  tomber, le plateau en remontait un que le palier croyait avoir produit, et
+ *  chaque redessin choisissait un camp. Aucun réglage d'affichage ne pouvait
+ *  réconcilier ça — il fallait retirer un des deux jeteurs.
+ *
+ *  ⭐ ET C'EST LE PALIER QUI PART, PAS LE PLATEAU. Le geste d'Eric est *« je
+ *  presse ROLL et je regarde tomber »* (croquis B) ; un `Validate` qui jette
+ *  est un jet sans dés. Le motif de B5.2d — « ne pas faire ramer le mobile,
+ *  le résultat ne se recalcule pas pendant qu'on tourne la molette » — est
+ *  intégralement tenu par le plateau : tourner la molette ne jette rien. */
 export function abilitiesValidate(ctx) {
-  if (ctx.method === "roll" && !ctx.rollBatch) {
-    return { exists: true, ready: true, action: { kind: "rollBatch" }, next: "palier" };
-  }
   const document = ctx.document;
   const toutesPosees = ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
   return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };

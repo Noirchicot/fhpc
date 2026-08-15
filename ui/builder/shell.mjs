@@ -33,7 +33,7 @@ import {
 import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=1";
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=1";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=1";
-import { renderAbilitiesStep, rollAbilitySet, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=1";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=1";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
 } from "./destiny-step.mjs?v=1";
@@ -431,11 +431,11 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  if (action.kind === "rollBatch") {
-    state.abilityRoll = { ...rollAbilityBatch(state.rollingMethod, Math.random), assign: emptyAbilityAssign() };
-    openSurface();
-    return;
-  }
+  /* ⛔ `rollBatch` A ÉTÉ RETIRÉ ICI, ET C'EST LE CŒUR DU LOT DU PLATEAU.
+     Cette action était le palier de `Validate` qui JETAIT. Le plateau jette
+     aussi — deux propriétaires du même lot, et quatre branchements s'y sont
+     cassés. Le palier a cessé de tirer (voir `abilitiesValidate`) ; il ne
+     reste qu'un seul jeteur, celui que le joueur presse. */
   /* ══ LES DEUX ACTIONS DU PLATEAU — ⛔ AUCUNE NE REDESSINE ══════════════
      Un `refresh()` remplace tout le contenu de la scène (`swapContent`) : les
      trois canvas WebGL mourraient en pleine animation, à chaque jet. Le
@@ -444,7 +444,26 @@ function applyDecisionAction(action) {
      la même qui interdit au scrollspy de redessiner. */
   if (action.kind === "abilityLot") {
     state.abilityRoll = { ...action.lot, assign: emptyAbilityAssign() };
-    return;                       // ⛔ pas de refresh — voir ci-dessus
+    /* ⭐ LA SEULE EXCEPTION, ET ELLE EST MESURÉE. Sans ce `refresh()`, l'écran
+       est une IMPASSE : vérifié au navigateur, `flash roll` remplissait bien
+       les dix cases et marquait les six gardés — et les six lignes
+       d'affectation restaient à ZÉRO. Le joueur jetait, puis n'avait nulle
+       part où poser ses dés.
+
+       ⛔ LA RÈGLE « LE PLATEAU NE REDESSINE JAMAIS » N'EST PAS VIOLÉE : elle
+       protège les canvas WebGL d'un remplacement EN PLEINE ANIMATION.
+       `onNouveauLot` ne part qu'une fois le lot COMPLET — après la pause de
+       2 500 ms du dixième jet, donc après que `settleSizePx` a figé chaque dé
+       en image ET libéré son contexte. C'est le seul instant de la séquence
+       où il n'y a rien à casser. `abilityRevele`, lui, part à CHAQUE jet : il
+       ne redessine toujours pas.
+
+       ⚠️ CE QUE ÇA COÛTE, ET QU'ERIC DOIT TRANCHER : le redessin vide le
+       plateau, parce qu'un dé ne naît que d'un GESTE. Le joueur garde ses dix
+       totaux et ses six gardés, mais les trois dés s'effacent. Le croquis B
+       les montre posés. La reprise appartient au lot des 4 dalles. */
+    refresh();
+    return;
   }
   if (action.kind === "abilityRevele") {
     state.abilityRevele = action.valeur;
@@ -464,8 +483,16 @@ function applyDecisionAction(action) {
        la carte d'assignation à `null` : relancer invalide l'assignation
        précédente, `rerollCount` (dans `rollAbilitySet`) dit déjà au joueur
        quand ça arrive. `emptyAbilityAssign()` vient d'`abilities-step.mjs`
-       — jamais une seconde liste de six clefs recopiée ici. */
-    state.abilityRoll = { ...rollAbilitySet(Math.random), assign: emptyAbilityAssign() };
+       — jamais une seconde liste de six clefs recopiée ici.
+
+       🔴 ET IL LIT MAINTENANT LA MOLETTE. Ce bouton `Roll` n'appartient plus
+       qu'à `4d6` : FH 3d6 a son plateau, qui produit son lot lui-même. Il
+       tirait pourtant `rollAbilitySet` — du **3d6** — quelle que soit la
+       molette. Le défaut ne se voyait pas tant que le palier `rollBatch`
+       (lui, method-aware) faisait le premier jet ; en le retirant, ce bouton
+       devient le SEUL chemin de `4d6`, et il aurait servi du 3d6 en silence.
+       📌 La forme du piège : un défaut couvert par un chemin qu'on supprime. */
+    state.abilityRoll = { ...rollAbilityBatch(state.rollingMethod, Math.random), assign: emptyAbilityAssign() };
     refresh();
     return;
   }
