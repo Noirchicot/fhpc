@@ -16,12 +16,20 @@ import { versionQuery } from "./version.mjs?v=1";
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
    pile montée comme la page » tient à cet import, pas à une recopie. */
+/* LOT 77 — `fh-fiche-en` et `fh-lore-en` ferment la pile, DANS CET ORDRE, et
+   le même que `src/tools/exemple-fh-en.mjs` : les deux couches ne font que
+   `patch` des records déjà posés (les 9 espèces du SRD, les 3 de
+   `fh-species-en`, les 12 classes), donc elles ne peuvent monter qu'APRÈS
+   ceux qui les définissent. ⛔ Les DEUX piles se tiennent à jour ensemble —
+   une seule des deux et l'écran et les tests divergeraient en silence. */
 export const LAYER_FILES = [
   "srd-5.2.1-en.layer.json",
   "fh-species-en.layer.json",
   "fh-skills-en.layer.json",
   "fh-arcana-en.layer.json",
-  "fh-feats-en.layer.json"
+  "fh-feats-en.layer.json",
+  "fh-fiche-en.layer.json",
+  "fh-lore-en.layer.json"
 ];
 
 function makeBus() {

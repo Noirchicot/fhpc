@@ -195,14 +195,24 @@ test("Class — les molettes du menu des choix (palier 2) s'annoncent", () => {
   assertToutBoutonActifAnnonceSonEtat(node, "Class", 1);
 });
 
-test("Class — le palier 1 ne produit AUCUN bouton : c'est l'invariant II.1, mesuré", () => {
+test("Class — le palier 1 ne produit AUCUN bouton À ÉTAT : c'est l'invariant II.1, mesuré", () => {
   /* Le pendant du test au-dessus, et il vaut mieux que sa parole : si un
      futur lot remettait des boutons de sélection dans les douze fiches, le
      « défilement EST le choix » d'Eric serait mort sans qu'un seul test
-     bronche. Celui-ci bronche. */
+     bronche. Celui-ci bronche.
+     ⚠️ LOT 77 — le pied de fiche porte `Lore` et `Choose` (croquis du
+     2026-08-15, cotés par le gabarit). Ce ne sont pas des boutons à ÉTAT :
+     ils ne portent ni `data-active`, ni `aria-pressed`, ni valeur de record.
+     C'est cette propriété-là qui est gardée ici — la seule qui dise « aucun
+     geste de sélection », et elle est plus stricte que le compte de boutons
+     qu'elle remplace. */
   const node = renderCatalogueCards({ decisions: report.decisions, query, path: "class", kind: "class" }, renderClassCardBody);
-  assert.equal(node.querySelectorAll("button").length, 0,
-    "aucun bouton dans la fiche (B2.1e, I.3) — le seul Validate de l'interface est celui de la barre du haut");
+  for (const bouton of node.querySelectorAll("button")) {
+    assert.equal(bouton.getAttribute("data-active"), null,
+      "aucun bouton à état dans la fiche (B2.1e, I.3) — le seul Validate de l'interface est celui de la barre du haut");
+    assert.equal(bouton.getAttribute("aria-pressed"), null, "idem : rien qui s'annonce enfoncé");
+    assert.equal(bouton.getAttribute("data-value"), null, "et rien qui porte un record : ce serait une sélection");
+  }
   assert.ok(node.querySelectorAll("[data-snap]").length >= 12,
     "et les douze fiches portent bien leur point d'aimantation, le seul contrat avec le scrollspy");
 });

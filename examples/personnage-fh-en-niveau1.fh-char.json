@@ -44,6 +44,18 @@
         "version": "0.1.0",
         "hash": "6e74f5586edeb06b268b4d0183867ed2c6e14fd21c078d86a13d09a70383f47b",
         "name": "Fate's Hand — Feats (EN)"
+      },
+      {
+        "id": "fh-fiche-en",
+        "version": "0.1.0",
+        "hash": "2df26f501ea13fa082003f40dd001c54aae64e72427380824c4da43054bd93c0",
+        "name": "Fate's Hand — Fiche (EN)"
+      },
+      {
+        "id": "fh-lore-en",
+        "version": "0.1.0",
+        "hash": "6672c10ee3b7f1c7e3873e3944db40920c0a8b43b0ce048c6e9b3969df92718d",
+        "name": "Fate's Hand — Lore (EN)"
       }
     ],
     "choices": [
@@ -383,6 +395,18 @@
           "version": "0.1.0",
           "hash": "6e74f5586edeb06b268b4d0183867ed2c6e14fd21c078d86a13d09a70383f47b",
           "name": "Fate's Hand — Feats (EN)"
+        },
+        {
+          "id": "fh-fiche-en",
+          "version": "0.1.0",
+          "hash": "2df26f501ea13fa082003f40dd001c54aae64e72427380824c4da43054bd93c0",
+          "name": "Fate's Hand — Fiche (EN)"
+        },
+        {
+          "id": "fh-lore-en",
+          "version": "0.1.0",
+          "hash": "6672c10ee3b7f1c7e3873e3944db40920c0a8b43b0ce048c6e9b3969df92718d",
+          "name": "Fate's Hand — Lore (EN)"
         }
       ]
     },

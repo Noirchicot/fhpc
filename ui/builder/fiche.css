@@ -1,0 +1,216 @@
+/* ══ LA FICHE À 360 — lot 77 ═════════════════════════════════════════════
+   📐 Croquis C (Wizard, 4 écrans) et croquis A (Species), 2026-08-15, et les
+   nombres de `fh-phb/GABARIT-360-CLASS-SPECIES.md` — tous MESURÉS au
+   `measureText` dans la police réelle du builder, jamais estimés.
+
+   ⛔ CE FICHIER EXISTE PARCE QUE `shell.css` APPARTIENT À UN AUTRE LOT (le
+   plateau de dés d'Abilities l'écrit en ce moment). Un fichier, un écrivain.
+   Il est chargé APRÈS `shell.css` dans `index.html` : les quelques règles
+   `.catalogue-*` qu'il reprend le sont donc à égalité de spécificité, et
+   c'est l'ordre qui tranche — délibérément, pas par accident de cascade.
+
+   ── LA RÉPARTITION, ET CE QUI L'A DÉCIDÉE ───────────────────────────────
+       360 ─┬─ 16 marge
+            ├─ 78  RAIL      noms à T3 · SEARCH seul cliquable
+            ├─  8  écart
+            ├─ 242 FICHE     8 rembourrage │ 118 STATS │ 8 │ 100 IMAGE │ 8
+            └─ 16 marge
+
+   🔴 LE NOMBRE QUI A TRANCHÉ : `W. Prof. : 2`, étiquette en GRAS, mesuré à
+   116 px par le gabarit — d'où une colonne de stats à 118 et une image
+   descendue de 104 à 100. Le gras de l'étiquette coûte 4 px, et il les
+   mérite : c'est lui qui rend le bloc lisible en diagonale.
+   ⭐ ET LE PIRE CAS N'ÉTAIT PAS CELUI QU'ON CROYAIT : le gabarit désignait
+   `W. Prof.` ; sur les 24 fiches c'est `Weapons : Smpl+FL` (rogue) qui est
+   la plus large. Un garde le mesure désormais sur les 130 lignes
+   (`tests/fiche-360.test.mjs`), plus sur les deux fiches connues d'un doc.
+
+   ⚠️ L'ORDRE DES DEUX COLONNES VIENT DU DESSIN. Le récapitulatif du gabarit
+   écrit « IMAGE puis STATS » ; les DEUX croquis montrent l'inverse, et
+   celui d'espèce l'annote en toutes lettres (« upper left quarter » pour
+   l'identité, « upper right quarter » pour l'image). Le croquis fait foi —
+   la ligne du gabarit est une répartition de largeurs, pas un ordre.
+
+   ⛔ RIEN EN DUR QUI SOIT L'EXPRESSION D'UN JETON : les tailles passent par
+   `--t1..7`, les espacements par `--sp-*`, les rayons par `--radius-*`. Les
+   trois largeurs de la fiche (118 · 100 · 226) et la hauteur de la boîte du
+   blurb sont déclarées comme JETONS LOCAUX en tête de bloc — elles ne sont
+   pas des valeurs de l'échelle d'espacement, ce sont des cotes mesurées, et
+   elles vivent à UN endroit chacune. */
+
+/* Portée : les deux écrans à fiche, et EUX SEULS. `data-snap` porte déjà le
+   genre du catalogue (posé par `renderCatalogueCards`) — Destiny et le don
+   d'origine partagent le même catalogue et ne doivent PAS hériter de cette
+   géométrie : leurs cartes n'ont ni image ni bloc de stats. */
+.catalogue-card[data-snap="class"],
+.catalogue-card[data-snap="species"] {
+  /* ── LES COTES MESURÉES, déclarées une fois ───────────────────────── */
+  --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
+  --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
+  --fiche-image-w: 100px; /* l'image — 242 − 8 − 118 − 8 − 8 */
+  --fiche-blurb-h: 160px; /* la boîte du blurb : 10 lignes de 16 px, FIXE */
+
+  /* La dalle prend SA cote, elle ne prend plus toute la place offerte. Sans
+     cette ligne elle mesurait 266 px (mesuré) : le contenu tombait juste
+     malgré tout — 8 + 118 + 8 + 100 + 8 = 242 — mais les 24 px de trop se
+     répartissaient en rembourrage, et la fiche n'avait plus les cotes du
+     gabarit, elle les CONTENAIT. Deux choses différentes.
+     ⏳ CE QUI RESTE AU-DEHORS, ET QUI N'EST PAS À CE LOT : le gabarit veut
+     16 px de marge de page AVANT le rail ; le rail commence aujourd'hui à 0.
+     Ça se règle dans `.stage-aside`/`.stage` — c'est-à-dire dans
+     `shell.css`, qui appartient à un autre lot. Noté, pas contourné. */
+  width: var(--fiche-dalle-w);
+  margin-inline: auto;
+
+  /* 🔴 LE REMBOURRAGE DESCEND DE 16 À 8, et c'est la TROISIÈME fois que le
+     16 hérité du bureau est le vrai coupable (cf. B4.3, B7.5). À 16, la
+     largeur utile tombe à 210 et la colonne de stats ne tient plus.
+     ⛔ Posé ICI et pas sur `--card-pad` (tokens.css) : ce jeton-là habille
+     TOUS les écrans, et B4.3 a mesuré 16 pour eux. */
+  padding: var(--sp-8);
+
+  /* La grille du croquis : deux colonnes en haut (identité | image), deux
+     bandes pleine largeur en dessous (le blurb, puis les actions).
+     `1fr` sur la deuxième rangée : la colonne de stats prend ce qui reste,
+     donc l'image garde sa hauteur quel que soit le nombre de lignes.
+     ⚠️ LE BLOC DE STATS N'EST PAS DE HAUTEUR FIXE — 7 lignes au Wizard, 8 au
+     Fighter (`W. Prof.`), 3 ou 4 sur une espèce. La grille se dimensionne
+     donc sur le contenu, pas sur un nombre écrit ici. */
+  display: grid;
+  grid-template-columns: var(--fiche-stats-w) var(--fiche-image-w);
+  /* CINQ RANGÉES, dont une VIDE, et elle a une raison : le nom, les stats,
+     le blurb, LE MOU, les actions. Sans la rangée `1fr`, le pied remontait
+     coller le blurb — les deux croquis posent `lore`/`choose` au BAS de la
+     dalle, pas sous le texte. C'est le mou qui va au fond, jamais le
+     contenu qui s'étire (mesuré : avec `1fr` sur la rangée des stats,
+     l'image montait à 350 px de haut pour 100 de large). */
+  grid-template-rows: auto auto var(--fiche-blurb-h) 1fr auto;
+  justify-content: center;
+  gap: var(--sp-8);
+}
+
+/* Le nom : T5. `Barbarian` à T6 ferait 103 px dans une colonne de 118 — il
+   tient, mais sans air. T5 le pose sans le serrer. */
+.catalogue-card[data-snap="class"] .catalogue-card-name,
+.catalogue-card[data-snap="species"] .catalogue-card-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: var(--t5);
+  align-self: end;
+}
+
+/* ── LA COLONNE DE STATS — quart haut-gauche ──────────────────────────── */
+.fiche-stats {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+/* Une ligne : étiquette en gras, valeur en normal, sur UNE ligne. Le
+   `nowrap` n'est pas du décor — c'est ce qui rend un débordement VISIBLE au
+   lieu de le laisser se replier en silence sur deux lignes et décaler tout
+   le bloc. Le garde des 118 px est l'autre moitié de cette promesse. */
+.fiche-stat-row {
+  display: flex;
+  gap: 0;
+  font-size: var(--t2);
+  color: var(--text);
+  white-space: nowrap;
+}
+.fiche-stat-row dt { margin: 0; font-weight: 600; }
+.fiche-stat-row dd { margin: 0; padding-left: var(--sp-4); }
+
+/* ── L'IMAGE — quart haut-droit, du haut du nom au bas des stats ──────── */
+/* ⚠️ `aspect-ratio` ET PAS UNE HAUTEUR : la cote visée est 200 × 260 (Eric
+   produit les images), donc 100 px de large en demandent 130 de haut. Écrire
+   `130px` ici poserait le même nombre à deux endroits — la largeur le dit
+   déjà, le rapport suffit. Sans lui, l'image s'étirait sur toute la colonne
+   (mesuré : 350 px de haut pour 100 de large, une meurtrière). */
+.fiche-image {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  aspect-ratio: 200 / 260;
+  align-self: start;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+/* ⏳ Le bouche-trou est le dos de carte des arcanes (aucune image de fiche
+   n'existe : 200 × 260 visés, PNG transparent, Eric les produit). `cover` +
+   `height: 100%` : le jour où la vraie image arrive, elle occupe la même
+   boîte sans qu'une seule règle bouge. */
+.fiche-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── LE BLURB — la moitié basse, BOÎTE FIXE ───────────────────────────── */
+/* ⛔ FIXE, ET PAS « CE QUI RENTRE » : B0.23 dit « choix identique ⇒ dalle de
+   taille identique ». Douze blurbs de longueurs libres feraient douze fiches
+   de hauteurs différentes, et le cran du défilement aimanté (B2.1h)
+   dériverait — le même défaut, mesuré, que les 2 px de bordure du lot 60.
+   La hauteur vaut 10 lignes de 16 px ; le garde des 340 caractères
+   (`tests/fiche-360.test.mjs`) est ce qui empêche un texte d'en demander 11.
+   ⚠️ Trois blurbs (druid 337, monk 333, bard 332) remplissent DÉJÀ les dix
+   lignes — mesuré au navigateur. La marge est nulle, pas mince. */
+.fiche-blurb {
+  grid-column: 1 / span 2;
+  grid-row: 3;
+  margin: 0;
+  font-size: var(--t2);
+  /* 10 lignes DANS la boîte : l'interligne se déduit de la cote, il ne se
+     réécrit pas à côté d'elle — les deux nombres ne peuvent pas diverger. */
+  line-height: calc(var(--fiche-blurb-h) / 10);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ── LE PIED — `Lore` et `Choose`, T3, cible tactile ──────────────────── */
+/* ⭐ `CHOOSE` S'ÉLARGIT ET RECOUVRE LE RAIL — décision d'Eric du 2026-08-15,
+   POSTÉRIEURE au croquis A (« choose ne recouvre que la grosse dalle »), et
+   elle vaut pour Class ET pour Species. Ce que ça change ici : rien sur le
+   bouton, tout sur l'écran qu'il ouvre — le 2ᵉ palier est déjà en pleine
+   largeur (`[data-palier="2"]`, shell.css). Noté pour que personne ne
+   « corrige » le pied d'après le vieux croquis. */
+.fiche-actions {
+  grid-column: 1 / span 2;
+  grid-row: 5;
+  display: flex;
+  gap: var(--sp-8);
+  justify-content: space-between;
+}
+.fiche-action {
+  flex: 1 1 0;
+  min-height: var(--touch);
+  font-size: var(--t3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text);
+  text-transform: uppercase;
+}
+/* ⏳ ÉTEINTS, ET ILS LE DISENT. Le panneau `lore` plein écran (avec son
+   `copier`) est un organe partagé par trois écrans et il a son propre lot ;
+   `CHOOSE` ouvre le 2ᵉ palier que `Validate` ouvre déjà. Un bouton qui ne
+   répond pas serait pire qu'un bouton qui s'annonce éteint — et l'opacité
+   seule, jamais `display: none` (défaut n°3 : effacer un mot au lieu de
+   recomposer). */
+.fiche-action[disabled] { opacity: .55; cursor: default; }
+
+/* ── LES NOMS DU RAIL À T3 ────────────────────────────────────────────── */
+/* Le gabarit tranche T3 (14 px) contre le T2 en place : « le repère de
+   position se lit d'un coup d'œil ou ne sert à rien ». Le rail a été
+   comparé à T2 dans le gabarit (71 px de large au lieu de 78) et écarté —
+   6 px de fiche gagnés contre un rail moins lisible n'est pas un échange
+   qui vaut la peine, et l'image a rendu les 6 px à sa place.
+   📌 LA LARGEUR, ELLE, EST UN JETON : `--rail-w`, dans `tokens.css`, passée
+   de 84 à 78 — la porte de l'habillage est là, pas ici, et la grandeur
+   Large garde ses 120 px sans rien devoir à ce fichier.
+   ⛔ Aucun `@media` ici : le seuil de bascule (720) n'a le droit d'exister
+   qu'à UN endroit dans tout `ui/builder/`, et c'est `shell.css`
+   (garde 5 de `tests/ui-jetons.test.mjs`). */
+.catalogue-rail-item { font-size: var(--t3); }

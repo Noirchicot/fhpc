@@ -136,6 +136,79 @@ export function renderCardRows(rows) {
   return posees > 0 ? dl : null;
 }
 
+/* ══ LA FICHE À 360 — lot 77 ═════════════════════════════════════════════
+   📐 Croquis C (Wizard) et croquis A (Species), 2026-08-15. Les deux
+   dessinent LA MÊME fiche, et c'est pour ça qu'elle est écrite ICI et pas
+   deux fois : nom + stats en haut à GAUCHE, image en haut à DROITE, le
+   blurb sur toute la largeur en dessous, `LORE` et `CHOOSE` au pied.
+
+   ⚠️ L'ORDRE VIENT DU DESSIN, PAS DU TABLEAU. Le récapitulatif du gabarit
+   liste « 100 IMAGE │ 8 │ 118 STATS » de gauche à droite ; les DEUX croquis
+   montrent l'inverse (stats à gauche, image à droite, et l'espèce annote
+   même « upper left quarter » / « upper right quarter »). Le croquis fait
+   foi — c'est une répartition de largeurs, pas un ordre de colonnes.
+
+   ⛔ CE QUE CETTE FONCTION NE FAIT PAS : elle ne connaît ni Class ni
+   Species. Les deux écrans lui passent LEURS lignes et LEUR texte ; c'est
+   tout ce qui les distingue (« B3 = B2 », loi du dépôt). */
+
+/** Le pied de la fiche : les deux actions du croquis, à T3 et à la cible
+ *  tactile. ⏳ Elles ne sont pas encore CÂBLÉES — le panneau `lore` plein
+ *  écran (et son `copier`) est un organe partagé par trois écrans, hors
+ *  périmètre du lot 77, et `CHOOSE` ouvre le 2ᵉ palier que `Validate` ouvre
+ *  déjà. `disabled` le DIT, au lieu de laisser croire à un geste : un
+ *  bouton qui ne répond pas est pire qu'un bouton qui s'annonce éteint. */
+function renderFicheActions() {
+  const pied = el("div", "fiche-actions");
+  for (const mot of ["Lore", "Choose"]) {
+    const bouton = el("button", "fiche-action", [text(mot)]);
+    bouton.type = "button";
+    bouton.disabled = true;
+    pied.append(bouton);
+  }
+  return pied;
+}
+
+/** LE CORPS D'UNE FICHE, tel que les deux écrans le dessinent.
+ *  `stats` : les lignes `{label, value}` de `data.fiche_stats` — la couche
+ *  `fh-fiche-en` les porte déjà compressées à la colonne de 118 px, et un
+ *  garde le mesure (`tests/fiche-360.test.mjs`).
+ *  `blurb` : les ~50 mots de la couche, dans une boîte FIXE de 10 lignes —
+ *  `B0.23` (« choix identique ⇒ dalle de taille identique ») : douze blurbs
+ *  de hauteurs libres feraient douze fiches de hauteurs différentes, et le
+ *  cran du défilement aimanté dériverait. */
+/*  🔴 LES QUATRE NŒUDS SONT RENDUS À PLAT, SANS ENVELOPPE, ET C'EST LA
+ *  GÉOMÉTRIE QUI L'EXIGE. Le nom de la fiche est posé par
+ *  `renderCatalogueCards` (il est commun aux quatre catalogues) : pour que
+ *  l'image occupe le quart haut-DROIT sur toute sa hauteur — nom compris,
+ *  comme les deux croquis la dessinent —, elle doit être la SŒUR du nom
+ *  dans une même grille, pas l'enfant d'une enveloppe posée dessous. Une
+ *  `.fiche-head` intermédiaire ferait commencer l'image sous le nom. */
+export function renderFicheBody({ stats, blurb, image, imageAlt }) {
+  const colonne = el("dl", "fiche-stats");
+  for (const ligne of Array.isArray(stats) ? stats : []) {
+    if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
+    const row = el("div", "fiche-stat-row");
+    row.append(el("dt", null, [text(`${ligne.label} :`)]));
+    row.append(el("dd", null, [text(ligne.value)]));
+    colonne.append(row);
+  }
+
+  /* ⏳ AUCUNE IMAGE DE FICHE N'EXISTE ENCORE (cotes visées 200 × 260, PNG
+     transparent, Eric les produit). Le dos de carte tient la place — et il
+     la tient VRAIMENT : sans lui, la colonne de stats s'étalerait sur les
+     226 px utiles, et tout bougerait le jour où l'image arrive. */
+  const cadre = el("div", "fiche-image");
+  const img = document.createElement("img");
+  img.src = image;
+  img.alt = imageAlt || "";
+  cadre.append(img);
+
+  const prose = el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
+
+  return [colonne, cadre, prose, renderFicheActions()];
+}
+
 /** Une liste de noms sous un intertitre — les features de niveau 1 d'une
  *  classe, les traits d'une espèce. Les DESCRIPTIONS restent dehors : les
  *  couper serait effacer des mots (défaut n°3), les afficher en entier

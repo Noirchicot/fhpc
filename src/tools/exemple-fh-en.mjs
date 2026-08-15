@@ -38,12 +38,21 @@ export const SORTIE = "examples/personnage-fh-en-niveau1.fh-char.json";
 
 /** La pile, de bas en haut. Le SRD anglais porte la matière ; les trois
  *  couches Fate's Hand lèvent les drapeaux qui allument les modules. */
-const PILE = [
+/* LOT 77 — `fh-fiche-en` et `fh-lore-en` ferment la pile. MÊME ORDRE que
+   `ui/builder/engine.mjs` (LAYER_FILES) : elles `patch` des records posés
+   plus bas, et une pile qui diverge de celle du navigateur ferait diverger
+   les tests de l'écran sans qu'un seul rougisse. */
+/* EXPORTÉE pour `tests/fiche-360.test.mjs` (garde 3), sur le précédent de
+   `LAYER_FILES` : le garde compare les DEUX listes réelles, jamais deux
+   recopies qui pourraient diverger de la même façon que les piles. */
+export const PILE = [
   "layers/srd-5.2.1-en.layer.json",
   "layers/fh-species-en.layer.json",
   "layers/fh-skills-en.layer.json",
   "layers/fh-arcana-en.layer.json",
-  "layers/fh-feats-en.layer.json"
+  "layers/fh-feats-en.layer.json",
+  "layers/fh-fiche-en.layer.json",
+  "layers/fh-lore-en.layer.json"
 ];
 
 /* Un bus minimal : `layers` n'a besoin que d'`emit`, `build` a besoin d'`on`.

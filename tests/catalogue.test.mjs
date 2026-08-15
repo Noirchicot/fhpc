@@ -133,12 +133,23 @@ for (const cfg of ECRANS) {
     assert.equal(courants[0].getAttribute("data-value"), options[3]);
   });
 
-  test(`B ter — ${cfg.kind} : le palier 1 ne produit AUCUN bouton (II.1)`, () => {
-    /* Le défilement EST le choix. Si un futur lot remettait un bouton dans
-       une fiche, l'invariant mourrait sans qu'un test bronche — celui-ci
-       bronche, et pour LES DEUX écrans à la fois. */
+  test(`B ter — ${cfg.kind} : le palier 1 ne produit AUCUN bouton de SÉLECTION (II.1)`, () => {
+    /* Le défilement EST le choix, et c'est CETTE moitié-là de l'invariant
+       qui compte : aucun bouton de la fiche ne doit MENER à un record.
+       ⚠️ LOT 77 — LE GARDE S'EST RESSERRÉ, IL NE S'EST PAS RELÂCHÉ. Il
+       exigeait « zéro bouton » ; les croquis du 2026-08-15 mettent `Lore` et
+       `Choose` au pied de la fiche, et le gabarit leur donne T3 et la cible
+       de 44 px. « Zéro bouton » ne pouvait donc plus rester la formulation.
+       Ce qu'on garde à la place est plus exact : les SEULS boutons tolérés
+       sont ces deux-là, nommés, et AUCUN ne porte de valeur de record —
+       remettre les douze options du lot 42 rougirait toujours. */
     const cards = renderCatalogueCards(ctxDe(cfg), cfg.body);
-    assert.equal(cards.querySelectorAll("button").length, 0);
+    const boutons = cards.querySelectorAll("button");
+    assert.deepEqual(boutons.map((b) => b.textContent), Array(12).fill(["Lore", "Choose"]).flat(),
+      "une fiche porte exactement les deux actions du croquis, et rien d'autre");
+    for (const b of boutons)
+      assert.equal(b.getAttribute("data-value"), null,
+        "⛔ un bouton qui porte un record est un geste de SÉLECTION — II.1 le supprime : on défile");
   });
 
   test(`B quater — ${cfg.kind} : le curseur d'arrivée est le record DÉJÀ posé`, () => {
@@ -151,32 +162,67 @@ for (const cfg of ECRANS) {
 
 /* ══ C — ET CE QUI LES DISTINGUE RESTE DISTINCT ═══════════════════════════ */
 
-test("C — les deux fiches ne montrent PAS les mêmes lignes : le catalogue est partagé, la fiche non", () => {
-  const lignesDe = (cfg) => renderCatalogueCards(ctxDe(cfg), cfg.body)
-    .querySelectorAll(".catalogue-card-row dt").map((dt) => dt.textContent);
-  const classe = new Set(lignesDe(ECRANS[0]));
-  const espece = new Set(lignesDe(ECRANS[1]));
+/** Les étiquettes de la colonne de stats d'une fiche. ⚠️ LOT 77 — le
+ *  sélecteur a changé (`.fiche-stat-row`, la fiche à 360) mais la question
+ *  posée est la même, et le deux-points fait maintenant partie de
+ *  l'étiquette : c'est LUI qui coûte les 4 px de gras que le gabarit a
+ *  mesurés, donc il est rendu, pas ajouté par la feuille de style. */
+const etiquettesDe = (cfg) => renderCatalogueCards(ctxDe(cfg), cfg.body)
+  .querySelectorAll(".fiche-stat-row dt").map((dt) => dt.textContent.replace(/ :$/, ""));
 
-  assert.ok(classe.has("Hit points") && classe.has("Primary ability"),
+test("C — les deux fiches ne montrent PAS les mêmes lignes : le catalogue est partagé, la fiche non", () => {
+  const classe = new Set(etiquettesDe(ECRANS[0]));
+  const espece = new Set(etiquettesDe(ECRANS[1]));
+
+  /* ⚠️ LOT 77 — LES ÉTIQUETTES ONT ÉTÉ COMPRESSÉES, PAS SUPPRIMÉES. Elles
+     viennent désormais de `fh-fiche-en`, taillées pour la colonne de 118 px :
+     `Hit points` → `HP/level`, `Primary ability` → `Ability`, `Creature
+     type` → `Type`, `Size` → `Sz` (154 px devenaient 98). Le fait vérifié
+     est le même : chaque fiche montre ce qui lui appartient. */
+  assert.ok(classe.has("HP/level") && classe.has("Ability"),
     `une fiche de classe montre son dé de PV et sa caractéristique primaire (lu : ${[...classe].join(", ")})`);
-  assert.ok(espece.has("Size") && espece.has("Speed"),
+  assert.ok(espece.has("Sz") && espece.has("Speed"),
     `une fiche d'espèce montre sa taille et sa vitesse (lu : ${[...espece].join(", ")})`);
   /* ⛔ La preuve qui compte : aucune des deux ne s'est aplatie sur l'autre.
      « Partager » en supprimant ce qui distingue serait une régression
-     déguisée en factorisation. */
+     déguisée en factorisation — et le lot 77 partage désormais jusqu'au
+     DESSIN de la fiche, ce qui rend cette preuve-ci plus utile qu'avant. */
   assert.equal([...classe].some((l) => espece.has(l)), false,
     `aucune ligne commune attendue — classe: ${[...classe].join(", ")} / espèce: ${[...espece].join(", ")}`);
 });
 
-test("C bis — les apports Fate's Hand s'affichent, et SEULEMENT parce que la couche est montée", () => {
-  /* Le pool de classe (`fh_skill_pool`) et la Destinée d'espèce (`destiny`)
-     n'existent que sur la couche FH. Le test 8 de
-     `class-species-steps.test.mjs` prouve l'autre moitié : sur un personnage
-     SRD pur, ces lignes DISPARAISSENT — jamais un zéro inventé. */
-  const lignesDe = (cfg) => renderCatalogueCards(ctxDe(cfg), cfg.body)
-    .querySelectorAll(".catalogue-card-row dt").map((dt) => dt.textContent);
-  assert.ok(lignesDe(ECRANS[0]).includes("Skill pool"));
-  assert.ok(lignesDe(ECRANS[1]).includes("Destiny"));
+test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couche est montée", () => {
+  /* Le pool de classe (`Skill pool`) n'existe que sur la couche FH, et
+     TOUTE la fiche à 360 (les lignes compressées comme le blurb) n'existe
+     que sur `fh-fiche-en`. Le test 8 de `class-species-steps.test.mjs`
+     prouve l'autre moitié : sur un personnage SRD pur, cette fiche-ci
+     disparaît au profit du corps SRD — jamais une dalle vide, jamais un
+     zéro inventé.
+     ⚠️ LOT 77 — LA DESTINÉE A QUITTÉ LA FICHE D'ESPÈCE. `fh-fiche-en` ne
+     porte pour l'espèce que `Type · Sz · Speed · Lineages` : ni `Destiny`
+     ni `Skill points`, que l'ancienne fiche affichait, et le croquis
+     d'espèce range la Destinée dans les TRAITS, tombés eux aussi. C'est
+     remonté à Eric (INVENTAIRE-LOT-77.md) et non tranché ici. */
+  assert.ok(etiquettesDe(ECRANS[0]).includes("Skill pool"),
+    "le pool de compétences est un apport FH, et il est sur la fiche de classe");
+  const espece = etiquettesDe(ECRANS[1]);
+  for (const attendue of ["Type", "Sz", "Speed"])
+    assert.ok(espece.includes(attendue),
+      `la fiche d'espèce porte ses lignes de couche (${attendue} manque : ${espece.join(", ")})`);
+});
+
+test("C ter — les 24 fiches portent leur blurb, et il tient dans la boîte fixe", () => {
+  /* La boîte du blurb est FIXE (10 lignes) : un texte absent laisserait un
+     trou de 160 px, un texte trop long déborderait en silence. Le premier
+     se voit ici, le second au garde des 340 caractères
+     (`tests/fiche-360.test.mjs`). */
+  for (const cfg of ECRANS) {
+    const blurbs = renderCatalogueCards(ctxDe(cfg), cfg.body).querySelectorAll(".fiche-blurb");
+    assert.equal(blurbs.length, 12, `les douze fiches de ${cfg.kind} portent chacune leur blurb`);
+    for (const p of blurbs)
+      assert.ok(p.textContent.length > 100,
+        `un blurb vide laisserait 160 px de trou dans la fiche de ${cfg.kind}`);
+  }
 });
 
 /* ══ D — LE CÂBLAGE DE shell.mjs, SUR LES OCTETS ══════════════════════════ */

@@ -156,7 +156,12 @@
      long nom de classe à T2, pas un pixel de plus : à 360 px, chaque pixel
      du rail est un pixel de moins pour la fiche. */
   --touch: 44px;
-  --rail-w: 84px;
+  /* LOT 77 — 84 → 78. Le gabarit à 360 l'a MESURÉ : `Barbarian` à T3 fait
+     62 px, plus 8 de rembourrage de chaque côté, soit 78. Les 6 px rendus
+     vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
+     118 (`W. Prof. : 2` = 116 px). La grandeur Large garde ses 120 px : la
+     contrainte n'est que celle des 360. */
+  --rail-w: 78px;
 
   /* ══ LOT 59 — LE DÉCOR : le fond et les trois voiles ═══════════════════
      B0.23a/B0.23c — une image de fond FIXE, qui CONTRASTE avec le parchemin
