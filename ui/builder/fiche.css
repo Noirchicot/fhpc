@@ -49,6 +49,8 @@
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
   --fiche-image-w: 100px; /* l'image — 242 − 8 − 118 − 8 − 8 */
   --fiche-blurb-h: 160px; /* la boîte du blurb : 10 lignes de 16 px, FIXE */
+  --fiche-infos-h:  40px; /* la bande d'infos — deux lignes à T2 et leur air */
+  --fiche-stats-h: 126px; /* la rangée des stats : les 8 items d'une classe */
 
   /* ⭐ LA GOUTTIÈRE — Ch1, Eric le 2026-08-15 : *« problème de chevauchement
      entre dalles »*.
@@ -125,7 +127,40 @@
      dalle, pas sous le texte. C'est le mou qui va au fond, jamais le
      contenu qui s'étire (mesuré : avec `1fr` sur la rangée des stats,
      l'image montait à 350 px de haut pour 100 de large). */
-  grid-template-rows: auto auto var(--fiche-blurb-h) 1fr auto;
+  /* ══ LES DEUX GABARITS DE RANGÉES — Eric, 2026-08-15 ═══════════════════
+     ⭐ SA RÈGLE, MOT POUR MOT : *« s'il a des infos complémentaires, idem ;
+     si pas d'infos complémentaires, le blurb est centré verticalement entre
+     les quarts supérieurs et les boutons »*.
+
+     🔴 UN SEUL GABARIT, ET PAS DEUX. Un second jeu de rangées « à fleur »
+     pour le cas AVEC infos a été essayé et MESURÉ : il ne tombe juste que
+     sur une CLASSE (8 lignes de stats = 126). Une espèce n'en a que trois,
+     donc 53 px de rab — et des rangées `auto` dans une grille de hauteur
+     définie se les partagent : le nom gonflait à 48 px, les boutons à 71.
+     ⛔ Un gabarit qui n'est exact que pour la moitié des fiches n'est pas un
+     gabarit.
+
+     ⭐ LA RÈGLE UNIQUE : le reste se partage TOUJOURS autour du blurb. Sur
+     une classe le reste vaut zéro, donc « centré » et « à fleur » sont la
+     même chose — c'est le « idem » d'Eric, obtenu sans second gabarit.
+
+     ⛔ LA RANGÉE `1fr` UNIQUE D'AVANT POUSSAIT TOUT VERS LE HAUT et laissait
+     le mou en bas (41 px sur une classe, 66 sur une espèce). Eric l'a vu sur
+     son téléphone : *« l'aspect hauteur de dalle inutile dans species »*.
+     Deux `1fr` au lieu d'un, et le vide se répartit au lieu de s'entasser.
+
+     La rangée 3 est celle des infos : `auto`, donc NULLE quand la bande
+     n'existe pas (sept espèces sur douze). */
+  /* ⭐ ET LA RANGÉE DES STATS EST CONSTANTE — Eric, 2026-08-15 : *« peu de
+     stats pour le bloc supérieur gauche, tu centres verticalement »*.
+     126 px = les 8 items d'une classe (8 × 14 + 7 × 2, mesuré). Une espèce
+     n'en a que trois : elles se CENTRENT dans la rangée au lieu de coller en
+     haut, et l'image garde la même hauteur sur les 24 fiches.
+     ⛔ C'est ce qui rend les deux gabarits EXACTS. Sans hauteur constante,
+     celui « avec infos » ne tombait juste que sur une classe : une espèce
+     laissait 53 px que les rangées `auto` se partageaient n'importe comment
+     (nom à 48, boutons à 71 — mesuré). */
+  grid-template-rows: auto var(--fiche-stats-h) 1fr var(--fiche-blurb-h) 1fr auto;
   justify-content: center;
   gap: var(--sp-8);
 }
@@ -144,6 +179,11 @@
 .fiche-stats {
   grid-column: 1;
   grid-row: 2;
+  /* ⭐ CENTRÉ VERTICALEMENT — Eric, 2026-08-15 : « peu de stats pour le bloc
+     supérieur gauche, tu centres verticalement ». La rangée vaut 126 px (les
+     8 items d'une classe) ; une espèce n'en a que trois et se pose au
+     milieu, en face du centre de l'image, au lieu de coller en haut. */
+  align-self: center;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -170,11 +210,26 @@
    `130px` ici poserait le même nombre à deux endroits — la largeur le dit
    déjà, le rapport suffit. Sans lui, l'image s'étirait sur toute la colonne
    (mesuré : 350 px de haut pour 100 de large, une meurtrière). */
+/* ⭐ L'IMAGE REMPLIT LES DEUX RANGÉES DU HAUT — Eric, 2026-08-15 : *« que
+   l'image soit de taille optimale et s'ajuste avec le bloc de texte gauche,
+   quitte à changer ses ratios »*.
+
+   ⛔ `align-self: stretch` ET PLUS DE `aspect-ratio`. Avant, elle gardait le
+   ratio 200/260 de son gabarit d'asset et se posait EN HAUT : son bas
+   flottait 26 px au-dessus du bas des stats sur une classe, et sur une
+   espèce c'était l'inverse — la rangée du nom gonflait de 22 à 41 px pour
+   atteindre les 130 px que l'image réclamait. **L'image commandait la
+   grille au lieu de la suivre.**
+
+   Maintenant elle prend exactement ce que la colonne gauche occupe : nom +
+   gouttière + stats = 22 + 8 + 126 = **156 px** sur une classe.
+   ⚠️ Son ratio devient donc ~0,64 au lieu de 0,77 — le gabarit d'asset passe
+   à **200 × 312**. C'est le prix qu'Eric a accepté d'avance. */
 .fiche-image {
   grid-column: 2;
   grid-row: 1 / span 2;
-  aspect-ratio: 200 / 260;
-  align-self: start;
+  align-self: stretch;
+  min-height: 0;
   overflow: hidden;
   border-radius: var(--radius-sm);
 }
@@ -200,7 +255,7 @@
    lignes — mesuré au navigateur. La marge est nulle, pas mince. */
 .fiche-blurb {
   grid-column: 1 / span 2;
-  grid-row: 3;
+  grid-row: 4;
   margin: 0;
   font-size: var(--t2);
   /* 10 lignes DANS la boîte : l'interligne se déduit de la cote, il ne se
@@ -219,7 +274,7 @@
    « corrige » le pied d'après le vieux croquis. */
 .fiche-actions {
   grid-column: 1 / span 2;
-  grid-row: 5;
+  grid-row: 6;
   display: flex;
   gap: var(--sp-8);
   justify-content: space-between;
@@ -308,6 +363,40 @@
 
    📌 LA LARGEUR RESTE UN JETON : `--rail-w` dans `tokens.css`. */
 
+/* ══ LA BANDE D'INFOS COMPLÉMENTAIRES — croquis d'Eric, 2026-08-15 ═══════
+   Pleine largeur, sous le bloc haut. Elle porte ce qui n'est ni une stat ni
+   de l'ambiance : aujourd'hui `Lineages` — ce que le SRD appelle lignage et
+   qu'Eric appelle `Subspecies`. **Le même organe**, confirmé par lui.
+
+   ⛔ ELLE N'EXISTE QUE SI ELLE A QUELQUE CHOSE À DIRE. Sept espèces sur douze
+   n'offrent aucun lignage ; une bande vide de 40 px serait un faux magasin.
+   C'est `renderCatalogueCards` qui pose `data-infos`, et c'est l'ABSENCE de
+   la bande qui fait basculer la grille sur son autre gabarit. */
+.catalogue-card[data-snap="class"][data-infos="oui"],
+.catalogue-card[data-snap="species"][data-infos="oui"] {
+  /* Cinq rangées, tout à fleur : 8 + 22 + 8 + 126 + 8 + 40 + 8 + 160 + 8 +
+     44 + 8 = 440. La bande consomme exactement le mou d'une classe. */
+  grid-template-rows: auto var(--fiche-stats-h) var(--fiche-infos-h) var(--fiche-blurb-h) auto;
+}
+.catalogue-card[data-infos="oui"] .fiche-actions { grid-row: 5; }
+
+.fiche-infos {
+  grid-column: 1 / span 2;
+  grid-row: 3;
+  margin: 0;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--t2);
+  overflow: hidden;
+}
+/* Même forme qu'une ligne de stats — étiquette en gras, valeur en normal :
+   c'est la même nature d'information, elle se lit du même geste. */
+.fiche-info-row { display: flex; gap: var(--sp-4); }
+.fiche-info-row dt { margin: 0; font-weight: 600; color: var(--text); }
+.fiche-info-row dd { margin: 0; color: var(--text-muted); }
+
 /* ── LA MOITIÉ BASSE D'UNE ESPÈCE : SES TRAITS ────────────────────────── */
 /* ✅ Eric, 2026-08-15, croquis A. **Même boîte que le blurb, même place,
    même hauteur fixe** — *« B3 = B2 »* ne vaut que pour la GÉOMÉTRIE, et
@@ -316,7 +405,7 @@
    ⛔ Deux nombres qui doivent rester égaux ne s'écrivent pas deux fois. */
 .fiche-traits {
   grid-column: 1 / span 2;
-  grid-row: 3;
+  grid-row: 4;
   margin: 0;
   padding: 0;
   list-style: none;

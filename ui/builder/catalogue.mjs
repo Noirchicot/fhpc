@@ -117,7 +117,17 @@ export function renderCatalogueCards(ctx, renderCard) {
     card.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
     /* La fiche est MAJEURE (III.2) : elle porte des libellés en
        `--text-muted`, et la matrice du lot 59 les interdit sur du verre. */
-    for (const node of renderCard(ctx.query, id) || []) card.append(node);
+    const noeuds = renderCard(ctx.query, id) || [];
+    /* ⭐ LA FICHE A-T-ELLE UNE ZONE D'INFOS ? Eric, 2026-08-15 : quand elle
+       en a une, tout est à fleur ; quand elle n'en a pas, **le blurb se
+       CENTRE** entre le bloc haut et les boutons. Deux gabarits de grille,
+       donc il faut le dire au CSS — et seul cet endroit voit les nœuds
+       rendus.
+       ⛔ PAS `:has()` : il échoue en silence là où il n'est pas porté, et la
+       fiche prendrait le mauvais gabarit sans un mot (payé deux fois le
+       15 août). Un attribut se lit partout. */
+    card.dataset.infos = noeuds.some((n) => n && n.dataset && n.dataset.zone === "infos") ? "oui" : "non";
+    for (const node of noeuds) card.append(node);
     cards.append(card);
   }
   return cards;
@@ -190,7 +200,7 @@ function renderFicheActions() {
  *  comme les deux croquis la dessinent —, elle doit être la SŒUR du nom
  *  dans une même grille, pas l'enfant d'une enveloppe posée dessous. Une
  *  `.fiche-head` intermédiaire ferait commencer l'image sous le nom. */
-export function renderFicheBody({ stats, blurb, traits, image, imageAlt }) {
+export function renderFicheBody({ stats, blurb, traits, infos, image, imageAlt }) {
   const colonne = el("dl", "fiche-stats");
   for (const ligne of Array.isArray(stats) ? stats : []) {
     if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
@@ -220,7 +230,35 @@ export function renderFicheBody({ stats, blurb, traits, image, imageAlt }) {
     ? renderFicheTraits(traits)
     : el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
 
-  return [colonne, cadre, bas, renderFicheActions()];
+  /* ── LES INFOS COMPLÉMENTAIRES — croquis d'Eric, 2026-08-15 ────────────
+     Une bande pleine largeur sous le bloc haut. ⭐ Elle porte ce qui n'est
+     ni une stat ni de l'ambiance : aujourd'hui `Lineages`, que le SRD
+     appelle lignage et qu'Eric appelle `Subspecies` — c'est le même organe,
+     confirmé par lui, et il n'y en aura qu'un.
+     ⛔ ELLE N'EXISTE QUE SI ELLE A QUELQUE CHOSE À DIRE : sept espèces sur
+     douze n'offrent aucun lignage, et une bande vide de 40 px serait le
+     « faux magasin » que ce dépôt interdit. C'est son ABSENCE qui déclenche
+     le blurb centré (voir `renderCatalogueCards`). */
+  const bande = Array.isArray(infos) && infos.length ? renderFicheInfos(infos) : null;
+
+  return bande
+    ? [colonne, cadre, bande, bas, renderFicheActions()]
+    : [colonne, cadre, bas, renderFicheActions()];
+}
+
+/** La bande d'infos complémentaires — même forme qu'une ligne de stats
+ *  (étiquette en gras, valeur en normal), mais sur toute la largeur. */
+function renderFicheInfos(infos) {
+  const bande = el("dl", "fiche-infos");
+  bande.dataset.zone = "infos";   // ce que lit `renderCatalogueCards`
+  for (const ligne of infos) {
+    if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
+    const row = el("div", "fiche-info-row");
+    row.append(el("dt", null, [text(`${ligne.label} :`)]));
+    row.append(el("dd", null, [text(ligne.value)]));
+    bande.append(row);
+  }
+  return bande;
 }
 
 /** LA LISTE DES TRAITS — `nom — effet`, une ligne courte, exactement la forme

@@ -83,6 +83,11 @@ export function renderSpeciesCardBody(query, id) {
   return renderFicheBody({
     stats: data.fiche_stats,
     traits: data.fiche_traits,
+    /* `Lineages` a quitté la colonne de stats pour sa propre bande (croquis
+       d'Eric) — le TRI est dans la COUCHE, pas ici : une règle du jeu ne vit
+       jamais dans un écran. Sept espèces sur douze n'en ont pas, et leur
+       fiche centre alors son blurb. */
+    infos: data.fiche_infos,
     image: DOS_DE_CARTE,
     imageAlt: ""
   });
