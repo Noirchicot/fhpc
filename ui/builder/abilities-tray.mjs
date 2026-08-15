@@ -4,15 +4,36 @@
 
    ══ CE QUI A DÉCIDÉ DE LA FORME ════════════════════════════════════════
 
-   🔴 `ROLL` NE TIRE PAS, IL RÉVÈLE. La règle d'Eric (ADDENDUMS §4, codée
-   dans `dice.mjs`) relance le LOT ENTIER si aucun des dix n'atteint 15 —
-   *« jamais un jet remplacé seul, jamais un jet complété »*. Un lot construit
-   jet par jet SERAIT un lot complété : la règle l'interdit. Les dix jets
-   existent donc dès le départ, relance déjà résolue, et le plateau les
-   DÉCOUVRE un par un.
-   ⭐ C'est aussi ce pour quoi le moteur porté est écrit, mot pour mot :
-   *« The roller owns randomness. This module renders a result FHPC has
-   already resolved. »*
+   🔴 LE JOUEUR VOIT LES LOTS RATÉS — Eric, 2026-08-15 : *« il doit voir le
+   process, je veux qu'il voie »*. Le plateau tire DIX jets, les révèle un par
+   un ; si aucun n'atteint 15, il le DIT, balaie, et recommence. La règle
+   (ADDENDUMS §4) reste intacte — le lot entier est rejeté, jamais un jet
+   remplacé seul, jamais un jet complété.
+
+   📏 ET C'EST FRÉQUENT, MESURÉ : `P(3d6 ≥ 15) = 20/216`, donc un lot de dix
+   échoue avec `p = 0,907¹⁰ ≈ 0,379` — **près de deux sur cinq**. Cacher ça
+   jetterait la tension même de l'écran : *est-ce que l'un des dix touchera
+   15 ?* ⚠️ Contrepartie assumée : un lot raté coûte une salve entière. À la
+   cadence d'Eric (2 500 ms), c'est ~25 s par échec.
+
+   ⛔ ON N'UTILISE DONC NI `rollAbilitySet` NI `rollTen`. La première boucle
+   en interne et ne rend que le lot gagnant — ce qu'Eric refuse de cacher. La
+   seconde tire les dix D'UN COUP, et c'est l'objection suivante d'Eric :
+   *« ça remet en question le hasard, même s'il existe et que la temporalité
+   est différée »*.
+
+   ⭐ ET IL A RAISON, PAS SUR LES PROBABILITÉS MAIS SUR LA CONFIANCE. Un
+   résultat tiré d'avance et un tiré en direct ont la même distribution ; le
+   joueur ne peut pas les distinguer. Mais un dé qui roule doit DÉCIDER, pas
+   rejouer une décision déjà prise — sinon l'animation est une
+   reconstitution.
+
+   🔴 CHAQUE 3d6 EST DONC TIRÉ À L'INSTANT OÙ SES DÉS QUITTENT LA MAIN
+   (`rollThreeD6`, juste avant `poserLesDes`). Rien n'est décidé d'avance.
+   ⛔ Et la règle tient : *« jamais un jet complété »* interdit de RÉPARER un
+   lot raté — d'y ajouter un onzième jet, d'en remplacer le pire. Elle ne dit
+   rien du moment où les dix naissent. Le lot reste dix jets, rejeté en
+   entier, jamais rapiécé.
 
    🔴 LE PLATEAU NE PASSE JAMAIS PAR `refresh()`. Un redessin remplace tout
    le contenu de la scène (`swapContent`) : les trois canvas WebGL mourraient
@@ -32,7 +53,7 @@
    contexte vivant. */
 
 import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=1";
-import { rollAbilitySet } from "./dice.mjs?v=1";
+import { rollThreeD6, markKept } from "./dice.mjs?v=1";
 import { swapContent } from "./socle.mjs?v=1";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
@@ -127,6 +148,17 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   barre.append(roll, roll10, clear);
   dalle.append(barre);
 
+  /* ── LA MENTION DE RELANCE ─────────────────────────────────────────
+     ✅ TRANCHÉ PAR ERIC, 2026-08-15 : « le joueur est informé de l'échec des
+     dix jets ». INFORMÉ, pas spectateur — on ne lui rejoue pas les lots
+     rejetés, ce qui coûterait 25 s de théâtre à jeter par échec. La mention
+     dit ce qui s'est passé, et pourquoi.
+     📌 Le nœud existe DÈS LE DÉPART, vide : la séquence l'écrit à la main,
+     comme les cases, sans jamais reconstruire la dalle. */
+  const mention = el("p", "tray-relance");
+  mention.hidden = true;
+  dalle.append(mention);
+
   /* ── Le plateau : trois dés, au centre ─────────────────────────────── */
   const hote = el("div", "tray-des");
   dalle.append(hote);
@@ -142,6 +174,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
 
   /* ── L'ÉTAT DÉJÀ DÉCOUVERT, repeint sans animation ─────────────────── */
   if (lot) {
+    ecrisMention(mention, lot);
     for (let i = 0; i < revele; i += 1) ecrisCase(cases[i], lot.rolls[i], lot, revele);
     if (revele > 0) poserLesDes(hote, lot.rolls[revele - 1].dice, false);
   }
@@ -152,27 +185,46 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   let enCours = false;
   let annule = false;
 
+  /** Le lot courant en cours de révélation, et le compte des rejetés. */
+  let tentative = lot ? [...lot.rolls] : null;
+  let rejetes = lot ? (lot.rerollCount || 0) : 0;
+
   async function sequence(combien) {
     if (enCours) return;
-    /* Premier ROLL : on produit le lot ICI, on le remonte, et on enchaîne
-       dans la foulée. `rollAbilitySet` applique déjà la règle de relance —
-       le lot arrive donc valide, dix jets, relance résolue. */
-    if (!lot) {
-      lot = rollAbilitySet(Math.random);
-      onNouveauLot(lot);
-    }
     enCours = true; annule = false;
     roll.disabled = roll10.disabled = true;
-    for (let n = 0; n < combien; n += 1) {
-      if (annule || revele >= total) break;
-      const jet = lot.rolls[revele];
+    let faits = 0;
+    while (faits < combien && !annule) {
+      if (!tentative) { tentative = []; videLesCases(cases); revele = 0; }
+      /* 🔴 LE TIRAGE SE FAIT ICI, une ligne avant l'animation — pas dix jets
+         plus tôt. C'est la réponse à l'objection d'Eric sur le hasard
+         différé : les dés décident en tombant. */
+      const jet = rollThreeD6(Math.random);
+      tentative.push(jet);
       poserLesDes(hote, jet.dice, true);
-      revele += 1;
-      ecrisCase(cases[revele - 1], jet, lot, revele);
-      onRevele(revele);
-      /* La pause d'Eric COURT PENDANT l'animation (960 ms) : 2 500 ms de
-         cadence, pas 2 500 de plus. Dix jets ≈ 25 s, ce qu'il a voulu. */
+      revele += 1; faits += 1;
+      ecrisCase(cases[revele - 1], jet, null, revele);
       await attendre(REGLAGES.pauseMs);
+      if (annule) break;
+      if (revele < 10) continue;
+
+      /* ── LE DIXIÈME EST TOMBÉ : la règle se prononce ────────────────
+         ⛔ Elle porte sur le LOT, jamais sur un jet — c'est pour ça qu'on
+         ne peut la lire qu'ici, et jamais au fil de l'eau. */
+      if (tentative.some((r) => r.total >= 15)) {
+        lot = { rolls: markKept(tentative), rerollCount: rejetes };
+        peinsLesGardes(cases, lot);
+        ecrisMention(mention, lot);
+        onNouveauLot(lot);
+        onRevele(10);
+        break;
+      }
+      rejetes += 1;
+      annonceEchec(mention, rejetes);
+      await attendre(REGLAGES.pauseMs);
+      tentative = null;              // un lot neuf au tour suivant
+      if (combien === 1) break;      // ROLL simple : on s'arrête sur l'annonce
+      faits = 0;                     // ROLL 10 : la salve recommence entière
     }
     enCours = false;
     if (roll.isConnected) roll.disabled = roll10.disabled = false;
@@ -190,6 +242,45 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   dalle.addEventListener("tray:stop", () => { annule = true; minuteurs.forEach((f) => f()); });
 
   return dalle;
+}
+
+/** Remet les dix cases à vide — un lot rejeté disparaît de l'écran, il ne
+ *  se garde nulle part (Eric, 2026-08-13 : aucun historique). */
+function videLesCases(cases) {
+  for (const c of cases) {
+    c.dataset.etat = "vide";
+    delete c.dataset.garde;
+    c.querySelector(".tray-case-total").textContent = "—";
+    c.removeAttribute("title");
+  }
+}
+
+/** Les six gardés, une fois les dix connus. */
+function peinsLesGardes(cases, lot) {
+  lot.rolls.forEach((r, i) => { if (cases[i]) cases[i].dataset.garde = String(r.kept); });
+}
+
+/** L'annonce d'un lot rejeté, PENDANT la séquence — c'est elle que le joueur
+ *  doit voir (Eric : « je veux qu'il voie »). */
+function annonceEchec(node, rejetes) {
+  node.hidden = false;
+  node.dataset.echec = "true";
+  node.textContent = rejetes === 1
+    ? "None of the ten reached 15 — the whole set is discarded. Rolling again."
+    : `None of the ten reached 15 — set ${rejetes} discarded. Rolling again.`;
+}
+
+/** La mention de relance. ⛔ ELLE NE S'AFFICHE QUE S'IL Y A EU RELANCE :
+ *  une ligne permanente qui dirait « 0 relance » serait du bruit, et la
+ *  dalle en paierait la hauteur sur tous les jets normaux. */
+function ecrisMention(node, lot) {
+  const n = lot.rerollCount || 0;
+  delete node.dataset.echec;
+  node.hidden = n === 0;
+  if (n === 0) return;
+  node.textContent = n === 1
+    ? "One set of ten was discarded: none of its rolls reached 15. These are the dice you keep."
+    : `${n} sets of ten were discarded: none of their rolls reached 15. These are the dice you keep.`;
 }
 
 /** Écrit UNE case — et remet à jour les « barrés », qui ne se connaissent
