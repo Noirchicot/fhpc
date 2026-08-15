@@ -138,6 +138,10 @@ const state = {
   /* LOT 63 — B5.1c : « il faut CLIQUER pour faire apparaître les rollers ».
      Tant que `abilityMethod` est nul, l'écran ne montre que ses tuiles. */
   abilityMethod: null,   // "roll" | "standard" | "manual"
+  /* LOT PLATEAU (2026-08-15) — combien des dix jets sont DÉCOUVERTS. Il vit
+     ici et pas dans `abilityRoll` parce qu'il survit à un lot rejeté : le
+     plateau remet à zéro lui-même quand il balaie. */
+  abilityRevele: 0,
   /* LOT 64 — B4.1/B4.2 : quel panneau d'Inheritance est ouvert. Fermé, on
      voit les deux dalles ; ouvert, l'AUTRE disparaît. */
   inheritanceOpen: null, // "boost" | "feat" | null
@@ -429,6 +433,29 @@ function applyDecisionAction(action) {
   }
   if (action.kind === "rollBatch") {
     state.abilityRoll = { ...rollAbilityBatch(state.rollingMethod, Math.random), assign: emptyAbilityAssign() };
+    openSurface();
+    return;
+  }
+  /* ══ LES DEUX ACTIONS DU PLATEAU — ⛔ AUCUNE NE REDESSINE ══════════════
+     Un `refresh()` remplace tout le contenu de la scène (`swapContent`) : les
+     trois canvas WebGL mourraient en pleine animation, à chaque jet. Le
+     plateau écrit donc dans des nœuds qui existent déjà, et ces deux actions
+     ne font que RANGER ce qu'il a produit. C'est la troisième règle du socle,
+     la même qui interdit au scrollspy de redessiner. */
+  if (action.kind === "abilityLot") {
+    state.abilityRoll = { ...action.lot, assign: emptyAbilityAssign() };
+    return;                       // ⛔ pas de refresh — voir ci-dessus
+  }
+  if (action.kind === "abilityRevele") {
+    state.abilityRevele = action.valeur;
+    return;                       // ⛔ pas de refresh non plus
+  }
+  if (action.kind === "abilityClear") {
+    /* CLEAR « même en plein milieu » (Eric, 2026-08-15) : le lot ET son
+       assignation partent. Ici on REDESSINE, parce que les six
+       caractéristiques doivent se vider avec lui. */
+    state.abilityRoll = null;
+    state.abilityRevele = 0;
     openSurface();
     return;
   }
@@ -922,6 +949,7 @@ function renderStepContent() {
       document: state.document,
       resolved: state.resolved,
       rollBatch: state.abilityRoll,
+      revele: state.abilityRevele,
       method: state.abilityMethod,
       rollingMethod: state.rollingMethod
     }, applyDecisionAction));

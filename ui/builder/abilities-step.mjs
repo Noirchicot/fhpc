@@ -89,6 +89,7 @@
    `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
 
 import { renderPicker, markPressed } from "./carnet.mjs?v=1";
+import { renderTray } from "./abilities-tray.mjs?v=1";
 import { ROLLING_METHODS } from "./dice.mjs?v=1";
 import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=1";
 import { rollAbilitySet } from "./dice.mjs?v=1";
@@ -445,12 +446,23 @@ function renderRollBatch(rollBatch, onAction) {
  *  dés puis les six lignes d'assignation. Rend un TABLEAU de nœuds (pas un
  *  seul) : la boucle de `renderAbilitiesStep` ne fait que les ajouter,
  *  elle ne sait pas combien il y en a ni ce qu'ils contiennent. */
-function renderRollMethod({ document, resolved, rollBatch, onAction }) {
+function renderRollMethod({ document, resolved, rollBatch, revele, onAction }) {
   const rows = el("div", "ability-rows");
   for (const key of ABILITY_KEYS) {
     rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction }));
   }
-  return [renderRollBatch(rollBatch, onAction), rows];
+  /* ⭐ LE PLATEAU REMPLACE `renderRollBatch` (croquis B, 2026-08-15) : trois
+     dés 3D, `ROLL`/`ROLL 10`/`CLEAR` sur leur propre rangée, et les dix cases
+     numérotées. ⛔ Ses trois rappels ne passent PAS par `refresh()` — voir
+     l'en-tête d'`abilities-tray.mjs` et les actions du shell. */
+  const plateau = renderTray({
+    lot: rollBatch && rollBatch.method !== "standard" ? rollBatch : null,
+    revele: revele || 0,
+    onNouveauLot: (lot) => onAction({ kind: "abilityLot", lot }),
+    onRevele: (valeur) => onAction({ kind: "abilityRevele", valeur }),
+    onClear: () => onAction({ kind: "abilityClear" })
+  });
+  return [plateau, rows];
 }
 
 /** LE `render` DE LA MÉTHODE `manual` — six lignes de saisie, même forme de
@@ -572,6 +584,7 @@ export function standardArrayBatch() {
  * @param {string} [ctx.method]   la méthode choisie (B5.1c) — `null` au repos
  * @param {string} [ctx.rollingMethod] "fh3d6" | "4d6" (B5.2a)
  * @param {object} [ctx.rollBatch] le lot en cours, ou `null`
+ * @param {number} [ctx.revele]    combien des dix jets sont découverts
  */
 export function renderAbilitiesStep(ctx, onAction) {
   const document = ctx.document || null;
