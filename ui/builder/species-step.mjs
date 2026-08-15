@@ -25,7 +25,12 @@
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
 import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=1";
-import { renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
+
+/* ⏳ Même bouche-trou que Class, et c'est le point : la fiche est la même
+   (« B3 = B2 »). Le jour où les images arrivent, elles arrivent pour les
+   deux écrans au même endroit. */
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=1";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -47,21 +52,40 @@ function tierLabel(value) {
 
 export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species" };
 
-/** LE CORPS D'UNE FICHE D'ESPÈCE. ⚠️ Ce ne sont PAS les mêmes lignes que
- *  Class, et c'est le point : le catalogue est partagé, la fiche ne l'est
- *  pas. Ici : taille, vitesse, type de créature, sens — puis les deux
- *  apports Fate's Hand (`destiny.base`, `skill_points`), absents d'un
- *  personnage SRD pur, et alors la ligne n'existe simplement pas. */
+/** LE CORPS D'UNE FICHE D'ESPÈCE — lot 77. ⭐ C'EST EXACTEMENT LA FICHE DE
+ *  CLASS, et c'est le point : `renderFicheBody` est écrit une fois, les deux
+ *  écrans ne lui passent que LEUR record. Ce qui les distingue tient
+ *  entièrement dans la couche (`Type` · `Sz` · `Speed` · `Lineages` chez
+ *  l'espèce, `Ability` · `HP` · `Saves` … chez la classe), plus dans le 2ᵉ
+ *  palier plus bas — pas dans le dessin.
+ *
+ *  ⚠️ CE QUI EST TOMBÉ, ET QUI DOIT REVENIR SOUS UNE FORME OU UNE AUTRE :
+ *  la LISTE DES TRAITS. Le croquis d'espèce la met dans la moitié basse
+ *  (`Brave — advantage on saves against being Frightened`), là où le croquis
+ *  du Wizard met le blurb ; à 360 px la boîte fixe de 10 lignes prend toute
+ *  cette moitié, et les deux ne tiennent pas ensemble. Le blurb l'emporte
+ *  ici parce que c'est lui que le lot 77 monte et mesure — mais l'écart est
+ *  REMONTÉ, pas décidé en silence (INVENTAIRE-LOT-77.md). */
 export function renderSpeciesCardBody(query, id) {
   const view = query({ kind: "species", id });
   const data = (view && view.record && view.record.data) || {};
+  if (!Array.isArray(data.fiche_stats)) return renderSpeciesCardBodySrd(data);
+  return renderFicheBody({
+    stats: data.fiche_stats,
+    blurb: data.blurb && data.blurb.text,
+    image: DOS_DE_CARTE,
+    imageAlt: ""
+  });
+}
+
+/** LA FICHE D'ESPÈCE D'UN PERSONNAGE SRD PUR — même raison qu'à Class (loi
+ *  §0.12), même geste : le corps d'avant le lot 77, gardé intact, servi
+ *  quand la couche `fh-fiche-en` n'est pas montée. */
+function renderSpeciesCardBodySrd(data) {
   const sens = Array.isArray(data.senses)
     ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
     : null;
   const destiny = data.destiny && data.destiny.base;
-  /* `skill_points.by_level["1"]` : ce que l'espèce ajoute au pool DÈS le
-     niveau 1. Les paliers supérieurs existent dans le record ; les afficher
-     ferait lire un personnage qu'on ne construit pas encore. */
   const bump = data.skill_points && data.skill_points.by_level && data.skill_points.by_level["1"];
   const rows = renderCardRows([
     ["Size", data.size],

@@ -45,13 +45,22 @@
 import { renderConfirmDialog } from "./confirm.mjs?v=1";
 import { markPressed } from "./carnet.mjs?v=1";
 
-/** Les cinq couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
- *  MÊME liste que `LAYER_FILES`/`fh-species-en` etc. de `engine.mjs`, mais
- *  ici ce sont les IDs de couche (`layer.id`), pas des noms de fichier :
- *  c'est ce que `layers.verbs.enable/disable({id})` et
- *  `document.build.layers[].id` emploient. */
+/** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
+ *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
+ *  couche (`layer.id`), pas des noms de fichier : c'est ce que
+ *  `layers.verbs.enable/disable({id})` et `document.build.layers[].id`
+ *  emploient.
+ *  ⚠️ LOT 77 — `fh-fiche-en` et `fh-lore-en` entrent ici EN MÊME TEMPS que
+ *  dans `engine.mjs`, et ce n'est pas un détail de tenue de liste : sans
+ *  elles, la pile réelle (7) ne correspondait plus à la pile nommée (5) et
+ *  l'écran Universe accusait TOUT personnage d'avoir une pile hors des deux
+ *  jeux de règles — mesuré au navigateur, le message rouge s'affichait sur
+ *  le personnage d'exemple lui-même. Un garde tient désormais les deux
+ *  listes ensemble (`tests/fiche-360.test.mjs`, garde 3). */
 export const SRD_LAYER_ID = "srd-5.2.1-en";
-export const FH_LAYER_IDS = ["fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en"];
+export const FH_LAYER_IDS = [
+  "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-fiche-en", "fh-lore-en"
+];
 
 /** La pile que `document.build.layers` DÉCLARE, réduite à l'un des deux noms
  *  de l'écran — ou `null` si elle ne correspond à AUCUN des deux (un
@@ -62,7 +71,11 @@ export function currentStack(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   const ids = new Set(layers.map((layer) => layer.id));
   if (ids.size === 1 && ids.has(SRD_LAYER_ID)) return "srd";
-  if (ids.size === 5 && [SRD_LAYER_ID, ...FH_LAYER_IDS].every((id) => ids.has(id))) return "srdfh";
+  /* Le compte se DÉDUIT de la liste, il ne se réécrit pas à côté d'elle :
+     un `5` en dur ici a survécu à l'arrivée de deux couches et a fait
+     accuser le personnage d'exemple (lot 77). */
+  const pileFh = [SRD_LAYER_ID, ...FH_LAYER_IDS];
+  if (ids.size === pileFh.length && pileFh.every((id) => ids.has(id))) return "srdfh";
   return null;
 }
 

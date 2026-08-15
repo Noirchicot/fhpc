@@ -247,11 +247,19 @@ function fhRefChoicesPresent(document) {
  *     première fois. Aucun verbe `build`/`doc` ne pose ce champ
  *     directement : `build.layers` est STRUCTUREL (le schéma dit « l'ordre
  *     est la pile »), pas un point de décision de `build.choices`. */
+/* 🔴 LOT 77 — ON DÉMONTE UNE PILE PAR LE HAUT, ON LA MONTE PAR LE BAS, et
+   ce n'est pas une élégance : c'est une MESURE. `fh-fiche-en` patche les
+   trois espèces que `fh-species-en` AJOUTE (araag, elestu, loroka). Éteindre
+   dans l'ordre de la liste éteignait `fh-species-en` d'abord, et la pile
+   jetait aussitôt — « la couche fh-fiche-en patche species fh:species:en:
+   araag, qui n'est dans aucune couche sous elle » (§L7.2, et le refus a
+   raison). Passer de « SRD + FH » à « SRD » plantait donc l'écran Universe.
+   ⛔ Ne remets pas les deux boucles dans le même sens : à l'allumage, une
+   couche haute posée avant sa base jetterait par l'autre bout. */
 function applyLayerStack(value) {
   const layersVerbs = state.engine.layers.verbs;
-  for (const id of FH_LAYER_IDS) {
-    if (value === "srdfh") layersVerbs.enable({ id }); else layersVerbs.disable({ id });
-  }
+  if (value === "srdfh") for (const id of FH_LAYER_IDS) layersVerbs.enable({ id });
+  else for (const id of [...FH_LAYER_IDS].reverse()) layersVerbs.disable({ id });
   state.document = { ...state.document, build: { ...state.document.build, layers: [] } };
   rebuild();
 }

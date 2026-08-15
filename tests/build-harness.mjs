@@ -32,6 +32,12 @@ export const FH_SPECIES_EN = "layers/fh-species-en.layer.json";
    qui permet de prouver chaque terme séparément. */
 export const FH_ARCANA_EN = "layers/fh-arcana-en.layer.json";
 export const FH_FEATS_EN = "layers/fh-feats-en.layer.json";
+/* Les deux couches de TEXTE du lot 77 — le blurb et les lignes de fiche
+   d'un côté, le lore long de l'autre. Elles ne lèvent aucun drapeau et
+   n'allument aucun module : elles ne font que `patch` du contenu sur les 24
+   records de classe et d'espèce. Elles ferment la pile « SRD + FH ». */
+export const FH_FICHE_EN = "layers/fh-fiche-en.layer.json";
+export const FH_LORE_EN = "layers/fh-lore-en.layer.json";
 
 export function fileBytes(rel) {
   return readFileSync(join(ROOT, rel));

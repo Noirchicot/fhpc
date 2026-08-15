@@ -19,13 +19,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createTestDocument } from "./dom-stub.mjs";
-import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN }
+import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_FICHE_EN, FH_LORE_EN }
   from "./build-harness.mjs";
 
 globalThis.document = createTestDocument();
 
 const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, FH_LAYER_IDS }
   = await import("../ui/builder/universe-step.mjs");
+/* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
+   NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
+   laissé les deux diverger. */
+const { LAYER_FILES } = await import("../ui/builder/engine.mjs");
 
 const FT_LB = { distance: "ft", weight: "lb" };
 function draftDocument(extra = {}) {
@@ -42,9 +46,19 @@ function manifestFor(ids) {
 
 /* ══ A — LES DEUX FONCTIONS PURES ══════════════════════════════════════ */
 
-test("A0 — les cinq couches SRD+FH sont SRD_LAYER_ID + FH_LAYER_IDS, quatre couches FH", () => {
+test("A0 — la pile SRD+FH nommée est EXACTEMENT celle que le moteur monte", () => {
   assert.equal(SRD_LAYER_ID, "srd-5.2.1-en");
-  assert.deepEqual(FH_LAYER_IDS, ["fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en"]);
+  /* ⭐ LOT 77 — LA LISTE N'EST PLUS RECOPIÉE ICI, ELLE EST CONFRONTÉE. Ce
+     test portait les quatre noms à la main ; le jour où `engine.mjs` en a
+     monté deux de plus (`fh-fiche-en`, `fh-lore-en`), la pile nommée est
+     restée à cinq et l'écran Universe a accusé le personnage d'exemple
+     d'avoir une pile hors des deux jeux de règles — mesuré au navigateur.
+     Une liste écrite deux fois diverge : c'est la loi du dépôt, et elle
+     vient de coûter une fois de plus. Le garde compare donc les DEUX
+     sources réelles. */
+  const duMoteur = LAYER_FILES.map((f) => f.replace(/\.layer\.json$/, ""));
+  assert.deepEqual([SRD_LAYER_ID, ...FH_LAYER_IDS], duMoteur,
+    "la pile nommée « SRD + FH » doit être la pile que `engine.mjs` monte, dans le même ordre");
 });
 
 test("A1 — currentStack reconnaît « srd » (une couche) et « srdfh » (les cinq)", () => {
@@ -174,7 +188,7 @@ test("B5 — la langue de la fiche et les unités s'affichent, lisibles (pas les
    PILE ET LE VRAI BLOC `build` (§3, test 5 de la commande) ═══════════════ */
 
 test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dégrade le résolu (refus NOMMÉS), et l'aller-retour restaure tout", () => {
-  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN] });
+  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_FICHE_EN, FH_LORE_EN] });
   /* Le personnage d'exemple EN+FH DU DÉPÔT (`examples/personnage-fh-en-
      niveau1.fh-char.json`, lot 20) — celui que `engine.mjs`/`shell.mjs`
      chargent réellement au boot du builder, jamais recopié à la main. */
@@ -199,7 +213,11 @@ test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dég
   assert.ok(affectedBefore.length > 0, "témoin : ce personnage porte bien des choix Fate's Hand nommables");
 
   /* ── LE GESTE EXACT DE shell.mjs (`applyLayerStack("srd")`) ─────────── */
-  for (const id of FH_LAYER_IDS) harness.layers.verbs.disable({ id });
+  /* 🔴 LOT 77 — PAR LE HAUT. `applyLayerStack` éteint la pile à l'envers de
+     la liste, et ce test rejoue le geste EXACT : `fh-fiche-en` patche les
+     trois espèces que `fh-species-en` ajoute, donc éteindre la base d'abord
+     fait jeter la pile (§L7.2). C'est ce test qui a trouvé le défaut. */
+  for (const id of [...FH_LAYER_IDS].reverse()) harness.layers.verbs.disable({ id });
   doc = { ...doc, build: { ...doc.build, layers: [] } };
   const degraded = harness.verbs.rebuild({ document: doc });
   doc = degraded.document;

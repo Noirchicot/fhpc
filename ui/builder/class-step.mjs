@@ -21,8 +21,14 @@
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
 import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=1";
-import { renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
 import { renderConfirmDialog } from "./confirm.mjs?v=1";
+
+/* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — aucune n'existe encore (cotes
+   visées 200 × 260, PNG transparent, Eric les produit). Le dos de carte des
+   arcanes tient la place, et il porte la version du graphe comme tout ce que
+   `ui/` charge (lot 75). */
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=1";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -55,15 +61,49 @@ const SPELL_QCMS = [
 
 export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes" };
 
-/** LE CORPS D'UNE FICHE DE CLASSE — les quatre que B2 nomme (« skill pool ·
- *  HP · primary ability · saves »), AFFICHÉES TELLES QUE LE RECORD LES PORTE
- *  (`hit_point_die` est déjà une phrase, `primary_ability` un mot complet),
- *  puis les features de NIVEAU 1 (`features[].level`). */
+/** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.
+ *
+ *  ⭐ CE QUI A CHANGÉ, ET POURQUOI CE N'EST PAS UNE RÉÉCRITURE DE GOÛT. Les
+ *  quatre lignes que B2 nommait étaient lues DIRECTEMENT dans le record SRD
+ *  (`hit_point_die` est une phrase entière, `saving_throw_proficiencies` une
+ *  liste jointe) : à 360 px dans une colonne de 118, elles débordaient. La
+ *  couche `fh-fiche-en` porte désormais les MÊMES faits, compressés à la
+ *  colonne et mesurés (`data[fiche_stats]`), plus les ~50 mots d'ambiance
+ *  que `data.description` n'a jamais été (c'est de la comptabilité de
+ *  multiclassage — mesuré au lot 58).
+ *
+ *  ⛔ RIEN N'EST COMPOSÉ ICI. L'écran descend des mots, il n'en fabrique
+ *  pas : une ligne absente de la couche est une ligne qui ne s'affiche pas.
+ *  ⏳ Les features de niveau 1 quittent la fiche — elles n'ont plus de place
+ *  dans la boîte fixe, et le panneau `lore` (hors périmètre) est leur
+ *  destination naturelle. */
 export function renderClassCardBody(query, id) {
   const view = query({ kind: "class", id });
   const data = (view && view.record && view.record.data) || {};
-  /* Le pool vient de la couche FH (`data.fh_skill_pool.base`) : absent d'un
-     personnage SRD pur, la ligne ne s'affiche pas — jamais un zéro inventé. */
+  if (!Array.isArray(data.fiche_stats)) return renderClassCardBodySrd(data);
+  return renderFicheBody({
+    stats: data.fiche_stats,
+    blurb: data.blurb && data.blurb.text,
+    image: DOS_DE_CARTE,
+    imageAlt: ""
+  });
+}
+
+/** LA FICHE D'UN PERSONNAGE SRD PUR — la couche `fh-fiche-en` débrayée.
+ *
+ *  🔴 CE N'EST PAS UN REPLI DÉCORATIF, C'EST LA LOI §0.12 : « un personnage
+ *  SRD pur traverse-t-il l'écran de bout en bout ? ». `fiche_stats` et
+ *  `blurb` sont du contenu Fate's Hand ; sans la couche qui les porte, la
+ *  fiche neuve serait VIDE — douze dalles blanches. Ce corps-ci est
+ *  exactement celui d'avant le lot 77, gardé tel quel : la pile SRD nue rend
+ *  ce qu'elle rendait, ni plus ni moins.
+ *
+ *  ⚠️ ET IL N'EST PAS TENU PAR LE GARDE DES 118 px — il ne peut pas l'être :
+ *  ses lignes viennent du record SRD (`hit_point_die` est une phrase
+ *  entière), et c'est précisément parce qu'elles débordent de la colonne que
+ *  `fh-fiche-en` existe. À 360 px, une pile SRD nue est LISIBLE mais pas
+ *  CALIBRÉE — le dire ici plutôt que le laisser découvrir. */
+function renderClassCardBodySrd(data) {
   const pool = data.fh_skill_pool && data.fh_skill_pool.base;
   const rows = renderCardRows([
     ["Skill pool", Number.isInteger(pool) ? String(pool) : null],

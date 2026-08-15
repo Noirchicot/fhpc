@@ -414,6 +414,18 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
      jamais un zéro inventé pour remplir la ligne. C'est la question §0.12
      posée à un écran neuf : « un personnage SRD pur le traverse-t-il de bout
      en bout ? » Oui, et il y perd exactement ce que FH lui donnait. */
+  /* ⭐ LOT 77 — LA MESURE S'EST DÉDOUBLÉE, ET C'EST TOUT L'INTÉRÊT. La fiche
+     à 360 (lignes compressées + blurb + image) vient ENTIÈREMENT de
+     `fh-fiche-en` : sans cette couche, elle n'existe pas, et l'écran servirait
+     douze dalles vides. `renderClassCardBody` retombe donc sur le corps SRD
+     d'avant le lot 77 — c'est la loi §0.12 (« un personnage SRD pur
+     traverse-t-il l'écran de bout en bout ? ») rendue exécutable, et pas un
+     repli décoratif. Les deux moitiés se vérifient ici : aucune trace de la
+     fiche FH, et les lignes SRD bien présentes. */
+  assert.equal(classNode.querySelectorAll(".fiche-blurb").length, 0,
+    "aucun blurb sans la couche qui le porte — le blurb est du contenu Fate's Hand");
+  assert.equal(classNode.querySelectorAll(".fiche-stat-row").length, 0,
+    "aucune ligne de fiche compressée sans sa couche");
   const libelles = classNode.querySelectorAll(".catalogue-card-row dt").map((dt) => dt.textContent);
   assert.equal(libelles.includes("Skill pool"), false, "aucune ligne de pool sans la couche qui la porte");
   assert.ok(libelles.includes("Points de vie") || libelles.includes("Hit points"), "les lignes SRD, elles, sont bien là");

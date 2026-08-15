@@ -20,7 +20,7 @@
       "text": "A dragonborn's ancestor is an idea more than a specific dragon—an inherited breath weapon, hide to match it, and a posture that never apologizes for the room it takes. Scale color spans the old dragon families, jet to gold, and matters less than a stranger's own bearing. Test either trait, and the temper shows up fast.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -48,7 +48,7 @@
       "text": "Dwarves don't rush, having outlasted enough hurried kingdoms already—history gets measured here in mined seams, not crowned heads. Poison barely slows one down, and eyes built for lightless tunnels see twice as far as most. A dwarf never loses track of who owes what to whom. Settle a debt cleanly, and the friendship lasts.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -72,7 +72,7 @@
       "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, slowly, without breaking it. Sleep is optional; a few hours of trance covers it, and charm mostly slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age—alarming, given how much age an elf gets.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -100,7 +100,7 @@
       "text": "Meeting a Hoddon is rare, by design—the little folk keep their holds hidden and their business private. Charm, threats, and clever lies mostly bounce off a Hoddon's mind mid-sentence. Some lean toward the deep woods and what lives there, others toward small ingenious contraptions. Either way, trust is earned slowly.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -128,7 +128,7 @@
       "text": "A goliath's home is wherever the giants haven't burned down yet—hence the build, tall enough to meet most threats eye to eye, and the habit of never settling. Giant blood surfaces when a fight turns ugly, lending power few humanoids can match. Underneath sits an oddly modest wish: a roof that won't need rebuilding next season.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -156,7 +156,7 @@
       "text": "Halflings prove patience beats size—the same valley farmed quietly long after the empire next door has fallen twice. Knocked down, a halfling gets up without drama, catching fewer bad breaks than seems fair. Small enough to vanish behind cover that wouldn't hide anyone else, a halfling is easy to underestimate exactly once.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -180,7 +180,7 @@
       "text": "Humans are the species that got wiped off the map once and simply refused to stay gone. Badly outnumbered by older peoples, they make up for it in volume: cities built in a hurry, arguments louder than needed, ambitions well past what the numbers justify. Having survived erasure once, a human treats most setbacks as background noise.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -204,7 +204,7 @@
       "text": "What outsiders call ferocity is usually just stamina nobody else can match—orcs hold the hard country because they refuse to quit first. The body backs it: a burst of speed under pressure, a refusal to drop the first time death looks likely. An orc sizes people up fast; the only real question is what they can carry, and how far.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -228,7 +228,7 @@
       "text": "A tiefling's mark reads as trouble before they've done anything to earn it, which teaches most tieflings to charm early, since trust arrives slowly either way. Underneath the easy manner sits something genuinely uncanny: a bloodline granting its own resistance, eyes at home in full dark, and a small trick of magic worth one gesture.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -256,7 +256,7 @@
       "text": "Araags wear the Harvest that ended the last free humans as a mark, not a memory—a soulgem binds into their flesh at no cost, necrotic wounds barely register, and their eyes still read the dark their ancestors fled. Common in the Empire sharing their name, eyed with suspicion beyond it, an Araag learns fast from survival, not ambition.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -280,7 +280,7 @@
       "text": "An elf paired with a human, or with an Araag, never produces another elf—a fact Elestu spend energy correcting. Too mortal for elves, too strange for everyone else, they cluster around lecture halls and moonlit circles instead: fast learners, charm-resistant, needing no real sleep. Two worlds beats belonging fully to either.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -304,7 +304,7 @@
       "text": "Loroka worked these terraced hills long before the country had a name, and stayed—today they outnumber every other people in its capital. Knocked to the edge of death, a Loroka's body finds one more breath out of pure stubbornness. Called to the Front, a Loroka picks up a spear, then goes home and picks the hoe back up.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Type",
        "value": "Humanoid"
@@ -330,7 +330,7 @@
       "text": "Rage isn't losing control—it's the only control a barbarian trusts. Pain fades, caution burns away, and the body remembers a violence older than any drilled stance. They shrug off blows that would drop an armored knight, then hit back twice as hard. No spellbook, no oath, no teacher: only fury, sharpened by every fight survived.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Str"
@@ -374,7 +374,7 @@
       "text": "A bard bets a song can do what a sword can't, and wins more than skeptics expect. Charisma isn't decoration here—it's the power source, drawn from music, wit, and nerve rather than study or scripture. They can talk down a guard, then fight the next one, barely noticing the difference. Every performance is a small working of magic.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Cha"
@@ -414,7 +414,7 @@
       "text": "A cleric's power isn't borrowed, it's granted—proof something answered the prayer. The bargain cuts both ways: healing in one hand, judgment in the other, and a debt of service that doesn't clock out after battle. Robes under armor, a holy symbol worth more than the sword. Private life is the calling's first casualty.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Wis"
@@ -454,7 +454,7 @@
       "text": "A druid doesn't dominate nature, they petition it—and get answers more often than a king would like. Ask properly, and weather, root, even a wolf's own body can be borrowed a while; the oldest druids barely bother turning back into anything human-shaped. Kingdoms trust borders. A druid was loyal to the ground before any line got drawn.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Wis"
@@ -494,7 +494,7 @@
       "text": "Steel remembers what flesh forgets. Ten thousand strikes forge it. No spellbook, no arcane grammar—only muscle and discipline. They are the wall that never breaks, absorbing blows that fell lesser souls. Armor is their skin; courage is the spell. Knight, duelist, veteran—all built by practice, not birth. When magic fails, steel remains.",
       "provenance": "eric"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "STR / DEX"
@@ -538,7 +538,7 @@
       "text": "A monk spent years turning an empty hand into a weapon nobody had to hand them, and their own body into armor nobody had to forge. Somewhere in there they also learn to catch a blow mid-flight and send it back where it came from. No steel, no plate: just discipline, repeated past the point where most people quit and call it enough.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "DEX / WIS"
@@ -578,7 +578,7 @@
       "text": "A paladin's magic comes with strings attached—one oath, sworn once, that the power keeps checking against. Keep it, and the strength holds; bend it for convenience, and the paladin feels it first. They walk into fights cautious people avoid, healing hands as practiced as the blade. The oath is the whole engine.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "STR / CHA"
@@ -622,7 +622,7 @@
       "text": "A ranger notices what the ground is trying to hide—a bent stalk, a wrong print, weather an hour before anyone else smells it. Half warrior, half quiet spellcaster, most dangerous at home, oddly at ease around animals that would bolt from anyone else. Rangers don't lead columns. They walk point, and everyone follows the boot prints.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "DEX / WIS"
@@ -666,7 +666,7 @@
       "text": "A rogue doesn't overpower a fight, they end it early—one clean opening turns an ordinary hit into the only hit that mattered. That same eye for the gap shows up in a lock, a lie, a guard's blind spot. Jack of a dozen trades and better still at leaving unseen, a rogue survives on always having a second way out already scouted.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Dex"
@@ -710,7 +710,7 @@
       "text": "A sorcerer's magic showed up before any teacher could claim credit—inherited, inborn, or triggered by something that only happened once. It answers to instinct more than study: faster to reach for than a wizard's spell, harder to fully leash even after years of aiming it. Ask a sorcerer how it works and watch them shrug: it just does.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Cha"
@@ -750,7 +750,7 @@
       "text": "Somewhere past the ordinary rules of magic sits a warlock's patron; what it cost to seal that deal is nobody else's business. Invocations are doors that shouldn't exist, forced open once and left unlocked—no study required, just payment made. The fine print stays private. What shows is the confidence of someone who no longer asks.",
       "provenance": "fh-original"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Cha"
@@ -790,7 +790,7 @@
       "text": "Weavers of arcane grammar, wizards bend reality through study, not birth. Spellbooks hold their power—lost pages mean lost magic. They shape fire, bend time, pierce minds, all through relentless intellect. Fragile in armor, mighty in will, they trade brute strength for the universe's deepest secrets, one spell slot at a time.",
       "provenance": "eric"
      },
-     "data.fiche_stats": [
+     "data[fiche_stats]": [
       {
        "label": "Ability",
        "value": "Int"

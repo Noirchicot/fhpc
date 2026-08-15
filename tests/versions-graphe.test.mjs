@@ -268,9 +268,15 @@ test("3 — index.html, le décideur : AUCUN chargement ne part sans version", (
      qu'il fait, et c'est déjà utile.
        · lot 75 : 3 — tokens.css, shell.css, shell.mjs
        · 2026-08-15 : 4 — `dice3d.css` entre avec le portage du plateau 3D
-         (`dice3d.mjs`, lui, est importé par l'écran, pas par la page). */
-  assert.equal(refs.length, 4,
-    `index.html porte ${refs.length} chargements, 4 attendus — si tu viens d'en ajouter un, ` +
+         (`dice3d.mjs`, lui, est importé par l'écran, pas par la page).
+       · lot 77 : 5 — `fiche.css` entre avec la fiche à 360 (Class/Species).
+         Une feuille À PART et pas trois règles de plus dans `shell.css` :
+         un autre lot écrit `shell.css` en ce moment, et un fichier n'a
+         qu'un écrivain. Elle est chargée APRÈS lui — les quelques règles
+         `.catalogue-*` qu'elle reprend le sont à égalité de spécificité,
+         c'est donc l'ordre qui tranche, délibérément. */
+  assert.equal(refs.length, 5,
+    `index.html porte ${refs.length} chargements, 5 attendus — si tu viens d'en ajouter un, ` +
     "mets ce compte à jour ET dis pourquoi juste au-dessus ; si tu n'as rien ajouté, cherche qui l'a fait");
 });
 
