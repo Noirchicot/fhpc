@@ -522,14 +522,41 @@ test("🔴 `Roll dice` + FH 3d6 : le PLATEAU est rendu, avec les quatre boutons 
   const node = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: "roll", rollingMethod: "fh3d6", rollBatch: null }), () => {});
   assert.equal(node.querySelectorAll(".tray").length, 1, "le plateau est sur le chemin vivant de l'écran");
+  assert.equal(node.querySelectorAll(".tray-titre")[0].textContent, "Roll Options",
+    "le titre est celui d'Eric, et il est à lui");
   const libelles = node.querySelectorAll(".tray-bouton").map((b) => b.textContent);
-  assert.deepEqual(libelles, ["roll 3d6", "roll 10 x 3d6", "flash roll", "reset"],
-    "les quatre libellés sont ceux d'Eric, mot pour mot (2026-08-15)");
+  assert.deepEqual(libelles, ["3d6", "10x3D6", "Flash", "Reset"],
+    "les quatre libellés sont ceux d'Eric, mot pour mot (2026-08-15, après essai sur iPhone SE)");
   assert.equal(node.querySelectorAll(".tray-case").length, 10, "les dix cases existent DÈS LE DÉPART, vides");
   assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "et les jetons plats ont cédé la place");
   /* Aucun lot : le plateau est vide, il n'y a rien à poser. */
   assert.equal(node.querySelectorAll(".tray-des")[0].childNodes.length, 0,
     "sans lot, le plateau est vide — il n'invente pas de dés");
+
+  /* ══ 🔴 LE BUDGET DE LARGEUR, ET POURQUOI IL EXISTE ═══════════════════
+     `Reset` est parti COUPÉ au bord droit de l'iPhone SE d'Eric, et rien ne
+     l'a vu : la suite était verte, et la largeur ne vivait que dans un
+     commentaire. Mesuré depuis, dans la page et non dans le gabarit :
+
+       largeur utile de la rangée .......... 294 px  (et NON les 312 théoriques)
+       rembourrage 8×2 sur quatre boutons ..  64
+       trois gouttières de 4 ...............  12
+       bordures 1×2 sur quatre boutons .....   8   ← le terme oublié
+       ────────────────────────────────────────
+       reste pour le TEXTE ................. 210 px
+
+     Les libellés d'Eric font 146 px pour 19 caractères, soit ~7,7 px/car. en
+     T3. ⚠️ CE GARDE EST UN PROXY, et il le dit : Node n'a pas de
+     `measureText`, donc il compte des CARACTÈRES là où le navigateur compte
+     des pixels. Le plafond est posé à 24 (contre 19 aujourd'hui) en tablant
+     sur ~8,7 px/car. — de quoi encaisser des majuscules et des chiffres, qui
+     sont les plus larges.
+     ⛔ Il ne remplace pas une mesure au navigateur ; il attrape le cas qui a
+     réellement mordu : des libellés qui rallongent, et une rangée qui déborde
+     en silence sur le plus petit écran. */
+  const totalCar = libelles.join("").length;
+  assert.ok(totalCar <= 24,
+    `les quatre libellés font ${totalCar} caractères : au-delà de 24, la rangée déborde à 360 — c'est arrivé, et Eric l'a vu avant nous`);
 });
 
 test("🔴 UN REDESSIN REPOSE LES DÉS, IL NE LES EFFACE PAS — et il n'anime rien", () => {

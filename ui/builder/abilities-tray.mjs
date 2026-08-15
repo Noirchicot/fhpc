@@ -2,29 +2,46 @@
    La dalle MAJEURE de l'écran Abilities : trois dés 3D, quatre boutons et les
    dix résultats numérotés dont quatre barrés.
 
-   ⌨️ LES QUATRE LIBELLÉS SONT D'ERIC, mot pour mot (2026-08-15) :
-   `roll 3d6` · `roll 10 x 3d6` · `flash roll` · `reset`.
-   ⚠️ `reset` et non `CLEAR` : le croquis B disait `CLEAR`, sa liste est
-   postérieure et c'est elle qui vaut.
+   ⌨️ LE TITRE ET LES QUATRE LIBELLÉS SONT D'ERIC (2026-08-15, après avoir vu
+   l'écran sur son iPhone SE) : titre **`Roll Options`, centré**, et les
+   boutons **centrés** — `3d6` · `10x3D6` · `Flash` · `Reset`.
+   ⚠️ Sa liste est POSTÉRIEURE aux précédentes (`CLEAR` du croquis B, puis
+   `roll 3d6`/`roll 10 x 3d6`/`flash roll`/`reset`) : c'est elle qui vaut.
+   📌 Il écrit `3d6` en minuscule et `10x3D6` en majuscule ; on recopie ses
+   chaînes telles quelles plutôt que d'uniformiser — un libellé est à lui.
 
-   📏 ET ILS TIENNENT SUR UNE RANGÉE, À T3 — DONC SANS DÉROGER AU GABARIT.
-   Mesuré à 360 sur une dalle de 312 utiles, rembourrage 8, gouttière 4 :
-   **292,4 px**, 19,6 de reste. `roll 10 x 3d6` est le plus large, à 79,3 px.
+   ══ 📏 LA LARGEUR, ET LES DEUX FAUTES DE MESURE QU'ELLE A COÛTÉES ═══════
 
-   ⚠️ CORRECTION D'UNE MESURE FAUSSE — 2026-08-15, le jour même. Cet en-tête
+   ⛔ **LA LARGEUR UTILE N'EST PAS 312, ELLE EST 294.** Mesurée dans la page,
+   pas déduite du gabarit : `.tray` fait 310 de large à 360 de fenêtre, moins
+   son rembourrage de 8×2 → **294**.
+
+   ⛔ **ET UN BOUTON COÛTE SA BORDURE** : 1 px de chaque côté, soit +8 px sur
+   les quatre. Oubliés dans le premier calcul.
+
+   Les deux ensemble ont produit un débordement VISIBLE sur l'iPhone SE
+   d'Eric — `Reset` coupé au bord droit :
+
+     anciens libellés · T3 : 216,4 (texte) + 64 (rembourrage) + 12 (gouttières)
+                             + 8 (bordures) = 300,4  sur 294  →  ❌ déborde de 6,4
+     libellés d'Eric  · T3 : 146   + 64 + 12 + 8      = 230    sur 294  →  ✅ 64 de reste
+
+   📌 LA FORME DE LA FAUTE, ET C'EST LA TROISIÈME DE LA SÉANCE : avoir pris le
+   nombre THÉORIQUE du gabarit (312) pour la mesure, et oublié un terme
+   (les bordures). Le gabarit dit lui-même que ses largeurs sont mesurées « au
+   measureText, jamais estimées » — mais la boîte qui les reçoit, elle, n'avait
+   jamais été mesurée.
+   ⭐ Le remède tenu ici : les 64 px de reste laissent les boutons CENTRÉS à
+   leur largeur naturelle, sans jamais s'étirer ni se comprimre.
+
+   ⚠️ CORRECTION D'UNE MESURE FAUSSE, plus tôt le même jour. Cet en-tête
    annonçait `roll 10 x 3d6` à **93 px en T2** et concluait « T3 ne passe dans
    AUCUNE combinaison », en assumant un écart au gabarit. Repris au
-   `measureText` dans la police réelle : T2 → 69,6 · T3 → 79,3 · T4 → 88,8.
-   **Le 93 correspond à du 16 px.** La mesure avait été prise au mauvais
-   barreau, et l'exception s'est construite dessus.
+   `measureText` : T2 → 69,6 · T3 → 79,3 · T4 → 88,8. **Le 93 correspond à du
+   16 px** — la mesure avait été prise au mauvais barreau, et une exception
+   documentée et argumentée s'est construite dessus.
 
-   📌 LA FORME DE LA FAUTE : une exception documentée, argumentée, et fondée
-   sur un seul nombre que personne n'a repris. Elle a survécu plus longtemps
-   qu'un simple oubli l'aurait fait — c'est le raisonnement autour qui la
-   rendait crédible. Même famille que « pixels opaques = 0 ».
-
-   ⭐ Les 44 px de cible tactile restent intacts en hauteur, et aucun bouton
-   ne se comprime sous son texte (`flex: 1 0 auto`, voir `shell.css`).
+   ⭐ Les 44 px de cible tactile restent intacts en hauteur.
 
    ══ CE QUI A DÉCIDÉ DE LA FORME ════════════════════════════════════════
 
@@ -165,6 +182,9 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
      📌 `REGLAGES.ecart` reste la valeur d'Eric et reste ici : c'est le
      fichier qui la porte, et la feuille la recopie sous son nom. */
 
+  /* ── Le titre, centré (Eric, 2026-08-15, vu sur son iPhone SE) ─────── */
+  dalle.append(el("h3", "tray-titre", [texte("Roll Options")]));
+
   /* ── La rangée des boutons, SEULE sur sa ligne (choix A d'Eric) ────── */
   const barre = el("div", "tray-boutons");
   const bouton = (libelle, classe, onClick) => {
@@ -178,10 +198,10 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   const total = 10;   // la méthode d'Eric : dix jets, toujours
   const reste = total - revele;
 
-  const roll = bouton("roll 3d6", "tray-roll", () => sequence(1));
-  const roll10 = bouton(`roll ${total} x 3d6`, "tray-roll10", () => sequence(reste || total));
-  const flash = bouton("flash roll", "tray-flash", () => flashRoll());
-  const reset = bouton("reset", "tray-reset", () => { annule = true; onClear(); });
+  const roll = bouton("3d6", "tray-roll", () => sequence(1));
+  const roll10 = bouton(`${total}x3D6`, "tray-roll10", () => sequence(reste || total));
+  const flash = bouton("Flash", "tray-flash", () => flashRoll());
+  const reset = bouton("Reset", "tray-reset", () => { annule = true; onClear(); });
   barre.append(roll, roll10, flash, reset);
   dalle.append(barre);
 

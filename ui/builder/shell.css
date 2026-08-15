@@ -1392,13 +1392,23 @@ button { font: inherit; }
    Le rembourrage (8) et la gouttière (4) sont sur l'ÉCHELLE du dépôt
    (2/4/8/12/16…), là où le 10 et le 6 du calcul d'origine n'y étaient pas :
    le garde `ui-jetons` les a refusés, et il avait raison. */
-.tray-boutons { display: flex; gap: var(--sp-4); }
+/* Le titre, centré — Eric, 2026-08-15, après l'avoir vu sur son iPhone SE. */
+.tray-titre {
+  margin: 0;
+  text-align: center;
+  font-size: var(--t3);
+  color: var(--text);
+}
+
+.tray-boutons { display: flex; gap: var(--sp-4); justify-content: center; }
 .tray-bouton {
-  flex: 1 0 auto;               /* ⛔ `1 1 0` DONNAIT QUATRE PARTS ÉGALES DE 71 px
-                                   et écrasait `roll 10 x 3d6` (79,3). Aucun
-                                   bouton ne se comprime sous son texte : s'il
-                                   devait un jour déborder, ça se VOIT — un
-                                   libellé rogné en silence serait pire. */
+  flex: 0 0 auto;               /* ⛔ NI ÉTIRÉS NI COMPRIMÉS. `1 1 0` donnait
+                                   quatre parts ÉGALES et écrasait le plus long
+                                   des libellés ; `1 0 auto` les étirait pour
+                                   remplir la rangée, ce qui empêche de les
+                                   CENTRER (Eric). À largeur naturelle, les
+                                   64 px de reste se partagent de part et
+                                   d'autre — c'est ça, centrés. */
   min-height: 44px;             /* ⛔ LA CIBLE TACTILE NE SE NÉGOCIE JAMAIS */
   padding: 0 var(--sp-8);
   font: inherit;
