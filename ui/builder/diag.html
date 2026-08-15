@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FHPC — Diagnostic d'écran</title>
+<!-- ⛔ CETTE PAGE EST ENTIÈREMENT AUTONOME. Aucune feuille, aucun module,
+     aucune image : rien à versionner, donc rien qui puisse se désynchroniser
+     du graphe (`tests/versions-graphe.test.mjs` ne juge qu'`index.html`).
+     C'est délibéré — un outil de mesure qui dépend de ce qu'il mesure ment.
+
+     🔴 POURQUOI ELLE EXISTE. Le 2026-08-15, Eric a jugé le builder sur un
+     iPhone SE (A2783) dont le **Display Zoom** était actif : Safari y rend
+     en **320 px CSS** au lieu de 375. Toutes les cotes du gabarit sont
+     calculées pour **360**. Résultat : image rognée, marges mangées,
+     `CHOOSE` coupé — et un diagnostic d'architecte qui a accusé le mauvais
+     appareil (« SE 1ʳᵉ génération »), faute d'un seul chiffre.
+     📌 Un réglage d'accessibilité change la largeur CSS sans changer le
+     modèle du téléphone. Aucune fiche technique ne le dit. **Il faut le
+     mesurer sur l'appareil, pas le déduire du numéro de modèle.** -->
+<style>
+  :root {
+    --cible: 360;
+    --encre: #2b2721;
+    --fond: #f4f0e6;
+    --ok: #2f6d4f;
+    --non: #aa3f2f;
+    --doux: #676258;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --encre: #ece6d9; --fond: #1f1c16; --ok: #6fbb92; --non: #dd6a58; --doux: #928c7f; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px;
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--fond); color: var(--encre);
+    -webkit-text-size-adjust: 100%;
+  }
+  h1 { font-size: 14px; margin: 0 0 4px; color: var(--doux); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .chiffre { font-size: 64px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .chiffre small { font-size: 20px; font-weight: 400; color: var(--doux); }
+  .verdict { margin: 12px 0 20px; padding: 12px; border-radius: 8px; font-weight: 600; }
+  .verdict[data-ok="oui"] { color: var(--ok); border: 1px solid var(--ok); }
+  .verdict[data-ok="non"] { color: var(--non); border: 1px solid var(--non); }
+  /* LE CADRE DE RÉFÉRENCE — largeur EXACTE de la cible, en dur. ⛔ Il ne se
+     calcule pas depuis la fenêtre : c'est lui l'étalon, pas elle. */
+  .cadre {
+    width: 360px; height: 120px;
+    border: 2px dashed var(--doux); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--doux); font-size: 13px; text-align: center;
+    /* S'il déborde, ÇA SE VOIT : on ne le laisse pas rétrécir poliment. */
+    flex: none;
+  }
+  .piste { overflow-x: auto; margin-bottom: 20px; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+  dt { color: var(--doux); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  p.note { font-size: 13px; color: var(--doux); margin: 20px 0 0; }
+</style>
+</head>
+<body>
+  <h1>Largeur CSS de cet écran</h1>
+  <div class="chiffre"><span id="w">—</span><small> px</small></div>
+  <div class="verdict" id="verdict" data-ok="non">…</div>
+
+  <h1>Le cadre de la cible — 360 px</h1>
+  <div class="piste">
+    <div class="cadre">s'il tient sans barre de défilement,<br>ton écran porte le gabarit</div>
+  </div>
+
+  <dl>
+    <dt>Hauteur CSS</dt><dd id="h">—</dd>
+    <dt>Pixels par point</dt><dd id="dpr">—</dd>
+    <dt>Écran physique</dt><dd id="phys">—</dd>
+    <dt>Orientation</dt><dd id="ori">—</dd>
+  </dl>
+
+  <p class="note">
+    ⚠️ Si la largeur est plus petite que l'écran attendu, regarde
+    <strong>Réglages → Affichage et luminosité → Affichage</strong> :
+    le mode <em>Agrandi</em> réduit la largeur CSS sans rien changer au modèle
+    du téléphone. C'est ce qui a fait passer un SE&nbsp;A2783 de 375 à 320.
+  </p>
+
+<script>
+  /* 🔴 `clientWidth` DE `documentElement`, ET PAS `window.innerWidth`.
+     `innerWidth` compte la barre de défilement quand il y en a une : sur un
+     écran juste à la limite, il rendrait 375 là où la mise en page n'en a
+     que 360. On mesure ce que le CSS voit, pas ce que la fenêtre annonce. */
+  function relire() {
+    var w = document.documentElement.clientWidth;
+    var cible = 360;
+    document.getElementById("w").textContent = w;
+    document.getElementById("h").textContent = document.documentElement.clientHeight + " px";
+    document.getElementById("dpr").textContent = (window.devicePixelRatio || 1) + "×";
+    document.getElementById("phys").textContent =
+      Math.round(w * (window.devicePixelRatio || 1)) + " × " +
+      Math.round(document.documentElement.clientHeight * (window.devicePixelRatio || 1)) + " px réels";
+    document.getElementById("ori").textContent = w > document.documentElement.clientHeight ? "paysage" : "portrait";
+    var v = document.getElementById("verdict");
+    var tient = w >= cible;
+    v.dataset.ok = tient ? "oui" : "non";
+    v.textContent = tient
+      ? "✅ ≥ 360 — le gabarit tient, il te reste " + (w - cible) + " px de marge."
+      : "⛔ < 360 — il manque " + (cible - w) + " px. Les marges de page seront mangées.";
+  }
+  /* 🔴 UNE PAGE DE MESURE N'A PAS LE DROIT D'AFFICHER UN CHIFFRE PÉRIMÉ.
+     Mesuré le 2026-08-15 : sur `resize` seul, la fenêtre est passée de 320 à
+     375 et la page a continué d'annoncer **320** — 55 px de mensonge, sur un
+     outil dont c'est l'unique métier. L'événement n'avait pas été émis.
+
+     ⛔ On ne fait donc pas confiance à UN signal. `ResizeObserver` voit tout
+     changement de mise en page (rotation, barre d'URL de Safari qui se
+     rétracte, Display Zoom modifié depuis les Réglages), et un rappel lent
+     rattrape ce qu'aucun événement n'annonce. Le DOM n'est touché que si le
+     chiffre a réellement bougé — sinon c'est une boucle de rendu pour rien. */
+  var dernier = null;
+  function veiller() {
+    var w = document.documentElement.clientWidth + "×" + document.documentElement.clientHeight;
+    if (w === dernier) return;
+    dernier = w;
+    relire();
+  }
+  veiller();
+  if (typeof ResizeObserver === "function") new ResizeObserver(veiller).observe(document.documentElement);
+  window.addEventListener("resize", veiller);
+  window.addEventListener("orientationchange", function () { setTimeout(veiller, 200); });
+  setInterval(veiller, 500);
+</script>
+</body>
+</html>
