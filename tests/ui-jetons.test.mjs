@@ -218,6 +218,53 @@ test("garde 4 — aucun display:none dans shell.css (défaut n°3)", () => {
   assert.deepEqual(displayNoneViolations(shellCssRaw), []);
 });
 
+/* ══ GARDE 7 — LE DÉCOR NE REVIENT PAS EN LIGNE ═════════════════════════
+   Jusqu'au 2026-08-15, ce qui interdisait un `element.style.…` dans `ui/`
+   n'était pas un garde : c'était le stub de test, qui n'avait pas de
+   `.style` et jetait. Un interdit par accident.
+
+   ⛔ CE N'EST PAS UN GARDE, C'EST UN EFFET DE BORD. Il a mordu au bon moment
+   (un `style.setProperty` posé au rendu du plateau faisait tomber une
+   douzaine de tests, pour un écart de 4 px), mais il a AUSSI légiféré à
+   tort : `dice3d.mjs` donne à chaque dé sa taille par `.style`, ce qui est
+   une valeur CALCULÉE et parfaitement légitime — et le plateau en a déduit
+   une fausse règle (« les dés ne naissent que d'un geste »). Le stub a donc
+   reçu un `.style` honnête, et l'interdit devient explicite ici.
+
+   MESURÉ AVANT DE DURCIR (comme l'exige `tests/source-scan.mjs`) :
+   `dice3d.mjs` est le SEUL fichier de `ui/` qui écrive `.style` — 9
+   occurrences. Tous les autres modules sont vierges. Ce garde part donc de
+   ZÉRO violation, et il nomme sa seule exception.
+
+   ⭐ POURQUOI `dice3d.mjs` EST EXEMPTÉ, et pourquoi ça ne s'étend pas : ce
+   fichier est une COPIE VERBATIM de `fh-phb` (`docs/javascripts/fh-static-dice.js`).
+   On n'y ajoute rien ; un défaut s'y corrige EN AMONT, puis on recopie. Lui
+   imposer nos règles de feuille de style reviendrait à le forker. */
+function inlineStyleViolations() {
+  const hits = [];
+  for (const nom of fs.readdirSync(UI_DIR)) {
+    if (!nom.endsWith(".mjs") || nom === "dice3d.mjs") continue;
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    for (const [ligne] of texte.matchAll(/\.style\s*(\.\w+|\[)/g)) hits.push(`${nom} : ${ligne.trim()}`);
+  }
+  return hits;
+}
+
+test("garde 7 — aucun style EN LIGNE dans ui/, sauf le moteur de dés recopié", () => {
+  assert.deepEqual(inlineStyleViolations(), [],
+    "le décor va dans la feuille : un style en ligne échappe aux jetons, aux voiles et aux thèmes");
+});
+
+test("⚔️ ATTAQUE — le garde 7 mord vraiment (il ne passe pas parce qu'il ne lit rien)", () => {
+  /* Un garde qui rend toujours `[]` est un garde creux — ce dépôt en a déjà
+     payé deux. On lui donne à manger la seule chose qu'il doit refuser. */
+  const faux = stripComments('function f(n) { n.style.setProperty("--x", "1px"); }');
+  assert.equal(/\.style\s*(\.\w+|\[)/.test(faux), true, "la forme cherchée est bien celle qu'on interdit");
+  const moteur = fs.readFileSync(path.join(UI_DIR, "dice3d.mjs"), "utf8");
+  assert.equal(/\.style\s*(\.\w+|\[)/.test(moteur), true,
+    "et l'exception est RÉELLE : le moteur recopié écrit bien `.style` — s'il cessait, il faudrait retirer l'exception");
+});
+
 test("garde 6 — aucune règle n'habille un bouton sans lui poser son encre (défaut n°4)", () => {
   assert.deepEqual(buttonInkViolations(shellCssRaw), [],
     "un <button> n'hérite pas de `color` : sans encre déclarée, l'agent utilisateur lui impose du noir");

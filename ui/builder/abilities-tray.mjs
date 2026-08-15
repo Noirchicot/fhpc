@@ -217,16 +217,31 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
      tentative de branchement : au premier redessin — une assignation, un
      tour de molette — la moitié des dix disparaissait.
 
-     ⛔ ET AUCUN DÉ NE NAÎT ICI. `createDieHost` + `mount` demandent un vrai
-     canvas WebGL : les faire tourner au RENDU casse les tests et, au
-     navigateur, allume trois contextes que personne n'a demandés. **Les dés
-     ne naissent que d'un GESTE** — `sequence()` ou `flashRoll()`, jamais le
-     rendu. Le joueur qui revient sur l'écran retrouve ses dix totaux ; le
-     plateau, lui, reste vide jusqu'à ce qu'il le touche. */
+     ⭐ ET LES TROIS DÉS REPRENNENT LA POSE DU DERNIER JET. `animate: false`
+     est fait pour ça, mot pour mot : *« le dé prend la POSE du résultat,
+     sans tomber »*. Un redessin ne rejoue donc AUCUNE animation — c'est la
+     seule règle qui compte ici, et elle tient.
+
+     ⚠️ CETTE LIGNE AVAIT ÉTÉ RETIRÉE SOUS UNE FAUSSE RÈGLE. « Les dés ne
+     naissent que d'un GESTE, jamais au rendu » venait d'un `TypeError` de
+     `createDieHost` sous le DOM de test — lequel n'avait pas de `.style`,
+     alors que le moteur y pose la taille CALCULÉE de chaque dé. Une limite
+     du stub habillée en principe. Mesuré depuis : avec un `.style` honnête,
+     `createDieHost` et `mount` passent, et `mount` dégrade proprement sans
+     navigateur (c'est son repli prévu quand WebGL manque).
+
+     📌 Deuxième fois dans la même séance qu'une règle bien argumentée repose
+     sur une mesure fausse — après « T3 ne passe dans aucune combinaison ».
+     Le coût de ne pas la reprendre : le joueur jetait, l'écran se redessinait
+     pour lui montrer où poser ses dés, et les dés disparaissaient. */
   if (lot) {
     ecrisMention(mention, lot);
     lot.rolls.forEach((jet, i) => { if (cases[i]) ecrisCase(cases[i], jet); });
     peinsLesGardes(cases, lot);
+    const dernier = lot.rolls[lot.rolls.length - 1];
+    /* ⛔ `standardArrayBatch` porte des jets SANS dés (`dice: []`) : il n'a
+       rien à poser, et le plateau ne le sert pas de toute façon. */
+    if (dernier && dernier.dice && dernier.dice.length) poserLesDes(hote, dernier.dice, false);
   }
 
   /* ══ LA SÉQUENCE — elle écrit à la main, elle ne redessine JAMAIS ════

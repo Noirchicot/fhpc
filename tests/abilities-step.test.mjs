@@ -527,11 +527,37 @@ test("🔴 `Roll dice` + FH 3d6 : le PLATEAU est rendu, avec les quatre boutons 
     "les quatre libellés sont ceux d'Eric, mot pour mot (2026-08-15)");
   assert.equal(node.querySelectorAll(".tray-case").length, 10, "les dix cases existent DÈS LE DÉPART, vides");
   assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "et les jetons plats ont cédé la place");
-  /* ⛔ AUCUN DÉ N'EST NÉ AU RENDU. `createDieHost` + `mount` demandent un vrai
-     canvas WebGL : les faire tourner ici casserait ce test — c'est le garde
-     qui tient la règle « les dés ne naissent que d'un GESTE ». */
+  /* Aucun lot : le plateau est vide, il n'y a rien à poser. */
   assert.equal(node.querySelectorAll(".tray-des")[0].childNodes.length, 0,
-    "le plateau est vide tant que le joueur ne l'a pas touché");
+    "sans lot, le plateau est vide — il n'invente pas de dés");
+});
+
+test("🔴 UN REDESSIN REPOSE LES DÉS, IL NE LES EFFACE PAS — et il n'anime rien", () => {
+  /* LE DÉFAUT MESURÉ AU NAVIGATEUR, et que 1 104 tests verts n'ont pas vu :
+     le joueur pressait `flash roll`, l'écran se redessinait pour lui montrer
+     où poser ses dés — et les trois dés disparaissaient du plateau.
+
+     ⛔ LA FAUSSE RÈGLE QUI L'AVAIT CAUSÉ : « les dés ne naissent que d'un
+     GESTE, jamais au rendu ». Elle venait d'un `TypeError` de `createDieHost`
+     sous un DOM de test SANS `.style` — le moteur y pose la taille calculée
+     de chaque dé. Une limite du stub habillée en principe.
+
+     ⭐ CE QUI RESTE VRAI, ET QUE CE TEST GARDE : un redessin POSE, il
+     n'ANIME jamais (`data-animate="0"`). Rejouer dix animations à chaque
+     assignation serait le vrai défaut. */
+  /* ⛔ PAS `makeRollBatch` ICI : son fixture porte `dice: [total]` — UN dé
+     par jet, pas trois. Ce test parle des dés eux-mêmes, il lui faut donc un
+     vrai lot de 3d6. (Le fixture n'a pas tort : les autres tests parlent de
+     totaux et d'index, jamais de faces.) */
+  const rollBatch = rollAbilitySet((() => { let n = 0; const seq = [0.9, 0.9, 0.9, 0, 0, 0, 0.5, 0.5, 0.5, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0]; return () => seq[n++ % seq.length]; })());
+  assert.equal(rollBatch.rolls[9].dice.length, 3, "mesure : un jet FH porte bien trois dés");
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), () => {});
+  const hote = node.querySelectorAll(".tray-des")[0];
+  assert.equal(hote.children.length, 3, "les trois dés du dernier jet sont reposés");
+  assert.deepEqual(hote.children.map((d) => d.getAttribute("data-animate")), ["0", "0", "0"],
+    "et AUCUN ne tombe : un redessin prend la pose, il ne rejoue pas la scène");
+  assert.deepEqual(hote.children.map((d) => d.getAttribute("data-result")),
+    rollBatch.rolls[9].dice.map(String), "ce sont bien les faces du DERNIER jet du lot");
 });
 
 test("⚠️ `4d6` n'est PAS le plateau — c'est une autre mécanique, et elle garde son organe", () => {

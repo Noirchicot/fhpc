@@ -15,6 +15,49 @@
    chaînes HTML (contrairement à `shell.mjs`, qui n'est pas testé ici : la
    coquille reste hors du périmètre de ce lot, seule la fonction l'est). */
 
+/* ══ LE `style` D'UN NŒUD — ajouté le 2026-08-15, et voici pourquoi ═══════
+   ⛔ CE STUB N'AVAIT PAS DE `.style`, ET CETTE ABSENCE A LÉGIFÉRÉ. Le moteur
+   de dés (`dice3d.mjs`, recopié de `fh-phb`) donne sa taille à chaque dé par
+   `host.style.setProperty("--fh-static-die-size", …)` — une valeur CALCULÉE
+   par dé, pas du décor. Sans `.style`, `createDieHost` jetait un `TypeError`,
+   et le plateau d'Abilities en a tiré une règle : « les dés ne naissent que
+   d'un GESTE, jamais au rendu ».
+
+   🔴 CETTE RÈGLE N'EN ÉTAIT PAS UNE. C'était une limite du stub habillée en
+   principe — le même genre de faute que l'exception « T3 ne passe pas »,
+   bâtie sur une mesure prise au mauvais barreau. Mesuré : une fois `.style`
+   présent, `createDieHost` ET `mount` passent, et `mount` DÉGRADE proprement
+   sans navigateur (c'est son repli prévu quand WebGL manque).
+
+   ⚠️ ET CE N'EST PAS UN PERMIS DE METTRE DU DÉCOR EN LIGNE. Mesuré le jour
+   même : `dice3d.mjs` est le SEUL fichier de `ui/` qui écrive `.style`, les
+   autres sont vierges. Un garde le fige (`tests/ui-jetons.test.mjs`) — le
+   décor va dans la feuille, cette prothèse ne sert qu'au moteur recopié.
+
+   📌 Elle reste MINIMALE et honnête : elle retient ce qu'on lui pose et rend
+   ce qu'on lui demande. Elle ne calcule rien, n'hérite de rien, et ne
+   prétend à aucune mise en page — comme le reste de ce fichier. */
+class FakeStyle {
+  constructor() { this._props = new Map(); }
+  setProperty(nom, valeur) { this._props.set(String(nom), String(valeur)); }
+  getPropertyValue(nom) { return this._props.get(String(nom)) || ""; }
+  removeProperty(nom) { const v = this.getPropertyValue(nom); this._props.delete(String(nom)); return v; }
+  get cssText() { return [...this._props].map(([k, v]) => `${k}: ${v}`).join("; "); }
+  /* ⚠️ IL SE LIT ET IL S'ÉCRIT. Un `cssText` en lecture seule a fait tomber
+     quinze tests d'un coup : le moteur recopié pose le repli de ses dés par
+     `style.cssText = "…"`. Un stub qui n'offre qu'un accesseur n'est pas
+     minimal, il est FAUX — et il ment dans le sens le plus coûteux, en
+     jetant sur du code qui marche au navigateur. */
+  set cssText(valeur) {
+    this._props.clear();
+    for (const paire of String(valeur).split(";")) {
+      const i = paire.indexOf(":");
+      if (i <= 0) continue;
+      this._props.set(paire.slice(0, i).trim(), paire.slice(i + 1).trim());
+    }
+  }
+}
+
 class FakeNode {
   constructor() {
     this.parentNode = null;
@@ -97,6 +140,7 @@ class FakeElement extends FakeNode {
     this.tagName = tagName.toUpperCase();
     this._attrs = new Map();
     this._listeners = new Map();
+    this.style = new FakeStyle();
     this.disabled = false;
     this.type = "";
     this.hidden = false;
