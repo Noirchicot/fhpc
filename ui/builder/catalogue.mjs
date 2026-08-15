@@ -184,7 +184,7 @@ function renderFicheActions() {
  *  comme les deux croquis la dessinent —, elle doit être la SŒUR du nom
  *  dans une même grille, pas l'enfant d'une enveloppe posée dessous. Une
  *  `.fiche-head` intermédiaire ferait commencer l'image sous le nom. */
-export function renderFicheBody({ stats, blurb, image, imageAlt }) {
+export function renderFicheBody({ stats, blurb, traits, image, imageAlt }) {
   const colonne = el("dl", "fiche-stats");
   for (const ligne of Array.isArray(stats) ? stats : []) {
     if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
@@ -204,9 +204,33 @@ export function renderFicheBody({ stats, blurb, image, imageAlt }) {
   img.alt = imageAlt || "";
   cadre.append(img);
 
-  const prose = el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
+  /* ── LA MOITIÉ BASSE — MÊME BOÎTE, DEUX CONTENUS ────────────────────────
+     ✅ Eric, 2026-08-15 : *« B3 = B2 »* ne vaut que pour la GÉOMÉTRIE. La
+     boîte garde ses 160 px et sa place ; une CLASSE y met son blurb, une
+     ESPÈCE y met ses traits (son croquis A). ⛔ Le choix ne se fait pas sur
+     le KIND — cette fonction ne sait pas qui l'appelle, et c'est voulu
+     (loi des lots 39/42) : elle rend ce qu'on lui donne. */
+  const bas = Array.isArray(traits) && traits.length
+    ? renderFicheTraits(traits)
+    : el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
 
-  return [colonne, cadre, prose, renderFicheActions()];
+  return [colonne, cadre, bas, renderFicheActions()];
+}
+
+/** LA LISTE DES TRAITS — `nom — effet`, une ligne courte, exactement la forme
+ *  du croquis A d'Eric. ⛔ Le nom et l'effet sont DEUX nœuds : le nom se lit
+ *  en diagonale (c'est lui qu'on cherche), l'effet se lit après. Une seule
+ *  chaîne interdirait de les distinguer sans découper du texte au rendu. */
+function renderFicheTraits(traits) {
+  const liste = el("ul", "fiche-traits");
+  for (const t of traits) {
+    if (!t || typeof t.name !== "string" || typeof t.effect !== "string") continue;
+    const item = el("li", "fiche-trait");
+    item.append(el("b", "fiche-trait-nom", [text(t.name)]));
+    item.append(el("span", "fiche-trait-effet", [text(` — ${t.effect}`)]));
+    liste.append(item);
+  }
+  return liste;
 }
 
 /** Une liste de noms sous un intertitre — les features de niveau 1 d'une

@@ -211,17 +211,31 @@ test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couch
       `la fiche d'espèce porte ses lignes de couche (${attendue} manque : ${espece.join(", ")})`);
 });
 
-test("C ter — les 24 fiches portent leur blurb, et il tient dans la boîte fixe", () => {
-  /* La boîte du blurb est FIXE (10 lignes) : un texte absent laisserait un
-     trou de 160 px, un texte trop long déborderait en silence. Le premier
-     se voit ici, le second au garde des 340 caractères
-     (`tests/fiche-360.test.mjs`). */
+test("C ter — les 24 fiches remplissent leur boîte fixe : blurb chez la CLASSE, traits chez l'ESPÈCE", () => {
+  /* La boîte est FIXE (10 lignes) : un contenu absent laisserait un trou de
+     160 px, un contenu trop long déborderait en silence. Le premier se voit
+     ici, le second aux gardes de `tests/fiche-360.test.mjs` (1 pour le
+     blurb, 4 pour les traits).
+
+     ⚠️ CE TEST A ÉTÉ REPOINTÉ LE 2026-08-15 (lot 78), et sa vérité n'a pas
+     bougé : *la boîte n'est jamais vide*. Ce qui a changé, c'est ce qu'Eric
+     y met — son croquis A donne la moitié basse d'une ESPÈCE à ses TRAITS,
+     là où le croquis C du Wizard y met le blurb. *« B3 = B2 »* ne vaut donc
+     que pour la GÉOMÉTRIE : même boîte, même place, deux contenus. */
+  const attendu = { class: ".fiche-blurb", species: ".fiche-traits" };
   for (const cfg of ECRANS) {
-    const blurbs = renderCatalogueCards(ctxDe(cfg), cfg.body).querySelectorAll(".fiche-blurb");
-    assert.equal(blurbs.length, 12, `les douze fiches de ${cfg.kind} portent chacune leur blurb`);
-    for (const p of blurbs)
-      assert.ok(p.textContent.length > 100,
-        `un blurb vide laisserait 160 px de trou dans la fiche de ${cfg.kind}`);
+    const sel = attendu[cfg.kind];
+    const rendu = renderCatalogueCards(ctxDe(cfg), cfg.body);
+    const boites = rendu.querySelectorAll(sel);
+    assert.equal(boites.length, 12, `les douze fiches de ${cfg.kind} portent chacune leur ${sel}`);
+    for (const b of boites)
+      assert.ok(b.textContent.length > 100,
+        `une boîte vide laisserait 160 px de trou dans la fiche de ${cfg.kind}`);
+    /* ⛔ ET L'AUTRE FORME N'APPARAÎT PAS : une fiche qui porterait les deux
+       demanderait 20 lignes dans une boîte qui en tient 10. */
+    const autre = cfg.kind === "class" ? ".fiche-traits" : ".fiche-blurb";
+    assert.equal(rendu.querySelectorAll(autre).length, 0,
+      `une fiche de ${cfg.kind} ne porte QUE ${sel} — les deux ne tiennent pas dans 160 px`);
   }
 });
 

@@ -59,20 +59,30 @@ export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Spe
  *  l'espèce, `Ability` · `HP` · `Saves` … chez la classe), plus dans le 2ᵉ
  *  palier plus bas — pas dans le dessin.
  *
- *  ⚠️ CE QUI EST TOMBÉ, ET QUI DOIT REVENIR SOUS UNE FORME OU UNE AUTRE :
- *  la LISTE DES TRAITS. Le croquis d'espèce la met dans la moitié basse
- *  (`Brave — advantage on saves against being Frightened`), là où le croquis
- *  du Wizard met le blurb ; à 360 px la boîte fixe de 10 lignes prend toute
- *  cette moitié, et les deux ne tiennent pas ensemble. Le blurb l'emporte
- *  ici parce que c'est lui que le lot 77 monte et mesure — mais l'écart est
- *  REMONTÉ, pas décidé en silence (INVENTAIRE-LOT-77.md). */
+ *  ✅ TRANCHÉ PAR ERIC, 2026-08-15 (lot 78) : LA MOITIÉ BASSE D'UNE ESPÈCE
+ *  PORTE SES TRAITS, comme son croquis A — pas le blurb.
+ *
+ *  ⭐ DONC *« B3 = B2 »* NE VAUT QUE POUR LA GÉOMÉTRIE. La boîte reste fixe
+ *  à 160 px et à la même place ; ce qu'on y met appartient à l'écran. Les
+ *  deux croquis d'Eric ne disaient pas la même chose de cette moitié-là, et
+ *  le lot 77 avait remonté l'écart au lieu de le trancher.
+ *
+ *  📏 LA COTE, ET ELLE EST PLUS DURE QUE CELLE DU BLURB (mesurée aux avances
+ *  réelles, boîte de 226 px à T2) : une ligne porte 37 caractères, la boîte
+ *  en tient 10, et le PIRE CAS est l'Elfe — 5 traits SRD + `Splinter of Anon`
+ *  + `Destiny` = **7 entrées**.
+ *  ⚠️ Une première cote annonçait 6 : elle comptait les traits SRD seuls et
+ *  oubliait les `fh_traits` que la couche FH ajoute (l'`Outlasting` du
+ *  halfling, les deux de l'Humain). Un échantillon incomplet, encore.
+ *  Le garde tient maintenant la vraie propriété — des LIGNES RENDUES, pas
+ *  des caractères (`tests/fiche-360.test.mjs`). */
 export function renderSpeciesCardBody(query, id) {
   const view = query({ kind: "species", id });
   const data = (view && view.record && view.record.data) || {};
   if (!Array.isArray(data.fiche_stats)) return renderSpeciesCardBodySrd(data);
   return renderFicheBody({
     stats: data.fiche_stats,
-    blurb: data.blurb && data.blurb.text,
+    traits: data.fiche_traits,
     image: DOS_DE_CARTE,
     imageAlt: ""
   });

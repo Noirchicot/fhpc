@@ -665,11 +665,38 @@ button { font: inherit; }
    choix est le défilement (II.1). Pas de `cursor: pointer`, pas de bordure
    de contrôle : rien ici ne doit avoir l'air cliquable, parce que rien ne
    l'est. */
-.catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
+/* ══ LE RAIL — 🔴 SES DEUX REMBOURRAGES S'EMPILENT, ET ÇA A TRONQUÉ UN NOM ══
+   ✅ Eric, 2026-08-15 : le rail reste à **T2**, et son rembourrage cède.
+   `Dragonborn` était COUPÉ à l'écran, vu sur sa capture.
+
+   ⛔ LE DÉFAUT ÉTAIT INVISIBLE PARCE QUE LA LARGEUR NE VIVAIT NULLE PART.
+   Le gabarit cotait le rail sur `Barbarian` (la plus longue CLASSE) et n'a
+   jamais regardé les douze espèces. Mesuré à T3 : `Barbarian` 65,5 px,
+   `Dragonborn` **80,7** en gras.
+
+   📏 ET LA LARGEUR DE TEXTE N'EST PAS CELLE QU'ON CROIT — deux rembourrages
+   s'empilent, comme deux voiles :
+
+       78 (rail) − 4×2 (.catalogue-rail) − 4×2 (.catalogue-rail-item) = 62 px
+                                                          ↑ le texte n'a que ça
+
+   ⚠️ Un premier relevé annonçait « 70 utiles » : il mesurait la boîte de
+   l'ITEM, pas celle du texte. Le gabarit disait 62 et avait raison.
+
+   ⭐ CE QUI CÈDE : les deux rembourrages horizontaux, et RIEN D'AUTRE. La
+   fiche ne pouvait rien rendre — sa ligne la plus large (le rogue) est à
+   115,1 sur 118. Le rail garde donc ses 78 px.
+
+       78 − 2×2 (.catalogue-rail) − 0 (.catalogue-rail-item) = 74 px de texte
+       `Dragonborn` à T2 gras = 70,4  →  ✅ 3,6 px
+
+   📌 Le rembourrage VERTICAL ne bouge pas : c'est lui qui donne au cran sa
+   cible tactile. Seul l'horizontal était en trop. */
+.catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2); }
 .catalogue-rail-item {
   font-size: var(--t2);
   color: var(--text-muted);
-  padding: var(--sp-8) var(--sp-4);
+  padding: var(--sp-8) 0;
   border-radius: var(--radius-sm);
   text-align: center;
 }

@@ -201,3 +201,149 @@ test("les 24 blurbs portent une provenance connue, et celle d'Eric est intacte",
     "les deux textes de la main d'Eric sont le wizard et le fighter — " +
     "ni écrasés, ni étendus à des textes qu'il n'a pas écrits");
 });
+
+/* ══ GARDE 4 — LA LISTE DE TRAITS D'UNE ESPÈCE (lot 78) ══════════════════
+   ✅ Eric, 2026-08-15 : la moitié basse d'une ESPÈCE porte ses traits
+   (croquis A), pas son blurb. Même boîte, même hauteur fixe : 10 lignes.
+
+   🔴 ET CE GARDE COMPTE DES LIGNES, PAS DES CARACTÈRES — contrairement au
+   garde 1. Ce n'est pas une incohérence, c'est la conséquence de ce que le
+   lot 77 a mesuré : le compte de caractères N'ORDONNE PAS les hauteurs
+   (le plus long des 24 blurbs tient en 9 lignes, trois plus courts en
+   prennent 10). Pour le blurb, un proxi prudent suffit — c'est UN paragraphe
+   qui coule. Pour les traits, chaque entrée casse SÉPARÉMENT : une entrée de
+   38 caractères en coûte deux, une de 74 en coûte deux aussi. Un plafond de
+   caractères y serait faux dans les deux sens.
+
+   ⚠️ LE PIRE CAS EST L'ELFE, ET IL A ÉTÉ MAL COMPTÉ UNE FOIS. Une première
+   cote annonçait 6 entrées au maximum : elle additionnait les traits SRD et
+   oubliait les `fh_traits` que la couche FH AJOUTE — l'`Outlasting` du
+   halfling, le `Splinter of Anon` de l'elfe, les deux de l'Humain. Le vrai
+   maximum est **7** (elfe : 5 SRD + 1 FH + `Destiny`).
+   📌 Troisième fois de la séance qu'un échantillon incomplet passe pour une
+   mesure. C'est pour ça que ce garde lit la COUCHE et ne connaît aucun
+   nombre d'entrées d'avance. */
+
+const BOITE_PX = 226;   // la largeur de la boîte, §5 du gabarit
+const LIGNES_MAX = 10;  // 160 px / 16 — la même que le blurb, par construction
+
+/** Le nombre de lignes qu'une chaîne occupe dans une boîte, par coupe
+ *  gourmande aux espaces — ce que fait un navigateur. ⛔ Pas une division de
+ *  la largeur totale : un mot qui ne rentre pas passe à la ligne ENTIER, et
+ *  c'est précisément ce que le compte de caractères ne sait pas voir. */
+export function nbLignes(chaine, boite = BOITE_PX) {
+  let lignes = 1, courante = "";
+  for (const mot of chaine.split(" ")) {
+    const essai = courante ? `${courante} ${mot}` : mot;
+    if (largeurT2(essai, "normal") <= boite || !courante) courante = essai;
+    else { lignes += 1; courante = mot; }
+  }
+  return lignes;
+}
+
+/** Les espèces dont la liste de traits déborde de la boîte, nommées avec
+ *  leur compte — une fonction pure, comme `blurbsTropLongs`. */
+export function traitsTropLongs(especes, max = LIGNES_MAX) {
+  return especes
+    .map((e) => ({ who: e.who, lignes: (e.traits || []).reduce((n, t) => n + nbLignes(`${t.name} — ${t.effect}`), 0) }))
+    .filter((e) => e.lignes > max)
+    .map((e) => `species ${e.who} : ${e.lignes} lignes`);
+}
+
+function les12Especes() {
+  return Object.entries(fiche.records.species).map(([id, rec]) => ({
+    who: id.split(":").pop(), traits: rec.changes["data[fiche_traits]"]
+  }));
+}
+
+test("garde 4 — les douze espèces portent leurs traits, et aucune ne dépasse 10 lignes", () => {
+  const especes = les12Especes();
+  assert.equal(especes.length, 12);
+  for (const e of especes) {
+    assert.ok(Array.isArray(e.traits) && e.traits.length > 0, `${e.who} n'a pas de traits`);
+    for (const t of e.traits) {
+      assert.equal(typeof t.name, "string", `${e.who} : un trait sans nom`);
+      assert.equal(typeof t.effect, "string", `${e.who} : ${t.name} sans effet`);
+    }
+  }
+  assert.deepEqual(traitsTropLongs(especes), []);
+});
+
+test("garde 4 — le pire cas est l'ELFE, et il porte bien SEPT entrées", () => {
+  /* La mesure qui a corrigé la cote : si un jour l'elfe en perd une ou qu'une
+     autre espèce le dépasse, ce test le dit AVANT que la boîte déborde. */
+  const especes = les12Especes();
+  const max = especes.reduce((a, e) => (e.traits.length > a.traits.length ? e : a));
+  assert.equal(max.traits.length, 7, "le maximum d'entrées");
+  assert.equal(max.who, "elf");
+  assert.ok(max.traits.some((t) => t.name === "Splinter of Anon"),
+    "et c'est bien un `fh_trait` qui fait la septième — l'oubli qui avait faussé la première cote");
+  assert.ok(especes.every((e) => e.traits.some((t) => t.name === "Destiny")),
+    "chaque espèce porte sa ligne Destiny, comme le croquis A la dessine");
+});
+
+test("⚔️ ATTAQUE — garde 4 : une entrée de trop est vue, et le garde MORD sur les LIGNES", () => {
+  const long = "Naturally Stealthy — you can hide behind any creature at least one size larger than you are";
+  assert.equal(nbLignes(long) > 1, true, "mesure : cette entrée-là prend bien plus d'une ligne");
+  const faux = [{ who: "test", traits: Array.from({ length: 6 }, () => ({ name: "Naturally Stealthy", effect: "you can hide behind any creature at least one size larger than you are" })) }];
+  assert.equal(traitsTropLongs(faux).length, 1, "six entrées à deux lignes = 12 : le garde les refuse");
+  const bon = [{ who: "test", traits: Array.from({ length: 7 }, () => ({ name: "Trance", effect: "long rest in 4 hours" })) }];
+  assert.deepEqual(traitsTropLongs(bon), [], "sept entrées d'une ligne passent — c'est le cas réel de l'elfe");
+});
+
+/* ══ GARDE 5 — LA LARGEUR DES NOMS DU RAIL (lot 78) ══════════════════════
+   🔴 LE GARDE QUI MANQUAIT, ET IL A COÛTÉ UN NOM TRONQUÉ. `Dragonborn` est
+   sorti du rail pendant une journée, en silence : la largeur du rail ne
+   vivait que dans un document, cotée sur `Barbarian` — la plus longue
+   CLASSE. Les douze ESPÈCES n'avaient jamais été regardées.
+
+   📏 LA LARGEUR DE TEXTE EST 74, ET ELLE SE DÉDUIT DE DEUX REMBOURRAGES QUI
+   S'EMPILENT (`shell.css`) : 78 (rail) − 2×2 (`.catalogue-rail`) − 0
+   (`.catalogue-rail-item`). ⚠️ Un relevé intermédiaire annonçait « 70 utiles »
+   en mesurant la boîte de l'ITEM et non celle du TEXTE.
+   ⭐ Le cran courant est en GRAS (`font-weight: 600`) : c'est lui qu'on
+   mesure. Mesurer le normal rendrait le garde faux de 3 px, dans le sens qui
+   ne se voit pas. */
+
+const RAIL_TEXTE_PX = 74;
+
+export function nomsDuRailTropLarges(noms, largeur = RAIL_TEXTE_PX) {
+  return noms
+    .map((n) => ({ n, px: largeurT2(n, "gras") }))
+    .filter((x) => x.px > largeur)
+    .map((x) => `${x.n} : ${x.px.toFixed(1)} px pour ${largeur}`);
+}
+
+test("garde 5 — aucun nom du rail ne déborde de sa colonne, à T2, en gras", () => {
+  const noms = les24Fiches().map((f) => f.who[0].toUpperCase() + f.who.slice(1));
+  assert.equal(noms.length, 24);
+  assert.deepEqual(nomsDuRailTropLarges(noms), []);
+});
+
+test("garde 5 — `Dragonborn` est le pire cas, et la marge est MINCE (elle se dit)", () => {
+  const px = largeurT2("Dragonborn", "gras");
+  assert.ok(px > largeurT2("Halfling", "gras"), "mesure : c'est bien le plus large des 24");
+  assert.ok(px <= RAIL_TEXTE_PX, `Dragonborn ${px.toFixed(1)} px doit tenir dans ${RAIL_TEXTE_PX}`);
+  assert.ok(RAIL_TEXTE_PX - px < 5,
+    "la marge est de quelques px, PAS confortable — si elle grandit, c'est que quelqu'un a bougé le rail sans le dire");
+});
+
+test("⚔️ ATTAQUE — garde 5 : le rail d'AVANT (62 px de texte) rougirait sur Dragonborn", () => {
+  /* La configuration qui a réellement tronqué le nom : 4+4 de rembourrage
+     empilés. Le garde doit la refuser — sinon il ne prouve rien. */
+  assert.equal(nomsDuRailTropLarges(["Dragonborn"], 62).length, 1);
+  assert.deepEqual(nomsDuRailTropLarges(["Halfling"], 62), [], "et il ne crie pas sur les noms qui tenaient déjà");
+});
+
+test("garde 5 — la feuille pose bien les deux rembourrages que le garde suppose", () => {
+  /* ⛔ SANS CE TEST, LE GARDE 5 MESURE UNE COLONNE IMAGINAIRE. C'est la
+     faute que le lot 77 a payée : un nombre juste, rapporté à une boîte que
+     personne n'avait vérifiée. */
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
+  assert.match(css, /\.catalogue-rail\s*\{[^}]*padding:\s*var\(--sp-8\)\s+var\(--sp-2\)/,
+    "la liste du rail : 2 px de rembourrage horizontal");
+  assert.match(css, /\.catalogue-rail-item\s*\{[^}]*padding:\s*var\(--sp-8\)\s+0/,
+    "et le cran : aucun");
+  assert.match(css, /\.catalogue-rail-item\s*\{[^}]*font-size:\s*var\(--t2\)/,
+    "les noms sont à T2 — la décision d'Eric du 2026-08-15");
+});

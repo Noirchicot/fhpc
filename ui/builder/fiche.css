@@ -201,16 +201,39 @@
    recomposer). */
 .fiche-action[disabled] { opacity: .55; cursor: default; }
 
-/* ── LES NOMS DU RAIL À T3 ────────────────────────────────────────────── */
-/* Le gabarit tranche T3 (14 px) contre le T2 en place : « le repère de
-   position se lit d'un coup d'œil ou ne sert à rien ». Le rail a été
-   comparé à T2 dans le gabarit (71 px de large au lieu de 78) et écarté —
-   6 px de fiche gagnés contre un rail moins lisible n'est pas un échange
-   qui vaut la peine, et l'image a rendu les 6 px à sa place.
-   📌 LA LARGEUR, ELLE, EST UN JETON : `--rail-w`, dans `tokens.css`, passée
-   de 84 à 78 — la porte de l'habillage est là, pas ici, et la grandeur
-   Large garde ses 120 px sans rien devoir à ce fichier.
-   ⛔ Aucun `@media` ici : le seuil de bascule (720) n'a le droit d'exister
-   qu'à UN endroit dans tout `ui/builder/`, et c'est `shell.css`
-   (garde 5 de `tests/ui-jetons.test.mjs`). */
-.catalogue-rail-item { font-size: var(--t3); }
+/* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
+/* ⛔ CETTE RÈGLE A ÉTÉ RETIRÉE LE 2026-08-15 (lot 78). Elle passait le rail
+   à T3 sur l'argument du gabarit — *« le repère de position se lit d'un coup
+   d'œil ou ne sert à rien »*. L'argument est bon ; le nombre sous lui ne
+   l'était pas : le rail avait été coté sur `Barbarian`, la plus longue
+   CLASSE, et personne n'avait regardé les douze ESPÈCES. `Dragonborn` fait
+   80,7 px à T3 pour 62 de texte — **il était coupé à l'écran**, Eric l'a vu.
+
+   ✅ Eric tranche le 2026-08-15 : **le rail redescend à T2**, et c'est le
+   REMBOURRAGE qui cède pour lui faire de la place. Les deux vivent
+   désormais au même endroit, dans `shell.css` — un jeton, un écrivain.
+
+   📌 LA LARGEUR RESTE UN JETON : `--rail-w` dans `tokens.css`. */
+
+/* ── LA MOITIÉ BASSE D'UNE ESPÈCE : SES TRAITS ────────────────────────── */
+/* ✅ Eric, 2026-08-15, croquis A. **Même boîte que le blurb, même place,
+   même hauteur fixe** — *« B3 = B2 »* ne vaut que pour la GÉOMÉTRIE, et
+   c'est exactement ce que ces règles disent : elles héritent la grille et
+   l'interligne du blurb, elles ne les redéclarent pas.
+   ⛔ Deux nombres qui doivent rester égaux ne s'écrivent pas deux fois. */
+.fiche-traits {
+  grid-column: 1 / span 2;
+  grid-row: 3;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t2);
+  line-height: calc(var(--fiche-blurb-h) / 10);
+  color: var(--text);
+  overflow: hidden;
+}
+/* Le NOM se lit en diagonale, l'effet se lit après — c'est la seule
+   distinction, et elle est portée par l'encre, jamais par une taille : un
+   second barreau dans une boîte de 10 lignes en coûterait une. */
+.fiche-trait-nom { font-weight: 600; }
+.fiche-trait-effet { color: var(--text-muted); }
