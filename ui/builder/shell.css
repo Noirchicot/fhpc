@@ -77,7 +77,17 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex: none;
   display: flex;
   align-items: center;
-  background: var(--bg);
+  /* 🔴 LA BARRE EST TRANSPARENTE, SES CRANS SONT DES DALLES — Eric,
+     2026-08-15 : *« vue iPad, rien de transparent ici »*, alors que les
+     voiles étaient bien posés (35 % / 50 %, mesurés).
+
+     ⛔ LA CAUSE N'ÉTAIT PAS LES VOILES, C'ÉTAIT CE QU'IL Y A DERRIÈRE. Cette
+     barre valait `var(--bg)`, **opaque** : elle couvrait l'image de fond que
+     `.app` porte (`--bg-image`). Un voile sur du plein ne se voit pas — la
+     dalle rendait exactement la couleur qu'elle recouvrait.
+     📌 `main.stage` était déjà transparent, et c'est pour ça que la FICHE,
+     elle, flottait visiblement. La preuve était à l'écran. */
+  background: none;
   border-bottom: 1px solid var(--border);
   position: relative; /* la molette (§3f) mesure depuis ce parent-là */
 }
@@ -295,7 +305,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   width: var(--rail-w);
   overflow-y: auto;
   border-right: 1px solid var(--border);
-  background: var(--bg);
+  /* Même raison que la ceinture : opaque, cette colonne couvrait l'image de
+     fond et ses tuiles à 35 % ne rendaient rien. Le rail est une COLONNE DE
+     DALLES posées sur le fond, pas un panneau plein qui en contient. */
+  background: none;
 }
 .stage-area[data-aside="on"] .stage { left: var(--rail-w); }
 
