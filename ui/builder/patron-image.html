@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patron d'image — fiche de classe / espèce</title>
+<style>
+  :root { --parchemin: #ebe8e1; --encre: #2d2c2a; --fond: #354551; --trait: #7f9ab0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--fond); color: #eef2f6;
+         font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  h1 { font-size: 17px; margin: 0 0 2px; }
+  h2 { font-size: 14px; margin: 22px 0 8px; color: #b9cbd9; font-weight: 600; }
+  p.note { color: #9fb3c4; font-size: 13px; margin: 0 0 16px; }
+
+  /* La fiche à l'échelle 1 : exactement ce que le gabarit dit. */
+  .fiche { width: 242px; background: var(--parchemin); color: var(--encre);
+           border-radius: 10px; padding: 8px; margin: 0 0 8px; }
+  .haut { display: flex; gap: 8px; }
+  .stats { width: 118px; font-size: 12px; line-height: 16px; }
+  .stats b { font-weight: 700; }
+  .titre { font-size: 18px; font-weight: 700; line-height: 24px; margin-bottom: 2px; }
+  .slot { width: 100px; height: 130px; flex: 0 0 100px; position: relative;
+          border: 2px dashed #b03a3a; border-radius: 4px; overflow: hidden; }
+  .slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .slot .cote { position: absolute; inset: auto 0 2px 0; text-align: center;
+                font: 700 10px/1 ui-monospace, monospace; color: #b03a3a;
+                background: rgba(235,232,225,.85); padding: 2px 0; }
+  .sur { position: absolute; inset: 10px 10px 18px 10px; border: 1px dotted #2d7a4a; }
+  .blurb { font-size: 12px; line-height: 16px; margin: 10px 0 0; }
+
+  table { border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+  th, td { text-align: left; padding: 4px 14px 4px 0; }
+  th { color: #b9cbd9; font-weight: 600; }
+  td.n { font-variant-numeric: tabular-nums; font-family: ui-monospace, monospace; }
+  .duo { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .choix { text-align: center; }
+  .choix .slot { margin-bottom: 6px; }
+  .choix span { font-size: 12px; color: #b9cbd9; }
+  code { background: #26323c; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>Patron d'image — fiche de classe / espèce</h1>
+  <p class="note">Tout est à l'échelle 1 : ce que tu vois fait la taille réelle sur un écran de 360 px.</p>
+
+  <h2>La fiche, avec l'emplacement en rouge</h2>
+  <div class="fiche">
+    <div class="haut">
+      <div class="stats">
+        <div class="titre">Fighter</div>
+        <div><b>Ability :</b> STR / DEX</div>
+        <div><b>HP/level :</b> D10</div>
+        <div><b>Saves :</b> STR / CON</div>
+        <div><b>Weapons :</b> All</div>
+        <div><b>W. Proficiencies :</b> 2</div>
+        <div><b>Armor :</b> All / Shields</div>
+        <div><b>Spells :</b> none</div>
+        <div><b>Skill pool :</b> 12 pts</div>
+      </div>
+      <div class="slot">
+        <div class="sur"></div>
+        <div class="cote">100 × 130</div>
+      </div>
+    </div>
+    <p class="blurb">Steel remembers what flesh forgets. Ten thousand strikes forge it.
+      No spellbook, no arcane grammar—only muscle and discipline. They are the wall that
+      never breaks, absorbing blows that fell lesser souls. Armor is their skin; courage
+      is the spell.</p>
+  </div>
+  <p class="note">Trait rouge = le cadre. Pointillé vert = la <b>zone sûre</b> : le visage doit
+    y tenir, parce que le cadre peut rogner les bords selon la hauteur du bloc de stats.</p>
+
+  <h2>Ce qu'il faut produire</h2>
+  <table>
+    <tr><th>Emplacement à l'écran</th><td class="n">100 × 130 px</td><td>rapport 10:13, portrait</td></tr>
+    <tr><th>À exporter (×2, écrans Retina)</th><td class="n">200 × 260 px</td><td>⭐ <b>c'est ce format-là qu'il faut</b></td></tr>
+    <tr><th>Zone sûre pour le visage</th><td class="n">160 × 200 px</td><td>centrée, dans l'export ×2</td></tr>
+    <tr><th>Format</th><td><code>PNG</code></td><td>fond <b>transparent</b> — la dalle de parchemin se voit derrière</td></tr>
+    <tr><th>Cadrage</th><td colspan="2">visage et haut du corps, le regard vers l'intérieur de la fiche (vers la gauche)</td></tr>
+    <tr><th>Poids visé</th><td class="n">&lt; 60 Ko</td><td>24 images à charger sur mobile</td></tr>
+  </table>
+
+  <h2>En attendant tes images — lequel des deux ?</h2>
+  <div class="duo">
+    <div class="choix">
+      <div class="slot"><img src="./assets/arcana/back.jpg?v=1" alt="dos de carte"></div>
+      <span><b>A</b> — le dos de carte</span>
+    </div>
+    <div class="choix">
+      <div class="slot"><img src="./assets/arcana/the-hermit.jpg?v=1" alt="l'Ermite"></div>
+      <span><b>B</b> — un arcane</span>
+    </div>
+  </div>
+  <p class="note" style="margin-top:10px">
+    <b>A</b> se voit comme un trou à combler — c'est ton propre critère : « c'est pour savoir
+    que les espaces doivent être remplis ». <b>B</b> est plus joli mais devient
+    silencieusement définitif : dans six mois personne ne saura qu'il fallait le remplacer.
+    <br>➡️ <b>Je recommande A</b>, et l'arcane pour les captures que tu montres.
+  </p>
+</body>
+</html>
