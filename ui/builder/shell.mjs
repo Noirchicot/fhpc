@@ -1089,12 +1089,16 @@ function mountFrame() {
   /* ── LA MOLETTE (B0.1-B0.5) ─────────────────────────────────────── */
   const belt = el("nav", "belt");
   belt.setAttribute("aria-label", "Character creation steps");
-  const prev = button("\u2039", () => goToStep(state.step - 1));
-  prev.className = "belt-chevron";
-  prev.setAttribute("aria-label", "Previous step");
-  const next = button("\u203a", () => goToStep(state.step + 1));
-  next.className = "belt-chevron";
-  next.setAttribute("aria-label", "Next step");
+  /* ⛔ LES DEUX CHEVRONS DE LA CEINTURE SONT PARTIS — Eric, 2026-08-15, après
+     les avoir vus sur le simulateur : « les flèches gauche et droite font
+     moche, on les dégage ».
+     Ils avaient d'abord été posés PAR-DESSUS la piste pour que les dalles
+     glissent dessous plutôt que d'être tranchées en plein vide ; à l'écran,
+     ils se posaient sur le NUMÉRO du cran voisin. Le remède était pire.
+     ⭐ L'affordance ne disparaît pas : la ceinture défile et se tape, Eric
+     l'a confirmé (« il fonctionne bien, il est en scroll/tap »), et le cran
+     courant se recentre à la sélection. Une flèche qui double un geste déjà
+     acquis ne sert qu'à occuper de la place. */
   const track = el("div", "belt-track");
   track.dataset.scroller = "belt";
   const items = STEPS.map((step, index) => {
@@ -1108,7 +1112,7 @@ function mountFrame() {
     track.append(item);
     return item;
   });
-  belt.append(prev, track, next);
+  belt.append(track);
 
   /* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
      Elle coûtait 45 px sur les dix écrans, tout le temps, pour deux boutons.
@@ -1160,7 +1164,7 @@ function mountFrame() {
   const popupLayer = mountPopup(popup, () => { state.popup = null; refresh(); });
   const spy = watchSnap(stage, onSnapSettle);
 
-  return { belt, prev, next, track, items, area, stage, aside, topbar, popup, popupLayer, chevrons, scroller, spy };
+  return { belt, track, items, area, stage, aside, topbar, popup, popupLayer, chevrons, scroller, spy };
 }
 
 /* ══ LE SCROLLSPY EST LE SÉLECTEUR (II.3) ═══════════════════════════════
@@ -1301,8 +1305,6 @@ function paintBelt() {
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
      feuille de style : le garde 4 des jetons l'interdit dans `shell.css`,
      et un bouton retiré du flux ne doit pas laisser sa place vide. */
-  frame.prev.hidden = state.step === 0;
-  frame.next.hidden = state.step === REVIEW_INDEX;
   const current = frame.items[state.step];
   if (current) keepInView(frame.track, current, "x");
 }

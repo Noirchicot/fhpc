@@ -341,11 +341,39 @@
 .catalogue-cards[data-kind="class"],
 .catalogue-cards[data-kind="species"] {
   --fiche-h: 440px;   /* F1 : 242 × 440, ratio 0,55 — la cote d'Eric */
-  row-gap: calc(100% - var(--fiche-h));
+
+  /* 🔴 UNE GRILLE DE RANGÉES D'UNE SCÈNE, ET LA FICHE SE CENTRE DEDANS.
+     Eric, 2026-08-15 : « en haut et en bas du scroll species/classe, on perd
+     le centrage vertical de F1, peut-on le récupérer ».
+
+     ⛔ LA CAUSE, ET ELLE EST GÉOMÉTRIQUE : la version d'avant obtenait le
+     centrage par un ÉCART entre fiches (`row-gap: 100% − 440`). Ça marche au
+     milieu de la course — mais à `scrollTop = 0` il n'y a RIEN au-dessus de
+     la première fiche, donc rien à quoi la centrer ; idem sous la dernière.
+     Les deux extrêmes collaient au bord.
+
+     ⛔ ET ON NE PEUT PAS LE RÉPARER AVEC UN REMBOURRAGE : un pourcentage de
+     `padding` ou de `margin` se résout sur la LARGEUR du bloc conteneur, pas
+     sur sa hauteur — la règle la plus contre-intuitive du modèle de boîte.
+     Une cale en `::before` ne marche pas non plus : elle hériterait de
+     l'écart, et il faudrait qu'elle vaille −écart/2 pour compenser.
+
+     ⭐ LA SORTIE : chaque fiche reçoit sa propre RANGÉE d'une hauteur de
+     scène (`grid-auto-rows: 100%`), et s'y centre (`align-self: center`).
+     Plus d'écart du tout — le pas vaut une rangée, donc une scène, comme
+     avant ; mais la PREMIÈRE rangée existe dès `scrollTop = 0`, donc la
+     première fiche y est centrée comme les autres. Les extrêmes cessent
+     d'être des cas particuliers parce qu'ils cessent d'être des extrêmes :
+     ils ont la même rangée que le reste. */
+  display: grid;
+  grid-auto-rows: 100%;
+  row-gap: 0;
 }
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"] {
   height: var(--fiche-h);
+  align-self: center;         /* centrée DANS sa rangée d'une scène */
+  justify-self: center;
   scroll-snap-align: center;
 }
 

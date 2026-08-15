@@ -166,13 +166,28 @@ test("13 — la porte par défaut de `Validate` tranche sur REVIEW_INDEX, par id
     "sur Review il n'y a pas de pas suivant : Validate doit s'y éteindre, et le savoir PAR L'ID");
 });
 
-test("14 — la molette masque son chevron d'avance sur Review, symétrique du chevron arrière à l'étape 0", () => {
-  /* B0.3 — « aucun chevron à gauche à la première étape, aucun à droite à la
-     dernière, les deux au milieu ». C'est la SYMÉTRIE que le lot 55 exigeait
-     du couple Back/Continue, portée par les deux chevrons qui les
-     remplacent. */
-  assert.match(shellText, /frame\.prev\.hidden = state\.step === 0;/);
-  assert.match(shellText, /frame\.next\.hidden = state\.step === REVIEW_INDEX;/);
+test("14 — ⛔ LA CEINTURE N'A PLUS DE CHEVRONS DU TOUT, et c'est la décision d'Eric", () => {
+  /* ⚠️ CE TEST GARDAIT B0.3 — « aucun chevron à gauche à la première étape,
+     aucun à droite à la dernière, les deux au milieu ». Il gardait donc la
+     SYMÉTRIE de deux boutons qui n'existent plus.
+
+     Eric, 2026-08-15, après les avoir vus sur le simulateur : « les flèches
+     gauche et droite font moche, on les dégage ». Ils avaient d'abord été
+     posés PAR-DESSUS la piste pour que les dalles glissent dessous au lieu
+     d'être tranchées en plein vide ; à l'écran, ils se posaient sur le
+     NUMÉRO du cran voisin — le remède était pire que le mal.
+
+     ⭐ L'AFFORDANCE N'EST PAS PERDUE, et c'est ce qui rend le retrait
+     légitime : la ceinture défile ET se tape, Eric l'a vérifié lui-même
+     (« il fonctionne bien, il est en scroll/tap »), et le cran courant se
+     recentre à la sélection. Une flèche qui double un geste déjà acquis
+     n'ajoute rien — elle occupe.
+
+     Le garde s'inverse donc : il interdit leur retour silencieux. */
+  assert.equal(/belt-chevron/.test(shellText), false,
+    "aucun chevron de ceinture ne doit revenir sans une décision d'Eric");
+  assert.equal(/frame\.prev\b|frame\.next\b/.test(shellText), false,
+    "et rien ne doit plus les piloter");
 });
 
 test("14 bis — et le saut lui-même est BORNÉ par REVIEW_INDEX, jamais par la longueur du tableau", () => {
@@ -189,7 +204,10 @@ test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de 
   assert.match(mutated, /state\.step\s*===\s*STEPS\.length\s*-\s*1/, "l'attaque réintroduit bien le motif fautif");
   // Et les gardes VOISINS (7 à 11, 14) ne sont pas concernés par cette attaque précise.
   assert.match(mutated, /\bcreateDocWriters\b/);
-  assert.match(mutated, /frame\.next\.hidden = state\.step === REVIEW_INDEX;/);
+  /* ⚠️ Le témoin voisin était `frame.next.hidden` — il a disparu avec les
+     chevrons (test 14). On prend à sa place le BORNAGE par `REVIEW_INDEX`,
+     qui est ce que cette attaque menace vraiment et qui, lui, existe. */
+  assert.match(mutated, /Math\.min\(REVIEW_INDEX, index\)/);
   for (const id of STEP_IDS) assert.match(mutated, new RegExp(`step\\.id === "${id}"`));
 });
 
