@@ -102,7 +102,36 @@
      16 px de marge de page AVANT le rail ; le rail commence aujourd'hui à 0.
      Ça se règle dans `.stage-aside`/`.stage` — c'est-à-dire dans
      `shell.css`, qui appartient à un autre lot. Noté, pas contourné. */
-  width: var(--fiche-dalle-w);
+  /* ══ ✅ F1 CALÉ — Eric, 2026-08-16 ══════════════════════════════════════
+     *« pour F1, je cale ceci : hauteur idem, largeur `--measure: 62ch`,
+     centré horizontalement mais pas verticalement. »*
+
+     🔴 LA LARGEUR CESSE D'ÊTRE UNE COTE, ELLE DEVIENT UN PLAFOND. `242` était
+     une SOMME (8 + 118 + 8 + 100 + 8), donc un résultat écrit comme une
+     donnée — et il ne s'est plus recalculé : le rail est passé de 78 à 90 px
+     pour sauver `Dragonborn`, et les 12 px manquants sont exactement la marge
+     qui manquait à 360. Une somme ne se fige pas, elle se déduit.
+
+     ⭐ POURQUOI `--measure` ET PAS UN NOMBRE À NOUS : c'est le plafond que
+     Concept, Universe, Inheritance et toute la prose du builder emploient
+     déjà, et son unité est le **caractère** (62ch), pas le pixel — une
+     décision sur l'œil, qui suit la typographie au lieu de suivre l'appareil.
+     Eric l'a repéré de lui-même sur l'iPad : *« la limite de largeur que tu
+     avais appliquée à universe/concept est plutôt saine »*. UN seul plafond
+     pour tout le builder vaut mieux qu'un optimum local par écran.
+
+     📏 LA MESURE QUI RESTE AU DOSSIER, pour le jour où on voudra resserrer :
+     la ligne de traits la plus longue des 12 espèces (`Hoddon Cunning —
+     advantage on INT, WIS, CHA saves`) tient sur une ligne à **400,8 px**,
+     soit une dalle de ~417. Au-delà, élargir n'achète plus rien — c'est le
+     plafond GAGNÉ. `--measure` (590,8 px mesurés) est plus large que lui :
+     l'homogénéité a été préférée, en connaissance de cause.
+
+     ⛔ `--fiche-dalle-w` (242) N'EST PLUS LA LARGEUR — il reste comme le
+     PLANCHER documenté : ce que le format vaut à 360, le plus petit écran
+     servi (décision d'Eric). Le conteneur le garantit sans qu'on l'écrive :
+     à 360 la scène offre 270 − 16 = 254. */
+  width: min(var(--measure), 100%);
   margin-inline: auto;
 
   /* 🔴 LE REMBOURRAGE DESCEND DE 16 À 8, et c'est la TROISIÈME fois que le
@@ -120,7 +149,18 @@
      Fighter (`W. Prof.`), 3 ou 4 sur une espèce. La grille se dimensionne
      donc sur le contenu, pas sur un nombre écrit ici. */
   display: grid;
-  grid-template-columns: var(--fiche-stats-w) var(--fiche-image-w);
+  /* ⭐ L'ORGANE ÉLASTIQUE DE L'AXE HORIZONTAL, ET IL EST NOMMÉ : la colonne de
+     TEXTE. Une fiche viable n'est pas une fiche qui rétrécit partout — c'est
+     une fiche dont UNE pièce absorbe l'écart, choisie parce qu'elle peut céder
+     sans mentir. `118` reste le PLANCHER, et c'est une cote GAGNÉE : la ligne
+     la plus large des 24 fiches (`Weapons : Smpl+FL`, le rogue) mesure 115,1.
+     L'image, elle, ne bouge pas — c'est un cadre, aucune mesure de texte ne la
+     justifie, donc rien ne l'autorise à prendre la place du reste.
+     ⛔ SANS CETTE LIGNE, LE PLAFOND NE SERVIRAIT À RIEN : les deux colonnes
+     resteraient à 118 + 100 et le `justify-content: center` d'en dessous les
+     tasserait au milieu d'une dalle large, avec du vide de chaque côté DANS la
+     fiche. Mesuré sur l'essai du 16/08 avant de poser cette ligne. */
+  grid-template-columns: minmax(var(--fiche-stats-w), 1fr) var(--fiche-image-w);
   /* CINQ RANGÉES, dont une VIDE, et elle a une raison : le nom, les stats,
      le blurb, LE MOU, les actions. Sans la rangée `1fr`, le pied remontait
      coller le blurb — les deux croquis posent `lore`/`choose` au BAS de la
@@ -335,9 +375,10 @@
    réapparaissent — le garde à écrire serait là.
 
    ⭐ `center` et non `start` : la fiche étant plus courte que la scène, il
-   faut dire où elle se pose. Centrée, le fond se partage en haut et en bas —
-   c'est le cadre uniforme qu'Eric demande. Les voisines tombent alors
-   exactement sur les bords, donc invisibles. */
+   faut dire où elle se pose. ⚠️ 16/08 : elle se pose EN HAUT de sa rangée, et
+   le fond va tout entier en dessous (décision d'Eric, voir plus bas). Les
+   voisines restent invisibles — c'est la rangée d'une scène qui le garantit,
+   pas la position de la fiche dedans. */
 .catalogue-cards[data-kind="class"],
 .catalogue-cards[data-kind="species"] {
   --fiche-h: 440px;   /* F1 : 242 × 440, ratio 0,55 — la cote d'Eric */
@@ -359,56 +400,58 @@
      l'écart, et il faudrait qu'elle vaille −écart/2 pour compenser.
 
      ⭐ LA SORTIE : chaque fiche reçoit sa propre RANGÉE d'une hauteur de
-     scène (`grid-auto-rows: 100%`), et s'y centre (`align-self: center`).
-     Plus d'écart du tout — le pas vaut une rangée, donc une scène, comme
-     avant ; mais la PREMIÈRE rangée existe dès `scrollTop = 0`, donc la
-     première fiche y est centrée comme les autres. Les extrêmes cessent
-     d'être des cas particuliers parce qu'ils cessent d'être des extrêmes :
-     ils ont la même rangée que le reste. */
+     scène (`grid-auto-rows: 100%`). Plus d'écart du tout — le pas vaut une
+     rangée, donc une scène, comme avant ; mais la PREMIÈRE rangée existe dès
+     `scrollTop = 0`, donc la première fiche s'y pose comme les autres. Les
+     extrêmes cessent d'être des cas particuliers parce qu'ils cessent d'être
+     des extrêmes : ils ont la même rangée que le reste.
+
+     ⚠️ MISE À JOUR DU 16/08 — CE BLOC RESTE, SA POSITION DANS LA RANGÉE A
+     CHANGÉ. La fiche se posait au MILIEU de sa rangée (`align-self: center`) ;
+     Eric l'a vue sur iPad flotter avec 262 px de vide au-dessus et l'a
+     renversé : elle se pose maintenant EN HAUT (`align-self: start`, plus bas
+     dans ce fichier). ⭐ C'est bien la RANGÉE, et elle seule, qui rend les
+     voisines invisibles — le centrage n'y était pour rien. */
   display: grid;
   grid-auto-rows: 100%;
   row-gap: 0;
 }
+/* ⭐ CLASS ET SPECIES SONT CONSTITUÉES DE LA MÊME MANIÈRE — Eric, 2026-08-16,
+   pendant qu'il regardait l'essai sur son iPad. L'essai du 16/08 ne portait
+   que sur `species` (pour comparer les deux sur le même appareil) ; il est
+   RETIRÉ, et sa règle est remontée dans le bloc commun ci-dessus. Un seul
+   sélecteur pour les deux écrans, comme « B3 = B2 » l'exige — deux règles
+   pour la même chose divergent, c'est la loi du dépôt. */
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"] {
   height: var(--fiche-h);
-  align-self: center;         /* centrée DANS sa rangée d'une scène */
+
+  /* ══ ✅ HORIZONTALEMENT CENTRÉE, VERTICALEMENT NON — Eric, 2026-08-16 ═════
+     *« centré horizontalement mais pas verticalement »*, et il ajoute :
+     *« par contre la petite règle qui empêche de voir les fiches au-dessus et
+     en dessous »* — elle reste.
+
+     ⚠️ CE RENVERSEMENT ANNULE UNE DEMANDE ANTÉRIEURE D'ERIC, et il faut le
+     dire : le 15/08 il demandait *« en haut et en bas du scroll
+     species/classe, on perd le centrage vertical de F1, peut-on le
+     récupérer »*. Sa lecture du 16/08, faite sur un iPad, vaut — c'est celle
+     qui a VU le résultat : centrée dans une scène de 964, la fiche flottait
+     avec 262 px de vide au-dessus et autant en dessous.
+
+     ⭐ ET LA « PETITE RÈGLE » NE DÉPEND PAS DU CENTRAGE — c'est ce qui rend ce
+     changement sûr. Ce qui rend les voisines invisibles, c'est que CHAQUE
+     fiche a sa propre rangée d'UNE SCÈNE (`grid-auto-rows: 100%`, juste
+     au-dessus) : la suivante commence donc une scène plus bas, qu'on se pose
+     en haut de sa rangée ou au milieu. Le centrage n'était qu'un choix de
+     position DANS la rangée. Vérifié au navigateur après la bascule, à 375 et
+     à 768 : aucune voisine dans le champ.
+     ⛔ Le seul cas où elle tombe est une scène PLUS COURTE que 440 (paysage,
+     315) — la fiche déborde alors de sa propre rangée. C'était déjà vrai avec
+     le centrage, ça n'a pas bougé, et ça ne se répare pas en déplaçant la
+     fiche : elle a plus de contenu rigide que le téléphone n'a de hauteur. */
+  align-self: start;
   justify-self: center;
-  scroll-snap-align: center;
-}
-
-/* ══ 🧪 TEST EN COURS — LA FICHE D'ESPÈCE SANS LIMITE DE LARGEUR ══════════
-   ⏳ CE BLOC EST UN ESSAI, PAS UNE DÉCISION. Eric, 2026-08-16 : *« on a déjà
-   nommé les organes dans les fiches species. On lui enlève juste la limite de
-   largeur. On impose le centrage, on garde la hauteur imposée. Et on voit ce
-   qui se passe. »* Il ne concerne QUE `species` — `class` reste à 242 px, ce
-   qui rend la comparaison lisible d'un écran à l'autre.
-
-   CE QUI CHANGE, ET RIEN D'AUTRE :
-     1. la largeur cesse d'être une cote et redevient un RÉSULTAT (la scène,
-        moins le rembourrage du conteneur) ;
-     2. la colonne de texte devient l'ORGANE ÉLASTIQUE — `minmax(118px, 1fr)`.
-        Sans cette seconde ligne, l'essai ne montrerait rien de bon : les deux
-        colonnes resteraient à 118 + 100 et `justify-content: center` les
-        tasserait au milieu d'une dalle large, avec du vide de chaque côté
-        DANS la fiche.
-
-   ⛔ CE QUI NE CHANGE PAS : la hauteur (440, toujours imposée par
-   `--fiche-h`), le centrage vertical dans la rangée d'une scène (la demande
-   d'Eric du 15/08, réparée aux deux bouts du défilement), l'image (100 px),
-   et les cotes gagnées — 118 reste le PLANCHER de la colonne, celui de la
-   ligne du rogue mesurée à 115,1.
-
-   📌 CE QUE L'ESSAI DÉPLACE SANS LE DIRE, et c'est le point à regarder : la
-   marge latérale cesse d'être un reste de centrage pour devenir le
-   rembourrage DÉCLARÉ du conteneur (`padding: 0 var(--sp-8)`), soit 8 px —
-   là où le centrage en donnait 14 à 360 et 22 sur l'iPhone SE. C'est
-   exactement l'inversion dont on a parlé : la marge devient un nombre qu'on
-   choisit, au lieu d'un reste qu'on subit. Le nombre lui-même (8, 14, 16)
-   est à trancher EN LE REGARDANT. */
-.catalogue-card[data-snap="species"] {
-  width: 100%;
-  grid-template-columns: minmax(var(--fiche-stats-w), 1fr) var(--fiche-image-w);
+  scroll-snap-align: start;
 }
 
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
