@@ -379,43 +379,67 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    ne traverse pas un survol `pointer-events: auto`, même transparent. Seuls
    les BOUTONS visibles reçoivent le geste. */
 .stage-chevrons {
+  /* ⭐ EN HAUT ET EN BAS, PLUS À DROITE — Eric, 2026-08-15 : « des petits
+     chevrons noirs discrets en haut et en bas (idem fiche V1) », puis
+     « dégage les boutons ».
+     ⛔ CE QUI PART : deux pastilles de 44 px, bordées, à fond plein, empilées
+     au milieu du bord DROIT. Elles se lisaient comme des commandes ; une
+     amorce de défilement n'est pas une commande.
+     La forme vient du V1 (`.fh-cd-trayarrow`, companion-dock) : une barrette
+     posée au centre, en haut et en bas de la surface qui défile. */
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-8);
-  padding: var(--sp-8);
-  opacity: 0;
-  transition: opacity .25s;
+  inset: 0;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s;
 }
 .stage-chevrons[data-visible="true"] { opacity: 1; }
 /* ⛔ PAS `display: none` (défaut n°3, et le garde 4 des jetons l'interdit) :
    un contrôle effacé reste dans le flux, il cesse seulement d'être là pour
    le doigt — sinon la fiche se réagencerait deux fois par seconde. */
 .stage-chevron {
-  min-width: var(--touch);
-  min-height: var(--touch);
-  border: 1px solid var(--border-strong);
+  /* 36 × 14 — les cotes du V1, pas une invention. ⛔ La cible tactile de
+     44 px ne s'applique pas : ce n'est pas un contrôle du parcours, c'est une
+     amorce redondante avec le geste de défilement lui-même. La rendre
+     touchable au doigt la rendrait aussi encombrante que ce qu'elle
+     remplace. */
+  /* ⭐ À DROITE, PAS CENTRÉ — Eric, 2026-08-15 : « il est posé sur le côté
+     normalement », puis « à droite » quand je lui ai montré que le V1, lui,
+     les centre (`left: 50%; translateX(-50%)`).
+     📌 C'est donc un ÉCART ASSUMÉ au V1, pas une reprise : on lui prend ses
+     COTES (36 × 14, fond sombre, glyphe clair, arrondi à mi-hauteur) et on
+     laisse sa position. Écrit ici pour que personne ne « corrige » un jour la
+     position en croyant rétablir le V1. */
+  position: absolute;
+  right: var(--sp-8);
+  width: 36px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
   border-radius: var(--radius-pill);
-  background: var(--surface);
-  color: var(--text);
-  font-size: var(--t4);
+  background: var(--chevron-fond);
+  color: var(--chevron-encre);
+  font-size: var(--t2);
+  line-height: 1;
   cursor: pointer;
   padding: 0;
   pointer-events: none;
 }
+.stage-chevron:first-of-type { top: var(--sp-8); }
+.stage-chevron:last-of-type { bottom: var(--sp-8); }
 .stage-chevrons[data-visible="true"] .stage-chevron { pointer-events: auto; }
 /* Un bout de course n'est pas une direction (socle.mjs, `relire`) : l'encre
-   s'éteint, la géométrie tient — retirer un bouton d'une pile flottante
-   ferait sauter l'autre sous le curseur. Encres de MENTION et bordure de
-   carte : la paire dit « présent, pas actionnable », jamais un troisième
-   gris inventé. */
+   s'éteint, la géométrie tient — retirer une barrette de la paire ferait
+   sauter l'autre sous le doigt. Encres de MENTION et bordure de carte : la
+   paire dit « présent, pas actionnable », jamais un troisième gris inventé.
+   ⚠️ `border-color` reste déclaré bien que la barrette n'ait plus de bordure
+   visible : c'est le jeton qui dit l'état éteint, et un garde le mesure. */
 .stage-chevron:disabled {
   color: var(--text-muted);
   border-color: var(--border);
+  opacity: .5;
   cursor: default;
 }
 
@@ -850,11 +874,20 @@ button { font: inherit; }
      chevrons suivent la même règle : ce sont les deux mouvements que le
      socle a ajoutés, ils obéissent au même réglage système. */
   .belt-track, .stage { scroll-behavior: auto; }
-  .stage-chevrons { transition: none; }
-  /* Le retournement de la carte (B6.1c) suit le même réglage système : le
-     geste reste, le mouvement part. */
-  .card-face { transition: none; }
-  .card-face[data-face="up"] .card-face-img { animation: none; }
+  .stage-chevrons {
+  /* ⭐ EN HAUT ET EN BAS, PLUS À DROITE — Eric, 2026-08-15 : « des petits
+     chevrons noirs discrets en haut et en bas (idem fiche V1) », puis
+     « dégage les boutons ».
+     ⛔ CE QUI PART : deux pastilles de 44 px, bordées, à fond plein, empilées
+     au milieu du bord DROIT. Elles se lisaient comme des commandes ; une
+     amorce de défilement n'est pas une commande.
+     La forme vient du V1 (`.fh-cd-trayarrow`, companion-dock) : une barrette
+     posée au centre, en haut et en bas de la surface qui défile. */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s;
 }
 
 /* ══ B9 — LE MASQUE DE REVIEW, lot 65 ══════════════════════════════════

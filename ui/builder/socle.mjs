@@ -208,7 +208,12 @@ export function watchSnap(scroller, onSettle) {
    `settle(true)`, que `openSurface` appelle : CHAQUE nouvelle surface qui
    défile s'annonce une seconde — le comportement d'un indicateur iOS à
    l'ouverture d'une vue, la comparaison d'Eric elle-même. */
-export const CHEVRON_REST_MS = 1000;
+/* ⭐ 1000 → 600 ms — Eric, 2026-08-15 : « les petits chevrons QUI S'EFFACENT
+   VITE ». Le repos d'une seconde était pensé pour deux pastilles de 44 px
+   qu'on pouvait vouloir viser ; une barrette de 36 × 14 qui ne double qu'un
+   geste de défilement n'a pas à s'attarder. Elle dit « il y a une suite »,
+   puis elle sort du chemin. */
+export const CHEVRON_REST_MS = 600;
 
 export function mountChevrons(host, scroller) {
   let timer = null;

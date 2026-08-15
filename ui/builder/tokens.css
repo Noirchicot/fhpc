@@ -45,6 +45,13 @@
      la géométrie de 2 px, et ce fichier a passé la journée à traquer ce genre
      de dérive. */
   --verre-lisere: rgba(255, 255, 255, .55);
+  /* ⭐ LE CHEVRON DE SCÈNE — Eric, 2026-08-15 : « dégage les boutons,
+     remplace par les petits chevrons qui s'effacent vite, config idem V1 ».
+     Repris de `fh-phb/docs/stylesheets/companion-dock.css`, `.fh-cd-trayarrow` :
+     36 × 14, fond sombre à ~,88, glyphe clair, arrondi à mi-hauteur. Ce n'est
+     pas un bouton, c'est une amorce sur laquelle on peut appuyer. */
+  --chevron-fond: rgba(45, 44, 42, .86);
+  --chevron-encre: #f6f3ec;
   --accent: #845933;
   --on-accent: #ffffff;     /* ⚠️ JETON QUI BASCULE — jamais #fff en dur ailleurs */
   --positive: #326d4b;
@@ -248,6 +255,10 @@
     /* De nuit le liseré s'éteint : sur un fond sombre, 55 % de blanc ferait
        un trait, pas un reflet. C'est la même mécanique que `--accent-wash`. */
     --verre-lisere: rgba(255, 255, 255, .14);
+    /* De nuit, un pavé noir sur fond sombre disparaîtrait : le chevron
+       s'inverse en voile clair, même discrétion, même rôle. */
+    --chevron-fond: rgba(236, 230, 217, .18);
+    --chevron-encre: #ece6d9;
     --accent: #bb804c;
     --on-accent: #14120e;
     --positive: #469d6a;
