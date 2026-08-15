@@ -377,6 +377,40 @@
   scroll-snap-align: center;
 }
 
+/* ══ 🧪 TEST EN COURS — LA FICHE D'ESPÈCE SANS LIMITE DE LARGEUR ══════════
+   ⏳ CE BLOC EST UN ESSAI, PAS UNE DÉCISION. Eric, 2026-08-16 : *« on a déjà
+   nommé les organes dans les fiches species. On lui enlève juste la limite de
+   largeur. On impose le centrage, on garde la hauteur imposée. Et on voit ce
+   qui se passe. »* Il ne concerne QUE `species` — `class` reste à 242 px, ce
+   qui rend la comparaison lisible d'un écran à l'autre.
+
+   CE QUI CHANGE, ET RIEN D'AUTRE :
+     1. la largeur cesse d'être une cote et redevient un RÉSULTAT (la scène,
+        moins le rembourrage du conteneur) ;
+     2. la colonne de texte devient l'ORGANE ÉLASTIQUE — `minmax(118px, 1fr)`.
+        Sans cette seconde ligne, l'essai ne montrerait rien de bon : les deux
+        colonnes resteraient à 118 + 100 et `justify-content: center` les
+        tasserait au milieu d'une dalle large, avec du vide de chaque côté
+        DANS la fiche.
+
+   ⛔ CE QUI NE CHANGE PAS : la hauteur (440, toujours imposée par
+   `--fiche-h`), le centrage vertical dans la rangée d'une scène (la demande
+   d'Eric du 15/08, réparée aux deux bouts du défilement), l'image (100 px),
+   et les cotes gagnées — 118 reste le PLANCHER de la colonne, celui de la
+   ligne du rogue mesurée à 115,1.
+
+   📌 CE QUE L'ESSAI DÉPLACE SANS LE DIRE, et c'est le point à regarder : la
+   marge latérale cesse d'être un reste de centrage pour devenir le
+   rembourrage DÉCLARÉ du conteneur (`padding: 0 var(--sp-8)`), soit 8 px —
+   là où le centrage en donnait 14 à 360 et 22 sur l'iPhone SE. C'est
+   exactement l'inversion dont on a parlé : la marge devient un nombre qu'on
+   choisit, au lieu d'un reste qu'on subit. Le nombre lui-même (8, 14, 16)
+   est à trancher EN LE REGARDANT. */
+.catalogue-card[data-snap="species"] {
+  width: 100%;
+  grid-template-columns: minmax(var(--fiche-stats-w), 1fr) var(--fiche-image-w);
+}
+
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
 /* ⛔ CETTE RÈGLE A ÉTÉ RETIRÉE LE 2026-08-15 (lot 78). Elle passait le rail
    à T3 sur l'argument du gabarit — *« le repère de position se lit d'un coup
