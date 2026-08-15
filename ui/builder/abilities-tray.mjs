@@ -53,7 +53,7 @@
    contexte vivant. */
 
 import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=1";
-import { rollThreeD6, markKept } from "./dice.mjs?v=1";
+import { rollThreeD6, markKept, rollAbilitySet } from "./dice.mjs?v=1";
 import { swapContent } from "./socle.mjs?v=1";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
@@ -63,13 +63,13 @@ export const REGLAGES = {
   tailleBureau: 82,
   ecart: 4,
   pauseMs: 2500,   // « pause 2500 bien » — il a essayé 2000 et a préféré plus lent
-  /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « flash roll encore mieux ». Il avait
-     d'abord dit « instant roll, où on ne voit même pas les jets » ; « flash »
-     corrige, et le mot compte. On VOIT toujours les dés, on les voit VITE —
-     un mode qui cacherait tout contredirait ce qu'il venait de poser dix
-     minutes plus tôt : « je veux qu'il voie ». 250 ms de cadence → les dix
-     jets en ~3 s au lieu de 25, lots ratés compris. */
-  pauseFlashMs: 250,
+  /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « on voit le résultat et c'est tout,
+     on ne voit pas le process et les erreurs ».
+     ⚠️ CORRECTION D'UNE SUR-LECTURE DE L'ARCHITECTE : j'avais lu « flash »
+     comme « vite mais visible », et argumenté que cacher les jets
+     contredirait son « je veux qu'il voie ». Faux — les deux coexistent : il
+     VEUT voir, et il veut AUSSI pouvoir ne pas voir. Ce sont deux modes, pas
+     deux principes qui s'excluent. Le joueur choisit s'il regarde. */
   seuilBureau: 768
 };
 
@@ -149,9 +149,9 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   const total = 10;   // la méthode d'Eric : dix jets, toujours
   const reste = total - revele;
 
-  const roll = bouton("ROLL", "tray-roll", () => sequence(1, REGLAGES.pauseMs));
-  const roll10 = bouton(`ROLL ${total}`, "tray-roll10", () => sequence(reste || total, REGLAGES.pauseMs));
-  const flash = bouton("FLASH", "tray-flash", () => sequence(reste || total, REGLAGES.pauseFlashMs));
+  const roll = bouton("ROLL", "tray-roll", () => sequence(1));
+  const roll10 = bouton(`ROLL ${total}`, "tray-roll10", () => sequence(reste || total));
+  const flash = bouton("FLASH", "tray-flash", () => flashRoll());
   const clear = bouton("CLEAR", "tray-clear", () => { annule = true; onClear(); });
   barre.append(roll, roll10, flash, clear);
   dalle.append(barre);
@@ -197,7 +197,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   let tentative = lot ? [...lot.rolls] : null;
   let rejetes = lot ? (lot.rerollCount || 0) : 0;
 
-  async function sequence(combien, cadence) {
+  async function sequence(combien) {
     if (enCours) return;
     enCours = true; annule = false;
     roll.disabled = roll10.disabled = flash.disabled = true;
@@ -212,7 +212,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
       poserLesDes(hote, jet.dice, true);
       revele += 1; faits += 1;
       ecrisCase(cases[revele - 1], jet, null, revele);
-      await attendre(cadence);
+      await attendre(REGLAGES.pauseMs);
       if (annule) break;
       if (revele < 10) continue;
 
@@ -229,13 +229,33 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
       }
       rejetes += 1;
       annonceEchec(mention, rejetes);
-      await attendre(cadence);
+      await attendre(REGLAGES.pauseMs);
       tentative = null;              // un lot neuf au tour suivant
       if (combien === 1) break;      // ROLL simple : on s'arrête sur l'annonce
       faits = 0;                     // ROLL 10 : la salve recommence entière
     }
     enCours = false;
     if (roll.isConnected) roll.disabled = roll10.disabled = flash.disabled = false;
+  }
+
+  /* ⚡ LE FLASH — aucun dé ne roule, aucune erreur ne s'annonce.
+     `rollAbilitySet` boucle EN INTERNE sur la règle de relance : c'est
+     exactement ce qu'on veut ici, et exactement ce qu'on refusait dans les
+     deux autres modes. Le lot arrive fait, les dix cases se remplissent d'un
+     coup, et les trois dés prennent la POSE du dernier jet sans tomber. */
+  function flashRoll() {
+    if (enCours) return;
+    lot = rollAbilitySet(Math.random);
+    tentative = [...lot.rolls];
+    revele = 10;
+    videLesCases(cases);
+    lot.rolls.forEach((jet, i) => ecrisCase(cases[i], jet, null, i + 1));
+    peinsLesGardes(cases, lot);
+    mention.hidden = true;              // ⛔ « on ne voit pas les erreurs »
+    delete mention.dataset.echec;
+    poserLesDes(hote, lot.rolls[9].dice, false);
+    onNouveauLot(lot);
+    onRevele(10);
   }
 
   function attendre(ms) {
