@@ -63,6 +63,13 @@ export const REGLAGES = {
   tailleBureau: 82,
   ecart: 4,
   pauseMs: 2500,   // « pause 2500 bien » — il a essayé 2000 et a préféré plus lent
+  /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « flash roll encore mieux ». Il avait
+     d'abord dit « instant roll, où on ne voit même pas les jets » ; « flash »
+     corrige, et le mot compte. On VOIT toujours les dés, on les voit VITE —
+     un mode qui cacherait tout contredirait ce qu'il venait de poser dix
+     minutes plus tôt : « je veux qu'il voie ». 250 ms de cadence → les dix
+     jets en ~3 s au lieu de 25, lots ratés compris. */
+  pauseFlashMs: 250,
   seuilBureau: 768
 };
 
@@ -142,10 +149,11 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   const total = 10;   // la méthode d'Eric : dix jets, toujours
   const reste = total - revele;
 
-  const roll = bouton("ROLL", "tray-roll", () => sequence(1));
-  const roll10 = bouton(`ROLL ${total}`, "tray-roll10", () => sequence(reste || total));
+  const roll = bouton("ROLL", "tray-roll", () => sequence(1, REGLAGES.pauseMs));
+  const roll10 = bouton(`ROLL ${total}`, "tray-roll10", () => sequence(reste || total, REGLAGES.pauseMs));
+  const flash = bouton("FLASH", "tray-flash", () => sequence(reste || total, REGLAGES.pauseFlashMs));
   const clear = bouton("CLEAR", "tray-clear", () => { annule = true; onClear(); });
-  barre.append(roll, roll10, clear);
+  barre.append(roll, roll10, flash, clear);
   dalle.append(barre);
 
   /* ── LA MENTION DE RELANCE ─────────────────────────────────────────
@@ -189,10 +197,10 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   let tentative = lot ? [...lot.rolls] : null;
   let rejetes = lot ? (lot.rerollCount || 0) : 0;
 
-  async function sequence(combien) {
+  async function sequence(combien, cadence) {
     if (enCours) return;
     enCours = true; annule = false;
-    roll.disabled = roll10.disabled = true;
+    roll.disabled = roll10.disabled = flash.disabled = true;
     let faits = 0;
     while (faits < combien && !annule) {
       if (!tentative) { tentative = []; videLesCases(cases); revele = 0; }
@@ -204,7 +212,7 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
       poserLesDes(hote, jet.dice, true);
       revele += 1; faits += 1;
       ecrisCase(cases[revele - 1], jet, null, revele);
-      await attendre(REGLAGES.pauseMs);
+      await attendre(cadence);
       if (annule) break;
       if (revele < 10) continue;
 
@@ -221,13 +229,13 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
       }
       rejetes += 1;
       annonceEchec(mention, rejetes);
-      await attendre(REGLAGES.pauseMs);
+      await attendre(cadence);
       tentative = null;              // un lot neuf au tour suivant
       if (combien === 1) break;      // ROLL simple : on s'arrête sur l'annonce
       faits = 0;                     // ROLL 10 : la salve recommence entière
     }
     enCours = false;
-    if (roll.isConnected) roll.disabled = roll10.disabled = false;
+    if (roll.isConnected) roll.disabled = roll10.disabled = flash.disabled = false;
   }
 
   function attendre(ms) {
