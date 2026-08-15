@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=5";
+import { planAt } from "./carnet.mjs?v=8";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -141,12 +141,42 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
      cinq écrans (Destiny, Inheritance, Skills…). */
   cards.dataset.kind = ctx.kind;
   options.forEach((id, index) => {
-    const card = el("section", "catalogue-card dalle-majeure");
+    const card = el("section", "catalogue-card");
     card.dataset.snap = ctx.kind;
     card.dataset.value = id;
-    card.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
-    /* La fiche est MAJEURE (III.2) : elle porte des libellés en
+    /* ══ L'ENVELOPPE DE RANGÉE — Eric, 2026-08-16 : « oui je veux que tu
+       règles ça » ═══════════════════════════════════════════════════════════
+       🔴 LE DÉFAUT QU'ELLE RÉPARE, ET IL EST GÉOMÉTRIQUE, PAS COSMÉTIQUE : la
+       DERNIÈRE fiche ne pouvait pas monter en haut de la scène. Le champ de
+       défilement s'arrête au bas du dernier CONTENU ; une rangée de grille
+       vide ne produit aucune boîte, donc les (scène − 440) px qui suivent la
+       dernière dalle n'étaient pas défilables. Wizard se posait en bas —
+       53 px de décalage à 375 (invisible), **524 px à 768** (très visible).
+
+       ⭐ LA SORTIE : deux boîtes au lieu d'une. `.catalogue-card` devient la
+       BOÎTE DE RANGÉE (une scène entière, sans décor, c'est elle qui porte
+       `data-snap` et le défilement) ; `.fiche-dalle` est la DALLE VISIBLE
+       (440 de haut, largeur plafonnée, tout le décor). La rangée étant
+       maintenant une vraie boîte, elle défile jusqu'au bout.
+
+       ⛔ POURQUOI PAS UNE LIGNE DE CSS — les trois pistes ont été écartées
+       pour une raison mesurable : un `padding` en pourcentage se résout sur la
+       LARGEUR du conteneur (le piège le plus contre-intuitif du modèle de
+       boîte, déjà payé dans ce fichier) ; une cale en `::after` atterrit dans
+       une rangée neuve et ajoute une scène vide défilable ; et donner la
+       hauteur de rangée à la fiche elle-même étalerait son fond sur toute la
+       scène, puisque c'est elle qui porte le décor.
+
+       ⚠️ SEULS LES ÉCRANS À FICHE SONT ENVELOPPÉS (`ctx.fiche`, le drapeau que
+       `class-step`/`species-step` déclarent déjà). Destiny et le don d'origine
+       gardent la structure plate : leurs cartes n'ont ni hauteur imposée ni
+       rangée d'une scène, l'enveloppe ne leur réparerait rien et changerait
+       leur mise en page sans raison. */
+    const hote = ctx.fiche ? el("div", "fiche-dalle dalle-majeure") : card;
+    /* La dalle est MAJEURE (III.2) : elle porte des libellés en
        `--text-muted`, et la matrice du lot 59 les interdit sur du verre. */
+    if (!ctx.fiche) card.className = "catalogue-card dalle-majeure";
+    hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
     const noeuds = renderCard(ctx.query, id) || [];
     /* ⭐ LA FICHE A-T-ELLE UNE ZONE D'INFOS ? Eric, 2026-08-15 : quand elle
        en a une, tout est à fleur ; quand elle n'en a pas, **le blurb se
@@ -156,8 +186,12 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        ⛔ PAS `:has()` : il échoue en silence là où il n'est pas porté, et la
        fiche prendrait le mauvais gabarit sans un mot (payé deux fois le
        15 août). Un attribut se lit partout. */
-    card.dataset.infos = noeuds.some((n) => n && n.dataset && n.dataset.zone === "infos") ? "oui" : "non";
-    for (const node of noeuds) card.append(node);
+    /* `data-infos` vit sur l'HÔTE, c'est-à-dire là où vit la grille — sur la
+       dalle quand elle existe, sur la carte sinon. Le poser sur la carte
+       enveloppante le mettrait hors de portée du sélecteur qui le lit. */
+    hote.dataset.infos = noeuds.some((n) => n && n.dataset && n.dataset.zone === "infos") ? "oui" : "non";
+    for (const node of noeuds) hote.append(node);
+    if (hote !== card) card.append(hote);
     /* ⭐ CH6 — LE `CHOOSE` DE CETTE FICHE-CI, ET C'EST ICI QU'IL SE CÂBLE :
        cette boucle est le SEUL endroit qui connaisse l'index de la fiche.
        Le passer explicitement, plutôt que de laisser `shell.mjs` lire le

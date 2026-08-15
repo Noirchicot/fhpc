@@ -42,8 +42,7 @@
    genre du catalogue (posé par `renderCatalogueCards`) — Destiny et le don
    d'origine partagent le même catalogue et ne doivent PAS hériter de cette
    géométrie : leurs cartes n'ont ni image ni bloc de stats. */
-.catalogue-card[data-snap="class"],
-.catalogue-card[data-snap="species"] {
+.fiche-dalle {
   /* ── LES COTES MESURÉES, déclarées une fois ───────────────────────── */
   --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
@@ -207,8 +206,7 @@
 
 /* Le nom : T5. `Barbarian` à T6 ferait 103 px dans une colonne de 118 — il
    tient, mais sans air. T5 le pose sans le serrer. */
-.catalogue-card[data-snap="class"] .catalogue-card-name,
-.catalogue-card[data-snap="species"] .catalogue-card-name {
+.fiche-dalle .catalogue-card-name {
   grid-column: 1;
   grid-row: 1;
   font-size: var(--t5);
@@ -424,7 +422,17 @@
    pour la même chose divergent, c'est la loi du dépôt. */
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"] {
-  height: var(--fiche-h);
+  /* 🔴 LA BOÎTE DE RANGÉE — elle vaut UNE SCÈNE, et elle n'a AUCUN décor.
+     C'est le remède du 16/08 : une rangée de grille vide ne produit pas de
+     boîte, donc le vide qui suivait la dernière dalle n'était pas défilable
+     et la dernière fiche ne pouvait pas monter en haut (524 px de décalage
+     mesurés à 768). En donnant à la carte la hauteur de sa rangée, la rangée
+     DEVIENT une boîte — et le champ défile jusqu'au bout.
+     ⛔ `dalle-majeure` a quitté cette carte pour la dalle intérieure : posé
+     ici, le fond du verre couvrirait la scène entière. */
+  height: 100%;
+  display: block;
+  padding: 0;
 
   /* ══ ✅ HORIZONTALEMENT CENTRÉE, VERTICALEMENT NON — Eric, 2026-08-16 ═════
      *« centré horizontalement mais pas verticalement »*, et il ajoute :
@@ -450,8 +458,26 @@
      le centrage, ça n'a pas bougé, et ça ne se répare pas en déplaçant la
      fiche : elle a plus de contenu rigide que le téléphone n'a de hauteur. */
   align-self: start;
-  justify-self: center;
+  justify-self: stretch;      /* la RANGÉE prend toute la largeur… */
   scroll-snap-align: start;
+}
+/* …et c'est la DALLE qui se centre dedans (`margin-inline: auto`, plus haut).
+   ⭐ Le centrage horizontal qu'Eric garde vit donc sur la dalle, pas sur la
+   rangée : la rangée n'est plus qu'un cadre de défilement. */
+.fiche-dalle {
+  height: var(--fiche-h);
+  /* ⭐ LA QUATRIÈME MARGE, ET C'EST LA PREMIÈRE QUI SOIT DÉCLARÉE — Eric,
+     2026-08-16 : *« attention je veux pas que ce soit collé au belt non
+     plus »*. Poser la fiche en haut de sa rangée la collait à la ceinture ;
+     8 px l'en décollent, la même valeur que le rembourrage latéral du
+     conteneur. Les quatre marges de F1 sont donc enfin des NOMBRES CHOISIS
+     (8 en haut, 8 à gauche et à droite, le reste du fond en dessous) et non
+     des restes de centrage.
+     ⛔ SUR LA DALLE, PAS SUR LE CONTENEUR : un rembourrage de conteneur
+     décalerait toutes les rangées et le pas cesserait de valoir exactement
+     une scène — la fiche du dessous reviendrait dans le champ. La rangée ne
+     bouge pas ; c'est la peinture qui se décolle. */
+  margin-block-start: var(--sp-8);
 }
 
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
@@ -477,13 +503,12 @@
    n'offrent aucun lignage ; une bande vide de 40 px serait un faux magasin.
    C'est `renderCatalogueCards` qui pose `data-infos`, et c'est l'ABSENCE de
    la bande qui fait basculer la grille sur son autre gabarit. */
-.catalogue-card[data-snap="class"][data-infos="oui"],
-.catalogue-card[data-snap="species"][data-infos="oui"] {
+.fiche-dalle[data-infos="oui"] {
   /* Cinq rangées, tout à fleur : 8 + 22 + 8 + 126 + 8 + 40 + 8 + 160 + 8 +
      44 + 8 = 440. La bande consomme exactement le mou d'une classe. */
   grid-template-rows: auto var(--fiche-stats-h) var(--fiche-infos-h) var(--fiche-blurb-h) auto;
 }
-.catalogue-card[data-infos="oui"] .fiche-actions { grid-row: 5; }
+.fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 5; }
 
 .fiche-infos {
   grid-column: 1 / span 2;
@@ -524,3 +549,80 @@
    second barreau dans une boîte de 10 lignes en coûterait une. */
 .fiche-trait-nom { font-weight: 600; }
 .fiche-trait-effet { color: var(--text-muted); }
+
+/* ══ LA COMPOSITION PAYSAGE — Eric, 2026-08-16 ═══════════════════════════
+   *« en mode paysage, je voudrais avoir un affichage alternatif des fiches :
+   la photo passe à gauche de la dalle, disons 75 % de la hauteur, centrée
+   verticalement ; et le texte vient se mettre à droite — les stats, les infos
+   supplémentaires et le blurb empilés verticalement. »*
+
+   🔴 CE N'EST PAS UN REDIMENSIONNEMENT, C'EST UNE RECOMPOSITION, et c'est la
+   seule chose qui pouvait marcher : mesuré, les rangées RIGIDES de la fiche
+   (nom 22 + stats 126 + bande 40 + pied 44 + l'air) font déjà ~280 px, quand
+   un téléphone couché n'offre que 315 px de scène. La fiche n'était pas trop
+   grande — elle avait plus de contenu rigide que l'écran n'a de hauteur.
+   Aucun `min()` ne répare ça ; il fallait changer la disposition.
+
+   ⭐ LE SEUIL EST UNE COTE GAGNÉE, PAS UNE CLASSE D'APPAREIL — et c'est ce qui
+   le rend juste : `500 = 440 (la fiche) + 60 (la ceinture)`. En dessous, la
+   composition debout NE TIENT PAS, quel que soit l'appareil. Au-dessus, elle
+   tient, et on n'y touche pas.
+   ⛔ PAS `@media (orientation: landscape)` : un iPad couché fait 768 px de
+   haut, il a toute la place du monde et n'a rien à recomposer. L'orientation
+   nomme la forme de l'écran ; ce qui décide ici est la HAUTEUR disponible.
+   C'est la même leçon que le rail : on cote sur ce qui contraint, pas sur ce
+   qui ressemble. */
+@media (max-height: 500px) {
+  .fiche-dalle {
+    /* La dalle prend la scène MOINS ses deux marges : plus de 440 imposés,
+       donc plus de débordement ni de voisines dans le champ (elles reviennent
+       dès que 440 > scène). Les 8 px du haut (le décollement de la ceinture,
+       demandé par Eric) sont rendus en bas aussi — sinon la dalle dépasserait
+       sa rangée d'exactement sa marge. */
+    height: calc(100% - var(--sp-16));
+    margin-block: var(--sp-8);
+    /* Deux colonnes : l'image à GAUCHE (sa largeur suit sa hauteur), le texte
+       à droite et lui seul est élastique. */
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  }
+  /* L'IMAGE — pleine hauteur de la dalle à 75 %, centrée, sur les cinq
+     rangées. `width: auto` + `object-fit: contain` : elle garde ses
+     proportions au lieu d'être recadrée comme en portrait, où c'est la
+     LARGEUR qui est imposée. */
+  /* ⛔ PAS D'`aspect-ratio` ICI — première écriture, corrigée avant livraison :
+     `aspect-ratio` prend un RAPPORT (`100 / 126`), pas des longueurs, et
+     `100px / 126px` aurait été jeté **en silence** par le navigateur. C'est le
+     défaut n°3 de la journée du 15/08, et il ne se voit dans aucun test.
+     ⭐ La proportion n'a pas besoin d'être écrite : l'IMAGE la porte. On donne
+     la hauteur au cadre, `width: auto` au cadre ET à l'image, et c'est le
+     rapport naturel du fichier qui décide de la largeur. */
+  .fiche-dalle .fiche-image {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: center;
+    height: 75%;
+    width: auto;
+  }
+  .fiche-dalle .fiche-image img { width: auto; height: 100%; object-fit: contain; }
+
+  /* LA PILE DE DROITE, dans l'ordre demandé : nom, stats, infos, texte, pied.
+     ⭐ Le pied reste dans la colonne de texte et au BAS : `CHOOSE` est la
+     validation de l'écran (Ch6) — le pousser hors du champ serait un écran
+     qu'on ne peut plus valider. */
+  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 1; }
+  .fiche-dalle .fiche-stats  { grid-column: 2; grid-row: 2; align-self: start; }
+  .fiche-dalle .fiche-infos  { grid-column: 2; grid-row: 3; align-self: start; }
+  .fiche-dalle .fiche-blurb,
+  .fiche-dalle .fiche-traits { grid-column: 2; grid-row: 4; }
+  .fiche-dalle .fiche-actions { grid-column: 2; grid-row: 5; }
+
+  /* ⭐ L'ORGANE ÉLASTIQUE DE L'AXE VERTICAL, ET IL EST NOMMÉ : le texte du
+     bas. La boîte de 160 px (10 lignes) est une cote de PORTRAIT ; ici elle
+     céderait la place au pied. C'est la seule rangée qui peut perdre des
+     lignes sans perdre d'information — de la prose déjà tronquée à ~50 mots,
+     et une liste de traits dont chaque ligne est autonome. */
+  .fiche-dalle[data-infos="oui"] {
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  }
+}
