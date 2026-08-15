@@ -1,6 +1,21 @@
 /* ══ LE PLATEAU DE DÉS D'ABILITIES — croquis B d'Eric, 2026-08-15 ═══════
-   La dalle MAJEURE de l'écran Abilities : trois dés 3D, `ROLL` / `ROLL 10` /
-   `CLEAR`, et les dix résultats numérotés dont quatre barrés.
+   La dalle MAJEURE de l'écran Abilities : trois dés 3D, quatre boutons et les
+   dix résultats numérotés dont quatre barrés.
+
+   ⌨️ LES QUATRE LIBELLÉS SONT D'ERIC, mot pour mot (2026-08-15) :
+   `roll 3d6` · `roll 10 x 3d6` · `flash roll` · `reset`.
+   ⚠️ `reset` et non `CLEAR` : le croquis B disait `CLEAR`, sa liste est
+   postérieure et c'est elle qui vaut.
+
+   📏 ET ILS TIENNENT SUR UNE RANGÉE, MAIS SEULEMENT À T2. Mesuré à 360 sur
+   une dalle de 312 utiles, rembourrage 10, gouttière 6 : **300 px**, 12 de
+   reste. `roll 10 x 3d6` est le coupable, à 93 px.
+   ⛔ **T3 ne passe dans AUCUNE combinaison** (+9 px au mieux), alors que le
+   gabarit prévoit T3 pour les actions : quatre actions sur une rangée à 360
+   l'interdisent. C'est un écart AU GABARIT, assumé et mesuré.
+   ⭐ Les 44 px de cible tactile restent intacts en HAUTEUR — c'est la
+   largeur qui se resserre, jamais le doigt. L'autre issue était T3 sur deux
+   rangées, à +52 px de hauteur : trop cher pour un barreau.
 
    ══ CE QUI A DÉCIDÉ DE LA FORME ════════════════════════════════════════
 
@@ -149,11 +164,11 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   const total = 10;   // la méthode d'Eric : dix jets, toujours
   const reste = total - revele;
 
-  const roll = bouton("ROLL", "tray-roll", () => sequence(1));
-  const roll10 = bouton(`ROLL ${total}`, "tray-roll10", () => sequence(reste || total));
-  const flash = bouton("FLASH", "tray-flash", () => flashRoll());
-  const clear = bouton("CLEAR", "tray-clear", () => { annule = true; onClear(); });
-  barre.append(roll, roll10, flash, clear);
+  const roll = bouton("roll 3d6", "tray-roll", () => sequence(1));
+  const roll10 = bouton(`roll ${total} x 3d6`, "tray-roll10", () => sequence(reste || total));
+  const flash = bouton("flash roll", "tray-flash", () => flashRoll());
+  const reset = bouton("reset", "tray-reset", () => { annule = true; onClear(); });
+  barre.append(roll, roll10, flash, reset);
   dalle.append(barre);
 
   /* ── LA MENTION DE RELANCE ─────────────────────────────────────────
