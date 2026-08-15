@@ -136,7 +136,11 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   align-items: center;
   gap: var(--sp-12); /* 10px d'origine : ni sp-8 ni sp-12 n'a priorité, l'écart est le même des deux côtés — arrondi au cran du dessus, règle tenue pour tout le fichier */
   border: none;
-  background: none;
+  /* ⭐ CHAQUE CRAN EST UNE DALLE TRANSPARENTE — Eric, 2026-08-15 (Ch2) :
+     *« le belt doit être constitué de dalles transparentes »*. Avant, seul le
+     cran COURANT avait un fond ; les neuf autres flottaient sans surface, et
+     la ceinture ne se lisait pas comme une rangée de dalles. */
+  background: var(--dalle-simple);
   text-align: left;
   padding: var(--sp-8) var(--sp-12); /* 10px → même arrondi */
   /* LOT 70 — le cran mesurait 38 px (padding 8+8 + pastille 22), sous le
@@ -147,11 +151,19 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      taille sur le champ, pas sur un nombre. */
   min-height: var(--touch);
   border-radius: var(--radius-md);
-  color: var(--text-muted); /* un libellé court = une « mention », pas une description */
+  /* 🔴 `--text` ET PLUS `--text-muted`, ET C'EST LA DALLE QUI L'EXIGE. La
+     matrice du lot 59 : sur un voile, `--text-muted` rend **3,0 · 3,6** pour
+     4,5 exigé. Poser une surface sous un libellé en mention aurait rendu la
+     ceinture illisible tout en ayant l'air d'une amélioration. */
+  color: var(--text);
   font-size: var(--t4); /* CORRECTIF : rendait à 16px par défaut du navigateur (§0). Zéro changement visible — c'est déjà ce que le corps affiche */
   cursor: pointer;
 }
-.belt-item[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+/* Le cran courant se distingue par son VOILE (intermédiaire, 50 %) et sa
+   graisse, plus par son encre — `B0.23` : le régime de voile porte le rang.
+   L'accent reste en lavis par-dessus : c'est la seule couleur de la ceinture,
+   et elle ne porte aucun mot (⛔ l'accent ne survit pas sur du verre non plus). */
+.belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent-wash); }
 /* B0.4 — « quand une étape est validée, son NUMÉRO passe en vert ». C'est le
    numéro seul qui change, pas la ligne : la ceinture disait « done » sur tout
    le libellé, ce qui rendait deux étapes faites indiscernables d'une étape
@@ -693,14 +705,29 @@ button { font: inherit; }
    📌 Le rembourrage VERTICAL ne bouge pas : c'est lui qui donne au cran sa
    cible tactile. Seul l'horizontal était en trop. */
 .catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2); }
+/* ⭐ CHAQUE CRAN EST UNE DALLE TRANSPARENTE — Eric, 2026-08-15 (Ch2) :
+   *« le menu de gauche doit être constitué de dalles transparentes »*, et son
+   croquis d'espèce le disait déjà — *« le rail reste à gauche (tuiles
+   transparentes) »*. C'était écrit, ça n'avait pas été construit.
+
+   🔴 ET L'ENCRE A DÛ CHANGER AVEC. La matrice du lot 59 est formelle : sur un
+   voile, `--text-muted` rend **3,0 · 3,6** pour 4,5 exigé — il ne survit pas.
+   Les crans passent donc en `--text` plein. ⛔ Ce n'est pas un détail
+   esthétique : poser une dalle sous un libellé en `--text-muted` aurait rendu
+   le rail illisible tout en ayant l'air d'une amélioration.
+
+   ⭐ LA DISTINCTION DU CRAN COURANT PASSE DONC AU VOILE, pas à l'encre :
+   `simple` (35 %) pour les autres, `intermédiaire` (50 %) pour lui, plus la
+   graisse. C'est ce que `B0.23` décrit — le régime de voile porte le rang. */
 .catalogue-rail-item {
   font-size: var(--t2);
-  color: var(--text-muted);
+  color: var(--text);
+  background: var(--dalle-simple);
   padding: var(--sp-8) 0;
   border-radius: var(--radius-sm);
   text-align: center;
 }
-.catalogue-rail-item[aria-current="true"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
+.catalogue-rail-item[aria-current="true"] { background: var(--dalle-inter); font-weight: 600; }
 
 .catalogue-choices { display: flex; flex-direction: column; gap: var(--sp-16); }
 
