@@ -229,6 +229,52 @@ test("16 — ⛔ UN SEUL `Validate` dans tout ui/ (I.3, répété deux fois par 
     "un second Validate posé par un écran romprait l'invariant I.3 — le bouton unique change de PALIER, il ne se dédouble pas");
 });
 
+/* ══ 18 / 19 — LES DEUX CHAPITRES DU 2026-08-15, SUR LES OCTETS ══════════
+   🔴 POURQUOI ICI, ET NULLE PART AILLEURS. `tests/catalogue.test.mjs` prouve
+   tout ce qui vit dans `catalogue.mjs` : le cran émet `snapTo`, `CHOOSE`
+   émet `ficheChoose` avec l'index de sa fiche. Mais les deux gestes ne
+   servent à rien si `shell.mjs` ne leur donne pas de destinataire — et
+   AUCUN test ne monte `shell.mjs` (lot 50). Sans ces deux gardes-ci, on
+   pouvait retirer les `applyDecisionAction` du câblage et garder 1 142 tests
+   verts devant un rail mort et un `CHOOSE` allumé qui ne fait rien : le
+   « faux magasin » exact que ce dépôt interdit. */
+
+test("18 — CH4/CH6 : le rail ET les fiches reçoivent leur destinataire — sinon deux boutons morts", () => {
+  assert.match(shellText, /renderCatalogueRail\(catalogueCtx\(cfg\), applyDecisionAction\)/,
+    "le rail sans destinataire se tape dans le vide (CH4)");
+  assert.match(shellText, /renderCatalogueCards\(ctx, cfg\.cardBody, applyDecisionAction\)/,
+    "les fiches sans destinataire rendent un `CHOOSE` éteint — et l'écran n'aurait alors AUCUNE validation (CH6)");
+  /* Et l'action arrive bien à la porte : `ficheChoose` pose le curseur de la
+     fiche pressée, puis laisse `pressValidate` posséder les paliers (I.4). */
+  assert.match(shellText, /action\.kind === "ficheChoose"[\s\S]{0,160}state\.cursor = action\.index;[\s\S]{0,80}pressValidate\(\)/,
+    "⛔ `ficheChoose` doit poser le curseur PUIS passer la main à `pressValidate` — recopier la logique des paliers ferait deux propriétaires d'une même porte");
+});
+
+test("19 — CH6 : `renderValidation` s'efface sur un écran à fiche, et SEULEMENT au palier 1", () => {
+  /* Les deux moitiés comptent. S'effacer partout retirerait le `Validate` du
+     2ᵉ palier (le menu des choix n'a pas de `CHOOSE` : l'écran deviendrait
+     une impasse). Ne s'effacer nulle part remettrait deux boutons pour une
+     porte, à dix pixels l'un de l'autre. */
+  assert.match(shellText, /\.fiche && state\.palier !== 2\) return null/,
+    "le drapeau `fiche` (déclaré par class-step/species-step) est ce qui décide, et le palier 2 garde son bouton");
+  /* ⚔️ Le témoin : les deux écrans à fiche déclarent bien le drapeau que
+     cette ligne lit. Un drapeau lu mais jamais posé s'effacerait en silence. */
+  for (const fichier of ["class-step.mjs", "species-step.mjs"]) {
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, fichier), "utf8"));
+    assert.match(texte, /CATALOGUE = \{[^}]*fiche: true/,
+      `${fichier} doit déclarer \`fiche: true\` — sinon son \`CHOOSE\` et un \`Validate\` cohabitent`);
+  }
+});
+
+test("20 — ⚔️ ATTAQUE : un câblage amputé fait rougir 18, sur une source fabriquée", () => {
+  /* Le geste exact qu'on redoute : quelqu'un « nettoie » un argument qui a
+     l'air en trop. Le garde doit le voir. */
+  const ampute = 'const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg)) : null;';
+  assert.equal(/renderCatalogueRail\(catalogueCtx\(cfg\), applyDecisionAction\)/.test(ampute), false);
+  assert.equal(/renderCatalogueRail\(catalogueCtx\(cfg\), applyDecisionAction\)/.test(shellText), true,
+    "et le vrai fichier, lui, passe — sinon le garde ne prouverait rien");
+});
+
 test("17 — `Back` n'existe plus nulle part dans ui/ (I.5, B0.18)", () => {
   const files = walkSources(UI_DIR);
   const porteurs = [];

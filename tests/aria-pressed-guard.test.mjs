@@ -205,11 +205,16 @@ test("Class — le palier 1 ne produit AUCUN bouton À ÉTAT : c'est l'invariant
      ils ne portent ni `data-active`, ni `aria-pressed`, ni valeur de record.
      C'est cette propriété-là qui est gardée ici — la seule qui dise « aucun
      geste de sélection », et elle est plus stricte que le compte de boutons
-     qu'elle remplace. */
+     qu'elle remplace.
+     ⭐ CH6, 2026-08-15 — `CHOOSE` EST MAINTENANT CÂBLÉ (il valide l'écran) ET
+     CE GARDE N'A PAS BOUGÉ D'UN OCTET, ce qui est exactement le signe qu'il
+     gardait la bonne chose : il n'a jamais parlé de ce qu'un bouton FAIT,
+     seulement de ce qu'il PORTE. Un bouton qui porterait `srd:class:en:bard`
+     serait un cran de sélection ; `CHOOSE` porte un rôle et un index. */
   const node = renderCatalogueCards({ decisions: report.decisions, query, path: "class", kind: "class" }, renderClassCardBody);
   for (const bouton of node.querySelectorAll("button")) {
     assert.equal(bouton.getAttribute("data-active"), null,
-      "aucun bouton à état dans la fiche (B2.1e, I.3) — le seul Validate de l'interface est celui de la barre du haut");
+      "aucun bouton à état dans la fiche (B2.1e, I.3)");
     assert.equal(bouton.getAttribute("aria-pressed"), null, "idem : rien qui s'annonce enfoncé");
     assert.equal(bouton.getAttribute("data-value"), null, "et rien qui porte un record : ce serait une sélection");
   }

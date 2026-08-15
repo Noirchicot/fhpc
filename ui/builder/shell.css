@@ -737,10 +737,12 @@ button { font: inherit; }
 .catalogue-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
 .catalogue-card-name-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
 
-/* LE RAIL (B2.1a/d/g) — un INDICATEUR, jamais un bouton : le seul geste de
-   choix est le défilement (II.1). Pas de `cursor: pointer`, pas de bordure
-   de contrôle : rien ici ne doit avoir l'air cliquable, parce que rien ne
-   l'est. */
+/* LE RAIL (B2.1a/d/g) — ✅ IL SE TAPE, DEPUIS LE 2026-08-15 (Ch4). Eric :
+   *« ce serait bien de reporter ce fonctionnement aux classes et species »* —
+   celui de la ceinture, *« en scroll/tap »*. Le cran est donc un `<button>`,
+   et il a le `cursor: pointer` que l'ancienne note d'ici interdisait.
+   ⛔ Ce qu'il fait reste un DÉPLACEMENT (`snapTo`), pas un choix : le seul
+   geste qui acte un record est toujours le défilement (II.1). */
 /* ══ LE RAIL — 🔴 SES DEUX REMBOURRAGES S'EMPILENT, ET ÇA A TRONQUÉ UN NOM ══
    ✅ Eric, 2026-08-15 : le rail reste à **T2**, et son rembourrage cède.
    `Dragonborn` était COUPÉ à l'écran, vu sur sa capture.
@@ -783,6 +785,16 @@ button { font: inherit; }
    ⭐ LA DISTINCTION DU CRAN COURANT PASSE DONC AU VOILE, pas à l'encre :
    `simple` (35 %) pour les autres, `intermédiaire` (50 %) pour lui, plus la
    graisse. C'est ce que `B0.23` décrit — le régime de voile porte le rang. */
+/* 🔴 LES QUATRE LIGNES DE REMISE À ZÉRO DU BOUTON NE SONT PAS DU DÉCOR (Ch4).
+   Un `<button>` non désarmé arrive avec `border: 2px outset` : **4 px pris à
+   la colonne de texte**, qui tomberait de 74 à 70 — et `Dragonborn` (70,4 en
+   gras) se retronquerait, exactement le défaut que le garde 5 de
+   `fiche-360.test.mjs` a été écrit pour attraper. Il arrive AUSSI avec la
+   police et l'interlignage du système (`line-height: normal`), qui changent
+   la HAUTEUR du cran, donc le pas du rail, donc si les douze tiennent dans
+   les 493 px du slot. Mesuré après la bascule : 74 × 30, comme avant.
+   ⚠️ `appearance: none` est là pour iOS — Safari repeint les boutons à sa
+   façon, et Eric teste sur iPhone SE. */
 .catalogue-rail-item {
   font-size: var(--t2);
   color: var(--text);
@@ -790,6 +802,14 @@ button { font: inherit; }
   padding: var(--sp-8) 0;
   border-radius: var(--radius-sm);
   text-align: center;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
   /* ⭐ LE LISERÉ DE VERRE — Eric, 2026-08-15, maquette à l'appui : « le petit
      liseré argenté autour des dalles, qui donne une sensation de relief ».
      ⛔ EN `inset`, JAMAIS EN `border` : une bordure ajouterait 2 px à la

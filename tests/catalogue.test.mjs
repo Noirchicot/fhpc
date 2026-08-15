@@ -24,10 +24,20 @@
         aplatissant les deux écrans sur un seul contenu, ce qui serait une
         régression déguisée en factorisation.
 
+   ⭐ DEUX PREUVES DE PLUS, LE 2026-08-15 (les deux derniers chapitres) :
+     CH4. LE RAIL SE TAPE — et taper ne choisit pas. Le cran émet `snapTo`,
+        le même déplacement de champ que la molette de Compétences.
+     CH6. `CHOOSE` VALIDE LA FICHE — avec l'index de SA fiche, pas celui du
+        curseur ; `LORE` reste éteint ; et un écran à pied déclare
+        `fiche: true`, faute de quoi `shell.mjs` reposerait un `Validate`
+        à côté (ou pire : le retirerait d'un écran qui n'a pas de `CHOOSE`).
+
    🔴 SA LIMITE : il prouve qu'il n'y a qu'une implémentation et qu'elle sert
    les deux écrans. Il ne dit rien de l'aimantation elle-même — ni du rail
    qui suit le doigt : ça n'existe pas dans `tests/dom-stub.mjs` (aucune mise
-   en page) et se vérifie à l'œil, dans un navigateur servi. */
+   en page) et se vérifie à l'œil, dans un navigateur servi. C'est vrai aussi
+   du `Validate` qui disparaît (CH6) : `shell.mjs` n'est pas testé, seul le
+   navigateur peut dire qu'il n'y a plus qu'un bouton à l'écran. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -135,8 +145,15 @@ for (const cfg of ECRANS) {
 
   test(`B ter — ${cfg.kind} : le palier 1 ne produit AUCUN bouton de SÉLECTION (II.1)`, () => {
     /* Le défilement EST le choix, et c'est CETTE moitié-là de l'invariant
-       qui compte : aucun bouton de la fiche ne doit MENER à un record.
-       ⚠️ LOT 77 — LE GARDE S'EST RESSERRÉ, IL NE S'EST PAS RELÂCHÉ. Il
+       qui compte : aucun bouton de la fiche ne doit PORTER un record.
+       ⚠️ CH6, 2026-08-15 — « MENER À » ÉTAIT LE MOT D'AVANT, ET IL A CESSÉ
+       D'ÊTRE VRAI : `CHOOSE` mène désormais bel et bien au record, c'est
+       l'arbitrage d'Eric (il valide la fiche). Ce qui reste interdit, et que
+       ce garde tient, est plus précis : aucun bouton ne porte l'IDENTITÉ
+       d'un record. `CHOOSE` ne sait rien de la classe qu'il valide — il
+       connaît l'index de sa fiche, et c'est le catalogue qui traduit.
+       Remettre les douze options nommées du lot 42 rougirait toujours.
+       ⚠️ LOT 77 — LE GARDE S'ÉTAIT DÉJÀ RESSERRÉ, IL NE S'EST PAS RELÂCHÉ. Il
        exigeait « zéro bouton » ; les croquis du 2026-08-15 mettent `Lore` et
        `Choose` au pied de la fiche, et le gabarit leur donne T3 et la cible
        de 44 px. « Zéro bouton » ne pouvait donc plus rester la formulation.
@@ -189,6 +206,126 @@ test("C — les deux fiches ne montrent PAS les mêmes lignes : le catalogue est
      DESSIN de la fiche, ce qui rend cette preuve-ci plus utile qu'avant. */
   assert.equal([...classe].some((l) => espece.has(l)), false,
     `aucune ligne commune attendue — classe: ${[...classe].join(", ")} / espèce: ${[...espece].join(", ")}`);
+});
+
+/* ══ CH4 — LE RAIL SE TAPE, ET IL NE CHOISIT RIEN ═════════════════════
+   ✅ Eric, 2026-08-15 : *« ce serait bien de reporter ce fonctionnement aux
+   classes et species »* — le scroll/tap de la ceinture.
+
+   🔴 CE QUE CE GARDE TIENT, ET C'EST LA MOITIÉ QUI COMPTE : le renversement
+   de l'invariant II.1 porte sur la CLIQUABILITÉ du rail, PAS sur « le
+   défilement est le choix ». Un cran tapé émet `snapTo` — un déplacement de
+   champ — et rien d'autre. Le jour où quelqu'un le fera émettre un `choose`
+   « pour aller plus vite », ce test rougira, et c'est tout son objet.
+
+   ⚠️ Ce que ce garde ne peut PAS voir : que le cran est bien AMENÉ dans le
+   champ. Il n'y a pas de mise en page dans le stub — la géométrie se regarde
+   au navigateur, comme le dit la tête de ce fichier. */
+
+for (const cfg of ECRANS) {
+  test(`CH4 — ${cfg.kind} : un cran de rail tapé émet {snapTo, index} — et JAMAIS un choix`, () => {
+    const vus = [];
+    const rail = renderCatalogueRail(ctxDe(cfg, 0), (a) => vus.push(a));
+    const crans = rail.querySelectorAll(".catalogue-rail-item");
+    assert.equal(crans.length, 12);
+    /* Le 5ᵉ cran, pas le premier : un index câblé en dur passerait le test
+       sur le zéro et mentirait partout ailleurs. */
+    crans[4].click();
+    assert.deepEqual(vus, [{ kind: "snapTo", index: 4 }],
+      "⛔ un cran est un RACCOURCI DE DÉFILEMENT — s'il acte un record, II.1 est mort");
+    assert.equal(crans[4].tagName, "BUTTON",
+      "un cran qui se tape est un bouton : au clavier, au lecteur d'écran, et pas seulement à la souris");
+    /* La PROPRIÉTÉ, pas l'attribut : le stub ne reflète pas l'une dans
+       l'autre (un navigateur, si). C'est la propriété qu'on écrit. */
+    assert.equal(crans[4].type, "button", "jamais un `submit` par défaut");
+  });
+
+  test(`CH4 bis — ${cfg.kind} : le rail SANS destinataire se rend et se tape sans jeter`, () => {
+    /* Les gardes le rendent nu (`renderCatalogueRail(ctx)`), et un écran
+       pourrait le faire. Un cran qui jette au clic serait un plantage
+       introduit par un argument oublié. */
+    const rail = renderCatalogueRail(ctxDe(cfg, 0));
+    assert.doesNotThrow(() => rail.querySelectorAll(".catalogue-rail-item")[2].click());
+  });
+}
+
+/* ══ CH6 — `CHOOSE` EST LA VALIDATION DE LA FICHE ═════════════════════
+   L'arbitrage délégué par Eric le 2026-08-15 : des deux boutons qui ouvrent
+   la même porte, c'est `CHOOSE` qui reste (les croquis A et C ne dessinent
+   aucun `Validate` sur la fiche). `shell.mjs` retire le `Validate` générique
+   des écrans qui déclarent `fiche: true` — ce garde-ci tient les deux bouts
+   de cette dépendance, parce qu'un seul bout est un piège :
+     · un écran à pied SANS le drapeau → deux boutons pour une porte ;
+     · un écran AVEC le drapeau et SANS pied → un écran qu'on ne peut plus
+       valider du tout. C'est la faute qui coûte le plus cher des deux, et
+       elle est silencieuse (`shell.mjs` n'est pas testé : voir §RENDU). */
+
+for (const cfg of ECRANS) {
+  test(`CH6 — ${cfg.kind} : le CHOOSE d'une fiche émet {ficheChoose, index} — l'index de SA fiche`, () => {
+    const vus = [];
+    const cards = renderCatalogueCards(ctxDe(cfg, 0), cfg.body, (a) => vus.push(a));
+    const pieds = cards.querySelectorAll(".fiche-actions");
+    assert.equal(pieds.length, 12, "chaque fiche porte son pied");
+    /* La 8ᵉ fiche, curseur laissé à 0 : c'est LE point du chapitre — le
+       bouton pressé appartient à une fiche, et c'est cette fiche-là qui est
+       choisie, pas celle que le curseur du spy croit tenir. */
+    const choose = cards.querySelectorAll('[data-action="choose"]');
+    choose[7].click();
+    assert.deepEqual(vus, [{ kind: "ficheChoose", index: 7 }]);
+  });
+
+  test(`CH6 bis — ${cfg.kind} : CHOOSE s'allume avec son destinataire, LORE reste éteint`, () => {
+    const avec = renderCatalogueCards(ctxDe(cfg, 0), cfg.body, () => {});
+    const sans = renderCatalogueCards(ctxDe(cfg, 0), cfg.body);
+    const etat = (cards, role) => cards.querySelectorAll(`[data-action="${role}"]`).map((b) => b.disabled);
+
+    assert.deepEqual(etat(avec, "choose"), Array(12).fill(false),
+      "câblé, il répond — un bouton allumé qui ne fait rien est le « faux magasin » interdit");
+    assert.deepEqual(etat(sans, "choose"), Array(12).fill(true),
+      "sans destinataire, il s'annonce éteint plutôt que de mentir");
+    /* ⏳ `LORE` demande le panneau plein écran et son `copier` — un organe
+       partagé par trois écrans, qui a son propre lot. Il reste éteint MÊME
+       câblé, et ce garde est ce qui empêche de le « rallumer vite fait »
+       sur un panneau qui n'existe pas. */
+    assert.deepEqual(etat(avec, "lore"), Array(12).fill(true),
+      "LORE reste éteint tant que le panneau plein écran n'existe pas");
+  });
+
+  test(`CH6 ter — ${cfg.kind} : l'écran déclare \`fiche: true\`, et c'est ce que shell.mjs lit`, () => {
+    assert.equal(cfg.fiche, true,
+      "sans ce drapeau, `renderValidation` reposerait un `Validate` à côté de `CHOOSE`");
+  });
+}
+
+test("CH6 quater — ⚔️ un catalogue SANS pied ne déclare pas `fiche`, et garde son Validate", async () => {
+  /* Les deux autres catalogues (le don d'origine, les arcanes de Destiny)
+     ne passent pas par `renderFicheBody` : leurs cartes n'ont AUCUN pied,
+     donc aucun `CHOOSE`, donc leur `Validate` générique doit rester. C'est
+     la réciproque, et sans elle le drapeau pourrait se poser au hasard. */
+  const { renderFeatCardBody } = await import("../ui/builder/inheritance-step.mjs");
+  const { renderArcanaCardBody } = await import("../ui/builder/destiny-step.mjs");
+  const feats = fixture.report.decisions.find((d) => d.path === "background.originFeat[0]");
+  assert.ok(feats && feats.options.length > 0, "garde-fou de portée : le plan des dons publie ses options");
+
+  const cartes = renderCatalogueCards(
+    { decisions, query, path: "background.originFeat[0]", kind: "feat", cursor: 0 },
+    renderFeatCardBody, () => {}
+  );
+  assert.ok(cartes.querySelectorAll("[data-snap]").length > 0, "garde-fou : les cartes de dons sont bien rendues");
+  assert.equal(cartes.querySelectorAll(".fiche-actions").length, 0,
+    "le don d'origine n'a pas de pied — s'il en gagne un, il lui faut son drapeau, sinon deux boutons pour une porte");
+
+  /* Les arcanes : mêmes cartes, mêmes conclusions. ⚠️ Elles ne lisent pas
+     `decisions[]` (aucun plan ne les publie, mesuré au lot 45) — elles
+     passent par la porte étroite `ctx.options`, comme dans `shell.mjs`. */
+  const arcanes = (query({ kind: "arcana" }) || []).map((v) => v.id);
+  assert.ok(arcanes.length >= 20, `garde-fou de portée : les 22 arcanes majeurs (lu : ${arcanes.length})`);
+  const cartesArcanes = renderCatalogueCards(
+    { decisions, query, path: "fh.destiny.arcana", kind: "arcana", cursor: 0, options: arcanes },
+    renderArcanaCardBody, () => {}
+  );
+  assert.equal(cartesArcanes.querySelectorAll(".fiche-actions").length, 0,
+    "les arcanes non plus — leur écran garde son Validate générique");
 });
 
 test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couche est montée", () => {

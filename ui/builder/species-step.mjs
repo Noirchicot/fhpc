@@ -24,13 +24,13 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=2";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=2";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=3";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=3";
 
 /* ⏳ Même bouche-trou que Class, et c'est le point : la fiche est la même
    (« B3 = B2 »). Le jour où les images arrivent, elles arrivent pour les
    deux écrans au même endroit. */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=2";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=3";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -50,7 +50,10 @@ function tierLabel(value) {
   return typeof value === "string" && value.length > 0 ? value[0].toUpperCase() + value.slice(1) : value;
 }
 
-export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species" };
+/* `fiche: true` — même déclaration que Class, même raison (Ch6) : cet écran
+   passe par `renderFicheBody`, ses dalles portent `LORE` / `CHOOSE`, et
+   `CHOOSE` y remplace le `Validate` générique. « B3 = B2 », jusqu'au bout. */
+export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species", fiche: true };
 
 /** LE CORPS D'UNE FICHE D'ESPÈCE — lot 77. ⭐ C'EST EXACTEMENT LA FICHE DE
  *  CLASS, et c'est le point : `renderFicheBody` est écrit une fois, les deux

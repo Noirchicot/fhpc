@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=2";
+import { planAt } from "./carnet.mjs?v=3";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -71,25 +71,55 @@ export function recordName(query, kind, id) {
 }
 
 /* ══ LE RAIL (B2.1a/d/g) ═════════════════════════════════════════════════
-   ⛔ CE NE SONT PAS DES BOUTONS, et c'est une décision tenue depuis le lot
-   58 : les rendre cliquables poserait un geste qui MÈNE à un record en un
-   tap — très près de la sélection que l'invariant II.1 supprime. La lecture
-   stricte de B2.1d (« un scrollspy relie les deux : la gauche SUIT ce qu'on
-   regarde à droite ») dit un indicateur.
-   ⏳ La question est POSÉE À ERIC, non tranchée. Le jour où il dit oui, elle
-   se répare ICI, une fois, pour les deux écrans — c'est précisément ce que
-   l'extraction achète. */
-export function renderCatalogueRail(ctx) {
+   ✅ ÉRIC A RENVERSÉ L'INVARIANT, 2026-08-15 (Ch4) : *« ce serait bien de
+   reporter ce fonctionnement aux classes et species »* — le fonctionnement
+   de la CEINTURE, qu'il venait de valider : *« il fonctionne bien, il est en
+   scroll/tap »*. Le rail défile ET se tape, comme elle.
+
+   ⛔ CE QUI A CHANGÉ, ET CE QUI N'A PAS CHANGÉ. Ce qui change : le cran est
+   un `<button>`, il a un `cursor: pointer`, il s'atteint au Tab. Ce qui NE
+   change PAS : **taper un cran ne choisit rien**. Il émet `snapTo` — la
+   MÊME action que la molette de catégories de Compétences (B7.1), dont le
+   commentaire de `shell.mjs` dit déjà tout : *« il AMÈNE la section dans le
+   champ, il ne filtre rien »*. Le record n'est acté que par le cran
+   d'aimantation, donc par le spy, donc par le défilement (II.1). Un tap est
+   un RACCOURCI DE DÉFILEMENT, pas un geste de sélection.
+
+   📌 La note d'avant disait : *« le jour où il dit oui, elle se répare ICI,
+   une fois, pour les deux écrans — c'est précisément ce que l'extraction
+   achète »*. Il a dit oui, et la réparation tient en une ligne d'écouteur.
+   ⭐ Les QUATRE catalogues la reçoivent (Class, Species, Destiny en mode
+   « choose yourself », le don d'origine) et c'est correct : `snapTo` ne
+   touche ni le document ni le curseur, il ne fait que déplacer le champ.
+   Un raccourci de défilement est bon partout où il y a du défilement.
+
+   ⚠️ LE CROQUIS C PORTE UNE ANNOTATION QUI DIT L'INVERSE — *« ONLY
+   CLICKABLE »*, flèche pointée sur la ligne `SEARCH` en tête du rail (donc :
+   dans le rail, seule la recherche se clique). Elle est ANTÉRIEURE à la
+   phrase ci-dessus, qui la renverse explicitement ; c'est la parole d'Eric
+   qui tranche, et elle est notée ici pour que personne ne « corrige » ce
+   fichier d'après le vieux dessin. */
+export function renderCatalogueRail(ctx, onAction) {
   const options = catalogueOptions(ctx.decisions, ctx.path, ctx.options);
   if (options.length === 0) return null;
+  /* Un rail sans destinataire reste LISIBLE (les gardes le rendent nu) : le
+     cran existe, il ne mène simplement nulle part. */
+  const act = onAction || (() => {});
   const cursor = Number.isInteger(ctx.cursor) ? ctx.cursor : 0;
   const list = el("ol", "catalogue-rail");
   list.setAttribute("aria-label", ctx.label || "Catalogue");
   options.forEach((id, index) => {
-    const item = el("li", "catalogue-rail-item");
-    item.dataset.value = id;
-    item.setAttribute("aria-current", index === cursor ? "true" : "false");
-    item.append(text(recordName(ctx.query, ctx.kind, id)));
+    /* Le `<li>` est NU, le cran porte la classe : `.catalogue-rail-item` est
+       coté (74 px de texte, garde 5 de `fiche-360`), et déplacer la cote sur
+       une enveloppe la ferait mentir. Un `<button>` dans un `<li>` garde la
+       liste une liste — un `<button>` enfant direct d'un `<ol>` n'en est pas. */
+    const item = el("li", null);
+    const cran = el("button", "catalogue-rail-item", [text(recordName(ctx.query, ctx.kind, id))]);
+    cran.type = "button";
+    cran.dataset.value = id;
+    cran.setAttribute("aria-current", index === cursor ? "true" : "false");
+    cran.addEventListener("click", () => act({ kind: "snapTo", index }));
+    item.append(cran);
     list.append(item);
   });
   return list;
@@ -100,7 +130,7 @@ export function renderCatalogueRail(ctx) {
    (voir SOCLE.md). Il est posé ICI et nulle part ailleurs — un garde le
    prouve (`tests/catalogue.test.mjs`), même patron que `markPressed` au
    lot 57 : une brique, un écrivain, un garde. */
-export function renderCatalogueCards(ctx, renderCard) {
+export function renderCatalogueCards(ctx, renderCard, onAction) {
   const options = catalogueOptions(ctx.decisions, ctx.path, ctx.options);
   if (options.length === 0) return null;
   const cards = el("div", "catalogue-cards");
@@ -110,7 +140,7 @@ export function renderCatalogueCards(ctx, renderCard) {
      n'est pas porté — et sans toucher au contrat `data-snap`, partagé par
      cinq écrans (Destiny, Inheritance, Skills…). */
   cards.dataset.kind = ctx.kind;
-  for (const id of options) {
+  options.forEach((id, index) => {
     const card = el("section", "catalogue-card dalle-majeure");
     card.dataset.snap = ctx.kind;
     card.dataset.value = id;
@@ -128,8 +158,23 @@ export function renderCatalogueCards(ctx, renderCard) {
        15 août). Un attribut se lit partout. */
     card.dataset.infos = noeuds.some((n) => n && n.dataset && n.dataset.zone === "infos") ? "oui" : "non";
     for (const node of noeuds) card.append(node);
+    /* ⭐ CH6 — LE `CHOOSE` DE CETTE FICHE-CI, ET C'EST ICI QU'IL SE CÂBLE :
+       cette boucle est le SEUL endroit qui connaisse l'index de la fiche.
+       Le passer explicitement, plutôt que de laisser `shell.mjs` lire le
+       curseur du spy, ferme le seul écart possible entre « la fiche que le
+       doigt touche » et « la fiche que le curseur croit » — un écart qui
+       s'ouvre dès que le spy n'a pas encore relu (un volet masqué gèle
+       `requestAnimationFrame`, mesuré deux fois le 15 août).
+       ⛔ Les fiches SANS pied (Destiny, le don d'origine — leurs corps ne
+       passent pas par `renderFicheBody`) n'ont rien à câbler : la recherche
+       rend `null`, et leur écran garde son `Validate` générique. */
+    const choisir = card.querySelector('[data-action="choose"]');
+    if (choisir && typeof onAction === "function") {
+      choisir.disabled = false;
+      choisir.addEventListener("click", () => onAction({ kind: "ficheChoose", index }));
+    }
     cards.append(card);
-  }
+  });
   return cards;
 }
 
@@ -169,17 +214,41 @@ export function renderCardRows(rows) {
    tout ce qui les distingue (« B3 = B2 », loi du dépôt). */
 
 /** Le pied de la fiche : les deux actions du croquis, à T3 et à la cible
- *  tactile. ⏳ Elles ne sont pas encore CÂBLÉES — le panneau `lore` plein
- *  écran (et son `copier`) est un organe partagé par trois écrans, hors
- *  périmètre du lot 77, et `CHOOSE` ouvre le 2ᵉ palier que `Validate` ouvre
- *  déjà. `disabled` le DIT, au lieu de laisser croire à un geste : un
- *  bouton qui ne répond pas est pire qu'un bouton qui s'annonce éteint. */
+ *  tactile.
+ *
+ *  ⭐ `CHOOSE` EST DÉSORMAIS LA VALIDATION DE CET ÉCRAN (Ch6, arbitrage
+ *  délégué par Eric le 2026-08-15 : *« CHOOSE et Validate ouvrent la même
+ *  porte — lequel reste ? »*). Réponse : **CHOOSE**, et le `Validate`
+ *  générique disparaît des deux écrans à fiche. Trois raisons, dans l'ordre
+ *  de poids :
+ *    1. **Le croquis fait foi**, et NI le croquis A (Species) NI le croquis
+ *       C (Wizard) ne dessine de `Validate` sur la fiche — ils dessinent
+ *       `LORE` et `CHOOSE`, et le second est annoté *« leads to choice
+ *       screen »*, c'est-à-dire le 2ᵉ palier ;
+ *    2. **une porte, un bouton.** Deux boutons pour la même porte, à 10 px
+ *       l'un de l'autre, est le « faux magasin » que ce dépôt interdit ;
+ *    3. c'est la loi du lot B — *« chaque écran valide chez lui »* — que la
+ *       refonte 2 §1 a commencée en descendant `Validate` dans le contenu.
+ *       La fiche est allée jusqu'au bout : elle porte SON geste.
+ *
+ *  ⛔ `LORE` NE SUIT PAS, ET C'EST DIT PLUTÔT QUE BRICOLÉ. Il demande le
+ *  panneau plein écran avec son `copier` (croquis A : *« lore sends to full
+ *  page description either FH or SRD »*, avec un retour), un organe partagé
+ *  par trois écrans qui a son propre lot. Il reste `disabled` — un bouton
+ *  qui ne répond pas est pire qu'un bouton qui s'annonce éteint.
+ *
+ *  📌 `data-action` est un RÔLE, pas un record : c'est ce que
+ *  `renderCatalogueCards` cherche pour câbler le cran (et lui seul connaît
+ *  l'index de la fiche). Le garde du lot 77 interdit `data-value` sur ces
+ *  boutons — un rôle n'en est pas un, et rien ici ne porte d'identité de
+ *  classe ou d'espèce. */
 function renderFicheActions() {
   const pied = el("div", "fiche-actions");
   for (const mot of ["Lore", "Choose"]) {
     const bouton = el("button", "fiche-action", [text(mot)]);
     bouton.type = "button";
-    bouton.disabled = true;
+    bouton.dataset.action = mot.toLowerCase();
+    bouton.disabled = true;   // `renderCatalogueCards` rallume `choose` s'il a un destinataire
     pied.append(bouton);
   }
   return pied;

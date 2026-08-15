@@ -19,33 +19,33 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=2";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=2";
-import { mountPopup } from "./popup.mjs?v=2";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=2";
-import { rollAbilityBatch } from "./dice.mjs?v=2";
-import { renderConceptStep } from "./concept-step.mjs?v=2";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=2";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=2";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=3";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=3";
+import { mountPopup } from "./popup.mjs?v=3";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=3";
+import { rollAbilityBatch } from "./dice.mjs?v=3";
+import { renderConceptStep } from "./concept-step.mjs?v=3";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=3";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=3";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=2";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=2";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=2";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=2";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=2";
+} from "./catalogue.mjs?v=3";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=3";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=3";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=3";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=3";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=2";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=2";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=2";
+} from "./destiny-step.mjs?v=3";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=3";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=3";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=2";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=3";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -64,16 +64,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=2";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=2";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=3";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=2";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=2";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=3";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=3";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=2";
+import { versionQuery } from "./version.mjs?v=3";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -578,6 +578,31 @@ function applyDecisionAction(action) {
     if (cibles[action.index]) keepInView(frame.stage, cibles[action.index], "y-start");
     return;
   }
+  /* ⭐ CH4 — LE RAIL SE TAPE COMME LA CEINTURE (Eric, 2026-08-15 : « ce serait
+     bien de reporter ce fonctionnement aux classes et species »). Il n'y a
+     RIEN de plus à écrire ici : un cran de rail émet le `snapTo` ci-dessus, le
+     même que la molette de Compétences. Aucune action propre au rail n'existe,
+     et c'est le fond de l'affaire — taper un cran DÉPLACE LE CHAMP, il ne
+     choisit pas. Le record reste acté par le cran d'aimantation, donc par le
+     spy (II.3), donc par le défilement (II.1). */
+  /* ══ CH6 — `CHOOSE` EST LA VALIDATION DES DEUX ÉCRANS À FICHE ═══════════
+     L'arbitrage qu'Eric a délégué (« CHOOSE et Validate ouvrent la même
+     porte — lequel reste ? ») : CHOOSE reste, `Validate` disparaît de ces
+     écrans-là (voir `renderValidation`, et le pied de `catalogue.mjs` pour
+     les trois raisons).
+     ⭐ LE CURSEUR EST POSÉ AVANT LA PORTE, et c'est le geste qui compte : le
+     bouton pressé APPARTIENT à une fiche, et cette fiche-là connaît son
+     index. Lire le curseur du spy à la place marcherait presque toujours —
+     « presque » étant l'instant où le spy n'a pas relu (un volet masqué gèle
+     `requestAnimationFrame`). Le doigt tranche, jamais l'observateur.
+     ⛔ Aucun appel de verbe ici : `pressValidate` possède l'enchaînement des
+     paliers (I.4) et c'est LUI qui choisit — dupliquer sa logique donnerait
+     deux propriétaires de la même porte, la faute que `rollBatch` a payée. */
+  if (action.kind === "ficheChoose") {
+    state.cursor = action.index;
+    pressValidate();
+    return;
+  }
   /* B9 — une ligne de Review mène à son écran. Voir qu'il manque quelque
      chose sans pouvoir y aller ferait de Review un constat, pas un
      récapitulatif. */
@@ -951,7 +976,10 @@ function renderStepContent() {
     if (state.palier === 2) {
       section.append(cfg.choices(ctx, applyDecisionAction));
     } else {
-      const cards = renderCatalogueCards(ctx, cfg.cardBody);
+      /* Le 3ᵉ argument est le destinataire du `CHOOSE` de chaque fiche (Ch6).
+         Les catalogues sans pied (Destiny, don d'origine) ne s'en servent
+         pas : `renderCatalogueCards` ne trouve aucun bouton à câbler. */
+      const cards = renderCatalogueCards(ctx, cfg.cardBody, applyDecisionAction);
       if (cards) section.append(cards);
     }
     card.append(section);
@@ -1329,6 +1357,16 @@ function renderValidation() {
   /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
      Un bouton mort au bas de la dernière page ne dirait rien à personne. */
   if (STEPS[state.step].id === "review") return null;
+  /* ⭐ CH6 — LES DEUX ÉCRANS À FICHE VALIDENT CHEZ EUX. Le pied de la fiche
+     porte `CHOOSE`, qui ouvre EXACTEMENT la porte de ce bouton-ci ; les
+     garder tous les deux serait deux commandes pour un geste, à dix pixels
+     l'une de l'autre. Les croquis A et C ne dessinent que `LORE` / `CHOOSE`.
+     ⛔ SEULEMENT AU PALIER 1 : le 2ᵉ palier n'a plus de fiche (c'est le menu
+     des choix, B2.3), donc plus de `CHOOSE` — il garde ce bouton, et il en a
+     besoin. Le croquis C l'appelle `Choose your cantrips`, le croquis A
+     `Finish` : ⏳ le renommer par écran est un geste de plus, pas celui-ci. */
+  const fiche = catalogueCourant();
+  if (fiche && fiche.fiche && state.palier !== 2) return null;
   const gate = currentGate();
   const bouton = button("Validate", () => pressValidate());
   bouton.className = "valider-bouton";
@@ -1372,7 +1410,11 @@ function paintPopup() {
    comme la fiche. */
 function paintAside() {
   const cfg = catalogueCourant();
-  const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg)) : null;
+  /* CH4 — le rail reçoit le destinataire de ses `snapTo`. ⚠️ Il est RECONSTRUIT
+     à chaque `refresh()` (`swapContent` juste en dessous), donc ses écouteurs
+     meurent et renaissent avec lui : aucun ne fuit, aucun ne double. C'est le
+     slot qui persiste, pas son contenu (SOCLE.md). */
+  const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg), applyDecisionAction) : null;
   const show = Boolean(rail) && state.palier !== 2; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
   frame.area.dataset.aside = show ? "on" : "off";

@@ -20,15 +20,15 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=2";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=2";
-import { renderConfirmDialog } from "./confirm.mjs?v=2";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=3";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=3";
+import { renderConfirmDialog } from "./confirm.mjs?v=3";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — aucune n'existe encore (cotes
    visées 200 × 260, PNG transparent, Eric les produit). Le dos de carte des
    arcanes tient la place, et il porte la version du graphe comme tout ce que
    `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=2";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=3";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -59,7 +59,13 @@ const SPELL_QCMS = [
   { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell" }
 ];
 
-export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes" };
+/* `fiche: true` — CET ÉCRAN PASSE PAR `renderFicheBody`, donc ses douze
+   dalles portent le pied `LORE` / `CHOOSE` du croquis. C'est déclaré ICI, dans
+   le fichier qui appelle `renderFicheBody` (une brique, un écrivain), et c'est
+   ce que `shell.mjs` lit pour ne PAS y poser le `Validate` générique : sur un
+   écran à fiche, `CHOOSE` est la validation (Ch6). Destiny et le don d'origine
+   ne le déclarent pas — leurs cartes n'ont pas de pied, ils gardent `Validate`. */
+export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes", fiche: true };
 
 /** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.
  *
