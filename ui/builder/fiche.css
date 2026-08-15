@@ -84,7 +84,12 @@
      mesure : celle-ci a coûté la gouttière pendant deux lots.
      ⭐ Et ici l'objection tombe deux fois : marge comprise, la fiche vaut
      EXACTEMENT une scène. Le pas n'a pas bougé d'un pixel. */
-  --fiche-gouttiere: 8px;
+  /* ⛔ `--fiche-h` N'EST PAS DÉCLARÉE ICI, ET C'EST DÉLIBÉRÉ. Elle vit sur le
+     CONTENEUR (`.catalogue-cards[data-kind]`), parce que l'écart entre fiches
+     s'en sert aussi — et une variable descend, elle ne remonte pas. Déclarée
+     sur la fiche, `var(--fiche-h)` était vide côté conteneur, le `calc()`
+     devenait invalide et `row-gap` retombait sur `normal` **sans un mot** :
+     les voisines revenaient. Mesuré, pas déduit. */
 
   /* La dalle prend SA cote, elle ne prend plus toute la place offerte. Sans
      cette ligne elle mesurait 266 px (mesuré) : le contenu tombait juste
@@ -257,11 +262,36 @@
    (Eric) : quand la fiche vaut la scène, se coller en haut ET être centrée
    sont la même position. `scroll-snap-type: y mandatory` (shell.css) fait le
    reste — on relâche, ça se pose tout seul. Pas de calcul à écrire. */
+/* 🔴 F1 A UNE HAUTEUR FIXE — Eric, 2026-08-15 : *« il faut que cette fiche
+   ait une hauteur et un ratio constants pour être portable »*. La fiche ne
+   suit donc plus l'écran : **242 × 440**, ratio 0,55, partout.
+
+   ⭐ ET LE PAS VIENT DE L'ÉCART, PAS DE LA FICHE. C'est la seule façon de
+   tenir les DEUX exigences à la fois : une fiche fixe (portable) et jamais
+   une voisine à l'écran (sa décision d'avant). L'écart vaut « une scène
+   moins la fiche », donc le pas vaut exactement une scène — quelle que soit
+   la hauteur de l'écran, sans qu'aucun nombre ne le sache.
+
+   📐 Un pourcentage de `row-gap` se résout sur la HAUTEUR du conteneur (sa
+   dimension de bloc), et `.catalogue-cards` a une hauteur définie par la
+   chaîne `.stage → [data-bleed] → .catalogue-step`. C'est ce qui rend
+   l'expression possible sans JavaScript. ⚠️ Si un jour cette chaîne perd sa
+   hauteur définie, l'écart tombe à 0 EN SILENCE et les voisines
+   réapparaissent — le garde à écrire serait là.
+
+   ⭐ `center` et non `start` : la fiche étant plus courte que la scène, il
+   faut dire où elle se pose. Centrée, le fond se partage en haut et en bas —
+   c'est le cadre uniforme qu'Eric demande. Les voisines tombent alors
+   exactement sur les bords, donc invisibles. */
+.catalogue-cards[data-kind="class"],
+.catalogue-cards[data-kind="species"] {
+  --fiche-h: 440px;   /* F1 : 242 × 440, ratio 0,55 — la cote d'Eric */
+  row-gap: calc(100% - var(--fiche-h));
+}
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"] {
-  height: calc(100% - var(--fiche-gouttiere));
-  margin-block: calc(var(--fiche-gouttiere) / 2);
-  scroll-snap-align: start;
+  height: var(--fiche-h);
+  scroll-snap-align: center;
 }
 
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */

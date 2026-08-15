@@ -104,6 +104,12 @@ export function renderCatalogueCards(ctx, renderCard) {
   const options = catalogueOptions(ctx.decisions, ctx.path, ctx.options);
   if (options.length === 0) return null;
   const cards = el("div", "catalogue-cards");
+  /* Le GENRE du catalogue, sur le conteneur. ⭐ Une seule ligne, purement
+     additive : elle permet à `fiche.css` de ne servir sa géométrie qu'aux
+     deux écrans à fiche, sans `:has()` — qui échoue en silence là où il
+     n'est pas porté — et sans toucher au contrat `data-snap`, partagé par
+     cinq écrans (Destiny, Inheritance, Skills…). */
+  cards.dataset.kind = ctx.kind;
   for (const id of options) {
     const card = el("section", "catalogue-card dalle-majeure");
     card.dataset.snap = ctx.kind;
