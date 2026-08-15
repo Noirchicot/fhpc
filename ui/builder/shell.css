@@ -88,7 +88,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      📌 `main.stage` était déjà transparent, et c'est pour ça que la FICHE,
      elle, flottait visiblement. La preuve était à l'écran. */
   background: none;
-  border-bottom: 1px solid var(--border);
+  /* ⛔ ET PLUS DE BORDURE — Eric, 2026-08-15 : « les colonnes contenant les
+     carrousels, fais-les disparaître ». Un trait sous la ceinture la
+     redessinait comme une BARRE ; il ne doit rester que les dalles, posées
+     sur le fond. Le conteneur n'est pas un objet. */
   position: relative; /* la molette (§3f) mesure depuis ce parent-là */
 }
 .belt-chevron {
@@ -106,7 +109,11 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
-  gap: var(--sp-2);
+  /* ⭐ L'AIR D'ERIC — 2026-08-15 : « un peu plus d'air entre les dalles, de
+     la taille du "a" de Barde ». Mesuré au measureText : un « a » fait
+     8,52 px à T4 (la ceinture) et 6,62 px à T2 (le rail). `--sp-8` tombe
+     entre les deux ET sur la grille du dépôt. */
+  gap: var(--sp-8);
   overflow-x: auto;
   padding: var(--sp-8) 0;
   scroll-behavior: smooth;
@@ -118,10 +125,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      défilement. Navigateur trop vieux pour `safe` : déclaration ignorée,
      comportement d'avant ce lot. */
   justify-content: safe center;
-  /* L'amorce : dit qu'il y a du hors-champ (bible §4). Un masque n'est pas
-     une teinte — noir/transparent y encodent la VISIBILITÉ. */
-  mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black var(--sp-16), black calc(100% - var(--sp-16)), transparent);
+  /* ⛔ LE MASQUE D'AMORCE A ÉTÉ RETIRÉ — Eric, 2026-08-15 : « flouté bizarre
+     à droite et à gauche du belt ».
+     Il faisait fondre les 16 premiers et derniers pixels de la piste. Tant
+     que les crans n'étaient que du TEXTE, ça se lisait comme « il y a du
+     hors-champ » (bible §4). Depuis qu'ils sont des DALLES, il fait fondre
+     une SURFACE — et une surface qui s'efface ne se lit pas comme une
+     amorce, elle se lit comme un défaut de rendu.
+     ⭐ L'affordance n'est pas perdue : les chevrons ‹ › encadrent déjà la
+     piste (B0.2) et disent la même chose sans toucher aux dalles. */
 }
 /* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
    rangées-molettes (étapes, catégories de Compétences, catégories
@@ -168,12 +180,21 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   color: var(--text);
   font-size: var(--t4); /* CORRECTIF : rendait à 16px par défaut du navigateur (§0). Zéro changement visible — c'est déjà ce que le corps affiche */
   cursor: pointer;
+  /* ⭐ LE LISERÉ DE VERRE — Eric, 2026-08-15, maquette à l'appui : « le petit
+     liseré argenté autour des dalles, qui donne une sensation de relief ».
+     ⛔ EN `inset`, JAMAIS EN `border` : une bordure ajouterait 2 px à la
+     boîte, et ce dépôt a mesuré ce que ça coûte — 2 px de bordure
+     transparente avaient fait dériver les crans d'aimantation de 22 px sur
+     douze fiches (lot 60). Un liseré ne doit rien déplacer. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
 /* Le cran courant se distingue par son VOILE (intermédiaire, 50 %) et sa
    graisse, plus par son encre — `B0.23` : le régime de voile porte le rang.
    L'accent reste en lavis par-dessus : c'est la seule couleur de la ceinture,
    et elle ne porte aucun mot (⛔ l'accent ne survit pas sur du verre non plus). */
-.belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent-wash); }
+/* Le cran courant garde son liseré ET reçoit l'accent par-dessus : deux
+   ombres internes, la seconde par-dessus la première. */
+.belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
 /* B0.4 — « quand une étape est validée, son NUMÉRO passe en vert ». C'est le
    numéro seul qui change, pas la ligne : la ceinture disait « done » sur tout
    le libellé, ce qui rendait deux étapes faites indiscernables d'une étape
@@ -304,8 +325,9 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   left: 0; top: 0; bottom: 0;
   width: var(--rail-w);
   overflow-y: auto;
-  border-right: 1px solid var(--border);
-  /* Même raison que la ceinture : opaque, cette colonne couvrait l'image de
+  /* ⛔ Plus de bordure non plus : la colonne disparaît, seules ses dalles
+     restent (même consigne d'Eric).
+     Même raison que la ceinture : opaque, cette colonne couvrait l'image de
      fond et ses tuiles à 35 % ne rendaient rien. Le rail est une COLONNE DE
      DALLES posées sur le fond, pas un panneau plein qui en contient. */
   background: none;
@@ -717,7 +739,7 @@ button { font: inherit; }
 
    📌 Le rembourrage VERTICAL ne bouge pas : c'est lui qui donne au cran sa
    cible tactile. Seul l'horizontal était en trop. */
-.catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2); }
+.catalogue-rail { list-style: none; margin: 0; padding: var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-8); }
 /* ⭐ CHAQUE CRAN EST UNE DALLE TRANSPARENTE — Eric, 2026-08-15 (Ch2) :
    *« le menu de gauche doit être constitué de dalles transparentes »*, et son
    croquis d'espèce le disait déjà — *« le rail reste à gauche (tuiles
@@ -739,6 +761,13 @@ button { font: inherit; }
   padding: var(--sp-8) 0;
   border-radius: var(--radius-sm);
   text-align: center;
+  /* ⭐ LE LISERÉ DE VERRE — Eric, 2026-08-15, maquette à l'appui : « le petit
+     liseré argenté autour des dalles, qui donne une sensation de relief ».
+     ⛔ EN `inset`, JAMAIS EN `border` : une bordure ajouterait 2 px à la
+     boîte, et ce dépôt a mesuré ce que ça coûte — 2 px de bordure
+     transparente avaient fait dériver les crans d'aimantation de 22 px sur
+     douze fiches (lot 60). Un liseré ne doit rien déplacer. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
 .catalogue-rail-item[aria-current="true"] { background: var(--dalle-inter); font-weight: 600; }
 

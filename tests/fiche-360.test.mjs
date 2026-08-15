@@ -403,13 +403,30 @@ test("garde 5 — la feuille pose bien les deux rembourrages que le garde suppos
   /* ⛔ SANS CE TEST, LE GARDE 5 MESURE UNE COLONNE IMAGINAIRE. C'est la
      faute que le lot 77 a payée : un nombre juste, rapporté à une boîte que
      personne n'avait vérifiée. */
+  /* ⚠️ CES TROIS ASSERTIONS ONT ÉTÉ REPOINTÉES LE 2026-08-15, ET LE GARDE A
+     FAIT SON TRAVAIL EN ROUGISSANT. Eric : « dalles de classe trop près du
+     bord », puis « juste un espace d'un caractère, le "a" ». Les crans
+     commençaient à 2 px du bord de l'écran ; le rembourrage du rail passe
+     donc de `--sp-2` à `--sp-8`.
+
+     ⭐ ET LE NOMBRE DU GARDE, LUI, N'A PAS BOUGÉ : 74 px de texte. C'est
+     `--rail-w` qui a absorbé les 12 px (78 → 90), pas la colonne de texte —
+     sinon `Dragonborn` (70,4) se retronquait, ce que le garde 5 aurait
+     attrapé une ligne plus haut. Les deux tests se tiennent l'un l'autre :
+     celui-ci fige la BOÎTE, l'autre fige ce qu'on met dedans. */
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
-  assert.match(css, /\.catalogue-rail\s*\{[^}]*padding:\s*var\(--sp-8\)\s+var\(--sp-2\)/,
-    "la liste du rail : 2 px de rembourrage horizontal");
+  const jetons = fs.readFileSync(path.join(ROOT, "ui", "builder", "tokens.css"), "utf8");
+  assert.match(jetons, /--rail-w:\s*90px/,
+    "la colonne du rail : 90 px, dont 8 de rembourrage de chaque côté");
+  assert.match(css, /\.catalogue-rail\s*\{[^}]*padding:\s*var\(--sp-8\);/,
+    "la liste du rail : 8 px de rembourrage — l'espace d'un « a » demandé par Eric");
   assert.match(css, /\.catalogue-rail-item\s*\{[^}]*padding:\s*var\(--sp-8\)\s+0/,
-    "et le cran : aucun");
+    "et le cran lui-même : aucun rembourrage horizontal, sinon les 74 px fondent");
   assert.match(css, /\.catalogue-rail-item\s*\{[^}]*font-size:\s*var\(--t2\)/,
     "les noms sont à T2 — la décision d'Eric du 2026-08-15");
+  /* L'arithmétique, écrite comme un garde et pas comme un commentaire. */
+  assert.equal(90 - 8 - 8, RAIL_TEXTE_PX,
+    "90 − 8 − 8 doit valoir la largeur de texte que le garde 5 mesure");
 });
 
 /* ══ GARDE 6 — LA BANDE D'INFOS COMPLÉMENTAIRES (lot 78b) ════════════════

@@ -35,6 +35,16 @@
   --text-muted: #676258;
   --border-strong: #847d6e; /* bordures de CONTRÔLE — cible 3:1 sur --sunken */
   --border: #d3c7ad;        /* bordures de CARTE — décorative, aucune cible */
+  /* ⭐ LE LISERÉ DE VERRE — Eric, 2026-08-15, en montrant une maquette :
+     « le petit liseré argenté autour des dalles, qui donne une sensation de
+     relief ». C'est le filet clair d'une tuile de verre : il n'entoure pas la
+     dalle, il ATTRAPE LA LUMIÈRE sur son bord.
+     ⛔ Décoratif, AUCUNE cible de contraste : il ne porte jamais un mot. S'il
+     en portait un, la matrice du lot 59 s'appliquerait et il échouerait.
+     📌 Posé en `inset` partout où il sert : un liseré en `border` déplacerait
+     la géométrie de 2 px, et ce fichier a passé la journée à traquer ce genre
+     de dérive. */
+  --verre-lisere: rgba(255, 255, 255, .55);
   --accent: #845933;
   --on-accent: #ffffff;     /* ⚠️ JETON QUI BASCULE — jamais #fff en dur ailleurs */
   --positive: #326d4b;
@@ -161,7 +171,18 @@
      vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
      118 (`W. Prof. : 2` = 116 px). La grandeur Large garde ses 120 px : la
      contrainte n'est que celle des 360. */
-  --rail-w: 78px;
+  /* 78 → 90 — Eric, 2026-08-15 : « dalles de classe trop près du bord »,
+     puis « juste un espace d'un caractère, le "a" ». Mesuré : les crans du
+     rail commençaient à 2 px du bord de l'écran.
+     ⛔ LES 8 PX NE POUVAIENT PAS SORTIR DU RAIL SANS L'ÉLARGIR : le
+     rembourrage horizontal valait déjà `--sp-2`, et il avait été descendu là
+     exprès pour que `Dragonborn` (70,4 px à T2, le plus large des 24 noms)
+     tienne dans les 74 px utiles. Le remonter à 8 aurait ramené l'utile à 62
+     et retronqué le nom.
+        90 − 8 − 8 = 74 px utiles  →  Dragonborn tient, 3,6 px de marge
+     ⚠️ La fiche ne bouge pas d'un pixel — F1 est figée (242 × 440) ; c'est la
+     scène qui se resserre de 12 px, et elle en avait 27,5 de chaque côté. */
+  --rail-w: 90px;
 
   /* ══ LOT 59 — LE DÉCOR : le fond et les trois voiles ═══════════════════
      B0.23a/B0.23c — une image de fond FIXE, qui CONTRASTE avec le parchemin
@@ -224,6 +245,9 @@
     --text-muted: #928c7f;
     --border-strong: #746f62;
     --border: #37342d;
+    /* De nuit le liseré s'éteint : sur un fond sombre, 55 % de blanc ferait
+       un trait, pas un reflet. C'est la même mécanique que `--accent-wash`. */
+    --verre-lisere: rgba(255, 255, 255, .14);
     --accent: #bb804c;
     --on-accent: #14120e;
     --positive: #469d6a;
