@@ -4,10 +4,13 @@
    commentaire. » Deux nombres ont décidé la fiche à 360 px, et ils vivaient
    jusqu'ici dans un document :
 
-     · **340 caractères** — la boîte du blurb est FIXE à 10 lignes (160 px).
-       À 226 px de large en T2, une ligne porte ~36 caractères, donc ~365
-       avant débordement ; la limite est posée à 340 pour encaisser un mot
-       qui casse mal. (`GABARIT-360-CLASS-SPECIES.md` §2.)
+     · **320 caractères** — la boîte du blurb est FIXE à 10 lignes (160 px).
+       À 226 px de large en T2, une ligne porte 37 caractères (mesuré), donc
+       ~370 avant débordement. ⚠️ La limite était posée à **340** ; passée sur
+       les 24 fiches, elle s'est révélée verte ET inutile — trois blurbs
+       remplissaient déjà les dix lignes. **Eric l'a descendue à 320 le
+       2026-08-15** ; voir la doc de `LIMITE_BLURB`, plus bas.
+       (`GABARIT-360-CLASS-SPECIES.md` §2.)
      · **118 px** — la colonne de stats de la fiche (242 − 8 rembourrage −
        100 image − 8 écart − 8 rembourrage). Une ligne plus large déborde
        sur l'image. (§5 du gabarit, corrigé au croquis D.)
@@ -97,7 +100,29 @@ export function largeurLigneStats(label, value) {
   return largeurT2(`${label} :`, "gras") + largeurT2(` ${value}`, "normal");
 }
 
-const LIMITE_BLURB = 340;
+/* ✅ 340 → 320, tranché par Eric le 2026-08-15 (lot 78).
+   ⛔ LE MOTIF N'EST PAS LA PRUDENCE, C'EST UNE MESURE. Passé sur les 24
+   fiches, ce garde était vert 24/24 — et il ne protégeait rien : mesurés
+   dans la boîte RÉELLE de 226 px, druid (337), monk (333) et bard (332)
+   remplissaient DÉJÀ les dix lignes, pendant que le plus long des vingt-
+   quatre, le fighter (338), n'en prenait que neuf.
+   **Le compte de caractères n'ordonne pas les hauteurs** : une césure
+   malheureuse coûte une ligne entière. Un appareil dont la police résout un
+   poil plus large faisait déborder trois fiches en silence, garde vert.
+
+   📌 320 RESTE UN PROXY, et il s'assume comme tel — la vraie propriété est
+   le nombre de LIGNES RENDUES, et c'est elle que le garde 4 mesure sur les
+   traits (voir sa doc : là-bas, un plafond de caractères serait faux dans
+   les deux sens). Ici, un blurb est UN paragraphe qui coule : le proxy tient,
+   à condition de lui laisser de la marge. ⭐ Le jour où un blurb rougira à
+   320 alors qu'il tenait en 9 lignes, ce sera au proxy de céder, pas au
+   texte.
+
+   ⚠️ LES QUATRE TEXTES ONT ÉTÉ RÉÉCRITS POUR CE NOMBRE, pas l'inverse :
+   druid 337 → 303 · monk 333 → 299 · bard 332 → 317, et le **fighter
+   338 → 298 sur décision d'Eric** — c'est son texte (`provenance: "eric"`),
+   une seule subordonnée retirée, toutes ses autres images intactes. */
+const LIMITE_BLURB = 320;
 const LIMITE_LIGNE = 118;
 
 /* ══ GARDE 1 — LES 24 BLURBS ═════════════════════════════════════════════
@@ -112,12 +137,36 @@ export function blurbsTropLongs(fiches, limite = LIMITE_BLURB) {
     .map((f) => `${f.kind} ${f.who} : ${f.blurb.text.length} caractères`);
 }
 
-test("garde 1 — aucun des 24 blurbs ne dépasse 340 caractères", () => {
+/* 🔴 LE GARDE SUIT LA BOÎTE, PAS LE TYPE DE TEXTE — lot 78.
+   Depuis qu'Eric a donné la moitié basse d'une ESPÈCE à ses traits (croquis
+   A), les douze blurbs d'espèce **n'occupent plus la boîte de 160 px**. Leur
+   destination est le panneau `lore`, qui n'est pas construit et qui n'a
+   aucune raison d'être une boîte fixe de dix lignes.
+
+   ⛔ LES MESURER CONTRE 320 SERAIT MESURER LA MAUVAISE BOÎTE — la faute que
+   ce fichier existe pour interdire, retournée contre lui-même. Les douze
+   classes sont donc à 320 (le contenant réel, mesuré) ; les douze espèces
+   gardent leur **borne d'avant, 340**, en attendant leur contenant.
+   ⚠️ Ce n'est PAS un assouplissement : aucune espèce ne dépasse ce qu'elle
+   respectait déjà. C'est une borne provisoire qui se dit provisoire, plutôt
+   qu'un nombre juste appliqué au mauvais objet. */
+const LIMITE_BLURB_ESPECE = 340;
+
+test("garde 1 — aucun blurb de CLASSE ne dépasse 320 caractères (la boîte fixe)", () => {
   const fiches = les24Fiches();
   assert.equal(fiches.length, 24, "la couche fh-fiche-en doit porter 12 classes + 12 espèces");
-  assert.deepEqual(blurbsTropLongs(fiches), [],
+  const classes = fiches.filter((f) => f.kind === "class");
+  assert.equal(classes.length, 12);
+  assert.deepEqual(blurbsTropLongs(classes), [],
     "⛔ NE RABOTE PAS LE TEXTE. C'est du contenu qu'Eric a validé : nomme la fiche " +
     "et son nombre, et remonte-le-lui (commande du lot 77, §3).");
+});
+
+test("garde 1 bis — les blurbs d'ESPÈCE tiennent leur borne provisoire, en attendant le panneau `lore`", () => {
+  const especes = les24Fiches().filter((f) => f.kind === "species");
+  assert.equal(especes.length, 12);
+  assert.deepEqual(blurbsTropLongs(especes, LIMITE_BLURB_ESPECE), [],
+    "leur contenant n'existe pas encore — mais rien ne doit s'allonger en attendant");
 });
 
 test("⚔️ ATTAQUE — un blurb d'UN caractère de trop est vu, et il est NOMMÉ", () => {
@@ -125,7 +174,12 @@ test("⚔️ ATTAQUE — un blurb d'UN caractère de trop est vu, et il est NOMM
     { kind: "class", who: "pile", blurb: { text: "x".repeat(LIMITE_BLURB) } },
     { kind: "class", who: "unDeTrop", blurb: { text: "x".repeat(LIMITE_BLURB + 1) } }
   ];
-  assert.deepEqual(blurbsTropLongs(faux), ["class unDeTrop : 341 caractères"],
+  /* ⛔ LE NOMBRE SE DÉDUIT DE LA LIMITE, IL NE SE RECOPIE PAS. Il était écrit
+     « 341 » en dur : le jour où Eric a descendu la limite à 320, cette
+     attaque rougissait pour une raison qui n'avait rien à voir avec ce
+     qu'elle garde. Une constante recopiée à côté de sa source est la faute
+     que ce dépôt paie en boucle. */
+  assert.deepEqual(blurbsTropLongs(faux), [`class unDeTrop : ${LIMITE_BLURB + 1} caractères`],
     "le garde doit nommer la fiche fautive — et laisser passer celle qui tombe pile sur la limite");
 });
 

@@ -599,7 +599,7 @@
         "note": "Stats: SRD 5.2.1 (primary_ability Strength, hit_die 12, saves str/con, weapon_proficiencies 'Simple and Martial'->All, armor_training 'Light and Medium armor and Shields' compressed to Lt/Med/Shields, Weapon Mastery 'two kinds'->2) + fh-skills-en fh_skill_pool.base=12. Spells=none (no Spellcasting feature).",
         "changes": {
           "data.blurb": {
-            "text": "Rage isn't losing control—it's the only control a barbarian trusts. Pain fades, caution burns away, and the body remembers a violence older than any drilled stance. They shrug off blows that would drop an armored knight, then hit back twice as hard. No spellbook, no oath, no teacher: only fury, sharpened by every fight survived.",
+            "text": "Rage isn't losing control—it's the only control a barbarian trusts. Pain fades, caution burns away, and the body remembers a violence older than any drilled stance. They shrug off blows that would drop an armored knight, then hit back twice as hard. No spellbook, no oath: only fury, sharpened by every fight survived.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -763,7 +763,7 @@
         "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. NB: SRD 5.2.1 Weapon Mastery text actually says 'three kinds' (not two); kept Eric's '2' as instructed, not corrected.",
         "changes": {
           "data.blurb": {
-            "text": "Steel remembers what flesh forgets. Ten thousand strikes forge it. No spellbook, no arcane grammar—only muscle and discipline. They are the wall that never breaks, absorbing blows that fell lesser souls. Armor is their skin; courage is the spell. Knight, duelist, veteran—all built by practice, not birth. When magic fails, steel remains.",
+            "text": "Steel remembers what flesh forgets. Ten thousand strikes forge it. No spellbook, no arcane grammar—only muscle and discipline. They are the wall that never breaks. Armor is their skin; courage is the spell. Knight, duelist, veteran—all built by practice, not birth. When magic fails, steel remains.",
             "provenance": "eric"
           },
           "data[fiche_stats]": [
@@ -891,7 +891,7 @@
         "note": "Stats: SRD 5.2.1 (primary_ability 'Dexterity and Wisdom'->DEX/WIS, hit_die 10, saves str/dex, weapon All, armor 'Light and Medium armor and Shields'->Lt/Med/Shields, Weapon Mastery 'two kinds'->2) + fh-skills-en base=14. Spells=primal.",
         "changes": {
           "data.blurb": {
-            "text": "A ranger notices what the ground is trying to hide—a bent stalk, a wrong print, weather an hour before anyone else smells it. Half warrior, half quiet spellcaster, most dangerous at home, oddly at ease around animals that would bolt from anyone else. Rangers don't lead columns. They walk point, and everyone follows the boot prints.",
+            "text": "A ranger notices what the ground is trying to hide—a bent stalk, a wrong print, weather an hour before anyone else smells it. Half warrior, half quiet spellcaster, most dangerous at home, oddly at ease around animals that would bolt from anyone else. Rangers walk point, and everyone follows the boot prints.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -935,7 +935,7 @@
         "note": "Stats: SRD 5.2.1 (primary_ability Dexterity, hit_die 8, saves dex/int, weapon_proficiencies 'Simple weapons and Martial weapons that have the Finesse or Light property' compressed to Simple+FL, armor Light, Weapon Mastery 'two kinds'->2) + fh-skills-en base=18 (highest of all 12). Spells=none.",
         "changes": {
           "data.blurb": {
-            "text": "A rogue doesn't overpower a fight, they end it early—one clean opening turns an ordinary hit into the only hit that mattered. That same eye for the gap shows up in a lock, a lie, a guard's blind spot. Jack of a dozen trades and better still at leaving unseen, a rogue survives on always having a second way out already scouted.",
+            "text": "A rogue doesn't overpower a fight, they end it early—one clean opening turns an ordinary hit into the only hit that mattered. That same eye for the gap shows up in a lock, a lie, a guard's blind spot. Jack of a dozen trades and better at leaving unseen, a rogue survives on a second way out already scouted.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -979,7 +979,7 @@
         "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 6, saves con/cha, weapon Simple, armor None->none) + fh-skills-en base=12. Spells=arcane.",
         "changes": {
           "data.blurb": {
-            "text": "A sorcerer's magic showed up before any teacher could claim credit—inherited, inborn, or triggered by something that only happened once. It answers to instinct more than study: faster to reach for than a wizard's spell, harder to fully leash even after years of aiming it. Ask a sorcerer how it works and watch them shrug: it just does.",
+            "text": "A sorcerer's magic showed up before any teacher could claim credit—inherited, inborn, or triggered by something that only happened once. It answers to instinct more than study: faster to reach for than a wizard's spell, harder to leash even after years of aiming it. Ask how it works and watch them shrug: it just does.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -1019,7 +1019,7 @@
         "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 8, saves wis/cha, weapon Simple, armor 'Light armor'->Light) + fh-skills-en base=12. Spells=arcane.",
         "changes": {
           "data.blurb": {
-            "text": "Somewhere past the ordinary rules of magic sits a warlock's patron; what it cost to seal that deal is nobody else's business. Invocations are doors that shouldn't exist, forced open once and left unlocked—no study required, just payment made. The fine print stays private. What shows is the confidence of someone who no longer asks.",
+            "text": "Somewhere past the ordinary rules of magic sits a warlock's patron; what that deal cost is nobody else's business. Invocations are doors that shouldn't exist, forced open once and left unlocked—no study, just payment made. The fine print stays private. What shows is the confidence of someone who no longer asks.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -1059,7 +1059,7 @@
         "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived.",
         "changes": {
           "data.blurb": {
-            "text": "Weavers of arcane grammar, wizards bend reality through study, not birth. Spellbooks hold their power—lost pages mean lost magic. They shape fire, bend time, pierce minds, all through relentless intellect. Fragile in armor, mighty in will, they trade brute strength for the universe's deepest secrets, one spell slot at a time.",
+            "text": "Weavers of arcane grammar, wizards bend reality through study, not birth. Spellbooks hold their power—lost pages mean lost magic. They shape fire, bend time, pierce minds, through relentless intellect. Fragile in armor, mighty in will, they trade strength for the universe's deepest secrets, one spell slot at a time.",
             "provenance": "eric"
           },
           "data[fiche_stats]": [
