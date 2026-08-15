@@ -6,7 +6,7 @@
 <title>dice3d — banc d'essai</title>
 <link rel="stylesheet" href="./dice3d.css?v=1">
 <style>
-  :root { --ecart: 18px; --taille: 72px; }
+  :root { --ecart: 4px; --taille: 72px; }
   * { box-sizing: border-box; }
   body { margin: 0; padding: 16px; background: #354551; color: #eef2f6;
          font: 15px/1.45 system-ui, sans-serif; overflow-x: hidden; }
@@ -67,14 +67,14 @@
 
   <div class="reglages">
     <label>taille
-      <input id="rTaille" type="range" min="40" max="88" step="2" value="72">
+      <input id="rTaille" type="range" min="40" max="96" step="2" value="72">
       <output id="oTaille">72 px</output></label>
     <label>écart
-      <input id="rEcart" type="range" min="0" max="28" step="2" value="18">
-      <output id="oEcart">18 px</output></label>
+      <input id="rEcart" type="range" min="0" max="28" step="2" value="4">
+      <output id="oEcart">4 px</output></label>
     <label>pause/jet
-      <input id="rPause" type="range" min="1000" max="3000" step="100" value="2000">
-      <output id="oPause">2000 ms</output></label>
+      <input id="rPause" type="range" min="1000" max="3000" step="100" value="2500">
+      <output id="oPause">2500 ms</output></label>
   </div>
 
   <div id="resultats"></div>
@@ -185,19 +185,45 @@ $("son").onclick = async () => {
 };
 
 /* ── LES RÉGLAGES ─────────────────────────────────────────────────────── */
+/* ⚠️ CE QUI CONTRAINT LE PLATEAU N'EST PAS LA FENÊTRE, CE SONT LES BOUTONS.
+   Mesuré le 2026-08-15 : la colonne ROLL/ROLL 10 fait 80 px, CLEAR 70 px, et
+   la dalle n'offre que 312 px utiles à 360 (360 − 32 de marge − 16 de
+   rembourrage). Les dés n'ont donc pas la fenêtre pour eux : ils ont ce que
+   les boutons leur laissent. C'est la condition qu'Eric a posée —
+   « si ça ne gêne pas les boutons sur les côtés » — et elle se déclenche. */
+const B_ROLL10 = 80, B_CLEAR = 70, RESPIRE = 8;
 function mesurer() {
   $("oTaille").textContent = `${taille()} px`;
   $("oEcart").textContent = `${$("rEcart").value} px`;
   $("oPause").textContent = `${pause()} ms`;
   document.documentElement.style.setProperty("--taille", `${taille()}px`);
   document.documentElement.style.setProperty("--ecart", `${$("rEcart").value}px`);
-  const large = 3 * taille() + 2 * Number($("rEcart").value);
-  $("largeur").textContent =
-    `plateau ${large} px sur une fenêtre de ${window.innerWidth} px` +
-    ` — ${large <= window.innerWidth - 32 ? "✅ ça tient" : "⚠️ trop large"}`;
+
+  const dalle = Math.min(window.innerWidth, 360) - 32 - 16;
+  const plateau = 3 * taille() + 2 * Number($("rEcart").value);
+  const encadre = B_ROLL10 + RESPIRE + plateau + RESPIRE + B_CLEAR;  // A : tout sur une ligne
+  const seul = plateau;                                              // B : boutons sur leur rangée
+  $("largeur").innerHTML =
+    `plateau <b>${plateau} px</b> · dalle utile ${dalle} px<br>` +
+    `boutons de part et d'autre : ${encadre} px → ` +
+    (encadre <= dalle ? "✅" : `❌ il manque ${encadre - dalle}`) +
+    ` &nbsp;·&nbsp; boutons sur leur propre rangée : ${seul} px → ` +
+    (seul <= dalle ? `✅ il reste ${dalle - seul}` : `❌ il manque ${seul - dalle}`);
 }
-["rTaille", "rEcart", "rPause"].forEach((id) => { $(id).oninput = mesurer; });
-window.addEventListener("resize", mesurer);
+/* Eric, 2026-08-15 : « 72 avec 4 px d'écart sur mobile · 82 avec 4 px sur PC ».
+   Le défaut suit donc la largeur — mais une fois qu'il a touché le curseur,
+   on ne le lui reprend plus. */
+let curseurTouche = false;
+function defautSelonLargeur() {
+  if (curseurTouche) return;
+  $("rTaille").value = window.innerWidth >= 768 ? 82 : 72;
+  mesurer();
+}
+["rTaille", "rEcart", "rPause"].forEach((id) => {
+  $(id).oninput = () => { curseurTouche = true; mesurer(); };
+});
+window.addEventListener("resize", () => { defautSelonLargeur(); mesurer(); });
+defautSelonLargeur();
 mesurer();
 </script>
 </body>
