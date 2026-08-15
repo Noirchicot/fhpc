@@ -20,15 +20,15 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=1";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=1";
-import { renderConfirmDialog } from "./confirm.mjs?v=1";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=2";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=2";
+import { renderConfirmDialog } from "./confirm.mjs?v=2";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — aucune n'existe encore (cotes
    visées 200 × 260, PNG transparent, Eric les produit). Le dos de carte des
    arcanes tient la place, et il porte la version du graphe comme tout ce que
    `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=1";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=2";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -84,6 +84,19 @@ export function renderClassCardBody(query, id) {
   return renderFicheBody({
     stats: data.fiche_stats,
     blurb: data.blurb && data.blurb.text,
+    /* ⭐ LA BANDE D'INFOS, CÔTÉ CLASSE (lot 78b). Le MÊME organe que chez
+       l'espèce — `renderFicheBody` ne sait pas qui l'appelle, et la feuille
+       cotait déjà le gabarit « avec infos » sur une CLASSE (« la bande
+       consomme exactement le mou d'une classe », fiche.css). Elle n'était
+       simplement branchée nulle part ici : la couche portait les mots, et
+       l'écran ne les descendait pas.
+       ⛔ ET CE N'EST PAS UN ORGANE DE DÉCISION — Eric, 2026-08-15 : « on ne
+       choisit pas de subclass au 1er niveau ». La bande ANNONCE (une
+       sous-classe, au niveau 3), elle n'invite pas ; le choix, lui, n'existe
+       ni ici ni dans le carnet. Comme partout, le tri est dans la COUCHE :
+       une classe sans `fiche_infos` n'aurait pas de bande, et sa fiche
+       centrerait son blurb toute seule. */
+    infos: data.fiche_infos,
     image: DOS_DE_CARTE,
     imageAlt: ""
   });

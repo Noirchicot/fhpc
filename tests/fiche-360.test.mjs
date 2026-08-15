@@ -59,6 +59,11 @@ const ROOT = path.join(HERE, "..");
 
 const fiche = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "fh-fiche-en.layer.json"), "utf8"));
 const METRIQUE = JSON.parse(fs.readFileSync(path.join(HERE, "fixtures", "avances-t2.json"), "utf8"));
+/* La SOURCE des comptes que la bande d'infos annonce (garde 6 bis). ⛔ Un
+   nombre recopié d'un document n'est pas une donnée : ce qui peut être
+   confronté au SRD l'est ici, et ce qui ne le peut pas se dit à voix haute
+   dans la doc du garde plutôt que de passer pour vérifié. */
+const SRD = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
 
 /** Les 24 fiches, à plat : `{kind, id, who, blurb, stats}`. Lues dans la
  *  COUCHE et pas dans une liste écrite ici — une fiche ajoutée demain entre
@@ -70,7 +75,12 @@ export function les24Fiches() {
       out.push({
         kind, id, who: id.split(":").pop(),
         blurb: rec.changes["data.blurb"],
-        stats: rec.changes["data[fiche_stats]"]
+        stats: rec.changes["data[fiche_stats]"],
+        /* ⚠️ LU TEL QUEL, `undefined` COMPRIS — l'ABSENCE est un état normal
+           de la bande d'infos (garde 6), pas un trou à combler par `[]` :
+           un repli à la liste vide effacerait ici la distinction même que le
+           garde 6 existe pour tenir. */
+        infos: rec.changes["data[fiche_infos]"]
       });
   return out;
 }
@@ -400,4 +410,173 @@ test("garde 5 — la feuille pose bien les deux rembourrages que le garde suppos
     "et le cran : aucun");
   assert.match(css, /\.catalogue-rail-item\s*\{[^}]*font-size:\s*var\(--t2\)/,
     "les noms sont à T2 — la décision d'Eric du 2026-08-15");
+});
+
+/* ══ GARDE 6 — LA BANDE D'INFOS COMPLÉMENTAIRES (lot 78b) ════════════════
+   La bande vit sous le bloc haut, pleine largeur, et la feuille la cote :
+   **40 px de haut**, **226 px de large** (242 de dalle − 2 × 8 de
+   rembourrage), texte à T2. Soit **deux entrées d'une ligne**, étiquette en
+   gras + valeur en normal — exactement la forme d'une ligne de stats.
+
+   ── CE QUE CE GARDE TIENT, ET POURQUOI CHACUN ──────────────────────────
+   1. **Une entrée tient dans 226 px.** Même faute que la colonne de stats,
+      autre boîte : une entrée trop large déborde de la bande.
+   2. **Deux entrées au maximum.** 40 px = deux lignes de 16 et leur air ; la
+      troisième sort de la bande et pousse le blurb.
+   3. **Une bande PRÉSENTE n'est jamais VIDE.** 🔴 C'est le garde qui compte
+      le plus, et il ne protège pas du texte : il protège la GRILLE. Sept
+      espèces sur douze n'offrent aucun lignage et n'ont donc PAS de bande —
+      et c'est cette absence qui fait basculer la fiche sur l'autre gabarit
+      (`data-infos="non"`, blurb centré). Une bande présente mais vide
+      passerait le gabarit « oui » en réservant 40 px pour rien : un faux
+      magasin, qui casse la mise en page sans rougir.
+      ⭐ D'où la lecture BRUTE dans `les24Fiches` : `undefined` (pas de
+      bande) et `[]` (bande vide) sont deux états DIFFÉRENTS, et le garde
+      accepte le premier, refuse le second.
+
+   ── LA GOUTTIÈRE EST MESURÉE, PAS DEVINÉE ──────────────────────────────
+   ⛔ `largeurLigneStats` ne convient PAS ici, et l'écart va dans le mauvais
+   sens. Elle modélise l'écart étiquette/valeur par une ESPACE (3,375 px à
+   T2) parce que la colonne de stats colle ses deux boîtes ; la bande, elle,
+   pose une vraie gouttière flex de `var(--sp-4)` = **4 px**. Réutiliser la
+   ligne de stats sous-estimerait donc chaque entrée de 0,625 px — petit,
+   mais du côté qui laisse passer. La gouttière est reprise du CSS, et le
+   dernier test de ce garde vérifie qu'elle y est encore. */
+
+const BANDE_PX = 226;          // 242 (--fiche-dalle-w) − 2 × 8 (padding)
+const INFOS_MAX = 2;           // 40 px (--fiche-infos-h) / 16
+const GOUTTIERE_INFOS = 4;     // `.fiche-info-row { gap: var(--sp-4) }`
+
+/** Une entrée de la bande telle que la fiche la pose : l'étiquette en GRAS
+ *  avec son deux-points, la gouttière de 4 px, puis la valeur en normal. */
+export function largeurLigneInfos(label, value) {
+  return largeurT2(`${label} :`, "gras") + GOUTTIERE_INFOS + largeurT2(value, "normal");
+}
+
+/** Les fiches dont la bande est fautive, NOMMÉES avec leur nombre — fonction
+ *  pure, comme `blurbsTropLongs` et `traitsTropLongs` : les 24 fiches réelles
+ *  et les attaques passent par le MÊME code. Une fiche SANS bande n'est pas
+ *  fautive : c'est l'état de sept espèces sur douze. */
+export function bandesFautives(fiches, largeur = BANDE_PX, max = INFOS_MAX) {
+  const out = [];
+  for (const f of fiches) {
+    if (f.infos === undefined || f.infos === null) continue;   // pas de bande : normal
+    if (!Array.isArray(f.infos) || f.infos.length === 0) {
+      out.push(`${f.kind} ${f.who} : bande présente et VIDE`);
+      continue;
+    }
+    if (f.infos.length > max) out.push(`${f.kind} ${f.who} : ${f.infos.length} entrées pour ${max}`);
+    for (const ligne of f.infos) {
+      if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") {
+        out.push(`${f.kind} ${f.who} : une entrée sans label ou sans value`);
+        continue;
+      }
+      const w = largeurLigneInfos(ligne.label, ligne.value);
+      if (w > largeur) {
+        out.push(`${f.kind} ${f.who} — « ${ligne.label} : ${ligne.value} » = ${w.toFixed(1)} px pour ${largeur}`);
+      }
+    }
+  }
+  return out;
+}
+
+test("garde 6 — aucune bande d'infos ne déborde, n'excède 2 entrées, ni n'est vide", () => {
+  assert.deepEqual(bandesFautives(les24Fiches()), [],
+    "⛔ NE RABOTE PAS L'ÉTIQUETTE TOUT SEUL : la bande fait 226 px et deux lignes. " +
+    "Nomme la fiche et son nombre, et remonte-le (commande du lot 77, §3).");
+});
+
+test("garde 6 — QUI porte une bande : les douze classes, et CINQ espèces sur douze", () => {
+  /* 📌 Le partage lui-même est une décision, donc un garde. Les sept espèces
+     sans lignage n'ont PAS de bande, et c'est leur absence qui centre leur
+     moitié basse — l'inverse (une bande vide) passerait le garde du dessus
+     ligne à ligne tout en cassant la grille. */
+  const fiches = les24Fiches();
+  const avec = fiches.filter((f) => f.infos !== undefined).map((f) => `${f.kind} ${f.who}`).sort();
+  const sans = fiches.filter((f) => f.infos === undefined).map((f) => f.who).sort();
+  assert.equal(avec.filter((x) => x.startsWith("class ")).length, 12,
+    "les douze classes portent leur bande — le SRD leur donne toutes une sous-classe");
+  assert.deepEqual(sans, ["araag", "dwarf", "elestu", "halfling", "human", "loroka", "orc"],
+    "les sept espèces qui n'offrent AUCUN lignage, ni au SRD ni dans fh-species-en");
+  assert.equal(avec.length, 17);
+});
+
+test("garde 6 bis — les comptes annoncés sont ceux de la DONNÉE, pas d'un document", () => {
+  /* ⭐ « C'est le genre de nombre qu'on recopie de travers » — Eric. Ce qui
+     est STRUCTURÉ dans le SRD est confronté ici :
+       · elf et tiefling portent `data.lineages`, une vraie liste ;
+       · les douze classes portent `data.subclass`, un objet UNIQUE, plus une
+         aptitude de niveau 3 nommée « <Classe> Subclass ».
+     ⚠️ CE QUI N'EST PAS MESURABLE ICI EST DIT, PAS SIMULÉ : les lignages du
+     dragonborn (10), du goliath (6) et du gnome/Hoddon (2) ne sont PAS des
+     données — ils vivent dans la PROSE d'un trait (la table « Draconic
+     Ancestors », les six « (… Giant) », les deux « … Gnome. »). Les compter
+     demanderait de lire de l'anglais à la regex, et un analyseur fragile qui
+     verdit sur un SRD reformaté est pire qu'un compte à la main assumé.
+     Ces trois-là ont été comptés à la main dans le texte du trait. */
+  const infosDe = (kind, who) => les24Fiches().find((f) => f.kind === kind && f.who === who).infos;
+
+  for (const who of ["elf", "tiefling"]) {
+    const lineages = SRD.records.species[`srd:species:en:${who}`].data.lineages;
+    assert.equal(infosDe("species", who)[0].value, `${lineages.length} types`,
+      `${who} annonce un compte que la liste \`data.lineages\` du SRD ne porte pas`);
+  }
+
+  for (const [id, rec] of Object.entries(SRD.records.class)) {
+    const who = id.split(":").pop();
+    assert.equal(typeof rec.data.subclass, "object");
+    assert.ok(!Array.isArray(rec.data.subclass) && typeof rec.data.subclass.name === "string",
+      `${who} : le SRD porte UNE sous-classe nommée, pas une liste — c'est d'elle que vient « 1 type »`);
+    const niveaux = rec.data.features.filter((f) => f.name.toLowerCase().endsWith(" subclass")).map((f) => f.level);
+    assert.deepEqual(niveaux, [3],
+      `${who} : « at level 3 » vient de l'aptitude « ${rec.data.name} Subclass », et d'elle seule`);
+    assert.deepEqual(infosDe("class", who), [{ label: "Subclass", value: "1 type, at level 3" }],
+      `${who} : la bande annonce ce que la donnée porte — une sous-classe, au niveau 3`);
+  }
+});
+
+test("⚔️ ATTAQUE — garde 6 : les trois fautes sont vues, et NOMMÉES", () => {
+  /* Chacune des trois propriétés a son attaque, et une fiche saine passe à
+     côté de chacune — sinon le garde ne prouve rien. */
+  const saine = { kind: "species", who: "ok", infos: [{ label: "Lineages", value: "10 types" }] };
+  const absente = { kind: "species", who: "sansBande" };            // sept espèces réelles
+  assert.deepEqual(bandesFautives([saine, absente]), [],
+    "la plus large des bandes réelles passe, et l'ABSENCE de bande n'est pas une faute");
+
+  const large = { kind: "class", who: "tropLarge", infos: [{ label: "Subclass", value: "Warrior of the Open Hand (level 3)" }] };
+  assert.equal(largeurLigneInfos("Subclass", "Warrior of the Open Hand (level 3)") > BANDE_PX, true,
+    "mesure : nommer la sous-classe du moine ET son niveau ne tient PAS dans la bande");
+  assert.equal(bandesFautives([large]).length, 1, "et le garde la refuse");
+
+  const trois = { kind: "class", who: "troisEntrees", infos: [
+    { label: "Subclass", value: "1 type" }, { label: "Subclass", value: "1 type" }, { label: "Subclass", value: "1 type" }
+  ] };
+  assert.deepEqual(bandesFautives([trois]), ["class troisEntrees : 3 entrées pour 2"]);
+
+  const vide = { kind: "species", who: "fauxMagasin", infos: [] };
+  assert.deepEqual(bandesFautives([vide]), ["species fauxMagasin : bande présente et VIDE"],
+    "⛔ la faute qui ne se voit pas à l'œil : elle passe le gabarit « oui » et réserve 40 px pour rien");
+});
+
+test("⚔️ ATTAQUE — garde 6 : la gouttière de 4 px n'est pas une espace de 3,375", () => {
+  /* La sous-estimation que `largeurLigneStats` introduirait ici. Elle est
+     petite ET du mauvais côté : le garde doit mesurer la vraie gouttière. */
+  const espace = largeurLigneStats("Subclass", "1 type, at level 3");
+  const gouttiere = largeurLigneInfos("Subclass", "1 type, at level 3");
+  assert.ok(gouttiere > espace, "la gouttière flex coûte plus large que l'espace du modèle de stats");
+  assert.ok(Math.abs((gouttiere - espace) - (GOUTTIERE_INFOS - METRIQUE.avances.normal[" "])) < 1e-9,
+    "et l'écart est exactement celui des deux modèles — 4 px contre l'avance mesurée de l'espace");
+});
+
+test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
+  /* ⛔ SANS CE TEST, LE GARDE 6 MESURE UNE BANDE IMAGINAIRE — la faute du
+     lot 77, dont le garde 5 porte déjà la leçon : un nombre juste, rapporté
+     à une boîte que personne n'avait vérifiée. Si Eric bouge une de ces
+     cotes, ce test rougit, et c'est le comportement voulu : les nombres du
+     garde ont bougé avec elle. */
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "fiche.css"), "utf8");
+  assert.match(css, /--fiche-dalle-w:\s*242px/, "la dalle : 242 px, dont 226 utiles");
+  assert.match(css, /--fiche-infos-h:\s*40px/, "la bande : 40 px, soit deux lignes à T2");
+  assert.match(css, /\.fiche-info-row\s*\{[^}]*gap:\s*var\(--sp-4\)/, "la gouttière étiquette/valeur : 4 px");
+  assert.match(css, /\.fiche-info-row dt\s*\{[^}]*font-weight:\s*600/, "l'étiquette est en GRAS — le poids que le garde mesure");
 });
