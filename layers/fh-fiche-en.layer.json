@@ -1,0 +1,827 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-fiche-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Fiche (EN)",
+  "lang": "en",
+  "flags": [],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds `data.blurb` and `data.fiche_stats` fields to the species and class records defined in the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd, licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode, and to the Araag, Elestu and Loroka species original to Fate's Hand. No SRD text is reproduced anywhere in this layer: every blurb is original prose, at most informed by SRD and fh-lore-en concepts summarized in the author's own words, and every fiche_stats value is a compressed derivation of SRD 5.2.1 mechanical data and Fate's Hand skill-pool data (fh-skills-en)."
+  },
+  "description": "Compressed character-sheet text for the twelve playable species and twelve classes of Fate's Hand: a ~50-word blurb (data.blurb) and a compact stat block (data.fiche_stats) sized for the 360px character builder screen. Two records (wizard, fighter) reproduce Eric's own hand-written reference text verbatim (provenance: \"eric\"); the other twenty-two are original Fate's Hand prose (provenance: \"fh-original\").",
+  "records": {
+    "species": {
+      "srd:species:en:dragonborn": {
+        "op": "patch",
+        "note": "SRD 5.2.1 species data: creature_type Humanoid, size Medium, speed 30ft, Draconic Ancestry trait (10 named dragon colors) -> Lineages compressed to a count ('10 types') rather than listing all 10, for width. fh-species-en patch only touches destiny, not size/speed/type.",
+        "changes": {
+          "data.blurb": {
+            "text": "A dragonborn's ancestor is an idea more than a specific dragon—an inherited breath weapon, hide to match it, and a posture that never apologizes for the room it takes. Scale color spans the old dragon families, jet to gold, and matters less than a stranger's own bearing. Test either trait, and the temper shows up fast.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            },
+            {
+              "label": "Lineages",
+              "value": "10 types"
+            }
+          ]
+        }
+      },
+      "srd:species:en:dwarf": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "changes": {
+          "data.blurb": {
+            "text": "Dwarves don't rush, having outlasted enough hurried kingdoms already—history gets measured here in mined seams, not crowned heads. Poison barely slows one down, and eyes built for lightless tunnels see twice as far as most. A dwarf never loses track of who owes what to whom. Settle a debt cleanly, and the friendship lasts.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "srd:species:en:elf": {
+        "op": "patch",
+        "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency.",
+        "changes": {
+          "data.blurb": {
+            "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, slowly, without breaking it. Sleep is optional; a few hours of trance covers it, and charm mostly slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age—alarming, given how much age an elf gets.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            },
+            {
+              "label": "Lineages",
+              "value": "3 types"
+            }
+          ]
+        }
+      },
+      "srd:species:en:gnome": {
+        "op": "patch",
+        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows.",
+        "changes": {
+          "data.blurb": {
+            "text": "Meeting a Hoddon is rare, by design—the little folk keep their holds hidden and their business private. Charm, threats, and clever lies mostly bounce off a Hoddon's mind mid-sentence. Some lean toward the deep woods and what lives there, others toward small ingenious contraptions. Either way, trust is earned slowly.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Small"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            },
+            {
+              "label": "Lineages",
+              "value": "2 types"
+            }
+          ]
+        }
+      },
+      "srd:species:en:goliath": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, Medium, speed 35ft (NB: differs from the 30ft default of every other species here). Giant Ancestry trait (6 named giant types) -> Lineages compressed to '6 types'.",
+        "changes": {
+          "data.blurb": {
+            "text": "A goliath's home is wherever the giants haven't burned down yet—hence the build, tall enough to meet most threats eye to eye, and the habit of never settling. Giant blood surfaces when a fight turns ugly, lending power few humanoids can match. Underneath sits an oddly modest wish: a roof that won't need rebuilding next season.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "35 ft"
+            },
+            {
+              "label": "Lineages",
+              "value": "6 types"
+            }
+          ]
+        }
+      },
+      "srd:species:en:halfling": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, Small, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "changes": {
+          "data.blurb": {
+            "text": "Halflings prove patience beats size—the same valley farmed quietly long after the empire next door has fallen twice. Knocked down, a halfling gets up without drama, catching fewer bad breaks than seems fair. Small enough to vanish behind cover that wouldn't hide anyone else, a halfling is easy to underestimate exactly once.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Small"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "srd:species:en:human": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> compressed to 'Med/Small'. No lineage-choice trait -> Lineages omitted.",
+        "changes": {
+          "data.blurb": {
+            "text": "Humans are the species that got wiped off the map once and simply refused to stay gone. Badly outnumbered by older peoples, they make up for it in volume: cities built in a hurry, arguments louder than needed, ambitions well past what the numbers justify. Having survived erasure once, a human treats most setbacks as background noise.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Med/Small"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "srd:species:en:orc": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "changes": {
+          "data.blurb": {
+            "text": "What outsiders call ferocity is usually just stamina nobody else can match—orcs hold the hard country because they refuse to quit first. The body backs it: a burst of speed under pressure, a refusal to drop the first time death looks likely. An orc sizes people up fast; the only real question is what they can carry, and how far.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "srd:species:en:tiefling": {
+        "op": "patch",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> compressed to 'Med/Small'. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'.",
+        "changes": {
+          "data.blurb": {
+            "text": "A tiefling's mark reads as trouble before they've done anything to earn it, which teaches most tieflings to charm early, since trust arrives slowly either way. Underneath the easy manner sits something genuinely uncanny: a bloodline granting its own resistance, eyes at home in full dark, and a small trick of magic worth one gesture.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Med/Small"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            },
+            {
+              "label": "Lineages",
+              "value": "3 types"
+            }
+          ]
+        }
+      },
+      "fh:species:en:araag": {
+        "op": "patch",
+        "note": "fh-species-en (wholly FH-original record, not an SRD patch): creature_type Humanoid, size Medium, speed 30ft. No lineage-choice trait -> Lineages row omitted. Blurb consistent with fh-lore-en araag lore (Harvest, cost-free soulgem bond, necrotic resistance, darkvision, fast learner).",
+        "changes": {
+          "data.blurb": {
+            "text": "Araags wear the Harvest that ended the last free humans as a mark, not a memory—a soulgem binds into their flesh at no cost, necrotic wounds barely register, and their eyes still read the dark their ancestors fled. Common in the Empire sharing their name, eyed with suspicion beyond it, an Araag learns fast from survival, not ambition.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "fh:species:en:elestu": {
+        "op": "patch",
+        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en elestu lore (never-elf, elf+human/Araag parentage, university/Moonkeeper circles, fast learner, charm resistance, trance).",
+        "changes": {
+          "data.blurb": {
+            "text": "An elf paired with a human, or with an Araag, never produces another elf—a fact Elestu spend energy correcting. Too mortal for elves, too strange for everyone else, they cluster around lecture halls and moonlit circles instead: fast learners, charm-resistant, needing no real sleep. Two worlds beats belonging fully to either.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      },
+      "fh:species:en:loroka": {
+        "op": "patch",
+        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en loroka lore (Theymoron highlands, largest population in the capital, Relentless Endurance, soldiering when asked).",
+        "changes": {
+          "data.blurb": {
+            "text": "Loroka worked these terraced hills long before the country had a name, and stayed—today they outnumber every other people in its capital. Knocked to the edge of death, a Loroka's body finds one more breath out of pure stubbornness. Called to the Front, a Loroka picks up a spear, then goes home and picks the hoe back up.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Creature Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
+            },
+            {
+              "label": "Speed",
+              "value": "30 ft"
+            }
+          ]
+        }
+      }
+    },
+    "class": {
+      "srd:class:en:barbarian": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Strength, hit_die 12, saves str/con, weapon_proficiencies 'Simple and Martial'->All, armor_training 'Light and Medium armor and Shields' compressed to Lt/Med/Shields, Weapon Mastery 'two kinds'->2) + fh-skills-en fh_skill_pool.base=12. Spells=none (no Spellcasting feature).",
+        "changes": {
+          "data.blurb": {
+            "text": "Rage isn't losing control—it's the only control a barbarian trusts. Pain fades, caution burns away, and the body remembers a violence older than any drilled stance. They shrug off blows that would drop an armored knight, then hit back twice as hard. No spellbook, no oath, no teacher: only fury, sharpened by every fight survived.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Str"
+            },
+            {
+              "label": "HP/level",
+              "value": "D12"
+            },
+            {
+              "label": "Saves",
+              "value": "STR / CON"
+            },
+            {
+              "label": "Weapons",
+              "value": "All"
+            },
+            {
+              "label": "W. Proficiencies",
+              "value": "2"
+            },
+            {
+              "label": "Armor",
+              "value": "Lt/Med/Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "none"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:bard": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 8, saves dex/cha, weapon Simple, armor 'Light armor'->Light) + fh-skills-en base=16. Spells=arcane (classic wizard/sorcerer/warlock/bard grouping; SRD gives no arcane/divine/primal tag).",
+        "changes": {
+          "data.blurb": {
+            "text": "A bard bets a song can do what a sword can't, and wins more than skeptics expect. Charisma isn't decoration here—it's the power source, drawn from music, wit, and nerve rather than study or scripture. They can talk down a guard, then fight the next one, barely noticing the difference. Every performance is a small working of magic.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Cha"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "DEX / CHA"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "Light"
+            },
+            {
+              "label": "Spells",
+              "value": "arcane"
+            },
+            {
+              "label": "Skill pool",
+              "value": "16 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:cleric": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Wisdom, hit_die 8, saves wis/cha, weapon Simple, armor 'Light and Medium armor and Shields'->Lt/Med/Shields) + fh-skills-en base=12. Spells=divine.",
+        "changes": {
+          "data.blurb": {
+            "text": "A cleric's power isn't borrowed, it's granted—proof something answered the prayer. The bargain cuts both ways: healing in one hand, judgment in the other, and a debt of service that doesn't clock out after battle. Robes under armor, a holy symbol worth more than the sword. Private life is the calling's first casualty.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Wis"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "WIS / CHA"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "Lt/Med/Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "divine"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:druid": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Wisdom, hit_die 8, saves int/wis, weapon Simple, armor 'Light armor and Shields'->Light/Shields) + fh-skills-en base=14. Spells=primal.",
+        "changes": {
+          "data.blurb": {
+            "text": "A druid doesn't dominate nature, they petition it—and get answers more often than a king would like. Ask properly, and weather, root, even a wolf's own body can be borrowed a while; the oldest druids barely bother turning back into anything human-shaped. Kingdoms trust borders. A druid was loyal to the ground before any line got drawn.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Wis"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "INT / WIS"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "Light/Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "primal"
+            },
+            {
+              "label": "Skill pool",
+              "value": "14 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:fighter": {
+        "op": "patch",
+        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. NB: SRD 5.2.1 Weapon Mastery text actually says 'three kinds' (not two); kept Eric's '2' as instructed, not corrected.",
+        "changes": {
+          "data.blurb": {
+            "text": "Steel remembers what flesh forgets. Ten thousand strikes forge it. No spellbook, no arcane grammar—only muscle and discipline. They are the wall that never breaks, absorbing blows that fell lesser souls. Armor is their skin; courage is the spell. Knight, duelist, veteran—all built by practice, not birth. When magic fails, steel remains.",
+            "provenance": "eric"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "STR / DEX"
+            },
+            {
+              "label": "HP/level",
+              "value": "D10"
+            },
+            {
+              "label": "Saves",
+              "value": "STR / CON"
+            },
+            {
+              "label": "Weapons",
+              "value": "All"
+            },
+            {
+              "label": "W. Proficiencies",
+              "value": "2"
+            },
+            {
+              "label": "Armor",
+              "value": "All / Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "none"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:monk": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability 'Dexterity and Wisdom'->DEX/WIS, hit_die 8, saves str/dex, weapon_proficiencies 'Simple weapons and Martial weapons that have the Light property' compressed to Simple+Lt, armor None->none) + fh-skills-en base=14. No Weapon Mastery feature at level 1 in this SRD data -> no W. Proficiencies row. Spells=none.",
+        "changes": {
+          "data.blurb": {
+            "text": "A monk spent years turning an empty hand into a weapon nobody had to hand them, and their own body into armor nobody had to forge. Somewhere in there they also learn to catch a blow mid-flight and send it back where it came from. No steel, no plate: just discipline, repeated past the point where most people quit and call it enough.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "DEX / WIS"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "STR / DEX"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple+Lt"
+            },
+            {
+              "label": "Armor",
+              "value": "none"
+            },
+            {
+              "label": "Spells",
+              "value": "none"
+            },
+            {
+              "label": "Skill pool",
+              "value": "14 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:paladin": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability 'Strength and Charisma'->STR/CHA, hit_die 10, saves wis/cha, weapon All, armor 'Light, Medium, and Heavy armor and Shields'->All/Shields, Weapon Mastery 'two kinds'->2) + fh-skills-en base=12. Spells=divine.",
+        "changes": {
+          "data.blurb": {
+            "text": "A paladin's magic comes with strings attached—one oath, sworn once, that the power keeps checking against. Keep it, and the strength holds; bend it for convenience, and the paladin feels it first. They walk into fights cautious people avoid, healing hands as practiced as the blade. The oath is the whole engine.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "STR / CHA"
+            },
+            {
+              "label": "HP/level",
+              "value": "D10"
+            },
+            {
+              "label": "Saves",
+              "value": "WIS / CHA"
+            },
+            {
+              "label": "Weapons",
+              "value": "All"
+            },
+            {
+              "label": "W. Proficiencies",
+              "value": "2"
+            },
+            {
+              "label": "Armor",
+              "value": "All / Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "divine"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:ranger": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability 'Dexterity and Wisdom'->DEX/WIS, hit_die 10, saves str/dex, weapon All, armor 'Light and Medium armor and Shields'->Lt/Med/Shields, Weapon Mastery 'two kinds'->2) + fh-skills-en base=14. Spells=primal.",
+        "changes": {
+          "data.blurb": {
+            "text": "A ranger notices what the ground is trying to hide—a bent stalk, a wrong print, weather an hour before anyone else smells it. Half warrior, half quiet spellcaster, most dangerous at home, oddly at ease around animals that would bolt from anyone else. Rangers don't lead columns. They walk point, and everyone follows the boot prints.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "DEX / WIS"
+            },
+            {
+              "label": "HP/level",
+              "value": "D10"
+            },
+            {
+              "label": "Saves",
+              "value": "STR / DEX"
+            },
+            {
+              "label": "Weapons",
+              "value": "All"
+            },
+            {
+              "label": "W. Proficiencies",
+              "value": "2"
+            },
+            {
+              "label": "Armor",
+              "value": "Lt/Med/Shields"
+            },
+            {
+              "label": "Spells",
+              "value": "primal"
+            },
+            {
+              "label": "Skill pool",
+              "value": "14 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:rogue": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Dexterity, hit_die 8, saves dex/int, weapon_proficiencies 'Simple weapons and Martial weapons that have the Finesse or Light property' compressed to Simple+FL, armor Light, Weapon Mastery 'two kinds'->2) + fh-skills-en base=18 (highest of all 12). Spells=none.",
+        "changes": {
+          "data.blurb": {
+            "text": "A rogue doesn't overpower a fight, they end it early—one clean opening turns an ordinary hit into the only hit that mattered. That same eye for the gap shows up in a lock, a lie, a guard's blind spot. Jack of a dozen trades and better still at leaving unseen, a rogue survives on always having a second way out already scouted.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Dex"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "DEX / INT"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple+FL"
+            },
+            {
+              "label": "W. Proficiencies",
+              "value": "2"
+            },
+            {
+              "label": "Armor",
+              "value": "Light"
+            },
+            {
+              "label": "Spells",
+              "value": "none"
+            },
+            {
+              "label": "Skill pool",
+              "value": "18 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:sorcerer": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 6, saves con/cha, weapon Simple, armor None->none) + fh-skills-en base=12. Spells=arcane.",
+        "changes": {
+          "data.blurb": {
+            "text": "A sorcerer's magic showed up before any teacher could claim credit—inherited, inborn, or triggered by something that only happened once. It answers to instinct more than study: faster to reach for than a wizard's spell, harder to fully leash even after years of aiming it. Ask a sorcerer how it works and watch them shrug: it just does.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Cha"
+            },
+            {
+              "label": "HP/level",
+              "value": "D6"
+            },
+            {
+              "label": "Saves",
+              "value": "CON / CHA"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "none"
+            },
+            {
+              "label": "Spells",
+              "value": "arcane"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:warlock": {
+        "op": "patch",
+        "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 8, saves wis/cha, weapon Simple, armor 'Light armor'->Light) + fh-skills-en base=12. Spells=arcane.",
+        "changes": {
+          "data.blurb": {
+            "text": "Somewhere past the ordinary rules of magic sits a warlock's patron; what it cost to seal that deal is nobody else's business. Invocations are doors that shouldn't exist, forced open once and left unlocked—no study required, just payment made. The fine print stays private. What shows is the confidence of someone who no longer asks.",
+            "provenance": "fh-original"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Cha"
+            },
+            {
+              "label": "HP/level",
+              "value": "D8"
+            },
+            {
+              "label": "Saves",
+              "value": "WIS / CHA"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "Light"
+            },
+            {
+              "label": "Spells",
+              "value": "arcane"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      },
+      "srd:class:en:wizard": {
+        "op": "patch",
+        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived.",
+        "changes": {
+          "data.blurb": {
+            "text": "Weavers of arcane grammar, wizards bend reality through study, not birth. Spellbooks hold their power—lost pages mean lost magic. They shape fire, bend time, pierce minds, all through relentless intellect. Fragile in armor, mighty in will, they trade brute strength for the universe's deepest secrets, one spell slot at a time.",
+            "provenance": "eric"
+          },
+          "data.fiche_stats": [
+            {
+              "label": "Ability",
+              "value": "Int"
+            },
+            {
+              "label": "HP/level",
+              "value": "D6"
+            },
+            {
+              "label": "Saves",
+              "value": "INT / WIS"
+            },
+            {
+              "label": "Weapons",
+              "value": "Simple"
+            },
+            {
+              "label": "Armor",
+              "value": "none"
+            },
+            {
+              "label": "Spells",
+              "value": "arcane"
+            },
+            {
+              "label": "Skill pool",
+              "value": "12 pts"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
