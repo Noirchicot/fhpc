@@ -117,7 +117,6 @@ const REVIEW_INDEX = STEPS.findIndex((step) => step.id === "review");
 
 const state = {
   step: 0,
-  planOpen: false,
   engine: null,       // { build, layers, bus } — set once bootEngine() resolves
   document: null,      // the live fh-char/1 document
   decisions: [],        // the last rebuild()'s carnet
@@ -129,7 +128,8 @@ const state = {
   /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
      2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
      Ces deux champs sont donc ici, hors de `document`, exactement comme
-     `planOpen` — perdus si l'onglet ferme, et c'est voulu. */
+     l'était `planOpen` — perdus si l'onglet ferme, et c'est voulu.
+     *(`planOpen` est parti avec la ligne de commande, refonte 2 §1.)* */
   /* LOT 50 — `abilityRoll` porte maintenant aussi `assign` : la carte
      `clef → index de dé` (commande §2a, « la carte vit au même endroit que
      le lot »). Ni l'un ni l'autre champ n'existe dans `document` — voir
@@ -1047,13 +1047,11 @@ function mountFrame() {
   });
   belt.append(prev, track, next);
 
-  /* ── LA LIGNE DE COMMANDE (B0.6-B0.13) ──────────────────────────── */
-  const command = el("div", "command");
-  const plan = button("Show plan", () => { state.planOpen = !state.planOpen; refresh(); });
-  plan.className = "command-plan";
-  const validate = button("Validate", () => pressValidate());
-  validate.className = "command-validate";
-  command.append(plan, validate);
+  /* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
+     Elle coûtait 45 px sur les dix écrans, tout le temps, pour deux boutons.
+     `Show plan` disparaît — Review EST le plan, lu au carnet — et `Validate`
+     descend dans le contenu de chaque écran (`renderValidation`), là où le
+     geste se termine. Mesuré : la hauteur figée passe de 106 px à 61. */
 
   /* ── LA ZONE DE FICHE : le seul défilement de l'écran (B0.21a) ───── */
   const area = el("div", "stage-area");
@@ -1090,23 +1088,7 @@ function mountFrame() {
   popup.hidden = true;
   area.append(aside, stage, chevrons, popup);
 
-  /* ── LE PLAN ESCAMOTABLE — inchangé sur le fond (lots 30/31) ─────── */
-  const planPanel = el("aside", "plan");
-  planPanel.setAttribute("aria-label", "Decision plan");
-  const planHeader = el("div", "plan-header", [el("h2", null, [document.createTextNode("Plan")])]);
-  planHeader.append(button("Close", () => { state.planOpen = false; refresh(); }));
-  const planList = el("ol", "plan-list");
-  const planItems = STEPS.map((step) => {
-    const li = document.createElement("li");
-    li.textContent = step.label;
-    planList.append(li);
-    return li;
-  });
-  planPanel.append(planHeader, planList);
-  const scrim = el("div", "scrim");
-  scrim.addEventListener("click", () => { state.planOpen = false; refresh(); });
-
-  app.append(belt, command, topbar, area, planPanel, scrim);
+  app.append(belt, topbar, area);
 
   /* LES DEUX ÉCOUTEURS QUI DOIVENT SURVIVRE — posés ICI, une fois, sur des
      nœuds qui ne meurent pas. C'est la différence entre ce lot et tout ce
@@ -1115,7 +1097,7 @@ function mountFrame() {
   const popupLayer = mountPopup(popup, () => { state.popup = null; refresh(); });
   const spy = watchSnap(stage, onSnapSettle);
 
-  return { belt, prev, next, track, items, command, plan, validate, area, stage, aside, topbar, popup, popupLayer, chevrons, planPanel, planItems, scrim, scroller, spy };
+  return { belt, prev, next, track, items, area, stage, aside, topbar, popup, popupLayer, chevrons, scroller, spy };
 }
 
 /* ══ LE SCROLLSPY EST LE SÉLECTEUR (II.3) ═══════════════════════════════
@@ -1262,22 +1244,35 @@ function paintBelt() {
   if (current) keepInView(frame.track, current, "x");
 }
 
-function paintCommand() {
-  frame.plan.textContent = state.planOpen ? "Hide plan" : "Show plan";
-  /* B0.11, lu à travers I.4 : il s'allume quand les conditions DU PALIER
-     COURANT sont remplies, pas celles de l'écran entier. */
-  const gate = currentGate();
-  frame.validate.dataset.lit = String(gate.ready);
-  frame.validate.disabled = !gate.ready;
-}
+/* ══ LA VALIDATION VIT DANS LE DOCUMENT (refonte 2 §1b) ═══════════════
+   Eric, 2026-08-15 : « il faudra mettre un bouton validate dans les
+   documents ». Le bouton quitte la barre fixe et va au bas du contenu de
+   l'écran, à l'endroit où le geste se termine.
 
-function paintPlan() {
-  app.dataset.plan = state.planOpen ? "open" : "closed";
-  frame.planPanel.hidden = !state.planOpen;
-  frame.scrim.hidden = !(isMobile() && state.planOpen);
-  frame.planItems.forEach((li, index) => {
-    li.dataset.status = index < state.step ? "done" : index === state.step ? "current" : "upcoming";
-  });
+   ⚠️ CE QUE ÇA COÛTE, ET IL FAUT LE DIRE : le `Validate` fixe était TOUJOURS
+   atteignable sans remonter — c'était l'argument d'Eric lui-même pour y
+   mettre `Reset` (B7.8). Au bas d'un écran qui défile, il se cherche.
+   ⭐ La refonte 2 y répond écran par écran (§3), et cette forme-ci est la
+   PROVISOIRE : un bouton, la même porte, aucun décor. Chaque écran recevra
+   ensuite sa forme propre — « plus petit » sur Biography, sous les six
+   barillets sur Abilities, `This is my calling` sur Destiny.
+
+   📌 IL SE RECONSTRUIT AVEC LE CONTENU, donc aucune fonction de peinture :
+   il naît et meurt dans le `swapContent` de `refresh()`, comme le reste de
+   la scène. C'est ce qui le dispense d'être un nœud persistant. */
+function renderValidation() {
+  /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
+     Un bouton mort au bas de la dernière page ne dirait rien à personne. */
+  if (STEPS[state.step].id === "review") return null;
+  const gate = currentGate();
+  const bouton = button("Validate", () => pressValidate());
+  bouton.className = "valider-bouton";
+  /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
+     Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
+     pourquoi par son apparence, jamais disparaître. */
+  bouton.dataset.lit = String(gate.ready);
+  bouton.disabled = !gate.ready;
+  return el("div", "valider", [bouton]);
 }
 
 /** LE SLOT HORIZONTAL (B0.19) — garni par l'écran qui en a un, vidé pour
@@ -1325,12 +1320,10 @@ function paintAside() {
  *  clic de choix. */
 function refresh() {
   paintBelt();
-  paintCommand();
-  paintPlan();
   paintAside();
   paintTopbar();
   paintPopup();
-  swapContent(frame.stage, [renderStepContent()]);
+  swapContent(frame.stage, [renderStepContent(), renderValidation()].filter(Boolean));
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`

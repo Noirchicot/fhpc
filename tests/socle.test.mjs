@@ -242,7 +242,12 @@ test("⚔️ ATTAQUE D — réintroduire recenterBelt() tel qu'il était fait ro
 const shellText = stripComments(fs.readFileSync(SHELL_PATH, "utf8"));
 
 test("E — shell.mjs remplace le contenu de la fiche PAR swapContent, réellement écrit", () => {
-  assert.match(shellText, /swapContent\(frame\.stage,\s*\[renderStepContent\(\)\]\)/,
+  /* ⚠️ CIBLE ÉLARGIE LE 2026-08-15 : la scène porte désormais DEUX nœuds —
+     l'écran, puis sa validation (refonte 2 §1b, `renderValidation`). La
+     propriété gardée n'a pas changé d'un pouce : c'est `swapContent` qui
+     remplit la fiche, et lui seul. On accepte donc ce qu'on lui passe, sans
+     relâcher QUI la remplit. */
+  assert.match(shellText, /swapContent\(frame\.stage,\s*\[renderStepContent\(\)/,
     "sans cette ligne, la fiche se remplirait par un autre chemin — et la position repartirait à zéro");
 });
 

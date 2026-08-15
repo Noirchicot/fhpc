@@ -264,8 +264,8 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton principal fait rougir SEU
   assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
 
   const mutated = shellCssRaw.replace(
-    '.command-validate[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
-    '.command-validate[data-lit="true"] { background: var(--accent); color: #fff;'
+    '.valider-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
+    '.valider-bouton[data-lit="true"] { background: var(--accent); color: #fff;'
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
@@ -296,7 +296,7 @@ test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEUL
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
-  assert.deepEqual(buttonInkViolations(mutated), [".command-plan, .command-validate"],
+  assert.deepEqual(buttonInkViolations(mutated), [".valider-bouton"],
     "le garde voit EXACTEMENT la règle qui produirait les 1,24:1");
   assert.deepEqual(colorViolations(mutated), colorViolations(shellCssRaw), "le garde couleur ne bouge pas — le défaut est une ABSENCE, pas un littéral");
   assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "ni le garde de type");

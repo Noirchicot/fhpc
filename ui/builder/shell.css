@@ -166,56 +166,29 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex: none;
 }
 
-/* ── LA LIGNE DE COMMANDE (B0.6-B0.13, B0.21b/c) ──────────────────
-   Fixe, sous la molette. `Show plan` à gauche, `Validate` à sa droite, sur
-   la MÊME ligne horizontale (B0.10).
-
-   B0.9/B0.21c — « cette icône INTERROMPT la ligne de séparation ». La ligne
-   est le `border-bottom` de `.command` ; le bouton descend d'un pixel et
-   pose SA propre bordure basse couleur de fond, qui efface le segment
-   qu'il recouvre. C'est littéralement une interruption, pas un dessin qui
-   y ressemble. */
-.command {
-  flex: none;
+/* ── LA VALIDATION, AU BAS DU CONTENU (refonte 2 §1b) ──────────────
+   Elle remplace `.command`, qui figeait 45 px en haut des dix écrans. Ce
+   bloc-ci DÉFILE avec la fiche : il n'est pas un cadre, il est la fin du
+   document. ⚠️ Forme PROVISOIRE — chaque écran recevra la sienne (§3). */
+.valider {
   display: flex;
-  align-items: center;
-  gap: var(--sp-12);
-  /* LOT 69 — le remplissage vient du jeton de gouttière : à l'étroit il VAUT
-     l'ancien `var(--sp-12)` (aucun changement) ; en Large la formule centre
-     les deux boutons sur la colonne de contenu (--frame-w) — Validate était
-     à ~1400 px du contenu qu'il valide, au bord de la fenêtre. B0.13 (« la
-     ligne est fixe ») parle de DÉFILEMENT, pas d'alignement : elle ne
-     défile toujours pas. Et B0.9 tient : le trait est le border-bottom
-     pleine largeur, Show plan le coupe où qu'il se pose. */
-  padding: 0 var(--gutter-frame);
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  justify-content: flex-end;
+  padding: var(--sp-20) 0 var(--sp-12);
+  max-width: var(--frame-w);
+  margin-inline: auto;
 }
-.command-plan, .command-validate {
+.valider-bouton {
   min-height: var(--touch); /* le seuil tactile — voir `--touch` dans tokens.css */
   border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text); /* un <button> n'hérite pas de `color` — défaut n°4 */
-  font-size: var(--t3); /* B0.7 : la même taille que « Concept », le barreau des libellés de la molette */
-  padding: 0 var(--sp-12);
+  font-size: var(--t3);
+  padding: 0 var(--sp-20);
   cursor: pointer;
 }
-/* B0.8 — « une icône rectangulaire plus petite que l'actuelle » : le rayon
-   descend d'un cran et le remplissage horizontal se resserre. Elle reste au
-   seuil tactile en hauteur — plus petite à l'œil, pas au doigt. */
-.command-plan {
-  position: relative;
-  top: 1px;
-  border-bottom: 1px solid var(--bg); /* ⭐ c'est CETTE ligne qui coupe la séparation */
-  padding: 0 var(--sp-8);
-}
-/* B0.11 lu à travers I.4 — il s'allume quand les conditions DU PALIER
-   COURANT sont remplies. Éteint, il reste lisible : un bouton qu'on ne peut
-   pas presser doit dire pourquoi par son apparence, pas disparaître. */
-.command-validate { margin-left: auto; }
-.command-validate[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
-.command-validate:disabled { opacity: .5; cursor: default; }
+.valider-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.valider-bouton:disabled { opacity: .5; cursor: default; }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
    « Certaines fiches auront EN PLUS une navigation interne, fixe elle
@@ -743,39 +716,6 @@ button { font: inherit; }
    boîte d'info technique de Class au lot 42 — une carte sous la liste des
    douze boutons. Les deux sont partis ensemble : l'info vit maintenant DANS
    la fiche de classe (`.catalogue-card-list`), qui EST la surface de lecture. */
-
-/* ── LE PLAN ESCAMOTABLE ──────────────────────────────────────────
-   ⚠️ LOT 58 — IL EST UNE SURFACE TEMPORAIRE À TOUTES LES LARGEURS, plus une
-   troisième colonne au-delà de 720 px. Base mobile (IV.4) : la forme
-   téléphone devient la forme, le desktop s'extrapolera ensuite. La règle
-   qui l'ouvrait en colonne (`grid-template-columns: 220px 1fr 320px`) est
-   partie avec la grille de `.app`. */
-.plan {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  overflow-y: auto;
-  padding: var(--sp-20);
-  background: var(--surface);
-}
-.plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-12); }
-.plan-header button { border: none; background: none; color: var(--text-muted); cursor: pointer; }
-.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-/* LOT 69 — le plan est plein écran (surface temporaire), mais son CONTENU
-   suit le cadre (--frame-w = 100 % à l'étroit, no-op) : à 1440 px, dix
-   lignes étirées bord à bord avec « Close » au bout du monde n'étaient pas
-   une liste, c'était une nappe. ⚠️ APRÈS la règle `.plan-list` : son
-   `margin: 0` (shorthand) écraserait le `margin-inline: auto` posé avant. */
-.plan-header, .plan-list { max-width: var(--frame-w); margin-inline: auto; }
-.plan-list li { padding: var(--sp-8) var(--sp-8); border-radius: var(--radius-md); font-size: var(--t3); color: var(--text-muted); } /* 6px→sp-8 (égalité, arrondi au-dessus) ; rayon aligné sur .belt-item, même famille de ligne sélectionnable ; 13px→T3 comme skill-chip */
-.plan-list li[data-status="current"] { background: var(--accent-wash); color: var(--text); font-weight: 600; }
-.plan-list li[data-status="done"] { color: var(--positive); }
-
-/* ── LE SCRIM DU PLAN ─────────────────────────────────────────────
-   Il n'est posé QUE sous le seuil étroit (`isMobile()`, shell.mjs) — le
-   plan est plein écran des deux côtés, mais seul le téléphone lui donne un
-   voile derrière lequel on tape pour fermer. */
-.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 1; }
 
 /* ── TÉLÉPHONE : CE QUI RESTE SPÉCIFIQUE AU SEUIL ────────────────────
    ⚠️ LOT 58 — CE BLOC A FONDU, ET C'EST LE SIGNE QUE LA BASE EST DEVENUE
