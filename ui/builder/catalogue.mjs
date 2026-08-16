@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=30";
+import { planAt } from "./carnet.mjs?v=31";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

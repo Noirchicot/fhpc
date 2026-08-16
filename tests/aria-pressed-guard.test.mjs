@@ -180,19 +180,30 @@ test("Abilities — chaque bouton actif de la molette de mode et des rangées de
   assertToutBoutonActifAnnonceSonEtat(node, "Abilities", 1);
 });
 
-test("Class — les molettes du menu des choix (palier 2) s'annoncent", () => {
-  /* ⚠️ PALIER 2, ET C'EST UN DÉPLACEMENT, PAS UN AFFAIBLISSEMENT (lot 58).
-     Le palier 1 de Class n'a PLUS AUCUN BOUTON : la rangée de douze options
-     du lot 42 a disparu, parce que l'invariant II.1 supprime le geste de
-     sélection — on défile jusqu'à la classe, le défilement s'aimante, et
-     `Validate` (unique, dans la barre du haut) confirme. Les boutons à état
-     de cet écran vivent maintenant au palier 2, le menu des choix
-     intrinsèques (B2.3) : c'est là qu'il faut aller les chercher.
-     ⭐ Le garde garde donc EXACTEMENT la même force — il exige toujours au
-     moins un `[data-active]` sur cet écran, à l'endroit où l'écran en
-     produit. Un palier 2 qui n'en produirait plus aucun le ferait rougir. */
+test("Class — le palier 2 n'a PLUS AUCUN bouton à état : les trois blocs sont des jetons (lot 79)", () => {
+  /* 🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ LE 2026-08-16, ET NON RELÂCHÉ. Ce test
+     exigeait « au moins un `[data-active]` » au palier 2 de Class, et il a
+     rougi le jour où le lot 79 a fini d'y remplacer les QCM : compétences
+     (étape 2), sorts mineurs (étape 3) et sorts préparés (étape 4) passent
+     tous par `renderChoixGlisses`.
+     ⭐ ET L'ABSENCE EST LA BONNE RÉPONSE, ELLE N'EST PAS UN TROU. Un jeton
+     déjà posé est `disabled` — il n'est pas un interrupteur à deux états, il
+     est AILLEURS, dans un créneau (glisser.mjs, et son garde « 1 bis »).
+     `aria-pressed` sur un tel bouton mentirait sur ce qu'il est.
+     ⛔ CE QUE CE GARDE TIENT DÉSORMAIS est donc plus fort que le compte qu'il
+     remplace : ZÉRO état annoncé, et zéro `data-active` — si un futur lot
+     rapportait un QCM ici sans l'annoncer, ce test le dirait.
+     📌 Le garde d'ensemble, lui, n'a rien perdu : Abilities, Species, Skills,
+     Inheritance, Equipment et Universe exigent toujours leur minimum. */
   const node = renderClassChoices({ decisions: report.decisions, query }, () => {});
-  assertToutBoutonActifAnnonceSonEtat(node, "Class", 1);
+  assert.deepEqual(elementsActifs(node), [],
+    "un jeton posé est `disabled`, pas « enfoncé » — il n'a aucun état à annoncer");
+  for (const bouton of node.querySelectorAll("button")) {
+    assert.equal(bouton.getAttribute("aria-pressed"), null,
+      `${bouton.className} annonce un état que cet écran n'a plus`);
+  }
+  assert.ok(node.querySelectorAll(".glisse-jeton").length > 0,
+    "⚔️ et l'écran n'est pas VIDE : s'il ne rendait plus rien, l'assertion du dessus passerait pour rien");
 });
 
 test("Class — le palier 1 ne produit AUCUN bouton À ÉTAT : c'est l'invariant II.1, mesuré", () => {

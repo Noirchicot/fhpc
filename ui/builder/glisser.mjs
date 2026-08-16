@@ -27,6 +27,34 @@
 
 const SEUIL_GLISSER = 6;
 
+/* ══ LE MAINTIEN — lot 79, étape 3, et il naît d'un CONFLIT MESURÉ ═══════
+   L'étape 2 posait `touch-action: none` sur chaque jeton, et c'est ce qui
+   rendait le glisser possible au doigt : sans lui, le navigateur emporte le
+   geste pour défiler et annule la séquence de pointeur en route.
+
+   🔴 CETTE LIGNE NE PEUT PAS TENIR DANS UNE GRILLE QUI DÉFILE. Les quinze
+   sorts mineurs PAVENT leur grille — il n'y reste que la gouttière de 8 px
+   entre deux cases. Un `touch-action: none` sur les jetons rendrait donc la
+   grille INDÉFILABLE au doigt : le pouce tomberait toujours sur une case.
+   Le mandat le nommait (§4.3, « le premier endroit à mesurer ») ; la mesure
+   est faite, et les deux besoins sont réellement inconciliables sur le même
+   geste immédiat.
+
+   ⭐ CE QUI LES DÉPARTAGE EST LE TEMPS, faute de pouvoir être la cible ni la
+   direction. Dans une grille, le jeton porte `touch-action: pan-y` (le doigt
+   défile, c'est le geste le plus fréquent) et ne se SOULÈVE qu'après
+   `MAINTIEN_MS` sans bouger. Un doigt qui part avant : c'est un défilement,
+   et le geste renonce. Un doigt qui attend : le jeton se soulève, et à
+   partir de là on retient le défilement à la main (`preventDefault` sur le
+   `touchmove`, voir `retenir`).
+   ⛔ CE N'EST PAS UN TROISIÈME GESTE À APPRENDRE : le TAP pose toujours dans
+   le premier créneau libre, et il reste le chemin court. Le maintien ne sert
+   qu'à VISER une case précise — c'est le même partage qu'à l'étape 2, avec
+   un péage de 350 ms là où la grille défile.
+   📌 350 ms : le seuil d'un appui long dans iOS et dans Android. En dessous,
+   un doigt lent qui voulait défiler soulève un jeton par accident. */
+const MAINTIEN_MS = 350;
+
 function el(tag, className, children) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -61,8 +89,13 @@ function creneauSous(x, y) {
 /** ARME UN JETON pour les deux gestes.
  *  `onTap()` — relâché sans avoir bougé ; `onDepot(cheminDuCreneau)` — relâché
  *  sur un créneau. Un glisser relâché dans le vide ne fait RIEN, et c'est
- *  volontaire : annuler doit être possible en cours de geste. */
-function armerJeton(jeton, { onTap, onDepot }) {
+ *  volontaire : annuler doit être possible en cours de geste.
+ *
+ *  `maintien` — vrai quand le jeton vit dans une GRILLE QUI DÉFILE : le
+ *  glisser demande alors un appui de `MAINTIEN_MS` avant de soulever le
+ *  jeton, et un doigt qui bouge avant fait défiler la grille (voir la tête
+ *  de ce fichier). Faux ailleurs : le geste reste immédiat, à l'identique. */
+function armerJeton(jeton, { onTap, onDepot, maintien }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
@@ -70,6 +103,12 @@ function armerJeton(jeton, { onTap, onDepot }) {
     const x0 = ev.clientX, y0 = ev.clientY;
     let glisse = false;
     let vise = null;
+    /* Hors grille, le jeton est soulevé d'emblée — c'est l'étape 2, inchangée. */
+    let souleve = !maintien;
+    /* Le doigt est parti défiler : ce geste-ci ne posera plus rien, même s'il
+       repasse sur un créneau. Un défilement n'est pas un dépôt hésitant. */
+    let renonce = false;
+    let minuteur = null;
     /* La capture garde les événements sur CE jeton même si le doigt sort de
        sa boîte — sans elle, `pointerup` se perdrait dès le premier pixel.
        ⚠️ FACULTATIVE, ET POUR DEUX RAISONS RÉELLES : un pointeur peut avoir
@@ -80,6 +119,19 @@ function armerJeton(jeton, { onTap, onDepot }) {
       try { jeton.setPointerCapture(ev.pointerId); } catch { /* pointeur déjà fini */ }
     }
 
+    /* 🔴 CE QUI EMPÊCHE LA GRILLE DE DÉFILER SOUS UN JETON SOULEVÉ, et c'est
+       la SEULE chose qui le peut. `touch-action` est une déclaration prise à
+       l'appui : elle ne se renégocie pas en cours de geste. Une fois le jeton
+       soulevé, il ne reste donc que le refus explicite du défilement, sur
+       l'événement TACTILE (le pointeur, lui, ne le porte pas).
+       ⚠️ L'écouteur est posé DÈS L'APPUI, avant même le soulèvement : un
+       navigateur décide de défiler au PREMIER `touchmove`, et un écouteur
+       arrivé après cette décision n'a plus rien à refuser. Il ne retient
+       qu'une fois soulevé — tant que le jeton dort, le doigt défile. */
+    const retenir = (e) => {
+      if (souleve && typeof e.preventDefault === "function") e.preventDefault();
+    };
+
     const viser = (creneau) => {
       if (vise === creneau) return;
       if (vise) vise.dataset.vise = "false";
@@ -88,7 +140,16 @@ function armerJeton(jeton, { onTap, onDepot }) {
     };
 
     const bouge = (e) => {
+      if (renonce) return;
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
+      /* Le doigt a bougé avant le soulèvement : il défile, il ne glisse pas.
+         ⛔ ET CE GESTE NE SE RATTRAPE PAS — attendre 350 ms de plus le doigt
+         en l'air rendrait le jeton actif au milieu d'un défilement lancé. */
+      if (!souleve) {
+        renonce = true;
+        if (minuteur !== null) { clearTimeout(minuteur); minuteur = null; }
+        return;
+      }
       if (!glisse) {
         glisse = true;
         jeton.dataset.glisse = "true";
@@ -100,12 +161,35 @@ function armerJeton(jeton, { onTap, onDepot }) {
       jeton.removeEventListener("pointermove", bouge);
       jeton.removeEventListener("pointerup", fini);
       jeton.removeEventListener("pointercancel", fini);
+      jeton.removeEventListener("touchmove", retenir);
+      if (minuteur !== null) { clearTimeout(minuteur); minuteur = null; }
       delete jeton.dataset.glisse;
+      delete jeton.dataset.souleve;
       const cible = glisse ? creneauSous(e.clientX, e.clientY) : null;
       viser(null);
-      if (!glisse) { onTap(); return; }          // sous le seuil : c'était un tap
+      if (renonce) return;                       // le doigt est parti défiler
+      /* ⭐ LE TAP PORTE SON OUTIL. Eric, 2026-08-16 : *« tap pour info, drag
+         and drop to select ; sur desktop clic droit info, gauche select »* —
+         le même appui court ne veut donc PAS dire la même chose au doigt et
+         à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
+         peut trancher que s'il sait avec quoi on a touché. */
+      if (!glisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
       if (cible && e.type !== "pointercancel") onDepot(cible.dataset.creneau);
     };
+
+    if (maintien) {
+      /* ⚠️ `passive: false` EST LE FOND DE L'AFFAIRE : un écouteur `touchmove`
+         est passif PAR DÉFAUT sur mobile, et un écouteur passif n'a pas le
+         droit de refuser le défilement — son `preventDefault` est ignoré, en
+         silence. Le déclarer est la moitié du mécanisme. */
+      jeton.addEventListener("touchmove", retenir, { passive: false });
+      minuteur = setTimeout(() => {
+        minuteur = null;
+        if (renonce) return;
+        souleve = true;
+        jeton.dataset.souleve = "true";          // la feuille le montre : le jeton se lève
+      }, MAINTIEN_MS);
+    }
 
     jeton.addEventListener("pointermove", bouge);
     jeton.addEventListener("pointerup", fini);
@@ -119,8 +203,18 @@ function armerJeton(jeton, { onTap, onDepot }) {
  *
  *  `slots` : ce que `planSlots` rend — chemin, index, options, `selected`,
  *  verrou. `onAction` reçoit exactement les mêmes actions que le QCM, donc le
- *  moteur ne voit aucune différence entre un choix tapé, glissé ou coché. */
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne }) {
+ *  moteur ne voit aucune différence entre un choix tapé, glissé ou coché.
+ *
+ *  `grille` — le vivier devient la GRILLE DÉFILANTE du croquis (trois
+ *  colonnes, une fenêtre de hauteur fixe) au lieu de pastilles qui se
+ *  replient. ⭐ C'est le MÊME vivier : mêmes jetons, mêmes gestes, même
+ *  contrat d'action. Seules changent sa mise en page et la façon dont le
+ *  doigt le prend (voir `MAINTIEN_MS`).
+ *  🔴 ET C'EST L'UNIQUE INTERRUPTEUR : la « même hauteur » que le croquis
+ *  exige des deux grilles (15 sorts mineurs, 30 sorts de niveau 1) n'est pas
+ *  un nombre recopié deux fois — c'est UNE classe, donc UNE règle de
+ *  feuille. Deux grilles ne peuvent pas diverger sans qu'on le fasse exprès. */
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, grille, onInfo }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
@@ -143,7 +237,14 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      `query()`, qui a jeté « l'id doit être une chaîne ». Une forme se lit. */
   const choisiDe = (slot) => (Array.isArray(slot.selected) ? slot.selected[0] : slot.selected) || null;
   const posees = new Set(slots.map(choisiDe).filter(Boolean));
-  const vivier = el("ul", "glisse-vivier");
+  const vivier = el("ul", grille ? "glisse-vivier glisse-grille" : "glisse-vivier");
+  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, il ne se devine pas. Le socle n'en
+     connaissait qu'un (`.stage`, B0.21a) et le trouve par ce marqueur —
+     « le marqueur est une déclaration, pas une inférence » (socle.mjs). Une
+     grille qui défile EST un conteneur qui défile : elle le dit, plutôt que
+     de laisser un futur `scrollParent` remonter jusqu'à la scène et faire
+     voyager tout l'écran pour amener une case dans le champ. */
+  if (grille) vivier.dataset.scroller = "grille";
   for (const id of slots[0].options || []) {
     const item = el("li", null);
     const jeton = el("button", "glisse-jeton", [text(labelOf ? labelOf(id) : id)]);
@@ -151,15 +252,39 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     jeton.dataset.valeur = id;
     jeton.disabled = posees.has(id);
     armerJeton(jeton, {
-      /* LE TAP : le premier créneau libre. S'il n'y en a plus, le geste ne
-         fait rien — remplacer un choix au hasard serait pire que ne rien
-         faire, et le joueur a un créneau à vider sous les yeux. */
-      onTap: () => {
+      maintien: Boolean(grille),
+      /* ══ LE TAP, ET IL DIT DEUX CHOSES DIFFÉRENTES ═══════════════════════
+         Décision d'Eric, 2026-08-16 (le soir) : *« j'avais prévu tap pour
+         info, drag and drop to select ; sur desktop clic droit info, gauche
+         select »*. Elle referme la question laissée ouverte au §7.3 du
+         mandat, et elle est cohérente avec chaque appareil :
+         · AU DOIGT, l'appui court est le geste d'inspection (le croquis
+           l'écrit sous la grille : « Tap on cantrip for info »), et poser
+           demande le maintien puis le glisser ;
+         · À LA SOURIS, le clic gauche POSE (il n'y a pas d'ambiguïté à lever,
+           le pointeur est précis) et le clic droit inspecte.
+         ⛔ ET CE N'EST QUE POUR LES ÉCRANS QUI ONT UNE INFO À DONNER : sans
+         `onInfo`, le tap pose, au doigt comme à la souris — l'écran des
+         compétences (étape 2) ne change pas d'un geste. */
+      onTap: (type) => {
+        if (onInfo && type !== "mouse") { onInfo(id); return; }
+        /* LE TAP QUI POSE : le premier créneau libre. S'il n'y en a plus, le
+           geste ne fait rien — remplacer un choix au hasard serait pire que
+           ne rien faire, et le joueur a un créneau à vider sous les yeux. */
         const libre = slots.find((s) => !choisiDe(s));
         if (libre) poser(id, libre.path);
       },
       onDepot: (chemin) => poser(id, chemin)
     });
+    /* LE CLIC DROIT — l'autre moitié de la même décision. `preventDefault`
+       parce qu'un menu contextuel de navigateur par-dessus la fiche n'est
+       pas une réponse à « qu'est-ce que ce sort ? ». */
+    if (onInfo) {
+      jeton.addEventListener("contextmenu", (ev) => {
+        if (typeof ev.preventDefault === "function") ev.preventDefault();
+        onInfo(id);
+      });
+    }
     item.append(jeton);
     vivier.append(item);
   }

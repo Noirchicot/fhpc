@@ -127,18 +127,24 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
   for (const [classId, expected, blocs] of cases) {
     const report = rebuild(docWith({ id: `count-${classId}`, classId }));
     const node = menu(report.decisions, "class");
-    /* ⚠️ LOT 79 — LES COMPÉTENCES ONT CHANGÉ DE FORME, PAS DE CONTRAT. Elles
-       passent par `renderChoixGlisses` (vivier + créneaux) et non plus par le
-       QCM ; les sorts, eux, gardent le QCM. Ce garde compte donc LES DEUX
-       formes, et va lire le compte et les créneaux là où ils sont maintenant.
-       ⛔ La QUESTION posée n'a pas bougé d'un mot : le compte et le nombre de
-       créneaux viennent du PLAN, jamais d'un nombre écrit dans l'écran. */
+    /* ⚠️ LOT 79 — LES TROIS BLOCS ONT CHANGÉ DE FORME, PAS DE CONTRAT. Les
+       compétences (étape 2) puis les deux groupes de sorts (étapes 3 et 4)
+       passent par `renderChoixGlisses` ; le QCM reste pour l'espèce. Ce garde
+       compte donc LES DEUX formes, et lit le compte DANS SON BLOC.
+       🔴 CORRIGÉ LE 2026-08-16 : il comptait les créneaux sur le menu ENTIER,
+       ce qui marchait tant qu'un seul bloc en avait. Un Bard en a maintenant
+       trois — 9 créneaux au total, dont 3 pour les compétences. La question
+       posée n'a pas bougé d'un mot ; l'endroit où on la pose, si.
+       ⛔ Et le compte comme les créneaux viennent du PLAN, jamais d'un nombre
+       écrit dans l'écran. */
     const blocsRendus = [...node.querySelectorAll(".choix-glisse"), ...node.querySelectorAll(".skills-budget-block")];
     assert.equal(blocsRendus.length, blocs, `${classId} : ${blocs} bloc(s) de choix — sorts seulement si la progression les appelle`);
-    const note = node.querySelectorAll(".choix-glisse-compte")[0];
-    assert.ok(note, `${classId} : l'écran de compétences est rendu`);
+    const competences = node.querySelectorAll(".choix-glisse")[0];
+    assert.ok(competences, `${classId} : l'écran de compétences est rendu`);
+    const note = competences.querySelectorAll(".choix-glisse-compte")[0];
     assert.ok(note.textContent.startsWith(`0 of ${expected} chosen`), `${classId} attend ${expected}, lu : « ${note.textContent} »`);
-    assert.equal(node.querySelectorAll(".glisse-creneau").length, expected, `${classId} : ${expected} créneaux, pas 2`);
+    assert.equal(competences.querySelectorAll(".glisse-creneau").length, expected,
+      `${classId} : ${expected} créneaux de COMPÉTENCE, pas 2 — et pas ceux des sorts`);
   }
 });
 

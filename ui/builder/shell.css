@@ -1651,8 +1651,120 @@ button { font: inherit; }
 .glisse-jeton:disabled { opacity: .4; cursor: default; }
 .glisse-jeton[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 
+/* ══ LA GRILLE DÉFILANTE — lot 79, étape 3 ═══════════════════════════════
+   📐 Croquis C, 3ᵉ écran : « Cantrips » en titre, TROIS COLONNES de cases,
+   `CHOICE 1/2/3` sous la boîte, la consigne au pied. Le 4ᵉ écran redessine
+   la même boîte pour trente sorts, avec cette annotation, qui est un ORDRE
+   et pas un souhait : *« 30 1st level spells, scrollable, MUST BE THE SAME
+   HEIGHT AS CANTRIPS »*.
+
+   ⭐ LA « MÊME HAUTEUR » N'EST DONC PAS UN NOMBRE À RECOPIER DEUX FOIS —
+   c'est UNE règle, sur UNE classe, que les deux grilles portent. Une
+   deuxième grille ne peut pas diverger par distraction : il faudrait écrire
+   un sélecteur exprès pour la distinguer, et un garde refuse ce sélecteur
+   (`tests/glisser.test.mjs`, « une seule hauteur de grille »).
+
+   📏 LA COTE, MESURÉE DANS LA PAGE LE 2026-08-16 (375 × 553, l'écran d'Eric) :
+   la scène fait 493 px de haut, et le bloc complet (titre + compte + grille
+   + créneaux + consigne) en demande ~413 avec CINQ lignes. Cinq lignes est
+   aussi ce que le croquis dessine, et 15 sorts mineurs font exactement
+   3 × 5 : la grille des cantrips ne défile donc pas, celle des trente le
+   fera dans la même fenêtre. La cote et le dessin tombent d'accord. */
+.glisse-grille {
+  /* Les deux seuls nombres de la grille, et ils vivent ICI, ensemble : ils
+     ne servent qu'à TAILLER LA FENÊTRE (une ligne, elle, prend la hauteur de
+     son contenu — voir plus bas). Cinq lignes NOMINALES au plancher tactile :
+     c'est ce que le croquis dessine, et c'est la fenêtre que les deux grilles
+     partagent. Changer l'un des deux les déplace ENSEMBLE. */
+  --grille-lignes: 5;
+  --grille-ligne: var(--touch);
+  /* ⚠️ TROIS COLONNES EN LIGNES SOUPLES, ET PAS UNE GRILLE CSS — mesuré le
+     2026-08-16, après avoir essayé la grille d'abord. Avec
+     `grid-auto-rows: minmax(44px, auto)`, les lignes RESTAIENT à 44 : une
+     rangée `auto` se dimensionne sur la contribution « max-content » de ses
+     cases, où le texte est compté SANS repli — « Protection from Evil and
+     Good » y pèse une ligne, pas trois. Résultat : la case demandait 46 px
+     pour 42, et son dernier mot passait sous la bordure.
+     ⭐ UNE LIGNE DE FLEX, ELLE, PREND LA HAUTEUR DE SA PLUS HAUTE CASE, après
+     repli. Le nom se déplie donc en entier (51 px mesurés), et la FENÊTRE ne
+     bouge pas d'un pixel — c'est elle que le croquis contraint. Ce qui
+     change est le nombre de lignes entièrement visibles : le comportement
+     normal d'une liste qui défile.
+     📌 `.glisse-vivier` est DÉJÀ `flex; wrap` : la grille ne change donc que
+     la LARGEUR d'une case et l'ancrage en haut. */
+  align-content: flex-start;
+  /* N lignes + (N−1) gouttières + les deux marges intérieures du vivier —
+     soit N × (ligne + gouttière) + une gouttière, `box-sizing: border-box`
+     comptant déjà le rembourrage dans la hauteur. */
+  height: calc(var(--grille-lignes) * (var(--grille-ligne) + var(--sp-8)) + var(--sp-8));
+  overflow-y: auto;
+  /* La grille garde son défilement pour elle : arrivé en bout de course, le
+     doigt ne doit pas emporter la scène derrière (même loi que `.stage`). */
+  overscroll-behavior: contain;
+}
+/* ⚠️ EN PAYSAGE, LA SCÈNE NE FAIT PLUS QUE 315 px (téléphone couché, mesuré
+   le 16/08) : cinq lignes n'y tiennent pas, et le bloc pousserait la
+   consigne et les créneaux hors du champ. La grille rend donc deux lignes —
+   et les DEUX grilles les rendent, l'égalité tient dans les deux formes.
+   ⭐ Même loi que la fiche : « la composition suit la FORME de l'écran »
+   (fiche.css), pas la place qui reste. */
+@media (orientation: landscape) {
+  .glisse-grille { --grille-lignes: 3; }
+}
+/* TROIS PAR LIGNE : la case vaut le tiers de la largeur utile, gouttières
+   déduites. Et `max-width` autant que `flex-basis` — sans elle, une dernière
+   ligne incomplète s'étirerait et deux cases feraient la largeur de trois. */
+.glisse-grille > li {
+  display: flex; min-width: 0;
+  flex: 1 1 calc((100% - 2 * var(--sp-8)) / 3);
+  max-width: calc((100% - 2 * var(--sp-8)) / 3);
+}
+/* La case remplit sa cellule — sans quoi un bouton court laisse un trou où
+   le doigt tombe sans rien saisir. */
+.glisse-grille .glisse-jeton {
+  flex: 1 1 auto; min-width: 0;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--t2);
+  /* 📏 MESURÉ, PAS CHOISI : à 375 px la case fait 97,6 px, et le plus long
+     nom d'un sort mineur — « Prestidigitation », qui n'a AUCUNE espace où se
+     couper — demande 86 px à ce corps-ci contre 103 au corps du dessus. Le
+     corps descend d'un barreau parce que le mot ne se plie pas, pas par
+     goût. Les noms à espace (« Shocking Grasp ») passent à la ligne.
+     ⛔ ET RIEN N'EST ROGNÉ : un `overflow: hidden` ici couperait « Protection
+     from Evil and Good » sous sa bordure — mesuré, 46 px demandés pour 42.
+     C'est la LIGNE qui cède (`minmax`, plus haut), jamais le nom du sort. */
+  /* 🔴 `pan-y` ET NON `none`, ET C'EST LE CŒUR DE L'ÉTAPE : les quinze cases
+     PAVENT la grille, il ne reste qu'une gouttière de 8 px entre deux. Avec
+     `touch-action: none`, le pouce tomberait toujours sur une case et la
+     grille serait INDÉFILABLE au doigt. Le défilement gagne donc par défaut,
+     et le glisser se prend au MAINTIEN (`MAINTIEN_MS`, glisser.mjs), qui
+     retient le défilement à la main une fois le jeton soulevé. */
+  touch-action: pan-y;
+}
+/* LE JETON SOULEVÉ — il faut le VOIR se lever, sinon le maintien ressemble à
+   un geste qui n'a pas pris. Le liseré d'accent, comme le créneau visé. */
+.glisse-jeton[data-souleve="true"] { border-color: var(--accent); }
+
 /* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */
 .glisse-creneaux { display: flex; gap: var(--sp-8); }
+/* ══ QUATRE CRÉNEAUX SE POSENT 2 × 2 — lot 79, étape 4 ═══════════════════
+   📐 Le croquis les dessine ainsi, et en COLONNES : `CHOICE 1` au-dessus de
+   `CHOICE 2` à gauche, `CHOICE 3` au-dessus de `CHOICE 4` à droite. Ce n'est
+   pas une préférence de mise en page — c'est ce que le dessin montre, et le
+   dessin fait foi.
+   📏 ET LA MESURE VA DANS LE MÊME SENS : à 375 px, quatre créneaux en ligne
+   font 74 px chacun, où « Prestidigitation » ne tient à aucun corps. Deux
+   colonnes en donnent 158.
+   ⚠️ `:has()` EST DÉJÀ DANS LE PLANCHER DU DÉPÔT (voir `.decision-card:has(…)`
+   plus haut) : un navigateur qui ne le connaîtrait pas rendrait simplement la
+   rangée, ce qui reste lisible. Le compte vit dans le DOM, pas dans le JS —
+   l'écran n'a aucun nombre à écrire. */
+.glisse-creneaux:has(> :nth-child(4)) {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-columns: 1fr;
+}
 .glisse-creneau {
   flex: 1 1 0; min-height: var(--touch);
   display: flex; flex-direction: column; align-items: center; justify-content: center;

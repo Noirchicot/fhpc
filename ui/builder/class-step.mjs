@@ -20,16 +20,16 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=30";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=30";
-import { renderConfirmDialog } from "./confirm.mjs?v=30";
-import { renderChoixGlisses } from "./glisser.mjs?v=30";
-import { versionQuery } from "./version.mjs?v=30";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=31";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=31";
+import { renderConfirmDialog } from "./confirm.mjs?v=31";
+import { renderChoixGlisses } from "./glisser.mjs?v=31";
+import { versionQuery } from "./version.mjs?v=31";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — le dos de carte des arcanes tient la
    place des fiches qui n'ont pas encore la leur, et il porte la version du
    graphe comme tout ce que `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=30";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=31";
 
 /* ══ LES VRAIES IMAGES DE FICHE — la première est arrivée le 2026-08-16 ═════
    ⭐ LE CHEMIN SE DÉDUIT DE L'ID, IL NE SE DÉCLARE PAS. Une table
@@ -71,13 +71,47 @@ function spellLabel(query, id) {
   return view && view.record ? view.record.name : id;
 }
 
+/* ══ L'INFO D'UN SORT — lot 79, étape 5 ══════════════════════════════════
+   Eric, 2026-08-16 : *« tap pour info, drag and drop to select ; sur desktop
+   clic droit info, gauche select »*. Voici ce que l'info DIT.
+
+   ⛔ RIEN N'EST COMPOSÉ ICI, ET SURTOUT AUCUN LIBELLÉ : la ligne de tête est
+   la SUITE DES VALEURS du record, jointes — « evocation · Action · 120 feet
+   · V, S · Instantaneous ». Écrire « Casting time : » serait fabriquer des
+   mots de règle dans un écran (loi §0.13 : on descend des mots, on n'en
+   fabrique pas), et ces mots-là n'existent dans aucune couche.
+   ⚠️ Une valeur absente disparaît de la ligne — elle ne devient pas un vide
+   à côté d'un séparateur. */
+function spellInfo(query, id) {
+  const view = query({ kind: "spell", id });
+  const record = view && view.record;
+  if (!record) return null;
+  const data = record.data || {};
+  const tete = [data.school, data.casting_time, data.range, data.components, data.duration]
+    .filter((mot) => typeof mot === "string" && mot.trim() !== "");
+  return {
+    kind: "popup",
+    titre: record.name || id,
+    texte: [tete.join(" · "), data.description].filter(Boolean).join("\n\n")
+  };
+}
+
 /* LOT 72 — les deux groupes de sorts du 2ᵉ palier. UNE TABLE, pas deux
    copies : le QCM, la confirmation d'effacement et le palier lisent la
    même liste — en ajouter un troisième (un jour : les sorts d'un lignage ?)
    est une ligne ici, pas un écran neuf. */
 const SPELL_QCMS = [
-  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip" },
-  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell" }
+  /* LOT 79, ÉTAPES 3 ET 4 — LES DEUX GROUPES SONT PASSÉS À LA GRILLE, et la
+     seconde étape n'a rien eu à réécrire : `grille: true`, une consigne, et
+     les trente sorts se sont posés dans la fenêtre des quinze. C'était le
+     test que le mandat avait prévu pour l'organe (« s'il n'y a rien à
+     réécrire à cette étape, l'organe est bon »).
+     ⛔ `renderSlotQcm` reste importé et VIVANT : il sert l'espèce, sa bourse
+     captive et le don d'origine. Deux formes, un seul contrat d'action. */
+  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip", grille: true,
+    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
+  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell", grille: true,
+    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
 ];
 
 /* `fiche: true` — CET ÉCRAN PASSE PAR `renderFicheBody`, donc ses douze
@@ -191,10 +225,28 @@ export function renderClassChoices(ctx, onAction) {
      jamais un cadre vide. `refKind: "spell"` fait poser un `choose` (un sort
      est un record), le reste est mot pour mot le geste de `class.skills`. */
   for (const groupe of SPELL_QCMS) {
-    const bloc = renderSlotQcm({
-      decisions, basePath: groupe.basePath, title: groupe.title, slotWord: groupe.slotWord,
-      refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act
-    });
+    /* ⭐ DEUX FORMES, LE MÊME CONTRAT. La grille lit `planAt`/`planSlots`, le
+       QCM lit `decisions` — les deux rendent `null` sans plan, donc un Rogue
+       n'affiche RIEN ici, jamais un cadre vide. `refKind: "spell"` fait poser
+       un `choose` (un sort est un record) des deux côtés. */
+    /* ⭐ LA CONSIGNE DIT LE GESTE QUI MARCHE PARTOUT, pas les quatre cas.
+       Glisser choisit au doigt comme à la souris ; taper (doigt) et cliquer
+       droit (souris) donnent l'info. Le clic gauche qui pose sur un bureau
+       est un raccourci en plus, pas une contradiction — et une consigne de
+       quatre lignes coûterait la hauteur qu'on vient de mesurer. */
+    const planSorts = groupe.grille ? planAt(decisions, groupe.basePath) : null;
+    const bloc = groupe.grille
+      ? (planSorts ? renderChoixGlisses({
+          plan: planSorts, slots: planSlots(decisions, groupe.basePath),
+          titre: groupe.title, mot: groupe.slotWord, grille: true,
+          refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
+          onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
+          consigne: groupe.consigne
+        }) : null)
+      : renderSlotQcm({
+          decisions, basePath: groupe.basePath, title: groupe.title, slotWord: groupe.slotWord,
+          refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act
+        });
     if (bloc) menu.append(bloc);
   }
 

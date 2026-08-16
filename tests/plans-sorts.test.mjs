@@ -316,34 +316,39 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
   const calls = [];
   const node = menuDe(out.decisions, (action) => calls.push(action));
 
-  /* ⚠️ LOT 79 — LES COMPÉTENCES ONT QUITTÉ LE QCM pour l'écran à créneaux
-     (`renderChoixGlisses`) ; les deux blocs de SORTS le gardent, en attendant
-     les étapes 3 et 4 du mandat. Le garde compte donc les deux formes, et
-     l'ORDRE des trois titres — compétences, mineurs, préparés — reste ce qu'il
-     vérifie : c'est lui qui dit que l'écran suit la progression. */
-  const blocs = node.querySelectorAll(".skills-budget-block");
-  assert.equal(node.querySelectorAll(".choix-glisse").length, 1, "les compétences : l'écran à créneaux");
-  assert.equal(blocs.length, 2, "les sorts : deux QCM");
-  const titres = [
-    ...node.querySelectorAll(".choix-glisse h3"),
-    ...node.querySelectorAll(".skills-budget-block h3")
-  ].map((h) => h.textContent);
-  assert.deepEqual(titres, ["Class skills", "Cantrips", "Prepared spells"]);
+  /* ⚠️ LOT 79 — LES TROIS BLOCS SONT DÉSORMAIS DES ÉCRANS À CRÉNEAUX. Les
+     compétences y sont passées à l'étape 2, les sorts mineurs à l'étape 3,
+     les sorts préparés à l'étape 4 : plus aucun QCM au 2ᵉ palier de Class.
+     ⭐ CE QUE CE GARDE VÉRIFIE N'A PAS CHANGÉ D'UN MOT — l'ORDRE des trois
+     titres (compétences, mineurs, préparés), le fait que les options soient
+     NOMMÉES par le record, et que le geste pose un `choose` de record. C'est
+     la FORME qui a bougé, pas la question. */
+  const blocs = node.querySelectorAll(".choix-glisse");
+  assert.equal(blocs.length, 3, "trois blocs à créneaux — et plus un seul QCM ici");
+  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0,
+    "le QCM a quitté cet écran (il sert encore l'espèce et le don d'origine)");
+  assert.deepEqual(blocs.map((b) => b.querySelectorAll("h3")[0].textContent),
+    ["Class skills", "Cantrips", "Prepared spells"]);
 
-  /* Les cases du bloc mineurs : 3 créneaux (« Cantrip 1 »…), 15 options
-     chacune, nommées par le RECORD (« Ray of Frost »), identifiées par
-     `data-value` (l'id complet). */
-  const mineurs = blocs[0];
-  const lignes = mineurs.querySelectorAll(".skills-row");
-  assert.equal(lignes.length, 3);
-  assert.equal(mineurs.querySelectorAll(".record-row-label")[0].textContent, "Cantrip 1");
-  const boutons = lignes[0].querySelectorAll(".record-option").filter((b) => !(b.className || "").includes("record-option-none"));
-  assert.equal(boutons.length, 15);
-  const rayOfFrost = boutons.find((b) => b.getAttribute("data-value") === "srd:spell:en:ray-of-frost");
+  /* Le bloc des mineurs : 3 créneaux (« Cantrip 1 »…), 15 jetons dans la
+     grille, nommés par le RECORD (« Ray of Frost ») et identifiés par
+     `data-valeur` (l'id complet). */
+  const mineurs = blocs[1];
+  assert.equal(mineurs.querySelectorAll(".glisse-creneau").length, 3);
+  assert.equal(mineurs.querySelectorAll(".glisse-creneau-nom")[0].textContent, "Cantrip 1");
+  assert.equal(mineurs.querySelectorAll(".glisse-grille").length, 1, "et c'est la grille du croquis");
+  const jetons = mineurs.querySelectorAll(".glisse-jeton");
+  assert.equal(jetons.length, 15);
+  const rayOfFrost = jetons.find((b) => b.getAttribute("data-valeur") === "srd:spell:en:ray-of-frost");
   assert.equal(rayOfFrost.textContent, "Ray of Frost", "le nom vient du record — l'id de sort est un id COMPLET, `query` le trouve");
 
-  /* Le clic pose un RECORD — `choose` + ref, jamais un `set` scalaire. */
-  rayOfFrost.click();
+  /* Le geste pose un RECORD — `choose` + ref, jamais un `set` scalaire.
+     ⚠️ À LA SOURIS : depuis la décision d'Eric du 16/08 au soir, le tap d'un
+     DOIGT ouvre l'info sur ces grilles. Le contrat d'action, lui, est le même
+     quel que soit l'outil — c'est ce qu'on vérifie ici. */
+  document.elementFromPoint = () => null;
+  rayOfFrost.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  rayOfFrost.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
   assert.deepEqual(calls, [{
     kind: "choose", path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ray-of-frost" }
   }]);

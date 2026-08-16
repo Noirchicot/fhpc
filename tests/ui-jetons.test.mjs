@@ -218,6 +218,58 @@ test("garde 4 — aucun display:none dans shell.css (défaut n°3)", () => {
   assert.deepEqual(displayNoneViolations(shellCssRaw), []);
 });
 
+/* ══ GARDE 12 — LES ACCOLADES, COMPTÉES AVEC UNE PILE ════════════════════
+   🔴 CE GARDE A UNE FACTURE, ET ELLE EST LOURDE. `shell.css` a porté un
+   `@media (prefers-reduced-motion: reduce)` OUVERT LIGNE 891 ET JAMAIS
+   REFERMÉ : les **205 sélecteurs** écrits en dessous ne s'appliquaient
+   qu'aux visiteurs ayant désactivé les animations. La feuille servie rendait
+   111 règles au lieu de 318, pendant des jours, sous une suite verte —
+   parce que du CSS invalide SE TAIT. Trouvé seulement quand des règles
+   neuves, écrites en fin de fichier, n'ont rien rendu du tout.
+
+   ⚠️ ET IL FAUT UNE PILE, PAS UN COMPTEUR. Un compteur `{` contre `}`
+   tombe juste dès qu'une fermante ORPHELINE existe ailleurs : elle
+   compense celle qui manque, le total s'équilibre, et le fichier reste
+   cassé. La pile, elle, dit LAQUELLE n'est pas refermée.
+   📌 Ce n'est pas un analyseur CSS : il ne juge ni les propriétés ni les
+   valeurs. Il tient l'unique défaut qui a réellement coûté. */
+function accoladesDesequilibrees(cssText) {
+  const sans = stripComments(cssText);
+  const pile = [];
+  let ligne = 1;
+  for (const c of sans) {
+    if (c === "\n") ligne += 1;
+    else if (c === "{") pile.push(ligne);
+    else if (c === "}") {
+      if (pile.length === 0) return `fermante orpheline (ligne ${ligne}, commentaires ôtés)`;
+      pile.pop();
+    }
+  }
+  return pile.length === 0 ? null : `ouvrante jamais refermée (ligne ${pile[0]}, commentaires ôtés)`;
+}
+
+test("garde 12 — chaque feuille de ui/builder/ est équilibrée (205 sélecteurs perdus une fois)", () => {
+  const fautes = [];
+  for (const nom of fs.readdirSync(UI_DIR).filter((n) => n.endsWith(".css")).sort()) {
+    const faute = accoladesDesequilibrees(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    if (faute) fautes.push(`${nom} : ${faute}`);
+  }
+  assert.deepEqual(fautes, [], "du CSS invalide se tait — c'est ce silence que ce garde brise");
+});
+
+test("⚔️ ATTAQUE — le garde 12 voit les DEUX formes, et une fermante en trop ne masque plus rien", () => {
+  assert.equal(accoladesDesequilibrees(".a { color: red;\n.b { color: blue; }"),
+    "ouvrante jamais refermée (ligne 1, commentaires ôtés)");
+  assert.equal(accoladesDesequilibrees(".a { color: red; }\n}"),
+    "fermante orpheline (ligne 2, commentaires ôtés)");
+  /* ⭐ LE CAS QUI A COÛTÉ : une ouvrante manquante ET une fermante en trop.
+     Un compteur rend 0 et laisse passer ; la pile voit l'orpheline. */
+  assert.notEqual(accoladesDesequilibrees("@media (x) {\n.a { color: red; }\n}\n}"), null,
+    "le total s'équilibre, la structure non — c'est exactement le défaut du 16/08");
+  assert.equal(accoladesDesequilibrees(".a { color: /* } */ red; }"), null,
+    "et une accolade DANS un commentaire ne compte pas : le garde dépouille d'abord");
+});
+
 /* ══ GARDE 7 — LE DÉCOR NE REVIENT PAS EN LIGNE ═════════════════════════
    Jusqu'au 2026-08-15, ce qui interdisait un `element.style.…` dans `ui/`
    n'était pas un garde : c'était le stub de test, qui n'avait pas de
