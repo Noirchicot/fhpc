@@ -25,7 +25,34 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=42";
+import { planAt } from "./carnet.mjs?v=43";
+import { versionQuery } from "./version.mjs?v=43";
+
+/* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
+   arrivées ═══════════════════════════════════════════════════════════════
+   `species-step.mjs` l'annonçait mot pour mot : *« le jour où les images
+   arrivent, elles arrivent pour les deux écrans AU MÊME ENDROIT »*. Elles
+   sont arrivées ; voici l'endroit.
+
+   ⭐ LE CHEMIN SE DÉDUIT DE L'ID, IL NE SE DÉCLARE PAS. Une table
+   `{ wizard: "…/wizard.webp" }` serait une seconde liste à tenir d'accord
+   avec le dossier ; ici, poser un fichier dans `assets/fiches/` suffit à ce
+   que la fiche le prenne.
+   ⛔ ET L'ABSENCE N'EST PAS UNE ERREUR : tant que le fichier n'existe pas,
+   `onerror` repose le dos de carte (voir `renderFicheBody`), et les autres
+   fiches ne voient aucune différence.
+   📌 L'id porte son préfixe de couche (`srd:species:en:elf`) ; seul le
+   dernier segment nomme le fichier — `elf.webp`. Un record FH
+   (`fh:species:en:araag`) et un record SRD se rangent donc côte à côte, sans
+   que le dossier connaisse les couches. */
+const IMAGES_DE_FICHE = "./assets/fiches";
+/* ⏳ Le dos de carte, en attendant les fiches qui n'ont pas encore la leur.
+   Il porte la version du graphe comme tout ce que `ui/` charge (lot 75). */
+export const DOS_DE_CARTE = `./assets/arcana/back.jpg${versionQuery(import.meta.url)}`;
+
+export function imageDeFiche(id) {
+  return `${IMAGES_DE_FICHE}/${String(id).split(":").pop()}.webp${versionQuery(import.meta.url)}`;
+}
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

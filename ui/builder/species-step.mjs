@@ -24,13 +24,17 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=42";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=42";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=43";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=43";
 
-/* ⏳ Même bouche-trou que Class, et c'est le point : la fiche est la même
-   (« B3 = B2 »). Le jour où les images arrivent, elles arrivent pour les
-   deux écrans au même endroit. */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=42";
+/* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
+   est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
+   pour les deux écrans AU MÊME ENDROIT »*. `imageDeFiche` et le dos de carte
+   vivent maintenant dans `catalogue.mjs`, le fichier que les deux écrans à
+   fiche partagent déjà — pas recopiés ici.
+   📌 Le record se nomme `gnome` (l'id SRD) et Fate's Hand l'appelle
+   **Hoddon** dans sa couche de lore : le fichier posé est donc `gnome.webp`.
+   Le dossier ne connaît que des ids, jamais des noms d'affichage. */
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -91,7 +95,8 @@ export function renderSpeciesCardBody(query, id) {
        jamais dans un écran. Sept espèces sur douze n'en ont pas, et leur
        fiche centre alors son blurb. */
     infos: data.fiche_infos,
-    image: DOS_DE_CARTE,
+    image: imageDeFiche(id),
+    imageSecours: DOS_DE_CARTE,
     imageAlt: ""
   });
 }
