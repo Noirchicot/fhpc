@@ -94,8 +94,18 @@ function creneauSous(x, y) {
  *  `maintien` — vrai quand le jeton vit dans une GRILLE QUI DÉFILE : le
  *  glisser demande alors un appui de `MAINTIEN_MS` avant de soulever le
  *  jeton, et un doigt qui bouge avant fait défiler la grille (voir la tête
- *  de ce fichier). Faux ailleurs : le geste reste immédiat, à l'identique. */
-function armerJeton(jeton, { onTap, onDepot, maintien }) {
+ *  de ce fichier). Faux ailleurs : le geste reste immédiat, à l'identique.
+ *
+ *  ⭐ EXPORTÉE AU LOT 79 (les dés) — LE GESTE EST UN, LES ÉCRANS SONT DEUX.
+ *  Le plateau d'Abilities (croquis B, « DRAG AND DROP » entre les six dés
+ *  gardés et les six caractéristiques) n'a ni chemins de plan ni actions du
+ *  carnet : il pose `assignAbilityRoll`. Il ne peut donc pas emprunter
+ *  `renderChoixGlisses` — mais il DOIT emprunter le geste, sans quoi il en
+ *  existerait deux, qui divergeraient (la loi que `popup.mjs` énonce pour la
+ *  fermeture : « à coder UNE fois, pas trois »). Ce qui se partage est le
+ *  seuil, le maintien, le ciblage et le renoncement ; la FORME reste à
+ *  chaque écran. */
+export function armerJeton(jeton, { onTap, onDepot, maintien }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */

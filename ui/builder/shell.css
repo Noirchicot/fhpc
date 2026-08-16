@@ -1745,6 +1745,56 @@ button { font: inherit; }
    un geste qui n'a pas pris. Le liseré d'accent, comme le créneau visé. */
 .glisse-jeton[data-souleve="true"] { border-color: var(--accent); }
 
+/* ══ LE PLATEAU QUI SE GLISSE — croquis B, panneaux 3 et 4 ═══════════════
+   📐 Les six dés gardés en cartes (total, et le détail « 5+5+6 » dessous),
+   les six caractéristiques en cases. Le même organe que les sorts, donc la
+   même feuille : ces règles n'ajoutent QUE ce que le dessin montre en plus
+   — un chiffre qui domine, un détail qui le suit, et six colonnes égales. */
+/* LES SIX DÉS EN UNE RANGÉE — le croquis les met côte à côte, et la mesure
+   le permet tout juste : à 375 px, six cartes valent 47 px, où « 6+6+1 » au
+   plus petit barreau tient en 32. Une septième ne tiendrait pas ; il n'y en a
+   jamais sept (le lot en garde six). */
+.ability-des-gardes > li {
+  flex: 1 1 calc((100% - 5 * var(--sp-8)) / 6);
+  max-width: calc((100% - 5 * var(--sp-8)) / 6);
+  display: flex;
+}
+.ability-de-garde {
+  flex: 1 1 auto; min-width: 0;
+  flex-direction: column; display: flex; align-items: center; justify-content: center;
+  gap: var(--sp-2); padding: var(--sp-4) var(--sp-2);
+}
+.ability-de-total { font-size: var(--t4); }
+.ability-de-detail { font-size: var(--t1); color: var(--text-muted); }
+/* UN DÉ DÉJÀ POSÉ RESTE PRENABLE (l'échange du lot 51) — il pâlit, il ne se
+   retire pas. ⛔ Et il n'est pas `disabled` : ce serait mentir sur un geste
+   qui marche. */
+.ability-de-garde[data-pris="true"] { opacity: .55; }
+
+/* LES SIX CASES — DEUX RANGÉES DE TROIS, ET C'EST UN ÉCART ASSUMÉ AU DESSIN.
+   📐 Le croquis les aligne toutes les six ; à 375 px cela ferait 50 px par
+   case, où « 14 (+2) » — la cellule « Final » du lot 46, le seul endroit de
+   l'écran qui montre ce qu'un choix DONNE — ne tient pas. Entre perdre le
+   final et perdre la ligne unique, c'est la ligne qui cède : le dessin
+   montrait des cases VIDES, sans final à loger.
+   ⛔ SÉLECTEUR À DEUX CLASSES, VOLONTAIREMENT : la règle des quatre créneaux
+   de sorts (2 × 2, plus haut) mordrait sinon sur ces six-ci — elle porte un
+   `:has()`, donc la même spécificité, et l'ordre seul ne suffirait pas.
+   ⭐ Et l'ordre de lecture reste celui du SRD (STR DEX CON / INT WIS CHA) :
+   `row`, jamais `column` — c'est ce que le croquis écrit de gauche à droite. */
+.glisse-creneaux.ability-creneaux {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: none;
+}
+.ability-creneau { padding: var(--sp-4) var(--sp-2); }
+/* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
+   score posé à la main passerait pour un dé qu'on aurait déjà placé. */
+.ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
+.ability-creneau .ability-row-final { font-size: var(--t1); }
+.ability-creneau .ability-row-final-label { color: var(--text-muted); }
+
 /* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */
 .glisse-creneaux { display: flex; gap: var(--sp-8); }
 /* ══ QUATRE CRÉNEAUX SE POSENT 2 × 2 — lot 79, étape 4 ═══════════════════
@@ -1759,7 +1809,12 @@ button { font: inherit; }
    plus haut) : un navigateur qui ne le connaîtrait pas rendrait simplement la
    rangée, ce qui reste lisible. Le compte vit dans le DOM, pas dans le JS —
    l'écran n'a aucun nombre à écrire. */
-.glisse-creneaux:has(> :nth-child(4)) {
+/* ⛔ `:not(.ability-creneaux)` — LES SIX CASES DES CARACTÉRISTIQUES NE SONT
+   PAS QUATRE CRÉNEAUX DE SORTS, et l'ordre des règles ne suffisait pas à le
+   dire : les deux sélecteurs ont la MÊME spécificité (un `:has()` vaut son
+   argument le plus fort), et celui-ci mordait sur celles-là. Nommer
+   l'exception vaut mieux que compter sur la place dans le fichier. */
+.glisse-creneaux:has(> :nth-child(4)):not(.ability-creneaux) {
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(2, 1fr);

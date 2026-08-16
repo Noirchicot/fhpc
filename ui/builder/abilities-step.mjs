@@ -88,11 +88,12 @@
    §1d : le document ne gagne toujours aucun champ) vit dans `shell.mjs`,
    `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
 
-import { renderPicker, markPressed } from "./carnet.mjs?v=31";
-import { renderTray } from "./abilities-tray.mjs?v=31";
-import { ROLLING_METHODS } from "./dice.mjs?v=31";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=31";
-import { rollAbilitySet } from "./dice.mjs?v=31";
+import { renderPicker, markPressed } from "./carnet.mjs?v=32";
+import { renderTray } from "./abilities-tray.mjs?v=32";
+import { armerJeton } from "./glisser.mjs?v=32";
+import { ROLLING_METHODS } from "./dice.mjs?v=32";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=32";
+import { rollAbilitySet } from "./dice.mjs?v=32";
 
 export { rollAbilitySet };
 
@@ -383,6 +384,113 @@ function renderAssignRow(key, ctx) {
   return row;
 }
 
+/* ══ LES DEUX PANNEAUX DU CROQUIS B — lot 79, les dés ════════════════════
+   📐 Croquis `2026-08-15-abilities-roll-drag-drop.jpg`, panneaux 3 et 4 : les
+   SIX dés gardés en cartes (leur total, et le détail « 5+5+6 » dessous), les
+   SIX caractéristiques en cases vides, et entre les deux une grande flèche —
+   **DRAG AND DROP**. C'est le seul geste que le dessin nomme.
+
+   🔴 CE QUE ÇA REMPLACE, ET POURQUOI CE N'EST PAS UN GOÛT. Chacune des six
+   rangées portait les SIX dés en boutons : trente-six boutons, 352 px
+   mesurés, et le même dé répété six fois avec, dans son libellé, le nom de
+   la rangée qui le tient (« 16 (DEX) ») — une prothèse que le lot 51 avait
+   dû inventer parce que rien ne montrait QUI tenait QUOI. Ici, le panneau 4
+   le montre : chaque case porte ce qu'elle tient. La prothèse disparaît avec
+   ce qu'elle réparait.
+
+   ⛔ ET L'ACTION NE BOUGE PAS D'UN OCTET : `assignAbilityRoll`, la forme du
+   lot 50, avec sa clef, son index et sa valeur. C'est `shell.mjs` qui décide
+   si c'est une POSE ou un ÉCHANGE (§1b) — et l'échange est exactement ce
+   qu'un glisser attend : lâcher un dé déjà tenu sur une autre caractéristique
+   troque les deux. Aucune règle n'est écrite ici, comme partout. */
+function renderAssignationGlissee({ document: doc, resolved, rollBatch, onAction }) {
+  const gardes = (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).filter((roll) => roll.kept);
+  if (gardes.length === 0) return null;
+  const assign = (rollBatch && rollBatch.assign) || {};
+  const poser = (key, roll) => onAction({ kind: "assignAbilityRoll", key, rollIndex: roll.index, value: roll.total });
+  /* QUI TIENT CE DÉ — lu dans `assign`, la SEULE carte qui le sache, jamais
+     recalculé (lot 50, §2a : elle vit hors document et meurt avec le lot). */
+  const tenuPar = (index) => {
+    for (const [key, tenu] of Object.entries(assign)) if (tenu === index) return key;
+    return null;
+  };
+
+  const bloc = el("section", "choix-glisse ability-glisse");
+
+  /* ── PANNEAU 3 : les six dés gardés ──────────────────────────────────
+     ⛔ AUCUN N'EST DÉSACTIVÉ, MÊME DÉJÀ POSÉ — contrairement aux jetons de
+     sorts, où une option posée est ailleurs. Un dé posé est encore
+     PRENABLE : le reprendre pour une autre caractéristique est l'échange du
+     lot 51, et c'est le geste normal quand on réarrange six scores. Il
+     s'annonce pris (`data-pris`), il ne se retire pas. */
+  const vivier = el("ul", "glisse-vivier ability-des-gardes");
+  for (const roll of gardes) {
+    const item = el("li", null);
+    const jeton = el("button", "glisse-jeton ability-de-garde");
+    jeton.type = "button";
+    jeton.dataset.valeur = String(roll.index);
+    jeton.dataset.pris = String(tenuPar(roll.index) !== null);
+    jeton.append(el("span", "ability-de-total", [text(String(roll.total))]));
+    /* Le détail « 5+5+6 » est DANS le croquis, sous chaque carte. Un tirage
+       sans détail (le tableau standard) n'affiche pas une ligne vide. */
+    if (Array.isArray(roll.dice) && roll.dice.length > 0) {
+      jeton.append(el("span", "ability-de-detail", [text(roll.dice.join("+"))]));
+    }
+    armerJeton(jeton, {
+      /* LE TAP : la première caractéristique encore SERVIE PAR AUCUN DÉ. Le
+         croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
+         évite six glissers au pouce quand l'ordre est indifférent. */
+      onTap: () => {
+        const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
+        if (libre) poser(libre, roll);
+      },
+      onDepot: (key) => poser(key, roll)
+    });
+    item.append(jeton);
+    vivier.append(item);
+  }
+  bloc.append(vivier);
+
+  /* ── PANNEAU 4 : les six caractéristiques ────────────────────────────
+     ⛔ PAS DE GESTE DE RETRAIT, et c'est mesuré, pas oublié : `rebuild()`
+     JETTE si l'une des six manque (INVENTAIRE-LOT-45.md), et il n'existe
+     aucune action qui dépose une case SANS en remplir une autre. On
+     réarrange en posant, jamais en vidant. */
+  const rangee = el("div", "glisse-creneaux ability-creneaux");
+  for (const key of ABILITY_KEYS) {
+    const creneau = el("div", "glisse-creneau ability-creneau");
+    creneau.dataset.creneau = key;
+    const tenu = assign[key];
+    const duLot = tenu !== undefined && tenu !== null;
+    const valeur = currentAbilityValue(doc, key);
+    creneau.dataset.rempli = String(duLot);
+    /* `data-source` — une valeur qui ne vient PAS de ce tirage se dit. Le
+       lot 50 l'écrivait en toutes lettres sous chaque rangée ; ici la case
+       est trop petite pour une phrase, donc c'est la feuille qui le montre,
+       et l'`aria-label` qui le dit à qui n'a pas les yeux dessus. */
+    creneau.dataset.source = duLot ? "lot" : (valeur !== undefined ? "hors-lot" : "vide");
+    creneau.append(el("span", "glisse-creneau-nom", [text(abilityLabel(key))]));
+    creneau.append(el("span", "glisse-creneau-valeur", [text(valeur === undefined ? "—" : String(valeur))]));
+    creneau.setAttribute("aria-label", duLot
+      ? `${abilityLabel(key)} — ${valeur} from this roll`
+      : valeur !== undefined ? `${abilityLabel(key)} — ${valeur}, not from this roll` : `${abilityLabel(key)} — empty`);
+    /* La colonne « Final » du lot 46, au même octet : le score dérivé et son
+       modificateur, boosts d'Inheritance compris. Elle n'est pas décorative —
+       c'est le seul endroit de l'écran où le joueur lit ce que son choix
+       DONNE, et elle était déjà là avant le glisser. */
+    const final = renderFinalColumn(resolved, key, valeur);
+    if (final) creneau.append(final);
+    const alerte = renderCapWarning(resolved, key);
+    if (alerte) creneau.append(alerte);
+    rangee.append(creneau);
+  }
+  bloc.append(rangee);
+  bloc.append(el("p", "glisse-consigne", [text(
+    "Drag a die onto an ability · dropping one that is already placed swaps the two"
+  )]));
+  return bloc;
+}
+
 function renderManualRow(key, ctx) {
   const { document, resolved, onAction } = ctx;
   const current = currentAbilityValue(document, key);
@@ -447,9 +555,16 @@ function renderRollBatch(rollBatch, onAction) {
  *  seul) : la boucle de `renderAbilitiesStep` ne fait que les ajouter,
  *  elle ne sait pas combien il y en a ni ce qu'ils contiennent. */
 function renderRollMethod({ document, resolved, rollBatch, revele, onAction }) {
+  /* LOT 79 — LES DEUX PANNEAUX DU CROQUIS B remplacent les six rangées à
+     picker DÈS QU'UN LOT EST TIRÉ. Tant qu'il n'y en a pas, il n'y a rien à
+     glisser : les rangées restent, elles portent alors la seule chose qui
+     compte encore (ce que le document tient déjà, et son « Final »). */
+  const glisse = renderAssignationGlissee({ document, resolved, rollBatch, onAction });
   const rows = el("div", "ability-rows");
-  for (const key of ABILITY_KEYS) {
-    rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction }));
+  if (!glisse) {
+    for (const key of ABILITY_KEYS) {
+      rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction }));
+    }
   }
   /* ⭐ LE PLATEAU REMPLACE `renderRollBatch` (croquis B, 2026-08-15) : trois
      dés 3D, `ROLL`/`ROLL 10`/`CLEAR` sur leur propre rangée, et les dix cases
@@ -462,7 +577,7 @@ function renderRollMethod({ document, resolved, rollBatch, revele, onAction }) {
     onRevele: (valeur) => onAction({ kind: "abilityRevele", valeur }),
     onClear: () => onAction({ kind: "abilityClear" })
   });
-  return [plateau, rows];
+  return [plateau, glisse || rows];
 }
 
 /** LE `render` DE LA MÉTHODE `manual` — six lignes de saisie, même forme de
@@ -614,12 +729,19 @@ export function renderAbilitiesStep(ctx, onAction) {
     return section;
   }
 
-  /** Les six lignes d'affectation — B5.4/B5.5, le temps 2. ⛔ Elles
-   *  n'apparaissent QUE lorsqu'un lot existe : six molettes sans aucune
-   *  option seraient le « faux magasin » que ce dépôt interdit. Les six
-   *  cases VIDES du croquis B viendront avec le glisser-déposer, où elles
-   *  sont une DESTINATION — pas un choix mort. */
+  /** L'AFFECTATION — B5.4/B5.5, le temps 2. ⛔ Elle n'apparaît QUE lorsqu'un
+   *  lot existe : six molettes (ou six cases) sans rien à y mettre seraient
+   *  le « faux magasin » que ce dépôt interdit.
+   *
+   *  ⭐ LOT 79 — LA PHRASE ÉCRITE ICI EN ATTENDANT EST DEVENUE VRAIE : *« les
+   *  six cases VIDES du croquis B viendront avec le glisser-déposer, où elles
+   *  sont une DESTINATION — pas un choix mort »*. Elles sont là.
+   *  ⚠️ ET LES RANGÉES RESTENT LE REPLI, pour une raison mesurée : un lot dont
+   *  AUCUN dé n'est gardé (aucun n'existe aujourd'hui, mais le carnet ne le
+   *  promet pas) n'a rien à glisser. Mieux vaut la vieille forme que rien. */
   const lignesDAffectation = (lot) => {
+    const glisse = renderAssignationGlissee({ document, resolved, rollBatch: lot, onAction: act });
+    if (glisse) return glisse;
     const rows = el("div", "ability-rows");
     for (const key of ABILITY_KEYS) {
       rows.append(renderAssignRow(key, { document, resolved, rollBatch: lot, onAction: act }));

@@ -111,6 +111,37 @@ function activeOption(row) {
   return active ? active.textContent : null;
 }
 
+/* ══ LE PLATEAU QUI SE GLISSE — lot 79, croquis B ════════════════════════
+   🔴 CE QUE CES TROIS LIGNES REMPLACENT, ET POURQUOI CE N'EST PAS UN
+   AFFAIBLISSEMENT. Les six rangées à molette ont laissé la place aux deux
+   panneaux du croquis : UN vivier de six dés, SIX cases, et le glisser entre
+   les deux. Les invariants que ce fichier tient — deux dés de même valeur
+   restent distincts, un score hors lot ne consomme aucun dé, une case servie
+   se reconnaît, l'échange — n'ont pas bougé d'un mot ; ils se LISENT
+   ailleurs, et souvent plus directement (le « 16 (DEX) » du lot 51 était une
+   prothèse : le panneau 4 montre maintenant qui tient quoi).
+   ⛔ Rien n'a été supprimé ici : chaque test réécrit porte sa raison. */
+function desGardes(node) { return node.querySelectorAll(".ability-de-garde"); }
+function totauxOfferts(node) {
+  return desGardes(node).map((j) => j.querySelectorAll(".ability-de-total")[0].textContent);
+}
+function dePour(node, index) {
+  return node.querySelectorAll(`.ability-de-garde[data-valeur="${index}"]`)[0] || null;
+}
+function creneauPour(node, key) {
+  return node.querySelectorAll(`.ability-creneau[data-creneau="${key}"]`)[0] || null;
+}
+function valeurDe(creneau) { return creneau.querySelectorAll(".glisse-creneau-valeur")[0].textContent; }
+
+/** LE GESTE DU CROQUIS : on prend un dé, on le lâche sur une case. Sans
+ *  `cible`, c'est un TAP (le raccourci vers la première case encore vide). */
+function glisser(de, cible) {
+  globalThis.document.elementFromPoint = () => cible || null;
+  de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  if (cible) de.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  de.dispatchEvent({ type: cible ? "pointerup" : "pointerup", clientX: cible ? 40 : 0, clientY: 0, pointerId: 1 });
+}
+
 /* ⚠️ LOT 63 — `method` ENTRE DANS LE `ctx`. B5.1c : « il faut CLIQUER pour
    faire apparaître les rollers/choosers — rien n'est déplié d'avance ». La
    méthode n'est donc plus lue dans le document (`abilities.mode`, qui y
@@ -187,10 +218,20 @@ test("⚔️ LE TEST QUI PROUVE LE LOT — CON, WIS et CHA voient encore le 15 e
   const rollBatch = makeRollBatch([11, 15, 11, 14, 14, 11], { str: 0, dex: null, con: null, int: null, wis: null, cha: null });
   const report = rebuild(fixture.document);
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
+  /* ⭐ LOT 79 — LA QUESTION EST LA MÊME, POSÉE UNE FOIS AU LIEU DE SIX. Il n'y
+     a plus une liste d'options PAR rangée mais UN vivier, commun aux six
+     cases : ce que « con, wis et cha voient » est donc, littéralement, ce que
+     le vivier porte. Le défaut que ce test a été écrit pour attraper — un
+     score DÉJÀ POSÉ hors lot (le 15 de INT, le 14 de DEX) qui volait un dé
+     RÉEL au pool — se lit ici d'un seul coup d'œil. */
+  const totaux = totauxOfferts(node);
+  assert.deepEqual(totaux, ["11", "15", "11", "14", "14", "11"],
+    "les six dés gardés, dans l'ordre du lot — ni filtrés, ni fusionnés par valeur");
+  assert.ok(totaux.includes("15"), "le 15 du lot reste offert — le 15 EXISTANT de INT (hors lot) ne l'a pas volé");
+  assert.equal(totaux.filter((t) => t === "14").length, 2,
+    "les DEUX 14 du lot restent offerts — le 14 EXISTANT de DEX (hors lot) n'en a volé aucun");
   for (const key of ["con", "wis", "cha"]) {
-    const labels = optionLabels(rowFor(node, key));
-    assert.ok(labels.includes("15"), `${key} : le 15 du lot reste offert — le 15 EXISTANT de INT (hors lot) ne l'a pas volé`);
-    assert.equal(labels.filter((l) => l === "14").length, 2, `${key} : les DEUX 14 du lot restent offerts — le 14 EXISTANT de DEX (hors lot) n'en a volé aucun`);
+    assert.equal(creneauPour(node, key).dataset.rempli, "false", `${key} n'a rien reçu, et sa case le dit`);
   }
 });
 
@@ -200,8 +241,16 @@ test("deux dés de même valeur sont deux options distinctes : en assigner un la
   const rollBatch = makeRollBatch([14, 14, 11, 11, 11, 8], { str: 0, dex: null, con: null, int: null, wis: null, cha: null });
   const report = rebuild(fixture.document);
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
-  const labels = optionLabels(rowFor(node, "dex"));
-  assert.equal(labels.filter((l) => l === "14").length, 1, "le second 14 (index 1) reste une option pour dex, bien que le premier (index 0) soit pris par str");
+  /* LOT 79 — DEUX DÉS, DEUX JETONS, DEUX INDEX. La distinction ne tient pas au
+     libellé (les deux affichent « 14 ») mais à `data-valeur`, qui porte
+     l'INDEX : c'est la même clef que `assign` emploie. Le premier est pris
+     par str et le DIT (`data-pris`) ; le second est libre. */
+  const quatorzes = desGardes(node).filter((j) => j.querySelectorAll(".ability-de-total")[0].textContent === "14");
+  assert.equal(quatorzes.length, 2, "les deux 14 sont deux jetons, jamais fusionnés");
+  assert.deepEqual(quatorzes.map((j) => j.getAttribute("data-valeur")), ["0", "1"]);
+  assert.deepEqual(quatorzes.map((j) => j.getAttribute("data-pris")), ["true", "false"],
+    "le 14 d'index 0 est chez str, celui d'index 1 est encore à prendre");
+  assert.equal(quatorzes[1].disabled, false, "et il se prend vraiment — un jeton pris reste prenable (l'échange du lot 51)");
 });
 
 /* ══ 3 — UNE VALEUR HORS LOT NE CONSOMME AUCUN DÉ ════════════════════════
@@ -214,26 +263,36 @@ test("une valeur hors lot (le 14 que dex porte déjà, jamais tiré) ne consomme
   const rollBatch = makeRollBatch([14, 15, 11, 11, 11, 8]); // aucun `assign` : rien n'a encore été distribué
   const report = rebuild(fixture.document);
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
-  const labels = optionLabels(rowFor(node, "str"));
-  assert.equal(labels.filter((l) => l === "14").length, 1, "le 14 tiré (index 0) reste disponible pour str — le 14 de dex (hors lot, jamais assigné) ne l'a pas consommé");
+  assert.equal(totauxOfferts(node).filter((t) => t === "14").length, 1,
+    "le 14 tiré (index 0) reste dans le vivier — le 14 de dex (hors lot, jamais assigné) ne l'a pas consommé");
+  /* Et la case de dex le dit dans l'autre sens : elle porte bien 14, mais
+     `hors-lot` — la valeur ne disparaît pas, elle ne se fait pas passer pour
+     un dé posé (« rien ne se cache », §2, vaut toujours). */
+  const dex = creneauPour(node, "dex");
+  assert.equal(valeurDe(dex), "14");
+  assert.equal(dex.dataset.source, "hors-lot");
 });
 
 /* ══ 4 — UNE RANGÉE DISTRIBUÉE EST RECONNAISSABLE, UNE NON DISTRIBUÉE AUSSI
    (commande §2c) ══════════════════════════════════════════════════════ */
 
-test("une rangée non distribuée est reconnaissable dans le rendu, et une rangée distribuée l'est aussi", () => {
+test("une CASE non distribuée est reconnaissable dans le rendu, et une case distribuée l'est aussi", () => {
   const rollBatch = makeRollBatch([12, 11, 10, 9, 8, 7], { str: 0, dex: null, con: null, int: null, wis: null, cha: null });
   const report = rebuild(fixture.document);
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
-  const strRow = rowFor(node, "str");
-  const dexRow = rowFor(node, "dex");
-  assert.equal(strRow.dataset.assigned, "true", "str a reçu un dé (index 0) : la ligne le dit");
-  assert.equal(dexRow.dataset.assigned, "false", "dex n'a rien reçu : la ligne le dit aussi — « rien ne se cache » vaut dans les deux sens");
-  // Et dex continue de montrer sa valeur COURANTE (14, celle du personnage
-  // d'exemple) — « rien ne se cache » (§2) : elle ne disparaît pas pour
-  // autant qu'elle ne vienne pas du lot.
-  assert.match(dexRow.querySelectorAll(".ability-row-source")[0].textContent, /14/);
-  assert.equal(strRow.querySelectorAll(".ability-row-source")[0].textContent, "from this roll");
+  const str = creneauPour(node, "str");
+  const dex = creneauPour(node, "dex");
+  assert.equal(str.dataset.rempli, "true", "str a reçu un dé (index 0) : la case le dit");
+  assert.equal(str.dataset.source, "lot");
+  assert.equal(dex.dataset.rempli, "false", "dex n'a rien reçu : la case le dit aussi — « rien ne se cache » vaut dans les deux sens");
+  /* Et dex continue de montrer sa valeur COURANTE (14, celle du personnage
+     d'exemple) : elle ne disparaît pas pour autant qu'elle ne vienne pas du
+     lot — c'est `data-source` qui fait la différence, et l'`aria-label` qui
+     la DIT à qui ne voit pas la feuille. */
+  assert.equal(valeurDe(dex), "14");
+  assert.equal(dex.dataset.source, "hors-lot");
+  assert.match(dex.getAttribute("aria-label"), /not from this roll/);
+  assert.match(str.getAttribute("aria-label"), /from this roll/);
 });
 
 /* ══ 5 — emptyAbilityAssign() : LA CARTE VIDE QUE shell.mjs POSE À CHAQUE
@@ -268,16 +327,23 @@ test("réassigner une rangée déjà servie libère le dé précédent pour les 
   const keptTotals = [12, 11, 10, 9, 8, 7];
   const report = rebuild(fixture.document);
 
+  /* ⭐ LOT 79 — LE LIBELLÉ N'A PLUS À PORTER LE PROPRIÉTAIRE. « 12 (STR) »
+     était la prothèse du lot 51 : six rangées répétaient les six dés, et il
+     fallait bien dire lequel était pris. Le croquis B les met côte à côte —
+     le dé porte `data-pris`, la case porte sa valeur, et l'œil fait le reste.
+     La QUESTION de ce test est intacte : réassigner str LIBÈRE le dé qu'elle
+     tenait, et prend l'autre. */
   const node1 = renderAbilitiesStep(ctxFrom(report.document, report, {
     rollBatch: makeRollBatch(keptTotals, { str: 0, dex: null, con: null, int: null, wis: null, cha: null })
   }), () => {});
-  assert.equal(optionLabels(rowFor(node1, "dex")).filter((l) => l === "12").length, 0, "str tient le dé 0 (12) : dex le voit nommé « 12 (STR) », jamais comme un 12 libre");
+  assert.equal(dePour(node1, 0).dataset.pris, "true", "str tient le dé 0 (12) : le jeton l'annonce");
+  assert.equal(dePour(node1, 2).dataset.pris, "false", "le dé 2 (10) est libre");
 
   const node2 = renderAbilitiesStep(ctxFrom(report.document, report, {
     rollBatch: makeRollBatch(keptTotals, { str: 2, dex: null, con: null, int: null, wis: null, cha: null })
   }), () => {});
-  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "12").length, 1, "str a changé pour le dé 2 (10) : le dé 0 (12) redevient un « 12 » nu pour dex — le précédent est libéré");
-  assert.equal(optionLabels(rowFor(node2, "dex")).filter((l) => l === "10").length, 0, "et le dé 2 (10), désormais tenu par str, se nomme « 10 (STR) », plus offert nu à dex");
+  assert.equal(dePour(node2, 0).dataset.pris, "false", "str a changé pour le dé 2 : le dé 0 (12) est libéré");
+  assert.equal(dePour(node2, 2).dataset.pris, "true", "et c'est le dé 2 (10) qui est désormais tenu");
 });
 
 /* ══ LOT 51 — LE DÉFAUT, L'ÉCHANGE, ET SES CAS LIMITES (§0/§1/§2 de sa
@@ -288,18 +354,27 @@ test("réassigner une rangée déjà servie libère le dé précédent pour les 
    builder/abilities-step.mjs` (le code d'avant ce lot), il donne 1 option,
    0 cliquable, sur les six rangées — exactement la mesure du §0 de la
    commande sur la page déployée. */
-test("⚔️ LE TEST QUI PROUVE LE LOT 51 — après une distribution COMPLÈTE des six dés, chaque rangée offre encore six options, dont cinq cliquables", () => {
+test("⚔️ LE TEST QUI PROUVE LE LOT 51 — après une distribution COMPLÈTE, les six dés restent tous prenables", () => {
   const keptTotals = [8, 9, 10, 11, 12, 13];
   const assign = { str: 0, dex: 1, con: 2, int: 3, wis: 4, cha: 5 };
   const rollBatch = makeRollBatch(keptTotals, assign);
   const report = rebuild(fixture.document);
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), () => {});
+  /* 🔴 LE DÉFAUT DU LOT 51 EST TOUJOURS CE QU'ON GARDE, ET LA NOUVELLE FORME
+     LE TIENT PLUS FORT. Sur le code d'avant le lot 51, une distribution
+     complète laissait UNE option par rangée et AUCUNE cliquable : plus aucun
+     geste possible. La réponse d'alors était « six options par rangée, cinq
+     cliquables » — trente-six boutons. Ici il y a SIX jetons, tous présents,
+     AUCUN désactivé : le geste reste possible dans n'importe quel état de
+     distribution, et il n'y a plus rien à répéter six fois. */
+  const jetons = desGardes(node);
+  assert.equal(jetons.length, 6, "les six dés sont là, MÊME tous distribués — c'était le défaut du lot 51");
+  assert.deepEqual(jetons.map((j) => j.disabled), [false, false, false, false, false, false],
+    "aucun n'est désactivé : lâcher un dé déjà tenu sur une autre case ÉCHANGE les deux");
+  assert.deepEqual(jetons.map((j) => j.getAttribute("data-pris")),
+    ["true", "true", "true", "true", "true", "true"], "et chacun annonce qu'il est tenu");
   for (const key of ["str", "dex", "con", "int", "wis", "cha"]) {
-    const row = rowFor(node, key);
-    const options = optionButtons(row);
-    assert.equal(options.length, 6, `${key} : six options, MÊME toutes distribuées — c'était 1 sur le code d'avant ce lot (§0)`);
-    const clickable = options.filter((b) => b.getAttribute("data-active") !== "true");
-    assert.equal(clickable.length, 5, `${key} : cinq cliquables — la sienne reste active (cliquer ne fait rien), les cinq autres échangent`);
+    assert.equal(creneauPour(node, key).dataset.rempli, "true", `${key} : sa case porte son dé`);
   }
 });
 
@@ -313,10 +388,13 @@ test("⚔️ L'ÉCHANGE — FOR tient le 10, DEX le 16 ; cliquer le 16 sur la li
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
 
-  const strRow = rowFor(node, "str");
-  const btn16 = optionButtons(strRow).find((b) => b.textContent === "16 (DEX)");
-  assert.ok(btn16, "le 16 tenu par DEX se présente sur la ligne FOR, NOMMÉ comme tel (§1c) — jamais comme un dé libre");
-  btn16.click();
+  /* LOT 79 — LE GESTE EST LE CROQUIS : on prend le 16 (que DEX tient) et on
+     le lâche sur la case FOR. Le dé n'a plus besoin de porter « (DEX) » dans
+     son libellé — il annonce `data-pris`, et la case de DEX montre 16. */
+  const de16 = dePour(node, 1);
+  assert.equal(de16.dataset.pris, "true", "le 16 est tenu par DEX, et il le dit — jamais présenté comme libre");
+  assert.equal(valeurDe(creneauPour(node, "dex")), "16", "et c'est la case de DEX qui montre lequel");
+  glisser(de16, creneauPour(node, "str"));
   assert.equal(calls.length, 1);
   assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "str", rollIndex: 1, value: 16 });
 
@@ -375,12 +453,11 @@ test("deux dés de même valeur restent distincts À L'ÉCHANGE — l'acquis du 
   const report = rebuild(document);
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
-  const dexRow = rowFor(node, "dex");
-  const labels = optionLabels(dexRow);
-  assert.ok(labels.includes("14 (STR)"), "le 14 tenu par str se nomme sur la ligne dex — jamais confondu avec le second");
-  assert.ok(labels.includes("14"), "le second 14 (index 1), libre, reste une option NUE, distincte de « 14 (STR) »");
-  const freeBtn = optionButtons(dexRow).find((b) => b.textContent === "14");
-  freeBtn.click();
+  /* Les deux 14 restent DEUX jetons : celui que str tient s'annonce pris,
+     l'autre est libre. On lâche le LIBRE (index 1) sur la case de dex. */
+  assert.equal(dePour(node, 0).dataset.pris, "true", "le 14 d'index 0 est chez str");
+  assert.equal(dePour(node, 1).dataset.pris, "false", "le second 14 (index 1) est libre, et distinct");
+  glisser(dePour(node, 1), creneauPour(node, "dex"));
   assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "dex", rollIndex: 1, value: 14 },
     "dex pose bien sur le SECOND 14 (index 1), jamais sur celui que str tient (index 0)");
 });
@@ -401,11 +478,11 @@ test("§1b, LE CAS LIMITE — une rangée NON SERVIE échange quand même : l'an
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
 
-  const conRow = rowFor(node, "con");
-  assert.equal(conRow.dataset.assigned, "false", "mesure de départ : con n'a encore rien reçu de ce lot");
-  const btn12 = optionButtons(conRow).find((b) => b.textContent === "12 (WIS)");
-  assert.ok(btn12, "le 12 tenu par wis se nomme sur la ligne con, jamais présenté comme un dé libre");
-  btn12.click();
+  const conCase = creneauPour(node, "con");
+  assert.equal(conCase.dataset.rempli, "false", "mesure de départ : con n'a encore rien reçu de ce lot");
+  const de12 = dePour(node, 1);
+  assert.equal(de12.dataset.pris, "true", "le 12 est tenu par wis, et il l'annonce — jamais présenté comme libre");
+  glisser(de12, conCase);
   assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key: "con", rollIndex: 1, value: 12 });
 
   const applied = applyAssignAbilityRoll(document, assign, rollBatch, calls[0]);
@@ -420,10 +497,11 @@ test("§1b, LE CAS LIMITE — une rangée NON SERVIE échange quand même : l'an
   assert.equal(currentAbilityValue(finalReport.document, "wis"), 12, "wis GARDE sa valeur déjà posée — rien n'est effacé, même si elle n'est plus « de ce tirage »");
 
   const finalNode = renderAbilitiesStep(ctxFrom(finalReport.document, finalReport, { rollBatch: { ...rollBatch, assign } }), () => {});
-  const wisRow = rowFor(finalNode, "wis");
-  assert.equal(wisRow.dataset.assigned, "false", "wis redevient « non distribuée » — rien ne se cache : la ligne le dit");
-  assert.match(wisRow.querySelectorAll(".ability-row-source")[0].textContent, /^12 — not from this roll$/,
-    "wis montre encore sa valeur (12), mais dit clairement qu'elle ne vient plus de CE lot");
+  const wisCase = creneauPour(finalNode, "wis");
+  assert.equal(wisCase.dataset.rempli, "false", "wis redevient « non distribuée » — rien ne se cache : la case le dit");
+  assert.equal(valeurDe(wisCase), "12", "wis montre encore sa valeur (12)…");
+  assert.equal(wisCase.dataset.source, "hors-lot", "…mais dit clairement qu'elle ne vient plus de CE lot");
+  assert.match(wisCase.getAttribute("aria-label"), /12, not from this roll/);
 });
 
 /* ══ 7 — LE DOCUMENT NE GAGNE AUCUN CHAMP (commande §3, test 7) ══════════
@@ -443,9 +521,9 @@ test("⚔️ après une assignation complète, le document ne porte QUE six abil
     const report = rebuild(document);
     const calls = [];
     const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
-    const btn = optionButtons(rowFor(node, key)).find((b) => b.textContent === String(keptTotals[i]));
-    assert.ok(btn, `${key} : le dé ${keptTotals[i]} (index ${i}) est offert`);
-    btn.click();
+    const de = dePour(node, i);
+    assert.ok(de, `${key} : le dé ${keptTotals[i]} (index ${i}) est dans le vivier`);
+    glisser(de, creneauPour(node, key));
     assert.equal(calls.length, 1);
     assert.deepEqual(calls[0], { kind: "assignAbilityRoll", key, rollIndex: i, value: keptTotals[i] });
     // Ce que shell.mjs ferait de cet appel :
@@ -710,15 +788,17 @@ test("un score final > 18 affiche une alerte, et `onAction` PART quand même —
   const rollBatch = makeRollBatch([12, 11, 10, 9, 8, 7]);
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(report.document, report, { rollBatch }), (a) => calls.push(a));
-  const intRow = rowFor(node, "int");
-  const warning = intRow.querySelectorAll(".ability-cap-warning")[0];
+  /* LOT 79 — L'ALERTE A SUIVI LA VALEUR : elle vit dans la CASE de la
+     caractéristique, là où le score se lit, et non plus sur une rangée qui
+     n'existe plus. Le fond ne change pas d'un mot : l'écran PRÉVIENT, il ne
+     bloque pas. */
+  const intCase = creneauPour(node, "int");
+  const warning = intCase.querySelectorAll(".ability-cap-warning")[0];
   assert.ok(warning, "l'alerte de plafond s'affiche");
   assert.match(warning.textContent, /18/);
-  // Et rien n'empêche de reposer un dé par-dessus : le clic part.
-  const otherBtn = optionButtons(intRow)[0];
-  assert.ok(otherBtn, "int n'a encore reçu aucun dé dans ce lot : au moins une option existe");
-  otherBtn.click();
-  assert.equal(calls.length, 1, "le clic produit bien un appel — rien ne bloque");
+  // Et rien n'empêche de reposer un dé par-dessus : le geste part.
+  glisser(dePour(node, 0), intCase);
+  assert.equal(calls.length, 1, "le geste produit bien un appel — rien ne bloque");
   assert.equal(calls[0].kind, "assignAbilityRoll");
 });
 
@@ -776,7 +856,15 @@ test("B5.7 — `Standard array` : six valeurs, SANS dés, par la même machineri
   assert.deepEqual(lot.assign, emptyAbilityAssign(), "et la carte d'affectation part vide — le remède au piège des deux 14");
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: lot }), () => {});
   assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "PAS de dés affichés (B5.7)");
-  assert.equal(node.querySelectorAll(".ability-row").length, 6, "mais les six molettes, oui");
+  /* LOT 79 — LES SIX MOLETTES SONT DEVENUES LES SIX CASES DU CROQUIS B, et le
+     tableau standard passe par la MÊME machinerie que le tirage : six valeurs
+     à poser, six cases où les poser. ⭐ Un jeton sans dés n'affiche pas de
+     détail (« 5+5+6 ») — il n'y en a pas, et rien n'invente une ligne vide. */
+  assert.equal(node.querySelectorAll(".ability-creneau").length, 6, "mais les six cases, oui");
+  assert.equal(desGardes(node).length, 6, "et les six valeurs à poser");
+  assert.deepEqual(totauxOfferts(node), ["15", "14", "13", "12", "10", "8"]);
+  assert.equal(node.querySelectorAll(".ability-de-detail").length, 0,
+    "aucun détail de dés : il n'y a pas eu de jet");
 });
 
 /* ══ ⚔️ ATTAQUE — LE CHOIX BRUT ET LE SCORE FINAL NE SE CONTREDISENT PLUS ═
@@ -818,7 +906,10 @@ test("⚔️ ATTAQUE — CON et INT (boostés par l'Inheritance) affichent un sc
     ["con", "13", "14 (+2)", true],
     ["int", "15", "17 (+3)", true]
   ]) {
-    const row = rowFor(node, key);
+    /* LOT 79 — LA CELLULE « FINAL » A SUIVI LA VALEUR : elle vit dans la CASE
+       de la caractéristique. Ce que ce test exige n'a pas bougé — les DEUX
+       nombres lisibles à la fois, et l'écart annoncé. */
+    const row = creneauPour(node, key);
     // 1) LE CHOIX BRUT RESTE VISIBLE, ET C'EST LUI QUE `set()` ÉCRIRAIT —
     //    jamais inversé par cette correction (contrainte ferme n°1). Depuis
     //    le lot 50, sans lot tiré (`rollBatch: null`), le picker n'a AUCUNE
@@ -828,9 +919,9 @@ test("⚔️ ATTAQUE — CON et INT (boostés par l'Inheritance) affichent un sc
     //    élément, jamais par une option qui n'existe pas. Un test séparé
     //    (« mode manuel : cliquer une valeur pose exactement set(...) »)
     //    prouve déjà que le geste de clic écrit bien le CHEMIN brut.
-    assert.equal(row.dataset.assigned, "false", `${key} : sans lot tiré, rien n'est « distribué »`);
-    assert.match(row.querySelectorAll(".ability-row-source")[0].textContent, new RegExp(`^${rawExpected} `),
-      `${key} : le CHOIX BRUT (${rawExpected}) reste visible dans la note, jamais absent`);
+    assert.equal(row.dataset.rempli, "false", `${key} : aucun dé posé, rien n'est « distribué »`);
+    assert.equal(valeurDe(row), rawExpected,
+      `${key} : le CHOIX BRUT (${rawExpected}) reste visible dans la case, jamais absent`);
 
     // 2) LE SCORE FINAL EST LISIBLE — jamais absent, jamais recalculé.
     const finalValue = row.querySelectorAll(".ability-row-final-value")[0];
@@ -848,7 +939,7 @@ test("⚔️ ATTAQUE — CON et INT (boostés par l'Inheritance) affichent un sc
   // MÊME nombre des deux côtés, et `data-boosted` dit "false" — l'absence
   // de boost est aussi lisible que sa présence, pas une case qui disparaît.
   for (const key of ["str", "dex", "wis", "cha"]) {
-    const row = rowFor(node, key);
+    const row = creneauPour(node, key);
     const raw = currentAbilityValue(report.document, key);
     const finalCell = row.querySelectorAll(".ability-row-final")[0];
     assert.ok(finalCell, `${key} : la cellule Final existe aussi sans boost`);
