@@ -46,7 +46,17 @@
   /* ── LES COTES MESURÉES, déclarées une fois ───────────────────────── */
   --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
-  --fiche-image-w: 100px; /* l'image — 242 − 8 − 118 − 8 − 8 */
+  --fiche-image-w: 100px; /* l'image, DEBOUT — 242 − 8 − 118 − 8 − 8 */
+  /* ⭐ L'IMAGE COUCHÉE A SA PROPRE LARGEUR IMPOSÉE — Eric, 2026-08-16 : *« il
+     faut être strict sur la largeur imposée de l'image »*. Elle était `auto`,
+     donc déduite de sa HAUTEUR et du rapport du fichier : la première vraie
+     illustration (0,72 quand le dos de carte fait 0,58) a réclamé 216 px et
+     poussé la colonne de texte sous sa cote. Une largeur dérivée d'un autre axe
+     n'est pas une largeur imposée — c'est la même faute que la borne écrite en
+     fonction d'une hauteur, deux commits plus tôt.
+     📐 175 est la largeur que l'image OCCUPAIT quand la composition tenait
+     (mesurée 173 avec le dos de carte, 175 après l'agrandissement de 20 %). */
+  --fiche-image-w-paysage: 175px;
   /* ⚠️ RECOTÉES LE 2026-08-16 POUR LE TEST DE LA BANDE (Eric : « réduit pour
      que ça rentre, c'est un test »). Le budget vertical de la fiche est FERMÉ —
      8 + 22 + 8 + 126 + 8 + <bande> + 8 + <texte> + 8 + 44 + 8 = 440 — donc tout
@@ -311,10 +321,17 @@
    n'existe : 200 × 260 visés, PNG transparent, Eric les produit). `cover` +
    `height: 100%` : le jour où la vraie image arrive, elle occupe la même
    boîte sans qu'une seule règle bouge. */
+/* ⭐ `contain` ET NON `cover` — Eric, 2026-08-16 : *« rapetisse-le plutôt que
+   le couper »*. `cover` remplissait le cadre en RECADRANT ce qui dépasse : bon
+   pour un dos de carte (un motif), faux pour un personnage, dont on ne coupe
+   ni les mains ni les pieds. L'illustration entre donc en entier, quitte à
+   laisser du fond — elle est transparente, ce fond est la dalle.
+   ⛔ Et ça vaut pour les DEUX compositions : le paysage l'avait déjà, le
+   portrait non ; une seule écriture, ici, plutôt que deux qui divergent. */
 .fiche-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -679,8 +696,19 @@
        « zard »). Le plancher `max-content` lui interdit désormais de descendre
        sous son propre contenu ; le `1fr` lui donne toujours le mou où se
        centrer. */
-    /* image (largeur suivant sa hauteur) │ LE MOU │ le bloc de droite */
-    grid-template-columns: auto minmax(max-content, 1fr) auto;
+    /* 🔴 LA COLONNE DE TEXTE EST UNE COTE IMPOSÉE, PAS UN RESTE — corrigé le
+       2026-08-16, et c'est Eric qui a nommé la cause : *« tu n'as peut-être pas
+       respecté l'espace qu'on s'est imposé »*. Elle valait `auto`, donc elle se
+       partageait la place avec les deux autres ; le jour où la première vraie
+       image est arrivée — un mage au rapport 0,72 quand le dos de carte faisait
+       0,58 — la colonne de gauche est passée de 173 à 216 px et le texte est
+       tombé à 203,6 pour 226 dus. Les lignes de sous-classes se sont repliées.
+       ⭐ Elle est donc FIXÉE à la largeur utile de la dalle mobile (242 − 2 × 8),
+       la même que sa `max-width` : ce qui était imposé est désormais réservé, et
+       c'est l'IMAGE qui cède quand la place manque. Le bon ordre : une cote de
+       lecture ne recule pas devant un décor. */
+    /* image (ce qui reste) │ LE MOU │ le bloc de droite, à sa cote */
+    grid-template-columns: auto minmax(max-content, 1fr) calc(var(--fiche-dalle-w) - 2 * var(--sp-8));
     /* ⭐ LE NOM PREND UNE RANGÉE À LUI, EN TÊTE — Eric, 2026-08-16 : « si Wizard
        est une boîte distincte en paysage aussi, mets-le tout en haut de la
        dalle, centré, et 1,5× plus gros ». Il quitte donc la colonne du centre
@@ -697,13 +725,16 @@
     grid-row: 2 / 6;          /* sous le bandeau du nom, au-dessus du pied */
     align-self: center;
     justify-self: start;
-    /* ⭐ +20 % le 2026-08-16 (Eric : « au passage image en paysage agrandie de
-       20 % ») : 75 × 1,2 = 90. Le facteur est appliqué, pas empilé — écrire
-       `calc(75% * 1.2)` laisserait deux nombres à tenir d'accord. */
+    /* 🔴 UN CADRE, PAS UNE DÉDUCTION : largeur ET hauteur imposées, et
+       `object-fit: contain` (règle de base) fait entrer l'illustration dedans
+       quel que soit son rapport — elle rapetisse, elle n'est jamais coupée.
+       ⭐ +20 % le 2026-08-16 sur la hauteur (Eric) : 75 × 1,2 = 90. Le facteur
+       est appliqué, pas empilé — `calc(75% * 1.2)` laisserait deux nombres à
+       tenir d'accord. */
+    width: var(--fiche-image-w-paysage);
     height: 90%;
-    width: auto;
   }
-  .fiche-dalle .fiche-image img { width: auto; height: 100%; object-fit: contain; }
+  .fiche-dalle .fiche-image img { width: auto; height: 100%; }
 
   /* COLONNE CENTRE — TEXTE 1 : le nom au-dessus de ses stats, l'ensemble
      centré dans les deux sens. */
