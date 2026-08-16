@@ -412,19 +412,61 @@ test("B5.1b/c — une tuile commet `abilityMethod`, et RIEN n'est déplié d'ava
   assert.deepEqual(calls, [{ kind: "abilityMethod", value: "free" }]);
 });
 
-test("LOT 74 — l'attente SE DIT : tant que la porte n'a rien à faire, l'écran écrit pourquoi", () => {
-  /* L'APPARIEMENT est le garde : si un futur lot allume `DONE` au repos (il
-     ne doit pas — B5.1c) OU retire la phrase, l'un des deux asserts rougit.
-     Un bouton éteint ET muet est exactement le défaut qu'Eric a rencontré. */
-  const gate = abilitiesValidate({ document: fixture.document, method: null, rollBatch: null });
-  assert.equal(gate.ready, false, "à l'arrivée, aucune méthode : la porte n'est pas prête, et c'est voulu");
-  const auRepos = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
-  const note = auRepos.querySelectorAll(".ability-gate-note")[0];
-  assert.ok(note, "la phrase d'attente existe");
-  assert.match(note.textContent, /pick one of the methods above/i, "elle dit QUOI faire, pas un état interne");
-  const choisi = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(choisi.querySelectorAll(".ability-gate-note").length, 0,
-    "méthode choisie : la phrase disparaît — elle décrit l'attente, pas l'écran");
+test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend INFO découvrable", () => {
+  /* ⚠️ CE TEST A CHANGÉ DE LOI, PAS DE VIGILANCE. Il gardait un APPARIEMENT
+     (lot 74) : tant que `DONE` restait éteint au repos, une phrase devait dire
+     pourquoi — « un bouton éteint ET muet » était le défaut mesuré.
+     🔴 LA RACINE N'A PLUS DE `DONE` DU TOUT (Eric, 2026-08-16) : une note qui
+     explique un bouton absent n'explique rien, et l'appariement n'a plus de
+     seconde moitié. La phrase reste, mais elle ne décrit plus un ÉTAT — elle
+     dit QUOI FAIRE, donc elle est là en permanence.
+
+     ⌨️ Le texte est celui d'Eric, mot pour mot — un libellé est à lui. */
+  const MOT = "Pick one of the methods above to begin. Click on info to understand the key differences.";
+  const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
+  const note = racine.querySelectorAll(".ability-methodes-mot")[0];
+  assert.ok(note, "la racine porte son mot");
+  assert.equal(note.textContent, MOT);
+
+  /* ⭐ ET IL VIT DANS LA DALLE DU SÉLECTEUR — *« texte à intégrer dedans »*.
+     Posé à côté, il flotterait sur le fond au lieu d'appartenir au bloc. */
+  const dalle = racine.querySelectorAll(".ability-methodes")[0];
+  assert.equal(dalle.querySelectorAll(".ability-methodes-mot").length, 1,
+    "il est DANS la dalle, pas en dessous d'elle");
+
+  /* ⭐ IL RESTE QUAND UNE MÉTHODE EST DÉJÀ CHOISIE : la racine sert aussi à
+     CHANGER d'avis, et « quoi faire » ne cesse pas d'être vrai. */
+  const revenu = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
+  assert.equal(revenu.querySelectorAll(".ability-methodes-mot")[0].textContent, MOT);
+
+  /* ⛔ MAIS PAS SUR LA PAGE D'UNE MÉTHODE : là, le sélecteur n'est plus, et
+     son mot part avec lui. */
+  const page = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
+  assert.equal(page.querySelectorAll(".ability-methodes-mot").length, 0);
+
+  /* 🔴 ET LE MOT NOMME `info`, ce qui est le seul endroit de l'écran qui le
+     rende DÉCOUVRABLE — d'autant plus depuis qu'`INFO` a la taille des quatre
+     méthodes et ne se distingue plus par sa forme. */
+  assert.match(note.textContent, /\binfo\b/i);
+  assert.ok(tuiles(racine).some((t) => t.dataset.entry === "info"), "témoin : le bouton qu'il nomme existe");
+});
+
+test("🔴 SUR DU VERRE, SEULE `--text` TIENT — le mot de la racine n'écrit pas en gris", () => {
+  /* La dalle du sélecteur est un verre à 35 %, et la matrice du lot 59 (en
+     tête de `shell.css`) mesure que `--text-soft` y rend **3,0 à 3,6:1**,
+     sous les 4,5 exigés. Ce mot y était écrit en `--text-soft`.
+     ⛔ `tests/decor.test.mjs` ne pouvait PAS l'attraper : il mesure les
+     JETONS, pas quelle classe les emploie sur quelle dalle. D'où ce garde-ci,
+     posé sur l'octet de la règle. */
+  const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
+  const regle = css.slice(css.indexOf(".ability-methodes-mot {"));
+  const corps = regle.slice(0, regle.indexOf("}"));
+  assert.match(corps, /color:\s*var\(--text\);/,
+    "sur du verre, seule --text tient les 4,5:1 (CADRES.md §8)");
+  assert.equal(/--text-soft|--text-muted/.test(corps), false,
+    "⛔ aucune encre douce sur une dalle de verre — c'est le défaut que ce garde existe pour tenir");
 });
 
 test("garde d'octets — la coquille écrit TOUJOURS `abilities.mode` quand la méthode change", () => {

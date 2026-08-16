@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=52";
-import { markPressed } from "./carnet.mjs?v=52";
+import { renderConfirmDialog } from "./confirm.mjs?v=53";
+import { markPressed } from "./carnet.mjs?v=53";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de

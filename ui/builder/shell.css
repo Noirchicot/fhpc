@@ -1045,9 +1045,22 @@ button { font: inherit; }
    TRAITEMENT (encre, bordure), jamais une taille — la régularité, elle, est
    demandée. */
 .ability-info-bouton { min-width: var(--touch); }
-/* LOT 74 — L'ATTENTE SE DIT : la phrase montrée quand aucune méthode n'est
-   choisie et que `DONE` attend. Une information, pas une alarme. */
-.ability-gate-note { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+/* LE MOT DE LA RACINE — il vit DANS la dalle du sélecteur (Eric : *« texte à
+   intégrer dedans »*), et il y est en permanence : il ne décrit plus un état
+   d'attente, il dit quoi faire.
+   🔴 ET SON ENCRE CHANGE, PARCE QUE SA DALLE EST DU VERRE À 35 %. Elle était
+   en `--text-soft` — qui rend **3,0 à 3,6:1** sous ce voile (matrice du lot
+   59, en tête de ce fichier), donc SOUS les 4,5 exigés. Le défaut était réel
+   et personne ne l'avait vu : `tests/decor.test.mjs` mesure les JETONS, pas
+   quelle classe les emploie sur quelle dalle. *« Un habillage qui passe en
+   verre ne peut pas garder son texte gris »* (CADRES.md §8) — appliqué. */
+.ability-methodes-mot {
+  margin: var(--sp-8) 0 0;
+  font-size: var(--t3);
+  color: var(--text);
+  text-align: center;
+  text-wrap: balance;
+}
 
 /* LE TITRE D'UNE PAGE DE MÉTHODE — sans le sélecteur au-dessus, c'est la
    seule chose qui replace le joueur après un `BACK`. Le libellé est celui du

@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=52";
-import { renderTray } from "./abilities-tray.mjs?v=52";
-import { armerJeton } from "./glisser.mjs?v=52";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=52";
-import { createDieHost, mount } from "./dice3d.mjs?v=52";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=52";
+import { markPressed } from "./carnet.mjs?v=53";
+import { renderTray } from "./abilities-tray.mjs?v=53";
+import { armerJeton } from "./glisser.mjs?v=53";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=53";
+import { createDieHost, mount } from "./dice3d.mjs?v=53";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=53";
 
 export { rollAbilitySet };
 
@@ -615,6 +615,23 @@ function renderSelecteurMethode(actif, infoOuvert, act) {
   info.addEventListener("click", () => act({ kind: "abilityInfo", value: !infoOuvert }));
   rangee.append(info);
   bloc.append(rangee);
+  /* ⌨️ LE MOT DE LA RACINE, D'ERIC, MOT POUR MOT (2026-08-16) — et il vit DANS
+     la dalle du sélecteur, pas en dessous : *« texte à intégrer dedans »*.
+
+     ⚠️ CE QU'IL REMPLACE, ET POURQUOI CE N'EST PAS QU'UN LIBELLÉ. La phrase
+     d'avant (« Nothing to act on yet — pick one of the methods above to
+     begin ») était une note de PORTE : elle n'apparaissait que tant que
+     `DONE` restait éteint, pour qu'un bouton muet ne le reste pas (lot 74).
+     🔴 Or la racine n'a plus de `DONE` du tout (Eric, le même jour) : une
+     note qui explique un bouton absent n'explique rien. Celle-ci ne parle plus
+     d'un état, elle dit QUOI FAIRE — donc elle est là en permanence, comme le
+     titre au-dessus d'elle.
+     ⭐ Et sa seconde phrase fait un travail que rien ne faisait : elle rend
+     `INFO` DÉCOUVRABLE. C'est d'autant plus utile depuis qu'il a la taille des
+     quatre autres et ne se distingue plus par sa forme. */
+  bloc.append(el("p", "ability-methodes-mot", [text(
+    "Pick one of the methods above to begin. Click on info to understand the key differences."
+  )]));
   return bloc;
 }
 
@@ -843,16 +860,6 @@ export function renderAbilitiesStep(ctx, onAction) {
   if (surLaRacine) {
     section.append(renderSelecteurMethode(ctx.method || null, Boolean(ctx.info), act));
     if (ctx.info) section.append(renderPanneauInfo(act));
-    /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE : *« il faut CLIQUER pour faire
-       apparaître les rollers/choosers »*. Mais l'attente SE DIT (lot 74) : un
-       `DONE` éteint sans un mot pour dire pourquoi est le défaut qu'Eric a
-       rencontré. On n'allume pas le bouton pour faire joli — l'écran ÉCRIT ce
-       qui manque, comme la barre de pool compte et comme Review dit « 0 of 1 ». */
-    if (!entry) {
-      section.append(el("p", "ability-gate-note", [text(
-        "Nothing to act on yet — pick one of the methods above to begin."
-      )]));
-    }
     return section;
   }
 
