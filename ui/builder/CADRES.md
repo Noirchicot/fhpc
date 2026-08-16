@@ -358,6 +358,38 @@ la place, la première vraie image l'a fait tomber à 203,6 et les lignes de
 sous-classe se sont repliées (`fiche.css`, « une cote de lecture ne recule pas
 devant un décor »). **C'est l'image qui cède, jamais le texte.**
 
+### 🔍 REPRIS AXE PAR AXE, À LA DEMANDE D'ERIC — et sa lecture trouve ce que la mienne ratait
+
+Le même relevé, en rapports **par axe** et en **forme** (hauteur ÷ largeur) :
+
+| bloc | A · 375×553 | forme A | B · 1280×800 | forme B | ×larg | ×haut | **dérive de forme** |
+|---|---|---|---|---|---|---|---|
+| **l'écran** | 375 × 553 | 1,475 | 1280 × 800 | 0,625 | 3,413 | 1,447 | 0,424 |
+| **la dalle** | 269 × 440 | 1,636 | 625 × 440 | 0,704 | 2,323 | 1,000 | **0,430** |
+| texte 1 | 145 × 126 | 0,869 | 106 × 126 | 1,189 | 0,731 | 1,000 | 1,368 |
+| texte 2 | 253 × 14 | 0,055 | 226 × 14 | 0,062 | 0,893 | 1,000 | 1,119 |
+| texte 3 | 253 × 144 | 0,569 | 226 × 130 | 0,893 | 0,893 | 0,903 | **1,011** |
+| l'image | 100 × 156 | 1,560 | 175 × 296 | 1,691 | 1,750 | 1,897 | 1,084 |
+
+⭐ **CE QUE CETTE LECTURE MONTRE, ET QUE « ×larg / ×haut » CACHAIT** : la
+**dalle se déforme exactement comme l'écran** — 0,430 contre 0,424, **1,4 %
+d'écart**. Elle passe de portrait à paysage au même rythme que lui. Et le
+**blurb garde sa forme à 1,1 %**. La proportionnalité qu'Eric cherchait
+existe donc bel et bien — à l'échelle de la dalle et du texte de prose.
+📌 Ma formule précédente (« rien n'est proportionnel ») était trop large :
+elle comparait des facteurs d'axe, jamais des formes.
+
+🔴 **MAIS ELLE N'EST TENUE PAR AUCUNE RÈGLE, ET UN TROISIÈME ÉCRAN LE PROUVE.**
+Mesuré à **1280 × 1000** : l'écran prend la forme 0,781, la dalle reste à
+**0,704** — l'accord de 1,4 % devient **10 %**. La dalle ne suit pas l'écran :
+sa hauteur est clouée à 440 et sa largeur plafonnée à 62 ch. L'accord vu
+entre A et B est une **coïncidence de ces deux écrans-là**.
+
+⛔ **CONCLUSION, ET ELLE NE CHANGE PAS** : si la continuité doit reposer sur
+la forme, il faut l'ÉCRIRE (un `aspect-ratio` sur la dalle) — aujourd'hui
+rien ne la tient. Les seuls invariants réellement gardés sont des **cotes
+réservées** : 226 px de colonne de lecture, 16 px de corps, 440 de hauteur.
+
 ⭐ **La conclusion d'Eric tient quand même, en changeant d'invariant** : la
 continuité d'écran à écran vient bien des boîtes — mais de leurs **cotes
 réservées** (226 pour la colonne de lecture, 16 px pour le corps), pas d'un
