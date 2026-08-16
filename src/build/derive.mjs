@@ -157,22 +157,17 @@ function fail(what) {
   throw new BuildError(`fhpc/build: ${what}`);
 }
 
-/* ⭐ PUBLIÉE AU LOT 80, ET POUR LA MÊME RAISON QUE `CREATION_SCORES` (lot 74).
-   Le vivier des caractéristiques doit montrer le modificateur SOUS CHAQUE DÉ
-   (décision d'Eric, 2026-08-16) — y compris sous un dé qui n'appartient
-   encore à aucune caractéristique, donc qui n'a AUCUNE entrée dans
-   `resolved.abilities` où le lire.
-   ⛔ L'écran ne réécrit pas `Math.floor((v - 10) / 2)` pour autant : ce
-   serait une règle du jeu recopiée dans l'interface, la faute exacte que la
-   borne 3–18 a déjà coûtée (« l'écran n'écrit plus un seul nombre de plage »).
-   Le moteur prononce, l'écran lit — même octet des deux côtés.
-   ⚠️ ET LE MODIFICATEUR D'UNE CIBLE NE PASSE PAS PAR ICI : un score posé sur
-   une caractéristique est DÉRIVÉ (boosts d'espèce et d'héritage compris), et
-   se lit dans `resolved.abilities[clef].mod`, jamais recalculé (lot 46). */
-export function abilityModOf(score) {
-  return modOf(score);
-}
-
+/* ⛔ `abilityModOf` A ÉTÉ PUBLIÉ PUIS RETIRÉ LE MÊME JOUR (lot 80), et c'est
+   la loi §0.6 appliquée à sa propre nouveauté. Il servait le modificateur
+   BRUT que le vivier des caractéristiques affichait sous chaque dé ; Eric a
+   tranché contre (*« aucun intérêt de mettre les bonus sous chaque dé,
+   seulement en bas dans le collecteur »*), et l'export s'est retrouvé sans un
+   seul appelant.
+   ⭐ Le seul modificateur qui compte à l'écran est celui d'un score POSÉ,
+   donc DÉRIVÉ (boosts d'espèce et d'héritage compris) : il se lit dans
+   `resolved.abilities[clef].mod`, jamais recalculé — la loi du lot 46, et
+   `modOf` la sert déjà de l'intérieur. Publier un second chemin vers la même
+   règle n'aurait servi qu'à les laisser diverger. */
 function modOf(score) {
   return Math.floor((score - 10) / 2);
 }

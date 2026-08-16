@@ -1111,34 +1111,30 @@ button { font: inherit; }
   margin: 0 0 var(--sp-12); padding: 0;
   list-style: none;
 }
-/* ══ ✅ LA PALETTE DE `FREE` — 4 × 4, DANS UNE FENÊTRE À HAUTEUR LIBRE ══════
-   Eric, 2026-08-16 : *« je veux 4×4 dés en 3d sur une page F2 »*.
+/* ══ ✅ LA PALETTE DE `FREE` — 4 × 4, DANS UNE DALLE FF2, ET ELLE NE DÉFILE PAS
+   Eric, 2026-08-16, en trois temps : *« je veux 4×4 dés en 3d sur une page
+   F2 »* · *« c'est une dalle FF2 pardon »* · *« une fenêtre avec un measure
+   identique à celui de Concept »* — puis, en la voyant : *« ça ne doit pas
+   scroller, aucun intérêt de mettre les bonus sous chaque dé, seulement en
+   bas dans le collecteur »*.
 
-   🔴 CE QUE LE PLAFOND RÉPARE, ET C'EST UNE MESURE. Un 4 × 4 fait **406 px**
-   de haut à 375 ; avec le collecteur (243) il demande 649 px pour un champ de
-   493. La source et la cible d'un glisser ne seraient JAMAIS visibles
-   ensemble — et `elementFromPoint` ne voit que le champ visible, donc le
-   geste central de FREE disparaîtrait. Le plafond rend le dessin ET le geste.
+   🔴 ET LA DERNIÈRE PHRASE A RÉSOLU LA PREMIÈRE. Le 4 × 4 était trop haut
+   (406 px) pour laisser le collecteur à l'écran, et j'y répondais par un
+   plafond + un défilement interne. Eric a enlevé la CAUSE au lieu de border
+   l'effet : le modificateur sous chaque dé coûtait une ligne par tuile —
+   mesuré, **91 px de haut contre 73 sans lui**. Quatre rangs y gagnent
+   **72 px**, et la fenêtre n'a plus rien à borner.
+   ⭐ Ce qui a disparu avec le plafond : `max-height`, `overflow-y`, le
+   marqueur `data-scroller`, le `touch-action: pan-y` et le MAINTIEN de
+   350 ms côté organe. Le second défilement que `CADRES.md` annonçait comme le
+   prix de la fenêtre n'est jamais payé, et la scène en garde UN SEUL (B0.21a).
+   📌 La leçon vaut au-delà de cet écran : quand un contenu ne tient pas, la
+   première question est ce qu'il porte en trop, pas où le faire défiler.
 
-   ⭐ C'EST LA PROMESSE DE F2, ENFIN TENUE PAR UNE RÈGLE. `CADRES.md` §4
-   l'écrivait comme un ⏳ : *« un plafond sur la carte, et le contenu qui
-   défile À L'INTÉRIEUR »*, avec la mention « personne ne l'emploie, rien ne
-   l'implémente ». Voici son premier utilisateur.
-   ⛔ ET IL NE MORD QU'EN SECOURS (décision 3 du même fichier, mot pour mot :
-   *« si ton tweak n'intervient qu'en urgence oui, sinon non »*) — d'où
-   `max-height` et non une hauteur : sur un bureau les seize rangent d'un coup
-   et le plafond ne se voit pas. En `dvh` parce que ce qu'il borne est une
-   part du CHAMP, pas un nombre de pixels : 40 % de 553 laisse deux rangs et
-   l'amorce du troisième, ce qui rend le défilement découvrable au lieu de le
-   cacher.
-   ⚠️ LE PRIX EST UN SECOND DÉFILEMENT DANS LA SCÈNE, et le dépôt le connaît
-   (les grilles de sorts, lot 79) : un jeton qui vit dans une grille qui
-   défile ne peut pas porter `touch-action: none` — sinon la grille devient
-   indéfilable au doigt, le pouce tombant toujours sur un dé. D'où le
-   `pan-y` ci-dessous, et le maintien de 350 ms côté organe. */
-/* LA FENÊTRE — une dalle FF2 à la mesure de CONCEPT (`--card-w`), et non à
-   celle de l'écran à contrôles (`--panel-w`) : la palette n'a que seize
-   nombres à dire, elle n'a aucune raison de s'étirer sur 88 ch en Large. */
+   ⭐ LA FENÊTRE, ELLE, RESTE — une dalle FF2 (pas de menu latéral, hauteur de
+   son contenu) à la mesure de CONCEPT (`--card-w`), et non à celle de l'écran
+   à contrôles (`--panel-w`) : la palette n'a que seize nombres à dire, elle
+   n'a aucune raison de s'étirer sur 88 ch en Large. */
 .ability-palette {
   max-width: var(--card-w);
   margin: 0 auto var(--sp-12);
@@ -1147,20 +1143,7 @@ button { font: inherit; }
   color: var(--text);
 }
 .ability-palette .fs-rangee { margin-bottom: 0; }
-.fs-rangee[data-pool="inepuisable"] {
-  --fs-colonnes: 4;
-  max-height: 40dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-/* 🔴 LA LIGNE QUI REND LA PALETTE DÉFILABLE AU DOIGT. `touch-action` est une
-   déclaration prise à l'appui : elle ne se renégocie pas en cours de geste.
-   `pan-y` laisse le doigt défiler — le geste le plus fréquent — et c'est le
-   MAINTIEN qui départage, pas la cible (voir `glisser.mjs`). */
-.fs-rangee[data-pool="inepuisable"] .fs-de { touch-action: pan-y; }
-/* Le jeton soulevé se dit : à partir de là, le défilement est retenu à la
-   main et le dé suit le doigt. Sans ce retour, les 350 ms sont invisibles. */
-.fs-de[data-souleve="true"] { outline: 1px solid var(--accent); outline-offset: var(--sp-2); border-radius: var(--radius-sm); }
+.fs-rangee[data-pool="inepuisable"] { --fs-colonnes: 4; }
 .fs {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-2);
@@ -1256,15 +1239,20 @@ button { font: inherit; }
   color: var(--de-encre);
   pointer-events: none;
 }
-/* ⭐ LE TOTAL EN CLAIR, SOUS LE DÉ — le chiffre peint sur la face est petit et
-   posé sur de l'ivoire ; celui-ci se lit sur le fond de l'écran, à l'encre du
-   thème. Les deux disent la même chose, à deux échelles. */
-.ability-de-total { font-size: var(--t3); font-variant-numeric: tabular-nums; }
-/* ⭐ §5.2 — LE MODIFICATEUR SOUS CHAQUE DÉ, y compris au vivier : on voit ce
-   que vaut un 15 avant de le poser. Au vivier c'est le modificateur BRUT ;
-   dans une cible, c'est le FINAL (colonne « Final »), et les deux ne disent
-   pas la même chose — c'est la leçon du lot 46. */
-.ability-de-mod { font-size: var(--t2); font-variant-numeric: tabular-nums; color: var(--text); }
+/* ⛔ `.ability-de-total` EST PARTIE AVEC SON BALISAGE (loi §0.6). Elle
+   habillait le total répété au-dessus du dé — Eric, 2026-08-16 : *« enlève les
+   chiffres au-dessus des dés aussi »*. Le commentaire qui la défendait disait
+   « les deux disent la même chose, à deux échelles » : c'était l'aveu du
+   défaut, pas sa justification. Le dé porte sa valeur sur sa face ; l'écrire
+   une seconde fois à dix pixels de là coûtait une ligne par tuile. */
+/* ⛔ `.ability-de-mod` EST PARTIE AVEC SON BALISAGE (loi §0.6). Elle habillait
+   le modificateur BRUT posé sous chaque dé du vivier ; Eric l'a retiré le
+   2026-08-16 — *« aucun intérêt de mettre les bonus sous chaque dé, seulement
+   en bas dans le collecteur »*. Il avait deux torts : il n'était le
+   modificateur de personne (un dé n'appartient encore à aucune
+   caractéristique, et son brut ne survit pas à la pose), et il coûtait une
+   LIGNE par tuile — 91 px de haut contre 73 sans lui, ce qui est précisément
+   ce qui rendait le 4 × 4 de FREE trop grand pour son champ. */
 .ability-de-detail { font-size: var(--t1); color: var(--text); }
 /* UN DÉ DÉJÀ POSÉ RESTE PRENABLE (l'échange du lot 51) — il pâlit, il ne se
    retire pas. ⛔ Et il n'est pas `disabled` : ce serait mentir sur un geste

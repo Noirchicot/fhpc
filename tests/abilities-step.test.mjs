@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
-import { ABILITY_KEYS, CREATION_SCORES, abilityModOf } from "../src/build/index.mjs";
+import { ABILITY_KEYS, CREATION_SCORES } from "../src/build/index.mjs";
 import { stripComments } from "./source-scan.mjs";
 
 globalThis.document = createTestDocument();
@@ -95,11 +95,12 @@ function desDuVivier(node) {
   const rangee = vivier(node);
   return rangee ? rangee.querySelectorAll(".ability-de-garde") : [];
 }
+/* ⚠️ LA VALEUR SE LIT SUR LA FACE DU DÉ, plus au-dessus de lui : `.valeur` est
+   le chiffre que l'écran peint par-dessus l'incrustation du moteur (qui, elle,
+   ne sait afficher qu'une face de d6). Le total répété au-dessus est parti le
+   2026-08-16 — même nombre, deux fois, à dix pixels d'écart. */
 function totauxOfferts(node) {
-  return desDuVivier(node).map((j) => j.querySelectorAll(".ability-de-total")[0].textContent);
-}
-function modsOfferts(node) {
-  return desDuVivier(node).map((j) => j.querySelectorAll(".ability-de-mod")[0].textContent);
+  return desDuVivier(node).map((j) => j.querySelectorAll(".valeur")[0].textContent);
 }
 function deDuVivier(node, index) {
   return desDuVivier(node).find((j) => j.dataset.valeur === String(index)) || null;
@@ -291,18 +292,27 @@ test("emptyAbilityAssign() remet les six clefs à null — la carte que shell.mj
 
 /* ══ 2 — LE MODIFICATEUR SOUS CHAQUE DÉ (§5.2), ET LES DEUX REGISTRES ════ */
 
-test("⭐ §5.2 — chaque dé du vivier porte son modificateur BRUT, LU au moteur", () => {
-  const rollBatch = makeRollBatch([18, 15, 13, 12, 10, 8]);
-  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), () => {});
-  /* La référence est l'IMPORT `abilityModOf` : si la formule change au moteur,
-     ce test suit sans qu'on le retouche. Un écran qui écrirait
-     `Math.floor((v - 10) / 2)` aurait mis une règle du jeu dans l'interface. */
-  assert.deepEqual(modsOfferts(node), [18, 15, 13, 12, 10, 8].map((v) => {
-    const m = abilityModOf(v);
-    return m >= 0 ? `+${m}` : String(m);
-  }));
-  assert.deepEqual(modsOfferts(node), ["+4", "+2", "+1", "+1", "+0", "-1"],
-    "témoin : et ce sont bien les modificateurs attendus, écrits comme un joueur les écrit");
+test("⛔ AUCUN MODIFICATEUR SOUS UN DÉ — il n'est celui de personne, et il coûte une ligne", () => {
+  /* TRANCHÉ PAR ERIC, 2026-08-16 : *« aucun intérêt de mettre les bonus sous
+     chaque dé, seulement en bas dans le collecteur »*. Un brut posé au vivier
+     n'est le modificateur de PERSONNE — un dé n'appartient encore à aucune
+     caractéristique, et son brut ne survit pas à la pose (les boosts
+     d'héritage le changent). Deux nombres pour un dé, dont un qui ne sera
+     jamais vrai : la contradiction du lot 46, un étage plus haut.
+     📏 ET IL COÛTAIT UNE LIGNE PAR TUILE — 91 px de haut contre 73 sans lui.
+     C'est ce qui rendait le 4 × 4 de FREE trop grand pour son champ, et donc
+     ce qui avait fait proposer un plafond et un second défilement. */
+  const node = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { rollBatch: makeRollBatch([18, 15, 13, 12, 10, 8]) }), () => {});
+  assert.equal(node.querySelectorAll(".ability-de-mod").length, 0,
+    "aucun modificateur sous un dé, ni au vivier ni dans une cible");
+  /* ⛔ NI TOTAL AU-DESSUS : le dé porte sa valeur sur sa face, l'écrire deux
+     fois coûtait une seconde ligne par tuile. */
+  assert.equal(node.querySelectorAll(".ability-de-total").length, 0);
+  assert.equal(desDuVivier(node).length, 6, "témoin : les six dés sont bien là, c'est le doublon qui est parti");
+  /* ⭐ ET LE SEUL QUI COMPTE EST TOUJOURS LÀ, dans la cible : le FINAL, boosts
+     compris — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
+  assert.equal(node.querySelectorAll(".ability-row-final-value").length, ABILITY_KEYS.length);
 });
 
 test("⛔ §5.2 — dans une CIBLE c'est le modificateur FINAL, pas le brut : la contradiction du lot 46 ne revient pas", () => {
@@ -563,10 +573,12 @@ test("🔴 `FREE` — seize dés de 3 à 18, et ce sont les valeurs PUBLIÉES pa
      collecteur hors du champ et le glisser deviendrait impossible. */
   assert.equal(vivier(node).dataset.pool, "inepuisable",
     "c'est ce mot qui lui donne sa fenêtre — quatre colonnes, un plafond, le défilement dedans");
-  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, il ne se devine pas : sans ce
-     marqueur, un futur `scrollParent` remonterait jusqu'à la scène et ferait
-     voyager tout l'écran pour amener un dé dans le champ. */
-  assert.equal(vivier(node).dataset.scroller, "palette");
+  /* ⛔ ET ELLE NE DÉFILE PAS — Eric, 2026-08-16 : *« ça ne doit pas
+     scroller »*. Retirer le modificateur sous chaque dé a rendu 72 px aux
+     quatre rangs, donc la fenêtre n'a plus rien à borner. La scène garde UN
+     SEUL défilement, comme le socle l'a toujours voulu (B0.21a). */
+  assert.equal(vivier(node).dataset.scroller, undefined,
+    "aucun second défilement : c'est le contenu qui a maigri, pas le champ qu'on a borné");
   /* ⭐ ET ELLE VIT DANS UNE FENÊTRE — une dalle FF2 à la mesure de Concept
      (Eric, 2026-08-16). Les trois autres viviers restent des rangées nues :
      six dés sur une ligne n'ont besoin ni de fenêtre ni de plafond. */
@@ -585,7 +597,7 @@ test("⭐ §4.4 RÈGLE 1 — LA PALETTE NE S'ÉPUISE PAS : prendre un 14 n'enlè
   assert.equal(ilots(node).filter((i) => i.dataset.vide === "true").length, 0,
     "⛔ AUCUN îlot vidé — une palette n'a pas d'état, c'est le point de §4.4");
   assert.equal(vivier(node).dataset.pool, "inepuisable");
-  assert.equal(deDeLaCible(node, "str").querySelectorAll(".ability-de-total")[0].textContent, "14",
+  assert.equal(deDeLaCible(node, "str").querySelectorAll(".valeur")[0].textContent, "14",
     "et la cible en porte bien une COPIE");
 });
 
@@ -597,8 +609,10 @@ test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la sa
   const lot = freeBatch();
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  /* ⛔ AVEC LE MAINTIEN : la palette défile, donc son glisser se mérite. */
-  await glisser(deDuVivier(node, CREATION_SCORES.indexOf(16)), creneauPour(node, "cha"), true);
+  /* ⛔ SANS MAINTIEN : la palette ne défile plus, donc le geste est immédiat
+     partout — le péage de 350 ms du lot 79 ne se paie que dans une grille qui
+     défile, et il n'y en a plus. */
+  await glisser(deDuVivier(node, CREATION_SCORES.indexOf(16)), creneauPour(node, "cha"));
   assert.deepEqual(calls, [{ kind: "abilityFree", key: "cha", value: 16, rollIndex: CREATION_SCORES.indexOf(16) }]);
   /* Et la coquille le traduit en `set` ordinaire — garde d'octets, faute de
      harnais de rendu sur `shell.mjs`. */

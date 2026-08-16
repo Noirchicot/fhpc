@@ -64,14 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=47";
-import { renderTray } from "./abilities-tray.mjs?v=47";
-import { armerJeton } from "./glisser.mjs?v=47";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=47";
-import { createDieHost, mount } from "./dice3d.mjs?v=47";
-import {
-  ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX, abilityModOf
-} from "../../src/build/index.mjs?v=47";
+import { markPressed } from "./carnet.mjs?v=49";
+import { renderTray } from "./abilities-tray.mjs?v=49";
+import { armerJeton } from "./glisser.mjs?v=49";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=49";
+import { createDieHost, mount } from "./dice3d.mjs?v=49";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=49";
 
 export { rollAbilitySet };
 
@@ -234,11 +232,13 @@ function renderCapWarning(resolved, key) {
    2. `score`/`mod` sont LUS dans `resolved.abilities[key]`, À L'OCTET —
       jamais recalculés. Cette fonction ne fait AUCUNE arithmétique.
 
-   ⭐ C'EST ELLE QUE §5.2 DÉSIGNE POUR LES CIBLES. Le modificateur d'un dé
-   POSÉ est le modificateur FINAL (boosts compris), et il se lit ici. Le
-   modificateur BRUT (`abilityModOf`) n'a sa place que dans le VIVIER, où un
-   dé n'appartient encore à aucune caractéristique. Afficher le brut dans une
-   cible serait exactement la contradiction que ce lot 46 a corrigée. */
+   ⭐ ET C'EST LE SEUL MODIFICATEUR DE L'ÉCRAN — Eric, 2026-08-16 : *« aucun
+   intérêt de mettre les bonus sous chaque dé, seulement en bas dans le
+   collecteur »*. Un modificateur BRUT posé au vivier n'aurait été celui de
+   personne : un dé n'appartient encore à aucune caractéristique, et son brut
+   ne survit pas à la pose (les boosts d'héritage le changent). Deux nombres
+   pour un dé, dont un qui ne serait jamais vrai — la contradiction du lot 46,
+   réintroduite un étage plus haut. */
 export function renderFinalColumn(resolved, key, rawValue) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
   const { score, mod } = resolved.abilities[key];
@@ -434,12 +434,10 @@ function renderVivier(ctx) {
      ce mot qui lui donne sa fenêtre : quatre colonnes, un plafond, et le
      défilement dedans. */
   rangee.dataset.pool = inepuisable ? "inepuisable" : "fini";
-  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, IL NE SE DEVINE PAS. Le socle n'en
-     connaît qu'un (`.stage`) et trouve les autres par ce marqueur — « le
-     marqueur est une déclaration, pas une inférence » (socle.mjs). Sans lui,
-     un futur `scrollParent` remonterait jusqu'à la scène et ferait voyager
-     tout l'écran pour amener un dé dans le champ. */
-  if (inepuisable) rangee.dataset.scroller = "palette";
+  /* ⛔ ET AUCUN `data-scroller` : la palette ne défile PAS. Eric, 2026-08-16 :
+     *« ça ne doit pas scroller »*. La scène en garde donc UN SEUL, comme le
+     socle l'a toujours voulu (B0.21a) — le second défilement que la fenêtre
+     bornée coûtait n'a pas eu lieu. */
 
   for (const roll of gardes) {
     const item = el("li", "fs");
@@ -455,12 +453,13 @@ function renderVivier(ctx) {
       continue;
     }
     item.append(renderJetonDe(roll, FS.resolution, {
-      /* ⛔ LE MAINTIEN N'EST VRAI QUE DANS LA PALETTE, et c'est mesuré, pas
-         prudent : elle est la SEULE rangée qui défile (les six d'un lot
-         tiennent sur une ligne). Le poser partout coûterait 350 ms à un geste
-         qui n'en a pas besoin — le tap reste le chemin court dans les deux
-         cas, seul le glisser VISÉ paie le péage. */
-      maintien: inepuisable,
+      /* ⛔ AUCUN MAINTIEN NULLE PART, ET C'EST LE BON ÉTAT. Il avait été posé
+         sur la palette quand elle défilait dans sa fenêtre : dans une grille
+         qui défile, un jeton ne peut pas porter `touch-action: none` sans
+         rendre la grille indéfilable, et le glisser s'y paie alors 350 ms
+         (lot 79). ⭐ La palette ne défile plus — le geste redevient immédiat
+         partout, et le second défilement que `CADRES.md` annonçait comme le
+         PRIX de la fenêtre n'est jamais payé. */
       chezSoi: true,
       onTap: () => ctx.poserAuPremierLibre(roll),
       onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
@@ -479,15 +478,26 @@ function renderVivier(ctx) {
  *  fabricants auraient donné deux gestes qui divergent — la faute que
  *  `glisser.mjs` existe pour éviter.
  *
- *  ⭐ §5.2 — LE MODIFICATEUR VA SOUS CHAQUE DÉ, Y COMPRIS AU VIVIER. Ici, un
- *  dé n'appartient à aucune caractéristique : il ne peut donc montrer que le
- *  modificateur **BRUT** de sa valeur. Il est LU au moteur (`abilityModOf`),
- *  jamais recalculé ici — même loi que la borne 3–18 : l'écran n'écrit pas de
- *  règle, il en lit une.
- *  ⛔ Dans une CIBLE, c'est l'autre modificateur qui compte (le FINAL, boosts
- *  compris) et il vient de `renderFinalColumn`. Les deux ne disent pas la
- *  même chose, et c'est la leçon du lot 46. */
-function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, maintien }) {
+ *  ⛔ AUCUN MODIFICATEUR SOUS UN DÉ — TRANCHÉ PAR ERIC LE 2026-08-16 :
+ *  *« aucun intérêt de mettre les bonus sous chaque dé, seulement en bas dans
+ *  le collecteur »*.
+ *  🔴 CE QUE ÇA CORRIGE, ET CE N'EST PAS QU'UN GOÛT. Le §5.2 du mandat lisait
+ *  son *« à mettre sous chaque dé »* comme valant AUSSI pour le vivier, et un
+ *  modificateur BRUT y avait été posé (`abilityModOf`). Deux choses s'en
+ *  allaient de travers :
+ *  · le vivier montrait un modificateur qui n'est celui de PERSONNE — un dé
+ *    n'appartient encore à aucune caractéristique, et son brut ne survit pas
+ *    à la pose (les boosts d'héritage le changent). Deux nombres pour un dé,
+ *    dont un qui ne sera jamais vrai : c'est la contradiction du lot 46,
+ *    réintroduite ailleurs.
+ *  · et il coûtait une LIGNE par tuile — mesuré, 91 px de haut au lieu de 73.
+ *    C'est ce qui rendait le 4 × 4 trop grand pour son champ, et donc ce qui
+ *    m'a fait proposer un plafond et un second défilement. Le retirer résout
+ *    les deux d'un coup.
+ *  ⭐ LE MODIFICATEUR QUI COMPTE EST DANS LA CIBLE, et il y était déjà : le
+ *  FINAL, boosts compris, lu dans `resolved.abilities` par `renderFinalColumn`
+ *  — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
+function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
   /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
      hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
      pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
@@ -500,9 +510,16 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, maintien }) {
   jeton.setAttribute("aria-label", chezSoi
     ? `${roll.total} — to place`
     : `${roll.total} — placed, drag to move`);
-  jeton.append(el("span", "ability-de-total", [text(String(roll.total))]));
+  /* ⛔ AUCUN TOTAL AU-DESSUS DU DÉ NON PLUS — Eric, 2026-08-16 : *« enlève les
+     chiffres au-dessus des dés aussi »*. Le dé PORTE déjà sa valeur, peinte
+     sur sa face (`.valeur`) ; la répéter au-dessus était le même nombre écrit
+     deux fois à dix pixels d'écart. C'est la seconde ligne que la tuile perd,
+     après le modificateur — et c'est ce qui laisse le 4 × 4 tenir sans qu'on
+     ait rien à borner.
+     ⭐ La valeur reste DITE à qui ne la voit pas : l'`aria-label` du jeton la
+     porte en toutes lettres (« 16 — to place »). On retire un doublon visuel,
+     pas une information. */
   poserUnDe(jeton, roll.total, taille, roll.index);
-  jeton.append(el("span", "ability-de-mod", [text(motDuMod(abilityModOf(roll.total)))]));
   /* Le détail « 5+5+6 » est DANS le croquis, sous chaque dé. Un tirage sans
      détail (le tableau standard, la palette) n'affiche pas de ligne vide.
      ⭐ ET UN JET AJUSTÉ LE DIT : le plancher du haut ou du bas a changé son
@@ -511,7 +528,7 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, maintien }) {
     const detail = roll.ajuste ? `${roll.dice.join("+")} → ${roll.total}` : roll.dice.join("+");
     jeton.append(el("span", "ability-de-detail", [text(detail)]));
   }
-  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot, maintien: Boolean(maintien) }));
+  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
   return jeton;
 }
 
