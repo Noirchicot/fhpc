@@ -1,4 +1,4 @@
-# Les cadres du builder — F, FF, et l'habillage D
+# Les cadres du builder — F, FF, FS, et l'habillage D
 
 > **Vocabulaire posé par Eric le 2026-08-16** (croquis `IMG_1560`, et le
 > message qui l'accompagne). Il continue le nom **F1**, qui existait déjà
@@ -302,6 +302,46 @@ qui lui est propre.
 La question posée hier (*« FF2 ou FF3 ? »*) est tombée avec F3. Concept n'a
 aucun menu latéral et sa hauteur est celle de son contenu : **FF2**, comme
 presque tout le builder. Mesuré : 271 px pour un champ de 493.
+
+## 7. FS — *l'îlot* · le petit format répété
+
+> Nommé par Eric le 2026-08-16, en construisant le plateau des
+> caractéristiques : *« six caracs qui flottent au-dessus du background, avec
+> un dé en 3d dessus […] on va les appeler des FS (floating small) »*.
+
+```
+ ┌──────────────────────────────────────────────┐
+ │  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐   │
+ │  │ 15 │ │ 14 │ │ 13 │ │ 12 │ │ 10 │ │ 8  │   │  ← six îlots, une rangée
+ │  └────┘ └────┘ └────┘ └────┘ └────┘ └────┘   │
+ │    54     ↑4                                 │
+ └──────────────────────────────────────────────┘
+```
+
+**Un FS n'est pas une fenêtre, c'est une TUILE** — un petit objet flottant,
+répété en rangée, qui porte UNE chose (un dé, un score, un jeton). Il n'a
+donc ni les marges ni les hauteurs des F/FF : il n'a qu'un **écart** et un
+**nombre de colonnes**.
+
+* ⛔ **AUCUNE LARGEUR NI HAUTEUR ÉCRITE, ET C'EST LE POINT.** `repeat(6, 1fr)`
+  déduit la largeur ; la hauteur vient du contenu, et les six s'égalisent
+  parce qu'une ligne de grille prend la hauteur de sa plus haute cellule.
+  Trois décisions suffisent : **combien de colonnes, quel écart, quelle forme
+  (ou aucune)**.
+* 🔴 **L'ÉCART EST DE 4, ET C'EST L'ARITHMÉTIQUE DE 360 QUI L'A IMPOSÉ** —
+  mesuré le 16/08. À 8, l'îlot vaut 50,7 et son dé 42 : **deux pixels sous
+  `--touch` (44)**. Et ce n'est pas rattrapable ailleurs — six cases de 52
+  plus cinq écarts de 8 demandent 352 px pour 344 disponibles. À 4 : îlot
+  **54**, dé **46**.
+* ⭐ **Ce qui EST écrit, c'est la taille du dé** — le moteur 3D veut des
+  pixels — et elle se **déduit** de la largeur mesurée d'un îlot, jamais
+  d'une constante.
+* 📌 Une rangée de FS peut être une **cible de dépôt** : le banc lui donne
+  `data-creneau`, et lâcher un dé n'importe où dessus le fait rentrer chez
+  lui. Une seule zone d'accueil plutôt que six — viser un îlot de 54 px au
+  pouce serait un jeu d'adresse.
+
+**Où le voir** : `ui/builder/ilots-lab.html` (banc d'essai, déployé).
 
 ## 8. L'HABILLAGE — `D-<format>-<variante>-<plateforme>`
 
