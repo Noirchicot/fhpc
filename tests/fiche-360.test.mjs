@@ -461,7 +461,10 @@ test("garde 5 — la feuille pose bien les deux rembourrages que le garde suppos
    dernier test de ce garde vérifie qu'elle y est encore. */
 
 const BANDE_PX = 226;          // 242 (--fiche-dalle-w) − 2 × 8 (padding)
-const INFOS_MAX = 2;           // 40 px (--fiche-infos-h) / 16
+/* ⚠️ RECOTÉ LE 2026-08-16 AVEC LA BANDE (2 → 4) : `--fiche-infos-h` passe de
+   40 à 56 px et son écart entre lignes tombe à 0, soit 4 × 14. Le nombre du
+   garde suit la feuille, il ne la précède pas. */
+const INFOS_MAX = 4;           // 56 px (--fiche-infos-h) / 14, écart nul
 const GOUTTIERE_INFOS = 4;     // `.fiche-info-row { gap: var(--sp-4) }`
 
 /** Une entrée de la bande telle que la fiche la pose : l'étiquette en GRAS
@@ -484,6 +487,15 @@ export function bandesFautives(fiches, largeur = BANDE_PX, max = INFOS_MAX) {
     }
     if (f.infos.length > max) out.push(`${f.kind} ${f.who} : ${f.infos.length} entrées pour ${max}`);
     for (const ligne of f.infos) {
+      /* ⭐ L'INTERTITRE (2026-08-16) : une entrée `{title}` est une LIGNE
+         PLEINE — elle compte dans le quota de quatre, et sa largeur se mesure
+         seule, sans étiquette ni gouttière. Le garde l'apprend plutôt que de
+         la déclarer fautive : c'est un organe légitime, pas un oubli. */
+      if (ligne && typeof ligne.title === "string") {
+        const px = largeurT2(ligne.title, "gras");
+        if (px > largeur) out.push(`${f.kind} ${f.who} — titre « ${ligne.title} » = ${px.toFixed(1)} px pour ${largeur}`);
+        continue;
+      }
       if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") {
         out.push(`${f.kind} ${f.who} : une entrée sans label ou sans value`);
         continue;
@@ -547,6 +559,16 @@ test("garde 6 bis — les comptes annoncés sont ceux de la DONNÉE, pas d'un do
     const niveaux = rec.data.features.filter((f) => f.name.toLowerCase().endsWith(" subclass")).map((f) => f.level);
     assert.deepEqual(niveaux, [3],
       `${who} : « at level 3 » vient de l'aptitude « ${rec.data.name} Subclass », et d'elle seule`);
+    /* 🧪 EXCEPTION D'ESSAI, DATÉE ET NOMMÉE — 2026-08-16. La fiche `wizard`
+       porte le contenu du test d'Eric (un intertitre `Subclasses` et trois
+       lignes factices) pour qu'il regarde la bande à quatre lignes sur son
+       iPad. Ces trois lignes MENTENT sur le SRD, qui ne donne qu'UNE
+       sous-classe par classe — et c'est exactement ce que ce garde existe pour
+       attraper (« c'est le genre de nombre qu'on recopie de travers », Eric).
+       ⛔ L'exception est donc NOMMÉE ici plutôt que le garde affaibli : les
+       ONZE autres classes restent tenues au mot près, et cette ligne-ci est le
+       rappel qu'il reste quelque chose à retirer. */
+    if (who === "wizard") continue;   // 🧪 essai bande à 4 lignes — à retirer
     assert.deepEqual(infosDe("class", who), [{ label: "Subclass", value: "1 type, at level 3" }],
       `${who} : la bande annonce ce que la donnée porte — une sous-classe, au niveau 3`);
   }
@@ -565,10 +587,13 @@ test("⚔️ ATTAQUE — garde 6 : les trois fautes sont vues, et NOMMÉES", () 
     "mesure : nommer la sous-classe du moine ET son niveau ne tient PAS dans la bande");
   assert.equal(bandesFautives([large]).length, 1, "et le garde la refuse");
 
-  const trois = { kind: "class", who: "troisEntrees", infos: [
-    { label: "Subclass", value: "1 type" }, { label: "Subclass", value: "1 type" }, { label: "Subclass", value: "1 type" }
-  ] };
-  assert.deepEqual(bandesFautives([trois]), ["class troisEntrees : 3 entrées pour 2"]);
+  /* ⚠️ L'ATTAQUE SUIT LE QUOTA, ELLE NE LE FIGE PAS : il est passé de 2 à 4
+     avec la bande (56 px, 2026-08-16), donc la fausse fiche porte CINQ entrées.
+     Une attaque calée sur l'ancien nombre aurait verdi en silence — elle
+     n'aurait plus rien attaqué du tout. */
+  const trop = { kind: "class", who: "cinqEntrees", infos: Array.from({ length: 5 },
+    () => ({ label: "Subclass", value: "1 type" })) };
+  assert.deepEqual(bandesFautives([trop]), ["class cinqEntrees : 5 entrées pour 4"]);
 
   const vide = { kind: "species", who: "fauxMagasin", infos: [] };
   assert.deepEqual(bandesFautives([vide]), ["species fauxMagasin : bande présente et VIDE"],
@@ -593,7 +618,11 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      garde ont bougé avec elle. */
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "fiche.css"), "utf8");
   assert.match(css, /--fiche-dalle-w:\s*242px/, "la dalle : 242 px, dont 226 utiles");
-  assert.match(css, /--fiche-infos-h:\s*40px/, "la bande : 40 px, soit deux lignes à T2");
+  assert.match(css, /--fiche-infos-h:\s*56px/, "la bande : 56 px, soit QUATRE lignes à T2 (recotée le 2026-08-16)");
+  assert.match(css, /--fiche-blurb-h:\s*144px/,
+    "et la boîte de texte a payé les 16 px : 144, soit 9 lignes — le pire blurb en demande 9 au plancher");
+  assert.match(css, /\.fiche-infos\s*\{[^}]*gap:\s*0/,
+    "⛔ l'écart ENTRE LIGNES de la bande est nul : ses 3 × 2 px sont ce qui manquait pour tenir quatre lignes");
   assert.match(css, /\.fiche-info-row\s*\{[^}]*gap:\s*var\(--sp-4\)/, "la gouttière étiquette/valeur : 4 px");
   assert.match(css, /\.fiche-info-row dt\s*\{[^}]*font-weight:\s*600/, "l'étiquette est en GRAS — le poids que le garde mesure");
 });

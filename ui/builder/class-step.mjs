@@ -20,15 +20,15 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=15";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=15";
-import { renderConfirmDialog } from "./confirm.mjs?v=15";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=16";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=16";
+import { renderConfirmDialog } from "./confirm.mjs?v=16";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — aucune n'existe encore (cotes
    visées 200 × 260, PNG transparent, Eric les produit). Le dos de carte des
    arcanes tient la place, et il porte la version du graphe comme tout ce que
    `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=15";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=16";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

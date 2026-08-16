@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=15";
+import { planAt } from "./carnet.mjs?v=16";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -355,6 +355,21 @@ function renderFicheInfos(infos) {
   const bande = el("dl", "fiche-infos");
   bande.dataset.zone = "infos";   // ce que lit `renderCatalogueCards`
   for (const ligne of infos) {
+    /* ⭐ UN INTERTITRE DANS LA BANDE — organe neuf du 2026-08-16, demandé par
+       le test d'Eric : *« Subclasses (bold) »* au-dessus de trois lignes.
+       ⛔ RENDU DANS UN `<div>`, PAS À NU : un `<dl>` n'accepte que `dt`, `dd`
+       et `div` — un `<h3>` posé dedans serait du balisage invalide, que le
+       navigateur ne signale pas et que personne ne verrait passer.
+       ⭐ Un `<dt>` seul hérite du gras des étiquettes et n'a PAS de
+       deux-points : ce n'est pas une étiquette qui annonce une valeur, c'est
+       un titre. Purement additif — une entrée sans `title` suit le chemin
+       d'avant, et les 16 autres bandes du dépôt ne bougent pas. */
+    if (ligne && typeof ligne.title === "string") {
+      const titre = el("div", "fiche-info-row fiche-info-titre");
+      titre.append(el("dt", null, [text(ligne.title)]));
+      bande.append(titre);
+      continue;
+    }
     if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
     const row = el("div", "fiche-info-row");
     row.append(el("dt", null, [text(`${ligne.label} :`)]));

@@ -1170,8 +1170,19 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Subclass 1",
+              "value": "blblblblblbblbblblgjhg"
+            },
+            {
+              "label": "Subclass 2",
+              "value": "blblblblblblbhgjhgjhg"
+            },
+            {
+              "label": "Subclass 3",
+              "value": "blblblblbblbjhgjhgjhg"
             }
           ]
         }

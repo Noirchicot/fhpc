@@ -47,8 +47,21 @@
   --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
   --fiche-image-w: 100px; /* l'image — 242 − 8 − 118 − 8 − 8 */
-  --fiche-blurb-h: 160px; /* la boîte du blurb : 10 lignes de 16 px, FIXE */
-  --fiche-infos-h:  40px; /* la bande d'infos — deux lignes à T2 et leur air */
+  /* ⚠️ RECOTÉES LE 2026-08-16 POUR LE TEST DE LA BANDE (Eric : « réduit pour
+     que ça rentre, c'est un test »). Le budget vertical de la fiche est FERMÉ —
+     8 + 22 + 8 + 126 + 8 + <bande> + 8 + <texte> + 8 + 44 + 8 = 440 — donc tout
+     ce que la bande gagne, la boîte de texte le perd. Ce n'est pas un réglage,
+     c'est un transfert, et il a été MESURÉ avant d'être fait :
+     · au plancher (360, boîte de 238 px de large), les pires blurbs demandent
+       **9 lignes sur 10** — la boîte avait donc exactement UNE ligne de mou ;
+     · la bande passe de 2 à 4 lignes : 4 × 14 = 56, à condition de supprimer
+       l'écart entre ses lignes (3 × 2 px, voir `.fiche-infos`).
+     🔴 CE QUE ÇA COÛTE, ET IL FAUT LE DIRE : la boîte de texte n'a plus AUCUNE
+     marge au plancher. Neuf lignes demandées, neuf lignes offertes. Une police
+     qui rend un cheveu plus large tronque. C'est acceptable pour un essai ; ça
+     ne l'est pas pour une livraison sans qu'Eric l'ait tranché. */
+  --fiche-blurb-h: 144px; /* la boîte du blurb : 9 lignes de 16 px (10 avant) */
+  --fiche-infos-h:  56px; /* la bande d'infos — QUATRE lignes à T2, sans écart */
   --fiche-stats-h: 126px; /* la rangée des stats : les 8 items d'une classe */
 
   /* ⭐ LA GOUTTIÈRE — Ch1, Eric le 2026-08-15 : *« problème de chevauchement
@@ -540,10 +553,15 @@
   align-self: center;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  /* ⛔ ÉCART SUPPRIMÉ — les 6 px de trois gouttières sont exactement ce qui
+     manquait pour tenir quatre lignes dans 56. Mesuré, pas estimé. */
+  gap: 0;
   font-size: var(--t2);
   overflow: hidden;
 }
+/* L'INTERTITRE DE LA BANDE — un `<dt>` seul, donc déjà en gras, et SANS
+   deux-points : ce n'est pas une étiquette qui annonce une valeur. */
+.fiche-info-titre dt { color: var(--text); }
 /* Même forme qu'une ligne de stats — étiquette en gras, valeur en normal :
    c'est la même nature d'information, elle se lit du même geste. */
 .fiche-info-row { display: flex; gap: var(--sp-4); }
@@ -656,7 +674,10 @@
     grid-row: 2 / 6;          /* sous le bandeau du nom, au-dessus du pied */
     align-self: center;
     justify-self: start;
-    height: 75%;
+    /* ⭐ +20 % le 2026-08-16 (Eric : « au passage image en paysage agrandie de
+       20 % ») : 75 × 1,2 = 90. Le facteur est appliqué, pas empilé — écrire
+       `calc(75% * 1.2)` laisserait deux nombres à tenir d'accord. */
+    height: 90%;
     width: auto;
   }
   .fiche-dalle .fiche-image img { width: auto; height: 100%; object-fit: contain; }
@@ -721,7 +742,14 @@
      ⛔ Le rembourrage horizontal doit être écrit ICI : la règle de base n'en
      a aucun (elle n'en avait pas besoin, `flex: 1 1 0` donnait la largeur).
      Sans lui, un bouton qui cesse de s'étirer se réduit à son texte. */
-  .fiche-dalle .fiche-actions { grid-column: 1 / 3; grid-row: 6; justify-content: center; }
+  /* ⭐ CENTRÉS SUR LA DALLE, PAS SUR UNE SOUS-BANDE — Eric, 2026-08-16 :
+     « boutons Lore et Choose pas bien centrés, en paysage ». Ils l'étaient
+     déjà, mais dans la bande des colonnes G et CENTRE (leur centre tombait à
+     203 quand celui de la dalle est à 312) : centrés par rapport à un repère
+     que l'œil ne voit pas. Ils prennent maintenant toute la largeur, comme le
+     bandeau du nom en tête — le titre et le pied se répondent aux deux bouts,
+     sur le même axe. */
+  .fiche-dalle .fiche-actions { grid-column: 1 / -1; grid-row: 6; justify-content: center; }
   .fiche-dalle .fiche-action { flex: 0 0 auto; padding-inline: var(--sp-24); }
 
   /* Le second gabarit (celui des fiches SANS bande d'infos) n'a pas lieu
