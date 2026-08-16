@@ -184,6 +184,18 @@
      long nom de classe à T2, pas un pixel de plus : à 360 px, chaque pixel
      du rail est un pixel de moins pour la fiche. */
   --touch: 44px;
+  /* ── LE PLAFOND DU DÉ — un seul, pour TOUS les dés (2026-08-17) ──────
+     Eric : *« ça concerne tous les dés »*. Il vivait sur `.fs-rangee`, donc
+     les six cibles du collecteur — qui n'en sont pas une — le lisaient
+     **indéfini** : leur `max-width` était invalide et le dé grandissait sans
+     borne (mesuré à 80 px sur l'iPad, 48 partout ailleurs). C'est ce hasard
+     qui donnait deux tailles de dé sur le même écran, et c'est le grand des
+     deux qu'Eric a dessiné comme la bonne taille. Le nombre monte donc ici,
+     à la racine, où toute la page l'hérite.
+     ⚠️ Un jeton indéfini ne crie pas : `max-width: var(--absent)` est
+     simplement ignoré. Même famille que la règle perdante d'hier — le
+     navigateur seul pouvait le dire. */
+  --fs-de-max: 80px;
   /* LOT 77 — 84 → 78. Le gabarit à 360 l'a MESURÉ : `Barbarian` à T3 fait
      62 px, plus 8 de rembourrage de chaque côté, soit 78. Les 6 px rendus
      vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
@@ -217,7 +229,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=75");
+  --bg-image: url("./assets/bg-day.jpg?v=76");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -286,7 +298,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=75");
+    --bg-image: url("./assets/bg-night.jpg?v=76");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

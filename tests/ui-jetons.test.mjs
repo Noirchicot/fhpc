@@ -78,13 +78,31 @@ const tokensCssRaw = fs.readFileSync(TOKENS_CSS_PATH, "utf8");
    normal, jamais du CSS déjà dépouillé à la main. */
 
 /** Chaque déclaration `font-size:` dont la valeur n'est pas EXACTEMENT
- *  `var(--t1)`…`var(--t7)`. */
+ *  `var(--t1)`…`var(--t7)`, ou un MULTIPLE écrit de l'un d'eux.
+ *
+ *  ⚠️ LA SECONDE FORME EST ADMISE DEPUIS LE 2026-08-17, et c'est une
+ *  reconnaissance, pas un relâchement. Le garde interdisait `calc(var(--t5) *
+ *  1.5)` — une valeur qui ne contient AUCUN nombre de taille et qui suit son
+ *  barreau si le barreau bouge. `fiche.css` employait déjà cette forme, avec
+ *  sa raison écrite (*« le facteur est écrit comme un CALCUL sur le jeton,
+ *  jamais comme un nombre en dur : le jour où `--t5` bouge, le titre suit »*),
+ *  et c'est exactement ce que la loi veut. Le garde était donc plus strict que
+ *  la loi qu'il protège, et il refusait la bonne écriture.
+ *  ⛔ CE QUI RESTE INTERDIT, ET C'EST TOUT CE QUI COMPTE : un nombre de TAILLE
+ *  dans la valeur. `calc(var(--t5) + 2px)` reste une violation, `calc(16px *
+ *  1.5)` aussi — le facteur est un rapport, pas une cote. L'attaque 2 bis le
+ *  prouve plus bas. */
+const BARREAU = String.raw`var\(--t[1-7]\)`;
+const MULTIPLE_DE_BARREAU = new RegExp(String.raw`^calc\(\s*${BARREAU}\s*\*\s*[\d.]+\s*\)$`);
+
 function fontSizeViolations(cssText) {
   const text = stripComments(cssText);
   const hits = [];
   for (const match of text.matchAll(/font-size\s*:\s*([^;]+);/g)) {
     const value = match[1].trim();
-    if (!/^var\(--t[1-7]\)$/.test(value)) hits.push(value);
+    if (new RegExp(`^${BARREAU}$`).test(value)) continue;
+    if (MULTIPLE_DE_BARREAU.test(value)) continue;
+    hits.push(value);
   }
   return hits;
 }
@@ -433,13 +451,20 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton principal fait rougir SEU
      ⭐ CE QUE L'ATTAQUE PROUVE NE CHANGE PAS D'UN IOTA : le bouton PRINCIPAL
      du builder, celui qui porte l'accent, ne doit pas écrire son encre en
      dur — `#fff` échouait 2,44:1 en thème sombre (défaut n°1, mesuré le
-     2026-08-13). C'est la même loi, sur le bouton qui a hérité du rôle. */
+     2026-08-13). C'est la même loi, sur le bouton qui a hérité du rôle.
+     ⚠️ CIBLE REPORTÉE UNE TROISIÈME FOIS, LE 2026-08-17 : `DONE` ne porte plus
+     l'accent du tout — Eric : *« enlève toute couleur dans Back et Done »*. Le
+     bouton à fond plein le plus proche est désormais l'option ACTIVE d'un
+     choix de record (`.record-option`), et c'est la même paire accent/encre.
+     📌 Une attaque qui perd sa cible ne se supprime pas : elle se REPORTE sur
+     ce qui tient le rôle. Une attaque supprimée est une loi qu'on cesse de
+     vérifier sans jamais l'avoir abrogée. */
   const before = colorViolations(shellCssRaw);
   assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
 
   const mutated = shellCssRaw.replace(
-    '.sortie-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
-    '.sortie-bouton[data-lit="true"] { background: var(--accent); color: #fff;'
+    '.record-option[data-active="true"] { background: var(--accent); color: var(--on-accent);',
+    '.record-option[data-active="true"] { background: var(--accent); color: #fff;'
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
@@ -493,6 +518,23 @@ test("⚔️ ATTAQUE 2 — remettre font-size: 13px sur .skills-budget-note fait
   assert.deepEqual(colorViolations(mutated), colorViolations(shellCssRaw));
   assert.deepEqual(spacingRadiusViolations(mutated), spacingRadiusViolations(shellCssRaw));
   assert.deepEqual(displayNoneViolations(mutated), displayNoneViolations(shellCssRaw));
+});
+
+test("⚔️ ATTAQUE 2 bis — un multiple de barreau passe, une COTE déguisée en calcul non", () => {
+  /* 🔴 CE QUE CETTE ATTAQUE PROTÈGE, ET POURQUOI ELLE NAÎT AVEC L'ASSOUPLISSEMENT
+     DU 2026-08-17 : accepter `calc(var(--tN) * k)` ne doit PAS ouvrir la porte
+     à un nombre de taille glissé dans un `calc`. Le facteur est un RAPPORT ;
+     dès qu'une unité apparaît, c'est une cote, et la loi retombe.
+     ⛔ Sans ce cas, l'élargissement du garde serait invérifiable — on saurait
+     ce qu'il laisse passer, pas ce qu'il retient encore. */
+  assert.deepEqual(fontSizeViolations("a { font-size: calc(var(--t5) * 1.5); }"), [],
+    "un multiple écrit d'un barreau : c'est la forme que `fiche.css` emploie depuis le lot 69");
+  assert.deepEqual(fontSizeViolations("a { font-size: calc(var(--t5) + 2px); }"), ["calc(var(--t5) + 2px)"],
+    "⛔ une cote AJOUTÉE à un barreau reste une violation — 2px ne suit aucun barreau");
+  assert.deepEqual(fontSizeViolations("a { font-size: calc(16px * 1.5); }"), ["calc(16px * 1.5)"],
+    "⛔ et un calcul qui part d'une cote n'est pas un barreau du tout");
+  assert.deepEqual(fontSizeViolations("a { font-size: 1.5rem; }"), ["1.5rem"],
+    "⛔ ni une unité relative, qui échappe à l'échelle sans le dire");
 });
 
 test("⚔️ ATTAQUE 3 — remettre padding: 10px sur .belt-item fait rougir SEULEMENT le garde d'espacement", () => {

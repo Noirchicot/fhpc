@@ -254,7 +254,20 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   padding: 0 var(--sp-20);
   cursor: pointer;
 }
-.sortie-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+/* ══ AUCUNE COULEUR DANS `BACK` ET `DONE` — Eric, 2026-08-17 ═════════════
+   *« enlève toute couleur dans Back et Done »*, et *« ce qu'on fait ici on va
+   devoir le faire partout »*. C'est déjà le cas : la paire a UN producteur et
+   UNE règle, donc les dix écrans changent dans le même geste. C'était tout
+   l'argument de la §5.1 du mandat, et il se paie ici.
+
+   ⚠️ CE QUE `data-lit` PERD, ET IL FAUT LE SAVOIR : la porte ouverte ne se
+   dit plus par une couleur, seulement par le contraste entre un bouton VIF et
+   un bouton à demi éteint (`:disabled`, opacité .5). C'est moins fort qu'un
+   fond plein. Le graisse reste pour que la différence ne repose pas
+   uniquement sur l'opacité — un seul canal de distinction serait fragile.
+   📌 L'attribut SURVIT (il dit l'état, et un lot futur peut le rhabiller) ;
+   c'est sa peinture colorée qui s'en va. */
+.sortie-bouton[data-lit="true"] { font-weight: 600; }
 .sortie-bouton:disabled { opacity: .5; cursor: default; }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
@@ -1109,6 +1122,26 @@ button { font: inherit; }
   text-transform: uppercase; font-weight: 600;
   color: var(--text); text-align: center;
 }
+/* ══ LE NOM DE LA MÉTHODE — la taille d'`Elf` dans Species ═══════════════
+   Eric, 2026-08-17 : *« mets Free à la même taille que Elf dans Species »*.
+
+   ⚠️ ET ÇA SÉPARE CE QUE J'AVAIS FUSIONNÉ LA VEILLE, délibérément. Les deux
+   titres de la page partageaient une règle pour ne pas diverger — mais ils ne
+   sont pas de la même espèce : `FREE` est le **nom de ce qu'on regarde** (le
+   pendant d'`Elf` sur une fiche), `DRAG AND DROP HERE` est une **consigne**
+   au-dessus d'une zone de dépôt. Les grossir ensemble ferait crier la seconde.
+   Ce qui reste commun (la marge, le centrage) vit toujours dans la règle
+   au-dessus ; seule la taille se sépare.
+   ⛔ La cote est LUE au jeton, jamais recopiée : `--t5` et son facteur 1,5 en
+   paysage sont exactement ce que `fiche.css` écrit pour `.catalogue-card-name`.
+   Le jour où le nom d'une fiche change de taille, celui-ci suit. */
+.ability-methode-titre {
+  font-size: var(--t5); letter-spacing: normal; text-transform: none;
+  font-weight: 700;
+}
+@media (orientation: landscape) {
+  .ability-methode-titre { font-size: calc(var(--t5) * 1.5); }
+}
 
 /* ── ÉTAGE 1 · L'ORGANE — FF2, dalle 50 % ─────────────────────────────
    L'explication d'abord (la règle, une phrase), puis le plateau quand la
@@ -1257,7 +1290,10 @@ button { font: inherit; }
    une géométrie. */
 .fs-rangee {
   --fs-colonnes: 6;
-  --fs-de-max: 48px;   /* la taille NATURELLE du dé à 360 — il ne grandit jamais au-delà */
+  /* ⛔ `--fs-de-max` N'EST PLUS DÉCLARÉ ICI — il est monté dans `tokens.css`
+     le 2026-08-17 (48 → 80, *« ça concerne tous les dés »*). Le tenir sur la
+     rangée le rendait INDÉFINI pour le collecteur, qui n'est pas une rangée :
+     voir la note du jeton. */
   display: grid;
   grid-template-columns: repeat(var(--fs-colonnes), 1fr);
   gap: var(--sp-4);
@@ -1313,7 +1349,12 @@ button { font: inherit; }
    vide autour qui part. */
 .ability-palette .fs { background: none; box-shadow: none; padding: 0; }
 .ability-palette {
-  grid-template-columns: repeat(var(--fs-colonnes), var(--fs-de-max));
+  /* 🔴 `minmax(0, …)` ET NON LA COTE SÈCHE : à 80 px, quatre colonnes + trois
+     écarts font 344, soit **plus que les 328 disponibles à 360** et plus que
+     les 343 à 375. Une cote sèche déborderait donc sur le téléphone d'Eric.
+     `minmax(0, plafond)` dit la seule chose vraie : aussi grand que la place
+     le permet, jamais au-delà du plafond. */
+  grid-template-columns: repeat(var(--fs-colonnes), minmax(0, var(--fs-de-max)));
   justify-content: center;
   gap: var(--sp-8);
 }
@@ -1336,7 +1377,14 @@ button { font: inherit; }
    pouce — la palette n'aurait eu nulle part où déposer. */
 .fs-vide {
   display: flex; align-items: center; justify-content: center;
-  min-height: var(--fs-de-max);
+  /* ⚠️ RÉSERVER LE PLAFOND N'EST PLUS RÉSERVER UN DÉ (2026-08-17). Tant que le
+     plafond valait 48, un dé les faisait presque toujours. À 80, un dé de
+     téléphone en fait 54 : un créneau vide de 80 dépasserait de 26 px les dés
+     qu'il attend. On réserve donc ce qu'un dé occupe VRAIMENT — la même
+     largeur, le même carré — avec le seuil tactile pour plancher, qui était
+     la raison d'être de cette règle. */
+  width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
+  min-height: var(--touch);
   color: var(--text); font-size: var(--t2);
 }
 /* Le dé EST l'objet qu'on prend. `touch-action: none` : sans elle le doigt
@@ -1413,10 +1461,37 @@ button { font: inherit; }
      même loi que les 16 px du corps de fiche, qui ne se mettent pas à
      l'échelle avec la dalle (CADRES.md §8). Mesuré : T4 dans un îlot de 51
      fait 34 % de sa largeur, le rapport que le banc avait réglé à l'œil ; sous
-     le plafond de 56, il en fait 29 %. Les deux se lisent. */
-  font-size: var(--t4);
+     le plafond de 56, il en fait 29 %. Les deux se lisent.
+     ⭐ T4 → T6 LE 2026-08-17, AVEC LE DÉ QUI PASSE À 80. Laisser 16 px sur un
+     dé de 80 aurait donné 20 % de sa largeur — le dé grandit, le chiffre
+     rétrécit à l'œil, et le croquis d'Eric montre l'inverse. T6 (22 px, 28 en
+     Large) rend 27 % à 80 et 41 % sur un dé de téléphone à 54 : les deux
+     restent des tailles de LECTURE, ce que la loi ci-dessus exige.
+     ⏳ C'est un barreau, donc une décision réversible d'un mot : si le chiffre
+     paraît trop gros, le levier est T5, jamais un `calc()`. */
+  font-size: var(--t6);
   color: var(--de-encre);
   pointer-events: none;
+  /* ══ 📐 LE CHIFFRE SE CENTRE SUR LA FACE, PAS SUR LA BOÎTE ═══════════
+     Eric, croquis du 2026-08-17 : *« centre le chiffre ici »*, flèche sur un
+     carré barré en diagonale — le centre géométrique de la face.
+
+     🔴 ET C'EST MESURÉ, PAS ESTIMÉ. L'image du dé a été redessinée à 120 px
+     dans un canvas, puis les pixels clairs et opaques comptés : la face
+     s'étend de y = 11 à y = 88, son centre est donc à **49,5** quand celui de
+     la boîte est à **60**. Horizontalement, rien à corriger (59,5 contre 60,
+     un demi-pixel). L'écart vertical vaut 10,5 sur 120, soit **8,75 %** de la
+     cote du dé — c'est la place que prennent la base et l'ombre du cube sous
+     la face, et elle tirait le chiffre vers le bas depuis toujours.
+     ⭐ EN POURCENTAGE, DONC VRAI À TOUTES LES TAILLES : `translateY(-8,75 %)`
+     se calcule sur la hauteur de l'élément, qui est celle du dé. Le dé passe
+     de 48 à 80 dans le même lot ; une cote en pixels aurait été fausse le
+     jour même.
+     ⛔ ET DANS `transform`, PAS DANS LA PROPRIÉTÉ `translate` : la leçon du
+     fantôme (2026-08-17) — les propriétés individuelles se composent AVANT
+     `transform`, et un jour où quelqu'un ajoutera une échelle ici, ce décalage
+     se ferait multiplier en silence. */
+  transform: translateY(-8.75%);
 }
 /* ⛔ `.ability-de-total` EST PARTIE AVEC SON BALISAGE (loi §0.6). Elle
    habillait le total répété au-dessus du dé — Eric, 2026-08-16 : *« enlève les
