@@ -58,32 +58,55 @@ Le menu latéral, c'est `.stage-aside` — `--rail-w` : **90 px** à l'étroit,
 **120 px** en Large. Il n'existe que là où il y a une liste à suivre (les
 douze classes, les douze espèces, les 22 arcanes).
 
-## 2. LES CHIFFRES, DANS LES DEUX FAMILLES
+## 2. LE CHIFFRE — ✅ ARRÊTÉ LE 2026-08-16, ET IL N'EN RESTE QUE DEUX
 
-**✅ TRANCHÉ PAR ERIC LE 2026-08-16** : *« F3 et FF3 seraient hauteur
-proportionnelle à son contenu, et F2 et FF2 hauteur définie »*.
-
-Le chiffre dit **QUI DÉCIDE DE LA HAUTEUR**, et il n'y a que trois réponses
-possibles — c'est ce qui rend la liste close :
-
-| | qui décide de la hauteur | marges |
+| | la hauteur | qui décide |
 |---|---|---|
-| **1** | **une cote UNIQUE, partagée** — la même pour tous les écrans du format | ↕ ↔ centré |
-| **2** | **une cote POSÉE par l'écran** — définie, et différente d'un écran à l'autre | ↕ ↔ centré |
-| **3** | **le CONTENU** — la hauteur lui est proportionnelle | ↔ (et ça défile) |
+| **1** | **imposée** — une cote posée sur la fenêtre | l'écran |
+| **2** | **libre** — la fenêtre fait la taille de ce qu'elle porte | le contenu |
 
-📏 **POURQUOI « 1 » N'EST PAS « PLEIN ÉCRAN », ET C'EST MESURÉ.** Le croquis
-écrit *« full screen attempt »* sous F1, mais la fiche ne suit pas l'écran :
-relevé le 16/08 sur un téléphone de **393 × 852** (champ 792), la dalle mesure
-toujours **440** — 352 px de mou autour d'elle. Ce qui remplit le champ n'est
-pas la fenêtre, c'est le **cran d'aimantation** qui la porte (792 = 792, ce
-qui garde `scroll-snap: mandatory` honnête).
-⭐ Donc « 1 » ne veut pas dire *« aussi haut que l'écran »* — il veut dire
-*« une seule cote, la même partout »*. C'est exactement ce qu'est le 440 de la
-fiche, et c'est ce qui le sépare d'un « 2 », où chaque écran poserait la
-sienne.
+⛔ **F3 EST MORT, ET ERIC A RAISON DE L'AVOIR TUÉ** : *« F3 me semble
+inutile »*. Une longue liste n'est pas un troisième format — c'est une
+hauteur LIBRE qui dépasse le champ, et elle défile pour cette seule raison.
+Le troisième chiffre ne décrivait rien que les deux autres ne disent déjà.
 
----
+⚠️ **ET LE SENS DE « 1 » N'A PAS BOUGÉ, C'EST DÉLIBÉRÉ** (choix A d'Eric,
+2026-08-16). Une numérotation inverse avait été proposée — `1` = hauteur
+libre — puis écartée : `F1` veut dire *la fiche, hauteur imposée* depuis le
+15/08, et le mot est écrit dans `fiche.css`, dans `GABARIT-360-CLASS-SPECIES.md`
+et dans le mandat du lot 79. **Un mot qui change de sens selon l'âge du
+fichier qui le porte ne vaut plus rien** ; l'ordre des chiffres ne payait rien
+d'autre.
+
+## 2 bis. LES COTES, EN CHIFFRES
+
+Les marges sont sur **les quatre côtés**, systématiquement, et c'est **un seul
+jeton pour tout le vocabulaire** — elles ne font donc pas partie du barème.
+
+| | jeton | étroit | grand écran |
+|---|---|---|---|
+| **Marge** (4 côtés) | `--sp-8` / `--sp-16` | **8** | **16** |
+| **Largeur max — carte** | `--card-w` | 62 ch ≈ **625** | 76 ch ≈ **766** |
+| **Largeur max — écran à contrôles** | `--panel-w` | 62 ch ≈ **625** | 88 ch ≈ **887** |
+| **Largeur max — grille** | `--grid-w` | 60 ch ≈ **605** | 76 ch ≈ **766** |
+
+⚠️ **IL N'Y A PAS UNE MESURE, IL Y EN A TROIS, ET C'EST VOULU** : une grille de
+compétences n'est pas un paragraphe, une rangée de caractéristiques non plus
+(§3e des jetons). Le cadre dit la marge ; c'est l'ÉCRAN qui dit de quelle
+nature est sa largeur.
+
+## 2 ter. L'ÉTAT DES LIEUX, APRÈS LE BARÈME À DEUX CHIFFRES
+
+| | qui l'emploie |
+|---|---|
+| **F1** — menu, hauteur imposée | Classes, Espèces, don d'origine, Destinée en mode *choix* |
+| **F2** — menu, hauteur libre | ⏳ personne |
+| **FF1** — plein, hauteur imposée | ⏳ personne |
+| **FF2** — plein, hauteur libre | Univers, Concept, Caractéristiques, Compétences, Équipement, Bilan, Destinée en mode *tirage* |
+
+🔴 **DEUX FORMATS EN SERVICE SUR QUATRE.** Le builder n'est fait que de fiches
+(F1) et de cartes qui font la taille de leur contenu (FF2). Le reste du
+vocabulaire est disponible, pas employé.
 
 ## 3. F1 — *la fiche* · species et classes
 
@@ -160,7 +183,7 @@ avais attribués hier, n'ont pas de menu latéral : ce sont des **FF**.
 📌 C'est Eric qui l'a relevé (*« Concept c'est du FF1 car pas de barre
 latérale »*), et le code lui donne raison.
 
-## 4. F2 — *la cote posée* · ⏳ aucun écran aujourd'hui
+## 4. F2 — *le menu, et une hauteur libre* · ⏳ aucun écran
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -168,16 +191,14 @@ latérale »*), et le code lui donne raison.
  ├───────────────────────────────────────────────┤
  │ ┌────┐ ┌─────────────────────────────────┐    │
  │ │menu│ │                                 │    │
- │ │ 90 │ │        DALLE FENÊTRE            │  ⇕ │  ← une cote que l'ÉCRAN pose
+ │ │ 90 │ │        DALLE FENÊTRE            │  ⇕ │  ← la hauteur SUIT le contenu
  │ │    │ │     largeur ≤ 62 ch             │    │
  │ └────┘ └─────────────────────────────────┘    │
  └───────────────────────────────────────────────┘
    ↑8                                        8↑
 ```
 
-* **hauteur : une cote POSÉE PAR L'ÉCRAN** — définie, et libre de différer
-  d'un écran à l'autre. C'est ce qui la sépare de F1 (une seule cote pour
-  tous) et de F3 (c'est le contenu qui décide).
+* **hauteur : celle du contenu** — c'est tout ce qui la sépare de F1.
 * **largeur `--card-w`** : `--measure` (62 ch) à l'étroit, **76 ch** en Large.
 * ⏳ **Personne ne l'emploie, et rien ne l'implémente** : aucun écran du
   builder ne pose sa hauteur aujourd'hui. Ce format est une PLACE RÉSERVÉE.
@@ -249,7 +270,7 @@ qu'en mode **choix**, là où il y a 22 arcanes à parcourir : c'est le seul
 endroit où il gagne sa place. « Destiny en FF1 » revient donc à retirer le
 menu **du mode qui en a le plus besoin**. À trancher avant de le faire.
 
-## 6. FF3 — *le contenu, pleine largeur* · Skills, et presque tout le reste
+## 6. FF2 — *plein, hauteur libre* · Skills, et presque tout le reste
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -269,40 +290,18 @@ qui lui est propre.
 * **largeur `--grid-w`** — ⚠️ **une TROISIÈME nature de largeur**, ni prose ni
   carte : une grille de compétences n'est pas un paragraphe (§3e des jetons).
   Elle existe déjà, elle n'a rien à voir avec le format.
-* 🔴 **C'EST UN 3, PAS UN 2** — sa hauteur est celle de son contenu, et
-  personne ne la lui pose. Même chose pour Universe, Abilities, Equipment,
-  Review : **tout ce qui n'est pas une fiche est un 3 aujourd'hui.**
+* 🔴 **C'EST UN 2** — sa hauteur est celle de son contenu. Même chose pour
+  Universe, Concept, Abilities, Equipment, Review : **tout ce qui n'est pas
+  une fiche est un 2 aujourd'hui.**
 * ⏳ **Défaut signalé par Eric (16/08), non encore mesuré par moi** : au tout
   début du défilement, la marge supérieure manque. À mesurer dans la page
   avant d'y toucher — la cause n'est pas connue.
 
-## 6 bis. ⏳ CE QUI RESTE OUVERT — le classement de Concept
+## 6 bis. ✅ CONCEPT EST UN FF2
 
-La contradiction sur le sens du chiffre est **levée** (voir §2). Il reste UNE
-question, et elle est simple parce que le numérotage l'a rendue simple :
-
-**Concept est un FF — c'est certain** (aucun menu latéral, vérifié dans le
-code, §3 bis). Sa largeur est une mesure de prose (62 ch / 76 ch), ses marges
-font 8, il est centré. **Reste à dire qui décide de sa hauteur :**
-
-| | ce que ça donne |
-|---|---|
-| **FF2** — une cote posée | l'air au-dessus et en dessous est **garanti**, mais l'écran garde sa taille même quand il a peu à dire |
-| **FF3** — le contenu | la carte fait exactement ce qu'il faut, et l'air n'est garanti que tant que le contenu reste court |
-
-📌 Mesuré aujourd'hui, Concept se comporte comme un **FF3** (271 px pour un
-champ de 493). C'est un CONSTAT, pas un classement : personne ne l'a décidé.
-
-## 7. F3 / FF3 — *la longue liste* ⏳
-
-Le croquis pose **F3** (plein écran tenté, marges latérales seulement, longue
-liste — le `✗∞` du dessin) et laisse **FF3 vide**. Par symétrie, FF3 serait le
-même sans menu.
-
-⛔ **Aucun écran ne les emploie aujourd'hui, et rien n'est écrit pour eux.**
-Les nommer suffit ; les coter le jour où un écran les demandera.
-
----
+La question posée hier (*« FF2 ou FF3 ? »*) est tombée avec F3. Concept n'a
+aucun menu latéral et sa hauteur est celle de son contenu : **FF2**, comme
+presque tout le builder. Mesuré : 271 px pour un champ de 493.
 
 ## 8. L'HABILLAGE — `D-<format>-<variante>-<plateforme>`
 
@@ -321,6 +320,48 @@ peuvent être des F1 et n'avoir pas le même habillage.
 
 📌 **Les deux variantes sont identiques aujourd'hui** — et le nom existe
 justement pour qu'elles puissent cesser de l'être sans rien renommer.
+
+### 📏 LA BOÎTE DONNE-T-ELLE LE CONTRÔLE ? OUI — MAIS PAS PAR LA PROPORTION
+
+Eric, 2026-08-16 : *« si on met le texte et les images dans des boîtes, a-t-on
+un meilleur contrôle du rendu ? La même boîte texte 1 des classes fait-elle la
+même taille sur un grand écran — je serais presque sûr que non, mais elle
+garde sa proportionnalité. »*
+
+**Mesuré sur la MÊME fiche (Barbarian), deux écrans :**
+
+| bloc | 375 × 553 | 1280 × 800 | rapport |
+|---|---|---|---|
+| la dalle | 269 × 440 | **625** × 440 | largeur ×2,32 · **hauteur ×1** |
+| l'image | 100 × 156 | 175 × 296 | ×1,75 · ×1,90 |
+| **TEXTE 1** (nom + stats) | 145 × 126 | **106** × 126 | **×0,73** · ×1 |
+| TEXTE 2 (bande d'infos) | 253 × 14 | 226 × 14 | ×0,89 · ×1 |
+| TEXTE 3 (le blurb) | 253 × 144 | 226 × 130 | ×0,89 · ×0,90 |
+| corps du texte | **16 px** | **16 px** | ×1 |
+
+✅ **La première intuition est juste** : non, la boîte ne fait pas la même
+taille.
+🔴 **La seconde est fausse, et l'écart est net** : elle ne garde AUCUNE
+proportionnalité. Pendant que la dalle gagne 2,32×, TEXTE 1 **rétrécit**
+(145 → 106). Rien n'est proportionnel, dans aucun sens.
+
+⭐ **ET LA RAISON EST LA BONNE : LE TEXTE NE SE MET PAS À L'ÉCHELLE.** Le corps
+vaut 16 px sur les deux écrans, parce que 16 px est une taille de LECTURE, pas
+un décor — c'est pour ça que les hauteurs de bloc sont identiques au pixel
+(126 = 126, 14 = 14). Une boîte de texte proportionnelle voudrait dire un
+texte proportionnel, donc illisible en bas d'échelle ou ridicule en haut.
+
+⛔ **CE QU'UNE BOÎTE ACHÈTE N'EST DONC PAS UNE PROPORTION, C'EST UNE COTE
+RÉSERVÉE** — et ce dépôt l'a déjà payé une fois : la colonne de texte de la
+fiche est FIXÉE à 226 px depuis le 16/08, parce qu'en la laissant se partager
+la place, la première vraie image l'a fait tomber à 203,6 et les lignes de
+sous-classe se sont repliées (`fiche.css`, « une cote de lecture ne recule pas
+devant un décor »). **C'est l'image qui cède, jamais le texte.**
+
+⭐ **La conclusion d'Eric tient quand même, en changeant d'invariant** : la
+continuité d'écran à écran vient bien des boîtes — mais de leurs **cotes
+réservées** (226 pour la colonne de lecture, 16 px pour le corps), pas d'un
+rapport d'échelle.
 
 ### Le fond, et ce sont les valeurs QUI EXISTENT DÉJÀ
 
