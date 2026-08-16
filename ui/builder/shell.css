@@ -2482,9 +2482,28 @@ button { font: inherit; }
    redessinerait la moitié du quadrillage qu'on vient d'enlever. */
 .glisse-creneau.ability-creneau { border-color: transparent; background: none; }
 .glisse-creneau.ability-creneau[data-rempli="true"] { background: none; }
-.ability-creneau .glisse-cible-vide,
-.ability-creneau .fs-de {
+/* 🔴 LE CARRÉ EST À LA CIBLE VIDE, PAS À LA TUILE DU DÉ — défaut mesuré sur
+   l'iPad d'Eric le 2026-08-17, *« un problème de recouvrement sur desktop mais
+   pas sur mobile »*.
+
+   LA CAUSE, ET ELLE EST D'UNE DÉCLARATION. Les deux sélecteurs partageaient
+   `aspect-ratio: 1`. Pour la cible vide c'est juste : elle ne porte qu'un
+   dessin. Pour la TUILE d'un dé posé, non — elle porte le dé **et** le détail
+   du jet (`4+3+6`). Le carré lui imposait la hauteur du seul dé : mesuré à
+   1024, la tuile faisait 80 de haut, le dé la remplissait entièrement (566 →
+   646), et le détail débordait dessous à **648**… exactement là où la colonne
+   flex posait le modificateur, lui aussi à **648**. Deux textes, une ligne.
+
+   ⭐ LE CARRÉ RESTE OÙ IL DOIT ÊTRE : `.porte-de` porte déjà `aspect-ratio: 1`,
+   donc le DÉ est carré de toute façon. La tuile, elle, reprend le droit de
+   faire la hauteur de ce qu'elle contient — un dé, puis sa ligne de détail.
+   ⛔ Ne pas « réparer » en masquant le débordement : le détail disparaîtrait
+   au lieu de se poser. */
+.ability-creneau .glisse-cible-vide {
   width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
+}
+.ability-creneau .fs-de {
+  width: 100%; max-width: var(--fs-de-max);
 }
 /* ⭐ LA CIBLE GARDE SA PLACE, ELLE PERD SON CADRE (Eric, 2026-08-17 :
    *« tu enlèves tous les quadrillages dans les deux dalles »*).
