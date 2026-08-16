@@ -232,8 +232,19 @@
    `nowrap` n'est pas du décor — c'est ce qui rend un débordement VISIBLE au
    lieu de le laisser se replier en silence sur deux lignes et décaler tout
    le bloc. Le garde des 118 px est l'autre moitié de cette promesse. */
+/* ⭐ LE TEXTE DE TEXTE 1 EST CENTRÉ, ET SEULEMENT LUI — Eric, 2026-08-16 :
+   « essaie de centrer LE TEXTE UNIQUEMENT de la boîte 1 (dans les deux configs
+   horizontale et verticale) ». La BOÎTE ne bouge pas : elle reste là où la
+   grille la pose (colonne de gauche en portrait, colonne du centre en
+   paysage). C'est chaque LIGNE « étiquette : valeur » qui se centre dans la
+   largeur de la boîte, au lieu de s'aligner à gauche.
+   ⛔ Une seule règle pour les deux orientations, et c'est voulu : la consigne
+   dit « dans les deux configs », donc elle vit dans la règle de base et non
+   dupliquée dans la requête média — deux écritures de la même intention
+   divergent (loi du dépôt). */
 .fiche-stat-row {
   display: flex;
+  justify-content: center;
   gap: 0;
   font-size: var(--t2);
   color: var(--text);
@@ -653,9 +664,16 @@
      puissent pas diverger. Le texte se replie dedans, et la rangée `auto` du
      paysage lui donne autant de lignes qu'il en faut — la limite des 10 lignes
      est une cote de PORTRAIT, elle ne s'applique pas ici. */
+  /* ⭐ BOÎTE 2 ET BOÎTE 3 PARTAGENT LEURS DEUX BORDS — Eric, 2026-08-16 :
+     « le texte de la boîte 2 ou la boîte 2 ne s'aligne pas avec la boîte 3 ».
+     Diagnostic : leurs bords DROITS étaient bien alignés (8 px chacun, mesuré),
+     mais la bande d'infos se dimensionnait sur son contenu (106 px) quand le
+     texte en faisait 226 — donc les deux textes ne COMMENÇAIENT pas au même
+     endroit. `width: 100%` les met toutes deux à la largeur de leur colonne :
+     mêmes bords gauche ET droit, donc des textes qui s'alignent. */
   .fiche-dalle .fiche-infos,
   .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits { max-width: calc(var(--fiche-blurb-h) * 226 / 160); }
+  .fiche-dalle .fiche-traits { max-width: calc(var(--fiche-blurb-h) * 226 / 160); width: 100%; }
   .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 2; align-self: end; justify-self: end; }
   .fiche-dalle .fiche-blurb,
   .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 3; align-self: start; justify-self: end; }
