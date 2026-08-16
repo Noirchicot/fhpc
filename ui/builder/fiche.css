@@ -721,9 +721,21 @@
      texte en faisait 226 — donc les deux textes ne COMMENÇAIENT pas au même
      endroit. `width: 100%` les met toutes deux à la largeur de leur colonne :
      mêmes bords gauche ET droit, donc des textes qui s'alignent. */
+  /* ⚠️ LA BORNE EST ACCROCHÉE À LA LARGEUR MOBILE, PAS À SA HAUTEUR — corrigé
+     le 2026-08-16, et l'erreur mérite d'être nommée : elle était écrite
+     `calc(var(--fiche-blurb-h) * 226 / 160)`, c'est-à-dire « le ratio mobile
+     appliqué à la hauteur de la boîte ». Le jour où cette hauteur est passée de
+     160 à 144 pour loger la bande à quatre lignes, la borne a rétréci AVEC
+     ELLE — de 226 à 203 px — et une ligne de sous-classe s'est repliée sans que
+     rien ne le signale. Une borne de LARGEUR n'a rien à faire d'une hauteur.
+     ⭐ Elle vaut donc la largeur utile de la dalle mobile : 242 − 2 × 8 = 226,
+     déduite de ses deux jetons, jamais réécrite en chiffre. */
   .fiche-dalle .fiche-infos,
   .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits { max-width: calc(var(--fiche-blurb-h) * 226 / 160); width: 100%; }
+  .fiche-dalle .fiche-traits {
+    max-width: calc(var(--fiche-dalle-w) - 2 * var(--sp-8));
+    width: 100%;
+  }
   .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 3; align-self: end; justify-self: end; }
   .fiche-dalle .fiche-blurb,
   .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 4; align-self: start; justify-self: end; }
