@@ -502,6 +502,55 @@ pas garder son texte gris.
 
 ---
 
+## 8 bis. 🔴 FAIRE PASSER LE FOND ENTRE DEUX DALLES — `data-bleed`
+
+> Eric, 2026-08-16, après m'avoir vu échouer deux fois : *« démerde-toi comme
+> tu veux mais je veux voir du background entre ces deux dalles — ça a déjà
+> été fait dans skills »*. Puis : *« un truc important à retenir, ce
+> data-bleed, à noter pour faire des séparations »*.
+
+**LE PIÈGE, ET IL SE REPOSERA À CHAQUE ÉCRAN COMPOSÉ DE DALLES.** Tout écran
+est rendu dans `.decision-card`, qui est une **dalle MAJEURE** — donc opaque
+(`--surface`). Deux dalles posées dedans ne peuvent pas être séparées par le
+fond : l'intervalle montre la carte, c'est-à-dire **la même couleur que ce
+qu'il est censé séparer**.
+
+⛔ **AUCUNE MARGE NE PEUT RÉPARER ÇA**, et c'est ce qui rend le piège coûteux :
+le symptôme ressemble à « l'écart est trop petit », donc on augmente l'écart.
+Mesuré sur Abilities : à 12 px comme à 24, le résultat est identique — le
+problème n'est pas la TAILLE de l'intervalle, c'est CE QU'ON VOIT DEDANS.
+📌 Ajouter le liseré de verre aux deux dalles ne suffit pas non plus : il les
+borde, il ne fait pas apparaître le fond.
+
+⭐ **LE REMÈDE : LA CARTE S'EFFACE.** `shell.mjs` pose `data-bleed="true"` sur
+`.decision-card`, et la feuille lui retire son fond, sa bordure et son
+rembourrage. Elle cesse d'être une SURFACE et redevient une boîte de mise en
+page — le principe que le lot 59 écrivait déjà (B0.23b) : *« des dalles qui
+FLOTTENT »*. **Un écran DÉJÀ composé de dalles n'a pas besoin d'une dalle de
+plus dessous ; elle ne fait que boucher le fond.**
+
+| qui l'emploie | comment |
+|---|---|
+| **Class · Species** (palier 1) | `data-bleed` — les douze fiches flottent |
+| **Skills** | `data-bleed` — la grille et ses barres flottent |
+| **Abilities** | une règle à part (voir ci-dessous) |
+
+⚠️ **`data-bleed` PORTE AUSSI `height: 100%`, ET CE N'EST PAS TOUJOURS
+SOUHAITABLE.** Cette cote sert aux écrans dont le contenu se TAILLE SUR LE
+CHAMP (les fiches de catalogue, la grille de Skills). Un **FF2** — dont la
+hauteur est celle de son contenu, par définition — ne doit pas la recevoir :
+elle lui imposerait le champ. Abilities emploie donc une règle qui reprend la
+transparence sans la hauteur (`.decision-card:has(> .abilities-step)`).
+📌 Le jour où un troisième écran a le même besoin, c'est le drapeau qu'il faut
+scinder en deux (transparence · hauteur), pas la règle qu'il faut recopier.
+
+⭐ **ET LES GOUTTIÈRES RESTENT** : la marge de la carte survit à l'effacement.
+C'est la SURFACE qui disparaît, pas les 8 px qui empêchent les dalles de
+toucher le bord de l'écran (§2 bis : les marges sont sur les quatre côtés,
+systématiquement).
+
+---
+
 ## 9. CE QUE CE FICHIER N'EST PAS
 
 ⛔ Il ne remplace pas `SOCLE.md` (qui possède quoi, les trois verbes, ce qui

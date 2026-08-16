@@ -1144,34 +1144,25 @@ button { font: inherit; }
      de dérive. */
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
-/* ══ 🔴 L'ORGANE DE `FREE` EST UN FF1 — HAUTEUR IMPOSÉE ═══════════════════
-   Eric, 2026-08-16 : *« la première dalle est une dalle FF1 (elle
-   s'interrompt) »*. C'est le premier utilisateur de ce format : `CADRES.md`
-   §2 ter le listait encore « ⏳ personne ».
+/* ══ ⚠️ L'ORGANE DE `FREE` REDEVIENT UN FF2 — LE VIDE DÉGAGE ══════════════
+   Eric, 2026-08-16, en trois temps : *« la première dalle est une dalle FF1
+   (elle s'interrompt) »*, puis — mesure faite — *« 440, et le vide me va »*,
+   puis, en le voyant : *« dégage tout l'espace inutile sous les 16 dés »*.
 
-   ⭐ CE QUE LE « 1 » VEUT DIRE, ET CE QU'IL ACHÈTE. Une hauteur IMPOSÉE par
-   l'écran, pas par le contenu — donc une boîte qui s'interrompt là où elle a
-   décidé de s'interrompre. `CADRES.md` §3 l'a déjà mesuré ailleurs : *« la
-   cote imposée n'achète pas de la hauteur, elle achète de la RÉGULARITÉ »*.
-   Ici elle achète que le collecteur soit TOUJOURS au même endroit, quelle que
-   soit la longueur de l'explication — un joueur qui revient sur la page
-   retrouve ses six cibles à la même place.
-   ⛔ Et elle vaut `--fiche-h` (440), la cote d'Eric du 15/08, recopiée depuis
-   `fiche.css` où elle vit pour les catalogues : un `1` du même vocabulaire
-   n'invente pas une seconde hauteur.
-   ⚠️ `overflow-y: auto` est la CONSÉQUENCE du 1, pas un choix : une boîte qui
-   impose sa hauteur doit dire ce qu'elle fait de ce qui dépasse. Sans lui, le
-   contenu serait coupé net et silencieusement.
-   ⛔ SCOPÉ À `FREE`, ET SEULEMENT ELLE : l'organe de `FH 3D6` porte le plateau
-   (trois dés, quatre boutons, dix cases) et celui d'`ARRAY` une seule phrase —
-   leur imposer 440 couperait l'un et laisserait l'autre aux trois quarts vide.
-   Ce qui diffère entre les méthodes, c'est ce que l'organe PORTE. */
-.ability-organe[data-methode="free"] {
-  --fiche-h: 440px;   /* la cote d'Eric du 15/08 — recopiée de `fiche.css`, jamais réinventée */
-  height: var(--fiche-h);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
+   📏 CE QUE LA MESURE AVAIT DIT, ET QU'IL A TRANCHÉ EN LE REGARDANT. À 440,
+   le contenu utile n'occupait que **318 px** (le mot 66 + la palette 236 + les
+   marges) : la dalle n'« s'interrompait » donc pas du tout, elle ajoutait
+   **122 px de vide**. C'est exactement le mode d'échec que le §3 a mesuré
+   ailleurs (« elle ajoute 48 px de vide » sur sept espèces).
+   ⭐ SANS HAUTEUR IMPOSÉE, C'EST UN **FF2** : la dalle fait la taille de ce
+   qu'elle porte, et c'est le contenu qui décide. La régularité qu'un `1`
+   achetait (le collecteur toujours au même endroit) n'était payée par
+   personne ici — les quatre méthodes ont des organes de hauteurs différentes
+   de toute façon, donc il n'y avait aucune régularité à tenir.
+   📌 `CADRES.md` §2 ter reste donc à jour : **FF1 n'a toujours aucun
+   utilisateur.** Il en a eu un pendant une heure.
+   ⛔ Et rien ne remplace la cote : c'est l'absence de règle qui fait le `2`.
+   Écrire `height: auto` serait déclarer ce qui est déjà vrai. */
 .ability-organe-mot { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text); }
 /* Le plateau vit DANS l'organe : il n'a plus sa dalle à lui, sinon deux
    verres se superposeraient et le fond cesserait de traverser. */
