@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FS — banc d'essai des îlots</title>
-<link rel="stylesheet" href="./tokens.css?v=33">
-<link rel="stylesheet" href="./dice3d.css?v=33">
-<link rel="stylesheet" href="./shell.css?v=33">
+<link rel="stylesheet" href="./tokens.css?v=34">
+<link rel="stylesheet" href="./dice3d.css?v=34">
+<link rel="stylesheet" href="./shell.css?v=34">
 <style>
   /* ══ BANC D'ESSAI — pas une page du builder ═══════════════════════════
      Commande d'Eric, 2026-08-16 : six ÎLOTS (FS, « floating small ») en une
@@ -113,6 +113,14 @@
   .cible-zone[data-rempli="true"] { border-style: solid; background: var(--dalle-simple); }
   .cible-zone[data-vise="true"] { border-color: var(--accent); border-style: solid; }
   .cible-zone svg { width: 60%; height: 60%; opacity: .5; }
+  /* LA RANGÉE D'ÎLOTS EST UNE CIBLE, ELLE AUSSI — elle s'allume quand le
+     doigt la survole avec un dé, exactement comme une case de carac. C'est
+     ce qui rend le retour lisible : on VOIT que lâcher ici renvoie chez soi. */
+  .fs-rangee[data-vise="true"] {
+    outline: 1px solid var(--accent);
+    outline-offset: var(--sp-4);
+    border-radius: var(--radius-md);
+  }
   .cible-zone[data-rempli="true"] svg { display: none; }
 
   /* ══ LE FANTÔME — le dé qui suit le doigt ═══════════════════════════
@@ -175,14 +183,17 @@ Les vrais organes : <code>dice3d.mjs</code> pour les dés, <code>glisser.mjs</co
 </section>
 
 <script type="module">
-import { createDieHost, mount } from "./dice3d.mjs?v=33";
-import { armerJeton } from "./glisser.mjs?v=33";
+import { createDieHost, mount } from "./dice3d.mjs?v=34";
+import { armerJeton } from "./glisser.mjs?v=34";
 
 /* LE TABLEAU STANDARD — les six valeurs, dans l'ordre d'Eric. C'est la seule
    liste écrite en dur de cette page, et c'est son sujet. */
 const STANDARD = [15, 14, 13, 12, 10, 8];
 /* Les six caractéristiques, en français : la commande d'Eric, mot pour mot. */
 const CARACS = ["FOR", "DEX", "CON", "INT", "SAG", "CHA"];
+/* Le nom de la zone d'accueil — un `data-creneau` comme un autre, ce qui
+   fait que le RETOUR emprunte exactement le même chemin que l'aller. */
+const MAISON = "ilots";
 
 /* L'état : quel dé (son index) est posé sur quelle carac. `null` = encore
    sur son îlot. Une seule carte, comme `assign` du vrai plateau. */
@@ -262,15 +273,82 @@ function poserDe(hote, valeur, taille, index) {
   mount(porte);
 }
 
+/** UN DÉ ARMÉ — le MÊME objet des deux côtés, et c'est tout l'enjeu.
+ *  Eric, 2026-08-16 : *« je veux pouvoir les remettre dans le conteneur
+ *  d'origine — que ça marche dans les 2 sens »*.
+ *
+ *  ⭐ UN SEUL FABRICANT, DEUX ORIGINES. Un dé posé dans une cible n'est pas
+ *  un autre objet : c'est le même, qui sait seulement d'où il part. Écrire
+ *  deux fabricants aurait donné deux gestes qui divergent — la faute que
+ *  `glisser.mjs` existe pour éviter.
+ *  ⛔ ET C'EST POURQUOI LA CIBLE N'EST PLUS UN BOUTON : un bouton dans un
+ *  bouton n'est pas du HTML valide. La zone devient une simple boîte qui
+ *  PORTE `data-creneau` (tout ce que l'organe lui demande), et le dé qu'elle
+ *  contient redevient le seul objet qu'on prend. */
+function faireDe(index, taille, chezSoi) {
+  const valeur = STANDARD[index];
+  const jeton = document.createElement("button");
+  jeton.type = "button";
+  jeton.className = "fs-de";
+  jeton.dataset.valeur = String(index);
+  jeton.setAttribute("aria-label", chezSoi
+    ? `d6 ${valeur} — à poser`
+    : `d6 ${valeur} — posé, à reprendre`);
+  poserDe(jeton, valeur, taille, index);
+  armerJeton(jeton, {
+    /* LE FANTÔME : l'organe dit, la page dessine. On copie le dé plutôt que
+       de le sortir de sa boîte — sinon la rangée sauterait pendant le geste. */
+    onLever: (x, y) => fantomeLever(valeur, taille, x, y),
+    onBouger: (x, y) => fantomeBouger(x, y),
+    onPoser: () => fantomeRanger(),
+    /* LE TAP dit la chose évidente selon l'endroit : sur son îlot il PART
+       vers la première cible libre ; dans une cible il RENTRE. */
+    onTap: () => {
+      if (!chezSoi) { rentrer(index); return; }
+      const libre = CARACS.find((c) => pose[c] === null);
+      if (libre) { pose[libre] = index; dessiner(); }
+    },
+    /* LE GLISSER va où on le lâche — et la rangée d'îlots est une cible
+       comme les autres. C'est ce qui fait les DEUX SENS avec un seul code. */
+    onDepot: (ou) => {
+      if (ou === MAISON) { rentrer(index); return; }
+      const ancien = pose[ou];
+      const source = cibleDe(index);
+      pose[ou] = index;
+      /* L'ÉCHANGE : la cible qu'on quitte reprend ce que la cible visée
+         tenait. Sans cette ligne, un dé déplacé laisserait un trou et
+         l'autre disparaîtrait. */
+      if (source) pose[source] = ancien;
+      dessiner();
+    }
+  });
+  return jeton;
+}
+
+/** RENTRER — le dé retrouve son îlot, d'où qu'il vienne. */
+function rentrer(index) {
+  const carac = cibleDe(index);
+  if (carac) pose[carac] = null;
+  dessiner();
+}
+
 function dessiner() {
   const taille = tailleDeDe() || 40;
 
-  /* ── les six îlots ── */
+  /* ── les six îlots ─────────────────────────────────────────────────
+     🔴 LA RANGÉE PORTE `data-creneau`, ET C'EST ELLE LA CIBLE DU RETOUR :
+     une seule zone d'accueil plutôt que six. Lâcher un dé n'importe où
+     au-dessus des îlots le fait rentrer — viser SON îlot à lui, sur un
+     pouce et 53 px de large, serait un jeu d'adresse. */
+  rangee.dataset.creneau = MAISON;
   rangee.replaceChildren(...STANDARD.map((valeur, i) => {
     const item = document.createElement("li");
     item.className = "fs";
-    item.dataset.vide = cibleDe(i) ? "true" : "false";
-    if (cibleDe(i)) {
+    const parti = Boolean(cibleDe(i));
+    item.dataset.vide = parti ? "true" : "false";
+    if (parti) {
+      /* L'îlot vidé GARDE SA PLACE — la rangée ne se referme pas derrière un
+         dé parti, sinon les cinq autres bougeraient sous le doigt. */
       const vide = document.createElement("span");
       vide.className = "fs-vide";
       vide.style.height = `${taille}px`;
@@ -278,36 +356,7 @@ function dessiner() {
       item.append(vide);
       return item;
     }
-    const jeton = document.createElement("button");
-    jeton.type = "button";
-    jeton.className = "fs-de";
-    jeton.dataset.valeur = String(i);
-    jeton.setAttribute("aria-label", `d6 ${valeur}`);
-    poserDe(jeton, valeur, taille, i);
-    armerJeton(jeton, {
-      /* ── LE FANTÔME, LES TROIS RAPPELS ──────────────────────────────
-         L'organe DIT le geste, la page le DESSINE. Le dé n'est pas déplacé :
-         on en fabrique une copie, parce que sortir l'original de sa grille
-         ferait sauter la rangée pendant qu'on le tient. */
-      onLever: (x, y) => fantomeLever(valeur, taille, x, y),
-      onBouger: (x, y) => fantomeBouger(x, y),
-      onPoser: () => fantomeRanger(),
-      /* Le TAP : la première cible libre — le raccourci du lot 79. */
-      onTap: () => {
-        const libre = CARACS.find((c) => pose[c] === null);
-        if (libre) { pose[libre] = i; dessiner(); }
-      },
-      /* Le GLISSER : la cible visée. Si elle est prise, on ÉCHANGE — jamais
-         on ne laisse une cible vide sans le vouloir. */
-      onDepot: (carac) => {
-        const ancien = pose[carac];
-        const source = cibleDe(i);
-        pose[carac] = i;
-        if (source) pose[source] = ancien;
-        dessiner();
-      }
-    });
-    item.append(jeton);
+    item.append(faireDe(i, taille, true));
     return item;
   }));
 
@@ -318,8 +367,7 @@ function dessiner() {
     const nom = document.createElement("span");
     nom.className = "cible-nom";
     nom.textContent = carac;
-    const zone = document.createElement("button");
-    zone.type = "button";
+    const zone = document.createElement("div");
     zone.className = "cible-zone";
     zone.dataset.creneau = carac;           // ← ce que `glisser.mjs` cherche
     const index = pose[carac];
@@ -327,17 +375,16 @@ function dessiner() {
     zone.setAttribute("aria-label", index === null
       ? `${carac} — vide`
       : `${carac} — ${STANDARD[index]}`);
-    /* LE SYMBOLE DE CIBLE — trois cercles concentriques, dessinés, jamais un
-       glyphe : un glyphe change de dessin selon la police installée. */
-    zone.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">'
-      + '<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>'
-      + '<circle cx="12" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>'
-      + '<circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>';
-    if (index !== null) {
-      const taille = Math.max(28, Math.floor(zone.getBoundingClientRect().width - 12) || 40);
-      poserDe(zone, STANDARD[index], taille, index);
-      /* Taper une cible pleine renvoie le dé sur son îlot. */
-      zone.addEventListener("click", () => { pose[carac] = null; dessiner(); });
+    if (index === null) {
+      /* LE SYMBOLE DE CIBLE — trois cercles concentriques, dessinés, jamais
+         un glyphe : un glyphe change de dessin selon la police installée. */
+      zone.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+        + '<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+        + '<circle cx="12" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+        + '<circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>';
+    } else {
+      const dedans = Math.max(28, Math.floor(zone.getBoundingClientRect().width - 12) || 40);
+      zone.append(faireDe(index, dedans, false));
     }
     item.append(nom, zone);
     return item;
