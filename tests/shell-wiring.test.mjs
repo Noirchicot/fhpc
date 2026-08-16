@@ -362,6 +362,60 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
     "l'ancien libellé de la ligne de commande reste mort — la paire du croquis écrit `BACK`");
 });
 
+/* ══ 16 ter — LA CONDITION SOUS LAQUELLE LES 76 px RESTENT VRAIS ══════════
+   🔴 CE GARDE NAÎT D'UNE PRÉDICTION QUI S'EST RÉVÉLÉE FAUSSE, ET C'EST TOUT
+   SON INTÉRÊT. `CADRES.md` annonçait que le départ de `Validate` rendrait ses
+   76 px et périmerait « toute cote qui la compte ». Mesuré après la bascule :
+   le pied fait **toujours 76 px** — deux boutons côte à côte coûtent ce qu'un
+   seul coûtait. La prophétie n'avait jamais été testée, et elle a traversé un
+   fichier de COTES sans que personne la voie, parce qu'elle parlait d'un jour
+   qui n'était pas encore venu.
+
+   ⭐ CE QUE CE GARDE TIENT N'EST DONC PAS LA COTE, C'EST SA CONDITION : les
+   76 px valent tant que la paire tient sur UNE LIGNE. C'est la même forme que
+   *« une fiche fait un champ »* qui garde `scroll-snap: mandatory` — une cote
+   vraie « tant que » est une cote qui rouille si le « tant que » n'est gardé
+   nulle part.
+
+   📏 MESURÉ AU CAS LE PLUS ÉTROIT (360, la cote de référence), sur la page
+   SERVIE et non sur le gabarit :
+
+       champ intérieur du pied ......... 344   (360 − 8 − 8)
+       `BACK` 79 + `DONE` 82 + écart 8 . 169
+       ─────────────────────────────────────
+       MOU RESTANT ..................... 175 px
+
+   Au corps de ces boutons (T3, ~10,6 px par caractère mesuré sur les huit
+   d'aujourd'hui), 175 px valent une seizaine de caractères : d'où le budget
+   de **24**, contre 8 employés.
+
+   ⚠️ CE GARDE EST UN PROXY, ET IL LE DIT — même honnêteté que le budget de
+   largeur du plateau : Node n'a pas de `measureText`, il compte donc des
+   CARACTÈRES là où le navigateur compte des pixels. Il ne remplace pas une
+   mesure au navigateur ; il attrape les deux gestes qui feraient réellement
+   sauter la cote.
+   ⛔ ET LE VRAI RISQUE EST LE NOMBRE, PAS LA LONGUEUR : un troisième bouton
+   coûte en plus son propre rembourrage (42 px). C'est pourquoi le compte des
+   boutons est gardé AVANT leur longueur. */
+
+test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la condition des 76 px)", () => {
+  /* Le pied se construit en une expression : deux boutons, jamais trois. Un
+     troisième ajouterait 42 px de rembourrage à lui seul. */
+  assert.match(shellText, /return el\("div", "sortie", \[back, done\]\);/,
+    "⛔ EXACTEMENT deux boutons dans le pied — un troisième ferait passer la paire à deux lignes, et les 76 px avec");
+  /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
+  const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
+  const total = libelles.join("").length;
+  assert.ok(total <= 24,
+    `les libellés du pied font ${total} caractères : au-delà de 24, la paire déborde les 344 px du champ à 360 — mesuré, 175 px de mou pour 8 caractères`);
+  /* ⚔️ LE TÉMOIN : le budget n'est pas si large qu'il ne puisse jamais mordre.
+     Des libellés traduits plausibles (« RETOUR » / « TERMINER ») passent ; un
+     pied bavard ne passe pas. */
+  assert.ok("RETOURTERMINER".length <= 24, "une traduction raisonnable tient dans le budget");
+  assert.equal("REVENIR EN ARRIERE".length + "VALIDER CETTE ETAPE".length <= 24, false,
+    "et un pied bavard le dépasse — le garde n'est pas si lâche qu'il ne dise jamais non");
+});
+
 test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait rougir 16 bis et 17, eux seuls", () => {
   /* Le geste exact qu'on redoute — un lot qui « ajoute juste un bouton » au
      pied de son écran plutôt que d'employer celui de la coquille. */

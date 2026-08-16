@@ -31,10 +31,34 @@
    et 17) ont été RÉÉCRITS à cette vérité, jamais désarmés.
    ⛔ Les écrans à fiche restent l'exception qu'ils étaient (Ch6) : `CHOOSE`
    valide chez eux, et le pied ne s'y pose qu'au 2ᵉ palier.
-   📏 **ET LA COTE DE 76 px NE BOUGE PAS** — mesuré après la bascule, à 375 :
-   le pied fait toujours **76 px** de haut. Deux boutons côte à côte coûtent
-   ce qu'un seul coûtait ; le budget de F2 (`champ − 76 − 16`) reste donc
-   valable tel quel, et le §4 plus bas n'a pas à être recalculé.
+   📏 **ET LA COTE DE 76 px NE BOUGE PAS** — mesuré après la bascule, à 375
+   comme à 360 : le pied fait toujours **76 px** de haut. Deux boutons côte à
+   côte coûtent ce qu'un seul coûtait ; le budget de F2 (`champ − 76 − 16`)
+   reste donc valable tel quel, et le §4 plus bas n'a pas à être recalculé.
+
+   ⚠️ **SOUS QUELLE CONDITION CE 76 RESTE VRAI, ET DE COMBIEN ON EN EST LOIN**
+   (relevé par l'architecte du lot 79 ; chiffré ici plutôt que laissé en
+   « tant que »). Les 76 px valent **tant que la paire tient sur UNE ligne** :
+   un troisième bouton, ou des libellés traduits plus longs, la feraient
+   passer à deux lignes et la cote sauterait — même forme que la condition
+   *« une fiche fait un champ »* qui garde `scroll-snap: mandatory`.
+   📏 Mesuré au cas le plus étroit (**360**, la cote de référence) :
+
+       champ intérieur du pied ....... 344   (360 − 8 − 8, les mêmes
+                                              gouttières que la carte)
+       `BACK` 79 + `DONE` 82 + écart 8   169
+       ────────────────────────────────────
+       MOU RESTANT ................... 175 px
+
+   ⭐ **On en est donc loin — plus du double de la place occupée.** Au corps
+   de ces boutons (T3), 175 px valent une SEIZAINE de caractères de plus : le
+   budget total est de **24 caractères de libellé** contre 8 aujourd'hui.
+   ⛔ Un troisième bouton coûterait en plus son propre rembourrage (42 px),
+   donc c'est LUI le vrai risque, pas la longueur d'un mot.
+   🔴 Et cette condition est **gardée**, pas promise : `tests/shell-wiring.
+   test.mjs` compte les boutons du pied et leurs caractères. Une condition
+   que personne ne teste est une condition qui rouille — c'est exactement ce
+   qui est arrivé à la phrase corrigée juste au-dessus.
    🔴 Ce qui a changé, en revanche, et qui était un DÉFAUT antérieur : ce pied
    n'avait aucune gouttière latérale — il touchait les deux bords de l'écran
    pendant que la carte au-dessus gardait ses 8 px (§2 bis : *« les marges
