@@ -116,7 +116,12 @@ test("A4 — fhRefChoices retombe sur l'id nu si query ne rend rien (couche déj
 
 /* ══ B — LE RENDU (DOM-stub) ══════════════════════════════════════════ */
 
-function stackButtons(node) { return node.querySelectorAll(".record-option"); }
+/* ⚠️ `.record-option` → `.bascule-ligne` LE 2026-08-17 : Eric a tranché que les
+   deux règles sont des SÉLECTEURS, pas des boutons — deux lignes à interrupteur
+   plutôt que deux pastilles. Le contrat testé ne bouge pas d'un mot (deux
+   entrées, l'active marquée, un `requestLayerStack` au clic) ; seule la forme
+   change, et c'est exactement ce qu'un garde doit survivre. */
+function stackButtons(node) { return node.querySelectorAll(".bascule-ligne"); }
 function campaignField(node) { return node.querySelectorAll(".doc-field-input")[0]; }
 
 test("B1 — les deux boutons de pile existent, et celui qui correspond à la pile active est marqué", () => {
@@ -135,6 +140,24 @@ test("B2 — cliquer un bouton dispatche {kind:\"requestLayerStack\", value}, ja
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
   stackButtons(node)[1].click(); // "SRD + FH"
   assert.deepEqual(actions, [{ kind: "requestLayerStack", value: "srdfh" }]);
+});
+
+test("B2 bis — ⚔️ RECLIQUER LA LIGNE DÉJÀ ALLUMÉE NE FAIT RIEN — deux éteintes est un état impossible", () => {
+  /* 🔴 CE GARDE NAÎT DE LA FORME NEUVE (Eric, 2026-08-17 : *« quand l'un
+     s'allume, l'autre s'éteint »*). Un interrupteur invite à le rappuyer ; s'il
+     répondait, il relancerait la CONFIRMATION de bascule pour un changement qui
+     n'a pas lieu — et l'idée même d'éteindre les deux laisserait le personnage
+     sans pile de règles. L'exclusivité se tient dans le code, elle ne s'espère
+     pas. */
+  const doc = draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } });
+  const actions = [];
+  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
+  const lignes = stackButtons(node);
+  assert.equal(lignes[0].dataset.active, "true", "témoin : c'est bien la ligne allumée qu'on reclique");
+  lignes[0].click();
+  assert.deepEqual(actions, [], "aucune action — l'état ne change pas, donc rien n'est demandé");
+  lignes[1].click();
+  assert.deepEqual(actions, [{ kind: "requestLayerStack", value: "srdfh" }], "et l'AUTRE ligne répond toujours");
 });
 
 test("B3 — pendingStack ouvre la confirmation, NOMME les choix FH affectés, et ses boutons dispatchent confirm/cancel", () => {

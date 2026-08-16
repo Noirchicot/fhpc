@@ -607,19 +607,52 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    il est centré sans qu'on y touche. */
 .sortie:not(:has(.sortie-back)) { justify-content: center; }
 
-/* ⛔ PAS DE COULEUR SUR LES DEUX RÈGLES (Eric, 2026-08-17 : *« boutons SRD et
-   SRD + FH, pas de couleur »*), et BORNÉ À CE BLOC : `.record-option` habille
-   aussi les choix de classe, d'espèce et d'arcane, qu'Eric n'a pas revus. La
-   règle générale reste donc debout — c'est elle que l'ATTAQUE 1 du garde des
-   jetons prend pour cible.
-   ⚠️ Ce que l'état actif perd en couleur, il le garde en GRAISSE et en
-   bordure : `markPressed` continue de poser `aria-pressed`, donc la sélection
-   reste dite aux outils d'assistance comme à l'œil. */
-.universe-stack-block .record-option[data-active="true"] {
+/* ══ LES LIGNES À BASCULE — un état, pas deux actions ════════════════════
+   Eric, 2026-08-17 : *« SRD et SRD + FH sont des sélecteurs, pas des boutons.
+   Mets-les en texte l'un au-dessus de l'autre avec un bouton on/off ; quand
+   l'un s'allume, l'autre s'éteint »*.
+
+   ⛔ `.record-option` NE SERT PLUS ICI, et sa surcharge de décoloration est
+   partie avec (loi §0.6). C'est un gain de plus qu'il n'y paraît : cette
+   surcharge marchait en désactivant la couleur d'une règle GÉNÉRALE — celle
+   que l'ATTAQUE 1 du garde des jetons prend pour cible. Un habillage à soi
+   n'a plus rien à désactiver chez les autres.
+   ⚠️ AUCUNE COULEUR NON PLUS ICI : l'allumé se dit par la POSITION du pouce et
+   par l'encre pleine, l'éteint par une encre sourde. Deux canaux, pas un — et
+   `aria-pressed` le dit une troisième fois, aux outils d'assistance. */
+.bascule-liste { display: flex; flex-direction: column; gap: var(--sp-8); }
+.bascule-ligne {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-8); width: 100%;
+  min-height: var(--touch);       /* le seuil tactile — une ligne se vise au pouce */
+  padding: var(--sp-8);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
   background: none;
-  color: var(--text);
-  border-color: var(--border-strong);
+  color: var(--text);             /* un <button> n'hérite pas de `color` — défaut n°4 */
+  font-family: inherit; font-size: var(--t4); text-align: left;
+  cursor: pointer;
 }
+.bascule-mot { color: var(--text); }
+/* LA PISTE ET LE POUCE — dessinés, et le pouce se déplace par la JUSTIFICATION
+   de la piste, jamais par une marge automatique : une marge `auto` serait un
+   nombre implicite de plus dans une feuille qui n'en veut pas, et le garde
+   d'espacement ne saurait pas la lire. */
+.bascule-piste {
+  flex: none; display: flex; align-items: center; justify-content: flex-start;
+  width: 44px; height: 24px;
+  padding: var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.bascule-pouce {
+  width: 18px; height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--text-muted);
+}
+.bascule-ligne[data-active="true"] .bascule-piste { justify-content: flex-end; }
+.bascule-ligne[data-active="true"] .bascule-pouce { background: var(--text); }
+.bascule-ligne[data-active="true"] .bascule-mot { font-weight: 600; }
 /* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
    `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut
    nomme déjà l'étape et la surligne, le répéter en T6 coûtait une ligne de

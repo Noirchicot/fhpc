@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=82";
-import { markPressed } from "./carnet.mjs?v=82";
+import { renderConfirmDialog } from "./confirm.mjs?v=83";
+import { markPressed } from "./carnet.mjs?v=83";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -136,20 +136,43 @@ function textField({ id, label, value, maxLength, error, onCommit }) {
   return wrap;
 }
 
-/** Les DEUX boutons nommés — jamais un éditeur de pile. Réemploie
- *  `.record-list`/`.record-option` (`carnet.mjs`/`shell.css`) : même
- *  famille visuelle qu'un choix de classe/espèce, aucun jeton de plus. */
+/** Les DEUX RÈGLES — deux lignes à interrupteur, jamais un éditeur de pile.
+ *
+ *  ⭐ CE NE SONT PAS DES BOUTONS, CE SONT DES SÉLECTEURS — Eric, 2026-08-17 :
+ *  *« SRD et SRD + FH sont des sélecteurs, pas des boutons. Mets-les en texte
+ *  l'un au-dessus de l'autre avec un bouton on/off ; quand l'un s'allume,
+ *  l'autre s'éteint »*. Deux pastilles côte à côte se lisaient comme deux
+ *  actions ; deux lignes à bascule se lisent comme un état, ce qu'elles sont.
+ *
+ *  🔴 EXCLUSIF, ET LE CODE LE TIENT PLUTÔT QUE DE L'ESPÉRER : cliquer la ligne
+ *  DÉJÀ allumée ne fait rien. Sans ce test, un second clic sur `SRD` relancerait
+ *  la confirmation de bascule pour un changement qui n'a pas lieu — et rien ne
+ *  peut éteindre les deux, ce qui laisserait le personnage sans pile.
+ *
+ *  ⛔ TOUJOURS PAS `role="radio"`, et la raison n'a pas bougé (voir `carnet.mjs`,
+ *  tête de fichier) : ce patron promet la navigation par flèches, que rien ici
+ *  n'implémente. Poser le rôle sans le clavier romprait un contrat qu'un lecteur
+ *  d'écran tient pour acquis — pire que ne rien poser. On reste sur des boutons
+ *  à bascule (`aria-pressed`, WAI-ARIA « Toggle Button »), posés par
+ *  `markPressed` — le SEUL écrivain de `data-active` du dépôt, et un garde le
+ *  tient. */
 function renderStackChoice({ stack, onPick }) {
   const wrap = el("div", "universe-stack-block");
   wrap.append(el("h3", null, [text("Rules")]));
-  const list = el("div", "record-list");
+  const list = el("div", "bascule-liste");
+  list.setAttribute("role", "group");
+  list.setAttribute("aria-label", "Rules");
   for (const [value, label] of [["srd", "SRD"], ["srdfh", "SRD + FH"]]) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "record-option";
+    btn.className = "bascule-ligne";
     markPressed(btn, stack === value);
-    btn.textContent = label;
-    btn.addEventListener("click", () => onPick(value));
+    btn.append(el("span", "bascule-mot", [text(label)]));
+    /* L'interrupteur est DESSINÉ (une piste, un pouce), jamais un glyphe : un
+       glyphe change de forme selon la police installée. Il ne porte aucun mot —
+       le nom accessible du bouton vient du texte à sa gauche. */
+    btn.append(el("span", "bascule-piste", [el("span", "bascule-pouce")]));
+    btn.addEventListener("click", () => { if (stack !== value) onPick(value); });
     list.append(btn);
   }
   wrap.append(list);
