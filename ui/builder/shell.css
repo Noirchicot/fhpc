@@ -2128,18 +2128,44 @@ button { font: inherit; }
    `:has()`, donc la même spécificité, et l'ordre seul ne suffirait pas.
    ⭐ Et l'ordre de lecture reste celui du SRD (STR DEX CON / INT WIS CHA) :
    `row`, jamais `column` — c'est ce que le croquis écrit de gauche à droite. */
+/* ✅ LES SIX EN UNE RANGÉE — Eric, 2026-08-16, en montrant le collecteur du
+   banc : *« le collecteur ressemble à ça, et ce coup-ci il affiche les
+   bonus »*.
+   ⚠️ CE QUI RENDAIT DEUX RANGÉES NÉCESSAIRES A DISPARU. La règle d'avant
+   écrivait : *« à 375 px cela ferait 50 px par case, où "14 (+2)" — la
+   cellule Final — ne tient pas »*. Elle tenait compte du mot « Final » posé
+   au-dessus du nombre, qui coûtait une ligne ET sa largeur. Le mot est parti
+   (le croquis n'écrit qu'un bonus) ; le nombre, lui, tient. */
 .glisse-creneaux.ability-creneaux {
   display: grid;
   grid-auto-flow: row;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   grid-template-rows: none;
+  gap: var(--sp-4);
 }
-.ability-creneau { padding: var(--sp-4) var(--sp-2); }
+/* ⭐ LA CIBLE EST CARRÉE, EN POINTILLÉ, ET ELLE PORTE UNE CIBLE — la forme du
+   banc `ilots-lab`, qu'Eric a validée à l'écran. Le nom au-dessus, la zone de
+   dépôt au milieu, le bonus dessous. */
+.ability-creneau {
+  padding: var(--sp-2);
+  border: 0;              /* le pointillé est sur la ZONE, pas sur la colonne */
+  gap: var(--sp-2);
+}
+.ability-creneau .glisse-cible-vide,
+.ability-creneau .fs-de {
+  width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
+}
+.ability-creneau .glisse-cible-vide {
+  display: block; height: auto;
+  padding: var(--sp-8);
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+  color: var(--text); opacity: .55;
+}
+.ability-creneau[data-vise="true"] .glisse-cible-vide { border-color: var(--accent); border-style: solid; opacity: 1; }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */
 .ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
 .ability-creneau .ability-row-final { font-size: var(--t1); }
-.ability-creneau .ability-row-final-label { color: var(--text-muted); }
 
 /* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */
 .glisse-creneaux { display: flex; gap: var(--sp-8); }

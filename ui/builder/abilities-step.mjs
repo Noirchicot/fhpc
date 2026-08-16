@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=60";
-import { renderTray } from "./abilities-tray.mjs?v=60";
-import { armerJeton } from "./glisser.mjs?v=60";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=60";
-import { createDieHost, mount } from "./dice3d.mjs?v=60";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=60";
+import { markPressed } from "./carnet.mjs?v=62";
+import { renderTray } from "./abilities-tray.mjs?v=62";
+import { armerJeton } from "./glisser.mjs?v=62";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=62";
+import { createDieHost, mount } from "./dice3d.mjs?v=62";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=62";
 
 export { rollAbilitySet };
 
@@ -248,7 +248,15 @@ export function renderFinalColumn(resolved, key, rawValue) {
   if (typeof score !== "number") return null;
   const cell = el("span", "ability-row-final");
   cell.dataset.boosted = String(rawValue !== undefined && score !== rawValue);
-  cell.append(el("span", "ability-row-final-label", [text("Final")]));
+  /* ⌨️ PLUS DE MOT « Final » — Eric, 2026-08-16, en montrant le collecteur du
+     banc : *« il affiche les bonus »*, et son croquis n'écrit qu'un `+1` sous
+     chaque dé. L'étiquette coûtait une ligne dans une case de 48 px.
+     ⛔ MAIS LE SCORE RESTE AVEC SON MODIFICATEUR, et ce n'est pas négociable :
+     son croquis montre `+1` seul, or une carac boostée afficherait `+2` sous
+     un dé qui dit `13` — la contradiction EXACTE que le lot 46 a corrigée
+     (« 13 à côté d'un +2 qui appartenait au 14 »). Le nombre qui précède le
+     modificateur est ce qui l'empêche de mentir. Sans boost, il répète
+     simplement le dé, et ne coûte rien. */
   cell.append(el("span", "ability-row-final-value", [text(`${score} (${motDuMod(mod)})`)]));
   return cell;
 }
@@ -516,6 +524,28 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
    sortie d'étape »*. Ils sont donc produits UNE FOIS, par `shell.mjs`
    (`renderSortieEtape`), et se posent juste sous ce bloc. Les écrire ici en
    ferait la sortie d'UN écran, et le prochain lot en écrirait une seconde. */
+/** LE SYMBOLE DE CIBLE — levé du banc `ilots-lab.html`, à l'octet.
+ *  ⛔ Dessiné, jamais un glyphe : un glyphe change de dessin selon la police
+ *  installée, et celui-ci doit dire « dépose ici » sur tous les appareils. */
+function renderCibleVide() {
+  const svg = document.createElementNS
+    ? document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    : document.createElement("svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("class", "glisse-cible-vide");
+  for (const [r, plein] of [[10, false], [5.5, false], [1.5, true]]) {
+    const c = document.createElementNS
+      ? document.createElementNS("http://www.w3.org/2000/svg", "circle")
+      : document.createElement("circle");
+    c.setAttribute("cx", "12"); c.setAttribute("cy", "12"); c.setAttribute("r", String(r));
+    c.setAttribute("fill", plein ? "currentColor" : "none");
+    if (!plein) { c.setAttribute("stroke", "currentColor"); c.setAttribute("stroke-width", "1.5"); }
+    svg.append(c);
+  }
+  return svg;
+}
+
 function renderCollecteur(ctx) {
   const { document: doc, resolved } = ctx;
   const bloc = el("section", "choix-glisse ability-glisse ability-collecteur dalle-intermediaire");
@@ -543,8 +573,25 @@ function renderCollecteur(ctx) {
         onTap: () => ctx.reprendre(key),
         onDepot: (ou) => ctx.deplacer(key, pose, ou)
       }));
+    } else if (valeur === undefined) {
+      /* ⭐ UNE CIBLE VRAIMENT VIDE MONTRE UNE CIBLE — trois cercles
+         concentriques, DESSINÉS et non un glyphe : un glyphe change de dessin
+         selon la police installée. C'est la forme du banc `ilots-lab`, qu'Eric
+         a validée à l'écran (*« le collecteur ressemble à ça »*), et elle dit
+         ce qu'un tiret ne disait pas : ici, on DÉPOSE. */
+      creneau.append(renderCibleVide());
     } else {
-      creneau.append(el("span", "glisse-creneau-valeur", [text(valeur === undefined ? "—" : String(valeur))]));
+      /* 🔴 MAIS UNE VALEUR DÉJÀ AU DOCUMENT RESTE ÉCRITE, ET C'EST LA LOI DU
+         LOT 46. La remplacer par une cible aurait effacé le CHOIX BRUT — or
+         c'est lui que `set()` écrit, et il peut différer du score final (CON :
+         brut 13, final 14 par boost d'héritage). Sans lui à l'écran, le
+         joueur lirait « 14 (+2) » sans aucun moyen de savoir ce qu'il a
+         choisi.
+         ⚠️ La distinction n'est donc pas cosmétique : *rien de posé* et *posé
+         ailleurs qu'ici* sont deux états différents, et les confondre sous un
+         même symbole reperdrait ce que le lot 46 a corrigé. La feuille
+         l'atténue (`data-source="hors-lot"`), elle ne l'efface pas. */
+      creneau.append(el("span", "glisse-creneau-valeur", [text(String(valeur))]));
     }
 
     creneau.setAttribute("aria-label", pose !== null
