@@ -500,11 +500,15 @@
 /* …et c'est la DALLE qui se centre dedans (`margin-inline: auto`, plus haut).
    ⭐ Le centrage horizontal qu'Eric garde vit donc sur la dalle, pas sur la
    rangée : la rangée n'est plus qu'un cadre de défilement. */
-/* ══ 🧪 ESSAI — LA DALLE PASSE AU VERRE À 50 % ═══════════════════════════
-   Eric, 2026-08-16 : *« on teste la dalle à 50 % de transparence avec son
-   liseré blanc »*. Le voile employé n'est pas inventé : `--dalle-inter` EST le
-   50 % du vocabulaire des trois dalles (`--voile-inter`), celui que porte déjà
-   le cran courant du rail, et `--verre-lisere` est le liseré d'Eric.
+/* ══ ✅ LA DALLE EST DU VERRE À 50 % — Eric, 2026-08-16 ═══════════════════
+   *« on teste la dalle à 50 % de transparence avec son liseré blanc »*, puis,
+   devant la conséquence : *« ben oui ce sera plus une dalle majeure »*. Le
+   régime est donc acté, et la CLASSE le porte (`dalle-intermediaire`, posée
+   par `renderCatalogueCards`) : c'est elle qui donne le voile, pas une règle
+   d'ici. ⛔ Un fond écrit à deux endroits finit par diverger — le vocabulaire
+   des trois dalles est le seul écrivain du sien.
+   Il ne reste ici que le LISERÉ, qu'aucune des trois classes ne porte : chaque
+   organe de verre le déclare (la ceinture, le rail, et maintenant la fiche).
 
    🔴 ET LE VOILE FORCE L'ENCRE — ce n'est pas un détail esthétique, c'est la
    matrice du lot 59 : sur du verre, `--text-muted` rend **3,0 · 3,6** pour 4,5
@@ -514,12 +518,11 @@
    une encre de mention rendrait la fiche illisible **en ayant l'air d'une
    amélioration** — c'est le piège que ce dépôt a déjà payé deux fois.
 
-   ⏳ SI L'ESSAI EST RETENU, LE VOCABULAIRE DOIT SUIVRE : la fiche cesserait
-   d'être une dalle MAJEURE (III.2 : majeure = opaque, « beaucoup de contenu ou
-   des images ») pour devenir une INTERMÉDIAIRE. La classe `dalle-majeure`
-   qu'elle porte encore dans le DOM deviendrait alors un mensonge à corriger. */
+   ⭐ ET LE VOCABULAIRE A SUIVI, LE MÊME JOUR : la fiche n'est plus une dalle
+   MAJEURE (III.2 : opaque, « beaucoup de contenu ou des images ») mais une
+   INTERMÉDIAIRE. Ce n'est pas un mot pour un mot — c'est le régime qui dit
+   quelle encre a le droit d'y vivre. */
 .fiche-dalle {
-  background: var(--dalle-inter);
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
   height: var(--fiche-h);
   /* ⭐ LA QUATRIÈME MARGE, ET C'EST LA PREMIÈRE QUI SOIT DÉCLARÉE — Eric,
@@ -586,7 +589,7 @@
    c'est la même nature d'information, elle se lit du même geste. */
 .fiche-info-row { display: flex; gap: var(--sp-4); }
 .fiche-info-row dt { margin: 0; font-weight: 600; color: var(--text); }
-.fiche-info-row dd { margin: 0; color: var(--text); }   /* 🧪 verre : plus de mention (matrice lot 59) */
+.fiche-info-row dd { margin: 0; color: var(--text); }   /* verre : plus de mention (matrice lot 59) */
 
 /* ── LA MOITIÉ BASSE D'UNE ESPÈCE : SES TRAITS ────────────────────────── */
 /* ✅ Eric, 2026-08-15, croquis A. **Même boîte que le blurb, même place,
@@ -609,7 +612,7 @@
    distinction, et elle est portée par l'encre, jamais par une taille : un
    second barreau dans une boîte de 10 lignes en coûterait une. */
 .fiche-trait-nom { font-weight: 600; }
-.fiche-trait-effet { color: var(--text); }   /* 🧪 verre : plus de mention (matrice lot 59) */
+.fiche-trait-effet { color: var(--text); }   /* verre : plus de mention (matrice lot 59) */
 
 
 /* ══ LA COMPOSITION HORIZONTALE — croquis « VERTICAL / HORIZONTAL » d'Eric,

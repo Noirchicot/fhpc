@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=19";
+import { planAt } from "./carnet.mjs?v=20";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -172,9 +172,16 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        gardent la structure plate : leurs cartes n'ont ni hauteur imposée ni
        rangée d'une scène, l'enveloppe ne leur réparerait rien et changerait
        leur mise en page sans raison. */
-    const hote = ctx.fiche ? el("div", "fiche-dalle dalle-majeure") : card;
-    /* La dalle est MAJEURE (III.2) : elle porte des libellés en
-       `--text-muted`, et la matrice du lot 59 les interdit sur du verre. */
+    /* ⭐ LA FICHE EST UNE DALLE **INTERMÉDIAIRE** DEPUIS LE 2026-08-16 — Eric,
+       en acceptant la conséquence du verre : *« ben oui ce sera plus une dalle
+       majeure »*. Elle était MAJEURE (III.2 : opaque, « beaucoup de contenu ou
+       des images ») ; elle porte maintenant le voile à 50 %, donc le régime
+       intermédiaire, et la classe le DIT au lieu de le laisser deviner.
+       ⛔ Le vocabulaire des trois dalles n'est pas décoratif : c'est lui qui
+       dit quelle encre a le droit d'y vivre (la matrice du lot 59 interdit
+       `--text-muted` sur du verre). Une classe qui ment sur son régime
+       autorise en silence une encre illisible. */
+    const hote = ctx.fiche ? el("div", "fiche-dalle dalle-intermediaire") : card;
     if (!ctx.fiche) card.className = "catalogue-card dalle-majeure";
     hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
     const noeuds = renderCard(ctx.query, id) || [];
