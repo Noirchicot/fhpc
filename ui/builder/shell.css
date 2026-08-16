@@ -524,6 +524,38 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    carte générique (le défaut d'avant ce lot, pas une casse). */
 .decision-card:has(> .abilities-step),
 .decision-card:has(> .equipment-step) { --card-w: var(--panel-w); }
+
+/* ══ 🔴 LA CARTE S'EFFACE SOUS ABILITIES — le fond doit passer ENTRE ═══════
+   Eric, 2026-08-16 : *« démerde-toi comme tu veux mais je veux voir du
+   background entre ces deux dalles (ça a déjà été fait dans skills) »*.
+
+   📏 CE QUE J'AVAIS RATÉ DEUX FOIS, ET LA CAUSE ÉTAIT AILLEURS QUE LÀ OÙ JE
+   CHERCHAIS. J'ai d'abord doublé l'écart (12 → 24 px), puis ajouté le liseré
+   aux deux dalles. Les deux gestes étaient justes et n'ont pas suffi, parce
+   que le fond qui apparaissait dans l'écart n'était PAS l'image : les deux
+   dalles vivent dans `.decision-card`, une dalle MAJEURE — donc **opaque**.
+   L'écart montrait `--surface`, c'est-à-dire la même couleur que ce qu'il
+   était censé séparer.
+   ⛔ Aucune augmentation de la marge n'aurait pu marcher : le problème n'était
+   pas la TAILLE de l'intervalle, c'était ce qu'on voyait dedans.
+
+   ⭐ ET LE REMÈDE EXISTAIT DÉJÀ, ERIC L'A NOMMÉ : `data-bleed`, que Skills et
+   les catalogues emploient pour que la carte cesse d'être une surface et
+   redevienne une simple boîte de mise en page. Le principe est écrit au
+   lot 59 (B0.23b) : *« des dalles qui FLOTTENT »* — un écran DÉJÀ composé de
+   dalles n'a pas besoin d'une dalle de plus dessous, elle ne fait que boucher
+   le fond.
+   📌 CE QU'ON NE REPREND PAS DE `data-bleed` : sa `height: 100%`, qui sert à
+   Class et à Skills (leur contenu se taille sur le champ) et qui n'a aucun
+   sens ici — Abilities est un FF2, sa hauteur est celle de ce qu'il porte.
+   D'où une règle à part plutôt qu'un drapeau de plus.
+   ⭐ ET LA MARGE RESTE : sans elle, les dalles toucheraient les bords de
+   l'écran. C'est la carte qui s'efface, pas ses gouttières. */
+.decision-card:has(> .abilities-step) {
+  padding: 0;
+  border: none;
+  background: none;
+}
 /* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
    `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut
    nomme déjà l'étape et la surligne, le répéter en T6 coûtait une ligne de
