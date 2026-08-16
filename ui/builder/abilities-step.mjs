@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=44";
-import { renderTray } from "./abilities-tray.mjs?v=44";
-import { armerJeton } from "./glisser.mjs?v=44";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=44";
-import { createDieHost, mount } from "./dice3d.mjs?v=44";
+import { markPressed } from "./carnet.mjs?v=45";
+import { renderTray } from "./abilities-tray.mjs?v=45";
+import { armerJeton } from "./glisser.mjs?v=45";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=45";
+import { createDieHost, mount } from "./dice3d.mjs?v=45";
 import {
   ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX, abilityModOf
-} from "../../src/build/index.mjs?v=44";
+} from "../../src/build/index.mjs?v=45";
 
 export { rollAbilitySet };
 
@@ -257,11 +257,24 @@ export function renderFinalColumn(resolved, key, rawValue) {
    de l'écrire, et à l'incrustation du moteur de se taire (la feuille la
    masque, `.porte-de .fh-cd-static-die-result`).
 
-   ⛔ `snapshot: true`, ET C'EST UN COMPTE, PAS UNE PRÉCAUTION. Un dé non
-   animé ne libère JAMAIS son contexte WebGL (`settleToSnapshot` ne part que
-   sur `data-animate="1"`), et le navigateur en plafonne ~16. Compté sur
-   FREE : 16 dés de palette + 6 dés posés = 22. L'écran serait devenu noir
-   sans une seule erreur. Le chemin image n'en ouvre aucun.
+   ⛔ `snapshot: true`, ET C'EST UN COMPTE MESURÉ, PAS UNE PRÉCAUTION. Un dé
+   non animé ne libère JAMAIS son contexte WebGL (`settleToSnapshot` ne part
+   que sur `data-animate="1"`), et le navigateur en plafonne le nombre.
+
+   📏 LE PLAFOND, MESURÉ LE 2026-08-16 ET NON PLUS RECOPIÉ : on ouvre des
+   contextes un par un jusqu'à ce que le plus ancien se perde. **Chromium en
+   tient 16 ; le dix-septième coûte le premier.** Compté sur FREE : 16 dés de
+   palette + 6 dés posés = **22**. L'écran serait devenu noir SANS UNE SEULE
+   ERREUR. Le chemin image n'en ouvre aucun.
+   ⚠️ ET LA MESURE NE COUVRE QUE CHROMIUM. Eric teste sur iPhone SE et iPad,
+   donc sur Safari iOS — dont le plafond n'a été mesuré nulle part, ici ni
+   ailleurs. Il est réputé PLUS BAS, jamais plus haut ; le chemin image est
+   donc au moins aussi nécessaire là-bas. C'est ce qui rend la mesure
+   suffisante pour décider sans être suffisante pour se rassurer.
+   📌 CE QUE CETTE NOTE CORRIGE : le « ~16 » traînait dans ce dépôt comme un
+   fait, recopié de doc en doc, sans que la plateforme de mesure soit écrite
+   nulle part (relevé par l'architecte du lot 79). Un chiffre dont on ignore
+   la provenance et dont on est à 22 n'est pas un appui.
    ⛔ ET AUCUN STYLE EN LIGNE : la taille du chiffre vit dans la feuille
    (`--fs-de`), pas dans un `style.fontSize` — le banc s'en dispensait, la
    production non (garde 7 des jetons). */

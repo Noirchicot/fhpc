@@ -1136,10 +1136,22 @@ button { font: inherit; }
    sélecteur à deux classes l'emporte sur celui du moteur, et l'`aspect-ratio`
    garde le dé carré.
    📌 Ce qu'on NE reprend pas : le `transform: scale(.8)` que le moteur
-   applique à tout d6 (`[data-sides="6"]`). C'est son calibrage — un cube se
-   lit plus gros qu'un d20 dans la même boîte — et il est réglé face par face,
-   « do not normalize without new visual validation from Eric ». Le dé occupe
-   donc 80 % de sa boîte, à dessein ; la boîte, elle, reste la cible. */
+   applique à tout d6 (`[data-sides="6"]`). Il vient du dock, à l'octet
+   (`fh-phb/docs/stylesheets/companion-dock.css`, et sa sœur sur le sélecteur
+   d'image) — rien qui vienne d'ici.
+   🔴 ET ON NE SAIT PAS POURQUOI IL VAUT .8 : le source ne le dit nulle part,
+   vérifié par l'architecte du lot 79 aussi bien que par moi. Une première
+   version de ce commentaire lui prêtait une raison (« un cube se lit plus
+   gros qu'un d20 dans la même boîte ») — c'était une reconstitution
+   plausible, donc exactement ce que ce dépôt interdit de laisser écrit. On
+   garde la règle intacte et on dit qu'on l'ignore.
+   ⭐ CE QU'ON SAIT, EN REVANCHE, ET C'EST CE QUI COMPTE ICI : `scale()` ne
+   change pas la boîte de mise en page. Le dé se PEINT à 80 %, sa BOÎTE reste
+   entière — c'est elle la cible tactile, et c'est ce qui fait qu'un dé « à
+   46 » tient le plancher `--touch` en n'en montrant que 37.
+   ⚠️ Corollaire à garder : le visible est plus petit que le touchable. Si le
+   dé paraît un jour trop petit, le levier est la taille DÉCLARÉE, jamais le
+   .8 — le toucher n'a pas de raison de rétrécir avec la peinture. */
 .fs-de .porte-de,
 .fs-de .fh-cd-static-die,
 .fs-de img.fh-cd-static-snap { width: 100%; height: auto; aspect-ratio: 1; }
