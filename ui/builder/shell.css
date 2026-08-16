@@ -564,10 +564,61 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    D'où une règle à part plutôt qu'un drapeau de plus.
    ⭐ ET LA MARGE RESTE : sans elle, les dalles toucheraient les bords de
    l'écran. C'est la carte qui s'efface, pas ses gouttières. */
-.decision-card:has(> .abilities-step) {
+.decision-card:has(> .abilities-step),
+/* ⭐ ET UNIVERSE & LAYERS REJOINT LA LISTE (Eric, 2026-08-17 : *« dalle 50 %
+   de transparence, liseré blanc »*). Même mécanique, même raison : la carte
+   est une `dalle-majeure` OPAQUE ; tant qu'elle peint, aucun voile posé sur
+   son contenu ne se voit — c'est le piège de `data-bleed` (CADRES.md §8 bis).
+   La carte s'efface, l'écran devient la dalle. */
+.decision-card:has(> .universe-step),
+.decision-card:has(> .concept-step) {
   padding: 0;
   border: none;
   background: none;
+}
+
+/* ══ UNIVERSE & LAYERS · BIOGRAPHY — UNE DALLE 50 %, SON LISERÉ ══════════
+   Eric, 2026-08-17 : *« Universe & Layers — dalle 50 % de transparence,
+   liseré blanc, BACK dégage, DONE en bas de dalle centré »*, puis, pour
+   Concept : *« BACK dégage, DONE centré en bas au milieu, dalle
+   transparente »*. Deux écrans, une même demande, donc une même règle — les
+   séparer ferait diverger deux voiles au premier réglage. */
+.universe-step,
+.concept-step {
+  padding: var(--sp-8);
+  color: var(--text);
+  /* Le liseré de verre — le même filet clair que les dalles d'Abilities, pris
+     au jeton et jamais réécrit en `rgba()`. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+/* Le pied vient s'accrocher au bas de la dalle : elle porte déjà sa gouttière
+   de 8, le rembourrage latéral du pied ferait double emploi. Et la marge
+   automatique doit sauter, sinon elle absorbe la place libre et le bloc cesse
+   de s'étirer (mesuré au collecteur : 169 px au lieu de 343). */
+.universe-step > .sortie,
+.concept-step > .sortie {
+  padding: var(--sp-16) 0 var(--sp-4);
+  margin-inline: 0;
+}
+/* ⭐ SEUL, `DONE` SE CENTRE — et la règle se lit sur le FAIT, pas sur l'écran :
+   `space-between` n'a de sens qu'entre deux boutons. Là où `BACK` n'existe pas
+   (rien derrière, voir `renderSortieEtape`), le bouton restant se pose au
+   milieu. Aucun nom d'étape ici : le jour où un second écran perd son retour,
+   il est centré sans qu'on y touche. */
+.sortie:not(:has(.sortie-back)) { justify-content: center; }
+
+/* ⛔ PAS DE COULEUR SUR LES DEUX RÈGLES (Eric, 2026-08-17 : *« boutons SRD et
+   SRD + FH, pas de couleur »*), et BORNÉ À CE BLOC : `.record-option` habille
+   aussi les choix de classe, d'espèce et d'arcane, qu'Eric n'a pas revus. La
+   règle générale reste donc debout — c'est elle que l'ATTAQUE 1 du garde des
+   jetons prend pour cible.
+   ⚠️ Ce que l'état actif perd en couleur, il le garde en GRAISSE et en
+   bordure : `markPressed` continue de poser `aria-pressed`, donc la sélection
+   reste dite aux outils d'assistance comme à l'œil. */
+.universe-stack-block .record-option[data-active="true"] {
+  background: none;
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 /* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
    `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut

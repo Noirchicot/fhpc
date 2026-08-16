@@ -47,7 +47,7 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=81";
+import { planAt } from "./carnet.mjs?v=82";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -64,7 +64,7 @@ function text(value) { return document.createTextNode(String(value)); }
    côte à côte, et le test le vérifie plutôt que de l'espérer. */
 export const REVIEW_GROUPS = [
   { step: "universe", label: "Universe & Layers", paths: [] },
-  { step: "concept", label: "Concept", paths: [] },
+  { step: "concept", label: "Biography", paths: [] },
   { step: "abilities", label: "Abilities", paths: [] },
   { step: "species", label: "Species", paths: ["species", "species.skills", "species.skillBudget"] },
   { step: "destiny", label: "Destiny", paths: [] },

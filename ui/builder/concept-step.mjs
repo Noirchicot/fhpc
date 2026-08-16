@@ -108,7 +108,13 @@ function textField({ id, label, value, maxLength, ariaDescribedBy, error, datali
 export function renderConceptStep(ctx, onAction) {
   const doc = ctx.document;
   const errors = ctx.fieldErrors || {};
-  const section = el("section", "concept-step");
+  /* `dalle-intermediaire` — le voile à 50 %, pris à la matrice des dalles
+     (lot 59) et jamais réécrit en couleur ici. */
+  const section = el("section", "concept-step dalle-intermediaire");
+  /* Le pied de la coquille s'accroche au bas de cette dalle (Eric, 2026-08-17 :
+     *« Concept — DONE centré en bas au milieu »*). Une DÉCLARATION, pas une
+     fabrication : voir `poserLaSortie` dans `shell.mjs`. */
+  section.dataset.sortieIci = "true";
 
   section.append(textField({
     id: "concept-name",

@@ -19,36 +19,36 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=81";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=81";
-import { mountPopup } from "./popup.mjs?v=81";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=81";
-import { renderConceptStep } from "./concept-step.mjs?v=81";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=81";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=81";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=82";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=82";
+import { mountPopup } from "./popup.mjs?v=82";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=82";
+import { renderConceptStep } from "./concept-step.mjs?v=82";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=82";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=82";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=81";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=81";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=81";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=81";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=81";
+} from "./catalogue.mjs?v=82";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=82";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=82";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=82";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=82";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=81";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=82";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=81";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=81";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=81";
+} from "./destiny-step.mjs?v=82";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=82";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=82";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=81";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=82";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -67,16 +67,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=81";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=81";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=82";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=81";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=81";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=82";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=82";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=81";
+import { versionQuery } from "./version.mjs?v=82";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -102,7 +102,7 @@ import { versionQuery } from "./version.mjs?v=81";
    n'attendait rien. */
 const STEPS = [
   { id: "universe",   label: "Universe & Layers" },
-  { id: "concept",    label: "Concept" },
+  { id: "concept",    label: "Biography" },
   { id: "abilities",  label: "Abilities" },
   { id: "species",    label: "Species" },
   { id: "destiny",    label: "Destiny" },
@@ -1501,13 +1501,25 @@ function renderSortieEtape() {
   if (surUneRacineQuiBranche()) return null;
   const gate = currentGate();
 
-  const back = button("BACK", () => pressBack());
-  back.className = "sortie-bouton sortie-back";
-  /* Rien derrière le premier palier de la première étape : le bouton reste
-     LISIBLE et éteint, jamais absent — un contrôle qui disparaît fait douter
-     de l'endroit où l'on est. */
-  const peutReculer = state.palier > 1 || state.step > 0;
-  back.disabled = !peutReculer;
+  /* ══ `BACK` N'EXISTE QUE LÀ OÙ IL Y A UN PALIER À QUITTER ════════════════
+     Eric, 2026-08-17, deux écrans de suite : *« Universe & Layers — back
+     dégage »*, puis *« Concept — back dégage »*.
+
+     ⭐ CE N'EST PAS UN RÉGLAGE PAR ÉCRAN, C'EST L'INVARIANT I.5 RENDU ENTIER.
+     Il disait *« `Back` n'existe plus — la molette le remplace »*, et le
+     lot 79 l'avait précisé : interdit comme navigation d'ÉTAPE, autorisé
+     entre PALIERS, parce que la ceinture porte le retour entre les dix étapes
+     mais qu'un sous-écran de palier n'a aucune ceinture. Le lot 80 avait
+     élargi ce `BACK`-ci aux DEUX rôles ; les deux demandes d'Eric le ramènent
+     à son rôle unique.
+     ⛔ ÉCRIT SUR LE FAIT, JAMAIS SUR UN ID : « y a-t-il un palier derrière ? ».
+     Species, Class et les pages de méthode d'Abilities gardent donc leur
+     retour sans qu'on les nomme, et un futur écran à paliers l'aura d'office.
+     ⚠️ CE QU'ON PERD, ET IL FAUT LE DIRE : à l'étape 3 palier 1, revenir à
+     l'étape 2 passe désormais UNIQUEMENT par la ceinture. C'était déjà le
+     chemin prévu par I.5 ; il n'a simplement plus de doublon. */
+  const back = state.palier > 1 ? button("BACK", () => pressBack()) : null;
+  if (back) back.className = "sortie-bouton sortie-back";
 
   const done = button("DONE", () => pressDone());
   done.className = "sortie-bouton sortie-done";
@@ -1517,7 +1529,7 @@ function renderSortieEtape() {
   done.dataset.lit = String(gate.ready);
   done.disabled = !gate.ready;
 
-  return el("div", "sortie", [back, done]);
+  return el("div", "sortie", [back, done].filter(Boolean));
 }
 
 /* ══ OÙ LA SORTIE SE POSE — déclaré par l'écran, produit par la coquille ══

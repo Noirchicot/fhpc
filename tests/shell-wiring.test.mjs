@@ -410,10 +410,19 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
    boutons est gardé AVANT leur longueur. */
 
 test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la condition des 76 px)", () => {
-  /* Le pied se construit en une expression : deux boutons, jamais trois. Un
-     troisième ajouterait 42 px de rembourrage à lui seul. */
-  assert.match(shellText, /return el\("div", "sortie", \[back, done\]\);/,
-    "⛔ EXACTEMENT deux boutons dans le pied — un troisième ferait passer la paire à deux lignes, et les 76 px avec");
+  /* Le pied se construit en une expression : deux boutons AU PLUS, jamais
+     trois. Un troisième ajouterait 42 px de rembourrage à lui seul.
+     ⚠️ « AU PLUS » DEPUIS LE 2026-08-17, et c'est un ASSOUPLISSEMENT DANS LE
+     BON SENS : `BACK` n'existe plus que là où il y a un palier à quitter
+     (Eric, sur Universe puis sur Concept — invariant I.5 rendu entier). Un
+     pied à UN bouton tient évidemment la ligne que ce garde protège ; ce qui
+     resterait un défaut, c'est un TROISIÈME. Le motif garde donc la forme
+     exacte de l'expression, `.filter(Boolean)` compris — écrire `[back, done,
+     autre]` la ferait rougir comme avant. */
+  assert.match(shellText, /return el\("div", "sortie", \[back, done\]\.filter\(Boolean\)\);/,
+    "⛔ DEUX boutons au plus dans le pied — un troisième ferait passer la paire à deux lignes, et les 76 px avec");
+  assert.match(shellText, /const back = state\.palier > 1 \? button\("BACK"/,
+    "⭐ et `BACK` ne naît que s'il y a un palier derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;
