@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FS — banc d'essai des îlots</title>
+<link rel="stylesheet" href="./tokens.css?v=32">
+<link rel="stylesheet" href="./dice3d.css?v=32">
+<link rel="stylesheet" href="./shell.css?v=32">
+<style>
+  /* ══ BANC D'ESSAI — pas une page du builder ═══════════════════════════
+     Commande d'Eric, 2026-08-16 : six ÎLOTS (FS, « floating small ») en une
+     rangée, chacun portant un d6 3D statique marqué d'une valeur du tableau
+     standard ; l'OBJET d6 se glisse dans un collecteur à six cibles, en
+     rangée dans un FF2, surmonté de FOR DEX CON INT SAG CHA.
+
+     ⚠️ CE FICHIER N'EST PAS TENU PAR LES GARDES DE `shell.css` (littéraux de
+     couleur, d'espacement, de corps) — c'est un banc, pas de la production.
+     Il emprunte en revanche les VRAIS organes : `dice3d.mjs` pour les dés,
+     `glisser.mjs` pour le geste. Ce qu'on éprouve ici est ce qui tournera. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px 8px 40px;
+    background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, system-ui, sans-serif;
+  }
+  h1 { font-size: 17px; margin: 0 0 2px; }
+  .sous { color: var(--text-muted); font-size: 13px; margin: 0 0 18px; }
+  h2 {
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0 0 8px; font-weight: 600;
+  }
+  section { margin-bottom: 22px; }
+
+  /* ── FS : l'îlot. Aucune largeur écrite : la grille la déduit. ────────
+     Six colonnes égales, UN écart, et c'est tout. La hauteur vient du
+     contenu, et les six s'égalisent parce qu'une ligne de grille prend la
+     hauteur de sa plus haute cellule. */
+  .fs-rangee {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--sp-8);
+    margin: 0; padding: 0; list-style: none;
+  }
+  .fs {
+    display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+    padding: var(--sp-4) var(--sp-2);
+    border-radius: var(--radius-md);
+    background: var(--dalle-simple);
+    box-shadow: inset 0 0 0 1px var(--verre-lisere);
+    min-width: 0;
+  }
+  /* Le dé EST l'objet qu'on prend. `touch-action: none` : sans elle le doigt
+     ferait défiler la page au lieu de saisir (leçon du lot 79). */
+  .fs-de {
+    display: block; padding: 0; border: 0; background: none;
+    touch-action: none; cursor: grab;
+    -webkit-user-select: none; user-select: none;
+    line-height: 0;
+  }
+  .fs-de[data-glisse="true"] { opacity: .35; cursor: grabbing; }
+
+  /* ══ LE CHIFFRE PAR-DESSUS LE DÉ, ET IL A FALLU LE MESURER ═══════════
+     🔴 LE MOTEUR REFUSE D'ÉCRIRE 15 SUR UN D6, ET IL A RAISON : `createDieHost`
+     garde bien `data-result="15"`, mais l'incrustation qu'il peint affiche
+     « 6 » — un d6 ne PEUT pas faire 15, et le moteur ne ment pas sur un jet.
+     ⭐ Or ici le chiffre n'est PAS un jet : c'est un score du tableau standard
+     posé sur un dé qui sert de socle. C'est donc à la page de l'écrire, et à
+     l'incrustation du moteur de se taire.
+     ⛔ On ne touche pas au moteur : c'est une copie verbatim de `fh-phb`, un
+     défaut s'y corrige EN AMONT puis se recopie (garde 7 des jetons). */
+  .porte-de { position: relative; display: inline-block; line-height: 0; }
+  .porte-de .fh-cd-static-die-result { display: none; }
+  .valeur {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-weight: 700; font-variant-numeric: tabular-nums;
+    color: #3a2606; text-shadow: 0 1px rgba(255, 255, 255, .35);
+    pointer-events: none;
+  }
+  .fs[data-vide="true"] { opacity: .45; }
+  .fs-vide {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 12px;
+  }
+
+  /* ── LE COLLECTEUR : un FF2 (pleine largeur, hauteur du contenu) ──── */
+  .collecteur {
+    padding: var(--sp-8);
+    border-radius: var(--radius-md);
+    background: var(--dalle-inter);
+    box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  }
+  .cibles {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sp-8);
+    margin: 0; padding: 0; list-style: none;
+  }
+  .cible {
+    display: flex; flex-direction: column; align-items: center; gap: var(--sp-4);
+    min-width: 0;
+  }
+  .cible-nom {
+    font-size: 11px; letter-spacing: .06em; color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .cible-zone {
+    width: 100%; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+    background: none; color: var(--text); padding: 0;
+  }
+  .cible-zone[data-rempli="true"] { border-style: solid; background: var(--dalle-simple); }
+  .cible-zone[data-vise="true"] { border-color: var(--accent); border-style: solid; }
+  .cible-zone svg { width: 60%; height: 60%; opacity: .5; }
+  .cible-zone[data-rempli="true"] svg { display: none; }
+
+  .mesures {
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--text-muted);
+    white-space: pre;
+  }
+  .boutons { display: flex; gap: var(--sp-8); flex-wrap: wrap; }
+  .boutons button {
+    min-height: var(--touch); padding: 0 var(--sp-16);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    background: none; color: var(--text); font: inherit; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>FS — les îlots, et le d6 qui se glisse</h1>
+<p class="sous">Six îlots en une rangée, un d6 3D statique sur chacun, un collecteur à six cibles.
+Les vrais organes : <code>dice3d.mjs</code> pour les dés, <code>glisser.mjs</code> pour le geste.</p>
+
+<section>
+  <h2>FS · six îlots, une rangée</h2>
+  <ul class="fs-rangee" id="rangee"></ul>
+</section>
+
+<section>
+  <h2>FF2 · le collecteur</h2>
+  <div class="collecteur">
+    <ul class="cibles" id="cibles"></ul>
+  </div>
+</section>
+
+<section>
+  <h2>Ce que ça mesure</h2>
+  <div class="mesures" id="mesures">…</div>
+</section>
+
+<section class="boutons">
+  <button type="button" id="reset">Tout remettre sur les îlots</button>
+</section>
+
+<script type="module">
+import { createDieHost, mount } from "./dice3d.mjs?v=32";
+import { armerJeton } from "./glisser.mjs?v=32";
+
+/* LE TABLEAU STANDARD — les six valeurs, dans l'ordre d'Eric. C'est la seule
+   liste écrite en dur de cette page, et c'est son sujet. */
+const STANDARD = [15, 14, 13, 12, 10, 8];
+/* Les six caractéristiques, en français : la commande d'Eric, mot pour mot. */
+const CARACS = ["FOR", "DEX", "CON", "INT", "SAG", "CHA"];
+
+/* L'état : quel dé (son index) est posé sur quelle carac. `null` = encore
+   sur son îlot. Une seule carte, comme `assign` du vrai plateau. */
+const pose = {};
+for (const c of CARACS) pose[c] = null;
+
+const rangee = document.getElementById("rangee");
+const cibles = document.getElementById("cibles");
+
+/** La taille d'un dé se DÉDUIT de la largeur d'un îlot — elle ne s'écrit
+ *  pas. Six îlots dans la page, écart de 8 : à 375 px cela donne ~47 px par
+ *  îlot, donc un dé d'environ 40. C'est la mesure qui décide, et la page
+ *  l'affiche pour qu'Eric la juge. */
+function tailleDeDe() {
+  const premier = rangee.querySelector(".fs");
+  const large = premier ? premier.getBoundingClientRect().width : 48;
+  return Math.max(28, Math.floor(large - 8));
+}
+
+function cibleDe(valeurIndex) {
+  for (const c of CARACS) if (pose[c] === valeurIndex) return c;
+  return null;
+}
+
+/** UN D6 QUI PORTE UN SCORE. Le dé vient du moteur ; le CHIFFRE est peint
+ *  par-dessus par la page — voir la note de la feuille : un d6 ne peut pas
+ *  faire 15, et le moteur refuse (à raison) de l'écrire. Ici le nombre n'est
+ *  pas un jet, c'est un score posé sur un socle. */
+function poserDe(hote, valeur, taille, index) {
+  const porte = document.createElement("span");
+  porte.className = "porte-de";
+  const de = createDieHost({
+    /* `result: 6` — la POSE du dé, honnête : c'est la face qu'il montre.
+       Lui passer 15 ne changeait que l'attribut, jamais le rendu. */
+    sides: 6, result: 6, sizePx: taille, index,
+    animate: false, settleSizePx: taille
+  });
+  porte.append(de);
+  const chiffre = document.createElement("b");
+  chiffre.className = "valeur";
+  chiffre.style.fontSize = `${Math.round(taille * 0.34)}px`;
+  chiffre.textContent = String(valeur);
+  porte.append(chiffre);
+  hote.append(porte);
+  mount(porte);
+}
+
+function dessiner() {
+  const taille = tailleDeDe() || 40;
+
+  /* ── les six îlots ── */
+  rangee.replaceChildren(...STANDARD.map((valeur, i) => {
+    const item = document.createElement("li");
+    item.className = "fs";
+    item.dataset.vide = cibleDe(i) ? "true" : "false";
+    if (cibleDe(i)) {
+      const vide = document.createElement("span");
+      vide.className = "fs-vide";
+      vide.style.height = `${taille}px`;
+      vide.textContent = "—";
+      item.append(vide);
+      return item;
+    }
+    const jeton = document.createElement("button");
+    jeton.type = "button";
+    jeton.className = "fs-de";
+    jeton.dataset.valeur = String(i);
+    jeton.setAttribute("aria-label", `d6 ${valeur}`);
+    poserDe(jeton, valeur, taille, i);
+    armerJeton(jeton, {
+      /* Le TAP : la première cible libre — le raccourci du lot 79. */
+      onTap: () => {
+        const libre = CARACS.find((c) => pose[c] === null);
+        if (libre) { pose[libre] = i; dessiner(); }
+      },
+      /* Le GLISSER : la cible visée. Si elle est prise, on ÉCHANGE — jamais
+         on ne laisse une cible vide sans le vouloir. */
+      onDepot: (carac) => {
+        const ancien = pose[carac];
+        const source = cibleDe(i);
+        pose[carac] = i;
+        if (source) pose[source] = ancien;
+        dessiner();
+      }
+    });
+    item.append(jeton);
+    return item;
+  }));
+
+  /* ── les six cibles ── */
+  cibles.replaceChildren(...CARACS.map((carac) => {
+    const item = document.createElement("li");
+    item.className = "cible";
+    const nom = document.createElement("span");
+    nom.className = "cible-nom";
+    nom.textContent = carac;
+    const zone = document.createElement("button");
+    zone.type = "button";
+    zone.className = "cible-zone";
+    zone.dataset.creneau = carac;           // ← ce que `glisser.mjs` cherche
+    const index = pose[carac];
+    zone.dataset.rempli = index === null ? "false" : "true";
+    zone.setAttribute("aria-label", index === null
+      ? `${carac} — vide`
+      : `${carac} — ${STANDARD[index]}`);
+    /* LE SYMBOLE DE CIBLE — trois cercles concentriques, dessinés, jamais un
+       glyphe : un glyphe change de dessin selon la police installée. */
+    zone.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+      + '<circle cx="12" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+      + '<circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>';
+    if (index !== null) {
+      const taille = Math.max(28, Math.floor(zone.getBoundingClientRect().width - 12) || 40);
+      poserDe(zone, STANDARD[index], taille, index);
+      /* Taper une cible pleine renvoie le dé sur son îlot. */
+      zone.addEventListener("click", () => { pose[carac] = null; dessiner(); });
+    }
+    item.append(nom, zone);
+    return item;
+  }));
+
+  mesurer();
+}
+
+function mesurer() {
+  const fs = rangee.querySelector(".fs");
+  const zone = cibles.querySelector(".cible-zone");
+  const l = (n) => n ? Math.round(n.getBoundingClientRect().width) : 0;
+  const h = (n) => n ? Math.round(n.getBoundingClientRect().height) : 0;
+  document.getElementById("mesures").textContent =
+      `écran        ${window.innerWidth} × ${window.innerHeight}\n`
+    + `îlot FS      ${l(fs)} × ${h(fs)}\n`
+    + `dé           ${tailleDeDe()} px  (déduit de l'îlot, jamais écrit)\n`
+    + `cible        ${l(zone)} × ${h(zone)}\n`
+    + `écart        8 px, le même partout (un seul « gap »)\n`
+    + `posés        ${CARACS.filter((c) => pose[c] !== null).length} / 6`;
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  for (const c of CARACS) pose[c] = null;
+  dessiner();
+});
+
+dessiner();
+/* Une seconde passe après la mise en page : la taille du dé se déduit de la
+   largeur RÉELLE d'un îlot, qui n'existe qu'une fois la grille posée. */
+requestAnimationFrame(() => dessiner());
+window.addEventListener("resize", () => dessiner());
+</script>
+</body>
+</html>
