@@ -292,6 +292,48 @@ test("11 ter — un TAP ne lève aucun fantôme (il n'y a rien à faire voler)",
   assert.deepEqual(trace, ["tap"], "sous le seuil, le fantôme n'existe jamais");
 });
 
+/* ══ 11 quater — LE FANTÔME VISE, PAS LE DOIGT ═══════════════════════════
+   Eric, 2026-08-16 au soir : *« c'est ce même fantôme que je dois placer dans
+   la cible, pas mon doigt »*. Le décalage seul serait de la peinture ; ce qui
+   le rend VRAI est que le point interrogé change avec lui.
+
+   🔴 CE GARDE EXISTE PARCE QUE LA PANNE SERAIT MUETTE : sans `viseur`, tout
+   continue de fonctionner — un créneau s'allume, un dé se pose — simplement
+   pas celui que le joueur recouvre. Aucune erreur, aucun symptôme au test,
+   juste un geste qui ment de 34 px en diagonale. */
+
+test("11 quater — ⚔️ `viseur` déplace le POINT INTERROGÉ, et le seuil reste au doigt", () => {
+  const vus = [];
+  const brut = document.createElement("button");
+  const cible = { closest: () => ({ dataset: { creneau: "abilities.str" } }) };
+  const deposes = [];
+  armerJeton(brut, {
+    onTap: () => deposes.push("tap"), onDepot: (c) => deposes.push(c),
+    viseur: (x, y) => [x - 34, y - 34]
+  });
+  document.elementFromPoint = (x, y) => { vus.push([x, y]); return cible; };
+  brut.dispatchEvent({ type: "pointerdown", clientX: 100, clientY: 200, pointerId: 1, button: 0, pointerType: "touch" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
+  assert.deepEqual(vus, [[106, 166], [106, 166]],
+    "en vol comme au dépôt : le point visé est celui du fantôme, jamais celui du doigt");
+  assert.deepEqual(deposes, ["abilities.str"], "et le dépôt part bien de ce point-là");
+});
+
+test("11 quinquies — sans `viseur`, RIEN ne bouge : c'est le doigt qui vise", () => {
+  /* ⛔ Le rappel est FACULTATIF, comme les trois autres. Les écrans qui ne
+     dessinent pas de fantôme (les compétences, étape 2) ne doivent pas payer
+     un décalage qu'ils n'ont pas demandé. */
+  const vus = [];
+  const brut = document.createElement("button");
+  armerJeton(brut, { onTap: () => {}, onDepot: () => {} });
+  document.elementFromPoint = (x, y) => { vus.push([x, y]); return null; };
+  brut.dispatchEvent({ type: "pointerdown", clientX: 100, clientY: 200, pointerId: 1, button: 0, pointerType: "touch" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
+  assert.deepEqual(vus, [[140, 200], [140, 200]], "le point de contact, à l'octet");
+});
+
 /* ══ 10 — TAP POUR L'INFO, GLISSER POUR CHOISIR (Eric, 16/08 au soir) ════
    *« j'avais prévu tap pour info, drag and drop to select ; sur desktop clic
    droit info, gauche select »*. Quatre cas, deux appareils — et un seul

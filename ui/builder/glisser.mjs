@@ -77,7 +77,7 @@ function text(value) { return document.createTextNode(String(value)); }
    ⏳ Si Eric juge le geste trop sec à l'usage, le fantôme se rediscutera avec
    une exception ARGUMENTÉE au garde — pas en le contournant. */
 
-/** Le créneau sous le pointeur, ou `null`. ⚠️ `elementFromPoint` et non une
+/** Le créneau sous le POINT VISÉ, ou `null`. ⚠️ `elementFromPoint` et non une
  *  comparaison de rectangles : les créneaux peuvent défiler avec la scène, et
  *  un rectangle mémorisé au début du geste mentirait dès le premier pixel. */
 function creneauSous(x, y) {
@@ -117,7 +117,31 @@ function creneauSous(x, y) {
    son exception au garde, pas à l'organe partagé.
    ⛔ Ils sont facultatifs : sans eux, pas un octet ne change de comportement,
    et les douze cas du garde le prouvent. */
-export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser }) {
+
+/* ══ LE QUATRIÈME RAPPEL — `viseur`, et il ne peint RIEN ══════════════════
+   Eric, 2026-08-16 (le soir) : *« le fantôme du dé doit apparaître au-dessus
+   et à gauche de mon doigt. Et c'est ce même fantôme que je dois placer dans
+   la cible, pas mon doigt »*.
+
+   🔴 LA SECONDE PHRASE EST LA VRAIE DEMANDE, et elle ne se règle pas dans la
+   feuille. Décaler le fantôme est une affaire de peinture ; mais tant que
+   `elementFromPoint` interroge le DOIGT, le joueur poserait son dé sur une
+   cible pendant que le geste en désignerait une autre, 40 px plus bas à
+   droite. Un décor qui ment sur ce qu'il fait est pire que pas de décor.
+
+   ⭐ CE QUE `viseur` EST, ET CE QU'IL N'EST PAS. Il ne dit pas « où est le
+   fantôme » — l'organe ignore toujours qu'il existe un fantôme, et c'est la
+   loi de ce fichier. Il répond à une question que l'organe se pose déjà :
+   **où ce geste vise-t-il ?** Par défaut, là où le doigt touche ; un écran
+   qui déporte son fantôme répond autrement. Le seuil, le maintien et le
+   renoncement, eux, continuent de se mesurer AU DOIGT — c'est le doigt qui
+   bouge, pas la visée.
+   ⚠️ CONSÉQUENCE À CONNAÎTRE : un point visé qui sort de la fenêtre (bord
+   haut ou gauche) ne rencontre plus rien, et `elementFromPoint` rend `null`.
+   Une bande de la largeur du décalage devient donc invisable en haut à
+   gauche de l'écran. Aucun de nos créneaux n'y vit — le collecteur est en
+   bas — mais un écran qui en mettrait un là le paierait sans message. */
+export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser, viseur }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
@@ -154,6 +178,10 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
       if (souleve && typeof e.preventDefault === "function") e.preventDefault();
     };
 
+    /* Le point que ce geste DÉSIGNE — le doigt, sauf si l'écran a déporté ce
+       qu'il fait suivre au doigt (voir `viseur` en tête de fonction). */
+    const ouVise = (e) => (viseur ? viseur(e.clientX, e.clientY) : [e.clientX, e.clientY]);
+
     const viser = (creneau) => {
       if (vise === creneau) return;
       if (vise) vise.dataset.vise = "false";
@@ -178,7 +206,7 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
         if (onLever) onLever(e.clientX, e.clientY);
       }
       if (onBouger) onBouger(e.clientX, e.clientY);
-      viser(creneauSous(e.clientX, e.clientY));
+      viser(creneauSous(...ouVise(e)));
     };
 
     const fini = (e) => {
@@ -194,7 +222,11 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
          disparaître aussi. Un fantôme qui survit à son geste est pire que
          pas de fantôme du tout. */
       if (glisse && onPoser) onPoser();
-      const cible = glisse ? creneauSous(e.clientX, e.clientY) : null;
+      /* ⭐ LE DÉPÔT VISE OÙ LE GESTE VISAIT, pas où le doigt s'est levé —
+         sinon le créneau allumé pendant tout le glisser ne serait pas celui
+         qui reçoit, et le retour visuel deviendrait un mensonge à la
+         dernière milliseconde. */
+      const cible = glisse ? creneauSous(...ouVise(e)) : null;
       viser(null);
       if (renonce) return;                       // le doigt est parti défiler
       /* ⭐ LE TAP PORTE SON OUTIL. Eric, 2026-08-16 : *« tap pour info, drag

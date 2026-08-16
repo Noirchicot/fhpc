@@ -1417,9 +1417,11 @@ button { font: inherit; }
    🔴 POSÉ EN COORDONNÉES D'ÉCRAN, et c'est la seule façon honnête : le jeton
    d'origine vit dans une scène qui défile ; un fantôme dans le même flux se
    ferait couper par le premier `overflow`.
-   ⛔ `pointer-events: none` — sans elle, le fantôme se trouve SOUS le doigt
-   au moment où `elementFromPoint` cherche la cible, et l'organe ne verrait
-   jamais que lui-même. C'est le piège classique de cette forme.
+   ⛔ `pointer-events: none` — SANS ELLE, RIEN NE MARCHE, et c'est encore plus
+   vrai depuis que le fantôme est déporté : le point qui vise tombe désormais
+   PILE sur lui (voir `FANTOME_DECALAGE`, abilities-step.mjs). `elementFromPoint`
+   ne trouverait donc jamais que le fantôme lui-même, à chaque image, sur toute
+   la surface de l'écran. C'est le piège classique de cette forme.
    ⭐ Il est plus GRAND que le jeton et il porte une ombre : le dé est
    « soulevé », pas déplacé à plat. Sous un pouce, c'est la seule chose qui
    reste visible du geste. */

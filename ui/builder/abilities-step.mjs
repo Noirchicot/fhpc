@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=70";
-import { renderTray } from "./abilities-tray.mjs?v=70";
-import { armerJeton } from "./glisser.mjs?v=70";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=70";
-import { createDieHost, mount } from "./dice3d.mjs?v=70";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=70";
+import { markPressed } from "./carnet.mjs?v=71";
+import { renderTray } from "./abilities-tray.mjs?v=71";
+import { armerJeton } from "./glisser.mjs?v=71";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=71";
+import { createDieHost, mount } from "./dice3d.mjs?v=71";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=71";
 
 export { rollAbilitySet };
 
@@ -328,9 +328,10 @@ function poserUnDe(hote, valeur, taille, index) {
    🔴 IL EST POSÉ EN COORDONNÉES D'ÉCRAN, et c'est la seule façon honnête :
    le jeton d'origine vit dans une scène qui défile ; un fantôme dans le même
    flux se ferait couper par le premier `overflow`.
-   ⛔ `pointer-events: none` (feuille) — sans elle, le fantôme se trouve SOUS
-   le doigt quand `elementFromPoint` cherche la cible, et l'organe ne verrait
-   jamais que lui-même. C'est le piège classique de cette forme.
+   ⛔ `pointer-events: none` (feuille) — le point qui cherche la cible tombe
+   PILE sur le fantôme depuis qu'il est déporté (`FANTOME_DECALAGE`), et sans
+   cette ligne l'organe ne verrait jamais que lui. C'est le piège classique de
+   cette forme, et le décalage l'a rendu certain au lieu de probable.
    ⚠️ MONTÉ UNE FOIS PAR GESTE, JAMAIS PAR IMAGE — un fantôme reconstruit à
    chaque image épuiserait le plafond de contextes en une seconde. On le monte
    au LEVER, on ne fait plus que le déplacer ensuite.
@@ -342,6 +343,30 @@ function poserUnDe(hote, valeur, taille, index) {
    feuille. Il ne porte AUCUNE couleur, AUCUNE taille, AUCUN corps — rien de
    ce que le garde 7 des jetons protège. Le décor du fantôme (l'ombre portée,
    l'agrandissement) vit, lui, dans `shell.css`. */
+/* ══ LE DÉCALAGE — Eric, 2026-08-16 (le soir) ════════════════════════════
+   *« le fantôme du dé doit apparaître au-dessus et à gauche de mon doigt. Et
+   c'est ce même fantôme que je dois placer dans la cible, pas mon doigt »*.
+
+   🔴 LE FANTÔME CENTRÉ ÉTAIT INVISIBLE, et c'est exactement ce que le lot 79
+   avait prévu en refusant le fantôme : *« sous un pouce, un fantôme est de
+   toute façon caché par le doigt »*. La note avait raison sur le fait et tort
+   sur la conclusion — on ne renonce pas au fantôme, on le sort de sous le
+   doigt.
+
+   📐 LA COTE, ET ELLE SE CALCULE. La boîte fait `FS.fantome` (46), la feuille
+   l'agrandit de 1,15 → le dé VU fait 52,9, donc 26,5 du centre à son coin.
+   Pour que ce coin bas-droit dégage le point de contact, il faut plus que
+   26,5 ; on ajoute une gouttière de 8. Soit **34**, en diagonale haut-gauche.
+   ⚠️ C'EST UN RÉGLAGE, PAS UNE LOI : trop petit, le pouce mange encore le dé ;
+   trop grand, le dé se détache de la main et le geste devient une visée à
+   distance. Un seul nombre à tourner si Eric le sent mal placé.
+
+   ⭐ ET IL NE SUFFIT PAS DE LE PEINDRE : le même décalage part au `viseur` de
+   `glisser.mjs`, sans quoi le dé se poserait sur une cible pendant que le
+   doigt en désignerait une autre. Le décor et la visée tiennent le MÊME
+   nombre — c'est la raison pour laquelle il est nommé une seule fois. */
+const FANTOME_DECALAGE = 34;
+
 let fantome = null;
 let fantomeDemi = 0;
 
@@ -379,19 +404,33 @@ function fantomeLever(valeur, x, y) {
   fantomeBouger(x, y);
 }
 
-function fantomeBouger(x, y) {
-  if (!fantome || !fantome.style) return;
-  /* Centré sur le doigt : la moitié de la taille est retirée pour que le
-     curseur tombe au milieu du dé, jamais sur son coin. */
-  fantome.style.transform = `translate(${x - fantomeDemi}px, ${y - fantomeDemi}px)`;
+/** Où le CENTRE du fantôme se pose, à partir du point de contact : en haut à
+ *  gauche, de `FANTOME_DECALAGE` sur chaque axe. ⭐ Une seule fonction pour
+ *  les deux usages — la peinture ci-dessous et la visée passée à
+ *  `glisser.mjs` — parce qu'un fantôme et une visée qui divergeraient d'un
+ *  pixel rendraient le geste inexplicable. */
+function fantomeCentre(x, y) {
+  return [x - FANTOME_DECALAGE, y - FANTOME_DECALAGE];
 }
 
-/** Les trois rappels du fantôme, les mêmes pour tout dé armé. */
+function fantomeBouger(x, y) {
+  if (!fantome || !fantome.style) return;
+  /* La demi-taille place le CENTRE du dé sur le point voulu (jamais son
+     coin) ; le décalage éloigne ce point du doigt. Les deux se composent. */
+  const [cx, cy] = fantomeCentre(x, y);
+  fantome.style.transform = `translate(${cx - fantomeDemi}px, ${cy - fantomeDemi}px)`;
+}
+
+/** Les quatre rappels du fantôme, les mêmes pour tout dé armé. */
 function gestesDuFantome(valeur) {
   return {
     onLever: (x, y) => fantomeLever(valeur, x, y),
     onBouger: (x, y) => fantomeBouger(x, y),
-    onPoser: () => fantomeRanger()
+    onPoser: () => fantomeRanger(),
+    /* ⭐ LE FANTÔME VISE, PAS LE DOIGT (Eric, 16/08 au soir). Même fonction
+       que la peinture : c'est ce qui garantit que la cible allumée est celle
+       que le dé recouvre. */
+    viseur: fantomeCentre
   };
 }
 
