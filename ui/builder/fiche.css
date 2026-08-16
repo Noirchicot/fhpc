@@ -640,15 +640,20 @@
        centrer. */
     /* image (largeur suivant sa hauteur) │ LE MOU │ le bloc de droite */
     grid-template-columns: auto minmax(max-content, 1fr) auto;
-    /* mou · TEXTE 2 · TEXTE 3 · mou · pied — les deux `1fr` font le centrage */
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+    /* ⭐ LE NOM PREND UNE RANGÉE À LUI, EN TÊTE — Eric, 2026-08-16 : « si Wizard
+       est une boîte distincte en paysage aussi, mets-le tout en haut de la
+       dalle, centré, et 1,5× plus gros ». Il quitte donc la colonne du centre
+       et devient un BANDEAU sur toute la largeur.
+       nom · mou · TEXTE 2 · TEXTE 3 · mou · pied — les deux `1fr` centrent ce
+       qui est entre eux, le bandeau et le pied restent aux deux bouts. */
+    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
   }
   /* COLONNE G — l'image traverse les quatre rangées de contenu, centrée et
      cadrée à gauche. `width: auto` + `height` en pourcentage : c'est le
      rapport naturel du fichier qui donne la largeur, jamais une cote écrite. */
   .fiche-dalle .fiche-image {
     grid-column: 1;
-    grid-row: 1 / 5;
+    grid-row: 2 / 6;          /* sous le bandeau du nom, au-dessus du pied */
     align-self: center;
     justify-self: start;
     height: 75%;
@@ -658,8 +663,20 @@
 
   /* COLONNE CENTRE — TEXTE 1 : le nom au-dessus de ses stats, l'ensemble
      centré dans les deux sens. */
-  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 2; justify-self: stretch; align-self: end; }
-  .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3; justify-self: center; align-self: start; }
+  /* LE BANDEAU DU NOM — toute la largeur, en tête, et 1,5× la taille du
+     portrait (`--t5` vaut 18 px à l'étroit, 20 en Large → 27 et 30).
+     ⛔ Le facteur est écrit comme un CALCUL sur le jeton, jamais comme un
+     nombre en dur : le jour où `--t5` bouge, le titre suit. */
+  .fiche-dalle .catalogue-card-name {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: stretch;
+    align-self: start;
+    font-size: calc(var(--t5) * 1.5);
+  }
+  /* TEXTE 1 se retrouve SEUL dans la colonne du centre : il se centre donc sur
+     les deux rangées de contenu, en face de la colonne de droite. */
+  .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3 / 5; justify-self: center; align-self: center; }
 
   /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */
   /* ⭐ LA BOÎTE DE TEXTE EST BORNÉE, ET C'EST LE RATIO MOBILE QUI DONNE LA
@@ -686,9 +703,9 @@
   .fiche-dalle .fiche-infos,
   .fiche-dalle .fiche-blurb,
   .fiche-dalle .fiche-traits { max-width: calc(var(--fiche-blurb-h) * 226 / 160); width: 100%; }
-  .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 2; align-self: end; justify-self: end; }
+  .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 3; align-self: end; justify-self: end; }
   .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 3; align-self: start; justify-self: end; }
+  .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 4; align-self: start; justify-self: end; }
 
   /* LE PIED — sous les colonnes G et CENTRE, comme le dessin le pose.
      ⭐ Il reste dans le champ quoi qu'il arrive : `CHOOSE` est la validation
@@ -704,14 +721,14 @@
      ⛔ Le rembourrage horizontal doit être écrit ICI : la règle de base n'en
      a aucun (elle n'en avait pas besoin, `flex: 1 1 0` donnait la largeur).
      Sans lui, un bouton qui cesse de s'étirer se réduit à son texte. */
-  .fiche-dalle .fiche-actions { grid-column: 1 / 3; grid-row: 5; justify-content: center; }
+  .fiche-dalle .fiche-actions { grid-column: 1 / 3; grid-row: 6; justify-content: center; }
   .fiche-dalle .fiche-action { flex: 0 0 auto; padding-inline: var(--sp-24); }
 
   /* Le second gabarit (celui des fiches SANS bande d'infos) n'a pas lieu
      d'être ici : la colonne droite se compose d'elle-même, avec ou sans
      bande. Une fiche sans infos laisse simplement sa rangée vide. */
   .fiche-dalle[data-infos="oui"] {
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
   }
-  .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 5; }
+  .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 6; }
 }
