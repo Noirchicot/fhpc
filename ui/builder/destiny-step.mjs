@@ -23,12 +23,12 @@
    module ne reconnaît pas fait JETER `rebuild()`. Le mode vit en mémoire
    d'écran, jamais dans `build.choices`. */
 
-import { drawArcana } from "./dice.mjs?v=11";
-import { renderCardRows } from "./catalogue.mjs?v=11";
+import { drawArcana } from "./dice.mjs?v=12";
+import { renderCardRows } from "./catalogue.mjs?v=12";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=11";
+import { versionQuery } from "./version.mjs?v=12";
 
 export { drawArcana };
 

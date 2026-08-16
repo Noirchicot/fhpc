@@ -19,33 +19,33 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=11";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=11";
-import { mountPopup } from "./popup.mjs?v=11";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=11";
-import { rollAbilityBatch } from "./dice.mjs?v=11";
-import { renderConceptStep } from "./concept-step.mjs?v=11";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=11";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=11";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=12";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=12";
+import { mountPopup } from "./popup.mjs?v=12";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=12";
+import { rollAbilityBatch } from "./dice.mjs?v=12";
+import { renderConceptStep } from "./concept-step.mjs?v=12";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=12";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=12";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=11";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=11";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=11";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=11";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=11";
+} from "./catalogue.mjs?v=12";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=12";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=12";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=12";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=12";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=11";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=11";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=11";
+} from "./destiny-step.mjs?v=12";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=12";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=12";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=11";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=12";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -64,16 +64,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=11";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=11";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=12";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=11";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=11";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=12";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=12";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=11";
+import { versionQuery } from "./version.mjs?v=12";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui

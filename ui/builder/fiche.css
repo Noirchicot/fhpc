@@ -607,8 +607,16 @@
        colonne centrale reçoit tout l'espace libre — c'est là-dedans que
        TEXTE 1 se centre. Une seule ligne répare les deux symptômes, parce
        qu'ils n'ont jamais eu qu'une cause. */
+    /* 🔴 `minmax(max-content, 1fr)` AU MILIEU, ET CE N'EST PAS UNE PRÉCAUTION
+       DE STYLE — c'est la réparation d'un écrasement vu sur l'iPad d'Eric. Avec
+       un simple `1fr`, la colonne centrale peut tomber à ZÉRO si les autres
+       réclament de la place : le bloc de stats a alors débordé de sa colonne et
+       s'est affiché SOUS l'image, texte contre texte (« Wizard » amputé en
+       « zard »). Le plancher `max-content` lui interdit désormais de descendre
+       sous son propre contenu ; le `1fr` lui donne toujours le mou où se
+       centrer. */
     /* image (largeur suivant sa hauteur) │ LE MOU │ le bloc de droite */
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(max-content, 1fr) auto;
     /* mou · TEXTE 2 · TEXTE 3 · mou · pied — les deux `1fr` font le centrage */
     grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
   }
@@ -631,6 +639,23 @@
   .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3; justify-self: center; align-self: start; }
 
   /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */
+  /* ⭐ LA BOÎTE DE TEXTE EST BORNÉE, ET C'EST LE RATIO MOBILE QUI DONNE LA
+     BORNE — Eric, 2026-08-16 : « s'il faut dimensionner les ratios H/L des
+     boîtes de texte, utilise le ratio mobile ». Il fallait, et voici pourquoi :
+     🔴 SANS BORNE, LA COLONNE DE DROITE MANGE TOUTE LA DALLE. La largeur
+     « naturelle » d'un blurb de classe est le paragraphe entier sur UNE ligne
+     (~2 000 px) ; une piste `auto` la réclame, et il ne reste rien aux deux
+     autres colonnes. C'est ce qui a écrasé le centre et fait passer les stats
+     sous l'image. Une liste de traits d'espèce, elle, ne réclamait que ~212 px
+     — d'où un défaut invisible côté species et brutal côté class.
+     📏 LA BORNE EST LA BOÎTE MOBILE ELLE-MÊME : 226 × 160, soit le rapport
+     1,41 qu'Eric désigne, écrit à partir du jeton pour que les deux nombres ne
+     puissent pas diverger. Le texte se replie dedans, et la rangée `auto` du
+     paysage lui donne autant de lignes qu'il en faut — la limite des 10 lignes
+     est une cote de PORTRAIT, elle ne s'applique pas ici. */
+  .fiche-dalle .fiche-infos,
+  .fiche-dalle .fiche-blurb,
+  .fiche-dalle .fiche-traits { max-width: calc(var(--fiche-blurb-h) * 226 / 160); }
   .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 2; align-self: end; justify-self: end; }
   .fiche-dalle .fiche-blurb,
   .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 3; align-self: start; justify-self: end; }
