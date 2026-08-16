@@ -15,6 +15,27 @@
 
 ---
 
+## 0 bis. TROIS DÉCISIONS D'ERIC, 2026-08-16 (après mesure)
+
+1. 🔴 **`Validate` VA DISPARAÎTRE PARTOUT.** Ce n'est pas un réglage : c'est
+   la barre qui pesait **76 px** dans le champ de chaque écran, et c'est elle
+   qui faisait céder la promesse de F2 couché. Toute cote qui la compte
+   deviendra fausse le jour où elle partira. ⏳ **Ce qui la remplace n'est pas
+   décidé** — aujourd'hui `Validate` est le seul passage d'étape, sauf sur les
+   écrans à fiche où `CHOOSE` valide déjà (Ch6). Le jour où elle part, il
+   faudra dire par quoi on avance.
+2. ✅ **Le téléphone COUCHÉ n'est pas une cible.** Eric, mot pour mot : *« mon
+   petit portable en mode paysage on s'en fout »*. Une cote qui ne tient que
+   là ne bloque plus rien — et le seul endroit où F2 cédait était là.
+   ⛔ Cela ne dit RIEN de l'iPad couché, qui reste une cible (c'est lui qui a
+   imposé la composition à trois colonnes de F1).
+3. ✅ **Le plafond de F2 : SEULEMENT EN SECOURS.** *« Si ton tweak n'intervient
+   qu'en urgence oui, sinon non. »* — et c'est exactement ce que fait un
+   `max-height` : il ne se voit pas tant que le contenu tient, il ne mord que
+   quand la carte allait déborder. Rien à inventer pour obtenir ce
+   comportement, il est natif. ⏳ Non posé pour autant : plus personne ne
+   déborde une fois `Validate` partie et le paysage hors cible.
+
 ## 0. LA CONSTANTE, ET ELLE EST AU-DESSUS DE TOUT
 
 > *« BELT IS ALWAYS VISIBLE »* — première ligne du croquis.
@@ -39,11 +60,28 @@ douze classes, les douze espèces, les 22 arcanes).
 
 ## 2. LES CHIFFRES, DANS LES DEUX FAMILLES
 
-| | hauteur | marges | contenu |
-|---|---|---|---|
-| **1** | **imposée** (une cote, pas le contenu) | ↕ ↔ centré | tient en un écran |
-| **2** | **variable** (le contenu décide) | ↕ ↔ centré | tient en un écran |
-| **3** | plein écran tenté | ↔ seulement | **longue liste** qui défile |
+**✅ TRANCHÉ PAR ERIC LE 2026-08-16** : *« F3 et FF3 seraient hauteur
+proportionnelle à son contenu, et F2 et FF2 hauteur définie »*.
+
+Le chiffre dit **QUI DÉCIDE DE LA HAUTEUR**, et il n'y a que trois réponses
+possibles — c'est ce qui rend la liste close :
+
+| | qui décide de la hauteur | marges |
+|---|---|---|
+| **1** | **une cote UNIQUE, partagée** — la même pour tous les écrans du format | ↕ ↔ centré |
+| **2** | **une cote POSÉE par l'écran** — définie, et différente d'un écran à l'autre | ↕ ↔ centré |
+| **3** | **le CONTENU** — la hauteur lui est proportionnelle | ↔ (et ça défile) |
+
+📏 **POURQUOI « 1 » N'EST PAS « PLEIN ÉCRAN », ET C'EST MESURÉ.** Le croquis
+écrit *« full screen attempt »* sous F1, mais la fiche ne suit pas l'écran :
+relevé le 16/08 sur un téléphone de **393 × 852** (champ 792), la dalle mesure
+toujours **440** — 352 px de mou autour d'elle. Ce qui remplit le champ n'est
+pas la fenêtre, c'est le **cran d'aimantation** qui la porte (792 = 792, ce
+qui garde `scroll-snap: mandatory` honnête).
+⭐ Donc « 1 » ne veut pas dire *« aussi haut que l'écran »* — il veut dire
+*« une seule cote, la même partout »*. C'est exactement ce qu'est le 440 de la
+fiche, et c'est ce qui le sépare d'un « 2 », où chaque écran poserait la
+sienne.
 
 ---
 
@@ -74,9 +112,55 @@ douze classes, les douze espèces, les 22 arcanes).
   `@media (orientation: landscape)` dans `fiche.css`. La composition suit la
   FORME de l'écran, jamais la place qui reste.
 
-**Qui l'emploie aujourd'hui** : `class`, `species`, et le don d'origine.
+### 📏 CE QUE LA COTE IMPOSÉE ACHÈTE VRAIMENT — mesuré le 2026-08-16
 
-## 4. F2 — *la carte* · Concept, Universe
+Eric : *« imposer la hauteur dans mes cartes species ne changerait rien sur
+tous les mobiles, car les organes du dressage sont limitants — donc elle
+marche en F2 et F3 de la même manière »*. **Mesuré à 375 × 553, en relâchant
+la contrainte le temps de la mesure : vrai pour les classes, faux pour les
+espèces.**
+
+| | hauteur naturelle | hauteur imposée | ce que la cote fait |
+|---|---|---|---|
+| **les 12 classes** | **455** (les douze, au pixel) | 440 | elle **comprime** de 15 |
+| **5 espèces** *(Dragonborn, Elf, Hoddon, Goliath, Tiefling)* | **440** | 440 | **rien** — le dressage est limitant, exactement comme prévu |
+| **7 espèces** *(Araag, Elestu, Loroka, Dwarf, Halfling, Human, Orc)* | **392** | 440 | elle **ajoute 48 px de vide** |
+
+🔴 **ET LA CAUSE EST NOMMÉE, PAS SUPPOSÉE : c'est la bande d'infos.** Les cinq
+espèces qui la portent (`data-infos="oui"`) atteignent 440 toutes seules ; les
+sept qui ne l'ont pas s'arrêtent à 392. La bande ne mesure que 14 px — c'est
+sa présence qui redistribue le reste.
+
+⭐ **DONC LA COTE IMPOSÉE N'ACHÈTE PAS DE LA HAUTEUR, ELLE ACHÈTE DE LA
+RÉGULARITÉ.** En F3, le catalogue d'espèces montrerait **deux tailles de
+carte** (392 et 440) au défilement. C'est ça qu'on perdrait — pas des pixels.
+📌 Sur les classes, elle fait l'inverse : elle serre les douze de 15 px, de
+façon identique. Rien n'est rogné à l'œil (vérifié sur la fiche servie), mais
+c'est le signe qu'elles sont **à la limite** — un mot de plus dans un blurb
+sortira par là.
+
+**Qui l'emploie aujourd'hui** : `class`, `species`, le don d'origine (panneau
+ouvert) et Destiny en mode choix — autrement dit **tout ce qui porte le menu**
+(voir §3 bis).
+
+## 3 bis. QUI PORTE LE MENU LATÉRAL — la seule chose qui sépare F de FF
+
+Relevé dans `catalogueCourant` (shell.mjs) le 2026-08-16, **écran par écran** :
+
+| avec menu (**F**) | sans menu (**FF**) |
+|---|---|
+| Species · Class | Universe · Concept · Abilities · Skills · Equipment · Review |
+| le don d'origine, panneau OUVERT | le don d'origine, panneau fermé |
+| Destiny en mode **choix** | Destiny en mode **tirage** (le défaut) |
+
+🔴 **CONSÉQUENCE, ET ELLE SIMPLIFIE LA CARTE : la famille F N'A QU'UN SEUL
+FORMAT EN SERVICE, ET C'EST F1.** Tout ce qui porte le menu est une fiche de
+catalogue. **F2 n'a aucun utilisateur** — Concept et Universe, que je lui
+avais attribués hier, n'ont pas de menu latéral : ce sont des **FF**.
+📌 C'est Eric qui l'a relevé (*« Concept c'est du FF1 car pas de barre
+latérale »*), et le code lui donne raison.
+
+## 4. F2 — *la cote posée* · ⏳ aucun écran aujourd'hui
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -84,18 +168,23 @@ douze classes, les douze espèces, les 22 arcanes).
  ├───────────────────────────────────────────────┤
  │ ┌────┐ ┌─────────────────────────────────┐    │
  │ │menu│ │                                 │    │
- │ │ 90 │ │        DALLE FENÊTRE            │  ⇕ │  ← la hauteur SUIT le contenu
+ │ │ 90 │ │        DALLE FENÊTRE            │  ⇕ │  ← une cote que l'ÉCRAN pose
  │ │    │ │     largeur ≤ 62 ch             │    │
  │ └────┘ └─────────────────────────────────┘    │
  └───────────────────────────────────────────────┘
    ↑8                                        8↑
 ```
 
-* **hauteur : celle du contenu.** Le fond se voit tout autour, la carte est
-  centrée (`margin-inline: auto`).
+* **hauteur : une cote POSÉE PAR L'ÉCRAN** — définie, et libre de différer
+  d'un écran à l'autre. C'est ce qui la sépare de F1 (une seule cote pour
+  tous) et de F3 (c'est le contenu qui décide).
 * **largeur `--card-w`** : `--measure` (62 ch) à l'étroit, **76 ch** en Large.
+* ⏳ **Personne ne l'emploie, et rien ne l'implémente** : aucun écran du
+  builder ne pose sa hauteur aujourd'hui. Ce format est une PLACE RÉSERVÉE.
 
-### ⭐ CE QUE F2 PROMET — Eric, 2026-08-16
+### ⭐ CE QUE TOUTE FENÊTRE FLOTTANTE PROMET — Eric, 2026-08-16
+
+*(écrit à propos de F2, vrai de tout cadre centré à marges : 1, 2 ou 3)*
 
 > *« Je l'ai conçue pour qu'elle puisse ressembler à une CARTE : marges
 > au-dessus ET en dessous, sur mon portable — donc garanti sur la majorité
@@ -160,7 +249,7 @@ qu'en mode **choix**, là où il y a 22 arcanes à parcourir : c'est le seul
 endroit où il gagne sa place. « Destiny en FF1 » revient donc à retirer le
 menu **du mode qui en a le plus besoin**. À trancher avant de le faire.
 
-## 6. FF2 — *la carte pleine largeur* · Skills
+## 6. FF3 — *le contenu, pleine largeur* · Skills, et presque tout le reste
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -174,14 +263,35 @@ menu **du mode qui en a le plus besoin**. À trancher avant de le faire.
  └───────────────────────────────────────────────┘
 ```
 
-**F2 sans le menu**, plus une rangée de ronds de palier qui lui est propre.
+**Pleine largeur, hauteur du contenu**, plus une rangée de ronds de palier
+qui lui est propre.
 
 * **largeur `--grid-w`** — ⚠️ **une TROISIÈME nature de largeur**, ni prose ni
   carte : une grille de compétences n'est pas un paragraphe (§3e des jetons).
-  Elle existe déjà, elle n'a rien à voir avec F2.
+  Elle existe déjà, elle n'a rien à voir avec le format.
+* 🔴 **C'EST UN 3, PAS UN 2** — sa hauteur est celle de son contenu, et
+  personne ne la lui pose. Même chose pour Universe, Abilities, Equipment,
+  Review : **tout ce qui n'est pas une fiche est un 3 aujourd'hui.**
 * ⏳ **Défaut signalé par Eric (16/08), non encore mesuré par moi** : au tout
   début du défilement, la marge supérieure manque. À mesurer dans la page
   avant d'y toucher — la cause n'est pas connue.
+
+## 6 bis. ⏳ CE QUI RESTE OUVERT — le classement de Concept
+
+La contradiction sur le sens du chiffre est **levée** (voir §2). Il reste UNE
+question, et elle est simple parce que le numérotage l'a rendue simple :
+
+**Concept est un FF — c'est certain** (aucun menu latéral, vérifié dans le
+code, §3 bis). Sa largeur est une mesure de prose (62 ch / 76 ch), ses marges
+font 8, il est centré. **Reste à dire qui décide de sa hauteur :**
+
+| | ce que ça donne |
+|---|---|
+| **FF2** — une cote posée | l'air au-dessus et en dessous est **garanti**, mais l'écran garde sa taille même quand il a peu à dire |
+| **FF3** — le contenu | la carte fait exactement ce qu'il faut, et l'air n'est garanti que tant que le contenu reste court |
+
+📌 Mesuré aujourd'hui, Concept se comporte comme un **FF3** (271 px pour un
+champ de 493). C'est un CONSTAT, pas un classement : personne ne l'a décidé.
 
 ## 7. F3 / FF3 — *la longue liste* ⏳
 
