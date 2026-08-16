@@ -20,15 +20,15 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=25";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=25";
-import { renderConfirmDialog } from "./confirm.mjs?v=25";
-import { versionQuery } from "./version.mjs?v=25";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=26";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=26";
+import { renderConfirmDialog } from "./confirm.mjs?v=26";
+import { versionQuery } from "./version.mjs?v=26";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — le dos de carte des arcanes tient la
    place des fiches qui n'ont pas encore la leur, et il porte la version du
    graphe comme tout ce que `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=25";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=26";
 
 /* ══ LES VRAIES IMAGES DE FICHE — la première est arrivée le 2026-08-16 ═════
    ⭐ LE CHEMIN SE DÉDUIT DE L'ID, IL NE SE DÉCLARE PAS. Une table
