@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abilities — the INFO panel</title>
-<link rel="stylesheet" href="./tokens.css?v=36">
+<link rel="stylesheet" href="./tokens.css?v=37">
 <style>
   /* ══ LE PANNEAU « INFO » DES CARACTÉRISTIQUES — banc d'essai ═══════════
      Commande d'Eric, 2026-08-16 : l'argumentaire des trois méthodes, en
@@ -138,7 +138,11 @@
     </div>
     <p class="methode-regle">Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; your lowest always becomes 8.</p>
     <p>On average it lands exactly where the array lands — <em>71.8 against 72.0</em> — but you rolled for it. A 14 is promised, an 8 is owed, and nothing caps the top: <em>one character in twenty-two rolls an 18</em>.</p>
-    <p class="info-note">Those three thousandths of a point between 71.8 and 72.0? The house's commission. A casino has to pay for itself somehow — call it the price of the thrill.</p>
+    <!-- ⚠️ LES DEUX LECTURES DU MÊME ÉCART, ET IL FAUT LES DEUX. « Trois
+         millièmes » est une FRACTION du total (0,21 sur 72) ; dit seul, il se
+         lit comme trois millièmes DE POINT, ce qui est faux d'un facteur
+         soixante-dix. On donne donc la valeur ET la proportion. -->
+    <p class="info-note">That fifth of a point between 71.8 and 72.0 — three thousandths of your total — is the house's commission. A casino has to pay for itself somehow; call it the price of the thrill.</p>
   </div>
 
   <div class="methode">
