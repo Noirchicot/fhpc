@@ -206,11 +206,23 @@
 
 /* Le nom : T5. `Barbarian` à T6 ferait 103 px dans une colonne de 118 — il
    tient, mais sans air. T5 le pose sans le serrer. */
+/* ⭐ LE NOM SE CENTRE COMME SES STATS — Eric, 2026-08-16 : « t'as pas centré
+   Wizard, c'est une boîte distincte ? » puis « pas centré sur le mobile en tout
+   cas ». Réponse : oui, boîte distincte — le nom est un `<h2>`, les stats un
+   `<dl>`, et ma règle de centrage portait sur les LIGNES du `<dl>`. Le nom, lui,
+   restait aligné à gauche de sa colonne en portrait.
+   ⛔ `text-align`, PAS `justify-self` : la consigne d'Eric est « centrer LE
+   TEXTE UNIQUEMENT ». `justify-self` déplacerait la BOÎTE ; `text-align` centre
+   le texte dedans — c'est le même mécanisme que le `justify-content: center` des
+   lignes de stats, donc les deux organes de TEXTE 1 ne peuvent plus diverger.
+   ⭐ Et une seule écriture pour les deux orientations : en paysage la boîte
+   s'étire dans sa colonne et le texte s'y centre pareil. */
 .fiche-dalle .catalogue-card-name {
   grid-column: 1;
   grid-row: 1;
   font-size: var(--t5);
   align-self: end;
+  text-align: center;
 }
 
 /* ── LA COLONNE DE STATS — quart haut-gauche ──────────────────────────── */
@@ -646,7 +658,7 @@
 
   /* COLONNE CENTRE — TEXTE 1 : le nom au-dessus de ses stats, l'ensemble
      centré dans les deux sens. */
-  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 2; justify-self: center; align-self: end; }
+  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 2; justify-self: stretch; align-self: end; }
   .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3; justify-self: center; align-self: start; }
 
   /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */

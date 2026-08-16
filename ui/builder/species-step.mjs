@@ -24,13 +24,13 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=13";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=13";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=14";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=14";
 
 /* ⏳ Même bouche-trou que Class, et c'est le point : la fiche est la même
    (« B3 = B2 »). Le jour où les images arrivent, elles arrivent pour les
    deux écrans au même endroit. */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=13";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=14";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
