@@ -892,22 +892,20 @@ button { font: inherit; }
   /* Invariant de la bible (§5) : le recentrage de la molette devient
      instantané, jamais animé. LOT 58 — la fiche et l'effacement des
      chevrons suivent la même règle : ce sont les deux mouvements que le
-     socle a ajoutés, ils obéissent au même réglage système. */
+     socle a ajoutés, ils obéissent au même réglage système.
+
+     🔴 RÉPARÉ LE 2026-08-16, ET LE DÉFAUT ÉTAIT EN LIGNE. Ce bloc n'était
+     JAMAIS REFERMÉ : quelqu'un y avait collé une COPIE INTÉGRALE de la règle
+     `.stage-chevrons` (identique, déclaration par déclaration, à celle de la
+     ligne 381 — vérifiée par comparaison de contenu, pas par ressemblance de
+     nom) au lieu de la seule ligne qui la concerne. Sans son accolade, la
+     requête média avalait TOUT LE RESTE DE LA FEUILLE : des dizaines de
+     règles ne s'appliquaient qu'aux visiteurs ayant désactivé les animations.
+     ⚠️ C'est ainsi qu'on l'a trouvé : les règles neuves du lot 79, écrites en
+     fin de fichier, ne rendaient rien — et le navigateur ne dit jamais qu'un
+     bloc n'est pas fermé. « Du CSS invalide se tait. » */
   .belt-track, .stage { scroll-behavior: auto; }
-  .stage-chevrons {
-  /* ⭐ EN HAUT ET EN BAS, PLUS À DROITE — Eric, 2026-08-15 : « des petits
-     chevrons noirs discrets en haut et en bas (idem fiche V1) », puis
-     « dégage les boutons ».
-     ⛔ CE QUI PART : deux pastilles de 44 px, bordées, à fond plein, empilées
-     au milieu du bord DROIT. Elles se lisaient comme des commandes ; une
-     amorce de défilement n'est pas une commande.
-     La forme vient du V1 (`.fh-cd-trayarrow`, companion-dock) : une barrette
-     posée au centre, en haut et en bas de la surface qui défile. */
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .18s;
+  .stage-chevrons { transition: none; }
 }
 
 /* ══ B9 — LE MASQUE DE REVIEW, lot 65 ══════════════════════════════════
@@ -1622,3 +1620,50 @@ button { font: inherit; }
    encre qui survit au verre. */
 .tray-case[data-garde="false"] .tray-case-total { text-decoration: line-through; opacity: 0.55; }
 .tray-case[data-garde="true"] { box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* ══ L'ORGANE DE GLISSER-DÉPOSER — lot 79, étape 2 ═══════════════════════
+   📐 Croquis C, 2ᵉ écran. Le vivier au-dessus, les créneaux en dessous, la
+   consigne au pied. Eric teste les DEUX gestes (tap et glisser) : rien ici ne
+   doit donner l'impression qu'il n'y en a qu'un. */
+.choix-glisse { display: flex; flex-direction: column; gap: var(--sp-12); }
+.choix-glisse h3 { margin: 0; font-size: var(--t3); color: var(--text); }
+.choix-glisse-compte { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+
+/* LE VIVIER — les options, en pastilles qui se replient. */
+.glisse-vivier {
+  margin: 0; padding: var(--sp-8); list-style: none;
+  display: flex; flex-wrap: wrap; gap: var(--sp-8);
+  background: var(--dalle-simple); border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.glisse-jeton {
+  min-height: var(--touch); padding: 0 var(--sp-12);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: none; color: var(--text); font-family: inherit; font-size: var(--t3);
+  cursor: grab;
+  /* 🔴 SANS `touch-action: none`, LE GESTE N'EXISTE PAS SUR MOBILE : le doigt
+     qui part d'un jeton ferait défiler la scène, et le navigateur annulerait la
+     séquence de pointeur en cours de route. C'est la ligne qui rend le
+     glisser possible ailleurs que sur un bureau. */
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
+.glisse-jeton:disabled { opacity: .4; cursor: default; }
+.glisse-jeton[data-glisse="true"] { opacity: .35; cursor: grabbing; }
+
+/* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */
+.glisse-creneaux { display: flex; gap: var(--sp-8); }
+.glisse-creneau {
+  flex: 1 1 0; min-height: var(--touch);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-2); padding: var(--sp-8);
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+  background: none; color: var(--text); font-family: inherit;
+}
+.glisse-creneau[data-rempli="true"] { border-style: solid; background: var(--dalle-inter); }
+/* La cible SOUS le doigt s'annonce — sans ce retour, on dépose à l'aveugle. */
+.glisse-creneau[data-vise="true"] { border-color: var(--accent); border-style: solid; }
+.glisse-creneau-nom { font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+.glisse-creneau-valeur { font-size: var(--t3); }
+.glisse-consigne { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+

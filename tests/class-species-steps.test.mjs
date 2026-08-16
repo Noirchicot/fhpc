@@ -127,12 +127,18 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
   for (const [classId, expected, blocs] of cases) {
     const report = rebuild(docWith({ id: `count-${classId}`, classId }));
     const node = menu(report.decisions, "class");
-    const blocsRendus = node.querySelectorAll(".skills-budget-block");
-    assert.equal(blocsRendus.length, blocs, `${classId} : ${blocs} bloc(s) de QCM — sorts seulement si la progression les appelle`);
-    const note = blocsRendus[0].querySelectorAll(".skills-budget-note")[0];
-    assert.ok(note, `${classId} : le QCM de classe est rendu`);
+    /* ⚠️ LOT 79 — LES COMPÉTENCES ONT CHANGÉ DE FORME, PAS DE CONTRAT. Elles
+       passent par `renderChoixGlisses` (vivier + créneaux) et non plus par le
+       QCM ; les sorts, eux, gardent le QCM. Ce garde compte donc LES DEUX
+       formes, et va lire le compte et les créneaux là où ils sont maintenant.
+       ⛔ La QUESTION posée n'a pas bougé d'un mot : le compte et le nombre de
+       créneaux viennent du PLAN, jamais d'un nombre écrit dans l'écran. */
+    const blocsRendus = [...node.querySelectorAll(".choix-glisse"), ...node.querySelectorAll(".skills-budget-block")];
+    assert.equal(blocsRendus.length, blocs, `${classId} : ${blocs} bloc(s) de choix — sorts seulement si la progression les appelle`);
+    const note = node.querySelectorAll(".choix-glisse-compte")[0];
+    assert.ok(note, `${classId} : l'écran de compétences est rendu`);
     assert.ok(note.textContent.startsWith(`0 of ${expected} chosen`), `${classId} attend ${expected}, lu : « ${note.textContent} »`);
-    assert.equal(blocsRendus[0].querySelectorAll(".skills-row").length, expected, `${classId} : ${expected} lignes de slot, pas 2`);
+    assert.equal(node.querySelectorAll(".glisse-creneau").length, expected, `${classId} : ${expected} créneaux, pas 2`);
   }
 });
 
@@ -143,12 +149,12 @@ test("⚔️ ATTAQUE — un `expected` absurde forcé sur un plan fabriqué : l'
     { path: "class.skills[0]", options: ["arcana"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
   const node = menu(decisions, "class");
-  const note = node.querySelectorAll(".skills-budget-note")[0];
+  const note = node.querySelectorAll(".choix-glisse-compte")[0];
   assert.equal(note.textContent, "0 of 9999 chosen", "9999 s'affiche tel quel — l'écran ne sait pas que c'est absurde, et ne doit pas le savoir");
   /* Le nombre de LIGNES, lui, vient des slots RÉELLEMENT publiés par
      `decisions[]` (un seul, ici) — jamais de `expected` : l'écran ne va pas
      fabriquer 9999 lignes pour « corriger » un plan qu'il ne juge pas. */
-  assert.equal(node.querySelectorAll(".skills-row").length, 1);
+  assert.equal(node.querySelectorAll(".glisse-creneau").length, 1);
 });
 
 /* ══ 2 — LES OPTIONS VIENNENT DU PLAN, JAMAIS D'UNE LISTE LOCALE ═════════ */
@@ -160,8 +166,8 @@ test("les options viennent du plan : un plan dont les options sont [\"zzz\"] aff
     { path: "class.skills[0]", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
   const node = menu(decisions, "class");
-  const row = node.querySelectorAll(".skills-row")[0];
-  const values = optionValues(row);
+  /* Le VIVIER porte les options depuis le lot 79 — même question, autre nœud. */
+  const values = node.querySelectorAll(".glisse-jeton").map((b) => b.getAttribute("data-valeur"));
   assert.deepEqual(values, ["zzz"], "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
 });
 
@@ -223,9 +229,9 @@ test("les trois compétences de Keen Senses sont proposées à l'étape Species 
 test("un plan non répondu (answered < expected) se voit, et le dit — sur Class ET Species", () => {
   const report = rebuild(docWith({ id: "unanswered", classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag" }));
   const classNode = menu(report.decisions, "class");
-  const classNote = classNode.querySelectorAll(".skills-budget-note")[0];
+  const classNote = classNode.querySelectorAll(".choix-glisse-compte")[0];
   assert.equal(classNote.textContent, "0 of 4 chosen");
-  assert.equal(classNode.querySelectorAll(".skills-budget-block")[0].getAttribute("data-status"), "pending");
+  assert.equal(classNode.querySelectorAll(".choix-glisse")[0].getAttribute("data-status"), "pending");
 
   const speciesNode = menu(report.decisions, "species");
   const speciesNote = speciesNode.querySelectorAll(".skills-budget-note")[0];
@@ -431,7 +437,11 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
   assert.ok(libelles.includes("Points de vie") || libelles.includes("Hit points"), "les lignes SRD, elles, sont bien là");
 
   const classMenu = renderClassChoices({ decisions: report.decisions, query: srdQuery }, () => {});
-  assert.equal(classMenu.querySelectorAll(".skills-budget-block").length, 1, "le QCM SRD (2 imposées) s'affiche — skill_choice est SRD, pas FH");
+  /* ⚠️ LOT 79 — l'écran des compétences a changé de FORME (vivier + créneaux),
+     pas de nature : la question posée reste « le choix SRD s'affiche-t-il sans
+     la couche FH ? », puisque `skill_choice` est du SRD. */
+  assert.equal(classMenu.querySelectorAll(".choix-glisse").length, 1, "l'écran de compétences SRD (2 imposées) s'affiche — skill_choice est SRD, pas FH");
+  assert.equal(classMenu.querySelectorAll(".skills-budget-block").length, 0, "et aucun QCM de sorts : le magicien SRD nu n'en publie pas ici");
 
   /* LOT 60 — le picker d'espèce a disparu comme celui de Class : ce sont les
      fiches aimantées qui portent la liste. */

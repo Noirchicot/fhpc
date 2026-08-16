@@ -316,15 +316,24 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
   const calls = [];
   const node = menuDe(out.decisions, (action) => calls.push(action));
 
+  /* ⚠️ LOT 79 — LES COMPÉTENCES ONT QUITTÉ LE QCM pour l'écran à créneaux
+     (`renderChoixGlisses`) ; les deux blocs de SORTS le gardent, en attendant
+     les étapes 3 et 4 du mandat. Le garde compte donc les deux formes, et
+     l'ORDRE des trois titres — compétences, mineurs, préparés — reste ce qu'il
+     vérifie : c'est lui qui dit que l'écran suit la progression. */
   const blocs = node.querySelectorAll(".skills-budget-block");
-  assert.equal(blocs.length, 3);
-  const titres = node.querySelectorAll(".skills-budget-block h3").map((h) => h.textContent);
+  assert.equal(node.querySelectorAll(".choix-glisse").length, 1, "les compétences : l'écran à créneaux");
+  assert.equal(blocs.length, 2, "les sorts : deux QCM");
+  const titres = [
+    ...node.querySelectorAll(".choix-glisse h3"),
+    ...node.querySelectorAll(".skills-budget-block h3")
+  ].map((h) => h.textContent);
   assert.deepEqual(titres, ["Class skills", "Cantrips", "Prepared spells"]);
 
   /* Les cases du bloc mineurs : 3 créneaux (« Cantrip 1 »…), 15 options
      chacune, nommées par le RECORD (« Ray of Frost »), identifiées par
      `data-value` (l'id complet). */
-  const mineurs = blocs[1];
+  const mineurs = blocs[0];
   const lignes = mineurs.querySelectorAll(".skills-row");
   assert.equal(lignes.length, 3);
   assert.equal(mineurs.querySelectorAll(".record-row-label")[0].textContent, "Cantrip 1");
@@ -343,7 +352,8 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
 test("un Rogue n'affiche NI bloc de sorts NI confirmation quand rien ne traîne", () => {
   const out = rebuild(docWith({ id: "ecran-rogue", classId: "srd:class:en:rogue" }));
   const node = menuDe(out.decisions);
-  assert.equal(node.querySelectorAll(".skills-budget-block").length, 1, "le seul bloc est celui des compétences");
+  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0, "aucun QCM : un Rogue n'a pas de sorts");
+  assert.equal(node.querySelectorAll(".choix-glisse").length, 1, "le seul écran est celui des compétences");
   assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
 });
 

@@ -325,10 +325,28 @@ class FakeElement extends FakeNode {
   querySelector(selector) {
     return this.querySelectorAll(selector)[0] || null;
   }
+  /* ⭐ AJOUTÉ LE 2026-08-16 (lot 79) : le glisser-déposer remonte du nœud
+     touché jusqu'au créneau qui le porte. Comme `elementFromPoint`, c'est une
+     API que `ui/` emploie RÉELLEMENT — le stub ne grandit jamais d'avance. */
+  closest(selector) {
+    let node = this;
+    while (node) {
+      if (node.nodeType === 1 && matchesSimple(node, selector.trim())) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
 }
 
 class FakeDocument {
   createElement(tag) { return new FakeElement(tag); }
+  /* ⭐ AJOUTÉ LE 2026-08-16 POUR LE LOT 79, et le stub grandit comme il a
+     toujours grandi : avec ce que `ui/` emploie RÉELLEMENT, jamais d'avance.
+     Le glisser-déposer cherche le créneau SOUS le pointeur ; sans point
+     d'entrée ici, la moitié « dépôt » du geste n'aurait aucun juge hors
+     navigateur. Par défaut il ne trouve rien — un test qui veut simuler une
+     cible pose `document.elementFromPoint = () => noeud`. */
+  elementFromPoint() { return null; }
   createTextNode(text) { return new FakeTextNode(text); }
 }
 

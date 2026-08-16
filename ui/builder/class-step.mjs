@@ -20,15 +20,16 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=26";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=26";
-import { renderConfirmDialog } from "./confirm.mjs?v=26";
-import { versionQuery } from "./version.mjs?v=26";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=30";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=30";
+import { renderConfirmDialog } from "./confirm.mjs?v=30";
+import { renderChoixGlisses } from "./glisser.mjs?v=30";
+import { versionQuery } from "./version.mjs?v=30";
 
 /* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — le dos de carte des arcanes tient la
    place des fiches qui n'ont pas encore la leur, et il porte la version du
    graphe comme tout ce que `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=26";
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=30";
 
 /* ══ LES VRAIES IMAGES DE FICHE — la première est arrivée le 2026-08-16 ═════
    ⭐ LE CHEMIN SE DÉDUIT DE L'ID, IL NE SE DÉCLARE PAS. Une table
@@ -165,11 +166,25 @@ export function renderClassChoices(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const menu = el("div", "catalogue-choices");
 
-  const qcm = renderSlotQcm({
-    decisions, basePath: "class.skills", title: "Class skills",
-    labelOf: (id) => skillLabel(query, id), onAction: act
-  });
-  if (qcm) menu.append(qcm);
+  /* ══ LOT 79, ÉTAPE 2 — LES COMPÉTENCES PASSENT AU GLISSER-DÉPOSER ══════
+     📐 Croquis C, 2ᵉ écran : sept pastilles au-dessus, `CHOICE 1` / `CHOICE 2`
+     en dessous, et la consigne. Eric, 2026-08-16 : *« on va tester le drag on
+     verra »*, puis *« on peut construire les 2 en même temps »* — le jeton se
+     tape ET se glisse, `glisser.mjs` porte les deux.
+     ⭐ L'ÉCRAN LE PLUS SIMPLE D'ABORD, ET C'EST LE SÉQUENCEMENT DU MANDAT : sept
+     options, deux créneaux, aucune grille, aucun défilement imbriqué. On éprouve
+     le geste ici avant de l'installer sur trente sorts.
+     ⛔ `renderSlotQcm` reste importé et employé : les sorts le gardent pour
+     l'instant (étapes 3 et 4), et l'espèce ne le lâchera jamais. Deux formes,
+     un seul contrat d'action — le moteur ne voit aucune différence. */
+  const plan = planAt(decisions, "class.skills");
+  const glisse = plan ? renderChoixGlisses({
+    plan, slots: planSlots(decisions, "class.skills"),
+    titre: "Class skills", mot: "Choice",
+    labelOf: (id) => skillLabel(query, id), onAction: act,
+    consigne: "Tap a skill, or drag it onto a slot."
+  }) : null;
+  if (glisse) menu.append(glisse);
 
   /* ══ LOT 72 — LES SORTS, LE MÊME QCM ═══════════════════════════════════
      `renderSlotQcm` rend `null` sans plan : un Rogue n'affiche RIEN ici —
