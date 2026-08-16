@@ -25,7 +25,7 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=20";
+import { planAt } from "./carnet.mjs?v=21";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -310,7 +310,7 @@ function renderFicheActions() {
  *  comme les deux croquis la dessinent —, elle doit être la SŒUR du nom
  *  dans une même grille, pas l'enfant d'une enveloppe posée dessous. Une
  *  `.fiche-head` intermédiaire ferait commencer l'image sous le nom. */
-export function renderFicheBody({ stats, blurb, traits, infos, image, imageAlt }) {
+export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecours, imageAlt }) {
   const colonne = el("dl", "fiche-stats");
   for (const ligne of Array.isArray(stats) ? stats : []) {
     if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
@@ -328,6 +328,20 @@ export function renderFicheBody({ stats, blurb, traits, infos, image, imageAlt }
   const img = document.createElement("img");
   img.src = image;
   img.alt = imageAlt || "";
+  /* ⭐ LE REPLI SUR LE DOS DE CARTE — les vraies images arrivent une par une
+     (la première le 2026-08-16), et les onze autres fiches ne doivent rien
+     perdre en attendant. `onerror` est le SEUL moyen de savoir qu'un fichier
+     manque : un `fetch` de vérification doublerait chaque requête, et une
+     liste des images existantes serait une seconde vérité à tenir d'accord
+     avec le dossier.
+     ⛔ L'écouteur se retire lui-même : si le secours manquait AUSSI, le
+     navigateur rappellerait `onerror` sur lui, et la boucle serait infinie. */
+  if (typeof imageSecours === "string" && imageSecours !== image) {
+    img.addEventListener("error", function reposer() {
+      img.removeEventListener("error", reposer);
+      img.src = imageSecours;
+    });
+  }
   cadre.append(img);
 
   /* ── LA MOITIÉ BASSE — MÊME BOÎTE, DEUX CONTENUS ────────────────────────

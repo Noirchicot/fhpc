@@ -20,15 +20,35 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=20";
-import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=20";
-import { renderConfirmDialog } from "./confirm.mjs?v=20";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=21";
+import { renderFicheBody, renderCardRows, renderCardNames } from "./catalogue.mjs?v=21";
+import { renderConfirmDialog } from "./confirm.mjs?v=21";
+import { versionQuery } from "./version.mjs?v=21";
 
-/* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — aucune n'existe encore (cotes
-   visées 200 × 260, PNG transparent, Eric les produit). Le dos de carte des
-   arcanes tient la place, et il porte la version du graphe comme tout ce que
-   `ui/` charge (lot 75). */
-const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=20";
+/* ⏳ LE BOUCHE-TROU DE L'IMAGE DE FICHE — le dos de carte des arcanes tient la
+   place des fiches qui n'ont pas encore la leur, et il porte la version du
+   graphe comme tout ce que `ui/` charge (lot 75). */
+const DOS_DE_CARTE = "./assets/arcana/back.jpg?v=21";
+
+/* ══ LES VRAIES IMAGES DE FICHE — la première est arrivée le 2026-08-16 ═════
+   ⭐ LE CHEMIN SE DÉDUIT DE L'ID, IL NE SE DÉCLARE PAS. Une table
+   `{ wizard: "…/wizard.webp" }` serait une seconde liste à tenir d'accord avec
+   le dossier ; ici, poser `mago.webp` dans `assets/fiches/` suffit à ce que la
+   fiche le prenne. ⛔ Et l'absence n'est PAS une erreur : tant que le fichier
+   n'existe pas, `onerror` repose le dos de carte — les onze autres classes ne
+   voient aucune différence.
+   📏 LA COTE MESURÉE, pour les suivantes : le plus grand rendu de l'image est
+   **173 × 296 px CSS**, en paysage, et il est PLAFONNÉ (identique à 1024, 1366
+   et 1440 de large, parce que la dalle est bornée à 440 de haut). Une source de
+   **520 × 890** couvre donc les écrans ×3 ; ×2 n'en demande que 346 × 592.
+   🔴 ET LE POIDS SE COMPTE PAR ÉCRAN, PAS PAR IMAGE : les DOUZE fiches se
+   chargent ensemble. À 150 Ko pièce on ouvre l'écran avec 1,8 Mo. Le WebP à
+   qualité 82 rend cette illustration en **49 Ko** là où le PNG-24 en demande
+   399 — mesuré sur le fichier d'Eric, pas supposé. */
+const IMAGES_DE_FICHE = "./assets/fiches";
+function imageDeFiche(id) {
+  return `${IMAGES_DE_FICHE}/${String(id).split(":").pop()}.webp${versionQuery(import.meta.url)}`;
+}
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -103,7 +123,8 @@ export function renderClassCardBody(query, id) {
        une classe sans `fiche_infos` n'aurait pas de bande, et sa fiche
        centrerait son blurb toute seule. */
     infos: data.fiche_infos,
-    image: DOS_DE_CARTE,
+    image: imageDeFiche(id),
+    imageSecours: DOS_DE_CARTE,
     imageAlt: ""
   });
 }
