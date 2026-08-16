@@ -842,8 +842,13 @@ test("🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES — c'est
        racine (Eric, 2026-08-16). Ce que les quatre pages partagent est ce qui
        est en dessous, et c'est ça que ce test garde. */
     assert.equal(node.querySelectorAll(".ability-methodes").length, 0, `${id} : le sélecteur est resté à la racine`);
-    assert.equal(node.querySelectorAll(".ability-page-titre")[0].textContent,
-      ABILITY_ENTRIES.find((e) => e.id === id).label, `${id} : la page dit de quelle méthode elle est`);
+    /* ⭐ LE TITRE EST DANS LA DALLE, PAS AU-DESSUS (Eric, 2026-08-17) — et
+       c'est cette APPARTENANCE que le test garde, pas seulement le mot : on
+       le cherche SOUS l'organe, sinon un titre qui ressortirait dans le vide
+       repasserait vert. */
+    const organe = node.querySelectorAll(".ability-organe")[0];
+    assert.equal(organe.querySelectorAll(".ability-dalle-titre")[0].textContent,
+      ABILITY_ENTRIES.find((e) => e.id === id).label, `${id} : la dalle dit de quelle méthode elle est`);
     assert.equal(node.querySelectorAll(".ability-organe").length, 1, `${id} : un organe`);
     assert.ok(vivier(node), `${id} : un vivier`);
     assert.equal(node.querySelectorAll(".ability-collecteur").length, 1, `${id} : un collecteur`);

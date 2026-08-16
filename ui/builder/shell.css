@@ -1094,12 +1094,19 @@ button { font: inherit; }
   text-wrap: balance;
 }
 
-/* LE TITRE D'UNE PAGE DE MÉTHODE — sans le sélecteur au-dessus, c'est la
-   seule chose qui replace le joueur après un `BACK`. Le libellé est celui du
-   croquis (`FH 3D6`, `4D6`, `ARRAY`, `FREE`), jamais un id. */
-.ability-page-titre {
-  margin: 0 0 var(--sp-12);
-  font-size: var(--t6); line-height: 1.15;
+/* ══ LE TITRE D'UNE DALLE — UN SEUL, POUR LES DEUX ═══════════════════════
+   Eric, 2026-08-17 : *« Free doit être en titre de la première dalle et à
+   l'intérieur, pas en dehors et au-dessus »*. Le nom de la méthode flottait
+   sur le fond, entre la ceinture et la dalle ; il est maintenant DANS elle.
+
+   ⭐ ET LA MÊME RÈGLE SERT LES DEUX TITRES DE LA PAGE (`FREE` et `Drag and
+   drop here`). Deux dalles voisines qui se titrent de deux façons divergent
+   au premier réglage — c'est la même loi que la hauteur unique des grilles au
+   lot 79 : un nombre écrit deux fois est deux nombres. */
+.ability-dalle-titre {
+  margin: 0 0 var(--sp-8);
+  font-size: var(--t2); line-height: 1.2; letter-spacing: .06em;
+  text-transform: uppercase; font-weight: 600;
   color: var(--text); text-align: center;
 }
 
@@ -1283,6 +1290,33 @@ button { font: inherit; }
    donc l'organe (dalle FF2, hauteur de son contenu, mesure de l'écran) qui
    la porte — plus de fenêtre à elle. */
 .fs-rangee[data-pool="inepuisable"] { --fs-colonnes: 4; margin-bottom: 0; }
+/* ⛔ LA PALETTE N'A PLUS D'ÎLOTS VISIBLES (Eric, 2026-08-17 : *« tu enlèves
+   tous les quadrillages dans les deux dalles »*). Seize petites boîtes en
+   4 × 4 SONT un quadrillage : elles dessinaient une grille sur la dalle, et
+   le fond de verre suffit à porter les dés.
+   🔴 BORNÉ À LA PALETTE, DÉLIBÉRÉMENT : les trois autres méthodes posent leur
+   vivier en RANGÉE d'îlots (six dés sur une ligne), où la boîte ne quadrille
+   rien et sert de case d'atterrissage visible — c'est là que le retour
+   `[data-vise]` de la rangée se lit. Retirer la boîte partout aurait réglé
+   quatre écrans pour une phrase qui en vise un.
+
+   ⭐ ET LES DÉS SE RAPPROCHENT, PARCE QUE LA BOÎTE ÉTAIT CE QUI LES ÉCARTAIT
+   (Eric, 2026-08-17 : *« si ça peut rapprocher les dés les uns des autres
+   encore mieux »*). Mesuré à 375 : chaque colonne faisait **82,75 px** pour un
+   dé de **48** — 35 px de vide par colonne, parce que `1fr` étire les colonnes
+   sur toute la largeur de la dalle. Tant que la boîte était peinte, ce vide se
+   lisait comme une case ; sans elle, il ne se lit plus que comme de la
+   distance.
+   🔴 LES COLONNES PRENNENT DONC LA COTE DU DÉ, et la grille se centre : 4 × 48
+   + 3 écarts, au milieu de la dalle, au lieu de quatre colonnes étirées. ⛔ Le
+   dé ne change pas de taille — il était DÉJÀ à son plafond de 48, c'est le
+   vide autour qui part. */
+.ability-palette .fs { background: none; box-shadow: none; padding: 0; }
+.ability-palette {
+  grid-template-columns: repeat(var(--fs-colonnes), var(--fs-de-max));
+  justify-content: center;
+  gap: var(--sp-8);
+}
 .fs {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-2);
@@ -1435,7 +1469,14 @@ button { font: inherit; }
   width: 46px;
   z-index: 50; pointer-events: none;
   line-height: 0;
-  scale: 1.15;
+  /* 🔴 AUCUN `scale:` ICI, ET C'EST UNE CORRECTION MESURÉE (2026-08-17).
+     Les propriétés `translate`/`rotate`/`scale` se composent AVANT la
+     propriété `transform` : une échelle posée ici multiplierait la
+     translation que le JS écrit, et le fantôme dériverait de sa cible à
+     mesure qu'on va vers la droite de l'écran (mesuré : centre à
+     `1,15·x − 42,55`, donc À DROITE du doigt passé x ≈ 284).
+     L'agrandissement de 1,15 vit dans le même `transform` que la position
+     (`fantomeBouger`), exactement comme au banc `ilots-lab.html`. */
   filter: drop-shadow(0 6px 10px var(--scrim));
   transform-origin: center;
 }
@@ -1449,10 +1490,18 @@ button { font: inherit; }
      séparation : deux tuiles de verre bordées, et le fond qui passe entre. */
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
-.ability-collecteur-titre {
-  margin: 0 0 var(--sp-8);
-  font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
-  color: var(--text); font-weight: 600; text-align: center;
+/* ⛔ `.ability-collecteur-titre` A DISPARU — les deux dalles de la page
+   partagent `.ability-dalle-titre`. La règle vivait ici en double depuis que
+   le titre de méthode est entré dans sa dalle ; elles étaient déjà identiques
+   à un `line-height` près, ce qui est exactement la façon dont deux règles
+   jumelles commencent à diverger. */
+
+/* ⭐ LE PIED DE LA COQUILLE, ACCUEILLI DANS LA DALLE (Eric, 2026-08-17 :
+   *« Back et Done vont en dessous du texte “Drag a die onto an ability” »*).
+   La dalle porte déjà sa gouttière de 8 : le rembourrage latéral du pied
+   ferait double emploi et rentrerait les boutons de 16 px de plus. */
+.ability-collecteur > .sortie {
+  padding: var(--sp-12) 0 var(--sp-4);
 }
 
 /* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
@@ -2252,13 +2301,23 @@ button { font: inherit; }
 .ability-creneau .fs-de {
   width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
 }
-/* ⭐ UN CARRÉ DE LA TAILLE DU DÉ, ET RIEN ÉCRIT DEDANS (Eric, 2026-08-16).
-   Le rembourrage laisse la cible respirer dans son carré ; le carré, lui, a la
-   cote du dé qui viendra s'y poser — c'est ce qui fait qu'on voit la place. */
+/* ⭐ LA CIBLE GARDE SA PLACE, ELLE PERD SON CADRE (Eric, 2026-08-17 :
+   *« tu enlèves tous les quadrillages dans les deux dalles »*).
+   ⚠️ CE QUE ÇA REVIENT SUR : le 2026-08-16, Eric demandait *« un carré avec
+   une cible de la taille du dé »*. Le carré POINTILLÉ était ce carré-là — six
+   d'entre eux alignés faisaient précisément le quadrillage qu'il retire
+   aujourd'hui. La demande plus récente l'emporte ; ce qui disait « dépose
+   ici » reste, c'est **le dessin de la cible**, pas la boîte autour.
+   🔴 LA BORDURE RESTE DÉCLARÉE, EN TRANSPARENT, ET CE N'EST PAS UN RESTE :
+   c'est elle qui s'allume sous le doigt (`[data-vise]`). Sans elle, viser
+   n'aurait plus AUCUN retour ; en la retirant vraiment, l'allumage décalerait
+   tout d'un pixel au moment le plus mouvant du geste.
+   📌 Le rembourrage et la cote ne bougent pas : le carré reste de la taille du
+   dé qui viendra s'y poser, c'est ce qui fait qu'on voit la place. */
 .ability-creneau .glisse-cible-vide {
   display: block; height: auto;
   padding: var(--sp-8);
-  border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+  border: 1px solid transparent; border-radius: var(--radius-md);
   color: var(--text); opacity: .55;
 }
 /* LE BONUS, SOUS LE CARRÉ ET À L'EXTÉRIEUR — il n'apparaît qu'avec un dé

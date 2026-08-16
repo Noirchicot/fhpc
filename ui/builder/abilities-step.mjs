@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=71";
-import { renderTray } from "./abilities-tray.mjs?v=71";
-import { armerJeton } from "./glisser.mjs?v=71";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=71";
-import { createDieHost, mount } from "./dice3d.mjs?v=71";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=71";
+import { markPressed } from "./carnet.mjs?v=73";
+import { renderTray } from "./abilities-tray.mjs?v=73";
+import { armerJeton } from "./glisser.mjs?v=73";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=73";
+import { createDieHost, mount } from "./dice3d.mjs?v=73";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=73";
 
 export { rollAbilitySet };
 
@@ -343,29 +343,36 @@ function poserUnDe(hote, valeur, taille, index) {
    feuille. Il ne porte AUCUNE couleur, AUCUNE taille, AUCUN corps — rien de
    ce que le garde 7 des jetons protège. Le décor du fantôme (l'ombre portée,
    l'agrandissement) vit, lui, dans `shell.css`. */
-/* ══ LE DÉCALAGE — Eric, 2026-08-16 (le soir) ════════════════════════════
-   *« le fantôme du dé doit apparaître au-dessus et à gauche de mon doigt. Et
-   c'est ce même fantôme que je dois placer dans la cible, pas mon doigt »*.
+/* ══ LA POSE DU FANTÔME — celle du banc, à l'octet (Eric, 2026-08-17) ═════
+   *« positionne le fantôme comme dans ce dice lab »* → `ilots-lab.html`.
 
-   🔴 LE FANTÔME CENTRÉ ÉTAIT INVISIBLE, et c'est exactement ce que le lot 79
-   avait prévu en refusant le fantôme : *« sous un pouce, un fantôme est de
-   toute façon caché par le doigt »*. La note avait raison sur le fait et tort
-   sur la conclusion — on ne renonce pas au fantôme, on le sort de sous le
-   doigt.
+   🔴 CE QUI ÉTAIT CASSÉ N'ÉTAIT PAS LE DÉCALAGE, C'ÉTAIT LA COMPOSITION, et
+   c'est **mesuré** dans le navigateur, pas déduit. La feuille portait
+   `scale: 1.15` comme PROPRIÉTÉ INDIVIDUELLE, et `transform: translate(…)`
+   à côté. Or CSS Transforms 2 compose `translate` · `rotate` · `scale`
+   individuels PUIS la propriété `transform` — le `transform` est donc le plus
+   INTERNE, et il se fait multiplier par l'échelle.
+   📐 Mesuré : une boîte de 46 à `scale: 1.15` + `transform: translate(100, 200)`
+   pose son centre à **(138, 253)**, pas à (123, 223). La translation vaut
+   115/230, jamais 100/200.
+   ⛔ CONSÉQUENCE, ET ELLE EXPLIQUE CE QU'ERIC A VU : le centre tombait à
+   `1,15·x − 42,55`. À gauche de l'écran le dé partait 27 px trop loin ; passé
+   x ≈ 284 il repassait **À DROITE du doigt** — l'exact contraire de ce qui
+   avait été demandé. Un décalage qui DÉRIVE avec la position ne se lit pas
+   comme un décalage, il se lit comme un dé qui glisse.
 
-   📐 LA COTE, ET ELLE SE CALCULE. La boîte fait `FS.fantome` (46), la feuille
-   l'agrandit de 1,15 → le dé VU fait 52,9, donc 26,5 du centre à son coin.
-   Pour que ce coin bas-droit dégage le point de contact, il faut plus que
-   26,5 ; on ajoute une gouttière de 8. Soit **34**, en diagonale haut-gauche.
-   ⚠️ C'EST UN RÉGLAGE, PAS UNE LOI : trop petit, le pouce mange encore le dé ;
-   trop grand, le dé se détache de la main et le geste devient une visée à
-   distance. Un seul nombre à tourner si Eric le sent mal placé.
+   ⭐ LA FORME DU BANC N'A PAS CE DÉFAUT parce qu'elle met TOUT dans le même
+   `transform` : `translate(…) scale(1.15)`. La translation est alors extérieure
+   à l'échelle, donc littérale. C'est la seule raison pour laquelle le banc
+   « tombe plus juste sous le doigt » — pas un réglage plus fin, une composition
+   correcte.
 
-   ⭐ ET IL NE SUFFIT PAS DE LE PEINDRE : le même décalage part au `viseur` de
-   `glisser.mjs`, sans quoi le dé se poserait sur une cible pendant que le
-   doigt en désignerait une autre. Le décor et la visée tiennent le MÊME
-   nombre — c'est la raison pour laquelle il est nommé une seule fois. */
-const FANTOME_DECALAGE = 34;
+   📐 CE QUE LE BANC POSE VRAIMENT, une fois le calcul fait : `demi` y vaut la
+   demi-largeur **rendue** (26,45), pas la demi-boîte (23). Le centre atterrit
+   donc à `x − 3,45` — le fantôme est **très légèrement** en haut à gauche du
+   doigt, de la même façon partout sur l'écran. C'est cette pose-là qu'Eric a
+   jugée bonne à l'usage, et elle se DÉDUIT (jamais un nombre écrit). */
+const FANTOME_ECHELLE = 1.15;
 
 let fantome = null;
 let fantomeDemi = 0;
@@ -399,26 +406,36 @@ function fantomeLever(valeur, x, y) {
      lecture du code, assez pour se sentir au pouce.
      📌 Une seule cote reste recopiée de la feuille : `FS.fantome` (46 px, sa
      largeur — il vit hors de toute colonne, donc il n'hérite d'aucune). */
-  fantomeDemi = FS.fantome / 2;
+  /* ⭐ LA DEMI-LARGEUR EST CELLE DU RENDU, PAS CELLE DE LA BOÎTE — c'est ce
+     que fait le banc (`getBoundingClientRect().width / 2`, qui inclut
+     l'échelle), et c'est ce qui donne sa pose. Ici on la CALCULE au lieu de
+     la mesurer : lire un rectangle à chaque image force un recalcul de mise
+     en page pendant le seul moment de l'écran qui doit être fluide, et on
+     connaît déjà les deux facteurs. */
+  fantomeDemi = (FS.fantome * FANTOME_ECHELLE) / 2;
   document.body.append(fantome);
   fantomeBouger(x, y);
 }
 
-/** Où le CENTRE du fantôme se pose, à partir du point de contact : en haut à
- *  gauche, de `FANTOME_DECALAGE` sur chaque axe. ⭐ Une seule fonction pour
- *  les deux usages — la peinture ci-dessous et la visée passée à
- *  `glisser.mjs` — parce qu'un fantôme et une visée qui divergeraient d'un
- *  pixel rendraient le geste inexplicable. */
+/** Où le CENTRE du fantôme se pose, à partir du point de contact. ⭐ Une
+ *  seule fonction pour les deux usages — la peinture ci-dessous et la visée
+ *  passée à `glisser.mjs` — parce qu'un fantôme et une visée qui
+ *  divergeraient d'un pixel rendraient le geste inexplicable.
+ *  📐 L'écart (3,45 px vers le haut et la gauche) se DÉDUIT de la pose : le
+ *  coin part à `x − demi_rendu`, le centre revient de `demi_boîte`. */
 function fantomeCentre(x, y) {
-  return [x - FANTOME_DECALAGE, y - FANTOME_DECALAGE];
+  const ecart = fantomeDemi - FS.fantome / 2;
+  return [x - ecart, y - ecart];
 }
 
 function fantomeBouger(x, y) {
   if (!fantome || !fantome.style) return;
-  /* La demi-taille place le CENTRE du dé sur le point voulu (jamais son
-     coin) ; le décalage éloigne ce point du doigt. Les deux se composent. */
-  const [cx, cy] = fantomeCentre(x, y);
-  fantome.style.transform = `translate(${cx - fantomeDemi}px, ${cy - fantomeDemi}px)`;
+  /* 🔴 L'ÉCHELLE EST DANS CE `transform`, ET ELLE DOIT Y RESTER — la sortir
+     dans la propriété `scale` de la feuille multiplierait cette translation
+     par 1,15 (mesuré : voir l'en-tête de section). Le banc les tient
+     ensemble ; on les tient ensemble. */
+  fantome.style.transform =
+    `translate(${x - fantomeDemi}px, ${y - fantomeDemi}px) scale(${FANTOME_ECHELLE})`;
 }
 
 /** Les quatre rappels du fantôme, les mêmes pour tout dé armé. */
@@ -579,12 +596,20 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
 /* ══ LE COLLECTEUR — les six cibles, et le pied du croquis ═══════════════
    `DRAG AND DROP HERE`, puis STR DEX CON INT WIS CHA.
 
-   ⛔ LE PIED (`BACK` / `DONE`) N'EST PAS ICI, ET C'EST UNE DÉCISION D'ERIC.
-   Le croquis les dessine dans cette boîte ; §5.1 du mandat dit ce qu'ils
-   sont : *« ils ne sont pas la sortie d'Abilities, ils sont LE PATRON de la
-   sortie d'étape »*. Ils sont donc produits UNE FOIS, par `shell.mjs`
-   (`renderSortieEtape`), et se posent juste sous ce bloc. Les écrire ici en
-   ferait la sortie d'UN écran, et le prochain lot en écrirait une seconde. */
+   ⛔ LE PIED (`BACK` / `DONE`) N'EST TOUJOURS PAS PRODUIT ICI, ET C'EST UNE
+   DÉCISION D'ERIC. §5.1 du mandat : *« ils ne sont pas la sortie d'Abilities,
+   ils sont LE PATRON de la sortie d'étape »*. Un seul producteur,
+   `shell.mjs` (`renderSortieEtape`) — les écrire ici en ferait la sortie d'UN
+   écran, et le prochain lot en écrirait une seconde.
+
+   ⭐ MAIS LE CROQUIS LES DESSINE DANS CETTE BOÎTE, et Eric l'a redit le
+   2026-08-17 : *« Back et Done vont en dessous du texte “Drag a die onto an
+   ability” »*. Ce bloc DÉCLARE donc qu'il les héberge (`data-sortie-ici`) —
+   il ne les fabrique pas. C'est le même partage que `data-scroller="grille"`
+   au lot 79 : **le marqueur est une déclaration, pas une inférence**, et la
+   coquille reste seule à savoir ce qu'est une sortie et quand elle existe.
+   📌 Conséquence voulue : sur la page racine, où la coquille ne produit AUCUNE
+   sortie, ce marqueur ne reçoit rien — il n'y a rien à accorder entre eux. */
 /** LE SYMBOLE DE CIBLE — levé du banc `ilots-lab.html`, à l'octet.
  *  ⛔ Dessiné, jamais un glyphe : un glyphe change de dessin selon la police
  *  installée, et celui-ci doit dire « dépose ici » sur tous les appareils. */
@@ -610,7 +635,10 @@ function renderCibleVide() {
 function renderCollecteur(ctx) {
   const { document: doc, resolved } = ctx;
   const bloc = el("section", "choix-glisse ability-glisse ability-collecteur dalle-intermediaire");
-  bloc.append(el("h3", "ability-collecteur-titre", [text("Drag and drop here")]));
+  /* Le pied de la coquille vient s'accrocher ici, sous la consigne (voir la
+     note de section). Une DÉCLARATION, pas une fabrication. */
+  bloc.dataset.sortieIci = "true";
+  bloc.append(el("h3", "ability-dalle-titre", [text("Drag and drop here")]));
 
   const rangee = el("div", "glisse-creneaux ability-creneaux");
   for (const key of ABILITY_KEYS) {
@@ -999,14 +1027,19 @@ export function renderAbilitiesStep(ctx, onAction) {
      mais un état d'écran se lit, il ne se suppose pas. */
   if (!entry) return section;
 
-  /* ⭐ LA PAGE DIT DE QUELLE MÉTHODE ELLE EST. Sans le sélecteur au-dessus,
-     c'est la seule chose qui replace le joueur après un `BACK` mal visé — et
-     le libellé est celui du croquis, jamais un id. */
-  section.append(el("h2", "ability-page-titre", [text(entry.label)]));
-
   /* ── L'ORGANE : l'explication, et le jet quand il y en a un ────────── */
   const organe = el("section", "ability-organe dalle-intermediaire");
   organe.dataset.methode = entry.id;
+  /* ⭐ LA PAGE DIT DE QUELLE MÉTHODE ELLE EST. Sans le sélecteur au-dessus,
+     c'est la seule chose qui replace le joueur après un `BACK` mal visé — et
+     le libellé est celui du croquis, jamais un id.
+     🔴 DANS LA DALLE, PAS AU-DESSUS (Eric, 2026-08-17 : *« Free doit être en
+     titre de la première dalle et à l'intérieur, pas en dehors et au-dessus »*).
+     Il flottait sur le fond, entre la ceinture et la dalle — un titre posé
+     dans le vide n'appartient à rien de ce qu'il titre. Il porte désormais la
+     MÊME classe que le titre du collecteur : deux dalles de la même page qui
+     se titrent de deux façons se mettraient à diverger au premier réglage. */
+  organe.append(el("h2", "ability-dalle-titre", [text(entry.label)]));
   organe.append(el("p", "ability-organe-mot", [text(explicationDe(entry))]));
   if (entry.mecanique) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES depuis ce lot — trois dés et dix

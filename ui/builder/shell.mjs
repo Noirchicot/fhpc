@@ -19,36 +19,36 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=71";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=71";
-import { mountPopup } from "./popup.mjs?v=71";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=71";
-import { renderConceptStep } from "./concept-step.mjs?v=71";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=71";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=71";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=73";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=73";
+import { mountPopup } from "./popup.mjs?v=73";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=73";
+import { renderConceptStep } from "./concept-step.mjs?v=73";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=73";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=73";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=71";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=71";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=71";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=71";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=71";
+} from "./catalogue.mjs?v=73";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=73";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=73";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=73";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=73";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=71";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=73";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=71";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=71";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=71";
+} from "./destiny-step.mjs?v=73";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=73";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=73";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=71";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=73";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -67,16 +67,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=71";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=71";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=73";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=71";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=71";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=73";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=73";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=71";
+import { versionQuery } from "./version.mjs?v=73";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1520,6 +1520,28 @@ function renderSortieEtape() {
   return el("div", "sortie", [back, done]);
 }
 
+/* ══ OÙ LA SORTIE SE POSE — déclaré par l'écran, produit par la coquille ══
+   Eric, 2026-08-17 : *« Back et Done vont en dessous du texte “Drag a die onto
+   an ability” »* — c'est-à-dire DANS la dalle du collecteur, sous sa consigne,
+   et non sur une bande à part posée sur le fond de la scène.
+
+   🔴 CE N'EST PAS UN ASSOUPLISSEMENT DU GARDE 17, C'EST SA MOITIÉ RESTANTE.
+   Le garde interdit à un écran de PRODUIRE un retour ; il n'a jamais rien dit
+   de l'endroit où le pied de la coquille se pose. Ici l'écran n'écrit ni
+   `BACK` ni `DONE` ni le moindre `pressBack` : il pose un attribut vide et la
+   coquille décide, comme toujours, s'il y a une sortie et ce qu'elle contient.
+   ⭐ Même partage que `data-scroller="grille"` (lot 79) : **le marqueur est une
+   déclaration, pas une inférence**. Un écran qui n'en pose pas garde le pied
+   au bas de la scène, à l'octet — c'est le cas des neuf autres. */
+function poserLaSortie(contenu, sortie) {
+  const noeuds = [contenu, sortie].filter(Boolean);
+  if (!contenu || !sortie || typeof contenu.querySelector !== "function") return noeuds;
+  const hote = contenu.querySelector("[data-sortie-ici]");
+  if (!hote) return noeuds;
+  hote.append(sortie);
+  return [contenu];
+}
+
 /** LE SLOT HORIZONTAL (B0.19) — garni par l'écran qui en a un, vidé pour
  *  les autres. Aujourd'hui : Compétences seul. Le slot PERSISTE, ce qu'un
  *  écran y met peut changer — même loi que le rail. */
@@ -1572,7 +1594,7 @@ function refresh() {
   paintAside();
   paintTopbar();
   paintPopup();
-  swapContent(frame.stage, [renderStepContent(), renderSortieEtape()].filter(Boolean));
+  swapContent(frame.stage, poserLaSortie(renderStepContent(), renderSortieEtape()));
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`

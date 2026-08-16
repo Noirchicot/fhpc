@@ -247,7 +247,13 @@ test("E — shell.mjs remplace le contenu de la fiche PAR swapContent, réelleme
      propriété gardée n'a pas changé d'un pouce : c'est `swapContent` qui
      remplit la fiche, et lui seul. On accepte donc ce qu'on lui passe, sans
      relâcher QUI la remplit. */
-  assert.match(shellText, /swapContent\(frame\.stage,\s*\[renderStepContent\(\)/,
+  /* ⚠️ CIBLE RÉÉLARGIE LE 2026-08-17 : la liste des nœuds passe par
+     `poserLaSortie`, qui décide si le pied d'étape va au bas de la scène ou
+     dans la dalle qui l'a déclaré. La propriété gardée n'a TOUJOURS pas
+     bougé : c'est `swapContent` qui remplit la fiche, et lui seul. On garde
+     donc QUI la remplit, et on cesse de garder la forme de ce qu'on lui
+     passe — c'était le détail, pas la règle. */
+  assert.match(shellText, /swapContent\(frame\.stage,\s*poserLaSortie\(renderStepContent\(\)/,
     "sans cette ligne, la fiche se remplirait par un autre chemin — et la position repartirait à zéro");
 });
 

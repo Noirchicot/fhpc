@@ -289,8 +289,19 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
     "`DONE` doit exister EXACTEMENT une fois, et dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
   assert.match(shellText, /function renderSortieEtape\(\)/,
     "et la paire a un producteur nommé : un écran qui la recopierait en ferait la sortie d'UN écran");
-  assert.match(shellText, /swapContent\(frame\.stage, \[renderStepContent\(\), renderSortieEtape\(\)\]/,
-    "⛔ et elle est réellement POSÉE dans la scène — écrite sans être appelée, elle ne serait qu'un placeholder de plus");
+  /* ⚠️ CE QUE CETTE LIGNE GARDE A CHANGÉ DE FORME LE 2026-08-17, PAS DE FOND.
+     La sortie ne se pose plus toujours au bas de la scène : un écran peut
+     DÉCLARER qu'il l'héberge (`data-sortie-ici`, voir `poserLaSortie`), et le
+     collecteur d'Abilities le fait — le croquis dessine `BACK`/`DONE` dans sa
+     boîte. Ce qui doit rester vrai est ce que le garde visait déjà : elle est
+     PRODUITE ici et RÉELLEMENT POSÉE dans la scène. On garde donc les deux
+     bouts de la chaîne, sans figer l'endroit où elle atterrit. */
+  assert.match(shellText, /swapContent\(frame\.stage, poserLaSortie\(renderStepContent\(\), renderSortieEtape\(\)\)\)/,
+    "⛔ elle est réellement POSÉE dans la scène — écrite sans être appelée, elle ne serait qu'un placeholder de plus");
+  assert.match(shellText, /const hote = contenu\.querySelector\("\[data-sortie-ici\]"\);/,
+    "et l'écran ne fait que DÉCLARER un hôte — il ne fabrique toujours aucune sortie (garde 17)");
+  assert.match(shellText, /if \(!hote\) return noeuds;/,
+    "⛔ un écran qui ne déclare rien garde le pied au bas de la scène : les neuf autres ne bougent pas");
 });
 
 /* ══ 18 / 19 — LES DEUX CHAPITRES DU 2026-08-15, SUR LES OCTETS ══════════
