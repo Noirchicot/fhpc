@@ -1187,10 +1187,19 @@ button { font: inherit; }
    aujourd'hui — chaque dalle a le sien, plus étroit — mais le retirer serait
    décider à la place d'un futur contenu qui, lui, aurait besoin de la largeur
    d'un écran à contrôles (§3e). */
+/* ⭐ ET LE VIVIER ENTRE DANS LA LISTE LE 2026-08-17 — Eric, capture iPad à
+   l'appui : *« je voudrais que les îlots s'alignent verticalement avec les
+   dalles »*. La rangée d'îlots n'est pas une dalle (c'est une file de tuiles
+   posées sur le fond), mais elle vit ENTRE deux dalles et à leur niveau : sans
+   ce plafond elle prenait toute la carte et débordait des deux côtés, si bien
+   que les six îlots ne s'alignaient sur rien.
+   📌 Bord à bord avec les dalles, pas avec leur CONTENU : ce sont des objets
+   du même étage, ils partagent donc la même colonne. */
 .ability-methodes,
 .ability-info,
 .ability-organe,
-.ability-collecteur {
+.ability-collecteur,
+.abilities-step > .fs-rangee {
   max-width: var(--measure);
   margin-inline: auto;
 }
@@ -1295,8 +1304,17 @@ button { font: inherit; }
      rangée le rendait INDÉFINI pour le collecteur, qui n'est pas une rangée :
      voir la note du jeton. */
   display: grid;
-  grid-template-columns: repeat(var(--fs-colonnes), 1fr);
-  gap: var(--sp-4);
+  /* `minmax(0, 1fr)` — même raison qu'au collecteur : `1fr` vaut
+     `minmax(auto, 1fr)`, et une colonne qui ne peut pas descendre sous son
+     contenu vole sa place aux voisines (le détail d'un jet, `6+4+1 → 8`,
+     mesure plus que sa case sur un téléphone). */
+  grid-template-columns: repeat(var(--fs-colonnes), minmax(0, 1fr));
+  /* 📏 8 PARTOUT — Eric, 2026-08-17 : *« je veux des marges de 8 px partout ;
+     je pense que pour les îlots c'est des espacements »*. Il a raison sur le
+     mot : entre des îlots ce n'est pas une marge, c'est l'écart de la grille.
+     Un seul cran (`--sp-8`) sert donc les trois rangées — vivier, palette,
+     collecteur — et le rembourrage des dalles. */
+  gap: var(--sp-8);
   margin: 0 0 var(--sp-12); padding: 0;
   list-style: none;
 }
@@ -1348,16 +1366,15 @@ button { font: inherit; }
    dé ne change pas de taille — il était DÉJÀ à son plafond de 48, c'est le
    vide autour qui part. */
 .ability-palette .fs { background: none; box-shadow: none; padding: 0; }
-.ability-palette {
-  /* 🔴 `minmax(0, …)` ET NON LA COTE SÈCHE : à 80 px, quatre colonnes + trois
-     écarts font 344, soit **plus que les 328 disponibles à 360** et plus que
-     les 343 à 375. Une cote sèche déborderait donc sur le téléphone d'Eric.
-     `minmax(0, plafond)` dit la seule chose vraie : aussi grand que la place
-     le permet, jamais au-delà du plafond. */
-  grid-template-columns: repeat(var(--fs-colonnes), minmax(0, var(--fs-de-max)));
-  justify-content: center;
-  gap: var(--sp-8);
-}
+/* ⛔ LA PALETTE N'A PLUS DE RÈGLE À ELLE POUR SA GRILLE, ET C'EST UN GAIN.
+   Elle portait des colonnes plafonnées à la cote du dé et un centrage — deux
+   déclarations qui la DÉTACHAIENT du bord de sa dalle. Eric veut l'inverse
+   (*« que les îlots s'alignent verticalement avec les dalles »*), et c'est
+   exactement ce que `.fs-rangee` fait déjà : quatre colonnes égales qui
+   remplissent la largeur, écart de 8. Le plafond du dé (`--fs-de-max`) reste
+   posé sur le DÉ, pas sur la colonne — sur un grand écran l'îlot s'étire et
+   le dé se centre dedans, ce qui garde les îlots bord à bord. */
+
 .fs {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-2);
@@ -1453,7 +1470,29 @@ button { font: inherit; }
 .valeur {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-variant-numeric: tabular-nums;
+  /* ══ LA TYPO DU MOTEUR, REPRISE SUR SON PROPRE CHIFFRE ═══════════════
+     Eric, 2026-08-17 : *« remarques-tu que les dés mobiles sont beaucoup plus
+     beaux que les dés statiques ? La typo est beaucoup plus jolie et
+     centrée »*, puis *« écriture plus fine aussi »*.
+
+     🔴 IL COMPARE DEUX CHIFFRES QUI N'ONT JAMAIS EU LE MÊME AUTEUR. Le dé
+     ANIMÉ montre le chiffre du moteur (`.fh-cd-static-die-result`, dans
+     `dice3d.css` : `"Iowan Old Style", Palatino, Georgia, serif`, posé sur la
+     face et incliné avec elle). Le nôtre est un CALQUE — il le fallait : une
+     face de d6 ne sait dire que 1 à 6, et nos scores vont de 3 à 18. Le calque
+     portait la police d'interface en 700, d'où le contraste qu'Eric voit.
+     ⭐ ON REPREND DONC LA FAMILLE DU MOTEUR, à l'octet, LUE dans sa feuille et
+     non réinventée. Le poids descend à 500 — *« plus fine »* — ce qu'un serif
+     supporte là où la sans-serif en 700 s'épaississait.
+     ⛔ CE QU'ON NE REPREND PAS : sa TAILLE (`.324 × le dé`) — Eric a tranché
+     T2 le même jour — ni son ombre portée, qui s'écrit en `rgba()` littéraux
+     que le garde 3 refuse dans cette feuille. Deux manques nommés, pas oubliés.
+     📌 Et sa GÉOMÉTRIE, elle, était déjà juste : le moteur ancre son chiffre à
+     `top: 41 %`, et la mesure au canvas avait donné 41,25 % pour le centre de
+     la face. Deux chemins, un même nombre — le décalage plus bas est confirmé,
+     pas à refaire. */
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-weight: 500; font-variant-numeric: tabular-nums;
   /* ⛔ PAS DE `style.fontSize` AU RENDU (garde 7 des jetons) — le banc s'en
      dispensait, la production non. ⛔ ET PAS DE `calc()` SUR LA LARGEUR DU DÉ
      NON PLUS : le garde 1 n'accepte qu'un barreau de l'échelle, et il a raison
@@ -1670,7 +1709,10 @@ button { font: inherit; }
 .ability-row-final-label { font-size: var(--t1); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
 .ability-row-final-value { font-variant-numeric: tabular-nums; }
 .ability-row-final[data-boosted="true"] .ability-row-final-value { color: var(--accent); font-weight: 600; }
-.ability-cap-warning { font-size: var(--t2); color: var(--critical); }
+/* ⛔ `.ability-cap-warning` EST PARTIE AVEC SON BALISAGE (loi §0.6) — Eric,
+   2026-08-17 : *« enlève partout la mention “> 18 at creation” »*. La RÈGLE
+   reste opposée par le moteur (`decisions.mjs`, hors de 3..18) ; seule sa
+   répétition sous une cible de dépôt de 48 px s'en va. */
 
 /* ── LA SECONDE ÉTAPE DU LOT 45 ──────────────────────────────────────
    ⚠️ AUCUN NOM DE COUCHE ICI, EXPRÈS : `tests/ui-jetons.test.mjs` (test 10)
@@ -2400,7 +2442,7 @@ button { font: inherit; }
      ligne coûte de la hauteur, ce qui est réparable ; un dé écrasé, non. */
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: none;
-  gap: var(--sp-4);
+  gap: var(--sp-8);   /* le cran unique du 2026-08-17 — voir `.fs-rangee` */
 }
 /* ⭐ LA CIBLE EST CARRÉE, EN POINTILLÉ, ET ELLE PORTE UNE CIBLE — la forme du
    banc `ilots-lab`, qu'Eric a validée à l'écran. Le nom au-dessus, la zone de

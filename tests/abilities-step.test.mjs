@@ -378,39 +378,46 @@ test("⭐ LE BONUS APPARAÎT SOUS LE CARRÉ, ET SEULEMENT QUAND UN DÉ EST POSÉ
  *  le test compare une FORME, pas une implémentation. */
 function motDuModAttendu(mod) { return mod >= 0 ? `+${mod}` : String(mod); }
 
-/* ══ 3 — LE PLAFOND DE 18 : DÉCLARÉ, JAMAIS OPPOSÉ, ET SEULEMENT AU NIVEAU 1 */
+/* ══ 3 — LE PLAFOND DE 18 : LA RÈGLE SURVIT, L'AVIS S'EN VA ═════════════
+   Eric, 2026-08-17 : *« enlève partout la mention “> 18 at creation”. Ce sera
+   rappelé plus tard, là ça fait juste moche »*.
 
-test("un score final > 18 affiche une alerte, et le geste PART quand même — l'écran prévient, il ne bloque pas", async () => {
+   🔴 CE GARDE CHANGE DE CAMP, IL NE DISPARAÎT PAS. Il tenait « l'alerte parle
+   au niveau 1, se tait au niveau 5, et ne bloque jamais » ; il tient désormais
+   « l'écran ne dit plus rien ET la règle n'a rien perdu ». Supprimer les deux
+   cas aurait laissé partir la mention SANS jamais vérifier que ce qu'elle
+   annonçait est encore opposé ailleurs — c'est-à-dire en confondant un avis
+   avec la règle qu'il répétait. */
+
+test("⛔ AUCUNE mention de plafond à l'écran, à aucun niveau — l'avis est parti", () => {
+  const un = rebuild(set(fixture.document, "abilities.str", 19));
+  assert.equal(un.resolved.identity.level, 1, "mesure : niveau 1, celui où l'alerte parlait");
+  assert.ok(un.resolved.abilities.str.score > 18, "mesure : le score final dépasse bien 18");
+  const nodeUn = renderAbilitiesStep(
+    ctxFrom(un.document, un, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
+  assert.equal(nodeUn.querySelectorAll(".ability-cap-warning").length, 0, "plus de balise d'alerte");
+  assert.doesNotMatch(nodeUn.textContent, /at creation/, "ni le mot, où qu'il soit sur l'écran");
+});
+
+test("⭐ ET LA RÈGLE, ELLE, REFUSE TOUJOURS — c'est le moteur qui l'opposait, pas l'écran", () => {
+  /* 🔴 LA PREUVE QUE LE RETRAIT NE COÛTE RIEN AU JEU. `decisions.mjs` verrouille
+     `abilities.score-out-of-creation-range` hors de 3..18 : un score de 19 posé
+     à la création reste refusé, exactement comme avant, et l'écran n'y était
+     pour rien (il le disait lui-même : *« alerte seulement »*). */
+  const bornes = CREATION_SCORES;
+  assert.equal(bornes[bornes.length - 1], 18, "la borne haute de création est bien 18, LUE au moteur");
+  assert.ok(!bornes.includes(19), "19 n'est pas une valeur de création offerte");
+});
+
+test("un score final > 18 ne bloque toujours AUCUN geste sur cet écran", async () => {
   const report = rebuild(set(fixture.document, "abilities.int", 18));
   assert.ok(report.resolved.abilities.int.score > 18, "mesure : 18 + boost dépasse déjà 18");
-  assert.equal(report.resolved.identity.level, 1, "mesure : niveau 1 — l'alerte doit donc parler (§2d)");
   const calls = [];
   const node = renderAbilitiesStep(
     ctxFrom(report.document, report, { rollBatch: makeRollBatch([12, 11, 10, 9, 8, 7]) }), (a) => calls.push(a));
-  const cible = creneauPour(node, "int");
-  const alerte = cible.querySelectorAll(".ability-cap-warning")[0];
-  assert.ok(alerte, "l'alerte de plafond s'affiche");
-  assert.match(alerte.textContent, /18/);
-  await glisser(deDuVivier(node, 0), cible);
-  assert.equal(calls.length, 1, "et rien ne bloque : le geste produit bien son action");
+  await glisser(deDuVivier(node, 0), creneauPour(node, "int"));
+  assert.equal(calls.length, 1, "le geste produit bien son action");
   assert.equal(calls[0].kind, "assignAbilityRoll");
-});
-
-test("l'alerte de plafond ne parle qu'au niveau 1 — même score, même carac, rien au niveau 5", () => {
-  const un = rebuild(set(fixture.document, "abilities.str", 19));
-  assert.equal(un.resolved.identity.level, 1);
-  const nodeUn = renderAbilitiesStep(
-    ctxFrom(un.document, un, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.ok(creneauPour(nodeUn, "str").querySelectorAll(".ability-cap-warning")[0],
-    "niveau 1, 19 en FOR : l'alerte parle");
-
-  const cinq = rebuild(withoutHpMaxOverride(set(set(fixture.document, "abilities.str", 20), "level", 5)));
-  assert.equal(cinq.resolved.identity.level, 5, "mesure : le niveau posé est bien repris");
-  assert.ok(cinq.resolved.abilities.str.score >= 20, "mesure : le score final dépasse bien 18 aussi");
-  const nodeCinq = renderAbilitiesStep(
-    ctxFrom(cinq.document, cinq, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(creneauPour(nodeCinq, "str").querySelectorAll(".ability-cap-warning").length, 0,
-    "niveau 5, 20 en FOR : rien — le SRD reprend la main (§2d)");
 });
 
 /* ══ 4 — LE SÉLECTEUR : QUATRE MÉTHODES, ET RIEN N'EST DÉPLIÉ D'AVANCE ═══ */

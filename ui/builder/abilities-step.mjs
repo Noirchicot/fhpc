@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=78";
-import { renderTray } from "./abilities-tray.mjs?v=78";
-import { armerJeton } from "./glisser.mjs?v=78";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=78";
-import { createDieHost, mount } from "./dice3d.mjs?v=78";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=78";
+import { markPressed } from "./carnet.mjs?v=79";
+import { renderTray } from "./abilities-tray.mjs?v=79";
+import { armerJeton } from "./glisser.mjs?v=79";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=79";
+import { createDieHost, mount } from "./dice3d.mjs?v=79";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=79";
 
 export { rollAbilitySet };
 
@@ -212,17 +212,24 @@ function motDuMod(mod) {
   return mod >= 0 ? `+${mod}` : String(mod);
 }
 
-/* ⚖️ LE PLAFOND DE 18 NE PARLE QU'AU NIVEAU 1 (lot 50, §2d) : au-delà, le SRD
-   reprend la main (plafond 20). Le niveau se lit dans `resolved.identity`,
-   jamais recalculé. */
-function renderCapWarning(resolved, key) {
-  if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
-  if (!resolved.identity || resolved.identity.level !== 1) return null;
-  const score = resolved.abilities[key].score;
-  if (typeof score !== "number" || score <= ABILITY_CAP) return null;
-  /* ⛔ Alerte seulement — RIEN n'empêche `onAction` de partir plus haut. */
-  return el("span", "ability-cap-warning", [text(`> ${ABILITY_CAP} at creation`)]);
-}
+/* ⛔ `renderCapWarning` EST PARTIE AVEC SON BALISAGE (loi §0.6) — Eric,
+   2026-08-17 : *« enlève partout la mention “> 18 at creation”. Ce sera
+   rappelé plus tard, là ça fait juste moche »*.
+
+   🔴 CE QUI DISPARAÎT EST L'AVIS, PAS LA RÈGLE, et la différence est entière.
+   Le plafond de 18 à la création (lot 50, §2d — au niveau 1 seulement, le SRD
+   reprenant la main à 20 au-delà) est OPPOSÉ par `validate()` et par le
+   carnet ; cet écran ne faisait que le RÉPÉTER, et il l'avait toujours dit
+   lui-même (*« alerte seulement — RIEN n'empêche `onAction` de partir plus
+   haut »*). Un joueur qui dépasse 18 sera donc arrêté exactement comme avant,
+   simplement pas ici.
+   📐 ET ELLE COÛTAIT PLUS QU'UNE LIGNE : sur un téléphone, `> 18 at creation`
+   sous une case de 48 imposait ~60 px de largeur minimale à SA colonne, qui
+   les volait aux cinq autres — c'est ce qui écrasait cinq dés sur six le
+   2026-08-17. `minmax(0, 1fr)` a réglé la cause générale ; ce retrait enlève
+   le cas qui l'avait révélée.
+   ⏳ Elle « sera rappelée plus tard » : à l'écran qui récapitule, pas sous une
+   cible de dépôt de 48 px. */
 
 /* ══ LA COLONNE « FINAL » — lot 46, inchangée au lot 80 ═══════════════════
    Le défaut d'origine, mesuré à l'écran : la ligne montrait le CHOIX BRUT
@@ -693,8 +700,6 @@ function renderCollecteur(ctx) {
        se met à jour à chaque `rebuild`, c'est-à-dire à chaque dé posé. */
     const final = pose !== null ? renderFinalColumn(resolved, key, valeur, { compact: true }) : null;
     if (final) creneau.append(final);
-    const alerte = renderCapWarning(resolved, key);
-    if (alerte) creneau.append(alerte);
     rangee.append(creneau);
   }
   bloc.append(rangee);
