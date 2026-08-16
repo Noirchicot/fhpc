@@ -1078,6 +1078,34 @@ button { font: inherit; }
    dans les deux thèmes) : cette dalle passe en 50 %, donc son texte ne peut
    PAS rester gris. C'est la règle du §8 de CADRES.md, appliquée. */
 .ability-organe { padding: var(--sp-8); margin-bottom: var(--sp-12); color: var(--text); }
+/* ══ 🔴 L'ORGANE DE `FREE` EST UN FF1 — HAUTEUR IMPOSÉE ═══════════════════
+   Eric, 2026-08-16 : *« la première dalle est une dalle FF1 (elle
+   s'interrompt) »*. C'est le premier utilisateur de ce format : `CADRES.md`
+   §2 ter le listait encore « ⏳ personne ».
+
+   ⭐ CE QUE LE « 1 » VEUT DIRE, ET CE QU'IL ACHÈTE. Une hauteur IMPOSÉE par
+   l'écran, pas par le contenu — donc une boîte qui s'interrompt là où elle a
+   décidé de s'interrompre. `CADRES.md` §3 l'a déjà mesuré ailleurs : *« la
+   cote imposée n'achète pas de la hauteur, elle achète de la RÉGULARITÉ »*.
+   Ici elle achète que le collecteur soit TOUJOURS au même endroit, quelle que
+   soit la longueur de l'explication — un joueur qui revient sur la page
+   retrouve ses six cibles à la même place.
+   ⛔ Et elle vaut `--fiche-h` (440), la cote d'Eric du 15/08, recopiée depuis
+   `fiche.css` où elle vit pour les catalogues : un `1` du même vocabulaire
+   n'invente pas une seconde hauteur.
+   ⚠️ `overflow-y: auto` est la CONSÉQUENCE du 1, pas un choix : une boîte qui
+   impose sa hauteur doit dire ce qu'elle fait de ce qui dépasse. Sans lui, le
+   contenu serait coupé net et silencieusement.
+   ⛔ SCOPÉ À `FREE`, ET SEULEMENT ELLE : l'organe de `FH 3D6` porte le plateau
+   (trois dés, quatre boutons, dix cases) et celui d'`ARRAY` une seule phrase —
+   leur imposer 440 couperait l'un et laisserait l'autre aux trois quarts vide.
+   Ce qui diffère entre les méthodes, c'est ce que l'organe PORTE. */
+.ability-organe[data-methode="free"] {
+  --fiche-h: 440px;   /* la cote d'Eric du 15/08 — recopiée de `fiche.css`, jamais réinventée */
+  height: var(--fiche-h);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .ability-organe-mot { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text); }
 /* Le plateau vit DANS l'organe : il n'a plus sa dalle à lui, sinon deux
    verres se superposeraient et le fond cesserait de traverser. */
@@ -1160,19 +1188,12 @@ button { font: inherit; }
    📌 La leçon vaut au-delà de cet écran : quand un contenu ne tient pas, la
    première question est ce qu'il porte en trop, pas où le faire défiler.
 
-   ⭐ LA FENÊTRE, ELLE, RESTE — une dalle FF2 (pas de menu latéral, hauteur de
-   son contenu) à la mesure de CONCEPT (`--card-w`), et non à celle de l'écran
-   à contrôles (`--panel-w`) : la palette n'a que seize nombres à dire, elle
-   n'a aucune raison de s'étirer sur 88 ch en Large. */
-.ability-palette {
-  max-width: var(--card-w);
-  margin: 0 auto var(--sp-12);
-  padding: var(--sp-8);
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
-  color: var(--text);
-}
-.ability-palette .fs-rangee { margin-bottom: 0; }
-.fs-rangee[data-pool="inepuisable"] { --fs-colonnes: 4; }
+   ⭐ ET ELLE VIT DANS LA BOÎTE DE SON EXPLICATION — le croquis les dessine
+   dans UN SEUL cadre, titré « CHOOSE EXPLICATION ». La phrase explique
+   comment se sert la palette ; séparée d'elle, elle se lit deux fois. C'est
+   donc l'organe (dalle FF2, hauteur de son contenu, mesure de l'écran) qui
+   la porte — plus de fenêtre à elle. */
+.fs-rangee[data-pool="inepuisable"] { --fs-colonnes: 4; margin-bottom: 0; }
 .fs {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-2);

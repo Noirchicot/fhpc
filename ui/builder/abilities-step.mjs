@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=53";
-import { renderTray } from "./abilities-tray.mjs?v=53";
-import { armerJeton } from "./glisser.mjs?v=53";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=53";
-import { createDieHost, mount } from "./dice3d.mjs?v=53";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=53";
+import { markPressed } from "./carnet.mjs?v=56";
+import { renderTray } from "./abilities-tray.mjs?v=56";
+import { armerJeton } from "./glisser.mjs?v=56";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=56";
+import { createDieHost, mount } from "./dice3d.mjs?v=56";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=56";
 
 export { rollAbilitySet };
 
@@ -166,8 +166,11 @@ export const ABILITY_ENTRIES = [
   { id: "4d6", label: "4D6", mecanique: "4d6" },
   {
     id: "standard", label: "ARRAY",
-    blurb: "The same six numbers for everyone: 15, 14, 13, 12, 10, 8. No dice, no luck, "
-      + "nothing to explain afterwards."
+    /* ⌨️ LA FORMULATION DU PANNEAU INFO (voir `ROLLING_METHODS` pour la raison
+       complète) : celle-ci est passée sous l'œil d'Eric, ma proposition du
+       mandat non. Les six nombres ne manquent pas — le vivier les MONTRE juste
+       en dessous, et le panneau les répète dans sa colonne de dés. */
+    blurb: "Six numbers, handed to everyone."
   },
   {
     id: "free", label: "FREE",
@@ -650,17 +653,23 @@ function renderSelecteurMethode(actif, infoOuvert, act) {
    millièmes » est une FRACTION du total (0,21 sur 72) ; dit seul, il se lit
    comme trois millièmes DE POINT, ce qui est faux d'un facteur soixante-dix.
    On donne donc la valeur ET la proportion. */
+/* 🔴 AUCUNE RÈGLE N'EST RECOPIÉE ICI — `methode` dit de quelle méthode chaque
+   entrée parle, et sa règle se LIT au même endroit que l'explication de sa
+   page (`explicationDe`). Le panneau et la page se lisent dans le MÊME écran,
+   à un clic l'un de l'autre : deux formulations de la même règle, écrites par
+   la même main, à deux endroits, c'est la divergence que ce dépôt passe son
+   temps à éviter ailleurs. Relevé par l'architecte du lot 79, qui avait les
+   deux textes sous les yeux et a vu qu'ils ne disaient pas la même chose.
+   ⛔ Ce qui reste écrit ici est ce que le panneau SEUL raconte : le
+   commentaire, les chiffres, la chute. Pas la règle. */
 const INFO_METHODES = [
   {
-    titre: "Standard array", des: "15 · 14 · 13 · 12 · 10 · 8",
-    regle: "Six numbers, handed to everyone.",
+    methode: "standard", titre: "Standard array", des: "15 · 14 · 13 · 12 · 10 · 8",
     corps: ["No luck, no regret, and nothing to tell anyone about afterwards. You will play the "
       + "character you meant to play — not the one the dice gave you."]
   },
   {
-    titre: "Fate's Hand", des: "3d6 × 10",
-    regle: "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; "
-      + "your lowest always becomes 8.",
+    methode: "fh3d6", titre: "Fate's Hand", des: "3d6 × 10",
     corps: ["On average it lands exactly where the array lands — 71.8 against 72.0 — but you rolled "
       + "for it. A 14 is promised, an 8 is owed, and nothing caps the top: one character in "
       + "twenty-two rolls an 18."],
@@ -668,12 +677,18 @@ const INFO_METHODES = [
       + "house's commission. A casino has to pay for itself somehow; call it the price of the thrill."
   },
   {
-    titre: "Four dice, six times", des: "4d6 × 6, drop the lowest",
-    regle: "Roll four dice six times, drop the lowest die each time.",
+    methode: "4d6", titre: "Four dice, six times", des: "4d6 × 6, drop the lowest",
     corps: ["The most generous method, and the least fair. Half of these characters have no real "
       + "weakness at all — and some end up plainly worse off than the array would have made them."]
   }
 ];
+
+/** La règle d'une méthode, LUE là où sa page la lit. Une seule chaîne, deux
+ *  surfaces — elles ne peuvent plus diverger sans qu'on le fasse exprès. */
+function regleDe(methodeId) {
+  const entry = ABILITY_ENTRIES.find((e) => e.id === methodeId);
+  return entry ? explicationDe(entry) : "";
+}
 
 const INFO_TABLEAU = [
   ["Average total", "72.0", "71.8", "73.5"],
@@ -705,7 +720,7 @@ function renderPanneauInfo(act) {
     enTete.append(el("h4", null, [text(methode.titre)]));
     enTete.append(el("span", "ability-info-des", [text(methode.des)]));
     bloc2.append(enTete);
-    bloc2.append(el("p", "ability-info-regle", [text(methode.regle)]));
+    bloc2.append(el("p", "ability-info-regle", [text(regleDe(methode.methode))]));
     for (const paragraphe of methode.corps) bloc2.append(el("p", null, [text(paragraphe)]));
     if (methode.note) bloc2.append(el("p", "ability-info-note", [text(methode.note)]));
     bloc.append(bloc2);
@@ -958,24 +973,16 @@ export function renderAbilitiesStep(ctx, onAction) {
 
   const vivier = renderVivier(glisseCtx);
   if (vivier) {
-    /* ⭐ LA PALETTE DE `FREE` EST UNE FENÊTRE, PAS UNE RANGÉE — Eric,
-       2026-08-16 : *« une fenêtre avec un measure identique à celui de
-       Concept »*, puis *« c'est une dalle FF2 pardon »*. Les seize dés vivent
-       donc dans leur propre dalle, à la mesure de la carte générique
-       (`--card-w`, celle de Concept : 62 ch à l'étroit, 76 en Large) et non à
-       celle de l'écran à contrôles (`--panel-w`, 88 ch en Large — où la
-       palette s'étirerait bien au-delà de ce qu'elle a à dire).
-       ⛔ Les trois autres viviers restent des RANGÉES : six dés sur une ligne
-       n'ont besoin ni d'une fenêtre, ni d'une mesure, ni d'un plafond. Ce qui
-       diffère est ce qui remplit le vivier — et seize valeurs inépuisables,
-       ça se loge. */
-    if (inepuisable) {
-      const fenetre = el("section", "ability-palette dalle-intermediaire");
-      fenetre.append(vivier);
-      section.append(fenetre);
-    } else {
-      section.append(vivier);
-    }
+    /* ⭐ EN `FREE`, LA PALETTE VIT DANS LA BOÎTE DE L'EXPLICATION — le croquis
+       les dessine dans UN SEUL cadre, titré « CHOOSE EXPLICATION », et les
+       seize dés sont dedans. Ce n'est pas cosmétique : la phrase explique
+       comment se sert la palette (*« take any value, as often as you like »*),
+       et une explication séparée de ce qu'elle explique se lit deux fois.
+       ⛔ Les trois autres viviers restent des RANGÉES posées sous leur organe :
+       six dés sur une ligne n'ont besoin ni de cadre ni de mesure. Ce qui
+       diffère est ce qui remplit le vivier — et seize valeurs, ça se loge. */
+    if (inepuisable) organe.append(vivier);
+    else section.append(vivier);
   }
   section.append(renderCollecteur(glisseCtx));
   return section;

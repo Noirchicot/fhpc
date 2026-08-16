@@ -183,8 +183,18 @@ export const ROLLING_METHODS = [
        scores, rien à trier et rien à rattraper (§4.2 du mandat). `kept: true`
        partout n'est donc pas une facilité — c'est la vérité de la mécanique. */
     finir: (jets) => jets.map((jet, index) => ({ ...jet, index, kept: true })),
-    summary: "Six rolls of 4d6 — drop the lowest die of each roll. Nothing is guaranteed here, "
-      + "and nothing is capped."
+    /* ⌨️ LA FORMULATION DU PANNEAU INFO, ET C'EST DÉLIBÉRÉ. La mienne disait
+       « Six rolls of 4d6 — drop the lowest die of each roll. Nothing is
+       guaranteed here, and nothing is capped. » — une PROPOSITION du mandat
+       §5 bis, jamais ratifiée. Celle-ci est celle du panneau, qu'Eric a lue de
+       près (il en a fait corriger une phrase). Entre deux textes d'agent, on
+       garde celui qui est passé sous un œil humain.
+       🔴 Et surtout : le panneau et cette page se lisent dans le MÊME écran, à
+       un clic l'un de l'autre. Deux formulations de la même règle, écrites par
+       la même main, à deux endroits — c'est la divergence que ce dépôt passe
+       son temps à éviter ailleurs. Elles ne sont plus deux : le panneau LIT
+       cette chaîne (`renderPanneauInfo`). */
+    summary: "Roll four dice six times, drop the lowest die each time."
   }
 ];
 

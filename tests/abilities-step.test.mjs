@@ -539,8 +539,12 @@ test("les quatre explications sont DIFFÉRENTES, et celles des dés viennent de 
   /* ⌨️ Celle de FH 3D6 est validée MOT POUR MOT par Eric le 2026-08-16. */
   assert.equal(phrases[0],
     "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; your lowest always becomes 8.");
-  assert.match(phrases[1], /4d6/);
-  assert.match(phrases[2], /15, 14, 13, 12, 10, 8/);
+  /* ⌨️ CELLES DE `4D6` ET `ARRAY` SONT LES FORMULATIONS DU PANNEAU INFO, et
+     c'est délibéré : entre deux textes d'agent, on garde celui qui est passé
+     sous l'œil d'Eric (il a relu le panneau et en a fait corriger une phrase).
+     Les miennes, proposées au mandat §5 bis, n'ont jamais été ratifiées. */
+  assert.equal(phrases[1], "Roll four dice six times, drop the lowest die each time.");
+  assert.equal(phrases[2], "Six numbers, handed to everyone.");
   assert.match(phrases[3], /never runs out/);
 });
 
@@ -628,13 +632,17 @@ test("🔴 `FREE` — seize dés de 3 à 18, et ce sont les valeurs PUBLIÉES pa
      SEUL défilement, comme le socle l'a toujours voulu (B0.21a). */
   assert.equal(vivier(node).dataset.scroller, undefined,
     "aucun second défilement : c'est le contenu qui a maigri, pas le champ qu'on a borné");
-  /* ⭐ ET ELLE VIT DANS UNE FENÊTRE — une dalle FF2 à la mesure de Concept
-     (Eric, 2026-08-16). Les trois autres viviers restent des rangées nues :
-     six dés sur une ligne n'ont besoin ni de fenêtre ni de plafond. */
-  assert.equal(node.querySelectorAll(".ability-palette").length, 1);
+  /* ⭐ ET ELLE VIT DANS LA BOÎTE DE SON EXPLICATION — le croquis les dessine
+     dans UN SEUL cadre (« CHOOSE EXPLICATION »). La phrase explique comment se
+     sert la palette ; séparée d'elle, elle se lit deux fois. */
+  const organe = node.querySelectorAll(".ability-organe")[0];
+  assert.equal(organe.querySelectorAll(".fs-rangee").length, 1,
+    "la palette est DANS l'organe, avec le mot qui l'explique");
+  /* ⛔ Les trois autres viviers restent posés SOUS leur organe : six dés sur
+     une ligne n'ont besoin ni de cadre ni de mesure. */
   const array = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(array.querySelectorAll(".ability-palette").length, 0,
-    "ARRAY n'a pas de fenêtre : ce qui diffère est ce qui REMPLIT le vivier, pas le vivier");
+  assert.equal(array.querySelectorAll(".ability-organe")[0].querySelectorAll(".fs-rangee").length, 0,
+    "ARRAY pose sa rangée sous son organe : ce qui diffère est ce qui REMPLIT le vivier, pas le vivier");
   assert.equal(node.querySelectorAll(".tray").length, 0, "aucun plateau : FREE ne jette rien");
 });
 
@@ -752,12 +760,24 @@ test("le panneau INFO porte les chiffres MESURÉS, et la règle qu'il annonce es
   for (const chiffre of ["71.8", "72.0", "4.5%", "38%", "62%"]) {
     assert.ok(texte.includes(chiffre), `le panneau porte « ${chiffre} »`);
   }
-  /* ⭐ ET LA RÈGLE QU'IL ÉNONCE EST CELLE DE `dice.mjs`, AU MOT PRÈS — deux
-     endroits qui décrivent la même règle finissent par diverger si rien ne les
-     apparie. Ici, l'explication de la méthode EST la phrase du panneau. */
-  const organe = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "fh3d6" }), () => {})
-    .querySelectorAll(".ability-organe-mot")[0].textContent;
-  assert.ok(texte.includes(organe), "la règle du panneau et celle de l'organe sont la MÊME phrase");
+  /* ⭐ ET LES TROIS RÈGLES DU PANNEAU SONT CELLES DES PAGES, AU MOT PRÈS.
+     🔴 ELLES NE L'ÉTAIENT PAS : relevé par l'architecte du lot 79, qui avait
+     les deux textes sous les yeux — `4D6` et `ARRAY` étaient écrites DEUX
+     FOIS, différemment, et le joueur peut avoir les deux surfaces dans le même
+     écran, à un clic l'une de l'autre. C'est la divergence que ce dépôt passe
+     son temps à éviter ailleurs.
+     ⛔ Le remède n'est pas de choisir laquelle gagne, c'est qu'il n'y en ait
+     PLUS QU'UNE : le panneau LIT l'explication de la page (`regleDe`). */
+  for (const id of ["fh3d6", "4d6", "standard"]) {
+    const page = renderAbilitiesStep(
+      ctxFrom(fixture.document, fixture.report, { method: id, rollBatch: lotSansDes(id) }), () => {})
+      .querySelectorAll(".ability-organe-mot")[0].textContent;
+    assert.ok(texte.includes(page),
+      `« ${page} » : la règle du panneau et celle de la page ${id} doivent être la MÊME phrase`);
+  }
+  /* ⚔️ Le témoin : les trois règles du panneau sont bien TROIS, pas une seule
+     recopiée — un `includes` passerait sur du vide. */
+  assert.equal(node.querySelectorAll(".ability-info-regle").length, 3);
 });
 
 /* ══ 9 — L'ENTONNOIR : TROIS ÉTAGES, LES MÊMES POUR LES QUATRE ══════════ */
