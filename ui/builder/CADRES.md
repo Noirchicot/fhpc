@@ -95,12 +95,46 @@ douze classes, les douze espèces, les 22 arcanes).
   centrée (`margin-inline: auto`).
 * **largeur `--card-w`** : `--measure` (62 ch) à l'étroit, **76 ch** en Large.
 
-🔴 **UNE CORRECTION, ERIC (16/08) : « hauteur spécifiée variable à la
-demande » n'est pas ce qui existe.** Aujourd'hui la hauteur d'un F2 est
-**toujours** celle du contenu — aucun écran ne peut lui en imposer une.
-Pouvoir dire *« ce F2-ci fait 300 px »* est une CAPACITÉ À AJOUTER (un jeton
-`--f2-h`, deux lignes), pas une description de l'existant. Tant qu'elle n'est
-pas demandée, elle n'existe pas.
+### ⭐ CE QUE F2 PROMET — Eric, 2026-08-16
+
+> *« Je l'ai conçue pour qu'elle puisse ressembler à une CARTE : marges
+> au-dessus ET en dessous, sur mon portable — donc garanti sur la majorité
+> des portables et des bureaux. »*
+
+**La promesse n'est pas une hauteur, c'est de l'AIR EN HAUT ET EN BAS.** Une
+carte qui touche les deux bords n'est plus une carte, c'est une page. C'est
+donc un **plafond** qu'il faut à F2, jamais une hauteur imposée — et le
+plafond doit compter ce que la carte NE VOIT PAS.
+
+### 📏 LA PROMESSE, MESURÉE LE 2026-08-16 (Concept et Universe)
+
+| écran | champ | Concept | Universe | ressemble à une carte ? |
+|---|---|---|---|---|
+| **375 × 553** — SE debout | 493 | 271 *(air 223)* | 317 *(air 177)* | ✅ |
+| **1280 × 800** — bureau | 740 | 303 *(air 438)* | 349 *(air 392)* | ✅ |
+| **667 × 375** — SE **couché** | 315 | 271 *(air 45)* | **317 → air −1** | 🔴 **non** |
+
+🔴 **LE PIÈGE EST AILLEURS QUE DANS LA CARTE : LA BARRE `VALIDATE` PARTAGE LE
+MÊME CHAMP, ET ELLE PÈSE 76 px.** Le budget réel d'une carte qui garde son air
+n'est donc pas le champ, c'est `champ − 76 − 16`. Couché sur un téléphone,
+cela laisse **223 px** : Concept en demande 255, Universe 301. Les deux
+débordent, et Universe touche même le bas de l'écran (vérifié à l'œil, la
+carte est coupée net par le bord).
+
+⛔ **Ce que ce n'est PAS** : un défaut de contenu. Les deux écrans sont
+sobres. C'est la promesse de F2 qui n'est tenue par aucune règle — elle tient
+aujourd'hui par la chance d'avoir peu à afficher, et elle cède au premier
+écran couché.
+
+⏳ **CE QUI LA RENDRAIT STRUCTURELLE** (non fait, décision d'Eric) : un
+plafond sur la carte — `max-height` = le champ moins la barre moins les
+marges — et le contenu qui défile À L'INTÉRIEUR. La carte garderait alors son
+air sur tout écran, et « variable à la demande » deviendrait vrai dans le seul
+sens qui compte : elle prend ce qu'il lui faut, jamais plus que ce qui la
+laisse ressembler à une carte.
+⚠️ Le prix est connu : un second défilement dans la scène — le même que celui
+des grilles de sorts. Sur ces écrans-là il n'y a aucun glisser, donc aucune
+des complications payées au lot 79.
 
 ## 5. FF1 — *la fiche pleine largeur* · ⏳ Destiny
 
