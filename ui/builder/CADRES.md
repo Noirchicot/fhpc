@@ -17,13 +17,30 @@
 
 ## 0 bis. TROIS DÉCISIONS D'ERIC, 2026-08-16 (après mesure)
 
-1. 🔴 **`Validate` VA DISPARAÎTRE PARTOUT.** Ce n'est pas un réglage : c'est
-   la barre qui pesait **76 px** dans le champ de chaque écran, et c'est elle
-   qui faisait céder la promesse de F2 couché. Toute cote qui la compte
-   deviendra fausse le jour où elle partira. ⏳ **Ce qui la remplace n'est pas
-   décidé** — aujourd'hui `Validate` est le seul passage d'étape, sauf sur les
-   écrans à fiche où `CHOOSE` valide déjà (Ch6). Le jour où elle part, il
-   faudra dire par quoi on avance.
+1. ✅ **`Validate` A DISPARU PARTOUT** — décidé le 16/08, **fait le 16/08**
+   (lot 80, §5.1). Ce n'était pas un réglage : c'est la barre qui pesait
+   **76 px** dans le champ de chaque écran, et qui faisait céder la promesse
+   de F2 couché.
+   ⭐ **CE QUI LA REMPLACE EST TRANCHÉ** : la paire du croquis, `BACK` à
+   gauche et `DONE` à droite, produite UNE FOIS par la coquille
+   (`renderSortieEtape`, shell.mjs) — les dix écrans en héritent du même
+   geste. `BACK` recule d'un **palier** quand il y en a un, d'une **étape**
+   sinon : c'est ce qui réconcilie I.5 (*« la molette remplace Back »*, vrai
+   entre étapes) avec le lot 79 §4.1 bis (*« un sous-écran de palier n'a
+   aucune ceinture, donc aucun retour »*). Les deux gardes correspondants (16
+   et 17) ont été RÉÉCRITS à cette vérité, jamais désarmés.
+   ⛔ Les écrans à fiche restent l'exception qu'ils étaient (Ch6) : `CHOOSE`
+   valide chez eux, et le pied ne s'y pose qu'au 2ᵉ palier.
+   📏 **ET LA COTE DE 76 px NE BOUGE PAS** — mesuré après la bascule, à 375 :
+   le pied fait toujours **76 px** de haut. Deux boutons côte à côte coûtent
+   ce qu'un seul coûtait ; le budget de F2 (`champ − 76 − 16`) reste donc
+   valable tel quel, et le §4 plus bas n'a pas à être recalculé.
+   🔴 Ce qui a changé, en revanche, et qui était un DÉFAUT antérieur : ce pied
+   n'avait aucune gouttière latérale — il touchait les deux bords de l'écran
+   pendant que la carte au-dessus gardait ses 8 px (§2 bis : *« les marges
+   sont sur LES QUATRE CÔTÉS, systématiquement »*). Un seul bouton aligné à
+   droite le cachait à moitié ; la paire l'a rendu visible des deux côtés.
+   Corrigé au même cran que la carte.
 2. ✅ **Le téléphone COUCHÉ n'est pas une cible.** Eric, mot pour mot : *« mon
    petit portable en mode paysage on s'en fout »*. Une cote qui ne tient que
    là ne bloque plus rien — et le seul endroit où F2 cédait était là.
@@ -33,8 +50,15 @@
    qu'en urgence oui, sinon non. »* — et c'est exactement ce que fait un
    `max-height` : il ne se voit pas tant que le contenu tient, il ne mord que
    quand la carte allait déborder. Rien à inventer pour obtenir ce
-   comportement, il est natif. ⏳ Non posé pour autant : plus personne ne
-   déborde une fois `Validate` partie et le paysage hors cible.
+   comportement, il est natif. ⏳ Non posé pour autant.
+   🔴 **ET LA RAISON QUI ÉTAIT ÉCRITE ICI ÉTAIT FAUSSE, VÉRIFIÉE LE 16/08 :**
+   *« plus personne ne déborde une fois `Validate` partie »* supposait que son
+   départ RENDAIT ses 76 px. Il ne rend rien — la paire `BACK`/`DONE` qui la
+   remplace pèse **exactement les mêmes 76 px** (mesuré après la bascule). Le
+   budget de F2 est inchangé, et le cas qui débordait déborderait encore.
+   ⭐ Ce qui le retire réellement du chemin, c'est la décision **2** ci-dessus
+   — le téléphone couché n'est pas une cible — et elle seule. Une prédiction
+   qui se vérifie doit être vérifiée : celle-ci ne tenait pas.
 
 ## 0. LA CONSTANTE, ET ELLE EST AU-DESSUS DE TOUT
 
@@ -224,8 +248,11 @@ plafond doit compter ce que la carte NE VOIT PAS.
 | **1280 × 800** — bureau | 740 | 303 *(air 438)* | 349 *(air 392)* | ✅ |
 | **667 × 375** — SE **couché** | 315 | 271 *(air 45)* | **317 → air −1** | 🔴 **non** |
 
-🔴 **LE PIÈGE EST AILLEURS QUE DANS LA CARTE : LA BARRE `VALIDATE` PARTAGE LE
-MÊME CHAMP, ET ELLE PÈSE 76 px.** Le budget réel d'une carte qui garde son air
+🔴 **LE PIÈGE EST AILLEURS QUE DANS LA CARTE : LA SORTIE D'ÉTAPE PARTAGE LE
+MÊME CHAMP, ET ELLE PÈSE 76 px.** ⚠️ *C'était `Validate` quand ce relevé a été
+pris ; c'est la paire `BACK`/`DONE` depuis le lot 80 — et le pied fait toujours
+76 px, re-mesuré après la bascule (§0 bis). Le budget ci-dessous n'a donc pas
+bougé d'un pixel, seul le nom de ce qui l'occupe a changé.* Le budget réel d'une carte qui garde son air
 n'est donc pas le champ, c'est `champ − 76 − 16`. Couché sur un téléphone,
 cela laisse **223 px** : Concept en demande 255, Universe 301. Les deux
 débordent, et Universe touche même le bas de l'écran (vérifié à l'œil, la
@@ -237,7 +264,7 @@ aujourd'hui par la chance d'avoir peu à afficher, et elle cède au premier
 écran couché.
 
 ⏳ **CE QUI LA RENDRAIT STRUCTURELLE** (non fait, décision d'Eric) : un
-plafond sur la carte — `max-height` = le champ moins la barre moins les
+plafond sur la carte — `max-height` = le champ moins le pied moins les
 marges — et le contenu qui défile À L'INTÉRIEUR. La carte garderait alors son
 air sur tout écran, et « variable à la demande » deviendrait vrai dans le seul
 sens qui compte : elle prend ce qu'il lui faut, jamais plus que ce qui la
