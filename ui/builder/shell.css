@@ -1077,7 +1077,41 @@ button { font: inherit; }
    🔴 SUR DU VERRE, SEULE `--text` TIENT LES 4,5:1 (`tests/decor.test.mjs`,
    dans les deux thèmes) : cette dalle passe en 50 %, donc son texte ne peut
    PAS rester gris. C'est la règle du §8 de CADRES.md, appliquée. */
-.ability-organe { padding: var(--sp-8); margin-bottom: var(--sp-12); color: var(--text); }
+/* 🔴 LA SÉPARATION ENTRE LES DEUX DALLES — Eric, 2026-08-16, deux fois :
+   *« comment on fait pour imposer une marge en dessous et faire une nouvelle
+   dalle en dessous »*, puis *« j'ai demandé une séparation entre dalle 1
+   et 2 »*. La première fois j'ai expliqué le mécanisme sans poser la marge.
+
+   📏 CE QUE 12 px DONNAIENT, ET POURQUOI ÇA NE SUFFISAIT PAS. Les deux dalles
+   portent le MÊME voile (50 %) et se touchaient à un écart de `--sp-12`. Sur
+   un fond sombre, 12 px de fond entre deux verres identiques ne se lisent pas
+   comme une frontière : l'œil voit une seule surface qui continue, et les
+   122 px de vide du FF1 achèvent de les souder.
+   ⭐ À `--sp-24`, l'écart devient un INTERVALLE : on voit le fond passer
+   entre les deux, donc on voit qu'il y a deux objets. C'est la même logique
+   que l'air d'une carte (CADRES.md §4) — une dalle qui touche sa voisine
+   n'est plus une dalle, c'est un morceau de la précédente. */
+.ability-organe {
+  padding: var(--sp-8);
+  margin-bottom: var(--sp-24);
+  color: var(--text);
+  /* 🔴 ET LE LISERÉ EST CE QUI REND LA SÉPARATION VISIBLE — l'écart seul ne
+     suffisait pas, et c'est une mesure : à `--sp-24`, les 24 px existent
+     bel et bien entre les deux dalles, mais elles portent le MÊME voile
+     (50 %) sur un fond sombre. Un ruban de fond sombre entre deux verres
+     sombres ne se lit pas comme une frontière — l'œil voit une seule surface
+     qui continue.
+     ⭐ Le liseré est le remède d'Eric lui-même, déjà dans les jetons : *« le
+     petit liseré argenté autour des dalles, qui donne une sensation de
+     relief »*. Il n'entoure pas la dalle, il ATTRAPE LA LUMIÈRE sur son bord —
+     et c'est exactement ce qui manquait pour qu'on voie DEUX objets. Les
+     îlots FS et la palette le portaient déjà ; ces deux dalles-ci l'avaient
+     oublié.
+     📌 En `inset`, jamais en `border` : un liseré en bordure déplacerait la
+     géométrie de 2 px, et ce fichier a passé une journée à traquer ce genre
+     de dérive. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
 /* ══ 🔴 L'ORGANE DE `FREE` EST UN FF1 — HAUTEUR IMPOSÉE ═══════════════════
    Eric, 2026-08-16 : *« la première dalle est une dalle FF1 (elle
    s'interrompt) »*. C'est le premier utilisateur de ce format : `CADRES.md`
@@ -1351,7 +1385,13 @@ button { font: inherit; }
 
 /* ── ÉTAGE 3 · LE COLLECTEUR — FF2, dalle 50 % ────────────────────────
    `DRAG AND DROP HERE`, puis les six cibles. */
-.ability-collecteur { padding: var(--sp-8); color: var(--text); }
+.ability-collecteur {
+  padding: var(--sp-8);
+  color: var(--text);
+  /* Le même liseré que la dalle du dessus — c'est la paire qui fait la
+     séparation : deux tuiles de verre bordées, et le fond qui passe entre. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
 .ability-collecteur-titre {
   margin: 0 0 var(--sp-8);
   font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
