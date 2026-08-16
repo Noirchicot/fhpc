@@ -628,68 +628,85 @@ test("B5.7 — `ARRAY` : six valeurs, SANS dés, par la MÊME machinerie", () =>
    créneaux portent la même valeur. Le problème n'était pas l'index, c'était de
    le faire pointer vers une palette qui n'en avait pas. */
 
-test("🔴 `FREE` — seize dés de 3 à 18 dans la palette, et SIX créneaux vides à remplir", () => {
-  const lot = freeBatch();
-  assert.equal(lot.rolls.length, 6, "le vivier de FREE part VIDE : six créneaux, pas seize dés");
-  assert.ok(lot.rolls.every((r) => r.total === null), "…et rien n'y est encore posé");
-  assert.equal(lot.palette, true);
-  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), () => {});
+test("🔴 `FREE` — DEUX dalles, et aucune rangée d'îlots entre les deux", () => {
+  /* ✅ REPRIS PAR ERIC LE 2026-08-16 : *« les îlots vont être utiles dans 4D6
+     et 3D6 mais pas ici ; garde ce code et mets-le de côté »*, et *« en
+     dessous du premier îlot il y a un deuxième îlot, et il contient la zone de
+     réception des dés »*. Sa page FREE a DEUX dalles, pas trois.
+     ⭐ Le code des îlots ne bouge pas d'une ligne pour autant : il sert
+     toujours `FH 3D6`, `4D6` et `ARRAY`. Ce n'est pas du code « mis de côté »
+     au sens où il dormirait — il est sur le chemin vivant de trois méthodes
+     sur quatre, et le test du bas le prouve. */
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: freeBatch() }), () => {});
+  assert.equal(node.querySelectorAll(".ability-organe").length, 1, "la dalle FF1");
+  assert.equal(node.querySelectorAll(".ability-collecteur").length, 1, "…et la zone de réception dessous");
+  assert.equal(node.querySelectorAll(".fs-rangee").length, 1,
+    "⛔ UNE seule rangée FS, et c'est la palette — aucune rangée d'îlots entre les deux dalles");
+  assert.equal(node.querySelectorAll(".ability-palette").length, 1);
+
   /* LA PALETTE — seize valeurs, celles PUBLIÉES par le moteur (lot 74), jamais
-     un `for (let i = 3; i <= 18; …)` réécrit dans l'écran. */
+     un `for (let i = 3; i <= 18; …)` réécrit dans l'écran. Et elle vit DANS la
+     dalle FF1, avec le mot qui l'explique (« CHOOSE EXPLICATION »). */
   const palette = node.querySelectorAll(".ability-palette .ability-de-garde");
   assert.equal(palette.length, 16);
   assert.deepEqual(palette.map((j) => j.querySelectorAll(".valeur")[0].textContent), CREATION_SCORES.map(String));
-  /* ⭐ ET ELLE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le croquis
-     les dessine dans UN SEUL cadre (« CHOOSE EXPLICATION »). */
   assert.equal(node.querySelectorAll(".ability-organe")[0].querySelectorAll(".ability-palette").length, 1);
-  /* LE VIVIER — six îlots, tous vides, et ce sont des CIBLES. */
-  assert.equal(ilots(node).filter((i) => i.dataset.vide === "true").length, 6,
-    "six créneaux VIDES sous la palette — les seize îlots de la palette, eux, ne se vident jamais");
-  assert.equal(node.querySelectorAll('.fs[data-creneau]').length, 6,
-    "…et ce sont des CIBLES : c'est là que la palette dépose");
+
+  /* ⚔️ LE TÉMOIN — les trois autres méthodes GARDENT leur rangée d'îlots. */
+  const array = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
+  assert.equal(array.querySelectorAll(".fs-rangee").length, 1);
+  assert.equal(desDuVivier(array).length, 6, "ARRAY pose bien ses six valeurs dans une rangée d'îlots");
 });
 
 test("⭐ §4.4 RÈGLE 1 — LA PALETTE NE S'ÉPUISE PAS : on peut poser 12 trois fois", () => {
   const lot = freeBatch();
   lot.rolls[0].total = 12; lot.rolls[1].total = 12; lot.rolls[2].total = 12;
+  lot.assign = { ...emptyAbilityAssign(), str: 0, dex: 1, con: 2 };
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), () => {});
   assert.equal(node.querySelectorAll(".ability-palette .ability-de-garde").length, 16,
     "⛔ la palette n'a AUCUN état : prendre un 12 n'enlève pas le 12 (§4.4, règle 3)");
-  const vivier6 = node.querySelectorAll(".fs-rangee")[1].querySelectorAll(".valeur").map((v) => v.textContent);
-  assert.deepEqual(vivier6, ["12", "12", "12"], "et les trois créneaux portent bien le même nombre");
+  assert.deepEqual(["str", "dex", "con"].map((k) => deDeLaCible(node, k).querySelectorAll(".valeur")[0].textContent),
+    ["12", "12", "12"], "et trois caractéristiques portent bien le même nombre");
 });
 
-test("⭐ LA PALETTE DÉPOSE DANS UN CRÉNEAU — le seul geste propre à FREE", async () => {
+test("⭐ LA PALETTE POSE DIRECTEMENT SUR UNE CARACTÉRISTIQUE — sans étape intermédiaire", async () => {
   const lot = freeBatch();
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
   const seize = node.querySelectorAll(".ability-palette .ability-de-garde")
     .find((j) => j.querySelectorAll(".valeur")[0].textContent === "16");
-  const creneau = node.querySelectorAll('.fs[data-creneau="creneau-2"]')[0];
-  assert.ok(creneau, "les créneaux du vivier sont des CIBLES en FREE");
-  await glisser(seize, creneau);
-  assert.deepEqual(calls, [{ kind: "abilityCreneau", creneau: 2, value: 16 }]);
+  await glisser(seize, creneauPour(node, "cha"));
+  assert.deepEqual(calls, [{ kind: "abilityFreeDirect", key: "cha", value: 16 }]);
 
-  /* ⛔ ET LE DOCUMENT N'EST PAS TOUCHÉ À CE STADE : composer ses six valeurs
-     n'est pas les affecter. La coquille ne range que dans `state`. */
+  /* ⭐ ET LA COQUILLE FAIT LES DEUX D'UN COUP — le créneau (hors document) ET
+     le `set` ORDINAIRE. `assignAbilityRoll` ne pouvait pas servir : il suppose
+     qu'un dé EXISTE déjà dans le lot, alors qu'ici la valeur NAÎT du geste.
+     ⛔ Aucun champ nouveau pour autant : c'est la saisie manuelle avec la peau
+     du glisser-déposer, comme le §4.4 l'annonçait. */
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  const bloc = shellText.slice(shellText.indexOf('action.kind === "abilityCreneau"'));
-  const corps = bloc.slice(0, bloc.indexOf("return;"));
-  assert.equal(/verbs\.(set|clear)\(/.test(corps), false,
-    "aucun verbe du moteur : le créneau vit hors document et meurt avec le lot");
+  /* ⚠️ On coupe à l'action SUIVANTE, pas au premier `return;` : le bloc en a
+     deux gardes en tête (`if (!lot) return;`), et s'arrêter au premier ne
+     lisait que trois lignes — un garde qui mesure du vide passe toujours. */
+  const bloc = shellText.slice(shellText.indexOf('action.kind === "abilityFreeDirect"'));
+  const corps = bloc.slice(0, bloc.indexOf('action.kind === "abilityLot"'));
+  assert.match(corps, /path: `abilities\.\$\{action\.key\}`, value: action\.value/,
+    "la valeur atteint le document par le `set` ordinaire");
+  assert.match(corps, /ABILITY_KEYS\.indexOf\(action\.key\)/,
+    "📌 le créneau d'une clef est son RANG — chacune a le sien, donc jamais deux sur le même index");
 });
 
-test("⭐ ET LE VIVIER DE FREE NOURRIT LE COLLECTEUR COMME LES TROIS AUTRES", async () => {
-  /* 🔴 LE TEST QUI DIT QUE FREE N'EST PLUS UNE EXCEPTION : une fois ses six
-     valeurs composées, il emploie le MÊME verbe que tout le monde. */
+test("⭐ RECOUVRIR REMPLACE, là où les trois autres ÉCHANGENT (§5.3)", async () => {
+  /* Un ÉCHANGE n'a de sens qu'entre dés en NOMBRE FINI : chacun doit retrouver
+     une place. La palette étant inépuisable, il n'y a rien à rendre — déplacer
+     un dé posé le RECOPIE, et la source garde le sien. */
   const lot = freeBatch();
-  lot.rolls.forEach((r, i) => { r.total = [15, 14, 13, 12, 10, 8][i]; });
+  lot.rolls[0].total = 15;
+  lot.assign = { ...emptyAbilityAssign(), str: 0 };
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  const vivier6 = node.querySelectorAll(".fs-rangee")[1];
-  await glisser(vivier6.querySelectorAll(".ability-de-garde")[0], creneauPour(node, "cha"));
-  assert.deepEqual(calls, [{ kind: "assignAbilityRoll", key: "cha", rollIndex: 0, value: 15 }],
-    "⛔ `assignAbilityRoll`, la forme du lot 50 — FREE n'a plus de verbe à lui");
+  await glisser(deDeLaCible(node, "str"), creneauPour(node, "wis"));
+  assert.deepEqual(calls, [{ kind: "abilityFreeDirect", key: "wis", value: 15 }],
+    "⛔ pas d'`assignAbilityRoll` : en FREE on recopie, on n'échange pas");
 });
 
 test("⛔ AUCUN RETRAIT, DANS AUCUNE MÉTHODE — et le geste d'Eric a changé d'étage", async () => {

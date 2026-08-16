@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=58";
-import { renderTray } from "./abilities-tray.mjs?v=58";
-import { armerJeton } from "./glisser.mjs?v=58";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=58";
-import { createDieHost, mount } from "./dice3d.mjs?v=58";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=58";
+import { markPressed } from "./carnet.mjs?v=60";
+import { renderTray } from "./abilities-tray.mjs?v=60";
+import { armerJeton } from "./glisser.mjs?v=60";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=60";
+import { createDieHost, mount } from "./dice3d.mjs?v=60";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=60";
 
 export { rollAbilitySet };
 
@@ -391,13 +391,24 @@ function gestesDuFantome(valeur) {
    s'éteint. Les deux vérités ne se contredisent pas : elles ne parlent pas de
    la même chose. */
 const RETOUR_VIVIER = "vivier";
-/* Le préfixe des six créneaux du vivier — `FREE` seul les emploie : c'est là
-   que sa palette dépose. Un préfixe plutôt que six noms : l'organe ne rend
-   qu'une chaîne, et l'écran en lit l'index. */
-const CRENEAU_VIVIER = "creneau-";
+/* ⛔ `CRENEAU_VIVIER` A VÉCU UNE HEURE. Il nommait les six créneaux que la
+   palette de `FREE` remplissait, avant qu'Eric ne reprenne : *« les îlots vont
+   être utiles dans 4D6 et 3D6 mais pas ici »*. Sa page n'a que deux dalles, et
+   la palette vise directement la zone de réception. */
 
 function renderVivier(ctx) {
   const { rollBatch } = ctx;
+  /* ⛔ `FREE` N'A PAS DE RANGÉE D'ÎLOTS, ET C'EST ERIC QUI L'A REPRIS —
+     2026-08-16 : *« les îlots vont être utiles dans 4D6 et 3D6 mais pas ici ;
+     garde ce code et mets-le de côté »*. Sa page a DEUX dalles, pas trois : la
+     FF1 (explication + palette) et, dessous, celle qui contient la ZONE DE
+     RÉCEPTION des dés. On glisse de la palette aux caractéristiques, sans
+     étape intermédiaire.
+     ⭐ LE CODE, LUI, NE BOUGE PAS D'UNE LIGNE : cette fonction sert toujours
+     `FH 3D6`, `4D6` et `ARRAY`, qui ont bien six valeurs à poser dans une
+     rangée. Ce n'est pas du code mis « de côté » au sens où il dormirait —
+     il est sur le chemin vivant de trois méthodes sur quatre. */
+  if (ctx.composable) return null;
   const gardes = (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).filter((r) => r.kept);
   if (gardes.length === 0) return null;
 
@@ -413,14 +424,9 @@ function renderVivier(ctx) {
 
   for (const roll of gardes) {
     const item = el("li", "fs");
-    /* ⭐ EN `FREE`, CHAQUE ÎLOT EST UNE CIBLE — c'est là que la palette dépose.
-       Les trois autres méthodes reçoivent leur vivier tout fait ; FREE le
-       COMPOSE, et un créneau qu'on remplit est un créneau qu'on vise. */
-    if (ctx.composable) item.dataset.creneau = `${CRENEAU_VIVIER}${roll.index}`;
-    /* Un créneau VIDE (FREE, avant qu'on y dépose) ou un dé PARTI sur une
-       caractéristique laissent tous deux un trou — et le trou GARDE SA PLACE :
-       la rangée ne se referme pas, sinon les cinq autres bougeraient sous le
-       doigt en plein geste. */
+    /* Un dé PARTI sur une caractéristique laisse un trou — et le trou GARDE SA
+       PLACE : la rangée ne se referme pas, sinon les cinq autres bougeraient
+       sous le doigt en plein geste. */
     const vide = roll.total === null || roll.total === undefined || ctx.tenuPar(roll) !== null;
     item.dataset.vide = String(vide);
     if (vide) {
@@ -431,7 +437,7 @@ function renderVivier(ctx) {
     item.append(renderJetonDe(roll, FS.resolution, {
       chezSoi: true,
       onTap: () => ctx.poserAuPremierLibre(roll),
-      onDepot: (ou) => { if (ou !== RETOUR_VIVIER && !ou.startsWith(CRENEAU_VIVIER)) ctx.poser(ou, roll); }
+      onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
     }));
     rangee.append(item);
   }
@@ -812,8 +818,8 @@ function renderPalette(ctx, act) {
     const item = el("li", "fs");
     const jeton = renderJetonDe({ dice: [], total: valeur, index }, FS.resolution, {
       chezSoi: true,
-      onTap: () => ctx.poserAuPremierCreneauLibre(valeur),
-      onDepot: (ou) => ctx.poserDansCreneau(ou, valeur)
+      onTap: () => ctx.poserAuPremierLibreDepuisPalette(valeur),
+      onDepot: (ou) => ctx.poserDepuisPalette(ou, valeur)
     });
     jeton.setAttribute("aria-label", `${valeur} — take it`);
     item.append(jeton);
@@ -951,15 +957,27 @@ export function renderAbilitiesStep(ctx, onAction) {
     poser(key, roll) {
       act({ kind: "assignAbilityRoll", key, rollIndex: roll.index, value: roll.total });
     },
-    /** LA PALETTE DÉPOSE DANS UN CRÉNEAU — le seul geste propre à FREE. */
-    poserDansCreneau(ou, valeur) {
-      if (typeof ou !== "string" || !ou.startsWith(CRENEAU_VIVIER)) return;
-      act({ kind: "abilityCreneau", creneau: Number(ou.slice(CRENEAU_VIVIER.length)), value: valeur });
+    /** LA PALETTE DÉPOSE DIRECTEMENT SUR UNE CARACTÉRISTIQUE — le seul geste
+     *  propre à `FREE`, et il n'a pas d'étape intermédiaire (Eric, 2026-08-16).
+     *
+     *  ⭐ POURQUOI IL LUI FAUT SON VERBE, ET UN SEUL. `assignAbilityRoll`
+     *  suppose qu'un dé EXISTE déjà dans le lot et qu'on lui donne une clef ;
+     *  ici la valeur naît du geste — elle n'est nulle part avant qu'on la
+     *  lâche. Le shell fait donc les deux d'un coup : il inscrit la valeur
+     *  dans le créneau de cette clef, ET la pose au document par le `set`
+     *  ordinaire. Aucun champ nouveau, aucune règle nouvelle.
+     *  ⛔ ET RECOUVRIR REMPLACE, là où les trois autres ÉCHANGENT (§5.3,
+     *  divergence voulue) : un échange n'a de sens qu'entre dés en nombre
+     *  fini. Ici le vivier est inépuisable, il n'y a rien à rendre. */
+    poserDepuisPalette(ou, valeur) {
+      if (!ABILITY_KEYS.includes(ou)) return;
+      act({ kind: "abilityFreeDirect", key: ou, value: valeur });
     },
-    /** LE TAP DE LA PALETTE : le premier créneau encore vide. */
-    poserAuPremierCreneauLibre(valeur) {
-      const libre = (rollBatch.rolls || []).find((r) => r.total === null || r.total === undefined);
-      if (libre) act({ kind: "abilityCreneau", creneau: libre.index, value: valeur });
+    /** LE TAP DE LA PALETTE : la première caractéristique encore servie par
+     *  aucun dé de cette session. */
+    poserAuPremierLibreDepuisPalette(valeur) {
+      const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
+      if (libre) act({ kind: "abilityFreeDirect", key: libre, value: valeur });
     },
     /** LE TAP : la première caractéristique encore servie par aucun dé. Le
      *  croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
@@ -987,7 +1005,11 @@ export function renderAbilitiesStep(ctx, onAction) {
      *  à rendre (§5.3, divergence voulue n° 1). Sur le vivier, il retire —
      *  en FREE seulement (divergence voulue n° 2). */
     deplacer(key, roll, ou) {
-      if (ou === RETOUR_VIVIER || ou.startsWith(CRENEAU_VIVIER) || ou === key) return;
+      if (ou === RETOUR_VIVIER || ou === key) return;
+      /* ⭐ EN `FREE`, DÉPLACER UN DÉ POSÉ LE RECOPIE : la source garde le sien,
+         la cible reçoit la valeur. C'est la divergence §5.3 — un ÉCHANGE n'a
+         de sens qu'entre dés en nombre fini, et la palette est inépuisable. */
+      if (composable) { glisseCtx.poserDepuisPalette(ou, roll.total); return; }
       glisseCtx.poser(ou, roll);
     },
     consigne: "Drag a die onto an ability · dropping one that is already placed swaps the two"

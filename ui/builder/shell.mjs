@@ -19,32 +19,36 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=58";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=58";
-import { mountPopup } from "./popup.mjs?v=58";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=58";
-import { renderConceptStep } from "./concept-step.mjs?v=58";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=58";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=58";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=60";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=60";
+import { mountPopup } from "./popup.mjs?v=60";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=60";
+import { renderConceptStep } from "./concept-step.mjs?v=60";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=60";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=60";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=58";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=58";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=58";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=58";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=58";
+} from "./catalogue.mjs?v=60";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=60";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=60";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=60";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=60";
+/* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
+   caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
+   recopié : une seconde liste de six clefs finirait par diverger. */
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=60";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=58";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=58";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=58";
+} from "./destiny-step.mjs?v=60";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=60";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=60";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=58";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=60";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -63,16 +67,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=58";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=58";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=60";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=58";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=58";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=60";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=60";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=58";
+import { versionQuery } from "./version.mjs?v=60";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -473,34 +477,41 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* ══ LE SEUL GESTE PROPRE À `FREE` : LA PALETTE DÉPOSE DANS UN CRÉNEAU ══
-     TRANCHÉ PAR ERIC, 2026-08-16, sur son croquis : la rangée de six carrés
-     entre la dalle et le collecteur porte **ses six valeurs choisies**, et la
-     palette les y dépose.
+  /* ══ LE SEUL GESTE PROPRE À `FREE` : LA PALETTE POSE SUR UNE CARAC ═══════
+     TRANCHÉ PAR ERIC, 2026-08-16 : sa page FREE a DEUX dalles — la FF1
+     (explication + palette) et, dessous, celle qui contient la ZONE DE
+     RÉCEPTION. Pas d'étape intermédiaire : on glisse de la palette aux six
+     caractéristiques.
 
-     ⭐ CE QUE ÇA SIMPLIFIE, ET C'EST BEAUCOUP. FREE avait DEUX verbes à lui
-     (`abilityFree`, `abilityFreeRetirer`), une porte à lui (qui comptait les
-     poses au lieu de lire le document) et une carte `assign` qui pointait vers
-     une palette SANS ÉTAT — le piège que le §4.4 du mandat annonçait. Tout
-     ça disparaît : la palette remplit un vivier, le vivier nourrit le
-     collecteur, exactement comme le plateau le fait pour `FH 3D6`. FREE
-     devient la quatrième méthode, plus l'exception.
-     🔴 ET LE PIÈGE DU §4.4 TOMBE DE LUI-MÊME : `assign` associe une clef à un
-     INDEX, et l'index d'un créneau du vivier est parfaitement défini — même
-     quand deux créneaux portent la même valeur. Le problème n'était pas
-     l'index, c'était de le faire pointer vers une palette qui n'en avait pas.
+     ⭐ POURQUOI CE VERBE EXISTE, ET POURQUOI IL EST LE SEUL. `assignAbilityRoll`
+     suppose qu'un dé EXISTE déjà dans le lot et qu'on lui donne une clef ; ici
+     la valeur NAÎT du geste — elle n'est nulle part avant qu'on la lâche. Ce
+     bloc fait donc les deux d'un coup : il inscrit la valeur dans le créneau
+     de cette clef (hors document, il meurt avec le lot) ET la pose au document
+     par le `set` ORDINAIRE, celui que les trois autres méthodes empruntent
+     déjà. Aucun champ nouveau, aucune règle nouvelle — c'est la saisie
+     manuelle avec la peau du glisser-déposer, comme le §4.4 l'annonçait.
 
-     ⛔ AUCUN VERBE DU MOTEUR ICI : ce créneau vit dans `state.abilityRoll`,
-     hors document, et meurt avec lui — comme le lot de dix dés. Le document ne
-     reçoit sa valeur qu'à l'affectation, par le `set` ordinaire que les trois
-     autres méthodes empruntent déjà. */
-  if (action.kind === "abilityCreneau") {
+     ⛔ ET RECOUVRIR REMPLACE, là où les trois autres ÉCHANGENT (§5.3,
+     divergence VOULUE) : un échange n'a de sens qu'entre dés en nombre fini.
+     Ici le vivier est inépuisable, il n'y a rien à rendre.
+     📌 Le créneau d'une clef est son RANG (`str` → 0, `dex` → 1, …) : chaque
+     caractéristique a le sien, donc deux ne peuvent jamais se disputer un
+     index — et le piège du §4.4 (« deux caracs, la même valeur ») ne se pose
+     pas, puisque ce sont deux créneaux distincts. */
+  if (action.kind === "abilityFreeDirect") {
     const lot = state.abilityRoll;
     if (!lot) return;
+    const creneau = ABILITY_KEYS.indexOf(action.key);
+    if (creneau < 0) return;
     state.abilityRoll = {
       ...lot,
-      rolls: lot.rolls.map((r) => (r.index === action.creneau ? { ...r, total: action.value } : r))
+      rolls: lot.rolls.map((r) => (r.index === creneau ? { ...r, total: action.value } : r)),
+      assign: { ...(lot.assign || {}), [action.key]: creneau }
     };
+    state.document = state.engine.build.verbs
+      .set({ document: state.document, path: `abilities.${action.key}`, value: action.value }).document;
+    rebuild();
     refresh();
     return;
   }
