@@ -143,6 +143,35 @@ compétences n'est pas un paragraphe, une rangée de caractéristiques non plus
 (§3e des jetons). Le cadre dit la marge ; c'est l'ÉCRAN qui dit de quelle
 nature est sa largeur.
 
+### 🔴 LA LARGEUR N'EST PAS UNE PROPRIÉTÉ DU FORMAT — question d'Eric, 2026-08-16
+
+> *« C'est normalement la caractéristique d'une FF2, non ? »*, en demandant de
+> plafonner deux dalles à `--measure`.
+
+**NON, ET LE FICHIER INVITAIT LA QUESTION.** Le chiffre du barème ne dit QUE la
+hauteur (§2) ; la lettre ne dit QUE le menu latéral (§1). **Aucun des deux ne
+dit la largeur.** Mais §4 et §6 en annoncent une pour chaque format, et on lit
+naturellement ça comme une règle du format.
+
+📏 **MESURÉ, ET LE DÉMENTI EST NET** : les sept écrans FF2 emploient **trois
+largeurs différentes**.
+
+| FF2 | largeur | pourquoi |
+|---|---|---|
+| Compétences · Équipement | `--grid-w` | une GRILLE |
+| Caractéristiques | `--panel-w` | un écran à CONTRÔLES |
+| Concept · Destinée | `--measure` | de la PROSE |
+
+⭐ **CE QUE LES §4 ET §6 DONNENT EST DONC CE QUE LEUR UTILISATEUR ACTUEL
+EMPLOIE, pas une contrainte du format.** Deux écrans du même format peuvent
+avoir des largeurs différentes sans qu'aucune règle ne soit violée — c'est même
+le cas aujourd'hui, sur le format le plus employé du builder.
+
+📌 **ET `--measure` EST LE SEUL DES TROIS QUI NE BOUGE PAS EN GRANDEUR LARGE**
+(62 ch partout, là où `--card-w` passe à 76 et `--panel-w` à 88). C'est ce qui
+en fait le seul moyen de dire *« la même largeur que Destiny »* et que ce soit
+vrai sur un bureau autant que sur un téléphone.
+
 ## 2 ter. L'ÉTAT DES LIEUX, APRÈS LE BARÈME À DEUX CHIFFRES
 
 | | qui l'emploie |
@@ -248,6 +277,8 @@ latérale »*), et le code lui donne raison.
 
 * **hauteur : celle du contenu** — c'est tout ce qui la sépare de F1.
 * **largeur `--card-w`** : `--measure` (62 ch) à l'étroit, **76 ch** en Large.
+  ⚠️ C'est la largeur de son utilisateur, PAS une propriété du format — voir
+  §2 bis, « la largeur n'est pas une propriété du format ».
 * ⏳ **Personne ne l'emploie, et rien ne l'implémente** : aucun écran du
   builder ne pose sa hauteur aujourd'hui. Ce format est une PLACE RÉSERVÉE.
 
@@ -340,7 +371,8 @@ qui lui est propre.
 
 * **largeur `--grid-w`** — ⚠️ **une TROISIÈME nature de largeur**, ni prose ni
   carte : une grille de compétences n'est pas un paragraphe (§3e des jetons).
-  Elle existe déjà, elle n'a rien à voir avec le format.
+  Elle existe déjà, **elle n'a rien à voir avec le format** — et ce n'est pas
+  une formule : les sept FF2 en emploient trois différentes (§2 bis, mesuré).
 * 🔴 **C'EST UN 2** — sa hauteur est celle de son contenu. Même chose pour
   Universe, Concept, Abilities, Equipment, Review : **tout ce qui n'est pas
   une fiche est un 2 aujourd'hui.**

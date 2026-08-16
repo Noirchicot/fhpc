@@ -1123,6 +1123,38 @@ button { font: inherit; }
    entre les deux, donc on voit qu'il y a deux objets. C'est la même logique
    que l'air d'une carte (CADRES.md §4) — une dalle qui touche sa voisine
    n'est plus une dalle, c'est un morceau de la précédente. */
+/* ══ 📏 LES DEUX DALLES SONT PLAFONNÉES À LA MESURE DE DESTINY ════════════
+   Eric, 2026-08-16 : *« fixe la largeur limite de ces 2 dalles avec --measure,
+   pour que ce soit à la même largeur que Destiny »*.
+
+   ⭐ ET `--measure` EST LE SEUL JETON QUI DONNE VRAIMENT « LA MÊME LARGEUR
+   QUE DESTINY », vérifié plutôt que supposé : `.card-step` (Destiny) le pose
+   directement, et `--measure` vaut **62 ch à TOUTES les largeurs** — il n'est
+   pas rehaussé par le bloc de grandeur Large, contrairement à `--card-w`
+   (76 ch) et `--panel-w` (88 ch). Employer l'un des deux autres aurait donné
+   la même largeur à 360 et une largeur différente sur un bureau, c'est-à-dire
+   exactement là où l'écart se serait vu.
+   📌 À l'étroit, la mesure ne mord pas : 62 ch valent ~625 px pour un champ de
+   344. C'est un plafond de bureau, et il ne se voit que là.
+   ⭐ ET LA RACINE SUIT (Eric, dans la foulée : *« et tu vas aussi le faire sur
+   la page racine »*) : le sélecteur de méthodes et le panneau INFO portent le
+   même plafond. **Les quatre dalles d'Abilities ont donc la largeur de
+   Destiny**, sur les deux pages — sinon la racine et la page d'une méthode
+   n'auraient pas la même carrure, et le passage de l'une à l'autre ferait
+   sauter la mise en page sous les yeux.
+   ⛔ `.abilities-step` garde `--panel-w`, et ce n'est pas une incohérence :
+   ce plafond-là borne l'ÉCRAN, pas ses dalles. Il ne se voit plus nulle part
+   aujourd'hui — chaque dalle a le sien, plus étroit — mais le retirer serait
+   décider à la place d'un futur contenu qui, lui, aurait besoin de la largeur
+   d'un écran à contrôles (§3e). */
+.ability-methodes,
+.ability-info,
+.ability-organe,
+.ability-collecteur {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
 .ability-organe {
   padding: var(--sp-8);
   margin-bottom: var(--sp-24);
