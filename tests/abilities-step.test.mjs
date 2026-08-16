@@ -118,10 +118,24 @@ function valeurDe(creneau) {
 function tuiles(node) { return node.querySelectorAll(".ability-entry"); }
 
 /** LE GESTE DU CROQUIS : on prend un dé, on le lâche sur une cible. Sans
- *  `cible`, c'est un TAP. */
-function glisser(de, cible) {
+ *  `cible`, c'est un TAP.
+ *
+ *  ⚠️ `attendreLeMaintien` — LES DÉS DE LA PALETTE NE SE SOULÈVENT PAS TOUT DE
+ *  SUITE, et c'est le prix du second défilement (lot 79, `MAINTIEN_MS`). Dans
+ *  une grille qui défile, un doigt qui bouge AVANT le soulèvement fait défiler
+ *  la grille et le geste RENONCE — c'est exactement ce qu'on veut, et c'est ce
+ *  que ce fichier a mesuré en rougissant quand la palette est passée en 4 × 4
+ *  plafonnée. Un test qui contournerait l'attente prouverait un geste que
+ *  personne ne peut faire.
+ *  📌 L'attente est RÉELLE (360 ms) plutôt que simulée : `armerJeton` pose un
+ *  `setTimeout` ordinaire, et truquer l'horloge pour trois tests coûterait
+ *  plus de fiction que la seconde qu'on économise. */
+const MAINTIEN_MS = 350;
+
+async function glisser(de, cible, attendreLeMaintien) {
   globalThis.document.elementFromPoint = () => cible || null;
   de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  if (attendreLeMaintien) await new Promise((ok) => setTimeout(ok, MAINTIEN_MS + 10));
   if (cible) de.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
   de.dispatchEvent({ type: "pointerup", clientX: cible ? 40 : 0, clientY: 0, pointerId: 1 });
 }
@@ -213,13 +227,13 @@ test("⚔️ LE TEST QUI PROUVE LE LOT 51 — après une distribution COMPLÈTE,
   }
 });
 
-test("⚔️ L'ÉCHANGE — lâcher sur une cible OCCUPÉE commet le geste que shell.mjs troque", () => {
+test("⚔️ L'ÉCHANGE — lâcher sur une cible OCCUPÉE commet le geste que shell.mjs troque", async () => {
   const assign = { str: 4, dex: 1, con: 2, int: 3, wis: 0, cha: 5 };
   const rollBatch = makeRollBatch([16, 14, 13, 12, 10, 8], assign);
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), (a) => calls.push(a));
   /* Le dé de WIS (index 0, un 16) part sur STR, qui tient déjà le 10. */
-  glisser(deDeLaCible(node, "wis"), creneauPour(node, "str"));
+  await glisser(deDeLaCible(node, "wis"), creneauPour(node, "str"));
   assert.deepEqual(calls, [{ kind: "assignAbilityRoll", key: "str", rollIndex: 0, value: 16 }]);
 
   /* Et voici ce que `shell.mjs` en fait — la logique rejouée à la main, avec
@@ -315,7 +329,7 @@ test("⛔ §5.2 — dans une CIBLE c'est le modificateur FINAL, pas le brut : la
 
 /* ══ 3 — LE PLAFOND DE 18 : DÉCLARÉ, JAMAIS OPPOSÉ, ET SEULEMENT AU NIVEAU 1 */
 
-test("un score final > 18 affiche une alerte, et le geste PART quand même — l'écran prévient, il ne bloque pas", () => {
+test("un score final > 18 affiche une alerte, et le geste PART quand même — l'écran prévient, il ne bloque pas", async () => {
   const report = rebuild(set(fixture.document, "abilities.int", 18));
   assert.ok(report.resolved.abilities.int.score > 18, "mesure : 18 + boost dépasse déjà 18");
   assert.equal(report.resolved.identity.level, 1, "mesure : niveau 1 — l'alerte doit donc parler (§2d)");
@@ -326,7 +340,7 @@ test("un score final > 18 affiche une alerte, et le geste PART quand même — l
   const alerte = cible.querySelectorAll(".ability-cap-warning")[0];
   assert.ok(alerte, "l'alerte de plafond s'affiche");
   assert.match(alerte.textContent, /18/);
-  glisser(deDuVivier(node, 0), cible);
+  await glisser(deDuVivier(node, 0), cible);
   assert.equal(calls.length, 1, "et rien ne bloque : le geste produit bien son action");
   assert.equal(calls[0].kind, "assignAbilityRoll");
 });
@@ -542,13 +556,24 @@ test("🔴 `FREE` — seize dés de 3 à 18, et ce sont les valeurs PUBLIÉES pa
   assert.equal(lot.inepuisable, true);
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), () => {});
   assert.equal(desDuVivier(node).length, 16);
-  /* ⚠️ SIX COLONNES COMME TOUT VIVIER, ET C'EST UNE MESURE QUI L'A IMPOSÉ,
-     pas un goût : à quatre (le croquis), la palette fait 406 px de haut et le
-     collecteur ne peut plus jamais être à l'écran en même temps qu'elle — donc
-     plus aucun glisser possible. Le détail est dans `renderVivier`. */
-  assert.equal(vivier(node).dataset.colonnes, undefined,
-    "la palette ne déclare aucune grille à elle : un vivier qui changerait de FORME selon la méthode serait un second vivier");
-  assert.equal(vivier(node).dataset.pool, "inepuisable", "ce qu'elle déclare, c'est qu'elle ne s'épuise pas");
+  /* ✅ QUATRE COLONNES — le croquis, tranché par Eric le 2026-08-16 (*« je
+     veux 4×4 dés en 3d sur une page F2 »*). Ce qui rend le 4 × 4 tenable est
+     le « 2 » : la palette a sa fenêtre à hauteur libre, plafonnée, et le
+     contenu défile dedans. Sans le plafond, ses 406 px chasseraient le
+     collecteur hors du champ et le glisser deviendrait impossible. */
+  assert.equal(vivier(node).dataset.pool, "inepuisable",
+    "c'est ce mot qui lui donne sa fenêtre — quatre colonnes, un plafond, le défilement dedans");
+  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, il ne se devine pas : sans ce
+     marqueur, un futur `scrollParent` remonterait jusqu'à la scène et ferait
+     voyager tout l'écran pour amener un dé dans le champ. */
+  assert.equal(vivier(node).dataset.scroller, "palette");
+  /* ⭐ ET ELLE VIT DANS UNE FENÊTRE — une dalle FF2 à la mesure de Concept
+     (Eric, 2026-08-16). Les trois autres viviers restent des rangées nues :
+     six dés sur une ligne n'ont besoin ni de fenêtre ni de plafond. */
+  assert.equal(node.querySelectorAll(".ability-palette").length, 1);
+  const array = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
+  assert.equal(array.querySelectorAll(".ability-palette").length, 0,
+    "ARRAY n'a pas de fenêtre : ce qui diffère est ce qui REMPLIT le vivier, pas le vivier");
   assert.equal(node.querySelectorAll(".tray").length, 0, "aucun plateau : FREE ne jette rien");
 });
 
@@ -564,7 +589,7 @@ test("⭐ §4.4 RÈGLE 1 — LA PALETTE NE S'ÉPUISE PAS : prendre un 14 n'enlè
     "et la cible en porte bien une COPIE");
 });
 
-test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la saisie manuelle", () => {
+test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la saisie manuelle", async () => {
   /* §4.4 : la carte `assign` du lot 50 associe une clef à l'INDEX D'UN JET. En
      FREE il n'y a pas de jet, et deux caractéristiques peuvent porter la même
      valeur. ⭐ La sortie existe déjà sans toucher au moteur : `set` sur
@@ -572,7 +597,8 @@ test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la sa
   const lot = freeBatch();
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  glisser(deDuVivier(node, CREATION_SCORES.indexOf(16)), creneauPour(node, "cha"));
+  /* ⛔ AVEC LE MAINTIEN : la palette défile, donc son glisser se mérite. */
+  await glisser(deDuVivier(node, CREATION_SCORES.indexOf(16)), creneauPour(node, "cha"), true);
   assert.deepEqual(calls, [{ kind: "abilityFree", key: "cha", value: 16, rollIndex: CREATION_SCORES.indexOf(16) }]);
   /* Et la coquille le traduit en `set` ordinaire — garde d'octets, faute de
      harnais de rendu sur `shell.mjs`. */
@@ -581,12 +607,14 @@ test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la sa
     "⛔ aucun champ nouveau, aucune règle nouvelle : le même `set` que partout ailleurs");
 });
 
-test("⭐ §5.3 — RAMENER UN DÉ POSÉ SUR LA PALETTE LE DÉTRUIT (et c'est le seul retrait du builder)", () => {
+test("⭐ §5.3 — RAMENER UN DÉ POSÉ SUR LA PALETTE LE DÉTRUIT (et c'est le seul retrait du builder)", async () => {
   const lot = freeBatch();
   lot.assign = { ...emptyAbilityAssign(), wis: CREATION_SCORES.indexOf(12) };
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  glisser(deDeLaCible(node, "wis"), vivier(node));
+  /* ⛔ SANS MAINTIEN, ET C'EST JUSTE : ce dé-ci vit dans une CIBLE, pas dans
+     la palette. Seule la rangée qui défile fait payer le péage. */
+  await glisser(deDeLaCible(node, "wis"), vivier(node));
   assert.deepEqual(calls, [{ kind: "abilityFreeRetirer", key: "wis" }]);
   /* 🔴 ET IL N'EFFACE PAS LE DOCUMENT, parce qu'il ne le PEUT pas : `rebuild()`
      jette si l'une des six valeurs manque (`derive.mjs`, « un score ne se
@@ -599,14 +627,14 @@ test("⭐ §5.3 — RAMENER UN DÉ POSÉ SUR LA PALETTE LE DÉTRUIT (et c'est le
   assert.match(corps, /\[action\.key\]: null/, "il efface la POSE, et rien d'autre");
 });
 
-test("⛔ LES TROIS AUTRES MÉTHODES N'ONT AUCUN RETRAIT, et ce n'est pas un oubli", () => {
+test("⛔ LES TROIS AUTRES MÉTHODES N'ONT AUCUN RETRAIT, et ce n'est pas un oubli", async () => {
   /* `rebuild()` jette si l'une des six manque, et il n'existe aucune action qui
      VIDE une cible sans en remplir une autre (loi du lot 45, tenue depuis). On
      réarrange en posant, jamais en vidant. */
   const rollBatch = makeRollBatch([15, 14, 13, 12, 10, 8], { str: 0, dex: 1, con: 2, int: 3, wis: 4, cha: 5 });
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), (a) => calls.push(a));
-  glisser(deDeLaCible(node, "str"), vivier(node));
+  await glisser(deDeLaCible(node, "str"), vivier(node));
   assert.deepEqual(calls, [], "ramener un dé sur un vivier FINI ne commet rien");
 });
 

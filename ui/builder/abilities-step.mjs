@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=45";
-import { renderTray } from "./abilities-tray.mjs?v=45";
-import { armerJeton } from "./glisser.mjs?v=45";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=45";
-import { createDieHost, mount } from "./dice3d.mjs?v=45";
+import { markPressed } from "./carnet.mjs?v=47";
+import { renderTray } from "./abilities-tray.mjs?v=47";
+import { armerJeton } from "./glisser.mjs?v=47";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=47";
+import { createDieHost, mount } from "./dice3d.mjs?v=47";
 import {
   ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX, abilityModOf
-} from "../../src/build/index.mjs?v=45";
+} from "../../src/build/index.mjs?v=47";
 
 export { rollAbilitySet };
 
@@ -393,25 +393,53 @@ function renderVivier(ctx) {
      sorts : c'est une rangée FS, et elle porte son propre nom. */
   const rangee = el("ul", "ability-des-gardes fs-rangee");
   rangee.dataset.creneau = RETOUR_VIVIER;
-  /* ⚠️ LA PALETTE DE `FREE` A SIX COLONNES COMME TOUT VIVIER, ET C'EST UN
-     ÉCART AU CROQUIS QU'UNE MESURE A IMPOSÉ. Eric dessine seize dés en
-     **quatre rangs de quatre** ; posé ainsi et mesuré dans la page à 375, ce
-     pavé fait **406 px** de haut. Avec le collecteur (243), il demande 649 px
-     pour un champ de 493 : **la source et la cible d'un glisser ne peuvent
-     alors JAMAIS être visibles ensemble**, et `elementFromPoint` ne voit que
-     ce qui est à l'écran — le geste central de la méthode devient
-     impossible, il ne reste que le tap.
-     ⭐ À six colonnes (6 · 6 · 4), la palette tombe à **276** : 519 en tout,
-     26 px de trop seulement, donc la première rangée de cibles reste sous les
-     yeux et le glisser redevient faisable.
-     📌 Et l'écart n'est pas gratuit : le §1 du mandat dit que les quatre
-     méthodes « ne diffèrent que par CE QUI REMPLIT le vivier ». Un vivier qui
-     changerait aussi de forme selon la méthode serait un second vivier.
-     ⏳ **À faire trancher par Eric** : la mesure justifie six, le dessin dit
-     quatre — c'est son dessin. */
+  /* ══ ✅ LA PALETTE EST UN 4 × 4, DANS UNE FENÊTRE À HAUTEUR LIBRE ════════
+     TRANCHÉ PAR ERIC, 2026-08-16 : *« je veux 4×4 dés en 3d sur une page F2 »*
+     — puis, devant mon hésitation : *« sur une page F2 ! »*. Le croquis dit
+     quatre rangs de quatre ; il les garde.
+
+     🔴 ET LE « 2 » EST LA RÉPONSE AU PROBLÈME QUE SIX COLONNES CONTOURNAIT.
+     Mesuré à 375 : un 4 × 4 fait **406 px** de haut, et avec le collecteur
+     (243) il demande 649 px pour un champ de 493. La source et la cible d'un
+     glisser ne seraient JAMAIS visibles ensemble — et `elementFromPoint` ne
+     voit que le champ visible, donc le geste central de la méthode
+     disparaîtrait. J'avais résolu ça en compressant à six colonnes (276 px) ;
+     Eric résout la même chose sans toucher au dessin, en donnant à la palette
+     **sa propre fenêtre à hauteur libre** : un PLAFOND, et le contenu qui
+     défile DEDANS.
+
+     ⭐ C'EST LA PROMESSE DE F2, RENDUE STRUCTURELLE — et `CADRES.md` §4
+     l'annonçait mot pour mot comme ce qui la rendrait vraie : *« un plafond
+     sur la carte, et le contenu qui défile À L'INTÉRIEUR »*, avec la mention
+     ⏳ « personne ne l'emploie, rien ne l'implémente ». La palette est son
+     premier utilisateur. Et le plafond obéit à la décision 3 du même
+     fichier : *« seulement en secours »* — il ne se voit pas tant que le
+     contenu tient (sur un bureau, les seize rangent d'un coup).
+
+     ⚠️ UNE PRÉCISION DE VOCABULAIRE, DITE PLUTÔT QUE TUE : à la lettre du §1,
+     un écran SANS menu latéral est un **FF**, et Abilities n'en a pas. Eric a
+     dit « F2 » deux fois ; ce qu'il nomme est le **2** — hauteur libre,
+     plafond, air autour —, pas la famille. La forme construite ici est donc
+     un FF2 à plafond. Si le mot doit changer, c'est le mot, pas la fenêtre.
+
+     ⚠️ ET CE QUE ÇA COÛTE, ANNONCÉ PAR `CADRES.md` LUI-MÊME : **un second
+     défilement dans la scène**. Le dépôt en a déjà un (les grilles de sorts,
+     lot 79) et il en connaît le prix — un jeton qui vit dans une grille qui
+     défile ne peut pas porter `touch-action: none`, sinon la grille devient
+     indéfilable au doigt. Le glisser y demande donc un MAINTIEN de 350 ms
+     avant de soulever le dé. C'est la même machinerie, déjà éprouvée et
+     gardée : `armerJeton({ maintien: true })`. */
   /* Une palette n'a AUCUN état : elle ne se vide pas, donc elle n'a rien à
-     annoncer. Une rangée finie, si — et la feuille lit ce mot-là. */
+     annoncer. Une rangée finie, si — et la feuille lit ce mot-là. C'est aussi
+     ce mot qui lui donne sa fenêtre : quatre colonnes, un plafond, et le
+     défilement dedans. */
   rangee.dataset.pool = inepuisable ? "inepuisable" : "fini";
+  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, IL NE SE DEVINE PAS. Le socle n'en
+     connaît qu'un (`.stage`) et trouve les autres par ce marqueur — « le
+     marqueur est une déclaration, pas une inférence » (socle.mjs). Sans lui,
+     un futur `scrollParent` remonterait jusqu'à la scène et ferait voyager
+     tout l'écran pour amener un dé dans le champ. */
+  if (inepuisable) rangee.dataset.scroller = "palette";
 
   for (const roll of gardes) {
     const item = el("li", "fs");
@@ -427,6 +455,12 @@ function renderVivier(ctx) {
       continue;
     }
     item.append(renderJetonDe(roll, FS.resolution, {
+      /* ⛔ LE MAINTIEN N'EST VRAI QUE DANS LA PALETTE, et c'est mesuré, pas
+         prudent : elle est la SEULE rangée qui défile (les six d'un lot
+         tiennent sur une ligne). Le poser partout coûterait 350 ms à un geste
+         qui n'en a pas besoin — le tap reste le chemin court dans les deux
+         cas, seul le glisser VISÉ paie le péage. */
+      maintien: inepuisable,
       chezSoi: true,
       onTap: () => ctx.poserAuPremierLibre(roll),
       onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
@@ -453,7 +487,7 @@ function renderVivier(ctx) {
  *  ⛔ Dans une CIBLE, c'est l'autre modificateur qui compte (le FINAL, boosts
  *  compris) et il vient de `renderFinalColumn`. Les deux ne disent pas la
  *  même chose, et c'est la leçon du lot 46. */
-function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
+function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, maintien }) {
   /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
      hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
      pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
@@ -477,7 +511,7 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
     const detail = roll.ajuste ? `${roll.dice.join("+")} → ${roll.total}` : roll.dice.join("+");
     jeton.append(el("span", "ability-de-detail", [text(detail)]));
   }
-  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
+  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot, maintien: Boolean(maintien) }));
   return jeton;
 }
 
@@ -866,7 +900,26 @@ export function renderAbilitiesStep(ctx, onAction) {
   };
 
   const vivier = renderVivier(glisseCtx);
-  if (vivier) section.append(vivier);
+  if (vivier) {
+    /* ⭐ LA PALETTE DE `FREE` EST UNE FENÊTRE, PAS UNE RANGÉE — Eric,
+       2026-08-16 : *« une fenêtre avec un measure identique à celui de
+       Concept »*, puis *« c'est une dalle FF2 pardon »*. Les seize dés vivent
+       donc dans leur propre dalle, à la mesure de la carte générique
+       (`--card-w`, celle de Concept : 62 ch à l'étroit, 76 en Large) et non à
+       celle de l'écran à contrôles (`--panel-w`, 88 ch en Large — où la
+       palette s'étirerait bien au-delà de ce qu'elle a à dire).
+       ⛔ Les trois autres viviers restent des RANGÉES : six dés sur une ligne
+       n'ont besoin ni d'une fenêtre, ni d'une mesure, ni d'un plafond. Ce qui
+       diffère est ce qui remplit le vivier — et seize valeurs inépuisables,
+       ça se loge. */
+    if (inepuisable) {
+      const fenetre = el("section", "ability-palette dalle-intermediaire");
+      fenetre.append(vivier);
+      section.append(fenetre);
+    } else {
+      section.append(vivier);
+    }
+  }
   section.append(renderCollecteur(glisseCtx));
   return section;
 }

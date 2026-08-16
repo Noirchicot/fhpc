@@ -1077,9 +1077,26 @@ button { font: inherit; }
        tombe à ~44 — et un dé de 46 y déborderait de deux pixels.
      · une largeur en pourcentage n'a, elle, aucun seuil à rater.
 
-   ⭐ LE PLAFOND, EN REVANCHE, EST ÉCRIT, et il sert en grandeur Large : une
-   rangée de six sur un champ de bureau donnerait des dés démesurés pour dire
-   six nombres. 56 px est la cote du relevé de banc à 1280.
+   ⭐ LE PLAFOND, EN REVANCHE, EST ÉCRIT — et il vaut la cote du TÉLÉPHONE,
+   pas celle du bureau.
+
+   🔴 CE QU'ERIC A VU SUR SA TABLETTE, ET LA MESURE QUI LUI DONNE RAISON. Le
+   plafond valait d'abord 56 px (le relevé de banc à 1280). Mesuré à 820 :
+
+       téléphone 375 ... dé 47 (visible 37) · chiffre 16 px → 43 %
+       tablette  820 ... dé 56 (visible 45) · chiffre 16 px → 36 %
+
+   Le DÉ grandit de 21 %, son CHIFFRE ne bouge pas — le nombre flotte dans un
+   objet trop grand pour lui, et l'objet se lit comme surdimensionné. C'est
+   exactement le défaut que le §8 de CADRES.md a déjà tranché pour le texte :
+   *« 16 px est une taille de LECTURE, pas un décor »*, et le corps vaut 16
+   à 375 comme à 1280.
+   ⭐ OR UN DÉ CHIFFRÉ EST UN OBJET DE LECTURE : ce qu'on y lit est le nombre.
+   Il tombe donc sous la même loi que le corps de texte — **il ne se met pas à
+   l'échelle**. C'est la TUILE qui s'écarte quand l'écran grandit (l'îlot
+   passe de 51 à 95, puis à 141 dans la palette), pas l'objet qui gonfle.
+   ⛔ Le plafond n'est donc plus une cote de bureau, c'est la taille NATURELLE
+   du dé à 360 : au-delà, la rangée respire, le dé reste le même.
    📌 CE QUI RESTE EN PIXELS DANS LE JS (`FS.resolution`) N'EST PAS UNE TAILLE
    D'AFFICHAGE, c'est la RÉSOLUTION de l'image du dé — le moteur 3D en a
    besoin pour la fabriquer, la feuille décide ensuite de la place qu'elle
@@ -1087,19 +1104,63 @@ button { font: inherit; }
    une géométrie. */
 .fs-rangee {
   --fs-colonnes: 6;
-  --fs-de-max: 56px;   /* le plafond, pour que la palette de FREE ne gonfle pas */
+  --fs-de-max: 48px;   /* la taille NATURELLE du dé à 360 — il ne grandit jamais au-delà */
   display: grid;
   grid-template-columns: repeat(var(--fs-colonnes), 1fr);
   gap: var(--sp-4);
   margin: 0 0 var(--sp-12); padding: 0;
   list-style: none;
 }
-/* ⛔ LA PALETTE DE `FREE` N'A PAS SA PROPRE GRILLE, ET C'EST MESURÉ : à quatre
-   colonnes (le croquis), ses seize dés font 406 px de haut, et le collecteur
-   ne peut plus JAMAIS être à l'écran en même temps qu'elle — donc plus aucun
-   glisser possible, `elementFromPoint` ne voyant que le champ visible. À six,
-   elle tombe à 276. Voir `renderVivier` (abilities-step.mjs) pour le relevé
-   complet ; ⏳ l'écart au dessin est à faire trancher par Eric. */
+/* ══ ✅ LA PALETTE DE `FREE` — 4 × 4, DANS UNE FENÊTRE À HAUTEUR LIBRE ══════
+   Eric, 2026-08-16 : *« je veux 4×4 dés en 3d sur une page F2 »*.
+
+   🔴 CE QUE LE PLAFOND RÉPARE, ET C'EST UNE MESURE. Un 4 × 4 fait **406 px**
+   de haut à 375 ; avec le collecteur (243) il demande 649 px pour un champ de
+   493. La source et la cible d'un glisser ne seraient JAMAIS visibles
+   ensemble — et `elementFromPoint` ne voit que le champ visible, donc le
+   geste central de FREE disparaîtrait. Le plafond rend le dessin ET le geste.
+
+   ⭐ C'EST LA PROMESSE DE F2, ENFIN TENUE PAR UNE RÈGLE. `CADRES.md` §4
+   l'écrivait comme un ⏳ : *« un plafond sur la carte, et le contenu qui
+   défile À L'INTÉRIEUR »*, avec la mention « personne ne l'emploie, rien ne
+   l'implémente ». Voici son premier utilisateur.
+   ⛔ ET IL NE MORD QU'EN SECOURS (décision 3 du même fichier, mot pour mot :
+   *« si ton tweak n'intervient qu'en urgence oui, sinon non »*) — d'où
+   `max-height` et non une hauteur : sur un bureau les seize rangent d'un coup
+   et le plafond ne se voit pas. En `dvh` parce que ce qu'il borne est une
+   part du CHAMP, pas un nombre de pixels : 40 % de 553 laisse deux rangs et
+   l'amorce du troisième, ce qui rend le défilement découvrable au lieu de le
+   cacher.
+   ⚠️ LE PRIX EST UN SECOND DÉFILEMENT DANS LA SCÈNE, et le dépôt le connaît
+   (les grilles de sorts, lot 79) : un jeton qui vit dans une grille qui
+   défile ne peut pas porter `touch-action: none` — sinon la grille devient
+   indéfilable au doigt, le pouce tombant toujours sur un dé. D'où le
+   `pan-y` ci-dessous, et le maintien de 350 ms côté organe. */
+/* LA FENÊTRE — une dalle FF2 à la mesure de CONCEPT (`--card-w`), et non à
+   celle de l'écran à contrôles (`--panel-w`) : la palette n'a que seize
+   nombres à dire, elle n'a aucune raison de s'étirer sur 88 ch en Large. */
+.ability-palette {
+  max-width: var(--card-w);
+  margin: 0 auto var(--sp-12);
+  padding: var(--sp-8);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  color: var(--text);
+}
+.ability-palette .fs-rangee { margin-bottom: 0; }
+.fs-rangee[data-pool="inepuisable"] {
+  --fs-colonnes: 4;
+  max-height: 40dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* 🔴 LA LIGNE QUI REND LA PALETTE DÉFILABLE AU DOIGT. `touch-action` est une
+   déclaration prise à l'appui : elle ne se renégocie pas en cours de geste.
+   `pan-y` laisse le doigt défiler — le geste le plus fréquent — et c'est le
+   MAINTIEN qui départage, pas la cible (voir `glisser.mjs`). */
+.fs-rangee[data-pool="inepuisable"] .fs-de { touch-action: pan-y; }
+/* Le jeton soulevé se dit : à partir de là, le défilement est retenu à la
+   main et le dé suit le doigt. Sans ce retour, les 350 ms sont invisibles. */
+.fs-de[data-souleve="true"] { outline: 1px solid var(--accent); outline-offset: var(--sp-2); border-radius: var(--radius-sm); }
 .fs {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-2);
