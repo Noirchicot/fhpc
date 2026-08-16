@@ -88,12 +88,12 @@
    §1d : le document ne gagne toujours aucun champ) vit dans `shell.mjs`,
    `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
 
-import { renderPicker, markPressed } from "./carnet.mjs?v=35";
-import { renderTray } from "./abilities-tray.mjs?v=35";
-import { armerJeton } from "./glisser.mjs?v=35";
-import { ROLLING_METHODS } from "./dice.mjs?v=35";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=35";
-import { rollAbilitySet } from "./dice.mjs?v=35";
+import { renderPicker, markPressed } from "./carnet.mjs?v=36";
+import { renderTray } from "./abilities-tray.mjs?v=36";
+import { armerJeton } from "./glisser.mjs?v=36";
+import { ROLLING_METHODS } from "./dice.mjs?v=36";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=36";
+import { rollAbilitySet } from "./dice.mjs?v=36";
 
 export { rollAbilitySet };
 
