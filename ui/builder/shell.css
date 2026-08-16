@@ -1502,6 +1502,13 @@ button { font: inherit; }
    ferait double emploi et rentrerait les boutons de 16 px de plus. */
 .ability-collecteur > .sortie {
   padding: var(--sp-12) 0 var(--sp-4);
+  /* 🔴 `margin-inline: auto` DOIT SAUTER ICI, et ce n'est pas cosmétique : une
+     marge automatique sur un enfant de flex ABSORBE la place libre, donc le
+     pied cessait de s'étirer — mesuré à **169 px** de large au lieu des 343 de
+     la dalle, les deux boutons collés au milieu. Cette marge centre la bande
+     quand elle vit au bas de la scène (largeur pleine, plafond `--frame-w`) ;
+     dans une dalle, c'est la dalle qui centre déjà. */
+  margin-inline: 0;
 }
 
 /* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
