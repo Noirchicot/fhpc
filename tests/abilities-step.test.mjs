@@ -620,8 +620,17 @@ test("⭐ LES DEUX PLANCHERS SE VOIENT — un jet ajusté ne se fait pas passer 
   /* ⚠️ IL FAUT UN LOT SANS AUCUN 14 NATUREL pour que les DEUX planchers
      mordent : `lotScripte()` porte un 18 d'entrée, donc seul celui du bas y
      part (mesuré). Ici, dix jets de 3+3+3 = 9 — le meilleur monte à 14, le
-     pire descend à 8, et les deux doivent se DIRE : un 14 posé au-dessus d'un
-     « 3+3+3 » muet serait un total menteur (la faute que le lot 40 a payée). */
+     pire descend à 8, et les deux doivent se DIRE — mais PLUS AU VIVIER.
+
+     ⚠️ CE GARDE A CHANGÉ D'ENDROIT LE 2026-08-17, sur arbitrage d'Eric : *« tes
+     totaux changent de nomenclature avec le 8 et le 14 ; moi je préfère
+     minimaliste »*. La ligne sous le dé disait `3+6+2 → 14` là où sa voisine
+     disait `3+2+4` — deux formes pour la même chose. Elle est uniformisée.
+     🔴 CE QUE LE GARDE CONTINUE D'EXIGER, ET C'EST L'ESSENTIEL : que l'ajustement
+     reste VISIBLE quelque part. Il l'est sur la CASE du plateau (`data-ajuste`,
+     qui dit lequel des deux planchers a mordu) et dans l'infobulle du plateau.
+     Supprimer la vérification du détail sans reporter l'exigence aurait laissé
+     partir la seule preuve que le plancher se voit encore. */
   const rollBatch = { ...rollAbilitySet(() => 0.4), method: "fh3d6", assign: emptyAbilityAssign() };
   assert.deepEqual(rollBatch.rolls[0].dice, [3, 3, 3], "témoin : le hasard scripté donne bien des 3");
   const ajustes = rollBatch.rolls.filter((r) => r.ajuste);
@@ -630,9 +639,14 @@ test("⭐ LES DEUX PLANCHERS SE VOIENT — un jet ajusté ne se fait pas passer 
   const marquees = node.querySelectorAll(".tray-case").filter((c) => c.getAttribute("data-ajuste"));
   assert.deepEqual(marquees.map((c) => c.getAttribute("data-ajuste")).sort(), ["bas", "haut"],
     "la case dit LEQUEL des deux planchers l'a touchée");
-  /* Et au vivier, le détail porte les deux nombres. */
-  const detail = deDuVivier(node, ajustes[0].index).querySelectorAll(".ability-de-detail")[0].textContent;
-  assert.match(detail, /→/, "le dé montre sa somme d'origine ET son total ajusté");
+  /* ⛔ ET AU VIVIER, UNE SEULE NOMENCLATURE : ce qui est TOMBÉ, rien d'autre.
+     Le test le vérifie sur un jet AJUSTÉ et sur un jet ordinaire, sinon
+     « minimaliste » ne serait prouvé que d'un côté. */
+  const detailAjuste = deDuVivier(node, ajustes[0].index).querySelectorAll(".ability-de-detail")[0].textContent;
+  assert.equal(detailAjuste, "3+3+3", "le jet ajusté s'écrit comme les autres — le dé porte le total");
+  const ordinaire = rollBatch.rolls.find((r) => r.kept && !r.ajuste);
+  const detailOrdinaire = deDuVivier(node, ordinaire.index).querySelectorAll(".ability-de-detail")[0].textContent;
+  assert.doesNotMatch(detailOrdinaire, /→/, "et l'ordinaire n'a jamais eu de flèche : les deux formes sont UNE");
 });
 
 /* ══ 6 — `ARRAY` : SIX VALEURS, SANS DÉS ════════════════════════════════ */

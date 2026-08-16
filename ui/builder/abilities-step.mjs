@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=80";
-import { renderTray } from "./abilities-tray.mjs?v=80";
-import { armerJeton } from "./glisser.mjs?v=80";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=80";
-import { createDieHost, mount } from "./dice3d.mjs?v=80";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=80";
+import { markPressed } from "./carnet.mjs?v=81";
+import { renderTray } from "./abilities-tray.mjs?v=81";
+import { armerJeton } from "./glisser.mjs?v=81";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=81";
+import { createDieHost, mount } from "./dice3d.mjs?v=81";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=81";
 
 export { rollAbilitySet };
 
@@ -590,11 +590,22 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
   poserUnDe(jeton, roll.total, taille, roll.index);
   /* Le détail « 5+5+6 » est DANS le croquis, sous chaque dé. Un tirage sans
      détail (le tableau standard, la palette) n'affiche pas de ligne vide.
-     ⭐ ET UN JET AJUSTÉ LE DIT : le plancher du haut ou du bas a changé son
-     total, et le détail seul mentirait (« 4+4+4 » sous un 14). */
+
+     ⭐ UNE SEULE NOMENCLATURE, TOUJOURS — Eric, 2026-08-17 : *« tes totaux
+     changent de nomenclature avec le 8 et le 14 ; moi je préfère
+     minimaliste »*. Deux jets voisins s'écrivaient de deux façons (`3+2+4` et
+     `3+6+2 → 14`), et une ligne qui change de forme selon le cas se lit deux
+     fois avant d'être comprise. Le détail dit désormais **ce qui est tombé**,
+     rien d'autre : trois dés, deux `+`.
+     ⛔ CE QUE ÇA RETIRE, ET JE L'AVAIS ÉCRIT COMME UN ARGUMENT CONTRAIRE :
+     sous un dé à 14, `3+6+2` ne fait pas 14 — le plancher a parlé et la ligne
+     ne le dit plus. C'est assumé : le dé porte le total, la règle est écrite en
+     toutes lettres au-dessus (*« si votre meilleur reste sous 14, il devient
+     14 ; votre pire devient toujours 8 »*), et l'infobulle du plateau garde la
+     forme longue (`abilities-tray.mjs` : `4+4+4 = 12 → 14`). L'écart n'est donc
+     ni caché ni répété — il est dit une fois, à l'endroit qui l'explique. */
   if (Array.isArray(roll.dice) && roll.dice.length > 0) {
-    const detail = roll.ajuste ? `${roll.dice.join("+")} → ${roll.total}` : roll.dice.join("+");
-    jeton.append(el("span", "ability-de-detail", [text(detail)]));
+    jeton.append(el("span", "ability-de-detail", [text(roll.dice.join("+"))]));
   }
   armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
   return jeton;
