@@ -17,7 +17,7 @@ import * as kernelBus from "../kernel/bus.mjs";
 import { createBuild } from "./block.mjs";
 
 export { createBuild } from "./block.mjs";
-export { derive, ABILITY_KEYS, CURRENCY_KEYS } from "./derive.mjs";
+export { derive, ABILITY_KEYS, CURRENCY_KEYS, abilityModOf } from "./derive.mjs";
 export { statSumViolations } from "./validate.mjs";
 /* LOT 74 — la borne de création des scores de base (Eric, 2026-08-15) est
    PUBLIÉE : l'écran Abilities lit `CREATION_SCORES`, il ne réécrit jamais

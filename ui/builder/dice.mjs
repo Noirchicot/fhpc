@@ -66,46 +66,146 @@ export function markKept(rolls) {
   return withIndex.map((roll) => ({ ...roll, kept: keptIndexes.has(roll.index) }));
 }
 
-/** LA MÉTHODE D'ERIC (ADDENDUMS §4) : dix jets de 3d6, on garde les six
- *  meilleurs, et ON RELANCE LE LOT ENTIER si AUCUN des dix n'atteint 15 —
- *  jamais un jet remplacé seul, jamais un jet complété. `rerollCount` compte
- *  les lots REJETÉS avant celui rendu : c'est ce qui permet à l'écran de
- *  MONTRER que le lot a changé sous les yeux du joueur (commande §3a.1),
- *  sans qu'aucun lot rejeté ne soit gardé nulle part (aucun historique —
- *  Eric, 2026-08-13). */
+/* ══ LA RÈGLE DE TIRAGE — ✅ ARRÊTÉE PAR ERIC LE 2026-08-16 ═══════════════
+   > **Dix jets de 3d6, on garde les six meilleurs. Si le meilleur n'atteint
+   > pas 14, il devient 14. Le plus mauvais devient toujours 8. AUCUNE
+   > RELANCE.**
+
+   🔴 L'ANCIENNE RÈGLE EST MORTE, ET C'EST UNE MESURE QUI L'A TUÉE. Elle
+   relançait le LOT ENTIER tant qu'aucun des dix n'atteignait 15 : mesuré,
+   `P(3d6 ≥ 15) = 20/216`, donc un lot échouait avec `0,907¹⁰ ≈ 38 %` — 0,61
+   lot jeté par personnage, et jusqu'à 25 s de théâtre à jeter par échec à la
+   cadence du plateau. La nouvelle ne relance JAMAIS : elle GARANTIT au lieu
+   de rejeter.
+
+   📏 CE QU'ELLE DONNE, MESURÉ SUR 3 000 000 DE TIRAGES (2026-08-16) : somme
+   moyenne **71,8** contre **72,0** pour le tableau standard, et un 18 dans
+   **4,5 %** des cas. C'est ce que dit le panneau INFO, aux mêmes chiffres.
+
+   ⚠️ « LE PLUS MAUVAIS DEVIENT TOUJOURS 8 » VA DANS LES DEUX SENS, et c'est
+   voulu : un plus mauvais à 12 DESCEND à 8. C'est le prix de la garantie du
+   haut — le panneau INFO l'écrit (« A 14 is promised, an 8 is owed ») et la
+   ligne « A real weakness : always » de son tableau ne veut rien dire
+   d'autre. Sans ça, la méthode serait strictement plus généreuse que le
+   tableau standard, et la moyenne ne tomberait pas à 71,8.
+
+   ⛔ LE JET N'EST JAMAIS RÉÉCRIT. Un jet ajusté garde ses trois dés et sa
+   somme d'origine dans `brut` ; `ajuste` dit LEQUEL des deux planchers l'a
+   touché. Afficher « 14 » au-dessus d'un « 4+4+4 » sans le dire serait un
+   total menteur — la faute que le lot 40 a payée ailleurs. */
+const PLANCHER_HAUT = 14;
+const PLANCHER_BAS = 8;
+
+/** Les deux planchers, appliqués aux SIX GARDÉS d'un lot déjà marqué par
+ *  `markKept`. Les quatre écartés ne bougent pas : ils sont barrés à
+ *  l'écran, pas comptés.
+ *
+ *  🔴 LE HAUT ET LE BAS SONT TROUVÉS PAR UN TRI, PAS PAR DEUX COMPARAISONS —
+ *  et ce n'est pas du style. Avec deux boucles `>` / `<`, six gardés TOUS
+ *  ÉGAUX (six 10, possible) désignent le MÊME jet comme meilleur et comme
+ *  pire : un seul des deux planchers s'appliquerait, en silence. Le tri
+ *  (total décroissant, puis index — la même règle d'égalité que `markKept`)
+ *  rend deux entrées distinctes dès qu'il y en a deux. */
+export function appliquerLesPlanchers(rolls) {
+  const gardes = rolls.filter((roll) => roll.kept);
+  if (gardes.length < 2) return rolls;
+  const ordre = [...gardes].sort((a, b) => b.total - a.total || a.index - b.index);
+  const haut = ordre[0];
+  const bas = ordre[ordre.length - 1];
+  return rolls.map((roll) => {
+    if (roll === bas) return { ...roll, brut: roll.total, total: PLANCHER_BAS, ajuste: "bas" };
+    if (roll === haut && roll.total < PLANCHER_HAUT) {
+      return { ...roll, brut: roll.total, total: PLANCHER_HAUT, ajuste: "haut" };
+    }
+    return roll;
+  });
+}
+
+/** LA MÉTHODE D'ERIC, version du 2026-08-16 : dix jets de 3d6, on garde les
+ *  six meilleurs, on pose les deux planchers, et ON REND. Pas de boucle, pas
+ *  de lot jeté, pas d'historique.
+ *
+ *  📌 `rerollCount: 0` SURVIT DANS LA FORME RENDUE, et pas par nostalgie :
+ *  `rollAbilityBatch` rend la même enveloppe pour les deux méthodes de jet,
+ *  et l'écran ne doit pas avoir à savoir laquelle il montre. Un champ à zéro
+ *  coûte moins qu'une seconde forme. */
 export function rollAbilitySet(rng) {
-  let rerollCount = 0;
-  let rolls = rollTen(rng);
-  while (!rolls.some((roll) => roll.total >= 15)) {
-    rerollCount += 1;
-    rolls = rollTen(rng);
-  }
-  return { rolls: markKept(rolls), rerollCount };
+  return { rolls: appliquerLesPlanchers(markKept(rollTen(rng))), rerollCount: 0 };
 }
 
 /** B5.2 — LES DEUX MÉTHODES DE JET, et elles ne se ressemblent pas.
- *  · `fh3d6` : dix jets de 3d6, on garde les six meilleurs, relance du lot
- *    entier si aucun n'atteint 15 (la méthode d'Eric, ADDENDUMS §4) ;
- *  · `4d6`   : SIX jets de 4d6 dont on écarte le plus bas — aucune relance,
- *    aucun écarté au niveau du LOT (chaque jet produit un score, il n'y a
- *    donc rien à trier).
+ *  · `fh3d6` : dix jets de 3d6, on garde les six meilleurs, un 14 garanti en
+ *    haut et un 8 dû en bas — aucune relance ;
+ *  · `4d6`   : SIX jets de 4d6 dont on écarte le plus bas — aucune garantie,
+ *    aucun plafond, aucun écarté au niveau du LOT (chaque jet produit un
+ *    score, il n'y a donc rien à trier).
  *  ⚠️ La forme rendue est la MÊME des deux côtés (`{rolls, rerollCount}`,
  *  chaque jet portant `kept`) : l'écran n'a pas à savoir laquelle il montre.
- *  C'est ce qui permet aux six molettes d'être écrites une seule fois. */
+ *  C'est ce qui permet au vivier et au collecteur d'être écrits une fois.
+ *
+ *  ⌨️ `summary` EST LE TEXTE JOUEUR DE L'ÉCRAN, pas une glose interne — il
+ *  se pose sous l'organe de la méthode (lot 80, §5 bis). Celui de `fh3d6`
+ *  est validé MOT POUR MOT par Eric le 2026-08-16 ; celui de `4d6` est une
+ *  proposition, à relire avant d'être figée.
+ *
+ *  ══ ⭐ CE QUE CE TABLEAU PORTE EN PLUS DEPUIS LE LOT 80 ═══════════════════
+ *  Le plateau (`abilities-tray.mjs`) ne branche PLUS sur un id : il LIT ce
+ *  tableau. Une mécanique y dit tout ce qui la distingue — combien de dés
+ *  par jet, combien de jets, comment on jette, comment on clôt le lot, et
+ *  les deux libellés de ses boutons.
+ *
+ *  🔴 C'EST LA LOI §1 DU MANDAT, APPLIQUÉE À L'ORGANE : *« ne pas écrire
+ *  quatre écrans »*. Avant ce lot, `4d6` avait son propre rendu
+ *  (`renderRollBatch`, une liste de pastilles sans dés 3D) parce que le
+ *  plateau ne savait faire que dix jets de trois dés — deux formes du même
+ *  geste, qui divergeaient déjà. Une troisième mécanique est désormais UNE
+ *  ENTRÉE DE PLUS ICI, jamais un `if` de plus là-bas.
+ *
+ *  ⛔ `finir(jets)` REÇOIT LES JETS BRUTS ET REND LE LOT COMPLET (index et
+ *  `kept` compris) : c'est le SEUL endroit où une règle de garde s'applique.
+ *  Le plateau, lui, ne sait pas ce qu'est un dé gardé. */
 export const ROLLING_METHODS = [
-  { id: "fh3d6", label: "FH 3D6", summary: "Ten rolls of 3d6 — keep the six best. The whole batch is rerolled if none reaches 15." },
-  { id: "4d6", label: "4D6", summary: "Six rolls of 4d6 — the lowest die of each roll is dropped." }
+  {
+    id: "fh3d6", label: "FH 3D6",
+    des: 3, jets: 10,
+    boutonUn: "3d6", boutonTous: "10x3D6",
+    jeter: rollThreeD6,
+    finir: (jets) => appliquerLesPlanchers(markKept(jets)),
+    summary: "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, "
+      + "it becomes 14; your lowest always becomes 8."
+  },
+  {
+    id: "4d6", label: "4D6",
+    des: 4, jets: 6,
+    boutonUn: "4d6", boutonTous: "6x4D6",
+    jeter: rollFourD6DropLowest,
+    /* ⛔ AUCUNE RÈGLE DE GARDE ICI, ET C'EST LA MÉTHODE : six jets, six
+       scores, rien à trier et rien à rattraper (§4.2 du mandat). `kept: true`
+       partout n'est donc pas une facilité — c'est la vérité de la mécanique. */
+    finir: (jets) => jets.map((jet, index) => ({ ...jet, index, kept: true })),
+    summary: "Six rolls of 4d6 — drop the lowest die of each roll. Nothing is guaranteed here, "
+      + "and nothing is capped."
+  }
 ];
 
+/** La mécanique nommée, ou la première. ⛔ Le plateau et l'écran passent tous
+ *  les deux par ici : un id inconnu ne doit pas rendre `undefined` à un
+ *  appelant qui va lire `.des` à la ligne suivante. */
+export function mecaniqueDeJet(id) {
+  return ROLLING_METHODS.find((m) => m.id === id) || ROLLING_METHODS[0];
+}
+
+/** UN LOT COMPLET, D'UN COUP — c'est le `FLASH` du plateau, et le seul
+ *  chemin qui produise un lot sans le faire tomber sous les yeux du joueur.
+ *  ⭐ IL NE BRANCHE PLUS SUR UN ID : il lit la mécanique et l'applique. Les
+ *  deux moitiés (`jeter` × `jets`, puis `finir`) sont exactement celles que
+ *  la séquence du plateau déroule au ralenti — une seule définition de « ce
+ *  qu'est un lot », donc aucune divergence possible entre le mode lent et le
+ *  mode éclair. */
 export function rollAbilityBatch(methodId, rng) {
-  if (methodId === "4d6") {
-    const rolls = Array.from({ length: 6 }, (_, index) => {
-      const jet = rollFourD6DropLowest(rng);
-      return { ...jet, index, kept: true };
-    });
-    return { rolls, rerollCount: 0, method: "4d6" };
-  }
-  return { ...rollAbilitySet(rng), method: "fh3d6" };
+  const mecanique = mecaniqueDeJet(methodId);
+  const jets = Array.from({ length: mecanique.jets }, () => mecanique.jeter(rng));
+  return { rolls: mecanique.finir(jets), rerollCount: 0, method: mecanique.id };
 }
 
 /** LE TIRAGE D'UNE CARTE DE DESTINÉE — une parmi le CATALOGUE REÇU, jamais

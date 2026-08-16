@@ -109,12 +109,31 @@ test("aucun langage de chantier visible dans ui/builder/ — le joueur ne lit ja
    légitimement dans le commentaire d'`universe-step.mjs` (§2.2). C'est LA
    PARTIE DIFFICILE de ce garde (commande, §2.3, dernier tiret) — vérifiée
    ici sur le fichier RÉEL, pas sur un texte fabriqué. */
-test("témoin — le commentaire d'abilities-step.mjs qui CITE la phrase fautive ne fait PAS mordre le garde", () => {
+/* ⚠️ LE TÉMOIN VIVANT DE CE GARDE A DISPARU LE 2026-08-16, ET IL FAUT LE DIRE
+   PLUTÔT QUE DE LE REMPLACER EN SILENCE. Il s'appuyait sur `abilities-step.mjs`,
+   qui CITAIT la phrase fautive du §2.1 (« isn't built by this screen yet »)
+   dans un commentaire de correction : le fichier réel prouvait donc, à lui
+   seul, que `stripComments()` fait bien son travail avant le scan.
+
+   🔴 CE COMMENTAIRE EST PARTI AVEC L'ÉCRAN QU'IL DÉCRIVAIT (lot 80) : la note
+   de repli n'existe plus du tout, parce que l'écran ne lit plus
+   `abilities.mode` pour décider quoi montrer — rien n'est déplié tant que le
+   joueur n'a pas choisi (B5.1c), donc il n'y a plus de « méthode montrée à la
+   place » à annoncer.
+
+   ⭐ LA RETENUE DU GARDE RESTE PROUVÉE, et par le test le plus solide des
+   deux : l'ATTAQUE « témoin de retenue » juste en dessous joue la MÊME
+   démonstration sur un texte FABRIQUÉ — la même chaîne, une fois visible
+   (elle mord) et une fois en commentaire (elle ne mord pas). Un témoin
+   fabriqué ne peut pas s'éteindre parce qu'un écran a changé de forme.
+   ⛔ Ce qui suit remplace donc le témoin par ce qu'il reste à garder : la
+   phrase ne doit être revenue NULLE PART, commentaire compris. */
+test("§2.1 — la phrase fautive d'origine n'est revenue nulle part dans abilities-step.mjs", () => {
   const raw = fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8");
-  assert.match(raw, /isn.t built by this screen yet/,
-    "témoin : le fichier réel cite bien la phrase fautive, dans son commentaire de correction");
+  assert.doesNotMatch(raw, /isn.t built by this screen yet/,
+    "la note de repli est partie avec l'écran qu'elle servait — son retour serait une régression, pas un oubli");
   const hits = scanUi().filter((h) => h.file.endsWith("abilities-step.mjs"));
-  assert.deepEqual(hits, [], "la citation vit dans un COMMENTAIRE — stripComments() doit l'effacer avant le test");
+  assert.deepEqual(hits, [], "et le fichier ne porte AUCUN mot de la liste interdite dans ses chaînes visibles");
 });
 
 /* ══ ⚔️ L'ATTAQUE — le garde doit MORDRE sur une chaîne VISIBLE (hors
@@ -152,11 +171,21 @@ test("⚔️ ATTAQUE (témoin de retenue) — LA MÊME chaîne, mais UNIQUEMENT 
    `abilities-step.mjs` (visible, hors commentaire) ne contient AUCUNE des
    formes interdites — la correction elle-même est la preuve la plus directe
    que §2.1 est réglé, indépendamment du scan général ci-dessus. */
-test("§2.1 — la note de repli d'Abilities ne porte plus AUCUN mot de la liste interdite", () => {
-  const raw = fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8");
-  const noteLine = raw.split("\n").find((line) => line.includes("isn't offered on this screen"));
-  assert.ok(noteLine, "témoin : la nouvelle phrase existe bien, telle qu'écrite au §2.1 de ce lot");
-  for (const [pattern, label] of CHANTIER_LANGUAGE) {
-    assert.doesNotMatch(noteLine, pattern, `la nouvelle phrase mord encore sur ${label}`);
+/* ⚠️ MÊME HISTOIRE QUE CI-DESSUS, ET LA MÊME CIBLE : ce test lisait la phrase
+   de remplacement du §2.1 (« "standard" isn't offered on this screen — showing
+   … instead. ») et exigeait qu'elle ne morde sur aucun motif de chantier. La
+   phrase n'existe plus.
+   ⭐ CE QU'ON GARDE À SA PLACE : la MÊME exigence, portée sur TOUTES les
+   phrases que l'écran montre encore. C'est plus large que ce qu'il testait, et
+   ça ne peut plus s'éteindre en même temps qu'une phrase. */
+test("§2.1 — AUCUNE phrase visible d'Abilities ne porte un mot de la liste interdite", () => {
+  const visible = stripComments(fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8"));
+  const phrases = [...visible.matchAll(/"([^"\\]{12,})"/g)].map((m) => m[1]);
+  assert.ok(phrases.length >= 5,
+    `témoin : l'écran porte bien des phrases à juger — ${phrases.length} trouvées`);
+  for (const phrase of phrases) {
+    for (const [pattern, label] of CHANTIER_LANGUAGE) {
+      assert.doesNotMatch(phrase, pattern, `« ${phrase} » mord sur ${label}`);
+    }
   }
 });

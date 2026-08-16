@@ -2,14 +2,20 @@
 
    `ui/builder/dice.mjs` ne connaît AUCUN DOM : ce fichier le teste comme
    n'importe quelle fonction pure, sans `dom-stub.mjs`. C'est CE fichier qui
-   prouve la règle de relance (commande §4, test 2) — « un test qui dépend
-   du hasard réel n'est pas un test » : toute source d'aléa ici est une
-   fonction FABRIQUÉE, jamais `Math.random`. */
+   prouve la règle de tirage — « un test qui dépend du hasard réel n'est pas
+   un test » : toute source d'aléa ici est une fonction FABRIQUÉE, jamais
+   `Math.random`.
+
+   ⚠️ LA RÈGLE A CHANGÉ LE 2026-08-16 (lot 80, §3), et les tests du §2 avec
+   elle. La relance du lot entier est morte ; deux planchers l'ont remplacée.
+   Le détail, et la mesure qui l'a décidée, sont en tête du §2. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { rollThreeD6, rollTen, markKept, rollAbilitySet, drawArcana } from "../ui/builder/dice.mjs";
+import {
+  rollThreeD6, rollTen, markKept, rollAbilitySet, appliquerLesPlanchers, drawArcana
+} from "../ui/builder/dice.mjs";
 
 /** Une source d'aléa qui rejoue une SUITE FIXE de nombres dans [0,1) —
  *  boucle sur elle-même si on lui en demande plus qu'elle n'en porte, pour
@@ -115,42 +121,96 @@ test("markKept tranche une égalité par l'ORDRE DU JET — le premier jeté gag
   assert.equal(marked[6].kept, false, "le SEPTIÈME jet à 10 (même valeur, jeté après) est écarté");
 });
 
-/* ══ 2 — ⚔️ LA RELANCE MORD : un lot sans 15+ est REJETÉ EN ENTIER ══════
-   Le test qui compte le plus (commande §4) : un hasard SCRIPTÉ où le
-   PREMIER lot de dix jets ne porte AUCUN total ≥ 15 (dix jets de "2,2,2" =
-   6, aucun n'atteint 15), et le SECOND lot en porte un — `rollAbilitySet`
-   doit rendre le SECOND, jamais le premier, et le dire (`rerollCount`). */
+/* ══ 2 — ⚔️ LES DEUX PLANCHERS MORDENT, ET LA RELANCE N'EXISTE PLUS ══════
+   🔴 CES QUATRE TESTS ONT CHANGÉ DE LOI LE 2026-08-16, PAS DE FORME. Ils
+   gardaient la règle d'origine (ADDENDUMS §4) : « on relance le lot ENTIER
+   si aucun des dix n'atteint 15 ». Eric l'a remplacée, et il l'a fait sur
+   une mesure — cette relance partait **38 %** du temps (0,61 lot jeté par
+   personnage), donc jusqu'à 25 s de théâtre à jeter à la cadence du plateau.
 
-test("⚔️ ATTAQUE — un lot dont aucun des dix jets n'atteint 15 est REJETÉ EN ENTIER, jamais retouché", () => {
-  // Premier lot (10×3d6) : chaque dé vaut 2 → chaque jet totalise 6. Aucun ≥ 15.
-  const lotRejete = Array(30).fill(1 / 6); // d6(1/6) = floor(1/6*6)+1 = 2
-  // Second lot : le premier jet vaut 18 (trois 6), le reste vaut 6 comme avant.
-  const lotAccepte = [0.999, 0.999, 0.999].concat(Array(27).fill(1 / 6));
-  const rng = scriptedRng(lotRejete.concat(lotAccepte));
+   LA RÈGLE D'AUJOURD'HUI, mot pour mot : *« Dix jets de 3d6, on garde les
+   six meilleurs. Si le meilleur n'atteint pas 14, il devient 14. Le plus
+   mauvais devient toujours 8. AUCUNE RELANCE. »*
 
+   ⛔ ET LE GARDE NE S'EST PAS ADOUCI EN CHANGEANT DE CIBLE : la relance
+   était une chose à PROUVER, elle est devenue une chose à INTERDIRE. Le
+   premier test ci-dessous est exactement l'ancien scénario — dix jets à 6,
+   aucun 15 — et il exige maintenant que ce lot soit RENDU, jamais rejoué. */
+
+test("⚔️ ATTAQUE — le lot qui déclenchait la relance (dix jets à 6, aucun 15) est RENDU TEL QUEL, jamais rejoué", () => {
+  /* L'ANCIEN scénario, à l'octet : chaque dé vaut 2 → chaque jet totalise 6.
+     Sous l'ancienne règle, ce lot partait à la poubelle et un second était
+     tiré. Le rng ne porte QUE trente valeurs : s'il relançait, il s'épuiserait
+     — la preuve est donc double, par le résultat ET par le script. */
+  const rng = scriptedRng(Array(30).fill(1 / 6)); // d6(1/6) = floor(1/6*6)+1 = 2
   const result = rollAbilitySet(rng);
-  assert.equal(result.rerollCount, 1, "un seul lot a été rejeté avant celui rendu");
+
+  assert.equal(result.rerollCount, 0, "plus aucune relance, jamais — le champ reste à zéro");
   assert.equal(result.rolls.length, 10);
-  assert.ok(result.rolls.some((r) => r.total >= 15), "le lot RENDU porte bien un total ≥ 15");
-  assert.equal(result.rolls[0].total, 18, "c'est bien le second lot scripté qui est rendu — le premier (tout à 6) est absent");
-  // Preuve que le lot rejeté n'a laissé AUCUNE trace : le total 6 apparaît
-  // seulement dans les neuf jets restants du lot RENDU, pas dans un dixième
-  // en trop — la liste rendue a exactement dix entrées (vérifié plus haut).
-  assert.deepEqual(result.rolls.slice(1).map((r) => r.total), Array(9).fill(6));
+  const gardes = result.rolls.filter((r) => r.kept);
+  assert.equal(gardes.length, 6);
+  /* Six jets à 6 : le meilleur (6 < 14) monte à 14, le pire descend à 8, et
+     les quatre autres gardés restent à 6. */
+  assert.deepEqual(gardes.map((r) => r.total).sort((a, b) => a - b), [6, 6, 6, 6, 8, 14]);
+  /* ⛔ ET LE JET N'EST PAS RÉÉCRIT : ses trois dés disent toujours 2+2+2, et
+     `brut` garde la somme réelle. Un 14 posé au-dessus d'un « 2+2+2 » muet
+     serait un total menteur. */
+  const monte = gardes.find((r) => r.ajuste === "haut");
+  assert.deepEqual(monte.dice, [2, 2, 2], "les dés du jet ne changent pas");
+  assert.equal(monte.brut, 6, "et la somme réelle reste lisible");
+  assert.equal(gardes.find((r) => r.ajuste === "bas").brut, 6);
 });
 
-test("rollAbilitySet ne relance pas quand le premier lot porte déjà un 15+", () => {
+test("le plancher du HAUT ne mord QUE s'il manque — un lot qui porte déjà 14 ou plus garde son meilleur intact", () => {
+  /* Le premier jet vaut 18 (trois 6) ; les neuf autres valent 3 (trois 1). */
   const rng = scriptedRng([0.999, 0.999, 0.999].concat(Array(27).fill(0)));
-  const result = rollAbilitySet(rng);
-  assert.equal(result.rerollCount, 0, "aucune relance : le premier lot satisfait déjà la règle");
-  assert.equal(result.rolls[0].total, 18);
+  const { rolls, rerollCount } = rollAbilitySet(rng);
+  assert.equal(rerollCount, 0);
+  assert.equal(rolls[0].total, 18, "18 ≥ 14 : le meilleur ne bouge pas");
+  assert.equal(rolls[0].ajuste, undefined, "et rien ne le marque comme ajusté");
+  assert.equal(rolls[0].brut, undefined, "ni ne lui invente une somme d'origine");
 });
 
-test("rollAbilitySet, avec Math.random réel, rend toujours un lot qui satisfait la règle (mille tirages)", () => {
+test("⚠️ « le plus mauvais devient TOUJOURS 8 » va dans les DEUX SENS — un pire à 12 DESCEND à 8", () => {
+  /* 🔴 LE POINT LE PLUS FACILE À RATER DE TOUTE LA RÈGLE, et celui qui coûte
+     le plus cher : lu comme un simple plancher, il rendrait la méthode
+     strictement plus généreuse que le tableau standard. C'est la mesure qui
+     tranche — la moyenne publiée est 71,8 CONTRE 72,0 pour le tableau, donc
+     la règle RETIRE quelque chose. Le panneau INFO le dit dans l'autre
+     langue : « A 14 is promised, an 8 is owed ». */
+  const rolls = [18, 17, 16, 15, 14, 12, 5, 4, 3, 3].map((total, index) => ({
+    dice: [1, 1, 1], total, index, kept: index < 6
+  }));
+  const apres = appliquerLesPlanchers(rolls);
+  const pire = apres[5];
+  assert.equal(pire.total, 8, "12 était le plus mauvais des six gardés : il DESCEND à 8");
+  assert.equal(pire.brut, 12, "et sa valeur d'origine reste lisible");
+  assert.equal(pire.ajuste, "bas");
+  assert.deepEqual(apres.slice(0, 5).map((r) => r.total), [18, 17, 16, 15, 14],
+    "les cinq autres gardés ne bougent pas d'un point");
+});
+
+test("⚔️ SIX GARDÉS TOUS ÉGAUX — les DEUX planchers s'appliquent quand même, sur deux jets distincts", () => {
+  /* Le cas que deux comparaisons `>` / `<` rateraient en silence : le même
+     jet serait à la fois le meilleur et le pire, et un seul plancher
+     partirait. C'est pour ça que `appliquerLesPlanchers` trie. */
+  const rolls = Array.from({ length: 10 }, (_, index) => ({
+    dice: [4, 3, 3], total: 10, index, kept: index < 6
+  }));
+  const gardes = appliquerLesPlanchers(rolls).filter((r) => r.kept);
+  assert.equal(gardes.filter((r) => r.ajuste === "haut").length, 1, "un jet monte à 14");
+  assert.equal(gardes.filter((r) => r.ajuste === "bas").length, 1, "un AUTRE descend à 8");
+  assert.deepEqual(gardes.map((r) => r.total).sort((a, b) => a - b), [8, 10, 10, 10, 10, 14]);
+});
+
+test("rollAbilitySet, avec Math.random réel, tient ses deux garanties (deux cents tirages)", () => {
   for (let i = 0; i < 200; i += 1) {
-    const { rolls } = rollAbilitySet(Math.random);
-    assert.ok(rolls.some((r) => r.total >= 15), "le lot rendu satisfait toujours « au moins un 15+ »");
-    assert.equal(rolls.filter((r) => r.kept).length, 6);
+    const { rolls, rerollCount } = rollAbilitySet(Math.random);
+    const gardes = rolls.filter((r) => r.kept);
+    assert.equal(gardes.length, 6);
+    assert.equal(rerollCount, 0, "aucune relance, jamais");
+    assert.ok(Math.max(...gardes.map((r) => r.total)) >= 14, "un 14 est promis");
+    assert.ok(gardes.some((r) => r.total === 8), "et un 8 est dû");
   }
 });
 

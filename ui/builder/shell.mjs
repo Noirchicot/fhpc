@@ -19,33 +19,32 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=37";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=37";
-import { mountPopup } from "./popup.mjs?v=37";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=37";
-import { rollAbilityBatch } from "./dice.mjs?v=37";
-import { renderConceptStep } from "./concept-step.mjs?v=37";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=37";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=37";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=42";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=42";
+import { mountPopup } from "./popup.mjs?v=42";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=42";
+import { renderConceptStep } from "./concept-step.mjs?v=42";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=42";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=42";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=37";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=37";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=37";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=37";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, standardArrayBatch } from "./abilities-step.mjs?v=37";
+} from "./catalogue.mjs?v=42";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=42";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=42";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=42";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=42";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=37";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=37";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=37";
+} from "./destiny-step.mjs?v=42";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=42";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=42";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=37";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=42";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -64,16 +63,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=37";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=37";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=42";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=37";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=37";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=42";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=42";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=37";
+import { versionQuery } from "./version.mjs?v=42";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -149,7 +148,10 @@ const state = {
      recherche invoquée par la loupe. Deux états d'écran, hors document. */
   equipmentCategory: "all",
   equipmentSearch: false,
-  rollingMethod: "fh3d6",// B5.2a — réglé à la molette, jeté au palier (B5.2d)
+  /* ⛔ `rollingMethod` A DISPARU AU LOT 80 : `FH 3D6` et `4D6` ne sont plus
+     une molette DANS la méthode « Roll dice », ce sont deux TUILES du
+     sélecteur (croquis du 16/08). Un choix, plus deux. */
+  abilityInfo: false,    // le panneau INFO (§5.4) — un interrupteur d'écran, jamais un champ
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
      DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
@@ -426,16 +428,57 @@ function applyDecisionAction(action) {
     state.document = state.engine.build.verbs
       .set({ document: state.document, path: "abilities.mode", value: action.value }).document;
     rebuild();
-    /* `Standard array` n'a pas de dés : son lot est posé d'emblée, et il
-       passe par la MÊME machinerie d'affectation (B5.7). */
-    state.abilityRoll = action.value === "standard" ? standardArrayBatch() : null;
+    /* ⭐ LES DEUX MÉTHODES SANS DÉS POSENT LEUR LOT D'EMBLÉE — `ARRAY`
+       (six valeurs fixes) et `FREE` (seize valeurs, un vivier inépuisable).
+       Elles passent par la MÊME machinerie d'affectation que les deux
+       méthodes à dés : c'est tout l'intérêt de l'entonnoir unique.
+       ⛔ C'est `abilities-step.mjs` qui sait lequel — jamais un `if` sur un id
+       ici (`lotSansDes`). */
+    state.abilityRoll = lotSansDes(action.value);
+    state.abilityRevele = 0;
     openSurface();
     return;
   }
-  if (action.kind === "rollingMethod") {
-    /* ⛔ TOURNER LA MOLETTE NE JETTE RIEN (B5.2d, motif d'Eric : « pour
-       éviter de faire ramer le mobile »). */
-    state.rollingMethod = action.value;
+  /* ⭐ LE PANNEAU INFO (§5.4 du lot 80) — un interrupteur d'ÉCRAN, jamais un
+     champ : il ne touche pas le document, et il meurt avec l'onglet. Il ne
+     redessine pas la surface non plus (`refresh`, pas `openSurface`) :
+     ouvrir un panneau n'est pas arriver sur un écran neuf, et renvoyer le
+     joueur en haut lui ferait perdre l'endroit qu'il regardait. */
+  if (action.kind === "abilityInfo") {
+    state.abilityInfo = Boolean(action.value);
+    refresh();
+    return;
+  }
+  /* ══ LES DEUX GESTES DE `FREE`, ET ILS NE RESSEMBLENT À AUCUN AUTRE ════
+     §5.3 : la palette est INÉPUISABLE, donc il n'y a rien à rendre et rien à
+     échanger. Poser écrit le score ; recouvrir écrase ; retirer efface la
+     POSE, jamais la valeur.
+
+     🔴 POURQUOI RETIRER N'EFFACE PAS LE DOCUMENT : `rebuild()` JETTE si l'une
+     des six valeurs manque (`derive.mjs` : « un score ne se dérive de rien »).
+     Un `clear` ferait tomber l'écran au premier retrait. Le document garde
+     donc sa dernière valeur, l'écran dit « rien de posé », et c'est la PORTE
+     de FREE qui compte les poses (voir `abilitiesValidate`). Les deux vérités
+     ne se contredisent pas : elles ne parlent pas de la même chose.
+     ⛔ Et la carte `assign` y porte l'index d'une VALEUR de palette, pas
+     celui d'un jet — il n'y a pas de jet en FREE. C'est licite ici, et
+     seulement ici (voir `freeBatch`). */
+  if (action.kind === "abilityFree") {
+    state.document = state.engine.build.verbs
+      .set({ document: state.document, path: `abilities.${action.key}`, value: action.value }).document;
+    state.abilityRoll = {
+      ...state.abilityRoll,
+      assign: { ...(state.abilityRoll && state.abilityRoll.assign), [action.key]: action.rollIndex }
+    };
+    rebuild();
+    refresh();
+    return;
+  }
+  if (action.kind === "abilityFreeRetirer") {
+    state.abilityRoll = {
+      ...state.abilityRoll,
+      assign: { ...(state.abilityRoll && state.abilityRoll.assign), [action.key]: null }
+    };
     refresh();
     return;
   }
@@ -486,24 +529,15 @@ function applyDecisionAction(action) {
     openSurface();
     return;
   }
-  if (action.kind === "roll") {
-    /* LOT 50, §2b — un nouveau lot (premier tirage OU relance) remet TOUTE
-       la carte d'assignation à `null` : relancer invalide l'assignation
-       précédente, `rerollCount` (dans `rollAbilitySet`) dit déjà au joueur
-       quand ça arrive. `emptyAbilityAssign()` vient d'`abilities-step.mjs`
-       — jamais une seconde liste de six clefs recopiée ici.
-
-       🔴 ET IL LIT MAINTENANT LA MOLETTE. Ce bouton `Roll` n'appartient plus
-       qu'à `4d6` : FH 3d6 a son plateau, qui produit son lot lui-même. Il
-       tirait pourtant `rollAbilitySet` — du **3d6** — quelle que soit la
-       molette. Le défaut ne se voyait pas tant que le palier `rollBatch`
-       (lui, method-aware) faisait le premier jet ; en le retirant, ce bouton
-       devient le SEUL chemin de `4d6`, et il aurait servi du 3d6 en silence.
-       📌 La forme du piège : un défaut couvert par un chemin qu'on supprime. */
-    state.abilityRoll = { ...rollAbilityBatch(state.rollingMethod, Math.random), assign: emptyAbilityAssign() };
-    refresh();
-    return;
-  }
+  /* ⛔ L'ACTION `roll` A DISPARU AU LOT 80, ET AVEC ELLE LE DERNIER JETEUR
+     CONCURRENT. Elle servait le bouton `Roll` des pastilles plates de `4d6`,
+     seul organe que le plateau ne savait pas rendre. Le plateau sert
+     désormais les DEUX mécaniques (`ROLLING_METHODS`, dice.mjs) et produit
+     son lot lui-même : il ne reste qu'un jeteur, celui que le joueur presse.
+     📌 C'est la deuxième fois que ce fichier perd un jeteur — le premier
+     était le palier de `Validate` (lot 79). À chaque fois pour la même
+     raison : deux propriétaires du même lot se contredisent au premier
+     redessin. */
   if (action.kind === "assignAbilityRoll") {
     /* LOT 50, §2a, ÉTENDU AU LOT 51 (§1b/§1d) — DEUX gestes qui ne touchent
        jamais le même endroit, traités ICI et RENDUS AVANT tout appel de
@@ -588,19 +622,19 @@ function applyDecisionAction(action) {
   /* ══ CH6 — `CHOOSE` EST LA VALIDATION DES DEUX ÉCRANS À FICHE ═══════════
      L'arbitrage qu'Eric a délégué (« CHOOSE et Validate ouvrent la même
      porte — lequel reste ? ») : CHOOSE reste, `Validate` disparaît de ces
-     écrans-là (voir `renderValidation`, et le pied de `catalogue.mjs` pour
+     écrans-là (voir `renderSortieEtape`, et le pied de `catalogue.mjs` pour
      les trois raisons).
      ⭐ LE CURSEUR EST POSÉ AVANT LA PORTE, et c'est le geste qui compte : le
      bouton pressé APPARTIENT à une fiche, et cette fiche-là connaît son
      index. Lire le curseur du spy à la place marcherait presque toujours —
      « presque » étant l'instant où le spy n'a pas relu (un volet masqué gèle
      `requestAnimationFrame`). Le doigt tranche, jamais l'observateur.
-     ⛔ Aucun appel de verbe ici : `pressValidate` possède l'enchaînement des
+     ⛔ Aucun appel de verbe ici : `pressDone` possède l'enchaînement des
      paliers (I.4) et c'est LUI qui choisit — dupliquer sa logique donnerait
      deux propriétaires de la même porte, la faute que `rollBatch` a payée. */
   if (action.kind === "ficheChoose") {
     state.cursor = action.index;
-    pressValidate();
+    pressDone();
     return;
   }
   /* B9 — une ligne de Review mène à son écran. Voir qu'il manque quelque
@@ -816,7 +850,7 @@ const CATALOGUES = {
   class: { ...CLASS_CATALOGUE, cardBody: renderClassCardBody, choices: renderClassChoices, palier2: classPalier2 },
   species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 },
   /* Destiny n'a qu'UN palier : `palier2` rend `null`, donc `Validate` acte la
-     carte et passe à l'étape suivante (voir `pressValidate`). */
+     carte et passe à l'étape suivante (voir `pressDone`). */
   /* Le don d'origine : UN palier (B4.4 — « une seule validation suffit »),
      donc `palier2` rend `null` et `Validate` ferme le panneau. */
   feat: {
@@ -1018,7 +1052,7 @@ function renderStepContent() {
       rollBatch: state.abilityRoll,
       revele: state.abilityRevele,
       method: state.abilityMethod,
-      rollingMethod: state.rollingMethod
+      info: state.abilityInfo
     }, applyDecisionAction));
   } else if (step.id === "abilities" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -1148,9 +1182,13 @@ function mountFrame() {
 
   /* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
      Elle coûtait 45 px sur les dix écrans, tout le temps, pour deux boutons.
-     `Show plan` disparaît — Review EST le plan, lu au carnet — et `Validate`
-     descend dans le contenu de chaque écran (`renderValidation`), là où le
-     geste se termine. Mesuré : la hauteur figée passe de 106 px à 61. */
+     `Show plan` disparaît — Review EST le plan, lu au carnet — et la sortie
+     d'étape descend dans le contenu de chaque écran (`renderSortieEtape`), là
+     où le geste se termine. Mesuré : la hauteur figée passe de 106 px à 61.
+     ⚠️ Le bouton qui descendait alors s'appelait `Validate` ; il a disparu
+     à son tour le 16/08 (lot 80, §5.1), remplacé par la paire `BACK`/`DONE`.
+     Ce que ce paragraphe mesure — 45 px repris sur dix écrans — n'a pas
+     bougé : c'est la LIGNE FIXE qui est partie, pas ce qu'elle portait. */
 
   /* ── LA ZONE DE FICHE : le seul défilement de l'écran (B0.21a) ───── */
   const area = el("div", "stage-area");
@@ -1262,7 +1300,15 @@ function currentGate(palier = state.palier) {
   return { exists: true, ready: state.step < REVIEW_INDEX, action: null, next: "step" };
 }
 
-function pressValidate() {
+/* ⭐ `pressValidate` S'APPELLE `pressDone` DEPUIS LE LOT 80, et ce n'est pas
+   cosmétique : le bouton qu'il servait n'existe plus. Un nom qui promet un
+   `Validate` à l'écran ferait chercher longtemps.
+   📌 Ce qui GARDE son nom, ce sont les PORTES (`currentGate`,
+   `abilitiesValidate`, `skillsValidate`…). Elles n'ont jamais nommé le
+   bouton : elles nomment le fait de VALIDER un palier, qui est toujours ce
+   qu'elles font. Les renommer aurait été une churn de sept fichiers pour
+   renommer un concept qui n'a pas changé. */
+function pressDone() {
   const gate = currentGate();
   if (!gate.ready) return;
   /* L'ACTION D'ABORD, LE PALIER ENSUITE : `applyDecisionAction` appelle
@@ -1285,6 +1331,25 @@ function pressValidate() {
     return;
   }
   goToStep(state.step + 1);
+}
+
+/** LE PAS EN ARRIÈRE — d'abord un PALIER, une ÉTAPE sinon.
+ *
+ *  🔴 L'ORDRE N'EST PAS ARBITRAIRE, IL EST CE QUI RÉCONCILIE I.5 ET LE LOT 79.
+ *  Reculer d'une étape depuis le 2ᵉ palier d'un catalogue sauterait le
+ *  sous-écran qu'on vient de traverser — et c'est exactement le retour que le
+ *  lot 79 réclamait (*« les sous-écrans d'un palier n'ont aucune ceinture,
+ *  donc aucun retour »*). Reculer d'un palier quand il n'y en a pas serait,
+ *  lui, un bouton mort. Un seul bouton, deux portées, jamais deux chemins
+ *  concurrents pour le même pas.
+ *
+ *  ⛔ AUCUNE ACTION N'EST DÉFAITE EN RECULANT, et c'est délibéré : ce qui est
+ *  posé au document reste posé. Revenir n'est pas annuler — le joueur
+ *  retrouve ses choix et les change s'il veut. Un `BACK` qui effacerait
+ *  serait un piège, et rien dans le croquis ne le demande. */
+function pressBack() {
+  if (state.palier > 1) { state.palier -= 1; openSurface(); return; }
+  goToStep(state.step - 1);
 }
 
 /* ⛔ TOUJOURS PAR `REVIEW_INDEX` (trouvé par id), jamais par
@@ -1341,23 +1406,38 @@ function paintBelt() {
   if (current) keepInView(frame.track, current, "x");
 }
 
-/* ══ LA VALIDATION VIT DANS LE DOCUMENT (refonte 2 §1b) ═══════════════
-   Eric, 2026-08-15 : « il faudra mettre un bouton validate dans les
-   documents ». Le bouton quitte la barre fixe et va au bas du contenu de
-   l'écran, à l'endroit où le geste se termine.
+/* ══ LA SORTIE D'ÉTAPE — 🔴 `Validate` A DISPARU PARTOUT (lot 80, §5.1) ═══
+   Eric, 2026-08-16, mot pour mot : *« 1 validate dégage PARTOUT »*. Ce n'est
+   pas un réglage d'écran : le croquis des caractéristiques dessine `BACK` et
+   `DONE` au pied du collecteur, et le mandat dit ce qu'ils sont — **le
+   PATRON de la sortie d'étape**, pas la sortie d'UN écran.
 
-   ⚠️ CE QUE ÇA COÛTE, ET IL FAUT LE DIRE : le `Validate` fixe était TOUJOURS
-   atteignable sans remonter — c'était l'argument d'Eric lui-même pour y
-   mettre `Reset` (B7.8). Au bas d'un écran qui défile, il se cherche.
-   ⭐ La refonte 2 y répond écran par écran (§3), et cette forme-ci est la
-   PROVISOIRE : un bouton, la même porte, aucun décor. Chaque écran recevra
-   ensuite sa forme propre — « plus petit » sur Biography, sous les six
-   barillets sur Abilities, `This is my calling` sur Destiny.
+   ⭐ C'EST DONC ICI QUE LA BASCULE SE JOUE, ET NULLE PART AILLEURS. Cette
+   fonction était le seul producteur du bouton `Validate` ; elle est le seul
+   producteur de la paire. Les dix écrans en héritent dans le même geste — il
+   n'y a aucune migration écran par écran à faire, et c'est précisément
+   pourquoi le bouton avait été construit ici plutôt que là-bas.
+   ⏳ Ce que ce lot NE fait pas : donner à chaque écran SON mot (le croquis C
+   dit `Choose your cantrips`, le croquis A `Finish`). `DONE` est le mot
+   commun ; le renommer par écran est un lot à part.
 
-   📌 IL SE RECONSTRUIT AVEC LE CONTENU, donc aucune fonction de peinture :
-   il naît et meurt dans le `swapContent` de `refresh()`, comme le reste de
-   la scène. C'est ce qui le dispense d'être un nœud persistant. */
-function renderValidation() {
+   ══ ⚠️ CE QUE `BACK` RÉVEILLE, ET IL FALLAIT LE RELIRE AVANT D'ÉCRIRE ═════
+   L'invariant I.5 disait *« `Back` n'existe plus — la molette le remplace »*,
+   et le lot 79 l'avait PRÉCISÉ (§4.1 bis) : interdit comme navigation
+   d'ÉTAPE, autorisé entre PALIERS, parce que la ceinture porte le retour
+   entre les dix étapes mais qu'un sous-écran de palier n'a aucune ceinture.
+
+   🔴 CE `BACK`-CI FAIT LES DEUX, ET C'EST CE QUI RÉCONCILIE LES DEUX LOIS :
+   il recule d'un PALIER quand il y en a un, d'une ÉTAPE sinon. Le joueur n'a
+   donc jamais deux chemins de retour concurrents pour le même pas — c'était
+   tout l'argument de I.5 —, et le sous-écran de palier gagne le sien.
+   ⛔ Ce qui reste interdit, et que le garde 17 tient maintenant en toutes
+   lettres : qu'un ÉCRAN pose son propre `BACK`. Un seul producteur, ici.
+
+   📌 LA PAIRE SE RECONSTRUIT AVEC LE CONTENU, donc aucune fonction de
+   peinture : elle naît et meurt dans le `swapContent` de `refresh()`, comme
+   le reste de la scène. C'est ce qui la dispense d'être un nœud persistant. */
+function renderSortieEtape() {
   /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
      Un bouton mort au bas de la dernière page ne dirait rien à personne. */
   if (STEPS[state.step].id === "review") return null;
@@ -1366,20 +1446,29 @@ function renderValidation() {
      garder tous les deux serait deux commandes pour un geste, à dix pixels
      l'une de l'autre. Les croquis A et C ne dessinent que `LORE` / `CHOOSE`.
      ⛔ SEULEMENT AU PALIER 1 : le 2ᵉ palier n'a plus de fiche (c'est le menu
-     des choix, B2.3), donc plus de `CHOOSE` — il garde ce bouton, et il en a
-     besoin. Le croquis C l'appelle `Choose your cantrips`, le croquis A
-     `Finish` : ⏳ le renommer par écran est un geste de plus, pas celui-ci. */
+     des choix, B2.3), donc plus de `CHOOSE` — il garde ce pied, et il en a
+     besoin. */
   const fiche = catalogueCourant();
   if (fiche && fiche.fiche && state.palier !== 2) return null;
   const gate = currentGate();
-  const bouton = button("Validate", () => pressValidate());
-  bouton.className = "valider-bouton";
+
+  const back = button("BACK", () => pressBack());
+  back.className = "sortie-bouton sortie-back";
+  /* Rien derrière le premier palier de la première étape : le bouton reste
+     LISIBLE et éteint, jamais absent — un contrôle qui disparaît fait douter
+     de l'endroit où l'on est. */
+  const peutReculer = state.palier > 1 || state.step > 0;
+  back.disabled = !peutReculer;
+
+  const done = button("DONE", () => pressDone());
+  done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
      pourquoi par son apparence, jamais disparaître. */
-  bouton.dataset.lit = String(gate.ready);
-  bouton.disabled = !gate.ready;
-  return el("div", "valider", [bouton]);
+  done.dataset.lit = String(gate.ready);
+  done.disabled = !gate.ready;
+
+  return el("div", "sortie", [back, done]);
 }
 
 /** LE SLOT HORIZONTAL (B0.19) — garni par l'écran qui en a un, vidé pour
@@ -1434,7 +1523,7 @@ function refresh() {
   paintAside();
   paintTopbar();
   paintPopup();
-  swapContent(frame.stage, [renderStepContent(), renderValidation()].filter(Boolean));
+  swapContent(frame.stage, [renderStepContent(), renderSortieEtape()].filter(Boolean));
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`

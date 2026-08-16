@@ -135,9 +135,29 @@ function colorViolations(cssText) {
   return hits;
 }
 
-/** Chaque `display: none` — le défaut n°3 (effacer des mots). */
+/** Chaque `display: none` — le défaut n°3 (effacer des mots).
+ *
+ *  ══ ⭐ UNE SEULE EXCEPTION, NOMMÉE, ET AJOUTÉE LE 2026-08-16 (lot 80) ══════
+ *  `.porte-de .fh-cd-static-die-result` — l'incrustation que le MOTEUR DE DÉS
+ *  peint sur la face d'un d6.
+ *
+ *  🔴 CE N'EST PAS « EFFACER UN MOT », C'EST EN REMPLACER UN FAUX. Le vivier
+ *  des caractéristiques pose des SCORES (8 à 18) sur des d6 qui servent de
+ *  socle. Le moteur, lui, écrit la FACE du dé — et il a raison de le faire :
+ *  un d6 ne peut pas faire 15, et il ne ment pas sur un jet. Les deux
+ *  chiffres se superposeraient, et c'est celui du moteur qui serait faux.
+ *  L'écran écrit le bon par-dessus (`.valeur`) ; l'autre se tait.
+ *  ⛔ CE QUE CETTE EXCEPTION N'AUTORISE PAS : elle est ancrée sur DEUX
+ *  classes, dont une du moteur recopié. Aucun libellé du builder n'y entre.
+ *  Et le défaut n°3 reste tenu partout ailleurs, y compris dans le reste du
+ *  même bloc — c'est la mesure ci-dessous qui le dit.
+ *  📌 Même discipline que l'exception `dice3d.mjs` du garde 7 : nommée,
+ *  argumentée, et VÉRIFIÉE RÉELLE par un témoin (si la règle disparaissait,
+ *  l'exception devrait disparaître avec elle). */
+const DISPLAY_NONE_EXCEPTION = /\.porte-de\s+\.fh-cd-static-die-result\s*\{[^}]*\}/g;
+
 function displayNoneViolations(cssText) {
-  const text = stripComments(cssText);
+  const text = stripComments(cssText).replace(DISPLAY_NONE_EXCEPTION, "");
   return [...text.matchAll(/display\s*:\s*none/g)].map((m) => m[0]);
 }
 
@@ -218,6 +238,20 @@ test("garde 4 — aucun display:none dans shell.css (défaut n°3)", () => {
   assert.deepEqual(displayNoneViolations(shellCssRaw), []);
 });
 
+test("garde 4 bis — ⚔️ l'exception du chiffre de dé est RÉELLE, et elle est la SEULE", () => {
+  /* Une exception qui ne correspond à rien est une porte ouverte : elle
+     laisserait passer le jour où quelqu'un l'élargit, sans que personne ne
+     remarque qu'elle ne protégeait plus rien. */
+  const trouvees = stripComments(shellCssRaw).match(DISPLAY_NONE_EXCEPTION) || [];
+  assert.equal(trouvees.length, 1, "l'exception vise une règle qui existe VRAIMENT — une seule");
+  assert.match(trouvees[0], /display\s*:\s*none/, "et cette règle porte bien le `display: none` qu'on exempte");
+  /* ⚔️ ET ELLE NE COUVRE QUE CELLE-LÀ : un second `display: none` glissé
+     ailleurs dans le fichier rougit, exception en place. */
+  const mute = `${shellCssRaw}\n.belt-label { display: none; }\n`;
+  assert.deepEqual(displayNoneViolations(mute), ["display: none"],
+    "le garde voit le défaut n°3 partout ailleurs — l'exception n'a pas désarmé la clause");
+});
+
 /* ══ GARDE 12 — LES ACCOLADES, COMPTÉES AVEC UNE PILE ════════════════════
    🔴 CE GARDE A UNE FACTURE, ET ELLE EST LOURDE. `shell.css` a porté un
    `@media (prefers-reduced-motion: reduce)` OUVERT LIGNE 891 ET JAMAIS
@@ -292,12 +326,45 @@ test("⚔️ ATTAQUE — le garde 12 voit les DEUX formes, et une fermante en tr
    fichier est une COPIE VERBATIM de `fh-phb` (`docs/javascripts/fh-static-dice.js`).
    On n'y ajoute rien ; un défaut s'y corrige EN AMONT, puis on recopie. Lui
    imposer nos règles de feuille de style reviendrait à le forker. */
+/* ══ ⭐ LA SECONDE EXCEPTION, ET ELLE ÉTAIT ANNONCÉE ══════════════════════
+   `abilities-step.mjs : .style.transform` — la position du FANTÔME, le dé qui
+   suit le doigt pendant un glisser (Eric, 2026-08-16 : *« je veux voir
+   l'image du dé qui se déplace »*).
+
+   🔴 UNE POSITION QUI SUIT UN DOIGT NE PEUT PAS VIVRE DANS UNE FEUILLE. Elle
+   change à chaque image de l'animation, sur une valeur que seul l'événement
+   pointeur connaît. Il n'existe aucune forme de CSS qui l'exprime — et
+   `setProperty("--x", …)` n'est pas une porte dérobée : le garde le refuse
+   aussi, à dessein.
+
+   ⭐ ET CE N'EST PAS UNE ENTORSE IMPROVISÉE : `glisser.mjs` l'a écrite noir
+   sur blanc en refusant le fantôme au lot 79 — *« si Eric juge le geste trop
+   sec à l'usage, le fantôme se rediscutera avec une exception ARGUMENTÉE au
+   garde, pas en le contournant »*. Eric l'a jugé. Voici l'exception.
+
+   ⛔ ELLE EST BORNÉE À UNE FORME, PAS À UN FICHIER, et la différence compte :
+   `dice3d.mjs` est exempté EN ENTIER parce qu'il est une copie verbatim qu'on
+   ne modifie pas. `abilities-step.mjs`, lui, est du code à nous — n'y passe
+   que `.style.transform`. Une taille, une couleur ou un corps posés en ligne
+   y rougissent toujours, et c'est bien ce que le garde protège : le fantôme
+   ne porte AUCUN décor en ligne (son ombre et son agrandissement vivent dans
+   `shell.css`), rien qu'une paire de coordonnées. */
+const STYLE_EN_LIGNE_EXCEPTIONS = [
+  { fichier: "dice3d.mjs", forme: null },                        // copie verbatim : exempté en entier
+  { fichier: "abilities-step.mjs", forme: ".style.transform" }   // le fantôme, et lui seul
+];
+
 function inlineStyleViolations() {
   const hits = [];
   for (const nom of fs.readdirSync(UI_DIR)) {
-    if (!nom.endsWith(".mjs") || nom === "dice3d.mjs") continue;
+    if (!nom.endsWith(".mjs")) continue;
+    const exception = STYLE_EN_LIGNE_EXCEPTIONS.find((e) => e.fichier === nom);
+    if (exception && exception.forme === null) continue;
     const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
-    for (const [ligne] of texte.matchAll(/\.style\s*(\.\w+|\[)/g)) hits.push(`${nom} : ${ligne.trim()}`);
+    for (const [ligne] of texte.matchAll(/\.style\s*(\.\w+|\[)/g)) {
+      if (exception && ligne.trim() === exception.forme) continue;
+      hits.push(`${nom} : ${ligne.trim()}`);
+    }
   }
   return hits;
 }
@@ -315,6 +382,13 @@ test("⚔️ ATTAQUE — le garde 7 mord vraiment (il ne passe pas parce qu'il n
   const moteur = fs.readFileSync(path.join(UI_DIR, "dice3d.mjs"), "utf8");
   assert.equal(/\.style\s*(\.\w+|\[)/.test(moteur), true,
     "et l'exception est RÉELLE : le moteur recopié écrit bien `.style` — s'il cessait, il faudrait retirer l'exception");
+  /* ⚔️ LA SECONDE EXCEPTION EST RÉELLE AUSSI, ET ELLE EST ÉTROITE : le
+     fantôme écrit `.style.transform`, et rien d'autre n'y passe. */
+  const ecran = stripComments(fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8"));
+  const formes = [...ecran.matchAll(/\.style\s*(\.\w+|\[)/g)].map(([forme]) => forme.trim());
+  assert.ok(formes.length > 0, "le fantôme écrit bien un style en ligne — sinon l'exception ne protège rien");
+  assert.deepEqual([...new Set(formes)], [".style.transform"],
+    "et SEULEMENT `.style.transform` : une taille ou une couleur posée en ligne doit rougir, exception en place");
 });
 
 test("garde 6 — aucune règle n'habille un bouton sans lui poser son encre (défaut n°4)", () => {
@@ -353,8 +427,9 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton principal fait rougir SEU
   /* ⚠️ CIBLE REPORTÉE AU LOT 58, comme celle de l'ATTAQUE 2 avant elle : la
      règle d'origine (`.stage-nav button:last-child`, le bouton `Continue`)
      N'EXISTE PLUS — `Continue` est devenu l'unique `Validate` de la ligne de
-     commande (invariant I.3 : « il n'existe qu'un seul Validate dans toute
-     l'interface »), et `.stage-nav` est parti avec son balisage (loi §0.6).
+     commande (invariant I.3), lequel a disparu à son tour le 2026-08-16 au
+     profit de `DONE` (lot 80, §5.1). `.stage-nav` est parti avec son
+     balisage (loi §0.6).
      ⭐ CE QUE L'ATTAQUE PROUVE NE CHANGE PAS D'UN IOTA : le bouton PRINCIPAL
      du builder, celui qui porte l'accent, ne doit pas écrire son encre en
      dur — `#fff` échouait 2,44:1 en thème sombre (défaut n°1, mesuré le
@@ -363,8 +438,8 @@ test("⚔️ ATTAQUE 1 — remettre #fff sur le bouton principal fait rougir SEU
   assert.deepEqual(before, [], "le vrai fichier est propre avant l'attaque");
 
   const mutated = shellCssRaw.replace(
-    '.valider-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
-    '.valider-bouton[data-lit="true"] { background: var(--accent); color: #fff;'
+    '.sortie-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent);',
+    '.sortie-bouton[data-lit="true"] { background: var(--accent); color: #fff;'
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
@@ -382,8 +457,8 @@ test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEUL
   /* ⚠️ CIBLE REPORTÉE AU LOT 58 (même raison que l'ATTAQUE 1 ci-dessus) : la
      PAIRE de boutons du défaut d'origine était `Back` + `Show plan`. `Back`
      n'existe plus (invariant I.5, « la molette le remplace ») ; la paire
-     d'aujourd'hui est `Show plan` + `Validate`, habillée par une règle
-     unique. ⭐ Le défaut rejoué est le MÊME À L'OCTET : un fond posé sans
+     d'aujourd'hui est la PAIRE de la sortie d'étape, `BACK` + `DONE` (lot 80,
+     §5.1 : *« 1 validate dégage PARTOUT »*), habillée par une règle unique. ⭐ Le défaut rejoué est le MÊME À L'OCTET : un fond posé sans
      encre sur un `<button>`, qui rend alors du noir imposé par l'agent
      utilisateur — 1,24:1, invisible, avec 765 tests verts. */
   const before = buttonInkViolations(shellCssRaw);
@@ -395,7 +470,7 @@ test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEUL
   );
   assert.notEqual(mutated, shellCssRaw, "la substitution a bien trouvé sa cible");
 
-  assert.deepEqual(buttonInkViolations(mutated), [".valider-bouton"],
+  assert.deepEqual(buttonInkViolations(mutated), [".sortie-bouton"],
     "le garde voit EXACTEMENT la règle qui produirait les 1,24:1");
   assert.deepEqual(colorViolations(mutated), colorViolations(shellCssRaw), "le garde couleur ne bouge pas — le défaut est une ABSENCE, pas un littéral");
   assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "ni le garde de type");
@@ -728,12 +803,39 @@ test("engine.mjs monte bien createFhDestinyStat et createFhSkillPoolStat dans `m
    shell.css ne nomment une mécanique maison ou un chemin de couche — la
    feuille de style est la même, qu'un personnage porte FH ou non. */
 
+/* ══ ⭐ CE QUE `fh-cd-` N'EST PAS, ET IL FALLAIT LE DISTINGUER ════════════
+   Ce garde interdit à la feuille de nommer une COUCHE — `destiny`, `arcana`,
+   `tilt`, `fh.*`. Son motif attrapait `\bfh[-_]` en bloc, et il a rougi le
+   2026-08-16 sur `.porte-de .fh-cd-static-die-result`.
+
+   🔴 CE N'EST PAS UN NOM DE COUCHE, C'EST LE BALISAGE D'UN MOTEUR TIERS.
+   `fh-cd-` est le préfixe du *companion dock* de `fh-phb`, dont `dice3d.mjs`
+   et `dice3d.css` sont une COPIE VERBATIM. Une feuille qui doit adresser ce
+   balisage n'a pas le choix du sélecteur : c'est le moteur qui le nomme.
+   ⛔ ET L'EXCEPTION EST ÉTROITE : `fh-cd-` seulement. `fh-destiny`,
+   `fh-tilt`, `fh-skill-pool` — les vrais noms de couche — rougissent
+   toujours, et le témoin ci-dessous le prouve plutôt que de le promettre. */
+const VOCABULAIRE_DE_COUCHE = /\bdestin(y|ies)|\bchaos|\boverreach|\barcan(a|e|um)|\bawaken|\bfate|\bvibration|\btilt|\bfh[-_](?!cd-)|modules\/fh|layers\/fh/i;
+
 test("aucun vocabulaire Fate's Hand dans tokens.css ni shell.css — la feuille de style ne connaît aucune couche", () => {
-  const suspects = /\bdestin(y|ies)|\bchaos|\boverreach|\barcan(a|e|um)|\bawaken|\bfate|\bvibration|\btilt|\bfh[-_]|modules\/fh|layers\/fh/i;
   for (const [name, text] of [["tokens.css", stripComments(tokensCssRaw)], ["shell.css", stripComments(shellCssRaw)]]) {
-    const found = text.match(suspects);
+    const found = text.match(VOCABULAIRE_DE_COUCHE);
     assert.equal(found, null, `${name} porte « ${found && found[0]} » — un jeton ne doit jamais nommer une couche`);
   }
+});
+
+test("⚔️ ATTAQUE — l'exception `fh-cd-` ne couvre QUE le moteur de dés recopié", () => {
+  /* Le geste qu'on redoute : élargir l'exception jusqu'à laisser entrer un
+     vrai nom de couche. Trois faux voisins, trois rougeurs attendues. */
+  for (const faute of [".fh-destiny-card { color: red; }", ".fh_tilt { color: red; }", ".fh-skill-pool { color: red; }"]) {
+    assert.notEqual(faute.match(VOCABULAIRE_DE_COUCHE), null,
+      `« ${faute} » nomme une couche : le garde doit le voir malgré l'exception`);
+  }
+  assert.equal(".porte-de .fh-cd-static-die-result { display: none; }".match(VOCABULAIRE_DE_COUCHE), null,
+    "et le balisage du moteur recopié passe — c'est tout ce que l'exception achète");
+  /* ⚔️ Le témoin : l'exception sert VRAIMENT à quelque chose aujourd'hui. */
+  assert.match(stripComments(shellCssRaw), /\.fh-cd-/,
+    "shell.css adresse bien le moteur — si ce n'était plus le cas, l'exception devrait partir");
 });
 
 /* ══ 11 — LE CÂBLAGE DE shell.mjs, PAS SEULEMENT SA FONCTION ══════════

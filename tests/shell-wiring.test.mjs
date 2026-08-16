@@ -213,20 +213,84 @@ test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de 
 
 /* ══ LOT 58 — DEUX GARDES DE PLUS, SUR CE QUE LE CADRE PROMET ═════════════ */
 
-test("16 — ⛔ UN SEUL `Validate` dans tout ui/ (I.3, répété deux fois par Eric)", () => {
-  /* « L'UNIQUE Validate tout en haut. » Aucun écran, aucune fenêtre majeure,
-     aucun menu de choix n'a le droit d'en poser un second. Le garde cherche
-     le MOT dans les chaînes de `ui/`, hors commentaires — la seule occurrence
-     légitime est le libellé du bouton de la ligne de commande. */
-  const files = walkSources(UI_DIR);
+/* ══ 16 / 17 — LA SORTIE D'ÉTAPE, ET LES DEUX GARDES QUI ONT CHANGÉ DE
+   VÉRITÉ LE 2026-08-16 (lot 80, §5.1) ════════════════════════════════════
+
+   🔴 CE QUI A ÉTÉ DÉCIDÉ. Eric, mot pour mot : *« 1 validate dégage
+   PARTOUT »*. Le croquis des caractéristiques dessine `BACK` et `DONE` au
+   pied du collecteur, et le mandat dit ce qu'ils sont : non pas la sortie
+   d'UN écran, mais **le PATRON de la sortie d'étape**.
+
+   ⛔ CES DEUX GARDES SONT DONC RÉÉCRITS À LA NOUVELLE VÉRITÉ, JAMAIS
+   DÉSARMÉS — c'est l'instruction du mandat, et c'est la seule façon honnête
+   de traiter un invariant qu'une décision périme. Un garde qu'on supprime
+   parce qu'il rougit ne protégeait plus rien le lendemain.
+
+   ── CE QUE CHACUN GARDAIT, ET CE QU'IL GARDE MAINTENANT ────────────────
+   · **16** gardait « UN SEUL `Validate` dans tout `ui/` » (I.3, « répété
+     deux fois par Eric »). Le mot ne doit plus paraître du tout : il devient
+     **ZÉRO**. ⚠️ Mais un garde qui n'exige plus qu'une absence garde du VIDE
+     — il resterait vert sur un builder sans aucune sortie d'étape. Il exige
+     donc AUSSI que la sortie EXISTE, et qu'elle soit produite au seul
+     endroit qui en ait le droit.
+   · **17** gardait « `Back` n'existe plus nulle part » (I.5 : *« la molette
+     le remplace »*), et le lot 79 l'avait PRÉCISÉ (§4.1 bis) : interdit
+     comme navigation d'ÉTAPE, autorisé entre PALIERS — parce que la
+     ceinture porte le retour entre les dix étapes, mais qu'un sous-écran de
+     palier n'a aucune ceinture.
+
+   ⭐ ET LA NUANCE DU LOT 79 N'EST PAS RENVERSÉE, ELLE EST TENUE PAR LA
+   FORME MÊME DU BOUTON. Le `BACK` de la sortie recule d'un **palier** quand
+   il y en a un, d'une **étape** sinon (`pressBack`, shell.mjs). Le joueur
+   n'a donc jamais deux chemins de retour concurrents pour le même pas —
+   c'était tout l'argument de I.5 — et le sous-écran de palier gagne le sien,
+   ce que le lot 79 réclamait. Les deux lois disaient la même chose ; il
+   manquait un bouton capable de les servir toutes les deux.
+   ⛔ CE QUI RESTE INTERDIT, ET C'EST LE CŒUR DU GARDE 17 : qu'un ÉCRAN pose
+   son propre retour. Un seul producteur, `renderSortieEtape`.
+
+   📌 CE QUE CES DEUX GARDES NE DISENT PAS, dit ici plutôt que tu : les
+   PORTES gardent leur nom (`currentGate`, `abilitiesValidate`,
+   `skillsValidate`, `catalogueValidate`…). Elles n'ont jamais nommé le
+   bouton — elles nomment le fait de VALIDER un palier, qui est toujours ce
+   qu'elles font. Seul le LIBELLÉ a disparu, et c'est le libellé que ces
+   gardes cherchent. */
+
+/** Les libellés de la sortie d'étape, et le fichier qui a seul le droit de
+ *  les écrire. Une paire, un producteur. */
+const SORTIE_ETAPE = { back: '"BACK"', done: '"DONE"', producteur: "ui/builder/shell.mjs" };
+
+/** Combien de fois chaque fichier de `ui/` écrit un libellé donné, hors
+ *  commentaires. */
+function porteursDuLibelle(libelle) {
   const porteurs = [];
-  for (const file of files) {
+  for (const file of walkSources(UI_DIR)) {
     const text = stripComments(fs.readFileSync(file, "utf8"));
-    const n = (text.match(/"Validate"/g) || []).length;
+    const n = (text.split(libelle).length - 1);
     if (n > 0) porteurs.push(`${path.relative(ROOT, file)} (${n})`);
   }
-  assert.deepEqual(porteurs, ["ui/builder/shell.mjs (1)"],
-    "un second Validate posé par un écran romprait l'invariant I.3 — le bouton unique change de PALIER, il ne se dédouble pas");
+  return porteurs;
+}
+
+test("16 — ⛔ ZÉRO `Validate` dans tout ui/ : le mot a disparu partout (Eric, 2026-08-16)", () => {
+  /* *« 1 validate dégage PARTOUT »*. Plus aucun écran, plus aucune fenêtre,
+     plus la coquille elle-même. Le garde cherche le MOT dans les chaînes de
+     `ui/`, hors commentaires. */
+  assert.deepEqual(porteursDuLibelle('"Validate"'), [],
+    "`Validate` a été retiré partout : le voir revenir serait une régression, pas un ajout");
+});
+
+test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vide", () => {
+  /* 🔴 SANS CETTE MOITIÉ, LE GARDE 16 SERAIT VERT SUR UN BUILDER SANS AUCUN
+     MOYEN D'AVANCER. Une absence ne se garde jamais seule — c'est la leçon
+     des gardes 18/19 dix lignes plus haut (« on pouvait retirer les
+     `applyDecisionAction` et garder 1 142 tests verts devant un rail mort »). */
+  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.done), [`${SORTIE_ETAPE.producteur} (1)`],
+    "`DONE` doit exister EXACTEMENT une fois, et dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
+  assert.match(shellText, /function renderSortieEtape\(\)/,
+    "et la paire a un producteur nommé : un écran qui la recopierait en ferait la sortie d'UN écran");
+  assert.match(shellText, /swapContent\(frame\.stage, \[renderStepContent\(\), renderSortieEtape\(\)\]/,
+    "⛔ et elle est réellement POSÉE dans la scène — écrite sans être appelée, elle ne serait qu'un placeholder de plus");
 });
 
 /* ══ 18 / 19 — LES DEUX CHAPITRES DU 2026-08-15, SUR LES OCTETS ══════════
@@ -246,8 +310,13 @@ test("18 — CH4/CH6 : le rail ET les fiches reçoivent leur destinataire — si
     "les fiches sans destinataire rendent un `CHOOSE` éteint — et l'écran n'aurait alors AUCUNE validation (CH6)");
   /* Et l'action arrive bien à la porte : `ficheChoose` pose le curseur de la
      fiche pressée, puis laisse `pressValidate` posséder les paliers (I.4). */
-  assert.match(shellText, /action\.kind === "ficheChoose"[\s\S]{0,160}state\.cursor = action\.index;[\s\S]{0,80}pressValidate\(\)/,
-    "⛔ `ficheChoose` doit poser le curseur PUIS passer la main à `pressValidate` — recopier la logique des paliers ferait deux propriétaires d'une même porte");
+  /* ⚠️ LE NOM A CHANGÉ AU LOT 80 (`pressValidate` → `pressDone`), LA LOI NON :
+     le bouton qu'il servait n'existe plus, et un nom qui promet un `Validate`
+     à l'écran ferait chercher longtemps. Ce que ce garde tient est intact —
+     `ficheChoose` pose le curseur PUIS passe la main au propriétaire des
+     paliers, il ne recopie pas sa logique. */
+  assert.match(shellText, /action\.kind === "ficheChoose"[\s\S]{0,160}state\.cursor = action\.index;[\s\S]{0,80}pressDone\(\)/,
+    "⛔ `ficheChoose` doit poser le curseur PUIS passer la main à `pressDone` — recopier la logique des paliers ferait deux propriétaires d'une même porte");
 });
 
 test("19 — CH6 : `renderValidation` s'efface sur un écran à fiche, et SEULEMENT au palier 1", () => {
@@ -275,12 +344,32 @@ test("20 — ⚔️ ATTAQUE : un câblage amputé fait rougir 18, sur une source
     "et le vrai fichier, lui, passe — sinon le garde ne prouverait rien");
 });
 
-test("17 — `Back` n'existe plus nulle part dans ui/ (I.5, B0.18)", () => {
-  const files = walkSources(UI_DIR);
-  const porteurs = [];
-  for (const file of files) {
-    const text = stripComments(fs.readFileSync(file, "utf8"));
-    if (/"Back"/.test(text)) porteurs.push(path.relative(ROOT, file));
-  }
-  assert.deepEqual(porteurs, [], "« la molette le remplace » — un bouton Back rouvrirait deux chemins de retour");
+test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose (I.5 + lot 79 §4.1 bis)", () => {
+  /* La nuance est ÉCRITE DANS LE GARDE, pour que le prochain lot ne la relise
+     pas comme une interdiction générale et ne rouvre pas le débat (le lot 79
+     l'avait demandé mot pour mot). */
+  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.back), [`${SORTIE_ETAPE.producteur} (1)`],
+    "un `BACK` posé par un ÉCRAN rouvrirait deux chemins de retour — ce que I.5 interdit ; celui de la coquille les unifie");
+  /* ⭐ ET IL RECULE BIEN D'UN PALIER AVANT DE RECULER D'UNE ÉTAPE : c'est
+     CETTE ligne qui tient la nuance du lot 79. Inversée, le bouton sauterait
+     le sous-écran qu'on vient de traverser — précisément le retour qui
+     manquait aux paliers. */
+  assert.match(shellText, /function pressBack\(\) \{\s*if \(state\.palier > 1\) \{ state\.palier -= 1; openSurface\(\); return; \}\s*goToStep\(state\.step - 1\);/,
+    "⛔ un PALIER d'abord, une ÉTAPE ensuite — l'ordre EST la nuance du lot 79, il ne s'inverse pas");
+  /* L'ancienne forme du mot ne doit pas revenir non plus par la petite porte :
+     `"Back"` en capitale douce était le libellé de la barre disparue. */
+  assert.deepEqual(porteursDuLibelle('"Back"'), [],
+    "l'ancien libellé de la ligne de commande reste mort — la paire du croquis écrit `BACK`");
+});
+
+test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait rougir 16 bis et 17, eux seuls", () => {
+  /* Le geste exact qu'on redoute — un lot qui « ajoute juste un bouton » au
+     pied de son écran plutôt que d'employer celui de la coquille. */
+  const ecranFautif = 'const b = button("DONE", () => act()); const r = button("BACK", () => act());';
+  assert.equal(ecranFautif.includes(SORTIE_ETAPE.done), true, "l'attaque pose bien un second DONE");
+  assert.equal(ecranFautif.includes(SORTIE_ETAPE.back), true, "et un second BACK");
+  /* Et les gardes VOISINS ne bougent pas : l'attaque n'introduit aucun
+     `Validate`, ne touche ni le câblage du rail ni le bornage par REVIEW_INDEX. */
+  assert.equal(ecranFautif.includes('"Validate"'), false);
+  assert.match(shellText, /Math\.min\(REVIEW_INDEX, index\)/);
 });

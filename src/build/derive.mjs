@@ -157,6 +157,22 @@ function fail(what) {
   throw new BuildError(`fhpc/build: ${what}`);
 }
 
+/* ⭐ PUBLIÉE AU LOT 80, ET POUR LA MÊME RAISON QUE `CREATION_SCORES` (lot 74).
+   Le vivier des caractéristiques doit montrer le modificateur SOUS CHAQUE DÉ
+   (décision d'Eric, 2026-08-16) — y compris sous un dé qui n'appartient
+   encore à aucune caractéristique, donc qui n'a AUCUNE entrée dans
+   `resolved.abilities` où le lire.
+   ⛔ L'écran ne réécrit pas `Math.floor((v - 10) / 2)` pour autant : ce
+   serait une règle du jeu recopiée dans l'interface, la faute exacte que la
+   borne 3–18 a déjà coûtée (« l'écran n'écrit plus un seul nombre de plage »).
+   Le moteur prononce, l'écran lit — même octet des deux côtés.
+   ⚠️ ET LE MODIFICATEUR D'UNE CIBLE NE PASSE PAS PAR ICI : un score posé sur
+   une caractéristique est DÉRIVÉ (boosts d'espèce et d'héritage compris), et
+   se lit dans `resolved.abilities[clef].mod`, jamais recalculé (lot 46). */
+export function abilityModOf(score) {
+  return modOf(score);
+}
+
 function modOf(score) {
   return Math.floor((score - 10) / 2);
 }

@@ -1,139 +1,124 @@
-/* ══ L'ÉTAPE ABILITIES — lot 45, corrigée lot 50, corrigée lot 51 ═══════
-   ⚠️ LOT 74 A PÉRIMÉ L'ANCIEN « ZÉRO plan decisions[] pour ce chemin » :
-   le carnet publie désormais six plans `abilities.<clef>` — la borne de
-   création 3–18 (Eric, 2026-08-15), déclarée dans `src/build/decisions.mjs`
-   section LOT 74. Cet écran, lui, continue de lire `document.build.choices`
-   directement (le SEUL endroit où vivent les six valeurs et la méthode
-   choisie) et `resolved.abilities` (le SEUL endroit où lire le score FINAL,
-   boosts compris, tel que le moteur le rend — jamais recalculé ici, même
-   loi que le compteur de `skills-step.mjs`). Ce qu'il prend au moteur EN
-   PLUS depuis le lot 74 : `CREATION_SCORES`, la liste des valeurs offertes
-   à la saisie — PUBLIÉE par le moteur, jamais réécrite ici.
+/* ══ L'ÉTAPE ABILITIES — refaite au vocabulaire des cadres, lot 80 ═══════
+   📐 Croquis `2026-08-16-abilities-quatre-methodes.jpg`, et le mandat
+   `LOT-80-ABILITIES.md`. Le croquis fait foi.
 
-   ⭐ LOT 50 — LE DÉFAUT QU'ERIC A RENCONTRÉ : on ne pouvait pas distribuer
-   ses six dés sur ses six caractéristiques. Trois rangées restaient
-   bloquées sur les valeurs du personnage d'exemple (§0 de la commande,
-   mesuré sur la page déployée : `13`, `12`, `10` n'étaient dans le lot
-   d'AUCUN dé, et pourtant elles « mangeaient » un dé chacune).
+   ⭐ CE LOT N'A RIEN INVENTÉ, IL A ASSEMBLÉ. Tous les organes existaient,
+   déployés et éprouvés au banc : le glisser (`glisser.mjs`), la rangée FS et
+   le collecteur (`ilots-lab.html`), le panneau INFO
+   (`abilities-info-lab.html`), le plateau de dés (`abilities-tray.mjs`), la
+   règle de tirage (`dice.mjs`). Ce qui manquait, c'était **l'écran qui les
+   tient ensemble**.
 
-   LA PRÉMISSE QUI A CÉDÉ (lot 45, pas une négligence) : « un nombre suffit
-   à identifier un dé ». `optionsForRow` retirait du lot PAR LA VALEUR —
-   or une valeur qui ressemble à un dé (le `14` que DEX portait déjà, hors
-   de tout tirage) lui volait sa place, et une valeur qui ne ressemble à
-   rien (`13`, `12`, `10`) ne consommait jamais rien et revenait à vie
-   (`renderAssignRow`, `options.unshift(current)`).
+   ══ LA FORME — QUATRE MÉTHODES, UN SEUL ENTONNOIR ════════════════════════
 
-   LA FORME REPRISE — `~/tools/fh-skills/fh-skill-builder.html:731`, le
-   builder v1 : `assign: {STR:null, DEX:null, …}` — UNE CARACTÉRISTIQUE
-   POINTE VERS L'INDEX D'UN DÉ, JAMAIS VERS SA VALEUR. Deux dés à 14 sont
-   alors deux index distincts (jamais confondus), et une rangée non
-   distribuée porte `null` — un état que l'écran d'avant ne savait pas
-   exprimer, faute de mieux qu'une comparaison de nombres.
+       ┌─────────────────────────────────────────┐
+       │  CHOOSE AN ABILITY GENERATION METHOD    │  FF2, dalle 35 %
+       │  [FH 3D6] [4D6] [ARRAY] [FREE] [INFO]   │
+       └─────────────────────────────────────────┘
+                            │
+        ┌──────────┬────────┼────────┬──────────┐
+      FH 3D6      4D6     ARRAY     FREE     (INFO → panneau)
+        │          │        │         │
+        ▼          ▼        ▼         ▼
+       ┌──────────────────────────────────────┐
+       │  L'ORGANE  — explication, et le jet  │  FF2, dalle 50 %
+       ├──────────────────────────────────────┤
+       │  LE VIVIER — la rangée d'îlots FS    │  ← ce que la méthode remplit
+       ├──────────────────────────────────────┤
+       │  LE COLLECTEUR — six cibles          │  FF2, dalle 50 %
+       └──────────────────────────────────────┘
 
-   ⚖️ DÉCISION D'ARCHITECTE (2026-08-13, §2a) — cette carte `clef → index`
-   vit HORS DOCUMENT, au même endroit que le lot lui-même : `rollBatch`
-   (`state.abilityRoll` dans `shell.mjs`) porte maintenant un champ
-   `assign`. Elle meurt avec le lot — un `reroll` la remet entière à `null`
-   (§2b, voir `emptyAbilityAssign` plus bas) — et LE DOCUMENT NE GAGNE
-   AUCUN CHAMP : `set()` continue de poser le SCORE, exactement comme avant
-   (test « le document ne gagne aucun champ », `tests/abilities-step.test.mjs`).
+   🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES, et c'est ce
+   qui rend ce lot faisable : le vivier et le collecteur s'écrivent UNE FOIS,
+   et les quatre méthodes ne diffèrent que par **ce qui remplit le vivier**.
+   ⛔ NE PAS ÉCRIRE QUATRE ÉCRANS. Le dépôt a déjà payé cette faute deux fois
+   (`renderChoixGlisses` vs `renderSlotQcm` au lot 79 ; le plateau vs
+   `renderRollBatch` ici même) : deux formes du même geste divergent.
 
-   ⭐ LE MODE EST UNE LISTE (commande §3a-bis) : `ABILITY_METHODS` porte
-   aujourd'hui deux entrées (`roll`, `manual`), et CHAQUE ENTRÉE PORTE SON
-   PROPRE `render`. `renderAbilitiesStep` ne branche JAMAIS sur un id de
-   méthode — il ne compare QUE `method.id === mode.id` pour savoir laquelle
-   est ACTIVE (un état, pas un comportement) et appelle `method.render(...)`
-   sans jamais regarder lequel c'est. Une troisième méthode (Standard Array,
-   Point Buy, 4d6-garder-3…) est donc UNE ENTRÉE DE PLUS dans ce tableau,
-   jamais un `if`/`else if` de plus dans `renderAbilitiesStep` — corrigé sur
-   revue d'architecte (voir INVENTAIRE-LOT-45.md, « le branchement était
-   dans la boucle, pas dans le tableau ») et PROUVÉ par un test qui ajoute
-   une troisième méthode à `ABILITY_METHODS` (une fausse, avec son `render`)
-   SANS TOUCHER UNE LIGNE DE CE FICHIER (`tests/abilities-step.test.mjs`).
+   ══ CE QUI A DISPARU AVEC CE LOT, ET POURQUOI CE N'EST PAS UN RECUL ══════
 
-   ⚠️ LE HASARD VIT ICI, ET C'EST VOULU (commande §3a.4) : la loi « le
-   moteur prononce, l'écran affiche » parle des RÈGLES OPPOSABLES
-   (validate()), pas de la GÉNÉRATION d'un nombre que le joueur pose
-   lui-même avec `set()` — exactement ce que ce fichier fait. Le lot de dix
-   dés lui-même ne survit dans AUCUN champ (Eric, 2026-08-13) : `rollBatch`
-   vit dans `shell.mjs` (`state.abilityRoll`), jamais dans le document.
+   · `ABILITY_METHODS` et ses `render` — le mécanisme du lot 45, dont
+     personne n'appelait plus les `render` depuis le lot 63 (mesuré : « une
+     suite verte ne prouve rien sur ce que personne n'importe »). La
+     PROPRIÉTÉ qu'il défendait est intacte, et mieux tenue : une méthode de
+     plus est UNE ENTRÉE de plus dans `ABILITY_ENTRIES`, jamais un `if`.
+   · `renderAssignRow` / `renderAbilityRow` / `renderManualRow` — les six
+     rangées à molette. Le lot 79 en avait déjà fait un repli ; le vivier
+     existe désormais dans les quatre méthodes, donc le repli n'a plus de cas.
+   · `renderRollBatch` — les pastilles plates de `4d6`. Le plateau sert
+     maintenant les DEUX mécaniques (`ROLLING_METHODS`, dice.mjs).
+   · `renderRollingChoice` — la molette de méthode de jet. `FH 3D6` et `4D6`
+     sont deux TUILES du sélecteur : un choix, pas deux.
 
-   ⛔ LE PLAFOND N'EST TOUJOURS PAS OPPOSÉ ICI (commande §3c) : ce fichier
-   se contente de DÉCLARER l'alerte — une phrase, jamais un blocage, jamais
-   une ligne qui empêcherait `onAction` de partir (Eric, 2026-08-13 :
-   l'écran prévient). ⚠️ LOT 74 : « abilities.str = 20 passe avec ZÉRO
-   refus » est PÉRIMÉ — le moteur NOMME désormais un score de BASE hors
-   3–18 à la création (`abilities.score-out-of-creation-range`,
-   decisions.mjs LOT 74). L'écran ne bloque toujours rien : le refus vit au
-   carnet et dans `validate()`, jamais dans un `if` d'écran.
+   ⛔ ET L'ACTION D'AFFECTATION N'A PAS BOUGÉ D'UN OCTET : `assignAbilityRoll`,
+   la forme du lot 50, avec sa clef, son index et sa valeur. C'est `shell.mjs`
+   qui décide si c'est une POSE ou un ÉCHANGE (lot 51, §1b). Le document ne
+   gagne aucun champ : `set()` continue de poser le SCORE, exactement comme
+   avant.
 
-   ⭐ LOT 51 — LE DÉFAUT SUIVANT, TROUVÉ EN REGARDANT LA PAGE DÉPLOYÉE JUSTE
-   APRÈS LA FUSION DU LOT 50 : une fois les six dés distribués, ZÉRO option
-   restait cliquable sur les six rangées (§0 de sa commande, mesuré :
-   « str: 1 option, 0 cliquable », ×6). La cause, lue dans l'ancienne forme
-   d'`optionsForRow` (par CLEF, ci-dessus le fantôme dans l'historique) :
-   elle rendait « les dés non assignés, plus le sien » — et « non assignés »
-   devient VIDE une fois les six posées, qui est l'état NORMAL en fin
-   d'étape, pas un cas limite. Le lot 50 n'a pas mal travaillé : son test de
-   réassignation avait TOUJOURS un dé libre sous la main (voir
-   INVENTAIRE-LOT-51.md).
+   ⚠️ LE HASARD VIT ICI, ET C'EST VOULU : la loi « le moteur prononce, l'écran
+   affiche » parle des RÈGLES OPPOSABLES (`validate()`), pas de la GÉNÉRATION
+   d'un nombre que le joueur pose lui-même avec `set()`. Le lot tiré ne
+   survit dans AUCUN champ : il vit dans `shell.mjs` (`state.abilityRoll`).
 
-   ⚖️ DÉCISION D'ARCHITECTE (§1a/§1b) — `optionsForRow` rend maintenant
-   TOUJOURS LES SIX dés du lot gardé, quel que soit l'état de la
-   distribution ; cliquer un dé déjà tenu par une AUTRE rangée les ÉCHANGE
-   (jamais « libère puis repose » — une rangée ne peut jamais rester vide,
-   `rebuild()` jette si l'une des six manque, §0 encore). Cette fonction et
-   `renderAssignRow` ne font QUE lister/nommer le geste ; le SWAP lui-même
-   (deux `set` sur le document, deux entrées de `assign` qui permutent —
-   §1d : le document ne gagne toujours aucun champ) vit dans `shell.mjs`,
-   `applyDecisionAction`, action `assignAbilityRoll` — voir son en-tête. */
+   ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
+   phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { renderPicker, markPressed } from "./carnet.mjs?v=37";
-import { renderTray } from "./abilities-tray.mjs?v=37";
-import { armerJeton } from "./glisser.mjs?v=37";
-import { ROLLING_METHODS } from "./dice.mjs?v=37";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=37";
-import { rollAbilitySet } from "./dice.mjs?v=37";
+import { markPressed } from "./carnet.mjs?v=42";
+import { renderTray } from "./abilities-tray.mjs?v=42";
+import { armerJeton } from "./glisser.mjs?v=42";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=42";
+import { createDieHost, mount } from "./dice3d.mjs?v=42";
+import {
+  ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX, abilityModOf
+} from "../../src/build/index.mjs?v=42";
 
 export { rollAbilitySet };
 
 /** La carte d'assignation VIDE — les six clefs à `null`, rien distribué.
  *  Exportée pour que `shell.mjs` la pose sur `state.abilityRoll.assign` à
- *  CHAQUE nouveau lot (`roll` ET `reroll` — commande §2b : « un nouveau lot
- *  remet toute la carte à null »), sans dupliquer `ABILITY_KEYS` là-bas. Ce
- *  fichier importe déjà `ABILITY_KEYS` (ligne ci-dessus) ; `shell.mjs` n'a
- *  pas à le réimporter pour ce seul usage. */
+ *  CHAQUE nouveau lot, sans dupliquer `ABILITY_KEYS` là-bas. */
 export function emptyAbilityAssign() {
   const assign = {};
   for (const key of ABILITY_KEYS) assign[key] = null;
   return assign;
 }
 
-/** La liste des méthodes — voir l'en-tête. `render(ctx)` fabrique le CORPS
- *  de la méthode (au-delà du sélecteur commun) et REND UN TABLEAU DE
- *  NŒUDS — `renderAbilitiesStep` les ajoute avec `block.append(...)`, sans
- *  jamais savoir ce qu'ils contiennent. `summary` est la phrase d'état
- *  quand la méthode N'EST PAS active (§2 du chantier : « rien ne se
- *  cache »). Les deux fonctions `renderRollMethod`/`renderManualMethod`
- *  sont définies plus bas (hissées par la déclaration `function` — l'ordre
- *  du fichier n'a pas d'importance pour ce tableau). */
-export const ABILITY_METHODS = [
-  { id: "roll", label: "Roll (3d6 × 10, keep 6)", summary: "Not selected — switch to it to draw ten dice.", render: renderRollMethod },
-  { id: "manual", label: "Manual entry", summary: "Not selected — switch to it to type six scores directly.", render: renderManualMethod }
-];
+/* ⛔ `ABILITY_MODE_PATH` est parti avec `currentAbilityMode` : cet écran
+   n'écrit ni ne lit plus `abilities.mode`. C'est la coquille qui l'écrit
+   quand la méthode change (`shell.mjs`, action `abilityMethod`), et un garde
+   d'octets le tient (`tests/abilities-step.test.mjs`). */
+const ABILITY_CAP = CREATION_SCORE_MAX; // le 18 arbitré, LU au moteur — jamais réécrit ici
 
-const ABILITY_MODE_PATH = "abilities.mode";
-/* LOT 74 — L'ANCIENNE PLAGE 1..20 EST MORTE, ET C'EST ERIC QUI L'A TUÉE
-   (2026-08-15 : « la borne est 3 à 18 »). Elle se disait « un choix
-   COSMÉTIQUE de widget, PAS une règle », et dépassait 18 exprès pour que
-   l'alerte puisse se déclencher. C'est désormais une RÈGLE, donc elle vit
-   au moteur (`src/build/decisions.mjs`, LOT 74) qui PUBLIE la liste —
-   `CREATION_SCORES`, importée en tête. Cet écran n'écrit plus un seul
-   nombre de plage : en réécrire un (`for (let i = 3; i <= 18; …)`) ne
-   ferait que déplacer la faute. L'alerte de plafond, elle, RESTE : un
-   score FINAL peut toujours dépasser 18 par boost d'Inheritance (mesuré :
-   base 18 + 2 → 20, légal), et elle le dit sans rien bloquer. */
-const ABILITY_CAP = CREATION_SCORE_MAX; // le même 18 arbitré, LU au moteur — jamais réécrit ici
+/* ══ 📏 LE VIVIER — CE QUI EST DÉDUIT, ET CE QUI RESTE ÉCRIT ══════════════
+   CADRES.md §7 : *« aucune largeur ni hauteur écrite, et c'est LE POINT »* —
+   une rangée FS déclare son nombre de colonnes et son écart ; la grille en
+   déduit tout le reste.
+
+   🔴 CE FICHIER A ESSAYÉ D'ÉCRIRE LA COTE, ET LA PAGE L'A DÉMENTI. Le relevé
+   de banc disait « à 360, îlot 54, dé 46 » ; posée ici en constante et
+   mesurée dans le builder à 375, elle a donné un îlot de **51** — parce que
+   le champ n'y vaut pas 344 mais **325** (la scène a son propre rembourrage,
+   ce que le banc n'avait pas). À 360, la place intérieure d'un îlot tombe à
+   ~44, et un dé de 46 y déborde. **Une cote écrite doit rater un seuil un
+   jour ; une largeur en pourcentage n'en a aucun à rater.** La géométrie est
+   donc rendue à la feuille (`.fs-de { width: 100% }`), avec un plafond pour
+   que la palette de FREE — quatre colonnes, donc des îlots deux fois plus
+   larges — ne gonfle pas ses dés.
+
+   ⭐ CE QUI RESTE EN PIXELS N'EST PLUS UNE TAILLE, C'EST UNE RÉSOLUTION. Le
+   moteur 3D fabrique une IMAGE du dé et veut savoir en combien de pixels la
+   dessiner ; la feuille décide ensuite de la place qu'elle occupe. Les deux
+   ne se contredisent pas — l'une est une netteté, l'autre une géométrie.
+   📌 ET UNE SEULE RÉSOLUTION POUR TOUS LES DÉS, DÉLIBÉRÉMENT : le cache du
+   moteur a pour clef `faces|matière|taille|densité|résultat`, et tous nos dés
+   montrent la même face. Une seule valeur = **une seule image fabriquée**,
+   réutilisée par les seize de la palette. Deux valeurs en fabriqueraient
+   deux, pour rien. */
+const FS = {
+  resolution: 96,     // la NETTETÉ de l'image du dé, jamais sa place à l'écran
+  fantome: 46         // ⚠️ la seule cote d'affichage écrite — voir `fantomeLever`
+};
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -145,339 +130,391 @@ function text(value) { return document.createTextNode(String(value)); }
 
 /** La dernière valeur posée sur `abilities.<key>` — lue dans
  *  `document.build.choices`, jamais dans `resolved` (qui inclut les boosts
- *  d'une future Inheritance, hors périmètre de cet écran). `undefined` si
- *  rien n'a encore été posé. */
+ *  d'Inheritance, hors périmètre de cet écran). */
 export function currentAbilityValue(document, key) {
   const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
   const entry = choices.find((c) => c.path === `abilities.${key}`);
   return entry ? entry.value : undefined;
 }
 
-/** La méthode actuellement posée sur `abilities.mode`, ou `null` si rien
- *  n'est posé, ou si la valeur posée ne désigne AUCUNE des méthodes que ce
- *  lot construit (cas mesuré : le personnage d'exemple porte déjà
- *  `"standard"`, une méthode SRD que ce lot n'implémente pas — §3a-bis).
- *  Un mode inconnu n'est pas une faute : il retombe simplement sur la
- *  première méthode connue, avec sa propre note « rien ne se cache ». */
-export function currentAbilityMode(document) {
-  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
-  const entry = choices.find((c) => c.path === ABILITY_MODE_PATH);
-  if (!entry) return { raw: undefined, id: ABILITY_METHODS[0].id, known: true };
-  const known = ABILITY_METHODS.some((m) => m.id === entry.value);
-  return { raw: entry.value, id: known ? entry.value : ABILITY_METHODS[0].id, known };
+/* ══ LES QUATRE MÉTHODES — le sélecteur du croquis ═══════════════════════
+
+   ⌨️ LES LIBELLÉS SONT CEUX DU CROQUIS, mot pour mot : `FH 3D6`, `4D6`,
+   `ARRAY`, `FREE`.
+
+   📌 `standard` GARDE SON ID, ET C'EST DÉLIBÉRÉ. Le croquis l'appelle
+   `ARRAY` ; l'identifiant, lui, est écrit dans les documents existants
+   (`abilities.mode: "standard"`, que le personnage d'exemple porte déjà) et
+   dans `standardArrayBatch`. Un id est une clef de données, un libellé est
+   pour l'œil — les renommer ensemble aurait périmé des documents pour un mot.
+   ⭐ Effet de bord mesuré, et bienvenu : le personnage d'exemple portait une
+   méthode que l'écran ne savait pas offrir, et affichait une note pour le
+   dire. Elle est offerte maintenant ; la note se tait d'elle-même.
+
+   🔴 `POINT BUY` N'EST TOUJOURS PAS OFFERTE, et pas par oubli : son barème
+   (budget de points, coûts non linéaires) n'existe NULLE PART dans le dépôt
+   — ni dans `layers/srd-5.2.1-en.layer.json`, ni dans le moteur. L'écrire ici
+   mettrait une règle du jeu dans l'interface et publierait des nombres dont
+   on ne sait pas s'ils sont SRD (loi §0.8). Une tuile morte serait un faux
+   magasin. ⏳ Question posée à Eric, toujours ouverte.
+
+   ⌨️ LES QUATRE EXPLICATIONS COURTES (§5 bis du mandat) : la règle d'abord,
+   une phrase. Celle de `FH 3D6` est validée MOT POUR MOT par Eric le
+   2026-08-16 ; les trois autres sont des PROPOSITIONS, à relire avant d'être
+   figées. Celles des deux méthodes à dés vivent dans `ROLLING_METHODS`
+   (dice.mjs), au même endroit que leur mécanique — jamais recopiées ici. */
+export const ABILITY_ENTRIES = [
+  { id: "fh3d6", label: "FH 3D6", mecanique: "fh3d6" },
+  { id: "4d6", label: "4D6", mecanique: "4d6" },
+  {
+    id: "standard", label: "ARRAY",
+    blurb: "The same six numbers for everyone: 15, 14, 13, 12, 10, 8. No dice, no luck, "
+      + "nothing to explain afterwards."
+  },
+  {
+    id: "free", label: "FREE",
+    blurb: "Sixteen dice, 3 to 18 — take any value, as often as you like; the pool never runs out. "
+      + "Drag a die off to discard it, or drop another on top to replace it."
+  }
+];
+
+/** L'explication d'une méthode — celle de sa mécanique de jet quand elle en
+ *  a une, la sienne sinon. ⛔ Jamais un `if` sur un id : l'entrée porte soit
+ *  `mecanique`, soit `blurb`. */
+function explicationDe(entry) {
+  if (entry.mecanique) return mecaniqueDeJet(entry.mecanique).summary;
+  return entry.blurb;
 }
 
-/** Les DÉS GARDÉS — lot 51, §1a de la commande d'architecte. Rend TOUJOURS
- *  les SIX index du lot retenu, quel que soit l'état de la distribution —
- *  jamais « les libres plus le sien » (la forme du lot 50, ci-dessous en
- *  commentaire historique). Cette dernière tombait à UNE SEULE option par
- *  rangée dès que les six étaient posées (défaut mesuré §0 de LA COMMANDE
- *  DE CE LOT, sur la page déployée juste après la fusion du lot 50) : zéro
- *  geste restait possible pour changer d'avis, alors que « toutes
- *  distribuées » est l'état NORMAL en fin d'étape, pas un cas limite.
- *
- *  ⭐ « Toujours les six » est la SEULE forme où le geste reste possible
- *  dans n'importe quel état (0 à 6 rangées servies) : filtrer emporterait
- *  fatalement l'option qui permet d'ÉCHANGER (§1b — cliquer un dé déjà tenu
- *  par une autre rangée échange les deux). C'est `selected` (dans
- *  `renderAssignRow`) qui distingue « ce dé est déjà le mien » (actif,
- *  cliquer ne fait rien) de « ce dé est ailleurs ou libre » (cliquer pose
- *  ou échange) — `optionsForRow` ne fait plus ce tri, il ne fait plus QUE
- *  lister. Ne regarde toujours pas `document`/`currentAbilityValue` : la
- *  liste des dés ne dépend que du lot lui-même, jamais des valeurs déjà
- *  posées au personnage (c'était la cause du défaut du lot 50). */
-export function optionsForRow(rollBatch) {
-  const kept = rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls.filter((roll) => roll.kept) : [];
-  return kept.map((roll) => roll.index);
-}
+/* ⛔ DEUX EXPORTS SONT PARTIS AU LOT 80, ET C'EST LA LOI §0.6 (le code s'en
+   va avec ce qui l'appelle) :
+
+   · `currentAbilityMode(document)` — elle lisait `abilities.mode` pour
+     DÉCIDER quelle méthode montrer, et disait poliment quand la valeur posée
+     n'était offerte par aucune. L'écran ne lit plus ce champ du tout : rien
+     n'est déplié tant que le joueur n'a pas touché une tuile (B5.1c), donc il
+     n'y a plus de méthode « montrée à la place » à annoncer. Le champ reste
+     ÉCRIT (c'est une intention du joueur) ; il n'est simplement plus lu ici.
+   · `optionsForRow(rollBatch)` — « toujours les six dés gardés, quel que soit
+     l'état de la distribution » (lot 51, §1a). ⭐ LA LOI, ELLE, N'EST PAS
+     PARTIE : elle est passée de la LISTE D'OPTIONS d'un picker au VIVIER
+     lui-même. Un dé posé reste prenable dans sa cible, et le lâcher sur une
+     autre les échange — c'est le même invariant, lu au bon endroit, et
+     `tests/abilities-step.test.mjs` le prouve maintenant à travers le rendu
+     plutôt qu'à travers une fonction que plus personne n'appelait. */
 
 function abilityLabel(key) { return key.toUpperCase(); }
 
-function renderModeSwitch(activeId, unknownRaw, onAction) {
-  const wrap = el("div", "ability-mode-switch");
-  wrap.append(renderPicker({
-    options: ABILITY_METHODS.map((m) => m.id),
-    selected: [activeId],
-    labelOf: (id) => ABILITY_METHODS.find((m) => m.id === id).label,
-    onSelect: (id) => onAction({ kind: "set", path: ABILITY_MODE_PATH, value: id })
-  }));
-  if (unknownRaw !== undefined) {
-    /* LOT 55, §2.1 — la phrase d'avant (« isn't built by this screen yet »)
-       est du langage de CHANTIER affiché au joueur : il n'a rien à faire de
-       ce qui est construit ou non, seulement de ce qu'il regarde et de ce
-       qu'il peut faire. Cette phrase-ci dit les deux : la méthode que le
-       personnage porte (`unknownRaw`), et laquelle est montrée à la place —
-       sans dire pourquoi, côté chantier, ce n'est pas la sienne. */
-    wrap.append(el("p", "ability-mode-note", [text(
-      `“${unknownRaw}” isn't offered on this screen — showing ${ABILITY_METHODS[0].label} instead.`
-    )]));
-  }
-  return wrap;
+/** Le modificateur, écrit comme un joueur l'écrit : `+2`, `0`, `-1`. */
+function motDuMod(mod) {
+  if (typeof mod !== "number") return "—";
+  return mod >= 0 ? `+${mod}` : String(mod);
 }
 
-/* ⚖️ LOT 50, §2d — le plafond de 18 ne parle QU'AU NIVEAU 1 (Eric,
-   2026-08-13, postérieur à la commande d'origine) : au-delà, le SRD reprend
-   la main (plafond 20). `renderCapWarning` lisait déjà `resolved` pour le
-   score ; il lit maintenant AUSSI `resolved.identity.level` — même chemin
-   que `skills-step.mjs` (`resolved.identity.level`), jamais un `level`
-   recalculé ici. */
+/* ⚖️ LE PLAFOND DE 18 NE PARLE QU'AU NIVEAU 1 (lot 50, §2d) : au-delà, le SRD
+   reprend la main (plafond 20). Le niveau se lit dans `resolved.identity`,
+   jamais recalculé. */
 function renderCapWarning(resolved, key) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
   if (!resolved.identity || resolved.identity.level !== 1) return null;
   const score = resolved.abilities[key].score;
   if (typeof score !== "number" || score <= ABILITY_CAP) return null;
-  /* ⛔ Alerte seulement — RIEN n'empêche `onAction` de partir plus haut.
-     Le moteur laisse ; §4 ADDENDUMS, tranché le 2026-08-13, cité en tête. */
+  /* ⛔ Alerte seulement — RIEN n'empêche `onAction` de partir plus haut. */
   return el("span", "ability-cap-warning", [text(`> ${ABILITY_CAP} at creation`)]);
 }
 
-/* ══ LA COLONNE « FINAL » — corrigée sur mesure d'architecte, 2026-08-13 ═
-   Le défaut mesuré à l'écran : la ligne montrait le CHOIX BRUT (13) à
-   côté d'un modificateur qui n'était PAS le sien (+2, celui du score
-   FINAL 14, boosts d'Inheritance compris) — deux registres différents,
-   aucun mot pour le dire, et le score final lui-même n'apparaissait nulle
-   part. Ce n'était pas un bug de calcul (chaque colonne avait raison dans
-   son registre) : un défaut d'affichage.
+/* ══ LA COLONNE « FINAL » — lot 46, inchangée au lot 80 ═══════════════════
+   Le défaut d'origine, mesuré à l'écran : la ligne montrait le CHOIX BRUT
+   (13) à côté d'un modificateur qui n'était PAS le sien (+2, celui du score
+   FINAL 14, boosts d'Inheritance compris) — deux registres, aucun mot pour le
+   dire, et le score final nulle part.
 
-   ⛔ DEUX LOIS TENUES ICI, LES DEUX FERMES (demande de l'architecte) :
-   1. le champ éditable (le picker, dans `renderAbilityRow`) reste le CHOIX
-      BRUT — jamais inversé, c'est lui que `set()` écrit ;
+   ⛔ DEUX LOIS TENUES ICI :
+   1. ce qui est éditable reste le CHOIX BRUT — c'est lui que `set()` écrit ;
    2. `score`/`mod` sont LUS dans `resolved.abilities[key]`, À L'OCTET —
-      jamais recalculés ici (même loi que les 20 tests du lot 40 : « un
-      total menteur s'affiche menteur »). Cette fonction ne fait AUCUNE
-      arithmétique — pas même la comparaison qui décide `data-boosted` ne
-      touche à aucun des deux nombres, elle les compare tels quels. */
-/* Exportée au lot 46 — Inheritance pose des bonus de caracs (`background.
-   boost.<clef>`) et doit montrer LEUR EFFET « de la même façon » que cette
-   colonne (commande du lot 46, §0) : même octet de `resolved.abilities`,
-   même format, jamais une seconde fonction qui pourrait diverger. */
+      jamais recalculés. Cette fonction ne fait AUCUNE arithmétique.
+
+   ⭐ C'EST ELLE QUE §5.2 DÉSIGNE POUR LES CIBLES. Le modificateur d'un dé
+   POSÉ est le modificateur FINAL (boosts compris), et il se lit ici. Le
+   modificateur BRUT (`abilityModOf`) n'a sa place que dans le VIVIER, où un
+   dé n'appartient encore à aucune caractéristique. Afficher le brut dans une
+   cible serait exactement la contradiction que ce lot 46 a corrigée. */
 export function renderFinalColumn(resolved, key, rawValue) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
   const { score, mod } = resolved.abilities[key];
   if (typeof score !== "number") return null;
-  const modText = typeof mod === "number" ? (mod >= 0 ? `+${mod}` : String(mod)) : "—";
   const cell = el("span", "ability-row-final");
-  /* Piste retenue parmi les trois de l'architecte : le brut reste éditable
-     (picker inchangé), et LE FINAL se lit dans une cellule à part, TITRÉE
-     (« Final »), toujours affichée — boosté ou non, pour que l'absence de
-     boost soit aussi lisible que sa présence, jamais une case qui
-     apparaît/disparaît. `data-boosted` ne fait qu'ANNONCER l'écart déjà lu
-     dans les deux valeurs, pour que l'œil s'y arrête sans qu'il ait à
-     comparer les deux nombres lui-même. */
   cell.dataset.boosted = String(rawValue !== undefined && score !== rawValue);
   cell.append(el("span", "ability-row-final-label", [text("Final")]));
-  cell.append(el("span", "ability-row-final-value", [text(`${score} (${modText})`)]));
+  cell.append(el("span", "ability-row-final-value", [text(`${score} (${motDuMod(mod)})`)]));
   return cell;
 }
 
-/** UNE LIGNE — le corps commun à `roll` et `manual` : label, note optionnelle
- *  (lot 50 : « cette valeur ne vient pas du lot »), picker, colonne
- *  « Final », alerte de plafond. Le picker lui-même (`pickerProps`) est
- *  ENTIÈREMENT fabriqué par l'appelant — c'est LÀ que les deux méthodes
- *  divergent depuis le lot 50 (`roll` pose `assignAbilityRoll` sur un
- *  INDEX de dé, `manual` pose `set` sur une VALEUR), jamais dans ce corps
- *  partagé. Dupliquer le SQUELETTE de la ligne (label/note/picker/final/
- *  alerte) pour les deux méthodes serait, lui, exactement la divergence que
- *  ce fichier existe pour éviter (loi du chantier, citée par `carnet.mjs`). */
-function renderAbilityRow(key, { document, resolved, pickerProps, note }) {
-  const row = el("div", "ability-row");
-  row.dataset.row = key;
-  row.append(el("span", "ability-row-label", [text(abilityLabel(key))]));
-  if (note) row.append(note);
-  row.append(renderPicker(pickerProps));
-  /* ⛔ PAS de `onClear` (ni ici, ni dans les `pickerProps` des deux
-     méthodes) — mesuré en servant le builder (INVENTAIRE-LOT-45.md) :
-     `rebuild()` JETTE si l'une des six manque, et `applyDecisionAction`
-     (shell.mjs) appelle `rebuild()` sans filet après chaque `clear`. Une
-     rangée non distribuée garde donc TOUJOURS une valeur affichée (celle du
-     document) — jamais un tiret qui ferait planter l'écran au clic. */
-  const current = currentAbilityValue(document, key);
-  const final = renderFinalColumn(resolved, key, current);
-  if (final) row.append(final);
-  const warning = renderCapWarning(resolved, key);
-  if (warning) row.append(warning);
-  return row;
+/* ══ UN DÉ QUI PORTE UN SCORE — levé du banc `ilots-lab.html` ═════════════
+   🔴 LE MOTEUR REFUSE D'ÉCRIRE 15 SUR UN D6, ET IL A RAISON : un d6 ne PEUT
+   pas faire 15, et il ne ment pas sur un jet. Or ici le chiffre n'est PAS un
+   jet — c'est un score posé sur un dé qui sert de socle. C'est donc à l'écran
+   de l'écrire, et à l'incrustation du moteur de se taire (la feuille la
+   masque, `.porte-de .fh-cd-static-die-result`).
+
+   ⛔ `snapshot: true`, ET C'EST UN COMPTE, PAS UNE PRÉCAUTION. Un dé non
+   animé ne libère JAMAIS son contexte WebGL (`settleToSnapshot` ne part que
+   sur `data-animate="1"`), et le navigateur en plafonne ~16. Compté sur
+   FREE : 16 dés de palette + 6 dés posés = 22. L'écran serait devenu noir
+   sans une seule erreur. Le chemin image n'en ouvre aucun.
+   ⛔ ET AUCUN STYLE EN LIGNE : la taille du chiffre vit dans la feuille
+   (`--fs-de`), pas dans un `style.fontSize` — le banc s'en dispensait, la
+   production non (garde 7 des jetons). */
+function poserUnDe(hote, valeur, taille, index) {
+  const porte = el("span", "porte-de");
+  porte.append(createDieHost({
+    /* `result: 6` — la POSE du dé, honnête : c'est la face qu'il montre. */
+    sides: 6, result: 6, sizePx: taille, index, animate: false, snapshot: true
+  }));
+  porte.append(el("b", "valeur", [text(String(valeur))]));
+  hote.append(porte);
+  mount(porte);
 }
 
-/** UNE LIGNE DE TIRAGE — `rollBatch.assign[key]` (un INDEX de dé, ou
- *  `null`) est la SEULE source qui dit « cette ligne a reçu un dé » —
- *  jamais une comparaison avec `currentAbilityValue` (c'était le défaut du
- *  lot 50 : voir l'en-tête, et la forme reprise de
- *  `~/tools/fh-skills/fh-skill-builder.html:731`).
- *
- *  - DISTRIBUÉE (`assign[key]` est un index) : le picker montre CE dé
- *    actif ; `optionsForRow` l'inclut toujours dans ses propres options
- *    (cliquer dessus ne fait rien — `renderPicker` n'appelle `onSelect` que
- *    sur une option INACTIVE, donc pas de second geste à apprendre pour
- *    changer d'avis : cliquer un AUTRE dé RÉASSIGNE, voir le test dédié).
- *  - NON DISTRIBUÉE : la note dit la valeur COURANTE du document (souvent
- *    une valeur du personnage d'exemple, jamais un dé de CE lot) et
- *    précise qu'elle ne vient pas du tirage (commande §2c : « rien ne se
- *    cache »).
- *
- *  ⭐ LOT 51 — LE CŒUR DE CE LOT : `optionsForRow` rend maintenant TOUJOURS
- *  les SIX dés (voir sa propre doc), y compris ceux DÉJÀ tenus par une
- *  AUTRE rangée — c'est PRÉCISÉMENT le défaut de ce lot (§0 de sa commande :
- *  une fois les six posées, il ne restait plus AUCUNE option cliquable
- *  nulle part). `labelOf`, ci-dessous, dit QUI tient chaque dé qui n'est
- *  pas le sien (§1c, « rien ne se cache, jamais en compressant un
- *  libellé ») ; `onSelect` pose toujours la MÊME action qu'avant
- *  (`assignAbilityRoll`, la forme du lot 50, inchangée) — c'est
- *  `shell.mjs` qui, en la recevant, ÉCHANGE les deux rangées si le dé
- *  cliqué appartenait à une autre (§1b, décision d'architecte : voir son
- *  en-tête `applyDecisionAction`). Ce fichier ne fait QUE dire ce qui va se
- *  passer et NOMMER le geste — jamais le document, jamais le swap
- *  lui-même : cette ligne reste un pur rendu, comme le reste du fichier. */
-function renderAssignRow(key, ctx) {
-  const { document, resolved, rollBatch, onAction } = ctx;
-  const current = currentAbilityValue(document, key);
-  const assign = (rollBatch && rollBatch.assign) || {};
-  const assignedIndex = assign[key];
-  const fromRoll = assignedIndex !== null && assignedIndex !== undefined;
-  const dieByIndex = new Map(
-    (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).map((roll) => [roll.index, roll])
-  );
-  /* QUI TIENT CE DÉ, hors de CETTE rangée — lot 51, §1c. `null` veut dire
-     soit personne (dé libre), soit CETTE rangée elle-même (jamais annoncée
-     comme « prise » à soi-même — c'est `selected`/`data-active` qui porte
-     déjà cette information, sur le bouton lui-même). */
-  function holderOf(index) {
-    for (const [otherKey, otherIndex] of Object.entries(assign)) {
-      if (otherKey !== key && otherIndex === index) return otherKey;
-    }
-    return null;
-  }
-  const note = el("span", "ability-row-source", [text(
-    fromRoll
-      ? "from this roll"
-      : current !== undefined ? `${current} — not from this roll` : "not assigned yet"
-  )]);
-  const row = renderAbilityRow(key, {
-    document, resolved, note,
-    pickerProps: {
-      options: optionsForRow(rollBatch),
-      selected: fromRoll ? [assignedIndex] : [],
-      /* §1c — un dé tenu ailleurs se LIT différemment (« 16 (DEX) »), pas
-         seulement en couleur ou en position : la compression est interdite
-         (§2 du chantier, garde 4 de shell.css contre `display:none`), donc
-         le mot qui dit « c'est pris, et par qui » doit être DANS le texte
-         du bouton, pas caché derrière un survol ou un attribut invisible. */
-      labelOf: (index) => {
-        const die = dieByIndex.get(index);
-        if (!die) return String(index);
-        const holder = holderOf(index);
-        return holder ? `${die.total} (${abilityLabel(holder)})` : String(die.total);
-      },
-      onSelect: (index) => {
-        const die = dieByIndex.get(index);
-        if (!die) return; // garde : une option ne peut désigner qu'un dé réellement gardé
-        /* Deux verbes, un seul clic (voir shell.mjs, §2a) : `assignAbilityRoll`
-           n'est PAS `set` — il porte l'INDEX (pour la carte hors document)
-           ET la VALEUR (pour le document, qui ne connaît que des scores).
-           Même action qu'au lot 50, POSE ou ÉCHANGE selon l'état de `assign`
-           — `shell.mjs` seul décide lequel (lot 51, §1b). */
-        onAction({ kind: "assignAbilityRoll", key, rollIndex: index, value: die.total });
-      }
-    }
-  });
-  row.dataset.assigned = String(fromRoll);
-  return row;
+/* ══ LE FANTÔME — le dé qui suit le doigt ════════════════════════════════
+   Eric, 2026-08-16 : *« je veux voir l'image du dé qui se déplace »*.
+
+   🔴 IL EST POSÉ EN COORDONNÉES D'ÉCRAN, et c'est la seule façon honnête :
+   le jeton d'origine vit dans une scène qui défile ; un fantôme dans le même
+   flux se ferait couper par le premier `overflow`.
+   ⛔ `pointer-events: none` (feuille) — sans elle, le fantôme se trouve SOUS
+   le doigt quand `elementFromPoint` cherche la cible, et l'organe ne verrait
+   jamais que lui-même. C'est le piège classique de cette forme.
+   ⚠️ MONTÉ UNE FOIS PAR GESTE, JAMAIS PAR IMAGE — un fantôme reconstruit à
+   chaque image épuiserait le plafond de contextes en une seconde. On le monte
+   au LEVER, on ne fait plus que le déplacer ensuite.
+   ⚠️ ET IL SE RANGE SANS CONDITION à la fin du geste, y compris annulé : un
+   fantôme qui survit à son geste est pire que pas de fantôme du tout.
+
+   ⛔ LE DÉPLACEMENT EST LE SEUL STYLE EN LIGNE DE CE FICHIER, et il est
+   inévitable : une position qui suit un doigt ne peut pas vivre dans une
+   feuille. Il ne porte AUCUNE couleur, AUCUNE taille, AUCUN corps — rien de
+   ce que le garde 7 des jetons protège. Le décor du fantôme (l'ombre portée,
+   l'agrandissement) vit, lui, dans `shell.css`. */
+let fantome = null;
+let fantomeDemi = 0;
+
+function fantomeRanger() {
+  if (!fantome) return;
+  fantome.remove();
+  fantome = null;
 }
 
-/* ══ LES DEUX PANNEAUX DU CROQUIS B — lot 79, les dés ════════════════════
-   📐 Croquis `2026-08-15-abilities-roll-drag-drop.jpg`, panneaux 3 et 4 : les
-   SIX dés gardés en cartes (leur total, et le détail « 5+5+6 » dessous), les
-   SIX caractéristiques en cases vides, et entre les deux une grande flèche —
-   **DRAG AND DROP**. C'est le seul geste que le dessin nomme.
+function fantomeLever(valeur, x, y) {
+  fantomeRanger();
+  if (!document.body) return;   // pas de page (hors navigateur) : pas de décor
+  fantome = el("span", "ability-fantome");
+  poserUnDe(fantome, valeur, FS.resolution, 0);
+  /* ⭐ LA DEMI-TAILLE EST CONNUE, PAS MESURÉE, et c'est un vrai gain : lire
+     `getBoundingClientRect()` à chaque `pointermove` force un recalcul de mise
+     en page par image, pendant le seul moment de l'écran où il faut être
+     fluide. On tient le dé par la taille qu'on vient de lui donner.
+     📌 DEUX COTES SONT RECOPIÉES DE LA FEUILLE, et ce sont les seules :
+     `FS.fantome` (46 px, sa largeur — il vit hors de toute colonne, donc il
+     n'a aucune largeur à hériter) et `1.15` (son agrandissement,
+     `.ability-fantome { scale: 1.15 }`). Toutes deux nommées des deux côtés. */
+  fantomeDemi = (FS.fantome * 1.15) / 2;
+  document.body.append(fantome);
+  fantomeBouger(x, y);
+}
 
-   🔴 CE QUE ÇA REMPLACE, ET POURQUOI CE N'EST PAS UN GOÛT. Chacune des six
-   rangées portait les SIX dés en boutons : trente-six boutons, 352 px
-   mesurés, et le même dé répété six fois avec, dans son libellé, le nom de
-   la rangée qui le tient (« 16 (DEX) ») — une prothèse que le lot 51 avait
-   dû inventer parce que rien ne montrait QUI tenait QUOI. Ici, le panneau 4
-   le montre : chaque case porte ce qu'elle tient. La prothèse disparaît avec
-   ce qu'elle réparait.
+function fantomeBouger(x, y) {
+  if (!fantome || !fantome.style) return;
+  /* Centré sur le doigt : la moitié de la taille est retirée pour que le
+     curseur tombe au milieu du dé, jamais sur son coin. */
+  fantome.style.transform = `translate(${x - fantomeDemi}px, ${y - fantomeDemi}px)`;
+}
 
-   ⛔ ET L'ACTION NE BOUGE PAS D'UN OCTET : `assignAbilityRoll`, la forme du
-   lot 50, avec sa clef, son index et sa valeur. C'est `shell.mjs` qui décide
-   si c'est une POSE ou un ÉCHANGE (§1b) — et l'échange est exactement ce
-   qu'un glisser attend : lâcher un dé déjà tenu sur une autre caractéristique
-   troque les deux. Aucune règle n'est écrite ici, comme partout. */
-function renderAssignationGlissee({ document: doc, resolved, rollBatch, onAction }) {
-  const gardes = (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).filter((roll) => roll.kept);
-  if (gardes.length === 0) return null;
-  const assign = (rollBatch && rollBatch.assign) || {};
-  const poser = (key, roll) => onAction({ kind: "assignAbilityRoll", key, rollIndex: roll.index, value: roll.total });
-  /* QUI TIENT CE DÉ — lu dans `assign`, la SEULE carte qui le sache, jamais
-     recalculé (lot 50, §2a : elle vit hors document et meurt avec le lot). */
-  const tenuPar = (index) => {
-    for (const [key, tenu] of Object.entries(assign)) if (tenu === index) return key;
-    return null;
+/** Les trois rappels du fantôme, les mêmes pour tout dé armé. */
+function gestesDuFantome(valeur) {
+  return {
+    onLever: (x, y) => fantomeLever(valeur, x, y),
+    onBouger: (x, y) => fantomeBouger(x, y),
+    onPoser: () => fantomeRanger()
   };
+}
 
-  const bloc = el("section", "choix-glisse ability-glisse");
+/* ══ LE VIVIER — LA RANGÉE D'ÎLOTS FS ════════════════════════════════════
+   CADRES.md §7 : *« un FS n'est pas une fenêtre, c'est une TUILE »* — un petit
+   objet flottant, répété en rangée, qui porte UNE chose. Il n'a ni marges ni
+   hauteurs : seulement un écart et un nombre de colonnes.
 
-  /* ── PANNEAU 3 : les six dés gardés ──────────────────────────────────
-     ⛔ AUCUN N'EST DÉSACTIVÉ, MÊME DÉJÀ POSÉ — contrairement aux jetons de
-     sorts, où une option posée est ailleurs. Un dé posé est encore
-     PRENABLE : le reprendre pour une autre caractéristique est l'échange du
-     lot 51, et c'est le geste normal quand on réarrange six scores. Il
-     s'annonce pris (`data-pris`), il ne se retire pas. */
-  const vivier = el("ul", "glisse-vivier ability-des-gardes");
+   📌 LA RANGÉE ENTIÈRE EST UNE CIBLE DE DÉPÔT (`data-creneau`), et une seule
+   plutôt que six : viser SON îlot à lui, au pouce, sur 54 px, serait un jeu
+   d'adresse. Ce que « lâcher ici » veut dire dépend de la méthode — voir
+   `RETOUR_VIVIER` juste en dessous.
+
+   🔴 CE QUE « LÂCHER SUR LE VIVIER » FAIT, ET LA DIVERGENCE EST VOULUE
+   (§5.3 du mandat) :
+   · en **FREE**, le vivier est INÉPUISABLE : y ramener un dé posé le
+     **DÉTRUIT**. C'est le geste de retrait qu'Eric décrit — *« tu peux
+     dégager les dés posés en les glissant dans le vide »* ;
+   · dans les **trois autres**, il ne se passe RIEN, et ce n'est pas un oubli :
+     `rebuild()` JETTE si l'une des six valeurs manque au document (mesuré,
+     `derive.mjs` : « un score ne se dérive de rien »). Il n'existe donc aucune
+     action qui VIDE une cible sans en remplir une autre — on réarrange en
+     posant, jamais en vidant (loi du lot 45, tenue depuis).
+   ⭐ FREE peut se le permettre PARCE QUE SA PORTE COMPTE LES POSES, pas les
+   valeurs du document (voir `abilitiesValidate`). Le document y garde sa
+   dernière valeur — il le doit —, l'écran dit « rien de posé », et `DONE`
+   s'éteint. Les deux vérités ne se contredisent pas : elles ne parlent pas de
+   la même chose. */
+const RETOUR_VIVIER = "vivier";
+
+function renderVivier(ctx) {
+  const { rollBatch } = ctx;
+  const gardes = (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).filter((r) => r.kept);
+  if (gardes.length === 0) return null;
+  const inepuisable = Boolean(rollBatch.inepuisable);
+
+  /* ⛔ PAS DE `glisse-vivier` ICI, ET C'EST UNE COLLISION MESURÉE : cette
+     classe pose `display: flex; flex-wrap: wrap` et une dalle à elle, et sa
+     règle vient APRÈS `.fs-rangee` dans la feuille — à spécificité égale, elle
+     l'emporterait, et la grille d'îlots redeviendrait une rangée de pastilles
+     qui se replient. Le vivier des caractéristiques n'est pas le vivier des
+     sorts : c'est une rangée FS, et elle porte son propre nom. */
+  const rangee = el("ul", "ability-des-gardes fs-rangee");
+  rangee.dataset.creneau = RETOUR_VIVIER;
+  /* ⚠️ LA PALETTE DE `FREE` A SIX COLONNES COMME TOUT VIVIER, ET C'EST UN
+     ÉCART AU CROQUIS QU'UNE MESURE A IMPOSÉ. Eric dessine seize dés en
+     **quatre rangs de quatre** ; posé ainsi et mesuré dans la page à 375, ce
+     pavé fait **406 px** de haut. Avec le collecteur (243), il demande 649 px
+     pour un champ de 493 : **la source et la cible d'un glisser ne peuvent
+     alors JAMAIS être visibles ensemble**, et `elementFromPoint` ne voit que
+     ce qui est à l'écran — le geste central de la méthode devient
+     impossible, il ne reste que le tap.
+     ⭐ À six colonnes (6 · 6 · 4), la palette tombe à **276** : 519 en tout,
+     26 px de trop seulement, donc la première rangée de cibles reste sous les
+     yeux et le glisser redevient faisable.
+     📌 Et l'écart n'est pas gratuit : le §1 du mandat dit que les quatre
+     méthodes « ne diffèrent que par CE QUI REMPLIT le vivier ». Un vivier qui
+     changerait aussi de forme selon la méthode serait un second vivier.
+     ⏳ **À faire trancher par Eric** : la mesure justifie six, le dessin dit
+     quatre — c'est son dessin. */
+  /* Une palette n'a AUCUN état : elle ne se vide pas, donc elle n'a rien à
+     annoncer. Une rangée finie, si — et la feuille lit ce mot-là. */
+  rangee.dataset.pool = inepuisable ? "inepuisable" : "fini";
+
   for (const roll of gardes) {
-    const item = el("li", null);
-    const jeton = el("button", "glisse-jeton ability-de-garde");
-    jeton.type = "button";
-    jeton.dataset.valeur = String(roll.index);
-    jeton.dataset.pris = String(tenuPar(roll.index) !== null);
-    jeton.append(el("span", "ability-de-total", [text(String(roll.total))]));
-    /* Le détail « 5+5+6 » est DANS le croquis, sous chaque carte. Un tirage
-       sans détail (le tableau standard) n'affiche pas une ligne vide. */
-    if (Array.isArray(roll.dice) && roll.dice.length > 0) {
-      jeton.append(el("span", "ability-de-detail", [text(roll.dice.join("+"))]));
+    const item = el("li", "fs");
+    const pris = ctx.tenuPar(roll) !== null;
+    /* ⛔ UN ÎLOT VIDÉ GARDE SA PLACE — la rangée ne se referme pas derrière un
+       dé parti, sinon les cinq autres bougeraient sous le doigt en plein
+       geste. ⭐ Et une palette ne se vide jamais : prendre un 14 n'enlève pas
+       le 14 (§4.4, règle 1). */
+    item.dataset.vide = String(pris && !inepuisable);
+    if (pris && !inepuisable) {
+      item.append(el("span", "fs-vide", [text("—")]));
+      rangee.append(item);
+      continue;
     }
-    armerJeton(jeton, {
-      /* LE TAP : la première caractéristique encore SERVIE PAR AUCUN DÉ. Le
-         croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
-         évite six glissers au pouce quand l'ordre est indifférent. */
-      onTap: () => {
-        const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
-        if (libre) poser(libre, roll);
-      },
-      onDepot: (key) => poser(key, roll)
-    });
-    item.append(jeton);
-    vivier.append(item);
+    item.append(renderJetonDe(roll, FS.resolution, {
+      chezSoi: true,
+      onTap: () => ctx.poserAuPremierLibre(roll),
+      onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
+    }));
+    rangee.append(item);
   }
-  bloc.append(vivier);
+  return rangee;
+}
 
-  /* ── PANNEAU 4 : les six caractéristiques ────────────────────────────
-     ⛔ PAS DE GESTE DE RETRAIT, et c'est mesuré, pas oublié : `rebuild()`
-     JETTE si l'une des six manque (INVENTAIRE-LOT-45.md), et il n'existe
-     aucune action qui dépose une case SANS en remplir une autre. On
-     réarrange en posant, jamais en vidant. */
+/** UN DÉ ARMÉ — le MÊME objet des deux côtés, et c'est tout l'enjeu.
+ *  Eric, 2026-08-16 : *« je veux pouvoir les remettre dans le conteneur
+ *  d'origine — que ça marche dans les 2 sens »*.
+ *
+ *  ⭐ UN SEUL FABRICANT, DEUX ORIGINES. Un dé posé dans une cible n'est pas un
+ *  autre objet : c'est le même, qui sait seulement d'où il part. Deux
+ *  fabricants auraient donné deux gestes qui divergent — la faute que
+ *  `glisser.mjs` existe pour éviter.
+ *
+ *  ⭐ §5.2 — LE MODIFICATEUR VA SOUS CHAQUE DÉ, Y COMPRIS AU VIVIER. Ici, un
+ *  dé n'appartient à aucune caractéristique : il ne peut donc montrer que le
+ *  modificateur **BRUT** de sa valeur. Il est LU au moteur (`abilityModOf`),
+ *  jamais recalculé ici — même loi que la borne 3–18 : l'écran n'écrit pas de
+ *  règle, il en lit une.
+ *  ⛔ Dans une CIBLE, c'est l'autre modificateur qui compte (le FINAL, boosts
+ *  compris) et il vient de `renderFinalColumn`. Les deux ne disent pas la
+ *  même chose, et c'est la leçon du lot 46. */
+function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
+  /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
+     hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
+     pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
+     sélection coupée). Deux habillages sur un même bouton se seraient
+     contredits, et le plus tardif dans la feuille aurait gagné. */
+  const jeton = el("button", "ability-de-garde fs-de");
+  jeton.type = "button";
+  jeton.dataset.valeur = String(roll.index);
+  jeton.dataset.pris = String(!chezSoi);
+  jeton.setAttribute("aria-label", chezSoi
+    ? `${roll.total} — to place`
+    : `${roll.total} — placed, drag to move`);
+  jeton.append(el("span", "ability-de-total", [text(String(roll.total))]));
+  poserUnDe(jeton, roll.total, taille, roll.index);
+  jeton.append(el("span", "ability-de-mod", [text(motDuMod(abilityModOf(roll.total)))]));
+  /* Le détail « 5+5+6 » est DANS le croquis, sous chaque dé. Un tirage sans
+     détail (le tableau standard, la palette) n'affiche pas de ligne vide.
+     ⭐ ET UN JET AJUSTÉ LE DIT : le plancher du haut ou du bas a changé son
+     total, et le détail seul mentirait (« 4+4+4 » sous un 14). */
+  if (Array.isArray(roll.dice) && roll.dice.length > 0) {
+    const detail = roll.ajuste ? `${roll.dice.join("+")} → ${roll.total}` : roll.dice.join("+");
+    jeton.append(el("span", "ability-de-detail", [text(detail)]));
+  }
+  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
+  return jeton;
+}
+
+/* ══ LE COLLECTEUR — les six cibles, et le pied du croquis ═══════════════
+   `DRAG AND DROP HERE`, puis STR DEX CON INT WIS CHA.
+
+   ⛔ LE PIED (`BACK` / `DONE`) N'EST PAS ICI, ET C'EST UNE DÉCISION D'ERIC.
+   Le croquis les dessine dans cette boîte ; §5.1 du mandat dit ce qu'ils
+   sont : *« ils ne sont pas la sortie d'Abilities, ils sont LE PATRON de la
+   sortie d'étape »*. Ils sont donc produits UNE FOIS, par `shell.mjs`
+   (`renderSortieEtape`), et se posent juste sous ce bloc. Les écrire ici en
+   ferait la sortie d'UN écran, et le prochain lot en écrirait une seconde. */
+function renderCollecteur(ctx) {
+  const { document: doc, resolved } = ctx;
+  const bloc = el("section", "choix-glisse ability-glisse ability-collecteur dalle-intermediaire");
+  bloc.append(el("h3", "ability-collecteur-titre", [text("Drag and drop here")]));
+
   const rangee = el("div", "glisse-creneaux ability-creneaux");
   for (const key of ABILITY_KEYS) {
     const creneau = el("div", "glisse-creneau ability-creneau");
     creneau.dataset.creneau = key;
-    const tenu = assign[key];
-    const duLot = tenu !== undefined && tenu !== null;
+    const pose = ctx.posePour(key);
     const valeur = currentAbilityValue(doc, key);
-    creneau.dataset.rempli = String(duLot);
-    /* `data-source` — une valeur qui ne vient PAS de ce tirage se dit. Le
-       lot 50 l'écrivait en toutes lettres sous chaque rangée ; ici la case
-       est trop petite pour une phrase, donc c'est la feuille qui le montre,
-       et l'`aria-label` qui le dit à qui n'a pas les yeux dessus. */
-    creneau.dataset.source = duLot ? "lot" : (valeur !== undefined ? "hors-lot" : "vide");
+    creneau.dataset.rempli = String(pose !== null);
+    /* `data-source` — une valeur qui ne vient PAS de cette session se dit. La
+       case est trop petite pour une phrase : la feuille le montre, et
+       l'`aria-label` le dit à qui n'a pas les yeux dessus. */
+    creneau.dataset.source = pose !== null ? "lot" : (valeur !== undefined ? "hors-lot" : "vide");
     creneau.append(el("span", "glisse-creneau-nom", [text(abilityLabel(key))]));
-    creneau.append(el("span", "glisse-creneau-valeur", [text(valeur === undefined ? "—" : String(valeur))]));
-    creneau.setAttribute("aria-label", duLot
-      ? `${abilityLabel(key)} — ${valeur} from this roll`
-      : valeur !== undefined ? `${abilityLabel(key)} — ${valeur}, not from this roll` : `${abilityLabel(key)} — empty`);
+
+    if (pose !== null) {
+      /* LE DÉ POSÉ EST LE MÊME OBJET QU'AU VIVIER — il se reprend, et le
+         lâcher sur une autre cible ÉCHANGE les deux (lot 51). C'est le geste
+         normal quand on réarrange six scores. */
+      creneau.append(renderJetonDe(pose, FS.resolution, {
+        chezSoi: false,
+        onTap: () => ctx.reprendre(key),
+        onDepot: (ou) => ctx.deplacer(key, pose, ou)
+      }));
+    } else {
+      creneau.append(el("span", "glisse-creneau-valeur", [text(valeur === undefined ? "—" : String(valeur))]));
+    }
+
+    creneau.setAttribute("aria-label", pose !== null
+      ? `${abilityLabel(key)} — ${pose.total} placed`
+      : valeur !== undefined ? `${abilityLabel(key)} — ${valeur}, not placed this time` : `${abilityLabel(key)} — empty`);
+
     /* La colonne « Final » du lot 46, au même octet : le score dérivé et son
-       modificateur, boosts d'Inheritance compris. Elle n'est pas décorative —
-       c'est le seul endroit de l'écran où le joueur lit ce que son choix
-       DONNE, et elle était déjà là avant le glisser. */
+       modificateur, boosts d'Inheritance compris. C'est le SEUL endroit de
+       l'écran où le joueur lit ce que son choix DONNE. */
     const final = renderFinalColumn(resolved, key, valeur);
     if (final) creneau.append(final);
     const alerte = renderCapWarning(resolved, key);
@@ -485,204 +522,168 @@ function renderAssignationGlissee({ document: doc, resolved, rollBatch, onAction
     rangee.append(creneau);
   }
   bloc.append(rangee);
-  bloc.append(el("p", "glisse-consigne", [text(
-    "Drag a die onto an ability · dropping one that is already placed swaps the two"
-  )]));
+  bloc.append(el("p", "glisse-consigne", [text(ctx.consigne)]));
   return bloc;
 }
 
-function renderManualRow(key, ctx) {
-  const { document, resolved, onAction } = ctx;
-  const current = currentAbilityValue(document, key);
-  return renderAbilityRow(key, {
-    document, resolved,
-    pickerProps: {
-      options: CREATION_SCORES, // la borne 3–18 publiée par le moteur (LOT 74) — jamais réécrite ici
-      selected: current !== undefined ? [current] : [],
-      labelOf: (v) => String(v),
-      onSelect: (value) => onAction({ kind: "set", path: `abilities.${key}`, value })
-    }
-  });
+/* ══ LE SÉLECTEUR DE MÉTHODE — FF2, dalle 35 % (croquis) ═════════════════ */
+function renderSelecteurMethode(actif, infoOuvert, act) {
+  const bloc = el("section", "ability-methodes dalle-simple");
+  bloc.append(el("h3", "ability-methodes-titre", [text("Choose an ability generation method")]));
+  const rangee = el("div", "ability-methodes-boutons");
+  for (const entry of ABILITY_ENTRIES) {
+    const tuile = el("button", "ability-entry");
+    tuile.type = "button";
+    tuile.dataset.entry = entry.id;
+    markPressed(tuile, entry.id === actif);
+    tuile.append(el("span", "ability-entry-label", [text(entry.label)]));
+    tuile.addEventListener("click", () => act({ kind: "abilityMethod", value: entry.id }));
+    rangee.append(tuile);
+  }
+  /* ⛔ `INFO` N'EST PAS UNE CINQUIÈME MÉTHODE — c'est un interrupteur. Il vit
+     dans la même rangée parce que le croquis l'y met, et il porte son état
+     (`aria-pressed`) parce qu'il en a un : le panneau est ouvert, ou non. */
+  const info = el("button", "ability-entry ability-info-bouton");
+  info.type = "button";
+  info.dataset.entry = "info";
+  markPressed(info, infoOuvert);
+  info.append(el("span", "ability-entry-label", [text("INFO")]));
+  info.addEventListener("click", () => act({ kind: "abilityInfo", value: !infoOuvert }));
+  rangee.append(info);
+  bloc.append(rangee);
+  return bloc;
 }
 
-/** LE TIRAGE — dix jets rendus, six distingués (commande §4, test 1), et la
- *  bannière de relance quand `rerollCount > 0` (§3a.1 : le joueur doit
- *  comprendre pourquoi le lot a changé sous ses yeux). */
-function renderRollBatch(rollBatch, onAction) {
-  const wrap = el("div", "ability-roll-batch");
-  const bar = el("div", "ability-roll-bar", [
-    (() => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "ability-roll-btn";
-      btn.textContent = rollBatch ? "Reroll" : "Roll";
-      btn.addEventListener("click", () => onAction({ kind: "roll" }));
-      return btn;
-    })()
-  ]);
-  wrap.append(bar);
-  if (!rollBatch) {
-    wrap.append(el("p", "ability-roll-empty", [text("No dice rolled yet.")]));
-    return wrap;
+/* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ════════════
+   L'argumentaire des trois façons de trouver ses six, en FF2, qu'on ferme en
+   cliquant (III.4, « un popup se ferme en cliquant »).
+
+   ⛔ LES CHIFFRES VIENNENT D'UNE SIMULATION DE 3 000 000 DE TIRAGES
+   (2026-08-16), et aucun n'est arrondi à la louche : ils sont recopiés. Le
+   moyen de les revérifier est de rejouer la simulation, pas de les relire.
+   📌 Ils ont été REVÉRIFIÉS le 2026-08-16 contre l'implémentation de la règle
+   telle qu'elle est écrite dans `dice.mjs` : moyenne 71,79 · un 18 dans
+   4,5 % · un 16+ dans 38 % · un 15+ dans 62 %. Les quatre concordent.
+
+   ⚠️ LES DEUX LECTURES DU MÊME ÉCART, ET IL FAUT LES DEUX. « Trois
+   millièmes » est une FRACTION du total (0,21 sur 72) ; dit seul, il se lit
+   comme trois millièmes DE POINT, ce qui est faux d'un facteur soixante-dix.
+   On donne donc la valeur ET la proportion. */
+const INFO_METHODES = [
+  {
+    titre: "Standard array", des: "15 · 14 · 13 · 12 · 10 · 8",
+    regle: "Six numbers, handed to everyone.",
+    corps: ["No luck, no regret, and nothing to tell anyone about afterwards. You will play the "
+      + "character you meant to play — not the one the dice gave you."]
+  },
+  {
+    titre: "Fate's Hand", des: "3d6 × 10",
+    regle: "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; "
+      + "your lowest always becomes 8.",
+    corps: ["On average it lands exactly where the array lands — 71.8 against 72.0 — but you rolled "
+      + "for it. A 14 is promised, an 8 is owed, and nothing caps the top: one character in "
+      + "twenty-two rolls an 18."],
+    note: "That fifth of a point between 71.8 and 72.0 — three thousandths of your total — is the "
+      + "house's commission. A casino has to pay for itself somehow; call it the price of the thrill."
+  },
+  {
+    titre: "Four dice, six times", des: "4d6 × 6, drop the lowest",
+    regle: "Roll four dice six times, drop the lowest die each time.",
+    corps: ["The most generous method, and the least fair. Half of these characters have no real "
+      + "weakness at all — and some end up plainly worse off than the array would have made them."]
   }
-  if (rollBatch.rerollCount > 0) {
-    wrap.append(el("p", "ability-roll-note", [text(
-      `Rerolled the whole set ${rollBatch.rerollCount} time${rollBatch.rerollCount > 1 ? "s" : ""} — ` +
-      "none of the ten reached 15 before this one."
-    )]));
+];
+
+const INFO_TABLEAU = [
+  ["Average total", "72.0", "71.8", "73.5"],
+  ["Two characters alike", "always", "rarely", "never"],
+  ["At least one 15", "always", "62%", "79%"],
+  ["At least one 16", "never", "38%", "57%"],
+  ["An 18", "never", "4.5%", "9.3%"],
+  ["A real weakness", "always", "always", "48%"]
+];
+
+function renderPanneauInfo(act) {
+  const bloc = el("section", "ability-info dalle-intermediaire");
+  bloc.setAttribute("role", "dialog");
+  bloc.setAttribute("aria-label", "How ability scores are found");
+
+  const tete = el("div", "ability-info-tete");
+  tete.append(el("h3", "ability-info-titre", [text("Three ways to find your six")]));
+  const fermer = el("span", "ability-info-fermer", [text("tap to close")]);
+  fermer.setAttribute("aria-hidden", "true");
+  tete.append(fermer);
+  bloc.append(tete);
+  bloc.append(el("p", "ability-info-chapeau", [text(
+    "They are not equally generous — and the generous one is not the fairest."
+  )]));
+
+  for (const methode of INFO_METHODES) {
+    const bloc2 = el("div", "ability-info-methode");
+    const enTete = el("div", "ability-info-methode-tete");
+    enTete.append(el("h4", null, [text(methode.titre)]));
+    enTete.append(el("span", "ability-info-des", [text(methode.des)]));
+    bloc2.append(enTete);
+    bloc2.append(el("p", "ability-info-regle", [text(methode.regle)]));
+    for (const paragraphe of methode.corps) bloc2.append(el("p", null, [text(paragraphe)]));
+    if (methode.note) bloc2.append(el("p", "ability-info-note", [text(methode.note)]));
+    bloc.append(bloc2);
   }
-  /* `data-assigned` — lot 50, pur affichage : quel dé une caractéristique
-     tient déjà (§4, « regarde-le »). Ne participe à AUCUNE règle : la seule
-     source de vérité pour « ce dé est pris » reste `rollBatch.assign`, lu
-     ici en lecture seule pour annoter le jeton, jamais recalculé. */
-  const usedIndexes = new Set(Object.values(rollBatch.assign || {}).filter((i) => i !== null && i !== undefined));
-  const dice = el("div", "ability-dice");
-  for (const roll of rollBatch.rolls) {
-    const chip = el("div", "ability-die", [
-      el("span", "ability-die-detail", [text(roll.dice.join("+"))]),
-      el("span", "ability-die-total", [text(String(roll.total))])
-    ]);
-    chip.dataset.kept = String(roll.kept);
-    chip.dataset.assigned = String(usedIndexes.has(roll.index));
-    dice.append(chip);
+
+  /* ⚠️ LE TABLEAU DÉFILE DANS SA BOÎTE, jamais en emportant la page : un
+     débordement horizontal casserait le glisser autant que la lecture. */
+  const boite = el("div", "ability-info-tableau");
+  boite.dataset.scroller = "info";
+  const table = el("table");
+  table.append(el("caption", null, [text("Measured over three million characters")]));
+  const thead = el("thead");
+  const ligneTete = el("tr");
+  for (const titre of ["", "Array", "Fate's Hand", "4d6 × 6"]) {
+    const th = el("th", null, [text(titre)]);
+    th.setAttribute("scope", "col");
+    ligneTete.append(th);
   }
-  wrap.append(dice);
-  return wrap;
+  thead.append(ligneTete);
+  table.append(thead);
+  const tbody = el("tbody");
+  for (const [intitule, array, fh, quatre] of INFO_TABLEAU) {
+    const tr = el("tr");
+    const th = el("th", null, [text(intitule)]);
+    th.setAttribute("scope", "row");
+    tr.append(th);
+    tr.append(el("td", null, [text(array)]));
+    /* La colonne du milieu est celle de la maison : elle se lit en premier. */
+    tr.append(el("td", "fort", [text(fh)]));
+    tr.append(el("td", null, [text(quatre)]));
+    tbody.append(tr);
+  }
+  table.append(tbody);
+  boite.append(table);
+  bloc.append(boite);
+
+  const chute = el("div", "ability-info-chute");
+  chute.append(el("p", null, [text(
+    "The array is a decision. Fate's Hand is a wager with a floor and a ceiling. "
+    + "Four dice is a wager with neither."
+  )]));
+  chute.append(el("p", "ability-info-note", [text(
+    "Note the last line: the most generous method is also the only one that lets you off without a flaw."
+  )]));
+  chute.append(el("p", "ability-info-pied", [text("Tap anywhere to close.")]));
+  bloc.append(chute);
+
+  bloc.addEventListener("click", () => act({ kind: "abilityInfo", value: false }));
+  return bloc;
 }
 
-/** LE `render` DE LA MÉTHODE `roll`, dans `ABILITY_METHODS` — le lot de dix
- *  dés puis les six lignes d'assignation. Rend un TABLEAU de nœuds (pas un
- *  seul) : la boucle de `renderAbilitiesStep` ne fait que les ajouter,
- *  elle ne sait pas combien il y en a ni ce qu'ils contiennent. */
-function renderRollMethod({ document, resolved, rollBatch, revele, onAction }) {
-  /* LOT 79 — LES DEUX PANNEAUX DU CROQUIS B remplacent les six rangées à
-     picker DÈS QU'UN LOT EST TIRÉ. Tant qu'il n'y en a pas, il n'y a rien à
-     glisser : les rangées restent, elles portent alors la seule chose qui
-     compte encore (ce que le document tient déjà, et son « Final »). */
-  const glisse = renderAssignationGlissee({ document, resolved, rollBatch, onAction });
-  const rows = el("div", "ability-rows");
-  if (!glisse) {
-    for (const key of ABILITY_KEYS) {
-      rows.append(renderAssignRow(key, { document, resolved, rollBatch, onAction }));
-    }
-  }
-  /* ⭐ LE PLATEAU REMPLACE `renderRollBatch` (croquis B, 2026-08-15) : trois
-     dés 3D, `ROLL`/`ROLL 10`/`CLEAR` sur leur propre rangée, et les dix cases
-     numérotées. ⛔ Ses trois rappels ne passent PAS par `refresh()` — voir
-     l'en-tête d'`abilities-tray.mjs` et les actions du shell. */
-  const plateau = renderTray({
-    lot: rollBatch && rollBatch.method !== "standard" ? rollBatch : null,
-    revele: revele || 0,
-    onNouveauLot: (lot) => onAction({ kind: "abilityLot", lot }),
-    onRevele: (valeur) => onAction({ kind: "abilityRevele", valeur }),
-    onClear: () => onAction({ kind: "abilityClear" })
-  });
-  return [plateau, glisse || rows];
-}
-
-/** LE `render` DE LA MÉTHODE `manual` — six lignes de saisie, même forme de
- *  retour (un tableau) que `renderRollMethod`, MÊME QUAND IL N'Y A QU'UN
- *  SEUL NŒUD : c'est ce qui rend les deux entrées interchangeables aux yeux
- *  de la boucle. */
-function renderManualMethod({ document, resolved, onAction }) {
-  const rows = el("div", "ability-rows");
-  for (const key of ABILITY_KEYS) {
-    rows.append(renderManualRow(key, { document, resolved, onAction }));
-  }
-  return [rows];
-}
-
-/**
- * @param {object} ctx
- * @param {object} ctx.document   le document brut du dernier `rebuild()` — seule source des valeurs déjà posées
- * @param {object} ctx.resolved   la fiche dérivée du dernier `rebuild()` — score final, mod, plafond
- * @param {object} [ctx.rollBatch] le dernier lot tiré ({rolls, rerollCount, assign}), ou `null` — vit hors
- *   document (shell.mjs, `state.abilityRoll`) ; `assign` (lot 50) est la carte `clef → index de dé`, HORS
- *   document elle aussi (§2a de la commande) — voir l'en-tête du fichier.
- * @param {(action: {kind:"set"|"clear"|"roll"|"assignAbilityRoll", path?:string, value?:*, key?:string, rollIndex?:number}) => void} onAction
- *   `assignAbilityRoll` (lot 50) est LE geste du tirage : `key` la caractéristique, `rollIndex` l'index du dé
- *   dans `rollBatch.rolls` (pour la carte hors document), `value` son total (pour `set({path:"abilities.<key>"})`,
- *   la seule chose qui atteint le document — voir `shell.mjs`, `applyDecisionAction`).
- */
-/* ══════════════════════════════════════════════════════════════════════
-   L'ÉCRAN DE B5 — lot 63
-   ══════════════════════════════════════════════════════════════════════
-   B5.1 : un texte explicatif dans une dalle SIMPLE, puis des DALLES-BOUTONS.
-   ⛔ B5.1c : « il faut CLIQUER pour faire apparaître les rollers/choosers —
-   rien n'est déplié d'avance ». Tant qu'aucune méthode n'est choisie, la
-   scène ne montre QUE le texte et les tuiles.
-
-   🔴 UNE MÉTHODE SUR QUATRE MANQUE, ET C'EST DÉLIBÉRÉ. B5.1b en nomme
-   quatre : `Roll dice`, `Standard array`, `Point buy`, `Choose yourself`.
-   **`Point buy` n'est pas offert.** Mesuré : son barème (budget de points et
-   coûts non linéaires) n'existe NULLE PART dans le dépôt — ni dans
-   `layers/srd-5.2.1-en.layer.json`, ni dans le moteur. L'écrire ici mettrait
-   une règle du jeu dans l'interface (loi du dépôt : « le moteur prononce,
-   l'écran affiche ») et, pire, publierait des nombres dont on ne sait pas
-   s'ils sont SRD — ce que la loi §0.8 interdit. Une tuile morte serait un
-   faux magasin ; il n'y en a donc que trois. **Question posée à Eric.**
-
-   ⭐ `Standard array`, LUI, EST OFFERT, et la distinction se défend : ce
-   n'est pas un barème à appliquer, c'est une LISTE DE SIX VALEURS que le
-   widget propose. Rien n'est calculé, rien n'est opposé : le joueur pose
-   six nombres, comme à la main. ⚠️ LOT 74 : ses six valeurs tiennent dans
-   la borne de création publiée par le moteur (mesuré : 8..15 ⊂ 3..18) —
-   si elles en sortaient un jour, le carnet les nommerait
-   (`abilities.score-out-of-creation-range`), pas cet écran.
-   ⏳ Le jour où ces six valeurs entrent dans une couche, elles se lisent là
-   et cette liste disparaît. */
+/* ══ LES DEUX LOTS QUI NE SE TIRENT PAS ══════════════════════════════════ */
 
 const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 
-export const ABILITY_ENTRIES = [
-  { id: "roll", label: "Roll dice", blurb: "Ten rolls of 3d6, or six rolls of 4d6 — then spread the results." },
-  { id: "standard", label: "Standard array", blurb: "Six fixed scores to spread as you like." },
-  { id: "manual", label: "Choose yourself", blurb: "Type the six scores directly." }
-];
-
-/** B5.1a/b — LA SCÈNE AU REPOS : un texte, puis les tuiles. */
-function renderEntryTiles(active, act) {
-  const wrap = el("div", "ability-entries");
-  for (const entry of ABILITY_ENTRIES) {
-    const tile = document.createElement("button");
-    tile.type = "button";
-    tile.className = "ability-entry dalle-simple";
-    tile.dataset.entry = entry.id;
-    markPressed(tile, entry.id === active);
-    tile.append(el("span", "ability-entry-label", [text(entry.label)]));
-    tile.addEventListener("click", () => act({ kind: "abilityMethod", value: entry.id }));
-    wrap.append(tile);
-  }
-  return wrap;
-}
-
-/* ══ B5.2 — `Roll dice` : la molette de méthode, PUIS le jet ═════════════
-   « Valid s'illumine, et on clique — pour éviter de faire ramer le mobile.
-   Le résultat ne se recalcule pas en continu pendant qu'on tourne la
-   molette. » C'est donc un PALIER : on règle la molette, on valide, ça jette.
-   ⛔ Tourner la molette ne jette RIEN. */
-function renderRollingChoice(ctx, act) {
-  const wrap = el("div", "ability-rolling");
-  const box = el("section", "ability-rolling-pick dalle-intermediaire");
-  box.append(el("h3", null, [text("Rolling method")]));
-  box.append(renderPicker({
-    options: ROLLING_METHODS.map((m) => m.id),
-    selected: [ctx.rollingMethod],
-    labelOf: (id) => ROLLING_METHODS.find((m) => m.id === id).label,
-    onSelect: (id) => act({ kind: "rollingMethod", value: id })
-  }));
-  wrap.append(box);
-  /* B5.2c — « une fenêtre explicative pleine largeur dont LE CONTENU CHANGE
-     selon le choix ». Le texte vient de la table, jamais d'un `if`. */
-  const courant = ROLLING_METHODS.find((m) => m.id === ctx.rollingMethod) || ROLLING_METHODS[0];
-  wrap.append(el("section", "ability-rolling-blurb dalle-simple", [el("p", null, [text(courant.summary)])]));
-  return wrap;
-}
-
-/** B5.7 — `Standard array` : « plus ou moins la même chose, MAIS SANS DÉS ».
- *  Le temps 1 (tirer/garder) disparaît ; le temps 2 (affecter) demeure —
- *  et il passe par la MÊME machinerie que les dés, `assign` compris, donc
- *  par le même remède au piège des deux 14 (B5.6). */
+/** `ARRAY` — le temps 1 (tirer) disparaît ; le temps 2 (affecter) demeure, et
+ *  il passe par la MÊME machinerie que les dés, `assign` compris.
+ *  ⏳ Le jour où ces six valeurs entrent dans une couche, elles se lisent là
+ *  et cette liste disparaît. */
 export function standardArrayBatch() {
   return {
     rolls: STANDARD_ARRAY.map((total, index) => ({ dice: [], total, index, kept: true })),
@@ -692,134 +693,201 @@ export function standardArrayBatch() {
   };
 }
 
+/** `FREE` — 🔴 LA SEULE MÉTHODE QUI CHANGE LA NATURE DU VIVIER (§4.4).
+ *
+ *  Seize dés statiques, de 3 à 18, et **le vivier ne s'épuise jamais** :
+ *  prendre un 14 n'enlève pas le 14 de la grille. Ce n'est pas un stock,
+ *  c'est une PALETTE — elle n'a aucun état.
+ *
+ *  ⭐ LES SEIZE VALEURS SONT `CREATION_SCORES`, PUBLIÉES PAR LE MOTEUR (lot
+ *  74) — jamais un `for (let i = 3; i <= 18; …)` écrit ici. Le croquis dit
+ *  « seize dés, de 3 à 18 » ; c'est exactement la borne de création, et la
+ *  faire coïncider par recopie aurait été la laisser diverger.
+ *
+ *  ⚠️ CE QUE FREE NE PEUT PAS UTILISER, ET IL FALLAIT LE DIRE AVANT
+ *  D'ÉCRIRE : la carte `assign` du lot 50 associe une clef à l'**INDEX** d'un
+ *  jet. En FREE il n'y a pas de jet, et deux caractéristiques peuvent porter
+ *  la même valeur — l'index d'un dé de palette ne désigne donc pas « le dé que
+ *  cette carac tient », il désigne une VALEUR de la grille. C'est licite ici,
+ *  et seulement ici, parce que la palette est un catalogue de valeurs et non
+ *  un lot de dés distincts.
+ *  ⭐ ET LA SORTIE EXISTE DÉJÀ, SANS TOUCHER AU MOTEUR : FREE pose
+ *  `{ kind: "set", path: "abilities.<clef>", value }` — le verbe de la saisie
+ *  manuelle, avec la peau du glisser-déposer. Aucun champ nouveau, aucune
+ *  règle nouvelle : un autre geste pour le même verbe. */
+export function freeBatch() {
+  return {
+    rolls: CREATION_SCORES.map((total, index) => ({ dice: [], total, index, kept: true })),
+    rerollCount: 0,
+    method: "free",
+    inepuisable: true,
+    assign: emptyAbilityAssign()
+  };
+}
+
+/** Le lot que porte une méthode qui n'a pas de dés à jeter, ou `null`. */
+export function lotSansDes(methodId) {
+  if (methodId === "standard") return standardArrayBatch();
+  if (methodId === "free") return freeBatch();
+  return null;
+}
+
+/* ══ L'ÉCRAN ════════════════════════════════════════════════════════════ */
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document   le document brut — les valeurs déjà posées
  * @param {object} ctx.resolved   la fiche dérivée — score final, mod, plafond
- * @param {string} [ctx.method]   la méthode choisie (B5.1c) — `null` au repos
- * @param {string} [ctx.rollingMethod] "fh3d6" | "4d6" (B5.2a)
- * @param {object} [ctx.rollBatch] le lot en cours, ou `null`
- * @param {number} [ctx.revele]    combien des dix jets sont découverts
+ * @param {string} [ctx.method]   la méthode choisie — `null` au repos (B5.1c)
+ * @param {object} [ctx.rollBatch] le lot en cours, ou `null` ; `assign` (lot 50) est la carte
+ *   `clef → index`, HORS document — voir l'en-tête de ce fichier
+ * @param {number} [ctx.revele]   combien de jets sont découverts
+ * @param {boolean} [ctx.info]    le panneau INFO est ouvert
+ * @param {(action: object) => void} onAction
  */
 export function renderAbilitiesStep(ctx, onAction) {
-  const document = ctx.document || null;
+  const doc = ctx.document || null;
   const resolved = ctx.resolved || null;
   const rollBatch = ctx.rollBatch || null;
   const act = onAction || ctx.onAction || (() => {});
+  const entry = ABILITY_ENTRIES.find((e) => e.id === ctx.method) || null;
   const section = el("section", "abilities-step");
 
-  section.append(el("section", "ability-intro dalle-simple", [el("p", null, [text(
-    "Six scores make your character. Pick how you want to find them — nothing is written until you validate."
-  )])]));
-  section.append(renderEntryTiles(ctx.method, act));
+  section.append(renderSelecteurMethode(ctx.method || null, Boolean(ctx.info), act));
+  if (ctx.info) section.append(renderPanneauInfo(act));
 
-  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE. Mais l'attente SE DIT (lot 74) :
-     mesuré sur le déployé, Abilities était le SEUL des dix écrans où
-     `Validate` arrive éteint sans qu'un mot ne dise pourquoi (Eric l'a
-     rencontré). L'état d'attente est VOULU — B5.1c —, donc on n'allume pas
-     le bouton pour faire joli (un `Validate` allumé qui ne fait rien serait
-     le « faux magasin ») : l'écran ÉCRIT ce qui manque, comme la barre de
-     pool compte et comme Review dit « 0 of 1 ». Le test du lot apparie les
-     deux : tant que `abilitiesValidate` rend `ready: false` à l'arrivée,
-     cette phrase existe — l'un sans l'autre rougit. */
-  if (!ctx.method) {
+  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE : *« il faut CLIQUER pour faire
+     apparaître les rollers/choosers »*. Mais l'attente SE DIT (lot 74) : un
+     `DONE` éteint sans un mot pour dire pourquoi est le défaut qu'Eric a
+     rencontré. On n'allume pas le bouton pour faire joli — l'écran ÉCRIT ce
+     qui manque, comme la barre de pool compte et comme Review dit « 0 of 1 ». */
+  if (!entry) {
     section.append(el("p", "ability-gate-note", [text(
-      "Validate has nothing to act on yet — pick one of the methods above to begin."
+      "Nothing to act on yet — pick one of the methods above to begin."
     )]));
     return section;
   }
 
-  /** L'AFFECTATION — B5.4/B5.5, le temps 2. ⛔ Elle n'apparaît QUE lorsqu'un
-   *  lot existe : six molettes (ou six cases) sans rien à y mettre seraient
-   *  le « faux magasin » que ce dépôt interdit.
-   *
-   *  ⭐ LOT 79 — LA PHRASE ÉCRITE ICI EN ATTENDANT EST DEVENUE VRAIE : *« les
-   *  six cases VIDES du croquis B viendront avec le glisser-déposer, où elles
-   *  sont une DESTINATION — pas un choix mort »*. Elles sont là.
-   *  ⚠️ ET LES RANGÉES RESTENT LE REPLI, pour une raison mesurée : un lot dont
-   *  AUCUN dé n'est gardé (aucun n'existe aujourd'hui, mais le carnet ne le
-   *  promet pas) n'a rien à glisser. Mieux vaut la vieille forme que rien. */
-  const lignesDAffectation = (lot) => {
-    const glisse = renderAssignationGlissee({ document, resolved, rollBatch: lot, onAction: act });
-    if (glisse) return glisse;
-    const rows = el("div", "ability-rows");
-    for (const key of ABILITY_KEYS) {
-      rows.append(renderAssignRow(key, { document, resolved, rollBatch: lot, onAction: act }));
-    }
-    return rows;
+  /* ── L'ORGANE : l'explication, et le jet quand il y en a un ────────── */
+  const organe = el("section", "ability-organe dalle-intermediaire");
+  organe.dataset.methode = entry.id;
+  organe.append(el("p", "ability-organe-mot", [text(explicationDe(entry))]));
+  if (entry.mecanique) {
+    /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES depuis ce lot — trois dés et dix
+       jets, ou quatre dés et six jets. C'est le tableau qui le dit, jamais un
+       `if` ici. ⛔ Ses rappels ne passent PAS par `refresh()` : voir l'en-tête
+       d'`abilities-tray.mjs` et les actions du shell. */
+    organe.append(renderTray({
+      mecanique: mecaniqueDeJet(entry.mecanique),
+      lot: rollBatch && rollBatch.method === entry.mecanique ? rollBatch : null,
+      revele: ctx.revele || 0,
+      onNouveauLot: (lot) => act({ kind: "abilityLot", lot }),
+      onRevele: (valeur) => act({ kind: "abilityRevele", valeur }),
+      onClear: () => act({ kind: "abilityClear" })
+    }));
+  }
+  section.append(organe);
+
+  /* ══ LE CONTEXTE PARTAGÉ DES DEUX ÉTAGES DU BAS ════════════════════════
+     🔴 UNE SEULE DÉFINITION DES GESTES POUR LES QUATRE MÉTHODES. Ce qui
+     change entre elles n'est pas le geste, c'est le VERBE qu'il commet :
+     · lot fini (FH 3D6 · 4D6 · ARRAY) → `assignAbilityRoll` (clef + index +
+       valeur), et `shell.mjs` décide POSE ou ÉCHANGE (lot 51, §1b) ;
+     · palette (FREE) → `set` sur `abilities.<clef>`, plus la carte d'écran.
+     ⛔ Écrire deux collecteurs pour ça aurait été la faute du §1 du mandat. */
+  const inepuisable = Boolean(rollBatch && rollBatch.inepuisable);
+  const assign = (rollBatch && rollBatch.assign) || {};
+  const parIndex = new Map((rollBatch && rollBatch.rolls ? rollBatch.rolls : []).map((r) => [r.index, r]));
+
+  const glisseCtx = {
+    document: doc, resolved, rollBatch, assign,
+    /** Le jet posé sur cette clef, ou `null` — lu dans `assign`, la SEULE
+     *  carte qui le sache (lot 50, §2a : elle vit hors document et meurt avec
+     *  le lot). Jamais une comparaison de valeurs : c'était le défaut du
+     *  lot 50, et deux dés à 14 le rejouraient. */
+    posePour(key) {
+      const index = assign[key];
+      if (index === null || index === undefined) return null;
+      return parIndex.get(index) || null;
+    },
+    /** QUI TIENT CE DÉ — `null` si personne. ⛔ Sur une palette, personne ne
+     *  « tient » rien : le dé se copie, il ne se déplace pas. */
+    tenuPar(roll) {
+      if (inepuisable) return null;
+      for (const [key, tenu] of Object.entries(assign)) if (tenu === roll.index) return key;
+      return null;
+    },
+    poser(key, roll) {
+      if (inepuisable) { act({ kind: "abilityFree", key, value: roll.total, rollIndex: roll.index }); return; }
+      act({ kind: "assignAbilityRoll", key, rollIndex: roll.index, value: roll.total });
+    },
+    /** LE TAP : la première caractéristique encore servie par aucun dé. Le
+     *  croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
+     *  évite six glissers au pouce quand l'ordre est indifférent. */
+    poserAuPremierLibre(roll) {
+      const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
+      if (libre) glisseCtx.poser(libre, roll);
+    },
+    /** LE TAP SUR UN DÉ POSÉ. En FREE il le retire ; ailleurs il ne fait
+     *  rien — voir `RETOUR_VIVIER`, il n'existe aucune action qui vide une
+     *  cible sans en remplir une autre. */
+    reprendre(key) {
+      if (inepuisable) act({ kind: "abilityFreeRetirer", key });
+    },
+    /** LE GLISSER D'UNE CIBLE VERS AILLEURS. Sur une autre cible, il ÉCHANGE
+     *  (lot 51) ou, en FREE, il RECOUVRE — l'échange n'a de sens que si les
+     *  dés sont en nombre fini ; ici le vivier est inépuisable, il n'y a rien
+     *  à rendre (§5.3, divergence voulue n° 1). Sur le vivier, il retire —
+     *  en FREE seulement (divergence voulue n° 2). */
+    deplacer(key, roll, ou) {
+      if (ou === RETOUR_VIVIER) { glisseCtx.reprendre(key); return; }
+      if (ou === key) return;
+      glisseCtx.poser(ou, roll);
+      /* ⭐ EN FREE, RECOUVRIR NE VIDE PAS LA SOURCE — le dé est une COPIE, il
+         reste où il était. C'est ce qu'Eric décrit : on dégage un dé en le
+         glissant dans le vide, pas en le déplaçant. */
+    },
+    consigne: inepuisable
+      ? "Drag a die onto an ability · drop one on top to replace it · drag it back up to discard it"
+      : "Drag a die onto an ability · dropping one that is already placed swaps the two"
   };
 
-  /* ══ `Roll dice` — LA MOLETTE ET L'ORGANE DE JET SUR LA MÊME SURFACE ═══
-     ✅ TRANCHÉ PAR ERIC, 2026-08-15. Avant ce lot, cette branche s'arrêtait
-     sur la molette et c'est `Validate` qui jetait (`{kind:"rollBatch"}`).
-
-     🔴 C'ÉTAIT LA CAUSE RACINE DES QUATRE BRANCHEMENTS RATÉS : le palier
-     tirait ET le plateau voulait tirer. Deux propriétaires du même lot, donc
-     deux vérités sur « qui a jeté quoi », donc un écran qui se contredisait
-     dès le premier redessin. **Le palier a cessé de tirer** (voir
-     `abilitiesValidate`) ; il ne reste qu'un jeteur, et c'est le bouton que
-     le joueur voit.
-
-     ⭐ ET LE MOTIF DE B5.2d SURVIT INTACT — « le résultat ne se recalcule pas
-     en continu pendant qu'on tourne la molette », dit Eric pour ne pas faire
-     ramer le mobile. Tourner la molette ne jette toujours RIEN : seul `ROLL`
-     jette. C'est l'implémentation du palier qui meurt, jamais sa règle.
-
-     ⚠️ LE PLATEAU NE SERT QUE FH 3d6. `4d6` est une AUTRE mécanique (six
-     jets de 4d6, on retire le plus bas — ni dix jets, ni lot rejeté, ni
-     règle des 15) : elle garde `renderRollBatch` tel quel. La molette
-     échange donc l'organe, elle ne le reconfigure pas. */
-  if (ctx.method === "roll") {
-    section.append(renderRollingChoice(ctx, act));
-    section.append(ctx.rollingMethod === "4d6"
-      ? renderRollBatch(rollBatch, act)
-      : renderTray({
-        lot: rollBatch,
-        revele: ctx.revele || 0,
-        onNouveauLot: (lot) => act({ kind: "abilityLot", lot }),
-        onRevele: (valeur) => act({ kind: "abilityRevele", valeur }),
-        onClear: () => act({ kind: "abilityClear" })
-      }));
-    if (rollBatch) section.append(lignesDAffectation(rollBatch));
-    return section;
-  }
-  if (ctx.method === "manual") {
-    const rows = el("div", "ability-rows");
-    for (const key of ABILITY_KEYS) rows.append(renderManualRow(key, { document, resolved, onAction: act }));
-    section.append(rows);
-    return section;
-  }
-  /* B5.4/B5.5 — le temps 2 : affecter. Les six molettes, ordre SRD, et la
-     carte `assign` qui distingue les deux 14 (B5.6, déjà résolue au lot 50). */
-  if (rollBatch) {
-    if (rollBatch.method !== "standard") section.append(renderRollBatch(rollBatch, act));
-    section.append(lignesDAffectation(rollBatch));
-  }
+  const vivier = renderVivier(glisseCtx);
+  if (vivier) section.append(vivier);
+  section.append(renderCollecteur(glisseCtx));
   return section;
 }
 
-/** LE PALIER DE B5 — il n'y en a plus qu'UN : *avancer quand les six scores
- *  sont posés*. C'est le palier par défaut du socle, celui qu'un écran qui
- *  n'en déclare aucun reçoit gratuitement.
+/** LA PORTE DE B5 — il n'y en a plus qu'UNE : *avancer quand les six scores
+ *  sont posés*.
  *
- *  🔴 CE QUI A DISPARU, ET POURQUOI C'EST LE CŒUR DU LOT. Il existait un
- *  premier palier — `roll` sans lot ⇒ `Validate` rendait
- *  `{ kind: "rollBatch" }`, et la coquille JETAIT. Le plateau de dés jette
- *  lui aussi, par le bouton que le joueur presse.
+ *  🔴 CE QUI A DISPARU AU LOT 79, ET POURQUOI C'EN ÉTAIT LE CŒUR. Il existait
+ *  un premier palier — `roll` sans lot ⇒ la porte rendait `{kind:"rollBatch"}`,
+ *  et la coquille JETAIT. Le plateau jette lui aussi, par le bouton que le
+ *  joueur presse. **DEUX PROPRIÉTAIRES DU MÊME LOT** : quatre tentatives de
+ *  branchement s'y sont cassées. C'est le palier qui est parti, pas le
+ *  plateau — le geste d'Eric est *« je presse ROLL et je regarde tomber »*, et
+ *  un `Validate` qui jette est un jet sans dés.
  *
- *  ⛔ **DEUX PROPRIÉTAIRES DU MÊME LOT.** Quatre tentatives de branchement
- *  s'y sont cassées : le palier posait un lot que le plateau n'avait pas vu
- *  tomber, le plateau en remontait un que le palier croyait avoir produit, et
- *  chaque redessin choisissait un camp. Aucun réglage d'affichage ne pouvait
- *  réconcilier ça — il fallait retirer un des deux jeteurs.
- *
- *  ⭐ ET C'EST LE PALIER QUI PART, PAS LE PLATEAU. Le geste d'Eric est *« je
- *  presse ROLL et je regarde tomber »* (croquis B) ; un `Validate` qui jette
- *  est un jet sans dés. Le motif de B5.2d — « ne pas faire ramer le mobile,
- *  le résultat ne se recalcule pas pendant qu'on tourne la molette » — est
- *  intégralement tenu par le plateau : tourner la molette ne jette rien. */
+ *  ⚠️ FREE COMPTE AUTREMENT, ET C'EST LA CONTREPARTIE DE SON RETRAIT (§5.3).
+ *  Les trois autres méthodes lisent le DOCUMENT : les six valeurs y sont, la
+ *  porte s'ouvre. FREE ne le peut pas — son geste de retrait ne peut PAS
+ *  effacer une valeur du document (`rebuild()` jette si l'une des six manque,
+ *  `derive.mjs`), donc le document reste complet même quand l'écran montre une
+ *  case vide. Sa porte compte donc les POSES, la seule chose qui dise la
+ *  vérité de ce que le joueur voit.
+ *  ⛔ Et cette divergence est BORNÉE à FREE : ailleurs, revenir sur l'étape
+ *  avec six scores déjà choisis rouvrirait la porte, comme aujourd'hui — la
+ *  faire compter les poses partout obligerait à reposer six dés pour repasser
+ *  sur un écran déjà rempli. */
 export function abilitiesValidate(ctx) {
   const document = ctx.document;
+  const lot = ctx.rollBatch;
+  if (lot && lot.inepuisable) {
+    const assign = lot.assign || {};
+    const toutesPosees = ABILITY_KEYS.every((key) => assign[key] !== null && assign[key] !== undefined);
+    return { exists: true, ready: toutesPosees, action: null, next: "step" };
+  }
   const toutesPosees = ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
   return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };
 }

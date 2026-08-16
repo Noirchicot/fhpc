@@ -339,6 +339,14 @@ class FakeElement extends FakeNode {
 }
 
 class FakeDocument {
+  /* ⭐ AJOUTÉ LE 2026-08-16 POUR LE LOT 80, même loi que `elementFromPoint`
+     ci-dessous : le stub grandit avec ce que `ui/` emploie RÉELLEMENT.
+     Le FANTÔME du glisser (le dé qui suit le doigt) est posé en coordonnées
+     d'écran, donc à la racine de la page et non dans la scène — un fantôme
+     dans le flux se ferait couper par le premier `overflow`. Sans `body`, la
+     moitié « je vois ce que je déplace » du geste n'aurait aucun juge hors
+     navigateur, et l'écran jetterait au premier `pointermove`. */
+  constructor() { this.body = new FakeElement("body"); }
   createElement(tag) { return new FakeElement(tag); }
   /* ⭐ AJOUTÉ LE 2026-08-16 POUR LE LOT 79, et le stub grandit comme il a
      toujours grandi : avec ce que `ui/` emploie RÉELLEMENT, jamais d'avance.

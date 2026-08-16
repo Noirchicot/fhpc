@@ -779,7 +779,7 @@ const CLASSE_HOTE = "fh-cd-static-die";
  *                            se posant (la feuille anime la transition).
  * @returns {HTMLElement} à insérer, PUIS à passer par `mount(scope)`
  */
-export function createDieHost({ sides, result, sizePx = 52, material = "ivory", index = 0, animate = true, settleSizePx = null }) {
+export function createDieHost({ sides, result, sizePx = 52, material = "ivory", index = 0, animate = true, settleSizePx = null, snapshot = false }) {
   const host = document.createElement("span");
   host.className = CLASSE_HOTE + (Number(sides) === 100 ? " is-percentile" : "");
   host.dataset.sides = String(sides);
@@ -788,6 +788,23 @@ export function createDieHost({ sides, result, sizePx = 52, material = "ivory", 
   host.dataset.index = String(index);
   host.dataset.animate = animate ? "1" : "0";
   host.dataset.pending = "0";
+  /* ⭐ LE CHEMIN IMAGE — exposé au lot 80, et c'est un besoin MESURÉ, pas un
+     confort. Le corps le portait déjà (`mountDie` : `if (host.dataset.snapshot
+     === "1") return mountSnapshot(…)`, « no live context, ever ») ; seul le
+     ruban ES module ne le laissait pas passer.
+     🔴 CE QU'IL RÉPARE : `settleToSnapshot` ne part QUE sur un dé ANIMÉ
+     (`host.dataset.animate === "1"`, voir `mount`). Un dé posé sans animation
+     — le vivier des caractéristiques, la palette FREE, le fantôme du glisser —
+     garde donc son contexte WebGL VIVANT, indéfiniment. Compté pour l'écran
+     Abilities de FREE : 16 dés de palette + 6 dés posés = **22 contextes**,
+     pour un plafond navigateur de ~16. Le plateau serait devenu noir SANS UNE
+     SEULE ERREUR — le mode de panne exact que `settleSizePx` existe déjà pour
+     éviter ailleurs.
+     ⛔ CE N'EST PAS UNE RETOUCHE DU CŒUR COPIÉ : ces lignes-ci sont le ruban
+     local (le corps `var`/`function` au-dessus est la copie verbatim de
+     `fh-phb`, et un défaut s'y corrige EN AMONT — garde 7 des jetons). On ne
+     fait que poser l'attribut que le corps lisait déjà. */
+  if (snapshot) host.dataset.snapshot = "1";
   if (settleSizePx !== null) host.dataset.settleSize = String(settleSizePx);
   host.style.setProperty("--fh-static-die-size", `${sizePx}px`);
   host.setAttribute("role", "img");

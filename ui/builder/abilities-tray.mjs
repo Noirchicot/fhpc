@@ -45,23 +45,36 @@
 
    ══ CE QUI A DÉCIDÉ DE LA FORME ════════════════════════════════════════
 
-   🔴 LE JOUEUR VOIT LES LOTS RATÉS — Eric, 2026-08-15 : *« il doit voir le
-   process, je veux qu'il voie »*. Le plateau tire DIX jets, les révèle un par
-   un ; si aucun n'atteint 15, il le DIT, balaie, et recommence. La règle
-   (ADDENDUMS §4) reste intacte — le lot entier est rejeté, jamais un jet
-   remplacé seul, jamais un jet complété.
+   🔴 LE JOUEUR VOIT LE PROCESS — Eric, 2026-08-15 : *« il doit voir le
+   process, je veux qu'il voie »*. Le plateau tire les jets un par un et les
+   révèle à mesure ; la règle du lot ne se prononce qu'au dernier.
 
-   📏 ET C'EST FRÉQUENT, MESURÉ : `P(3d6 ≥ 15) = 20/216`, donc un lot de dix
-   échoue avec `p = 0,907¹⁰ ≈ 0,379` — **près de deux sur cinq**. Cacher ça
-   jetterait la tension même de l'écran : *est-ce que l'un des dix touchera
-   15 ?* ⚠️ Contrepartie assumée : un lot raté coûte une salve entière. À la
-   cadence d'Eric (2 500 ms), c'est ~25 s par échec.
+   ⚠️ **LA MOITIÉ DE CET EN-TÊTE A ÉTÉ RÉÉCRITE LE 2026-08-16 (lot 80, §3).**
+   Il décrivait la RELANCE : « si aucun des dix n'atteint 15, il le DIT,
+   balaie, et recommence », et il mesurait sa fréquence — `P(3d6 ≥ 15) =
+   20/216`, donc un lot de dix échouait avec `0,907¹⁰ ≈ 38 %`, soit ~25 s de
+   théâtre à jeter par échec à la cadence de 2 500 ms. **C'est cette mesure
+   qui a tué la règle** : Eric l'a remplacée par deux planchers (un 14
+   garanti en haut, un 8 dû en bas) qui ne relancent JAMAIS.
+   ⛔ Il ne reste donc plus rien à annoncer en cours de salve : la mention de
+   relance, son nœud et ses deux écrivains sont partis avec la règle. Ce qui
+   SURVIT intact, c'est le motif — le joueur regarde tomber.
 
-   ⛔ ON N'UTILISE DONC NI `rollAbilitySet` NI `rollTen`. La première boucle
-   en interne et ne rend que le lot gagnant — ce qu'Eric refuse de cacher. La
-   seconde tire les dix D'UN COUP, et c'est l'objection suivante d'Eric :
-   *« ça remet en question le hasard, même s'il existe et que la temporalité
-   est différée »*.
+   ⛔ ON N'UTILISE TOUJOURS PAS `rollTen` : elle tire tous les jets D'UN
+   COUP, et c'est l'objection d'Eric : *« ça remet en question le hasard,
+   même s'il existe et que la temporalité est différée »*. `rollAbilityBatch`
+   ne sert qu'au `FLASH`, là où personne ne regarde tomber.
+
+   ══ ⭐ UN SEUL PLATEAU, DEUX MÉCANIQUES (lot 80, §4.2) ═══════════════════
+
+   Le plateau ne connaît plus « dix jets de trois dés » : il reçoit une
+   MÉCANIQUE (`ROLLING_METHODS`, dice.mjs) et lui demande combien de dés,
+   combien de jets, comment jeter et comment clore. `FH 3D6` et `4D6` sont
+   deux entrées de ce tableau, pas deux organes.
+   🔴 CE QUE ÇA REMPLACE : `4d6` avait son propre rendu (`renderRollBatch`,
+   des pastilles sans dés 3D) parce que le plateau ne savait faire que du
+   3d6×10. Deux formes du même geste — la faute que le §1 du mandat nomme
+   (`renderChoixGlisses` vs `renderSlotQcm`) et qui se payait déjà ici.
 
    ⭐ ET IL A RAISON, PAS SUR LES PROBABILITÉS MAIS SUR LA CONFIANCE. Un
    résultat tiré d'avance et un tiré en direct ont la même distribution ; le
@@ -69,12 +82,12 @@
    rejouer une décision déjà prise — sinon l'animation est une
    reconstitution.
 
-   🔴 CHAQUE 3d6 EST DONC TIRÉ À L'INSTANT OÙ SES DÉS QUITTENT LA MAIN
-   (`rollThreeD6`, juste avant `poserLesDes`). Rien n'est décidé d'avance.
-   ⛔ Et la règle tient : *« jamais un jet complété »* interdit de RÉPARER un
-   lot raté — d'y ajouter un onzième jet, d'en remplacer le pire. Elle ne dit
-   rien du moment où les dix naissent. Le lot reste dix jets, rejeté en
-   entier, jamais rapiécé.
+   🔴 CHAQUE JET EST DONC TIRÉ À L'INSTANT OÙ SES DÉS QUITTENT LA MAIN
+   (`mecanique.jeter`, juste avant `poserLesDes`). Rien n'est décidé d'avance.
+   ⛔ Et la règle tient : elle porte sur le LOT (quels jets sont gardés, quels
+   planchers s'appliquent), jamais sur le moment où les jets naissent. C'est
+   pour ça que `finir` ne peut se prononcer qu'au dernier — et jamais au fil
+   de l'eau.
 
    🔴 LE PLATEAU NE PASSE JAMAIS PAR `refresh()`. Un redessin remplace tout
    le contenu de la scène (`swapContent`) : les trois canvas WebGL mourraient
@@ -93,15 +106,24 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=37";
-import { rollThreeD6, markKept, rollAbilitySet } from "./dice.mjs?v=37";
-import { swapContent } from "./socle.mjs?v=37";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=42";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=42";
+import { swapContent } from "./socle.mjs?v=42";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
 export const REGLAGES = {
   tailleMobile: 72,
   tailleBureau: 82,
+  /* 🔴 QUATRE DÉS NE TIENNENT PAS À LA COTE DE TROIS, et c'est de
+     l'arithmétique, pas un goût — même famille que l'écart de 4 des îlots FS.
+     La largeur utile du plateau est **294** (mesurée en tête de ce fichier,
+     jamais le 312 théorique du gabarit) : quatre dés de 72 plus trois écarts
+     de 4 demandent **300**. Il déborderait de 6 px sur l'iPhone SE d'Eric —
+     exactement la faute que `Reset` coupé au bord droit a déjà coûtée.
+     ⭐ (294 − 3×4) ÷ 4 = 70,5 → **70**, et le même calcul en Large. */
+  tailleMobile4: 70,
+  tailleBureau4: 80,
   ecart: 4,
   pauseMs: 2500,   // « pause 2500 bien » — il a essayé 2000 et a préféré plus lent
   /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « on voit le résultat et c'est tout,
@@ -114,9 +136,10 @@ export const REGLAGES = {
   seuilBureau: 768
 };
 
-function tailleDeDe() {
+function tailleDeDe(nbDes) {
   const large = typeof window !== "undefined" && window.matchMedia
     && window.matchMedia(`(min-width: ${REGLAGES.seuilBureau}px)`).matches;
+  if (nbDes > 3) return large ? REGLAGES.tailleBureau4 : REGLAGES.tailleMobile4;
   return large ? REGLAGES.tailleBureau : REGLAGES.tailleMobile;
 }
 
@@ -133,7 +156,7 @@ const texte = (s) => document.createTextNode(s);
  *  qui fait qu'un redessin (après une assignation) ne rejoue pas dix
  *  animations : seul un vrai `ROLL` anime. */
 function poserLesDes(hote, des, anime) {
-  const taille = tailleDeDe();
+  const taille = tailleDeDe(des.length);
   /* ⛔ PAS DE `replaceChildren` ICI — un garde du socle l'a attrapé, et il a
      raison : `swapContent` est le SEUL endroit du dépôt qui remplace le
      contenu d'un nœud (une brique, un écrivain, un garde). Le plateau n'a
@@ -163,7 +186,10 @@ function caseDeResultat(numero) {
  * verbes du moteur (loi des lots 39/42).
  *
  * @param {object} o
- * @param {object|null} o.lot        le lot de dix, ou `null` si rien n'est tiré
+ * @param {object} [o.mecanique]     l'entrée de `ROLLING_METHODS` à servir — combien de dés,
+ *        combien de jets, comment jeter, comment clore. ⛔ Le plateau ne branche sur AUCUN id :
+ *        tout ce qui sépare `FH 3D6` de `4D6` vit dans cet objet (lot 80, §4.2).
+ * @param {object|null} o.lot        le lot déjà tiré, ou `null` si rien ne l'est
  * @param {number} o.revele          combien de jets sont déjà découverts
  * @param {(n:number)=>void} o.onRevele  appelé quand la séquence avance
  * @param {(lot:object)=>void} o.onNouveauLot  ⚠️ LE PLATEAU PRODUIT SON LOT
@@ -173,8 +199,14 @@ function caseDeResultat(numero) {
  *        se contente de le RANGER dans `state`, SANS redessiner.
  * @param {()=>void} o.onClear       remet les tirages à zéro
  */
-export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot, onClear }) {
+export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, onNouveauLot, onClear }) {
+  /* ⛔ JAMAIS `undefined` ICI : `mecaniqueDeJet` retombe sur la première
+     entrée plutôt que de laisser un appelant lire `.jets` sur du vide. */
+  const meca = mecanique && mecanique.jets ? mecanique : mecaniqueDeJet(mecanique && mecanique.id);
   const dalle = el("section", "tray dalle-majeure");
+  /* La feuille a besoin de savoir combien de dés elle héberge : quatre dés ne
+     tiennent pas à la cote de trois (voir `REGLAGES.tailleMobile4`). */
+  dalle.dataset.des = String(meca.des);
   /* ⛔ PAS DE STYLE EN LIGNE ICI — l'écart des dés vit dans `shell.css`
      (`--tray-ecart`). Le DOM des tests (`tests/dom-stub.mjs`) n'a pas de
      `.style` : un `setProperty` posé AU RENDU faisait tomber seize tests
@@ -185,7 +217,11 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   /* ── Le titre, centré (Eric, 2026-08-15, vu sur son iPhone SE) ─────── */
   dalle.append(el("h3", "tray-titre", [texte("Roll Options")]));
 
-  /* ── La rangée des boutons, SEULE sur sa ligne (choix A d'Eric) ────── */
+  /* ── La rangée des boutons, SEULE sur sa ligne (choix A d'Eric) ──────
+     ⌨️ LES DEUX PREMIERS LIBELLÉS VIENNENT DE LA MÉCANIQUE (`3d6`/`10x3D6`,
+     `4d6`/`6x4D6`) ; `Flash` et `Reset` sont les mêmes partout. La casse est
+     celle d'Eric, recopiée telle quelle — il écrit le premier en minuscule et
+     le second en majuscule, et un libellé est à lui. */
   const barre = el("div", "tray-boutons");
   const bouton = (libelle, classe, onClick) => {
     const b = document.createElement("button");
@@ -195,32 +231,26 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
     return b;
   };
   let lot = lotInitial;
-  const total = 10;   // la méthode d'Eric : dix jets, toujours
+  const total = meca.jets;
   const reste = total - revele;
 
-  const roll = bouton("3d6", "tray-roll", () => sequence(1));
-  const roll10 = bouton(`${total}x3D6`, "tray-roll10", () => sequence(reste || total));
+  const roll = bouton(meca.boutonUn, "tray-roll", () => sequence(1));
+  const roll10 = bouton(meca.boutonTous, "tray-roll10", () => sequence(reste || total));
   const flash = bouton("Flash", "tray-flash", () => flashRoll());
   const reset = bouton("Reset", "tray-reset", () => { annule = true; onClear(); });
   barre.append(roll, roll10, flash, reset);
   dalle.append(barre);
 
-  /* ── LA MENTION DE RELANCE ─────────────────────────────────────────
-     ✅ TRANCHÉ PAR ERIC, 2026-08-15 : « le joueur est informé de l'échec des
-     dix jets ». INFORMÉ, pas spectateur — on ne lui rejoue pas les lots
-     rejetés, ce qui coûterait 25 s de théâtre à jeter par échec. La mention
-     dit ce qui s'est passé, et pourquoi.
-     📌 Le nœud existe DÈS LE DÉPART, vide : la séquence l'écrit à la main,
-     comme les cases, sans jamais reconstruire la dalle. */
-  const mention = el("p", "tray-relance");
-  mention.hidden = true;
-  dalle.append(mention);
+  /* ⛔ LA MENTION DE RELANCE A DISPARU AVEC LA RELANCE (lot 80, §3).
+     Elle disait « None of the ten reached 15 — the whole set is discarded ».
+     Plus aucun lot n'est jeté : il n'y a plus rien à annoncer, et un nœud
+     vide gardé « au cas où » coûterait sa hauteur sur tous les jets. */
 
-  /* ── Le plateau : trois dés, au centre ─────────────────────────────── */
+  /* ── Le plateau : les dés, au centre ───────────────────────────────── */
   const hote = el("div", "tray-des");
   dalle.append(hote);
 
-  /* ── Les dix cases, créées vides et remplies par la révélation ─────── */
+  /* ── Les cases, créées vides et remplies par la révélation ─────────── */
   const rangee = el("ol", "tray-cases");
   const cases = Array.from({ length: total }, (_, i) => {
     const c = caseDeResultat(i + 1);
@@ -232,32 +262,22 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   /* ── ⭐ UN LOT RANGÉ DANS `state` EST TOUJOURS FINI ────────────────────
      `revele` ne décrit qu'une salve EN COURS — jamais ce qu'on affiche. Un
      lot qui arrive par les props a fini de tomber (le plateau ne le remonte
-     qu'au dixième jet, ou d'un coup au flash), donc **il se peint entier**,
-     ses six gardés compris. Peindre `revele` cases était la quatrième
-     tentative de branchement : au premier redessin — une assignation, un
-     tour de molette — la moitié des dix disparaissait.
+     qu'au dernier jet, ou d'un coup au flash), donc **il se peint entier**,
+     ses gardés compris. Peindre `revele` cases était la quatrième tentative
+     de branchement : au premier redessin — une assignation, un tour de
+     molette — la moitié des jets disparaissait.
 
-     ⭐ ET LES TROIS DÉS REPRENNENT LA POSE DU DERNIER JET. `animate: false`
-     est fait pour ça, mot pour mot : *« le dé prend la POSE du résultat,
-     sans tomber »*. Un redessin ne rejoue donc AUCUNE animation — c'est la
-     seule règle qui compte ici, et elle tient.
+     ⭐ ET LES DÉS REPRENNENT LA POSE DU DERNIER JET. `animate: false` est
+     fait pour ça, mot pour mot : *« le dé prend la POSE du résultat, sans
+     tomber »*. Un redessin ne rejoue donc AUCUNE animation.
 
      ⚠️ CETTE LIGNE AVAIT ÉTÉ RETIRÉE SOUS UNE FAUSSE RÈGLE. « Les dés ne
      naissent que d'un GESTE, jamais au rendu » venait d'un `TypeError` de
      `createDieHost` sous le DOM de test — lequel n'avait pas de `.style`,
      alors que le moteur y pose la taille CALCULÉE de chaque dé. Une limite
-     du stub habillée en principe. Mesuré depuis : avec un `.style` honnête,
-     `createDieHost` et `mount` passent, et `mount` dégrade proprement sans
-     navigateur (c'est son repli prévu quand WebGL manque).
-
-     📌 Deuxième fois dans la même séance qu'une règle bien argumentée repose
-     sur une mesure fausse — après « T3 ne passe dans aucune combinaison ».
-     Le coût de ne pas la reprendre : le joueur jetait, l'écran se redessinait
-     pour lui montrer où poser ses dés, et les dés disparaissaient. */
+     du stub habillée en principe. */
   if (lot) {
-    ecrisMention(mention, lot);
-    lot.rolls.forEach((jet, i) => { if (cases[i]) ecrisCase(cases[i], jet); });
-    peinsLesGardes(cases, lot);
+    peinsLeLot(cases, lot);
     const dernier = lot.rolls[lot.rolls.length - 1];
     /* ⛔ `standardArrayBatch` porte des jets SANS dés (`dice: []`) : il n'a
        rien à poser, et le plateau ne le sert pas de toute façon. */
@@ -270,9 +290,8 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   let enCours = false;
   let annule = false;
 
-  /** Le lot courant en cours de révélation, et le compte des rejetés. */
+  /** Le lot courant en cours de révélation. */
   let tentative = lot ? [...lot.rolls] : null;
-  let rejetes = lot ? (lot.rerollCount || 0) : 0;
 
   async function sequence(combien) {
     if (enCours) return;
@@ -280,59 +299,55 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
     roll.disabled = roll10.disabled = flash.disabled = true;
     let faits = 0;
     while (faits < combien && !annule) {
-      if (!tentative) { tentative = []; videLesCases(cases); revele = 0; }
-      /* 🔴 LE TIRAGE SE FAIT ICI, une ligne avant l'animation — pas dix jets
-         plus tôt. C'est la réponse à l'objection d'Eric sur le hasard
+      /* Une salve qui repart d'un lot COMPLET recommence à zéro : on ne
+         complète jamais un lot fini, on en tire un neuf. */
+      if (!tentative || tentative.length >= total) {
+        tentative = []; videLesCases(cases); revele = 0;
+      }
+      /* 🔴 LE TIRAGE SE FAIT ICI, une ligne avant l'animation — pas tous les
+         jets plus tôt. C'est la réponse à l'objection d'Eric sur le hasard
          différé : les dés décident en tombant. */
-      const jet = rollThreeD6(Math.random);
+      const jet = meca.jeter(Math.random);
       tentative.push(jet);
       poserLesDes(hote, jet.dice, true);
       revele += 1; faits += 1;
       ecrisCase(cases[revele - 1], jet);
       await attendre(REGLAGES.pauseMs);
       if (annule) break;
-      if (revele < 10) continue;
+      if (revele < total) continue;
 
-      /* ── LE DIXIÈME EST TOMBÉ : la règle se prononce ────────────────
-         ⛔ Elle porte sur le LOT, jamais sur un jet — c'est pour ça qu'on
-         ne peut la lire qu'ici, et jamais au fil de l'eau. */
-      if (tentative.some((r) => r.total >= 15)) {
-        lot = { rolls: markKept(tentative), rerollCount: rejetes };
-        peinsLesGardes(cases, lot);
-        ecrisMention(mention, lot);
-        onNouveauLot(lot);
-        onRevele(10);
-        break;
-      }
-      rejetes += 1;
-      annonceEchec(mention, rejetes);
-      await attendre(REGLAGES.pauseMs);
-      tentative = null;              // un lot neuf au tour suivant
-      if (combien === 1) break;      // ROLL simple : on s'arrête sur l'annonce
-      faits = 0;                     // ROLL 10 : la salve recommence entière
+      /* ── LE DERNIER EST TOMBÉ : la règle du LOT se prononce ─────────
+         ⛔ Elle porte sur le lot, jamais sur un jet — c'est pour ça qu'on ne
+         peut la lire qu'ici, et jamais au fil de l'eau. `finir` marque les
+         gardés ET pose les planchers ; les cases se REPEIGNENT donc en
+         entier, parce que deux totaux viennent de changer sous les yeux du
+         joueur, et qu'il doit voir lesquels. */
+      lot = { rolls: meca.finir(tentative), rerollCount: 0, method: meca.id };
+      peinsLeLot(cases, lot);
+      onNouveauLot(lot);
+      onRevele(total);
+      break;
     }
     enCours = false;
     if (roll.isConnected) roll.disabled = roll10.disabled = flash.disabled = false;
   }
 
-  /* ⚡ LE FLASH — aucun dé ne roule, aucune erreur ne s'annonce.
-     `rollAbilitySet` boucle EN INTERNE sur la règle de relance : c'est
-     exactement ce qu'on veut ici, et exactement ce qu'on refusait dans les
-     deux autres modes. Le lot arrive fait, les dix cases se remplissent d'un
-     coup, et les trois dés prennent la POSE du dernier jet sans tomber. */
+  /* ⚡ LE FLASH — aucun dé ne roule, aucun jet ne se regarde tomber.
+     Eric, 2026-08-15 : « on voit le résultat et c'est tout ». Le lot arrive
+     fait (`rollAbilityBatch`, la MÊME définition de « un lot » que la
+     séquence déroule au ralenti), les cases se remplissent d'un coup, et les
+     dés prennent la POSE du dernier jet sans tomber. */
   function flashRoll() {
     if (enCours) return;
-    lot = rollAbilitySet(Math.random);
+    lot = rollAbilityBatch(meca.id, Math.random);
     tentative = [...lot.rolls];
-    revele = 10;
+    revele = total;
     videLesCases(cases);
-    lot.rolls.forEach((jet, i) => ecrisCase(cases[i], jet));
-    peinsLesGardes(cases, lot);
-    mention.hidden = true;              // ⛔ « on ne voit pas les erreurs »
-    delete mention.dataset.echec;
-    poserLesDes(hote, lot.rolls[9].dice, false);
+    peinsLeLot(cases, lot);
+    const dernier = lot.rolls[lot.rolls.length - 1];
+    if (dernier && dernier.dice && dernier.dice.length) poserLesDes(hote, dernier.dice, false);
     onNouveauLot(lot);
-    onRevele(10);
+    onRevele(total);
   }
 
   function attendre(ms) {
@@ -349,63 +364,59 @@ export function renderTray({ lot: lotInitial, revele = 0, onRevele, onNouveauLot
   return dalle;
 }
 
-/** Remet les dix cases à vide — un lot rejeté disparaît de l'écran, il ne
- *  se garde nulle part (Eric, 2026-08-13 : aucun historique). */
+/** Remet les cases à vide — un lot balayé disparaît de l'écran, il ne se
+ *  garde nulle part (Eric, 2026-08-13 : aucun historique). */
 function videLesCases(cases) {
   for (const c of cases) {
     c.dataset.etat = "vide";
     delete c.dataset.garde;
+    delete c.dataset.ajuste;
     c.querySelector(".tray-case-total").textContent = "—";
     c.removeAttribute("title");
   }
 }
 
-/** Les six gardés, une fois les dix connus. */
-function peinsLesGardes(cases, lot) {
-  lot.rolls.forEach((r, i) => { if (cases[i]) cases[i].dataset.garde = String(r.kept); });
-}
-
-/** L'annonce d'un lot rejeté, PENDANT la séquence — c'est elle que le joueur
- *  doit voir (Eric : « je veux qu'il voie »). */
-function annonceEchec(node, rejetes) {
-  node.hidden = false;
-  node.dataset.echec = "true";
-  node.textContent = rejetes === 1
-    ? "None of the ten reached 15 — the whole set is discarded. Rolling again."
-    : `None of the ten reached 15 — set ${rejetes} discarded. Rolling again.`;
-}
-
-/** La mention de relance. ⛔ ELLE NE S'AFFICHE QUE S'IL Y A EU RELANCE :
- *  une ligne permanente qui dirait « 0 relance » serait du bruit, et la
- *  dalle en paierait la hauteur sur tous les jets normaux. */
-function ecrisMention(node, lot) {
-  const n = lot.rerollCount || 0;
-  delete node.dataset.echec;
-  node.hidden = n === 0;
-  if (n === 0) return;
-  node.textContent = n === 1
-    ? "One set of ten was discarded: none of its rolls reached 15. These are the dice you keep."
-    : `${n} sets of ten were discarded: none of their rolls reached 15. These are the dice you keep.`;
-}
-
-/** Écrit UNE case : son total et sa provenance, rien d'autre.
+/** LE LOT ENTIER, PEINT D'UN COUP — totaux, gardés, planchers.
  *
- *  🔴 ELLE NE DÉCIDE PLUS DES GARDÉS, ET C'EST LA CORRECTION DU LOT. La
- *  version d'avant prenait un `lot` et un `revele` pour repeindre les six
- *  retenus quand la dixième case tombait — mais ses TROIS appelants lui
- *  passaient `lot: null`, et elle lisait `lot.rolls.length` à la ligne
- *  suivante. **`TypeError` sur le premier dé, dans les trois modes.** Le
- *  module n'avait jamais tourné : rien ne l'appelait, donc rien ne l'a dit.
+ *  🔴 POURQUOI LES TOTAUX SE REPEIGNENT, ET PAS SEULEMENT LES GARDÉS : la
+ *  règle du lot 80 CHANGE deux totaux (le meilleur monte à 14 s'il n'y est
+ *  pas, le pire descend à 8). Une case écrite au fil de l'eau porte le total
+ *  BRUT ; si on ne repassait que `data-garde`, l'écran montrerait un 12 là où
+ *  le vivier propose un 8 — deux nombres pour un dé, la contradiction exacte
+ *  que le lot 46 a corrigée ailleurs.
+ *
+ *  ⛔ ET LE JET AJUSTÉ SE DIT : `data-ajuste` porte lequel des deux planchers
+ *  l'a touché, et l'infobulle garde la somme réelle des dés. Un 14 posé sur un
+ *  « 4+4+4 » muet serait un total menteur. */
+function peinsLeLot(cases, lot) {
+  lot.rolls.forEach((jet, i) => {
+    if (!cases[i]) return;
+    ecrisCase(cases[i], jet);
+    cases[i].dataset.garde = String(jet.kept);
+  });
+}
+
+/** Écrit UNE case : son total, sa provenance, et l'ajustement s'il y en a un.
+ *
+ *  🔴 ELLE NE DÉCIDE PAS DES GARDÉS, ET C'EST UNE CORRECTION DÉJÀ PAYÉE. La
+ *  version d'avant prenait un `lot` et un `revele` pour repeindre les retenus
+ *  quand la dernière case tombait — mais ses TROIS appelants lui passaient
+ *  `lot: null`, et elle lisait `lot.rolls.length` à la ligne suivante.
+ *  **`TypeError` sur le premier dé, dans les trois modes.** Le module n'avait
+ *  jamais tourné : rien ne l'appelait, donc rien ne l'a dit.
  *
  *  📌 La forme de la faute : une fonction qui fait DEUX choses (écrire une
- *  case · trancher sur le lot entier) n'a pas de signature honnête — l'une
- *  des deux finit appelée avec les paramètres de l'autre. Les six gardés se
- *  décident sur le lot entier ; c'est `peinsLesGardes` qui les peint, et
- *  elle seule. Une brique, un écrivain. */
+ *  case · trancher sur le lot entier) n'a pas de signature honnête — l'une des
+ *  deux finit appelée avec les paramètres de l'autre. Une brique, un écrivain. */
 function ecrisCase(box, jet) {
   box.dataset.etat = "plein";
   box.querySelector(".tray-case-total").textContent = String(jet.total);
-  box.title = jet.dice.join(" + ");
+  if (jet.ajuste) box.dataset.ajuste = jet.ajuste;
+  else delete box.dataset.ajuste;
+  /* L'infobulle dit les dés ET, si le plancher a mordu, ce que le jet valait
+     avant lui. C'est le seul endroit où les deux nombres se lisent ensemble. */
+  const des = jet.dice.join(" + ");
+  box.title = jet.ajuste ? `${des} = ${jet.brut} → ${jet.total}` : des;
 }
 
 export const ROLL_DURATION_MS = rollDurationMs;

@@ -214,18 +214,37 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   flex: none;
 }
 
-/* ── LA VALIDATION, AU BAS DU CONTENU (refonte 2 §1b) ──────────────
+/* ── LA SORTIE D'ÉTAPE, AU BAS DU CONTENU (refonte 2 §1b, lot 80 §5.1) ──
    Elle remplace `.command`, qui figeait 45 px en haut des dix écrans. Ce
    bloc-ci DÉFILE avec la fiche : il n'est pas un cadre, il est la fin du
-   document. ⚠️ Forme PROVISOIRE — chaque écran recevra la sienne (§3). */
-.valider {
+   document.
+
+   🔴 `Validate` A DISPARU PARTOUT (Eric, 2026-08-16 : *« 1 validate dégage
+   PARTOUT »*). À sa place, la PAIRE du croquis : `BACK` à gauche, `DONE` à
+   droite. ⛔ Le sélecteur s'appelle `.sortie` et non plus `.valider` : une
+   classe qui promet un bouton disparu se cherche longtemps.
+   ⭐ `space-between` — les deux gestes s'opposent, ils ne se suivent pas. Un
+   `DONE` collé contre un `BACK` se presse par erreur au pouce. */
+.sortie {
   display: flex;
-  justify-content: flex-end;
-  padding: var(--sp-20) 0 var(--sp-12);
+  justify-content: space-between;
+  gap: var(--sp-8);
+  /* 📏 LA GOUTTIÈRE LATÉRALE, ET ELLE RÉPARE UN DÉFAUT ANTÉRIEUR À CE LOT.
+     Mesuré à 375 : ce bloc fait toute la largeur de la scène (0 → 375) alors
+     que la carte au-dessus s'arrête à 8 → 367. `Validate` s'y alignait à
+     droite et TOUCHAIT donc le bord de l'écran, sans marge ; la paire le
+     rendait visible des deux côtés à la fois. CADRES.md §2 bis est explicite :
+     *« les marges sont sur LES QUATRE CÔTÉS, systématiquement »*.
+     ⛔ En `padding` et non en `margin` : le plafond `--frame-w` (Large) doit
+     rester celui du CADRE ; une marge le rétrécirait, un rembourrage range les
+     boutons dedans. Les deux valeurs sont celles de la carte — 16, ramenés à 8
+     à l'étroit par le même `@media` qui la sert (§2 bis : « un seul jeton pour
+     tout le vocabulaire »). */
+  padding: var(--sp-20) var(--sp-16) var(--sp-12);
   max-width: var(--frame-w);
   margin-inline: auto;
 }
-.valider-bouton {
+.sortie-bouton {
   min-height: var(--touch); /* le seuil tactile — voir `--touch` dans tokens.css */
   border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
   border-radius: var(--radius-sm);
@@ -235,8 +254,8 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   padding: 0 var(--sp-20);
   cursor: pointer;
 }
-.valider-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
-.valider-bouton:disabled { opacity: .5; cursor: default; }
+.sortie-bouton[data-lit="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.sortie-bouton:disabled { opacity: .5; cursor: default; }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
    « Certaines fiches auront EN PLUS une navigation interne, fixe elle
@@ -886,6 +905,8 @@ button { font: inherit; }
      change, c'est la place que la fiche peut se permettre — et le rail, qui
      est déjà à son minimum lisible, ne rétrécit pas davantage. */
   .decision-card { margin: var(--sp-8); }
+  /* La sortie d'étape suit la carte, au même cran (voir sa règle). */
+  .sortie { padding-inline: var(--sp-8); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -962,130 +983,334 @@ button { font: inherit; }
    lisibilité d'un déversement de `resolved` que B9 remplace par un masque.
    `src/tools/fiche.shell.html` garde les siennes, pour l'outil autonome. */
 
-/* ══ B5.1 — LA SCÈNE AU REPOS : un texte, puis des DALLES-BOUTONS ═══════
-   ⛔ Rien n'est déplié d'avance (B5.1c) : tant qu'aucune tuile n'est
-   touchée, il n'y a que ça à l'écran. */
-.ability-intro { padding: var(--sp-12); margin-bottom: var(--sp-12); color: var(--text); }
-.ability-intro p { margin: 0; font-size: var(--t3); }
-.ability-entries { display: flex; flex-direction: column; gap: var(--sp-8); margin-bottom: var(--sp-16); }
-/* 🔴 « Choix identique ⇒ dalle de taille identique » (III.2) — d'où la
-   colonne : trois tuiles, même largeur, même hauteur, aucun classement
-   implicite par la taille. */
+/* ══ L'ÉTAPE ABILITIES — LES TROIS ÉTAGES DU CROQUIS (lot 80) ═══════════
+   📐 Croquis `2026-08-16-abilities-quatre-methodes.jpg`. Le sélecteur de
+   méthode en dalle 35 %, puis l'organe, le vivier et le collecteur en 50 %.
+
+   ⛔ CE QUI A DISPARU D'ICI, ET C'EST LA LOI §0.6 (une règle part avec son
+   balisage) : `.ability-intro`, `.ability-entries`, `.ability-rolling*`,
+   `.ability-mode-*`, `.ability-method-block`, `.ability-roll-*`,
+   `.ability-dice`, `.ability-die*`, `.ability-rows`, `.ability-row*` (sauf la
+   colonne « Final », qui vit toujours et sert aussi Inheritance). Ces
+   trente-cinq règles habillaient les six rangées à molette, la molette de
+   méthode de jet et les pastilles plates de `4d6` — trois formes que
+   l'entonnoir unique remplace. Les laisser aurait été un décor sans corps. */
+.abilities-step { max-width: var(--panel-w); margin-inline: auto; }
+.card-step { max-width: var(--measure); margin-inline: auto; } /* PROSE : une colonne de lignes, pas un tableau (§3e) */
+.ability-mode-summary, .card-mode-summary { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+
+/* ── ÉTAGE 0 · LE SÉLECTEUR DE MÉTHODE — FF2, dalle 35 % ──────────────
+   🔴 CINQ BOUTONS EN UNE RANGÉE, ET C'EST DE L'ARITHMÉTIQUE. À 360, le champ
+   utile vaut 344 ; cinq boutons plus quatre écarts de 4 laissent 65,6 px par
+   bouton. `FH 3D6` (6 caractères) y tient en T2 ; en T3 il déborderait — le
+   même calcul, à la même place, que celui qui a coupé `Reset` au bord droit
+   du plateau le 15/08.
+   ⛔ ET ILS NE SE REPLIENT PAS : `flex-wrap` mettrait `INFO` seul sur une
+   seconde ligne, où il se lirait comme une cinquième méthode. Le croquis les
+   met tous les cinq côte à côte. */
+.ability-methodes { padding: var(--sp-8); margin-bottom: var(--sp-12); color: var(--text); }
+.ability-methodes-titre {
+  margin: 0 0 var(--sp-8);
+  font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text); font-weight: 600; text-align: center;
+}
+.ability-methodes-boutons { display: flex; gap: var(--sp-4); }
+/* 🔴 « Choix identique ⇒ dalle de taille identique » (III.2) : `1 1 0` donne
+   cinq parts ÉGALES, aucun classement implicite par la largeur. */
 .ability-entry {
+  flex: 1 1 0; min-width: 0;
   min-height: var(--touch);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
+  background: none;
   color: var(--text);
-  font-size: var(--t4);
-  padding: var(--sp-8) var(--sp-16);
-  text-align: left;
+  font-family: inherit;
+  font-size: var(--t2);
+  padding: var(--sp-4) var(--sp-2);
+  text-align: center;
   cursor: pointer;
 }
-.ability-entry[data-active="true"] { border-color: var(--accent); font-weight: 600; }
+.ability-entry[data-active="true"] { border-color: var(--accent); background: var(--accent-wash); font-weight: 600; }
+.ability-entry-label { display: block; overflow-wrap: anywhere; }
+/* `INFO` n'est pas une méthode : il ne prend pas de part, il prend sa place.
+   📏 MESURÉ À 375 : son libellé lui donnait 34 px de large pour 44 de haut —
+   sous le plancher tactile dans l'autre sens, ce que `min-height` seul ne voit
+   pas. Une cible carrée de 44 est le minimum d'Apple, et c'est un bouton qu'on
+   presse au pouce comme les autres. */
+.ability-info-bouton { flex: 0 1 auto; min-width: var(--touch); }
 /* LOT 74 — L'ATTENTE SE DIT : la phrase montrée quand aucune méthode n'est
-   choisie et que `Validate` attend (abilities-step.mjs, B5.1c). Même
-   registre doux que `.ability-mode-note` — une information, pas une alarme. */
+   choisie et que `DONE` attend. Une information, pas une alarme. */
 .ability-gate-note { font-size: var(--t3); color: var(--text-soft); margin: 0; }
 
-.ability-rolling { display: flex; flex-direction: column; gap: var(--sp-8); margin-bottom: var(--sp-16); }
-.ability-rolling-pick { padding: var(--sp-12); color: var(--text); }
-.ability-rolling-pick h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text); }
-.ability-rolling-blurb { padding: var(--sp-12); color: var(--text); }
-.ability-rolling-blurb p { margin: 0; font-size: var(--t3); }
+/* ── ÉTAGE 1 · L'ORGANE — FF2, dalle 50 % ─────────────────────────────
+   L'explication d'abord (la règle, une phrase), puis le plateau quand la
+   méthode en a un. ARRAY et FREE n'ont que la phrase, et c'est complet.
+   🔴 SUR DU VERRE, SEULE `--text` TIENT LES 4,5:1 (`tests/decor.test.mjs`,
+   dans les deux thèmes) : cette dalle passe en 50 %, donc son texte ne peut
+   PAS rester gris. C'est la règle du §8 de CADRES.md, appliquée. */
+.ability-organe { padding: var(--sp-8); margin-bottom: var(--sp-12); color: var(--text); }
+.ability-organe-mot { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text); }
+/* Le plateau vit DANS l'organe : il n'a plus sa dalle à lui, sinon deux
+   verres se superposeraient et le fond cesserait de traverser. */
+.ability-organe .tray { background: none; padding: 0; margin-bottom: 0; }
 
-/* ── L'ÉTAPE ABILITIES (lot 45) ──────────────────────────────────────
-   `.record-list`/`.record-option` (carnet.mjs, lot 42) portent déjà le
-   sélecteur de méthode ET les rangées d'assignation — même geste que
-   Class/Species, aucun composant de plus écrit ici. Ce bloc n'ajoute que ce
-   que `renderPicker` ne fournit pas : les dix dés, le bandeau de relance,
-   les libellés de ligne et l'alerte de plafond (§3c, déclarée jamais
-   opposée). */
-/* LOT 69 — LA PAIRE EST SCINDÉE : Destiny (.card-step) est bien de la prose
-   (une carte, un texte, deux boutons) ; Abilities ne l'a jamais été — c'est
-   le « standard array marche pas, pas de molette » d'Eric, mesuré :
-   scrollWidth 382 > clientWidth 310, deux valeurs sur six coupées à
-   1440 px. Le panneau prend --panel-w (= --measure à l'étroit : rien ne
-   bouge à 360). `margin-inline: auto` : no-op sans mou, centre avec. */
-.abilities-step { max-width: var(--panel-w); margin-inline: auto; }
-.card-step { max-width: var(--measure); margin-inline: auto; } /* PROSE : une colonne de lignes, pas un tableau (§3e) */
+/* ── ÉTAGE 2 · LE VIVIER — la rangée d'îlots FS ───────────────────────
+   CADRES.md §7 : *« un FS n'est pas une fenêtre, c'est une TUILE »*. Aucune
+   largeur ni hauteur écrite, et c'est le point — `repeat(N, 1fr)` déduit la
+   largeur, la hauteur vient du contenu, et les tuiles s'égalisent parce
+   qu'une ligne de grille prend la hauteur de sa plus haute cellule.
 
-.ability-mode-switch { margin-bottom: var(--sp-16); }
-.ability-mode-note { font-size: var(--t3); color: var(--text-soft); margin: var(--sp-4) 0 0; }
+   🔴 L'ÉCART EST DE 4, ET C'EST L'ARITHMÉTIQUE DE 360 QUI L'A IMPOSÉ —
+   mesuré le 2026-08-16. À 8, l'îlot vaut 50,7 et son dé 42 : DEUX PIXELS SOUS
+   `--touch` (44). Et ce n'est pas rattrapable ailleurs — six cases de 52 plus
+   cinq écarts de 8 demandent 352 px pour 344 disponibles.
 
-.ability-method-block[data-status="inactive"] { opacity: .6; margin-bottom: var(--sp-16); }
-.ability-mode-summary, .card-mode-summary { font-size: var(--t3); color: var(--text-soft); margin: 0; }
+   ⛔ ET LA TAILLE DU DÉ N'EST PAS ÉCRITE, ELLE EST DÉDUITE — c'est la loi de
+   CADRES.md §7 (*« aucune largeur ni hauteur écrite, et c'est le point »*), et
+   il a fallu une mesure dans la page pour comprendre qu'elle n'était pas
+   négociable :
 
-.ability-roll-batch { margin-bottom: var(--sp-24); }
-.ability-roll-bar { margin-bottom: var(--sp-8); }
-.ability-roll-btn {
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-  color: var(--text);
+     · une cote ÉCRITE de 46 px a été posée d'abord, sur la foi du relevé de
+       banc (« à 360, îlot 54, dé 46 »). Mesurée dans le builder à 375 : le
+       champ n'y vaut pas 344 mais **325** (la scène a son propre
+       rembourrage), donc l'îlot 51 et sa place intérieure 47. À 360, elle
+       tombe à ~44 — et un dé de 46 y déborderait de deux pixels.
+     · une largeur en pourcentage n'a, elle, aucun seuil à rater.
+
+   ⭐ LE PLAFOND, EN REVANCHE, EST ÉCRIT, et il sert en grandeur Large : une
+   rangée de six sur un champ de bureau donnerait des dés démesurés pour dire
+   six nombres. 56 px est la cote du relevé de banc à 1280.
+   📌 CE QUI RESTE EN PIXELS DANS LE JS (`FS.resolution`) N'EST PAS UNE TAILLE
+   D'AFFICHAGE, c'est la RÉSOLUTION de l'image du dé — le moteur 3D en a
+   besoin pour la fabriquer, la feuille décide ensuite de la place qu'elle
+   occupe. Les deux ne se contredisent pas : l'une est une netteté, l'autre
+   une géométrie. */
+.fs-rangee {
+  --fs-colonnes: 6;
+  --fs-de-max: 56px;   /* le plafond, pour que la palette de FREE ne gonfle pas */
+  display: grid;
+  grid-template-columns: repeat(var(--fs-colonnes), 1fr);
+  gap: var(--sp-4);
+  margin: 0 0 var(--sp-12); padding: 0;
+  list-style: none;
+}
+/* ⛔ LA PALETTE DE `FREE` N'A PAS SA PROPRE GRILLE, ET C'EST MESURÉ : à quatre
+   colonnes (le croquis), ses seize dés font 406 px de haut, et le collecteur
+   ne peut plus JAMAIS être à l'écran en même temps qu'elle — donc plus aucun
+   glisser possible, `elementFromPoint` ne voyant que le champ visible. À six,
+   elle tombe à 276. Voir `renderVivier` (abilities-step.mjs) pour le relevé
+   complet ; ⏳ l'écart au dessin est à faire trancher par Eric. */
+.fs {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-2);
   border-radius: var(--radius-md);
-  padding: var(--sp-8) var(--sp-16);
+  background: var(--dalle-simple);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  min-width: 0;
+}
+/* ⛔ UN ÎLOT VIDÉ GARDE SA PLACE — la rangée ne se referme pas derrière un dé
+   parti, sinon les cinq autres bougeraient sous le doigt en plein geste. */
+.fs[data-vide="true"] { opacity: .45; }
+.fs-vide {
+  display: flex; align-items: center; justify-content: center;
+  min-height: var(--fs-de);
+  color: var(--text); font-size: var(--t2);
+}
+/* Le dé EST l'objet qu'on prend. `touch-action: none` : sans elle le doigt
+   ferait défiler la page au lieu de saisir (leçon du lot 79). */
+.fs-de {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+  padding: 0; border: 0; background: none; color: var(--text);
+  font-family: inherit;
+  touch-action: none; cursor: grab;
+  -webkit-user-select: none; user-select: none;
+  /* LE DÉ PREND LA PLACE QUE LA COLONNE LUI DONNE, jamais une cote à lui —
+     et c'est AUSSI la cible tactile : à 360, l'îlot laisse ~44 px de large,
+     exactement le plancher `--touch`. */
+  width: 100%; max-width: var(--fs-de-max); min-width: 0;
+}
+.fs-de[data-glisse="true"] { opacity: .35; cursor: grabbing; }
+/* ⛔ ON REPREND LA GÉOMÉTRIE AU MOTEUR, ET SEULEMENT ELLE. `dice3d.css` pose
+   `width: var(--fh-static-die-size)` — une cote en pixels que `createDieHost`
+   écrit en ligne sur chaque hôte. Ici, c'est la COLONNE qui décide ; le
+   sélecteur à deux classes l'emporte sur celui du moteur, et l'`aspect-ratio`
+   garde le dé carré.
+   📌 Ce qu'on NE reprend pas : le `transform: scale(.8)` que le moteur
+   applique à tout d6 (`[data-sides="6"]`). C'est son calibrage — un cube se
+   lit plus gros qu'un d20 dans la même boîte — et il est réglé face par face,
+   « do not normalize without new visual validation from Eric ». Le dé occupe
+   donc 80 % de sa boîte, à dessein ; la boîte, elle, reste la cible. */
+.fs-de .porte-de,
+.fs-de .fh-cd-static-die,
+.fs-de img.fh-cd-static-snap { width: 100%; height: auto; aspect-ratio: 1; }
+
+/* ══ 🔴 UN DÉFAUT DU CHEMIN IMAGE DU MOTEUR, MESURÉ DANS LA PAGE ══════════
+   Un dé posé en mode IMAGE (`data-snapshot="1"`, le seul mode qui n'ouvre
+   aucun contexte WebGL) rendait **51 × 136** au lieu d'un carré : sa hauteur
+   doublait.
+
+   LA CAUSE, lue dans le moteur : `mountSnapshot` insère l'image PUIS pose
+   `is-webgl` sur l'hôte — et `dice3d.css` dit `.is-webgl canvas { display:
+   block }`. Le canvas VIDE et l'image sont alors deux blocs dans le même
+   flux, donc ils s'EMPILENT. Le chemin animé, lui, n'a pas ce défaut : son
+   `settleToSnapshot` masque le canvas à la main (`canvas.style.display =
+   "none"`), une ligne que le chemin image n'a jamais eue.
+
+   ⏳ IL SE CORRIGE EN AMONT, PAS ICI : `dice3d.mjs` et `dice3d.css` sont des
+   copies VERBATIM de `fh-phb` (garde 7 des jetons), et un défaut du moteur se
+   répare là-bas puis se recopie. **À remonter.** En attendant, on neutralise
+   le canvas vide chez nous, sur les hôtes en mode image et eux seuls.
+   ⛔ ET PAS AVEC `display: none` : le garde 4 l'interdit, et il a raison de ne
+   pas vouloir d'exception de plus. Des dimensions nulles suffisent — c'est
+   déjà le remède employé pour les barres de défilement des molettes, plus
+   haut dans ce fichier, et pour la même raison. */
+.fh-cd-static-die[data-snapshot="1"] canvas { width: 0; height: 0; }
+
+/* ══ LE CHIFFRE PAR-DESSUS LE DÉ, ET IL A FALLU LE MESURER ═════════════
+   🔴 LE MOTEUR REFUSE D'ÉCRIRE 15 SUR UN D6, ET IL A RAISON : `createDieHost`
+   garde bien `data-result`, mais l'incrustation qu'il peint affiche la FACE —
+   un d6 ne peut pas faire 15, et le moteur ne ment pas sur un jet.
+   ⭐ Or ici le chiffre n'est PAS un jet : c'est un score posé sur un dé qui
+   sert de socle. C'est donc à l'écran de l'écrire, et à l'incrustation du
+   moteur de se taire.
+   ⛔ On ne touche pas au moteur : le corps de `dice3d.mjs` est une copie
+   verbatim de `fh-phb`, un défaut s'y corrige EN AMONT puis se recopie. */
+.porte-de { position: relative; display: inline-block; line-height: 0; }
+.porte-de .fh-cd-static-die-result { display: none; }
+.valeur {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-variant-numeric: tabular-nums;
+  /* ⛔ PAS DE `style.fontSize` AU RENDU (garde 7 des jetons) — le banc s'en
+     dispensait, la production non. ⛔ ET PAS DE `calc()` SUR LA LARGEUR DU DÉ
+     NON PLUS : le garde 1 n'accepte qu'un barreau de l'échelle, et il a raison
+     ici. Un chiffre à lire est une taille de LECTURE, pas un décor — c'est la
+     même loi que les 16 px du corps de fiche, qui ne se mettent pas à
+     l'échelle avec la dalle (CADRES.md §8). Mesuré : T4 dans un îlot de 51
+     fait 34 % de sa largeur, le rapport que le banc avait réglé à l'œil ; sous
+     le plafond de 56, il en fait 29 %. Les deux se lisent. */
   font-size: var(--t4);
-  cursor: pointer;
+  color: var(--de-encre);
+  pointer-events: none;
 }
-.ability-roll-empty { font-size: var(--t3); color: var(--text-soft); margin: 0; }
-.ability-roll-note { font-size: var(--t3); color: var(--caution); margin: 0 0 var(--sp-8); } /* la relance s'est vue (§3a.1) — même famille que les mentions, jamais un refus (--critical) */
-
-.ability-dice { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
-.ability-die {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-2);
-  border: 1px solid var(--border);
+/* ⭐ LE TOTAL EN CLAIR, SOUS LE DÉ — le chiffre peint sur la face est petit et
+   posé sur de l'ivoire ; celui-ci se lit sur le fond de l'écran, à l'encre du
+   thème. Les deux disent la même chose, à deux échelles. */
+.ability-de-total { font-size: var(--t3); font-variant-numeric: tabular-nums; }
+/* ⭐ §5.2 — LE MODIFICATEUR SOUS CHAQUE DÉ, y compris au vivier : on voit ce
+   que vaut un 15 avant de le poser. Au vivier c'est le modificateur BRUT ;
+   dans une cible, c'est le FINAL (colonne « Final »), et les deux ne disent
+   pas la même chose — c'est la leçon du lot 46. */
+.ability-de-mod { font-size: var(--t2); font-variant-numeric: tabular-nums; color: var(--text); }
+.ability-de-detail { font-size: var(--t1); color: var(--text); }
+/* UN DÉ DÉJÀ POSÉ RESTE PRENABLE (l'échange du lot 51) — il pâlit, il ne se
+   retire pas. ⛔ Et il n'est pas `disabled` : ce serait mentir sur un geste
+   qui marche. */
+.ability-de-garde[data-pris="true"] { opacity: .55; }
+/* LA RANGÉE ENTIÈRE EST UNE CIBLE — elle s'allume quand le doigt la survole
+   avec un dé, exactement comme une case. C'est ce qui rend le retour lisible.
+   ⛔ Une PALETTE ne s'allume pas : on n'y renvoie rien, on y jette (FREE). */
+.fs-rangee[data-vise="true"] {
+  outline: 1px solid var(--accent);
+  outline-offset: var(--sp-4);
   border-radius: var(--radius-md);
-  padding: var(--sp-4) var(--sp-8);
-  min-width: 5ch;
 }
-.ability-die[data-kept="true"] { border-color: var(--tier-2); background: var(--accent-wash); }
-.ability-die[data-kept="false"] { opacity: .55; } /* trouvé en servant le builder (INVENTAIRE-LOT-45.md) : la seule couleur de bordure se voyait trop peu à l'œil, sur dix petits jetons */
-/* LOT 50 — un dé déjà distribué à une caractéristique se voit AUSSI sur le
-   jeton lui-même (§4, « regarde-le ») : pur affichage, la carte
-   `rollBatch.assign` reste la seule source de vérité (voir abilities-
-   step.mjs, renderRollBatch). Un dé peut être gardé ET assigné à la fois :
-   les deux styles se cumulent (bordure du tiers + trait plus fin dessous). */
-.ability-die[data-assigned="true"] { box-shadow: inset 0 -3px 0 var(--accent); }
-.ability-die-detail { font-size: var(--t1); color: var(--text-muted); }
-.ability-die-total { font-size: var(--t5); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-.ability-rows { display: flex; flex-direction: column; gap: var(--sp-8); }
-/* B5.5 — « chacune portant une MOLETTE ». Une molette DÉFILE, elle ne se
-   replie pas : avec `flex-wrap`, les six valeurs s'empilaient en colonne et
-   chaque rangée faisait six lignes de haut (vu à l'écran). `nowrap` +
-   défilement horizontal, et la rangée reprend une hauteur de rangée.
-   ⚠️ LOT 69 — ÇA, C'EST LE RÉGIME DU DOIGT (base 360, où une seule valeur
-   tient). En grandeur Large, les jetons basculent (`wrap`, amorce éteinte) :
-   à la souris, une molette masquée cachait « 10 (DEX) » et « 8 » sans
-   rien annoncer — c'est le « standard array marche pas » d'Eric. Enroulée,
-   TOUTE liste tient, quel que soit le nombre d'options (mesuré : le mode
-   « choose » en a vingt, 941 px > 442 de champ). La colonne de dalles
-   reste : « choix identique ⇒ dalle identique » (III.2) n'est pas touché. */
-.ability-row { display: flex; align-items: center; gap: var(--sp-8); min-width: 0; padding: var(--sp-4) 0; }
-.ability-row .record-list {
-  flex-wrap: var(--wheel-wrap);
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  mask-image: var(--wheel-mask);
-  -webkit-mask-image: var(--wheel-mask);
+/* ══ LE FANTÔME — le dé qui suit le doigt ══════════════════════════════
+   Eric, 2026-08-16 : *« je veux voir l'image du dé qui se déplace »*.
+   🔴 POSÉ EN COORDONNÉES D'ÉCRAN, et c'est la seule façon honnête : le jeton
+   d'origine vit dans une scène qui défile ; un fantôme dans le même flux se
+   ferait couper par le premier `overflow`.
+   ⛔ `pointer-events: none` — sans elle, le fantôme se trouve SOUS le doigt
+   au moment où `elementFromPoint` cherche la cible, et l'organe ne verrait
+   jamais que lui-même. C'est le piège classique de cette forme.
+   ⭐ Il est plus GRAND que le jeton et il porte une ombre : le dé est
+   « soulevé », pas déplacé à plat. Sous un pouce, c'est la seule chose qui
+   reste visible du geste. */
+.ability-fantome {
+  position: fixed; left: 0; top: 0;
+  /* ⭐ LUI SEUL PORTE UNE COTE ÉCRITE, et il le doit : il vit hors de toute
+     colonne, donc il n'a aucune largeur à hériter. La valeur est RECOPIÉE de
+     `FS.fantome` (abilities-step.mjs), qui la passe au moteur 3D — c'est la
+     seule cote que le JS et la feuille partagent ici, et elle est nommée des
+     deux côtés. */
+  width: 46px;
+  z-index: 50; pointer-events: none;
+  line-height: 0;
+  scale: 1.15;
+  filter: drop-shadow(0 6px 10px var(--scrim));
+  transform-origin: center;
 }
-.ability-row .record-option { flex: none; scroll-snap-align: center; min-height: var(--touch); }
-.ability-row-label { width: 4ch; flex: none; font-weight: 600; }
-/* LOT 50 — la note « d'où vient cette valeur » (commande §2c : une rangée
-   non distribuée doit DIRE qu'elle ne vient pas du lot, une rangée
-   distribuée doit AUSSI être reconnaissable). Largeur fixe : les rangées
-   d'une même colonne restent alignées, distribuées ou non. */
-.ability-row-source { flex: none; min-width: 13ch; font-size: var(--t2); color: var(--text-soft); }
-.ability-row[data-assigned="true"] .ability-row-source { color: var(--tier-2); font-weight: 600; }
+
+/* ── ÉTAGE 3 · LE COLLECTEUR — FF2, dalle 50 % ────────────────────────
+   `DRAG AND DROP HERE`, puis les six cibles. */
+.ability-collecteur { padding: var(--sp-8); color: var(--text); }
+.ability-collecteur-titre {
+  margin: 0 0 var(--sp-8);
+  font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text); font-weight: 600; text-align: center;
+}
+
+/* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
+   FF2, dalle 50 %, qu'on ferme en cliquant (III.4).
+   🔴 SUR DU VERRE, SEULE `--text` TIENT : le banc pouvait se payer du gris
+   (il n'était tenu par aucun garde), la production non. Toutes les encres du
+   panneau sont donc `--text` ; ce qui distinguait les registres passe par le
+   CORPS et la graisse, jamais par la pâleur. */
+.ability-info {
+  padding: var(--sp-16);
+  margin-bottom: var(--sp-12);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  color: var(--text);
+  cursor: pointer;                    /* le panneau entier ferme (III.4) */
+}
+.ability-info-tete { display: flex; align-items: baseline; gap: var(--sp-8); margin-bottom: var(--sp-4); }
+.ability-info-titre { font-size: var(--t6); line-height: 1.15; margin: 0; }
+.ability-info-fermer {
+  margin-left: auto; flex: none;
+  font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase;
+}
+.ability-info-chapeau { margin: 0 0 var(--sp-20); font-size: var(--t3); }
+.ability-info-methode { margin-bottom: var(--sp-16); }
+.ability-info-methode-tete { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; margin-bottom: var(--sp-4); }
+.ability-info-methode h4 { font-size: var(--t4); margin: 0; font-weight: 600; }
+.ability-info-des { font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.ability-info-regle {
+  margin: 0 0 var(--sp-4); padding-left: var(--sp-12);
+  border-left: 2px solid var(--accent);
+  font-size: var(--t3);
+}
+.ability-info-methode p { margin: 0; font-size: var(--t3); }
+.ability-info-methode p + p { margin-top: var(--sp-4); }
+/* ⚠️ LE TABLEAU DÉFILE DANS SA BOÎTE, jamais en emportant la page : un
+   débordement horizontal casserait le glisser autant que la lecture. */
+.ability-info-tableau { overflow-x: auto; margin: var(--sp-20) 0; }
+.ability-info-tableau table { border-collapse: collapse; width: 100%; font-size: var(--t2); }
+.ability-info-tableau caption {
+  text-align: left; font-size: var(--t1);
+  letter-spacing: .08em; text-transform: uppercase; padding-bottom: var(--sp-8);
+}
+.ability-info-tableau th, .ability-info-tableau td {
+  text-align: right; padding: var(--sp-4);
+  border-bottom: 1px solid var(--verre-lisere);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ability-info-tableau thead th { font-size: var(--t1); font-weight: 600; }
+.ability-info-tableau tbody th { text-align: left; font-weight: 400; white-space: normal; min-width: 8ch; }
+.ability-info-tableau td.fort { font-weight: 600; }
+.ability-info-chute { margin-top: var(--sp-20); padding-top: var(--sp-12); border-top: 1px solid var(--verre-lisere); font-size: var(--t3); }
+.ability-info-chute p { margin: 0 0 var(--sp-8); }
+.ability-info-chute p:last-child { margin-bottom: 0; }
+.ability-info-note { font-size: var(--t2); font-style: italic; }
+.ability-info-pied { font-size: var(--t1); letter-spacing: .04em; }
+
 /* La colonne « Final » — corrigée sur mesure d'architecte (INVENTAIRE-
-   LOT-45.md, « correction post-fusion ») : le brut (le picker, éditable)
-   et le score final (boosts compris, lu dans `resolved`) ne doivent plus
-   se lire comme deux nombres contradictoires côte à côte. `[data-boosted]`
-   n'annonce qu'un ÉCART DÉJÀ LU dans les deux valeurs (aucun calcul ici,
-   la couleur seule change) — jamais un ajout de chiffre. */
-.ability-row-final { display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-2); flex: none; min-width: 9ch; }
+   LOT-45.md, « correction post-fusion ») : le choix brut et le score final
+   (boosts compris, lu dans `resolved`) ne doivent pas se lire comme deux
+   nombres contradictoires côte à côte. `[data-boosted]` n'annonce qu'un ÉCART
+   DÉJÀ LU dans les deux valeurs (aucun calcul ici) — jamais un chiffre de
+   plus. ⭐ Elle sert aussi Inheritance (lot 46), au même octet. */
+.ability-row-final { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); flex: none; }
 .ability-row-final-label { font-size: var(--t1); color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
 .ability-row-final-value { font-variant-numeric: tabular-nums; }
 .ability-row-final[data-boosted="true"] .ability-row-final-value { color: var(--accent); font-weight: 600; }
@@ -1511,6 +1736,7 @@ button { font: inherit; }
 .tray {
   --tray-ecart: 4px;
   --tray-de: 72px;              /* mobile — le réglage d'Eric, § 4sexies du gabarit */
+  --tray-cases: 10;             /* FH 3D6 en compte dix ; 4D6 en compte six */
   display: flex;
   flex-direction: column;
   gap: var(--sp-8);
@@ -1518,6 +1744,16 @@ button { font: inherit; }
   margin-bottom: var(--sp-12);
 }
 @media (min-width: 768px) { .tray { --tray-de: 82px; } }
+/* 🔴 QUATRE DÉS NE TIENNENT PAS À LA COTE DE TROIS, et c'est de l'arithmétique
+   — même famille que l'écart de 4 des îlots FS. La largeur utile du plateau
+   est **294** (mesurée dans la page, jamais le 312 théorique du gabarit) :
+   quatre dés de 72 plus trois écarts de 4 demandent **300**, soit 6 px de
+   débordement sur l'iPhone SE d'Eric. C'est exactement la faute qui lui a
+   coupé `Reset` au bord droit le 15/08. (294 − 3×4) ÷ 4 = 70,5 → 70.
+   ⛔ La cote est RECOPIÉE de `REGLAGES.tailleMobile4` (abilities-tray.mjs) :
+   le moteur 3D veut des pixels, il ne lit pas cette feuille. */
+.tray[data-des="4"] { --tray-de: 70px; --tray-cases: 6; }
+@media (min-width: 768px) { .tray[data-des="4"] { --tray-de: 80px; } }
 
 /* LES BOUTONS PRENNENT LEUR PROPRE RANGÉE — choix A d'Eric, et c'est une
    MESURE, pas un goût : la colonne `ROLL`/`ROLL 10` fait 80 px et `CLEAR` 70
@@ -1576,8 +1812,9 @@ button { font: inherit; }
 
 /* LA MENTION DE RELANCE — « le joueur est informé de l'échec des dix jets »
    (Eric). Informé, pas spectateur : on ne lui rejoue pas les lots rejetés. */
-.tray-relance { margin: 0; font-size: var(--t2); color: var(--text-muted); }
-.tray-relance[data-echec="true"] { color: var(--critical); }
+/* ⛔ `.tray-relance` EST PARTIE AVEC LA RELANCE (lot 80, §3) — loi §0.6 : une
+   règle s'en va avec son balisage. Plus aucun lot n'est jeté, donc il n'y a
+   plus rien à annoncer en cours de salve. */
 
 /* LE PLATEAU — trois dés, au centre. Sa hauteur est RÉSERVÉE même vide :
    sans ça la dalle sauterait de 72 px au premier jet, et le pouce viserait
@@ -1592,9 +1829,13 @@ button { font: inherit; }
 /* LES DIX CASES NUMÉROTÉES. Elles existent dès le départ, vides : c'est ce
    qui permet à la révélation d'écrire dedans sans reconstruire la rangée —
    et donc sans tuer les canvas WebGL voisins en pleine animation. */
+/* ⭐ SIX OU DIX CASES, ET C'EST LA MÉCANIQUE QUI LE DIT — `--tray-cases`, posé
+   par `[data-des]` juste au-dessus. Un `repeat(10, …)` en dur donnait six
+   cases sur dix colonnes en `4D6` : quatre colonnes vides, et une rangée qui
+   ment sur ce qu'elle attend encore. */
 .tray-cases {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(var(--tray-cases), 1fr);
   gap: var(--sp-4);
   margin: 0;
   padding: 0;
@@ -1609,9 +1850,20 @@ button { font: inherit; }
   border-radius: var(--radius-md);
   background: var(--dalle-simple);
 }
-.tray-case-num { font-size: var(--t1); color: var(--text-muted); }
+/* 🔴 PLUS AUCUN GRIS DANS LE PLATEAU DEPUIS LE LOT 80, et ce n'est pas un
+   goût : le plateau vit désormais DANS l'organe, une dalle à 50 % de verre, et
+   `tests/decor.test.mjs` mesure que **seule `--text` y tient les 4,5:1** —
+   `--text-muted` rend 3,0 à 3,6. La règle de CADRES.md §8 est explicite : « un
+   habillage qui passe en verre ne peut pas garder son texte gris ».
+   ⭐ Ce que le gris distinguait passe donc par le CORPS et l'opacité, jamais
+   par la pâleur de l'encre. */
+.tray-case-num { font-size: var(--t1); color: var(--text); opacity: .7; }
 .tray-case-total { font-size: var(--t2); color: var(--text); }
-.tray-case[data-etat="vide"] .tray-case-total { color: var(--text-muted); }
+.tray-case[data-etat="vide"] .tray-case-total { opacity: .55; }
+/* UN JET AJUSTÉ PAR UN PLANCHER SE DIT (lot 80, §3) : son total n'est plus
+   celui de ses dés. L'infobulle porte les deux nombres ; ce liseré dit
+   simplement « on a touché à celui-ci ». */
+.tray-case[data-ajuste] { box-shadow: inset 0 0 0 1px var(--tier-2); }
 
 /* LES QUATRE ÉCARTÉS SONT BARRÉS — le croquis les montre rayés, pas cachés.
    ⛔ L'ACCENT NE PORTE JAMAIS LE NOMBRE : sur ces voiles il tient 3,3 · 3,8
@@ -1750,26 +2002,13 @@ button { font: inherit; }
    les six caractéristiques en cases. Le même organe que les sorts, donc la
    même feuille : ces règles n'ajoutent QUE ce que le dessin montre en plus
    — un chiffre qui domine, un détail qui le suit, et six colonnes égales. */
-/* LES SIX DÉS EN UNE RANGÉE — le croquis les met côte à côte, et la mesure
-   le permet tout juste : à 375 px, six cartes valent 47 px, où « 6+6+1 » au
-   plus petit barreau tient en 32. Une septième ne tiendrait pas ; il n'y en a
-   jamais sept (le lot en garde six). */
-.ability-des-gardes > li {
-  flex: 1 1 calc((100% - 5 * var(--sp-8)) / 6);
-  max-width: calc((100% - 5 * var(--sp-8)) / 6);
-  display: flex;
-}
-.ability-de-garde {
-  flex: 1 1 auto; min-width: 0;
-  flex-direction: column; display: flex; align-items: center; justify-content: center;
-  gap: var(--sp-2); padding: var(--sp-4) var(--sp-2);
-}
-.ability-de-total { font-size: var(--t4); }
-.ability-de-detail { font-size: var(--t1); color: var(--text-muted); }
-/* UN DÉ DÉJÀ POSÉ RESTE PRENABLE (l'échange du lot 51) — il pâlit, il ne se
-   retire pas. ⛔ Et il n'est pas `disabled` : ce serait mentir sur un geste
-   qui marche. */
-.ability-de-garde[data-pris="true"] { opacity: .55; }
+/* ⛔ LES SIX DÉS NE SONT PLUS DES PASTILLES DANS UN VIVIER À REPLI — ils sont
+   des ÎLOTS FS, en grille, chacun portant un vrai d6 3D. Les cinq règles qui
+   les habillaient ici (`.ability-des-gardes > li`, `.ability-de-garde`,
+   `.ability-de-total`, `.ability-de-detail`, `[data-pris]`) ont déménagé dans
+   le bloc « ÉTAGE 2 · LE VIVIER » plus haut, avec les cotes mesurées de
+   CADRES.md §7. Elles ne sont pas parties : elles sont là où le vivier vit
+   maintenant, et une seule fois. */
 
 /* LES SIX CASES — DEUX RANGÉES DE TROIS, ET C'EST UN ÉCART ASSUMÉ AU DESSIN.
    📐 Le croquis les aligne toutes les six ; à 375 px cela ferait 50 px par
