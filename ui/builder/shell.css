@@ -1032,12 +1032,19 @@ button { font: inherit; }
 }
 .ability-entry[data-active="true"] { border-color: var(--accent); background: var(--accent-wash); font-weight: 600; }
 .ability-entry-label { display: block; overflow-wrap: anywhere; }
-/* `INFO` n'est pas une méthode : il ne prend pas de part, il prend sa place.
-   📏 MESURÉ À 375 : son libellé lui donnait 34 px de large pour 44 de haut —
-   sous le plancher tactile dans l'autre sens, ce que `min-height` seul ne voit
-   pas. Une cible carrée de 44 est le minimum d'Apple, et c'est un bouton qu'on
-   presse au pouce comme les autres. */
-.ability-info-bouton { flex: 0 1 auto; min-width: var(--touch); }
+/* ⛔ ET `INFO` PREND UNE PART COMME LES AUTRES — Eric, 2026-08-16 : *« je veux
+   que les 4 boutons soient de dimension égale »*.
+   📏 CE QUE LA MESURE A DIT AVANT DE TOUCHER, et ça change ce qu'il fallait
+   corriger : les QUATRE méthodes étaient DÉJÀ égales (62 × 44 chacune, relevé
+   sur le déployé). La seule inégalité de la rangée était `INFO`, à 44 — c'est
+   donc lui que l'œil attrapait, pas les quatre.
+   ⚠️ CE QU'ON PERD, DIT PLUTÔT QUE TU : il était plus étroit exprès, parce
+   qu'il n'est PAS une méthode et qu'une taille différente le disait sans un
+   mot. À part égale, la rangée est régulière mais `INFO` se lit comme un
+   cinquième choix. ⏳ Si ça gêne à l'usage, ce qui le distinguera sera un
+   TRAITEMENT (encre, bordure), jamais une taille — la régularité, elle, est
+   demandée. */
+.ability-info-bouton { min-width: var(--touch); }
 /* LOT 74 — L'ATTENTE SE DIT : la phrase montrée quand aucune méthode n'est
    choisie et que `DONE` attend. Une information, pas une alarme. */
 .ability-gate-note { font-size: var(--t3); color: var(--text-soft); margin: 0; }
