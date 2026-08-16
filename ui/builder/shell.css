@@ -1205,9 +1205,15 @@ button { font: inherit; }
 /* ⛔ UN ÎLOT VIDÉ GARDE SA PLACE — la rangée ne se referme pas derrière un dé
    parti, sinon les cinq autres bougeraient sous le doigt en plein geste. */
 .fs[data-vide="true"] { opacity: .45; }
+/* 🔴 UN CRÉNEAU VIDE RÉSERVE LA HAUTEUR D'UN DÉ, et c'est ce que le banc fait
+   explicitement (`vide.style.height = taille`). Mesuré sans : la rangée des
+   six s'écrasait à **22 px** — six traits sur une ligne au lieu de six cases
+   qui attendent. ⛔ Et ce n'est pas qu'une question d'allure : une cible de
+   22 px de haut est sous le plancher `--touch`, donc impossible à viser au
+   pouce — la palette n'aurait eu nulle part où déposer. */
 .fs-vide {
   display: flex; align-items: center; justify-content: center;
-  min-height: var(--fs-de);
+  min-height: var(--fs-de-max);
   color: var(--text); font-size: var(--t2);
 }
 /* Le dé EST l'objet qu'on prend. `touch-action: none` : sans elle le doigt

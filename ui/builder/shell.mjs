@@ -19,32 +19,32 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=56";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=56";
-import { mountPopup } from "./popup.mjs?v=56";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=56";
-import { renderConceptStep } from "./concept-step.mjs?v=56";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=56";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=56";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=58";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=58";
+import { mountPopup } from "./popup.mjs?v=58";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=58";
+import { renderConceptStep } from "./concept-step.mjs?v=58";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=58";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=58";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=56";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=56";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=56";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=56";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=56";
+} from "./catalogue.mjs?v=58";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=58";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=58";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=58";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=58";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=56";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=56";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=56";
+} from "./destiny-step.mjs?v=58";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=58";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=58";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=56";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=58";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -63,16 +63,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=56";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=56";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=58";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=56";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=56";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=58";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=58";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=56";
+import { versionQuery } from "./version.mjs?v=58";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -473,50 +473,37 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* ══ LES DEUX GESTES DE `FREE`, ET ILS NE RESSEMBLENT À AUCUN AUTRE ════
-     §5.3 : la palette est INÉPUISABLE, donc il n'y a rien à rendre et rien à
-     échanger. Poser écrit le score ; recouvrir écrase ; retirer efface la
-     POSE, jamais la valeur.
+  /* ══ LE SEUL GESTE PROPRE À `FREE` : LA PALETTE DÉPOSE DANS UN CRÉNEAU ══
+     TRANCHÉ PAR ERIC, 2026-08-16, sur son croquis : la rangée de six carrés
+     entre la dalle et le collecteur porte **ses six valeurs choisies**, et la
+     palette les y dépose.
 
-     🔴 POURQUOI RETIRER N'EFFACE PAS LE DOCUMENT : `rebuild()` JETTE si l'une
-     des six valeurs manque (`derive.mjs` : « un score ne se dérive de rien »).
-     Un `clear` ferait tomber l'écran au premier retrait. Le document garde
-     donc sa dernière valeur, l'écran dit « rien de posé », et c'est la PORTE
-     de FREE qui compte les poses (voir `abilitiesValidate`). Les deux vérités
-     ne se contredisent pas : elles ne parlent pas de la même chose.
-     ⛔ Et la carte `assign` y porte l'index d'une VALEUR de palette, pas
-     celui d'un jet — il n'y a pas de jet en FREE. C'est licite ici, et
-     seulement ici (voir `freeBatch`). */
-  if (action.kind === "abilityFree") {
-    state.document = state.engine.build.verbs
-      .set({ document: state.document, path: `abilities.${action.key}`, value: action.value }).document;
+     ⭐ CE QUE ÇA SIMPLIFIE, ET C'EST BEAUCOUP. FREE avait DEUX verbes à lui
+     (`abilityFree`, `abilityFreeRetirer`), une porte à lui (qui comptait les
+     poses au lieu de lire le document) et une carte `assign` qui pointait vers
+     une palette SANS ÉTAT — le piège que le §4.4 du mandat annonçait. Tout
+     ça disparaît : la palette remplit un vivier, le vivier nourrit le
+     collecteur, exactement comme le plateau le fait pour `FH 3D6`. FREE
+     devient la quatrième méthode, plus l'exception.
+     🔴 ET LE PIÈGE DU §4.4 TOMBE DE LUI-MÊME : `assign` associe une clef à un
+     INDEX, et l'index d'un créneau du vivier est parfaitement défini — même
+     quand deux créneaux portent la même valeur. Le problème n'était pas
+     l'index, c'était de le faire pointer vers une palette qui n'en avait pas.
+
+     ⛔ AUCUN VERBE DU MOTEUR ICI : ce créneau vit dans `state.abilityRoll`,
+     hors document, et meurt avec lui — comme le lot de dix dés. Le document ne
+     reçoit sa valeur qu'à l'affectation, par le `set` ordinaire que les trois
+     autres méthodes empruntent déjà. */
+  if (action.kind === "abilityCreneau") {
+    const lot = state.abilityRoll;
+    if (!lot) return;
     state.abilityRoll = {
-      ...state.abilityRoll,
-      assign: { ...(state.abilityRoll && state.abilityRoll.assign), [action.key]: action.rollIndex }
-    };
-    rebuild();
-    refresh();
-    return;
-  }
-  if (action.kind === "abilityFreeRetirer") {
-    state.abilityRoll = {
-      ...state.abilityRoll,
-      assign: { ...(state.abilityRoll && state.abilityRoll.assign), [action.key]: null }
+      ...lot,
+      rolls: lot.rolls.map((r) => (r.index === action.creneau ? { ...r, total: action.value } : r))
     };
     refresh();
     return;
   }
-  /* ⛔ `rollBatch` A ÉTÉ RETIRÉ ICI, ET C'EST LE CŒUR DU LOT DU PLATEAU.
-     Cette action était le palier de `Validate` qui JETAIT. Le plateau jette
-     aussi — deux propriétaires du même lot, et quatre branchements s'y sont
-     cassés. Le palier a cessé de tirer (voir `abilitiesValidate`) ; il ne
-     reste qu'un seul jeteur, celui que le joueur presse. */
-  /* ══ LES DEUX ACTIONS DU PLATEAU — ⛔ AUCUNE NE REDESSINE ══════════════
-     Un `refresh()` remplace tout le contenu de la scène (`swapContent`) : les
-     trois canvas WebGL mourraient en pleine animation, à chaque jet. Le
-     plateau écrit donc dans des nœuds qui existent déjà, et ces deux actions
-     ne font que RANGER ce qu'il a produit. C'est la troisième règle du socle,
-     la même qui interdit au scrollspy de redessiner. */
   if (action.kind === "abilityLot") {
     state.abilityRoll = { ...action.lot, assign: emptyAbilityAssign() };
     /* ⭐ LA SEULE EXCEPTION, ET ELLE EST MESURÉE. Sans ce `refresh()`, l'écran

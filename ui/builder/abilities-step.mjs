@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=56";
-import { renderTray } from "./abilities-tray.mjs?v=56";
-import { armerJeton } from "./glisser.mjs?v=56";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=56";
-import { createDieHost, mount } from "./dice3d.mjs?v=56";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=56";
+import { markPressed } from "./carnet.mjs?v=58";
+import { renderTray } from "./abilities-tray.mjs?v=58";
+import { armerJeton } from "./glisser.mjs?v=58";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=58";
+import { createDieHost, mount } from "./dice3d.mjs?v=58";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=58";
 
 export { rollAbilitySet };
 
@@ -330,11 +330,21 @@ function fantomeLever(valeur, x, y) {
      `getBoundingClientRect()` à chaque `pointermove` force un recalcul de mise
      en page par image, pendant le seul moment de l'écran où il faut être
      fluide. On tient le dé par la taille qu'on vient de lui donner.
-     📌 DEUX COTES SONT RECOPIÉES DE LA FEUILLE, et ce sont les seules :
-     `FS.fantome` (46 px, sa largeur — il vit hors de toute colonne, donc il
-     n'a aucune largeur à hériter) et `1.15` (son agrandissement,
-     `.ability-fantome { scale: 1.15 }`). Toutes deux nommées des deux côtés. */
-  fantomeDemi = (FS.fantome * 1.15) / 2;
+     🔴 ET LA DEMI-TAILLE NE COMPTE PAS L'AGRANDISSEMENT — c'est une faute que
+     j'avais commise, et c'est Eric qui l'a vue à l'usage : *« dans ce code [le
+     banc `ilots-lab`] la position du dé est beaucoup plus logique sous le
+     doigt »*.
+     LA RAISON, ET ELLE EST GÉOMÉTRIQUE : `translate(x−d, y−d)` puis un
+     `scale` autour du CENTRE (`transform-origin: center`) posent le coin haut
+     gauche à `x−d`, puis agrandissent SANS déplacer le centre. Le centre
+     atterrit donc à `x − d + largeur/2`, et pour qu'il tombe sous le doigt il
+     faut `d = largeur / 2` — la largeur de la BOÎTE, pas celle du rendu.
+     ⛔ En multipliant par 1,15, je décalais le dé de 3,5 px vers le haut ET
+     vers la gauche à chaque image. Assez peu pour passer inaperçu à la
+     lecture du code, assez pour se sentir au pouce.
+     📌 Une seule cote reste recopiée de la feuille : `FS.fantome` (46 px, sa
+     largeur — il vit hors de toute colonne, donc il n'hérite d'aucune). */
+  fantomeDemi = FS.fantome / 2;
   document.body.append(fantome);
   fantomeBouger(x, y);
 }
@@ -381,12 +391,15 @@ function gestesDuFantome(valeur) {
    s'éteint. Les deux vérités ne se contredisent pas : elles ne parlent pas de
    la même chose. */
 const RETOUR_VIVIER = "vivier";
+/* Le préfixe des six créneaux du vivier — `FREE` seul les emploie : c'est là
+   que sa palette dépose. Un préfixe plutôt que six noms : l'organe ne rend
+   qu'une chaîne, et l'écran en lit l'index. */
+const CRENEAU_VIVIER = "creneau-";
 
 function renderVivier(ctx) {
   const { rollBatch } = ctx;
   const gardes = (rollBatch && Array.isArray(rollBatch.rolls) ? rollBatch.rolls : []).filter((r) => r.kept);
   if (gardes.length === 0) return null;
-  const inepuisable = Boolean(rollBatch.inepuisable);
 
   /* ⛔ PAS DE `glisse-vivier` ICI, ET C'EST UNE COLLISION MESURÉE : cette
      classe pose `display: flex; flex-wrap: wrap` et une dalle à elle, et sa
@@ -396,76 +409,29 @@ function renderVivier(ctx) {
      sorts : c'est une rangée FS, et elle porte son propre nom. */
   const rangee = el("ul", "ability-des-gardes fs-rangee");
   rangee.dataset.creneau = RETOUR_VIVIER;
-  /* ══ ✅ LA PALETTE EST UN 4 × 4, DANS UNE FENÊTRE À HAUTEUR LIBRE ════════
-     TRANCHÉ PAR ERIC, 2026-08-16 : *« je veux 4×4 dés en 3d sur une page F2 »*
-     — puis, devant mon hésitation : *« sur une page F2 ! »*. Le croquis dit
-     quatre rangs de quatre ; il les garde.
-
-     🔴 ET LE « 2 » EST LA RÉPONSE AU PROBLÈME QUE SIX COLONNES CONTOURNAIT.
-     Mesuré à 375 : un 4 × 4 fait **406 px** de haut, et avec le collecteur
-     (243) il demande 649 px pour un champ de 493. La source et la cible d'un
-     glisser ne seraient JAMAIS visibles ensemble — et `elementFromPoint` ne
-     voit que le champ visible, donc le geste central de la méthode
-     disparaîtrait. J'avais résolu ça en compressant à six colonnes (276 px) ;
-     Eric résout la même chose sans toucher au dessin, en donnant à la palette
-     **sa propre fenêtre à hauteur libre** : un PLAFOND, et le contenu qui
-     défile DEDANS.
-
-     ⭐ C'EST LA PROMESSE DE F2, RENDUE STRUCTURELLE — et `CADRES.md` §4
-     l'annonçait mot pour mot comme ce qui la rendrait vraie : *« un plafond
-     sur la carte, et le contenu qui défile À L'INTÉRIEUR »*, avec la mention
-     ⏳ « personne ne l'emploie, rien ne l'implémente ». La palette est son
-     premier utilisateur. Et le plafond obéit à la décision 3 du même
-     fichier : *« seulement en secours »* — il ne se voit pas tant que le
-     contenu tient (sur un bureau, les seize rangent d'un coup).
-
-     ⚠️ UNE PRÉCISION DE VOCABULAIRE, DITE PLUTÔT QUE TUE : à la lettre du §1,
-     un écran SANS menu latéral est un **FF**, et Abilities n'en a pas. Eric a
-     dit « F2 » deux fois ; ce qu'il nomme est le **2** — hauteur libre,
-     plafond, air autour —, pas la famille. La forme construite ici est donc
-     un FF2 à plafond. Si le mot doit changer, c'est le mot, pas la fenêtre.
-
-     ⚠️ ET CE QUE ÇA COÛTE, ANNONCÉ PAR `CADRES.md` LUI-MÊME : **un second
-     défilement dans la scène**. Le dépôt en a déjà un (les grilles de sorts,
-     lot 79) et il en connaît le prix — un jeton qui vit dans une grille qui
-     défile ne peut pas porter `touch-action: none`, sinon la grille devient
-     indéfilable au doigt. Le glisser y demande donc un MAINTIEN de 350 ms
-     avant de soulever le dé. C'est la même machinerie, déjà éprouvée et
-     gardée : `armerJeton({ maintien: true })`. */
-  /* Une palette n'a AUCUN état : elle ne se vide pas, donc elle n'a rien à
-     annoncer. Une rangée finie, si — et la feuille lit ce mot-là. C'est aussi
-     ce mot qui lui donne sa fenêtre : quatre colonnes, un plafond, et le
-     défilement dedans. */
-  rangee.dataset.pool = inepuisable ? "inepuisable" : "fini";
-  /* ⛔ ET AUCUN `data-scroller` : la palette ne défile PAS. Eric, 2026-08-16 :
-     *« ça ne doit pas scroller »*. La scène en garde donc UN SEUL, comme le
-     socle l'a toujours voulu (B0.21a) — le second défilement que la fenêtre
-     bornée coûtait n'a pas eu lieu. */
+  rangee.dataset.pool = "fini";
 
   for (const roll of gardes) {
     const item = el("li", "fs");
-    const pris = ctx.tenuPar(roll) !== null;
-    /* ⛔ UN ÎLOT VIDÉ GARDE SA PLACE — la rangée ne se referme pas derrière un
-       dé parti, sinon les cinq autres bougeraient sous le doigt en plein
-       geste. ⭐ Et une palette ne se vide jamais : prendre un 14 n'enlève pas
-       le 14 (§4.4, règle 1). */
-    item.dataset.vide = String(pris && !inepuisable);
-    if (pris && !inepuisable) {
+    /* ⭐ EN `FREE`, CHAQUE ÎLOT EST UNE CIBLE — c'est là que la palette dépose.
+       Les trois autres méthodes reçoivent leur vivier tout fait ; FREE le
+       COMPOSE, et un créneau qu'on remplit est un créneau qu'on vise. */
+    if (ctx.composable) item.dataset.creneau = `${CRENEAU_VIVIER}${roll.index}`;
+    /* Un créneau VIDE (FREE, avant qu'on y dépose) ou un dé PARTI sur une
+       caractéristique laissent tous deux un trou — et le trou GARDE SA PLACE :
+       la rangée ne se referme pas, sinon les cinq autres bougeraient sous le
+       doigt en plein geste. */
+    const vide = roll.total === null || roll.total === undefined || ctx.tenuPar(roll) !== null;
+    item.dataset.vide = String(vide);
+    if (vide) {
       item.append(el("span", "fs-vide", [text("—")]));
       rangee.append(item);
       continue;
     }
     item.append(renderJetonDe(roll, FS.resolution, {
-      /* ⛔ AUCUN MAINTIEN NULLE PART, ET C'EST LE BON ÉTAT. Il avait été posé
-         sur la palette quand elle défilait dans sa fenêtre : dans une grille
-         qui défile, un jeton ne peut pas porter `touch-action: none` sans
-         rendre la grille indéfilable, et le glisser s'y paie alors 350 ms
-         (lot 79). ⭐ La palette ne défile plus — le geste redevient immédiat
-         partout, et le second défilement que `CADRES.md` annonçait comme le
-         PRIX de la fenêtre n'est jamais payé. */
       chezSoi: true,
       onTap: () => ctx.poserAuPremierLibre(roll),
-      onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
+      onDepot: (ou) => { if (ou !== RETOUR_VIVIER && !ou.startsWith(CRENEAU_VIVIER)) ctx.poser(ou, roll); }
     }));
     rangee.append(item);
   }
@@ -813,13 +779,49 @@ export function standardArrayBatch() {
  *  règle nouvelle : un autre geste pour le même verbe. */
 export function freeBatch() {
   return {
-    rolls: CREATION_SCORES.map((total, index) => ({ dice: [], total, index, kept: true })),
+    rolls: Array.from({ length: ABILITY_KEYS.length }, (_, index) => ({ dice: [], total: null, index, kept: true })),
     rerollCount: 0,
     method: "free",
-    inepuisable: true,
+    palette: true,
     assign: emptyAbilityAssign()
   };
 }
+
+/** LA PALETTE — seize dés STATIQUES, de 3 à 18, dans la dalle FF1 de `FREE`.
+ *
+ *  🔴 ELLE EST À `FREE` CE QUE LE PLATEAU EST À `FH 3D6` : un ORGANE qui
+ *  produit les six valeurs, pas un vivier. C'est la décision d'Eric du
+ *  2026-08-16, prise sur son croquis — la rangée de six carrés entre la dalle
+ *  et le collecteur porte **tes six valeurs choisies**, et la palette les y
+ *  dépose. ⭐ FREE devient alors identique aux trois autres méthodes : un
+ *  organe remplit le vivier, le vivier nourrit le collecteur. Ce qui diffère
+ *  n'est plus que la façon de remplir — §1 du mandat, tenu jusqu'au bout.
+ *
+ *  ⛔ ELLE N'A AUCUN ÉTAT, et c'est le point (§4.4, règle 3) : prendre un 14
+ *  n'enlève pas le 14. On peut poser 12 trois fois. Elle ne se vide jamais,
+ *  donc elle n'a rien à mémoriser — ses seize valeurs sont `CREATION_SCORES`,
+ *  publiées par le moteur (lot 74), jamais une plage réécrite ici.
+ *
+ *  📌 LE TAP y met la valeur dans le PREMIER créneau libre ; le glisser la met
+ *  où on le lâche. Même partage que partout : le glisser désigne sa case, le
+ *  tap laisse l'écran choisir. */
+function renderPalette(ctx, act) {
+  const rangee = el("ul", "ability-palette fs-rangee");
+  rangee.dataset.pool = "inepuisable";
+  for (const [index, valeur] of CREATION_SCORES.entries()) {
+    const item = el("li", "fs");
+    const jeton = renderJetonDe({ dice: [], total: valeur, index }, FS.resolution, {
+      chezSoi: true,
+      onTap: () => ctx.poserAuPremierCreneauLibre(valeur),
+      onDepot: (ou) => ctx.poserDansCreneau(ou, valeur)
+    });
+    jeton.setAttribute("aria-label", `${valeur} — take it`);
+    item.append(jeton);
+    rangee.append(item);
+  }
+  return rangee;
+}
+
 
 /** Le lot que porte une méthode qui n'a pas de dés à jeter, ou `null`. */
 export function lotSansDes(methodId) {
@@ -905,16 +907,19 @@ export function renderAbilitiesStep(ctx, onAction) {
       onClear: () => act({ kind: "abilityClear" })
     }));
   }
-  section.append(organe);
 
-  /* ══ LE CONTEXTE PARTAGÉ DES DEUX ÉTAGES DU BAS ════════════════════════
-     🔴 UNE SEULE DÉFINITION DES GESTES POUR LES QUATRE MÉTHODES. Ce qui
-     change entre elles n'est pas le geste, c'est le VERBE qu'il commet :
-     · lot fini (FH 3D6 · 4D6 · ARRAY) → `assignAbilityRoll` (clef + index +
-       valeur), et `shell.mjs` décide POSE ou ÉCHANGE (lot 51, §1b) ;
-     · palette (FREE) → `set` sur `abilities.<clef>`, plus la carte d'écran.
-     ⛔ Écrire deux collecteurs pour ça aurait été la faute du §1 du mandat. */
-  const inepuisable = Boolean(rollBatch && rollBatch.inepuisable);
+  /* ══ LE CONTEXTE PARTAGÉ DES TROIS ÉTAGES DU BAS ═══════════════════════
+     🔴 UNE SEULE DÉFINITION DES GESTES POUR LES QUATRE MÉTHODES, et depuis
+     que FREE compose son vivier, un SEUL VERBE aussi : `assignAbilityRoll`.
+     Ce qui change entre les méthodes n'est plus que la façon dont le vivier
+     se REMPLIT — le plateau pour les deux méthodes à dés, le tableau standard
+     d'un coup, la palette pour FREE. ⛔ Écrire deux collecteurs pour ça aurait
+     été la faute du §1 du mandat. */
+  /* ⭐ `composable` — FREE COMPOSE son vivier au lieu de le recevoir. C'est
+     la SEULE chose qui le distingue désormais des trois autres méthodes : ses
+     six créneaux sont des CIBLES que la palette remplit. Tout le reste — le
+     glisser vers une caractéristique, l'échange, la porte — est identique. */
+  const composable = Boolean(rollBatch && rollBatch.palette);
   const assign = (rollBatch && rollBatch.assign) || {};
   const parIndex = new Map((rollBatch && rollBatch.rolls ? rollBatch.rolls : []).map((r) => [r.index, r]));
 
@@ -929,16 +934,32 @@ export function renderAbilitiesStep(ctx, onAction) {
       if (index === null || index === undefined) return null;
       return parIndex.get(index) || null;
     },
-    /** QUI TIENT CE DÉ — `null` si personne. ⛔ Sur une palette, personne ne
-     *  « tient » rien : le dé se copie, il ne se déplace pas. */
+    composable,
+    /** QUI TIENT CE DÉ — `null` si personne. */
     tenuPar(roll) {
-      if (inepuisable) return null;
       for (const [key, tenu] of Object.entries(assign)) if (tenu === roll.index) return key;
       return null;
     },
+    /* ⭐ UN SEUL VERBE POUR LES QUATRE MÉTHODES DEPUIS QUE FREE COMPOSE SON
+       VIVIER : `assignAbilityRoll`, la forme du lot 50, avec sa clef, son
+       index de créneau et sa valeur. FREE n'a plus de verbe à lui.
+       ⛔ ET C'EST CE QUI FAIT TOMBER LE PIÈGE DU §4.4 : la carte `assign`
+       associe une clef à un INDEX, et l'index d'un créneau du vivier est
+       parfaitement défini — même quand deux créneaux portent la même valeur.
+       Le problème n'était pas l'index, c'était de faire pointer `assign` vers
+       une palette sans état. */
     poser(key, roll) {
-      if (inepuisable) { act({ kind: "abilityFree", key, value: roll.total, rollIndex: roll.index }); return; }
       act({ kind: "assignAbilityRoll", key, rollIndex: roll.index, value: roll.total });
+    },
+    /** LA PALETTE DÉPOSE DANS UN CRÉNEAU — le seul geste propre à FREE. */
+    poserDansCreneau(ou, valeur) {
+      if (typeof ou !== "string" || !ou.startsWith(CRENEAU_VIVIER)) return;
+      act({ kind: "abilityCreneau", creneau: Number(ou.slice(CRENEAU_VIVIER.length)), value: valeur });
+    },
+    /** LE TAP DE LA PALETTE : le premier créneau encore vide. */
+    poserAuPremierCreneauLibre(valeur) {
+      const libre = (rollBatch.rolls || []).find((r) => r.total === null || r.total === undefined);
+      if (libre) act({ kind: "abilityCreneau", creneau: libre.index, value: valeur });
     },
     /** LE TAP : la première caractéristique encore servie par aucun dé. Le
      *  croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
@@ -950,26 +971,33 @@ export function renderAbilitiesStep(ctx, onAction) {
     /** LE TAP SUR UN DÉ POSÉ. En FREE il le retire ; ailleurs il ne fait
      *  rien — voir `RETOUR_VIVIER`, il n'existe aucune action qui vide une
      *  cible sans en remplir une autre. */
-    reprendre(key) {
-      if (inepuisable) act({ kind: "abilityFreeRetirer", key });
-    },
+    /** ⛔ AUCUN RETRAIT, DANS AUCUNE MÉTHODE — et ce n'est pas un oubli :
+     *  `rebuild()` jette si l'une des six valeurs manque au document
+     *  (`derive.mjs`), et il n'existe aucune action qui VIDE une cible sans en
+     *  remplir une autre. On réarrange en posant, jamais en vidant (loi du
+     *  lot 45, tenue depuis).
+     *  ⭐ EN FREE, LE RETRAIT A CHANGÉ D'ÉTAGE : on ne dégage plus un dé d'une
+     *  caractéristique, on RECOUVRE un créneau du vivier depuis la palette.
+     *  Le geste d'Eric (*« tu peux dégager les dés posés »*) est tenu là où il
+     *  ne casse rien. */
+    reprendre() {},
     /** LE GLISSER D'UNE CIBLE VERS AILLEURS. Sur une autre cible, il ÉCHANGE
      *  (lot 51) ou, en FREE, il RECOUVRE — l'échange n'a de sens que si les
      *  dés sont en nombre fini ; ici le vivier est inépuisable, il n'y a rien
      *  à rendre (§5.3, divergence voulue n° 1). Sur le vivier, il retire —
      *  en FREE seulement (divergence voulue n° 2). */
     deplacer(key, roll, ou) {
-      if (ou === RETOUR_VIVIER) { glisseCtx.reprendre(key); return; }
-      if (ou === key) return;
+      if (ou === RETOUR_VIVIER || ou.startsWith(CRENEAU_VIVIER) || ou === key) return;
       glisseCtx.poser(ou, roll);
-      /* ⭐ EN FREE, RECOUVRIR NE VIDE PAS LA SOURCE — le dé est une COPIE, il
-         reste où il était. C'est ce qu'Eric décrit : on dégage un dé en le
-         glissant dans le vide, pas en le déplaçant. */
     },
-    consigne: inepuisable
-      ? "Drag a die onto an ability · drop one on top to replace it · drag it back up to discard it"
-      : "Drag a die onto an ability · dropping one that is already placed swaps the two"
+    consigne: "Drag a die onto an ability · dropping one that is already placed swaps the two"
   };
+
+  /* ⭐ LA PALETTE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le
+     croquis les dessine dans UN SEUL cadre (« CHOOSE EXPLICATION »). Elle a
+     besoin du contexte, d'où l'organe posé ICI et non plus haut. */
+  if (composable) organe.append(renderPalette(glisseCtx, act));
+  section.append(organe);
 
   const vivier = renderVivier(glisseCtx);
   if (vivier) {
@@ -981,8 +1009,7 @@ export function renderAbilitiesStep(ctx, onAction) {
        ⛔ Les trois autres viviers restent des RANGÉES posées sous leur organe :
        six dés sur une ligne n'ont besoin ni de cadre ni de mesure. Ce qui
        diffère est ce qui remplit le vivier — et seize valeurs, ça se loge. */
-    if (inepuisable) organe.append(vivier);
-    else section.append(vivier);
+    section.append(vivier);
   }
   section.append(renderCollecteur(glisseCtx));
   return section;
@@ -999,25 +1026,17 @@ export function renderAbilitiesStep(ctx, onAction) {
  *  plateau — le geste d'Eric est *« je presse ROLL et je regarde tomber »*, et
  *  un `Validate` qui jette est un jet sans dés.
  *
- *  ⚠️ FREE COMPTE AUTREMENT, ET C'EST LA CONTREPARTIE DE SON RETRAIT (§5.3).
- *  Les trois autres méthodes lisent le DOCUMENT : les six valeurs y sont, la
- *  porte s'ouvre. FREE ne le peut pas — son geste de retrait ne peut PAS
- *  effacer une valeur du document (`rebuild()` jette si l'une des six manque,
- *  `derive.mjs`), donc le document reste complet même quand l'écran montre une
- *  case vide. Sa porte compte donc les POSES, la seule chose qui dise la
- *  vérité de ce que le joueur voit.
- *  ⛔ Et cette divergence est BORNÉE à FREE : ailleurs, revenir sur l'étape
- *  avec six scores déjà choisis rouvrirait la porte, comme aujourd'hui — la
- *  faire compter les poses partout obligerait à reposer six dés pour repasser
- *  sur un écran déjà rempli. */
+ *  ⭐ ET IL N'Y A PLUS QU'UNE PORTE POUR LES QUATRE MÉTHODES. FREE en avait
+ *  une à lui, qui comptait les POSES au lieu de lire le document : il le
+ *  fallait tant que sa palette écrivait directement sur les caractéristiques
+ *  (son geste de retrait ne pouvait pas effacer une valeur du document —
+ *  `rebuild()` jette si l'une des six manque). Depuis qu'il COMPOSE un vivier
+ *  comme les trois autres, il n'écrit au document qu'à l'affectation, et la
+ *  porte commune redit la vérité pour lui aussi. Une exception qui tombe
+ *  parce que sa cause a disparu, pas parce qu'on l'a désarmée. */
 export function abilitiesValidate(ctx) {
   const document = ctx.document;
-  const lot = ctx.rollBatch;
-  if (lot && lot.inepuisable) {
-    const assign = lot.assign || {};
-    const toutesPosees = ABILITY_KEYS.every((key) => assign[key] !== null && assign[key] !== undefined);
-    return { exists: true, ready: toutesPosees, action: null, next: "step" };
-  }
   const toutesPosees = ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
   return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };
 }
+

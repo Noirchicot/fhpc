@@ -611,117 +611,115 @@ test("B5.7 — `ARRAY` : six valeurs, SANS dés, par la MÊME machinerie", () =>
 
 /* ══ 7 — `FREE` : UNE PALETTE, PAS UN STOCK (§5.3) ══════════════════════ */
 
-test("🔴 `FREE` — seize dés de 3 à 18, et ce sont les valeurs PUBLIÉES par le moteur", () => {
+/* ══ 7 — `FREE` : UNE PALETTE QUI COMPOSE LE VIVIER ═════════════════════
+   ✅ TRANCHÉ PAR ERIC LE 2026-08-16, sur son croquis : la rangée de six carrés
+   entre la dalle et le collecteur porte **ses six valeurs choisies**, et la
+   palette les y dépose.
+
+   ⭐ CE QUE ÇA SIMPLIFIE, ET POURQUOI CES TESTS ONT CHANGÉ DE LOI. FREE avait
+   deux verbes à lui, une porte à lui, et une carte `assign` qui pointait vers
+   une palette SANS ÉTAT — le piège que le §4.4 du mandat annonçait comme « ce
+   que ça casse, et il faut le dire avant de commencer ». Tout ça disparaît :
+   la palette remplit un vivier, le vivier nourrit le collecteur, exactement
+   comme le plateau le fait pour `FH 3D6`. **FREE devient la quatrième
+   méthode, plus l'exception.**
+   🔴 Et le piège du §4.4 tombe de lui-même : `assign` associe une clef à un
+   INDEX, et l'index d'un CRÉNEAU est parfaitement défini — même quand deux
+   créneaux portent la même valeur. Le problème n'était pas l'index, c'était de
+   le faire pointer vers une palette qui n'en avait pas. */
+
+test("🔴 `FREE` — seize dés de 3 à 18 dans la palette, et SIX créneaux vides à remplir", () => {
   const lot = freeBatch();
-  assert.deepEqual(lot.rolls.map((r) => r.total), [...CREATION_SCORES],
-    "⛔ jamais un `for (let i = 3; i <= 18; …)` écrit dans l'écran — la borne de création est au moteur (lot 74)");
-  assert.equal(lot.rolls.length, 16, "seize, comme le croquis l'écrit");
-  assert.equal(lot.inepuisable, true);
+  assert.equal(lot.rolls.length, 6, "le vivier de FREE part VIDE : six créneaux, pas seize dés");
+  assert.ok(lot.rolls.every((r) => r.total === null), "…et rien n'y est encore posé");
+  assert.equal(lot.palette, true);
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), () => {});
-  assert.equal(desDuVivier(node).length, 16);
-  /* ✅ QUATRE COLONNES — le croquis, tranché par Eric le 2026-08-16 (*« je
-     veux 4×4 dés en 3d sur une page F2 »*). Ce qui rend le 4 × 4 tenable est
-     le « 2 » : la palette a sa fenêtre à hauteur libre, plafonnée, et le
-     contenu défile dedans. Sans le plafond, ses 406 px chasseraient le
-     collecteur hors du champ et le glisser deviendrait impossible. */
-  assert.equal(vivier(node).dataset.pool, "inepuisable",
-    "c'est ce mot qui lui donne sa fenêtre — quatre colonnes, un plafond, le défilement dedans");
-  /* ⛔ ET ELLE NE DÉFILE PAS — Eric, 2026-08-16 : *« ça ne doit pas
-     scroller »*. Retirer le modificateur sous chaque dé a rendu 72 px aux
-     quatre rangs, donc la fenêtre n'a plus rien à borner. La scène garde UN
-     SEUL défilement, comme le socle l'a toujours voulu (B0.21a). */
-  assert.equal(vivier(node).dataset.scroller, undefined,
-    "aucun second défilement : c'est le contenu qui a maigri, pas le champ qu'on a borné");
-  /* ⭐ ET ELLE VIT DANS LA BOÎTE DE SON EXPLICATION — le croquis les dessine
-     dans UN SEUL cadre (« CHOOSE EXPLICATION »). La phrase explique comment se
-     sert la palette ; séparée d'elle, elle se lit deux fois. */
-  const organe = node.querySelectorAll(".ability-organe")[0];
-  assert.equal(organe.querySelectorAll(".fs-rangee").length, 1,
-    "la palette est DANS l'organe, avec le mot qui l'explique");
-  /* ⛔ Les trois autres viviers restent posés SOUS leur organe : six dés sur
-     une ligne n'ont besoin ni de cadre ni de mesure. */
-  const array = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(array.querySelectorAll(".ability-organe")[0].querySelectorAll(".fs-rangee").length, 0,
-    "ARRAY pose sa rangée sous son organe : ce qui diffère est ce qui REMPLIT le vivier, pas le vivier");
-  assert.equal(node.querySelectorAll(".tray").length, 0, "aucun plateau : FREE ne jette rien");
+  /* LA PALETTE — seize valeurs, celles PUBLIÉES par le moteur (lot 74), jamais
+     un `for (let i = 3; i <= 18; …)` réécrit dans l'écran. */
+  const palette = node.querySelectorAll(".ability-palette .ability-de-garde");
+  assert.equal(palette.length, 16);
+  assert.deepEqual(palette.map((j) => j.querySelectorAll(".valeur")[0].textContent), CREATION_SCORES.map(String));
+  /* ⭐ ET ELLE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le croquis
+     les dessine dans UN SEUL cadre (« CHOOSE EXPLICATION »). */
+  assert.equal(node.querySelectorAll(".ability-organe")[0].querySelectorAll(".ability-palette").length, 1);
+  /* LE VIVIER — six îlots, tous vides, et ce sont des CIBLES. */
+  assert.equal(ilots(node).filter((i) => i.dataset.vide === "true").length, 6,
+    "six créneaux VIDES sous la palette — les seize îlots de la palette, eux, ne se vident jamais");
+  assert.equal(node.querySelectorAll('.fs[data-creneau]').length, 6,
+    "…et ce sont des CIBLES : c'est là que la palette dépose");
 });
 
-test("⭐ §4.4 RÈGLE 1 — LA PALETTE NE S'ÉPUISE PAS : prendre un 14 n'enlève pas le 14", () => {
+test("⭐ §4.4 RÈGLE 1 — LA PALETTE NE S'ÉPUISE PAS : on peut poser 12 trois fois", () => {
   const lot = freeBatch();
-  lot.assign = { ...emptyAbilityAssign(), str: CREATION_SCORES.indexOf(14) };
+  lot.rolls[0].total = 12; lot.rolls[1].total = 12; lot.rolls[2].total = 12;
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), () => {});
-  assert.equal(desDuVivier(node).length, 16, "les seize sont toujours là");
-  assert.equal(ilots(node).filter((i) => i.dataset.vide === "true").length, 0,
-    "⛔ AUCUN îlot vidé — une palette n'a pas d'état, c'est le point de §4.4");
-  assert.equal(vivier(node).dataset.pool, "inepuisable");
-  assert.equal(deDeLaCible(node, "str").querySelectorAll(".valeur")[0].textContent, "14",
-    "et la cible en porte bien une COPIE");
+  assert.equal(node.querySelectorAll(".ability-palette .ability-de-garde").length, 16,
+    "⛔ la palette n'a AUCUN état : prendre un 12 n'enlève pas le 12 (§4.4, règle 3)");
+  const vivier6 = node.querySelectorAll(".fs-rangee")[1].querySelectorAll(".valeur").map((v) => v.textContent);
+  assert.deepEqual(vivier6, ["12", "12", "12"], "et les trois créneaux portent bien le même nombre");
 });
 
-test("⭐ FREE POSE `abilityFree`, pas `assignAbilityRoll` — le verbe de la saisie manuelle", async () => {
-  /* §4.4 : la carte `assign` du lot 50 associe une clef à l'INDEX D'UN JET. En
-     FREE il n'y a pas de jet, et deux caractéristiques peuvent porter la même
-     valeur. ⭐ La sortie existe déjà sans toucher au moteur : `set` sur
-     `abilities.<clef>` — un autre geste pour le même verbe. */
+test("⭐ LA PALETTE DÉPOSE DANS UN CRÉNEAU — le seul geste propre à FREE", async () => {
   const lot = freeBatch();
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  /* ⛔ SANS MAINTIEN : la palette ne défile plus, donc le geste est immédiat
-     partout — le péage de 350 ms du lot 79 ne se paie que dans une grille qui
-     défile, et il n'y en a plus. */
-  await glisser(deDuVivier(node, CREATION_SCORES.indexOf(16)), creneauPour(node, "cha"));
-  assert.deepEqual(calls, [{ kind: "abilityFree", key: "cha", value: 16, rollIndex: CREATION_SCORES.indexOf(16) }]);
-  /* Et la coquille le traduit en `set` ordinaire — garde d'octets, faute de
-     harnais de rendu sur `shell.mjs`. */
-  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /action\.kind === "abilityFree"[\s\S]{0,400}path: `abilities\.\$\{action\.key\}`, value: action\.value/,
-    "⛔ aucun champ nouveau, aucune règle nouvelle : le même `set` que partout ailleurs");
-});
+  const seize = node.querySelectorAll(".ability-palette .ability-de-garde")
+    .find((j) => j.querySelectorAll(".valeur")[0].textContent === "16");
+  const creneau = node.querySelectorAll('.fs[data-creneau="creneau-2"]')[0];
+  assert.ok(creneau, "les créneaux du vivier sont des CIBLES en FREE");
+  await glisser(seize, creneau);
+  assert.deepEqual(calls, [{ kind: "abilityCreneau", creneau: 2, value: 16 }]);
 
-test("⭐ §5.3 — RAMENER UN DÉ POSÉ SUR LA PALETTE LE DÉTRUIT (et c'est le seul retrait du builder)", async () => {
-  const lot = freeBatch();
-  lot.assign = { ...emptyAbilityAssign(), wis: CREATION_SCORES.indexOf(12) };
-  const calls = [];
-  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  /* ⛔ SANS MAINTIEN, ET C'EST JUSTE : ce dé-ci vit dans une CIBLE, pas dans
-     la palette. Seule la rangée qui défile fait payer le péage. */
-  await glisser(deDeLaCible(node, "wis"), vivier(node));
-  assert.deepEqual(calls, [{ kind: "abilityFreeRetirer", key: "wis" }]);
-  /* 🔴 ET IL N'EFFACE PAS LE DOCUMENT, parce qu'il ne le PEUT pas : `rebuild()`
-     jette si l'une des six valeurs manque (`derive.mjs`, « un score ne se
-     dérive de rien »). La coquille ne touche donc que la carte d'écran. */
+  /* ⛔ ET LE DOCUMENT N'EST PAS TOUCHÉ À CE STADE : composer ses six valeurs
+     n'est pas les affecter. La coquille ne range que dans `state`. */
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  const bloc = shellText.slice(shellText.indexOf('action.kind === "abilityFreeRetirer"'));
+  const bloc = shellText.slice(shellText.indexOf('action.kind === "abilityCreneau"'));
   const corps = bloc.slice(0, bloc.indexOf("return;"));
   assert.equal(/verbs\.(set|clear)\(/.test(corps), false,
-    "⛔ le retrait ne touche PAS le document — un `clear` ferait tomber l'écran au premier geste");
-  assert.match(corps, /\[action\.key\]: null/, "il efface la POSE, et rien d'autre");
+    "aucun verbe du moteur : le créneau vit hors document et meurt avec le lot");
 });
 
-test("⛔ LES TROIS AUTRES MÉTHODES N'ONT AUCUN RETRAIT, et ce n'est pas un oubli", async () => {
-  /* `rebuild()` jette si l'une des six manque, et il n'existe aucune action qui
-     VIDE une cible sans en remplir une autre (loi du lot 45, tenue depuis). On
-     réarrange en posant, jamais en vidant. */
-  const rollBatch = makeRollBatch([15, 14, 13, 12, 10, 8], { str: 0, dex: 1, con: 2, int: 3, wis: 4, cha: 5 });
-  const calls = [];
-  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch }), (a) => calls.push(a));
-  await glisser(deDeLaCible(node, "str"), vivier(node));
-  assert.deepEqual(calls, [], "ramener un dé sur un vivier FINI ne commet rien");
-});
-
-test("⭐ LA PORTE DE FREE COMPTE LES POSES, celle des trois autres lit le DOCUMENT", () => {
-  /* La contrepartie du retrait : le document reste complet même quand l'écran
-     montre une case vide, donc seule la carte de poses dit la vérité de ce que
-     le joueur voit. ⛔ Et la divergence est BORNÉE à FREE — ailleurs, revenir
-     sur l'étape avec six scores déjà choisis rouvre la porte. */
+test("⭐ ET LE VIVIER DE FREE NOURRIT LE COLLECTEUR COMME LES TROIS AUTRES", async () => {
+  /* 🔴 LE TEST QUI DIT QUE FREE N'EST PLUS UNE EXCEPTION : une fois ses six
+     valeurs composées, il emploie le MÊME verbe que tout le monde. */
   const lot = freeBatch();
-  assert.equal(abilitiesValidate({ document: fixture.document, method: "free", rollBatch: lot }).ready, false,
-    "rien de posé : la porte est fermée, même si le document porte six scores");
+  lot.rolls.forEach((r, i) => { r.total = [15, 14, 13, 12, 10, 8][i]; });
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
+  const vivier6 = node.querySelectorAll(".fs-rangee")[1];
+  await glisser(vivier6.querySelectorAll(".ability-de-garde")[0], creneauPour(node, "cha"));
+  assert.deepEqual(calls, [{ kind: "assignAbilityRoll", key: "cha", rollIndex: 0, value: 15 }],
+    "⛔ `assignAbilityRoll`, la forme du lot 50 — FREE n'a plus de verbe à lui");
+});
+
+test("⛔ AUCUN RETRAIT, DANS AUCUNE MÉTHODE — et le geste d'Eric a changé d'étage", async () => {
+  /* `rebuild()` jette si l'une des six valeurs manque au document
+     (`derive.mjs`), et il n'existe aucune action qui VIDE une cible sans en
+     remplir une autre. On réarrange en posant, jamais en vidant.
+     ⭐ En FREE, ce qu'Eric décrivait (*« tu peux dégager les dés posés »*) se
+     fait maintenant là où ça ne casse rien : on RECOUVRE un créneau du vivier
+     depuis la palette. */
+  const lot = freeBatch();
+  lot.rolls.forEach((r, i) => { r.total = [15, 14, 13, 12, 10, 8][i]; });
   lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
-  assert.equal(abilitiesValidate({ document: fixture.document, method: "free", rollBatch: lot }).ready, true,
-    "les six posées : la porte s'ouvre");
-  assert.equal(abilitiesValidate({ document: fixture.document, method: "fh3d6", rollBatch: null }).ready, true,
-    "⛔ et ailleurs, le document suffit — sinon reposer six dés serait le prix d'un retour en arrière");
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
+  await glisser(deDeLaCible(node, "str"), node.querySelectorAll(".fs-rangee")[1]);
+  assert.deepEqual(calls, [], "ramener un dé sur le vivier ne commet rien, dans aucune méthode");
+});
+
+test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — l'exception de FREE est tombée", () => {
+  /* Elle comptait les POSES au lieu de lire le document, et il le fallait tant
+     que sa palette écrivait directement sur les caractéristiques. Depuis
+     qu'il COMPOSE un vivier, il n'écrit qu'à l'affectation — la porte commune
+     redit la vérité pour lui aussi. Une exception qui tombe parce que sa cause
+     a disparu, pas parce qu'on l'a désarmée. */
+  for (const m of ["fh3d6", "4d6", "standard", "free"]) {
+    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: lotSansDes(m) }).ready, true,
+      `${m} : les six scores du personnage d'exemple sont posés, la porte s'ouvre`);
+  }
+  assert.equal(abilitiesValidate({ document: fixture.document, method: null, rollBatch: null }).ready, false,
+    "…et aucune méthode choisie la referme");
 });
 
 test("la porte ne JETTE plus rien — le plateau est le seul jeteur", () => {
