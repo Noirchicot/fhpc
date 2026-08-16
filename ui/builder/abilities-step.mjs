@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=69";
-import { renderTray } from "./abilities-tray.mjs?v=69";
-import { armerJeton } from "./glisser.mjs?v=69";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=69";
-import { createDieHost, mount } from "./dice3d.mjs?v=69";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=69";
+import { markPressed } from "./carnet.mjs?v=70";
+import { renderTray } from "./abilities-tray.mjs?v=70";
+import { armerJeton } from "./glisser.mjs?v=70";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=70";
+import { createDieHost, mount } from "./dice3d.mjs?v=70";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=70";
 
 export { rollAbilitySet };
 
@@ -242,12 +242,34 @@ function renderCapWarning(resolved, key) {
    ne survit pas à la pose (les boosts d'héritage le changent). Deux nombres
    pour un dé, dont un qui ne serait jamais vrai — la contradiction du lot 46,
    réintroduite un étage plus haut. */
-export function renderFinalColumn(resolved, key, rawValue) {
+export function renderFinalColumn(resolved, key, rawValue, options) {
   if (!resolved || !resolved.abilities || !resolved.abilities[key]) return null;
   const { score, mod } = resolved.abilities[key];
   if (typeof score !== "number") return null;
   const cell = el("span", "ability-row-final");
-  cell.dataset.boosted = String(rawValue !== undefined && score !== rawValue);
+  const boosted = rawValue !== undefined && score !== rawValue;
+  cell.dataset.boosted = String(boosted);
+  /* ══ ⭐ LE MODE COMPACT — LE BONUS SEUL, ET C'EST UNE DÉCISION D'ERIC ══════
+     2026-08-16 : *« en dessous, à l'extérieur du carré, apparaît le BONUS de
+     carac »*. Sous un dé posé, il ne veut que le modificateur.
+
+     🔴 J'AI OBJECTÉ, IL A TRANCHÉ, ET LA RAISON EST ÉCRITE ICI POUR QU'UN
+     PROCHAIN LOT NE « RÉPARE » PAS ÇA DANS MON SENS. Mon objection : sur son
+     propre personnage d'exemple, CON porte **13**, un boost d'héritage le
+     monte à 14, donc le modificateur vaut **+2** — et un « +2 » sous un dé qui
+     affiche « 13 » est mot pour mot la contradiction que le lot 46 a corrigée.
+     J'avais donc fait revenir le score dès qu'il diffère (`14 (+2)`).
+     ⭐ SA RÉPONSE : *« je m'en fous, le dé nomme la carac »*. Et elle se tient
+     — sur cet écran, le dé qu'on pose EST le score de base qu'on choisit ; ce
+     que le boost en fait appartient à la fiche, pas au geste. Le lot 46
+     réparait un écran où le brut et le final se disputaient la MÊME ligne
+     sans qu'un mot les sépare ; ici le dé dit le choix, le bonus dit ce qu'il
+     donne, et les deux sont à deux endroits distincts.
+     ⛔ Ne pas remettre le score : ce serait rouvrir un arbitrage tranché. */
+  if (options && options.compact) {
+    cell.append(el("span", "ability-row-final-value", [text(motDuMod(mod))]));
+    return cell;
+  }
   /* ⌨️ PLUS DE MOT « Final » — Eric, 2026-08-16, en montrant le collecteur du
      banc : *« il affiche les bonus »*, et son croquis n'écrit qu'un `+1` sous
      chaque dé. L'étiquette coûtait une ligne dans une case de 48 px.
@@ -564,6 +586,16 @@ function renderCollecteur(ctx) {
     creneau.dataset.source = pose !== null ? "lot" : (valeur !== undefined ? "hors-lot" : "vide");
     creneau.append(el("span", "glisse-creneau-nom", [text(abilityLabel(key))]));
 
+    /* ⌨️ LE CARRÉ NE PORTE QUE LE DÉ, OU LA CIBLE — Eric, 2026-08-16 : *« tu
+       dessines un carré avec une cible de la taille du dé, RIEN ÉCRIT
+       DEDANS »*.
+       ⚠️ CE QUE ÇA RETIRE, ET IL FAUT LE DIRE : la valeur qu'une carac portait
+       DÉJÀ au document (le personnage d'exemple en a six) ne s'affiche plus
+       tant qu'aucun dé n'est posé. Un joueur qui revient sur l'étape voit donc
+       six cibles vides alors que ses scores existent. C'est le dessin d'Eric,
+       et il se défend : cet écran sert à POSER des dés, et une cible qui
+       montre déjà un nombre n'invite pas à en poser un. La valeur reste dite à
+       qui ne la voit pas, par l'`aria-label`. */
     if (pose !== null) {
       /* LE DÉ POSÉ EST LE MÊME OBJET QU'AU VIVIER — il se reprend, et le
          lâcher sur une autre cible ÉCHANGE les deux (lot 51). C'est le geste
@@ -573,35 +605,26 @@ function renderCollecteur(ctx) {
         onTap: () => ctx.reprendre(key),
         onDepot: (ou) => ctx.deplacer(key, pose, ou)
       }));
-    } else if (valeur === undefined) {
-      /* ⭐ UNE CIBLE VRAIMENT VIDE MONTRE UNE CIBLE — trois cercles
-         concentriques, DESSINÉS et non un glyphe : un glyphe change de dessin
-         selon la police installée. C'est la forme du banc `ilots-lab`, qu'Eric
-         a validée à l'écran (*« le collecteur ressemble à ça »*), et elle dit
-         ce qu'un tiret ne disait pas : ici, on DÉPOSE. */
-      creneau.append(renderCibleVide());
     } else {
-      /* 🔴 MAIS UNE VALEUR DÉJÀ AU DOCUMENT RESTE ÉCRITE, ET C'EST LA LOI DU
-         LOT 46. La remplacer par une cible aurait effacé le CHOIX BRUT — or
-         c'est lui que `set()` écrit, et il peut différer du score final (CON :
-         brut 13, final 14 par boost d'héritage). Sans lui à l'écran, le
-         joueur lirait « 14 (+2) » sans aucun moyen de savoir ce qu'il a
-         choisi.
-         ⚠️ La distinction n'est donc pas cosmétique : *rien de posé* et *posé
-         ailleurs qu'ici* sont deux états différents, et les confondre sous un
-         même symbole reperdrait ce que le lot 46 a corrigé. La feuille
-         l'atténue (`data-source="hors-lot"`), elle ne l'efface pas. */
-      creneau.append(el("span", "glisse-creneau-valeur", [text(String(valeur))]));
+      /* ⭐ UNE CIBLE VIDE MONTRE UNE CIBLE — trois cercles concentriques,
+         DESSINÉS et non un glyphe : un glyphe change de dessin selon la police
+         installée. C'est la forme du banc `ilots-lab`, qu'Eric a validée à
+         l'écran, et elle dit ce qu'un tiret ne disait pas : ici, on DÉPOSE. */
+      creneau.append(renderCibleVide());
     }
 
     creneau.setAttribute("aria-label", pose !== null
       ? `${abilityLabel(key)} — ${pose.total} placed`
       : valeur !== undefined ? `${abilityLabel(key)} — ${valeur}, not placed this time` : `${abilityLabel(key)} — empty`);
 
-    /* La colonne « Final » du lot 46, au même octet : le score dérivé et son
-       modificateur, boosts d'Inheritance compris. C'est le SEUL endroit de
-       l'écran où le joueur lit ce que son choix DONNE. */
-    const final = renderFinalColumn(resolved, key, valeur);
+    /* ⭐ LE BONUS APPARAÎT SOUS LE CARRÉ, ET SEULEMENT QUAND UN DÉ EST POSÉ —
+       Eric : *« quand un dé se pose sur la cible, en dessous, à l'extérieur de
+       ce carré, apparaît le bonus de carac »*. Une cible vide n'a pas de bonus
+       à montrer : le nombre qui le produirait n'a pas encore été choisi.
+       📌 Il vient de `resolved.abilities[clef].mod`, lu à l'octet et jamais
+       recalculé — donc il suit la règle du moteur (12-13 → +1, 14-15 → +2…) et
+       se met à jour à chaque `rebuild`, c'est-à-dire à chaque dé posé. */
+    const final = pose !== null ? renderFinalColumn(resolved, key, valeur, { compact: true }) : null;
     if (final) creneau.append(final);
     const alerte = renderCapWarning(resolved, key);
     if (alerte) creneau.append(alerte);

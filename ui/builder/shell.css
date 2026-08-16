@@ -2250,12 +2250,18 @@ button { font: inherit; }
 .ability-creneau .fs-de {
   width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
 }
+/* ⭐ UN CARRÉ DE LA TAILLE DU DÉ, ET RIEN ÉCRIT DEDANS (Eric, 2026-08-16).
+   Le rembourrage laisse la cible respirer dans son carré ; le carré, lui, a la
+   cote du dé qui viendra s'y poser — c'est ce qui fait qu'on voit la place. */
 .ability-creneau .glisse-cible-vide {
   display: block; height: auto;
   padding: var(--sp-8);
   border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
   color: var(--text); opacity: .55;
 }
+/* LE BONUS, SOUS LE CARRÉ ET À L'EXTÉRIEUR — il n'apparaît qu'avec un dé
+   (`renderCollecteur`), donc cette règle n'habille jamais du vide. */
+.ability-creneau .ability-row-final-value { font-size: var(--t3); font-weight: 600; }
 .ability-creneau[data-vise="true"] .glisse-cible-vide { border-color: var(--accent); border-style: solid; opacity: 1; }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */

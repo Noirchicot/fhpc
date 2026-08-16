@@ -215,8 +215,17 @@ test("une valeur HORS LOT (le 14 que dex porte déjà, jamais tiré) ne consomme
   assert.equal(desDuVivier(node).length, 6, "les six dés sont tous au vivier : rien n'a été consommé");
   const dex = creneauPour(node, "dex");
   assert.equal(dex.dataset.rempli, "false", "DEX n'a reçu aucun dé");
-  assert.equal(dex.dataset.source, "hors-lot", "…et sa valeur se dit COMME telle : elle ne vient pas de ce tirage");
-  assert.equal(valeurDe(dex), String(currentAbilityValue(fixture.document, "dex")));
+  assert.equal(dex.dataset.source, "hors-lot", "…et l'état se dit encore, pour la feuille et pour l'aria");
+  /* ⌨️ MAIS PLUS RIEN N'EST ÉCRIT DANS LE CARRÉ — Eric, 2026-08-16 : *« un
+     carré avec une cible de la taille du dé, RIEN ÉCRIT DEDANS »*. Une cible
+     qui montre déjà un nombre n'invite pas à y poser un dé.
+     ⚠️ Ce que ça retire est dit plutôt que tu : la valeur qu'une carac portait
+     déjà au document ne s'affiche plus tant qu'aucun dé n'est posé. Elle reste
+     dite à qui ne la voit pas. */
+  assert.equal(valeurDe(dex), null, "rien d'écrit dans le carré");
+  assert.equal(dex.querySelectorAll(".glisse-cible-vide").length, 1, "…rien qu'une cible");
+  assert.match(dex.getAttribute("aria-label"), new RegExp(String(currentAbilityValue(fixture.document, "dex"))),
+    "et la valeur reste DITE à qui ne la voit pas");
 });
 
 test("⚔️ LE TEST QUI PROUVE LE LOT 51 — après une distribution COMPLÈTE, les six dés restent TOUS prenables", () => {
@@ -312,37 +321,62 @@ test("⛔ AUCUN MODIFICATEUR SOUS UN DÉ — il n'est celui de personne, et il c
   const node = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { rollBatch: makeRollBatch([18, 15, 13, 12, 10, 8]) }), () => {});
   assert.equal(node.querySelectorAll(".ability-de-mod").length, 0,
-    "aucun modificateur sous un dé, ni au vivier ni dans une cible");
+    "aucun modificateur sous un dé DU VIVIER : il n'y est celui de personne");
   /* ⛔ NI TOTAL AU-DESSUS : le dé porte sa valeur sur sa face, l'écrire deux
      fois coûtait une seconde ligne par tuile. */
   assert.equal(node.querySelectorAll(".ability-de-total").length, 0);
   assert.equal(desDuVivier(node).length, 6, "témoin : les six dés sont bien là, c'est le doublon qui est parti");
-  /* ⭐ ET LE SEUL QUI COMPTE EST TOUJOURS LÀ, dans la cible : le FINAL, boosts
-     compris — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
-  assert.equal(node.querySelectorAll(".ability-row-final-value").length, ABILITY_KEYS.length);
+  /* ⭐ ET AUCUN BONUS DANS UNE CIBLE VIDE NON PLUS — Eric, 2026-08-16 : le
+     bonus n'apparaît QUE quand un dé se pose. Une cible vide n'a rien à
+     montrer : le nombre qui produirait ce bonus n'a pas encore été choisi. */
+  assert.equal(node.querySelectorAll(".ability-row-final-value").length, 0,
+    "rien de posé, donc aucun bonus");
 });
 
-test("⛔ §5.2 — dans une CIBLE c'est le modificateur FINAL, pas le brut : la contradiction du lot 46 ne revient pas", () => {
+test("⭐ LE BONUS APPARAÎT SOUS LE CARRÉ, ET SEULEMENT QUAND UN DÉ EST POSÉ", () => {
+  /* Eric, 2026-08-16 : *« quand un dé se pose sur la cible, en dessous, à
+     l'extérieur de ce carré, apparaît le bonus de carac »* — puis, sur mon
+     objection : *« je m'en fous, le dé nomme la carac »*.
+
+     🔴 L'OBJECTION EST CONSIGNÉE PARCE QU'ELLE A ÉTÉ TRANCHÉE, pas parce
+     qu'elle était fausse : sur le personnage d'exemple, CON porte **13**, un
+     boost d'héritage le monte à 14, donc le bonus vaut **+2** — un « +2 » sous
+     un dé qui dit « 13 ». C'est la forme de la contradiction du lot 46.
+     ⭐ La décision d'Eric se tient : sur CET écran, le dé qu'on pose EST le
+     score de base qu'on choisit ; ce que le boost en fait appartient à la
+     fiche, pas au geste. Le lot 46 réparait un écran où les deux registres se
+     disputaient la MÊME ligne sans qu'un mot les sépare ; ici le dé dit le
+     choix, le bonus dit ce qu'il donne, et ils sont à deux endroits.
+     ⛔ Ce test existe pour qu'un prochain lot ne « répare » pas ça en
+     remettant le score : ce serait rouvrir un arbitrage. */
   const report = rebuild(fixture.document);
   assert.equal(currentAbilityValue(report.document, "con"), 13, "mesure : le brut de CON");
-  assert.equal(report.resolved.abilities.con.score, 14, "mesure : le boost d'Inheritance le porte à 14");
-  const node = renderAbilitiesStep(
+  assert.equal(report.resolved.abilities.con.score, 14, "mesure : le boost le porte à 14");
+
+  /* Rien de posé → aucun bonus, six cibles nues. */
+  const vide = renderAbilitiesStep(
     ctxFrom(report.document, report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  const con = creneauPour(node, "con");
-  assert.equal(valeurDe(con), "13", "le CHOIX BRUT reste lisible — c'est lui que `set()` écrit");
-  assert.equal(con.querySelectorAll(".ability-row-final-value")[0].textContent, "14 (+2)",
-    "et le FINAL est lu dans resolved.abilities, à l'octet, jamais recalculé");
-  assert.equal(con.querySelectorAll(".ability-row-final")[0].getAttribute("data-boosted"), "true",
-    "l'écart brut/final est ANNONCÉ — c'est ce que le lot 46 a corrigé");
-  /* LA RÉCIPROQUE : sans boost, l'absence d'écart est aussi lisible que sa
-     présence — jamais une case qui apparaît et disparaît. */
-  for (const key of ["str", "dex", "wis", "cha"]) {
-    const cellule = creneauPour(node, key).querySelectorAll(".ability-row-final")[0];
-    assert.equal(cellule.getAttribute("data-boosted"), "false", `${key} : aucun écart, correctement signalé`);
-    assert.match(cellule.querySelectorAll(".ability-row-final-value")[0].textContent,
-      new RegExp(`^${currentAbilityValue(report.document, key)} \\(`));
-  }
+  assert.equal(vide.querySelectorAll(".ability-row-final-value").length, 0);
+  assert.equal(vide.querySelectorAll(".ability-creneau .glisse-cible-vide").length, 6);
+
+  /* Un dé posé → le bonus, SEUL, sous le carré. */
+  const lot = standardArrayBatch();
+  lot.assign = { ...emptyAbilityAssign(), con: 0 };
+  const pose = renderAbilitiesStep(ctxFrom(report.document, report, { method: "standard", rollBatch: lot }), () => {});
+  const con = creneauPour(pose, "con");
+  assert.equal(con.querySelectorAll(".ability-row-final-value")[0].textContent, "+2",
+    "le BONUS seul — pas le score, c'est la décision d'Eric");
+  assert.equal(con.querySelectorAll(".glisse-cible-vide").length, 0, "et le carré porte le dé, plus la cible");
+  /* ⭐ Le bonus vient de `resolved`, à l'octet : il suit la règle du moteur
+     (12-13 → +1, 14-15 → +2…) et se met à jour à chaque `rebuild`. */
+  assert.equal(motDuModAttendu(report.resolved.abilities.con.mod), "+2");
+  /* Les cinq autres restent nues : le bonus ne suit QUE le dé. */
+  assert.equal(pose.querySelectorAll(".ability-row-final-value").length, 1);
 });
+
+/** Le modificateur écrit comme un joueur l'écrit — recopié du rendu pour que
+ *  le test compare une FORME, pas une implémentation. */
+function motDuModAttendu(mod) { return mod >= 0 ? `+${mod}` : String(mod); }
 
 /* ══ 3 — LE PLAFOND DE 18 : DÉCLARÉ, JAMAIS OPPOSÉ, ET SEULEMENT AU NIVEAU 1 */
 
