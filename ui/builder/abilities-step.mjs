@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=49";
-import { renderTray } from "./abilities-tray.mjs?v=49";
-import { armerJeton } from "./glisser.mjs?v=49";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=49";
-import { createDieHost, mount } from "./dice3d.mjs?v=49";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=49";
+import { markPressed } from "./carnet.mjs?v=51";
+import { renderTray } from "./abilities-tray.mjs?v=51";
+import { armerJeton } from "./glisser.mjs?v=51";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=51";
+import { createDieHost, mount } from "./dice3d.mjs?v=51";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=51";
 
 export { rollAbilitySet };
 
@@ -817,20 +817,53 @@ export function renderAbilitiesStep(ctx, onAction) {
   const entry = ABILITY_ENTRIES.find((e) => e.id === ctx.method) || null;
   const section = el("section", "abilities-step");
 
-  section.append(renderSelecteurMethode(ctx.method || null, Boolean(ctx.info), act));
-  if (ctx.info) section.append(renderPanneauInfo(act));
+  /* ══ 🔴 DEUX PAGES, PAS UNE PAGE QUI S'ALLONGE ══════════════════════════
+     TRANCHÉ PAR ERIC, 2026-08-16, en regardant le sélecteur : *« ceci doit
+     être détaché et être à la racine de Abilities. On arrive sur FREE quand
+     on clique sur le bouton FREE, qui est une AUTRE PAGE »*.
 
-  /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE : *« il faut CLIQUER pour faire
-     apparaître les rollers/choosers »*. Mais l'attente SE DIT (lot 74) : un
-     `DONE` éteint sans un mot pour dire pourquoi est le défaut qu'Eric a
-     rencontré. On n'allume pas le bouton pour faire joli — l'écran ÉCRIT ce
-     qui manque, comme la barre de pool compte et comme Review dit « 0 of 1 ». */
-  if (!entry) {
-    section.append(el("p", "ability-gate-note", [text(
-      "Nothing to act on yet — pick one of the methods above to begin."
-    )]));
+     · **la racine** (palier 1) ne porte que le sélecteur — et le panneau INFO
+       quand il est ouvert ;
+     · **la page d'une méthode** (palier 2) porte son organe, son vivier et son
+       collecteur, et PLUS le sélecteur.
+
+     ⭐ ET CE N'EST PAS UNE MACHINE À ÉTATS ÉCRITE ICI : ce sont les PALIERS,
+     que la coquille possède déjà (I.4, et l'arbitrage du lot 79 §4.1 —
+     *« c'est shell.mjs qui possède l'enchaînement ; une machine à états dans
+     un écran ferait DEUX propriétaires de la même porte »*, la faute que
+     `rollBatch` a payée). Cet écran ne fait que LIRE `ctx.palier` ; c'est le
+     shell qui l'avance en recevant `abilityMethod`, et `BACK` qui le recule —
+     le même `BACK` que partout, qui redescend d'un palier avant de reculer
+     d'une étape. Rien à inventer, rien à câbler en double.
+     📌 Conséquence gratuite : revenir sur l'étape repart de la racine
+     (`goToStep` remet le palier à 1), donc on retrouve toujours le choix des
+     méthodes, jamais une page dont on ne sait plus comment on est arrivé. */
+  const surLaRacine = ctx.palier !== 2;
+
+  if (surLaRacine) {
+    section.append(renderSelecteurMethode(ctx.method || null, Boolean(ctx.info), act));
+    if (ctx.info) section.append(renderPanneauInfo(act));
+    /* ⛔ B5.1c — RIEN N'EST DÉPLIÉ D'AVANCE : *« il faut CLIQUER pour faire
+       apparaître les rollers/choosers »*. Mais l'attente SE DIT (lot 74) : un
+       `DONE` éteint sans un mot pour dire pourquoi est le défaut qu'Eric a
+       rencontré. On n'allume pas le bouton pour faire joli — l'écran ÉCRIT ce
+       qui manque, comme la barre de pool compte et comme Review dit « 0 of 1 ». */
+    if (!entry) {
+      section.append(el("p", "ability-gate-note", [text(
+        "Nothing to act on yet — pick one of the methods above to begin."
+      )]));
+    }
     return section;
   }
+
+  /* Un palier 2 sans méthode ne peut pas exister (c'est le choix qui l'ouvre),
+     mais un état d'écran se lit, il ne se suppose pas. */
+  if (!entry) return section;
+
+  /* ⭐ LA PAGE DIT DE QUELLE MÉTHODE ELLE EST. Sans le sélecteur au-dessus,
+     c'est la seule chose qui replace le joueur après un `BACK` mal visé — et
+     le libellé est celui du croquis, jamais un id. */
+  section.append(el("h2", "ability-page-titre", [text(entry.label)]));
 
   /* ── L'ORGANE : l'explication, et le jet quand il y en a un ────────── */
   const organe = el("section", "ability-organe dalle-intermediaire");

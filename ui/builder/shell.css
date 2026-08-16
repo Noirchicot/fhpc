@@ -1042,6 +1042,15 @@ button { font: inherit; }
    choisie et que `DONE` attend. Une information, pas une alarme. */
 .ability-gate-note { font-size: var(--t3); color: var(--text-soft); margin: 0; }
 
+/* LE TITRE D'UNE PAGE DE MÉTHODE — sans le sélecteur au-dessus, c'est la
+   seule chose qui replace le joueur après un `BACK`. Le libellé est celui du
+   croquis (`FH 3D6`, `4D6`, `ARRAY`, `FREE`), jamais un id. */
+.ability-page-titre {
+  margin: 0 0 var(--sp-12);
+  font-size: var(--t6); line-height: 1.15;
+  color: var(--text); text-align: center;
+}
+
 /* ── ÉTAGE 1 · L'ORGANE — FF2, dalle 50 % ─────────────────────────────
    L'explication d'abord (la règle, une phrase), puis le plateau quand la
    méthode en a un. ARRAY et FREE n'ont que la phrase, et c'est complet.

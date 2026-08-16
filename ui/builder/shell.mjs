@@ -19,32 +19,32 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=49";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=49";
-import { mountPopup } from "./popup.mjs?v=49";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=49";
-import { renderConceptStep } from "./concept-step.mjs?v=49";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=49";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=49";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=51";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=51";
+import { mountPopup } from "./popup.mjs?v=51";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=51";
+import { renderConceptStep } from "./concept-step.mjs?v=51";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=51";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=51";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=49";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=49";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=49";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=49";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=49";
+} from "./catalogue.mjs?v=51";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=51";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=51";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=51";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=51";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=49";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=49";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=49";
+} from "./destiny-step.mjs?v=51";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=51";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=51";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=49";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=51";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -63,16 +63,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=49";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=49";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=51";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=49";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=49";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=51";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=51";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=49";
+import { versionQuery } from "./version.mjs?v=51";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -420,22 +420,46 @@ function applyDecisionAction(action) {
     return;
   }
   if (action.kind === "abilityMethod") {
-    state.abilityMethod = action.value;
-    /* ⚠️ `abilities.mode` RESTE ÉCRIT AU DOCUMENT, comme au lot 45. Aucune
-       règle ne le consomme (Review le classe dans « player choices no rule
-       consumed »), mais c'est un champ du schéma que le joueur a rempli :
-       cesser de l'écrire serait perdre une intention en silence. */
-    state.document = state.engine.build.verbs
-      .set({ document: state.document, path: "abilities.mode", value: action.value }).document;
-    rebuild();
-    /* ⭐ LES DEUX MÉTHODES SANS DÉS POSENT LEUR LOT D'EMBLÉE — `ARRAY`
-       (six valeurs fixes) et `FREE` (seize valeurs, un vivier inépuisable).
-       Elles passent par la MÊME machinerie d'affectation que les deux
-       méthodes à dés : c'est tout l'intérêt de l'entonnoir unique.
-       ⛔ C'est `abilities-step.mjs` qui sait lequel — jamais un `if` sur un id
-       ici (`lotSansDes`). */
-    state.abilityRoll = lotSansDes(action.value);
-    state.abilityRevele = 0;
+    /* 🔴 REVENIR À LA RACINE N'INTERROMPT RIEN — Eric, 2026-08-16, mot pour
+       mot : *« à cette racine je n'interromps rien en revenant en arrière »*.
+       ⛔ ET CE N'ÉTAIT PAS VRAI QUAND IL L'A DIT. Cette action remettait le
+       lot à zéro À CHAQUE clic de tuile, y compris quand la tuile était CELLE
+       QU'ON VENAIT DE QUITTER : `BACK` puis `FREE` effaçait les dés déjà
+       posés, en silence, et le joueur repartait d'une palette vide sans
+       comprendre ce qu'il avait perdu. Sa phrase décrivait l'intention ; le
+       code faisait l'inverse.
+       ⭐ LE REMÈDE EST DE NE RIEN FAIRE QUAND RIEN NE CHANGE : seul un
+       CHANGEMENT de méthode jette le lot — et c'est légitime, un lot de dés
+       n'a aucun sens dans une autre méthode. Rouvrir la même page retrouve
+       son état intact. */
+    const memeMethode = state.abilityMethod === action.value;
+    if (!memeMethode) {
+      state.abilityMethod = action.value;
+      /* ⚠️ `abilities.mode` RESTE ÉCRIT AU DOCUMENT, comme au lot 45. Aucune
+         règle ne le consomme (Review le classe dans « player choices no rule
+         consumed »), mais c'est un champ du schéma que le joueur a rempli :
+         cesser de l'écrire serait perdre une intention en silence. */
+      state.document = state.engine.build.verbs
+        .set({ document: state.document, path: "abilities.mode", value: action.value }).document;
+      rebuild();
+      /* ⭐ LES DEUX MÉTHODES SANS DÉS POSENT LEUR LOT D'EMBLÉE — `ARRAY`
+         (six valeurs fixes) et `FREE` (seize valeurs, un vivier inépuisable).
+         Elles passent par la MÊME machinerie d'affectation que les deux
+         méthodes à dés : c'est tout l'intérêt de l'entonnoir unique.
+         ⛔ C'est `abilities-step.mjs` qui sait lequel — jamais un `if` sur un
+         id ici (`lotSansDes`). */
+      state.abilityRoll = lotSansDes(action.value);
+      state.abilityRevele = 0;
+    }
+    /* 🔴 CHOISIR UNE MÉTHODE OUVRE SA PAGE — Eric, 2026-08-16 : *« on arrive
+       sur FREE quand on clique sur le bouton FREE, qui est une AUTRE page »*.
+       C'est un PALIER, pas un état d'écran : `BACK` le redescend tout seul
+       (`pressBack`), et `goToStep` le remet à 1 en arrivant sur l'étape, donc
+       on retrouve toujours le choix des méthodes en revenant.
+       ⛔ Et le palier s'avance ICI plutôt que par `pressDone` : le geste du
+       joueur est la TUILE, pas le bouton de sortie. `pressDone` garde son
+       enchaînement (I.4) ; il n'y a toujours qu'un propriétaire par porte. */
+    state.palier = 2;
     openSurface();
     return;
   }
@@ -1052,7 +1076,11 @@ function renderStepContent() {
       rollBatch: state.abilityRoll,
       revele: state.abilityRevele,
       method: state.abilityMethod,
-      info: state.abilityInfo
+      info: state.abilityInfo,
+      /* ⭐ LE PALIER DÉCIDE DE LA PAGE (Eric, 2026-08-16) : 1 = la racine, le
+         sélecteur seul ; 2 = la page de la méthode choisie. L'écran le LIT, il
+         ne le possède pas — l'enchaînement appartient à la coquille (I.4). */
+      palier: state.palier
     }, applyDecisionAction));
   } else if (step.id === "abilities" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -1437,6 +1465,12 @@ function paintBelt() {
    📌 LA PAIRE SE RECONSTRUIT AVEC LE CONTENU, donc aucune fonction de
    peinture : elle naît et meurt dans le `swapContent` de `refresh()`, comme
    le reste de la scène. C'est ce qui la dispense d'être un nœud persistant. */
+/** La page courante ne fait-elle que distribuer des branches ? Abilities à son
+ *  palier 1 : quatre méthodes et un panneau INFO, aucun geste à valider. */
+function surUneRacineQuiBranche() {
+  return STEPS[state.step].id === "abilities" && state.palier !== 2;
+}
+
 function renderSortieEtape() {
   /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
      Un bouton mort au bas de la dernière page ne dirait rien à personne. */
@@ -1450,6 +1484,23 @@ function renderSortieEtape() {
      besoin. */
   const fiche = catalogueCourant();
   if (fiche && fiche.fiche && state.palier !== 2) return null;
+  /* ⭐ UNE PAGE QUI NE FAIT QUE BRANCHER N'A PAS DE SORTIE — Eric, 2026-08-16 :
+     *« la page racine n'a pas besoin de BACK ou DONE, car elle est à la racine
+     et donne des branches »*.
+     🔴 ET C'EST LA MÊME LOI QUE CH6 JUSTE AU-DESSUS, pas une seconde : un
+     écran dont la page courante n'offre qu'un AIGUILLAGE n'a rien à valider —
+     ses tuiles SONT le geste, comme `CHOOSE` est le geste d'une fiche. Poser
+     un `DONE` éteint à côté de quatre boutons qui, eux, mènent quelque part,
+     c'est offrir une porte morte à côté de quatre portes vivantes.
+     ⛔ Et `BACK` n'y manque pas non plus : entre ÉTAPES, la ceinture porte le
+     retour — c'est l'argument d'origine de I.5, et il n'a jamais cessé d'être
+     vrai. `BACK` ne gagne sa place que là où il n'y a PAS de ceinture, c'est-
+     à-dire dans les pages de palier (lot 79, §4.1 bis). La racine en a une.
+     ⏳ Écrit sur un id parce que c'est le seul écran qui branche aujourd'hui,
+     et que la coquille nomme déjà ses étapes ainsi (`currentGate`). Le jour où
+     un deuxième branche, ce test devient un drapeau déclaré par l'écran —
+     comme `fiche: true` l'a été pour les catalogues. */
+  if (surUneRacineQuiBranche()) return null;
   const gate = currentGate();
 
   const back = button("BACK", () => pressBack());

@@ -148,6 +148,13 @@ function ctxFrom(document, resolvedReport, extra) {
   const base = { document, resolved: resolvedReport.resolved, rollBatch: null };
   const avec = Object.assign(base, extra || {});
   if (avec.method === undefined) avec.method = avec.rollBatch ? "fh3d6" : null;
+  /* ⭐ ET LE PALIER SUIT LA MÉTHODE, parce que c'est ce que fait le joueur
+     (Eric, 2026-08-16) : cliquer une tuile OUVRE la page de sa méthode. Un
+     `ctx` qui porte une méthode décrit donc quelqu'un qui est SUR cette page
+     (palier 2) ; sans méthode, il est sur la racine, où il n'y a que le
+     sélecteur. Les tests qui veulent explicitement la racine avec une méthode
+     déjà choisie posent `palier: 1` à la main. */
+  if (avec.palier === undefined) avec.palier = avec.method ? 2 : 1;
   return avec;
 }
 
@@ -720,7 +727,12 @@ test("🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES — c'est
   for (const id of ["fh3d6", "4d6", "standard", "free"]) {
     const lot = lotSansDes(id) || makeRollBatch([15, 14, 13, 12, 10, 8]);
     const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: id, rollBatch: lot }), () => {});
-    assert.equal(node.querySelectorAll(".ability-methodes").length, 1, `${id} : un sélecteur`);
+    /* ⛔ PLUS DE SÉLECTEUR SUR UNE PAGE DE MÉTHODE — il est DÉTACHÉ, à la
+       racine (Eric, 2026-08-16). Ce que les quatre pages partagent est ce qui
+       est en dessous, et c'est ça que ce test garde. */
+    assert.equal(node.querySelectorAll(".ability-methodes").length, 0, `${id} : le sélecteur est resté à la racine`);
+    assert.equal(node.querySelectorAll(".ability-page-titre")[0].textContent,
+      ABILITY_ENTRIES.find((e) => e.id === id).label, `${id} : la page dit de quelle méthode elle est`);
     assert.equal(node.querySelectorAll(".ability-organe").length, 1, `${id} : un organe`);
     assert.ok(vivier(node), `${id} : un vivier`);
     assert.equal(node.querySelectorAll(".ability-collecteur").length, 1, `${id} : un collecteur`);
@@ -728,6 +740,62 @@ test("🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES — c'est
     assert.deepEqual(node.querySelectorAll(".glisse-creneau-nom").map((n) => n.textContent),
       ABILITY_KEYS.map((k) => k.toUpperCase()), `${id} : et l'ordre est celui du SRD`);
   }
+});
+
+test("🔴 LA RACINE NE PORTE QUE LE SÉLECTEUR — et la page d'une méthode ne le porte plus", () => {
+  /* Eric, 2026-08-16, en regardant l'écran : *« ceci doit être détaché et être
+     à la racine de Abilities. On arrive sur FREE quand on clique sur le bouton
+     FREE, qui est une AUTRE page »*. Deux pages, pas une page qui s'allonge. */
+  const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
+  assert.equal(racine.querySelectorAll(".ability-methodes").length, 1, "la racine porte le sélecteur");
+  assert.equal(racine.querySelectorAll(".ability-organe").length, 0, "…et RIEN d'autre : aucun organe");
+  assert.equal(vivier(racine), null, "aucun vivier");
+  assert.equal(racine.querySelectorAll(".ability-collecteur").length, 0, "aucun collecteur");
+
+  /* ⭐ ET LA RACINE RESTE LA RACINE MÊME QUAND UNE MÉTHODE EST DÉJÀ CHOISIE :
+     c'est le PALIER qui décide de la page, jamais la méthode. Sans ça,
+     revenir en arrière rouvrirait la page qu'on vient de quitter. */
+  const revenu = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: freeBatch(), palier: 1 }), () => {});
+  assert.equal(revenu.querySelectorAll(".ability-methodes").length, 1);
+  assert.equal(vivier(revenu), null, "la palette appartient à la PAGE de FREE, pas à la racine");
+  assert.equal(revenu.querySelectorAll(".ability-entry[data-active=\"true\"]")[0].textContent, "FREE",
+    "…et le sélecteur montre ce qu'on avait choisi");
+});
+
+test("🔴 REVENIR À LA RACINE N'INTERROMPT RIEN — rouvrir la MÊME méthode ne jette pas son lot", () => {
+  /* Eric, 2026-08-16 : *« à cette racine je n'interromps rien en revenant en
+     arrière »*. ⛔ Ce n'était PAS vrai quand il l'a dit : l'action remettait le
+     lot à zéro à chaque clic de tuile, y compris sur celle qu'on venait de
+     quitter — `BACK` puis `FREE` effaçait les dés posés, en silence.
+     ⭐ Le remède : seul un CHANGEMENT de méthode jette le lot. Garde d'octets,
+     faute de harnais de rendu sur `shell.mjs`. */
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /const memeMethode = state\.abilityMethod === action\.value;\s*if \(!memeMethode\) \{/,
+    "rouvrir la même méthode ne retouche à rien");
+  /* Et ce qui est DANS la garde est bien tout ce qui jette : le lot, le compte
+     de révélation, et l'écriture au document. */
+  const bloc = shellText.slice(shellText.indexOf("const memeMethode"));
+  const corps = bloc.slice(0, bloc.indexOf("state.palier = 2;"));
+  for (const jette of ["state.abilityRoll = lotSansDes(action.value);", "state.abilityRevele = 0;", "abilities.mode"]) {
+    assert.ok(corps.includes(jette), `« ${jette} » doit être SOUS la garde — sinon il repart à chaque clic`);
+  }
+  /* ⭐ Et le palier, LUI, est HORS de la garde : rouvrir la même méthode doit
+     quand même ouvrir sa page. C'est la moitié qu'on casserait en déplaçant
+     l'accolade d'une ligne. */
+  assert.equal(corps.includes("state.palier = 2;"), false,
+    "⛔ le palier s'avance TOUJOURS — sinon reclíquer sa méthode ne mènerait nulle part");
+});
+
+test("garde d'octets — c'est la COQUILLE qui ouvre la page d'une méthode, pas l'écran", () => {
+  /* L'enchaînement appartient à `shell.mjs` (I.4, et l'arbitrage du lot 79
+     §4.1). L'écran ne fait que LIRE le palier — deux propriétaires d'une même
+     porte est la faute que `rollBatch` a payée. */
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /action\.kind === "abilityMethod"[\s\S]{0,900}state\.palier = 2;/,
+    "choisir une méthode avance le palier, dans la coquille");
+  const ecran = stripComments(fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8"));
+  assert.equal(/state\.palier/.test(ecran), false, "⛔ et l'écran ne l'écrit jamais : il le lit dans son ctx");
 });
 
 test("`lotSansDes` ne connaît que les deux méthodes qui n'en jettent pas", () => {

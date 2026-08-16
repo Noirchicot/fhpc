@@ -416,6 +416,27 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
     "et un pied bavard le dépasse — le garde n'est pas si lâche qu'il ne dise jamais non");
 });
 
+test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 étendu", () => {
+  /* Eric, 2026-08-16 : *« la page racine n'a pas besoin de BACK ou DONE, car
+     elle est à la racine et donne des branches »*. Un écran dont la page
+     courante n'offre qu'un AIGUILLAGE n'a rien à valider — ses tuiles SONT le
+     geste, exactement comme `CHOOSE` est le geste d'une fiche (CH6). Poser un
+     `DONE` éteint à côté de quatre boutons qui mènent quelque part, c'est
+     offrir une porte morte à côté de quatre portes vivantes.
+     ⛔ Et `BACK` n'y manque pas : entre ÉTAPES, la ceinture porte le retour —
+     l'argument d'origine de I.5. `BACK` ne gagne sa place que là où il n'y a
+     pas de ceinture, c'est-à-dire dans une page de palier (lot 79 §4.1 bis). */
+  assert.match(shellText, /if \(surUneRacineQuiBranche\(\)\) return null;/,
+    "la sortie s'efface sur une page qui ne fait que brancher");
+  assert.match(shellText, /function surUneRacineQuiBranche\(\) \{\s*return STEPS\[state\.step\]\.id === "abilities" && state\.palier !== 2;/,
+    "…et la condition est NOMMÉE, pas un `if` anonyme de plus dans le rendu");
+  /* ⚔️ ET ELLE EST BORNÉE : c'est la RACINE qui n'a pas de sortie, pas
+     l'étape. La page d'une méthode (palier 2) garde la sienne — sans quoi
+     Abilities deviendrait une impasse. */
+  assert.equal(/id === "abilities"\) return null/.test(shellText), false,
+    "⛔ jamais l'étape entière : le palier 2 doit garder sa sortie, sinon on ne peut plus avancer");
+});
+
 test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait rougir 16 bis et 17, eux seuls", () => {
   /* Le geste exact qu'on redoute — un lot qui « ajoute juste un bouton » au
      pied de son écran plutôt que d'employer celui de la coquille. */
