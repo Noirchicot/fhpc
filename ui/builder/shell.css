@@ -1468,8 +1468,29 @@ button { font: inherit; }
      Large) rend 27 % à 80 et 41 % sur un dé de téléphone à 54 : les deux
      restent des tailles de LECTURE, ce que la loi ci-dessus exige.
      ⏳ C'est un barreau, donc une décision réversible d'un mot : si le chiffre
-     paraît trop gros, le levier est T5, jamais un `calc()`. */
-  font-size: var(--t6);
+     paraît trop gros, le levier est T5, jamais un `calc()`.
+
+     ⭐ ET IL L'A PARU, LE JOUR MÊME — Eric : *« réduis la taille de tous les
+     chiffres de dé de 50 % »*, puis, quand j'ai proposé un demi-barreau
+     calculé : *« T2 ou T3 »*.
+
+     🔴 ET C'EST LUI QUI A RAISON, POUR UNE RAISON QUE J'AVAIS MANQUÉE.
+     `calc(var(--t6) * .5)` rend **11 px** — une taille qui n'existe sur AUCUN
+     barreau. L'échelle T1..T7 n'est pas une commodité d'écriture : c'est la
+     promesse qu'il n'y a que sept tailles dans le produit. Un demi-barreau la
+     tient en apparence (il suit T6) et la casse en fait (il crée une huitième
+     taille). Le garde l'aurait laissé passer — il vérifie la PROVENANCE de la
+     valeur, pas le nombre de tailles vivantes ; l'élargissement du matin
+     visait un TITRE de fiche, pas un chiffre de dé.
+
+     📌 T2 PLUTÔT QUE T3, et ça se calcule : la moitié de T6 vaut 11, T2 en est
+     à 1 px et T3 à 3. Sur l'écran d'Eric — iPad ~1024, donc SOUS le seuil
+     Large de 1140 — T6 vaut bien 22, jamais 28 : T2 rend une réduction de
+     45 %, la plus proche des 50 % demandés. T3 n'en rendrait que 36 %.
+     ⚠️ Au-delà de 1140, T6 passe à 28 et T2 reste 12 : la réduction y devient
+     57 %. Le chiffre ne se met pas à l'échelle de la dalle — c'est la loi des
+     tailles de LECTURE (CADRES.md §8), pas un effet de bord. */
+  font-size: var(--t2);
   color: var(--de-encre);
   pointer-events: none;
   /* ══ 📐 LE CHIFFRE SE CENTRE SUR LA FACE, PAS SUR LA BOÎTE ═══════════
@@ -2367,14 +2388,36 @@ button { font: inherit; }
 .glisse-creneaux.ability-creneaux {
   display: grid;
   grid-auto-flow: row;
-  grid-template-columns: repeat(6, 1fr);
+  /* 🔴 `minmax(0, 1fr)` ET NON `1fr`, ET C'EST UN DÉFAUT MESURÉ SUR L'IPHONE
+     D'ERIC (2026-08-17, capture à l'appui). `1fr` vaut `minmax(auto, 1fr)` :
+     une colonne ne peut PAS descendre sous la largeur minimale de son
+     contenu. Quand INT dépasse 18, sa case porte l'alerte `> 18 at creation`,
+     dont le mot le plus long impose ~60 px — cette colonne s'élargit et vole
+     sa place aux CINQ AUTRES, qui écrasent leur dé. Sur la capture, le dé
+     d'INT est le seul de bonne taille ; les cinq voisins sont des tranches.
+     ⭐ `minmax(0, 1fr)` rend les six colonnes réellement égales et laisse
+     l'alerte se replier sur plusieurs lignes — un texte qui revient à la
+     ligne coûte de la hauteur, ce qui est réparable ; un dé écrasé, non. */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-rows: none;
   gap: var(--sp-4);
 }
 /* ⭐ LA CIBLE EST CARRÉE, EN POINTILLÉ, ET ELLE PORTE UNE CIBLE — la forme du
    banc `ilots-lab`, qu'Eric a validée à l'écran. Le nom au-dessus, la zone de
    dépôt au milieu, le bonus dessous. */
-.ability-creneau {
+/* 🔴 LA MÊME RÈGLE PERDANTE QU'HIER, ET JE N'EN AVAIS RÉPARÉ QU'UN TIERS.
+   Le 2026-08-17 j'ai trouvé que `.ability-creneau { border: 0 }` ne
+   s'appliquait pas — même spécificité que `.glisse-creneau`, écrit plus haut,
+   donc perdant. J'ai corrigé LA BORDURE et laissé les deux autres
+   déclarations du même bloc, `padding` et `gap`, exactement dans le même état.
+   ⚠️ MESURÉ : la case gardait le rembourrage de 8 px de `.glisse-creneau` au
+   lieu des 2 voulus, soit **12 px de moins pour le dé** dans une colonne de 54
+   — le dé rendait 37,8 au lieu de 49,8, la moitié de ceux de la palette. C'est
+   la moitié de ce qu'Eric a vu comme *« les dés ont rapetissé »*.
+   📌 LA LEÇON DE MÉTHODE : quand une règle perd sa cascade, ce n'est jamais
+   UNE déclaration qui tombe, c'est TOUT le bloc. Réparer la ligne qu'on
+   regardait laisse les voisines dans le décor. */
+.glisse-creneau.ability-creneau {
   padding: var(--sp-2);
   gap: var(--sp-2);
 }
