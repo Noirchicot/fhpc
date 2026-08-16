@@ -2301,9 +2301,27 @@ button { font: inherit; }
    dépôt au milieu, le bonus dessous. */
 .ability-creneau {
   padding: var(--sp-2);
-  border: 0;              /* le pointillé est sur la ZONE, pas sur la colonne */
   gap: var(--sp-2);
 }
+/* 🔴 CE `border: 0` N'A JAMAIS RIEN FAIT, ET C'EST MESURÉ (2026-08-17).
+   La règle disait *« le pointillé est sur la ZONE, pas sur la colonne »* —
+   elle était FAUSSE dans la page. `.ability-creneau` et `.glisse-creneau` ont
+   la MÊME spécificité (0,0,1,0), et `.glisse-creneau` est écrit PLUS BAS dans
+   ce fichier : c'est lui qui gagnait. Le cadre pointillé qu'Eric voyait autour
+   de chaque caractéristique était donc la COLONNE, pas la cible — un cadre que
+   le commentaire déclarait absent depuis le début.
+   ⚠️ Une déclaration invalide crie (le navigateur la jette) ; une déclaration
+   PERDANTE se tait. C'est le même piège que le lot 79 avait payé sur `:has()`,
+   et il se paie une seconde fois faute d'avoir regardé la page.
+
+   ⭐ LA BORDURE RESTE DÉCLARÉE, EN TRANSPARENT, exactement comme celle de la
+   cible : c'est elle que `[data-vise]` allume, et c'est le SEUL retour dont
+   dispose une cible DÉJÀ REMPLIE (celle-là n'a plus de dessin de cible à
+   éclairer). La retirer vraiment rendrait le dépôt aveugle sur la moitié des
+   cases. ⛔ Et le fond des cases remplies part avec : une case pleine peinte
+   redessinerait la moitié du quadrillage qu'on vient d'enlever. */
+.glisse-creneau.ability-creneau { border-color: transparent; background: none; }
+.glisse-creneau.ability-creneau[data-rempli="true"] { background: none; }
 .ability-creneau .glisse-cible-vide,
 .ability-creneau .fs-de {
   width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
