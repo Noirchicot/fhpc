@@ -550,79 +550,88 @@
 .fiche-trait-nom { font-weight: 600; }
 .fiche-trait-effet { color: var(--text-muted); }
 
-/* ══ LA COMPOSITION PAYSAGE — Eric, 2026-08-16 ═══════════════════════════
-   *« en mode paysage, je voudrais avoir un affichage alternatif des fiches :
-   la photo passe à gauche de la dalle, disons 75 % de la hauteur, centrée
-   verticalement ; et le texte vient se mettre à droite — les stats, les infos
-   supplémentaires et le blurb empilés verticalement. »*
 
-   🔴 CE N'EST PAS UN REDIMENSIONNEMENT, C'EST UNE RECOMPOSITION, et c'est la
-   seule chose qui pouvait marcher : mesuré, les rangées RIGIDES de la fiche
-   (nom 22 + stats 126 + bande 40 + pied 44 + l'air) font déjà ~280 px, quand
-   un téléphone couché n'offre que 315 px de scène. La fiche n'était pas trop
-   grande — elle avait plus de contenu rigide que l'écran n'a de hauteur.
-   Aucun `min()` ne répare ça ; il fallait changer la disposition.
+/* ══ LA COMPOSITION HORIZONTALE — croquis « VERTICAL / HORIZONTAL » d'Eric,
+   2026-08-16 ═══════════════════════════════════════════════════════════════
+   🔴 MA PREMIÈRE ÉCRITURE ÉTAIT FAUSSE, ET SON IPAD L'A PROUVÉ. J'avais coté
+   le déclencheur sur la HAUTEUR (`max-height: 500px = 440 fiche + 60
+   ceinture`), en argumentant qu'« un iPad couché a toute la place et n'a rien
+   à recomposer ». Le raisonnement était cohérent et le résultat inutilisable :
+   son iPad couché fait ~900 px de haut, il n'a donc JAMAIS reçu la
+   composition, et il a vu la fiche debout étirée en large.
+   ⭐ SA RÈGLE EST PLUS SIMPLE ET C'EST LA BONNE : il a écrit « VERTICAL » et
+   « HORIZONTAL » sur son croquis. **La composition suit la FORME de l'écran**,
+   pas la place qui reste. Un écran couché reçoit une composition couchée.
+   📌 La leçon, pour la prochaine fois : j'ai remplacé un critère qu'il avait
+   nommé par un critère que j'avais déduit. Une déduction ne prime pas sur un
+   dessin.
 
-   ⭐ LE SEUIL EST UNE COTE GAGNÉE, PAS UNE CLASSE D'APPAREIL — et c'est ce qui
-   le rend juste : `500 = 440 (la fiche) + 60 (la ceinture)`. En dessous, la
-   composition debout NE TIENT PAS, quel que soit l'appareil. Au-dessus, elle
-   tient, et on n'y touche pas.
-   ⛔ PAS `@media (orientation: landscape)` : un iPad couché fait 768 px de
-   haut, il a toute la place du monde et n'a rien à recomposer. L'orientation
-   nomme la forme de l'écran ; ce qui décide ici est la HAUTEUR disponible.
-   C'est la même leçon que le rail : on cote sur ce qui contraint, pas sur ce
-   qui ressemble. */
-@media (max-height: 500px) {
+   ── LE CROQUIS, LU LIGNE À LIGNE ─────────────────────────────────────────
+   TROIS colonnes, et chacune porte son annotation :
+     · COLONNE G — l'IMAGE, « AGRANDIE, CENTRÉE VERTICALEMENT, CADRÉE G » ;
+     · COLONNE CENTRE — TEXTE 1 (le bloc d'identité : nom + stats),
+       « CENTRÉE VERTICALEMENT, CENTRÉ HORIZONTALEMENT » ;
+     · COLONNE DROITE — TEXTE 2 (la bande d'infos) EMPILÉ SUR TEXTE 3 (le
+       blurb ou les traits), « CENTRÉE VERTICALEMENT, CADRÉE À DROITE » ;
+     · le PIED (`LORE`/`CHOOSE`) en bas, sous les colonnes G et CENTRE — pas
+       sous la colonne droite, le dessin est net là-dessus.
+
+   ⭐ COMMENT LES TROIS COLONNES SE CENTRENT SANS UNE SEULE ENVELOPPE : deux
+   rangées `1fr` encadrent les deux rangées de contenu. Le nom et les stats
+   occupent les rangées 2 et 3 de la colonne du centre, la bande et le texte
+   les mêmes rangées à droite — chaque PAIRE est donc centrée verticalement
+   par construction, et l'image, qui traverse les quatre rangées, l'est aussi.
+   ⛔ Aucune `<div>` de regroupement n'a été ajoutée : elle aurait dû exister
+   aussi en portrait, où elle ne sert à rien, et la structure d'une fiche ne
+   doit pas porter les besoins d'une seule orientation. */
+@media (orientation: landscape) {
   .fiche-dalle {
-    /* La dalle prend la scène MOINS ses deux marges : plus de 440 imposés,
-       donc plus de débordement ni de voisines dans le champ (elles reviennent
-       dès que 440 > scène). Les 8 px du haut (le décollement de la ceinture,
-       demandé par Eric) sont rendus en bas aussi — sinon la dalle dépasserait
-       sa rangée d'exactement sa marge. */
-    height: calc(100% - var(--sp-16));
+    /* ⭐ `min()` ET NON `100%` : sur un téléphone couché la scène fait 315 px
+       et la dalle s'y ajuste ; sur un iPad couché elle en fait ~840, et la
+       dalle garde ses 440 — sinon elle deviendrait un carré géant, quand le
+       croquis dessine un rectangle couché. La hauteur reste donc plafonnée
+       par F1, et seule la place manquante la fait céder. */
+    height: min(var(--fiche-h), calc(100% - var(--sp-16)));
     margin-block: var(--sp-8);
-    /* Deux colonnes : l'image à GAUCHE (sa largeur suit sa hauteur), le texte
-       à droite et lui seul est élastique. */
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    /* image (sa largeur suit sa hauteur) │ identité (son contenu) │ le reste */
+    grid-template-columns: auto auto minmax(0, 1fr);
+    /* mou · TEXTE 2 · TEXTE 3 · mou · pied — les deux `1fr` font le centrage */
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
   }
-  /* L'IMAGE — pleine hauteur de la dalle à 75 %, centrée, sur les cinq
-     rangées. `width: auto` + `object-fit: contain` : elle garde ses
-     proportions au lieu d'être recadrée comme en portrait, où c'est la
-     LARGEUR qui est imposée. */
-  /* ⛔ PAS D'`aspect-ratio` ICI — première écriture, corrigée avant livraison :
-     `aspect-ratio` prend un RAPPORT (`100 / 126`), pas des longueurs, et
-     `100px / 126px` aurait été jeté **en silence** par le navigateur. C'est le
-     défaut n°3 de la journée du 15/08, et il ne se voit dans aucun test.
-     ⭐ La proportion n'a pas besoin d'être écrite : l'IMAGE la porte. On donne
-     la hauteur au cadre, `width: auto` au cadre ET à l'image, et c'est le
-     rapport naturel du fichier qui décide de la largeur. */
+  /* COLONNE G — l'image traverse les quatre rangées de contenu, centrée et
+     cadrée à gauche. `width: auto` + `height` en pourcentage : c'est le
+     rapport naturel du fichier qui donne la largeur, jamais une cote écrite. */
   .fiche-dalle .fiche-image {
     grid-column: 1;
-    grid-row: 1 / -1;
+    grid-row: 1 / 5;
     align-self: center;
+    justify-self: start;
     height: 75%;
     width: auto;
   }
   .fiche-dalle .fiche-image img { width: auto; height: 100%; object-fit: contain; }
 
-  /* LA PILE DE DROITE, dans l'ordre demandé : nom, stats, infos, texte, pied.
-     ⭐ Le pied reste dans la colonne de texte et au BAS : `CHOOSE` est la
-     validation de l'écran (Ch6) — le pousser hors du champ serait un écran
-     qu'on ne peut plus valider. */
-  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 1; }
-  .fiche-dalle .fiche-stats  { grid-column: 2; grid-row: 2; align-self: start; }
-  .fiche-dalle .fiche-infos  { grid-column: 2; grid-row: 3; align-self: start; }
-  .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits { grid-column: 2; grid-row: 4; }
-  .fiche-dalle .fiche-actions { grid-column: 2; grid-row: 5; }
+  /* COLONNE CENTRE — TEXTE 1 : le nom au-dessus de ses stats, l'ensemble
+     centré dans les deux sens. */
+  .fiche-dalle .catalogue-card-name { grid-column: 2; grid-row: 2; justify-self: center; align-self: end; }
+  .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3; justify-self: center; align-self: start; }
 
-  /* ⭐ L'ORGANE ÉLASTIQUE DE L'AXE VERTICAL, ET IL EST NOMMÉ : le texte du
-     bas. La boîte de 160 px (10 lignes) est une cote de PORTRAIT ; ici elle
-     céderait la place au pied. C'est la seule rangée qui peut perdre des
-     lignes sans perdre d'information — de la prose déjà tronquée à ~50 mots,
-     et une liste de traits dont chaque ligne est autonome. */
+  /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */
+  .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 2; align-self: end; }
+  .fiche-dalle .fiche-blurb,
+  .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 3; align-self: start; }
+
+  /* LE PIED — sous les colonnes G et CENTRE, comme le dessin le pose.
+     ⭐ Il reste dans le champ quoi qu'il arrive : `CHOOSE` est la validation
+     de l'écran (Ch6), le pousser hors de la dalle ferait un écran qu'on ne
+     peut plus valider. */
+  .fiche-dalle .fiche-actions { grid-column: 1 / 3; grid-row: 5; }
+
+  /* Le second gabarit (celui des fiches SANS bande d'infos) n'a pas lieu
+     d'être ici : la colonne droite se compose d'elle-même, avec ou sans
+     bande. Une fiche sans infos laisse simplement sa rangée vide. */
   .fiche-dalle[data-infos="oui"] {
-    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
   }
+  .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 5; }
 }
