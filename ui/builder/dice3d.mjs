@@ -624,6 +624,17 @@
     number.textContent=pending?"":sides===100?(result===100?"00":String(result).padStart(2,"0")):displayValue(sides,result);
     number.style.color=(MATERIALS[materialName]||MATERIALS.ivory).num;
     host.classList.add("is-webgl");host.classList.add("is-settled");
+    /* The canvas must go, and this line was MISSING -- measured 2026-08-16 in
+       the FHPC builder, the first place to take this path from the outside.
+       `is-webgl` is what turns the canvas back on (`.is-webgl canvas {
+       display: block }`), and a block canvas beside a block image STACK: the
+       host renders at DOUBLE height (51 x 136 where a square was expected).
+       The animated path never showed it, because `settleToSnapshot` hides the
+       canvas itself right after calling us -- a line this path never had.
+       No `loseCanvasContext` here, deliberately: in the snapshot path the
+       canvas never got a context, and asking for one just to drop it would
+       create the very thing this path exists to avoid. */
+    canvas.style.display="none";
     return true;
   }
   function mountDie(host){

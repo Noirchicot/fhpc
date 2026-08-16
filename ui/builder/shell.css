@@ -1144,27 +1144,17 @@ button { font: inherit; }
 .fs-de .fh-cd-static-die,
 .fs-de img.fh-cd-static-snap { width: 100%; height: auto; aspect-ratio: 1; }
 
-/* ══ 🔴 UN DÉFAUT DU CHEMIN IMAGE DU MOTEUR, MESURÉ DANS LA PAGE ══════════
-   Un dé posé en mode IMAGE (`data-snapshot="1"`, le seul mode qui n'ouvre
-   aucun contexte WebGL) rendait **51 × 136** au lieu d'un carré : sa hauteur
-   doublait.
+/* ⭐ LE DÉFAUT DU CHEMIN IMAGE A ÉTÉ RÉPARÉ EN AMONT, ET LA RUSTINE EST PARTIE
+   AVEC LUI. Mesuré ici le 2026-08-16 : un dé en mode image rendait 51 × 136 au
+   lieu d'un carré, parce que `mountSnapshot` posait `is-webgl` (donc
+   `.is-webgl canvas { display: block }`) sans jamais masquer le canvas vide —
+   deux blocs qui s'empilent. Le chemin animé n'avait pas le défaut : son
+   `settleToSnapshot` masque le canvas à la main.
+   🔴 CORRIGÉ LÀ OÙ LE DÉFAUT VIT (`fh-phb`, `docs/javascripts/fh-static-dice.js`),
+   puis RECOPIÉ dans `dice3d.mjs` — c'est la loi du garde 7 des jetons, et
+   c'est aussi la seule façon que le dock en profite. Une règle de contournement
+   gardée ici aurait survécu au correctif et masqué la prochaine récidive. */
 
-   LA CAUSE, lue dans le moteur : `mountSnapshot` insère l'image PUIS pose
-   `is-webgl` sur l'hôte — et `dice3d.css` dit `.is-webgl canvas { display:
-   block }`. Le canvas VIDE et l'image sont alors deux blocs dans le même
-   flux, donc ils s'EMPILENT. Le chemin animé, lui, n'a pas ce défaut : son
-   `settleToSnapshot` masque le canvas à la main (`canvas.style.display =
-   "none"`), une ligne que le chemin image n'a jamais eue.
-
-   ⏳ IL SE CORRIGE EN AMONT, PAS ICI : `dice3d.mjs` et `dice3d.css` sont des
-   copies VERBATIM de `fh-phb` (garde 7 des jetons), et un défaut du moteur se
-   répare là-bas puis se recopie. **À remonter.** En attendant, on neutralise
-   le canvas vide chez nous, sur les hôtes en mode image et eux seuls.
-   ⛔ ET PAS AVEC `display: none` : le garde 4 l'interdit, et il a raison de ne
-   pas vouloir d'exception de plus. Des dimensions nulles suffisent — c'est
-   déjà le remède employé pour les barres de défilement des molettes, plus
-   haut dans ce fichier, et pour la même raison. */
-.fh-cd-static-die[data-snapshot="1"] canvas { width: 0; height: 0; }
 
 /* ══ LE CHIFFRE PAR-DESSUS LE DÉ, ET IL A FALLU LE MESURER ═════════════
    🔴 LE MOTEUR REFUSE D'ÉCRIRE 15 SUR UN D6, ET IL A RAISON : `createDieHost`
