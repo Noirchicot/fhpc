@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FS — banc d'essai des îlots</title>
-<link rel="stylesheet" href="./tokens.css?v=32">
-<link rel="stylesheet" href="./dice3d.css?v=32">
-<link rel="stylesheet" href="./shell.css?v=32">
+<link rel="stylesheet" href="./tokens.css?v=33">
+<link rel="stylesheet" href="./dice3d.css?v=33">
+<link rel="stylesheet" href="./shell.css?v=33">
 <style>
   /* ══ BANC D'ESSAI — pas une page du builder ═══════════════════════════
      Commande d'Eric, 2026-08-16 : six ÎLOTS (FS, « floating small ») en une
@@ -115,6 +115,25 @@
   .cible-zone svg { width: 60%; height: 60%; opacity: .5; }
   .cible-zone[data-rempli="true"] svg { display: none; }
 
+  /* ══ LE FANTÔME — le dé qui suit le doigt ═══════════════════════════
+     Eric, 2026-08-16 : « je veux voir l'image du dé qui se déplace ».
+     🔴 IL EST POSÉ EN COORDONNÉES D'ÉCRAN (`fixed`), et c'est la seule façon
+     honnête : le jeton d'origine vit dans une grille qui défile, un fantôme
+     posé dans le même flux se ferait couper par le premier `overflow`.
+     ⛔ `pointer-events: none` — sans elle, le fantôme se trouve SOUS le
+     doigt au moment où `elementFromPoint` cherche la cible, et l'organe ne
+     verrait jamais que lui-même. C'est le piège classique de cette forme.
+     ⭐ Il est plus GRAND que le jeton (1,15) et il porte une ombre portée :
+     le dé est « soulevé », pas déplacé à plat. Sous un pouce, c'est la seule
+     chose qui reste visible du geste. */
+  .fantome {
+    position: fixed; left: 0; top: 0;
+    z-index: 50; pointer-events: none;
+    line-height: 0;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .45));
+    transform-origin: center;
+  }
+
   .mesures {
     font: 12px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
     color: var(--text-muted);
@@ -156,8 +175,8 @@ Les vrais organes : <code>dice3d.mjs</code> pour les dés, <code>glisser.mjs</co
 </section>
 
 <script type="module">
-import { createDieHost, mount } from "./dice3d.mjs?v=32";
-import { armerJeton } from "./glisser.mjs?v=32";
+import { createDieHost, mount } from "./dice3d.mjs?v=33";
+import { armerJeton } from "./glisser.mjs?v=33";
 
 /* LE TABLEAU STANDARD — les six valeurs, dans l'ordre d'Eric. C'est la seule
    liste écrite en dur de cette page, et c'est son sujet. */
@@ -181,6 +200,38 @@ function tailleDeDe() {
   const premier = rangee.querySelector(".fs");
   const large = premier ? premier.getBoundingClientRect().width : 48;
   return Math.max(28, Math.floor(large - 8));
+}
+
+/* ══ LE FANTÔME — trois gestes, un seul nœud ═══════════════════════════
+   ⚠️ IL N'EST MONTÉ QU'UNE FOIS PAR GESTE, ET C'EST MESURÉ, PAS PRUDENT :
+   `mount()` construit un contexte WebGL par dé, et le navigateur en plafonne
+   le nombre (~16). Un fantôme reconstruit à chaque image épuiserait le
+   plafond en une seconde et le plateau entier deviendrait noir. On le monte
+   au LEVER, on ne fait plus que le déplacer ensuite. */
+let fantome = null;
+
+function fantomeLever(valeur, taille, x, y) {
+  fantomeRanger();
+  fantome = document.createElement("span");
+  fantome.className = "fantome";
+  poserDe(fantome, valeur, taille, 0);
+  document.body.append(fantome);
+  fantomeBouger(x, y);
+}
+
+function fantomeBouger(x, y) {
+  if (!fantome) return;
+  /* Centré sur le doigt, et grandi de 15 % : le dé est SOULEVÉ. La moitié de
+     la taille est retirée pour que le curseur tombe au milieu du dé, jamais
+     sur son coin. */
+  const demi = fantome.getBoundingClientRect().width / 2 || 24;
+  fantome.style.transform = `translate(${x - demi}px, ${y - demi}px) scale(1.15)`;
+}
+
+function fantomeRanger() {
+  if (!fantome) return;
+  fantome.remove();
+  fantome = null;
 }
 
 function cibleDe(valeurIndex) {
@@ -234,6 +285,13 @@ function dessiner() {
     jeton.setAttribute("aria-label", `d6 ${valeur}`);
     poserDe(jeton, valeur, taille, i);
     armerJeton(jeton, {
+      /* ── LE FANTÔME, LES TROIS RAPPELS ──────────────────────────────
+         L'organe DIT le geste, la page le DESSINE. Le dé n'est pas déplacé :
+         on en fabrique une copie, parce que sortir l'original de sa grille
+         ferait sauter la rangée pendant qu'on le tient. */
+      onLever: (x, y) => fantomeLever(valeur, taille, x, y),
+      onBouger: (x, y) => fantomeBouger(x, y),
+      onPoser: () => fantomeRanger(),
       /* Le TAP : la première cible libre — le raccourci du lot 79. */
       onTap: () => {
         const libre = CARACS.find((c) => pose[c] === null);

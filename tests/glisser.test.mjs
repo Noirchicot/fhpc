@@ -30,7 +30,7 @@ import { fileURLToPath } from "node:url";
 import { createTestDocument } from "./dom-stub.mjs";
 globalThis.document = createTestDocument();
 
-const { renderChoixGlisses } = await import("../ui/builder/glisser.mjs");
+const { renderChoixGlisses, armerJeton } = await import("../ui/builder/glisser.mjs");
 
 /* Deux créneaux, trois options — la forme exacte de `class.skills` d'un
    Fighter, en plus petit. `selected` est un TABLEAU, comme `decisions[]` le
@@ -221,6 +221,75 @@ test("8 — la grille DÉCLARE qu'elle défile, et ne se distingue pas par une c
   const plat = ecran(slotsDe(), []).querySelectorAll(".glisse-vivier")[0];
   assert.equal(plat.className, "glisse-vivier", "hors grille, rien n'a changé");
   assert.equal(plat.getAttribute("data-scroller"), null, "et rien n'y défile");
+});
+
+/* ══ 11 — LES TROIS RAPPELS DU FANTÔME (Eric, 16/08 : « je veux voir
+   l'image du dé qui se déplace ») ═══════════════════════════════════════
+   ⭐ L'ORGANE NE DESSINE RIEN, IL DIT. Le fantôme appartient à l'écran qui le
+   veut ; ce qui se partage, c'est le MOMENT — lever, bouger, poser. */
+
+test("11 — l'organe DIT le geste : lever une fois, bouger à chaque pas, poser une fois", () => {
+  const trace = [];
+  const n = ecran(slotsDe(), []);
+  const jeton = jetons(n)[0];
+  /* ⚠️ On rejoue le geste À LA MAIN plutôt que par `geste()` : ce test a
+     besoin de PLUSIEURS déplacements pour prouver que `onLever` ne part
+     qu'une fois quand `onBouger` en part trois. */
+  document.elementFromPoint = () => creneaux(n)[1];
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  jeton.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
+  jeton.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  jeton.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, [], "sans rappels, rien n'est appelé — et rien ne casse");
+
+  const t2 = [];
+  const n2 = renderChoixGlisses({
+    plan: planDe(), slots: slotsDe(), titre: "x", mot: "Choice",
+    labelOf: (id) => id, onAction: () => {}
+  });
+  /* On arme un jeton neuf avec les rappels, directement : c'est le contrat
+     que `armerJeton` publie, et il se teste sans passer par un écran. */
+  const brut = document.createElement("button");
+  armerJeton(brut, {
+    onTap: () => t2.push("tap"), onDepot: () => t2.push("depot"),
+    onLever: () => t2.push("lever"), onBouger: () => t2.push("bouger"), onPoser: () => t2.push("poser")
+  });
+  document.elementFromPoint = () => creneaux(n2)[0];
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(t2, ["lever", "bouger", "bouger", "poser", "depot"],
+    "un seul lever, un bouger par pas, et le fantôme se range AVANT que le dépôt soit décidé");
+});
+
+test("11 bis — ⚔️ un geste ANNULÉ range le fantôme aussi : rien ne survit au geste", () => {
+  /* 🔴 UN FANTÔME QUI SURVIT À SON GESTE EST PIRE QUE PAS DE FANTÔME : il
+     reste collé à l'écran, sous le doigt, et plus rien ne l'enlève. */
+  const trace = [];
+  const brut = document.createElement("button");
+  armerJeton(brut, {
+    onTap: () => {}, onDepot: () => trace.push("depot"),
+    onLever: () => trace.push("lever"), onPoser: () => trace.push("poser")
+  });
+  document.elementFromPoint = () => null;          // relâché dans le vide
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointercancel", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["lever", "poser"], "levé puis rangé, et AUCUN dépôt");
+});
+
+test("11 ter — un TAP ne lève aucun fantôme (il n'y a rien à faire voler)", () => {
+  const trace = [];
+  const brut = document.createElement("button");
+  armerJeton(brut, {
+    onTap: () => trace.push("tap"), onDepot: () => {},
+    onLever: () => trace.push("lever"), onPoser: () => trace.push("poser")
+  });
+  document.elementFromPoint = () => null;
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  brut.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["tap"], "sous le seuil, le fantôme n'existe jamais");
 });
 
 /* ══ 10 — TAP POUR L'INFO, GLISSER POUR CHOISIR (Eric, 16/08 au soir) ════

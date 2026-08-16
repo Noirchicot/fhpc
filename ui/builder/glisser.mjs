@@ -105,7 +105,19 @@ function creneauSous(x, y) {
  *  fermeture : « à coder UNE fois, pas trois »). Ce qui se partage est le
  *  seuil, le maintien, le ciblage et le renoncement ; la FORME reste à
  *  chaque écran. */
-export function armerJeton(jeton, { onTap, onDepot, maintien }) {
+/* ══ LES TROIS RAPPELS DU FANTÔME — ajoutés le 2026-08-16 ════════════════
+   Eric, en voyant le geste : *« je veux voir l'image du dé qui se déplace »*.
+   Le lot 79 avait volontairement refusé le fantôme (voir la note plus haut) :
+   il aurait fallu poser une position à chaque image, donc un style EN LIGNE,
+   que le garde 7 des jetons interdit dans tout `ui/`.
+
+   ⭐ CE QUE CES TROIS RAPPELS CHANGENT : l'organe ne DESSINE toujours rien —
+   il DIT quand le jeton se lève, où va le doigt, et quand il se pose. Qui
+   veut un fantôme le dessine chez lui, et c'est à cet écran-là d'argumenter
+   son exception au garde, pas à l'organe partagé.
+   ⛔ Ils sont facultatifs : sans eux, pas un octet ne change de comportement,
+   et les douze cas du garde le prouvent. */
+export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
@@ -163,7 +175,9 @@ export function armerJeton(jeton, { onTap, onDepot, maintien }) {
       if (!glisse) {
         glisse = true;
         jeton.dataset.glisse = "true";
+        if (onLever) onLever(e.clientX, e.clientY);
       }
+      if (onBouger) onBouger(e.clientX, e.clientY);
       viser(creneauSous(e.clientX, e.clientY));
     };
 
@@ -175,6 +189,11 @@ export function armerJeton(jeton, { onTap, onDepot, maintien }) {
       if (minuteur !== null) { clearTimeout(minuteur); minuteur = null; }
       delete jeton.dataset.glisse;
       delete jeton.dataset.souleve;
+      /* ⚠️ LE FANTÔME SE RANGE AVANT TOUTE DÉCISION, et sans condition : un
+         geste annulé, renoncé ou relâché dans le vide doit le faire
+         disparaître aussi. Un fantôme qui survit à son geste est pire que
+         pas de fantôme du tout. */
+      if (glisse && onPoser) onPoser();
       const cible = glisse ? creneauSous(e.clientX, e.clientY) : null;
       viser(null);
       if (renonce) return;                       // le doigt est parti défiler
