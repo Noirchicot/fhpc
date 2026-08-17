@@ -878,3 +878,76 @@
   }
   .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 6; }
 }
+
+/* ══ LE PANNEAU DE LORE — lot 82 ═════════════════════════════════════════
+   📐 Croquis A d'Eric : *« lore sends to full page description »*, avec
+   *« return to character creation »* en tête de la page dessinée.
+
+   ⛔ IL N'A PAS SA PROPRE DALLE, ET C'EST VOULU. `shell.mjs` retire
+   `data-bleed` pendant la lecture : la carte de décision REDEVIENT la dalle
+   majeure qu'elle est par défaut, et le panneau s'y pose. Lui en donner une
+   seconde ferait deux surfaces empilées — le piège que `CADRES.md` §8 bis
+   nomme, et qu'un écran composé de dalles paie à chaque fois.
+
+   ⭐ ET IL NE REPREND PAS LES 440 px DE LA FICHE. Une fiche a une hauteur
+   IMPOSÉE parce que douze d'entre elles défilent en s'aimantant ; une page de
+   prose est seule et fait la taille de son texte. C'est un FF2 au sens de
+   `CADRES.md` — plein, hauteur libre — servi dans un écran qui est un F1
+   partout ailleurs. Le format suit ce qu'on montre, pas l'écran qui le
+   montre. */
+.lore-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  /* La colonne de lecture du builder, celle que Biography et Universe
+     emploient déjà. UN seul plafond pour toute la prose du produit
+     (`CADRES.md` §2 bis) — et c'est le seul des trois qui ne bouge pas en
+     grandeur Large, donc « la même largeur que Destiny » y reste vrai. */
+  max-width: var(--measure);
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* ⭐ LE RETOUR EST EN TÊTE — c'est le croquis qui le place, et la lecture qui
+   le justifie : au bas de deux cents mots, il faudrait tout faire défiler
+   pour le trouver. Aligné à gauche, il se lit comme un fil d'Ariane et non
+   comme le verbe principal de l'écran — la sortie d'étape, elle, est un
+   bouton plein au pied de la scène. */
+.lore-retour {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--verre-lisere);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--t2);
+  padding: var(--sp-4) var(--sp-8);
+  min-height: var(--touch);
+  cursor: pointer;
+}
+.lore-retour:hover { border-color: var(--text); }
+
+.lore-titre {
+  font-size: var(--t5);
+  margin: 0;
+}
+
+/* ⛔ `--text`, JAMAIS `--text-soft` : deux cents mots sont le contenu
+   principal de cet écran, pas une mention. Et la matrice du lot 59 est
+   formelle — sur du verre, seule `--text` tient les 4,5:1. */
+.lore-corps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  color: var(--text);
+  font-size: var(--t2);
+  /* L'interligne de la prose longue est plus généreux que celui d'une fiche :
+     la fiche compte ses lignes dans un budget fermé, la page n'en a pas. */
+  line-height: 1.55;
+}
+.lore-corps p { margin: 0; }
+
+.lore-vide {
+  color: var(--text);
+  font-size: var(--t2);
+  margin: 0;
+}

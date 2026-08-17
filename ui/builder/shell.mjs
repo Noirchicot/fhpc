@@ -19,36 +19,37 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=89";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=89";
-import { mountPopup } from "./popup.mjs?v=89";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=89";
-import { renderConceptStep } from "./concept-step.mjs?v=89";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=89";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=89";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=91";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=91";
+import { mountPopup } from "./popup.mjs?v=91";
+import { renderLorePanel } from "./lore.mjs?v=91";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=91";
+import { renderConceptStep } from "./concept-step.mjs?v=91";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=91";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=91";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=89";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=89";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=89";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=89";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=89";
+} from "./catalogue.mjs?v=91";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=91";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=91";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=91";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=91";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=89";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=91";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=89";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=89";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=89";
+} from "./destiny-step.mjs?v=91";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=91";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=91";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=89";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=91";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -67,16 +68,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=89";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=89";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=91";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=89";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=89";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=91";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=91";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=89";
+import { versionQuery } from "./version.mjs?v=91";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -156,6 +157,15 @@ const state = {
      une molette DANS la méthode « Roll dice », ce sont deux TUILES du
      sélecteur (croquis du 16/08). Un choix, plus deux. */
   abilityInfo: false,    // le panneau INFO (§5.4) — un interrupteur d'écran, jamais un champ
+  /* LOT 82 — LE PANNEAU DE LORE, croquis A : *« lore sends to full page
+     description »*. Un interrupteur d'écran de plus, de la même famille que
+     `abilityInfo` et `inheritanceOpen` : il ne touche pas le document, il
+     meurt avec l'onglet, et il vit HORS du DOM pour survivre au
+     remplacement du contenu (SOCLE.md).
+     ⭐ Il porte le RECORD (`{kind, id}`) et pas un booléen : deux écrans à
+     fiche l'emploient, et douze fiches chacun. Un drapeau ne dirait pas
+     laquelle on lit. */
+  lore: null,            // { kind, id } — le record dont on lit la prose, ou null
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
      DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
@@ -475,6 +485,18 @@ function applyDecisionAction(action) {
   if (action.kind === "abilityInfo") {
     state.abilityInfo = Boolean(action.value);
     refresh();
+    return;
+  }
+  /* ⭐ LE PANNEAU DE LORE (lot 82) — et il appelle `openSurface`, PAS
+     `refresh`, contrairement au panneau INFO juste au-dessus. Les deux
+     gestes sont différents : INFO déplie une explication à côté de ce qu'on
+     regardait, le lore REMPLACE la scène par une page de deux cents mots. On
+     arrive donc sur une surface neuve, et on doit arriver EN HAUT — sinon la
+     page s'ouvre au milieu d'un paragraphe, à la hauteur où le catalogue
+     était resté. Le retour repart en haut lui aussi, pour la même raison. */
+  if (action.kind === "lore") {
+    state.lore = action.ref || null;
+    openSurface();
     return;
   }
   /* ══ LE SEUL GESTE PROPRE À `FREE` : LA PALETTE POSE SUR UNE CARAC ═══════
@@ -982,7 +1004,11 @@ function renderStepContent() {
      ne restait que 65 px au nom là où B7.5 en comptait 124. Trois
      remplissages emboîtés — marge de carte, remplissage de carte,
      remplissage de dalle — mangeaient 74 px. */
-  card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1) || step.id === "skills");
+  /* ⛔ ET PAS PENDANT LE LORE (lot 82) : `data-bleed` efface la carte pour
+     laisser flotter douze fiches. Une page de prose n'est pas douze dalles —
+     elle a besoin de SA dalle, opaque, sinon deux cents mots se lisent
+     directement sur le fond de nuit. */
+  card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1 && !state.lore) || step.id === "skills");
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
@@ -1033,7 +1059,15 @@ function renderStepContent() {
     const ctx = catalogueCtx(cfg);
     const section = el("section", "catalogue-step");
     section.dataset.palier = String(state.palier === 2 ? 2 : 1);
-    if (state.palier === 2) {
+    /* ⭐ LE LORE PREND TOUTE LA SCÈNE (lot 82, croquis A). Il passe AVANT le
+       palier : lire la prose d'une espèce est une parenthèse, elle ne doit
+       rien changer à l'endroit où on en était du choix. On revient au même
+       palier, sur le même curseur — le panneau n'écrit que `state.lore`. */
+    if (state.lore) {
+      section.append(renderLorePanel({
+        query: ctx.query, kind: state.lore.kind, id: state.lore.id, onAction: applyDecisionAction
+      }));
+    } else if (state.palier === 2) {
       section.append(cfg.choices(ctx, applyDecisionAction));
     } else {
       /* Le 3ᵉ argument est le destinataire du `CHOOSE` de chaque fiche (Ch6).
@@ -1374,6 +1408,12 @@ function pressDone() {
  *  retrouve ses choix et les change s'il veut. Un `BACK` qui effacerait
  *  serait un piège, et rien dans le croquis ne le demande. */
 function pressBack() {
+  /* ⭐ LE LORE SE REFERME EN PREMIER (lot 82). Il est une parenthèse dans la
+     lecture d'un catalogue : en sortir doit rendre le catalogue, jamais faire
+     reculer d'un palier ou d'une étape. C'est le même geste que le bouton de
+     retour du panneau, offert au `BACK` de la coquille — deux chemins vers la
+     même porte, et aucun des deux ne saute par-dessus l'autre. */
+  if (state.lore) { state.lore = null; openSurface(); return; }
   if (state.palier > 1) { state.palier -= 1; openSurface(); return; }
   goToStep(state.step - 1);
 }
@@ -1388,6 +1428,12 @@ function goToStep(index) {
   state.step = target;
   /* Un écran neuf repart à son PREMIER palier, jamais à celui d'avant. */
   state.palier = 1;
+  /* ⭐ ET SANS PANNEAU DE LORE OUVERT (lot 82). Il appartient à l'écran où on
+     l'a ouvert ; le laisser pendre ferait arriver sur Class avec la prose
+     d'une espèce à l'écran — un état qu'aucun geste n'aurait demandé. Même
+     famille que le palier juste au-dessus : ce qui est propre à un écran
+     meurt quand on le quitte. */
+  state.lore = null;
   /* ⭐ ET IL REPART SUR LE CHOIX DÉJÀ POSÉ, PAS EN HAUT DE LA LISTE — trouvé
      en regardant la page : le personnage d'exemple est un Magicien, et
      arriver sur Class le posait devant Barbarian. Comme le défilement EST le
@@ -1591,7 +1637,9 @@ function paintAside() {
      meurent et renaissent avec lui : aucun ne fuit, aucun ne double. C'est le
      slot qui persiste, pas son contenu (SOCLE.md). */
   const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg), applyDecisionAction) : null;
-  const show = Boolean(rail) && state.palier !== 2; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
+  /* ⭐ Et le PANNEAU DE LORE non plus (lot 82) : on lit une page, on ne
+     parcourt plus un catalogue. Même raison exactement que le 2ᵉ palier. */
+  const show = Boolean(rail) && state.palier !== 2 && !state.lore; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
   frame.area.dataset.aside = show ? "on" : "off";
   swapContent(frame.aside, show ? [rail] : []);

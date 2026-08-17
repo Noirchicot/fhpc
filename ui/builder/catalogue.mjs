@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=89";
-import { versionQuery } from "./version.mjs?v=89";
+import { planAt } from "./carnet.mjs?v=91";
+import { versionQuery } from "./version.mjs?v=91";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -241,6 +241,15 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
       choisir.disabled = false;
       choisir.addEventListener("click", () => onAction({ kind: "ficheChoose", index }));
     }
+    /* ⭐ `LORE` S'ALLUME AU LOT 82, et il attendait depuis le lot 77. Il porte
+       le RECORD, pas l'index : le panneau affiche une prose, il n'a rien à
+       faire du cran d'aimantation. `choose`, lui, garde son index parce qu'il
+       agit sur le curseur — deux boutons voisins, deux natures. */
+    const lire = card.querySelector('[data-action="lore"]');
+    if (lire && typeof onAction === "function") {
+      lire.disabled = false;
+      lire.addEventListener("click", () => onAction({ kind: "lore", ref: { kind: ctx.kind, id } }));
+    }
     cards.append(card);
   });
   return cards;
@@ -299,11 +308,11 @@ export function renderCardRows(rows) {
  *       refonte 2 §1 a commencée en descendant `Validate` dans le contenu.
  *       La fiche est allée jusqu'au bout : elle porte SON geste.
  *
- *  ⛔ `LORE` NE SUIT PAS, ET C'EST DIT PLUTÔT QUE BRICOLÉ. Il demande le
- *  panneau plein écran avec son `copier` (croquis A : *« lore sends to full
- *  page description either FH or SRD »*, avec un retour), un organe partagé
- *  par trois écrans qui a son propre lot. Il reste `disabled` — un bouton
- *  qui ne répond pas est pire qu'un bouton qui s'annonce éteint.
+ *  ✅ `LORE` A SUIVI AU LOT 82. Il demandait le panneau plein écran du
+ *  croquis A (*« lore sends to full page description either FH or SRD »*,
+ *  avec son retour) — c'est `lore.mjs`, et il sert les DEUX écrans à fiche.
+ *  Il est resté `disabled` cinq lots durant, ce qui était le bon choix : un
+ *  bouton qui ne répond pas est pire qu'un bouton qui s'annonce éteint.
  *
  *  📌 `data-action` est un RÔLE, pas un record : c'est ce que
  *  `renderCatalogueCards` cherche pour câbler le cran (et lui seul connaît
@@ -316,7 +325,7 @@ function renderFicheActions() {
     const bouton = el("button", "fiche-action", [text(mot)]);
     bouton.type = "button";
     bouton.dataset.action = mot.toLowerCase();
-    bouton.disabled = true;   // `renderCatalogueCards` rallume `choose` s'il a un destinataire
+    bouton.disabled = true;   // `renderCatalogueCards` rallume les deux s'ils ont un destinataire
     pied.append(bouton);
   }
   return pied;

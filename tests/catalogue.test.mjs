@@ -274,7 +274,7 @@ for (const cfg of ECRANS) {
     assert.deepEqual(vus, [{ kind: "ficheChoose", index: 7 }]);
   });
 
-  test(`CH6 bis — ${cfg.kind} : CHOOSE s'allume avec son destinataire, LORE reste éteint`, () => {
+  test(`CH6 bis — ${cfg.kind} : les DEUX boutons s'allument avec leur destinataire, et pas sans`, () => {
     const avec = renderCatalogueCards(ctxDe(cfg, 0), cfg.body, () => {});
     const sans = renderCatalogueCards(ctxDe(cfg, 0), cfg.body);
     const etat = (cards, role) => cards.querySelectorAll(`[data-action="${role}"]`).map((b) => b.disabled);
@@ -283,12 +283,27 @@ for (const cfg of ECRANS) {
       "câblé, il répond — un bouton allumé qui ne fait rien est le « faux magasin » interdit");
     assert.deepEqual(etat(sans, "choose"), Array(12).fill(true),
       "sans destinataire, il s'annonce éteint plutôt que de mentir");
-    /* ⏳ `LORE` demande le panneau plein écran et son `copier` — un organe
-       partagé par trois écrans, qui a son propre lot. Il reste éteint MÊME
-       câblé, et ce garde est ce qui empêche de le « rallumer vite fait »
-       sur un panneau qui n'existe pas. */
-    assert.deepEqual(etat(avec, "lore"), Array(12).fill(true),
-      "LORE reste éteint tant que le panneau plein écran n'existe pas");
+    /* ✅ `LORE` S'ALLUME DEPUIS LE LOT 82 — son panneau plein écran existe
+       (`ui/builder/lore.mjs`, croquis A). Il est resté éteint cinq lots
+       durant, et ce garde était alors ce qui empêchait de le « rallumer vite
+       fait » sur un panneau absent. Il tient maintenant l'autre moitié de la
+       même promesse : allumé QUAND il mène quelque part, éteint sinon. */
+    assert.deepEqual(etat(avec, "lore"), Array(12).fill(false),
+      "câblé, LORE répond — son panneau existe depuis le lot 82");
+    assert.deepEqual(etat(sans, "lore"), Array(12).fill(true),
+      "sans destinataire, il s'annonce éteint plutôt que de mentir");
+
+    /* ⚔️ ET IL PORTE LE RECORD, PAS L'INDEX. `choose` agit sur le curseur du
+       catalogue, `lore` ouvre une prose : deux boutons voisins, deux natures.
+       Confondre les deux ferait lire la fiche d'à côté. */
+    const vus = [];
+    const cartes = renderCatalogueCards(ctxDe(cfg, 0), cfg.body, (a) => vus.push(a));
+    cartes.querySelectorAll('[data-action="lore"]')[3].click();
+    assert.equal(vus.length, 1);
+    assert.equal(vus[0].kind, "lore");
+    assert.equal(vus[0].ref.kind, cfg.kind);
+    assert.ok(typeof vus[0].ref.id === "string" && vus[0].ref.id.length > 0,
+      "le record est nommé par son id, jamais par un rang");
   });
 
   test(`CH6 ter — ${cfg.kind} : l'écran déclare \`fiche: true\`, et c'est ce que shell.mjs lit`, () => {

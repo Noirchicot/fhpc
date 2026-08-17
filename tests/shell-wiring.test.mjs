@@ -361,12 +361,16 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      l'avait demandé mot pour mot). */
   assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.back), [`${SORTIE_ETAPE.producteur} (1)`],
     "un `BACK` posé par un ÉCRAN rouvrirait deux chemins de retour — ce que I.5 interdit ; celui de la coquille les unifie");
-  /* ⭐ ET IL RECULE BIEN D'UN PALIER AVANT DE RECULER D'UNE ÉTAPE : c'est
-     CETTE ligne qui tient la nuance du lot 79. Inversée, le bouton sauterait
-     le sous-écran qu'on vient de traverser — précisément le retour qui
-     manquait aux paliers. */
-  assert.match(shellText, /function pressBack\(\) \{\s*if \(state\.palier > 1\) \{ state\.palier -= 1; openSurface\(\); return; \}\s*goToStep\(state\.step - 1\);/,
-    "⛔ un PALIER d'abord, une ÉTAPE ensuite — l'ordre EST la nuance du lot 79, il ne s'inverse pas");
+  /* ⭐ ET IL RECULE DU PLUS INTÉRIEUR VERS LE PLUS EXTÉRIEUR : c'est CET
+     ORDRE qui tient la nuance du lot 79. Inversé, le bouton sauterait le
+     sous-écran qu'on vient de traverser — précisément le retour qui manquait
+     aux paliers.
+     ⚠️ ÉLARGI AU LOT 82, PAS ASSOUPLI : le panneau de lore s'intercale AVANT
+     le palier, parce qu'il vit DANS un palier. Trois crans au lieu de deux,
+     et le garde les tient tous les trois dans l'ordre — un lore qui se
+     fermerait après l'étape rendrait le catalogue d'un autre écran. */
+  assert.match(shellText, /function pressBack\(\) \{\s*if \(state\.lore\) \{ state\.lore = null; openSurface\(\); return; \}\s*if \(state\.palier > 1\) \{ state\.palier -= 1; openSurface\(\); return; \}\s*goToStep\(state\.step - 1\);/,
+    "⛔ le LORE, puis le PALIER, puis l'ÉTAPE — du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
   /* L'ancienne forme du mot ne doit pas revenir non plus par la petite porte :
      `"Back"` en capitale douce était le libellé de la barre disparue. */
   assert.deepEqual(porteursDuLibelle('"Back"'), [],
