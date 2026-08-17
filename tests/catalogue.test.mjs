@@ -193,13 +193,26 @@ test("C — les deux fiches ne montrent PAS les mêmes lignes : le catalogue est
 
   /* ⚠️ LOT 77 — LES ÉTIQUETTES ONT ÉTÉ COMPRESSÉES, PAS SUPPRIMÉES. Elles
      viennent désormais de `fh-fiche-en`, taillées pour la colonne de 118 px :
-     `Hit points` → `HP/level`, `Primary ability` → `Ability`, `Creature
-     type` → `Type`, `Size` → `Sz` (154 px devenaient 98). Le fait vérifié
-     est le même : chaque fiche montre ce qui lui appartient. */
+     `Hit points` → `HP/level`, `Primary ability` → `Ability`.
+
+     ✅ 2026-08-17 — `Sz` REDEVIENT `Size`, ET LA COMPRESSION EST ANNULÉE.
+     Eric, ce jour : *« Sz ok, type oui, Size : Small (tout simplement) »*.
+     La fourchette en pieds part avec elle (`M (5–6 ft)` → `Medium`), et
+     `Type` revient — il avait disparu des douze sans qu'aucun garde le voie.
+     📏 Mesuré avec `largeurLigneStats` avant d'écrire : `Size : Medium`
+     80,7 px · `Type : Humanoid` 97,4 px, pour 118 disponibles. Seul
+     `Size : Medium or Small` dépassait (129,9) — d'où la barre des deux
+     espèces à taille au choix (`Medium/Small`, 115,1). */
   assert.ok(classe.has("HP/level") && classe.has("Ability"),
     `une fiche de classe montre son dé de PV et sa caractéristique primaire (lu : ${[...classe].join(", ")})`);
-  assert.ok(espece.has("Sz") && espece.has("Speed"),
+  assert.ok(espece.has("Size") && espece.has("Speed"),
     `une fiche d'espèce montre sa taille et sa vitesse (lu : ${[...espece].join(", ")})`);
+  /* ⛔ ET LE TYPE EST GARDÉ, parce qu'il s'est déjà perdu une fois : les
+     douze fiches ne le portaient plus alors que le mandat de l'écran
+     l'annonce (`Type · Sz · Speed · Lineages`). Une ligne qu'aucun garde ne
+     tient est une ligne qui disparaît en silence. */
+  assert.ok(espece.has("Type"),
+    `une fiche d'espèce montre son type de créature (lu : ${[...espece].join(", ")})`);
   /* ⛔ La preuve qui compte : aucune des deux ne s'est aplatie sur l'autre.
      « Partager » en supprimant ce qui distingue serait une régression
      déguisée en factorisation — et le lot 77 partage désormais jusqu'au
@@ -350,17 +363,32 @@ test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couch
      prouve l'autre moitié : sur un personnage SRD pur, cette fiche-ci
      disparaît au profit du corps SRD — jamais une dalle vide, jamais un
      zéro inventé.
-     ✅ LOT 81 (2026-08-17) — LA DESTINÉE EST REVENUE, ET `Type` EST PARTI.
-     Eric a tranché les deux : *« Destiny reste, et surtout rajoute les chosen
-     quand y'en a »*. `Type : Humanoid` valait en revanche pour les DOUZE
-     espèces — une ligne qui ne distingue jamais rien, dans une colonne
-     désormais partagée avec les traits. */
+     ⚠️ CETTE LIGNE A ÉTÉ RENVERSÉE DEUX FOIS EN UN JOUR, ET LES DEUX SENS
+     SONT D'ERIC. Il faut donc lire les DEUX, pas seulement le dernier :
+
+     · **lot 81, 2026-08-17 (matin)** — *« Destiny reste, et surtout rajoute
+       les chosen quand y'en a »*. `Type : Humanoid` partait au motif qu'il
+       vaut pour les douze espèces : une ligne qui ne distingue jamais rien.
+     · **lot 83, 2026-08-17 (ce fil)** — *« Sz ok, type oui, Size : Small
+       (tout simplement) »*, et sur la destinée : *« base 2 n'apporte rien de
+       plus, voire même ne pas s'associer à la species : destiny de base =
+       2 base + PB + arcane + feat/trait »*.
+
+     ⭐ CE QUI A CHANGÉ N'EST PAS L'AVIS, C'EST L'ARGUMENT. Le motif de la
+     destinée n'est plus « ça ne distingue rien » mais **« ce n'est pas une
+     propriété d'espèce »** — la destinée de base se compose ailleurs, donc
+     l'écrire ici est faux, pas seulement inutile.
+     🔴 ET LA CONTREPARTIE EST ASSUMÉE : `Type : Humanoid` est identique sur
+     les douze, exactement le motif qui l'avait fait partir le matin même.
+     Eric l'a redemandé en connaissance de cause après que ce fil lui a
+     remonté la mesure. **Si ce garde regêne, c'est cette ligne-là qu'on
+     rediscute — on ne la désarme pas.** */
   assert.ok(etiquettesDe(ECRANS[0]).includes("Skill pool"),
     "le pool de compétences est un apport FH, et il est sur la fiche de classe");
   const espece = etiquettesDe(ECRANS[1]);
-  assert.ok(!espece.includes("Type"),
-    "`Type : Humanoid` est identique sur les douze — il a quitté la fiche (lot 81)");
-  for (const attendue of ["Sz", "Speed", "Destiny"])
+  assert.ok(!espece.includes("Destiny"),
+    "la destinée de base se compose hors de l'espèce (2 + PB + arcane + feat/trait) : elle a quitté la fiche");
+  for (const attendue of ["Type", "Size", "Speed"])
     assert.ok(espece.includes(attendue),
       `la fiche d'espèce porte ses lignes de couche (${attendue} manque : ${espece.join(", ")})`);
 });

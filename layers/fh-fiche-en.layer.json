@@ -22,8 +22,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M (5–7 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -32,10 +36,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -65,8 +65,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M (4–5 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -75,10 +79,6 @@
             {
               "label": "Darkvision",
               "value": "120 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -107,8 +107,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M (5–6 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -117,10 +121,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -166,8 +166,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "S (3–4 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Small"
             },
             {
               "label": "Speed",
@@ -176,10 +180,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -217,16 +217,16 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M (7–8 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
               "value": "35 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -260,16 +260,16 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "S (2–3 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Small"
             },
             {
               "label": "Speed",
               "value": "30 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -290,7 +290,7 @@
       },
       "srd:species:en:human": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> compressed to 'Med/Small'. No lineage-choice trait -> Lineages omitted.",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. No lineage-choice trait -> Lineages omitted.",
         "changes": {
           "data.blurb": {
             "text": "Humans are the species that got wiped off the map once and simply refused to stay gone. Badly outnumbered by older peoples, they make up for it in volume: cities built in a hurry, arguments louder than needed, ambitions well past what the numbers justify. Having survived erasure once, a human treats most setbacks as background noise.",
@@ -298,16 +298,16 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M or S"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium/Small"
             },
             {
               "label": "Speed",
               "value": "30 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -336,8 +336,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M (6–7 ft)"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -346,10 +350,6 @@
             {
               "label": "Darkvision",
               "value": "120 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -366,7 +366,7 @@
       },
       "srd:species:en:tiefling": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> compressed to 'Med/Small'. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'.",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'.",
         "changes": {
           "data.blurb": {
             "text": "A tiefling's mark reads as trouble before they've done anything to earn it, which teaches most tieflings to charm early, since trust arrives slowly either way. Underneath the easy manner sits something genuinely uncanny: a bloodline granting its own resistance, eyes at home in full dark, and a small trick of magic worth one gesture.",
@@ -374,8 +374,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M or S"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium/Small"
             },
             {
               "label": "Speed",
@@ -384,10 +388,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -429,8 +429,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -439,10 +443,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -471,8 +471,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -481,10 +485,6 @@
             {
               "label": "Darkvision",
               "value": "60 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -513,8 +513,12 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Sz",
-              "value": "M"
+              "label": "Type",
+              "value": "Humanoid"
+            },
+            {
+              "label": "Size",
+              "value": "Medium"
             },
             {
               "label": "Speed",
@@ -523,10 +527,6 @@
             {
               "label": "Darkvision",
               "value": "120 ft"
-            },
-            {
-              "label": "Destiny",
-              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
