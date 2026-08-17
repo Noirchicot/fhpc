@@ -316,34 +316,31 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
   const araag = construire("fh:species:en:araag");
   const humain = construire("srd:species:en:human");
 
-  /* ⚠️ LE NET ZÉRO (lot 24) : l'Araag porte AUSSI un `granted_skill_choice`
-     (`Skillful`), et ses deux lignes s'annulent sur le total — l'écart entre
-     les deux personnages reste donc EXACTEMENT le bonus de trait, pas plus. */
+  /* ⚠️ RÉÉCRIT LE 2026-08-17 — LE NET ZÉRO A DISPARU DES DEUX ESPÈCES. Elles
+     portaient un `granted_skill_choice` EN PLUS de leur barème de points ;
+     Eric a fait absorber ce don par `Fast Learner` (Araag) et par `Skillful`
+     (Humain). ⭐ ET LES DEUX TOTAUX SONT INCHANGÉS — 14 et 12 — parce que la
+     paire s'annulait : la retirer ne retranche rien. C'est la meilleure preuve
+     que le net zéro faisait bien ce qu'il annonçait. */
   /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
      (addendums §4) : seul l'imposé de CLASSE (2, le Fighter) se déduit
      encore, là où 5 se déduisaient avant ce lot (2 classe + 2+1 arrière-plan). */
   assert.notEqual(araag.stat.value, humain.stat.value, "les deux pools DIFFÈRENT");
-  assert.equal(araag.stat.value, 14, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 2 d'imposés (grant net zéro)");
+  assert.equal(araag.stat.value, 14, "Araag : 12 de pool + 2 + 2 des paliers d'espèce − 2 d'imposés");
   assert.equal(humain.stat.value, 12, "Humain : 12 de pool + 2 du seul palier de création − 2 d'imposés");
   assert.equal(araag.stat.value - humain.stat.value, 2, "et l'écart vaut exactement un palier d'espèce, PAS le grant");
 
   /* L'ÉCART CITE LE TRAIT — et le mot vient du RECORD, recopié (loi §0.13).
-     ⚠️ L'HUMAIN AUSSI PORTE UN `granted_skill_choice` — c'est `Skillful`
-     (« one skill of your choice »), du SRD lui-même, indépendant de la
-     couche FH. Les DEUX espèces portent donc la paire net zéro ; c'est
-     justement pourquoi elle ne doit RIEN changer à l'écart mesuré plus haut. */
+     📌 Le trait de l'Humain s'appelle désormais `Skillful`, le nom du SRD :
+     Eric l'a préféré au `Educated` maison (*« non, SRD de base si possible »*). */
   const lignesEspece = (stat) => stat.breakdown.filter((line) => line.source && line.source.kind === "species");
   assert.deepEqual(lignesEspece(araag.stat), [
     { label: "Fast Learner · Level 1", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Fast Learner · Level 3", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Araag · 1 granted choice", value: 1, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Araag · 1 imposed choice", value: -1, source: { kind: "species", id: "fh:species:en:araag" } }
-  ], "l'Araag porte DEUX paliers traversés ET les deux lignes du net zéro — pas zéro, pas une");
+    { label: "Fast Learner · Level 3", value: 2, source: { kind: "species", id: "fh:species:en:araag" } }
+  ], "l'Araag porte DEUX paliers traversés, et plus aucune paire de net zéro");
   assert.deepEqual(lignesEspece(humain.stat), [
-    { label: "Educated · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } },
-    { label: "Human · 1 granted choice", value: 1, source: { kind: "species", id: "srd:species:en:human" } },
-    { label: "Human · 1 imposed choice", value: -1, source: { kind: "species", id: "srd:species:en:human" } }
-  ], "l'Humain porte lui aussi son net zéro (`Skillful`), et un seul palier — son trait ne s'appelle pas pareil");
+    { label: "Skillful · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } }
+  ], "l'Humain porte UN seul palier, sous le nom du SRD — et son trait ne s'appelle pas comme celui de l'Araag");
 
   /* LE MOT EST CELUI DU RECORD, PAS UN MOT DU MOTEUR. */
   const traitDe = (h, id, champ, traitId) => {
@@ -351,7 +348,11 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
     return (data[champ] || []).find((item) => item.id === traitId);
   };
   assert.equal(traitDe(araag.h, "fh:species:en:araag", "traits", "fast-learner").name, "Fast Learner");
-  assert.equal(traitDe(humain.h, "srd:species:en:human", "fh_traits", "educated").name, "Educated");
+  /* ⚠️ 2026-08-17 : le trait de l'Humain a changé de MAISON en même temps que
+     de nom. `Educated` vivait dans `fh_traits` (un ajout FH) ; `Skillful` vit
+     dans `data.traits`, parce que c'est un trait du SRD dont Fate's Hand n'a
+     changé que la monnaie. Le mot vient toujours du record, jamais du moteur. */
+  assert.equal(traitDe(humain.h, "srd:species:en:human", "traits", "skillful").name, "Skillful");
 
   /* ⛔ ET LE PALIER DU NIVEAU 6 DE L'ARAAG N'EST PAS LÀ — la règle Q15-8 tient
      aussi sur l'espèce, pas seulement sur la classe. */
@@ -359,14 +360,16 @@ test("ACCEPTATION 3 — Araag et Humain de même classe diffèrent, et l'écart 
   assert.equal(bumps.by_level["6"], 2, "la couche porte bien un palier d'espèce au niveau 6");
   assert.equal(terme(araag.stat, "Fast Learner · Level 6"), undefined, "et l'Araag niveau 3 ne l'a pas traversé");
 
-  /* ⚠️ ET LE `granted_skill_choice` DE L'ARAAG N'EST PLUS UNE DÉCLARATION
-     (lot 24) : la question qu'il posait est tranchée, la paire de lignes
-     remplace l'ancienne déclaration `imposed.species`. */
+  /* ⚠️ RÉÉCRIT LE 2026-08-17. L'Araag n'a plus de `granted_skill_choice` : la
+     paire de lignes qui remplaçait l'ancienne déclaration `imposed.species` a
+     disparu avec lui. Ce qui reste vrai, et que ce test garde, c'est qu'AUCUNE
+     déclaration ne revient à sa place — un don retiré ne rouvre pas la
+     question que le lot 24 avait fermée. */
   const champ = `stats[${FH_SKILL_POOL_ID}].imposed.species`;
   assert.equal(araag.underived.find((entry) => entry.field === champ), undefined,
     "la déclaration du lot 23 n'a plus lieu d'être : la question qu'elle posait est tranchée");
-  assert.equal(araag.stat.breakdown.some((line) => line.value < 0 && line.source.kind === "species"), true,
-    "et le pool PUBLIE désormais une déduction d'espèce — le placement du grant");
+  assert.equal(araag.stat.breakdown.some((line) => line.value < 0 && line.source.kind === "species"), false,
+    "et plus aucune déduction d'espèce n'est publiée : il n'y a plus de grant à placer");
 });
 
 /* ══ ACCEPTATION 4 — LE SRD PUR ═══════════════════════════════════════ */
@@ -679,21 +682,27 @@ test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le co
 test("ATTAQUE — un trait d'espèce sans nom JETTE : la ligne ne disparaît pas en silence", () => {
   /* Le NOMBRE est connu et le MOT manque. Sauter la ligne rendrait un pool
      court d'exactement ce bump, et personne ne verrait de quoi. */
+  /* ⚠️ L'ESPÈCE TÉMOIN A CHANGÉ LE 2026-08-17. L'attaque amputait le
+     `fh_traits` de l'Humain ; son barème de points pointe désormais vers
+     `Skillful`, un trait SRD de `data.traits`, donc le `fh_traits` truqué
+     n'était plus jamais lu et l'attaque ne mordait plus dans le vide — elle
+     restait VERTE en ne prouvant rien. L'Araag porte toujours son `Fast
+     Learner` dans `fh_traits` : c'est lui qui la porte maintenant. */
   const h = pilePool({
     extra: Object.assign(uneCouche("scenario-trait-sans-nom", {
       species: {
-        "srd:species:en:human": {
+        "fh:species:en:araag": {
           op: "patch",
-          changes: { "data[fh_traits]": [{ id: "educated", text: "no name here" }] }
+          changes: { "data[fh_traits]": [{ id: "fast-learner", text: "no name here" }] }
         }
       }
     }), { flags: [] })
   });
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
-      level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE
+      level: 1, classId: "srd:class:en:wizard", speciesId: "fh:species:en:araag", backgroundId: INHERITANCE
     }))
-  }), /srd:species:en:human/, "le refus nomme l'espèce dont le trait n'a pas de nom");
+  }), /fh:species:en:araag/, "le refus nomme l'espèce dont le trait n'a pas de nom");
 });
 
 test("ATTAQUE — un choix posé dans le namespace du module est REFUSÉ, jamais avalé", () => {
@@ -801,7 +810,11 @@ test("ATTAQUE — un `granted_skill_choice.count` illisible JETTE au lieu de fau
     const h = pilePool({
       extra: Object.assign(uneCouche(`scenario-grant-illisible-${index}`, {
         species: {
-          "fh:species:en:araag": { op: "patch", changes: { "data[granted_skill_choice].count": count } }
+          /* ⚠️ POSÉ EN ENTIER DEPUIS LE 2026-08-17 : l'Araag n'a plus de
+             `granted_skill_choice`, donc `…​.count` viserait le vide. Ce que
+             l'attaque prouve ne bouge pas — un compte illisible JETTE — et
+             elle le prouve sur un champ que la couche d'essai fabrique. */
+          "fh:species:en:araag": { op: "patch", changes: { "data[granted_skill_choice]": { count, from: "any" } } }
         }
       }), { flags: [] })
     });

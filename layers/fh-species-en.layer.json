@@ -20,10 +20,6 @@
         "slug": "araag",
         "data": {
           "creature_type": "Humanoid",
-          "granted_skill_choice": {
-            "count": 1,
-            "from": "any"
-          },
           "name": "Araag",
           "senses": [
             {
@@ -51,11 +47,6 @@
               "id": "necrotic-resistance",
               "name": "Necrotic Resistance",
               "text": "You have Resistance to Necrotic damage."
-            },
-            {
-              "id": "skillful",
-              "name": "Skillful",
-              "text": "You gain proficiency in one skill of your choice."
             },
             {
               "id": "soulforged-affinity",
@@ -233,19 +224,16 @@
       "srd:species:en:human": {
         "op": "patch",
         "remove": [
-          "data.traits[resourceful]"
+          "data.traits[resourceful]",
+          "data[granted_skill_choice]"
         ],
         "changes": {
-          "data.description": "As a Human, you have these special traits.\n\nSkillful. You gain proficiency in one skill of your choice.\n\nVersatile. You gain an Origin feat of your choice (see “Feats”). Skilled is recommended.",
+          "data.description": "As a Human, you have these special traits.\n\nSkillful. You gain 2 skill points at character creation.\n\nVersatile. You gain an Origin feat of your choice (see “Feats”). Skilled is recommended.",
           "data.destiny": {
             "base": 2
           },
+          "data.traits[skillful].text": "You gain 2 skill points at character creation.",
           "data[fh_traits]": [
-            {
-              "id": "educated",
-              "name": "Educated",
-              "text": "You gain 2 skill points at character creation."
-            },
             {
               "id": "twice-born",
               "name": "Twice-Born",
@@ -253,7 +241,7 @@
             }
           ],
           "data[skill_points]": {
-            "trait": "educated",
+            "trait": "skillful",
             "by_level": {
               "1": 2
             }

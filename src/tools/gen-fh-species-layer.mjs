@@ -302,6 +302,28 @@ function patchEntry(srd, entry) {
     }
   }
 
+  /* ── RÉÉCRIRE LE TEXTE D'UN TRAIT SRD ────────────────────────────────
+     Le renommage juste au-dessus touche le NOM ; celui-ci touche l'EFFET.
+     Employé une fois : `Skillful` chez l'Humain, qui passe d'une maîtrise à
+     +2 points le 2026-08-17. `assertTargetTrait` garde la même promesse que
+     partout ailleurs — réécrire un trait absent est un échec bruyant, jamais
+     une ligne qui ne fait rien. */
+  for (const [traitId, texte] of Object.entries(entry.traitText || {})) {
+    assertTargetTrait(srd, entry.target, traitId, `texte de « ${entry.fhName} »`);
+    changes[`data.traits[${traitId}].text`] = texte;
+  }
+
+  /* ── RETIRER UN CHAMP DU RECORD SRD ──────────────────────────────────
+     Généralisation de ce que `keenSenses` faisait à la main pour
+     `granted_skill_choice`. Le second utilisateur est arrivé (l'Humain,
+     2026-08-17) : la ligne sort du cas particulier plutôt que d'être
+     recopiée, et `assertTargetField` garde la même promesse — un retrait dans
+     le vide reste un échec bruyant. */
+  for (const champ of entry.removeFields || []) {
+    assertTargetField(srd, entry.target, champ, `retrait de champ de « ${entry.fhName} »`);
+    remove.push(`data[${champ}]`);
+  }
+
   if (entry.keenSenses) {
     assertTargetTrait(srd, entry.target, "keen-senses", `Keen Senses de « ${entry.fhName} »`);
     /* LOT 34 — Keen Senses n'est plus un `granted_skill_choice` hérité du

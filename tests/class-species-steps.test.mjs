@@ -181,16 +181,27 @@ test("les options viennent du plan : un plan dont les options sont [\"zzz\"] aff
    Bourse captive (Elestu), choix imposé (Araag), rien (Loroka) — le carnet
    dit LEQUEL, cet écran ne devine jamais sur le nom (§0.2/§3c). */
 
-test("les trois états d'espèce : bourse captive (Elestu), choix imposé (Araag), rien (Loroka)", () => {
+test("les états d'espèce : bourse captive (Elestu), et RIEN pour les onze autres", () => {
+  /* 🔴 IL N'Y EN A PLUS QUE DEUX, ET C'EST LE PRIX D'UNE RÈGLE — 2026-08-17.
+     L'état « choix imposé » était porté par `granted_skill_choice`, que seuls
+     l'Araag et l'Humain avaient. Eric a fait absorber ce don par `Fast Learner`
+     et par `Skillful` (*« Fast Learner qui recouvre tout »*, *« Skillful origine
+     SRD écrase Educated »*), parce que les deux espèces recevaient DEUX dons de
+     compétence là où le chapitre en annonce un.
+     ⛔ La conséquence a été remontée à Eric AVANT d'être payée : cet état-là
+     n'a plus aucun utilisateur, donc l'Araag et l'Humain n'ont plus de 2ᵉ
+     palier sur l'écran Species. Ce test le CONSTATE au lieu de le supposer —
+     le jour où une espèce reprend un `granted_skill_choice`, il rougit. */
   const elestu = rebuild(docWith({ id: "elestu", classId: "srd:class:en:fighter", speciesId: "fh:species:en:elestu", classSkills: ["athletics", "history"] }));
   const elestuNode = menu(elestu.decisions, "species");
   assert.equal(elestuNode.querySelectorAll(".skills-budget-block h3")[0].textContent, "Species skill budget");
   assert.equal(elestuNode.querySelectorAll(".skills-row").length, 3, "les trois compétences de la bourse, pas deux");
 
+  /* L'Araag portait le « choix imposé » ; il n'en a plus, comme les dix autres. */
   const araag = rebuild(docWith({ id: "araag", classId: "srd:class:en:fighter", speciesId: "fh:species:en:araag", classSkills: ["athletics", "history"] }));
   const araagNode = menu(araag.decisions, "species");
-  assert.equal(araagNode.querySelectorAll(".skills-budget-block h3")[0].textContent, "Species skill");
-  assert.equal(araagNode.querySelectorAll(".skills-row").length, 1, "un seul slot imposé");
+  assert.equal(araagNode.querySelectorAll(".skills-budget-block").length, 0,
+    "l'Araag n'a plus de choix d'espèce : son Fast Learner donne des points, pas une maîtrise");
 
   const loroka = rebuild(docWith({ id: "loroka", classId: "srd:class:en:fighter", speciesId: "fh:species:en:loroka", classSkills: ["athletics", "history"] }));
   const lorokaNode = menu(loroka.decisions, "species");
@@ -233,7 +244,11 @@ test("les trois compétences de Keen Senses sont proposées à l'étape Species 
 /* ══ 5 — UN PLAN NON RÉPONDU SE VOIT ══════════════════════════════════════ */
 
 test("un plan non répondu (answered < expected) se voit, et le dit — sur Class ET Species", () => {
-  const report = rebuild(docWith({ id: "unanswered", classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag" }));
+  /* ⚠️ L'ESPÈCE TÉMOIN A CHANGÉ LE 2026-08-17 : l'Araag n'a plus de plan
+     d'espèce du tout (voir le test des états, plus haut). C'est l'Elestu, dont
+     la bourse captive est intacte, qui porte désormais la démonstration —
+     l'assertion, elle, est la même. */
+  const report = rebuild(docWith({ id: "unanswered", classId: "srd:class:en:rogue", speciesId: "fh:species:en:elestu" }));
   const classNode = menu(report.decisions, "class");
   const classNote = classNode.querySelectorAll(".choix-glisse-compte")[0];
   assert.equal(classNote.textContent, "0 of 4 chosen");
@@ -241,7 +256,7 @@ test("un plan non répondu (answered < expected) se voit, et le dit — sur Clas
 
   const speciesNode = menu(report.decisions, "species");
   const speciesNote = speciesNode.querySelectorAll(".skills-budget-note")[0];
-  assert.equal(speciesNote.textContent, "0 of 1 chosen");
+  assert.equal(speciesNote.textContent, "0 of 2 points spent");
   assert.equal(speciesNode.querySelectorAll(".skills-budget-block")[0].getAttribute("data-status"), "pending");
 });
 

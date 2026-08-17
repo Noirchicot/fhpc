@@ -213,17 +213,26 @@ test("une compétence sans `ability_key` reste illégale pour le pli ET pour la 
     "un choix légal referme toujours la boucle");
 });
 
-test("Araag `any` ouvre tout le catalogue ; Elestu garde sa liste de trois", () => {
+test("PLUS AUCUNE espèce n'ouvre `species.skills` ; Elestu garde sa bourse de trois", () => {
+  /* 🔴 RÉÉCRIT LE 2026-08-17, ET LE RENVERSEMENT EST LA MOITIÉ DU TEST. Ce
+     test prouvait qu'un `granted_skill_choice` en `from: "any"` publiait les
+     26 compétences du catalogue — l'Araag était son seul témoin d'espèce.
+     Eric a fait absorber ce don par `Fast Learner` (*« Fast Learner qui
+     recouvre tout »*) parce que l'Araag en portait DEUX ; l'Humain a suivi
+     avec `Skillful`. **Aucune espèce ne publie donc plus `species.skills`.**
+     ⛔ Le mécanisme `from: "any"` n'est pas mort pour autant — les classes
+     l'emploient — mais il n'a plus d'utilisateur côté espèce, et ce test
+     l'affirme au lieu de le supposer. */
   const make = (speciesId, answer) => {
     const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN] });
     return { h, out: h.verbs.rebuild({ document: englishDocument(h, speciesId, answer) }) };
   };
   const araag = make("fh:species:en:araag");
-  const araagPlan = byPath(araag.out).get("species.skills");
-  const skillSlugs = araag.h.layers.verbs.query({ kind: "skill" }).map((view) => view.record.slug).sort();
-  assert.deepEqual(araagPlan.options, skillSlugs, "`from: any` signifie bien tous les identifiants posables");
-  assert.equal(araagPlan.options.length, 26);
-  assert.equal(araagPlan.status, "pending");
+  assert.equal(byPath(araag.out).has("species.skills"), false,
+    "l'Araag n'ouvre plus aucun choix de compétence d'espèce");
+  const humain = make("srd:species:en:human");
+  assert.equal(byPath(humain.out).has("species.skills"), false,
+    "l'Humain non plus — son Skillful donne des points, pas une maîtrise");
 
   /* LOT 34 — Keen Senses (l'Elestu) n'est plus un `species.skills` compté :
      c'est un `species.skillBudget` captif de 2 points, un groupe DISTINCT

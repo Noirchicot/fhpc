@@ -8,13 +8,17 @@
    Ce fichier ne garde donc que **ce qui appartient à Species** : à quoi
    ressemble une fiche d'espèce, et ce que confirme son 2ᵉ palier.
 
-   ── LES TROIS ÉTATS D'ESPÈCE (lot 42, §3c) — LE CARNET DIT LEQUEL, jamais
-   le nom de l'espèce :
+   ── LES ÉTATS D'ESPÈCE (lot 42, §3c) — LE CARNET DIT LEQUEL, jamais le nom
+   de l'espèce :
      · `species.skillBudget` publié → LA BOURSE CAPTIVE (Elf, Elestu) : des
        points sur des compétences nommées, palier au choix par compétence ;
-     · `species.skills` publié → UN CHOIX IMPOSÉ (Human, Araag) — même QCM
-       que `class.skills` ;
-     · ni l'un ni l'autre (Loroka, et 8 autres) → RIEN.
+     · `species.skills` publié → UN CHOIX IMPOSÉ — ⏳ **PLUS AUCUN
+       UTILISATEUR depuis le 2026-08-17** ; l'Humain et l'Araag le portaient,
+       et Eric a fait absorber ce don par leur barème de points (*« Fast
+       Learner qui recouvre tout »*, *« Skillful origine SRD écrase
+       Educated »*) parce qu'ils en recevaient DEUX. Le code reste : le
+       mécanisme est celui des classes, et une espèce peut le reprendre ;
+     · ni l'un ni l'autre (dix espèces sur douze) → RIEN.
    ⭐ ET CE TROISIÈME CAS EST CE QUE LE LOT 60 A DÛ TRANCHER : une espèce qui
    n'accorde rien n'a **QU'UN SEUL PALIER**. Un 2ᵉ appui sur un menu vide
    serait un geste pour rien. I.4 le prévoit : « un écran peut en compter un,
@@ -24,8 +28,8 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=88";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=88";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=89";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=89";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent

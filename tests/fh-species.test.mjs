@@ -185,13 +185,21 @@ test("ACCEPTATION — les TROIS pouvoirs de Destinée, à leurs trois places et 
     ["Elf/Splinter of Anon", "Halfling/Outlasting", "Human/Twice-Born"]);
 });
 
-test("ACCEPTATION — les points de compétence : Educated à l'Humain, Fast Learner à l'Araag et l'Elestu, zéro ailleurs", () => {
+test("ACCEPTATION — les points de compétence : Skillful à l'Humain, Fast Learner à l'Araag et l'Elestu, zéro ailleurs", () => {
   const { verbs } = pileFH();
 
+  /* ⚠️ RÉÉCRIT LE 2026-08-17, PAS DÉSARMÉ. Ce test affirmait « Educated à
+     l'Humain ». Eric a tranché que le nom SRD absorbe le trait maison —
+     *« skillful origine SRD écrase educated »*, puis *« non, SRD de base si
+     possible »*. Le nombre ne bouge pas, le porteur oui. */
   const humain = dataOf(verbs, "srd:species:en:human");
-  assert.ok(traitNames(humain).includes("Educated"));
-  assert.deepEqual(humain.skill_points, { trait: "educated", by_level: { 1: 2 } },
-    "Educated : +2 à la création, ET C'EST TOUT (les chapitres 2 et 4 se contredisaient)");
+  assert.ok(traitNames(humain).includes("Skillful"), "l'Humain porte Skillful");
+  assert.ok(!traitNames(humain).includes("Educated"),
+    "`Educated` a été absorbé — il ne doit plus exister nulle part");
+  assert.deepEqual(humain.skill_points, { trait: "skillful", by_level: { 1: 2 } },
+    "Skillful : +2 au niveau 1, ET C'EST TOUT");
+  assert.equal(humain.granted_skill_choice, undefined,
+    "et l'ancienne monnaie est partie : sans ça l'Humain reçoit une maîtrise ET deux points");
 
   const fastLearner = { trait: "fast-learner", by_level: { 1: 2, 3: 2, 6: 2 } };
   for (const id of ["fh:species:en:araag", "fh:species:en:elestu"]) {
@@ -209,7 +217,7 @@ test("ACCEPTATION — les points de compétence : Educated à l'Humain, Fast Lea
     "toutes les autres espèces sont à zéro point de compétence d'espèce");
 });
 
-test("GARDE — le cumul de deux dons de compétence LIBRES : deux cas connus, et pas un de plus", () => {
+test("GARDE — une espèce n'a JAMAIS deux dons de compétence LIBRES", () => {
   /* 🔴 LE DÉFAUT QUE CE GARDE EXISTE POUR EMPÊCHER, ET IL A VÉCU LONGTEMPS.
      Le 2026-08-17, Eric a vu sur le site publié : *« je vois skillful + fast
      learner »*. Mesuré : l'Humain portait `granted_skill_choice` (une maîtrise
@@ -230,22 +238,14 @@ test("GARDE — le cumul de deux dons de compétence LIBRES : deux cas connus, e
      l'Elestu le porte légitimement à côté de son Fast Learner. Interdire tout
      cumul serait faux ; c'est le cumul de LIBERTÉS qui ne va pas.
 
-     ⏳ POURQUOI CE GARDE LISTE LE DÉFAUT AU LIEU DE L'INTERDIRE. Le retrait a
-     été fait, puis ANNULÉ le même jour : il coûte à l'Humain ET à l'Araag leur
-     `granted_skill_choice`, donc leur 2ᵉ palier de choix d'espèce — et l'Araag
-     est le seul exemple de l'état « choix imposé » de `species-step.mjs`.
-     Retirer un écran du parcours est une décision de PRODUIT, qu'un fil en
-     autonomie ne prend pas. Le défaut est donc CONSIGNÉ, à l'unité près, en
-     attendant la parole d'Eric.
-
-     ⭐ ET UNE LISTE EXACTE VAUT MIEUX QU'UN `TODO` : ce garde vire au rouge
-     dans les DEUX sens — si une troisième espèce gagne un cumul, et le jour
-     où ces deux-là sont réparés. Une dette qu'aucun test ne tient est une
-     dette qu'on recopie de passation en passation ; ce dépôt en a déjà porté
-     une pendant douze jours.
+     ⛔ CE QUE LE RETRAIT A COÛTÉ, ET C'EST DIT PLUTÔT QUE CACHÉ : l'Humain et
+     l'Araag perdent leur `granted_skill_choice`, donc leur 2ᵉ palier de choix
+     d'espèce — et l'état « choix imposé » de `species-step.mjs` n'a plus aucun
+     utilisateur. Le prix a été remonté à Eric AVANT d'être payé, et il a
+     confirmé deux fois.
 
      📌 Eric, le 2026-08-17 : *« j'en ai plein le cul de voir cette règle pas
-     figée remonter »*. Un commentaire ne fige rien — cette liste si. */
+     figée remonter »*. Un commentaire ne fige rien — ce garde si. */
   const { verbs } = pileFH();
   const cumuls = [];
   for (const vue of verbs.query({ kind: "species" })) {
@@ -255,10 +255,8 @@ test("GARDE — le cumul de deux dons de compétence LIBRES : deux cas connus, e
     if (data.granted_skill_choice !== undefined) libres.push("granted_skill_choice");
     if (libres.length > 1) cumuls.push(`${vue.record.name} : ${libres.join(" + ")}`);
   }
-  assert.deepEqual(cumuls.sort(), [
-    "Araag : skill_points(fast-learner) + granted_skill_choice",
-    "Human : skill_points(educated) + granted_skill_choice"
-  ], "les DEUX cumuls connus, et aucun autre — en attente de la décision d'Eric sur le 2ᵉ palier");
+  assert.deepEqual(cumuls, [],
+    "chaque espèce n'accorde qu'UN don de compétence libre — les budgets captifs (Keen Senses) ne comptent pas");
 });
 
 test("ACCEPTATION — le Hoddon s'appelle Hoddon, et plus Gnome, jusque dans ses traits", () => {
@@ -610,7 +608,7 @@ export function whereSurvives(value, word, prefix = "data") {
   return [];
 }
 
-test("ACCEPTATION B1 — l'Humain NE PORTE PLUS Resourceful, et porte Educated", () => {
+test("ACCEPTATION B1 — l'Humain NE PORTE PLUS Resourceful, et son Skillful vaut 2 points", () => {
   const { verbs } = pileFH();
   const humain = dataOf(verbs, "srd:species:en:human");
 
@@ -618,19 +616,31 @@ test("ACCEPTATION B1 — l'Humain NE PORTE PLUS Resourceful, et porte Educated",
      rendait deux mauvais. */
   assert.deepEqual(humain.traits.map((trait) => trait.id), ["skillful", "versatile"],
     "Resourceful est parti ; Skillful et Versatile sont restés");
-  assert.deepEqual(traitNames(humain).sort(), ["Educated", "Skillful", "Twice-Born", "Versatile"],
-    "et Educated a bien pris sa place (Eric, 2026-08-08)");
+  assert.deepEqual(traitNames(humain).sort(), ["Skillful", "Twice-Born", "Versatile"],
+    "`Educated` a été absorbé par Skillful (Eric, 2026-08-17) — trois noms, plus quatre");
 
-  /* LE POINT DE TOUT L'EXERCICE : les deux traits gardés sont ceux du SRD, MOT
-     POUR MOT. C'est pour ne PAS avoir à les recopier que le lot 15 avait
-     refusé de retirer Resourceful à la main. */
+  /* ⚠️ RÉÉCRIT LE 2026-08-17. Ce test affirmait que les deux traits gardés
+     étaient le SRD MOT POUR MOT. Ce n'est plus vrai, et c'est délibéré :
+     `Skillful` change de monnaie, donc son texte est réécrit. La promesse
+     n'est pas abandonnée, elle est RESSERRÉE sur ce qu'on n'a pas touché — et
+     elle vaut plus ainsi, parce qu'elle distingue l'écart VOULU de la copie
+     accidentelle. */
   const srd = srdDoc().records.species["srd:species:en:human"].data.traits;
-  assert.deepEqual(humain.traits, srd.filter((trait) => trait.id !== "resourceful"),
-    "retirer n'est pas réécrire : aucun texte SRD n'a été recopié pour ça");
+  const srdParId = Object.fromEntries(srd.map((trait) => [trait.id, trait]));
+  assert.deepEqual(humain.traits.find((x) => x.id === "versatile"), srdParId.versatile,
+    "Versatile n'a aucune raison de bouger : il reste le SRD mot pour mot");
+  const skillful = humain.traits.find((x) => x.id === "skillful");
+  assert.equal(skillful.name, srdParId.skillful.name,
+    "Skillful garde son NOM SRD — c'est sa monnaie qui change, pas son identité");
+  assert.notEqual(skillful.text, srdParId.skillful.text,
+    "et l'écart est RÉEL : si ce texte redevenait celui du SRD, la règle aurait dérivé sans bruit");
 
   /* Et la couche le fait par la GRAMMAIRE, pas par une réécriture du tableau. */
   const entry = fhLayer().records.species["srd:species:en:human"];
-  assert.deepEqual(entry.remove, ["data.traits[resourceful]"]);
+  assert.deepEqual(entry.remove, ["data.traits[resourceful]", "data[granted_skill_choice]"],
+    "deux retraits, tous deux désignés par leur identité");
+  assert.equal(entry.changes["data.traits[skillful].text"], skillful.text,
+    "le texte est repris À L'ÉLÉMENT, pas en réécrivant la liste");
   assert.equal(Object.hasOwn(entry.changes, "data.traits"), false,
     "le tableau des traits n'est jamais réécrit — c'est l'élément qui est désigné, par son identité");
 });

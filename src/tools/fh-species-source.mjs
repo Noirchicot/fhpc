@@ -145,31 +145,44 @@ export const DESTINY_BASE = 2;
 
    ⭐ LA RÈGLE, MAINTENANT UNIQUE — un don par espèce, nommé par son trait :
 
-     · Humain            → `Skillful`     : une maîtrise au choix, qui VAUT les
-                                            2 points du niveau 1
+     · Humain            → `Skillful`     : +2 points au niveau 1
      · Araag et Elestu   → `Fast Learner` : +2 aux niveaux 1, 3 et 6
      · les neuf autres   → rien
 
-   `Educated` DISPARAÎT (absorbé par `Skillful`, décision d'Eric : *« skillful
-   origine SRD écrase educated »*), et `Skillful` disparaît de l'Araag (absorbé
-   par `Fast Learner`). Aucun nom neuf n'a été inventé : les deux survivants
-   sont ceux que le SRD et le chapitre portaient déjà.
+   `Educated` DISPARAÎT, absorbé par `Skillful` — Eric, 2026-08-17 : *« skillful
+   origine SRD écrase educated »*, puis, quand la question lui a été reposée sur
+   le NOM à afficher : *« non, SRD de base si possible »*. Et `Skillful` disparaît
+   de l'Araag, absorbé par `Fast Learner` (*« Fast Learner qui recouvre tout »*).
+   ⭐ Aucun nom neuf n'a été inventé : les deux survivants sont ceux que le SRD
+   portait déjà. On hérite plutôt qu'on invente.
 
-   ⏳ CE QUI RESTE OUVERT, ET QUI EST À ERIC — pas à ce fichier. La règle
-   générale des ADDENDUMS dit *« ce qui arrive au niveau 1 est converti en
-   points du pool »*, ce qui voudrait que le `Skillful` du Humain devienne
-   **2 points libres** au lieu d'une maîtrise imposée. Mesuré : cette
-   conversion retire à l'Humain ET à l'Araag leur 2ᵉ palier de choix d'espèce
-   et fait tomber **10 gardes dans 6 fichiers**. Ce n'est pas une conséquence
-   mécanique, c'est un changement de ce que le joueur peut faire — donc du
-   PRODUIT. Déclaré, non fait (2026-08-17, sous autonomie).
+   📏 POURQUOI CETTE LECTURE-LÀ ET PAS L'AUTRE, et c'est un chiffre qui tranche.
+   L'autre consistait à retirer `Educated` en gardant la maîtrise SRD. Mesurée
+   contre le garde « LIGNE ROUGE : Human et Araag 12 », elle donne **10** : la
+   maîtrise de `Skillful` est NET-ZÉRO — elle ajoute 2 points au pool et les
+   dépense aussitôt — donc elle ne remplace pas les +2 d'`Educated`. Elle CASSE
+   la ligne rouge. La conversion en points la tient au chiffre près.
+
+   ⛔ CE QU'ELLE COÛTE, ET IL FAUT LE DIRE : `granted_skill_choice` quitte les
+   deux espèces qui le portaient, donc l'Humain et l'Araag n'ont plus de 2ᵉ
+   palier de choix d'espèce — et l'état « choix imposé » de `species-step.mjs`
+   n'a plus AUCUN utilisateur. Ce n'est pas un effet de bord caché : c'est le
+   prix de la règle, il a été remonté à Eric avant d'être payé, et il l'a
+   confirmée deux fois.
 
    🔴 ET C'EST GARDÉ, pas seulement écrit — `tests/fh-species.test.mjs` compte
    les dons LIBRES de chaque espèce et refuse le second. Cette règle est
    remontée assez souvent pour qu'un commentaire ne suffise pas. */
 
-const EDUCATED = { trait: "educated", by_level: { 1: 2 } };
+const SKILLFUL = { trait: "skillful", by_level: { 1: 2 } };
 const FAST_LEARNER = { trait: "fast-learner", by_level: { 1: 2, 3: 2, 6: 2 } };
+
+/* Le texte SRD de `Skillful` dit « proficiency in one skill of your choice ».
+   Sous la règle générale de conversion des ADDENDUMS — *ce qui arrive au
+   niveau 1 est converti en points du pool* — cette maîtrise VAUT 2 points, et
+   c'est cette forme-là que Fate's Hand emploie partout ailleurs. Le trait
+   garde son nom SRD et change de monnaie. */
+const SKILLFUL_TEXT = "You gain 2 skill points at character creation.";
 
 /* ── PERCEPTION N'EXISTE PAS DANS FATE'S HAND ────────────────────────
    Elle est remplacée par trois compétences : Vigilance (danger immédiat),
@@ -230,11 +243,10 @@ const OUTLASTING = {
    Resistance, Necrotic — majuscules du SRD). Aucun n'ajoute d'effet que le
    chapitre n'écrit pas. */
 
-const EDUCATED_TRAIT = {
-  id: "educated",
-  name: "Educated",
-  text: "You gain 2 skill points at character creation."
-};
+/* ⛔ `EDUCATED_TRAIT` A ÉTÉ SUPPRIMÉ le 2026-08-17, pas désactivé. Il portait
+   les +2 du Humain à côté de `Skillful`, qui les portait déjà sous une autre
+   forme. Un trait gardé « au cas où » derrière un interrupteur est ce que ce
+   dépôt refuse (loi §0.6) ; son texte survit dans `SKILLFUL_TEXT`, plus haut. */
 
 const FAST_LEARNER_TRAIT = {
   id: "fast-learner",
@@ -329,9 +341,17 @@ const HUMAN_DESCRIPTION = {
   substitutions: [
     { find: "Resourceful. You gain Heroic Inspiration whenever you finish a Long Rest.\n\n", put: "",
       why: "l'Humain PERD Resourceful (Eric, 2026-08-08) — le trait est retiré de data.traits, " +
-        "la prose qui le décrit ne peut pas rester" }
+        "la prose qui le décrit ne peut pas rester" },
+    /* La description est la SEULE copie du texte qu'un lecteur voit en entier.
+       Laisser « proficiency in one skill » ici pendant que le trait dit « 2
+       skill points » referait la divergence que ce fil répare — deux versions
+       d'une règle dans le même record. */
+    { find: "Skillful. You gain proficiency in one skill of your choice.",
+      put: `Skillful. ${SKILLFUL_TEXT}`,
+      why: "Skillful passe de la maîtrise aux points (Eric, 2026-08-17) — il absorbe " +
+        "Educated, qui disparaît ; la prose doit dire la même chose que le trait" }
   ],
-  mustNotContain: ["Resourceful"]
+  mustNotContain: ["Resourceful", "proficiency in one skill"]
 };
 
 /* ── LES DOUZE ESPÈCES ───────────────────────────────────────────────
@@ -362,23 +382,17 @@ export const SPECIES = [
        créature sont donc PRIS chez l'Humain, la taille est déclarée Medium.
        ⚠️ La taille est la seule valeur de ce fichier qu'Eric n'a pas écrite —
        question Q15-1, corrigible en une ligne. */
-    /* ⏳ 2026-08-17 — L'ARAAG N'A PAS ÉTÉ TOUCHÉ NON PLUS, MÊME MOTIF QUE
-       L'HUMAIN. Eric a vu le doublon de ses yeux sur le site (*« je vois
-       skillful + fast learner »*) et tranché *« Fast Learner qui recouvre
-       tout »*. Le retrait a été fait, mesuré, puis ANNULÉ : il retire à
-       l'Araag son `granted_skill_choice`, donc son **2ᵉ palier de choix
-       d'espèce** — et l'Araag est le seul exemple de l'état « choix imposé »
-       de `species-step.mjs`. Supprimer un écran du parcours n'est pas la
-       conséquence mécanique d'un doublon de points : c'est du PRODUIT.
-       Le doublon est réel et reste à payer ; il attend une phrase d'Eric sur
-       ce que devient le palier. Voir le garde de caractérisation dans
-       `tests/fh-species.test.mjs`, qui tient les deux cas au chaud. */
-    lift: { from: "human", fields: ["creature_type", "speed", "speed_ft", "granted_skill_choice"] },
+    /* 🔴 `granted_skill_choice` ET `skillful` ONT QUITTÉ L'ARAAG le 2026-08-17.
+       Il les héritait de l'Humain EN PLUS de son `Fast Learner`, donc deux dons
+       de compétence pour une espèce qui n'en annonce qu'un — Eric l'a vu sur le
+       site publié : *« je vois skillful + fast learner »*, puis *« Fast Learner
+       qui recouvre tout »*. Le +2 du niveau 1 est déjà dans son barème ; le
+       reprendre par `Skillful` le comptait deux fois. */
+    lift: { from: "human", fields: ["creature_type", "speed", "speed_ft"] },
     size: "Medium",
     size_key: "medium",
     senses: { from: "elf" },
     traits: [
-      { lift: { from: "human", trait: "skillful" } },
       { lift: { from: "elf", trait: "darkvision" } },
       FAST_LEARNER_TRAIT,
       NECROTIC_RESISTANCE,
@@ -473,7 +487,8 @@ export const SPECIES = [
        SRD de Skillful et Versatile. Le moyen existe depuis le lot 17
        (`opPatch.remove`), et il désigne le trait PAR SON IDENTITÉ. */
     removeTraits: ["resourceful"],
-    /* ⏳ 2026-08-17 — L'HUMAIN N'A PAS ÉTÉ TOUCHÉ, ET LE MOTIF EST CHIFFRÉ.
+    /* ⛔ SUPPRIMÉ LE 2026-08-17 — le motif chiffré est remonté en tête de fichier.
+       ANCIEN COMMENTAIRE, gardé pour le raisonnement :
        Eric : *« l'humain n'a que +2 au lvl 1 : donc Skillful origine SRD
        écrase Educated »*. Deux lectures, et elles ne donnent PAS le même
        total — mesuré contre le garde « LIGNE ROUGE : Human et Araag 12 » :
@@ -490,11 +505,12 @@ export const SPECIES = [
             AUCUN utilisateur. C'est un changement de ce que le joueur peut
             faire, donc du PRODUIT, et la charte d'autonomie l'exclut.
 
-       (b) est la bonne réponse mécanique ; elle demande la parole d'Eric.
-       Déclaré ici et remonté, jamais laissé à trouver. */
+       (b) est la bonne réponse mécanique ; Eric l'a confirmée deux fois. */
+    removeFields: ["granted_skill_choice"],
+    traitText: { skillful: SKILLFUL_TEXT },
     description: HUMAN_DESCRIPTION,
-    fhTraits: [EDUCATED_TRAIT, TWICE_BORN],
-    skillPoints: EDUCATED
+    fhTraits: [TWICE_BORN],
+    skillPoints: SKILLFUL
   },
 
   {

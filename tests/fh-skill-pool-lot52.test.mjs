@@ -80,7 +80,12 @@ const somme = (stat) => stat.breakdown.reduce((total, line) => total + line.valu
    lignes de la paire (grant + placement) n'apparaissaient jamais sans
    `backgroundRef`, et le total de l'Araag tombait à 10 au lieu de 12 —
    silencieusement, puisqu'aucun garde ne la réclamait. */
-test("DETTE A, test 1 — un Araag SANS choix `background` publie quand même la paire net-zéro de l'espèce, total 12", () => {
+test("DETTE A, test 1 — un Araag SANS choix `background` publie son Fast Learner, total 12", () => {
+  /* ⚠️ RÉÉCRIT LE 2026-08-17 : l'Araag n'a plus de `granted_skill_choice`, donc
+     plus de paire net-zéro. Il l'héritait de l'Humain EN PLUS de son Fast
+     Learner, ce qui lui faisait deux dons de compétence. ⭐ ET LE TOTAL NE
+     BOUGE PAS — c'est tout le point : la paire s'annulait, la retirer ne
+     retranche rien. La ligne rouge du test 5 tient. */
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixSansBackground({ level: 1, classId: WIZARD, speciesId: "fh:species:en:araag" }))
@@ -90,15 +95,18 @@ test("DETTE A, test 1 — un Araag SANS choix `background` publie quand même la
   assert.deepEqual(stat.breakdown, [
     { label: "Class Pool · Wizard", value: 12, source: { kind: "class", id: WIZARD } },
     { label: "Fast Learner · Level 1", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } },
-    { label: "Araag · 1 granted choice", value: 1, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Araag · 1 imposed choice", value: -1, source: { kind: "species", id: "fh:species:en:araag" } }
-  ], "les DEUX lignes du net zéro sont là, même sans background posé");
-  assert.equal(stat.value, 12, "12 de pool + 2 de Fast Learner + 0 net (le grant s'annule) − 2 d'imposés");
+    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } }
+  ], "plus de paire net-zéro d'espèce : l'Araag n'accorde plus de maîtrise");
+  assert.equal(stat.value, 12, "12 de pool + 2 de Fast Learner − 2 d'imposés");
   assert.equal(stat.value, somme(stat));
 });
 
-test("DETTE A, test 1bis — un Humain SANS choix `background` publie sa propre paire net-zéro (`Skillful`), total 12", () => {
+test("DETTE A, test 1bis — un Humain SANS choix `background` publie son Skillful en POINTS, total 12", () => {
+  /* ⚠️ RÉÉCRIT LE 2026-08-17 : `Skillful` a changé de monnaie. Il accordait une
+     maîtrise (une paire net-zéro) À CÔTÉ d'`Educated` (+2 points) ; il porte
+     maintenant les +2 lui-même et `Educated` a disparu. Eric : *« l'humain n'a
+     que +2 au lvl 1 »*, puis *« non, SRD de base si possible »* sur le nom.
+     ⭐ Le total reste 12 : la paire s'annulait, seul le libellé change. */
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixSansBackground({ level: 1, classId: WIZARD, speciesId: "srd:species:en:human" }))
@@ -106,10 +114,8 @@ test("DETTE A, test 1bis — un Humain SANS choix `background` publie sa propre 
   const stat = poolDe(out.resolved);
   assert.deepEqual(stat.breakdown, [
     { label: "Class Pool · Wizard", value: 12, source: { kind: "class", id: WIZARD } },
-    { label: "Educated · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } },
-    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } },
-    { label: "Human · 1 granted choice", value: 1, source: { kind: "species", id: "srd:species:en:human" } },
-    { label: "Human · 1 imposed choice", value: -1, source: { kind: "species", id: "srd:species:en:human" } }
+    { label: "Skillful · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } },
+    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } }
   ]);
   assert.equal(stat.value, 12);
   assert.equal(stat.value, somme(stat));
@@ -154,7 +160,13 @@ test("DETTE A, test 3 — ⚔️ un `granted_skill_choice` SCALAIRE fait JETER, 
 test("DETTE A, test 3bis — ⚔️ un `granted_skill_choice.count` À ZÉRO fait JETER, même sans background", () => {
   const h = pile({
     extra: Object.assign(uneCouche("scenario-dette-a-grant-zero", {
-      species: { "fh:species:en:araag": { op: "patch", changes: { "data[granted_skill_choice].count": 0 } } }
+      /* ⚠️ LE CHAMP EST POSÉ EN ENTIER DEPUIS LE 2026-08-17, plus retouché
+         par sa sous-clef : l'Araag n'a plus de `granted_skill_choice` du tout
+         (Fast Learner l'a absorbé), donc `…​.count` viserait le vide. Ce que
+         l'attaque prouve n'a pas bougé — un compte non positif JETTE — et
+         elle le prouve désormais sur un champ que la couche d'essai fabrique
+         elle-même, ce qui la rend indépendante du canon. */
+      species: { "fh:species:en:araag": { op: "patch", changes: { "data[granted_skill_choice]": { count: 0, from: "any" } } } }
     }), { flags: [] })
   });
   assert.throws(() => h.verbs.rebuild({
