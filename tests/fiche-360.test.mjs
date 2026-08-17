@@ -333,17 +333,30 @@ test("garde 4 — les douze espèces portent leurs traits, et aucune ne dépasse
   assert.deepEqual(traitsTropLongs(especes), []);
 });
 
-test("garde 4 — le pire cas est l'ELFE, et il porte bien SEPT entrées", () => {
-  /* La mesure qui a corrigé la cote : si un jour l'elfe en perd une ou qu'une
-     autre espèce le dépasse, ce test le dit AVANT que la boîte déborde. */
+test("garde 4 — TROIS traits au maximum, et l'Elfe n'en garde que deux", () => {
+  /* 🔴 RÉÉCRIT LE 2026-08-17 (lot 81), et le renversement est total. Les
+     traits ne vivent plus dans la boîte du bas, large de 253 px : ils sont
+     montés dans le BLOC 1, une colonne de 145, où chacun prend DEUX lignes
+     (nom en gras, effet en italique dessous). Le plafond n'est donc plus de
+     sept entrées d'une ligne, mais de TROIS entrées de deux.
+
+     📏 Et l'Elfe, qui était le pire cas, est descendu à DEUX : il est la
+     seule fiche à cumuler un bloc 1 plein ET la bande de lignages la plus
+     haute (cinq lignes). Mesuré : avec un troisième trait, son blurb perdait
+     trois lignes. */
   const especes = les12Especes();
   const max = especes.reduce((a, e) => (e.traits.length > a.traits.length ? e : a));
-  assert.equal(max.traits.length, 7, "le maximum d'entrées");
-  assert.equal(max.who, "elf");
-  assert.ok(max.traits.some((t) => t.name === "Splinter of Anon"),
-    "et c'est bien un `fh_trait` qui fait la septième — l'oubli qui avait faussé la première cote");
-  assert.ok(especes.every((e) => e.traits.some((t) => t.name === "Destiny")),
-    "chaque espèce porte sa ligne Destiny, comme le croquis A la dessine");
+  assert.ok(max.traits.length <= 3,
+    `⛔ le bloc 1 tient TROIS traits à deux lignes — ${max.who} en porte ${max.traits.length}`);
+  const elfe = especes.find((e) => e.who === "elf");
+  assert.equal(elfe.traits.length, 2, "l'Elfe paie sa bande de cinq lignes d'un trait");
+  assert.ok(elfe.traits.some((t) => t.name === "Splinter of Anon"),
+    "et ce qu'il garde d'abord est sa signature FH (Eric, 2026-08-17)");
+  /* ⭐ `Destiny` A QUITTÉ LES TRAITS POUR LES STATS. Eric l'a voulue sur la
+     fiche (*« Destiny reste »*) ; une ligne `Base 2` est un chiffre, pas une
+     aptitude — elle coûtait deux lignes chez les traits, elle en coûte une ici. */
+  assert.ok(especes.every((e) => !e.traits.some((t) => t.name === "Destiny")),
+    "Destiny n'est plus un trait : c'est une ligne de stat");
 });
 
 test("⚔️ ATTAQUE — garde 4 : une entrée de trop est vue, et le garde MORD sur les LIGNES", () => {
@@ -464,7 +477,7 @@ const BANDE_PX = 226;          // 242 (--fiche-dalle-w) − 2 × 8 (padding)
 /* ⚠️ RECOTÉ LE 2026-08-16 AVEC LA BANDE (2 → 4) : `--fiche-infos-h` passe de
    40 à 56 px et son écart entre lignes tombe à 0, soit 4 × 14. Le nombre du
    garde suit la feuille, il ne la précède pas. */
-const INFOS_MAX = 4;           // 56 px (--fiche-infos-h) / 14, écart nul
+const INFOS_MAX = 5;           // 5 × --fiche-ligne (lot 81) — intertitre + règle + 3 lignages
 const GOUTTIERE_INFOS = 4;     // `.fiche-info-row { gap: var(--sp-4) }`
 
 /** Une entrée de la bande telle que la fiche la pose : l'étiquette en GRAS
@@ -509,9 +522,15 @@ export function bandesFautives(fiches, largeur = BANDE_PX, max = INFOS_MAX) {
   return out;
 }
 
-test("garde 6 — aucune bande d'infos ne déborde, n'excède 2 entrées, ni n'est vide", () => {
+test("garde 6 — aucune bande d'infos ne déborde, n'excède CINQ entrées, ni n'est vide", () => {
+  /* ⚠️ LE PLAFOND EST PASSÉ DE 2 À 5 LE 2026-08-17 (lot 81). Eric : *« dans
+     la carte, quand y'en a 3 : règle générale ET détails pour chaque »*. Une
+     bande porte donc son intertitre, sa règle générale, et une ligne par
+     lignage — cinq lignes pour l'Elfe et le Tiefling. Le garde ne cède pas
+     pour autant : chaque ligne doit toujours tenir sur UNE, et la largeur est
+     mesurée comme avant. */
   assert.deepEqual(bandesFautives(les24Fiches()), [],
-    "⛔ NE RABOTE PAS L'ÉTIQUETTE TOUT SEUL : la bande fait 226 px et deux lignes. " +
+    "⛔ NE RABOTE PAS L'ÉTIQUETTE TOUT SEUL : la bande fait 226 px et cinq lignes. " +
     "Nomme la fiche et son nombre, et remonte-le (commande du lot 77, §3).");
 });
 
@@ -545,10 +564,20 @@ test("garde 6 bis — les comptes annoncés sont ceux de la DONNÉE, pas d'un do
      Ces trois-là ont été comptés à la main dans le texte du trait. */
   const infosDe = (kind, who) => les24Fiches().find((f) => f.kind === kind && f.who === who).infos;
 
+  /* 🔴 RÉÉCRIT LE 2026-08-17 : la bande ne COMPTE plus, elle NOMME. Eric :
+     *« oui on nomme les lignages, on donne une règle générale s'il y en a une,
+     et on résume individuellement, très synthétiquement »*. Un compte
+     (« 3 types ») n'aide pas à choisir ; trois noms si. Ce qui est confronté
+     ici n'est donc plus le nombre annoncé, mais le fait que **chaque lignage
+     du SRD ait sa ligne**, sous son vrai nom. */
   for (const who of ["elf", "tiefling"]) {
     const lineages = SRD.records.species[`srd:species:en:${who}`].data.lineages;
-    assert.equal(infosDe("species", who)[0].value, `${lineages.length} types`,
-      `${who} annonce un compte que la liste \`data.lineages\` du SRD ne porte pas`);
+    const bande = infosDe("species", who);
+    assert.ok(typeof bande[0].title === "string", `${who} : la bande s'ouvre sur son intertitre`);
+    const nommes = bande.filter((l) => typeof l.label === "string").map((l) => l.label);
+    for (const l of lineages)
+      assert.ok(nommes.includes(l.name),
+        `${who} : le lignage « ${l.name} » du SRD n'a pas sa ligne dans la bande`);
   }
 
   for (const [id, rec] of Object.entries(SRD.records.class)) {
@@ -591,9 +620,9 @@ test("⚔️ ATTAQUE — garde 6 : les trois fautes sont vues, et NOMMÉES", () 
      avec la bande (56 px, 2026-08-16), donc la fausse fiche porte CINQ entrées.
      Une attaque calée sur l'ancien nombre aurait verdi en silence — elle
      n'aurait plus rien attaqué du tout. */
-  const trop = { kind: "class", who: "cinqEntrees", infos: Array.from({ length: 5 },
+  const trop = { kind: "class", who: "sixEntrees", infos: Array.from({ length: 6 },
     () => ({ label: "Subclass", value: "1 type" })) };
-  assert.deepEqual(bandesFautives([trop]), ["class cinqEntrees : 5 entrées pour 4"]);
+  assert.deepEqual(bandesFautives([trop]), ["class sixEntrees : 6 entrées pour 5"]);
 
   const vide = { kind: "species", who: "fauxMagasin", infos: [] };
   assert.deepEqual(bandesFautives([vide]), ["species fauxMagasin : bande présente et VIDE"],
@@ -618,9 +647,17 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      garde ont bougé avec elle. */
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "fiche.css"), "utf8");
   assert.match(css, /--fiche-dalle-w:\s*242px/, "la dalle : 242 px, dont 226 utiles");
-  assert.match(css, /--fiche-infos-h:\s*56px/, "la bande : 56 px, soit QUATRE lignes à T2 (recotée le 2026-08-16)");
-  assert.match(css, /--fiche-blurb-h:\s*144px/,
-    "et la boîte de texte a payé les 16 px : 144, soit 9 lignes — le pire blurb en demande 9 au plancher");
+  /* 🔴 LES COTES SE COMPTENT EN LIGNES DEPUIS LE 2026-08-17, et il a fallu un
+     défaut pour ça : l'interligne était dérivé de la hauteur de la boîte
+     (`--fiche-blurb-h / 10`). Le jour où cette boîte a changé, l'interligne
+     est tombé à 8,8 px et les lignes se sont chevauchées — pendant que toutes
+     les mesures de débordement restaient vertes. Le sens est renversé : la
+     LIGNE est la cote mesurée, les boîtes se comptent en lignes. */
+  assert.match(css, /--fiche-ligne:\s*14\.4px/, "une ligne à T2, mesurée dans la police du builder");
+  assert.match(css, /--fiche-infos-h:\s*calc\(var\(--fiche-ligne\) \* 5\)/, "la bande : CINQ lignes");
+  assert.match(css, /--fiche-blurb-h:\s*calc\(var\(--fiche-ligne\) \* 6\)/, "le blurb : SIX lignes de plancher");
+  assert.match(css, /line-height:\s*var\(--fiche-ligne\)/,
+    "⛔ et l'interligne vient du JETON, jamais d'une division de la boîte");
   assert.match(css, /\.fiche-infos\s*\{[^}]*gap:\s*0/,
     "⛔ l'écart ENTRE LIGNES de la bande est nul : ses 3 × 2 px sont ce qui manquait pour tenir quatre lignes");
   assert.match(css, /\.fiche-info-row\s*\{[^}]*gap:\s*var\(--sp-4\)/, "la gouttière étiquette/valeur : 4 px");

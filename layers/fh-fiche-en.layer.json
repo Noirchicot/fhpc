@@ -22,48 +22,35 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "M 5-7 ft. tall"
+              "value": "M (5–7 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Draconic Ancestry",
-              "effect": "pick your dragon"
-            },
-            {
-              "name": "Breath Weapon",
-              "effect": "1d10 cone or line"
-            },
-            {
-              "name": "Damage Resistance",
-              "effect": "your ancestry's"
-            },
-            {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
               "name": "Draconic Flight",
-              "effect": "wings at level 5"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "effect": "spectral wings at level 5"
             }
           ],
           "data[fiche_infos]": [
             {
-              "label": "Lineages",
-              "value": "10 types"
+              "title": "Draconic Ancestry"
+            },
+            {
+              "label": "Ten lines",
+              "value": "breath + its resistance"
             }
           ]
         }
@@ -78,23 +65,23 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "M 4-5 ft. tall"
+              "value": "M (4–5 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "120 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
-            {
-              "name": "Darkvision",
-              "effect": "120 ft in the dark"
-            },
             {
               "name": "Dwarven Resilience",
               "effect": "resist poison"
@@ -105,11 +92,7 @@
             },
             {
               "name": "Stonecunning",
-              "effect": "tremorsense on stone"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "effect": "Tremorsense 60 ft on stone"
             }
           ]
         }
@@ -119,57 +102,56 @@
         "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency.",
         "changes": {
           "data.blurb": {
-            "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, slowly, without breaking it. Sleep is optional; a few hours of trance covers it, and charm mostly slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age—alarming, given how much age an elf gets.",
+            "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, without breaking it. Sleep is optional; a few hours of trance covers it, and charm slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "M 5-6 ft. tall"
+              "value": "M (5–6 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
-              "name": "Elven Lineage",
-              "effect": "choose one of three"
+              "name": "Splinter of Anon",
+              "effect": "+2 Destiny Base"
             },
             {
               "name": "Fey Ancestry",
-              "effect": "advantage vs charm"
-            },
-            {
-              "name": "Keen Senses",
-              "effect": "one skill of three"
-            },
-            {
-              "name": "Trance",
-              "effect": "long rest in 4 hours"
-            },
-            {
-              "name": "Splinter of Anon",
-              "effect": "Destiny Base +2"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 4"
+              "effect": "advantage vs Charmed"
             }
           ],
           "data[fiche_infos]": [
             {
-              "label": "Lineages",
-              "value": "3 types"
+              "title": "Elven Lineages"
+            },
+            {
+              "label": "All",
+              "value": "grant a thread of spells"
+            },
+            {
+              "label": "Drow",
+              "value": "Darkvision 120 ft"
+            },
+            {
+              "label": "High Elf",
+              "value": "juggles cantrips"
+            },
+            {
+              "label": "Wood Elf",
+              "value": "Speed 35 ft"
             }
           ]
         }
@@ -184,40 +166,43 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "S 3-4 ft. tall"
+              "value": "S (3–4 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
               "name": "Hoddon Cunning",
               "effect": "advantage on INT, WIS, CHA saves"
-            },
-            {
-              "name": "Hoddon Lineage",
-              "effect": "choose one of two"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
             }
           ],
           "data[fiche_infos]": [
             {
-              "label": "Lineages",
-              "value": "2 types"
+              "title": "Hoddon Lineages"
+            },
+            {
+              "label": "Forest Folk",
+              "value": "illusions, speaks to beasts"
+            },
+            {
+              "label": "Rock Folk",
+              "value": "repairs, clockwork devices"
+            },
+            {
+              "label": "Mole People",
+              "value": "Darkvision 120, tinkers"
             }
           ]
         }
@@ -232,40 +217,35 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "M 7-8 ft. tall"
+              "value": "M (7–8 ft)"
             },
             {
               "label": "Speed",
               "value": "35 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
-            {
-              "name": "Giant Ancestry",
-              "effect": "one giant boon"
-            },
             {
               "name": "Large Form",
               "effect": "grow Large at level 5"
             },
             {
               "name": "Powerful Build",
-              "effect": "count one size up"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "effect": "carry as one size larger"
             }
           ],
           "data[fiche_infos]": [
             {
-              "label": "Lineages",
-              "value": "6 types"
+              "title": "Giant Ancestry"
+            },
+            {
+              "label": "Six lines",
+              "value": "one boon, a few times a day"
             }
           ]
         }
@@ -280,42 +260,30 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "S 2-3 ft. tall"
+              "value": "S (2–3 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
-            {
-              "name": "Brave",
-              "effect": "advantage vs frightened"
-            },
-            {
-              "name": "Halfling Nimbleness",
-              "effect": "move through bigger folk"
-            },
-            {
-              "name": "Luck",
-              "effect": "reroll a natural 1"
-            },
-            {
-              "name": "Naturally Stealthy",
-              "effect": "hide behind bigger folk"
-            },
             {
               "name": "Outlasting",
               "effect": "advantage on Chaos rolls"
             },
             {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "name": "Luck",
+              "effect": "reroll any natural 1"
+            },
+            {
+              "name": "Brave",
+              "effect": "advantage vs Frightened"
             }
           ]
         }
@@ -330,26 +298,22 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
               "value": "M or S"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Resourceful",
-              "effect": "Heroic Inspiration each rest"
-            },
-            {
-              "name": "Skillful",
-              "effect": "one skill of your choice"
+              "name": "Twice-Born",
+              "effect": "recover 2 Destiny on a rest"
             },
             {
               "name": "Versatile",
@@ -357,15 +321,7 @@
             },
             {
               "name": "Educated",
-              "effect": "2 skill points at creation"
-            },
-            {
-              "name": "Twice-Born",
-              "effect": "recover 2 Destiny on a rest"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "effect": "+2 skill points at level 1"
             }
           ]
         }
@@ -380,16 +336,20 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
-              "value": "M 6-7 ft. tall"
+              "value": "M (6–7 ft)"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "120 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
@@ -398,16 +358,8 @@
               "effect": "Dash as a bonus action"
             },
             {
-              "name": "Darkvision",
-              "effect": "120 ft in the dark"
-            },
-            {
               "name": "Relentless Endurance",
               "effect": "drop to 1 HP, not 0"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
             }
           ]
         }
@@ -422,40 +374,47 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
               "value": "M or S"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
-              "name": "Fiendish Legacy",
-              "effect": "choose one of three"
-            },
-            {
               "name": "Otherworldly Presence",
-              "effect": "Thaumaturgy"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "effect": "you know Thaumaturgy"
             }
           ],
           "data[fiche_infos]": [
             {
-              "label": "Lineages",
-              "value": "3 types"
+              "title": "Fiendish Legacies"
+            },
+            {
+              "label": "All",
+              "value": "a resistance and a thread of spells"
+            },
+            {
+              "label": "Abyssal",
+              "value": "Poison"
+            },
+            {
+              "label": "Chthonic",
+              "value": "Necrotic"
+            },
+            {
+              "label": "Infernal",
+              "value": "Fire"
             }
           ]
         }
@@ -470,42 +429,34 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
               "value": "M"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
-              "name": "Fast Learner",
-              "effect": "2 skill points at 1, 3, 6"
+              "name": "Soulforged Affinity",
+              "effect": "Body Forge a Soulgem free"
             },
             {
               "name": "Necrotic Resistance",
-              "effect": "resist necrotic"
+              "effect": "resist necrotic damage"
             },
             {
-              "name": "Skillful",
-              "effect": "one skill of your choice"
-            },
-            {
-              "name": "Soulforged Affinity",
-              "effect": "Body Forge free"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "name": "Fast Learner",
+              "effect": "+2 skill points at 1, 3, 6"
             }
           ]
         }
@@ -520,42 +471,34 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
               "value": "M"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "60 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
             {
-              "name": "Darkvision",
-              "effect": "60 ft in the dark"
-            },
-            {
-              "name": "Fast Learner",
-              "effect": "2 skill points at 1, 3, 6"
-            },
-            {
               "name": "Fey Ancestry",
-              "effect": "advantage vs charm"
+              "effect": "advantage vs Charmed"
             },
             {
               "name": "Keen Senses",
-              "effect": "one skill of three"
+              "effect": "2 pts: Delve, Survival, Vigilance"
             },
             {
-              "name": "Trance",
-              "effect": "long rest in 4 hours"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
+              "name": "Fast Learner",
+              "effect": "+2 skill points at 1, 3, 6"
             }
           ]
         }
@@ -570,23 +513,23 @@
           },
           "data[fiche_stats]": [
             {
-              "label": "Type",
-              "value": "Humanoid"
-            },
-            {
               "label": "Sz",
               "value": "M"
             },
             {
               "label": "Speed",
               "value": "30 ft"
+            },
+            {
+              "label": "Darkvision",
+              "value": "120 ft"
+            },
+            {
+              "label": "Destiny",
+              "value": "Base 2"
             }
           ],
           "data[fiche_traits]": [
-            {
-              "name": "Darkvision",
-              "effect": "120 ft in the dark"
-            },
             {
               "name": "Relentless Endurance",
               "effect": "drop to 1 HP, not 0"
@@ -594,10 +537,6 @@
             {
               "name": "Versatile",
               "effect": "one Origin feat"
-            },
-            {
-              "name": "Destiny",
-              "effect": "Base 2"
             }
           ]
         }

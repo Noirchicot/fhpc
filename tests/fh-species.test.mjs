@@ -209,6 +209,58 @@ test("ACCEPTATION — les points de compétence : Educated à l'Humain, Fast Lea
     "toutes les autres espèces sont à zéro point de compétence d'espèce");
 });
 
+test("GARDE — le cumul de deux dons de compétence LIBRES : deux cas connus, et pas un de plus", () => {
+  /* 🔴 LE DÉFAUT QUE CE GARDE EXISTE POUR EMPÊCHER, ET IL A VÉCU LONGTEMPS.
+     Le 2026-08-17, Eric a vu sur le site publié : *« je vois skillful + fast
+     learner »*. Mesuré : l'Humain portait `granted_skill_choice` (une maîtrise
+     pleine, donc 2 points au coût plein) EN PLUS de `Educated` (+2), et
+     l'Araag portait le même `granted_skill_choice`, hérité de l'Humain, EN
+     PLUS de `Fast Learner`. Les deux recevaient l'équivalent de 4 points au
+     niveau 1 là où le chapitre en annonce 2.
+
+     ⛔ POURQUOI PERSONNE NE L'AVAIT VU : les deux dons ont des FORMES
+     différentes — un choix de maîtrise (`granted_skill_choice`) et un barème
+     par niveau (`skill_points`). Aucun total ne les additionnait, ni dans le
+     moteur, ni à l'écran, ni dans les tests. Un cumul entre deux formes est
+     invisible tant que rien ne compte les FORMES ELLES-MÊMES.
+
+     ⭐ CE QUE CE GARDE COMPTE, ET LA DISTINCTION EST LA BONNE : les dons
+     LIBRES (dépensables où l'on veut). `granted_skill_budget` en est EXCLU
+     à dessein — Keen Senses est un budget CAPTIF de trois compétences, et
+     l'Elestu le porte légitimement à côté de son Fast Learner. Interdire tout
+     cumul serait faux ; c'est le cumul de LIBERTÉS qui ne va pas.
+
+     ⏳ POURQUOI CE GARDE LISTE LE DÉFAUT AU LIEU DE L'INTERDIRE. Le retrait a
+     été fait, puis ANNULÉ le même jour : il coûte à l'Humain ET à l'Araag leur
+     `granted_skill_choice`, donc leur 2ᵉ palier de choix d'espèce — et l'Araag
+     est le seul exemple de l'état « choix imposé » de `species-step.mjs`.
+     Retirer un écran du parcours est une décision de PRODUIT, qu'un fil en
+     autonomie ne prend pas. Le défaut est donc CONSIGNÉ, à l'unité près, en
+     attendant la parole d'Eric.
+
+     ⭐ ET UNE LISTE EXACTE VAUT MIEUX QU'UN `TODO` : ce garde vire au rouge
+     dans les DEUX sens — si une troisième espèce gagne un cumul, et le jour
+     où ces deux-là sont réparés. Une dette qu'aucun test ne tient est une
+     dette qu'on recopie de passation en passation ; ce dépôt en a déjà porté
+     une pendant douze jours.
+
+     📌 Eric, le 2026-08-17 : *« j'en ai plein le cul de voir cette règle pas
+     figée remonter »*. Un commentaire ne fige rien — cette liste si. */
+  const { verbs } = pileFH();
+  const cumuls = [];
+  for (const vue of verbs.query({ kind: "species" })) {
+    const data = vue.record.data;
+    const libres = [];
+    if (data.skill_points !== undefined) libres.push(`skill_points(${data.skill_points.trait})`);
+    if (data.granted_skill_choice !== undefined) libres.push("granted_skill_choice");
+    if (libres.length > 1) cumuls.push(`${vue.record.name} : ${libres.join(" + ")}`);
+  }
+  assert.deepEqual(cumuls.sort(), [
+    "Araag : skill_points(fast-learner) + granted_skill_choice",
+    "Human : skill_points(educated) + granted_skill_choice"
+  ], "les DEUX cumuls connus, et aucun autre — en attente de la décision d'Eric sur le 2ᵉ palier");
+});
+
 test("ACCEPTATION — le Hoddon s'appelle Hoddon, et plus Gnome, jusque dans ses traits", () => {
   const { verbs } = pileFH();
   const vue = verbs.query({ kind: "species", id: "srd:species:en:gnome" });

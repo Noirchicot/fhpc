@@ -116,14 +116,57 @@ export const DESTINY_BASE = 2;
 /* ── LES POINTS DE COMPÉTENCE — LA VERSION VRAIE ─────────────────────
    ⚠️ Les chapitres 2 et 4 se CONTREDISAIENT. Eric a tranché le 2026-08-08 :
 
-     · Human — « Educated » : +2 à la création, ET C'EST TOUT.
+     · Human — +2 à la création, ET C'EST TOUT.
      · Araag et Elestu — « Fast Learner » : +2 aux niveaux 1, 3 et 6.
      · toutes les autres : 0.
 
    Deux passages du chapitre restent donc périmés et sont IGNORÉS ici :
    « Fast Learner — +2 skill points at levels 3 and 6 » (il manque le niveau 1)
    et le tableau des *species bumps* du chapitre 4 (il donnait les bumps à
-   « Araag, Human » et zéro à l'Elestu). */
+   « Araag, Human » et zéro à l'Elestu).
+
+   ══ 🔴 2026-08-17 — UN SEUL DON PAR ESPÈCE, ET C'EST LA FIN DE LA DÉRIVE ══
+   Eric, en regardant le site : *« je vois skillful + fast learner »*, puis
+   *« pourquoi pas juste se simplifier la vie : Fast Learner qui recouvre tout.
+   Statué et corrigé partout. J'en ai plein le cul de voir cette règle pas
+   figée remonter. »*
+
+   ⛔ CE QUI CLOCHAIT, ET CE N'ÉTAIT PAS UN LIBELLÉ : **deux espèces portaient
+   DEUX dons de compétence en même temps.**
+
+     · Humain — `Skillful` (`granted_skill_choice`, une maîtrise pleine, donc
+       2 points au coût plein) **ET** `Educated` (+2 points au niveau 1) ;
+     · Araag  — le même `Skillful` hérité de l'Humain **ET** `Fast Learner`.
+
+   Chacune recevait donc l'équivalent de **4 points au niveau 1** là où le
+   chapitre en annonce 2. Ce n'était visible nulle part : les deux dons sont
+   de FORMES différentes (un choix de maîtrise / un barème par niveau), donc
+   aucun total ne les additionnait à l'écran.
+
+   ⭐ LA RÈGLE, MAINTENANT UNIQUE — un don par espèce, nommé par son trait :
+
+     · Humain            → `Skillful`     : une maîtrise au choix, qui VAUT les
+                                            2 points du niveau 1
+     · Araag et Elestu   → `Fast Learner` : +2 aux niveaux 1, 3 et 6
+     · les neuf autres   → rien
+
+   `Educated` DISPARAÎT (absorbé par `Skillful`, décision d'Eric : *« skillful
+   origine SRD écrase educated »*), et `Skillful` disparaît de l'Araag (absorbé
+   par `Fast Learner`). Aucun nom neuf n'a été inventé : les deux survivants
+   sont ceux que le SRD et le chapitre portaient déjà.
+
+   ⏳ CE QUI RESTE OUVERT, ET QUI EST À ERIC — pas à ce fichier. La règle
+   générale des ADDENDUMS dit *« ce qui arrive au niveau 1 est converti en
+   points du pool »*, ce qui voudrait que le `Skillful` du Humain devienne
+   **2 points libres** au lieu d'une maîtrise imposée. Mesuré : cette
+   conversion retire à l'Humain ET à l'Araag leur 2ᵉ palier de choix d'espèce
+   et fait tomber **10 gardes dans 6 fichiers**. Ce n'est pas une conséquence
+   mécanique, c'est un changement de ce que le joueur peut faire — donc du
+   PRODUIT. Déclaré, non fait (2026-08-17, sous autonomie).
+
+   🔴 ET C'EST GARDÉ, pas seulement écrit — `tests/fh-species.test.mjs` compte
+   les dons LIBRES de chaque espèce et refuse le second. Cette règle est
+   remontée assez souvent pour qu'un commentaire ne suffise pas. */
 
 const EDUCATED = { trait: "educated", by_level: { 1: 2 } };
 const FAST_LEARNER = { trait: "fast-learner", by_level: { 1: 2, 3: 2, 6: 2 } };
@@ -319,6 +362,17 @@ export const SPECIES = [
        créature sont donc PRIS chez l'Humain, la taille est déclarée Medium.
        ⚠️ La taille est la seule valeur de ce fichier qu'Eric n'a pas écrite —
        question Q15-1, corrigible en une ligne. */
+    /* ⏳ 2026-08-17 — L'ARAAG N'A PAS ÉTÉ TOUCHÉ NON PLUS, MÊME MOTIF QUE
+       L'HUMAIN. Eric a vu le doublon de ses yeux sur le site (*« je vois
+       skillful + fast learner »*) et tranché *« Fast Learner qui recouvre
+       tout »*. Le retrait a été fait, mesuré, puis ANNULÉ : il retire à
+       l'Araag son `granted_skill_choice`, donc son **2ᵉ palier de choix
+       d'espèce** — et l'Araag est le seul exemple de l'état « choix imposé »
+       de `species-step.mjs`. Supprimer un écran du parcours n'est pas la
+       conséquence mécanique d'un doublon de points : c'est du PRODUIT.
+       Le doublon est réel et reste à payer ; il attend une phrase d'Eric sur
+       ce que devient le palier. Voir le garde de caractérisation dans
+       `tests/fh-species.test.mjs`, qui tient les deux cas au chaud. */
     lift: { from: "human", fields: ["creature_type", "speed", "speed_ft", "granted_skill_choice"] },
     size: "Medium",
     size_key: "medium",
@@ -419,6 +473,25 @@ export const SPECIES = [
        SRD de Skillful et Versatile. Le moyen existe depuis le lot 17
        (`opPatch.remove`), et il désigne le trait PAR SON IDENTITÉ. */
     removeTraits: ["resourceful"],
+    /* ⏳ 2026-08-17 — L'HUMAIN N'A PAS ÉTÉ TOUCHÉ, ET LE MOTIF EST CHIFFRÉ.
+       Eric : *« l'humain n'a que +2 au lvl 1 : donc Skillful origine SRD
+       écrase Educated »*. Deux lectures, et elles ne donnent PAS le même
+       total — mesuré contre le garde « LIGNE ROUGE : Human et Araag 12 » :
+
+         a. retirer `Educated`, garder la maîtrise -> total **10**. La
+            maîtrise de `Skillful` est NET-ZÉRO (elle ajoute 2 et les dépense
+            aussitôt), elle ne remplace donc pas les +2 d'`Educated`. Cette
+            lecture CASSE la ligne rouge.
+         b. convertir `Skillful` en +2 points libres et retirer
+            `granted_skill_choice` -> total **12**, ligne rouge tenue, phrase
+            d'Eric tenue au chiffre près. ⛔ Mais elle retire à l'Humain son
+            2ᵉ palier de choix d'espèce — et comme l'Araag vient de perdre le
+            sien, l'état « choix imposé » de `species-step.mjs` n'aurait plus
+            AUCUN utilisateur. C'est un changement de ce que le joueur peut
+            faire, donc du PRODUIT, et la charte d'autonomie l'exclut.
+
+       (b) est la bonne réponse mécanique ; elle demande la parole d'Eric.
+       Déclaré ici et remonté, jamais laissé à trouver. */
     description: HUMAN_DESCRIPTION,
     fhTraits: [EDUCATED_TRAIT, TWICE_BORN],
     skillPoints: EDUCATED

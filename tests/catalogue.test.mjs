@@ -335,44 +335,48 @@ test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couch
      prouve l'autre moitié : sur un personnage SRD pur, cette fiche-ci
      disparaît au profit du corps SRD — jamais une dalle vide, jamais un
      zéro inventé.
-     ⚠️ LOT 77 — LA DESTINÉE A QUITTÉ LA FICHE D'ESPÈCE. `fh-fiche-en` ne
-     porte pour l'espèce que `Type · Sz · Speed · Lineages` : ni `Destiny`
-     ni `Skill points`, que l'ancienne fiche affichait, et le croquis
-     d'espèce range la Destinée dans les TRAITS, tombés eux aussi. C'est
-     remonté à Eric (INVENTAIRE-LOT-77.md) et non tranché ici. */
+     ✅ LOT 81 (2026-08-17) — LA DESTINÉE EST REVENUE, ET `Type` EST PARTI.
+     Eric a tranché les deux : *« Destiny reste, et surtout rajoute les chosen
+     quand y'en a »*. `Type : Humanoid` valait en revanche pour les DOUZE
+     espèces — une ligne qui ne distingue jamais rien, dans une colonne
+     désormais partagée avec les traits. */
   assert.ok(etiquettesDe(ECRANS[0]).includes("Skill pool"),
     "le pool de compétences est un apport FH, et il est sur la fiche de classe");
   const espece = etiquettesDe(ECRANS[1]);
-  for (const attendue of ["Type", "Sz", "Speed"])
+  assert.ok(!espece.includes("Type"),
+    "`Type : Humanoid` est identique sur les douze — il a quitté la fiche (lot 81)");
+  for (const attendue of ["Sz", "Speed", "Destiny"])
     assert.ok(espece.includes(attendue),
       `la fiche d'espèce porte ses lignes de couche (${attendue} manque : ${espece.join(", ")})`);
 });
 
-test("C ter — les 24 fiches remplissent leur boîte fixe : blurb chez la CLASSE, traits chez l'ESPÈCE", () => {
+test("C ter — les 24 fiches portent leur blurb, et l'espèce porte EN PLUS ses traits", () => {
   /* La boîte est FIXE (10 lignes) : un contenu absent laisserait un trou de
      160 px, un contenu trop long déborderait en silence. Le premier se voit
      ici, le second aux gardes de `tests/fiche-360.test.mjs` (1 pour le
      blurb, 4 pour les traits).
 
-     ⚠️ CE TEST A ÉTÉ REPOINTÉ LE 2026-08-15 (lot 78), et sa vérité n'a pas
-     bougé : *la boîte n'est jamais vide*. Ce qui a changé, c'est ce qu'Eric
-     y met — son croquis A donne la moitié basse d'une ESPÈCE à ses TRAITS,
-     là où le croquis C du Wizard y met le blurb. *« B3 = B2 »* ne vaut donc
-     que pour la GÉOMÉTRIE : même boîte, même place, deux contenus. */
-  const attendu = { class: ".fiche-blurb", species: ".fiche-traits" };
+     ⚠️ REPOINTÉ DEUX FOIS, ET LA SECONDE RENVERSE LA PREMIÈRE. Au lot 78 la
+     moitié basse d'une ESPÈCE portait ses TRAITS et son blurb n'était affiché
+     nulle part. Les trois maquettes qu'Eric a faites à la main le 2026-08-17
+     remontent les traits dans le bloc 1, à la suite des stats, et rendent le
+     bas à la prose. **Les 24 fiches portent donc un blurb** ; l'espèce porte
+     EN PLUS ses traits, ailleurs. */
   for (const cfg of ECRANS) {
-    const sel = attendu[cfg.kind];
     const rendu = renderCatalogueCards(ctxDe(cfg), cfg.body);
-    const boites = rendu.querySelectorAll(sel);
-    assert.equal(boites.length, 12, `les douze fiches de ${cfg.kind} portent chacune leur ${sel}`);
+    const boites = rendu.querySelectorAll(".fiche-blurb");
+    assert.equal(boites.length, 12, `les douze fiches de ${cfg.kind} portent chacune leur blurb`);
     for (const b of boites)
       assert.ok(b.textContent.length > 100,
-        `une boîte vide laisserait 160 px de trou dans la fiche de ${cfg.kind}`);
-    /* ⛔ ET L'AUTRE FORME N'APPARAÎT PAS : une fiche qui porterait les deux
-       demanderait 20 lignes dans une boîte qui en tient 10. */
-    const autre = cfg.kind === "class" ? ".fiche-traits" : ".fiche-blurb";
-    assert.equal(rendu.querySelectorAll(autre).length, 0,
-      `une fiche de ${cfg.kind} ne porte QUE ${sel} — les deux ne tiennent pas dans 160 px`);
+        `une boîte vide laisserait un trou dans la fiche de ${cfg.kind}`);
+    /* Les traits sont propres à l'espèce, et ils vivent DANS le bloc 1 —
+       jamais dans la boîte du bas, qui est au blurb. */
+    const traits = rendu.querySelectorAll(".fiche-traits");
+    assert.equal(traits.length, cfg.kind === "species" ? 12 : 0,
+      `seule l'espèce porte des traits (${cfg.kind})`);
+    for (const liste of traits)
+      assert.ok(liste.closest(".fiche-bloc1"),
+        "les traits vivent dans le bloc 1, à la suite des stats (lot 81)");
   }
 });
 

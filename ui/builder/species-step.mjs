@@ -24,8 +24,8 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=83";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=83";
+import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=88";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=88";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -90,6 +90,11 @@ export function renderSpeciesCardBody(query, id) {
   return renderFicheBody({
     stats: data.fiche_stats,
     traits: data.fiche_traits,
+    /* ⭐ LE BLURB REVIENT À L'ÉCRAN le 2026-08-17. Il vivait dans la couche
+       depuis le lot 77 et n'était passé à personne : la moitié basse portait
+       les traits. Les maquettes d'Eric remontent les traits en bloc 1, donc
+       le bas est libre — et cinquante mots déjà écrits cessent d'être morts. */
+    blurb: typeof data.blurb === "string" ? data.blurb : (data.blurb && data.blurb.text),
     /* `Lineages` a quitté la colonne de stats pour sa propre bande (croquis
        d'Eric) — le TRI est dans la COUCHE, pas ici : une règle du jeu ne vit
        jamais dans un écran. Sept espèces sur douze n'en ont pas, et leur

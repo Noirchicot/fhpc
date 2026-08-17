@@ -70,9 +70,32 @@
      marge au plancher. Neuf lignes demandées, neuf lignes offertes. Une police
      qui rend un cheveu plus large tronque. C'est acceptable pour un essai ; ça
      ne l'est pas pour une livraison sans qu'Eric l'ait tranché. */
-  --fiche-blurb-h: 144px; /* la boîte du blurb : 9 lignes de 16 px (10 avant) */
-  --fiche-infos-h:  56px; /* la bande d'infos — QUATRE lignes à T2, sans écart */
-  --fiche-stats-h: 126px; /* la rangée des stats : les 8 items d'une classe */
+  /* ══ 🔴 RECOTÉES LE 2026-08-17 (lot 81) — LE BUDGET A CHANGÉ DE MAINS ══
+     Les maquettes d'Eric remontent les traits dans le bloc 1 et rendent le bas
+     au blurb. La rangée du haut PORTE DONC DEUX FOIS PLUS, et la boîte du bas
+     n'a plus besoin de dix lignes : un blurb fait ~50 mots.
+
+     📏 MESURÉ AVANT DE COTER, et la première tentative a échoué bruyamment :
+     à 126 px de rangée haute, le bloc 1 de l'Elfe en demandait **233** et
+     commençait à **−15 px**, au-dessus de la dalle, en recouvrant les deux
+     boîtes suivantes. Une rangée de grille figée ne rogne pas son contenu :
+     elle le laisse déborder par-dessus les voisines, SANS UN MOT.
+
+     Le budget reste fermé à 440 :
+       8 + 22 nom + 8 + 168 bloc 1 + 8 + <bande> + 8 + 88 blurb + 8 + 44 + 8 */
+  /* 🔴 L'INTERLIGNE EST DEVENU UN JETON, ET IL A FALLU UN DÉFAUT POUR ÇA.
+     Il était écrit `calc(var(--fiche-blurb-h) / 10)` — « la boîte fait dix
+     lignes, donc une ligne vaut un dixième ». Le jour où la boîte est passée
+     de 144 à 88 (ce lot), l'interligne est tombé de 14,4 à **8,8 px** et les
+     lignes se sont chevauchées à l'écran. Les mesures de débordement, elles,
+     restaient VERTES : le texte tenait dans la boîte, il était juste
+     illisible. ⛔ Une dérivation n'est bonne que tant que sa prémisse tient.
+     ⭐ Le sens est renversé : c'est la LIGNE qui est la cote mesurée, et les
+     boîtes qui se comptent en lignes. */
+  --fiche-ligne: 14.4px; /* une ligne à T2, mesurée dans la police du builder */
+  --fiche-blurb-h: calc(var(--fiche-ligne) * 6); /* le blurb : SIX lignes (~50 mots) */
+  --fiche-infos-h: calc(var(--fiche-ligne) * 5); /* la bande : intertitre + 4 */
+  --fiche-stats-h: 168px; /* le BLOC 1 : 4 lignes de stats + 3 traits à 2 lignes */
 
   /* ⭐ LA GOUTTIÈRE — Ch1, Eric le 2026-08-15 : *« problème de chevauchement
      entre dalles »*.
@@ -222,7 +245,20 @@
      celui « avec infos » ne tombait juste que sur une classe : une espèce
      laissait 53 px que les rangées `auto` se partageaient n'importe comment
      (nom à 48, boutons à 71 — mesuré). */
-  grid-template-rows: auto var(--fiche-stats-h) 1fr var(--fiche-blurb-h) 1fr auto;
+  /* 🔴 LES RANGÉES SONT DEVENUES ÉLASTIQUES le 2026-08-17, et c'est une
+     MESURE qui l'a imposé, pas un goût. Cotées au pire cas, elles donnent :
+     bloc 1 **187** (Araag), bande **75** (Elfe), blurb **135** (Dwarf) — soit
+     511 px pour une fenêtre de 440. ⛔ Mais ces trois pires cas ne tombent
+     JAMAIS sur la même fiche : l'Araag qui demande 187 n'a pas de bande, et
+     l'Elfe qui demande la bande la plus haute a un bloc 1 plus court. Figer
+     chaque rangée à son pire cas, c'est faire payer à douze fiches un cumul
+     qui n'existe sur aucune.
+     ⭐ CE QUI EST FIXE RESTE FIXE : la DALLE vaut toujours 440 (B0.23b, le
+     cran d'aimantation en dépend). Ce sont les rangées qui se répartissent
+     dedans — `auto` pour ce qui a une taille juste (le bloc 1, la bande), et
+     `1fr` pour le blurb, la seule boîte dont on peut dire combien de lignes
+     on accepte de perdre. */
+  grid-template-rows: auto auto 0 minmax(0, 1fr) 0 auto;
   justify-content: center;
   gap: var(--sp-8);
 }
@@ -248,15 +284,27 @@
   text-align: center;
 }
 
-/* ── LA COLONNE DE STATS — quart haut-gauche ──────────────────────────── */
-.fiche-stats {
+/* ── LE BLOC 1 — quart haut-gauche : les stats, PUIS les traits ────────
+   🔴 NEUF LE 2026-08-17 (lot 81, maquettes d'Eric). La colonne de gauche ne
+   porte plus seulement les stats : elle porte aussi les traits signature,
+   nom en gras et effet en italique dessous. C'est cette boîte-ci qui prend
+   la place que `.fiche-stats` occupait dans la grille ; `.fiche-stats` et
+   `.fiche-traits` deviennent son contenu et ne connaissent plus la grille.
+   ⛔ Une classe ne passe aucun trait : son bloc 1 vaut exactement l'ancienne
+   colonne de stats, et sa géométrie ne bouge pas. */
+.fiche-bloc1 {
   grid-column: 1;
   grid-row: 2;
   /* ⭐ CENTRÉ VERTICALEMENT — Eric, 2026-08-15 : « peu de stats pour le bloc
-     supérieur gauche, tu centres verticalement ». La rangée vaut 126 px (les
-     8 items d'une classe) ; une espèce n'en a que trois et se pose au
-     milieu, en face du centre de l'image, au lieu de coller en haut. */
+     supérieur gauche, tu centres verticalement ». Une espèce peu chargée se
+     pose au milieu, en face du centre de l'image, au lieu de coller en haut. */
   align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  min-width: 0;
+}
+.fiche-stats {
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -351,7 +399,7 @@
   font-size: var(--t2);
   /* 10 lignes DANS la boîte : l'interligne se déduit de la cote, il ne se
      réécrit pas à côté d'elle — les deux nombres ne peuvent pas diverger. */
-  line-height: calc(var(--fiche-blurb-h) / 10);
+  line-height: var(--fiche-ligne);
   color: var(--text);
   overflow: hidden;
 }
@@ -582,7 +630,7 @@
 .fiche-dalle[data-infos="oui"] {
   /* Cinq rangées, tout à fleur : 8 + 22 + 8 + 126 + 8 + 40 + 8 + 160 + 8 +
      44 + 8 = 440. La bande consomme exactement le mou d'une classe. */
-  grid-template-rows: auto var(--fiche-stats-h) var(--fiche-infos-h) var(--fiche-blurb-h) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
 }
 .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 5; }
 
@@ -614,22 +662,28 @@
    c'est exactement ce que ces règles disent : elles héritent la grille et
    l'interligne du blurb, elles ne les redéclarent pas.
    ⛔ Deux nombres qui doivent rester égaux ne s'écrivent pas deux fois. */
+/* 🔴 LES TRAITS ONT QUITTÉ LA GRILLE le 2026-08-17 : ils vivent DANS le bloc 1
+   (voir `.fiche-bloc1`), donc ils n'ont plus ni colonne ni rangée à eux. Ce
+   qu'ils gardent, c'est leur typographie. */
 .fiche-traits {
-  grid-column: 1 / span 2;
-  grid-row: 4;
   margin: 0;
   padding: 0;
   list-style: none;
   font-size: var(--t2);
-  line-height: calc(var(--fiche-blurb-h) / 10);
+  line-height: var(--fiche-ligne);
   color: var(--text);
   overflow: hidden;
+  text-align: center;   /* comme les stats : c'est le TEXTE de la boîte 1 */
 }
-/* Le NOM se lit en diagonale, l'effet se lit après — c'est la seule
-   distinction, et elle est portée par l'encre, jamais par une taille : un
-   second barreau dans une boîte de 10 lignes en coûterait une. */
-.fiche-trait-nom { font-weight: 600; }
-.fiche-trait-effet { color: var(--text); }   /* verre : plus de mention (matrice lot 59) */
+/* ⭐ LA FORME DES MAQUETTES D'ERIC : le nom SUR SA LIGNE, en gras ; l'effet
+   DESSOUS, en italique. Le lot 78 les mettait sur une seule ligne (`nom —
+   effet`) parce que la boîte du bas était large ; dans une colonne de 145 px
+   la ligne se replierait n'importe où. Deux lignes courtes se lisent mieux
+   qu'une longue qui casse au hasard. */
+.fiche-trait { margin-bottom: var(--sp-4); }
+.fiche-trait:last-child { margin-bottom: 0; }
+.fiche-trait-nom { font-weight: 600; display: block; }
+.fiche-trait-effet { color: var(--text); font-style: italic; display: block; }
 
 
 /* ══ LA COMPOSITION HORIZONTALE — croquis « VERTICAL / HORIZONTAL » d'Eric,
@@ -751,7 +805,7 @@
   }
   /* TEXTE 1 se retrouve SEUL dans la colonne du centre : il se centre donc sur
      les deux rangées de contenu, en face de la colonne de droite. */
-  .fiche-dalle .fiche-stats { grid-column: 2; grid-row: 3 / 5; justify-self: center; align-self: center; }
+  .fiche-dalle .fiche-bloc1 { grid-column: 2; grid-row: 3 / 5; justify-self: center; align-self: center; }
 
   /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */
   /* ⭐ LA BOÎTE DE TEXTE EST BORNÉE, ET C'EST LE RATIO MOBILE QUI DONNE LA
@@ -785,14 +839,12 @@
      ⭐ Elle vaut donc la largeur utile de la dalle mobile : 242 − 2 × 8 = 226,
      déduite de ses deux jetons, jamais réécrite en chiffre. */
   .fiche-dalle .fiche-infos,
-  .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits {
+  .fiche-dalle .fiche-blurb {
     max-width: calc(var(--fiche-dalle-w) - 2 * var(--sp-8));
     width: 100%;
   }
   .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 3; align-self: end; justify-self: end; }
-  .fiche-dalle .fiche-blurb,
-  .fiche-dalle .fiche-traits { grid-column: 3; grid-row: 4; align-self: start; justify-self: end; }
+  .fiche-dalle .fiche-blurb { grid-column: 3; grid-row: 4; align-self: start; justify-self: end; }
 
   /* LE PIED — sous les colonnes G et CENTRE, comme le dessin le pose.
      ⭐ Il reste dans le champ quoi qu'il arrive : `CHOOSE` est la validation

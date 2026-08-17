@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=83";
-import { versionQuery } from "./version.mjs?v=83";
+import { planAt } from "./carnet.mjs?v=88";
+import { versionQuery } from "./version.mjs?v=88";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -371,15 +371,20 @@ export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecou
   }
   cadre.append(img);
 
-  /* ── LA MOITIÉ BASSE — MÊME BOÎTE, DEUX CONTENUS ────────────────────────
-     ✅ Eric, 2026-08-15 : *« B3 = B2 »* ne vaut que pour la GÉOMÉTRIE. La
-     boîte garde ses 160 px et sa place ; une CLASSE y met son blurb, une
-     ESPÈCE y met ses traits (son croquis A). ⛔ Le choix ne se fait pas sur
-     le KIND — cette fonction ne sait pas qui l'appelle, et c'est voulu
-     (loi des lots 39/42) : elle rend ce qu'on lui donne. */
-  const bas = Array.isArray(traits) && traits.length
-    ? renderFicheTraits(traits)
-    : el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
+  /* ── LA MOITIÉ BASSE PORTE LE BLURB, ET ELLE LE REPORTE ────────────────
+     🔴 RENVERSÉ LE 2026-08-17, sur les trois maquettes qu'Eric a faites à la
+     main (Hoddon, Elf, Dragonborn — voir `fh-phb/LOT-81-FICHES-SPECIES.md`).
+
+     Au lot 78, la moitié basse d'une espèce portait ses TRAITS et son blurb
+     n'était affiché nulle part. Les maquettes d'Eric remontent les traits
+     dans le quart haut-gauche, à la suite des stats, et rendent le bas à la
+     prose. ⭐ Ce que ça récupère est réel : les douze blurbs existaient déjà
+     dans la couche, écrits, et **aucun joueur ne les avait jamais vus**.
+
+     ⛔ Le choix ne se fait toujours pas sur le KIND — cette fonction ne sait
+     pas qui l'appelle (loi des lots 39/42). Une classe ne passe simplement
+     aucun `traits`, et son bloc 1 se réduit à ses stats, comme avant. */
+  const bas = el("p", "fiche-blurb", [text(typeof blurb === "string" ? blurb : "")]);
 
   /* ── LES INFOS COMPLÉMENTAIRES — croquis d'Eric, 2026-08-15 ────────────
      Une bande pleine largeur sous le bloc haut. ⭐ Elle porte ce qui n'est
@@ -392,9 +397,21 @@ export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecou
      le blurb centré (voir `renderCatalogueCards`). */
   const bande = Array.isArray(infos) && infos.length ? renderFicheInfos(infos) : null;
 
+  /* ── LE BLOC 1 — les stats PUIS les traits, dans une seule boîte ────────
+     ⭐ Les trois maquettes d'Eric posent les traits signature juste sous les
+     quatre lignes de stats, dans le même quart haut-gauche : `Fey Ancestry`
+     en gras, son effet en italique dessous, et ainsi de suite. C'est UNE
+     boîte pour la grille — sans quoi les traits réclameraient leur propre
+     rangée et la grille de la dalle passerait de cinq rangées à six, ce qui
+     déplacerait l'image.
+     ⛔ Une classe n'a pas de traits : son bloc 1 ne contient que ses stats, et
+     sa géométrie ne bouge pas d'un pixel. */
+  const bloc1 = el("div", "fiche-bloc1", [colonne]);
+  if (Array.isArray(traits) && traits.length) bloc1.append(renderFicheTraits(traits));
+
   return bande
-    ? [colonne, cadre, bande, bas, renderFicheActions()]
-    : [colonne, cadre, bas, renderFicheActions()];
+    ? [bloc1, cadre, bande, bas, renderFicheActions()]
+    : [bloc1, cadre, bas, renderFicheActions()];
 }
 
 /** La bande d'infos complémentaires — même forme qu'une ligne de stats
@@ -427,17 +444,26 @@ function renderFicheInfos(infos) {
   return bande;
 }
 
-/** LA LISTE DES TRAITS — `nom — effet`, une ligne courte, exactement la forme
- *  du croquis A d'Eric. ⛔ Le nom et l'effet sont DEUX nœuds : le nom se lit
- *  en diagonale (c'est lui qu'on cherche), l'effet se lit après. Une seule
- *  chaîne interdirait de les distinguer sans découper du texte au rendu. */
+/** LA LISTE DES TRAITS — le nom sur sa ligne, l'effet dessous.
+ *
+ *  🔴 LE TIRET A DISPARU LE 2026-08-17, et ce n'est pas cosmétique. Le lot 78
+ *  écrivait `nom — effet` sur UNE ligne, parce que les traits vivaient dans la
+ *  boîte du bas, large de 253 px. Ils sont montés dans le bloc 1, large de
+ *  145 : une ligne unique s'y replierait au milieu d'un mot, à un endroit
+ *  différent pour chaque espèce. Les maquettes d'Eric les dessinent déjà en
+ *  deux lignes — nom en gras, effet en italique dessous — et c'est la forme
+ *  qui tient dans une colonne étroite.
+ *
+ *  ⛔ Le nom et l'effet restent DEUX nœuds, comme avant : le nom se lit en
+ *  diagonale (c'est lui qu'on cherche), l'effet se lit après. C'est la feuille
+ *  qui décide s'ils sont côte à côte ou l'un sous l'autre. */
 function renderFicheTraits(traits) {
   const liste = el("ul", "fiche-traits");
   for (const t of traits) {
     if (!t || typeof t.name !== "string" || typeof t.effect !== "string") continue;
     const item = el("li", "fiche-trait");
     item.append(el("b", "fiche-trait-nom", [text(t.name)]));
-    item.append(el("span", "fiche-trait-effet", [text(` — ${t.effect}`)]));
+    item.append(el("span", "fiche-trait-effet", [text(t.effect)]));
     liste.append(item);
   }
   return liste;
