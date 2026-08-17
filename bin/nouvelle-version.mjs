@@ -8,6 +8,21 @@
    code neuf et du code d'avant (vécu deux fois le 15 août). La loi
    complète : tête de `ui/builder/version.mjs`.
 
+   🔴 ET IL NE COUVRE PAS QUE `ui/` — PAYÉ LE 2026-08-17. La loi de la maison
+   dit « nouvelle version à chaque changement dans `ui/`, AVANT de regarder ».
+   Elle est trop étroite : `engine.mjs` charge les COUCHES avec la même query
+   (`fetch(\`\${root}/layers/\${file}\${versionQuery(import.meta.url)}\`)`), et
+   `examples/` et `schemas/` aussi. Une couche régénérée sans bump reste donc
+   invisible — le navigateur la resert depuis son cache, sous la même URL.
+   ⛔ Et l'échec est SILENCIEUX ET TROMPEUR : le fichier sur le disque est
+   juste, la requête directe rend le bon contenu, seule la pile montée est
+   vieille. On conclut que la régénération n'a pas marché, et on va chercher
+   le défaut dans le générateur. Mesuré ce jour-là sur `fh-lore-en` : 221 mots
+   à l'écran pour 571 sur le disque.
+   ⭐ LA RÈGLE ÉLARGIE : **bump à chaque changement de ce que la page
+   CHARGE** — `ui/`, `layers/`, `examples/`, `schemas/` — jamais seulement
+   `ui/`.
+
    LA VERSION VIT À DEUX ENDROITS, PAS TROIS (mesuré, lot 75) :
    · `ui/` : chaque import relatif, les `href`/`src` d'`index.html`, les
      `url()` des CSS portent `?v=<N>` en toutes lettres — ce sont des
