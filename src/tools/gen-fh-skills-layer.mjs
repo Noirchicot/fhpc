@@ -398,7 +398,12 @@ function buildClasses(srd) {
           bound_skill_points: entry.boundSkill,
           bound_tool_points: entry.boundTool,
           free_point_pool: entry.free,
+          /* ⭐ LOT 82 — DEUX ÉCHELLES, JAMAIS FUSIONNÉES (canon §B.1septies).
+             `by_level` se compte sur le niveau DU PERSONNAGE, `by_class_level`
+             sur les niveaux DANS CETTE CLASSE. Les additionner rendait un
+             Barde 4 / Guerrier 4 trop riche de quatre points. */
           by_level: entry.byLevel,
+          by_class_level: entry.byClassLevel,
           /* ⭐ LES APTITUDES QUI TENDENT DES POINTS (canon §B.1ter), À PART
              DE L'ÉCHELLE. Les fondre dans `by_level` perdrait la PERMISSION
              qu'elles portent, et la permission est la moitié de ce qu'elles

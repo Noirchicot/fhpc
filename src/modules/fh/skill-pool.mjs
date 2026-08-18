@@ -708,10 +708,33 @@ export function createFhSkillPoolStat() {
         source: { kind: "class", id: classRef.id }
       });
 
-      /* 2. LES PALIERS TRAVERSÉS — une ligne chacun (règle Q15-8). */
+      /* 2. LES PALIERS TRAVERSÉS — une ligne chacun (règle Q15-8).
+
+         ⭐ LOT 82 — DEUX ÉCHELLES, ET ELLES NE SE COMPTENT PAS SUR LE MÊME
+         NIVEAU (canon §B.1septies). `by_level` suit le niveau DU PERSONNAGE ;
+         `by_class_level` suit les niveaux DANS CETTE CLASSE. Le pli ne dérive
+         qu'une classe aujourd'hui, donc les deux nombres sont égaux et la
+         séparation est à somme nulle — mais les DEUX lectures existent, et le
+         jour où le multiclassage arrive, le +1 du barde ne suivra pas les
+         niveaux de guerrier. La table fusionnée d'avant rendait +11 là où la
+         vérité est +7, pour un Barde 4 / Guerrier 4. */
       for (const tier of traversedTiers(pool.by_level, level, classRef.id, `data[${POOL_FIELD}].by_level`)) {
         lines.push({
           label: t("fh.skills.term.level", { level: tier.level }),
+          value: tier.gain,
+          source: { kind: "class", id: classRef.id }
+        });
+      }
+      /* ⏳ `niveauDeClasse` VAUT `level` TANT QUE LE PLI NE DÉRIVE QU'UNE
+         CLASSE (`takeRef("class")`, mesuré). Ce n'est pas une approximation :
+         pour un personnage mono-classe, son niveau de classe EST son niveau.
+         La ligne existe pour que le jour où le pli tend un niveau par classe,
+         il n'y ait qu'un argument à changer — pas une règle à retrouver. */
+      const niveauDeClasse = level;
+      for (const tier of traversedTiers(pool.by_class_level, niveauDeClasse, classRef.id,
+        `data[${POOL_FIELD}].by_class_level`)) {
+        lines.push({
+          label: t("fh.skills.term.class-level", { class: classRef.name, level: tier.level }),
           value: tier.gain,
           source: { kind: "class", id: classRef.id }
         });

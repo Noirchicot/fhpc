@@ -626,7 +626,9 @@ manipulates the third (canon §B.0, §B.1) :
   free point pool      the player's to spend, on skills OR tools
 
 free point pool  =  class free_point_pool     (background's 6 and FH's +2 are INSIDE it)
-                 +  traversed level tiers      (`by_level`, levels ≤ character level)
+                 +  traversed CHARACTER tiers  (`by_level`,       levels ≤ character level)
+                 +  traversed CLASS tiers      (`by_class_level`, levels ≤ level IN that class)
+                 +  class feature grants       (`grants`, levels ≤ character level)
                  +  species points             (Skillful, Fast Learner — unconstrained)
                  +  origin feat points         (Skilled = +6)
                  +  UNCONSTRAINED species grants (`granted_skill_choice.from === "any"`)
@@ -698,6 +700,19 @@ free points **et** la permission d'en acheter avant le niveau 4 :
 | Bard | Expertise | 2 | **2** |
 | Ranger | Deft Explorer | 2 | **2** |
 | les neuf autres | — | — | 4 (canon §B.2) |
+
+⛔ **TROIS RÈGLES SE CROISENT AU NIVEAU 2 DU BARDE, ET AUCUNE NE FUSIONNE.**
+Le canon l'interdit deux fois, pour deux raisons différentes :
+
+| Ce qu'on serait tenté de replier | Ce qu'on perdrait |
+|---|---|
+| l'échelle du personnage **+** l'échelle de barde (§B.1septies) | le compteur : un Barde 4 / Guerrier 4 lirait **+11** au lieu de **+7** |
+| l'échelle **+** l'aptitude d'Expertise (§B.1ter) | la **permission** — et elle est la moitié de ce que l'aptitude est |
+
+Chacune a donc sa table, sa ligne dans le `breakdown`, et son niveau de
+comptage. ⏳ Le pli ne dérivant qu'une classe, la séparation des deux échelles
+est **à somme nulle pour tout personnage mono-classe** — c'est précisément
+pourquoi elle a été faite pendant qu'elle ne coûtait rien.
 
 ⚠️ **Un grant restreint ne se convertit PAS en points.** Le `Keen Senses` de
 l'Elestu tire dans `{survival, delve, vigilance}` ; un point est dépensable
@@ -872,7 +887,7 @@ serait exact et indémontrable.
 | `build.budgets` | **⚠️ AUCUN CHEMIN D'ÉCRITURE, mesuré par le lot 22, et TOUJOURS AUCUN.** Le champ est `required` au schéma, vide dans le seul document d'exemple, et `grep -rn budgets src/` ne rend **rien**. ✅ **La question 1 est TRANCHÉE** (arbitrage du 2026-08-09, §« Où vit un POOL DE POINTS ») : le pool de compétences **n'atterrit pas ici**, il se publie dans `resolved.stats[]` — et le lot 23 l'y publie. Le `$comment` du champ, qui le nomme comme son « premier consommateur concret », est donc **périmé** : `budgets` n'a plus aucun consommateur connu, et la **loi §0.6** se pose désormais sur lui. ⚠ Point ouvert pour l'architecte |
 | `stats[fh:skill-points].imposed.species` | **✅ RETRANCHÉE AU LOT 82 (canon §B.1bis).** Le net zéro du 2026-08-09 est mort avec la soustraction qu'il compensait. La question se répond désormais par la CONTRAINTE, pas par la source : un grant d'espèce contraint par une liste est **bound** (il n'entre jamais dans le pool) ; un grant sans contrainte est **free** (un simple + au pool). Et la pile FH ne pose plus de `granted_skill_choice` du tout : `skill_points` porte le libre, `granted_skill_budget` porte le captif. |
 | `stats[fh:skill-points].imposed.class-tools` | aucun champ **mécanique** d'outil sur la classe : `tool_proficiencies` est une phrase (« Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe pas d'équivalent de `skill_choice`. Les compter demanderait de lire une phrase anglaise dans le moteur |
-| le **multiclassage** du pool | hors de portée, et pas par choix du lot 23 : **le pli lui-même ne dérive qu'UNE classe** (`takeRef("class")`, `identity.classes = [{name, level}]`). Le canon le tranche pourtant (« le +1 du Barde suit ses niveaux de barde, le +2 d'espèce suit le niveau de personnage »), et ⚠ le `by_level` de la couche a **fusionné** le +1 du barde avec le +2 universel — donc il ne se découpe pas par classe tel quel. À rouvrir le jour où le pli portera le multiclassage |
+| le **multiclassage** du pool | **à moitié réglé au lot 82.** Le pli ne dérive toujours qu'UNE classe (`takeRef("class")`, `identity.classes = [{name, level}]`) — ça, c'est intact. Mais la fusion qui rendait le découpage IMPOSSIBLE est défaite : la couche portait `bard: {"4": 3}` (silencieusement 1 + 2, deux règles comptées sur deux niveaux différents), elle porte désormais **deux tables** — `by_level` sur le niveau du personnage, `by_class_level` sur les niveaux dans cette classe (canon §B.1septies). Le module lit les deux, avec `niveauDeClasse = level` tant que le pli n'en tend qu'un. **Ce qui reste à faire est dans le pli, plus dans la donnée** : le jour où il tend un niveau par classe, il n'y a qu'un argument à changer |
 | `actions` | aucun genre `action` ; composer une attaque demande une règle (Finesse, Lancer) que le contrat ne porte pas |
 | `resources` | dés de vie et usages d'aptitude n'ont aucun champ mécanique ; `class-progression.resources` porte des clefs sans nom affichable |
 | `notes` | du texte saisi à la main — et un choix ne peut pas le porter : `build.choices[].value` est plafonné à **200 caractères** |

@@ -462,22 +462,37 @@ test("⛔ DOUZE classes, pas treize — l'Artificier n'est ni au SRD ni dans la 
     "le mot ne doit pas apparaître dans l'artefact publié (loi §0.8)");
 });
 
-test("la progression du barde vaut +1 par niveau dès le 2, en plus du +2 universel", () => {
+test("⭐ LES DEUX ÉCHELLES DU BARDE NE FUSIONNENT PLUS (canon §B.1septies)", () => {
   const verbs = pile();
   const barde = verbs.query({ kind: "class", id: "srd:class:en:bard" }).record.data.fh_skill_pool;
 
-  assert.equal(barde.by_level["2"], 1, "niveau 2 : le +1 du barde seul");
-  assert.equal(barde.by_level["3"], 1);
-  assert.equal(barde.by_level["4"], 3, "niveau 4 : son +1 ET le +2 universel — le chapitre écrit « +1+2(21) »");
+  /* 🔴 CE QUI ÉTAIT FAUX : la couche écrivait `bard: {"4": 3}` — silencieusement
+     1 (barde) + 2 (tout le monde). Deux règles dans une case, comptées sur
+     deux niveaux DIFFÉRENTS : un Barde 4 / Guerrier 4 lisait +11 au lieu de
+     +7. Le pli ne dérivant qu'une classe, l'erreur était latente ; la séparer
+     pendant qu'elle l'est encore ne coûte rien. */
+  assert.deepEqual(barde.by_level, { 4: 2, 8: 2, 12: 2, 16: 2, 20: 2 },
+    "l'échelle du PERSONNAGE : +2 aux cinq paliers, et rien d'autre");
+  assert.equal(barde.by_level["2"], undefined, "le +1 du barde n'est PLUS dans l'échelle de personnage");
+  assert.equal(barde.by_class_level["2"], 1, "il est dans l'échelle de CLASSE, seul");
+  assert.equal(barde.by_class_level["4"], 1, "et au niveau 4 il vaut 1, pas 3 : le +2 vit dans l'autre table");
 
   /* LE CUMUL, et c'est la vérification qui attrape une cadence fausse là où
-     les paliers isolés peuvent tous sembler bons. ⚠️ LOT 82 : le point de
-     départ est le FREE POINT POOL (12), plus le `base` de 16 — ce que le
-     barde cumule, c'est ce qu'il peut DÉPENSER, et son bound n'en a jamais
-     fait partie. */
+     les paliers isolés peuvent tous sembler bons. Il additionne LES DEUX
+     tables — ce qu'un personnage mono-classe traverse. */
   let cumul = barde.free_point_pool;
-  for (let n = 2; n <= 8; n += 1) cumul += barde.by_level[String(n)] || 0;
+  for (let n = 2; n <= 8; n += 1) {
+    cumul += barde.by_level[String(n)] || 0;
+    cumul += barde.by_class_level[String(n)] || 0;
+  }
   assert.equal(cumul, 23, "12 + 7×(+1) + 2×(+2) = 23 free points au niveau 8");
+
+  /* ⛔ ET LES ONZE AUTRES PORTENT UNE ÉCHELLE DE CLASSE VIDE — un fait, pas un
+     trou : aucune autre classe ne gagne de points sur ses propres niveaux. */
+  for (const [id] of LES_12_POOLS.filter(([id]) => id !== "srd:class:en:bard")) {
+    assert.deepEqual(verbs.query({ kind: "class", id }).record.data.fh_skill_pool.by_class_level, {},
+      `« ${id} » ne gagne rien sur ses niveaux de classe`);
+  }
 });
 
 test("une classe sans le +1 du barde ne gagne qu'aux niveaux 4, 8, 12, 16 et 20", () => {
@@ -489,6 +504,14 @@ test("une classe sans le +1 du barde ne gagne qu'aux niveaux 4, 8, 12, 16 et 20"
   let cumul = rogue.free_point_pool;
   for (let n = 2; n <= 8; n += 1) cumul += rogue.by_level[String(n)] || 0;
   assert.equal(cumul, 18, "14 + 2 + 2 = 18 free points au niveau 8");
+
+  /* ⛔ ET LES DOUZE PORTENT LA MÊME ÉCHELLE DE PERSONNAGE. C'est ce qui rend
+     la séparation vérifiable : le +2 appartient au personnage, pas à sa
+     classe — s'il variait d'une classe à l'autre, il ne serait pas universel. */
+  for (const [id] of LES_12_POOLS) {
+    assert.deepEqual(verbs.query({ kind: "class", id }).record.data.fh_skill_pool.by_level,
+      { 4: 2, 8: 2, 12: 2, 16: 2, 20: 2 }, `« ${id} » porte l'échelle universelle, à l'identique`);
+  }
 });
 
 test("les coûts des paliers voyagent avec le pool qu'ils dépensent", () => {

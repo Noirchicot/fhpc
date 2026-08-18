@@ -334,14 +334,16 @@ export const TOOLS_ADDED = [
    serait une règle de jeu dans le moteur, et le jour où Eric la change il
    faudrait recompiler au lieu de rééditer une couche.
 
-   Deux sources se cumulent dans ces nombres, et le canon les tient séparées :
-   · le +2 universel aux niveaux 4, 8, 12, 16 et 20 ;
-   · le +1 par niveau du BARDE à partir du 2, qui remplace *Jack of All
-     Trades* (le trait disparaît).
+   ⭐ LOT 82 — DEUX SOURCES, DEUX TABLES. Elles étaient additionnées dans un
+   seul `by_level` ; le canon §B.1septies les tient séparées parce qu'elles ne
+   se comptent pas sur le même niveau :
+   · `by_level` — le +2 universel aux niveaux 4/8/12/16/20, sur le niveau DU
+     PERSONNAGE ;
+   · `by_class_level` — le +1 par niveau du BARDE depuis le 2 (il remplace
+     *Jack of All Trades*, qui disparaît), sur ses niveaux DE BARDE.
 
-   Le barde reçoit donc 3 au niveau 4 (son +1 et le +2 universel). Vérifié
-   contre le tableau du chapitre, qui écrit « +1+2(21) » à cette ligne, et
-   dont le cumul au niveau 8 vaut 27 : 16 + 7×(+1) + 2×(+2) = 27.
+   Le barde gagne donc toujours 3 au niveau 4 — mais en DEUX lignes, une par
+   règle. Son cumul au niveau 8 : 12 + 7×(+1) + 2×(+2) = 23 free points.
 
    📌 RÈGLE D'ERIC, Q15-8 : ces paliers sont ceux que le personnage a
    TRAVERSÉS. Créé au niveau 5, il a ceux des niveaux ≤ 5 — pas celui du 6.
@@ -349,15 +351,48 @@ export const TOOLS_ADDED = [
 
 const PALIERS_UNIVERSELS = [4, 8, 12, 16, 20];
 
-/** `{niveau: gain}` pour une classe, du niveau 2 au niveau 20. */
-function progression({ bardePlusUnParNiveau = false } = {}) {
+/* ══ ⭐ LOT 82 — DEUX ÉCHELLES, ET ELLES NE SE FUSIONNENT PLUS ═════════
+   Canon §B.1septies, tranché par Eric : *« +1 du barde juste pour les niveaux
+   de barde »*.
+
+   | gain | compté sur |
+   |---|---|
+   | **+2** aux niveaux 4·8·12·16·20 | le niveau **du PERSONNAGE** — une échelle pour tout le personnage |
+   | **+1** depuis le niveau 2 (barde) | les niveaux **DE BARDE** seulement |
+
+   🔴 LA COUCHE LES FUSIONNAIT, ET C'ÉTAIT FAUX DE QUATRE POINTS. Elle écrivait
+   `bard: {"4": 3}` — silencieusement 1 (barde) + 2 (tout le monde) :
+
+       bard    : {"2":1, "3":1, "4":3, "5":1, "6":1, "7":1, "8":3, …}
+       fighter : {              "4":2,                    "8":2, …}
+
+   > **Barde 4 / Guerrier 4**, personnage niveau 8 → vérité **+7**
+   > (4 universels + 3 de barde). La table fusionnée lue au niveau 8 donne
+   > **+11**. Quatre points de trop.
+
+   ⏳ LE PLI NE DÉRIVE QU'UNE CLASSE AUJOURD'HUI (`takeRef("class")`), donc
+   l'erreur est LATENTE : niveau de personnage et niveau de classe sont le même
+   nombre, et la séparation est **à somme nulle pour tout personnage
+   mono-classe**. C'est précisément pourquoi elle se fait MAINTENANT : séparer
+   deux compteurs pendant qu'ils sont égaux ne coûte rien et ne peut rien
+   casser ; le faire après avoir livré le multiclassage demanderait de
+   démêler des personnages déjà enregistrés. */
+
+/** `{niveau: gain}` compté sur le niveau du PERSONNAGE — identique aux douze. */
+function echelleDePersonnage() {
   const byLevel = {};
-  for (let niveau = 2; niveau <= 20; niveau += 1) {
-    let gain = 0;
-    if (PALIERS_UNIVERSELS.includes(niveau)) gain += 2;
-    if (bardePlusUnParNiveau) gain += 1;
-    if (gain > 0) byLevel[String(niveau)] = gain;
-  }
+  for (const niveau of PALIERS_UNIVERSELS) byLevel[String(niveau)] = 2;
+  return byLevel;
+}
+
+/** `{niveau: gain}` compté sur les niveaux DANS CETTE CLASSE. Le barde seul en
+ *  porte une : son +1 par niveau depuis le 2, qui remplace *Jack of All
+ *  Trades* (le trait disparaît). Les onze autres rendent `{}` — une échelle
+ *  vide est un FAIT, pas un trou. */
+function echelleDeClasse({ bardePlusUnParNiveau = false } = {}) {
+  const byLevel = {};
+  if (!bardePlusUnParNiveau) return byLevel;
+  for (let niveau = 2; niveau <= 20; niveau += 1) byLevel[String(niveau)] = 1;
   return byLevel;
 }
 
@@ -470,7 +505,8 @@ export const CLASS_POOLS = [
   boundSkill: entry.boundSkill,
   boundTool: entry.boundTool,
   free: entry.free,
-  byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) }),
+  byLevel: echelleDePersonnage(),
+  byClassLevel: echelleDeClasse({ bardePlusUnParNiveau: Boolean(entry.bard) }),
   grants: CLASS_GRANTS.filter((grant) => grant.target === entry.target)
     .map((grant) => ({
       level: grant.level,

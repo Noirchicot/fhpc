@@ -249,42 +249,46 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
      n'impose plus rien (addendums §4). */
   assert.deepEqual(stat.breakdown, [
     { label: "Class Pool · Bard", value: 12, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 2", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 3", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 4", value: 3, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Level 4", value: 2, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Bard Level 2", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Bard Level 3", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Bard Level 4", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Bard Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Expertise · Level 2", value: 4, source: { kind: "class", id: "srd:class:en:bard" } }
   ]);
   assert.equal(stat.value, 22,
-    "12 de free point pool + 6 de paliers + 4 de l'aptitude Expertise (canon §B.1ter : 2 expertises = 4 points)");
+    "12 de free point pool + 2 (échelle du personnage) + 4 (échelle de barde) + 4 de l'aptitude Expertise");
 
-  /* 🔴 ET LES DEUX ENTRÉES DU NIVEAU 2 NE FUSIONNENT PAS. Le canon l'interdit
-     nommément : replier le +1 de l'échelle et l'aptitude d'Expertise en un
-     seul « +5 au niveau 2 » perdrait la PERMISSION, et la permission est la
-     moitié de ce que l'aptitude est. Deux règles, deux lignes, deux valeurs. */
-  assert.equal(terme(stat, "Level 2").value, 1, "l'échelle, seule");
+  /* 🔴 TROIS RÈGLES SE CROISENT AU NIVEAU 2 ET AUCUNE NE FUSIONNE. Le canon
+     l'interdit deux fois — §B.1ter (replier l'aptitude dans l'échelle perdrait
+     la PERMISSION) et §B.1septies (replier les deux échelles rendrait +11 au
+     lieu de +7 pour un Barde 4 / Guerrier 4). Chacune sa ligne, chacune son
+     niveau de comptage. */
+  assert.equal(terme(stat, "Bard Level 2").value, 1, "l'échelle de barde, seule");
   assert.equal(terme(stat, "Expertise · Level 2").value, 4, "l'aptitude, seule");
-  assert.equal(terme(stat, "Level 2").value + terme(stat, "Expertise · Level 2").value, 5,
-    "cinq points arrivent au niveau 2 — mais JAMAIS sur une seule ligne");
+  assert.equal(terme(stat, "Level 2"), undefined,
+    "et l'échelle du PERSONNAGE ne donne rien au niveau 2 — elle ne bouge qu'aux paliers 4/8/12/16/20");
   assert.equal(stat.value, somme(stat));
 
   /* ⛔ LE PALIER DU NIVEAU 6 EXISTE DANS LA COUCHE, ET IL N'EST PAS LÀ. C'est
      l'assertion centrale du lot : sans elle, une dérivation qui prendrait tout
      le tableau donnerait 17 et personne ne verrait d'où vient le point. */
   const progression = h.layers.verbs.query({ kind: "class", id: "srd:class:en:bard" })
-    .record.data.fh_skill_pool.by_level;
+    .record.data.fh_skill_pool.by_class_level;
   assert.equal(progression["6"], 1, "la couche PORTE bien un palier au niveau 6 — il existe, il n'est pas traversé");
-  assert.equal(terme(stat, "Level 6"), undefined, "et le personnage créé au niveau 5 ne l'a PAS");
+  assert.equal(terme(stat, "Bard Level 6"), undefined, "et le personnage créé au niveau 5 ne l'a PAS");
   for (const niveau of [7, 8, 12, 16, 20]) {
-    assert.equal(terme(stat, `Level ${niveau}`), undefined, `ni celui du niveau ${niveau}`);
+    assert.equal(terme(stat, `Bard Level ${niveau}`), undefined, `ni celui du niveau ${niveau}`);
+    assert.equal(terme(stat, `Level ${niveau}`), undefined, `ni le palier universel du niveau ${niveau}`);
   }
 
   /* ET LE +1 PAR NIVEAU DU BARDE N'EST PAS RECOMPOSÉ ICI. La couche a déjà
      fusionné son +1 avec le +2 universel du niveau 4 : elle donne 3, et le
      module le recopie. Un moteur qui écrirait « +2 tous les 4 niveaux »
      porterait une règle de jeu — ce que le lot 22 a refusé d'y mettre. */
-  assert.equal(progression["4"], 3, "le +3 du niveau 4 est CALCULÉ PAR LA COUCHE (son +1 et le +2 universel)");
-  assert.equal(terme(stat, "Level 4").value, progression["4"], "et le module le RECOPIE, il ne le recompose pas");
+  assert.equal(progression["4"], 1, "l'échelle de barde vaut 1 au niveau 4 — le +2 universel vit dans l'AUTRE table");
+  assert.equal(terme(stat, "Bard Level 4").value, progression["4"], "et le module le RECOPIE, il ne le recompose pas");
+  assert.equal(terme(stat, "Level 4").value, 2, "le +2 du personnage arrive par sa propre ligne, depuis `by_level`");
 
   /* LA PREUVE PAR LE CONTRASTE : le même barde au niveau 6 gagne exactement
      un point de plus, et c'est la ligne du niveau 6 qui apparaît. */
@@ -294,9 +298,9 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
   }));
   const stat6 = poolDe(h6.verbs.rebuild({ document: doc6 }).resolved);
   assert.equal(stat6.value, 23, "au niveau 6, un point de plus (lot 82 : 22 + 1)");
-  assert.deepEqual(terme(stat6, "Level 6"),
-    { label: "Level 6", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
-    "et c'est la ligne du palier 6 qui l'apporte, nommée");
+  assert.deepEqual(terme(stat6, "Bard Level 6"),
+    { label: "Bard Level 6", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    "et c'est la ligne du palier de BARDE 6 qui l'apporte, nommée");
 
   /* ⚠️ Le magicien de même niveau ne gagne RIEN entre 5 et 6 — la preuve que
      la ligne ci-dessus vient du barde et pas du niveau. */

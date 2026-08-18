@@ -145,6 +145,11 @@ export const FH_EN = {
   "fh.skills.pool": "Skill Points",
   "fh.skills.term.class": (d) => "Class Pool · " + d.class,
   "fh.skills.term.level": (d) => "Level " + d.level,
+  /* LOT 82 — l'échelle qui se compte sur les niveaux DE CETTE CLASSE (canon
+     §B.1septies). Le nom de la classe est dans le libellé, et il y est pour
+     une raison : c'est ce qui rendra visible, le jour du multiclassage, que
+     le +1 du barde ne suit pas les niveaux de guerrier. */
+  "fh.skills.term.class-level": (d) => d.class + " Level " + d.level,
   "fh.skills.term.species": (d) => d.trait + " · Level " + d.level,
   /* LOT 82 — une aptitude de classe qui tend des points (canon §B.1ter).
      MÊME FORME que le trait d'espèce : le nom de ce qui donne, puis le niveau

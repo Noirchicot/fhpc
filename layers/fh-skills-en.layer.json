@@ -424,6 +424,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [
               {
                 "level": 3,
@@ -451,25 +452,32 @@
             "bound_tool_points": 2,
             "free_point_pool": 12,
             "by_level": {
+              "4": 2,
+              "8": 2,
+              "12": 2,
+              "16": 2,
+              "20": 2
+            },
+            "by_class_level": {
               "2": 1,
               "3": 1,
-              "4": 3,
+              "4": 1,
               "5": 1,
               "6": 1,
               "7": 1,
-              "8": 3,
+              "8": 1,
               "9": 1,
               "10": 1,
               "11": 1,
-              "12": 3,
+              "12": 1,
               "13": 1,
               "14": 1,
               "15": 1,
-              "16": 3,
+              "16": 1,
               "17": 1,
               "18": 1,
               "19": 1,
-              "20": 3
+              "20": 1
             },
             "grants": [
               {
@@ -504,6 +512,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -529,6 +538,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -554,6 +564,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -579,6 +590,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -604,6 +616,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -629,6 +642,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [
               {
                 "level": 2,
@@ -669,6 +683,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [
               {
                 "level": 1,
@@ -702,6 +717,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -727,6 +743,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
@@ -752,6 +769,7 @@
               "16": 2,
               "20": 2
             },
+            "by_class_level": {},
             "grants": [],
             "tier_costs": {
               "half": 1,
