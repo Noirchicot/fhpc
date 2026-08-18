@@ -843,3 +843,64 @@ test("⛔ DEUX COUCHES, UN SEUL NOMBRE — la fiche recopie le free point pool s
   assert.equal(/"Skill pool"/.test(readFileSync(join(ROOT, "layers/fh-fiche-en.layer.json"), "utf8")), false,
     "« Skill pool » nommait le total d'avant le canon ; la carte annonce désormais ce qui se dépense");
 });
+
+/* ══ LOT 82 — LES APTITUDES QUI TENDENT DES POINTS (canon §B.1ter) ════
+   Une aptitude de classe qui accorde l'Expertise tend DEUX choses, et le
+   canon interdit de les fondre : des free points, et le droit de les dépenser
+   en expertise avant le niveau 4. */
+
+test("les cinq aptitudes du canon §B.1ter sont posées, chacune sur SON niveau", () => {
+  const verbs = pile();
+  const grantsDe = (slug) => verbs.query({ kind: "class", id: `srd:class:en:${slug}` })
+    .record.data.fh_skill_pool.grants;
+
+  assert.deepEqual(grantsDe("rogue"), [
+    { level: 1, feature: "Expertise", points: 0, boundSkill: 0, unlocksExpertise: true }
+  ], "le rogue reçoit la PERMISSION sans un point : ses deux expertises sont déjà dans son kit (canon §A.5)");
+
+  assert.deepEqual(grantsDe("bard"), [
+    { level: 2, feature: "Expertise", points: 4, boundSkill: 0, unlocksExpertise: true }
+  ], "2 expertises = 4 free points");
+
+  assert.deepEqual(grantsDe("ranger"), [
+    { level: 2, feature: "Deft Explorer", points: 2, boundSkill: 0, unlocksExpertise: true },
+    { level: 9, feature: "Expertise", points: 4, boundSkill: 0, unlocksExpertise: true }
+  ], "une expertise au 2, deux au 9 — et le rôdeur de niveau 5 n'a que la première");
+
+  assert.deepEqual(grantsDe("barbarian"), [
+    { level: 3, feature: "Primal Knowledge", points: 0, boundSkill: 1, unlocksExpertise: false }
+  ], "canon §B.1quater : le trait NOMME une liste, donc il est BOUND — et il tombe au niveau 3");
+
+  /* Les huit autres n'en portent aucune, et c'est un FAIT, pas un trou. */
+  for (const slug of ["cleric", "druid", "fighter", "monk", "paladin", "sorcerer", "warlock", "wizard"]) {
+    assert.deepEqual(grantsDe(slug), [], `« ${slug} » n'a aucune aptitude qui tende des points`);
+  }
+});
+
+test("⛔ LA PERMISSION SE DÉDUIT DU GRANT — les deux ne peuvent pas diverger", () => {
+  const verbs = pile();
+  /* `expertise_from_level` n'est plus écrit à la main nulle part : il est le
+     niveau du PREMIER grant qui porte `unlocksExpertise`. Le test le recompose
+     depuis les grants publiés — si la déduction cassait, les deux nombres se
+     sépareraient ici, et pas dans six mois sur l'écran d'un joueur. */
+  for (const [id] of LES_12_POOLS) {
+    const pool = verbs.query({ kind: "class", id }).record.data.fh_skill_pool;
+    const niveaux = pool.grants.filter((g) => g.unlocksExpertise).map((g) => g.level);
+    const attendu = niveaux.length > 0 ? Math.min(...niveaux) : 4;
+    assert.equal(pool.expertise_from_level, attendu,
+      `« ${id} » : la permission doit venir de l'aptitude qui la porte, jamais d'un second nombre écrit à côté`);
+  }
+});
+
+test("⚔️ ATTAQUE — un grant accroché à une aptitude que le SRD ne porte PAS fait jeter", () => {
+  /* C'est ce garde qui a mesuré que *Bonus Proficiencies* (canon §B.1quater,
+     « Bard — Bonus Proficiencies, level 3, +6 ») est une aptitude de
+     SOUS-CLASSE (College of Lore) et pas de classe : il l'aurait refusée. */
+  const srd = readSrdLayer(SRD_PATH);
+  const bard = srd.records.class["srd:class:en:bard"].data.features;
+  assert.equal(bard.some((f) => f.name === "Bonus Proficiencies"), false,
+    "le SRD ne donne PAS Bonus Proficiencies au barde comme aptitude de classe");
+  assert.equal(
+    JSON.stringify(srd.records.class["srd:class:en:bard"].data.subclass).includes("Bonus Proficiencies"), true,
+    "elle vit dans sa SOUS-CLASSE — la poser sur la classe la donnerait à toute voie de barde");
+});

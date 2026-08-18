@@ -424,6 +424,15 @@
               "16": 2,
               "20": 2
             },
+            "grants": [
+              {
+                "level": 3,
+                "feature": "Primal Knowledge",
+                "points": 0,
+                "boundSkill": 1,
+                "unlocksExpertise": false
+              }
+            ],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -462,6 +471,15 @@
               "19": 1,
               "20": 3
             },
+            "grants": [
+              {
+                "level": 2,
+                "feature": "Expertise",
+                "points": 4,
+                "boundSkill": 0,
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -486,6 +504,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -510,6 +529,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -534,6 +554,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -558,6 +579,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -582,6 +604,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -606,6 +629,22 @@
               "16": 2,
               "20": 2
             },
+            "grants": [
+              {
+                "level": 2,
+                "feature": "Deft Explorer",
+                "points": 2,
+                "boundSkill": 0,
+                "unlocksExpertise": true
+              },
+              {
+                "level": 9,
+                "feature": "Expertise",
+                "points": 4,
+                "boundSkill": 0,
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -630,6 +669,15 @@
               "16": 2,
               "20": 2
             },
+            "grants": [
+              {
+                "level": 1,
+                "feature": "Expertise",
+                "points": 0,
+                "boundSkill": 0,
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -654,6 +702,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -678,6 +727,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,
@@ -702,6 +752,7 @@
               "16": 2,
               "20": 2
             },
+            "grants": [],
             "tier_costs": {
               "half": 1,
               "proficient": 2,

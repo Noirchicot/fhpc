@@ -365,6 +365,26 @@ function buildClasses(srd) {
       fail(`« ${entry.target} » reçoit un \`expertiseFromLevel\` qui n'est pas un entier positif ` +
         `(${entry.expertiseFromLevel}).`);
     }
+    /* ⛔ CHAQUE GRANT EST CONFRONTÉ AU SRD, JAMAIS CRU SUR PAROLE (lot 82).
+       Le canon nomme une aptitude et un niveau ; la couche SRD les porte tous
+       les deux. Un grant qui viserait une aptitude inexistante — ou la bonne
+       aptitude au mauvais niveau — donnerait des points au personnage au nom
+       d'une chose qu'il n'a pas, et rien ne le dirait. C'est aussi ce garde
+       qui a mesuré que *Bonus Proficiencies* est une aptitude de SOUS-CLASSE
+       et pas de classe : il l'aurait refusée. */
+    const aptitudes = (srdRecord(srd, "class", entry.target, "les aptitudes").data || {}).features;
+    for (const grant of entry.grants) {
+      const trouvée = (Array.isArray(aptitudes) ? aptitudes : [])
+        .some((f) => f && f.name === grant.feature && f.level === grant.level);
+      if (!trouvée) {
+        const proches = (Array.isArray(aptitudes) ? aptitudes : [])
+          .filter((f) => f && f.name === grant.feature).map((f) => f.level);
+        fail(`« ${entry.target} » reçoit un grant sur l'aptitude « ${grant.feature} » au niveau ${grant.level}, ` +
+          `et le SRD ne la porte pas à ce niveau${proches.length ? ` (il la porte au niveau ${proches.join(", ")})` : ""}. ` +
+          "Un grant accroché à une aptitude que le personnage n'a pas lui donnerait des points au nom de rien.");
+      }
+    }
+
     servis.add(entry.target);
     klass[entry.target] = {
       op: "patch",
@@ -379,6 +399,13 @@ function buildClasses(srd) {
           bound_tool_points: entry.boundTool,
           free_point_pool: entry.free,
           by_level: entry.byLevel,
+          /* ⭐ LES APTITUDES QUI TENDENT DES POINTS (canon §B.1ter), À PART
+             DE L'ÉCHELLE. Les fondre dans `by_level` perdrait la PERMISSION
+             qu'elles portent, et la permission est la moitié de ce qu'elles
+             sont. Le barde en est la preuve : à son niveau 2 il gagne le +1
+             de l'échelle ET son aptitude d'Expertise — deux règles, deux
+             lignes, jamais un « +5 » qui les avale. */
+          grants: entry.grants,
           tier_costs: { ...TIER_COSTS },
           /* PAR CLASSE, jamais une constante unique. TROIS classes dérogent
              depuis le lot 82 (canon §B.1ter — un trait qui accorde

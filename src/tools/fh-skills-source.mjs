@@ -385,16 +385,83 @@ function progression({ bardePlusUnParNiveau = false } = {}) {
  *  déverrouillage change, le pool reste la seule économie qui arbitre. */
 export const DEFAULT_EXPERTISE_FROM_LEVEL = 4;
 
+/* ══ LES APTITUDES DE CLASSE QUI TENDENT DES POINTS (lot 82) ═══════════
+   Canon §B.1ter, « Class features that grant Expertise → free points + a
+   permission », ratifié par Eric le 2026-08-18 en deux passes — la seconde
+   est le canon : *« il faut que ça soit des free points avec une autorisation
+   à l'expertise »*.
+
+   🔴 UNE APTITUDE QUI ACCORDE L'EXPERTISE TEND **DEUX** CHOSES, et aucune des
+   deux n'est un placement :
+     ① des **free points** — 1 expertise = 2 points (canon : *« une expertise
+        = 2 free points oui, 2 expertises = 4 »*). Le SRD n'accorde jamais la
+        maîtrise, seulement son DOUBLEMENT : en paliers FH, c'est adepte (2) →
+        expert (4), donc le grant vaut exactement 2 ;
+     ② le **droit de l'acheter avant le niveau 4**.
+
+   ⛔ CE QUI INTERDIT DE LES FONDRE DANS `by_level`. Le barde gagne DEUX choses
+   à son niveau 2 : le +1 de l'échelle, et cette aptitude. Les replier en un
+   seul « +5 au niveau 2 » **perdrait la permission**, et la permission est la
+   moitié de ce que l'aptitude est. Deux règles, deux entrées.
+
+   ⭐ CE QUE LE JOUEUR Y GAGNE : un choix qu'il n'avait pas. Sous un placement
+   accordé, l'aptitude décidait QUELLE compétence doublait. Sous points +
+   permission, le barde peut acheter l'expertise que l'aptitude vise — ou
+   dépenser ailleurs et rester adepte partout. L'aptitude cesse d'être une
+   bifurcation et devient du carburant.
+
+   ── LE ROGUE : LA PERMISSION SANS LES POINTS ──────────────────────────
+   `points: 0` n'est pas un oubli, c'est le canon. Ses deux expertises sont
+   DÉJÀ payées dans son kit de niveau 1 (§A.5, ses 6 points de bound skill =
+   2 novices + 1 expert). Ce qu'il reçoit, c'est la permission — et elle
+   arrive au niveau 1, ce qui ne se produit nulle part ailleurs.
+
+   ── LE BARBARE : LA SEULE CROISSANCE DU BOUND APRÈS LE NIVEAU 1 ───────
+   Canon §B.1quater, tranché par Eric : *« primal knowledge liste imposée =
+   bound »*. Le trait NOMME une liste (« from the skill list available to
+   Barbarians »), donc il contraint, donc il est bound — et le niveau auquel
+   il tombe n'y change rien. C'est le contre-exemple qui a tué la phrase
+   « le bound est distribué une fois, à la création », écrite deux fois dans
+   le canon avant que le balayage ne la falsifie.
+
+   ⚠️ ET UNE ABSENCE MESURÉE, QUI CONTREDIT LE CANON. Le canon range **Bard —
+   Bonus Proficiencies (niveau 3, +6 points libres)** parmi les « class
+   features ». Mesuré dans `layers/srd-5.2.1-en.layer.json` : ce n'est PAS une
+   aptitude de classe, c'est une aptitude de **sous-classe** (College of Lore,
+   `data.subclass.features`). La poser ici la donnerait à tout barde quelle que
+   soit sa voie. Le SRD 5.2.1 ne livrant qu'UNE sous-classe par classe, le
+   nombre serait juste aujourd'hui et faux à la première sous-classe ajoutée.
+   ⛔ Elle n'est donc pas ici, et ce lot n'invente pas de mécanique de
+   sous-classe : la question remonte à Eric. */
+export const CLASS_GRANTS = [
+  { target: "srd:class:en:rogue", feature: "Expertise", level: 1, points: 0, unlocksExpertise: true },
+  { target: "srd:class:en:bard", feature: "Expertise", level: 2, points: 4, unlocksExpertise: true },
+  { target: "srd:class:en:ranger", feature: "Deft Explorer", level: 2, points: 2, unlocksExpertise: true },
+  { target: "srd:class:en:ranger", feature: "Expertise", level: 9, points: 4, unlocksExpertise: true },
+  { target: "srd:class:en:barbarian", feature: "Primal Knowledge", level: 3, points: 0, boundSkill: 1 }
+];
+
+/** Le niveau où une classe ouvre l'achat d'expertise — DÉDUIT de ses grants,
+ *  jamais écrit deux fois. La permission EST une propriété de l'aptitude qui
+ *  la porte (canon §B.1ter) : la redéclarer à côté laisserait les deux
+ *  diverger, et c'est précisément la faute que ce lot répare ailleurs. */
+export function expertiseFromLevelOf(target) {
+  const niveaux = CLASS_GRANTS
+    .filter((grant) => grant.target === target && grant.unlocksExpertise)
+    .map((grant) => grant.level);
+  return niveaux.length > 0 ? Math.min(...niveaux) : DEFAULT_EXPERTISE_FROM_LEVEL;
+}
+
 export const CLASS_POOLS = [
   { target: "srd:class:en:barbarian", boundSkill: 2, boundTool: 0, free: 10 },
-  { target: "srd:class:en:bard", boundSkill: 3, boundTool: 2, free: 12, bard: true, expertiseFromLevel: 2 },
+  { target: "srd:class:en:bard", boundSkill: 3, boundTool: 2, free: 12, bard: true },
   { target: "srd:class:en:cleric", boundSkill: 2, boundTool: 0, free: 10 },
   { target: "srd:class:en:druid", boundSkill: 2, boundTool: 1, free: 12 },
   { target: "srd:class:en:fighter", boundSkill: 2, boundTool: 0, free: 10 },
   { target: "srd:class:en:monk", boundSkill: 2, boundTool: 0, free: 10 },
   { target: "srd:class:en:paladin", boundSkill: 2, boundTool: 0, free: 10 },
-  { target: "srd:class:en:ranger", boundSkill: 3, boundTool: 0, free: 12, expertiseFromLevel: 2 },
-  { target: "srd:class:en:rogue", boundSkill: 6, boundTool: 1, free: 14, expertiseFromLevel: 1 },
+  { target: "srd:class:en:ranger", boundSkill: 3, boundTool: 0, free: 12 },
+  { target: "srd:class:en:rogue", boundSkill: 6, boundTool: 1, free: 14 },
   { target: "srd:class:en:sorcerer", boundSkill: 2, boundTool: 0, free: 10 },
   { target: "srd:class:en:warlock", boundSkill: 2, boundTool: 0, free: 10 },
   { target: "srd:class:en:wizard", boundSkill: 2, boundTool: 0, free: 10 }
@@ -404,7 +471,17 @@ export const CLASS_POOLS = [
   boundTool: entry.boundTool,
   free: entry.free,
   byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) }),
-  expertiseFromLevel: entry.expertiseFromLevel || DEFAULT_EXPERTISE_FROM_LEVEL
+  grants: CLASS_GRANTS.filter((grant) => grant.target === entry.target)
+    .map((grant) => ({
+      level: grant.level,
+      feature: grant.feature,
+      points: grant.points,
+      boundSkill: grant.boundSkill || 0,
+      unlocksExpertise: Boolean(grant.unlocksExpertise)
+    }))
+    .sort((a, b) => a.level - b.level),
+  /* ⛔ PLUS ÉCRIT À LA MAIN — DÉDUIT du grant qui porte la permission. */
+  expertiseFromLevel: expertiseFromLevelOf(entry.target)
 }));
 
 /* ══ CE QUE COÛTE UN PALIER DE COMPÉTENCE ══════════════════════════════

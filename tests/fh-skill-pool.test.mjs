@@ -252,9 +252,20 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
     { label: "Level 2", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 3", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 4", value: 3, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } }
+    { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Expertise · Level 2", value: 4, source: { kind: "class", id: "srd:class:en:bard" } }
   ]);
-  assert.equal(stat.value, 18, "12 de free point pool + 6 de paliers traversés (lot 82 : plus aucune soustraction)");
+  assert.equal(stat.value, 22,
+    "12 de free point pool + 6 de paliers + 4 de l'aptitude Expertise (canon §B.1ter : 2 expertises = 4 points)");
+
+  /* 🔴 ET LES DEUX ENTRÉES DU NIVEAU 2 NE FUSIONNENT PAS. Le canon l'interdit
+     nommément : replier le +1 de l'échelle et l'aptitude d'Expertise en un
+     seul « +5 au niveau 2 » perdrait la PERMISSION, et la permission est la
+     moitié de ce que l'aptitude est. Deux règles, deux lignes, deux valeurs. */
+  assert.equal(terme(stat, "Level 2").value, 1, "l'échelle, seule");
+  assert.equal(terme(stat, "Expertise · Level 2").value, 4, "l'aptitude, seule");
+  assert.equal(terme(stat, "Level 2").value + terme(stat, "Expertise · Level 2").value, 5,
+    "cinq points arrivent au niveau 2 — mais JAMAIS sur une seule ligne");
   assert.equal(stat.value, somme(stat));
 
   /* ⛔ LE PALIER DU NIVEAU 6 EXISTE DANS LA COUCHE, ET IL N'EST PAS LÀ. C'est
@@ -282,7 +293,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
     level: 6, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
   }));
   const stat6 = poolDe(h6.verbs.rebuild({ document: doc6 }).resolved);
-  assert.equal(stat6.value, 19, "au niveau 6, un point de plus (lot 82 : 18 + 1)");
+  assert.equal(stat6.value, 23, "au niveau 6, un point de plus (lot 82 : 22 + 1)");
   assert.deepEqual(terme(stat6, "Level 6"),
     { label: "Level 6", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     "et c'est la ligne du palier 6 qui l'apporte, nommée");

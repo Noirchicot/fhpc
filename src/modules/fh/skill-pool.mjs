@@ -410,6 +410,72 @@ function speciesLines(species, level, lines, underived) {
   }
 }
 
+/* ── LES APTITUDES DE CLASSE QUI TENDENT DES POINTS (lot 82) ─────────
+   Canon §B.1ter. Une aptitude qui accorde l'Expertise tend DEUX choses : des
+   free points, et le droit de les dépenser en expertise avant le niveau 4.
+
+   ⛔ ELLES NE SONT PAS DANS `by_level`, ET C'EST LA RÈGLE. Le barde gagne
+   DEUX choses à son niveau 2 — le +1 de l'échelle et son aptitude d'Expertise
+   — et le canon interdit nommément de les replier : *« An engine that folds
+   them into a single "+N at level 2" loses the permission, and the permission
+   is half of what the feature is. »* Deux règles, deux lignes.
+
+   ⚠️ MÊME RÈGLE DES PALIERS TRAVERSÉS (Q15-8) : un personnage créé au niveau 5
+   a les aptitudes de niveau ≤ 5, pas celle du 9. Le rôdeur en est le cas
+   visible — Deft Explorer au 2, Expertise au 9.
+
+   ⭐ ET UN GRANT PEUT NE PORTER AUCUN POINT. Le rogue reçoit sa PERMISSION au
+   niveau 1 sans un point (ses deux expertises sont déjà payées dans son kit,
+   canon §A.5) ; le barbare reçoit du BOUND et pas de point (*Primal
+   Knowledge* nomme une liste). Ni l'un ni l'autre n'a de ligne dans le pool :
+   une ligne à zéro serait du bruit qui ressemble à un gain. */
+function classGrantLines(classRef, pool, level, lines, underived) {
+  const grants = pool.grants;
+  if (grants === undefined) return;
+  if (!Array.isArray(grants)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].grants\` = ${JSON.stringify(grants)}, ` +
+      "which is not a list — the convention is a list of `{level, feature, points, boundSkill, unlocksExpertise}`, " +
+      "one entry per class feature that hands over points or bound placements (canon §B.1ter).");
+  }
+  for (const grant of grants) {
+    if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
+      fail(`the class record "${classRef.id}" carries a grant that is not an object: ${JSON.stringify(grant)}.`);
+    }
+    if (!Number.isInteger(grant.level) || grant.level < 1 || grant.level > MAX_LEVEL) {
+      fail(`the class record "${classRef.id}" carries a grant at level ${JSON.stringify(grant.level)}, outside ` +
+        `1–${MAX_LEVEL}. A grant the engine cannot date is a grant it cannot know the character has reached.`);
+    }
+    if (!Number.isInteger(grant.points) || grant.points < 0) {
+      fail(`the class record "${classRef.id}" carries a grant worth ${JSON.stringify(grant.points)} points — not a ` +
+        "whole number, zero or more. Zero is a real case (the rogue gets the permission and no point); negative " +
+        "is nonsense.");
+    }
+    if (typeof grant.feature !== "string" || grant.feature.trim() === "") {
+      fail(`the class record "${classRef.id}" carries a grant with no usable \`feature\` name. The breakdown line ` +
+        "is labelled with it, copied from the record (loi §0.13) — without it the player would read points " +
+        "arriving from nowhere.");
+    }
+    /* LA RÈGLE Q15-8, la même ligne que pour les paliers. */
+    if (grant.level > level) continue;
+    if (grant.points > 0) {
+      lines.push({
+        label: t("fh.skills.term.feature", { feature: grant.feature, level: grant.level }),
+        value: grant.points,
+        source: { kind: "class", id: classRef.id }
+      });
+    }
+    if (Number.isInteger(grant.boundSkill) && grant.boundSkill > 0) {
+      /* LE BOUND QUI POUSSE APRÈS LE NIVEAU 1 — il ne rejoint pas le pool, il
+         s'ajoute au bound. Publié comme une déclaration parce que ce module ne
+         conduit pas son placement (le joueur choisit dans la liste de classe). */
+      underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].bound.${grant.level}`,
+        "underived.fh.skillpool-bound-grows", {
+          classId: classRef.id, feature: grant.feature, level: grant.level, points: grant.boundSkill
+        }));
+    }
+  }
+}
+
 /* ── LE BOUND, ET IL N'ENTRE JAMAIS DANS LE POOL (lot 82) ────────────
    ⭐ CE BLOC NE SOUSTRAIT PLUS RIEN, et c'est tout le changement du canon.
 
@@ -661,6 +727,7 @@ export function createFhSkillPoolStat() {
       /* 4. LE BOUND — PUBLIÉ, JAMAIS SOUSTRAIT (lot 82, canon §B.0). Et le
          grant d'espèce trié par la contrainte qu'il porte, pas par sa source. */
       tierCosts(classRef, pool);
+      classGrantLines(classRef, pool, level, lines, underived);
       boundLines(classRef, pool, species, lines, underived);
 
       /* 5. LA GRILLE À QUATRE PALIERS (lot 34) — le plancher, puis la dépense.
