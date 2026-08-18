@@ -369,12 +369,33 @@ test("⚔️ ATTAQUE — un fh:skill-points menteur (value ≠ somme du détail)
    ligne de `skills-step.mjs` ait besoin de changer — la garantie que la
    commande demande (§2c) sans jamais l'exercer en pratique. */
 
-test("Trainings : grisé avec sa raison quand le catalogue est vide, une vraie ligne cliquable dès qu'un record existe", () => {
+test("⭐ Trainings : le catalogue n'est plus vide — treize lignes, dont les douze langues", () => {
+  /* ⚠️ CE TEST A CHANGÉ DE CAMP AU LOT 82, et c'est le bon signe. Il gardait un
+     bloc GRISÉ, « catalogue vide » — un état arbitré par Eric le 2026-08-13
+     (« on ne s'y attelle pas pour le moment »). Le canon des points §B.3 l'a
+     rempli : douze langues, une par peuple, plus le Garrot.
+
+     ⭐ ET L'ÉCRAN N'A RIEN EU À ROUVRIR. Le chemin vivant était écrit et testé
+     depuis le lot 39 sur un training synthétique, précisément pour ce jour-là.
+     La branche grisée reste testée plus bas : elle sert une pile où
+     `fh-skills-en` n'est pas montée. */
   const node = renderSkillsStep(ctxFrom(fixture.report));
   const trainingsBlock = node.querySelectorAll(".skills-trainings-block")[0];
-  assert.equal(trainingsBlock.getAttribute("data-status"), "locked");
-  assert.equal(rows(trainingsBlock).length, 0);
-  assert.ok(!trainingsBlock.textContent.includes(" 4 "), "le niveau 4 n'est écrit nulle part — aucune source vivante");
+  assert.notEqual(trainingsBlock.getAttribute("data-status"), "locked",
+    "avec la couche FH montée, le bloc est VIVANT");
+  assert.equal(rows(trainingsBlock).length, 13, "douze langues + le Garrot");
+
+  /* ⛔ ON NOMME, ON NE COMPTE PAS. « 13 lignes » passerait avec treize
+     mauvaises — ce dépôt a déjà payé la leçon deux fois (TRAPS.md). */
+  const noms = [...rows(trainingsBlock)].map((r) => r.querySelector(".skills-row-name").textContent);
+  assert.deepEqual(noms, ["Araag", "Dragonborn", "Dwarf", "Elestu", "Elf", "Garrot", "Goliath",
+    "Halfling", "Hoddon", "Human", "Loroka", "Orc", "Tiefling"],
+    "les douze peuples donnent leur nom à leur langue, et le Garrot se range parmi elles par ordre alphabétique");
+
+  /* ⛔ LE NIVEAU 4 N'EST TOUJOURS PAS ÉCRIT DANS L'ÉCRAN, alors qu'il a
+     désormais une source : elle vit sur le RECORD (l'absence de `from_level`
+     EST la règle générique). L'écrire ici en ferait une seconde source. */
+  assert.ok(!trainingsBlock.textContent.includes(" 4 "), "le niveau générique vit sur le record, pas ici");
 
   const withTraining = makeHarness({
     layers: [SRD_FR, HOMEBREW],
@@ -394,6 +415,30 @@ test("Trainings : grisé avec sa raison quand le catalogue est vide, une vraie l
   const liveBlock = liveNode.querySelectorAll(".skills-trainings-block")[0];
   assert.notEqual(liveBlock.getAttribute("data-status"), "locked");
   assert.equal(rows(liveBlock).length, 1);
-  rows(liveBlock)[0].querySelectorAll(".skills-tier-btn")[0].click();
+  /* ⛔ `.skills-train-btn`, PAS `.skills-tier-btn` (lot 82). Un training n'a ni
+     palier ni caractéristique : lui prêter la classe des ronds de palier était
+     un mensonge de forme sur le seul point qui justifie que `training` soit un
+     genre à part — et le garde d'ARIA, qui exige trois ronds par ligne ou
+     aucun, le voyait. Même dessin, classe distincte. */
+  assert.equal(rows(liveBlock)[0].querySelectorAll(".skills-tier-btn").length, 0,
+    "une ligne de training ne porte AUCUN rond de palier");
+  rows(liveBlock)[0].querySelectorAll(".skills-train-btn")[0].click();
   assert.deepEqual(calls[0], { kind: "set", path: "fh.skills.train.garrot", value: true });
+});
+
+test("Trainings : la branche GRISÉE survit — une pile sans catalogue le DIT au lieu de se cacher", () => {
+  /* ⛔ Décision n°4 (lot 39) : grisé avec sa raison, PAS caché. Un bloc absent
+     se lit « cette règle n'existe pas » ; un bloc grisé se lit « elle existe et
+     rien n'est encore achetable ». Le catalogue FH est plein depuis le lot 82,
+     mais une pile SRD nue n'en a pas — et c'est cette pile-là que ce test
+     monte, pour que la branche ne meure pas faute d'être empruntée. */
+  const nue = makeHarness({ layers: [SRD_FR, HOMEBREW] });
+  const node = renderSkillsStep({
+    resolved: { stats: [], skills: [], tools: [], traits: [], languages: [], identity: {} },
+    decisions: [], violations: [], query: nue.layers.verbs.query, onAction: () => {}
+  });
+  const bloc = node.querySelectorAll(".skills-trainings-block")[0];
+  assert.equal(bloc.getAttribute("data-status"), "locked");
+  assert.equal(rows(bloc).length, 0);
+  assert.ok(bloc.textContent.includes("Trainings"), "le bloc reste visible et nommé");
 });

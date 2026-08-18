@@ -409,6 +409,138 @@
         }
       }
     },
+    "training": {
+      "fh:training:en:language-araag": {
+        "name": "Araag",
+        "slug": "language-araag",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Araag people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Araag"
+        }
+      },
+      "fh:training:en:language-dragonborn": {
+        "name": "Dragonborn",
+        "slug": "language-dragonborn",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Dragonborn people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Dragonborn"
+        }
+      },
+      "fh:training:en:language-dwarf": {
+        "name": "Dwarf",
+        "slug": "language-dwarf",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Dwarf people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Dwarf"
+        }
+      },
+      "fh:training:en:language-elestu": {
+        "name": "Elestu",
+        "slug": "language-elestu",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Elestu people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Elestu"
+        }
+      },
+      "fh:training:en:language-elf": {
+        "name": "Elf",
+        "slug": "language-elf",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Elf people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Elf"
+        }
+      },
+      "fh:training:en:language-goliath": {
+        "name": "Goliath",
+        "slug": "language-goliath",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Goliath people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Goliath"
+        }
+      },
+      "fh:training:en:language-halfling": {
+        "name": "Halfling",
+        "slug": "language-halfling",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Halfling people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Halfling"
+        }
+      },
+      "fh:training:en:language-hoddon": {
+        "name": "Hoddon",
+        "slug": "language-hoddon",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Hoddon people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Hoddon"
+        }
+      },
+      "fh:training:en:language-human": {
+        "name": "Human",
+        "slug": "language-human",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Human people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Human"
+        }
+      },
+      "fh:training:en:language-loroka": {
+        "name": "Loroka",
+        "slug": "language-loroka",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Loroka people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Loroka"
+        }
+      },
+      "fh:training:en:language-orc": {
+        "name": "Orc",
+        "slug": "language-orc",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Orc people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Orc"
+        }
+      },
+      "fh:training:en:language-tiefling": {
+        "name": "Tiefling",
+        "slug": "language-tiefling",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Tiefling people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Tiefling"
+        }
+      },
+      "fh:training:en:garrot": {
+        "name": "Garrot",
+        "slug": "garrot",
+        "data": {
+          "category": "weapon",
+          "cost": 1,
+          "description": "A finesse cord used to strangle a surprised target. It deals no damage — only exhaustion — and it is a training, not a tool: no tier, no ability behind it.",
+          "name": "Garrot"
+        }
+      }
+    },
     "class": {
       "srd:class:en:barbarian": {
         "op": "patch",

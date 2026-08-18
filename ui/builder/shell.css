@@ -796,6 +796,12 @@ button { font: inherit; }
 .skills-tier-btn[data-rung="2"][data-active="true"] { background: var(--tier-2); color: var(--on-accent); border-color: var(--tier-2); }
 .skills-tier-btn[data-rung="3"][data-active="true"] { background: var(--tier-3); color: var(--on-accent); border-color: var(--tier-3); }
 .skills-tier-btn[data-rung="none"][data-active="true"] { color: var(--text); font-weight: 600; }
+/* LOT 82 — le bouton d'un TRAINING. Même dessin qu'un rond de palier (c'est
+   la même colonne, le joueur ne doit pas voir deux grammaires), mais sa propre
+   classe : un training n'a pas de palier, et la grille de ronds ne doit jamais
+   croire qu'il en a un. */
+.skills-train-btn { width: var(--touch); height: var(--touch); border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-muted); font-size: var(--t4); cursor: pointer; padding: 0; }
+.skills-train-btn[data-active="true"] { background: var(--tier-2); color: var(--on-accent); border-color: var(--tier-2); }
 
 .skills-tools-trainings h3 { margin: 0 0 var(--sp-8); }
 .skills-tools-block, .skills-languages-block, .skills-trainings-block { margin-bottom: var(--sp-16); }

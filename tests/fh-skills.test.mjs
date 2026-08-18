@@ -38,6 +38,7 @@ import { createLayers } from "../src/layers/index.mjs";
 import {
   ROOT,
   SRD_EN,
+  FH_SPECIES_EN,
   fileBytes,
   makeBus
 } from "./build-harness.mjs";
@@ -926,4 +927,80 @@ test("⚔️ ATTAQUE — un grant accroché à une aptitude que le SRD ne porte 
   assert.equal(
     JSON.stringify(srd.records.class["srd:class:en:bard"].data.subclass).includes("Bonus Proficiencies"), true,
     "elle vit dans sa SOUS-CLASSE — la poser sur la classe la donnerait à toute voie de barde");
+});
+
+/* ══ LOT 82 — LE CATALOGUE DES TRAININGS, ENFIN REMPLI ════════════════
+   Le genre existe depuis le 2026-08-12 et son catalogue est resté VIDE par
+   arbitrage d'Eric (« on ne s'y attelle pas pour le moment »). Le canon des
+   points §B.3 le remplit : douze langues et le Garrot. */
+
+test("les treize trainings sont NOMMÉS — douze langues, une par peuple, plus le Garrot", () => {
+  const verbs = pile();
+  const catalogue = verbs.query({ kind: "training" });
+  assert.equal(catalogue.length, EXPECTED.trainings);
+
+  /* ⛔ ON NOMME, ON NE COMPTE PAS. « 13 » passerait avec treize mauvais. */
+  assert.deepEqual(catalogue.map((v) => v.record.name).sort(),
+    ["Araag", "Dragonborn", "Dwarf", "Elestu", "Elf", "Garrot", "Goliath",
+      "Halfling", "Hoddon", "Human", "Loroka", "Orc", "Tiefling"],
+    "une langue par peuple, portant SON nom — pas d'Elvish, pas de Dwarvish : les formes " +
+    "adjectivales du SRD tombent (canon §B.3, Eric 2026-08-18)");
+});
+
+test("⛔ UN TRAINING N'A NI PALIER NI CARACTÉRISTIQUE — c'est ce qui en fait un genre à part", () => {
+  const verbs = pile();
+  for (const vue of verbs.query({ kind: "training" })) {
+    const data = vue.record.data;
+    assert.equal(Number.isInteger(data.cost) && data.cost >= 1, true,
+      `« ${vue.id} » doit porter son coût sur SON record — un training que le moteur ne sait pas tarifer ` +
+      "est un training qu'il ne peut pas vendre");
+    for (const interdit of ["ability", "ability_key", "tier_costs"]) {
+      assert.equal(data[interdit], undefined,
+        `« ${vue.id} » ne doit porter aucun \`${interdit}\` : on sait un training, on ne le pratique pas à ` +
+        "un palier. Le loger chez les outils forcerait tout lecteur à tester un champ pour savoir ce " +
+        "qu'il tient (loi §0.6) — c'est la raison d'être du genre.");
+    }
+    /* ⛔ ET PAS DE `from_level` : son ABSENCE est la règle générique (niveau 4,
+       canon §B.3), sa PRÉSENCE serait la dérogation. Écrire 4 rendrait les
+       deux indistinguables. */
+    assert.equal(data.from_level, undefined,
+      `« ${vue.id} » : le niveau générique se lit dans l'ABSENCE du champ, jamais dans un 4 recopié`);
+  }
+});
+
+test("⛔ LES DOUZE LANGUES CONTRE LES DOUZE ESPÈCES — dans les deux sens", () => {
+  /* ⚠️ CE TEST MONTE LA PILE COMPLÈTE, et il le doit. `pile()` ne monte que le
+     SRD et la couche des compétences : les espèces Fate's Hand (Araag, Elestu,
+     Loroka) n'y sont pas, et le Gnome n'y est pas encore Hoddon. Comparer les
+     langues à cette pile-là mesurerait la mauvaise réalité — la correspondance
+     est avec les DOUZE ESPÈCES JOUABLES, celles que le joueur voit. */
+  const bus = makeBus();
+  const layers = createLayers({ bus });
+  for (const couche of [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN]) {
+    layers.verbs.register({ bytes: fileBytes(couche), origin: couche });
+  }
+  const verbs = layers.verbs;
+
+  const langues = verbs.query({ kind: "training" })
+    .filter((v) => v.record.data.category === "language")
+    .map((v) => v.record.slug.replace(/^language-/, "")).sort();
+  const especes = verbs.query({ kind: "species" }).map((v) => v.record.slug).sort();
+
+  assert.equal(langues.length, especes.length,
+    "un peuple muet et une langue orpheline passeraient toutes deux si on se contentait de compter d'un côté");
+  assert.deepEqual(langues, especes,
+    "chaque peuple jouable a sa langue, et aucune langue ne mène nulle part");
+});
+
+test("⛔ LES RITUELS SOMBRES NE SONT PAS DES TRAININGS — mesuré, pas supposé", () => {
+  /* Le canon les annonçait trainings. Mesuré dans le chapitre qui les définit
+     (`6. Spells & Magic/Dark Rituals.md`) : un rite est gaté par le NIVEAU
+     CUMULÉ de ses lanceurs et par leur classe de lanceur de sorts, et payé en
+     points de Destinée et en dégâts nécrotiques. Nulle part il n'est dit qu'on
+     APPREND un rituel. Un rite se pratique, il ne se connaît pas. */
+  const verbs = pile();
+  const octets = JSON.stringify(verbs.query({ kind: "training" }));
+  assert.equal(/ritual|rite/i.test(octets), false,
+    "aucun rituel dans le catalogue : le canon est corrigé, et l'économie de points suit un chapitre " +
+    "au lieu d'en annexer un");
 });

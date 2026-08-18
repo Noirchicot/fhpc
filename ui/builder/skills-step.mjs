@@ -145,8 +145,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=96";
-import { keepInView, scrollParent } from "./socle.mjs?v=96";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=97";
+import { keepInView, scrollParent } from "./socle.mjs?v=97";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -514,7 +514,14 @@ function renderTrainingRow(view, acquiredIds, ctx) {
   row.append(el("span", "skills-row-name", [text(view.record.name)]));
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = "skills-tier-btn";
+  /* ⛔ PAS `skills-tier-btn` (lot 82). Un training n'a NI PALIER NI
+     CARACTÉRISTIQUE — on le sait ou on ne le sait pas. Emprunter la classe des
+     ronds de palier était un mensonge de forme sur le seul point qui justifie
+     que `training` soit un genre à part, et ça faisait rougir le garde
+     d'ARIA — à raison : il compte les ronds par ligne et exige trois ou
+     aucun. Une ligne de training en portait UN. MÊME apparence, classe
+     distincte : le garde sait ce qu'il regarde. */
+  btn.className = "skills-train-btn";
   markPressed(btn, acquired);
   btn.textContent = acquired ? "★" : NONE_GLYPH;
   btn.setAttribute("aria-label", acquired ? "Trained" : "Not trained");
@@ -527,14 +534,22 @@ function renderTrainingRow(view, acquiredIds, ctx) {
   return row;
 }
 
-/** Le sous-bloc Trainings. Catalogue à 0 record aujourd'hui (ADDENDUMS,
- *  arbitré le 2026-08-13 : « on ne s'y attelle pas pour le moment ») —
- *  ⛔ grisé avec sa raison, PAS caché (décision n°4). Le chemin vivant (une
- *  liste réelle) est écrit et testé (un training synthétique, voir la
- *  suite) pour que le jour où un record existe, cet écran n'ait rien à
- *  rouvrir — mais RIEN n'invente le niveau générique « 4 » : ce nombre n'a
- *  aujourd'hui aucune source vivante (aucun refus ne peut se produire sans
- *  record), donc il n'est écrit nulle part ici. Voir INVENTAIRE-LOT-39.md. */
+/** Le sous-bloc Trainings.
+ *
+ *  ⭐ LOT 82 — LE CATALOGUE N'EST PLUS VIDE. Il l'était par arbitrage d'Eric
+ *  du 2026-08-13 (« on ne s'y attelle pas pour le moment ») ; le canon des
+ *  points §B.3 l'a rempli : **douze langues** (une par peuple, portant son nom)
+ *  et le **Garrot**. Le chemin vivant était écrit et testé depuis le lot 39 —
+ *  cet écran n'a donc rien eu à rouvrir, c'est exactement ce pour quoi il
+ *  avait été écrit ainsi.
+ *
+ *  ⛔ ET LE NIVEAU GÉNÉRIQUE 4 N'EST TOUJOURS PAS ÉCRIT ICI, alors qu'il a
+ *  désormais une source. C'est le bon endroit pour rappeler pourquoi : il vit
+ *  sur le RECORD — son ABSENCE (`data.from_level` non posé) EST la règle
+ *  générique, sa PRÉSENCE est la dérogation. Le moteur le lit, l'écran ne le
+ *  répète pas ; l'écrire ici en ferait une seconde source, et une seconde
+ *  source finit par diverger. La branche grisée reste, pour une pile où
+ *  `fh-skills-en` ne serait pas montée. */
 function renderTrainingsBlock(ctx) {
   const { query, resolved } = ctx;
   const catalog = query({ kind: "training" }) || [];

@@ -53,7 +53,9 @@ import {
   SKILLS_REMOVED,
   TOOLS_ADDED,
   TOOLS_RECHARACTERISED,
-  TOOLS_REMOVED
+  TOOLS_REMOVED,
+  TRAININGS_ADDED,
+  LANGUAGE_SPECIES
 } from "./fh-skills-source.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -329,6 +331,59 @@ function buildTools(srd) {
    régénération de `fh-srd` — un Artificier qui rentrerait par la porte de
    derrière — ferait jeter ici, et pas trois mois plus tard sur une question
    de licence (loi §0.8, dépôt public). */
+/* ══ LES TRAININGS — LE CATALOGUE, POSÉ ET CONFRONTÉ (lot 82) ═════════
+   Douze langues et le Garrot. Ce sont des records NEUFS : aucun n'existe au
+   SRD, et ce générateur le vérifie plutôt que de l'espérer.
+
+   ⛔ LE GARDE QUI COMPTE POUR DE VRAI : les douze langues doivent correspondre
+   EXACTEMENT aux douze espèces jouables de la pile. Une espèce ajoutée sans sa
+   langue serait un peuple muet, et une langue sans son peuple serait un achat
+   qui ne mène nulle part — les deux passeraient sans un mot si on se contentait
+   de compter. */
+function buildTrainings(srd, especes) {
+  const training = {};
+  const langues = new Set();
+
+  for (const entry of TRAININGS_ADDED) {
+    const id = idOf("training", entry.slug);
+    if (training[id]) fail(`le training « ${id} » est déclaré deux fois par la source.`);
+    if (!Number.isInteger(entry.cost) || entry.cost < 1) {
+      fail(`le training « ${id} » coûte ${entry.cost}, qui n'est pas un nombre entier positif de points. ` +
+        "Un training que le moteur ne sait pas tarifer est un training qu'il ne peut pas vendre.");
+    }
+    if (entry.category === "language") langues.add(entry.slug.replace(/^language-/, ""));
+    training[id] = {
+      name: entry.name,
+      slug: entry.slug,
+      data: {
+        category: entry.category,
+        /* ⛔ LE COÛT VIT ICI, PAS DANS LE MOTEUR. Le jour où Eric passe une
+           langue à 2 points, aucun fichier de `src/` ne bouge. */
+        cost: entry.cost,
+        description: entry.description,
+        name: entry.name
+        /* PAS de `from_level` : son ABSENCE est la règle générique (niveau 4,
+           canon §B.3), et sa PRÉSENCE serait la dérogation. Écrire 4 ici
+           rendrait la dérogation indistinguable du défaut. */
+      }
+    };
+  }
+
+  /* LES DOUZE LANGUES CONTRE LES DOUZE ESPÈCES — dans les deux sens. */
+  const manquantes = especes.filter((slug) => !langues.has(slug));
+  if (manquantes.length > 0) {
+    fail(`ces espèces jouables n'ont pas de langue : ${manquantes.join(", ")}. Le canon donne à chaque ` +
+      "peuple une langue qui porte son nom ; un peuple muet est du contenu faux, pas du contenu qui manque.");
+  }
+  const orphelines = [...langues].filter((slug) => !especes.includes(slug));
+  if (orphelines.length > 0) {
+    fail(`ces langues ne correspondent à aucune espèce jouable : ${orphelines.join(", ")}. Une langue sans ` +
+      "son peuple est un achat qui ne mène nulle part.");
+  }
+
+  return { training, total: Object.keys(training).length, languages: langues.size };
+}
+
 function buildClasses(srd) {
   const srdClasses = (srd.records || {}).class || {};
   const srdIds = Object.keys(srdClasses);
@@ -534,6 +589,7 @@ export function buildLayer({ srd }) {
   const tools = buildTools(srd);
   const classes = buildClasses(srd);
   const backgrounds = buildBackgrounds(srd);
+  const trainings = buildTrainings(srd, LANGUAGE_SPECIES);
 
   const layer = {
     schema: LAYER.schema,
@@ -552,12 +608,18 @@ export function buildLayer({ srd }) {
         "Instrument — have been removed, split or modified for this work."
     },
     description: LAYER.description,
-    records: { skill: skills.skill, tool: tools.tool, class: classes.class, background: backgrounds.background }
+    records: {
+      skill: skills.skill,
+      tool: tools.tool,
+      training: trainings.training,
+      class: classes.class,
+      background: backgrounds.background
+    }
   };
 
   assertNoHandWrittenSrdText(layer, srd);
 
-  return { layer, skills, tools, classes, backgrounds };
+  return { layer, skills, tools, trainings, classes, backgrounds };
 }
 
 export function serialize(layer) {
@@ -567,17 +629,18 @@ export function serialize(layer) {
 /** Génère la couche et l'ÉCRIT. `outDir` et `srdPath` sont des arguments : la
  *  suite génère dans un répertoire temporaire et compare là. */
 export function generate({ outDir = OUT_DIR, srdPath = SRD_PATH } = {}) {
-  const { layer, skills, tools, classes, backgrounds } = buildLayer({ srd: readSrdLayer(srdPath) });
+  const { layer, skills, tools, trainings, classes, backgrounds } = buildLayer({ srd: readSrdLayer(srdPath) });
   mkdirSync(outDir, { recursive: true });
   const outPath = join(outDir, OUT_NAME);
   writeFileSync(outPath, serialize(layer));
-  return { outPath, skills, tools, classes, backgrounds };
+  return { outPath, skills, tools, trainings, classes, backgrounds };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { outPath, skills, tools, classes, backgrounds } = generate();
+  const { outPath, skills, tools, trainings, classes, backgrounds } = generate();
   console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
     `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
+    `${trainings.total} trainings (${trainings.languages} langues), ` +
     `${classes.total} pools de classe, ${backgrounds.extinguished} arrière-plans éteints + l'Inheritance ` +
     `(${backgrounds.total} au genre) → ${outPath}`);
 }
