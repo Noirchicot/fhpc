@@ -383,8 +383,12 @@ test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couch
      Eric l'a redemandé en connaissance de cause après que ce fil lui a
      remonté la mesure. **Si ce garde regêne, c'est cette ligne-là qu'on
      rediscute — on ne la désarme pas.** */
-  assert.ok(etiquettesDe(ECRANS[0]).includes("Skill pool"),
-    "le pool de compétences est un apport FH, et il est sur la fiche de classe");
+  /* ⭐ LOT 82 — « Skill pool » → « Free points ». Le libellé nommait le `base`
+     d'avant le canon : tout, points déjà placés compris. Le canon §B.1 publie
+     trois totaux et le joueur n'en manipule qu'un ; la carte annonce celui-là,
+     parce que c'est celui qui aide à choisir sa classe. */
+  assert.ok(etiquettesDe(ECRANS[0]).includes("Free points"),
+    "les points libres sont un apport FH, et c'est ce que le joueur dépensera");
   const espece = etiquettesDe(ECRANS[1]);
   assert.ok(!espece.includes("Destiny"),
     "la destinée de base se compose hors de l'espèce (2 + PB + arcane + feat/trait) : elle a quitté la fiche");

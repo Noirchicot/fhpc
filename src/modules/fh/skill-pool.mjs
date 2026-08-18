@@ -229,36 +229,56 @@ function readClassPool(classRef, records, underived) {
   }
   if (pool === null || typeof pool !== "object" || Array.isArray(pool)) {
     fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}]\` = ${JSON.stringify(pool)}, which is ` +
-      "not an object — the convention of this layer is `{base, by_level, tier_costs, expertise_from_level}`, " +
-      "and a scalar there hides which term of the pool it was meant to be.");
+      "not an object — the convention of this layer is `{bound_skill_points, bound_tool_points, free_point_pool, " +
+      "by_level, tier_costs, expertise_from_level}`, and a scalar there hides which term of the pool it was " +
+      "meant to be.");
   }
-  if (!Number.isInteger(pool.base)) {
-    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].base\` = ${JSON.stringify(pool.base)}, ` +
-      "which is not a whole number — a class pool that cannot be added is bad content, not a missing field.");
+  /* ⭐ LOT 82 — LES TROIS TOTAUX DU CANON §B.1, ET ILS SE VÉRIFIENT
+     SÉPARÉMENT. Le bound peut valoir 0 (sept classes n'ont aucun outil
+     imposé) ; le free pool, jamais — une classe sans points libres serait une
+     classe sans deuxième étape, et c'est la deuxième étape qui fait le
+     personnage (canon §B.1). Une seule plage pour les trois laisserait passer
+     un `free_point_pool: 0` sans un mot. */
+  for (const champ of ["bound_skill_points", "bound_tool_points"]) {
+    if (!Number.isInteger(pool[champ]) || pool[champ] < 0) {
+      fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].${champ}\` = ` +
+        `${JSON.stringify(pool[champ])}, which is not a whole number of points, zero or more. Bound points are ` +
+        "points ALREADY placed when the sheet is handed over (canon §B.0): none is a fact, negative is nonsense.");
+    }
+  }
+  if (!Number.isInteger(pool.free_point_pool) || pool.free_point_pool <= 0) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].free_point_pool\` = ` +
+      `${JSON.stringify(pool.free_point_pool)}, which is not a positive whole number — the free point pool is ` +
+      "the only thing the player spends, and a class that hands over none has no skills step at all.");
+  }
+  /* ⛔ ET LE `base` D'AVANT LE CANON NE DOIT PAS SURVIVRE. Il valait « tout,
+     imposés compris, à déduire ensuite » — un record qui le porte encore vient
+     d'une couche tierce non convertie, et le lire donnerait un pool trop grand
+     de tout le bound. Loi §0.5 : ça JETTE, ça ne se répare pas en silence. */
+  if (pool.base !== undefined) {
+    fail(`the class record "${classRef.id}" still carries \`data[${POOL_FIELD}].base\` = ` +
+      `${JSON.stringify(pool.base)}. That field died with the canon of 2026-08-18: it merged into one number ` +
+      "what the canon publishes as three (bound skill, bound tool, free pool), and the engine deduced the " +
+      "imposed choices back out of it by subtraction. A record still carrying it has not been converted, and " +
+      "reading it would overstate the player's pool by exactly the bound.");
   }
   return pool;
 }
 
-/* ── LE COÛT D'UN IMPOSÉ, LU SUR LE RECORD ───────────────────────────
-   ⛔ LE 1 N'EST PAS ÉCRIT DANS CE FICHIER. « Un choix imposé pose 1 point » est
-   une règle de jeu d'Eric, et une règle de jeu vit dans la couche. La couche la
-   porte sous `tier_costs.imposed`, dans le record de chaque classe, avec le
-   pool qu'elle dépense (lot 22). Le jour où Eric la passe à 2, aucun fichier de
-   `src/` ne bouge. */
-function imposedCost(classRef, pool) {
+/* ── LA TABLE DES COÛTS, LUE SUR LE RECORD ───────────────────────────
+   ⛔ `imposed` EST MORT (lot 82). Il chiffrait ce qu'un choix imposé DÉDUISAIT
+   du pool ; le canon supprime la déduction — les points imposés sont désormais
+   PUBLIÉS À PART (`bound_skill_points`, `bound_tool_points`) et n'ont jamais
+   transité par le pool (canon §B.0). Ce qui reste de la table, ce sont les
+   trois paliers, et ils sont lus au coup par coup par `tierPointCost`. */
+function tierCosts(classRef, pool) {
   const costs = pool.tier_costs;
   if (costs === null || typeof costs !== "object" || Array.isArray(costs)) {
     fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].tier_costs\` = ` +
-      `${JSON.stringify(costs)}, which is not a table of tier costs. An imposed choice is DEDUCTED from the ` +
-      "pool, so its cost cannot be assumed: assuming 1 would restate a rule that belongs to content.");
+      `${JSON.stringify(costs)}, which is not a table of tier costs — the pool cannot price a single tier ` +
+      "without it, and assuming 1/2/4 here would restate in the engine a rule that belongs to content.");
   }
-  if (!Number.isInteger(costs.imposed)) {
-    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].tier_costs.imposed\` = ` +
-      `${JSON.stringify(costs.imposed)}, which is not a whole number of points. Eric's rule of 2026-08-08 ` +
-      "says an imposed choice costs a half-skill and is deducted from the pool — the NUMBER lives in the " +
-      "record, and a pool computed without it would be too generous by exactly the imposed count.");
-  }
-  return costs.imposed;
+  return costs;
 }
 
 /* ── LE COÛT D'UN PALIER DE LA GRILLE (lot 34) ───────────────────────
@@ -390,137 +410,94 @@ function speciesLines(species, level, lines, underived) {
   }
 }
 
-/* ── LES CHOIX IMPOSÉS, DÉDUITS DU POOL ──────────────────────────────
-   Trois sources MESURÉES dans la pile réelle, et une quatrième déclarée :
+/* ── LE BOUND, ET IL N'ENTRE JAMAIS DANS LE POOL (lot 82) ────────────
+   ⭐ CE BLOC NE SOUSTRAIT PLUS RIEN, et c'est tout le changement du canon.
 
-     · la CLASSE fait choisir `skill_choice.count` compétences (Roublard 4,
-       Barde 3, les autres 2). Un choix contraint reste un imposé : Eric écrit
-       « les choix restent attachés au choix de classe, mais un choix imposé
-       pose 1 point » ;
-     · l'ARRIÈRE-PLAN accorde `skill_ids` (deux, partout dans le SRD) ;
-     · l'ARRIÈRE-PLAN accorde ou fait choisir UN outil (`tool_id` /
-       `tool_choice`) — « l'outil du background est déjà semé à 1 » ;
-     · les OUTILS DE CLASSE, eux, se DÉCLARENT : `tool_proficiencies` est une
-       PHRASE (« Choose 3 Musical Instruments », `null` pour le magicien), et
-       aucun champ mécanique ne dit combien. Les compter demanderait de lire
-       une phrase anglaise dans le moteur.
+   AVANT : le pool valait « tout, imposés compris », et ce module déduisait
+   les choix imposés un par un — classe, arrière-plan, outil d'arrière-plan —
+   plus un NET ZÉRO pour le grant d'espèce (ajouter au pool, puis dépenser au
+   même coût : deux lignes pour dire qu'il ne se passe rien).
 
-   ⚠️ L'ESPÈCE N'EST PAS COMPTÉE, ET C'EST UNE DÉCISION QUI N'EST PAS PRISE.
-   La règle d'Eric nomme « la classe ou l'arrière-plan », et la mesure du canon
-   dit la même chose : « les bases du SRD fixent les compétences et outils
-   imposés (Guerrier 2 au choix, Rogue 4…) ». L'Araag (`Skillful`, une
-   compétence au choix) et l'Elestu (`Keen Senses`, une parmi trois) portent
-   pourtant un `granted_skill_choice`. Les déduire d'office inventerait une
-   règle ; les taire serait le repli silencieux que §0.5 interdit. Ils se
-   DÉCLARENT, en nommant la question — loi §0.10. */
-function imposedLines(classRef, backgroundRef, species, cost, lines, underived) {
-  const choice = (classRef.data || {}).skill_choice;
-  if (choice && typeof choice === "object" && Number.isInteger(choice.count)) {
-    if (choice.count > 0) {
-      lines.push({
-        label: t("fh.skills.term.imposed", { source: classRef.name, count: choice.count }),
-        value: -(choice.count * cost),
-        source: { kind: "class", id: classRef.id }
-      });
-    }
-  } else {
-    /* DÉCLARÉ, PAS JETÉ, et c'est délibéré : `skill_choice` est du contenu SRD,
-       et le pli lui-même le DÉCLARE quand il ne sait pas le lire (« porte un
-       `skill_choice` que la dérivation ne sait pas lire »). Deux verdicts
-       opposés sur le même champ dans le même document seraient un défaut. Les
-       champs du pool, eux, JETTENT : ils viennent de la couche FH, que ce
-       dépôt génère lui-même — malformés, c'est le générateur qui est cassé. */
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.class`, "underived.fh.skillpool-class-choice-unreadable",
-      { classId: classRef.id }));
+   APRÈS (canon §B.0, ratifié par Eric le 2026-08-18) : « Bound points are
+   never in the free point pool. They are already spent, before the character
+   sheet is handed over. » Le record publie les trois totaux ; le pool publié
+   EST le free point pool, et il n'a rien à retrancher.
+
+   ⛔ CE QUI DISPARAÎT AVEC LA SOUSTRACTION :
+     · la déduction des `skill_choice.count` de la classe ;
+     · la déduction des `skill_ids` et de l'outil d'arrière-plan — l'arrière-
+       plan est éteint depuis le lot 43, ces lignes ne mordaient déjà plus ;
+     · le net zéro d'espèce.
+
+   ⭐ ET LE NET ZÉRO ÉTAIT DÉJÀ MORT DANS LA PILE FH, MESURÉ : la couche des
+   espèces RETIRE `granted_skill_choice` de l'Elfe et de l'Humain
+   (`remove: ["data[granted_skill_choice]"]`) et le remplace par deux formes
+   qui disent déjà exactement ce que le canon demande —
+     · `skill_points` (Skillful, Fast Learner) → des points LIBRES ;
+     · `granted_skill_budget {points, from}` (Keen Senses) → des points
+       CAPTIFS d'une liste, c'est-à-dire du BOUND sous son nom de moteur.
+   Le vocabulaire diffère du canon, la mécanique est la même. `derive.mjs` et
+   `decisions.mjs` la portent déjà.
+
+   ── CE QUI RESTE À FAIRE ICI : LE TEST DU CANON SUR `granted_skill_choice`
+   Une pile SANS la couche des espèces (SRD nu + couche des compétences) voit
+   encore le champ SRD. Le canon §B.1quater donne le test, et il est déjà
+   lisible dans la donnée — aucun champ à ajouter :
+
+       from: ["insight","perception","survival"]  → une liste  → BOUND
+       from: "any"                                → le littéral → FREE
+
+   Un grant LIBRE vaut une maîtrise pleine (canon §A.2 : une maîtrise SRD =
+   adepte), au coût que le record porte. Un grant CAPTIF ne touche pas au
+   pool. */
+function boundLines(classRef, pool, species, lines, underived) {
+  /* LE BOUND DE LA CLASSE — publié, jamais soustrait. Il se DÉCLARE plutôt
+     que de rester muet : le joueur place ses points bound dans la liste de sa
+     classe, au palier novice, et ce module ne conduit pas ce placement. */
+  underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].bound`, "underived.fh.skillpool-bound-not-in-pool",
+    { classId: classRef.id, skill: pool.bound_skill_points, tool: pool.bound_tool_points }));
+
+  if (!species) return;
+  const grant = (species.data || {}).granted_skill_choice;
+  if (grant === undefined) return;
+  if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
+    fail(`the species record "${species.id}" carries \`data.granted_skill_choice\` = ${JSON.stringify(grant)}, ` +
+      "which is not an object — the convention is `{count, from}`, and a scalar there hides how many choices " +
+      "the species grants.");
+  }
+  if (!Number.isInteger(grant.count) || grant.count <= 0) {
+    fail(`the species record "${species.id}" carries \`data.granted_skill_choice.count\` = ` +
+      `${JSON.stringify(grant.count)}, which is not a positive whole number — a grant the engine cannot count ` +
+      "is bad content, not a grant to skip.");
   }
 
-  /* LOT 52, DETTE A (commande §1d, arbitrage de l'architecte) — RÉORDONNÉ,
-     PAS RAYÉ. Les deux blocs suivants (les outils de CLASSE, l'espèce) ne
-     LISENT PAS `backgroundRef` — c'est un fait de lecture : ni l'un ni
-     l'autre n'y touche. Le lot 43 a éteint les quatre arrière-plans SRD et
-     n'a posé aucun choix `background` sur le personnage d'exemple :
-     `backgroundRef` est donc absent pour TOUT LE MONDE, pas pour « un
-     personnage Araag/Humain sans background ». Sous l'ancien ordre, le
-     `return` juste en dessous (qui doit rester : ce qui suit LUI, `skill_ids`
-     et l'outil d'arrière-plan, lit vraiment `backgroundRef`) sautait aussi
-     ces deux blocs — rendant les deux `fail()` du bloc espèce (un
-     `granted_skill_choice` malformé) INATTEIGNABLES pour tout le monde, et
-     `skillpool-class-tools-unmechanical` jamais déclaré. Un garde qui ne peut
-     plus mordre est pire que pas de garde (loi de ce mandat) : ils sortent
-     donc de dessous le retour anticipé. */
-
-  /* Les outils que la CLASSE impose — jamais comptés, toujours déclarés. */
-  underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.class-tools`, "underived.fh.skillpool-class-tools-unmechanical",
-    { classId: classRef.id }));
-
-  /* L'espèce — LE NET ZÉRO (lot 24, arbitrage d'Eric du 2026-08-09, contrat
-     §⭐ THE SKILL POOL). Le lot 23 déclarait cette question ouverte ; elle ne
-     l'est plus : un `granted_skill_choice` d'espèce SE RAJOUTE au pool PUIS
-     SE PLACE au coût d'un imposé — deux lignes, un total inchangé. ⛔ LE
-     GRANT NE SE CONVERTIT PAS EN POINTS LIBRES : le placer au même coût que
-     son entrée est ce qui préserve sa restriction (`Keen Senses` ne tire que
-     dans {survival, delve, vigilance}) — un module qui n'ajouterait QUE la
-     ligne d'entrée transformerait un choix restreint en points dépensables
-     partout. */
-  if (species) {
-    const grant = (species.data || {}).granted_skill_choice;
-    if (grant !== undefined) {
-      if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
-        fail(`the species record "${species.id}" carries \`data.granted_skill_choice\` = ${JSON.stringify(grant)}, ` +
-          "which is not an object — the convention of this layer is `{count, from}`, and a scalar there hides " +
-          "how many choices the species grants.");
-      }
-      if (!Number.isInteger(grant.count) || grant.count <= 0) {
-        fail(`the species record "${species.id}" carries \`data.granted_skill_choice.count\` = ` +
-          `${JSON.stringify(grant.count)}, which is not a positive whole number — a grant the engine cannot ` +
-          "count is bad content, not a grant to skip: dropping only its placement half would leave the pool " +
-          "too generous by exactly that count.");
-      }
-      lines.push({
-        label: t("fh.skills.term.granted", { source: species.name, count: grant.count }),
-        value: grant.count * cost,
-        source: { kind: "species", id: species.id }
-      });
-      lines.push({
-        label: t("fh.skills.term.imposed", { source: species.name, count: grant.count }),
-        value: -(grant.count * cost),
-        source: { kind: "species", id: species.id }
-      });
-    }
-  }
-
-  if (!backgroundRef) {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`, "underived.fh.skillpool-no-background-ref", {}));
+  /* 🔴 LE TEST DU CANON, ET C'EST LA DONNÉE QUI LE PORTE. Une liste contraint,
+     le littéral `"any"` ne contraint pas. Tout autre forme n'est ni l'un ni
+     l'autre : la taire choisirait un camp au hasard, et l'un des deux camps
+     est faux de `count × adepte` points. */
+  if (Array.isArray(grant.from)) {
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].species.granted`,
+      "underived.fh.skillpool-species-grant-bound", { speciesId: species.id, count: grant.count }));
     return;
   }
-  const backgroundData = backgroundRef.data || {};
-  if (Array.isArray(backgroundData.skill_ids)) {
-    if (backgroundData.skill_ids.length > 0) {
-      lines.push({
-        label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: backgroundData.skill_ids.length }),
-        value: -(backgroundData.skill_ids.length * cost),
-        source: { kind: "background", id: backgroundRef.id }
-      });
-    }
-  } else {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.background`,
-      "underived.fh.skillpool-background-missing-skill-ids", { backgroundId: backgroundRef.id }));
+  if (grant.from !== "any") {
+    fail(`the species record "${species.id}" carries \`data.granted_skill_choice.from\` = ` +
+      `${JSON.stringify(grant.from)}, which is neither a list of skill ids nor the literal "any". That field IS ` +
+      "the canon's bound/free test (§B.1quater): a list constrains the grant, \"any\" does not. A third form " +
+      "would have to be sorted into one of the two camps by guess, and the wrong guess costs the character " +
+      "exactly that grant.");
   }
-
-  /* L'OUTIL D'ARRIÈRE-PLAN. `tool_id` l'accorde, `tool_choice` le fait choisir
-     — dans les deux cas c'est UN outil (le pli n'en résout qu'un), et dans les
-     deux cas il est imposé : le personnage n'a pas le droit de ne pas l'avoir. */
-  const hasTool = typeof backgroundData.tool_id === "string" || backgroundData.tool_choice !== undefined;
-  if (hasTool) {
-    lines.push({
-      label: t("fh.skills.term.imposed", { source: backgroundRef.name, count: 1 }),
-      value: -cost,
-      source: { kind: "background", id: backgroundRef.id }
-    });
-  } else {
-    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].imposed.tool`, "underived.fh.skillpool-background-missing-tool",
-      { backgroundId: backgroundRef.id }));
+  const adepte = pool.tier_costs && pool.tier_costs.proficient;
+  if (!Number.isInteger(adepte)) {
+    fail(`the class record "${classRef.id}" prices no full proficiency (\`tier_costs.proficient\`), and the ` +
+      `species "${species.id}" grants ${grant.count} unconstrained one(s). An SRD proficiency is worth an adept ` +
+      "(canon §A.2); without its price the grant cannot enter the pool.");
   }
+  lines.push({
+    label: t("fh.skills.term.granted", { source: species.name, count: grant.count }),
+    value: grant.count * adepte,
+    source: { kind: "species", id: species.id }
+  });
 }
 
 /* ── LE DON QUI PORTE DES POINTS DE COMPÉTENCE ───────────────────────
@@ -656,9 +633,12 @@ export function createFhSkillPoolStat() {
            pool de classe donnerait un nombre qui ressemble à un pool. */
         return { stat: null, underived, consumed: [] };
       }
+      /* ⭐ LOT 82 — LE FREE POINT POOL, PUBLIÉ TEL QUEL. C'est ce que le
+         joueur dépense, et il n'y a plus rien à en retrancher : le bound est
+         publié à part et n'y est jamais entré (canon §B.0). */
       lines.push({
         label: t("fh.skills.term.class", { class: classRef.name }),
-        value: pool.base,
+        value: pool.free_point_pool,
         source: { kind: "class", id: classRef.id }
       });
 
@@ -678,9 +658,10 @@ export function createFhSkillPoolStat() {
          Destinée, filtré sur son propre genre. */
       featLines(outside.filter((ref) => ref.kind === "feat"), lines, underived, consumed);
 
-      /* 4. LES IMPOSÉS, DÉDUITS — au coût que le record porte, PUIS le grant
-         d'espèce en net zéro (lot 24). */
-      imposedLines(classRef, backgroundRef, species, imposedCost(classRef, pool), lines, underived);
+      /* 4. LE BOUND — PUBLIÉ, JAMAIS SOUSTRAIT (lot 82, canon §B.0). Et le
+         grant d'espèce trié par la contrainte qu'il porte, pas par sa source. */
+      tierCosts(classRef, pool);
+      boundLines(classRef, pool, species, lines, underived);
 
       /* 5. LA GRILLE À QUATRE PALIERS (lot 34) — le plancher, puis la dépense.
          ⚠️ Le plancher (« half ») N'EST PAS écrit dans `resolved.skills[]`
@@ -856,13 +837,14 @@ export function createFhSkillPoolStat() {
           { available: preSpendTotal, spent: spentTotal, over: spentTotal - preSpendTotal }));
       }
 
-      /* §3b — AU MOINS UN POINT EN OUTILS, TOUJOURS (ARBITRÉ, commande §3b :
-         une propriété du personnage, pas un instant de la création — un
-         personnage créé après le niveau 1 n'y échappe pas). */
-      const hasToolTier = Object.entries(tierBySlug).some(([slug, tier]) => tier !== "none" && toolSlugs.has(slug));
-      if (!hasToolTier) {
-        violations.push(buildViolation("skill-pool.no-tool", {}));
-      }
+      /* ⛔ §3b EST MORT — « AU MOINS UN POINT EN OUTILS » N'EXISTE PLUS.
+         Canon §B.1 : « And the old "at least one point must go into a tool" is
+         DEAD. It existed because tools were a separate budget; they are not any
+         more. Nothing forces a tool. » Il n'y a plus qu'UN pool, dépensable
+         indifféremment en compétences ou en outils (canon §B.2) — un refus qui
+         force un outil imposerait au joueur une dépense que la règle ne
+         demande plus. Le refus, sa phrase anglaise et sa phrase française
+         partent avec lui. */
 
       return {
         stat: {

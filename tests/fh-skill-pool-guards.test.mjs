@@ -7,9 +7,12 @@
          refus sur le TOTAL, sans `path` ; le dépassement est TOLÉRÉ pendant
          la répartition (comportement 2a) et REFUSÉ seulement à la sortie
          (`validate()`). Rendu par `src/modules/fh/skill-pool.mjs`.
-     3b. au moins un point en OUTILS, TOUJOURS — `skill-pool.no-tool`, une
-         propriété du personnage, pas un instant de la création (ARBITRÉ
-         §3b). Même module.
+     3b. ⛔ MORT AU LOT 82 — « au moins un point en OUTILS » n'est plus une
+         règle. Canon §B.1 : la contrainte n'existait que parce que les outils
+         avaient leur propre budget ; il n'y a plus qu'UN pool, dépensable
+         indifféremment (canon §B.2), donc rien ne force un outil. Les deux
+         tests de cette clause sont remplacés par UN test qui garde la
+         disparition : un personnage sans le moindre outil PASSE.
      3c. le budget captif d'espèce (Keen Senses) ne dépasse pas son
          plafond — `skill-budget.overspent` EXISTE DÉJÀ dans
          `src/build/decisions.mjs` depuis le lot 34 : le trou mesuré par la
@@ -19,9 +22,9 @@
          donc `validate()`, pas `moduleViolations`.
 
    Chaque clause porte son ACCEPT et son REJET (commande §4). Wizard niveau 1
-   sert de base commune : pool de classe 12, deux compétences imposées
-   (arcana/history, coût 1 chacune) → 10 points à répartir, tier_costs
-   {half:1, proficient:2, expertise:4, imposed:1} (mesuré, `fh-skills-en`). */
+   sert de base commune : free point pool 10 (canon §B.1 — son bound de 2
+   points de compétence est déjà placé et n'a jamais été dans le pool),
+   tier_costs {half:1, proficient:2, expertise:4} (mesuré, `fh-skills-en`). */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -162,21 +165,17 @@ test("le refus ne bloque PAS la dépense : le palier acheté reste appliqué dan
     "et pourtant le palier acheté est bien appliqué — le refus se prononce, il ne défait rien");
 });
 
-/* ══ 2 — AU MOINS UN POINT EN OUTILS (§3b) ════════════════════════════ */
+/* ══ 2 — ⛔ L'OBLIGATION D'OUTIL A DISPARU (lot 82) ═══════════════════
+   Canon §B.1 : « the old "at least one point must go into a tool" is DEAD. It
+   existed because tools were a separate budget; they are not any more.
+   Nothing forces a tool. »
 
-test("ACCEPTÉ — un personnage avec UN outil à ½ : `validate()` passe", () => {
-  const h = pile();
-  const out = h.verbs.rebuild({
-    document: documentDe(h, choixDe({
-      level: 1, classId: WIZARD, speciesId: HALFLING,
-      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" }]
-    }))
-  });
-  assert.equal(out.moduleViolations.some((v) => v.key === "skill-pool.no-tool"), false);
-  assert.equal(h.verbs.validate({ document: out.document }).ok, true);
-});
+   ⚠️ CE TEST GARDE UNE ABSENCE, ET C'EST DÉLIBÉRÉ. Un refus supprimé sans
+   garde revient tout seul à la première réécriture du module : le test le
+   plus utile ici n'est pas celui qui vérifie qu'un outil est acheté, c'est
+   celui qui vérifie qu'un personnage QUI N'EN A AUCUN passe la sortie. */
 
-test("REJET — aucun outil à un palier autre que « aucun » : `skill-pool.no-tool`", () => {
+test("un personnage sans le MOINDRE outil valide — l'obligation d'outil est morte", () => {
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
@@ -184,9 +183,20 @@ test("REJET — aucun outil à un palier autre que « aucun » : `skill-pool.no-
       extra: [{ path: "fh.skills.spend.acrobatics", value: "proficient" }]
     }))
   });
-  const violation = out.moduleViolations.find((v) => v.key === "skill-pool.no-tool");
-  assert.ok(violation, "le refus est KEYÉ, pas un silence");
-  assert.equal(h.verbs.validate({ document: out.document }).ok, false);
+  assert.equal(out.moduleViolations.some((v) => v.key === "skill-pool.no-tool"), false,
+    "le refus n'existe plus — ni levé, ni levable");
+  assert.equal(h.verbs.validate({ document: out.document }).ok, true,
+    "et la sortie de création passe : rien ne force un outil (canon §B.2, un seul pool)");
+
+  /* Et l'inverse reste vrai : acheter un outil passe aussi. Le canon ne
+     retourne pas la contrainte, il la supprime. */
+  const avecOutil = h.verbs.rebuild({
+    document: documentDe(h, choixDe({
+      level: 1, classId: WIZARD, speciesId: HALFLING,
+      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" }]
+    }))
+  });
+  assert.equal(h.verbs.validate({ document: avecOutil.document }).ok, true);
 });
 
 /* ══ 3 — LE BUDGET CAPTIF D'ESPÈCE (Keen Senses, §3c) ═════════════════
@@ -271,7 +281,7 @@ test("un personnage SRD pur, sans la couche FH : aucun des trois refus ne peut a
       level: 1, classId: WIZARD, speciesId: HALFLING, backgroundId: "srd:background:en:acolyte"
     }))
   });
-  const cles = new Set(["skill-pool.overspent", "skill-pool.no-tool"]);
+  const cles = new Set(["skill-pool.overspent"]);
   assert.equal(out.moduleViolations.some((v) => cles.has(v.key)), false,
     "sans la couche FH, le module ne publie même pas de pool — rien à refuser");
   /* Un halfling SRD ne porte pas `granted_skill_budget` : le carnet de

@@ -277,8 +277,49 @@ export const TOOLS_ADDED = [
    suspendue (INVENTAIRE-LOT-22.md, question 1 — `build.budgets` n'a aucun
    chemin d'écriture), et poser la matière ne préjuge pas de sa destination.
 
-   ── LES QUATRE POOLS DE NIVEAU 1, ARRIÈRE-PLAN INCLUS ─────────────────
-   Rogue 18 · Bard 16 · Druid/Monk/Ranger 14 · toutes les autres 12.
+   ── ⭐ LOT 82 — TROIS TOTAUX, ET LE `base` UNIQUE EST MORT ────────────
+   Canon `5.RPG/Fate's Hand/0. D&D 5+ Rules/4. Skills/Skill & Tool Points —
+   Canon (SRD to FH).md`, ratifié point par point par Eric le 2026-08-18.
+
+   Le `base` unique disait UN nombre là où le canon en publie TROIS, et il
+   forçait le moteur à en déduire les imposés par soustraction. Cette
+   soustraction est ce qui a laissé six pools faux vivre des mois : personne
+   ne pouvait lire, sur le record, ce que le joueur allait réellement dépenser.
+
+     bound skill points · bound tool points · free point pool   (§B.0)
+
+   ⛔ LE BOUND N'EST JAMAIS DANS LE POOL. Ce ne sont pas des réserves où le
+   joueur pourrait puiser : ce sont des points DÉJÀ dépensés quand la feuille
+   lui arrive. Le joueur ne manipule que le troisième.
+
+   | classe                                    | bound sk | bound tool | free |
+   |-------------------------------------------|----------|------------|------|
+   | barb·cleric·fighter·paladin·sorc·warl·wiz  |    2     |     0      |  10  |
+   | bard                                       |    3     |     2      |  12  |
+   | druid                                      |    2     |     1      |  12  |
+   | monk                                       |    2     |     0      |  10  |
+   | ranger                                     |    3     |     0      |  12  |
+   | rogue                                      |    6     |     1      |  14  |
+
+   ── D'OÙ CHAQUE LIGNE SORT (canon §A.5, la recette est CONVERTIBLE) ───
+   V = 2 × maîtrises + 2 × expertises · moitié bound, moitié free · puis
+   +6 (arrière-plan) +2 (bonus FH), puis l'ajustement qu'Eric a posé À LA MAIN
+   et qui est NOMMÉ — un nombre sans explication est celui qui pourrit :
+
+     groupe 1 : 2 compétences → V=4 → 2/2 · free 2+6+2 = 10, aucun ajustement
+     barde    : 3 comp. + 2 instruments (−1, « trois instruments abusé »)
+                → V=10 → 5/5 · free 5+6+2 = 13, NERF BARDE −1 = 12
+     druide   : 2 comp. + 1 outil → V=6 → 3/3 · free 3+6+2 = 11, BOOST +1 = 12
+     moine    : même kit que le druide, mais son outil est « artisan OU
+                instrument » — un choix qui couvre 80 % du catalogue ne LIE
+                rien, donc son point part au pool : bound 2 et non 3. Le NERF
+                MOINE −1 le reprend aussitôt : free 11 − 1 = 10
+     rôdeur   : 3 comp. → V=6 → 3/3 · free 3+6+2 = 11, BOOST +1 = 12
+     rogue    : 4 comp. + outil + 2 expertises. Une expertise n'est jamais
+                autonome : elle s'empile sur un adepte. Deux de ses quatre
+                novices bound se couplent donc aux expertises →
+                2 novices (2) + 1 expert (4) = 6 bound sk, + 1 bound tool.
+                free 7 + 6 + 2 − 1 (NERF ROGUE) = 14
 
    ⛔ DOUZE LIGNES, PAS TREIZE. Le tableau du chapitre en porte une
    quatorzième — l'Artificier — et elle ne peut pas exister ici : le SRD 5.2.1
@@ -320,54 +361,76 @@ function progression({ bardePlusUnParNiveau = false } = {}) {
   return byLevel;
 }
 
-/** Le niveau à partir duquel l'expertise s'achète, par défaut.
+/** Le niveau à partir duquel l'expertise s'achète, par défaut (canon §B.2).
  *
- *  ⚠️ CE N'EST PLUS UNE CONSTANTE UNIQUE (lot 35). Le Rogue déroge — son
- *  Expertise SRD de niveau 1 est comptée dans son pool (addendums §1, EXCEPTION
- *  — LE ROGUE, ratifiée par Eric le 2026-08-10, précisée le 2026-08-12) — et
- *  c'est du CONTENU, comme le pool de classe lui-même : `CLASS_POOLS` porte
- *  donc `expertiseFromLevel` PAR CLASSE, cette constante n'en restant que le
- *  DÉFAUT pour les onze qui ne dérogent pas. Aucun plafond de compte n'existe
- *  pour le Rogue (décision d'Eric) : seul le niveau de déverrouillage change,
- *  le pool reste la seule économie qui arbitre. */
+ *  ⚠️ CE N'EST PAS UNE CONSTANTE UNIQUE. `CLASS_POOLS` porte
+ *  `expertiseFromLevel` PAR CLASSE ; celle-ci n'est que le DÉFAUT des neuf qui
+ *  ne dérogent pas.
+ *
+ *  ⭐ LOT 82 — TROIS CLASSES DÉROGENT, PLUS UNE SEULE. Canon §B.1ter : un
+ *  trait de classe qui accorde l'Expertise tend DEUX choses, et la seconde est
+ *  cette permission d'acheter avant le niveau 4.
+ *
+ *    Rogue  · Expertise, niveau 1     → 1
+ *    Bard   · Expertise, niveau 2     → 2
+ *    Ranger · Deft Explorer, niveau 2 → 2
+ *
+ *  ⚠️ LE ROGUE N'EST PAS UNE ERREUR À CORRIGER. Son `1` a été signalé comme
+ *  faux par deux contrôleurs sur cinq le 2026-08-18 ; c'est le canon qui se
+ *  contredisait, et Eric a tranché pour le code. Son trait de niveau 1 EST sa
+ *  permission. Ce qu'il n'a PAS, ce sont des free points en plus : ses deux
+ *  expertises sont déjà payées dans son kit de niveau 1 (§A.5).
+ *
+ *  Aucun plafond de compte n'existe pour personne : seul le niveau de
+ *  déverrouillage change, le pool reste la seule économie qui arbitre. */
 export const DEFAULT_EXPERTISE_FROM_LEVEL = 4;
 
 export const CLASS_POOLS = [
-  { target: "srd:class:en:barbarian", base: 12 },
-  { target: "srd:class:en:bard", base: 16, bard: true },
-  { target: "srd:class:en:cleric", base: 12 },
-  { target: "srd:class:en:druid", base: 14 },
-  { target: "srd:class:en:fighter", base: 12 },
-  { target: "srd:class:en:monk", base: 14 },
-  { target: "srd:class:en:paladin", base: 12 },
-  { target: "srd:class:en:ranger", base: 14 },
-  { target: "srd:class:en:rogue", base: 18, expertiseFromLevel: 1 },
-  { target: "srd:class:en:sorcerer", base: 12 },
-  { target: "srd:class:en:warlock", base: 12 },
-  { target: "srd:class:en:wizard", base: 12 }
+  { target: "srd:class:en:barbarian", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:bard", boundSkill: 3, boundTool: 2, free: 12, bard: true, expertiseFromLevel: 2 },
+  { target: "srd:class:en:cleric", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:druid", boundSkill: 2, boundTool: 1, free: 12 },
+  { target: "srd:class:en:fighter", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:monk", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:paladin", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:ranger", boundSkill: 3, boundTool: 0, free: 12, expertiseFromLevel: 2 },
+  { target: "srd:class:en:rogue", boundSkill: 6, boundTool: 1, free: 14, expertiseFromLevel: 1 },
+  { target: "srd:class:en:sorcerer", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:warlock", boundSkill: 2, boundTool: 0, free: 10 },
+  { target: "srd:class:en:wizard", boundSkill: 2, boundTool: 0, free: 10 }
 ].map((entry) => ({
   target: entry.target,
-  base: entry.base,
+  boundSkill: entry.boundSkill,
+  boundTool: entry.boundTool,
+  free: entry.free,
   byLevel: progression({ bardePlusUnParNiveau: Boolean(entry.bard) }),
   expertiseFromLevel: entry.expertiseFromLevel || DEFAULT_EXPERTISE_FROM_LEVEL
 }));
 
 /* ══ CE QUE COÛTE UN PALIER DE COMPÉTENCE ══════════════════════════════
-   Demi-compétence 1 · compétence pleine 2 · expertise 4 (achetable par tous à
-   partir du niveau 4). Et la règle d'Eric du 2026-08-08 : un choix IMPOSÉ par
-   la classe ou l'arrière-plan pose 1 point — une demi-compétence — et ce point
-   se déduit du pool. « On n'est plus sous le joug de D&D Beyond. »
+   Canon §A.1 et §B.2 — trois paliers, et pas un quatrième :
 
-   ⚠️ POSÉS ICI, LUS PAR PERSONNE POUR L'INSTANT, et c'est délibéré. Ces coûts
-   appartiennent à la dérivation suspendue. Ils ne sont PAS passés en
-   `ruleValues` : le bloc `layers` REFUSE le montage d'une couche qui porte une
-   valeur de règle que le moteur n'a pas déclaré savoir lire — et la
-   correspondance entre une clef de couche et une clef de règle du moteur
-   n'est écrite nulle part (question ouverte n°4 du bloc `layers`, que ce lot
-   n'a pas le droit de trancher). Les mettre en `ruleValues` ferait donc jeter
-   le montage, mesuré. Ils vivent dans le record de chaque classe, avec le
-   pool qu'ils dépensent. */
-export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4, imposed: 1 };
+     novice 1 · adept 2 · expert 4
+
+   (Les clefs portent encore les noms de moteur `half`/`proficient`/
+   `expertise`. Le canon a rebaptisé les PALIERS ; le renommage traverse le
+   schéma `fh-char/1` et les documents déjà enregistrés, il se fait donc dans
+   sa propre passe, pas au milieu des nombres.)
+
+   ⛔ `imposed` EST MORT (lot 82). Il chiffrait ce qu'un choix imposé
+   DÉDUISAIT du pool — une soustraction que le canon supprime : les points
+   imposés sont désormais publiés à part, en `bound_skill_points` et
+   `bound_tool_points`, et ils n'ont jamais transité par le pool. Le garder
+   laisserait dans chaque record un nombre que plus personne ne lit, et c'est
+   exactement le genre de fantôme qui se fait relire trois mois plus tard.
+
+   ⚠️ ILS NE SONT PAS PASSÉS EN `ruleValues` : le bloc `layers` REFUSE le
+   montage d'une couche qui porte une valeur de règle que le moteur n'a pas
+   déclaré savoir lire — et la correspondance entre une clef de couche et une
+   clef de règle du moteur n'est écrite nulle part (question ouverte n°4 du
+   bloc `layers`). Les mettre en `ruleValues` ferait jeter le montage, mesuré.
+   Ils vivent dans le record de chaque classe, avec le pool qu'ils dépensent. */
+export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4 };
 
 /* ══ L'ARRIÈRE-PLAN — ÉTEINT EN FATE'S HAND (lot 35) ═══════════════════════
    Addendums §4, « L'arrière-plan n'existe plus en Fate's Hand » (Eric,

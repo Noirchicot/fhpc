@@ -90,9 +90,10 @@ export const FR_BUILD = {
   /* ── LOT 37 — LES DEUX GARDES DU POOL ─────────────────────────────── */
   "skill-pool.overspent": (d) => `le pool dépense ${d.spent} point(s) pour ${d.available} disponible(s) — ` +
     `${d.over} point(s) de trop. La répartition reste possible, mais la sortie de création exige un total ` +
-    "positif ou nul.",
-  "skill-pool.no-tool": () => "aucun outil n'est maîtrisé à un palier autre que « aucun » — le personnage doit " +
-    "porter au moins un point en outils."
+    "positif ou nul."
+  /* ⛔ `skill-pool.no-tool` EST MORT (lot 82). Canon §B.1 : « the old "at least
+     one point must go into a tool" is DEAD. It existed because tools were a
+     separate budget; they are not any more. Nothing forces a tool. » */
 };
 
 const buildLabels = createLabels(FR_BUILD);

@@ -296,26 +296,19 @@ export const FH_UNDERIVED_FR = {
   "underived.fh.skillpool-species-tier-not-reached": (d) =>
     `l'espèce « ${d.speciesId} » accorde des points par « ${d.traitName} », et AUCUN de ses paliers n'est ` +
     `atteint au niveau ${d.level} (règle Q15-8 : seuls comptent les paliers TRAVERSÉS).`,
-  "underived.fh.skillpool-class-choice-unreadable": (d) =>
-    `la classe « ${d.classId} » ne porte pas de \`skill_choice.count\` lisible : le nombre de compétences que ` +
-    "la classe IMPOSE se déduit du pool à 1 point chacune (règle d'Eric, 2026-08-08), et sans lui le pool " +
-    "publié est trop généreux d'exactement ce nombre.",
-  "underived.fh.skillpool-no-background-ref": () =>
-    "aucun `ref` de genre `background` sous le chemin « background » : l'arrière-plan est INCLUS dans le pool " +
-    "de classe (décision d'Eric, point 9), et les maîtrises qu'il accorde s'en déduisent. Un personnage sans " +
-    "arrière-plan n'en déduit aucune — mais son pool a été calibré en supposant qu'il en aurait un.",
-  "underived.fh.skillpool-background-missing-skill-ids": (d) =>
-    `l'arrière-plan « ${d.backgroundId} » ne porte pas \`skill_ids\` (contrat §3) ; \`skill_proficiencies\` n'y ` +
-    "donne que des noms affichables, et le moteur ne compte pas des mots.",
-  "underived.fh.skillpool-background-missing-tool": (d) =>
-    `l'arrière-plan « ${d.backgroundId} » ne porte ni \`tool_id\` ni \`tool_choice\` (contrat §3) : un outil ` +
-    "imposé coûte 1 point comme une compétence imposée (règle d'Eric), et « le minimum 1 point en outils à la " +
-    "création » devient redondant précisément parce que cet outil-là est semé à 1.",
-  "underived.fh.skillpool-class-tools-unmechanical": (d) =>
-    `la classe « ${d.classId} » ne porte aucun champ MÉCANIQUE d'outil : \`tool_proficiencies\` est une phrase ` +
-    "(« Thieves' Tools », « Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe pas " +
-    "d'équivalent de `skill_choice` pour les outils. Les outils imposés par la classe coûteraient 1 point " +
-    "chacun comme les autres ; les compter demanderait de lire une phrase anglaise dans le moteur.",
+  /* ⭐ LOT 82 — LES DEUX DÉCLARATIONS DU BOUND. Cinq clefs sont mortes ici :
+     elles disaient toutes la MÊME chose sous cinq formes — « voilà ce que je
+     déduis du pool » — et le canon du 2026-08-18 a supprimé la déduction. */
+  "underived.fh.skillpool-bound-not-in-pool": (d) =>
+    `la classe « ${d.classId} » place ${d.skill} point(s) de compétence et ${d.tool} point(s) d'outil en BOUND. ` +
+    "Ils ne sont PAS dans le pool publié et ne s'en déduisent pas non plus : ce sont des points déjà dépensés " +
+    "quand la feuille arrive au joueur (canon §B.0). Le joueur les PLACE — dans la liste de sa classe, au " +
+    "palier novice — et ce module ne conduit pas ce placement.",
+  "underived.fh.skillpool-species-grant-bound": (d) =>
+    `l'espèce « ${d.speciesId} » accorde ${d.count} maîtrise(s) CONTRAINTE(S) par une liste : c'est du bound ` +
+    "(canon §B.1quater — une liste contraint, le littéral « any » ne contraint pas). Le grant ne rejoint donc " +
+    "pas le pool, et le convertir en points libres transformerait un choix restreint en points dépensables " +
+    "partout.",
   "underived.fh.skillpool-feat-no-choice": () =>
     "aucun choix ne désigne de record `feat` : les points de compétence d'un don d'origine sont portés par le " +
     "don (`data.skill_points.bonus`), et un personnage sans don n'en a aucun à lire.",
@@ -382,26 +375,16 @@ export const FH_UNDERIVED_EN = {
   "underived.fh.skillpool-species-tier-not-reached": (d) =>
     `the species "${d.speciesId}" grants points through "${d.traitName}", and NONE of its tiers is reached at ` +
     `level ${d.level} (rule Q15-8: only TRAVERSED tiers count).`,
-  "underived.fh.skillpool-class-choice-unreadable": (d) =>
-    `the class "${d.classId}" carries no readable \`skill_choice.count\`: the number of skills the class ` +
-    "IMPOSES is deducted from the pool at 1 point each (Eric's rule, 2026-08-08), and without it the published " +
-    "pool is too generous by exactly that count.",
-  "underived.fh.skillpool-no-background-ref": () =>
-    "no `background`-genre `ref` under the path \"background\": the background is INCLUDED in the class pool " +
-    "(Eric's decision, point 9), and the proficiencies it grants are deducted from it. A character with no " +
-    "background deducts none — but its pool was calibrated assuming it would have one.",
-  "underived.fh.skillpool-background-missing-skill-ids": (d) =>
-    `the background "${d.backgroundId}" carries no \`skill_ids\` (contract §3); \`skill_proficiencies\` there ` +
-    "only gives display names, and the engine does not count words.",
-  "underived.fh.skillpool-background-missing-tool": (d) =>
-    `the background "${d.backgroundId}" carries neither \`tool_id\` nor \`tool_choice\` (contract §3): an ` +
-    "imposed tool costs 1 point like an imposed skill (Eric's rule), and \"the minimum 1 point in tools at " +
-    "creation\" becomes redundant precisely because that tool is already seeded at 1.",
-  "underived.fh.skillpool-class-tools-unmechanical": (d) =>
-    `the class "${d.classId}" carries no MECHANICAL tool field: \`tool_proficiencies\` is a phrase ` +
-    "(\"Thieves' Tools\", \"Choose 3 Musical Instruments\", `null` for the Wizard) and there is no " +
-    "`skill_choice` equivalent for tools. Tools imposed by the class would cost 1 point each like the " +
-    "others; counting them would require reading an English phrase inside the engine.",
+  /* LOT 82 — see the French table above: five keys died with the deduction. */
+  "underived.fh.skillpool-bound-not-in-pool": (d) =>
+    `the class "${d.classId}" places ${d.skill} bound skill point(s) and ${d.tool} bound tool point(s). They ` +
+    "are NOT in the published pool, and they are not deducted from it either: they are already spent when the " +
+    "sheet reaches the player (canon §B.0). The player PLACES them — inside the class list, at novice — and " +
+    "this module does not drive that placement.",
+  "underived.fh.skillpool-species-grant-bound": (d) =>
+    `the species "${d.speciesId}" grants ${d.count} proficiency(ies) CONSTRAINED by a list: that is bound ` +
+    "(canon §B.1quater — a list constrains, the literal \"any\" does not). The grant therefore never joins the " +
+    "pool; converting it into free points would turn a restricted choice into points spendable anywhere.",
   "underived.fh.skillpool-feat-no-choice": () =>
     "no choice designates a `feat` record: an origin feat's skill points are carried by the feat " +
     "(`data.skill_points.bonus`), and a character with no feat has none to read.",

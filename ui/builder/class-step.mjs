@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=93";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=93";
-import { renderConfirmDialog } from "./confirm.mjs?v=93";
-import { renderChoixGlisses } from "./glisser.mjs?v=93";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=94";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=94";
+import { renderConfirmDialog } from "./confirm.mjs?v=94";
+import { renderChoixGlisses } from "./glisser.mjs?v=94";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -165,9 +165,15 @@ export function renderClassCardBody(query, id) {
  *  `fh-fiche-en` existe. À 360 px, une pile SRD nue est LISIBLE mais pas
  *  CALIBRÉE — le dire ici plutôt que le laisser découvrir. */
 function renderClassCardBodySrd(data) {
-  const pool = data.fh_skill_pool && data.fh_skill_pool.base;
+  /* ⭐ LOT 82 — LE NOMBRE QUE LE JOUEUR DÉPENSE, ET LUI SEUL. La carte
+     montrait `base`, qui mélangeait le pool et les points déjà placés : douze
+     nombres faux à l'écran. Le canon §B.1 publie trois totaux, et le joueur
+     n'en manipule qu'un — c'est celui-là que la carte annonce. Le bound (déjà
+     dépensé quand la feuille arrive) a sa place sur la fiche, pas sur la carte
+     de choix : ici, ce qui aide à choisir, c'est ce qu'on aura à dépenser. */
+  const pool = data.fh_skill_pool && data.fh_skill_pool.free_point_pool;
   const rows = renderCardRows([
-    ["Skill pool", Number.isInteger(pool) ? String(pool) : null],
+    ["Free points", Number.isInteger(pool) ? String(pool) : null],
     ["Hit points", data.hit_point_die],
     ["Primary ability", data.primary_ability],
     ["Saving throws", Array.isArray(data.saving_throw_proficiencies) ? data.saving_throw_proficiencies.join(", ") : null]

@@ -370,22 +370,83 @@ test("acceptation 4 — `disable`/`enable` rendent la pile réversible, sans rem
    suspendue (question 1 de l'inventaire). La distinction est le cœur de ce
    lot — la matière est livrée, la destination du nombre ne l'est pas. */
 
-/** Les douze pools de niveau 1, écrits depuis le canon. */
+/* ══ LOT 82 — TROIS TOTAUX, PLUS UN `base` UNIQUE ═════════════════════
+   Canon `Skill & Tool Points — Canon (SRD to FH).md` §B.1, ratifié par Eric
+   le 2026-08-18. Le `base` unique dont on déduisait les imposés est mort : il
+   mélangeait en un nombre ce que le canon sépare en trois, et c'est cette
+   confusion qui a laissé vivre six pools faux pendant des mois.
+
+     bound skill points · bound tool points · free point pool
+
+   ⛔ LE JOUEUR NE MANIPULE QUE LE TROISIÈME. Les deux premiers sont déjà
+   dépensés quand la feuille lui arrive — jamais dans le pool, jamais
+   récupérables (canon §B.0).
+
+   ⚠️ CES DOUZE LIGNES SONT LE CANON RECOPIÉ, PAS UNE DÉRIVATION. La recette
+   qui les produit vit en §A.5 du canon (V = 2×maîtrises + 2×expertises,
+   moitié bound / moitié free, + 6 arrière-plan + 2 bonus FH, puis les
+   ajustements nommés d'Eric). La recopier ici la rendrait vérifiable contre
+   elle-même — c'est la table publiée qu'on épingle. */
 const LES_12_POOLS = [
-  ["srd:class:en:barbarian", 12], ["srd:class:en:bard", 16], ["srd:class:en:cleric", 12],
-  ["srd:class:en:druid", 14], ["srd:class:en:fighter", 12], ["srd:class:en:monk", 14],
-  ["srd:class:en:paladin", 12], ["srd:class:en:ranger", 14], ["srd:class:en:rogue", 18],
-  ["srd:class:en:sorcerer", 12], ["srd:class:en:warlock", 12], ["srd:class:en:wizard", 12]
+  ["srd:class:en:barbarian", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:bard", { bound_skill_points: 3, bound_tool_points: 2, free_point_pool: 12 }],
+  ["srd:class:en:cleric", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:druid", { bound_skill_points: 2, bound_tool_points: 1, free_point_pool: 12 }],
+  ["srd:class:en:fighter", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:monk", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:paladin", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:ranger", { bound_skill_points: 3, bound_tool_points: 0, free_point_pool: 12 }],
+  ["srd:class:en:rogue", { bound_skill_points: 6, bound_tool_points: 1, free_point_pool: 14 }],
+  ["srd:class:en:sorcerer", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:warlock", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }],
+  ["srd:class:en:wizard", { bound_skill_points: 2, bound_tool_points: 0, free_point_pool: 10 }]
 ];
 
-test("les douze classes portent leur pool de niveau 1, arrière-plan inclus", () => {
+test("les douze classes portent LEURS TROIS TOTAUX — bound skill, bound tool, free point pool", () => {
   const verbs = pile();
   const observé = LES_12_POOLS.map(([id]) => {
     const vue = verbs.query({ kind: "class", id });
     assert.ok(vue, `« ${id} » doit exister`);
-    return [id, vue.record.data.fh_skill_pool.base];
+    const pool = vue.record.data.fh_skill_pool;
+    return [id, {
+      bound_skill_points: pool.bound_skill_points,
+      bound_tool_points: pool.bound_tool_points,
+      free_point_pool: pool.free_point_pool
+    }];
   });
-  assert.deepEqual(observé, LES_12_POOLS, "Rogue 18 · Bard 16 · Druid/Monk/Ranger 14 · les autres 12");
+  assert.deepEqual(observé, LES_12_POOLS,
+    "canon §B.1 : Rogue 6/1/14 · Bard 3/2/12 · Druid 2/1/12 · Ranger 3/0/12 · Monk 2/0/10 · les sept autres 2/0/10");
+});
+
+test("⛔ `base` EST MORT — aucune classe n'en porte plus, et rien ne peut le relire", () => {
+  const verbs = pile();
+  for (const [id] of LES_12_POOLS) {
+    const pool = verbs.query({ kind: "class", id }).record.data.fh_skill_pool;
+    assert.equal(pool.base, undefined,
+      `« ${id} » porte encore un \`base\` — un lecteur oublié rendrait le pool d'avant le canon, sans un mot`);
+  }
+  /* Et pas seulement sur les vues montées : dans les OCTETS de la couche. Un
+     `base` survivant ailleurs (un record d'une autre couche, un commentaire
+     recopié) serait relu par le premier `pool.base` resté dans `src/`. */
+  const octets = readFileSync(join(ROOT, FH_SKILLS_EN), "utf8");
+  assert.equal(/"base"\s*:/.test(octets), false,
+    "la couche compilée ne doit plus porter une seule clef `base` (loi §0.5)");
+});
+
+test("le bound n'est JAMAIS dans le pool — les trois totaux ne se recouvrent pas", () => {
+  const verbs = pile();
+  /* Canon §B.0 : « Bound points are never in the free point pool. They are
+     already spent, before the character sheet is handed over. » Le test qui
+     mord, c'est le ROGUE : 6 + 1 + 14 = 21, et 21 n'est le `base` d'aucune
+     ancienne ligne (il valait 18). Un moteur qui aurait « corrigé » 18 en
+     rangeant les imposés dedans passerait le test précédent et échouerait
+     ici. */
+  const rogue = verbs.query({ kind: "class", id: "srd:class:en:rogue" }).record.data.fh_skill_pool;
+  assert.equal(rogue.bound_skill_points + rogue.bound_tool_points + rogue.free_point_pool, 21,
+    "canon §B.1, colonne (total) : le rogue reçoit 21 points au total, dont 14 seulement lui appartiennent");
+
+  const bard = verbs.query({ kind: "class", id: "srd:class:en:bard" }).record.data.fh_skill_pool;
+  assert.equal(bard.bound_skill_points + bard.bound_tool_points + bard.free_point_pool, 17);
 });
 
 test("⛔ DOUZE classes, pas treize — l'Artificier n'est ni au SRD ni dans la couche", () => {
@@ -409,11 +470,14 @@ test("la progression du barde vaut +1 par niveau dès le 2, en plus du +2 univer
   assert.equal(barde.by_level["3"], 1);
   assert.equal(barde.by_level["4"], 3, "niveau 4 : son +1 ET le +2 universel — le chapitre écrit « +1+2(21) »");
 
-  /* Le cumul du chapitre : 27 au niveau 8. C'est la vérification qui attrape
-     une cadence fausse, là où les paliers isolés peuvent tous sembler bons. */
-  let cumul = barde.base;
+  /* LE CUMUL, et c'est la vérification qui attrape une cadence fausse là où
+     les paliers isolés peuvent tous sembler bons. ⚠️ LOT 82 : le point de
+     départ est le FREE POINT POOL (12), plus le `base` de 16 — ce que le
+     barde cumule, c'est ce qu'il peut DÉPENSER, et son bound n'en a jamais
+     fait partie. */
+  let cumul = barde.free_point_pool;
   for (let n = 2; n <= 8; n += 1) cumul += barde.by_level[String(n)] || 0;
-  assert.equal(cumul, 27, "16 + 7×(+1) + 2×(+2) = 27, exactement la ligne du tableau");
+  assert.equal(cumul, 23, "12 + 7×(+1) + 2×(+2) = 23 free points au niveau 8");
 });
 
 test("une classe sans le +1 du barde ne gagne qu'aux niveaux 4, 8, 12, 16 et 20", () => {
@@ -422,35 +486,54 @@ test("une classe sans le +1 du barde ne gagne qu'aux niveaux 4, 8, 12, 16 et 20"
   assert.deepEqual(Object.keys(rogue.by_level).map(Number).sort((a, b) => a - b), [4, 8, 12, 16, 20]);
   assert.ok(Object.values(rogue.by_level).every((v) => v === 2), "+2 à chaque palier");
 
-  let cumul = rogue.base;
+  let cumul = rogue.free_point_pool;
   for (let n = 2; n <= 8; n += 1) cumul += rogue.by_level[String(n)] || 0;
-  assert.equal(cumul, 22, "18 + 2 + 2 = 22 au niveau 8, comme le tableau du chapitre");
+  assert.equal(cumul, 18, "14 + 2 + 2 = 18 free points au niveau 8");
 });
 
 test("les coûts des paliers voyagent avec le pool qu'ils dépensent", () => {
   const verbs = pile();
   const pool = verbs.query({ kind: "class", id: "srd:class:en:wizard" }).record.data.fh_skill_pool;
-  assert.deepEqual(pool.tier_costs, { half: 1, proficient: 2, expertise: 4, imposed: 1 },
-    "½ = 1 · pleine = 2 · expertise = 4 · et un choix IMPOSÉ pose 1 point (décision d'Eric)");
-  assert.equal(pool.expertise_from_level, 4, "l'expertise s'achète par tous à partir du niveau 4");
+  /* ⛔ LOT 82 — `imposed` A DISPARU. Il chiffrait ce qu'un choix imposé
+     DÉDUISAIT du pool ; le canon §B.0 supprime la déduction (les points bound
+     sont publiés à part et n'ont jamais transité par le pool), donc le nombre
+     n'a plus rien à chiffrer. Le laisser en ferait un fantôme relu un jour. */
+  assert.deepEqual(pool.tier_costs, { half: 1, proficient: 2, expertise: 4 },
+    "canon §A.1 : novice = 1 · adept = 2 · expert = 4, et pas un quatrième palier");
+  assert.equal(pool.expertise_from_level, 4, "le magicien reste au défaut du canon §B.2");
 });
 
-/* ══ LE ROGUE — EXPERTISE DÈS LE NIVEAU 1 (lot 35) ═════════════════════
-   Addendums §1, EXCEPTION — LE ROGUE (Eric, 2026-08-10, précisée le
-   2026-08-12) : son Expertise SRD de niveau 1 est comptée dans son pool.
-   `expertise_from_level` n'est donc plus une constante unique — c'est du
-   CONTENU par classe, comme le pool lui-même. */
+/* ══ LE VERROU D'EXPERTISE — TROIS CLASSES DÉROGENT (lot 82) ══════════
+   Canon §B.1ter, « Class features that grant Expertise → free points + a
+   permission ». Un trait qui accorde l'Expertise tend DEUX choses, et la
+   seconde est ce verrou : **le droit d'en acheter avant le niveau 4**.
 
-test("le Rogue achète l'expertise dès le niveau 1 ; les onze autres classes, dès le niveau 4", () => {
+     Rogue  — Expertise, niveau 1  → achète dès le niveau 1
+     Bard   — Expertise, niveau 2  → achète dès le niveau 2
+     Ranger — Deft Explorer, niv. 2 → achète dès le niveau 2
+     les neuf autres                → le défaut, niveau 4 (canon §B.2)
+
+   ⚠️ LE ROGUE EST UN FANTÔME QU'IL NE FAUT PAS « CORRIGER ». Deux
+   contrôleurs sur cinq ont signalé son `1` comme faux le 2026-08-18 ; c'est
+   le canon qui se contredisait, pas le code. Son trait de niveau 1 EST sa
+   permission. Ce qu'il n'a pas, ce sont des free points : ses deux expertises
+   sont déjà payées dans son kit (canon §A.5, §B.1ter). */
+
+test("Rogue dès le niveau 1, Bard et Ranger dès le 2, les neuf autres au niveau 4", () => {
   const verbs = pile();
-  const rogue = verbs.query({ kind: "class", id: "srd:class:en:rogue" }).record.data.fh_skill_pool;
-  assert.equal(rogue.expertise_from_level, 1, "l'exception du Rogue, addendums §1");
+  const dérogent = { "srd:class:en:rogue": 1, "srd:class:en:bard": 2, "srd:class:en:ranger": 2 };
 
-  const onzeAutres = LES_12_POOLS.filter(([id]) => id !== "srd:class:en:rogue");
-  assert.equal(onzeAutres.length, 11);
-  for (const [id] of onzeAutres) {
+  for (const [id, niveau] of Object.entries(dérogent)) {
     const pool = verbs.query({ kind: "class", id }).record.data.fh_skill_pool;
-    assert.equal(pool.expertise_from_level, 4, `« ${id} » reste au défaut — seul le Rogue déroge`);
+    assert.equal(pool.expertise_from_level, niveau,
+      `« ${id} » ouvre l'expertise au niveau ${niveau} — canon §B.1ter`);
+  }
+
+  const lesNeufAutres = LES_12_POOLS.filter(([id]) => !(id in dérogent));
+  assert.equal(lesNeufAutres.length, 9, "trois classes dérogent, neuf restent au défaut");
+  for (const [id] of lesNeufAutres) {
+    const pool = verbs.query({ kind: "class", id }).record.data.fh_skill_pool;
+    assert.equal(pool.expertise_from_level, 4, `« ${id} » reste au défaut du canon §B.2`);
   }
 });
 
@@ -714,4 +797,49 @@ test("mesure — aucun verbe n'écrit `build.budgets`, et le document d'exemple 
   const schema = JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8"));
   assert.ok(schema.$defs.build.required.includes("budgets"),
     "et pourtant le champ est REQUIS : requis, vide partout, et sans écrivain");
+});
+
+/* ══ LOT 82 — LA FICHE NE PEUT PLUS DÉRIVER DE LA COUCHE DES POINTS ═══
+   `fh-fiche-en` est écrite À LA MAIN (aucun générateur ne la produit), et elle
+   RECOPIE le pool de chaque classe dans un bloc de texte compressé pour la
+   carte à 360 px. Une copie sans garde, c'est une deuxième source de vérité —
+   exactement ce que la séance du 2026-08-18 a passé à démolir : les six pools
+   faux ont vécu des mois parce que quatre documents se disaient chacun
+   autoritaires.
+
+   ⛔ CE TEST NE VÉRIFIE AUCUN NOMBRE. Il vérifie que les deux couches disent
+   LE MÊME nombre, quel qu'il soit. Le jour où Eric change un pool, la couche
+   des compétences bouge, la fiche ne suit pas, et c'est ici que ça rougit —
+   pas trois mois plus tard, sur un écran, devant un joueur. */
+
+test("⛔ DEUX COUCHES, UN SEUL NOMBRE — la fiche recopie le free point pool sans dériver", () => {
+  const points = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
+  const fiche = JSON.parse(readFileSync(join(ROOT, "layers/fh-fiche-en.layer.json"), "utf8"));
+
+  const attendu = Object.fromEntries(Object.entries(points.records.class)
+    .map(([id, rec]) => [id, rec.changes["data[fh_skill_pool]"].free_point_pool]));
+
+  const observé = {};
+  for (const [id, rec] of Object.entries(fiche.records.class)) {
+    for (const valeur of Object.values(rec.changes || {})) {
+      if (!Array.isArray(valeur)) continue;
+      for (const ligne of valeur) {
+        if (ligne && ligne.label === "Free points") observé[id] = ligne.value;
+      }
+    }
+  }
+
+  assert.equal(Object.keys(observé).length, EXPECTED.classes,
+    "les douze classes portent leur ligne de points sur la fiche — une classe muette est une carte trouée");
+  for (const [id, libre] of Object.entries(attendu)) {
+    assert.equal(observé[id], `${libre} pts`,
+      `« ${id} » : la fiche annonce « ${observé[id]} » et la couche des points en donne ${libre}. ` +
+      "Le joueur lit la fiche ; le moteur lit la couche. Deux nombres, un mensonge.");
+  }
+
+  /* ⚔️ ET L'ANCIEN LIBELLÉ NE DOIT PLUS EXISTER. « Skill pool » désignait le
+     `base` d'avant le canon — tout, imposés compris. Le laisser sur une carte
+     ferait lire au joueur un total qu'il ne dépensera jamais. */
+  assert.equal(/"Skill pool"/.test(readFileSync(join(ROOT, "layers/fh-fiche-en.layer.json"), "utf8")), false,
+    "« Skill pool » nommait le total d'avant le canon ; la carte annonce désormais ce qui se dépense");
 });

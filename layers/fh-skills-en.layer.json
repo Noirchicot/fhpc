@@ -414,7 +414,9 @@
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -425,19 +427,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:bard": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 16,
+            "bound_skill_points": 3,
+            "bound_tool_points": 2,
+            "free_point_pool": 12,
             "by_level": {
               "2": 1,
               "3": 1,
@@ -462,19 +465,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
-            "expertise_from_level": 4
+            "expertise_from_level": 2
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 16, background included"
+        "note": "Fate's Hand — canon §B.1: bound 3 skill / 2 tool points already placed, 12 free points to spend"
       },
       "srd:class:en:cleric": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -485,19 +489,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:druid": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 14,
+            "bound_skill_points": 2,
+            "bound_tool_points": 1,
+            "free_point_pool": 12,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -508,19 +513,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 14, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 1 tool points already placed, 12 free points to spend"
       },
       "srd:class:en:fighter": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -531,19 +537,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:monk": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 14,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -554,19 +561,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 14, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:paladin": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -577,19 +585,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:ranger": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 14,
+            "bound_skill_points": 3,
+            "bound_tool_points": 0,
+            "free_point_pool": 12,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -600,19 +609,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
-            "expertise_from_level": 4
+            "expertise_from_level": 2
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 14, background included"
+        "note": "Fate's Hand — canon §B.1: bound 3 skill / 0 tool points already placed, 12 free points to spend"
       },
       "srd:class:en:rogue": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 18,
+            "bound_skill_points": 6,
+            "bound_tool_points": 1,
+            "free_point_pool": 14,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -623,19 +633,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 1
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 18, background included"
+        "note": "Fate's Hand — canon §B.1: bound 6 skill / 1 tool points already placed, 14 free points to spend"
       },
       "srd:class:en:sorcerer": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -646,19 +657,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:warlock": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -669,19 +681,20 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       },
       "srd:class:en:wizard": {
         "op": "patch",
         "changes": {
           "data[fh_skill_pool]": {
-            "base": 12,
+            "bound_skill_points": 2,
+            "bound_tool_points": 0,
+            "free_point_pool": 10,
             "by_level": {
               "4": 2,
               "8": 2,
@@ -692,13 +705,12 @@
             "tier_costs": {
               "half": 1,
               "proficient": 2,
-              "expertise": 4,
-              "imposed": 1
+              "expertise": 4
             },
             "expertise_from_level": 4
           }
         },
-        "note": "Fate's Hand — level-1 skill pool 12, background included"
+        "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
       }
     },
     "background": {

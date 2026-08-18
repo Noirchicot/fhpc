@@ -150,14 +150,16 @@ const INHERITANCE = "fh:background:en:inheritance";
    14−2 = 12, Rogue 18−4 = 14. Ce test asserte LES DEUX : le terme nommé ET le
    total, terme par terme. */
 
-test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son détail", () => {
-  /* La table attendue. `imposedSkills` est le `skill_choice.count` de la
-     classe, RELU sur la pile plus bas : l'écrire ici et le relire là est ce qui
-     empêche le test de se prouver à lui-même. */
+test("ACCEPTATION 1 — Rogue 14, Wizard 10, Druide 12 : le FREE POINT POOL, et rien d'autre", () => {
+  /* ⭐ LOT 82 — LA TABLE DU CANON §B.1, ET IL N'Y A PLUS DE SOUSTRACTION.
+     Le pool publié EST le free point pool du record : ce que le joueur
+     dépense. Le bound (les points déjà placés) n'y est jamais entré, donc il
+     n'a rien à en sortir — c'est tout le changement, et il se voit ici parce
+     que le détail ne porte plus qu'UNE ligne au lieu de deux. */
   const attendu = [
-    { classId: "srd:class:en:rogue", nom: "Rogue", base: 18, imposes: 4, total: 14 },
-    { classId: "srd:class:en:wizard", nom: "Wizard", base: 12, imposes: 2, total: 10 },
-    { classId: "srd:class:en:druid", nom: "Druid", base: 14, imposes: 2, total: 12 }
+    { classId: "srd:class:en:rogue", nom: "Rogue", libre: 14, boundSk: 6, boundOutil: 1 },
+    { classId: "srd:class:en:wizard", nom: "Wizard", libre: 10, boundSk: 2, boundOutil: 0 },
+    { classId: "srd:class:en:druid", nom: "Druid", libre: 12, boundSk: 2, boundOutil: 1 }
   ];
 
   for (const cas of attendu) {
@@ -181,27 +183,30 @@ test("ACCEPTATION 1 — Rogue 18, Wizard 12, Druide 14, chacun NOMMÉ dans son d
        REWRITTEN 2026-08-12 (lot 35) — plus de lignes Acolyte : l'Inheritance
        n'impose plus de compétences ni d'outil (addendums §4). */
     assert.deepEqual(stat.breakdown, [
-      { label: `Class Pool · ${cas.nom}`, value: cas.base, source: { kind: "class", id: cas.classId } },
-      {
-        label: `${cas.nom} · ${cas.imposes} imposed choices`,
-        value: -cas.imposes,
-        source: { kind: "class", id: cas.classId }
-      }
-    ], `le détail de « ${cas.nom} », terme par terme`);
+      { label: `Class Pool · ${cas.nom}`, value: cas.libre, source: { kind: "class", id: cas.classId } }
+    ], `le détail de « ${cas.nom} » : UNE ligne, le free point pool`);
 
-    /* LE POOL DE CLASSE EST BIEN 18/12/14, NOMMÉMENT. */
-    assert.equal(terme(stat, `Class Pool · ${cas.nom}`).value, cas.base,
-      `le pool de classe de « ${cas.nom} » vaut ${cas.base}`);
-    assert.equal(stat.value, cas.total, `et il reste ${cas.total} points à répartir`);
+    assert.equal(terme(stat, `Class Pool · ${cas.nom}`).value, cas.libre,
+      `le free point pool de « ${cas.nom} » vaut ${cas.libre}`);
+    assert.equal(stat.value, cas.libre, `et le joueur a ${cas.libre} points à dépenser`);
     assert.equal(stat.value, somme(stat), "`value` EST la somme de son détail");
 
-    /* ⛔ AUCUN NOMBRE N'EST ÉCRIT DANS LE MODULE : les trois valeurs du détail
-       sont RELUES sur la pile. Si la couche change, le test change avec elle —
-       et un module qui aurait recopié 18 en dur rougirait ici. */
+    /* ⛔ AUCUN NOMBRE N'EST ÉCRIT DANS LE MODULE : ils sont RELUS sur la pile.
+       Si la couche change, le test change avec elle — et un module qui aurait
+       recopié 14 en dur rougirait ici. */
     const classe = h.layers.verbs.query({ kind: "class", id: cas.classId }).record.data;
-    assert.equal(classe.fh_skill_pool.base, cas.base, "le pool vient du record de classe");
-    assert.equal(classe.skill_choice.count, cas.imposes, "le nombre d'imposés vient du record de classe");
-    assert.equal(classe.fh_skill_pool.tier_costs.imposed, 1, "et leur coût unitaire aussi");
+    assert.equal(classe.fh_skill_pool.free_point_pool, cas.libre, "le pool vient du record de classe");
+
+    /* 🔴 ET LE BOUND EST LÀ, SUR LE RECORD, HORS DU POOL PUBLIÉ. C'est
+       l'assertion qui distingue « le canon est appliqué » de « quelqu'un a
+       baissé les nombres ». Le rogue reçoit 21 points au total ; 14 seulement
+       lui appartiennent (canon §B.0). */
+    assert.equal(classe.fh_skill_pool.bound_skill_points, cas.boundSk);
+    assert.equal(classe.fh_skill_pool.bound_tool_points, cas.boundOutil);
+    assert.equal(stat.value, cas.libre,
+      "le bound n'est NI ajouté NI soustrait — il vit à côté du pool, jamais dedans");
+    assert.equal(classe.fh_skill_pool.tier_costs.imposed, undefined,
+      "⛔ `imposed` est mort avec la soustraction qu'il chiffrait");
     /* REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien : ces
        deux champs ont disparu du record avec l'extinction (addendums §4). */
     const fond = h.layers.verbs.query({ kind: "background", id: INHERITANCE }).record.data;
@@ -243,14 +248,13 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
      REWRITTEN 2026-08-12 (lot 35) — plus de lignes Acolyte : l'Inheritance
      n'impose plus rien (addendums §4). */
   assert.deepEqual(stat.breakdown, [
-    { label: "Class Pool · Bard", value: 16, source: { kind: "class", id: "srd:class:en:bard" } },
+    { label: "Class Pool · Bard", value: 12, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 2", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 3", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     { label: "Level 4", value: 3, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
-    { label: "Bard · 3 imposed choices", value: -3, source: { kind: "class", id: "srd:class:en:bard" } }
+    { label: "Level 5", value: 1, source: { kind: "class", id: "srd:class:en:bard" } }
   ]);
-  assert.equal(stat.value, 19, "16 de pool + 6 de paliers traversés − 3 d'imposés (lot 35 : l'arrière-plan n'en impose plus)");
+  assert.equal(stat.value, 18, "12 de free point pool + 6 de paliers traversés (lot 82 : plus aucune soustraction)");
   assert.equal(stat.value, somme(stat));
 
   /* ⛔ LE PALIER DU NIVEAU 6 EXISTE DANS LA COUCHE, ET IL N'EST PAS LÀ. C'est
@@ -278,7 +282,7 @@ test("ACCEPTATION 2 — un BARDE créé AU NIVEAU 5 porte les paliers TRAVERSÉS
     level: 6, classId: "srd:class:en:bard", speciesId: "srd:species:en:halfling", backgroundId: INHERITANCE
   }));
   const stat6 = poolDe(h6.verbs.rebuild({ document: doc6 }).resolved);
-  assert.equal(stat6.value, 20, "au niveau 6, un point de plus (REWRITTEN 2026-08-12, lot 35 : base 19 + 1)");
+  assert.equal(stat6.value, 19, "au niveau 6, un point de plus (lot 82 : 18 + 1)");
   assert.deepEqual(terme(stat6, "Level 6"),
     { label: "Level 6", value: 1, source: { kind: "class", id: "srd:class:en:bard" } },
     "et c'est la ligne du palier 6 qui l'apporte, nommée");
@@ -644,24 +648,26 @@ test("ATTAQUE — un `by_level` malformé JETTE au lieu de coûter des paliers e
   }
 });
 
-test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le code : ils viennent du record", () => {
+test("ATTAQUE — le pool n'est pas écrit dans le code : il vient du record, et le bound n'y touche pas", () => {
   /* LE GARDE QUI ATTRAPE LE NOMBRE EN DUR, et c'est le défaut nommé par le
-     lot 20. On change DEUX nombres dans la couche : le pool du magicien passe
-     de 12 à 13, et un imposé de 1 à 2 points. Un module qui porterait une
-     table « wizard → 12 » ou un coût « 1 » écrit dans son source rendrait
-     exactement les mêmes nombres qu'avant, et l'assertion de total seule ne
+     lot 20. On change le free point pool du magicien de 10 à 13 dans la
+     couche. Un module qui porterait une table « wizard → 10 » rendrait
+     exactement le même nombre qu'avant, et l'assertion de total seule ne
      l'aurait jamais vu.
-     REWRITTEN 2026-08-12 (lot 35) — l'arrière-plan n'impose plus rien
-     (addendums §4) : seul l'imposé de classe compte désormais. Attendu :
-     13 − 2×2 = 9. */
+
+     ⭐ LOT 82 — ET L'ATTAQUE PORTE DÉSORMAIS UN SECOND TRANCHANT : on gonfle
+     le bound à 9/4 dans le même patch. Un module qui l'ajouterait au pool
+     rendrait 26 ; un module qui le soustrairait (l'ancien comportement)
+     rendrait 0. Les deux fautes se voient sur le même nombre, et le canon
+     §B.0 n'en autorise aucune : le bound vit à côté du pool, jamais dedans. */
   const h = pilePool({
-    extra: Object.assign(uneCouche("scenario-pool-et-couts-changes", {
+    extra: Object.assign(uneCouche("scenario-pool-et-bound-changes", {
       class: {
         "srd:class:en:wizard": {
           op: "patch",
           changes: { "data[fh_skill_pool]": {
-            base: 13, by_level: {},
-            tier_costs: { half: 1, proficient: 2, expertise: 4, imposed: 2 },
+            bound_skill_points: 9, bound_tool_points: 4, free_point_pool: 13, by_level: {},
+            tier_costs: { half: 1, proficient: 2, expertise: 4 },
             expertise_from_level: 4
           } }
         }
@@ -674,9 +680,9 @@ test("ATTAQUE — ni le pool ni le coût d'un imposé ne sont écrits dans le co
     }))
   }).resolved);
   assert.equal(terme(stat, "Class Pool · Wizard").value, 13, "le pool SUIT le record — il n'est pas écrit ici");
-  assert.equal(terme(stat, "Wizard · 2 imposed choices").value, -4, "deux imposés à 2 points font −4");
-  assert.equal(terme(stat, "Acolyte · 2 imposed choices"), undefined, "l'arrière-plan n'impose plus rien (lot 35)");
-  assert.equal(stat.value, 9, "13 − 4 : les deux nombres sont LUS, aucun n'est dans le module");
+  assert.equal(stat.value, 13, "13, et pas 26 (bound ajouté) ni 0 (bound soustrait) — canon §B.0");
+  assert.deepEqual(stat.breakdown.map((l) => l.label), ["Class Pool · Wizard"],
+    "UNE seule ligne : le bound n'a pas de ligne dans le pool, parce qu'il n'y est pas");
 });
 
 test("ATTAQUE — un trait d'espèce sans nom JETTE : la ligne ne disparaît pas en silence", () => {

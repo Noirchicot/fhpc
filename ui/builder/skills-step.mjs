@@ -118,7 +118,6 @@ const TIER_LABEL = {
 
 const REFUSAL_WORDS = {
   "skill-pool.overspent": (p) => `Overspent by ${p.over} — ${p.spent} of ${p.available} spent.`,
-  "skill-pool.no-tool": () => "At least 1 point must go into a tool.",
   "skill-spend.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
   "skill-spend.tier-invalid": (p) => `“${p.value}” isn't a valid tier.`,
   "skill-spend.below-floor": (p) => `Can't drop below the locked floor (${p.floor}).`,
@@ -146,8 +145,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=93";
-import { keepInView, scrollParent } from "./socle.mjs?v=93";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=94";
+import { keepInView, scrollParent } from "./socle.mjs?v=94";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -647,7 +646,7 @@ export function renderSkillsStep(ctx, onAction) {
   /* 📜 LIGNE 2 — le calcul, et il DÉFILE (B7.1). La ligne 1 est ailleurs :
      elle flotte dans le slot fixe du cadre, avec `Reset` (B7.8). */
   if (counter) {
-    const poolViolation = violations.find((v) => v.key === "skill-pool.overspent" || v.key === "skill-pool.no-tool") || null;
+    const poolViolation = violations.find((v) => v.key === "skill-pool.overspent") || null;
     section.append(renderPoolDetail(counter, poolViolation));
     const notice = renderRogueNotice(rowCtx.pool, rowCtx.classView, resolved.identity && resolved.identity.level);
     if (notice) section.append(notice);
@@ -698,7 +697,7 @@ export function renderSkillsBar(ctx, onAction) {
   const rowCtx = skillsRowCtx(ctx, act);
   const counter = computeCounter(ctx.resolved || {}, ctx.decisions || []);
   const violations = ctx.violations || [];
-  const poolViolation = violations.find((v) => v.key === "skill-pool.overspent" || v.key === "skill-pool.no-tool") || null;
+  const poolViolation = violations.find((v) => v.key === "skill-pool.overspent") || null;
   return renderSkillsTopbar({
     categories: skillsCategories(ctx),
     cursor: ctx.cursor || 0,

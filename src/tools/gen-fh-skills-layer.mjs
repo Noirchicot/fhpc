@@ -344,8 +344,22 @@ function buildClasses(srd) {
   for (const entry of CLASS_POOLS) {
     srdRecord(srd, "class", entry.target, `le pool de compétences de « ${entry.target} »`);
     if (klass[entry.target]) fail(`la classe « ${entry.target} » reçoit deux pools.`);
-    if (!Number.isInteger(entry.base) || entry.base <= 0) {
-      fail(`« ${entry.target} » reçoit un pool qui n'est pas un entier positif (${entry.base}).`);
+
+    /* ⛔ LOT 82 — TROIS TOTAUX, ET LES TROIS SONT VÉRIFIÉS SÉPARÉMENT. Le
+       bound peut valoir 0 (sept classes n'ont pas d'outil imposé) ; le free
+       pool, jamais — une classe sans points libres serait une classe sans
+       jeu. Les deux plages sont donc différentes, et les confondre laisserait
+       passer un `free: 0` en silence. */
+    for (const [champ, valeur] of [["boundSkill", entry.boundSkill], ["boundTool", entry.boundTool]]) {
+      if (!Number.isInteger(valeur) || valeur < 0) {
+        fail(`« ${entry.target} » reçoit un \`${champ}\` qui n'est pas un entier positif ou nul (${valeur}). ` +
+          "Le bound est un nombre de points DÉJÀ placés : il peut être nul, jamais négatif.");
+      }
+    }
+    if (!Number.isInteger(entry.free) || entry.free <= 0) {
+      fail(`« ${entry.target} » reçoit un \`free\` qui n'est pas un entier strictement positif (${entry.free}). ` +
+        "Le free point pool est la seule chose que le joueur dépense — à zéro, l'étape des compétences " +
+        "n'aurait plus rien à proposer.");
     }
     if (!Number.isInteger(entry.expertiseFromLevel) || entry.expertiseFromLevel <= 0) {
       fail(`« ${entry.target} » reçoit un \`expertiseFromLevel\` qui n'est pas un entier positif ` +
@@ -356,18 +370,26 @@ function buildClasses(srd) {
       op: "patch",
       changes: {
         "data[fh_skill_pool]": {
-          base: entry.base,
+          /* ⭐ LOT 82 — LES TROIS TOTAUX DU CANON §B.1, publiés tels quels.
+             Le `base` unique est mort : il forçait le moteur à déduire les
+             imposés par soustraction, et cette soustraction est ce qui a
+             laissé six pools faux vivre des mois. ⛔ Le bound n'entre JAMAIS
+             dans le pool (canon §B.0) — ce sont des points déjà dépensés. */
+          bound_skill_points: entry.boundSkill,
+          bound_tool_points: entry.boundTool,
+          free_point_pool: entry.free,
           by_level: entry.byLevel,
           tier_costs: { ...TIER_COSTS },
-          /* LOT 35 — PAR CLASSE, plus une constante unique. Le Rogue déroge
-             (addendums §1, EXCEPTION — LE ROGUE) : son Expertise SRD de
-             niveau 1 est comptée dans son pool, donc `expertiseFromLevel: 1`
-             sur son seul record de `CLASS_POOLS` — les onze autres reçoivent
+          /* PAR CLASSE, jamais une constante unique. TROIS classes dérogent
+             depuis le lot 82 (canon §B.1ter — un trait qui accorde
+             l'Expertise tend aussi la permission de l'acheter tôt) : Rogue 1,
+             Bard 2, Ranger 2. Les neuf autres reçoivent
              `DEFAULT_EXPERTISE_FROM_LEVEL` (4) par le `.map` de la source. */
           expertise_from_level: entry.expertiseFromLevel
         }
       },
-      note: `Fate's Hand — level-1 skill pool ${entry.base}, background included`
+      note: "Fate's Hand — canon §B.1: bound " + entry.boundSkill + " skill / " + entry.boundTool +
+        " tool points already placed, " + entry.free + " free points to spend"
     };
   }
 

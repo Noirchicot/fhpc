@@ -581,8 +581,8 @@
               "value": "none"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -627,8 +627,8 @@
               "value": "arcane"
             },
             {
-              "label": "Skill pool",
-              "value": "16 pts"
+              "label": "Free points",
+              "value": "12 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -673,8 +673,8 @@
               "value": "divine"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -719,8 +719,8 @@
               "value": "primal"
             },
             {
-              "label": "Skill pool",
-              "value": "14 pts"
+              "label": "Free points",
+              "value": "12 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -769,8 +769,8 @@
               "value": "none"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -815,8 +815,8 @@
               "value": "none"
             },
             {
-              "label": "Skill pool",
-              "value": "14 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -865,8 +865,8 @@
               "value": "divine"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -915,8 +915,8 @@
               "value": "primal"
             },
             {
-              "label": "Skill pool",
-              "value": "14 pts"
+              "label": "Free points",
+              "value": "12 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -965,8 +965,8 @@
               "value": "none"
             },
             {
-              "label": "Skill pool",
-              "value": "18 pts"
+              "label": "Free points",
+              "value": "14 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -1011,8 +1011,8 @@
               "value": "arcane"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -1057,8 +1057,8 @@
               "value": "arcane"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [
@@ -1103,8 +1103,8 @@
               "value": "arcane"
             },
             {
-              "label": "Skill pool",
-              "value": "12 pts"
+              "label": "Free points",
+              "value": "10 pts"
             }
           ],
           "data[fiche_infos]": [

@@ -30,7 +30,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "17e1e6be5416add4541d97d01791954b305db2d9b8750a8c641c62fb990c3faf",
+        "hash": "fe96f96ada841018c908934805eb9b35a91f1cd978263e6a15bf4d04714e7968",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -48,7 +48,7 @@
       {
         "id": "fh-fiche-en",
         "version": "0.1.0",
-        "hash": "94561699ffd5c762076611b44941d349c18b76545719ac7a7fb8e301274ee2ce",
+        "hash": "de99c0f8e6f171b365d56d5becfb36870be7c60cb4038890a46196c10c2371a3",
         "name": "Fate's Hand — Fiche (EN)"
       },
       {
@@ -381,7 +381,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "17e1e6be5416add4541d97d01791954b305db2d9b8750a8c641c62fb990c3faf",
+          "hash": "fe96f96ada841018c908934805eb9b35a91f1cd978263e6a15bf4d04714e7968",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -399,7 +399,7 @@
         {
           "id": "fh-fiche-en",
           "version": "0.1.0",
-          "hash": "94561699ffd5c762076611b44941d349c18b76545719ac7a7fb8e301274ee2ce",
+          "hash": "de99c0f8e6f171b365d56d5becfb36870be7c60cb4038890a46196c10c2371a3",
           "name": "Fate's Hand — Fiche (EN)"
         },
         {
@@ -921,15 +921,7 @@
         "breakdown": [
           {
             "label": "Class Pool · Wizard",
-            "value": 12,
-            "source": {
-              "kind": "class",
-              "id": "srd:class:en:wizard"
-            }
-          },
-          {
-            "label": "Wizard · 2 imposed choices",
-            "value": -2,
+            "value": 10,
             "source": {
               "kind": "class",
               "id": "srd:class:en:wizard"

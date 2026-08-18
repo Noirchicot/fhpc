@@ -213,7 +213,8 @@ restreint pas. `backgroundBoostPlan` lit `ABILITY_KEYS` (`src/build/skills.mjs`
 n'est pas un tableau.
 
 **Deux refus neufs, `validate()` REFUSE désormais une répartition illégale
-(§1d).** Sur le patron du lot 37 (`skill-pool.overspent`, `skill-pool.no-tool`)
+(§1d).** Sur le patron du lot 37 (`skill-pool.overspent`, et `skill-pool.no-tool`
+tant qu'il vivait — abrogé au lot 82, voir §3b)
 — une clef pour le total, une pour le plafond par caractéristique :
 
 | Clef | Quand |
@@ -604,53 +605,99 @@ disparu de la couche, donc plus aucune ligne d'imposé n'en vient. Nouveaux
 totaux nus : magicien 12−2 = **10**, druide 14−2 = **12**, roublard 18−4 =
 **14** — mesuré sur le magicien d'exemple, qui passe de 7 à 10.
 
-### ⭐ THE SKILL POOL — l'algorithme canonique, ratifié par Eric le 2026-08-09
+### ⭐ THE SKILL POOL — l'algorithme canonique, **réécrit au lot 82**
+
+🔴 **CE BLOC A ÉTÉ REMPLACÉ LE 2026-08-18.** Sa version précédente (ratifiée le
+2026-08-09) décrivait un `base` unique dont le moteur DÉDUISAIT les choix
+imposés, plus un « net zéro » pour le grant d'espèce. Le canon des points a
+supprimé les deux. La source est le vault, et c'est elle qui tranche :
+`5.RPG/Fate's Hand/0. D&D 5+ Rules/4. Skills/Skill & Tool Points — Canon (SRD
+to FH).md`, ratifié point par point par Eric le 2026-08-18.
 
 **Écrit en terminologie anglaise à sa demande explicite** (« utilise la
-terminologie anglaise pour les règles »). C'est **sa** présentation, recopiée,
-pas une reformulation d'architecte :
+terminologie anglaise pour les règles ») :
 
 ```
-skill pool  =  class base                (the background's flat 6 is INSIDE it)
-            +  species bonus             (points — Educated, Fast Learner)
-            +  origin feat bonus         (points — Skilled = +6)
+THREE totals, published on the class record — the player only ever
+manipulates the third (canon §B.0, §B.1) :
 
-imposed placements, 1 point each (tier ½, `tier_costs.imposed`) :
-            −  class      skill_choice.count
-            −  granted choices from a trait or a feat    ⟵ NET ZERO
+  bound skill points   already placed on named skills — NEVER in the pool
+  bound tool points    already placed on named tools  — NEVER in the pool
+  free point pool      the player's to spend, on skills OR tools
 
-remaining   =  what the player distributes
+free point pool  =  class free_point_pool     (background's 6 and FH's +2 are INSIDE it)
+                 +  traversed level tiers      (`by_level`, levels ≤ character level)
+                 +  species points             (Skillful, Fast Learner — unconstrained)
+                 +  origin feat points         (Skilled = +6)
+                 +  UNCONSTRAINED species grants (`granted_skill_choice.from === "any"`)
+
+                 −  nothing.  There is no deduction any more.
 ```
 
-⚠️ **REWRITTEN — lot 35 : la ligne `background skill_ids + tool` a disparu.**
-L'arrière-plan n'existe plus en Fate's Hand (addendums §4, Eric 2026-08-12) :
-l'étape ne pose plus qu'un don d'origine et des bonus de caracs (l'Inheritance).
-Les 4 records `background` du SRD ont perdu `skill_ids` (les 4) et `tool_id`
-(les 3 qui le portaient — le Soldier choisit le sien via `tool_choice`, non
-touché) ; `ability_keys` et `feat_id`/`feat_option` restent intacts. Le pool
-ne déduit donc plus rien de l'arrière-plan — voir la mesure chiffrée
-au-dessus.
+🔴 **LE TRI BOUND / FREE SE FAIT PAR LA CONTRAINTE, JAMAIS PAR LA SOURCE**
+(canon §B.1bis). Classe, espèce et don peuvent chacun donner de l'un ou de
+l'autre — c'est le libellé du grant qui décide :
 
-⚠️ **DÉPASSÉ PAR LE LOT 43** — les quatre records ne sont plus PATCHÉS, ils
-sont ÉTEINTS (`op: "disable"`), et un cinquième record, l'Inheritance, les
-remplace. La conclusion sur le pool (rien n'en est déduit) reste vraie ; le
-« restent intacts » ci-dessus ne l'est plus — voir « L'INHERITANCE » plus haut
-(§ le carnet `decisions`).
+| Le grant dit | Verdict |
+|---|---|
+| une compétence nommée, ou une **liste** où choisir | **bound** |
+| des points, ou un choix **sans contrainte** | **free** |
 
-**La décomposition du `base`, mesurée sur les douze records** : le background
-est une constante de **6**, la part de classe est variable — Rogue 12, Bard 10,
-Druid/Monk/Ranger 8, les huit autres 6. La note de chaque record le dit déjà
-(*« level-1 skill pool 18, background included »*). **Aucun changement de
-donnée n'est dû** : Eric décrivait la composition d'un nombre qui existait.
+⭐ **ET LA DONNÉE PORTE DÉJÀ LE TEST — aucun champ à ajouter** (canon
+§B.1quater) :
 
-⚠️ **LE « NET ZERO » EST LA CLEF, et il réconcilie deux formulations d'Eric qui
-semblaient se contredire.** Il a écrit « imposé par l'espèce **se rajoute** au
-pool », puis « tu **places** les points imposés par certains traits ou feats ».
-Les deux sont vraies ensemble : le pool grossit du grant, le placement le
-reprend. Net zéro sur le total, **deux lignes dans le `breakdown`** — et c'est
-la seule lecture qui n'oppose pas ses deux phrases. Conséquence pratique : le
-nombre publié par le lot 23 est **déjà juste** ; ce qui manque est la paire de
-lignes qui montre le raisonnement.
+    Elf   : granted_skill_choice.from = ["insight","perception","survival"]  → BOUND
+    Human : granted_skill_choice.from = "any"                                → FREE
+
+C'est pourquoi deux traits d'espèce qui se ressemblent tombent de deux côtés :
+*Keen Senses* (une liste de trois) est **bound**, *Skillful* (« one skill of
+your choice ») est **free**.
+
+⭐ **DANS LA PILE FH, LES DEUX FORMES EXISTENT DÉJÀ, sous d'autres noms** —
+mesuré le 2026-08-18. `layers/fh-species-en.layer.json` RETIRE
+`granted_skill_choice` de l'Elfe et de l'Humain et le remplace par :
+
+| Champ | Trait | Nature |
+|---|---|---|
+| `data.skill_points` | Skillful, Fast Learner | des points **libres** |
+| `data.granted_skill_budget = {points, from}` | Keen Senses | un budget **captif** — c'est le bound sous son nom de moteur |
+
+Le vocabulaire diffère du canon, la mécanique est identique. `derive.mjs` et
+`decisions.mjs` la portent depuis le lot 34.
+
+⛔ **CE QUI EST MORT AVEC LA SOUSTRACTION :**
+
+- la déduction des `skill_choice.count` de la classe ;
+- la déduction de `skill_ids` et de l'outil d'arrière-plan (déjà sans effet
+  depuis l'extinction des arrière-plans au lot 43) ;
+- le **NET ZÉRO** du grant d'espèce — deux lignes pour dire qu'il ne se passe
+  rien ;
+- `tier_costs.imposed`, qui chiffrait exactement cette déduction ;
+- cinq clefs `underived.fh.skillpool-*`, remplacées par une seule qui dit ce
+  qui EST : `skillpool-bound-not-in-pool`, **et qui chiffre**.
+
+**Les douze lignes du canon §B.1**, portées par `src/tools/fh-skills-source.mjs`
+et compilées dans `layers/fh-skills-en.layer.json` :
+
+| classe | bound sk | bound tool | free | (total) |
+|---|---|---|---|---|
+| barbarian · cleric · fighter · paladin · sorcerer · warlock · wizard | 2 | 0 | **10** | 12 |
+| bard | 3 | 2 | **12** | 17 |
+| druid | 2 | 1 | **12** | 15 |
+| monk | 2 | 0 | **10** | 12 |
+| ranger | 3 | 0 | **12** | 15 |
+| rogue | 6 | 1 | **14** | 21 |
+
+⚠️ **LE VERROU D'EXPERTISE : TROIS CLASSES DÉROGENT, plus une seule** (canon
+§B.1ter). Un trait de classe qui accorde l'Expertise tend **deux** choses — des
+free points **et** la permission d'en acheter avant le niveau 4 :
+
+| classe | trait | niveau | `expertise_from_level` |
+|---|---|---|---|
+| Rogue | Expertise | 1 | **1** (ses deux expertises sont déjà dans son kit : aucun point en plus) |
+| Bard | Expertise | 2 | **2** |
+| Ranger | Deft Explorer | 2 | **2** |
+| les neuf autres | — | — | 4 (canon §B.2) |
 
 ⚠️ **Un grant restreint ne se convertit PAS en points.** Le `Keen Senses` de
 l'Elestu tire dans `{survival, delve, vigilance}` ; un point est dépensable
@@ -823,7 +870,7 @@ serait exact et indémontrable.
 | `spells[].castType` | **refusé par le lot 8**, mesure à l'appui — cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être génuinement les deux. Le schéma a cédé : le champ n'est plus obligatoire, le sort est émis **sans** son mode |
 | `languages` | aucun genre `language` parmi les 14. ⚠️ Le chapitre 4 leur donne pourtant une règle (**gratuites à la création, 1 point ensuite**) : la règle existe, le genre qui la porterait n'existe pas. Le lot 22 ne l'a pas inventé (loi §0.10) |
 | `build.budgets` | **⚠️ AUCUN CHEMIN D'ÉCRITURE, mesuré par le lot 22, et TOUJOURS AUCUN.** Le champ est `required` au schéma, vide dans le seul document d'exemple, et `grep -rn budgets src/` ne rend **rien**. ✅ **La question 1 est TRANCHÉE** (arbitrage du 2026-08-09, §« Où vit un POOL DE POINTS ») : le pool de compétences **n'atterrit pas ici**, il se publie dans `resolved.stats[]` — et le lot 23 l'y publie. Le `$comment` du champ, qui le nomme comme son « premier consommateur concret », est donc **périmé** : `budgets` n'a plus aucun consommateur connu, et la **loi §0.6** se pose désormais sur lui. ⚠ Point ouvert pour l'architecte |
-| `stats[fh:skill-points].imposed.species` | **✅ TRANCHÉE (arbitrage du 2026-08-09, § ⭐ THE SKILL POOL — LE NET ZÉRO, livré par le lot 24).** L'Araag, l'Elestu et l'Humain (`Skillful`) portent un `granted_skill_choice` — une maîtrise que l'ESPÈCE impose. La déclaration que le lot 23 posait ici n'a plus lieu d'être : le grant SE RAJOUTE au pool PUIS SE PLACE au coût d'un imposé, deux lignes publiées dans `breakdown`, un total inchangé. |
+| `stats[fh:skill-points].imposed.species` | **✅ RETRANCHÉE AU LOT 82 (canon §B.1bis).** Le net zéro du 2026-08-09 est mort avec la soustraction qu'il compensait. La question se répond désormais par la CONTRAINTE, pas par la source : un grant d'espèce contraint par une liste est **bound** (il n'entre jamais dans le pool) ; un grant sans contrainte est **free** (un simple + au pool). Et la pile FH ne pose plus de `granted_skill_choice` du tout : `skill_points` porte le libre, `granted_skill_budget` porte le captif. |
 | `stats[fh:skill-points].imposed.class-tools` | aucun champ **mécanique** d'outil sur la classe : `tool_proficiencies` est une phrase (« Choose 3 Musical Instruments », `null` pour le magicien), et il n'existe pas d'équivalent de `skill_choice`. Les compter demanderait de lire une phrase anglaise dans le moteur |
 | le **multiclassage** du pool | hors de portée, et pas par choix du lot 23 : **le pli lui-même ne dérive qu'UNE classe** (`takeRef("class")`, `identity.classes = [{name, level}]`). Le canon le tranche pourtant (« le +1 du Barde suit ses niveaux de barde, le +2 d'espèce suit le niveau de personnage »), et ⚠ le `by_level` de la couche a **fusionné** le +1 du barde avec le +2 universel — donc il ne se découpe pas par classe tel quel. À rouvrir le jour où le pli portera le multiclassage |
 | `actions` | aucun genre `action` ; composer une attaque demande une règle (Finesse, Lancer) que le contrat ne porte pas |
@@ -913,17 +960,25 @@ strictement négatif. **UN SEUL refus, sur le TOTAL** : aucune dépense
 (`fh.skills.spend.*` ni `fh.skills.train.*`) n'est « la » fautive, donc
 **aucun `path`** — le champ est facultatif depuis le lot 27. Paramètres
 `{available, spent, over}` : `available` est ce que les lignes fixes du pool
-(classe, paliers, espèce, don, imposés) laissent à répartir ; `spent` est ce
+(free point pool de classe, paliers traversés, espèce, don) laissent à
+répartir — ⭐ **lot 82 : plus aucune ligne d'imposés, le bound n'entre jamais
+dans le pool (canon §B.0)** ; `spent` est ce
 que les deux dépenses libres ont réellement coûté, refusées comprises
 (comportement 2a : le refus ne défait rien) ; `over = spent − available`.
 
-**§3b — Au moins un point en OUTILS, TOUJOURS.** `skill-pool.no-tool`, même
-module, sans paramètre utile. **ARBITRAGE, révocable par Eric** : les
-addendums écrivent « à la création », et le moteur ne voit pas un instant,
-il voit un document — la règle est donc lue comme une **propriété du
-personnage**, vraie à tout niveau, pas seulement au niveau 1. Un personnage
-créé directement au niveau 5 sans outil est refusé au même titre qu'un
-niveau 1.
+**§3b — ⛔ ABROGÉ AU LOT 82 (2026-08-18). « Au moins un point en OUTILS »
+n'est plus une règle du jeu.** Le canon des points le dit en toutes lettres
+(`4. Skills/Skill & Tool Points — Canon (SRD to FH).md`, §B.1) : *« the old
+"at least one point must go into a tool" is DEAD. It existed because tools
+were a separate budget; they are not any more. Nothing forces a tool. »*
+
+Il n'y a plus qu'**un** pool, dépensable indifféremment en compétences ou en
+outils (§B.2) : une obligation d'outil imposerait au joueur une dépense que la
+règle ne demande plus. `skill-pool.no-tool` disparaît — le refus, sa phrase
+anglaise (`ui/builder/skills-step.mjs`) et sa phrase française
+(`src/labels.mjs`). Ce qui reste gardé, c'est **la disparition** : un
+personnage sans le moindre outil doit PASSER `validate()`
+(`tests/fh-skill-pool-guards.test.mjs`).
 
 **§3c — Le budget captif d'espèce (Keen Senses) ne dépasse pas son
 plafond.** ⚠️ **CE N'EST PAS UN CONTRÔLE NEUF.** `skill-budget.overspent`

@@ -93,11 +93,10 @@ test("DETTE A, test 1 — un Araag SANS choix `background` publie son Fast Learn
   const stat = poolDe(out.resolved);
   assert.ok(stat, "le pool publie une entrée même sans background");
   assert.deepEqual(stat.breakdown, [
-    { label: "Class Pool · Wizard", value: 12, source: { kind: "class", id: WIZARD } },
-    { label: "Fast Learner · Level 1", value: 2, source: { kind: "species", id: "fh:species:en:araag" } },
-    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } }
-  ], "plus de paire net-zéro d'espèce : l'Araag n'accorde plus de maîtrise");
-  assert.equal(stat.value, 12, "12 de pool + 2 de Fast Learner − 2 d'imposés");
+    { label: "Class Pool · Wizard", value: 10, source: { kind: "class", id: WIZARD } },
+    { label: "Fast Learner · Level 1", value: 2, source: { kind: "species", id: "fh:species:en:araag" } }
+  ], "ni paire net-zéro d'espèce, ni imposés déduits (lot 82) : deux lignes, deux sources");
+  assert.equal(stat.value, 12, "10 de free point pool + 2 de Fast Learner — canon §B.1bis, Fast Learner est LIBRE");
   assert.equal(stat.value, somme(stat));
 });
 
@@ -113,28 +112,44 @@ test("DETTE A, test 1bis — un Humain SANS choix `background` publie son Skillf
   });
   const stat = poolDe(out.resolved);
   assert.deepEqual(stat.breakdown, [
-    { label: "Class Pool · Wizard", value: 12, source: { kind: "class", id: WIZARD } },
-    { label: "Skillful · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } },
-    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } }
+    { label: "Class Pool · Wizard", value: 10, source: { kind: "class", id: WIZARD } },
+    { label: "Skillful · Level 1", value: 2, source: { kind: "species", id: "srd:species:en:human" } }
   ]);
-  assert.equal(stat.value, 12);
+  assert.equal(stat.value, 12,
+    "canon §B.1bis : Skillful ne contraint RIEN (« one skill of your choice »), donc ses points sont LIBRES");
   assert.equal(stat.value, somme(stat));
 });
 
-/* ══ TEST 2 (commande §1e.2) — LES OUTILS DE CLASSE, DÉCLARÉS SANS FOND ═══ */
-test("DETTE A, test 2 — `skillpool-class-tools-unmechanical` est déclaré pour un personnage sans arrière-plan", () => {
+/* ══ TEST 2 — LE BOUND SE DÉCLARE, ET IL EST CHIFFRÉ (réécrit lot 82) ════
+   ⭐ CE TEST GARDAIT UN MENSONGE, ET C'EST LE CANON QUI L'A RÉVÉLÉ.
+   `skillpool-class-tools-unmechanical` disait « je ne sais pas compter les
+   outils que la classe impose : `tool_proficiencies` est une phrase anglaise ».
+   Le canon §B.1 les CHIFFRE — barde 2, druide 1, rogue 1, zéro pour les neuf
+   autres — et le record les porte désormais en `bound_tool_points`. Une
+   déclaration d'ignorance sur une chose qu'on sait est pire qu'une absence de
+   déclaration : elle fait croire que la question est ouverte.
+
+   Ce qui la remplace dit la vérité neuve : le bound EXISTE, il est chiffré, il
+   n'est PAS dans le pool, et ce module ne conduit pas son placement. */
+test("DETTE A, test 2 — le bound de la classe est DÉCLARÉ et CHIFFRÉ, hors du pool", () => {
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixSansBackground({ level: 1, classId: WIZARD, speciesId: "fh:species:en:araag" }))
   });
-  const declaration = out.underived.find((entry) => entry.field === `stats[${FH_SKILL_POOL_ID}].imposed.class-tools`);
-  assert.ok(declaration, "la déclaration existe même sans `background` posé");
-  assert.equal(declaration.key, "underived.fh.skillpool-class-tools-unmechanical");
-  /* Et la déclaration « aucun background » existe aussi, à côté — les deux
-     coexistent, l'une ne remplace pas l'autre. */
-  const sansFond = out.underived.find((entry) => entry.field === `stats[${FH_SKILL_POOL_ID}].imposed.background`);
-  assert.ok(sansFond, "la déclaration « pas de background » existe toujours, elle aussi");
-  assert.equal(sansFond.key, "underived.fh.skillpool-no-background-ref");
+  const declaration = out.underived.find((entry) => entry.field === `stats[${FH_SKILL_POOL_ID}].bound`);
+  assert.ok(declaration, "le bound se déclare, il ne reste pas muet");
+  assert.equal(declaration.key, "underived.fh.skillpool-bound-not-in-pool");
+  assert.equal(declaration.params.skill, 2, "le magicien place 2 points de compétence en bound (canon §B.1)");
+  assert.equal(declaration.params.tool, 0, "et aucun point d'outil");
+
+  /* ⛔ LES CINQ DÉCLARATIONS DE LA SOUSTRACTION SONT MORTES AVEC ELLE. */
+  const mortes = ["underived.fh.skillpool-class-tools-unmechanical", "underived.fh.skillpool-no-background-ref",
+    "underived.fh.skillpool-class-choice-unreadable", "underived.fh.skillpool-background-missing-skill-ids",
+    "underived.fh.skillpool-background-missing-tool"];
+  for (const clef of mortes) {
+    assert.equal(out.underived.some((entry) => entry.key === clef), false,
+      `« ${clef} » parlait d'une déduction que le canon a supprimée`);
+  }
 });
 
 /* ══ TEST 3 (commande §1e.3) — ⚔️ LE TEST QUI COMPTE : LES DEUX `fail()` ═══
@@ -191,24 +206,22 @@ test("DETTE A, test 4 — un Elfe (aucun `granted_skill_choice`) est inchangé, 
   });
   const stat = poolDe(out.resolved);
   assert.deepEqual(stat.breakdown, [
-    { label: "Class Pool · Wizard", value: 12, source: { kind: "class", id: WIZARD } },
-    { label: "Wizard · 2 imposed choices", value: -2, source: { kind: "class", id: WIZARD } }
-  ], "aucune ligne d'espèce : l'Elfe n'a ni tier ni grant, et son budget captif (Keen Senses) est un plan À PART");
+    { label: "Class Pool · Wizard", value: 10, source: { kind: "class", id: WIZARD } }
+  ], "UNE ligne : l'Elfe n'a ni palier ni grant libre, et son budget captif (Keen Senses) est du BOUND");
   assert.equal(stat.value, 10);
   assert.equal(stat.value, somme(stat));
 
-  /* Et l'underived entier, comparé lui aussi comme un objet. Deux entrées
-     PRÉEXISTAIENT déjà avant ce lot (`.feat` — aucun don d'origine choisi ;
-     `.species` — l'Elfe ne porte pas `skill_points`) : ce lot ne les touche
-     pas, il ne fait que RESTITUER `.imposed.class-tools`, qui manquait. */
+  /* Et l'underived entier, comparé lui aussi comme un objet. ⭐ LOT 82 : la
+     déclaration des outils de classe et celle de l'arrière-plan absent ont
+     disparu avec la soustraction ; celle du bound les remplace, et elle
+     CHIFFRE au lieu de s'excuser. */
   const champs = out.underived
     .filter((entry) => entry.field.startsWith(`stats[${FH_SKILL_POOL_ID}]`))
     .map((entry) => ({ field: entry.field, key: entry.key }))
     .sort((a, b) => (a.field < b.field ? -1 : 1));
   assert.deepEqual(champs, [
+    { field: `stats[${FH_SKILL_POOL_ID}].bound`, key: "underived.fh.skillpool-bound-not-in-pool" },
     { field: `stats[${FH_SKILL_POOL_ID}].feat`, key: "underived.fh.skillpool-feat-no-choice" },
-    { field: `stats[${FH_SKILL_POOL_ID}].imposed.background`, key: "underived.fh.skillpool-no-background-ref" },
-    { field: `stats[${FH_SKILL_POOL_ID}].imposed.class-tools`, key: "underived.fh.skillpool-class-tools-unmechanical" },
     { field: `stats[${FH_SKILL_POOL_ID}].species`, key: "underived.fh.skillpool-species-no-field" }
   ], "exactement ces quatre déclarations pour l'Elfe sans background — pas une de plus, pas une de moins");
 });
