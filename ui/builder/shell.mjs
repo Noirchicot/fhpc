@@ -19,41 +19,41 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=121";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=121";
-import { mountPopup } from "./popup.mjs?v=121";
-import { renderLorePanel } from "./lore.mjs?v=121";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=121";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=123";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=123";
+import { mountPopup } from "./popup.mjs?v=123";
+import { renderLorePanel } from "./lore.mjs?v=123";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=123";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme } from "./parcours.mjs?v=121";
-import { renderConceptStep } from "./concept-step.mjs?v=121";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=121";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=121";
+import { estConfirme } from "./parcours.mjs?v=123";
+import { renderConceptStep } from "./concept-step.mjs?v=123";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=123";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=123";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=121";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=121";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=121";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=121";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=121";
+} from "./catalogue.mjs?v=123";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=123";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=123";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=123";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=123";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=121";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=123";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=121";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=121";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=121";
+} from "./destiny-step.mjs?v=123";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=123";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=123";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=121";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=123";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -72,16 +72,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=121";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=121";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=123";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=121";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=121";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=123";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=123";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=121";
+import { versionQuery } from "./version.mjs?v=123";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -201,6 +201,10 @@ const state = {
      ⭐ Il porte le RECORD (`{kind, id}`) et pas un booléen : deux écrans à
      fiche l'emploient, et douze fiches chacun. Un drapeau ne dirait pas
      laquelle on lit. */
+  /* LE PARCOURS D'ÉTAPE (Eric, 2026-08-19) — `{ racine, path }` quand une dalle
+     d'item est ouverte, sinon null. C'est le cran le PLUS INTÉRIEUR du retour :
+     un item vit dans un guide, qui vit dans un palier, qui vit dans une étape. */
+  parcoursItem: null,
   lore: null,            // { kind, id } — le record dont on lit la prose, ou null
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
@@ -1483,6 +1487,10 @@ function pressBack() {
      reculer d'un palier ou d'une étape. C'est le même geste que le bouton de
      retour du panneau, offert au `BACK` de la coquille — deux chemins vers la
      même porte, et aucun des deux ne saute par-dessus l'autre. */
+  /* ⭐ L'ITEM SE REFERME AVANT TOUT (2026-08-19). Il est le cran le plus
+     intérieur du parcours, et le refermer ne valide RIEN — c'est la règle
+     d'Eric : *« si je fais back sur un item, ça ne valide pas l'item »*. */
+  if (state.parcoursItem) { state.parcoursItem = null; openSurface(); return; }
   if (state.lore) { state.lore = null; openSurface(); return; }
   if (state.palier > 1) { state.palier -= 1; openSurface(); return; }
   goToStep(state.step - 1);

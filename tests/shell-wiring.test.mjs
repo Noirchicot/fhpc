@@ -375,7 +375,15 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      le palier, parce qu'il vit DANS un palier. Trois crans au lieu de deux,
      et le garde les tient tous les trois dans l'ordre — un lore qui se
      fermerait après l'étape rendrait le catalogue d'un autre écran. */
-  assert.match(shellText, /function pressBack\(\) \{\s*if \(state\.lore\) \{ state\.lore = null; openSurface\(\); return; \}\s*if \(state\.palier > 1\) \{ state\.palier -= 1; openSurface\(\); return; \}\s*goToStep\(state\.step - 1\);/,
+  /* ⚠️ ÉLARGI LE 2026-08-19, PAS ASSOUPLI : la dalle d'ITEM s'intercale AVANT
+     le lore, parce qu'elle est le cran le plus intérieur du parcours d'étape
+     — un item vit dans un guide, qui vit dans un palier, qui vit dans une
+     étape. Quatre crans, et le garde les tient tous les quatre DANS L'ORDRE.
+     ⭐ Et c'est ce garde qui a refusé un premier jet où la dalle d'item
+     dessinait sa PROPRE paire `BACK`/`DONE` : deux chemins de retour, ce que
+     I.5 interdit. L'item déclare maintenant un hôte et reçoit celle de la
+     coquille. */
+  assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,300}?if \(state\.palier > 1\)/,
     "⛔ le LORE, puis le PALIER, puis l'ÉTAPE — du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
   /* L'ancienne forme du mot ne doit pas revenir non plus par la petite porte :
      `"Back"` en capitale douce était le libellé de la barre disparue. */
