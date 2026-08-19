@@ -3244,7 +3244,20 @@ button { font: inherit; }
    nombre. ⭐ Et la cote `9rem` est la MÊME que la colonne minimale du vivier :
    la règle « même taille que le récepteur » tient par le partage du nombre,
    pas par deux réglages à accorder. */
-.choix-glisse .glisse-creneaux {
+/* ⛔ `:not(.ability-creneaux)` — ET C'EST LA TROISIÈME FOIS QUE CE FICHIER
+   PAIE LE MÊME VOL DE CASCADE. `.choix-glisse .glisse-creneaux` et
+   `.glisse-creneaux.ability-creneaux` ont la MÊME spécificité (0,0,2,0) ; ce
+   bloc-ci est écrit PLUS BAS, donc il gagnait — et il imposait `display: flex;
+   flex-wrap: wrap` aux six caractéristiques, dont la GRILLE de six colonnes
+   était alors purement décorative.
+   📏 CE QU'ERIC A VU, mesuré à 375 px : *« 6 caracs ne tiennent plus en
+   largeur »* — six cases à pleine largeur, sur six lignes.
+   ⚠️ LA LEÇON, LA MÊME QUE POUR LA GRILLE DES SORTS : un bloc générique ajouté
+   EN BAS d'une feuille désarme en silence toutes les variantes écrites plus
+   haut. Une déclaration invalide crie ; une déclaration perdante se tait.
+   ⭐ ON NOMME DONC L'EXCEPTION plutôt que de compter sur la place dans le
+   fichier — c'est déjà ce que fait la règle du 2 × 2, dix lignes plus bas. */
+.choix-glisse .glisse-creneaux:not(.ability-creneaux) {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: var(--sp-8);
 }
@@ -3291,8 +3304,26 @@ button { font: inherit; }
    ⛔ Un tiers écrit en dur — mon premier jet — rendait 4 impossible sur un
    écran qui pouvait les porter. La question n'était pas « combien », c'était
    « à partir de quelle taille ». */
+/* ⛔ LES SIX CARACTÉRISTIQUES SONT HORS LOI A — Eric, 2026-08-20 : *« les jets
+   de dés à réparer, car 6 caracs ne tiennent plus en largeur. S'il faut une
+   règle d'exception pour les dés, alors ainsi soit-il. »*
+
+   📏 CE QUE LA LOI A LEUR FAISAIT, MESURÉ À 375 px : six cases plafonnées à
+   87 px chacune, soit **522 px dans une rangée de 343**. Le collecteur des dés
+   vit dans un `.choix-glisse` (il emprunte le même geste), donc il héritait
+   d'une règle écrite pour autre chose.
+
+   ⭐ ET L'EXCEPTION EST LÉGITIME, PAS UN RUSTINE. La loi A répond à « combien
+   de cases tiennent sur cette ligne ? » — une question de LISTE, où le nombre
+   d'objets varie. Les six caractéristiques ne sont pas une liste : ce sont SIX
+   COLONNES FIXES qui doivent se voir ENSEMBLE (STR DEX CON INT WIS CHA), et
+   qui se partagent la largeur quelle qu'elle soit. Deux questions différentes,
+   deux règles.
+   📌 Le dépôt écarte DÉJÀ ces six cases de la règle du 2 × 2, au même endroit
+   et par le même `:not()` — c'est la troisième fois qu'on redécouvre qu'elles
+   ne sont pas des créneaux comme les autres. */
 .choix-glisse .glisse-vivier > li,
-.choix-glisse .glisse-creneaux > .glisse-creneau {
+.choix-glisse .glisse-creneaux:not(.ability-creneaux) > .glisse-creneau {
   /* ⛔ `0 0` — NI GRANDIR NI CÉDER. C'est la loi A dans une déclaration : la
      case fait `--glisse-case`, la rangée en met autant qu'elle peut, et ce
      qui reste se partage aux deux bouts (`justify-content: center`, plus
