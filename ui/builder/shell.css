@@ -1018,23 +1018,45 @@ button { font: inherit; }
    ⛔ SAUF DANS UNE FICHE DE CATALOGUE, et c'est la seule exception : elle
    porte une hauteur IMPOSÉE (`--fiche-h`, 440 px). Une ligne qui s'y empile la
    ferait déborder de sa carte — on échangerait un défaut contre un pire. */
+/* 🔴 `.fiche-info-row` EST SORTIE DE LA LISTE, et ma propre note d'à côté le
+   demandait déjà : elle vit DANS une fiche de catalogue, dont la hauteur est
+   imposée (`--fiche-h`, 440 px). Je l'avais nommée en exception dans le
+   commentaire et incluse dans le sélecteur — la note disait le contraire du
+   code, et c'est le code qui gagne toujours. */
 .parcours-resume .catalogue-card-row,
 .parcours-bilan .catalogue-card-row,
-.universe-locale-row,
-.fiche-info-row {
+.universe-locale-row {
   flex-wrap: wrap;
   column-gap: 0;
   row-gap: var(--sp-2);
 }
 .parcours-resume .catalogue-card-row dd,
 .parcours-bilan .catalogue-card-row dd,
-.universe-locale-row dd,
-.fiche-info-row dd {
+.universe-locale-row dd {
+  /* 🔴 LE GARDE-FOU QUI MANQUAIT, ET IL A COÛTÉ UN ÉCRAN CASSÉ CHEZ ERIC
+     (capture du 2026-08-20 : la dalle décalée, les phrases qui filent hors du
+     bord, la page qui défile en travers). ⛔ INVISIBLE DANS CHROME : le banc de
+     mesure ne le reproduit pas, le téléphone si.
+     LA CAUSE : `flex-basis: max-content` demande la largeur NON REPLIÉE. Chrome
+     rétrécit ensuite ; **WebKit, non** — la valeur garde sa largeur demandée et
+     pousse toute la dalle avec elle.
+     ⭐ `max-width: 100%` LE BORNE SANS RIEN CHANGER À LA RÈGLE : la base sert
+     toujours à décider si la valeur tient à côté de son étiquette, mais elle ne
+     peut plus dépasser sa ligne. Le repli redevient possible partout.
+     📌 LA LEÇON : une base `max-content` doit TOUJOURS porter son plafond. Sans
+     lui, elle marche sur le moteur où on la teste et casse sur l'autre. */
+  max-width: 100%;
   /* Le repli si `max-content` n'est pas compris : la ligne reste d'un bloc,
      comme avant. Un navigateur qui ne sait pas se tait, il ne casse pas. */
   flex: 1 1 auto;
   flex-basis: max-content;
-  margin-left: var(--sp-16);
+  /* ⚠️ LA RENTRÉE EST UN REMBOURRAGE, PAS UNE MARGE — et c'est une seconde
+     source de débordement que le plafond seul n'aurait pas fermée : une marge
+     s'AJOUTE à la largeur (100 % + 16 px), un rembourrage vit DEDANS
+     (`box-sizing: border-box`, posé pour tout le dépôt).
+     ⭐ Un seul nombre sert les deux formes : l'espace entre les colonnes quand
+     c'est côte à côte, la rentrée quand c'est empilé. */
+  padding-left: var(--sp-16);
 }
 .catalogue-card-row dt { margin: 0; color: var(--text-muted); width: 13ch; flex: none; }
 .catalogue-card-row dd { margin: 0; font-weight: 600; }
