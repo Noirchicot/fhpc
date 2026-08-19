@@ -19,42 +19,42 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=131";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=131";
-import { mountPopup } from "./popup.mjs?v=131";
-import { renderLorePanel } from "./lore.mjs?v=131";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=131";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=132";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=132";
+import { mountPopup } from "./popup.mjs?v=132";
+import { renderLorePanel } from "./lore.mjs?v=132";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=132";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=131";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=131";
-import { renderConceptStep } from "./concept-step.mjs?v=131";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=131";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=131";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=132";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=132";
+import { renderConceptStep } from "./concept-step.mjs?v=132";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=132";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=132";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=131";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=131";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=131";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=131";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=131";
+} from "./catalogue.mjs?v=132";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=132";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=132";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=132";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=132";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=131";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=132";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=131";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=131";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=131";
+} from "./destiny-step.mjs?v=132";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=132";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=132";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=131";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=132";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -73,16 +73,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=131";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=131";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=132";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=131";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=131";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=132";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=132";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=131";
+import { versionQuery } from "./version.mjs?v=132";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1218,6 +1218,22 @@ function renderStepContent() {
       /* Le 3ᵉ argument est le destinataire du `CHOOSE` de chaque fiche (Ch6).
          Les catalogues sans pied (Destiny, don d'origine) ne s'en servent
          pas : `renderCatalogueCards` ne trouve aucun bouton à câbler. */
+      /* ⭐ LE GUIDE GÉNÉRAL EN TÊTE (Eric, 2026-08-19) : *« tout en haut du
+         menu latéral de species il doit y avoir une carte guide […] on
+         atterrit dans le guide général parce qu'il est en haut de la
+         hiérarchie […] mais il ne bloque pas le scroll, c'est un F2 »*.
+
+         ⛔ IL NE PORTE PAS `data-snap`, ET C'EST DÉLIBÉRÉ. L'index d'un cran
+         de rail et celui d'une fiche sont LE MÊME ENTIER (`catalogueOptions`
+         alimente les deux, et `snapTo` compte les `[data-snap]` de la scène) :
+         une carte de plus dans ce compte décalerait tout d'un cran et ferait
+         choisir la mauvaise espèce. Elle se lit, elle se dépasse, elle ne
+         s'aimante pas.
+         ⏳ Son cran de rail est donc REMIS À PLUS TARD, pas oublié : l'ajouter
+         demande de désolidariser les deux index, ce qui est un lot en soi. */
+      if (cfg.parcours && cfg.guideGeneral) {
+        section.append(renderGuideGeneral(cfg.guideGeneral));
+      }
       const cards = renderCatalogueCards(ctx, cfg.cardBody, applyDecisionAction);
       if (cards) section.append(cards);
     }

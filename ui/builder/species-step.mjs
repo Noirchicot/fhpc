@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=131";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=131";
-import { renderChoixGlisses } from "./glisser.mjs?v=131";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=132";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=132";
+import { renderChoixGlisses } from "./glisser.mjs?v=132";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -66,7 +66,18 @@ function tierLabel(value) {
    d'Eric (2026-08-19) : guide général → guide spécifique → items → bilan.
    Le drapeau suffit ; la coquille fait le reste, et Class puis Inheritance
    n'auront qu'à le poser à leur tour. */
-export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species", fiche: true, parcours: true };
+export const SPECIES_CATALOGUE = {
+  path: "species", kind: "species", label: "Species", fiche: true, parcours: true,
+  /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
+     l'écran ATTEND, et il se corrige ICI, à un seul endroit. */
+  guideGeneral: {
+    titre: "Choosing a species",
+    texte: "Your species is where the character starts: it sets size, speed, senses, " +
+      "and a handful of traits you never have to choose.\n\n" +
+      "Scroll through the twelve below and read what each one is. When one fits, press " +
+      "Choose — the next screen lists everything that species still leaves you to settle."
+  }
+};
 
 /** LE CORPS D'UNE FICHE D'ESPÈCE — lot 77. ⭐ C'EST EXACTEMENT LA FICHE DE
  *  CLASS, et c'est le point : `renderFicheBody` est écrit une fois, les deux
