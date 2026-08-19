@@ -144,5 +144,80 @@ export function createDocWriters({ schema } = {}) {
     return structuredClone(described);
   }
 
-  return { rename, describe, assertValid, DESCRIBABLE_FIELDS, SCHEMA_TAG, compiled };
+  /* ══ LES CONFIRMATIONS — Eric, 2026-08-19 ═════════════════════════════════
+     *« Si je fais back sur un item, ça ne valide pas l'item […]. Il faut faire
+     done pour valider un item. Il faut faire le done du guide spécifique pour
+     tout valider. »*
+
+     ⭐ POSER UNE VALEUR ET LA CONFIRMER SONT DEUX GESTES. Un lignage peut être
+     choisi et l'item rester éteint : le joueur est reparti par `Back`. Les
+     deux faits vivent donc à deux endroits — la valeur dans `build.choices`,
+     la confirmation dans `build.confirmed` — et rien ne les synchronise, parce
+     que leur divergence EST l'information.
+
+     ⛔ CES DEUX VERBES NE TOUCHENT JAMAIS `build.choices`. Annuler un choix est
+     le travail du bloc `build` (`clear`), qui sait ce qu'un choix entraîne.
+     Ici on ne fait qu'écrire, ou effacer, une signature.
+
+     ⚠️ L'UNICITÉ EST TENUE ICI, ET PAS DANS LE SCHÉMA : le validateur maison
+     refuse `uniqueItems`, qu'il n'implémente pas — et il a raison de refuser
+     plutôt que de l'ignorer. Ce verbe est le seul chemin d'écriture, donc le
+     seul endroit où l'unicité peut se tenir. */
+
+  function lireConfirmes(document) {
+    const build = document && document.build;
+    return build && Array.isArray(build.confirmed) ? build.confirmed : [];
+  }
+
+  function ecrireConfirmes(document, chemins, origine) {
+    const suivant = structuredClone(document);
+    suivant.build = { ...suivant.build };
+    /* TRIÉS. Deux sessions qui confirment dans un ordre différent doivent
+       produire le MÊME document — sinon l'octet du fichier bouge sans qu'une
+       seule décision ait changé, et tout garde d'empreinte devient du bruit. */
+    suivant.build.confirmed = [...new Set(chemins)].sort();
+    assertValid(suivant, origine);
+    return structuredClone(suivant);
+  }
+
+  /** Le joueur a cliqué `Done` sur ce chemin. Idempotent : re-confirmer ne
+   *  change rien, et surtout ne duplique pas. */
+  function confirm(payload) {
+    const { document, path } = payload || {};
+    if (document === null || typeof document !== "object" || Array.isArray(document)) {
+      fail("confirm attend `{document, path}` — un document `fh-char/1` et le chemin que le joueur vient de " +
+        "valider (`species`, `species.lineage`…).");
+    }
+    if (typeof path !== "string" || path.length === 0) {
+      fail(`confirm : \`path\` doit être une chaîne non vide, reçu ${path === undefined ? "(absent)" : typeof path}.`);
+    }
+    return ecrireConfirmes(document, [...lireConfirmes(document), path], "confirm");
+  }
+
+  /** `I changed my mind` — la signature du chemin ET de tout ce qui vit
+   *  dessous s'efface d'un coup.
+   *
+   *  ⚠️ LA MÊME GRAMMAIRE DE PRÉFIXE QUE LE CARNET (`multiPlan`, décisions) :
+   *  `species` emporte `species.lineage` et `species.skills[0]`, jamais
+   *  `speciesXYZ`. Un préfixe qui mordrait sur un voisin effacerait la
+   *  confirmation d'une AUTRE étape — silencieusement. */
+  function revoke(payload) {
+    const { document, path } = payload || {};
+    if (document === null || typeof document !== "object" || Array.isArray(document)) {
+      fail("revoke attend `{document, path}` — un document `fh-char/1` et la racine à effacer.");
+    }
+    if (typeof path !== "string" || path.length === 0) {
+      fail(`revoke : \`path\` doit être une chaîne non vide, reçu ${path === undefined ? "(absent)" : typeof path}.`);
+    }
+    const sous = (chemin) => chemin === path ||
+      chemin.startsWith(`${path}.`) || chemin.startsWith(`${path}[`);
+    return ecrireConfirmes(document, lireConfirmes(document).filter((c) => !sous(c)), "revoke");
+  }
+
+  /** Ce chemin porte-t-il la signature du joueur ? Lu, jamais déduit. */
+  function isConfirmed(document, path) {
+    return lireConfirmes(document).includes(path);
+  }
+
+  return { rename, describe, confirm, revoke, isConfirmed, assertValid, DESCRIBABLE_FIELDS, SCHEMA_TAG, compiled };
 }

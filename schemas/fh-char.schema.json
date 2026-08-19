@@ -696,6 +696,11 @@
           "type": "array",
           "items": { "$ref": "#/$defs/layerRef" }
         },
+        "confirmed": {
+          "$comment": "LES CONFIRMATIONS DU JOUEUR — Eric, 2026-08-19. Un chemin est ici quand le joueur a explicitement cliqué `Done` dessus, et NON parce qu'une valeur y a été posée : les deux se distinguent, et c'est tout l'objet du champ — « si je fais back sur un item, ça ne valide pas l'item ; il faut faire done pour valider un item, et le done du guide spécifique pour tout valider ». Un item confirmé porte SON chemin (`species.lineage`) ; le guide d'une étape porte le chemin de l'étape (`species`). ⛔ CE N'EST PAS UN CHOIX : rien ici ne dérive quoi que ce soit sur la fiche, et le loger dans `build.choices` l'aurait fait ressortir `unconsumed` à chaque reconstruction — le moteur aurait eu raison de le dire. ⚠️ FACULTATIF, délibérément : tout document écrit avant ce champ reste valide, et son absence se lit « rien n'a encore été confirmé ». ⚠️ L'UNICITÉ N'EST PAS DÉCLARÉE ICI : le validateur maison (`src/doc/schema.mjs`) refuse tout mot-clef qu'il n'implémente pas, et `uniqueItems` en fait partie — il a raison, un validateur qui ignore une contrainte en silence ment. L'unicité est donc TENUE PAR L'ÉCRIVAIN (`confirm`, `src/doc/writers.mjs`), qui est le seul chemin d'écriture.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/choicePath" }
+        },
         "choices": {
           "$comment": "Une décision par point de décision. `ref` (un record de couche) OU `value` (un scalaire), jamais les deux, jamais aucun — un choix vide est un rejet, pas un défaut silencieux.",
           "type": "array",

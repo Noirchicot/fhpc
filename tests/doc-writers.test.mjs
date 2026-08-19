@@ -159,3 +159,83 @@ test("4 — ⚔️ témoins : les bornes exactes qui PASSENT le font aussi des d
   const okGenderEcrivain = writers.describe({ document: draft, gender: "x".repeat(60) });
   assert.deepEqual(okGender, okGenderEcrivain);
 });
+
+/** Un brouillon neuf ET ses écrivains — le montage des tests voisins
+ *  (`charSchema` + `makeDoc` + `createDocWriters`), rassemblé une fois. */
+function neuf() {
+  const schema = charSchema();
+  const { verbs } = makeDoc({ schema });
+  return { document: verbs.create(BASE), writers: createDocWriters({ schema }) };
+}
+
+/* ══ LES CONFIRMATIONS — Eric, 2026-08-19 ═══════════════════════════════════
+   *« Si je fais back sur un item, ça ne valide pas l'item […]. Il faut faire
+   done pour valider un item. Il faut faire le done du guide spécifique pour
+   tout valider. »*
+
+   ⛔ CE QUE CES TESTS EXISTENT POUR EMPÊCHER : que « une valeur est posée » et
+   « le joueur a confirmé » redeviennent la même chose. Leur divergence EST
+   l'information — un lignage choisi puis quitté par `Back` reste éteint. */
+
+test("confirm ÉCRIT une signature, et ne touche à aucun choix", async () => {
+  const { document, writers } = neuf();
+  const avant = structuredClone(document.build.choices);
+  const apres = writers.confirm({ document: document, path: "species.lineage" });
+  assert.deepEqual(apres.build.confirmed, ["species.lineage"]);
+  assert.deepEqual(apres.build.choices, avant,
+    "⛔ confirmer n'est pas choisir : `build.choices` ne bouge pas d'une ligne");
+});
+
+test("confirm est IDEMPOTENT — re-signer ne duplique pas", async () => {
+  const { document, writers } = neuf();
+  let d = writers.confirm({ document: document, path: "species" });
+  d = writers.confirm({ document: d, path: "species" });
+  d = writers.confirm({ document: d, path: "species" });
+  assert.deepEqual(d.build.confirmed, ["species"]);
+});
+
+test("les signatures sortent TRIÉES — deux ordres de clic, un seul document", async () => {
+  const { document, writers } = neuf();
+  const ordreA = ["species.skillBudget", "species.lineage", "species"]
+    .reduce((d, path) => writers.confirm({ document: d, path }), document);
+  const ordreB = ["species", "species.lineage", "species.skillBudget"]
+    .reduce((d, path) => writers.confirm({ document: d, path }), document);
+  assert.deepEqual(ordreA.build.confirmed, ordreB.build.confirmed,
+    "sinon l'octet du fichier bouge sans qu'une décision ait changé, et les empreintes deviennent du bruit");
+});
+
+test("revoke emporte le chemin ET tout ce qui vit dessous — jamais un voisin", async () => {
+  const { document, writers } = neuf();
+  /* ⚔️ LE PIÈGE EST DANS LA LISTE : `speciesXYZ` ressemble à `species` et n'a
+     rien à voir avec lui. Un préfixe naïf effacerait la confirmation d'une
+     AUTRE étape, en silence. */
+  const d = ["species", "species.lineage", "species.skills[0]", "background", "background.boost"]
+    .reduce((acc, path) => writers.confirm({ document: acc, path }), document);
+  const apres = writers.revoke({ document: d, path: "species" });
+  assert.deepEqual(apres.build.confirmed, ["background", "background.boost"],
+    "`I changed my mind` sur Species ne touche pas à l'Inheritance");
+});
+
+test("isConfirmed LIT, il ne déduit pas — une valeur posée ne signe rien", async () => {
+  const { document, writers } = neuf();
+  assert.equal(writers.isConfirmed(document, "species"), false,
+    "un document neuf n'a rien confirmé, même si des choix y sont déjà posés");
+  const d = writers.confirm({ document: document, path: "species" });
+  assert.equal(writers.isConfirmed(d, "species"), true);
+  assert.equal(writers.isConfirmed(d, "species.lineage"), false,
+    "confirmer le guide ne confirme pas ses items — ce sont deux gestes");
+});
+
+test("un document SANS `confirmed` reste valide, et se lit « rien de confirmé »", async () => {
+  const { document, writers } = neuf();
+  assert.equal(document.build.confirmed, undefined, "le champ est facultatif : aucune migration");
+  assert.equal(writers.isConfirmed(document, "species"), false);
+});
+
+test("REFUS — confirm et revoke exigent un chemin, et le disent", async () => {
+  const { document, writers } = neuf();
+  assert.throws(() => writers.confirm({ document: document }), /path/);
+  assert.throws(() => writers.confirm({ document: document, path: "" }), /path/);
+  assert.throws(() => writers.revoke({ document: document, path: 42 }), /path/);
+  assert.throws(() => writers.confirm({ document: null, path: "species" }), /document/);
+});
