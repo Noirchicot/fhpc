@@ -41,6 +41,8 @@
    Un refus laisse le document INCHANGÉ : le champ revient à sa dernière
    valeur valide au prochain rendu — jamais une valeur à moitié écrite. */
 
+
+import { renderChoixGlisses } from "./glisser.mjs?v=173";
 const ALIGNMENTS = [
   "Lawful Good", "Neutral Good", "Chaotic Good",
   "Lawful Neutral", "Neutral", "Chaotic Neutral",
@@ -119,6 +121,49 @@ function textField({ id, label, value, maxLength, ariaDescribedBy, error, datali
    comme une option de plus, et le joueur la remplace s'il le veut. */
 const GENRES = ["Man", "Woman", "Something else"];
 
+/* ══ UN CHAMP DE DOCUMENT, RENDU COMME UN CHOIX GLISSÉ — Eric, 2026-08-19 ═══
+   *« le drop-down c'est moche. Je préfère avoir du drag and drop quand il y a
+   plus de deux choix, on va généraliser ça. »*
+
+   ⛔ LA DIFFICULTÉ EST RÉELLE : `renderChoixGlisses` lit un PLAN du carnet
+   (`answered`, `expected`, `options`, `selected`). Or le genre et l'alignement
+   ne sont pas des choix de règle — ce sont des champs du document, écrits par
+   `describe`. Aucun plan ne les décrit, et il ne DOIT pas y en avoir : le
+   carnet juge des règles, pas une préférence de fiche.
+
+   ⭐ ON DONNE DONC AU CHAMP LA FORME D'UN PLAN, ici, en local — et on traduit
+   les gestes de l'organe en `describe`. L'organe partagé n'apprend rien du
+   document, le document n'apprend rien du carnet, et les deux se rencontrent
+   sur dix lignes qu'on lit d'un coup.
+
+   ⚠️ LA RÈGLE D'ERIC A UN SEUIL : *« quand il y a plus de deux choix »*. Un
+   champ à deux réponses n'a rien à gagner à un vivier — il a deux boutons. */
+function champGlisse({ id, label, value, options, field, onAction }) {
+  const courant = typeof value === "string" ? value : "";
+  /* La valeur déjà écrite survit même hors liste : un personnage sauvé avant
+     ce lot peut porter « Chaotic Good (mostly) », et la restreindre d'autorité
+     l'effacerait en silence. */
+  const liste = courant.length > 0 && !options.includes(courant) ? [...options, courant] : options;
+
+  const plan = {
+    path: id, status: courant ? "answered" : "pending",
+    answered: courant ? 1 : 0, expected: 1, options: liste, selected: courant ? [courant] : []
+  };
+  const slot = { path: id, index: 0, options: liste, selected: courant ? [courant] : [], lock: null };
+
+  /* LA TRADUCTION, ET C'EST TOUTE L'ADAPTATION : `set` écrit le champ, `clear`
+     l'efface. Rien d'autre ne passe. */
+  const relais = (action) => {
+    if (action.kind === "set") onAction({ kind: "describe", field, value: action.value });
+    else if (action.kind === "clear") onAction({ kind: "describe", field, value: "" });
+  };
+
+  const bloc = renderChoixGlisses({ plan, slots: [slot], titre: label, mot: label, onAction: relais });
+  const enveloppe = el("div", "doc-field", []);
+  if (bloc) enveloppe.append(bloc);
+  return enveloppe;
+}
+
 function selectField({ id, label, value, options, onCommit, extra }) {
   const wrap = el("div", "doc-field", []);
   const lab = document.createElement("label");
@@ -179,12 +224,9 @@ export function renderConceptStep(ctx, onAction) {
     onCommit: (value) => onAction({ kind: "rename", name: value })
   }));
 
-  section.append(selectField({
-    id: "concept-gender",
-    label: "Gender (optional)",
-    value: doc.gender,
-    options: GENRES,
-    onCommit: (value) => onAction({ kind: "describe", field: "gender", value })
+  section.append(champGlisse({
+    id: "concept-gender", label: "Gender (optional)",
+    value: doc.gender, options: GENRES, field: "gender", onAction
   }));
 
   /* ⏳ LE BOUTON `Rules` OUVRE UN POPUP — CE N'EST PAS SA FORME FINALE, ET
@@ -216,14 +258,13 @@ export function renderConceptStep(ctx, onAction) {
       "Nothing in Fate's Hand forces you to play it — it is a description, not a leash."
   }));
 
-  section.append(selectField({
-    id: "concept-alignment",
-    label: "Alignment (optional)",
-    value: doc.alignment,
-    options: ALIGNMENTS,
-    extra: regles,
-    onCommit: (value) => onAction({ kind: "describe", field: "alignment", value })
-  }));
+  const alignement = champGlisse({
+    id: "concept-alignment", label: "Alignment (optional)",
+    value: doc.alignment, options: ALIGNMENTS, field: "alignment", onAction
+  });
+  /* Le bouton `Rules` reste avec son champ : il explique CE choix-là. */
+  alignement.append(regles);
+  section.append(alignement);
 
   return section;
 }

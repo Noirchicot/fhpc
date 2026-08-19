@@ -44,11 +44,22 @@ function draftDocument(extra = {}) {
    l'ALIGNEMENT sont devenus des MENUS (`select`) — Eric : *« Gender dropdown
    […] Alignment dropdown, bouton rules »*. Un champ libre invitait à écrire
    n'importe quoi dans un champ qui n'a que neuf réponses. */
+/* ⚠️ TROISIÈME FORME DEPUIS LE 2026-08-19, et c'est la règle d'Eric qui la
+   commande : *« le drop-down c'est moche, je préfère du drag and drop quand il
+   y a plus de deux choix »*. Le NOM reste un champ libre ; le genre et
+   l'alignement sont maintenant des viviers de jetons avec leur récepteur.
+   ⛔ La valeur d'un champ ne se lit donc plus sur un `.value` : elle se lit
+   dans le RÉCEPTEUR, là où le joueur la voit. */
 function fields(node) { return node.querySelectorAll(".doc-field-input"); }
-function menus(node) { return node.querySelectorAll(".doc-field-select"); }
 function nameInput(node) { return fields(node)[0]; }
-function genderInput(node) { return menus(node)[0]; }
-function alignmentInput(node) { return menus(node)[1]; }
+function blocs(node) { return node.querySelectorAll(".choix-glisse"); }
+function valeurDe(bloc) {
+  const v = bloc.querySelector(".glisse-creneau-valeur");
+  return v ? v.textContent : null;
+}
+function jetonDe(bloc, mot) {
+  return [...bloc.querySelectorAll(".glisse-jeton")].find((j) => j.textContent === mot);
+}
 
 /* ══ 0 — LA LISTE DES NEUF, LUE À L'ÉCRAN, JAMAIS AU SCHÉMA ═══════════════ */
 
@@ -70,15 +81,22 @@ test("1 — les trois champs affichent la valeur actuelle du document", () => {
      entrent dans le menu comme une option de plus. */
   const doc = draftDocument({ gender: "iel", alignment: "Chaotic Good (mostly)" });
   const node = renderConceptStep({ document: doc, fieldErrors: {} }, () => {});
+  const [genre, alignement] = blocs(node);
   assert.equal(nameInput(node).value, "Sonde");
-  assert.equal(genderInput(node).value, "iel");
-  assert.equal(alignmentInput(node).value, "Chaotic Good (mostly)");
+  assert.equal(valeurDe(genre), "iel");
+  assert.equal(valeurDe(alignement), "Chaotic Good (mostly)");
+  /* ⭐ ET LES DEUX SONT HORS LISTE : elles entrent dans le vivier comme un
+     jeton de plus, sinon le passage au glisser les effacerait EN SILENCE. */
+  assert.ok(jetonDe(genre, "iel"), "la valeur hors liste a son jeton");
+  assert.ok(jetonDe(alignement, "Chaotic Good (mostly)"), "idem pour l'alignement");
 });
 
 test("1bis — genre et alignement absents du document s'affichent vides, pas « undefined »", () => {
   const node = renderConceptStep({ document: draftDocument(), fieldErrors: {} }, () => {});
-  assert.equal(genderInput(node).value, "");
-  assert.equal(alignmentInput(node).value, "");
+  const [genre, alignement] = blocs(node);
+  /* Un récepteur vide porte le tiret, pas le mot « undefined ». */
+  assert.equal(valeurDe(genre), "—");
+  assert.equal(valeurDe(alignement), "—");
 });
 
 /* ══ 2 — COMMIT SUR `change`, ET LE VERBE REND `rename`/`describe` ════════ */
@@ -95,10 +113,17 @@ test("2 — changer le nom dispatche {kind:\"rename\", name}, rien d'autre", () 
 test("2bis — changer genre/alignement dispatche {kind:\"describe\", field, value}", () => {
   const actions = [];
   const node = renderConceptStep({ document: draftDocument(), fieldErrors: {} }, (action) => actions.push(action));
-  genderInput(node).value = "Woman";
-  genderInput(node).dispatchEvent({ type: "change" });
-  alignmentInput(node).value = "Chaotic Good";
-  alignmentInput(node).dispatchEvent({ type: "change" });
+  const [genre, alignement] = blocs(node);
+  /* Le tap à la souris POSE (le doigt, lui, ouvre l'info) — geste d'Eric. */
+  /* ⚠️ `button: 0` EST REQUIS — l'organe filtre les boutons secondaires, et
+     sans lui la séquence n'est même pas ouverte. Même forme que
+     `tests/glisser.test.mjs`, qui est la référence de ce geste. */
+  const taper = (jeton) => {
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+    jeton.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  };
+  taper(jetonDe(genre, "Woman"));
+  taper(jetonDe(alignement, "Chaotic Good"));
   assert.deepEqual(actions, [
     { kind: "describe", field: "gender", value: "Woman" },
     { kind: "describe", field: "alignment", value: "Chaotic Good" }
