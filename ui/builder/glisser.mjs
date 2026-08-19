@@ -487,7 +487,23 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   /* Tout posé, rien d'invalide : le bloc le DIT (⏳ la phrase d'Eric sur ce
      point est arrivée coupée — « quand tout le drop down est valide… » — donc
      le bloc porte l'état et l'écran en fera ce qu'Eric décidera). */
-  bloc.dataset.complet = String(slots.every((s) => choisiDe(s) && !s.lock));
+  /* 🔴 DÉPASSÉ = ROUGE, ET C'EST LE CARNET QUI LE DIT — Eric, 2026-08-19, sur
+     capture : trois « +1 » posés sur un budget de DEUX, compteur « 3 of 2 », et
+     tout en vert. Le rouge existait et ne se levait jamais : il attendait un
+     `lock`, que rien ne produit ici.
+
+     ⭐ L'ÉCRAN NE JUGE TOUJOURS RIEN. Le plan publie `answered` et `expected` ;
+     comparer deux nombres qu'on lui donne n'est pas prononcer une règle, c'est
+     lire celle qu'il a déjà prononcée. Un écran qui déciderait lui-même du
+     budget serait un second juge — celui-ci ne fait que cesser d'ignorer le
+     premier.
+
+     ⛔ ET DÉPASSÉ N'EST PAS COMPLET : un `Done` vert sur un budget explosé
+     inviterait à valider une faute. */
+  const trop = Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
+    && plan.answered > plan.expected;
+  bloc.dataset.trop = String(trop);
+  bloc.dataset.complet = String(!trop && slots.every((s) => choisiDe(s) && !s.lock));
 
   if (consigne) bloc.append(el("p", "glisse-consigne", [text(consigne)]));
   return bloc;

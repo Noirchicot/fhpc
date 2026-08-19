@@ -497,3 +497,22 @@ test("9 ter — la case de grille tient son plancher tactile et son geste", () =
   assert.match(corps, /touch-action\s*:\s*pan-y/,
     "dans une grille, le doigt défile d'abord — le glisser se prend au maintien");
 });
+
+test("7 — DÉPASSER LE BUDGET rend le bloc rouge, et il cesse d'être « complet »", () => {
+  /* 🔴 CAS D'ERIC, 2026-08-19, sur capture : trois « +1 » posés sur un budget
+     de DEUX — compteur « 3 of 2 » — et tout l'écran en VERT, `Done` offert.
+     Le rouge existait et ne se levait jamais : il attendait un `lock`, que
+     rien ne produit ici.
+     ⭐ L'ÉCRAN NE JUGE PAS : il COMPARE deux nombres que le plan lui donne. */
+  const plan = { ...planDe(), answered: 3, expected: 2 };
+  const n = renderChoixGlisses({ plan, slots: slotsDe(["athletics"]), titre: "Budget" });
+  assert.equal(n.dataset.trop, "true", "le dépassement est lu sur le plan");
+  assert.equal(n.dataset.complet, "false",
+    "⛔ un `Done` vert sur un budget explosé inviterait à valider une faute");
+});
+
+test("7 bis — ⚔️ dans le budget, rien ne rougit", () => {
+  const plan = { ...planDe(), answered: 2, expected: 2 };
+  const n = renderChoixGlisses({ plan, slots: slotsDe(["athletics"]), titre: "Budget" });
+  assert.equal(n.dataset.trop, "false", "sans dépassement, le garde ne doit pas mordre");
+});

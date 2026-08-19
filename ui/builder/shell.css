@@ -3228,3 +3228,13 @@ button { font: inherit; }
 }
 .parcours-resume-titre { margin: 0 0 var(--sp-4); font-weight: 600; color: var(--text); }
 .parcours-resume-mot { margin: 0 0 var(--sp-4); }
+
+/* ⑤ LE DÉPASSEMENT — tous les récepteurs passent au rouge. Écrit APRÈS le bleu
+   ET après le vert : un budget explosé l'emporte sur « tout est posé », parce
+   que c'est la seule chose qu'il faut voir. (Eric, 2026-08-19, sur capture :
+   « 3 of 2 » et tout en vert.) */
+.choix-glisse[data-trop="true"] .glisse-creneau {
+  border-color: var(--critical);
+  background: color-mix(in srgb, var(--critical) 18%, transparent);
+}
+.choix-glisse[data-trop="true"] .glisse-consigne { color: var(--critical); }
