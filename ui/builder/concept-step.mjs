@@ -187,12 +187,25 @@ export function renderConceptStep(ctx, onAction) {
     onCommit: (value) => onAction({ kind: "describe", field: "gender", value })
   }));
 
-  /* ⏳ LE BOUTON `Rules` OUVRE UN POPUP, PAS ENCORE LE CHAPITRE. Eric veut
-     qu'il emmène « dans le Player Companion au chapitre associé » et qu'on
-     revienne « exactement au point où on en est » : c'est un aller-retour vers
-     le SITE, et il n'existe aucun chemin hors du builder aujourd'hui (c'est
-     même la question n°1 du fichier des questions ouvertes). Un bouton qui dit
-     la règle vaut mieux qu'un bouton mort ou qu'un lien qui perd la place. */
+  /* ⏳ LE BOUTON `Rules` OUVRE UN POPUP — CE N'EST PAS SA FORME FINALE, ET
+     ELLE EST DÉJÀ DÉCIDÉE. Eric, 2026-08-19, mis de côté par lui-même pour
+     plus tard :
+
+       *« rules devra à terme détacher un chapitre entier du player et
+       l'afficher en FS avec un bouton de sortie, mais aussi un bouton qui
+       permet d'ouvrir le player dans une autre fenêtre »*, et — précision du
+       même jour — *« donc rules on recouvre tout »*.
+
+     Donc : un chapitre ENTIER, en **FS**, qui **recouvre toute la scène**,
+     avec DEUX portes — sortir (et retomber exactement ici), ou ouvrir le
+     Player Companion dans une autre fenêtre.
+
+     ⛔ CE QUI MANQUE POUR L'ÉCRIRE, et c'est pour ça qu'il attend : il
+     n'existe aujourd'hui AUCUN chemin hors du builder (question n°1 des
+     questions ouvertes — *« vers quoi exactement ? »*), et rien ne sait
+     détacher un chapitre du site. Le popup est un pis-aller ASSUMÉ : un
+     bouton qui dit la règle vaut mieux qu'un bouton mort ou qu'un lien qui
+     perd la place du joueur. */
   const regles = document.createElement("button");
   regles.type = "button";
   regles.className = "doc-field-regles";

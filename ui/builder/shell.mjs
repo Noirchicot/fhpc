@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=147";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=147";
-import { mountPopup } from "./popup.mjs?v=147";
-import { renderLorePanel } from "./lore.mjs?v=147";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=147";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=151";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=151";
+import { mountPopup } from "./popup.mjs?v=151";
+import { renderLorePanel } from "./lore.mjs?v=151";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=151";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=147";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=147";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=151";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=151";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=147";
-import { renderConceptStep } from "./concept-step.mjs?v=147";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=147";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=147";
+} from "./tutoriel.mjs?v=151";
+import { renderConceptStep } from "./concept-step.mjs?v=151";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=151";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=151";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=147";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=147";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=147";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=147";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=147";
+} from "./catalogue.mjs?v=151";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=151";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=151";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=151";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=151";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=147";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=151";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=147";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=147";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=147";
+} from "./destiny-step.mjs?v=151";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=151";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=151";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=147";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=151";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=147";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=147";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=151";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=147";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=147";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=151";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=151";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=147";
+import { versionQuery } from "./version.mjs?v=151";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1120,17 +1120,6 @@ function renderStepContent() {
      écran. Majeure parce qu'un écran dense porte des libellés en
      `--text-muted` — voir la matrice en tête de `shell.css`. */
   const card = el("section", "decision-card dalle-majeure");
-  /* ⭐ LE « ? » — Eric, 2026-08-19 : *« petit rond discret en haut à gauche de
-     toutes les dalles »*. Il rallume le tutoriel.
-     🔴 IL EST LE FILET DE SÉCURITÉ DE « Turn tutorials off » : sans lui, ce
-     bouton serait IRRÉVERSIBLE, et un joueur qui l'a pressé par curiosité
-     n'aurait plus aucun moyen de revenir. C'est pour ça qu'il est posé par la
-     coquille, une fois, sur toutes les étapes — et pas par chaque écran, qui
-     pourrait l'oublier.
-     ⏳ Une seule pastille par écran pour l'instant, pas une par dalle : la
-     nuance d'Eric (« toutes les dalles ») demande de savoir ce qui compte
-     comme dalle sur les écrans qui en portent plusieurs. */
-  card.append(renderPointInterrogation(applyDecisionAction));
   /* ⭐ TROUVÉ EN REGARDANT LA PAGE, PAS EN LISANT UN TEST : la feuille de
      style du lot attendait `[data-bleed]` pour donner sa hauteur à la
      chaîne des fiches de classe, et personne ne l'écrivait — les 935 tests
@@ -1179,9 +1168,9 @@ function renderStepContent() {
       card.append(renderParcoursBilan(IDENTITY_PARCOURS, { query: null }));
     } else {
       if (tutorielActif() && !generalVu()) {
-        card.append(renderTutorielGeneral({ texte: TUTO_GENERAL, onAction: applyDecisionAction }));
+        card.append(renderTutorielGeneral({ ...TUTO_GENERAL, onAction: applyDecisionAction }));
       } else if (tutorielActif()) {
-        card.append(renderTutorielSpecifique({ texte: TUTO_IDENTITY, onAction: applyDecisionAction }));
+        card.append(renderTutorielSpecifique({ ...TUTO_IDENTITY, onAction: applyDecisionAction }));
       }
       card.append(renderConceptStep({
         document: state.document,
@@ -1406,6 +1395,23 @@ function renderStepContent() {
      restait à câbler. Ce lot clôt le builder (commande, §0) : le garder
      aurait menti sur ce qui reste à faire. */
 
+  /* ⭐ LE « ? » — Eric, 2026-08-19 : *« petit rond discret en haut à droite »*.
+     Il rouvre le tutoriel.
+
+     🔴 IL EST LE FILET DE SÉCURITÉ DE `Turn tutorials off` : sans lui, ce
+     bouton serait IRRÉVERSIBLE. C'est pour ça qu'il est posé par la COQUILLE,
+     une fois, sur toutes les étapes — et pas par chaque écran, qui pourrait
+     l'oublier.
+
+     ⛔ MAIS PAS QUAND LE TUTORIEL EST DÉJÀ LÀ (Eric, le même jour) : *« le ?
+     est inutile sur les dalles tutoriel »*. Un bouton qui propose d'ouvrir ce
+     qu'on est en train de lire est du bruit.
+     ⚠️ ON NE LE RENDS PAS, on ne le CACHE pas : `display: none` est interdit
+     dans `shell.css` (garde 4), et pour une bonne raison — un nœud caché reste
+     dans l'arbre, tabulable et annoncé. */
+  if (!card.querySelector(".tuto-general, .tuto-specifique")) {
+    card.append(renderPointInterrogation(applyDecisionAction));
+  }
   return card;
 }
 
@@ -1701,22 +1707,27 @@ const INHERITANCE_PARCOURS = {
 /* ⏳ LES TEXTES DU TUTORIEL SONT DES BROUILLONS — les miens, pas ceux d'Eric,
    et écrits en anglais comme tout le builder alors que sa spec est en
    français. Ils vivent ICI, à un seul endroit, et se corrigent ici. */
-const TUTO_GENERAL =
-  "Welcome to the Fate's Hand character creator.\n\n" +
-  "Steps 1 to 8 each settle one part of your character — the bricks it is built from. " +
-  "When a step's number turns green, that part is done and you can move on. " +
-  "The Sheet tab shows the whole picture at any point.\n\n" +
-  "You can bring this back whenever you like: the small ? in the corner of any panel reopens it.";
+const TUTO_GENERAL = {
+  titre: "Welcome",
+  chapo: "This is where your character gets made — one decision at a time, in the order the decisions matter.",
+  points: [
+    "Eight steps. Each one settles a single part of the sheet, and nothing else.",
+    "A step's number turns green once it is settled. That is your cue to move on.",
+    "Sheet, at the far right, shows everything you have so far — at any moment."
+  ],
+  chute: "You can reopen this whenever you like: the small ? in the corner of a panel brings it back."
+};
 
-const TUTO_IDENTITY =
-  "Identity. Fill in your character's name, their gender and their alignment.\n\n" +
-  "A Lore or Rules button will take you to the matching chapter of the Player Companion, " +
-  "and bring you back exactly where you left off.\n\n" +
-  "Narrative creation is optional: it lets you bring in an assistant that builds the " +
-  "character alongside you.";
+const TUTO_IDENTITY = {
+  titre: "Identity",
+  chapo: "Start with who they are. None of this touches the rules — it is the person the rest of the sheet will belong to.",
+  points: [
+    "A name, a gender, an alignment. Only the name is really asked of you; the other two can wait.",
+    "A Rules or Lore button opens the matching chapter, and drops you back exactly where you left off.",
+    "Narrative creation is optional: it brings in an assistant that builds the character alongside you."
+  ]
+};
 
-/** Le « catalogue » d'Identity — elle n'en a pas, mais le bilan en attend un.
- *  ⛔ Aucun item : Identity ne se décompose pas, elle se remplit. */
 /** Les étapes dont le `Done` VAUT signature — voir `pressDone`. */
 const SIGNE_SUR_DONE = new Set(["concept"]);
 

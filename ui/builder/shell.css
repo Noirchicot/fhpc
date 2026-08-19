@@ -2969,6 +2969,36 @@ button { font: inherit; }
 }
 .tuto-general { background: var(--tuto-general-fond); }
 .tuto-specifique { background: var(--tuto-specifique-fond); padding-bottom: 0; }
+/* ══ LA TYPOGRAPHIE DU TUTORIEL ══════════════════════════════════════════
+   Eric : *« le texte du tutoriel est de moi, il est moche. Il faut que tu
+   rendes ça beaucoup plus agréable à lire. »* La structure fait la moitié du
+   travail — un titre, un chapô, des points courts, une chute. */
+.tuto-titre {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--t5); font-weight: 600;
+  letter-spacing: -0.01em;
+}
+/* LE CHAPÔ — une seule phrase, un cran plus grand : c'est elle qu'on lit quand
+   on ne lit rien d'autre. */
+.tuto-chapo {
+  margin: 0 0 var(--sp-16);
+  color: var(--text); font-size: var(--t4); line-height: 1.45;
+  text-wrap: balance;
+}
+/* LES POINTS — un fait chacun. ⛔ Pas de puce ronde : un tutoriel n'est pas une
+   liste de courses. Le marqueur est un filet vertical, qui RANGE sans
+   énumérer. */
+.tuto-points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-12); }
+.tuto-points li {
+  padding-left: var(--sp-12);
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-soft); font-size: var(--t3); line-height: 1.5;
+}
+/* LA CHUTE — en retrait, pour ce qui se retient sans avoir à être retenu. */
+.tuto-chute {
+  margin: var(--sp-16) 0 0;
+  color: var(--text-muted); font-size: var(--t4); line-height: 1.45;
+}
 .tuto-mot { margin: 0 0 var(--sp-12); color: var(--text); font-size: var(--t3); line-height: 1.5; }
 
 /* LES BOUTONS CENTRÉS EN BAS — « I understand » d'abord : c'est le geste que
@@ -3024,8 +3054,6 @@ button { font: inherit; }
 /* LE COIN HAUT-DROIT APPARTIENT AU « ? » : ce qui commence la dalle s'arrête
    avant lui. Mesuré — sans ça le texte passait DESSOUS, et c'est justement le
    texte que ce bouton sert à rouvrir. */
-.tuto-general > .tuto-mot:first-child,
-.tuto-specifique > .tuto-mot:first-child,
 .guide-titre { padding-right: var(--touch); }
 
 /* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde

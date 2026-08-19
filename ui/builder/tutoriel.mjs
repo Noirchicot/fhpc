@@ -79,36 +79,56 @@ export function renderPointInterrogation(onAction) {
   return b;
 }
 
+/* ══ LA MISE EN PAGE D'UN TUTORIEL ═════════════════════════════════════════
+   Eric, 2026-08-19 : *« le texte du tutoriel est de moi, il est moche. Il faut
+   que tu rendes ça beaucoup plus agréable à lire. »*
+
+   ⭐ CE N'EST PAS QU'UNE QUESTION DE MOTS. Un pavé de trois paragraphes pleins
+   se saute ; un texte qui s'ouvre par UNE phrase, puis donne ses faits en
+   lignes courtes, se lit. La structure fait la moitié du travail :
+
+     · un TITRE, pour savoir où l'on est d'un coup d'œil ;
+     · un CHAPÔ, une seule phrase, un cran plus grand — c'est lui qu'on lit
+       quand on ne lit rien d'autre ;
+     · des POINTS courts, un fait chacun, alignés ;
+     · une CHUTE, en retrait, pour ce qui se retient sans se retenir.
+
+   ⛔ Et pas de puces rondes : un tutoriel n'est pas une liste de courses. Le
+   marqueur est un filet vertical, qui range sans énumérer. */
+function bloc(dalle, { titre, chapo, points, chute }) {
+  if (titre) dalle.append(el("h2", "tuto-titre", [text(titre)]));
+  if (chapo) dalle.append(el("p", "tuto-chapo", [text(chapo)]));
+  if (Array.isArray(points) && points.length > 0) {
+    const liste = el("ul", "tuto-points", []);
+    for (const point of points) liste.append(el("li", null, [text(point)]));
+    dalle.append(liste);
+  }
+  if (chute) dalle.append(el("p", "tuto-chute", [text(chute)]));
+}
+
 /* ══ LE TUTORIEL GÉNÉRAL — fond bleu, FF2 ══════════════════════════════════ */
-export function renderTutorielGeneral({ texte, onAction }) {
+export function renderTutorielGeneral({ onAction, ...contenu }) {
   const act = onAction || (() => {});
   const dalle = el("section", "tuto-general dalle-majeure");
   dalle.dataset.cadre = "FF2";
-  for (const para of String(texte || "").split(/\n{2,}/)) {
-    const ligne = para.trim();
-    if (ligne.length > 0) dalle.append(el("p", "tuto-mot", [text(ligne)]));
-  }
-  /* DEUX BOUTONS CENTRÉS EN BAS — et « I understand » d'abord, parce que c'est
-     le geste que 99 joueurs sur 100 vont faire. */
-  const pied = el("div", "tuto-pied", [
+  bloc(dalle, contenu);
+  /* DEUX BOUTONS CENTRÉS EN BAS — « I understand » d'abord, parce que c'est le
+     geste que 99 joueurs sur 100 vont faire. */
+  dalle.append(el("div", "tuto-pied", [
     bouton("I understand", "tuto-compris", () => act({ kind: "tutoCompris" })),
     boutonEteindre(act)
-  ]);
-  dalle.append(pied);
+  ]));
   return dalle;
 }
 
 /* ══ LE TUTORIEL SPÉCIFIQUE — fond vert, FF3 ═══════════════════════════════
    ⭐ FF3 : il SE TERMINE par un line bleed, parce qu'une autre dalle suit —
    c'est exactement ce que le chiffre 3 nomme (CADRES.md §2 ter bis). */
-export function renderTutorielSpecifique({ texte, onAction }) {
+export function renderTutorielSpecifique({ onAction, ...contenu }) {
   const act = onAction || (() => {});
   const dalle = el("section", "tuto-specifique dalle-majeure");
   dalle.dataset.cadre = "FF3";
-  for (const para of String(texte || "").split(/\n{2,}/)) {
-    const ligne = para.trim();
-    if (ligne.length > 0) dalle.append(el("p", "tuto-mot", [text(ligne)]));
-  }
+  bloc(dalle, contenu);
   dalle.append(el("div", "tuto-pied", [boutonEteindre(act)]));
   const filet = el("hr", "saignee");
   filet.setAttribute("aria-hidden", "true");
