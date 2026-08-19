@@ -80,7 +80,15 @@ export function itemsDeLEtape({ decisions, document, racine }) {
  *  ⭐ LE BILAN N'EST PAS « TOUT EST RÉPONDU » : c'est « le joueur a cliqué le
  *  `Done` du guide ». Un personnage entièrement rempli mais jamais confirmé
  *  reste au guide — Eric l'a posé explicitement, et c'est ce que la signature
- *  sur la racine encode. */
+ *  sur la racine encode.
+ *
+ *  ⭐ ET L'INHERITANCE N'A PAS BESOIN D'UN CAS PARTICULIER — Eric, 2026-08-19 :
+ *  *« Inheritance c'est pareil que species après choose »*. Elle n'a pas de
+ *  catalogue parce qu'elle ne se choisit pas : le moteur résout tout seul le
+ *  record unique de son genre (`resolvedRef`, contrat §1a — *« livrée, non
+ *  choisie »*). Son plan arrive donc DÉJÀ rempli, et cette fonction la pose au
+ *  GUIDE du premier coup. Rien à ajouter ici : c'est la conséquence du même
+ *  test, pas une exception. */
 export function etatDeLEtape({ decisions, document, racine }) {
   const racinePlan = planAt(decisions, racine);
   const choisi = racinePlan && Array.isArray(racinePlan.selected) && racinePlan.selected.length > 0;
