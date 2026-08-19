@@ -161,6 +161,9 @@ export function renderConceptStep(ctx, onAction) {
   /* `dalle-intermediaire` — le voile à 50 %, pris à la matrice des dalles
      (lot 59) et jamais réécrit en couleur ici. */
   const section = el("section", "concept-step dalle-intermediaire");
+  /* Il DIT son format, comme les dalles du parcours : un écran qui ne le
+     déclare pas oblige à le déduire, et une déduction se trompe. */
+  section.dataset.cadre = "FF2";
   /* Le pied de la coquille s'accroche au bas de cette dalle (Eric, 2026-08-17 :
      *« Concept — DONE centré en bas au milieu »*). Une DÉCLARATION, pas une
      fabrication : voir `poserLaSortie` dans `shell.mjs`. */

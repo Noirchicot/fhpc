@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=145";
-import { markPressed } from "./carnet.mjs?v=145";
+import { renderConfirmDialog } from "./confirm.mjs?v=147";
+import { markPressed } from "./carnet.mjs?v=147";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -202,6 +202,9 @@ export function renderUniverseStep(ctx, onAction) {
   /* `dalle-intermediaire` — le voile à 50 % qu'Eric a demandé, pris à la
      matrice des dalles (lot 59) et jamais réécrit en couleur ici. */
   const section = el("section", "universe-step dalle-intermediaire");
+  /* Il DIT son format, comme les dalles du parcours : un écran qui ne le
+     déclare pas oblige à le déduire, et une déduction se trompe. */
+  section.dataset.cadre = "FF2";
   /* Le pied de la coquille s'accroche au bas de CETTE dalle (Eric, 2026-08-17 :
      *« DONE en bas de dalle, centré »*). Une DÉCLARATION, pas une fabrication :
      l'écran ne produit ni `BACK` ni `DONE` — voir `poserLaSortie`, shell.mjs. */
@@ -267,6 +270,37 @@ export function renderUniverseStep(ctx, onAction) {
     text("Set when the character is created; not editable here.")
   ]));
   section.append(locale);
+
+  /* ══ L'INTERRUPTEUR DU TUTORIEL — Eric, 2026-08-19 ═══════════════════════
+     *« Il est possible de on/off le tutoriel dans le menu. »*
+
+     🔴 C'EST LA SECONDE MOITIÉ DE `Turn tutorials off`. Ce bouton-là éteint
+     tout d'un geste, depuis n'importe quelle dalle ; il fallait un endroit
+     nommé pour le rallumer autrement qu'en cherchant le « ? ». Le Menu est cet
+     endroit — c'est là que vivent les réglages.
+
+     ⛔ CE N'EST PAS UNE DONNÉE DE PERSONNAGE, et l'écran ne le sait pas non
+     plus : il reçoit l'état et rend un geste. Le drapeau vit dans
+     `tutoriel.mjs`, et personne d'autre ne le lit. */
+  const reglages = el("div", "universe-reglages", []);
+  reglages.append(el("h3", null, [text("Tutorials")]));
+  const etat = ctx.tutoriel === true;
+  const bascule = document.createElement("button");
+  bascule.type = "button";
+  bascule.className = "universe-bascule";
+  bascule.dataset.actif = String(etat);
+  /* ⚠️ L'ÉTAT EST PRONONCÉ, pas seulement peint : `aria-pressed` dit à un
+     lecteur d'écran ce qu'une pastille colorée ne dit qu'à l'œil. */
+  bascule.setAttribute("aria-pressed", String(etat));
+  bascule.append(text(etat ? "On" : "Off"));
+  bascule.addEventListener("click", () => onAction({ kind: "tutoBascule", value: !etat }));
+  reglages.append(bascule);
+  reglages.append(el("p", "universe-note", [
+    text(etat
+      ? "Each step opens with a short guide. The ? in the corner of a panel brings it back."
+      : "Guides are off everywhere. Turn them back on here, or with the ? in the corner of any panel.")
+  ]));
+  section.append(reglages);
 
   return section;
 }

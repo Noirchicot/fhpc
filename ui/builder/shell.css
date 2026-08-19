@@ -667,6 +667,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    séparer ferait diverger deux voiles au premier réglage. */
 .universe-step,
 .concept-step {
+  /* ⭐ LA MESURE DES FF (2026-08-19, §2 quater de CADRES.md). Ces deux écrans
+     n'ont aucun menu latéral : ce sont des FF2, et leur prose se plafonne
+     comme celle de leurs voisines. Ils étaient les deux derniers FF2 sans
+     mesure — leurs lignes s'étalaient sur toute la scène pendant que les
+     dalles du parcours, juste au-dessus, se tenaient à 62 caractères.
+     ⚠️ `margin-inline: auto` centre la colonne ; le `.sortie` qu'elles
+     contiennent remet le sien à 0 juste en dessous, et il le faut (voir sa
+     propre note : 169 px au lieu de 343 sans ça). */
+  max-width: var(--measure); margin-inline: auto;
   padding: var(--sp-8);
   color: var(--text);
   /* Le liseré de verre — le même filet clair que les dalles d'Abilities, pris
@@ -3018,3 +3027,18 @@ button { font: inherit; }
 .tuto-general > .tuto-mot:first-child,
 .tuto-specifique > .tuto-mot:first-child,
 .guide-titre { padding-right: var(--touch); }
+
+/* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde
+   moitié de « Turn tutorials off » : un endroit NOMMÉ pour rallumer, au lieu
+   de chercher le « ? ». */
+.universe-reglages { margin-top: var(--sp-24); }
+.universe-reglages h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.universe-bascule {
+  min-width: 72px; min-height: var(--touch); padding: 0 var(--sp-16);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--sunken); color: var(--text-soft);
+  font: inherit; font-weight: 600; cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
+.universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
