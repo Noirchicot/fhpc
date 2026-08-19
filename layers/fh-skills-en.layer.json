@@ -567,9 +567,9 @@
               }
             ],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -621,9 +621,9 @@
               }
             ],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 2
           }
@@ -647,9 +647,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -673,9 +673,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -699,9 +699,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -725,9 +725,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -751,9 +751,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -792,9 +792,9 @@
               }
             ],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 2
           }
@@ -826,9 +826,9 @@
               }
             ],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 1
           }
@@ -852,9 +852,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -878,9 +878,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }
@@ -904,9 +904,9 @@
             "by_class_level": {},
             "grants": [],
             "tier_costs": {
-              "half": 1,
-              "proficient": 2,
-              "expertise": 4
+              "novice": 1,
+              "adept": 2,
+              "expert": 4
             },
             "expertise_from_level": 4
           }

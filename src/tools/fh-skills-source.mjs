@@ -617,7 +617,7 @@ export const CLASS_POOLS = [
    clef de règle du moteur n'est écrite nulle part (question ouverte n°4 du
    bloc `layers`). Les mettre en `ruleValues` ferait jeter le montage, mesuré.
    Ils vivent dans le record de chaque classe, avec le pool qu'ils dépensent. */
-export const TIER_COSTS = { half: 1, proficient: 2, expertise: 4 };
+export const TIER_COSTS = { novice: 1, adept: 2, expert: 4 };
 
 /* ══ L'ARRIÈRE-PLAN — ÉTEINT EN FATE'S HAND (lot 35) ═══════════════════════
    Addendums §4, « L'arrière-plan n'existe plus en Fate's Hand » (Eric,

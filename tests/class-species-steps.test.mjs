@@ -237,7 +237,7 @@ test("les trois compétences de Keen Senses sont proposées à l'étape Species 
   assert.deepEqual(new Set(slugs), new Set(["survival", "delve", "vigilance"]), "les TROIS, Delve compris — pas deux");
   for (const row of rows) {
     const values = optionValues(row);
-    assert.deepEqual(new Set(values), new Set(["half", "proficient"]), "palier LIBRE — jamais un seul ½ forcé (bug v1)");
+    assert.deepEqual(new Set(values), new Set(["novice", "adept"]), "palier LIBRE — jamais un seul ½ forcé (bug v1)");
   }
 });
 

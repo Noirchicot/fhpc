@@ -682,7 +682,7 @@ test("ATTAQUE — le pool n'est pas écrit dans le code : il vient du record, et
           op: "patch",
           changes: { "data[fh_skill_pool]": {
             bound_skill_points: 9, bound_tool_points: 4, free_point_pool: 13, by_level: {},
-            tier_costs: { half: 1, proficient: 2, expertise: 4 },
+            tier_costs: { novice: 1, adept: 2, expert: 4 },
             expertise_from_level: 4
           } }
         }

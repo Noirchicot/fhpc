@@ -203,7 +203,7 @@ export function createPlay({
     const proficient = (ch.savingProficiencies || []).indexOf(ability) >= 0;
     return {
       name: ABILITY_NAMES[ability] + " Save", ability,
-      tier: proficient ? "proficient" : "none",
+      tier: proficient ? "adept" : "none",
       bonus: mod(ch.abilities[ability]) + (proficient ? ch.pb : 0)
     };
   }

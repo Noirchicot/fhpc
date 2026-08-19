@@ -522,7 +522,7 @@ test("les coûts des paliers voyagent avec le pool qu'ils dépensent", () => {
      DÉDUISAIT du pool ; le canon §B.0 supprime la déduction (les points bound
      sont publiés à part et n'ont jamais transité par le pool), donc le nombre
      n'a plus rien à chiffrer. Le laisser en ferait un fantôme relu un jour. */
-  assert.deepEqual(pool.tier_costs, { half: 1, proficient: 2, expertise: 4 },
+  assert.deepEqual(pool.tier_costs, { novice: 1, adept: 2, expert: 4 },
     "canon §A.1 : novice = 1 · adept = 2 · expert = 4, et pas un quatrième palier");
   assert.equal(pool.expertise_from_level, 4, "le magicien reste au défaut du canon §B.2");
 });

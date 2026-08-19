@@ -93,18 +93,18 @@ test("une ligne imposée (½, le plancher) se MONTE à Plein, au coût de la dif
 
   /* « arcana » est imposée par `class.skills[0]` : son PLANCHER est ½, pas
      Plein — c'est le cœur du modèle tranché (§2 de la commande). */
-  assert.equal(skillDe(sansMontée, "arcana").proficiency, "half", "le plancher d'un imposé est ½, jamais Plein d'office");
+  assert.equal(skillDe(sansMontée, "arcana").proficiency, "novice", "le plancher d'un imposé est ½, jamais Plein d'office");
   assert.equal(skillDe(sansMontée, "arcana").bonus, sansMontée.abilities.int.mod + Math.floor(sansMontée.proficiency / 2));
   const poolAvant = poolDe(sansMontée).value;
 
   const avecMontée = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
-      extra: [{ path: "fh.skills.spend.arcana", value: "proficient" }]
+      extra: [{ path: "fh.skills.spend.arcana", value: "adept" }]
     }))
   }).resolved;
 
-  assert.equal(skillDe(avecMontée, "arcana").proficiency, "proficient", "monté au-dessus de son plancher");
+  assert.equal(skillDe(avecMontée, "arcana").proficiency, "adept", "monté au-dessus de son plancher");
   assert.equal(skillDe(avecMontée, "arcana").bonus, avecMontée.abilities.int.mod + avecMontée.proficiency,
     "Plein vaut le bonus de maîtrise entier, pas la moitié");
 
@@ -125,17 +125,17 @@ test("`resolved.skills[].proficiency` rend `half` ET `expertise`, chacun avec so
     document: documentDe(h, choixDe({
       level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
       extra: [
-        { path: "fh.skills.spend.leadership", value: "half" },
-        { path: "fh.skills.spend.tactics", value: "expertise" }
+        { path: "fh.skills.spend.leadership", value: "novice" },
+        { path: "fh.skills.spend.tactics", value: "expert" }
       ]
     }))
   }).resolved;
 
-  assert.equal(resolved.skills.find((s) => s.id === "leadership").proficiency, "half");
+  assert.equal(resolved.skills.find((s) => s.id === "leadership").proficiency, "novice");
   assert.equal(skillDe(resolved, "leadership").bonus, resolved.abilities.cha.mod + Math.floor(resolved.proficiency / 2),
     "le bonus ½ est le bonus de maîtrise coupé au sol, pas arrondi au-dessus");
 
-  assert.equal(skillDe(resolved, "tactics").proficiency, "expertise");
+  assert.equal(skillDe(resolved, "tactics").proficiency, "expert");
   assert.equal(skillDe(resolved, "tactics").bonus, resolved.abilities.int.mod + resolved.proficiency * 2,
     "l'expertise double le bonus de maîtrise — l'arithmétique standard du SRD, pas réinventée");
 });
@@ -148,13 +148,13 @@ test("Keen Senses — ½ sur deux des trois est légal", () => {
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
       extra: [
-        { path: "species.skillBudget.survival", value: "half" },
-        { path: "species.skillBudget.vigilance", value: "half" }
+        { path: "species.skillBudget.survival", value: "novice" },
+        { path: "species.skillBudget.vigilance", value: "novice" }
       ]
     }))
   }).resolved;
-  assert.equal(skillDe(resolved, "survival").proficiency, "half");
-  assert.equal(skillDe(resolved, "vigilance").proficiency, "half");
+  assert.equal(skillDe(resolved, "survival").proficiency, "novice");
+  assert.equal(skillDe(resolved, "vigilance").proficiency, "novice");
   assert.equal(skillDe(resolved, "delve").proficiency, "none", "le troisième n'a rien reçu — le budget est de 2 points");
 });
 
@@ -163,10 +163,10 @@ test("Keen Senses — Plein sur une seule est légal AUSSI", () => {
   const resolved = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
-      extra: [{ path: "species.skillBudget.delve", value: "proficient" }]
+      extra: [{ path: "species.skillBudget.delve", value: "adept" }]
     }))
   }).resolved;
-  assert.equal(skillDe(resolved, "delve").proficiency, "proficient");
+  assert.equal(skillDe(resolved, "delve").proficiency, "adept");
   assert.equal(skillDe(resolved, "survival").proficiency, "none");
   assert.equal(skillDe(resolved, "vigilance").proficiency, "none");
 });
@@ -175,7 +175,7 @@ test("Keen Senses — une compétence HORS {survival, delve, vigilance} est un r
   const h = pile();
   const doc = documentDe(h, choixDe({
     level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
-    extra: [{ path: "species.skillBudget.leadership", value: "half" }]
+    extra: [{ path: "species.skillBudget.leadership", value: "novice" }]
   }));
   const out = h.verbs.rebuild({ document: doc });
 
@@ -201,8 +201,8 @@ test("le budget captif d'espèce ne change JAMAIS la valeur publiée de `fh:skil
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf", backgroundId: INHERITANCE,
       extra: [
-        { path: "species.skillBudget.survival", value: "half" },
-        { path: "species.skillBudget.vigilance", value: "half" }
+        { path: "species.skillBudget.survival", value: "novice" },
+        { path: "species.skillBudget.vigilance", value: "novice" }
       ]
     }))
   }).resolved;
@@ -220,7 +220,7 @@ test("le verrou d'expertise refuse AVANT le niveau du record, et accepte APRÈS"
   const avant = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
-      extra: [{ path: "fh.skills.spend.leadership", value: "expertise" }]
+      extra: [{ path: "fh.skills.spend.leadership", value: "expert" }]
     }))
   });
   assert.equal(skillDe(avant.resolved, "leadership").proficiency, "none",
@@ -237,10 +237,10 @@ test("le verrou d'expertise refuse AVANT le niveau du record, et accepte APRÈS"
   const apres = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:human", backgroundId: INHERITANCE,
-      extra: [{ path: "fh.skills.spend.leadership", value: "expertise" }]
+      extra: [{ path: "fh.skills.spend.leadership", value: "expert" }]
     }))
   });
-  assert.equal(skillDe(apres.resolved, "leadership").proficiency, "expertise", "au niveau 4, la dépense est acceptée");
+  assert.equal(skillDe(apres.resolved, "leadership").proficiency, "expert", "au niveau 4, la dépense est acceptée");
   assert.equal(apres.moduleViolations.some((v) => v.key === "skill-spend.tier-locked"), false,
     "plus aucun verrou une fois le niveau atteint");
 });
@@ -260,7 +260,7 @@ test("un personnage SRD pur (aucune espèce FH, aucun budget captif) traverse la
     }))
   });
   assert.deepEqual(out.resolved.stats, [], "aucun pool — le SRD n'en a pas");
-  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "proficient",
+  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "adept",
     "le modèle SRD reste EXACTEMENT celui d'avant ce lot : un imposé est maîtrisé plein, jamais ½");
   assert.deepEqual(out.moduleViolations, [], "aucun verrou, aucune ligne — le module n'a rien à dire sur un personnage qu'il ne sert pas");
 });
@@ -275,6 +275,6 @@ test("un scénario où la couche des compétences n'est pas montée reste inchan
       backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
     }))
   });
-  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "proficient",
+  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "adept",
     "sans `fh-skills-en`, la classe ne porte pas `fh_skill_pool` — le plancher ½ ne s'applique pas");
 });

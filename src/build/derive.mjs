@@ -649,7 +649,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   /* ── LE BUDGET CAPTIF D'ESPÈCE (Keen Senses, lot 34) ─────────────────
      `granted_skill_budget = {points, from}` — des points CAPTIFS d'une
      liste, dépensés par le joueur sur `species.skillBudget.<slug>` =
-     "half"|"proficient". Ce champ, comme `granted_skill_choice`, est du
+     "novice"|"adept". Ce champ, comme `granted_skill_choice`, est du
      CONTENU générique (aucune racine de son nom ne cite une mécanique de
      couche) : le lire ici est la même discipline que la ligne juste
      au-dessus. Ne touche JAMAIS `fh:skill-points` (contrat §4e : « un choix
@@ -663,7 +663,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      ne dérive jamais une intention illégale, il la laisse `unconsumed`.
      `decisions.mjs` la NOMME en verrou keyé (lot 27), il ne jette pas pour
      un choix de joueur. */
-  const budgetTier = new Map(); // slug → "half"|"proficient"
+  const budgetTier = new Map(); // slug → "novice"|"adept"
   const budget = speciesData.granted_skill_budget;
   if (budget !== undefined) {
     if (budget === null || typeof budget !== "object" || Array.isArray(budget) ||
@@ -678,7 +678,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         `${JSON.stringify(budget.from)}, which is not a list of skill ids (or "any") — a captive budget with no ` +
         "legal list would let the player spend its points anywhere, erasing the restriction the grant exists to carry.");
     }
-    const BUDGET_TIER_COST = { half: 1, proficient: 2 };
+    const BUDGET_TIER_COST = { novice: 1, adept: 2 };
     const budgetPrefix = "species.skillBudget.";
     for (const entry of picked.byRoot.get("species") || []) {
       const path = entry.choice.path;
@@ -704,12 +704,12 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        générique au schéma (`resolved.skills[].proficiency`), pas une règle
        de maison. */
     const skillTierBonus = (tier) => {
-      if (tier === "half") return Math.floor(proficiency / 2);
-      if (tier === "proficient") return proficiency;
+      if (tier === "novice") return Math.floor(proficiency / 2);
+      if (tier === "adept") return proficiency;
       return 0;
     };
     resolved.skills = skills.list.map((entry) => {
-      const tier = budgetTier.get(entry.id) || (proficientSkills.has(entry.id) ? "proficient" : "none");
+      const tier = budgetTier.get(entry.id) || (proficientSkills.has(entry.id) ? "adept" : "none");
       return {
         id: entry.id,
         name: entry.name,
@@ -757,7 +757,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       name: view.record.name,
       ability: abilityKey,
       bonus: abilities[abilityKey].mod + proficiency,
-      proficiency: "proficient"
+      proficiency: "adept"
     });
   }
   /* LOT 35 — LA DÉCLARATION « AUCUN OUTIL » EST DIFFÉRÉE, PLUS BAS. `tools`

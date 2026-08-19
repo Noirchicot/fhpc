@@ -24,13 +24,13 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "69f625e247d761a4eeee1a4ecedb63558a854d9b0e7816292e375464ab66b3d9",
+        "hash": "cdc6b1d1627aefa25d3688b2fb3f77d4a1acaf8ce4f6f709760c149aaff31eb3",
         "name": "Fate's Hand — Species (EN)"
       },
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "c5453d310022b6238674499d7eebcd8adc124839671e6f6e876fa832c75fc256",
+        "hash": "b982c7d1f38553d22ebb91253b554eb75de2e03a9764f9cfea123fc9f9e02618",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -54,7 +54,7 @@
       {
         "id": "fh-lore-en",
         "version": "0.1.0",
-        "hash": "ec0198d2c93b38b557dba74d0cfe9a5bf415f4c8be755ded80485cd7e4afd86a",
+        "hash": "e53a455bf8072a21f7408fa21bb38d3a4fa2fdb3ca76c9d492e47e0c2b53e772",
         "name": "Fate's Hand — Lore (EN)"
       }
     ],
@@ -87,13 +87,13 @@
       },
       {
         "path": "species.skillBudget.survival",
-        "value": "half",
-        "label": "Keen Senses: Survival (half)"
+        "value": "novice",
+        "label": "Keen Senses: Survival (Novice)"
       },
       {
         "path": "species.skillBudget.vigilance",
-        "value": "half",
-        "label": "Keen Senses: Vigilance (half)"
+        "value": "novice",
+        "label": "Keen Senses: Vigilance (Novice)"
       },
       {
         "path": "background.originFeat[0]",
@@ -375,13 +375,13 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "69f625e247d761a4eeee1a4ecedb63558a854d9b0e7816292e375464ab66b3d9",
+          "hash": "cdc6b1d1627aefa25d3688b2fb3f77d4a1acaf8ce4f6f709760c149aaff31eb3",
           "name": "Fate's Hand — Species (EN)"
         },
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "c5453d310022b6238674499d7eebcd8adc124839671e6f6e876fa832c75fc256",
+          "hash": "b982c7d1f38553d22ebb91253b554eb75de2e03a9764f9cfea123fc9f9e02618",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -405,7 +405,7 @@
         {
           "id": "fh-lore-en",
           "version": "0.1.0",
-          "hash": "ec0198d2c93b38b557dba74d0cfe9a5bf415f4c8be755ded80485cd7e4afd86a",
+          "hash": "e53a455bf8072a21f7408fa21bb38d3a4fa2fdb3ca76c9d492e47e0c2b53e772",
           "name": "Fate's Hand — Lore (EN)"
         }
       ]
@@ -527,7 +527,7 @@
         "name": "Arcana",
         "ability": "int",
         "bonus": 4,
-        "proficiency": "half"
+        "proficiency": "novice"
       },
       {
         "id": "athletics",
@@ -583,7 +583,7 @@
         "name": "Investigation",
         "ability": "int",
         "bonus": 4,
-        "proficiency": "half"
+        "proficiency": "novice"
       },
       {
         "id": "leadership",
@@ -660,7 +660,7 @@
         "name": "Survival",
         "ability": "wis",
         "bonus": 2,
-        "proficiency": "half"
+        "proficiency": "novice"
       },
       {
         "id": "tactics",
@@ -674,7 +674,7 @@
         "name": "Vigilance",
         "ability": "wis",
         "bonus": 2,
-        "proficiency": "half"
+        "proficiency": "novice"
       }
     ],
     "tools": [],

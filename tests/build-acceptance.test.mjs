@@ -175,7 +175,7 @@ test("ACCEPTATION — les DIX-HUIT compétences, nommément, avec leur bonus et 
   const got = reconstruire().resolved;
   assert.deepEqual(got.skills, FICHIER.resolved.skills);
 
-  const maitrisees = got.skills.filter((skill) => skill.proficiency === "proficient").map((skill) => skill.id);
+  const maitrisees = got.skills.filter((skill) => skill.proficiency === "adept").map((skill) => skill.id);
   assert.deepEqual(maitrisees.sort(), ["arcanes", "histoire", "investigation", "perception", "religion"],
     "deux de l'arrière-plan, deux de la classe, une de l'espèce");
   assert.equal(got.skills.find((skill) => skill.id === "perception").bonus, 3,

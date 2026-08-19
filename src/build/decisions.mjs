@@ -323,7 +323,7 @@ function backgroundToolPlan(choices, view) {
    ½ ou Plein sur une liste fermée. Contrat §4e : « un groupe DISTINCT, pas
    mélangé aux lignes du pool de classe » — c'est un plan à PART, sous
    `species.skillBudget`, jamais fusionné avec `species.skills`. */
-const BUDGET_TIER_COST = { half: 1, proficient: 2 };
+const BUDGET_TIER_COST = { novice: 1, adept: 2 };
 
 function speciesBudgetPlan(choices, speciesView, skills) {
   const budget = speciesView.record.data && speciesView.record.data.granted_skill_budget;

@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=112";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=112";
-import { renderChoixGlisses } from "./glisser.mjs?v=112";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=114";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=114";
+import { renderChoixGlisses } from "./glisser.mjs?v=114";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -145,7 +145,7 @@ function renderSpeciesCardBodySrd(data) {
    lire la paire `half`/`proficient`. Un repli à `[]` ferait disparaître les
    boutons de palier tant que le joueur n'a rien cliqué — c'est l'attaque qui
    avait trouvé ce bogue au lot 42. */
-const BUDGET_TIERS = ["half", "proficient"];
+const BUDGET_TIERS = ["novice", "adept"];
 
 function renderSpeciesBudget(ctx, budgetPlan, act) {
   const { decisions, query } = ctx;

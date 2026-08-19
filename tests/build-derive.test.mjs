@@ -254,7 +254,7 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
   const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
   assert.deepEqual(bon.resolved.tools, [{
     id: "materiel-de-calligraphe", name: "Matériel de calligraphe",
-    ability: "dex", bonus: 4, proficiency: "proficient"
+    ability: "dex", bonus: 4, proficiency: "adept"
   }]);
 });
 
@@ -379,7 +379,7 @@ test("`clear` retire un CHOIX — son effet disparaît de la fiche reconstruite"
   const h = makeHarness();
   h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   assert.equal(h.verbs.rebuild({}).resolved.skills.find((skill) => skill.id === "religion").proficiency,
-    "proficient", "avant : le second choix de compétence de la classe est posé");
+    "adept", "avant : le second choix de compétence de la classe est posé");
 
   const out = h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
   assert.deepEqual(out.cleared, { path: "class.skills[1]", kind: "choice", removed: true });

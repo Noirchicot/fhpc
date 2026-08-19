@@ -96,12 +96,23 @@ const NONE_GLYPH = "—";
    `CATEGORY_LABEL` juste au-dessus. Repli sur la clef brute si le moteur
    apprend un quatrième palier demain — même loi que `REFUSAL_WORDS`
    (`refusalWord`, ligne 101) : jamais un écran qui plante sur une clef
-   inconnue. Le mot du tiret voisin (« No proficiency », ligne 244 plus bas,
-   inchangé) fixe le registre : cette table le prolonge. */
+   inconnue. Le tiret voisin (`NONE_GLYPH`) dit l'absence sans la nommer :
+   le canon compte TROIS paliers « and no fourth », donc rien à nommer ici. */
+/* ⭐ 2026-08-19 — LES MOTS DU CANON, ET PLUS UNE DESCRIPTION DE MÉCANIQUE.
+   `Skill & Tool Points — Canon (SRD → FH)`, §A.1 : « Three tiers, and no
+   fourth » — Novice (1 pt, la moitié du bonus de maîtrise arrondie en bas),
+   Adept (2 pts, le bonus), Expert (4 pts, le double). L'écran affichait la
+   MÉCANIQUE (« Half proficiency ») là où le canon donne un NOM ; un joueur
+   qui lit « Novice » dans le chapitre et « Half proficiency » à l'écran ne
+   sait pas que c'est la même chose.
+   ⚠️ « Expertise » n'a pas disparu du jeu pour autant : c'est le nom de
+   l'APTITUDE DE CLASSE (Bard — Expertise, Rogue Expertise), qui donne la
+   permission d'acheter le palier Expert. L'aptitude garde son nom, le palier
+   prend le sien. */
 const TIER_LABEL = {
-  half: "Half proficiency",
-  proficient: "Full proficiency",
-  expertise: "Expertise"
+  novice: "Novice",
+  adept: "Adept",
+  expert: "Expert"
 };
 
 /* ── LE VOCABULAIRE DU BUDGET CAPTIF — et pourquoi ces deux mots-ci sont
@@ -145,8 +156,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=112";
-import { keepInView, scrollParent } from "./socle.mjs?v=112";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=114";
+import { keepInView, scrollParent } from "./socle.mjs?v=114";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -287,7 +298,7 @@ function renderRogueNotice(pool, classView, level) {
   if (!pool || !classView) return null;
   if (!Number.isInteger(pool.expertise_from_level) || !Number.isInteger(level)) return null;
   if (level < pool.expertise_from_level) return null;
-  const cost = pool.tier_costs && pool.tier_costs.expertise;
+  const cost = pool.tier_costs && pool.tier_costs.expert;
   if (!Number.isInteger(cost)) return null;
   return el("p", "skills-rogue-notice", [text(
     `${classView.record.name} — you may buy Expertise from level ${pool.expertise_from_level} (${cost} pts)`
@@ -381,7 +392,7 @@ function renderSkillRow(skill, ctx) {
       currentTier: skill.proficiency, tiers, path, onAction, violation: violationAt(violations, path)
     }));
   } else {
-    row.append(el("span", "skills-row-static", [text(skill.proficiency === "none" ? NONE_GLYPH : "Proficient")]));
+    row.append(el("span", "skills-row-static", [text(skill.proficiency === "none" ? NONE_GLYPH : "Adept")]));
   }
   return row;
 }
@@ -469,7 +480,7 @@ function renderToolRow(view, ctx) {
       currentTier: owned ? owned.proficiency : "none", tiers, path, onAction, violation: violationAt(violations, path)
     }));
   } else {
-    row.append(el("span", "skills-row-static", [text(owned ? "Proficient" : NONE_GLYPH)]));
+    row.append(el("span", "skills-row-static", [text(owned ? "Adept" : NONE_GLYPH)]));
   }
   return row;
 }

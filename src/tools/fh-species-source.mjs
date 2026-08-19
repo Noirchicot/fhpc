@@ -445,7 +445,7 @@ export const LINEAGES = {
     { id: "rock-folk", name: "Rock Folk", levels: {
       "1": "You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes creating a Tiny clockwork device (AC 5, 1 HP) that carries one Prestidigitation effect of your choice; you can have up to three such devices at a time." } },
     { id: "mole-people", name: "The Mole People", fh: true, levels: {
-      "1": "The range of your Darkvision increases to 120 feet. You also gain Meticulous — you have Advantage on Investigation checks — and 1 skill point (half proficiency) in tinker's tools." } }
+      "1": "The range of your Darkvision increases to 120 feet. You also gain Meticulous — you have Advantage on Investigation checks — and 1 skill point (Novice) in tinker's tools." } }
   ]
 };
 

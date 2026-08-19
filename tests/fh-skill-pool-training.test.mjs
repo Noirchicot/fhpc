@@ -194,14 +194,14 @@ test("REJET — une valeur de palier (« proficient ») sur `train.*` est `skill
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 4, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: "fh.skills.train.garrote", value: "proficient" }]
+      extra: [{ path: "fh.skills.train.garrote", value: "adept" }]
     }))
   });
   assert.equal(trainingDe(out.resolved, "garrote"), undefined,
     "un mot de palier n'est PAS une acceptation silencieuse — le training n'est pas acquis");
   const violation = out.moduleViolations.find((v) => v.key === "skill-train.value-invalid");
   assert.ok(violation, "le refus est KEYÉ, pas une acceptation silencieuse (commande §4, test 5)");
-  assert.equal(violation.params.value, "proficient");
+  assert.equal(violation.params.value, "adept");
 });
 
 test("`false` est une valeur booléenne légale (commande §3a) — même effet que l'absence, aucun refus", () => {
@@ -214,7 +214,7 @@ test("`false` est une valeur booléenne légale (commande §3a) — même effet 
          sujet. */
       extra: [
         { path: "fh.skills.train.garrote", value: false },
-        { path: "fh.skills.spend.calligrapher-s-supplies", value: "half" }
+        { path: "fh.skills.spend.calligrapher-s-supplies", value: "novice" }
       ]
     }))
   });

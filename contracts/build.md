@@ -746,7 +746,7 @@ patché de l'Elf (`remove: ["data[granted_skill_choice]"]`) avant de poser
 `granted_skill_budget` : on ne réinterprète pas une forme, on la remplace.
 
 **Le canal de dépense du budget captif** — `species.skillBudget.<slug>` =
-`"half"|"proficient"`, restreint aux slugs de `granted_skill_budget.from`.
+`"novice"|"adept"`, restreint aux slugs de `granted_skill_budget.from`.
 Ne touche **jamais** `fh:skill-points` : c'est un budget SÉPARÉ du pool de
 classe (« un choix accordé par l'espèce est supplémentaire »), et le module
 `fh:skill-points` ne le lit ni ne le publie. `decisions.mjs` l'expose comme
@@ -754,7 +754,7 @@ un groupe DISTINCT, `species.skillBudget`, jamais mélangé aux lignes
 `species.skills` du choix compté.
 
 **Le canal de dépense du pool principal** — `fh.skills.spend.<slug>` =
-`"half"|"proficient"|"expertise"`, dans le namespace du module lui-même
+`"novice"|"adept"|"expert"`, dans le namespace du module lui-même
 (`fh.skills.*`). Une ligne déjà imposée (plancher ½) se MONTE au coût de la
 DIFFÉRENCE (`tier_costs[palier] − tier_costs[plancher]`) ; une ligne neuve
 se paie plein tarif. Un chemin illégal (compétence inconnue, palier hors

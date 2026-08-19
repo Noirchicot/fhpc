@@ -251,8 +251,8 @@ test("PLUS AUCUNE espèce n'ouvre `species.skills` ; Elestu garde sa bourse de t
   const hElestu = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN] });
   const docElestu = englishDocument(hElestu, "fh:species:en:elestu");
   docElestu.build.choices.push(
-    { path: "species.skillBudget.survival", value: "half" },
-    { path: "species.skillBudget.vigilance", value: "half" }
+    { path: "species.skillBudget.survival", value: "novice" },
+    { path: "species.skillBudget.vigilance", value: "novice" }
   );
   const outElestu = hElestu.verbs.rebuild({ document: docElestu });
   const decisionsElestu = byPath(outElestu);

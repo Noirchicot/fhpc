@@ -336,7 +336,7 @@ test("REJET — outil rangé dans une compétence par un champ inventé", () => 
     name: "Matériel de calligraphe",
     ability: "dex",
     bonus: 4,
-    proficiency: "proficient",
+    proficiency: "adept",
     category: "tool"
   });
   assertRejected(validateChar, doc, "un outil déguisé en compétence");

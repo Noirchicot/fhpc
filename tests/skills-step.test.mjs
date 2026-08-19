@@ -155,11 +155,11 @@ test("un clic sur un palier produit exactement un appel de verbe, avec le bon ch
      ce dernier porte maintenant le MOT humain (« Full proficiency »), et
      un test qui chercherait le bouton par ce mot casserait au premier
      lot qui l'affine sans rien avoir changé au comportement. */
-  const proficientBtn = tierButtons(stealth).find((b) => b.dataset.tier === "proficient");
+  const proficientBtn = tierButtons(stealth).find((b) => b.dataset.tier === "adept");
   assert.ok(proficientBtn, "le bouton « proficient » existe (lu dans tier_costs, pas en dur)");
   proficientBtn.click();
   assert.equal(calls.length, 1, "exactement un appel");
-  assert.deepEqual(calls[0], { kind: "set", path: "fh.skills.spend.stealth", value: "proficient" });
+  assert.deepEqual(calls[0], { kind: "set", path: "fh.skills.spend.stealth", value: "adept" });
 });
 
 /* ══ 5/6 — LE REJET : LE POOL DÉPASSÉ ════════════════════════════════════ */
@@ -168,7 +168,7 @@ test("REJET — dépasser le pool : la dépense s'applique, le compteur affiche 
   "— et le refus se pose au COMPTEUR, jamais sur une ligne", () => {
   const slugs = ["religion", "nature", "medicine", "insight", "history", "persuasion", "deception"];
   let doc = fixture.document;
-  for (const slug of slugs) doc = set(doc, `fh.skills.spend.${slug}`, "proficient");
+  for (const slug of slugs) doc = set(doc, `fh.skills.spend.${slug}`, "adept");
   const report = rebuild(doc);
   const validation = validate(report.document);
 
@@ -257,7 +257,7 @@ test("la notification du Rogue apparaît pour le rogue, et PAS pour le magicien 
   const notice = rogueNode.querySelectorAll(".skills-rogue-notice")[0];
   assert.ok(notice, "le rogue voit la ligne dès le niveau 1");
   const rogueClass = query({ kind: "class", id: "srd:class:en:rogue" });
-  const cost = rogueClass.record.data.fh_skill_pool.tier_costs.expertise;
+  const cost = rogueClass.record.data.fh_skill_pool.tier_costs.expert;
   assert.ok(notice.textContent.includes(String(cost)), "le coût vient de tier_costs, pas d'un nombre en dur");
   assert.ok(notice.textContent.includes("Rogue"));
 
@@ -278,7 +278,7 @@ test("un plan incomplet (budget captif d'espèce pas totalement dépensé) reste
      rapportée, pas un plan « en cours ». Le budget captif, lui, ne verrouille
      que le DÉPASSEMENT (`spent > points`), jamais le manque — c'est
      l'exemple qui prouve vraiment la phrase de la commande. */
-  let doc = set(fixture.document, "fh.skills.spend.thieves-tools", "half");
+  let doc = set(fixture.document, "fh.skills.spend.thieves-tools", "novice");
   doc = clear(doc, "species.skillBudget.vigilance");
   const report = rebuild(doc);
   const validation = validate(report.document);

@@ -103,7 +103,7 @@ test("un outil s'achète au pool : la ligne est nommée, le pool baisse, `resolv
   const avec = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "proficient" }]
+      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "adept" }]
     }))
   }).resolved;
 
@@ -111,16 +111,16 @@ test("un outil s'achète au pool : la ligne est nommée, le pool baisse, `resolv
   assert.ok(outil, "l'outil apparaît dans `resolved.tools[]`");
   assert.equal(outil.name, "Calligrapher’s Supplies", "le nom SUIT le catalogue, pas un mot écrit dans le module");
   assert.equal(outil.ability, "dex");
-  assert.equal(outil.proficiency, "proficient");
+  assert.equal(outil.proficiency, "adept");
   assert.equal(outil.bonus, avec.abilities.dex.mod + avec.proficiency, "le bonus PLEIN vaut le bonus de maîtrise entier");
 
   /* Aucun autre outil n'apparaît — un achat n'ouvre pas les 36. */
   assert.equal(avec.tools.length, 1, "une seule ligne, celle achetée");
 
   /* LE COÛT, DÉBITÉ ET NOMMÉ : rien n'était imposé (plancher « none »), donc
-     le plein tarif s'applique — `tier_costs.proficient` (2). */
+     le plein tarif s'applique — `tier_costs.adept` (2). */
   const poolApres = poolDe(avec);
-  assert.equal(poolAvant - poolApres.value, 2, "l'achat à plein tarif coûte `tier_costs.proficient`");
+  assert.equal(poolAvant - poolApres.value, 2, "l'achat à plein tarif coûte `tier_costs.adept`");
   const ligne = poolApres.breakdown.find((entry) =>
     entry.value === -2 && entry.source && entry.source.kind === "tool" && entry.source.id === "srd:tool:en:calligrapher-s-supplies");
   assert.ok(ligne, "le détail du pool porte une ligne NOMMÉE pour l'outil, pas un total muet");
@@ -134,7 +134,7 @@ test("REJET — un slug inconnu des deux genres est `skill-spend.option-unavaila
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: "fh.skills.spend.griffon-taming", value: "proficient" }]
+      extra: [{ path: "fh.skills.spend.griffon-taming", value: "adept" }]
     }))
   });
   assert.equal(toolDe(out.resolved, "griffon-taming"), undefined, "aucune ligne fabriquée pour un slug inconnu");
@@ -164,7 +164,7 @@ test("REJET — un slug présent dans les deux genres (compétence ET outil) fai
   assert.throws(() => h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: "fh.skills.spend.athletics", value: "proficient" }]
+      extra: [{ path: "fh.skills.spend.athletics", value: "adept" }]
     }))
   }), (erreur) => {
     assert.match(erreur.message, /athletics/, "le refus NOMME le slug qui collisionne");
@@ -190,12 +190,12 @@ test("un personnage qui achète UN outil en publie UN, jamais les 36 du catalogu
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
       backgroundId: INHERITANCE, skills: ["stealth", "investigation"],
-      extra: [{ path: "fh.skills.spend.gaming-set-dice", value: "proficient" }]
+      extra: [{ path: "fh.skills.spend.gaming-set-dice", value: "adept" }]
     }))
   });
   assert.equal(out.resolved.tools.length, 1, "un seul outil publié — celui acheté, jamais les 36 du catalogue");
   assert.equal(out.resolved.tools[0].id, "gaming-set-dice");
-  assert.equal(out.resolved.tools[0].proficiency, "proficient");
+  assert.equal(out.resolved.tools[0].proficiency, "adept");
 });
 
 /* ⛔ ET LA CONSÉQUENCE DE L'EXTINCTION, mesurée plutôt que supposée : sans
@@ -221,10 +221,10 @@ test("le Rogue achète l'expertise dès le niveau 1, coût 4", () => {
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", skills: ["stealth", "investigation"],
-      extra: [{ path: "fh.skills.spend.stealth", value: "expertise" }]
+      extra: [{ path: "fh.skills.spend.stealth", value: "expert" }]
     }))
   });
-  assert.equal(out.resolved.skills.find((s) => s.id === "stealth").proficiency, "expertise",
+  assert.equal(out.resolved.skills.find((s) => s.id === "stealth").proficiency, "expert",
     "le Rogue n'attend pas le niveau 4 (addendums §1, EXCEPTION — LE ROGUE)");
   assert.equal(out.moduleViolations.some((v) => v.key === "skill-spend.tier-locked"), false, "aucun verrou");
 
@@ -244,10 +244,10 @@ test("les onze autres classes restent verrouillées au niveau 1 — `skill-spend
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:halfling",
-      extra: [{ path: "fh.skills.spend.arcana", value: "expertise" }]
+      extra: [{ path: "fh.skills.spend.arcana", value: "expert" }]
     }))
   });
-  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "half",
+  assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "novice",
     "le Wizard reste au plancher — l'expertise n'est pas appliquée");
   const violation = out.moduleViolations.find((v) => v.key === "skill-spend.tier-locked");
   assert.ok(violation, "le refus est KEYÉ");
@@ -262,13 +262,13 @@ test("le Rogue n'a AUCUN plafond de compte : deux expertises passent au niveau 1
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling", skills: ["stealth", "investigation"],
       extra: [
-        { path: "fh.skills.spend.stealth", value: "expertise" },
-        { path: "fh.skills.spend.investigation", value: "expertise" }
+        { path: "fh.skills.spend.stealth", value: "expert" },
+        { path: "fh.skills.spend.investigation", value: "expert" }
       ]
     }))
   });
-  assert.equal(out.resolved.skills.find((s) => s.id === "stealth").proficiency, "expertise");
-  assert.equal(out.resolved.skills.find((s) => s.id === "investigation").proficiency, "expertise");
+  assert.equal(out.resolved.skills.find((s) => s.id === "stealth").proficiency, "expert");
+  assert.equal(out.resolved.skills.find((s) => s.id === "investigation").proficiency, "expert");
   assert.equal(out.moduleViolations.some((v) => v.key === "skill-spend.tier-locked"), false,
     "aucun verrou de NIVEAU — SRD 5.2.1 limite le Rogue SRD à deux, Fate's Hand n'y met aucun plafond de compte, " +
     "seul le pool arbitre (addendums §1)");

@@ -52,7 +52,7 @@
         (`skill_points`) — la FORME distingue les genres, exactement comme
         `data.destiny` sert `{base}` à une espèce et `{bonus}` à un don. Un
         seul don du SRD le porte aujourd'hui : `Skilled`, à parité SRD
-        (3 proficiencies × `tier_costs.proficient` = 6).
+        (3 proficiencies × `tier_costs.adept` = 6).
      6. LE GRANT D'ESPÈCE, EN NET ZÉRO (lot 24, arbitrage d'Eric du
         2026-08-09) — `data.granted_skill_choice` (Araag, Elestu, Elf) SE
         RAJOUTE au pool PUIS SE PLACE au coût d'un imposé : deux lignes, un
@@ -352,9 +352,9 @@ function trainingFromLevel(view) {
    ne connaît donc jamais le nom des trois paliers au-dessus de « aucun ». */
 function tierBonusTerm(tier, proficiency) {
   if (!Number.isInteger(proficiency)) return 0;
-  if (tier === "half") return Math.floor(proficiency / 2);
-  if (tier === "proficient") return proficiency;
-  if (tier === "expertise") return proficiency * 2;
+  if (tier === "novice") return Math.floor(proficiency / 2);
+  if (tier === "adept") return proficiency;
+  if (tier === "expert") return proficiency * 2;
   return 0;
 }
 
@@ -553,9 +553,9 @@ function boundLines(classRef, pool, species, lines, underived) {
       "would have to be sorted into one of the two camps by guess, and the wrong guess costs the character " +
       "exactly that grant.");
   }
-  const adepte = pool.tier_costs && pool.tier_costs.proficient;
+  const adepte = pool.tier_costs && pool.tier_costs.adept;
   if (!Number.isInteger(adepte)) {
-    fail(`the class record "${classRef.id}" prices no full proficiency (\`tier_costs.proficient\`), and the ` +
+    fail(`the class record "${classRef.id}" prices no adept tier (\`tier_costs.adept\`), and the ` +
       `species "${species.id}" grants ${grant.count} unconstrained one(s). An SRD proficiency is worth an adept ` +
       "(canon §A.2); without its price the grant cannot enter the pool.");
   }
@@ -656,7 +656,7 @@ export function createFhSkillPoolStat() {
       }
 
       /* LES CHOIX DE CE NAMESPACE (lot 34) — LE CANAL DE DÉPENSE.
-         `fh.skills.spend.<slug>` = "half"|"proficient"|"expertise" MONTE un
+         `fh.skills.spend.<slug>` = "novice"|"adept"|"expert" MONTE un
          imposé au-dessus de son plancher, ou achète une ligne neuve, au coût
          de la DIFFÉRENCE (contrat §⭐ THE SKILL POOL). Tout AUTRE chemin de ce
          namespace reste un refus qui le nomme (loi §0.5) : ce module ne porte
@@ -668,7 +668,7 @@ export function createFhSkillPoolStat() {
          `spend.*` accepterait un mot de la grille sur un objet qui n'en a
          pas — un mensonge de forme que la commande interdit nommément. */
       const TRAIN_PREFIX = "train.";
-      const TIER_ORDER = ["none", "half", "proficient", "expertise"];
+      const TIER_ORDER = ["none", "novice", "adept", "expert"];
       const tierRank = (tier) => TIER_ORDER.indexOf(tier);
       const spendEntries = [];
       const trainEntries = [];
@@ -760,7 +760,7 @@ export function createFhSkillPoolStat() {
          CE module, activé par le drapeau, qui republie le bon palier pour
          chaque slug — le plancher d'abord, la dépense du joueur ensuite. */
       const tierBySlug = {}; // slug → nom de palier, USAGE INTERNE seulement
-      for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "half";
+      for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "novice";
       const violations = [];
       /* LOT 36 — les trainings acquis, à publier dans `resolved.traits[]`
          par le canal générique que `derive.mjs` recopie sans jamais nommer
@@ -831,7 +831,7 @@ export function createFhSkillPoolStat() {
             violations.push(buildViolation("skill-spend.below-floor", { path, value, floor }, path));
             continue;
           }
-          if (value === "expertise" && level < expertiseFromLevel(classRef, pool)) {
+          if (value === "expert" && level < expertiseFromLevel(classRef, pool)) {
             violations.push(buildViolation("skill-spend.tier-locked", {
               path, skillId: slug, level, unlockLevel: expertiseFromLevel(classRef, pool)
             }, path));
@@ -871,7 +871,7 @@ export function createFhSkillPoolStat() {
           /* « valeur booléenne ou absente » (commande §3a) : `true` ET
              `false` sont légaux — `false` ne fait rien, le même effet que
              l'absence du choix — tout le reste (un mot de palier comme
-             "proficient", un nombre) est un refus nommé, pas une
+             "adept", un nombre) est un refus nommé, pas une
              acceptation silencieuse (commande §4, test 5). */
           if (typeof value !== "boolean") {
             violations.push(buildViolation("skill-train.value-invalid", { path, value: String(value) }, path));

@@ -101,13 +101,13 @@ test("ACCEPTÉ — un pool dépensé exactement à zéro : `validate()` passe (l
       extra: [
         /* Tool spend (satisfait aussi §3b) : proficient sur Calligrapher's
            Supplies, coût 2. */
-        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "proficient" },
+        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "adept" },
         /* 4 compétences à proficient (2 chacune) = 8. Total dépensé : 10,
            pour un pool de 10 (12 de classe - 2 d'imposés). */
-        { path: "fh.skills.spend.acrobatics", value: "proficient" },
-        { path: "fh.skills.spend.athletics", value: "proficient" },
-        { path: "fh.skills.spend.stealth", value: "proficient" },
-        { path: "fh.skills.spend.survival", value: "proficient" }
+        { path: "fh.skills.spend.acrobatics", value: "adept" },
+        { path: "fh.skills.spend.athletics", value: "adept" },
+        { path: "fh.skills.spend.stealth", value: "adept" },
+        { path: "fh.skills.spend.survival", value: "adept" }
       ]
     }))
   });
@@ -124,14 +124,14 @@ test("REJET — un point de trop : UN SEUL refus keyé, `validate().ok === false
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: HALFLING,
       extra: [
-        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "proficient" },
-        { path: "fh.skills.spend.acrobatics", value: "proficient" },
-        { path: "fh.skills.spend.athletics", value: "proficient" },
-        { path: "fh.skills.spend.stealth", value: "proficient" },
-        { path: "fh.skills.spend.survival", value: "proficient" },
+        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "adept" },
+        { path: "fh.skills.spend.acrobatics", value: "adept" },
+        { path: "fh.skills.spend.athletics", value: "adept" },
+        { path: "fh.skills.spend.stealth", value: "adept" },
+        { path: "fh.skills.spend.survival", value: "adept" },
         /* Le point de trop : une cinquième compétence, à ½. Total dépensé
            11 pour un pool de 10 → -1. */
-        { path: "fh.skills.spend.insight", value: "half" }
+        { path: "fh.skills.spend.insight", value: "novice" }
       ]
     }))
   });
@@ -150,18 +150,18 @@ test("le refus ne bloque PAS la dépense : le palier acheté reste appliqué dan
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: HALFLING,
       extra: [
-        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "proficient" },
-        { path: "fh.skills.spend.acrobatics", value: "proficient" },
-        { path: "fh.skills.spend.athletics", value: "proficient" },
-        { path: "fh.skills.spend.stealth", value: "proficient" },
-        { path: "fh.skills.spend.survival", value: "proficient" },
-        { path: "fh.skills.spend.insight", value: "half" }
+        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "adept" },
+        { path: "fh.skills.spend.acrobatics", value: "adept" },
+        { path: "fh.skills.spend.athletics", value: "adept" },
+        { path: "fh.skills.spend.stealth", value: "adept" },
+        { path: "fh.skills.spend.survival", value: "adept" },
+        { path: "fh.skills.spend.insight", value: "novice" }
       ]
     }))
   });
   assert.equal(out.moduleViolations.some((v) => v.key === "skill-pool.overspent"), true,
     "ce document EST en refus");
-  assert.equal(out.resolved.skills.find((s) => s.id === "insight").proficiency, "half",
+  assert.equal(out.resolved.skills.find((s) => s.id === "insight").proficiency, "novice",
     "et pourtant le palier acheté est bien appliqué — le refus se prononce, il ne défait rien");
 });
 
@@ -180,7 +180,7 @@ test("un personnage sans le MOINDRE outil valide — l'obligation d'outil est mo
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: HALFLING,
-      extra: [{ path: "fh.skills.spend.acrobatics", value: "proficient" }]
+      extra: [{ path: "fh.skills.spend.acrobatics", value: "adept" }]
     }))
   });
   assert.equal(out.moduleViolations.some((v) => v.key === "skill-pool.no-tool"), false,
@@ -193,7 +193,7 @@ test("un personnage sans le MOINDRE outil valide — l'obligation d'outil est mo
   const avecOutil = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: HALFLING,
-      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" }]
+      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "novice" }]
     }))
   });
   assert.equal(h.verbs.validate({ document: avecOutil.document }).ok, true);
@@ -214,18 +214,18 @@ test("ACCEPTÉ — un budget captif dépensé DANS son plafond : passe, et `fh:s
   const sansBudget = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: ELF,
-      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" }]
+      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "novice" }]
     }))
   }).resolved;
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: ELF,
       extra: [
-        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" },
+        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "novice" },
         /* Keen Senses : 2 points captifs, ½ sur deux des trois — DANS le
            plafond de 2 (addendums § « Keen Senses »). */
-        { path: "species.skillBudget.survival", value: "half" },
-        { path: "species.skillBudget.vigilance", value: "half" }
+        { path: "species.skillBudget.survival", value: "novice" },
+        { path: "species.skillBudget.vigilance", value: "novice" }
       ]
     }))
   });
@@ -241,21 +241,21 @@ test("REJET — un budget captif dépassé : refus keyé (déjà posé par `deci
   const sansBudget = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: ELF,
-      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" }]
+      extra: [{ path: `fh.skills.spend.${CALLIGRAPHER}`, value: "novice" }]
     }))
   }).resolved;
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: WIZARD, speciesId: ELF,
       extra: [
-        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "half" },
+        { path: `fh.skills.spend.${CALLIGRAPHER}`, value: "novice" },
         /* Trois paliers PLEINS sur les trois compétences captives : coût 6
            pour un budget de 2 (mesuré, commande §3c — le trou trouvé le
            2026-08-12, et déjà verrouillé par `decisions.mjs` depuis le
            lot 34 — seul `validate()` ne le lisait pas). */
-        { path: "species.skillBudget.survival", value: "proficient" },
-        { path: "species.skillBudget.vigilance", value: "proficient" },
-        { path: "species.skillBudget.delve", value: "proficient" }
+        { path: "species.skillBudget.survival", value: "adept" },
+        { path: "species.skillBudget.vigilance", value: "adept" },
+        { path: "species.skillBudget.delve", value: "adept" }
       ]
     }))
   });

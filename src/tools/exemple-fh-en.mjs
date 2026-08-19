@@ -84,8 +84,8 @@ const CHOIX = [
   /* LOT 34 — Keen Senses est un budget captif de 2 points sur trois
      compétences (survival, delve, vigilance), plus un choix compté :
      ½ sur deux d'entre elles est l'une des deux répartitions légales. */
-  { path: "species.skillBudget.survival", value: "half", label: "Keen Senses: Survival (half)" },
-  { path: "species.skillBudget.vigilance", value: "half", label: "Keen Senses: Vigilance (half)" },
+  { path: "species.skillBudget.survival", value: "novice", label: "Keen Senses: Survival (Novice)" },
+  { path: "species.skillBudget.vigilance", value: "novice", label: "Keen Senses: Vigilance (Novice)" },
   /* LOT 43 — PLUS DE CHOIX `background`. L'Inheritance (`fh:background:en:
      inheritance`) est le SEUL record du genre une fois les quatre du SRD
      éteints : elle est livrée, jamais choisie (contrat §1a). `decisions.mjs`
