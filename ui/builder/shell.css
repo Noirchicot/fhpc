@@ -3248,7 +3248,21 @@ button { font: inherit; }
    PROSE : elle se lit de gauche à droite, et la centrer casserait le bord que
    l'œil suit. */
 .parcours-item { flex-direction: column; align-items: stretch; }
-.parcours-item-tete { display: flex; align-items: center; justify-content: center; gap: var(--sp-8); min-height: var(--touch); }
+/* ⭐ UN FILET SOUS CHAQUE TITRE — Eric, 2026-08-19 : *« une petite ligne
+   horizontale sous les 3 titres, plus fine et moins épaisse que celle de Elf,
+   donnerait un peu plus de forme au bilan »*. Il a raison : trois blocs de
+   texte à la suite se lisent comme un seul, et l'œil ne sait plus où finit le
+   lignage et où commence la bourse.
+   ⚠️ ET IL EST PLUS PÂLE QUE LA SAIGNÉE, DÉLIBÉRÉMENT : celle du titre « Elf »
+   sépare deux PARTIES de l'écran ; celui-ci ne sépare que deux lignes d'une
+   même liste. Un filet aussi franc que l'autre annoncerait une coupure du même
+   ordre, et il y en aurait quatre au lieu d'une. */
+.parcours-item-tete {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--sp-8); min-height: var(--touch);
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
 .parcours-item-tete .parcours-item-porte { flex: 0 0 auto; text-align: center; }
 .parcours-item-tete .parcours-item-mot { flex: 0 0 auto; }
 .parcours-resume {
