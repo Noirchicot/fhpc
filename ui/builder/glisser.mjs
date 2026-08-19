@@ -424,7 +424,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
        devinée ici : un écran qui jugerait tout seul ce qui est valide serait un
        second juge, et les deux divergeraient. */
     creneau.dataset.invalide = slot.lock ? "true" : "false";
-    const nom = `${mot || "Choice"} ${slot.index + 1}`;
+    /* ⭐ UN CRÉNEAU PEUT SE NOMMER LUI-MÊME (2026-08-19). Numéroter convient
+       quand les créneaux sont interchangeables — trois sorts mineurs, deux
+       compétences de classe. Mais la bourse d'espèce a des récepteurs qui SONT
+       des compétences nommées : « Skill 1 » y perdait l'information qu'on
+       vise. Un `mot` posé sur le créneau gagne donc sur la numérotation. */
+    const nom = slot.mot || `${mot || "Choice"} ${slot.index + 1}`;
     creneau.append(el("span", "glisse-creneau-nom", [text(nom)]));
     creneau.append(el("span", "glisse-creneau-valeur", [
       text(choisi ? (labelOf ? labelOf(choisi) : choisi) : "—")

@@ -78,7 +78,7 @@ export function renderGuideGeneral({ titre, texte }) {
    ⚠️ LE VOYANT LIT LA SIGNATURE, PAS LE REMPLISSAGE. Un item dont la valeur est
    posée mais que le joueur a quitté par `Back` reste ÉTEINT. C'est la règle du
    19/08, et la seule raison d'être de `build.confirmed`. */
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, refus, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, confirme, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-guide dalle-majeure");
   page.dataset.objet = "dalle";
@@ -92,56 +92,66 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
 
   page.append(saignee());
 
+  /* ══ LA LISTE — Eric, 2026-08-19 ═══════════════════════════════════════
+     *« sous lineages (qui est un BOUTON) tu fais apparaître le bilan du
+     lineage — le bouton et son voyant sont CENTRÉS, le texte de bilan est en
+     dessous et n'est PAS centré. »*
+
+     ⭐ ET LES DEUX ALIGNEMENTS DISENT DEUX CHOSES. Le bouton est un GESTE : on
+     le vise, il se centre comme tout ce qui s'actionne ici. Le bilan est de la
+     PROSE : elle se lit de gauche à droite, et la centrer casserait le bord
+     que l'œil suit. Le même bloc porte donc les deux, et c'est voulu.
+
+     ⛔ « Granted automatically » N'EST PAS UN BOUTON — il n'ouvre rien. Ce qui
+     ne dépend ni du lignage ni de la bourse est là DÈS LE DÉBUT ; le reste
+     s'écrit quand son choix est signé. */
   const liste = el("ul", "parcours-items");
   for (const item of items || []) {
     const ligne = el("li", "parcours-item");
     ligne.dataset.item = item.path;
     ligne.dataset.allume = String(Boolean(item.confirme));
 
-    /* LE VOYANT D'ABORD, LE MOT ENSUITE — on lit l'état avant le nom, comme sur
-       une liste de courses cochée. Il est décoratif : l'état est déjà porté par
-       `aria-*` sur le bouton, et un lecteur d'écran n'a pas à entendre « point,
-       Lineage ». */
+    const tete = el("div", "parcours-item-tete");
     const voyant = el("span", "parcours-voyant", []);
     voyant.setAttribute("aria-hidden", "true");
-    ligne.append(voyant);
+    tete.append(voyant);
 
-    /* ⭐ UN ITEM SANS CHOIX N'EST PAS UN BOUTON. Eric veut ces lignes
-       « listées aussi et illuminées de base » : il n'y a rien à ouvrir, donc
-       rien à cliquer. Un bouton qui ne mène nulle part se paie en confiance. */
     if (item.sansChoix) {
-      ligne.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
-      /* 🔴 PLUS D'ALLUMAGE D'OFFICE — Eric, 2026-08-19 : *« granted
-         automatically est une autre ligne, GRISÉE tant qu'on n'a pas choisi le
-         lignage ; ensuite le voyant devient vert »*. Une ligne sans choix n'est
-         pas forcément acquise : elle peut DÉPENDRE d'un autre item, et c'est
-         ce cas-là qui commande. Forcer le vert ici écrasait la dépendance —
-         mesuré : la ligne s'allumait avant que le lignage soit posé. */
+      tete.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
       ligne.dataset.sansChoix = "true";
     } else {
       const porte = bouton(labelOf ? labelOf(item) : item.path, "parcours-item-porte",
         () => act({ kind: "parcoursItem", racine, path: item.path }));
-      porte.setAttribute("aria-describedby", "");
-      /* L'état PRONONCÉ, pas seulement peint — un voyant vert ne s'entend pas. */
       porte.setAttribute("aria-label",
         `${labelOf ? labelOf(item) : item.path} — ${item.confirme ? "done" : "not done yet"}`);
-      ligne.append(porte);
+      tete.append(porte);
     }
+    ligne.append(tete);
+
+    /* LE BILAN DE LA LIGNE, sous son bouton, aligné à gauche. */
+    const resume = resumeDe ? resumeDe(item) : null;
+    if (resume) ligne.append(el("div", "parcours-resume", [resume]));
     liste.append(ligne);
   }
   page.append(liste);
 
-  /* LE REFUS, sous la liste, NOMMÉ. Il n'apparaît qu'après un `Done` refusé :
-     annoncer d'avance ce qui manque ferait de la liste un reproche. */
-  if (refus) {
-    page.append(el("p", "parcours-refus", [text(refus)]));
-  }
+  if (refus) page.append(el("p", "parcours-refus", [text(refus)]));
 
+  /* ⭐ B0 EST SON PROPRE BILAN — Eric, 2026-08-19 : *« la fenêtre photographiée
+     n'a plus de raison d'être »*. L'écran de résumé séparé disparaît : chaque
+     ligne porte déjà le sien, et un second écran qui redirait la même chose
+     ferait lire deux fois le même texte pour avancer d'un cran. */
   const pied = el("div", "parcours-pied");
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
-  pied.append(bouton("Done", "parcours-done",
-    () => act({ kind: "parcoursDone", racine })));
+  if (confirme) {
+    page.append(el("p", "guide-mot", [text(
+      "This step is settled. Move on when you are ready — or reopen it and start over."
+    )]));
+    pied.append(bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine })));
+  } else {
+    pied.append(bouton("Done", "parcours-done", () => act({ kind: "parcoursDone", racine })));
+  }
   page.append(pied);
   return page;
 }

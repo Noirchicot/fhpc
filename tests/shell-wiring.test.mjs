@@ -448,7 +448,13 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      derrière ? » y répond oui elle aussi. La règle gardée n'a pas bougé —
      `BACK` naît d'un FAIT, jamais d'un id d'étape — et le pied reste une
      PAIRE : la ligne juste au-dessus continue de l'exiger. */
-  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\("BACK"/,
+  /* ⚠️ ÉLARGI LE 2026-08-19 : le bouton porte DEUX mots selon l'endroit —
+     « CANCEL » dans une dalle d'item (Eric : quitter un item n'est pas reculer
+     d'un cran, c'est abandonner ce qu'on y faisait), « BACK » partout
+     ailleurs. La règle gardée n'a pas bougé : il naît d'un FAIT, il est POSÉ
+     PAR LA COQUILLE, et le pied reste une PAIRE. C'est le mot qui varie, pas
+     le producteur ni le compte. */
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\(motDuRetour/,
     "⭐ et `BACK` ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));

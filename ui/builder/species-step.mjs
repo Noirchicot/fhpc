@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=173";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=173";
-import { renderChoixGlisses } from "./glisser.mjs?v=173";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=179";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=179";
+import { renderChoixGlisses } from "./glisser.mjs?v=179";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -84,10 +84,42 @@ function corpsDeLItem(item, ctx, act) {
   if (!record || !item) return null;
   /* SB1 — le lignage, et RIEN d'autre. */
   if (item.path === "species.lineage") return renderLineageBlock(ctx, record, act);
-  /* SB2 — la bourse captive, et rien d'autre. */
+  /* ══ SB2 — LA BOURSE, EN GLISSER-DÉPOSER (Eric, 2026-08-19) ═════════════
+     *« skill budget est un drag and drop : des tokens +1 et +2 au-dessus avec
+     un compteur de budget qui est de 2, en dessous 3 récepteurs. »*
+
+     ⭐ ET SES JETONS EXISTENT DÉJÀ : Novice coûte 1 point, Adept en coûte 2
+     (canon §A.1). Les « +1 » et « +2 » d'Eric SONT les deux paliers, nommés
+     par leur prix au lieu de leur nom — ce qui est le bon mot ici, puisque
+     l'écran parle d'un budget. Aucun troisième objet à inventer.
+
+     ⛔ ET LES RÉCEPTEURS SONT LES COMPÉTENCES, pas des cases anonymes : le
+     carnet publie un chemin par slug (`species.skillBudget.<slug>`), et c'est
+     lui qui dit lesquels. Trois pour l'Elfe et l'Elestu — Survival, Delve,
+     Vigilance. */
   if (item.path === "species.skillBudget") {
-    const plan = planAt(ctx.decisions || [], "species.skillBudget");
-    return plan ? renderSpeciesBudget(ctx, plan, act) : null;
+    const decisions = ctx.decisions || [];
+    const budget = planAt(decisions, "species.skillBudget");
+    if (!budget) return null;
+    const slugs = budget.options || [];
+    const slots = slugs.map((slug, index) => {
+      const etape = planAt(decisions, `species.skillBudget.${slug}`);
+      return {
+        path: `species.skillBudget.${slug}`, index,
+        options: etape ? etape.options : BUDGET_TIERS,
+        selected: etape ? etape.selected : [],
+        lock: etape ? etape.lock : null,
+        /* Le récepteur porte le NOM de sa compétence — c'est ce qu'on vise. */
+        mot: skillLabel(ctx.query, slug)
+      };
+    });
+    return renderChoixGlisses({
+      plan: budget, slots, titre: "Skill budget", mot: "Skill",
+      /* Le prix, pas le palier : l'écran parle de budget. */
+      labelOf: (id) => (id === "half" || id === "novice" ? "+1" : id === "adept" ? "+2" : tierLabel(id)),
+      consigne: `${budget.answered} of ${budget.expected} points spent — drag +1 or +2 onto a skill.`,
+      onAction: act
+    });
   }
   /* Le QCM de compétences, quand une espèce en porte un. */
   if (item.path === "species.skills") {
@@ -111,6 +143,65 @@ function corpsDeLItem(item, ctx, act) {
  *  autre. Il ne s'allume pas d'office : il attend que le lignage soit signé,
  *  parce que c'est le lignage qui décide de ce qui est acquis (le dégât du
  *  souffle, la résistance…). Un voyant vert avant ce choix mentirait. */
+/* ══ LE BILAN D'UNE LIGNE — Eric, 2026-08-19 ═══════════════════════════════
+   *« sous lineages tu fais apparaître le bilan du lineage […] le texte de
+   bilan est en dessous et n'est pas centré. »*
+
+   ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf « gagné d'office », qui
+   est là dès le début parce qu'il ne dépend de rien. Afficher un résumé vide
+   ferait trois lignes de « — » là où il n'y a encore rien à dire. */
+function resumeDeLItem(item, ctx) {
+  const record = especeRetenue(ctx);
+  if (!record || !item) return null;
+  const data = record.data || {};
+
+  if (item.path === LIGNE_ACQUIS.path) {
+    /* ⭐ CE QUI NE DÉPEND NI DU LIGNAGE NI DE LA BOURSE, ET DONC DÈS LE DÉBUT :
+       la taille, la vitesse, les sens, la Destinée, les traits. Ce que le
+       lignage ajoutera s'écrira sur SA ligne, pas ici. */
+    const sens = Array.isArray(data.senses)
+      ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
+      : null;
+    const destiny = data.destiny && data.destiny.base;
+    const lignes = renderCardRows([
+      ["Size", data.size], ["Speed", data.speed], ["Creature type", data.creature_type],
+      ["Senses", sens], ["Destiny", Number.isFinite(destiny) ? String(destiny) : null]
+    ]);
+    const bloc = el("div", null, []);
+    if (lignes) bloc.append(lignes);
+    const traits = traitsDe(record);
+    if (traits.length > 0) bloc.append(renderCardNames("Traits", traits.map((x) => x.name)));
+    return bloc;
+  }
+
+  if (!item.confirme) return null;
+
+  if (item.path === "species.lineage") {
+    const options = lignagesDe(record) || [];
+    const plan = planAt(ctx.decisions || [], "species.lineage[0]") || planAt(ctx.decisions || [], "species.lineage");
+    const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+    const choisi = options.find((o) => o && o.id === pose);
+    if (!choisi) return null;
+    const bloc = el("div", null, [el("p", "parcours-resume-titre", [text(choisi.name)])]);
+    for (const [etiquette, corps] of beneficesDe(choisi)) {
+      bloc.append(el("p", "parcours-resume-mot", [text(`${etiquette} — ${corps}`)]));
+    }
+    return bloc;
+  }
+
+  if (item.path === "species.skillBudget") {
+    const budget = planAt(ctx.decisions || [], "species.skillBudget");
+    if (!budget) return null;
+    const lignes = (budget.options || []).map((slug) => {
+      const etape = planAt(ctx.decisions || [], `species.skillBudget.${slug}`);
+      const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
+      return palier ? [skillLabel(ctx.query, slug), tierLabel(palier)] : null;
+    }).filter(Boolean);
+    return renderCardRows(lignes);
+  }
+  return null;
+}
+
 export const LIGNE_ACQUIS = {
   path: "species.granted",
   sansChoix: true,
@@ -123,6 +214,7 @@ export const SPECIES_CATALOGUE = {
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
      l'écran ATTEND, et il se corrige ICI, à un seul endroit. */
   itemCorps: corpsDeLItem,
+  resumeItem: resumeDeLItem,
   itemLabel: (chemin) => (chemin === "species.lineage" ? "Lineage"
     : chemin === "species.skillBudget" ? "Skill budget"
     : chemin === "species.skills" ? "Species skill"

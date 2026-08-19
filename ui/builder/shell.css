@@ -3119,6 +3119,13 @@ button { font: inherit; }
 .choix-glisse .glisse-vivier {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: var(--sp-8);
+  /* 🔴 PLUS D'ENCADRÉ AUTOUR DES JETONS — Eric, 2026-08-19 : *« dégager
+     l'encadré autour de Drow, High Elf, Wood Elf »*. Les jetons portent déjà
+     chacun leur liseré : une boîte autour d'eux ajoutait un second cadre qui
+     ne délimitait rien de plus. */
+  background: none;
+  box-shadow: none;
+  padding: 0;
 }
 /* 🔴 LES RÉCEPTEURS SONT TOUJOURS CENTRÉS — Eric, 2026-08-19 : *« il faut
    toujours centrer ton ou tes récepteurs »*. Une grille aligne à gauche : un
@@ -3202,3 +3209,22 @@ button { font: inherit; }
   border-color: var(--positive);
   background: color-mix(in srgb, var(--positive) 18%, transparent);
 }
+
+/* ══ B0 : LE BOUTON EST CENTRÉ, SON BILAN NE L'EST PAS ════════════════════
+   Eric, 2026-08-19 : *« le bouton et son voyant sont centrés, le texte de
+   bilan est en dessous et n'est pas centré »*.
+   ⭐ LES DEUX ALIGNEMENTS DISENT DEUX CHOSES. Le bouton est un GESTE : on le
+   vise, il se centre comme tout ce qui s'actionne ici. Le bilan est de la
+   PROSE : elle se lit de gauche à droite, et la centrer casserait le bord que
+   l'œil suit. */
+.parcours-item { flex-direction: column; align-items: stretch; }
+.parcours-item-tete { display: flex; align-items: center; justify-content: center; gap: var(--sp-8); min-height: var(--touch); }
+.parcours-item-tete .parcours-item-porte { flex: 0 0 auto; text-align: center; }
+.parcours-item-tete .parcours-item-mot { flex: 0 0 auto; }
+.parcours-resume {
+  text-align: left;
+  margin: var(--sp-4) 0 var(--sp-12);
+  color: var(--text-soft); font-size: var(--t3);
+}
+.parcours-resume-titre { margin: 0 0 var(--sp-4); font-weight: 600; color: var(--text); }
+.parcours-resume-mot { margin: 0 0 var(--sp-4); }
