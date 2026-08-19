@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=160";
-import { renderTray } from "./abilities-tray.mjs?v=160";
-import { armerJeton } from "./glisser.mjs?v=160";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=160";
-import { createDieHost, mount } from "./dice3d.mjs?v=160";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=160";
+import { markPressed } from "./carnet.mjs?v=164";
+import { renderTray } from "./abilities-tray.mjs?v=164";
+import { armerJeton } from "./glisser.mjs?v=164";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=164";
+import { createDieHost, mount } from "./dice3d.mjs?v=164";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=164";
 
 export { rollAbilitySet };
 

@@ -3039,9 +3039,14 @@ button { font: inherit; }
      est sur la dalle tout à droite au même niveau que le titre »*. À gauche il
      se posait SUR le premier mot — c'est-à-dire sur le texte qu'il sert
      justement à rouvrir. */
-  /* ⚠️ RENTRÉ DE LA GOUTTIÈRE DE LA DALLE : à `right: 0` il flottait 8 px À
-     CÔTÉ d'elle, pas dessus — et Eric dit « SUR la dalle ». */
-  position: absolute; right: var(--sp-8); top: var(--sp-8);
+  /* 🔴 EN BAS À DROITE, AU NIVEAU DES BOUTONS — Eric, 2026-08-19, après avoir
+     vu les trois positions précédentes : *« tu auras toujours plus de place en
+     bas à droite au niveau des boutons »*.
+     ⭐ Et c'est vrai par construction : le haut d'une dalle porte son titre ou
+     sa première ligne — donc du TEXTE, qui se fait bousculer. Le bas porte des
+     boutons, qui laissent toujours du blanc à leur droite. Le « ? » cesse
+     d'être un intrus dans la lecture pour devenir un voisin des gestes. */
+  position: absolute; right: var(--sp-8); bottom: var(--sp-8);
   width: var(--touch); height: var(--touch);
   display: grid; place-items: center;
   border: 0; background: transparent; color: var(--text-soft);
@@ -3073,7 +3078,8 @@ button { font: inherit; }
 /* LE COIN HAUT-DROIT APPARTIENT AU « ? » : ce qui commence la dalle s'arrête
    avant lui. Mesuré — sans ça le texte passait DESSOUS, et c'est justement le
    texte que ce bouton sert à rouvrir. */
-.guide-titre { padding-right: var(--touch); }
+/* ⛔ PLUS DE RÉSERVE EN HAUT À DROITE : le « ? » est descendu en bas, le
+   titre reprend toute sa ligne. Un décalage sans cause est une dette. */
 
 /* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde
    moitié de « Turn tutorials off » : un endroit NOMMÉ pour rallumer, au lieu
@@ -3089,3 +3095,49 @@ button { font: inherit; }
 }
 .universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
 .universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
+
+/* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
+   *« la taille des objets contenants doit toujours être de la même taille que
+   le récepteur »* · *« il faut un fantôme identique à l'objet »* · *« quand un
+   objet est posé dans son contenant il devient vert, un objet non valide est
+   rouge »*. */
+
+/* ① MÊME TAILLE, PAR CONSTRUCTION. ⭐ Le vivier et les créneaux partagent LE
+   MÊME gabarit de grille : à conteneur égal, les cellules sont identiques sans
+   qu'aucune largeur soit écrite deux fois. Poser un nombre de chaque côté, ce
+   serait deux nombres à tenir d'accord — et ils divergeraient au premier
+   libellé long. */
+.choix-glisse .glisse-vivier,
+.choix-glisse .glisse-creneaux {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--sp-8);
+}
+.choix-glisse .glisse-jeton,
+.choix-glisse .glisse-creneau {
+  min-height: var(--touch);
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+/* ② LE FANTÔME — un clone, donc identique. Inerte et au-dessus de tout. */
+.glisse-fantome {
+  position: fixed; left: 0; top: 0; z-index: 60;
+  pointer-events: none; opacity: .9;
+  width: 144px; height: var(--touch);
+  box-shadow: 0 6px 18px var(--fantome-ombre);
+}
+
+/* ③ VERT POSÉ, ROUGE INVALIDE. ⚠️ Le fond reste un VOILE : un aplat plein
+   ferait passer le libellé sous le seuil de contraste, et c'est le libellé
+   qu'on lit. Le liseré, lui, est franc — c'est lui qui porte l'état. */
+.choix-glisse .glisse-creneau[data-rempli="true"] {
+  border-color: var(--positive);
+  background: color-mix(in srgb, var(--positive) 18%, transparent);
+}
+.choix-glisse .glisse-creneau[data-invalide="true"] {
+  border-color: var(--critical);
+  background: color-mix(in srgb, var(--critical) 18%, transparent);
+}
+/* Le bloc entier quand tout est posé et valide. */
+.choix-glisse[data-complet="true"] { box-shadow: inset 0 0 0 1px var(--positive); border-radius: var(--radius-md); }

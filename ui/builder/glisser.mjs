@@ -275,6 +275,61 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
  *  exige des deux grilles (15 sorts mineurs, 30 sorts de niveau 1) n'est pas
  *  un nombre recopié deux fois — c'est UNE classe, donc UNE règle de
  *  feuille. Deux grilles ne peuvent pas diverger sans qu'on le fasse exprès. */
+/* ══ LE FANTÔME — Eric, 2026-08-19 : *« il faut un fantôme identique à
+   l'objet »* ═══════════════════════════════════════════════════════════════
+
+   ⭐ IDENTIQUE VEUT DIRE CLONE, ET C'EST LITTÉRAL. Redessiner un fantôme
+   « qui ressemble » au jeton, c'est deux dessins à tenir d'accord : le jour où
+   le jeton change de police ou de liseré, le fantôme ment. `cloneNode(true)`
+   ne peut pas diverger.
+
+   ⚠️ IL EST INERTE : `aria-hidden` et `pointer-events: none`. Un lecteur
+   d'écran annoncerait deux fois le même mot, et un fantôme cliquable
+   intercepterait le dépôt qu'il accompagne.
+
+   📌 LA DEMI-TAILLE EST LUE UNE FOIS, à la prise — pas à chaque `pointermove`.
+   Mesurer par image force un recalcul de mise en page pendant le seul moment
+   de l'écran où il faut être fluide (la leçon du fantôme des dés). */
+let fantomeGlisse = null;
+let fantomeDemi = [0, 0];
+
+function fantomeRanger() {
+  if (fantomeGlisse) { fantomeGlisse.remove(); fantomeGlisse = null; }
+}
+
+/* ⚠️ LA DEMI-TAILLE EST CONNUE, PAS MESURÉE — et c'est le précédent du dépôt,
+   pas une commodité : le fantôme des dés (`abilities-step.mjs`) porte lui aussi
+   sa cote en dur, avec sa raison écrite — *« lire getBoundingClientRect() à
+   chaque pointermove force un recalcul de mise en page par image, pendant le
+   seul moment de l'écran où il faut être fluide »*.
+   🔴 ET MESURER CASSAIT LA SUITE, ce qui était le bon signal : le stub DOM
+   refuse `getBoundingClientRect()` sans géométrie déclarée — *« ce stub ne
+   fabrique pas de mise en page »*. Un décor qui exige une mise en page pour
+   exister n'a rien à faire dans un chemin que les tests traversent.
+   📌 Les deux cotes sont celles du gabarit : `--touch` (44) en hauteur, et la
+   colonne minimale de la grille (9rem ≈ 144) en largeur. */
+const FANTOME_L = 144;
+const FANTOME_H = 44;
+
+function fantomeLever(jeton, x, y) {
+  fantomeRanger();
+  if (!document.body || typeof jeton.cloneNode !== "function") return;
+  fantomeDemi = [FANTOME_L / 2, FANTOME_H / 2];
+  const copie = jeton.cloneNode(true);
+  copie.className = `${jeton.className} glisse-fantome`;
+  copie.disabled = true;
+  copie.setAttribute("aria-hidden", "true");
+  fantomeGlisse = copie;
+  document.body.append(copie);
+  fantomeSuivre(x, y);
+}
+
+function fantomeSuivre(x, y) {
+  if (!fantomeGlisse) return;
+  fantomeGlisse.style.transform =
+    `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
+}
+
 export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, grille, onInfo }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
@@ -313,6 +368,9 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     jeton.dataset.valeur = id;
     jeton.disabled = posees.has(id);
     armerJeton(jeton, {
+      onLever: (x, y) => fantomeLever(jeton, x, y),
+      onBouger: (x, y) => fantomeSuivre(x, y),
+      onPoser: () => fantomeRanger(),
       maintien: Boolean(grille),
       /* ══ LE TAP, ET IL DIT DEUX CHOSES DIFFÉRENTES ═══════════════════════
          Décision d'Eric, 2026-08-16 (le soir) : *« j'avais prévu tap pour
@@ -360,6 +418,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     const choisi = choisiDe(slot);
     creneau.dataset.creneau = slot.path;
     creneau.dataset.rempli = choisi ? "true" : "false";
+    /* 🔴 VERT POSÉ, ROUGE INVALIDE — Eric, 2026-08-19 : *« quand un objet est
+       posé dans son contenant il devient vert, un objet non valide est
+       rouge »*. L'invalidité est PRONONCÉE PAR LE CARNET (`slot.lock`), jamais
+       devinée ici : un écran qui jugerait tout seul ce qui est valide serait un
+       second juge, et les deux divergeraient. */
+    creneau.dataset.invalide = slot.lock ? "true" : "false";
     const nom = `${mot || "Choice"} ${slot.index + 1}`;
     creneau.append(el("span", "glisse-creneau-nom", [text(nom)]));
     creneau.append(el("span", "glisse-creneau-valeur", [
@@ -376,6 +440,10 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     rangee.append(creneau);
   }
   bloc.append(rangee);
+  /* Tout posé, rien d'invalide : le bloc le DIT (⏳ la phrase d'Eric sur ce
+     point est arrivée coupée — « quand tout le drop down est valide… » — donc
+     le bloc porte l'état et l'écran en fera ce qu'Eric décidera). */
+  bloc.dataset.complet = String(slots.every((s) => choisiDe(s) && !s.lock));
 
   if (consigne) bloc.append(el("p", "glisse-consigne", [text(consigne)]));
   return bloc;

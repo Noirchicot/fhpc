@@ -369,7 +369,14 @@ test("⚔️ ATTAQUE — le garde 12 voit les DEUX formes, et une fermante en tr
    `shell.css`), rien qu'une paire de coordonnées. */
 const STYLE_EN_LIGNE_EXCEPTIONS = [
   { fichier: "dice3d.mjs", forme: null },                        // copie verbatim : exempté en entier
-  { fichier: "abilities-step.mjs", forme: ".style.transform" }   // le fantôme, et lui seul
+  { fichier: "abilities-step.mjs", forme: ".style.transform" },  // le fantôme, et lui seul
+  /* ⚠️ ÉLARGI LE 2026-08-19, PAS RELÂCHÉ : le glisser-déposer généralisé a son
+     fantôme lui aussi (Eric : « il faut un fantôme identique à l'objet »), et
+     il écrit LA MÊME forme unique. Un décor qui se déplace à chaque image ne
+     peut PAS vivre dans une feuille de style : sa position change par image,
+     et une règle CSS ne se réécrit pas soixante fois par seconde. C'est la
+     seule raison qui vaut, et elle est la même que pour le fantôme des dés. */
+  { fichier: "glisser.mjs", forme: ".style.transform" }
 ];
 
 function inlineStyleViolations() {
