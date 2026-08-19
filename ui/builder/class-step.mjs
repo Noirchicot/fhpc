@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=209";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=209";
-import { renderConfirmDialog } from "./confirm.mjs?v=209";
-import { renderChoixGlisses } from "./glisser.mjs?v=209";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=210";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=210";
+import { renderConfirmDialog } from "./confirm.mjs?v=210";
+import { renderChoixGlisses } from "./glisser.mjs?v=210";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -112,7 +112,18 @@ const SPELL_QCMS = [
    Ses items sortent du carnet comme ceux de Species — `class.skills`,
    `class.cantrips`, `class.prepared` — parce que le parcours ne connaît que
    des chemins sous une racine, jamais un nom d'étape. */
-export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes", fiche: true, parcours: true };
+export const CLASS_CATALOGUE = {
+  path: "class", kind: "class", label: "Classes", fiche: true, parcours: true,
+  /* ⭐ LE CORPS D'UN ITEM NE REND QUE SON BLOC — même contrat que Species
+     (`itemCorps`), et c'est ce qui rend les deux chapitres identiques à
+     l'usage. Sans lui, le parcours retombait sur `cfg.choices()`, donc sur
+     l'écran entier : ouvrir « Cantrips » montrait aussi les compétences et
+     les sorts préparés. */
+  itemCorps: (item, ctx, act) => renderClassChoices(ctx, act, item.path),
+  itemLabel: (chemin) => (chemin === "class.skills" ? "Class skills"
+    : chemin === "class.cantrips" ? "Cantrips"
+    : chemin === "class.prepared" ? "Prepared spells" : chemin)
+};
 
 /** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.
  *
@@ -192,11 +203,22 @@ function renderClassCardBodySrd(data) {
 
 /* ══ LE MENU DES CHOIX INTRINSÈQUES (B2.3) — LE PALIER 2 ═════════════════
    « La fenêtre majeure disparaît et le menu des choix apparaît. » */
-export function renderClassChoices(ctx, onAction) {
+/* 🔴 `seulement` — UN ITEM EST UNE CHOSE, PAS TOUT L'ÉCRAN. Eric, 2026-08-20 :
+   *« un boulot général de vérification sur species et classes, pour que tout
+   soit harmonisé »*.
+   📏 CE QUI N'ÉTAIT PAS HARMONISÉ, mesuré à 360 : derrière le bouton
+   « Cantrips » du guide de Class s'ouvraient **52 jetons et 9 récepteurs** —
+   c'est-à-dire les compétences, les mineurs ET les préparés, tout l'écran du
+   2ᵉ palier. Species, lui, ouvre un item sur UNE chose.
+   ⭐ Le filtre est un paramètre, pas un second écran : sans lui, la fonction
+   rend exactement ce qu'elle rendait (c'est encore le 2ᵉ palier hors parcours
+   qui l'appelle ainsi). Avec lui, elle ne pose que le bloc demandé. */
+export function renderClassChoices(ctx, onAction, seulement) {
   const decisions = ctx.decisions || [];
   const query = ctx.query;
   const act = onAction || ctx.onAction || (() => {});
   const menu = el("div", "catalogue-choices");
+  const retenu = (chemin) => !seulement || seulement === chemin;
 
   /* ══ LOT 79, ÉTAPE 2 — LES COMPÉTENCES PASSENT AU GLISSER-DÉPOSER ══════
      📐 Croquis C, 2ᵉ écran : sept pastilles au-dessus, `CHOICE 1` / `CHOICE 2`
@@ -216,7 +238,7 @@ export function renderClassChoices(ctx, onAction) {
     labelOf: (id) => skillLabel(query, id), onAction: act,
     consigne: "Tap a skill, or drag it onto a slot."
   }) : null;
-  if (glisse) menu.append(glisse);
+  if (glisse && retenu("class.skills")) menu.append(glisse);
 
   /* ══ LOT 72 — LES SORTS, LE MÊME QCM ═══════════════════════════════════
      `renderSlotQcm` rend `null` sans plan : un Rogue n'affiche RIEN ici —
@@ -250,7 +272,7 @@ export function renderClassChoices(ctx, onAction) {
       onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
       consigne: groupe.consigne
     }) : null;
-    if (bloc) menu.append(bloc);
+    if (bloc && retenu(groupe.basePath)) menu.append(bloc);
   }
 
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════
