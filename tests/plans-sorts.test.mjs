@@ -330,13 +330,22 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
   assert.deepEqual(blocs.map((b) => b.querySelectorAll("h3")[0].textContent),
     ["Class skills", "Cantrips", "Prepared spells"]);
 
-  /* Le bloc des mineurs : 3 créneaux (« Cantrip 1 »…), 15 jetons dans la
-     grille, nommés par le RECORD (« Ray of Frost ») et identifiés par
+  /* Le bloc des mineurs : 3 créneaux (« Cantrip 1 »…), 15 jetons dans le
+     vivier, nommés par le RECORD (« Ray of Frost ») et identifiés par
      `data-valeur` (l'id complet). */
   const mineurs = blocs[1];
   assert.equal(mineurs.querySelectorAll(".glisse-creneau").length, 3);
   assert.equal(mineurs.querySelectorAll(".glisse-creneau-nom")[0].textContent, "Cantrip 1");
-  assert.equal(mineurs.querySelectorAll(".glisse-grille").length, 1, "et c'est la grille du croquis");
+  /* 🧊 CE CAS EXIGEAIT `.glisse-grille` — la fenêtre défilante du croquis C —
+     jusqu'au 2026-08-20. Eric l'a retirée : *« plus d'ascenseurs couplés avec
+     des actions drag and drop »*. Ce qu'on garde, c'est que les sorts passent
+     par le MÊME vivier que partout ailleurs, et surtout PAS par l'ancien QCM :
+     c'était l'autre moitié de ce que le drapeau `grille` commandait, et la
+     retirer sans regarder aurait renvoyé les trente sorts au QCM. */
+  assert.equal(mineurs.querySelectorAll(".glisse-vivier").length, 1,
+    "les sorts se glissent, comme partout — un seul vivier, aucune variante");
+  assert.equal(mineurs.querySelectorAll(".glisse-grille").length, 0,
+    "et plus aucune fenêtre défilante sous un glisser");
   const jetons = mineurs.querySelectorAll(".glisse-jeton");
   assert.equal(jetons.length, 15);
   const rayOfFrost = jetons.find((b) => b.getAttribute("data-valeur") === "srd:spell:en:ray-of-frost");

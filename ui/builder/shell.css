@@ -2609,38 +2609,25 @@ button { font: inherit; }
    aussi ce que le croquis dessine, et 15 sorts mineurs font exactement
    3 × 5 : la grille des cantrips ne défile donc pas, celle des trente le
    fera dans la même fenêtre. La cote et le dessin tombent d'accord. */
-.glisse-grille {
-  /* Les deux seuls nombres de la grille, et ils vivent ICI, ensemble : ils
-     ne servent qu'à TAILLER LA FENÊTRE (une ligne, elle, prend la hauteur de
-     son contenu — voir plus bas). Cinq lignes NOMINALES au plancher tactile :
-     c'est ce que le croquis dessine, et c'est la fenêtre que les deux grilles
-     partagent. Changer l'un des deux les déplace ENSEMBLE. */
-  --grille-lignes: 5;
-  --grille-ligne: var(--touch);
-  /* ⚠️ TROIS COLONNES EN LIGNES SOUPLES, ET PAS UNE GRILLE CSS — mesuré le
-     2026-08-16, après avoir essayé la grille d'abord. Avec
-     `grid-auto-rows: minmax(44px, auto)`, les lignes RESTAIENT à 44 : une
-     rangée `auto` se dimensionne sur la contribution « max-content » de ses
-     cases, où le texte est compté SANS repli — « Protection from Evil and
-     Good » y pèse une ligne, pas trois. Résultat : la case demandait 46 px
-     pour 42, et son dernier mot passait sous la bordure.
-     ⭐ UNE LIGNE DE FLEX, ELLE, PREND LA HAUTEUR DE SA PLUS HAUTE CASE, après
-     repli. Le nom se déplie donc en entier (51 px mesurés), et la FENÊTRE ne
-     bouge pas d'un pixel — c'est elle que le croquis contraint. Ce qui
-     change est le nombre de lignes entièrement visibles : le comportement
-     normal d'une liste qui défile.
-     📌 `.glisse-vivier` est DÉJÀ `flex; wrap` : la grille ne change donc que
-     la LARGEUR d'une case et l'ancrage en haut. */
-  align-content: flex-start;
-  /* N lignes + (N−1) gouttières + les deux marges intérieures du vivier —
-     soit N × (ligne + gouttière) + une gouttière, `box-sizing: border-box`
-     comptant déjà le rembourrage dans la hauteur. */
-  height: calc(var(--grille-lignes) * (var(--grille-ligne) + var(--sp-8)) + var(--sp-8));
-  overflow-y: auto;
-  /* La grille garde son défilement pour elle : arrivé en bout de course, le
-     doigt ne doit pas emporter la scène derrière (même loi que `.stage`). */
-  overscroll-behavior: contain;
-}
+/* 🧊 LA GRILLE DÉFILANTE A ÉTÉ RETIRÉE — Eric, 2026-08-20 : *« il ne faut plus
+   d'ascenseurs couplés avec des actions drag and drop »*, *« le glisser
+   partout ! »*.
+
+   CE QU'ELLE ÉTAIT : une fenêtre de cinq lignes (trois en grand), `overflow-y:
+   auto`, `overscroll-behavior: contain`, et `data-scroller="grille"` pour que
+   le socle la connaisse. Elle venait du croquis C.
+
+   🔴 ET ELLE COÛTAIT LE GESTE. Un vivier qui défile ne peut pas porter
+   `touch-action: none` — le pouce tomberait toujours sur une case et la fenêtre
+   serait indéfilable. Il fallait donc départager défilement et glisser par le
+   TEMPS : `touch-action: pan-y` plus un maintien de 350 ms. Résultat mesuré par
+   Eric sur son téléphone : le glisser « marche dans species elf, il ne marche
+   pas dans le wizard ». Le péage ne se devinait pas.
+
+   ⭐ EN RETIRANT L'ASCENSEUR, ON RETIRE LA CAUSE : la liste défile avec la
+   page, le jeton reprend `touch-action: none`, et le geste est le MÊME partout.
+   Une fenêtre dans une fenêtre était de toute façon un défilement de trop.
+
 /* ⚠️ EN PAYSAGE, LA SCÈNE NE FAIT PLUS QUE 315 px (téléphone couché, mesuré
    le 16/08) : cinq lignes n'y tiennent pas, et le bloc pousserait la
    consigne et les créneaux hors du champ. La grille rend donc deux lignes —
@@ -2648,38 +2635,14 @@ button { font: inherit; }
    ⭐ Même loi que la fiche : « la composition suit la FORME de l'écran »
    (fiche.css), pas la place qui reste. */
 @media (orientation: landscape) {
-  .glisse-grille { --grille-lignes: 3; }
 }
 /* TROIS PAR LIGNE : la case vaut le tiers de la largeur utile, gouttières
    déduites. Et `max-width` autant que `flex-basis` — sans elle, une dernière
    ligne incomplète s'étirerait et deux cases feraient la largeur de trois. */
-.glisse-grille > li {
-  display: flex; min-width: 0;
-  flex: 1 1 calc((100% - 2 * var(--sp-8)) / 3);
-  max-width: calc((100% - 2 * var(--sp-8)) / 3);
-}
+
 /* La case remplit sa cellule — sans quoi un bouton court laisse un trou où
    le doigt tombe sans rien saisir. */
-.glisse-grille .glisse-jeton {
-  flex: 1 1 auto; min-width: 0;
-  padding: var(--sp-2) var(--sp-4);
-  font-size: var(--t2);
-  /* 📏 MESURÉ, PAS CHOISI : à 375 px la case fait 97,6 px, et le plus long
-     nom d'un sort mineur — « Prestidigitation », qui n'a AUCUNE espace où se
-     couper — demande 86 px à ce corps-ci contre 103 au corps du dessus. Le
-     corps descend d'un barreau parce que le mot ne se plie pas, pas par
-     goût. Les noms à espace (« Shocking Grasp ») passent à la ligne.
-     ⛔ ET RIEN N'EST ROGNÉ : un `overflow: hidden` ici couperait « Protection
-     from Evil and Good » sous sa bordure — mesuré, 46 px demandés pour 42.
-     C'est la LIGNE qui cède (`minmax`, plus haut), jamais le nom du sort. */
-  /* 🔴 `pan-y` ET NON `none`, ET C'EST LE CŒUR DE L'ÉTAPE : les quinze cases
-     PAVENT la grille, il ne reste qu'une gouttière de 8 px entre deux. Avec
-     `touch-action: none`, le pouce tomberait toujours sur une case et la
-     grille serait INDÉFILABLE au doigt. Le défilement gagne donc par défaut,
-     et le glisser se prend au MAINTIEN (`MAINTIEN_MS`, glisser.mjs), qui
-     retient le défilement à la main une fois le jeton soulevé. */
-  touch-action: pan-y;
-}
+
 /* LE JETON SOULEVÉ — il faut le VOIR se lever, sinon le maintien ressemble à
    un geste qui n'a pas pris. Le liseré d'accent, comme le créneau visé. */
 .glisse-jeton[data-souleve="true"] { border-color: var(--accent); }
@@ -3307,14 +3270,10 @@ button { font: inherit; }
    jeton par ligne, et quatre lignes pour trois lignages. Une cote fixe ne peut
    pas tenir sa promesse sur un écran qu'elle ne connaît pas.
 
-   ⭐ LE TIERS PLAFONNÉ PAR LE GABARIT, et c'est la recette de la grille des
-   sorts (`.glisse-grille`), reprise telle quelle. Sur un petit écran la case
-   vaut le tiers de la largeur utile (92 px mesurés à 375) ; sur un grand, elle
-   s'arrête à sa cote au lieu de s'étirer bêtement. UNE déclaration, deux
-   comportements — et la règle ① d'Eric (« même taille que le récepteur »)
-   tient toujours, puisque jeton et créneau la partagent.
-   ⛔ ET `max-width` AUTANT QUE LA BASE : sans elle, une dernière ligne
-   incomplète s'étire et deux cases font la largeur de trois. */
+   ⭐ D'OÙ LA LOI A (voir `--glisse-case`) : une cote exacte, et la rangée en
+   met autant qu'elle peut. La règle ① d'Eric (« même taille que le récepteur »)
+   tient par le PARTAGE de la déclaration — jeton et créneau la lisent
+   ensemble, il n'y a pas deux réglages à accorder. */
 /* ⚠️ UN POURCENTAGE DANS UNE VARIABLE SE RÉSOUT LÀ OÙ ON L'EMPLOIE, PAS LÀ OÙ
    ON LA DÉCLARE — mesuré immédiatement : posée aussi sur le BOUTON, cette cote
    y lisait `100%` = sa propre cellule de 92 px, et rendait des jetons de
@@ -3403,32 +3362,21 @@ button { font: inherit; }
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau { overflow-wrap: break-word; }
 
-/* 🔴 LA GRILLE DES SORTS REPREND SA CASCADE — défaut trouvé par Eric le
-   2026-08-19, capture iPhone : les cases DÉBORDENT à droite, les noms sont
-   coupés (« Dancing Lig… », « Prestidigita… ») et les cadres se chevauchent.
+/* 📌 CE QUE LA GRILLE DES SORTS A LAISSÉ EN PARTANT — et il faut le garder en
+   tête, parce que ça s'est payé deux fois le 19/08.
 
-   LA CAUSE, ET C'EST MOI QUI L'AI POSÉE. `.choix-glisse .glisse-jeton` et
-   `.glisse-grille .glisse-jeton` ont la MÊME spécificité (0,0,2,0) ; le bloc
-   `.choix-glisse` a été écrit le 19/08 **plus bas** dans ce fichier, donc il
-   gagne. Le bouton héritait `flex: 0 0 144px` dans une cellule qui en fait
-   100 — d'où le débordement, à un moment où plus rien ne le rattrapait.
+   ① SA RECETTE EST DEVENUE LE STANDARD : `--t2` et le rembourrage serré, pour
+   toutes les cases. *« Le corps descend d'un barreau parce que le mot ne se
+   plie pas, pas par goût. »* Ce n'était pas une particularité des sorts — toute
+   case de glisser a la même contrainte, un mot dans une largeur de doigt.
 
-   ⚠️ ET C'EST LE MÊME PIÈGE QUE CE FICHIER DOCUMENTE DÉJÀ DEUX FOIS (le
-   pointillé des Abilities, le rembourrage du dé) : *« une déclaration invalide
-   crie, une déclaration PERDANTE se tait »*. Ajouter un bloc générique EN BAS
-   d'une feuille désarme en silence toutes ses variantes écrites plus haut.
+   ② UNE VARIANTE ISOLÉE SE FAIT VOLER SA CASCADE EN SILENCE. `.choix-glisse
+   .glisse-jeton` et `.glisse-grille .glisse-jeton` avaient la MÊME spécificité
+   (0,0,2,0) ; le bloc générique, écrit plus bas, gagnait — et le bouton
+   demandait 144 px dans une cellule de 100. *« Une déclaration invalide crie,
+   une déclaration PERDANTE se tait. »* La vraie réparation n'était pas de
+   remonter le bloc : c'était de supprimer la variante. */
 
-   ⭐ LA RÉPARATION EST UNE SPÉCIFICITÉ, PAS UN ORDRE. Remonter le bloc aurait
-   marché aujourd'hui et se serait recassé au prochain ajout. Nommer la grille
-   comme une VARIANTE du gabarit partagé (0,0,3,0) le dit une fois pour
-   toutes : la case remplit sa cellule, elle ne redemande pas un tiers. */
-/* La grille ne garde qu'UNE particularité : ses cases sont hautes de deux
-   lignes de nom, donc elles respirent verticalement. Le reste — corps,
-   rembourrage horizontal, plancher, plafond — est devenu le standard. */
-.choix-glisse .glisse-grille .glisse-jeton {
-  min-width: 0;
-  padding: var(--sp-2) var(--sp-4);
-}
 
 /* ⭐ LE TITRE D'UN GLISSER EST CENTRÉ AU-DESSUS — Eric, 2026-08-19 : *« s'il y
    a un drag and drop, le titre qui le désigne est centré au-dessus »*. Même

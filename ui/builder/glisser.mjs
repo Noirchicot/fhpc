@@ -27,33 +27,24 @@
 
 const SEUIL_GLISSER = 6;
 
-/* ══ LE MAINTIEN — lot 79, étape 3, et il naît d'un CONFLIT MESURÉ ═══════
-   L'étape 2 posait `touch-action: none` sur chaque jeton, et c'est ce qui
-   rendait le glisser possible au doigt : sans lui, le navigateur emporte le
-   geste pour défiler et annule la séquence de pointeur en route.
+/* ══ 🧊 LE MAINTIEN A ÉTÉ RETIRÉ — Eric, 2026-08-20 ══════════════════════
+   *« Le glisser partout ! »* · *« Il ne faut plus d'ascenseurs couplés avec
+   des actions drag and drop. »*
 
-   🔴 CETTE LIGNE NE PEUT PAS TENIR DANS UNE GRILLE QUI DÉFILE. Les quinze
-   sorts mineurs PAVENT leur grille — il n'y reste que la gouttière de 8 px
-   entre deux cases. Un `touch-action: none` sur les jetons rendrait donc la
-   grille INDÉFILABLE au doigt : le pouce tomberait toujours sur une case.
-   Le mandat le nommait (§4.3, « le premier endroit à mesurer ») ; la mesure
-   est faite, et les deux besoins sont réellement inconciliables sur le même
-   geste immédiat.
+   CE QUE C'ÉTAIT : dans la grille des sorts, le jeton portait
+   `touch-action: pan-y` et ne se soulevait qu'après 350 ms d'appui immobile.
+   Ce péage n'a JAMAIS eu d'autre cause que l'ascenseur de la grille : les
+   quinze cases pavaient une fenêtre défilante, un `touch-action: none` l'aurait
+   rendue indéfilable au doigt, donc il fallait départager les deux gestes par
+   le TEMPS.
 
-   ⭐ CE QUI LES DÉPARTAGE EST LE TEMPS, faute de pouvoir être la cible ni la
-   direction. Dans une grille, le jeton porte `touch-action: pan-y` (le doigt
-   défile, c'est le geste le plus fréquent) et ne se SOULÈVE qu'après
-   `MAINTIEN_MS` sans bouger. Un doigt qui part avant : c'est un défilement,
-   et le geste renonce. Un doigt qui attend : le jeton se soulève, et à
-   partir de là on retient le défilement à la main (`preventDefault` sur le
-   `touchmove`, voir `retenir`).
-   ⛔ CE N'EST PAS UN TROISIÈME GESTE À APPRENDRE : le TAP pose toujours dans
-   le premier créneau libre, et il reste le chemin court. Le maintien ne sert
-   qu'à VISER une case précise — c'est le même partage qu'à l'étape 2, avec
-   un péage de 350 ms là où la grille défile.
-   📌 350 ms : le seuil d'un appui long dans iOS et dans Android. En dessous,
-   un doigt lent qui voulait défiler soulève un jeton par accident. */
-const MAINTIEN_MS = 350;
+   ⭐ EN SUPPRIMANT L'ASCENSEUR, ON SUPPRIME LA CAUSE. La grille défile
+   maintenant avec la page, comme tout le reste ; plus rien ne dispute le geste
+   au glisser, donc plus rien à départager. Le jeton reprend
+   `touch-action: none` et se soulève d'emblée — le MÊME geste que dans Species,
+   ce qu'Eric demandait par « le glisser partout ».
+   📌 Et le tap continue de poser dans le premier créneau libre : le chemin
+   court n'a jamais dépendu du maintien. */
 
 /* ══ L'ABRÉGÉ D'UNE CASE — Eric, 2026-08-19 ═══════════════════════════════
    *« Pour qu'un écran 360 puisse contenir 3 boutons en largeur. Si le mot est
@@ -131,10 +122,6 @@ function creneauSous(x, y) {
  *  sur un créneau. Un glisser relâché dans le vide ne fait RIEN, et c'est
  *  volontaire : annuler doit être possible en cours de geste.
  *
- *  `maintien` — vrai quand le jeton vit dans une GRILLE QUI DÉFILE : le
- *  glisser demande alors un appui de `MAINTIEN_MS` avant de soulever le
- *  jeton, et un doigt qui bouge avant fait défiler la grille (voir la tête
- *  de ce fichier). Faux ailleurs : le geste reste immédiat, à l'identique.
  *
  *  ⭐ EXPORTÉE AU LOT 79 (les dés) — LE GESTE EST UN, LES ÉCRANS SONT DEUX.
  *  Le plateau d'Abilities (croquis B, « DRAG AND DROP » entre les six dés
@@ -143,7 +130,7 @@ function creneauSous(x, y) {
  *  `renderChoixGlisses` — mais il DOIT emprunter le geste, sans quoi il en
  *  existerait deux, qui divergeraient (la loi que `popup.mjs` énonce pour la
  *  fermeture : « à coder UNE fois, pas trois »). Ce qui se partage est le
- *  seuil, le maintien, le ciblage et le renoncement ; la FORME reste à
+ *  seuil, le ciblage et la visée ; la FORME reste à
  *  chaque écran. */
 /* ══ LES TROIS RAPPELS DU FANTÔME — ajoutés le 2026-08-16 ════════════════
    Eric, en voyant le geste : *« je veux voir l'image du dé qui se déplace »*.
@@ -174,14 +161,14 @@ function creneauSous(x, y) {
    loi de ce fichier. Il répond à une question que l'organe se pose déjà :
    **où ce geste vise-t-il ?** Par défaut, là où le doigt touche ; un écran
    qui déporte son fantôme répond autrement. Le seuil, le maintien et le
-   renoncement, eux, continuent de se mesurer AU DOIGT — c'est le doigt qui
+   la visée, eux, continuent de se mesurer AU DOIGT — c'est le doigt qui
    bouge, pas la visée.
    ⚠️ CONSÉQUENCE À CONNAÎTRE : un point visé qui sort de la fenêtre (bord
    haut ou gauche) ne rencontre plus rien, et `elementFromPoint` rend `null`.
    Une bande de la largeur du décalage devient donc invisable en haut à
    gauche de l'écran. Aucun de nos créneaux n'y vit — le collecteur est en
    bas — mais un écran qui en mettrait un là le paierait sans message. */
-export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser, viseur, onHorsCible }) {
+export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
@@ -189,12 +176,8 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
     const x0 = ev.clientX, y0 = ev.clientY;
     let glisse = false;
     let vise = null;
-    /* Hors grille, le jeton est soulevé d'emblée — c'est l'étape 2, inchangée. */
-    let souleve = !maintien;
-    /* Le doigt est parti défiler : ce geste-ci ne posera plus rien, même s'il
-       repasse sur un créneau. Un défilement n'est pas un dépôt hésitant. */
-    let renonce = false;
-    let minuteur = null;
+    /* 🧊 LE JETON EST TOUJOURS SOULEVÉ. Il attendait 350 ms là où une grille
+       défilait sous lui ; plus aucune ne défile (voir la tête du fichier). */
     /* La capture garde les événements sur CE jeton même si le doigt sort de
        sa boîte — sans elle, `pointerup` se perdrait dès le premier pixel.
        ⚠️ FACULTATIVE, ET POUR DEUX RAISONS RÉELLES : un pointeur peut avoir
@@ -215,7 +198,7 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
        arrivé après cette décision n'a plus rien à refuser. Il ne retient
        qu'une fois soulevé — tant que le jeton dort, le doigt défile. */
     const retenir = (e) => {
-      if (souleve && typeof e.preventDefault === "function") e.preventDefault();
+      if (typeof e.preventDefault === "function") e.preventDefault();
     };
 
     /* Le point que ce geste DÉSIGNE — le doigt, sauf si l'écran a déporté ce
@@ -230,16 +213,7 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
     };
 
     const bouge = (e) => {
-      if (renonce) return;
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
-      /* Le doigt a bougé avant le soulèvement : il défile, il ne glisse pas.
-         ⛔ ET CE GESTE NE SE RATTRAPE PAS — attendre 350 ms de plus le doigt
-         en l'air rendrait le jeton actif au milieu d'un défilement lancé. */
-      if (!souleve) {
-        renonce = true;
-        if (minuteur !== null) { clearTimeout(minuteur); minuteur = null; }
-        return;
-      }
       if (!glisse) {
         glisse = true;
         jeton.dataset.glisse = "true";
@@ -254,9 +228,7 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
       jeton.removeEventListener("pointerup", fini);
       jeton.removeEventListener("pointercancel", fini);
       jeton.removeEventListener("touchmove", retenir);
-      if (minuteur !== null) { clearTimeout(minuteur); minuteur = null; }
       delete jeton.dataset.glisse;
-      delete jeton.dataset.souleve;
       /* ⚠️ LE FANTÔME SE RANGE AVANT TOUTE DÉCISION, et sans condition : un
          geste annulé, renoncé ou relâché dans le vide doit le faire
          disparaître aussi. Un fantôme qui survit à son geste est pire que
@@ -268,7 +240,6 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
          dernière milliseconde. */
       const cible = glisse ? creneauSous(...ouVise(e)) : null;
       viser(null);
-      if (renonce) return;                       // le doigt est parti défiler
       /* ⭐ LE TAP PORTE SON OUTIL. Eric, 2026-08-16 : *« tap pour info, drag
          and drop to select ; sur desktop clic droit info, gauche select »* —
          le même appui court ne veut donc PAS dire la même chose au doigt et
@@ -290,25 +261,14 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
        de refuser le défilement — son `preventDefault` est ignoré, en silence.
        Le déclarer est la moitié du mécanisme.
 
-       🔴 IL EST POSÉ POUR TOUT LE MONDE DEPUIS LE 2026-08-19, plus seulement
-       en mode grille — Eric, sur iPad : *« quand je redéplace vers le haut, ça
-       fait scroller mon affichage »*. Hors grille, le verrou reposait sur la
-       SEULE déclaration `touch-action: none` de la feuille ; là où elle
-       manquait (le récepteur rempli), rien ne retenait le défilement.
-       ⭐ ET ÇA NE CHANGE RIEN AILLEURS : hors grille, `souleve` vaut vrai dès
-       l'appui, donc `retenir` refuse exactement ce que `touch-action: none`
-       refusait déjà. Une garantie qui tient par DEUX organes indépendants, au
-       lieu d'une déclaration qu'un sélecteur oublié suffit à perdre. */
+       🔴 IL EST POSÉ POUR TOUT LE MONDE DEPUIS LE 2026-08-19, et sans condition
+       depuis le 20 — Eric, sur iPad : *« quand je redéplace vers le haut, ça
+       fait scroller mon affichage »*. Le verrou reposait sur la SEULE
+       déclaration `touch-action: none` de la feuille ; là où elle manquait (le
+       récepteur rempli), rien ne retenait le défilement.
+       ⭐ DEUX ORGANES INDÉPENDANTS PLUTÔT QU'UN : une garantie qui tient par une
+       seule déclaration se perd au premier sélecteur oublié. */
     jeton.addEventListener("touchmove", retenir, { passive: false });
-
-    if (maintien) {
-      minuteur = setTimeout(() => {
-        minuteur = null;
-        if (renonce) return;
-        souleve = true;
-        jeton.dataset.souleve = "true";          // la feuille le montre : le jeton se lève
-      }, MAINTIEN_MS);
-    }
 
     jeton.addEventListener("pointermove", bouge);
     jeton.addEventListener("pointerup", fini);
@@ -324,15 +284,9 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
  *  verrou. `onAction` reçoit exactement les mêmes actions que le QCM, donc le
  *  moteur ne voit aucune différence entre un choix tapé, glissé ou coché.
  *
- *  `grille` — le vivier devient la GRILLE DÉFILANTE du croquis (trois
- *  colonnes, une fenêtre de hauteur fixe) au lieu de pastilles qui se
- *  replient. ⭐ C'est le MÊME vivier : mêmes jetons, mêmes gestes, même
- *  contrat d'action. Seules changent sa mise en page et la façon dont le
- *  doigt le prend (voir `MAINTIEN_MS`).
- *  🔴 ET C'EST L'UNIQUE INTERRUPTEUR : la « même hauteur » que le croquis
- *  exige des deux grilles (15 sorts mineurs, 30 sorts de niveau 1) n'est pas
- *  un nombre recopié deux fois — c'est UNE classe, donc UNE règle de
- *  feuille. Deux grilles ne peuvent pas diverger sans qu'on le fasse exprès. */
+ *  🧊 `grille` A DISPARU (2026-08-20) : il n'existait que pour donner au
+ *  vivier une fenêtre défilante, et Eric a retiré l'ascenseur. Les trente
+ *  sorts de niveau 1 défilent maintenant avec la page. */
 /* ══ LE FANTÔME — Eric, 2026-08-19 : *« il faut un fantôme identique à
    l'objet »* ═══════════════════════════════════════════════════════════════
 
@@ -388,7 +342,7 @@ function fantomeSuivre(x, y) {
     `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, grille, onInfo, reutilisable }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
@@ -411,14 +365,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      `query()`, qui a jeté « l'id doit être une chaîne ». Une forme se lit. */
   const choisiDe = (slot) => (Array.isArray(slot.selected) ? slot.selected[0] : slot.selected) || null;
   const posees = new Set(slots.map(choisiDe).filter(Boolean));
-  const vivier = el("ul", grille ? "glisse-vivier glisse-grille" : "glisse-vivier");
-  /* ⭐ LE SECOND DÉFILEMENT SE DÉCLARE, il ne se devine pas. Le socle n'en
-     connaissait qu'un (`.stage`, B0.21a) et le trouve par ce marqueur —
-     « le marqueur est une déclaration, pas une inférence » (socle.mjs). Une
-     grille qui défile EST un conteneur qui défile : elle le dit, plutôt que
-     de laisser un futur `scrollParent` remonter jusqu'à la scène et faire
-     voyager tout l'écran pour amener une case dans le champ. */
-  if (grille) vivier.dataset.scroller = "grille";
+  const vivier = el("ul", "glisse-vivier");
+  /* 🧊 IL N'Y A PLUS DE SECOND DÉFILEMENT ICI — Eric, 2026-08-20 : *« il ne
+     faut plus d'ascenseurs couplés avec des actions drag and drop »*. Le
+     vivier déclarait `data-scroller="grille"` parce qu'il en portait un ; il
+     n'en porte plus, donc il ne déclare plus rien. La liste défile avec la
+     page, comme tout le reste du builder. */
   for (const id of slots[0].options || []) {
     const item = el("li", null);
     const jeton = el("button", "glisse-jeton", [text(abrege(labelOf ? labelOf(id) : id))]);
@@ -437,7 +389,6 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
       onLever: (x, y) => fantomeLever(jeton, x, y),
       onBouger: (x, y) => fantomeSuivre(x, y),
       onPoser: () => fantomeRanger(),
-      maintien: Boolean(grille),
       /* ══ LE TAP, ET IL DIT DEUX CHOSES DIFFÉRENTES ═══════════════════════
          Décision d'Eric, 2026-08-16 (le soir) : *« j'avais prévu tap pour
          info, drag and drop to select ; sur desktop clic droit info, gauche
@@ -445,7 +396,7 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
          mandat, et elle est cohérente avec chaque appareil :
          · AU DOIGT, l'appui court est le geste d'inspection (le croquis
            l'écrit sous la grille : « Tap on cantrip for info »), et poser
-           demande le maintien puis le glisser ;
+           demande le glisser ;
          · À LA SOURIS, le clic gauche POSE (il n'y a pas d'ambiguïté à lever,
            le pointeur est précis) et le clic droit inspecte.
          ⛔ ET CE N'EST QUE POUR LES ÉCRANS QUI ONT UNE INFO À DONNER : sans

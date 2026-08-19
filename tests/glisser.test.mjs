@@ -163,64 +163,66 @@ test("3 quater — un jeton désactivé n'arme aucun geste", () => {
   assert.deepEqual(actions, []);
 });
 
-/* ══ 3 bis — LA GRILLE ET SON MAINTIEN (lot 79, étape 3) ════════════════
-   🔴 CE QUE CES QUATRE CAS TIENNENT, ET POURQUOI ILS EXISTENT. Dans une
-   grille, les cases PAVENT la boîte : `touch-action: none` la rendrait
-   indéfilable au doigt (le pouce tombe toujours sur une case). Le
-   défilement gagne donc par défaut, et le glisser se prend au MAINTIEN.
-   Ce partage est invisible à l'œil — il ne se voit qu'en le jouant. */
+/* ══ 3 bis — 🧊 LA GRILLE ET SON MAINTIEN ONT ÉTÉ RETIRÉS (2026-08-20) ═══
+   Eric : *« le glisser partout ! »* · *« il ne faut plus d'ascenseurs couplés
+   avec des actions drag and drop »*.
 
-test("7 — dans une grille, un doigt qui BOUGE avant le maintien ne pose rien", () => {
-  /* C'est un DÉFILEMENT, et un défilement n'est pas un dépôt hésitant : le
-     geste renonce pour de bon, même s'il se relâche sur un créneau. */
+   🔴 CE QUE CES QUATRE CAS TENAIENT, ET POURQUOI ILS N'ONT PLUS D'OBJET. Dans
+   une grille qui DÉFILE, les cases pavent la boîte : `touch-action: none` la
+   rendait indéfilable au doigt, donc le défilement gagnait par défaut et le
+   glisser se prenait au MAINTIEN (350 ms). Le partage était invisible à l'œil
+   — et c'est exactement ce qu'Eric a constaté sur son téléphone : le glisser
+   « marche dans species elf, il ne marche pas dans le wizard ».
+
+   ⭐ L'ASCENSEUR PARTI, LA CAUSE EST PARTIE AVEC. Ces gardes sont donc
+   RÉÉCRITS À LA NOUVELLE VÉRITÉ, jamais désarmés : ce qu'ils vérifient
+   maintenant, c'est qu'AUCUN écran ne réclame de traitement particulier, et
+   qu'aucun vivier ne redevienne un conteneur défilant en douce. */
+
+test("7 — le geste est le MÊME sur tous les viviers : un doigt qui bouge POSE", () => {
+  /* ⛔ CE CAS DISAIT L'INVERSE JUSQU'AU 20/08 (« un doigt qui bouge avant le
+     maintien ne pose rien »), et c'était juste TANT QUE la grille défilait.
+     Aujourd'hui un déplacement est un glisser, partout, sans péage. */
   const actions = [];
-  const n = ecranGrille(slotsDe(), actions);
+  const n = ecran(slotsDe(), actions);
   geste(jetons(n)[0], { dx: 0, dy: 40, cible: creneaux(n)[1] });
-  assert.deepEqual(actions, [], "le doigt partait défiler la grille — rien ne se pose");
-});
-
-test("7 bis — MAINTENU, puis glissé : le jeton se dépose dans le créneau visé", () => {
-  const actions = [];
-  const n = ecranGrille(slotsDe(), actions);
-  geste(jetons(n)[0], { dx: 0, dy: 40, cible: creneaux(n)[1], maintenir: true });
   assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "athletics" }],
-    "le maintien est le péage du glisser dans une grille, pas un interdit");
+    "plus de maintien à payer : le jeton se lève dès le premier pixel");
 });
 
-test("7 ter — le TAP ne paie AUCUN péage, même dans une grille", () => {
-  /* ⭐ C'est ce qui rend le maintien acceptable sur un SE : le geste court
-     reste immédiat, et il suffit à choisir. Le maintien ne sert qu'à VISER. */
+test("7 bis — le TAP pose toujours dans le premier créneau libre", () => {
+  /* Le chemin court n'a jamais dépendu du maintien : il ne change pas. */
   const actions = [];
-  const n = ecranGrille(slotsDe(), actions);
+  const n = ecran(slotsDe(), actions);
   geste(jetons(n)[0]);
   assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "athletics" }]);
 });
 
-test("7 quater — le minuteur ne SURVIT pas au geste (aucune fuite d'horloge)", () => {
-  /* ⚔️ Un minuteur oublié soulèverait un jeton APRÈS le relâchement, donc au
-     milieu du geste suivant. Il se nettoie des deux côtés : quand le doigt
-     renonce, et quand il se relâche. */
+test("7 ter — AUCUNE horloge n'est armée par un geste (le maintien est bien parti)", () => {
+  /* ⚔️ LE GARDE QUI EMPÊCHE LE PÉAGE DE REVENIR SANS QU'ON LE VOIE. Un
+     `setTimeout` réapparu dans l'organe rendrait le glisser conditionnel à une
+     durée — le défaut même qu'Eric a signalé. L'horloge du banc compte : si
+     quelque chose s'y met en attente, c'est qu'un délai est revenu. */
   const actions = [];
-  const n = ecranGrille(slotsDe(), actions);
-  geste(jetons(n)[0]);
-  assert.equal(horloge.enAttente(), 0, "relâché : plus rien en attente");
-  geste(jetons(n)[1], { dx: 0, dy: 40, cible: null });
-  assert.equal(horloge.enAttente(), 0, "renoncé : plus rien en attente non plus");
+  const n = ecran(slotsDe(), actions);
+  geste(jetons(n)[0], { dx: 0, dy: 40, cible: creneaux(n)[1] });
+  assert.equal(horloge.enAttente(), 0, "aucun minuteur : le geste est immédiat");
 });
 
-test("8 — la grille DÉCLARE qu'elle défile, et ne se distingue pas par une classe à elle", () => {
-  /* 📐 Croquis C : *« 30 1st level spells… MUST BE THE SAME HEIGHT AS
-     CANTRIPS »*. L'égalité tient parce que les deux grilles portent LA MÊME
-     classe — si l'une gagnait la sienne, la feuille pourrait les séparer
-     sans que personne le voie. Et le second défilement se DÉCLARE : le socle
-     trouve un conteneur qui défile par son marqueur, jamais en devinant. */
-  const grille = ecranGrille(slotsDe(), []).querySelectorAll(".glisse-grille")[0];
-  assert.equal(grille.getAttribute("data-scroller"), "grille");
-  assert.equal(grille.className, "glisse-vivier glisse-grille",
-    "la grille est un vivier DE PLUS, pas un vivier À PART");
-  const plat = ecran(slotsDe(), []).querySelectorAll(".glisse-vivier")[0];
-  assert.equal(plat.className, "glisse-vivier", "hors grille, rien n'a changé");
-  assert.equal(plat.getAttribute("data-scroller"), null, "et rien n'y défile");
+test("8 — AUCUN vivier ne défile pour son compte, et aucun ne porte de classe à part", () => {
+  /* 🔴 LE GARDE D'ERIC, 2026-08-20 : *« il ne faut plus d'ascenseurs couplés
+     avec des actions drag and drop »*. Un vivier qui redeviendrait un
+     conteneur défilant reprendrait le conflit entre défiler et glisser, et
+     ferait revenir le péage pour le résoudre. On vérifie donc les DEUX signes :
+     le marqueur que le socle lirait, et la classe qui portait la fenêtre. */
+  for (const n of [ecran(slotsDe(), []), ecran(slotsDe(["athletics"]), [])]) {
+    for (const v of n.querySelectorAll(".glisse-vivier")) {
+      assert.equal(v.getAttribute("data-scroller"), null,
+        "un vivier ne se déclare plus conteneur défilant");
+      assert.equal(v.className, "glisse-vivier",
+        "un vivier est un vivier — plus de variante qui lui donnerait une fenêtre");
+    }
+  }
 });
 
 /* ══ 11 — LES TROIS RAPPELS DU FANTÔME (Eric, 16/08 : « je veux voir
@@ -458,44 +460,56 @@ test("6 — ⚔️ ATTAQUE : sans slots, l'organe rend `null` — jamais un cadr
 const shellCss = fs.readFileSync(
   path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "shell.css"), "utf8");
 
-/** Chaque règle dont le sélecteur parle de la grille, avec son corps —
+/** Chaque règle dont le sélecteur parle d'un VIVIER, avec son corps —
  *  commentaires ôtés (un `height` cité dans un commentaire n'habille rien). */
-function reglesDeGrille(css) {
+function reglesDeVivier(css) {
   const sans = css.replace(/\/\*[\s\S]*?\*\//g, "");
   return [...sans.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
-    .filter(([, selecteur]) => /glisse-grille/.test(selecteur))
+    .filter(([, selecteur]) => /glisse-vivier|glisse-grille/.test(selecteur))
     .map(([, selecteur, corps]) => ({ selecteur: selecteur.trim().replace(/\s+/g, " "), corps }));
 }
 
-test("9 — une SEULE hauteur de grille dans toute la feuille", () => {
-  const hauteurs = reglesDeGrille(shellCss)
-    .flatMap(({ corps }) => [...corps.matchAll(/(?:^|;)\s*height\s*:\s*([^;]+)/g)].map((m) => m[1].trim()));
-  assert.equal(hauteurs.length, 1,
-    `la hauteur de grille se déclare UNE fois — trouvé : ${hauteurs.join(" | ") || "aucune"}`);
-  assert.match(hauteurs[0], /var\(--grille-lignes\)/,
-    "et elle se calcule depuis `--grille-lignes`, pour qu'un changement de lignes suffise");
+/* ══ 9 — 🧊 PLUS AUCUN ASCENSEUR SOUS UN GLISSER ═════════════════════════
+   Eric, 2026-08-20 : *« il ne faut plus d'ascenseurs couplés avec des actions
+   drag and drop »*.
+
+   🔴 CE QUE CETTE FAMILLE GARDAIT AVANT : que les DEUX grilles de sorts
+   partagent une seule hauteur de fenêtre, et que leur case porte
+   `touch-action: pan-y`. Les deux sont devenus faux le même jour — la fenêtre
+   est retirée, et `pan-y` avec elle.
+   ⭐ CE QU'ELLE GARDE MAINTENANT, ET C'EST PLUS FORT : que la fenêtre ne
+   revienne pas. Un vivier qui reprendrait une hauteur ou un `overflow`
+   rouvrirait le conflit entre défiler et glisser — et il faudrait un péage
+   pour le trancher, c'est-à-dire le défaut qu'Eric a signalé. */
+test("9 — aucune règle de la feuille ne fabrique une fenêtre défilante sous un glisser", () => {
+  const fautes = reglesDeVivier(shellCss).filter(({ corps }) =>
+    /(?:^|;)\s*(?:height|max-height|overflow|overflow-y)\s*:/.test(corps));
+  assert.deepEqual(fautes.map((f) => f.selecteur), [],
+    "un vivier ne se borne pas et ne défile pas : c'est la page qui défile");
 });
 
-test("9 bis — ⚔️ ATTAQUE : donner sa propre hauteur à une seule grille fait rougir CE garde", () => {
-  /* Un garde qu'on n'attaque pas n'est pas un garde : on écrit EN MÉMOIRE la
-     divergence que le croquis interdit, et on vérifie qu'elle est vue. */
-  const faux = shellCss + '\n.glisse-grille[data-plan="prepared"] { height: 400px; }\n';
-  const hauteurs = reglesDeGrille(faux)
-    .flatMap(({ corps }) => [...corps.matchAll(/(?:^|;)\s*height\s*:\s*([^;]+)/g)].map((m) => m[1].trim()));
-  assert.equal(hauteurs.length, 2, "la seconde hauteur doit être VUE — sinon ce garde ne lit rien");
+test("9 bis — ⚔️ ATTAQUE : une fenêtre réintroduite est VUE", () => {
+  /* Un garde qu'on n'attaque pas n'est pas un garde. */
+  const faux = shellCss + '\n.glisse-vivier[data-plan="prepared"] { height: 400px; overflow-y: auto; }\n';
+  assert.equal(reglesDeVivier(faux).filter(({ corps }) => /height|overflow/.test(corps)).length, 1,
+    "la fenêtre réintroduite doit être vue — sinon ce garde ne lit rien");
 });
 
-test("9 ter — la case de grille tient son plancher tactile et son geste", () => {
-  /* 🔴 `pan-y` ET NON `none` : c'est LA ligne qui rend la grille défilable au
-     doigt, et elle a une contrepartie dans l'organe (le maintien). Si elle
-     disparaissait, le geste marcherait encore au bureau et la grille
-     deviendrait inutilisable au pouce — un défaut qu'aucun test de rendu ne
-     verrait, et que ce dépôt a déjà décidé de ne plus découvrir à l'œil. */
-  const corps = reglesDeGrille(shellCss)
-    .filter(({ selecteur }) => /glisse-jeton/.test(selecteur))
-    .map(({ corps }) => corps).join(" ");
-  assert.match(corps, /touch-action\s*:\s*pan-y/,
-    "dans une grille, le doigt défile d'abord — le glisser se prend au maintien");
+test("9 ter — la case porte `touch-action: none`, jamais `pan-y`", () => {
+  /* 🔴 `pan-y` ÉTAIT LA CONTREPARTIE DE LA FENÊTRE, et il coûtait le geste :
+     le doigt défilait d'abord, et le glisser ne se prenait qu'après 350 ms
+     d'appui. C'est ce qui faisait dire à Eric que le glisser « marche dans
+     species elf, il ne marche pas dans le wizard ».
+     ⛔ Son retour serait le retour du péage, en silence : aucun test de rendu
+     ne le verrait, et personne ne le découvrirait avant un téléphone. */
+  const sans = shellCss.replace(/\/\*[\s\S]*?\*\//g, "");
+  const regles = [...sans.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([, sel]) => /glisse-jeton|glisse-creneau/.test(sel));
+  const corps = regles.map(([, , c]) => c).join(" ");
+  assert.doesNotMatch(corps, /touch-action\s*:\s*pan-y/,
+    "plus rien ne dispute le geste au glisser — le jeton ne cède plus le doigt");
+  assert.match(corps, /touch-action\s*:\s*none/,
+    "et il verrouille le défilement pour toute la durée du geste");
 });
 
 test("7 — DÉPASSER LE BUDGET rend le bloc rouge, et il cesse d'être « complet »", () => {

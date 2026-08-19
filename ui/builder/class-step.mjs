@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=205";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=205";
-import { renderConfirmDialog } from "./confirm.mjs?v=205";
-import { renderChoixGlisses } from "./glisser.mjs?v=205";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=207";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=207";
+import { renderConfirmDialog } from "./confirm.mjs?v=207";
+import { renderChoixGlisses } from "./glisser.mjs?v=207";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -87,16 +87,17 @@ function spellInfo(query, id) {
    même liste — en ajouter un troisième (un jour : les sorts d'un lignage ?)
    est une ligne ici, pas un écran neuf. */
 const SPELL_QCMS = [
-  /* LOT 79, ÉTAPES 3 ET 4 — LES DEUX GROUPES SONT PASSÉS À LA GRILLE, et la
-     seconde étape n'a rien eu à réécrire : `grille: true`, une consigne, et
-     les trente sorts se sont posés dans la fenêtre des quinze. C'était le
-     test que le mandat avait prévu pour l'organe (« s'il n'y a rien à
-     réécrire à cette étape, l'organe est bon »).
+  /* LOT 79, ÉTAPES 3 ET 4 — LES DEUX GROUPES SONT AU GLISSER, et la seconde
+     étape n'a rien eu à réécrire : une consigne, et les trente sorts se sont
+     posés. C'était le test que le mandat avait prévu pour l'organe (« s'il n'y
+     a rien à réécrire à cette étape, l'organe est bon »).
+     🧊 La FENÊTRE DÉFILANTE qu'ils avaient jusqu'au 2026-08-20 a été retirée :
+     *« plus d'ascenseurs couplés avec des actions drag and drop »*.
      ⛔ `renderSlotQcm` reste importé et VIVANT : il sert l'espèce, sa bourse
      captive et le don d'origine. Deux formes, un seul contrat d'action. */
-  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip", grille: true,
+  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip",
     consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
-  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell", grille: true,
+  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell",
     consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
 ];
 
@@ -231,19 +232,24 @@ export function renderClassChoices(ctx, onAction) {
        droit (souris) donnent l'info. Le clic gauche qui pose sur un bureau
        est un raccourci en plus, pas une contradiction — et une consigne de
        quatre lignes coûterait la hauteur qu'on vient de mesurer. */
-    const planSorts = groupe.grille ? planAt(decisions, groupe.basePath) : null;
-    const bloc = groupe.grille
-      ? (planSorts ? renderChoixGlisses({
-          plan: planSorts, slots: planSlots(decisions, groupe.basePath),
-          titre: groupe.title, mot: groupe.slotWord, grille: true,
-          refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
-          onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
-          consigne: groupe.consigne
-        }) : null)
-      : renderSlotQcm({
-          decisions, basePath: groupe.basePath, title: groupe.title, slotWord: groupe.slotWord,
-          refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act
-        });
+    /* 🔴 UNE SEULE FORME POUR LES SORTS — Eric, 2026-08-20 : *« le glisser
+       partout ! »*. Le drapeau `grille` réglait DEUX choses à la fois : la
+       fenêtre défilante (retirée) ET l'aiguillage entre le glisser et l'ancien
+       QCM. Les découpler était le vrai travail : le retirer sans regarder
+       aurait renvoyé les trente sorts au QCM, soit exactement l'inverse de ce
+       qu'Eric demande.
+       ⛔ `renderSlotQcm` reste importé et VIVANT — il sert l'espèce, sa bourse
+       captive et le don d'origine. Ce qui disparaît, c'est le CHOIX entre les
+       deux pour un même écran : un geste qui dépend de l'écran est un geste
+       qu'il faut réapprendre. */
+    const planSorts = planAt(decisions, groupe.basePath);
+    const bloc = planSorts ? renderChoixGlisses({
+      plan: planSorts, slots: planSlots(decisions, groupe.basePath),
+      titre: groupe.title, mot: groupe.slotWord,
+      refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
+      onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
+      consigne: groupe.consigne
+    }) : null;
     if (bloc) menu.append(bloc);
   }
 
