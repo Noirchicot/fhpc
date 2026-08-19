@@ -199,14 +199,37 @@
   --onglet-fond: #101010;
   --onglet-encre: #ffffff;
   /* 🔴 LE SEUIL DES ROUGES, MESURÉ. Un liseré doit tenir 3:1 sur le noir du
-     disque. Or un rouge a besoin de ~15 POINTS DE CLARTÉ DE PLUS qu'un jaune
-     pour y arriver : à saturation 70 %, il lui faut 41 % de clarté quand le
-     jaune se contente de 26 %. Un oxblood profond (#4a0e13) tombe à 1,24:1 —
-     il disparaît dans le disque. `#be272c` est le plus sombre qui tienne
-     encore (3,20:1), et `#7c5f09` est son jumeau en luminance (3,17:1) :
-     appariés, ils pèsent pareil et aucun des deux ne domine l'autre. */
-  --onglet-liseré-menu: #be272c;
-  --onglet-liseré-fiche: #7c5f09;
+     disque, et un rouge a besoin d'environ QUINZE POINTS DE CLARTÉ DE PLUS
+     qu'un jaune pour y arriver : à saturation 70 %, il lui faut 41 % de
+     clarté quand le jaune se contente de 26. Un oxblood opaque et profond
+     (#4a0e13) tombe à 1,24:1 — il disparaît dans le disque.
+
+     ⭐ ET C'EST LA TRANSPARENCE QUI DÉBLOQUE ÇA. Un rouge translucide posé sur
+     du noir COMPOSE un rouge profond : elle fabrique la teinte que l'opacité
+     interdisait. Les deux bases sont donc celles du site (le bandeau de la
+     page d'accueil), et l'alpha fait le reste :
+
+       rouge #C97A5F à 66 %  →  compose #8a5644  (3,17:1)
+       or    #D8B65A à 49 %  →  compose #726134  (3,16:1)
+
+     Les deux alphas sont choisis pour que les composés aient la MÊME
+     luminance (écart 0,04 %) : appariés, aucun des deux ne domine l'autre.
+     ⛔ Descendre plus bas les fait passer sous 3:1 — le rouge meurt à 60 %,
+     l'or à 42 %.
+
+     ⭐ ARBITRAGE D'ERIC, 2026-08-19 : opaque essayé, puis *« en transparent »*.
+     C'est la transparence qui reste — et c'est elle qui donne la profondeur
+     qu'il cherchait depuis le début, puisqu'elle compose avec le noir au lieu
+     de se poser dessus.
+
+     ⭐ ET LA TRANSPARENCE APPARIE CE QUE L'OPACITÉ NE POUVAIT PAS. Pleines,
+     les deux teintes du site ne font pas la paire — l'or y pèse 1,67 fois le
+     rouge. Les deux alphas ci-dessous sont choisis pour que les COMPOSÉS aient
+     la même luminance (écart 0,04 %) : c'est l'alpha, pas la teinte, qui fait
+     l'équilibre. */
+  --onglet-liseré-menu: rgba(201, 122, 95, .66);
+  --onglet-liseré-fiche: rgba(216, 182, 90, .49);
+
   /* ── LE PLAFOND DU DÉ — un seul, pour TOUS les dés (2026-08-17) ──────
      Eric : *« ça concerne tous les dés »*. Il vivait sur `.fs-rangee`, donc
      les six cibles du collecteur — qui n'en sont pas une — le lisaient
@@ -252,7 +275,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=101");
+  --bg-image: url("./assets/bg-day.jpg?v=105");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -321,7 +344,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=101");
+    --bg-image: url("./assets/bg-night.jpg?v=105");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

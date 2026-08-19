@@ -214,9 +214,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    boutons. La piste garde un rembourrage égal à leur demi-largeur, sinon le
    premier et le dernier cran resteraient cachés dessous au repos.
 
-   ⛔ LE LISERÉ FAIT 1 px, comme celui des dalles (`inset 0 0 0 1px` sur le
-   cran courant). Un onglet plus épais que les dalles qu'il côtoie crierait
-   plus fort qu'elles, et ces deux commandes-là sont secondaires. */
+   ⛔ LE LISERÉ FAIT 1 px, TOUJOURS — y compris au cran courant. Un onglet plus
+   épais que les dalles qu'il côtoie crierait plus fort qu'elles, et ces deux
+   commandes-là sont secondaires. L'état courant ne l'épaissit donc pas : il le
+   RALLUME, en passant de la teinte translucide à la teinte pleine. */
 .belt { position: relative; }
 .belt-track { padding-left: calc(var(--onglet-taille) / 2 + var(--sp-8));
               padding-right: calc(var(--onglet-taille) / 2 + var(--sp-8)); }
@@ -250,19 +251,33 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   line-height: 1;
   white-space: nowrap;   /* ⛔ jamais deux lignes : le disque n'en a pas la place */
 }
-.belt-onglet[data-bout="menu"]  .belt-onglet-mot { transform: translateX(calc(var(--onglet-taille) / 4 - 2px)); }
-/* ⛔ PAS DE ROTATION À DROITE. La convention typographique voudrait que le mot
-   de droite se lise du bas vers le haut ; la maquette d'Eric (2026-08-19) les
-   fait lire tous les deux dans le MÊME sens, et c'est elle qui fait foi — deux
-   étiquettes qui se lisent pareil se lisent d'un coup d'œil, là où l'une
-   retournée demande de tourner la tête. */
-.belt-onglet[data-bout="fiche"] .belt-onglet-mot { transform: translateX(calc(var(--onglet-taille) / -4 + 2px)); }
+/* ⛔ LE MOT EST POSÉ SUR LE BORD, PAS CENTRÉ DANS LA MOITIÉ VISIBLE.
+   Eric, 2026-08-19, en voyant la première pose : *« Menu et Sheet doivent être
+   posés sur le bord de l'écran ! Pas centrés horizontalement ! »* — et il a
+   raison, c'est ce qui distingue une étiquette d'onglet d'un libellé de bouton.
+   Mesuré alors : le mot tombait à 7 px du bord, au milieu des 29 px visibles.
+
+   ⭐ `translateX(50%)` se règle sur la LARGEUR DU MOT, pas sur celle du disque :
+   le centre du mot est au bord de l'écran (le disque est à moitié hors champ),
+   donc le décaler d'une demi-largeur pose son flanc gauche exactement sur le
+   bord. Un chiffre en dur casserait au premier changement de graisse. */
+.belt-onglet[data-bout="menu"]  .belt-onglet-mot { transform: translateX(calc(50% + 1px)); }
+/* ⭐ LE MOT DE DROITE EST RETOURNÉ. J'avais d'abord aligné les deux dans le
+   même sens, en lisant la maquette d'Eric ainsi ; il a tranché en le voyant
+   en ligne : *« Sheet pas dans le bon sens ! »*. C'est aussi la convention —
+   sur une tranche, le mot de droite se lit du bas vers le haut, de sorte que
+   les deux étiquettes tournent vers l'INTÉRIEUR de l'écran plutôt que dans le
+   même sens. */
+.belt-onglet[data-bout="fiche"] .belt-onglet-mot { transform: translateX(calc(-50% - 1px)) rotate(180deg); }
 /* ⛔ L'ÉTAT COURANT ÉPAISSIT LE LISERÉ, IL NE LE REMPLACE PAS. Un premier
    essai posait `currentColor` — donc du blanc — et effaçait la couleur qui
    distingue les deux bouts. Mesuré à l'écran : l'oxblood disparaissait dès
    qu'on était sur l'écran des réglages. */
-.belt-onglet[data-bout="menu"][data-status="current"]  { box-shadow: inset 0 0 0 2px var(--onglet-liseré-menu); }
-.belt-onglet[data-bout="fiche"][data-status="current"] { box-shadow: inset 0 0 0 2px var(--onglet-liseré-fiche); }
+/* ⛔ ET L'ÉTAT COURANT NE CHANGE RIEN SUR CES DEUX-LÀ. Les huit crans forment
+   une SÉQUENCE : y marquer sa position a un sens. Ces deux-ci sont des
+   DESTINATIONS — quand on y est, c'est l'écran lui-même qui le dit. Un liseré
+   plus épais ou plus vif n'ajoutait qu'un cri de plus, et c'est précisément ce
+   qu'Eric a reproché à la première pose. */
 .belt-onglet:focus-visible { outline: 2px solid var(--onglet-encre); outline-offset: -4px; }
 .belt-index {
   width: 22px; height: 22px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
