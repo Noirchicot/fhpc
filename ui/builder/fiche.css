@@ -43,6 +43,11 @@
    d'origine partagent le même catalogue et ne doivent PAS hériter de cette
    géométrie : leurs cartes n'ont ni image ni bloc de stats. */
 .fiche-dalle {
+  /* 🔴 LE REPÈRE DU « ? » — sans lui, le rond se posait sur le premier ancêtre
+     positionné qu'il trouvait (le conteneur du catalogue) et atterrissait à
+     680 px du coin de sa propre fiche : mesuré le 2026-08-20. Un bouton en
+     `position: absolute` n'a de coin que si quelqu'un le lui donne. */
+  position: relative;
   /* ── LES COTES MESURÉES, déclarées une fois ───────────────────────── */
   --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
@@ -501,6 +506,16 @@
   display: flex;
   gap: var(--sp-8);
   justify-content: space-between;
+  /* 🔴 LA RÉSERVE DU « ? », ET C'EST LA MÊME QUE CELLE DU PIED DU PARCOURS
+     (`.parcours-pied`, shell.css) — écrite là-bas le 19/08 après qu'Eric a vu
+     les boutons mordre sur le coin du rond. Le pied d'une fiche portait le
+     défaut à son tour dès que le « ? » est descendu sur chaque fiche : deux
+     boutons en `flex: 1 1 0` prennent TOUTE la ligne, cible tactile comprise.
+     ⭐ Réserver ici plutôt que rétrécir les boutons : la réserve sort la place
+     de la ligne flex, donc `LORE` et `CHOOSE` restent égaux entre eux — ce que
+     le pied du parcours ne pouvait pas faire, ses deux mots étant de longueurs
+     très différentes. */
+  padding-right: var(--touch);
 }
 .fiche-action {
   flex: 1 1 0;

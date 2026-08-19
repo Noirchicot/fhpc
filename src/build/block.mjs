@@ -3,7 +3,8 @@
    `layers` → `build` → MCP v0.
 
    CE QUE LE BLOC POSSÈDE
-   - ses VERBES : `choose`, `set`, `override`, `clear`, `rebuild`, `validate`.
+   - ses VERBES : `choose`, `set`, `override`, `clear`, `decisions`, `rebuild`,
+     `validate`.
    - son ÉTAT : la tranche `build` du personnage OUVERT, et lui seul écrit
      `resolved`.
    - son ÉVÉNEMENT : `char-rebuilt`, avec son diff.
@@ -218,6 +219,33 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
       const check = kind === "choice" ? parseChoicePath : parseOverridePath;
       const cleared = unplace(list, path, kind, check);
       return { document: structuredClone(document), cleared };
+    },
+
+    /* ══ LE CARNET SEUL, SANS DÉRIVER ══════════════════════════════════
+       🔴 CE VERBE RÉPARE UN ÉCRAN MORT, ET LA CAUSE MÉRITE D'ÊTRE ÉCRITE.
+       `derive` REFUSE, à juste titre, de dériver un personnage sans classe :
+       *« ce n'est pas une dérivation incomplète, c'est une dérivation
+       impossible »* (loi 4, tête de `derive.mjs`). Le refus est bon et il
+       reste.
+
+       ⚠️ MAIS UN PERSONNAGE EN COURS DE CRÉATION N'EST PAS UN PERSONNAGE.
+       Mesuré dans la page le 2026-08-20 : `I changed my mind` sur l'étape
+       Class efface le choix `class`, la coquille rappelle `rebuild`, celui-ci
+       JETTE — et l'écran reste figé sur la classe qu'on vient de quitter,
+       sans un mot. Le geste que le canon appelle « la seule porte qui défait »
+       ne défaisait rien.
+
+       ⭐ CE QU'IL FALLAIT SÉPARER : le CARNET ne dérive rien. `projectDecisions`
+       ne lit que `build.choices` et les couches — il sait dire « il manque une
+       classe, en voici douze » précisément quand la dérivation, elle, ne sait
+       plus rien dire. `rebuild` le projetait déjà, mais APRÈS la dérivation,
+       donc jamais quand on en a le plus besoin.
+       ⛔ IL N'ÉCRIT RIEN, et surtout pas `resolved` : une fiche dérivée d'un
+       personnage sans classe serait une fiche inventée. */
+    decisions(payload) {
+      const options = payload || {};
+      const document = current(options, "decisions");
+      return { decisions: projectDecisions({ query, choices: document.build.choices }) };
     },
 
     /** LE SEUL CHEMIN D'ÉCRITURE DE `resolved`. */

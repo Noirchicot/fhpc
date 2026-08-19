@@ -9,9 +9,9 @@
   ],
   "attribution": {
     "license": "all-rights-reserved",
-    "text": "Original Fate's Hand content: all rights reserved. This layer adds a record of its own and modifies NO material from the System Reference Document 5.2.1 — it patches no SRD feat and disables none."
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds a record of its own and modifies NO material from the System Reference Document 5.2.1: it rewrites no SRD text and disables no SRD record. It patches two SRD feats with FH-ONLY fields — `data[skill_points]` on Skilled, `data.blurb` on Magic Initiate — neither of which exists in the SRD."
   },
-  "description": "The Fate's Hand feats that carry a Destiny value or a skill pool bonus. Auspicious (fh) grants +2 to the Destiny Score; Skilled is patched to grant +6 skill points, at parity with its SRD text.",
+  "description": "The Fate's Hand feats that carry a Destiny value, a skill pool bonus, or a card blurb. Auspicious (fh) grants +2 to the Destiny Score; Skilled is patched to grant +6 skill points, at parity with its SRD text; Magic Initiate receives the short blurb its catalogue card shows.",
   "records": {
     "feat": {
       "fh:feat:en:auspicious": {
@@ -34,6 +34,13 @@
           }
         },
         "note": "Fate's Hand — Skilled grants 6 skill points (3 proficiencies × tier_costs.proficient of 2), at exact parity with its SRD text of three skills or tools of the player's choice. It imposes nothing: the points are the player's to spend."
+      },
+      "srd:feat:en:magic-initiate": {
+        "op": "patch",
+        "changes": {
+          "data.blurb": "Two cantrips and one level 1 spell, from the Cleric, Druid, or Wizard list. The level 1 spell stays prepared: cast it free once per Long Rest, or with a spell slot. Intelligence, Wisdom, or Charisma is your spellcasting ability for them — you choose which one now."
+        },
+        "note": "Fate's Hand — le TEXTE SRD n'est pas touché : ce patch AJOUTE `data.blurb`, un champ FH que la fiche de catalogue préfère quand il existe. MESURÉ le 2026-08-20 à 360 px : la description SRD de Magic Initiate rend 643 px de prose dans une boîte de fiche qui en offre 343 — 300 px rognés EN SILENCE, ce que ce dépôt interdit. Les quatre autres dons d'origine tiennent (Alert, le plus long, remplit la boîte pile). Ce blurb dit tout ce qui décide au niveau 1 — les deux listes, le sort toujours préparé, le lancer gratuit par Repos long, la caractéristique d'incantation. Il laisse de côté `Repeatable` (reprendre le don plus tard avec une autre liste), qui ne se joue pas à la création. Le texte SRD complet reste dans la couche SRD, intact."
       }
     }
   }

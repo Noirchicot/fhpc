@@ -175,21 +175,40 @@ test("LES 22 CARTES ENTRENT, ET LEURS IMPACTS SE RÉPARTISSENT SUR 0, 1 ET 2", (
      à désactiver, et désactiver un record absent serait un geste sans objet
      qui ferait croire à une dépendance.
 
-     ⚠️ LES CARTES SONT TOUJOURS DES `add` PURS, ET C'EST TOUJOURS VRAI DES
-     DONS — SAUF UN. Le lot 24 patche `srd:feat:en:skilled` (il porte un id
-     SRD, il ne peut donc être qu'un `patch`, jamais un `add`) pour lui donner
-     `data.skill_points.bonus`. Ce n'est pas une régression de la garantie
-     « aucun disable » : c'est une exception nommée, la seule. */
+     ⚠️ LES CARTES SONT TOUJOURS DES `add` PURS. LES DONS, NON — ET LE COMPTE
+     A CHANGÉ LE 2026-08-20. Le lot 24 patchait `srd:feat:en:skilled` ;
+     `srd:feat:en:magic-initiate` le rejoint pour recevoir `data.blurb`, le
+     texte court que sa fiche de catalogue affiche (sa description SRD rendait
+     643 px dans une boîte de 343 — 300 px rognés en silence, mesuré).
+
+     🔴 CE GARDE NE COMPTE DONC PLUS LES PATCHS, IL LES JUGE — et il mord plus
+     fort qu'avant. Un compte (« un seul ») ne protégeait rien : il aurait
+     laissé passer un patch qui RÉÉCRIT `data.description`, c'est-à-dire du
+     texte SRD, sous une attribution qui jure le contraire. Ce qu'on garde
+     vraiment, c'est la promesse de l'attribution : **aucune clef d'un patch
+     de cette couche ne touche du contenu SRD**. Un champ FH ajouté, oui ; une
+     phrase du SRD réécrite, jamais.
+     ⛔ Et toujours aucun `disable`. */
   for (const entree of Object.values(CARTES.records.arcana)) {
     assert.equal(entree.op, undefined, "chaque carte est un `add` — la couche des Arcanes ne patche rien");
   }
+  /* Les clefs qui portent du TEXTE SRD — les seules qu'un patch de cette
+     couche n'a pas le droit d'écrire. */
+  const TEXTE_SRD = ["name", "slug", "data.name", "data[name]", "data.description", "data[description]"];
   for (const [id, entree] of Object.entries(DONS.records.feat)) {
-    if (id === "srd:feat:en:skilled") {
-      assert.equal(entree.op, "patch", "« Skilled » est LE seul don patché (lot 24), et il l'est bien");
-    } else {
-      assert.equal(entree.op, undefined, `« ${id} » est un \`add\` — seul Skilled est patché`);
-    }
     assert.notEqual(entree.op, "disable", `« ${id} » n'est jamais désactivé`);
+    if (id.startsWith("fh:")) {
+      assert.equal(entree.op, undefined, `« ${id} » est du contenu FH : c'est un \`add\`, jamais un patch`);
+      continue;
+    }
+    /* Un id SRD ne peut être qu'un `patch` — on n'AJOUTE pas un record sous
+       l'identifiant de quelqu'un d'autre. */
+    assert.equal(entree.op, "patch", `« ${id} » porte un id SRD : il ne peut être qu'un \`patch\``);
+    assert.equal(entree.remove, undefined, `« ${id} » ne retire rien du SRD`);
+    for (const chemin of Object.keys(entree.changes || {})) {
+      assert.equal(TEXTE_SRD.includes(chemin), false,
+        `« ${id} » patche « ${chemin} » — c'est du texte SRD, et l'attribution de cette couche jure qu'elle n'en réécrit aucun`);
+    }
   }
   assert.equal(h.layers.verbs.query({ kind: "feat", id: "srd:feat:en:lucky" }), null,
     "*Lucky* n'existe pas dans le SRD 5.2 : la note du don le dit, et le dépôt n'a rien à désactiver");

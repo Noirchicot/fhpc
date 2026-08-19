@@ -29,10 +29,10 @@
 
 import {
   planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=222";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=222";
-import { renderChoixGlisses } from "./glisser.mjs?v=222";
-import { renderFicheBody } from "./catalogue.mjs?v=222";
+} from "./carnet.mjs?v=227";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=227";
+import { renderChoixGlisses } from "./glisser.mjs?v=227";
+import { renderFicheBody } from "./catalogue.mjs?v=227";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -403,7 +403,22 @@ export function renderBoostGlisse(ctx, act) {
 export function renderFeatCardBody(query, id) {
   const view = query({ kind: "feat", id });
   const data = (view && view.record && view.record.data) || {};
-  const desc = typeof data.description === "string" ? data.description : null;
+  /* 🔴 LE BLURB PASSE AVANT LA DESCRIPTION — Eric, 2026-08-20 : *« il faut
+     améliorer Magic Initiate »*, et sa fiche perdait 300 px.
+     📏 MESURÉ À 360, LES CINQ DONS : la boîte de prose offre 343 px ; Magic
+     Initiate en rendait 643. Les quatre autres tiennent — Alert, le plus
+     long, remplit la boîte pile. La borne rognait donc UN don, en silence,
+     ce que ce dépôt interdit.
+     ⭐ ET LA RÉPONSE EST CELLE DE SPECIES ET DE CLASS, pas une invention :
+     leurs douze fiches lisent déjà `data.blurb` (le court, sur la carte) et
+     laissent le texte long à la couche. Un don n'avait simplement jamais reçu
+     le champ. Il arrive par `fh-feats-en`, en AJOUT — le texte SRD n'est pas
+     réécrit, il reste entier dans sa couche, sous sa licence.
+     ⛔ ET PAS DE TRONCATURE ICI. Couper la description à N caractères aurait
+     été la même perte, décidée par un écran au lieu d'une couche. */
+  const desc = typeof data.blurb === "string" && data.blurb.length > 0
+    ? data.blurb
+    : (typeof data.description === "string" ? data.description : null);
   /* Le bonus de pool que certains dons accordent (`skill_points.bonus`) —
      lu au record, jamais recalculé. */
   const bonus = data.skill_points && data.skill_points.bonus;

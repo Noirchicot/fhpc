@@ -113,7 +113,44 @@ test("l'instance ne rend que {name, verbs} — l'état du bloc n'a aucune poign�
   const h = makeHarness();
   assert.deepEqual(Object.keys(h.build).sort(), ["name", "verbs"]);
   assert.equal(h.build.name, "build");
-  assert.deepEqual(Object.keys(h.build.verbs).sort(), ["choose", "clear", "override", "rebuild", "set", "validate"]);
+  assert.deepEqual(Object.keys(h.build.verbs).sort(),
+    ["choose", "clear", "decisions", "override", "rebuild", "set", "validate"],
+    "`decisions` entre le 2026-08-20 : le carnet SANS la dérivation, pour l'écran qui n'est pas encore dérivable");
+});
+
+/* ══ LE CARNET SANS LA DÉRIVATION — 2026-08-20 ═════════════════════════════
+   🔴 CE TEST EXISTE PARCE QU'UN ÉCRAN EST MORT EN SILENCE, et qu'aucune suite
+   ne l'a vu : `I changed my mind` sur l'étape Class effaçait le choix `class`,
+   la coquille rappelait `rebuild`, et `derive` jetait — écran figé, geste
+   perdu. La page l'a montré, 1241 tests verts ne l'ont pas montré.
+
+   ⭐ CE QUE LE VERBE PROMET, ET QUI EST TOUT L'INTÉRÊT : là où `rebuild` n'a
+   plus rien à dire, `decisions` sait encore dire CE QU'IL MANQUE et avec quoi
+   le réparer. C'est la seule chose dont l'écran de Class ait besoin.
+   ⛔ Et il n'écrit rien : le refus de `rebuild` reste entier juste après. */
+test("`decisions` rend le carnet là où `rebuild` ne peut plus dériver — sans classe", () => {
+  const h = makeHarness();
+  const complet = acceptanceDocument(h.layers);
+  const sansClasse = {
+    ...complet,
+    build: { ...complet.build, choices: complet.build.choices.filter((c) => c.path !== "class") }
+  };
+
+  /* ① LE REFUS DE `derive` TIENT — on ne l'a pas désarmé. */
+  assert.throws(() => h.build.verbs.rebuild({ document: sansClasse }), /aucun choix `class`/);
+
+  /* ② ET LE CARNET RÉPOND QUAND MÊME, en nommant le plan à remplir. */
+  const { decisions } = h.build.verbs.decisions({ document: sansClasse });
+  const plan = decisions.find((d) => d.path === "class");
+  assert.ok(plan, "le carnet publie le plan `class` même sans choix `class`");
+  assert.equal(plan.answered, 0, "rien n'est répondu — c'est justement l'état qu'on vient de créer");
+  assert.ok(plan.options.length > 0, "et il porte de quoi répondre : les classes de la pile");
+
+  /* ③ SUR UN DOCUMENT COMPLET, LES DEUX CHEMINS DISENT LA MÊME CHOSE — sinon
+     l'écran verrait un carnet selon qu'on a dérivé ou non. */
+  const parRebuild = h.build.verbs.rebuild({ document: complet }).decisions;
+  const parVerbe = h.build.verbs.decisions({ document: complet }).decisions;
+  assert.deepEqual(parVerbe, parRebuild, "même carnet, dérivé ou pas");
 });
 
 test("createBuild refuse de se construire sans bus et sans dispatch", () => {

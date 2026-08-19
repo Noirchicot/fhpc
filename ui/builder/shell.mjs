@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=222";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=222";
-import { mountPopup } from "./popup.mjs?v=222";
-import { renderLorePanel } from "./lore.mjs?v=222";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=222";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=227";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=227";
+import { mountPopup } from "./popup.mjs?v=227";
+import { renderLorePanel } from "./lore.mjs?v=227";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=227";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=222";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=222";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=227";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=227";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=222";
-import { renderConceptStep } from "./concept-step.mjs?v=222";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=222";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=222";
+} from "./tutoriel.mjs?v=227";
+import { renderConceptStep } from "./concept-step.mjs?v=227";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=227";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=227";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=222";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=222";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=222";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse } from "./inheritance-step.mjs?v=222";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=222";
+} from "./catalogue.mjs?v=227";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=227";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=227";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse } from "./inheritance-step.mjs?v=227";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=227";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=222";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=227";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=222";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=222";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=222";
+} from "./destiny-step.mjs?v=227";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=227";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=227";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=222";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=227";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=222";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=222";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=227";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=222";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=222";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=227";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=227";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=222";
+import { versionQuery } from "./version.mjs?v=227";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -160,6 +160,15 @@ const STEPS = [
    Review, pas parce qu'un index de tableau coïncide avec elle. */
 const REVIEW_INDEX = STEPS.findIndex((step) => step.id === "review");
 
+/** LES SIX ÉCRANS QUI LISENT `resolved` — la fiche dérivée. Ils sont nommés
+ *  ici, une fois, parce qu'ils partagent une seule chose : ils n'ont rien à
+ *  dessiner tant que le personnage n'est pas dérivable (voir `rebuild()`).
+ *  ⚠️ Cette liste se lit dans les six branches ci-dessous : celles qui
+ *  passent `resolved: state.resolved` à leur écran, et elles seules. */
+const ECRANS_QUI_LISENT_LA_FICHE = new Set([
+  "background", "abilities", "destiny", "skills", "equipment", "review"
+]);
+
 const state = {
   step: 0,
   engine: null,       // { build, layers, bus } — set once bootEngine() resolves
@@ -170,6 +179,9 @@ const state = {
                           // unconsumed, …}, exactly the shape render-fiche.mjs's `report` wants
   violations: [],          // the last validate()'s refusals — {key, params, path?}
   engineError: null,
+  /* Le refus de `derive` quand le personnage n'est PAS DÉRIVABLE — pas une
+     panne, un état de création (voir `rebuild()`). `null` le reste du temps. */
+  derivationImpossible: null,
   /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
      2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
      Ces deux champs sont donc ici, hors de `document`, exactement comme
@@ -259,10 +271,52 @@ const app = document.getElementById("app");
  *  document, not the one before the click.
  *  LOT 40 — also keeps the WHOLE rebuild() output as `state.report`: the
  *  Review step passes it straight to `render()`, unread and unrecomputed. */
+/* ══ QUAND LA DÉRIVATION EST IMPOSSIBLE — 2026-08-20 ═══════════════════════
+   🔴 MESURÉ DANS LA PAGE, PAS DANS UN TEST : `I changed my mind` sur l'étape
+   Class ne faisait RIEN. La cause, à l'octet — `parcoursCancel` efface le
+   choix `class`, appelle `rebuild()`, et `derive` JETTE (*« un personnage sans
+   classe n'est pas une dérivation incomplète, c'est une dérivation
+   impossible »*). Le jet remonte dans l'écouteur de clic : `refresh()` n'est
+   jamais atteint, l'écran reste figé sur la classe qu'on vient de quitter, et
+   plus AUCUN geste ne repasse ensuite — le document est resté sans classe.
+   ⚠️ Species n'en souffrait pas, et ce n'est pas un hasard : `derive` accepte
+   un personnage sans espèce, jamais sans classe. Une seule étape sur huit
+   pouvait tomber dans ce trou, et c'est celle-là.
+
+   ⛔ ON NE DÉSARME PAS LE REFUS DE `derive` — il a raison, et la loi du dépôt
+   est qu'un garde qui gêne se RÉÉCRIT à la nouvelle vérité. La nouvelle vérité
+   est ici : **un personnage en cours de création n'est pas toujours
+   dérivable**, et la coquille doit savoir le porter. C'est exactement l'état
+   dans lequel un personnage NEUF arrivera le jour où on en ouvrira un (la page
+   part aujourd'hui d'un exemple complet — c'est ce qui a caché le trou).
+
+   ⭐ CE QU'ON GARDE QUAND MÊME : le CARNET. `verbs.decisions` le projette sans
+   dériver, donc l'étape Class retrouve ses douze fiches — c'est-à-dire le
+   moyen de RÉPARER l'état où l'on est. Ce qu'on perd est la fiche dérivée, et
+   on le perd franchement : `resolved` et `report` passent à `null` plutôt que
+   de laisser traîner ceux de la classe abandonnée. */
 function rebuild() {
   const verbs = state.engine.build.verbs;
   const avant = state.violations.map((v) => v.key + (v.path || "")).join("|");
-  const out = verbs.rebuild({ document: state.document });
+  let out;
+  try {
+    out = verbs.rebuild({ document: state.document });
+  } catch (error) {
+    /* ⚠️ SEULEMENT LES REFUS DU MOTEUR. Une TypeError de la coquille doit
+       continuer de casser bruyamment : l'avaler ferait exactement le « faux
+       magasin » que ce dépôt interdit. */
+    if (!error || error.name !== "BuildError") throw error;
+    state.derivationImpossible = error.message;
+    state.decisions = verbs.decisions({ document: state.document }).decisions || [];
+    state.resolved = null;
+    state.report = null;
+    /* ⛔ PAS DE `validate` ICI : il juge `document.resolved`, qui est la
+       tranche de l'ancienne classe. Valider une fiche qui n'existe plus
+       produirait des refus sur un personnage que personne ne joue. */
+    state.violations = [];
+    return;
+  }
+  state.derivationImpossible = null;
   state.document = out.document;
   state.decisions = out.decisions || [];
   state.resolved = out.resolved;
@@ -1197,6 +1251,30 @@ function renderStepContent() {
   const parcoursOccupe = Boolean(catalogueCourant()) && catalogueCourant().parcours &&
     etatDeLEtape({ decisions: state.decisions, document: state.document, racine: catalogueCourant().path }) !== ETAT.catalogue;
   card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1 && !state.lore && !parcoursOccupe) || step.id === "skills");
+  /* ══ L'ÉCRAN QUI NE PEUT PAS SE DESSINER — et qui le DIT ═══════════════
+     🔴 SIX ÉCRANS LISENT LA FICHE DÉRIVÉE (`state.resolved`) : Inheritance,
+     Abilities, Destiny, Skills, Equipment, Review. Quand la dérivation est
+     impossible (voir `rebuild()`), elle vaut `null`, et ces six-là n'ont rien
+     à montrer.
+     ⭐ LES DEUX AUTRES FAMILLES CONTINUENT DE VIVRE, ET C'EST TOUT L'INTÉRÊT :
+     Identity et Universe ne lisent que le document ; les CATALOGUES ne lisent
+     que le carnet — et le catalogue de Class est précisément l'endroit où l'on
+     répare l'état où l'on est. Un garde qui les fermerait aussi enfermerait le
+     joueur dehors.
+     ⛔ D'OÙ LE `catalogueCourant()` DANS LA CONDITION : Destiny est dans les
+     six, mais son mode « Choose yourself » EST un catalogue. Nommer l'étape
+     sans regarder ce qu'elle affiche aurait fermé une porte ouverte.
+     📌 ET LE MOT NOMME LE MANQUE, jamais une clef machine — la règle du refus
+     qui nomme, §5 du canon. */
+  if (state.derivationImpossible && !catalogueCourant() && ECRANS_QUI_LISENT_LA_FICHE.has(step.id)) {
+    const manque = !(state.document && state.document.build.choices.some((c) => c && c.path === "class"));
+    card.append(el("p", "placeholder", [document.createTextNode(manque
+      ? "This screen reads your character sheet, and there is no sheet without a class. "
+        + "Choose one on Class, and this screen comes back with it."
+      : "This screen reads your character sheet, and it cannot be derived yet.")]));
+    return card;
+  }
+
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
@@ -1486,9 +1564,28 @@ function renderStepContent() {
      c'est ce qu'Eric demandait depuis le début (*« le ? est SUR la dalle tout
      à droite au même niveau que le titre »*). Et toujours pas quand un
      tutoriel est déjà là : proposer d'ouvrir ce qu'on lit est du bruit. */
+  /* 🔴 UN CATALOGUE MONTRE UNE FICHE À LA FOIS — Eric, 2026-08-20 : *« toujours
+     rajouter le petit point d'interrogation en bas à droite »*.
+
+     📏 LA CAUSE, MESURÉE DANS LA PAGE (les cinq dons d'origine) : le `?` était
+     posé sur la PREMIÈRE dalle trouvée, c'est-à-dire la fiche n°1 — mesurée à
+     `top: -1412` dès qu'on avait fait défiler le rail jusqu'à Magic Initiate.
+     Il existait, il était introuvable. Sur les autres écrans, où les dalles
+     s'empilent et défilent ensemble, le premier reste le bon.
+     ⭐ LA RÈGLE EST DONC CELLE DE L'OBJET, PAS CELLE DU COMPTE : là où les
+     pages ALTERNENT (un rail, une fiche visible à la fois), chacune porte la
+     sienne — exactement comme chacune porte déjà son `LORE` et son `CHOOSE`.
+     Ailleurs, rien ne change : une seule, sur la première dalle.
+     ⛔ ET TOUJOURS PAS SUR UN TUTORIEL : proposer d'ouvrir ce qu'on lit est du
+     bruit. */
   if (!card.querySelector(".tuto-general, .tuto-specifique")) {
-    const hote = card.querySelector("[data-objet='dalle'], .dalle-majeure, .dalle-intermediaire");
-    if (hote) hote.append(renderPointInterrogation(applyDecisionAction));
+    const fiches = card.querySelectorAll(".fiche-dalle");
+    const hotes = fiches.length > 0
+      ? Array.from(fiches)
+      : [card.querySelector("[data-objet='dalle'], .dalle-majeure, .dalle-intermediaire")];
+    for (const hote of hotes) {
+      if (hote) hote.append(renderPointInterrogation(applyDecisionAction));
+    }
   }
   return card;
 }
