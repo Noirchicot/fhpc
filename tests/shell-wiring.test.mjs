@@ -296,7 +296,13 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
      boîte. Ce qui doit rester vrai est ce que le garde visait déjà : elle est
      PRODUITE ici et RÉELLEMENT POSÉE dans la scène. On garde donc les deux
      bouts de la chaîne, sans figer l'endroit où elle atterrit. */
-  assert.match(shellText, /swapContent\(frame\.stage, poserLaSortie\(renderStepContent\(\), renderSortieEtape\(\)\)\)/,
+  /* ⚠️ CIBLE ÉLARGIE UNE 2ᵉ FOIS LE 2026-08-19, ET POUR LA MÊME RAISON QU'EN
+     2026-08-17 : la scène a gagné un nœud DEVANT — le chapeau de chapitre
+     (`renderChapitreIntro`, F3/FF3 d'Eric). La propriété gardée n'a pas
+     bougé d'un pouce : la sortie est PRODUITE ici et RÉELLEMENT POSÉE dans
+     la scène. On garde donc les deux bouts de la chaîne, et on cesse de
+     garder l'ORDRE des nœuds qu'on passe — c'était le détail, pas la règle. */
+  assert.match(shellText, /swapContent\(frame\.stage,[\s\S]{0,160}poserLaSortie\(renderStepContent\(\), renderSortieEtape\(\)\)/,
     "⛔ elle est réellement POSÉE dans la scène — écrite sans être appelée, elle ne serait qu'un placeholder de plus");
   assert.match(shellText, /const hote = contenu\.querySelector\("\[data-sortie-ici\]"\);/,
     "et l'écran ne fait que DÉCLARER un hôte — il ne fabrique toujours aucune sortie (garde 17)");

@@ -225,3 +225,61 @@ test("⛔ AUCUN bouton `sheet` — B9.5 le demande, il n'existe pas, un bouton m
   const mots = [...section.querySelectorAll(".review-porte")].map((p) => p.textContent.toLowerCase());
   assert.equal(mots.some((m) => m.includes("sheet")), false);
 });
+
+/* ══ LA LUMIÈRE VERTE DU BELT — Eric, 2026-08-19 ══════════════════════════
+   *« lorsqu'un chapitre de création est complet une lumière verte s'allume
+   dans le numéro associé dans le belt »*.
+
+   ⛔ CE QUE CES TESTS EXISTENT POUR EMPÊCHER, et c'était l'état du dépôt : le
+   vert vivait sur `data-status="done"`, qui veut dire « tu es PASSÉ devant ».
+   Un chapitre traversé sans rien y poser s'allumait. Le juge est maintenant
+   `etapeFaite`, celui de Review — un seul, pour que les deux affichages ne
+   puissent pas se contredire. */
+
+test("le juge dit FINI, jamais VU — une étape sans aucun fait n'est pas verte", async () => {
+  const { etapeFaite } = await import("../ui/builder/review-step.mjs");
+  /* PRIVATION DÉLIBÉRÉE : un carnet vide et aucun document. Rien n'a été
+     posé, donc rien n'est fini — quelle que soit l'étape où l'on se trouve.
+     C'est exactement le cas que `data-status="done"` déclarait vert. */
+  const rien = { decisions: [], document: null, resolved: null };
+  for (const etape of ["species", "class", "abilities", "concept", "destiny", "universe"]) {
+    assert.equal(etapeFaite(rien, etape), false, `${etape} : rien de posé, donc rien de fini`);
+  }
+});
+
+test("une étape inconnue n'est pas verte, elle est FAUSSE — jamais une erreur à l'écran", async () => {
+  const { etapeFaite } = await import("../ui/builder/review-step.mjs");
+  assert.equal(etapeFaite({ decisions: [] }, "chapitre-qui-nexiste-pas"), false);
+  assert.equal(etapeFaite({ decisions: [] }, undefined), false);
+});
+
+test("SPECIES n'est finie que quand le LIGNAGE l'est aussi", async () => {
+  const { etapeFaite, REVIEW_GROUPS } = await import("../ui/builder/review-step.mjs");
+  /* ⭐ LE CHEMIN DOIT ÊTRE DANS LA TABLE. `species.lineage` est né le
+     2026-08-19 ; son absence ici faisait compter un Dragonborn sans ancêtre
+     comme FINI — au récapitulatif comme dans la lumière, qui lit la même
+     table. On épingle le chemin, on ne compte pas les chemins. */
+  const species = REVIEW_GROUPS.find((g) => g.step === "species");
+  assert.ok(species.paths.includes("species.lineage"),
+    "le lignage appartient à Species : sans lui, la lumière ment");
+
+  const plan = (path, answered, expected) => ({ path, status: "answered", answered, expected });
+  const espece = plan("species", 1, 1);
+
+  assert.equal(etapeFaite({ decisions: [espece, plan("species.lineage", 0, 1)] }, "species"), false,
+    "espèce posée, lignage vide : la lumière reste éteinte");
+  assert.equal(etapeFaite({ decisions: [espece, plan("species.lineage", 1, 1)] }, "species"), true,
+    "les deux posés : elle s'allume");
+});
+
+test("un plan VERROUILLÉ n'allume rien, même s'il est répondu", async () => {
+  const { etapeFaite } = await import("../ui/builder/review-step.mjs");
+  /* Un lignage d'une autre espèce est « répondu » au sens du compte, et
+     REFUSÉ au sens du carnet. Le vert dirait alors qu'un chapitre fautif est
+     fini — c'est le pire des deux mensonges possibles. */
+  const decisions = [
+    { path: "species", status: "answered", answered: 1, expected: 1 },
+    { path: "species.lineage", status: "locked", answered: 1, expected: 1 }
+  ];
+  assert.equal(etapeFaite({ decisions }, "species"), false);
+});

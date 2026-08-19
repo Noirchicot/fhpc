@@ -47,7 +47,7 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=116";
+import { planAt } from "./carnet.mjs?v=120";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -66,7 +66,11 @@ export const REVIEW_GROUPS = [
   { step: "universe", label: "Universe & Layers", paths: [] },
   { step: "concept", label: "Biography", paths: [] },
   { step: "abilities", label: "Abilities", paths: [] },
-  { step: "species", label: "Species", paths: ["species", "species.skills", "species.skillBudget"] },
+  /* ⚠️ `species.lineage` A ÉTÉ AJOUTÉ LE 2026-08-19, et son absence ici se
+     serait vue : cinq espèces sur douze portent un lignage, et sans ce chemin
+     un Dragonborn sans ancêtre choisi comptait pour FINI — au récapitulatif
+     comme dans la lumière du belt, qui lit la même table. */
+  { step: "species", label: "Species", paths: ["species", "species.lineage", "species.skills", "species.skillBudget"] },
   { step: "destiny", label: "Destiny", paths: [] },
   { step: "background", label: "Inheritance", paths: ["background", "background.boost", "background.originFeat[0]"] },
   /* LOT 72 — les sorts entrent au carnet (`class.cantrips`/`class.prepared`,
@@ -130,6 +134,31 @@ function presences(step, document, resolved) {
  * @param {object} [ctx.report]   la sortie complète de `rebuild()` (warnings…)
  * @param {Array}  [ctx.violations] les refus de `validate()`
  */
+/** ⭐ EST-CE QUE CETTE ÉTAPE EST FINIE ? — LE SEUL JUGE, ET IL EST ICI.
+ *
+ *  Il existait déjà, fondu dans la boucle de Review. Le belt en avait besoin
+ *  à son tour (la lumière verte, Eric 2026-08-19), et le recopier là-bas
+ *  aurait fait DEUX réponses à une seule question — la faute que ce dépôt
+ *  paie le plus cher (voir la tête de `resolvedRef`, côté moteur). Extrait,
+ *  exporté, appelé par les deux.
+ *
+ *  ⛔ IL NE JUGE RIEN LUI-MÊME : il assemble ce que le carnet a prononcé
+ *  (`etatDuPlan`) et ce que le document PORTE (`presences`). Aucun seuil ici.
+ *
+ *  ⚠️ UNE ÉTAPE SANS AUCUN FAIT N'EST PAS FINIE — `etats.length > 0`. Sans
+ *  cette moitié, une étape muette s'allumerait en vert d'entrée de jeu, ce
+ *  qui est exactement le mensonge qu'on vient de retirer au belt. */
+export function etapeFaite({ decisions, document, resolved }, stepId) {
+  const groupe = REVIEW_GROUPS.find((g) => g.step === stepId);
+  if (!groupe) return false;
+  const etats = groupe.paths
+    .map((path) => planAt(decisions || [], path))
+    .filter(Boolean)
+    .map(etatDuPlan)
+    .concat(presences(groupe.step, document || null, resolved || null));
+  return etats.length > 0 && etats.every((e) => e.fait);
+}
+
 export function renderReviewStep(ctx, onAction) {
   const decisions = ctx.decisions || [];
   const document = ctx.document || null;

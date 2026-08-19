@@ -126,6 +126,61 @@ et dans le mandat du lot 79. **Un mot qui change de sens selon l'âge du
 fichier qui le porte ne vaut plus rien** ; l'ordre des chiffres ne payait rien
 d'autre.
 
+## 2 ter bis. ⭐ LE CHIFFRE **3** EST NÉ LE 2026-08-19 — ET CE N'EST PAS L'ANCIEN
+
+Eric, mot pour mot : *« Règles globales à chaque chapitre du 1 au 8. Il y a
+toujours un FF2 ou F2 avec Line bleed = F3 ou FF3, pour introduire ce qui est
+attendu du joueur. […] On décide que la dalle s'arrête pour laisser place à une
+suivante en utilisant line bleed, ce qui nous fait une marge. Normalement pas
+utile sur la dernière dalle. »*
+
+| | ce que le chiffre dit |
+|---|---|
+| **1** | la hauteur est **imposée** |
+| **2** | la hauteur est **libre** |
+| **3** | la hauteur est libre **ET la dalle se termine par un line bleed** |
+
+**F3 = F2 + line bleed.** Le 3 ne remplace pas le 2 : il le PROLONGE. Ce que le
+chiffre ajoute n'est pas une géométrie, c'est une **fin** — la dalle annonce
+qu'elle s'arrête pour laisser la place à une suivante, et le débordement du
+filet produit la marge qui les sépare.
+
+⛔ **NORMALEMENT PAS SUR LA DERNIÈRE DALLE.** Un line bleed qui n'a rien à
+introduire ne sépare rien : il ajoute une marge en bas d'un écran fini.
+
+### ⚠️ CE N'EST PAS LE F3 QU'ERIC AVAIT TUÉ LE 2026-08-16
+
+Le §2 juste au-dessus dit *« F3 EST MORT »*, et cette phrase reste vraie **pour
+ce qu'elle visait** : l'ancien F3 voulait dire *« une longue liste »*, et Eric
+avait raison — une longue liste est une hauteur LIBRE qui dépasse le champ,
+donc un F2, et le troisième chiffre ne décrivait rien de neuf.
+
+Le F3 du 19/08 décrit **autre chose** : non pas la longueur du contenu, mais la
+**terminaison** de la dalle. Le nom était libre (l'ancien n'a jamais été écrit
+dans un fichier), le sens est neuf. ⛔ On ne relit donc pas le §2 comme une
+contradiction — les deux paragraphes parlent de deux objets différents qui ont
+porté le même nom à six semaines d'écart.
+
+### OÙ IL EST POSÉ — une fois, pour huit
+
+`renderChapitreIntro()` dans `shell.mjs`, composé au même endroit que
+`BACK`/`DONE` : **la coquille le produit, les huit chapitres en héritent**.
+L'écrire dans les huit écrans, c'est huit versions qui divergent au premier
+changement de registre.
+
+⛔ **Ni sur le Menu (0), ni sur la fiche (Sheet)** : ce ne sont pas des étapes
+de création. C'est exactement ce que dit *« du 1 au 8 »*.
+
+📏 **Mesuré dans la page le 2026-08-19**, à 375 : le chapeau fait **76 px** sur
+Identity (trois lignes de T3) et **55 px** sur Skills (deux lignes) — sa
+hauteur est celle de son texte, comme un 2. Gouttières **8 px** des deux
+côtés, identiques à la carte qui le suit ; le filet touche les bords du
+CHAPEAU et non ceux de l'écran (`--saignee-debord` annule exactement le
+rembourrage latéral `--sp-16`).
+
+⏳ **Le TEXTE des huit chapeaux est un brouillon de Claude**, pas d'Eric. Il vit
+dans `CHAPITRE_INTRO` (shell.mjs) et se corrige là, à un seul endroit.
+
 ## 2 bis. LES COTES, EN CHIFFRES
 
 Les marges sont sur **les quatre côtés**, systématiquement, et c'est **un seul

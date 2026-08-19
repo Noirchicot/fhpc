@@ -253,7 +253,10 @@ test("E — shell.mjs remplace le contenu de la fiche PAR swapContent, réelleme
      bougé : c'est `swapContent` qui remplit la fiche, et lui seul. On garde
      donc QUI la remplit, et on cesse de garder la forme de ce qu'on lui
      passe — c'était le détail, pas la règle. */
-  assert.match(shellText, /swapContent\(frame\.stage,\s*poserLaSortie\(renderStepContent\(\)/,
+  /* ⚠️ CIBLE RÉÉLARGIE LE 2026-08-19 : la liste gagne un chapeau de chapitre
+     en tête (F3/FF3). Troisième élargissement, même phrase à chaque fois —
+     c'est `swapContent` qui remplit la fiche, et lui seul. */
+  assert.match(shellText, /swapContent\(frame\.stage,[\s\S]{0,160}poserLaSortie\(renderStepContent\(\)/,
     "sans cette ligne, la fiche se remplirait par un autre chemin — et la position repartirait à zéro");
 });
 
