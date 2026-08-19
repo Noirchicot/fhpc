@@ -341,7 +341,11 @@ test("19 — CH6 : `renderValidation` s'efface sur un écran à fiche, et SEULEM
      2ᵉ palier (le menu des choix n'a pas de `CHOOSE` : l'écran deviendrait
      une impasse). Ne s'effacer nulle part remettrait deux boutons pour une
      porte, à dix pixels l'un de l'autre. */
-  assert.match(shellText, /\.fiche && state\.palier !== 2\) return null/,
+  /* ⚠️ ÉLARGI LE 2026-08-19 : la dalle d'item échappe à l'effacement — elle
+     n'est pas une fiche, c'est le cran le plus intérieur du parcours, et c'est
+     la paire de la coquille qui l'en sort. Sans cette exception, un item
+     s'ouvrait SANS AUCUNE PORTE — mesuré dans la page, pas déduit. */
+  assert.match(shellText, /\.fiche && state\.palier !== 2 && !state\.parcoursItem\) return null/,
     "le drapeau `fiche` (déclaré par class-step/species-step) est ce qui décide, et le palier 2 garde son bouton");
   /* ⚔️ Le témoin : les deux écrans à fiche déclarent bien le drapeau que
      cette ligne lit. Un drapeau lu mais jamais posé s'effacerait en silence. */
@@ -439,8 +443,13 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      autre]` la ferait rougir comme avant. */
   assert.match(shellText, /return el\("div", "sortie", \[back, done\]\.filter\(Boolean\)\);/,
     "⛔ DEUX boutons au plus dans le pied — un troisième ferait passer la paire à deux lignes, et les 76 px avec");
-  assert.match(shellText, /const back = state\.palier > 1 \? button\("BACK"/,
-    "⭐ et `BACK` ne naît que s'il y a un palier derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
+  /* ⚠️ ÉLARGI LE 2026-08-19, PAS ASSOUPLI : une dalle d'ITEM est un cran de
+     plus à l'intérieur (parcours d'étape), donc « y a-t-il quelque chose
+     derrière ? » y répond oui elle aussi. La règle gardée n'a pas bougé —
+     `BACK` naît d'un FAIT, jamais d'un id d'étape — et le pied reste une
+     PAIRE : la ligne juste au-dessus continue de l'exiger. */
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\("BACK"/,
+    "⭐ et `BACK` ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;

@@ -134,3 +134,19 @@ test("estConfirme LIT, il ne déduit pas — et un document sans champ ne signe 
   assert.equal(estConfirme(docAvec("species"), "species.lineage"), false,
     "signer le guide ne signe pas ses items");
 });
+
+test("un SOUS-CHEMIN n'est pas un item — mesuré dans la page le 2026-08-19", () => {
+  /* ⚔️ L'Elfe affichait QUATRE items : son lignage, sa bourse, puis `Survival`
+     et `Vigilance` — qui sont les compétences DANS la bourse, pas des
+     décisions à part. Un item est une décision ; ce qui vit dessous en est le
+     contenu. */
+  const decisions = [
+    { path: "species", selected: ["srd:species:en:elf"] },
+    plan("species.lineage", 0, 1),
+    plan("species.skillBudget", 0, 2),
+    plan("species.skillBudget.survival", 0, 1),
+    plan("species.skillBudget.vigilance", 0, 1)
+  ];
+  const items = itemsDeLEtape({ decisions, document: docAvec(), racine: "species" });
+  assert.deepEqual(items.map((i) => i.path), ["species.lineage", "species.skillBudget"]);
+});

@@ -60,6 +60,12 @@ export function itemsDeLEtape({ decisions, document, racine }) {
   return liste
     .filter((plan) => plan && typeof plan.path === "string")
     .filter((plan) => plan.path.startsWith(prefixe))
+    /* ⚠️ UN SEUL SEGMENT SOUS LA RACINE, et c'est une correction mesurée dans
+       la page : l'Elfe affichait QUATRE items — `lineage`, `skillBudget`, puis
+       `Survival` et `Vigilance`. Les deux derniers sont les compétences DANS
+       la bourse (`species.skillBudget.survival`), pas des décisions à part.
+       Un item est une DÉCISION ; ce qui vit dessous en est le contenu. */
+    .filter((plan) => !plan.path.slice(prefixe.length).includes("."))
     .filter((plan) => !/\[\d+\]$/.test(plan.path))
     .map((plan) => ({
       path: plan.path,

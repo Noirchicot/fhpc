@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=123";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=123";
-import { renderChoixGlisses } from "./glisser.mjs?v=123";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=129";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=129";
+import { renderChoixGlisses } from "./glisser.mjs?v=129";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -62,7 +62,11 @@ function tierLabel(value) {
 /* `fiche: true` — même déclaration que Class, même raison (Ch6) : cet écran
    passe par `renderFicheBody`, ses dalles portent `LORE` / `CHOOSE`, et
    `CHOOSE` y remplace le `Validate` générique. « B3 = B2 », jusqu'au bout. */
-export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species", fiche: true };
+/* ⭐ `parcours: true` — Species est la première étape à porter le parcours
+   d'Eric (2026-08-19) : guide général → guide spécifique → items → bilan.
+   Le drapeau suffit ; la coquille fait le reste, et Class puis Inheritance
+   n'auront qu'à le poser à leur tour. */
+export const SPECIES_CATALOGUE = { path: "species", kind: "species", label: "Species", fiche: true, parcours: true };
 
 /** LE CORPS D'UNE FICHE D'ESPÈCE — lot 77. ⭐ C'EST EXACTEMENT LA FICHE DE
  *  CLASS, et c'est le point : `renderFicheBody` est écrit une fois, les deux

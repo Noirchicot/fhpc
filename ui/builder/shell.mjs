@@ -19,41 +19,42 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=123";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=123";
-import { mountPopup } from "./popup.mjs?v=123";
-import { renderLorePanel } from "./lore.mjs?v=123";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=123";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=129";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=129";
+import { mountPopup } from "./popup.mjs?v=129";
+import { renderLorePanel } from "./lore.mjs?v=129";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=129";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme } from "./parcours.mjs?v=123";
-import { renderConceptStep } from "./concept-step.mjs?v=123";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=123";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=123";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=129";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=129";
+import { renderConceptStep } from "./concept-step.mjs?v=129";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=129";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=129";
 import {
-  catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=123";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=123";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=123";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=123";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=123";
+  catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
+} from "./catalogue.mjs?v=129";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=129";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=129";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=129";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=129";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=123";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=129";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=123";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=123";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=123";
+} from "./destiny-step.mjs?v=129";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=129";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=129";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=123";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=129";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -72,16 +73,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=123";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=123";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=129";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=123";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=123";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=129";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=129";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=123";
+import { versionQuery } from "./version.mjs?v=129";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -205,6 +206,10 @@ const state = {
      d'item est ouverte, sinon null. C'est le cran le PLUS INTÉRIEUR du retour :
      un item vit dans un guide, qui vit dans un palier, qui vit dans une étape. */
   parcoursItem: null,
+  /* Les chemins que le dernier `Done` de guide a REFUSÉS, ou null. Il n'existe
+     qu'APRÈS un refus : annoncer d'avance ce qui manque ferait de la liste un
+     reproche. */
+  parcoursRefus: null,
   lore: null,            // { kind, id } — le record dont on lit la prose, ou null
   destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
   /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
@@ -720,6 +725,78 @@ function applyDecisionAction(action) {
      traverse jusqu'à `pressDone()`, LE MÊME geste que le palier de
      `Validate` : le panneau ne sort pas par une seconde porte. */
   if (action.kind === "done") { pressDone(); return; }
+  /* ══ LES QUATRE GESTES DU PARCOURS D'ÉTAPE (Eric, 2026-08-19) ═══════════
+     Spec : vault `FH-WEB/FHPC/FHPCv2 parcours d'etape.md`. Ils sont écrits en
+     vocabulaire de RACINE — « species », « class », « background » — et pas un
+     seul nom d'étape n'est en dur : le jour où l'Inheritance les emploie, il
+     n'y a rien à ajouter ici. */
+
+  /* Ouvrir un item. Le retour et la signature sont dans `pressBack`/`pressDone`,
+     là où l'emboîtement des crans est déjà écrit. */
+  if (action.kind === "parcoursItem") {
+    state.parcoursItem = { racine: action.racine, path: action.path };
+    state.parcoursRefus = null;
+    openSurface();
+    return;
+  }
+
+  /* Le `Done` du guide. ⛔ IL N'EST JAMAIS GRISÉ : s'il manque une signature,
+     il REFUSE et NOMME — *« done lance un message et ne valide pas si tout
+     n'est pas coché »*. Le message vit dans l'état, pas dans une alerte : une
+     alerte se ferme et emporte l'information avec elle. */
+  if (action.kind === "parcoursDone") {
+    const refus = refusDuDone({
+      decisions: state.decisions, document: state.document, racine: action.racine
+    });
+    if (refus) {
+      state.parcoursRefus = refus.manquants;
+      refresh();
+      return;
+    }
+    state.parcoursRefus = null;
+    if (state.docWriters && state.document) {
+      state.document = state.docWriters.confirm({ document: state.document, path: action.racine });
+    }
+    openSurface();
+    return;
+  }
+
+  /* `I changed my mind` — DEUX ORGANES, ET C'EST VOULU. Les signatures
+     s'effacent par `revoke` (écrivain de document) ; les choix s'effacent par
+     `clear` (verbe du bloc `build`, qui seul sait ce qu'un choix entraîne).
+     Les fondre en un seul geste ferait écrire des règles à un écrivain qui
+     n'en connaît aucune.
+     ⚠️ ET LES DEUX BALAYENT LE MÊME PRÉFIXE : la racine et tout ce qui vit
+     dessous. Une signature qui survivrait à son choix rallumerait un voyant
+     sur un item vide. */
+  if (action.kind === "parcoursCancel") {
+    const racine = action.racine;
+    const sous = (chemin) => chemin === racine ||
+      chemin.startsWith(`${racine}.`) || chemin.startsWith(`${racine}[`);
+    if (state.docWriters && state.document) {
+      state.document = state.docWriters.revoke({ document: state.document, path: racine });
+    }
+    const verbs = state.engine && state.engine.build && state.engine.build.verbs;
+    if (verbs && state.document) {
+      const poses = (state.document.build && state.document.build.choices) || [];
+      let document = state.document;
+      /* La liste est FIGÉE avant la boucle : on efface pendant qu'on la lit. */
+      for (const chemin of poses.map((c) => c && c.path).filter((c) => typeof c === "string" && sous(c))) {
+        document = verbs.clear({ document, path: chemin, kind: "choice" }).document;
+      }
+      state.document = document;
+      rebuild();
+    }
+    state.parcoursItem = null;
+    state.parcoursRefus = null;
+    state.palier = 1;
+    openSurface();
+    return;
+  }
+
+  /* `Next` — le bilan invite à continuer, et c'est le même pas que partout. */
+  if (action.kind === "parcoursNext") { goToStep(state.step + 1); return; }
+
   if (action.kind === "ficheChoose") {
     state.cursor = action.index;
     pressDone();
@@ -1107,10 +1184,34 @@ function renderStepContent() {
        palier : lire la prose d'une espèce est une parenthèse, elle ne doit
        rien changer à l'endroit où on en était du choix. On revient au même
        palier, sur le même curseur — le panneau n'écrit que `state.lore`. */
+    /* ══ LE PARCOURS D'ÉTAPE (Eric, 2026-08-19) ═══════════════════════════
+       Les catalogues qui le portent (`cfg.parcours`) ne se lisent PLUS au
+       palier : leur écran se déduit du DOCUMENT.
+
+       🔴 ET C'EST UNE CORRECTION, PAS UN GOÛT. `state.palier` retombe à 1 à
+       chaque changement d'étape (voir son commentaire) — router dessus aurait
+       ramené le joueur au catalogue dès qu'il revient par la ceinture, alors
+       qu'Eric demande l'inverse : *« désormais qu'on aille en avant ou en
+       arrière dans le belt, quand on revient à species on retombe dans le
+       guide spécifique »*. L'état lu au document survit à la navigation ET au
+       rechargement de la page.
+
+       ⛔ LE LORE RESTE PRIORITAIRE : il est une parenthèse dans la lecture,
+       et il vaut aussi bien depuis le catalogue que depuis le guide. */
+    const parcours = cfg.parcours
+      ? etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path })
+      : null;
+
     if (state.lore) {
       section.append(renderLorePanel({
         query: ctx.query, kind: state.lore.kind, id: state.lore.id, onAction: applyDecisionAction
       }));
+    } else if (parcours && state.parcoursItem) {
+      section.append(renderParcoursItem(cfg, ctx));
+    } else if (parcours === ETAT.guide) {
+      section.append(renderParcoursGuide(cfg, ctx));
+    } else if (parcours === ETAT.bilan) {
+      section.append(renderParcoursBilan(cfg, ctx));
     } else if (state.palier === 2) {
       section.append(cfg.choices(ctx, applyDecisionAction));
     } else {
@@ -1406,7 +1507,93 @@ function onSnapSettle(index) {
    que faisait le bouton `Continue` d'avant — donc aucun des neuf autres
    écrans ne ment sur des paliers qu'il n'a pas encore. Class en déclare
    deux (B2.4), et c'est le seul aujourd'hui. */
+/* ══ LES TROIS ADAPTATEURS DU PARCOURS ══════════════════════════════════════
+   Ils relient un catalogue (`cfg`) aux écrans de `parcours-ecrans.mjs`.
+
+   ⛔ AUCUN NOM D'ÉTAPE ICI. Tout ce qui est propre à une étape passe par des
+   crochets FACULTATIFS sur son `cfg` — `guideTexte`, `itemLabel`, `itemCorps`,
+   `bilanLignes`. Species les fournira ; l'Inheritance fournira les siens ; ce
+   fichier n'apprend jamais leurs noms.
+
+   ⏳ LES REPLIS SONT DES REPLIS, PAS DES CHOIX. Sans crochet, on rend le
+   mot du chemin et le panneau de choix existant : ça fonctionne, ce n'est pas
+   ce qu'Eric a dessiné, et c'est écrit ici pour que personne ne le prenne pour
+   la version finale. */
+
+/** Le mot d'un item quand son écran n'en propose pas : la queue du chemin,
+ *  rendue lisible. `species.skillBudget` → « Skill budget ». */
+function motDuChemin(chemin) {
+  const queue = String(chemin).split(".").pop().replace(/\[\d+\]$/, "");
+  const espace = queue.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+  return espace.charAt(0).toUpperCase() + espace.slice(1);
+}
+
+function itemsDuParcours(cfg) {
+  return itemsDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path });
+}
+
+function renderParcoursGuide(cfg, ctx) {
+  const items = itemsDuParcours(cfg);
+  const refus = Array.isArray(state.parcoursRefus) && state.parcoursRefus.length > 0
+    ? `Not yet: ${state.parcoursRefus.map((c) => (cfg.itemLabel ? cfg.itemLabel(c, ctx) : motDuChemin(c))).join(", ")}.`
+    : null;
+  return renderGuideSpecifique({
+    racine: cfg.path,
+    titre: recordName(ctx.query, cfg.kind, resolvedRefId(cfg)) || cfg.label,
+    texte: cfg.guideTexte ? cfg.guideTexte(ctx) : DEFAUT_GUIDE,
+    items,
+    labelOf: (item) => (cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path)),
+    refus,
+    onAction: applyDecisionAction
+  });
+}
+
+function renderParcoursItem(cfg, ctx) {
+  const ouvert = state.parcoursItem;
+  const items = itemsDuParcours(cfg);
+  const item = items.find((entry) => entry.path === ouvert.path) || { path: ouvert.path };
+  return renderItemDalle({
+    racine: cfg.path,
+    item,
+    titre: cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path),
+    corps: cfg.itemCorps ? cfg.itemCorps(item, ctx, applyDecisionAction)
+      : cfg.choices(ctx, applyDecisionAction),
+    onAction: applyDecisionAction
+  });
+}
+
+function renderParcoursBilan(cfg, ctx) {
+  const lignes = cfg.bilanLignes
+    ? cfg.bilanLignes(ctx)
+    : itemsDuParcours(cfg).map((item) => [
+      cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path),
+      item.confirme ? "done" : "not recorded"
+    ]);
+  return renderBilan({
+    racine: cfg.path,
+    titre: recordName(ctx.query, cfg.kind, resolvedRefId(cfg)) || cfg.label,
+    lignes,
+    onAction: applyDecisionAction
+  });
+}
+
+/** L'id du record RETENU pour ce catalogue — lu au carnet, jamais deviné. */
+function resolvedRefId(cfg) {
+  const plan = (state.decisions || []).find((entry) => entry && entry.path === cfg.path);
+  return plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+}
+
+const DEFAUT_GUIDE = "Everything this choice asks of you is listed below. " +
+  "Open each one, settle it, and mark it Done — then confirm the step.";
+
 function currentGate(palier = state.palier) {
+  /* ⭐ UNE DALLE D'ITEM PASSE AVANT TOUT LE RESTE (2026-08-19), et sa porte est
+     TOUJOURS prête : *« il faut faire done pour valider un item »* — un `DONE`
+     grisé n'aurait rien à valider et ne dirait pas pourquoi. Le refus, lui,
+     vit au guide, où il peut NOMMER ce qui manque.
+     ⛔ `next: "item"` n'est ni un palier ni une étape : c'est le quatrième
+     mouvement, celui qui referme le cran le plus intérieur. */
+  if (state.parcoursItem) return { exists: true, ready: true, action: null, next: "item" };
   const cfg = catalogueCourant();
   if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
   /* B8 — rien n'est obligatoire sur Equipment : la porte est toujours prête. */
@@ -1452,6 +1639,25 @@ function pressDone() {
   /* B4.4, étape 2 — « toutes les fenêtres intermédiaires disparaissent ».
      Fermer n'est ni un palier ni une étape : c'est le troisième mouvement de
      `Validate`, et il n'existe que sur cet écran. */
+  /* L'ITEM SE SIGNE ICI, ET SEULEMENT ICI. `pressBack` le referme sans rien
+     écrire ; `DONE` écrit la signature PUIS referme. Les deux gestes mènent au
+     même écran et ne laissent pas le même document — c'est toute la règle. */
+  if (gate.next === "item") {
+    const ouvert = state.parcoursItem;
+    state.parcoursItem = null;
+    if (ouvert && state.docWriters && state.document) {
+      try {
+        state.document = state.docWriters.confirm({ document: state.document, path: ouvert.path });
+      } catch (error) {
+        /* ⛔ UN REFUS D'ÉCRITURE NE SE MANGE PAS. Il remonte dans le carnet des
+           champs, comme ceux de `rename`, au lieu de laisser le joueur croire
+           qu'il a validé. */
+        state.fieldErrors = { ...state.fieldErrors, parcours: error.message };
+      }
+    }
+    openSurface();
+    return;
+  }
   if (gate.next === "close") { state.inheritanceOpen = null; openSurface(); return; }
   if (gate.next === "palier") {
     /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
@@ -1639,7 +1845,12 @@ function renderSortieEtape() {
      des choix, B2.3), donc plus de `CHOOSE` — il garde ce pied, et il en a
      besoin. */
   const fiche = catalogueCourant();
-  if (fiche && fiche.fiche && state.palier !== 2) return null;
+  /* ⭐ SAUF DANS UNE DALLE D'ITEM (2026-08-19). Les écrans à fiche n'ont pas de
+     pied au palier 1 — leur `CHOOSE` est sur la fiche — mais une dalle d'item
+     n'est pas une fiche : c'est le cran le plus intérieur du parcours, et c'est
+     la paire de la coquille qui l'en sort. Sans cette exception, l'item
+     s'ouvrait sans aucune porte (mesuré dans la page). */
+  if (fiche && fiche.fiche && state.palier !== 2 && !state.parcoursItem) return null;
   /* ⭐ UNE PAGE QUI NE FAIT QUE BRANCHER N'A PAS DE SORTIE — Eric, 2026-08-16 :
      *« la page racine n'a pas besoin de BACK ou DONE, car elle est à la racine
      et donne des branches »*.
@@ -1676,7 +1887,10 @@ function renderSortieEtape() {
      ⚠️ CE QU'ON PERD, ET IL FAUT LE DIRE : à l'étape 3 palier 1, revenir à
      l'étape 2 passe désormais UNIQUEMENT par la ceinture. C'était déjà le
      chemin prévu par I.5 ; il n'a simplement plus de doublon. */
-  const back = state.palier > 1 ? button("BACK", () => pressBack()) : null;
+  /* ⭐ ET DANS UNE DALLE D'ITEM AUSSI (2026-08-19) : elle est un cran de plus à
+     l'intérieur, donc « y a-t-il quelque chose derrière ? » y répond oui. La
+     condition reste écrite sur le FAIT, jamais sur un id d'étape. */
+  const back = (state.palier > 1 || state.parcoursItem) ? button("BACK", () => pressBack()) : null;
   if (back) back.className = "sortie-bouton sortie-back";
 
   const done = button("DONE", () => pressDone());
@@ -1807,7 +2021,13 @@ function paintAside() {
   const rail = cfg ? renderCatalogueRail(catalogueCtx(cfg), applyDecisionAction) : null;
   /* ⭐ Et le PANNEAU DE LORE non plus (lot 82) : on lit une page, on ne
      parcourt plus un catalogue. Même raison exactement que le 2ᵉ palier. */
-  const show = Boolean(rail) && state.palier !== 2 && !state.lore; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
+  /* ⭐ ET LE PARCOURS FERME LE RAIL DÈS LE `Choose` (Eric, 2026-08-19) :
+     *« quand on a choisi Choose pour une species ON PASSE EN MODE FF »*, et on
+     y reste. Le rail ne revient qu'au catalogue — c'est-à-dire quand plus
+     aucune espèce n'est retenue, après un `I changed my mind`. */
+  const enParcours = cfg && cfg.parcours &&
+    etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path }) !== ETAT.catalogue;
+  const show = Boolean(rail) && state.palier !== 2 && !state.lore && !enParcours; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
   frame.area.dataset.aside = show ? "on" : "off";
   swapContent(frame.aside, show ? [rail] : []);
