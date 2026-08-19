@@ -54,11 +54,18 @@ function saignee() {
    avancer (*« Move on when you are ready »*) et suppose un `Next` sous elle.
    Sur un écran où l'on REVIENT, ce bouton n'existe plus : garder l'invitation
    promettrait une porte absente. On garde donc sa phrase là où elle est vraie,
-   et on n'en garde que la moitié qui reste vraie ailleurs. */
+   et on n'en garde que la moitié qui reste vraie ailleurs.
+
+   🔴 ET CHAQUE MOITIÉ NOMME SON BOUTON, MOT POUR MOT. *« Reopen it »* ne
+   désignait rien : aucune porte de cet écran ne s'appelle « Reopen ». La
+   phrase et le pied disent maintenant la MÊME chose avec les MÊMES mots —
+   « move on » sous `Next`, « change your mind » sous `I changed my mind` —
+   parce qu'une consigne qui rebaptise le bouton qu'elle désigne fait chercher
+   un troisième bouton. */
 function conclusion(peutAvancer) {
   const phrase = peutAvancer
-    ? "This step is settled. Move on when you are ready — or reopen it and start over."
-    : "This step is settled. Reopen it if you want to start over.";
+    ? "This step is settled. Move on when you are ready — or change your mind and start it over."
+    : "This step is settled. Change your mind if you want to start it over.";
   return [saignee(), el("p", "parcours-conclu", [text(phrase)])];
 }
 

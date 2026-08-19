@@ -2981,8 +2981,20 @@ button { font: inherit; }
   border: 0; border-radius: var(--radius-md);
   background: var(--dalle-inter); color: var(--text);
   font: inherit; font-weight: 600; cursor: pointer;
+  /* 🔴 ENCADRÉS COMME LES AUTRES — Eric, 2026-08-19 : *« encadre correctement
+     I changed my mind et Next »*, puis *« c'est pas encadré comme les autres
+     boutons »*. TROISIÈME FOIS QUE CE DÉFAUT REVIENT, et toujours par la même
+     porte : `--dalle-inter` vaut la couleur de la dalle à 50 % d'alpha —
+     mesuré `rgb(235,232,225)/.5` POSÉ SUR `rgb(235,232,225)`. Un fond peint
+     avec le fond ne dessine rien ; sans cerne, il ne restait que du texte
+     centré.
+     ⭐ LE CERNE EST CELUI DES BOUTONS D'ITEMS (`--border-strong`), pas un
+     troisième : `Lineage` et `Next` sont des objets de MÊME nature — on les
+     presse — donc ils portent le même bord. Le `--verre-lisere` que portait
+     `Done` seul était deux fois plus pâle : il expliquait pourquoi lui non
+     plus ne se voyait pas, et pourquoi ses deux voisins n'avaient rien. */
+  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
-.parcours-done { box-shadow: inset 0 0 0 1px var(--verre-lisere); }
 
 /* La carte d'étape ancre le « ? » : sans repère, il se poserait sur la scène. */
 /* 🔴 L'ANCRAGE DU « ? » EST SUR LA DALLE, PLUS SUR LA CARTE (Eric,
