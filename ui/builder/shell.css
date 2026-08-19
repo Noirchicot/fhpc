@@ -2500,6 +2500,25 @@ button { font: inherit; }
   -webkit-user-select: none; user-select: none;
 }
 .glisse-jeton:disabled { opacity: .4; cursor: default; }
+
+/* 🔴 UN RÉCEPTEUR REMPLI EST UNE SOURCE DE GLISSER, ET IL LE DIT — Eric,
+   2026-08-19, sur iPad : *« quand je redéplace vers le haut, ça fait scroller
+   mon affichage »*.
+
+   ⚠️ LE TROU ÉTAIT PILE ICI. `touch-action` ne gouverne QUE l'élément d'où le
+   doigt PART. Les jetons du vivier portaient `touch-action: none` depuis le
+   début ; le créneau, lui, n'avait rien — alors qu'il est armé par le MÊME
+   `armerJeton` dès qu'il contient quelque chose (c'est le geste d'annulation
+   d'Eric, « on annule en ressortant l'objet »). Partir de là, c'était donc
+   rendre le geste au navigateur, qui en fait un défilement.
+
+   ⛔ ET SEULEMENT QUAND IL EST REMPLI : un créneau VIDE ne se glisse pas. Lui
+   couper le défilement ferait une zone morte de 144 × 48 px où le doigt ne
+   peut plus faire défiler la page — on paierait un bug par un autre. */
+.glisse-creneau[data-rempli="true"] {
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
 .glisse-jeton[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 
 /* ══ LA GRILLE DÉFILANTE — lot 79, étape 3 ═══════════════════════════════

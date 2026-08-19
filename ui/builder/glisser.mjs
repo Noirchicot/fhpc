@@ -245,12 +245,23 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
       if (onHorsCible) onHorsCible();
     };
 
+    /* ⚠️ `passive: false` EST LE FOND DE L'AFFAIRE : un écouteur `touchmove`
+       est passif PAR DÉFAUT sur mobile, et un écouteur passif n'a pas le droit
+       de refuser le défilement — son `preventDefault` est ignoré, en silence.
+       Le déclarer est la moitié du mécanisme.
+
+       🔴 IL EST POSÉ POUR TOUT LE MONDE DEPUIS LE 2026-08-19, plus seulement
+       en mode grille — Eric, sur iPad : *« quand je redéplace vers le haut, ça
+       fait scroller mon affichage »*. Hors grille, le verrou reposait sur la
+       SEULE déclaration `touch-action: none` de la feuille ; là où elle
+       manquait (le récepteur rempli), rien ne retenait le défilement.
+       ⭐ ET ÇA NE CHANGE RIEN AILLEURS : hors grille, `souleve` vaut vrai dès
+       l'appui, donc `retenir` refuse exactement ce que `touch-action: none`
+       refusait déjà. Une garantie qui tient par DEUX organes indépendants, au
+       lieu d'une déclaration qu'un sélecteur oublié suffit à perdre. */
+    jeton.addEventListener("touchmove", retenir, { passive: false });
+
     if (maintien) {
-      /* ⚠️ `passive: false` EST LE FOND DE L'AFFAIRE : un écouteur `touchmove`
-         est passif PAR DÉFAUT sur mobile, et un écouteur passif n'a pas le
-         droit de refuser le défilement — son `preventDefault` est ignoré, en
-         silence. Le déclarer est la moitié du mécanisme. */
-      jeton.addEventListener("touchmove", retenir, { passive: false });
       minuteur = setTimeout(() => {
         minuteur = null;
         if (renonce) return;
