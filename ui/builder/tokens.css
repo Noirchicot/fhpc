@@ -184,6 +184,29 @@
      long nom de classe à T2, pas un pixel de plus : à 360 px, chaque pixel
      du rail est un pixel de moins pour la fiche. */
   --touch: 44px;
+
+  /* ══ LES DEUX ONGLETS DE BOUT (Eric, 2026-08-19) ═════════════════════
+     Deux demi-pastilles happées par les bords, collées en haut de l'écran.
+     ⛔ LEUR FOND EST NOIR DANS LES DEUX THÈMES, ET C'EST CALCULÉ, PAS UN
+     DÉFAUT DE GOÛT. Un voile de surface à 75 % — l'autre piste essayée —
+     donne un disque CLAIR en thème jour : l'encre blanche y tombe à 1,52:1
+     et les deux liserés colorés à 2,15 et 1,28. Il faudrait retourner
+     l'encre et renoncer aux liserés, donc DEUX dessins selon le thème. Le
+     noir est le seul fond qui garde la même encre et les mêmes liserés des
+     deux côtés — ce que cet objet doit être, puisqu'il ne vient pas de
+     l'interface mais de derrière elle. */
+  --onglet-taille: 58px;
+  --onglet-fond: #101010;
+  --onglet-encre: #ffffff;
+  /* 🔴 LE SEUIL DES ROUGES, MESURÉ. Un liseré doit tenir 3:1 sur le noir du
+     disque. Or un rouge a besoin de ~15 POINTS DE CLARTÉ DE PLUS qu'un jaune
+     pour y arriver : à saturation 70 %, il lui faut 41 % de clarté quand le
+     jaune se contente de 26 %. Un oxblood profond (#4a0e13) tombe à 1,24:1 —
+     il disparaît dans le disque. `#be272c` est le plus sombre qui tienne
+     encore (3,20:1), et `#7c5f09` est son jumeau en luminance (3,17:1) :
+     appariés, ils pèsent pareil et aucun des deux ne domine l'autre. */
+  --onglet-liseré-menu: #be272c;
+  --onglet-liseré-fiche: #7c5f09;
   /* ── LE PLAFOND DU DÉ — un seul, pour TOUS les dés (2026-08-17) ──────
      Eric : *« ça concerne tous les dés »*. Il vivait sur `.fs-rangee`, donc
      les six cibles du collecteur — qui n'en sont pas une — le lisaient
@@ -229,7 +252,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=98");
+  --bg-image: url("./assets/bg-day.jpg?v=101");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -298,7 +321,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=98");
+    --bg-image: url("./assets/bg-night.jpg?v=101");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

@@ -19,37 +19,37 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=98";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=98";
-import { mountPopup } from "./popup.mjs?v=98";
-import { renderLorePanel } from "./lore.mjs?v=98";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=98";
-import { renderConceptStep } from "./concept-step.mjs?v=98";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=98";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=98";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=101";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=101";
+import { mountPopup } from "./popup.mjs?v=101";
+import { renderLorePanel } from "./lore.mjs?v=101";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=101";
+import { renderConceptStep } from "./concept-step.mjs?v=101";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=101";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=101";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=98";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=98";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=98";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=98";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=98";
+} from "./catalogue.mjs?v=101";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=101";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=101";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=101";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=101";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=98";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=101";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=98";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=98";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=98";
+} from "./destiny-step.mjs?v=101";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=101";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=101";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=98";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=101";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -68,16 +68,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=98";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=98";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=101";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=98";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=98";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=101";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=101";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=98";
+import { versionQuery } from "./version.mjs?v=101";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1227,8 +1227,38 @@ function mountFrame() {
      acquis ne sert qu'à occuper de la place. */
   const track = el("div", "belt-track");
   track.dataset.scroller = "belt";
+  /* ⭐ LES DEUX BOUTS NE SONT PAS DES ÉTAPES — Eric, 2026-08-19.
+     Le premier cran (les réglages) et le dernier (le personnage) sortent de
+     la piste et deviennent deux **demi-pastilles happées par le bord**,
+     collées en haut de l'écran. Ce n'est pas de l'ornement : une dalle de
+     verre au milieu de huit autres dit « je suis une étape », et ces deux-là
+     n'en sont pas. Le demi-disque le dit sans un mot — un rond entier posé au
+     bord est un bouton, un rond coupé par le bord est un onglet tiré des
+     coulisses.
+
+     ⛔ ILS RESTENT DANS `items`, ET C'EST INDISPENSABLE. `paintBelt` écrit
+     `data-status` par index sur les DIX ; les sortir du tableau les priverait
+     de l'état courant. Seul leur PARENT change. */
+  /* ⛔ LEUR MOT N'EST PAS CELUI DE L'ÉTAPE. « Universe & Layers » déborde sur
+     deux lignes dans un disque de 58 px (mesuré à l'écran) — et surtout, une
+     pastille verticale ne porte pas un titre, elle porte une étiquette. Ces
+     deux mots-là sont d'Eric, relevés sur sa maquette du 2026-08-19. */
+  const AUX = { 0: "Menu", [STEPS.length - 1]: "Sheet" };
   const items = STEPS.map((step, index) => {
     const item = button("", () => goToStep(index));
+    if (AUX[index]) {
+      item.className = "belt-onglet";
+      item.dataset.bout = index === 0 ? "menu" : "fiche";
+      /* Le mot court est ce qu'on VOIT ; le libellé complet reste ce que les
+         lecteurs d'écran ANNONCENT — « Menu » seul ne dirait pas où l'on va. */
+      item.setAttribute("aria-label", step.label);
+      /* Le mot est vertical : il suit le bord au lieu de suivre la lecture.
+         C'est ce geste — celui d'un onglet de classeur — qui distingue la
+         pastille d'un bouton rond ordinaire. */
+      item.append(el("span", "belt-onglet-mot", [document.createTextNode(AUX[index])]));
+      belt.append(item);
+      return item;
+    }
     item.className = "belt-item";
     /* Deux nœuds, posés une fois — jamais `innerHTML`, qui les recréerait
        à chaque peinture et rendrait le cadre aussi jetable qu'avant. */
@@ -1474,8 +1504,11 @@ function paintBelt() {
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
      feuille de style : le garde 4 des jetons l'interdit dans `shell.css`,
      et un bouton retiré du flux ne doit pas laisser sa place vide. */
+  /* ⛔ ET LE RECENTRAGE NE VISE QUE CE QUI EST DANS LA PISTE. Les deux bouts
+     en sont sortis (voir `mountFrame`) : demander à la piste de faire défiler
+     jusqu'à un nœud qu'elle ne contient pas la ferait sauter au hasard. */
   const current = frame.items[state.step];
-  if (current) keepInView(frame.track, current, "x");
+  if (current && frame.track.contains(current)) keepInView(frame.track, current, "x");
 }
 
 /* ══ LA SORTIE D'ÉTAPE — 🔴 `Validate` A DISPARU PARTOUT (lot 80, §5.1) ═══

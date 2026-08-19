@@ -206,6 +206,64 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    courante à l'œil rapide. */
 .belt-item[data-status="done"] .belt-index { color: var(--positive); border-color: var(--positive); }
 .belt-item { scroll-snap-align: center; flex: none; }
+
+/* ══ LES DEUX ONGLETS DE BOUT ═══════════════════════════════════════════
+   Eric, 2026-08-19. Ils sont posés SUR la piste, collés en haut de l'écran,
+   et la moitié de chacun passe hors champ — c'est la moitié absente qui les
+   fait lire comme des onglets tirés des coulisses plutôt que comme des
+   boutons. La piste garde un rembourrage égal à leur demi-largeur, sinon le
+   premier et le dernier cran resteraient cachés dessous au repos.
+
+   ⛔ LE LISERÉ FAIT 1 px, comme celui des dalles (`inset 0 0 0 1px` sur le
+   cran courant). Un onglet plus épais que les dalles qu'il côtoie crierait
+   plus fort qu'elles, et ces deux commandes-là sont secondaires. */
+.belt { position: relative; }
+.belt-track { padding-left: calc(var(--onglet-taille) / 2 + var(--sp-8));
+              padding-right: calc(var(--onglet-taille) / 2 + var(--sp-8)); }
+.belt-onglet {
+  position: absolute;
+  top: 0;
+  width: var(--onglet-taille);
+  height: var(--onglet-taille);
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: var(--onglet-fond);
+  color: var(--onglet-encre);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.belt-onglet[data-bout="menu"]  { left: calc(var(--onglet-taille) / -2);
+                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-menu); }
+.belt-onglet[data-bout="fiche"] { right: calc(var(--onglet-taille) / -2);
+                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-fiche); }
+/* Le mot suit le bord, pas la lecture. Décalé vers la moitié VISIBLE : centré
+   sur le disque, il tomberait à cheval sur le bord de l'écran. */
+.belt-onglet-mot {
+  writing-mode: vertical-rl;
+  font-size: var(--t2);
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1;
+  white-space: nowrap;   /* ⛔ jamais deux lignes : le disque n'en a pas la place */
+}
+.belt-onglet[data-bout="menu"]  .belt-onglet-mot { transform: translateX(calc(var(--onglet-taille) / 4 - 2px)); }
+/* ⛔ PAS DE ROTATION À DROITE. La convention typographique voudrait que le mot
+   de droite se lise du bas vers le haut ; la maquette d'Eric (2026-08-19) les
+   fait lire tous les deux dans le MÊME sens, et c'est elle qui fait foi — deux
+   étiquettes qui se lisent pareil se lisent d'un coup d'œil, là où l'une
+   retournée demande de tourner la tête. */
+.belt-onglet[data-bout="fiche"] .belt-onglet-mot { transform: translateX(calc(var(--onglet-taille) / -4 + 2px)); }
+/* ⛔ L'ÉTAT COURANT ÉPAISSIT LE LISERÉ, IL NE LE REMPLACE PAS. Un premier
+   essai posait `currentColor` — donc du blanc — et effaçait la couleur qui
+   distingue les deux bouts. Mesuré à l'écran : l'oxblood disparaissait dès
+   qu'on était sur l'écran des réglages. */
+.belt-onglet[data-bout="menu"][data-status="current"]  { box-shadow: inset 0 0 0 2px var(--onglet-liseré-menu); }
+.belt-onglet[data-bout="fiche"][data-status="current"] { box-shadow: inset 0 0 0 2px var(--onglet-liseré-fiche); }
+.belt-onglet:focus-visible { outline: 2px solid var(--onglet-encre); outline-offset: -4px; }
 .belt-index {
   width: 22px; height: 22px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
   border: 1px solid currentColor;
