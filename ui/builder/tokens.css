@@ -211,6 +211,14 @@
      n'en porte qu'une et s'aligne dessus, pas l'inverse. */
   --glisse-l: 9rem;
   --glisse-h: 48px;
+  /* 🔴 LE PLANCHER D'UNE CASE — Eric, 2026-08-19 : *« pour qu'un écran 360
+     puisse contenir 3 boutons en largeur »*, puis *« si on peut faire 4, on
+     fait 4 »*. Ce n'est donc PAS un tiers : c'est le plus petit qu'une case
+     ait le droit d'être, et la ligne en met autant qu'elle peut.
+     📏 MESURÉ : à 360 px la rangée dispose de 278, moins deux gouttières de 8,
+     soit 87,3 pour trois. 87 est donc la cote qui tient la PROMESSE d'Eric à
+     sa largeur cible — un pixel de plus et on retombe à deux par ligne. */
+  --glisse-min: 87px;
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -321,7 +329,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=195");
+  --bg-image: url("./assets/bg-day.jpg?v=200");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -390,7 +398,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=195");
+    --bg-image: url("./assets/bg-night.jpg?v=200");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

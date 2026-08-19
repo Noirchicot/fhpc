@@ -55,6 +55,46 @@ const SEUIL_GLISSER = 6;
    un doigt lent qui voulait défiler soulève un jeton par accident. */
 const MAINTIEN_MS = 350;
 
+/* ══ L'ABRÉGÉ D'UNE CASE — Eric, 2026-08-19 ═══════════════════════════════
+   *« Pour qu'un écran 360 puisse contenir 3 boutons en largeur. Si le mot est
+   trop [long], on réduit la taille avec des abréviations. »* Et, la minute
+   d'avant : *« si une manière d'écrire le texte stabilise sa forme, il faut la
+   trouver. »* La réponse est donc dans le MOT, pas dans la mise en page : ni
+   corps rapetissé, ni césure, ni rognage.
+
+   📌 LE CALCUL EXISTAIT DÉJÀ, et Eric a dû me le rappeler — *« tout ce calcul
+   avait été fait, tu dois avoir ces choix notés quelque part »*. Deux traces :
+   · `shell.css`, lot 79 étape 4 : *« à 375 px, quatre créneaux en ligne font
+     74 px chacun, où Prestidigitation ne tient À AUCUN CORPS »* ;
+   · le chantier v1 (vault, `FHPCv1 dice tray`) : les outils sont abrégés par
+     une **RÈGLE MÉCANIQUE, PAS UN CHAMP À REMPLIR**, et *« deux abréviations
+     cassent »*.
+
+   🔴 D'OÙ UNE RÈGLE, ET SURTOUT PAS UNE TABLE. Mon premier jet listait trois
+   noms à la main — exactement le « champ à remplir » que la doctrine de la v1
+   refuse : une liste se périme au premier sort ajouté, et personne ne sait
+   qu'elle existe. La règle, elle, vaut pour ce qui n'est pas encore écrit.
+
+   📏 LE SEUIL, MESURÉ À 360 px (la cible d'Eric) : la case fait 87 px, dont
+   **77** pour le mot. À `--t2`, un mot de 12 caractères en pèse 80 — il sort.
+   Onze en pèsent 73 — il passe. On coupe donc au-delà de **dix**, à neuf plus
+   le point : « Prestidigitation » → « Prestidig. », « Elementalism » →
+   « Elemental. », « Thaumaturgy » → « Thaumatur. ».
+
+   ⛔ ET SEULEMENT LE MOT QUI DÉPASSE. « Shocking Grasp » a une espace où se
+   couper : la ligne se replie, les deux mots restent entiers. Abréger ce qui
+   tient déjà, ce serait la deuxième abréviation qui casse.
+   ⚠️ ÇA NE VAUT QUE DANS LA CASE. Le panneau d'info, le bilan et la fiche
+   reçoivent le nom ENTIER : ils ont la place, et c'est là qu'on lit vraiment.
+   L'abrégé est une contrainte de vitrine, pas une renomination. */
+const ABREGE_MAX = 10;
+function abrege(mot) {
+  return String(mot == null ? "" : mot)
+    .split(" ")
+    .map((m) => (m.length > ABREGE_MAX ? `${m.slice(0, ABREGE_MAX - 1)}.` : m))
+    .join(" ");
+}
+
 function el(tag, className, children) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -381,7 +421,7 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   if (grille) vivier.dataset.scroller = "grille";
   for (const id of slots[0].options || []) {
     const item = el("li", null);
-    const jeton = el("button", "glisse-jeton", [text(labelOf ? labelOf(id) : id)]);
+    const jeton = el("button", "glisse-jeton", [text(abrege(labelOf ? labelOf(id) : id))]);
     jeton.type = "button";
     jeton.dataset.valeur = id;
     /* 🔴 UN JETON DE QUANTITÉ NE S'ÉPUISE PAS — Eric, 2026-08-19 : *« je suis
@@ -458,7 +498,9 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     const nom = slot.mot || `${mot || "Choice"} ${slot.index + 1}`;
     creneau.append(el("span", "glisse-creneau-nom", [text(nom)]));
     creneau.append(el("span", "glisse-creneau-valeur", [
-      text(choisi ? (labelOf ? labelOf(choisi) : choisi) : "—")
+      /* Le récepteur abrège comme le vivier : c'est la MÊME case, et un nom
+         qui déborderait ici déborderait de la réponse, pas de la question. */
+      text(choisi ? abrege(labelOf ? labelOf(choisi) : choisi) : "—")
     ]));
     /* 🔴 ON N'ANNULE PLUS EN TAPANT — Eric, 2026-08-19, et sa raison est une
        PRÉVISION, pas un goût : *« clic annule : non, car si on implémente le

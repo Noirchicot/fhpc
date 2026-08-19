@@ -989,6 +989,53 @@ button { font: inherit; }
 .catalogue-card-name { margin: 0; font-size: var(--t6); }
 .catalogue-card-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
 .catalogue-card-row { display: flex; gap: var(--sp-8); font-size: var(--t3); }
+
+/* ══ LA PAIRE QUI S'EMPILE TOUTE SEULE — Eric, 2026-08-19 ═════════════════
+   *« Si ce que tu écris tient dans une petite ligne : dans la continuité,
+   c'est bien comme size small. Quand tu as 2 lignes ou plus, utilise ton
+   propre modèle, celui de la 2ᵉ photo. »* — c'est-à-dire l'étiquette seule sur
+   sa ligne, puis le texte dessous, légèrement rentré (`.species-lignage-
+   benefices`).
+
+   ⭐ LE SEUIL EST `max-content`, ET C'EST LUI QUI FAIT TOUT LE TRAVAIL. La
+   base de la valeur est sa largeur NON REPLIÉE : si elle tient à côté de
+   l'étiquette, la ligne reste telle quelle ; sinon la valeur passe seule à la
+   ligne suivante et y prend toute la largeur. Aucune requête de média, aucun
+   nombre de caractères deviné — c'est le TEXTE qui décide, à chaque largeur
+   d'écran. « 30 feet » reste en face de son mot ; « You have Advantage on
+   saving throws… » descend.
+
+   ⛔ ET SEULEMENT DANS LE PARCOURS. Les fiches du catalogue portent une
+   hauteur IMPOSÉE (`--fiche-h`, 440 px) : une ligne qui s'empile les ferait
+   déborder de leur carte, ce qui échangerait un défaut contre un pire.
+
+   📌 `margin-left` PLUTÔT QU'UN ÉCART : un seul nombre sert les deux formes —
+   l'espace entre les colonnes quand c'est côte à côte, la rentrée quand c'est
+   empilé. Deux réglages divergeraient. */
+/* 🔴 SUR TOUT LE BUILDER — Eric, 2026-08-19 : *« ça doit marcher sur tout le
+   builder, ça »*. Les quatre familles de paires étiquette/valeur du dépôt
+   prennent donc la même règle, et non la seule que sa capture montrait.
+   ⛔ SAUF DANS UNE FICHE DE CATALOGUE, et c'est la seule exception : elle
+   porte une hauteur IMPOSÉE (`--fiche-h`, 440 px). Une ligne qui s'y empile la
+   ferait déborder de sa carte — on échangerait un défaut contre un pire. */
+.parcours-resume .catalogue-card-row,
+.parcours-bilan .catalogue-card-row,
+.universe-locale-row,
+.fiche-info-row {
+  flex-wrap: wrap;
+  column-gap: 0;
+  row-gap: var(--sp-2);
+}
+.parcours-resume .catalogue-card-row dd,
+.parcours-bilan .catalogue-card-row dd,
+.universe-locale-row dd,
+.fiche-info-row dd {
+  /* Le repli si `max-content` n'est pas compris : la ligne reste d'un bloc,
+     comme avant. Un navigateur qui ne sait pas se tait, il ne casse pas. */
+  flex: 1 1 auto;
+  flex-basis: max-content;
+  margin-left: var(--sp-16);
+}
 .catalogue-card-row dt { margin: 0; color: var(--text-muted); width: 13ch; flex: none; }
 .catalogue-card-row dd { margin: 0; font-weight: 600; }
 .catalogue-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
@@ -3228,19 +3275,124 @@ button { font: inherit; }
    le jeton restait à 61 px alors que sa règle disait 144 — parce qu'un `flex`
    posé sur un enfant de `<li>` ne s'applique à rien. La base va donc sur le
    `<li>`, et le bouton remplit sa case. */
-.choix-glisse .glisse-vivier > li {
-  flex: 0 0 var(--glisse-l);
-  display: flex;
+/* 🔴 TROIS PAR LIGNE, TOUJOURS — Eric, 2026-08-19, capture iPhone à l'appui :
+   *« démerde-toi toujours pour que trois origines et destinations de drag and
+   drop puissent cohabiter sur une ligne. Tu l'as déjà fait avec les sorts du
+   wizard. »*
+
+   📏 LA CAUSE, MESURÉE À 375 px : le vivier fait **293 px** et deux jetons de
+   `--glisse-l` (144) en demandent **296**. Il manquait TROIS PIXELS — d'où un
+   jeton par ligne, et quatre lignes pour trois lignages. Une cote fixe ne peut
+   pas tenir sa promesse sur un écran qu'elle ne connaît pas.
+
+   ⭐ LE TIERS PLAFONNÉ PAR LE GABARIT, et c'est la recette de la grille des
+   sorts (`.glisse-grille`), reprise telle quelle. Sur un petit écran la case
+   vaut le tiers de la largeur utile (92 px mesurés à 375) ; sur un grand, elle
+   s'arrête à `--glisse-l` au lieu de s'étirer bêtement. UNE déclaration, deux
+   comportements — et la règle ① d'Eric (« même taille que le récepteur »)
+   tient toujours, puisque jeton et créneau la partagent.
+   ⛔ ET `max-width` AUTANT QUE LA BASE : sans elle, une dernière ligne
+   incomplète s'étire et deux cases font la largeur de trois. */
+/* ⚠️ UN POURCENTAGE DANS UNE VARIABLE SE RÉSOUT LÀ OÙ ON L'EMPLOIE, PAS LÀ OÙ
+   ON LA DÉCLARE — mesuré immédiatement : posée aussi sur le BOUTON, cette cote
+   y lisait `100%` = sa propre cellule de 92 px, et rendait des jetons de
+   **25 px**, le tiers d'un tiers. La cote ne va donc QUE sur les éléments dont
+   le parent est la rangée : la cellule du vivier, et le récepteur.
+   ⭐ CE QUI EST AUSSI LA BONNE RÉPARTITION DES RÔLES : la CELLULE porte la
+   largeur, ce qu'elle contient la remplit. */
+/* ⭐ AUTANT QUE LA LIGNE EN PORTE, JAMAIS MOINS DE TROIS — Eric, 2026-08-19 :
+   *« si on peut faire 4, on fait 4 »*. La cellule n'a donc pas de largeur
+   écrite : elle a un PLANCHER (`--glisse-min`, la cote qui en fait tenir trois
+   à 360) et un PLAFOND (`--glisse-l`, le gabarit). Entre les deux, c'est la
+   rangée qui compte — trois sur un téléphone, quatre ou plus dès qu'il y a la
+   place, et toutes de la MÊME taille sur la ligne, ce qu'Eric a demandé dans
+   la même minute (*« taille standard sur toute la ligne »*).
+   ⛔ Un tiers écrit en dur — mon premier jet — rendait 4 impossible sur un
+   écran qui pouvait les porter. La question n'était pas « combien », c'était
+   « à partir de quelle taille ». */
+.choix-glisse .glisse-vivier > li,
+.choix-glisse .glisse-creneaux > .glisse-creneau {
+  flex: 1 1 var(--glisse-min);
+  max-width: var(--glisse-l);
+  min-width: 0;
 }
+.choix-glisse .glisse-vivier > li { display: flex; }
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
-  /* ⛔ `0 0` ET PAS `0 1` : autoriser le retrait, c'est autoriser la
-     divergence — le récepteur, lui, tient sa base. */
-  flex: 0 0 var(--glisse-l);
+  /* 🔴 LA COTE STANDARD VAUT POUR TOUTE LA LIGNE — Eric, 2026-08-19 : *« donc
+     oui, émetteur = récepteur. Mais aussi taille standard sur toute la
+     ligne. »* Le tiers la donne SANS qu'aucune largeur soit écrite deux fois :
+     trois cellules d'un tiers font une ligne pleine, et une ligne incomplète
+     garde des cases de la même taille que les autres (c'est le `max-width`
+     posé plus haut qui l'empêche de s'étirer).
+     ⛔ ET LA COTE N'EST PAS ICI : elle est sur la CELLULE (voir la note du
+     pourcentage plus haut). Ce qu'on lit ici ne fait que la remplir. */
+  flex: 1 1 auto;
+  max-width: none;
   width: 100%;
-  height: var(--glisse-h);
+  /* 🔴 `min-height` ET NON `height` : à 92 px de case, « Stone's Endurance »
+     et « The Mole People » se replient sur deux lignes. Une hauteur FERMÉE les
+     couperait — c'est la leçon de la grille des sorts, *« c'est la LIGNE qui
+     cède, jamais le nom du sort »*. Le gabarit reste un plancher : deux cases
+     côte à côte gardent la même hauteur, celle de la plus haute. */
+  min-height: var(--glisse-h);
   border-radius: var(--radius-sm);
   box-sizing: border-box;
+}
+/* 🔴 LA RECETTE DU WIZARD DEVIENT LE STANDARD DE TOUTE CASE — Eric,
+   2026-08-19 : *« bref, reviens à ce calcul qu'on a fait quand on bossait sur
+   le wizard »*. Il a raison de couper court : la grille des sorts avait DÉJÀ
+   résolu ce problème exact, et je le re-dérivais case par case.
+
+   📏 CE QU'ELLE AVAIT MESURÉ, et qui vaut toujours : *« à 375 px la case fait
+   97,6 px, et le plus long nom d'un sort mineur — Prestidigitation, qui n'a
+   AUCUNE espace où se couper — demande 86 px à ce corps-ci contre 103 au corps
+   du dessus. Le corps descend d'un barreau parce que le mot ne se plie pas,
+   pas par goût. »*
+
+   ⭐ CE N'ÉTAIT DONC PAS UNE PARTICULARITÉ DES SORTS. Toute case de glisser a
+   la même contrainte — un mot, une largeur de doigt — donc toutes prennent la
+   même recette : `--t2` et le rembourrage serré. Une variante qui n'en est pas
+   une n'a pas à exister ; c'est d'ailleurs en la laissant à part qu'un bloc
+   générique a pu lui voler sa cascade sans que rien ne le dise. */
+.choix-glisse .glisse-jeton,
+.choix-glisse .glisse-creneau-valeur {
+  padding: 0 var(--sp-4);
+  font-size: var(--t2);
+}
+/* ⚠️ LE FILET DE SÉCURITÉ, PAS LA RÈGLE. La règle est d'ABRÉGER le mot
+   (`ABREGES`, glisser.mjs) — Eric : *« si le mot est trop long, on réduit la
+   taille avec des abréviations »*. Ceci ne sert qu'au nom imprévu qui aurait
+   échappé à la mesure : il se coupe au lieu de sortir de sa case. Un débordement
+   se voit et se corrige ; un mot passé sous la bordure, non. */
+.choix-glisse .glisse-jeton,
+.choix-glisse .glisse-creneau { overflow-wrap: break-word; }
+
+/* 🔴 LA GRILLE DES SORTS REPREND SA CASCADE — défaut trouvé par Eric le
+   2026-08-19, capture iPhone : les cases DÉBORDENT à droite, les noms sont
+   coupés (« Dancing Lig… », « Prestidigita… ») et les cadres se chevauchent.
+
+   LA CAUSE, ET C'EST MOI QUI L'AI POSÉE. `.choix-glisse .glisse-jeton` et
+   `.glisse-grille .glisse-jeton` ont la MÊME spécificité (0,0,2,0) ; le bloc
+   `.choix-glisse` a été écrit le 19/08 **plus bas** dans ce fichier, donc il
+   gagne. Le bouton héritait `flex: 0 0 144px` dans une cellule qui en fait
+   100 — d'où le débordement, à un moment où plus rien ne le rattrapait.
+
+   ⚠️ ET C'EST LE MÊME PIÈGE QUE CE FICHIER DOCUMENTE DÉJÀ DEUX FOIS (le
+   pointillé des Abilities, le rembourrage du dé) : *« une déclaration invalide
+   crie, une déclaration PERDANTE se tait »*. Ajouter un bloc générique EN BAS
+   d'une feuille désarme en silence toutes ses variantes écrites plus haut.
+
+   ⭐ LA RÉPARATION EST UNE SPÉCIFICITÉ, PAS UN ORDRE. Remonter le bloc aurait
+   marché aujourd'hui et se serait recassé au prochain ajout. Nommer la grille
+   comme une VARIANTE du gabarit partagé (0,0,3,0) le dit une fois pour
+   toutes : la case remplit sa cellule, elle ne redemande pas un tiers. */
+/* La grille ne garde qu'UNE particularité : ses cases sont hautes de deux
+   lignes de nom, donc elles respirent verticalement. Le reste — corps,
+   rembourrage horizontal, plancher, plafond — est devenu le standard. */
+.choix-glisse .glisse-grille .glisse-jeton {
+  min-width: 0;
+  padding: var(--sp-2) var(--sp-4);
 }
 
 /* ⭐ LE TITRE D'UN GLISSER EST CENTRÉ AU-DESSUS — Eric, 2026-08-19 : *« s'il y
