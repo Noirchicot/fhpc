@@ -18,7 +18,64 @@
         "changes": {
           "data.lore": {
             "text": "Dragon-blooded wanderers whose scales mark them from birth as heirs to something older than any empire on Nymedes. Most trace their line to no living dragon at all — only to the breath that still wakes in their chest when they are cornered.\n\nThat is the polite version, and dragonborn tell it themselves. The blunter one is that the ancestry is an idea more reliably than it is a genealogy. Scale runs jet to gold across the old dragon families and settles nothing about a stranger's temper; two dragonborn of the same colour, met in the same tavern, will disagree about what the colour means. What they will not disagree about is the breath. It arrives before the argument is finished, and it is the same weapon their ancestor carried.\n\nNymedes gives the claim more weight than most worlds would, because here the dragons are real, few, and near. Seven red dragons still live over Theymoron, and their Riders are the reason that kingdom has never paid tribute. Four more died in the thirty years of war, and every child in the terraces knows their names, their battles and where they fell. A dragonborn walking into Theymoron is walking into a city that takes his ancestry literally — sometimes as an honour, more often as a question about which side his great-grandfather was on.\n\nElsewhere he is simply large, warm to the touch, and hard to seat at a crowded table. Dragonborn drift: through the roads and the wars, says the census-keeper, which is his way of saying they are found everywhere and settled nowhere. They tend to arrive where something is being defended and to leave once it is. Scholars in Huitzlika call this rootlessness; dragonborn call it not having been invited to stay, and the two accounts fit the same facts.\n\nWhat is not in doubt is the posture. A dragonborn does not apologise for the room he takes up, and does not read the request to do so as politeness. Push either trait — the pride or the breath — and you find out fast which one answers first.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 5–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Draconic Ancestry** — your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table; your choice sets your **Breath Weapon** and **Damage Resistance**, and your appearance.\n\n- **Breath Weapon** — in place of one attack, exhale magical energy in a 15-foot Cone or a 30-foot Line, 5 feet wide. Dexterity save (DC 8 + Constitution modifier + Proficiency Bonus); 1d10 damage of your ancestry's type, half on a success. It rises to 2d10 at level 5, 3d10 at 11 and 4d10 at 17. Uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Damage Resistance** — to the damage type set by your Draconic Ancestry.\n\n- **Draconic Flight** — at level 5, sprout spectral wings as a Bonus Action for 10 minutes: a Fly Speed equal to your Speed.\n\n- **Destiny** *(FH)* — Base 2."
+              },
+              {
+                "heading": "Draconic Ancestors",
+                "table": {
+                  "columns": [
+                    "Dragon",
+                    "Damage"
+                  ],
+                  "rows": [
+                    [
+                      "Black",
+                      "Acid"
+                    ],
+                    [
+                      "Blue",
+                      "Lightning"
+                    ],
+                    [
+                      "Brass",
+                      "Fire"
+                    ],
+                    [
+                      "Bronze",
+                      "Lightning"
+                    ],
+                    [
+                      "Copper",
+                      "Acid"
+                    ],
+                    [
+                      "Gold",
+                      "Fire"
+                    ],
+                    [
+                      "Green",
+                      "Poison"
+                    ],
+                    [
+                      "Red",
+                      "Fire"
+                    ],
+                    [
+                      "Silver",
+                      "Cold"
+                    ],
+                    [
+                      "White",
+                      "Cold"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -28,7 +85,13 @@
         "changes": {
           "data.lore": {
             "text": "Stone-patient and clannish, the dwarves of Nymedes measure history in seams of ore rather than reigns of kings. Their halls survived the ages the surface did not; what they found down there, they rarely discuss with outsiders.\n\nThe reticence is not modesty. Dwarven halls came through the end of the First Age intact, and a people who kept their roof while the sky changed hands develops a particular view of everyone who did not. They are courteous about it. They are also, on the subject of what the deep tunnels connect to, entirely unhelpful — and the older the dwarf, the less helpful he becomes.\n\nAbove ground they are the steadiest thing in most cities that have them. A fifth of Theymoron is dwarven: masons, smiths, saddlers, the guilds that keep the terraces from sliding into the valley. They arrive early, they price honestly, and they keep a ledger of who owes what to whom that outlives the parties to it. Settle a debt cleanly with a dwarf and the friendship is inherited by your children. Fail to, and so is the grudge.\n\nNot all of them are free. Under the fire giants' city of Jaar, in the far northern forests, dwarven slaves cut stone and sing revolt into the tunnels in a call-and-response no overseer has ever managed to ban outright — the songs sound like work. The Ghost Tribe goliaths who move through those woods will shelter a dwarven runaway, and do, and the two peoples have an understanding that neither writes down. Southern dwarven halls will tell you the tunnels of Jaar are a rumour. Runaways who reach them are given a bed, a name and no questions, which is not how one treats a rumour.\n\nWhat they carry in the body matches what they carry in the temperament. Poison barely slows a dwarf down; eyes built for lightless seams see twice as far as anyone else's; and stone answers underfoot before an ambush announces itself. Dwarves consider none of this remarkable. It is simply what a person is, if the person has been paying attention for long enough.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 4–5 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Dwarven Resilience** — resistance to Poison damage, and Advantage on saves to avoid or end the Poisoned condition.\n\n- **Dwarven Toughness** — your hit point maximum increases by 1, and by 1 again at every level.\n\n- **Stonecunning** — as a Bonus Action, gain Tremorsense 60 feet for 10 minutes while on a stone surface. Uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
+              }
+            ]
           }
         }
       },
@@ -38,7 +101,44 @@
         "changes": {
           "data.lore": {
             "text": "Elves are the only people of Nymedes who do not die of time. What they die of instead is everything else — a blade, a fall, a war — and so the elven number only ever falls. No elf has been born of two elves in living memory, nor in any memory an archive holds: elven unions bear nothing. Only a human or an Araag quickens an elven womb, and what comes of it is Elestu — a child who will grow old, and whose own children will be something else again. Every elf alive today was alive in the First Age.\n\nThat arithmetic explains the rest of them. A census-keeper of Huitzlika put it plainly: an archivist may serve three lifetimes and never see one. In the Third Age you are far likelier to meet an elf's great-grandchild in the university quarter of Theymoron — the Elestu keep the Moonkeeper circles and the lecture halls — than to meet the elf. The few who still walk the roads travel as guests who never quite arrive: courteous, unhurried, and privately certain that the kingdom hosting them will not outlast the conversation.\n\nAge does not bend them; it empties them. The oldest withdraw by degrees, and there are two ways it goes. Some slip into a sleep measured in centuries, laid in halls their descendants no longer remember how to open. Others go into a quiet madness no healer's art has ever touched — lucid, gentle, and no longer addressed to anyone present. An elven household will tell you which of its elders is merely absent and which is gone, and will not explain how it knows.\n\nThey are wanted dead by people who would never say so. A soulgem cut from a dying elf is the finest thing a soulforger will ever hold — denser, older and stranger than any other, and worth what a small city is worth. The trade is illegal everywhere and conducted everywhere, and it is the most reliable way an elf still ends.\n\nThe old traditions have an explanation, and they hold it lightly. They name the elves the children of a sleeping god — one who is said to have bought their immortality with his own, breaking himself into as many pieces as there were elves to carry them. In that telling an elf's soulgem is not merely fine: it holds a splinter of a god's memory, sealed away since the First Age and still faintly awake. Scholars disagree, at length, and have for eleven centuries. Elves themselves rarely take a position; those who do tend to be the ones who dream badly.\n\nWhatever the truth of it, something in the elven line answers when fate is asked directly — which is why an elf who leans on the Hand leans further than anyone else can.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 5–6 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Elven Lineage** — choose a lineage from the Elven Lineages table; you gain its level 1 benefit. At character levels 3 and 5 you learn the listed spell, always prepared, castable once without a slot per Long Rest, or with any slot of the appropriate level. Intelligence, Wisdom or Charisma is your spellcasting ability for this trait (chosen with the lineage).\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Keen Senses** *(FH)* — **2 skill points**, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The SRD grants one proficiency among Insight, Perception or Survival.)*\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Destiny** *(FH)* — Base 2. **Splinter of Anon** *(elf chosen)*: **+2** to your Destiny pool."
+              },
+              {
+                "heading": "Elven Lineages",
+                "table": {
+                  "columns": [
+                    "Lineage",
+                    "Level 1",
+                    "Level 3",
+                    "Level 5"
+                  ],
+                  "rows": [
+                    [
+                      "**Drow**",
+                      "Darkvision increases to 120 feet; you know *Dancing Lights*",
+                      "*Faerie Fire*",
+                      "*Darkness*"
+                    ],
+                    [
+                      "**High Elf**",
+                      "You know *Prestidigitation*; on a Long Rest you may swap it for another Wizard cantrip",
+                      "*Detect Magic*",
+                      "*Misty Step*"
+                    ],
+                    [
+                      "**Wood Elf**",
+                      "Your Speed increases to 35 feet; you know *Druidcraft*",
+                      "*Longstrider*",
+                      "*Pass without Trace*"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -48,7 +148,36 @@
         "changes": {
           "data.lore": {
             "text": "Most people on Nymedes have never seen a Hoddon, and plenty insist nobody has. The little folk keep to hidden family-holds deep in the old forests, guarding what remains of the banned craft of the vanished humans — remnants the Empire of Huitzlika has hunted for centuries, and the Hoddon along with them. A Hoddon on the road is a rare thing: quiet, watchful, and carrying more forbidden knowledge than any imperial archive.\n\nThey live under willows. A grown weeping willow of the Demon Forest — a Sauleur — roofs a space some ten metres across, and a hold is a dozen or so relatives beneath one of them, related by blood and by the one craft they will not discuss. They keep the Magician among the Arcana, which the Empire finds insolent and the Hoddon find self-evident.\n\nThe craft is the reason they are hunted, and it is not metaphor. Reaching adulthood, a Hoddon gives up an eye and takes a grey orb in its place. What the orb opens onto is a matrix laid over the visible world, and inside it sits a great deal of what the vanished humans knew. Nothing is written down. There are no Hoddon books to seize, no archive to burn, and no way for an outsider to read a captured orb — the fusion is a Hoddon technique and it has never left the holds. Imperial inquisitors have been trying for three centuries and have, so far, obtained eyes.\n\nWhat comes out of the craft is constructs. Hoddon-made things guard a boundary or run an orchard without supervision; some are shaped like forest animals, some like small forge-workers, some like the clockwork Modrons of an older cosmology. A hold that has lost half its people will still have its fields brought in.\n\nThey do not replace their losses easily, and they will tell you why without being asked. Hoddon children go missing, and when one does, the hold says the heron took it. A white heron comes down through the willow crown at dusk, the story goes, and carries the child up to heaven, because the child was too good for this world and heaven would not wait. Every hold has lost some. Every hold tells it in the same words, with the same small nod at the end that closes the subject.\n\nIt is a story told to children by adults who need it more than the children do. Anyone who has spent a winter under a Sauleur notices what the telling is for: nobody ever asks which child, the names are not spoken again, and a Hoddon who has drunk enough will change the subject with a speed that has nothing to do with grief. Holds disagree about the herons too — bitterly, along lines nobody will explain — and two holds that disagree do not visit one another.\n\nThere is shame under it, and the shame is old. Whatever the herons are, the Hoddon have been telling it to themselves for long enough that most of them believe it by the time they are grown, and the ones who do not have learned to nod at the right moment.\n\nSo they are few, they are careful, and they are very good at not being where the search is. Their neighbours mistake the caution for timidity. Anyone who has watched a Hoddon read a room with one living eye knows better.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Small (about 3–4 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Hoddon Cunning** — Advantage on Intelligence, Wisdom and Charisma saving throws.\n\n- **Hoddon Lineage** — choose one from the table below. Intelligence, Wisdom or Charisma is your spellcasting ability for this trait (chosen with the lineage).\n\n- **Destiny** *(FH)* — Base 2."
+              },
+              {
+                "heading": "Hoddon Lineages",
+                "table": {
+                  "columns": [
+                    "Lineage",
+                    "Level 1"
+                  ],
+                  "rows": [
+                    [
+                      "**Forest Folk**",
+                      "You know *Minor Illusion*, and always have *Speak with Animals* prepared — castable without a slot a number of times equal to your Proficiency Bonus per Long Rest"
+                    ],
+                    [
+                      "**Rock Folk**",
+                      "You know *Mending* and *Prestidigitation*, and can spend 10 minutes to build a Tiny clockwork device (AC 5, 1 HP) carrying one *Prestidigitation* effect; up to three at a time"
+                    ],
+                    [
+                      "**The Mole People** *(FH)*",
+                      "Your Darkvision increases to **120 feet**; you gain **Meticulous** — Advantage on Investigation checks — and **1 skill point** (half proficiency) in **tinker's tools**"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -58,7 +187,48 @@
         "changes": {
           "data.lore": {
             "text": "The goliaths of Nymedes are a people without a hearth. In the giant-ruled forests of the far north, the fire giants of Jaar hunt them for slaves and the hill giant hordes burn what little they build — so the Ghost Tribe sleeps in dug-out caches and forgotten ruins, moves like fog between the trees, and carries its history as scars and murmured songs rather than stone.\n\nJotunskog is the whole of the world to them: an infinite forest where light falls in gold shafts between ancient trunks, and where every clearing is a decision about how fast you could leave it. They travel at night. Morning mist drowns their tracks, which they take as the forest's collaboration and not as weather. The dead are remembered by recitation, because a name carved in stone is a name an enemy can find.\n\nTheir neighbours sort into three kinds and none of them are good. The fire giants of Jaar take goliaths for the forges, and their city is described by everyone who has seen it in the same two words: steel and suffering. The hill giants burn, loot and outnumber — even Jaar cannot hold them. The stone giants are the exception: hidden prophets who read the veins of rock, and who will trade a shelter or a warning for a story out of the forest. A goliath will tell you a stone giant's prophecy has never once been wrong and has never once been useful in time.\n\nThey are not alone under the canopy. Dwarven runaways out of Jaar's tunnels find their caches and are taken in. The forest's own spirits — born, they hold, from the death of the Green God — are given offerings at the sacred places, and on some nights are asked to look away from a theft or a kill taken in forbidden ground. Goliaths consider this an ordinary transaction between parties who both live here.\n\nEvery goliath met outside the north is a survivor of that long hunt. They are patient past the point where patience looks like slowness, they carry their scars where they can be seen, and they are building toward one thing they will name if you ask: a house in the light, with children in it who have never had to run.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 7–8 feet tall) · **Speed** 35 feet\n\n- **Giant Ancestry** — choose one boon from the table below; uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Large Form** — at level 5, as a Bonus Action, become Large for 10 minutes: Advantage on Strength checks, and your Speed increases by 10 feet. Once per Long Rest.\n\n- **Powerful Build** — Advantage on saves against the Grappled condition, and you count as one size larger for carrying capacity.\n\n- **Destiny** *(FH)* — Base 2."
+              },
+              {
+                "heading": "Giant Ancestry",
+                "table": {
+                  "columns": [
+                    "Boon",
+                    "Effect"
+                  ],
+                  "rows": [
+                    [
+                      "**Cloud's Jaunt** *(Cloud)*",
+                      "Bonus Action: teleport up to 30 feet to a space you can see"
+                    ],
+                    [
+                      "**Fire's Burn** *(Fire)*",
+                      "On a hit, deal an extra 1d10 Fire damage"
+                    ],
+                    [
+                      "**Frost's Chill** *(Frost)*",
+                      "On a hit, deal an extra 1d6 Cold and reduce Speed by 10 feet"
+                    ],
+                    [
+                      "**Hill's Tumble** *(Hill)*",
+                      "On a hit against a Large or smaller creature, knock it Prone"
+                    ],
+                    [
+                      "**Stone's Endurance** *(Stone)*",
+                      "Reaction: roll 1d12 + Constitution modifier and reduce the damage"
+                    ],
+                    [
+                      "**Storm's Thunder** *(Storm)*",
+                      "Reaction: deal 1d8 Thunder to a creature within 60 feet that damaged you"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -68,7 +238,13 @@
         "changes": {
           "data.lore": {
             "text": "Small, unhurried, and hard to rattle — halfling communities tend to outlast the empires around them, quietly farming the same valley for a thousand years while dynasties rise and fall on the other side of the ridge. Luck, they'll tell you, is just what patience looks like from the outside.\n\nThe census-keeper of Huitzlika gives them one clause — the halflings their valleys — and moves on, which is exactly the outcome a halfling valley is organised to produce. They are not hidden. They are simply never the most interesting item on anyone's list. Armies have marched along the ridge road for four hundred years and taken nothing worth requisitioning, because there is never anything worth requisitioning, because the year an army is expected is a year of modest harvests and unremarkable barns.\n\nHistorians who have looked closely at the valleys report a puzzle they do not enjoy. The halfling settlements sit precisely where the wars are not. This is either the best siting instinct on the continent or a very long run of luck, and the archives cannot distinguish between the two. Halflings, asked, say it is patience — that anyone who stays somewhere long enough learns where not to build — and decline to be drawn further.\n\nThe Moonkeeper circles, which pay attention to this sort of thing, have a stranger reading. Fate's Hand falls oddly around halflings. Where a Chaos roll turns on most people, it hesitates on them: the disaster is a near miss, the collapse comes down on the empty side of the barn. There is no ritual behind it that anyone has found and no god claiming credit. It simply happens more often than it should, in a direction that favours them, and it has been happening since before the archives.\n\nHalflings find the whole discussion faintly embarrassing. Their own account of themselves is domestic and complete: you are brave because someone has to be, you go where larger people cannot follow, and you reroll the bad throw because giving up on the first one is not a habit that gets a valley through a thousand years.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Small (about 2–3 feet tall) · **Speed** 30 feet\n\n- **Brave** — Advantage on saving throws you make to avoid or end the Frightened condition.\n\n- **Halfling Nimbleness** — you can move through the space of any creature larger than you.\n\n- **Luck** — when you roll a 1 on the d20 of a D20 Test, you can reroll it, and you must use the new roll.\n\n- **Naturally Stealthy** — you can take the Hide action while obscured only by a creature at least one size larger than you.\n\n- **Destiny** *(FH)* — Base 2. **Outlasting** *(halfling chosen)*: Advantage on Chaos rolls."
+              }
+            ]
           }
         }
       },
@@ -78,7 +254,13 @@
         "changes": {
           "data.lore": {
             "text": "Humanity vanished from Nymedes at the end of the First Age — and a century ago, ten thousand souls walked back out of the White Void, refusing to vanish a second time. They are few, and everywhere talked about: their young cities rise fast and argue loudly — Theymoron's terraces, Dreideldorf's workshops, Atalante's harbors — as if noise could make up for numbers.\n\nTen thousand is the whole of it. Every human on this world descends from that one crowd, and the crowd is within living memory: there are people alive who met someone who walked out. This does the human temperament no favours. They are a people with a founding generation instead of a mythology, and they will correct you about the details.\n\nNobody agrees on what happened. The Empire's archivists hold that the White Void gave them back, which is a formulation that carefully avoids saying gave them back as what. Human scholars in Theymoron prefer that nothing gave anything: that a people who refused to end simply took longer to finish arriving. The Moonkeeper circles decline to publish. What all three accounts share is the phrase the census-keeper of Huitzlika uses without elaborating — a twice-born people — and the fact that it is the humans themselves who like it least.\n\nThey compensate by building. Human quarters go up in a decade and are rebuilt twice in the next, because a human generation is short enough that waiting for consensus costs you the whole project. Their neighbours find them exhausting: loud in council, impatient with precedent, unwilling to concede that a thing has been tried. The Loroka, who have worked the same terraces for a thousand years, describe humans as visitors who started renovating.\n\nWhat is not arguable is that they learn anything. Put a human beside a specialist of any other people and the human will be worse for a year and competent by the second. And the Hand favours them oddly — a human recovers what they have spent on fate faster than anyone, which the pious call a debt still being repaid, and which humans call a good night's sleep.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 4–7 feet tall) or Small (about 2–4 feet tall), chosen when you select this species · **Speed** 30 feet\n\n- **Skillful** *(FH)* — +2 skill points at level 1, and that is all. *(The SRD grants one skill proficiency; Fate's Hand converts every level-1 grant into pool points.)*\n\n- **Versatile** — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2. **Twice-Born** *(human chosen)*: recover **2** Destiny Points per Long Rest instead of one."
+              }
+            ]
           }
         }
       },
@@ -88,7 +270,13 @@
         "changes": {
           "data.lore": {
             "text": "The full-blooded kin of the Loroka, orcs endure where the land gives nothing back — hard plains, cold passes, borders nobody else wants. Their reputation for ferocity is mostly other people's word for stamina: an orc simply does not stop first.\n\nThat distinction matters more than it sounds. An orc war-band is not notably more violent than anyone else's; it is still marching on the fourth day. Imperial commanders who have faced them write the same sentence in different decades — that the engagement was won and the orcs were still there in the morning. Nothing about this is mystical. It is a body that keeps going past the point where the decision to keep going has been made.\n\nThey hold the ground nobody contests, which is the same as saying they hold the ground nobody can farm. Orc country is passes, high plains and the wrong side of a watershed, and it is theirs because two empires looked at it and declined. Orcs are entirely aware of how they came by it. They also point out, correctly, that a people who can live there cannot be starved out of anywhere else.\n\nTheir neighbours cannot decide whether they are one people or two. The Loroka of Theymoron are their kin and their opposite number: the same blood settled on terraces, gone to market, and gone respectable. Orcs and Loroka trade constantly, marry occasionally, and each regard the other as the branch that made the wrong call. It is not a feud. It is closer to the way brothers discuss an inheritance, indefinitely.\n\nThe census-keeper of Huitzlika lists them with the dragonborn and tieflings as peoples who drift through our roads and our wars, which orcs would consider a misreading. They do not drift. They are hired — for the passes, for the winter columns, for any work where the difference between competent and finished is whether someone was still upright on the fourth day. Then they go home, to country that gives nothing back, and get on with it.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 6–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Adrenaline Rush** — take the Dash action as a Bonus Action and gain temporary hit points equal to your Proficiency Bonus. Uses equal to your Proficiency Bonus, regained on a Short or Long Rest.\n\n- **Relentless Endurance** — when you drop to 0 hit points and don't die outright, you can drop to 1 instead. Once per Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
+              }
+            ]
           }
         }
       },
@@ -98,7 +286,44 @@
         "changes": {
           "data.lore": {
             "text": "Fiend-touched by pact, curse or ancestry, tieflings are forever being mistaken for Araags — and correcting people, wearily, that their mark is older and came by a different road. Most learn young to be twice as charming as anyone expects, because they'll be trusted half as much.\n\nThe confusion is not stupidity on anyone's part. On a continent where the largest people alive is visibly soul-touched, a horned stranger reads as Araag first and everything else second, and the correction has to be made at every gate, every inn and every hiring. Tieflings make it. They also stop making it, eventually, in places where it does not help — which is how a good many end up counted as Araag in imperial rolls, to the irritation of both peoples.\n\nTheir own account puts the mark before the Harvest, not after it. Where an Araag was made by something that happened to a whole people within recorded history, a tiefling inherits from a bargain, a curse or a bloodline whose original party is long past arguing about the terms. This is a distinction of some pride and no practical value. The census-keeper of Huitzlika files them with the dragonborn and the orcs — peoples who drift through our roads and our wars — and does not distinguish the three roads by which they arrived.\n\nWhat the legacy actually grants is narrower than the rumour. A tiefling of the Abyssal line shrugs off poison; a Chthonic one, the rot; an Infernal one, fire — and each carries a thin thread of spells that widens twice in a career and then stops. It is not sorcery. It is a family resemblance that happens to be measurable, and tieflings who wanted more of it have generally had to go and study like everyone else.\n\nSo they arrive charming, because the alternative is arriving unemployed. The habit is deep enough that other peoples mistake it for the character rather than the armour. Tieflings do not usually correct that one. It is the first thing in the conversation that has ever worked in their favour.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium (about 4–7 feet tall) or Small (about 3–4 feet tall), chosen when you select this species · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Fiendish Legacy** — choose a legacy from the table below; you gain its level 1 benefit. At character levels 3 and 5 you learn the listed spell, always prepared, castable once without a slot per Long Rest, or with any slot of the appropriate level. Intelligence, Wisdom or Charisma is your spellcasting ability for this trait (chosen with the legacy).\n\n- **Otherworldly Presence** — you know the *Thaumaturgy* cantrip.\n\n- **Destiny** *(FH)* — Base 2."
+              },
+              {
+                "heading": "Fiendish Legacies",
+                "table": {
+                  "columns": [
+                    "Legacy",
+                    "Level 1",
+                    "Level 3",
+                    "Level 5"
+                  ],
+                  "rows": [
+                    [
+                      "**Abyssal**",
+                      "Resistance to Poison damage; you know *Poison Spray*",
+                      "*Ray of Sickness*",
+                      "*Hold Person*"
+                    ],
+                    [
+                      "**Chthonic**",
+                      "Resistance to Necrotic damage; you know *Chill Touch*",
+                      "*False Life*",
+                      "*Ray of Enfeeblement*"
+                    ],
+                    [
+                      "**Infernal**",
+                      "Resistance to Fire damage; you know *Fire Bolt*",
+                      "*Hellish Rebuke*",
+                      "*Darkness*"
+                    ]
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -108,7 +333,13 @@
         "changes": {
           "data.lore": {
             "text": "Marked by the Harvest that unmade the last free humans, the Araags were once mistaken for tieflings — a resemblance that never sat easy with either people. They are common as dust within the Empire that shares their name, and stared at everywhere else: soul-touched, unmistakably other, and never quite trusted to explain why.\n\nThey are also, by a margin no other people comes near, the most numerous thing alive on this continent. A census-keeper of Huitzlika begins his tally with them and gives up partway: count the millions, then stop counting. That weight of numbers is the first fact about an Araag abroad — whatever else he is, he is one of very many, and he knows it.\n\nWithin the Empire the ladder is old and it is rigid. The Sira work the ground and are counted last; the Foali hold the forges; the Naroum hunt, and hold titles; and above them the Thleili, the priest-mages, keep the rites of Karagall. An Araag met on a road in Theymoron or Atalante is nearly always Sira, and nearly always left. Being a caste's worth of people is not the same as being a people, as the Loroka will tell you at length.\n\nWhat the rest of Nymedes will not say aloud in front of an Araag, it says freely behind him: that the Empire feeds. Souls are taken and sealed in gems; demons are hunted in the forests for the same purpose; the sacrifices at the great rites are neither symbolic nor quick. Araag scholars answer that every people on this world has a machine under its floor and only theirs is honest about it, which is a good reply and convinces nobody. The gems, at least, are not in dispute — an Araag of standing wears his in his flesh, and the power in them is real.\n\nSo the young leave. They go for work, for the Front, for a city where a Sira name means nothing, and they arrive carrying two hundred years of other people's suspicion and an unusual talent for picking things up fast. Very few go home. Fewer still say why.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 60 feet.\n\n- **Fast Learner** *(FH)* — +2 skill points at levels 1, 3 and 6.\n\n- **Necrotic Resistance** *(FH)* — resistance to necrotic damage.\n\n- **Soulforged Affinity** *(FH)* — you may Body Forge a Soulgem into your own flesh at no cost in hit points *(cf. Soulforge Crafting)*.\n\n- **Destiny** *(FH)* — Base 2."
+              }
+            ]
           }
         }
       },
@@ -118,7 +349,13 @@
         "changes": {
           "data.lore": {
             "text": "Children of scattered pairings between elves and humans — or elves and Araags — the Elestu are what an elven union actually bears: too mortal for the elves, too strange for everyone else. In Theymoron they gravitate to the university quarter and the Moonkeeper circles, and built their own quiet place between both worlds. Most end up bards, scholars, or both at once.\n\nThey exist because elves cannot have elven children. Only a human or an Araag quickens an elven womb, and what is born is Elestu — long-lived, not deathless, and carrying enough of the elven inheritance to be recognised on sight and not enough to be claimed. Elven households are unfailingly kind to them and do not treat them as heirs. Elestu have made a great deal of poetry out of this and very little complaint.\n\nTheymoron is where they concentrated, and it is one in forty of the city — enough to fill the lecture halls of the university quarter and to keep the Moonkeeper circles running without ever being numerous enough to be a faction. It suits them. An Elestu in a room tends to be the person who knows what the argument is actually about, has read the source everyone is quoting badly, and would rather not chair the meeting. Their neighbours read this as modesty. It is closer to a professional preference for staying where the records are.\n\nThey take the trance from their elven side, and the appetite from the other: four hours of open-eyed meditation instead of sleep, and a working day long enough to embarrass a human colleague. Elestu learn faster than anyone has a good explanation for. The polite theory in the university quarter is that a mind kept awake for twenty hours a day simply accumulates more; the impolite one, whispered in the Moonkeeper circles, is that whatever the elves are carrying passes down diluted and restless, and shows up as curiosity because there is nothing else left for it to be.\n\nElestu do not usually argue with either theory. They write both down, note who said what, and go back to work.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 60 feet.\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Keen Senses** *(FH)* — **2 skill points**, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The SRD grants one proficiency among Insight, Perception or Survival.)*\n\n- **Fast Learner** *(FH)* — +2 skill points at levels 1, 3 and 6.\n\n- **Destiny** *(FH)* — Base 2."
+              }
+            ]
           }
         }
       },
@@ -128,7 +365,13 @@
         "changes": {
           "data.lore": {
             "text": "The old blood of the Theymoron highlands — farmers, drovers and terrace-workers who worked these valleys long before the Marche had a name. Once the plurality of a conquered people, drawn heavily from the Sira low caste of the Empire, they are now the plurality of a free city: soldiers when the Front calls for it, but merchants, roofers and rice-growers the rest of the year.\n\nThree in ten of Theymoron are Loroka, and a larger share again of the Marche beyond the walls. That makes them the single largest people in the only kingdom on this continent that has never paid the Empire tribute — a fact they mention less often than you would expect, and never first.\n\nThe reticence has a reason. The Loroka came out of the Empire, and mostly out of its bottom caste: Sira, sent to work ground that belonged to someone else. What they built afterwards is the terraced rice that feeds a city at two and a half thousand metres, which took generations and is still being extended. Loroka households measure a family by which terrace it cut. A grandfather who added forty metres of wall is spoken of the way other peoples speak of a battle.\n\nThe Front is the other half of the year. Theymoron's refusal of tribute has cost it thirty years of open war and seventy of the kind that stops and starts, and the Loroka are the mass of the levies that have made the refusal hold. They are not a warrior caste and dislike being described as one — a Loroka soldier is a roofer who will be back on the roofs in spring, and the whole arrangement depends on him surviving to get there. He generally does. Loroka do not stop when a thing has gone badly wrong, and the Empire has spent a hundred years discovering how expensive that is.\n\nTheir orc kin to the south get the reputation for ferocity. The Loroka get the harvest in. Ask one which he would rather have and he will not understand the question — the point of the war is the terraces, and a people who forget that has lost the war whatever the maps say.",
-            "provenance": "fh-original"
+            "provenance": "fh-original",
+            "sections": [
+              {
+                "heading": "Traits",
+                "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 120 feet.\n\n- **Relentless Endurance** — when you drop to 0 hit points and don't die outright, you can drop to 1 instead. Once per Long Rest.\n\n- **Versatile** *(FH)* — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2."
+              }
+            ]
           }
         }
       }
