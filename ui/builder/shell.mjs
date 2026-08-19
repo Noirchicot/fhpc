@@ -19,42 +19,42 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=129";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=129";
-import { mountPopup } from "./popup.mjs?v=129";
-import { renderLorePanel } from "./lore.mjs?v=129";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=129";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=131";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=131";
+import { mountPopup } from "./popup.mjs?v=131";
+import { renderLorePanel } from "./lore.mjs?v=131";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=131";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=129";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=129";
-import { renderConceptStep } from "./concept-step.mjs?v=129";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=129";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=129";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=131";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=131";
+import { renderConceptStep } from "./concept-step.mjs?v=131";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=131";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=131";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=129";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=129";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=129";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=129";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=129";
+} from "./catalogue.mjs?v=131";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=131";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=131";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=131";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=131";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=129";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=131";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=129";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=129";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=129";
+} from "./destiny-step.mjs?v=131";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=131";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=131";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=129";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=131";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -73,16 +73,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=129";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=129";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=131";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=129";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=129";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=131";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=131";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=129";
+import { versionQuery } from "./version.mjs?v=131";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1227,6 +1227,21 @@ function renderStepContent() {
       "Engine failed to load: " + state.engineError)]));
   } else if (step.id === "class" || step.id === "species") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
+  } else if (step.id === "background" && state.engine && parcoursInheritance()) {
+    /* ⭐ L'INHERITANCE PREND LE MÊME PARCOURS QUE SPECIES — Eric, 2026-08-19 :
+       *« Inheritance c'est pareil que species après choose »*. Et elle n'a
+       PAS de catalogue, parce qu'elle ne se choisit pas : le moteur résout le
+       record unique de son genre (contrat §1a, « livrée, non choisie »), donc
+       son plan arrive rempli et le parcours la pose AU GUIDE du premier coup.
+       Aucun cas particulier — c'est la conséquence du même test. */
+    const cfg = INHERITANCE_PARCOURS;
+    const ctx = inheritanceCtx();
+    const section = el("section", "catalogue-step");
+    const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path });
+    if (state.parcoursItem) section.append(renderParcoursItem(cfg, ctx));
+    else if (ou === ETAT.bilan) section.append(renderParcoursBilan(cfg, ctx));
+    else section.append(renderParcoursGuide(cfg, ctx));
+    card.append(section);
   } else if (step.id === "background" && state.engine) {
     /* LOT 46 — même trio de branches que Class/Species/Compétences (moteur
        prêt / en échec / en charge). `document`+`resolved` en plus de
@@ -1585,6 +1600,30 @@ function resolvedRefId(cfg) {
 
 const DEFAUT_GUIDE = "Everything this choice asks of you is listed below. " +
   "Open each one, settle it, and mark it Done — then confirm the step.";
+
+/** Le contexte de l'Inheritance — la même paire que sa branche d'origine.
+ *  ⚠️ `document` ET `resolved` en plus : Inheritance lit les boosts déjà posés
+ *  dans `document.build.choices` (aucun plan ne les republie) et le score final
+ *  dans `resolved.abilities`. */
+function inheritanceCtx() {
+  return {
+    decisions: state.decisions, document: state.document, resolved: state.resolved,
+    query: state.engine.layers.verbs.query, open: state.inheritanceOpen,
+    path: "background", kind: "background", label: "Inheritance"
+  };
+}
+
+/** L'Inheritance a-t-elle son parcours ? ⏳ Le drapeau vit ici et pas sur un
+ *  `cfg` de catalogue, parce qu'elle n'en est pas un. */
+function parcoursInheritance() { return INHERITANCE_PARCOURS.parcours; }
+
+const INHERITANCE_PARCOURS = {
+  path: "background", kind: "background", label: "Inheritance", parcours: true,
+  /* ⏳ REPLI ASSUMÉ : le corps d'un item est, pour l'instant, l'écran
+     d'Inheritance entier. Il fonctionne, ce n'est pas ce qu'Eric a dessiné, et
+     c'est écrit ici pour que personne ne le prenne pour la version finale. */
+  choices: (ctx, act) => renderInheritanceStep(ctx, act)
+};
 
 function currentGate(palier = state.palier) {
   /* ⭐ UNE DALLE D'ITEM PASSE AVANT TOUT LE RESTE (2026-08-19), et sa porte est

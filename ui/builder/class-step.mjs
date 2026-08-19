@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=129";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=129";
-import { renderConfirmDialog } from "./confirm.mjs?v=129";
-import { renderChoixGlisses } from "./glisser.mjs?v=129";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=131";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=131";
+import { renderConfirmDialog } from "./confirm.mjs?v=131";
+import { renderChoixGlisses } from "./glisser.mjs?v=131";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -106,7 +106,12 @@ const SPELL_QCMS = [
    ce que `shell.mjs` lit pour ne PAS y poser le `Validate` générique : sur un
    écran à fiche, `CHOOSE` est la validation (Ch6). Destiny et le don d'origine
    ne le déclarent pas — leurs cartes n'ont pas de pied, ils gardent `Validate`. */
-export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes", fiche: true };
+/* ⭐ `parcours: true` — Class reprend le parcours d'Eric (2026-08-19) SANS une
+   ligne de code de plus : guide général → guide spécifique → items → bilan.
+   Ses items sortent du carnet comme ceux de Species — `class.skills`,
+   `class.cantrips`, `class.prepared` — parce que le parcours ne connaît que
+   des chemins sous une racine, jamais un nom d'étape. */
+export const CLASS_CATALOGUE = { path: "class", kind: "class", label: "Classes", fiche: true, parcours: true };
 
 /** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.
  *

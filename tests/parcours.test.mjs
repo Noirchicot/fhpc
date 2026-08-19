@@ -150,3 +150,20 @@ test("un SOUS-CHEMIN n'est pas un item — mesuré dans la page le 2026-08-19", 
   const items = itemsDeLEtape({ decisions, document: docAvec(), racine: "species" });
   assert.deepEqual(items.map((i) => i.path), ["species.lineage", "species.skillBudget"]);
 });
+
+test("un CRÉNEAU SANS GROUPE est un item — le don d'origine de l'Inheritance", () => {
+  /* ⚔️ `background.originFeat[0]` n'a aucun groupe parent : c'est LUI l'item.
+     Un filtre qui écartait tous les `[n]` le faisait disparaître — trouvé en
+     branchant l'Inheritance, pas en le déduisant. */
+  const decisions = [
+    { path: "background", selected: ["fh:background:en:inheritance"] },
+    plan("background.boost", 3, 3),
+    plan("background.boost.con", 2, 2),
+    plan("background.originFeat[0]", 1, 1),
+    plan("background.tool", 1, 1)
+  ];
+  const items = itemsDeLEtape({ decisions, document: docAvec(), racine: "background" });
+  assert.deepEqual(items.map((i) => i.path),
+    ["background.boost", "background.originFeat[0]", "background.tool"],
+    "le boost et l'outil sont des items, `boost.con` est leur contenu, et le don EN EST UN");
+});

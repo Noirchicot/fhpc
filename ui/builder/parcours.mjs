@@ -65,8 +65,16 @@ export function itemsDeLEtape({ decisions, document, racine }) {
        `Survival` et `Vigilance`. Les deux derniers sont les compétences DANS
        la bourse (`species.skillBudget.survival`), pas des décisions à part.
        Un item est une DÉCISION ; ce qui vit dessous en est le contenu. */
-    .filter((plan) => !plan.path.slice(prefixe.length).includes("."))
-    .filter((plan) => !/\[\d+\]$/.test(plan.path))
+    .filter((plan) => !plan.path.slice(prefixe.length).replace(/\[\d+\]$/, "").includes("."))
+    /* ⚠️ UN CRÉNEAU NE S'EFFACE QUE S'IL A UN GROUPE. `species.skills[0]` vit
+       sous `species.skills`, qui est l'item — le compter aussi ferait deux
+       voyants pour une décision. Mais `background.originFeat[0]` n'a AUCUN
+       groupe : c'est lui, l'item. Un filtre qui écartait tous les `[n]` faisait
+       disparaître le don d'origine de l'Inheritance — trouvé en la branchant. */
+    .filter((plan) => {
+      const groupe = plan.path.replace(/\[\d+\]$/, "");
+      return groupe === plan.path || !liste.some((autre) => autre && autre.path === groupe);
+    })
     .map((plan) => ({
       path: plan.path,
       /* RÉPONDU ≠ CONFIRMÉ. Le premier vient du carnet, le second du geste du
