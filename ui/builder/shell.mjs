@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=151";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=151";
-import { mountPopup } from "./popup.mjs?v=151";
-import { renderLorePanel } from "./lore.mjs?v=151";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=151";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=152";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=152";
+import { mountPopup } from "./popup.mjs?v=152";
+import { renderLorePanel } from "./lore.mjs?v=152";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=152";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=151";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=151";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=152";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=152";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=151";
-import { renderConceptStep } from "./concept-step.mjs?v=151";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=151";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=151";
+} from "./tutoriel.mjs?v=152";
+import { renderConceptStep } from "./concept-step.mjs?v=152";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=152";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=152";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=151";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=151";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=151";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=151";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=151";
+} from "./catalogue.mjs?v=152";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=152";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=152";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=152";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=152";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=151";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=152";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=151";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=151";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=151";
+} from "./destiny-step.mjs?v=152";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=152";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=152";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=151";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=152";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=151";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=151";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=152";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=151";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=151";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=152";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=152";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=151";
+import { versionQuery } from "./version.mjs?v=152";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1143,7 +1143,17 @@ function renderStepContent() {
      laisser flotter douze fiches. Une page de prose n'est pas douze dalles —
      elle a besoin de SA dalle, opaque, sinon deux cents mots se lisent
      directement sur le fond de nuit. */
-  card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1 && !state.lore) || step.id === "skills");
+  /* 🔴 ET PAS QUAND LE PARCOURS OCCUPE L'ÉCRAN (2026-08-19, mesuré). `bleed`
+     efface les gouttières de la carte pour que les DOUZE FICHES prennent
+     toute la scène. Mais dès le `Choose`, ce ne sont plus des fiches : c'est
+     un guide, un item ou un bilan — de la PROSE, qui doit garder ses marges.
+     Mesuré à 375 : la même dalle de guide faisait **375 px sur Species**, où
+     elle touchait les deux bords, et **325 sur Inheritance**. Un composant à
+     deux largeurs selon l'étape, c'est la maladie que les six dalles
+     venaient d'être soignées — revenue par la porte du conteneur. */
+  const parcoursOccupe = Boolean(catalogueCourant()) && catalogueCourant().parcours &&
+    etatDeLEtape({ decisions: state.decisions, document: state.document, racine: catalogueCourant().path }) !== ETAT.catalogue;
+  card.dataset.bleed = String((Boolean(catalogueCourant()) && state.palier === 1 && !state.lore && !parcoursOccupe) || step.id === "skills");
   /* ⛔ PLUS DE TITRE D'ÉCRAN. B7.3b, généralisé : « ne pas re-préciser le
      titre — le spy et le snap le rendent évident ». La molette du haut
      porte déjà le nom de l'étape, surligné (B0.5) ; le répéter en T6 sous
