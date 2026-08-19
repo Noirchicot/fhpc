@@ -181,6 +181,49 @@ rembourrage latéral `--sp-16`).
 ⏳ **Le TEXTE des huit chapeaux est un brouillon de Claude**, pas d'Eric. Il vit
 dans `CHAPITRE_INTRO` (shell.mjs) et se corrige là, à un seul endroit.
 
+## 2 quater. ⭐ LA MESURE — une caractéristique de TOUS les F
+
+Eric, 2026-08-19 : *« quand je dis FF2 je sous-entends que tu as un measure à
+mettre ! largeur identique à tous les autres FF2 »*, puis *« ce measure est une
+caractéristique essentielle de tous les F »*, et enfin *« ce measure est
+DIFFÉRENT entre les F et les FF »*.
+
+| famille | jeton | ce que c'est |
+|---|---|---|
+| **FF** | `--measure` | **62ch** — la mesure de prose du dépôt, celle que portent déjà `.card-step`, `.card-intro`, `.card-reveal` |
+| **F** | `--measure-f` | `--measure` **moins `--rail-w`** — un F garde le menu latéral, donc son champ est plus étroit d'autant |
+
+📌 **C'est un PLAFOND, pas une largeur** (Eric : *« measure varie d'un écran à
+l'autre mais est limitant sur le max »*). `max-width` laisse chaque écran être
+aussi étroit que son contenu ; il l'empêche seulement de s'étaler.
+
+⛔ **`--measure-f` EST DÉRIVÉE, jamais posée en dur.** `--rail-w` vaut 90 px à
+l'étroit et **120 en Large** : un nombre écrit à la main aurait divergé au
+premier palier large. La soustraction, elle, suit.
+
+⚠️ **Et `margin-inline: auto` va avec.** Une mesure sans centrage colle la
+colonne à gauche et laisse à droite un vide qui se lit comme un bogue.
+
+🔴 **CE QUI A RÉVÉLÉ LA RÈGLE.** Les six dalles du parcours (tutoriels, guides,
+item, bilan) portaient une marge latérale que leurs voisines n'avaient pas :
+mesuré à 375, le tutoriel faisait **343 px** pendant que la fiche juste dessous
+en faisait **359**. Deux blocs de texte côte à côte à deux largeurs se lisent
+comme deux écrans. La gouttière est portée par la carte d'étape ; la redoubler
+sur la dalle la comptait deux fois.
+
+## 2 quinquies. LE « ? » — en haut à DROITE de la dalle
+
+Eric, 2026-08-19, après l'avoir vu à gauche : *« le ? est sur la dalle tout à
+droite au même niveau que le titre »*.
+
+Il rouvre le tutoriel, et il est **posé par la coquille**, une fois, sur toutes
+les étapes — jamais par un écran, qui pourrait l'oublier. 🔴 **C'est le filet de
+sécurité de `Turn tutorials off`** : sans lui ce bouton serait irréversible.
+
+⚠️ Le coin haut-droit lui appartient : ce qui commence la dalle (titre ou
+première ligne) s'arrête avant lui, sinon le texte passe DESSOUS — et c'est
+justement le texte que ce bouton sert à rouvrir.
+
 ## 2 bis. LES COTES, EN CHIFFRES
 
 Les marges sont sur **les quatre côtés**, systématiquement, et c'est **un seul

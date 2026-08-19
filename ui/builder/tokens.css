@@ -133,6 +133,15 @@
      `--grid-w` est la largeur d'une GRILLE (3 colonnes). Une grille n'a pas
      de mesure, elle a une largeur — deux jetons, deux natures. */
   --measure: 62ch; /* .decision-card — valeur déjà en place, zéro changement visible */
+  /* ⭐ LA MESURE DES F — Eric, 2026-08-19 : *« ce measure est une
+     caractéristique essentielle de tous les F »*, et *« ce measure est
+     DIFFÉRENT entre les F et les FF »*.
+     Un F garde le menu latéral, donc son champ est plus étroit de `--rail-w` :
+     sa mesure l'est aussi, exactement d'autant. ⛔ DÉRIVÉE, jamais posée en
+     dur — le jour où le rail change de largeur (90 px à l'étroit, 120 en
+     Large), la mesure suit toute seule. Un nombre écrit à la main aurait
+     divergé au premier palier large. */
+  --measure-f: calc(var(--measure) - var(--rail-w));
   --grid-w: 60ch;  /* .skills-step — la grille à 3 colonnes du lot 39 */
 
   /* ── LOT 69 — LES LARGEURS DE LA GRANDEUR (bible §3) ──────────────────
@@ -304,7 +313,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=140");
+  --bg-image: url("./assets/bg-day.jpg?v=145");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -373,7 +382,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=140");
+    --bg-image: url("./assets/bg-night.jpg?v=145");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

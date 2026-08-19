@@ -2852,7 +2852,7 @@ button { font: inherit; }
    Même raison que la page de lore. */
 .guide-general {
   background: var(--surface);
-  margin: var(--sp-8);
+  margin: 0 0 var(--sp-8);
   padding: var(--sp-16);
 }
 .guide-titre { margin: 0 0 var(--sp-8); font-size: var(--t5); }
@@ -2862,7 +2862,7 @@ button { font: inherit; }
 .parcours-guide,
 .parcours-item-dalle,
 .parcours-bilan {
-  margin: var(--sp-8);
+  margin: 0 0 var(--sp-8);
   padding: var(--sp-16);
   display: flex; flex-direction: column;
 }
@@ -2917,13 +2917,44 @@ button { font: inherit; }
 /* La carte d'étape ancre le « ? » : sans repère, il se poserait sur la scène. */
 .decision-card { position: relative; }
 
+/* ══ LA MESURE DES FF2 — Eric, 2026-08-19 ═════════════════════════════════
+   *« quand je dis FF2 je sous-entends que tu as un measure à mettre ! largeur
+   identique à tous les autres FF2 »*.
+
+   ⭐ ET LE JETON EXISTE DÉJÀ : `--measure` (62ch), la mesure de PROSE du
+   dépôt, celle que portent `.card-step`, `.card-intro`, `.card-reveal` et la
+   prose des fiches. Les six dalles neuves l'avaient manquée — elles
+   s'étalaient sur toute la scène pendant que leurs voisines se tenaient à 62
+   caractères, et deux blocs de texte côte à côte à deux largeurs différentes
+   se lisent comme deux écrans différents.
+
+   ⚠️ `margin-inline: auto` avec : une mesure sans centrage colle la colonne à
+   gauche et laisse un vide à droite qui ressemble à un bogue. */
+/* LES FF — la mesure pleine. */
+.tuto-general,
+.tuto-specifique,
+.parcours-guide,
+.parcours-item-dalle,
+.parcours-bilan { max-width: var(--measure); margin-inline: auto; }
+
+/* LES F — la mesure amputée du rail. Le guide général vit DANS le catalogue,
+   c'est-à-dire à côté du menu latéral : sa colonne de prose ne peut pas être
+   aussi large que celle d'un FF, sinon deux écrans voisins n'ont pas la même
+   longueur de ligne et se lisent comme deux typographies. */
+.guide-general { max-width: var(--measure-f); margin-inline: auto; }
+
 /* ══ LE TUTORIEL (Eric, 2026-08-19) ════════════════════════════════════════
    Le général sur fond bleu, le spécifique sur fond vert, et le « ? » qui les
    rallume. Les deux fonds sont des JETONS dérivés de `--info`/`--positive` :
    ils suivent le thème sans qu'on les redéclare la nuit. */
 .tuto-general,
 .tuto-specifique {
-  margin: var(--sp-8);
+  /* 🔴 AUCUNE MARGE LATÉRALE — mesuré : avec `margin: var(--sp-8)` le tutoriel
+     faisait 343 px pendant que la fiche juste dessous en faisait 359. Deux
+     blocs côte à côte à deux largeurs se lisent comme deux écrans. La
+     gouttière est déjà portée par la carte d'étape ; la redoubler ici la
+     comptait deux fois. */
+  margin: 0 0 var(--sp-8);
   padding: var(--sp-16);
   display: flex; flex-direction: column;
 }
@@ -2946,7 +2977,13 @@ button { font: inherit; }
    rond peint plus petit. Un point de 16 px se rate au pouce, et le joueur qui
    le cherche est précisément celui qui est perdu. */
 .tuto-point {
-  position: absolute; left: 0; top: 0;
+  /* 🔴 À DROITE, PAS À GAUCHE (Eric, 2026-08-19, après l'avoir vu) : *« le ?
+     est sur la dalle tout à droite au même niveau que le titre »*. À gauche il
+     se posait SUR le premier mot — c'est-à-dire sur le texte qu'il sert
+     justement à rouvrir. */
+  /* ⚠️ RENTRÉ DE LA GOUTTIÈRE DE LA DALLE : à `right: 0` il flottait 8 px À
+     CÔTÉ d'elle, pas dessus — et Eric dit « SUR la dalle ». */
+  position: absolute; right: var(--sp-8); top: var(--sp-8);
   width: var(--touch); height: var(--touch);
   display: grid; place-items: center;
   border: 0; background: transparent; color: var(--text-soft);
@@ -2975,9 +3012,9 @@ button { font: inherit; }
   font: inherit; font-size: var(--t4); cursor: pointer;
 }
 
-/* LE « ? » OCCUPE LE COIN : la première ligne du premier bloc lui laisse la
-   place. Mesuré à l'écran — sans ça, le rond se posait SUR le premier mot du
-   tutoriel, et c'est justement le texte qu'il sert à rouvrir. */
+/* LE COIN HAUT-DROIT APPARTIENT AU « ? » : ce qui commence la dalle s'arrête
+   avant lui. Mesuré — sans ça le texte passait DESSOUS, et c'est justement le
+   texte que ce bouton sert à rouvrir. */
 .tuto-general > .tuto-mot:first-child,
 .tuto-specifique > .tuto-mot:first-child,
-.chapitre-intro > .chapitre-intro-mot:first-child { text-indent: var(--sp-24); }
+.guide-titre { padding-right: var(--touch); }
