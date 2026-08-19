@@ -2877,6 +2877,15 @@ button { font: inherit; }
   background: var(--surface);
   margin: 0 0 var(--sp-8);
   padding: var(--sp-16);
+  /* ⭐ LA HAUTEUR IMPOSÉE D'UN F1 (Eric, 2026-08-19 : « le guide général des
+     espèces doit être F1 »). Il défile dans la colonne des douze fiches :
+     porter une autre hauteur qu'elles ferait de lui une intruse dans une file.
+     ⛔ `--fiche-h` N'EST PAS RECOPIÉE — elle vit déjà sur le conteneur du
+     catalogue, et le guide est dedans. La recopier ici la ferait diverger le
+     jour où Eric change la cote.
+     ⚠️ AUCUN DÉFILEMENT INTERNE : si le texte ne tient pas dans 440 px, la
+     question est ce qu'il porte EN TROP — jamais une barre de plus. */
+  height: var(--fiche-h);
 }
 .guide-titre { margin: 0 0 var(--sp-8); font-size: var(--t5); }
 .guide-mot { margin: 0 0 var(--sp-12); color: var(--text-soft); font-size: var(--t3); line-height: 1.5; }

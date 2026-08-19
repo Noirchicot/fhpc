@@ -45,11 +45,18 @@ function saignee() {
    ⭐ VOILE 100 %, ET C'EST DÉLIBÉRÉ : les dalles du builder sont à 80 %. Une
    page de prose posée sur le dégradé du fond se lit mal — c'est la même raison
    qui a rendu la page de lore opaque.
-   ⛔ IL NE BLOQUE PAS LE DÉFILEMENT : c'est un F2, sa hauteur est celle de son
-   texte, et les douze fiches défilent en dessous. */
+   ⭐ C'EST UN F1, PAS UN F2 — correction d'Eric, 2026-08-19 : *« le guide
+   général des espèces doit être F1 »*. Il vit DANS la colonne des douze
+   fiches, il défile avec elles : porter une autre hauteur qu'elles ferait de
+   lui une intruse dans une file. Sa hauteur est donc celle d'une fiche
+   (`--fiche-h`, 440 px), imposée comme la leur.
+   ⚠️ ET IL NE S'AIMANTE TOUJOURS PAS : il n'a pas de `data-snap`, parce que
+   l'index d'un cran de rail et celui d'une fiche sont le même entier — une
+   carte de plus dans ce compte ferait choisir la mauvaise espèce. Il se lit,
+   il se dépasse. C'est la seule chose qui le distingue encore d'une fiche. */
 export function renderGuideGeneral({ titre, texte }) {
   const carte = el("section", "guide-general dalle-majeure");
-  carte.dataset.cadre = "F2";
+  carte.dataset.cadre = "F1";
   if (titre) carte.append(el("h2", "guide-titre", [text(titre)]));
   for (const para of String(texte || "").split(/\n{2,}/)) {
     const ligne = para.trim();

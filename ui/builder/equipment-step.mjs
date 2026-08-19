@@ -43,9 +43,9 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=152";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=152";
-import { swapContent } from "./socle.mjs?v=152";
+import { renderPicker } from "./carnet.mjs?v=154";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=154";
+import { swapContent } from "./socle.mjs?v=154";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
