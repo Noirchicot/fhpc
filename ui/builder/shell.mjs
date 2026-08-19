@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=156";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=156";
-import { mountPopup } from "./popup.mjs?v=156";
-import { renderLorePanel } from "./lore.mjs?v=156";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=156";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=160";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=160";
+import { mountPopup } from "./popup.mjs?v=160";
+import { renderLorePanel } from "./lore.mjs?v=160";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=160";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=156";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=156";
+import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=160";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=160";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=156";
-import { renderConceptStep } from "./concept-step.mjs?v=156";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=156";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=156";
+} from "./tutoriel.mjs?v=160";
+import { renderConceptStep } from "./concept-step.mjs?v=160";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=160";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=160";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=156";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=156";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=156";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=156";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=156";
+} from "./catalogue.mjs?v=160";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=160";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=160";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=160";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=160";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=156";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=160";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=156";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=156";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=156";
+} from "./destiny-step.mjs?v=160";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=160";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=160";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=156";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=160";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=156";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=156";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=160";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=156";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=156";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=160";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=160";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=156";
+import { versionQuery } from "./version.mjs?v=160";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1429,8 +1429,20 @@ function renderStepContent() {
      ⚠️ ON NE LE RENDS PAS, on ne le CACHE pas : `display: none` est interdit
      dans `shell.css` (garde 4), et pour une bonne raison — un nœud caché reste
      dans l'arbre, tabulable et annoncé. */
+  /* 🔴 SUR LA DALLE, PAS SUR LA CARTE — Eric, 2026-08-19, en le voyant flotter
+     dans le vide : *« dégage tous les ? qui ne sont pas à leur place »*.
+
+     LA CAUSE, MESURÉE : il était posé au coin de `.decision-card`, qui sur un
+     large écran fait 76ch CENTRÉS. Son coin haut-droit tombait donc au milieu
+     du fond, à côté de la dalle et pas dessus. Un bouton posé sur rien.
+
+     ⛔ IL SE POSE MAINTENANT DANS LA PREMIÈRE DALLE, celle qu'il concerne —
+     c'est ce qu'Eric demandait depuis le début (*« le ? est SUR la dalle tout
+     à droite au même niveau que le titre »*). Et toujours pas quand un
+     tutoriel est déjà là : proposer d'ouvrir ce qu'on lit est du bruit. */
   if (!card.querySelector(".tuto-general, .tuto-specifique")) {
-    card.append(renderPointInterrogation(applyDecisionAction));
+    const hote = card.querySelector("[data-objet='dalle'], .dalle-majeure, .dalle-intermediaire");
+    if (hote) hote.append(renderPointInterrogation(applyDecisionAction));
   }
   return card;
 }
@@ -2111,62 +2123,18 @@ function renderSortieEtape() {
    ⭐ Même partage que `data-scroller="grille"` (lot 79) : **le marqueur est une
    déclaration, pas une inférence**. Un écran qui n'en pose pas garde le pied
    au bas de la scène, à l'octet — c'est le cas des neuf autres. */
-/* ══ F3 / FF3 — LE CHAPEAU DE CHAPITRE ══════════════════════════════════════
-   📐 Règle globale d'Eric, 2026-08-19 : *« Règles globales à chaque chapitre
-   du 1 au 8. Il y a toujours un FF2 ou F2 avec Line bleed = F3 ou FF3, pour
-   introduire ce qui est attendu du joueur. […] On décide que la dalle
-   s'arrête pour laisser place à une suivante en utilisant line bleed, ce qui
-   nous fait une marge. Normalement pas utile sur la dernière dalle. »*
+/* ⛔ LE CHAPEAU DE CHAPITRE EST MORT — Eric, 2026-08-19, en le voyant :
+   *« bande noire sert à rien, elle dégage »*.
 
-   ⭐ **F3 = F2 + line bleed.** Le chiffre ne décrit plus seulement QUI décide
-   de la hauteur : il dit aussi que la dalle SE TERMINE pour laisser la place
-   à une suivante. Voir `CADRES.md` §2 ter.
-   ⚠️ Et ce n'est PAS l'ancien F3, celui qu'Eric avait tué le 16/08 (*« F3 me
-   semble inutile »*) : celui-là voulait dire « une longue liste », que les
-   deux premiers chiffres décrivaient déjà. Le nom était libre, le sens est
-   neuf. La distinction est écrite dans `CADRES.md` pour qu'on ne relise pas
-   l'ancienne phrase comme une contradiction.
+   ⭐ ET IL AVAIT RAISON DEUX FOIS. Ce chapeau est né LE MATIN, avant que le
+   tutoriel spécifique n'existe. Les deux disaient la même chose au même
+   endroit — « voici ce qui est attendu de vous » — l'un en une phrase grise
+   et pleine largeur, l'autre avec un titre, un chapô et des points. Deux voix
+   pour un message, et la moins bonne passait devant.
 
-   ⭐ POSÉ UNE FOIS PAR LA COQUILLE, comme `BACK`/`DONE` — les huit chapitres
-   en héritent du même geste. L'écrire dans les huit écrans, c'est huit
-   versions qui divergent au premier changement de registre.
-
-   ⛔ NI SUR LE MENU, NI SUR LA FICHE. Le chapitre 0 (Menu) et la fiche
-   (Sheet) ne sont pas des étapes de création : ils ne portent pas de chapeau.
-   C'est exactement ce que dit « du 1 au 8 ».
-
-   ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
-   l'écran ATTEND, en une phrase, au présent, à la deuxième personne. Chaque
-   ligne se corrige ici et nulle part ailleurs. */
-const CHAPITRE_INTRO = {
-  concept: "Name your character and say who they are. Nothing here is mechanical — it is the person the rest of the sheet will belong to.",
-  species: "Choose a species, then open Choose to settle what it leaves you to decide — a lineage, and any skills it grants.",
-  background: "Your inheritance is what you were handed before the adventure: two ability boosts, an origin feat, and your languages.",
-  destiny: "Draw your Arcana, or choose it. It sets the Destiny score the rest of your sheet answers to.",
-  class: "Choose a class, then open Choose for what it asks of you — its skills, and its spells if it casts.",
-  abilities: "Set your six ability scores. Pick the method first; the screen then walks that method to the end.",
-  skills: "Spend your free point pool. Novice costs 1, Adept 2, Expert 4 — and bound points are already placed.",
-  equipment: "Take your starting equipment. Nothing here is required: what you leave behind, you can buy later."
-};
-
-/** LE CHAPEAU, ou `null` pour les deux bouts qui n'en portent pas. */
-function renderChapitreIntro() {
-  const etape = STEPS[state.step];
-  const texte = etape && CHAPITRE_INTRO[etape.id];
-  if (!texte) return null;
-  const chapeau = el("section", "chapitre-intro dalle-majeure");
-  chapeau.dataset.objet = "dalle";
-  chapeau.dataset.saigne = "oui";
-  chapeau.append(el("p", "chapitre-intro-mot", [document.createTextNode(texte)]));
-  /* LE LINE BLEED. Il DÉBORDE la dalle des deux côtés : c'est lui qui dit
-     « ça s'arrête ici, autre chose suit », et la marge qu'il produit est la
-     raison d'être du format. ⛔ Décoratif pour un lecteur d'écran — la
-     séparation est déjà portée par la structure. */
-  const filet = el("hr", "saignee");
-  filet.setAttribute("aria-hidden", "true");
-  chapeau.append(filet);
-  return chapeau;
-}
+   La règle d'Eric du matin (« il y a toujours un F2 avec line bleed pour
+   introduire ce qui est attendu du joueur ») N'EST PAS abandonnée : c'est le
+   TUTORIEL SPÉCIFIQUE qui la porte, et il la porte mieux. */
 
 function poserLaSortie(contenu, sortie) {
   const noeuds = [contenu, sortie].filter(Boolean);
@@ -2244,9 +2212,7 @@ function refresh() {
   paintAside();
   paintTopbar();
   paintPopup();
-  /* Le chapeau d'abord, le contenu ensuite, la sortie dans le contenu —
-     l'ordre de lecture de l'écran, et il se lit dans cette ligne. */
-  swapContent(frame.stage, [renderChapitreIntro(), ...poserLaSortie(renderStepContent(), renderSortieEtape())].filter(Boolean));
+  swapContent(frame.stage, poserLaSortie(renderStepContent(), renderSortieEtape()));
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`

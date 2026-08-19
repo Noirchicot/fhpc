@@ -208,7 +208,19 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    `data-status="done"`, qui veut dire « tu es passé devant » : un chapitre
    traversé sans rien y poser s'allumait quand même. Il vit maintenant sur
    `data-fait`, prononcé par `etapeFaite` — le juge de Review. */
-.belt-item[data-fait="true"] .belt-index { color: var(--positive); border-color: var(--positive); }
+/* 🔴 TOTALEMENT VERT, ET LE CHIFFRE DESSUS — Eric, 2026-08-19 : *« le 1 dans
+   le belt doit être TOTALEMENT vert ! et on doit voir le chiffre dessus »*.
+   Un anneau vert autour d'un chiffre clair se lit « en cours » ; un disque
+   PLEIN se lit « fait ». C'est la différence entre un contour et un état.
+   ⚠️ L'ENCRE EST CELLE DU FOND, pas du texte : sur un disque `--positive`
+   plein, `--text` (clair en nuit) tomberait sous le seuil. `--on-accent` est
+   le jeton fait pour ça — l'encre qu'on pose SUR une couleur pleine. */
+.belt-item[data-fait="true"] .belt-index {
+  background: var(--positive);
+  border-color: var(--positive);
+  color: var(--on-accent);
+  font-weight: 700;
+}
 .belt-item { scroll-snap-align: center; flex: none; }
 
 /* ══ LES DEUX ONGLETS DE BOUT ═══════════════════════════════════════════
@@ -2839,31 +2851,6 @@ button { font: inherit; }
 .lore-liste { margin: 0 0 var(--sp-12); padding-left: var(--sp-20); }
 .lore-liste li { margin-bottom: var(--sp-4); }
 
-/* ══ F3 / FF3 — LE CHAPEAU DE CHAPITRE (Eric, 2026-08-19) ═══════════════════
-   Une dalle qui introduit ce qui est attendu du joueur, et qui SE TERMINE par
-   un line bleed — c'est le débordement du filet qui fait la marge, et c'est
-   ce que le chiffre 3 nomme. */
-/* ⚠️ LES GOUTTIÈRES SONT SUR LES QUATRE CÔTÉS, SYSTÉMATIQUEMENT (CADRES.md
-   §2 bis) — et le chapeau les avait perdues : mesuré dans la page, il faisait
-   375 px de large et touchait les deux bords pendant que la carte en dessous
-   gardait ses 8. C'est le défaut EXACT que le pied d'étape avait eu le 16/08,
-   et qui est écrit dans CADRES.md ; on ne le refait pas.
-   ⭐ Le rembourrage latéral vaut `--sp-16` DÉLIBÉRÉMENT : c'est la valeur que
-   `--saignee-debord` annule. Le filet touche alors les bords du CHAPEAU —
-   pas ceux de l'écran, ce qui serait un autre dessin. */
-.chapitre-intro {
-  /* LA MESURE DU CHAPEAU (§2 quater). Il en était dépourvu : sur un écran
-     large ses lignes s'étalaient pendant que la dalle juste dessous se tenait
-     à 62 caractères. ⚠️ `--measure` est la SEULE mesure du builder : elle vaut avec rail comme
-     sans (Eric, 2026-08-19). */
-  max-width: var(--measure);
-  margin: var(--sp-8);
-  padding: var(--sp-12) var(--sp-16) 0;
-}
-.chapitre-intro-mot {
-  margin: 0 0 var(--sp-12);
-  color: var(--text-soft); font-size: var(--t3); line-height: 1.5;
-}
 
 /* ══ LE PARCOURS D'UNE ÉTAPE — guide, items, bilan (Eric, 2026-08-19) ═══════
    Spec : vault `FH-WEB/FHPC/FHPCv2 parcours d'etape.md`. Une seule feuille pour
@@ -2874,7 +2861,7 @@ button { font: inherit; }
    Même raison que la page de lore. */
 .guide-general {
   background: var(--surface);
-  margin: 0 0 var(--sp-8);
+  margin: 0 auto var(--sp-8);
   padding: var(--sp-16);
   /* ⭐ LA HAUTEUR IMPOSÉE D'UN F1 (Eric, 2026-08-19 : « le guide général des
      espèces doit être F1 »). Il défile dans la colonne des douze fiches :
@@ -2893,7 +2880,7 @@ button { font: inherit; }
 .parcours-guide,
 .parcours-item-dalle,
 .parcours-bilan {
-  margin: 0 0 var(--sp-8);
+  margin: 0 auto var(--sp-8);
   padding: var(--sp-16);
   display: flex; flex-direction: column;
 }
@@ -2946,7 +2933,12 @@ button { font: inherit; }
 .parcours-done { box-shadow: inset 0 0 0 1px var(--verre-lisere); }
 
 /* La carte d'étape ancre le « ? » : sans repère, il se poserait sur la scène. */
-.decision-card { position: relative; }
+/* 🔴 L'ANCRAGE DU « ? » EST SUR LA DALLE, PLUS SUR LA CARTE (Eric,
+   2026-08-19). Au coin de `.decision-card` — 76ch CENTRÉS sur grand écran —
+   il tombait au milieu du fond, à côté de la dalle et pas dessus. */
+.tuto-general, .tuto-specifique, .guide-general,
+.parcours-guide, .parcours-item-dalle, .parcours-bilan,
+.concept-step, .universe-step, .review-mask { position: relative; }
 
 /* ══ LA MESURE DES FF2 — Eric, 2026-08-19 ═════════════════════════════════
    *« quand je dis FF2 je sous-entends que tu as un measure à mettre ! largeur
@@ -2962,16 +2954,22 @@ button { font: inherit; }
    ⚠️ `margin-inline: auto` avec : une mesure sans centrage colle la colonne à
    gauche et laisse un vide à droite qui ressemble à un bogue. */
 /* LA MESURE — une seule, pour tous les écrans. */
+/* 🔴 LE CENTRAGE VIT DANS LA MARGE DE CHAQUE DALLE, PAS ICI. Mesuré à 2000 px :
+   le tutoriel commençait à 617 et la fiche à 688, toutes deux à 625 de large —
+   parce qu'un `margin: 0 0 8px` écrit plus bas écrasait le `margin-inline:
+   auto` écrit ici. La forme courte gagne toujours ; deux déclarations de marge
+   sur un même élément, c'est une course qu'on perd.
+   ⛔ UNE SEULE DÉCLARATION DE MARGE PAR DALLE, et elle porte le `auto`. */
 .tuto-general,
 .tuto-specifique,
 .parcours-guide,
 .parcours-item-dalle,
-.parcours-bilan { max-width: var(--measure); margin-inline: auto; }
+.parcours-bilan { max-width: var(--measure); }
 
 /* ⛔ PLUS DE MESURE À PART POUR LES ÉCRANS À RAIL (Eric, 2026-08-19) : « 62
    fonctionne sur le plus petit comme le plus grand, avec et sans rail ». Le
    guide prend donc la mesure commune, comme tout le reste. */
-.guide-general { max-width: var(--measure); margin-inline: auto; }
+.guide-general { max-width: var(--measure); }
 
 /* ══ LE TUTORIEL (Eric, 2026-08-19) ════════════════════════════════════════
    Le général sur fond bleu, le spécifique sur fond vert, et le « ? » qui les
@@ -2984,7 +2982,7 @@ button { font: inherit; }
      blocs côte à côte à deux largeurs se lisent comme deux écrans. La
      gouttière est déjà portée par la carte d'étape ; la redoubler ici la
      comptait deux fois. */
-  margin: 0 0 var(--sp-8);
+  margin: 0 auto var(--sp-8);
   padding: var(--sp-16);
   display: flex; flex-direction: column;
 }
