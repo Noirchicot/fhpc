@@ -19,37 +19,37 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=108";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=108";
-import { mountPopup } from "./popup.mjs?v=108";
-import { renderLorePanel } from "./lore.mjs?v=108";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=108";
-import { renderConceptStep } from "./concept-step.mjs?v=108";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=108";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=108";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=109";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=109";
+import { mountPopup } from "./popup.mjs?v=109";
+import { renderLorePanel } from "./lore.mjs?v=109";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=109";
+import { renderConceptStep } from "./concept-step.mjs?v=109";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=109";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=109";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=108";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=108";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=108";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=108";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=108";
+} from "./catalogue.mjs?v=109";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=109";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=109";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=109";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=109";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=108";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=109";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=108";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=108";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=108";
+} from "./destiny-step.mjs?v=109";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=109";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=109";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=108";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=109";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -68,16 +68,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=108";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=108";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=109";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=108";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=108";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=109";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=109";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=108";
+import { versionQuery } from "./version.mjs?v=109";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -117,11 +117,24 @@ import { versionQuery } from "./version.mjs?v=108";
    devait changer. Réordonner cette liste réordonne le parcours, rien d'autre.
 
    📌 LES DEUX BOUTS NE SONT PAS DES ÉTAPES (voir `mountFrame`) : le premier et
-   le dernier sortent de la ceinture et deviennent des onglets. Leur libellé
-   ici est leur nom COMPLET — celui qu'annoncent les lecteurs d'écran et celui
-   que porte le chapitre ; les onglets, eux, montrent un mot court. */
+   le dernier sortent de la ceinture et deviennent des onglets.
+
+   ⭐ ET ILS N'ONT QU'UN SEUL NOM CHACUN — corrigé le 2026-08-19, quand Eric a
+   dit ce qu'ils CONTIENNENT :
+
+     Menu  — retour au menu · réglages d'interface et de connexions · le site
+             Fate's Hand · les réglages du MJ
+     Sheet — l'état d'avancement ET la vérification des fichiers, en même
+             temps · les fonctions d'export · le mode expert · l'accès à la
+             fiche interactive
+
+   « Settings » était donc faux : c'est un MENU qui contient des réglages, pas
+   des réglages. Et « Character » désigne le CHAPITRE du site, pas cet écran-ci
+   — l'écran montre l'état d'un dossier, le chapitre explique un personnage.
+   Deux noms pour un écran est un défaut ; deux noms pour deux choses n'en est
+   pas un. */
 const STEPS = [
-  { id: "universe",   label: "Settings" },   // ⟵ « Universe & Layers » ; l'onglet dit « Menu »
+  { id: "universe",   label: "Menu" },       // ⟵ « Universe & Layers », puis « Settings »
   { id: "concept",    label: "Identity" },   // ⟵ « Biography » — Eric, 2026-08-18
   { id: "species",    label: "Species" },
   { id: "background", label: "Inheritance" }, // LOT 42, §3d — l'arrière-plan n'existe plus en Fate's Hand ; le libellé change seul
@@ -130,7 +143,7 @@ const STEPS = [
   { id: "abilities",  label: "Abilities" },
   { id: "skills",     label: "Skills" },
   { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
-  { id: "review",     label: "Character" }  // ⟵ « Review » ; l'onglet dit « Sheet »
+  { id: "review",     label: "Sheet" }      // ⟵ « Review » — le CHAPITRE, lui, s'appelle Character
 ];
 /* LOT 40 — trouvé PAR l'id, jamais par la position. `STEPS.length - 1`
    désigne le même index aujourd'hui (review est le dernier pas de la
