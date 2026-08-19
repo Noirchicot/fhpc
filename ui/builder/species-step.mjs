@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=185";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=185";
-import { renderChoixGlisses } from "./glisser.mjs?v=185";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=189";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=189";
+import { renderChoixGlisses } from "./glisser.mjs?v=189";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -186,6 +186,20 @@ function motPropre(valeur) {
 
    ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf « gagné d'office », qui
    est là dès le début parce qu'il ne dépend de rien. */
+/** Le trait qui ACCORDE cet item, s'il en existe un sur le record.
+ *
+ *  ⭐ UN TRAIT COUVERT NE DISPARAÎT PAS, IL CHANGE DE PLACE — Eric,
+ *  2026-08-19 : *« tu aurais pu noter Keen Senses au-dessus de Delve et
+ *  Vigilance »*. Le retirer de « gagné d'office » était juste (il s'y répétait)
+ *  ; le faire disparaître ne l'était pas. Un joueur qui lit « Delve — Novice »
+ *  sans savoir D'OÙ ces points viennent lit un résultat sans sa cause.
+ *
+ *  Même règle pour tous : le lignage aussi porte le sien en tête. */
+function traitQuiAccorde(record, chemin) {
+  const ids = TRAITS_COUVERTS[chemin] || [];
+  return traitsDe(record).find((trait) => ids.includes(trait.id)) || null;
+}
+
 function resumeDeLItem(item, ctx) {
   const record = especeRetenue(ctx);
   if (!record || !item) return null;
@@ -222,7 +236,11 @@ function resumeDeLItem(item, ctx) {
     const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
     const choisi = options.find((o) => o && o.id === pose);
     if (!choisi) return null;
-    return renderCardRows([[choisi.name, ""], ...beneficesDe(choisi)]);
+    const trait = traitQuiAccorde(record, "species.lineage");
+    return renderCardRows([
+      ...(trait ? [[trait.name, choisi.name]] : [[choisi.name, ""]]),
+      ...beneficesDe(choisi)
+    ]);
   }
 
   /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
@@ -236,7 +254,9 @@ function resumeDeLItem(item, ctx) {
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
       return palier ? [motPropre(skillLabel(ctx.query, slug)), tierLabel(palier)] : null;
     }).filter(Boolean);
-    return lignes.length > 0 ? renderCardRows(lignes) : null;
+    if (lignes.length === 0) return null;
+    const trait = traitQuiAccorde(record, "species.skillBudget");
+    return renderCardRows(trait ? [[trait.name, trait.text || ""], ...lignes] : lignes);
   }
   return null;
 }
