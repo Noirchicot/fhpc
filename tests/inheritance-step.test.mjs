@@ -136,8 +136,16 @@ test("chaque fiche de don porte son NOM et sa DESCRIPTION, lus par `query({kind:
   const auspicious = featCards(node).find((card) => card.getAttribute("data-value") === "fh:feat:en:auspicious");
   assert.ok(auspicious, "la fiche Auspicious (fh) existe");
   assert.equal(auspicious.querySelectorAll(".catalogue-card-name")[0].textContent, "Auspicious (fh)");
-  const desc = auspicious.querySelectorAll(".catalogue-card-prose");
+  /* 🔴 LA DESCRIPTION A CHANGÉ D'ORGANE, PAS DE RÔLE — Eric, 2026-08-20 :
+     *« le choix des feats doit fonctionner comme les choix de species, même
+     logique »*. Le don passe désormais par `renderFicheBody`, donc sa prose
+     est un `.fiche-blurb` — la moitié basse, pleine largeur — et non plus un
+     paragraphe libre. Ce que ce cas garde est inchangé : la description EXISTE
+     et vient du record. */
+  const desc = auspicious.querySelectorAll(".fiche-blurb");
   assert.ok(desc.length > 0, "la description existe — pas seulement le nom");
+  assert.ok(auspicious.querySelector('[data-action="choose"]'),
+    "et la fiche est PRENABLE : sans son pied, on la lit sans pouvoir la choisir");
   assert.match(desc[0].textContent, /Destiny/, "c'est bien le texte du record, pas un résumé");
   /* ⚠️ LOT 64 — LE DON CHOISI NE SE MARQUE PLUS « ACTIF » SUR SA FICHE, et
      c'est l'invariant II.1 : le choix, c'est le DÉFILEMENT. Le catalogue

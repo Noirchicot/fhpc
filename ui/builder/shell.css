@@ -1030,9 +1030,31 @@ button { font: inherit; }
   column-gap: 0;
   row-gap: var(--sp-2);
 }
+/* 🔴 LE RÉSUMÉ PREND L'ENCRE DU BLOC DES LIGNAGES — Eric, 2026-08-20 : *« dans
+   le menu B0 de Elf, pour Size, Speed, Fey Ancestry, Trance… utilise le même
+   blanc que dans la description des lignages ; Drow, High Elf etc. »*
+
+   📏 MESURÉ, ET LA HIÉRARCHIE ÉTAIT RETOURNÉE :
+   · bloc des lignages — titre `--text` (216) en **600**, description
+     `--text-soft` (152) en **400** ;
+   · résumé du guide — libellé `--text-muted` (146) en **400**, valeur
+     `--text-soft` en **600**.
+   Le résumé mettait donc son ACCENT sur la valeur et effaçait le mot qui la
+   nomme, quand le bloc voisin fait exactement l'inverse. Deux blocs de même
+   nature qui se lisent en sens contraire à trois centimètres l'un de l'autre.
+
+   ⭐ CE QUE ÇA CHANGE POUR L'ŒIL : le mot qu'on CHERCHE (« Trance », « Fey
+   Ancestry ») redevient le point d'entrée, et le texte se lit dessous — comme
+   « Drow » puis ses trois niveaux. C'est la même chose dite de la même façon. */
+.parcours-resume .catalogue-card-row dt,
+.parcours-bilan .catalogue-card-row dt {
+  color: var(--text);
+  font-weight: 600;
+}
 .parcours-resume .catalogue-card-row dd,
 .parcours-bilan .catalogue-card-row dd,
 .universe-locale-row dd {
+  font-weight: 400;
   /* 🔴 LE GARDE-FOU QUI MANQUAIT, ET IL A COÛTÉ UN ÉCRAN CASSÉ CHEZ ERIC
      (capture du 2026-08-20 : la dalle décalée, les phrases qui filent hors du
      bord, la page qui défile en travers). ⛔ INVISIBLE DANS CHROME : le banc de

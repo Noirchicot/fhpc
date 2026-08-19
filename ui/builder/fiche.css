@@ -478,8 +478,19 @@
    le fond va tout entier en dessous (décision d'Eric, voir plus bas). Les
    voisines restent invisibles — c'est la rangée d'une scène qui le garantit,
    pas la position de la fiche dedans. */
+/* 🔴 LE DON D'ORIGINE REJOINT LA LISTE — Eric, 2026-08-20 : *« le choix des
+   feats doit fonctionner comme les choix de species, même logique »*, *« il
+   faut que ce soit du F1 pour les feats »*.
+   📏 CE QU'IL FAISAIT SANS ELLE, MESURÉ À 360 px : **720 px de haut** au lieu
+   de 440 — `height: var(--fiche-h)` ne résolvait rien, donc la carte prenait la
+   hauteur de son texte, et la colonne n'aimantait plus rien de régulier.
+   ⚠️ TROISIÈME FOIS QUE CETTE COTE MANQUE À UNE CARTE (le guide général la
+   ratait aussi, mesuré à 275). La question n'est jamais « quel format » mais
+   « est-elle DANS la liste qui porte la cote » : une carte hors de cette
+   déclaration n'est pas une carte, c'est une dalle qui lui ressemble. */
 .catalogue-cards[data-kind="class"],
-.catalogue-cards[data-kind="species"] {
+.catalogue-cards[data-kind="species"],
+.catalogue-cards[data-kind="feat"] {
   --fiche-h: 440px;   /* F1 : 242 × 440, ratio 0,55 — la cote d'Eric */
 
   /* 🔴 UNE GRILLE DE RANGÉES D'UNE SCÈNE, ET LA FICHE SE CENTRE DEDANS.
@@ -521,8 +532,14 @@
    RETIRÉ, et sa règle est remontée dans le bloc commun ci-dessus. Un seul
    sélecteur pour les deux écrans, comme « B3 = B2 » l'exige — deux règles
    pour la même chose divergent, c'est la loi du dépôt. */
+/* ⚠️ ET LE DON D'ORIGINE ICI AUSSI — la cote se déclare à DEUX endroits (le
+   conteneur porte `--fiche-h`, la carte porte la hauteur de sa rangée), et
+   n'en corriger qu'un ne change RIEN : mesuré, la carte restait à 720 px avec
+   `--fiche-h` pourtant bien hérité à 440. Une cote qui vit en deux endroits se
+   corrige aux deux, sinon on croit avoir réparé. */
 .catalogue-card[data-snap="class"],
-.catalogue-card[data-snap="species"] {
+.catalogue-card[data-snap="species"],
+.catalogue-card[data-snap="feat"] {
   /* 🔴 LA BOÎTE DE RANGÉE — elle vaut UNE SCÈNE, et elle n'a AUCUN décor.
      C'est le remède du 16/08 : une rangée de grille vide ne produit pas de
      boîte, donc le vide qui suivait la dernière dalle n'était pas défilable

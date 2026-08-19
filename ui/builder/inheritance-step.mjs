@@ -29,8 +29,10 @@
 
 import {
   planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=210";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=210";
+} from "./carnet.mjs?v=218";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=218";
+import { renderChoixGlisses } from "./glisser.mjs?v=218";
+import { renderFicheBody } from "./catalogue.mjs?v=218";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -346,22 +348,83 @@ export function renderInheritanceStep(ctx, onAction) {
   return section;
 }
 
+/* ══ LES BONUS DE CARACTÉRISTIQUE, AU GLISSER — Eric, 2026-08-20 ═════════
+   *« Les bonus carac en mode drag and drop. »*
+
+   ⭐ C'EST LA BOURSE DE COMPÉTENCES DE SPECIES, MOT POUR MOT — même organe,
+   même contrat, aucune forme neuve. Un budget se dépense en VALEURS (`+1` peut
+   aller sur deux caractéristiques), d'où `reutilisable: true` : sans lui, poser
+   le premier éteint le jeton et l'écran se bloque — le défaut qu'Eric avait
+   trouvé sur l'Elfe.
+
+   📌 CE QUE LE MOTEUR PUBLIE, et qu'on ne réinvente pas ici : le groupe
+   `background.boost` porte les clefs autorisées et le total attendu (3) ; le
+   plafond par carac (2) et les deux refus (`boost-cap-exceeded`,
+   `boost-total-mismatch`) sont PRONONCÉS PAR LE CARNET. L'écran ne juge rien —
+   il rend `slot.lock`, comme partout.
+   ⛔ Les valeurs des jetons viennent donc du plan, pas d'une liste écrite ici :
+   `1` et `2` sont ce que le moteur accepte, et un `0` n'existe pas (l'absence
+   de bonus est un `clear`, pas une valeur). */
+const BOOST_VALEURS = [1, 2];
+
+export function renderBoostGlisse(ctx, act) {
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, "background.boost");
+  if (!plan) return null;
+  const perso = ctx.document;
+  const ordre = SRD_ABILITY_ORDER.filter((k) => plan.options.includes(k));
+  const slots = ordre.map((key, index) => {
+    const etape = planAt(decisions, `background.boost.${key}`);
+    return {
+      path: `background.boost.${key}`, index,
+      options: BOOST_VALEURS,
+      /* ⚠️ LA VALEUR POSÉE SE LIT DANS LE DOCUMENT, pas dans le plan : le
+         sous-plan d'un bonus ne publie pas de `selected` (il n'y a rien à
+         choisir dans une liste, il y a un nombre à poser). `currentBoostValue`
+         est la lecture que cet écran faisait déjà avec ses molettes. */
+      selected: currentBoostValue(perso, key),
+      lock: etape ? etape.lock : null,
+      /* Le récepteur porte le NOM de sa caractéristique — c'est ce qu'on vise. */
+      mot: key.toUpperCase()
+    };
+  });
+  return renderChoixGlisses({
+    plan, slots, titre: "Ability boosts", mot: "Ability",
+    labelOf: (id) => `+${id}`,
+    consigne: `${plan.answered} of ${plan.expected} points spent — drag +1 or +2 onto an ability.`,
+    reutilisable: true,
+    onAction: act
+  });
+}
+
 /** LE CORPS D'UNE FICHE DE DON, pour le catalogue partagé (B4.4 : « comme
  *  Class et Species »). Le don porte sa DESCRIPTION, que la commande du lot
  *  46 exigeait déjà — c'est ce que la fiche plein écran offre enfin. */
 export function renderFeatCardBody(query, id) {
   const view = query({ kind: "feat", id });
   const data = (view && view.record && view.record.data) || {};
-  const noeuds = [];
   const desc = typeof data.description === "string" ? data.description : null;
-  if (desc) noeuds.push(el("p", "catalogue-card-prose", [text(desc)]));
   /* Le bonus de pool que certains dons accordent (`skill_points.bonus`) —
      lu au record, jamais recalculé. */
   const bonus = data.skill_points && data.skill_points.bonus;
-  if (Number.isInteger(bonus)) {
-    noeuds.push(el("p", "catalogue-card-prose", [text(`+${bonus} skill points`)]));
-  }
-  return noeuds;
+  /* 🔴 LE DON PASSE PAR LA FICHE DE SPECIES, ET C'EST TOUTE LA DEMANDE —
+     Eric, 2026-08-20 : *« le choix des feats doit fonctionner comme les choix
+     de species, même logique. »*
+     📏 CE QUI MANQUAIT, MESURÉ DANS LA PAGE : la fiche du don n'avait AUCUN
+     bouton — ni `Lore` ni `Choose`. On pouvait la lire et pas la prendre. Le
+     pied est fabriqué par `renderFicheBody` et par lui seul ; un corps qui
+     rend ses propres paragraphes ne l'obtient jamais, et `renderCatalogueCards`
+     ne trouve alors rien à câbler (il le dit lui-même dans son commentaire).
+     ⭐ EMPRUNTER L'ORGANE PLUTÔT QUE RECOPIER SON PIED : c'est ce qui garantit
+     que le don reste identique à l'espèce le jour où la fiche change.
+     ⚠️ UN DON N'A PAS DE STATISTIQUES : il porte un nom et une description. Il
+     passe donc par le `blurb` — la moitié basse, pleine largeur — et laisse
+     `stats` vide. La fiche s'en accommode ; c'est ce qu'elle fait déjà pour
+     une espèce sans trait. */
+  const lignes = [];
+  if (desc) lignes.push(desc);
+  if (Number.isInteger(bonus)) lignes.push(`+${bonus} skill points`);
+  return renderFicheBody({ blurb: lignes.join("\n\n") });
 }
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :

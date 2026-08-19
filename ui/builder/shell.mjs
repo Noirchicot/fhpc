@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=210";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=210";
-import { mountPopup } from "./popup.mjs?v=210";
-import { renderLorePanel } from "./lore.mjs?v=210";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=210";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=218";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=218";
+import { mountPopup } from "./popup.mjs?v=218";
+import { renderLorePanel } from "./lore.mjs?v=218";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=218";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=210";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=210";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=218";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=218";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=210";
-import { renderConceptStep } from "./concept-step.mjs?v=210";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=210";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=210";
+} from "./tutoriel.mjs?v=218";
+import { renderConceptStep } from "./concept-step.mjs?v=218";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=218";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=218";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=210";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=210";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=210";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=210";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=210";
+} from "./catalogue.mjs?v=218";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=218";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=218";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse } from "./inheritance-step.mjs?v=218";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=218";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=210";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=218";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=210";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=210";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=210";
+} from "./destiny-step.mjs?v=218";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=218";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=218";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=210";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=218";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=210";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=210";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=218";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=210";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=210";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=218";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=218";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=210";
+import { versionQuery } from "./version.mjs?v=218";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -748,8 +748,24 @@ function applyDecisionAction(action) {
   if (action.kind === "tutoRouvrir") { setTutorielActif(true); setGeneralVu(false); refresh(); return; }
 
   if (action.kind === "parcoursItem") {
-    state.parcoursItem = { racine: action.racine, path: action.path };
     state.parcoursRefus = null;
+    /* 🔴 LE DON D'ORIGINE S'OUVRE EN ÉCRAN F, PAS EN DALLE — Eric,
+       2026-08-20 : *« le choix des feats doit fonctionner comme les choix de
+       species, même logique »*, *« il faut que ce soit du F1 pour les
+       feats »*.
+       ⭐ UN CATALOGUE NE TIENT PAS DANS UN ITEM. Il a un rail et des cartes de
+       440 px : c'est un ÉCRAN, pas le contenu d'une dalle. Ouvrir cet item est
+       donc un DÉPLACEMENT — on pose le catalogue et on laisse
+       `catalogueCourant()` le rendre, exactement comme Species rend le sien.
+       ⛔ Et on NE POSE PAS `parcoursItem` : les deux se disputeraient l'écran,
+       et la coquille poserait une seconde paire de portes. */
+    if (action.path === "background.originFeat[0]") {
+      state.inheritanceOpen = "feat";
+      state.palier = 1;
+      openSurface();
+      return;
+    }
+    state.parcoursItem = { racine: action.racine, path: action.path };
     openSurface();
     return;
   }
@@ -1048,7 +1064,19 @@ const CATALOGUES = {
   /* Le don d'origine : UN palier (B4.4 — « une seule validation suffit »),
      donc `palier2` rend `null` et `Validate` ferme le panneau. */
   feat: {
-    path: "background.originFeat[0]", kind: "feat", label: "Origin feats",
+    /* 🔴 `fiche: true` — C'EST ÇA, « DU F1 POUR LES FEATS ». Eric, 2026-08-20 :
+       *« le choix des feats doit fonctionner comme les choix de species, même
+       logique »*.
+       📏 SANS LUI, MESURÉ À 360 px : la carte faisait **720 px** — la hauteur
+       de sa rangée — au lieu de porter une dalle de 440. Et la cause n'était
+       ni `--fiche-h` ni la hauteur de rangée (toutes deux correctes une fois
+       ajoutées) : c'est ce DRAPEAU qui décide si la carte est enveloppée dans
+       une `.fiche-dalle`, et cette dalle est la seule à porter la cote.
+       ⚠️ TROIS ENDROITS POUR UNE MÊME COTE, et n'en corriger qu'un ne change
+       rien : le conteneur porte `--fiche-h`, la carte porte la hauteur de sa
+       rangée, la DALLE porte les 440. Je les ai réparés dans cet ordre en
+       croyant chaque fois avoir fini. */
+    path: "background.originFeat[0]", kind: "feat", label: "Origin feats", fiche: true,
     cardBody: renderFeatCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
   },
   destiny: {
@@ -1788,10 +1816,22 @@ function parcoursDuChapitre(id) {
 
 const INHERITANCE_PARCOURS = {
   path: "background", kind: "background", label: "Inheritance", parcours: true,
-  /* ⏳ REPLI ASSUMÉ : le corps d'un item est, pour l'instant, l'écran
-     d'Inheritance entier. Il fonctionne, ce n'est pas ce qu'Eric a dessiné, et
-     c'est écrit ici pour que personne ne le prenne pour la version finale. */
-  choices: (ctx, act) => renderInheritanceStep(ctx, act)
+  choices: (ctx, act) => renderInheritanceStep(ctx, act),
+  /* 🔴 UN ITEM EST UNE CHOSE — Eric, 2026-08-20, après Species et Class.
+     📏 CE QUE LE REPLI DONNAIT, MESURÉ DANS LA PAGE : les DEUX items ouvraient
+     le MÊME écran, le menu des deux tuiles. Ni les bonus ni le catalogue des
+     dons n'étaient atteignables depuis le parcours — le tuilage attendait un
+     `inheritanceOpen` que l'item ne pose jamais. C'était le dernier « repli
+     assumé » des trois chapitres. */
+  itemCorps: (item, ctx, act) => (item.path === "background.boost"
+    ? renderBoostGlisse(ctx, act)
+    /* ⏳ LE DON D'ORIGINE VEUT UN ÉCRAN F, PAS UNE DALLE — Eric : *« il faut
+       que ce soit du F1 pour les feats »*. Un catalogue a un rail et des
+       cartes de 440 ; il ne tient pas dans le corps d'un item. Son ouverture
+       est donc un DÉPLACEMENT (voir `parcoursItem`), pas un rendu. */
+    : null),
+  itemLabel: (chemin) => (chemin === "background.boost" ? "Ability boosts"
+    : chemin === "background.originFeat[0]" ? "Origin feat" : chemin)
 };
 
 /* ⏳ LES TEXTES DU TUTORIEL SONT DES BROUILLONS — les miens, pas ceux d'Eric,
@@ -1922,7 +1962,27 @@ function pressDone() {
       return;
     }
   }
-  if (gate.next === "close") { state.inheritanceOpen = null; openSurface(); return; }
+  if (gate.next === "close") {
+    /* ⭐ `Choose` SUR UNE FICHE DE DON VAUT LE `Done` DE L'ITEM, et c'est la
+       « même logique que species » qu'Eric demande : là-bas aussi, choisir la
+       fiche EST le geste qui acte. Sans cette signature, le voyant du guide
+       resterait éteint sur un don pourtant posé — l'écart entre poser et
+       confirmer n'aurait alors aucun sens ici, puisqu'il n'y a rien d'autre à
+       faire sur cet écran.
+       ⚠️ La signature passe par le MÊME écrivain que partout (`confirm`), et
+       elle est idempotente : rouvrir le catalogue pour changer d'avis ne la
+       double pas. */
+    const ferme = state.inheritanceOpen;
+    state.inheritanceOpen = null;
+    if (ferme === "feat" && state.docWriters && state.document) {
+      const chemin = "background.originFeat[0]";
+      if (!estConfirme(state.document, chemin)) {
+        state.document = state.docWriters.confirm({ document: state.document, path: chemin });
+      }
+    }
+    openSurface();
+    return;
+  }
   if (gate.next === "palier") {
     /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
        plan du 2ᵉ palier décrit le record CHOISI, pas celui qui était sous le

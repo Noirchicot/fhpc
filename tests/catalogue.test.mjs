@@ -325,11 +325,19 @@ for (const cfg of ECRANS) {
   });
 }
 
-test("CH6 quater — ⚔️ un catalogue SANS pied ne déclare pas `fiche`, et garde son Validate", async () => {
-  /* Les deux autres catalogues (le don d'origine, les arcanes de Destiny)
-     ne passent pas par `renderFicheBody` : leurs cartes n'ont AUCUN pied,
-     donc aucun `CHOOSE`, donc leur `Validate` générique doit rester. C'est
-     la réciproque, et sans elle le drapeau pourrait se poser au hasard. */
+test("CH6 quater — un catalogue à pied DÉCLARE `fiche` ; sans pied, il garde son Validate", async () => {
+  /* 🔴 CE GARDE A CHANGÉ DE CAMP POUR LE DON D'ORIGINE — Eric, 2026-08-20 :
+     *« le choix des feats doit fonctionner comme les choix de species, même
+     logique »*, *« il faut que ce soit du F1 pour les feats »*. Le don PASSE
+     désormais par `renderFicheBody`, donc il a un pied, donc il DOIT porter
+     son drapeau `fiche` — c'est la règle elle-même, appliquée dans l'autre
+     sens.
+     ⭐ CE QUE LA RÈGLE DIT VRAIMENT, et qui n'a pas bougé : **pied et drapeau
+     vont ensemble**. Un pied sans drapeau donnerait deux boutons pour une même
+     porte ; un drapeau sans pied, une fiche qu'on ne peut pas prendre — le
+     défaut mesuré ce jour-là, une carte de 440 sans aucun `Choose`.
+     ⚠️ Les arcanes de Destiny, elles, n'ont toujours pas de pied : la
+     réciproque garde donc son cas. */
   const { renderFeatCardBody } = await import("../ui/builder/inheritance-step.mjs");
   const { renderArcanaCardBody } = await import("../ui/builder/destiny-step.mjs");
   const feats = fixture.report.decisions.find((d) => d.path === "background.originFeat[0]");
@@ -340,8 +348,10 @@ test("CH6 quater — ⚔️ un catalogue SANS pied ne déclare pas `fiche`, et g
     renderFeatCardBody, () => {}
   );
   assert.ok(cartes.querySelectorAll("[data-snap]").length > 0, "garde-fou : les cartes de dons sont bien rendues");
-  assert.equal(cartes.querySelectorAll(".fiche-actions").length, 0,
-    "le don d'origine n'a pas de pied — s'il en gagne un, il lui faut son drapeau, sinon deux boutons pour une porte");
+  assert.ok(cartes.querySelectorAll(".fiche-actions").length > 0,
+    "le don d'origine a un pied depuis le 2026-08-20 — donc son drapeau `fiche`, sinon la fiche n'est pas prenable");
+  assert.ok(cartes.querySelector('[data-action="choose"]'),
+    "et ce pied porte le CHOOSE : c'est le geste qui acte, comme sur une espèce");
 
   /* Les arcanes : mêmes cartes, mêmes conclusions. ⚠️ Elles ne lisent pas
      `decisions[]` (aucun plan ne les publie, mesuré au lot 45) — elles
