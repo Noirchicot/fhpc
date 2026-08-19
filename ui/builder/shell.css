@@ -245,7 +245,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    sur le disque, il tomberait à cheval sur le bord de l'écran. */
 .belt-onglet-mot {
   writing-mode: vertical-rl;
-  font-size: var(--t2);
+  /* --t3 (14 px) et non --t2 (12) : monté d'un barreau le 2026-08-19. Le mot
+     est tourné à la verticale, où l'œil lit moins vite — il paie ce que le
+     corps de texte n'a pas à payer. */
+  font-size: var(--t3);
   font-weight: 600;
   letter-spacing: .04em;
   line-height: 1;

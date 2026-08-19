@@ -203,8 +203,15 @@
      rien contre quoi trancher — 2,65:1 la nuit, 1,55 le jour, pour une cible
      de 3. L'encre suit donc le thème (le blanc tombait à 1,67 en jour), et les
      liserés, eux, n'ont pas de porte de sortie.
+
+     ⭐ PORTÉ DE 65 À 80 % LE 2026-08-19. Le voile plus dense rapproche la nuit
+     du seuil sans l'atteindre — rouge 2,82 et or 2,97 pour une cible de 3,
+     contre 2,65 et 2,84 à 65 %. Le jour, lui, va dans l'autre sens par
+     construction : plus le voile est dense, plus le disque est CLAIR, donc
+     moins les liserés tranchent (1,69 et 1,16). Aucune densité ne réconcilie
+     les deux thèmes ; seul le noir le fait.
      ⭐ REVENIR AU NOIR EST UN MOT : remettre `#101010` et `#ffffff` ci-dessous. */
-  --onglet-fond: color-mix(in srgb, var(--surface) 65%, transparent);
+  --onglet-fond: color-mix(in srgb, var(--surface) 80%, transparent);
   --onglet-encre: var(--text);
   /* 🔴 LE SEUIL DES ROUGES, MESURÉ. Un liseré doit tenir 3:1 sur le noir du
      disque, et un rouge a besoin d'environ QUINZE POINTS DE CLARTÉ DE PLUS
@@ -283,7 +290,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=106");
+  --bg-image: url("./assets/bg-day.jpg?v=107");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -352,7 +359,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=106");
+    --bg-image: url("./assets/bg-night.jpg?v=107");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
