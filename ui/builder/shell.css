@@ -3281,14 +3281,14 @@ button { font: inherit; }
    wizard. »*
 
    📏 LA CAUSE, MESURÉE À 375 px : le vivier fait **293 px** et deux jetons de
-   `--glisse-l` (144) en demandent **296**. Il manquait TROIS PIXELS — d'où un
+   l'ancien gabarit (144) en demandent **296**. Il manquait TROIS PIXELS — d'où un
    jeton par ligne, et quatre lignes pour trois lignages. Une cote fixe ne peut
    pas tenir sa promesse sur un écran qu'elle ne connaît pas.
 
    ⭐ LE TIERS PLAFONNÉ PAR LE GABARIT, et c'est la recette de la grille des
    sorts (`.glisse-grille`), reprise telle quelle. Sur un petit écran la case
    vaut le tiers de la largeur utile (92 px mesurés à 375) ; sur un grand, elle
-   s'arrête à `--glisse-l` au lieu de s'étirer bêtement. UNE déclaration, deux
+   s'arrête à sa cote au lieu de s'étirer bêtement. UNE déclaration, deux
    comportements — et la règle ① d'Eric (« même taille que le récepteur »)
    tient toujours, puisque jeton et créneau la partagent.
    ⛔ ET `max-width` AUTANT QUE LA BASE : sans elle, une dernière ligne
@@ -3302,8 +3302,8 @@ button { font: inherit; }
    largeur, ce qu'elle contient la remplit. */
 /* ⭐ AUTANT QUE LA LIGNE EN PORTE, JAMAIS MOINS DE TROIS — Eric, 2026-08-19 :
    *« si on peut faire 4, on fait 4 »*. La cellule n'a donc pas de largeur
-   écrite : elle a un PLANCHER (`--glisse-min`, la cote qui en fait tenir trois
-   à 360) et un PLAFOND (`--glisse-l`, le gabarit). Entre les deux, c'est la
+   écrite : elle a UNE COTE (`--glisse-case`, celle qui en fait tenir trois
+   à 360). Elle ne grandit pas : c'est la loi A. Entre les deux, c'est la
    rangée qui compte — trois sur un téléphone, quatre ou plus dès qu'il y a la
    place, et toutes de la MÊME taille sur la ligne, ce qu'Eric a demandé dans
    la même minute (*« taille standard sur toute la ligne »*).
@@ -3312,10 +3312,23 @@ button { font: inherit; }
    « à partir de quelle taille ». */
 .choix-glisse .glisse-vivier > li,
 .choix-glisse .glisse-creneaux > .glisse-creneau {
-  flex: 1 1 var(--glisse-min);
-  max-width: var(--glisse-l);
+  /* ⛔ `0 0` — NI GRANDIR NI CÉDER. C'est la loi A dans une déclaration : la
+     case fait `--glisse-case`, la rangée en met autant qu'elle peut, et ce
+     qui reste se partage aux deux bouts (`justify-content: center`, plus
+     haut). Rendre le grandissement, ce serait reprendre le centrage. */
+  flex: 0 0 var(--glisse-case);
+  max-width: var(--glisse-case);
   min-width: 0;
 }
+/* ⛔ ET AUCUNE EXCEPTION AU-DELÀ DE QUATRE. Un premier jet faisait remplir la
+   ligne dès quatre cases, pour que les colonnes s'alignent. Eric a tranché
+   l'inverse, en deux temps : *« moins de 4 sur une ligne »*, *« exact taille et
+   centrage »*. Et CSS ne sait pas compter ce qu'il y a sur UNE ligne — il ne
+   sait compter que le total — donc la règle « à partir de 4 » aurait fait
+   remplir des rangées de trois, exactement le cas qu'elle prétendait épargner.
+   ⭐ UNE SEULE LOI VAUT MIEUX : taille exacte, rangée centrée. Les rangées
+   pleines s'alignent d'elles-mêmes (mêmes cases, même largeur) ; seule la
+   dernière, incomplète, se centre — et c'est ce qu'on lui demande. */
 .choix-glisse .glisse-vivier > li { display: flex; }
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
@@ -3408,7 +3421,9 @@ button { font: inherit; }
 .glisse-fantome {
   position: fixed; left: 0; top: 0; z-index: 60;
   pointer-events: none; opacity: .9;
-  width: var(--glisse-l); height: var(--glisse-h);
+  /* ⚠️ LA MÊME COTE QUE LA CASE, sinon le fantôme n'est plus « identique à
+     l'objet » (règle ② d'Eric) et ment sur ce qu'on est en train de poser. */
+  width: var(--glisse-case); height: var(--glisse-h);
   box-shadow: 0 6px 18px var(--fantome-ombre);
 }
 

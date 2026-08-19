@@ -209,16 +209,30 @@
      le jeton ET par le récepteur. La hauteur dépasse `--touch` parce qu'un
      récepteur porte DEUX lignes (son nom, puis ce qu'on y a posé) ; le jeton
      n'en porte qu'une et s'aligne dessus, pas l'inverse. */
-  --glisse-l: 9rem;
+  /* 🔴 LA CASE A UNE TAILLE, ET UNE SEULE — loi A, ratifiée par Eric le
+     2026-08-19 après qu'il m'a fait énoncer la loi de remplissage : *« exact
+     taille et centrage »*, *« si on peut faire 4, on fait 4 »*, *« pour qu'un
+     écran 360 puisse contenir 3 boutons en largeur »*.
+
+     📏 MESURÉ, PAS CHOISI : à 360 px la rangée dispose de 278, moins deux
+     gouttières de 8, soit 87,3 pour trois. **87** est donc la cote qui tient
+     la promesse à la largeur cible — un pixel de plus et on retombe à deux
+     par ligne.
+
+     ⭐ ELLE NE GRANDIT PAS, ET C'EST TOUT L'INTÉRÊT. Une case qui s'étire pour
+     remplir sa rangée ne laisse RIEN à centrer : mesuré à 460 px, trois
+     lignages s'étiraient à 121 chacun et remplissaient la ligne au pixel près
+     — le centrage existait dans la feuille et ne se voyait jamais.
+     ⛔ ET ELLE NE PEUT PAS NON PLUS PARTIR D'UNE GRANDE COTE POUR CÉDER
+     ENSUITE : `flex-wrap` décide combien de cases tiennent SUR LA BASE, avant
+     tout rétrécissement. Base à 144, une seule tient à 360 — mesuré : trois
+     lignes au lieu d'une. La taille exacte est donc la PETITE, et la rangée en
+     met autant qu'elle peut : 3 dès 277 px de rangée, 4 dès 372, 5 dès 467.
+
+     🧊 `--glisse-l` (9rem) A ÉTÉ RETIRÉE, pas commentée : deux cotes pour une
+     question, c'est la divergence garantie — la leçon de `--measure-f`. */
+  --glisse-case: 87px;
   --glisse-h: 48px;
-  /* 🔴 LE PLANCHER D'UNE CASE — Eric, 2026-08-19 : *« pour qu'un écran 360
-     puisse contenir 3 boutons en largeur »*, puis *« si on peut faire 4, on
-     fait 4 »*. Ce n'est donc PAS un tiers : c'est le plus petit qu'une case
-     ait le droit d'être, et la ligne en met autant qu'elle peut.
-     📏 MESURÉ : à 360 px la rangée dispose de 278, moins deux gouttières de 8,
-     soit 87,3 pour trois. 87 est donc la cote qui tient la PROMESSE d'Eric à
-     sa largeur cible — un pixel de plus et on retombe à deux par ligne. */
-  --glisse-min: 87px;
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -329,7 +343,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=200");
+  --bg-image: url("./assets/bg-day.jpg?v=204");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -398,7 +412,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=200");
+    --bg-image: url("./assets/bg-night.jpg?v=204");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
