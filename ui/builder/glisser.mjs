@@ -141,7 +141,7 @@ function creneauSous(x, y) {
    Une bande de la largeur du décalage devient donc invisable en haut à
    gauche de l'écran. Aucun de nos créneaux n'y vit — le collecteur est en
    bas — mais un écran qui en mettrait un là le paierait sans message. */
-export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser, viseur }) {
+export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger, onPoser, viseur, onHorsCible }) {
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
@@ -235,7 +235,14 @@ export function armerJeton(jeton, { onTap, onDepot, maintien, onLever, onBouger,
          à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
          peut trancher que s'il sait avec quoi on a touché. */
       if (!glisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
-      if (cible && e.type !== "pointercancel") onDepot(cible.dataset.creneau);
+      if (e.type === "pointercancel") return;
+      if (cible) { onDepot(cible.dataset.creneau); return; }
+      /* ⭐ LÂCHÉ HORS DE TOUTE CIBLE. Pour un jeton du vivier, c'est un
+         non-geste : il retourne d'où il vient, et rien ne bouge (c'est le
+         comportement d'origine, et il est juste). Pour le contenu d'un
+         RÉCEPTEUR, c'est au contraire le geste d'annulation d'Eric — il faut
+         donc pouvoir le distinguer, et seul l'appelant le sait. */
+      if (onHorsCible) onHorsCible();
     };
 
     if (maintien) {
@@ -330,7 +337,7 @@ function fantomeSuivre(x, y) {
     `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, grille, onInfo }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, grille, onInfo, reutilisable }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
@@ -366,7 +373,15 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     const jeton = el("button", "glisse-jeton", [text(labelOf ? labelOf(id) : id)]);
     jeton.type = "button";
     jeton.dataset.valeur = id;
-    jeton.disabled = posees.has(id);
+    /* 🔴 UN JETON DE QUANTITÉ NE S'ÉPUISE PAS — Eric, 2026-08-19 : *« je suis
+       bloqué, les +1 sont épuisés, ils devraient être illimités »*.
+       ⭐ LA RÈGLE D'ORIGINE RESTE JUSTE POUR CE QU'ELLE VISAIT : un lignage, un
+       sort mineur, une compétence ne se prennent qu'une fois — le jeton posé
+       est AILLEURS, donc éteint. Mais « +1 » n'est pas un objet unique, c'est
+       une VALEUR : on peut en poser sur plusieurs récepteurs. Épuiser une
+       valeur après un usage bloquait l'écran, et c'est ce qui est arrivé. Le
+       vivier dit donc lui-même s'il se consomme. */
+    jeton.disabled = reutilisable ? false : posees.has(id);
     armerJeton(jeton, {
       onLever: (x, y) => fantomeLever(jeton, x, y),
       onBouger: (x, y) => fantomeSuivre(x, y),
@@ -434,11 +449,35 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     creneau.append(el("span", "glisse-creneau-valeur", [
       text(choisi ? (labelOf ? labelOf(choisi) : choisi) : "—")
     ]));
-    /* Taper un créneau REMPLI le vide ; taper un créneau vide ne fait rien.
-       C'est le seul geste de retrait, et il est à l'endroit qu'on regarde. */
+    /* 🔴 ON N'ANNULE PLUS EN TAPANT — Eric, 2026-08-19, et sa raison est une
+       PRÉVISION, pas un goût : *« clic annule : non, car si on implémente le
+       clic point A / clic point B = A va sur B, ça va foutre la merde »*. Il a
+       raison : le jour où le tap sert à DÉSIGNER une cible, un tap qui vide
+       aussi rendrait le même geste ambigu selon l'état de la case. On ne
+       construit pas une porte qu'il faudra murer.
+
+       ⭐ ON ANNULE EN RESSORTANT L'OBJET : glisser le contenu d'un récepteur
+       hors de lui le rend au vivier. C'est le geste inverse du dépôt, donc
+       personne n'a à l'apprendre — et Eric le note comme un défaut GLOBAL du
+       site, pas comme une demande locale.
+       ⚠️ « Hors de lui » et pas « sur le vivier » : viser une zone précise pour
+       jeter est plus dur que de lâcher n'importe où. */
     if (choisi) {
-      creneau.setAttribute("aria-label", `${nom} — clear`);
-      creneau.addEventListener("click", () => act({ kind: "clear", path: slot.path }));
+      creneau.setAttribute("aria-label", `${nom} — drag out to clear`);
+      armerJeton(creneau, {
+        onLever: (x, y) => fantomeLever(creneau, x, y),
+        onBouger: (x, y) => fantomeSuivre(x, y),
+        onPoser: () => fantomeRanger(),
+        onTap: () => {},
+        onDepot: (chemin) => {
+          /* Lâché AILLEURS : on vide. Lâché sur un autre récepteur : on
+             déplace — poser puis vider, dans cet ordre, pour qu'aucune image
+             ne montre la valeur nulle part. */
+          if (chemin && chemin !== slot.path) poser(choisi, chemin);
+          act({ kind: "clear", path: slot.path });
+        },
+        onHorsCible: () => act({ kind: "clear", path: slot.path })
+      });
     } else {
       creneau.setAttribute("aria-label", `${nom} — empty`);
     }

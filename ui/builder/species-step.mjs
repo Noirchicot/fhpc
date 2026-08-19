@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=179";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=179";
-import { renderChoixGlisses } from "./glisser.mjs?v=179";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=184";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=184";
+import { renderChoixGlisses } from "./glisser.mjs?v=184";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -118,6 +118,10 @@ function corpsDeLItem(item, ctx, act) {
       /* Le prix, pas le palier : l'écran parle de budget. */
       labelOf: (id) => (id === "half" || id === "novice" ? "+1" : id === "adept" ? "+2" : tierLabel(id)),
       consigne: `${budget.answered} of ${budget.expected} points spent — drag +1 or +2 onto a skill.`,
+      /* ⭐ UN BUDGET SE DÉPENSE EN VALEURS, PAS EN OBJETS : « +1 » peut aller
+         sur deux compétences. Sans ce drapeau, poser le premier éteignait le
+         jeton et l'écran se bloquait — trouvé par Eric à l'usage. */
+      reutilisable: true,
       onAction: act
     });
   }
@@ -150,54 +154,89 @@ function corpsDeLItem(item, ctx, act) {
    ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf « gagné d'office », qui
    est là dès le début parce qu'il ne dépend de rien. Afficher un résumé vide
    ferait trois lignes de « — » là où il n'y a encore rien à dire. */
+/* ⛔ CE QU'UNE LIGNE COUVRE DÉJÀ, ET QUI NE DOIT PAS SE REDIRE — Eric,
+   2026-08-19 : *« tu évites les doublons comme Keen Senses à deux endroits »*.
+
+   ⭐ IL AVAIT RAISON, ET LE DÉFAUT ÉTAIT GROS : le bilan « gagné d'office »
+   listait TOUS les traits, dont `Elven Lineage` (qui EST la ligne Lineage
+   juste au-dessus) et `Keen Senses` (qui EST la ligne Skill budget). Trois
+   lignes pour dire deux choses, et le lecteur cherche laquelle fait foi.
+
+   ⚠️ LA TABLE EST EXPLICITE, PAS DEVINÉE. Rapprocher un trait d'un item par
+   ressemblance de nom marcherait pour l'Elfe et casserait au premier renommage
+   — le Hoddon a déjà vu son trait rebaptisé une fois. */
+const TRAITS_COUVERTS = {
+  "species.lineage": ["elven-lineage", "gnomish-lineage", "hoddon-lineage",
+    "draconic-ancestry", "giant-ancestry", "fiendish-legacy"],
+  "species.skillBudget": ["keen-senses"],
+  "species.skills": []
+};
+
+/** Un mot d'écran à partir d'un slug : `delve` → `Delve`. Les slugs sont des
+ *  clefs de moteur ; les montrer tels quels donne un bilan qui a l'air d'un
+ *  export de base de données. */
+function motPropre(valeur) {
+  const mot = String(valeur || "").replace(/[-_]/g, " ");
+  return mot.charAt(0).toUpperCase() + mot.slice(1);
+}
+
+/* ══ LE BILAN D'UNE LIGNE — Eric, 2026-08-19 ═══════════════════════════════
+   *« dans le bilan, le texte tu l'écris proprement comme un joli bilan : une
+   ligne par élément, tu évites les doublons. »*
+
+   ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf « gagné d'office », qui
+   est là dès le début parce qu'il ne dépend de rien. */
 function resumeDeLItem(item, ctx) {
   const record = especeRetenue(ctx);
   if (!record || !item) return null;
   const data = record.data || {};
+  const decisions = ctx.decisions || [];
 
+  /* ── CE QUI EST ACQUIS SANS RIEN CHOISIR ─────────────────────────────── */
   if (item.path === LIGNE_ACQUIS.path) {
-    /* ⭐ CE QUI NE DÉPEND NI DU LIGNAGE NI DE LA BOURSE, ET DONC DÈS LE DÉBUT :
-       la taille, la vitesse, les sens, la Destinée, les traits. Ce que le
-       lignage ajoutera s'écrira sur SA ligne, pas ici. */
     const sens = Array.isArray(data.senses)
       ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
       : null;
     const destiny = data.destiny && data.destiny.base;
-    const lignes = renderCardRows([
+    const lignes = [
       ["Size", data.size], ["Speed", data.speed], ["Creature type", data.creature_type],
       ["Senses", sens], ["Destiny", Number.isFinite(destiny) ? String(destiny) : null]
-    ]);
-    const bloc = el("div", null, []);
-    if (lignes) bloc.append(lignes);
-    const traits = traitsDe(record);
-    if (traits.length > 0) bloc.append(renderCardNames("Traits", traits.map((x) => x.name)));
-    return bloc;
+    ];
+    /* LES TRAITS, UN PAR LIGNE, ET SANS CEUX QUE LES AUTRES LIGNES PORTENT. */
+    const couverts = new Set();
+    for (const [chemin, ids] of Object.entries(TRAITS_COUVERTS)) {
+      if (planAt(decisions, chemin)) for (const id of ids) couverts.add(id);
+    }
+    for (const trait of traitsDe(record)) {
+      if (!couverts.has(trait.id)) lignes.push([trait.name, trait.text || "—"]);
+    }
+    return renderCardRows(lignes);
   }
 
   if (!item.confirme) return null;
 
+  /* ── LE LIGNAGE : son nom, puis ce qu'il donne, palier par palier ─────── */
   if (item.path === "species.lineage") {
     const options = lignagesDe(record) || [];
-    const plan = planAt(ctx.decisions || [], "species.lineage[0]") || planAt(ctx.decisions || [], "species.lineage");
+    const plan = planAt(decisions, "species.lineage[0]") || planAt(decisions, "species.lineage");
     const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
     const choisi = options.find((o) => o && o.id === pose);
     if (!choisi) return null;
-    const bloc = el("div", null, [el("p", "parcours-resume-titre", [text(choisi.name)])]);
-    for (const [etiquette, corps] of beneficesDe(choisi)) {
-      bloc.append(el("p", "parcours-resume-mot", [text(`${etiquette} — ${corps}`)]));
-    }
-    return bloc;
+    return renderCardRows([[choisi.name, ""], ...beneficesDe(choisi)]);
   }
 
+  /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
+     lettres. ⛔ Les compétences non dotées ne s'écrivent pas : un bilan dit ce
+     qu'on A, pas ce qu'on aurait pu avoir. */
   if (item.path === "species.skillBudget") {
-    const budget = planAt(ctx.decisions || [], "species.skillBudget");
+    const budget = planAt(decisions, "species.skillBudget");
     if (!budget) return null;
     const lignes = (budget.options || []).map((slug) => {
-      const etape = planAt(ctx.decisions || [], `species.skillBudget.${slug}`);
+      const etape = planAt(decisions, `species.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
-      return palier ? [skillLabel(ctx.query, slug), tierLabel(palier)] : null;
+      return palier ? [motPropre(skillLabel(ctx.query, slug)), tierLabel(palier)] : null;
     }).filter(Boolean);
-    return renderCardRows(lignes);
+    return lignes.length > 0 ? renderCardRows(lignes) : null;
   }
   return null;
 }

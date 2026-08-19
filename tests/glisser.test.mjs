@@ -411,14 +411,34 @@ test("4 — avec `refKind`, le geste pose un `choose` de record, comme le QCM", 
   }]);
 });
 
-test("5 — taper un créneau REMPLI le vide ; un créneau vide ne fait rien", () => {
+test("5 — ⛔ TAPER UN CRÉNEAU NE VIDE PLUS RIEN : on annule en ressortant l'objet", () => {
+  /* 🔴 RÈGLE RETOURNÉE PAR ERIC LE 2026-08-19, et sa raison est une PRÉVISION,
+     pas un goût : *« clic annule : non, car si on implémente le clic point A /
+     clic point B = A va sur B, ça va foutre la merde »*. Le jour où le tap
+     sert à DÉSIGNER une cible, un tap qui vide aussi rendrait le même geste
+     ambigu selon l'état de la case. On ne construit pas une porte qu'il faudra
+     murer.
+
+     ⭐ CE QUI REMPLACE : glisser le contenu HORS de son récepteur le rend au
+     vivier — le geste inverse du dépôt, que personne n'a à apprendre. */
   const actions = [];
   const n = ecran(slotsDe(["athletics"]), actions);
   creneaux(n)[0].click();
-  assert.deepEqual(actions, [{ kind: "clear", path: "class.skills[0]" }],
-    "c'est le SEUL geste de retrait, et il est à l'endroit qu'on regarde");
+  assert.deepEqual(actions, [], "un clic sur un créneau rempli ne vide plus rien");
   creneaux(n)[1].click();
-  assert.equal(actions.length, 1, "un créneau vide n'a rien à vider");
+  assert.deepEqual(actions, [], "et un créneau vide n'a jamais rien fait");
+});
+
+test("5 bis — glisser le contenu HORS de son récepteur le vide", () => {
+  const actions = [];
+  const n = ecran(slotsDe(["athletics"]), actions);
+  const rempli = creneaux(n)[0];
+  /* Un glisser franc (au-delà du seuil), relâché sur AUCUNE cible. */
+  rempli.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  rempli.dispatchEvent({ type: "pointermove", clientX: 400, clientY: 400, pointerId: 1 });
+  rempli.dispatchEvent({ type: "pointerup", clientX: 400, clientY: 400, pointerId: 1 });
+  assert.deepEqual(actions, [{ kind: "clear", path: "class.skills[0]" }],
+    "le geste inverse du dépôt rend l'objet au vivier");
 });
 
 test("6 — ⚔️ ATTAQUE : sans slots, l'organe rend `null` — jamais un cadre vide", () => {
