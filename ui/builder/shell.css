@@ -3079,7 +3079,11 @@ button { font: inherit; }
    avant lui. Mesuré — sans ça le texte passait DESSOUS, et c'est justement le
    texte que ce bouton sert à rouvrir. */
 /* ⛔ PLUS DE RÉSERVE EN HAUT À DROITE : le « ? » est descendu en bas, le
-   titre reprend toute sa ligne. Un décalage sans cause est une dette. */
+   titre reprend toute sa ligne. Un décalage sans cause est une dette.
+   🔴 ET IL EST CENTRÉ — Eric, 2026-08-19 : *« le titre d'une carte doit être
+   centré »*. Une carte n'est pas une page : son titre la NOMME, il n'ouvre pas
+   une colonne de lecture. */
+.guide-titre { text-align: center; }
 
 /* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde
    moitié de « Turn tutorials off » : un endroit NOMMÉ pour rallumer, au lieu
@@ -3107,37 +3111,89 @@ button { font: inherit; }
    qu'aucune largeur soit écrite deux fois. Poser un nombre de chaque côté, ce
    serait deux nombres à tenir d'accord — et ils divergeraient au premier
    libellé long. */
-.choix-glisse .glisse-vivier,
-.choix-glisse .glisse-creneaux {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+.choix-glisse .glisse-vivier {
+  display: flex; flex-wrap: wrap; justify-content: center;
   gap: var(--sp-8);
+}
+/* 🔴 LES RÉCEPTEURS SONT TOUJOURS CENTRÉS — Eric, 2026-08-19 : *« il faut
+   toujours centrer ton ou tes récepteurs »*. Une grille aligne à gauche : un
+   créneau unique se retrouvait collé au bord, très loin du vivier qu'il
+   reçoit. Une rangée souple centrée le pose EN FACE, quel qu'en soit le
+   nombre. ⭐ Et la cote `9rem` est la MÊME que la colonne minimale du vivier :
+   la règle « même taille que le récepteur » tient par le partage du nombre,
+   pas par deux réglages à accorder. */
+.choix-glisse .glisse-creneaux {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--sp-8);
+}
+
+/* 🔴 UNE SEULE DÉCLARATION POUR LES DEUX — c'est la seule façon de tenir la
+   règle ① d'Eric (« la taille des objets contenants doit toujours être de la
+   même taille que le récepteur »). Mesuré avant : le jeton faisait 187 × 44 et
+   le créneau 144 × 48, parce que l'un vivait dans une grille en `1fr` et
+   l'autre dans une rangée à base fixe. Deux réglages, deux tailles.
+   ⭐ Ils partagent maintenant LA MÊME ligne : même base, même hauteur, même
+   arrondi. Il n'y a plus rien à accorder. */
+/* 🔴 LE JETON EST DANS UN `<li>`, ET C'EST LUI L'ÉLÉMENT FLEXIBLE. Mesuré :
+   le jeton restait à 61 px alors que sa règle disait 144 — parce qu'un `flex`
+   posé sur un enfant de `<li>` ne s'applique à rien. La base va donc sur le
+   `<li>`, et le bouton remplit sa case. */
+.choix-glisse .glisse-vivier > li {
+  flex: 0 0 var(--glisse-l);
+  display: flex;
 }
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
-  min-height: var(--touch);
+  /* ⛔ `0 0` ET PAS `0 1` : autoriser le retrait, c'est autoriser la
+     divergence — le récepteur, lui, tient sa base. */
+  flex: 0 0 var(--glisse-l);
   width: 100%;
+  height: var(--glisse-h);
   border-radius: var(--radius-sm);
+  box-sizing: border-box;
 }
+
+/* ⭐ LE TITRE D'UN GLISSER EST CENTRÉ AU-DESSUS — Eric, 2026-08-19 : *« s'il y
+   a un drag and drop, le titre qui le désigne est centré au-dessus »*. Même
+   raison que pour une carte : il NOMME le geste, il n'ouvre pas une colonne de
+   lecture. Et il est centré sur des jetons et des récepteurs qui le sont déjà
+   — un titre à gauche au-dessus d'une rangée centrée casse l'axe. */
+.choix-glisse > h3,
+.choix-glisse > .choix-glisse-compte,
+.choix-glisse > .glisse-consigne { text-align: center; }
 
 /* ② LE FANTÔME — un clone, donc identique. Inerte et au-dessus de tout. */
 .glisse-fantome {
   position: fixed; left: 0; top: 0; z-index: 60;
   pointer-events: none; opacity: .9;
-  width: 144px; height: var(--touch);
+  width: var(--glisse-l); height: var(--glisse-h);
   box-shadow: 0 6px 18px var(--fantome-ombre);
 }
 
-/* ③ VERT POSÉ, ROUGE INVALIDE. ⚠️ Le fond reste un VOILE : un aplat plein
-   ferait passer le libellé sous le seuil de contraste, et c'est le libellé
-   qu'on lit. Le liseré, lui, est franc — c'est lui qui porte l'état. */
+/* ③ TROIS ÉTATS, ET LE VERT EST RÉSERVÉ À LA FIN — Eric, 2026-08-19, après
+   avoir vu le cadre vert : *« tout le cadre vert, moche. Une autre idée : une
+   pose valide = récepteur BLEU, une mauvaise pose = récepteur ROUGE, toutes
+   les poses valides = tous les récepteurs VERTS. »*
+
+   ⭐ CE QUE ÇA CHANGE, ET C'EST JUSTE : le bleu dit « celui-ci est bon », le
+   vert dit « l'ENSEMBLE est bon ». Un vert posé dès le premier dépôt ne laisse
+   plus rien à dire quand tout est fini — il dépense la récompense trop tôt.
+   ⛔ Et le cadre autour du bloc disparaît : ce sont les RÉCEPTEURS qui portent
+   l'état, pas une boîte autour d'eux.
+
+   ⚠️ Le fond reste un VOILE : un aplat plein ferait passer le libellé sous le
+   seuil de contraste, et c'est le libellé qu'on lit. Le liseré est franc. */
 .choix-glisse .glisse-creneau[data-rempli="true"] {
-  border-color: var(--positive);
-  background: color-mix(in srgb, var(--positive) 18%, transparent);
+  border-color: var(--info);
+  background: color-mix(in srgb, var(--info) 18%, transparent);
 }
 .choix-glisse .glisse-creneau[data-invalide="true"] {
   border-color: var(--critical);
   background: color-mix(in srgb, var(--critical) 18%, transparent);
 }
-/* Le bloc entier quand tout est posé et valide. */
-.choix-glisse[data-complet="true"] { box-shadow: inset 0 0 0 1px var(--positive); border-radius: var(--radius-md); }
+/* TOUT EST POSÉ ET VALIDE : les récepteurs passent au vert, ensemble. Écrit
+   APRÈS le bleu — c'est la cascade qui fait la bascule, sans une ligne de JS. */
+.choix-glisse[data-complet="true"] .glisse-creneau {
+  border-color: var(--positive);
+  background: color-mix(in srgb, var(--positive) 18%, transparent);
+}

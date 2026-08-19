@@ -308,8 +308,8 @@ function fantomeRanger() {
    exister n'a rien à faire dans un chemin que les tests traversent.
    📌 Les deux cotes sont celles du gabarit : `--touch` (44) en hauteur, et la
    colonne minimale de la grille (9rem ≈ 144) en largeur. */
-const FANTOME_L = 144;
-const FANTOME_H = 44;
+const FANTOME_L = 144;   /* --glisse-l, 9rem */
+const FANTOME_H = 48;    /* --glisse-h */
 
 function fantomeLever(jeton, x, y) {
   fantomeRanger();

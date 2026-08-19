@@ -205,6 +205,12 @@
      long nom de classe à T2, pas un pixel de plus : à 360 px, chaque pixel
      du rail est un pixel de moins pour la fiche. */
   --touch: 44px;
+  /* LE GABARIT DU GLISSER (Eric, 2026-08-19, règle ①) — UNE cote, portée par
+     le jeton ET par le récepteur. La hauteur dépasse `--touch` parce qu'un
+     récepteur porte DEUX lignes (son nom, puis ce qu'on y a posé) ; le jeton
+     n'en porte qu'une et s'aligne dessus, pas l'inverse. */
+  --glisse-l: 9rem;
+  --glisse-h: 48px;
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -315,7 +321,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=164");
+  --bg-image: url("./assets/bg-day.jpg?v=169");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -384,7 +390,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=164");
+    --bg-image: url("./assets/bg-night.jpg?v=169");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
