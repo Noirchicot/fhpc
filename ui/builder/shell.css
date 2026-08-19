@@ -2915,7 +2915,16 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 /* Un item sans choix n'est pas cliquable : son mot le dit en s'effaçant un peu. */
-.parcours-item-mot { flex: 1; color: var(--text-soft); font-size: var(--t3); }
+/* 🔴 IL RESSEMBLE À SES COUSINS — Eric, 2026-08-19 : *« agrandir le texte de
+   granted et le blanchir pour qu'il ressemble plus à ses cousins »*. Il n'est
+   pas un bouton (il n'ouvre rien), mais il est une LIGNE DE MÊME RANG que les
+   deux autres : le rapetisser et le grisonner le faisait passer pour une note
+   de bas de page. Même corps, même encre, même graisse que le mot d'un bouton
+   — c'est le cadre autour qui dit lequel se presse. */
+.parcours-item-mot {
+  padding: 0 var(--sp-16);
+  color: var(--text); font-size: var(--t4); font-weight: 600;
+}
 /* ⭐ UNE LIGNE QUI DÉPEND D'UN AUTRE CHOIX EST GRISÉE TANT QU'IL N'EST PAS
    FAIT — Eric, 2026-08-19 : « granted automatically est une autre ligne,
    grisée tant qu'on n'a pas choisi le lignage ». Grisée, pas absente : elle
