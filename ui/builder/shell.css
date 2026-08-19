@@ -2938,6 +2938,23 @@ button { font: inherit; }
    le joueur doit savoir AVANT de cliquer que ça ne validera rien. */
 .parcours-avertit { margin: 0 0 var(--sp-12); color: var(--text-soft); font-size: var(--t4); }
 
+/* LA CONCLUSION D'UNE ÉTAPE — Eric, 2026-08-19 : *« mets un petit séparateur
+   au-dessus de This step is settled… et écris-le en vert »*.
+
+   ⭐ LE VERT N'EST PAS DÉCORATIF : c'est `--positive`, l'encre EXACTE des
+   voyants d'items juste au-dessus. La phrase dit en toutes lettres ce que la
+   colonne de points dit en couleur ; leur donner deux verts différents ferait
+   croire à deux états. Le dépôt s'en sert déjà comme encre (`.review-line`),
+   donc les deux thèmes sont déjà accordés.
+
+   ⚠️ ELLE EST PLUS APPUYÉE QUE LE CORPS DU GUIDE (`--text-soft`, graisse
+   normale) : c'est un verdict, pas une explication de plus. Même corps
+   (`--t3`) pour ne pas la faire passer pour un titre. */
+.parcours-conclu {
+  margin: var(--sp-8) 0 0;
+  color: var(--positive); font-size: var(--t3); font-weight: 600; line-height: 1.5;
+}
+
 /* ④ LE BILAN */
 .parcours-acquis { margin: 0; display: grid; gap: var(--sp-4); }
 .parcours-acquis dt { font-weight: 600; font-size: var(--t3); }

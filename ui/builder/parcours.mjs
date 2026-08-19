@@ -122,3 +122,27 @@ export function refusDuDone({ decisions, document, racine }) {
   if (manquants.length === 0) return null;
   return { manquants: manquants.map((item) => item.path) };
 }
+
+/** L'ÉTAPE EST-ELLE COMPLÈTE ? Tous ses items signés, et elle est commencée.
+ *
+ *  🔴 2026-08-19 — CE JUGE NAÎT D'UNE DOUBLE VALIDATION QU'ERIC A VUE :
+ *  *« il y a une double validation inutile […] on peut recouvrir ou remplacer
+ *  le bouton done par next »*. Chaque item est DÉJÀ signé par son propre
+ *  `Done` ; redemander un `Done` d'étape pour dire « oui, vraiment » ne
+ *  vérifiait rien que les items n'aient déjà vérifié — ça coûtait un clic pour
+ *  répéter une réponse.
+ *
+ *  ⚠️ ACHEVÉE ≠ CONCLUE, et le guide a besoin DES DEUX. Achevée = « il ne
+ *  reste rien à faire » (ici). Conclue = « le joueur est reparti par `Next` »
+ *  (`estConfirme` sur la racine). C'est leur écart qui distingue l'écran qu'on
+ *  vient de finir — il offre `Next` — de celui sur lequel on REVIENT, qui
+ *  n'offre plus rien à valider : *« plus de done ni de next si on revient sur
+ *  la fiche »*.
+ *
+ *  ⛔ ET IL EXIGE QUE L'ÉTAPE SOIT COMMENCÉE. Sans ce garde, un chapitre dont
+ *  le carnet n'a pas encore livré les plans n'a aucun item, donc aucun manque,
+ *  donc « complet » — et le belt s'allumerait en vert sur du vide. */
+export function etapeAchevee({ decisions, document, racine }) {
+  if (etatDeLEtape({ decisions, document, racine }) === ETAT.catalogue) return false;
+  return refusDuDone({ decisions, document, racine }) === null;
+}

@@ -19,46 +19,46 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=191";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=191";
-import { mountPopup } from "./popup.mjs?v=191";
-import { renderLorePanel } from "./lore.mjs?v=191";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=191";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=193";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=193";
+import { mountPopup } from "./popup.mjs?v=193";
+import { renderLorePanel } from "./lore.mjs?v=193";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=193";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, itemsDeLEtape, ETAT } from "./parcours.mjs?v=191";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=191";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=193";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=193";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=191";
-import { renderConceptStep } from "./concept-step.mjs?v=191";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=191";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=191";
+} from "./tutoriel.mjs?v=193";
+import { renderConceptStep } from "./concept-step.mjs?v=193";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=193";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=193";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=191";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=191";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=191";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=191";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=191";
+} from "./catalogue.mjs?v=193";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=193";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=193";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody } from "./inheritance-step.mjs?v=193";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=193";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=191";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=193";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=191";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=191";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=191";
+} from "./destiny-step.mjs?v=193";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=193";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=193";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=191";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=193";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +77,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=191";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=191";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=193";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=191";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=191";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=193";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=193";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=191";
+import { versionQuery } from "./version.mjs?v=193";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -764,16 +764,17 @@ function applyDecisionAction(action) {
     const refus = refusDuDone({
       decisions: state.decisions, document: state.document, racine: action.racine
     });
-    if (refus) {
-      state.parcoursRefus = refus.manquants;
-      refresh();
-      return;
-    }
-    state.parcoursRefus = null;
-    if (state.docWriters && state.document) {
-      state.document = state.docWriters.confirm({ document: state.document, path: action.racine });
-    }
-    openSurface();
+    /* 🔴 IL N'ÉCRIT PLUS RIEN DANS LE DOCUMENT — Eric, 2026-08-19 : *« il y a
+       une double validation inutile »*. Il signait la racine ; le `Next` qui
+       le remplaçait aussitôt demandait un second clic pour le même « oui ».
+       Désormais c'est `Next` qui signe (voir plus bas), et ce bouton n'existe
+       plus que dans l'état où il REFUSE. S'il n'a rien à refuser, il ne peut
+       pas s'afficher : ce dernier `refresh` n'efface qu'un vieux message.
+       ⭐ ET LA LOI DU MOTEUR TIENT : un seul écrivain pour une question. La
+       signature de la racine avait deux prétendants pendant trois lignes ;
+       elle n'en a plus qu'un. */
+    state.parcoursRefus = refus ? refus.manquants : null;
+    refresh();
     return;
   }
 
@@ -810,8 +811,20 @@ function applyDecisionAction(action) {
     return;
   }
 
-  /* `Next` — le bilan invite à continuer, et c'est le même pas que partout. */
-  if (action.kind === "parcoursNext") { goToStep(state.step + 1); return; }
+  /* `Next` — le bilan invite à continuer, et c'est le même pas que partout.
+     🔴 ET C'EST LUI QUI SIGNE LA RACINE depuis le 19/08. Avancer EST la
+     conclusion de l'étape : le `Done` qui la signait juste avant faisait
+     répéter le même « oui » deux fois. La signature ne dit donc plus « tout
+     est rempli » (ça, `etapeAchevee` le lit dans le carnet) mais « le joueur
+     est reparti d'ici » — et c'est exactement ce qu'il faut savoir pour ne
+     plus rien lui proposer à valider quand il revient. */
+  if (action.kind === "parcoursNext") {
+    if (state.docWriters && state.document && !estConfirme(state.document, action.racine)) {
+      state.document = state.docWriters.confirm({ document: state.document, path: action.racine });
+    }
+    goToStep(state.step + 1);
+    return;
+  }
 
   if (action.kind === "ficheChoose") {
     state.cursor = action.index;
@@ -1680,7 +1693,12 @@ function renderParcoursGuide(cfg, ctx) {
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */
     resumeDe: cfg.resumeItem ? (item) => cfg.resumeItem(item, ctx) : null,
-    confirme: estConfirme(state.document, cfg.path),
+    /* ⚠️ DEUX ÉTATS, PAS UN. `acheve` = plus rien à faire ; `conclu` = le
+       joueur est déjà reparti par `Next`. Le pied lit les deux : `Done`,
+       puis `Next`, puis plus rien. Les fondre en un seul booléen redonnerait
+       le `Next` à quelqu'un qui revient simplement relire. */
+    acheve: etapeAchevee({ decisions: state.decisions, document: state.document, racine: cfg.path }),
+    conclu: estConfirme(state.document, cfg.path),
     refus,
     onAction: applyDecisionAction
   });
@@ -1733,8 +1751,13 @@ function resolvedRefId(cfg) {
   return plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
 }
 
+/* 🔴 IL PROMETTAIT UNE ÉTAPE QUI N'EXISTE PLUS. Il finissait par *« — then
+   confirm the step »* : c'était la description exacte de la double validation
+   qu'Eric a fait sauter le 19/08. Un mode d'emploi qui annonce un geste qu'on
+   ne peut plus faire est pire qu'un mode d'emploi absent — le joueur cherche
+   le bouton. */
 const DEFAUT_GUIDE = "Everything this choice asks of you is listed below. " +
-  "Open each one, settle it, and mark it Done — then confirm the step.";
+  "Open each one and mark it Done — the step is settled once the last one is.";
 
 /** Le contexte de l'Inheritance — la même paire que sa branche d'origine.
  *  ⚠️ `document` ET `resolved` en plus : Inheritance lit les boosts déjà posés
@@ -1751,6 +1774,17 @@ function inheritanceCtx() {
 /** L'Inheritance a-t-elle son parcours ? ⏳ Le drapeau vit ici et pas sur un
  *  `cfg` de catalogue, parce qu'elle n'en est pas un. */
 function parcoursInheritance() { return INHERITANCE_PARCOURS.parcours; }
+
+/** LE PARCOURS D'UN CHAPITRE, s'il en a un — sinon `null`.
+ *  ⚠️ `CATALOGUES` NE SUFFIT PAS : l'Inheritance n'y est pas (elle ne se
+ *  choisit pas, donc elle n'a pas de catalogue) et son parcours vit à part.
+ *  Le belt a besoin des deux, et une seule source pour les deux évite qu'un
+ *  chapitre s'allume ici et pas là. */
+function parcoursDuChapitre(id) {
+  if (id === "background") return parcoursInheritance() ? INHERITANCE_PARCOURS : null;
+  const cfg = CATALOGUES[id];
+  return cfg && cfg.parcours ? cfg : null;
+}
 
 const INHERITANCE_PARCOURS = {
   path: "background", kind: "background", label: "Inheritance", parcours: true,
@@ -2012,7 +2046,24 @@ function paintBelt() {
        masqué par un repli sur `etapeFaite`, qui rallumerait tout et ferait
        croire que le parcours est posé partout. */
     const racine = STEPS[index] && STEPS[index].id;
-    item.dataset.fait = String(estConfirme(state.document, racine));
+    /* 🔴 2026-08-19, TROISIÈME CORRECTION DU MÊME VOYANT — conséquence de la
+       double validation supprimée. La lumière lisait la SIGNATURE DE LA
+       RACINE, posée par le `Done` du guide ; ce `Done` ne signe plus, c'est
+       `Next` qui le fait. Laissée telle quelle, elle serait restée éteinte sur
+       un chapitre entièrement fini tant que le joueur n'en serait pas parti.
+       ⭐ ELLE LIT DONC CE QU'ERIC A DEMANDÉ, MOT POUR MOT : *« lorsqu'un
+       chapitre de création est COMPLET une lumière verte s'allume »*. Complet,
+       c'est tous les items signés — pas « et en plus il est reparti ».
+       ⚠️ LA SIGNATURE RESTE DANS LE OU, et il le faut : les étapes sans
+       parcours (Identity) n'ont aucun item à compter, leur `Done` est tout ce
+       qu'elles ont. Les deux réponses ne se contredisent pas — elles couvrent
+       deux familles de chapitres. */
+    const chapitre = parcoursDuChapitre(racine);
+    item.dataset.fait = String(estConfirme(state.document, racine) || (
+      Boolean(chapitre) && etapeAchevee({
+        decisions: state.decisions, document: state.document, racine: chapitre.path
+      })
+    ));
     item.setAttribute("aria-current", index === state.step ? "step" : "false");
   });
   /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la

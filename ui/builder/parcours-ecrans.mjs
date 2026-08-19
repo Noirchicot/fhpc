@@ -37,6 +37,31 @@ function saignee() {
   return filet;
 }
 
+/* LA CONCLUSION D'UNE ÉTAPE — le filet, puis la phrase, EN VERT.
+   Eric, 2026-08-19 : *« mets un petit séparateur au-dessus de : This step is
+   settled… (et écris-le en vert) »*, puis *« non, le séparateur NORMAL »*.
+
+   ⭐ C'EST DONC LA SAIGNÉE, PAS LE FILET PÂLE DES TITRES D'ITEMS. Les deux
+   existent et disent deux choses : le filet pâle sépare deux LIGNES d'une même
+   liste, la saignée sépare deux PARTIES de l'écran. Ce qui vient après n'est
+   plus la liste — c'est le verdict sur la liste.
+
+   ⭐ ET LE VERT EST UNE INFORMATION, pas une décoration : c'est la couleur des
+   voyants d'items (`--positive`). La phrase dit ce que les voyants disent, en
+   toutes lettres — même encre, même sens.
+
+   ⚠️ DEUX PHRASES, PARCE QU'IL Y A DEUX SITUATIONS. Celle d'Eric invite à
+   avancer (*« Move on when you are ready »*) et suppose un `Next` sous elle.
+   Sur un écran où l'on REVIENT, ce bouton n'existe plus : garder l'invitation
+   promettrait une porte absente. On garde donc sa phrase là où elle est vraie,
+   et on n'en garde que la moitié qui reste vraie ailleurs. */
+function conclusion(peutAvancer) {
+  const phrase = peutAvancer
+    ? "This step is settled. Move on when you are ready — or reopen it and start over."
+    : "This step is settled. Reopen it if you want to start over.";
+  return [saignee(), el("p", "parcours-conclu", [text(phrase)])];
+}
+
 /* ══ ① LE GUIDE GÉNÉRAL — en tête du rail ═══════════════════════════════════
    Eric : *« Tout en haut du menu latéral de species il doit y avoir une carte
    guide, voile 100 %. […] Guide général : juste une carte, rien dessus, on
@@ -78,7 +103,7 @@ export function renderGuideGeneral({ titre, texte }) {
    ⚠️ LE VOYANT LIT LA SIGNATURE, PAS LE REMPLISSAGE. Un item dont la valeur est
    posée mais que le joueur a quitté par `Back` reste ÉTEINT. C'est la règle du
    19/08, et la seule raison d'être de `build.confirmed`. */
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, confirme, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-guide dalle-majeure");
   page.dataset.objet = "dalle";
@@ -141,15 +166,32 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
      n'a plus de raison d'être »*. L'écran de résumé séparé disparaît : chaque
      ligne porte déjà le sien, et un second écran qui redirait la même chose
      ferait lire deux fois le même texte pour avancer d'un cran. */
+  /* ══ LE PIED A TROIS ÉTATS, ET C'EST ERIC QUI LES A DÉCOUPÉS ══════════
+     🔴 2026-08-19 : *« il y a une double validation inutile […] par contre
+     plus de done ni de next si on revient sur la fiche »*.
+
+       ① IL RESTE À FAIRE   → `Done`, qui REFUSE et nomme ce qui manque.
+       ② TOUT EST SIGNÉ     → `Next` a REMPLACÉ `Done` — un clic, pas deux.
+       ③ ON EST REVENU ICI  → ni l'un ni l'autre : il n'y a rien à valider.
+
+     ⭐ `Done` NE VALIDE PLUS RIEN, ET C'EST LE POINT. Chaque item porte déjà
+     la signature de son propre `Done` ; celui du guide ne faisait que les
+     recompter. Il ne lui reste que son seul travail utile : répondre « pas
+     encore, il manque ceci » à qui ne sait pas ce qu'il lui reste. Dès que la
+     réponse serait « oui », ce n'est plus lui qu'on affiche.
+
+     ⛔ LE `Done` RESTE DONC NON GRISÉ (*« done lance un message et ne valide
+     pas si tout n'est pas coché »*) — un bouton mort ne dit pas ce qui manque.
+
+     ⚠️ ET `I changed my mind` NE DISPARAÎT JAMAIS : c'est la seule porte qui
+     reste ouverte dans les trois états, celle qui défait. */
   const pied = el("div", "parcours-pied");
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
-  if (confirme) {
-    page.append(el("p", "guide-mot", [text(
-      "This step is settled. Move on when you are ready — or reopen it and start over."
-    )]));
+  if (acheve) page.append(...conclusion(!conclu));
+  if (acheve && !conclu) {
     pied.append(bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine })));
-  } else {
+  } else if (!acheve) {
     pied.append(bouton("Done", "parcours-done", () => act({ kind: "parcoursDone", racine })));
   }
   page.append(pied);
@@ -219,10 +261,13 @@ export function renderBilan({ racine, titre, lignes, onAction }) {
   }
   page.append(liste);
 
-  page.append(saignee());
-  page.append(el("p", "guide-mot", [text(
-    "This step is settled. Move on when you are ready — or reopen it and start over."
-  )]));
+  /* ⚠️ LA MÊME CONCLUSION QUE LE GUIDE, PAR LE MÊME ORGANE. Elle était écrite
+     deux fois, à deux endroits — deux copies d'une phrase divergent à la
+     première retouche, et celle-ci vient d'en recevoir une (le vert).
+     ⭐ ET ELLE INVITE TOUJOURS À AVANCER ICI : Identity n'a pas de parcours,
+     sa signature naît de son `Done`, donc cet écran ne s'affiche QUE juste
+     après la signature — jamais dans l'état « on est revenu ». */
+  page.append(...conclusion(true));
 
   const pied = el("div", "parcours-pied");
   pied.append(bouton("I changed my mind", "parcours-annuler",
