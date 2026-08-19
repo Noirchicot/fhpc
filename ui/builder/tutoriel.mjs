@@ -110,7 +110,7 @@ function bloc(dalle, { titre, chapo, points, chute }) {
 export function renderTutorielGeneral({ onAction, ...contenu }) {
   const act = onAction || (() => {});
   const dalle = el("section", "tuto-general dalle-majeure");
-  dalle.dataset.cadre = "FF2";
+  dalle.dataset.objet = "dalle";
   bloc(dalle, contenu);
   /* DEUX BOUTONS CENTRÉS EN BAS — « I understand » d'abord, parce que c'est le
      geste que 99 joueurs sur 100 vont faire. */
@@ -127,7 +127,8 @@ export function renderTutorielGeneral({ onAction, ...contenu }) {
 export function renderTutorielSpecifique({ onAction, ...contenu }) {
   const act = onAction || (() => {});
   const dalle = el("section", "tuto-specifique dalle-majeure");
-  dalle.dataset.cadre = "FF3";
+  dalle.dataset.objet = "dalle";
+  dalle.dataset.saigne = "oui";
   bloc(dalle, contenu);
   dalle.append(el("div", "tuto-pied", [boutonEteindre(act)]));
   const filet = el("hr", "saignee");

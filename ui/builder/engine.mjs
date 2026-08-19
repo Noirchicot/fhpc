@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=154";
+import { versionQuery } from "./version.mjs?v=156";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -55,10 +55,10 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=154");
-  const { createBuild } = await import("../../src/build/index.mjs?v=154");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=154");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=154");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=156");
+  const { createBuild } = await import("../../src/build/index.mjs?v=156");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=156");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=156");
 
   const bus = makeBus();
   const layers = createLayers({ bus });

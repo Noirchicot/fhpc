@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=154";
-import { markPressed } from "./carnet.mjs?v=154";
+import { renderConfirmDialog } from "./confirm.mjs?v=156";
+import { markPressed } from "./carnet.mjs?v=156";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -204,7 +204,7 @@ export function renderUniverseStep(ctx, onAction) {
   const section = el("section", "universe-step dalle-intermediaire");
   /* Il DIT son format, comme les dalles du parcours : un écran qui ne le
      déclare pas oblige à le déduire, et une déduction se trompe. */
-  section.dataset.cadre = "FF2";
+  section.dataset.objet = "dalle";
   /* Le pied de la coquille s'accroche au bas de CETTE dalle (Eric, 2026-08-17 :
      *« DONE en bas de dalle, centré »*). Une DÉCLARATION, pas une fabrication :
      l'écran ne produit ni `BACK` ni `DONE` — voir `poserLaSortie`, shell.mjs. */

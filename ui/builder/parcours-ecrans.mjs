@@ -56,7 +56,7 @@ function saignee() {
    il se dépasse. C'est la seule chose qui le distingue encore d'une fiche. */
 export function renderGuideGeneral({ titre, texte }) {
   const carte = el("section", "guide-general dalle-majeure");
-  carte.dataset.cadre = "F1";
+  carte.dataset.objet = "carte";
   if (titre) carte.append(el("h2", "guide-titre", [text(titre)]));
   for (const para of String(texte || "").split(/\n{2,}/)) {
     const ligne = para.trim();
@@ -81,7 +81,7 @@ export function renderGuideGeneral({ titre, texte }) {
 export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, refus, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-guide dalle-majeure");
-  page.dataset.cadre = "FF2";
+  page.dataset.objet = "dalle";
   page.dataset.racine = racine;
 
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));
@@ -155,7 +155,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
 export function renderItem({ racine, item, titre, corps, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-item-dalle dalle-majeure");
-  page.dataset.cadre = "FF2";
+  page.dataset.objet = "dalle";
   page.dataset.item = item && item.path;
 
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));
@@ -192,7 +192,7 @@ export function renderItem({ racine, item, titre, corps, onAction }) {
 export function renderBilan({ racine, titre, lignes, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-bilan dalle-majeure");
-  page.dataset.cadre = "FF2";
+  page.dataset.objet = "dalle";
   page.dataset.racine = racine;
 
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));

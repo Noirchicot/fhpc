@@ -106,110 +106,80 @@ Le menu latéral, c'est `.stage-aside` — `--rail-w` : **90 px** à l'étroit,
 **120 px** en Large. Il n'existe que là où il y a une liste à suivre (les
 douze classes, les douze espèces, les 22 arcanes).
 
-## 2. LE CHIFFRE — ✅ ARRÊTÉ LE 2026-08-16, ET IL N'EN RESTE QUE DEUX
+## 2. ✅ LE MODÈLE RATIFIÉ — Eric, 2026-08-19
 
-| | la hauteur | qui décide |
+> ⛔ **CE QUI SUIT REMPLACE LA GRILLE À DEUX CHIFFRES.** Elle collait une
+> propriété d'ÉCRAN (le rail) à une propriété de DALLE (la hauteur) en une
+> étiquette, et la faisait porter par la dalle — qui ne peut pas connaître le
+> rail. Trois défauts mesurés le même jour en sont sortis (voir plus bas).
+> Les sections qui la définissaient ont été **supprimées**, pas annotées.
+
+### Deux niveaux, deux mots
+
+**L'ÉCRAN — il y en a trois. Lui seul porte la lettre.**
+
+| | ce qu'il montre | mesure |
 |---|---|---|
-| **1** | **imposée** — une cote posée sur la fenêtre | l'écran |
-| **2** | **libre** — la fenêtre fait la taille de ce qu'elle porte | le contenu |
+| **F** | belt + **menu latéral** (`--rail-w` 90 px · 120 en Large) + une colonne | `--measure` |
+| **FF** | belt + le contenu sur toute la scène | `--measure` |
+| **FS** | **plein écran** : ni belt ni menu, ça recouvre tout | `--measure` |
 
-⛔ **F3 EST MORT, ET ERIC A RAISON DE L'AVOIR TUÉ** : *« F3 me semble
-inutile »*. Une longue liste n'est pas un troisième format — c'est une
-hauteur LIBRE qui dépasse le champ, et elle défile pour cette seule raison.
-Le troisième chiffre ne décrivait rien que les deux autres ne disent déjà.
+⭐ **UNE SEULE MESURE : `--measure` = 62ch.** Eric : *« 62 fonctionne sur le
+plus petit comme le plus grand, avec et sans rail. »* Un `--measure-f` a vécu
+une heure avant d'être tué : deux noms pour une valeur, c'est la divergence
+garantie au premier réglage. C'est un **plafond**, jamais une largeur.
 
-⚠️ **ET LE SENS DE « 1 » N'A PAS BOUGÉ, C'EST DÉLIBÉRÉ** (choix A d'Eric,
-2026-08-16). Une numérotation inverse avait été proposée — `1` = hauteur
-libre — puis écartée : `F1` veut dire *la fiche, hauteur imposée* depuis le
-15/08, et le mot est écrit dans `fiche.css`, dans `GABARIT-360-CLASS-SPECIES.md`
-et dans le mandat du lot 79. **Un mot qui change de sens selon l'âge du
-fichier qui le porte ne vaut plus rien** ; l'ordre des chiffres ne payait rien
-d'autre.
+⛔ **FS N'EST PLUS L'ÎLOT.** Ce nom désignait le petit format répété ; l'îlot
+s'appelle désormais **tuile**, et `FS` reprend le sens qu'Eric lui donnait déjà
+en parlant de `Rules` : *« détacher un chapitre entier du player et l'afficher
+en FS »*, *« on recouvre tout »*. Un plein écran DOIT porter une sortie nommée.
 
-## 2 ter bis. ⭐ LE CHIFFRE **3** EST NÉ LE 2026-08-19 — ET CE N'EST PAS L'ANCIEN
+**CE QUI VIT DEDANS — il y en a trois. Ils ne portent jamais de lettre.**
 
-Eric, mot pour mot : *« Règles globales à chaque chapitre du 1 au 8. Il y a
-toujours un FF2 ou F2 avec Line bleed = F3 ou FF3, pour introduire ce qui est
-attendu du joueur. […] On décide que la dalle s'arrête pour laisser place à une
-suivante en utilisant line bleed, ce qui nous fait une marge. Normalement pas
-utile sur la dernière dalle. »*
+| | hauteur | largeur | écart |
+|---|---|---|---|
+| **carte** | **imposée** — `--fiche-h` = **440 px** | celle de sa colonne (**269 px** mesuré à 375) | 8 px |
+| **dalle** | **libre** — celle de son contenu | plafonnée par `--measure` | 8 px |
+| **tuile** | **aucune écrite** — la rangée l'égalise | **aucune écrite** — `repeat(6, 1fr)` | **4 px** |
 
-| | ce que le chiffre dit |
+📌 **UNE TUILE N'A QUE DES MARGES** (Eric, 2026-08-19 : *« les petits îlots sur
+lesquels étaient les dés, ils ont seulement des marges, il faut s'en
+souvenir »*). Ni largeur ni hauteur écrites : trois décisions suffisent —
+combien de colonnes, quel écart, quelle forme.
+
+**UNE SEULE MARQUE : `saignante`.** Une dalle qui se termine par un filet
+débordant de **−16 px** (`--saignee-debord`), pour dire qu'une autre suit.
+⛔ Jamais sur la dernière dalle d'un écran : elle n'aurait rien à séparer.
+
+### Comment ça se lit, et comment ça s'écrit
+
+> L'écran **Species** est un **F**. Il porte des **cartes**.
+> L'écran **Identity** est un **FF**. Il porte trois **dalles**, dont la
+> première est **saignante**.
+
+Dans le DOM : l'écran écrit `data-ecran="F|FF|FS"` (posé par `paintAside`,
+shell.mjs) ; un objet écrit `data-objet="carte|dalle|tuile"` et, s'il saigne,
+`data-saigne="oui"`. ⛔ **Aucun objet n'écrit de lettre.**
+
+### La traduction de l'ancien vocabulaire
+
+| avant | après |
 |---|---|
-| **1** | la hauteur est **imposée** |
-| **2** | la hauteur est **libre** |
-| **3** | la hauteur est libre **ET la dalle se termine par un line bleed** |
+| F1 · FF1 | **carte** (dans un écran F · FF) |
+| F2 · FF2 | **dalle** |
+| F3 · FF3 | **dalle saignante** |
+| FS *(l'îlot)* | **tuile** |
+| — | **FS** = plein écran *(sens neuf)* |
 
-**F3 = F2 + line bleed.** Le 3 ne remplace pas le 2 : il le PROLONGE. Ce que le
-chiffre ajoute n'est pas une géométrie, c'est une **fin** — la dalle annonce
-qu'elle s'arrête pour laisser la place à une suivante, et le débordement du
-filet produit la marge qui les sépare.
+### 🔴 Les trois défauts qui ont tué la grille, tous le même jour
 
-⛔ **NORMALEMENT PAS SUR LA DERNIÈRE DALLE.** Un line bleed qui n'a rien à
-introduire ne sépare rien : il ajoute une marge en bas d'un écran fini.
-
-### ⚠️ CE N'EST PAS LE F3 QU'ERIC AVAIT TUÉ LE 2026-08-16
-
-Le §2 juste au-dessus dit *« F3 EST MORT »*, et cette phrase reste vraie **pour
-ce qu'elle visait** : l'ancien F3 voulait dire *« une longue liste »*, et Eric
-avait raison — une longue liste est une hauteur LIBRE qui dépasse le champ,
-donc un F2, et le troisième chiffre ne décrivait rien de neuf.
-
-Le F3 du 19/08 décrit **autre chose** : non pas la longueur du contenu, mais la
-**terminaison** de la dalle. Le nom était libre (l'ancien n'a jamais été écrit
-dans un fichier), le sens est neuf. ⛔ On ne relit donc pas le §2 comme une
-contradiction — les deux paragraphes parlent de deux objets différents qui ont
-porté le même nom à six semaines d'écart.
-
-### OÙ IL EST POSÉ — une fois, pour huit
-
-`renderChapitreIntro()` dans `shell.mjs`, composé au même endroit que
-`BACK`/`DONE` : **la coquille le produit, les huit chapitres en héritent**.
-L'écrire dans les huit écrans, c'est huit versions qui divergent au premier
-changement de registre.
-
-⛔ **Ni sur le Menu (0), ni sur la fiche (Sheet)** : ce ne sont pas des étapes
-de création. C'est exactement ce que dit *« du 1 au 8 »*.
-
-📏 **Mesuré dans la page le 2026-08-19**, à 375 : le chapeau fait **76 px** sur
-Identity (trois lignes de T3) et **55 px** sur Skills (deux lignes) — sa
-hauteur est celle de son texte, comme un 2. Gouttières **8 px** des deux
-côtés, identiques à la carte qui le suit ; le filet touche les bords du
-CHAPEAU et non ceux de l'écran (`--saignee-debord` annule exactement le
-rembourrage latéral `--sp-16`).
-
-⏳ **Le TEXTE des huit chapeaux est un brouillon de Claude**, pas d'Eric. Il vit
-dans `CHAPITRE_INTRO` (shell.mjs) et se corrige là, à un seul endroit.
-
-## 2 quater. ⭐ LA MESURE — une caractéristique de TOUS les F
-
-Eric, 2026-08-19 : *« quand je dis FF2 je sous-entends que tu as un measure à
-mettre ! largeur identique à tous les autres FF2 »*, puis *« ce measure est une
-caractéristique essentielle de tous les F »*, et enfin *« ce measure est
-DIFFÉRENT entre les F et les FF »*.
-
-| famille | jeton | ce que c'est |
-|---|---|---|
-| **FF** | `--measure` | **62ch** — la mesure de prose du dépôt, celle que portent déjà `.card-step`, `.card-intro`, `.card-reveal` |
-| **F** | `--measure-f` | `--measure` **moins `--rail-w`** — un F garde le menu latéral, donc son champ est plus étroit d'autant |
-
-📌 **C'est un PLAFOND, pas une largeur** (Eric : *« measure varie d'un écran à
-l'autre mais est limitant sur le max »*). `max-width` laisse chaque écran être
-aussi étroit que son contenu ; il l'empêche seulement de s'étaler.
-
-⛔ **`--measure-f` EST DÉRIVÉE, jamais posée en dur.** `--rail-w` vaut 90 px à
-l'étroit et **120 en Large** : un nombre écrit à la main aurait divergé au
-premier palier large. La soustraction, elle, suit.
-
-⚠️ **Et `margin-inline: auto` va avec.** Une mesure sans centrage colle la
-colonne à gauche et laisse à droite un vide qui se lit comme un bogue.
-
-🔴 **CE QUI A RÉVÉLÉ LA RÈGLE.** Les six dalles du parcours (tutoriels, guides,
-item, bilan) portaient une marge latérale que leurs voisines n'avaient pas :
-mesuré à 375, le tutoriel faisait **343 px** pendant que la fiche juste dessous
-en faisait **359**. Deux blocs de texte côte à côte à deux largeurs se lisent
-comme deux écrans. La gouttière est portée par la carte d'étape ; la redoubler
-sur la dalle la comptait deux fois.
+1. **Le chapeau de chapitre déclarait `FF3` sur les huit chapitres et était un
+   `F3` sur quatre.** Une dalle ne peut pas connaître le rail.
+2. **Deux `F1` portaient deux mesures** — parce que « F1 » mélangeait *l'écran
+   a un rail* et *la carte fait 440 px*.
+3. **Le guide général déclaré `F1` faisait 275 px au lieu de 440.** La vraie
+   question n'était pas *quel format*, mais *où il vit* : mis dans la colonne,
+   il a fait 440 sans qu'une cote soit écrite.
 
 ## 2 quinquies. LE « ? » — en haut à DROITE de la dalle
 
@@ -270,20 +240,7 @@ le cas aujourd'hui, sur le format le plus employé du builder.
 en fait le seul moyen de dire *« la même largeur que Destiny »* et que ce soit
 vrai sur un bureau autant que sur un téléphone.
 
-## 2 ter. L'ÉTAT DES LIEUX, APRÈS LE BARÈME À DEUX CHIFFRES
-
-| | qui l'emploie |
-|---|---|
-| **F1** — menu, hauteur imposée | Classes, Espèces, don d'origine, Destinée en mode *choix* |
-| **F2** — menu, hauteur libre | ⏳ personne |
-| **FF1** — plein, hauteur imposée | ⏳ personne |
-| **FF2** — plein, hauteur libre | Univers, Concept, Caractéristiques, Compétences, Équipement, Bilan, Destinée en mode *tirage* |
-
-🔴 **DEUX FORMATS EN SERVICE SUR QUATRE.** Le builder n'est fait que de fiches
-(F1) et de cartes qui font la taille de leur contenu (FF2). Le reste du
-vocabulaire est disponible, pas employé.
-
-## 3. F1 — *la fiche* · species et classes
+## 3. LA CARTE — *la fiche* · species et classes  ⟨ex-F1⟩
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -358,7 +315,7 @@ avais attribués hier, n'ont pas de menu latéral : ce sont des **FF**.
 📌 C'est Eric qui l'a relevé (*« Concept c'est du FF1 car pas de barre
 latérale »*), et le code lui donne raison.
 
-## 4. F2 — *le menu, et une hauteur libre* · ⏳ aucun écran
+## 4. LA DALLE DANS UN ÉCRAN F — les cotes mesurées  ⟨ex-F2⟩
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -426,7 +383,7 @@ laisse ressembler à une carte.
 des grilles de sorts. Sur ces écrans-là il n'y a aucun glisser, donc aucune
 des complications payées au lot 79.
 
-## 5. FF1 — *la fiche pleine largeur* · ⏳ Destiny
+## 5. LA CARTE DANS UN ÉCRAN FF — les cotes mesurées  ⟨ex-FF1⟩
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -450,7 +407,7 @@ qu'en mode **choix**, là où il y a 22 arcanes à parcourir : c'est le seul
 endroit où il gagne sa place. « Destiny en FF1 » revient donc à retirer le
 menu **du mode qui en a le plus besoin**. À trancher avant de le faire.
 
-## 6. FF2 — *plein, hauteur libre* · Skills, et presque tout le reste
+## 6. LA DALLE DANS UN ÉCRAN FF — Skills, et presque tout le reste  ⟨ex-FF2⟩
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -478,13 +435,13 @@ qui lui est propre.
   début du défilement, la marge supérieure manque. À mesurer dans la page
   avant d'y toucher — la cause n'est pas connue.
 
-## 6 bis. ✅ CONCEPT EST UN FF2
+## 6 bis. ✅ IDENTITY EST UN ÉCRAN FF QUI PORTE DES DALLES
 
 La question posée hier (*« FF2 ou FF3 ? »*) est tombée avec F3. Concept n'a
 aucun menu latéral et sa hauteur est celle de son contenu : **FF2**, comme
 presque tout le builder. Mesuré : 271 px pour un champ de 493.
 
-## 7. FS — *l'îlot* · le petit format répété
+## 7. LA TUILE — *l'îlot* · le petit format répété  ⟨ex-FS⟩
 
 > Nommé par Eric le 2026-08-16, en construisant le plateau des
 > caractéristiques : *« six caracs qui flottent au-dessus du background, avec
