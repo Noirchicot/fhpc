@@ -72,7 +72,59 @@
         "changes": {
           "data.destiny": {
             "base": 2
-          }
+          },
+          "data[lineages]": [
+            {
+              "id": "black",
+              "name": "Black",
+              "damage": "Acid"
+            },
+            {
+              "id": "blue",
+              "name": "Blue",
+              "damage": "Lightning"
+            },
+            {
+              "id": "brass",
+              "name": "Brass",
+              "damage": "Fire"
+            },
+            {
+              "id": "bronze",
+              "name": "Bronze",
+              "damage": "Lightning"
+            },
+            {
+              "id": "copper",
+              "name": "Copper",
+              "damage": "Acid"
+            },
+            {
+              "id": "gold",
+              "name": "Gold",
+              "damage": "Fire"
+            },
+            {
+              "id": "green",
+              "name": "Green",
+              "damage": "Poison"
+            },
+            {
+              "id": "red",
+              "name": "Red",
+              "damage": "Fire"
+            },
+            {
+              "id": "silver",
+              "name": "Silver",
+              "damage": "Cold"
+            },
+            {
+              "id": "white",
+              "name": "White",
+              "damage": "Cold"
+            }
+          ]
         },
         "note": "Fate's Hand — Dragonborn"
       },
@@ -186,7 +238,51 @@
         "changes": {
           "data.destiny": {
             "base": 2
-          }
+          },
+          "data[lineages]": [
+            {
+              "id": "cloud",
+              "name": "Cloud's Jaunt",
+              "levels": {
+                "1": "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see."
+              }
+            },
+            {
+              "id": "fire",
+              "name": "Fire's Burn",
+              "levels": {
+                "1": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target."
+              }
+            },
+            {
+              "id": "frost",
+              "name": "Frost's Chill",
+              "levels": {
+                "1": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target and reduce its Speed by 10 feet until the start of your next turn."
+              }
+            },
+            {
+              "id": "hill",
+              "name": "Hill's Tumble",
+              "levels": {
+                "1": "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition."
+              }
+            },
+            {
+              "id": "stone",
+              "name": "Stone's Endurance",
+              "levels": {
+                "1": "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total."
+              }
+            },
+            {
+              "id": "storm",
+              "name": "Storm's Thunder",
+              "levels": {
+                "1": "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature."
+              }
+            }
+          ]
         },
         "note": "Fate's Hand — Goliath"
       },
@@ -216,6 +312,30 @@
           "data.name": "Hoddon",
           "data.traits[gnomish-cunning].name": "Hoddon Cunning",
           "data.traits[gnomish-lineage].name": "Hoddon Lineage",
+          "data[lineages]": [
+            {
+              "id": "forest-folk",
+              "name": "Forest Folk",
+              "levels": {
+                "1": "You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared, and you can cast it without expending a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest."
+              }
+            },
+            {
+              "id": "rock-folk",
+              "name": "Rock Folk",
+              "levels": {
+                "1": "You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes creating a Tiny clockwork device (AC 5, 1 HP) that carries one Prestidigitation effect of your choice; you can have up to three such devices at a time."
+              }
+            },
+            {
+              "id": "mole-people",
+              "name": "The Mole People",
+              "fh": true,
+              "levels": {
+                "1": "The range of your Darkvision increases to 120 feet. You also gain Meticulous — you have Advantage on Investigation checks — and 1 skill point (half proficiency) in tinker's tools."
+              }
+            }
+          ],
           "name": "Hoddon",
           "slug": "hoddon"
         },

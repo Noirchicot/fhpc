@@ -68,7 +68,17 @@ test("le carnet SRD pur projette les familles réelles — sorts compris depuis 
     "class.cantrips", "class.cantrips[0]", "class.cantrips[1]", "class.cantrips[2]",
     "class.prepared", "class.prepared[0]", "class.prepared[1]", "class.prepared[2]", "class.prepared[3]",
     "class.skills", "class.skills[0]",
-    "class.skills[1]", "species", "species.keenSenses", "species.skills"
+    /* 2026-08-18 — `species.lineage` ENTRE AU CARNET. L'Elfe du document
+       d'acceptation choisit sa lignée (Drow, Elfe sylvestre, Haut-elfe), et
+       ce choix vient du SRD lui-même : la couche française porte
+       `data.lineages` sans qu'une ligne de français ait été écrite pour lui.
+       ⭐ ET LE CHOIX ÉTAIT DÉJÀ DANS LE DOCUMENT. `species.lineage =
+       "haut-elfe"` y est écrit depuis toujours — sans aucun plan pour le
+       juger. Ce n'est donc pas un chemin neuf : c'est le plan qui manquait
+       sous un chemin que le dépôt écrivait déjà. Il sort `answered`, et sans
+       étape `[0]` : une question déjà répondue n'ouvre pas de créneau. */
+    "class.skills[1]", "species", "species.keenSenses",
+    "species.lineage", "species.skills"
   ]);
   assert.equal(out.decisions.some((entry) => /gear|level|tier|fh\.skills/.test(entry.path)), false,
     "ni équipement, ni niveau, ni dépense de palier simulée");

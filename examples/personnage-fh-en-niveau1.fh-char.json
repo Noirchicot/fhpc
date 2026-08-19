@@ -24,7 +24,7 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "ffa3bf6efb1358862eb88c89c8360cb87d0a8b5217a82ae5695a9bc30052ed1e",
+        "hash": "69f625e247d761a4eeee1a4ecedb63558a854d9b0e7816292e375464ab66b3d9",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -54,7 +54,7 @@
       {
         "id": "fh-lore-en",
         "version": "0.1.0",
-        "hash": "9b79ec3c0e2688ea2fe6c14410c9e3e93b5d80f265517a20a4954c7f377224f1",
+        "hash": "ec0198d2c93b38b557dba74d0cfe9a5bf415f4c8be755ded80485cd7e4afd86a",
         "name": "Fate's Hand — Lore (EN)"
       }
     ],
@@ -375,7 +375,7 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "ffa3bf6efb1358862eb88c89c8360cb87d0a8b5217a82ae5695a9bc30052ed1e",
+          "hash": "69f625e247d761a4eeee1a4ecedb63558a854d9b0e7816292e375464ab66b3d9",
           "name": "Fate's Hand — Species (EN)"
         },
         {
@@ -405,7 +405,7 @@
         {
           "id": "fh-lore-en",
           "version": "0.1.0",
-          "hash": "9b79ec3c0e2688ea2fe6c14410c9e3e93b5d80f265517a20a4954c7f377224f1",
+          "hash": "ec0198d2c93b38b557dba74d0cfe9a5bf415f4c8be755ded80485cd7e4afd86a",
           "name": "Fate's Hand — Lore (EN)"
         }
       ]

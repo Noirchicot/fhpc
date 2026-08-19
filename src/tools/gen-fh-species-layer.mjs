@@ -47,7 +47,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   LAYER, SPECIES, SRD_LAYER_ID, DESTINY_BASE,
-  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, KEEN_SENSES_BUDGET_POINTS, srdSpeciesId
+  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, KEEN_SENSES_BUDGET_POINTS, srdSpeciesId, LINEAGES
 } from "./fh-species-source.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -239,6 +239,27 @@ function traitsOf(srd, entry) {
  *  Les clefs de `data` sont posées dans l'ordre alphabétique du SRD — la
  *  sortie de `gen-srd-layer` l'est aussi, et deux artefacts du même genre qui
  *  se lisent pareil s'auditent ensemble. */
+/** LA CLEF D'UN LIGNAGE. Une entrée `add` porte son `slug` ; une entrée
+ *  `patch` porte un `target` (`srd:species:en:elf`) et parfois un `rename`
+ *  qui lui donne son nom FH — le Hoddon patche le gnome. La clef est donc le
+ *  slug de l'espèce TELLE QUE FATE'S HAND LA NOMME, dans cet ordre.
+ *
+ *  ⚠️ Écrit le 2026-08-18 après un premier jet qui lisait `entry.slug` sur
+ *  les patchs : le champ n'y existe pas, la table ne s'accrochait à rien, et
+ *  la couche est sortie SANS AUCUN lignage — sans une erreur. C'est
+ *  exactement le silence que le cri d'`addEntry` cherche à éviter. */
+function targetSlug(entry) {
+  const target = String(entry.target || "");
+  const cut = target.lastIndexOf(":");
+  return cut === -1 ? "" : target.slice(cut + 1);
+}
+
+function lineageKey(entry) {
+  if (entry.rename && entry.rename.slug) return entry.rename.slug;
+  if (entry.slug) return entry.slug;
+  return targetSlug(entry);
+}
+
 function addEntry(srd, entry) {
   const data = {};
   const lifted = {};
@@ -259,6 +280,14 @@ function addEntry(srd, entry) {
   data.speed_ft = lifted.speed_ft;
   data.traits = traitsOf(srd, entry);
   if (entry.skillPoints) data.skill_points = structuredClone(entry.skillPoints);
+  /* ⛔ AUCUNE DES TROIS ESPÈCES AJOUTÉES N'A DE LIGNAGE aujourd'hui, donc ce
+     chemin n'en écrit pas. Le jour où l'une en reçoit un, ce cri l'annonce —
+     mieux qu'un champ silencieusement perdu dans la couche. */
+  if (LINEAGES[lineageKey(entry)]) {
+    fail(`« ${entry.fhName} » est une espèce AJOUTÉE et déclare un lignage : ` +
+      "addEntry ne sait pas encore l'écrire. Ajoute-lui `data.lineage_choice`, " +
+      "comme patchEntry le fait, et écris le test qui le tient.");
+  }
   data.destiny = destinyOf(entry);
 
   return { name: entry.fhName, slug: entry.slug, data };
@@ -345,6 +374,28 @@ function patchEntry(srd, entry) {
      la substitution le suit — ou elle rate, et alors elle crie. */
   if (entry.description) {
     changes["data.description"] = describedBy(srd, entry.target, entry.description, entry.fhName);
+  }
+
+  /* LE LIGNAGE. Trois espèces sur cinq décrivent leur choix en prose sans
+     offrir de quoi l'inscrire ; la table `LINEAGES` de la source le fournit,
+     sous le nom et la forme du SRD (`data.lineages`), de sorte qu'UN SEUL
+     lecteur serve les cinq. L'Elfe et le Tiefling ne passent pas ici : le SRD
+     les monte déjà.
+
+     ⭐ ET SI LE SRD SE MET À LES FOURNIR, CE GARDE LE DIT. Le jour où
+     `fh-srd` exporte les ancêtres draconiques, notre copie devient un
+     doublon qui diverge en silence — la faute que ce dépôt paie le plus
+     cher. On veut l'apprendre par un cri, pas par un écran faux. */
+  const lignages = LINEAGES[lineageKey(entry)];
+  if (lignages) {
+    const record = srdSpecies(srd, targetSlug(entry));
+    if (record.data && record.data.lineages) {
+      fail(`« ${entry.fhName} » : le SRD porte MAINTENANT ses propres ` +
+        "`data.lineages`. Notre copie dans `LINEAGES` est devenue un doublon — " +
+        "supprime-la de `fh-species-source.mjs` et laisse le SRD répondre, " +
+        "après avoir comparé les deux règle par règle.");
+    }
+    changes["data[lineages]"] = structuredClone(lignages);
   }
 
   changes["data.destiny"] = destinyOf(entry);

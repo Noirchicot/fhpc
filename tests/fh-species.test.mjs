@@ -454,9 +454,14 @@ test("D1 — les CINQ espèces sans différence FH ne portent QUE leur Base de D
   }
   /* NOMMÉES, pas comptées : si un jour l'une d'elles gagnait une différence FH,
      ce test doit dire LAQUELLE a bougé, pas « il y en a quatre ». */
+  /* 2026-08-18 — LE DRAGONBORN ET LE GOLIATH ONT BOUGÉ, et c'est ce test qui
+     l'a dit. Ils portent désormais `data[lineages]` : le SRD décrit leur
+     choix en prose (Draconic Ancestry, Giant Ancestry) mais n'en donne aucune
+     donnée, et sans donnée un personnage ne peut pas INSCRIRE qu'il descend
+     d'un dragon rouge. Le Tiefling, lui, reste ici : le SRD monte ses trois
+     legs tout seul, donc Fate's Hand n'a rien à y ajouter. */
   assert.deepEqual(uneSeuleLigne.sort(), [
-    "srd:species:en:dragonborn", "srd:species:en:dwarf", "srd:species:en:goliath",
-    "srd:species:en:orc", "srd:species:en:tiefling"
+    "srd:species:en:dwarf", "srd:species:en:orc", "srd:species:en:tiefling"
   ]);
   for (const id of uneSeuleLigne) {
     assert.deepEqual(Object.keys(layer.records.species[id].changes), ["data.destiny"],

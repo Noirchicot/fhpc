@@ -240,8 +240,10 @@ test("LOT 28 — `decisions` traverse MCP avec ses chemins, compteurs et statuts
   assert.deepEqual(skills.options,
     ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"]);
   /* LOT 72 — le carnet gagne les sorts : 13 + 2 groupes + 7 étapes = 22.
-     LOT 74 — puis les six scores de base (borne de création 3–18) : 28. */
-  assert.match(result.content[0].text, /DÉCISIONS \(28\)/,
+     LOT 74 — puis les six scores de base (borne de création 3–18) : 28.
+     2026-08-18 — puis le lignage de l'Elfe : 29. Le document le POSAIT
+     déjà (`species.lineage = "haut-elfe"`) sans qu'aucun plan le juge. */
+  assert.match(result.content[0].text, /DÉCISIONS \(29\)/,
     "l'IA n'a pas à deviner qu'un septième carnet existe dans structuredContent");
   assert.match(result.content[0].text, /class\.skills : answered, 2\/2/);
   assert.match(result.content[0].text, /class\.cantrips : answered, 3\/3/,

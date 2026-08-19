@@ -659,6 +659,31 @@ export function projectDecisions({ query, choices }) {
         provenance: recordProvenance("offered", "species", speciesView, "granted_skill_choice"), cost: explicitCost(declaration)
       }));
     }
+    /* ══ LE LIGNAGE — un second choix, DANS l'espèce ════════════════════
+       Cinq espèces sur douze en portent un : l'Elfe et le Tiefling le
+       tiennent du SRD, le Dragonborn, le Goliath et le Hoddon de la couche
+       Fate's Hand. Un seul champ pour les cinq — `data.lineages` — donc un
+       seul plan.
+
+       ⭐ C'EST `multiPlan` AVEC `expected: 1`, ET PAS UN CHEMIN NEUF. Le
+       dépôt a déjà payé d'avoir deux écrivains pour une même question (voir
+       la tête de `resolvedRef`). Un lignage se pose comme une compétence
+       d'espèce se pose : `species.lineage[0]`, même grammaire, même
+       validation d'option, même verrou quand la valeur n'est pas au menu.
+
+       ⛔ SANS COÛT. Le lignage est DONNÉ avec l'espèce, il ne s'achète pas —
+       `explicitCost` n'est donc pas appelé, et l'absence de `cost` ici est
+       une affirmation, pas un oubli. */
+    const lineages = speciesView.record.data && speciesView.record.data.lineages;
+    if (Array.isArray(lineages) && lineages.length > 0) {
+      entries.push(...multiPlan({
+        choices: list, root: "species", basePath: "species.lineage",
+        options: lineages.map((option) => option && option.id).filter((id) => typeof id === "string"),
+        expected: 1,
+        provenance: recordProvenance("offered", "species", speciesView, "lineages")
+      }));
+    }
+
     // LOT 34 — le budget captif (Keen Senses), un groupe DISTINCT (contrat §4e).
     entries.push(...speciesBudgetPlan(list, speciesView, skills));
   }

@@ -371,6 +371,84 @@ const HUMAN_DESCRIPTION = {
    où il bouge. Le générateur va donc les PRENDRE dans la couche SRD, à la
    génération, et il JETTE en nommant le trait s'il ne l'y trouve pas. */
 
+/* ══ LES LIGNAGES QUE LE SRD N'A PAS ════════════════════════════════════════
+   Cinq espèces portent un second choix DANS l'espèce. Le SRD en monte DEUX
+   tout seul — `data.lineages` de l'Elfe et du Tiefling, trois options
+   chacune, `{ id, name, levels }`. Trois lui manquent : le Dragonborn, le
+   Goliath et le Hoddon décrivent leur choix en prose dans un trait, mais
+   n'offrent aucune donnée pour l'INSCRIRE. Cette table comble ce trou, et
+   rien d'autre.
+
+   ⭐ POURQUOI CE N'EST PAS UN CHAMP NEUF. Un premier jet inventait
+   `lineage_choice` et le posait sur les cinq. C'était fabriquer un second
+   écrivain pour une question qui en avait déjà un : deux champs, deux
+   lecteurs, et l'Elfe aurait porté ses lignages DEUX FOIS — une divergence
+   programmée. On reprend donc le nom et la forme du SRD, `data.lineages`, et
+   un seul lecteur sert les cinq espèces.
+
+   ⛔ ET L'ELFE ET LE TIEFLING NE SONT PAS ICI. Leurs lignages sont déjà
+   montés par le SRD, et j'ai comparé règle par règle avec le chapitre du
+   vault (2026-08-18) : identiques au mot d'esprit près — le chapitre resserre
+   la plume, il ne change aucune règle. Une différence de plume ne se patche
+   pas. Le jour où Eric change une RÈGLE de lignage elfique dans le chapitre,
+   elle entre ici, et pas avant.
+
+   ── LA FORME ────────────────────────────────────────────────────────────
+   Celle du SRD : `{ id, name, levels: { "1": …, "3": …, "5": … } }`.
+   Le Goliath et le Hoddon n'ont qu'un palier — `levels: { "1": … }` — et
+   c'est vrai : le don est acquis au niveau 1, il ne progresse pas.
+   ⚠️ LE DRAGONBORN EST LA SEULE EXCEPTION, et sa table la force : choisir
+   « Black » ne donne aucun texte de bénéfice, ça donne un TYPE DE DÉGÂTS que
+   les traits Breath Weapon et Damage Resistance vont lire. Il porte donc
+   `damage` et pas `levels` — écrire `levels: { "1": "Acid" }` serait annoncer
+   un bénéfice de niveau 1 qui n'existe pas.
+
+   ⛔ CES VALEURS NE SE CORRIGENT PAS ICI. Leur source est le chapitre du
+   vault publié par le site — `0. D&D 5+ Rules/2. Species Modifications/
+   D&D 5+ Races & Species.md`. Une règle se corrige DANS le chapitre. */
+export const LINEAGES = {
+  dragonborn: [
+    { id: "black",  name: "Black",  damage: "Acid" },
+    { id: "blue",   name: "Blue",   damage: "Lightning" },
+    { id: "brass",  name: "Brass",  damage: "Fire" },
+    { id: "bronze", name: "Bronze", damage: "Lightning" },
+    { id: "copper", name: "Copper", damage: "Acid" },
+    { id: "gold",   name: "Gold",   damage: "Fire" },
+    { id: "green",  name: "Green",  damage: "Poison" },
+    { id: "red",    name: "Red",    damage: "Fire" },
+    { id: "silver", name: "Silver", damage: "Cold" },
+    { id: "white",  name: "White",  damage: "Cold" }
+  ],
+
+  goliath: [
+    { id: "cloud", name: "Cloud's Jaunt", levels: {
+      "1": "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see." } },
+    { id: "fire", name: "Fire's Burn", levels: {
+      "1": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target." } },
+    { id: "frost", name: "Frost's Chill", levels: {
+      "1": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target and reduce its Speed by 10 feet until the start of your next turn." } },
+    { id: "hill", name: "Hill's Tumble", levels: {
+      "1": "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition." } },
+    { id: "stone", name: "Stone's Endurance", levels: {
+      "1": "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total." } },
+    { id: "storm", name: "Storm's Thunder", levels: {
+      "1": "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature." } }
+  ],
+
+  /* Le Hoddon est le gnome renommé (voir son entrée). Ses deux premières
+     voies sont celles du gnome SRD ; la troisième — The Mole People — est une
+     création Fate's Hand, marquée `(FH)` dans le chapitre et `fh: true` ici.
+     C'est la seule option de tout ce fichier qui n'a pas d'équivalent SRD. */
+  hoddon: [
+    { id: "forest-folk", name: "Forest Folk", levels: {
+      "1": "You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared, and you can cast it without expending a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest." } },
+    { id: "rock-folk", name: "Rock Folk", levels: {
+      "1": "You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes creating a Tiny clockwork device (AC 5, 1 HP) that carries one Prestidigitation effect of your choice; you can have up to three such devices at a time." } },
+    { id: "mole-people", name: "The Mole People", fh: true, levels: {
+      "1": "The range of your Darkvision increases to 120 feet. You also gain Meticulous — you have Advantage on Investigation checks — and 1 skill point (half proficiency) in tinker's tools." } }
+  ]
+};
+
 export const SPECIES = [
   {
     fhName: "Araag",
