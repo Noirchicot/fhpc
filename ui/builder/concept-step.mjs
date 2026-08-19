@@ -105,6 +105,56 @@ function textField({ id, label, value, maxLength, ariaDescribedBy, error, datali
  * @param {object} [ctx.fieldErrors] le dernier refus par champ (`{name, gender, alignment}`), ou `null`/absent
  * @param {(action: {kind:"rename", name:string}|{kind:"describe", field:string, value:string}) => void} onAction
  */
+/* ══ LES DEUX LISTES DÉROULANTES — Eric, 2026-08-19 ═════════════════════════
+   *« Gender dropdown, champ à largeur limitée à 80/100 pixels. Alignment
+   dropdown limitée à 80/100 pixels, bouton rules. »*
+
+   ⭐ POURQUOI UN `<select>` ET PLUS UN `<input list>` : un champ libre invitait
+   à écrire n'importe quoi dans un champ qui n'a que neuf réponses, et la
+   `datalist` ne l'empêchait pas — elle SUGGÉRAIT. Le menu, lui, décide.
+
+   ⚠️ ET LA VALEUR DÉJÀ ÉCRITE SURVIT, MÊME HORS LISTE. Un personnage sauvé
+   avant ce lot peut porter « chaotic-ish » : la restreindre d'autorité
+   l'effacerait au premier rendu, en silence. Elle entre donc dans le menu
+   comme une option de plus, et le joueur la remplace s'il le veut. */
+const GENRES = ["Man", "Woman", "Something else"];
+
+function selectField({ id, label, value, options, onCommit, extra }) {
+  const wrap = el("div", "doc-field", []);
+  const lab = document.createElement("label");
+  lab.className = "doc-field-label";
+  lab.htmlFor = id;
+  lab.append(document.createTextNode(label));
+  wrap.append(lab);
+
+  const rangee = el("div", "doc-field-rangee", []);
+  const select = document.createElement("select");
+  select.id = id;
+  select.className = "doc-field-select";
+
+  const courant = typeof value === "string" ? value : "";
+  /* Le vide est une réponse : ces deux champs sont facultatifs. */
+  const liste = ["", ...options];
+  if (courant.length > 0 && !liste.includes(courant)) liste.push(courant);
+  for (const option of liste) {
+    const node = document.createElement("option");
+    node.value = option;
+    node.append(document.createTextNode(option === "" ? "—" : option));
+    if (option === courant) node.selected = true;
+    select.append(node);
+  }
+  /* ⚠️ LA VALEUR EST POSÉE EXPLICITEMENT, en plus de l'option `selected`. Un
+     navigateur déduit l'une de l'autre ; le stub DOM de la suite, non — et
+     c'est lui qui avait raison de le signaler : compter sur une déduction du
+     moteur de rendu, c'est ne pas dire ce qu'on veut. */
+  select.value = courant;
+  select.addEventListener("change", () => onCommit(select.value));
+  rangee.append(select);
+  if (extra) rangee.append(extra);
+  wrap.append(rangee);
+  return wrap;
+}
+
 export function renderConceptStep(ctx, onAction) {
   const doc = ctx.document;
   const errors = ctx.fieldErrors || {};
@@ -126,25 +176,36 @@ export function renderConceptStep(ctx, onAction) {
     onCommit: (value) => onAction({ kind: "rename", name: value })
   }));
 
-  section.append(textField({
+  section.append(selectField({
     id: "concept-gender",
     label: "Gender (optional)",
     value: doc.gender,
-    maxLength: 60,
-    error: errors.gender,
-    ariaDescribedBy: errors.gender ? "concept-gender-error" : null,
+    options: GENRES,
     onCommit: (value) => onAction({ kind: "describe", field: "gender", value })
   }));
 
-  section.append(textField({
+  /* ⏳ LE BOUTON `Rules` OUVRE UN POPUP, PAS ENCORE LE CHAPITRE. Eric veut
+     qu'il emmène « dans le Player Companion au chapitre associé » et qu'on
+     revienne « exactement au point où on en est » : c'est un aller-retour vers
+     le SITE, et il n'existe aucun chemin hors du builder aujourd'hui (c'est
+     même la question n°1 du fichier des questions ouvertes). Un bouton qui dit
+     la règle vaut mieux qu'un bouton mort ou qu'un lien qui perd la place. */
+  const regles = document.createElement("button");
+  regles.type = "button";
+  regles.className = "doc-field-regles";
+  regles.append(document.createTextNode("Rules"));
+  regles.addEventListener("click", () => onAction({
+    kind: "popup",
+    texte: "Alignment is two axes: how you treat law and order, and how you treat others. " +
+      "Nothing in Fate's Hand forces you to play it — it is a description, not a leash."
+  }));
+
+  section.append(selectField({
     id: "concept-alignment",
     label: "Alignment (optional)",
     value: doc.alignment,
-    maxLength: 60,
-    error: errors.alignment,
-    ariaDescribedBy: errors.alignment ? "concept-alignment-error" : null,
-    datalistId: "concept-alignment-options",
-    datalistOptions: ALIGNMENTS,
+    options: ALIGNMENTS,
+    extra: regles,
     onCommit: (value) => onAction({ kind: "describe", field: "alignment", value })
   }));
 

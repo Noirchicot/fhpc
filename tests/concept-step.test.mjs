@@ -39,10 +39,16 @@ function draftDocument(extra = {}) {
    minimal : balise/classe/attribut, voir sa tête de fichier) — les trois
    champs sont donc retrouvés par ORDRE D'APPARITION (nom, genre, alignement,
    l'ordre posé par `renderConceptStep`), tous `.doc-field-input`. */
+/* ⚠️ DEUX FAMILLES DE CHAMPS DEPUIS LE 2026-08-19, et c'est ce que ces
+   sélecteurs disent : le NOM reste un champ libre (`input`), le GENRE et
+   l'ALIGNEMENT sont devenus des MENUS (`select`) — Eric : *« Gender dropdown
+   […] Alignment dropdown, bouton rules »*. Un champ libre invitait à écrire
+   n'importe quoi dans un champ qui n'a que neuf réponses. */
 function fields(node) { return node.querySelectorAll(".doc-field-input"); }
+function menus(node) { return node.querySelectorAll(".doc-field-select"); }
 function nameInput(node) { return fields(node)[0]; }
-function genderInput(node) { return fields(node)[1]; }
-function alignmentInput(node) { return fields(node)[2]; }
+function genderInput(node) { return menus(node)[0]; }
+function alignmentInput(node) { return menus(node)[1]; }
 
 /* ══ 0 — LA LISTE DES NEUF, LUE À L'ÉCRAN, JAMAIS AU SCHÉMA ═══════════════ */
 
@@ -58,6 +64,10 @@ test("0 — les neuf alignements SRD, orthographe du dépôt (« Neutral », pas
 /* ══ 1 — LES TROIS CHAMPS S'AFFICHENT À LA RACINE ═════════════════════════ */
 
 test("1 — les trois champs affichent la valeur actuelle du document", () => {
+  /* ⭐ ET LES DEUX VALEURS SONT HORS LISTE, DÉLIBÉRÉMENT : un personnage sauvé
+     avant les menus peut porter « iel » ou « Chaotic Good (mostly) ». Les
+     restreindre d'autorité les effacerait au premier rendu, EN SILENCE. Elles
+     entrent dans le menu comme une option de plus. */
   const doc = draftDocument({ gender: "iel", alignment: "Chaotic Good (mostly)" });
   const node = renderConceptStep({ document: doc, fieldErrors: {} }, () => {});
   assert.equal(nameInput(node).value, "Sonde");
@@ -85,13 +95,13 @@ test("2 — changer le nom dispatche {kind:\"rename\", name}, rien d'autre", () 
 test("2bis — changer genre/alignement dispatche {kind:\"describe\", field, value}", () => {
   const actions = [];
   const node = renderConceptStep({ document: draftDocument(), fieldErrors: {} }, (action) => actions.push(action));
-  genderInput(node).value = "non-binaire, iel";
+  genderInput(node).value = "Woman";
   genderInput(node).dispatchEvent({ type: "change" });
-  alignmentInput(node).value = "Chaotic Good (mostly)";
+  alignmentInput(node).value = "Chaotic Good";
   alignmentInput(node).dispatchEvent({ type: "change" });
   assert.deepEqual(actions, [
-    { kind: "describe", field: "gender", value: "non-binaire, iel" },
-    { kind: "describe", field: "alignment", value: "Chaotic Good (mostly)" }
+    { kind: "describe", field: "gender", value: "Woman" },
+    { kind: "describe", field: "alignment", value: "Chaotic Good" }
   ]);
 });
 

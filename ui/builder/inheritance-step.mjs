@@ -29,8 +29,8 @@
 
 import {
   planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=132";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=132";
+} from "./carnet.mjs?v=140";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=140";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

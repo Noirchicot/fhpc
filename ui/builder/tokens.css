@@ -111,6 +111,14 @@
      le garde d'espacement n'admet que des jetons, et il a raison — une valeur
      écrite dans la feuille est une valeur que personne ne retrouve. */
   --saignee-debord: calc(var(--sp-16) * -1);
+
+  /* LES DEUX FONDS DU TUTORIEL (Eric, 2026-08-19) — « sur un fond bleu » pour
+     le général, « sur fond vert » pour le spécifique. ⭐ DÉRIVÉS, jamais posés
+     en dur : `--info` et `--positive` existent déjà dans les DEUX thèmes, et
+     un mélange les suit tout seul quand la nuit tombe. Même patron que
+     `--accent-wash`, et la même raison. */
+  --tuto-general-fond: color-mix(in srgb, var(--info) 22%, var(--surface));
+  --tuto-specifique-fond: color-mix(in srgb, var(--positive) 20%, var(--surface));
   --sp-20: 20px;
   --sp-24: 24px;
   --sp-32: 32px;
@@ -296,7 +304,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=132");
+  --bg-image: url("./assets/bg-day.jpg?v=140");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -365,7 +373,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=132");
+    --bg-image: url("./assets/bg-night.jpg?v=140");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

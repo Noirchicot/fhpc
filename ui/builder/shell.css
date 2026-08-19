@@ -2913,3 +2913,71 @@ button { font: inherit; }
   font: inherit; font-weight: 600; cursor: pointer;
 }
 .parcours-done { box-shadow: inset 0 0 0 1px var(--verre-lisere); }
+
+/* La carte d'étape ancre le « ? » : sans repère, il se poserait sur la scène. */
+.decision-card { position: relative; }
+
+/* ══ LE TUTORIEL (Eric, 2026-08-19) ════════════════════════════════════════
+   Le général sur fond bleu, le spécifique sur fond vert, et le « ? » qui les
+   rallume. Les deux fonds sont des JETONS dérivés de `--info`/`--positive` :
+   ils suivent le thème sans qu'on les redéclare la nuit. */
+.tuto-general,
+.tuto-specifique {
+  margin: var(--sp-8);
+  padding: var(--sp-16);
+  display: flex; flex-direction: column;
+}
+.tuto-general { background: var(--tuto-general-fond); }
+.tuto-specifique { background: var(--tuto-specifique-fond); padding-bottom: 0; }
+.tuto-mot { margin: 0 0 var(--sp-12); color: var(--text); font-size: var(--t3); line-height: 1.5; }
+
+/* LES BOUTONS CENTRÉS EN BAS — « I understand » d'abord : c'est le geste que
+   presque tout le monde va faire. */
+.tuto-pied { display: flex; justify-content: center; gap: var(--sp-8); margin: var(--sp-8) 0 var(--sp-12); flex-wrap: wrap; }
+.tuto-pied button {
+  min-height: var(--touch); padding: 0 var(--sp-16);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.tuto-compris { box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+/* LE « ? » — discret, mais pas menu : sa cible tactile reste pleine sous un
+   rond peint plus petit. Un point de 16 px se rate au pouce, et le joueur qui
+   le cherche est précisément celui qui est perdu. */
+.tuto-point {
+  position: absolute; left: 0; top: 0;
+  width: var(--touch); height: var(--touch);
+  display: grid; place-items: center;
+  border: 0; background: transparent; color: var(--text-soft);
+  font: inherit; font-size: var(--t3); cursor: pointer;
+}
+.tuto-point::before {
+  content: ""; position: absolute; width: 22px; height: 22px; border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+/* LES DEUX MENUS COURTS D'IDENTITY — Eric : « champ à largeur limitée à 80/100
+   pixels ». Un menu de neuf alignements n'a pas besoin de toute la ligne, et
+   un champ large ment sur la longueur de ce qu'on y met. */
+.doc-field-rangee { display: flex; align-items: center; gap: var(--sp-8); }
+.doc-field-select {
+  width: 100px; min-height: var(--touch);
+  border-radius: var(--radius-sm);
+  background: var(--sunken); color: var(--text);
+  border: 1px solid var(--border-strong);
+  font: inherit; font-size: var(--t3);
+}
+.doc-field-regles {
+  min-height: var(--touch); padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--dalle-inter); color: var(--text);
+  font: inherit; font-size: var(--t4); cursor: pointer;
+}
+
+/* LE « ? » OCCUPE LE COIN : la première ligne du premier bloc lui laisse la
+   place. Mesuré à l'écran — sans ça, le rond se posait SUR le premier mot du
+   tutoriel, et c'est justement le texte qu'il sert à rouvrir. */
+.tuto-general > .tuto-mot:first-child,
+.tuto-specifique > .tuto-mot:first-child,
+.chapitre-intro > .chapitre-intro-mot:first-child { text-indent: var(--sp-24); }

@@ -31,7 +31,7 @@
    clignoterait sans jamais s'afficher. D'où l'armement DIFFÉRÉ : l'écouteur
    ne mord qu'à partir du tour de boucle suivant. */
 
-import { swapContent } from "./socle.mjs?v=132";
+import { swapContent } from "./socle.mjs?v=140";
 
 /** Monte la surface de popup dans `host` (un nœud du cadre, persistant).
  *  Rend `{ show(children), hide() }` — `onOutside` est appelé quand le
