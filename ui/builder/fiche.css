@@ -453,7 +453,6 @@
 .fiche-dalle[data-dressing="prose"] .fiche-blurb {
   grid-column: 1;
   grid-row: 2;
-  align-self: start;
   justify-self: stretch;
   max-width: var(--measure);
   width: auto;
@@ -462,6 +461,29 @@
   line-height: 1.7;
   text-align: left;
   padding: 0 var(--sp-8);
+  /* 🔴 LA BOÎTE EST BORNÉE, COMME CELLE DES CLASSES — Eric, 2026-08-20 :
+     *« tu as du boulot sous le CHOOSE de Magic Initiate »*, puis *« idem que
+     pour les classes »*, puis *« tu n'es pas en overflow »*.
+
+     ⚠️ MES DEUX ERREURS DE LECTURE, ET C'EST LA SECONDE QUI COMPTE. J'ai
+     d'abord cru à un texte trop long (un arbitrage de contenu), puis à un
+     débordement à masquer par un dégradé. Ni l'un ni l'autre : la boîte
+     n'était simplement **pas bornée**. Avec `align-self: start` et une hauteur
+     `auto`, un élément de grille prend la taille de son contenu et SORT de sa
+     rangée — 643 px de prose dans une rangée qui en offrait 340, d'où le texte
+     qui passait sous les boutons et traversait la fiche suivante.
+
+     ⭐ CE QUE LES CLASSES FONT DÉJÀ, et qu'il suffisait de reprendre : leur
+     blurb vit dans une boîte FERMÉE (`--fiche-blurb-h`, six lignes) avec
+     `overflow: hidden`. Ici la boîte vaut la RANGÉE — `1fr`, « la place qu'il
+     veut » — et `stretch` la lui fait remplir sans jamais la dépasser : c'est
+     le « tant qu'il respecte sa dalle » d'Eric, dit en une déclaration.
+     📌 Et ce qui dépasse n'est pas perdu : `LORE` est la porte juste dessous,
+     et c'est déjà le partage de Species — le blurb sur la fiche, le chapitre
+     dans le lore. */
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 .fiche-dalle[data-dressing="prose"] .fiche-actions { grid-row: 3; }
