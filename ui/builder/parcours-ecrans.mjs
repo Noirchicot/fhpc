@@ -111,7 +111,12 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
        rien à cliquer. Un bouton qui ne mène nulle part se paie en confiance. */
     if (item.sansChoix) {
       ligne.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
-      ligne.dataset.allume = "true";
+      /* 🔴 PLUS D'ALLUMAGE D'OFFICE — Eric, 2026-08-19 : *« granted
+         automatically est une autre ligne, GRISÉE tant qu'on n'a pas choisi le
+         lignage ; ensuite le voyant devient vert »*. Une ligne sans choix n'est
+         pas forcément acquise : elle peut DÉPENDRE d'un autre item, et c'est
+         ce cas-là qui commande. Forcer le vert ici écrasait la dépendance —
+         mesuré : la ligne s'allumait avant que le lignage soit posé. */
       ligne.dataset.sansChoix = "true";
     } else {
       const porte = bouton(labelOf ? labelOf(item) : item.path, "parcours-item-porte",

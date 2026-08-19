@@ -2908,6 +2908,11 @@ button { font: inherit; }
 }
 /* Un item sans choix n'est pas cliquable : son mot le dit en s'effaçant un peu. */
 .parcours-item-mot { flex: 1; color: var(--text-soft); font-size: var(--t3); }
+/* ⭐ UNE LIGNE QUI DÉPEND D'UN AUTRE CHOIX EST GRISÉE TANT QU'IL N'EST PAS
+   FAIT — Eric, 2026-08-19 : « granted automatically est une autre ligne,
+   grisée tant qu'on n'a pas choisi le lignage ». Grisée, pas absente : elle
+   annonce ce qui viendra, et c'est ce qui rend le vert lisible ensuite. */
+.parcours-item[data-sans-choix="true"][data-allume="false"] .parcours-item-mot { color: var(--text-muted); }
 
 /* LE REFUS — il n'apparaît qu'APRÈS un `Done` refusé, et il nomme. */
 .parcours-refus { margin: var(--sp-12) 0 0; color: var(--text); font-size: var(--t3); }

@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=169";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=169";
-import { renderChoixGlisses } from "./glisser.mjs?v=169";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=171";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=171";
+import { renderChoixGlisses } from "./glisser.mjs?v=171";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -66,10 +66,68 @@ function tierLabel(value) {
    d'Eric (2026-08-19) : guide général → guide spécifique → items → bilan.
    Le drapeau suffit ; la coquille fait le reste, et Class puis Inheritance
    n'auront qu'à le poser à leur tour. */
+/* ══ UN SOUS-ÉCRAN NE PORTE QU'UN SEUL ITEM — Eric, 2026-08-19 ═════════════
+   📐 Sa capture d'écran l'a montré mieux qu'un texte : la dalle d'item portait
+   TOUT le panneau — lignage, bourse, gagné d'office, acquis — alors qu'elle
+   est censée porter UNE chose. C'était le repli assumé du 19/08 au matin ; le
+   voilà remplacé.
+
+   Sa nomenclature d'adresses, du même message :
+     · **R0** — la racine : la fiche de l'espèce (son lore, son `Choose`).
+     · **B0** — la branche : le guide, sa liste de validation, puis le bilan.
+     · **SB1, SB2…** — les sous-branches : un formulaire de choix par item,
+       validé par son `Done`, qui ramène en B0.
+   ⛔ *« un écran = une lettre et un chiffre — on ne voit jamais deux
+   dénominations sur un même écran »*. */
+function corpsDeLItem(item, ctx, act) {
+  const record = especeRetenue(ctx);
+  if (!record || !item) return null;
+  /* SB1 — le lignage, et RIEN d'autre. */
+  if (item.path === "species.lineage") return renderLineageBlock(ctx, record, act);
+  /* SB2 — la bourse captive, et rien d'autre. */
+  if (item.path === "species.skillBudget") {
+    const plan = planAt(ctx.decisions || [], "species.skillBudget");
+    return plan ? renderSpeciesBudget(ctx, plan, act) : null;
+  }
+  /* Le QCM de compétences, quand une espèce en porte un. */
+  if (item.path === "species.skills") {
+    return renderSlotQcm({
+      decisions: ctx.decisions || [], basePath: "species.skills", title: "Species skill",
+      labelOf: (id) => skillLabel(ctx.query, id), onAction: act
+    });
+  }
+  /* ⛔ AUCUN REPLI SILENCIEUX : un item sans corps le DIT. Rendre le panneau
+     entier « au cas où » est exactement la faute qu'Eric vient de voir. */
+  return el("p", "parcours-refus", [text(
+    `This choice has no screen yet — ${item.path}.`
+  )]);
+}
+
+/** Ce que la ligne « gagné d'office » attend. Eric : *« granted automatically
+ *  est une autre ligne, grisée tant qu'on n'a pas choisi le lignage ; ensuite
+ *  le voyant devient vert et tout s'écrit dans le bilan »*.
+ *
+ *  ⭐ CE N'EST DONC PAS UN ITEM SANS CHOIX, c'est un item qui DÉPEND d'un
+ *  autre. Il ne s'allume pas d'office : il attend que le lignage soit signé,
+ *  parce que c'est le lignage qui décide de ce qui est acquis (le dégât du
+ *  souffle, la résistance…). Un voyant vert avant ce choix mentirait. */
+export const LIGNE_ACQUIS = {
+  path: "species.granted",
+  sansChoix: true,
+  depend: "species.lineage",
+  label: "Granted automatically"
+};
+
 export const SPECIES_CATALOGUE = {
   path: "species", kind: "species", label: "Species", fiche: true, parcours: true,
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
      l'écran ATTEND, et il se corrige ICI, à un seul endroit. */
+  itemCorps: corpsDeLItem,
+  itemLabel: (chemin) => (chemin === "species.lineage" ? "Lineage"
+    : chemin === "species.skillBudget" ? "Skill budget"
+    : chemin === "species.skills" ? "Species skill"
+    : chemin === LIGNE_ACQUIS.path ? LIGNE_ACQUIS.label : chemin),
+  lignesEnPlus: [LIGNE_ACQUIS],
   guideGeneral: {
     titre: "Choosing a species",
     texte: "Your species is where the character starts: it sets size, speed, senses, " +
