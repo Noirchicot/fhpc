@@ -2740,3 +2740,58 @@ button { font: inherit; }
 .glisse-creneau-valeur { font-size: var(--t3); }
 .glisse-consigne { margin: 0; font-size: var(--t2); color: var(--text-muted); }
 
+
+/* ══ LE PANNEAU « CHOOSE » DE SPECIES — la séquence d'Eric (2026-08-18) ═════
+   « Choix lineages / Line bleed / gagné d'office / Line bleed / tous les
+   choix drag and drop / ce qui est acquis / Done ». */
+
+/* LE FILET QUI SAIGNE. ⭐ Il DÉBORDE le panneau des deux côtés — c'est le
+   « line bleed » d'Eric, et c'est ce débordement qui le distingue d'un simple
+   trait : il sépare deux blocs au lieu d'encadrer l'un d'eux. La marge
+   négative vaut la gouttière du panneau, donc le filet touche exactement les
+   bords, sans jamais élargir la boîte (`width: auto` + marges, pas de
+   `width: 100vw` qui provoquerait un défilement horizontal). */
+.saignee {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--sp-8) var(--saignee-debord);
+  width: auto;
+}
+
+/* ── BLOC 1 — LE LIGNAGE ─────────────────────────────────────────────── */
+.species-lignage { display: flex; flex-direction: column; gap: var(--sp-8); }
+
+/* Les bénéfices sont LISIBLES SANS CLIC : choisir entre dix ancêtres sans
+   voir leurs dégâts serait un tirage, pas un choix. */
+.species-lignage-benefices { margin: 0; display: grid; gap: var(--sp-2); }
+.species-lignage-benefices dt {
+  font-weight: 600; margin-top: var(--sp-8);
+  display: flex; align-items: baseline; gap: var(--sp-8);
+}
+.species-lignage-benefices dd {
+  margin: 0 0 0 var(--sp-16); color: var(--text-soft); font-size: var(--t3);
+}
+/* Le tap MARQUE l'option lue — il ne la révèle pas (elle est déjà là). */
+.species-lignage-benefices [data-lu="oui"] { color: var(--text); }
+.species-lignage-fh {
+  font-size: var(--t4); font-weight: 600; letter-spacing: .04em;
+  padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--border-strong); color: var(--text-soft);
+}
+
+/* ── BLOCS 2 ET 4 — DONNÉ D'OFFICE, ET PRIS ──────────────────────────── */
+.species-acquis { display: flex; flex-direction: column; gap: var(--sp-8); }
+.species-traits { margin: 0; display: grid; gap: var(--sp-2); }
+.species-traits dt { font-weight: 600; margin-top: var(--sp-8); }
+.species-traits dd {
+  margin: 0 0 0 var(--sp-16); color: var(--text-soft); font-size: var(--t3);
+}
+.species-acquis-vide { margin: 0; color: var(--text-soft); font-size: var(--t3); }
+
+/* ── DONE ────────────────────────────────────────────────────────────── */
+.species-done {
+  align-self: stretch; min-height: var(--touch); /* la cible tactile du dépôt */
+  border: 0; border-radius: var(--radius-md);
+  background: var(--dalle-inter); color: var(--text);
+  font: inherit; font-weight: 600; cursor: pointer;
+}

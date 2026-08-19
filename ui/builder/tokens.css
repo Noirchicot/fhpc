@@ -105,6 +105,12 @@
   --sp-8: 8px;
   --sp-12: 12px;
   --sp-16: 16px;
+  /* LE DÉBORD DU FILET QUI SAIGNE (« line bleed », Eric 2026-08-18) : il vaut
+     exactement la gouttière du panneau, en négatif — le filet touche les deux
+     bords sans jamais élargir la boîte. Un jeton plutôt qu'un `calc` en place :
+     le garde d'espacement n'admet que des jetons, et il a raison — une valeur
+     écrite dans la feuille est une valeur que personne ne retrouve. */
+  --saignee-debord: calc(var(--sp-16) * -1);
   --sp-20: 20px;
   --sp-24: 24px;
   --sp-32: 32px;
@@ -290,7 +296,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=109");
+  --bg-image: url("./assets/bg-day.jpg?v=112");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -359,7 +365,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=109");
+    --bg-image: url("./assets/bg-night.jpg?v=112");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

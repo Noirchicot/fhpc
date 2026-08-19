@@ -28,8 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=109";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=109";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=112";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=112";
+import { renderChoixGlisses } from "./glisser.mjs?v=112";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -174,22 +175,269 @@ function renderSpeciesBudget(ctx, budgetPlan, act) {
   return wrap;
 }
 
-/** LE MENU DU 2ᵉ PALIER — la bourse OU le QCM, jamais les deux, jamais rien
- *  (si c'était rien, il n'y aurait pas de 2ᵉ palier : voir `speciesPalier2`). */
+/* ══ LE PANNEAU « CHOOSE » — LA SÉQUENCE D'ERIC ═════════════════════════════
+   📐 Sa spec du 2026-08-18, mot pour mot, et c'est l'ORDRE qui compte :
+
+       « Derrière choose :
+         Choix lineages
+         Line bleed
+         Afficher ce qui est gagné d'office
+         Line bleed
+         Tous les choix à faire drag and drop
+         Affiché ce qui est acquis
+         Done »
+
+   Quatre blocs séparés par des filets qui saignent, et un geste pour sortir.
+   Avant ce lot, ce panneau rendait UN seul organe — la bourse captive OU le
+   QCM — et ne disait ni ce que l'espèce donnait, ni ce qu'on avait pris.
+
+   ⭐ CE QUI EST GAGNÉ D'OFFICE ET CE QUI EST ACQUIS SONT DEUX BLOCS, et la
+   différence n'est pas cosmétique : l'un est ce que l'espèce DONNE (le
+   joueur ne peut rien y faire), l'autre est ce que le joueur a PRIS. Les
+   fondre ferait croire qu'on peut renoncer à sa Darkvision.
+
+   ⛔ AUCUNE RÈGLE DE JEU ICI. Les traits, les lignages et les points sont lus
+   dans le record et dans le carnet ; cet écran ne calcule rien. */
+
+/** Le filet qui saigne — il déborde le panneau des deux côtés (`shell.css`),
+ *  pour SÉPARER sans encadrer : un blanc seul ne se voit pas, une boîte
+ *  enfermerait. */
+function saignee() {
+  const trait = el("hr", "saignee");
+  trait.setAttribute("aria-hidden", "true");
+  return trait;
+}
+
+/** Le record de l'espèce RETENUE — lu dans le carnet, jamais deviné.
+ *  ⚠️ `selected` est un TABLEAU (leçon du lot 79, tête de `renderChoixGlisses`). */
+function especeRetenue(ctx) {
+  const plan = planAt(ctx.decisions || [], "species");
+  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  if (!id || !ctx.query) return null;
+  const view = ctx.query({ kind: "species", id });
+  return view && view.record ? view.record : null;
+}
+
+function lignagesDe(record) {
+  const liste = record && record.data && record.data.lineages;
+  return Array.isArray(liste) && liste.length > 0 ? liste : null;
+}
+
+/** Ce qu'une option de lignage APPORTE, en une ligne par palier.
+ *  Le Dragonborn est le seul à porter `damage` au lieu de `levels` : sa table
+ *  ne donne pas un bénéfice, elle donne le dégât que Breath Weapon lira. */
+function beneficesDe(option) {
+  if (option && typeof option.damage === "string") return [["Damage", option.damage]];
+  const paliers = (option && option.levels) || {};
+  return Object.keys(paliers)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((niveau) => [`Level ${niveau}`, paliers[niveau]]);
+}
+
+/* ── BLOC 1 — LE CHOIX DE LIGNAGE ──────────────────────────────────────── */
+
+/** ⭐ IL RÉUTILISE `renderChoixGlisses`, l'organe du lot 79 : mêmes gestes que
+ *  les sorts mineurs du magicien — glisser pour choisir, taper pour lire.
+ *  Écrire un second glisser ici, c'est deux gestes qui divergent.
+ *
+ *  ⚠️ ET LES BÉNÉFICES SONT AFFICHÉS, PAS CACHÉS DERRIÈRE LE TAP. Choisir
+ *  entre dix ancêtres draconiques sans voir leurs dégâts n'est pas un choix,
+ *  c'est un tirage. Le tap MARQUE l'option lue ; il ne la révèle pas. */
+function renderLineageBlock(ctx, record, act) {
+  const options = lignagesDe(record);
+  if (!options) return null;
+  const decisions = ctx.decisions || [];
+  const groupe = planAt(decisions, "species.lineage");
+  if (!groupe) return null;
+  /* ⚠️ `planSlots` ET PAS `planAt` : un créneau porte un `index`, que
+     `renderChoixGlisses` affiche (`${mot} ${index + 1}`). Un plan lu par
+     `planAt` n'en a pas — le créneau s'est affiché « Lineage NaN » dans la
+     page, mesuré le soir même. Un organe partagé se nourrit avec ce qu'il
+     attend, pas avec ce qui lui ressemble.
+
+     ⭐ ET LE REPLI EXISTE parce que le chemin du choix peut être le GROUPE :
+     le document d'acceptation écrit `species.lineage` sans indice, et
+     `multiPlan` rend alors son entrée à ce chemin-là. Le panneau doit rendre
+     ce personnage aussi. */
+  const creneaux = planSlots(decisions, "species.lineage");
+  const etape = creneaux.length > 0 ? creneaux : [{ ...groupe, index: 0 }];
+  const nomDe = (id) => {
+    const trouve = options.find((option) => option && option.id === id);
+    return trouve ? trouve.name : id;
+  };
+
+  const bloc = el("section", "species-lignage");
+  const glisse = renderChoixGlisses({
+    plan: groupe, slots: etape, titre: "Lineage", mot: "Lineage",
+    labelOf: nomDe, onAction: act,
+    consigne: "Drag a lineage into the slot — tap one to read what it grants.",
+    onInfo: (id) => {
+      for (const ligne of bloc.querySelectorAll("[data-lignage]")) {
+        ligne.dataset.lu = ligne.dataset.lignage === id ? "oui" : "non";
+      }
+    }
+  });
+  if (glisse) bloc.append(glisse);
+
+  const liste = el("dl", "species-lignage-benefices");
+  for (const option of options) {
+    const nom = el("dt", null, [text(option.name)]);
+    nom.dataset.lignage = option.id;
+    /* Le seul lignage sans équivalent SRD porte sa marque, comme le chapitre
+       du vault l'écrit : `The Mole People *(FH)*`. */
+    if (option.fh) nom.append(el("span", "species-lignage-fh", [text("FH")]));
+    liste.append(nom);
+    for (const [etiquette, corps] of beneficesDe(option)) {
+      const valeur = el("dd", null, [text(`${etiquette} — ${corps}`)]);
+      valeur.dataset.lignage = option.id;
+      liste.append(valeur);
+    }
+  }
+  bloc.append(liste);
+  return bloc;
+}
+
+/* ── BLOC 2 — CE QUI EST GAGNÉ D'OFFICE ───────────────────────────────── */
+
+/** ⚠️ LES TRAITS SONT `data.traits` PUIS `data.fh_traits`, dans cet ordre, et
+ *  la règle est totale : la couche FH pose ses traits à part parce qu'un
+ *  chemin de patch ne crée pas d'élément de collection (voir la tête de
+ *  `patchEntry` dans `gen-fh-species-layer.mjs`). Les lire à un seul endroit,
+ *  c'est en perdre la moitié. */
+function traitsDe(record) {
+  const data = (record && record.data) || {};
+  const base = Array.isArray(data.traits) ? data.traits : [];
+  const fh = Array.isArray(data.fh_traits) ? data.fh_traits : [];
+  return [...base, ...fh].filter((trait) => trait && trait.name);
+}
+
+function renderGrantedBlock(ctx, record) {
+  const data = (record && record.data) || {};
+  const bloc = el("section", "species-acquis");
+  bloc.append(el("h3", null, [text("Granted automatically")]));
+
+  const sens = Array.isArray(data.senses)
+    ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
+    : null;
+  const destiny = data.destiny && data.destiny.base;
+  const points = data.skill_points && data.skill_points.by_level && data.skill_points.by_level["1"];
+  const rows = renderCardRows([
+    ["Size", data.size],
+    ["Speed", data.speed],
+    ["Creature type", data.creature_type],
+    ["Senses", sens],
+    ["Destiny", Number.isFinite(destiny) ? String(destiny) : null],
+    ["Skill points", Number.isFinite(points) ? `+${points}` : null]
+  ]);
+  if (rows) bloc.append(rows);
+
+  const traits = traitsDe(record);
+  if (traits.length > 0) {
+    const liste = el("dl", "species-traits");
+    for (const trait of traits) {
+      liste.append(el("dt", null, [text(trait.name)]));
+      if (typeof trait.text === "string" && trait.text.length > 0) {
+        liste.append(el("dd", null, [text(trait.text)]));
+      }
+    }
+    bloc.append(liste);
+  }
+  return bloc;
+}
+
+/* ── BLOC 4 — CE QUI EST ACQUIS ────────────────────────────────────────── */
+
+/** Ce que le JOUEUR a pris — le lignage posé et les compétences retenues.
+ *  ⛔ Il ne recopie pas le bloc 2 : ce qui est donné n'est pas ce qui est
+ *  choisi, et un joueur qui relit son écran doit voir la différence.
+ *
+ *  ⚠️ Quand rien n'est encore posé, il le DIT au lieu de disparaître. Un bloc
+ *  qui s'évapore fait croire qu'il n'existe pas ; une phrase dit qu'il attend. */
+function renderAcquiredBlock(ctx, record) {
+  const decisions = ctx.decisions || [];
+  const bloc = el("section", "species-acquis");
+  bloc.append(el("h3", null, [text("What you have taken")]));
+  const lignes = [];
+
+  const options = lignagesDe(record);
+  if (options) {
+    const plan = planAt(decisions, "species.lineage[0]") || planAt(decisions, "species.lineage");
+    const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+    const option = pose ? options.find((o) => o && o.id === pose) : null;
+    if (option) {
+      const premier = beneficesDe(option)[0];
+      lignes.push(["Lineage", premier ? `${option.name} — ${premier[1]}` : option.name]);
+    }
+  }
+
+  const budget = planAt(decisions, "species.skillBudget");
+  if (budget) {
+    for (const slug of budget.options || []) {
+      const etape = planAt(decisions, `species.skillBudget.${slug}`);
+      const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
+      if (palier) lignes.push([skillLabel(ctx.query, slug), tierLabel(palier)]);
+    }
+  }
+
+  const qcm = planAt(decisions, "species.skills");
+  if (qcm) {
+    for (const valeur of qcm.selected || []) lignes.push(["Skill", skillLabel(ctx.query, valeur)]);
+  }
+
+  const rows = renderCardRows(lignes);
+  if (rows) bloc.append(rows);
+  else bloc.append(el("p", "species-acquis-vide", [text("Nothing taken yet — your choices will appear here.")]));
+  return bloc;
+}
+
+/* ── LE PANNEAU ─────────────────────────────────────────────────────────── */
+
+/** LE MENU DU 2ᵉ PALIER — désormais la séquence entière d'Eric.
+ *
+ *  ⚠️ LES FILETS NE SE POSENT QU'ENTRE DEUX BLOCS PRÉSENTS. Sept espèces sur
+ *  douze n'ont pas de lignage ; un filet en tête de panneau annoncerait un
+ *  bloc absent. */
 export function renderSpeciesChoices(ctx, onAction) {
   const decisions = ctx.decisions || [];
   const act = onAction || ctx.onAction || (() => {});
   const menu = el("div", "catalogue-choices");
+  const record = especeRetenue(ctx);
+  const blocs = [];
+
+  const lignage = record ? renderLineageBlock(ctx, record, act) : null;
+  if (lignage) blocs.push(lignage);
+  if (record) blocs.push(renderGrantedBlock(ctx, record));
+
+  /* LES CHOIX À FAIRE — la bourse captive OU le QCM, jamais les deux (voir
+     les états d'espèce en tête de fichier). Inchangés : ce lot les ENTOURE,
+     il ne les réécrit pas. */
   const budget = planAt(decisions, "species.skillBudget");
-  if (budget) {
-    menu.append(renderSpeciesBudget(ctx, budget, act));
-    return menu;
+  if (budget) blocs.push(renderSpeciesBudget(ctx, budget, act));
+  else {
+    const qcm = renderSlotQcm({
+      decisions, basePath: "species.skills", title: "Species skill",
+      labelOf: (id) => skillLabel(ctx.query, id), onAction: act
+    });
+    if (qcm) blocs.push(qcm);
   }
-  const qcm = renderSlotQcm({
-    decisions, basePath: "species.skills", title: "Species skill",
-    labelOf: (id) => skillLabel(ctx.query, id), onAction: act
-  });
-  if (qcm) menu.append(qcm);
+
+  if (record) blocs.push(renderAcquiredBlock(ctx, record));
+
+  for (let index = 0; index < blocs.length; index += 1) {
+    if (index > 0) menu.append(saignee());
+    menu.append(blocs[index]);
+  }
+
+  /* DONE — le dernier mot de la spec. ⛔ Ce n'est PAS un second geste de
+     validation : il émet `done`, que la coquille traduit par le même
+     `pressDone()` que le palier de `Validate`. Deux portes pour une sortie
+     divergeraient le jour où l'une des deux change. */
+  if (blocs.length > 0) {
+    const done = el("button", "species-done", [text("Done")]);
+    done.type = "button";
+    done.addEventListener("click", () => act({ kind: "done" }));
+    menu.append(done);
+  }
   return menu;
 }
 
@@ -202,9 +450,18 @@ export function renderSpeciesChoices(ctx, onAction) {
  *  découle de « B3 = B2 », et elle est la seule qui donne un sens au 2ᵉ
  *  appui. Signalée ici plutôt que fondue dans le code. */
 export function speciesPalier2(decisions) {
-  const budget = planAt(decisions, "species.skillBudget");
-  if (budget) return { ready: budget.answered >= budget.expected };
-  const qcm = planAt(decisions, "species.skills");
-  if (qcm) return { ready: qcm.answered >= qcm.expected };
-  return null; // Loroka & co : un seul palier
+  /* 🔴 2026-08-18 — LE LIGNAGE OUVRE UN SECOND PALIER, ET CE N'EST PAS UN
+     DÉTAIL : sans cette ligne, `Choose` sur un Dragonborn passait DIRECTEMENT
+     à l'étape suivante — le panneau existait, personne ne pouvait l'ouvrir.
+     Mesuré dans la page le soir même, pas déduit.
+
+     ⚠️ ET LES TROIS PLANS SE CUMULENT au lieu de se remplacer. L'ancien code
+     lisait « la bourse OU le QCM » et sortait au premier trouvé ; l'Elfe porte
+     MAINTENANT les deux (sa bourse captive ET son lignage), et un `ready` qui
+     ne regarde que le premier déclarerait l'écran fini avec un lignage vide. */
+  const plans = ["species.lineage", "species.skillBudget", "species.skills"]
+    .map((chemin) => planAt(decisions, chemin))
+    .filter(Boolean);
+  if (plans.length === 0) return null; // Loroka & co : un seul palier
+  return { ready: plans.every((plan) => plan.answered >= plan.expected) };
 }
