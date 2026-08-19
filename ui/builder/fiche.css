@@ -434,14 +434,35 @@
    un : le corps monte d'un barreau (`--t2` → `--t3`, la taille d'un libellé
    qu'on lit vraiment) et l'interligne quitte la cote des dix lignes de Species,
    qui n'a plus rien à compter ici. */
+/* 🔴 IL FAUT RENDRE **TOUT** CE QUE LE GRAND ÉCRAN POSE, PAS SEULEMENT LA
+   CELLULE — défaut vu par Eric sur son écran large : *« ton bloc texte c'est
+   n'importe quoi »*. Le texte partait en colonne étroite collée à droite, la
+   moitié gauche vide.
+   📏 LA CAUSE, MESURÉE : le bloc grand écran pose QUATRE déclarations sur le
+   blurb — `grid-column`, `grid-row`, `justify-self: end` et une paire
+   `max-width` / `width: 100%` bornée à la largeur de la dalle MOBILE (226 px).
+   Je n'avais rendu que les deux premières ; les deux autres restaient, et
+   collaient un texte de 226 px au bord droit d'une dalle de 625.
+   ⚠️ LA LEÇON, ET C'EST LA MÊME QUE POUR LA CASCADE : quand on reprend une
+   règle, on reprend son BLOC ENTIER. Réparer la déclaration qu'on regardait
+   laisse ses voisines dans le décor — ce fichier le dit déjà pour le dé.
+   ⭐ ET LE TEXTE SE LIT À GAUCHE, PAS CENTRÉ. Centrer douze lignes de règles
+   casse le bord que l'œil suit à chaque retour à la ligne ; c'est l'argument
+   qui vaut déjà pour le résumé du guide. Seul le TITRE se centre — il nomme la
+   fiche, il n'ouvre pas une colonne de lecture. */
 .fiche-dalle[data-dressing="prose"] .fiche-blurb {
   grid-column: 1;
   grid-row: 2;
-  align-self: center;
+  align-self: start;
+  justify-self: stretch;
+  max-width: var(--measure);
+  width: auto;
+  margin: 0 auto;
   font-size: var(--t3);
   line-height: 1.7;
-  text-align: center;
+  text-align: left;
   padding: 0 var(--sp-8);
+  overflow: hidden;
 }
 .fiche-dalle[data-dressing="prose"] .fiche-actions { grid-row: 3; }
 
