@@ -29,10 +29,10 @@
 
 import {
   planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=218";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=218";
-import { renderChoixGlisses } from "./glisser.mjs?v=218";
-import { renderFicheBody } from "./catalogue.mjs?v=218";
+} from "./carnet.mjs?v=219";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=219";
+import { renderChoixGlisses } from "./glisser.mjs?v=219";
+import { renderFicheBody } from "./catalogue.mjs?v=219";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -424,7 +424,7 @@ export function renderFeatCardBody(query, id) {
   const lignes = [];
   if (desc) lignes.push(desc);
   if (Number.isInteger(bonus)) lignes.push(`+${bonus} skill points`);
-  return renderFicheBody({ blurb: lignes.join("\n\n") });
+  return renderFicheBody({ blurb: lignes.join("\n\n"), dressing: "prose" });
 }
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :

@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=218";
-import { versionQuery } from "./version.mjs?v=218";
+import { planAt } from "./carnet.mjs?v=219";
+import { versionQuery } from "./version.mjs?v=219";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -224,6 +224,10 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        dalle quand elle existe, sur la carte sinon. Le poser sur la carte
        enveloppante le mettrait hors de portée du sélecteur qui le lit. */
     hote.dataset.infos = noeuds.some((n) => n && n.dataset && n.dataset.zone === "infos") ? "oui" : "non";
+    /* Le MÊME mécanisme que `data-infos`, pour la même raison : la feuille a
+       besoin de savoir, sur l'hôte, ce que le corps a mis dedans — et un corps
+       ne peut pas peindre son enveloppe. */
+    if (noeuds.some((n) => n && n.dataset && n.dataset.zone === "prose")) hote.dataset.dressing = "prose";
     for (const node of noeuds) hote.append(node);
     if (hote !== card) card.append(hote);
     /* ⭐ CH6 — LE `CHOOSE` DE CETTE FICHE-CI, ET C'EST ICI QU'IL SE CÂBLE :
@@ -346,7 +350,16 @@ function renderFicheActions() {
  *  comme les deux croquis la dessinent —, elle doit être la SŒUR du nom
  *  dans une même grille, pas l'enfant d'une enveloppe posée dessous. Une
  *  `.fiche-head` intermédiaire ferait commencer l'image sous le nom. */
-export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecours, imageAlt }) {
+/* ⭐ `dressing: "prose"` — L'HABILLAGE D'UNE FICHE QUI N'A QU'UN TEXTE.
+   Eric, 2026-08-20, en voyant la fiche de don : *« juste un titre centré, pas
+   d'image, un bloc texte en dessous ; mets un peu d'air dans le texte. Le bloc
+   texte peut prendre la place qu'il veut tant qu'il respecte sa dalle. »*
+   ⚠️ CE N'EST PAS UN CHOIX SUR LE KIND — cette fonction ne sait toujours pas
+   qui l'appelle (loi des lots 39/42). C'est l'APPELANT qui dit de quoi il
+   dispose : un don n'a ni stats, ni traits, ni image, donc rien à mettre dans
+   les deux colonnes du haut. Le dire par un habillage plutôt que par un `if
+   (kind === "feat")` garde la porte ouverte à la prochaine fiche de prose. */
+export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecours, imageAlt, dressing }) {
   const colonne = el("dl", "fiche-stats");
   for (const ligne of Array.isArray(stats) ? stats : []) {
     if (!ligne || typeof ligne.label !== "string" || typeof ligne.value !== "string") continue;
@@ -418,6 +431,13 @@ export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecou
   const bloc1 = el("div", "fiche-bloc1", [colonne]);
   if (Array.isArray(traits) && traits.length) bloc1.append(renderFicheTraits(traits));
 
+  /* L'HABILLAGE DE PROSE : le titre, le texte, les portes. Rien d'autre —
+     pas de bloc de stats vide, pas de cadre d'image à remplir. La marque part
+     sur le texte, et c'est l'hôte qui la lira (même mécanisme que `infos`). */
+  if (dressing === "prose") {
+    bas.dataset.zone = "prose";
+    return [bas, renderFicheActions()];
+  }
   return bande
     ? [bloc1, cadre, bande, bas, renderFicheActions()]
     : [bloc1, cadre, bas, renderFicheActions()];

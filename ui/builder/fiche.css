@@ -404,6 +404,47 @@
   overflow: hidden;
 }
 
+/* ══ L'HABILLAGE DE PROSE — Eric, 2026-08-20 ═══════════════════════════════
+   *« Juste un titre centré, pas d'image, un bloc texte en dessous. Mets un peu
+   d'air dans le texte. Le bloc texte peut prendre la place qu'il veut tant
+   qu'il respecte sa dalle. »*
+
+   📏 CE QUE LA GRILLE DE SPECIES FAISAIT D'UN DON : le nom vit en
+   `grid-column: 1`, donc dans la COLONNE GAUCHE — sur une fiche sans stats ni
+   image, il se retrouvait décalé à gauche et la description montait dans le
+   quart haut-droit, avec 300 px de vide dessous. La géométrie était juste pour
+   une espèce et absurde pour un don.
+
+   ⭐ UNE SEULE COLONNE, TROIS RANGÉES : le titre, le texte, les portes. Le
+   texte prend `1fr` — « la place qu'il veut » — et `minmax(0, 1fr)` l'empêche
+   de pousser la dalle au-delà de ses 440 : il « respecte sa dalle ».
+   ⛔ ET SURTOUT PAS D'ASCENSEUR DEDANS (règle du 20/08). Si un texte débordait,
+   la réponse serait de le raccourcir, pas de le faire défiler. */
+.fiche-dalle[data-dressing="prose"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.fiche-dalle[data-dressing="prose"] .catalogue-card-name {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  text-align: center;
+}
+/* 🔴 « UN PEU D'AIR DANS LE TEXTE » — et l'air se prend sur DEUX réglages, pas
+   un : le corps monte d'un barreau (`--t2` → `--t3`, la taille d'un libellé
+   qu'on lit vraiment) et l'interligne quitte la cote des dix lignes de Species,
+   qui n'a plus rien à compter ici. */
+.fiche-dalle[data-dressing="prose"] .fiche-blurb {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  font-size: var(--t3);
+  line-height: 1.7;
+  text-align: center;
+  padding: 0 var(--sp-8);
+}
+.fiche-dalle[data-dressing="prose"] .fiche-actions { grid-row: 3; }
+
 /* ── LE PIED — `Lore` et `Choose`, T3, cible tactile ──────────────────── */
 /* ⭐ `CHOOSE` S'ÉLARGIT ET RECOUVRE LE RAIL — décision d'Eric du 2026-08-15,
    POSTÉRIEURE au croquis A (« choose ne recouvre que la grosse dalle »), et
