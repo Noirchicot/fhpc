@@ -2795,3 +2795,25 @@ button { font: inherit; }
   background: var(--dalle-inter); color: var(--text);
   font: inherit; font-weight: 600; cursor: pointer;
 }
+
+/* ══ LE CHAPITRE DANS LE PANNEAU DE LORE (2026-08-19) ══════════════════════
+   `data.lore.sections` porte le chapitre du vault de haut en bas. Le blurb
+   reste en tête ; les sections suivent, chacune avec son titre. */
+.lore-section { margin-top: var(--sp-24); }
+.lore-section-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); }
+.lore-section p { margin: 0 0 var(--sp-12); }
+
+/* ⚠️ LA TABLE DÉFILE DANS SA BOÎTE. Dix ancêtres draconiques sur un écran de
+   360 px débordent ; le corps de la page, lui, ne défile JAMAIS latéralement
+   (même loi que partout ici). */
+.lore-table-boite { overflow-x: auto; }
+.lore-table { border-collapse: collapse; width: 100%; }
+.lore-table th,
+.lore-table td {
+  text-align: left; padding: var(--sp-4) var(--sp-8);
+  border-bottom: 1px solid var(--border);
+}
+.lore-table th { font-weight: 600; font-size: var(--t4); color: var(--text-soft); }
+.lore-table td { font-size: var(--t3); }
+.lore-liste { margin: 0 0 var(--sp-12); padding-left: var(--sp-20); }
+.lore-liste li { margin-bottom: var(--sp-4); }
