@@ -700,15 +700,33 @@ test("ACCEPTATION B2 — les mots interdits qui SURVIVENT encore sont nommés, u
   assert.deepEqual(whereSurvives(dataOf(verbs, "srd:species:en:human"), "Resourceful"), [],
     "l'Humain : le trait est parti et la prose qui le décrivait aussi");
 
-  /* ⚠️ LE RÉSIDU CONNU, ÉCRIT PLUTÔT QUE MASQUÉ. Le texte du trait
-     `gnomish-lineage` nomme encore les deux sous-lignées « Forest Gnome » et
-     « Rock Gnome ». Eric a demandé les DESCRIPTIONS ; renommer deux
-     sous-lignées dans le texte d'un trait est une décision qu'il n'a pas
-     prise (question Q17-3). Le jour où elle sera prise, c'est CE test qui
-     dira que la liste a changé. */
-  assert.deepEqual(whereSurvives(dataOf(verbs, "srd:species:en:gnome"), "Gnome"),
-    ["data.traits[gnomish-lineage].text"],
-    "un seul résidu, nommé — la description, elle, est propre");
+  /* ✅ LE RÉSIDU EST TOMBÉ LE 2026-08-20, et ce test a fait exactement ce que
+     son ancienne rédaction annonçait : *« le jour où elle sera prise, c'est CE
+     test qui dira que la liste a changé »*. Elle a été prise — Eric : *« faut
+     remplacer par Hoddon partout »* — et il a rougi le soir même.
+
+     🔴 CE QU'IL FAUT RETENIR DE L'ÉPISODE, parce que c'est plus utile que la
+     correction : le résidu était NOMMÉ, ici et dans la source du générateur,
+     depuis le lot 17. Nommé, donc lu par des humains, donc jamais rougi tant
+     qu'aucune règle ne changeait. **Une dette écrite dans une prose n'est pas
+     une dette tenue** — celle-ci ne l'a été qu'à partir du moment où un test a
+     asserté sa présence.
+
+     ⭐ ET LA DESTINATION N'EST PAS CELLE QUE LA DICTÉE DONNAIT. « Hoddon
+     partout » aurait produit « Forest Hoddon » — un nom que ni le livre d'Eric
+     ni `LINEAGES.hoddon` n'emploient. C'est le GNOME qu'il chasse ; le
+     manuscrit dit où il va : **Forest Folk · Rock Folk · The Mole People**. */
+  const hoddon = dataOf(verbs, "srd:species:en:gnome");
+  assert.deepEqual(whereSurvives(hoddon, "Gnome"), [],
+    "le Hoddon : plus un seul Gnome, nulle part dans le record plié");
+  assert.deepEqual(whereSurvives(hoddon, "Hoddon Lineage"),
+    ["data.description", "data.traits[gnomish-lineage].name"],
+    "témoin — le renommage du trait est toujours là, DANS LES DEUX endroits : on n'a pas " +
+    "nettoyé en cassant, et la prose nomme le trait comme la fiche le nomme");
+  for (const champ of ["description", "traits"]) {
+    assert.doesNotMatch(JSON.stringify(hoddon[champ]), /Forest Hoddon|Rock Hoddon/,
+      `data.${champ} : « Forest Hoddon » était un nom que personne n'employait`);
+  }
 });
 
 test("ROUGIT — si le texte SRD change SOUS la substitution, la génération jette en nommant le motif", () => {

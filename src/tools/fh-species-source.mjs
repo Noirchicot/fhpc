@@ -299,10 +299,12 @@ const NECROTIC_RESISTANCE = {
    précisément pour interdire. FH rend ses fiches depuis `data.traits` +
    `data.fh_traits` ; `description` reste de la PROVENANCE.
 
-   ⚠️ RÉSIDU CONNU ET NOMMÉ : le texte du trait `gnomish-lineage` dit encore
-   « Forest Gnome » et « Rock Gnome ». Eric a demandé les DESCRIPTIONS, et
-   renommer les deux sous-lignées dans le texte d'un trait est une décision
-   qu'il n'a pas prise. Question Q17-3. */
+   ✅ Q17-3 EST TRANCHÉE — Eric, 2026-08-20 : *« faut remplacer par Hoddon
+   partout »*. Le texte du trait `gnomish-lineage` disait encore « Forest Gnome »
+   et « Rock Gnome » ; il passe par `traitSubstitutions` (même dispositif, un
+   cran plus bas). 🔴 ET LE RÉSIDU AVAIT ÉTÉ NOMMÉ ICI PENDANT DES SEMAINES —
+   nommé en commentaire, donc invisible à la machine, donc jamais rougi. Une
+   dette écrite dans une prose n'est pas une dette tenue. */
 
 const HODDON_DESCRIPTION = {
   substitutions: [
@@ -312,12 +314,38 @@ const HODDON_DESCRIPTION = {
       why: "la couche renomme déjà ce trait dans data.traits[gnomish-cunning].name ; la prose disait le contraire" },
     { find: "Gnomish Lineage", put: "Hoddon Lineage",
       why: "idem, data.traits[gnomish-lineage].name" },
-    { find: "Forest Gnome", put: "Forest Hoddon",
-      why: "sous-lignée : le mot « Gnome » ne doit plus figurer dans la description du Hoddon" },
-    { find: "Rock Gnome", put: "Rock Hoddon",
+    /* 🔴 « FOLK », PAS « HODDON » — corrigé le 2026-08-20. Ces deux lignes
+       posaient « Forest Hoddon » et « Rock Hoddon », un nom que PERSONNE
+       n'emploie : ni le livre d'Eric (`D&D 5+ Races & Species`, table des
+       lignées hoddon), ni `LINEAGES.hoddon` deux cents lignes plus bas, qui
+       disent tous deux **Forest Folk · Rock Folk · The Mole People**. C'était
+       une substitution mécanique posée quand la décision n'était pas prise —
+       elle a survécu à la décision, et le même record portait donc TROIS noms
+       pour la même lignée : le bouton « Folk », le trait « Gnome », la
+       description « Hoddon ».
+       ⚠️ Et Eric a dit *« remplacer par Hoddon partout »* : c'est le GNOME
+       qu'il chasse, et sa destination est déjà écrite dans son livre. Le
+       manuscrit tranche, pas la dictée de mémoire. */
+    { find: "Forest Gnome", put: "Forest Folk",
+      why: "le nom de la lignée dans le livre d'Eric et dans LINEAGES.hoddon — une seule vérité" },
+    { find: "Rock Gnome", put: "Rock Folk",
       why: "idem" }
   ],
   /* Les deux formes, parce que « Gnomish » ne contient pas « Gnome ». */
+  mustNotContain: ["Gnome", "Gnomish"]
+};
+
+/* ── LE TEXTE DU TRAIT DE LIGNÉE, MÊME DISCIPLINE UN CRAN PLUS BAS ────
+   Le paragraphe SRD du trait `gnomish-lineage` énumère ses deux sous-lignées
+   en toutes lettres. On ne le recopie pas : on déclare, et le générateur
+   recalcule depuis le texte SRD courant. */
+const HODDON_LINEAGE_TRAIT = {
+  substitutions: [
+    { find: "Forest Gnome", put: "Forest Folk",
+      why: "le trait disait « Forest Gnome » pendant que le bouton du builder disait « Forest Folk » — " +
+        "le joueur lisait un nom et cliquait sur un autre" },
+    { find: "Rock Gnome", put: "Rock Folk", why: "idem" }
+  ],
   mustNotContain: ["Gnome", "Gnomish"]
 };
 
@@ -550,7 +578,8 @@ export const SPECIES = [
         "gnomish-lineage": "Hoddon Lineage"
       }
     },
-    description: HODDON_DESCRIPTION
+    description: HODDON_DESCRIPTION,
+    traitSubstitutions: { "gnomish-lineage": HODDON_LINEAGE_TRAIT }
   },
 
   {

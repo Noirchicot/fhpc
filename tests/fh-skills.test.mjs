@@ -82,16 +82,22 @@ const LES_9_NEUVES = [
   ["Streetwise", "cha"], ["Leadership", "cha"]
 ];
 
-const LES_36_OUTILS = [
+/* 🔴 QUATRE NOMS ONT CHANGÉ LE 2026-08-20, et pas pour faire joli : la couche
+   et le LIVRE d'Eric en donnaient deux versions (« String Instrument » ici,
+   « Instrument (Strings) » dans `Skills & Tools`). Le livre est le manuscrit,
+   la couche un dérivé — c'est donc la couche qui s'aligne. Et « Three-Dragon
+   Ante » perd le « Set » que ses trois voisins gardent, parce que c'est ce que
+   le livre écrit, deux fois, dans deux chapitres qui s'accordent. */
+const LES_37_OUTILS = [
   "Alchemist’s Supplies", "Brewer’s Supplies", "Calligrapher’s Supplies", "Card Set",
   "Carpenter’s Tools", "Cartographer’s Tools", "Cobbler’s Tools", "Cook’s Utensils",
   "Dice Set", "Disguise Kit", "Dragonchess Set", "Forgery Kit", "Glassblower’s Tools",
   "Herbalism Kit", "Jeweler’s Tools", "Leatherworker’s Tools", "Mason’s Tools",
-  "Mount (Air)", "Mount (Land)", "Mount (Water)", "Navigator’s Tools", "Other Instrument",
-  "Painter’s Supplies", "Poisoner’s Kit", "Potter’s Tools", "Smith’s Tools",
-  "String Instrument", "Thieves’ Tools", "Three-Dragon Ante Set", "Tinker’s Tools",
+  "Mount (Air)", "Mount (Land)", "Mount (Water)", "Navigator’s Tools", "Instrument (Other)",
+  "Painter’s Supplies", "Poisoner’s Kit", "Potter’s Tools", "Smith’s Tools", "Soulforging",
+  "Instrument (Strings)", "Thieves’ Tools", "Three-Dragon Ante", "Tinker’s Tools",
   "Vehicles (Air)", "Vehicles (Land)", "Vehicles (Water)", "Weaver’s Tools",
-  "Wind Instrument", "Woodcarver’s Tools"
+  "Instrument (Wind)", "Woodcarver’s Tools"
 ];
 
 /** Les 18 du SRD, Perception comprise — la cible du test 4. */
@@ -241,11 +247,11 @@ test("ATTAQUE — l'assertion rougit aussi sur une caractéristique déplacée",
   assert.notDeepEqual(observé, truqué, "et l'assertion doit quand même rougir");
 });
 
-test("acceptation 1 — les 36 outils, nommément ; les deux génériques sont partis", () => {
+test("acceptation 1 — les 37 outils, nommément ; les deux génériques sont partis", () => {
   const verbs = pile();
   const vues = verbs.query({ kind: "tool" });
-  assert.deepEqual(nomsTriés(vues), [...LES_36_OUTILS].sort(),
-    "les 36 outils de Fate's Hand");
+  assert.deepEqual(nomsTriés(vues), [...LES_37_OUTILS].sort(),
+    "les 37 outils de Fate's Hand");
 
   assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:gaming-set" }), null,
     "le Gaming Set générique est éclaté en quatre, il ne doit pas rester à côté d'eux");
@@ -289,10 +295,14 @@ test("acceptation 1 — les sept outils éclatés héritent l'usage de leur pare
   }
 });
 
-test("acceptation 1 — les six outils Fate's Hand purs n'inventent aucun usage", () => {
+test("acceptation 1 — les sept outils Fate's Hand purs n'inventent aucun usage", () => {
   const verbs = pile();
   const purs = TOOLS_ADDED.filter((e) => !e.inherits);
-  assert.equal(purs.length, 6, "trois véhicules et trois montures");
+  /* 🔴 SEPT depuis le 2026-08-20 : `Soulforging` a rejoint les trois véhicules
+     et les trois montures. Il manquait à la couche depuis toujours alors que le
+     livre d'Eric le porte — trouvé en lisant sa table publiée, pas par un
+     croisement, parce que le croisement n'allait que de la couche vers le livre. */
+  assert.equal(purs.length, 7, "trois véhicules, trois montures, et le Soulforging");
 
   for (const entry of purs) {
     const vue = verbs.query({ kind: "tool", id: `fh:tool:en:${entry.slug}` });
@@ -729,14 +739,14 @@ test("deux générations d'affilée rendent le même octet", () => {
   }
 });
 
-test("le générateur rend bien 17 + 9 et 23 + 13 — l'arithmétique du chapitre", () => {
+test("le générateur rend bien 17 + 9 et 23 + 14 — l'arithmétique du chapitre", () => {
   const { skills, tools } = buildLayer({ srd: readSrdLayer(SRD_PATH) });
   assert.deepEqual(
     { conservées: skills.kept, neuves: skills.added, total: skills.total },
     { conservées: 17, neuves: 9, total: 26 });
   assert.deepEqual(
     { conservés: tools.kept, neufs: tools.added, total: tools.total },
-    { conservés: 23, neufs: 13, total: 36 });
+    { conservés: 23, neufs: 14, total: 37 });
 });
 
 /** Une couche SRD amputée : la privation est DÉLIBÉRÉE, pas une pénurie de
@@ -944,20 +954,32 @@ test("les cinq aptitudes du canon §B.1ter sont posées, chacune sur SON niveau"
     .record.data.fh_skill_pool.grants;
 
   assert.deepEqual(grantsDe("rogue"), [
-    { level: 1, feature: "Expertise", points: 0, boundSkill: 0, unlocksExpertise: true }
+    { level: 1, feature: "Expertise", points: 0, boundSkill: 0, boundSkillFrom: [], unlocksExpertise: true }
   ], "le rogue reçoit la PERMISSION sans un point : ses deux expertises sont déjà dans son kit (canon §A.5)");
 
   assert.deepEqual(grantsDe("bard"), [
-    { level: 2, feature: "Expertise", points: 4, boundSkill: 0, unlocksExpertise: true }
+    { level: 2, feature: "Expertise", points: 4, boundSkill: 0, boundSkillFrom: [], unlocksExpertise: true }
   ], "2 expertises = 4 free points");
 
   assert.deepEqual(grantsDe("ranger"), [
-    { level: 2, feature: "Deft Explorer", points: 2, boundSkill: 0, unlocksExpertise: true },
-    { level: 9, feature: "Expertise", points: 4, boundSkill: 0, unlocksExpertise: true }
+    { level: 2, feature: "Deft Explorer", points: 2, boundSkill: 0, boundSkillFrom: [], unlocksExpertise: true },
+    { level: 9, feature: "Expertise", points: 4, boundSkill: 0, boundSkillFrom: [], unlocksExpertise: true }
   ], "une expertise au 2, deux au 9 — et le rôdeur de niveau 5 n'a que la première");
 
+  /* 🔴 RÈGLE RÉVISÉE PAR ERIC LE 2026-08-20 : *« primal knowledge […] c'est
+     plutôt idem Keen Senses : répartition de 2 bound points dans Survival,
+     Hunting, Vigilance (j'enlève la composante urbaine de Delve) »*. Le trait
+     passe de 1 point « dans la liste de la classe » à 2 points captifs d'une
+     liste de TROIS, nommée.
+     ⭐ ET LA LISTE EST UNE DONNÉE, PLUS UNE AFFIRMATION. Le message qui publiait
+     ce grant disait « l'aptitude NOMME une liste » sans jamais la porter : juste,
+     invérifiable, et que rien n'obligeait à rester vraie.
+     ⚠️ Elle n'est PAS celle de Keen Senses : l'Elfe a Delve, le Barbare a
+     Hunting — Eric écarte Delve pour sa composante urbaine. Deux bourses de même
+     forme, de listes différentes. */
   assert.deepEqual(grantsDe("barbarian"), [
-    { level: 3, feature: "Primal Knowledge", points: 0, boundSkill: 1, unlocksExpertise: false }
+    { level: 3, feature: "Primal Knowledge", points: 0, boundSkill: 2,
+      boundSkillFrom: ["hunting", "survival", "vigilance"], unlocksExpertise: false }
   ], "canon §B.1quater : le trait NOMME une liste, donc il est BOUND — et il tombe au niveau 3");
 
   /* Les huit autres n'en portent aucune, et c'est un FAIT, pas un trou. */

@@ -83,7 +83,7 @@ test("les 26 compétences apparaissent, et leur compte est LU dans resolved.skil
 
   /* PREUVE que le compte n'est pas écrit "26" en dur : un `resolved` réduit
      à 5 compétences rend 5 lignes de compétence, pas 26 — scopé à la grille
-     de compétences, le catalogue des 36 outils rend aussi ses lignes à lui
+     de compétences, le catalogue des 37 outils rend aussi ses lignes à lui
      et ne doit pas fausser le compte. */
   const reduit = { ...fixture.report.resolved, skills: fixture.report.resolved.skills.slice(0, 5), stats: [], tools: [] };
   const nodeReduit = renderSkillsStep({ resolved: reduit, decisions: [], violations: [], query, onAction: () => {} });
@@ -116,15 +116,15 @@ test("les quatre catégories rangent les 26 compétences — 8 · 7 · 6 · 5, l
 
 /* ══ 3 — LES 36 OUTILS, ACQUIS OU NON ═══════════════════════════════════ */
 
-test("les 36 outils apparaissent, y compris ceux que le personnage n'a pas", () => {
+test("les 37 outils apparaissent, y compris ceux que le personnage n'a pas", () => {
   const toolCatalog = query({ kind: "tool" });
-  assert.equal(toolCatalog.length, 36, "mesure de départ");
+  assert.equal(toolCatalog.length, 37, "mesure de départ");
   /* ⚠️ Le bloc « Tools & Trainings » a perdu son titre (B7.3b) mais garde ses
      TROIS sous-titres : ils distinguent des choses différentes DANS la même
      dalle, ce que la molette ne dit pas. */
   const node = renderSkillsStep(ctxFrom(fixture.report));
   const toolsBlock = node.querySelectorAll(".skills-tools-block")[0];
-  assert.equal(rows(toolsBlock).length, 36);
+  assert.equal(rows(toolsBlock).length, 37);
 
   /* Un outil non acquis n'est PAS dans `resolved.tools[]` (mesuré, §0) —
      son palier se lit par ABSENCE, et son bonus est le modificateur brut de

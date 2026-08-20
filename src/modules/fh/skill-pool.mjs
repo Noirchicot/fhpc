@@ -468,9 +468,15 @@ function classGrantLines(classRef, pool, level, lines, underived) {
       /* LE BOUND QUI POUSSE APRÈS LE NIVEAU 1 — il ne rejoint pas le pool, il
          s'ajoute au bound. Publié comme une déclaration parce que ce module ne
          conduit pas son placement (le joueur choisit dans la liste de classe). */
+      /* ⭐ LA LISTE EST NOMMÉE, PLUS SEULEMENT AFFIRMÉE — 2026-08-20. Ce message
+         disait « l'aptitude NOMME une liste » sans jamais la porter : une phrase
+         juste, invérifiable, et que rien n'obligeait à rester vraie. Elle est
+         désormais une donnée qui vient de la couche. */
+      const from = Array.isArray(grant.boundSkillFrom) ? grant.boundSkillFrom : [];
       underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].bound.${grant.level}`,
         "underived.fh.skillpool-bound-grows", {
-          classId: classRef.id, feature: grant.feature, level: grant.level, points: grant.boundSkill
+          classId: classRef.id, feature: grant.feature, level: grant.level, points: grant.boundSkill,
+          from: from.join(", ")
         }));
     }
   }

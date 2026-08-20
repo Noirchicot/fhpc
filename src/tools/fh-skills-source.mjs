@@ -20,7 +20,7 @@
    c'est elle qui rend l'arithmétique vérifiable :
 
      COMPÉTENCES  18 SRD − 1 retirée (Perception) + 9 neuves        = 26
-     OUTILS       25 SRD − 2 retirés (générique) + 13 éclatés/neufs = 36
+     OUTILS       25 SRD − 2 retirés (générique) + 14 éclatés/neufs = 37
 
    Les 17 compétences et 23 outils CONSERVÉS n'apparaissent PAS ici. Une
    couche ne porte que ses deltas : recopier un record SRD pour le laisser
@@ -247,15 +247,42 @@ export const TOOLS_REMOVED = [
    📌 Pourquoi Animal Handling ne suffit pas pour les montures : le canon le
    dit à la ligne d'Animal Handling — « Riding a mount is rolled under the
    Mount tool — Animal Handling only adds a synergy. » */
+/* 🔴 LES NOMS SONT CEUX DU LIVRE, PAS CEUX QUE CE FICHIER TROUVAIT JOLIS —
+   2026-08-20. Quatre outils portaient DEUX noms : la couche disait « String
+   Instrument », le chapitre `Skills & Tools` d'Eric dit « Instrument (Strings) ».
+   Un joueur qui choisissait l'un dans le builder et cherchait l'autre dans le
+   livre s'en sortait par déduction — et c'est exactement ce qui rend une dérive
+   DURABLE : assez proche pour que personne ne la signale.
+
+   ⚠️ ET C'EST LE LIVRE QUI GAGNE, TOUJOURS, parce que le vault est le MANUSCRIT
+   et cette couche un dérivé. Mesuré à la source : `Skills & Tools — Player
+   Guide` (table des outils) et `Equipment` (§ des écarts) nomment les mêmes
+   quatre, et les deux s'accordent — dont « Three-Dragon Ante » SANS « Set »,
+   là où ses trois voisins le gardent. Ce « Set » de trop venait d'ici : le
+   générateur l'avait ajouté aux quatre par régularité, et la régularité n'est
+   pas une source. */
 export const TOOLS_ADDED = [
   { slug: "gaming-set-dice", name: "Dice Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
   { slug: "gaming-set-cards", name: "Card Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
   { slug: "gaming-set-dragonchess", name: "Dragonchess Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
-  { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
+  { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante", ability: "wis", inherits: "srd:tool:en:gaming-set" },
 
-  { slug: "instrument-wind", name: "Wind Instrument", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
-  { slug: "instrument-strings", name: "String Instrument", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
-  { slug: "instrument-other", name: "Other Instrument", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
+  { slug: "instrument-wind", name: "Instrument (Wind)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
+  { slug: "instrument-strings", name: "Instrument (Strings)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
+  { slug: "instrument-other", name: "Instrument (Other)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
+
+  /* 🔴 SOULFORGING — MANQUANT DEPUIS TOUJOURS, trouvé le 2026-08-20 en lisant
+     la table publiée par-dessus l'épaule d'Eric. Son livre le porte (`Skills &
+     Tools`, table des outils, CHA, marqué ✦ « ajout Fate's Hand ») ; la couche
+     ne l'avait jamais eu, et RIEN nulle part ne disait pourquoi.
+
+     ⭐ C'EST LE CROISEMENT DANS L'AUTRE SENS QUI L'A SORTI. Le fil FH WEB avait
+     vérifié que chaque outil de la couche est bien dans le livre — 13 sur 13,
+     tout vert. Personne n'avait fait le trajet inverse. **Un inventaire ne
+     prouve rien s'il ne se lit que dans le sens où il a été écrit.**
+     ⚠️ Et c'est l'omission la plus lourde possible : `Soulforge Crafting` est
+     l'un des plus gros chapitres du livre, 3 636 mots, 100 % d'Eric. */
+  { slug: "soulforging", name: "Soulforging", ability: "cha", inherits: null },
 
   { slug: "vehicles-land", name: "Vehicles (Land)", ability: "dex", inherits: null },
   { slug: "vehicles-water", name: "Vehicles (Water)", ability: "dex", inherits: null },
@@ -527,9 +554,11 @@ export const TRAININGS_ADDED = [
 
    ── LE BARBARE : LA SEULE CROISSANCE DU BOUND APRÈS LE NIVEAU 1 ───────
    Canon §B.1quater, tranché par Eric : *« primal knowledge liste imposée =
-   bound »*. Le trait NOMME une liste (« from the skill list available to
-   Barbarians »), donc il contraint, donc il est bound — et le niveau auquel
-   il tombe n'y change rien. C'est le contre-exemple qui a tué la phrase
+   bound »*. Le trait NOMME une liste, donc il contraint, donc il est bound — et
+   le niveau auquel il tombe n'y change rien.
+   🔴 RÉVISION DU 2026-08-20 : la liste n'est plus « celle de la classe » mais
+   **Survival · Hunting · Vigilance**, et les points passent de 1 à 2. Voir le
+   commentaire de l'entrée elle-même, plus bas. C'est le contre-exemple qui a tué la phrase
    « le bound est distribué une fois, à la création », écrite deux fois dans
    le canon avant que le balayage ne la falsifie.
 
@@ -547,7 +576,24 @@ export const CLASS_GRANTS = [
   { target: "srd:class:en:bard", feature: "Expertise", level: 2, points: 4, unlocksExpertise: true },
   { target: "srd:class:en:ranger", feature: "Deft Explorer", level: 2, points: 2, unlocksExpertise: true },
   { target: "srd:class:en:ranger", feature: "Expertise", level: 9, points: 4, unlocksExpertise: true },
-  { target: "srd:class:en:barbarian", feature: "Primal Knowledge", level: 3, points: 0, boundSkill: 1 }
+  /* 🔴 PRIMAL KNOWLEDGE — RÈGLE RÉVISÉE PAR ERIC LE 2026-08-20, et il dit
+     lui-même pourquoi : *« on avait statué il y a quelques jours : free points.
+     Mais aujourd'hui, comme la mécanique de distribution de bound skill est
+     rodée, c'est plutôt idem Keen Senses : répartition de 2 bound points dans
+     Survival, Hunting, Vigilance (j'enlève la composante urbaine de Delve). »*
+
+     ⭐ CE QUI A CHANGÉ N'EST PAS LA RÈGLE, C'EST CE QUE LA MACHINE SAIT DIRE.
+     La bourse captive n'existait pas quand la première version a été tranchée ;
+     elle existe maintenant (`budgetCaptifPlan`, généralisé à n'importe quelle
+     racine le 2026-08-20), et la règle rejoint la forme qui l'exprime le mieux.
+
+     ⚠️ ET LA LISTE N'EST PAS CELLE DE KEEN SENSES. L'Elfe a Survival · **Delve**
+     · Vigilance ; le Barbare a Survival · **Hunting** · Vigilance. Eric écarte
+     Delve pour sa composante urbaine — un savoir de fouille des villes n'est pas
+     un savoir primal. Deux bourses de même FORME, de listes différentes : les
+     recopier l'une sur l'autre serait la faute que ce commentaire prévient. */
+  { target: "srd:class:en:barbarian", feature: "Primal Knowledge", level: 3, points: 0,
+    boundSkill: 2, boundSkillFrom: ["survival", "hunting", "vigilance"] }
 ];
 
 /** Le niveau où une classe ouvre l'achat d'expertise — DÉDUIT de ses grants,
@@ -587,6 +633,11 @@ export const CLASS_POOLS = [
       feature: grant.feature,
       points: grant.points,
       boundSkill: grant.boundSkill || 0,
+      /* ⭐ LA LISTE VOYAGE AVEC LES POINTS — 2026-08-20. Le message qui publiait
+         ce grant AFFIRMAIT déjà que « l'aptitude NOMME une liste » sans jamais
+         la porter : une phrase juste, invérifiable, et que rien n'obligeait à
+         rester vraie. Elle est désormais une donnée. */
+      boundSkillFrom: Array.isArray(grant.boundSkillFrom) ? grant.boundSkillFrom.slice().sort() : [],
       unlocksExpertise: Boolean(grant.unlocksExpertise)
     }))
     .sort((a, b) => a.level - b.level),
@@ -735,7 +786,11 @@ export const BACKGROUND_INHERITANCE = {
    attrapent l'oubli, pas la substitution. */
 export const EXPECTED = {
   skills: 26,
-  tools: 36,
+  /* 37 depuis le 2026-08-20 : `Soulforging` manquait, et ce compte-ci est ce
+     qui a rendu son arrivée bruyante — le générateur a REFUSÉ de produire une
+     couche à 37 outils tant que la source en annonçait 36. Un compte déclaré
+     est un garde, pas une décoration. */
+  tools: 37,
   /* ⛔ TREIZE : douze langues (une par espèce jouable) et le Garrot. Si ce
      nombre bouge sans qu'une règle bouge, quelqu'un a ajouté un training sans
      chapitre — et un training sans chapitre est un achat que le joueur ne peut

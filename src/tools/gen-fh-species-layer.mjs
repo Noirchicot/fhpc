@@ -131,11 +131,16 @@ function assertTargetTrait(srd, target, traitId, why) {
     fail(`la couche FH patche « ${target} », qui n'est pas dans la couche « ${srd.id} ».`);
   }
   const traits = (record.data && record.data.traits) || [];
-  if (!traits.some((trait) => trait && trait.id === traitId)) {
+  const trait = traits.find((item) => item && item.id === traitId);
+  if (!trait) {
     fail(`${why} : le trait « ${traitId} » est absent de « ${target} » ` +
       `(traits présents : ${traits.map((t) => t && t.id).join(", ") || "aucun"}) — ` +
       "un patch qui vise un trait disparu s'appliquerait dans le vide.");
   }
+  /* Le trait est RENDU depuis le 2026-08-20 : `traitTextBy` en a besoin pour
+     lire son texte SRD, et un second parcours du tableau pour retrouver ce que
+     cette fonction vient de trouver serait deux vérités à tenir d'accord. */
+  return trait;
 }
 
 function assertTargetField(srd, target, field, why) {
@@ -196,6 +201,48 @@ export function describedBy(srd, target, description, who) {
   const restants = survivors(text, description.mustNotContain);
   if (restants.length > 0) {
     fail(`description de « ${who} » (${target}) : le texte obtenu porte encore ${
+      restants.map((word) => `« ${word} »`).join(", ")} — toutes les substitutions déclarées ont ` +
+      "pourtant trouvé leur cible, donc le SRD porte une phrase que personne n'avait vue. " +
+      "Il faut une substitution de plus, pas un mot fermé les yeux.");
+  }
+  return text;
+}
+
+/** Le `text` d'un TRAIT SRD, lu et re-substitué — même dispositif que
+ *  `describedBy`, appliqué un cran plus bas.
+ *
+ *  🔴 POURQUOI IL A FALLU DESCENDRE D'UN CRAN, 2026-08-20. Le dispositif de
+ *  substitution ne regardait que `data.description`, et son `mustNotContain`
+ *  aussi. Le mot « Gnome » a donc survécu dans `data.traits[gnomish-lineage]
+ *  .text` pendant des semaines, **le garde tout vert** : il couvrait l'endroit
+ *  où la correction s'appliquait, pas l'endroit où le mot pouvait vivre. Le
+ *  résidu était même NOMMÉ en commentaire (question Q17-3) — nommé, et donc
+ *  invisible à la machine.
+ *
+ *  ⛔ ET PAS `traitText`, QUI EXISTE JUSTE À CÔTÉ. Ce voisin pose un texte
+ *  LITTÉRAL, ce qui va très bien pour une ligne d'effet écrite par Eric
+ *  (`Skillful`). Le trait de lignée du Hoddon, lui, est un paragraphe entier du
+ *  SRD : le poser littéralement serait le RECOPIER, et il se figerait le jour
+ *  où le SRD bouge — exactement la faute que ce fichier existe pour interdire. */
+export function traitTextBy(srd, target, traitId, declaration, who) {
+  const trait = assertTargetTrait(srd, target, traitId, `texte substitué de « ${who} »`);
+  const source = trait.text;
+  if (typeof source !== "string") {
+    fail(`le trait « ${traitId} » de « ${target} » n'a pas de texte dans la couche « ${srd.id} » — ` +
+      `celui de « ${who} » se calcule DEPUIS ce texte, il ne s'invente pas.`);
+  }
+
+  const { text, misses } = substitute(source, declaration.substitutions);
+  if (misses.length > 0) {
+    fail(`trait « ${traitId} » de « ${who} » (${target}) : ` +
+      misses.map((sub) => `le motif « ${sub.find} » est introuvable dans le texte SRD ` +
+        `(substitution déclarée parce que : ${sub.why})`).join(" ; ") +
+      ". Le SRD a bougé sous la substitution : c'est une dérive, et elle se dit.");
+  }
+
+  const restants = survivors(text, declaration.mustNotContain);
+  if (restants.length > 0) {
+    fail(`trait « ${traitId} » de « ${who} » (${target}) : le texte obtenu porte encore ${
       restants.map((word) => `« ${word} »`).join(", ")} — toutes les substitutions déclarées ont ` +
       "pourtant trouvé leur cible, donc le SRD porte une phrase que personne n'avait vue. " +
       "Il faut une substitution de plus, pas un mot fermé les yeux.");
@@ -340,6 +387,16 @@ function patchEntry(srd, entry) {
   for (const [traitId, texte] of Object.entries(entry.traitText || {})) {
     assertTargetTrait(srd, entry.target, traitId, `texte de « ${entry.fhName} »`);
     changes[`data.traits[${traitId}].text`] = texte;
+  }
+
+  /* ── RÉÉCRIRE LE TEXTE D'UN TRAIT PAR SUBSTITUTION ───────────────────
+     Le voisin du dessus pose un littéral ; celui-ci RECALCULE depuis le SRD.
+     Employé une fois : le trait de lignée du Hoddon, dont les deux sous-lignées
+     s'appelaient encore « Forest Gnome » et « Rock Gnome » à l'écran pendant
+     que les boutons du builder disaient « Forest Folk » et « Rock Folk ». */
+  for (const [traitId, declaration] of Object.entries(entry.traitSubstitutions || {})) {
+    changes[`data.traits[${traitId}].text`] =
+      traitTextBy(srd, entry.target, traitId, declaration, entry.fhName);
   }
 
   /* ── RETIRER UN CHAMP DU RECORD SRD ──────────────────────────────────

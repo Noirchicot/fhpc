@@ -1,6 +1,6 @@
 /* ══ LOT 35 — LE POOL PAIE AUSSI LES OUTILS ═════════════════════════════
    Addendums §1, « Un pool, deux dépenses » (Eric, 2026-08-12) : les 26
-   compétences ET les 36 outils se paient sur le MÊME pool, au MÊME barème de
+   compétences ET les 37 outils se paient sur le MÊME pool, au MÊME barème de
    paliers. Cette suite prouve les obligations de la commande (§5) propres au
    canal de dépense élargi :
 

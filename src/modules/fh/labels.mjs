@@ -311,9 +311,9 @@ export const FH_UNDERIVED_FR = {
      déduis du pool » — et le canon du 2026-08-18 a supprimé la déduction. */
   "underived.fh.skillpool-bound-grows": (d) =>
     `« ${d.feature} » (niveau ${d.level}) ajoute ${d.points} point(s) de compétence au BOUND de ` +
-    `« ${d.classId} » : l'aptitude NOMME une liste, donc elle contraint (canon §B.1quater). Le bound n'est ` +
-    "donc pas figé à la création — mais il ne grandit JAMAIS par un point d'échelle, seulement quand une " +
-    "aptitude nomme une liste, à quelque niveau qu'elle tombe.",
+    `« ${d.classId} », captifs de : ${d.from || "(liste non déclarée)"}. L'aptitude NOMME une liste, donc ` +
+    "elle contraint (canon §B.1quater). Le bound n'est donc pas figé à la création — mais il ne grandit " +
+    "JAMAIS par un point d'échelle, seulement quand une aptitude nomme une liste, à quelque niveau qu'elle tombe.",
   "underived.fh.skillpool-bound-not-in-pool": (d) =>
     `la classe « ${d.classId} » place ${d.skill} point(s) de compétence et ${d.tool} point(s) d'outil en BOUND. ` +
     "Ils ne sont PAS dans le pool publié et ne s'en déduisent pas non plus : ce sont des points déjà dépensés " +
@@ -393,13 +393,14 @@ export const FH_UNDERIVED_EN = {
   /* LOT 82 — see the French table above: five keys died with the deduction. */
   "underived.fh.skillpool-bound-grows": (d) =>
     `« ${d.feature} » (niveau ${d.level}) ajoute ${d.points} point(s) de compétence au BOUND de ` +
-    `« ${d.classId} » : l'aptitude NOMME une liste, donc elle contraint (canon §B.1quater). Le bound n'est ` +
-    "donc pas figé à la création — mais il ne grandit JAMAIS par un point d'échelle, seulement quand une " +
-    "aptitude nomme une liste, à quelque niveau qu'elle tombe.",
+    `« ${d.classId} », captifs de : ${d.from || "(liste non déclarée)"}. L'aptitude NOMME une liste, donc ` +
+    "elle contraint (canon §B.1quater). Le bound n'est donc pas figé à la création — mais il ne grandit " +
+    "JAMAIS par un point d'échelle, seulement quand une aptitude nomme une liste, à quelque niveau qu'elle tombe.",
   "underived.fh.skillpool-bound-grows": (d) =>
-    `"${d.feature}" (level ${d.level}) adds ${d.points} bound skill point(s) to "${d.classId}": the feature ` +
-    "NAMES a list, so it constrains (canon §B.1quater). Bound is therefore not frozen at creation — but it " +
-    "never grows from a ladder point, only when a feature names a list, at whatever level it fires.",
+    `"${d.feature}" (level ${d.level}) adds ${d.points} bound skill point(s) to "${d.classId}", captive to: ` +
+    `${d.from || "(list not declared)"}. The feature NAMES a list, so it constrains (canon §B.1quater). Bound ` +
+    "is therefore not frozen at creation — but it never grows from a ladder point, only when a feature names " +
+    "a list, at whatever level it fires.",
   "underived.fh.skillpool-bound-not-in-pool": (d) =>
     `the class "${d.classId}" places ${d.skill} bound skill point(s) and ${d.tool} bound tool point(s). They ` +
     "are NOT in the published pool, and they are not deducted from it either: they are already spent when the " +

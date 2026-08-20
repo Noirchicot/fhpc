@@ -26,9 +26,10 @@
    fait partie du garde : hors de cette portée, personne ne mesure.
 
    ── LA DETTE EST DÉCLARÉE, PAS TOLÉRÉE EN SILENCE ────────────────────────
-   Quinze occurrences existent aujourd'hui. Trois attendent une RÈGLE d'Eric
-   (voir §DETTE), deux sont DÉLIBÉRÉES, dix vivent dans des champs que le
-   builder n'affiche pas. Chacune est nommée ci-dessous avec sa raison.
+   Quatorze occurrences existent aujourd'hui — quinze au 20/08, moins celle du
+   Hoddon, réglée le soir même. Trois attendent une RÈGLE d'Eric (voir §DETTE),
+   deux sont DÉLIBÉRÉES, neuf vivent dans des champs que le builder n'affiche
+   pas. Chacune est nommée ci-dessous avec sa raison.
    ⛔ ET LE GARDE MORD DANS LES DEUX SENS : une occurrence NEUVE le fait
    rougir, et une occurrence de la liste qui DISPARAÎT le fait rougir aussi.
    Sans le second sens, la liste survivrait aux corrections qu'elle décrit et
@@ -64,8 +65,6 @@ const DETTE = [
     pourquoi: "délibéré — même phrase de comparaison que l'Elfe" },
 
   /* ── 🔴 ATTEND UNE RÈGLE D'ERIC. Le joueur LIT ces trois-là. ──────────── */
-  { genre: "species", id: "srd:species:en:gnome", chemin: "data.traits[2].text", mot: "Gnome", rule: true,
-    pourquoi: "🔴 le trait « Hoddon Lineage » dit « Forest Gnome »/« Rock Gnome » pendant que les boutons disent « Forest Folk »/« Rock Folk » — voir §DETTE" },
   { genre: "class", id: "srd:class:en:barbarian", chemin: "data.features[6].description", mot: "Perception", rule: true,
     pourquoi: "🔴 Primal Knowledge OFFRE Perception dans sa liste de choix — quel nom FH prend sa place ?" },
   { genre: "class", id: "srd:class:en:bard", chemin: "data.description", mot: "Musical Instrument", rule: true,
@@ -155,41 +154,46 @@ test("⛔ la DETTE ne survit pas à ses corrections — une ligne périmée ROUG
 
 /* ══ §DETTE — CE QUI ATTEND UN ARBITRAGE D'ERIC ══════════════════════════ */
 
-test("⏳ DETTE — le Hoddon porte TROIS noms pour la même lignée", () => {
-  /* 🔴 MESURÉ LE 2026-08-20, et c'est le plus visible des trois : le joueur
-     LIT un nom et CLIQUE sur un autre.
-       · `data.lineages[].name`   → « Forest Folk »   (ce que le bouton affiche)
-       · `data.traits[2].text`    → « Forest Gnome »  (ce que le trait raconte)
-       · `data.description`       → « Forest Hoddon » (ce que la substitution a posé)
+test("✅ RÉGLÉ — le Hoddon ne porte plus qu'UN nom par lignée", () => {
+  /* 🔴 IL EN PORTAIT TROIS, mesuré le 2026-08-20 : le bouton disait « Forest
+     Folk », le trait racontait « Forest Gnome », la description posait
+     « Forest Hoddon ». Le joueur lisait un nom et cliquait sur un autre.
 
      ⚠️ ET LE GARDE QUI DEVAIT L'EMPÊCHER ÉTAIT VERT. `gen-fh-species-layer`
-     déclare bien `Forest Gnome → Forest Hoddon`, avec une alarme si le motif
-     ne se trouve pas et un `mustNotContain` sur le résultat. Les deux ne
-     regardent QUE `data.description`. Le mot a survécu dans `traits[].text`
-     parce que personne n'y mesurait — le garde couvrait l'endroit où la
-     correction s'appliquait, pas l'endroit où le mot pouvait vivre.
+     déclarait bien la substitution et son `mustNotContain` — mais les deux ne
+     regardaient QUE `data.description`. Le mot a survécu dans `traits[].text`
+     parce que personne n'y mesurait : le garde couvrait l'endroit où la
+     correction s'appliquait, pas l'endroit où le mot pouvait vivre. Le résidu
+     était même NOMMÉ en commentaire (question Q17-3) — nommé, donc invisible à
+     la machine, donc jamais rougi.
 
-     ⏳ CE TEST FAILLIRA LE JOUR OÙ ERIC TRANCHERA, et c'est voulu : il rappelle
-     alors qu'il y a TROIS endroits à aligner, pas un. La question est simple —
-     la lignée s'appelle-t-elle « Forest Folk » (le bouton, et « The Mole
-     People » à côté suggère que c'est la voix d'Eric) ou « Forest Hoddon »
-     (la substitution mécanique) ? */
+     ⭐ ET LA DESTINATION N'EST PAS CELLE QUE LA DICTÉE DONNAIT. Eric a dit
+     *« faut remplacer par Hoddon partout »* ; son LIVRE dit « Forest Folk ».
+     C'est le Gnome qu'il chasse, et le manuscrit tranche où il va. */
   const fh = monter(PILE);
   const data = fh.query({ kind: "species", id: "srd:species:en:gnome" }).record.data;
-  assert.deepEqual(data.lineages.map((l) => l.name), ["Forest Folk", "Rock Folk", "The Mole People"]);
-  assert.match(data.traits[2].text, /Forest Gnome/, "le trait dit encore « Gnome » — dette connue");
-  assert.match(data.description, /Forest Hoddon/, "la description dit « Hoddon » — troisième nom");
+  const NOMS = ["Forest Folk", "Rock Folk", "The Mole People"];
+  assert.deepEqual(data.lineages.map((l) => l.name), NOMS, "les boutons — la référence, et ils étaient déjà justes");
+  for (const champ of ["description", "traits"]) {
+    const texte = JSON.stringify(data[champ]);
+    assert.doesNotMatch(texte, /Gnome|Gnomish|Forest Hoddon|Rock Hoddon/,
+      `data.${champ} porte encore un nom que personne n'emploie`);
+  }
+  assert.match(data.traits[2].text, /Forest Folk/, "le trait nomme la lignée comme le bouton");
+  assert.match(data.description, /Forest Folk/, "et la description aussi");
 });
 
-test("⏳ DETTE — QUATRE textes AFFICHÉS nomment un choix qui n'existe pas", () => {
+test("⏳ DETTE — TROIS textes AFFICHÉS nomment un choix qui n'existe pas", () => {
   /* ⭐ LE TRI QUI COMPTE, ET C'EST LUI QU'ERIC A SENTI EN LISANT LE LIVRE :
      *« je vois des classes de personnages un coup c'est SRD un coup c'est FH »*.
      Ces quatre-là, le joueur les LIT dans le builder — la couture est sous ses
      yeux. Les onze autres vivent dans des champs que rien n'affiche : même
      défaut, sans témoin. */
   const affichees = DETTE.filter((d) => AFFICHES.test(d.chemin) && d.rule);
-  assert.equal(affichees.length, 4,
-    "quatre dettes attendent une règle d'Eric : la lignée du Hoddon, le Barbare " +
-    "(Primal Knowledge offre Perception), et le Barde deux fois (Musical Instrument).");
+  assert.equal(affichees.length, 3,
+    "trois dettes attendent une règle d'Eric : le Barbare (Primal Knowledge offre " +
+    "Perception) et le Barde deux fois (Musical Instrument). La quatrième, la lignée " +
+    "du Hoddon, est RÉGLÉE — et sa ligne a dû partir d'ici, sinon le garde du " +
+    "dessus rougit.");
   for (const d of affichees) assert.ok(d.pourquoi.startsWith("🔴"), `${clef(d)} doit dire pourquoi elle attend`);
 });

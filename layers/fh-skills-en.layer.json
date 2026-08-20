@@ -307,51 +307,60 @@
         }
       },
       "fh:tool:en:gaming-set-three-dragon": {
-        "name": "Three-Dragon Ante Set",
+        "name": "Three-Dragon Ante",
         "slug": "gaming-set-three-dragon",
         "data": {
           "ability": "Wisdom",
           "ability_key": "wis",
-          "name": "Three-Dragon Ante Set",
+          "name": "Three-Dragon Ante",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "Varies",
           "weight": "Varies"
         }
       },
       "fh:tool:en:instrument-wind": {
-        "name": "Wind Instrument",
+        "name": "Instrument (Wind)",
         "slug": "instrument-wind",
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
-          "name": "Wind Instrument",
+          "name": "Instrument (Wind)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
           "weight": "Varies"
         }
       },
       "fh:tool:en:instrument-strings": {
-        "name": "String Instrument",
+        "name": "Instrument (Strings)",
         "slug": "instrument-strings",
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
-          "name": "String Instrument",
+          "name": "Instrument (Strings)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
           "weight": "Varies"
         }
       },
       "fh:tool:en:instrument-other": {
-        "name": "Other Instrument",
+        "name": "Instrument (Other)",
         "slug": "instrument-other",
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
-          "name": "Other Instrument",
+          "name": "Instrument (Other)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
           "weight": "Varies"
+        }
+      },
+      "fh:tool:en:soulforging": {
+        "name": "Soulforging",
+        "slug": "soulforging",
+        "data": {
+          "ability": "Charisma",
+          "ability_key": "cha",
+          "name": "Soulforging"
         }
       },
       "fh:tool:en:vehicles-land": {
@@ -575,7 +584,12 @@
                 "level": 3,
                 "feature": "Primal Knowledge",
                 "points": 0,
-                "boundSkill": 1,
+                "boundSkill": 2,
+                "boundSkillFrom": [
+                  "hunting",
+                  "survival",
+                  "vigilance"
+                ],
                 "unlocksExpertise": false
               }
             ],
@@ -634,6 +648,7 @@
                 "feature": "Expertise",
                 "points": 4,
                 "boundSkill": 0,
+                "boundSkillFrom": [],
                 "unlocksExpertise": true
               }
             ],
@@ -856,6 +871,7 @@
                 "feature": "Deft Explorer",
                 "points": 2,
                 "boundSkill": 0,
+                "boundSkillFrom": [],
                 "unlocksExpertise": true
               },
               {
@@ -863,6 +879,7 @@
                 "feature": "Expertise",
                 "points": 4,
                 "boundSkill": 0,
+                "boundSkillFrom": [],
                 "unlocksExpertise": true
               }
             ],
@@ -915,6 +932,7 @@
                 "feature": "Expertise",
                 "points": 0,
                 "boundSkill": 0,
+                "boundSkillFrom": [],
                 "unlocksExpertise": true
               }
             ],
