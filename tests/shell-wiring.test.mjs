@@ -345,8 +345,19 @@ test("19 — CH6 : `renderValidation` s'efface sur un écran à fiche, et SEULEM
      n'est pas une fiche, c'est le cran le plus intérieur du parcours, et c'est
      la paire de la coquille qui l'en sort. Sans cette exception, un item
      s'ouvrait SANS AUCUNE PORTE — mesuré dans la page, pas déduit. */
-  assert.match(shellText, /\.fiche && state\.palier !== 2 && !state\.parcoursItem\) return null/,
-    "le drapeau `fiche` (déclaré par class-step/species-step) est ce qui décide, et le palier 2 garde son bouton");
+  /* 🔴 RÉÉCRIT LE 2026-08-20 — LA BORNE ÉTAIT `!== 2`, ET ELLE A ROUILLÉ AU
+     PREMIER CRAN AJOUTÉ. Le don d'origine a ouvert un 3ᵉ palier (BS, les sorts
+     au glisser) : `!== 2` y était VRAI, donc l'écran s'ouvrait SANS AUCUNE
+     PORTE — le défaut exact que l'exception de l'item avait corrigé la veille,
+     revenu par l'autre bout. Ce que la ligne veut dire n'a jamais été « au
+     palier 2 » mais « au-delà de la chaîne de fiches » ; elle le dit
+     maintenant, et ce test l'exige sous cette forme.
+     📌 La leçon vaut au-delà d'ici : une borne écrite en `!==` sur un compteur
+     qui peut grandir est juste tant que personne n'ajoute un cran. */
+  assert.match(shellText, /\.fiche && state\.palier < 2 && !state\.parcoursItem\) return null/,
+    "le drapeau `fiche` décide, et TOUS les paliers profonds gardent leur pied — pas seulement le 2ᵉ");
+  assert.doesNotMatch(shellText, /state\.palier !== 2/,
+    "aucune borne de palier ne se réécrit en `!== 2` : le 3ᵉ palier existe depuis le don d'origine");
   /* ⚔️ Le témoin : les deux écrans à fiche déclarent bien le drapeau que
      cette ligne lit. Un drapeau lu mais jamais posé s'effacerait en silence. */
   for (const fichier of ["class-step.mjs", "species-step.mjs"]) {
@@ -481,7 +492,11 @@ test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 �
      pas de ceinture, c'est-à-dire dans une page de palier (lot 79 §4.1 bis). */
   assert.match(shellText, /if \(surUneRacineQuiBranche\(\)\) return null;/,
     "la sortie s'efface sur une page qui ne fait que brancher");
-  assert.match(shellText, /function surUneRacineQuiBranche\(\) \{\s*return STEPS\[state\.step\]\.id === "abilities" && state\.palier !== 2;/,
+  /* ⚠️ `< 2` DEPUIS LE 2026-08-20 — l'écriture a changé, la règle non : Abilities
+     n'a que deux paliers, donc `!== 2` et `< 2` y disaient la même chose. Ce qui
+     a changé est ailleurs : un 3ᵉ palier EXISTE maintenant (les sorts d'un don),
+     et une borne qui nomme un palier rouille au premier cran ajouté. */
+  assert.match(shellText, /function surUneRacineQuiBranche\(\) \{[\s\S]*?return STEPS\[state\.step\]\.id === "abilities" && state\.palier < 2;/,
     "…et la condition est NOMMÉE, pas un `if` anonyme de plus dans le rendu");
   /* ⚔️ ET ELLE EST BORNÉE : c'est la RACINE qui n'a pas de sortie, pas
      l'étape. La page d'une méthode (palier 2) garde la sienne — sans quoi

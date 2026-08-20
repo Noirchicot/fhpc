@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=233";
-import { versionQuery } from "./version.mjs?v=233";
+import { planAt } from "./carnet.mjs?v=237";
+import { versionQuery } from "./version.mjs?v=237";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -523,13 +523,31 @@ export function renderCardNames(titre, noms) {
    ⚠️ Et `exists` ne peut se lire qu'APRÈS le `choose` du palier 1 — le plan
    du 2ᵉ palier décrit le record CHOISI, pas celui sous le curseur. C'est
    `shell.mjs` qui ré-interroge la porte une fois le carnet reconstruit. */
-export function catalogueValidate(ctx, palier2) {
+export function catalogueValidate(ctx, palier2, palier3) {
+  /* 🔴 UN TROISIÈME PALIER, 2026-08-20 — et ce n'est pas une extension
+     spéculative : le don d'origine en a besoin (R3 → B0 → BS), et l'invariant
+     I.4 du dépôt dit depuis toujours *« un écran peut compter UN, DEUX OU
+     TROIS »*. Le code n'en comptait que deux ; il compte maintenant ce que la
+     loi annonçait.
+     ⛔ Les catalogues qui n'en ont pas ne bougent pas d'un pixel : sans
+     `palier3`, le 2ᵉ palier reste terminal (`next: "step"`), exactement comme
+     avant. C'est la SEULE façon d'élargir un organe partagé sans toucher aux
+     trois écrans qui s'en servent déjà. */
+  if (ctx.palier === 3) {
+    return {
+      exists: Boolean(palier3),
+      ready: Boolean(palier3 && palier3.ready),
+      action: null,
+      next: "step"
+    };
+  }
   if (ctx.palier === 2) {
     return {
       exists: Boolean(palier2),
       ready: Boolean(palier2 && palier2.ready),
       action: null,
-      next: "step"
+      /* Le 2ᵉ palier n'est terminal que s'il n'y a rien dessous. */
+      next: palier3 ? "palier" : "step"
     };
   }
   const options = catalogueOptions(ctx.decisions, ctx.path);

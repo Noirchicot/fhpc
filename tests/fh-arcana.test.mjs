@@ -257,6 +257,51 @@ test("B0 — un don qui DÉCLARE ses listes publie son plan ; les autres n'en pu
   assert.match(horsCatalogue.lock.key, /option-unavailable/);
 });
 
+/* ══ BS1 / BS2 / BS3 — LES SORTS DU DON ═══════════════════════════════════
+   ⭐ CE QUE CE TEST GARDE N'EST PAS « Magic Initiate a des sorts » : c'est que
+   les OPTIONS SUIVENT LA LISTE. Trois branches, un seul organe — si les trois
+   rendaient la même chose, le choix de B0 ne servirait à rien. */
+test("BS — les sorts du don suivent la LISTE choisie, et rien n'ouvre avant elle", () => {
+  const h = pile(PILE_COMPLETE);
+  const MI = "srd:feat:en:magic-initiate";
+  const liste = (id) => ({ path: "background.originFeat[0].list", ref: { kind: "class", id } });
+  const plansDe = (choices) => h.verbs.decisions({ document: documentDe(h, choices) }).decisions;
+  const groupe = (choices, chemin) => plansDe(choices).find((p) => p.path === chemin);
+
+  /* ① SANS LISTE, RIEN. Un créneau sans options serait un magasin vide — on ne
+     demande pas de choisir un sort avant de savoir dans quel livre le prendre. */
+  assert.equal(groupe([don(MI)], "background.originFeat[0].cantrips"), undefined,
+    "le don seul n'ouvre aucun créneau de sort");
+
+  /* ② AVEC UNE LISTE : deux tours mineurs et un sort de niveau 1, déclarés par
+     le record — jamais comptés par l'écran. */
+  const avec = [don(MI), liste("srd:class:en:wizard")];
+  const mineurs = groupe(avec, "background.originFeat[0].cantrips");
+  const niveau1 = groupe(avec, "background.originFeat[0].prepared");
+  assert.equal(mineurs.expected, 2, "« Two Cantrips », et le chiffre vient de la couche");
+  assert.equal(niveau1.expected, 1, "« Level 1 Spell », un seul");
+  assert.equal(mineurs.answered, 0);
+
+  /* ③ ET LE NIVEAU EST EXACT, PAS UN PLAFOND — un don n'a pas d'emplacements :
+     « a level 1 spell » veut dire niveau 1, jamais « jusqu'à 1 ». */
+  const niveauxMineurs = new Set(mineurs.options.map((id) => h.layers.verbs.query({ kind: "spell", id }).record.data.level));
+  const niveauxUn = new Set(niveau1.options.map((id) => h.layers.verbs.query({ kind: "spell", id }).record.data.level));
+  assert.deepEqual([...niveauxMineurs], [0], "les tours mineurs sont de niveau 0, tous");
+  assert.deepEqual([...niveauxUn], [1], "et le sort préparé de niveau 1, exactement");
+
+  /* ④ 🔴 LE CŒUR : CHANGER DE LISTE CHANGE LES OPTIONS. Sans ça, les trois
+     branches d'Eric seraient trois fois le même écran. */
+  const clerc = groupe([don(MI), liste("srd:class:en:cleric")], "background.originFeat[0].cantrips");
+  assert.notDeepEqual(clerc.options, mineurs.options,
+    "le Clerc et le Magicien n'offrent pas les mêmes tours mineurs");
+  assert.ok(clerc.options.length > 0 && mineurs.options.length > 0, "et aucune des deux listes n'est vide");
+
+  /* ⑤ LES CRÉNEAUX MANQUANTS SONT PUBLIÉS, un par choix attendu — c'est ce que
+     l'écran pose comme récepteurs vides. */
+  const creneaux = plansDe(avec).filter((p) => /^background\.originFeat\[0\]\.cantrips\[[0-9]+\]$/.test(p.path));
+  assert.equal(creneaux.length, 2, "deux récepteurs, autant que de tours mineurs attendus");
+});
+
 /* ══ ACCEPTATION 1 — LE TEST QUE LE LOT DOIT PASSER ═══════════════════ */
 
 test("ACCEPTATION 1 — la carte et le don entrent dans le Score, chacun citant sa source", () => {

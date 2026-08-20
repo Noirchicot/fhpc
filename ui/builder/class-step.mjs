@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=233";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=233";
-import { renderConfirmDialog } from "./confirm.mjs?v=233";
-import { renderChoixGlisses } from "./glisser.mjs?v=233";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=237";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=237";
+import { renderConfirmDialog } from "./confirm.mjs?v=237";
+import { renderChoixGlisses } from "./glisser.mjs?v=237";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -52,7 +52,12 @@ function skillLabel(query, id) {
 /* LOT 72 — le même geste pour un sort : le NOM vient du record, jamais
    recomposé ici (loi §0.13 côté écran : on descend des mots, on n'en
    fabrique pas). */
-function spellLabel(query, id) {
+/* ⭐ EXPORTÉS LE 2026-08-20 — le don d'origine offre les MÊMES sorts, avec le
+   même geste. Les recopier sous l'Inheritance aurait fait deux façons de
+   nommer un sort et deux façons de l'expliquer, qui divergent au premier
+   réglage. ⛔ Ni l'une ni l'autre ne connaît la classe : on leur tend un
+   `query` et un identifiant. */
+export function spellLabel(query, id) {
   const view = query({ kind: "spell", id });
   return view && view.record ? view.record.name : id;
 }
@@ -68,7 +73,7 @@ function spellLabel(query, id) {
    fabrique pas), et ces mots-là n'existent dans aucune couche.
    ⚠️ Une valeur absente disparaît de la ligne — elle ne devient pas un vide
    à côté d'un séparateur. */
-function spellInfo(query, id) {
+export function spellInfo(query, id) {
   const view = query({ kind: "spell", id });
   const record = view && view.record;
   if (!record) return null;

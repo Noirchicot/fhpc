@@ -319,6 +319,15 @@ function backgroundFeatPlan(query, choices, view) {
    (« Wizard »). Poser le nom dans la couche ferait deux vocabulaires à tenir
    d'accord ; poser l'identifiant laisse la traduction au moteur, une fois, là
    où `classSpellPlans` la fait déjà. */
+/* Les deux groupes d'un octroi de sorts par un don. ⭐ Les SEGMENTS reprennent
+   le vocabulaire de la classe (`cantrips`, `prepared`) : un sort toujours
+   préparé EST un sort préparé, et un troisième mot pour la même chose est la
+   divergence garantie. */
+const FEAT_SPELL_GROUPS = Object.freeze([
+  { champ: "cantrips", segment: "cantrips", niveau: 0 },
+  { champ: "prepared", segment: "prepared", niveau: 1 }
+]);
+
 function featSpellListPlan(query, choices, featId) {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
@@ -333,6 +342,59 @@ function featSpellListPlan(query, choices, featId) {
     ? buildViolation("decision.option-unavailable", { path: PATH, selected: selected[0], options: options.join(", ") || "none" }, PATH)
     : null;
   return [finish({ path: PATH, options, selected, expected: 1, answered: selected.length, provenance: from }, lock)];
+}
+
+/* ══ BS1 / BS2 / BS3 — LES SORTS DU DON ═══════════════════════════════════
+   📐 Les « branches secondaires » de l'arborescence d'Eric : une par liste, et
+   chacune demande les mêmes deux choses — les tours mineurs et le sort de
+   niveau 1. ⭐ ELLES NE SONT PAS TROIS PLANS : c'est UN plan dont les OPTIONS
+   changent avec la liste choisie en B0. Trois jeux d'options, un seul organe.
+
+   ⛔ LES OPTIONS NE SONT PAS DÉCLARÉES DANS LA COUCHE, et c'est volontaire :
+   les recopier sous le don ferait une seconde liste de sorts à tenir d'accord
+   avec celle des classes. Le croisement est le MÊME que pour un lanceur —
+   `spell.classes` (des noms d'affichage) × `spell.level` — et il vit ici, une
+   fois, comme chez `classSpellPlans`.
+
+   ⚠️ ET RIEN N'EST PUBLIÉ TANT QUE LA LISTE N'EST PAS CHOISIE. Un créneau sans
+   options serait un magasin vide : on ne demande pas de choisir un sort avant
+   de savoir dans quel livre le prendre. C'est aussi ce qui garde les deux
+   lignes du bilan GRISÉES en B0 — elles annoncent sans mentir. */
+function featSpellPlans(query, choices, featId) {
+  const featView = featId ? query({ kind: "feat", id: featId }) : null;
+  const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
+  if (!declaration || typeof declaration !== "object") return [];
+
+  const liste = choices.find((entry) => entry && entry.path === "background.originFeat[0].list" &&
+    entry.ref && entry.ref.kind === "class");
+  if (!liste) return [];
+  const classView = query({ kind: "class", id: liste.ref.id });
+  if (!classView) return [];
+
+  const className = classView.record.name;
+  const spellViews = viewsOf(query, "spell").filter((view) => {
+    const data = view.record.data || {};
+    return Array.isArray(data.classes) && data.classes.includes(className) && Number.isInteger(data.level);
+  });
+  const from = recordProvenance("offered", "feat", featView, "spell_list_choice");
+
+  const entries = [];
+  for (const group of FEAT_SPELL_GROUPS) {
+    const declared = declaration[group.champ];
+    const expected = Number.isInteger(declared) && declared > 0 ? declared : null;
+    const basePath = `background.originFeat[0].${group.segment}`;
+    const prefix = `${basePath}[`;
+    const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+      choice.path.startsWith(prefix));
+    if (expected === null && candidates.length === 0) continue;
+    /* ⛔ LE NIVEAU EST EXACT, PAS UN PLAFOND. Un don n'a pas d'emplacements :
+       « a level 1 spell » veut dire NIVEAU 1, pas « jusqu'à 1 ». */
+    const options = sorted(spellViews
+      .filter((view) => view.record.data.level === group.niveau)
+      .map((view) => view.id));
+    entries.push(...spellSlotPlans({ basePath, options, expected, candidates, from }));
+  }
+  return entries;
 }
 
 function backgroundToolPlan(choices, view) {
@@ -548,6 +610,82 @@ const SPELL_GROUPS = Object.freeze([
   { basePath: "class.prepared", resource: "prepared_spells", cantrip: false }
 ]);
 
+
+/* ══ LES CRÉNEAUX D'UN OCTROI DE SORTS — l'organe, extrait le 2026-08-20 ═════
+   🔴 IL EXISTAIT DÉJÀ, ENFERMÉ DANS LA BOUCLE DE `classSpellPlans`. Le don
+   d'origine réclame EXACTEMENT le même travail — un plan de groupe, un plan par
+   créneau, les créneaux manquants, le refus qui nomme — et le recopier aurait
+   fait deux versions d'une même règle, qui divergent au premier réglage. C'est
+   la loi de ce dépôt, et elle a déjà coûté ailleurs.
+
+   ⛔ IL NE SAIT NI CE QU'EST UNE CLASSE NI CE QU'EST UN DON. On lui tend un
+   chemin de base, une liste d'options, un compte attendu et les choix posés ;
+   il rend des entrées de carnet. Ce qui DÉCIDE des options (le croisement
+   `spell.classes × spell.level`) reste chez l'appelant, parce que c'est là que
+   vit la différence : la classe lit sa progression, le don lit sa liste. */
+function spellSlotPlans({ basePath, options, expected, candidates, from }) {
+  const selected = [];
+  const steps = [];
+  let planLock = null;
+  let next = 0;
+  const entries = [];
+  for (const choice of candidates) {
+    const ref = choice.ref;
+    let lock = null;
+    if (!ref || ref.kind !== "spell") {
+      lock = buildViolation("decision.kind-mismatch", {
+        path: choice.path, expectedKind: "spell",
+        actualKind: ref && typeof ref.kind === "string" ? ref.kind : "value"
+      }, choice.path);
+    } else if (!options.includes(ref.id)) {
+      lock = buildViolation("decision.option-unavailable", {
+        path: choice.path, selected: ref.id, options: options.join(", ") || "none"
+      }, choice.path);
+    } else {
+      selected.push(ref.id);
+    }
+    const step = {
+      path: choice.path, options, selected: lock ? [] : [ref.id],
+      expected: 1, answered: lock ? 0 : 1
+    };
+    if (from) step.provenance = from;
+    steps.push(finish(step, lock));
+    planLock ||= lock;
+    const match = /\[([0-9]+)\]$/.exec(choice.path);
+    if (match) next = Math.max(next, Number(match[1]) + 1);
+  }
+  if (!planLock && expected !== null && selected.length > expected) {
+    planLock = buildViolation("spell-grant.count-mismatch", {
+      root: basePath, declared: expected, actual: selected.length,
+      answers: selected.join(", ") || "none"
+    }, basePath);
+  }
+
+  const plan = {
+    path: basePath, options, selected: selected.slice(),
+    expected: expected !== null ? expected : selected.length,
+    answered: selected.length
+  };
+  if (from) plan.provenance = from;
+  entries.push(finish(plan, planLock), ...steps);
+
+  /* Les créneaux MANQUANTS — seulement quand la couche déclare le compte :
+     sans déclaration, en inventer serait guider avec un chiffre deviné.
+     Même règle que `multiPlan` §3e-bis : chaque candidat, valide ou non,
+     occupe un créneau réel. */
+  if (expected !== null) {
+    const missingSlots = Math.max(0, expected - candidates.length);
+    for (let missing = 0; missing < missingSlots; missing += 1) {
+      while (entries.some((entry) => entry.path === `${basePath}[${next}]`)) next += 1;
+      const step = { path: `${basePath}[${next}]`, options, selected: [], expected: 1, answered: 0 };
+      if (from) step.provenance = from;
+      entries.push(finish(step));
+      next += 1;
+    }
+  }
+  return entries;
+}
+
 function classSpellPlans(query, choices, classView) {
   const levelChoice = choices.find((choice) => choice && choice.path === "level");
   const level = levelChoice && Number.isInteger(levelChoice.value) ? levelChoice.value : null;
@@ -602,64 +740,7 @@ function classSpellPlans(query, choices, classView) {
       ? recordProvenance("offered", "class-progression", progression, `resources.${group.resource}`)
       : null;
 
-    const selected = [];
-    const steps = [];
-    let planLock = null;
-    let next = 0;
-    for (const choice of candidates) {
-      const ref = choice.ref;
-      let lock = null;
-      if (!ref || ref.kind !== "spell") {
-        lock = buildViolation("decision.kind-mismatch", {
-          path: choice.path, expectedKind: "spell",
-          actualKind: ref && typeof ref.kind === "string" ? ref.kind : "value"
-        }, choice.path);
-      } else if (!options.includes(ref.id)) {
-        lock = buildViolation("decision.option-unavailable", {
-          path: choice.path, selected: ref.id, options: options.join(", ") || "none"
-        }, choice.path);
-      } else {
-        selected.push(ref.id);
-      }
-      const step = {
-        path: choice.path, options, selected: lock ? [] : [ref.id],
-        expected: 1, answered: lock ? 0 : 1
-      };
-      if (from) step.provenance = from;
-      steps.push(finish(step, lock));
-      planLock ||= lock;
-      const match = /\[([0-9]+)\]$/.exec(choice.path);
-      if (match) next = Math.max(next, Number(match[1]) + 1);
-    }
-    if (!planLock && expected !== null && selected.length > expected) {
-      planLock = buildViolation("spell-grant.count-mismatch", {
-        root: group.basePath, declared: expected, actual: selected.length,
-        answers: selected.join(", ") || "none"
-      }, group.basePath);
-    }
-
-    const plan = {
-      path: group.basePath, options, selected: selected.slice(),
-      expected: expected !== null ? expected : selected.length,
-      answered: selected.length
-    };
-    if (from) plan.provenance = from;
-    entries.push(finish(plan, planLock), ...steps);
-
-    /* Les créneaux MANQUANTS — seulement quand la couche déclare le compte :
-       sans déclaration, en inventer serait guider avec un chiffre deviné.
-       Même règle que `multiPlan` §3e-bis : chaque candidat, valide ou non,
-       occupe un créneau réel. */
-    if (expected !== null) {
-      const missingSlots = Math.max(0, expected - candidates.length);
-      for (let missing = 0; missing < missingSlots; missing += 1) {
-        while (entries.some((entry) => entry.path === `${group.basePath}[${next}]`)) next += 1;
-        const step = { path: `${group.basePath}[${next}]`, options, selected: [], expected: 1, answered: 0 };
-        if (from) step.provenance = from;
-        entries.push(finish(step));
-        next += 1;
-      }
-    }
+    entries.push(...spellSlotPlans({ basePath: group.basePath, options, expected, candidates, from }));
   }
   return entries;
 }
@@ -761,7 +842,9 @@ export function projectDecisions({ query, choices }) {
   {
     const featChoice = list.find((entry) => entry && entry.path === "background.originFeat[0]" &&
       entry.ref && entry.ref.kind === "feat");
-    entries.push(...featSpellListPlan(query, list, featChoice ? featChoice.ref.id : null));
+    const featId = featChoice ? featChoice.ref.id : null;
+    entries.push(...featSpellListPlan(query, list, featId));
+    entries.push(...featSpellPlans(query, list, featId));
   }
 
   const unique = new Map();

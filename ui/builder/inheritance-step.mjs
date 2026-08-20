@@ -28,11 +28,12 @@
    geste de choix de record. */
 
 import {
-  planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=233";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=233";
-import { renderChoixGlisses } from "./glisser.mjs?v=233";
-import { renderFicheBody } from "./catalogue.mjs?v=233";
+  planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
+} from "./carnet.mjs?v=237";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=237";
+import { renderChoixGlisses } from "./glisser.mjs?v=237";
+import { renderFicheBody } from "./catalogue.mjs?v=237";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=237";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -534,6 +535,70 @@ export function renderFeatListScreen(ctx, onAction) {
   hote.dataset.sortieIci = "";
   section.append(hote);
   return section;
+}
+
+/* ══ BS1 / BS2 / BS3 — LES SORTS DU DON, AU GLISSER ═══════════════════════
+   📐 Eric, 2026-08-20 : *« BS1 Arcane : choix drag and drop du cantrip et du
+   sort lvl 1, et done ou back ou lore »*, et pareil pour BS2 et BS3.
+
+   ⭐ TROIS BRANCHES, UN SEUL ORGANE. Ce ne sont pas trois écrans à écrire :
+   c'est le même, dont les OPTIONS changent avec la liste choisie en B0. Écrire
+   trois rendus aurait fait diverger trois fois le jour où le geste change.
+
+   ⭐ ET LE GESTE EST CELUI DU MAGICIEN, MOT POUR MOT — c'est la demande
+   d'Eric : *« il faut le construire comme le choix que fait un mago pour ses
+   sorts »*. Même `renderChoixGlisses`, même `refKind: "spell"`, mêmes libellés
+   et même popup d'info (`spellLabel` / `spellInfo`, empruntés à `class-step`,
+   pas recopiés).
+
+   ⛔ RIEN SI LA LISTE N'EST PAS CHOISIE : `planAt` rend `null`, et l'écran
+   n'affiche alors AUCUN cadre vide — la règle que Class applique déjà pour un
+   Rogue qui ne lance rien. */
+const FEAT_SPELL_BLOCS = Object.freeze([
+  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip",
+    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
+  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell",
+    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
+]);
+
+export function renderFeatSpellsScreen(ctx, onAction) {
+  const act = typeof onAction === "function" ? onAction : () => {};
+  const decisions = ctx.decisions || [];
+  const query = ctx.query;
+  const section = el("section", "feat-branche");
+  section.dataset.objet = "dalle";
+
+  /* LE TITRE NOMME LA LISTE, pas le don : on est DANS la branche, et c'est la
+     liste qui dit dans quel livre on prend. Le nom vient du RECORD. */
+  const liste = featListPlan(decisions);
+  const listeId = liste && liste.selected.length > 0 ? liste.selected[0] : null;
+  section.append(el("h2", "guide-titre", [text(listeId ? listeLabel(query, listeId) : "Spells")]));
+
+  for (const bloc of FEAT_SPELL_BLOCS) {
+    const plan = planAt(decisions, bloc.basePath);
+    if (!plan) continue;
+    section.append(renderChoixGlisses({
+      plan, slots: planSlots(decisions, bloc.basePath),
+      titre: bloc.titre, mot: bloc.mot,
+      refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
+      onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
+      consigne: bloc.consigne
+    }));
+  }
+
+  const hote = el("div", "parcours-pied");
+  hote.dataset.sortieIci = "";
+  section.append(hote);
+  return section;
+}
+
+/** Les trois créneaux du don sont-ils remplis ? ⛔ Lu au carnet, jamais
+ *  recompté : c'est le moteur qui sait ce qu'il attend. */
+export function featSpellsDone(decisions) {
+  return FEAT_SPELL_BLOCS.every((bloc) => {
+    const plan = planAt(decisions || [], bloc.basePath);
+    return plan ? plan.answered >= plan.expected : true;
+  });
 }
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :

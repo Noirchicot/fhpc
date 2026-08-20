@@ -19,47 +19,48 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=233";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=233";
-import { mountPopup } from "./popup.mjs?v=233";
-import { renderLorePanel } from "./lore.mjs?v=233";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=233";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=237";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=237";
+import { mountPopup } from "./popup.mjs?v=237";
+import { renderLorePanel } from "./lore.mjs?v=237";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=237";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=233";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=233";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=237";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=237";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=233";
-import { renderConceptStep } from "./concept-step.mjs?v=233";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=233";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=233";
+} from "./tutoriel.mjs?v=237";
+import { renderConceptStep } from "./concept-step.mjs?v=237";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=237";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=237";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=233";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=233";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=233";
+} from "./catalogue.mjs?v=237";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=237";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=237";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
-  renderFeatListScreen, featListPlan } from "./inheritance-step.mjs?v=233";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=233";
+  renderFeatListScreen, featListPlan,
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=237";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=237";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=233";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=237";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=233";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=233";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=233";
+} from "./destiny-step.mjs?v=237";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=237";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=237";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=233";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=237";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -78,16 +79,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=233";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=233";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=237";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=233";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=233";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=237";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=237";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=233";
+import { versionQuery } from "./version.mjs?v=237";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1142,9 +1143,19 @@ const CATALOGUES = {
       const plan = featListPlan(decisions);
       return plan ? { ready: plan.answered >= plan.expected, plan } : null;
     },
-    choices: (ctx, act) => renderFeatListScreen({
-      decisions: ctx.decisions, query: ctx.query, featId: choixDeDon()
-    }, act)
+    /* LE 3ᵉ PALIER : BS. Il n'existe QUE quand la liste est choisie — avant, il
+       n'y aurait aucun sort à proposer, et un magasin vide est ce que ce dépôt
+       s'interdit. Il est PRÊT quand les trois créneaux sont remplis. */
+    palier3: (decisions) => {
+      const plan = featListPlan(decisions);
+      if (!plan || plan.answered < plan.expected) return null;
+      return { ready: featSpellsDone(decisions) };
+    },
+    /* ⭐ UNE SEULE FONCTION POUR LES DEUX PALIERS, et c'est le palier qui
+       décide — pas le contenu. B0 demande la liste, BS demande les sorts. */
+    choices: (ctx, act) => (ctx.palier === 3
+      ? renderFeatSpellsScreen({ decisions: ctx.decisions, query: ctx.query }, act)
+      : renderFeatListScreen({ decisions: ctx.decisions, query: ctx.query, featId: choixDeDon() }, act))
   },
   destiny: {
     path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
@@ -1383,7 +1394,11 @@ function renderStepContent() {
     const cfg = catalogueCourant();
     const ctx = catalogueCtx(cfg);
     const section = el("section", "catalogue-step");
-    section.dataset.palier = String(state.palier === 2 ? 2 : 1);
+    /* ⚠️ LE 3ᵉ PALIER SE PEINT COMME LE 2ᵉ : la feuille ne connaît que deux
+       régimes — la chaîne de fiches, et l'écran plein. BS est un écran plein,
+       comme B0. Écrire un `data-palier="3"` que personne ne lit serait un
+       attribut fantôme. */
+    section.dataset.palier = String(state.palier >= 2 ? 2 : 1);
     /* ⭐ LE LORE PREND TOUTE LA SCÈNE (lot 82, croquis A). Il passe AVANT le
        palier : lire la prose d'une espèce est une parenthèse, elle ne doit
        rien changer à l'endroit où on en était du choix. On revient au même
@@ -1420,7 +1435,9 @@ function renderStepContent() {
          écran qui les redirait ferait lire deux fois la même chose pour
          avancer d'un cran. */
       section.append(renderParcoursGuide(cfg, ctx));
-    } else if (state.palier === 2) {
+    } else if (state.palier === 2 || state.palier === 3) {
+      /* ⭐ LES DEUX PALIERS PROFONDS PASSENT PAR LA MÊME PORTE, et c'est `cfg`
+         qui sait quoi y mettre : la coquille ne connaît ni B0 ni BS. */
       section.append(cfg.choices(ctx, applyDecisionAction));
     } else {
       /* Le 3ᵉ argument est le destinataire du `CHOOSE` de chaque fiche (Ch6).
@@ -2018,7 +2035,10 @@ function currentGate(palier = state.palier) {
      mouvement, celui qui referme le cran le plus intérieur. */
   if (state.parcoursItem) return { exists: true, ready: true, action: null, next: "item" };
   const cfg = catalogueCourant();
-  if (cfg) return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions));
+  if (cfg) {
+    const trois = typeof cfg.palier3 === "function" ? cfg.palier3(state.decisions) : null;
+    return catalogueValidate({ ...catalogueCtx(cfg), palier }, cfg.palier2(state.decisions), trois);
+  }
   /* B8 — rien n'est obligatoire sur Equipment : la porte est toujours prête. */
   if (STEPS[state.step].id === "equipment" && state.engine) return equipmentValidate();
   /* B9 — Review est la destination : pas de pas suivant, donc pas de palier. */
@@ -2307,7 +2327,10 @@ function paintBelt() {
 /** La page courante ne fait-elle que distribuer des branches ? Abilities à son
  *  palier 1 : quatre méthodes et un panneau INFO, aucun geste à valider. */
 function surUneRacineQuiBranche() {
-  return STEPS[state.step].id === "abilities" && state.palier !== 2;
+  /* `< 2`, pas `!== 2` — même correction que le pied et le rail le 2026-08-20.
+     Abilities n'a que deux paliers aujourd'hui, donc les deux écritures disent
+     la même chose ; l'une reste vraie si un cran s'ajoute, l'autre non. */
+  return STEPS[state.step].id === "abilities" && state.palier < 2;
 }
 
 function renderSortieEtape() {
@@ -2327,7 +2350,14 @@ function renderSortieEtape() {
      n'est pas une fiche : c'est le cran le plus intérieur du parcours, et c'est
      la paire de la coquille qui l'en sort. Sans cette exception, l'item
      s'ouvrait sans aucune porte (mesuré dans la page). */
-  if (fiche && fiche.fiche && state.palier !== 2 && !state.parcoursItem) return null;
+  /* ⚠️ `!== 2` EST DEVENU `< 2` LE 2026-08-20, DEUXIÈME ENDROIT DU MÊME
+     DÉFAUT (l'autre est le rail, `paintAside`). La condition voulait dire
+     « tant qu'on est sur la chaîne de fiches » et NOMMAIT un palier : le 3ᵉ
+     repassait donc à travers, et BS s'ouvrait sans aucune porte — mesuré dans
+     la page, exactement comme l'item s'était ouvert sans porte le 19/08.
+     📌 Une borne écrite en `!==` sur un compteur qui peut grandir est une
+     borne qui rouille : elle est juste tant que personne n'ajoute un cran. */
+  if (fiche && fiche.fiche && state.palier < 2 && !state.parcoursItem) return null;
   /* ⭐ UNE PAGE QUI NE FAIT QUE BRANCHER N'A PAS DE SORTIE — Eric, 2026-08-16 :
      *« la page racine n'a pas besoin de BACK ou DONE, car elle est à la racine
      et donne des branches »*.
@@ -2468,7 +2498,11 @@ function paintAside() {
      aucune espèce n'est retenue, après un `I changed my mind`. */
   const enParcours = cfg && cfg.parcours &&
     etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path }) !== ETAT.catalogue;
-  const show = Boolean(rail) && state.palier !== 2 && !state.lore && !enParcours; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
+  /* ⚠️ `!== 2` EST DEVENU `< 2` LE 2026-08-20, et c'est le 3ᵉ palier qui l'a
+     exigé : BS gardait son rail alors que B0, juste avant lui, l'avait perdu.
+     La condition ne parlait pas de « au-delà du catalogue », elle nommait UN
+     palier — donc le suivant repassait à travers. Mesuré dans la page. */
+  const show = Boolean(rail) && state.palier < 2 && !state.lore && !enParcours; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
   frame.area.dataset.aside = show ? "on" : "off";
   /* ⭐ L'ÉCRAN DIT SA LETTRE, ET LUI SEUL (Eric, 2026-08-19) — c'est la moitié
