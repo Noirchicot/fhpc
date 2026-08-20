@@ -683,6 +683,7 @@
             "name": "Voie du Berserker"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Armes courantes et armes de guerre"
         },
         "slug": "barbare",
@@ -695,7 +696,7 @@
           "locator": "p.30",
           "version": "5.2.1"
         },
-        "contentHash": "ad8f22c254c0b8bf460105bc754634ff23c18f2331c76548b4f1212d04e158cd"
+        "contentHash": "52a1ec8c4793bdfe1464d66860890c1a229fc00d7b0e9682edf8f885d0495300"
       },
       "srd:class:fr:barde": {
         "name": "Barde",
@@ -1465,6 +1466,7 @@
             "name": "Champion"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 3,
           "weapon_proficiencies": "Armes courantes et armes de guerre"
         },
         "slug": "guerrier",
@@ -1477,7 +1479,7 @@
           "locator": "p.56",
           "version": "5.2.1"
         },
-        "contentHash": "51d6458d0adcc1d0a2e3c0852e8a90325f2eaa75a3d61fa060a2c1cdeee7f921"
+        "contentHash": "22c430ebd6e4b56a93bb4ce22de27316baf74eb5bba7f8a9cff5483f27d16beb"
       },
       "srd:class:fr:magicien": {
         "name": "Magicien",
@@ -2144,6 +2146,7 @@
             "name": "Serment de Dévotion"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Armes courantes et armes de guerre"
         },
         "slug": "paladin",
@@ -2156,7 +2159,7 @@
           "locator": "p.75",
           "version": "5.2.1"
         },
-        "contentHash": "b51f1d70a58e3f3306669f853db213c8723023b6e410b4028fdcf91031cd836b"
+        "contentHash": "93da76fd26821a2a81bb895e9bf1c5e0fba9757b34e779ef1ff54c121e0a7864"
       },
       "srd:class:fr:rodeur": {
         "name": "Rôdeur",
@@ -2332,6 +2335,7 @@
             "name": "Chasseur"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Armes courantes et armes de guerre"
         },
         "slug": "rodeur",
@@ -2344,7 +2348,7 @@
           "locator": "p.80",
           "version": "5.2.1"
         },
-        "contentHash": "5d978e868cc5f953e16469b2e600b13e8abbfdc7ce1b7e2e8362ba7d8c82ed61"
+        "contentHash": "b9a310eab59633c523dc9fdb3d4584d76392e11e89cdf438502587cd3c004e78"
       },
       "srd:class:fr:roublard": {
         "name": "Roublard",
@@ -2527,6 +2531,7 @@
             "name": "Voleur"
           },
           "tool_proficiencies": "Outils de voleur",
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Armes courantes et armes de guerre dotées de la propriété Finesse ou Légère"
         },
         "slug": "roublard",
@@ -2539,7 +2544,7 @@
           "locator": "p.84",
           "version": "5.2.1"
         },
-        "contentHash": "73ceee3af17fb0ff78606e26bceadbec4835ca8b35ec4a4719810a9038514230"
+        "contentHash": "7c84a3b54ec3ba1f0b2e96f39c467490e9be550adc9192a1b98d76b24638a7eb"
       }
     },
     "class-progression": {

@@ -683,6 +683,7 @@
             "name": "Path of the Berserker"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Simple and Martial weapons"
         },
         "slug": "barbarian",
@@ -695,7 +696,7 @@
           "locator": "p.28",
           "version": "5.2.1"
         },
-        "contentHash": "7bb5184e12ec9bbcd02b8293dff448bd2f4e86d8dc208342a6d71a5396a66860"
+        "contentHash": "53721141fc5c6a09d6ec0e565436801d57cf10e3dcb93e86b4c3cc7e85b190a1"
       },
       "srd:class:en:bard": {
         "name": "Bard",
@@ -1321,6 +1322,7 @@
             "name": "Champion"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 3,
           "weapon_proficiencies": "Simple and Martial weapons"
         },
         "slug": "fighter",
@@ -1333,7 +1335,7 @@
           "locator": "p.47",
           "version": "5.2.1"
         },
-        "contentHash": "33e466456349243bbf2a98911440ec3f72d02776b0a7b5e17157921e4e57c7e2"
+        "contentHash": "179cddf6e02f214ffdd7699776de06ab6083dc9026a96e88f4356a5a72cce7e4"
       },
       "srd:class:en:monk": {
         "name": "Monk",
@@ -1716,6 +1718,7 @@
             "name": "Oath of Devotion"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Simple and Martial weapons"
         },
         "slug": "paladin",
@@ -1728,7 +1731,7 @@
           "locator": "p.53",
           "version": "5.2.1"
         },
-        "contentHash": "45a4f401ac8043f32c94dc2cafa6637f3664c7ddce24e2fcfb52252214fdf068"
+        "contentHash": "f02537d282d63f82ed38900b7f29d260fb3dede55a99b0f4916f96fa1d9d6ea5"
       },
       "srd:class:en:ranger": {
         "name": "Ranger",
@@ -1904,6 +1907,7 @@
             "name": "Hunter"
           },
           "tool_proficiencies": null,
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Simple and Martial weapons"
         },
         "slug": "ranger",
@@ -1916,7 +1920,7 @@
           "locator": "p.57",
           "version": "5.2.1"
         },
-        "contentHash": "ebea106ec8d1002770b54f8b9c9e30647616b3f17d190dff2342fcbe17622bd6"
+        "contentHash": "cd4763e184e94acf49f0688e7469ecbb8486c000e7dc82e15ea80a89aac04312"
       },
       "srd:class:en:rogue": {
         "name": "Rogue",
@@ -2099,6 +2103,7 @@
             "name": "Thief"
           },
           "tool_proficiencies": "Thieves’ Tools",
+          "weapon_mastery_count": 2,
           "weapon_proficiencies": "Simple weapons and Martial weapons that have the Finesse or Light property"
         },
         "slug": "rogue",
@@ -2111,7 +2116,7 @@
           "locator": "p.61",
           "version": "5.2.1"
         },
-        "contentHash": "fc45fdb4db7b1482410e6ca7ae9d1fb5bd11088fb9b4feff76c7d6428d9f0e3e"
+        "contentHash": "1d1b57a35db82ac5e85b6dc1994d68aa8e67cf17fa0c2f1c6f2d382365880415"
       },
       "srd:class:en:sorcerer": {
         "name": "Sorcerer",
