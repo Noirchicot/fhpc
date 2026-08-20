@@ -1,0 +1,286 @@
+{
+  "$generated": "GENERATED — produit par `node src/tools/gen-fh-changes.mjs` depuis les couches de fhpc. Ne pas éditer : la passe suivante écrase. Une correction se fait dans la COUCHE, jamais ici.",
+  "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
+  "contract": "fh-changes/1",
+  "lang": "en",
+  "layer_run": "afe1db9ceff6eefa635494a9d2b2abd8686312b7213dbd3b7959404c1f9a0396",
+  "stack": [
+    {
+      "id": "srd-5.2.1-en",
+      "version": "5.2.1",
+      "hash": "cde64e4375860eebfd83a02c61d06eefaff260d3cc40ff8c2b138740844979e0"
+    },
+    {
+      "id": "fh-species-en",
+      "version": "0.1.0",
+      "hash": "cdc6b1d1627aefa25d3688b2fb3f77d4a1acaf8ce4f6f709760c149aaff31eb3"
+    },
+    {
+      "id": "fh-skills-en",
+      "version": "0.1.0",
+      "hash": "d7a2c023db6e0975556517c98c237264f09831b05d930da532d5a5a857ec93b8"
+    },
+    {
+      "id": "fh-arcana-en",
+      "version": "0.1.0",
+      "hash": "e18a2e3d2783e54ed1c10d9c85b15cfc84e5dcb82e6c8b084136607bd25f99e6"
+    },
+    {
+      "id": "fh-feats-en",
+      "version": "0.1.0",
+      "hash": "9e4aa9e7acd0322b25d00056a6115f0005305e69dcafd0a3457e186485e1f3d8"
+    },
+    {
+      "id": "fh-fiche-en",
+      "version": "0.1.0",
+      "hash": "3a6c68124e212a90e026c0a200543238efbfd5a13882f305796ab2a92e113b82"
+    },
+    {
+      "id": "fh-lore-en",
+      "version": "0.1.0",
+      "hash": "e53a455bf8072a21f7408fa21bb38d3a4fa2fdb3ca76c9d492e47e0c2b53e772"
+    }
+  ],
+  "genres": {
+    "arcana": {
+      "added": [
+        "Death",
+        "Judgement",
+        "Justice",
+        "Strength",
+        "Temperance",
+        "The Chariot",
+        "The Devil",
+        "The Emperor",
+        "The Empress",
+        "The Fool",
+        "The Hanged Man",
+        "The Hermit",
+        "The Hierophant",
+        "The High Priestess",
+        "The Lovers",
+        "The Magician",
+        "The Moon",
+        "The Star",
+        "The Sun",
+        "The Tower",
+        "The World",
+        "Wheel of Fortune"
+      ],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "armor": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "background": {
+      "added": [
+        "Inheritance"
+      ],
+      "patched": [],
+      "removed": [
+        "Acolyte",
+        "Criminal",
+        "Sage",
+        "Soldier"
+      ],
+      "renamed": []
+    },
+    "class": {
+      "added": [],
+      "patched": [
+        "Barbarian",
+        "Bard",
+        "Cleric",
+        "Druid",
+        "Fighter",
+        "Monk",
+        "Paladin",
+        "Ranger",
+        "Rogue",
+        "Sorcerer",
+        "Warlock",
+        "Wizard"
+      ],
+      "removed": [],
+      "renamed": []
+    },
+    "class-progression": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "feat": {
+      "added": [
+        "Auspicious (fh)"
+      ],
+      "patched": [
+        "Magic Initiate",
+        "Skilled"
+      ],
+      "removed": [],
+      "renamed": []
+    },
+    "gear": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "glossary": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "item": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "monster": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "skill": {
+      "added": [
+        "Academics",
+        "Appraise",
+        "Delve",
+        "Hunting",
+        "Leadership",
+        "Might",
+        "Streetwise",
+        "Tactics",
+        "Vigilance"
+      ],
+      "patched": [
+        "Acrobatics",
+        "Animal Handling",
+        "Arcana",
+        "Athletics",
+        "Deception",
+        "History",
+        "Insight",
+        "Intimidation",
+        "Investigation",
+        "Medicine",
+        "Nature",
+        "Performance",
+        "Persuasion",
+        "Religion",
+        "Sleight of Hand",
+        "Stealth",
+        "Survival"
+      ],
+      "removed": [
+        "Perception"
+      ],
+      "renamed": []
+    },
+    "species": {
+      "added": [
+        "Araag",
+        "Elestu",
+        "Loroka"
+      ],
+      "patched": [
+        "Dragonborn",
+        "Dwarf",
+        "Elf",
+        "Goliath",
+        "Halfling",
+        "Hoddon",
+        "Human",
+        "Orc",
+        "Tiefling"
+      ],
+      "removed": [],
+      "renamed": [
+        {
+          "from": "Gnome",
+          "to": "Hoddon"
+        }
+      ]
+    },
+    "spell": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "tool": {
+      "added": [
+        "Card Set",
+        "Dice Set",
+        "Dragonchess Set",
+        "Mount (Air)",
+        "Mount (Land)",
+        "Mount (Water)",
+        "Other Instrument",
+        "String Instrument",
+        "Three-Dragon Ante Set",
+        "Vehicles (Air)",
+        "Vehicles (Land)",
+        "Vehicles (Water)",
+        "Wind Instrument"
+      ],
+      "patched": [
+        "Mason’s Tools",
+        "Potter’s Tools",
+        "Tinker’s Tools"
+      ],
+      "removed": [
+        "Gaming Set",
+        "Musical Instrument"
+      ],
+      "renamed": []
+    },
+    "training": {
+      "added": [
+        "Araag",
+        "Dragonborn",
+        "Dwarf",
+        "Elestu",
+        "Elf",
+        "Garrot",
+        "Goliath",
+        "Halfling",
+        "Hoddon",
+        "Human",
+        "Loroka",
+        "Orc",
+        "Tiefling"
+      ],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "weapon": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "weapon-mastery": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    },
+    "weapon-property": {
+      "added": [],
+      "patched": [],
+      "removed": [],
+      "renamed": []
+    }
+  }
+}
