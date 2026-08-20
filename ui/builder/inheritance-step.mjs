@@ -29,11 +29,11 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=243";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=243";
-import { renderChoixGlisses } from "./glisser.mjs?v=243";
-import { renderFicheBody } from "./catalogue.mjs?v=243";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=243";
+} from "./carnet.mjs?v=248";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=248";
+import { renderChoixGlisses } from "./glisser.mjs?v=248";
+import { renderFicheBody } from "./catalogue.mjs?v=248";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=248";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -467,6 +467,13 @@ export function renderFeatCardBody(query, id) {
    pas un second retour — garde 17, *« un seul BACK dans tout ui/ »* — donc
    l'écran garde la paire de la coquille, et le mot se change là où il est posé,
    pas ici. */
+const FEAT_SPELL_BLOCS = Object.freeze([
+  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip",
+    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
+  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell",
+    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
+]);
+
 export function featListPlan(decisions) {
   return (decisions || []).find((d) => d && d.path === "background.originFeat[0].list") || null;
 }
@@ -502,8 +509,10 @@ export function renderFeatListScreen(ctx, onAction) {
     bouton.dataset.value = id;
     markPressed(bouton, actif);
     bouton.append(el("span", null, [text(`Choose ${listeLabel(query, id)}`)]));
+    /* ⭐ CHOISIR ENTRE DANS LA BRANCHE. L'écran ne navigue pas — il annonce le
+       choix, la coquille décide où ça mène (voir `brancheChoisie`). */
     bouton.addEventListener("click", () => {
-      if (!actif) act({ kind: "choose", path: plan.path, ref: { kind: "class", id } });
+      act({ kind: "brancheChoisie", path: plan.path, ref: { kind: "class", id } });
     });
     choix.append(bouton);
   }
@@ -526,8 +535,17 @@ export function renderFeatListScreen(ctx, onAction) {
   };
   const listeChoisie = plan && plan.selected.length > 0 ? plan.selected[0] : null;
   ligne("Spell list", listeChoisie ? listeLabel(query, listeChoisie) : null);
-  ligne("Cantrips", null);
-  ligne("Level 1 spell", null);
+  /* ⭐ LE BILAN SE REMPLIT AVEC CE QUI A ÉTÉ POSÉ EN BSS — Eric, 2026-08-20 :
+     *« faut remonter de BSS à BS pour avoir un bilan »*. Sans ces deux lignes,
+     remonter ne montrait rien de plus qu'avant de descendre, et le voyage
+     n'avait pas d'objet. Les NOMS viennent des records, jamais d'une table.
+     ⚠️ Une ligne sans réponse reste GRISÉE et annonce ce qui vient (canon §4) —
+     elle ne disparaît pas. */
+  for (const bloc of FEAT_SPELL_BLOCS) {
+    const p = planAt(ctx.decisions, bloc.basePath);
+    const poses = p && Array.isArray(p.selected) ? p.selected : [];
+    ligne(bloc.titre, poses.length > 0 ? poses.map((id) => spellLabel(query, id)).join(" · ") : null);
+  }
   section.append(bilan);
 
   /* L'HÔTE DU PIED — la coquille y dépose sa paire, et elle seule. */
@@ -554,12 +572,7 @@ export function renderFeatListScreen(ctx, onAction) {
    ⛔ RIEN SI LA LISTE N'EST PAS CHOISIE : `planAt` rend `null`, et l'écran
    n'affiche alors AUCUN cadre vide — la règle que Class applique déjà pour un
    Rogue qui ne lance rien. */
-const FEAT_SPELL_BLOCS = Object.freeze([
-  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip",
-    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
-  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell",
-    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
-]);
+
 
 export function renderFeatSpellsScreen(ctx, onAction) {
   const act = typeof onAction === "function" ? onAction : () => {};

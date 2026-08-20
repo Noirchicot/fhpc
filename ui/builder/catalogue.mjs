@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=243";
-import { versionQuery } from "./version.mjs?v=243";
+import { planAt } from "./carnet.mjs?v=248";
+import { versionQuery } from "./version.mjs?v=248";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -546,12 +546,22 @@ export function catalogueValidate(ctx, palier2, palier3) {
      restait éteinte quoi qu'on fasse — donc le pied du guide restait au `Done`
      au lieu de passer au vert et au `Next`. Un seul défaut, deux symptômes. */
   const fin = ctx.fin === "close" ? "close" : "step";
+  /* 🔴 UN `Done` REMONTE D'UN CRAN, IL NE SAUTE PAS DEHORS — Eric,
+     2026-08-20 : *« faut remonter de BSS à BS pour avoir un bilan, et de BS à R
+     pour valider globalement »*.
+     ⭐ CE QUE ÇA DIT DE L'ARBRE : chaque cran a son propre récapitulatif, et on
+     le TRAVERSE en repartant. Finir les sorts (BSS) rend à la branche (BS), où
+     le bilan s'est rempli ; finir la branche rend au menu racine (R0), où
+     l'autre item attend encore. Refermer d'un coup depuis le fond sautait
+     par-dessus le bilan que le joueur vient de remplir.
+     ⛔ `remonter` n'est ni `palier` (qui descend) ni `close` (qui sort) : c'est
+     le mouvement inverse de `palier`, et il n'existait pas. */
   if (ctx.palier === 3) {
     return {
       exists: Boolean(palier3),
       ready: Boolean(palier3 && palier3.ready),
       action: null,
-      next: fin
+      next: "remonter"
     };
   }
   if (ctx.palier === 2) {
@@ -559,8 +569,15 @@ export function catalogueValidate(ctx, palier2, palier3) {
       exists: Boolean(palier2),
       ready: Boolean(palier2 && palier2.ready),
       action: null,
-      /* Le 2ᵉ palier n'est terminal que s'il n'y a rien dessous. */
-      next: palier3 ? "palier" : fin
+      /* 🔴 LE `Done` D'UN CRAN INTERMÉDIAIRE SORT, IL NE DESCEND PAS — Eric,
+         2026-08-20 : *« si je dis à BS Done, direction R pour valider la
+         totalité »*.
+         ⭐ CE QUI DESCEND, C'EST LE CHOIX, pas la validation. Choisir une liste
+         entre dans ses sorts (`brancheChoisie`) ; `Done` dit « j'ai fini ici »
+         et remonte. Les deux mouvements ne partagent pas le même bouton, sinon
+         `Done` voudrait dire deux choses selon l'endroit — mesuré à l'écran :
+         il RENVOYAIT vers BSS au lieu de rendre le menu racine. */
+      next: fin
     };
   }
   const options = catalogueOptions(ctx.decisions, ctx.path);

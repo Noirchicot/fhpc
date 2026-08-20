@@ -512,13 +512,19 @@ test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pi
      rien ne la couvrait — mesuré à l'écran, un `Done` FLOTTAIT sous la dalle
      pendant que le guide affichait déjà « I changed my mind · Next ». Deux
      validations pour un geste, ce qu'Eric a fait sauter le 19/08. */
-  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\) \{[\s\S]{0,200}?parcoursRacineCourante\(\)/,
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore && !fiche\) \{[\s\S]{0,200}?parcoursRacineCourante\(\)/,
     "la sortie de la coquille s'efface sur un guide de parcours — écrit sur le FAIT, pas sur un id d'étape");
+  /* ⚔️ ET LA BORNE `!fiche` COMPTE AUTANT QUE LA RÈGLE : un panneau de
+     catalogue ouvert par-dessus (BS, BSS) laisse l'étape en état « guide », donc
+     sans elle ces écrans s'ouvraient SANS PAIRE — mesuré. Le guide dessous n'est
+     pas celui qu'on regarde. */
+  assert.match(shellText, /&& !fiche\) \{/,
+    "⛔ bornée : un panneau ouvert par-dessus le guide garde SA paire");
   assert.match(shellText, /function parcoursRacineCourante\(\)/,
     "et la racine du parcours courant a UNE source pour les deux familles (catalogue et Inheritance)");
   /* ⚔️ BORNÉ : une dalle d'ITEM garde sa paire — c'est le cran le plus
      intérieur, et c'est la coquille qui l'en sort. */
-  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\)/,
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore && !fiche\)/,
     "⛔ jamais dans une dalle d'item : sans sa paire, l'item s'ouvrirait sans porte (le défaut du 19/08)");
 });
 
@@ -552,10 +558,20 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      coquille NE DOIVENT PAS être celui du guide : ce bouton-ci recule ou
      abandonne, il ne révoque jamais. Les confondre promettrait un effacement
      qui n'arrive pas — la faute que ce garde existe pour rendre impossible. */
-  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel" : "Back";/,
-    "`Cancel` dans une dalle d'item, `Back` partout ailleurs — deux gestes, deux mots");
-  assert.deepEqual(porteursDuLibelle('"I changed my mind"'), ["ui/builder/parcours-ecrans.mjs (2)"],
-    "⛔ « I changed my mind » n'appartient QU'AU PIED DU GUIDE — lui seul révoque et efface (canon §5)");
+  /* 🔴 TROIS MOTS, ET CHACUN DIT SON GESTE (Eric, 2026-08-20, en deux temps) :
+       · `Cancel`            abandonne une dalle d'item — rien n'y sera signé ;
+       · `I changed my mind` EFFACE et remonte — le retour d'une branche, qui
+                             rend la liste des dons pour en rechoisir un ;
+       · `Back`              recule sans rien effacer, partout ailleurs.
+     ⚠️ LE MOT QUI EFFACE NE S'ÉCRIT QUE LÀ OÙ ÇA EFFACE VRAIMENT : c'est la
+     correction d'Eric du jour, et ce garde la tient en exigeant que le mot soit
+     lié au drapeau `retourEfface`, jamais posé au hasard d'un écran. */
+  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel" : effaceAuRetour \? "I changed my mind" : "Back";/,
+    "le mot suit le geste : abandonner, effacer, ou reculer");
+  assert.match(shellText, /cfgRetour\.retourEfface && state\.palier === 2/,
+    "et « effacer » est DÉCLARÉ par le catalogue, jamais deviné d'un id d'étape");
+  assert.match(shellText, /function oublierSousLaRacine\(racine\)/,
+    "⭐ et il efface pour de vrai — signatures ET choix, comme le `I changed my mind` du guide (canon §5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.cancel, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;

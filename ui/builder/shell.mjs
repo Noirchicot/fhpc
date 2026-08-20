@@ -19,48 +19,48 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=243";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=243";
-import { mountPopup } from "./popup.mjs?v=243";
-import { renderLorePanel } from "./lore.mjs?v=243";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=243";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=248";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=248";
+import { mountPopup } from "./popup.mjs?v=248";
+import { renderLorePanel } from "./lore.mjs?v=248";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=248";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=243";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=243";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=248";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=248";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=243";
-import { renderConceptStep } from "./concept-step.mjs?v=243";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=243";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=243";
+} from "./tutoriel.mjs?v=248";
+import { renderConceptStep } from "./concept-step.mjs?v=248";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=248";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=248";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=243";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=243";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=243";
+} from "./catalogue.mjs?v=248";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=248";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=248";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=243";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=243";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=248";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=248";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=243";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=248";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=243";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=243";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=243";
+} from "./destiny-step.mjs?v=248";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=248";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=248";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=243";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=248";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -79,16 +79,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=243";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=243";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=248";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=243";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=243";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=248";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=248";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=243";
+import { versionQuery } from "./version.mjs?v=248";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -898,6 +898,18 @@ function applyDecisionAction(action) {
     return;
   }
 
+  /* ⭐ CHOISIR UNE LISTE DESCEND DANS SA BRANCHE — Eric, 2026-08-20 :
+     *« Choose Arcane → BS1 »*, et sa correction du même jour : *« BSS le choix
+     des sorts »*. Le geste est donc UN : on choisit la liste ET on entre dans
+     ses sorts. Demander ensuite un `Done` pour descendre ferait deux clics pour
+     une seule intention — la double validation que ce builder chasse partout.
+     ⛔ L'ÉCRAN NE NAVIGUE PAS : il dit « cette branche est choisie », la
+     coquille décide où ça mène (I.4, elle possède l'enchaînement des paliers). */
+  if (action.kind === "brancheChoisie") {
+    applyDecisionAction({ kind: "choose", path: action.path, ref: action.ref });
+    if (currentGate(state.palier + 1).exists) { state.palier += 1; openSurface(); }
+    return;
+  }
   if (action.kind === "ficheChoose") {
     state.cursor = action.index;
     pressDone();
@@ -1138,26 +1150,43 @@ const CATALOGUES = {
        et signe le don au passage. Species et Class, elles, avancent d'une
        étape : c'est pour ça que la sortie se DÉCLARE ici. */
     fin: "close",
+    /* 🔴 LES DEUX PORTES DE BS — Eric, 2026-08-20 : *« si je dis à BS "I changed
+       my mind" je reviens à B pour rechoisir un feat ; si je dis à BS "Done",
+       direction R pour valider la totalité »*.
+       ⭐ Le retour de BS n'est donc PAS un recul : c'est un CHANGEMENT D'AVIS,
+       et il porte le mot qui efface — parce qu'il efface vraiment. Les choix de
+       l'ancien don (sa liste, ses sorts) n'ont plus d'objet dès qu'on repart en
+       choisir un autre ; les garder ferait resurgir des sorts de Magicien sous
+       un don qui n'en donne plus. */
+    retourEfface: true,
     cardBody: renderFeatCardBody,
-    /* LE 2ᵉ PALIER : B0. Il EXISTE si le don choisi porte une branche, et il est
-       PRÊT quand cette branche a sa réponse — `catalogueValidate` lit les deux
-       sur cet objet, jamais dans l'écran. ⏳ Le jour où BS1/2/3 poseront leurs
-       sorts, « prêt » voudra dire « les quatre décisions sont répondues », et
-       c'est ICI que ça se dira, pas dans le bouton. */
+    /* ══ L'ARBRE DU DON, DANS LA NOMENCLATURE D'ERIC (2026-08-20, corrigée) ══
+         R0  le menu racine de l'Inheritance — feat / bonus
+          └ B    la liste des dons          (palier 1 de ce catalogue)
+             └ BS   le choix de la LISTE de sorts   (palier 2)
+                └ BSS  le choix des SORTS           (palier 3)
+       ⛔ Ce vocabulaire est celui de l'ARBRE DES CHOIX, pas celui du canon
+       (F/FF pour l'écran, carte/dalle/tuile pour l'objet). Une branche n'est
+       pas un cadre. */
+    /* BS — il EXISTE si le don choisi porte une branche. Il est PRÊT quand
+       TOUT le don est rempli (la liste ET les sorts) : son `Done` est celui qui
+       remonte à R0 et signe l'item, et signer un don à moitié posé serait dire
+       « c'est fait » sur un magasin vide. */
     palier2: (decisions) => {
       const plan = featListPlan(decisions);
-      return plan ? { ready: plan.answered >= plan.expected, plan } : null;
+      if (!plan) return null;
+      return { ready: plan.answered >= plan.expected && featSpellsDone(decisions), plan };
     },
-    /* LE 3ᵉ PALIER : BS. Il n'existe QUE quand la liste est choisie — avant, il
-       n'y aurait aucun sort à proposer, et un magasin vide est ce que ce dépôt
-       s'interdit. Il est PRÊT quand les trois créneaux sont remplis. */
+    /* BSS — il n'existe QUE quand la liste est choisie : avant, il n'y aurait
+       aucun sort à proposer. Il est PRÊT quand les créneaux sont remplis, et
+       son `Done` REMONTE à BS, où le bilan vient de se remplir. */
     palier3: (decisions) => {
       const plan = featListPlan(decisions);
       if (!plan || plan.answered < plan.expected) return null;
       return { ready: featSpellsDone(decisions) };
     },
-    /* ⭐ UNE SEULE FONCTION POUR LES DEUX PALIERS, et c'est le palier qui
-       décide — pas le contenu. B0 demande la liste, BS demande les sorts. */
+    /* ⭐ UNE SEULE FONCTION POUR LES DEUX CRANS, et c'est le palier qui décide —
+       pas le contenu. BS demande la liste, BSS demande les sorts. */
     choices: (ctx, act) => (ctx.palier === 3
       ? renderFeatSpellsScreen({ decisions: ctx.decisions, query: ctx.query }, act)
       : renderFeatListScreen({ decisions: ctx.decisions, query: ctx.query, featId: choixDeDon() }, act))
@@ -2169,6 +2198,16 @@ function pressDone() {
     }
   }
   if (gate.next === "close") { fermerLePanneau(); return; }
+  /* ⭐ REMONTER D'UN CRAN — Eric, 2026-08-20. Le `Done` du fond ne sort pas du
+     panneau : il rend au cran du dessus, dont le bilan vient de se remplir.
+     ⛔ Et il ne signe RIEN au passage : la signature de l'item appartient à
+     `fermerLePanneau`, c'est-à-dire au dernier cran. Signer ici ferait deux
+     écrivains pour une même question (la loi du moteur). */
+  if (gate.next === "remonter") {
+    state.palier = Math.max(1, state.palier - 1);
+    openSurface();
+    return;
+  }
   if (gate.next === "palier") {
     /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
        plan du 2ᵉ palier décrit le record CHOISI, pas celui qui était sous le
@@ -2218,8 +2257,46 @@ function pressBack() {
      d'Eric : *« si je fais back sur un item, ça ne valide pas l'item »*. */
   if (state.parcoursItem) { state.parcoursItem = null; openSurface(); return; }
   if (state.lore) { state.lore = null; openSurface(); return; }
+  /* 🔴 UN RETOUR QUI EFFACE, PARCE QU'IL PORTE LE MOT QUI EFFACE — Eric,
+     2026-08-20 : *« si je dis à BS "I changed my mind" je reviens à B pour
+     rechoisir un feat »*. Repartir choisir un autre don rend caducs SES choix à
+     lui : sa liste de sorts et les sorts pris dedans. Les garder ferait
+     resurgir des sorts de Magicien sous un don qui n'en donne plus.
+     ⭐ MÊME PAIRE D'ORGANES QUE `I changed my mind` DU GUIDE (canon §5) : les
+     signatures par `revoke`, les choix par `verbs.clear`. Aucun des deux ne
+     connaît les règles de l'autre.
+     ⛔ ET LA RACINE ELLE-MÊME SURVIT : on efface ce qui vit SOUS le don, pas le
+     don. Il reste posé, donc le catalogue s'ouvre sur lui et « rechoisir » veut
+     dire remplacer, jamais repartir d'un écran vide. */
+  const cfgRetour = catalogueCourant();
+  if (cfgRetour && cfgRetour.retourEfface && state.palier === 2) {
+    oublierSousLaRacine(cfgRetour.path);
+    state.palier = 1;
+    openSurface();
+    return;
+  }
   if (state.palier > 1) { state.palier -= 1; openSurface(); return; }
   goToStep(state.step - 1);
+}
+
+/** Efface tout ce qui vit SOUS une racine — signatures et choix — sans toucher
+ *  la racine. ⚠️ La liste des chemins est FIGÉE avant la boucle : on efface
+ *  pendant qu'on la lit. */
+function oublierSousLaRacine(racine) {
+  const sous = (chemin) => chemin.startsWith(`${racine}.`) || chemin.startsWith(`${racine}[`);
+  if (state.docWriters && state.document) {
+    for (const chemin of ((state.document.build && state.document.build.confirmed) || []).slice()) {
+      if (sous(chemin)) state.document = state.docWriters.revoke({ document: state.document, path: chemin });
+    }
+  }
+  const verbs = state.engine && state.engine.build && state.engine.build.verbs;
+  if (!verbs || !state.document) return;
+  let document = state.document;
+  const poses = ((document.build && document.build.choices) || [])
+    .map((c) => c && c.path).filter((c) => typeof c === "string" && sous(c));
+  for (const chemin of poses) document = verbs.clear({ document, path: chemin, kind: "choice" }).document;
+  state.document = document;
+  rebuild();
 }
 
 /* ⛔ TOUJOURS PAR `REVIEW_INDEX` (trouvé par id), jamais par
@@ -2411,7 +2488,13 @@ function renderSortieEtape() {
      ⭐ ÉCRIT SUR LE FAIT, comme le reste : « l'écran courant est-il un guide de
      parcours ? ». Une dalle d'ITEM garde la sienne — c'est le cran le plus
      intérieur, et c'est la paire de la coquille qui l'en sort. */
-  if (!state.parcoursItem && !state.lore) {
+  /* ⚠️ ET SEULEMENT QUAND ON EST VRAIMENT SUR LE GUIDE — borne ajoutée après
+     l'avoir vue mordre : un panneau de catalogue ouvert par-dessus (le don
+     d'origine, BS et BSS) laisse l'étape en état « guide », donc la règle
+     s'appliquait et ces écrans-là s'ouvraient SANS PAIRE. Le guide dessous n'est
+     pas celui qu'on regarde. `catalogueCourant()` est exactement la question
+     « un panneau est-il ouvert ? ». */
+  if (!state.parcoursItem && !state.lore && !fiche) {
     const racine = parcoursRacineCourante();
     if (racine) {
       const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine });
@@ -2486,7 +2569,11 @@ function renderSortieEtape() {
      c'est le mot d'Eric, et il s'accorde avec le pied du guide.
      ⛔ UN SEUL PRODUCTEUR, INCHANGÉ : la coquille pose ce bouton, `pressBack`
      l'exécute (garde 17). Ce sont les mots qui varient, jamais le propriétaire. */
-  const motDuRetour = state.parcoursItem ? "Cancel" : "Back";
+  /* LE MOT SUIT LE GESTE (la règle d'Eric du jour) : `Cancel` abandonne un
+     item, `I changed my mind` efface une branche, `Back` ne fait que reculer. */
+  const cfgRetour = catalogueCourant();
+  const effaceAuRetour = Boolean(cfgRetour && cfgRetour.retourEfface && state.palier === 2);
+  const motDuRetour = state.parcoursItem ? "Cancel" : effaceAuRetour ? "I changed my mind" : "Back";
   const back = (state.palier > 1 || state.parcoursItem) ? button(motDuRetour, () => pressBack()) : null;
   if (back) back.className = "sortie-bouton sortie-back";
 
