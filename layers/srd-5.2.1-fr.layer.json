@@ -684,7 +684,77 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Armes courantes et armes de guerre"
+          "weapon_mastery_from": [
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ],
+          "weapon_proficiencies": "Armes courantes et armes de guerre",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ]
         },
         "slug": "barbare",
         "attribution": {
@@ -696,7 +766,7 @@
           "locator": "p.30",
           "version": "5.2.1"
         },
-        "contentHash": "52a1ec8c4793bdfe1464d66860890c1a229fc00d7b0e9682edf8f885d0495300"
+        "contentHash": "f244bc4bd63b749033c130680269535c3c4b188f5182544956f2e7d77d213656"
       },
       "srd:class:fr:barde": {
         "name": "Barde",
@@ -827,7 +897,23 @@
             "name": "Collège du Savoir"
           },
           "tool_proficiencies": "3 instruments de musique au choix (cf. « Équipement »)",
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "barde",
         "attribution": {
@@ -839,7 +925,7 @@
           "locator": "p.33",
           "version": "5.2.1"
         },
-        "contentHash": "2341d6f666a744797b7c05d2c404baa9f91fe3cfb1d221da1f5f4d197540af9e"
+        "contentHash": "7954777a192ca37d887100b463294866b8fc38f6da7ca883d755abec33dbdc4a"
       },
       "srd:class:fr:clerc": {
         "name": "Clerc",
@@ -976,7 +1062,23 @@
             "name": "Domaine de la Vie"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "clerc",
         "attribution": {
@@ -988,7 +1090,7 @@
           "locator": "p.38",
           "version": "5.2.1"
         },
-        "contentHash": "746782c5d77be12355e4b376e25a6b1fbd7bcf8e7d57989ccdfe5d7bb417da5a"
+        "contentHash": "b696755b429233b2d23979366fa113a922f49b0a48d74b6fa8d227b92b848332"
       },
       "srd:class:fr:druide": {
         "name": "Druide",
@@ -1140,7 +1242,23 @@
             "name": "Cercle de la Terre"
           },
           "tool_proficiencies": "Matériel d’herboriste",
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "druide",
         "attribution": {
@@ -1152,7 +1270,7 @@
           "locator": "p.43",
           "version": "5.2.1"
         },
-        "contentHash": "9366ac2e24d24abe088407b66f8e33fd18e69599b067e336a8195946d8db6797"
+        "contentHash": "39d86fc02a1a97e4fa086960058a7305cb64f2a23655c0e599d397834b326ade"
       },
       "srd:class:fr:ensorceleur": {
         "name": "Ensorceleur",
@@ -1284,7 +1402,23 @@
             "name": "Sorcellerie draconique"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "ensorceleur",
         "attribution": {
@@ -1296,7 +1430,7 @@
           "locator": "p.49",
           "version": "5.2.1"
         },
-        "contentHash": "3d76f0d99a8f38a9ed0754e0f043f1e97666945f6ba6fbd3059d92371edca128"
+        "contentHash": "1496a1c01d93d5a5abc4b4968a06c4d3933b86a21f1d00235f55e7b64f57ba16"
       },
       "srd:class:fr:guerrier": {
         "name": "Guerrier",
@@ -1467,7 +1601,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 3,
-          "weapon_proficiencies": "Armes courantes et armes de guerre"
+          "weapon_mastery_from": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ],
+          "weapon_proficiencies": "Armes courantes et armes de guerre",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ]
         },
         "slug": "guerrier",
         "attribution": {
@@ -1479,7 +1693,7 @@
           "locator": "p.56",
           "version": "5.2.1"
         },
-        "contentHash": "22c430ebd6e4b56a93bb4ce22de27316baf74eb5bba7f8a9cff5483f27d16beb"
+        "contentHash": "bd136dda45ec95ed628e07c6bd0e8ae3a4132e2b05dee36b53473e855c39f52a"
       },
       "srd:class:fr:magicien": {
         "name": "Magicien",
@@ -1612,7 +1826,23 @@
             "name": "Évocateur"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "magicien",
         "attribution": {
@@ -1624,7 +1854,7 @@
           "locator": "p.58",
           "version": "5.2.1"
         },
-        "contentHash": "3748085586b41a37ffc36e7e2906f3ae4b87a9b4792c40b757b98ed0f48f0e8a"
+        "contentHash": "dcc6d3d81c0bee426bde5868f9b3ef5ced33ece63702fa55e3459e267449baaa"
       },
       "srd:class:fr:moine": {
         "name": "Moine",
@@ -1821,7 +2051,26 @@
             "name": "Credo de la Paume"
           },
           "tool_proficiencies": "Choisissez un type d’outils d’artisan ou d’instrument de musique (cf. « Équipement »)",
-          "weapon_proficiencies": "Armes courantes ; et armes de guerre dotées de la propriété Légère"
+          "weapon_proficiencies": "Armes courantes ; et armes de guerre dotées de la propriété Légère",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "moine",
         "attribution": {
@@ -1833,7 +2082,7 @@
           "locator": "p.65",
           "version": "5.2.1"
         },
-        "contentHash": "b70f5c111fe1062fa9433d7b91e2de8ef6df380113d5ed42a737b5fa52d0fe24"
+        "contentHash": "e6f2012d5d072de887420646b7bb35cfc257ef8492bdc2f521e8a97176239194"
       },
       "srd:class:fr:occultiste": {
         "name": "Occultiste",
@@ -1960,7 +2209,23 @@
             "name": "Protecteur Fiélon"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Armes courantes"
+          "weapon_proficiencies": "Armes courantes",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "occultiste",
         "attribution": {
@@ -1972,7 +2237,7 @@
           "locator": "p.68",
           "version": "5.2.1"
         },
-        "contentHash": "3e3c0b09bf8468cedfba3b9686941936a0bdaa34e651dee9b0e28f67535e5e18"
+        "contentHash": "dafcd4afe3b73eb0ec9d5f9929ac4f8c78bc92d5006d66e78836ae4b871a4b8b"
       },
       "srd:class:fr:paladin": {
         "name": "Paladin",
@@ -2147,7 +2412,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Armes courantes et armes de guerre"
+          "weapon_mastery_from": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ],
+          "weapon_proficiencies": "Armes courantes et armes de guerre",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ]
         },
         "slug": "paladin",
         "attribution": {
@@ -2159,7 +2504,7 @@
           "locator": "p.75",
           "version": "5.2.1"
         },
-        "contentHash": "93da76fd26821a2a81bb895e9bf1c5e0fba9757b34e779ef1ff54c121e0a7864"
+        "contentHash": "0a23ca18948fa291a43f4a5e24c8b1afd6e6b41bc14b153a663c9b37218edbb5"
       },
       "srd:class:fr:rodeur": {
         "name": "Rôdeur",
@@ -2336,7 +2681,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Armes courantes et armes de guerre"
+          "weapon_mastery_from": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ],
+          "weapon_proficiencies": "Armes courantes et armes de guerre",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arbalete-lourde",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:arc-long",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:coutille",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-a-deux-mains",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:epee-longue",
+            "srd:weapon:fr:fleau-d-armes",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hache-a-deux-mains",
+            "srd:weapon:fr:hache-d-armes",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:hallebarde",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:lance-d-arcon",
+            "srd:weapon:fr:maillet-d-armes",
+            "srd:weapon:fr:marteau-de-guerre",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:morgenstern",
+            "srd:weapon:fr:mousquet",
+            "srd:weapon:fr:pic-de-guerre",
+            "srd:weapon:fr:pique",
+            "srd:weapon:fr:pistolet",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:sarbacane",
+            "srd:weapon:fr:serpe",
+            "srd:weapon:fr:trident"
+          ]
         },
         "slug": "rodeur",
         "attribution": {
@@ -2348,7 +2773,7 @@
           "locator": "p.80",
           "version": "5.2.1"
         },
-        "contentHash": "b9a310eab59633c523dc9fdb3d4584d76392e11e89cdf438502587cd3c004e78"
+        "contentHash": "59de50396a3c8e400edfc168e834a0659b424a91cd89b713c3e031d55a460f35"
       },
       "srd:class:fr:roublard": {
         "name": "Roublard",
@@ -2532,7 +2957,49 @@
           },
           "tool_proficiencies": "Outils de voleur",
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Armes courantes et armes de guerre dotées de la propriété Finesse ou Légère"
+          "weapon_mastery_from": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:serpe"
+          ],
+          "weapon_proficiencies": "Armes courantes et armes de guerre dotées de la propriété Finesse ou Légère",
+          "weapon_proficiency_ids": [
+            "srd:weapon:fr:arbalete-de-poing",
+            "srd:weapon:fr:arbalete-legere",
+            "srd:weapon:fr:arc-court",
+            "srd:weapon:fr:baton-de-combat",
+            "srd:weapon:fr:cimeterre",
+            "srd:weapon:fr:dague",
+            "srd:weapon:fr:epee-courte",
+            "srd:weapon:fr:flechette",
+            "srd:weapon:fr:fouet",
+            "srd:weapon:fr:fronde",
+            "srd:weapon:fr:gourdin",
+            "srd:weapon:fr:hachette",
+            "srd:weapon:fr:javeline",
+            "srd:weapon:fr:lance",
+            "srd:weapon:fr:marteau-leger",
+            "srd:weapon:fr:masse-d-armes",
+            "srd:weapon:fr:massue",
+            "srd:weapon:fr:rapiere",
+            "srd:weapon:fr:serpe"
+          ]
         },
         "slug": "roublard",
         "attribution": {
@@ -2544,7 +3011,7 @@
           "locator": "p.84",
           "version": "5.2.1"
         },
-        "contentHash": "7c84a3b54ec3ba1f0b2e96f39c467490e9be550adc9192a1b98d76b24638a7eb"
+        "contentHash": "b147ef9017adc39d14aa797999d8ce2ce58370d02555c03cc29030d1584453ae"
       }
     },
     "class-progression": {

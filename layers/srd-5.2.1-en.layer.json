@@ -684,7 +684,77 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Simple and Martial weapons"
+          "weapon_mastery_from": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ],
+          "weapon_proficiencies": "Simple and Martial weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ]
         },
         "slug": "barbarian",
         "attribution": {
@@ -696,7 +766,7 @@
           "locator": "p.28",
           "version": "5.2.1"
         },
-        "contentHash": "53721141fc5c6a09d6ec0e565436801d57cf10e3dcb93e86b4c3cc7e85b190a1"
+        "contentHash": "20cfd8075e936627fffdabd821a2a6a9d493db676b24ee19ab9172b18852d457"
       },
       "srd:class:en:bard": {
         "name": "Bard",
@@ -827,7 +897,23 @@
             "name": "College of Lore"
           },
           "tool_proficiencies": "Choose 3 Musical Instruments (see “Equipment”)",
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "bard",
         "attribution": {
@@ -839,7 +925,7 @@
           "locator": "p.31",
           "version": "5.2.1"
         },
-        "contentHash": "a0e6b50d6908e975f9107fac48c684887620550aeecde3447443acc314d979f5"
+        "contentHash": "dbd524b9198aa3598fc69f48007253b28c438684eb74575feac18f0041c8c9b5"
       },
       "srd:class:en:cleric": {
         "name": "Cleric",
@@ -976,7 +1062,23 @@
             "name": "Life Domain"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "cleric",
         "attribution": {
@@ -988,7 +1090,7 @@
           "locator": "p.36",
           "version": "5.2.1"
         },
-        "contentHash": "9e89e1c3cd478a5a5bc824469fde6c5d462e3dc3b0b29b16bc71fc0fdc9946b1"
+        "contentHash": "120407c5996e13843031a562f0ccf4ebbfa19a6fc2313e330aef69d4cf58f669"
       },
       "srd:class:en:druid": {
         "name": "Druid",
@@ -1140,7 +1242,23 @@
             "name": "Circle of the Land"
           },
           "tool_proficiencies": "Herbalism Kit",
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "druid",
         "attribution": {
@@ -1152,7 +1270,7 @@
           "locator": "p.41",
           "version": "5.2.1"
         },
-        "contentHash": "d4a21cb8844cd8700b7d96f2a0b5a2918948724141c681e326ffbaa1dd42e8bc"
+        "contentHash": "71305ca48ebf6dacaabf8ed7c921183fca371d486399465f3163dc2ff6c19fc9"
       },
       "srd:class:en:fighter": {
         "name": "Fighter",
@@ -1323,7 +1441,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 3,
-          "weapon_proficiencies": "Simple and Martial weapons"
+          "weapon_mastery_from": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ],
+          "weapon_proficiencies": "Simple and Martial weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ]
         },
         "slug": "fighter",
         "attribution": {
@@ -1335,7 +1533,7 @@
           "locator": "p.47",
           "version": "5.2.1"
         },
-        "contentHash": "179cddf6e02f214ffdd7699776de06ab6083dc9026a96e88f4356a5a72cce7e4"
+        "contentHash": "9d92bf8c5892fd992811815bdfada365f35a615503d7561f86dbaa195a4f66ed"
       },
       "srd:class:en:monk": {
         "name": "Monk",
@@ -1532,7 +1730,26 @@
             "name": "Warrior of the Open Hand"
           },
           "tool_proficiencies": "Choose one type of Artisan’s Tools or Musical Instrument (see “Equipment”)",
-          "weapon_proficiencies": "Simple weapons and Martial weapons that have the Light property"
+          "weapon_proficiencies": "Simple weapons and Martial weapons that have the Light property",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "monk",
         "attribution": {
@@ -1544,7 +1761,7 @@
           "locator": "p.49",
           "version": "5.2.1"
         },
-        "contentHash": "f21c7ea3d7aec160a88cd9b221715ead197697c3b167b55d37a93ca075b5850a"
+        "contentHash": "33786ae1cf66667b86c566d321aa5304b6779b55cd5fc163583779cb4859f17d"
       },
       "srd:class:en:paladin": {
         "name": "Paladin",
@@ -1719,7 +1936,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Simple and Martial weapons"
+          "weapon_mastery_from": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ],
+          "weapon_proficiencies": "Simple and Martial weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ]
         },
         "slug": "paladin",
         "attribution": {
@@ -1731,7 +2028,7 @@
           "locator": "p.53",
           "version": "5.2.1"
         },
-        "contentHash": "f02537d282d63f82ed38900b7f29d260fb3dede55a99b0f4916f96fa1d9d6ea5"
+        "contentHash": "91311d0c07402b0fadb60d3dd88c0146a318ba333aeaa99398fa439416a3c579"
       },
       "srd:class:en:ranger": {
         "name": "Ranger",
@@ -1908,7 +2205,87 @@
           },
           "tool_proficiencies": null,
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Simple and Martial weapons"
+          "weapon_mastery_from": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ],
+          "weapon_proficiencies": "Simple and Martial weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:battleaxe",
+            "srd:weapon:en:blowgun",
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:flail",
+            "srd:weapon:en:glaive",
+            "srd:weapon:en:greataxe",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:greatsword",
+            "srd:weapon:en:halberd",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:heavy-crossbow",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:lance",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:longbow",
+            "srd:weapon:en:longsword",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:maul",
+            "srd:weapon:en:morningstar",
+            "srd:weapon:en:musket",
+            "srd:weapon:en:pike",
+            "srd:weapon:en:pistol",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:trident",
+            "srd:weapon:en:war-pick",
+            "srd:weapon:en:warhammer",
+            "srd:weapon:en:whip"
+          ]
         },
         "slug": "ranger",
         "attribution": {
@@ -1920,7 +2297,7 @@
           "locator": "p.57",
           "version": "5.2.1"
         },
-        "contentHash": "cd4763e184e94acf49f0688e7469ecbb8486c000e7dc82e15ea80a89aac04312"
+        "contentHash": "bf9ebcab5d06ef5df89d9e63db1762443a2d07ea18ba6ac067c53feb6d5a3a6f"
       },
       "srd:class:en:rogue": {
         "name": "Rogue",
@@ -2104,7 +2481,49 @@
           },
           "tool_proficiencies": "Thieves’ Tools",
           "weapon_mastery_count": 2,
-          "weapon_proficiencies": "Simple weapons and Martial weapons that have the Finesse or Light property"
+          "weapon_mastery_from": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:whip"
+          ],
+          "weapon_proficiencies": "Simple weapons and Martial weapons that have the Finesse or Light property",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:hand-crossbow",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:rapier",
+            "srd:weapon:en:scimitar",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:shortsword",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear",
+            "srd:weapon:en:whip"
+          ]
         },
         "slug": "rogue",
         "attribution": {
@@ -2116,7 +2535,7 @@
           "locator": "p.61",
           "version": "5.2.1"
         },
-        "contentHash": "1d1b57a35db82ac5e85b6dc1994d68aa8e67cf17fa0c2f1c6f2d382365880415"
+        "contentHash": "13a7a9b57df6c7b35bfc16239f4d34cd2f860ce111b139deb97e84ed38df2db2"
       },
       "srd:class:en:sorcerer": {
         "name": "Sorcerer",
@@ -2248,7 +2667,23 @@
             "name": "Draconic Sorcery"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "sorcerer",
         "attribution": {
@@ -2260,7 +2695,7 @@
           "locator": "p.64",
           "version": "5.2.1"
         },
-        "contentHash": "17d682e9ced2c3fc5ace3a2a5d942477e44ec88620c539984de979f8dfa37989"
+        "contentHash": "a9a9dfc09ae54b6da74d2dd160e592d05b164fea33e62c360d1f5349a07aca14"
       },
       "srd:class:en:warlock": {
         "name": "Warlock",
@@ -2387,7 +2822,23 @@
             "name": "Fiend Patron"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "warlock",
         "attribution": {
@@ -2399,7 +2850,7 @@
           "locator": "p.70",
           "version": "5.2.1"
         },
-        "contentHash": "16705cde7c4c97013b8bdd8f09399e30f47da9a84266a46b5a1b1b82a0041e40"
+        "contentHash": "23d8ca6c26bc94bbf703d0d08570f3b589c899bef8e6104483a64eafe93ce56c"
       },
       "srd:class:en:wizard": {
         "name": "Wizard",
@@ -2532,7 +2983,23 @@
             "name": "Evoker"
           },
           "tool_proficiencies": null,
-          "weapon_proficiencies": "Simple weapons"
+          "weapon_proficiencies": "Simple weapons",
+          "weapon_proficiency_ids": [
+            "srd:weapon:en:club",
+            "srd:weapon:en:dagger",
+            "srd:weapon:en:dart",
+            "srd:weapon:en:greatclub",
+            "srd:weapon:en:handaxe",
+            "srd:weapon:en:javelin",
+            "srd:weapon:en:light-crossbow",
+            "srd:weapon:en:light-hammer",
+            "srd:weapon:en:mace",
+            "srd:weapon:en:quarterstaff",
+            "srd:weapon:en:shortbow",
+            "srd:weapon:en:sickle",
+            "srd:weapon:en:sling",
+            "srd:weapon:en:spear"
+          ]
         },
         "slug": "wizard",
         "attribution": {
@@ -2544,7 +3011,7 @@
           "locator": "p.77",
           "version": "5.2.1"
         },
-        "contentHash": "66f4ecd8608e8d3adf35b993ba7be6b6a8f95b25aa263728739f3b937d9949e2"
+        "contentHash": "0c90d00bfeeb60b953027c2bfb09213f649b2c553acd4790b047f20632115f64"
       }
     },
     "class-progression": {
