@@ -431,6 +431,97 @@ test("ACCEPTATION 4 — couche FH débrayée : `stats` est VIDE et la déclarati
   }
 });
 
+/* ══ LA BOURSE CAPTIVE DE CLASSE — 2026-08-20 ═════════════════════════════
+   🔴 D'OÙ ELLE VIENT : Eric, *« pourquoi le rogue a toujours 4 skills à
+   placer ? »*. Mesuré ce jour-là, le choix `class.skills[n]` ne coûtait RIEN au
+   pool et n'accordait RIEN — la compétence choisie ressortait
+   `proficiency: "none"`. La couche maison avait AJOUTÉ son pool à côté du
+   système SRD au lieu de le remplacer, et le joueur plaçait quatre maîtrises
+   dans le vide.
+
+   ⭐ LA MÉCANIQUE DE REMPLACEMENT EXISTAIT DÉJÀ SOUS UN AUTRE NOM : la bourse
+   captive de l'espèce (Keen Senses) est « du bound sous son nom de moteur ».
+   Elle est désormais GÉNÉRIQUE — une racine, une liste, des points — et la
+   classe peut la porter.
+
+   ⏳ AUCUNE COUCHE LIVRÉE NE LA DÉCLARE ENCORE : basculer les douze classes
+   retire aussi des comportements produit (la confirmation qui nomme les
+   compétences perdues au changement de classe, la validation du 2ᵉ palier, le
+   routage de Review), et cette bascule appartient à Eric. Ce test la prouve donc
+   sur une COUCHE DE SCÉNARIO — la capacité est vivante et gardée, pas un
+   fantôme qui attend son jour. */
+const COUCHE_BOURSE_DE_CLASSE = uneCouche("scenario-bourse-classe", {
+  class: {
+    "srd:class:en:rogue": {
+      op: "patch",
+      /* ⛔ AUCUNE LISTE : un budget captif de CLASSE est captif de la liste de
+         sa classe (`skill_choice.from`), que le record porte déjà. La recopier
+         ferait une seconde vérité à tenir d'accord. */
+      changes: { "data[granted_skill_budget]": { points: 6 } }
+    }
+  }
+});
+
+test("la bourse captive de CLASSE remplace le choix SRD, et son EXPERT accorde le double", () => {
+  const h = pilePool({ extra: COUCHE_BOURSE_DE_CLASSE });
+  const base = {
+    level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling",
+    backgroundId: INHERITANCE
+  };
+
+  /* ① LE CHOIX SRD S'ÉTEINT — un seul système à la fois, jamais deux. */
+  const plans = h.verbs.decisions({ document: documentDe(h, choixDe(base)) }).decisions;
+  assert.equal(plans.some((p) => p.path === "class.skills"), false,
+    "là où une bourse est déclarée, le choix compté du SRD ne publie plus rien");
+
+  /* ② LA BOURSE PUBLIE SES POINTS, ET SA LISTE EST CELLE DE LA CLASSE. */
+  const bourse = plans.find((p) => p.path === "class.skillBudget");
+  assert.ok(bourse, "la bourse de classe publie son plan");
+  assert.equal(bourse.expected, 6, "six points liés — ceux que le canon §B.1 place chez le Rogue");
+  assert.equal(bourse.answered, 0);
+  const listeDeClasse = h.layers.verbs.query({ kind: "class", id: base.classId })
+    .record.data.skill_choice.from.map((id) => id.split(":").pop());
+  for (const slug of bourse.options) {
+    assert.ok(listeDeClasse.includes(slug),
+      `« ${slug} » n'est pas dans la liste de la classe — la bourse doit rester CAPTIVE de cette liste`);
+  }
+  /* ⭐ ET ELLE SE FILTRE SUR CE QUI EXISTE VRAIMENT, ce qui se voit ici en
+     grand : `perception` est dans la liste SRD du Rogue et **absente** des
+     options, parce que la couche maison l'a éclatée en trois (Vigilance, Delve,
+     Hunting). Une bourse qui aurait recopié la liste SRD aurait proposé une
+     compétence que le personnage ne peut pas porter. C'est exactement ce que
+     « lire la liste là où elle vit » achète. */
+  assert.equal(bourse.options.includes("perception"), false,
+    "une compétence que la pile ne porte plus ne s'offre pas — même si la liste SRD la nomme");
+  assert.ok(bourse.options.includes("stealth") && bourse.options.includes("acrobatics"),
+    "et tout ce qui existe reste offert");
+
+  /* ③ UN EXPERT COÛTE 4 ET ACCORDE LE DOUBLE. C'est le cœur : le palier
+     n'existait ni dans le carnet ni dans la dérivation, donc un placement
+     d'expert était silencieusement ignoré. */
+  const avecExpert = choixDe(base).concat([
+    { path: "class.skillBudget.stealth", value: "expert" },
+    { path: "class.skillBudget.acrobatics", value: "novice" },
+    { path: "class.skillBudget.athletics", value: "novice" }
+  ]);
+  const out = h.verbs.rebuild({ document: documentDe(h, avecExpert) });
+  const stealth = out.resolved.skills.find((s) => s.id === "stealth");
+  assert.equal(stealth.proficiency, "expert", "le placement d'expert est CONSOMMÉ, plus ignoré");
+  const prof = out.resolved.proficiency;
+  assert.equal(stealth.bonus - out.resolved.abilities.dex.mod, prof * 2,
+    `un expert double le bonus de maîtrise (canon §A.1) — attendu ${prof * 2}`);
+
+  const dep = h.verbs.decisions({ document: documentDe(h, avecExpert) }).decisions
+    .find((p) => p.path === "class.skillBudget");
+  assert.equal(dep.answered, 6, "4 (expert) + 1 + 1 = les six points, comptés au coût du palier");
+
+  /* ④ ET LE POOL LIBRE N'A PAS BOUGÉ D'UN POINT — les liés « n'ont jamais
+     transité par le pool » (canon §B.0). C'est la moitié qu'on casserait le
+     plus facilement en croyant bien faire. */
+  assert.equal(poolDe(out.resolved).value, poolDe(h.verbs.rebuild({ document: documentDe(h, choixDe(base)) }).resolved).value,
+    "placer ses points LIÉS ne prend rien au pool libre");
+});
+
 /* ══ ACCEPTATION 5 — LE DRAPEAU SANS SA COUCHE ════════════════════════ */
 
 /** Une couche qui lève `fh.skills` SANS apporter les pools. C'est le seul moyen

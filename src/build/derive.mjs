@@ -682,7 +682,81 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      ne dérive jamais une intention illégale, il la laisse `unconsumed`.
      `decisions.mjs` la NOMME en verrou keyé (lot 27), il ne jette pas pour
      un choix de joueur. */
-  const budgetTier = new Map(); // slug → "novice"|"adept"
+  /* 🔴 `expert` ENTRE DANS LA TABLE — la table n'en connaissait que deux, et
+     c'est le canon qui en publie trois (novice 1 · adept 2 · expert 4). Le
+     Rogue place un EXPERT dans ses points liés : sans le palier, son placement
+     était illégal et silencieusement ignoré. ⛔ Cette table-ci ne dit que les
+     paliers LÉGAUX — ce que chacun COÛTE appartient à la couche, et ce fichier
+     n'a pas à le savoir. */
+  const TIER_COST = { novice: 1, adept: 2, expert: 4 };
+  const budgetTier = new Map(); // slug → "novice"|"adept"|"expert"
+
+  /* ══ LE BUDGET CAPTIF DE CLASSE — 2026-08-20 ═══════════════════════════════
+     🔴 CE QUE ÇA RÉPARE, ET C'ÉTAIT UN FAUX MAGASIN. Eric : *« pourquoi le
+     rogue a toujours 4 skills à placer ? »*. Mesuré : le choix `class.skills[n]`
+     ne coûtait RIEN au pool et n'accordait RIEN — la compétence choisie
+     ressortait `proficiency: "none"`. L'écran demandait quatre décisions que le
+     moteur ignorait.
+
+     ⭐ LA CAUSE : la couche FH n'a jamais éteint le système SRD des classes. Elle
+     a AJOUTÉ le pool (canon §B.1) à côté de `skill_choice`, alors qu'il le
+     REMPLACE — et pour l'arrière-plan, le lot 35 avait bien éteint l'ancien.
+     Les classes sont restées avec deux systèmes côte à côte, dont un mort.
+
+     ⭐ ET LA MÉCANIQUE EXISTAIT DÉJÀ, SOUS UN AUTRE NOM : le budget captif
+     d'espèce (Keen Senses) est *« du BOUND sous son nom de moteur »* — le module
+     `skill-pool.mjs` l'écrit en toutes lettres. On ne construit donc rien de
+     neuf : on tend au même organe la paire de la classe.
+
+     ⛔ ET AUCUN CONTENU N'EST AJOUTÉ NULLE PART. Les deux moitiés existent déjà
+     sur le record : les POINTS que la couche déclare (canon §B.1), la LISTE
+     dans `skill_choice.from` — qui EST « votre liste de classe »,
+     celle que le canon nomme (*« only inside your class list »*). Recopier l'une
+     ou l'autre aurait fait une seconde vérité à tenir d'accord ; c'est ce que la
+     nuit vient justement de retirer de la couche des fiches.
+
+     ⛔ ET LE NOM DU CHAMP EST GÉNÉRIQUE, PARCE QU'UN GARDE L'EXIGE. La loi
+     §0.12 interdit à `src/build/` de citer une mécanique de la couche maison —
+     j'ai d'abord nommé ici son champ de pool, et le garde a mordu dans la
+     minute, **jusque dans le commentaire**. Il a raison deux fois : ce bloc ne
+     doit pas savoir que cette couche existe, et une prose qui la nomme apprend
+     son vocabulaire au lecteur suivant. Le budget se
+     déclare donc sous le MÊME nom que celui de l'espèce, `granted_skill_budget`,
+     dont l'en-tête du module dit déjà qu'il est « du bound sous son nom de
+     moteur ».
+     ⭐ ET SA LISTE N'EST PAS RECOPIÉE : un budget captif de CLASSE est, par
+     définition, captif de la liste de la classe — `skill_choice.from`, un champ
+     SRD que ce fichier lit déjà. Une couche qui voudrait une autre liste passe
+     son propre `from` ; sans ça, la liste est celle du record.
+     📌 ET UN PERSONNAGE SRD PUR NE BOUGE PAS D'UN POUCE (loi §0.12) : sans
+     couche qui déclare le budget, il n'y en a pas, et `skill_choice` garde son
+     ancien rôle. C'est la COUCHE qui remplace, jamais le moteur qui décide. */
+  const declarationClasse = classData.granted_skill_budget;
+  const budgetDeClasse = declarationClasse && typeof declarationClasse === "object" &&
+    !Array.isArray(declarationClasse) && Number.isInteger(declarationClasse.points) &&
+    declarationClasse.points > 0
+    ? {
+      points: declarationClasse.points,
+      from: declarationClasse.from !== undefined ? declarationClasse.from
+        : (classData.skill_choice && classData.skill_choice.from)
+    }
+    : null;
+  if (budgetDeClasse) {
+    const allowedClasse = allowedSlugs(budgetDeClasse, skills);
+    if (allowedClasse !== null) {
+      const prefixeClasse = "class.skillBudget.";
+      for (const entry of picked.byRoot.get("class") || []) {
+        const path = entry.choice.path;
+        if (typeof path !== "string" || !path.startsWith(prefixeClasse)) continue;
+        const slug = path.slice(prefixeClasse.length);
+        const value = entry.choice.value;
+        if (!allowedClasse.has(slug) || !Object.hasOwn(TIER_COST, value)) continue; // decisions.mjs le NOMME
+        entry.consumed = true;
+        budgetTier.set(slug, value);
+      }
+    }
+  }
+
   const budget = speciesData.granted_skill_budget;
   if (budget !== undefined) {
     if (budget === null || typeof budget !== "object" || Array.isArray(budget) ||
@@ -697,14 +771,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         `${JSON.stringify(budget.from)}, which is not a list of skill ids (or "any") — a captive budget with no ` +
         "legal list would let the player spend its points anywhere, erasing the restriction the grant exists to carry.");
     }
-    const BUDGET_TIER_COST = { novice: 1, adept: 2 };
     const budgetPrefix = "species.skillBudget.";
     for (const entry of picked.byRoot.get("species") || []) {
       const path = entry.choice.path;
       if (typeof path !== "string" || !path.startsWith(budgetPrefix)) continue;
       const slug = path.slice(budgetPrefix.length);
       const value = entry.choice.value;
-      if (!allowedBudget.has(slug) || !Object.hasOwn(BUDGET_TIER_COST, value)) continue; // decisions.mjs le NOMME
+      if (!allowedBudget.has(slug) || !Object.hasOwn(TIER_COST, value)) continue; // decisions.mjs le NOMME
       entry.consumed = true;
       budgetTier.set(slug, value);
     }
@@ -725,6 +798,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     const skillTierBonus = (tier) => {
       if (tier === "novice") return Math.floor(proficiency / 2);
       if (tier === "adept") return proficiency;
+      /* ⭐ `expert` DOUBLE, et c'est le canon §A.1 : *« Expert · 4 pts · double
+         your proficiency bonus »*. Il n'existait pas ici parce qu'aucun palier
+         SRD n'en produit — le budget captif de classe en produit un. */
+      if (tier === "expert") return proficiency * 2;
       return 0;
     };
     resolved.skills = skills.list.map((entry) => {

@@ -427,21 +427,36 @@ function backgroundToolPlan(choices, view) {
    ½ ou Plein sur une liste fermée. Contrat §4e : « un groupe DISTINCT, pas
    mélangé aux lignes du pool de classe » — c'est un plan à PART, sous
    `species.skillBudget`, jamais fusionné avec `species.skills`. */
-const BUDGET_TIER_COST = { novice: 1, adept: 2 };
+/* 🔴 `expert` ENTRE DANS LA TABLE — 2026-08-20. Le canon publie TROIS paliers
+   (novice 1 · adept 2 · expert 4) ; ce carnet n'en connaissait que deux parce
+   que seule l'espèce avait une bourse, et qu'aucune espèce n'accorde d'expert.
+   La classe en accorde un (le Rogue place un Expert dans ses points liés) :
+   sans le palier, son placement aurait été NOMMÉ illégal par ce fichier même. */
+const BUDGET_TIER_COST = { novice: 1, adept: 2, expert: 4 };
 
-function speciesBudgetPlan(choices, speciesView, skills) {
-  const budget = speciesView.record.data && speciesView.record.data.granted_skill_budget;
-  if (!budget || typeof budget !== "object" || Array.isArray(budget) ||
-    !Number.isInteger(budget.points) || budget.points <= 0) {
+/* ⭐ UNE BOURSE CAPTIVE, POUR N'IMPORTE QUELLE RACINE — généralisée le
+   2026-08-20. Elle ne servait que l'espèce ; la classe en réclame une pour ses
+   points LIÉS, et c'est exactement le même objet : des points captifs d'une
+   liste, dépensés à un palier. Écrire une seconde version pour la classe aurait
+   fait deux règles de dépense qui divergent au premier réglage.
+   📌 `listeParDefaut` sert la classe : un budget de classe est captif de la
+   liste de SA classe (`skill_choice.from`), et la couche n'a donc pas à la
+   recopier. L'espèce, elle, nomme toujours sa liste. */
+function budgetCaptifPlan({ choices, view, racine, kind, skills, listeParDefaut }) {
+  const declaration = view.record.data && view.record.data.granted_skill_budget;
+  if (!declaration || typeof declaration !== "object" || Array.isArray(declaration) ||
+    !Number.isInteger(declaration.points) || declaration.points <= 0) {
     return [];
   }
+  const budget = declaration.from !== undefined ? declaration : { ...declaration, from: listeParDefaut };
   const options = skillOptions(budget, skills); // ne lit que `.from` — la même fonction que le choix compté
   if (options === null) return [];
 
-  const prefix = "species.skillBudget.";
+  const chemin = `${racine}.skillBudget`;
+  const prefix = `${chemin}.`;
   const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
     choice.path.startsWith(prefix) && typeof choice.value === "string");
-  const from = recordProvenance("offered", "species", speciesView, "granted_skill_budget");
+  const from = recordProvenance("offered", kind, view, "granted_skill_budget");
 
   let spent = 0;
   const selected = [];
@@ -469,11 +484,11 @@ function speciesBudgetPlan(choices, speciesView, skills) {
   }
   if (!planLock && spent > budget.points) {
     planLock = buildViolation("skill-budget.overspent", {
-      path: "species.skillBudget", spent, points: budget.points
-    }, "species.skillBudget");
+      path: chemin, spent, points: budget.points
+    }, chemin);
   }
   const plan = finish({
-    path: "species.skillBudget", options, selected: sorted(selected), expected: budget.points, answered: spent,
+    path: chemin, options, selected: sorted(selected), expected: budget.points, answered: spent,
     provenance: from
   }, planLock);
   return [plan, ...steps];
@@ -757,7 +772,29 @@ export function projectDecisions({ query, choices }) {
   const classChoice = list.find((choice) => choice && choice.path === "class" && choice.ref && choice.ref.kind === "class");
   const classView = classChoice ? query({ kind: "class", id: classChoice.ref.id }) : null;
   if (classView) {
-    const declaration = classView.record.data && classView.record.data.skill_choice;
+    /* 🔴 LA BOURSE DE CLASSE REMPLACE LE CHOIX SRD — 2026-08-20, et c'est le
+       cœur de la réparation. Mesuré : `class.skills[n]` ne coûtait rien au pool
+       et n'accordait rien (`proficiency: "none"`), parce que la couche maison a
+       AJOUTÉ son pool à côté du système SRD au lieu de le remplacer. Le joueur
+       plaçait quatre maîtrises dans le vide.
+       ⭐ Là où une bourse est déclarée, c'est ELLE qui porte le placement, et le
+       choix compté s'éteint — un seul système à la fois, jamais deux.
+       📌 ET LE SRD PUR NE PERD RIEN (loi §0.12) : sans couche qui déclare une
+       bourse, `skill_choice` garde exactement son rôle d'avant. */
+    entries.push(...budgetCaptifPlan({
+      choices: list, view: classView, racine: "class", kind: "class", skills,
+      listeParDefaut: classView.record.data && classView.record.data.skill_choice
+        ? classView.record.data.skill_choice.from : undefined
+    }));
+    const bourseDeClasse = classView.record.data && classView.record.data.granted_skill_budget;
+    const declaration = bourseDeClasse ? null : (classView.record.data && classView.record.data.skill_choice);
+    /* ⏳ AUCUNE COUCHE NE DÉCLARE ENCORE DE BOURSE DE CLASSE, et c'est délibéré :
+       l'éteindre pour de bon retire aussi des comportements PRODUIT (la
+       confirmation qui nomme les compétences perdues au changement de classe, la
+       validation du 2ᵉ palier, le routage de Review). Ce n'est plus un compte à
+       corriger, c'est une bascule de système — celle qu'Eric a remise à demain.
+       Le moteur, lui, sait déjà la porter : la ligne ci-dessus l'attend, et un
+       test la prouve sur une couche de scénario. */
     const options = skillOptions(declaration, skills);
     if (options && Number.isInteger(declaration.count) && declaration.count > 0) {
       entries.push(...multiPlan({
@@ -808,7 +845,9 @@ export function projectDecisions({ query, choices }) {
     }
 
     // LOT 34 — le budget captif (Keen Senses), un groupe DISTINCT (contrat §4e).
-    entries.push(...speciesBudgetPlan(list, speciesView, skills));
+    entries.push(...budgetCaptifPlan({
+      choices: list, view: speciesView, racine: "species", kind: "species", skills
+    }));
   }
 
   /* ⭐ LOT 71 — LE MÊME ÉCRIVAIN QUE `refPlan` : `resolvedRef`. Ces deux
