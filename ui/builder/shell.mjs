@@ -19,48 +19,48 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=263";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=263";
-import { mountPopup } from "./popup.mjs?v=263";
-import { renderLorePanel } from "./lore.mjs?v=263";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=263";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=264";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=264";
+import { mountPopup } from "./popup.mjs?v=264";
+import { renderLorePanel } from "./lore.mjs?v=264";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=264";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=263";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=263";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=264";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=264";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=263";
-import { renderConceptStep } from "./concept-step.mjs?v=263";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=263";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=263";
+} from "./tutoriel.mjs?v=264";
+import { renderConceptStep } from "./concept-step.mjs?v=264";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=264";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=264";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=263";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=263";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=263";
+} from "./catalogue.mjs?v=264";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=264";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=264";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=263";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=263";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=264";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=264";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=263";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=264";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=263";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=263";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=263";
+} from "./destiny-step.mjs?v=264";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=264";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=264";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=263";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=264";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -79,16 +79,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=263";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=263";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=264";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=263";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=263";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=264";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=264";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=263";
+import { versionQuery } from "./version.mjs?v=264";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2480,23 +2480,38 @@ function renderSortieEtape() {
      de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et
      un `Done` FLOTTAIT dessous, sur le fond de la scène. Deux validations pour
      un geste — exactement ce qu'Eric a fait sauter le 19/08.
-     ⚠️ POURQUOI SPECIES ET CLASS Y ÉCHAPPAIENT : elles sont des CATALOGUES, et
-     la ligne juste au-dessus les couvre par le drapeau `fiche`. L'Inheritance
-     n'a pas de catalogue — son parcours vit à part — donc aucune règle ne la
-     couvrait. Le défaut n'était pas dans le guide, il était dans le fait que
-     la protection était écrite sur le mauvais critère.
      ⭐ ÉCRIT SUR LE FAIT, comme le reste : « l'écran courant est-il un guide de
      parcours ? ». Une dalle d'ITEM garde la sienne — c'est le cran le plus
      intérieur, et c'est la paire de la coquille qui l'en sort. */
-  /* ⚠️ ET SEULEMENT QUAND ON EST VRAIMENT SUR LE GUIDE — borne ajoutée après
-     l'avoir vue mordre : un panneau de catalogue ouvert par-dessus (le don
-     d'origine, BS et BSS) laisse l'étape en état « guide », donc la règle
-     s'appliquait et ces écrans-là s'ouvraient SANS PAIRE. Le guide dessous n'est
-     pas celui qu'on regarde. `catalogueCourant()` est exactement la question
-     « un panneau est-il ouvert ? ». */
-  if (!state.parcoursItem && !state.lore && !fiche) {
+  /* 🔴 ET LE MÊME DOUBLON VIVAIT ENCORE CHEZ SPECIES ET CLASS — mesuré dans la
+     page le 2026-08-20, Fighter, juste après `Choose` : la dalle portait
+     « I changed my mind · Next », et « Back · Done » FLOTTAIT dessous.
+     ⚠️ CE N'EST PAS COSMÉTIQUE, ET C'EST CE QU'ERIC A VU (*« il devrait y avoir
+     une phase bilan dans les classes aussi, avec un next »*) : le `Done`
+     flottant est celui du PALIER, il avance d'une étape SANS signer la racine.
+     Le joueur qui suit le pied du bas quitte donc Class par la mauvaise porte,
+     et le bilan — la conclusion verte et son `Next` — ne lui est jamais montré.
+     Mesuré : après ce `Done`, retour à Class par la ceinture, le guide propose
+     TOUJOURS `Next` — preuve que rien n'avait été signé.
+     ⛔ LA PROTECTION D'AU-DESSUS NE POUVAIT PAS COUVRIR ÇA : elle est bornée à
+     `state.palier < 2`, c'est-à-dire à la chaîne de fiches, et le guide s'ouvre
+     précisément AU PALIER 2. Le commentaire d'hier affirmait que le drapeau
+     `fiche` couvrait Species et Class ; il ne les couvrait qu'au palier 1,
+     c'est-à-dire là où le guide n'est pas encore à l'écran.
+
+     ⚠️ ET SEULEMENT QUAND LE PANNEAU OUVERT EST CELUI DE CETTE RACINE — la
+     borne d'hier disait `!fiche`, ce qui était trop large dans un sens et trop
+     étroit dans l'autre. Un panneau de catalogue ouvert PAR-DESSUS un guide (le
+     don d'origine, BS, BSS) laisse bien l'étape en état « guide », et ces
+     écrans-là doivent garder leur paire : le guide dessous n'est pas celui
+     qu'on regarde. Ce qui les distingue n'est pas « y a-t-il un panneau ? »
+     mais « ce panneau appartient-il à la racine du parcours ? » — le catalogue
+     du don porte `background.originFeat[0]`, la racine est `background` ; celui
+     de Class porte `class`, et c'est la racine elle-même. */
+  if (!state.parcoursItem && !state.lore) {
     const racine = parcoursRacineCourante();
-    if (racine) {
+    const panneauEtranger = Boolean(fiche) && fiche.path !== racine;
+    if (racine && !panneauEtranger) {
       const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine });
       if (ou === ETAT.guide || ou === ETAT.bilan) return null;
     }

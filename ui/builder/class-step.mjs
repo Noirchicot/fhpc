@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=263";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=263";
-import { renderConfirmDialog } from "./confirm.mjs?v=263";
-import { renderChoixGlisses } from "./glisser.mjs?v=263";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=264";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=264";
+import { renderConfirmDialog } from "./confirm.mjs?v=264";
+import { renderChoixGlisses } from "./glisser.mjs?v=264";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -53,6 +53,20 @@ function prixDuPalier(valeur) {
   if (valeur === "novice" || valeur === "half") return "+1";
   if (valeur === "adept" || valeur === "proficient") return "+2";
   if (valeur === "expert" || valeur === "expertise") return "+4";
+  return String(valeur);
+}
+
+/* LE NOM DU PALIER, À CÔTÉ DE SON PRIX — la même table, l'autre colonne.
+   ⭐ ET LES DEUX MOTS SONT UTILES, CHACUN À SA PLACE : l'écran de CHOIX parle
+   en prix (« +2 », c'est ce qu'on dépense, et c'est le geste), le BILAN parle
+   en nom (« Adept », c'est ce qu'on a, et c'est le résultat). Ils vivent dans
+   le même fichier, sur la même table, pour ne pas pouvoir se contredire.
+   ⛔ Les valeurs restent celles du moteur (`novice`/`adept`/`expert`) — Novice,
+   Adept, Expert sont les trois paliers du canon, pas trois mots d'écran. */
+function nomDuPalier(valeur) {
+  if (valeur === "novice" || valeur === "half") return "Novice";
+  if (valeur === "adept" || valeur === "proficient") return "Adept";
+  if (valeur === "expert" || valeur === "expertise") return "Expert";
   return String(valeur);
 }
 
@@ -130,6 +144,121 @@ const SPELL_QCMS = [
     consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
 ];
 
+/** La classe RETENUE, lue au carnet — le pendant exact d'`especeRetenue`.
+ *  ⛔ Lue au plan de la racine, jamais devinée depuis l'écran courant : c'est
+ *  le carnet qui dit ce qui est posé. */
+function classeRetenue(ctx) {
+  const plan = planAt(ctx.decisions || [], "class");
+  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  if (!id || typeof ctx.query !== "function") return null;
+  const view = ctx.query({ kind: "class", id });
+  return view && view.record ? view.record : null;
+}
+
+/* ══ CE QUE LA CLASSE DONNE SANS QU'ON CHOISISSE — 2026-08-20 ══════════════
+   Eric : *« il devrait y avoir une phase bilan dans les classes aussi »*.
+
+   ⭐ ET C'EST LA LIGNE QUI MANQUAIT LE PLUS. Une classe donne d'abord ce qu'on
+   ne choisit PAS — dé de vie, jets de sauvegarde, armes, armures, features de
+   niveau 1 — et le guide n'en disait pas un mot : il n'affichait que les trois
+   ou quatre décisions restantes. Le joueur qui venait de valider Fighter lisait
+   « Skill points » et rien d'autre.
+   ⛔ ELLE NE DÉPEND DE RIEN (pas de `depend`, contrairement à celle de
+   l'espèce, qui attend son lignage) : ce qui est acquis ici l'est dès que la
+   classe est posée, et son voyant est donc allumé d'office. */
+export const LIGNE_ACQUIS_CLASSE = Object.freeze({
+  path: "class.granted",
+  sansChoix: true,
+  label: "Granted automatically"
+});
+
+/* ══ LE BILAN D'UNE LIGNE DU GUIDE — le même organe que Species ════════════
+   📐 Eric, 2026-08-19, pour Species : *« sous lineages tu fais apparaître le
+   bilan du lineage […] dans le bilan, le texte tu l'écris proprement comme un
+   joli bilan : une ligne par élément, tu évites les doublons »*. Class n'en
+   avait aucun — trois boutons nus, et rien qui dise ce qu'ils ont rapporté.
+
+   ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf « gagné d'office », qui
+   est là dès le début parce qu'il ne dépend de rien. Un résumé qui s'affiche
+   avant la signature ferait dire au bilan ce que le joueur n'a pas encore
+   validé, et le voyant à côté dirait l'inverse.
+   ⛔ ET RIEN N'EST COMPOSÉ ICI : les lignes sont celles du record (celles-là
+   mêmes que la fiche affichait, `fiche_stats`), les noms viennent des records
+   de compétence et de sort. On descend des mots, on n'en fabrique pas. */
+function resumeDeLItem(item, ctx) {
+  const record = classeRetenue(ctx);
+  if (!record || !item) return null;
+  const data = record.data || {};
+  const decisions = ctx.decisions || [];
+
+  /* ── CE QUI EST ACQUIS SANS RIEN CHOISIR ─────────────────────────────────
+     ⭐ LES MÊMES LIGNES QUE LA FICHE, PAR LE MÊME CHAMP. `fiche_stats` est la
+     version compressée et MESURÉE pour la colonne de 360 (lot 77) ; en
+     réécrire une seconde ici donnerait deux façons de dire « D10 ».
+     ⚠️ Et le repli SRD pur est le même qu'ailleurs dans ce fichier : sans la
+     couche `fh-fiche-en`, on lit le record nu — plus long, mais vrai. */
+  if (item.path === LIGNE_ACQUIS_CLASSE.path) {
+    const stats = Array.isArray(data.fiche_stats)
+      ? data.fiche_stats.map((ligne) => [ligne.label, ligne.value])
+      : [["Hit points", data.hit_point_die],
+        ["Primary ability", data.primary_ability],
+        ["Saving throws", Array.isArray(data.saving_throw_proficiencies)
+          ? data.saving_throw_proficiencies.join(", ") : null]];
+    /* ⛔ LES FEATURES SE LISTENT, ELLES NE SE TABULENT PAS : elles n'ont pas de
+       valeur en face — `renderCardRows` jette d'ailleurs toute ligne dont la
+       valeur est vide, donc les y mettre les ferait disparaître en silence.
+       C'est `renderCardNames` qui les porte, comme sur la fiche SRD. */
+    const level1 = (Array.isArray(data.features) ? data.features : [])
+      .filter((f) => f && f.level === 1 && typeof f.name === "string")
+      .map((f) => f.name);
+    const corps = [renderCardRows(stats), renderCardNames("Level 1 features", level1)]
+      .filter(Boolean);
+    return corps.length > 0 ? el("div", "parcours-resume-corps", corps) : null;
+  }
+
+  if (!item.confirme) return null;
+
+  /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
+     lettres et son prix. ⛔ Les compétences NON dotées ne s'écrivent pas : un
+     bilan dit ce qu'on a, pas ce qu'on aurait pu avoir. */
+  if (item.path === "class.skillBudget") {
+    const budget = planAt(decisions, "class.skillBudget");
+    if (!budget) return null;
+    const lignes = (budget.options || []).map((slug) => {
+      const etape = planAt(decisions, `class.skillBudget.${slug}`);
+      const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
+      return palier
+        ? [skillLabel(ctx.query, slug), `${nomDuPalier(palier)} (${prixDuPalier(palier)})`]
+        : null;
+    }).filter(Boolean);
+    return lignes.length > 0 ? renderCardRows(lignes) : null;
+  }
+
+  /* ── LE QCM SRD, quand c'est lui qui vit (pile sans couche maison). */
+  if (item.path === "class.skills") {
+    const qcm = planAt(decisions, "class.skills");
+    const lignes = (qcm && Array.isArray(qcm.selected) ? qcm.selected : [])
+      .map((id) => [skillLabel(ctx.query, id), "Trained"]);
+    return lignes.length > 0 ? renderCardRows(lignes) : null;
+  }
+
+  /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
+     absente laisse la ligne debout avec un tiret plutôt que de la faire
+     disparaître : le sort EST choisi, c'est le fait qui compte. */
+  for (const groupe of SPELL_QCMS) {
+    if (item.path !== groupe.basePath) continue;
+    const plan = planAt(decisions, groupe.basePath);
+    const lignes = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => {
+        const view = ctx.query ? ctx.query({ kind: "spell", id }) : null;
+        const ecole = view && view.record && view.record.data && view.record.data.school;
+        return [spellLabel(ctx.query, id), typeof ecole === "string" && ecole !== "" ? ecole : "—"];
+      });
+    return lignes.length > 0 ? renderCardRows(lignes) : null;
+  }
+  return null;
+}
+
 /* `fiche: true` — CET ÉCRAN PASSE PAR `renderFicheBody`, donc ses douze
    dalles portent le pied `LORE` / `CHOOSE` du croquis. C'est déclaré ICI, dans
    le fichier qui appelle `renderFicheBody` (une brique, un écrivain), et c'est
@@ -149,10 +278,16 @@ export const CLASS_CATALOGUE = {
      l'écran entier : ouvrir « Cantrips » montrait aussi les compétences et
      les sorts préparés. */
   itemCorps: (item, ctx, act) => renderClassChoices(ctx, act, item.path),
+  /* ⭐ LES DEUX CROCHETS QUI FONT LE BILAN (Eric, 2026-08-20). Species les
+     portait depuis le 19/08 et Class ne les avait jamais posés : la charpente
+     du parcours était là, son contenu manquait. */
+  resumeItem: resumeDeLItem,
+  lignesEnPlus: [LIGNE_ACQUIS_CLASSE],
   itemLabel: (chemin) => (chemin === "class.skillBudget" ? "Skill points"
     : chemin === "class.skills" ? "Class skills"
     : chemin === "class.cantrips" ? "Cantrips"
-    : chemin === "class.prepared" ? "Prepared spells" : chemin)
+    : chemin === "class.prepared" ? "Prepared spells"
+    : chemin === LIGNE_ACQUIS_CLASSE.path ? LIGNE_ACQUIS_CLASSE.label : chemin)
 };
 
 /** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.

@@ -507,25 +507,50 @@ test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pi
   assert.doesNotMatch(shellText, /kind: "class"[\s\S]{0,300}?fin: "close"/,
     "Class reste une étape : elle avance, elle ne se referme pas");
 
-  /* ② LE PIED APPARTIENT AU GUIDE QUAND IL Y EN A UN. Species et Class y
-     échappaient par le drapeau `fiche` ; l'Inheritance n'a pas de catalogue, et
-     rien ne la couvrait — mesuré à l'écran, un `Done` FLOTTAIT sous la dalle
-     pendant que le guide affichait déjà « I changed my mind · Next ». Deux
-     validations pour un geste, ce qu'Eric a fait sauter le 19/08. */
-  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore && !fiche\) \{[\s\S]{0,200}?parcoursRacineCourante\(\)/,
+  /* ② LE PIED APPARTIENT AU GUIDE QUAND IL Y EN A UN. Mesuré à l'écran sur
+     l'Inheritance le 19/08 : un `Done` FLOTTAIT sous la dalle pendant que le
+     guide affichait déjà « I changed my mind · Next ». Deux validations pour un
+     geste, ce qu'Eric a fait sauter le 19/08.
+
+     🔴 CE GARDE A LAISSÉ PASSER LA MOITIÉ DU DÉFAUT, ET IL FAUT LE DIRE : sa
+     version du 19/08 exigeait le texte EXACT `&& !fiche)`, en affirmant en
+     commentaire que « Species et Class y échappaient par le drapeau `fiche` ».
+     C'était faux à un mot près — le drapeau ne les couvre qu'AU PALIER 1, et le
+     guide s'ouvre au palier 2. Résultat mesuré le 20/08 à 360 px, Fighter,
+     juste après `Choose` : la dalle portait « I changed my mind · Next » et
+     « Back · Done » flottait dessous. Le garde était vert.
+     ⚠️ ET LE FLOTTANT N'ÉTAIT PAS UN DOUBLON INOFFENSIF : c'est le `Done` du
+     PALIER, il avance d'une étape SANS signer la racine — le joueur quittait
+     donc Class sans jamais voir sa conclusion. C'est exactement ce qu'Eric a
+     rapporté (*« il devrait y avoir une phase bilan dans les classes aussi,
+     avec un next »*).
+
+     ⭐ CE QUE CE GARDE TIENT MAINTENANT, ET POURQUOI CE N'EST PLUS LE MÊME
+     OBJET : il ne demande plus UNE EXPRESSION, il demande LES TROIS FAITS qui
+     font la règle. Un garde écrit sur la forme exacte d'une condition rougit
+     quand on la corrige et reste vert quand elle a tort — les deux fois dans le
+     mauvais sens. */
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\) \{[\s\S]{0,600}?parcoursRacineCourante\(\)/,
     "la sortie de la coquille s'efface sur un guide de parcours — écrit sur le FAIT, pas sur un id d'étape");
-  /* ⚔️ ET LA BORNE `!fiche` COMPTE AUTANT QUE LA RÈGLE : un panneau de
-     catalogue ouvert par-dessus (BS, BSS) laisse l'étape en état « guide », donc
-     sans elle ces écrans s'ouvraient SANS PAIRE — mesuré. Le guide dessous n'est
-     pas celui qu'on regarde. */
-  assert.match(shellText, /&& !fiche\) \{/,
-    "⛔ bornée : un panneau ouvert par-dessus le guide garde SA paire");
   assert.match(shellText, /function parcoursRacineCourante\(\)/,
     "et la racine du parcours courant a UNE source pour les deux familles (catalogue et Inheritance)");
-  /* ⚔️ BORNÉ : une dalle d'ITEM garde sa paire — c'est le cran le plus
-     intérieur, et c'est la coquille qui l'en sort. */
-  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore && !fiche\)/,
-    "⛔ jamais dans une dalle d'item : sans sa paire, l'item s'ouvrirait sans porte (le défaut du 19/08)");
+  /* ⚔️ BORNE 1 — UNE DALLE D'ITEM GARDE SA PAIRE : c'est le cran le plus
+     intérieur du parcours, et c'est la coquille qui l'en sort. Sans elle,
+     l'item s'ouvre sans aucune porte (le défaut mesuré le 19/08). */
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\)/,
+    "⛔ jamais dans une dalle d'item, jamais sous le lore");
+  /* ⚔️ BORNE 2 — UN PANNEAU OUVERT PAR-DESSUS LE GUIDE GARDE SA PAIRE (le don
+     d'origine, BS, BSS laissent l'étape en état « guide »). Mais la borne se
+     pose sur l'APPARTENANCE du panneau, pas sur sa PRÉSENCE : le catalogue du
+     don porte `background.originFeat[0]` quand la racine est `background` — il
+     est étranger ; celui de Class porte `class`, qui EST la racine — c'est le
+     guide lui-même. La version `!fiche` confondait les deux cas. */
+  assert.match(shellText, /const panneauEtranger = Boolean\(fiche\) && fiche\.path !== racine;/,
+    "⛔ bornée par l'APPARTENANCE du panneau ouvert, pas par sa présence");
+  assert.match(shellText, /if \(racine && !panneauEtranger\) \{/,
+    "et c'est cette borne-là que la règle consulte");
+  assert.doesNotMatch(shellText, /!state\.lore && !fiche\)/,
+    "⛔ TÉMOIN : la borne `!fiche` est la version qui laissait Species et Class doubler leur pied au palier 2");
 });
 
 test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la condition des 76 px)", () => {
