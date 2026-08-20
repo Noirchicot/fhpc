@@ -717,7 +717,7 @@
       },
       "srd:class:en:fighter": {
         "op": "patch",
-        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. NB: SRD 5.2.1 Weapon Mastery text actually says 'three kinds' (not two); kept Eric's '2' as instructed, not corrected. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Champion »), gained by the level-3 feature « Fighter Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source.",
+        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. NB: Weapon Mastery = 3 for the Fighter. The 2026-08-15 pass copied Eric's model verbatim, which said 2, and NOTED the divergence with SRD 5.2.1 rather than resolving it ('three kinds' in the feature text, and 3 at level 1 in class-progression). Eric arbitrated on 2026-08-20: 'les SRD a raison, corrige FH' — the value is now 3, and the two sources agree. The other four classes with the feature (Barbarian, Paladin, Ranger, Rogue) were already 2, which is what SRD says for each. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Champion »), gained by the level-3 feature « Fighter Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source.",
         "changes": {
           "data.blurb": {
             "text": "Steel remembers what flesh forgets. Ten thousand strikes forge it. No spellbook, no arcane grammar—only muscle and discipline. They are the wall that never breaks. Armor is their skin; courage is the spell. Knight, duelist, veteran—all built by practice, not birth. When magic fails, steel remains.",
@@ -742,7 +742,7 @@
             },
             {
               "label": "W. Prof.",
-              "value": "2"
+              "value": "3"
             },
             {
               "label": "Armor",
