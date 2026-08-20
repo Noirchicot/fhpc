@@ -545,6 +545,15 @@
       "srd:class:en:barbarian": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:animal-handling",
+            "srd:skill:en:athletics",
+            "srd:skill:en:intimidation",
+            "srd:skill:en:nature",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance",
+            "srd:skill:en:survival"
+          ],
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -659,6 +668,17 @@
       "srd:class:en:druid": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:animal-handling",
+            "srd:skill:en:arcana",
+            "srd:skill:en:insight",
+            "srd:skill:en:medicine",
+            "srd:skill:en:nature",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance",
+            "srd:skill:en:religion",
+            "srd:skill:en:survival"
+          ],
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 1,
@@ -685,6 +705,18 @@
       "srd:class:en:fighter": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:acrobatics",
+            "srd:skill:en:animal-handling",
+            "srd:skill:en:athletics",
+            "srd:skill:en:history",
+            "srd:skill:en:insight",
+            "srd:skill:en:intimidation",
+            "srd:skill:en:persuasion",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance",
+            "srd:skill:en:survival"
+          ],
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -763,6 +795,17 @@
       "srd:class:en:ranger": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:animal-handling",
+            "srd:skill:en:athletics",
+            "srd:skill:en:insight",
+            "srd:skill:en:investigation",
+            "srd:skill:en:nature",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance",
+            "srd:skill:en:stealth",
+            "srd:skill:en:survival"
+          ],
           "data[fh_skill_pool]": {
             "bound_skill_points": 3,
             "bound_tool_points": 0,
@@ -804,6 +847,20 @@
       "srd:class:en:rogue": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:acrobatics",
+            "srd:skill:en:athletics",
+            "srd:skill:en:deception",
+            "srd:skill:en:insight",
+            "srd:skill:en:intimidation",
+            "srd:skill:en:investigation",
+            "fh:skill:en:delve",
+            "fh:skill:en:vigilance",
+            "srd:skill:en:survival",
+            "srd:skill:en:persuasion",
+            "srd:skill:en:sleight-of-hand",
+            "srd:skill:en:stealth"
+          ],
           "data[fh_skill_pool]": {
             "bound_skill_points": 6,
             "bound_tool_points": 1,

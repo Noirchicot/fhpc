@@ -561,14 +561,49 @@ test("Rogue dès le niveau 1, Bard et Ranger dès le 2, les neuf autres au nivea
   }
 });
 
-test("le patch des pools est ÉTROIT — `skill_choice` du SRD n'est pas touché", () => {
+test("le patch des pools reste ÉTROIT — et la seule chose qu'il touche EN PLUS est la liste, parce que Perception est éteinte", () => {
+  /* 🔴 CE GARDE A ÉTÉ RÉÉCRIT LE 2026-08-20, ET IL DIT PLUS QU'AVANT.
+     Il exigeait que `skill_choice` reste INTACT — ce qui était juste tant que
+     rien de la liste ne disparaissait. Or cette couche ÉTEINT Perception, et
+     cinq listes de classe la nommaient encore : une liste qui désigne un record
+     éteint ne provoque AUCUN refus, l'option disparaît simplement. Mesuré sur
+     le Rogue : dix compétences déclarées, NEUF offertes, et rien nulle part ne
+     disait laquelle manquait.
+     ⭐ Eric a tranché le remplacement (*« Delve, Vigilance, Survival »*), et ce
+     garde tient maintenant les deux moitiés : le `count` et le reste du record
+     ne bougent pas, et AUCUNE liste ne nomme plus un record que la pile a
+     éteint. La seconde moitié est la vraie garantie — c'est elle qui empêche le
+     trou de revenir par une autre compétence. */
   const verbs = pile();
   const srd = readSrdLayer(SRD_PATH);
   for (const [id] of LES_12_POOLS) {
     const vue = verbs.query({ kind: "class", id });
-    assert.deepEqual(vue.record.data.skill_choice, srd.records.class[id].data.skill_choice,
-      `${id} : les choix imposés de la classe restent ceux du SRD`);
+    const srdChoice = srd.records.class[id].data.skill_choice;
+    if (!srdChoice) continue;
+    assert.equal(vue.record.data.skill_choice.count, srdChoice.count,
+      `${id} : le COMPTE de la classe reste celui du SRD — seule la liste bouge`);
     assert.equal(vue.record.data.hit_die, srd.records.class[id].data.hit_die);
+
+    /* ⛔ AUCUNE OPTION MORTE. La garantie qui compte, et elle vaut pour toutes
+       les compétences éteintes, pas seulement Perception.
+       ⚠️ `from` N'EST PAS TOUJOURS UNE LISTE : le Barde déclare le littéral
+       « any » — toute compétence. Le parcourir caractère par caractère
+       cherchait une compétence nommée « a ». Une garantie qui ne distingue pas
+       une liste d'un littéral se trompe de sujet. */
+    if (!Array.isArray(vue.record.data.skill_choice.from)) continue;
+    for (const skillId of vue.record.data.skill_choice.from) {
+      const skill = verbs.query({ kind: "skill", id: skillId });
+      assert.ok(skill, `${id} : sa liste offre « ${skillId} », que la pile ne porte pas — l'option se perdrait en silence`);
+    }
+    /* ⭐ ET LÀ OÙ PERCEPTION ÉTAIT, LE TRIO D'ERIC EST. */
+    if (Array.isArray(srdChoice.from) && srdChoice.from.includes("srd:skill:en:perception")) {
+      for (const attendu of ["fh:skill:en:delve", "fh:skill:en:vigilance", "srd:skill:en:survival"]) {
+        assert.ok(vue.record.data.skill_choice.from.includes(attendu),
+          `${id} : sa liste nommait Perception, elle doit offrir « ${attendu} »`);
+      }
+      assert.equal(vue.record.data.skill_choice.from.includes("srd:skill:en:perception"), false,
+        `${id} : Perception est éteinte, elle ne peut plus être offerte`);
+    }
   }
 });
 

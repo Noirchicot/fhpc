@@ -384,7 +384,19 @@ function buildTrainings(srd, especes) {
   return { training, total: Object.keys(training).length, languages: langues.size };
 }
 
-function buildClasses(srd) {
+/* 🔴 LE TRIO QUI REMPLACE PERCEPTION DANS UNE LISTE DE CLASSE — Eric,
+   2026-08-20 : *« Delve, Vigilance, Survival »*.
+   ⚠️ CE N'EST PAS LA SPLIT. La description de cette couche dit que Perception
+   se scinde en *Vigilance, Delve et Hunting* — c'est ce que devient la
+   COMPÉTENCE. Ce que devient sa place dans une LISTE DE CLASSE est une autre
+   question, et Eric la tranche autrement : Survival plutôt que Hunting, le même
+   trio que la bourse captive de Keen Senses. Les confondre serait croire qu'une
+   liste de classe est une table de conversion ; elle dit ce qu'une classe sait
+   faire. */
+const PERCEPTION_ID = "srd:skill:en:perception";
+const TRIO_DE_CLASSE = Object.freeze(["fh:skill:en:delve", "fh:skill:en:vigilance", "srd:skill:en:survival"]);
+
+function buildClasses(srd, skillIdsDeLaPile) {
   const srdClasses = (srd.records || {}).class || {};
   const srdIds = Object.keys(srdClasses);
   if (srdIds.length !== EXPECTED.classes) {
@@ -427,7 +439,8 @@ function buildClasses(srd) {
        d'une chose qu'il n'a pas, et rien ne le dirait. C'est aussi ce garde
        qui a mesuré que *Bonus Proficiencies* est une aptitude de SOUS-CLASSE
        et pas de classe : il l'aurait refusée. */
-    const aptitudes = (srdRecord(srd, "class", entry.target, "les aptitudes").data || {}).features;
+    const recordDeClasse = srdRecord(srd, "class", entry.target, "les aptitudes");
+    const aptitudes = (recordDeClasse.data || {}).features;
     for (const grant of entry.grants) {
       const trouvée = (Array.isArray(aptitudes) ? aptitudes : [])
         .some((f) => f && f.name === grant.feature && f.level === grant.level);
@@ -440,10 +453,57 @@ function buildClasses(srd) {
       }
     }
 
+    /* ══ LA LISTE DE CLASSE NE PEUT PLUS NOMMER PERCEPTION — Eric, 2026-08-20,
+       en une ligne : *« Delve, Vigilance, Survival »*.
+
+       🔴 CE QUE ÇA RÉPARE, ET C'ÉTAIT UN TROU SILENCIEUX. Cette couche ÉTEINT
+       Perception (`SKILLS_REMOVED`) et la remplace par trois compétences. Mais
+       cinq listes de classe du SRD la NOMMAIENT encore — et une liste qui
+       désigne un record éteint ne provoque aucun refus : l'option disparaît,
+       simplement. Mesuré sur le Rogue : dix compétences déclarées, NEUF
+       offertes, et rien nulle part ne disait laquelle manquait.
+
+       ⭐ ET LE TRIO EST CELUI D'ERIC, PAS CELUI DE LA SPLIT. La description de
+       cette couche dit que Perception se scinde en *Vigilance, Delve et
+       Hunting* ; pour une LISTE DE CLASSE il tranche autrement — Delve,
+       Vigilance, **Survival** — et c'est le même trio que la bourse captive de
+       Keen Senses. Une liste de classe n'est pas une table de conversion : elle
+       dit ce qu'une classe sait faire.
+
+       ⛔ SANS DOUBLON ET SANS DÉPLACEMENT : Survival est DÉJÀ dans quatre des
+       cinq listes ; elle y garde sa place, et seul le Rogue la gagne. Les deux
+       neuves prennent celle de Perception, là où elle était.
+       ⚠️ CHAQUE MEMBRE DU TRIO EST CONFRONTÉ À LA COUCHE, jamais cru sur parole
+       — même discipline que les grants juste au-dessus : une liste qui offrirait
+       une compétence inexistante rejouerait exactement le trou qu'on referme. */
+    const listeSrd = ((recordDeClasse.data || {}).skill_choice || {}).from;
+    let listeFh = null;
+    if (Array.isArray(listeSrd) && listeSrd.includes(PERCEPTION_ID)) {
+      for (const id of TRIO_DE_CLASSE) {
+        if (!skillIdsDeLaPile.has(id)) {
+          fail(`« ${entry.target} » verrait sa liste offrir « ${id} », que la pile ne porte pas. ` +
+            "Une liste de classe qui nomme une compétence inexistante perd l'option en silence — " +
+            "c'est le défaut même que ce remplacement referme.");
+        }
+      }
+      listeFh = [];
+      for (const id of listeSrd) {
+        if (id === PERCEPTION_ID) {
+          for (const neuf of TRIO_DE_CLASSE) {
+            if (!listeFh.includes(neuf) && !listeSrd.includes(neuf)) listeFh.push(neuf);
+          }
+        } else if (!listeFh.includes(id)) {
+          listeFh.push(id);
+        }
+      }
+      for (const neuf of TRIO_DE_CLASSE) if (!listeFh.includes(neuf)) listeFh.push(neuf);
+    }
+
     servis.add(entry.target);
     klass[entry.target] = {
       op: "patch",
       changes: {
+        ...(listeFh ? { "data[skill_choice][from]": listeFh } : {}),
         "data[fh_skill_pool]": {
           /* ⭐ LOT 82 — LES TROIS TOTAUX DU CANON §B.1, publiés tels quels.
              Le `base` unique est mort : il forçait le moteur à déduire les
@@ -587,7 +647,16 @@ export function buildLayer({ srd }) {
 
   const skills = buildSkills(srd);
   const tools = buildTools(srd);
-  const classes = buildClasses(srd);
+  /* ⭐ LES CLASSES REÇOIVENT LA LISTE DES COMPÉTENCES QUE LA PILE PORTE. Sans
+     elle, la liste d'une classe pourrait nommer une compétence éteinte, et
+     l'option disparaîtrait sans un mot — c'est exactement le trou que le trio
+     de classe referme. */
+  const idsDesCompetences = new Set(Object.entries(skills.skill)
+    .filter(([, rec]) => rec.op !== "disable")
+    .map(([id]) => id)
+    .concat(Object.keys(srd.records.skill || {})
+      .filter((id) => !skills.skill[id] || skills.skill[id].op !== "disable")));
+  const classes = buildClasses(srd, idsDesCompetences);
   const backgrounds = buildBackgrounds(srd);
   const trainings = buildTrainings(srd, LANGUAGE_SPECIES);
 
