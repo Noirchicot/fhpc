@@ -482,6 +482,25 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      LIT ce réglage, elle ne le devine pas et ne nomme aucune langue. */
   const distanceUnit = (units && units.distance) || null;
   const speedField = distanceUnit === "m" ? "speed_m" : distanceUnit === "ft" ? "speed_ft" : null;
+  /* 🔴 LA RUBRIQUE EST PUBLIÉE MÊME VIDE — corrigé le 2026-08-20, et c'est la
+     LOI 2 DE CE FICHIER appliquée à elle-même : *« une collection que la pile
+     ne sait pas nourrir est VIDE — et la déclaration est OBLIGATOIRE »*, parce
+     que `fh-char/1` exige les 21 rubriques de `resolved`.
+
+     📏 CE QUE L'OMISSION COÛTAIT, MESURÉ DANS LA PAGE : `I changed my mind` sur
+     Species laisse un personnage SANS ESPÈCE — état légitime d'une création en
+     cours. `speeds` disparaissait alors du document, qui cessait de valider ; le
+     `revoke` du geste SUIVANT (`assertValid`, bloc `doc`) refusait, jetait, et
+     la coquille se figeait sans un mot. Le premier `I changed my mind`
+     réussissait, le second mourait — c'est exactement ce qu'Eric a vu.
+
+     ⛔ ET SURTOUT PAS `{ walk: 0 }` : ce serait le « zéro consolant » que la
+     loi 1 refuse — une fiche annoncerait une vitesse de 0 pied au lieu de dire
+     qu'elle n'en connaît aucune. L'objet VIDE ne console personne, et la
+     déclaration `underived` juste à côté nomme le manque.
+     ⚠️ `speeds.walk` a donc cessé d'être exigé par le schéma. Sa raison y est
+     écrite, en toutes lettres, à côté de la propriété. */
+  resolved.speeds = {};
   if (!speciesView) {
     underived.declare("speeds", "underived.no-choice", { root: "species" });
   } else if (!speedField) {

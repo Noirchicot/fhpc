@@ -176,7 +176,16 @@ test("SANS LES CHAMPS MÉCANIQUES DU §3, rien n'est deviné : tout ce qui manqu
   }
   assert.equal(out.resolved.vitals.hpMax, undefined, "un nombre qu'on ne sait pas calculer est ABSENT, pas nul");
   assert.equal(out.resolved.saves, undefined, "et six sauvegardes non maîtrisées ne sont pas un défaut acceptable");
-  assert.equal(out.resolved.speeds, undefined);
+  /* 🔴 RÉÉCRIT LE 2026-08-20, PLUS SERRÉ. Ce test exigeait `speeds === undefined`
+     — et cette exigence était la CAUSE d'un écran mort : `fh-char/1` réclame ses
+     21 rubriques, donc un document sans `speeds` ne valide plus, et le `revoke`
+     du geste suivant refusait (`I changed my mind` en chaîne, mesuré dans la
+     page). La rubrique est désormais PRÉSENTE ET VIDE — loi 2 de `derive.mjs` —
+     et c'est sa VACUITÉ qu'on garde, avec sa déclaration.
+     ⛔ Ce qui ne doit JAMAIS revenir, et le test le dit maintenant : un `walk`
+     de 0, le « zéro consolant » de la loi 1. */
+  assert.deepEqual(out.resolved.speeds, {}, "la rubrique est publiée VIDE, jamais omise");
+  assert.equal(out.resolved.speeds.walk, undefined, "et surtout pas un 0 consolant");
   /* REWRITTEN 2026-08-13 (lot 41) — `.reason` est devenu `{key, params}` ;
      la phrase se relit via `renderUnderived` sur la même table que le
      `toString` de `derive.mjs`, la garantie de texte ne bouge pas. */

@@ -5,15 +5,31 @@
   "$comment": "INVARIANTS DU DOCUMENT (lot B, kickoff §3.1). (1) `resolved` n'est écrit QUE par la dérivation : pli de la pile SRD → FH → homebrew, puis `build.overrides` appliqués EN DERNIER. Aucun autre chemin d'écriture. (2) `build` n'est jamais écrasé par une reconstruction : les choix et les overrides survivent à toute re-dérivation. (3) AUCUN état de séance dans ce document (transaction de jet, main, sélection, plateau, historique) : il appartient au bloc `play` et ne voyage pas. Tous les objets sont fermés (`additionalProperties: false`) — une clef inconnue est un rejet bruyant, jamais un strip silencieux. (4) Les ressources comptées vivent dans `resolved.resources` et se décrémentent au règlement, pas par élagage de références.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "id", "name", "lang", "units", "created", "modified", "resolved", "build"],
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "lang",
+    "units",
+    "created",
+    "modified",
+    "resolved",
+    "build"
+  ],
   "properties": {
-    "schema": { "const": "fh-char/1" },
+    "schema": {
+      "const": "fh-char/1"
+    },
     "id": {
       "$comment": "Identifiant opaque du document. L'unicité est garantie par le bloc `doc`, pas par le schéma.",
       "type": "string",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
     },
-    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
     "lang": {
       "$comment": "Langue des chaînes affichables de `resolved`. Le SRD existe en fr et en en : un document ne mélange pas les deux.",
       "$ref": "#/$defs/lang"
@@ -22,20 +38,44 @@
       "$comment": "Unités des nombres de `resolved` (distances, poids). Le SRD fr est métrique, le SRD en impérial : sans ce champ, 9 et 30 sont la même vitesse et personne ne le sait.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["distance", "weight"],
+      "required": [
+        "distance",
+        "weight"
+      ],
       "properties": {
-        "distance": { "enum": ["m", "ft"] },
-        "weight": { "enum": ["kg", "lb"] }
+        "distance": {
+          "enum": [
+            "m",
+            "ft"
+          ]
+        },
+        "weight": {
+          "enum": [
+            "kg",
+            "lb"
+          ]
+        }
       }
     },
     "generator": {
       "$comment": "Quel outil a écrit ce document, et dans quelle version. Facultatif : un document écrit à la main n'a pas de générateur, et inventer un nom serait pire que l'absence. Quand il est là, les deux champs sont exigés — « fh-builder » sans version ne dit rien d'utile le jour où on cherche quelle version a produit une fiche fausse.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version"],
+      "required": [
+        "name",
+        "version"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-        "version": { "type": "string", "minLength": 1, "maxLength": 40 }
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
       }
     },
     "gender": {
@@ -53,66 +93,113 @@
       "type": "string",
       "maxLength": 80
     },
-    "created": { "$ref": "#/$defs/timestamp" },
-    "modified": { "$ref": "#/$defs/timestamp" },
-    "resolved": { "$ref": "#/$defs/resolved" },
-    "build": { "$ref": "#/$defs/build" }
+    "created": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "modified": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "resolved": {
+      "$ref": "#/$defs/resolved"
+    },
+    "build": {
+      "$ref": "#/$defs/build"
+    }
   },
-
   "$defs": {
-    "lang": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
-
+    "lang": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+    },
     "timestamp": {
       "$comment": "ISO 8601 UTC. Vérifié par `pattern` et non par `format` : ajv n'applique `format` qu'avec ajv-formats, et le lot n'introduit qu'une seule dépendance de dev.",
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?Z$"
     },
-
     "slug": {
       "$comment": "Identifiant local à une collection de `resolved`. Sert d'ancre aux chemins d'override : `resolved.skills[arcanes].bonus`. Ce n'est PAS un pointeur vers une règle — les références aux records de couches vivent dans `build.choices`.",
       "type": "string",
       "pattern": "^[a-z][a-z0-9:_-]{0,79}$"
     },
-
     "recordId": {
       "$comment": "Identifiant d'un record de couche, forme `<couche>:<genre>:<lang>:<slug>` (convention fh-srd).",
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*(:[a-z0-9][a-z0-9._-]*){2,3}$"
     },
-
-    "ability": { "enum": ["str", "dex", "con", "int", "wis", "cha"] },
-
+    "ability": {
+      "enum": [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+      ]
+    },
     "abilityScore": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["score", "mod"],
+      "required": [
+        "score",
+        "mod"
+      ],
       "properties": {
-        "score": { "type": "integer", "minimum": 1, "maximum": 30 },
-        "mod": { "type": "integer", "minimum": -10, "maximum": 10 }
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "mod": {
+          "type": "integer",
+          "minimum": -10,
+          "maximum": 10
+        }
       }
     },
-
     "save": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["bonus", "proficient"],
+      "required": [
+        "bonus",
+        "proficient"
+      ],
       "properties": {
-        "bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
-        "proficient": { "type": "boolean" }
+        "bonus": {
+          "type": "integer",
+          "minimum": -20,
+          "maximum": 30
+        },
+        "proficient": {
+          "type": "boolean"
+        }
       }
     },
-
-    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
     "layerRef": {
       "$comment": "`hash` = SHA-256 des octets du fichier de couche tel qu'il est stocké. La couche ne contient jamais son propre hash : il est calculé par le bloc `layers` au chargement, et un écart est une erreur bruyante (la couche a changé sous le personnage).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "version", "hash"],
+      "required": [
+        "id",
+        "version",
+        "hash"
+      ],
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
-        "version": { "type": "string", "minLength": 1, "maxLength": 40 },
-        "hash": { "$ref": "#/$defs/sha256" },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "hash": {
+          "$ref": "#/$defs/sha256"
+        },
         "name": {
           "$comment": "Libellé d'affichage, facultatif : sert à NOMMER une couche manquante à l'écran plutôt que d'afficher son id nu.",
           "type": "string",
@@ -120,21 +207,18 @@
         }
       }
     },
-
     "overridePath": {
       "$comment": "Grammaire de chemin FHPC : segments séparés par `.`, sélection dans une collection par l'id du record entre crochets — JAMAIS par index (un index se décale à la reconstruction). Un chemin d'override est TOUJOURS enraciné dans `resolved` : un override est un tweak sur la fiche jouable. Changer une décision de règle passe par `build.choices`, pas par un override sur `build`.",
       "type": "string",
       "pattern": "^resolved(\\.[a-zA-Z][a-zA-Z0-9]*(\\[[a-z][a-z0-9:_-]*\\])?)+$",
       "maxLength": 200
     },
-
     "choicePath": {
       "$comment": "Point de décision dans la construction (`species`, `class.skills[0]`, `abilities.int`…). Unicité exigée : deux choix sur le même chemin sont ambigus. JSON Schema 2020-12 ne sait pas exprimer « unique par champ » — l'invariant est tenu par les tests (tests/schemas.test.mjs), pas par le schéma.",
       "type": "string",
       "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-zA-Z0-9_-]+|\\[[0-9]+\\])*$",
       "maxLength": 200
     },
-
     "safeKey": {
       "$comment": "Une couche est de la DONNÉE, jamais du code, et un homebrew d'inconnu doit être inoffensif à charger. Ces clefs sont refusées à toute profondeur : vecteurs de pollution de prototype et noms qui invitent un consommateur naïf à exécuter la valeur.",
       "type": "string",
@@ -142,70 +226,138 @@
         "pattern": "^(__proto__|constructor|prototype|script|Script|javascript|eval|exec|function|Function)$"
       }
     },
-
     "safeValue": {
       "$comment": "Valeur JSON quelconque, purgée des clefs dangereuses à toute profondeur.",
       "anyOf": [
-        { "type": "string" },
-        { "type": "number" },
-        { "type": "boolean" },
-        { "type": "null" },
-        { "type": "array", "items": { "$ref": "#/$defs/safeValue" } },
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safeValue"
+          }
+        },
         {
           "type": "object",
-          "propertyNames": { "$ref": "#/$defs/safeKey" },
-          "additionalProperties": { "$ref": "#/$defs/safeValue" }
+          "propertyNames": {
+            "$ref": "#/$defs/safeKey"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/safeValue"
+          }
         }
       ]
     },
-
     "damage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dice", "type"],
+      "required": [
+        "dice",
+        "type"
+      ],
       "properties": {
-        "dice": { "type": "string", "pattern": "^([0-9]{1,3}d[0-9]{1,3}([+-][0-9]{1,3})?|[0-9]{1,3})$" },
-        "type": { "type": "string", "minLength": 1, "maxLength": 40 }
+        "dice": {
+          "type": "string",
+          "pattern": "^([0-9]{1,3}d[0-9]{1,3}([+-][0-9]{1,3})?|[0-9]{1,3})$"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
       }
     },
-
     "resolved": {
       "$comment": "La fiche jouable : valeurs finales uniquement, aucun pointeur vers une règle. Un personnage ouvert sans ses couches JOUE sur ce seul étage — et le dit (les couches de `build.layers` absentes du registre sont listées et affichées).",
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "derivation", "identity", "abilities", "proficiency", "ac", "vitals",
-        "speeds", "senses", "languages", "saves", "skills", "tools", "actions",
-        "spellcasting", "resources", "traits", "gear", "currency", "craft", "stats", "notes"
+        "derivation",
+        "identity",
+        "abilities",
+        "proficiency",
+        "ac",
+        "vitals",
+        "speeds",
+        "senses",
+        "languages",
+        "saves",
+        "skills",
+        "tools",
+        "actions",
+        "spellcasting",
+        "resources",
+        "traits",
+        "gear",
+        "currency",
+        "craft",
+        "stats",
+        "notes"
       ],
       "properties": {
         "derivation": {
           "$comment": "Empreinte de la dérivation qui a écrit cet étage. Sans elle, « resolved est périmé » (build modifié, pas reconstruit) est indiscernable de « resolved est à jour » — et la dégradation ne peut pas être bruyante.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["at", "stack"],
+          "required": [
+            "at",
+            "stack"
+          ],
           "properties": {
-            "at": { "$ref": "#/$defs/timestamp" },
+            "at": {
+              "$ref": "#/$defs/timestamp"
+            },
             "stack": {
               "$comment": "Copie de `build.layers` au moment de la dérivation, dans l'ordre de la pile.",
               "type": "array",
-              "items": { "$ref": "#/$defs/layerRef" }
+              "items": {
+                "$ref": "#/$defs/layerRef"
+              }
             }
           }
         },
-
         "identity": {
           "$comment": "Ce que le personnage EST, en chaînes affichables. Sans lui, un document ouvert sans ses couches affiche des nombres sans en-tête.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["level", "classes"],
+          "required": [
+            "level",
+            "classes"
+          ],
           "properties": {
-            "level": { "type": "integer", "minimum": 1, "maximum": 20 },
-            "species": { "type": "string", "maxLength": 80 },
-            "background": { "type": "string", "maxLength": 80 },
+            "level": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "species": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "background": {
+              "type": "string",
+              "maxLength": 80
+            },
             "size": {
               "$comment": "AJOUT DU 2026-08-08, demandé par le conseiller VTT. Foundry et Owlbear en ont besoin pour poser un pion à la bonne échelle : une Grande créature occupe quatre cases. Aujourd'hui la taille n'existe nulle part dans le document, donc tout export arrive en Moyen par défaut — silencieusement faux pour un joueur goliath ou une forme sauvage.",
-              "enum": ["tiny", "small", "medium", "large", "huge", "gargantuan"]
+              "enum": [
+                "tiny",
+                "small",
+                "medium",
+                "large",
+                "huge",
+                "gargantuan"
+              ]
             },
             "creatureType": {
               "$comment": "AJOUT DU 2026-08-08 (conseiller VTT). Ce que la créature EST au sens des règles — un mort-vivant, un humanoïde. Un sort qui ne vise que les morts-vivants ne peut pas être filtré sans lui. Chaîne libre et non énumérée EXPRÈS : une couche homebrew a le droit d'inventer un type, et une énumération fermée ici en ferait un rejet bruyant pour rien.",
@@ -217,8 +369,14 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "portraitUrl": { "type": "string", "maxLength": 500 },
-                "tokenUrl": { "type": "string", "maxLength": 500 }
+                "portraitUrl": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "tokenUrl": {
+                  "type": "string",
+                  "maxLength": 500
+                }
               }
             },
             "classes": {
@@ -227,172 +385,383 @@
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["name", "level"],
+                "required": [
+                  "name",
+                  "level"
+                ],
                 "properties": {
-                  "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-                  "level": { "type": "integer", "minimum": 1, "maximum": 20 },
-                  "subclass": { "type": "string", "maxLength": 80 }
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "level": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20
+                  },
+                  "subclass": {
+                    "type": "string",
+                    "maxLength": 80
+                  }
                 }
               }
             }
           }
         },
-
         "abilities": {
           "$comment": "Les six, toutes obligatoires. `mod` est stocké et non recalculé : c'est une valeur finale, et un MJ peut l'écarter du score par override sans que la fiche se contredise.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "required": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
           "properties": {
-            "str": { "$ref": "#/$defs/abilityScore" },
-            "dex": { "$ref": "#/$defs/abilityScore" },
-            "con": { "$ref": "#/$defs/abilityScore" },
-            "int": { "$ref": "#/$defs/abilityScore" },
-            "wis": { "$ref": "#/$defs/abilityScore" },
-            "cha": { "$ref": "#/$defs/abilityScore" }
+            "str": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "dex": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "con": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "int": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "wis": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "cha": {
+              "$ref": "#/$defs/abilityScore"
+            }
           }
         },
-
-        "proficiency": { "type": "integer", "minimum": 0, "maximum": 10 },
-
+        "proficiency": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
         "ac": {
           "$comment": "Classe d'armure finale. Sa provenance (armure + Dex + bouclier) appartient à la dérivation, pas à `resolved`.",
           "type": "integer",
           "minimum": 0,
           "maximum": 40
         },
-
         "vitals": {
           "$comment": "État persistant : voyage avec le document, contrairement à l'état de séance.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["hpMax", "hpCurrent", "tempHp", "conditions"],
+          "required": [
+            "hpMax",
+            "hpCurrent",
+            "tempHp",
+            "conditions"
+          ],
           "properties": {
-            "hpMax": { "type": "integer", "minimum": 0 },
-            "hpCurrent": { "type": "integer" },
-            "tempHp": { "type": "integer", "minimum": 0 },
+            "hpMax": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "hpCurrent": {
+              "type": "integer"
+            },
+            "tempHp": {
+              "type": "integer",
+              "minimum": 0
+            },
             "conditions": {
               "type": "array",
-              "items": { "type": "string", "minLength": 1, "maxLength": 60 }
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
             }
           }
         },
-
         "speeds": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["walk"],
+          "required": [],
           "properties": {
-            "walk": { "type": "integer", "minimum": 0 },
-            "fly": { "type": "integer", "minimum": 0 },
-            "swim": { "type": "integer", "minimum": 0 },
-            "climb": { "type": "integer", "minimum": 0 },
-            "burrow": { "type": "integer", "minimum": 0 }
+            "walk": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "fly": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "swim": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "climb": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "burrow": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
-
         "senses": {
           "$comment": "`unit` absent = score sans unité (perception passive) ; `unit` présent = portée exprimée dans cette unité.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "value"],
+            "required": [
+              "id",
+              "name",
+              "value"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-              "value": { "type": "integer" },
-              "unit": { "enum": ["m", "ft"] }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "value": {
+                "type": "integer"
+              },
+              "unit": {
+                "enum": [
+                  "m",
+                  "ft"
+                ]
+              }
             }
           }
         },
-
         "languages": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-              "note": { "type": "string", "maxLength": 200 }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 200
+              }
             }
           }
         },
-
         "saves": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "required": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
           "properties": {
-            "str": { "$ref": "#/$defs/save" },
-            "dex": { "$ref": "#/$defs/save" },
-            "con": { "$ref": "#/$defs/save" },
-            "int": { "$ref": "#/$defs/save" },
-            "wis": { "$ref": "#/$defs/save" },
-            "cha": { "$ref": "#/$defs/save" }
+            "str": {
+              "$ref": "#/$defs/save"
+            },
+            "dex": {
+              "$ref": "#/$defs/save"
+            },
+            "con": {
+              "$ref": "#/$defs/save"
+            },
+            "int": {
+              "$ref": "#/$defs/save"
+            },
+            "wis": {
+              "$ref": "#/$defs/save"
+            },
+            "cha": {
+              "$ref": "#/$defs/save"
+            }
           }
         },
-
         "skills": {
           "$comment": "Liste et non objet à clefs fixes : une couche peut ajouter ses propres compétences (les genres FH à venir en ajoutent), et un jeu de clefs figé les rendrait impossibles.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "ability", "bonus", "proficiency"],
+            "required": [
+              "id",
+              "name",
+              "ability",
+              "bonus",
+              "proficiency"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-              "ability": { "$ref": "#/$defs/ability" },
-              "bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
-              "proficiency": { "enum": ["none", "novice", "adept", "expert"] },
-              "note": { "type": "string", "maxLength": 200 }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "ability": {
+                "$ref": "#/$defs/ability"
+              },
+              "bonus": {
+                "type": "integer",
+                "minimum": -20,
+                "maximum": 30
+              },
+              "proficiency": {
+                "enum": [
+                  "none",
+                  "novice",
+                  "adept",
+                  "expert"
+                ]
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 200
+              }
             }
           }
         },
-
         "tools": {
           "$comment": "Maîtrises d'outils — collection SÉPARÉE des compétences, et non un drapeau `category` sur une entrée de compétence. Deux raisons : `tool` est l'un des 12 genres de couche (un outil est un record, une compétence n'en est pas un), et une collection commune ferait apparaître « Matériel de calligraphe » dans la liste des compétences au premier oubli de filtre. Même forme que `skills` : ce qui se joue pareil s'écrit pareil.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "ability", "bonus", "proficiency"],
+            "required": [
+              "id",
+              "name",
+              "ability",
+              "bonus",
+              "proficiency"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-              "ability": { "$ref": "#/$defs/ability" },
-              "bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
-              "proficiency": { "enum": ["none", "novice", "adept", "expert"] },
-              "note": { "type": "string", "maxLength": 200 }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "ability": {
+                "$ref": "#/$defs/ability"
+              },
+              "bonus": {
+                "type": "integer",
+                "minimum": -20,
+                "maximum": 30
+              },
+              "proficiency": {
+                "enum": [
+                  "none",
+                  "novice",
+                  "adept",
+                  "expert"
+                ]
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 200
+              }
             }
           }
         },
-
         "actions": {
           "$comment": "Attaques ET actions dans une seule collection : une attaque est une action de catégorie `attack`. Vocabulaire porté du panneau v1 fh-panel-actions.js (economy action/bonus/reaction, catégories Attack/Check/Damage/Utility), mis en minuscules — clefs machine.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "economy", "category"],
+            "required": [
+              "id",
+              "name",
+              "economy",
+              "category"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-              "economy": { "enum": ["action", "bonus", "reaction"] },
-              "category": { "enum": ["attack", "check", "damage", "utility"] },
-              "ability": { "$ref": "#/$defs/ability" },
-              "bonus": { "type": "integer", "minimum": -20, "maximum": 30 },
-              "dc": { "type": "integer", "minimum": 0, "maximum": 40 },
-              "damage": { "type": "array", "items": { "$ref": "#/$defs/damage" } },
-              "range": { "type": "string", "maxLength": 60 },
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "economy": {
+                "enum": [
+                  "action",
+                  "bonus",
+                  "reaction"
+                ]
+              },
+              "category": {
+                "enum": [
+                  "attack",
+                  "check",
+                  "damage",
+                  "utility"
+                ]
+              },
+              "ability": {
+                "$ref": "#/$defs/ability"
+              },
+              "bonus": {
+                "type": "integer",
+                "minimum": -20,
+                "maximum": 30
+              },
+              "dc": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 40
+              },
+              "damage": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/damage"
+                }
+              },
+              "range": {
+                "type": "string",
+                "maxLength": 60
+              },
               "properties": {
                 "type": "array",
-                "items": { "type": "string", "minLength": 1, "maxLength": 60 }
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                }
               },
-              "text": { "type": "string", "maxLength": 2000 },
+              "text": {
+                "type": "string",
+                "maxLength": 2000
+              },
               "resourceId": {
                 "$comment": "Ancre vers `resolved.resources[<id>]` : une action qui consomme une ressource ne compte pas elle-même, elle pointe la ressource qui compte.",
                 "$ref": "#/$defs/slug"
@@ -404,38 +773,77 @@
             }
           }
         },
-
         "spellcasting": {
           "$comment": "`null` pour un personnage sans incantation. Un seul bloc, conformément à l'inventaire imposé (dc, attackBonus, slots, spells) : le multiclassage lanceur n'est pas couvert — reconnu, volontairement non bouché. PORTE DE SORTIE, écrite ici pour qu'elle ne se referme pas : une révision pourra accepter `oneOf [null, objet, tableau d'objets]`, ce qui n'invalide AUCUN document déjà écrit. Les champs facultatifs `id` et `name` sont la charnière : ils nomment la source d'incantation dès aujourd'hui, pour que la migration soit un déplacement et non un devinement. Reste alors une seule règle à écrire le jour venu : les emplacements sont partagés en 5e, donc les `slots` de la PREMIÈRE source font foi et remontent d'un cran.",
           "oneOf": [
-            { "type": "null" },
+            {
+              "type": "null"
+            },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["ability", "dc", "attackBonus", "slots", "spells"],
+              "required": [
+                "ability",
+                "dc",
+                "attackBonus",
+                "slots",
+                "spells"
+              ],
               "properties": {
-                "id": { "$ref": "#/$defs/slug" },
-                "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-                "ability": { "$ref": "#/$defs/ability" },
-                "dc": { "type": "integer", "minimum": 0, "maximum": 40 },
-                "attackBonus": { "type": "integer", "minimum": -20, "maximum": 30 },
+                "id": {
+                  "$ref": "#/$defs/slug"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "ability": {
+                  "$ref": "#/$defs/ability"
+                },
+                "dc": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 40
+                },
+                "attackBonus": {
+                  "type": "integer",
+                  "minimum": -20,
+                  "maximum": 30
+                },
                 "slotsRecharge": {
                   "$comment": "AJOUT DU 2026-08-08 — trou trouvé à la REVUE DU LOT 6, en poursuivant une collision de nom dans les données SRD. Chez un lanceur plein, `class-progression` porte `spell_slots` comme un TABLEAU de 9 ; chez l'occultiste cette clef est ABSENTE et la magie de pacte vit un cran plus bas, en scalaire, avec son `slot_level`. La donnée est juste et fidèle au livre — la table imprimée de l'occultiste a bien une colonne « Spell Slots ». Mais la FORME invite l'erreur : un builder qui demande « cette classe a-t-elle des emplacements ? » de la façon évidente conclura qu'un OCCULTISTE n'en a AUCUN. En creusant, un vrai trou est apparu ici : `slots` n'avait aucune notion de recharge, alors que les emplacements de pacte reviennent sur un REPOS COURT et pas long. Sans ce champ, un occultiste dérivé correctement ne récupérerait quand même jamais ses emplacements. La valeur par défaut, quand le champ est absent, est `long` — la règle générale du SRD. Un occultiste DOIT porter `short` : c'est ce qui rend la différence lisible dans le document au lieu de la laisser tapie dans la source.",
-                  "enum": ["short", "long"]
+                  "enum": [
+                    "short",
+                    "long"
+                  ]
                 },
                 "slots": {
                   "$comment": "Clef = niveau de sort, valeur = compteur. La magie de pacte s'écrit ici comme tout le reste — un occultiste niveau 17 porte simplement `{ \"5\": { max: 4, current: 4 } }` — et c'est `slotsRecharge: \"short\"` qui la distingue, pas une forme à part. Un seul chemin de lecture pour toutes les classes : voir le $comment de `slotsRecharge` pour ce que ce choix évite.",
                   "type": "object",
                   "additionalProperties": false,
-                  "propertyNames": { "pattern": "^[1-9]$" },
+                  "propertyNames": {
+                    "pattern": "^[1-9]$"
+                  },
                   "patternProperties": {
                     "^[1-9]$": {
                       "type": "object",
                       "additionalProperties": false,
-                      "required": ["max", "current"],
+                      "required": [
+                        "max",
+                        "current"
+                      ],
                       "properties": {
-                        "max": { "type": "integer", "minimum": 0, "maximum": 20 },
-                        "current": { "type": "integer", "minimum": 0, "maximum": 20 }
+                        "max": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 20
+                        },
+                        "current": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 20
+                        }
                       }
                     }
                   }
@@ -446,22 +854,73 @@
                     "type": "object",
                     "additionalProperties": false,
                     "$comment": "⚠️ `castType` était REQUIS jusqu'au 2026-08-08. Retiré des obligatoires par l'architecte, à la fusion des lots 8 et 9, et c'est le SCHÉMA qui avait tort. Mesuré par le lot 8 : la prose du SRD porte au moins CINQ constructions qui ressemblent à une sauvegarde et une seule est le fait (le sort lui-même, la sauvegarde d'une créature invoquée dans un bloc encastré, un bonus qui donne l'avantage AUX sauvegardes comme Bénédiction, un test de caractéristique contre le DD, la sauvegarde d'un tiers) — et Couteau de glace comme Main arcanique sont GÉNUINEMENT les deux à la fois, ce que l'énumération ne sait pas dire. Un champ obligatoire sans source force le moteur à deviner : c'est le schéma qui pousse le code au mensonge. Et une fiche de magicien SANS AUCUN SORT (l'entrée serait sautée, invariant 5 du bloc build) est plus fausse qu'une fiche dont le mode de résolution est inconnu ET DÉCLARÉ. L'énumération elle-même est reconnue insuffisante : point ouvert daté.",
-                    "required": ["id", "name", "level", "prepared"],
+                    "required": [
+                      "id",
+                      "name",
+                      "level",
+                      "prepared"
+                    ],
                     "properties": {
-                      "id": { "$ref": "#/$defs/slug" },
-                      "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-                      "level": { "type": "integer", "minimum": 0, "maximum": 9 },
-                      "prepared": { "type": "boolean" },
-                      "castType": { "enum": ["none", "attack", "save"] },
-                      "saveAbility": { "$ref": "#/$defs/ability" },
-                      "saveEffect": { "enum": ["none", "half"] },
-                      "damage": { "type": "array", "items": { "$ref": "#/$defs/damage" } },
-                      "range": { "type": "string", "maxLength": 60 },
-                      "castingTime": { "type": "string", "maxLength": 120 },
-                      "duration": { "type": "string", "maxLength": 120 },
-                      "concentration": { "type": "boolean" },
-                      "ritual": { "type": "boolean" },
-                      "text": { "type": "string", "maxLength": 4000 }
+                      "id": {
+                        "$ref": "#/$defs/slug"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9
+                      },
+                      "prepared": {
+                        "type": "boolean"
+                      },
+                      "castType": {
+                        "enum": [
+                          "none",
+                          "attack",
+                          "save"
+                        ]
+                      },
+                      "saveAbility": {
+                        "$ref": "#/$defs/ability"
+                      },
+                      "saveEffect": {
+                        "enum": [
+                          "none",
+                          "half"
+                        ]
+                      },
+                      "damage": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/$defs/damage"
+                        }
+                      },
+                      "range": {
+                        "type": "string",
+                        "maxLength": 60
+                      },
+                      "castingTime": {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      "duration": {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      "concentration": {
+                        "type": "boolean"
+                      },
+                      "ritual": {
+                        "type": "boolean"
+                      },
+                      "text": {
+                        "type": "string",
+                        "maxLength": 4000
+                      }
                     }
                   }
                 }
@@ -469,25 +928,51 @@
             }
           ]
         },
-
         "resources": {
           "$comment": "TOUT ce qui se compte : dés de vie, usages d'aptitude, charges d'objet. Un seul endroit qui compte, décrémenté au règlement (événement), jamais par élagage de références.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "max", "current"],
+            "required": [
+              "id",
+              "name",
+              "max",
+              "current"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-              "max": { "type": "integer", "minimum": 0 },
-              "current": { "type": "integer", "minimum": 0 },
-              "recharge": { "enum": ["none", "short", "long", "day"] },
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "max": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "current": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "recharge": {
+                "enum": [
+                  "none",
+                  "short",
+                  "long",
+                  "day"
+                ]
+              },
               "origin": {
                 "$comment": "AJOUT DU 2026-08-08 — décision ratifiée par Eric : « il faudrait qu'un joueur puisse donner un dé à un autre joueur » (dé de Bardic ; et, par l'Arcane du Diable, un dé de Destinée, en réaction ou à l'avance). Forme demandée par le lot 5-moteur-srd-fh (COUPE-LOT-5.md §8), écrite ici parce qu'un lot ne s'écrit pas son propre contrat (loi §0.10). C'EST LA PREMIÈRE RESSOURCE QUI TRAVERSE DEUX DOCUMENTS `fh-char/1`, ce que la décision 3 (le personnage appartient au joueur) n'avait pas prévu. Découpage : le verbe de don vit chez le DONNEUR et décrémente SA ressource ; ici on décrit seulement ce que le RECEVEUR détient. Absent = la ressource est la sienne, et c'est le cas de tout le reste de la fiche. ⚠️ `window` n'est pas de la décoration : « à l'avance » et « en réaction » sont DEUX portes différentes — un dé donné à l'avance attend sur la fiche, un dé donné en réaction arrive pendant une transaction ouverte. Un moteur qui les confond laissera passer une réaction hors de son tour.",
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["from", "source"],
+                "required": [
+                  "from",
+                  "source"
+                ],
                 "properties": {
                   "from": {
                     "$comment": "QUI a donné le dé — le nom affichable du personnage donneur. Un nom et non un identifiant : le donneur est un document qui vit sur une AUTRE machine (décision 3), et exiger son id créerait une dépendance qu'on ne peut pas résoudre hors ligne.",
@@ -501,7 +986,10 @@
                   },
                   "timing": {
                     "$comment": "Quand le dé peut servir. `advance` : donné à l'avance, il attend. `reaction` : donné pendant une transaction de jet ouverte. Absent = pas de contrainte connue, et le moteur DOIT le dire plutôt que d'en supposer une. ⚠️ NOMMÉ `timing` ET NON `window`, et ce n'est pas un détail : l'architecte avait d'abord écrit `window`, et le garde zéro-DOM de src/play/ l'a refusé en quelques minutes — `window` est l'identifiant du global navigateur, et un champ qui le porte ressemblera éternellement au DOM, pour un scanner comme pour un lecteur.",
-                    "enum": ["advance", "reaction"]
+                    "enum": [
+                      "advance",
+                      "reaction"
+                    ]
                   },
                   "givenAt": {
                     "$comment": "AJOUT DU 2026-08-08 — trou de contrat trouvé par le RELECTEUR Adverserial. Le moteur écrivait `givenAt` depuis le lot 5 et le contrat l'ignorait, donc `additionalProperties: false` rejetait toute provenance persistée. C'était le défaut de l'architecte : il avait écrit ce sous-schéma depuis le DOCUMENT du lot 5 au lieu de son CODE, et aucune suite ne confrontait les deux bouts — la poignée de main avait eu lieu dans le vide. Ce champ n'est pas décoratif : `expiresAt` ne se vérifie pas sans le moment du don.",
@@ -510,8 +998,12 @@
                   "expiresAt": {
                     "$comment": "Échéance facultative — un dé de Bardic vaut « une heure » dans le SRD. `null` est EXPLICITEMENT admis et ne vaut pas absence : le moteur qui écrit `null` dit « j'ai regardé, il n'y en a pas », là où un champ absent dirait « personne n'a regardé ». Nommé `expiresAt` et non `expires` pour faire paire avec `givenAt` — deux instants, un seul suffixe.",
                     "oneOf": [
-                      { "$ref": "#/$defs/timestamp" },
-                      { "type": "null" }
+                      {
+                        "$ref": "#/$defs/timestamp"
+                      },
+                      {
+                        "type": "null"
+                      }
                     ]
                   }
                 }
@@ -519,87 +1011,173 @@
             }
           }
         },
-
         "traits": {
           "$comment": "Aptitudes, dons, traits d'espèce. Un trait à usages limités ne compte PAS lui-même : il pointe sa ressource par `resourceId` (une seule source de vérité).\n\nRÉVISION DU 2026-08-12 (lot 36) — `category`, un champ FACULTATIF. Un training (langue de plus, arme exotique, le Garrot) n'a ni palier ni bonus (`resolved.skills[]`/`tools[]` l'auraient forcé à mentir sur une caractéristique qu'il n'a pas) et son prix est déjà tracé deux fois (le choix, la ligne de coût du pool) — une rubrique neuve en aurait fait une troisième copie. `traits[]` porte déjà la phrase « aptitudes, dons, traits d'espèce » : un training y entre tel quel. `category` est un IDENTIFIANT, jamais un mot affichable (§0.13) — l'écran choisit son propre libellé. Une seule valeur aujourd'hui ; les traits d'espèce existants restent SANS catégorie, `category` ne les redéfinit pas.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-              "text": { "type": "string", "maxLength": 4000 },
-              "source": { "type": "string", "maxLength": 80 },
-              "resourceId": { "$ref": "#/$defs/slug" },
-              "category": { "enum": ["training"] }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 4000
+              },
+              "source": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "resourceId": {
+                "$ref": "#/$defs/slug"
+              },
+              "category": {
+                "enum": [
+                  "training"
+                ]
+              }
             }
           }
         },
-
         "gear": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "name", "quantity", "equipped"],
+            "required": [
+              "id",
+              "name",
+              "quantity",
+              "equipped"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-              "quantity": { "type": "integer", "minimum": 0 },
-              "equipped": { "type": "boolean" },
-              "weight": { "type": "number", "minimum": 0 },
-              "note": { "type": "string", "maxLength": 500 },
-              "resourceId": { "$ref": "#/$defs/slug" }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "equipped": {
+                "type": "boolean"
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "resourceId": {
+                "$ref": "#/$defs/slug"
+              }
             }
           }
         },
-
         "currency": {
           "$comment": "La bourse. Quatre dénominations SRD 5.2.1, toutes obligatoires (une bourse vide s'écrit en zéros, elle ne s'omet pas). L'ÉLECTRUM est volontairement absent : il ne fait plus partie des règles 2024. ATTESTATION : les exports fh-srd n'emploient que `pc`, `pa` et `po` dans les coûts ; `pp` (platine) est le seul champ non attesté par les fichiers relus — à confirmer par le lot 4, qui lit le SRD entier.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["cp", "sp", "gp", "pp"],
+          "required": [
+            "cp",
+            "sp",
+            "gp",
+            "pp"
+          ],
           "properties": {
-            "cp": { "type": "integer", "minimum": 0 },
-            "sp": { "type": "integer", "minimum": 0 },
-            "gp": { "type": "integer", "minimum": 0 },
-            "pp": { "type": "integer", "minimum": 0 }
+            "cp": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sp": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "gp": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pp": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
-
         "craft": {
           "$comment": "Panneau CRAFT : vide tant qu'aucune couche ne lève de drapeau d'artisanat. Chaque entrée nomme le drapeau (`flag`) qui l'active ; `data` est une charge utile OPAQUE, validée par le module moteur propriétaire de ce drapeau, jamais par ce schéma (décision Q4 : les mécaniques nouvelles sont des modules moteur, pas du contenu de couche).",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "flag", "name"],
+            "required": [
+              "id",
+              "flag",
+              "name"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "flag": { "$ref": "#/$defs/flag" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
-              "text": { "type": "string", "maxLength": 2000 },
-              "data": { "$ref": "#/$defs/safeValue" }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "flag": {
+                "$ref": "#/$defs/flag"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "data": {
+                "$ref": "#/$defs/safeValue"
+              }
             }
           }
         },
-
         "stats": {
           "$comment": "GAP-DERIVED, bouché le 2026-08-08. Les statistiques DÉRIVÉES qu'une couche définit — le Score de Destinée en est la première, et c'est elle qui a dicté la forme. ⚠️ UNE COLLECTION AVEC SON DÉTAIL, PAS UN CHAMP, et ce n'est pas du confort d'affichage : DEUX des termes du Score ne sont récupérables par AUCUN autre moyen que ce détail. Vide tant qu'aucune couche ne lève de drapeau, comme `craft`.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "flag", "name", "value", "breakdown"],
+            "required": [
+              "id",
+              "flag",
+              "name",
+              "value",
+              "breakdown"
+            ],
             "properties": {
               "id": {
                 "$comment": "⚠️ C'EST UN `slug`, ET LE POINT N'Y EST PAS ADMIS — mesuré au lot 19. L'id du Score de Destinée s'écrit donc `fh:destiny` et NON `fh.destiny` : le deux-points est le séparateur de namespace du dépôt (`srd:species:en:elf`), il passe ici ET dans le sélecteur d'un chemin d'override (`resolved.stats[fh:destiny].value`), là où le point serait rejeté des deux côtés. Le DRAPEAU, lui, garde le point — il voyage dans `flag`.",
                 "$ref": "#/$defs/slug"
               },
-              "flag": { "$ref": "#/$defs/flag" },
-              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "flag": {
+                "$ref": "#/$defs/flag"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
               "value": {
                 "$comment": "⚠️ INVARIANT NON TENU PAR CE SCHÉMA : `value` est la somme des `breakdown[].value`. JSON Schema ne sait pas additionner. L'invariant est donc à la charge de `build.validate`, et un invariant écrit ici sans être exécuté là-bas ne serait qu'une INTENTION — leçon du RELECTEUR Adverserial, 2026-08-08. ✅ EXÉCUTÉ DEPUIS LE LOT 19 : `src/build/validate.mjs` (`statSumViolations`), appelé par `build.rebuild` AVANT les overrides — un module ne peut pas écrire un total que son détail contredit, le refus est bruyant — et par `build.validate` sur la fiche jouable, overrides compris : la parole du MJ n'y est pas jetée, elle est NOMMÉE. Le garde est attaqué sur une somme fabriquée fausse (tests/fh-destiny-score.test.mjs).",
                 "type": "integer",
@@ -613,62 +1191,100 @@
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["label", "value"],
+                  "required": [
+                    "label",
+                    "value"
+                  ],
                   "properties": {
-                    "label": { "type": "string", "minLength": 1, "maxLength": 200 },
-                    "value": { "type": "integer", "minimum": -99, "maximum": 99 },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": -99,
+                      "maximum": 99
+                    },
                     "source": {
                       "$comment": "D'où vient le terme, quand il vient d'un record — l'espèce, l'Arcane, le don. Absent pour un terme qu'aucun record ne porte : la Gloire décidée par le MJ n'a pas de source de règle, et lui en inventer une serait mentir sur son origine.",
                       "type": "object",
                       "additionalProperties": false,
-                      "required": ["kind", "id"],
+                      "required": [
+                        "kind",
+                        "id"
+                      ],
                       "properties": {
-                        "kind": { "$ref": "#/$defs/kind" },
-                        "id": { "$ref": "#/$defs/recordId" }
+                        "kind": {
+                          "$ref": "#/$defs/kind"
+                        },
+                        "id": {
+                          "$ref": "#/$defs/recordId"
+                        }
                       }
                     },
                     "by": {
                       "$comment": "Qui a posé ce terme, quand ce n'est pas une règle qui l'a produit. La Gloire est une décision de MJ (Eric, 2026-08-08 : « c'est décidé par le MJ — un haut fait peut rajouter 1 »), et on doit toujours savoir de qui vient un terme discrétionnaire.",
                       "type": "string",
-                      "enum": ["player", "gm"]
+                      "enum": [
+                        "player",
+                        "gm"
+                      ]
                     },
-                    "note": { "type": "string", "maxLength": 2000 }
+                    "note": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
                   }
                 }
               }
             }
           }
         },
-
         "notes": {
           "$comment": "Panneau NOTES : une LISTE, pas une chaîne. Un personnage porte plusieurs textes distincts (histoire, notes de table, notes d'aptitude) ; une chaîne unique en écraserait un à l'import, silencieusement, alors qu'ils ont été saisis à la main. `title` est facultatif : la note sans titre est le cas courant à la table, et un champ obligatoire qu'on remplit de vide n'est pas une donnée.",
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "text"],
+            "required": [
+              "id",
+              "text"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/slug" },
-              "title": { "type": "string", "minLength": 1, "maxLength": 120 },
-              "text": { "type": "string", "maxLength": 20000 }
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000
+              }
             }
           }
         }
       }
     },
-
     "flag": {
       "$comment": "Drapeau de capacité, espacé de noms : `<espace>.<nom>` (ex. `fh.destiny`). Un drapeau active un module moteur ; il ne transporte aucune mécanique lui-même.",
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
       "maxLength": 60
     },
-
     "build": {
       "$comment": "L'étage des règles. Une reconstruction relit ce contenu et réécrit `resolved` ; elle ne modifie JAMAIS `build`. Ouvert sans ses couches, cet étage reste inerte et intact.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["layers", "choices", "budgets", "overrides"],
+      "required": [
+        "layers",
+        "choices",
+        "budgets",
+        "overrides"
+      ],
       "properties": {
         "external": {
           "$comment": "Le lien vers un système externe, quand il y en a un. Il vit dans `build` et PAS dans le bloc `connect-ddb` : ce bloc est détachable pour raison juridique, la donnée ne l'est pas — un personnage importé garde son lien même quand le bloc est absent, sinon un ré-import crée un doublon. Système énuméré en dur (§1.16) : un `roll20` inconnu est un rejet, pas une clef avalée.",
@@ -678,14 +1294,24 @@
             "ddb": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["characterId"],
+              "required": [
+                "characterId"
+              ],
               "properties": {
-                "characterId": { "type": "integer", "minimum": 1 },
+                "characterId": {
+                  "type": "integer",
+                  "minimum": 1
+                },
                 "entityIds": {
                   "$comment": "Carte chemin de choix → identifiant externe. Rattacher l'id au CHOIX qu'il représente (et non à une liste plate) empêche les orphelins : un choix retiré emporte son id, et rien ne reste à pointer un don que le personnage n'a plus.",
                   "type": "object",
-                  "propertyNames": { "$ref": "#/$defs/choicePath" },
-                  "additionalProperties": { "type": "integer", "minimum": 1 }
+                  "propertyNames": {
+                    "$ref": "#/$defs/choicePath"
+                  },
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 }
               }
             }
@@ -694,12 +1320,16 @@
         "layers": {
           "$comment": "L'ORDRE EST LA PILE : première entrée = base (SRD), dernière = la plus forte avant overrides.",
           "type": "array",
-          "items": { "$ref": "#/$defs/layerRef" }
+          "items": {
+            "$ref": "#/$defs/layerRef"
+          }
         },
         "confirmed": {
           "$comment": "LES CONFIRMATIONS DU JOUEUR — Eric, 2026-08-19. Un chemin est ici quand le joueur a explicitement cliqué `Done` dessus, et NON parce qu'une valeur y a été posée : les deux se distinguent, et c'est tout l'objet du champ — « si je fais back sur un item, ça ne valide pas l'item ; il faut faire done pour valider un item, et le done du guide spécifique pour tout valider ». Un item confirmé porte SON chemin (`species.lineage`) ; le guide d'une étape porte le chemin de l'étape (`species`). ⛔ CE N'EST PAS UN CHOIX : rien ici ne dérive quoi que ce soit sur la fiche, et le loger dans `build.choices` l'aurait fait ressortir `unconsumed` à chaque reconstruction — le moteur aurait eu raison de le dire. ⚠️ FACULTATIF, délibérément : tout document écrit avant ce champ reste valide, et son absence se lit « rien n'a encore été confirmé ». ⚠️ L'UNICITÉ N'EST PAS DÉCLARÉE ICI : le validateur maison (`src/doc/schema.mjs`) refuse tout mot-clef qu'il n'implémente pas, et `uniqueItems` en fait partie — il a raison, un validateur qui ignore une contrainte en silence ment. L'unicité est donc TENUE PAR L'ÉCRIVAIN (`confirm`, `src/doc/writers.mjs`), qui est le seul chemin d'écriture.",
           "type": "array",
-          "items": { "$ref": "#/$defs/choicePath" }
+          "items": {
+            "$ref": "#/$defs/choicePath"
+          }
         },
         "choices": {
           "$comment": "Une décision par point de décision. `ref` (un record de couche) OU `value` (un scalaire), jamais les deux, jamais aucun — un choix vide est un rejet, pas un défaut silencieux.",
@@ -707,39 +1337,82 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["path"],
+            "required": [
+              "path"
+            ],
             "properties": {
-              "path": { "$ref": "#/$defs/choicePath" },
+              "path": {
+                "$ref": "#/$defs/choicePath"
+              },
               "ref": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["kind", "id"],
+                "required": [
+                  "kind",
+                  "id"
+                ],
                 "properties": {
-                  "kind": { "$ref": "#/$defs/kind" },
-                  "id": { "$ref": "#/$defs/recordId" }
+                  "kind": {
+                    "$ref": "#/$defs/kind"
+                  },
+                  "id": {
+                    "$ref": "#/$defs/recordId"
+                  }
                 }
               },
               "value": {
                 "$comment": "Un choix qui n'est pas un record est un scalaire : un nom de compétence, un score, un mode. Jamais une structure — une structure serait une règle déguisée.",
                 "anyOf": [
-                  { "type": "string", "maxLength": 200 },
-                  { "type": "number" },
-                  { "type": "boolean" }
+                  {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
                 ]
               },
-              "label": { "type": "string", "maxLength": 200 }
+              "label": {
+                "type": "string",
+                "maxLength": 200
+              }
             },
             "oneOf": [
-              { "required": ["ref"], "properties": { "ref": true, "value": false } },
-              { "required": ["value"], "properties": { "value": true, "ref": false } }
+              {
+                "required": [
+                  "ref"
+                ],
+                "properties": {
+                  "ref": true,
+                  "value": false
+                }
+              },
+              {
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": true,
+                  "ref": false
+                }
+              }
             ]
           }
         },
         "budgets": {
           "$comment": "Les BUDGETS DE POINTS OCTROYÉS À LA MAIN. Clef `<drapeau>.<nom>` — ⚠️ tout en MINUSCULES, `propertyNames` pointe sur `$defs/flag` dont le motif est `^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$` : `fh.skillpoints` passe, `fh.skillPoints` est REJETÉ. Valeur entière. Vide tant qu'aucune couche n'en définit.\n\n⚠️ POURQUOI DANS `build` ET PAS DANS `resolved` : un budget est une ressource de CONSTRUCTION, pas une case de la fiche jouable. Il dit ce qu'on avait à dépenser, et les dépenses elles-mêmes sont des `choices`. Le mettre dans `resolved` en ferait une valeur qu'une reconstruction réécrit, alors que c'est une donnée d'entrée.\n\n⛔ CORRECTION DU 2026-08-09 — CE CHAMP N'EST PAS LA MAISON DU POOL DE COMPÉTENCES FH, et la version précédente de ce commentaire l'annonçait comme son « premier consommateur concret ». C'ÉTAIT UNE PRÉDICTION D'ARCHITECTE, PAS UNE MESURE, et le lot 22 l'a démentie en refusant de construire dessus (loi §0.10). Les trois faits, revérifiés : `budgets` est `required` mais AUCUNE ligne de `src/` ne l'écrit ni ne le lit ; aucun verbe ne le vise ; et l'invariant 4 du contrat `build` (« une reconstruction ne modifie JAMAIS `build` ») interdit qu'une dérivation l'alimente. L'ARGUMENT QUI TRANCHE EST LE BARDE : son pool change à CHAQUE niveau (+1 dès le 2), donc un budget figé à la création serait faux dès le niveau 2. Un nombre qui se recalcule à chaque niveau n'est pas une donnée d'entrée — c'est une DÉRIVATION.\n\n→ ARBITRAGE : le pool de compétences est publié dans `resolved.stats[]`, par un module à drapeau, exactement comme le Score de Destinée (lot 19). Chemin déjà ratifié, déjà testé, zéro contrat neuf — et le `breakdown` donne au MJ le POURQUOI du nombre (pool de classe, paliers traversés, bumps d'espèce, imposés déduits), ce qu'un entier nu ne fait pas.\n\nCE CHAMP GARDE DONC UN SENS ÉTROIT ET HONNÊTE : un budget qu'on ACCORDE (« le MJ donne 3 points »), ce qui est une vraie donnée d'entrée. ⚠️ Si aucun consommateur de cette nature n'apparaît, la loi §0.6 devra se poser sur lui — un champ `required` que personne n'écrit est du vocabulaire mort.\n\n📌 RÈGLE D'ERIC, 2026-08-08 (Q15-8), qui reste vraie pour le pool où qu'il vive : un personnage créé à un niveau donné reçoit les paliers qu'il a TRAVERSÉS. Créé au niveau 5, il a le palier 1 et le palier 3 — PAS celui du niveau 6. `by_level` se cumule sur les niveaux ≤ niveau courant, et « à la création » ne veut pas dire « au niveau 1 ».",
           "type": "object",
-          "propertyNames": { "$ref": "#/$defs/flag" },
-          "additionalProperties": { "type": "integer", "minimum": -999, "maximum": 999 }
+          "propertyNames": {
+            "$ref": "#/$defs/flag"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -999,
+            "maximum": 999
+          }
         },
         "overrides": {
           "$comment": "La parole du MJ bat le JSON. Appliqués EN DERNIER sur `resolved`, ils survivent à toute reconstruction et l'écart règles↔décision reste affichable. `path` unique dans la liste — invariant tenu par les tests, JSON Schema ne sait pas l'exprimer.",
@@ -747,23 +1420,52 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["path", "value", "by"],
+            "required": [
+              "path",
+              "value",
+              "by"
+            ],
             "properties": {
-              "path": { "$ref": "#/$defs/overridePath" },
-              "value": { "$ref": "#/$defs/safeValue" },
-              "note": { "type": "string", "maxLength": 500 },
-              "by": { "enum": ["player", "gm"] }
+              "path": {
+                "$ref": "#/$defs/overridePath"
+              },
+              "value": {
+                "$ref": "#/$defs/safeValue"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "by": {
+                "enum": [
+                  "player",
+                  "gm"
+                ]
+              }
             }
           }
         }
       }
     },
-
     "kind": {
       "$comment": "Les 16 genres — les 14 de fh-srd, plus `arcana` et `training`, les deux premiers genres Fate's Hand. Les genres FH à venir entrent par une révision explicite de fh-char/1 et fh-layer/1 — pas par un joker qui accepterait `spel` en silence. RÉVISION DU 2026-08-08 : `class-progression` et `skill` ajoutés après la fusion du lot 6-srd-tables.\n\nRÉVISION DU 2026-08-08 — `arcana`. CE QUE CETTE SEULE LIGNE OUVRE, et c'est plus large qu'il n'y paraît, parce que `$defs/kind` est référencé à DEUX endroits de ce schéma : (1) `build.choices[].ref.kind`, donc le personnage peut enfin DIRE quelle carte il porte — `{path: \"fh.destiny.arcana\", ref: {kind: \"arcana\", id: \"…\"}, label: \"The Hermit\"}`, exactement la forme que l'espèce, la classe et l'historique utilisent déjà ; (2) `resolved.stats[].breakdown[].source.kind`, donc le terme de l'Arcane dans le Score peut CITER SA CARTE au lieu d'être un nombre nu. Aucun champ neuf n'est dû : la question « où vit l'Arcane du personnage ? » (QUESTIONS-ARCHITECTE §4, ouverte depuis le lot 16) se répond par le mécanisme de choix qui existait déjà. Ce qui reste après cette révision est du CONTENU (une couche portant les 22 cartes) et de la DÉRIVATION (le module apprenant à lire un choix qui porte un `ref`), pas du contrat.\n\nRÉVISION DU 2026-08-12 — `training`, genre 16, SECOND genre Fate's Hand. Il porte la TROISIÈME dépense du pool de compétences : une langue supplémentaire, une arme exotique, le Garrot. CE QUE CETTE LIGNE OUVRE ICI, et c'est le même mécanisme que pour `arcana` — `$defs/kind` est référencé à DEUX endroits : (1) `build.choices[].ref.kind`, donc un personnage peut DIRE quel training il a acquis, dans la forme exacte que l'espèce, la classe et l'Arcane utilisent déjà ; (2) `resolved.stats[].breakdown[].source.kind`, donc la ligne de dépense du pool peut CITER le training qu'elle paie au lieu d'être un nombre nu. AUCUN champ neuf n'est dû. POURQUOI PAS UN `tool` : un training n'a ni palier ni bonus — il débloque, il ne bonifie pas — et le loger chez les outils forcerait tout lecteur à tester un champ pour savoir ce qu'il tient (§0.6).",
       "enum": [
-        "arcana", "armor", "background", "class", "class-progression", "feat", "gear", "glossary",
-        "item", "monster", "skill", "species", "spell", "tool", "training", "weapon"
+        "arcana",
+        "armor",
+        "background",
+        "class",
+        "class-progression",
+        "feat",
+        "gear",
+        "glossary",
+        "item",
+        "monster",
+        "skill",
+        "species",
+        "spell",
+        "tool",
+        "training",
+        "weapon"
       ]
     }
   }
