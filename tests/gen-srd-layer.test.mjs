@@ -18,6 +18,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,6 +45,46 @@ const validateLayer = ajv.compile(layerSchema);
    `skip`. */
 if (!existsSync(SRD_ROOT)) {
   throw new Error(`gen-srd-layer.test : fh-srd introuvable à ${SRD_ROOT} — dépendance ferme du lot 4-couche-srd.`);
+}
+
+/* ══ L'AMONT EST-IL EN PLEIN LOT ? — 2026-08-20 ═════════════════════════════
+   🔴 CE GARDE M'A SURPRIS DEUX FOIS DANS LA MÊME JOURNÉE, et la seconde après
+   que je l'aie documenté dans un message de commit. Il compare la couche
+   commitée à ce que le générateur produit DEPUIS L'ARBRE DE TRAVAIL de
+   `~/tools/fh-srd`. Quand un lot y travaille — et il y en a eu deux
+   aujourd'hui — il rougit avec un diff de trois millions de caractères qui ne
+   dit rien de la cause.
+
+   ⛔ ET IL NE PEUT PAS DISTINGUER LES DEUX SITUATIONS QU'IL MÉLANGE : « notre
+   artefact a dérivé » (un vrai défaut, à réparer) et « le voisin travaille »
+   (rien à faire, attendre la fusion). Un garde qui rougit pour deux raisons
+   opposées sans les nommer fait perdre plus de temps qu'il n'en sauve.
+
+   ⭐ LA BONNE QUESTION N'EST PAS « L'ARBRE EST-IL SALE », C'EST « CE FICHIER
+   DIT-IL AUTRE CHOSE QUE `main` ? » — le fil FH WEB l'a posée mieux que moi
+   pour son propre résolveur de citations, et je reprends sa formulation. Elle
+   couvre d'un seul geste les DEUX cas : la modification non commitée ET la
+   branche divergente. Un `git status` ne voit que le premier ; une branche à
+   l'arbre propre mais aux octets divergents passerait au travers.
+
+   ⚠️ ET SI GIT EST ILLISIBLE, ON CONTINUE — mais sans prétendre avoir vérifié.
+   Le garde reprend alors son ancien comportement, ce qui est le bon repli : il
+   vaut mieux un diff illisible qu'un test qui se tait. */
+function amontEnPleinLot() {
+  const git = (args) => execFileSync("git", args, { cwd: SRD_ROOT, encoding: "utf8" }).trim();
+  try {
+    const branche = git(["rev-parse", "--abbrev-ref", "HEAD"]);
+    /* ⚠️ `SRD_ROOT` DÉSIGNE `…/fh-srd/exports`, PAS LA RACINE DU DÉPÔT — et
+       c'est ce qui a fait taire ce garde à son premier essai : un pathspec
+       `exports/` résolu depuis `exports/` cherche `exports/exports/`, ne trouve
+       rien, et conclut « l'amont est calme ». Le `.` dit « ce dossier-ci », qui
+       est exactement le périmètre à surveiller. */
+    const ecarts = git(["diff", "--name-only", "main", "--", "."])
+      .split("\n").map((ligne) => ligne.trim()).filter(Boolean);
+    return ecarts.length > 0 ? { branche, ecarts } : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 test("le MANIFEST se vérifie avant usage : un mismatch nomme le fichier et jette", () => {
@@ -209,6 +250,18 @@ test("generate() écrit les deux couches DANS SA DESTINATION, et les fichiers co
       const attendu = join(tmp, `srd-5.2.1-${lang}.layer.json`);
       assert.equal(results[lang].outPath, attendu, "le générateur DIT où il a écrit");
       assert.equal(existsSync(attendu), true, `le fichier ${lang} doit exister dans la destination donnée`);
+      /* ⭐ LA CAUSE AVANT LE DIFF. Trois millions de caractères ne disent pas
+         pourquoi ils diffèrent ; cette phrase-ci, si. */
+      const lot = amontEnPleinLot();
+      if (lot && readFileSync(attendu, "utf8") !== avant[lang]) {
+        assert.fail(
+          `la couche ${lang} diffère, et L'AMONT EST EN PLEIN LOT : ` +
+          `${SRD_ROOT} est sur la branche « ${lot.branche} », ` +
+          `${lot.ecarts.length} fichier(s) d'export s'écartent de \`main\` (${lot.ecarts.join(", ")}). ` +
+          "Ce n'est PAS une dérive de notre artefact : régénérer maintenant importerait du travail non fusionné. " +
+          "Attendre la fusion, puis `node src/tools/gen-srd-layer.mjs`."
+        );
+      }
       assert.equal(readFileSync(attendu, "utf8"), avant[lang],
         `la couche ${lang} commitée n'est plus celle que le générateur produit — régénérer, ou dire ce qui a bougé`);
     }
