@@ -709,6 +709,27 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      au jeton et jamais réécrit en `rgba()`. */
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
+
+/* ══ IDENTITY PREND LE FOND DES AUTRES — Eric, 2026-08-20 ═════════════════
+   *« identity : la fiche doit être plus opaque »*, puis, sans ambiguïté :
+   *« mets-moi identity à la même transparence que les autres »*.
+
+   📏 MESURÉ AVANT DE TOUCHER : les guides de Species, Class et Inheritance
+   peignent `rgb(31,28,22)` — c'est `--surface`, la `dalle-majeure`. Identity
+   rendait `rgba(0,0,0,0)` : **aucun fond du tout**, seulement le liseré. Ce
+   n'était donc pas un voile trop faible, c'était l'absence de voile.
+
+   🔴 ET ÇA SÉPARE UNE RÈGLE QUI ÉTAIT PARTAGÉE, DÉLIBÉRÉMENT. Le bloc
+   ci-dessus réunissait `.universe-step` et `.concept-step` avec cet argument,
+   écrit le 17/08 : *« deux écrans, une même demande, donc une même règle — les
+   séparer ferait diverger deux voiles au premier réglage »*. Le premier réglage
+   est arrivé : Eric a demandé pour Universe *« dalle 50 % de transparence »* et
+   pour Identity *« la même que les autres »*, c'est-à-dire l'opaque. **Deux
+   demandes différentes ne peuvent plus tenir dans une règle.** On ne fusionne
+   que ce qui est le même ; ici ça a cessé de l'être.
+   ⚠️ Universe n'est PAS touchée par cette ligne — elle garde exactement ce
+   qu'elle avait. */
+.concept-step { background: var(--surface); }
 /* Le pied vient s'accrocher au bas de la dalle : elle porte déjà sa gouttière
    de 8, le rembourrage latéral du pied ferait double emploi. Et la marge
    automatique doit sauter, sinon elle absorbe la place libre et le bloc cesse
