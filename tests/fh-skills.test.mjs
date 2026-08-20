@@ -836,29 +836,49 @@ test("mesure — aucun verbe n'écrit `build.budgets`, et le document d'exemple 
    des compétences bouge, la fiche ne suit pas, et c'est ici que ça rougit —
    pas trois mois plus tard, sur un écran, devant un joueur. */
 
-test("⛔ DEUX COUCHES, UN SEUL NOMBRE — la fiche recopie le free point pool sans dériver", () => {
-  const points = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
+test("⛔ DEUX COUCHES, UN SEUL NOMBRE — et depuis le 20/08 la fiche n'en porte AUCUN", () => {
+  /* 🔴 CE GARDE A CHANGÉ DE MÉTIER LE 2026-08-20, ET C'EST UN PROGRÈS.
+     Il vérifiait que les DEUX exemplaires du nombre concordaient — la ligne
+     « Free points » recopiée à la main dans `fh-fiche-en`, et la vérité de
+     `fh-skills-en`. Il faisait bien son travail : douze valeurs, douze
+     accords. Mais **garder deux copies d'accord n'est pas la même chose que
+     n'en avoir qu'une**, et c'est la seconde qu'on veut.
+
+     ⭐ Eric, 2026-08-20 : *« mets à jour les points de skills dans les
+     classes »*. Ce qu'il y avait à mettre à jour n'était aucun nombre — ils
+     étaient tous justes — mais leur NOMBRE D'EXEMPLAIRES. L'écran dérive
+     désormais les trois totaux du canon §B.1 depuis le pool, une seule source,
+     et la couche fiche n'en porte plus aucun.
+     ⚠️ Le garde ne se désarme donc pas : il exige l'INVERSE de ce qu'il
+     exigeait, et il mord sur ce qui compte vraiment — le retour d'une copie. */
   const fiche = JSON.parse(readFileSync(join(ROOT, "layers/fh-fiche-en.layer.json"), "utf8"));
 
-  const attendu = Object.fromEntries(Object.entries(points.records.class)
-    .map(([id, rec]) => [id, rec.changes["data[fh_skill_pool]"].free_point_pool]));
-
-  const observé = {};
+  const copies = [];
   for (const [id, rec] of Object.entries(fiche.records.class)) {
     for (const valeur of Object.values(rec.changes || {})) {
       if (!Array.isArray(valeur)) continue;
       for (const ligne of valeur) {
-        if (ligne && ligne.label === "Free points") observé[id] = ligne.value;
+        if (ligne && /point|pool/i.test(String(ligne.label))) copies.push(`${id} → « ${ligne.label} »`);
       }
     }
   }
+  assert.deepEqual(copies, [],
+    "⛔ aucune ligne de POINTS dans la couche fiche : le nombre vit dans `fh-skills-en` et l'écran le DÉRIVE.\n" +
+    "Une copie qui revient est une copie qui divergera — c'est exactement ce que la version précédente de ce " +
+    "garde surveillait, et qu'on n'a plus à surveiller.");
 
-  assert.equal(Object.keys(observé).length, EXPECTED.classes,
-    "les douze classes portent leur ligne de points sur la fiche — une classe muette est une carte trouée");
-  for (const [id, libre] of Object.entries(attendu)) {
-    assert.equal(observé[id], `${libre} pts`,
-      `« ${id} » : la fiche annonce « ${observé[id]} » et la couche des points en donne ${libre}. ` +
-      "Le joueur lit la fiche ; le moteur lit la couche. Deux nombres, un mensonge.");
+  /* ⚔️ ET LE TÉMOIN : la vérité, elle, est bien là et complète. Un garde qui
+     interdit une copie doit prouver que l'original existe, sinon il serait vert
+     sur un builder qui n'affiche plus aucun point. */
+  const points = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
+  const pools = Object.entries(points.records.class)
+    .map(([id, rec]) => [id, rec.changes["data[fh_skill_pool]"]]);
+  assert.equal(pools.length, EXPECTED.classes, "les douze classes portent leur pool");
+  for (const [id, pool] of pools) {
+    for (const champ of ["bound_skill_points", "bound_tool_points", "free_point_pool"]) {
+      assert.equal(Number.isInteger(pool[champ]), true,
+        `« ${id} » doit porter les TROIS totaux du canon §B.1 — il manque \`${champ}\``);
+    }
   }
 
   /* ⚔️ ET L'ANCIEN LIBELLÉ NE DOIT PLUS EXISTER. « Skill pool » désignait le

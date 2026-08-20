@@ -156,8 +156,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=249";
-import { keepInView, scrollParent } from "./socle.mjs?v=249";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=253";
+import { keepInView, scrollParent } from "./socle.mjs?v=253";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -264,7 +264,14 @@ function counterLine(label, value, over) {
 function renderPoolBar(counter, poolViolation, ctx) {
   const wrap = el("div", "skills-poolbar");
   wrap.dataset.status = counter.left < 0 ? "over" : "ok";
-  wrap.append(counterLine("Pool", `${counter.spentPool}/${counter.availablePool}`));
+  /* 🔴 `Free` ET NON `Pool` — Eric, 2026-08-20 : *« mets à jour le compteur
+     dans skills »*, dans le même souffle que les trois totaux de la fiche de
+     classe. Le canon §B.1 n'a jamais appelé ce nombre « le pool » tout court :
+     il l'appelle **free point pool**, et c'est le SEUL des trois que le joueur
+     dépense. Tant que la fiche disait « Free points » et le compteur « Pool »,
+     deux mots désignaient le même nombre à deux écrans d'intervalle — et
+     l'autre moitié du canon (les points LIÉS) n'était nommée nulle part. */
+  wrap.append(counterLine("Free", `${counter.spentPool}/${counter.availablePool}`));
   wrap.append(counterLine("Invested", String(counter.invested)));
   wrap.append(counterLine("Left", String(counter.left), counter.left < 0));
   wrap.append(renderResetButton(ctx));
@@ -276,8 +283,28 @@ function renderPoolBar(counter, poolViolation, ctx) {
 }
 
 /** LIGNE 2 — le calcul, plus petit, et il défile (B7.1). */
-function renderPoolDetail(counter, poolViolation) {
+function renderPoolDetail(counter, poolViolation, pool) {
   const wrap = el("div", "skills-pooldetail");
+  /* ⭐ LES POINTS LIÉS, ANNONCÉS AVANT LE CALCUL — canon §B.1 : ils sont *« déjà
+     placés quand la feuille est remise »*, ils ne transitent JAMAIS par le pool
+     et le joueur ne les arbitre pas. Ne les nommer nulle part laissait croire
+     que le pool était tout ce que la classe donne : un Rogue lisait « 14 » sans
+     savoir que 6 + 1 étaient déjà posés pour lui.
+     ⛔ ILS NE S'ADDITIONNENT PAS AU RESTE DE LA LIGNE, et c'est tout le point :
+     ils s'annoncent, séparés par un tiret long, AVANT le calcul de ce qui se
+     dépense. Les fondre dans le total referait le `base` d'avant le canon —
+     « tout, imposés compris » — que le lot 82 a précisément démonté.
+     📌 Un zéro est un fait (sept classes n'imposent aucun outil) : la mention
+     d'outil ne s'écrit que s'il y en a, sinon elle dirait « 0 tool » sur une
+     ligne qui n'a que ça à dire. */
+  const lies = [];
+  if (pool && Number.isInteger(pool.bound_skill_points)) lies.push(`${pool.bound_skill_points} skill`);
+  if (pool && Number.isInteger(pool.bound_tool_points) && pool.bound_tool_points > 0) {
+    lies.push(`${pool.bound_tool_points} tool`);
+  }
+  if (lies.length > 0) {
+    wrap.append(el("p", "skills-pooldetail-line", [text(`Bound ${lies.join(" · ")} — already placed`)]));
+  }
   const morceaux = [];
   if (counter.classPlan) morceaux.push(`Class ${counter.classPlan.answered}/${counter.classPlan.expected}`);
   if (counter.speciesBudgetPlan) {
@@ -673,7 +700,7 @@ export function renderSkillsStep(ctx, onAction) {
      elle flotte dans le slot fixe du cadre, avec `Reset` (B7.8). */
   if (counter) {
     const poolViolation = violations.find((v) => v.key === "skill-pool.overspent") || null;
-    section.append(renderPoolDetail(counter, poolViolation));
+    section.append(renderPoolDetail(counter, poolViolation, rowCtx.pool));
     const notice = renderRogueNotice(rowCtx.pool, rowCtx.classView, resolved.identity && resolved.identity.level);
     if (notice) section.append(notice);
   }

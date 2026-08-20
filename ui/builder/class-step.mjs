@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=249";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=249";
-import { renderConfirmDialog } from "./confirm.mjs?v=249";
-import { renderChoixGlisses } from "./glisser.mjs?v=249";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=253";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=253";
+import { renderConfirmDialog } from "./confirm.mjs?v=253";
+import { renderChoixGlisses } from "./glisser.mjs?v=253";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -146,12 +146,46 @@ export const CLASS_CATALOGUE = {
  *  ⏳ Les features de niveau 1 quittent la fiche — elles n'ont plus de place
  *  dans la boîte fixe, et le panneau `lore` (hors périmètre) est leur
  *  destination naturelle. */
+/* ══ LES TROIS TOTAUX DU CANON §B.1, DÉRIVÉS ET NON RECOPIÉS ══════════════
+   🔴 Eric, 2026-08-20 : *« mets à jour les points de skills dans les classes »*.
+   Ce qu'il y avait à mettre à jour n'était pas un nombre — ils étaient tous
+   justes — mais LEUR NOMBRE D'EXEMPLAIRES.
+
+   📏 MESURÉ AVANT DE TOUCHER : la ligne « Free points » vivait **recopiée à la
+   main** dans `fh-fiche-en` (« 10 pts », « 12 pts », « 14 pts »), pendant que le
+   nombre vit dans `fh-skills-en` (`fh_skill_pool.free_point_pool`). Les douze
+   valeurs concordaient encore ce jour-là — et **rien ne les tenait d'accord**.
+   Une règle qui bouge d'un côté laissait douze fiches mentir de l'autre.
+
+   ⭐ ET LE CANON EN PUBLIE **TROIS**, pas un : *« bound skill points »* (déjà
+   placés par la classe), *« bound tool points »*, *« free point pool »* (le
+   seul que le joueur dépense). La carte n'en montrait qu'un, donc le joueur ne
+   pouvait pas savoir ce qui était déjà posé pour lui.
+   ⛔ ET UN ZÉRO EST UN FAIT : sept classes n'imposent aucun outil, et le moteur
+   le dit en toutes lettres (*« none is a fact, negative is nonsense »*). La
+   ligne s'affiche donc à 0 — c'est une réponse, pas un vide.
+   📌 Le drapeau reste celui de la couche : sans `fh_skill_pool` (personnage SRD
+   pur), aucune de ces lignes n'existe. On dérive ce qui est là, on n'invente
+   jamais un pool. */
+function lignesDuPool(data) {
+  const pool = data.fh_skill_pool;
+  if (!pool || typeof pool !== "object") return [];
+  /* « 1 pt », pas « 1 pts » — le Rogue porte un seul point d'outil, et une
+     faute d'accord sur une fiche se voit autant qu'un nombre faux. */
+  const pts = (n) => (Number.isInteger(n) ? `${n} pt${n === 1 ? "" : "s"}` : null);
+  return [
+    ["Bound skills", pts(pool.bound_skill_points)],
+    ["Bound tools", pts(pool.bound_tool_points)],
+    ["Free points", pts(pool.free_point_pool)]
+  ].filter(([, valeur]) => valeur !== null);
+}
+
 export function renderClassCardBody(query, id) {
   const view = query({ kind: "class", id });
   const data = (view && view.record && view.record.data) || {};
   if (!Array.isArray(data.fiche_stats)) return renderClassCardBodySrd(data);
   return renderFicheBody({
-    stats: data.fiche_stats,
+    stats: [...data.fiche_stats, ...lignesDuPool(data).map(([label, value]) => ({ label, value }))],
     blurb: data.blurb && data.blurb.text,
     /* ⭐ LA BANDE D'INFOS, CÔTÉ CLASSE (lot 78b). Le MÊME organe que chez
        l'espèce — `renderFicheBody` ne sait pas qui l'appelle, et la feuille
@@ -193,9 +227,14 @@ function renderClassCardBodySrd(data) {
      n'en manipule qu'un — c'est celui-là que la carte annonce. Le bound (déjà
      dépensé quand la feuille arrive) a sa place sur la fiche, pas sur la carte
      de choix : ici, ce qui aide à choisir, c'est ce qu'on aura à dépenser. */
-  const pool = data.fh_skill_pool && data.fh_skill_pool.free_point_pool;
+  /* ⭐ LES MÊMES TROIS TOTAUX QUE LA FICHE FH, par le même organe : deux
+     façons de compter les points sur deux chemins de rendu, ce serait deux
+     vérités. Le lot 82 n'en montrait qu'un ici, avec l'argument « ce qui aide
+     à choisir, c'est ce qu'on aura à dépenser » — Eric a tranché autrement le
+     2026-08-20 : les trois totaux, parce que savoir ce qui est DÉJÀ POSÉ pour
+     soi fait partie du choix. */
   const rows = renderCardRows([
-    ["Free points", Number.isInteger(pool) ? String(pool) : null],
+    ...lignesDuPool(data),
     ["Hit points", data.hit_point_die],
     ["Primary ability", data.primary_ability],
     ["Saving throws", Array.isArray(data.saving_throw_proficiencies) ? data.saving_throw_proficiencies.join(", ") : null]

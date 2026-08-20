@@ -219,7 +219,13 @@ test("🗑️ B7.2d — le budget captif d'espèce a DÉGAGÉ de cet écran", ()
      ailleurs n'oblige pas à pouvoir le changer ici. */
   const node = renderSkillsStep(ctxFrom(fixture.report));
   assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
-  const detail = node.querySelectorAll(".skills-pooldetail-line")[0].textContent;
+  /* ⚠️ LA LIGNE SE TROUVE PAR CE QU'ELLE DIT, PAS PAR SON RANG — corrigé le
+     2026-08-20 : une ligne « Bound … — already placed » s'est ajoutée AVANT
+     celle-ci (les points liés du canon §B.1), et un `[0]` a rougi pour une
+     raison qui n'était pas la sienne. Même leçon que les gardes du pied ce
+     matin : on reconnaît une chose à ce qu'elle EST, jamais à sa place. */
+  const detail = Array.from(node.querySelectorAll(".skills-pooldetail-line"))
+    .map((n) => n.textContent).find((t) => /invested/.test(t));
   assert.ok(/Species \d+\/\d+/.test(detail), `mais son compte reste lisible — lu : « ${detail} »`);
 });
 
@@ -290,7 +296,13 @@ test("un plan incomplet (budget captif d'espèce pas totalement dépensé) reste
   /* ⚠️ Le compte d'espèce a migré en LIGNE 2 (celle qui défile) : B7.1 garde
      au flottant « combien il reste », pas « d'où ça vient ». La ligne 1 ne
      porte donc plus que Pool · Invested · Left. */
-  const detail = node.querySelectorAll(".skills-pooldetail-line")[0].textContent;
+  /* ⚠️ LA LIGNE SE TROUVE PAR CE QU'ELLE DIT, PAS PAR SON RANG — corrigé le
+     2026-08-20 : une ligne « Bound … — already placed » s'est ajoutée AVANT
+     celle-ci (les points liés du canon §B.1), et un `[0]` a rougi pour une
+     raison qui n'était pas la sienne. Même leçon que les gardes du pied ce
+     matin : on reconnaît une chose à ce qu'elle EST, jamais à sa place. */
+  const detail = Array.from(node.querySelectorAll(".skills-pooldetail-line"))
+    .map((n) => n.textContent).find((t) => /invested/.test(t));
   assert.ok(detail.includes("Species 1/2"), `le détail doit porter le compte d'espèce — lu : « ${detail} »`);
 });
 
