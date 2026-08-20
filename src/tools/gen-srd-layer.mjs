@@ -24,12 +24,26 @@ export const REPO_ROOT = join(here, "..", "..");
 export const SRD_ROOT = join(homedir(), "tools", "fh-srd", "exports");
 export const OUT_DIR = join(REPO_ROOT, "layers");
 
-/* Les 14 genres fh-srd (kickoff §L4 : 12 + `skill` + `class-progression`
-   ajoutés par le lot 6-srd-tables). Ordre alphabétique — celui du schéma
-   fh-layer/1 et des dossiers d'export. */
+/* Les 16 genres fh-srd (kickoff §L4 : 12 + `skill` + `class-progression`
+   ajoutés par le lot 6-srd-tables, + `weapon-property` et `weapon-mastery`
+   par le lot 19 de fh-srd, 2026-08-20). Ordre alphabétique — celui du schéma
+   fh-layer/1 et des dossiers d'export.
+
+   🔴 CE NOMBRE N'EST PAS UNE FRONTIÈRE, ET IL A FAILLI LE DEVENIR. Le schéma
+   répétait « `gen-srd-layer.mjs` garde SA PROPRE liste de 14 » — la bonne règle
+   avec le mauvais chiffre. Ce que ce générateur doit refuser, ce sont les
+   genres FATE'S HAND (`arcana`, `training`) : un générateur SRD qui produirait
+   du contenu maison mélangerait les deux couches, et c'est la loi §0.12.
+   ⛔ Il n'a jamais eu à refuser un genre SRD DE PLUS — et le SRD vient d'en
+   publier deux. Un nombre gelé aurait fermé la porte à la source elle-même.
+
+   ⚠️ LA VRAIE RÈGLE, écrite sur le fait : ce qui entre ici est un fichier
+   d'export `fh-srd`, un point. `arcana` et `training` n'en sont pas et n'en
+   seront jamais — ils naissent dans ce dépôt-ci. */
 export const GENRES = [
   "armor", "background", "class", "class-progression", "feat", "gear",
-  "glossary", "item", "monster", "skill", "species", "spell", "tool", "weapon"
+  "glossary", "item", "monster", "skill", "species", "spell", "tool", "weapon",
+  "weapon-mastery", "weapon-property"
 ];
 export const LANGS = ["fr", "en"];
 const SRD_VERSION = "5.2.1";

@@ -59468,6 +59468,352 @@
         },
         "contentHash": "11dc88ce0dcad8a6daf958c95f45460d5eeebcc5670bbd08317a35639ae347ee"
       }
+    },
+    "weapon-mastery": {
+      "srd:weapon-mastery:en:cleave": {
+        "name": "Cleave",
+        "data": {
+          "description": "If you hit a creature with a melee attack roll using this weapon, you can make a melee attack roll with the weapon against a second creature within 5 feet of the first that is also within your reach. On a hit, the second creature takes the weapon’s damage, but don’t add your ability modifier to that damage unless that modifier is negative. You can make this extra attack only once per turn.",
+          "name": "Cleave"
+        },
+        "slug": "cleave",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "66435f4e0768fa734b9e2e18d2a64517c7c0186326f293dc57fb5d458284a55d"
+      },
+      "srd:weapon-mastery:en:graze": {
+        "name": "Graze",
+        "data": {
+          "description": "If your attack roll with this weapon misses a creature, you can deal damage to that creature equal to the ability modifier you used to make the attack roll. This damage is the same type dealt by the weapon, and the damage can be increased only by increasing the ability modifier.",
+          "name": "Graze"
+        },
+        "slug": "graze",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "ad9e26e6de9cd030dbc5e0f4622a9cc68b3dae9e5da7ba1cca83c76451cabdfa"
+      },
+      "srd:weapon-mastery:en:nick": {
+        "name": "Nick",
+        "data": {
+          "description": "When you make the extra attack of the Light property, you can make it as part of the Attack action instead of as a Bonus Action. You can make this extra attack only once per turn.",
+          "name": "Nick"
+        },
+        "slug": "nick",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "2d599e415c481373bd72f6e1f0c7d90d2ff04545756380a7bfa15bb075926097"
+      },
+      "srd:weapon-mastery:en:push": {
+        "name": "Push",
+        "data": {
+          "description": "If you hit a creature with this weapon, you can push the creature up to 10 feet straight away from yourself if it is Large or smaller.",
+          "name": "Push"
+        },
+        "slug": "push",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "946205342711f1885a1a9b4f82c8e1e38a13bffe62d64e45effc9b3d05948a28"
+      },
+      "srd:weapon-mastery:en:sap": {
+        "name": "Sap",
+        "data": {
+          "description": "If you hit a creature with this weapon, that creature has Disadvantage on its next attack roll before the start of your next turn.",
+          "name": "Sap"
+        },
+        "slug": "sap",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "6c31dd5d1107975d8380645d260aed8ad31ca3913592dae6b74ef70ccaa22656"
+      },
+      "srd:weapon-mastery:en:slow": {
+        "name": "Slow",
+        "data": {
+          "description": "If you hit a creature with this weapon and deal damage to it, you can reduce its Speed by 10 feet until the start of your next turn. If the creature is hit more than once by weapons that have this property, the Speed reduction doesn’t exceed 10 feet.",
+          "name": "Slow"
+        },
+        "slug": "slow",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "17e42616a9568f7614d6eeee998b76f03ad4e9b68f3f69947974dad5d579f060"
+      },
+      "srd:weapon-mastery:en:topple": {
+        "name": "Topple",
+        "data": {
+          "description": "If you hit a creature with this weapon, you can force the creature to make a Constitution saving throw (DC 8 plus the ability modifier used to make the attack roll and your Proficiency Bonus). On a failed save, the creature has the Prone condition.",
+          "name": "Topple"
+        },
+        "slug": "topple",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "565c1f5b6856ef67bab6f83b12d886fb4c9ee49e66fb8bb854123808d5204543"
+      },
+      "srd:weapon-mastery:en:vex": {
+        "name": "Vex",
+        "data": {
+          "description": "If you hit a creature with this weapon and deal damage to the creature, you have Advantage on your next attack roll against that creature before the end of your next turn.",
+          "name": "Vex"
+        },
+        "slug": "vex",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "7ebd1814ea9c42196a1013c67c0ee77ce51c4acf55826aa18214292923a37d31"
+      }
+    },
+    "weapon-property": {
+      "srd:weapon-property:en:ammunition": {
+        "name": "Ammunition",
+        "data": {
+          "description": "You can use a weapon that has the Ammunition property to make a ranged attack only if you have ammunition to fire from it. The type of ammunition required is specified with the weapon’s range. Each attack expends one piece of ammunition. Drawing the ammunition is part of the attack (you need a free hand to load a one-handed weapon). After a fight, you can spend 1 minute to recover half the ammunition (round down) you used in the fight; the rest is lost.",
+          "name": "Ammunition"
+        },
+        "slug": "ammunition",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.89",
+          "version": "5.2.1"
+        },
+        "contentHash": "cdc752d329fe979a13ac3cb23d2608d547e40d5de75d4ae0ad28cfc5c243c18f"
+      },
+      "srd:weapon-property:en:finesse": {
+        "name": "Finesse",
+        "data": {
+          "description": "When making an attack with a Finesse weapon, use your choice of your Strength or Dexterity modifier for the attack and damage rolls. You must use the same modifier for both rolls.",
+          "name": "Finesse"
+        },
+        "slug": "finesse",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.89",
+          "version": "5.2.1"
+        },
+        "contentHash": "4eb7fc85250164798c1397db191b9e2a16ce0c891693ef48e92470309c87a1ed"
+      },
+      "srd:weapon-property:en:heavy": {
+        "name": "Heavy",
+        "data": {
+          "description": "You have Disadvantage on attack rolls with a Heavy weapon if it’s a Melee weapon and your Strength score isn’t at least 13 or if it’s a Ranged weapon and your Dexterity score isn’t at least 13.",
+          "name": "Heavy"
+        },
+        "slug": "heavy",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.89",
+          "version": "5.2.1"
+        },
+        "contentHash": "ed66e7fbff08d1c678f13b24023987aa13e603082ed80712dbbff27303c226a9"
+      },
+      "srd:weapon-property:en:improvised-weapons": {
+        "name": "Improvised Weapons",
+        "data": {
+          "description": "If you use an object—such as a table leg, frying pan, or bottle—as a makeshift weapon, see “Improvised Weapons” in “Rules Glossary.” Also see those rules if you wield a weapon in an unusual way, such as using a Ranged weapon to make a melee attack.",
+          "name": "Improvised Weapons"
+        },
+        "slug": "improvised-weapons",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "77bc2a98259b631b7568121f786c8e07cb46304d4964afcf1d55e3c35b85fd81"
+      },
+      "srd:weapon-property:en:light": {
+        "name": "Light",
+        "data": {
+          "description": "When you take the Attack action on your turn and attack with a Light weapon, you can make one extra attack as a Bonus Action later on the same turn. That extra attack must be made with a different Light weapon, and you don’t add your ability modifier to the extra attack’s damage unless that modifier is negative. For example, you can attack with a Shortsword in one hand and a Dagger in the other using the Attack action and a Bonus Action, but you don’t add your Strength or Dexterity modifier to the damage roll of the Bonus Action unless that modifier is negative.",
+          "name": "Light"
+        },
+        "slug": "light",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.89",
+          "version": "5.2.1"
+        },
+        "contentHash": "1d7776a5dd2d39866892201e16a8acc4f7e7deb6b32a3f3f0aebcea2d4aff474"
+      },
+      "srd:weapon-property:en:loading": {
+        "name": "Loading",
+        "data": {
+          "description": "You can fire only one piece of ammunition from a Loading weapon when you use an action, a Bonus Action, or a Reaction to fire it, regardless of the number of attacks you can normally make.",
+          "name": "Loading"
+        },
+        "slug": "loading",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "744f1556f439eb90a989c92e89c7c94c5b899be7bcdc49a9a9aead3a0546a640"
+      },
+      "srd:weapon-property:en:range": {
+        "name": "Range",
+        "data": {
+          "description": "A Range weapon has a range in parentheses after the Ammunition or Thrown property. The range lists two numbers. The first is the weapon’s normal range in feet, and the second is the weapon’s long range. When attacking a target beyond normal range, you have Disadvantage on the attack roll. You can’t attack a target beyond the long range.",
+          "name": "Range"
+        },
+        "slug": "range",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "38f1b70a973f9265926e11fc633b9aa3e0874c655aaba2bfd69f897ba5e98437"
+      },
+      "srd:weapon-property:en:reach": {
+        "name": "Reach",
+        "data": {
+          "description": "A Reach weapon adds 5 feet to your reach when you attack with it, as well as when determining your reach for Opportunity Attacks with it.",
+          "name": "Reach"
+        },
+        "slug": "reach",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "7f66373b1c21874012bc8844b5a234205a92f495cc771fbc14e200a55993f06d"
+      },
+      "srd:weapon-property:en:thrown": {
+        "name": "Thrown",
+        "data": {
+          "description": "If a weapon has the Thrown property, you can throw the weapon to make a ranged attack, and you can draw that weapon as part of the attack. If the weapon is a Melee weapon, use the same ability modifier for the attack and damage rolls that you use for a melee attack with that weapon.",
+          "name": "Thrown"
+        },
+        "slug": "thrown",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "2165d3576873de7a9b26c4ec71eb8f00dd47b1c40d352dc2df3d9309ff601610"
+      },
+      "srd:weapon-property:en:two-handed": {
+        "name": "Two-Handed",
+        "data": {
+          "description": "A Two-Handed weapon requires two hands when you attack with it.",
+          "name": "Two-Handed"
+        },
+        "slug": "two-handed",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "dc7d2e854aade709ce536c94bb2ff1e446a59dd2d0f614fa9c506f43a09aac73"
+      },
+      "srd:weapon-property:en:versatile": {
+        "name": "Versatile",
+        "data": {
+          "description": "A Versatile weapon can be used with one or two hands. A damage value in parentheses appears with the property. The weapon deals that damage when used with two hands to make a melee attack.",
+          "name": "Versatile"
+        },
+        "slug": "versatile",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.90",
+          "version": "5.2.1"
+        },
+        "contentHash": "3ecdaa6f48031f13ab8cca4668fed5aa3a4bdd26cb8291e8b26bc1c0a8c45051"
+      }
     }
   }
 }

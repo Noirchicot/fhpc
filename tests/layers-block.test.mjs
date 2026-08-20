@@ -136,7 +136,7 @@ test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
 
   const registered = dispatch("layers.register", { bytes: fileBytes(SRD_FR), origin: SRD_FR });
   assert.equal(registered.id, "srd-5.2.1-fr");
-  assert.equal(registered.records, 1309);
+  assert.equal(registered.records, 1328);
 
   const skill = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
   assert.equal(skill.record.name, "Perception");

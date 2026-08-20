@@ -6,7 +6,7 @@
    attaque — c'est en violant un garde qu'on apprend s'il tient.
 
    Les scénarios courts s'écrivent sur des couches fabriquées ; le test
-   d'acceptation, lui, tourne sur les 2 613 records réels
+   d'acceptation, lui, tourne sur les 2 651 records réels
    (`layers-acceptance.test.mjs`). Les deux sont nécessaires : la vraie matière
    prouve que ça marche, les couches fabriquées prouvent POURQUOI. */
 

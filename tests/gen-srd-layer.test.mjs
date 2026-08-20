@@ -3,7 +3,7 @@
    Quatre obligations posées par le mandat : le MANIFEST se vérifie avant
    usage (mismatch → échec bruyant qui nomme le fichier) ; les deux couches
    valident contre fh-layer/1 ; les comptes par genre ne descendent pas sous
-   les seuils relevés à la génération (2 613 records au total, kickoff §L4) ;
+   les seuils relevés à la génération (2 651 records au total : les 2 613 du kickoff §L4, plus les 19 records par langue des deux genres du lot 19) ;
    trois ids connus se retrouvent tels quels.
 
    Le générateur est relancé ici (pas seulement lu depuis layers/ commité) :
@@ -61,7 +61,7 @@ test("le MANIFEST se vérifie avant usage : une entrée absente nomme aussi le f
   );
 });
 
-test("verifyManifest() passe sur les exports fh-srd réels (28 fichiers, 14 genres × 2 langues)", () => {
+test("verifyManifest() passe sur les exports fh-srd réels (32 fichiers, 16 genres × 2 langues)", () => {
   assert.doesNotThrow(() => verifyManifest());
 });
 
@@ -73,17 +73,17 @@ test("chaque couche générée valide contre fh-layer/1", () => {
   }
 });
 
-test("les 14 genres sont présents dans chaque couche, aucun manquant, aucun en trop", () => {
+test("les 16 genres sont présents dans chaque couche, aucun manquant, aucun en trop", () => {
   for (const lang of LANGS) {
     const { layer } = buildLayer(lang);
     assert.deepEqual(Object.keys(layer.records).sort(), [...GENRES].sort());
   }
 });
 
-test("2 613 records au total — le chiffre du kickoff §L4, pas 2 553 (les deux genres neufs comptent)", () => {
+test("2 651 records au total — les 2 613 du kickoff §L4 + 19 par langue (weapon-property 11 · weapon-mastery 8)", () => {
   const { total: totalFr } = buildLayer("fr");
   const { total: totalEn } = buildLayer("en");
-  assert.equal(totalFr + totalEn, 2613);
+  assert.equal(totalFr + totalEn, 2651);
 });
 
 /* Seuils relevés à la génération (mesurés ci-dessus) : un futur sync fh-srd
@@ -92,7 +92,15 @@ test("2 613 records au total — le chiffre du kickoff §L4, pas 2 553 (les deux
 const FLOORS = {
   armor: 13, background: 4, class: 12, "class-progression": 12, feat: 17,
   gear: 82, glossary: 152, item: 253, monster: 330, skill: 18, species: 9,
-  spell: 339, tool: 25, weapon: 38
+  spell: 339, tool: 25, weapon: 38,
+  /* Lot 19 de fh-srd (2026-08-20) — les deux blocs de la page 90 du SRD 5.2.1.
+     ⭐ CES DEUX SEUILS SONT DES ÉGALITÉS DÉGUISÉES, et c'est voulu : contrairement
+     aux sorts ou aux monstres, ce sont des ensembles FERMÉS que la source énumère
+     (11 propriétés, 8 maîtrises). Un 12ᵉ ou un 9ᵉ serait une anomalie d'extraction,
+     pas une richesse — et il passerait ce plancher-ci. Le garde qui compte À
+     L'ÉGAL vit en amont, dans fh-srd (`SectionCountError`, qui NOMME le terme
+     manquant) ; celui-ci n'est que le filet de ce dépôt. */
+  "weapon-mastery": 8, "weapon-property": 11
 };
 
 test("comptes par genre ≥ seuils relevés à la génération, pour les deux langues", () => {

@@ -6,7 +6,7 @@
    > autre bloc n'ait lu son état. »
 
    Écrit comme une suite exécutable, sur la VRAIE MATIÈRE : les deux couches
-   `layers/srd-5.2.1-{fr,en}.layer.json` (14 genres, 2 613 records) et la
+   `layers/srd-5.2.1-{fr,en}.layer.json` (16 genres, 2 651 records) et la
    couche d'exemple du lot 2. Aucune fixture ne remplace un fichier du dépôt.
 
    « SANS QU'AUCUN AUTRE BLOC N'AIT LU SON ÉTAT » est tenu de la seule façon
@@ -65,19 +65,19 @@ const COUCHE_DE_TABLE = bytes(aLayer({
 
 /* ── 1. Les deux vraies couches SRD se chargent ─────────────────────── */
 
-test("les deux couches SRD réelles se chargent, 14 genres et 2 613 records", () => {
+test("les deux couches SRD réelles se chargent, 16 genres et 2 651 records", () => {
   const fr = dispatch("layers.register", { bytes: fileBytes(SRD_FR), origin: SRD_FR });
   const en = dispatch("layers.register", { bytes: fileBytes(SRD_EN), origin: SRD_EN });
 
   assert.equal(fr.id, "srd-5.2.1-fr");
   assert.equal(en.id, "srd-5.2.1-en");
-  assert.equal(fr.records, 1309);
-  assert.equal(en.records, 1304);
-  assert.equal(fr.records + en.records, 2613, "la matière annoncée par le kickoff, entière");
+  assert.equal(fr.records, 1328);
+  assert.equal(en.records, 1323);
+  assert.equal(fr.records + en.records, 2651, "la matière annoncée par le kickoff, entière — plus les deux genres du lot 19");
 
   const event = changes[changes.length - 1];
-  assert.equal(event.total, 2613, "et rien ne s'est perdu au pli : aucun id ne collisionne entre les deux langues");
-  assert.equal(Object.keys(event.counts).length, 14);
+  assert.equal(event.total, 2651, "et rien ne s'est perdu au pli : aucun id ne collisionne entre les deux langues");
+  assert.equal(Object.keys(event.counts).length, 16);
   assert.deepEqual(event.shadowed, [], "aucune couche n'en recouvre une autre");
 
   /* L'empreinte rendue est celle des octets du fichier — c'est elle que
@@ -182,7 +182,7 @@ test("les deux langues cohabitent sans jamais s'apparier", () => {
   assert.equal(fr.length + en.length, skills.length, "et il n'y a rien d'autre qu'eux");
 
   /* Aucun id n'est partagé : c'est la mesure de `layers/TRADUCTION.md`, refaite
-     ici sur les 14 genres à la fois. */
+     ici sur les 16 genres à la fois. */
   const ids = new Set(skills.map((view) => view.id));
   assert.equal(ids.size, skills.length, "aucun id ne se recouvre d'une langue à l'autre");
 

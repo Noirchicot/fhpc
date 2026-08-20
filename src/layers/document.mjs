@@ -58,10 +58,30 @@ import { sha256Portable } from "./sha256.mjs";
    Il coûte un nombre variable de points, et ne s'achète qu'à partir du niveau
    4 sauf dérogation portée par du contenu. Comme `arcana`, ouvrir le genre est
    du CONTRAT : le travail de l'architecte, et il précède le lot de contenu.
-   `gen-srd-layer.mjs` garde ses 14 et ne doit jamais le recevoir non plus. */
+   `gen-srd-layer.mjs` garde ses 14 et ne doit jamais le recevoir non plus.
+
+   ⭐ RÉVISION DU 2026-08-20 — `weapon-mastery` (8) et `weapon-property` (11)
+   sont les genres 17 et 18, et ILS VIENNENT DE fh-srd (lot 19 : les deux blocs
+   de la page 90 du SRD 5.2.1, que notre extraction jetait en silence depuis le
+   début). Ce sont deux fichiers d'export de plus, pas du contenu maison.
+
+   🔴 CE QUI CHANGE DANS LA PHRASE CI-DESSUS, ET IL FAUT LE LIRE : ce paragraphe
+   répète trois fois que « `gen-srd-layer.mjs` garde ses 14 ». La RÈGLE était
+   juste, le CHIFFRE était devenu faux. Ce que le générateur SRD doit refuser,
+   ce sont les genres FATE'S HAND — `arcana`, `training` — parce qu'un
+   générateur SRD qui produirait du contenu maison mélangerait les deux couches
+   (loi §0.12). Il n'a jamais eu à refuser un genre SRD DE PLUS, et le SRD vient
+   d'en publier deux : sa liste passe à 16. Un nombre gelé aurait fermé la porte
+   à la source elle-même.
+
+   ⚠️ ET LE COMPTE DE MAÎTRISES N'EST PAS UN GENRE : il arrive comme un CHAMP
+   sur les classes (`class.weapon_mastery_count`, 5 classes sur 12). Le vivier
+   d'armes éligibles, lui, n'entre pas du tout — c'est une RELATION (classe ×
+   background × espèce), donc une règle Fate's Hand, pas une extraction. */
 export const GENRES = [
   "arcana", "armor", "background", "class", "class-progression", "feat", "gear",
-  "glossary", "item", "monster", "skill", "species", "spell", "tool", "training", "weapon"
+  "glossary", "item", "monster", "skill", "species", "spell", "tool", "training", "weapon",
+  "weapon-mastery", "weapon-property"
 ];
 const GENRE_SET = new Set(GENRES);
 
