@@ -348,6 +348,31 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   padding: 0 var(--sp-20);
   cursor: pointer;
 }
+/* 🔴 LE REMBOURRAGE DE LA PAIRE QUAND ELLE EST HÉBERGÉE — 2026-08-20 ═════════
+   C'est le prix du mot d'Eric (*« done / i changed my mind »*), et il est
+   MESURÉ, pas estimé.
+
+   📏 Les libellés passent de `BACK`/`DONE` (8 caractères) à `I changed my
+   mind`/`Done` (21). Dans le champ le plus LARGE (344 px à 360) la paire tient
+   encore ; dans le plus ÉTROIT — la dalle d'item de Class, **234 px** —
+   `Done` SORTAIT DE SA BOÎTE DE 28 px.
+
+   🔴 ET LA VRAIE CAUSE EST LE PIÈGE N°1 DE CE DÉPÔT (canon §10). L'écran qui
+   héberge la sortie déclare son hôte `class="parcours-pied"` — donc
+   `.parcours-pied button`, écrit pour le pied DU GUIDE, gouvernait en silence
+   la paire de la coquille : rembourrage 16, et un `padding-right: var(--touch)`
+   sur l'hôte qui réserve 44 px au « ? ». Mon premier réglage sur
+   `.sortie-bouton` n'a donc RIEN changé — mesuré, 16 px inchangés.
+   ⭐ LA PARADE EST CELLE QUE LE CANON PRESCRIT : **nommer l'exception**, jamais
+   déplacer le bloc qui gagne. `.sortie` est le conteneur que la coquille pose
+   elle-même ; ce sélecteur-ci ne peut donc toucher que sa paire.
+   📏 Résultat mesuré : 159 + 56 + 8 = **223 px** pour 234 disponibles.
+   ⚠️ La cible tactile ne bouge pas (`min-height: var(--touch)`) — c'est elle
+   qui compte pour le pouce, pas le rembourrage horizontal.
+   ⚠️ ET LE BUDGET EN CARACTÈRES DU GARDE 16 ter A MENTI : 21 ≤ 24, donc il
+   disait oui. Il avait été calibré sur le champ le plus LARGE. Un proxy ne vaut
+   que dans le cas où on l'a mesuré. */
+.sortie .sortie-bouton { padding: 0 var(--sp-8); }
 /* ══ AUCUNE COULEUR DANS `BACK` ET `DONE` — Eric, 2026-08-17 ═════════════
    *« enlève toute couleur dans Back et Done »*, et *« ce qu'on fait ici on va
    devoir le faire partout »*. C'est déjà le cas : la paire a UN producteur et

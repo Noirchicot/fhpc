@@ -19,48 +19,48 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=237";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=237";
-import { mountPopup } from "./popup.mjs?v=237";
-import { renderLorePanel } from "./lore.mjs?v=237";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=237";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=240";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=240";
+import { mountPopup } from "./popup.mjs?v=240";
+import { renderLorePanel } from "./lore.mjs?v=240";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=240";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=237";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=237";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=240";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=240";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=237";
-import { renderConceptStep } from "./concept-step.mjs?v=237";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=237";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=237";
+} from "./tutoriel.mjs?v=240";
+import { renderConceptStep } from "./concept-step.mjs?v=240";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=240";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=240";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=237";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=237";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=237";
+} from "./catalogue.mjs?v=240";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=240";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=240";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=237";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=237";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=240";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=240";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=237";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=240";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=237";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=237";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=237";
+} from "./destiny-step.mjs?v=240";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=240";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=240";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=237";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=240";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -79,16 +79,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=237";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=237";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=240";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=237";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=237";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=240";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=240";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=237";
+import { versionQuery } from "./version.mjs?v=240";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2403,11 +2403,28 @@ function renderSortieEtape() {
      n'y sera signé. Ailleurs, `BACK` reste `BACK` : il recule vraiment.
      ⛔ UN SEUL PRODUCTEUR malgré les deux mots : c'est toujours la coquille
      qui pose ce bouton, et `pressBack` qui l'exécute (garde 17). */
-  const motDuRetour = state.parcoursItem ? "CANCEL" : "BACK";
-  const back = (state.palier > 1 || state.parcoursItem) ? button(motDuRetour, () => pressBack()) : null;
+  /* 🔴 UN SEUL MOT POUR CE BOUTON, ET C'EST CELUI DU GUIDE — Eric, 2026-08-20 :
+     *« done / i changed my mind »*.
+
+     ⭐ CE QUE ÇA REFERME : la paire avait TROIS mots pour un geste — `BACK`
+     entre paliers, `CANCEL` dans une dalle d'item, et `I changed my mind` au
+     pied du guide, qui est le même geste vu du dessus. Trois mots pour une
+     porte, c'est trois choses à réapprendre ; le canon le reproche déjà au
+     texte de conclusion (*« chaque moitié nomme son bouton, MOT POUR MOT »*).
+     ⛔ UN SEUL PRODUCTEUR, INCHANGÉ : c'est toujours la coquille qui pose ce
+     bouton et `pressBack` qui l'exécute (garde 17). Ce qui change est le mot,
+     ni le compte ni le propriétaire.
+     ⚠️ ET LE BUDGET DE LIBELLÉ EST TENU : 17 + 4 = 21 caractères pour 24
+     disponibles à 360 px (`CADRES.md` §0bis, garde 16 ter). C'est plus serré
+     qu'avant — raison de plus pour que le garde le compte.
+     ⏳ RÉSERVE NOMMÉE, dite à Eric le jour même : ce bouton NAVIGUE, il
+     n'efface pas — revenir de BS vers B0 garde la liste posée. Au pied du
+     guide, `I changed my mind` révoque ET efface. Les deux mots sont désormais
+     le même ; leur GESTE ne l'est pas encore. */
+  const back = (state.palier > 1 || state.parcoursItem) ? button("I changed my mind", () => pressBack()) : null;
   if (back) back.className = "sortie-bouton sortie-back";
 
-  const done = button("DONE", () => pressDone());
+  const done = button("Done", () => pressDone());
   done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire

@@ -258,7 +258,36 @@ test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de 
 
 /** Les libellés de la sortie d'étape, et le fichier qui a seul le droit de
  *  les écrire. Une paire, un producteur. */
-const SORTIE_ETAPE = { back: '"BACK"', done: '"DONE"', producteur: "ui/builder/shell.mjs" };
+/* 🔴 LES DEUX MOTS DU PIED, ARRÊTÉS PAR ERIC LE 2026-08-20 : *« done / i
+   changed my mind »*. Ils remplacent `BACK` ET `CANCEL` — trois mots pour une
+   même porte, dont un (`I changed my mind`) que le pied du guide employait
+   déjà pour le même geste vu du dessus.
+   ⚠️ Le budget de libellé passe de 8 à 21 caractères sur 24 : la marge n'est
+   plus confortable, et c'est exactement pourquoi ce garde la compte. */
+const SORTIE_ETAPE = {
+  back: '"I changed my mind"', done: '"Done"', producteur: "ui/builder/shell.mjs",
+  /* 🔴 CE QUI IDENTIFIE LA PAIRE A CHANGÉ LE 2026-08-20, ET C'EST UN PROGRÈS.
+     Ces gardes reconnaissaient l'organe à son LIBELLÉ (`"BACK"`, `"DONE"`).
+     Depuis qu'Eric a unifié les mots (*« done / i changed my mind »*), le pied
+     du GUIDE porte les mêmes — pour un geste qui, lui, révoque et efface. Le
+     libellé ne distingue donc plus rien.
+     ⭐ On identifie maintenant l'organe par ce qu'il EST : sa classe et son
+     verbe. `pressBack`/`pressDone` appartiennent à la coquille et à elle seule
+     (I.4) ; le pied du parcours passe par `parcoursCancel`/`parcoursDone`.
+     ⚠️ Un garde qui reconnaît une chose à son étiquette se fait tromper le jour
+     où deux choses portent la même. Celui-ci ne le peut plus. */
+  classeBack: '"sortie-bouton sortie-back"',
+  classeDone: '"sortie-bouton sortie-done"'
+};
+
+/** QUELS fichiers de `ui/` écrivent un motif — sans le compte. ⭐ Pour les
+ *  garanties qui portent sur le PROPRIÉTAIRE (« un seul organe l'appelle ») et
+ *  non sur un nombre d'appels, qui est un détail d'implantation appelé à
+ *  bouger. Épingler le compte ferait rougir un garde pour une raison qui n'est
+ *  pas la sienne. */
+function fichiersDuLibelle(libelle) {
+  return porteursDuLibelle(libelle).map((entree) => entree.replace(/ \([0-9]+\)$/, ""));
+}
 
 /** Combien de fois chaque fichier de `ui/` écrit un libellé donné, hors
  *  commentaires. */
@@ -285,8 +314,15 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
      MOYEN D'AVANCER. Une absence ne se garde jamais seule — c'est la leçon
      des gardes 18/19 dix lignes plus haut (« on pouvait retirer les
      `applyDecisionAction` et garder 1 142 tests verts devant un rail mort »). */
-  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.done), [`${SORTIE_ETAPE.producteur} (1)`],
-    "`DONE` doit exister EXACTEMENT une fois, et dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
+  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.classeDone), [`${SORTIE_ETAPE.producteur} (1)`],
+    "le `Done` de la SORTIE D'ÉTAPE doit exister EXACTEMENT une fois, et dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
+  /* ⚠️ ON GARDE LE FICHIER, PAS LE COMPTE : `pressDone` est appelé plusieurs
+     fois DANS la coquille (le bouton, le `done` des fiches, le `ficheChoose`),
+     et ce nombre bougera. Ce qui ne doit jamais bouger, c'est qu'aucun ÉCRAN
+     ne l'appelle. Épingler le compte ferait rougir ce garde à chaque lot, pour
+     une raison qui n'est pas la sienne. */
+  assert.deepEqual(fichiersDuLibelle("pressDone()"), [SORTIE_ETAPE.producteur],
+    "le verbe de l'avance n'est appelé QUE dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
   assert.match(shellText, /function renderSortieEtape\(\)/,
     "et la paire a un producteur nommé : un écran qui la recopierait en ferait la sortie d'UN écran");
   /* ⚠️ CE QUE CETTE LIGNE GARDE A CHANGÉ DE FORME LE 2026-08-17, PAS DE FOND.
@@ -380,8 +416,10 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
   /* La nuance est ÉCRITE DANS LE GARDE, pour que le prochain lot ne la relise
      pas comme une interdiction générale et ne rouvre pas le débat (le lot 79
      l'avait demandé mot pour mot). */
-  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.back), [`${SORTIE_ETAPE.producteur} (1)`],
-    "un `BACK` posé par un ÉCRAN rouvrirait deux chemins de retour — ce que I.5 interdit ; celui de la coquille les unifie");
+  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.classeBack), [`${SORTIE_ETAPE.producteur} (1)`],
+    "un retour posé par un ÉCRAN rouvrirait deux chemins — ce que I.5 interdit ; celui de la coquille les unifie");
+  assert.deepEqual(fichiersDuLibelle("pressBack()"), [SORTIE_ETAPE.producteur],
+    "et le verbe du recul n'est appelé QUE dans la coquille — c'est lui, pas le mot affiché, qui fait le retour");
   /* ⭐ ET IL RECULE DU PLUS INTÉRIEUR VERS LE PLUS EXTÉRIEUR : c'est CET
      ORDRE qui tient la nuance du lot 79. Inversé, le bouton sauterait le
      sous-écran qu'on vient de traverser — précisément le retour qui manquait
@@ -465,19 +503,41 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      ailleurs. La règle gardée n'a pas bougé : il naît d'un FAIT, il est POSÉ
      PAR LA COQUILLE, et le pied reste une PAIRE. C'est le mot qui varie, pas
      le producteur ni le compte. */
-  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\(motDuRetour/,
-    "⭐ et `BACK` ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\("I changed my mind"/,
+    "⭐ et le retour ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
+  /* ⚔️ LE TÉMOIN DE L'UNIFICATION : les deux anciens mots ne doivent plus
+     traîner nulle part dans `ui/`. Un `CANCEL` oublié dans un écran rendrait
+     deux mots pour une porte, le défaut que ce changement referme. */
+  assert.deepEqual(porteursDuLibelle('"CANCEL"'), [], "« CANCEL » a été remplacé par « I changed my mind » partout");
+  assert.deepEqual(porteursDuLibelle('"BACK"'), [], "« BACK » aussi — un seul mot pour cette porte");
+  /* ⭐ ET LE MOT EST BIEN CELUI DU GUIDE, mot pour mot : c'est tout l'objet du
+     changement d'Eric. Le voir diverger d'une majuscule rouvrirait la question. */
+  assert.match(shellText, /button\("I changed my mind", \(\) => pressBack\(\)\)/,
+    "la coquille emploie EXACTEMENT le mot du pied du guide");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;
-  assert.ok(total <= 24,
-    `les libellés du pied font ${total} caractères : au-delà de 24, la paire déborde les 344 px du champ à 360 — mesuré, 175 px de mou pour 8 caractères`);
+  /* 🔴 LE BUDGET EST PASSÉ DE 24 À 22 LE 2026-08-20, ET IL A ÉTÉ RECALIBRÉ SUR
+     LE BON CHAMP. L'ancien nombre était mesuré sur le champ le plus LARGE
+     (344 px, le bas de scène) ; il a dit OUI aux libellés d'Eric — 21 ≤ 24 —
+     alors que dans le champ le plus ÉTROIT, la dalle d'item de Class à
+     **234 px**, `Done` sortait de sa boîte de **28 px**. Un proxy ne vaut que
+     dans le cas où on l'a mesuré, et celui-ci était calibré sur le cas facile.
+     📏 Recalibré sur l'étroit, rembourrage nommé compris (`.sortie
+     .sortie-bouton`, --sp-8) : 21 caractères rendent 159 + 56 + 8 = 223 px
+     pour 234 disponibles — **4 px de mou**. Un caractère de plus les mange. */
+  assert.ok(total <= 22,
+    `les libellés du pied font ${total} caractères : au-delà de 22, la paire déborde les 234 px du champ le plus ÉTROIT (dalle d'item à 360) — mesuré, 4 px de mou pour 21 caractères`);
   /* ⚔️ LE TÉMOIN : le budget n'est pas si large qu'il ne puisse jamais mordre.
      Des libellés traduits plausibles (« RETOUR » / « TERMINER ») passent ; un
      pied bavard ne passe pas. */
-  assert.ok("RETOURTERMINER".length <= 24, "une traduction raisonnable tient dans le budget");
-  assert.equal("REVENIR EN ARRIERE".length + "VALIDER CETTE ETAPE".length <= 24, false,
+  assert.ok("RETOURTERMINER".length <= 22, "une traduction raisonnable tient dans le budget");
+  assert.equal("REVENIR EN ARRIERE".length + "VALIDER CETTE ETAPE".length <= 22, false,
     "et un pied bavard le dépasse — le garde n'est pas si lâche qu'il ne dise jamais non");
+  /* ⚔️ ET LE TÉMOIN DE LA RECALIBRATION : les libellés d'Eric passaient sous
+     l'ancien budget et débordaient pourtant. Sous le nouveau, ils passent tout
+     juste — un mot de plus ne passerait pas. */
+  assert.equal("I changed my mindDone".length, 21, "les libellés d'aujourd'hui, à un caractère du plafond");
 });
 
 test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 étendu", () => {
@@ -508,9 +568,15 @@ test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 �
 test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait rougir 16 bis et 17, eux seuls", () => {
   /* Le geste exact qu'on redoute — un lot qui « ajoute juste un bouton » au
      pied de son écran plutôt que d'employer celui de la coquille. */
-  const ecranFautif = 'const b = button("DONE", () => act()); const r = button("BACK", () => act());';
-  assert.equal(ecranFautif.includes(SORTIE_ETAPE.done), true, "l'attaque pose bien un second DONE");
-  assert.equal(ecranFautif.includes(SORTIE_ETAPE.back), true, "et un second BACK");
+  /* ⚠️ L'ATTAQUE A ÉTÉ RÉÉCRITE LE 2026-08-20 : recopier le LIBELLÉ n'est plus
+     une faute (le pied du guide le porte légitimement), recopier l'ORGANE en
+     est une. Le geste redouté est donc bien celui-ci — un écran qui rebâtit la
+     paire de la coquille, classe et verbe compris. */
+  const ecranFautif = 'const b = button("Done", () => pressDone()); b.className = "sortie-bouton sortie-done";'
+    + ' const r = button("I changed my mind", () => pressBack()); r.className = "sortie-bouton sortie-back";';
+  assert.equal(ecranFautif.includes(SORTIE_ETAPE.classeDone), true, "l'attaque rebâtit bien la sortie `Done`");
+  assert.equal(ecranFautif.includes(SORTIE_ETAPE.classeBack), true, "et le retour de la coquille");
+  assert.equal(ecranFautif.includes("pressBack()"), true, "avec le verbe qui n'appartient qu'à elle");
   /* Et les gardes VOISINS ne bougent pas : l'attaque n'introduit aucun
      `Validate`, ne touche ni le câblage du rail ni le bornage par REVIEW_INDEX. */
   assert.equal(ecranFautif.includes('"Validate"'), false);
