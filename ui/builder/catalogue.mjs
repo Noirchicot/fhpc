@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=241";
-import { versionQuery } from "./version.mjs?v=241";
+import { planAt } from "./carnet.mjs?v=243";
+import { versionQuery } from "./version.mjs?v=243";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -533,12 +533,25 @@ export function catalogueValidate(ctx, palier2, palier3) {
      `palier3`, le 2ᵉ palier reste terminal (`next: "step"`), exactement comme
      avant. C'est la SEULE façon d'élargir un organe partagé sans toucher aux
      trois écrans qui s'en servent déjà. */
+  /* 🔴 PAR OÙ ON SORT SE DÉCLARE, IL NE SE DEVINE PAS — Eric, 2026-08-20 :
+     *« la fin de la validation doit plutôt ramener au menu racine, où les
+     bonus doivent aussi être validés »*.
+     ⭐ Species et Class sont des ÉTAPES : les finir, c'est passer à la
+     suivante. Le don d'origine n'en est pas une — c'est **un item de
+     l'Inheritance**, et le finir doit RENDRE au guide où l'autre item (les
+     bonus) attend encore sa signature. Envoyer le joueur à Destiny sautait
+     par-dessus la moitié de l'étape.
+     ⛔ Et `close` n'est pas qu'une navigation : c'est lui qui SIGNE l'item
+     (voir `pressDone`, la branche `close`). Sans lui, la pastille du don
+     restait éteinte quoi qu'on fasse — donc le pied du guide restait au `Done`
+     au lieu de passer au vert et au `Next`. Un seul défaut, deux symptômes. */
+  const fin = ctx.fin === "close" ? "close" : "step";
   if (ctx.palier === 3) {
     return {
       exists: Boolean(palier3),
       ready: Boolean(palier3 && palier3.ready),
       action: null,
-      next: "step"
+      next: fin
     };
   }
   if (ctx.palier === 2) {
@@ -547,7 +560,7 @@ export function catalogueValidate(ctx, palier2, palier3) {
       ready: Boolean(palier2 && palier2.ready),
       action: null,
       /* Le 2ᵉ palier n'est terminal que s'il n'y a rien dessous. */
-      next: palier3 ? "palier" : "step"
+      next: palier3 ? "palier" : fin
     };
   }
   const options = catalogueOptions(ctx.decisions, ctx.path);

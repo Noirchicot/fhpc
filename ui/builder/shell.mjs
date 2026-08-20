@@ -19,48 +19,48 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=241";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=241";
-import { mountPopup } from "./popup.mjs?v=241";
-import { renderLorePanel } from "./lore.mjs?v=241";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=241";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=243";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=243";
+import { mountPopup } from "./popup.mjs?v=243";
+import { renderLorePanel } from "./lore.mjs?v=243";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=243";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=241";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=241";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=243";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=243";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=241";
-import { renderConceptStep } from "./concept-step.mjs?v=241";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=241";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=241";
+} from "./tutoriel.mjs?v=243";
+import { renderConceptStep } from "./concept-step.mjs?v=243";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=243";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=243";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=241";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=241";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=241";
+} from "./catalogue.mjs?v=243";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=243";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=243";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=241";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=241";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=243";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=243";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=241";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=243";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=241";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=241";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=241";
+} from "./destiny-step.mjs?v=243";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=243";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=243";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=241";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=243";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -79,16 +79,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=241";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=241";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=243";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=241";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=241";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=243";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=243";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=241";
+import { versionQuery } from "./version.mjs?v=243";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1133,6 +1133,11 @@ const CATALOGUES = {
        rangée, la DALLE porte les 440. Je les ai réparés dans cet ordre en
        croyant chaque fois avoir fini. */
     path: "background.originFeat[0]", kind: "feat", label: "Origin feats", fiche: true,
+    /* ⭐ CE CATALOGUE N'EST PAS UNE ÉTAPE, C'EST UN ITEM. Le finir rend au
+       guide de l'Inheritance — où les bonus attendent encore leur signature —
+       et signe le don au passage. Species et Class, elles, avancent d'une
+       étape : c'est pour ça que la sortie se DÉCLARE ici. */
+    fin: "close",
     cardBody: renderFeatCardBody,
     /* LE 2ᵉ PALIER : B0. Il EXISTE si le don choisi porte une branche, et il est
        PRÊT quand cette branche a sa réponse — `catalogueValidate` lit les deux
@@ -1218,6 +1223,10 @@ function catalogueCtx(cfg) {
        Il commande deux choses : le `Validate` générique qui s'efface (Ch6) et
        l'enveloppe de rangée des dalles (`renderCatalogueCards`, 16/08). */
     fiche: Boolean(cfg.fiche),
+    /* PAR OÙ CE CATALOGUE SORT quand il n'a plus de palier : « step » (l'étape
+       suivante) par défaut, « close » pour celui qui n'est qu'un ITEM d'une
+       autre étape — le don d'origine. Déclaré, jamais deviné. */
+    fin: cfg.fin || "step",
     palier: state.palier, cursor: state.cursor,
     /* Seul Destiny en fournit — les autres lisent leur plan (voir
        `catalogueOptions`, la porte étroite). */
@@ -1956,6 +1965,18 @@ function inheritanceCtx() {
  *  `cfg` de catalogue, parce qu'elle n'en est pas un. */
 function parcoursInheritance() { return INHERITANCE_PARCOURS.parcours; }
 
+/** LA RACINE DU PARCOURS DE L'ÉTAPE COURANTE, ou `null` si elle n'en a pas.
+ *  ⚠️ DEUX SOURCES, ET C'EST VOULU : les catalogues déclarent la leur
+ *  (`cfg.parcours`), l'Inheritance vit à part (elle ne se choisit pas, donc
+ *  elle n'a pas de catalogue). Une seule fonction pour les deux évite qu'un
+ *  organe en connaisse une et pas l'autre — c'est déjà l'argument du belt. */
+function parcoursRacineCourante() {
+  const cfg = catalogueCourant();
+  if (cfg && cfg.parcours) return cfg.path;
+  if (STEPS[state.step].id === "background" && parcoursInheritance()) return INHERITANCE_PARCOURS.path;
+  return null;
+}
+
 /** LE PARCOURS D'UN CHAPITRE, s'il en a un — sinon `null`.
  *  ⚠️ `CATALOGUES` NE SUFFIT PAS : l'Inheritance n'y est pas (elle ne se
  *  choisit pas, donc elle n'a pas de catalogue) et son parcours vit à part.
@@ -2072,6 +2093,35 @@ function currentGate(palier = state.palier) {
    bouton : elles nomment le fait de VALIDER un palier, qui est toujours ce
    qu'elles font. Les renommer aurait été une churn de sept fichiers pour
    renommer un concept qui n'a pas changé. */
+/** FERMER LE PANNEAU D'UN CATALOGUE QUI EST UN ITEM — et le SIGNER.
+ *
+ *  ⭐ `Choose` sur une fiche de don vaut le `Done` de l'item, et c'est la
+ *  « même logique que species » qu'Eric demande : là-bas aussi, choisir la
+ *  fiche EST le geste qui acte. Sans cette signature, le voyant du guide reste
+ *  éteint sur un don pourtant posé.
+ *  🔴 ET C'EST CETTE SIGNATURE QUI ALLUME LE RESTE — Eric, 2026-08-20 : *« quand
+ *  la pastille bonus et la pastille feat est verte, [je veux] un petit prompt
+ *  vert et un Next à la place du Done »*. Le pied à trois états existe déjà et
+ *  il est générique ; il ne lui manquait QUE ce `confirm`. Un seul défaut, deux
+ *  symptômes — la pastille éteinte et le `Done` qui s'éternise.
+ *  ⚠️ La signature passe par le MÊME écrivain que partout (`confirm`), et elle
+ *  est idempotente : rouvrir le catalogue pour changer d'avis ne la double pas.
+ *  📌 Extraite en fonction le 2026-08-20 : deux chemins y mènent désormais — le
+ *  palier terminal et l'absence de palier. Recopier le corps aurait fait deux
+ *  fermetures dont une seule signerait. */
+function fermerLePanneau() {
+  const ferme = state.inheritanceOpen;
+  state.inheritanceOpen = null;
+  state.palier = 1;
+  if (ferme === "feat" && state.docWriters && state.document) {
+    const chemin = "background.originFeat[0]";
+    if (!estConfirme(state.document, chemin)) {
+      state.document = state.docWriters.confirm({ document: state.document, path: chemin });
+    }
+  }
+  openSurface();
+}
+
 function pressDone() {
   const gate = currentGate();
   if (!gate.ready) return;
@@ -2118,34 +2168,24 @@ function pressDone() {
       return;
     }
   }
-  if (gate.next === "close") {
-    /* ⭐ `Choose` SUR UNE FICHE DE DON VAUT LE `Done` DE L'ITEM, et c'est la
-       « même logique que species » qu'Eric demande : là-bas aussi, choisir la
-       fiche EST le geste qui acte. Sans cette signature, le voyant du guide
-       resterait éteint sur un don pourtant posé — l'écart entre poser et
-       confirmer n'aurait alors aucun sens ici, puisqu'il n'y a rien d'autre à
-       faire sur cet écran.
-       ⚠️ La signature passe par le MÊME écrivain que partout (`confirm`), et
-       elle est idempotente : rouvrir le catalogue pour changer d'avis ne la
-       double pas. */
-    const ferme = state.inheritanceOpen;
-    state.inheritanceOpen = null;
-    if (ferme === "feat" && state.docWriters && state.document) {
-      const chemin = "background.originFeat[0]";
-      if (!estConfirme(state.document, chemin)) {
-        state.document = state.docWriters.confirm({ document: state.document, path: chemin });
-      }
-    }
-    openSurface();
-    return;
-  }
+  if (gate.next === "close") { fermerLePanneau(); return; }
   if (gate.next === "palier") {
     /* ⭐ LA PORTE EST RÉ-INTERROGÉE APRÈS LE `choose`, et il le faut : le
        plan du 2ᵉ palier décrit le record CHOISI, pas celui qui était sous le
        curseur. Une espèce qui n'accorde rien (Loroka) n'a donc qu'UN palier,
        et on ne peut le savoir qu'ici — pousser vers un menu vide serait un
        geste pour rien (I.4 : « un écran peut compter un, deux ou trois »). */
-    if (currentGate(state.palier + 1).exists === false) { goToStep(state.step + 1); return; }
+    /* ⚠️ ET QUAND IL N'Y A PLUS DE PALIER, ON SORT PAR OÙ LE CATALOGUE L'A
+       DÉCLARÉ — pas toujours vers l'étape suivante. Un don sans branche (Alert)
+       n'ouvre aucun 2ᵉ palier ; le finir doit rendre au guide de l'Inheritance
+       comme le fait un don qui en ouvre trois, sinon le même geste aurait deux
+       fins selon le don choisi. Mesuré : `Choose` sur Alert sautait à Destiny. */
+    if (currentGate(state.palier + 1).exists === false) {
+      const cfg = catalogueCourant();
+      if (cfg && cfg.fin === "close") { fermerLePanneau(); return; }
+      goToStep(state.step + 1);
+      return;
+    }
     state.palier += 1;
     openSurface();
     return;
@@ -2358,6 +2398,26 @@ function renderSortieEtape() {
      📌 Une borne écrite en `!==` sur un compteur qui peut grandir est une
      borne qui rouille : elle est juste tant que personne n'ajoute un cran. */
   if (fiche && fiche.fiche && state.palier < 2 && !state.parcoursItem) return null;
+  /* 🔴 UN GUIDE DE PARCOURS PORTE SON PROPRE PIED — et il a fallu qu'Eric
+     demande le `Next` pour que le doublon se voie. Mesuré à l'écran : la dalle
+     de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et
+     un `Done` FLOTTAIT dessous, sur le fond de la scène. Deux validations pour
+     un geste — exactement ce qu'Eric a fait sauter le 19/08.
+     ⚠️ POURQUOI SPECIES ET CLASS Y ÉCHAPPAIENT : elles sont des CATALOGUES, et
+     la ligne juste au-dessus les couvre par le drapeau `fiche`. L'Inheritance
+     n'a pas de catalogue — son parcours vit à part — donc aucune règle ne la
+     couvrait. Le défaut n'était pas dans le guide, il était dans le fait que
+     la protection était écrite sur le mauvais critère.
+     ⭐ ÉCRIT SUR LE FAIT, comme le reste : « l'écran courant est-il un guide de
+     parcours ? ». Une dalle d'ITEM garde la sienne — c'est le cran le plus
+     intérieur, et c'est la paire de la coquille qui l'en sort. */
+  if (!state.parcoursItem && !state.lore) {
+    const racine = parcoursRacineCourante();
+    if (racine) {
+      const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine });
+      if (ou === ETAT.guide || ou === ETAT.bilan) return null;
+    }
+  }
   /* ⭐ UNE PAGE QUI NE FAIT QUE BRANCHER N'A PAS DE SORTIE — Eric, 2026-08-16 :
      *« la page racine n'a pas besoin de BACK ou DONE, car elle est à la racine
      et donne des branches »*.

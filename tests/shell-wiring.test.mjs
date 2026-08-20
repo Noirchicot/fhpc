@@ -487,6 +487,41 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
    coûte en plus son propre rembourrage (42 px). C'est pourquoi le compte des
    boutons est gardé AVANT leur longueur. */
 
+test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pied", () => {
+  /* 🔴 DEUX RÈGLES NÉES DU MÊME ÉCRAN, le 2026-08-20 (Eric) : *« la fin de la
+     validation doit plutôt ramener au menu racine, où les bonus doivent aussi
+     être validés »*, et *« quand la pastille bonus et la pastille feat est
+     verte, [je veux] un petit prompt vert et un Next à la place du Done »*. */
+
+  /* ① LA SORTIE SE DÉCLARE. Species et Class sont des ÉTAPES : les finir mène à
+     la suivante. Le don d'origine est un ITEM de l'Inheritance : le finir doit
+     RENDRE au guide, et c'est ce `close` qui SIGNE l'item au passage — sans
+     lui, la pastille du don restait éteinte quoi qu'on fasse. */
+  assert.match(shellText, /path: "background\.originFeat\[0\]"[\s\S]{0,400}?fin: "close"/,
+    "le catalogue des dons sort par `close` — il n'est pas une étape, il est un item");
+  const catalogueText = stripComments(fs.readFileSync(path.join(UI_DIR, "catalogue.mjs"), "utf8"));
+  assert.match(catalogueText, /const fin = ctx\.fin === "close" \? "close" : "step";/,
+    "et c'est le catalogue qui LIT la déclaration — jamais un id d'étape écrit dans le module partagé");
+  /* ⚔️ LE TÉMOIN : les autres catalogues ne la déclarent pas, donc ils gardent
+     « step ». Un défaut qui les ferait tous fermer bloquerait le builder. */
+  assert.doesNotMatch(shellText, /kind: "class"[\s\S]{0,300}?fin: "close"/,
+    "Class reste une étape : elle avance, elle ne se referme pas");
+
+  /* ② LE PIED APPARTIENT AU GUIDE QUAND IL Y EN A UN. Species et Class y
+     échappaient par le drapeau `fiche` ; l'Inheritance n'a pas de catalogue, et
+     rien ne la couvrait — mesuré à l'écran, un `Done` FLOTTAIT sous la dalle
+     pendant que le guide affichait déjà « I changed my mind · Next ». Deux
+     validations pour un geste, ce qu'Eric a fait sauter le 19/08. */
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\) \{[\s\S]{0,200}?parcoursRacineCourante\(\)/,
+    "la sortie de la coquille s'efface sur un guide de parcours — écrit sur le FAIT, pas sur un id d'étape");
+  assert.match(shellText, /function parcoursRacineCourante\(\)/,
+    "et la racine du parcours courant a UNE source pour les deux familles (catalogue et Inheritance)");
+  /* ⚔️ BORNÉ : une dalle d'ITEM garde sa paire — c'est le cran le plus
+     intérieur, et c'est la coquille qui l'en sort. */
+  assert.match(shellText, /if \(!state\.parcoursItem && !state\.lore\)/,
+    "⛔ jamais dans une dalle d'item : sans sa paire, l'item s'ouvrirait sans porte (le défaut du 19/08)");
+});
+
 test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la condition des 76 px)", () => {
   /* Le pied se construit en une expression : deux boutons AU PLUS, jamais
      trois. Un troisième ajouterait 42 px de rembourrage à lui seul.
