@@ -670,3 +670,53 @@ test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait r
   assert.equal(ecranFautif.includes('"Validate"'), false);
   assert.match(shellText, /Math\.min\(REVIEW_INDEX, index\)/);
 });
+
+test("22 — 🔴 LE PERSONNAGE SURVIT AU RECHARGEMENT, et la sauvegarde se voit", () => {
+  /* 📏 MESURÉ SUR LE SITE DÉPLOYÉ LE 2026-08-20, avant ce lot : choisir
+     Fighter, recharger, retomber sur **Wizard** — le personnage d'exemple
+     commité — avec `localStorage` vide avant ET après. Tout ce que le joueur
+     faisait mourait avec l'onglet.
+     Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
+     disparaît s'il n'est pas enregistré s'il y a un reset. »* */
+
+  /* ① LE DÉMARRAGE PRÉFÈRE LE PERSONNAGE GARDÉ — l'exemple n'est plus que le
+     repli. ⛔ Le contraire (charger l'exemple et l'écraser ensuite) écrirait
+     l'exemple par-dessus le personnage du joueur au premier repeint. */
+  assert.match(shellText, /const garde = lirePersonnage\(\);[\s\S]{0,400}?state\.document = garde\.etat === "lu" \? garde\.document : exemple;/,
+    "le navigateur rend son personnage ; l'exemple ne sert que s'il n'y en a pas");
+
+  /* ② UNE PERTE NE SE TAIT PAS (loi §0.5). Un personnage gardé mais illisible
+     laisse un message, sinon le joueur repart de l'exemple en croyant n'avoir
+     jamais rien construit. */
+  assert.match(shellText, /if \(garde\.etat === "refus"\) state\.memoireIgnoree = garde\.raison;/,
+    "⛔ jamais un repli silencieux sur l'exemple");
+
+  /* ③ LA SAUVEGARDE VIT DANS `refresh`, ET PAS DANS `rebuild` — et c'est une
+     propriété, pas un goût : `rename`, `describe`, `confirm` et `revoke`
+     écrivent le document puis appellent `refresh()` SANS repasser par
+     `rebuild`. Une sauvegarde posée dans `rebuild` perdrait le NOM du
+     personnage, c'est-à-dire le premier champ que le joueur remplit. */
+  assert.match(shellText, /function refresh\(\) \{\s*memoriser\(\);/,
+    "mémoriser d'abord, peindre ensuite — le Menu affiche l'état de CE tour");
+  assert.doesNotMatch(shellText, /function rebuild\(\)[\s\S]{0,1200}?memoriser\(\)/,
+    "⛔ TÉMOIN : dans `rebuild`, la sauvegarde manquerait tous les gestes d'écriture de document");
+
+  /* ④ ON N'ÉCRIT QUE CE QUI A CHANGÉ. `refresh` passe aussi sur `resize` :
+     sans cette comparaison, tourner le téléphone écrirait le personnage. */
+  assert.match(shellText, /const texte = canonicalText\(state\.document\);\s*if \(texte === dernierTexteGarde\) return;/,
+    "tourner le téléphone repeint et n'écrit rien");
+
+  /* ⑤ LE MÊME TEXTE QUE L'EXPORT, PAR LA MÊME FONCTION. Deux sérialisations
+     donneraient deux personnages identiques que rien ne reconnaîtrait comme
+     tels — et la comparaison du ④ ne tiendrait plus. */
+  assert.match(shellText, /import \{ canonicalText \} from/,
+    "une seule sérialisation dans toute la coquille");
+
+  /* ⑥ L'ÉCRAN REÇOIT L'ÉTAT, IL NE VA PAS LE CHERCHER — même loi que le
+     tutoriel : un écran qui lirait `localStorage` deviendrait intestable. */
+  assert.match(shellText, /memoire: state\.memoire,\s*memoireIgnoree: state\.memoireIgnoree/,
+    "le Menu reçoit l'état de la mémoire");
+  const universeText = stripComments(fs.readFileSync(path.join(UI_DIR, "universe-step.mjs"), "utf8"));
+  assert.doesNotMatch(universeText, /localStorage/,
+    "⛔ aucun écran ne lit le magasin lui-même");
+});

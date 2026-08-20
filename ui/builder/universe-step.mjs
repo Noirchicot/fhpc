@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=264";
-import { markPressed } from "./carnet.mjs?v=264";
+import { renderConfirmDialog } from "./confirm.mjs?v=265";
+import { markPressed } from "./carnet.mjs?v=265";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -301,6 +301,52 @@ export function renderUniverseStep(ctx, onAction) {
       : "Guides are off everywhere. Turn them back on here, or with the ? in the corner of any panel.")
   ]));
   section.append(reglages);
+
+  /* ══ OÙ VIT CE PERSONNAGE — 2026-08-20 ═══════════════════════════════════
+     Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
+     disparaît s'il n'est pas enregistré s'il y a un reset. »*
+
+     🔴 CE BLOC EXISTE PARCE QUE LA SAUVEGARDE EST INVISIBLE. Le builder garde
+     désormais le personnage tout seul, sans bouton et sans message — et une
+     sauvegarde qu'on ne voit pas est une sauvegarde en laquelle on ne peut pas
+     avoir confiance. Pire : le jour où elle échoue (mode privé, quota plein),
+     le joueur travaillerait des heures en croyant être gardé. Le Menu dit donc
+     l'état, toujours, dans les deux sens.
+
+     ⚠️ ET IL NOMME LA LIMITE PLUTÔT QUE DE LA LAISSER DÉCOUVRIR : ce
+     personnage vit dans CE navigateur et meurt avec ses données de site.
+     La seule copie durable est l'export, qui existe déjà sur la fiche.
+
+     ⛔ AUCUN GESTE ICI, ET C'EST MESURÉ : il n'y a pas de bouton « nouveau
+     personnage », parce que le builder n'a AUCUN personnage vierge — il naît
+     du personnage d'exemple commité. Offrir « recommencer » qui rend un
+     Magicien tout fait serait un bouton qui ment. Le geste viendra avec le
+     personnage vierge, pas avant (loi §0.6 : pas de code mort, pas de porte
+     qui ne mène pas là où elle dit). */
+  const memoire = ctx.memoire || { ok: true };
+  const ou = el("div", "universe-memoire");
+  ou.append(el("h3", null, [text("This character")]));
+  ou.append(el("p", "universe-note", [text(memoire.ok
+    ? "Kept in this browser as you go — reopen the page and you carry on where you left off."
+    : `Not being saved: ${memoire.raison}. Export your character from the sheet to keep it.`)]));
+  ou.dataset.garde = String(Boolean(memoire.ok));
+  /* La limite se dit à qui EST gardé — celui qui ne l'est pas vient de lire
+     pire, et lui répéter la mise en garde noierait son message. */
+  if (memoire.ok) {
+    ou.append(el("p", "doc-field-note", [
+      text("Clearing this browser's site data erases it. Export from the sheet to keep a copy.")
+    ]));
+  }
+  /* ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS. Ce message survit à la
+     première sauvegarde réussie : sans lui, un joueur dont le personnage gardé
+     est illisible repartirait de l'exemple en croyant n'avoir jamais rien
+     construit. */
+  if (ctx.memoireIgnoree) {
+    ou.append(el("p", "doc-field-error", [
+      text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
+    ]));
+  }
+  section.append(ou);
 
   return section;
 }

@@ -266,3 +266,72 @@ test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dég
 });
 
 function currentStackViaModule(doc) { return currentStack(doc); }
+
+/* ══ D. OÙ VIT CE PERSONNAGE — la mémoire du navigateur, 2026-08-20 ═══════
+   Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
+   disparaît s'il n'est pas enregistré s'il y a un reset. »*
+
+   🔴 CE BLOC EXISTE PARCE QUE LA SAUVEGARDE EST INVISIBLE : pas de bouton, pas
+   de message. Une sauvegarde qu'on ne voit pas est une sauvegarde en laquelle
+   on ne peut pas avoir confiance — et le jour où elle échoue, le joueur
+   travaillerait des heures en se croyant gardé. */
+
+test("D1 — gardé : l'écran le DIT, et nomme la limite", () => {
+  const doc = draftDocument();
+  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
+  const bloc = node.querySelectorAll(".universe-memoire")[0];
+  assert.ok(bloc, "le bloc existe");
+  assert.equal(bloc.dataset.garde, "true");
+  const mots = bloc.querySelectorAll("p").map((p) => p.textContent).join(" ");
+  assert.match(mots, /Kept in this browser/);
+  assert.match(mots, /Clearing this browser's site data erases it/,
+    "⛔ la limite se dit, elle ne se découvre pas");
+});
+
+test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE, et la mise en garde disparaît", () => {
+  const doc = draftDocument();
+  const node = renderUniverseStep({
+    document: doc, query: () => null, fieldErrors: {},
+    memoire: { ok: false, raison: "QuotaExceededError" }
+  }, () => {});
+  const bloc = node.querySelectorAll(".universe-memoire")[0];
+  assert.equal(bloc.dataset.garde, "false");
+  const mots = bloc.querySelectorAll("p").map((p) => p.textContent).join(" ");
+  assert.match(mots, /Not being saved: QuotaExceededError/, "le mot du navigateur, pas une prose inventée");
+  assert.match(mots, /Export your character/, "et le geste qui reste possible");
+  assert.doesNotMatch(mots, /Clearing this browser's site data/,
+    "⛔ celui qui n'est pas gardé vient de lire pire — lui répéter la mise en garde noierait son message");
+});
+
+test("D3 — 🔴 UNE PERTE SE DIT : un personnage illisible laisse un message, même une fois la sauvegarde repartie", () => {
+  /* Sans lui, un joueur dont le personnage gardé est corrompu repart de
+     l'exemple en croyant n'avoir jamais rien construit. */
+  const doc = draftDocument();
+  const node = renderUniverseStep({
+    document: doc, query: () => null, fieldErrors: {},
+    memoire: { ok: true },
+    memoireIgnoree: "the saved character could not be read"
+  }, () => {});
+  const perdu = node.querySelectorAll(".universe-memoire .doc-field-error")[0];
+  assert.ok(perdu, "le message de perte existe");
+  assert.match(perdu.textContent, /A character was saved here but could not be reopened/);
+  assert.match(perdu.textContent, /could not be read/, "et il porte la raison");
+});
+
+test("D4 — ⛔ AUCUN BOUTON ICI : le builder n'a pas de personnage vierge", () => {
+  /* « Recommencer » rendrait le Magicien d'exemple. Une porte qui ne mène pas
+     là où elle dit est pire que pas de porte (loi §0.6). Ce garde tombera le
+     jour où un personnage VIERGE existera — et il faudra alors le retirer
+     exprès, pas le découvrir. */
+  const doc = draftDocument();
+  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
+  assert.equal(node.querySelectorAll(".universe-memoire button").length, 0);
+});
+
+test("D5 — sans `memoire` dans le ctx, l'écran ne ment pas : il se tait sur l'échec", () => {
+  /* Repli DÉCLARÉ : un appelant qui n'a pas encore d'état de mémoire (aucun
+     aujourd'hui) ne fait pas clignoter une alerte rouge. */
+  const doc = draftDocument();
+  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
+  assert.equal(node.querySelectorAll(".universe-memoire")[0].dataset.garde, "true");
+});

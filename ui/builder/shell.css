@@ -3273,6 +3273,22 @@ button { font: inherit; }
 .universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
 .universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
 
+/* OÙ VIT CE PERSONNAGE (2026-08-20) — même gabarit que le bloc au-dessus, et
+   c'est voulu : ce sont deux réglages du Menu, pas deux inventions. Seule la
+   PASTILLE est propre à celui-ci — une sauvegarde qui a échoué doit se voir
+   avant d'être lue. ⛔ Et elle est posée sur `[data-garde]`, une exception
+   NOMMÉE : sans elle, la règle générique `.universe-memoire h3` du dessus
+   emporterait la couleur (piège n°2 du canon — un bloc générique écrit plus
+   bas vole la cascade). */
+.universe-memoire { margin-top: var(--sp-24); }
+.universe-memoire h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.universe-memoire[data-garde="true"] h3::after {
+  content: "●"; margin-left: var(--sp-8); color: var(--positive); font-size: var(--t4);
+}
+.universe-memoire[data-garde="false"] h3::after {
+  content: "●"; margin-left: var(--sp-8); color: var(--critical); font-size: var(--t4);
+}
+
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
    le récepteur »* · *« il faut un fantôme identique à l'objet »* · *« quand un

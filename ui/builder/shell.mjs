@@ -19,48 +19,52 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=264";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=264";
-import { mountPopup } from "./popup.mjs?v=264";
-import { renderLorePanel } from "./lore.mjs?v=264";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=264";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=265";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=265";
+import { mountPopup } from "./popup.mjs?v=265";
+import { renderLorePanel } from "./lore.mjs?v=265";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=265";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=264";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=264";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=265";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=265";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=264";
-import { renderConceptStep } from "./concept-step.mjs?v=264";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=264";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=264";
+} from "./tutoriel.mjs?v=265";
+/* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
+   Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
+   survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=265";
+import { renderConceptStep } from "./concept-step.mjs?v=265";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=265";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=265";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=264";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=264";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=264";
+} from "./catalogue.mjs?v=265";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=265";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=265";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=264";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=264";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=265";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=265";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=264";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=265";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=264";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=264";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=264";
+} from "./destiny-step.mjs?v=265";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=265";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=265";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=264";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=265";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -79,16 +83,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=264";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=264";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=265";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=264";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=264";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=265";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=265";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=264";
+import { versionQuery } from "./version.mjs?v=265";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -184,6 +188,17 @@ const state = {
   /* Le refus de `derive` quand le personnage n'est PAS DÉRIVABLE — pas une
      panne, un état de création (voir `rebuild()`). `null` le reste du temps. */
   derivationImpossible: null,
+  /* ⭐ CE QUE LA MÉMOIRE DU NAVIGATEUR A RÉPONDU — `{ok:true}` ou
+     `{ok:false, raison}`. L'écran Menu le DIT au joueur : « gardé dans ce
+     navigateur », ou pourquoi il ne l'est pas.
+     ⛔ Un builder qui ne sauvegarde pas en silence est pire que celui d'hier,
+     qui ne sauvegardait pas du tout — hier le joueur le savait. */
+  memoire: { ok: true },
+  /* ⚠️ ET CELUI-CI NE SE TAIT JAMAIS : un personnage ÉTAIT gardé, et il était
+     inutilisable. Il survit à la première sauvegarde réussie — sinon le joueur
+     repartirait de l'exemple sans jamais apprendre qu'il a perdu quelque
+     chose, ce qui est le repli silencieux que la loi §0.5 interdit. */
+  memoireIgnoree: null,
   /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
      2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
      Ces deux champs sont donc ici, hors de `document`, exactement comme
@@ -1410,7 +1425,12 @@ function renderStepContent() {
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
-      pendingStack: state.pendingStack
+      pendingStack: state.pendingStack,
+      /* Même loi que le tutoriel juste au-dessus : l'écran REÇOIT l'état de la
+         mémoire, il ne va pas le chercher — un écran qui lirait `localStorage`
+         lui-même deviendrait impossible à tester. */
+      memoire: state.memoire,
+      memoireIgnoree: state.memoireIgnoree
     }, applyDecisionAction));
   } else if (step.id === "universe" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -2704,7 +2724,32 @@ function paintAside() {
 
 /** UNE MISE À JOUR — le défilement SURVIT. C'est ce qu'appelle chaque
  *  clic de choix. */
+/* ══ LA MÉMOIRE SUIT LE DOCUMENT — quel que soit le geste qui l'a changé ═══
+   🔴 POURQUOI ICI, ET PAS DANS `rebuild()`. `rebuild` est le passage obligé
+   des CHOIX, pas des changements de document : `rename`, `describe`, `confirm`
+   et `revoke` écrivent le document puis appellent `refresh()` sans repasser par
+   lui. Une sauvegarde posée dans `rebuild` aurait donc perdu le NOM du
+   personnage — le premier champ que le joueur remplit.
+   ⭐ `refresh()` est le seul point que TOUS les gestes traversent. On n'y écrit
+   pas « à chaque repeinte » pour autant : on compare le texte canonique à
+   celui qu'on a déjà gardé. Tourner le téléphone repeint et n'écrit rien.
+   ⛔ ET C'EST LE MÊME TEXTE QUE L'EXPORT, par la même fonction : deux
+   sérialisations donneraient deux personnages identiques que rien ne
+   reconnaîtrait comme tels. */
+let dernierTexteGarde = null;
+function memoriser() {
+  if (!state.document) return;
+  const texte = canonicalText(state.document);
+  if (texte === dernierTexteGarde) return;
+  dernierTexteGarde = texte;
+  const issue = ecrirePersonnage(texte);
+  state.memoire = issue.ok ? { ok: true } : { ok: false, raison: issue.raison };
+}
+
 function refresh() {
+  /* ⚠️ AVANT DE PEINDRE, pas après : le Menu affiche `state.memoire`, et
+     l'écrire après le rendu montrerait l'état du tour précédent. */
+  memoriser();
   paintBelt();
   paintAside();
   paintTopbar();
@@ -2753,9 +2798,24 @@ refresh();
    fois la pile montée et le premier `rebuild` fait. */
 (async () => {
   try {
-    const [engine, document, schema] = await Promise.all([bootEngine(), loadExampleDocument(), loadDocSchema()]);
+    const [engine, exemple, schema] = await Promise.all([bootEngine(), loadExampleDocument(), loadDocSchema()]);
     state.engine = engine;
-    state.document = document;
+    /* ══ ON REPREND LE PERSONNAGE DU NAVIGATEUR, S'IL Y EN A UN ═════════════
+       ⭐ ET IL N'A PAS BESOIN D'ÊTRE « MIGRÉ » QUAND LES RÈGLES BOUGENT. Le
+       document ne garde pas une fiche calculée : il garde les CHOIX et les
+       SIGNATURES, et `rebuild()` re-dérive tout depuis la pile montée. Un
+       personnage gardé avant la bascule des compétences FH est donc REJOUÉ sur
+       les couches du jour, et ce qui ne passe plus est verrouillé et NOMMÉ par
+       l'organe qui existe déjà (« These skills are no longer valid for this
+       class »). Rien de neuf à écrire pour ça.
+       ⚠️ ET S'IL N'EST PLUS DÉRIVABLE DU TOUT, `rebuild()` le dit déjà
+       (`derivationImpossible`) au lieu de faire tomber la page.
+       ⛔ UN REFUS DE LECTURE NE SE TAIT PAS : on repart de l'exemple ET on
+       garde la raison, que le Menu affiche. Retomber sur l'exemple en silence
+       ferait croire au joueur que son personnage n'a jamais existé. */
+    const garde = lirePersonnage();
+    if (garde.etat === "refus") state.memoireIgnoree = garde.raison;
+    state.document = garde.etat === "lu" ? garde.document : exemple;
     /* LOT 54 — construit UNE FOIS ; `rename`/`describe` ci-dessous
        réutilisent la MÊME instance à chaque action, jamais reconstruite par
        clic (le schéma ne change pas en cours de session). */
