@@ -1031,6 +1031,53 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        prouve est délibérée (tests/build-derive.test.mjs, `COUCHE_AMPUTEE`). */
     underived.declare("traits (espèce)", "underived.species-missing-traits", {});
   }
+  /* ══ LES MAÎTRISES D'ARME CHOISIES — 2026-08-20 ═══════════════════════
+     Le joueur choisit une ARME ; ce qu'il gagne est la propriété de maîtrise
+     que cette arme porte. Les deux se lisent, aucun ne se fabrique : le nom de
+     l'arme vient du record d'arme, le texte vient du record de maîtrise que
+     `data.mastery` DÉSIGNE PAR SON NOM.
+
+     ⭐ `traits[]` PORTE DÉJÀ LA BONNE PHRASE — « aptitudes, dons, traits
+     d'espèce » — et un training y entre depuis le lot 36 pour exactement la
+     même raison qu'une maîtrise : ni palier, ni bonus, ni caractéristique. La
+     loger dans `skills[]` ou `tools[]` l'obligerait à mentir sur des colonnes
+     qu'elle n'a pas.
+
+     ⛔ ET LA RÉSOLUTION EST PAR NOM, PAS PAR IDENTIFIANT, parce que c'est ce
+     que la source publie : chaque arme porte `mastery: "Topple"`, une chaîne.
+     Composer `srd:weapon-mastery:en:topple` marcherait aujourd'hui et se
+     tromperait le jour où un nom porte un espace ou une apostrophe. On cherche
+     dans le catalogue, qui sait.
+     ⚠️ ET UNE MAÎTRISE INTROUVABLE NE SE TAIT PAS : l'arme reste sur la fiche
+     avec son nom de propriété, et le manque est DÉCLARÉ. Sans ça, une couche
+     SRD sans le genre `weapon-mastery` (elles ont existé jusqu'à ce matin)
+     ferait disparaître le choix du joueur sans un mot. */
+  const masteryChoices = picked.order.filter((entry) => entry.choice.ref &&
+    entry.choice.ref.kind === "weapon" &&
+    typeof entry.choice.path === "string" &&
+    entry.choice.path.startsWith("class.weaponMastery["));
+  const masteryDefs = reader.all("weapon-mastery");
+  let masteryTextMissing = false;
+  for (const entry of masteryChoices) {
+    const view = reader.maybe("weapon", entry.choice.ref.id);
+    if (!view) continue;                       /* un choix illégal reste `unconsumed` */
+    entry.consumed = true;
+    const data = view.record.data || {};
+    const trait = { id: view.id, name: view.record.name, category: "weapon-mastery" };
+    const propriete = typeof data.mastery === "string" ? data.mastery : null;
+    const def = propriete ? masteryDefs.find((v) => v.record.name === propriete) : null;
+    if (def && typeof def.record.data.description === "string") {
+      trait.text = `${propriete} — ${def.record.data.description}`;
+    } else if (propriete) {
+      trait.text = propriete;
+      masteryTextMissing = true;
+    }
+    traits.push(trait);
+  }
+  if (masteryTextMissing) {
+    underived.declare("traits (maîtrises d'arme)", "underived.weapon-mastery-text-missing", {});
+  }
+
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "underived.no-trait-field-for-class-feat-background", {});
 

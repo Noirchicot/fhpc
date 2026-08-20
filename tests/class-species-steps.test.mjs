@@ -77,7 +77,7 @@ function baseDoc(id, choices) {
 /** Un personnage minimal, classe + espèce posées, RIEN de plus — juste assez
  *  pour que `rebuild()` ne jette pas (`class` est la seule chose qu'il exige,
  *  mesuré : `derive.mjs`, « aucun choix class »). */
-function docWith({ id, classId, speciesId, classSkills, classBudget }) {
+function docWith({ id, classId, speciesId, classSkills, classBudget, masteries }) {
   const choices = [{ path: "level", value: 1 }, { path: "class", ref: { kind: "class", id: classId } }];
   if (speciesId) choices.push({ path: "species", ref: { kind: "species", id: speciesId } });
   (classSkills || []).forEach((slug, i) => choices.push({ path: `class.skills[${i}]`, value: slug }));
@@ -88,6 +88,10 @@ function docWith({ id, classId, speciesId, classSkills, classBudget }) {
   for (const [slug, palier] of Object.entries(classBudget || {})) {
     choices.push({ path: `class.skillBudget.${slug}`, value: palier });
   }
+  /* ⭐ LES MAÎTRISES D'ARME (2026-08-20) — un `ref` vers une ARME, pas une
+     valeur : c'est l'arme qu'on choisit, sa propriété vient avec. */
+  (masteries || []).forEach((weaponId, i) =>
+    choices.push({ path: `class.weaponMastery[${i}]`, ref: { kind: "weapon", id: weaponId } }));
   choices.push(...BASE_ABILITIES);
   return baseDoc(id, choices);
 }
@@ -135,8 +139,15 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
      Rogue 6 (2 novices + 1 expert), Bard 3, Wizard 2 — et les créneaux ne
      valent plus `expected` mais LA LISTE DE LA CLASSE : on ne dépense pas un
      point par compétence, on choisit sur quelles compétences dépenser. */
+  /* ⭐ RÉVISÉ LE 2026-08-20 — LES MAÎTRISES D'ARME ARRIVENT, et elles changent
+     le compte de blocs pour les classes qui en portent. Le Roublard passe de 1
+     à 2 (ses points liés, puis ses 2 maîtrises à choisir parmi 19 armes), le
+     Barde reste à 3 (il n'a pas la feature), le Magicien aussi.
+     📌 C'EST LE COMPTE QUI BOUGE, PAS LA QUESTION : « combien de blocs, et
+     pourquoi celui-là et pas un autre ». Un Magicien à 4 blocs rougirait
+     toujours — il n'a ni maîtrise d'arme, ni bourse d'outil. */
   const cases = [
-    ["srd:class:en:rogue", 6, 1],
+    ["srd:class:en:rogue", 6, 2],
     ["srd:class:en:bard", 3, 3],
     ["srd:class:en:wizard", 2, 3]
   ];
@@ -417,12 +428,28 @@ test("CLASS — `Validate 2` n'est prêt QUE quand le plan dit que les choix son
   /* ⭐ SIX POINTS, TROIS COMPÉTENCES — 2 novices (1 chacun) + 1 expert (4).
      C'est la répartition que le canon écrit pour le Rogue, et elle montre au
      passage pourquoi le compte est en POINTS : trois placements valent six. */
+  const budgetPlein = { acrobatics: "novice", athletics: "novice", stealth: "expert" };
+
+  /* 🔴 RÉVISÉ LE 2026-08-20 — LES POINTS SEULS NE SUFFISENT PLUS. Le Roublard
+     porte Weapon Mastery au niveau 1 : 6 points sur 6 mais 0 maîtrise sur 2,
+     et le palier doit REFUSER. C'est la moitié neuve de ce garde, et elle vaut
+     mieux que l'ancienne — elle prouve que le palier compte TOUS les plans
+     publiés, pas ceux qu'il connaissait quand il a été écrit. */
+  const rogueSansMaitrise = rebuild(docWith({
+    id: "v2-no-mastery", classId: "srd:class:en:rogue", classBudget: budgetPlein
+  }));
+  assert.equal(porte(rogueSansMaitrise.decisions, "class", { palier: 2 }).ready, false,
+    "6/6 points mais 0/2 maîtrise : le palier n'est pas prêt");
+
   const roguePlein = rebuild(docWith({
-    id: "v2-ready", classId: "srd:class:en:rogue",
-    classBudget: { acrobatics: "novice", athletics: "novice", stealth: "expert" }
+    id: "v2-ready", classId: "srd:class:en:rogue", classBudget: budgetPlein,
+    masteries: ["srd:weapon:en:dagger", "srd:weapon:en:shortsword"]
   }));
   const plan = roguePlein.decisions.find((d) => d.path === "class.skillBudget");
   assert.equal(plan.answered, plan.expected, "sonde : le plan lui-même dit que le compte y est");
+  const maitrises = roguePlein.decisions.find((d) => d.path === "class.weaponMastery");
+  assert.equal(maitrises.answered, maitrises.expected, "sonde : les deux maîtrises sont posées");
+  assert.equal(maitrises.options.length, 19, "et le vivier du Roublard est bien celui du SRD");
   const gate = porte(roguePlein.decisions, "class", { palier: 2 });
   assert.equal(gate.ready, true);
   assert.equal(gate.action, null, "le 2ᵉ appui ne pose AUCUN verbe : les choix sont déjà écrits, il ne fait qu'avancer");

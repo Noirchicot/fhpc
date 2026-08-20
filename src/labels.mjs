@@ -33,6 +33,11 @@ export const FR_BUILD = {
      mensonge de mot. Même forme, même params, l'objet change. */
   "spell-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} sort(s) et les choix en désignent ` +
     `${d.actual} (${d.answers}).`,
+  /* 2026-08-20 — la TROISIÈME sœur : `skill-grant` compte des compétences,
+     `spell-grant` des sorts, celle-ci des armes. Une clef qui nomme mal ce
+     qu'elle compte est un mensonge de mot, et le joueur le lit. */
+  "weapon-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} maîtrise(s) d'arme et les choix ` +
+    `en désignent ${d.actual} (${d.answers}).`,
   "background.ability-key-invalid": (d) => `l'arrière-plan « ${d.backgroundId} » porte \`ability_keys\` = ${d.key}, ` +
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +
@@ -277,6 +282,13 @@ export const FR_UNDERIVED = {
     "`class-progression.levels[].resources` porte des clefs sans nom affichable, et `resolved.resources[].name` " +
     "est obligatoire.",
   "underived.trait-entry-invalid": () => "un trait d'espèce n'a ni `id` ni `name` exploitable (contrat §5).",
+  /* 2026-08-20 — une arme choisie porte le NOM de sa maîtrise, et la pile ne
+     porte pas le record qui la définit. La fiche garde le nom (« Topple ») ;
+     ce qu'elle ne peut pas dire, c'est ce qu'il FAIT. Cas réel jusqu'à ce
+     matin : le genre `weapon-mastery` n'existait pas. */
+  "underived.weapon-mastery-text-missing": () =>
+    "une maîtrise d'arme choisie n'a que son nom : la pile ne porte pas le genre `weapon-mastery` " +
+    "qui la définit. La fiche l'affiche sans son effet.",
   "underived.species-missing-traits": () =>
     "le record d'espèce ne porte pas `traits` : le contrat §5 les attend sous la forme `[{id, name, text}]`, et " +
     "`description` est de la prose dont un parseur approximatif ferait une fiche fausse. La couche SRD, elle, " +
@@ -425,6 +437,11 @@ export const EN_UNDERIVED = {
     "`class-progression.levels[].resources` carries keys with no display name, and `resolved.resources[].name` " +
     "is required.",
   "underived.trait-entry-invalid": () => "a species trait has neither a usable `id` nor `name` (contract §5).",
+  /* 2026-08-20 — voir la sœur française : l'arme choisie garde le NOM de sa
+     maîtrise, la pile ne porte pas le record qui la définit. */
+  "underived.weapon-mastery-text-missing": () =>
+    "a chosen weapon mastery carries only its name: the stack has no `weapon-mastery` genre to define it. " +
+    "The sheet shows it without its effect.",
   "underived.species-missing-traits": () =>
     "the species record carries no `traits`: contract §5 expects them as `[{id, name, text}]`, and " +
     "`description` is prose an approximate parser would turn into a false sheet. The SRD layer, itself, has " +

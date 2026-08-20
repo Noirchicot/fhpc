@@ -1043,7 +1043,8 @@
               },
               "category": {
                 "enum": [
-                  "training"
+                  "training",
+                  "weapon-mastery"
                 ]
               }
             }

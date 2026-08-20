@@ -392,7 +392,7 @@ function featSpellPlans(query, choices, featId) {
     const options = sorted(spellViews
       .filter((view) => view.record.data.level === group.niveau)
       .map((view) => view.id));
-    entries.push(...spellSlotPlans({ basePath, options, expected, candidates, from }));
+    entries.push(...refSlotPlans({ basePath, options, expected, candidates, from }));
   }
   return entries;
 }
@@ -638,7 +638,18 @@ const SPELL_GROUPS = Object.freeze([
    il rend des entrées de carnet. Ce qui DÉCIDE des options (le croisement
    `spell.classes × spell.level`) reste chez l'appelant, parce que c'est là que
    vit la différence : la classe lit sa progression, le don lit sa liste. */
-function spellSlotPlans({ basePath, options, expected, candidates, from }) {
+/* ⭐ GÉNÉRALISÉ LE 2026-08-20 — les maîtrises d'arme réclament EXACTEMENT ce
+   travail : un plan de groupe, un plan par créneau, les créneaux manquants, le
+   refus qui nomme. Le recopier aurait fait deux versions d'une même règle, qui
+   divergent au premier réglage — la faute que ce dépôt paie ailleurs.
+   ⚠️ IL ÉTAIT CÂBLÉ SUR `"spell"` EN DUR, à deux endroits : le genre attendu
+   d'une référence, et la clef du sur-compte. Les deux deviennent des
+   paramètres, et les sorts gardent leurs valeurs par défaut — aucun appelant
+   existant ne change.
+   ⛔ IL NE SAIT TOUJOURS NI CE QU'EST UNE CLASSE, NI UN SORT, NI UNE ARME : on
+   lui tend un genre, un chemin, des options, un compte et les choix posés. */
+function refSlotPlans({ basePath, options, expected, candidates, from,
+  kind = "spell", countKey = "spell-grant.count-mismatch" }) {
   const selected = [];
   const steps = [];
   let planLock = null;
@@ -647,9 +658,9 @@ function spellSlotPlans({ basePath, options, expected, candidates, from }) {
   for (const choice of candidates) {
     const ref = choice.ref;
     let lock = null;
-    if (!ref || ref.kind !== "spell") {
+    if (!ref || ref.kind !== kind) {
       lock = buildViolation("decision.kind-mismatch", {
-        path: choice.path, expectedKind: "spell",
+        path: choice.path, expectedKind: kind,
         actualKind: ref && typeof ref.kind === "string" ? ref.kind : "value"
       }, choice.path);
     } else if (!options.includes(ref.id)) {
@@ -670,7 +681,7 @@ function spellSlotPlans({ basePath, options, expected, candidates, from }) {
     if (match) next = Math.max(next, Number(match[1]) + 1);
   }
   if (!planLock && expected !== null && selected.length > expected) {
-    planLock = buildViolation("spell-grant.count-mismatch", {
+    planLock = buildViolation(countKey, {
       root: basePath, declared: expected, actual: selected.length,
       answers: selected.join(", ") || "none"
     }, basePath);
@@ -699,6 +710,54 @@ function spellSlotPlans({ basePath, options, expected, candidates, from }) {
     }
   }
   return entries;
+}
+
+/* ══ LES MAÎTRISES D'ARME D'UNE CLASSE — `class.weaponMastery[n]` ═══════════
+   🔴 ET LES DEUX FAITS SE LISENT SUR LE RECORD DE CLASSE, PAS AILLEURS.
+
+   ⛔ LE PIÈGE QUE CETTE FONCTION ÉVITE, ET IL EST TENDU JUSTE À CÔTÉ : le
+   voisin `classSpellPlans` prend ses comptes dans
+   `class-progression.levels[].resources`. Écrire celle-ci sur le même patron —
+   le geste naturel — rendrait le builder AVEUGLE POUR TROIS CLASSES SUR CINQ,
+   en silence. Mesuré : seuls le barbare et le guerrier portent une colonne
+   « Weapon Mastery » dans leur progression, parce que ce sont les SEULS dont le
+   nombre grandit ; paladin, rôdeur et roublard ne l'ont nulle part ailleurs que
+   sur `class.weapon_mastery_count`. Un garde le fige
+   (`tests/gen-srd-layer.test.mjs`).
+
+   ⚠️ ET LE VIVIER NE DÉPEND PAS DU NIVEAU : la progression dit « MORE kinds »,
+   pas « d'autres kinds ». `weapon_mastery_from` vaut donc à tous les niveaux ;
+   seul le COMPTE grandit. Le nom du champ ne le dit pas — d'où cette phrase.
+
+   📌 UNE CLASSE QUI NE DÉCLARE RIEN NE PUBLIE RIEN — pas un plan vide. Mais des
+   réponses qui TRAÎNENT sur ce chemin publient quand même le plan qui les juge :
+   c'est lui qui porte les verrous qu'une confirmation d'effacement lira le jour
+   où le joueur change de classe. Même règle que les sorts. */
+function classWeaponMasteryPlans(query, choices, classView) {
+  const data = (classView && classView.record && classView.record.data) || {};
+  const compte = Number.isInteger(data.weapon_mastery_count) ? data.weapon_mastery_count : null;
+  const vivier = Array.isArray(data.weapon_mastery_from) ? data.weapon_mastery_from : null;
+
+  const candidates = choices.filter((choice) => choice &&
+    typeof choice.path === "string" && /^class\.weaponMastery\[[0-9]+\]$/.test(choice.path));
+  if (compte === null || vivier === null || vivier.length === 0) {
+    /* Rien de déclaré. On ne publie que s'il y a des réponses à juger — sinon
+       un Magicien afficherait un cadre vide. */
+    if (candidates.length === 0) return [];
+  }
+  /* ⛔ ON NE DEVINE NI L'UN NI L'AUTRE. Sans compte déclaré, `expected` reste
+     `null` : le plan JUGE les réponses posées mais ne GUIDE pas (§1c — un record
+     qui ne nomme pas ses clefs ne restreint pas). Sans vivier, aucune option
+     n'est valable, et chaque réponse posée sera verrouillée en le disant. */
+  return refSlotPlans({
+    basePath: "class.weaponMastery",
+    kind: "weapon",
+    countKey: "weapon-grant.count-mismatch",
+    options: vivier || [],
+    expected: compte,
+    candidates,
+    from: recordProvenance("offered", "class", classView, "weapon_mastery_from")
+  });
 }
 
 function classSpellPlans(query, choices, classView) {
@@ -755,7 +814,7 @@ function classSpellPlans(query, choices, classView) {
       ? recordProvenance("offered", "class-progression", progression, `resources.${group.resource}`)
       : null;
 
-    entries.push(...spellSlotPlans({ basePath: group.basePath, options, expected, candidates, from }));
+    entries.push(...refSlotPlans({ basePath: group.basePath, options, expected, candidates, from }));
   }
   return entries;
 }
@@ -806,6 +865,9 @@ export function projectDecisions({ query, choices }) {
        une seule réponse à « quelle est la classe ? » (leçon du lot 71,
        `resolvedRef` — deux écrivains divergent, et ça se voit à l'écran). */
     entries.push(...classSpellPlans(query, list, classView));
+    /* Les maîtrises d'arme lisent LE MÊME `classView` — une seule réponse à
+       « quelle est la classe ? » (leçon du lot 71). */
+    entries.push(...classWeaponMasteryPlans(query, list, classView));
   }
 
   const speciesChoice = list.find((choice) => choice && choice.path === "species" && choice.ref && choice.ref.kind === "species");

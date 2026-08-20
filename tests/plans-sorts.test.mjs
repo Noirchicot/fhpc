@@ -370,7 +370,17 @@ test("un Rogue n'affiche NI bloc de sorts NI confirmation quand rien ne traîne"
   const out = rebuild(docWith({ id: "ecran-rogue", classId: "srd:class:en:rogue" }));
   const node = menuDe(out.decisions);
   assert.equal(node.querySelectorAll(".skills-budget-block").length, 0, "aucun QCM : un Rogue n'a pas de sorts");
-  assert.equal(node.querySelectorAll(".choix-glisse").length, 1, "le seul écran est celui des compétences");
+  /* ⭐ RÉVISÉ LE 2026-08-20 — DEUX BLOCS, ET AUCUN N'EST DES SORTS : les points
+     liés, puis les maîtrises d'arme (le Roublard porte Weapon Mastery au niveau
+     1). Ce que ce garde prouve n'a pas bougé d'un mot — « un Roublard n'affiche
+     pas de sorts » — mais le compter par « il n'y a qu'un bloc » liait la
+     question à un état qui pouvait changer, et il a changé. On compte donc
+     désormais ce qui est VRAIMENT en cause. */
+  assert.equal(node.querySelectorAll(".choix-glisse").length, 2,
+    "les points liés et les maîtrises d'arme — et rien d'autre");
+  const titres = node.querySelectorAll(".choix-glisse h3").map((h) => h.textContent);
+  assert.deepEqual(titres.filter((t) => /cantrip|spell/i.test(t)), [],
+    "⛔ AUCUN titre de sorts : c'est ÇA que ce test protège");
   assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
 });
 
@@ -442,18 +452,32 @@ test("le palier 2 attend AUSSI les sorts : 2/2 compétences ne suffisent plus à
   assert.deepEqual(classPalier2(complet.decisions), { ready: true },
     "le personnage d'exemple a tout choisi : prêt");
 
-  /* Un non-lanceur garde exactement l'ancienne règle : ses compétences. */
+  /* ⭐ RÉVISÉ LE 2026-08-20 — UN NON-LANCEUR N'EST PAS UN PERSONNAGE SANS
+     CHOIX. Ce garde disait « aucun plan de sorts : ils ne bloquent pas un
+     Rogue », et il le prouvait en montrant le Roublard PRÊT avec ses seules
+     compétences. Depuis les maîtrises d'arme, il lui manque autre chose — et
+     la conclusion « prêt » deviendrait fausse pour une raison qui n'a rien à
+     voir avec les sorts.
+     ⛔ ON NE RELÂCHE PAS LE GARDE, ON POSE SA VRAIE QUESTION : les SORTS ne
+     bloquent pas un Roublard. Cela se prouve en le rendant prêt une fois TOUS
+     ses plans remplis — et en montrant qu'aucun d'eux n'est un plan de sorts. */
   const rogue = rebuild(docWith({
     id: "palier-rogue", classId: "srd:class:en:rogue",
     extra: [
       /* SIX POINTS : deux novices et un expert — la répartition du canon. */
       { path: "class.skillBudget.acrobatics", value: "novice" },
       { path: "class.skillBudget.athletics", value: "novice" },
-      { path: "class.skillBudget.stealth", value: "expert" }
+      { path: "class.skillBudget.stealth", value: "expert" },
+      /* DEUX MAÎTRISES : le Roublard porte Weapon Mastery au niveau 1. */
+      { path: "class.weaponMastery[0]", ref: { kind: "weapon", id: "srd:weapon:en:dagger" } },
+      { path: "class.weaponMastery[1]", ref: { kind: "weapon", id: "srd:weapon:en:shortsword" } }
     ]
   }));
+  const cheminsDuRogue = rogue.decisions.map((d) => d.path).filter((c) => c.startsWith("class."));
+  assert.deepEqual(cheminsDuRogue.filter((c) => /cantrips|prepared/.test(c)), [],
+    "⛔ LE FAIT QUE CE GARDE PROTÈGE : aucun plan de sorts pour un Roublard");
   assert.deepEqual(classPalier2(rogue.decisions), { ready: true },
-    "aucun plan de sorts : ils ne bloquent pas un Rogue");
+    "tous ses plans remplis — et aucun n'est un plan de sorts");
 });
 
 test("Review route les deux chemins de sorts vers l'étape Class, et les montre comme n'importe quelle décision", () => {
@@ -463,7 +487,12 @@ test("Review route les deux chemins de sorts vers l'étape Class, et les montre 
      système. La laisser sur l'ancien aurait fait une ligne muette : Review
      n'aurait plus rien trouvé à router, et la décision aurait disparu du bilan
      sans que personne la voie partir. */
-  assert.deepEqual(groupe.paths, ["class", "class.skillBudget", "class.cantrips", "class.prepared"]);
+  /* ⭐ `class.weaponMastery` ENTRE LE 2026-08-20, pour la même raison exacte :
+     cinq classes sur douze la portent, et sans ce chemin un Roublard sans
+     maîtrise choisie compterait pour FINI — au récapitulatif comme dans la
+     lumière du belt, qui lit la même table. */
+  assert.deepEqual(groupe.paths,
+    ["class", "class.skillBudget", "class.weaponMastery", "class.cantrips", "class.prepared"]);
 
   /* Sur le personnage d'exemple : la ligne Class est FAITE, quatre états
      « done ». Sur le même passé Rogue sans nettoyage : elle crie. */
@@ -488,4 +517,85 @@ test("Review route les deux chemins de sorts vers l'étape Class, et les montre 
   assert.equal(ligne.getAttribute("data-done"), "false");
   assert.match(ligne.querySelectorAll(".review-line-state")[0].textContent, /needs attention/,
     "les sorts orphelins se voient dans Review — c'était la moitié du problème d'Eric");
+});
+
+/* ══ LES MAÎTRISES D'ARME — le plan, ses options, son verrou ════════════════
+   2026-08-20. Eric : *« mais il n'y a pas les weapon masteries dans les
+   classes ? »*. Il a fallu descendre jusqu'au SRD pour que la donnée existe.
+   Ces gardes tiennent le côté MOTEUR : ce que le carnet publie, et ce qu'il
+   refuse. L'écran est gardé ailleurs. */
+
+test("🔴 le plan des maîtrises lit la CLASSE — compte ET vivier, jamais la progression", () => {
+  const rogue = rebuild(docWith({ id: "wm-rogue", classId: "srd:class:en:rogue" }));
+  const plan = rogue.decisions.find((d) => d.path === "class.weaponMastery");
+  assert.ok(plan, "un Roublard porte Weapon Mastery au niveau 1");
+  assert.equal(plan.expected, 2, "le compte vient de `class.weapon_mastery_count`");
+  assert.equal(plan.options.length, 19, "et le vivier de `class.weapon_mastery_from`");
+  assert.equal(plan.answered, 0);
+  /* ⚔️ LE TÉMOIN QUI REND CE GARDE UTILE : le Roublard n'a AUCUNE colonne
+     « Weapon Mastery » dans sa progression. Un plan écrit sur le patron des
+     sorts — qui, lui, lit la progression — ne trouverait rien ici et
+     n'existerait pas. C'est le piège que ce test tient fermé. */
+  assert.equal(plan.expected, 2, "…et il existe, donc la lecture ne passe pas par la progression");
+});
+
+test("un Magicien ne publie AUCUN plan de maîtrises — pas un plan vide", () => {
+  const wizard = rebuild(docWith({ id: "wm-wizard", classId: "srd:class:en:wizard" }));
+  assert.equal(wizard.decisions.find((d) => d.path === "class.weaponMastery"), undefined,
+    "aucune feature, aucun plan — un cadre vide serait une invitation mensongère");
+});
+
+test("⚔️ une arme HORS du vivier est verrouillée, et le verrou la NOMME", () => {
+  /* La Greataxe est martiale de mêlée : elle est dans le vivier du barbare et
+     PAS dans celui du roublard (ni Finesse ni Légère). */
+  const out = rebuild(docWith({
+    id: "wm-illegal", classId: "srd:class:en:rogue",
+    extra: [{ path: "class.weaponMastery[0]", ref: { kind: "weapon", id: "srd:weapon:en:greataxe" } }]
+  }));
+  const creneau = out.decisions.find((d) => d.path === "class.weaponMastery[0]");
+  assert.ok(creneau.lock, "le créneau est verrouillé");
+  assert.equal(creneau.lock.key, "decision.option-unavailable");
+  assert.match(creneau.lock.params.selected, /greataxe/);
+});
+
+test("⚔️ un SORT posé sur un créneau de maîtrise est refusé par le GENRE", () => {
+  /* L'organe des créneaux était câblé sur « spell » en dur ; sa généralisation
+     ne vaut que si le genre attendu suit vraiment le chemin. */
+  const out = rebuild(docWith({
+    id: "wm-kind", classId: "srd:class:en:rogue",
+    extra: [{ path: "class.weaponMastery[0]", ref: { kind: "spell", id: "srd:spell:en:fireball" } }]
+  }));
+  const creneau = out.decisions.find((d) => d.path === "class.weaponMastery[0]");
+  assert.equal(creneau.lock.key, "decision.kind-mismatch");
+  assert.equal(creneau.lock.params.expectedKind, "weapon", "et il attend une ARME, pas un sort");
+});
+
+test("⚔️ le sur-compte a SA clef : 3 maîtrises pour 2 → `weapon-grant.count-mismatch`", () => {
+  const out = rebuild(docWith({
+    id: "wm-trop", classId: "srd:class:en:rogue",
+    extra: [
+      { path: "class.weaponMastery[0]", ref: { kind: "weapon", id: "srd:weapon:en:dagger" } },
+      { path: "class.weaponMastery[1]", ref: { kind: "weapon", id: "srd:weapon:en:shortsword" } },
+      { path: "class.weaponMastery[2]", ref: { kind: "weapon", id: "srd:weapon:en:rapier" } }
+    ]
+  }));
+  const plan = out.decisions.find((d) => d.path === "class.weaponMastery");
+  assert.equal(plan.lock.key, "weapon-grant.count-mismatch",
+    "dit en maîtrises d'arme, pas en sorts ni en compétences");
+});
+
+test("⭐ LA CHAÎNE ENTIÈRE : l'arme choisie devient un trait qui EXPLIQUE sa maîtrise", () => {
+  const out = rebuild(docWith({
+    id: "wm-derive", classId: "srd:class:en:rogue",
+    extra: [{ path: "class.weaponMastery[0]", ref: { kind: "weapon", id: "srd:weapon:en:dagger" } }]
+  }));
+  const trait = (out.resolved.traits || []).find((t) => t.category === "weapon-mastery");
+  assert.ok(trait, "le choix arrive sur la fiche");
+  assert.equal(trait.name, "Dagger", "sous le nom de l'ARME — c'est elle qu'on a choisie");
+  assert.match(trait.text, /^Nick — /, "et son texte porte la PROPRIÉTÉ, puis ce qu'elle fait");
+  assert.match(trait.text, /extra attack of the Light property/,
+    "le texte du SRD, verbatim — pas une paraphrase de l'écran");
+  /* ⛔ ET LE CHOIX EST CONSOMMÉ : sans ça il ressortirait `unconsumed`, et
+     `validate` dirait du personnage qu'il porte une intention sans effet. */
+  assert.equal((out.unconsumed || []).includes("class.weaponMastery[0]"), false);
 });

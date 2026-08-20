@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=268";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=268";
-import { renderConfirmDialog } from "./confirm.mjs?v=268";
-import { renderChoixGlisses } from "./glisser.mjs?v=268";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=271";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=271";
+import { renderConfirmDialog } from "./confirm.mjs?v=271";
+import { renderChoixGlisses } from "./glisser.mjs?v=271";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -95,6 +95,13 @@ function skillLabel(query, id) {
    nommer un sort et deux façons de l'expliquer, qui divergent au premier
    réglage. ⛔ Ni l'une ni l'autre ne connaît la classe : on leur tend un
    `query` et un identifiant. */
+/* Le NOM d'une arme, lu au record. Même geste que `spellLabel` : on descend
+   des mots, on n'en fabrique pas. */
+export function weaponLabel(query, id) {
+  const view = query({ kind: "weapon", id });
+  return view && view.record ? view.record.name : id;
+}
+
 export function spellLabel(query, id) {
   const view = query({ kind: "spell", id });
   return view && view.record ? view.record.name : id;
@@ -122,6 +129,41 @@ export function spellInfo(query, id) {
     kind: "popup",
     titre: record.name || id,
     texte: [tete.join(" · "), data.description].filter(Boolean).join("\n\n")
+  };
+}
+
+/* ══ L'INFO D'UNE ARME — ce que le joueur a besoin de savoir pour choisir ═══
+   2026-08-20. Choisir une maîtrise, c'est choisir une ARME ; ce qu'on gagne est
+   la propriété qu'elle porte. Sans son texte, « Topple » est un choix à
+   l'aveugle — et c'était le trou nommé au mandat : jusqu'à ce matin, aucune
+   couche ne portait la définition des huit propriétés.
+
+   ⛔ RIEN N'EST COMPOSÉ ICI, comme pour un sort : la ligne de tête est la SUITE
+   DES VALEURS du record, jointes. Le seul mot ajouté est le nom de la propriété
+   de maîtrise, qui est lui-même une valeur du record.
+   ⚠️ ET LA DÉFINITION SE RÉSOUT PAR NOM : chaque arme porte `mastery: "Topple"`,
+   une chaîne. Recomposer un identifiant marcherait aujourd'hui et se tromperait
+   au premier nom à espace. On cherche dans le catalogue.
+   📌 UNE MAÎTRISE SANS DÉFINITION S'AFFICHE QUAND MÊME, avec son seul nom : le
+   joueur voit ce qu'il choisit, et le manque ne le prive pas de l'arme. */
+export function weaponInfo(query, id) {
+  const view = query({ kind: "weapon", id });
+  const record = view && view.record;
+  if (!record) return null;
+  const data = record.data || {};
+  const tete = [data.damage, data.weapon_category, data.weapon_range, data.properties, data.cost, data.weight]
+    .filter((mot) => typeof mot === "string" && mot.trim() !== "");
+  const propriete = typeof data.mastery === "string" ? data.mastery : null;
+  const def = propriete
+    ? (query({ kind: "weapon-mastery" }) || []).find((v) => v && v.record && v.record.name === propriete)
+    : null;
+  const texteDeLaMaitrise = def && def.record.data && typeof def.record.data.description === "string"
+    ? `${propriete} — ${def.record.data.description}`
+    : propriete;
+  return {
+    kind: "popup",
+    titre: record.name || id,
+    texte: [tete.join(" · "), texteDeLaMaitrise].filter(Boolean).join("\n\n")
   };
 }
 
@@ -242,6 +284,19 @@ function resumeDeLItem(item, ctx) {
     return lignes.length > 0 ? renderCardRows(lignes) : null;
   }
 
+  /* ── LES MAÎTRISES : l'arme choisie, et la PROPRIÉTÉ qu'elle apporte. C'est
+     la propriété qui est le gain — « Maul » seul ne dirait pas ce qu'on a. */
+  if (item.path === "class.weaponMastery") {
+    const plan = planAt(decisions, "class.weaponMastery");
+    const lignes = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => {
+        const view = ctx.query ? ctx.query({ kind: "weapon", id }) : null;
+        const mastery = view && view.record && view.record.data && view.record.data.mastery;
+        return [weaponLabel(ctx.query, id), typeof mastery === "string" && mastery !== "" ? mastery : "—"];
+      });
+    return lignes.length > 0 ? renderCardRows(lignes) : null;
+  }
+
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
      absente laisse la ligne debout avec un tiret plutôt que de la faire
      disparaître : le sort EST choisi, c'est le fait qui compte. */
@@ -287,6 +342,7 @@ export const CLASS_CATALOGUE = {
     : chemin === "class.skills" ? "Class skills"
     : chemin === "class.cantrips" ? "Cantrips"
     : chemin === "class.prepared" ? "Prepared spells"
+    : chemin === "class.weaponMastery" ? "Weapon mastery"
     : chemin === LIGNE_ACQUIS_CLASSE.path ? LIGNE_ACQUIS_CLASSE.label : chemin)
 };
 
@@ -525,6 +581,30 @@ export function renderClassChoices(ctx, onAction, seulement) {
     if (bloc && retenu(groupe.basePath)) menu.append(bloc);
   }
 
+  /* ══ LES MAÎTRISES D'ARME, AU GLISSER — 2026-08-20 ═══════════════════════
+     🔴 CE QUE ÇA COMBLE : cinq classes portent une feature `Weapon Mastery` au
+     niveau 1 et le builder ne proposait RIEN. Eric l'a vu à l'écran — *« mais
+     il n'y a pas les weapon masteries dans les classes ? »* — et il a fallu
+     descendre jusqu'au SRD pour que la donnée existe : les huit définitions
+     étaient dans notre PDF depuis toujours, page 90, et notre extraction les
+     jetait en silence.
+
+     ⭐ LE MÊME ORGANE QUE LES SORTS, MOT POUR MOT. Des jetons (les armes du
+     vivier), des récepteurs (autant que la classe en accorde), l'info au tap
+     ou au clic droit. Un troisième dessin pour un troisième choix aurait été
+     un troisième geste à réapprendre.
+     ⛔ ET IL RENVOIE `null` SANS PLAN : un Magicien n'affiche RIEN ici, jamais
+     un cadre vide — même contrat que `class.cantrips` chez un Roublard. */
+  const maitrises = planAt(decisions, "class.weaponMastery");
+  const blocMaitrises = maitrises ? renderChoixGlisses({
+    plan: maitrises, slots: planSlots(decisions, "class.weaponMastery"),
+    titre: "Weapon mastery", mot: "Mastery",
+    refKind: "weapon", labelOf: (id) => weaponLabel(query, id), onAction: act,
+    onInfo: (id) => { const info = weaponInfo(query, id); if (info) act(info); },
+    consigne: "Drag a weapon onto a slot to choose its mastery · tap or right-click for info"
+  }) : null;
+  if (blocMaitrises && retenu("class.weaponMastery")) menu.append(blocMaitrises);
+
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════
      Les anciens `class.skills[n]` que le `choose` ne nettoie pas
      (verrouillés) DOIVENT s'effacer — après confirmation, en NOMMANT ce qui
@@ -589,7 +669,10 @@ export function renderClassChoices(ctx, onAction, seulement) {
  *  chaque plan présent — un plan absent (Rogue : pas de sorts) ne compte
  *  pas, et une classe sans AUCUN plan garde son palier unique. */
 export function classPalier2(decisions) {
-  const plans = ["class.skillBudget", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
+  /* ⚠️ LES MAÎTRISES ENTRENT DANS LE COMPTE (2026-08-20) : un Guerrier à 6/6
+     points mais 0/3 maîtrises n'est pas prêt. Même règle que les sorts, et un
+     plan absent (un Magicien) ne compte pas. */
+  const plans = ["class.skillBudget", "class.weaponMastery", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
     .map((path) => planAt(decisions, path))
     .filter(Boolean);
   if (plans.length === 0) return null;

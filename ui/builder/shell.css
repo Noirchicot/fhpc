@@ -502,6 +502,23 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   background: var(--surface);
   border: 1px solid var(--critical);
   border-radius: var(--radius-md);
+  /* 🔴 IL NE PREND PAS LE POINTEUR — 2026-08-20, DÉFAUT MESURÉ ET ANTÉRIEUR
+     À L'ÉCRAN QUI L'A RÉVÉLÉ. Le popup est ancré `bottom: 0`, exactement là où
+     les RÉCEPTEURS du glisser-déposer vivent. Mesuré à 360 sur l'écran des
+     maîtrises : `document.elementFromPoint` au centre des deux récepteurs
+     renvoyait `popup-titre`. Or c'est ce même `elementFromPoint` qui résout le
+     dépôt (`creneauSous`, glisser.mjs) — un joueur qui tape une arme pour lire
+     sa maîtrise, puis la glisse vers un créneau, DÉPOSAIT SUR LE POPUP.
+     ⚠️ ET LE DÉFAUT EXISTAIT DÉJÀ POUR LES SORTS : même organe, même ancrage,
+     même geste (« tap pour info, drag pour choisir »). Il n'avait simplement
+     jamais été mesuré — le glisser SANS info marche, et c'est celui qu'on
+     essaie.
+     ⭐ CE N'EST PAS UNE RUSE, C'EST LA NATURE DE CET OBJET : il porte
+     `role="status"` et AUCUN contrôle — pas un bouton, pas un lien. Un objet
+     qui ne s'actionne pas n'a rien à faire dans la chaîne du pointeur.
+     ⛔ Et sa fermeture n'en dépend pas : `mountPopup` écoute le `click` sur le
+     DOCUMENT en capture, pas sur lui. */
+  pointer-events: none;
 }
 .popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
 

@@ -127,3 +127,28 @@ test("⚠️ BORNE — les dons d'ORIGINE restent patchables, et ils le sont", (
     assert.notEqual(srd.data.category, "fighting-style", `${id} ne doit pas être un style de combat`);
   }
 });
+
+/* ══ LE POPUP NE PREND PAS LE POINTEUR — 2026-08-20 ═══════════════════════
+   🔴 DÉFAUT MESURÉ DANS LA PAGE, ET ANTÉRIEUR À L'ÉCRAN QUI L'A RÉVÉLÉ. Le
+   popup d'info est ancré `bottom: 0` — exactement là où vivent les RÉCEPTEURS
+   du glisser-déposer. Mesuré à 360 sur l'écran des maîtrises :
+   `document.elementFromPoint` au centre des deux récepteurs renvoyait
+   `popup-titre`. Or c'est ce même `elementFromPoint` qui résout le dépôt
+   (`creneauSous`, glisser.mjs) : un joueur qui tape une arme pour lire sa
+   maîtrise, puis la glisse vers un créneau, DÉPOSAIT SUR LE POPUP.
+
+   ⚠️ ET LE DÉFAUT EXISTAIT DÉJÀ POUR LES SORTS — même organe, même ancrage,
+   même geste (« tap pour info, drag pour choisir »). Il n'avait jamais été
+   mesuré parce que le glisser SANS info marche, et c'est celui qu'on essaie.
+
+   ⛔ CE GARDE EST UN GARDE D'OCTETS, faute de mieux : aucun test ne monte la
+   coquille, et la géométrie ne se mesure qu'au navigateur. Il tient donc la
+   DÉCLARATION, et le commentaire de la feuille tient la raison. */
+test("🔴 `.popup` déclare `pointer-events: none` — sinon il vole les dépôts du glisser", () => {
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
+  const bloc = /\.popup \{[\s\S]*?\n\}/.exec(css);
+  assert.ok(bloc, "témoin : le bloc `.popup` existe toujours dans la feuille");
+  assert.match(bloc[0], /pointer-events:\s*none/,
+    "le popup est un `role=\"status\"` SANS aucun contrôle : un objet qui ne s'actionne pas " +
+    "n'a rien à faire dans la chaîne du pointeur, et il est posé sur les récepteurs.");
+});
