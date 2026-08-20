@@ -276,3 +276,66 @@ test("generate() écrit les deux couches DANS SA DESTINATION, et les fichiers co
     rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+/* ══ OÙ SE LIT LE COMPTE DE MAÎTRISES — 2026-08-20 ═════════════════════════
+   🔴 CE GARDE EST PRÉVENTIF, ET IL VISE UN PIÈGE QUE JE M'APPRÊTE À TENDRE
+   MOI-MÊME. Le fil FH WEB s'est fait mordre par sa propre garde en exigeant le
+   compte de maîtrises DANS LA TABLE DE PROGRESSION : elle a refusé de
+   construire, « Paladin a un vivier mais aucun compte dans sa progression ».
+
+   ⛔ CE N'ÉTAIT PAS UN TROU DANS LES DONNÉES, C'ÉTAIT SA LECTURE. Seuls le
+   barbare et le guerrier portent une colonne « Weapon Mastery », parce que ce
+   sont les SEULS dont le nombre bouge en montant de niveau. Pour paladin,
+   rôdeur et roublard il ne change jamais, donc la colonne n'existe pas — et le
+   compte vit sur le record de CLASSE. C'est la forme de la source ; c'est la
+   lecture qui doit s'y plier.
+
+   ⚠️ ET LE PRÉCÉDENT QUI ME TENDRA LE PIÈGE EST DÉJÀ DANS CE DÉPÔT :
+   `decisions.mjs` lit les comptes de sorts mineurs et préparés dans
+   `class-progression.levels[].resources`. Écrire l'écran des maîtrises en
+   suivant ce patron — le geste naturel, le fichier voisin — rendrait le
+   builder AVEUGLE pour trois classes sur cinq, en silence : elles n'auraient
+   simplement aucun plan, donc aucun écran, donc aucune maîtrise à choisir.
+
+   📌 TROISIÈME PIÈGE DE LA MÊME FAMILLE DANS LA JOURNÉE, et c'est la vraie
+   leçon : SUPPOSER LA FORME D'UN CHAMP AU LIEU DE LA LIRE. Les deux autres —
+   `ac_dex_cap` qui vaut 0 sans être absent, et `strength` qui porte déjà son
+   préfixe — ont la même racine. */
+test("🔴 le compte de maîtrises se lit sur la CLASSE, pas dans la progression", () => {
+  const { layer } = buildLayer("en");
+  const classes = Object.entries(layer.records.class);
+
+  const surLaClasse = classes.filter(([, r]) => Number.isInteger(r.data.weapon_mastery_count));
+  assert.equal(surLaClasse.length, 5, "cinq classes portent Weapon Mastery au niveau 1");
+
+  /* ⚔️ LE TÉMOIN QUI REND LE GARDE UTILE : montrer ce qu'on PERDRAIT en lisant
+     la progression. Si un jour le SRD y met les cinq, ce test rougira — et ce
+     sera une bonne nouvelle à constater, pas un défaut. */
+  const dansLaProgression = Object.entries(layer.records["class-progression"])
+    .filter(([, r]) => (r.data.levels || []).some((n) => Number.isInteger((n.resources || {}).weapon_mastery)));
+  assert.equal(dansLaProgression.length, 2,
+    "seuls le barbare et le guerrier ont la colonne — ce sont les seuls dont le nombre GRANDIT");
+
+  const perdues = surLaClasse
+    .map(([id]) => id.split(":").pop())
+    .filter((slug) => !dansLaProgression.some(([id]) => id.endsWith(`:${slug}`)));
+  assert.deepEqual(perdues.sort(), ["paladin", "ranger", "rogue"],
+    "⛔ lire le compte dans la progression rendrait le builder aveugle pour CES trois classes");
+});
+
+test("⚠️ le VIVIER, lui, ne dépend pas du niveau — seul le compte grandit", () => {
+  /* La table de progression dit « MORE kinds », pas « d'autres kinds ». Le
+     vivier vaut donc à tous les niveaux, et le nom du champ ne le dit pas —
+     `weapon_mastery_from` pourrait se lire comme « au niveau 1 ». Un lecteur
+     qui chercherait un vivier PAR NIVEAU ne le trouverait pas et pourrait
+     conclure qu'il manque. Il ne manque pas : il n'existe qu'une fois. */
+  const { layer } = buildLayer("en");
+  const barbare = layer.records["class-progression"]["srd:class-progression:en:barbarian"];
+  const comptes = (barbare.data.levels || [])
+    .map((n) => (n.resources || {}).weapon_mastery)
+    .filter(Number.isInteger);
+  assert.ok(new Set(comptes).size > 1, "témoin : le COMPTE du barbare grandit bien avec le niveau");
+  assert.equal(Object.keys(layer.records.class["srd:class:en:barbarian"].data)
+    .filter((k) => k.startsWith("weapon_mastery_from")).length, 1,
+    "un seul vivier, sans déclinaison par niveau");
+});
