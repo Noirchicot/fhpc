@@ -203,6 +203,25 @@ DC (soit **+2 au DC**). La raison d'Eric gouverne la forme du code : *« ça
 évite aux humains des calculs trop compliqués »* — rien ne s'additionne, c'est
 une présence ou une absence, comme l'Avantage en 5e.
 
+🔴 **MAIS TOUT +2 DONNÉ À L'AUTRE CÔTÉ N'EST PAS UN TILT** — la borne manquait,
+elle est arrivée le **2026-08-21** par une règle d'Eric. La pénalité
+d'étranglement cesse d'être un −2 à toucher et devient **+2 à l'AC de la
+cible** ; il tranche la nature en cinq mots : *« ce n'est pas un tilt parce que
+c'est passif »*.
+
+> ⭐ **Un Tilt est quelque chose que quelqu'un FAIT. Un passif est une propriété
+> qui EST LÀ.**
+
+Un allié qui aide, un flanquement, une position surélevée : quelqu'un agit, et
+son action penche le jet — **Tilt**. Un défenseur étranglé ne *donne* pas son
++2 : il l'a, parce qu'on l'étrangle. La distinction n'est pas cosmétique — elle
+décide si le +2 **se cumule vers l'Avantage** (deux Tilts) ou reste un nombre
+qui s'ajoute à l'AC comme n'importe quelle armure.
+
+⚠️ **Sans cette borne, le paragraphe ci-dessus se lisait comme une équivalence**
+— « un malus est un Tilt donné à l'autre côté », donc « un bonus à l'autre côté
+est un Tilt ». La réciproque était fausse et rien ne le disait.
+
 **Drapeau** : `fh.tilt`. **Réglages de console** (🜂, ils n'existent pas sans la
 couche) : `tilts` — un entier ≥ 0 ; `tiltDisadvantage` — un booléen. Un compte
 négatif ou illisible **jette**, et le refus dit où le malus se donne.

@@ -18,7 +18,29 @@ const points = (n) => Math.abs(n) + " Destiny Point" + (Math.abs(n) === 1 ? "" :
 export const FH_EN = {
   /* ── Le lexique ratifié (L88, Eric 2026-08-06) ────────────────────
      Les quatre mots ratifiés écrits UNE FOIS : le prochain renommage est une
-     édition, pas un inventaire. */
+     édition, pas un inventaire.
+
+     ⭐ RÉVISION DU 2026-08-21 — le lexique est BI-REGISTRE, et il l'était déjà
+     sans que personne le sache. Les formes courtes (`fh.crit20`, `∞ critical`)
+     sont celles de la fiche, où la place manque ; les formes en mots sont
+     celles du LIVRE. Eric a ratifié les deux mots longs du domaine arcanique :
+     **Arcane Critical** et **Arcane Fumble** — plus courts, et symétriques,
+     là où le moteur disait « Arcane Critical Success / Failure ».
+
+     ⚠️ ET UNE ASYMÉTRIE QUI EST CELLE DU SRD, PAS UN OUBLI. Mesuré dans les
+     2 651 records du SRD 5.2.1 : `Critical Hit` est une entrée de glossaire
+     (15 occurrences) ; `Natural 20`, `Natural 1`, `Fumble` et `Critical Miss`
+     n'y sont **nulle part**. Le système de base NOMME LE HAUT ET NE NOMME PAS
+     LE BAS — un 1 y est une règle d'échec, pas un terme. Fate's Hand fait
+     pareil, et pour une raison de règle : il nomme le 20 parce qu'il l'a
+     changé (le 20 dépense un point de Destinée), et laisse le 1 sans nom
+     propre parce qu'un 1 nu ne décide rien — `intent: null`, gelé depuis la v1.
+
+     🔴 CE QUI RESTE OUVERT, ET C'EST UNE QUESTION POUR ERIC : si le livre dit
+     « Critical 20 » et « Natural 1 », alors **`Fumble 1` n'appartient plus à
+     aucune des deux langues** — ni au SRD, qui ignore le mot, ni au livre. Le
+     joueur le lirait sur sa fiche sans le retrouver nulle part. Ce n'est plus
+     un registre court : c'est un mot orphelin. */
   "fh.crit20": "Crit 20",
   "fh.CRIT20": "CRITICAL 20",
   "fh.fumble1": "Fumble 1",
@@ -93,8 +115,8 @@ export const FH_EN = {
   "fh.entry.destiny": (d) => "Destiny d" + d.sides,
   "fh.entry.chaos": (d) => "Chaos" + (d.ability ? " · " + d.ability : "") + (d.name ? " · " + d.name : ""),
   "fh.entry.overreach-save": (d) => "Overreach save" + (d.ability ? " · " + d.ability : ""),
-  "fh.outcome.arcane-critical-success": "Arcane Critical Success",
-  "fh.outcome.arcane-critical-failure": "Arcane Critical Failure",
+  "fh.outcome.arcane-critical-success": "Arcane Critical",
+  "fh.outcome.arcane-critical-failure": "Arcane Fumble",
   "fh.outcome.chaos-risk": "Chaos risk",
   "fh.outcome.destiny-spent": "Destiny spent",
   "fh.outcome.chaos": (d) => "Chaos " + d.total,
@@ -170,8 +192,8 @@ export const FH_EN = {
   "fh.skills.term.train": (d) => d.training,
 
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
-  "fh.reason.arcane-critical-success": (d) => "Arcane Critical Success d" + d.sides,
-  "fh.reason.arcane-critical-failure": (d) => "Arcane Critical Failure d" + d.sides,
+  "fh.reason.arcane-critical-success": (d) => "Arcane Critical d" + d.sides,
+  "fh.reason.arcane-critical-failure": (d) => "Arcane Fumble d" + d.sides,
   "fh.reason.destiny-die": (d) => "Destiny d" + d.sides,
   "fh.reason.manual-pool": (d) => "Manual d" + d.sides + " pool correction",
   "fh.reason.correction": "Correction",
