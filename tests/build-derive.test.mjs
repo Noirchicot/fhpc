@@ -647,3 +647,49 @@ test("le bloc rend des COPIES : l'appelant ne tient jamais l'objet du bloc", () 
   const encore = h.verbs.rebuild({});
   assert.equal(encore.resolved.proficiency, 2, "mutiler ce qu'on a reçu ne corrompt pas la tranche du bloc");
 });
+
+/* ══ LE PLAFOND DE DEXTÉRITÉ À ZÉRO — 2026-08-20 ═══════════════════════════
+   🔴 CE TEST NAÎT D'UN DÉFAUT MESURÉ CHEZ LE VOISIN, PAS ICI. Le fil FH WEB a
+   groupé les armures du livre sur `ac_dex_cap is not None` et s'est fait avoir :
+   les quatre armures LOURDES portent **`cap = 0`, pas `null`** — elles se sont
+   rangées dans les moyennes, sans rien casser et sans rien signaler. `0` est
+   faux au test booléen, et il n'est pas absent.
+
+   📏 VÉRIFIÉ ICI EN LISANT `derive.mjs` : le moteur teste `cap === null ||
+   cap === undefined`, donc il ne tombe pas dans le piège. ⛔ MAIS RIEN NE LE
+   TENAIT — aucun test ne couvrait une armure à plafond nul. Le code était juste
+   AUJOURD'HUI ; un `if (cap)` écrit un soir de refonte l'aurait rendu faux sans
+   qu'une seule suite rougisse, et un harnois aurait rendu la Dextérité à un
+   personnage qui n'en a pas le droit.
+
+   ⚠️ ET LE PIÈGE EST GÉNÉRAL, pas propre à l'armure : partout où un champ
+   mécanique peut valoir zéro, « absent » se teste explicitement. La couche en
+   porte d'autres (`points: 0`, `count: 0` sur les classes depuis la bascule des
+   compétences) — ce test-ci garde celui qui a une victime connue. */
+test("⚔️ le plafond de Dex à ZÉRO plafonne vraiment — `0` n'est pas « pas de plafond »", () => {
+  const h = makeHarness();
+  const base = acceptanceDocument(h.layers);
+  const index = base.build.choices
+    .map((choice) => /^gear\[([0-9]+)\]$/.exec(choice.path))
+    .filter(Boolean)
+    .reduce((max, match) => Math.max(max, Number(match[1]) + 1), 0);
+
+  /* Le harnois : `ac_base` 18, `ac_dex_cap` 0 — lus dans la couche, pas écrits
+     ici. Si la couche changeait ces valeurs, ce test doit suivre la couche. */
+  const harnois = h.layers.verbs.query({ kind: "armor", id: "srd:armor:fr:harnois" });
+  assert.equal(harnois.record.data.ac_base, 18, "témoin : la couche porte bien la base du harnois");
+  assert.equal(harnois.record.data.ac_dex_cap, 0, "témoin : et son plafond est ZÉRO, pas absent");
+
+  const doc = structuredClone(base);
+  doc.build.choices.push(
+    { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:fr:harnois" } },
+    { path: `gear[${index}].quantity`, value: 1 },
+    { path: `gear[${index}].equipped`, value: true }
+  );
+
+  const out = h.verbs.rebuild({ document: doc });
+  const dex = out.resolved.abilities.dex.mod;
+  assert.ok(dex > 0, `témoin : le personnage d'acceptation a une Dex POSITIVE (${dex}) — sans ça le test ne prouve rien`);
+  assert.equal(out.resolved.ac, 18,
+    `harnois 18 + Dex plafonnée à 0 = 18. Obtenu ${out.resolved.ac} : le plafond zéro a été lu comme « pas de plafond ».`);
+});
