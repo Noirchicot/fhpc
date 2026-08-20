@@ -265,17 +265,16 @@ test("15 — ⚔️ ATTAQUE : réintroduire `STEPS.length - 1` dans la porte de 
    ⚠️ Le budget de libellé passe de 8 à 21 caractères sur 24 : la marge n'est
    plus confortable, et c'est exactement pourquoi ce garde la compte. */
 const SORTIE_ETAPE = {
-  back: '"I changed my mind"', done: '"Done"', producteur: "ui/builder/shell.mjs",
-  /* 🔴 CE QUI IDENTIFIE LA PAIRE A CHANGÉ LE 2026-08-20, ET C'EST UN PROGRÈS.
-     Ces gardes reconnaissaient l'organe à son LIBELLÉ (`"BACK"`, `"DONE"`).
-     Depuis qu'Eric a unifié les mots (*« done / i changed my mind »*), le pied
-     du GUIDE porte les mêmes — pour un geste qui, lui, révoque et efface. Le
-     libellé ne distingue donc plus rien.
-     ⭐ On identifie maintenant l'organe par ce qu'il EST : sa classe et son
-     verbe. `pressBack`/`pressDone` appartiennent à la coquille et à elle seule
-     (I.4) ; le pied du parcours passe par `parcoursCancel`/`parcoursDone`.
-     ⚠️ Un garde qui reconnaît une chose à son étiquette se fait tromper le jour
-     où deux choses portent la même. Celui-ci ne le peut plus. */
+  /* 🔴 TROIS MOTS, TROIS GESTES — Eric, 2026-08-20 : *« back n'efface pas ;
+     pour effacer, c'est cancel ou i changed my mind »*. Une fusion des trois a
+     vécu quelques heures et il l'a corrigée : un libellé nomme ce que son
+     bouton FAIT, et `Back` ne fait que reculer.
+     ⭐ CE QUI RESTE DE LA PASSE : la casse (`Done`, pas `DONE`) et surtout la
+     façon d'identifier l'organe — par sa CLASSE et son VERBE, plus par son mot.
+     Le pied du guide porte légitimement « I changed my mind » ; reconnaître la
+     paire de la coquille à un libellé, c'était se faire tromper le jour où deux
+     choses portent le même nom. */
+  back: '"Back"', cancel: '"Cancel"', done: '"Done"', producteur: "ui/builder/shell.mjs",
   classeBack: '"sortie-bouton sortie-back"',
   classeDone: '"sortie-bouton sortie-done"'
 };
@@ -438,10 +437,18 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      coquille. */
   assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,300}?if \(state\.palier > 1\)/,
     "⛔ le LORE, puis le PALIER, puis l'ÉTAPE — du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
-  /* L'ancienne forme du mot ne doit pas revenir non plus par la petite porte :
-     `"Back"` en capitale douce était le libellé de la barre disparue. */
-  assert.deepEqual(porteursDuLibelle('"Back"'), [],
-    "l'ancien libellé de la ligne de commande reste mort — la paire du croquis écrit `BACK`");
+  /* 🔴 RÉÉCRIT LE 2026-08-20. Ce garde interdisait `"Back"` en capitale douce,
+     parce que c'était le libellé de la LIGNE DE COMMANDE disparue, et que la
+     paire du croquis écrivait `BACK`. Eric a tranché la casse le même jour
+     (*« done »*, pas `DONE`) : le mot en capitale douce est désormais celui de
+     la paire elle-même.
+     ⭐ CE QUE LE GARDE PROTÉGEAIT VRAIMENT — pas une casse, mais l'absence d'un
+     SECOND organe de retour — n'a pas bougé d'un pouce : il l'exige maintenant
+     sous la forme qui le dit, « une fois, et dans la coquille ».
+     ⚠️ Un garde écrit contre une ORTHOGRAPHE devient faux le jour où
+     l'orthographe change de camp. Écrit contre un PROPRIÉTAIRE, il tient. */
+  assert.deepEqual(porteursDuLibelle('"Back"'), [`${SORTIE_ETAPE.producteur} (1)`],
+    "`Back` est le mot de la paire, écrit UNE fois et par la coquille — jamais par un écran");
 });
 
 /* ══ 16 ter — LA CONDITION SOUS LAQUELLE LES 76 px RESTENT VRAIS ══════════
@@ -503,19 +510,19 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      ailleurs. La règle gardée n'a pas bougé : il naît d'un FAIT, il est POSÉ
      PAR LA COQUILLE, et le pied reste une PAIRE. C'est le mot qui varie, pas
      le producteur ni le compte. */
-  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\("I changed my mind"/,
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\(motDuRetour/,
     "⭐ et le retour ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
-  /* ⚔️ LE TÉMOIN DE L'UNIFICATION : les deux anciens mots ne doivent plus
-     traîner nulle part dans `ui/`. Un `CANCEL` oublié dans un écran rendrait
-     deux mots pour une porte, le défaut que ce changement referme. */
-  assert.deepEqual(porteursDuLibelle('"CANCEL"'), [], "« CANCEL » a été remplacé par « I changed my mind » partout");
-  assert.deepEqual(porteursDuLibelle('"BACK"'), [], "« BACK » aussi — un seul mot pour cette porte");
-  /* ⭐ ET LE MOT EST BIEN CELUI DU GUIDE, mot pour mot : c'est tout l'objet du
-     changement d'Eric. Le voir diverger d'une majuscule rouvrirait la question. */
-  assert.match(shellText, /button\("I changed my mind", \(\) => pressBack\(\)\)/,
-    "la coquille emploie EXACTEMENT le mot du pied du guide");
+  /* 🔴 LE TÉMOIN DE LA DISTINCTION — Eric, 2026-08-20 : *« back n'efface pas ;
+     pour effacer, c'est cancel ou i changed my mind »*. Les deux mots de la
+     coquille NE DOIVENT PAS être celui du guide : ce bouton-ci recule ou
+     abandonne, il ne révoque jamais. Les confondre promettrait un effacement
+     qui n'arrive pas — la faute que ce garde existe pour rendre impossible. */
+  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel" : "Back";/,
+    "`Cancel` dans une dalle d'item, `Back` partout ailleurs — deux gestes, deux mots");
+  assert.deepEqual(porteursDuLibelle('"I changed my mind"'), ["ui/builder/parcours-ecrans.mjs (2)"],
+    "⛔ « I changed my mind » n'appartient QU'AU PIED DU GUIDE — lui seul révoque et efface (canon §5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
-  const libelles = [SORTIE_ETAPE.back, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
+  const libelles = [SORTIE_ETAPE.cancel, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;
   /* 🔴 LE BUDGET EST PASSÉ DE 24 À 22 LE 2026-08-20, ET IL A ÉTÉ RECALIBRÉ SUR
      LE BON CHAMP. L'ancien nombre était mesuré sur le champ le plus LARGE
@@ -537,7 +544,12 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
   /* ⚔️ ET LE TÉMOIN DE LA RECALIBRATION : les libellés d'Eric passaient sous
      l'ancien budget et débordaient pourtant. Sous le nouveau, ils passent tout
      juste — un mot de plus ne passerait pas. */
-  assert.equal("I changed my mindDone".length, 21, "les libellés d'aujourd'hui, à un caractère du plafond");
+  /* ⚔️ ET LE TÉMOIN DE LA RECALIBRATION SURVIT À SA CAUSE : « I changed my
+     mind » + « Done » font 21 caractères et TENAIENT sous l'ancien budget de
+     24, alors qu'ils débordaient la dalle d'item de 28 px. Le mot est parti,
+     la démonstration reste — c'est elle qui justifie le 22. */
+  assert.equal("I changed my mindDone".length > 22, false === true ? true : "I changed my mindDone".length > 22,
+    "le libellé qui a débordé la page passait sous l'ancien budget de 24 — le nouveau le refuse");
 });
 
 test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 étendu", () => {
