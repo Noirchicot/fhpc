@@ -293,6 +293,48 @@ function backgroundFeatPlan(query, choices, view) {
   return [finish({ path: PATH, options, selected, expected: 1, answered: selected.length, provenance: from }, lock)];
 }
 
+/* ══ B0 — LA LISTE DE SORTS D'UN DON ══════════════════════════════════════
+   🔴 CE QUE CE PLAN RÉPARE, ET C'EST ERIC QUI L'A VU : *« Magic Initiate — on
+   peut pas choisir divine ou arcane ni les sorts. Donc pas fini. »* La fiche
+   annonçait un choix que l'écran n'offrait pas — le « faux magasin » que ce
+   dépôt s'interdit.
+
+   ⭐ UN DON N'EST PAS TOUJOURS **UNE** DÉCISION. Magic Initiate en porte
+   quatre : la liste, puis deux tours mineurs et un sort de niveau 1 pris
+   DEDANS. Ce plan-ci publie **la première**, celle dont les trois autres
+   dépendent — la « branche unique » (B0) de l'arborescence d'Eric.
+
+   ⛔ ET IL NE CONNAÎT AUCUN DON. Comme `feat_choice` et `tool_choice` avant
+   lui, il lit une DÉCLARATION sur le record (`data.spell_list_choice.from`) :
+   tout don qui la portera obtiendra le même écran, et aucun `if (id === …)`
+   n'entre ici (loi des lots 39/42).
+
+   ⚠️ LE CHEMIN EST DU **CONTENU**, PAS UN ITEM DE PLUS. Canon §4 : *« un item
+   par choix, et un seul segment sous la racine »* — `background.originFeat[0]`
+   EST l'item, `background.originFeat[0].list` est ce qui vit dedans. Un second
+   item ferait compter deux fois le même don dans le guide de l'Inheritance.
+
+   📌 LES OPTIONS SONT DES RECORDS DE CLASSE, et c'est délibéré : le croisement
+   des sorts se fait sur `spell.classes`, qui liste des NOMS D'AFFICHAGE
+   (« Wizard »). Poser le nom dans la couche ferait deux vocabulaires à tenir
+   d'accord ; poser l'identifiant laisse la traduction au moteur, une fois, là
+   où `classSpellPlans` la fait déjà. */
+function featSpellListPlan(query, choices, featId) {
+  const featView = featId ? query({ kind: "feat", id: featId }) : null;
+  const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
+  if (!declaration || typeof declaration !== "object" || !Array.isArray(declaration.from)) return [];
+
+  const PATH = "background.originFeat[0].list";
+  const options = sorted(declaration.from.filter((id) => typeof id === "string" && query({ kind: "class", id })));
+  const choice = choices.find((entry) => entry && entry.path === PATH);
+  const selected = choice && choice.ref && choice.ref.kind === "class" ? [choice.ref.id] : [];
+  const from = recordProvenance("offered", "feat", featView, "spell_list_choice");
+  const lock = selected.length > 0 && !options.includes(selected[0])
+    ? buildViolation("decision.option-unavailable", { path: PATH, selected: selected[0], options: options.join(", ") || "none" }, PATH)
+    : null;
+  return [finish({ path: PATH, options, selected, expected: 1, answered: selected.length, provenance: from }, lock)];
+}
+
 function backgroundToolPlan(choices, view) {
   const data = view.record.data || {};
   if (typeof data.tool_id === "string") {
@@ -710,6 +752,16 @@ export function projectDecisions({ query, choices }) {
     entries.push(...backgroundBoostPlan(list, backgroundView));
     entries.push(...backgroundFeatPlan(query, list, backgroundView));
     entries.push(...backgroundToolPlan(list, backgroundView));
+  }
+  /* ⭐ LE CONTENU DU DON, ET IL VIT HORS DU `if (backgroundView)` — le don
+     d'origine est un choix du JOUEUR (`background.originFeat[0]`), pas une
+     donnée de l'arrière-plan : le lire sous l'arrière-plan le ferait
+     disparaître pour un personnage qui n'en porte aucun, alors que son don,
+     lui, est bien là. */
+  {
+    const featChoice = list.find((entry) => entry && entry.path === "background.originFeat[0]" &&
+      entry.ref && entry.ref.kind === "feat");
+    entries.push(...featSpellListPlan(query, list, featChoice ? featChoice.ref.id : null));
   }
 
   const unique = new Map();

@@ -19,46 +19,47 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=228";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=228";
-import { mountPopup } from "./popup.mjs?v=228";
-import { renderLorePanel } from "./lore.mjs?v=228";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=228";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=233";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=233";
+import { mountPopup } from "./popup.mjs?v=233";
+import { renderLorePanel } from "./lore.mjs?v=233";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=233";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=228";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=228";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=233";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=233";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=228";
-import { renderConceptStep } from "./concept-step.mjs?v=228";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=228";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=228";
+} from "./tutoriel.mjs?v=233";
+import { renderConceptStep } from "./concept-step.mjs?v=233";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=233";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=233";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=228";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=228";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=228";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse } from "./inheritance-step.mjs?v=228";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=228";
+} from "./catalogue.mjs?v=233";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=233";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=233";
+import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
+  renderFeatListScreen, featListPlan } from "./inheritance-step.mjs?v=233";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=233";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=228";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=233";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=228";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=228";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=228";
+} from "./destiny-step.mjs?v=233";
+import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=233";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=233";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=228";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=233";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -77,16 +78,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=228";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=228";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=233";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=228";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=228";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=233";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=233";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=228";
+import { versionQuery } from "./version.mjs?v=233";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1131,13 +1132,51 @@ const CATALOGUES = {
        rangée, la DALLE porte les 440. Je les ai réparés dans cet ordre en
        croyant chaque fois avoir fini. */
     path: "background.originFeat[0]", kind: "feat", label: "Origin feats", fiche: true,
-    cardBody: renderFeatCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
+    cardBody: renderFeatCardBody,
+    /* LE 2ᵉ PALIER : B0. Il EXISTE si le don choisi porte une branche, et il est
+       PRÊT quand cette branche a sa réponse — `catalogueValidate` lit les deux
+       sur cet objet, jamais dans l'écran. ⏳ Le jour où BS1/2/3 poseront leurs
+       sorts, « prêt » voudra dire « les quatre décisions sont répondues », et
+       c'est ICI que ça se dira, pas dans le bouton. */
+    palier2: (decisions) => {
+      const plan = featListPlan(decisions);
+      return plan ? { ready: plan.answered >= plan.expected, plan } : null;
+    },
+    choices: (ctx, act) => renderFeatListScreen({
+      decisions: ctx.decisions, query: ctx.query, featId: choixDeDon()
+    }, act)
   },
   destiny: {
     path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
     cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
   }
 };
+/* ══ B0 — LE 2ᵉ PALIER DU CATALOGUE DES DONS ═════════════════════════════
+   📐 L'arborescence d'Eric (2026-08-20) : **R3** est le troisième item de la
+   liste des dons, **B0** sa branche unique, **BS1/2/3** les branches
+   secondaires. Ici : R3 vit au 1ᵉʳ palier (la fiche du catalogue), B0 au 2ᵉ.
+
+   ⭐ ET IL PASSE PAR LA COUTURE EXISTANTE, PAS À CÔTÉ. Un catalogue déclare
+   déjà son second palier par deux fonctions : `palier2(decisions)` dit S'IL
+   EXISTE, `choices(ctx, act)` le DESSINE. Species et Class s'en servent depuis
+   le lot 60.
+   🔴 J'AI D'ABORD ÉCRIT UNE BRANCHE PARALLÈLE, ET LA PAGE L'A REFUSÉE : elle
+   court-circuitait `catalogueCourant()`, donc `currentGate()` — qui interroge
+   le palier SUIVANT pour savoir s'il existe — répondait « non », et `CHOOSE`
+   sautait à l'étape Destiny au lieu d'ouvrir B0. Le mécanisme savait déjà
+   poser la question ; il fallait lui donner la bonne réponse, pas la contourner.
+
+   ⛔ ET AUCUN IDENTIFIANT DE DON N'ENTRE ICI : le second palier existe si le
+   moteur publie le plan, c'est-à-dire si le don CHOISI déclare ses listes. */
+
+/** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
+ *  d'un choix (le carnet, lui, dit ce qui RESTE à faire). */
+function choixDeDon() {
+  const choices = (state.document && state.document.build && state.document.build.choices) || [];
+  const choix = choices.find((c) => c && c.path === "background.originFeat[0]" && c.ref && c.ref.kind === "feat");
+  return choix ? choix.ref.id : null;
+}
+
 function catalogueCourant() {
   if (!state.engine) return null;
   /* ⭐ B6.1g — « Choose yourself fait défiler les cartes comme B2/B3 ». Le

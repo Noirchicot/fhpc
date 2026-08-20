@@ -3520,3 +3520,50 @@ button { font: inherit; }
   background: color-mix(in srgb, var(--critical) 18%, transparent);
 }
 .choix-glisse[data-trop="true"] .glisse-consigne { color: var(--critical); }
+
+/* ══ B0 — LA BRANCHE UNIQUE D'UN DON ══════════════════════════════════════
+   ⚠️ ÉCRIT EN BAS DE FEUILLE, ET C'EST LE PIÈGE N°1 DE CE DÉPÔT (canon §10) :
+   un bloc GÉNÉRIQUE posé ici volerait la cascade de toutes les variantes
+   écrites plus haut, en silence. Celui-ci ne le peut pas — ses quatre
+   sélecteurs sont des classes NEUVES que personne d'autre ne porte. C'est la
+   condition, et elle est vérifiable : si un jour `.feat-branche-*` se met à
+   décrire autre chose, ce bloc remonte avec sa règle. */
+.feat-branche { display: flex; flex-direction: column; gap: var(--sp-16); position: relative; }
+
+/* LES CHOIX — empilés, chacun à la cible tactile pleine. ⛔ Pas une rangée :
+   « Choose Cleric » et « Choose Wizard » n'ont pas la même longueur, et trois
+   boutons côte à côte à 360 tomberaient sous le seuil de lecture. */
+.feat-branche-choix { display: flex; flex-direction: column; gap: var(--sp-8); }
+.feat-branche-liste {
+  min-height: var(--touch);
+  padding: 0 var(--sp-16);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--t3);
+  font-weight: 600;
+  cursor: pointer;
+  /* LE CERNE, PAS UN FOND — la leçon revenue trois fois : `--dalle-inter` posé
+     sur une dalle ne dessine rien, un bouton qui doit se voir porte un cerne. */
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+/* CELUI QUI PORTE LE CHOIX EST BLEU : « celui-ci est bon », jamais vert — le
+   vert dit que L'ENSEMBLE est bon, et il reste deux sorts à prendre. */
+.feat-branche-liste[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--info); color: var(--text); }
+
+/* LE BILAN — étiquette et valeur, la paire qui s'empile toute seule au-delà
+   d'une ligne (règle générale du builder). */
+.feat-branche-bilan {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--sp-4) var(--sp-12);
+  margin: 0;
+  font-size: var(--t3);
+}
+.feat-branche-bilan dt { color: var(--text-soft); }
+.feat-branche-bilan dd { margin: 0; color: var(--text); }
+/* UNE LIGNE EN ATTENTE D'UN AUTRE CHOIX EST GRISÉE, PAS ABSENTE (canon §4) :
+   elle annonce ce qui vient, et c'est ce qui rend le vert lisible ensuite. */
+.feat-branche-bilan dd[data-attente="oui"] { color: var(--text-muted); }

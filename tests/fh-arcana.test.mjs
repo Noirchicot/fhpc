@@ -214,6 +214,49 @@ test("LES 22 CARTES ENTRENT, ET LEURS IMPACTS SE RÉPARTISSENT SUR 0, 1 ET 2", (
     "*Lucky* n'existe pas dans le SRD 5.2 : la note du don le dit, et le dépôt n'a rien à désactiver");
 });
 
+/* ══ B0 — LA LISTE DE SORTS DU DON ════════════════════════════════════════
+   🔴 CE TEST EXISTE PARCE QU'ERIC A VU LE MANQUE À L'ÉCRAN : *« Magic Initiate
+   — on peut pas choisir divine ou arcane ni les sorts. Donc pas fini. »* La
+   fiche annonçait un choix que rien n'offrait.
+   ⭐ ET CE QU'IL GARDE N'EST PAS « Magic Initiate marche » : c'est que le plan
+   se DÉDUIT D'UNE DÉCLARATION, jamais d'un identifiant. Un don sans la
+   déclaration n'ouvre rien ; un don qui la porte ouvre le même écran. */
+test("B0 — un don qui DÉCLARE ses listes publie son plan ; les autres n'en publient aucun", () => {
+  const h = pile(PILE_COMPLETE);
+  const MI = "srd:feat:en:magic-initiate";
+
+  const plans = (choices) => h.verbs.decisions({ document: documentDe(h, choices) }).decisions;
+  const listeDe = (choices) => plans(choices).find((p) => p.path === "background.originFeat[0].list");
+
+  /* ① LE DON QUI DÉCLARE — trois listes, une seule à choisir. */
+  const avec = listeDe([don(MI)]);
+  assert.ok(avec, "le don qui porte `spell_list_choice` publie son plan");
+  assert.deepEqual(avec.options,
+    ["srd:class:en:cleric", "srd:class:en:druid", "srd:class:en:wizard"],
+    "les TROIS listes du SRD, pas deux — Eric a refait son arborescence le 20/08");
+  assert.equal(avec.expected, 1);
+  assert.equal(avec.answered, 0, "rien n'est encore choisi");
+
+  /* ② UN AUTRE DON N'OUVRE RIEN. C'est la moitié qui prouve qu'aucun
+     identifiant n'est écrit dans le moteur. */
+  assert.equal(listeDe([don(DON)]), undefined, "un don sans déclaration n'ouvre aucune branche");
+  assert.equal(listeDe([]), undefined, "et sans don du tout, il n'y a rien à ouvrir");
+
+  /* ③ UNE FOIS CHOISIE, ELLE EST RÉPONDUE — et le chemin est du CONTENU de
+     l'item, pas un item de plus (canon §4 : un seul segment sous la racine). */
+  const choisi = listeDe([don(MI),
+    { path: "background.originFeat[0].list", ref: { kind: "class", id: "srd:class:en:druid" } }]);
+  assert.deepEqual(choisi.selected, ["srd:class:en:druid"]);
+  assert.equal(choisi.answered, 1);
+
+  /* ④ ET UNE LISTE HORS CATALOGUE EST REFUSÉE EN NOMMANT LE CHEMIN — le refus
+     générique, celui que tous les plans à options partagent. */
+  const horsCatalogue = listeDe([don(MI),
+    { path: "background.originFeat[0].list", ref: { kind: "class", id: "srd:class:en:rogue" } }]);
+  assert.ok(horsCatalogue.lock, "une liste que le don n'offre pas est un refus");
+  assert.match(horsCatalogue.lock.key, /option-unavailable/);
+});
+
 /* ══ ACCEPTATION 1 — LE TEST QUE LE LOT DOIT PASSER ═══════════════════ */
 
 test("ACCEPTATION 1 — la carte et le don entrent dans le Score, chacun citant sa source", () => {

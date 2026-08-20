@@ -29,10 +29,10 @@
 
 import {
   planAt, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=228";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=228";
-import { renderChoixGlisses } from "./glisser.mjs?v=228";
-import { renderFicheBody } from "./catalogue.mjs?v=228";
+} from "./carnet.mjs?v=233";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=233";
+import { renderChoixGlisses } from "./glisser.mjs?v=233";
+import { renderFicheBody } from "./catalogue.mjs?v=233";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -440,6 +440,100 @@ export function renderFeatCardBody(query, id) {
   if (desc) lignes.push(desc);
   if (Number.isInteger(bonus)) lignes.push(`+${bonus} skill points`);
   return renderFicheBody({ blurb: lignes.join("\n\n"), dressing: "prose" });
+}
+
+/* ══ B0 — LA BRANCHE UNIQUE DU DON ════════════════════════════════════════
+   📐 L'ARBORESCENCE D'ERIC, 2026-08-20, dans ses mots : *« R3 = troisième item
+   à la racine dans la liste des feats · B0 = branche unique · BS1/BS2/BS3 =
+   branches secondaires »*. Ce vocabulaire est celui de l'ARBRE DES CHOIX ; il
+   ne remplace pas celui du canon (F/FF pour l'écran, carte/dalle/tuile pour
+   l'objet), il en dit autre chose — une branche n'est pas un cadre.
+
+   ⛔ **AUCUN BLURB ICI** — Eric, mot pour mot : *« mets pas de blurb sur B0,
+   juste les choix, le bilan et les boutons »*. La prose du don a déjà été lue
+   sur sa fiche ; la redire ferait lire deux fois pour avancer d'un cran, ce que
+   le canon reproche déjà au bilan d'étape.
+
+   ⭐ LES TROIS `Choose` SONT DES CHOIX, PAS DES BOUTONS DE PIED, et c'est ce
+   qui rend l'écran tenable. Eric l'a vu venir lui-même : *« pire, 5 boutons
+   comme y'a 3 listes »*. `CADRES.md` §0bis mesure le pied à 76 px **tant que
+   la paire tient sur une ligne**, et nomme le TROISIÈME bouton comme le vrai
+   risque — cinq ne tiennent pas à 360. Sa propre phrase distingue d'ailleurs
+   « les choix » et « les boutons » : les premiers vivent dans le corps, les
+   seconds restent la paire que la coquille pose.
+   ⚠️ RESTE UN ÉCART DE MOT À TRANCHER : la coquille pose `CANCEL`/`DONE` sur
+   un écran d'item, quand Eric écrit `Done` / `I changed my mind`. Je n'invente
+   pas un second retour — garde 17, *« un seul BACK dans tout ui/ »* — donc
+   l'écran garde la paire de la coquille, et le mot se change là où il est posé,
+   pas ici. */
+export function featListPlan(decisions) {
+  return (decisions || []).find((d) => d && d.path === "background.originFeat[0].list") || null;
+}
+
+/** Le nom d'une liste — le `name` du RECORD de classe, recopié. ⛔ Jamais une
+ *  table « cleric → Divine » : ce serait un second vocabulaire à tenir. */
+function listeLabel(query, id) {
+  const view = query({ kind: "class", id });
+  return (view && view.record && view.record.name) || id;
+}
+
+/** L'ÉCRAN B0. Trois choses et pas une de plus : les choix, le bilan, l'hôte
+ *  du pied. */
+export function renderFeatListScreen(ctx, onAction) {
+  const act = typeof onAction === "function" ? onAction : () => {};
+  const plan = featListPlan(ctx.decisions);
+  const query = ctx.query;
+  const section = el("section", "feat-branche");
+  section.dataset.objet = "dalle";
+
+  section.append(el("h2", "guide-titre", [text(featLabel(query, ctx.featId))]));
+
+  /* ── LES CHOIX ────────────────────────────────────────────────────────
+     Un bouton par liste, à la cible tactile pleine. `markPressed` dit lequel
+     porte le choix courant — le même organe que partout, jamais une classe
+     « active » inventée pour cet écran. */
+  const choix = el("div", "feat-branche-choix");
+  for (const id of (plan ? plan.options : [])) {
+    const actif = Boolean(plan && plan.selected.includes(id));
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.className = "feat-branche-liste";
+    bouton.dataset.value = id;
+    markPressed(bouton, actif);
+    bouton.append(el("span", null, [text(`Choose ${listeLabel(query, id)}`)]));
+    bouton.addEventListener("click", () => {
+      if (!actif) act({ kind: "choose", path: plan.path, ref: { kind: "class", id } });
+    });
+    choix.append(bouton);
+  }
+  section.append(choix);
+
+  /* ── LE BILAN — il se remplit, il ne s'invente pas ────────────────────
+     ⭐ Eric : *« un bilan qui se remplira en fonction de ce qui est choisi »*.
+     Une ligne dont la réponse n'est pas encore là reste GRISÉE et ANNONCE ce
+     qui vient (canon §4 : « grisée, pas absente ») — c'est ce qui rend le vert
+     lisible quand il arrive.
+     ⏳ Les deux lignes de sorts sont annoncées et pas encore remplissables :
+     leurs plans arrivent avec BS1/BS2/BS3. Elles sont ici parce que les
+     cacher ferait croire l'étape finie au moment où la liste est choisie. */
+  const bilan = el("dl", "feat-branche-bilan");
+  const ligne = (mot, valeur) => {
+    const dt = el("dt", null, [text(mot)]);
+    const dd = el("dd", null, [text(valeur === null ? "—" : valeur)]);
+    if (valeur === null) dd.dataset.attente = "oui";
+    bilan.append(dt, dd);
+  };
+  const listeChoisie = plan && plan.selected.length > 0 ? plan.selected[0] : null;
+  ligne("Spell list", listeChoisie ? listeLabel(query, listeChoisie) : null);
+  ligne("Cantrips", null);
+  ligne("Level 1 spell", null);
+  section.append(bilan);
+
+  /* L'HÔTE DU PIED — la coquille y dépose sa paire, et elle seule. */
+  const hote = el("div", "parcours-pied");
+  hote.dataset.sortieIci = "";
+  section.append(hote);
+  return section;
 }
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :
