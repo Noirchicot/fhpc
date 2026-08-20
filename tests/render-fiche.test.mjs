@@ -330,6 +330,14 @@ test("les familles de chemins INADRESSABLES sont nommées — c'est le livrable 
   assert.deepEqual([...familles].sort(), [
     "resolved.derivation.stack[ID]",
     "resolved.identity.classes[N]",
+    /* 📌 ET LES LANGUES N'Y SONT PAS, ALORS QU'ELLES Y ÉTAIENT PENDANT DIX
+       MINUTES LE 2026-08-20. Mon premier jet les publiait en CHAÎNES nues :
+       sans `id`, la grammaire d'override ne pouvait pas les désigner, et cette
+       liste en gagnait une sixième. Le schéma exigeait `{id, name}` — je l'ai
+       lu, corrigé, et l'adressabilité est venue AVEC la forme juste.
+       ⭐ Ce n'est pas une coïncidence : la grammaire d'override désigne un
+       élément par son IDENTITÉ. Un record qui porte la sienne est adressable ;
+       une chaîne ne l'est jamais. */
     "resolved.spellcasting.slots.[NIVEAU]",
     "resolved.stats[ID].breakdown[N]",
     "resolved.stats[ID].breakdown[N].source"
@@ -505,13 +513,25 @@ test("les choix NON CONSOMMÉS sont nommés — une décision perdue ne dispara�
      (`unconsumed`) ; l'écran le répète, sinon le joueur croit que sa langue a
      été prise en compte. Détail et conséquence : INVENTAIRE-LOT-25.md, trou
      n°6. */
-  assert.ok(exemple.report.unconsumed.length >= 3, "l'exemple en porte, sinon ce test ne mesure rien");
+  /* 🔴 RÉVISÉ LE 2026-08-20 — le compte est passé de 3 à 2, et c'est un PROGRÈS :
+     `languages[0] = "draconic"` était un choix que personne ne lisait, et il est
+     remplacé par deux vraies langues consommées. Ce garde ne comptait pas ce
+     qu'il prouve — il prouve que TOUT chemin non consommé est NOMMÉ à l'écran,
+     et cette phrase-là n'a pas bougé. Le compte devient un simple témoin. */
+  assert.ok(exemple.report.unconsumed.length >= 1, "l'exemple en porte, sinon ce test ne mesure rien");
   const html = render(exemple.document, exemple.report);
   assert.ok(html.includes(echappe(MOTS.nonConsommes)));
   for (const chemin of exemple.report.unconsumed) {
     assert.ok(html.includes(`<code>${echappe(chemin)}</code>`), `« ${chemin} » est nommé à l'écran`);
   }
-  /* Et le joueur avait bien décidé quelque chose : le choix existe. */
-  assert.ok(exemple.document.build.choices.some((choix) => choix.path === "languages[0]"));
-  assert.deepEqual(exemple.document.resolved.languages, [], "…et la rubrique est vide malgré tout");
+  /* 🔴 CES DEUX LIGNES DISAIENT L'INVERSE DE CE QU'ELLES DISENT AUJOURD'HUI, et
+     c'est le point. Elles prouvaient que le joueur avait choisi une langue ET
+     que la rubrique restait VIDE — la démonstration du trou. Le trou est
+     comblé : les deux langues de l'Héritage se résolvent. On garde la même
+     paire, retournée, parce qu'elle prouve maintenant la chose inverse et
+     qu'elle rougirait si le trou revenait. */
+  assert.ok(exemple.document.build.choices.some((choix) => choix.path.startsWith("background.languages[")),
+    "le joueur a bien choisi ses langues");
+  assert.deepEqual(exemple.document.resolved.languages.map((l) => l.name), ["Elf", "Human"],
+    "…et la rubrique les porte désormais, au lieu de rester vide");
 });

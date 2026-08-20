@@ -120,7 +120,15 @@ const CHOIX = [
   { path: "class.prepared[1]", ref: { kind: "spell", id: "srd:spell:en:shield" } },
   { path: "class.prepared[2]", ref: { kind: "spell", id: "srd:spell:en:detect-magic" } },
   { path: "class.prepared[3]", ref: { kind: "spell", id: "srd:spell:en:sleep" } },
-  { path: "languages[0]", value: "draconic" },
+  /* ⭐ LES DEUX LANGUES DE L'HÉRITAGE — 2026-08-20. Elles remplacent
+     `languages[0] = "draconic"`, un choix que PERSONNE NE LISAIT : le chemin
+     n'était consommé par rien, et il ressortait `unconsumed` sur le personnage
+     d'acceptation depuis le premier jour. Un exemple qui porte une intention
+     sans effet apprend la mauvaise chose à qui le lit.
+     ⛔ Et « Draconic » n'existe pas dans Fate's Hand : une langue porte le nom
+     de son PEUPLE, et rien d'autre — Elf, Dwarf, Orc, jamais « elvish ». */
+  { path: "background.languages[0]", ref: { kind: "training", id: "fh:training:en:language-elf" } },
+  { path: "background.languages[1]", ref: { kind: "training", id: "fh:training:en:language-human" } },
   { path: "gear[0]", ref: { kind: "weapon", id: "srd:weapon:en:dagger" } },
   { path: "gear[0].quantity", value: 1 },
   { path: "gear[0].equipped", value: true },

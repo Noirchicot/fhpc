@@ -397,6 +397,42 @@ function featSpellPlans(query, choices, featId) {
   return entries;
 }
 
+/* ══ LES DEUX LANGUES DE L'HÉRITAGE — `background.languages[n]` ════════════
+   🔴 LA RÈGLE EXISTAIT ET ÉTAIT INAPPLICABLE. Chaque record de langue dit, en
+   prose, « Two languages are granted by your Inheritance, at creation and at no
+   cost ». Un moteur ne lit pas une description : il ne pouvait ni les offrir, ni
+   les compter, ni refuser la troisième. La couche déclare désormais l'octroi
+   (`granted_language_choice`), et ce plan le publie.
+
+   ⚠️ ELLES VIENNENT DE L'HÉRITAGE, PAS DE L'ESPÈCE — déménagement du 18/08,
+   porté partout dans le livre. La formulation « chosen within your species » est
+   celle d'AVANT, et elle a resurgi deux fois depuis : elle est fausse.
+
+   ⭐ ET C'EST `refSlotPlans`, PAS UN QUATRIÈME ORGANE. Une langue est un record
+   (`training`), on en choisit N dans une liste : c'est mot pour mot ce que font
+   les sorts et les maîtrises d'arme. Le genre change, rien d'autre.
+   ⛔ `cost: 0` EST UN FAIT, PAS UN DÉFAUT : ces deux-là ne coûtent rien au pool,
+   contrairement à la troisième langue, qui s'achète comme n'importe quel
+   training (1 point, à partir du niveau 4). Deux chemins, deux prix, et c'est la
+   couche qui le dit. */
+function backgroundLanguagePlans(choices, view) {
+  const declaration = (view.record.data || {}).granted_language_choice;
+  const candidates = choices.filter((choice) => choice &&
+    typeof choice.path === "string" && /^background\.languages\[[0-9]+\]$/.test(choice.path));
+  if (!declaration || !Array.isArray(declaration.from) || declaration.from.length === 0) {
+    if (candidates.length === 0) return [];
+  }
+  return refSlotPlans({
+    basePath: "background.languages",
+    kind: "training",
+    countKey: "language-grant.count-mismatch",
+    options: declaration && Array.isArray(declaration.from) ? sorted(declaration.from) : [],
+    expected: declaration && Number.isInteger(declaration.count) ? declaration.count : null,
+    candidates,
+    from: recordProvenance("offered", "background", view, "granted_language_choice")
+  });
+}
+
 function backgroundToolPlan(choices, view) {
   const data = view.record.data || {};
   if (typeof data.tool_id === "string") {
@@ -934,6 +970,7 @@ export function projectDecisions({ query, choices }) {
     entries.push(...backgroundBoostPlan(list, backgroundView));
     entries.push(...backgroundFeatPlan(query, list, backgroundView));
     entries.push(...backgroundToolPlan(list, backgroundView));
+    entries.push(...backgroundLanguagePlans(list, backgroundView));
   }
   /* ⭐ LE CONTENU DU DON, ET IL VIT HORS DU `if (backgroundView)` — le don
      d'origine est un choix du JOUEUR (`background.originFeat[0]`), pas une

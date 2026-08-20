@@ -30,7 +30,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "0d4fd94e6631f5ce0fb61487507c3dc974cb1cc9f3f0be30ead012c10217beaf",
+        "hash": "d7a2c023db6e0975556517c98c237264f09831b05d930da532d5a5a857ec93b8",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -206,8 +206,18 @@
         }
       },
       {
-        "path": "languages[0]",
-        "value": "draconic"
+        "path": "background.languages[0]",
+        "ref": {
+          "kind": "training",
+          "id": "fh:training:en:language-elf"
+        }
+      },
+      {
+        "path": "background.languages[1]",
+        "ref": {
+          "kind": "training",
+          "id": "fh:training:en:language-human"
+        }
       },
       {
         "path": "gear[0]",
@@ -381,7 +391,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "0d4fd94e6631f5ce0fb61487507c3dc974cb1cc9f3f0be30ead012c10217beaf",
+          "hash": "d7a2c023db6e0975556517c98c237264f09831b05d930da532d5a5a857ec93b8",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -466,7 +476,16 @@
         "unit": "ft"
       }
     ],
-    "languages": [],
+    "languages": [
+      {
+        "id": "language-elf",
+        "name": "Elf"
+      },
+      {
+        "id": "language-human",
+        "name": "Human"
+      }
+    ],
     "saves": {
       "str": {
         "bonus": -1,

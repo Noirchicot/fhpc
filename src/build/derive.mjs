@@ -551,10 +551,52 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   underived.declare("senses[perception-passive]", "underived.passive-perception-unnamed", {});
 
   /* ── LANGUES ───────────────────────────────────────────────────────
-     Il n'existe pas de genre `language` parmi les 14. Le choix `languages[0]`
-     nomme un slug que rien dans la pile ne peut résoudre. */
-  resolved.languages = [];
-  underived.declare("languages", "underived.no-language-genre", {});
+     🔴 UN REFUS QUI AVAIT VIEILLI, RETIRÉ LE 2026-08-20. Il disait : « il
+     n'existe pas de genre `language` parmi les 14 ; un slug de langue ne se
+     résout nulle part ». C'était VRAI le jour où il a été écrit, et faux depuis
+     le lot 36 : le genre `training` est arrivé (genre 16) et il porte douze
+     records de `category: "language"`.
+
+     ⚠️ ET RIEN NE POUVAIT LE SIGNALER. Un refus déclaré est un comportement
+     LÉGITIME : la fiche disait « pas de langues » avec assurance, aucune suite
+     ne rougissait, et la règle du livre — deux langues offertes par l'Héritage —
+     était inapplicable sans que personne le voie. Une absence n'est jamais une
+     réponse ; un refus daté non plus.
+
+     ⭐ CE QUI SE LIT MAINTENANT : les langues sont des trainings acquis, et
+     elles arrivent par le même chemin que les autres — le module du pool les
+     publie dans `resolved.traits[]` avec `category: "training"`. Ce sont donc
+     les mêmes records, lus deux fois pour deux rubriques : la liste des langues
+     ici, l'acquis là-bas.
+     ⛔ ET ON NE FABRIQUE AUCUN NOM : c'est le `name` du record, recopié. */
+  /* ⚠️ ET LA FORME EST CELLE DU SCHÉMA, LUE AVANT D'ÉCRIRE : `{id, name}`, pas
+     une chaîne. Mon premier jet publiait des noms nus et `validate` l'a refusé
+     — « languages/0 must be object ». Une septième fois la même leçon : j'ai
+     supposé la forme d'un champ que je n'avais jamais rempli.
+     📌 `id` EST UN SLUG (`$defs/slug`), pas l'identifiant complet du record :
+     c'est `language-elf`, pas `fh:training:en:language-elf`. */
+  const langueDeTraining = (id) => {
+    const view = reader.maybe("training", id);
+    const data = view && view.record.data;
+    if (!data || data.category !== "language") return null;
+    return { id: view.record.slug || String(view.id).split(":").pop(), name: view.record.name };
+  };
+  const languesChoisies = picked.order
+    .filter((entry) => entry.choice.ref && entry.choice.ref.kind === "training" &&
+      typeof entry.choice.path === "string" && entry.choice.path.startsWith("background.languages["))
+    .map((entry) => {
+      const langue = langueDeTraining(entry.choice.ref.id);
+      if (langue) entry.consumed = true;
+      return langue;
+    })
+    .filter(Boolean);
+  resolved.languages = languesChoisies;
+  /* ⛔ ET LE REFUS RESTE, MAIS SUR SON VRAI MOTIF : un personnage sans langue
+     n'en a pas parce qu'il n'en a pas choisi, pas parce que la pile serait
+     incapable d'en résoudre une. Le distinguer est tout l'intérêt. */
+  if (languesChoisies.length === 0) {
+    underived.declare("languages", "underived.no-language-chosen", {});
+  }
 
   /* ── JETS DE SAUVEGARDE ────────────────────────────────────────────
      `saving_throw_keys` est un jeu FERMÉ de deux clefs (contrat §3, 12/12).

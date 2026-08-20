@@ -38,6 +38,10 @@ export const FR_BUILD = {
      qu'elle compte est un mensonge de mot, et le joueur le lit. */
   "weapon-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} maîtrise(s) d'arme et les choix ` +
     `en désignent ${d.actual} (${d.answers}).`,
+  /* 2026-08-20 — la QUATRIÈME sœur : compétences, sorts, armes, et maintenant
+     les langues de l'Héritage. Chacune compte SON objet. */
+  "language-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} langue(s) et les choix ` +
+    `en désignent ${d.actual} (${d.answers}).`,
   "background.ability-key-invalid": (d) => `l'arrière-plan « ${d.backgroundId} » porte \`ability_keys\` = ${d.key}, ` +
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +
@@ -213,9 +217,14 @@ export const FR_UNDERIVED = {
   "underived.passive-perception-unnamed": () =>
     "la perception passive se calcule (10 + le bonus de la compétence correspondante) mais son NOM ne vit dans " +
     "aucun record — ce n'est pas un sens d'espèce, c'est une ligne de fiche, et l'interface la nomme.",
-  "underived.no-language-genre": () =>
-    "aucun genre `language` parmi les 14 genres de couche : un slug de langue (`languages[0] = \"draconique\"`) " +
-    "ne se résout contre rien, et son nom affichable n'existe nulle part.",
+  /* 🔴 REMPLACE `underived.no-language-genre`, RETIRÉ LE 2026-08-20. L'ancien
+     disait « aucun genre `language` parmi les 14 » — vrai en son temps, faux
+     depuis le lot 36 : les langues sont des trainings (genre 16). Le motif a
+     changé de nature : ce n'est plus une IMPUISSANCE de la pile, c'est un CHOIX
+     que le joueur n'a pas encore fait. */
+  "underived.no-language-chosen": () =>
+    "aucune langue n'est choisie : l'Héritage en offre deux à la création, et rien n'a encore été posé " +
+    "sur `background.languages[n]`.",
   "underived.proficiency-not-derived-saves": () =>
     "le bonus de maîtrise n'a pas été dérivé : un jet de sauvegarde maîtrisé sans lui vaudrait le jet non " +
     "maîtrisé, en silence.",
@@ -368,9 +377,9 @@ export const EN_UNDERIVED = {
   "underived.passive-perception-unnamed": () =>
     "passive perception is computable (10 + the matching skill's bonus) but no record carries a NAME for it — " +
     "it is not a species sense, it is a sheet line, and the interface names it.",
-  "underived.no-language-genre": () =>
-    "no `language` genre among the 14 layer genres: a language slug (`languages[0] = \"draconic\"`) resolves " +
-    "against nothing, and its display name exists nowhere.",
+  "underived.no-language-chosen": () =>
+    "no language is chosen: your Inheritance grants two at creation, and nothing has been set on " +
+    "`background.languages[n]` yet.",
   "underived.proficiency-not-derived-saves": () =>
     "the proficiency bonus was not derived: a proficient saving throw without it would silently equal the " +
     "non-proficient roll.",

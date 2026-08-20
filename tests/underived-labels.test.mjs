@@ -129,9 +129,9 @@ test("§3 — ATTAQUE MANUELLE (jouée ici) : une clef retirée d'un seul paquet
 
 /* ── §4 : LE PERSONNAGE D'EXEMPLE — 19 ENTRÉES, TOUTES KEYÉES ─────────── */
 
-test("§4 — le personnage d'exemple (FH, anglais) rend ses 17 entrées, toutes keyées, zéro phrase nue", async () => {
+test("§4 — le personnage d'exemple (FH, anglais) rend ses 16 entrées, toutes keyées, zéro phrase nue", async () => {
   const { report } = await exempleFhEn();
-  assert.equal(report.underived.length, 17, "LOT 82 — 18 → 17. Le canon du 2026-08-18 supprime la SOUSTRACTION des imposés, et avec elle les deux déclarations qui la commentaient (`skillpool-class-tools-unmechanical`, qui prétendait ne pas savoir compter des outils que le canon chiffre, et `skillpool-no-background-ref`). Une seule les remplace : `skillpool-bound-not-in-pool`, qui dit ce qui EST — le bound existe, il est chiffré, il n'est pas dans le pool. 18 − 2 + 1 = 17.");
+  assert.equal(report.underived.length, 16, "2026-08-20 — 17 → 16 : les LANGUES cessent d'être un refus. Le motif disait « aucun genre `language` parmi les 14 » — vrai en son temps, faux depuis que le genre `training` porte les douze langues. L'exemple en choisit deux (Elf, Human), donc plus rien à déclarer. ⚠️ Le refus n'a pas disparu pour autant : il reste pour un personnage qui n'en choisit AUCUNE, sous `no-language-chosen` — un motif qui dit un choix manquant, pas une impuissance de la pile. LOT 82 — 18 → 17. Le canon du 2026-08-18 supprime la SOUSTRACTION des imposés, et avec elle les deux déclarations qui la commentaient (`skillpool-class-tools-unmechanical`, qui prétendait ne pas savoir compter des outils que le canon chiffre, et `skillpool-no-background-ref`). Une seule les remplace : `skillpool-bound-not-in-pool`, qui dit ce qui EST — le bound existe, il est chiffré, il n'est pas dans le pool. 18 − 2 + 1 = 17.");
   for (const entry of report.underived) {
     assert.equal(typeof entry.field, "string");
     assert.match(entry.key, KEY, `« ${entry.field} » : la clef doit suivre \`${KEY}\``);
@@ -171,7 +171,7 @@ const FRENCH_TELLS = [
 test("§5 — ⚔️ ATTAQUE : le carnet rendu (anglais) du personnage d'exemple ne porte aucune prose française", async () => {
   const { document, report } = await exempleFhEn();
   const en = createLabels(EN_UNDERIVED, FH_UNDERIVED_EN);
-  assert.equal(report.underived.length, 17, "LOT 82 — voir §4 plus haut : 17, pas 18");
+  assert.equal(report.underived.length, 16, "2026-08-20 — voir §4 plus haut : 16, pas 17 (les langues cessent d'être un refus)");
   for (const entry of report.underived) {
     const mot = renderUnderived(entry, en);
     for (const tell of FRENCH_TELLS) {

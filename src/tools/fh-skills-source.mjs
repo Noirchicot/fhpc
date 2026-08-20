@@ -700,9 +700,29 @@ export const BACKGROUND_INHERITANCE = {
   id: "fh:background:en:inheritance",
   name: "Inheritance",
   slug: "inheritance",
-  description: "What you carry into adventure: a free origin feat of your choice, and 3 ability " +
-    "score points to distribute as +2/+1 or +1/+1/+1 on any abilities. Fate's Hand replaces the " +
-    "four SRD backgrounds with this single step (addendums §4, Eric 2026-08-13)."
+  description: "What you carry into adventure: a free origin feat of your choice, 3 ability " +
+    "score points to distribute as +2/+1 or +1/+1/+1 on any abilities, and two languages of your " +
+    "choice. Fate's Hand replaces the four SRD backgrounds with this single step " +
+    "(addendums §4, Eric 2026-08-13).",
+  /* ⭐ LES DEUX LANGUES, DÉCLARÉES — 2026-08-20 ═══════════════════════════
+     🔴 ELLES EXISTAIENT DÉJÀ, MAIS EN PROSE SEULEMENT : chaque record de
+     langue dit « Two languages are granted by your Inheritance, at creation
+     and at no cost ». Un moteur ne lit pas une description — il ne pouvait ni
+     les offrir, ni les compter, ni refuser la troisième. La règle était juste
+     et INAPPLICABLE.
+
+     ⚠️ ET C'EST L'HÉRITAGE QUI LES DONNE, PAS L'ESPÈCE. Le déménagement date
+     du 18/08 et il est porté partout dans le livre (`Inheritance.md` §Languages,
+     le bandeau de `Species.md`, le tableau de `Skills & Tools`). La
+     formulation « chosen within your species » est celle d'AVANT — elle a
+     resurgi deux fois depuis, et elle est fausse à chaque fois.
+
+     ⛔ AUCUNE LISTE ICI : `from: "language"` désigne la CATÉGORIE, et le
+     générateur la résout sur les trainings réellement produits. Recopier douze
+     slugs en ferait une seconde liste, qui divergerait le jour où une
+     treizième langue arrive — exactement ce que `LANGUAGE_SPECIES` empêche
+     déjà pour les espèces. */
+  languageGrant: { from: "language", count: 2, cost: 0 }
 };
 
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════

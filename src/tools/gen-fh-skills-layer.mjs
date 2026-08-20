@@ -589,7 +589,7 @@ function buildClasses(srd, skillIdsDeLaPile) {
    et chacun d'eux doit être éteint. Un cinquième apparu dans une régénération
    de `fh-srd` resterait sinon intact en silence — un arrière-plan choisissable
    de plus est exactement l'arrière-plan que l'Inheritance devait remplacer. */
-function buildBackgrounds(srd) {
+function buildBackgrounds(srd, training) {
   const srdBackgrounds = (srd.records || {}).background || {};
   const srdIds = Object.keys(srdBackgrounds);
   if (srdIds.length !== EXPECTED.backgrounds) {
@@ -624,11 +624,37 @@ function buildBackgrounds(srd) {
     data: {
       name: BACKGROUND_INHERITANCE.name,
       feat_choice: { from: "origin" },
+      /* ⭐ LES DEUX LANGUES — la liste est RÉSOLUE, jamais recopiée. On prend
+         les trainings de catégorie `language` que CE générateur vient de
+         produire : une treizième langue ajoutée à `TRAININGS_ADDED` entre dans
+         l'octroi le jour même, sans qu'une seconde liste ait à suivre.
+         ⛔ ET LE GARDE EST DANS LE COMPTE : zéro langue produite ferait un
+         octroi vide, c'est-à-dire une règle qui ne s'applique à rien. */
+      granted_language_choice: {
+        ...BACKGROUND_INHERITANCE.languageGrant,
+        from: languesProduites(training)
+      },
       description: BACKGROUND_INHERITANCE.description
     }
   };
 
   return { background, extinguished: servis.size, total: servis.size + 1 };
+}
+
+/** Les identifiants des trainings de catégorie `language`, tels que CE
+ *  générateur vient de les produire — jamais une seconde liste.
+ *  ⛔ Zéro langue est un refus : l'octroi de l'Héritage porterait un menu vide,
+ *  et le joueur lirait « choisis deux langues » sans en avoir une seule. */
+function languesProduites(training) {
+  const ids = Object.entries(training)
+    .filter(([, record]) => record.data && record.data.category === "language")
+    .map(([id]) => id)
+    .sort();
+  if (ids.length === 0) {
+    fail("aucun training de catégorie `language` n'a été produit : l'octroi de l'Inheritance " +
+      "offrirait un menu vide. Une règle qui ne s'applique à rien est pire qu'une règle absente.");
+  }
+  return ids;
 }
 
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────
@@ -683,8 +709,12 @@ export function buildLayer({ srd }) {
     .concat(Object.keys(srd.records.skill || {})
       .filter((id) => !skills.skill[id] || skills.skill[id].op !== "disable")));
   const classes = buildClasses(srd, idsDesCompetences);
-  const backgrounds = buildBackgrounds(srd);
+  /* ⚠️ LES TRAININGS D'ABORD, ET C'EST UNE DÉPENDANCE RÉELLE, PAS UN GOÛT :
+     l'octroi de langues de l'Inheritance RÉSOUT sa liste sur les trainings
+     produits (`languesProduites`). Les construire après ferait lire un objet
+     vide — et un octroi vide est une règle qui ne s'applique à rien. */
   const trainings = buildTrainings(srd, LANGUAGE_SPECIES);
+  const backgrounds = buildBackgrounds(srd, trainings.training);
 
   const layer = {
     schema: LAYER.schema,
