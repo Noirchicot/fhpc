@@ -98,7 +98,9 @@ function choixDe({ level, classId, speciesId, backgroundId, skills = [], species
     { path: "background.boost.int", value: 2 },
     { path: "background.boost.con", value: 1 }
   ];
-  skills.forEach((slug, index) => choices.push({ path: `class.skills[${index}]`, value: slug }));
+  /* ⭐ LES POINTS LIÉS (2026-08-20) : la classe dépense, elle ne coche plus.
+     Un novice par compétence — la même intention qu'avant, avec un effet. */
+  skills.forEach((slug) => choices.push({ path: `class.skillBudget.${slug}`, value: "novice" }));
   if (speciesSkill) choices.push({ path: "species.granted", value: speciesSkill });
   return choices;
 }

@@ -342,13 +342,20 @@ function fantomeSuivre(x, y) {
     `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
   bloc.dataset.status = plan.status;
   bloc.append(el("h3", null, [text(titre)]));
-  bloc.append(el("p", "choix-glisse-compte", [text(`${plan.answered} of ${plan.expected} chosen`)]));
+  /* ⭐ « chosen » OU « points spent » — 2026-08-20. Deux écrans emploient cet
+     organe pour deux économies : on CHOISIT des sorts (un par créneau), on
+     DÉPENSE des points (un expert en pèse 4). Écrire « 3 of 6 chosen » sur une
+     bourse dirait au joueur qu'il lui reste trois choix quand il lui reste deux
+     points. ⛔ L'organe ne le DEVINE pas : l'appelant le dit, comme il dit déjà
+     son titre et sa consigne. */
+  bloc.append(el("p", "choix-glisse-compte",
+    [text(`${plan.answered} of ${plan.expected} ${unite || "chosen"}`)]));
 
   const poser = (valeur, chemin) => act(refKind
     ? { kind: "choose", path: chemin, ref: { kind: refKind, id: valeur } }

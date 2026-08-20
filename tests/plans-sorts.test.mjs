@@ -327,8 +327,11 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
   assert.equal(blocs.length, 3, "trois blocs à créneaux — et plus un seul QCM ici");
   assert.equal(node.querySelectorAll(".skills-budget-block").length, 0,
     "le QCM a quitté cet écran (il sert encore l'espèce et le don d'origine)");
+  /* ⭐ « Class skills » EST DEVENU « Skill points » — la classe ne fait plus
+     cocher des maîtrises, elle fait DÉPENSER des points liés. Le titre suit le
+     geste, comme partout ici. */
   assert.deepEqual(blocs.map((b) => b.querySelectorAll("h3")[0].textContent),
-    ["Class skills", "Cantrips", "Prepared spells"]);
+    ["Skill points", "Cantrips", "Prepared spells"]);
 
   /* Le bloc des mineurs : 3 créneaux (« Cantrip 1 »…), 15 jetons dans le
      vivier, nommés par le RECORD (« Ray of Frost ») et identifiés par
@@ -428,8 +431,8 @@ test("le palier 2 attend AUSSI les sorts : 2/2 compétences ne suffisent plus à
   const sansSorts = rebuild(docWith({
     id: "palier-sans-sorts", classId: "srd:class:en:wizard",
     extra: [
-      { path: "class.skills[0]", value: "arcana" },
-      { path: "class.skills[1]", value: "investigation" }
+      { path: "class.skillBudget.arcana", value: "novice" },
+      { path: "class.skillBudget.investigation", value: "novice" }
     ]
   }));
   assert.deepEqual(classPalier2(sansSorts.decisions), { ready: false },
@@ -443,8 +446,10 @@ test("le palier 2 attend AUSSI les sorts : 2/2 compétences ne suffisent plus à
   const rogue = rebuild(docWith({
     id: "palier-rogue", classId: "srd:class:en:rogue",
     extra: [
-      { path: "class.skills[0]", value: "acrobatics" }, { path: "class.skills[1]", value: "athletics" },
-      { path: "class.skills[2]", value: "deception" }, { path: "class.skills[3]", value: "insight" }
+      /* SIX POINTS : deux novices et un expert — la répartition du canon. */
+      { path: "class.skillBudget.acrobatics", value: "novice" },
+      { path: "class.skillBudget.athletics", value: "novice" },
+      { path: "class.skillBudget.stealth", value: "expert" }
     ]
   }));
   assert.deepEqual(classPalier2(rogue.decisions), { ready: true },
@@ -453,7 +458,12 @@ test("le palier 2 attend AUSSI les sorts : 2/2 compétences ne suffisent plus à
 
 test("Review route les deux chemins de sorts vers l'étape Class, et les montre comme n'importe quelle décision", () => {
   const groupe = REVIEW_GROUPS.find((entry) => entry.step === "class");
-  assert.deepEqual(groupe.paths, ["class", "class.skills", "class.cantrips", "class.prepared"]);
+  /* ⭐ `class.skillBudget` REMPLACE `class.skills` — 2026-08-20. Review montre
+     les décisions de l'étape ; celle des compétences a changé de chemin avec le
+     système. La laisser sur l'ancien aurait fait une ligne muette : Review
+     n'aurait plus rien trouvé à router, et la décision aurait disparu du bilan
+     sans que personne la voie partir. */
+  assert.deepEqual(groupe.paths, ["class", "class.skillBudget", "class.cantrips", "class.prepared"]);
 
   /* Sur le personnage d'exemple : la ligne Class est FAITE, quatre états
      « done ». Sur le même passé Rogue sans nettoyage : elle crie. */

@@ -504,6 +504,32 @@ function buildClasses(srd, skillIdsDeLaPile) {
       op: "patch",
       changes: {
         ...(listeFh ? { "data[skill_choice][from]": listeFh } : {}),
+        /* ══ LES POINTS LIÉS DEVIENNENT UNE BOURSE CAPTIVE — 2026-08-20 ══════
+           🔴 CE QUE ÇA REMPLACE, ET C'ÉTAIT UN FAUX MAGASIN. Le choix SRD
+           `class.skills[n]` ne coûtait RIEN au pool et n'accordait RIEN : la
+           compétence choisie ressortait `proficiency: "none"`. Cette couche
+           avait AJOUTÉ son pool à côté du système SRD au lieu de le remplacer —
+           pour l'arrière-plan, le lot 35 avait bien éteint l'ancien ; les
+           classes étaient restées avec deux systèmes côte à côte, dont un mort.
+
+           ⭐ ET LA MÉCANIQUE EXISTAIT DÉJÀ SOUS UN AUTRE NOM : la bourse captive
+           de l'espèce (Keen Senses) est « du bound sous son nom de moteur ».
+           Elle est générique depuis ce jour ; la classe la porte à son tour.
+           ⛔ AUCUNE LISTE RECOPIÉE : un budget captif de CLASSE est captif de la
+           liste de sa classe (`skill_choice.from`, juste au-dessus). Le moteur
+           la lit là où elle vit. */
+        "data[granted_skill_budget]": { points: entry.boundSkill },
+        /* 🔴 ET LE COMPTE SRD TOMBE À ZÉRO — c'est la moitié qui ÉTEINT l'ancien
+           système, et sans elle la bascule est un doublon, pas un remplacement.
+           📏 Mesuré : `validate` refusait par `skill-grant.count-mismatch` — la
+           classe déclarait deux maîtrises à choisir et le personnage n'en
+           répondait aucune, puisqu'il dépense désormais des points. Un
+           personnage complet restait donc éternellement en faute.
+           ⛔ ON NE RETIRE PAS `skill_choice` POUR AUTANT : sa liste `from` EST
+           la liste de la classe, celle dont la bourse est captive (*« only
+           inside your class list »*, canon §B.1). C'est le COMPTE qui n'a plus
+           d'objet, pas la liste. */
+        "data[skill_choice][count]": 0,
         "data[fh_skill_pool]": {
           /* ⭐ LOT 82 — LES TROIS TOTAUX DU CANON §B.1, publiés tels quels.
              Le `base` unique est mort : il forçait le moteur à déduire les

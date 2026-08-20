@@ -554,6 +554,10 @@
             "fh:skill:en:vigilance",
             "srd:skill:en:survival"
           ],
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -588,6 +592,10 @@
       "srd:class:en:bard": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 3
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 3,
             "bound_tool_points": 2,
@@ -642,6 +650,10 @@
       "srd:class:en:cleric": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -679,6 +691,10 @@
             "srd:skill:en:religion",
             "srd:skill:en:survival"
           ],
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 1,
@@ -717,6 +733,10 @@
             "fh:skill:en:vigilance",
             "srd:skill:en:survival"
           ],
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -743,6 +763,10 @@
       "srd:class:en:monk": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -769,6 +793,10 @@
       "srd:class:en:paladin": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -806,6 +834,10 @@
             "srd:skill:en:stealth",
             "srd:skill:en:survival"
           ],
+          "data[granted_skill_budget]": {
+            "points": 3
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 3,
             "bound_tool_points": 0,
@@ -861,6 +893,10 @@
             "srd:skill:en:sleight-of-hand",
             "srd:skill:en:stealth"
           ],
+          "data[granted_skill_budget]": {
+            "points": 6
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 6,
             "bound_tool_points": 1,
@@ -895,6 +931,10 @@
       "srd:class:en:sorcerer": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -921,6 +961,10 @@
       "srd:class:en:warlock": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,
@@ -947,6 +991,10 @@
       "srd:class:en:wizard": {
         "op": "patch",
         "changes": {
+          "data[granted_skill_budget]": {
+            "points": 2
+          },
+          "data[skill_choice][count]": 0,
           "data[fh_skill_pool]": {
             "bound_skill_points": 2,
             "bound_tool_points": 0,

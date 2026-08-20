@@ -47,7 +47,7 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=255";
+import { planAt } from "./carnet.mjs?v=263";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -77,7 +77,7 @@ export const REVIEW_GROUPS = [
      decisions.mjs) : Review les montre comme n'importe quelle autre étape.
      Un non-lanceur n'a pas ces plans, `planAt` rend null, la ligne ne change
      pas — même mécanique que les chemins déjà listés. */
-  { step: "class", label: "Class", paths: ["class", "class.skills", "class.cantrips", "class.prepared"] },
+  { step: "class", label: "Class", paths: ["class", "class.skillBudget", "class.cantrips", "class.prepared"] },
   { step: "skills", label: "Skills", paths: [] },
   { step: "equipment", label: "Equipment", paths: [] }
 ];

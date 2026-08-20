@@ -580,8 +580,18 @@ test("le patch des pools reste ÉTROIT — et la seule chose qu'il touche EN PLU
     const vue = verbs.query({ kind: "class", id });
     const srdChoice = srd.records.class[id].data.skill_choice;
     if (!srdChoice) continue;
-    assert.equal(vue.record.data.skill_choice.count, srdChoice.count,
-      `${id} : le COMPTE de la classe reste celui du SRD — seule la liste bouge`);
+    /* 🔴 LE COMPTE TOMBE À ZÉRO, ET C'EST LA MOITIÉ QUI ÉTEINT L'ANCIEN SYSTÈME.
+       La classe ne fait plus cocher N maîtrises : elle fait dépenser ses points
+       liés (bourse captive). Laisser le compte du SRD aurait gardé DEUX systèmes
+       côte à côte — et `validate` refusait par `skill-grant.count-mismatch`, un
+       personnage complet restant éternellement en faute.
+       ⛔ Mais `skill_choice` NE DISPARAÎT PAS : sa liste `from` est la liste de
+       la classe, celle dont la bourse est captive. C'est le COMPTE qui n'a plus
+       d'objet, pas la liste. */
+    assert.equal(vue.record.data.skill_choice.count, 0,
+      `${id} : la classe n'impose plus de maîtrises — elle donne des points liés à placer`);
+    assert.ok(Array.isArray(vue.record.data.skill_choice.from) || vue.record.data.skill_choice.from === "any",
+      `${id} : sa LISTE survit — c'est elle dont la bourse est captive`);
     assert.equal(vue.record.data.hit_die, srd.records.class[id].data.hit_die);
 
     /* ⛔ AUCUNE OPTION MORTE. La garantie qui compte, et elle vaut pour toutes

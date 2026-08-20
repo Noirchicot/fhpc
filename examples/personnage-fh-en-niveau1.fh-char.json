@@ -30,7 +30,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "c72f2bddd83a38cb3206d551fe2ff126b44b0aa4eb67a6a524cba6147dd70c99",
+        "hash": "0d4fd94e6631f5ce0fb61487507c3dc974cb1cc9f3f0be30ead012c10217beaf",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -149,12 +149,12 @@
         "value": 1
       },
       {
-        "path": "class.skills[0]",
-        "value": "arcana"
+        "path": "class.skillBudget.arcana",
+        "value": "novice"
       },
       {
-        "path": "class.skills[1]",
-        "value": "investigation"
+        "path": "class.skillBudget.investigation",
+        "value": "novice"
       },
       {
         "path": "class.cantrips[0]",
@@ -381,7 +381,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "c72f2bddd83a38cb3206d551fe2ff126b44b0aa4eb67a6a524cba6147dd70c99",
+          "hash": "0d4fd94e6631f5ce0fb61487507c3dc974cb1cc9f3f0be30ead012c10217beaf",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {

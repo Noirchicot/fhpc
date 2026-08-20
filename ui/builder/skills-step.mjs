@@ -156,8 +156,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=255";
-import { keepInView, scrollParent } from "./socle.mjs?v=255";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=263";
+import { keepInView, scrollParent } from "./socle.mjs?v=263";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -196,7 +196,12 @@ function purchasableTiers(pool) {
  *  ÉDITABLE ICI (décision n°3 : ce choix se pose à l'étape Class/Species).
  *  Cette grille ne fait que LIRE où ils vivent pour poser le cadenas. */
 function lockLabel(decisions, resolved, slug) {
-  const classPlan = planAt(decisions, "class.skills");
+  /* ⚠️ LE CADENAS SUIT LA BOURSE AUSSI — un point LIÉ posé à l'étape Class est
+     exactement ce que cette grille ne doit pas rendre éditable ici. Après la
+     bascule, `class.skills` n'existe plus : sans cette ligne, une compétence
+     payée par les points liés serait redevenue modifiable depuis la grille,
+     donc dépensable deux fois. */
+  const classPlan = planAt(decisions, "class.skillBudget") || planAt(decisions, "class.skills");
   if (classPlan && classPlan.selected.includes(slug)) {
     const className = resolved.identity && resolved.identity.classes && resolved.identity.classes[0]
       ? resolved.identity.classes[0].name : "class";
@@ -230,7 +235,16 @@ function computeCounter(resolved, decisions) {
     .reduce((sum, line) => sum + line.value, 0);
   const left = poolStat.value; // ⚠️ RAW — jamais recalculé, même si menteur (test 12)
   const availablePool = spentPool + left;
-  const classPlan = planAt(decisions, "class.skills");
+  /* 🔴 LA CLASSE DÉPENSE DES POINTS, PLUS DES COCHES — 2026-08-20. Ce compteur
+     lisait `class.skills`, le QCM SRD que la bourse captive remplace. Après la
+     bascule il ne trouvait plus rien : la ligne « Class » avait DISPARU du
+     calcul, en silence, et le joueur ne voyait plus où étaient passés ses points
+     liés. Un compteur qui perd un terme sans le dire est pire qu'un compteur
+     faux — il a l'air juste.
+     ⭐ Et le compte change de NATURE : `answered` vaut désormais des POINTS
+     (un expert en pèse 4), plus un nombre de maîtrises. C'est ce que le canon
+     compte, et c'est ce que l'écran de la classe affiche. */
+  const classPlan = planAt(decisions, "class.skillBudget");
   const speciesBudgetPlan = planAt(decisions, "species.skillBudget");
   const invested = spentPool + (classPlan ? classPlan.answered : 0) + (speciesBudgetPlan ? speciesBudgetPlan.answered : 0);
   return { spentPool, availablePool, left, classPlan, speciesBudgetPlan, invested };

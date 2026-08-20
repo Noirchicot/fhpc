@@ -106,8 +106,13 @@ const CHOIX = [
   { path: "abilities.cha", value: 10 },
   { path: "background.boost.int", value: 2 },
   { path: "background.boost.con", value: 1 },
-  { path: "class.skills[0]", value: "arcana" },
-  { path: "class.skills[1]", value: "investigation" },
+  /* ⭐ LES POINTS LIÉS DE LA CLASSE — 2026-08-20. Le Magicien en a DEUX, et il
+     les place lui-même dans sa liste (canon §B.1). Ils remplacent les deux
+     `class.skills[n]` du système SRD, qui ne coûtaient rien au pool et
+     n'accordaient rien : la compétence cochée ressortait `proficiency: "none"`,
+     mesuré. Ici, deux novices — donc deux demi-maîtrises réelles. */
+  { path: "class.skillBudget.arcana", value: "novice" },
+  { path: "class.skillBudget.investigation", value: "novice" },
   { path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ray-of-frost" } },
   { path: "class.cantrips[1]", ref: { kind: "spell", id: "srd:spell:en:light" } },
   { path: "class.cantrips[2]", ref: { kind: "spell", id: "srd:spell:en:prestidigitation" } },

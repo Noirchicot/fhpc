@@ -28,9 +28,9 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=255";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=255";
-import { renderChoixGlisses } from "./glisser.mjs?v=255";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=263";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=263";
+import { renderChoixGlisses } from "./glisser.mjs?v=263";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -114,7 +114,7 @@ function corpsDeLItem(item, ctx, act) {
       };
     });
     return renderChoixGlisses({
-      plan: budget, slots, titre: "Skill budget", mot: "Skill",
+      plan: budget, slots, titre: "Skill budget", mot: "Skill", unite: "points spent",
       /* Le prix, pas le palier : l'écran parle de budget. */
       labelOf: (id) => (id === "half" || id === "novice" ? "+1" : id === "adept" ? "+2" : tierLabel(id)),
       consigne: `${budget.answered} of ${budget.expected} points spent — drag +1 or +2 onto a skill.`,

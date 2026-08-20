@@ -77,10 +77,17 @@ function baseDoc(id, choices) {
 /** Un personnage minimal, classe + espèce posées, RIEN de plus — juste assez
  *  pour que `rebuild()` ne jette pas (`class` est la seule chose qu'il exige,
  *  mesuré : `derive.mjs`, « aucun choix class »). */
-function docWith({ id, classId, speciesId, classSkills }) {
+function docWith({ id, classId, speciesId, classSkills, classBudget }) {
   const choices = [{ path: "level", value: 1 }, { path: "class", ref: { kind: "class", id: classId } }];
   if (speciesId) choices.push({ path: "species", ref: { kind: "species", id: speciesId } });
   (classSkills || []).forEach((slug, i) => choices.push({ path: `class.skills[${i}]`, value: slug }));
+  /* ⭐ LES POINTS LIÉS — `{ slug: palier }`. Depuis le 2026-08-20 c'est par là
+     que la classe dépense, et non plus par `class.skills[n]` : le QCM ne
+     coûtait rien et n'accordait rien. Les deux formes cohabitent dans ce
+     harnais parce que le SRD pur garde la première. */
+  for (const [slug, palier] of Object.entries(classBudget || {})) {
+    choices.push({ path: `class.skillBudget.${slug}`, value: palier });
+  }
   choices.push(...BASE_ABILITIES);
   return baseDoc(id, choices);
 }
@@ -119,8 +126,17 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
      plus jamais sur le menu entier. Le nombre de BLOCS devient une assertion
      à part entière : un non-lanceur n'en a qu'un, un lanceur en a trois —
      jamais un cadre vide pour un Rogue. */
+  /* 🔴 RÉÉCRIT LE 2026-08-20 — LE COMPTE A CHANGÉ DE NATURE, PAS DE SOURCE.
+     Le QCM `class.skills` (cocher N maîtrises) est remplacé par la BOURSE
+     CAPTIVE (dépenser N points), parce que les cases du QCM ne coûtaient rien
+     au pool et n'accordaient rien : `proficiency: "none"`, mesuré.
+     ⭐ Ce que ce test garde n'a pas bougé d'un mot : **le nombre vient du plan,
+     jamais d'un chiffre écrit dans l'écran**. Il vaut désormais des POINTS —
+     Rogue 6 (2 novices + 1 expert), Bard 3, Wizard 2 — et les créneaux ne
+     valent plus `expected` mais LA LISTE DE LA CLASSE : on ne dépense pas un
+     point par compétence, on choisit sur quelles compétences dépenser. */
   const cases = [
-    ["srd:class:en:rogue", 4, 1],
+    ["srd:class:en:rogue", 6, 1],
     ["srd:class:en:bard", 3, 3],
     ["srd:class:en:wizard", 2, 3]
   ];
@@ -142,21 +158,28 @@ test("le compte du QCM de classe vient du plan : Rogue 4, Bard 3, Wizard 2 — j
     const competences = node.querySelectorAll(".choix-glisse")[0];
     assert.ok(competences, `${classId} : l'écran de compétences est rendu`);
     const note = competences.querySelectorAll(".choix-glisse-compte")[0];
-    assert.ok(note.textContent.startsWith(`0 of ${expected} chosen`), `${classId} attend ${expected}, lu : « ${note.textContent} »`);
-    assert.equal(competences.querySelectorAll(".glisse-creneau").length, expected,
-      `${classId} : ${expected} créneaux de COMPÉTENCE, pas 2 — et pas ceux des sorts`);
+    assert.ok(note.textContent.startsWith(`0 of ${expected} points spent`),
+      `${classId} attend ${expected} POINTS, lu : « ${note.textContent} »`);
+    /* ⭐ ET LES CRÉNEAUX SONT LES COMPÉTENCES DE LA CLASSE, pas un par point :
+       un expert consomme quatre points sur UN créneau. Le compte des créneaux
+       vient donc de la LISTE, et cette liste vient du plan. */
+    const plan = report.decisions.find((d) => d.path === "class.skillBudget");
+    assert.equal(competences.querySelectorAll(".glisse-creneau").length, plan.options.length,
+      `${classId} : un créneau par compétence de la classe — jamais un par point`);
+    assert.ok(plan.options.length > expected,
+      `${classId} : il y a plus de compétences que de points, sinon le choix n'en serait pas un`);
   }
 });
 
 test("⚔️ ATTAQUE — un `expected` absurde forcé sur un plan fabriqué : l'écran le SUIT, jamais ne le corrige", () => {
   const decisions = [
     { path: "class", options: ["srd:class:en:wizard"], selected: ["srd:class:en:wizard"], expected: 1, answered: 1, status: "answered" },
-    { path: "class.skills", options: ["arcana"], selected: [], expected: 9999, answered: 0, status: "pending" },
-    { path: "class.skills[0]", options: ["arcana"], selected: [], expected: 1, answered: 0, status: "pending" }
+    { path: "class.skillBudget", options: ["arcana"], selected: [], expected: 9999, answered: 0, status: "pending" },
+    { path: "class.skillBudget.arcana", options: ["novice"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
   const node = menu(decisions, "class");
   const note = node.querySelectorAll(".choix-glisse-compte")[0];
-  assert.equal(note.textContent, "0 of 9999 chosen", "9999 s'affiche tel quel — l'écran ne sait pas que c'est absurde, et ne doit pas le savoir");
+  assert.equal(note.textContent, "0 of 9999 points spent", "9999 s'affiche tel quel — l'écran ne sait pas que c'est absurde, et ne doit pas le savoir");
   /* Le nombre de LIGNES, lui, vient des slots RÉELLEMENT publiés par
      `decisions[]` (un seul, ici) — jamais de `expected` : l'écran ne va pas
      fabriquer 9999 lignes pour « corriger » un plan qu'il ne juge pas. */
@@ -168,13 +191,24 @@ test("⚔️ ATTAQUE — un `expected` absurde forcé sur un plan fabriqué : l'
 test("les options viennent du plan : un plan dont les options sont [\"zzz\"] affiche zzz et rien d'autre", () => {
   const decisions = [
     { path: "class", options: ["srd:class:en:wizard"], selected: ["srd:class:en:wizard"], expected: 1, answered: 1, status: "answered" },
-    { path: "class.skills", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" },
-    { path: "class.skills[0]", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" }
+    { path: "class.skillBudget", options: ["zzz"], selected: [], expected: 1, answered: 0, status: "pending" },
+    { path: "class.skillBudget.zzz", options: ["novice"], selected: [], expected: 1, answered: 0, status: "pending" }
   ];
   const node = menu(decisions, "class");
-  /* Le VIVIER porte les options depuis le lot 79 — même question, autre nœud. */
-  const values = node.querySelectorAll(".glisse-jeton").map((b) => b.getAttribute("data-valeur"));
-  assert.deepEqual(values, ["zzz"], "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
+  /* 🔴 LA QUESTION S'EST DÉPLACÉE AVEC LA BOURSE, ET C'EST JUSTE. Sur un QCM,
+     les OPTIONS du plan étaient les compétences, donc le vivier. Sur une
+     bourse, le vivier porte les PRIX (+1/+2/+4) et ce sont les RÉCEPTEURS qui
+     portent les compétences. Ce test garde la même règle — l'écran n'affiche
+     que ce que le plan a dit — au nœud où elle vit maintenant. */
+  const recus = node.querySelectorAll(".glisse-creneau").map((c) => c.getAttribute("data-creneau"));
+  assert.deepEqual(recus, ["class.skillBudget.zzz"],
+    "aucune compétence réelle du catalogue n'apparaît — seulement ce que le plan a dit");
+  /* ⭐ ET LE VIVIER SUIT LE PLAN JUSQU'AU BOUT : ce créneau fabriqué ne déclare
+     qu'un seul palier légal, l'écran n'en offre qu'un. Il ne complète pas la
+     table du canon de sa propre initiative — c'est la même règle que le 9999
+     du test précédent, prise par l'autre bout. */
+  const prix = node.querySelectorAll(".glisse-jeton").map((b) => b.getAttribute("data-valeur"));
+  assert.deepEqual(prix, ["novice"], "le vivier porte les PRIX que le plan déclare, pas des compétences et pas une table locale");
 });
 
 /* ══ 3 — LES TROIS ÉTATS D'ESPÈCE ═════════════════════════════════════════
@@ -251,7 +285,8 @@ test("un plan non répondu (answered < expected) se voit, et le dit — sur Clas
   const report = rebuild(docWith({ id: "unanswered", classId: "srd:class:en:rogue", speciesId: "fh:species:en:elestu" }));
   const classNode = menu(report.decisions, "class");
   const classNote = classNode.querySelectorAll(".choix-glisse-compte")[0];
-  assert.equal(classNote.textContent, "0 of 4 chosen");
+  assert.equal(classNote.textContent, "0 of 6 points spent",
+    "le Rogue a SIX points liés à placer (2 novices + 1 expert), pas quatre maîtrises à cocher");
   assert.equal(classNode.querySelectorAll(".choix-glisse")[0].getAttribute("data-status"), "pending");
 
   const speciesNode = menu(report.decisions, "species");
@@ -377,13 +412,16 @@ test("CLASS — `Validate 2` n'est prêt QUE quand le plan dit que les choix son
      d'un recomptage ici — même loi que le QCM lui-même. */
   const rogueVide = rebuild(docWith({ id: "v2-pending", classId: "srd:class:en:rogue" }));
   assert.equal(porte(rogueVide.decisions, "class", { palier: 2 }).ready, false,
-    "0 sur 4 : le palier n'est pas prêt");
+    "0 point sur 6 : le palier n'est pas prêt");
 
+  /* ⭐ SIX POINTS, TROIS COMPÉTENCES — 2 novices (1 chacun) + 1 expert (4).
+     C'est la répartition que le canon écrit pour le Rogue, et elle montre au
+     passage pourquoi le compte est en POINTS : trois placements valent six. */
   const roguePlein = rebuild(docWith({
     id: "v2-ready", classId: "srd:class:en:rogue",
-    classSkills: ["acrobatics", "athletics", "deception", "insight"]
+    classBudget: { acrobatics: "novice", athletics: "novice", stealth: "expert" }
   }));
-  const plan = roguePlein.decisions.find((d) => d.path === "class.skills");
+  const plan = roguePlein.decisions.find((d) => d.path === "class.skillBudget");
   assert.equal(plan.answered, plan.expected, "sonde : le plan lui-même dit que le compte y est");
   const gate = porte(roguePlein.decisions, "class", { palier: 2 });
   assert.equal(gate.ready, true);
@@ -492,35 +530,44 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
    `tests/inheritance-lot43.test.mjs` (`rogueMesure`) exerce côté moteur, ici
    exercé côté écran. */
 
+/* 🔴 RÉÉCRIT LE 2026-08-20 — MÊME MESURE, AUTRE SYSTÈME. Le document du lot
+   42/43 posait `class.skills[0] = arcana` (hors liste du Rogue) et
+   `class.skills[1] = investigation` (dedans). Depuis la bascule, la classe
+   dépense des POINTS LIÉS : la même situation s'écrit avec un point posé sur
+   une compétence que le Rogue n'offre pas, et un autre sur une qu'il offre.
+   ⭐ CE QUE LA CONFIRMATION GARDE N'A PAS BOUGÉ D'UN MOT : un choix devenu
+   illégal ne s'efface JAMAIS en silence — on le NOMME, et on demande. */
 function rogueAvecArcaneInvalide() {
   return rebuild(docWith({
-    id: "rogue-confirm", classId: "srd:class:en:rogue", classSkills: ["arcana", "investigation"]
+    id: "rogue-confirm", classId: "srd:class:en:rogue",
+    classBudget: { arcana: "novice", investigation: "novice" }
   }));
 }
 
 test("un créneau `class.skills[n]` verrouillé (`decision.option-unavailable`) fait apparaître LA confirmation, nommant le don perdu", () => {
   const report = rogueAvecArcaneInvalide();
   const decisions = report.decisions;
-  const slot0 = decisions.find((d) => d.path === "class.skills[0]");
+  const slot0 = decisions.find((d) => d.path === "class.skillBudget.arcana");
   assert.equal(slot0.status, "locked");
-  assert.equal(slot0.lock.key, "decision.option-unavailable");
+  assert.match(slot0.lock.key, /option-unavailable$/,
+    "une bourse refuse par `skill-budget.option-unavailable`, un QCM par `decision.…` — l'écran accepte les deux");
   assert.equal(slot0.lock.params.selected, "arcana", "sonde : c'est bien ce nom que la confirmation doit citer");
 
   const node = menu(decisions, "class");
   const dialog = node.querySelectorAll(".confirm-dialog")[0];
   assert.ok(dialog, "la confirmation s'affiche — le carnet a désigné un créneau à perdre");
   const items = dialog.querySelectorAll(".confirm-dialog-items li").map((li) => li.textContent);
-  /* ⚠️ MESURÉ EN ÉCRIVANT CE TEST, ET C'EST UN ÉCART PRÉEXISTANT (pas
-     introduit par ce lot) : `skillLabel` (`class-step.mjs`, lot 39/42)
-     cherche `query({kind:"skill", id})` avec le SLUG brut (« arcana »),
-     alors que le catalogue indexe par id COMPLET (« srd:skill:en:arcana »)
-     — la recherche échoue donc TOUJOURS et retombe sur le slug lui-même.
-     Le même défaut affecte déjà, AUJOURD'HUI, les boutons du QCM de classe
-     lui-même (ligne au-dessus). Ce lot ne le corrige pas (`skillLabel`
-     n'est pas « le geste de changer de classe », seule raison pour
-     laquelle la commande autorise à toucher ce fichier) — voir
-     INVENTAIRE-LOT-46.md, « ce qui t'a surpris en regardant l'écran ». */
-  assert.deepEqual(items, ["arcana"]);
+  /* ✅ L'ÉCART EST REFERMÉ — 2026-08-20, et ce test en garde la trace parce
+     qu'il l'avait DOCUMENTÉ sans le corriger. `skillLabel` cherchait
+     `query({kind:"skill", id})` avec le SLUG brut (« arcana ») alors que le
+     catalogue indexe par identifiant COMPLET (« srd:skill:en:arcana ») : la
+     recherche échouait TOUJOURS et retombait sur le slug. La bourse l'a rendu
+     visible en grand — douze récepteurs affichaient « sleight-of-han » — et il
+     a été réparé en CHERCHANT dans le catalogue plutôt qu'en devinant un
+     préfixe (« stealth » est au SRD, « delve » est maison).
+     ⭐ Le nom vient toujours du RECORD, recopié : ce qui change est qu'on le
+     trouve. */
+  assert.deepEqual(items, ["Arcana"], "la confirmation NOMME la compétence perdue — son nom, plus son slug");
 });
 
 test("« Confirm » efface EXACTEMENT les créneaux verrouillés, et EUX SEULS — jamais le créneau valide, jamais un futur créneau vide", () => {
@@ -529,8 +576,8 @@ test("« Confirm » efface EXACTEMENT les créneaux verrouillés, et EUX SEULS �
   const node = menu(report.decisions, "class", (a) => calls.push(a));
   node.querySelectorAll(".confirm-dialog-confirm")[0].click();
   assert.equal(calls.length, 1);
-  assert.deepEqual(calls[0], { kind: "resetSkills", paths: ["class.skills[0]"] },
-    "SEUL le créneau verrouillé (arcana) part — pas `class.skills[1]` (investigation, valide), pas un créneau neuf vide");
+  assert.deepEqual(calls[0], { kind: "resetSkills", paths: ["class.skillBudget.arcana"] },
+    "SEUL le point verrouillé (arcana) part — pas celui d'investigation, qui est valide, et pas un créneau vide");
 
   /* Et l'EFFET RÉEL, joué avec les vrais verbes (même geste que
      `resetSkills` dans `shell.mjs`) : le créneau fautif disparaît du
@@ -540,12 +587,18 @@ test("« Confirm » efface EXACTEMENT les créneaux verrouillés, et EUX SEULS �
   let document = report.document;
   for (const path of calls[0].paths) document = build.verbs.clear({ document, path, kind: "choice" }).document;
   const after = rebuild(document);
-  const slots = after.decisions.filter((d) => /^class\.skills\[[0-9]+\]$/.test(d.path));
-  assert.equal(slots.some((s) => s.selected.includes("arcana")), false, "« arcana » n'est plus posé nulle part");
-  const slot1After = after.decisions.find((d) => d.path === "class.skills[1]");
-  assert.deepEqual(slot1After.selected, ["investigation"], "le créneau valide n'a JAMAIS été touché — même index, même valeur");
-  const groupAfter = after.decisions.find((d) => d.path === "class.skills");
-  assert.equal(slots.length, groupAfter.expected, "le compte de créneaux reste EXACTEMENT `expected` (§3e-bis, lot 43) — rien de plus effacé, rien de plus qu'un slot neuf");
+  /* ⭐ UNE BOURSE N'A PAS DE CRÉNEAUX INDEXÉS : ses points vivent sur
+     `class.skillBudget.<slug>`, un par compétence touchée. Le §3e-bis du lot 43
+     (« exactement `expected` créneaux, pas un de plus ») parlait d'un QCM à
+     index ; ici la question devient plus simple et plus forte — le point fautif
+     n'existe plus, le valide n'a pas bougé, et le COMPTE DE POINTS retombe à ce
+     qui reste posé. */
+  assert.equal(after.decisions.some((d) => d.path === "class.skillBudget.arcana"), false,
+    "« arcana » n'est plus posé nulle part");
+  const valide = after.decisions.find((d) => d.path === "class.skillBudget.investigation");
+  assert.deepEqual(valide.selected, ["novice"], "le point valide n'a JAMAIS été touché — même compétence, même palier");
+  const groupAfter = after.decisions.find((d) => d.path === "class.skillBudget");
+  assert.equal(groupAfter.answered, 1, "il reste UN point posé sur les six — celui qui était légal");
 });
 
 test("⚔️ « Cancel » NE TOUCHE RIEN — aucun `onAction` n'est appelé, le document reste identique à l'octet", () => {

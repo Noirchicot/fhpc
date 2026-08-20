@@ -340,21 +340,30 @@ function rogueMesure(h) {
     document: documentDe(h, baseChoices({
       classId: "srd:class:en:rogue",
       extra: [
-        { path: "class.skills[0]", value: "arcana" },
-        { path: "class.skills[1]", value: "investigation" }
+        /* ⭐ MÊME MESURE, AUTRE SYSTÈME (2026-08-20) : la classe dépense des
+           POINTS LIÉS. « arcana » reste hors de la liste du Rogue — donc
+           illégal — et « investigation » dedans. */
+        { path: "class.skillBudget.arcana", value: "novice" },
+        { path: "class.skillBudget.investigation", value: "novice" }
       ]
     }))
   });
 }
 
-test("§4.8 — une classe plus étroite succède à une plus large : EXACTEMENT `expected` créneaux, pas un de plus", () => {
+test("§4.8 — une classe plus étroite succède à une plus large : le budget compte les POINTS, et rien ne traîne", () => {
+  /* 🔴 RÉÉCRIT LE 2026-08-20. La question du lot 43 était « combien de créneaux
+     le carnet publie-t-il ? », parce qu'un QCM à index en fabriquait un de trop.
+     Une bourse n'a pas d'index : ses points vivent sur `class.skillBudget.<slug>`
+     et il y en a exactement autant que de compétences touchées. La question
+     devient donc plus simple, et la garantie plus forte — RIEN ne se publie
+     qu'un choix n'ait posé. */
   const h = pile();
   const out = rogueMesure(h);
   const decisions = byPath(out);
-  const creneaux = [...decisions.keys()].filter((path) => /^class\.skills\[[0-9]+\]$/.test(path));
-  assert.equal(decisions.get("class.skills").expected, 4);
-  assert.equal(creneaux.length, 4, "AVANT ce lot : cinq créneaux pour `expected: 4` (§0, mesuré)");
-  assert.deepEqual(creneaux.sort(), ["class.skills[0]", "class.skills[1]", "class.skills[2]", "class.skills[3]"]);
+  const poses = [...decisions.keys()].filter((path) => path.startsWith("class.skillBudget."));
+  assert.equal(decisions.get("class.skillBudget").expected, 6, "le Rogue place SIX points liés");
+  assert.deepEqual(poses.sort(), ["class.skillBudget.arcana", "class.skillBudget.investigation"],
+    "deux points posés, deux entrées — jamais une de plus");
 });
 
 test("§4.8 — un choix devenu illégal produit UN refus, pas deux — et aucun créneau valide ne le porte", () => {
@@ -362,15 +371,16 @@ test("§4.8 — un choix devenu illégal produit UN refus, pas deux — et aucun
   const out = rogueMesure(h);
   const decisions = byPath(out);
 
-  assert.equal(decisions.get("class.skills[0]").status, "locked", "le créneau fautif (arcana) EST locked");
-  assert.equal(decisions.get("class.skills[0]").lock.key, "decision.option-unavailable");
-  assert.equal(decisions.get("class.skills[1]").status, "answered", "investigation reste valide — aucun refus emprunté");
-  assert.equal(decisions.get("class.skills").status, "locked", "le groupe entier se montre locked, pas pending");
+  assert.equal(decisions.get("class.skillBudget.arcana").status, "locked", "le point fautif (arcana) EST locked");
+  assert.match(decisions.get("class.skillBudget.arcana").lock.key, /option-unavailable$/);
+  assert.equal(decisions.get("class.skillBudget.investigation").status, "answered",
+    "investigation reste valide — aucun refus emprunté");
+  assert.equal(decisions.get("class.skillBudget").status, "locked", "le groupe entier se montre locked, pas pending");
 
   /* LA MESURE QUI COMPTE : `validate()` ne publie ce refus qu'UNE FOIS. */
   const verdict = h.verbs.validate({ document: out.document });
   const memes = verdict.violations.filter((v) =>
-    v.key === "decision.option-unavailable" && v.params && v.params.selected === "arcana");
+    /option-unavailable$/.test(v.key) && v.params && v.params.selected === "arcana");
   assert.equal(memes.length, 1, "AVANT ce lot : le même refus deux fois (le groupe, puis le créneau)");
 });
 

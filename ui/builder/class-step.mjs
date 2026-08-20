@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=255";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=255";
-import { renderConfirmDialog } from "./confirm.mjs?v=255";
-import { renderChoixGlisses } from "./glisser.mjs?v=255";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=263";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=263";
+import { renderConfirmDialog } from "./confirm.mjs?v=263";
+import { renderChoixGlisses } from "./glisser.mjs?v=263";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -44,9 +44,33 @@ function el(tag, className, children) {
   return node;
 }
 
+/* LES TROIS PRIX DU CANON (§A.1) — novice 1 · adept 2 · expert 4. L'écran
+   parle d'un BUDGET : il nomme donc chaque palier par ce qu'il COÛTE, comme la
+   bourse d'espèce le fait déjà. ⛔ Les valeurs restent celles du moteur
+   (`novice`/`adept`/`expert`) : seul le MOT change. */
+const PRIX_DES_PALIERS = Object.freeze(["novice", "adept", "expert"]);
+function prixDuPalier(valeur) {
+  if (valeur === "novice" || valeur === "half") return "+1";
+  if (valeur === "adept" || valeur === "proficient") return "+2";
+  if (valeur === "expert" || valeur === "expertise") return "+4";
+  return String(valeur);
+}
+
+/* ⚠️ UN SLUG N'EST PAS UN IDENTIFIANT — mesuré à l'écran le 2026-08-20 : les
+   récepteurs de la bourse affichaient « sleight-of-han » et « acrobatics » au
+   lieu des noms. Le carnet publie ses créneaux par SLUG
+   (`class.skillBudget.stealth`), les records vivent sous un identifiant complet
+   (`srd:skill:en:stealth`), et une requête par slug ne trouve rien.
+   ⛔ ON NE RECOMPOSE PAS L'IDENTIFIANT à coups de préfixe : « stealth » est au
+   SRD, « delve » est maison — deviner le préfixe marcherait jusqu'au jour où il
+   se tromperait, en silence. On CHERCHE dans le catalogue, qui sait les deux.
+   📌 Et le nom reste celui du RECORD, recopié : aucun mot n'est fabriqué ici. */
 function skillLabel(query, id) {
   const view = query({ kind: "skill", id });
-  return view && view.record ? view.record.name : id;
+  if (view && view.record) return view.record.name;
+  const parSlug = (query({ kind: "skill" }) || [])
+    .find((v) => v && v.record && (v.record.slug === id || String(v.id).endsWith(`:${id}`)));
+  return parSlug && parSlug.record ? parSlug.record.name : id;
 }
 
 /* LOT 72 — le même geste pour un sort : le NOM vient du record, jamais
@@ -125,7 +149,8 @@ export const CLASS_CATALOGUE = {
      l'écran entier : ouvrir « Cantrips » montrait aussi les compétences et
      les sorts préparés. */
   itemCorps: (item, ctx, act) => renderClassChoices(ctx, act, item.path),
-  itemLabel: (chemin) => (chemin === "class.skills" ? "Class skills"
+  itemLabel: (chemin) => (chemin === "class.skillBudget" ? "Skill points"
+    : chemin === "class.skills" ? "Class skills"
     : chemin === "class.cantrips" ? "Cantrips"
     : chemin === "class.prepared" ? "Prepared spells" : chemin)
 };
@@ -275,14 +300,60 @@ export function renderClassChoices(ctx, onAction, seulement) {
      ⛔ `renderSlotQcm` reste importé et employé : les sorts le gardent pour
      l'instant (étapes 3 et 4), et l'espèce ne le lâchera jamais. Deux formes,
      un seul contrat d'action — le moteur ne voit aucune différence. */
-  const plan = planAt(decisions, "class.skills");
-  const glisse = plan ? renderChoixGlisses({
-    plan, slots: planSlots(decisions, "class.skills"),
-    titre: "Class skills", mot: "Choice",
-    labelOf: (id) => skillLabel(query, id), onAction: act,
-    consigne: "Tap a skill, or drag it onto a slot."
+  /* ══ LES POINTS LIÉS DE LA CLASSE, AU GLISSER — 2026-08-20 ═══════════════
+     🔴 CE QUE ÇA REMPLACE : le QCM `class.skills`, où le joueur cochait N
+     maîtrises. Mesuré ce jour-là, ces cases ne coûtaient RIEN au pool et
+     n'accordaient RIEN (`proficiency: "none"`) — la couche maison avait ajouté
+     son pool à côté du système SRD au lieu de le remplacer.
+
+     ⭐ ET L'ÉCRAN EST CELUI DE LA BOURSE D'ESPÈCE, mot pour mot : des JETONS DE
+     PRIX (« +1 », « +2 », « +4 ») qu'on pose sur des compétences. C'est déjà le
+     geste de Keen Senses, et le canon publie exactement ces trois paliers
+     (novice 1 · adept 2 · expert 4). Deux écrans qui dépensent des points de la
+     même façon doivent le faire avec le même organe.
+     ⭐ `+4` EST NEUF, ET IL A UN PROPRIÉTAIRE : le Rogue place un Expert dans
+     ses points liés. Aucune espèce n'en accorde, donc le palier n'avait jamais
+     eu à exister ici.
+     ⛔ `reutilisable` — un prix n'est pas un objet unique : « +1 » peut aller
+     sur deux compétences. Sans ce drapeau, poser le premier éteignait le jeton
+     et l'écran se bloquait (défaut trouvé par Eric sur la bourse d'espèce). */
+  const budget = planAt(decisions, "class.skillBudget");
+  const glisse = budget ? renderChoixGlisses({
+    plan: budget,
+    slots: (budget.options || []).map((slug, index) => {
+      const etape = planAt(decisions, `class.skillBudget.${slug}`);
+      return {
+        path: `class.skillBudget.${slug}`, index,
+        options: etape ? etape.options : PRIX_DES_PALIERS,
+        selected: etape ? etape.selected : [],
+        lock: etape ? etape.lock : null,
+        mot: skillLabel(query, slug)
+      };
+    }),
+    titre: "Skill points", mot: "Skill", unite: "points spent",
+    labelOf: (id) => prixDuPalier(id),
+    consigne: `${budget.answered} of ${budget.expected} points spent — drag a price onto a skill.`,
+    reutilisable: true,
+    onAction: act
   }) : null;
-  if (glisse && retenu("class.skills")) menu.append(glisse);
+  if (glisse && retenu("class.skillBudget")) menu.append(glisse);
+
+  /* 🔴 ET LE SRD PUR GARDE SON ÉCRAN — loi §0.12, et c'est un test qui me l'a
+     rappelé dans la minute. Sans la couche maison, aucune bourse n'est
+     déclarée : le personnage a toujours ses N maîtrises SRD à cocher, et les
+     lui retirer l'aurait laissé SANS AUCUN écran de compétences. La bascule
+     remplace un système là où l'autre existe ; elle n'en supprime pas un là où
+     il est le seul. */
+  if (!budget) {
+    const qcm = planAt(decisions, "class.skills");
+    const glisseSrd = qcm ? renderChoixGlisses({
+      plan: qcm, slots: planSlots(decisions, "class.skills"),
+      titre: "Class skills", mot: "Choice",
+      labelOf: (id) => skillLabel(query, id), onAction: act,
+      consigne: "Tap a skill, or drag it onto a slot."
+    }) : null;
+    if (glisseSrd && retenu("class.skills")) menu.append(glisseSrd);
+  }
 
   /* ══ LOT 72 — LES SORTS, LE MÊME QCM ═══════════════════════════════════
      `renderSlotQcm` rend `null` sans plan : un Rogue n'affiche RIEN ici —
@@ -325,12 +396,22 @@ export function renderClassChoices(ctx, onAction, seulement) {
      part (décision d'Eric, 2026-08-13).
      ⛔ C'EST LE CARNET QUI DÉSIGNE QUOI EFFACER : cette ligne ne refait
      aucune comparaison, elle FILTRE sur le verrou déjà posé. */
-  const orphelins = planSlots(decisions, "class.skills")
-    .filter((slot) => slot.lock && slot.lock.key === "decision.option-unavailable");
+  /* ⚠️ LES CRÉNEAUX D'UNE BOURSE NE SONT PAS INDEXÉS — `class.skillBudget.<slug>`
+     et non `class.skills[n]`. `planSlots` cherche un `[n]` et ne trouvait donc
+     plus rien : la confirmation avait disparu en silence avec la bascule, et
+     changer de classe aurait laissé des points posés sur des compétences que la
+     nouvelle classe n'offre pas. C'est le carnet qui les nomme (`lock`), ici on
+     ne fait que les cueillir.
+     📌 Le verrou change de clef aussi : une bourse refuse par
+     `skill-budget.option-unavailable`, un QCM par `decision.option-unavailable`.
+     Les deux sont acceptées — un écran ne choisit pas le vocabulaire du moteur. */
+  const orphelins = decisions
+    .filter((plan) => typeof plan.path === "string" && plan.path.startsWith("class.skillBudget.") &&
+      plan.lock && /option-unavailable$/.test(plan.lock.key));
   if (orphelins.length > 0) {
     menu.append(renderConfirmDialog({
       title: "These skills are no longer valid for this class:",
-      items: orphelins.map((slot) => skillLabel(query, slot.lock.params.selected)),
+      items: orphelins.map((slot) => skillLabel(query, slot.lock.params.selected || slot.path.split(".").pop())),
       confirmLabel: "Clear them",
       cancelLabel: "Keep them locked",
       onConfirm: () => act({ kind: "resetSkills", paths: orphelins.map((slot) => slot.path) }),
@@ -373,7 +454,7 @@ export function renderClassChoices(ctx, onAction, seulement) {
  *  chaque plan présent — un plan absent (Rogue : pas de sorts) ne compte
  *  pas, et une classe sans AUCUN plan garde son palier unique. */
 export function classPalier2(decisions) {
-  const plans = ["class.skills", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
+  const plans = ["class.skillBudget", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
     .map((path) => planAt(decisions, path))
     .filter(Boolean);
   if (plans.length === 0) return null;

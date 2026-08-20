@@ -64,8 +64,12 @@ function choixDe({ level, classId, speciesId, backgroundId = INHERITANCE, skills
     { path: "currency.sp", value: 0 },
     { path: "currency.gp", value: 15 },
     { path: "currency.pp", value: 0 },
-    { path: "class.skills[0]", value: skills[0] },
-    { path: "class.skills[1]", value: skills[1] },
+    /* ⭐ LES POINTS LIÉS, DEPUIS LE 2026-08-20 — la classe ne fait plus cocher
+       des maîtrises, elle fait DÉPENSER ses points liés. Deux novices : c'est
+       exactement ce que valaient les deux `class.skills[n]` d'avant, sauf
+       qu'ils accordent quelque chose maintenant. */
+    { path: `class.skillBudget.${skills[0]}`, value: "novice" },
+    { path: `class.skillBudget.${skills[1]}`, value: "novice" },
     /* LOT 43 — l'Inheritance exige exactement 3 points de boost (§1d) ;
        validate() refuse désormais un total absent (0 !== 3). Cette suite ne
        teste pas les boosts : +2/+1 sur deux caracs neutres suffit à rester
