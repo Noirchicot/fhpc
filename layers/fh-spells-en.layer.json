@@ -1,0 +1,133 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-spells-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Spells (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.destiny"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds four spells of its own and modifies NO material from the System Reference Document 5.2.1: it rewrites no SRD text and disables no SRD record. It patches four SRD spells with an FH-ONLY field, `data[fh_effect]`, which does not exist in the SRD — the SRD spell stands exactly as printed and the Fate's Hand effect is added beside it."
+  },
+  "description": "The eight spells of the chapter `Fate's Hand Spells`. Four are new — Appease the Chaos, Devil-Vision, Consecration, Transfer Essence. Four are SRD spells that Fate's Hand adds an effect to, without touching a word of them: Bless, Guidance, Identify, Gentle Repose.",
+  "records": {
+    "spell": {
+      "fh:spell:en:appease-the-chaos": {
+        "name": "Appease the Chaos",
+        "slug": "appease-the-chaos",
+        "data": {
+          "cantrip": false,
+          "casting_time": "Action",
+          "classes": [
+            "Cleric",
+            "Druid"
+          ],
+          "components": "V, S",
+          "concentration": false,
+          "description": "You spend a Destiny Point to appease the wrath of the forces of chaos on the targeted creature, within 1 round following a Chaos Effect. You reduce the potency of the effect by a number equal to your proficiency bonus.\n\nExample. Bruggar rolled 10 on the Strength Chaos table; Awki has a proficiency bonus of 3. The roll is reduced to 7.",
+          "duration": "Instantaneous",
+          "level": 3,
+          "name": "Appease the Chaos",
+          "range": "30 feet",
+          "ritual": false,
+          "school": "abjuration"
+        }
+      },
+      "fh:spell:en:devil-vision": {
+        "name": "Devil-Vision",
+        "slug": "devil-vision",
+        "data": {
+          "cantrip": false,
+          "casting_time": "Action",
+          "classes": [
+            "Wizard",
+            "Warlock"
+          ],
+          "components": "V, S",
+          "concentration": true,
+          "description": "The target can see through magical and normal darkness out to 60 feet. No upcasting.",
+          "duration": "Concentration, up to 10 minutes",
+          "level": 2,
+          "name": "Devil-Vision",
+          "range": "Touch",
+          "ritual": false,
+          "school": "divination"
+        }
+      },
+      "fh:spell:en:consecration": {
+        "name": "Consecration",
+        "slug": "consecration",
+        "data": {
+          "cantrip": false,
+          "casting_time": "1 hour",
+          "classes": [
+            "Cleric",
+            "Paladin"
+          ],
+          "components": "V, S, M (an agate worth 100 GP)",
+          "concentration": false,
+          "description": "You consecrate the place. Within the radius: one creature regains 1 Destiny Point at the end of its next Long Rest; Dispel Magic is applied against any spell in the area cast by a Fiend or an Undead; Lesser Restoration is applied to one creature.\n\nSpending Destiny Points. For each additional Destiny Point spent, choose one, and it applies within the same radius: extend one of the effects above to several creatures; a further Lesser Restoration; a further Dispel Magic against a spell cast by a Fiend or an Undead.\n\nThe agate is not consumed unless a Destiny Point is spent.",
+          "duration": "1 hour",
+          "level": 1,
+          "name": "Consecration",
+          "range": "Self (30-foot radius)",
+          "ritual": true,
+          "school": "abjuration"
+        }
+      },
+      "fh:spell:en:transfer-essence": {
+        "name": "Transfer Essence",
+        "slug": "transfer-essence",
+        "data": {
+          "cantrip": false,
+          "casting_time": "Action",
+          "classes": [
+            "Wizard",
+            "Cleric",
+            "Druid",
+            "Warlock"
+          ],
+          "components": "V, S, M (a gemstone, which the spell fills)",
+          "concentration": false,
+          "description": "You draw the Essence of a freshly slain creature into a gemstone you hold. The gem's value must meet the essence's PP — from 50 GP (1 PP) to 50,000 GP (11 PP); see the gem table in Soulforge Crafting. The transfer automatically succeeds.\n\nIn the Demon Forest this spell is needless — those beasts already carry their essence in the gems crusting their bodies; simply take the gem.",
+          "duration": "Instantaneous",
+          "level": 1,
+          "name": "Transfer Essence",
+          "range": "Touch — a creature slain within the hour (Gentle Repose: 10 hours)",
+          "ritual": false,
+          "school": "transmutation"
+        }
+      },
+      "srd:spell:en:bless": {
+        "op": "patch",
+        "changes": {
+          "data[fh_effect]": "If the caster spends one Destiny Point, the cost of fate is reduced by one for the creatures affected by the spell, for its duration. Except on critical rolls."
+        },
+        "note": "Fate's Hand adds an effect to Bless and changes nothing else: the SRD spell stands as printed."
+      },
+      "srd:spell:en:guidance": {
+        "op": "patch",
+        "changes": {
+          "data[fh_effect]": "Either the usual effect, or: you touch one willing creature and grant it 1 temporary Destiny Point for the duration of the spell. A single creature can only benefit from this effect once per long rest."
+        },
+        "note": "Fate's Hand offers an alternative effect on Guidance; the SRD effect remains available and unchanged."
+      },
+      "srd:spell:en:identify": {
+        "op": "patch",
+        "changes": {
+          "data[fh_effect]": "Cast on a harvested catalyst part, Identify reveals the exact power that part will grant once forged. The Knowledge check only tells you that a part is a catalyst; only Identify tells you what it does."
+        },
+        "note": "Fate's Hand gives Identify a role in Soulforge Crafting. The spell works as printed."
+      },
+      "srd:spell:en:gentle-repose": {
+        "op": "patch",
+        "changes": {
+          "data[fh_effect]": "Three uses in Soulforge Crafting, which stay decay in body and soul. Salvage: on a slain creature, grants one extra ingredient-retrieval attempt beyond the 1d4-minute harvest window. Essence storage: extends the window to store an Essence into a gem from 1 hour to 10 hours. Ingredient viability: recast every 10 days, keeps well-harvested Structure and Catalyst parts viable indefinitely, instead of the normal one month."
+        },
+        "note": "Fate's Hand gives Gentle Repose three roles in Soulforge Crafting. The spell works as printed."
+      }
+    }
+  }
+}

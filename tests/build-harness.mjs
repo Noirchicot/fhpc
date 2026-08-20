@@ -37,6 +37,7 @@ export const FH_FEATS_EN = "layers/fh-feats-en.layer.json";
    n'allument aucun module : elles ne font que `patch` du contenu sur les 24
    records de classe et d'espèce. Elles ferment la pile « SRD + FH ». */
 export const FH_FICHE_EN = "layers/fh-fiche-en.layer.json";
+export const FH_SPELLS_EN = "layers/fh-spells-en.layer.json";
 export const FH_LORE_EN = "layers/fh-lore-en.layer.json";
 
 export function fileBytes(rel) {

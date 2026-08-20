@@ -46,6 +46,12 @@
         "name": "Fate's Hand — Feats (EN)"
       },
       {
+        "id": "fh-spells-en",
+        "version": "0.1.0",
+        "hash": "8141f624ee679d44c2e82886cc9c982634a5ca2ee071b69118e420d897b2cbf7",
+        "name": "Fate's Hand — Spells (EN)"
+      },
+      {
         "id": "fh-fiche-en",
         "version": "0.1.0",
         "hash": "3a6c68124e212a90e026c0a200543238efbfd5a13882f305796ab2a92e113b82",
@@ -405,6 +411,12 @@
           "version": "0.1.0",
           "hash": "9e4aa9e7acd0322b25d00056a6115f0005305e69dcafd0a3457e186485e1f3d8",
           "name": "Fate's Hand — Feats (EN)"
+        },
+        {
+          "id": "fh-spells-en",
+          "version": "0.1.0",
+          "hash": "8141f624ee679d44c2e82886cc9c982634a5ca2ee071b69118e420d897b2cbf7",
+          "name": "Fate's Hand — Spells (EN)"
         },
         {
           "id": "fh-fiche-en",

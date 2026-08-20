@@ -19,7 +19,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createTestDocument } from "./dom-stub.mjs";
-import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_FICHE_EN, FH_LORE_EN }
+import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN }
   from "./build-harness.mjs";
 
 globalThis.document = createTestDocument();
@@ -211,7 +211,7 @@ test("B5 — la langue de la fiche et les unités s'affichent, lisibles (pas les
    PILE ET LE VRAI BLOC `build` (§3, test 5 de la commande) ═══════════════ */
 
 test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dégrade le résolu (refus NOMMÉS), et l'aller-retour restaure tout", () => {
-  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_FICHE_EN, FH_LORE_EN] });
+  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN] });
   /* Le personnage d'exemple EN+FH DU DÉPÔT (`examples/personnage-fh-en-
      niveau1.fh-char.json`, lot 20) — celui que `engine.mjs`/`shell.mjs`
      chargent réellement au boot du builder, jamais recopié à la main. */

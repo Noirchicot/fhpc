@@ -89,7 +89,18 @@ test("Wizard niveau 1 : deux plans, comptés par la progression, options au croi
     .map((view) => view.id).sort();
   assert.deepEqual(cantrips.options, attendues, "options mineurs = le croisement, exactement");
   assert.equal(cantrips.options.length, 15, "la mesure de la commande : 15 sorts mineurs de Wizard");
-  assert.equal(prepared.options.length, 30, "30 sorts de niveau 1 — le plafond de préparation suit `spell_slots`");
+  /* ⭐ 31 DEPUIS LE 2026-08-20, ET LE +1 EST LE POINT DU LOT : `Transfer Essence`
+     (niveau 1, Wizard) est entré par `fh-spells-en`. Avant, un magicien de la
+     table d'Eric ne pouvait pas préparer un sort que son propre livre décrit —
+     le chapitre le portait, le builder l'ignorait. Le compte bouge donc parce
+     que la couche fait ce qu'on lui demande, pas parce qu'un seuil a glissé.
+     ⚠️ `Devil-Vision` est de niveau 2 : il n'entre pas dans ce compte-ci, et
+     c'est la preuve que le filtre de niveau tient toujours. */
+  assert.equal(prepared.options.length, 31, "31 sorts de niveau 1 — le plafond de préparation suit `spell_slots`");
+  assert.ok(prepared.options.includes("fh:spell:en:transfer-essence"),
+    "le sort maison de niveau 1 du magicien est offert");
+  assert.equal(prepared.options.includes("fh:spell:en:devil-vision"), false,
+    "…et celui de niveau 2 ne l'est pas");
   assert.equal(prepared.options.includes("srd:spell:en:wish"), false,
     "Wish (niveau 9) n'est PAS proposé à un magicien de niveau 1");
 

@@ -51,6 +51,7 @@ export const PILE = [
   "layers/fh-skills-en.layer.json",
   "layers/fh-arcana-en.layer.json",
   "layers/fh-feats-en.layer.json",
+  "layers/fh-spells-en.layer.json",
   "layers/fh-fiche-en.layer.json",
   "layers/fh-lore-en.layer.json"
 ];

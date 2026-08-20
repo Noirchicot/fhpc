@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=273";
-import { markPressed } from "./carnet.mjs?v=273";
+import { renderConfirmDialog } from "./confirm.mjs?v=274";
+import { markPressed } from "./carnet.mjs?v=274";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -59,7 +59,8 @@ import { markPressed } from "./carnet.mjs?v=273";
  *  listes ensemble (`tests/fiche-360.test.mjs`, garde 3). */
 export const SRD_LAYER_ID = "srd-5.2.1-en";
 export const FH_LAYER_IDS = [
-  "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-fiche-en", "fh-lore-en"
+  "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-spells-en",
+  "fh-fiche-en", "fh-lore-en"
 ];
 
 /** La pile que `document.build.layers` DÉCLARE, réduite à l'un des deux noms
