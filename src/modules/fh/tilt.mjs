@@ -121,8 +121,8 @@ export function resolveTilt({ tilts, disadvantage, advantage = false } = {}) {
      remarque qu'à la table, une fois le dé tombé. */
   if (typeof tilts !== "number" || !Number.isSafeInteger(tilts)) {
     refuse(
-      "a Tilt count must be a whole number — got " + JSON.stringify(tilts) +
-      ". Tilts are counted, never measured: the table reads 0, 1, and \"2 or more\"."
+      "an Edge count must be a whole number — got " + JSON.stringify(tilts) +
+      ". Edges are counted, never measured: the table reads 0, 1, and \"2 or more\"."
     );
   }
   /* LE REFUS QUI PORTE LA RÈGLE ELLE-MÊME. Un −1 ici n'est pas une valeur
@@ -131,16 +131,16 @@ export function resolveTilt({ tilts, disadvantage, advantage = false } = {}) {
      sinon le refus n'apprend rien. */
   if (tilts < 0) {
     refuse(
-      "there is no negative Tilt, and " + tilts + " asks for one. A malus is ALWAYS expressed by giving a " +
-      "Tilt to the other side: penalising an attack is a Tilt on the defender's AC, penalising a check is a " +
-      "Tilt on the DC — that is, +2 to the DC. Nothing ever subtracts from the roller."
+      "there is no negative Edge, and " + tilts + " asks for one. A malus is ALWAYS expressed by giving a " +
+      "an Edge to the other side: penalising an attack is an Edge on the defender's AC, penalising a check is " +
+      "an Edge on the DC — that is, +2 to the DC. Nothing ever subtracts from the roller."
     );
   }
   if (typeof disadvantage !== "boolean") {
     refuse(
-      "a Tilt is resolved against the PRESENCE of a disadvantage, which is a boolean — got " +
+      "an Edge is resolved against the PRESENCE of a disadvantage, which is a boolean — got " +
       JSON.stringify(disadvantage) + ". Presence or absence, like Advantage in 5e: there is no amount of " +
-      "disadvantage to weigh against the Tilt count."
+      "disadvantage to weigh against the Edge count."
     );
   }
   if (typeof advantage !== "boolean") {

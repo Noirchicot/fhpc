@@ -1,4 +1,14 @@
 /* ══ LE TILT — LES TESTS D'ACCEPTATION DU LOT 21 ══════════════════════
+   ⭐ LE MOT EST « EDGE » DEPUIS LE 2026-08-21, LES IDENTIFIANTS SONT RESTÉS
+   « TILT ». Eric : *« Edge c'est beaucoup mieux que tilt »*. La mécanique n'a
+   pas bougé d'une ligne — seuls le badge et les six refus, c'est-à-dire les
+   endroits où un humain LIT le mot, disent maintenant « Edge ».
+   ⛔ `tilt.mjs`, `fh.tilt`, `TILT_*`, `badge.tilt` restent : une clef est une
+   ADRESSE, un libellé est un MOT. C'est le partage qui a laissé
+   `srd:species:en:gnome` porter le nom « Hoddon » sans qu'un asset bouge.
+   📌 Ce fichier garde donc son nom et son vocabulaire de code, et ses chaînes
+   attendues sont en « Edge ». Si les deux se remettaient à dire la même chose,
+   c'est qu'on aurait renommé 400 identifiants pour rien.
    La règle d'Eric, ratifiée le 2026-08-08 (logbook « FHV2 - Couche FH »,
    section « ⭐ Le mécanisme s'appelle Tilt »). Elle remplace TOUS les malus
    chiffrés situationnels du système par une table à cinq lignes :
@@ -142,7 +152,7 @@ test("ACCEPTATION B 2 — 1 Tilt : +2, et le total le montre", () => {
   assert.equal(entry.d20s.length, 1, "un +2 ne lance pas de second dé");
   assert.equal(entry.total, 17, "10 + 5 + 2 — LE POINT DU TEST : le +2 atteint le total");
   assert.deepEqual(entry.tilt, { tilts: 1, disadvantage: false, outcome: "plus-two" });
-  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "1 Tilt · +2",
+  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "1 Edge · +2",
     "et la table relit POURQUOI ce jet a gagné deux points");
 });
 
@@ -154,7 +164,7 @@ test("ACCEPTATION B 3 — 2 Tilts : Avantage, produit et non réimplémenté", (
   assert.equal(entry.kept, 13, "et c'est le SRD qui garde le plus haut : rien n'est réécrit ici");
   assert.equal(entry.total, 18, "13 + 5, sans +2 en prime");
   assert.equal(entry.plusTwo, undefined, "un Avantage n'est pas un Avantage ET un bonus");
-  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "2 Tilts · Advantage");
+  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "2 Edges · Advantage");
 });
 
 test("ACCEPTATION B 4 — un désavantage sans Tilt : Désavantage", () => {
@@ -164,7 +174,7 @@ test("ACCEPTATION B 4 — un désavantage sans Tilt : Désavantage", () => {
   assert.equal(entry.kept, 7, "le plus bas des deux");
   assert.equal(entry.total, 12, "7 + 5");
   assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t,
-    "0 Tilts · disadvantage · Disadvantage");
+    "0 Edges · disadvantage · Disadvantage");
 });
 
 test("ACCEPTATION B 5 — un Tilt contre un désavantage : tout s'annule, jusqu'au d20", () => {
@@ -176,7 +186,7 @@ test("ACCEPTATION B 5 — un Tilt contre un désavantage : tout s'annule, jusqu'
   assert.deepEqual(entry.tilt, { tilts: 1, disadvantage: true, outcome: "normal" },
     "mais l'annulation LAISSE UNE TRACE : « rien ne s'est passé » et « personne n'a rien déclaré » " +
     "ne sont pas le même fait à la table");
-  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "1 Tilt · disadvantage · cancelled");
+  assert.equal(h.derive.badges(entry).find((badge) => badge.id === "tilt").t, "1 Edge · disadvantage · cancelled");
 });
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -242,16 +252,16 @@ test("ATTAQUE — un Tilt négatif JETTE, et le refus dit où le malus se donne"
      pas la règle, et le suivant l'écrirait pareil. */
   [-1, -2, -99].forEach((tilts) => {
     assert.throws(() => resolveTilt({ tilts, disadvantage: false }),
-      /there is no negative Tilt/, "un Tilt négatif : " + tilts);
+      /there is no negative Edge/, "un Tilt négatif : " + tilts);
   });
   assert.throws(() => resolveTilt({ tilts: -1, disadvantage: false }),
-    /Tilt on the DC — that is, \+2 to the DC/,
-    "et le message enseigne la contrepartie : un malus est un Tilt donné à l'AUTRE côté");
+    /an Edge on the DC — that is, \+2 to the DC/,
+    "et le message enseigne la contrepartie : un malus est un Edge donné à l'AUTRE côté");
 
   // Le même refus par la porte publique, pas seulement sur la fonction pure.
   const h = fh();
   h.verbs.prepare({ name: "Stealth", ability: "DEX", bonus: 5 });
-  assert.throws(() => h.verbs.configure({ tilts: -1 }), /there is no negative Tilt/,
+  assert.throws(() => h.verbs.configure({ tilts: -1 }), /there is no negative Edge/,
     "et la console refuse aussi — sinon la règle ne tiendrait qu'à l'intérieur du module");
   assert.equal(h.state.rollConfig.tilts, 0, "l'arbre est intact : le refus n'a rien posé");
 });
@@ -261,7 +271,7 @@ test("ATTAQUE — un compte que le moteur ne sait pas lire est un refus, jamais 
      fois le dé tombé — c'est trop tard, et c'est invisible. */
   [1.5, NaN, Infinity, "2", null, undefined, {}].forEach((tilts) => {
     assert.throws(() => resolveTilt({ tilts, disadvantage: false }),
-      /a Tilt count must be a whole number/, "compte illisible : " + JSON.stringify(tilts));
+      /an Edge count must be a whole number/, "compte illisible : " + JSON.stringify(tilts));
   });
   /* Et la seconde colonne est une PRÉSENCE, pas une quantité : il n'y a pas
      de « deux désavantages » à peser contre le compte de Tilts. */
@@ -269,7 +279,7 @@ test("ATTAQUE — un compte que le moteur ne sait pas lire est un refus, jamais 
     assert.throws(() => resolveTilt({ tilts: 1, disadvantage }),
       /resolved against the PRESENCE of a disadvantage/, "présence illisible : " + JSON.stringify(disadvantage));
   });
-  assert.throws(() => resolveTilt(), /a Tilt count must be a whole number/,
+  assert.throws(() => resolveTilt(), /an Edge count must be a whole number/,
     "et appeler la table sans rien lui donner est un refus, pas un jet normal");
 });
 

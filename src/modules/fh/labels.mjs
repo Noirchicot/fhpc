@@ -72,7 +72,17 @@ export const FH_EN = {
      DONNÉ — les deux, parce que la moitié de la règle est justement que la
      seconde ne se devine pas depuis la première. « 2 Tilts · Advantage »,
      « 1 Tilt · disadvantage · cancelled ». */
-  "badge.tilt": (d) => d.tilts + " Tilt" + (d.tilts === 1 ? "" : "s")
+  /* ⭐ « EDGE », PAS « TILT » — Eric, 2026-08-21 : *« Edge c'est beaucoup mieux
+     que tilt »*, puis *« je n'ai aucun doute, edge c'est parfait »*. Le mot du
+     livre a changé ; la CLEF, elle, reste `badge.tilt`.
+     ⛔ Et c'est délibéré : une clef est une ADRESSE, un libellé est un MOT.
+     Le même partage a laissé `srd:species:en:gnome` porter le nom « Hoddon »
+     sans qu'un seul asset bouge (2026-08-20). Renommer 400 identifiants pour
+     qu'un joueur lise le bon mot serait payer cher une chose que
+     l'architecture donne gratuitement.
+     📌 Pourquoi le mot est meilleur : *« you gain an edge »* s'enseigne tout
+     seul. *Tilt* devait être appris avant de vouloir dire quelque chose. */
+  "badge.tilt": (d) => d.tilts + " Edge" + (d.tilts === 1 ? "" : "s")
     + (d.disadvantage ? " · disadvantage" : "")
     + " · " + (d.outcome === "plus-two" ? "+2"
       : d.outcome === "advantage" ? "Advantage"

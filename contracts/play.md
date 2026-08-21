@@ -189,6 +189,29 @@ silencieux.
 Règle d'Eric, **ratifiée le 2026-08-08**. Elle remplace tous les malus chiffrés
 **situationnels** du système.
 
+> 🔴 **LE MOT QUE LE JOUEUR LIT EST « EDGE ». LE MOT DU CODE EST « TILT ».**
+> Eric, 2026-08-21 : *« Edge c'est beaucoup mieux que tilt »*, puis *« je n'ai
+> aucun doute, edge c'est parfait »*. Le livre entier est passé — 38 occurrences,
+> 5 chapitres, zéro `tilt` restant.
+>
+> ⛔ **Les identifiants n'ont PAS suivi, et c'est délibéré** : `tilt.mjs`, le
+> drapeau `fh.tilt`, les constantes `TILT_*`, la clef `badge.tilt`. **Une clef
+> est une adresse, un libellé est un mot** — le même partage a laissé
+> `srd:species:en:gnome` porter le nom « Hoddon » sans qu'un seul asset bouge.
+> Sur 401 occurrences de `tilt` dans ce dépôt, **sept étaient du texte** : le
+> badge et six refus. Ce sont les sept qui ont changé.
+>
+> ⭐ **Et le renommage n'a rien coûté parce que le moteur avait déjà séparé ce
+> qu'il calcule de ce qu'il dit** (loi §0.13 : `data` rend les FAITS, le paquet
+> rend les MOTS). La séparation n'avait pas été faite pour ça ; c'est elle qui
+> paie.
+>
+> 📌 **Et le livre distingue deux mots là où nous n'en voyions qu'un** —
+> correction d'Eric le même jour : *« Two things working together is a synergy;
+> the edge is what it gets you. »* La **synergie** est la fiction, l'**edge**
+> est la mécanique. La confusion qui nous a coûté deux jours ne venait pas d'une
+> règle manquante mais d'un partage de mots que personne n'avait écrit.
+
 | Tilts | Désavantage présent ? | Résultat |
 |---|---|---|
 | 0 | non | jet normal |

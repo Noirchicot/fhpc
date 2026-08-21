@@ -38,12 +38,37 @@ const RATIFIÉS = [
   ["fh.outcome.arcane-critical-failure", "Arcane Fumble", "Eric 2026-08-21"]
 ];
 
+/** Le badge de la ligne de jet — le SEUL endroit où le joueur lit le mot de la
+ *  mécanique du lot 21. Eric l'a renommé le 2026-08-21 : *« Edge c'est beaucoup
+ *  mieux que tilt »*. ⛔ La clef reste `badge.tilt` : une adresse ne change pas
+ *  quand le mot change. */
+const BADGE_EDGE = [
+  [{ tilts: 1, outcome: "plus-two" }, "1 Edge · +2"],
+  [{ tilts: 2, outcome: "advantage" }, "2 Edges · Advantage"],
+  [{ tilts: 0, disadvantage: true, outcome: "disadvantage" }, "0 Edges · disadvantage · Disadvantage"],
+  [{ tilts: 1, disadvantage: true, outcome: "normal" }, "1 Edge · disadvantage · cancelled"]
+];
+
 test("🔴 les mots ratifiés sont ceux qu'Eric a choisis, à la lettre", () => {
   for (const [clef, mot, quand] of RATIFIÉS) {
     assert.equal(FH_EN[clef], mot,
       `« ${clef} » devrait dire « ${mot} » (${quand}). Un mot ratifié se change ICI d'abord, ` +
       "et le changement se répercute au livre — sinon la fiche et le livre se séparent.");
   }
+});
+
+test("🔴 le badge dit « Edge » — le mot du livre, pas celui du code", () => {
+  /* Le renommage du 2026-08-21 est passé sur SEPT chaînes de ce dépôt (le badge
+     et six refus) et sur 38 occurrences du livre. Ce garde tient la seule que le
+     joueur lit sur sa ligne de jet.
+     ⭐ Pourquoi le mot est meilleur, et c'est l'argument d'Eric : *« you gain an
+     edge »* s'enseigne tout seul ; *tilt* devait être appris avant de vouloir
+     dire quelque chose. */
+  for (const [donnees, attendu] of BADGE_EDGE) {
+    assert.equal(FH_EN["badge.tilt"](donnees), attendu);
+  }
+  assert.doesNotMatch(FH_EN["badge.tilt"]({ tilts: 2, outcome: "advantage" }), /Tilt/,
+    "le mot « Tilt » ne doit plus atteindre le joueur — il n'est plus dans aucun chapitre");
 });
 
 test("⚔️ ATTAQUE — un mot ratifié renommé en douce est VU", () => {
