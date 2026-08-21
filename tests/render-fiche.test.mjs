@@ -387,7 +387,10 @@ test("l'exemple Fate's Hand anglais commité est EXACTEMENT ce que son générat
      `tests/tree-immuable.test.mjs` rougirait pour avoir simplement vérifié. */
   const commite = readFileSync(join(ROOT, SORTIE));
   assert.equal(octetsDe(exemple.document).equals(commite), true,
-    `${SORTIE} a divergé de son générateur — rejouer « node src/tools/exemple-fh-en.mjs »`);
+    SORTIE + " a divergé de son générateur — rejouer « node src/tools/exemple-fh-en.mjs ». " +
+    "⚠️ ET SI TU N'AS RIEN TOUCHÉ : layers/fh-lore-en.layer.json est écrite par " +
+    "~/tools/fh-phb/sync_from_vault.py:2074 à chaque publication du site. Une passe de " +
+    "publication suffit à faire rougir ce test — « git diff layers/ » le dira en une ligne.");
 });
 
 test("l'exemple porte bien ce que l'ancien ne portait pas : `stats` rempli, en anglais", () => {

@@ -58,7 +58,8 @@ test("🔴 le fichier commité est OCTET POUR OCTET une génération fraîche", 
     const { outPath } = generate({ outDir: tmp });
     assert.equal(readFileSync(outPath, "utf8"), readFileSync(CHEMIN, "utf8"),
       "`exports/fh-changes.json` a divergé de son générateur — soit il a été édité à la main, " +
-      "soit une couche a changé sans que la passe soit rejouée (`node src/tools/gen-fh-changes.mjs`).");
+      "soit une couche a changé sans que la passe soit rejouée (`node src/tools/gen-fh-changes.mjs`). " +
+      "⚠️ ET SI TU N'AS RIEN TOUCHÉ : `layers/fh-lore-en.layer.json` est écrite par `~/tools/fh-phb/sync_from_vault.py:2074` à chaque publication du site. Une passe de publication suffit à faire rougir ce test. `git diff layers/` le dira en une ligne. ");
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
