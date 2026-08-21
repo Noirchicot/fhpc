@@ -26,12 +26,12 @@ import { FH_EN } from "../src/modules/fh/labels.mjs";
 const RATIFIÉS = [
   /* L88, Eric 2026-08-06 — le registre COURT, celui de la fiche. */
   ["fh.crit20", "Crit 20", "L88 · registre court"],
-  ["fh.fumble1", "Fumble 1", "L88 · registre court"],
+  ["fh.fumble1", "Natural 1", "Eric 2026-08-21"],
   ["fh.critInf", "∞ critical", "L88 · registre court"],
   ["fh.fumbleInf", "∞ fumble", "L88 · registre court"],
   /* Le registre LONG du même lexique. */
   ["fh.CRIT20", "CRITICAL 20", "L88 · registre long"],
-  ["fh.FUMBLE1", "FUMBLE 1", "L88 · registre long"],
+  ["fh.FUMBLE1", "NATURAL 1", "Eric 2026-08-21"],
   /* Eric, 2026-08-21 — les deux mots du domaine arcanique, raccourcis et
      rendus symétriques. C'est le renommage que rien n'avait vu passer. */
   ["fh.outcome.arcane-critical-success", "Arcane Critical", "Eric 2026-08-21"],
@@ -96,7 +96,7 @@ test("⭐ le lexique est BI-REGISTRE — et le long DÉPLIE, il ne capitalise pa
      effacé la seule irrégularité qui portait une décision. */
   const PAIRES = [
     ["fh.crit20", "Crit 20", "fh.CRIT20", "CRITICAL 20"],
-    ["fh.fumble1", "Fumble 1", "fh.FUMBLE1", "FUMBLE 1"],
+    ["fh.fumble1", "Natural 1", "fh.FUMBLE1", "NATURAL 1"],
     ["fh.critInf", "∞ critical", "fh.CRITINF", "∞ CRITICAL"],
     ["fh.fumbleInf", "∞ fumble", "fh.FUMBLEINF", "∞ FUMBLE"]
   ];
@@ -112,19 +112,22 @@ test("⭐ le lexique est BI-REGISTRE — et le long DÉPLIE, il ne capitalise pa
 
 /* ══ LA QUESTION OUVERTE, ÉCRITE PLUTÔT QUE MASQUÉE ═══════════════════════ */
 
-test("⏳ DETTE — `Fumble 1` n'appartient à aucune des deux langues", () => {
-  /* 🔴 MESURÉ LE 2026-08-21, dans les 2 651 records du SRD 5.2.1 :
-       `Critical Hit`   entrée de glossaire, 15 occurrences
-       `Natural 20` · `Natural 1` · `Fumble` · `Critical Miss`   AUCUNE
-     Le système de base NOMME LE HAUT ET NE NOMME PAS LE BAS. Fate's Hand fait
-     pareil, et pour une raison de règle : il nomme le 20 parce qu'il l'a changé,
-     et laisse le 1 sans nom propre parce qu'un 1 nu ne décide rien.
+test("✅ RÉGLÉ — le 1 nu dit « Natural 1 », le mot du SRD", () => {
+  /* 🔴 TRANCHÉ PAR ERIC LE 2026-08-21, et ce n'est pas une asymétrie : c'est la
+     règle du SRD appliquée jusqu'au bout. **On nomme ce qu'on a changé.**
 
-     ⏳ D'où la dette : la table d'Eric veut « Critical 20 » et « Natural 1 »
-     dans le livre. Si elle s'applique telle quelle, `Fumble 1` reste sur la
-     fiche du joueur sans exister nulle part ailleurs — ni au SRD, qui ignore le
-     mot, ni au livre. **Ce test faillira le jour où Eric tranchera**, et c'est
-     voulu : il rappellera alors qu'il y a DEUX clefs à changer, pas une. */
-  assert.equal(FH_EN["fh.fumble1"], "Fumble 1");
-  assert.equal(FH_EN["fh.FUMBLE1"], "FUMBLE 1");
+       un 20 naturel          dépense un point de Destinée    → CRITICAL 20  (FH)
+       un 1 nu                ne décide rien, `intent: null`  → NATURAL 1    (SRD)
+       un critique arcanique  n'existe qu'en Fate's Hand      → Arcane Fumble (FH)
+
+     Mesuré dans les 2 651 records du SRD 5.2.1 : `Critical Hit` est une entrée de
+     glossaire, `Natural 20` / `Natural 1` / `Fumble` n'y sont nulle part. Le
+     système de base nomme le haut et ne nomme pas le bas ; Fate's Hand nomme ce
+     qu'il touche. ⛔ « Fumble » ne disparaît donc pas — il reste sur l'arcanique,
+     qui est à Eric de bout en bout. */
+  assert.equal(FH_EN["fh.fumble1"], "Natural 1");
+  assert.equal(FH_EN["fh.FUMBLE1"], "NATURAL 1");
+  assert.equal(FH_EN["verdict.natural-1-accepted"], "NATURAL 1");
+  assert.equal(FH_EN["fh.outcome.arcane-critical-failure"], "Arcane Fumble",
+    "témoin : le mot « Fumble » survit là où Fate's Hand a vraiment changé la règle");
 });

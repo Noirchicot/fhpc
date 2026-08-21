@@ -29,11 +29,11 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=276";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=276";
-import { renderChoixGlisses } from "./glisser.mjs?v=276";
-import { renderFicheBody } from "./catalogue.mjs?v=276";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=276";
+} from "./carnet.mjs?v=277";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=277";
+import { renderChoixGlisses } from "./glisser.mjs?v=277";
+import { renderFicheBody } from "./catalogue.mjs?v=277";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=277";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

@@ -36,15 +36,24 @@ export const FH_EN = {
      changé (le 20 dépense un point de Destinée), et laisse le 1 sans nom
      propre parce qu'un 1 nu ne décide rien — `intent: null`, gelé depuis la v1.
 
-     🔴 CE QUI RESTE OUVERT, ET C'EST UNE QUESTION POUR ERIC : si le livre dit
-     « Critical 20 » et « Natural 1 », alors **`Fumble 1` n'appartient plus à
-     aucune des deux langues** — ni au SRD, qui ignore le mot, ni au livre. Le
-     joueur le lirait sur sa fiche sans le retrouver nulle part. Ce n'est plus
-     un registre court : c'est un mot orphelin. */
+     ✅ TRANCHÉ PAR ERIC LE 2026-08-21 : c'est **« Natural 1 »**. Le mot
+     « Fumble 1 » quitte le lexique du 1 nu — il n'appartenait à aucune des deux
+     langues, ni au SRD qui ignore le mot, ni au livre.
+
+     ⭐ ET SA DÉCISION N'EST PAS UNE ASYMÉTRIE, C'EST UNE RÈGLE — la même que
+     celle du SRD, appliquée jusqu'au bout : **on nomme ce qu'on a changé.**
+
+       un 20 naturel     dépense un point de Destinée   → mot FH : CRITICAL 20
+       un 1 nu           ne décide rien (`intent: null`) → mot SRD : NATURAL 1
+       un critique arcanique   n'existe qu'en FH         → mot FH : Arcane Fumble
+
+     ⛔ « Fumble » ne disparaît donc pas : il reste sur l'ARCANIQUE, qui est à
+     Eric de bout en bout. Ce qui disparaît, c'est un mot maison posé sur un
+     événement que Fate's Hand n'a pas touché. */
   "fh.crit20": "Crit 20",
   "fh.CRIT20": "CRITICAL 20",
-  "fh.fumble1": "Fumble 1",
-  "fh.FUMBLE1": "FUMBLE 1",
+  "fh.fumble1": "Natural 1",
+  "fh.FUMBLE1": "NATURAL 1",
   "fh.critInf": "∞ critical",
   "fh.CRITINF": "∞ CRITICAL",
   "fh.fumbleInf": "∞ fumble",
@@ -55,12 +64,12 @@ export const FH_EN = {
   "verdict.arcane-critical-failure": "∞ FUMBLE",
   "verdict.arcane-critical-success": "∞ CRITICAL",
   "verdict.fate-refused": "FATE REFUSED",
-  "verdict.natural-1-accepted": "FUMBLE 1",
-  "verdict.natural-1-open": "FUMBLE 1 · CHOOSE",
+  "verdict.natural-1-accepted": "NATURAL 1",
+  "verdict.natural-1-open": "NATURAL 1 · CHOOSE",
 
   /* ── Badges ───────────────────────────────────────────────────────── */
   "badge.natural-20": "CRITICAL 20",
-  "badge.natural-1-accepted": "Fumble 1 accepted",
+  "badge.natural-1-accepted": "Natural 1 accepted",
   "badge.fate-refused": "Fate refused",
   "badge.chaos-roll": (d) => "Chaos 2d6 = " + d.total,
   "badge.chaos-row": (d) => d.row,
@@ -210,7 +219,7 @@ export const FH_EN = {
   "fh.reason.manual-correction": "Manual correction",
   "fh.reason.recovery": "Destiny recovery",
   "fh.reason.fate-refused": "Arcane fate refused",
-  "fh.reason.fate-accepted": "Fumble 1 accepted",
+  "fh.reason.fate-accepted": "Natural 1 accepted",
   "fh.reason.invoked-chaos": "Invoked Chaos",
   "fh.reason.awakening": "Arcane Awakening",
   "fh.reason.overreach-held": "Overreach held",
@@ -238,7 +247,7 @@ export const FH_EN = {
     "∞ FATE REFUSED · The 1 becomes " + d.sides + " · ∞ critical" + (d.hadPoints ? " · Destiny becomes 0" : ""),
   "fh.event.chaos-pending": "CHAOS IS PENDING · 1 fatigue point per round until you face it",
   "fh.event.gained-one-point": "Gained 1 Destiny Point",
-  "fh.event.fate-accepted": "FATE ACCEPTED · Fumble 1",
+  "fh.event.fate-accepted": "FATE ACCEPTED · Natural 1",
   "fh.event.fate-defied": (d) => "FATE DEFIED · The 1 becomes 20" + (d.hadPoints ? " · Destiny becomes 0" : ""),
   "fh.event.awakening-roll": "ARCANE AWAKENING · Crit 20 at Destiny 0",
   "fh.event.crit20-roll": "CRITICAL 20 · Fate bends in your favor",

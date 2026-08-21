@@ -321,10 +321,10 @@ test("les quatre renommages ratifiés, du côté PARLÉ seulement", () => {
      humain, geler ce que lit un programme » voulait dire : le renommage est
      devenu une édition de données. */
   assert.equal(labels("verdict.natural-20"), "CRITICAL 20", "Natural 20 speaks as CRITICAL 20");
-  assert.equal(labels("verdict.natural-1-accepted"), "FUMBLE 1", "an accepted natural 1 speaks as FUMBLE 1");
+  assert.equal(labels("verdict.natural-1-accepted"), "NATURAL 1", "an accepted natural 1 speaks as NATURAL 1 — Eric, 2026-08-21: Fate's Hand names what it changed, and a bare 1 changes nothing");
   assert.equal(labels("verdict.arcane-critical-success"), "∞ CRITICAL", "the Arcane critical success speaks as ∞ CRITICAL");
   assert.equal(labels("verdict.arcane-critical-failure"), "∞ FUMBLE", "the Arcane critical failure speaks as ∞ FUMBLE");
-  assert.equal(labels("verdict.natural-1-open"), "FUMBLE 1 · CHOOSE", "the undecided 1 says the family and that it is undecided (L6)");
+  assert.equal(labels("verdict.natural-1-open"), "NATURAL 1 · CHOOSE", "the undecided 1 says the family and that it is undecided (L6)");
   assert.equal(labels("verdict.fate-refused"), "FATE REFUSED", "et FATE REFUSED, qui était le seul écrit en dur, passe par la table comme les autres");
   // Le paquet SRD, lui, ne connaît aucun de ces cinq-là : ils descendent avec la couche.
   ["arcane-critical-success", "arcane-critical-failure", "fate-refused", "natural-1-accepted", "natural-1-open"]
