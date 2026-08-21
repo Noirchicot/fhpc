@@ -23,12 +23,12 @@
    module ne reconnaît pas fait JETER `rebuild()`. Le mode vit en mémoire
    d'écran, jamais dans `build.choices`. */
 
-import { drawArcana } from "./dice.mjs?v=277";
-import { renderCardRows } from "./catalogue.mjs?v=277";
+import { drawArcana } from "./dice.mjs?v=278";
+import { renderCardRows } from "./catalogue.mjs?v=278";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=277";
+import { versionQuery } from "./version.mjs?v=278";
 
 export { drawArcana };
 
@@ -41,9 +41,9 @@ const DESTINY_STAT_ID = "fh:destiny";
  *  Justice en 8 et la Force en 11, le moteur suit Rider-Waite). */
 export const ARCANA_DIR = "./assets/arcana";
 export function arcanaImageSrc(id) {
-  return `${ARCANA_DIR}/${String(id).replace("fh:arcana:en:", "")}.jpg${versionQuery(import.meta.url)}`;
+  return `${ARCANA_DIR}/${String(id).replace("fh:arcana:en:", "")}.webp${versionQuery(import.meta.url)}`;
 }
-export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.jpg${versionQuery(import.meta.url)}`;
+export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.webp${versionQuery(import.meta.url)}`;
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -170,6 +170,13 @@ export function renderArcanaCardBody(query, id) {
   const data = (view && view.record && view.record.data) || {};
   const img = document.createElement("img");
   img.className = "card-choice-img";
+  /* ⭐ PARESSEUX, ET SEULEMENT ICI. Le catalogue liste les VINGT-DEUX faces —
+     2,4 Mo depuis la vague v8 d'Eric, contre 1,1 Mo du temps de Marseille. Sans
+     ça, ouvrir « Choose yourself » télécharge le jeu entier avant d'afficher la
+     première carte. ⛔ La carte RÉVÉLÉE (`renderReveal`) reste pressée : elle est
+     seule, elle est attendue, et un chargement différé y ferait clignoter le
+     geste le plus théâtral de l'écran. */
+  img.loading = "lazy";
   img.src = arcanaImageSrc(id);
   img.alt = "";
   const rows = renderCardRows([

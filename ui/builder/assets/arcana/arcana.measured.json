@@ -1,216 +1,218 @@
 {
-  "_": "Les 22 arcanes majeurs (Tarot de Marseille, domaine public) + le dos FH.",
-  "_mapping": "PAR NOM, jamais par numéro : Marseille met Justice en 8 et Force en 11, le moteur suit Rider-Waite (strength=VIII, justice=XI). Un mapping par numéro les intervertirait en silence.",
-  "_provisoire": "L'art FH d'Eric couvre 12 des 22 (statuts locked/pilot/approved). Marseille tient l'écran en attendant les 22 ; le remplacement est un échange de fichiers, l'écran ne change pas.",
-  "_dos": "Redimensionné à 720 px de large (arbitrage d'Eric) — la source fait 959 px, mais les faces de Marseille n'en font que 350 : un dos net sur des faces molles serait pire qu'un jeu homogène.",
-  "mesure_le": "2026-08-14",
+  "_": "Les 22 arcanes majeurs de Fate's Hand, illustrés par Eric (vague v8) + le dos.",
+  "_vague": "v8 — livrée le 2026-08-21. ⭐ ELLE REMPLACE LE TAROT DE MARSEILLE, qui tenait l'écran depuis le 2026-08-14 en attendant les 22. Le manifeste précédent l'annonçait : « le remplacement est un échange de fichiers, l'écran ne change pas » — c'est ce qui vient de se passer.",
+  "_mapping": "PAR NOM, jamais par numéro. Marseille met Justice en 8 et Force en 11 ; le moteur suit Rider-Waite (strength=VIII, justice=XI). ⭐ Les fichiers d'Eric sont DÉJÀ numérotés Rider-Waite, donc un mapping par numéro ne les inverserait pas AUJOURD'HUI — et c'est précisément pourquoi la règle reste : elle protège la prochaine vague, pas celle-ci.",
+  "_format": "WebP q82, 480 × 823. ⚠️ PAS DU JPEG, et c'est mesuré : l'art d'Eric est une mosaïque — des tesselles partout, le pire cas pour un JPEG. À qualité égale, 204 Ko en JPEG contre 100 Ko en WebP. Le WebP donne le DOUBLE de la résolution des faces de Marseille (350 px) pour à peine plus de poids. C'est aussi le format des fiches de classe et d'espèce.",
+  "_dos": "Au même gabarit que les faces (480 × 823). L'arbitrage précédent le posait à 720 px « parce que les faces de Marseille n'en font que 350 : un dos net sur des faces molles serait pire qu'un jeu homogène ». La raison a disparu avec Marseille.",
+  "_source": "Masters hors dépôt : ~/Desktop/Claude Drop/FH-Tarot-22-Card-Framed-v8/ — 959 × 1644 PNG opaque sRGB. Ne pas les commiter : 2,5 Mo pièce.",
+  "mesure_le": "2026-08-21",
   "fichiers": {
-    "the-fool.jpg": {
-      "source": "22-le-mat",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 49901,
-      "sha256": "6c65be4d05f7e3ca81bbc0c773f13f5accce53e19b41419723cea04186d10b20"
-    },
-    "the-magician.jpg": {
-      "source": "1-le-bateleur",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 53013,
-      "sha256": "ff4f7185fe686089f153fb32d07e883f7a48c689e14c472e289fbf0891b074aa"
-    },
-    "the-high-priestess.jpg": {
-      "source": "2-la-papesse",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 52235,
-      "sha256": "f64bd930ec8ed0f7fe69b0e051470613afe6551be75d52a5b7a2c88e1e317172"
-    },
-    "the-empress.jpg": {
-      "source": "3-l-imperatrice",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 51762,
-      "sha256": "ef9593e95449f0d7cb3f44fda42cd603c5d10833e311abdc0fae86e184bba27e"
-    },
-    "the-emperor.jpg": {
-      "source": "4-l-empereur",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 49624,
-      "sha256": "b2150b11012e7708fcb57f1fdcce5eae6bb0f76657731e7a90d80769b3dac656"
-    },
-    "the-hierophant.jpg": {
-      "source": "5-le-pape",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 50946,
-      "sha256": "c718a12dc8e3781474a25fa8048d1ebe2f53ce2bf796eff58369c2a2d9613642"
-    },
-    "the-lovers.jpg": {
-      "source": "6-l-amoureux",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 54830,
-      "sha256": "bb814c38092ca142aa53b78d48e6ae55c01019d67f16362a0b94165e45559971"
-    },
-    "the-chariot.jpg": {
-      "source": "7-le-chariot",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 57499,
-      "sha256": "16b61e5f4968a3a644634f52aee2d49cf21fa016d8d135765a3935149223fd4a"
-    },
-    "strength.jpg": {
-      "source": "11-la-force",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 46820,
-      "sha256": "212ec54484822ab1c7b89721b61f411f164d41b0052143b195c3cc357d19ff00"
-    },
-    "the-hermit.jpg": {
-      "source": "9-l-hermite",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 43080,
-      "sha256": "3677aa683b4e75a4b79b9cee7f18fa73100c5c23b13552b44684476b764b9b76"
-    },
-    "wheel-of-fortune.jpg": {
-      "source": "10-la-roue-de-fortune",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 51210,
-      "sha256": "b974301f35b67acd32cf913acd0e9aebe80027de65c82883c969e796e64796da"
-    },
-    "justice.jpg": {
-      "source": "8-la-justice",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 49910,
-      "sha256": "80dd1965713368b0d88bf798f0b5f1410435f5fa2bf7de8657fad7597a0be9f9"
-    },
-    "the-hanged-man.jpg": {
-      "source": "12-le-pendu",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 44608,
-      "sha256": "15d97337153bc7bd469e218830fb9e832eed757bfbc7dd59e147689c886e1dcc"
-    },
-    "death.jpg": {
-      "source": "13-l-arcane-sans-nom",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 50205,
-      "sha256": "e00ad6ab0d6c9c9a98a1fabe311cdf4566aac8b2f7f39bcd333a04808f8d1774"
-    },
-    "temperance.jpg": {
-      "source": "14-la-temperance",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 49822,
-      "sha256": "60a7b5399dd0fc64ff78ee40781de4e8d514b9616361ad2531ec9e0237b11de0"
-    },
-    "the-devil.jpg": {
-      "source": "15-le-diable",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 55472,
-      "sha256": "557b0b1f0d449642251fc063d95804f9371e695efbdb41e56c4167dd05f11c8b"
-    },
-    "the-tower.jpg": {
-      "source": "16-la-maison-dieu",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 58917,
-      "sha256": "53e15768dfe248ed595f45c2046cb43d396715ea8921e9486f3539003cfc5379"
-    },
-    "the-star.jpg": {
-      "source": "17-l-etoile",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 53046,
-      "sha256": "1d348c701a12ec85c9ac74f132304e296fa48a87c0a8ba3345a8c1996d4b7395"
-    },
-    "the-moon.jpg": {
-      "source": "18-la-lune",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 53678,
-      "sha256": "572bbbc8fc0d55849dbcf64e323d9eaa9f64c0a97c22794e981df9b2df6f46ed"
-    },
-    "the-sun.jpg": {
-      "source": "19-le-soleil",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 58200,
-      "sha256": "cfa2048f3ba2934d1e33e2aa6d74f52322ad300e35ec12584c3b47ad92db6824"
-    },
-    "judgement.jpg": {
-      "source": "20-le-jugement",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 56843,
-      "sha256": "f6627fcce8609f7f8dc51bdbc773bb1b3fb91af9d777eca259114dbefa1f1662"
-    },
-    "the-world.jpg": {
-      "source": "21-le-monde",
-      "dimensions": [
-        350,
-        650
-      ],
-      "octets": 60678,
-      "sha256": "40d1c3e43627100a9057fb89a396ae05d262f9e0a9c0f2e87e1127cef90de967"
-    },
-    "back.jpg": {
+    "back.webp": {
       "source": "FH-Tarot-Card-Back-Candidate-v1.png",
       "dimensions": [
-        720,
-        1234
+        480,
+        823
       ],
-      "octets": 251962,
-      "sha256": "92bb397573c7bfdfa63752f0cb946ef35e7e2908a6813341cca79ea1de7a600b"
+      "octets": 119576,
+      "sha256": "4ce11b28dab41b9578d3c60c2ad6c4aea5642136cdf39ae7e3dd5ab9cbd62212"
+    },
+    "death.webp": {
+      "source": "XIII-Death-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 112166,
+      "sha256": "3bc76e0cebd79455967d2439015c54514fa03c0cb69bd4812ef23cce601cd8dd"
+    },
+    "judgement.webp": {
+      "source": "XX-Judgement-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 102372,
+      "sha256": "8e24073c5fb590c919d57db39b4b1b8dbc3a11084968c01e6484b3414369be28"
+    },
+    "justice.webp": {
+      "source": "XI-Justice-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 111734,
+      "sha256": "33194caa1c0aa8ec3b7e49107f7d904859a6e67255e729b0c7cc718f89990ad6"
+    },
+    "strength.webp": {
+      "source": "VIII-Strength-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 113484,
+      "sha256": "1ab5b408b2c66d37532eaf94127232b13b9e363b6776416ddb63b9959b88e677"
+    },
+    "temperance.webp": {
+      "source": "XIV-Temperance-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 114650,
+      "sha256": "07a558f6ddc5de2e4e5178a63d36dcc4bf6c91fa1cb27f1a3470a77fa4f7e625"
+    },
+    "the-chariot.webp": {
+      "source": "VII-The-Chariot-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 113584,
+      "sha256": "0d672e5102d44df6806c7677ebf9513bbd1e677a8108d69048bccf0533070c02"
+    },
+    "the-devil.webp": {
+      "source": "XV-The-Devil-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 87716,
+      "sha256": "b9006bc86a3c21d499b7567b3500b27f8abc4cf74a14917dc2e8030b41935880"
+    },
+    "the-emperor.webp": {
+      "source": "IV-The-Emperor-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 102754,
+      "sha256": "0a9073cb49c7cda1ea96fa8efbc0b8b7e615d8d90913509c0bea7e7ddb2301dd"
+    },
+    "the-empress.webp": {
+      "source": "III-The-Empress-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 120782,
+      "sha256": "a057862d95ea4a1e3ded91b0eba08aa446783ce656d034f9b6badd044c5689e7"
+    },
+    "the-fool.webp": {
+      "source": "0-The-Fool-framed-locked-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 100304,
+      "sha256": "b3ef726dc810dbda0b0e9291b114471ef54b730407d8c655b4ac18a747a48dab"
+    },
+    "the-hanged-man.webp": {
+      "source": "XII-The-Hanged-Man-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 119728,
+      "sha256": "3e42b5de18461b865408eb228b1a759f49ca3076a773f7c7cd835b461da7a6fd"
+    },
+    "the-hermit.webp": {
+      "source": "IX-The-Hermit-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 91812,
+      "sha256": "b68c3bbe8a16c25b907930a411b5cb8ac0d3f219c14f82b81f6346f522297dfd"
+    },
+    "the-hierophant.webp": {
+      "source": "V-The-Hierophant-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 94998,
+      "sha256": "3cd805f95313bdb9b7d1670df41006f1b4803067d87860bf1abb97c9106779aa"
+    },
+    "the-high-priestess.webp": {
+      "source": "II-The-High-Priestess-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 88636,
+      "sha256": "ec97a784b37bb0c56057a64696246e5fb5668e654ae5c13b1a9e5aae065b32ea"
+    },
+    "the-lovers.webp": {
+      "source": "VI-The-Lovers-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 116298,
+      "sha256": "b1530ed70ce1505ef14dd6abdb1cab0f4b30396027d0a4b84ea100e3994e6b0b"
+    },
+    "the-magician.webp": {
+      "source": "I-The-Magician-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 105856,
+      "sha256": "ccacdd22ca079554507db37b1d57794667604d7f299676d634028520bf6d0c7d"
+    },
+    "the-moon.webp": {
+      "source": "XVIII-The-Moon-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 72628,
+      "sha256": "2f3d8063ac490466774a5d25f1188cd3f3d0b7df4a0e91012346d167eb78eafa"
+    },
+    "the-star.webp": {
+      "source": "XVII-The-Star-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 89234,
+      "sha256": "03cf008115ce0971ae6205d2ff1555511b76e3208720d711f5d980cb13088220"
+    },
+    "the-sun.webp": {
+      "source": "XIX-The-Sun-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 124860,
+      "sha256": "0a699d28ca3cb5cc205e6cc75d25bea0037d5f26263a3bcd9b06526f34819ee7"
+    },
+    "the-tower.webp": {
+      "source": "XVI-The-Tower-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 100852,
+      "sha256": "cf7416047c9b5d0385853b9b535faceb2506c249a0d3006226ff5ba4f3e37c61"
+    },
+    "the-world.webp": {
+      "source": "XXI-The-World-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 122432,
+      "sha256": "e618f8ac0837b25311eab7306e7e27ee2e2ee387b3e58174ad3a826769b14b1a"
+    },
+    "wheel-of-fortune.webp": {
+      "source": "X-Wheel-of-Fortune-framed-candidate-v8.png",
+      "dimensions": [
+        480,
+        823
+      ],
+      "octets": 125904,
+      "sha256": "5efda2088340ce47074685717d2c447acc8caa20df7bcb890c0a396e23f68082"
     }
   }
 }

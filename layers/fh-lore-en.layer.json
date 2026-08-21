@@ -105,7 +105,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 5–6 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Elven Lineage** — choose a lineage from the Elven Lineages table; you gain its level 1 benefit. At character levels 3 and 5 you learn the listed spell, always prepared, castable once without a slot per Long Rest, or with any slot of the appropriate level. Intelligence, Wisdom or Charisma is your spellcasting ability for this trait (chosen with the lineage).\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Keen Senses** *(FH)* — **2 skill points**, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The SRD grants one proficiency among Insight, Perception or Survival.)*\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Destiny** *(FH)* — Base 2. **Splinter of Anon** *(elf chosen)*: **+2** to your Destiny pool."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 5–6 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Elven Lineage** — choose a lineage from the Elven Lineages table; you gain its level 1 benefit. At character levels 3 and 5 you learn the listed spell, always prepared, castable once without a slot per Long Rest, or with any slot of the appropriate level. Intelligence, Wisdom or Charisma is your spellcasting ability for this trait (chosen with the lineage).\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Keen Senses** *(FH)* — 2 skill points, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The base game grants one proficiency among Insight, Perception or Survival.)*\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Destiny** *(FH)* — Base 2. **Splinter of Anon** *(elf chosen)*: +2 to your Destiny pool."
               },
               {
                 "heading": "Elven Lineages",
@@ -172,7 +172,7 @@
                     ],
                     [
                       "**The Mole People** *(FH)*",
-                      "Your Darkvision increases to **120 feet**; you gain **Meticulous** — Advantage on Investigation checks — and **1 skill point** (**Novice**) in **tinker's tools**"
+                      "Your Darkvision increases to 120 feet; you gain **Meticulous** — Advantage on Investigation checks — and 1 skill point (**Novice**) in **tinker's tools**"
                     ]
                   ]
                 }
@@ -258,7 +258,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 4–7 feet tall) or Small (about 2–4 feet tall), chosen when you select this species · **Speed** 30 feet\n\n- **Skillful** *(FH)* — +2 skill points at level 1, and that is all. *(The SRD grants one skill proficiency; Fate's Hand converts every level-1 grant into pool points.)*\n\n- **Versatile** — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2. **Twice-Born** *(human chosen)*: recover **2** Destiny Points per Long Rest instead of one."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 4–7 feet tall) or Small (about 2–4 feet tall), chosen when you select this species · **Speed** 30 feet\n\n- **Skillful** *(FH)* — +2 skill points at level 1, and that is all. *(The base game grants one skill proficiency; Fate's Hand converts every level-1 grant into pool points.)*\n\n- **Versatile** — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2. **Twice-Born** *(human chosen)*: recover 2 Destiny Points per Long Rest instead of one."
               }
             ]
           }
@@ -353,7 +353,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 60 feet.\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Keen Senses** *(FH)* — **2 skill points**, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The SRD grants one proficiency among Insight, Perception or Survival.)*\n\n- **Fast Learner** *(FH)* — +2 skill points at levels 1, 3 and 6.\n\n- **Destiny** *(FH)* — Base 2."
+                "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 60 feet.\n\n- **Fey Ancestry** — Advantage on saving throws you make to avoid or end the Charmed condition.\n\n- **Trance** — you don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours of trancelike meditation, during which you retain consciousness.\n\n- **Keen Senses** *(FH)* — 2 skill points, spendable only on **Survival**, **Delve** or **Vigilance**, at the normal cost: half on two of the three, or full on a single one. *(The base game grants one proficiency among Insight, Perception or Survival.)*\n\n- **Fast Learner** *(FH)* — +2 skill points at levels 1, 3 and 6.\n\n- **Destiny** *(FH)* — Base 2."
               }
             ]
           }

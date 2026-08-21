@@ -45,6 +45,22 @@ export const SORTIE = "examples/personnage-fh-en-niveau1.fh-char.json";
 /* EXPORTÉE pour `tests/fiche-360.test.mjs` (garde 3), sur le précédent de
    `LAYER_FILES` : le garde compare les DEUX listes réelles, jamais deux
    recopies qui pourraient diverger de la même façon que les piles. */
+/* 🔴 UNE DE CES COUCHES N'EST PAS ÉCRITE ICI — découvert le 2026-08-21, à la
+   dure. `fh-lore-en.layer.json` est **produite par un AUTRE dépôt** :
+   `~/tools/fh-phb/sync_from_vault.py:2074` l'écrit depuis les chapitres du
+   vault, à chaque publication du site. La presse publie dans TROIS dépôts —
+   `fh-phb`, celui-ci, et `fh-skills` — et rien ne le disait nulle part.
+
+   ⚠️ CE QUE ÇA COÛTE QUAND ON L'IGNORE : une passe de publication modifie la
+   couche, donc son empreinte SHA-256, donc `examples/personnage-fh-en-
+   niveau1.fh-char.json` et `exports/fh-changes.json` cessent de correspondre.
+   Deux suites rougissent en accusant « une couche a changé sans que la passe
+   soit rejouée » — et elles ont raison, mais la passe en question n'est pas
+   la nôtre. Trois fils ont cherché un quart d'heure avant de trouver.
+
+   ⭐ ET CE N'EST PAS UN DÉFAUT D'ARCHITECTURE : le vault est le manuscrit, le
+   lore des espèces en descend, et il est juste qu'il coule jusqu'ici. Ce qui
+   manquait n'était pas une frontière, c'était sa DÉCLARATION. La voici. */
 export const PILE = [
   "layers/srd-5.2.1-en.layer.json",
   "layers/fh-species-en.layer.json",

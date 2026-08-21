@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=277";
-import { versionQuery } from "./version.mjs?v=277";
+import { planAt } from "./carnet.mjs?v=278";
+import { versionQuery } from "./version.mjs?v=278";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -48,7 +48,7 @@ import { versionQuery } from "./version.mjs?v=277";
 const IMAGES_DE_FICHE = "./assets/fiches";
 /* ⏳ Le dos de carte, en attendant les fiches qui n'ont pas encore la leur.
    Il porte la version du graphe comme tout ce que `ui/` charge (lot 75). */
-export const DOS_DE_CARTE = `./assets/arcana/back.jpg${versionQuery(import.meta.url)}`;
+export const DOS_DE_CARTE = `./assets/arcana/back.webp${versionQuery(import.meta.url)}`;
 
 export function imageDeFiche(id) {
   return `${IMAGES_DE_FICHE}/${String(id).split(":").pop()}.webp${versionQuery(import.meta.url)}`;

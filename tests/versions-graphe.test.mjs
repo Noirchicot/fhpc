@@ -332,12 +332,12 @@ test("7 — versionQuery lit l'URL qu'on lui donne, et rend «» sans query (Nod
 
 test("8 — les arcanes portent la version du module qui les demande", async () => {
   const frais = await import("../ui/builder/destiny-step.mjs?v=888");
-  assert.equal(frais.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.jpg?v=888");
-  assert.ok(frais.ARCANA_BACK_SRC.endsWith("/back.jpg?v=888"), frais.ARCANA_BACK_SRC);
+  assert.equal(frais.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.webp?v=888");
+  assert.ok(frais.ARCANA_BACK_SRC.endsWith("/back.webp?v=888"), frais.ARCANA_BACK_SRC);
   /* Sans query — le cas des tests et de Node — les URL sont celles d'avant
      le lot : rien à percer sur un chemin local. */
   const nu = await import("../ui/builder/destiny-step.mjs");
-  assert.equal(nu.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.jpg");
+  assert.equal(nu.arcanaImageSrc("fh:arcana:en:death"), "./assets/arcana/death.webp");
 });
 
 test("9 — le moteur demande couches, exemple et schéma SOUS SA version — la pile monte quand même", async () => {
