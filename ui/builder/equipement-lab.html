@@ -1,0 +1,1394 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R — banc d'essai de l'écran Équipement</title>
+<link rel="stylesheet" href="./tokens.css?v=278">
+<link rel="stylesheet" href="./shell.css?v=278">
+<!-- ⚠️ `fiche.css` EST CHARGÉE POUR UNE SEULE CHOSE : la cote F1. Eric,
+     2026-08-22 : *« ça fait au max la taille du F1 de Species »*. La valeur
+     n'est PAS recopiée ici — voir la note « la cote F1 » dans la feuille du
+     banc, qui explique par où elle descend et ce que ça révèle. -->
+<link rel="stylesheet" href="./fiche.css?v=278">
+<style>
+  /* ══ BANC D'ESSAI — pas une page du builder ═══════════════════════════
+     Commande d'Eric, 2026-08-21 : l'écran `R` du croquis
+     `fh-phb/croquis/2026-08-21-equipement-R-B-SB.jpg`, nommé pièce par pièce
+     dans `fh-phb/docs/lab/R.html`. La colonne d'objets (`R.list`) à GAUCHE,
+     qui défile ; la colonne de commande à DROITE, qui empile `R.cat`
+     (les onglets), `R.find` (recherche + bourse), `R.bag`, `R.craft`.
+
+     ⚠️ CE FICHIER N'EST PAS TENU PAR LES GARDES DE `shell.css` (littéraux de
+     couleur, d'espacement, de corps) — c'est un banc, pas de la production.
+     Il emprunte en revanche les VRAIS organes : `.belt`/`.belt-track`/
+     `.belt-item` pour les deux carrousels, `.glisse-creneau` pour les
+     récepteurs, `.equipment-*` pour la bourse, la recherche et les lignes
+     d'objet, `swapContent` de `socle.mjs` pour tout remplacement de contenu.
+     Ce qu'on éprouve ici est ce qui tournera.
+
+     ⛔ AUCUN `innerHTML`, AUCUN `replaceChildren`, AUCUN `removeChild` :
+     `tests/socle.test.mjs` balaye `ui/builder/` et interdit les trois hors de
+     `socle.mjs`. Ce banc passe donc par `swapContent`, comme le builder.
+     ⛔ ET `?v=278` SUR CHAQUE LIEN : `tests/versions-graphe.test.mjs` exige
+     une seule version dans tout le graphe `ui/`. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: var(--font); font-size: var(--t4); line-height: 1.5;
+  }
+
+  /* ══ LE VRAI FOND DU BUILDER, ET C'EST UN INSTRUMENT DE MESURE ════════
+     Eric, 2026-08-22 : *« mets un fond derrière, je veux m'assurer que les
+     marges sont respectées, que la dalle flotte »*.
+
+     🔴 SANS LUI, UNE DALLE OPAQUE ET UNE DALLE VOILÉE SONT INDISCERNABLES —
+     et ce n'est pas une intuition, c'est l'incident du 2026-08-15, raconté
+     dans `shell.css` : Eric voyait *« rien de transparent ici »* alors que
+     les voiles étaient bien posés, 35 % et 50 %, mesurés. *« La cause n'était
+     pas les voiles, c'était ce qu'il y a derrière (…) un voile sur du plein
+     ne se voit pas. »* Un banc sans fond ne permet donc de valider NI
+     d'infirmer quoi que ce soit sur la matière.
+
+     ⭐ LA CLASSE EST EMPRUNTÉE, PAS RECOPIÉE. `.app` porte déjà
+     `background-image: var(--bg-image)`, `cover`, `center` — et le jeton
+     bascule seul sur `bg-night.jpg` en thème sombre. Recopier la déclaration
+     l'aurait fait diverger, exactement comme pour la cote F1.
+     ⭐ ET ON PREND LE CADRE ENTIER, PAS SEULEMENT SON FOND : `.app` fait
+     100 dvh et ne défile pas, ce qui rend son fond IMMOBILE par construction
+     (« une propriété de moins, et celle-là est justement connue pour ramer
+     sur mobile »). Le banc défile donc DANS un `.banc-scroll`, comme la fiche
+     défile dans la scène. Aucune propriété de `.app` n'est réécrite : c'est
+     la seule façon d'éprouver le fond tel qu'Eric le verra.
+     📌 Chemin vérifié : `--bg-image` vaut `url("./assets/bg-day.jpg?v=278")`,
+     relatif à `tokens.css`, qui vit dans le même dossier que ce banc — il
+     résout. Un fond manquant est silencieux, il fallait le confirmer. */
+  .banc-scroll {
+    flex: 1 1 auto; min-height: 0;
+    overflow-y: auto; overscroll-behavior: contain;
+    padding: var(--sp-16) var(--sp-8) var(--sp-32);
+  }
+  h1 { font-size: var(--t6); margin: 0 0 var(--sp-4); }
+  .sous { color: var(--text-muted); font-size: var(--t3); margin: 0; max-width: 72ch; }
+  .banc { max-width: 900px; margin-inline: auto; }
+  /* Le châssis du banc lui-même (titre, interrupteur, relevé) porte de la
+     mention et des boutons bordés : même matrice, mêmes dalles MAJEURES.
+     Un banc qui violerait la règle qu'il sert à éprouver ne prouverait rien. */
+  .banc-bloc {
+    padding: var(--sp-12) var(--sp-16);
+    margin-bottom: var(--sp-8);
+  }
+
+  /* ── L'INTERRUPTEUR A/B — la question ouverte du banc ────────────────
+     Réemploi de `.record-option` : c'est déjà le bouton « choix actif » du
+     dépôt (accent plein + `--on-accent`), et c'est exactement ce rôle. */
+  .variante {
+    display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap;
+    margin-bottom: var(--sp-16);
+  }
+  .variante-titre {
+    font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .variante-dit { flex: 1 1 100%; margin: 0; font-size: var(--t2); color: var(--text-muted); }
+
+  /* ══ LA SCÈNE — DEUX COLONNES, la liste à gauche, R à droite ═════════
+     Les proportions viennent de `docs/lab/R.html` (1 / 1,15) : la colonne de
+     commande est la plus large des deux, parce que c'est elle qui porte des
+     contrôles, pas seulement du texte. */
+  .scene {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--sp-12);
+    align-items: start;
+  }
+  /* À l'étroit, la commande passe DEVANT : elle décide de ce que la liste
+     contient, et on ne fait pas défiler cent lignes pour atteindre son
+     interrupteur. C'est `order`, pas un autre balisage — le DOM garde
+     l'ordre du croquis (liste d'abord, comme `R.html`). */
+  @media (max-width: 640px) {
+    .scene { grid-template-columns: minmax(0, 1fr); }
+    .colonne-r { order: -1; }
+  }
+  /* 🔴 `min-width: 0` PARTOUT SUR LA CHAÎNE, ET C'EST MESURÉ, PAS PRUDENT.
+     Un enfant de grille (comme de flex) part en `min-width: auto`, c'est-à-dire
+     sa largeur de contenu SANS RETOUR À LA LIGNE. À 375 px, la colonne d'objets
+     réclamait 937 px — les noms d'objets sur une seule ligne — et emportait la
+     page entière en défilement horizontal. `minmax(0, 1fr)` borne la PISTE,
+     jamais l'objet posé dedans : les deux se règlent, pas l'un ou l'autre. */
+  .colonne-r, .bloc, .equipment-item-text { min-width: 0; }
+  .r-find-ligne .equipment-search-input { min-width: 0; }
+
+  /* Chaque bloc nommé du croquis est une DALLE (`.dalle-intermediaire` du
+     dépôt) plus son étiquette de nom, pour qu'Eric reconnaisse les pièces
+     de `R.html` en les regardant. */
+  /* ══ LA CARTE R EST OPAQUE, ET C'EST LA MATRICE QUI L'EXIGE ══════════
+     Les quatre blocs portaient `.dalle-intermediaire` (voile 50 %). La
+     matrice du lot 59, dans `shell.css`, l'interdit : *« un libellé en
+     `--text-muted`, une bordure de contrôle, un mot en accent : ils exigent
+     une dalle MAJEURE. Aucun voile intermédiaire ne les sauve — même à 50 %,
+     `--text-soft` plafonne à 4,1:1. »* Or `R` porte les trois : des titres en
+     mention, le champ de recherche et les récepteurs à bordure de CONTRÔLE.
+     ⭐ ET ÇA TOMBE JUSTE AVEC CE QU'ERIC DÉCRIT : *« la carte ne défile pas,
+     les tuiles oui »*. La carte est opaque, les tuiles flottent. Le fond
+     respire ENTRE et AUTOUR d'elles, pas à travers la carte — c'est la note
+     de mise en page de la bible, mot pour mot. */
+  .bloc { position: relative; padding: var(--sp-16) var(--sp-8) var(--sp-8); margin-bottom: var(--sp-8); }
+  .bloc-id {
+    position: absolute; top: 0; left: 0;
+    font: 600 var(--t1)/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .06em;
+    color: var(--on-accent); background: var(--accent);
+    padding: 3px 6px; border-radius: var(--radius-md) 0 var(--radius-md) 0;
+  }
+  .bloc-titre {
+    margin: 0 0 var(--sp-8);
+    font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ══ R.cat — LES DEUX CARROUSELS, ET TOUT LE SUJET DU BANC ═══════════
+
+     🔴 LES DEUX BARRES NE DOIVENT PAS SE RESSEMBLER (Eric) : le haut choisit
+     un MONDE (7, fixes), le bas choisit DEDANS (variable). Deux rangées
+     identiques empilées, et l'œil ne sait plus laquelle commande la liste.
+
+     ⭐ LA DIFFÉRENCE EST UN POIDS, PAS UNE COULEUR — et les deux poids
+     existent DÉJÀ dans ce dépôt, chacun avec son précédent :
+       · le haut garde `.belt-item` NU, tel que la ceinture d'étapes le
+         rend : une DALLE (verre + liseré), corps `--t4`, 44 px de haut.
+         Sept objets qu'on peut compter d'un coup d'œil.
+       · le bas porte `.belt--fin`, qui reprend le traitement de
+         `.skills-cat` (la barre de catégories des Compétences) : pas de
+         surface, pas de liseré, corps `--t2`. Des MOTS, pas des objets.
+     Le cran courant se marque de la même façon des deux côtés
+     (`data-status="current"`, la règle de `shell.css`) — ce qui change entre
+     les deux rangées est la densité, jamais le code couleur.
+
+     🔴 ET IL A FALLU REPRENDRE LES 8 PX D'AIR AUX BOUTS. `shell.css` (§ des
+     deux onglets, 2026-08-19) réécrit `.belt-track` en
+     `padding-inline: calc(var(--onglet-taille)/2 + var(--sp-8))` = 37 px,
+     pour que les onglets `Menu`/`Sheet` à moitié hors champ ne mangent pas
+     le premier et le dernier cran. Cette règle est SANS SÉLECTEUR DE
+     CONTEXTE : elle s'applique à toute réutilisation de `.belt-track`. Dans
+     une colonne de ~370 px, elle coûtait 74 px des deux côtés — un cinquième
+     de la piste. Ici il n'y a pas d'onglets, donc on rend les 8 px qu'Eric a
+     fait poser sur simulateur (« dégage le truc moche à droite et à gauche
+     du belt »), et on ne touche pas à `shell.css`. */
+  .r-cat .belt-track { padding-inline: var(--sp-8); }
+
+  /* ══ LE CRAN DOIT ÊTRE PETIT, ET LE CRITÈRE N'EST PAS UNE LARGEUR ════
+     Eric, 2026-08-22, en voyant la première pose : *« il ne reconnaît pas son
+     modèle »*. Mesuré alors : le cran du haut faisait **145 × 44** dans une
+     colonne de 459 px — trois et demi. Le croquis, lui, montre QUATRE onglets
+     courts et un « … » : on voit d'un coup qu'il y a une rangée, et qu'elle
+     continue.
+
+     ⭐ LE CRITÈRE EST DONC CE QUE L'ŒIL COMPREND : **au moins 4 crans entiers
+     et le 5ᵉ amorcé**. En dessous, ce n'est plus un carrousel, ce sont trois
+     boutons mal coupés. Le relevé au bas de page compte les crans entiers à
+     chaque redessin — c'est la seule façon de ne pas se raconter d'histoire.
+
+     TROIS LEVIERS, ET AUCUN NE TOUCHE `shell.css` :
+       1. le compte pèse MOINS que le nom (`--t1` contre `--t3`, opacité .55,
+          collé au nom par `--sp-4`) — c'est une indication, pas un titre ;
+       2. le rembourrage horizontal du cran tombe de 12 à 8, DANS `.r-cat`
+          seulement ;
+       3. l'écart de piste tombe de 8 à 4 — le « a » d'Eric valait pour des
+          dalles de 145 px, pas pour des crans de 90.
+     ⛔ LE PLANCHER DE 44 PX NE BOUGE PAS : c'est un plancher tactile. Ce qui
+     rétrécit est la LARGEUR, jamais la hauteur. */
+  .r-cat .belt-track { gap: var(--sp-4); }
+  .r-cat .belt-item { padding: 0 var(--sp-8); gap: var(--sp-4); font-size: var(--t3); }
+
+  /* Le compte, sur CHAQUE dalle — règle d'Eric : « le joueur doit savoir ce
+     qui l'attend avant de cliquer ». Il vit en `--text` (seule encre qui
+     survit au verre, matrice du lot 59) et se distingue par le CORPS et
+     l'opacité, jamais par la pâleur : c'est la parade que le dépôt s'est
+     déjà donnée pour `.tray-case-num`. */
+  .cran-compte {
+    font-size: var(--t1); font-variant-numeric: tabular-nums;
+    color: var(--text); opacity: .55;
+  }
+  .belt-item[data-vide="true"] { opacity: .5; }
+
+  /* LA RANGÉE FINE — le traitement `.skills-cat`, appliqué au vrai
+     `.belt-item`. ⛔ `min-height: var(--touch)` reste : la densité se joue au
+     corps et à la surface, jamais sur le plancher tactile de 44 px.
+     📌 LA DIFFÉRENCE DE POIDS TIENT TOUJOURS APRÈS LE RÉTRÉCISSEMENT, et elle
+     ne tient plus au corps (14 contre 12, deux pixels, personne ne les voit) :
+     elle tient à la SURFACE. En haut, sept dalles de verre alignées ; en bas,
+     des mots nus dont un seul s'allume. C'est ce contraste-là que l'œil lit,
+     et il survit à n'importe quelle réduction de largeur. */
+  .belt--fin .belt-track { gap: var(--sp-2); padding-block: var(--sp-4); }
+  .belt--fin .belt-item {
+    background: none; box-shadow: none;
+    font-size: var(--t2); gap: var(--sp-4);
+    padding: 0 var(--sp-8);
+  }
+  /* Le courant est le SEUL de la rangée fine à porter une surface — ce qui
+     le rend lisible sans ajouter de couleur, et redit la hiérarchie : en
+     haut sept dalles, en bas un mot qui s'allume. */
+  .belt--fin .belt-item[data-status="current"] {
+    background: var(--dalle-inter);
+    box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash);
+  }
+
+  /* ══ R.find — la recherche, et la bourse SOUS elle ═══════════════════ */
+  .r-find-ligne { display: flex; gap: var(--sp-8); align-items: center; }
+  .r-find-ligne .equipment-search-input { margin-bottom: 0; }
+  /* Les ⋮ de `R.menu` : encore sans destination (`R.html` : « nom provisoire
+     — je ne sais pas encore ce qu'ils ouvrent »). Le banc les POSE, il ne
+     leur invente pas de contenu. */
+  .r-menu { flex: none; }
+  .equipment-purse-bar { padding-inline: 0; flex-wrap: wrap; }
+  .purse-piece { display: inline-flex; align-items: baseline; gap: 3px; }
+  .purse-piece + .purse-piece::before { content: "·"; opacity: .5; margin-right: var(--sp-8); }
+  .purse-mot { font-size: var(--t1); letter-spacing: .08em; opacity: .7; }
+  .purse-nombre { font-size: var(--t4); font-variant-numeric: tabular-nums; }
+
+  /* ══ LA ZONE ARGENT — LE TROISIÈME GESTE, PAS UN CONFORT ═════════════
+     Eric, 2026-08-22 : *« le MJ donne 50 po en cours de partie »* et *« un
+     joueur qui se trompe doit pouvoir se corriger sans acheter puis jeter un
+     objet »*.
+
+     ⭐ C'EST LA MOITIÉ D'UNE DÉCISION PLUS LARGE : *« on va pas rajouter un
+     bouton sell »*. Trois gestes couvrent tout le système — ACHETER (BUY
+     déduit), PRENDRE GRATUITEMENT (la case FREE du croquis B1), AJUSTER À LA
+     MAIN. Retirer un objet du sac ne rend PAS l'argent ; qui s'est trompé le
+     reprend en gratuit, ou corrige la bourse ici. Sans cette ligne, une
+     erreur est irrattrapable — ce n'est donc pas une commodité, c'est le
+     troisième pied du tabouret.
+
+     ⛔ SOBRE : une correction, pas une caisse enregistreuse. Un montant,
+     quatre pièces, deux signes. Rien d'autre, et sur une seule ligne tant
+     qu'elle tient. */
+  .r-argent {
+    display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
+    padding-top: var(--sp-4);
+  }
+  .r-argent-montant { width: 7ch; text-align: right; }
+  /* Les quatre pièces empruntent `.skills-cat` : la pastille « une parmi N »
+     du dépôt, compacte, dont l'active se remplit d'un lavis d'accent. */
+  .r-argent .skills-cat { padding: 0 var(--sp-8); min-height: var(--touch); font-size: var(--t2); }
+  .r-argent-signe { flex: none; min-width: var(--touch); min-height: var(--touch); }
+  .r-argent-dit { flex: 1 1 100%; margin: 0; font-size: var(--t1); color: var(--text-muted); }
+
+  /* ══ LA VIGNETTE DU SAC — UNE PLACE TENUE, PAS UN DESSIN ═════════════
+     Eric : *« il manque une image de sac à dos pour ouvrir B3 »*. L'image
+     n'existe pas encore, et le banc n'en fabrique pas une qu'il faudrait
+     remplacer.
+
+     ⭐ CE QUI COMPTE EST QUE LA VRAIE IMAGE ENTRE SANS RIEN DÉPLACER : la
+     boîte a donc une taille FIXE et un rapport carré, et la marque qu'elle
+     porte est le « cadre barré » universel du visuel manquant — surtout pas
+     une esquisse de sac, qu'on prendrait pour le dessin définitif.
+     ⚠️ ET ELLE NE DÉCIDE PAS OÙ ELLE MÈNE. Le croquis fait partir `R.bag`
+     vers `SB3.1` (le sac) ; Eric parle de `B3` (la silhouette), qui porte en
+     bas une rangée BACKPACK / SB3.0 « easy access ». Les deux se touchent :
+     la vignette n'est donc PAS un bouton tant que la question n'est pas
+     tranchée. Une place réservée qui agit déjà a tranché sans le dire. */
+  .r-bag-tete { display: flex; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-8); }
+  .r-bag-vignette {
+    flex: none; width: 64px; height: 64px;
+    display: grid; place-items: center;
+    border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+    color: var(--text-muted);
+  }
+  .r-bag-vignette svg { width: 60%; height: 60%; }
+  .r-bag-dit { min-width: 0; }
+  .r-bag-dit b { display: block; font-size: var(--t2); color: var(--text); font-weight: 600; }
+  .r-bag-dit span { font-size: var(--t1); color: var(--text-muted); }
+
+  /* ══ R.bag / R.craft — les récepteurs, ET ILS REÇOIVENT VRAIMENT ═════
+     `.glisse-creneau` est le récepteur du dépôt : bord pointillé au repos,
+     `data-vise` quand le geste le désigne, `data-rempli` quand il tient
+     quelque chose. Les trois états viennent de `shell.css` — le banc n'en
+     peint aucun, il pose les attributs et laisse la feuille répondre.
+     ⭐ ET C'EST `glisser.mjs` QUI LES POSE, pas le banc : `data-vise` est
+     écrit par l'organe lui-même (`viser()`), qui cherche `[data-creneau]`
+     sous le point visé. Le banc ne fournit que l'attribut. */
+  .r-recepteur { align-items: stretch; }
+  .r-recepteur .glisse-creneau { min-height: 56px; }
+  /* L'objet POSÉ dans un récepteur est lui-même reprenable — c'est le geste
+     d'annulation d'Eric (« on annule en ressortant l'objet »). Il est donc un
+     bouton, armé par le même organe que la ligne d'où il vient. */
+  .r-depose {
+    /* ⛔ ICI `none`, ET SANS ÉTAT D'ÂME : un récepteur ne défile pas. C'est la
+       déclaration que `glisser.mjs` demande, et rien ne la dispute. */
+    touch-action: none;
+    border: none; background: none; padding: 0; color: inherit;
+    font: inherit; font-size: var(--t3); cursor: pointer;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .r-getback {
+    flex: none; align-self: stretch;
+    min-width: var(--touch); padding: 0 var(--sp-12);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--text);
+    font: 600 var(--t1)/1.2 var(--font); letter-spacing: .06em;
+    cursor: pointer;
+  }
+
+  /* ══ R.list — DES TUILES QUI COULISSENT, PAS UNE BOÎTE ══════════════
+     Eric, 2026-08-22 : *« la carte ne défile pas, les tuiles oui »* ·
+     *« les tuiles bougent à côté de la carte »*.
+
+     🔴 IL N'Y A PLUS DE CADRE AUTOUR DE LA LISTE, et c'est la correction
+     principale. Le banc enfermait les tuiles dans une dalle bordée : ça
+     faisait DEUX objets côte à côte, alors qu'il y a UNE carte (la colonne
+     R, fixe) et DES TUILES qui passent devant, libres.
+     ⭐ C'est mot pour mot la loi qu'Eric a fait appliquer à la ceinture le
+     2026-08-15, et que `shell.css` porte encore : *« les colonnes contenant
+     les carrousels, fais-les disparaître »* · *« il ne doit rester que les
+     dalles, posées sur le fond. Le conteneur n'est pas un objet. »* Ici c'est
+     le même geste, tourné à la verticale.
+     📌 L'étiquette `R.list` reste — c'est un banc, il doit se lire — mais
+     elle FLOTTE : elle ne redessine pas la boîte qu'on vient d'enlever.
+
+     ══ LA COTE F1, ET CE QU'ELLE A RÉVÉLÉ ═════════════════════════════════
+     Eric : la zone où les tuiles coulissent fait AU PLUS la hauteur d'un F1.
+
+     🔴 `--fiche-h` N'EST PAS ATTEIGNABLE DEPUIS N'IMPORTE OÙ, et le savoir a
+     coûté une recherche : elle n'est pas dans `tokens.css` ni sur `:root`.
+     Elle est déclarée sur `.catalogue-cards[data-kind="class"|"species"|
+     "feat"]` (`fiche.css`), et `fiche.css` le dit exprès — *« elle vit sur le
+     CONTENEUR, parce que l'écart entre fiches s'en sert aussi ; une variable
+     descend, elle ne remonte pas »*. Charger la feuille ne suffit donc PAS :
+     il faut être DEDANS.
+     ⭐ C'EST EXACTEMENT COMME ÇA QUE LE GUIDE DES ESPÈCES L'OBTIENT — il écrit
+     `height: var(--fiche-h)` sans rien recopier, parce qu'il est un enfant du
+     catalogue (`shell.css`, `.guide-general`). Le banc emprunte le même
+     chemin : un hôte qui porte le sélecteur déclarant, et la cote descend.
+     ⛔ RECOPIER `440px` ÉTAIT L'AUTRE OPTION, ET ELLE EST INTERDITE : deux
+     copies d'une cote se démentent au premier changement — c'est la faute que
+     `shell.css` nomme à cet endroit précis.
+     📌 À REMONTER : la cote vient de servir hors du catalogue. Si elle doit
+     servir une troisième fois, sa place est `tokens.css`, pas un conteneur
+     d'écran. */
+  .r-tuiles {
+    --r-tuile: var(--touch);
+    /* La zone de coulisse : au plus un F1, et jamais plus haut que la fenêtre.
+       ⛔ AUCUNE AIMANTATION VERTICALE, ET C'EST UNE DÉCISION, PAS UN OUBLI —
+       voir la note « Species et R.list se ressemblent » dans le script. */
+    height: min(var(--fiche-h), 78vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: var(--sp-4);
+    /* ⭐ L'AIR AUX DEUX BOUTS, TOURNÉ À LA VERTICALE — la parade d'Eric du
+       2026-08-15, transposée. Sans cadre, plus rien ne dit qu'une tuile
+       coupée continue hors champ : elle a l'air sectionnée par rien. Les 8 px
+       d'air font qu'elle se lit comme une AMORCE, exactement comme au bout de
+       la ceinture (« une dalle qui continue hors champ se lit alors comme
+       telle, au lieu d'avoir l'air sectionnée par la fenêtre »).
+       ⛔ PAS DE MASQUE EN FONDU : Eric l'a fait retirer de la ceinture le
+       2026-08-15 (« flouté bizarre à droite et à gauche du belt »). Une
+       SURFACE qui s'efface ne se lit pas comme une amorce, elle se lit comme
+       un défaut de rendu — et ces tuiles sont des surfaces.
+       ⭐ `scroll-padding-block` va avec, pour la même raison que sur la
+       piste : sans lui l'aimantation collerait la tuile au bord et mangerait
+       l'air qu'on vient de poser. */
+    padding-block: var(--sp-8);
+    scroll-padding-block: var(--sp-8);
+  }
+  .r-tuiles::-webkit-scrollbar { width: 6px; }
+  .r-tuiles::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-pill); }
+
+  /* ══ LA TUILE — UNE DALLE, POSÉE SUR LE FOND ═════════════════════════
+     Comme un cran de ceinture : `--dalle-simple` plus le liseré de verre.
+     C'est ce que « il ne doit rester que les dalles » veut dire, et c'est
+     aussi ce que le croquis dessine — une colonne de petits rectangles.
+
+     🔴 ET SUR DU VERRE, SEULE `--text` SURVIT (matrice du lot 59 :
+     `--text-muted` rend 3,0 pour 4,5 exigé). `.equipment-gear-meta` vit en
+     `--text-muted` parce qu'elle est posée sur une dalle MAJEURE dans le vrai
+     écran ; ici elle est sur du verre. Le poids passe donc par l'OPACITÉ,
+     jamais par la pâleur de l'encre — la parade que `shell.css` s'est déjà
+     donnée pour `.tray-case-num`. */
+  .r-ligne {
+    width: 100%; min-height: var(--r-tuile, var(--touch));
+    flex: none; flex-wrap: nowrap;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--dalle-simple);
+    box-shadow: inset 0 0 0 1px var(--verre-lisere);
+    color: inherit; font-family: inherit;
+    text-align: left; cursor: pointer;
+    padding: 0 var(--sp-12); gap: var(--sp-8);
+    -webkit-user-select: none; user-select: none;
+  }
+  /* 🔴 `pan-y`, ET C'EST ERIC QUI A TRANCHÉ LE GESTE (2026-08-22) :
+     *« défilement vertical des tuiles »* · *« mon geste pour déplacer la tuile
+     sera horizontal »* · *« donc ça devait passer »*.
+
+     ⭐ L'AXE SÉPARE LES DEUX GESTES, ET C'EST MIEUX QUE TOUT CE QU'ON AVAIT.
+     Vertical = je parcours la liste. Horizontal = je prends l'objet. Pas de
+     maintien, pas de seuil de temps, aucune ambiguïté : une direction.
+     `pan-y` fait faire la séparation AU NAVIGATEUR, iOS compris — le mouvement
+     vertical part au défilement et n'arrive jamais au code ; l'horizontal
+     arrive. C'est exactement ce que le maintien de 350 ms achetait au prix
+     fort (`glisser.mjs`, en-tête : ce péage *« n'a JAMAIS eu d'autre cause que
+     l'ascenseur de la grille »*), et qu'Eric a fait retirer le 2026-08-20.
+     ⛔ `pan-y` NE COUVRE QUE LE TACTILE : `touch-action` est une propriété du
+     doigt. À la souris, la garde d'axe du script prend le relais. */
+  .r-ligne { touch-action: pan-y; }
+  /* Le jeton ne pâlit que si le geste est HORIZONTAL : l'organe écrit
+     `data-glisse`, le banc écrit `data-axe`, et il faut les deux. Sans ça, un
+     doigt qui descend ferait clignoter toute la colonne. */
+  .r-ligne[data-glisse="true"][data-axe="x"] { opacity: .35; }
+  .r-ligne .equipment-gear-name {
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: var(--t3); overflow-wrap: normal; color: var(--text);
+  }
+  .r-ligne .equipment-gear-meta { white-space: nowrap; color: var(--text); opacity: .6; }
+
+  /* ⭐ CE QUI EST AU-DESSUS DE `R` DANS CE BANC DOIT ÊTRE EXACTEMENT CE QUI
+     SERA AU-DESSUS DE `R` DANS LE BUILDER : la ceinture, et rien d'autre.
+     Eric, 2026-08-22 : *« dégage le titre qu'on ait un vrai rendu »*. Le
+     chapeau du banc est parti, l'interrupteur A/B est descendu avec le relevé,
+     et l'étiquette `R.list` ne coûte plus une seule ligne de hauteur.
+     La colonne gauche réserve la MÊME gouttière de 16 px que les blocs de `R`
+     (leur `padding-top`, qui loge leur badge) : les deux colonnes démarrent
+     donc à la même ordonnée, ce qui est la seule façon de comparer leurs
+     hauteurs sans se mentir. */
+  .r-list-col { position: relative; padding-top: var(--sp-16); }
+  .r-list-badge { top: 0; left: 0; }
+
+  .r-list-vide { margin: 0; padding: var(--sp-16) 0; font-size: var(--t3); color: var(--text-muted); }
+  /* ⚠️ CETTE LÉGENDE ET CE TITRE FLOTTENT SUR L'IMAGE DE FOND, sans dalle
+     sous eux — c'est le sens même de « retire le cadre ». Ils ne peuvent donc
+     pas être en `--text-muted` (2,7:1 mesuré sur le fond servi) : l'encre
+     reste `--text`, seule à survivre, et le poids passe par l'OPACITÉ. */
+  .r-list-tete .bloc-titre { color: var(--text); opacity: .75; margin: 0; }
+  .r-list-vide { color: var(--text); opacity: .7; }
+
+  /* ── Le relevé : ce que le banc mesure, en clair ── */
+  .mesures {
+    font: var(--t2)/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--text-muted);
+    white-space: pre; overflow-x: auto;
+    margin-top: var(--sp-16);
+  }
+</style>
+</head>
+<body>
+
+<!-- ⛔ `.app` EST EMPRUNTÉE TELLE QUELLE — c'est elle qui porte l'image de fond
+     du builder. Rien de ce qu'elle déclare n'est réécrit : le banc défile dans
+     `.banc-scroll`, comme la fiche défile dans la scène. -->
+<div class="app">
+
+<!-- ══ LA CEINTURE DU BUILDER, INERTE — Eric, 2026-08-22 : « limite, simuler
+     un belt statique faciliterait, non ? ». Oui, et c'est mieux qu'une
+     hauteur réservée en dur : un `calc(100vh - 60px)` devient faux le jour où
+     la ceinture change de cote, et PERSONNE ne le verrait — le banc mentirait
+     en silence. Ce `.belt`-ci lit le même CSS que le builder ; si la cote
+     bouge, le banc bouge avec. Troisième emprunt de la journée, après
+     `var(--fiche-h)` et `.app` : on emprunte l'organe, on ne recopie pas sa
+     mesure.
+     ⛔ IL NE FAIT RIEN. Pas de navigation, pas d'état. Il OCCUPE LA PLACE, et
+     c'est tout ce qu'on lui demande. Les dix libellés sont ceux du vrai
+     builder (`shell.mjs`), pour que la largeur des crans soit la vraie. -->
+<div class="belt" id="belt-chassis" aria-hidden="true">
+  <div class="belt-track" id="belt-etapes"></div>
+</div>
+
+<!-- ⚠️ `.stage-topbar` N'EST PAS ICI, ET C'EST UNE DÉCISION, PAS UN OUBLI.
+     Elle vaut 0 px sur l'étape ouverte du builder — mais c'est un zéro qui dit
+     « pas cette fois-ci », pas « rien » : l'ANCIENNE étape Équipement y posait
+     sa barre de bourse et sa barre de catégories (`shell.css`,
+     `.equipment-purse-bar, .equipment-catbar`), et la barre porte en plus un
+     `border-bottom: 1px`.
+     ⭐ TRANCHÉ POUR `R` : elle ne s'en sert PAS. La colonne de commande
+     REMPLACE ce que cette barre faisait — la bourse est dans `R.find`, les
+     catégories sont les deux carrousels de `R.cat`. Le budget de hauteur
+     compte donc 0 px pour elle, et le relevé le dit à voix haute plutôt que de
+     le laisser deviner. -->
+
+<div class="banc-scroll">
+<div class="banc">
+
+  <div class="scene">
+
+    <!-- ── R.list : LES TUILES, à GAUCHE, ET SANS CADRE ──────────────────
+         Eric, 2026-08-22 : « la carte ne défile pas, les tuiles oui » ·
+         « les tuiles bougent à côté de la carte ». Il n'y a donc PAS de
+         `.bloc dalle-intermediaire` ici : une carte (la colonne R) et des
+         tuiles qui passent devant. L'étiquette flotte, elle n'encadre rien.
+         ⛔ AUCUN `data-snap` — voir la note « Species » dans le script. -->
+    <section class="r-list-col" aria-label="R.list">
+      <!-- ⚠️ L'ÉTIQUETTE FLOTTE ET NE COÛTE AUCUNE HAUTEUR — elle est posée en
+           absolu dans le même rembourrage de 16 px que les badges de `R`, de
+           sorte que les DEUX colonnes commencent leur contenu à la même
+           ordonnée. Un repère de banc qui pousserait les tuiles vers le bas
+           fausserait la mesure autant qu'un titre. -->
+      <span class="bloc-id r-list-badge">R.list</span>
+      <div class="r-tuiles" id="list-boite"></div>
+    </section>
+
+    <!-- ── R : la colonne de commande, à DROITE ──────────────────────── -->
+    <div class="colonne-r">
+
+      <!-- R.cat — le double carrousel -->
+      <section class="bloc dalle-majeure r-cat" aria-label="Sélection de catégorie">
+        <span class="bloc-id">R.cat</span>
+        <div class="belt" role="tablist" aria-label="Rayons">
+          <div class="belt-track" id="belt-rayons"></div>
+        </div>
+        <div class="belt belt--fin" role="tablist" aria-label="Étagères">
+          <div class="belt-track" id="belt-etageres"></div>
+        </div>
+      </section>
+
+      <!-- R.find — la recherche, et la bourse dessous -->
+      <section class="bloc dalle-majeure" aria-label="Recherche et bourse">
+        <span class="bloc-id">R.find</span>
+        <div class="r-find-ligne">
+          <input type="search" class="equipment-search-input" id="find-bar"
+                 placeholder="Search…" aria-label="Rechercher un objet">
+          <button type="button" class="equipment-magnifier r-menu" id="r-menu"
+                  aria-label="R.menu — à nommer">⋮</button>
+        </div>
+        <!-- R.purse — QUATRE monnaies. Le croquis n'en dessine que trois
+             (OR SP CP) ; Eric a tranché le 2026-08-21 : le moteur exige les
+             quatre ou il n'affiche aucune bourse. Décorative pour l'instant. -->
+        <div class="equipment-purse-bar">
+          <div class="equipment-purse-value" id="purse"></div>
+        </div>
+        <!-- R.purse.ajust — LE TROISIÈME GESTE (voir la feuille). Il n'y aura
+             jamais de bouton « vendre » : acheter, prendre gratuitement,
+             ajuster à la main. C'est ici que la troisième vit. -->
+        <div class="r-argent">
+          <input type="number" class="equipment-currency-input r-argent-montant" id="argent-montant"
+                 value="50" min="0" step="1" aria-label="Montant à ajouter ou retirer">
+          <div id="argent-pieces" role="group" aria-label="Monnaie à ajuster"></div>
+          <button type="button" class="equipment-item-add r-argent-signe" id="argent-plus"
+                  aria-label="Ajouter le montant">+</button>
+          <button type="button" class="equipment-item-add r-argent-signe" id="argent-moins"
+                  aria-label="Retirer le montant">−</button>
+          <p class="r-argent-dit" id="argent-dit"></p>
+        </div>
+      </section>
+
+      <!-- R.bag -->
+      <section class="bloc dalle-majeure" aria-label="Backpack">
+        <span class="bloc-id">R.bag</span>
+        <h3 class="bloc-titre">Backpack</h3>
+        <!-- R.bag.image — PLACE RÉSERVÉE, taille fixe : la vraie image entrera
+             sans rien déplacer. Le cadre barré dit « visuel manquant » ; ce
+             n'est pas une esquisse de sac, exprès. Et ce n'est pas un bouton :
+             sa destination (B3 la silhouette, ou SB3.1 le sac) n'est pas
+             tranchée, et une place réservée qui agit déjà a tranché en douce. -->
+        <div class="r-bag-tete">
+          <div class="r-bag-vignette" role="img"
+               aria-label="Emplacement réservé pour l'image du sac à dos">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+                 stroke="currentColor" stroke-width="1.2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M3 3 21 21M21 3 3 21"/>
+            </svg>
+          </div>
+          <div class="r-bag-dit">
+            <b>R.bag.image — place réservée</b>
+            <span>64 × 64 · l'image du sac à dos viendra ici · destination (B3 ou SB3.1) à trancher</span>
+          </div>
+        </div>
+        <div class="glisse-creneaux r-recepteur">
+          <div class="glisse-creneau" data-creneau="bag" data-rempli="false">
+            <span class="glisse-creneau-nom">R.bag.slot</span>
+            <span class="glisse-creneau-valeur">déposer ici</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- R.craft -->
+      <section class="bloc dalle-majeure" aria-label="Craft">
+        <span class="bloc-id">R.craft</span>
+        <h3 class="bloc-titre">Craft</h3>
+        <div class="glisse-creneaux r-recepteur">
+          <div class="glisse-creneau" data-creneau="craft" data-rempli="false">
+            <span class="glisse-creneau-nom">R.craft.slot</span>
+            <span class="glisse-creneau-valeur">déposer ici</span>
+          </div>
+          <button type="button" class="r-getback" id="r-getback">GET<br>BACK</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="variante banc-bloc dalle-majeure">
+    <span class="variante-titre">Mémoire du bas</span>
+    <button type="button" class="record-option" data-mode="A" data-active="true">A — le bas oublie</button>
+    <button type="button" class="record-option" data-mode="B" data-active="false">B — le bas se souvient</button>
+    <p class="variante-dit" id="variante-dit"></p>
+  </div>
+
+  <div class="mesures banc-bloc dalle-majeure" id="mesures">…</div>
+
+</div>
+</div>
+</div>
+
+<script type="module">
+/* ⛔ `swapContent` EST LE SEUL REMPLAÇANT, ICI COMME AILLEURS.
+   `tests/socle.test.mjs` interdit `innerHTML`, `replaceChildren` ET
+   `removeChild` dans tout `ui/builder/` hors de `socle.mjs` — la boucle
+   `removeChild` n'est donc pas une porte de sortie. Et le geste est le bon :
+   la colonne d'objets DÉFILE, et changer d'étagère ne doit pas jeter sa
+   position au hasard. */
+/* ⭐ ET `keepInView` VIENT AVEC — c'est l'organe qui amène le cran courant
+   dans le champ de SA piste, et de la sienne seulement. Sans lui, choisir
+   « Vêtements » dans Marvels laisse la rangée fine affichée sur « Anneaux » :
+   mesuré ici, à 1000 px, avant de l'ajouter. `scrollIntoView` ferait la même
+   chose en déplaçant AUSSI la page — c'est le défaut §0 du dépôt. */
+import { swapContent, keepInView } from "./socle.mjs?v=278";
+
+/* ══ LE GESTE VIENT DE `glisser.mjs`, LOT 79 — PAS D'UNE COPIE ═══════════
+   Eric, 2026-08-22 : *« le tap me va pour le moment »*. Ce n'est pas une
+   raison d'écrire un `click` à la main : l'organe porte LES DEUX gestes dans
+   le même code (« deux gestes, une seule sélection »), départagés par 6 px de
+   déplacement. Brancher le tap, c'est déjà brancher le glisser — et le jour
+   où Eric le veut, il n'y a rien à recâbler.
+
+   ⛔ ET SURTOUT PAS L'API HTML5 (`draggable`, `dragstart`) : elle ne marche
+   pas sur Safari iOS, c'est-à-dire sur l'appareil où Eric teste. C'est la
+   raison d'être de ce fichier, dite dans son en-tête. */
+import { armerJeton } from "./glisser.mjs?v=278";
+
+/* ══ LES SEPT RAYONS ET LEURS ÉTAGÈRES — la commande d'Eric, recopiée ═══
+   ⭐ L'ORDRE ALPHABÉTIQUE N'EST PAS RECOPIÉ, IL EST CALCULÉ (`localeCompare`
+   en français, ci-dessous). Une liste triée à la main se dé-trie au premier
+   ajout, et le tri est une RÈGLE d'Eric (« ordre alphabétique aux deux
+   niveaux, et le premier est celui qui s'ouvre ») — donc du code.
+   📌 Ce que le tri a corrigé au passage, dans Marvels : la commande écrivait
+   « Conteneurs & véhicules » AVANT « Consommables », alors que `Cons` précède
+   `Cont`. Le banc ouvre donc Marvels sur Anneaux (inchangé) mais range les
+   deux dans le bon sens. */
+const RAYONS = [
+  ["Adventuring", [
+    ["Campement", 3], ["Cordes & escalade", 8], ["Forcer & piéger", 10],
+    ["Lumière & feu", 6], ["Observer & signaler", 5], ["Packs", 7]
+  ]],
+  ["Arcana", [
+    ["Baguettes & bâtons & sceptres", 32], ["Consommables & potions", 33],
+    ["Parchemins & focus & composantes", 7]
+  ]],
+  ["Battlefield", [
+    ["Armes de jet", 10], ["Armes de mêlée", 28], ["Armures", 13], ["Projectiles", 5]
+  ]],
+  ["Companions", [
+    ["Familiers", 0], ["Hommes de main", 0], ["Recherche dans les monstres", 0], ["Sur mesure", 0]
+  ]],
+  ["Crafting", [
+    ["Gemmes", 0], ["Ingrédients", 0], ["Outils", 25]
+  ]],
+  ["Marvels", [
+    ["Anneaux", 22], ["Bijoux", 15], ["Casques & lunettes", 8],
+    ["Conteneurs & véhicules", 24], ["Consommables", 15],
+    ["Focus & curiosités", 33], ["Vêtements", 32]
+  ]],
+  ["Mundane", [
+    ["Contenants", 16], ["Écrire & lire", 6], ["Vêtements", 5]
+  ]]
+];
+
+const alpha = (a, b) => a[0].localeCompare(b[0], "fr");
+
+/** Le catalogue, TRIÉ aux deux niveaux, et son compte de rayon DÉDUIT de ses
+ *  étagères — jamais recopié à côté d'elles. Un compte écrit deux fois est un
+ *  compte qui finit par se contredire ; celui-ci ne peut pas. */
+const CATALOGUE = [...RAYONS].sort(alpha).map(([rayon, etageres]) => {
+  const rangees = [...etageres].sort(alpha).map(([nom, compte]) => ({ nom, compte }));
+  return { rayon, etageres: rangees, compte: rangees.reduce((t, e) => t + e.compte, 0) };
+});
+
+/* ══ L'ÉTAT ══════════════════════════════════════════════════════════════
+   `mode` — A : le bas OUBLIE (retour à la première étagère alphabétique) ;
+            B : le bas SE SOUVIENT (chaque rayon garde la sienne).
+   ⭐ LES DEUX VARIANTES PARTAGENT LA MÊME MÉMOIRE : `souvenir` est tenu à
+   jour dans les deux modes, seul le LECTEUR change. Sans ça, basculer de A
+   vers B repartirait d'une mémoire vide et la comparaison mentirait — Eric
+   veut trancher au doigt, pas éprouver un artefact du banc. */
+let mode = "A";
+let rayonCourant = CATALOGUE[0].rayon;                 // règle 2 : le premier
+const souvenir = new Map();                            // rayon → nom d'étagère
+for (const r of CATALOGUE) souvenir.set(r.rayon, r.etageres[0].nom);
+
+const trouveRayon = (nom) => CATALOGUE.find((r) => r.rayon === nom);
+
+/** L'étagère ouverte, et c'est ICI que les deux variantes divergent — en un
+ *  seul endroit, ce qui est tout l'intérêt de les comparer dans la page. */
+function etagereCourante() {
+  const rayon = trouveRayon(rayonCourant);
+  if (mode === "B") {
+    const garde = souvenir.get(rayonCourant);
+    if (rayon.etageres.some((e) => e.nom === garde)) return garde;
+  }
+  return rayon.etageres[0].nom;
+}
+
+/* En mode A, l'étagère AFFICHÉE est la première tant qu'on n'a rien touché,
+   mais un clic dans la rangée fine doit tenir jusqu'au prochain changement de
+   rayon. On garde donc un choix courant à part du souvenir. */
+let etagereChoisie = etagereCourante();
+
+/* ══ CE QUE LES DEUX RÉCEPTEURS TIENNENT ═════════════════════════════════
+   Un nom d'objet, ou `null`. Les clefs sont EXACTEMENT les `data-creneau` du
+   balisage : c'est la chaîne que `glisser.mjs` rend à `onDepot`, et la faire
+   diverger d'un caractère serait un dépôt qui ne tombe nulle part. */
+const recepteurs = { bag: null, craft: null };
+
+/* ══ LA BOURSE — QUATRE MONNAIES, ET ON PEUT Y TOUCHER ═══════════════════
+   Eric, 2026-08-22 : *« le MJ donne 50 po en cours de partie »* · *« un joueur
+   qui se trompe doit pouvoir se corriger sans acheter puis jeter un objet »*.
+   ⭐ ET LA MOITIÉ MANQUANTE DE LA DÉCISION : *« on va pas rajouter un bouton
+   sell »*. Trois gestes couvrent tout — acheter, prendre gratuitement,
+   ajuster à la main. Retirer un objet du sac ne rend PAS l'argent. */
+const BOURSE = ["PP", "OR", "SP", "CP"];
+const bourse = { PP: 0, OR: 15, SP: 8, CP: 42 };
+let pieceChoisie = "OR";                       // la monnaie que le MJ donne
+const RECEPTEURS = ["bag", "craft"];
+const NOM_SLOT = { bag: "R.bag.slot", craft: "R.craft.slot" };
+
+const belts = {
+  rayons: document.getElementById("belt-rayons"),
+  etageres: document.getElementById("belt-etageres")
+};
+const listeBoite = document.getElementById("list-boite");
+
+/* ══ SPECIES ET R.LIST SE RESSEMBLENT, ET LEUR DÉFILEMENT DIT LE CONTRAIRE ══
+   Eric, 2026-08-22 : *« donc différent du scrollspy de Species »* · *« mais en
+   apparence ça ressemble à Species »*.
+
+   🔴 CHEZ SPECIES, DÉFILER EST CHOISIR. `socle.mjs` l'écrit : *« le
+   défilement se POSE sur une fiche : c'est elle qui est choisie, il n'existe
+   aucun geste de sélection. Le scrollspy n'est donc pas un repère, c'est LE
+   SÉLECTEUR. »*
+   🔴 DANS `R.list`, DÉFILER EST SEULEMENT PARCOURIR. On choisit en tapant ou
+   en glissant à l'horizontale. Le défilement ne sélectionne rien, ne valide
+   rien, n'allume rien.
+
+   ⛔ D'OÙ CE QUI N'EST PAS ICI, ET QUI Y SERAIT VENU TOUT SEUL : pas de
+   `data-snap` (le seul contrat entre un écran et le scrollspy du socle, posé
+   par `renderCatalogueCards` et nulle part ailleurs), pas de
+   `renderCatalogueCards`, pas de `watchSnap`, et pas même de
+   `scroll-snap-type: y`. Le piège n'aurait rougi nulle part : l'écran aurait
+   eu l'air juste, et le joueur aurait acheté l'objet devant lequel il s'est
+   arrêté. Un `overflow-y: auto` nu suffit, et c'est tout ce qu'il y a.
+   ⭐ LA RÈGLE, ET ELLE DÉPASSE CE BANC : deux écrans peuvent se ressembler et
+   faire dire à un même geste deux choses opposées. Ce qui se copie est
+   l'apparence ; ce qui se décide est le sens.
+
+   ⚠️ L'AIMANTATION HORIZONTALE, ELLE, RESTE — sur la ceinture, se poser sur un
+   cran EST le choix du rayon. Le même mécanisme, deux sens : c'est la
+   démonstration de la règle ci-dessus, dans la même page. */
+
+/* ══ LA COTE F1 — LUE À LA SOURCE, JAMAIS RECOPIÉE ════════════════════════
+   Eric : la zone de coulisse fait au plus la taille d'un F1 de Species.
+
+   🔴 ET `--fiche-h` N'EST PAS ATTEIGNABLE EN CSS DEPUIS CE BANC. Elle n'est ni
+   dans `tokens.css` ni sur `:root` : `fiche.css` la déclare sur
+   `.catalogue-cards[data-kind="class"|"species"|"feat"]`, et le dit exprès —
+   *« elle vit sur le CONTENEUR (…) ; une variable descend, elle ne remonte
+   pas »*. Charger la feuille ne suffit donc pas : il faut être DEDANS.
+
+   ⛔ ET ON NE SE MET PAS DEDANS. Envelopper les tuiles dans un
+   `.catalogue-cards[data-kind="species"]` aurait donné la cote — avec la
+   grille de Species, sa hauteur à 100 % et son nom. C'est-à-dire aller
+   chercher la brique de Species pour un écran dont le défilement veut dire le
+   contraire : exactement le piège de la note ci-dessus.
+
+   ⭐ ALORS ON LA MESURE. Une SONDE porte le sélecteur déclarant le temps d'une
+   lecture, hors de tout flux, et rend sa valeur. La cote n'est donc écrite
+   nulle part dans ce fichier : le jour où Eric la change dans `fiche.css`, le
+   banc suit. C'est la seule propriété qui comptait.
+   ⚠️ LE PRIX EST UNE PROPRIÉTÉ POSÉE EN LIGNE, et il faut le nommer : le garde
+   7 des jetons interdit `.style` dans tout `ui/` (« le décor va dans la
+   feuille »). Ici on ne pose pas de DÉCOR — on republie un jeton lu dans une
+   feuille, pour qu'un `var()` puisse le voir. L'exception est celle-là, et
+   rien d'autre n'y passe.
+   📌 À REMONTER : la cote vient de servir hors du catalogue. Si elle sert une
+   troisième fois, sa place est `tokens.css` — et cette sonde disparaît. */
+function republierCoteF1() {
+  const sonde = document.createElement("div");
+  sonde.className = "catalogue-cards";
+  sonde.dataset.kind = "species";
+  sonde.hidden = true;
+  document.body.append(sonde);
+  const cote = getComputedStyle(sonde).getPropertyValue("--fiche-h").trim();
+  sonde.remove();
+  if (cote) document.documentElement.style.setProperty("--fiche-h", cote);
+  return cote || "(introuvable)";
+}
+const COTE_F1 = republierCoteF1();
+/* ⛔ `list-titre` ET `list-cap` N'EXISTENT PLUS. C'étaient deux libellés de
+   banc au-dessus et au-dessous des tuiles ; ils coûtaient de la hauteur que le
+   builder n'aura pas. Ce qu'ils disaient (l'étagère ouverte, le nombre de
+   lignes visibles) vit maintenant dans le relevé, en bas — au même endroit que
+   tout ce qui se mesure. */
+
+/** UN CRAN DE CARROUSEL — le même fabricant pour les deux rangées, et c'est
+ *  délibéré : ce qui doit différer est le POIDS (une classe sur la barre),
+ *  pas le balisage. Deux fabricants auraient laissé les deux rangées diverger
+ *  par distraction, la faute que `.belt` existe pour éviter. */
+function faireCran(nom, compte, courant, onClic) {
+  const cran = document.createElement("button");
+  cran.type = "button";
+  cran.className = "belt-item";
+  cran.setAttribute("role", "tab");
+  cran.setAttribute("aria-selected", courant ? "true" : "false");
+  if (courant) cran.dataset.status = "current";
+  if (compte === 0) cran.dataset.vide = "true";
+
+  const mot = document.createElement("span");
+  mot.textContent = nom;
+
+  /* RÈGLE 1 D'ERIC — CHAQUE DALLE PORTE SON COMPTE, jamais le nom seul :
+     « le joueur doit savoir ce qui l'attend avant de cliquer ». */
+  const chiffre = document.createElement("span");
+  chiffre.className = "cran-compte";
+  chiffre.textContent = String(compte);
+
+  cran.append(mot, chiffre);
+  cran.addEventListener("click", onClic);
+  return cran;
+}
+
+/* ══ LA GARDE D'AXE — la règle d'Eric, éprouvée ICI avant d'y toucher ═════
+   Eric, 2026-08-22 : vertical = je parcours, horizontal = je prends.
+
+   🔴 `glisser.mjs` NE CONNAÎT PAS L'AXE. Sa décision est
+   `Math.hypot(dx, dy) < SEUIL_GLISSER` — une distance dans N'IMPORTE QUELLE
+   direction. Tel quel, un doigt qui descend pour faire défiler la liste
+   soulèverait l'objet.
+   ⛔ ET ON NE MODIFIE PAS L'ORGANE DEPUIS UN BANC. La garde vit donc ici, en
+   enveloppe : elle laisse l'organe faire son travail et REFUSE l'action quand
+   l'axe n'est pas le bon. Si Eric juge que l'axe suffit, c'est une
+   amélioration à porter DANS `glisser.mjs` par un lot — elle profiterait aux
+   cinq écrans qui l'emploient.
+
+   ⚠️ POURQUOI UNE GARDE EN PLUS DE `pan-y` : `touch-action` est une propriété
+   TACTILE. À la souris elle ne s'applique pas, et un glisser vertical à la
+   souris reprendrait l'objet sans elle. Ceinture et bretelles, chacune pour
+   un appareil.
+
+   📌 ET UN DÉFAUT DE L'ORGANE QUE CETTE GARDE RÉVÈLE, à remonter tel quel :
+   dans `fini()`, le test du tap (`if (!glisse) { onTap(...); return; }`) est
+   AVANT le test d'annulation (`if (e.type === "pointercancel") return;`). Or
+   `pan-y` fait justement arriver un `pointercancel` dès que le navigateur
+   prend le défilement — souvent avant les 6 px. Sans la garde, CHAQUE
+   défilement au doigt poserait un objet dans le sac. C'est le drapeau
+   `annule` ci-dessous qui l'arrête, et c'est un pansement de banc : la
+   correction est de tester l'annulation en premier, dans l'organe. */
+
+/* Le même 6 px que `SEUIL_GLISSER`, et il est RECOPIÉ faute d'être exporté.
+   ⚠️ Deux copies d'un seuil finissent par diverger : si l'axe est adopté,
+   l'organe doit exporter le sien plutôt que laisser ses appelants le deviner. */
+const SEUIL_AXE = 6;
+
+/** Arme un jeton pour le tap ET le glisser, mais n'accepte le glisser que
+ *  s'il est HORIZONTAL. Rend l'état du geste, que les rappels consultent.
+ *
+ *  ⭐ L'ORDRE DES ÉCOUTEURS FAIT LE TRAVAIL, et il n'est pas fragile : nos
+ *  écouteurs sont posés AVANT ceux de l'organe (`armerJeton` ajoute les
+ *  siens depuis son propre `pointerdown`, qui court après le nôtre). Le
+ *  drapeau est donc toujours à jour quand `onTap`/`onDepot` le lisent.
+ *  ⛔ On ne nettoie PAS l'état à la fin du geste : l'organe décide après nous,
+ *  et effacer trop tôt lui ferait lire un état vide. Le prochain appui le
+ *  remet à neuf — c'est le seul moment sûr. */
+function armerSelonAxe(jeton, { onTap, onDepot, onHorsCible }) {
+  const geste = { axe: null, annule: false };
+
+  jeton.addEventListener("pointerdown", (ev) => {
+    geste.axe = null;
+    geste.annule = false;
+    delete jeton.dataset.axe;
+    const x0 = ev.clientX;
+    const y0 = ev.clientY;
+
+    const bouge = (e) => {
+      if (geste.axe) return;
+      const dx = e.clientX - x0;
+      const dy = e.clientY - y0;
+      if (Math.hypot(dx, dy) < SEUIL_AXE) return;
+      /* L'AXE SE DÉCIDE UNE FOIS, au franchissement du seuil, et ne se
+         renégocie plus. Un geste qui change d'avis en cours de route est un
+         geste qu'on ne peut pas apprendre. */
+      geste.axe = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      jeton.dataset.axe = geste.axe;
+    };
+    const annuler = () => { geste.annule = true; };
+    const fin = () => {
+      jeton.removeEventListener("pointermove", bouge);
+      jeton.removeEventListener("pointerup", fin);
+      jeton.removeEventListener("pointercancel", annuler);
+      jeton.removeEventListener("pointercancel", fin);
+    };
+
+    jeton.addEventListener("pointermove", bouge);
+    jeton.addEventListener("pointerup", fin);
+    jeton.addEventListener("pointercancel", annuler);
+    jeton.addEventListener("pointercancel", fin);
+  });
+
+  armerJeton(jeton, {
+    /* UN TAP N'A PAS D'AXE : c'est un appui qui n'a jamais franchi le seuil.
+       Un geste annulé n'en est pas un non plus. */
+    onTap: () => { if (!geste.axe && !geste.annule) onTap(); },
+    onDepot: (creneau) => { if (geste.axe === "x") onDepot(creneau); },
+    onHorsCible: () => { if (geste.axe === "x" && onHorsCible) onHorsCible(); }
+  });
+}
+
+/** LA BOURSE — quatre nombres, redessinés à chaque ajustement. */
+function dessinerBourse() {
+  swapContent(document.getElementById("purse"), BOURSE.map((piece) => {
+    const bloc = document.createElement("span");
+    bloc.className = "purse-piece";
+    const n = document.createElement("b");
+    n.className = "purse-nombre";
+    n.textContent = String(bourse[piece]);
+    const mot = document.createElement("span");
+    mot.className = "purse-mot";
+    mot.textContent = piece;
+    bloc.append(n, mot);
+    return bloc;
+  }));
+
+  /* Les quatre pastilles de choix — `.skills-cat`, la brique « une parmi N »
+     du dépôt : l'active se remplit d'un lavis d'accent, les autres sont nues.
+     ⛔ Pas de `<select>` : quatre choix courts se montrent, ils ne se
+     déroulent pas — et un menu déroulant au pouce coûte deux gestes. */
+  swapContent(document.getElementById("argent-pieces"), BOURSE.map((piece) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "skills-cat";
+    b.textContent = piece;
+    b.setAttribute("aria-current", piece === pieceChoisie ? "true" : "false");
+    b.addEventListener("click", () => { pieceChoisie = piece; dessinerBourse(); mesurer(); });
+    return b;
+  }));
+
+  document.getElementById("argent-dit").textContent =
+    `R.purse.ajust — le MJ donne, ou le joueur se corrige. Pas de « vendre » : `
+    + `retirer un objet du sac ne rend pas l'argent.`;
+}
+
+/** AJUSTER — `signe` vaut +1 ou −1. ⛔ Jamais en dessous de zéro : une bourse
+ *  négative n'est pas une correction, c'est une faute qu'on propage. */
+function ajuster(signe) {
+  const champ = document.getElementById("argent-montant");
+  const montant = Math.max(0, Math.floor(Number(champ.value) || 0));
+  bourse[pieceChoisie] = Math.max(0, bourse[pieceChoisie] + signe * montant);
+  dessinerBourse();
+  mesurer();
+}
+
+/* ══ POSER, REPRENDRE — les deux seules choses que le banc fait d'un objet ══ */
+
+/** Le premier récepteur libre, dans l'ordre du croquis (le sac avant la
+ *  forge). C'est ce que le TAP choisit : « le glisser désigne SA case, le tap
+ *  laisse l'écran choisir » (en-tête de `glisser.mjs`). */
+function premierLibre() {
+  return RECEPTEURS.find((r) => recepteurs[r] === null) ?? null;
+}
+
+function poser(creneau, objet) {
+  if (!Object.prototype.hasOwnProperty.call(recepteurs, creneau)) return;
+  recepteurs[creneau] = objet;
+  dessiner();
+}
+
+function reprendre(creneau) {
+  recepteurs[creneau] = null;
+  dessiner();
+}
+
+/** UNE LIGNE D'OBJET — `.equipment-gear-row` du vrai écran, sur UNE ligne,
+ *  et c'est elle l'objet qu'on prend.
+ *
+ *  ⭐ L'ASCENSEUR ET LE GLISSER NE SE DISPUTENT PLUS RIEN, ET C'EST L'AXE QUI
+ *  LES A RÉCONCILIÉS. En août, la seule issue connue était de supprimer
+ *  l'ascenseur (« il ne faut plus d'ascenseurs couplés avec des actions drag
+ *  and drop », 2026-08-20). La règle d'Eric du 22 fait mieux : la colonne
+ *  garde son ascenseur, et le geste se distingue par sa DIRECTION.
+ *  Voir `armerSelonAxe` plus haut — c'est là que la règle vit. */
+function faireLigne(etagere, n) {
+  const objet = `${etagere} — exemple ${String(n).padStart(2, "0")}`;
+
+  const ligne = document.createElement("button");
+  ligne.type = "button";
+  ligne.className = "equipment-gear-row r-ligne";
+
+  const nom = document.createElement("span");
+  nom.className = "equipment-gear-name";
+  nom.textContent = objet;
+
+  const meta = document.createElement("span");
+  meta.className = "equipment-gear-meta";
+  /* Deux nombres qui varient sans hasard : le banc doit rendre la MÊME page
+     deux fois de suite, sinon Eric compare deux dessins différents. */
+  meta.textContent = `${1 + (n * 3) % 12} lb · ${1 + (n * 7) % 90} gp`;
+
+  ligne.append(nom, meta);
+
+  armerSelonAxe(ligne, {
+    /* LE TAP : dans le premier récepteur libre. S'il n'y en a plus, on ne
+       fait rien — un banc ne remplace pas en silence ce qu'on y a posé. */
+    onTap: () => {
+      const libre = premierLibre();
+      if (libre) poser(libre, objet);
+    },
+    /* LE GLISSER HORIZONTAL : dans le récepteur VISÉ. `creneau` est la chaîne
+       rendue par l'organe, lue sur `data-creneau` — les clefs de `recepteurs`
+       sont les mêmes, exprès. */
+    onDepot: (creneau) => poser(creneau, objet)
+  });
+
+  return ligne;
+}
+
+/** LE CONTENU D'UN RÉCEPTEUR — armé par le MÊME organe que la ligne d'où il
+ *  vient, pour que le retour emprunte exactement le chemin de l'aller. */
+function dessinerRecepteurs() {
+  for (const clef of RECEPTEURS) {
+    const slot = document.querySelector(`[data-creneau="${clef}"]`);
+    const objet = recepteurs[clef];
+    slot.dataset.rempli = objet === null ? "false" : "true";
+
+    const nom = document.createElement("span");
+    nom.className = "glisse-creneau-nom";
+    nom.textContent = NOM_SLOT[clef];
+
+    if (objet === null) {
+      const vide = document.createElement("span");
+      vide.className = "glisse-creneau-valeur";
+      vide.textContent = "déposer ici";
+      swapContent(slot, [nom, vide]);
+      continue;
+    }
+
+    const pose = document.createElement("button");
+    pose.type = "button";
+    pose.className = "glisse-creneau-valeur r-depose";
+    pose.textContent = objet;
+    pose.title = objet;
+    armerJeton(pose, {
+      onTap: () => reprendre(clef),
+      /* Glissé d'un récepteur vers l'autre : c'est un déplacement, pas une
+         copie — la case de départ se vide. */
+      onDepot: (vers) => {
+        if (vers === clef) return;
+        recepteurs[clef] = null;
+        poser(vers, objet);
+      },
+      /* Lâché dans le vide DEPUIS un récepteur : c'est l'annulation d'Eric
+         (« on annule en ressortant l'objet »). L'organe distingue ce cas
+         exprès — voir `onHorsCible` dans son en-tête. */
+      onHorsCible: () => reprendre(clef)
+    });
+    swapContent(slot, [nom, pose]);
+  }
+}
+
+function dessiner() {
+  const rayon = trouveRayon(rayonCourant);
+  if (!rayon.etageres.some((e) => e.nom === etagereChoisie)) {
+    etagereChoisie = etagereCourante();
+  }
+
+  /* ── la rangée du HAUT : sept rayons, fixes ── */
+  swapContent(belts.rayons, CATALOGUE.map((r) =>
+    faireCran(r.rayon, r.compte, r.rayon === rayonCourant, () => {
+      if (r.rayon === rayonCourant) return;
+      rayonCourant = r.rayon;
+      /* LE POINT QUE LE BANC TRANCHE : en A, on retombe sur la première
+         étagère ; en B, sur celle qu'on avait laissée. Une seule ligne les
+         sépare, et c'est `etagereCourante()` qui la porte. */
+      etagereChoisie = etagereCourante();
+      dessiner();
+    })
+  ));
+
+  /* ── la rangée du BAS : les étagères du rayon choisi ── */
+  swapContent(belts.etageres, rayon.etageres.map((e) =>
+    faireCran(e.nom, e.compte, e.nom === etagereChoisie, () => {
+      etagereChoisie = e.nom;
+      /* La mémoire est tenue dans LES DEUX modes — voir la note de l'état. */
+      souvenir.set(rayonCourant, e.nom);
+      dessiner();
+    })
+  ));
+
+  /* Les deux pistes montrent ce qu'elles désignent — chacune la sienne. */
+  for (const piste of [belts.rayons, belts.etageres]) {
+    keepInView(piste, piste.querySelector('[data-status="current"]'), "x");
+  }
+
+  /* ── R.list : le contenu de l'étagère ── */
+  const etagere = rayon.etageres.find((e) => e.nom === etagereChoisie);
+
+  if (etagere.compte === 0) {
+    const vide = document.createElement("p");
+    vide.className = "r-list-vide";
+    /* ⚠️ UNE ÉTAGÈRE À ZÉRO N'EST PAS UNE ERREUR — les quatre de Companions
+       et deux de Crafting sont annoncées à 0 par la commande. Le banc le DIT
+       plutôt que de rendre une boîte muette. */
+    vide.textContent = "Rien sur cette étagère — annoncée à 0.";
+    swapContent(listeBoite, [vide]);
+  } else {
+    const lignes = [];
+    for (let n = 1; n <= etagere.compte; n += 1) lignes.push(faireLigne(etagere.nom, n));
+    swapContent(listeBoite, lignes);
+  }
+  dessinerRecepteurs();
+  mesurer();
+}
+
+/** Combien de lignes ENTIÈRES la fenêtre de `R.list` montre. La hauteur vient
+ *  de la première ligne posée, jamais d'un littéral. */
+function lignesVisibles() {
+  const une = listeBoite.querySelector(".r-ligne");
+  if (!une) return 0;
+  const haut = une.getBoundingClientRect().height;
+  return haut > 0 ? Math.floor(listeBoite.clientHeight / haut) : 0;
+}
+
+/* ══ LE BUDGET DE HAUTEUR — mesuré, jamais estimé ════════════════════════
+   Eric, 2026-08-22 : *« calcule bien la quantité d'espace qu'on a en hauteur,
+   qu'on n'ait pas de mauvaises surprises en arrivant dans le builder »*.
+
+   ⭐ AUCUN CHIFFRE N'EST ÉCRIT ICI. La ceinture est une VRAIE ceinture, posée
+   dans le banc : sa hauteur se lit sur elle. Les quatre blocs de `R` se
+   mesurent aussi. Le jour où une cote change, ce relevé change tout seul —
+   c'est la différence entre un budget et une croyance. */
+function budgetHauteur() {
+  const h = (sel) => {
+    const n = document.querySelector(sel);
+    return n ? Math.round(n.getBoundingClientRect().height) : 0;
+  };
+  const fenetre = window.innerHeight;
+  const belt = h("#belt-chassis");
+  const topbar = 0;                       // tranché : `R` ne s'en sert pas
+  const utile = fenetre - belt - topbar;
+
+  const blocs = [...document.querySelectorAll(".colonne-r > .bloc")];
+  const detail = blocs.map((b) => {
+    const id = b.querySelector(".bloc-id");
+    return `${id ? id.textContent : "?"} ${Math.round(b.getBoundingClientRect().height)}`;
+  }).join(" · ");
+  const carte = Math.round(document.querySelector(".colonne-r").getBoundingClientRect().height);
+  const coulisse = Math.round(listeBoite.getBoundingClientRect().height);
+  /* La carte tient-elle sous la ceinture ? Si elle déborde, la règle d'Eric
+     s'applique — on demande ce qu'elle porte EN TROP, on n'ajoute pas
+     d'ascenseur. Le banc pose la question avec le nombre. */
+  const reste = utile - carte;
+  const scene = Math.round(document.querySelector(".scene").getBoundingClientRect().height);
+  const empilee = window.matchMedia("(max-width: 640px)").matches;
+
+  return `\n`
+    + `── budget de hauteur ─────────────────────────────────────\n`
+    + `fenêtre          ${fenetre} px\n`
+    + `belt (mesuré)    ${belt} px   ceinture réelle, posée dans le banc\n`
+    + `stage-topbar     ${topbar} px   TRANCHÉ : R ne s'en sert pas (bourse dans R.find, catégories dans R.cat)\n`
+    + `utile            ${utile} px\n`
+    + `carte R          ${carte} px   ${detail}\n`
+    + `reste sous R     ${reste} px   ${reste >= 0 ? "✓ la carte tient" : "✗ la carte DÉBORDE — que porte-t-elle en trop ?"}\n`
+    + `coulisse gauche  ${coulisse} px sur ${utile} utiles   ${coulisse <= utile ? "✓" : "✗ dépasse"}\n`
+    /* 🔴 LA VRAIE QUESTION EST LA SCÈNE ENTIÈRE, PAS LA CARTE SEULE. À deux
+       colonnes, `R` et les tuiles se partagent la largeur et la plus haute
+       décide ; EMPILÉES (≤ 640 px), elles s'ADDITIONNENT. C'est là que ça
+       casse en premier, et le relevé le dit avec le nombre plutôt que de
+       laisser la surprise pour le builder. */
+    + `scène (${empilee ? "empilée" : "2 colonnes"})  ${scene} px sur ${utile} utiles   `
+    + `${scene <= utile ? "✓ tout tient sans défiler" : `✗ dépasse de ${scene - utile} px — la page défilera`}\n`;
+}
+
+/** Combien de crans ENTIERS une piste montre — le critère d'Eric, mesuré à
+ *  chaque redessin plutôt que jugé à l'œil. Un cran seulement amorcé ne
+ *  compte pas : c'est justement ce que la première pose confondait. */
+function cransEntiers(piste) {
+  const boite = piste.getBoundingClientRect();
+  const cs = getComputedStyle(piste);
+  const gauche = boite.left + parseFloat(cs.paddingLeft || 0);
+  const droite = boite.right - parseFloat(cs.paddingRight || 0);
+  let n = 0;
+  for (const cran of piste.children) {
+    const k = cran.getBoundingClientRect();
+    if (k.left >= gauche - 0.5 && k.right <= droite + 0.5) n += 1;
+  }
+  return n;
+}
+
+function mesurer() {
+  const l = (n) => (n ? Math.round(n.getBoundingClientRect().width) : 0);
+  const h = (n) => (n ? Math.round(n.getBoundingClientRect().height) : 0);
+  const cranHaut = belts.rayons.querySelector(".belt-item");
+  const cranBas = belts.etageres.querySelector(".belt-item");
+  const air = Math.round(parseFloat(getComputedStyle(belts.rayons).paddingLeft) || 0);
+  const debordeHaut = belts.rayons.scrollWidth > belts.rayons.clientWidth;
+  const debordeBas = belts.etageres.scrollWidth > belts.etageres.clientWidth;
+  const entiersHaut = cransEntiers(belts.rayons);
+  const entiersBas = cransEntiers(belts.etageres);
+  const fond = getComputedStyle(document.querySelector(".app")).backgroundImage;
+  const fondPose = fond && fond !== "none";
+  const uneLigne = listeBoite.querySelector(".r-ligne");
+  const hauteurLigne = uneLigne ? Math.round(uneLigne.getBoundingClientRect().height) : 0;
+
+  document.getElementById("mesures").textContent =
+      `écran            ${window.innerWidth} × ${window.innerHeight}\n`
+    + `colonne R.cat    ${l(belts.rayons.parentElement)} px de large\n`
+    + `air aux bouts    ${air} px  (8 attendus — shell.css en impose 37 aux onglets)\n`
+    + `cran du haut     ${l(cranHaut)} × ${h(cranHaut)}   dalle, --t3\n`
+    + `cran du bas      ${l(cranBas)} × ${h(cranBas)}   mot, --t2\n`
+    /* 🔴 LE CRITÈRE D'ERIC, CHIFFRÉ : au moins 4 crans ENTIERS et le 5ᵉ
+       amorcé. Le relevé le dit, verdict compris — un banc qui affiche la
+       mesure sans la juger laisse le lecteur faire l'arithmétique. */
+    + `crans entiers    haut ${entiersHaut} ${entiersHaut >= 4 ? "✓" : "✗ (4 exigés)"} · bas ${entiersBas}   sur ${belts.rayons.children.length} et ${belts.etageres.children.length}\n`
+    + `débordement      haut ${debordeHaut ? "oui" : "non"} · bas ${debordeBas ? "oui" : "non"}  (la piste défile)\n`
+    + `tuiles R.list    ${lignesVisibles()} visibles · ${listeBoite.children.length} en tout · tuile = ${hauteurLigne} px\n`
+    + `récepteurs       bag ${recepteurs.bag ?? "—"} · craft ${recepteurs.craft ?? "—"}\n`
+    + `cote F1          ${COTE_F1}  (lue dans fiche.css, jamais recopiée)\n`
+    + `zone de coulisse ${Math.round(listeBoite.getBoundingClientRect().height)} px — sans cadre, tuiles posées sur le fond\n`
+    + `bourse           ${BOURSE.map((c) => `${bourse[c]} ${c}`).join(" · ")}   ajustable à la main (3ᵉ geste, pas de « sell »)\n`
+    + `R.bag.image      place réservée 64 × 64 — destination B3 ou SB3.1, non tranchée\n`
+    + `fond             ${fondPose ? "posé (.app, --bg-image)" : "ABSENT — rien ne se juge"}\n`
+    + budgetHauteur()
+    + `mode             ${mode} — ${mode === "A" ? "le bas oublie" : "le bas se souvient"}\n`
+    + `ouvert sur       ${rayonCourant} › ${etagereChoisie}`;
+}
+
+/* ── L'INTERRUPTEUR A/B ─────────────────────────────────────────────── */
+const dit = document.getElementById("variante-dit");
+const boutons = [...document.querySelectorAll(".variante .record-option")];
+
+function poserMode(nouveau) {
+  mode = nouveau;
+  for (const b of boutons) b.dataset.active = b.dataset.mode === mode ? "true" : "false";
+  dit.textContent = mode === "A"
+    ? "A — changer de rayon retombe toujours sur la première étagère alphabétique."
+    : "B — chaque rayon garde l'étagère où on l'avait laissé. Va poser une étagère dans deux rayons, puis reviens.";
+  etagereChoisie = etagereCourante();
+  dessiner();
+}
+
+for (const b of boutons) b.addEventListener("click", () => poserMode(b.dataset.mode));
+
+/* R.menu : les ⋮ n'ouvrent rien — `R.html` dit qu'on ne sait pas encore ce
+   qu'ils font. Un banc ne comble pas un trou de conception en douce. */
+document.getElementById("argent-plus").addEventListener("click", () => ajuster(+1));
+document.getElementById("argent-moins").addEventListener("click", () => ajuster(-1));
+
+/* GET BACK — il reprend ce que `R.craft.slot` tient, et rien d'autre. C'est
+   le bouton du croquis, à sa place ; il ne double aucun geste, il donne un
+   nom au retour depuis la forge. */
+document.getElementById("r-getback").addEventListener("click", () => reprendre("craft"));
+
+document.getElementById("r-menu").addEventListener("click", (e) => {
+  e.currentTarget.setAttribute("aria-label", "R.menu — sans destination, à nommer");
+});
+
+/* ══ LA CEINTURE INERTE — les dix étapes du vrai builder ═════════════════
+   Recopiées de `shell.mjs` parce que ce sont des LIBELLÉS, pas une cote : ce
+   qu'on mesure ici est la HAUTEUR de la ceinture, et elle vient du CSS. Si un
+   libellé changeait, la hauteur ne bougerait pas d'un pixel.
+   ⛔ Aucun `data-status`, aucun écouteur : elle occupe la place, rien de plus. */
+const ETAPES = ["Menu", "Identity", "Species", "Inheritance", "Destiny",
+                "Class", "Abilities", "Skills", "Equipment", "Sheet"];
+swapContent(document.getElementById("belt-etapes"), ETAPES.map((mot, i) => {
+  const cran = document.createElement("div");
+  cran.className = "belt-item";
+  const num = document.createElement("span");
+  num.className = "belt-index";
+  num.textContent = String(i);
+  const lab = document.createElement("span");
+  lab.className = "belt-label";
+  lab.textContent = mot;
+  cran.append(num, lab);
+  return cran;
+}));
+
+dessinerBourse();
+poserMode("A");
+window.addEventListener("resize", () => mesurer());
+
+/* ══ LA RÈGLE — pour qu'Eric puisse me contredire ═══════════════════════
+   Eric, 2026-08-22 : *« je ne te crois pas et j'ai aucun moyen de te
+   contredire »*. Il avait raison : tous les chiffres de ce banc passaient
+   par un rapport écrit, donc par quelqu'un. Un relevé qui se lit en bas de
+   page demande la même confiance qu'une phrase.
+
+   ⭐ Ce bloc ne mesure rien de plus — il DESSINE ce qui est déjà mesuré, à
+   l'endroit exact où ça se passe. La ligne « fin de l'espace attribué » est
+   posée par `getBoundingClientRect`, pas par une constante : si elle ment,
+   elle ment visiblement. */
+(function regle() {
+  const nid = document.createElement("div");
+  nid.id = "regle-couche";
+  nid.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:9999;display:none";
+  document.body.append(nid);
+
+  const bouton = document.createElement("button");
+  bouton.type = "button";
+  bouton.id = "regle-bouton";
+  bouton.textContent = "Afficher la règle";
+  bouton.style.cssText = "position:fixed;right:12px;bottom:12px;z-index:10000;padding:8px 12px;"
+    + "font:600 13px/1 system-ui,sans-serif;border-radius:8px;border:1px solid #0006;"
+    + "background:#e8c07d;color:#1a1a1a;cursor:pointer";
+  document.body.append(bouton);
+
+  const trait = (haut, texte, couleur) => {
+    const l = document.createElement("div");
+    l.style.cssText = `position:absolute;left:0;right:0;top:${haut}px;height:0;`
+      + `border-top:2px dashed ${couleur}`;
+    const t = document.createElement("span");
+    t.textContent = texte;
+    t.style.cssText = `position:absolute;right:4px;top:-18px;font:600 12px/1 system-ui,sans-serif;`
+      + `color:${couleur};background:#000a;padding:2px 6px;border-radius:4px`;
+    l.append(t);
+    nid.append(l);
+  };
+
+  const cadre = (r, texte, couleur) => {
+    const d = document.createElement("div");
+    d.style.cssText = `position:absolute;left:${r.left}px;top:${r.top}px;width:${r.width}px;`
+      + `height:${r.height}px;outline:2px solid ${couleur};outline-offset:-1px`;
+    const t = document.createElement("span");
+    t.textContent = `${texte} — ${Math.round(r.width)} × ${Math.round(r.height)}`;
+    t.style.cssText = `position:absolute;left:0;top:0;font:600 12px/1 system-ui,sans-serif;`
+      + `color:#000;background:${couleur};padding:2px 6px`;
+    d.append(t);
+    nid.append(d);
+  };
+
+  const dessiner = () => {
+    while (nid.firstChild) nid.removeChild(nid.firstChild);
+    const belt = document.querySelector(".belt");
+    const scene = document.querySelector(".banc-scroll");
+    const carte = document.querySelector(".r-carte") || document.querySelector(".r-cat")?.parentElement;
+    const liste = document.querySelector(".r-list-coulisse") || document.querySelector("[class*=r-list]");
+    if (belt) cadre(belt.getBoundingClientRect(), "belt (châssis)", "#7fd1ff");
+    if (carte) cadre(carte.getBoundingClientRect(), "R — la carte", "#e8c07d");
+    if (liste) cadre(liste.getBoundingClientRect(), "les tuiles", "#9fe38a");
+    if (scene) {
+      const r = scene.getBoundingClientRect();
+      trait(r.top, "début de l'espace attribué", "#ff7a7a");
+      trait(r.bottom, "FIN de l'espace attribué — rien ne devrait dépasser", "#ff7a7a");
+    }
+  };
+
+  bouton.addEventListener("click", () => {
+    const on = nid.style.display === "none";
+    nid.style.display = on ? "block" : "none";
+    bouton.textContent = on ? "Cacher la règle" : "Afficher la règle";
+    if (on) dessiner();
+  });
+  window.addEventListener("resize", () => { if (nid.style.display === "block") dessiner(); });
+  window.addEventListener("scroll", () => { if (nid.style.display === "block") dessiner(); }, true);
+})();
+
+</script>
+</body>
+</html>
