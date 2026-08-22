@@ -254,6 +254,13 @@
     justify-content: center;
     align-items: stretch;
     height: 100%;
+    /* ⭐ LA GOUTTIÈRE — Eric, 2026-08-22 : « menu latéral toujours scotché à la
+       carte ». Mesuré : la colonne finissait à 375 et la carte commençait à
+       375, elles se touchaient à l'exactitude. Deux objets posés sur le fond
+       doivent respirer entre eux — c'est la matrice des dalles, « le fond
+       respire ENTRE et AUTOUR ». Même valeur que l'air du belt et l'écart
+       des tuiles : un seul air dans tout l'écran. */
+    gap: var(--sp-8);
   }
   /* 🔴 `flex: 1 1 auto` NE DONNAIT PAS 90 AU TÉLÉPHONE, ET C'EST MESURÉ :
      à 375 la colonne prenait **108 px**. Deux items élastiques qui débordent
@@ -267,7 +274,6 @@
   /* `height: 100%` ET `min-height: 0` — les deux : le premier donne à
      `.r-tuiles` un pourcentage à résoudre, le second empêche la colonne de
      grandir à la taille de son contenu (défaut par défaut d'un item flex). */
-  .r-list-col { flex: 0 0 auto; width: var(--tuile-col); height: 100%; min-height: 0; }
   /* ⚠️ ESSAI DU 22/08 — ERIC : « fais 76 pour voir ». On passe de `--panel-w`
      (88ch en grandeur Large, une cote taillée pour la RANGÉE D'ABILITIES : six
      options annotées sur une ligne) à `--card-w` (76ch), la cote de la carte
@@ -604,35 +610,323 @@
      📌 À REMONTER : la cote vient de servir hors du catalogue. Si elle doit
      servir une troisième fois, sa place est `tokens.css`, pas un conteneur
      d'écran. */
+  /* ══ R.list EN BANDE — le troisième niveau prend le mécanisme des deux
+     autres ═══════════════════════════════════════════════════════════════
+     Eric, 2026-08-22 : *« R sera ce gros sélecteur bien solide et fluide »* ·
+     *« objectif c'est la fluidité »*.
+
+     ⭐ CE BLOC NE FAIT PRESQUE RIEN, ET C'EST LE BUT. `#list-boite` porte
+     maintenant `.belt-track` : le défilement, l'aimantation, l'air aux deux
+     bouts et le comportement de coulisse viennent de `shell.css`, déjà
+     éprouvés sur les rayons et les étagères. Un troisième mécanisme aurait
+     divergé du premier au premier réglage.
+
+     🔴 CE QUI EST ANNULÉ ICI EST L'ANCIEN SENS : `flex-direction: column`,
+     `overflow-y`, la hauteur en F1. Ils décrivaient une colonne latérale qui
+     n'existe plus.
+
+     ⚠️ `proximity` ET NON `mandatory`, ET C'EST LA FLUIDITÉ QUI TRANCHE :
+     `mandatory` reprend la main à chaque relâchement et refuse de s'arrêter
+     entre deux crans — au pouce, ça donne un défilement qui se bat contre le
+     doigt. `proximity` n'aimante que si on s'arrête PRÈS d'un cran. C'est déjà
+     le choix de `.belt-track` pour les deux autres niveaux ; l'écart aurait
+     été senti immédiatement. */
   .r-tuiles {
     --r-tuile: var(--touch);
-    /* La zone de coulisse : au plus un F1, et jamais plus haut que la fenêtre.
-       ⛔ AUCUNE AIMANTATION VERTICALE, ET C'EST UNE DÉCISION, PAS UN OUBLI —
-       voir la note « Species et R.list se ressemblent » dans le script. */
-    /* ⛔ PLUS DE `vh` ICI. La coulisse vaut au plus un F1, et au plus la
-       hauteur RÉELLEMENT offerte par la scène — `100%` d'une colonne étirée,
-       donc une valeur que le navigateur connaît vraiment, barres de Safari
-       comprises. `78vh` promettait 633 px là où l'iPhone en donnait ~430. */
-    height: min(var(--fiche-h), 100%);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    display: flex; flex-direction: column; gap: var(--sp-8);   /* l'écart du rail de Species, relevé */
-    /* ⭐ L'AIR AUX DEUX BOUTS, TOURNÉ À LA VERTICALE — la parade d'Eric du
-       2026-08-15, transposée. Sans cadre, plus rien ne dit qu'une tuile
-       coupée continue hors champ : elle a l'air sectionnée par rien. Les 8 px
-       d'air font qu'elle se lit comme une AMORCE, exactement comme au bout de
-       la ceinture (« une dalle qui continue hors champ se lit alors comme
-       telle, au lieu d'avoir l'air sectionnée par la fenêtre »).
-       ⛔ PAS DE MASQUE EN FONDU : Eric l'a fait retirer de la ceinture le
-       2026-08-15 (« flouté bizarre à droite et à gauche du belt »). Une
-       SURFACE qui s'efface ne se lit pas comme une amorce, elle se lit comme
-       un défaut de rendu — et ces tuiles sont des surfaces.
-       ⭐ `scroll-padding-block` va avec, pour la même raison que sur la
-       piste : sans lui l'aimantation collerait la tuile au bord et mangerait
-       l'air qu'on vient de poser. */
-    padding: var(--sp-8);
-    scroll-padding-block: var(--sp-8);
+    /* La bande garde la hauteur d'une tuile, pas celle d'une colonne. */
+    height: auto;
+    /* 🔴 `1 1 auto` ET SURTOUT PAS `0 0 auto` — l'erreur a été commise ici même
+       et elle ne se voyait pas : avec les 3 objets de l'étagère courante, une
+       piste qui grandit avec son contenu a EXACTEMENT l'air d'une piste qui se
+       borne. Il a fallu la remplir à 33 pour la voir faire 3059 px de large au
+       lieu de défiler dans 359. Les trois autres ceintures portent `1 1 auto`
+       depuis toujours ; l'écart était de mon fait, pas du leur.
+       ⭐ LA LEÇON EST RÉUTILISABLE : un défaut de débordement ne se teste pas
+       sur le cas courant, il se teste sur le cas PLEIN. Le banc rendait la
+       mesure fausse parce qu'il n'affichait pas assez. */
+    flex: 1 1 auto;
   }
+
+  /* ══ LA ZONE VISEUR — Eric, 2026-08-22 ═══════════════════════════════════
+     *« il faut une zone viseur »* · *« ce n'est pas le tap de A qui décide de
+     la zone B, c'est son positionnement dans le viseur »*.
+
+     ⭐ C'EST LA PIÈCE QUI CHANGE LA NATURE DE L'ÉCRAN. Sans viseur, une bande
+     qui défile est une liste : rien ne dit lequel des items compte. Avec lui,
+     la bande devient un SÉLECTEUR — l'item sous le viseur est l'item courant,
+     et il le devient en passant dessous, sans qu'on le touche.
+
+     🔴 `pointer-events: none`, SANS DISCUSSION : le viseur est posé PAR-DESSUS
+     la piste, au centre, exactement là où le doigt va chercher les items. Sans
+     cette ligne il intercepterait chaque clic — et comme il est transparent,
+     l'écran aurait l'air simplement mort. C'est le même piège que le fantôme
+     payait ce matin, au même endroit.
+     📌 Il est en `absolute` dans un `.belt` en `relative` : il ne défile donc
+     PAS avec la piste. Un viseur qui suivrait le contenu ne viserait rien. */
+  .belt { position: relative; }
+  /* ══ LE VOILE EST INVERSÉ — Eric, 2026-08-22 : *« voile 0 sur zone ciblée,
+     voile 10 sur zone périph, 20 s'il y en a plus »* ═══════════════════════
+     ⭐ ET C'EST PLUS JUSTE QUE CE QUE J'AVAIS FAIT. Ma première version posait
+     une teinte SUR l'item visé : on ajoutait quelque chose par-dessus la seule
+     chose qu'on veut voir nette. Ici on ne touche pas au centre — on assombrit
+     ce qui l'entoure. C'est ce que fait réellement le picker iOS, et ça se
+     vérifie à l'œil : sa fenêtre de sélection ne teinte rien, ce sont ses
+     voisins qui s'éteignent.
+     📌 Trois paliers, pas un dégradé continu : le cran courant à nu, ses deux
+     voisins à 10 %, tout le reste à 20 %. Des paliers nets disent « il y a des
+     crans » ; un dégradé lisse dirait « c'est une glissière ».
+     ⚠️ Le voile couvre DÉSORMAIS TOUTE la piste, il ne fait plus un cran de
+     large — sinon il n'aurait rien à assombrir. */
+  .belt-viseur {
+    position: absolute;
+    pointer-events: none;
+    /* Un cran, et la même formule que les items : ils doivent coïncider. */
+    --cran: calc((100% - 2 * var(--sp-8)) / 3);
+  }
+
+  .app:not([data-sens="v"]) .belt-viseur {
+    inset: 0;
+    background: linear-gradient(to right,
+      rgba(0,0,0,.20) 0,                          rgba(0,0,0,.20) calc(50% - 1.5 * var(--cran)),
+      rgba(0,0,0,.10) calc(50% - 1.5 * var(--cran)), rgba(0,0,0,.10) calc(50% - 0.5 * var(--cran)),
+      transparent     calc(50% - 0.5 * var(--cran)), transparent     calc(50% + 0.5 * var(--cran)),
+      rgba(0,0,0,.10) calc(50% + 0.5 * var(--cran)), rgba(0,0,0,.10) calc(50% + 1.5 * var(--cran)),
+      rgba(0,0,0,.20) calc(50% + 1.5 * var(--cran)));
+  }
+  /* Vertical : une fenêtre large au milieu de la hauteur. */
+  .app[data-sens="v"] .belt-viseur {
+    inset: 0;
+    --cran: var(--touch);
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,.20) 0,                          rgba(0,0,0,.20) calc(50% - 1.5 * var(--cran)),
+      rgba(0,0,0,.10) calc(50% - 1.5 * var(--cran)), rgba(0,0,0,.10) calc(50% - 0.5 * var(--cran)),
+      transparent     calc(50% - 0.5 * var(--cran)), transparent     calc(50% + 0.5 * var(--cran)),
+      rgba(0,0,0,.10) calc(50% + 0.5 * var(--cran)), rgba(0,0,0,.10) calc(50% + 1.5 * var(--cran)),
+      rgba(0,0,0,.20) calc(50% + 1.5 * var(--cran)));
+  }
+  /* En vertical le voile couvre la roue entière en largeur : chaque roue est
+     une colonne, et son cran courant en occupe toute la laize. */
+
+  /* ══ LES CALES — SANS ELLES, LES DEUX BOUTS SONT INATTEIGNABLES ══════════
+     🔴 MESURÉ AVANT CORRECTION, ET C'EST PIRE QU'UN DÉTAIL : 4 rayons sur 7,
+     4 étagères sur 7 et 6 objets sur 15 ne pouvaient JAMAIS passer sous le
+     viseur. Un item ne devient courant qu'en atteignant le CENTRE de la piste ;
+     or le premier item ne peut pas dépasser le bord gauche, ni le dernier le
+     bord droit. Toute une famille d'objets était donc inaccessible — et sans
+     message, sans rougir : la piste défilait normalement, elle refusait
+     simplement de désigner ses extrémités.
+     ⭐ LA PARADE EST CELLE DU PICKER iOS : une demi-fenêtre de rembourrage à
+     chaque bout, pour que le premier et le dernier item puissent venir au
+     milieu. `calc(50% - ...)` — en `padding-inline`, le pourcentage se réfère
+     bien à la largeur du conteneur.
+     📌 L'air de 8 px d'Eric (2026-08-15, « dégage le truc moche à droite et à
+     gauche du belt ») n'est pas perdu : la cale le contient, très largement.
+     ⚠️ ET EN VERTICAL CETTE LIGNE NE MARCHERA PAS — `padding-block` en
+     pourcentage se réfère à la LARGEUR du conteneur, pas à sa hauteur. C'est
+     un piège CSS ancien et silencieux : la cale existerait, mais de la
+     mauvaise dimension. Le sens vertical demandera des cales en éléments. */
+  /* ══ L'EFFET ROUE — TROIS ITEMS, ET LA BOUCLE ═════════════════════════════
+     Eric, 2026-08-22 : *« il faut que tu aies un effet roue, on voit que 3
+     items à la fois. donc quand on arrive au bout on revient au début »*.
+
+     ⭐ CES DEUX DEMANDES EN RÈGLENT UNE TROISIÈME, ET C'EST POUR ÇA QU'ELLES
+     VONT ENSEMBLE :
+     · **trois items** donne à tous la MÊME largeur — le viseur cessait de
+       coïncider avec eux dès qu'un nom était long, il coïncide maintenant
+       toujours, parce que la cote est la même des deux côtés ;
+     · **la boucle** supprime les cales. On venait de mesurer que 14 items sur
+       29 ne pouvaient jamais atteindre le centre, faute de pouvoir dépasser un
+       bord. Dans une roue, il n'y a pas de bord : tout item est atteignable
+       par construction, et `padding-inline: 50%` disparaît avec le problème
+       qu'il rustinait.
+     📌 Une cale reste, d'un tiers : elle sert au cas dégénéré (un niveau à 1 ou
+     2 items, où la boucle n'a rien à faire tourner). */
+  .app:not([data-sens="v"]) .belt-track {
+    padding-inline: 0;
+    scroll-snap-type: x mandatory;
+    /* 🔴 LA PISTE SE BORNE À CINQ CRANS ET SE CENTRE — mesuré sur l'iPad
+       d'Eric : laissée pleine largeur, elle alignait SEIZE items sur 2000 px
+       et le relevé du banc annonçait lui-même « réguliers — ça glisse, ça ne
+       tourne pas ». Un picker n'est pas un bandeau qui s'étire : c'est un
+       objet d'une taille donnée, posé au milieu — trois crans, exactement. */
+    /* ⭐ TROIS CRANS — Eric : *« juste 3 visibles à la fois »*. */
+    width: calc(3 * 117px + 2 * var(--sp-4));
+    max-width: 100%;
+    margin-inline: auto;
+    /* ⭐ LA PERSPECTIVE VIT SUR LA PISTE, PLUS DANS CHAQUE `transform` — c'est
+       la forme de la référence, et elle est meilleure : un point de fuite
+       COMMUN à tous les items. Posée par item, chacun fuyait vers son propre
+       centre, et le tambour n'avait pas d'axe unique. */
+    perspective: 1561px;
+    perspective-origin: 50% 50%;
+  }
+  /* ⚠️ `mandatory` REVIENT ICI, ET C'EST L'INVERSE DE CE QUE J'AI ÉCRIT PLUS
+     HAUT — parce que la géométrie a changé. Avec des items de largeur libre,
+     `mandatory` se battait avec le doigt. Avec trois créneaux d'égale largeur,
+     il n'y a plus d'entre-deux où s'arrêter : c'est ce qui fait le « clic » de
+     la roue, et sans lui le viseur peut rester à cheval sur deux items. */
+  .app:not([data-sens="v"]) .belt-item,
+  .app:not([data-sens="v"]) .r-ligne {
+    /* ⭐ 117 PX, TRANCHÉ PAR ERIC — et ce n'est PAS le cran qui s'adapte à
+       l'écran, c'est la piste qui se borne (voir `.belt-track` ci-dessous). */
+    flex: 0 0 117px;
+    /* 📌 H 60 ET PAS LA CIBLE TACTILE DE 44 — Eric : *« H60 parce qu'on peut
+       superposer Mot 1 & Mot 2 »*. La hauteur d'un cran n'est pas du confort,
+       c'est ce qui décide qu'un nom long tient sur deux lignes au lieu d'être
+       coupé. Elle reste au-dessus de `--touch`, donc la cible est tenue. */
+    height: 60px;
+    /* 🔴 LA HAUTEUR EST FIXE, ET C'EST ÇA QUI FAISAIT SAUTER L'ÉCRAN.
+       Mesuré : la hauteur de `R.cat` variait de 172 à 182 px SELON LE RAYON
+       CHOISI — « Baguettes & bâtons & sceptres » se replie sur trois lignes et
+       pousse ses crans à 54 px là où « Armures » les laisse à 44. Chaque
+       cascade changeait donc la hauteur de la bande, et tout ce qui vit
+       dessous — la recherche, la bourse, le sac — sautait de dix pixels.
+       ⭐ « Tous les items doivent faire la même taille » ne valait que dans une
+       dimension ; il en manquait une. Une roue dont les crans changent de
+       hauteur n'est pas une roue.
+       📌 Le nom qui ne tient pas est coupé, pas accommodé : c'est la règle du
+       rail de Species, et elle vaut ici pour la même raison. */
+    /* ⚠️ `border-box` EXPLICITE : sans lui, la hauteur fixe s'ADDITIONNE au
+       rembourrage et la tuile rend 53 px au lieu de 44 — mesuré, et c'est le
+       reste du saut d'écran que la hauteur fixe seule n'avait pas réglé. */
+    box-sizing: border-box;
+    height: var(--touch);
+    /* 🔴 `min-width: 0`, ET C'EST LUI QUI FAIT TENIR « TOUS DE LA MÊME
+       TAILLE ». Mesuré : avec la valeur par défaut (`auto`), un item flex
+       refuse de descendre sous la largeur de son mot le plus long —
+       « Consommables & potions » rendait 120 px là où ses voisins faisaient
+       114, alors que les trois portaient EXACTEMENT le même `flex-basis`.
+       ⚠️ Le défaut ne frappe donc que certains libellés, ce qui le rend
+       presque impossible à voir : deux étagères sur trois obéissent. */
+    min-width: 0;
+    max-width: none;
+    /* Le nom se replie plutôt que d'imposer sa largeur à la roue. */
+    overflow: hidden;
+    /* ⭐ LE GARDE-FOU DE LA ROUE, ET IL EST GÉOMÉTRIQUE : passé 90° de
+       rotation, un item présente son dos à l'observateur — il est de l'autre
+       côté du tambour. Cette ligne le retire au lieu de le laisser réapparaître
+       à l'envers de la piste. C'est ce qui remplace le bornage d'angle que je
+       faisais à la main, et qui cassait la symétrie. */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Le compositeur promeut la couche une fois pour toutes, au lieu de la
+       redécouvrir à chaque image. */
+    /* ⛔ Pas de `will-change: transform` : il fige la rasterisation, et un cran
+       qui change d'échelle voit alors sa texture ÉTIRÉE au lieu d'être
+       redessinée. C'est ce qui « frise » à l'œil. */
+    /* 🔴 PAS DE `scroll-snap-stop: always` — c'est LUI qui empêchait la roue de
+       rouler. Il force le défilement à s'arrêter sur CHAQUE cran : un geste
+       ample, si lancé soit-il, n'avance que d'un item et cale. Le doigt lance
+       une roue, la roue refuse de tourner.
+       ⭐ Mesuré au passage, pour écarter le faux coupable : peindre les 69
+       nœuds coûte 1,67 ms par image — dix fois sous le budget de 60 Hz. Ce
+       n'était jamais un problème de performance, c'était une règle CSS qui
+       disait au navigateur de brider l'inertie.
+       ⚠️ `mandatory` RESTE : lui ne bride rien, il choisit seulement le cran
+       où la course s'achève. C'est ce qui donne le « clic » à l'arrêt sans
+       toucher au lancer. */
+    scroll-snap-align: center;
+  }
+
+  /* ══ LES BORDS S'EFFACENT — la roue continue hors champ ══════════════════
+     ⭐ EN MASQUE, PAS EN OPACITÉ PAR ITEM : `.style.opacity` serait un second
+     style en ligne, et la doctrine du dépôt n'en tolère qu'un (`transform`).
+     Le masque agit sur la PISTE, une fois, et il estompe ce qui approche des
+     bords quel que soit le nombre d'items — un dégradé n'a pas à savoir
+     combien de choses passent dessous. */
+  .app:not([data-sens="v"]) .belt-track {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+  }
+
+  /* ══ LE SENS VERTICAL — TROIS ROUES CÔTE À CÔTE ══════════════════════════
+     Eric, 2026-08-22 : *« un défilement vertical serait vraiment sexy »*, et
+     l'exemple `UIPickerView` qu'il rapporte est exactement cette forme —
+     Weapons | Martial | Swords, trois roues indépendantes dont chacune
+     recalcule la suivante.
+
+     ⭐ CE QUI REND CE SENS POSSIBLE MAINTENANT, ET NE L'ÉTAIT PAS CE MATIN :
+     la cale d'une demi-fenêtre est morte avec la roue infinie. Elle ne pouvait
+     pas se faire en vertical — `padding-block` en pourcentage se réfère à la
+     LARGEUR du conteneur, pas à sa hauteur, un piège CSS ancien et muet. La
+     boucle a supprimé le besoin, donc le piège avec.
+
+     ⛔ LE MENU LATÉRAL RESTE ABSENT : on est en FF dans les deux sens. Ce qui
+     change n'est pas le cadre, c'est l'orientation des trois roues DEDANS. */
+  .app[data-sens="v"] .r-cat {
+    display: flex; flex-direction: row; gap: var(--sp-8);
+    /* Une hauteur de trois crans, la même pour les trois roues : c'est elle
+       qui fait qu'on voit trois items et pas un nombre variable. */
+    height: calc(3 * var(--touch) + 2 * var(--sp-8));
+  }
+  .app[data-sens="v"] .belt { flex: 1 1 0; min-width: 0; height: 100%; }
+  .app[data-sens="v"] .belt-track {
+    perspective: 1561px;
+    perspective-origin: 50% 50%;
+    flex-direction: column;
+    overflow-x: hidden; overflow-y: auto;
+    height: 100%;
+    scroll-snap-type: y mandatory;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+  }
+  .app[data-sens="v"] .belt-item,
+  .app[data-sens="v"] .r-ligne {
+    flex: 0 0 var(--touch);
+    width: 100%; min-width: 0; max-width: none;
+    overflow: hidden;
+    /* Même règle qu'en horizontal : pas de `scroll-snap-stop`, il briderait
+       l'inertie à un cran par geste. */
+    scroll-snap-align: center;
+  }
+
+  /* ══ PENDANT QU'ON CHOISIT A, C NE SERT À RIEN ═══════════════════════════
+     Eric, 2026-08-22 : *« on n'a pas besoin de voir C quand on est encore en
+     train de choisir A »*.
+     ⭐ ET CE N'EST PAS QUE DU CONFORT : pendant qu'on balaie les rayons, C se
+     refait à chaque cran franchi. Une bande qui clignote sept fois pendant un
+     seul geste attire l'œil vers ce qu'on n'a pas encore choisi. La retirer
+     rend le geste PLUS lisible, pas seulement plus calme.
+     ⛔ `opacity` et `pointer-events`, jamais `display: none` : on ne démonte
+     pas la piste, sinon `scrollWidth` tombe à zéro et la roue perd sa couture
+     au moment précis où elle en a besoin. */
+  .app[data-choisit="A"] #list-boite { opacity: 0; pointer-events: none; }
+  #list-boite { transition: opacity .18s ease; }
+
+  /* ══ L'IMPRESSION DE VITESSE — Eric : *« on peut mettre une animation en C
+     pour donner une impression de vitesse »* ════════════════════════════════
+     Quand C se refait, ses items arrivent en glissant depuis la droite, très
+     court, avec un léger étirement. Le geste a l'air d'avoir LANCÉ la roue de
+     C plutôt que d'avoir remplacé son contenu.
+     📌 120 ms : au-delà, l'animation devient une attente. On veut l'impression
+     du mouvement, pas le mouvement.
+     ⚠️ `prefers-reduced-motion` la coupe — une impression de vitesse est
+     exactement ce qu'on retire à quelqu'un qui la demande. */
+  @keyframes r-lancee {
+    from { transform: translateX(38px) scaleX(1.12); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  #list-boite[data-fraiche="true"] > * { animation: r-lancee .12s ease-out backwards; }
+  /* En roue verticale, la lancée vient du bas — un mouvement qui traverserait
+     l'axe du geste dirait le contraire de ce qu'il s'est passé. */
+  @keyframes r-lancee-v {
+    from { transform: translateY(38px) scaleY(1.12); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  .app[data-sens="v"] #list-boite[data-fraiche="true"] > * { animation-name: r-lancee-v; }
+  @media (prefers-reduced-motion: reduce) {
+    #list-boite[data-fraiche="true"] > * { animation: none; }
+    #list-boite { transition: none; }
+  }
+
+  /* ⭐ LE VISEUR SEUL NE SUFFIT PAS, ET C'EST MESURABLE : les items n'ont pas
+     tous la même largeur (un rayon court, un nom d'objet long), donc un cadre
+     de cote fixe ne coïncide avec l'item que par hasard. C'est l'ITEM qui doit
+     dire qu'il est visé — le cadre n'est que le repère de l'endroit où
+     regarder. Les deux ensemble se lisent ; l'un sans l'autre ment. */
+  /* ⛔ PLUS DE CONTOUR SUR L'ITEM VISÉ, ni d'estompage par `data-vise` : la
+     perspective réduit déjà les voisins et le masque efface les bords. Trois
+     façons de dire la même chose se contredisent au premier réglage. */
   .r-tuiles::-webkit-scrollbar { width: 6px; }
   .r-tuiles::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-pill); }
 
@@ -654,8 +948,31 @@
      ⛔ La colonne fait `var(--rail-w)` : à 375 c'est 90 px, dont ~74 pour le
      texte. Un nom d'objet y sera TRONQUÉ, exactement comme « Dragonborn » l'est
      dans le rail — et c'est le même arbitrage qu'Eric a déjà tranché là-bas. */
+  /* 🔴 34 PX CONTRE UNE CIBLE DE 44 — mesuré au navigateur à 375, le
+     2026-08-22, après qu'Eric a demandé *« la taille des tuiles ne pose pas
+     problème sur iPhone ? »*. Elle en posait un, et c'était chiffrable :
+     les TROIS tuiles rendaient 34 px de haut quand `--touch` vaut 44.
+     ⭐ ET L'ÉCRAN SE CONTREDISAIT LUI-MÊME : dans la même fenêtre, les
+     `.belt-item` du rail d'applis mesurent 44 — la cible est donc déjà tenue
+     à un endroit et manquée à l'autre. Ce n'est pas un arbitrage de densité,
+     c'est un oubli.
+     ⛔ `var(--touch)` et pas « 44 » : la cote existe dans `tokens.css`, on ne
+     la recopie pas. Le `min-` reste — une tuile dont le nom se replie sur deux
+     lignes monte au-delà et doit pouvoir le faire. */
   .r-ligne {
-    width: 100%; min-height: 30px;
+    /* ⭐ EN BANDE, LA TUILE SE DIMENSIONNE À SON NOM — et c'est exactement ce
+       que la colonne latérale interdisait. Elle ne descend pas sous une cible
+       tactile, elle ne dépasse pas la mesure de lecture : entre les deux, elle
+       prend ce que le nom demande. « Baguette de détection de la magie » cesse
+       d'être tronquée sans qu'aucune cote n'ait été inventée pour elle.
+       📌 `scroll-snap-align: center` — le cran. Il DÉSIGNE l'objet courant, il
+       ne l'achète pas : c'est le clic qui pose. La règle d'Eric du matin
+       (« défiler est seulement parcourir ») survit intacte, le cran ne fait
+       qu'ajouter un repère à ce parcours. */
+    flex: 0 0 auto;
+    min-width: var(--touch); max-width: var(--measure);
+    min-height: var(--touch);
+    scroll-snap-align: center;
     flex: none; flex-wrap: wrap;
     border: none;
     border-radius: var(--radius-md);
@@ -730,8 +1047,6 @@
      (leur `padding-top`, qui loge leur badge) : les deux colonnes démarrent
      donc à la même ordonnée, ce qui est la seule façon de comparer leurs
      hauteurs sans se mentir. */
-  .r-list-col { position: relative; min-height: 0; }
-  .r-list-badge { top: 0; left: 0; right: auto; border-radius: var(--radius-md) 0 var(--radius-md) 0; }
 
   .r-list-vide { margin: 0; padding: var(--sp-16) 0; font-size: var(--t3); color: var(--text-muted); }
   /* ⚠️ CETTE LÉGENDE ET CE TITRE FLOTTENT SUR L'IMAGE DE FOND, sans dalle
@@ -800,21 +1115,6 @@
        règle qui a mordu ici, et elle ne se voit qu'à la mesure. -->
   <div class="scene">
 
-    <!-- ── R.list : LES TUILES, à GAUCHE, ET SANS CADRE ──────────────────
-         Eric, 2026-08-22 : « la carte ne défile pas, les tuiles oui » ·
-         « les tuiles bougent à côté de la carte ». Il n'y a donc PAS de
-         `.bloc dalle-intermediaire` ici : une carte (la colonne R) et des
-         tuiles qui passent devant. L'étiquette flotte, elle n'encadre rien.
-         ⛔ AUCUN `data-snap` — voir la note « Species » dans le script. -->
-    <section class="r-list-col" aria-label="R.list">
-      <!-- ⚠️ L'ÉTIQUETTE FLOTTE ET NE COÛTE AUCUNE HAUTEUR — elle est posée en
-           absolu dans le même rembourrage de 16 px que les badges de `R`, de
-           sorte que les DEUX colonnes commencent leur contenu à la même
-           ordonnée. Un repère de banc qui pousserait les tuiles vers le bas
-           fausserait la mesure autant qu'un titre. -->
-      <span class="bloc-id r-list-badge">R.list</span>
-      <div class="r-tuiles" id="list-boite"></div>
-    </section>
 
     <!-- ── R : la colonne de commande, à DROITE ──────────────────────── -->
     <div class="colonne-r dalle-majeure">
@@ -827,6 +1127,27 @@
         </div>
         <div class="belt belt--fin" role="tablist" aria-label="Étagères">
           <div class="belt-track" id="belt-etageres"></div>
+        </div>
+
+        <!-- ── R.list — LE TROISIÈME NIVEAU, ET IL EST ENFIN COMME LES DEUX
+             AUTRES ─────────────────────────────────────────────────────────
+             Eric, 2026-08-22 : *« tout se passe dans le même sens »* · *« on
+             revient en FF, plus de colonne latérale, on gagne de la place »*.
+
+             🔴 CE QUE CE DÉPLACEMENT CORRIGE, ET C'ÉTAIT MESURÉ : la colonne
+             latérale valait `clamp(90px, 100vw - 62ch, 140px)`. À 375, la
+             carte fait 625 px mesurés : `375 - 625 = -250`, le clamp était
+             PLAQUÉ sur sa borne basse avec 250 px de dépassement. Les tuiles
+             ne pouvaient pas s'élargir d'un pixel, quoi qu'on règle. En FF, la
+             question n'existe plus : il n'y a plus deux colonnes.
+             ⭐ ET LE NOM CESSE D'ÊTRE TRONQUÉ — 90 px dont 74 pour le texte,
+             contre toute la largeur de la scène. Le renoncement hérité du rail
+             de Species (« un nom d'objet y sera TRONQUÉ, exactement comme
+             Dragonborn ») tombe sans qu'on ait eu à l'arbitrer.
+             ⛔ AUCUN `data-snap` — voir la note « Species » dans le script :
+             ici le cran DÉSIGNE, il n'achète pas. -->
+        <div class="belt" role="group" aria-label="R.list">
+          <div class="belt-track r-tuiles" id="list-boite"></div>
         </div>
       </section>
 
@@ -915,6 +1236,13 @@
      sous la carte se juge sans rien pour la brouiller. -->
 <div class="banc-outils" id="banc-outils">
   <button type="button" id="banc-bouton">banc</button>
+  <!-- ⭐ LE BASCULEMENT DE SENS EST UN OUTIL DE BANC, PAS UN RÉGLAGE DU
+       PRODUIT. Les deux orientations ont un argument mesuré contre elles et
+       aucune ne se tranche au clavier : en bandes, le nom respire ; en
+       colonnes, on lit les trois niveaux d'un regard mais chaque roue perd les
+       deux tiers de sa largeur. C'est un geste de pouce, et ce bouton existe
+       pour qu'Eric le fasse sur l'appareil plutôt que sur parole. -->
+  <button type="button" id="banc-sens">↔ sens</button>
 </div>
 
 <div class="banc-panneau" id="banc-panneau" hidden>
@@ -975,7 +1303,6 @@ import { swapContent, keepInView } from "./socle.mjs?v=278";
    ⛔ ET SURTOUT PAS L'API HTML5 (`draggable`, `dragstart`) : elle ne marche
    pas sur Safari iOS, c'est-à-dire sur l'appareil où Eric teste. C'est la
    raison d'être de ce fichier, dite dans son en-tête. */
-import { armerJeton } from "./glisser.mjs?v=278";
 
 /* ══ LES SEPT RAYONS ET LEURS ÉTAGÈRES — la commande d'Eric, recopiée ═══
    ⭐ L'ORDRE ALPHABÉTIQUE N'EST PAS RECOPIÉ, IL EST CALCULÉ (`localeCompare`
@@ -1078,6 +1405,350 @@ const belts = {
 };
 const listeBoite = document.getElementById("list-boite");
 
+/* ⚠️ DÉCLARÉ ICI, ET PAS PLUS BAS AVEC LE RESTE DE L'ORIENTATION — leçon
+   payée le 2026-08-22. `dessiner()` appelle `sensHorizontal()`, et il est
+   appelé bien avant le bloc d'orientation : un `const` lu avant sa ligne jette
+   une ReferenceError de zone morte, qui a coupé le script à un endroit où tout
+   avait l'air monté (les quatre viseurs étaient dans le DOM, mais plus aucun
+   `data-vise` ne se posait). Un défaut de ce genre ne ressemble pas à une
+   erreur : il ressemble à une fonctionnalité qui ne marche pas. */
+const app = document.querySelector(".app");
+function sensHorizontal() { return app.dataset.sens !== "v"; }
+
+/* ══ LE VISEUR, ET LA CASCADE QU'IL COMMANDE ═══════════════════════════════
+   Eric, 2026-08-22 : *« il faut une zone viseur »* · *« la zone B doit
+   immédiatement changer, au gré du mouvement de la zone A, idem pour la zone C
+   par rapport à B »* · *« ce n'est pas le tap de A qui décide de la zone B,
+   c'est son positionnement dans le viseur »*.
+
+   ⭐ CE QUE ÇA CHANGE, ET C'EST UN CHANGEMENT DE NATURE : une bande qui défile
+   est une LISTE — rien ne dit lequel de ses items compte. Sous un viseur, la
+   même bande devient un SÉLECTEUR : l'item du milieu est l'item courant, et il
+   le devient en passant dessous, sans qu'on le touche. C'est le mécanisme du
+   picker à roues, et la cascade A→B→C en fait un picker EN CASCADE.
+
+   🔴 ET LA RÈGLE DU MATIN SURVIT, PARCE QUE LES TROIS NIVEAUX NE DISENT PAS LA
+   MÊME CHOSE. En A et B, se poser sur un cran EST le choix — la ceinture le
+   faisait déjà (« sur la ceinture, se poser sur un cran EST le choix du
+   rayon »). En C, le viseur DÉSIGNE et n'achète pas : c'est le clic qui met
+   dans le sac. Le défilement ne dépense donc jamais rien, et le défaut
+   qu'Eric redoutait — *« le joueur aurait acheté l'objet devant lequel il s'est
+   arrêté »* — reste impossible. */
+
+/* ══ LA ROUE — TROIS TOURS DE PISTE, ET LE SAUT QUI LES RECOUD ═════════════
+   Eric, 2026-08-22 : *« quand on arrive au bout on revient au début »*.
+
+   ⭐ LE PRINCIPE, ET IL N'Y A PAS D'AUTRE FAÇON DE LE FAIRE AVEC UN
+   DÉFILEMENT NATIF : on pose la liste TROIS FOIS bout à bout et on se tient
+   dans le tour du milieu. Quand le défilement quitte ce tour, on le ramène
+   d'une longueur de tour — le contenu est identique au pixel près, donc le
+   saut ne se voit pas. La roue est une illusion, mais elle est exacte.
+
+   🔴 ON FABRIQUE TROIS FOIS, ON NE CLONE PAS. `cloneNode(true)` ne copie PAS
+   les écouteurs : les crans clonés n'auraient plus de `click`, et un tiers de
+   la roue serait mort — un tiers seulement, donc le défaut aurait l'air d'un
+   caprice tactile plutôt que d'un bug. C'est le genre de chose qu'on ne
+   retrouve jamais.
+
+   ⛔ EN DESSOUS DE TROIS ITEMS, PAS DE ROUE. Avec un ou deux items, tripler
+   fabrique une roue qui tourne sans avancer, et l'utilisateur voit trois fois
+   la même chose sans comprendre pourquoi. Ces cas gardent une piste droite. */
+function troisTours(fabriquer, liste) {
+  /* ⭐ UN BLOC DOIT ÊTRE LARGE, PAS SEULEMENT RÉPÉTÉ — défaut vu par Eric le
+     2026-08-22 sur la roue publiée : *« la roue A bien fluide, la roue B pas
+     bien, ça clignote un peu »*.
+     🔴 LA MESURE : la roue pose trois blocs et saute d'un bloc dès qu'on sort
+     de celui du milieu. Avec 3 items, un bloc fait 3 × 121 = 363 px pour une
+     fenêtre de 359 — on en sort au moindre geste, la couture tire presque en
+     permanence, et l'œil la voit. Avec 4 items elle tire quatre fois moins :
+     d'où une roue fluide et sa voisine qui clignote, à code identique.
+     ⭐ On répète donc la liste À L'INTÉRIEUR du bloc jusqu'à MIN_BLOC crans.
+     Mesuré après : bloc de 1451 px au lieu de 363, soit 546 px de marge avant
+     recouture au lieu d'une marge négative. */
+  const MIN_BLOC = 12;
+  const un = () => liste.map(fabriquer);
+  if (liste.length < 3) return un();
+  const tours = 3 * Math.ceil(MIN_BLOC / liste.length);
+  const sortie = [];
+  for (let t = 0; t < tours; t += 1) sortie.push(...un());
+  return sortie;
+}
+
+/** Recoud la piste : quand le défilement quitte le tour du milieu, il y
+ *  revient d'un bond invisible.
+ *  ⚠️ LE BOND DOIT ÊTRE INSTANTANÉ ET SANS AIMANTATION. `scroll-behavior`
+ *  est en `smooth` sur les ceintures : sans le neutraliser le temps du saut,
+ *  le navigateur ANIMERAIT le retour — on verrait la roue rembobiner sur toute
+ *  sa longueur. Et `scroll-snap` doit lâcher pendant le bond, sinon il reprend
+ *  la main au milieu et repose le défilement là où il vient de partir. */
+/* ⭐ L'AXE EST LU À CHAQUE APPEL, JAMAIS MÉMORISÉ — le banc bascule entre les
+   deux sens à chaud, et une couture qui aurait retenu son axe au montage
+   coudrait la mauvaise dimension après le premier basculement. */
+function axe(piste) {
+  return sensHorizontal()
+    ? { pos: "scrollLeft", long: "scrollWidth" }
+    : { pos: "scrollTop",  long: "scrollHeight" };
+}
+
+/** Bond instantané, sans aimantation ni animation. */
+function sauter(piste, a, cible) {
+  const snap = piste.style.scrollSnapType;
+  const doux = piste.style.scrollBehavior;
+  piste.style.scrollSnapType = "none";
+  piste.style.scrollBehavior = "auto";
+  piste[a.pos] = cible;
+  /* 🔴 RENDRE LA MAIN À LA PROCHAINE IMAGE, PAS TOUT DE SUITE. Restaurer dans
+     la même tâche, c'est n'avoir JAMAIS désactivé l'aimantation : le navigateur
+     ne voit que l'état final, re-snappe, et la roue saute — le « ça fait sauter
+     l'écran » d'Eric venait aussi de là. */
+  requestAnimationFrame(() => {
+    piste.style.scrollSnapType = snap;
+    piste.style.scrollBehavior = doux;
+  });
+}
+
+function enrouler(piste) {
+  if (piste.children.length < 3) return () => {};
+  return () => {
+    const a = axe(piste);
+    const tour = piste[a.long] / 3;
+    if (tour <= 0) return;
+    const x = piste[a.pos];
+    if (x < tour * 0.5) sauter(piste, a, x + tour);
+    else if (x > tour * 1.5) sauter(piste, a, x - tour);
+  };
+}
+
+/** Pose le défilement au début du tour du milieu, sur l'item courant. */
+function poserAuMilieu(piste) {
+  if (piste.children.length < 3) return;
+  const a = axe(piste);
+  sauter(piste, a, piste[a.long] / 3);
+}
+
+/** L'enfant dont le centre est le plus proche du centre de la piste.
+ *  ⚠️ On mesure le CENTRE et pas le bord : au bout de la course, la piste ne
+ *  peut plus amener le premier ni le dernier au milieu, et un test de bord les
+ *  rendrait invisables. Le plus-proche-du-centre les atteint toujours. */
+function itemAuViseur(piste) {
+  const horiz = sensHorizontal();
+  const b = piste.getBoundingClientRect();
+  const centre = horiz ? b.left + b.width / 2 : b.top + b.height / 2;
+  /* Le pas d'un cran : trois items tiennent dans la fenêtre, donc un tiers. */
+  const pas = (horiz ? b.width : b.height) / 3 || 1;
+  let gagnant = null;
+  let meilleur = Infinity;
+  for (const el of piste.children) {
+    const r = el.getBoundingClientRect();
+    const c = horiz ? r.left + r.width / 2 : r.top + r.height / 2;
+    const ecart = c - centre;
+    const d = Math.abs(ecart);
+    if (d < meilleur) { meilleur = d; gagnant = el; }
+
+    /* ══ LA PERSPECTIVE — Eric : *« un effet de perspective pour donner
+       l'impression d'une roue »* ═══════════════════════════════════════════
+       ⭐ ELLE NE COÛTE RIEN, ET C'EST POURQUOI ELLE EST ICI : cette boucle
+       mesurait déjà l'écart de chaque item au centre pour désigner le
+       gagnant. La perspective est cet écart, peint. Une seconde boucle aurait
+       doublé le seul calcul coûteux de l'image.
+
+       Un item posé sur un cylindre s'incline d'autant qu'il est loin du
+       sommet, et sa face se raccourcit — d'où `rotateY` ET `scale`. Le
+       `perspective()` est dans la valeur plutôt que sur le parent : sur le
+       parent, il ferait fuir tous les items vers UN point commun, alors que
+       chacun doit tourner autour de son propre axe.
+       ⚠️ `.style.transform` ET RIEN D'AUTRE — c'est la seule forme de style en
+       ligne que ce dépôt tolère (garde 7), et l'estompage se fait donc en
+       CSS, par un masque sur la piste, jamais par `.style.opacity`. */
+    /* 📐 LES COTES VIENNENT D'UNE RÉFÉRENCE, PAS DE MON GOÛT — Eric a rapporté
+       les valeurs du picker iOS : centre 0° et pleine taille, voisin proche
+       ±20° / 0,92, plus loin ±40° / 0,80.
+       🔴 MES PREMIÈRES VALEURS ÉTAIENT TROIS FOIS TROP FORTES : 34° par cran
+       borné à ±2,2 crans, soit jusqu'à 74,8° et un facteur 0,72. À 75° un item
+       est presque de profil — il ne se lit plus, il décore. La roue avait
+       l'air d'un effet, pas d'un mécanisme.
+       ⚠️ Et la perspective passe de 420 à 700 px : plus la valeur est PETITE,
+       plus la fuite est brutale. 420 exagérait la déformation en plus de
+       l'angle, les deux se cumulaient. */
+    /* ══ LA ROUE EST UN CYLINDRE, PAS UNE INCLINAISON ════════════════════════
+       Eric, 2026-08-22 : *« perspective pas encore parfait »*. Elle ne l'était
+       pas, et voici ce qui manquait.
+
+       🔴 CE QUE FAISAIT LA VERSION PRÉCÉDENTE : elle inclinait chaque item SUR
+       PLACE. Les items restaient donc espacés régulièrement, comme des cartes
+       posées à plat qu'on aurait juste tournées. Or sur une roue, ce qui
+       trahit la rotation n'est pas l'angle — c'est que **les items se
+       RESSERRENT vers les bords**, parce qu'on voit leur écart en raccourci.
+       Sans ce resserrement, l'œil lit un ruban qui glisse, pas un tambour qui
+       tourne.
+
+       ⭐ LA FORMULE EST CELLE DES CARROUSELS CYLINDRIQUES, et elle fait tout
+       d'un coup : `translateZ(-R) rotateY(θ) translateZ(R)` pose l'item sur un
+       cylindre de rayon R vu de face. Il tourne, il RECULE en profondeur, et
+       sa largeur apparente se comprime en `cos θ` — les trois effets sortent
+       de la géométrie au lieu d'être dosés à la main.
+       📌 `translateX(-ecart)` d'abord, pour ANNULER la position que le
+       défilement lui a donnée : sinon le déplacement linéaire du scroll et le
+       déplacement circulaire de la roue s'additionnent, et les items se
+       chevauchent aux bords. C'est le piège de cette formule.
+
+       📐 R = pas / α : le rayon pour lequel l'arc entre deux crans vaut
+       exactement un cran. C'est lui qui garantit que la roue « déroule » à la
+       vitesse du doigt — un rayon choisi au jugé fait patiner l'image sur le
+       geste, et ça se sent sans qu'on sache le nommer. */
+    /* 📐 LA GÉOMÉTRIE VIENT D'UNE RÉFÉRENCE QU'ERIC A RAPPORTÉE, et elle est
+       plus juste que ce que j'avais composé. `d` est une longueur d'ARC sur le
+       cylindre, donc l'angle s'en déduit directement :
+
+           θ = d / R        x = R·sin θ        z = R·(cos θ − 1)
+
+       ⭐ CE QUE ÇA CHANGE PAR RAPPORT À MA VERSION : je composais
+       `translateZ(−R) rotateY(θ) translateZ(R)`, ce qui place bien l'item sur
+       le cylindre mais laisse la trigonométrie au moteur de rendu. Calculer x
+       et z À LA MAIN les rend lisibles, mesurables, et surtout indépendants de
+       l'ordre d'application des transformations CSS — l'endroit exact où ma
+       composition pouvait dériver sans prévenir.
+       📌 `correction = x − d` parce que la mise en page a DÉJÀ placé l'item à
+       `d` pixels : on ne le pose pas, on le corrige. Oublier cette
+       soustraction fait s'additionner le défilement et la roue, et les items
+       se chevauchent aux bords — le piège de cette formule.
+       ⛔ L'OPACITÉ DE LA RÉFÉRENCE N'EST PAS REPRISE : elle exigerait un
+       second style en ligne, et ce dépôt n'en tolère qu'un (`transform`).
+       L'atténuation est déjà faite en CSS, par le voile à trois paliers et le
+       masque des bords — deux mécanismes pour la même chose se contrediraient
+       au premier réglage. */
+    /* 📐 R = 190, ET PAS LES 300 DE LA RÉFÉRENCE — Eric, 2026-08-22 :
+       *« perspective pas bonne »*. Elle était juste mais trop MOLLE : avec
+       R = 300 et un cran de 117 px, un cran ne vaut que 22° et le second
+       voisin 45° — mesuré, l'item du bord ne perdait que 16 px de largeur
+       apparente sur 117. Un tambour qu'on devine n'est pas un tambour.
+       ⭐ Le rayon EST la courbure : plus il est petit, plus la roue est
+       serrée. À 190, un cran vaut 35° et le second voisin 71° — l'item du bord
+       est franchement de biais, comme sur le picker d'alarme.
+       ⚠️ Et la référence donnait 300 pour des items de 120 px sur un écran
+       plus large : ce n'est pas une constante universelle, c'est un rapport
+       entre le rayon et le pas. Recopier le nombre sans le rapport aurait été
+       une erreur de mesure, pas de goût. */
+    /* 📐 LES VALEURS D'ERIC, TROUVÉES AU BANC `roue-lab.html` le 2026-08-22 :
+       *« 3,36 / 61° / 12,9 »* — CINQUIÈME PASSE, 2026-08-22, sur un
+       banc dont la perspective marchait enfin (elle était posée un niveau trop
+       haut et ne descendait pas jusqu'aux crans : `getComputedStyle` rendait
+       `none`) ET dont le masque ne rongeait plus les crans réglés. Pas = 121,
+       donc R = 407 px et fuite = 1561 px.
+       📌 UNE FUITE AUSSI LOINTAINE APLATIT LA DÉFORMATION : Eric veut la
+       rotation, pas l'effet d'optique. C'est un choix, pas un réglage au
+       hasard — il a poussé ce curseur à son maximum deux fois de suite.
+       📌 La première passe (3,02 / 65° / 8,3) reste valable POUR 3 CRANS —
+       Eric : *« les mesures étaient bonnes pour 3 »*. Celle-ci la remplace
+       parce qu'elle a été faite avec la profondeur visible.
+       ⭐ ELLES SONT ÉCRITES EN RAPPORT AU PAS, PAS EN PIXELS : R = 1,92 × pas.
+       Un rayon en pixels absolus ne survit pas au changement d'écran — c'est
+       exactement ce qui a fait dire au relevé « ça glisse, ça ne tourne pas »
+       sur l'iPad en paysage, avec seize items alignés au lieu de trois.
+       📌 Un cran vaut alors 17,0°, et l'angle max en laisse 3,6 de chaque côté.
+       ⭐ CES VALEURS SONT PLUS DOUCES QUE CELLES QUE JE PROPOSAIS (1,92 × pas,
+       fuite 5,1) : la roue tourne moins sur elle-même et fuit de plus loin.
+       C'est le doigt qui a mesuré, pas le raisonnement. */
+    const R = 3.36 * pas;                 // le rayon du tambour
+    const ANGLE_MAX = 61 * Math.PI / 180; // au-delà, l'item est passé derrière
+    /* θ borné : passé 72°, l'item est de l'autre côté du tambour. La borne
+       est ici SANS DANGER (contrairement à celle que j'avais posée sur les
+       crans) parce qu'elle s'applique à θ AVANT le calcul de x et z : la
+       position reste cohérente avec l'angle, l'item s'arrête sur le cylindre
+       au lieu de repartir en ligne droite. */
+    const theta = Math.max(-ANGLE_MAX, Math.min(ANGLE_MAX, ecart / R));
+    const surLeCylindre = R * Math.sin(theta);
+    const enProfondeur = R * (Math.cos(theta) - 1);
+    const correction = surLeCylindre - ecart;   // la mise en page a déjà posé `ecart`
+    const deg = -theta * 180 / Math.PI;
+    el.style.transform = horiz
+      ? `translateX(${correction}px) translateZ(${enProfondeur}px) rotateY(${deg}deg)`
+      : `translateY(${correction}px) translateZ(${enProfondeur}px) rotateX(${-deg}deg)`;
+  }
+  return gagnant;
+}
+
+/** Branche une piste sur son viseur. `quandChange` ne part QUE si l'item visé
+ *  a changé — c'est ce qui rend la cascade gratuite.
+ *
+ *  ⭐ LA FLUIDITÉ TIENT À DEUX LIGNES, ET ELLES SONT DÉLIBÉRÉES :
+ *  · `requestAnimationFrame` — un `scroll` tire des dizaines d'événements par
+ *    seconde et chaque `getBoundingClientRect()` force un calcul de mise en
+ *    page. On n'en fait qu'UN par image, jamais un par événement.
+ *  · `{ passive: true }` — sans lui, le navigateur doit attendre de savoir si
+ *    l'écouteur va annuler le défilement avant de le peindre. C'est LA cause
+ *    classique d'un défilement qui colle au doigt sur mobile.
+ *  📌 Mesuré : remonter la bande coûte 0,61 ms pour la pire étagère (33
+ *  objets). La cascade tient donc très largement dans une image de 16,7 ms. */
+/* ══ LE TIC — un crochet, pas une promesse ════════════════════════════════
+   Eric, 2026-08-22 : *« le tic haptique c'est la classe »*. Il l'est, et c'est
+   le seul point de la liste que le web ne peut pas tenir sur iPhone.
+
+   🔴 CE QUI EST VRAI, ET IL FAUT LE DIRE PLUTÔT QUE DE LIVRER UN ERSATZ :
+   `UISelectionFeedbackGenerator` — l'haptique qu'Apple réserve précisément au
+   passage entre valeurs discrètes, donc au tic d'une roulette — est une API
+   NATIVE. `navigator.vibrate()` existe sur Android et **pas sur Safari iOS** :
+   Apple ne l'expose pas au web. Une page servie dans Safari ne ticquera pas,
+   quoi qu'on écrive ici.
+
+   ⭐ CE QUE CETTE FONCTION FAIT QUAND MÊME, ET POURQUOI ELLE VAUT SES DIX
+   LIGNES : elle pose le CROCHET au bon endroit. Le jour où FHPC est encapsulé
+   dans une WKWebView, il n'y a rien à recâbler — le pont existe déjà et le
+   Swift n'a qu'à répondre au message. Un crochet posé tôt coûte dix lignes ;
+   le même crochet retrouvé plus tard coûte de rouvrir tous les appelants.
+
+   ⛔ ET SURTOUT : IL NE TICQUE QU'AU CHANGEMENT DE CRAN, jamais à l'événement
+   de défilement. C'est la faute que la référence signale nommément, et elle
+   est déjà évitée par construction ici — `juger()` ne compare que l'item
+   visé, donc un balayage rapide donne tic-tic-tic, un par cran franchi, et
+   non une vibration continue. */
+function tic() {
+  /* Le pont natif d'abord : c'est le seul qui donne le vrai tic d'Apple. */
+  const pont = globalThis.webkit?.messageHandlers?.haptic;
+  if (pont) { try { pont.postMessage("selection"); return; } catch { /* pont muet */ } }
+  /* Sinon Android, où l'API existe. Sur Safari iOS, les deux sont absents et
+     cette fonction ne fait RIEN — c'est le comportement attendu, pas un échec
+     à rattraper par une animation qui ferait semblant. */
+  if (typeof navigator.vibrate === "function") navigator.vibrate(8);
+}
+
+function brancherViseur(piste, quandChange) {
+  let dernier = null;
+  let idImage = 0;
+  const juger = () => {
+    /* La couture d'abord : on recentre la roue AVANT de juger, pour que le
+       verdict porte sur la position définitive et pas sur celle d'avant le
+       bond. Juger puis sauter ferait clignoter le viseur d'un item. */
+    enrouler(piste)();
+    const el = itemAuViseur(piste);
+    if (!el) return;
+    for (const x of piste.children) x.dataset.vise = String(x === el);
+    if (el === dernier) return;
+    /* ⛔ PAS DE TIC AU TOUT PREMIER JUGEMENT : `dernier` est nul au montage et
+       à chaque redessin. Ticquer là ferait vibrer l'appareil à l'ouverture de
+       l'écran et à chaque cascade — un retour qui ne répond à aucun geste. */
+    if (dernier !== null) tic();
+    dernier = el;
+    quandChange(el);
+  };
+  /* 🔴 ON ANNULE ET ON REPLANIFIE, ON NE LÈVE PAS DE DRAPEAU. Un garde booléen
+     semble équivalent et ne l'est pas : si le `requestAnimationFrame` est
+     demandé au moment où l'onglet passe en arrière-plan, il ne s'exécute
+     JAMAIS — le drapeau reste levé et le mécanisme est mort pour de bon.
+     L'utilisateur revient, la roue ne répond plus, et rien n'a rougi.
+     ⭐ `cancelAnimationFrame` + replanification donne le même throttle à une
+     image, sans état qui puisse rester coincé. */
+  piste.addEventListener("scroll", () => {
+    cancelAnimationFrame(idImage);
+    idImage = requestAnimationFrame(juger);
+  }, { passive: true });
+  /* Rendu au réglage : après chaque redessin, la piste a de nouveaux enfants
+     et l'ancien `dernier` pointe sur un nœud mort. On le repose — et on
+     replace la roue sur son tour du milieu, sans quoi le premier geste
+     déclencherait un bond de recouture au lieu d'un défilement. */
+  return () => { dernier = null; poserAuMilieu(piste); juger(); };
+}
+
 /* ══ SPECIES ET R.LIST SE RESSEMBLENT, ET LEUR DÉFILEMENT DIT LE CONTRAIRE ══
    Eric, 2026-08-22 : *« donc différent du scrollspy de Species »* · *« mais en
    apparence ça ressemble à Species »*.
@@ -1159,6 +1830,11 @@ function faireCran(nom, compte, courant, onClic) {
   cran.className = "belt-item";
   cran.setAttribute("role", "tab");
   cran.setAttribute("aria-selected", courant ? "true" : "false");
+  /* ⚠️ LE NOM VIT DANS UN `data-`, PAS DANS LE TEXTE — le cran porte AUSSI son
+     compte (règle 1 d'Eric), donc `textContent` rend « Adventuring32 ». Le
+     viseur qui lit le nom lirait une chaîne qui ne correspond à aucun rayon,
+     et la cascade ne partirait jamais : un défaut muet, pas une erreur. */
+  cran.dataset.cran = nom;
   if (courant) cran.dataset.status = "current";
   if (compte === 0) cran.dataset.vide = "true";
 
@@ -1176,164 +1852,27 @@ function faireCran(nom, compte, courant, onClic) {
   return cran;
 }
 
-/* ══ LA GARDE D'AXE — la règle d'Eric, éprouvée ICI avant d'y toucher ═════
-   Eric, 2026-08-22 : vertical = je parcours, horizontal = je prends.
+/* ══ CE QUI ÉTAIT ICI, ET POURQUOI IL N'Y EST PLUS ══════════════════════
+   Eric, 2026-08-22 : *« tout se passe dans le même sens, plus de glisser »*.
 
-   🔴 `glisser.mjs` NE CONNAÎT PAS L'AXE. Sa décision est
-   `Math.hypot(dx, dy) < SEUIL_GLISSER` — une distance dans N'IMPORTE QUELLE
-   direction. Tel quel, un doigt qui descend pour faire défiler la liste
-   soulèverait l'objet.
-   ⛔ ET ON NE MODIFIE PAS L'ORGANE DEPUIS UN BANC. La garde vit donc ici, en
-   enveloppe : elle laisse l'organe faire son travail et REFUSE l'action quand
-   l'axe n'est pas le bon. Si Eric juge que l'axe suffit, c'est une
-   amélioration à porter DANS `glisser.mjs` par un lot — elle profiterait aux
-   cinq écrans qui l'emploient.
+   250 lignes ont disparu d'un coup : la garde d'axe, le seuil de 6 px et son
+   réglage `k`, le drapeau d'annulation, le relevé du dernier geste, et le
+   fantôme posé une heure plus tôt. ⛔ Rien n'a été mis derrière un
+   interrupteur : ce dépôt refuse le code mort désactivé, et une décision qui
+   retire un geste retire aussi sa machinerie.
 
-   ⚠️ POURQUOI UNE GARDE EN PLUS DE `pan-y` : `touch-action` est une propriété
-   TACTILE. À la souris elle ne s'applique pas, et un glisser vertical à la
-   souris reprendrait l'objet sans elle. Ceinture et bretelles, chacune pour
-   un appareil.
+   ⭐ CE QU'IL FAUT RETENIR, PARCE QUE ÇA RESSERVIRA : tout cet appareillage
+   n'existait que pour départager DEUX gestes sur un même appui — parcourir et
+   prendre. Chaque pièce était juste, chaque pièce était mesurée, et l'ensemble
+   était quand même la mauvaise réponse : la bonne était de ne pas surcharger
+   l'appui. Trois défauts sont morts sans être corrigés (le clic de souris
+   refusé pour 7 px de dérive verticale, le tap testé avant l'annulation dans
+   l'organe, le fantôme qui se disputait l'ascenseur) — ils n'ont plus
+   d'endroit où exister.
 
-   📌 ET UN DÉFAUT DE L'ORGANE QUE CETTE GARDE RÉVÈLE, à remonter tel quel :
-   dans `fini()`, le test du tap (`if (!glisse) { onTap(...); return; }`) est
-   AVANT le test d'annulation (`if (e.type === "pointercancel") return;`). Or
-   `pan-y` fait justement arriver un `pointercancel` dès que le navigateur
-   prend le défilement — souvent avant les 6 px. Sans la garde, CHAQUE
-   défilement au doigt poserait un objet dans le sac. C'est le drapeau
-   `annule` ci-dessous qui l'arrête, et c'est un pansement de banc : la
-   correction est de tester l'annulation en premier, dans l'organe. */
+   📌 L'organe `glisser.mjs` n'a pas bougé : il sert cinq autres écrans, et
+   c'est ce banc qui cesse de l'employer, pas lui qui devient faux. */
 
-/* Le même 6 px que `SEUIL_GLISSER`, et il est RECOPIÉ faute d'être exporté.
-   ⚠️ Deux copies d'un seuil finissent par diverger : si l'axe est adopté,
-   l'organe doit exporter le sien plutôt que laisser ses appelants le deviner. */
-/* ══ LA SENSIBILITÉ DU GESTE — DEUX RÉGLAGES, ET ILS SE SENTENT AU DOIGT ═
-   Eric, 2026-08-22 : *« possible de rajouter de la sensibilité au drag and
-   drop ou pas »*. Oui, et deux plutôt qu'un — parce que ce qui rate un geste
-   n'est pas toujours la même chose.
-
-   ① LA DISTANCE (`seuil`, 6 px par défaut) — sous elle c'est un tap, au-delà
-     un glisser. Le 6 vient de `glisser.mjs` et il est ARGUMENTÉ : *« un doigt
-     n'est jamais parfaitement immobile — 6 px laisse passer un tap tremblé
-     sans déclencher de fantôme »*. Il reste donc le défaut ; on ne le
-     remplace pas, on l'explore autour.
-
-   ② 🔴 L'ANGLE (`k`), ET C'EST LUI QUI COMPTE. La règle d'hier était
-     `|dx| > |dy|` — donc **45° est une lame de rasoir** : à 44° on prend
-     l'objet, à 46° on fait défiler. Or un pouce ne trace jamais droit, et
-     surtout pas en tirant vers la droite depuis une colonne de gauche : le
-     geste part en diagonale par nature. La règle devient `|dx| > k · |dy|` :
-
-       k = 1,0   la règle d'hier — 45°, la lame de rasoir
-       k = 1,5   il faut un horizontal net (~34°) ; défiler en biais reste défiler
-       k = 2,0   il faut vraiment tirer de côté (~27°) ; défiler devient très sûr
-       k = 3,0   presque à l'horizontale (~18°)
-
-   ⭐ CE RÉGLAGE N'EST PAS SYMÉTRIQUE, ET C'EST TOUT SON INTÉRÊT : plus `k`
-   monte, plus DÉFILER est sûr, et plus PRENDRE demande d'intention. Le bon
-   compromis se sent sur un pouce, pas sur un trackpad — d'où le banc.
-
-   ⚠️ CE QUE LE BANC PEUT ET NE PEUT PAS. `SEUIL_GLISSER` n'est pas exporté par
-   l'organe : notre copie peut MONTER le seuil (un geste entre 6 et `seuil`
-   redevient un tap, voir `armerSelonAxe`), jamais le DESCENDRE — sous 6,
-   l'organe ne signale rien et il n'y a rien à intercepter. La borne basse est
-   donc 6, et c'est une limite honnête, pas un choix.
-   📌 Si le réglage se révèle utile, il se porte DANS `glisser.mjs`, où cinq
-   écrans en profiteraient — comme pour l'axe. Le banc l'éprouve d'abord. */
-const REGLAGE = { seuil: 6, k: 1 };
-
-/* Le dernier geste jugé, pour que le relevé dise POURQUOI ça a raté. Sans
-   ça, Eric sent que « ça marche pas » sans savoir de combien il rate — et
-   c'est précisément l'information qui lui permet de choisir `k`. */
-const dernierGeste = { angle: null, axe: null, verdict: "—" };
-
-/** Arme un jeton pour le tap ET le glisser, mais n'accepte le glisser que
- *  s'il est HORIZONTAL. Rend l'état du geste, que les rappels consultent.
- *
- *  ⭐ L'ORDRE DES ÉCOUTEURS FAIT LE TRAVAIL, et il n'est pas fragile : nos
- *  écouteurs sont posés AVANT ceux de l'organe (`armerJeton` ajoute les
- *  siens depuis son propre `pointerdown`, qui court après le nôtre). Le
- *  drapeau est donc toujours à jour quand `onTap`/`onDepot` le lisent.
- *  ⛔ On ne nettoie PAS l'état à la fin du geste : l'organe décide après nous,
- *  et effacer trop tôt lui ferait lire un état vide. Le prochain appui le
- *  remet à neuf — c'est le seul moment sûr. */
-function armerSelonAxe(jeton, { onTap, onDepot, onHorsCible }) {
-  const geste = { axe: null, angle: null, annule: false };
-
-  jeton.addEventListener("pointerdown", (ev) => {
-    geste.axe = null;
-    geste.angle = null;
-    geste.annule = false;
-    delete jeton.dataset.axe;
-    const x0 = ev.clientX;
-    const y0 = ev.clientY;
-
-    const bouge = (e) => {
-      if (geste.axe) return;
-      const dx = e.clientX - x0;
-      const dy = e.clientY - y0;
-      if (Math.hypot(dx, dy) < REGLAGE.seuil) return;
-      /* L'AXE SE DÉCIDE UNE FOIS, au franchissement du seuil, et ne se
-         renégocie plus. Un geste qui change d'avis en cours de route est un
-         geste qu'on ne peut pas apprendre. */
-      geste.axe = Math.abs(dx) > REGLAGE.k * Math.abs(dy) ? "x" : "y";
-      /* L'angle est gardé pour le RELEVÉ, pas pour la décision : la décision
-         est le rapport ci-dessus, l'angle en est la lecture humaine. */
-      geste.angle = Math.round(Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI);
-      jeton.dataset.axe = geste.axe;
-    };
-    const annuler = () => { geste.annule = true; };
-    const fin = () => {
-      jeton.removeEventListener("pointermove", bouge);
-      jeton.removeEventListener("pointerup", fin);
-      jeton.removeEventListener("pointercancel", annuler);
-      jeton.removeEventListener("pointercancel", fin);
-    };
-
-    jeton.addEventListener("pointermove", bouge);
-    jeton.addEventListener("pointerup", fin);
-    jeton.addEventListener("pointercancel", annuler);
-    jeton.addEventListener("pointercancel", fin);
-  });
-
-  /** Ce que le banc a décidé, et pourquoi — lu par le relevé. */
-  const juger = (verdict) => {
-    dernierGeste.angle = geste.angle;
-    dernierGeste.axe = geste.axe;
-    dernierGeste.verdict = verdict;
-    if (!panneauOuvert()) return;   // rien à rafraîchir si personne ne regarde
-    mesurer();
-  };
-
-  /* ⚠️ UN SEUIL RELEVÉ NE DOIT PAS CRÉER DE ZONE MORTE. L'organe décide à 6 px
-     et ne sait rien du nôtre : entre 6 et `REGLAGE.seuil`, il annonce un
-     GLISSER alors que le banc n'a pas encore tranché d'axe. Sans la ligne
-     ci-dessous, ces gestes-là ne feraient RIEN — ni tap, ni dépôt — et
-     monter le seuil aurait l'air de casser le tap. Un geste qui n'a pas
-     franchi NOTRE seuil est un tap, quoi qu'en dise l'organe. */
-  const sousLeSeuil = () => geste.axe === null;
-
-  armerJeton(jeton, {
-    /* UN TAP N'A PAS D'AXE : c'est un appui qui n'a jamais franchi le seuil.
-       Un geste annulé n'en est pas un non plus. */
-    onTap: () => {
-      if (geste.annule) { juger("annulé (pointercancel)"); return; }
-      juger("tap");
-      onTap();
-    },
-    onDepot: (creneau) => {
-      if (geste.annule) { juger("annulé (pointercancel)"); return; }
-      if (sousLeSeuil()) { juger(`tap (sous le seuil de ${REGLAGE.seuil} px)`); onTap(); return; }
-      if (geste.axe === "x") { juger(`déposé dans ${creneau}`); onDepot(creneau); return; }
-      juger("REFUSÉ — geste vertical");
-    },
-    onHorsCible: () => {
-      if (geste.annule) { juger("annulé (pointercancel)"); return; }
-      if (sousLeSeuil()) { juger(`tap (sous le seuil de ${REGLAGE.seuil} px)`); onTap(); return; }
-      if (geste.axe === "x") { juger("lâché hors cible"); if (onHorsCible) onHorsCible(); return; }
-      juger("REFUSÉ — geste vertical");
-    }
-  });
-}
 
 /** LA BOURSE — quatre nombres, redessinés à chaque ajustement. */
 function dessinerBourse() {
@@ -1399,12 +1938,15 @@ function reprendre(creneau) {
 /** UNE LIGNE D'OBJET — `.equipment-gear-row` du vrai écran, sur UNE ligne,
  *  et c'est elle l'objet qu'on prend.
  *
- *  ⭐ L'ASCENSEUR ET LE GLISSER NE SE DISPUTENT PLUS RIEN, ET C'EST L'AXE QUI
- *  LES A RÉCONCILIÉS. En août, la seule issue connue était de supprimer
+ *  ⭐ L'ASCENSEUR ET LE GLISSER NE SE DISPUTENT PLUS RIEN — ET LA TROISIÈME
+ *  RÉPONSE EST LA BONNE. Le 20 août, la seule issue connue était de supprimer
  *  l'ascenseur (« il ne faut plus d'ascenseurs couplés avec des actions drag
- *  and drop », 2026-08-20). La règle d'Eric du 22 fait mieux : la colonne
- *  garde son ascenseur, et le geste se distingue par sa DIRECTION.
- *  Voir `armerSelonAxe` plus haut — c'est là que la règle vit. */
+ *  and drop »). Le 22 au matin, la garde d'axe les réconciliait par la
+ *  DIRECTION du geste. Le 22 au soir, Eric a retiré le glisser : *« tout se
+ *  passe dans le même sens, plus de glisser »*.
+ *  📌 Ce qui rend la troisième meilleure que la deuxième : la garde d'axe
+ *  MARCHAIT, et il fallait quand même l'expliquer au joueur. Un écran qui a
+ *  besoin qu'on lui apprenne son geste a déjà perdu. */
 function faireLigne(etagere, n) {
   /* ⭐ DES NOMS DE LA LONGUEUR RÉELLE, pas « exemple 01 ». Le sujet du jour
      EST la longueur des noms : un banc qui n'éprouve que des libellés courts
@@ -1430,17 +1972,28 @@ function faireLigne(etagere, n) {
      Rien n'est perdu — c'est une question de PRIORITÉ dans la vitrine. */
   ligne.append(nom);
 
-  armerSelonAxe(ligne, {
-    /* LE TAP : dans le premier récepteur libre. S'il n'y en a plus, on ne
-       fait rien — un banc ne remplace pas en silence ce qu'on y a posé. */
-    onTap: () => {
-      const libre = premierLibre();
-      if (libre) poser(libre, objet);
-    },
-    /* LE GLISSER HORIZONTAL : dans le récepteur VISÉ. `creneau` est la chaîne
-       rendue par l'organe, lue sur `data-creneau` — les clefs de `recepteurs`
-       sont les mêmes, exprès. */
-    onDepot: (creneau) => poser(creneau, objet)
+  /* ══ UN CLIC. RIEN D'AUTRE. — Eric, 2026-08-22 : *« tout se passe dans le
+     même sens, plus de glisser »* ══════════════════════════════════════════
+     ⭐ CE QUE CETTE LIGNE REMPLACE : `armerSelonAxe`, la garde d'axe, le seuil
+     de 6 px, le réglage `k`, le drapeau d'annulation, le fantôme, et les deux
+     curseurs du panneau. Tout ça n'existait que pour départager DEUX gestes
+     sur un même appui. Il n'y en a plus qu'un, donc il n'y a plus rien à
+     départager.
+     🔴 ET TROIS DÉFAUTS MEURENT AVEC, dont deux étaient mesurés ce matin :
+     · à la souris, un clic qui dérivait de 7 px vers le bas était REFUSÉ comme
+       « geste vertical » — ni tap, ni dépôt, rien, et en silence ;
+     · l'organe testait le tap AVANT l'annulation, si bien que chaque
+       défilement au doigt posait un objet sans la garde ;
+     · le fantôme et l'ascenseur se disputaient l'axe.
+     Aucun n'a été corrigé : ils n'ont plus d'endroit où exister.
+     📌 `click` et pas `pointerup` : c'est l'événement qui porte déjà le clavier
+     (Entrée et Espace sur un `<button>`), et la tuile EST un `<button>`. Le
+     geste devient accessible sans une ligne de plus. */
+  ligne.addEventListener("click", () => {
+    /* Dans le premier récepteur libre. S'il n'y en a plus, on ne fait rien —
+       un banc ne remplace pas en silence ce qu'on y a posé. */
+    const libre = premierLibre();
+    if (libre) poser(libre, objet);
   });
 
   return ligne;
@@ -1474,32 +2027,35 @@ function dessinerRecepteurs() {
     pose.className = "equipment-gear-name r-depose";
     pose.textContent = objet;
     pose.title = objet;
-    armerJeton(pose, {
-      onTap: () => reprendre(clef),
-      /* Glissé d'un récepteur vers l'autre : c'est un déplacement, pas une
-         copie — la case de départ se vide. */
-      onDepot: (vers) => {
-        if (vers === clef) return;
-        recepteurs[clef] = null;
-        poser(vers, objet);
-      },
-      /* Lâché dans le vide DEPUIS un récepteur : c'est l'annulation d'Eric
-         (« on annule en ressortant l'objet »). L'organe distingue ce cas
-         exprès — voir `onHorsCible` dans son en-tête. */
-      onHorsCible: () => reprendre(clef)
-    });
+    /* ⭐ LE RETOUR EMPRUNTE LE CHEMIN DE L'ALLER, ET C'EST ENCORE VRAI — c'est
+       même plus vrai qu'avant : un clic met dans le sac, un clic ressort. Le
+       même geste dans les deux sens, au lieu d'un tap d'un côté et de trois
+       issues de l'autre (dépôt, hors-cible, annulation).
+       ⛔ CE QUI DISPARAÎT AVEC LE GLISSER : déplacer un objet d'un récepteur à
+       l'autre en une fois. Il faut maintenant le ressortir puis le reposer —
+       deux gestes au lieu d'un. C'est le prix de la décision, il est réel, et
+       il se paie sur un sac qui compte peu de cases. */
+    pose.addEventListener("click", () => reprendre(clef));
     swapContent(slot, [pose]);
   }
 }
 
-function dessiner() {
+/** ⚠️ `sauf` DIT QUELLE PISTE NE DOIT PAS ÊTRE REMPLACÉE, ET C'EST LA PIÈCE
+ *  QUI REND LA CASCADE POSSIBLE. Quand le viseur de A décide que B change, on
+ *  redessine B et C — mais surtout PAS A, qui est en train de défiler sous le
+ *  doigt. `swapContent` remplace les enfants : appliqué à la piste en cours de
+ *  geste, il arracherait le contenu que le doigt pousse, et le défilement
+ *  s'arrêterait net au milieu du mouvement.
+ *  🔴 C'est le défaut qu'une cascade naïve produit toujours, et il ne se voit
+ *  pas au clic — seulement au doigt, en continu. */
+function dessiner(sauf) {
   const rayon = trouveRayon(rayonCourant);
   if (!rayon.etageres.some((e) => e.nom === etagereChoisie)) {
     etagereChoisie = etagereCourante();
   }
 
   /* ── la rangée du HAUT : sept rayons, fixes ── */
-  swapContent(belts.rayons, CATALOGUE.map((r) =>
+  if (sauf !== "rayons") swapContent(belts.rayons, troisTours((r) =>
     faireCran(r.rayon, r.compte, r.rayon === rayonCourant, () => {
       if (r.rayon === rayonCourant) return;
       rayonCourant = r.rayon;
@@ -1508,22 +2064,25 @@ function dessiner() {
          sépare, et c'est `etagereCourante()` qui la porte. */
       etagereChoisie = etagereCourante();
       dessiner();
-    })
-  ));
+    }), CATALOGUE));
 
   /* ── la rangée du BAS : les étagères du rayon choisi ── */
-  swapContent(belts.etageres, rayon.etageres.map((e) =>
+  if (sauf !== "etageres") swapContent(belts.etageres, troisTours((e) =>
     faireCran(e.nom, e.compte, e.nom === etagereChoisie, () => {
       etagereChoisie = e.nom;
       /* La mémoire est tenue dans LES DEUX modes — voir la note de l'état. */
       souvenir.set(rayonCourant, e.nom);
       dessiner();
-    })
-  ));
+    }), rayon.etageres));
 
-  /* Les deux pistes montrent ce qu'elles désignent — chacune la sienne. */
+  /* ⛔ ON NE RECENTRE PAS LA PISTE QU'ON MANIPULE. `keepInView` déplace le
+     défilement ; l'appliquer à la piste sous le doigt, c'est se battre avec le
+     geste — le contenu part dans un sens pendant que le doigt le pousse dans
+     l'autre. Les autres pistes, elles, doivent bien montrer ce qu'elles
+     désignent après une cascade. */
   for (const piste of [belts.rayons, belts.etageres]) {
-    keepInView(piste, piste.querySelector('[data-status="current"]'), "x");
+    if (piste === belts[sauf]) continue;
+    keepInView(piste, piste.querySelector('[data-status="current"]'), sensHorizontal() ? "x" : "y");
   }
 
   /* ── R.list : le contenu de l'étagère ── */
@@ -1538,9 +2097,9 @@ function dessiner() {
     vide.textContent = "Rien sur cette étagère — annoncée à 0.";
     swapContent(listeBoite, [vide]);
   } else {
-    const lignes = [];
-    for (let n = 1; n <= etagere.compte; n += 1) lignes.push(faireLigne(etagere.nom, n));
-    swapContent(listeBoite, lignes);
+    const nums = [];
+    for (let n = 1; n <= etagere.compte; n += 1) nums.push(n);
+    swapContent(listeBoite, troisTours((n) => faireLigne(etagere.nom, n), nums));
   }
   dessinerRecepteurs();
   mesurer();
@@ -1613,7 +2172,10 @@ function budgetHauteur() {
      qu'on gagne (des noms lisibles) et jamais ce qu'on paie (une carte plus
      étroite, donc plus haute, donc qui déborde davantage). */
   const t = nomsTronques();
-  const railL = Math.round(document.querySelector(".r-list-col").getBoundingClientRect().width);
+  /* ⛔ CE N'EST PLUS UN ARBITRAGE — en FF il n'y a qu'une colonne, et le
+     partage qui se réglait ici n'existe plus. Ce qui reste utile est la
+     largeur que la BANDE occupe, et surtout ce qu'elle tronque encore. */
+  const railL = Math.round(document.querySelector(".r-tuiles").getBoundingClientRect().width);
   const carteL = Math.round(document.querySelector(".colonne-r").getBoundingClientRect().width);
   const debord = carte - utile;
   /* ⭐ LES TROIS CHIFFRES QUI DISENT D'UN COUP SI LE CADRAGE TIENT : la
@@ -1623,11 +2185,11 @@ function budgetHauteur() {
      calculer. */
   const sceneBox = document.querySelector(".scene").getBoundingClientRect();
   const groupe = Math.round(railL + carteL);
-  const videG = Math.round(document.querySelector(".r-list-col").getBoundingClientRect().left - sceneBox.left);
+  const videG = Math.round(document.querySelector(".r-tuiles").getBoundingClientRect().left - sceneBox.left);
   const videD = Math.round(sceneBox.right - document.querySelector(".colonne-r").getBoundingClientRect().right);
   const arbitrage = `\n`
     + `── cadrage ───────────────────────────────────────────────\n`
-    + `tuiles           ${railL} px   (plancher 90 · plafond 140, mesurés)\n`
+    + `bande R.list     ${railL} px   (plus de plancher ni de plafond : c'est la scène)\n`
     + `noms tronqués    ${t.tronques} sur ${t.total}\n`
     + `carte            ${carteL} px   (--card-w, plafond ${getComputedStyle(document.documentElement).getPropertyValue("--card-w").trim()})\n`
     + `groupe           ${groupe} px\n`
@@ -1674,7 +2236,7 @@ function budgetHauteur() {
     + `belt             60                   ${belt}\n`
     + `stage-topbar     0                    ${topbar}\n`
     + `utile            752                  ${utile}${utile < 700 ? "  ← chrome mobile réel" : ""}\n`
-    + `colonne étroite  90 (--rail-w)        ${Math.round(document.querySelector(".r-list-col").getBoundingClientRect().width)}\n`
+    + `bande R.list     toute la scène       ${Math.round(document.querySelector(".r-tuiles").getBoundingClientRect().width)}\n`
     + `colonne large    285                  ${Math.round(document.querySelector(".colonne-r").getBoundingClientRect().width)}\n`
     + `air de la carte  8 px (.fiche-dalle)  ${getComputedStyle(document.querySelector(".colonne-r")).padding}\n`
     + `écart interne    8 px                 ${getComputedStyle(document.querySelector(".colonne-r")).gap}\n`
@@ -1727,16 +2289,9 @@ function mesurer() {
     + `débordement      haut ${debordeHaut ? "oui" : "non"} · bas ${debordeBas ? "oui" : "non"}  (la piste défile)\n`
     + `tuiles R.list    ${lignesVisibles()} visibles · ${listeBoite.children.length} en tout · tuile = ${hauteurLigne} px\n`
     + `récepteurs       bag ${recepteurs.bag ?? "—"} · craft ${recepteurs.craft ?? "—"}\n`
-    + `sensibilité      distance ${REGLAGE.seuil} px · angle k ${REGLAGE.k.toFixed(1)} (${angleDeK(REGLAGE.k)}°)\n`
-    /* ⭐ LE DERNIER GESTE, ET SURTOUT SON ANGLE. Un refus muet se lit « ça
-       marche pas » ; un refus chiffré se lit « j'ai raté de 18° », et c'est ce
-       qui permet de choisir `k` plutôt que de le subir. */
-    + `dernier geste    ${dernierGeste.angle === null
-        ? "aucun"
-        : `${dernierGeste.angle}° · ${dernierGeste.axe ?? "sous le seuil"} → ${dernierGeste.verdict}`}`
-    + `${dernierGeste.verdict.startsWith("REFUSÉ")
-        ? `   (il fallait moins de ${angleDeK(REGLAGE.k)}°)`
-        : ""}\n`
+    /* ⛔ PLUS DE LIGNE « sensibilité » NI « dernier geste » : elles mesuraient
+       un arbitrage entre deux gestes, et il n'y a plus qu'un clic. Un relevé
+       qui garde une mesure sans objet apprend au lecteur à ne plus le lire. */
     + `cote F1          ${COTE_F1}  (lue dans fiche.css, jamais recopiée)\n`
     + `zone de coulisse ${Math.round(listeBoite.getBoundingClientRect().height)} px — sans cadre, tuiles posées sur le fond\n`
     + `bourse           ${BOURSE.map((c) => `${bourse[c]} ${c}`).join(" · ")}   ajustable à la main (3ᵉ geste, pas de « sell »)\n`
@@ -1809,6 +2364,19 @@ function ouvrirPanneau(ouvert) {
   panneau.hidden = !ouvert;
   if (ouvert) mesurer();
 }
+/* ⚠️ CHANGER DE SENS N'EST PAS QU'UNE AFFAIRE DE FEUILLE : les trois roues
+   doivent se REPOSER sur leur tour du milieu dans le nouvel axe, sinon la
+   première couture les fait bondir. Et le redessin complet est nécessaire —
+   `keepInView` recentre selon un axe qu'il lit au moment de l'appel. */
+document.getElementById("banc-sens").addEventListener("click", () => {
+  if (app.dataset.sens === "v") delete app.dataset.sens;
+  else app.dataset.sens = "v";
+  dessiner();
+  rejugerRayons();
+  rejugerEtageres();
+  rejugerListe();
+  if (panneauOuvert()) mesurer();
+});
 document.getElementById("banc-bouton").addEventListener("click", () => ouvrirPanneau(true));
 document.getElementById("banc-fermer").addEventListener("click", () => ouvrirPanneau(false));
 /* Le voile ferme, le corps non — sinon régler un curseur refermerait tout. */
@@ -1830,34 +2398,95 @@ function nomsTronques() {
   return { tronques: n, total: noms.length };
 }
 
-/* ── LES DEUX CURSEURS DE SENSIBILITÉ ───────────────────────────────────
-   ⭐ L'ANGLE EST AFFICHÉ EN DEGRÉS À CÔTÉ DU RAPPORT : `k = 1,5` ne dit rien à
-   un pouce, « 34° » si. La conversion est `atan(1/k)` — l'angle au-delà duquel
-   le geste bascule du côté vertical. */
-const regSeuil = document.getElementById("reg-seuil");
-const regK = document.getElementById("reg-k");
-const regDit = document.getElementById("reglage-dit");
+/* ⛔ LES DEUX CURSEURS DU PANNEAU SONT PARTIS AVEC LE GESTE QU'ILS RÉGLAIENT.
+   `distance` et `angle` servaient à sentir où basculait l'arbitrage entre
+   parcourir et prendre. Sans arbitrage, un curseur ne règle plus rien — et un
+   réglage sans effet est pire qu'absent : on croit avoir essayé. */
 
-function angleDeK(k) { return Math.round(Math.atan(1 / k) * 180 / Math.PI); }
+/* ══ L'ORIENTATION — Eric, 2026-08-22 : *« on peut le faire en vertical comme
+   en horizontal »* · *« un défilement vertical serait vraiment sexy »* ══════
+   ⭐ ELLE SE BASCULE AU BANC PLUTÔT QUE DE SE DÉCIDER AU CLAVIER. Les deux
+   sens ont un argument mesuré contre eux : en colonnes, trois pistes de 125 px
+   tronquent les noms PIRE que la colonne latérale qu'on vient de retirer ; en
+   bandes, la troncature disparaît mais on empile trois hauteurs. Aucun des
+   deux ne se trancherait honnêtement sur un trackpad — c'est un geste de
+   pouce. Le banc existe pour ça. */
 
-function poserReglages() {
-  REGLAGE.seuil = Number(regSeuil.value);
-  REGLAGE.k = Number(regK.value);
-  document.getElementById("reg-seuil-val").textContent = `${REGLAGE.seuil} px`;
-  document.getElementById("reg-k-val").textContent =
-    `k ${REGLAGE.k.toFixed(1)} · ${angleDeK(REGLAGE.k)}°`;
-  regDit.textContent =
-    `Au-delà de ${REGLAGE.seuil} px, un geste plus incliné que ${angleDeK(REGLAGE.k)}° `
-    + `compte comme un défilement ; en deçà, il prend l'objet. `
-    + `Plus k monte, plus défiler est sûr et plus prendre demande d'intention.`;
-  if (panneauOuvert()) mesurer();
+/* Le viseur est posé PAR-DESSUS chaque piste, une fois — il ne se redessine
+   jamais, contrairement à ce qu'il vise. */
+for (const belt of document.querySelectorAll(".belt")) {
+  const v = document.createElement("div");
+  v.className = "belt-viseur";
+  v.setAttribute("aria-hidden", "true");
+  belt.append(v);
 }
-regSeuil.addEventListener("input", poserReglages);
-regK.addEventListener("input", poserReglages);
-poserReglages();
+
+/* ══ LA CASCADE, ET ELLE NE VA QUE VERS LE BAS ═════════════════════════════
+   A commande B, B commande C. ⛔ Jamais l'inverse : si C rappelait B, se poser
+   sur un objet redessinerait l'étagère, qui redessinerait les objets — la
+   boucle est immédiate et elle se manifeste par un écran qui tremble.
+   📌 C n'a PAS de rappel du tout : son viseur ne fait que marquer `data-vise`,
+   parce qu'en C le viseur désigne et n'achète pas. */
+/** ⏱️ « ON CHOISIT ENCORE A » — et ça ne se déduit pas, ça se CHRONOMÈTRE.
+ *  Un défilement natif n'annonce ni son début ni sa fin : il n'existe que des
+ *  événements `scroll`. On considère donc qu'un geste est en cours tant qu'un
+ *  `scroll` est arrivé dans les 260 dernières ms, et fini au-delà.
+ *  ⚠️ 260 ms parce qu'un défilement inertiel sur iOS espace ses événements en
+ *  fin de course : trop court, C réapparaîtrait au milieu du geste, juste
+ *  avant de disparaître à nouveau — le clignotement qu'on cherche à éviter. */
+let finDuGeste = null;
+function choisitA(oui) {
+  clearTimeout(finDuGeste);
+  if (oui) {
+    app.dataset.choisit = "A";
+    finDuGeste = setTimeout(() => { delete app.dataset.choisit; }, 260);
+  } else {
+    delete app.dataset.choisit;
+  }
+}
+
+/** L'impression de vitesse : on retire l'attribut puis on le repose après un
+ *  reflow forcé. ⚠️ Sans cette lecture de `offsetWidth`, le navigateur groupe
+ *  les deux écritures et l'animation ne rejoue PAS — le défaut classique, et
+ *  il est silencieux : on croit que l'animation ne marche pas. */
+function lancerC() {
+  delete listeBoite.dataset.fraiche;
+  void listeBoite.offsetWidth;
+  listeBoite.dataset.fraiche = "true";
+  rejugerListe();
+}
+
+const rejugerRayons = brancherViseur(belts.rayons, (cran) => {
+  const nom = cran.dataset.cran ?? cran.textContent.trim();
+  if (nom === rayonCourant || !CATALOGUE.some((r) => r.rayon === nom)) return;
+  rayonCourant = nom;
+  etagereChoisie = etagereCourante();
+  dessiner("rayons");          // B et C se refont, A garde son geste
+  rejugerEtageres();
+  lancerC();
+});
+belts.rayons.addEventListener("scroll", () => choisitA(true), { passive: true });
+const rejugerEtageres = brancherViseur(belts.etageres, (cran) => {
+  const nom = cran.dataset.cran ?? cran.textContent.trim();
+  const rayon = trouveRayon(rayonCourant);
+  if (nom === etagereChoisie || !rayon.etageres.some((e) => e.nom === nom)) return;
+  etagereChoisie = nom;
+  souvenir.set(rayonCourant, nom);
+  dessiner("etageres");        // C se refait, B garde son geste
+  lancerC();
+});
+/* ⛔ C N'A PAS DE RAPPEL — son viseur DÉSIGNE, il ne déclenche rien. Mais il
+   faut garder sa fonction de rejugement : C est remplacé à chaque cascade, et
+   des enfants neufs n'ont ni `data-vise` ni perspective tant que personne ne
+   les a jugés. Mesuré : 0 transform sur 99 nœuds, pendant que A et B en
+   avaient 21/21 et 9/9 — le seul niveau qu'on ne rejugeait pas. */
+const rejugerListe = brancherViseur(listeBoite, () => {});
 
 dessinerBourse();
 poserMode("A");
+rejugerRayons();
+rejugerEtageres();
+rejugerListe();
 window.addEventListener("resize", () => mesurer());
 /* 🔴 ET `visualViewport`, QUI EST LE SEUL À PARLER SUR IPHONE. Quand la barre
    d'adresse de Safari se replie, la place disponible change de ~100 px SANS
@@ -1935,8 +2564,8 @@ if (window.visualViewport) {
     /* 🔴 CES DEUX SÉLECTEURS ÉTAIENT FAUX, et l'overlay ne le disait pas :
        `.r-carte` et `.r-list-coulisse` n'existent nulle part dans ce banc. Le
        premier retombait sur le PARENT de `.r-cat` (juste par chance la carte),
-       le second sur `[class*=r-list]` — qui attrape `.r-list-col`, le
-       conteneur, et pas la zone qui coulisse. Les cadres encadraient donc
+       le second sur `[class*=r-list]` — qui attrapait le conteneur de la
+       colonne latérale (retirée depuis), et pas la zone qui coulisse. Les cadres encadraient donc
        autre chose que ce qu'ils annonçaient, en silence.
        ⭐ Nommés en dur maintenant, sans repli : un cadre qui ne trouve pas sa
        cible ne se dessine pas, plutôt que d'en encadrer une autre. */
