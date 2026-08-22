@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roue — banc d'essai de la géométrie seule</title>
+<link rel="stylesheet" href="./tokens.css?v=278">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     POURQUOI CE BANC EXISTE — Eric, 2026-08-22 : *« faire ça sur une page
+     blanche plus facile ? »*. Oui, et pour une raison mesurée : dans
+     `equipement-lab.html`, chaque clic sur un cran rappelle `dessiner()`, qui
+     remplace les enfants et efface les transformations — relevé 0/21 après
+     quatre clics. On passait donc le plus clair du temps à démêler la roue
+     d'avec la cascade, la hauteur des bandes et le `box-sizing` des tuiles.
+
+     ⭐ CE BANC NE PORTE QUE LA GÉOMÉTRIE, et il porte SES RÉGLAGES. C'est le
+     point : l'architecte ne voit pas l'écran, et changer un nombre puis
+     demander « c'est mieux ? » coûte un aller-retour par nombre. Ici Eric
+     trouve les valeurs au pouce, en une minute, et ce sont ELLES qu'on reporte
+     ensuite dans l'écran.
+     ⛔ Rien de ce fichier ne part en production : c'est un banc, il se jette.
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: var(--fond, #14110e);
+    color: var(--text, #e8e0d4);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-user-select: none; user-select: none;
+  }
+  h1 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+       opacity: .5; margin: 16px 16px 8px; font-weight: 600; }
+
+  /* ══ LA ROUE ═══════════════════════════════════════════════════════════ */
+  /* 🔴 ELLE ÉTAIT SUR `.roue`, ET ELLE N'A JAMAIS SERVI — mesuré le 2026-08-22 :
+     `getComputedStyle(piste).perspective` rendait `none`. `perspective` ne
+     s'applique qu'aux ENFANTS DIRECTS ; posée sur `.roue`, elle atteignait la
+     piste et pas les crans, qui sont dedans.
+     ⚠️ CONSÉQUENCE À CONNAÎTRE : les valeurs qu'Eric a ratifiées au banc
+     (courbure 3,02 · angle 65° · fuite 8,3) ont été choisies SANS profondeur.
+     Il ne voyait que le `scale` du transform. Elles méritent d'être reprises
+     maintenant que le tambour a un axe. */
+  .roue {
+    position: relative;
+    margin: 0 0 20px;
+  }
+  .piste {
+    perspective: var(--fuite, 560px);
+    perspective-origin: 50% 50%;
+    display: flex; align-items: center;
+    gap: var(--ecart, 8px);
+    /* ⭐ TROIS CRANS, ET PAS UN DE PLUS — Eric, 2026-08-22 : *« juste 3
+       visibles à la fois »*. La piste fait exactement la roue : un cran au
+       centre, un de chaque côté. Ce qui dépasse n'est pas une amorce à
+       cadrer, c'est du hors-champ que le masque efface. */
+    /* 🔴 UN CRAN DE MARGE EN PLUS, ET LE FONDU TOMBE DESSUS — Eric :
+       *« faut que je règle à 7 pour avoir 5 ? »*. Oui, et c'était ma faute :
+       le masque était en POURCENTAGE (20 % de fondu à chaque bout), donc plus
+       la piste s'élargissait, plus il rongeait de crans. Le nombre réglé
+       n'était jamais celui qu'on voyait.
+       ⭐ La piste porte maintenant `--vus + 1` crans : les `--vus` du milieu
+       sont nets, et le cran supplémentaire est mangé par le fondu, à moitié de
+       chaque côté. Régler 5 donne 5. */
+    width: calc((var(--vus, 3) + 1) * var(--cran-w, 117px) + var(--vus, 3) * var(--ecart, 8px));
+    max-width: 100%;
+    margin-inline: auto;
+    height: var(--cran-h, 44px);
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* Les bords s'effacent : la roue continue hors champ. */
+    --fondu: calc(.5 * var(--cran-w, 117px));
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fondu), #000 calc(100% - var(--fondu)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--fondu), #000 calc(100% - var(--fondu)), transparent 100%);
+  }
+  .piste::-webkit-scrollbar { display: none; }
+
+  .item {
+    /* 🔴 UNE FRACTION DE LA PISTE, JAMAIS UNE COTE EN PIXELS — défaut mesuré
+       sur l'iPad d'Eric en paysage : avec un cran fixe à 120 px et une piste
+       de 2000, SEIZE items tenaient à l'écran au lieu de trois, et le relevé
+       annonçait lui-même « réguliers — ça glisse, ça ne tourne pas ».
+       ⭐ Une roue n'a pas de taille absolue : elle a un NOMBRE d'items
+       visibles. Tout le reste s'en déduit. */
+    /* ⭐ 117 PX, FIXE — tranché par Eric le 2026-08-22 : *« largeur de cran 117
+       et c'est bon »*. Ce n'est donc PAS le cran qui s'adapte à l'écran.
+       🔴 ET C'EST LA PISTE QUI SE BORNE, PAS LUI. Une piste laissée pleine
+       largeur remettait SEIZE items sur l'iPad en paysage. Un picker n'est pas
+       un bandeau qui s'étire : c'est un objet d'une taille donnée, posé au
+       milieu — sur iPhone il occupe presque tout, sur iPad il laisse de l'air
+       autour, et cet air est justement la place des résultats. */
+    flex: 0 0 var(--cran-w, 117px);
+    height: var(--cran-h, 44px);
+    min-width: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 8px;
+    border: 0; border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.09);
+    color: inherit; font: inherit; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    /* 🔴 PAS DE `scroll-snap-stop: always` — c'est LUI qui empêchait la roue de
+       rouler. Il force le défilement à s'arrêter sur CHAQUE cran : un geste
+       ample, si lancé soit-il, n'avance que d'un item et cale. Le doigt lance
+       une roue, la roue refuse de tourner.
+       ⭐ Mesuré au passage, pour écarter le faux coupable : peindre les 69
+       nœuds coûte 1,67 ms par image — dix fois sous le budget de 60 Hz. Ce
+       n'était jamais un problème de performance, c'était une règle CSS qui
+       disait au navigateur de brider l'inertie.
+       ⚠️ `mandatory` RESTE : lui ne bride rien, il choisit seulement le cran
+       où la course s'achève. C'est ce qui donne le « clic » à l'arrêt sans
+       toucher au lancer. */
+    scroll-snap-align: center;
+    /* Passé 90°, l'item montre son dos : la géométrie le retire elle-même. */
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    /* ⛔ Pas de `will-change: transform` : il fige la rasterisation, et un cran
+       qui change d'échelle voit alors sa texture ÉTIRÉE au lieu d'être
+       redessinée. C'est ce qui « frise » à l'œil. */
+  }
+
+  /* Le voile : rien au centre, 10 % aux voisins, 20 % au-delà. */
+  .voile {
+    position: absolute; top: 0; bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    /* 🔴 UN CRAN DE MARGE EN PLUS, ET LE FONDU TOMBE DESSUS — Eric :
+       *« faut que je règle à 7 pour avoir 5 ? »*. Oui, et c'était ma faute :
+       le masque était en POURCENTAGE (20 % de fondu à chaque bout), donc plus
+       la piste s'élargissait, plus il rongeait de crans. Le nombre réglé
+       n'était jamais celui qu'on voyait.
+       ⭐ La piste porte maintenant `--vus + 1` crans : les `--vus` du milieu
+       sont nets, et le cran supplémentaire est mangé par le fondu, à moitié de
+       chaque côté. Régler 5 donne 5. */
+    width: calc((var(--vus, 3) + 1) * var(--cran-w, 117px) + var(--vus, 3) * var(--ecart, 8px));
+    max-width: 100%;
+    pointer-events: none;
+    --c: var(--cran-w, 117px);
+    /* ⭐ Le palier « voisins » couvre TOUT ce qui n'est pas le cran central :
+       à 3 crans il vaut un cran de chaque côté, à 7 il en vaut trois. Un
+       dégradé écrit en dur pour trois mentirait dès qu'on en montre plus. */
+    --bord: calc(var(--vus, 3) / 2 * var(--c));
+    background: linear-gradient(to right,
+      rgba(0,0,0,.20) 0,                    rgba(0,0,0,.20) calc(50% - 1.5 * var(--c)),
+      rgba(0,0,0,.10) calc(50% - 1.5 * var(--c)), rgba(0,0,0,.10) calc(50% - 0.5 * var(--c)),
+      transparent     calc(50% - 0.5 * var(--c)), transparent     calc(50% + 0.5 * var(--c)),
+      rgba(0,0,0,.10) calc(50% + 0.5 * var(--c)), rgba(0,0,0,.10) calc(50% + 1.5 * var(--c)),
+      rgba(0,0,0,.20) calc(50% + 1.5 * var(--c)));
+  }
+
+  /* ══ LES RÉGLAGES ══════════════════════════════════════════════════════ */
+  .reglages { padding: 8px 16px 24px; display: grid; gap: 10px; }
+  .reg { display: grid; grid-template-columns: 90px 1fr 78px; gap: 10px; align-items: center; }
+  .reg label { font-size: 12px; opacity: .65; }
+  .reg output { font-size: 12px; font-variant-numeric: tabular-nums; opacity: .85; text-align: right; }
+  input[type=range] { width: 100%; accent-color: #d8a24a; }
+  .releve {
+    margin: 4px 16px 32px; padding: 10px 12px;
+    background: rgba(255,255,255,.04); border-radius: 8px;
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+    white-space: pre; overflow-x: auto; opacity: .8;
+  }
+  .note { margin: 0 16px 20px; font-size: 12px; opacity: .5; max-width: 62ch; }
+</style>
+
+<h1>A — rayons</h1>
+<div class="roue"><div class="piste" id="p1"></div><div class="voile"></div></div>
+
+<h1>B — étagères</h1>
+<div class="roue"><div class="piste" id="p2"></div><div class="voile"></div></div>
+
+<h1>C — objets</h1>
+<div class="roue"><div class="piste" id="p3"></div><div class="voile"></div></div>
+
+<div class="reglages">
+  <div class="reg">
+    <label for="r-courbe">courbure</label>
+    <!-- R = courbure × pas. Petit = roue serrée. C'est un RAPPORT : il vaut
+         pour un iPhone comme pour un iPad en paysage. -->
+    <input type="range" id="r-courbe" min="0.7" max="12" step="0.02" value="3.36">
+    <output id="o-courbe"></output>
+  </div>
+  <div class="reg">
+    <label for="r-max">angle max</label>
+    <input type="range" id="r-max" min="20" max="120" step="1" value="61">
+    <output id="o-max"></output>
+  </div>
+  <div class="reg">
+    <label for="r-fuite">point de fuite</label>
+    <!-- En pas, pas en pixels : une fuite de 740 px ne se ressent pas pareil
+         sur une piste de 375 et sur une de 2000. -->
+    <input type="range" id="r-fuite" min="1" max="30" step="0.1" value="12.9">
+    <output id="o-fuite"></output>
+  </div>
+  <div class="reg">
+    <label for="r-vus">crans visibles</label>
+    <!-- 🔴 LE RÉGLAGE QUI MANQUAIT À CE BANC, et il fausse tous les autres :
+         la piste était bornée à TROIS crans en dur, donc l'œil ne voyait que
+         ±37° d'une courbe réglée à 65°. On réglait une roue dont la moitié
+         était hors champ. -->
+    <input type="range" id="r-vus" min="3" max="9" step="2" value="5">
+    <output id="o-vus"></output>
+  </div>
+  <div class="reg">
+    <label for="r-larg">largeur cran</label>
+    <!-- 🔴 LE RÉGLAGE QUI MANQUAIT. Sur l'iPad d'Eric en paysage, une largeur
+         de cran fixe laissait SEIZE items à l'écran et la roue devenait un
+         ruban. Une roue se définit par combien d'items elle montre. -->
+    <input type="range" id="r-larg" min="70" max="220" step="1" value="117">
+    <output id="o-larg"></output>
+  </div>
+  <div class="reg">
+    <label for="r-haut">hauteur cran</label>
+    <input type="range" id="r-haut" min="32" max="96" step="2" value="60">
+    <output id="o-haut"></output>
+  </div>
+  <div class="reg">
+    <label for="r-ecart">écart</label>
+    <input type="range" id="r-ecart" min="0" max="24" step="1" value="4">
+    <output id="o-ecart"></output>
+  </div>
+</div>
+
+<div class="releve" id="releve"></div>
+
+<p class="note">
+  ⭐ Les trois roues portent la MÊME géométrie et les mêmes réglages : si une
+  valeur va pour A et pas pour C, c'est que le problème n'est pas la géométrie
+  mais le contenu. La cascade n'est pas ici — ce banc ne juge que la roue.
+</p>
+
+<script type="module">
+/* ══ LES DONNÉES — les vraies, pas des « item 01 » ════════════════════════
+   Les noms viennent du catalogue réel : c'est leur LONGUEUR qui décide si un
+   cran tient, et un banc nourri de libellés courts déclare bonne une roue qui
+   tronquera tout en production. */
+const JEUX = [
+  ["Adventuring", "Arcana", "Battlefield", "Companions", "Crafting", "Marvels", "Mundane"],
+  ["Baguettes & bâtons & sceptres", "Consommables & potions", "Parchemins & focus", "Anneaux", "Armures", "Contenants"],
+  ["Baguette de détection de la magie", "Potion de soins", "Corde de chanvre", "Épée longue +1",
+   "Bouclier", "Torche", "Sac à dos", "Grappin", "Fiole d'acide", "Amulette de santé"]
+];
+
+const TOURS = 3;   /* la roue est infinie : trois tours, on vit dans celui du milieu */
+
+/* ⭐ `courbe` EST UN RAPPORT, PAS UNE LONGUEUR : R = courbe × pas. C'est lui
+   qui fixe l'angle d'un cran (θ = pas/R = 1/courbe), donc la forme de la roue,
+   et il ne dépend NI de la taille de l'écran NI du nombre d'items. Un rayon en
+   pixels ne survit pas au premier changement de largeur — c'est exactement ce
+   qui a fait dire au banc « ça glisse » sur l'iPad en paysage. */
+/* ⭐ LES VALEURS RATIFIÉES PAR ERIC — 2026-08-22, au pouce, sur l'appareil :
+   *« 3,02 pas / 65° / 8,3 pas / 117 px L / H60 / 4 px — là j'ai 0 bug de A à Z »*.
+
+   📐 Le pas vaut donc 121 (117 + 4) : R = 3,02 × 121 = 365 px, fuite = 1004 px,
+   un cran = 19,0°, et l'angle max en laisse 3,4 de chaque côté.
+   ⭐ ELLES SONT PLUS DOUCES QUE CE QUE JE PROPOSAIS (j'étais à 1,92 × pas et
+   5,1 de fuite) : la roue tourne moins vite sur elle-même et fuit de plus
+   loin. Mesure contre goût, la mesure gagne — et c'est le doigt qui mesure.
+   📌 H 60 ET PAS 44, POUR UNE RAISON PRÉCISE qu'Eric donne : *« parce qu'on
+   peut superposer Mot 1 & Mot 2 »*. La hauteur d'un cran n'est pas une marge
+   de confort, c'est ce qui décide si un nom tient sur deux lignes. */
+const REG = { vus: 5, courbe: 3.36, max: 61, fuite: 12.9, larg: 117, haut: 60, ecart: 4 };
+
+function remplir(piste, noms) {
+  const n = [];
+  for (let t = 0; t < TOURS; t += 1) {
+    for (const nom of noms) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "item";
+      b.textContent = nom;
+      b.dataset.nom = nom;
+      n.push(b);
+    }
+  }
+  piste.replaceChildren(...n);
+}
+
+/** LA GÉOMÉTRIE, ET ELLE EST TOUTE ICI.
+ *      θ = d / R        x = R·sin θ        z = R·(cos θ − 1)        rotY = −θ
+ *  `d` est une longueur d'ARC : la mise en page a déjà posé l'item à `d`
+ *  pixels du centre, on ne fait donc que le CORRIGER vers le cylindre. */
+function peindre(piste) {
+  const b = piste.getBoundingClientRect();
+  const centre = b.left + b.width / 2;
+  /* Le pas vient de la COTE du cran, tranchée, plus de la largeur de piste. */
+  const pas = REG.larg + REG.ecart;
+  const R = REG.courbe * pas;
+  const MAX = REG.max * Math.PI / 180;
+  let vise = null;
+  let meilleur = Infinity;
+  for (const el of piste.children) {
+    const r = el.getBoundingClientRect();
+    const d = r.left + r.width / 2 - centre;
+    if (Math.abs(d) < meilleur) { meilleur = Math.abs(d); vise = el; }
+    const theta = Math.max(-MAX, Math.min(MAX, d / R));
+    const x = R * Math.sin(theta);
+    const z = R * (Math.cos(theta) - 1);
+    el.style.transform =
+      `translateX(${x - d}px) translateZ(${z}px) rotateY(${-theta * 180 / Math.PI}deg)`;
+  }
+  return vise;
+}
+
+/** La couture de la roue : hors du tour du milieu, on y revient d'un bond.
+ *  ⚠️ Le bond doit passer sous l'aimantation ET sous l'animation, sinon on
+ *  voit la roue rembobiner. */
+function recoudre(piste) {
+  const tour = piste.scrollWidth / TOURS;
+  if (tour <= 0) return;
+  const x = piste.scrollLeft;
+  const cible = x < tour * 0.5 ? x + tour : x > tour * 1.5 ? x - tour : null;
+  if (cible === null) return;
+  piste.style.scrollSnapType = "none";
+  piste.style.scrollBehavior = "auto";
+  piste.scrollLeft = cible;
+  /* Rendre la main À LA PROCHAINE IMAGE, pas tout de suite : restaurer dans la
+     même tâche, c'est n'avoir jamais désactivé l'aimantation — le navigateur
+     ne voit que l'état final, re-snappe, et la roue saute. Défaut payé dans
+     `equipement-lab.html`. */
+  requestAnimationFrame(() => {
+    piste.style.scrollSnapType = "";
+    piste.style.scrollBehavior = "";
+  });
+}
+
+const pistes = [];
+for (const [i, id] of ["p1", "p2", "p3"].entries()) {
+  const piste = document.getElementById(id);
+  remplir(piste, JEUX[i]);
+  pistes.push(piste);
+  let dernier = null;
+  let idImage = 0;
+  const juger = () => {
+    recoudre(piste);
+    const v = peindre(piste);
+    if (v && v !== dernier) { dernier = v; tic(); }
+    releve();
+  };
+  /* 🔴 ON ANNULE ET ON REPLANIFIE, ON NE LÈVE PAS DE DRAPEAU. Un garde booléen
+     semble équivalent et ne l'est pas : si le `requestAnimationFrame` est
+     demandé au moment où l'onglet passe en arrière-plan, il ne s'exécute
+     JAMAIS — le drapeau reste levé et le mécanisme est mort pour de bon.
+     L'utilisateur revient, la roue ne répond plus, et rien n'a rougi.
+     ⭐ `cancelAnimationFrame` + replanification donne le même throttle à une
+     image, sans état qui puisse rester coincé. */
+  piste.addEventListener("scroll", () => {
+    cancelAnimationFrame(idImage);
+    idImage = requestAnimationFrame(juger);
+  }, { passive: true });
+  piste._juger = juger;
+}
+
+/* Le tic : inerte sur Safari iOS, vivant derrière un pont WKWebView. */
+function tic() {
+  const pont = globalThis.webkit?.messageHandlers?.haptic;
+  if (pont) { try { pont.postMessage("selection"); return; } catch { /* muet */ } }
+  if (typeof navigator.vibrate === "function") navigator.vibrate(8);
+}
+
+function poserAuMilieu() {
+  for (const p of pistes) {
+    p.style.scrollBehavior = "auto";
+    p.scrollLeft = p.scrollWidth / TOURS;
+    p.style.scrollBehavior = "";
+  }
+}
+
+function appliquer() {
+  const doc = document.documentElement.style;
+  /* La fuite aussi est un RAPPORT : un point de fuite en pixels se ressent
+     autrement selon la largeur. On l'exprime en pas. */
+  const pas0 = REG.larg + REG.ecart;
+  doc.setProperty("--fuite", Math.round(REG.fuite * pas0) + "px");
+  doc.setProperty("--cran-w", REG.larg + "px");
+  doc.setProperty("--vus", REG.vus);
+  doc.setProperty("--cran-h", REG.haut + "px");
+  doc.setProperty("--ecart", REG.ecart + "px");
+  for (const p of pistes) p._juger();
+}
+
+function releve() {
+  const p = pistes[0];
+  const b = p.getBoundingClientRect();
+  const centre = b.left + b.width / 2;
+  const vus = [...p.children].map((el) => {
+    const r = el.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2 - centre), w: Math.round(r.width) };
+  }).filter((v) => v.w > 3 && Math.abs(v.x) < b.width).sort((a, z) => a.x - z.x);
+  const ec = vus.slice(1).map((v, i) => Math.abs(v.x - vus[i].x));
+  const pas = REG.larg + REG.ecart;
+  const R = REG.courbe * pas;
+  document.getElementById("releve").textContent =
+      `piste            ${Math.round(b.width)} px  (3 crans, bornée et centrée — l'écran peut être bien plus large)\n`
+    + `cran             ${REG.larg} × ${REG.haut}   écart ${REG.ecart}   pas ${pas}\n`
+    + `courbure         ${REG.courbe} × pas = R ${Math.round(R)} px   →  un cran = ${(pas / R * 180 / Math.PI).toFixed(1)}°\n`
+    + `angle max        ${REG.max}°       soit ${(REG.max * Math.PI / 180 * R / pas).toFixed(1)} crans de chaque côté\n`
+    + `point de fuite   ${REG.fuite} × pas = ${Math.round(REG.fuite * pas)} px\n`
+    + `\n`
+    + `items visibles   ${vus.length}\n`
+    + `écarts à l'écran ${ec.join(" · ") || "—"}\n`
+    + `                 ${ec.length > 2 && ec[0] < ec[Math.floor(ec.length / 2)] ? "✅ resserrés vers les bords — la roue tourne" : "⚠️ réguliers — ça glisse, ça ne tourne pas"}\n`
+    + `largeur apparente ${vus.length ? Math.max(...vus.map((v) => v.w)) + " au centre → " + Math.min(...vus.map((v) => v.w)) + " au bord" : "—"}`;
+}
+
+const UNITE = { vus: " crans", courbe: " × pas", max: "°", fuite: " × pas", larg: " px", haut: " px", ecart: " px" };
+for (const clef of ["vus", "courbe", "max", "fuite", "larg", "haut", "ecart"]) {
+  const input = document.getElementById("r-" + clef);
+  const out = document.getElementById("o-" + clef);
+  const maj = () => {
+    REG[clef] = Number(input.value);
+    out.textContent = input.value + UNITE[clef];
+    appliquer();
+  };
+  input.addEventListener("input", maj);
+  maj();
+}
+
+poserAuMilieu();
+appliquer();
+window.addEventListener("resize", appliquer);
+</script>
