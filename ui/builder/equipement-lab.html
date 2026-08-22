@@ -64,52 +64,229 @@
      📌 Chemin vérifié : `--bg-image` vaut `url("./assets/bg-day.jpg?v=278")`,
      relatif à `tokens.css`, qui vit dans le même dossier que ce banc — il
      résout. Un fond manquant est silencieux, il fallait le confirmer. */
+  /* ══ 🔴 `dvh`, JAMAIS `vh` — ET C'EST UN DÉFAUT, PAS UN CHOIX ════════
+     Eric, deux fois sur son vrai iPhone : *« la carte n'est pas fixe »*. Nos
+     deux mesures disaient le contraire, et les deux étaient fausses de la même
+     façon.
+
+     🔴 `vh` IGNORE LES BARRES DE SAFARI. Sur un iPhone, la barre d'adresse et
+     la barre d'outils prennent près de 200 px : `78vh` se calculait sur 812
+     alors que l'écran n'en offrait que ~550. La scène était donc trop haute,
+     la page défilait, et la carte partait vers le haut — il ne lui restait que
+     `R.craft` à l'écran. Le dépôt a déjà tranché : `shell.css` écrit
+     `height: 100dvh` sur `.app`, et le note comme une exigence.
+
+     ⭐ ET LE VRAI CORRECTIF N'EST PAS DE REMPLACER `vh` PAR `dvh`. Le banc doit
+     se comporter comme le builder : une racine en `100dvh` qui NE DÉFILE PAS
+     (`.app`, empruntée telle quelle), une scène qui tient dedans, et les tuiles
+     qui coulissent DANS LEUR BOÎTE. Cette zone-ci est donc la scène, et elle
+     est en `overflow: hidden` comme `.app` : ce qui ne tient pas se voit
+     coupé, au lieu de repousser la carte hors de l'écran.
+     ⛔ LE NOM `.banc-scroll` RESTE : l'overlay « Afficher la règle » le vise
+     pour tracer l'espace attribué, et c'est bien ce qu'il mesure. Renommer
+     casserait la règle pour un mot.
+
+     ⚠️ ET LA LEÇON DU LOT, QUI DÉPASSE CE FICHIER : **l'émulateur ment.** Le
+     mode « mobile » d'un navigateur de bureau donne 375 × 812 PLEINS, sans
+     chrome iOS. « La page ne défile pas » y était vrai, et faux sur
+     l'appareil. Une mesure juste sur le mauvais terrain — un banc d'essai plus
+     GÉNÉREUX que le réel. D'où la ligne `viewport` du relevé, qui met les
+     trois hauteurs côte à côte : sur un bureau elles sont égales, sur
+     l'iPhone d'Eric elles divergent, et il voit de combien. */
+  /* ══ LA COTE D'UNE TUILE — ÉCRITE UNE FOIS, LUE DEUX FOIS ════════════
+     La colonne de tuiles ET les récepteurs doivent avoir la MÊME largeur :
+     *« les zones de drop ont pas besoin d'être aussi larges = taille de
+     l'item »* (Eric, 2026-08-22). Deux expressions séparées auraient divergé
+     au premier réglage — c'est la faute que ce dépôt paie ailleurs.
+
+     ⭐ `100vw` ET NON `100%`, ET C'EST CE QUI REND LE PARTAGE POSSIBLE : une
+     propriété personnalisée est substituée TELLE QUELLE chez qui la lit, donc
+     un `100%` s'y résoudrait contre le bloc conteneur de CHAQUE lecteur —
+     la scène pour la colonne, la carte pour le récepteur. Deux largeurs
+     différentes sous un seul nom. `100vw` ne dépend de personne.
+     ⚠️ Légitime ici parce que RIEN NE DÉFILE : `.app` est en `overflow:
+     hidden`, il n'y a pas de barre de défilement de page à retrancher
+     (vérifié : `scrollWidth === clientWidth`). Dans une page qui défile,
+     `100vw` mentirait de la largeur de la barre. */
+  .app { --tuile-col: clamp(var(--r-rail-min, 90px), calc(100vw - var(--card-w)), var(--r-rail-max, 140px)); }
+
   .banc-scroll {
     flex: 1 1 auto; min-height: 0;
-    overflow-y: auto; overscroll-behavior: contain;
-    padding: var(--sp-16) var(--sp-8) var(--sp-32);
-  }
-  h1 { font-size: var(--t6); margin: 0 0 var(--sp-4); }
-  .sous { color: var(--text-muted); font-size: var(--t3); margin: 0; max-width: 72ch; }
-  .banc { max-width: 900px; margin-inline: auto; }
-  /* Le châssis du banc lui-même (titre, interrupteur, relevé) porte de la
-     mention et des boutons bordés : même matrice, mêmes dalles MAJEURES.
-     Un banc qui violerait la règle qu'il sert à éprouver ne prouverait rien. */
-  .banc-bloc {
-    padding: var(--sp-12) var(--sp-16);
-    margin-bottom: var(--sp-8);
+    overflow: hidden;
+    /* ⛔ AUCUNE GOUTTIÈRE EXTÉRIEURE, ET C'EST UNE MESURE : chez Species, le
+       rail part de `left: 0` et la scène de `left: var(--rail-w)` — les deux
+       colonnes se partagent les 375 px SANS rien perdre aux bords. Le banc en
+       reprenait 16 en padding plus 8 d'écart, soit 24 volés à la carte (285
+       attendus, 261 mesurés). L'air se pose DANS les colonnes (le rail a le
+       sien, la carte le sien), jamais autour d'elles. */
+    padding: 0;
+    position: relative;      /* l'overlay « Afficher la règle » s'y accroche */
   }
 
-  /* ── L'INTERRUPTEUR A/B — la question ouverte du banc ────────────────
-     Réemploi de `.record-option` : c'est déjà le bouton « choix actif » du
-     dépôt (accent plein + `--on-accent`), et c'est exactement ce rôle. */
-  .variante {
-    display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap;
-    margin-bottom: var(--sp-16);
+  /* ══ LA SONDE — ELLE SEULE SAIT CE QUE `100dvh` VAUT VRAIMENT ════════
+     Un élément haut de `100dvh`, invisible et hors du pointeur, qu'on mesure.
+     C'est la seule façon d'AFFICHER la valeur que le navigateur applique, au
+     lieu de la supposer égale à `innerHeight` — l'hypothèse qui nous a tous
+     les deux trompés. */
+  .sonde-dvh {
+    position: fixed; top: 0; left: 0; width: 0; height: 100dvh;
+    visibility: hidden; pointer-events: none;
   }
-  .variante-titre {
-    font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .variante-dit { flex: 1 1 100%; margin: 0; font-size: var(--t2); color: var(--text-muted); }
 
-  /* ══ LA SCÈNE — DEUX COLONNES, la liste à gauche, R à droite ═════════
-     Les proportions viennent de `docs/lab/R.html` (1 / 1,15) : la colonne de
-     commande est la plus large des deux, parce que c'est elle qui porte des
-     contrôles, pas seulement du texte. */
+  /* ══ LE MOBILIER DU BANC SORT DE LA SCÈNE, EN HAUT COMME EN BAS ═════
+     Eric, 2026-08-22, sur son iPhone : *« enlever notes de merde en bas, on
+     voit pas s'il y a une marge ou pas »*.
+
+     🔴 LE `<details>` REPLIÉ NE PRENAIT PRESQUE PAS DE HAUTEUR — ET C'ÉTAIT
+     QUAND MÊME LE DÉFAUT. Il occupait le BORD BAS, et le bord est exactement
+     ce qu'on regarde pour juger d'une marge. Une bande de 24 px collée sous la
+     carte rend la question insoluble : on ne sait plus si le blanc qu'on voit
+     appartient à la carte ou au meuble.
+     ⭐ LE CRITÈRE EST CELUI QU'ON S'EST DÉJÀ DONNÉ POUR LE TITRE, retourné :
+     ce qui est au-dessus de `R` doit être exactement ce qui sera au-dessus
+     dans le builder — et **ce qui est en dessous aussi**. Sous la carte, dans
+     le builder, il n'y aura RIEN. Le banc n'y met donc rien.
+     ⛔ LE PANNEAU VIT HORS DE `.app` : il se superpose quand on l'ouvre, et la
+     scène reste vierge tant qu'on n'appuie pas. C'est le traitement de la
+     règle, qu'Eric garde — donc un geste qu'il connaît déjà. */
+  .banc-outils {
+    position: fixed; left: var(--sp-4); bottom: var(--sp-4);
+    z-index: 10000; display: flex; gap: var(--sp-4);
+  }
+  /* 📏 ILS TIENNENT DANS LE COIN MORT, ET C'EST MESURÉ : la colonne de tuiles
+     fait `--rail-w` (90 px) et sa coulisse s'arrête à 440 ; sous une fenêtre
+     d'iPhone il reste ~26 px de fond nu en bas à gauche. Deux boutons de 20 px
+     de haut et ~40 de large y tiennent côte à côte sans rien recouvrir.
+     ⛔ ET SURTOUT PAS EN BAS À DROITE : c'est là que vit `GET BACK`, et le
+     bouton de la règle le masquait sur les captures d'Eric. Un outil de banc
+     ne se pose jamais sur une commande de l'écran. */
+  .banc-outils button {
+    padding: 3px 5px;
+    font: 600 10px/1.2 var(--font); letter-spacing: .04em;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--text);
+    cursor: pointer; opacity: .8;
+  }
+  .banc-outils button:hover { opacity: 1; }
+
+  /* LE PANNEAU — par-dessus tout, fermé au clic sur le voile. */
+  .banc-panneau {
+    position: fixed; inset: 0; z-index: 10002;
+    background: var(--scrim);
+    overflow-y: auto;
+    padding: var(--sp-8);
+  }
+  .banc-panneau[hidden] { display: none; }
+  .banc-panneau-corps { max-width: 900px; margin-inline: auto; }
+  /* Les deux réglages de sensibilité — dans la bande escamotable, jamais dans
+     la scène : Eric vient de la faire nettoyer. */
+  .reglage { display: flex; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-8); }
+  .reglage label { flex: 0 0 9ch; font-size: var(--t2); color: var(--text); }
+  .reglage input[type="range"] { flex: 1 1 auto; min-width: 0; }
+  .reglage output {
+    flex: 0 0 12ch; font-size: var(--t2); color: var(--text);
+    font-variant-numeric: tabular-nums; text-align: right;
+  }
+  .reglage-dit { margin: 0 0 var(--sp-8); font-size: var(--t1); color: var(--text-muted); }
+
+  .banc-fermer {
+    display: block; margin: 0 0 var(--sp-8) auto;
+    min-height: var(--touch); padding: 0 var(--sp-12);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    background: var(--surface); color: var(--text); font: inherit; cursor: pointer;
+  }
+
+  /* ══ LA SCÈNE — DEUX COLONNES, ET ELLES NE S'EMPILENT JAMAIS ════════
+     🔴 L'EMPILEMENT ÉTAIT LA CAUSE DES 346 PX DE TROP. Eric a posé les deux
+     écrans côte à côte sur son iPhone : **Species garde ses deux colonnes à
+     375 px**, et tout y tient. Empilées, `R` et les tuiles s'ADDITIONNENT ;
+     côte à côte, la plus haute des deux décide. Le remède n'était donc pas de
+     rétrécir, c'était de ne pas empiler.
+
+     ⭐ LA GÉOMÉTRIE EST CELLE DE SPECIES, RELEVÉE DANS LE VRAI BUILDER À
+     375 × 812 (2026-08-22, `index.html` sur le même serveur) :
+       belt 60 · stage-topbar 0 · rail 90 · scène 285 · rien ne défile
+     `.stage-aside` fait `width: var(--rail-w)` et `.stage` part de
+     `left: var(--rail-w)` (`shell.css`) — soit exactement les deux colonnes
+     ci-dessous. ⛔ AUCUNE LARGEUR INVENTÉE : `--rail-w` vaut 90 à l'étroit et
+     120 en Large, et le banc suit les deux sans le savoir.
+     ⭐ `--panel-w` PLAFONNE LA CARTE — c'est le jeton des « écrans à CONTRÔLES
+     (Abilities, Equipment) », donc celui de `R` par définition. Sans lui, la
+     carte s'étalerait sur 880 px en Large pendant que le rail en garde 120. */
+  /* ══ LA COLONNE DE TUILES RESPIRE — ET LES DEUX BORNES SONT MESURÉES ══
+     Eric, iPad paysage : *« cadrage étrange sur grand écran »*. Deux défauts,
+     et le second était le vrai : la colonne restait à 90 px devant 300 px de
+     vide, en tronquant « Baguette de détection de la magie ».
+
+     🔴 90 PX N'EST PAS UNE CONSTANTE, C'EST UN PLANCHER. C'est la cote du rail
+     de Species — vraie parce que le TÉLÉPHONE est étroit, pas parce que 90
+     serait la bonne largeur. L'appliquer à toutes les tailles, c'est le piège
+     du matin recommencé : une mesure relevée sur un écran, servie partout.
+
+     📏 LE PLAFOND SE DÉDUIT DU CONTENU, ET IL A ÉTÉ MESURÉ SUR LES 23
+     ÉTAGÈRES (2026-08-22, balayage de 90 à 320 px par pas de 5, critère
+     `scrollHeight > clientHeight` sur CHAQUE tuile) :
+
+       Baguettes & bâtons & sceptres     135 px   ← la plus bavarde, 32 objets
+       Parchemins & focus & composantes  130
+       Consommables & potions            110
+       Conteneurs & véhicules            105
+       Focus & curiosités                105
+       Cordes & escalade                 100
+       Casques & lunettes                 95
+       les 16 autres                      90     (rien à tronquer dès le plancher)
+
+     ⭐ 140 PX, ET PAS 135 : au chiffre exact il ne reste aucune marge — un nom
+     d'un caractère de plus retomberait dans la troncature. Cinq pixels
+     achètent cette marge, et au-delà de 140 élargir ne gagne plus RIEN : la
+     place doit revenir à la carte ou rester en marge.
+
+     ⛔ ET LE CURSEUR MANUEL DE PARTAGE A ÉTÉ RETIRÉ. Il servait à chercher ce
+     seuil à la main ; le seuil est trouvé, et il se calcule tout seul entre
+     les deux bornes. Un réglage qui se déduit vaut mieux qu'un curseur — et un
+     curseur qui survit à sa question devient une case à se tromper. */
   .scene {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    gap: var(--sp-12);
-    align-items: start;
+    display: flex;
+    min-height: 0;
+    /* ⭐ LE GROUPE ENTIER SE CENTRE, pas la carte dans son coin. Centrer la
+       seule carte aurait laissé les tuiles orphelines contre le bord gauche —
+       c'est bien le BLOC (tuiles + carte) qui est l'objet de la page. */
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
   }
-  /* À l'étroit, la commande passe DEVANT : elle décide de ce que la liste
-     contient, et on ne fait pas défiler cent lignes pour atteindre son
-     interrupteur. C'est `order`, pas un autre balisage — le DOM garde
-     l'ordre du croquis (liste d'abord, comme `R.html`). */
-  @media (max-width: 640px) {
-    .scene { grid-template-columns: minmax(0, 1fr); }
-    .colonne-r { order: -1; }
+  /* 🔴 `flex: 1 1 auto` NE DONNAIT PAS 90 AU TÉLÉPHONE, ET C'EST MESURÉ :
+     à 375 la colonne prenait **108 px**. Deux items élastiques qui débordent
+     rétrécissent PROPORTIONNELLEMENT à leur base — la colonne s'arrêtait donc
+     où l'arithmétique la laissait, pas sur son plancher. `min-width: 90px` ne
+     l'attrapait jamais : on ne descendait pas jusque-là.
+     ⭐ LA LARGEUR SE CALCULE, ELLE NE SE NÉGOCIE PLUS. `clamp()` prend le
+     RESTE une fois la carte servie, borné par les deux cotes mesurées. À 375
+     le reste est négatif → le plancher gagne, 90 px exactement. À 1024 il vaut
+     399 → le plafond gagne, 140. Entre les deux, la colonne respire. */
+  /* `height: 100%` ET `min-height: 0` — les deux : le premier donne à
+     `.r-tuiles` un pourcentage à résoudre, le second empêche la colonne de
+     grandir à la taille de son contenu (défaut par défaut d'un item flex). */
+  .r-list-col { flex: 0 0 auto; width: var(--tuile-col); height: 100%; min-height: 0; }
+  /* ⚠️ ESSAI DU 22/08 — ERIC : « fais 76 pour voir ». On passe de `--panel-w`
+     (88ch en grandeur Large, une cote taillée pour la RANGÉE D'ABILITIES : six
+     options annotées sur une ligne) à `--card-w` (76ch), la cote de la carte
+     générique — celle qu'Eric a sous les yeux partout ailleurs, et dont les
+     121 px d'écart se voyaient.
+     📌 Les deux valent `--measure` (62ch) en dessous de 1140 : rien ne bouge
+     sur téléphone, l'essai ne porte QUE sur la grandeur Large.
+     ⛔ Ancien commentaire, gardé parce qu'il reste vrai par NATURE :
+     *« --panel-w : écrans à CONTRÔLES (Abilities, Equipment) »*. `R` est
+     exactement ça. `--grid-w` (60ch) était la largeur de la LISTE + chercheur
+     de l'ancienne étape, une grille que `R` ne contient plus : sa colonne de
+     droite est une carte de contrôles, pas une grille de résultats.
+     ⛔ Et surtout pas `--measure` en direct : une mesure de PROSE se compte en
+     caractères par ligne ; `--panel-w` s'y adosse, mais nommer le rôle plutôt
+     que la valeur est ce qui permet à la Grandeur Large de la rehausser
+     (88ch) sans toucher un écran. */
+  .colonne-r {
+    flex: 1 1 auto;
+    max-width: var(--card-w);
   }
   /* 🔴 `min-width: 0` PARTOUT SUR LA CHAÎNE, ET C'EST MESURÉ, PAS PRUDENT.
      Un enfant de grille (comme de flex) part en `min-width: auto`, c'est-à-dire
@@ -118,32 +295,52 @@
      page entière en défilement horizontal. `minmax(0, 1fr)` borne la PISTE,
      jamais l'objet posé dedans : les deux se règlent, pas l'un ou l'autre. */
   .colonne-r, .bloc, .equipment-item-text { min-width: 0; }
+  .colonne-r { align-self: start; }
   .r-find-ligne .equipment-search-input { min-width: 0; }
 
   /* Chaque bloc nommé du croquis est une DALLE (`.dalle-intermediaire` du
      dépôt) plus son étiquette de nom, pour qu'Eric reconnaisse les pièces
      de `R.html` en les regardant. */
-  /* ══ LA CARTE R EST OPAQUE, ET C'EST LA MATRICE QUI L'EXIGE ══════════
-     Les quatre blocs portaient `.dalle-intermediaire` (voile 50 %). La
-     matrice du lot 59, dans `shell.css`, l'interdit : *« un libellé en
-     `--text-muted`, une bordure de contrôle, un mot en accent : ils exigent
-     une dalle MAJEURE. Aucun voile intermédiaire ne les sauve — même à 50 %,
-     `--text-soft` plafonne à 4,1:1. »* Or `R` porte les trois : des titres en
-     mention, le champ de recherche et les récepteurs à bordure de CONTRÔLE.
-     ⭐ ET ÇA TOMBE JUSTE AVEC CE QU'ERIC DÉCRIT : *« la carte ne défile pas,
-     les tuiles oui »*. La carte est opaque, les tuiles flottent. Le fond
-     respire ENTRE et AUTOUR d'elles, pas à travers la carte — c'est la note
-     de mise en page de la bible, mot pour mot. */
-  .bloc { position: relative; padding: var(--sp-16) var(--sp-8) var(--sp-8); margin-bottom: var(--sp-8); }
+  /* ══ LA CARTE R — UNE SEULE DALLE, ET LA DENSITÉ EST CELLE DE SPECIES ═
+     Eric : *« tes blocs sont énormes — c'est du remplissage, pas du
+     contenu »*. Mesuré sur sa capture : `R.cat` seul prenait ~270 px pour
+     deux rangées de 44.
+
+     📏 RELEVÉ DANS LE VRAI SPECIES, À 375 (pas deviné) :
+       · la carte entière est UNE dalle — `.fiche-dalle`, `padding: 8px`,
+         `gap: 8px`. Pas quatre dalles à marges, UNE, et ses sections sont
+         séparées par un écart de 8. C'est tout le secret de la densité.
+       · le rail : items de 74 × **30 px**, `--t2`, `padding: 8px 0`, écart 8.
+     ⭐ LE BANC S'ALIGNE SUR CES DEUX LIGNES-LÀ. `R` cesse d'être quatre
+     dalles empilées avec chacune son air : c'est UNE carte de 8 px de
+     rembourrage dont les quatre sections sont séparées par 8 px. L'air
+     intérieur passe de 16+8 par bloc à 8 pour l'ensemble.
+     ⛔ LA MATRICE TIENT TOUJOURS : la carte reste OPAQUE (`.dalle-majeure`),
+     parce qu'elle porte de la mention et des bordures de contrôle. */
+  .colonne-r {
+    display: flex; flex-direction: column;
+    gap: var(--sp-8);
+    padding: var(--sp-8);
+  }
+  .bloc { position: relative; padding: 0; margin: 0; }
+
+  /* ⚠️ LES PASTILLES DE NOM SORTENT DU FLUX, POUR DE BON. Elles étaient en
+     absolu dans un rembourrage de 16 px que le bloc réservait pour elles —
+     donc elles coûtaient bien 16 px de hauteur chacune, quatre fois. Elles
+     sont maintenant POSÉES SUR LE COIN, sans rien réserver, et elles ne
+     prennent pas le pointeur : un repère de banc ne doit ni pousser le
+     contenu ni intercepter un geste. */
   .bloc-id {
-    position: absolute; top: 0; left: 0;
-    font: 600 var(--t1)/1 ui-monospace, "SF Mono", Menlo, monospace;
-    letter-spacing: .06em;
+    position: absolute; top: 0; right: 0; z-index: 2;
+    pointer-events: none;
+    font: 600 9px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .04em;
     color: var(--on-accent); background: var(--accent);
-    padding: 3px 6px; border-radius: var(--radius-md) 0 var(--radius-md) 0;
+    padding: 1px 4px; border-radius: 0 var(--radius-md) 0 var(--radius-md);
+    opacity: .7;
   }
   .bloc-titre {
-    margin: 0 0 var(--sp-8);
+    margin: 0 0 var(--sp-4);
     font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase;
     color: var(--text-muted);
   }
@@ -265,15 +462,27 @@
      quatre pièces, deux signes. Rien d'autre, et sur une seule ligne tant
      qu'elle tient. */
   .r-argent {
-    display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
+    display: flex; align-items: center; gap: var(--sp-4); flex-wrap: nowrap;
     padding-top: var(--sp-4);
   }
-  .r-argent-montant { width: 7ch; text-align: right; }
+  /* 📏 TOUT SUR UNE LIGNE, ET LE BUDGET EST COMPTÉ : la carte fait 285 px à
+     375, dont 269 utiles. Champ 5ch (~48) + quatre pastilles à `--t1` (~26
+     chacune) + deux signes de 44 + six écarts de 4 ≈ 264. Ça tient, et c'est
+     pour ça que les pastilles sont à `--t1` et le champ à 5ch : la première
+     pose débordait et renvoyait le `−` à la ligne suivante.
+     ⛔ LES DEUX SIGNES GARDENT 44 PX : ce sont les seules commandes qu'on
+     actionne à répétition ici, et le plancher tactile ne se négocie pas. Les
+     pastilles, elles, sont un choix « une parmi quatre » — elles ont le droit
+     à la densité du rail. */
+  .r-argent-montant { width: 5ch; text-align: right; padding: var(--sp-4); }
   /* Les quatre pièces empruntent `.skills-cat` : la pastille « une parmi N »
      du dépôt, compacte, dont l'active se remplit d'un lavis d'accent. */
-  .r-argent .skills-cat { padding: 0 var(--sp-8); min-height: var(--touch); font-size: var(--t2); }
-  .r-argent-signe { flex: none; min-width: var(--touch); min-height: var(--touch); }
-  .r-argent-dit { flex: 1 1 100%; margin: 0; font-size: var(--t1); color: var(--text-muted); }
+  .r-argent .skills-cat { padding: 0 var(--sp-4); min-height: var(--touch); font-size: var(--t1); }
+  #argent-pieces { display: flex; gap: var(--sp-2); }
+  .r-argent-signe { flex: none; min-width: var(--touch); min-height: var(--touch); align-self: auto; }
+  /* ⛔ PLUS DE NOTE EN PROSE SOUS L'AJUSTEUR — trois lignes de texte dans un
+     écran où chaque pixel de hauteur est compté. Ce qu'elle disait vit dans le
+     relevé : un banc s'explique en bas de page, pas dans la maquette. */
 
   /* ══ LA VIGNETTE DU SAC — UNE PLACE TENUE, PAS UN DESSIN ═════════════
      Eric : *« il manque une image de sac à dos pour ouvrir B3 »*. L'image
@@ -291,14 +500,13 @@
      tranchée. Une place réservée qui agit déjà a tranché sans le dire. */
   .r-bag-tete { display: flex; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-8); }
   .r-bag-vignette {
-    flex: none; width: 64px; height: 64px;
+    flex: none; width: 48px; height: 48px;
     display: grid; place-items: center;
     border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
     color: var(--text-muted);
   }
   .r-bag-vignette svg { width: 60%; height: 60%; }
   .r-bag-dit { min-width: 0; }
-  .r-bag-dit b { display: block; font-size: var(--t2); color: var(--text); font-weight: 600; }
   .r-bag-dit span { font-size: var(--t1); color: var(--text-muted); }
 
   /* ══ R.bag / R.craft — les récepteurs, ET ILS REÇOIVENT VRAIMENT ═════
@@ -310,7 +518,35 @@
      écrit par l'organe lui-même (`viser()`), qui cherche `[data-creneau]`
      sous le point visé. Le banc ne fournit que l'attribut. */
   .r-recepteur { align-items: stretch; }
-  .r-recepteur .glisse-creneau { min-height: 56px; }
+  /* 🔴 `min-width: 0` SUR LE CRÉNEAU, ET SANS LUI LE NOM SORT DE LA CARTE.
+     Vu sur la capture d'Eric : « Baguettes & bâtons & sceptres — exemple… »
+     coupé net au bord droit de l'écran. `.glisse-creneau` est `flex: 1 1 0`,
+     donc son `min-width: auto` lui laissait réclamer la largeur du texte
+     ENTIER ; l'ellipse de `.r-depose` ne pouvait pas s'appliquer, puisque le
+     conteneur grandissait au lieu de la contraindre. Le même piège que la
+     colonne de tuiles à 937 px, un cran plus bas dans l'arbre.
+     ⛔ Un récepteur est un ACCUSÉ DE DÉPÔT, pas un titre : il dit « j'ai
+     quelque chose », le nom entier se lit ailleurs. */
+  /* ══ UN RÉCEPTEUR A LA FORME DE CE QU'IL REÇOIT ══════════════════════
+     Eric : *« les zones de drop ont pas besoin d'être aussi larges = taille de
+     l'item »*. C'étaient deux bandeaux pleine largeur ; ils mangeaient
+     l'essentiel de `R.bag` (131 px) et de `R.craft` (75).
+
+     ⭐ ET LE CREUX QUI A LA FORME DE L'OBJET SE PASSE DE LÉGENDE : on voit que
+     ce qu'on tient va LÀ, sans avoir à lire « R.BAG.SLOT ». C'est pour ça que
+     l'étiquette interne est partie : le badge du bloc nomme déjà la zone, et
+     dans une case de 74 px elle prenait la place de ce qu'on y dépose.
+     ⛔ `flex: 0 0 auto` ANNULE le `flex: 1 1 0` de `shell.css` : sans ça la
+     case reprend toute la rangée, et c'est exactement le bandeau qu'on retire.
+     ⚠️ 44 PX DE PLANCHER DANS LES DEUX SENS : une cible de dépôt ratée coûte
+     plus cher qu'un bouton raté — on ne descend pas sous `--touch`. */
+  .r-recepteur .glisse-creneau {
+    flex: 0 0 auto;
+    width: calc(var(--tuile-col) - var(--sp-16));
+    min-width: var(--touch);
+    min-height: var(--touch);
+    padding: var(--sp-4) var(--sp-8);
+  }
   /* L'objet POSÉ dans un récepteur est lui-même reprenable — c'est le geste
      d'annulation d'Eric (« on annule en ressortant l'objet »). Il est donc un
      bouton, armé par le même organe que la ligne d'où il vient. */
@@ -319,9 +555,10 @@
        déclaration que `glisser.mjs` demande, et rien ne la dispute. */
     touch-action: none;
     border: none; background: none; padding: 0; color: inherit;
-    font: inherit; font-size: var(--t3); cursor: pointer;
-    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-family: inherit; cursor: pointer; text-align: center;
+    max-width: 100%; min-width: 0;
   }
+  .glisse-creneau-valeur { font-size: var(--t1); opacity: .7; }
   .r-getback {
     flex: none; align-self: stretch;
     min-width: var(--touch); padding: 0 var(--sp-12);
@@ -372,10 +609,14 @@
     /* La zone de coulisse : au plus un F1, et jamais plus haut que la fenêtre.
        ⛔ AUCUNE AIMANTATION VERTICALE, ET C'EST UNE DÉCISION, PAS UN OUBLI —
        voir la note « Species et R.list se ressemblent » dans le script. */
-    height: min(var(--fiche-h), 78vh);
+    /* ⛔ PLUS DE `vh` ICI. La coulisse vaut au plus un F1, et au plus la
+       hauteur RÉELLEMENT offerte par la scène — `100%` d'une colonne étirée,
+       donc une valeur que le navigateur connaît vraiment, barres de Safari
+       comprises. `78vh` promettait 633 px là où l'iPhone en donnait ~430. */
+    height: min(var(--fiche-h), 100%);
     overflow-y: auto;
     overscroll-behavior: contain;
-    display: flex; flex-direction: column; gap: var(--sp-4);
+    display: flex; flex-direction: column; gap: var(--sp-8);   /* l'écart du rail de Species, relevé */
     /* ⭐ L'AIR AUX DEUX BOUTS, TOURNÉ À LA VERTICALE — la parade d'Eric du
        2026-08-15, transposée. Sans cadre, plus rien ne dit qu'une tuile
        coupée continue hors champ : elle a l'air sectionnée par rien. Les 8 px
@@ -389,7 +630,7 @@
        ⭐ `scroll-padding-block` va avec, pour la même raison que sur la
        piste : sans lui l'aimantation collerait la tuile au bord et mangerait
        l'air qu'on vient de poser. */
-    padding-block: var(--sp-8);
+    padding: var(--sp-8);
     scroll-padding-block: var(--sp-8);
   }
   .r-tuiles::-webkit-scrollbar { width: 6px; }
@@ -406,16 +647,23 @@
      écran ; ici elle est sur du verre. Le poids passe donc par l'OPACITÉ,
      jamais par la pâleur de l'encre — la parade que `shell.css` s'est déjà
      donnée pour `.tray-case-num`. */
+  /* 📏 LA TUILE PREND LA DENSITÉ DU RAIL DE SPECIES, RELEVÉE À 375 :
+     `padding: 8px 0`, `--t2`, écart de 8 entre items, 30 px de haut pour un
+     nom seul. La tuile en porte deux (nom + poids/prix), donc elle empile et
+     monte à ~44 — mais son AIR est celui du rail, pas celui d'une carte.
+     ⛔ La colonne fait `var(--rail-w)` : à 375 c'est 90 px, dont ~74 pour le
+     texte. Un nom d'objet y sera TRONQUÉ, exactement comme « Dragonborn » l'est
+     dans le rail — et c'est le même arbitrage qu'Eric a déjà tranché là-bas. */
   .r-ligne {
-    width: 100%; min-height: var(--r-tuile, var(--touch));
-    flex: none; flex-wrap: nowrap;
+    width: 100%; min-height: 30px;
+    flex: none; flex-wrap: wrap;
     border: none;
     border-radius: var(--radius-md);
     background: var(--dalle-simple);
     box-shadow: inset 0 0 0 1px var(--verre-lisere);
     color: inherit; font-family: inherit;
     text-align: left; cursor: pointer;
-    padding: 0 var(--sp-12); gap: var(--sp-8);
+    padding: var(--sp-4) var(--sp-8); gap: 0;
     -webkit-user-select: none; user-select: none;
   }
   /* 🔴 `pan-y`, ET C'EST ERIC QUI A TRANCHÉ LE GESTE (2026-08-22) :
@@ -437,11 +685,41 @@
      `data-glisse`, le banc écrit `data-axe`, et il faut les deux. Sans ça, un
      doigt qui descend ferait clignoter toute la colonne. */
   .r-ligne[data-glisse="true"][data-axe="x"] { opacity: .35; }
-  .r-ligne .equipment-gear-name {
-    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    font-size: var(--t3); overflow-wrap: normal; color: var(--text);
+  /* ══ LE NOM SE DÉPLIE SUR DEUX LIGNES — Eric tranche, 2026-08-22 ══════
+     *« le titre de l'item sur 2 lignes et écrit plus petit »*. Donc la colonne
+     RESTE à `--rail-w` : pas d'élargissement au détriment de la carte, pas
+     d'icône à la place du nom.
+
+     🔴 CE QUE LA TRONCATURE SUR UNE LIGNE COÛTAIT : trente-deux tuiles
+     affichant toutes « Baguett… », seul le prix les distinguant. Sur deux
+     lignes à `--t1`, « Baguette de / détection… » et « Baguette de / terreur »
+     ne se confondent plus — c'est la deuxième ligne qui porte l'information.
+
+     ⭐ `-webkit-line-clamp: 2` FAIT LES TROIS CHOSES À LA FOIS, et c'est
+     pourquoi il est préféré à une hauteur fixe :
+       · la coupure tombe sur les MOTS (c'est du retour à la ligne normal) ;
+       · les points de suspension tombent à la fin de la DEUXIÈME ligne, pas de
+         la première — ce qui est exactement la demande ;
+       · ⭐ ET LA TUILE S'ADAPTE : « Corde », « Torche », « Fiole » tiennent sur
+         une ligne et n'en réservent pas deux. Réserver deux lignes pour tout
+         le monde ferait perdre des tuiles visibles pour du vide — le contraire
+         du but.
+     ⛔ `overflow-wrap: break-word` en DERNIER RECOURS seulement : il ne coupe
+     un mot que si le mot seul ne tient pas dans les 74 px. Sans lui, un nom
+     d'un seul mot très long déborderait au lieu de se couper.
+     📏 Le plancher de 44 px reste un MINIMUM tactile, pas un plafond : une
+     tuile plus haute ne pose aucun problème de doigt. */
+  .r-ligne .equipment-gear-name,
+  .r-depose.equipment-gear-name {
+    flex: 1 1 100%; min-width: 0;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--t1); line-height: 1.3;
+    overflow-wrap: break-word; word-break: normal;
+    color: var(--text);
   }
-  .r-ligne .equipment-gear-meta { white-space: nowrap; color: var(--text); opacity: .6; }
+
 
   /* ⭐ CE QUI EST AU-DESSUS DE `R` DANS CE BANC DOIT ÊTRE EXACTEMENT CE QUI
      SERA AU-DESSUS DE `R` DANS LE BUILDER : la ceinture, et rien d'autre.
@@ -452,8 +730,8 @@
      (leur `padding-top`, qui loge leur badge) : les deux colonnes démarrent
      donc à la même ordonnée, ce qui est la seule façon de comparer leurs
      hauteurs sans se mentir. */
-  .r-list-col { position: relative; padding-top: var(--sp-16); }
-  .r-list-badge { top: 0; left: 0; }
+  .r-list-col { position: relative; min-height: 0; }
+  .r-list-badge { top: 0; left: 0; right: auto; border-radius: var(--radius-md) 0 var(--radius-md) 0; }
 
   .r-list-vide { margin: 0; padding: var(--sp-16) 0; font-size: var(--t3); color: var(--text-muted); }
   /* ⚠️ CETTE LÉGENDE ET CE TITRE FLOTTENT SUR L'IMAGE DE FOND, sans dalle
@@ -481,7 +759,7 @@
 
 <!-- ══ LA CEINTURE DU BUILDER, INERTE — Eric, 2026-08-22 : « limite, simuler
      un belt statique faciliterait, non ? ». Oui, et c'est mieux qu'une
-     hauteur réservée en dur : un `calc(100vh - 60px)` devient faux le jour où
+     hauteur réservée en dur : un `calc(100dvh - 60px)` devient faux le jour où
      la ceinture change de cote, et PERSONNE ne le verrait — le banc mentirait
      en silence. Ce `.belt`-ci lit le même CSS que le builder ; si la cote
      bouge, le banc bouge avec. Troisième emprunt de la journée, après
@@ -506,9 +784,20 @@
      compte donc 0 px pour elle, et le relevé le dit à voix haute plutôt que de
      le laisser deviner. -->
 
-<div class="banc-scroll">
-<div class="banc">
+<div class="sonde-dvh" aria-hidden="true"></div>
 
+<!-- LA SCÈNE — tout ce qui sera à l'écran dans le builder, et rien d'autre.
+     ⛔ Elle NE DÉFILE PAS : `overflow: hidden`, comme `.app`. Ce qui n'y tient
+     pas se voit coupé — la carte, elle, ne bouge jamais. -->
+<div class="banc-scroll">
+  <!-- ⛔ PLUS DE `.banc` ENTRE LA ZONE ET LA SCÈNE, ET CE N'ÉTAIT PAS QU'UN
+       nœud de trop : il cassait la chaîne des hauteurs. `.scene` demande
+       `height: 100%` ; un parent sans hauteur définie rend ce pourcentage
+       AUTO, donc la colonne de tuiles grandissait à la taille de ses 32
+       tuiles — scène mesurée à 1 352 px pour 490 utiles. Et il portait un
+       `max-width: 900px` qui aurait bridé le centrage sur grand écran.
+       ⚠️ Un pourcentage de hauteur ne traverse pas un parent auto : c'est la
+       règle qui a mordu ici, et elle ne se voit qu'à la mesure. -->
   <div class="scene">
 
     <!-- ── R.list : LES TUILES, à GAUCHE, ET SANS CADRE ──────────────────
@@ -528,10 +817,10 @@
     </section>
 
     <!-- ── R : la colonne de commande, à DROITE ──────────────────────── -->
-    <div class="colonne-r">
+    <div class="colonne-r dalle-majeure">
 
       <!-- R.cat — le double carrousel -->
-      <section class="bloc dalle-majeure r-cat" aria-label="Sélection de catégorie">
+      <section class="bloc r-cat" aria-label="Sélection de catégorie">
         <span class="bloc-id">R.cat</span>
         <div class="belt" role="tablist" aria-label="Rayons">
           <div class="belt-track" id="belt-rayons"></div>
@@ -542,7 +831,7 @@
       </section>
 
       <!-- R.find — la recherche, et la bourse dessous -->
-      <section class="bloc dalle-majeure" aria-label="Recherche et bourse">
+      <section class="bloc" aria-label="Recherche et bourse">
         <span class="bloc-id">R.find</span>
         <div class="r-find-ligne">
           <input type="search" class="equipment-search-input" id="find-bar"
@@ -567,12 +856,11 @@
                   aria-label="Ajouter le montant">+</button>
           <button type="button" class="equipment-item-add r-argent-signe" id="argent-moins"
                   aria-label="Retirer le montant">−</button>
-          <p class="r-argent-dit" id="argent-dit"></p>
         </div>
       </section>
 
       <!-- R.bag -->
-      <section class="bloc dalle-majeure" aria-label="Backpack">
+      <section class="bloc" aria-label="Backpack">
         <span class="bloc-id">R.bag</span>
         <h3 class="bloc-titre">Backpack</h3>
         <!-- R.bag.image — PLACE RÉSERVÉE, taille fixe : la vraie image entrera
@@ -590,8 +878,9 @@
             </svg>
           </div>
           <div class="r-bag-dit">
-            <b>R.bag.image — place réservée</b>
-            <span>64 × 64 · l'image du sac à dos viendra ici · destination (B3 ou SB3.1) à trancher</span>
+            <!-- ⛔ La description longue est descendue dans le relevé, comme la
+                 note de l'ajusteur : c'était de la prose de banc dans l'écran. -->
+            <span>image réservée</span>
           </div>
         </div>
         <div class="glisse-creneaux r-recepteur">
@@ -603,7 +892,7 @@
       </section>
 
       <!-- R.craft -->
-      <section class="bloc dalle-majeure" aria-label="Craft">
+      <section class="bloc" aria-label="Craft">
         <span class="bloc-id">R.craft</span>
         <h3 class="bloc-titre">Craft</h3>
         <div class="glisse-creneaux r-recepteur">
@@ -618,6 +907,20 @@
     </div>
   </div>
 
+</div>
+</div>
+
+<!-- ⛔ HORS DE `.app`, ET C'EST LE POINT : la scène est vierge de tout mobilier
+     de banc, en haut comme en bas. Rien ne touche le bord bas, donc la marge
+     sous la carte se juge sans rien pour la brouiller. -->
+<div class="banc-outils" id="banc-outils">
+  <button type="button" id="banc-bouton">banc</button>
+</div>
+
+<div class="banc-panneau" id="banc-panneau" hidden>
+  <div class="banc-panneau-corps">
+  <button type="button" class="banc-fermer" id="banc-fermer">Fermer</button>
+
   <div class="variante banc-bloc dalle-majeure">
     <span class="variante-titre">Mémoire du bas</span>
     <button type="button" class="record-option" data-mode="A" data-active="true">A — le bas oublie</button>
@@ -625,10 +928,27 @@
     <p class="variante-dit" id="variante-dit"></p>
   </div>
 
+  <div class="banc-bloc dalle-majeure">
+    <span class="variante-titre">Sensibilité du glisser</span>
+    <div class="reglage">
+      <label for="reg-seuil">distance</label>
+      <!-- ⛔ Le minimum est 6, pas 0 : sous 6 px l'organe ne signale rien, il
+           n'y a donc rien à intercepter. Une borne honnête vaut mieux qu'un
+           curseur qui ne fait rien sur son premier tiers. -->
+      <input type="range" id="reg-seuil" min="6" max="24" step="2" value="6">
+      <output id="reg-seuil-val"></output>
+    </div>
+    <div class="reglage">
+      <label for="reg-k">angle</label>
+      <input type="range" id="reg-k" min="1" max="3" step="0.1" value="1">
+      <output id="reg-k-val"></output>
+    </div>
+    <p class="reglage-dit" id="reglage-dit"></p>
+  </div>
+
   <div class="mesures banc-bloc dalle-majeure" id="mesures">…</div>
 
-</div>
-</div>
+  </div>
 </div>
 
 <script type="module">
@@ -886,7 +1206,45 @@ function faireCran(nom, compte, courant, onClic) {
 /* Le même 6 px que `SEUIL_GLISSER`, et il est RECOPIÉ faute d'être exporté.
    ⚠️ Deux copies d'un seuil finissent par diverger : si l'axe est adopté,
    l'organe doit exporter le sien plutôt que laisser ses appelants le deviner. */
-const SEUIL_AXE = 6;
+/* ══ LA SENSIBILITÉ DU GESTE — DEUX RÉGLAGES, ET ILS SE SENTENT AU DOIGT ═
+   Eric, 2026-08-22 : *« possible de rajouter de la sensibilité au drag and
+   drop ou pas »*. Oui, et deux plutôt qu'un — parce que ce qui rate un geste
+   n'est pas toujours la même chose.
+
+   ① LA DISTANCE (`seuil`, 6 px par défaut) — sous elle c'est un tap, au-delà
+     un glisser. Le 6 vient de `glisser.mjs` et il est ARGUMENTÉ : *« un doigt
+     n'est jamais parfaitement immobile — 6 px laisse passer un tap tremblé
+     sans déclencher de fantôme »*. Il reste donc le défaut ; on ne le
+     remplace pas, on l'explore autour.
+
+   ② 🔴 L'ANGLE (`k`), ET C'EST LUI QUI COMPTE. La règle d'hier était
+     `|dx| > |dy|` — donc **45° est une lame de rasoir** : à 44° on prend
+     l'objet, à 46° on fait défiler. Or un pouce ne trace jamais droit, et
+     surtout pas en tirant vers la droite depuis une colonne de gauche : le
+     geste part en diagonale par nature. La règle devient `|dx| > k · |dy|` :
+
+       k = 1,0   la règle d'hier — 45°, la lame de rasoir
+       k = 1,5   il faut un horizontal net (~34°) ; défiler en biais reste défiler
+       k = 2,0   il faut vraiment tirer de côté (~27°) ; défiler devient très sûr
+       k = 3,0   presque à l'horizontale (~18°)
+
+   ⭐ CE RÉGLAGE N'EST PAS SYMÉTRIQUE, ET C'EST TOUT SON INTÉRÊT : plus `k`
+   monte, plus DÉFILER est sûr, et plus PRENDRE demande d'intention. Le bon
+   compromis se sent sur un pouce, pas sur un trackpad — d'où le banc.
+
+   ⚠️ CE QUE LE BANC PEUT ET NE PEUT PAS. `SEUIL_GLISSER` n'est pas exporté par
+   l'organe : notre copie peut MONTER le seuil (un geste entre 6 et `seuil`
+   redevient un tap, voir `armerSelonAxe`), jamais le DESCENDRE — sous 6,
+   l'organe ne signale rien et il n'y a rien à intercepter. La borne basse est
+   donc 6, et c'est une limite honnête, pas un choix.
+   📌 Si le réglage se révèle utile, il se porte DANS `glisser.mjs`, où cinq
+   écrans en profiteraient — comme pour l'axe. Le banc l'éprouve d'abord. */
+const REGLAGE = { seuil: 6, k: 1 };
+
+/* Le dernier geste jugé, pour que le relevé dise POURQUOI ça a raté. Sans
+   ça, Eric sent que « ça marche pas » sans savoir de combien il rate — et
+   c'est précisément l'information qui lui permet de choisir `k`. */
+const dernierGeste = { angle: null, axe: null, verdict: "—" };
 
 /** Arme un jeton pour le tap ET le glisser, mais n'accepte le glisser que
  *  s'il est HORIZONTAL. Rend l'état du geste, que les rappels consultent.
@@ -899,10 +1257,11 @@ const SEUIL_AXE = 6;
  *  et effacer trop tôt lui ferait lire un état vide. Le prochain appui le
  *  remet à neuf — c'est le seul moment sûr. */
 function armerSelonAxe(jeton, { onTap, onDepot, onHorsCible }) {
-  const geste = { axe: null, annule: false };
+  const geste = { axe: null, angle: null, annule: false };
 
   jeton.addEventListener("pointerdown", (ev) => {
     geste.axe = null;
+    geste.angle = null;
     geste.annule = false;
     delete jeton.dataset.axe;
     const x0 = ev.clientX;
@@ -912,11 +1271,14 @@ function armerSelonAxe(jeton, { onTap, onDepot, onHorsCible }) {
       if (geste.axe) return;
       const dx = e.clientX - x0;
       const dy = e.clientY - y0;
-      if (Math.hypot(dx, dy) < SEUIL_AXE) return;
+      if (Math.hypot(dx, dy) < REGLAGE.seuil) return;
       /* L'AXE SE DÉCIDE UNE FOIS, au franchissement du seuil, et ne se
          renégocie plus. Un geste qui change d'avis en cours de route est un
          geste qu'on ne peut pas apprendre. */
-      geste.axe = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      geste.axe = Math.abs(dx) > REGLAGE.k * Math.abs(dy) ? "x" : "y";
+      /* L'angle est gardé pour le RELEVÉ, pas pour la décision : la décision
+         est le rapport ci-dessus, l'angle en est la lecture humaine. */
+      geste.angle = Math.round(Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI);
       jeton.dataset.axe = geste.axe;
     };
     const annuler = () => { geste.annule = true; };
@@ -933,12 +1295,43 @@ function armerSelonAxe(jeton, { onTap, onDepot, onHorsCible }) {
     jeton.addEventListener("pointercancel", fin);
   });
 
+  /** Ce que le banc a décidé, et pourquoi — lu par le relevé. */
+  const juger = (verdict) => {
+    dernierGeste.angle = geste.angle;
+    dernierGeste.axe = geste.axe;
+    dernierGeste.verdict = verdict;
+    if (!panneauOuvert()) return;   // rien à rafraîchir si personne ne regarde
+    mesurer();
+  };
+
+  /* ⚠️ UN SEUIL RELEVÉ NE DOIT PAS CRÉER DE ZONE MORTE. L'organe décide à 6 px
+     et ne sait rien du nôtre : entre 6 et `REGLAGE.seuil`, il annonce un
+     GLISSER alors que le banc n'a pas encore tranché d'axe. Sans la ligne
+     ci-dessous, ces gestes-là ne feraient RIEN — ni tap, ni dépôt — et
+     monter le seuil aurait l'air de casser le tap. Un geste qui n'a pas
+     franchi NOTRE seuil est un tap, quoi qu'en dise l'organe. */
+  const sousLeSeuil = () => geste.axe === null;
+
   armerJeton(jeton, {
     /* UN TAP N'A PAS D'AXE : c'est un appui qui n'a jamais franchi le seuil.
        Un geste annulé n'en est pas un non plus. */
-    onTap: () => { if (!geste.axe && !geste.annule) onTap(); },
-    onDepot: (creneau) => { if (geste.axe === "x") onDepot(creneau); },
-    onHorsCible: () => { if (geste.axe === "x" && onHorsCible) onHorsCible(); }
+    onTap: () => {
+      if (geste.annule) { juger("annulé (pointercancel)"); return; }
+      juger("tap");
+      onTap();
+    },
+    onDepot: (creneau) => {
+      if (geste.annule) { juger("annulé (pointercancel)"); return; }
+      if (sousLeSeuil()) { juger(`tap (sous le seuil de ${REGLAGE.seuil} px)`); onTap(); return; }
+      if (geste.axe === "x") { juger(`déposé dans ${creneau}`); onDepot(creneau); return; }
+      juger("REFUSÉ — geste vertical");
+    },
+    onHorsCible: () => {
+      if (geste.annule) { juger("annulé (pointercancel)"); return; }
+      if (sousLeSeuil()) { juger(`tap (sous le seuil de ${REGLAGE.seuil} px)`); onTap(); return; }
+      if (geste.axe === "x") { juger("lâché hors cible"); if (onHorsCible) onHorsCible(); return; }
+      juger("REFUSÉ — geste vertical");
+    }
   });
 }
 
@@ -971,9 +1364,6 @@ function dessinerBourse() {
     return b;
   }));
 
-  document.getElementById("argent-dit").textContent =
-    `R.purse.ajust — le MJ donne, ou le joueur se corrige. Pas de « vendre » : `
-    + `retirer un objet du sac ne rend pas l'argent.`;
 }
 
 /** AJUSTER — `signe` vaut +1 ou −1. ⛔ Jamais en dessous de zéro : une bourse
@@ -1016,7 +1406,12 @@ function reprendre(creneau) {
  *  garde son ascenseur, et le geste se distingue par sa DIRECTION.
  *  Voir `armerSelonAxe` plus haut — c'est là que la règle vit. */
 function faireLigne(etagere, n) {
-  const objet = `${etagere} — exemple ${String(n).padStart(2, "0")}`;
+  /* ⭐ DES NOMS DE LA LONGUEUR RÉELLE, pas « exemple 01 ». Le sujet du jour
+     EST la longueur des noms : un banc qui n'éprouve que des libellés courts
+     aurait déclaré la tuile bonne alors que « Baguette de détection de la
+     magie » ne tient pas. Le nom de l'étagère fournit la vraie mesure, et le
+     numéro garde chaque ligne distincte. */
+  const objet = `${etagere} ${String(n).padStart(2, "0")}`;
 
   const ligne = document.createElement("button");
   ligne.type = "button";
@@ -1026,13 +1421,14 @@ function faireLigne(etagere, n) {
   nom.className = "equipment-gear-name";
   nom.textContent = objet;
 
-  const meta = document.createElement("span");
-  meta.className = "equipment-gear-meta";
-  /* Deux nombres qui varient sans hasard : le banc doit rendre la MÊME page
-     deux fois de suite, sinon Eric compare deux dessins différents. */
-  meta.textContent = `${1 + (n * 3) % 12} lb · ${1 + (n * 7) % 90} gp`;
-
-  ligne.append(nom, meta);
+  /* ⛔ PLUS DE LIGNE DE MESURES — Eric, 2026-08-22 : *« faut vraiment que juste
+     le titre s'affiche »*. Troisième état de cette tuile en une heure, et
+     c'est le bon usage d'un banc : il itère sur ce qu'il VOIT. Cette consigne
+     REMPLACE les deux précédentes (le poids retiré, puis remis sous le nom) ;
+     on ne cherche pas à les concilier.
+     📌 Le poids et le prix vivent sur la fiche de l'objet, qu'on ouvre au tap.
+     Rien n'est perdu — c'est une question de PRIORITÉ dans la vitrine. */
+  ligne.append(nom);
 
   armerSelonAxe(ligne, {
     /* LE TAP : dans le premier récepteur libre. S'il n'y en a plus, on ne
@@ -1058,21 +1454,24 @@ function dessinerRecepteurs() {
     const objet = recepteurs[clef];
     slot.dataset.rempli = objet === null ? "false" : "true";
 
-    const nom = document.createElement("span");
-    nom.className = "glisse-creneau-nom";
-    nom.textContent = NOM_SLOT[clef];
-
+    /* ⛔ PLUS D'ÉTIQUETTE `R.BAG.SLOT` DANS LA CASE : le badge du bloc la nomme
+       déjà, et dans une case de 74 px elle occupait la place de ce qu'on y
+       dépose. Un creux se lit à sa FORME, pas à sa légende. */
     if (objet === null) {
       const vide = document.createElement("span");
       vide.className = "glisse-creneau-valeur";
-      vide.textContent = "déposer ici";
-      swapContent(slot, [nom, vide]);
+      vide.textContent = "déposer";
+      swapContent(slot, [vide]);
       continue;
     }
 
     const pose = document.createElement("button");
     pose.type = "button";
-    pose.className = "glisse-creneau-valeur r-depose";
+    /* ⭐ LA MÊME CLASSE QUE DANS UNE TUILE — donc la même coupure sur deux
+       lignes, le même corps, la même ellipse. Un seul code pour les deux
+       endroits : c'est ce que « le récepteur a la taille de l'item » veut dire
+       jusqu'au bout. */
+    pose.className = "equipment-gear-name r-depose";
     pose.textContent = objet;
     pose.title = objet;
     armerJeton(pose, {
@@ -1089,7 +1488,7 @@ function dessinerRecepteurs() {
          exprès — voir `onHorsCible` dans son en-tête. */
       onHorsCible: () => reprendre(clef)
     });
-    swapContent(slot, [nom, pose]);
+    swapContent(slot, [pose]);
   }
 }
 
@@ -1172,7 +1571,12 @@ function budgetHauteur() {
   const fenetre = window.innerHeight;
   const belt = h("#belt-chassis");
   const topbar = 0;                       // tranché : `R` ne s'en sert pas
-  const utile = fenetre - belt - topbar;
+  /* 🔴 L'UTILE SE MESURE, IL NE SE SOUSTRAIT PLUS. `fenêtre − belt` supposait
+     que `innerHeight` soit la place réelle — l'hypothèse exacte qui a produit
+     « la carte n'est pas fixe » sur l'iPhone d'Eric. On lit maintenant la
+     hauteur de la zone que `.app` attribue vraiment à la scène : c'est le
+     navigateur qui répond, barres de Safari comprises. */
+  const utile = h(".banc-scroll");
 
   const blocs = [...document.querySelectorAll(".colonne-r > .bloc")];
   const detail = blocs.map((b) => {
@@ -1186,14 +1590,67 @@ function budgetHauteur() {
      d'ascenseur. Le banc pose la question avec le nombre. */
   const reste = utile - carte;
   const scene = Math.round(document.querySelector(".scene").getBoundingClientRect().height);
-  const empilee = window.matchMedia("(max-width: 640px)").matches;
+  /* La tuile se remesure ici : `budgetHauteur` est appelée depuis `mesurer`,
+     mais elle ne partage pas ses locales — et une valeur passée en argument de
+     plus se serait périmée le jour où l'ordre des appels change. */
+  const tuile = listeBoite.querySelector(".r-ligne");
+  const tuileBox = tuile ? tuile.getBoundingClientRect() : { width: 0, height: 0 };
 
-  return `\n`
+
+  /* ══ LA LIGNE QUI NE PEUT PAS MENTIR ═════════════════════════════════
+     Trois hauteurs côte à côte : ce que le script croit (`innerHeight`), ce
+     que Safari laisse vraiment (`visualViewport`), et ce que le CSS applique
+     (`100dvh`, lu sur la sonde). Sur un bureau les trois sont égales — c'est
+     pour ça que l'émulateur nous a menti à tous les deux. Sur un iPhone elles
+     divergent, et l'écart est le nombre de pixels que le banc s'inventait. */
+  const dvh = Math.round(document.querySelector(".sonde-dvh").getBoundingClientRect().height);
+  const vv = window.visualViewport ? Math.round(window.visualViewport.height) : fenetre;
+  const accord = fenetre === vv && vv === dvh;
+
+  /* ══ L'ARBITRAGE ENTIER, SUR QUATRE LIGNES ══════════════════════════
+     Les quatre chiffres qui bougent ENSEMBLE quand on déplace le curseur de
+     partage. Sans eux, élargir les tuiles se choisit à l'aveugle : on voit ce
+     qu'on gagne (des noms lisibles) et jamais ce qu'on paie (une carte plus
+     étroite, donc plus haute, donc qui déborde davantage). */
+  const t = nomsTronques();
+  const railL = Math.round(document.querySelector(".r-list-col").getBoundingClientRect().width);
+  const carteL = Math.round(document.querySelector(".colonne-r").getBoundingClientRect().width);
+  const debord = carte - utile;
+  /* ⭐ LES TROIS CHIFFRES QUI DISENT D'UN COUP SI LE CADRAGE TIENT : la
+     largeur EFFECTIVE de la colonne (entre ses deux bornes), ce qu'elle
+     tronque encore, et le vide qui reste de chaque côté. Les deux vides
+     doivent être ÉGAUX — c'est la preuve du centrage, et elle se lit sans
+     calculer. */
+  const sceneBox = document.querySelector(".scene").getBoundingClientRect();
+  const groupe = Math.round(railL + carteL);
+  const videG = Math.round(document.querySelector(".r-list-col").getBoundingClientRect().left - sceneBox.left);
+  const videD = Math.round(sceneBox.right - document.querySelector(".colonne-r").getBoundingClientRect().right);
+  const arbitrage = `\n`
+    + `── cadrage ───────────────────────────────────────────────\n`
+    + `tuiles           ${railL} px   (plancher 90 · plafond 140, mesurés)\n`
+    + `noms tronqués    ${t.tronques} sur ${t.total}\n`
+    + `carte            ${carteL} px   (--card-w, plafond ${getComputedStyle(document.documentElement).getPropertyValue("--card-w").trim()})\n`
+    + `groupe           ${groupe} px\n`
+    + `vide g. / d.     ${videG} / ${videD} px   ${videG === videD ? "✓ centré" : `✗ décalé de ${Math.abs(videG - videD)} px`}\n`
+    + `hauteur carte    ${carte} px → ${debord > 0 ? `DÉBORDE de ${debord} px` : `il reste ${-debord} px`}\n`
+    + `crans R.cat      ${cransEntiers(belts.rayons)} entiers sur ${belts.rayons.children.length}\n`
+    + `tuiles visibles  ${lignesVisibles()}\n`;
+
+  return arbitrage + `\n`
+    + `── viewport ──────────────────────────────────────────────\n`
+    + `innerHeight      ${fenetre} px\n`
+    + `visualViewport   ${vv} px\n`
+    + `100dvh (sonde)   ${dvh} px\n`
+    + `                 ${accord
+        ? "les trois s'accordent — écran sans chrome mobile (bureau ou émulateur)"
+        : `✗ ILS DIVERGENT de ${Math.max(fenetre, vv, dvh) - Math.min(fenetre, vv, dvh)} px — `
+          + "les barres de Safari. C'est ce que `vh` ignorait."}\n`
+    + `\n`
     + `── budget de hauteur ─────────────────────────────────────\n`
     + `fenêtre          ${fenetre} px\n`
     + `belt (mesuré)    ${belt} px   ceinture réelle, posée dans le banc\n`
     + `stage-topbar     ${topbar} px   TRANCHÉ : R ne s'en sert pas (bourse dans R.find, catégories dans R.cat)\n`
-    + `utile            ${utile} px\n`
+    + `utile            ${utile} px   MESURÉ sur la zone que .app attribue, jamais soustrait\n`
     + `carte R          ${carte} px   ${detail}\n`
     + `reste sous R     ${reste} px   ${reste >= 0 ? "✓ la carte tient" : "✗ la carte DÉBORDE — que porte-t-elle en trop ?"}\n`
     + `coulisse gauche  ${coulisse} px sur ${utile} utiles   ${coulisse <= utile ? "✓" : "✗ dépasse"}\n`
@@ -1202,8 +1659,28 @@ function budgetHauteur() {
        décide ; EMPILÉES (≤ 640 px), elles s'ADDITIONNENT. C'est là que ça
        casse en premier, et le relevé le dit avec le nombre plutôt que de
        laisser la surprise pour le builder. */
-    + `scène (${empilee ? "empilée" : "2 colonnes"})  ${scene} px sur ${utile} utiles   `
-    + `${scene <= utile ? "✓ tout tient sans défiler" : `✗ dépasse de ${scene - utile} px — la page défilera`}\n`;
+    + `scène (2 colonnes) ${scene} px sur ${utile} utiles   `
+    /* ⛔ « LA PAGE DÉFILERA » ÉTAIT FAUX DEPUIS LE PASSAGE EN `dvh` : la scène
+       est en `overflow: hidden`, donc rien ne défile — ce qui dépasse est
+       COUPÉ, et la carte ne bouge pas. C'est exactement ce qu'Eric demandait,
+       et le verdict doit dire ce qui arrive vraiment. */
+    + `${scene <= utile ? "✓ tout tient" : `✗ dépasse de ${scene - utile} px — coupé en bas (la carte, elle, ne bouge pas)`}\n`
+    /* ══ LES DEUX ÉCRANS CÔTE À CÔTE, CE QU'ERIC A FAIT SUR SON IPHONE ═════
+       Les chiffres de Species sont RELEVÉS dans le vrai builder à 375 × 812
+       (`index.html`, même serveur, 2026-08-22), pas estimés. Les mettre ici
+       est ce qui rend l'écart lisible sans changer d'écran. */
+    + `\n── Species (relevé) vs R (mesuré ici), à 375 ──────────────\n`
+    + `                 Species              R\n`
+    + `belt             60                   ${belt}\n`
+    + `stage-topbar     0                    ${topbar}\n`
+    + `utile            752                  ${utile}${utile < 700 ? "  ← chrome mobile réel" : ""}\n`
+    + `colonne étroite  90 (--rail-w)        ${Math.round(document.querySelector(".r-list-col").getBoundingClientRect().width)}\n`
+    + `colonne large    285                  ${Math.round(document.querySelector(".colonne-r").getBoundingClientRect().width)}\n`
+    + `air de la carte  8 px (.fiche-dalle)  ${getComputedStyle(document.querySelector(".colonne-r")).padding}\n`
+    + `écart interne    8 px                 ${getComputedStyle(document.querySelector(".colonne-r")).gap}\n`
+    + `carte            440 (F1 dans 752)    ${carte}\n`
+    + `item étroit      74 × 30 · --t2       ${Math.round(tuileBox.width)} × ${Math.round(tuileBox.height)} · --t2\n`
+    + `la page défile   non                  ${scene <= utile ? "non ✓" : "OUI ✗"}\n`;
 }
 
 /** Combien de crans ENTIERS une piste montre — le critère d'Eric, mesuré à
@@ -1250,11 +1727,23 @@ function mesurer() {
     + `débordement      haut ${debordeHaut ? "oui" : "non"} · bas ${debordeBas ? "oui" : "non"}  (la piste défile)\n`
     + `tuiles R.list    ${lignesVisibles()} visibles · ${listeBoite.children.length} en tout · tuile = ${hauteurLigne} px\n`
     + `récepteurs       bag ${recepteurs.bag ?? "—"} · craft ${recepteurs.craft ?? "—"}\n`
+    + `sensibilité      distance ${REGLAGE.seuil} px · angle k ${REGLAGE.k.toFixed(1)} (${angleDeK(REGLAGE.k)}°)\n`
+    /* ⭐ LE DERNIER GESTE, ET SURTOUT SON ANGLE. Un refus muet se lit « ça
+       marche pas » ; un refus chiffré se lit « j'ai raté de 18° », et c'est ce
+       qui permet de choisir `k` plutôt que de le subir. */
+    + `dernier geste    ${dernierGeste.angle === null
+        ? "aucun"
+        : `${dernierGeste.angle}° · ${dernierGeste.axe ?? "sous le seuil"} → ${dernierGeste.verdict}`}`
+    + `${dernierGeste.verdict.startsWith("REFUSÉ")
+        ? `   (il fallait moins de ${angleDeK(REGLAGE.k)}°)`
+        : ""}\n`
     + `cote F1          ${COTE_F1}  (lue dans fiche.css, jamais recopiée)\n`
     + `zone de coulisse ${Math.round(listeBoite.getBoundingClientRect().height)} px — sans cadre, tuiles posées sur le fond\n`
     + `bourse           ${BOURSE.map((c) => `${bourse[c]} ${c}`).join(" · ")}   ajustable à la main (3ᵉ geste, pas de « sell »)\n`
-    + `R.bag.image      place réservée 64 × 64 — destination B3 ou SB3.1, non tranchée\n`
+    + `R.bag.image      place réservée 48 × 48 — destination B3 ou SB3.1, non tranchée\n`
     + `fond             ${fondPose ? "posé (.app, --bg-image)" : "ABSENT — rien ne se juge"}\n`
+    + `R.purse.ajust    le MJ donne, ou le joueur se corrige. ⛔ pas de « vendre » :\n`
+    + `                 retirer un objet du sac ne rend pas l'argent (acheter · gratuit · ajuster)\n`
     + budgetHauteur()
     + `mode             ${mode} — ${mode === "A" ? "le bas oublie" : "le bas se souvient"}\n`
     + `ouvert sur       ${rayonCourant} › ${etagereChoisie}`;
@@ -1310,9 +1799,75 @@ swapContent(document.getElementById("belt-etapes"), ETAPES.map((mot, i) => {
   return cran;
 }));
 
+/* ══ LE PANNEAU DU BANC — il se superpose, il n'habite pas la scène ══════
+   ⭐ Le relevé n'est recalculé qu'à L'OUVERTURE : mesurer en continu un
+   panneau fermé ne sert personne, et `mesurer()` lit une trentaine de
+   rectangles. Un banc n'a pas à peser sur le geste qu'il éprouve. */
+const panneau = document.getElementById("banc-panneau");
+function panneauOuvert() { return !panneau.hidden; }
+function ouvrirPanneau(ouvert) {
+  panneau.hidden = !ouvert;
+  if (ouvert) mesurer();
+}
+document.getElementById("banc-bouton").addEventListener("click", () => ouvrirPanneau(true));
+document.getElementById("banc-fermer").addEventListener("click", () => ouvrirPanneau(false));
+/* Le voile ferme, le corps non — sinon régler un curseur refermerait tout. */
+panneau.addEventListener("click", (e) => { if (e.target === panneau) ouvrirPanneau(false); });
+
+/** COMBIEN DE NOMS SONT ENCORE TRONQUÉS — mesuré sur TOUTES les tuiles de
+ *  l'étagère, jamais sur un échantillon ni à l'œil.
+ *
+ *  🔴 ET LE TEST EST VERTICAL, PAS HORIZONTAL. La consigne disait de comparer
+ *  `scrollWidth` à `clientWidth` — c'est le bon test pour une ellipse sur UNE
+ *  ligne, et il ne voit plus rien depuis que le nom se déplie : `line-clamp`
+ *  coupe en HAUTEUR. Un nom tronqué a donc `scrollHeight > clientHeight`, et
+ *  sa largeur, elle, tient parfaitement. Le test d'hier aurait rendu « 0
+ *  tronqué » sur trente-deux baguettes coupées. */
+function nomsTronques() {
+  const noms = listeBoite.querySelectorAll(".equipment-gear-name");
+  let n = 0;
+  for (const nom of noms) if (nom.scrollHeight > nom.clientHeight + 1) n += 1;
+  return { tronques: n, total: noms.length };
+}
+
+/* ── LES DEUX CURSEURS DE SENSIBILITÉ ───────────────────────────────────
+   ⭐ L'ANGLE EST AFFICHÉ EN DEGRÉS À CÔTÉ DU RAPPORT : `k = 1,5` ne dit rien à
+   un pouce, « 34° » si. La conversion est `atan(1/k)` — l'angle au-delà duquel
+   le geste bascule du côté vertical. */
+const regSeuil = document.getElementById("reg-seuil");
+const regK = document.getElementById("reg-k");
+const regDit = document.getElementById("reglage-dit");
+
+function angleDeK(k) { return Math.round(Math.atan(1 / k) * 180 / Math.PI); }
+
+function poserReglages() {
+  REGLAGE.seuil = Number(regSeuil.value);
+  REGLAGE.k = Number(regK.value);
+  document.getElementById("reg-seuil-val").textContent = `${REGLAGE.seuil} px`;
+  document.getElementById("reg-k-val").textContent =
+    `k ${REGLAGE.k.toFixed(1)} · ${angleDeK(REGLAGE.k)}°`;
+  regDit.textContent =
+    `Au-delà de ${REGLAGE.seuil} px, un geste plus incliné que ${angleDeK(REGLAGE.k)}° `
+    + `compte comme un défilement ; en deçà, il prend l'objet. `
+    + `Plus k monte, plus défiler est sûr et plus prendre demande d'intention.`;
+  if (panneauOuvert()) mesurer();
+}
+regSeuil.addEventListener("input", poserReglages);
+regK.addEventListener("input", poserReglages);
+poserReglages();
+
 dessinerBourse();
 poserMode("A");
 window.addEventListener("resize", () => mesurer());
+/* 🔴 ET `visualViewport`, QUI EST LE SEUL À PARLER SUR IPHONE. Quand la barre
+   d'adresse de Safari se replie, la place disponible change de ~100 px SANS
+   qu'un `resize` de fenêtre soit garanti — le relevé afficherait alors des
+   chiffres périmés au moment précis où Eric regarde s'ils divergent. C'est le
+   même défaut que `vh`, une couche plus haut : croire que `window` sait. */
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => mesurer());
+  window.visualViewport.addEventListener("scroll", () => mesurer());
+}
 
 /* ══ LA RÈGLE — pour qu'Eric puisse me contredire ═══════════════════════
    Eric, 2026-08-22 : *« je ne te crois pas et j'ai aucun moyen de te
@@ -1334,10 +1889,16 @@ window.addEventListener("resize", () => mesurer());
   bouton.type = "button";
   bouton.id = "regle-bouton";
   bouton.textContent = "Afficher la règle";
-  bouton.style.cssText = "position:fixed;right:12px;bottom:12px;z-index:10000;padding:8px 12px;"
-    + "font:600 13px/1 system-ui,sans-serif;border-radius:8px;border:1px solid #0006;"
-    + "background:#e8c07d;color:#1a1a1a;cursor:pointer";
-  document.body.append(bouton);
+  /* 🔴 IL ÉTAIT EN BAS À DROITE, ET IL RECOUVRAIT `GET BACK` sur les captures
+     d'Eric. Il rejoint la barre d'outils du banc, en bas à GAUCHE, dans le
+     coin mort sous la colonne de tuiles — le seul endroit de l'écran où aucun
+     élément de `R` ne vit. Il garde sa teinte : Eric le reconnaît, et il a
+     demandé à garder la règle. */
+  bouton.style.cssText = "padding:3px 5px;font:600 10px/1.2 system-ui,sans-serif;"
+    + "border-radius:8px;border:1px solid #0006;background:#e8c07d;color:#1a1a1a;"
+    + "cursor:pointer;opacity:.85";
+  bouton.textContent = "règle";
+  (document.getElementById("banc-outils") || document.body).append(bouton);
 
   const trait = (haut, texte, couleur) => {
     const l = document.createElement("div");
@@ -1364,11 +1925,23 @@ window.addEventListener("resize", () => mesurer());
   };
 
   const dessiner = () => {
-    while (nid.firstChild) nid.removeChild(nid.firstChild);
+    /* ⛔ `removeChild` ÉTAIT ÉCRIT ICI, et `tests/socle.test.mjs` l'interdit
+       dans tout `ui/builder/` au même titre qu'`innerHTML` — le garde ne
+       balaye aujourd'hui que les `.mjs`, donc il n'a rien dit. Le geste est
+       le même : on passe par le seul remplaçant du dépôt. */
+    swapContent(nid, []);
     const belt = document.querySelector(".belt");
     const scene = document.querySelector(".banc-scroll");
-    const carte = document.querySelector(".r-carte") || document.querySelector(".r-cat")?.parentElement;
-    const liste = document.querySelector(".r-list-coulisse") || document.querySelector("[class*=r-list]");
+    /* 🔴 CES DEUX SÉLECTEURS ÉTAIENT FAUX, et l'overlay ne le disait pas :
+       `.r-carte` et `.r-list-coulisse` n'existent nulle part dans ce banc. Le
+       premier retombait sur le PARENT de `.r-cat` (juste par chance la carte),
+       le second sur `[class*=r-list]` — qui attrape `.r-list-col`, le
+       conteneur, et pas la zone qui coulisse. Les cadres encadraient donc
+       autre chose que ce qu'ils annonçaient, en silence.
+       ⭐ Nommés en dur maintenant, sans repli : un cadre qui ne trouve pas sa
+       cible ne se dessine pas, plutôt que d'en encadrer une autre. */
+    const carte = document.querySelector(".colonne-r");
+    const liste = document.querySelector(".r-tuiles");
     if (belt) cadre(belt.getBoundingClientRect(), "belt (châssis)", "#7fd1ff");
     if (carte) cadre(carte.getBoundingClientRect(), "R — la carte", "#e8c07d");
     if (liste) cadre(liste.getBoundingClientRect(), "les tuiles", "#9fe38a");
@@ -1382,7 +1955,7 @@ window.addEventListener("resize", () => mesurer());
   bouton.addEventListener("click", () => {
     const on = nid.style.display === "none";
     nid.style.display = on ? "block" : "none";
-    bouton.textContent = on ? "Cacher la règle" : "Afficher la règle";
+    bouton.textContent = on ? "règle ✓" : "règle";
     if (on) dessiner();
   });
   window.addEventListener("resize", () => { if (nid.style.display === "block") dessiner(); });

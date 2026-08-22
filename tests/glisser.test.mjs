@@ -530,3 +530,77 @@ test("7 bis — ⚔️ dans le budget, rien ne rougit", () => {
   const n = renderChoixGlisses({ plan, slots: slotsDe(["athletics"]), titre: "Budget" });
   assert.equal(n.dataset.trop, "false", "sans dépassement, le garde ne doit pas mordre");
 });
+
+/* ══ 12 — LA CAPTURE NE SE PREND QU'AU SOULÈVEMENT (incident du 22/08) ════
+   🔴 CE GARDE EXISTE PARCE QUE LA PANNE ÉTAIT MUETTE ET LOIN DE SA CAUSE.
+   Eric, iPhone : *« défilement vertical toujours bloqué »* sur une liste dont
+   chaque ligne est un jeton. Rien ne rougissait : les cinq écrans qui
+   emploient cet organe posent leurs jetons sur des surfaces qui NE DÉFILENT
+   PAS, donc aucun ne pouvait sentir la différence.
+
+   CE QU'IL TIENT, et c'est en deux moitiés parce que le défaut l'était :
+     · AVANT le seuil, AUCUNE capture — sur iOS, capturer un pointeur annule le
+       défilement natif pour ce geste, et `touch-action: pan-y` n'a plus sa
+       chance. C'est la moitié qui manquait.
+     · APRÈS le soulèvement, capture PRISE — sans elle, `pointerup` se perd dès
+       que le doigt sort de la boîte du jeton. C'est la moitié qu'on garde, et
+       la retirer casserait le glisser au lieu de réparer le défilement.
+
+   ⚠️ LE `document` DE TEST N'A PAS `setPointerCapture` : c'est le test qui le
+   FOURNIT, exactement comme il fournit `elementFromPoint` et `setTimeout` plus
+   haut. Une API de navigateur qu'on injecte pour pouvoir la juger. */
+
+/** Un jeton armé qui NOTE ses captures, sans en faire quoi que ce soit. */
+function jetonMouchard(rappels = {}) {
+  const brut = document.createElement("button");
+  const captures = [];
+  brut.setPointerCapture = (id) => captures.push(id);
+  armerJeton(brut, { onTap: () => {}, onDepot: () => {}, ...rappels });
+  return { brut, captures };
+}
+
+test("12 — ⚔️ AUCUNE capture tant que le seuil n'est pas franchi : le doigt doit pouvoir défiler", () => {
+  const { brut, captures } = jetonMouchard();
+  document.elementFromPoint = () => null;
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" });
+  assert.deepEqual(captures, [], "capturer à l'appui annule le défilement natif d'iOS — c'est le défaut du 22/08");
+
+  /* Un doigt qui descend de 5 px n'a rien décidé : sous `SEUIL_GLISSER`, le
+     navigateur doit rester libre de faire défiler. */
+  brut.dispatchEvent({ type: "pointermove", clientX: 0, clientY: 5, pointerId: 7 });
+  assert.deepEqual(captures, [], "sous le seuil, l'organe OBSERVE — il ne prend rien");
+
+  brut.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 5, pointerId: 7 });
+  assert.deepEqual(captures, [], "et un tap tremblé n'aura jamais rien capturé du tout");
+});
+
+test("12 bis — ⚔️ la capture EST prise au soulèvement, une seule fois, avec le bon pointeur", () => {
+  const trace = [];
+  const { brut, captures } = jetonMouchard({ onLever: () => trace.push("lever") });
+  document.elementFromPoint = () => null;
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 7 });
+  assert.deepEqual(captures, [7], "franchi le seuil : sans capture, `pointerup` se perdrait hors de la boîte");
+  assert.deepEqual(trace, ["lever"], "et elle tombe au MÊME instant que le soulèvement, pas avant, pas après");
+
+  /* ⛔ Une capture par geste, pas une par image : `bouge` court à chaque
+     pixel, et seul le passage à `glisse` doit la prendre. */
+  brut.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 0, pointerId: 7 });
+  brut.dispatchEvent({ type: "pointermove", clientX: 120, clientY: 0, pointerId: 7 });
+  assert.deepEqual(captures, [7], "une seule capture pour tout le geste");
+});
+
+test("12 ter — un jeton SANS `setPointerCapture` glisse quand même (le rappel reste facultatif)", () => {
+  /* ⛔ La garde `typeof … === "function"` n'est pas de la prudence décorative :
+     elle est ce qui rend cet organe éprouvable hors navigateur, et c'est à ce
+     titre que les onze tests au-dessus existent. Déplacer la capture ne doit
+     pas l'avoir rendue obligatoire en douce. */
+  const deposes = [];
+  const brut = document.createElement("button");
+  armerJeton(brut, { onTap: () => deposes.push("tap"), onDepot: (c) => deposes.push(c) });
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "bag" } }) });
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  brut.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(deposes, ["bag"], "aucune capture disponible, et le dépôt tombe quand même");
+});

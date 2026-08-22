@@ -25,6 +25,34 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
+/* ══ 🔴 L'INCIDENT DU 22/08 — LA CAPTURE MANGEAIT LE DÉFILEMENT ══════════
+   Eric, sur son iPhone, page rechargée : *« défilement vertical toujours
+   bloqué »*. Une liste d'objets qui défile, dont chaque ligne est un jeton :
+   le doigt ne pouvait plus la parcourir.
+
+   🔴 LA CAUSE ÉTAIT ICI, ET ELLE NE SE VOYAIT PAS. `setPointerCapture` était
+   pris dans le gestionnaire d'APPUI, sans condition — avant le seuil de 6 px,
+   avant toute décision. Or capturer un pointeur sur iOS ANNULE le défilement
+   natif pour ce geste : le navigateur rend le pointeur à l'élément et cesse de
+   faire défiler. `touch-action: pan-y` n'avait jamais sa chance, quoi qu'en
+   déclare la feuille.
+
+   ⭐ LA LEÇON, ET ELLE EST DANS CE FICHIER DEPUIS LE DÉBUT : **deux mécanismes
+   bloquaient le défilement, un seul avait été rendu conditionnel.** Le
+   `preventDefault` de `retenir` ne mord qu'une fois le jeton soulevé, et son
+   commentaire le dit en toutes lettres — *« tant que le jeton dort, le doigt
+   défile »*. La capture, elle, mordait dès l'appui. On avait donc pensé à la
+   moitié du problème, et écrit la moitié de la parade.
+
+   📌 POURQUOI PERSONNE NE L'AVAIT VU : les cinq écrans qui emploient cet organe
+   (Abilities, Concept, Class, Inheritance, Species) posent leurs jetons sur des
+   surfaces QUI NE DÉFILENT PAS — elles assument `touch-action: none`. `R.list`
+   est la première où il faut pouvoir faire les deux, et c'est elle qui a
+   révélé un défaut vieux de trois lots.
+   ⭐ LA RÈGLE QU'ON EN TIRE : tout ce qui prive le navigateur d'un geste doit
+   être conditionné au moment où l'organe DÉCIDE, jamais au moment où il
+   observe. Observer est gratuit ; décider ne l'est pas. */
+
 const SEUIL_GLISSER = 6;
 
 /* ══ 🧊 LE MAINTIEN A ÉTÉ RETIRÉ — Eric, 2026-08-20 ══════════════════════
@@ -178,15 +206,10 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     let vise = null;
     /* 🧊 LE JETON EST TOUJOURS SOULEVÉ. Il attendait 350 ms là où une grille
        défilait sous lui ; plus aucune ne défile (voir la tête du fichier). */
-    /* La capture garde les événements sur CE jeton même si le doigt sort de
-       sa boîte — sans elle, `pointerup` se perdrait dès le premier pixel.
-       ⚠️ FACULTATIVE, ET POUR DEUX RAISONS RÉELLES : un pointeur peut avoir
-       cessé d'exister entre l'événement et cet appel (le navigateur jette
-       alors `NotFoundError`), et le geste doit rester ÉPROUVABLE hors
-       navigateur — sans quoi le seul juge de cet organe serait l'œil. */
-    if (typeof jeton.setPointerCapture === "function") {
-      try { jeton.setPointerCapture(ev.pointerId); } catch { /* pointeur déjà fini */ }
-    }
+    /* 🔴 LA CAPTURE NE SE PREND PLUS ICI — voir « L'INCIDENT DU 22/08 » en tête
+       de ce fichier. Elle est descendue dans `bouge`, à l'instant où le glisser
+       est DÉCIDÉ. La prendre à l'appui annulait le défilement natif d'iOS avant
+       que `touch-action: pan-y` ait eu sa chance. */
 
     /* 🔴 CE QUI EMPÊCHE LA GRILLE DE DÉFILER SOUS UN JETON SOULEVÉ, et c'est
        la SEULE chose qui le peut. `touch-action` est une déclaration prise à
@@ -216,6 +239,25 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
       if (!glisse) {
         glisse = true;
+        /* ⭐ LA CAPTURE SE PREND ICI, ET NULLE PART AVANT. Elle garde les
+           événements sur CE jeton même si le doigt sort de sa boîte — sans
+           elle, `pointerup` se perdrait au premier pixel hors cadre. Mais elle
+           n'a de raison d'être qu'une fois le glisser COMMENCÉ : avant, il n'y
+           a rien à retenir, et la prendre coûtait le défilement (22/08).
+           ⚠️ RIEN N'EST PERDU ENTRE 0 ET 6 PX, et ce n'est pas un pari : un
+           pointeur TACTILE est capturé IMPLICITEMENT par sa cible (spécification
+           Pointer Events, « implicit pointer capture »), donc les `pointermove`
+           du doigt reviennent ici de toute façon. Pour la souris, il n'y a pas
+           de capture implicite — mais parcourir six pixels sans quitter un
+           jeton d'au moins 44 px n'est pas un cas qu'on ait à couvrir, et la
+           souris ne fait pas défiler une liste au `touch-action`.
+           ⚠️ FACULTATIVE, ET POUR DEUX RAISONS RÉELLES : un pointeur peut avoir
+           cessé d'exister entre l'événement et cet appel (le navigateur jette
+           alors `NotFoundError`), et le geste doit rester ÉPROUVABLE hors
+           navigateur — sans quoi le seul juge de cet organe serait l'œil. */
+        if (typeof jeton.setPointerCapture === "function") {
+          try { jeton.setPointerCapture(e.pointerId); } catch { /* pointeur déjà fini */ }
+        }
         jeton.dataset.glisse = "true";
         if (onLever) onLever(e.clientX, e.clientY);
       }
