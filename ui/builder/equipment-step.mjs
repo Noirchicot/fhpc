@@ -43,12 +43,12 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=280";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=280";
-import { swapContent } from "./socle.mjs?v=280";
+import { renderPicker } from "./carnet.mjs?v=281";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=281";
+import { swapContent } from "./socle.mjs?v=281";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=280";
+import { armerJeton } from "./glisser.mjs?v=281";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -747,10 +747,38 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
      `positionDe`, `avancer` et `viser` manquaient chacun à sa façon.
      C'est mot pour mot ce que fait `scroll-snap-align: center` : on atterrit
      donc SUR un point d'aimantation, jamais à côté. */
+  /* 🔴 EN SOUS-PIXEL, ET C'EST CE QUI SUPPRIME LE PETIT SAUT — Eric, après
+     essai au doigt : *« ça arrive un peu sur la droite et l'aimantage le remet
+     au milieu »*. Le bond visait donc À CÔTÉ d'un point d'aimantation, et
+     l'aimant faisait un SECOND mouvement pour rattraper. Deux mouvements pour
+     un geste : c'est ce qu'il voyait.
+
+     ⛔ LA CAUSE EST ENCORE L'ARRONDI, MAIS D'UN AUTRE CÔTÉ. `offsetLeft`,
+     `offsetWidth` et `clientWidth` rendent des ENTIERS : un cran de 73,81 px se
+     lit 74, un champ de 226,5 se lit 226. La cible tombait donc à un demi-pixel
+     près — assez pour que l'aimantation ait quelque chose à corriger.
+
+     ⭐ ON LIT DONC LA MISE EN PAGE EN FRACTIONS : la largeur calculée du cran et
+     l'écart calculé de la piste sont des réels. Le pas exact est leur somme, et
+     le rang du cran suffit à le placer — sans accumuler quoi que ce soit,
+     puisqu'on multiplie une valeur EXACTE et non un entier arrondi.
+     ⛔ ET SURTOUT PAS `getBoundingClientRect()` SUR UN CRAN : les crans portent
+     la transformation de la roue (translation, fuite, rotation). Leur rectangle
+     à l'écran est donc celui de l'ILLUSION, pas celui de la mise en page — s'en
+     servir pour viser reviendrait à courir après le décor. `offsetLeft` ignore
+     les transformations, et c'est exactement pour ça qu'on le garde comme
+     origine. La piste, elle, n'est pas transformée : son rectangle est fiable,
+     et il est fractionnaire. */
   function centreDe(noeud) {
-    const champ = piste.clientWidth;
-    if (!noeud || !(champ > 0) || !Number.isFinite(noeud.offsetLeft)) return null;
-    return noeud.offsetLeft + noeud.offsetWidth / 2 - champ / 2;
+    const premier = piste.children[0];
+    if (!noeud || !premier) return null;
+    const rang = [...piste.children].indexOf(noeud);
+    if (rang < 0) return null;
+    const largeur = parseFloat(getComputedStyle(premier).width);
+    const ecart = parseFloat(getComputedStyle(piste).columnGap) || 0;
+    const champ = piste.getBoundingClientRect().width;
+    if (!(largeur > 0) || !(champ > 0)) return null;
+    return premier.offsetLeft + rang * (largeur + ecart) + largeur / 2 - champ / 2;
   }
 
   /** Le cran actuellement sous le viseur — lu dans la mise en page, jamais
