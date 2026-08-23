@@ -87,6 +87,10 @@ test("ATTAQUE — le veilleur voit l'arbre sali : modifié, disparu, apparu, et 
 
 /* ── 2. LE FAIT, SUR LE VRAI ARBRE ────────────────────────────────── */
 
+/** Le plafond du rapport que le sous-processus a le droit de rendre. Motivé,
+ *  mesuré et attaqué plus bas — voir la troisième précaution et l'ATTAQUE. */
+const MAX_BUFFER = 64 * 1024 * 1024;
+
 /** Les suites du dépôt, moins celle-ci. La liste vient du disque : une suite
  *  écrite demain tombe sous le garde sans que personne l'y inscrive. */
 function autresSuites() {
@@ -108,8 +112,9 @@ test("AUCUNE SUITE NE MUTE UN ARTEFACT COMMITÉ — toute la suite rejouée sous
       `${dir}/ doit être dans le périmètre surveillé`);
   }
 
-  /* ⚠️ DEUX PRÉCAUTIONS SUR L'ENVIRONNEMENT DU SOUS-PROCESSUS, et les deux ont
-     été mesurées en écrivant ce garde :
+  /* ⚠️ TROIS PRÉCAUTIONS SUR L'ENVIRONNEMENT DU SOUS-PROCESSUS, et les trois
+     ont été mesurées — les deux premières en écrivant ce garde, la troisième
+     le 2026-08-23 :
      · `NODE_TEST_CONTEXT` est posé par `node --test` dans CHAQUE fichier de
        suite. Hérité, il fait basculer le petit-fils sur le format sérialisé
        interne du runner au lieu d'un rapport lisible — le garde ne trouvait
@@ -117,11 +122,29 @@ test("AUCUNE SUITE NE MUTE UN ARTEFACT COMMITÉ — toute la suite rejouée sous
        pas la sienne. On le retire.
      · le rapport est ÉPINGLÉ en TAP plutôt que laissé au défaut : le format
        par défaut dépend de l'attachement d'un terminal, et une preuve qui
-       change de forme selon qui la regarde n'est pas une preuve. */
+       change de forme selon qui la regarde n'est pas une preuve.
+     · `maxBuffer` est DIT, au lieu d'être laissé au 1 Mo par défaut de
+       `spawnSync`. 🔴 CE DÉFAUT REND LE GARDE AVEUGLE EXACTEMENT QUAND LE DÉPÔT
+       VA MAL : le rapport dépasse le mégaoctet dès qu'un test compare deux
+       artefacts volumineux, et `spawnSync` TUE alors le sous-processus en
+       plein vol — mesuré : `SIGTERM`, `status: null`, `error.code = ENOBUFS`,
+       sortie tronquée à 1 114 112 octets. ⚠️ Ce n'est donc PAS « il n'a pas
+       démarré » : il a démarré, il a été coupé, et la vraie question de ce
+       garde — UNE SUITE A-T-ELLE MUTÉ UN ARTEFACT COMMITÉ ? — n'est plus posée
+       du tout. Il échoue pour une raison qui n'est pas la sienne, et on le
+       croit rouge à cause des autres.
+       MESURÉ le 2026-08-23, sur le lot 93 : rapport vert de la suite entière
+       (90 fichiers, 1 345 tests) = 316 Ko ; UN SEUL test rouge qui comparait
+       les deux couches SRD de 3,3 Mo = 6,8 Mo à lui tout seul, et la suite
+       entière 7,2 Mo. Le défaut était donc SEPT FOIS trop petit le jour où il
+       fallait qu'il tienne. La valeur retenue reprend celle que
+       `tree-watch.mjs` donne déjà à `git ls-files` : ~200× le rapport vert,
+       ~9× le plus gros échec jamais mesuré ici. Ce n'est pas une allocation,
+       c'est un plafond ; il ne coûte que ce que le rapport pèse vraiment. */
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
   const run = spawnSync(process.execPath, ["--test", "--test-reporter=tap", ...suites], {
-    cwd: ROOT, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]
+    cwd: ROOT, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: MAX_BUFFER
   });
   const apres = fingerprintTree(ROOT);
 
@@ -129,7 +152,14 @@ test("AUCUNE SUITE NE MUTE UN ARTEFACT COMMITÉ — toute la suite rejouée sous
      laisserait forcément l'arbre intact, et le garde serait vert pour la pire
      des raisons. On exige donc que le compte de tests soit là, et qu'il y ait
      au moins un test par suite lancée. */
-  assert.equal(run.error, undefined, `le sous-processus n'a pas démarré : ${run.error && run.error.message}`);
+  /* ⚠️ « n'a pas démarré » ÉTAIT UNE DEVINETTE, et elle était fausse dans le cas
+     qui s'est produit : à `ENOBUFS`, le sous-processus a bien démarré — il a été
+     TUÉ en plein vol (`SIGTERM`) parce que son rapport débordait. Le message
+     dit donc ce qu'on a mesuré, signal compris, plutôt que la première cause
+     qui vient à l'esprit. */
+  assert.equal(run.error, undefined,
+    `le sous-processus n'a rendu aucun rapport exploitable : ${run.error && run.error.code} — ` +
+    `${run.error && run.error.message}${run.signal ? ` (tué par ${run.signal})` : ""}`);
   const compte = /^# tests (\d+)$/m.exec(run.stdout);
   assert.ok(compte, "le sous-processus doit rendre son compte de tests — sans lui, le garde ne prouve rien.\n" +
     run.stdout.slice(-600) + (run.stderr ? "\n[stderr] " + run.stderr.slice(-600) : ""));
@@ -150,4 +180,83 @@ test("AUCUNE SUITE NE MUTE UN ARTEFACT COMMITÉ — toute la suite rejouée sous
   assert.equal(run.status, 0,
     "le garde ne peut rien conclure d'une suite rouge — corriger l'échec d'abord :\n" +
     run.stdout.split("\n").filter((line) => line.startsWith("not ok")).join("\n"));
+});
+
+/* ── 3. ET LE GARDE NE DOIT PAS S'AVEUGLER QUAND LA SUITE EST BRUYANTE ── */
+
+/* 🔴 LE DÉFAUT QUE CETTE ATTAQUE ÉPROUVE A ÉTÉ VU EN VRAI, le 2026-08-23 : la
+   copie du SRD embarquée dans ce dépôt avait pris cinq lots de retard sur sa
+   source, deux tests comparaient donc deux couches de 3,3 Mo, et CE GARDE-CI
+   tombait en `ENOBUFS`. On l'a compté comme un troisième rouge ; il n'en était
+   pas un — il n'avait rien mesuré du tout.
+
+   ⛔ ET C'EST LA PIRE FORME DE PANNE POUR UN GARDE : il devient aveugle
+   EXACTEMENT quand le dépôt va mal, c'est-à-dire quand on a le plus besoin de
+   savoir si une suite a muté un artefact. Sa question n'est alors plus posée,
+   et son silence ressemble à un échec de plus dans la liste.
+
+   ⚠️ POURQUOI UNE SUITE FABRIQUÉE, ET NON LA VRAIE : parce qu'il faut du bruit
+   À LA DEMANDE. Rendre la vraie suite bruyante pour éprouver ce garde
+   reviendrait à casser le dépôt pour vérifier qu'on sait voir qu'il est cassé
+   — la faute même que ce fichier interdit. La suite fabriquée vit dans un
+   répertoire temporaire, hors du périmètre surveillé, et elle reproduit la
+   forme exacte du bruit mesuré : un diff MULTILIGNE. La forme compte : node
+   TRONQUE le diff d'une longue ligne unique (mesuré : 41 Ko pour deux chaînes
+   de 2 Mo, aucun `ENOBUFS`) et déroule celui d'un texte à lignes. Une attaque
+   sur la mauvaise forme aurait conclu qu'il n'y avait pas de défaut. */
+test("⚔️ ATTAQUE — une suite BRUYANTE rendait ce garde AVEUGLE, et `maxBuffer` lui rend la vue", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fhpc-bruit-"));
+  try {
+    fs.writeFileSync(path.join(tmp, "bruyante.test.mjs"), [
+      'import test from "node:test";',
+      'import assert from "node:assert/strict";',
+      'test("un échec dont le diff pèse des mégaoctets", () => {',
+      '  const lignes = Array.from({ length: 60000 }, (_, i) => `  "ligne ${i}": "une valeur de couche assez longue pour peser"`);',
+      '  assert.equal(lignes.join("\\n"), lignes.map((l, i) => (i === 42 ? l + " (modifiée)" : l)).join("\\n"));',
+      "});"
+    ].join("\n"));
+
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    const args = ["--test", "--test-reporter=tap", "bruyante.test.mjs"];
+    const lancer = (options) => spawnSync(process.execPath, args, {
+      cwd: tmp, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...options
+    });
+    const compteDe = (sortie) => /^# tests (\d+)$/m.exec(sortie || "");
+
+    /* LE DÉFAUT, REPRODUIT — au 1 Mo par défaut de `spawnSync`. */
+    const aveugle = lancer({});
+    assert.equal(aveugle.error && aveugle.error.code, "ENOBUFS",
+      "au défaut, un rapport de plusieurs mégaoctets fait rendre `ENOBUFS` à `spawnSync`");
+    /* ⚠️ ET IL A BIEN DÉMARRÉ — c'est le point que le message d'échec du garde
+       se trompait à nommer. `spawnSync` le TUE au dépassement : la sortie
+       s'arrête net, et c'est pire qu'un lancement raté, parce que ça ressemble
+       à un vrai verdict. */
+    assert.equal(aveugle.signal, "SIGTERM", "le sous-processus a démarré puis a été COUPÉ, il n'a pas échoué à naître");
+    assert.equal(aveugle.status, null);
+    assert.match(aveugle.stdout, /^TAP version 13/, "témoin : il avait commencé à rendre son rapport");
+    assert.equal(compteDe(aveugle.stdout), null,
+      "⛔ ET LA PREUVE QUE LE GARDE NE MESURAIT PLUS RIEN : aucun compte de tests n'est lisible. " +
+      "Le sous-processus a tourné, son rapport est tronqué — le verdict n'existe pas.");
+
+    /* ET AVEC LA MESURE — le rapport passe entier, le verdict revient. */
+    const voyant = lancer({ maxBuffer: MAX_BUFFER });
+    assert.equal(voyant.error, undefined, "avec `maxBuffer` dit, le sous-processus rend son rapport");
+    const compte = compteDe(voyant.stdout);
+    assert.ok(compte, "le compte de tests redevient lisible — c'est lui, la non-vacuité du garde");
+    assert.equal(Number(compte[1]), 1);
+    assert.equal(voyant.status, 1, "et le garde voit bien que la suite est ROUGE, ce qu'`ENOBUFS` lui cachait");
+
+    /* LE TÉMOIN DE L'ATTAQUE ELLE-MÊME. Sans lui, ce test resterait vert le
+       jour où le bruit fabriqué cesserait d'être bruyant — et il prouverait
+       alors qu'un rapport minuscule tient dans 1 Mo, ce que personne ne
+       conteste. On exige donc que le bruit dépasse VRAIMENT le défaut. */
+    const poids = Buffer.byteLength(voyant.stdout, "utf8");
+    assert.ok(poids > 1024 * 1024,
+      `témoin : le rapport fabriqué pèse ${poids} octet(s) — il DOIT dépasser le 1 Mo par défaut, sinon l'attaque ne prouve rien`);
+    assert.ok(MAX_BUFFER > poids * 4,
+      `et le plafond retenu (${MAX_BUFFER}) garde de la marge sur ce que le bruit pèse déjà (${poids})`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });

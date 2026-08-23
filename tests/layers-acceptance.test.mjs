@@ -65,19 +65,24 @@ const COUCHE_DE_TABLE = bytes(aLayer({
 
 /* ── 1. Les deux vraies couches SRD se chargent ─────────────────────── */
 
-test("les deux couches SRD réelles se chargent, 16 genres et 2 651 records", () => {
+test("les deux couches SRD réelles se chargent, 17 genres et 2 658 records", () => {
   const fr = dispatch("layers.register", { bytes: fileBytes(SRD_FR), origin: SRD_FR });
   const en = dispatch("layers.register", { bytes: fileBytes(SRD_EN), origin: SRD_EN });
 
   assert.equal(fr.id, "srd-5.2.1-fr");
   assert.equal(en.id, "srd-5.2.1-en");
-  assert.equal(fr.records, 1328);
-  assert.equal(en.records, 1323);
-  assert.equal(fr.records + en.records, 2651, "la matière annoncée par le kickoff, entière — plus les deux genres du lot 19");
+  /* MESURÉ le 2026-08-23 (lot 93). Les deux langues sont désormais À ÉGALITÉ,
+     et c'est une information : l'EN traînait 1 323 parce que l'extraction de
+     fh-srd avalait cinq épées magiques (rendues par son lot 86), et les deux
+     langues ont gagné `item-value` — un genre que la couche sautait en silence
+     depuis une journée, faute d'être dans une liste écrite en dur. */
+  assert.equal(fr.records, 1329);
+  assert.equal(en.records, 1329);
+  assert.equal(fr.records + en.records, 2658, "la matière annoncée par le kickoff, entière — plus les genres des lots 19 et 92 de fh-srd");
 
   const event = changes[changes.length - 1];
-  assert.equal(event.total, 2651, "et rien ne s'est perdu au pli : aucun id ne collisionne entre les deux langues");
-  assert.equal(Object.keys(event.counts).length, 16);
+  assert.equal(event.total, 2658, "et rien ne s'est perdu au pli : aucun id ne collisionne entre les deux langues");
+  assert.equal(Object.keys(event.counts).length, 17);
   assert.deepEqual(event.shadowed, [], "aucune couche n'en recouvre une autre");
 
   /* L'empreinte rendue est celle des octets du fichier — c'est elle que
