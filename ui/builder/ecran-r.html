@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — L'écran Équipement, seul</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LOT 88 — L'ÉCRAN « R » SUR SA PROPRE PAGE. Commande d'Eric : *« sur une
+     page distincte »*, *« hors champ des gardes »*. Le but est de REGARDER
+     l'écran Équipement au téléphone et à la tablette sans traverser les huit
+     étapes du builder — et surtout d'essayer les FLÈCHES des deux roues, qui
+     sont neuves et que personne n'a encore pu éprouver au doigt.
+
+     🔴 ELLE MONTE LE VRAI ÉCRAN, PAS UNE COPIE. Elle importe
+     `equipment-step.mjs` et l'appelle — rien de ce que l'écran fait n'est
+     réécrit ici. C'est LA leçon d'`equipement-lab.html` : ce banc-là a
+     réimplémenté l'écran et pèse 2 596 lignes pour cette raison ; il ment dès
+     qu'un réglage bouge dans le produit. Celle-ci ne porte que l'HÔTE :
+       · le cadre minimal que la coquille pose autour de l'étape
+         (`.app` → `.stage-topbar` + `.stage-area`/`.stage`/`.popup`) ;
+       · le contexte que l'écran attend — document, fiche dérivée, verbe de
+         consultation — monté par les MÊMES organes que `shell.mjs` ;
+       · le routage des actions vers les VERBES DU MOTEUR (aucune règle de
+         jeu ici : les index, la bourse et les 50 PO sont importés du produit).
+
+     ⛔ CE QU'ELLE N'EST PAS : un banc de géométrie. Aucun curseur, aucun
+     panneau de mesure, aucun mode d'emploi — `roue-lab.html` existe pour ça.
+     La seule chose ajoutée à l'écran est UNE LIGNE : la largeur CSS réelle de
+     l'appareil, le nombre qui change tout entre 320, 360 et 375 (le pourquoi
+     est raconté en tête de `diag.html`). La ligne « Wheel depth », elle, est
+     déjà affichée PAR L'ÉCRAN — on ne la redouble pas.
+
+     📌 HORS CHAMP DES GARDES, ET COMMENT. Le garde du graphe versionné
+     (`tests/versions-graphe.test.mjs`) ne juge le COMPTE de chargements que
+     sur `index.html`, seul décideur du graphe — cette page n'y entre pas. Elle
+     porte quand même `?v=278` sur tout ce qu'elle charge, comme la loi de la
+     maison l'exige de tout `ui/`, et `bin/nouvelle-version.mjs` la met à jour
+     avec les autres. Les autres gardes ne lisent que les `.mjs` : un fichier
+     `.html` de plus leur est invisible.
+     ⛔ Elle ne porte PAS d'import map : celle d'`index.html` est générée, et
+     en recopier une seconde ferait un deuxième décideur du graphe, capable
+     d'être à moitié à jour — exactement ce que le garde interdit. Mesuré : les
+     sept modules `src/` atteints depuis `ui/` ne sont atteints par aucun autre
+     module `src/`, donc aucun module n'est ici chargé deux fois.
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=278">
+<link rel="stylesheet" href="./shell.css?v=278">
+<style>
+  /* La seule règle propre à cette page. Elle ne touche à rien de l'écran :
+     une bande de tête, hors du cadre de la coquille. */
+  .mesure {
+    flex: none;
+    margin: 0;
+    padding: var(--sp-4) var(--sp-8);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: var(--t2);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <!-- Le cadre minimal de la coquille : la bande fixe de l'écran, puis la
+       scène qui défile, puis la surface de popup. Mêmes classes, même ordre
+       et mêmes rôles que `mountFrame()` — sans la ceinture des dix étapes,
+       qui n'a rien à faire sur une page à un seul écran. -->
+  <div class="app">
+    <p class="mesure" id="mesure">…</p>
+    <div class="stage-topbar" id="topbar"></div>
+    <div class="stage-area">
+      <main class="stage" id="stage" data-scroller="stage"></main>
+      <div class="popup" id="popup" role="status" hidden></div>
+    </div>
+  </div>
+
+<script type="module">
+import { bootEngine, loadExampleDocument } from "./engine.mjs?v=278";
+import {
+  renderEquipmentStep, renderEquipmentBar,
+  nextGearIndex, currentCurrency, INHERITED_PURSE_GP
+} from "./equipment-step.mjs?v=278";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=278";
+import { swapContent } from "./socle.mjs?v=278";
+import { mountPopup } from "./popup.mjs?v=278";
+
+const stage = document.getElementById("stage");
+const topbar = document.getElementById("topbar");
+const mesure = document.getElementById("mesure");
+const popupLayer = mountPopup(document.getElementById("popup"), () => popupLayer.hide());
+
+/* ── LA LARGEUR CSS, RELUE COMME `diag.html` LA RELIT ────────────────────
+   `clientWidth` de `documentElement` et pas `innerWidth` (qui compte la barre
+   de défilement), et surtout : on ne fait confiance à AUCUN signal seul. Le
+   2026-08-15, sur `resize` seul, une page de mesure a annoncé 320 alors que la
+   fenêtre était passée à 375 — 55 px de mensonge. */
+let derniere = null;
+function veiller() {
+  const w = document.documentElement.clientWidth;
+  if (w === derniere) return;
+  derniere = w;
+  mesure.textContent = `Écran Équipement — largeur CSS : ${w} px`;
+}
+veiller();
+if (typeof ResizeObserver === "function") new ResizeObserver(veiller).observe(document.documentElement);
+window.addEventListener("resize", veiller);
+window.addEventListener("orientationchange", () => setTimeout(veiller, 200));
+setInterval(veiller, 500);
+
+/* ── LE CONTEXTE DE L'ÉCRAN ──────────────────────────────────────────────
+   Trois choses, et ce sont exactement celles que `shell.mjs` compose dans
+   `equipmentCtx()` : le document brut, la fiche dérivée, le verbe de
+   consultation du catalogue. Les deux derniers champs (`category`, `search`)
+   sont de l'état d'écran, pas du personnage — la coquille les tient au même
+   titre, hors document. */
+let build = null;
+let query = null;
+let doc = null;
+let resolved = null;
+const ecran = { category: "all", search: false };
+
+const contexte = () => ({ document: doc, resolved, query, category: ecran.category, search: ecran.search });
+
+/** Redériver, puis redessiner — le `rebuild()` + `refresh()` de la coquille,
+ *  ramenés à ce dont une page à un seul écran a besoin. */
+function rejouer() {
+  const out = build.verbs.rebuild({ document: doc });
+  doc = out.document;
+  resolved = out.resolved;
+}
+function peindre() {
+  /* `.decision-card.dalle-majeure` : la carte de la coquille, au mot près —
+     c'est elle que `shell.css` interroge (`:has(> .equipment-step)`) pour
+     donner à cet écran sa largeur de PANNEAU plutôt qu'une mesure de prose. */
+  const carte = document.createElement("section");
+  carte.className = "decision-card dalle-majeure";
+  carte.append(renderEquipmentStep(contexte(), agir));
+  swapContent(stage, [carte]);
+  swapContent(topbar, [renderEquipmentBar(contexte(), agir)]);
+}
+
+/** LE ROUTAGE DES ACTIONS — de l'aiguillage d'hôte, jamais une règle.
+ *  Chaque écriture passe par un VERBE DU MOTEUR, sur les chemins que l'écran
+ *  lui-même dicte ; l'index de la prochaine ligne, la bourse courante et le
+ *  montant de l'héritage sont IMPORTÉS d'`equipment-step.mjs`, jamais
+ *  recalculés ici. Un nombre écrit deux fois finit par se contredire. */
+function agir(action) {
+  if (action.kind === "equipmentCategory") { ecran.category = action.value; peindre(); return; }
+  if (action.kind === "equipmentSearch") { ecran.search = !ecran.search; peindre(); return; }
+  if (action.kind === "popup") {
+    const contenu = [];
+    if (action.titre) {
+      const titre = document.createElement("h3");
+      titre.className = "popup-titre";
+      titre.textContent = action.titre;
+      contenu.push(titre);
+    }
+    for (const ligne of String(action.texte).split("\n").filter((l) => l.trim() !== "")) {
+      const p = document.createElement("p");
+      p.className = "popup-texte";
+      p.textContent = ligne;
+      contenu.push(p);
+    }
+    popupLayer.show(contenu);
+    return;
+  }
+  const verbes = build.verbs;
+  if (action.kind === "addGearLine") {
+    /* Les TROIS chemins vont ensemble : sans eux trois, la dérivation déclare
+       la ligne incomplète et la saute (`src/build/derive.mjs`). */
+    const index = nextGearIndex(doc);
+    doc = verbes.choose({ document: doc, path: `gear[${index}]`, ref: action.ref }).document;
+    doc = verbes.set({ document: doc, path: `gear[${index}].quantity`, value: action.quantity }).document;
+    doc = verbes.set({ document: doc, path: `gear[${index}].equipped`, value: action.equipped }).document;
+  } else if (action.kind === "removeGearLine") {
+    for (const suffixe of ["", ".quantity", ".equipped"]) {
+      doc = verbes.clear({ document: doc, path: `gear[${action.index}]${suffixe}`, kind: "choice" }).document;
+    }
+  } else if (action.kind === "addInheritedPurse") {
+    const bourse = currentCurrency(doc);
+    for (const clef of CURRENCY_KEYS) {
+      const base = Number.isInteger(bourse[clef]) ? bourse[clef] : 0;
+      const valeur = clef === "gp" ? base + INHERITED_PURSE_GP : base;
+      doc = verbes.set({ document: doc, path: `currency.${clef}`, value: valeur }).document;
+    }
+  } else if (action.kind === "set") {
+    doc = verbes.set({ document: doc, path: action.path, value: action.value }).document;
+  } else {
+    return; // une action d'une AUTRE étape n'a rien à faire ici
+  }
+  rejouer();
+  peindre();
+}
+
+/* ── LE DÉMARRAGE — le même chemin que la coquille, en plus court ────────
+   La pile des couches, le personnage d'exemple du dépôt (Ilyra Duskleaf,
+   niveau 1, EN+FH), un `rebuild`, et on dessine. ⛔ Aucun schéma de document
+   n'est chargé : il ne sert qu'aux écrivains de Concept/Universe, deux étapes
+   que cette page ne montre pas. */
+(async () => {
+  try {
+    const [moteur, exemple] = await Promise.all([bootEngine(), loadExampleDocument()]);
+    build = moteur.build;
+    query = moteur.layers.verbs.query;
+    doc = exemple;
+    rejouer();
+    peindre();
+  } catch (error) {
+    /* ⛔ UNE PANNE NE SE TAIT PAS : une page blanche ferait chercher le défaut
+       dans l'écran alors qu'il est dans le chargement. */
+    mesure.textContent = `Le moteur n'a pas démarré : ${error.message}`;
+  }
+})();
+</script>
+</body>
+</html>
