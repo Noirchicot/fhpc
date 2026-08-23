@@ -590,7 +590,13 @@
 .catalogue-cards[data-kind="class"],
 .catalogue-cards[data-kind="species"],
 .catalogue-cards[data-kind="feat"] {
-  --fiche-h: 440px;   /* F1 : 242 × 440, ratio 0,55 — la cote d'Eric */
+  /* ⛔ `--fiche-h` N'EST PLUS ÉCRITE ICI — remontée dans `tokens.css` le
+     2026-08-23. Elle y est déclarée sur `:root`, donc elle DESCEND jusqu'ici :
+     le conteneur la lit comme avant, la fiche aussi, et l'écran R — qui ne
+     charge pas cette feuille — la reçoit enfin. La contrainte d'origine
+     (« une variable descend, elle ne remonte pas ») est tenue par la racine.
+     ⛔ Ne la redéclare pas ici : deux écritures = la divergence garantie, la
+     leçon de `--measure-f`. */
 
   /* 🔴 UNE GRILLE DE RANGÉES D'UNE SCÈNE, ET LA FICHE SE CENTRE DEDANS.
      Eric, 2026-08-15 : « en haut et en bas du scroll species/classe, on perd

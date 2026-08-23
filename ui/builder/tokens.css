@@ -163,6 +163,17 @@
   --card-w: var(--measure);   /* .decision-card — la carte générique */
   --panel-w: var(--measure);  /* écrans à CONTRÔLES (Abilities, Equipment) */
   --fiche-w: 100%;            /* la fiche de catalogue (Class/Species) : pleine largeur à l'étroit */
+  /* 🔴 LA HAUTEUR IMPOSÉE D'UNE CARTE, REMONTÉE ICI LE 2026-08-23. Elle vivait
+     sur `.catalogue-cards[data-kind=…]` dans `fiche.css`, donc SEULES trois
+     listes de catalogue la connaissaient. 📏 Mesuré : dans `ecran-r.html`,
+     `var(--fiche-h)` résolvait VIDE — la carte de l'écran R ne pouvait pas
+     prendre sa cote, et `height: var(--fiche-h)` n'y aurait rien fait du tout.
+     ⭐ La contrainte que `fiche.css` posait est RESPECTÉE, pas contournée : elle
+     disait « la variable doit vivre sur le CONTENEUR, parce qu'une variable
+     descend et ne remonte pas ». Depuis `:root` elle descend sur le conteneur ET
+     sur la fiche — c'est la même règle, appliquée un cran plus haut.
+     ⛔ Et elle n'est plus écrite qu'ICI : `fiche.css` la LIT désormais. */
+  --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
   --card-pad: var(--sp-16);   /* remplissage de carte — B4.3 l'a mesuré : 16 à l'étroit */
 
@@ -343,7 +354,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=278");
+  --bg-image: url("./assets/bg-day.jpg?v=279");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -412,7 +423,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=278");
+    --bg-image: url("./assets/bg-night.jpg?v=279");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

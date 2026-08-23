@@ -6,24 +6,31 @@
 <title>FHPC — R1, la page complète</title>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
-     LOT 88 — L'ÉCRAN **R1** SUR SA PROPRE PAGE.
+     L'ÉCRAN **R** SUR SA PROPRE PAGE (lot 88, corrigé au doigt par le lot 94).
      Dictée d'Eric du 2026-08-23, de haut en bas, et c'est exactement le
      croquis `2026-08-23-equipement-ecrans-complets.jpg`, écran marqué `R` :
 
          LE BELT — la navigation du builder. ⛔ PAS RECRÉÉE : une IMAGE.
          ────────────────────────────────────────────────────────────────
-         R1 — six morceaux, dans cet ordre :
+         L'écran R — QUATRE morceaux, dans cet ordre :
            1. le TAMBOUR                    (les deux roues, tout en haut)
-           2. la BARRE DE RECHERCHE         présente, INACTIVE
-           3. le TITRE de l'étagère + les FLÈCHES
-           4. 5 RANGÉES D'ITEMS glissables  cote du standard des sorts
-           5. les COLLECTEURS               tout en bas
-           6. les BOUTONS                   en dessous des collecteurs
+           2. 5 RANGÉES D'ITEMS glissables  flanquées de leurs deux flèches
+           3. les COLLECTEURS               alignés sur les colonnes de la grille
+           4. les BOUTONS                   en dessous des collecteurs
 
-     📐 **R1** SE LIT DANS `CADRES.md` ET NULLE PART AILLEURS : la lettre dit
-     l'écran, le chiffre dit qui décide de la hauteur. ⛔ Les cotes vivent
-     là-bas et dans la feuille de style — aucune n'est recopiée dans cette
-     prose, c'est le fichier des cadres qui l'exige.
+     ⛔ CE QUI A DISPARU LE 23/08, ET POURQUOI : la BARRE DE RECHERCHE (*« dégage
+     search »*) et le TITRE de l'étagère (*« il n'a pas lieu d'être, il est porté
+     par le rouleau »*). Les six morceaux d'origine sont donc quatre.
+
+     📐 **LE VOCABULAIRE DES CADRES SE LIT DANS `CADRES.md`, ET NULLE PART
+     AILLEURS.** ⚠️ Et « R1 » n'en fait PAS partie — c'était une invention :
+       · **R** nomme une position dans l'ARBORESCENCE de l'Équipement
+         (R · B1 · B2 · B3 · B4 · SB3.1/2/3), jamais une géométrie ;
+       · **FF** est le cadre de cet écran : belt, pas de menu latéral, tout
+         l'espace ;
+       · ce qui vit dedans est une **carte** (`FF1` dans l'ancien vocabulaire).
+     ⛔ Les cotes vivent dans `CADRES.md` et dans les jetons — aucune n'est
+     recopiée dans cette prose, c'est le fichier des cadres qui l'exige.
 
      ══ LA COUTURE, ET ELLE EST LA RAISON D'ÊTRE DE CE FICHIER ═══════════════
      Eric : *« le bloc qu'on construit sera importé dans le builder à un
@@ -34,20 +41,22 @@
        § B — **L'ÉCHAFAUDAGE**    il reste derrière
 
      📌 LE JOUR DE L'IMPORT : `§A` (son bloc de style et sa fonction
-     `construireR1`) part vers `ui/builder/`, `§B` reste ici et meurt avec
+     `construireLaCarteR`) part vers `ui/builder/`, `§B` reste ici et meurt avec
      cette page. Rien d'autre ne bouge.
      ⛔ CE LOT NE FAIT AUCUN IMPORT — on finit R1 d'abord.
 
      ══ CE QUI VIENT DU PRODUIT, ET CE QUI EST SIMULÉ ════════════════════════
        · VRAIS, empruntés à `equipment-step.mjs` sans une ligne réécrite :
-         le TAMBOUR (morceau 1) et la GRILLE (morceaux 3 et 4 — titre,
-         flèches, compteur de pages, 15 cases). Cette page les DÉPLACE.
+         le TAMBOUR (morceau 1) et la GRILLE (morceau 2 — les deux flèches, le
+         compteur de pages, 15 cases). Cette page les DÉPLACE.
        · SIMULÉS (`data-sim="oui"`), parce que le produit ne les a pas encore :
-         la recherche inactive, les collecteurs, les boutons, la fiche B1.
+         les collecteurs, les boutons, la fiche B1.
 
-     ⛔ AUCUN FICHIER DU PRODUIT N'EST TOUCHÉ. Tout se fait ICI, autour :
-       · la recherche est « inactive » parce que le nœud de recherche du
-         produit N'EST PAS MONTÉ — rien n'est débranché, rien n'est désarmé ;
+     ⚠️ CE FICHIER NE TOUCHE AUCUN FICHIER DU PRODUIT — mais LE LOT 94, LUI, EN
+     A TOUCHÉ DEUX : les flèches de la grille et la hauteur des crans sont des
+     ordres d'Eric sur l'ÉCRAN, pas sur ce banc. Ils vivent donc dans
+     `equipment-step.mjs` et `shell.css`, là où l'écran réel les lit aussi.
+     Ce qui se fait ICI, et seulement ici :
        · l'œil disparaît parce que cette page le retire de SA COPIE du rendu ;
        · le clic ouvre B1 parce que cette page arme les jetons avec
          `armerJeton`, l'organe de glisser DU DÉPÔT, et lui donne ses rappels.
@@ -60,14 +69,14 @@
 
      📌 HORS CHAMP DES GARDES. Le garde du graphe versionné ne compte les
      chargements que d'`index.html`, seul décideur ; les autres gardes
-     n'arpentent que les `.mjs`. Cette page porte quand même `?v=278` sur tout
+     n'arpentent que les `.mjs`. Cette page porte quand même `?v=279` sur tout
      ce qu'elle charge, et `bin/nouvelle-version.mjs` la met à jour avec les
      autres. ⛔ Elle ne recopie pas l'import map : une seconde copie ferait un
      second décideur du graphe, capable d'être à moitié à jour.
 ═══════════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=278">
-<link rel="stylesheet" href="./shell.css?v=278">
+<link rel="stylesheet" href="./tokens.css?v=279">
+<link rel="stylesheet" href="./shell.css?v=279">
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -76,24 +85,49 @@
    décrit que les six morceaux et leur budget de hauteur.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* LE CADRE. « FF » : pas de menu latéral, toute la scène. Le « 1 » : la
-   hauteur est IMPOSÉE — ici par ce qui reste sous le belt.
-   🔴 SA HAUTEUR N'EST PAS UN NOMBRE, et c'est ce qui rend « au max la hauteur
-   de mon iPhone » vrai sur TOUS les appareils au lieu d'être une cote relevée
-   sur un seul. Il prend la place qu'on lui donne, jamais plus. */
-.r1 {
-  flex: 1 1 auto; min-height: 0;
-  margin: var(--sp-8); padding: var(--sp-8);
-  border: 1px solid var(--border); border-radius: var(--radius-md);
+/* L'ÉCRAN EST UN **FF**, ET IL PORTE UNE **CARTE** — corrigé le 2026-08-23.
+   ⛔ « R1 » N'EST PAS UN NOM DE CADRE, et l'écrire ainsi était l'erreur :
+     · **R** est un nœud de l'ARBORESCENCE de l'Équipement (R · B1 · B2 · B3 ·
+       B4 · SB3.1/2/3) — une position, pas une géométrie ;
+     · **FF** est le cadre : belt, pas de menu latéral, le contenu sur toute la
+       scène (`CADRES.md` §1) ;
+     · ce qui vit dedans est une **carte** — `FF1` dans l'ancien vocabulaire,
+       celui qu'Eric parle encore.
+   ⚠️ La page autonome n'a pas de menu latéral, et c'est NORMAL : elle est un
+   banc. C'est le BLOC qui partira dans le builder, où le menu existe.
+
+   🔴 LA HAUTEUR EST IMPOSÉE, ET CE N'EST PAS « CE QUI RESTE SOUS LE BELT ».
+   Une carte fait `--fiche-h`, ni plus ni moins (Eric, 15/08 : « une fiche fait
+   un écran »). ⛔ La cote ne se recopie pas : elle vit dans `tokens.css`.
+   ⭐ TOUT LE LOT 94 SERT CETTE LIGNE : les sept coupes d'Eric ne « récupèrent
+   pas un peu d'espace », elles font ENTRER le contenu dans cette hauteur. Le
+   relevé du banc dit, en chiffres, si c'est gagné.
+
+   🔴 ET LA LARGEUR SE PLAFONNE À `--measure`. Mesuré le 23/08 : le jeton
+   n'apparaissait NULLE PART dans ce fichier, et aucune classe ne le recevait de
+   `shell.css`. Une carte se plafonne et se centre — c'est la mesure unique de
+   `CADRES.md` §2, la même avec et sans rail. */
+.carte-r {
+  flex: none;
+  height: var(--fiche-h);
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
   background: var(--surface);
   position: relative;
+  /* 🔴 NI BORDURE, NI MARGE, NI REMBOURRAGE — Eric, 23/08 : *« dégage le cadre
+     et la marge si ça fait récupérer de l'espace aussi »*. C'était une
+     CONDITION, et elle est vérifiée : mesuré à 375 px, le rembourrage rendait
+     16 px de hauteur utile et la bordure 2 — 18 px qui vont aux six morceaux.
+     La marge, elle, ne rendait rien À LA CARTE (elle vivait dehors) : elle part
+     quand même, parce qu'une carte qui se centre n'a rien à décaler. */
   /* ⛔ RIEN NE DÉFILE — norme des listes du 2026-08-23, « une page non
      scrollable ». Ce qui ne tient pas ne se cache pas plus bas : ça dépasse,
      et le relevé de l'échafaudage le dit en chiffres. Un défilement posé ici
      mentirait sur le budget, qui est justement ce qu'Eric juge. */
   overflow: hidden;
 }
-.r1-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.carte-r-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
 /* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici, sauf
    les deux que la dictée change — et elles sont nommées.
@@ -101,14 +135,14 @@
    `.glisse-jeton`, dont la hauteur plancher est `--touch`. La grille
    d'équipement portait sa propre cote, que son commentaire déclare provisoire
    (« Eric n'a pas tranché : la case porte le NOM ou une IMAGE »). */
-.r1 .equipment-grille { --fhpc-case-h: var(--touch); margin-bottom: var(--sp-8); }
-.r1 .equipment-drum { margin-bottom: 0; }
+.carte-r .equipment-grille { --fhpc-case-h: var(--touch); margin-bottom: var(--sp-8); }
+.carte-r .equipment-drum { margin-bottom: 0; }
 /* 🔴 SANS ÇA LE GLISSER N'EXISTE PAS AU DOIGT (`glisser.mjs`, en tête) : le
    doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
    séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
    `.grille-jeton` non — il n'était pas glissable avant R1. */
-.r1 .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
-.r1 .grille-jeton[data-glisse="true"] { opacity: .35; }
+.carte-r .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
+.carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
 
 /* ⭐ « UNE CATÉGORIE AFFICHE TOUJOURS SON COMPTE » — Eric, 21/08 (vault,
    « FHPCv2 rangement equipement ») : *« Vêtements 32 »*, pas *« Vêtements »* ;
@@ -118,42 +152,63 @@
    🔴 EN `::after`, ET C'EST DÉLIBÉRÉ : le compte n'entre pas dans le nœud de
    texte du cran. L'organe du produit continue de porter EXACTEMENT le libellé
    qu'il a écrit — R1 l'annote, il ne le réécrit pas. */
-.r1 .roue-cran[data-compte]::after {
+.carte-r .roue-cran[data-compte]::after {
   content: " " attr(data-compte);
   font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums;
 }
 
-/* 2. LA RECHERCHE — le croquis ne dessine pas un rectangle : c'est un
-   PARALLÉLOGRAMME PENCHÉ, et chez Eric c'est la forme qui dit « champ de
-   saisie ». Le mot, lui, reste droit : un libellé penché ne se lit pas. */
-.r1-recherche {
-  flex: none; margin: var(--sp-4) 0; height: var(--touch);
-  display: flex; align-items: center; justify-content: center;
-  transform: skewX(-9deg);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--surface);
-  pointer-events: none; /* « inactive » : elle est là, elle ne fait rien */
-}
-.r1-recherche span { transform: skewX(9deg); font-size: var(--t3); letter-spacing: .14em; color: var(--text-muted); }
+/* ⛔ 2. LA RECHERCHE A DÉGAGÉ — Eric, 2026-08-23 : *« dégage search »*. Le nœud
+   ET sa feuille de style, pas seulement le nœud : une règle qui ne coiffe plus
+   rien est un mort qui a l'air vivant. 📏 Elle pesait **52 px** (44 de hauteur
+   + 2 × 4 de marge), la plus grosse des sept coupes du lot. */
 
 /* 5. LES COLLECTEURS — les trois cibles de R (vault §2). Ils ne portent qu'un
-   `data-creneau`, et c'est TOUT ce que `glisser.mjs` demande d'une cible. */
-.r1-collecteurs { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
-.r1-collecteur {
+   `data-creneau`, et c'est TOUT ce que `glisser.mjs` demande d'une cible.
+
+   🔴 *« UN DROP FAIT LA MÊME TAILLE QUE L'ITEM »* — Eric, 2026-08-23. La règle
+   derrière, et elle vaut au-delà de cet écran : **une cible a la taille de ce
+   qu'on lui donne.** Un collecteur grand comme trois jetons ment sur ce qu'il
+   attend.
+   📏 MESURÉ, ET L'ÉCART ÉTAIT DE 1 À 3 : jeton **38,2 px** de large, collecteur
+   **111**. La cause n'était pas la taille des collecteurs — c'était la grille
+   qui ne prenait pas sa largeur (voir `shell.css`, `.equipment-grille`).
+   ⭐ LES DEUX SE RÈGLENT AU MÊME ENDROIT : la grille rendue à sa largeur, les
+   trois collecteurs alignés sur ses trois colonnes valent exactement un jeton.
+   Le rembourrage ci-dessous est la LARGEUR DES GOUTTIÈRES de la grille — la
+   flèche plus son écart — pour que les colonnes tombent l'une sur l'autre.
+   ⛔ Aucune cote recopiée : `--touch` et `--sp-4` sont les jetons que la grille
+   emploie elle-même. */
+.carte-r-collecteurs {
+  flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4);
+  padding-inline: calc(var(--touch) + var(--sp-4));
+}
+.carte-r-collecteur {
   min-height: var(--touch);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text);
   font-size: var(--t1); line-height: 1.1; text-align: center; padding: 0 2px;
 }
-.r1-collecteur em { font-style: normal; color: var(--text-muted); }
-.r1-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
-.r1-collecteur[data-recu="oui"] { border-style: solid; border-color: var(--accent); font-weight: 600; }
+.carte-r-collecteur em { font-style: normal; color: var(--text-muted); }
+.carte-r-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
+.carte-r-collecteur[data-recu="oui"] { border-style: solid; border-color: var(--accent); font-weight: 600; }
 
-/* 6. LES BOUTONS — la barre du bas du croquis. */
-.r1-boutons { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: var(--sp-4); }
-.r1-bouton {
-  min-height: var(--touch);
+/* 6. LES BOUTONS — la barre du bas du croquis.
+   🔴 *« LES CASES GEAR / CART / CRAFT / NEXT DOIVENT SE RÉDUIRE »* — Eric,
+   2026-08-23. Elles se réduisent EN LARGEUR : quatre colonnes étirées donnaient
+   82,3 px pour un mot de quatre lettres. À la taille de leur contenu, centrées,
+   la barre cesse d'être un bandeau.
+   ⛔ ET PAS EN HAUTEUR, PARCE QUE LE PLANCHER EST ATTEINT : elles font déjà
+   `--touch`, le seuil tactile, exactement. Les descendre rendrait 4 px chacune
+   — 8 px pour la barre entière avec les collecteurs — au prix d'un bouton qu'un
+   pouce rate. `--touch` est un plancher, pas une décoration : la coupe est
+   REFUSÉE ici, et le chiffre est donné pour qu'Eric arbitre. */
+.carte-r-boutons {
+  flex: none; display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--sp-4); margin-top: var(--sp-4);
+}
+.carte-r-bouton {
+  min-height: var(--touch); min-width: var(--touch); padding-inline: var(--sp-8);
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text);
   font: inherit; font-size: var(--t2); letter-spacing: .06em;
@@ -161,17 +216,17 @@
 
 /* B1, LA FICHE D'OBJET — elle s'ouvre AU CLIC, l'œil ayant disparu. Elle
    RECOUVRE le cadre : c'est une autre page, pas un panneau de plus. */
-.r1-b1 {
+.carte-r-b1 {
   position: absolute; inset: 0; z-index: 2;
   display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12);
   background: var(--surface);
 }
-.r1-b1[hidden] { display: none; }
-.r1-b1 h2 { margin: 0; font-size: var(--t4); text-align: center; letter-spacing: .08em; }
-.r1-b1 .r1-b1-compte { margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted); }
-.r1-b1 .r1-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
-.r1-b1 .r1-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.r1-b1 .r1-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+.carte-r-b1[hidden] { display: none; }
+.carte-r-b1 h2 { margin: 0; font-size: var(--t4); text-align: center; letter-spacing: .08em; }
+.carte-r-b1 .carte-r-b1-compte { margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted); }
+.carte-r-b1 .carte-r-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
+.carte-r-b1 .carte-r-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.carte-r-b1 .carte-r-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    § B — L'ÉCHAFAUDAGE. ⛔ RIEN D'ICI NE PART DANS LE BUILDER : c'est ce qui
@@ -211,9 +266,9 @@ body { display: flex; flex-direction: column; }
   <!-- R1 est monté ici par §A. -->
 
 <script type="module">
-import { bootEngine, loadExampleDocument } from "./engine.mjs?v=278";
-import { renderEquipmentStep, rayonsEtEtageres } from "./equipment-step.mjs?v=278";
-import { armerJeton } from "./glisser.mjs?v=278";
+import { bootEngine, loadExampleDocument } from "./engine.mjs?v=279";
+import { renderEquipmentStep, rayonsEtEtageres } from "./equipment-step.mjs?v=279";
+import { armerJeton } from "./glisser.mjs?v=279";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    § A — LE BLOC R1. ⭐ CETTE SECTION PARTIRA DANS LE BUILDER, D'UN SEUL GESTE
@@ -239,64 +294,65 @@ const COLLECTEURS = [
 const BOUTONS = ["GEAR", "CART", "CRAFT", "NEXT"];
 
 /**
- * MONTE R1 — les six morceaux, dans l'ordre du croquis.
+ * MONTE LA CARTE DE L'ÉCRAN R — les quatre morceaux, dans l'ordre du croquis.
  * @param {object} organes
  * @param {Element} organes.tambour  le nœud `.equipment-drum` DU PRODUIT
  * @param {Element} organes.grille   le nœud `.equipment-grille` DU PRODUIT
  * @param {Array} organes.arbre      `rayonsEtEtageres(query)` — pour les comptes
  * @returns {{ noeud: Element, mesurer: Function }}
  */
-export function construireR1({ tambour, grille, arbre }) {
-  const noeud = el("section", "r1");
-  noeud.dataset.ecran = "FF";
-  const corps = el("div", "r1-corps");
+export function construireLaCarteR({ tambour, grille, arbre }) {
+  const noeud = el("section", "carte-r");
+  /* L'écran porte la LETTRE, ce qui vit dedans porte son NOM (`CADRES.md` §2).
+     ⛔ Un objet n'écrit jamais de lettre — d'où `data-objet` sur la carte, et
+     `data-ecran` sur ce qui l'entoure. Ici le banc tient lieu d'écran. */
+  noeud.dataset.objet = "carte";
+  const corps = el("div", "carte-r-corps");
 
-  /* 2 — LA RECHERCHE, présente et inactive. */
-  const recherche = el("div", "r1-recherche");
-  recherche.dataset.sim = "oui";
-  recherche.append(el("span", null, "SEARCH"));
+  /* ⛔ PLUS DE BARRE DE RECHERCHE : le nœud est parti avec sa feuille de style
+     (Eric, 23/08 — *« dégage search »*). */
 
-  /* 5 — LES COLLECTEURS. */
-  const collecteurs = el("div", "r1-collecteurs");
+  /* 3 — LES COLLECTEURS. */
+  const collecteurs = el("div", "carte-r-collecteurs");
   collecteurs.dataset.sim = "oui";
   for (const c of COLLECTEURS) {
-    const cible = el("div", "r1-collecteur");
+    const cible = el("div", "carte-r-collecteur");
     cible.dataset.creneau = c.creneau;   // ⭐ la SEULE chose que glisser.mjs demande d'une cible
     cible.dataset.vise = "false";
     cible.append(el("span", null, c.mot), el("em", null, c.vers));
     collecteurs.append(cible);
   }
 
-  /* 6 — LES BOUTONS. */
-  const boutons = el("div", "r1-boutons");
+  /* 4 — LES BOUTONS. */
+  const boutons = el("div", "carte-r-boutons");
   boutons.dataset.sim = "oui";
   for (const mot of BOUTONS) {
-    const b = el("button", "r1-bouton", mot);
+    const b = el("button", "carte-r-bouton", mot);
     b.type = "button";
     boutons.append(b);
   }
 
   /* B1 — la fiche, en recouvrement. */
-  const fiche = el("div", "r1-b1");
+  const fiche = el("div", "carte-r-b1");
   fiche.dataset.sim = "oui";
   fiche.hidden = true;
-  const ficheNom = el("p", "r1-b1-nom");
-  const pied = el("div", "r1-b1-pied");
-  const retour = el("button", "r1-bouton", "BACK");
+  const ficheNom = el("p", "carte-r-b1-nom");
+  const pied = el("div", "carte-r-b1-pied");
+  const retour = el("button", "carte-r-bouton", "BACK");
   retour.type = "button";
   retour.addEventListener("click", () => { fiche.hidden = true; });
   pied.append(retour);
   for (const mot of ["CRAFT", "BUY", "FREE"]) {
-    const b = el("button", "r1-bouton", mot);
+    const b = el("button", "carte-r-bouton", mot);
     b.type = "button";
     pied.append(b);
   }
   fiche.append(
-    el("h2", null, "ITEM DESCRIPTION"), el("p", "r1-b1-compte", "1/1"),
-    ficheNom, el("div", "r1-b1-corps"), pied
+    el("h2", null, "ITEM DESCRIPTION"), el("p", "carte-r-b1-compte", "1/1"),
+    ficheNom, el("div", "carte-r-b1-corps"), pied
   );
 
-  corps.append(tambour, recherche, grille, collecteurs, boutons);
+  corps.append(tambour, grille, collecteurs, boutons);
   noeud.append(corps, fiche);
 
   /* ══ LES DEUX SOINS À DONNER AUX CASES, ET ILS SE REDONNENT ═════════════
@@ -393,12 +449,13 @@ const mesure = document.getElementById("mesure");
     const out = moteur.build.verbs.rebuild({ document: exemple });
 
     /* ON REND LE VRAI ÉCRAN, puis on lui emprunte ses deux organes. ⛔ Le nœud
-       de recherche du produit n'est jamais monté : c'est ça, « inactive » —
-       rien n'est débranché, il n'est simplement pas là. */
+       de recherche du produit n'est pas monté (`search: false`) — rien n'est
+       débranché, il n'est simplement pas là. La barre SIMULÉE que ce banc
+       posait par-dessus a disparu le 23/08 : *« dégage search »*. */
     const ecran = renderEquipmentStep({
       document: out.document, resolved: out.resolved,
       query: moteur.layers.verbs.query, search: false
-    }, () => { /* R1 n'écrit rien dans le personnage */ });
+    }, () => { /* le banc n'écrit rien dans le personnage */ });
 
     const tambour = ecran.querySelector(".equipment-drum");
     const grille = ecran.querySelector(".equipment-grille");
@@ -406,14 +463,14 @@ const mesure = document.getElementById("mesure");
 
     /* ⭐ LES COMPTES VIENNENT DE LA FONCTION DE L'ÉCRAN, pas d'un second
        calcul : `rayonsEtEtageres` est exportée, on la lit telle quelle. */
-    const r1 = construireR1({ tambour, grille, arbre: rayonsEtEtageres(moteur.layers.verbs.query) });
-    document.body.append(r1.noeud);
+    const carte = construireLaCarteR({ tambour, grille, arbre: rayonsEtEtageres(moteur.layers.verbs.query) });
+    document.body.append(carte.noeud);
 
     let derniere = null;
     function veiller() {
       const l = document.documentElement.clientWidth;
       const h = document.documentElement.clientHeight;
-      const { dispo, pris } = r1.mesurer();
+      const { dispo, pris } = carte.mesurer();
       const empreinte = `${l}×${h}·${dispo}·${pris}`;
       if (empreinte === derniere) return;
       derniere = empreinte;

@@ -202,16 +202,41 @@ test("9 — la page BOUCLE aux deux bouts, et le compte reste dans ses bornes", 
 
 /* ══ L'ÉCRAN — CE QUI SE VOIT SANS MISE EN PAGE ══════════════════════════ */
 
-test("10 — l'écran porte les deux roues, leurs quatre flèches, la barre de la grille et ses quinze cases", () => {
+test("10 — l'écran porte les deux roues, leurs quatre flèches, les deux gouttières de la grille et ses quinze cases", () => {
   const node = renderEquipmentStep(ctx(), () => {});
   assert.equal(rows(node, ".equipment-drum").length, 1);
   assert.equal(rows(node, ".roue").length, 2, "DEUX étages — le troisième niveau est une grille, plus une roue");
   assert.equal(rows(node, ".roue-fleche").length, 4, "une paire par étage, comme le croquis les pose");
-  assert.equal(rows(node, ".grille-barre").length, 1);
+  assert.equal(rows(node, ".grille-rang").length, 1, "la grille et ses deux gouttières sur UNE rangée");
+  assert.equal(rows(node, ".grille-gouttiere").length, 2, "une gouttière de chaque côté des jetons");
   assert.equal(rows(node, ".grille-fleche").length, 2);
-  assert.equal(rows(node, ".grille-titre").length, 1);
   assert.equal(rows(node, ".grille-compte").length, 1);
   assert.equal(rows(node, ".grille-case").length, CASES_PAR_PAGE, "quinze cases — 5 lignes × 3 colonnes");
+});
+
+test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Eric, 23/08", () => {
+  /* *« le titre n'a pas lieu d'être, il est porté par le rouleau »*. Un nom
+     écrit à deux endroits est un nom qui finit par diverger : celui du cran de
+     la roue est le seul qui reste. 📏 Et la barre pesait 52 px dans une carte
+     qui en cherchait 12 — la coupe n'est pas cosmétique. */
+  const node = renderEquipmentStep(ctx(), () => {});
+  assert.equal(rows(node, ".grille-titre").length, 0, "plus aucun nœud de titre");
+  assert.equal(rows(node, ".grille-barre").length, 0, "et plus de barre horizontale pour le porter");
+
+  /* ⭐ MAIS LE COMPTE RESTE, et il est DANS une gouttière : Eric n'a retiré que
+     le titre — décider que le compte part avec aurait été décider à sa place. */
+  const compte = rows(node, ".grille-compte")[0];
+  assert.ok(compte, "le compte de pages est toujours là");
+  assert.equal(compte.parentNode.className, "grille-gouttiere",
+    "il compte des PAGES, donc il vit avec les flèches qui les tournent");
+});
+
+test("10 ter — les crans de la roue restent les SEULS porteurs du nom d'une étagère", () => {
+  /* Le garde qui rend « il est porté par le rouleau » vérifiable : si un lot
+     réintroduisait un titre ailleurs, ce compte bougerait. */
+  const node = renderEquipmentStep(ctx(), () => {});
+  const crans = rows(node, ".roue-piste")[1].querySelectorAll(".roue-cran");
+  assert.ok(crans.length > 0, "l'étage du bas porte bien des crans");
 });
 
 test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille ☆ ☉ ☾", () => {
@@ -223,6 +248,17 @@ test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ 
 
   const marqueurs = rows(node, ".grille-marqueur");
   assert.equal(marqueurs.length, CASES_PAR_PAGE);
+
+  /* 🔴 DANS L'ORDRE, PLUS AU HASARD — Eric, 2026-08-23 : *« le 3 doit être des
+     étoiles soleil lune, répartition dans l'ordre que j'ai dit, à chaque
+     étage »*. La grille a TROIS colonnes : une rangée porte la série entière,
+     et chaque rangée la répète.
+     ⭐ CE GARDE FERME AUSSI LA QUESTION DU LOT 84 (« le tirage se refait-il à
+     chaque attente ? ») : il n'y a plus de tirage, donc plus de question — et
+     un tirage réintroduit ferait rougir cette ligne au premier essai. */
+  assert.deepEqual(marqueurs.map((m) => m.textContent),
+    Array.from({ length: CASES_PAR_PAGE }, (_, i) => ["☆", "☉", "☾"][i % 3]),
+    "☆ ☉ ☾ · ☆ ☉ ☾ · … — cinq rangées de trois, toujours la même série");
   for (const m of marqueurs) {
     assert.ok(["☆", "☉", "☾"].includes(m.textContent), `un marqueur porte ☆, ☉ ou ☾ — trouvé « ${m.textContent} »`);
     assert.equal(m.getAttribute("aria-hidden"), "true", "trois glyphes décoratifs n'ont rien à annoncer");

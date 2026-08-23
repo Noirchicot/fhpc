@@ -43,9 +43,9 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=278";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=278";
-import { swapContent } from "./socle.mjs?v=278";
+import { renderPicker } from "./carnet.mjs?v=279";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=279";
+import { swapContent } from "./socle.mjs?v=279";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -53,14 +53,14 @@ import { swapContent } from "./socle.mjs?v=278";
    `gear[n]`, cette liste ne fait que dire à QUI `query({kind})` est posée.
 
    ── ⭐ LOT 84 — `item` ENTRE, ET C'EST UNE DÉCISION D'ERIC (2026-08-23,
-   « oui ça rentre à l'équipement »). Le catalogue passe donc de 133 à 386
-   records (mesuré : 82 + 38 + 13 + 253). La commande du lot l'INTERDISAIT
+   « oui ça rentre à l'équipement »). Le catalogue passe donc de 133 à 391
+   records (mesuré : 82 + 38 + 13 + 258). La commande du lot l'INTERDISAIT
    tant que personne n'avait tranché ; il est tranché.
 
    ── 🔴 CE QUE `item` APPORTE ET CE QU'IL N'A PAS, mesuré sur
-   `layers/srd-5.2.1-en.layer.json` : les 253 objets magiques portent
-   `category` (non vide 253/253) — c'est le SEUL vrai second niveau du
-   catalogue — mais **0 sur 253 portent un `cost`, 0 sur 253 portent un
+   `layers/srd-5.2.1-en.layer.json` : les 258 objets magiques portent
+   `category` (non vide 258/258) — c'est le SEUL vrai second niveau du
+   catalogue — mais **0 sur 258 portent un `cost`, 0 sur 258 portent un
    `weight`**. Un autre chantier les remplira. Cet écran doit donc afficher
    un objet SANS PRIX ET SANS POIDS sans rien casser et sans inventer de
    valeur : `recordCost`/`recordWeight` rendent `null`, et la ligne de méta
@@ -215,7 +215,7 @@ function catalogue(query) {
                      p. 92, mais l'extracteur les ENJAMBE : c'est un lot de
                      `fh-srd`, pas d'ici)
      weapon   38     ✅ `weapon_category` — martial 24 · simple 14
-     item    253     ✅ `category` — wondrous-item 127 · weapon 28 · potion 24
+     item    258     ✅ `category` — wondrous-item 127 · weapon 33 · potion 24
                      · ring 22 · armor 19 · wand 13 · staff 12 · rod 7 · scroll 1
 
    ⛔ AUCUN ANALYSEUR DE PROSE. Ni sur `cost`, ni sur `weight`, ni sur
@@ -495,6 +495,18 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   let dernier = -1;
   let idImage = 0;
   let programmatique = 0;
+  /* 🔴 LA POSITION QUE NOUS VENONS D'ÉCRIRE, ET ELLE EXISTE PARCE QUE LE COMPTE
+     SEUL PERD LA COURSE — mesuré le 2026-08-23, au chargement de la page.
+     Un `scroll` n'est PAS dispatché dans la tâche qui écrit `scrollLeft` : le
+     navigateur l'émet à l'étape de rendu, APRÈS les rappels d'image. Or c'est
+     un rappel d'image qui décrémente le compte. Le `scroll` de NOTRE PROPRE
+     placement arrivait donc avec `programmatique === 0`, se faisait prendre
+     pour un geste, et l'aval se révélait tout seul une seconde après le
+     chargement — sans que personne n'ait touché l'écran.
+     ⭐ LA POSITION, ELLE, NE COURT PAS : tant que le défilement est encore là où
+     nous l'avons posé, il est de nous. Un doigt qui « bouge » jusqu'au pixel
+     exact que nous venons d'écrire n'a pas bougé. */
+  let positionEcrite = NaN;
 
   /** Le pas d'un cran, LU DANS LA MISE EN PAGE et mis en cache.
    *  ⭐ Il n'est écrit NULLE PART en JS : la cote vit dans `shell.css`
@@ -512,6 +524,21 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
       if (Number.isFinite(a) && Number.isFinite(b) && b > a) pasCache = b - a;
     }
     return pasCache;
+  }
+
+  /** L'ÉCART entre deux crans, LU dans la mise en page comme le pas, et jamais
+   *  recopié : la cote vit dans `shell.css` (`--roue-ecart`).
+   *  ⭐ IL SERT DE SEUIL : rien de plus petit qu'un écart ne peut être un
+   *  changement de choix. C'est la plus petite distance que le décor lui-même
+   *  reconnaisse. Rend `0` tant que la mise en page ne dit rien — et un seuil de
+   *  zéro ne laisse rien passer, ce qui est le bon défaut. */
+  function ecart() {
+    const enfants = piste.children;
+    if (enfants.length < 2) return 0;
+    const a = enfants[0];
+    const b = enfants[1];
+    const e = b.offsetLeft - (a.offsetLeft + a.offsetWidth);
+    return Number.isFinite(e) && e > 0 ? e : 0;
   }
 
   /** ⭐ L'INDEX SORT DE `scrollLeft` ET DU PAS, JAMAIS D'UN RECTANGLE PAR
@@ -559,6 +586,7 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   function programmatiquement(faire) {
     programmatique += 1;
     faire();
+    positionEcrite = piste.scrollLeft;
     demanderImage(() => { programmatique -= 1; });
   }
 
@@ -566,7 +594,11 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
    *  🔴 RENDRE LA MAIN À LA PROCHAINE TÂCHE, PAS TOUT DE SUITE. Restaurer dans
    *  la même tâche, c'est n'avoir JAMAIS coupé l'aimantation : le navigateur ne
    *  voit que l'état final, re-snappe, et la roue saute — le « ça fait sauter
-   *  l'écran » d'Eric venait aussi de là. */
+   *  l'écran » d'Eric venait aussi de là.
+   *
+   *  📌 CE BOND LAISSE UNE TRACE APRÈS LUI, ET ELLE EST MESURÉE — voir la
+   *  tolérance de `deNous` dans l'écouteur de défilement : rendre l'aimantation
+   *  fait RECALER la position d'environ un pixel, une image plus tard. */
   function sauter(cible) {
     piste.dataset.couture = "oui";
     programmatiquement(() => { piste.scrollLeft = cible; });
@@ -613,12 +645,32 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
      dans `juger`, donc derrière le verdict du viseur — elle ne s'armait qu'au
      franchissement d'un cran, jamais au mouvement. Mesuré : 24 px de geste,
      aucun marqueur, jamais.
-     ⛔ ET IL RESTE BORNÉ PAR `programmatique` : nos propres écritures de
+     ⛔ ET IL RESTE BORNÉ PAR DEUX GARDES, PAS UN : nos propres écritures de
      `scrollLeft` (le placement au montage, la couture, le repos après un
-     remplissage) ne sont pas des gestes, et les compter rearmerait l'attente
-     en boucle. */
+     remplissage) ne sont pas des gestes, et les compter rearmerait l'attente en
+     boucle.
+
+     🔴 LE COMPTE SEUL A ÉTÉ MESURÉ INSUFFISANT, ET AUCUN NOMBRE D'IMAGES NE LE
+     SAUVE. Relevé au chargement, sans qu'un doigt touche l'écran :
+
+         scrollLeft 1024,5   écrit 1024,5   fenêtre ouverte   → de nous
+         scrollLeft 1023     écrit 1024,5   fenêtre FERMÉE    → pris pour un geste
+
+     Le second n'est pas un geste : c'est l'AIMANTATION qui recale notre propre
+     bond quand on la lui rend. ⛔ Et la fenêtre ne peut pas être élargie pour le
+     couvrir : un `scroll` est distribué à l'étape de rendu, APRÈS les rappels
+     d'image de cette même étape — un compte fermé par `demanderImage` arrive
+     toujours en avance, quel que soit le nombre d'images qu'on lui donne.
+     Essayé, mesuré, faux.
+     ⭐ D'OÙ UN SEUIL, ET IL SE LIT DANS LA MISE EN PAGE : un déplacement plus
+     petit que l'ÉCART entre deux crans n'est pas un choix, c'est un arrondi.
+     📏 Ce qu'il sépare, aux deux bouts : le recalage mesuré vaut **1,5 px**, le
+     geste le plus court qu'Eric ait signalé en vaut **24**, et l'écart tombe
+     entre les deux. ⛔ Aucune cote recopiée — `ecart()` mesure les crans, comme
+     `pas()`. */
   piste.addEventListener("scroll", () => {
-    if (programmatique === 0 && quandBouge) quandBouge();
+    const deNous = programmatique > 0 || Math.abs(piste.scrollLeft - positionEcrite) <= ecart();
+    if (!deNous && quandBouge) quandBouge();
     annulerImage(idImage);
     idImage = demanderImage(juger);
   }, { passive: true });
@@ -769,8 +821,9 @@ const positionDuTambour = { rayon: null, etagere: null, page: 0 };
 
 /**
  * LE TAMBOUR — deux roues et une grille paginée.
- * Rend DEUX nœuds séparés parce que le croquis les sépare : les roues sont
- * au-dessus de la recherche, la grille en dessous.
+ * Rend DEUX nœuds séparés parce que le croquis les sépare : les roues en haut,
+ * la grille en dessous. ⛔ Plus rien entre les deux : la barre de recherche que
+ * l'écran R posait là a été retirée le 2026-08-23 (*« dégage search »*).
  */
 function renderTambour({ query, onAction }) {
   const arbre = rayonsEtEtageres(query);
@@ -985,12 +1038,28 @@ function renderTambour({ query, onAction }) {
     ? "Wheel depth: on — the browser turns the drum from the scroll itself."
     : "Wheel depth: off — this browser shows the drum flat.")]));
 
-  const barre = el("div", "grille-barre");
-  barre.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"));
-  barre.append(titre, compte);
-  barre.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"));
+  /* ── LA GRILLE ET SES DEUX GOUTTIÈRES ──────────────────────────
+     🔴 LA BARRE HORIZONTALE A DISPARU — Eric, 2026-08-23 : *« les flèches peuvent
+     être à droite et à gauche des tokens ; le titre n'a pas lieu d'être, il est
+     porté par le rouleau »*. Le nom de l'étagère vivait à DEUX endroits — sur le
+     cran de la roue et dans cette barre — et un nom écrit deux fois est un nom
+     qui finit par diverger. Il ne reste que celui du rouleau.
+     ⚠️ MAIS LE COMPTE `x/x` RESTE : Eric n'a retiré QUE le titre. Il compte des
+     PAGES, donc il vit avec ce qui tourne les pages — dans la gouttière, sous la
+     flèche « suivante », celle qui le fait changer. ⭐ ET IL NE COÛTE AUCUNE
+     HAUTEUR : la gouttière fait déjà toute la hauteur de la grille, la flèche
+     n'en occupe qu'un `--touch`.
+     ⚠️ LA CIBLE TACTILE DES FLÈCHES NE RÉTRÉCIT PAS. Une flèche de bord reste un
+     bouton qu'un pouce doit atteindre : la feuille lui garde son `--touch`. Une
+     flèche décorative qui rate le doigt est pire qu'une flèche absente. */
+  const gaucheG = el("div", "grille-gouttiere");
+  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"));
+  const droiteG = el("div", "grille-gouttiere");
+  droiteG.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"), compte);
+  const rang = el("div", "grille-rang");
+  rang.append(gaucheG, cases, droiteG);
   const grille = el("section", "equipment-grille");
-  grille.append(barre, cases);
+  grille.append(rang);
 
   return { roues, grille };
 }
