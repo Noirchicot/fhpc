@@ -4177,10 +4177,15 @@ button { font: inherit; }
    celle du vivier (87 × 48). Eric a tranché le 23/08 au soir — *« fait pareil
    que les sorts »* — et la cote juste vit maintenant dans `shell.css`, sur
    l'écran lui-même. Ce banc n'a plus à la corriger : il la reçoit. */
-/* Les collecteurs sont la RANGÉE SUIVANTE de la grille sur le croquis, pas un
-   bloc d'en dessous : l'écart entre eux et les jetons est donc celui des jetons
-   entre eux (`--sp-4`), et pas le double. 📏 8 → 4, soit **4 px** rendus. */
-.carte-r .equipment-grille { margin-bottom: var(--sp-4); }
+/* 🔴 8 px ENTRE LES JETONS ET LES COLLECTEURS — Eric, 2026-08-23, en cotant les
+   deux écarts du bas d'un seul coup.
+   ⛔ ET ÇA RENVERSE CE QUI ÉTAIT ÉCRIT ICI IL Y A UNE HEURE. J'avais serré cet
+   écart à 4 px en raisonnant que les collecteurs sont « la rangée suivante de la
+   grille », donc à l'écart des jetons entre eux. Le raisonnement se tenait ; il
+   servait surtout à trouver les 12 px qui manquaient dans une carte de hauteur
+   imposée. La hauteur n'est plus imposée, le prétexte est tombé, et Eric a coté
+   ce qu'il voulait voir. ⭐ Une cote donnée bat une cote déduite. */
+.carte-r .equipment-grille { margin-bottom: var(--sp-8); }
 .carte-r .equipment-drum { margin-bottom: 0; }
 /* ⛔ LA LIGNE « Wheel depth: … » N'EST PAS DANS LA CARTE — et c'est le budget
    qui tranche, pas le goût. C'est un DIAGNOSTIC (§6 : « ce que le navigateur a
@@ -4265,9 +4270,16 @@ button { font: inherit; }
    — 8 px pour la barre entière avec les collecteurs — au prix d'un bouton qu'un
    pouce rate. `--touch` est un plancher, pas une décoration : la coupe est
    REFUSÉE ici, et le chiffre est donné pour qu'Eric arbitre. */
+/* 🔴 8 px ENTRE LES COLLECTEURS ET LES BOUTONS — Eric, 2026-08-23, dans la même
+   phrase que l'écart du dessus. Les deux valent 8 : ⭐ le bas de la carte est
+   fait de trois rangées séparées du même pas, et cette régularité est ce qui la
+   fait lire comme un bas de page plutôt que comme trois blocs empilés au
+   hasard. ⛔ `gap` reste à 4 — c'est l'écart ENTRE boutons d'une même rangée,
+   pas entre rangées ; les confondre, c'est perdre la distinction que l'œil
+   utilise pour grouper. */
 .carte-r-boutons {
   flex: none; display: flex; flex-wrap: wrap; justify-content: center;
-  gap: var(--sp-4); margin-top: var(--sp-4);
+  gap: var(--sp-4); margin-top: var(--sp-8);
 }
 .carte-r-bouton {
   min-height: var(--touch); min-width: var(--touch); padding-inline: var(--sp-8);
