@@ -104,7 +104,7 @@ test("⚔️ ATTAQUE — un genre amputé d'une clef est VU par le même contrô
     "l'attaque doit être vue par le MÊME contrôle que celui qui garde la vraie sortie");
 });
 
-test("🔴 LES 18 GENRES SONT DÉCLARÉS — aucun n'est laissé à deviner", () => {
+test("🔴 LES 20 GENRES SONT DÉCLARÉS — aucun n'est laissé à deviner", () => {
   /* Le consommateur traite un genre ABSENT comme non mesuré. Les dix genres
      que Fate's Hand ne touche pas ont pourtant bien été mesurés : les déclarer
      vides dit « j'ai regardé », ce qui est une information. C'est la règle ②

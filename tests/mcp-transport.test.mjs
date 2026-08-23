@@ -57,7 +57,7 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      défaut, l'empreinte ne tomberait pas juste et la suite s'arrêterait ici. */
   const srd = await server.ok("layers.register", { layer: fileText(SRD_FR), origin: SRD_FR });
   assert.equal(srd.id, "srd-5.2.1-fr");
-  assert.equal(srd.records, 1329);
+  assert.equal(srd.records, 1367);
   assert.equal(srd.hash, FICHIER.build.layers[0].hash,
     "L'EMPREINTE A SURVÉCU AU TUYAU : c'est celle que le personnage d'exemple déclare déjà. " +
     "Un octet perdu au passage la ferait diverger sans rien casser d'autre.");

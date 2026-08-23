@@ -3,10 +3,11 @@
    Quatre obligations posées par le mandat : le MANIFEST se vérifie avant
    usage (mismatch → échec bruyant qui nomme le fichier) ; les deux couches
    valident contre fh-layer/1 ; les comptes par genre ne descendent pas sous
-   les seuils relevés à la génération (2 658 records au total : les 2 613 du
+   les seuils relevés à la génération (2 734 records au total : les 2 613 du
    kickoff §L4, plus les 19 par langue des deux genres du lot 19 de fh-srd,
    plus les 5 objets rendus par son lot 86, plus `item-value` — 1 record par
-   langue, lot 92) ; trois ids connus se retrouvent tels quels.
+   langue, lot 92 — plus les 38 par langue de `class-option`, lot 100) ;
+   trois ids connus se retrouvent tels quels.
 
    Le générateur est relancé ici (pas seulement lu depuis layers/ commité) :
    un test qui ne relit que la sortie déjà écrite ne prouve pas que la
@@ -116,8 +117,8 @@ test("verifyManifest() passe sur les exports fh-srd réels — les genres DÉRIV
      relu par personne : il décore, il ne mesure pas. Le compte se prend donc
      ICI, sur la liste dérivée — et en PLANCHER, comme les comptes par genre :
      un genre SRD de plus est une bonne nouvelle, pas une régression. */
-  assert.ok(GENRES.length >= 17,
-    `${GENRES.length} genre(s) dérivé(s) — la source en portait 17 le 2026-08-23 ; en perdre serait une régression`);
+  assert.ok(GENRES.length >= 18,
+    `${GENRES.length} genre(s) dérivé(s) — la source en portait 18 le 2026-08-24 ; en perdre serait une régression`);
   assert.equal(LANGS.length, 2, "les deux langues, et un `verifyManifest()` qui ne vérifierait rien passerait aussi");
 });
 
@@ -136,7 +137,7 @@ test("les genres DÉRIVÉS sont présents dans chaque couche, aucun manquant, au
   }
 });
 
-test("2 658 records au total — 2 656 dans la source + `item-value` × 2 langues (lot 92)", () => {
+test("2 734 records au total — 2 656 + `item-value` × 2 (lot 92) + `class-option` × 2 (lot 100)", () => {
   /* MESURÉ le 2026-08-23, et le chiffre précédent — 2 651 — était périmé de
      SEPT : cinq objets `item` rendus à l'anglais par le lot 86 de fh-srd, et
      les deux records `item-value` que la liste de genres écrite en dur sautait
@@ -144,9 +145,9 @@ test("2 658 records au total — 2 656 dans la source + `item-value` × 2 langue
      qu'on a corrigée, et la copie qui n'avait pas suivi. */
   const { total: totalFr } = buildLayer("fr");
   const { total: totalEn } = buildLayer("en");
-  assert.equal(totalFr, 1329, "la couche FR seule");
-  assert.equal(totalEn, 1329, "la couche EN seule — elle a rattrapé le FR sur `item` (253 → 258)");
-  assert.equal(totalFr + totalEn, 2658);
+  assert.equal(totalFr, 1367, "la couche FR seule");
+  assert.equal(totalEn, 1367, "la couche EN seule — elle a rattrapé le FR sur `item` (253 → 258)");
+  assert.equal(totalFr + totalEn, 2734);
 });
 
 /* Seuils relevés à la génération (mesurés ci-dessus) : un futur sync fh-srd
@@ -176,7 +177,14 @@ const FLOORS = {
      pas une richesse — et il passerait ce plancher-ci. Le garde qui compte À
      L'ÉGAL vit en amont, dans fh-srd (`SectionCountError`, qui NOMME le terme
      manquant) ; celui-ci n'est que le filet de ce dépôt. */
-  "weapon-mastery": 8, "weapon-property": 11
+  "weapon-mastery": 8, "weapon-property": 11,
+  /* Lot 100 de fh-srd (2026-08-24) — les 28 manifestations occultes et les 10
+     métamagies, qui étaient DANS LE LIVRE et n'avaient jamais été extraites.
+     ⭐ TROISIÈME ÉGALITÉ DÉGUISÉE, et pour la même raison que les trois
+     ci-dessus : deux listes fermées que la source énumère (28 + 10 = 38), dans
+     les deux langues. Un 39ᵉ serait une anomalie d'extraction, pas une
+     richesse — et il passerait ce plancher-ci. */
+  "class-option": 38
 };
 
 test("comptes par genre ≥ seuils relevés à la génération, pour les deux langues", () => {

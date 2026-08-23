@@ -38,7 +38,11 @@
    lot ne rouvre pas. */
 import { sha256Portable } from "./sha256.mjs";
 
-/* Les 16 genres, dans l'ordre du schéma (alphabétique). RÉVISION DU
+/* Les 20 genres, dans l'ordre du schéma (alphabétique). ⚠️ CE NOMBRE A ÉTÉ
+   FAUX QUATRE FOIS : il disait 16 quand la liste en portait 19. La leçon est
+   écrite trois paragraphes plus bas et elle vaut pour cette ligne-ci — un
+   chiffre dans une phrase n'est relu par personne. `GENRES.length` répond.
+   RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
    du lot 6-srd-tables. RÉVISION DU 2026-08-08 : `arcana` est le genre 15 — et
    le PREMIER qui ne vienne pas de fh-srd. Les 14 autres sont les 14 fichiers
@@ -93,9 +97,28 @@ import { sha256Portable } from "./sha256.mjs";
    ⛔ La phrase « `gen-srd-layer.mjs` garde ses 14 », répétée trois fois plus
    haut, ne décrit plus rien : elle disait une RÈGLE avec un CHIFFRE, et c'est
    le chiffre qui a fermé la porte à la source. Ici, la liste reste écrite —
-   c'est un CONTRAT, et un contrat s'ouvre par une révision qu'un humain lit. */
+   c'est un CONTRAT, et un contrat s'ouvre par une révision qu'un humain lit.
+
+   ⭐ RÉVISION DU 2026-08-24 (lot 101) — `class-option` est le genre 20, et IL
+   VIENT de fh-srd (lot 100) : les 28 manifestations occultes et les 10
+   métamagies, qui sont DANS LE LIVRE et n'avaient jamais été extraites. 38
+   records par langue.
+
+   🔴 ET LE GARDE DU LOT 93 A MORDU POUR DE VRAI, sur ce genre-ci, À L'IMPORT
+   DU MODULE : `gen-srd-layer.mjs` a REFUSÉ de produire la couche en nommant le
+   genre et les DEUX fichiers à ouvrir. C'est le contraste que ce dépôt garde —
+   la même situation sautait en silence il y a deux jours, et `item-value` est
+   resté absent de la couche une journée entière sans que rien ne rougisse.
+   ⭐ Ici, rien n'a pu être produit tant que le contrat n'était pas révisé : le
+   refus est arrivé AVANT la donnée, pas après.
+
+   ⚠️ CE QUE `class-option` N'A PAS : d'empreinte de correspondance FR↔EN. Le
+   lot 100 a mesuré et REFUSÉ d'en poser une (38 contre 38, mais ni le coût ni
+   le niveau ne discriminent — c'est un groupe ouvert). Une clef anglaise des
+   deux côtés ne dit donc PAS que les deux catalogues sont appariés record par
+   record ; ils ne le sont pas encore. */
 export const GENRES = [
-  "arcana", "armor", "background", "class", "class-progression", "feat", "gear",
+  "arcana", "armor", "background", "class", "class-option", "class-progression", "feat", "gear",
   "glossary", "item", "item-value", "monster", "skill", "species", "spell", "tool", "training", "weapon",
   "weapon-mastery", "weapon-property"
 ];

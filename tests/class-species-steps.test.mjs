@@ -526,8 +526,22 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
   /* ⚠️ LOT 79 — l'écran des compétences a changé de FORME (vivier + créneaux),
      pas de nature : la question posée reste « le choix SRD s'affiche-t-il sans
      la couche FH ? », puisque `skill_choice` est du SRD. */
-  assert.equal(classMenu.querySelectorAll(".choix-glisse").length, 1, "l'écran de compétences SRD (2 imposées) s'affiche — skill_choice est SRD, pas FH");
-  assert.equal(classMenu.querySelectorAll(".skills-budget-block").length, 0, "et aucun QCM de sorts : le magicien SRD nu n'en publie pas ici");
+  /* ⭐ MESURE DU LOT 101 — CE COMPTE ÉTAIT 1, ET LE 3 EST UNE RÉPARATION, PAS
+     UNE FUITE. Le magicien SRD nu ne publiait qu'un groupe (les compétences)
+     parce que la progression FRANÇAISE nommait ses ressources en français —
+     `sorts_mineurs` / `sorts_prepares` — et que `decisions.mjs` REFUSE, à
+     juste titre, d'inventer une table `sorts_mineurs → cantrips` (§1c : une
+     pile qui ne nomme pas ses clefs ne déclare pas de compte lisible). Le lot
+     98 de fh-srd a migré ces 18 clefs de ressource en anglais des deux côtés :
+     la progression FR porte désormais `cantrips: 3` et `prepared_spells: 4`,
+     et les deux plans de sorts s'ouvrent enfin EN FRANÇAIS. Trois groupes :
+     compétences, sorts mineurs, sorts préparés. ⛔ Le commentaire du lot 72
+     qui annonce « la progression FR porte `sorts_mineurs` » décrit donc un
+     état RÉVOLU — il disait vrai le jour où il a été écrit. */
+  assert.equal(classMenu.querySelectorAll(".choix-glisse").length, 3,
+    "compétences + sorts mineurs + sorts préparés — les trois sont du SRD, et le français sait enfin les compter (lot 98)");
+  assert.equal(classMenu.querySelectorAll(".skills-budget-block").length, 0,
+    "et toujours aucun QCM de budget de compétences : celui-là, c'est bien la couche Fate's Hand qui le pose");
 
   /* LOT 60 — le picker d'espèce a disparu comme celui de Class : ce sont les
      fiches aimantées qui portent la liste. */
