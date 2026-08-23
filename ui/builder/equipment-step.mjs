@@ -43,12 +43,12 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=279";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=279";
-import { swapContent } from "./socle.mjs?v=279";
+import { renderPicker } from "./carnet.mjs?v=280";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=280";
+import { swapContent } from "./socle.mjs?v=280";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=279";
+import { armerJeton } from "./glisser.mjs?v=280";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -570,14 +570,41 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   /** La position qui met le cran `rang` sous le viseur — l'inverse exact de
    *  `indexAuViseur`, et écrite comme telle pour que les deux ne puissent pas
    *  diverger. `depart` est le premier enfant du tour du milieu. */
+  /* 🔴 ON LIT LE CRAN VISÉ, ON NE MULTIPLIE PLUS UN PAS — corrigé le
+     2026-08-23 après qu'Eric a signalé trois fois un cran mal aligné avec
+     celui du dessous, sur son iPhone.
+
+     📏 LA CAUSE, MESURÉE DANS LA PAGE. `pas()` déduit le pas de l'écart entre
+     les DEUX PREMIERS crans, et `offsetLeft` rend des ENTIERS : le pas réel de
+     76,33 px se lisait **76**. `positionDe` multipliait ensuite ce 76 par le
+     rang du cran — et le tiers de pixel perdu se cumulait :
+
+         rang  0 (12 crans plus loin)   formule 837   exact 840   −3
+         rang  3                        formule 1065  exact 1069  −4
+
+     Plus on s'éloigne du départ, plus le cran est à gauche de son viseur.
+     C'est exactement ce qu'Eric voyait, et ça grandissait avec la distance.
+
+     ⛔ ET RIEN NE LE RATTRAPAIT, ce qui est la deuxième moitié du défaut :
+     `sauter` coupe l'aimantation le temps d'écrire `scrollLeft` (`data-couture`),
+     puis la remet. Or **remettre `scroll-snap-type` ne recale pas une position
+     déjà posée** — le navigateur n'aimante qu'au défilement suivant. L'erreur
+     restait donc à l'écran jusqu'au prochain geste.
+
+     ⭐ LE CRAN SAIT OÙ IL EST : `offsetLeft` + la moitié de sa largeur, moins la
+     moitié du champ. C'est mot pour mot ce que `scroll-snap-align: center` fait
+     — donc on atterrit SUR un point d'aimantation, et non à côté.
+     📌 « Tout en rapport au pas » reste la loi du DÉCOR (la courbure, la fuite,
+     les 51 images) : là, le pas est un rapport, jamais une adresse. Pour
+     DÉSIGNER un cran, on lit le cran. */
   function positionDe(rang) {
-    const p = pas();
-    const premier = piste.children[0];
-    const champ = piste.clientWidth;
-    const n = piste.children.length;
-    if (p <= 0 || !premier || !(champ > 0)) return null;
-    const depart = longueur() >= 3 && n >= 3 ? n / 3 : 0;
-    return premier.offsetLeft + (depart + rang) * p + p / 2 - champ / 2;
+    const piste_ = piste;
+    const champ = piste_.clientWidth;
+    const n = piste_.children.length;
+    if (!(champ > 0) || n === 0) return null;
+    const depart = longueur() >= 3 && n >= 3 ? Math.round(n / 3) : 0;
+    const cible = piste_.children[depart + rang];
+    return centreDe(cible);
   }
 
   /** 🔴 NOS PROPRES ÉCRITURES DE `scrollLeft` ÉMETTENT UN `scroll`
@@ -602,9 +629,37 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
    *  📌 CE BOND LAISSE UNE TRACE APRÈS LUI, ET ELLE EST MESURÉE — voir la
    *  tolérance de `deNous` dans l'écouteur de défilement : rendre l'aimantation
    *  fait RECALER la position d'environ un pixel, une image plus tard. */
+  /* 🔴 LE BOND EST INSTANTANÉ, ET IL LE DIT LUI-MÊME — corrigé le 2026-08-23,
+     deuxième moitié du cran mal aligné qu'Eric a signalé trois fois.
+
+     📏 CE QUI SE PASSAIT, MESURÉ EN CLIQUANT QUATRE FOIS LA FLÈCHE : le cran
+     visé s'arrêtait à 10,9 px du viseur, puis 15,7, puis 19,0, puis 21,4 — un
+     décalage qui GRANDIT à chaque saut au lieu de se répéter. Un bond qui rate
+     sa cible d'une constante est une erreur de calcul ; un bond qui rate de
+     plus en plus est un bond qui n'a pas fini avant qu'on relance le suivant.
+
+     ⛔ LA CAUSE ÉTAIT UNE DÉPENDANCE À L'ORDRE DES RECALCULS, et c'est le genre
+     de chose qui marche neuf fois sur dix. La feuille coupe bien le défilement
+     doux pendant la couture (`.roue-piste[data-couture="oui"]` → `scroll-behavior:
+     auto`), mais poser l'attribut et écrire `scrollLeft` dans la MÊME tâche ne
+     garantit pas que le style soit recalculé entre les deux. L'écriture partait
+     donc en défilement DOUX ; l'image suivante retirait la couture, rendant
+     l'aimantation au milieu de l'animation ; et le bond s'arrêtait où il en
+     était. ⭐ Rien ne le rattrapait ensuite : remettre `scroll-snap-type` ne
+     recale pas une position déjà posée, le navigateur n'aimante qu'au
+     défilement suivant.
+
+     ⭐ `behavior: "instant"` DIT L'INTENTION DANS L'APPEL, au lieu de l'espérer
+     d'une feuille : ce bond-ci ne s'anime jamais, quelle que soit la cascade et
+     quel que soit l'ordre des recalculs. La couture reste — elle coupe
+     l'aimantation, ce qui est son autre rôle — mais plus rien ne dépend du
+     moment où elle prend effet. */
   function sauter(cible) {
     piste.dataset.couture = "oui";
-    programmatiquement(() => { piste.scrollLeft = cible; });
+    programmatiquement(() => {
+      if (typeof piste.scrollTo === "function") piste.scrollTo({ left: cible, behavior: "instant" });
+      else piste.scrollLeft = cible;
+    });
     demanderImage(() => { piste.dataset.couture = "non"; });
   }
 
@@ -688,10 +743,50 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
    *  ⏳ CHOIX PAR DÉFAUT ASSUMÉ : le lissage natif dure ~400 ms et n'est pas
    *  réglable. C'est le prix du chemin unique ; s'il gêne au doigt, c'est ici
    *  qu'on le reprendra. */
+  /* ⭐ CENTRER UN CRAN, ET LE LIRE SUR LE CRAN — l'organe unique dont
+     `positionDe`, `avancer` et `viser` manquaient chacun à sa façon.
+     C'est mot pour mot ce que fait `scroll-snap-align: center` : on atterrit
+     donc SUR un point d'aimantation, jamais à côté. */
+  function centreDe(noeud) {
+    const champ = piste.clientWidth;
+    if (!noeud || !(champ > 0) || !Number.isFinite(noeud.offsetLeft)) return null;
+    return noeud.offsetLeft + noeud.offsetWidth / 2 - champ / 2;
+  }
+
+  /** Le cran actuellement sous le viseur — lu dans la mise en page, jamais
+   *  déduit d'un compteur qui pourrait avoir dérivé. */
+  function cranSousLeViseur() {
+    const champ = piste.clientWidth;
+    if (!(champ > 0)) return null;
+    const cible = piste.scrollLeft + champ / 2;
+    let meilleur = null, ecart = Infinity;
+    for (const cran of piste.children) {
+      const d = Math.abs(cran.offsetLeft + cran.offsetWidth / 2 - cible);
+      if (d < ecart) { ecart = d; meilleur = cran; }
+    }
+    return meilleur;
+  }
+
+  /* 🔴 UNE FLÈCHE VISE LE CRAN VOISIN, ELLE N'AJOUTE PLUS UN PAS — corrigé le
+     2026-08-23, même racine que `positionDe` et `viser`.
+     📏 CE QUE FAISAIT L'ANCIENNE : `scrollLeft += sens * pas()`. Or `pas()` se
+     déduit de l'écart entre les deux premiers crans, et `offsetLeft` rend des
+     ENTIERS : le pas réel de 76,33 px se lit **76**. Chaque flèche perdait donc
+     un tiers de pixel, et l'erreur s'ajoutait à la précédente au lieu de se
+     corriger — dix pressions, trois pixels et demi de dérive, sans que rien ne
+     la remette d'aplomb.
+     ⛔ ET L'AIMANTATION NE SAUVE PAS : elle ne recale qu'au défilement suivant,
+     jamais une position déjà posée.
+     ⭐ Viser le VOISIN plutôt qu'ajouter un pas rend la dérive impossible par
+     construction : chaque bond repart de ce que la page montre, pas de ce qu'un
+     compteur croit. Il n'y a plus rien à accumuler. */
   function avancer(sens) {
-    const p = pas();
-    if (p <= 0) return;
-    piste.scrollLeft = piste.scrollLeft + sens * p;
+    const courant = cranSousLeViseur();
+    if (!courant) return;
+    const rang = [...piste.children].indexOf(courant);
+    const voisin = piste.children[rang + sens];
+    const cible = centreDe(voisin || courant);
+    if (cible !== null) piste.scrollLeft = cible;
   }
 
   /** Reposer la roue après un remplissage : les enfants sont neufs, l'ancien
@@ -727,13 +822,15 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
    *  directement, il AMÈNE le cran sous le viseur, et c'est le viseur qui
    *  choisit. Un clic qui poserait le choix sans bouger la roue ferait deux
    *  chemins pour un seul geste, et ils divergeraient. */
+  /* 🔴 VISER, C'EST CENTRER — corrigé le 2026-08-23, troisième endroit de la
+     même faute. L'ancienne écriture (`noeud.offsetLeft - base - p`) plaçait le
+     cran « un pas après le bord gauche », ce qui n'est le centre que si le
+     champ vaut exactement trois pas ET si le pas n'est pas arrondi. Deux
+     conditions, dont aucune n'est garantie : d'où un cran qui se posait à côté
+     de son viseur. */
   function viser(noeud) {
-    const p = pas();
-    const premier = piste.children[0];
-    if (p <= 0 || !premier) return;
-    const base = premier.offsetLeft;
-    if (!Number.isFinite(noeud.offsetLeft) || !Number.isFinite(base)) return;
-    piste.scrollLeft = noeud.offsetLeft - base - p;
+    const cible = centreDe(noeud);
+    if (cible !== null) piste.scrollLeft = cible;
   }
 
   reposer();
@@ -898,7 +995,20 @@ function renderTambour({ query, onAction }) {
   function attendreGrille() {
     if (cases.dataset.attente === "oui") return;
     cases.dataset.attente = "oui";
-    swapContent(cases, symboles.map((s) => faireMarqueur(s, "grille-case grille-marqueur")));
+    /* 🔴 LE DOS DE CARTE DE TAROT REMPLACE LES ☆ ☉ ☾ — Eric, 2026-08-23 :
+       *« mets le dos de carte de tarot à la place des étoiles sur les items au
+       début »*, puis *« quart de tour de la carte bien sûr »*.
+       ⭐ ET C'EST PLUS JUSTE QUE CE QUE ÇA REMPLACE : une case en attente ne
+       montre pas un symbole décoratif, elle montre UNE CARTE FACE CACHÉE — ce
+       qui est exactement son état. Le joueur lit « il y a quelque chose là,
+       tu ne sais pas encore quoi », sans qu'on ait à l'écrire.
+       ⛔ AUCUN CARACTÈRE DERRIÈRE L'IMAGE : la case en attente est vide de
+       texte, et la carte est peinte par la feuille (`.grille-marqueur`). Un
+       symbole laissé dessous se devinerait en transparence et se lirait par un
+       lecteur d'écran comme si l'écran disait deux choses.
+       📌 LES ROUES GARDENT LEURS ☆ ☉ ☾ : l'ordre d'Eric nomme « les items ».
+       Un cran de roue n'est pas une carte à retourner, c'est un nom masqué. */
+    swapContent(cases, symboles.map(() => faireMarqueur("", "grille-case grille-marqueur")));
     /* ⛔ LES DEUX CHIFFRES S'ÉTEIGNENT ENSEMBLE : pendant l'attente, aucun des
        deux ne décrit ce qu'on voit. Un total qui survivrait au tiret des pages
        parlerait d'une étagère que la grille ne montre plus. */
@@ -921,6 +1031,20 @@ function renderTambour({ query, onAction }) {
     page = vue.page;
     cases.dataset.attente = "non";
     swapContent(cases, vue.objets.map((item) => faireCase(item, onAction)));
+    /* 🔴 LA DERNIÈRE RANGÉE SE CENTRE QUAND ELLE EST INCOMPLÈTE — Eric,
+       2026-08-23 : *« règle identique sur tous les tokens, toujours centrer les
+       items du bas si la ligne est incomplète »*.
+       ⭐ ET C'EST DÉJÀ LA RÈGLE AILLEURS : le vivier des sorts centre ses
+       rangées depuis le 19/08 (« exact taille et centrage »). Ce qui manquait,
+       c'est que la grille de R, elle, est une VRAIE grille à trois colonnes —
+       elle ne centrait rien, elle alignait à gauche.
+       ⛔ ON DIT LE RESTE, ON NE DÉPLACE RIEN ICI : le JS compte, la feuille
+       décale. Poser un style en ligne serait interdit (garde 7) et ferait vivre
+       la mise en page à deux endroits.
+       📌 Ça ne contredit pas « la grille ne se recompose pas » (norme des
+       listes, §5) : un objet garde son RANG et sa RANGÉE. Seule la dernière
+       ligne, celle qui n'a pas de voisin à droite, se recentre sur elle-même. */
+    cases.dataset.reste = String(vue.objets.length % 3);
     compte.textContent = `${vue.page + 1}/${vue.pages}`;
     /* ⛔ LE TOTAL EST CELUI DE L'ÉTAGÈRE, PAS DE LA PAGE : c'est ce qui attend
        le joueur, pas ce qu'il a sous les yeux. Et il vient de la MÊME source
