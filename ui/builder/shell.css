@@ -4199,18 +4199,11 @@ button { font: inherit; }
 .carte-r .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
 .carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
 
-/* ⭐ « UNE CATÉGORIE AFFICHE TOUJOURS SON COMPTE » — Eric, 21/08 (vault,
-   « FHPCv2 rangement equipement ») : *« Vêtements 32 »*, pas *« Vêtements »* ;
-   le joueur doit savoir ce qui l'attend avant de cliquer, et une étagère à 8
-   ne fait alors pas plus peur qu'une à 33. L'écran du produit n'en affiche
-   aucun ; R1 les pose.
-   🔴 EN `::after`, ET C'EST DÉLIBÉRÉ : le compte n'entre pas dans le nœud de
-   texte du cran. L'organe du produit continue de porter EXACTEMENT le libellé
-   qu'il a écrit — R1 l'annote, il ne le réécrit pas. */
-.carte-r .roue-cran[data-compte]::after {
-  content: " " attr(data-compte);
-  font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums;
-}
+/* ⛔ LE COMPTE SUR LE CRAN A DÉGAGÉ — Eric, 2026-08-23 : *« enlève les chiffres
+   tout moches à droite des items dans le tambour »*. La règle qui vivait ici
+   (« une catégorie affiche toujours son compte », 21/08) est renversée ; le
+   pourquoi est écrit dans `equipment-step.mjs`, à l'endroit qui posait
+   l'attribut — une règle morte ne laisse pas un sélecteur derrière elle. */
 
 /* ⛔ 2. LA RECHERCHE A DÉGAGÉ — Eric, 2026-08-23 : *« dégage search »*. Le nœud
    ET sa feuille de style, pas seulement le nœud : une règle qui ne coiffe plus

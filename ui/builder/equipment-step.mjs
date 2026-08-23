@@ -835,6 +835,17 @@ function renderTambour({ query, onAction }) {
   const pisteA = el("div", "roue-piste");
   const pisteB = el("div", "roue-piste");
   const compte = el("span", "grille-compte");
+  /* ⭐ LE COMPTE D'OBJETS DE L'ÉTAGÈRE — Eric, 2026-08-23 : *« mets le compte
+     des items sous le chevron gauche »*, juste après avoir fait dégager les
+     chiffres collés aux crans de la roue.
+     🔴 CE N'EST DONC PAS LE MÊME GESTE QUE LE RETRAIT : le besoin du 21/08
+     (« une catégorie affiche toujours son compte » — savoir ce qui attend avant
+     de cliquer) est CONSERVÉ, il change de PLACE. Ce qui était du bruit sur un
+     cran qui défile devient une donnée stable dans une gouttière.
+     ⭐ Et il se lit en face de son jumeau : le total à gauche, la page à
+     droite. Combien il y en a · où l'on est. Deux chiffres, deux gouttières,
+     la même écriture. */
+  const total = el("span", "grille-compte");
   const cases = el("div", "grille-cases");
 
   let rayonId = positionDuTambour.rayon;
@@ -888,7 +899,11 @@ function renderTambour({ query, onAction }) {
     if (cases.dataset.attente === "oui") return;
     cases.dataset.attente = "oui";
     swapContent(cases, symboles.map((s) => faireMarqueur(s, "grille-case grille-marqueur")));
+    /* ⛔ LES DEUX CHIFFRES S'ÉTEIGNENT ENSEMBLE : pendant l'attente, aucun des
+       deux ne décrit ce qu'on voit. Un total qui survivrait au tiret des pages
+       parlerait d'une étagère que la grille ne montre plus. */
     compte.textContent = "—";
+    total.textContent = "—";
   }
 
   /* ── LA GRILLE ─────────────────────────────────────────────────────────
@@ -907,6 +922,11 @@ function renderTambour({ query, onAction }) {
     cases.dataset.attente = "non";
     swapContent(cases, vue.objets.map((item) => faireCase(item, onAction)));
     compte.textContent = `${vue.page + 1}/${vue.pages}`;
+    /* ⛔ LE TOTAL EST CELUI DE L'ÉTAGÈRE, PAS DE LA PAGE : c'est ce qui attend
+       le joueur, pas ce qu'il a sous les yeux. Et il vient de la MÊME source
+       que les cases (`etagere.objets`) — un compte calculé à côté finirait par
+       contredire ce que la grille montre. */
+    total.textContent = String(etagere.objets.length);
     if (!vierge) positionDuTambour.page = page;
   }
 
@@ -1061,7 +1081,7 @@ function renderTambour({ query, onAction }) {
      bouton qu'un pouce doit atteindre : la feuille lui garde son `--touch`. Une
      flèche décorative qui rate le doigt est pire qu'une flèche absente. */
   const gaucheG = el("div", "grille-gouttiere");
-  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"));
+  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"), total);
   const droiteG = el("div", "grille-gouttiere");
   droiteG.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"), compte);
   const rang = el("div", "grille-rang");
@@ -1143,7 +1163,7 @@ function renderGearBlock({ query, onAction }) {
      nœud que le banc `ecran-r.html` montre — la même fonction, pas une copie.
      ⛔ ET LA RECHERCHE N'EST PLUS ENTRE LES DEUX : *« dégage search »*. */
   const { roues, grille } = renderTambour({ query, onAction });
-  const carte = construireLaCarteR({ tambour: roues, grille, arbre: rayonsEtEtageres(query) });
+  const carte = construireLaCarteR({ tambour: roues, grille });
   wrap.append(carte.noeud);
   return wrap;
 }
@@ -1247,10 +1267,9 @@ const BOUTONS = ["GEAR", "CART", "CRAFT", "NEXT"];
  * @param {object} organes
  * @param {Element} organes.tambour  le nœud `.equipment-drum` DU PRODUIT
  * @param {Element} organes.grille   le nœud `.equipment-grille` DU PRODUIT
- * @param {Array} organes.arbre      `rayonsEtEtageres(query)` — pour les comptes
  * @returns {{ noeud: Element, mesurer: Function }}
  */
-export function construireLaCarteR({ tambour, grille, arbre }) {
+export function construireLaCarteR({ tambour, grille }) {
   const noeud = elt("section", "carte-r");
   /* L'écran porte la LETTRE, ce qui vit dedans porte son NOM (`CADRES.md` §2).
      ⛔ Un objet n'écrit jamais de lettre — d'où `data-objet` sur la carte, et
@@ -1317,43 +1336,27 @@ export function construireLaCarteR({ tambour, grille, arbre }) {
          écriture du geste.
      ⚠️ Retirer un nœud ici réveille l'observateur une seconde fois ; la passe
      suivante ne trouve plus rien et s'arrête. */
-  /* ══ LES COMPTES SUR LES CRANS ═══════════════════════════════════════════
-     Deux tables, une par étage, et les CHIFFRES VIENNENT DU PRODUIT : c'est
-     `rayonsEtEtageres` — la fonction de l'écran, pas une seconde arithmétique
-     — qui les rend. Un compte calculé ici divergerait du contenu de la grille
-     au premier réglage de la taxonomie.
-     ⚠️ Les tables sont indexées par LIBELLE, et par étage : « Gear » nomme à
-     la fois un rayon et l'étagère des non-classés de ce rayon. */
-  const comptesRayon = new Map();
-  const comptesEtagere = new Map();
-  for (const rayon of arbre || []) {
-    comptesRayon.set(rayon.label, rayon.etageres.reduce((n, e) => n + e.objets.length, 0));
-    for (const etagere of rayon.etageres) comptesEtagere.set(etagere.label, etagere.objets.length);
-  }
-  function annoterLesCrans() {
-    for (const roue of tambour.querySelectorAll(".roue")) {
-      const table = roue.dataset.niveau === "rayons" ? comptesRayon : comptesEtagere;
-      for (const cran of roue.querySelectorAll(".roue-cran")) {
-        const n = table.get(cran.textContent);
-        if (n === undefined) delete cran.dataset.compte;
-        else cran.dataset.compte = String(n);
-      }
-    }
-  }
-  annoterLesCrans();
-  /* Les crans se refont à chaque tour de roue (l'étage du bas se REMPLIT
-     500 ms après l'arrêt du haut) : l'annotation se redonne, comme les deux
-     soins de la grille juste en dessous. */
-  /* ⚠️ LE VEILLEUR N'EXISTE QUE DANS UN NAVIGATEUR, ET C'EST MESURÉ : la suite
-     monte cet écran sur un DOM minimal, qui n'a pas de `MutationObserver` —
-     tant que la carte vivait dans un banc HTML, la question ne se posait pas ;
-     depuis qu'elle est DANS LE PRODUIT, elle traverse les tests.
-     ⭐ Et la garde ne cache rien : la PREMIÈRE PASSE a déjà eu lieu juste
-     au-dessus, c'est elle que la suite éprouve. Ce que le veilleur ajoute — se
-     redonner après un remplissage — n'existe qu'au doigt, et ne se teste
-     qu'au doigt. ⛔ Pas de fausse promesse : sans lui, l'écran est juste au
-     montage et ne se rattrape pas. */
-  if (typeof MutationObserver === "function") new MutationObserver(annoterLesCrans).observe(tambour, { childList: true, subtree: true });
+  /* ══ ⛔ LES COMPTES ONT QUITTÉ LES CRANS — Eric, 2026-08-23 ═══════════════
+     *« enlève les chiffres tout moches à droite des items dans le tambour »*.
+     Ils s'écrivaient en `::after` sur chaque cran : « Armor 13 », « Gear 82 »,
+     « Magic Items 258 ».
+
+     ⚠️ ET C'EST UN REVIREMENT, PAS UNE ÉVIDENCE — il faut le dire, sinon un lot
+     suivant les remettra en citant la règle. Le 21/08 Eric avait demandé
+     l'inverse, mot pour mot : *« Vêtements 32 »*, pas *« Vêtements »* — « une
+     catégorie affiche toujours son compte », pour que le joueur sache ce qui
+     l'attend avant de cliquer (vault, `FHPCv2 rangement equipement`).
+     ⭐ CE QUI A CHANGÉ ENTRE LES DEUX, ET CE N'EST PAS L'AVIS : c'est L'ÉCRAN.
+     Le 21/08 le cran était un libellé dans une liste. Depuis, il est un cran de
+     ROUE qui passe sous le viseur, à 48 px de haut, entre deux voisins à demi
+     effacés — un chiffre collé au libellé y devient du bruit qui défile.
+     ⏳ LE BESOIN DE 21/08 RESTE OUVERT : « savoir ce qui attend avant de
+     cliquer » n'a plus de réponse dans cet écran. À trancher par Eric — le
+     compte revient ailleurs, ou la règle du 21/08 meurt.
+     ⛔ Le compteur de PAGES `x/x` n'est pas concerné : il vit dans la gouttière
+     droite de la grille, il compte des pages, et Eric l'a explicitement gardé
+     quand le titre de l'étagère a dégagé. */
+
 
   const armes = new WeakSet();
   function soignerLesCases() {
