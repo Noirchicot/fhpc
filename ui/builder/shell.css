@@ -679,6 +679,18 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    gouttières de la grille et le centrage de la carte s'appuient dessus. */
 .decision-card:has(> .equipment-step) { padding-top: var(--sp-4); }
 
+/* 🔴 LA DALLE COLLE AU BELT, « COMME DANS SKILLS » — Eric, 2026-08-23.
+   📏 MESURÉ SUR SKILLS PLUTÔT QUE DEVINÉ, parce que « comme dans » est une
+   COMPARAISON et qu'une comparaison se relève : à 375 px, le belt finit à 60
+   et ce que Skills pose commence à **60** — zéro. Sa dalle porte
+   `margin-top: 0`. L'Équipement en était à 8.
+   ⭐ Et c'est cohérent avec ce que R est devenu : depuis que sa barre du haut
+   a dégagé, il n'y a plus rien entre le belt et la dalle. Un blanc qui ne
+   sépare plus deux choses ne sépare rien.
+   ⛔ Le haut SEUL : les trois autres marges restent, sinon la dalle toucherait
+   les bords de l'écran — « c'est la carte qui s'efface, pas ses gouttières ». */
+.decision-card:has(> .equipment-step) { margin-top: 0; }
+
 /* ══ 🔴 LA CARTE S'EFFACE SOUS ABILITIES — le fond doit passer ENTRE ═══════
    Eric, 2026-08-16 : *« démerde-toi comme tu veux mais je veux voir du
    background entre ces deux dalles (ça a déjà été fait dans skills) »*.
@@ -4120,7 +4132,25 @@ button { font: inherit; }
    `CADRES.md` §2, la même avec et sans rail. */
 .carte-r {
   flex: none;
-  height: var(--fiche-h);
+  /* 🔴 AUCUNE HAUTEUR IMPOSÉE — Eric, 2026-08-23, en deux temps : *« incohérence
+     sur le bas de boutons cachés »*, puis *« n'impose plus une hauteur sur la
+     dalle »*. La carte fait la hauteur de ce qu'elle porte, et rien d'autre.
+     📏 CE QUE LA COTE IMPOSÉE FAISAIT, ET C'EST CE QU'IL A VU : 440 px offerts
+     pour 452 de contenu, donc `overflow: hidden` tranchait **12 px** — la rangée
+     `GEAR CART CRAFT NEXT` coupée en deux, à 375 x 812 comme à 320 x 568.
+     ⛔ ET UN ÉCRAN QUI COUPE SES PROPRES BOUTONS EST PIRE QU'UN ÉCRAN TROP
+     HAUT : le premier ment, le second se voit.
+     ⭐ D'OÙ VENAIT LA FAUSSE COTE, parce qu'elle resservira ailleurs :
+     `--fiche-h` (440) est la cote d'une fiche de CATALOGUE — 242 x 440, ratio
+     0,55, réglée pour Class et Species. Promue sur `:root` le 23/08 pour que
+     l'écran R puisse la lire, elle s'est mise à décrire un FF de 625 px de
+     large, où son ratio devient 1,42. Une cote juste, au mauvais endroit.
+     📏 Et la place ne manquait jamais : sous le belt il y a **735 px** à
+     375 x 812 et **491** à 320 x 568, pour 452 de contenu.
+     ⛔ LE BUDGET N'EST PAS ABANDONNÉ POUR AUTANT — il change de juge. Ce n'est
+     plus « ça rentre dans 440 », c'est « ça tient sous le belt sans défiler ».
+     Le relevé du banc mesure toujours, et la règle d'Eric ne bouge pas : ce qui
+     ne rentre pas ne se cache pas plus bas, on demande ce qui est EN TROP. */
   width: 100%;
   max-width: var(--measure);
   margin-inline: auto;
