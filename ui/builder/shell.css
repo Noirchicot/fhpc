@@ -3777,7 +3777,16 @@ button { font: inherit; }
   scroll-snap-type: x mandatory;
   /* Le lissage natif porte AUSSI le geste des flèches et du clic sur un cran :
      un seul chemin d'animation pour les trois entrées. */
-  scroll-behavior: smooth;
+  /* ⛔ PLUS DE `scroll-behavior: smooth` — retiré le 2026-08-24, et c'est la
+     moitié du défaut qu'Eric a signalé cinq fois. Il donnait au NAVIGATEUR une
+     animation d'environ 400 ms, non réglable, sur toute écriture de
+     `scrollLeft` — que la recouture pouvait tuer en vol en passant à `auto`,
+     laissant la piste entre deux crans sans que rien ne la rattrape.
+     ⭐ Le glissement d'un bond appartient maintenant au JS (`glisserVers`,
+     170 ms `easeOutCubic`), qui écrit lui-même chaque image et atterrit sur un
+     point d'aimantation exact. Un moteur, pas deux qui se disputent la piste.
+     📌 Ceci ne change RIEN au geste du doigt : `scroll-behavior` ne concerne que
+     les défilements demandés par script, jamais l'inertie de l'utilisateur. */
   /* 🔴 LA PERSPECTIVE VIT SUR LA PISTE, C'EST-À-DIRE SUR LE PARENT DIRECT DES
      CRANS. Une passe de réglage entière a été perdue parce qu'elle était
      déclarée un niveau trop haut : elle ne descend QU'aux enfants directs, et
@@ -4103,7 +4112,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=281");
+  background-image: url("./assets/tarot-dos.jpg?v=282");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

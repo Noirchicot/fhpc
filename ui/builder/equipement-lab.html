@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>R — banc d'essai de l'écran Équipement</title>
-<link rel="stylesheet" href="./tokens.css?v=281">
-<link rel="stylesheet" href="./shell.css?v=281">
+<link rel="stylesheet" href="./tokens.css?v=282">
+<link rel="stylesheet" href="./shell.css?v=282">
 <!-- ⚠️ `fiche.css` EST CHARGÉE POUR UNE SEULE CHOSE : la cote F1. Eric,
      2026-08-22 : *« ça fait au max la taille du F1 de Species »*. La valeur
      n'est PAS recopiée ici — voir la note « la cote F1 » dans la feuille du
      banc, qui explique par où elle descend et ce que ça révèle. -->
-<link rel="stylesheet" href="./fiche.css?v=281">
+<link rel="stylesheet" href="./fiche.css?v=282">
 <style>
   /* ══ BANC D'ESSAI — pas une page du builder ═══════════════════════════
      Commande d'Eric, 2026-08-21 : l'écran `R` du croquis
@@ -30,7 +30,7 @@
      ⛔ AUCUN `innerHTML`, AUCUN `replaceChildren`, AUCUN `removeChild` :
      `tests/socle.test.mjs` balaye `ui/builder/` et interdit les trois hors de
      `socle.mjs`. Ce banc passe donc par `swapContent`, comme le builder.
-     ⛔ ET `?v=281` SUR CHAQUE LIEN : `tests/versions-graphe.test.mjs` exige
+     ⛔ ET `?v=282` SUR CHAQUE LIEN : `tests/versions-graphe.test.mjs` exige
      une seule version dans tout le graphe `ui/`. */
   * { box-sizing: border-box; }
   body {
@@ -61,7 +61,7 @@
      sur mobile »). Le banc défile donc DANS un `.banc-scroll`, comme la fiche
      défile dans la scène. Aucune propriété de `.app` n'est réécrite : c'est
      la seule façon d'éprouver le fond tel qu'Eric le verra.
-     📌 Chemin vérifié : `--bg-image` vaut `url("./assets/bg-day.jpg?v=281")`,
+     📌 Chemin vérifié : `--bg-image` vaut `url("./assets/bg-day.jpg?v=282")`,
      relatif à `tokens.css`, qui vit dans le même dossier que ce banc — il
      résout. Un fond manquant est silencieux, il fallait le confirmer. */
   /* ══ 🔴 `dvh`, JAMAIS `vh` — ET C'EST UN DÉFAUT, PAS UN CHOIX ════════
@@ -1291,7 +1291,7 @@
    « Vêtements » dans Marvels laisse la rangée fine affichée sur « Anneaux » :
    mesuré ici, à 1000 px, avant de l'ajouter. `scrollIntoView` ferait la même
    chose en déplaçant AUSSI la page — c'est le défaut §0 du dépôt. */
-import { swapContent, keepInView } from "./socle.mjs?v=281";
+import { swapContent, keepInView } from "./socle.mjs?v=282";
 
 /* ══ LE GESTE VIENT DE `glisser.mjs`, LOT 79 — PAS D'UNE COPIE ═══════════
    Eric, 2026-08-22 : *« le tap me va pour le moment »*. Ce n'est pas une
