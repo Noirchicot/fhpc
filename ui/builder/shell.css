@@ -3931,11 +3931,35 @@ button { font: inherit; }
    — « le joueur aurait acheté l'objet devant lequel il s'est arrêté » — doit
    rester impossible. La grille MONTRE, elle ne désigne pas. */
 .equipment-grille {
-  /* ⏳ LA TAILLE D'UNE CASE EST ICI, ET NULLE PART AILLEURS. Eric n'a pas
-     tranché « la case porte le NOM ou une IMAGE », et c'est ce qui décide de
-     cette cote. Le jour où il tranche : cette ligne, plus `contenuDeCase()`
-     dans `equipment-step.mjs`. Deux endroits, pas quinze. */
-  --fhpc-case-h: 56px;
+  /* 🔴 UNE CASE D'OBJET FAIT LA COTE D'UN JETON DE SORT — Eric, 2026-08-23 :
+     *« fait pareil que les sorts »*. ⛔ Et elle ne la RECOPIE pas, elle la LIT :
+     `--glisse-case` / `--glisse-h` sont les jetons du vivier des sorts, dans
+     `tokens.css`. Deux nombres égaux écrits à deux endroits divergent au premier
+     réglage — c'est la leçon de `--measure-f`, morte en une heure le 19/08.
+
+     ⚠️ ET CE N'ÉTAIT PAS LE CAS, PAR UNE MAUVAISE LECTURE. Le lot 88 avait posé
+     `--fhpc-case-h: var(--touch)` (44) « comme le standard des sorts ». Il y a
+     DEUX règles `.glisse-jeton` dans cette feuille, et il a lu la mauvaise :
+       · `.glisse-jeton` nue ............... `min-height: var(--touch)` = 44
+         → un jeton ISOLÉ, pas un vivier ;
+       · `.choix-glisse .glisse-jeton` ..... cellule `--glisse-case` **87**
+         × `min-height: --glisse-h` **48**  → ⭐ LE VIVIER DES SORTS, le standard.
+     📏 Mesuré au navigateur à 375 px avant correction : jeton de sort 87 × 48,
+     jeton d'objet 38,2 × 44. Ni la taille, ni la loi.
+
+     ⭐ ET C'EST LA LOI QUI S'ALIGNE, PAS SEULEMENT LE NOMBRE : une cote EXACTE,
+     et ce qui reste se partage aux deux bouts. Un tiers de contenant (`1fr`)
+     redonnerait un jeton d'une largeur différente à chaque écran — c'est
+     exactement ce qui avait fait le 38,2.
+     ⛔ MAIS PAS LA LOI A DES SORTS (« autant que la ligne en porte ») : R est
+     une grille de 15 à position stable, norme des listes du 23/08. Trois
+     colonnes, toujours — un objet ne change pas de place selon l'écran.
+
+     ⏳ Reste ouvert, et ça ne tient plus qu'à ça : « la case porte le NOM ou une
+     IMAGE ». Le jour où Eric tranche, c'est ici et `contenuDeCase()` dans
+     `equipment-step.mjs`. Deux endroits, pas quinze. */
+  --fhpc-case-h: var(--glisse-h);
+  --fhpc-case-w: var(--glisse-case);
   /* 🔴 `width: 100%` EST INDISPENSABLE, ET SON ABSENCE ÉTAIT UN DÉFAUT MESURÉ.
      Dans une colonne flex, une marge latérale `auto` ANNULE l'étirement : la
      grille ne prenait plus la largeur de sa carte, elle prenait celle de son
@@ -3978,10 +4002,16 @@ button { font: inherit; }
 .grille-compte { flex: none; font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
 .grille-cases {
-  /* Entre les deux gouttières, la grille prend tout ce qui reste. */
+  /* Entre les deux gouttières, la grille prend tout ce qui reste — et ce qui
+     dépasse des trois colonnes se partage aux deux bouts (`justify-content`),
+     comme le vivier des sorts le fait déjà. */
   flex: 1 1 auto; min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* ⛔ PLUS DE `1fr` : la colonne fait la cote d'un jeton de sort, pas un tiers
+     de son contenant. Voir `.equipment-grille` juste au-dessus pour la mesure
+     qui l'exige. `minmax(0, …)` reste pour que le NOM cède avant la case. */
+  grid-template-columns: repeat(3, minmax(0, var(--fhpc-case-w)));
+  justify-content: center;
   /* 🔴 CINQ RANGÉES IMPOSÉES, ET C'EST CE QUI EMPÊCHE LA GRILLE DE SAUTER :
      une dernière page de deux objets doit occuper la même hauteur qu'une page
      pleine, sinon tout ce qui vit dessous remonte en tournant la page.

@@ -129,14 +129,29 @@
 }
 .carte-r-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
-/* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici, sauf
-   les deux que la dictée change — et elles sont nommées.
-   4. « MÊME DIMENSION QUE LE STANDARD DES SORTS » : le jeton de sort est
-   `.glisse-jeton`, dont la hauteur plancher est `--touch`. La grille
-   d'équipement portait sa propre cote, que son commentaire déclare provisoire
-   (« Eric n'a pas tranché : la case porte le NOM ou une IMAGE »). */
-.carte-r .equipment-grille { --fhpc-case-h: var(--touch); margin-bottom: var(--sp-8); }
+/* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici.
+   ⛔ IL Y EN AVAIT UNE, ET ELLE ÉTAIT FAUSSE : cette ligne posait
+   `--fhpc-case-h: var(--touch)` (44) au nom de *« même dimension que le
+   standard des sorts »*, en lisant la règle `.glisse-jeton` NUE au lieu de
+   celle du vivier (87 × 48). Eric a tranché le 23/08 au soir — *« fait pareil
+   que les sorts »* — et la cote juste vit maintenant dans `shell.css`, sur
+   l'écran lui-même. Ce banc n'a plus à la corriger : il la reçoit. */
+/* Les collecteurs sont la RANGÉE SUIVANTE de la grille sur le croquis, pas un
+   bloc d'en dessous : l'écart entre eux et les jetons est donc celui des jetons
+   entre eux (`--sp-4`), et pas le double. 📏 8 → 4, soit **4 px** rendus. */
+.carte-r .equipment-grille { margin-bottom: var(--sp-4); }
 .carte-r .equipment-drum { margin-bottom: 0; }
+/* ⛔ LA LIGNE « Wheel depth: … » N'EST PAS DANS LA CARTE — et c'est le budget
+   qui tranche, pas le goût. C'est un DIAGNOSTIC (§6 : « ce que le navigateur a
+   vraiment accordé, dit plutôt que deviné »), écrit en anglais de développeur,
+   dans un écran que le joueur regarde. 📏 Elle coûte **15,5 px** : 11,5 de
+   texte plus les 4 du `gap` du tambour qui la sépare des roues.
+   ⭐ ELLE N'EST PAS SUPPRIMÉE, ELLE EST DÉPLACÉE HORS DU CHAMP DE LA CARTE : le
+   produit continue de la produire, et le banc continue de pouvoir la lire. Ce
+   qui disparaît, c'est sa place dans un budget de 440 px.
+   ⏳ Le jour où l'écran R part dans le builder, c'est une question à poser à
+   Eric : ce diagnostic vit-il ailleurs, ou nulle part ? */
+.carte-r .drum-profondeur { display: none; }
 /* 🔴 SANS ÇA LE GLISSER N'EXISTE PAS AU DOIGT (`glisser.mjs`, en tête) : le
    doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
    séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
@@ -178,8 +193,22 @@
    flèche plus son écart — pour que les colonnes tombent l'une sur l'autre.
    ⛔ Aucune cote recopiée : `--touch` et `--sp-4` sont les jetons que la grille
    emploie elle-même. */
+/* 🔴 ET LA CONSIGNE SE TIENT EN SUIVANT LA GRILLE, PAS EN LA DEVINANT. Depuis
+   que la case d'objet fait la cote d'un jeton de sort (87 × 48, décision d'Eric
+   du 23/08 au soir), un collecteur en `1fr` valait 90,3 pour un jeton de 87 :
+   l'écart était revenu, plus petit et plus sournois.
+   ⭐ LES DEUX LISENT LA MÊME DÉCLARATION, `--glisse-case` — et c'est exactement
+   le principe du vivier des sorts, où le jeton et le créneau la lisent ensemble
+   « pour qu'il n'y ait pas deux réglages à accorder ». ⛔ Pas `--fhpc-case-w` :
+   elle est déclarée SUR la grille, et une variable descend, elle ne remonte pas
+   jusqu'à une rangée voisine — le repli aurait silencieusement rendu `1fr`,
+   c'est-à-dire le défaut qu'on vient de corriger, mais invisible.
+   ⚠️ La HAUTEUR, elle, reste `--touch` : un collecteur n'est pas un jeton qu'on
+   glisse, c'est une cible qu'on vise, et son plancher est le pouce. */
 .carte-r-collecteurs {
-  flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4);
+  flex: none; display: grid;
+  grid-template-columns: repeat(3, minmax(0, var(--glisse-case)));
+  justify-content: center; gap: var(--sp-4);
   padding-inline: calc(var(--touch) + var(--sp-4));
 }
 .carte-r-collecteur {
