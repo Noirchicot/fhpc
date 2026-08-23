@@ -210,7 +210,25 @@ test("10 — l'écran porte les deux roues, leurs quatre flèches, les deux gout
   assert.equal(rows(node, ".grille-rang").length, 1, "la grille et ses deux gouttières sur UNE rangée");
   assert.equal(rows(node, ".grille-gouttiere").length, 2, "une gouttière de chaque côté des jetons");
   assert.equal(rows(node, ".grille-fleche").length, 2);
-  assert.equal(rows(node, ".grille-compte").length, 1);
+  /* 🔴 DEUX CHIFFRES DEPUIS LE 2026-08-23, UN PAR GOUTTIÈRE — et ce n'est pas
+     un doublon. Eric a fait dégager les comptes collés aux crans de la roue
+     (*« les chiffres tout moches »*) puis les a fait revenir ailleurs :
+     *« mets le compte des items sous le chevron gauche »*.
+     ⭐ ILS NE DISENT PAS LA MÊME CHOSE, et c'est ce que ce garde tient : à
+     gauche COMBIEN IL Y EN A dans l'étagère, à droite OÙ L'ON EST dans les
+     pages. Un seul des deux, et l'écran perd une des deux questions. */
+  const chiffres = rows(node, ".grille-compte");
+  assert.equal(chiffres.length, 2, "un compte par gouttière : le total à gauche, la page à droite");
+  const gouttieres = rows(node, ".grille-gouttiere");
+  assert.equal(gouttieres[0].querySelectorAll(".grille-compte").length, 1,
+    "le total vit sous le chevron GAUCHE");
+  assert.equal(gouttieres[1].querySelectorAll(".grille-compte").length, 1,
+    "la page vit sous le chevron DROIT");
+  /* ⛔ AU MONTAGE LES DEUX SONT ÉTEINTS ENSEMBLE : la grille est en attente
+     (test 11), donc aucun des deux ne décrit ce qu'on voit. Un total qui
+     survivrait au tiret des pages parlerait d'une étagère qui n'est pas là. */
+  assert.equal(chiffres[0].textContent, "—");
+  assert.equal(chiffres[1].textContent, "—");
   assert.equal(rows(node, ".grille-case").length, CASES_PAR_PAGE, "quinze cases — 5 lignes × 3 colonnes");
 });
 
