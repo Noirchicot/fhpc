@@ -4186,7 +4186,20 @@ button { font: inherit; }
    imposée. La hauteur n'est plus imposée, le prétexte est tombé, et Eric a coté
    ce qu'il voulait voir. ⭐ Une cote donnée bat une cote déduite. */
 .carte-r .equipment-grille { margin-bottom: var(--sp-8); }
-.carte-r .equipment-drum { margin-bottom: 0; }
+/* 🔴 4 px ENTRE LE 2e TAMBOUR ET LES JETONS — Eric, 2026-08-23.
+   📏 IL N'Y EN AVAIT AUCUN, mesuré : le bas de la 2e roue, le bas du tambour,
+   le haut de la grille et le haut de la première case étaient TOUS au pixel
+   165. Ce qu'on prenait pour un écart était le rembourrage interne du cran.
+   ⭐ ET 8, COMME TOUT LE RESTE DE LA CARTE — corrigé dans la minute par Eric
+   (*« 8 pixels entre 2e tambour et items stp »*). J'avais posé 4 en
+   raisonnant que le tambour et la grille sont « un seul geste », donc plus
+   proches. ⛔ C'était une cote DÉDUITE, et elle perdait : les quatre rangées
+   de la carte se séparent du même pas, et seules les deux ROUES entre elles
+   gardent leur 4 — parce qu'elles sont un seul organe, pas deux rangées.
+   📏 Il n'y avait AUCUN écart avant : mesuré, le bas de la 2e roue, le bas du
+   tambour, le haut de la grille et le haut de la première case étaient tous au
+   pixel 165. Ce qu'on prenait pour un écart était le rembourrage du cran. */
+.carte-r .equipment-drum { margin-bottom: var(--sp-8); }
 /* ⛔ LA LIGNE « Wheel depth: … » N'EST PAS DANS LA CARTE — et c'est le budget
    qui tranche, pas le goût. C'est un DIAGNOSTIC (§6 : « ce que le navigateur a
    vraiment accordé, dit plutôt que deviné »), écrit en anglais de développeur,
