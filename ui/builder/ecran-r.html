@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — R1, la page complète</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LOT 88 — L'ÉCRAN **R1** SUR SA PROPRE PAGE.
+     Dictée d'Eric du 2026-08-23, de haut en bas, et c'est exactement le
+     croquis `2026-08-23-equipement-ecrans-complets.jpg`, écran marqué `R` :
+
+         LE BELT — la navigation du builder. ⛔ PAS RECRÉÉE : une IMAGE.
+         ────────────────────────────────────────────────────────────────
+         R1 — six morceaux, dans cet ordre :
+           1. le TAMBOUR                    (les deux roues, tout en haut)
+           2. la BARRE DE RECHERCHE         présente, INACTIVE
+           3. le TITRE de l'étagère + les FLÈCHES
+           4. 5 RANGÉES D'ITEMS glissables  cote du standard des sorts
+           5. les COLLECTEURS               tout en bas
+           6. les BOUTONS                   en dessous des collecteurs
+
+     📐 **R1** SE LIT DANS `CADRES.md` ET NULLE PART AILLEURS : la lettre dit
+     l'écran, le chiffre dit qui décide de la hauteur. ⛔ Les cotes vivent
+     là-bas et dans la feuille de style — aucune n'est recopiée dans cette
+     prose, c'est le fichier des cadres qui l'exige.
+
+     ══ LA COUTURE, ET ELLE EST LA RAISON D'ÊTRE DE CE FICHIER ═══════════════
+     Eric : *« le bloc qu'on construit sera importé dans le builder à un
+     moment. Mais on finit R1 avant. »* Ce fichier porte donc DEUX choses,
+     séparées à l'œil nu, et il ne les mélange jamais :
+
+       § A — **LE BLOC R1**       il partira dans le builder
+       § B — **L'ÉCHAFAUDAGE**    il reste derrière
+
+     📌 LE JOUR DE L'IMPORT : `§A` (son bloc de style et sa fonction
+     `construireR1`) part vers `ui/builder/`, `§B` reste ici et meurt avec
+     cette page. Rien d'autre ne bouge.
+     ⛔ CE LOT NE FAIT AUCUN IMPORT — on finit R1 d'abord.
+
+     ══ CE QUI VIENT DU PRODUIT, ET CE QUI EST SIMULÉ ════════════════════════
+       · VRAIS, empruntés à `equipment-step.mjs` sans une ligne réécrite :
+         le TAMBOUR (morceau 1) et la GRILLE (morceaux 3 et 4 — titre,
+         flèches, compteur de pages, 15 cases). Cette page les DÉPLACE.
+       · SIMULÉS (`data-sim="oui"`), parce que le produit ne les a pas encore :
+         la recherche inactive, les collecteurs, les boutons, la fiche B1.
+
+     ⛔ AUCUN FICHIER DU PRODUIT N'EST TOUCHÉ. Tout se fait ICI, autour :
+       · la recherche est « inactive » parce que le nœud de recherche du
+         produit N'EST PAS MONTÉ — rien n'est débranché, rien n'est désarmé ;
+       · l'œil disparaît parce que cette page le retire de SA COPIE du rendu ;
+       · le clic ouvre B1 parce que cette page arme les jetons avec
+         `armerJeton`, l'organe de glisser DU DÉPÔT, et lui donne ses rappels.
+
+     ⭐ LE STANDARD DU GLISSER (vault, « FHPCv2 écrans équipement » §2), et il
+     est éprouvable ici, en vrai :
+         tap sur un jeton          →  B1
+         glisser et lâcher À VIDE  →  RIEN
+         glisser SUR un collecteur →  l'acte de la cible, ON SAUTE B1
+
+     📌 HORS CHAMP DES GARDES. Le garde du graphe versionné ne compte les
+     chargements que d'`index.html`, seul décideur ; les autres gardes
+     n'arpentent que les `.mjs`. Cette page porte quand même `?v=278` sur tout
+     ce qu'elle charge, et `bin/nouvelle-version.mjs` la met à jour avec les
+     autres. ⛔ Elle ne recopie pas l'import map : une seconde copie ferait un
+     second décideur du graphe, capable d'être à moitié à jour.
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=278">
+<link rel="stylesheet" href="./shell.css?v=278">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   § A — LE BLOC R1. ⭐ CE BLOC-CI PARTIRA DANS LE BUILDER, D'UN SEUL GESTE.
+   Il ne connaît ni le belt, ni le relevé de mesure, ni cette page : il ne
+   décrit que les six morceaux et leur budget de hauteur.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* LE CADRE. « FF » : pas de menu latéral, toute la scène. Le « 1 » : la
+   hauteur est IMPOSÉE — ici par ce qui reste sous le belt.
+   🔴 SA HAUTEUR N'EST PAS UN NOMBRE, et c'est ce qui rend « au max la hauteur
+   de mon iPhone » vrai sur TOUS les appareils au lieu d'être une cote relevée
+   sur un seul. Il prend la place qu'on lui donne, jamais plus. */
+.r1 {
+  flex: 1 1 auto; min-height: 0;
+  margin: var(--sp-8); padding: var(--sp-8);
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface);
+  position: relative;
+  /* ⛔ RIEN NE DÉFILE — norme des listes du 2026-08-23, « une page non
+     scrollable ». Ce qui ne tient pas ne se cache pas plus bas : ça dépasse,
+     et le relevé de l'échafaudage le dit en chiffres. Un défilement posé ici
+     mentirait sur le budget, qui est justement ce qu'Eric juge. */
+  overflow: hidden;
+}
+.r1-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici, sauf
+   les deux que la dictée change — et elles sont nommées.
+   4. « MÊME DIMENSION QUE LE STANDARD DES SORTS » : le jeton de sort est
+   `.glisse-jeton`, dont la hauteur plancher est `--touch`. La grille
+   d'équipement portait sa propre cote, que son commentaire déclare provisoire
+   (« Eric n'a pas tranché : la case porte le NOM ou une IMAGE »). */
+.r1 .equipment-grille { --fhpc-case-h: var(--touch); margin-bottom: var(--sp-8); }
+.r1 .equipment-drum { margin-bottom: 0; }
+/* 🔴 SANS ÇA LE GLISSER N'EXISTE PAS AU DOIGT (`glisser.mjs`, en tête) : le
+   doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
+   séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
+   `.grille-jeton` non — il n'était pas glissable avant R1. */
+.r1 .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
+.r1 .grille-jeton[data-glisse="true"] { opacity: .35; }
+
+/* ⭐ « UNE CATÉGORIE AFFICHE TOUJOURS SON COMPTE » — Eric, 21/08 (vault,
+   « FHPCv2 rangement equipement ») : *« Vêtements 32 »*, pas *« Vêtements »* ;
+   le joueur doit savoir ce qui l'attend avant de cliquer, et une étagère à 8
+   ne fait alors pas plus peur qu'une à 33. L'écran du produit n'en affiche
+   aucun ; R1 les pose.
+   🔴 EN `::after`, ET C'EST DÉLIBÉRÉ : le compte n'entre pas dans le nœud de
+   texte du cran. L'organe du produit continue de porter EXACTEMENT le libellé
+   qu'il a écrit — R1 l'annote, il ne le réécrit pas. */
+.r1 .roue-cran[data-compte]::after {
+  content: " " attr(data-compte);
+  font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* 2. LA RECHERCHE — le croquis ne dessine pas un rectangle : c'est un
+   PARALLÉLOGRAMME PENCHÉ, et chez Eric c'est la forme qui dit « champ de
+   saisie ». Le mot, lui, reste droit : un libellé penché ne se lit pas. */
+.r1-recherche {
+  flex: none; margin: var(--sp-4) 0; height: var(--touch);
+  display: flex; align-items: center; justify-content: center;
+  transform: skewX(-9deg);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface);
+  pointer-events: none; /* « inactive » : elle est là, elle ne fait rien */
+}
+.r1-recherche span { transform: skewX(9deg); font-size: var(--t3); letter-spacing: .14em; color: var(--text-muted); }
+
+/* 5. LES COLLECTEURS — les trois cibles de R (vault §2). Ils ne portent qu'un
+   `data-creneau`, et c'est TOUT ce que `glisser.mjs` demande d'une cible. */
+.r1-collecteurs { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+.r1-collecteur {
+  min-height: var(--touch);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font-size: var(--t1); line-height: 1.1; text-align: center; padding: 0 2px;
+}
+.r1-collecteur em { font-style: normal; color: var(--text-muted); }
+.r1-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
+.r1-collecteur[data-recu="oui"] { border-style: solid; border-color: var(--accent); font-weight: 600; }
+
+/* 6. LES BOUTONS — la barre du bas du croquis. */
+.r1-boutons { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-top: var(--sp-4); }
+.r1-bouton {
+  min-height: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: var(--t2); letter-spacing: .06em;
+}
+
+/* B1, LA FICHE D'OBJET — elle s'ouvre AU CLIC, l'œil ayant disparu. Elle
+   RECOUVRE le cadre : c'est une autre page, pas un panneau de plus. */
+.r1-b1 {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12);
+  background: var(--surface);
+}
+.r1-b1[hidden] { display: none; }
+.r1-b1 h2 { margin: 0; font-size: var(--t4); text-align: center; letter-spacing: .08em; }
+.r1-b1 .r1-b1-compte { margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted); }
+.r1-b1 .r1-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
+.r1-b1 .r1-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.r1-b1 .r1-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   § B — L'ÉCHAFAUDAGE. ⛔ RIEN D'ICI NE PART DANS LE BUILDER : c'est ce qui
+   sert à REGARDER R1 — le belt en image, le relevé, et la page qui les tient.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* La page ne défile pas non plus : elle ne doit rien offrir que R1 s'interdit. */
+html, body { height: 100%; overflow: hidden; }
+body { display: flex; flex-direction: column; }
+
+/* LE RELEVÉ — largeur ET hauteur CSS réelles, plus le budget du cadre. Relu
+   comme `diag.html` le relit : on ne fait confiance à AUCUN signal seul, un
+   `resize` manquant a déjà fait annoncer 320 px sur un écran de 375. */
+.banc-mesure {
+  flex: none; margin: 0; padding: 2px var(--sp-8);
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  color: var(--text-muted); font-size: var(--t1);
+  font-variant-numeric: tabular-nums; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.banc-mesure[data-deborde="oui"] { color: var(--critical); font-weight: 600; }
+
+/* LE BELT — une CAPTURE de la vraie ceinture, pas un dessin et pas du code.
+   Eric, 23/08 : *« pour éviter de le recréer, tu mets juste une image pour
+   remplir l'espace »*. Sa hauteur est celle que `CADRES.md` §0 lui mesure. */
+.banc-belt { flex: none; display: block; width: 100%; height: 60px; object-fit: cover; object-position: left top; }
+
+/* La marque des morceaux encore simulés. ⭐ ELLE EST DANS L'ÉCHAFAUDAGE, ET
+   C'EST VOULU : le jour où le bloc part, les pointillés ne le suivent pas. */
+[data-sim="oui"] { outline: 1px dashed color-mix(in srgb, var(--text-muted) 55%, transparent); outline-offset: -1px; }
+</style>
+</head>
+<body>
+  <p class="banc-mesure" id="mesure">…</p>
+  <img class="banc-belt" id="belt" data-sim="oui" alt="Le belt du builder — image, simulation"
+       src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAB4Au4DASIAAhEBAxEB/8QAGwABAAIDAQEAAAAAAAAAAAAAAAEEAwUGBwL/xABMEAABAwMABwQHBAQKCQUAAAABAAIDBAURBhIUITFSoUFRYXEHEyIycoGRFTOxsjQ1QsEWFyM2N0NzdLPRJFNVYpKT4eLwVJSiwtL/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQIDBP/EAB4RAQEBAAIDAQEBAAAAAAAAAAARARIxAiFBMlET/9oADAMBAAIRAxEAPwDz77Zrf2pGu82D/JZY7yTuqKWJw72ZaVqkXPjjr/p5f1v4qqjqMCOUxPP7MowPqsskb4z7bcZ4HsK5tW6O4TUvsg68R4xu4fLuV94vLN7bdFMT4qqMy0xO73oz7zf8woTNq7kEREQUKVCglERFERFFERFAREQERFAREUBERFFKhSgIiKAiIooiIgKVClAREQFKhEEoiKIIiICIiApRFQClQpRBERBKIEQERERKIiAFKhSqgpUIERKBEColEUIiURFRKBECIKVCkKgiIqgpChSgIiKoKSoUlVEIiKgiIiChSiohEREERFQREVEIpUIgoUoqOUjbryMZnGsQM9y9I/iqj/2+z/23/evN42l72sBALiAMr1Oj9HNrtVM6rvUtTXlgyYaaN2PLDcuPnuXLXVVb6KGuOG35pPhS/wDeua000S/gtsf+nbVtOv8A1Wpq6ur4nPvdFu630hxW+J1HozaIaKMHBfKwB2fhHb4klcZdbvcLxMJrlVyVDxnV1jubnjgDcOHYnsVaeeSnlbLC4te1b+KWOrg9fCNUjdJHynv8lzisUFU6kqGyDe3g9vM3tCm59xvx8p63pukX3K1oIcw5jeNZh7wVjKZta3JsSpAz24A4nuUBY6lxbC0D9o7/AJIj5fU4OIgMcx4r52qbn6BYURGbapufoE2qbn6BYVCgzbVNz9Ap2qbn6BYURWbapufoE2qbn6BYUQZtqm5+gTapufoFhRBm2qbn6BNqm5+gWFFBm2qbn6BBVTc/QLCgQZ9qm5+gTapufoFhRFZdqm5+gTapufoFhKBQZtqm5+gU7VNz9AsKIM21Tc/QJtU3P0CwqFBn2qbn6BNqm5+gWBSiM21Tc/QIKqXtcD5gLCiC5FK2XdjVf3dhX2qAJaQRuIWwJzh3MAVNazRGjJwEXxM4tgcRxJwpntdfMlSGnEQB/wB4rFtU3P0CwotMs21Tc/QKdqm5+gWBERn2qbn6BNqm5+gWBSgzbVNz9Ap2qbn6BYFIQZtqm5+gTapufoFhRBm2qbn6BNqm5+gWFEGbapufoFO1Tc/QLAiIz7VNz9Am1Tc/QLCiozbVNz9Am1Tc/QLCiDPtU3P0CbVNz9AsClEZtqm5+gU7VNz9AsCkKjNtU3P0CbVNz9AsKIM21Tc/QJtM3P0CwqURnbVSA+1hw8QrMUjZG5b2cR3LXrLTOLZm9x3FUXVIRFAJDQXOOAOJVV9W4n+TAaPHeV9Vjj7LOzGVVVRl2qbn6BNqm5+gWJFRl2qbn6BNqm5+gWJERn2qbn6BRtM3P0CwqVRl2mbn6BNpm5+gWJEGXapufoE2mbn6BYVKqMu0zc/QJtU3P0Cwogy7VNz9Am1Tc/QLEiIy7TNz9Am0zc/QLEioy7VNz9Am1Tc/QLEioy7TNz9Am1Tc/QLEoQZdqm5+gTapufoFiUINPGwySNY3i4gDK9VsujenFm1W0t3oHwt/qJ5HvZjuGWZHyIXlAJByNxXc2OwaZ3mjbVxXSop4XjMbqirkaXjvAGThY1t6FNYIr3ARpLa6A1AAHrqWRxJ+eq0jyyV5j6QNFabRmekNHUSyRVWvhkoGWaur2jj73d2LJpFa9L9H4RPWXKrlpycGaCrkc1p7jnBH0XLVddWVurtlXPUamdX10hfq544z5JgroiKjdWmb11G+B290J1m/CeKzrV2aX1dwiB92T2D45/64W1c0tcWniDhYz1sde/HNAsVZ7kXzWVYqz3IvmqmqyIiII1pc4NaCXE4AA3lZ6CjqLhWRUlJGZJpXYa0fifBdFNc6PRrNJY2xT17ctnuD2h2HdojB3AePaoNdS6LX2qaHRWycA8DIAz82EqtFr7StLprZPgcTGA/8uVQrLhWVshkq6qaZx7XvJSjuFZRSCSjqpoXDtY8hBXc0tcWuBDgcEEbwoXUw3Oj0lApL42OCvdhsFwY0NyewSAcR49i52vo57fWS0lXGY5onYc0/j5IrAiIoCIiAgRSiihEUBEUoCIigKCpIOM4OOGVCAiIglERAWwH3cfwBa/Cvj7uP4ApvS52lY6r9HHx/uWRY6r9HHx/uUxdU0RFpkRfcMUk0rIoWOfI8hrWtGSSexdO+Sj0UaIYooqu9bjJLINaOmPK0drvFEaqk0bvVY0Op7bUFp4Oc3VB+Zws1RonfqdpdJbJiB/q8P/KSqNfdrhcZC+trJpT3OduHkOAWGnqqilkElNPLE8cHRvLSPog+JY5IZHRyscx7dxa4YI+S+Qulp7/T3Zgo9JmCQEasdcxoEsR7M494LT3i2T2mtdTT4cMa0cjfdkYeDh4FBSREQEREBERBKIEVQREQFIUIEEopwcZwccMoqgiIiClQpQF9w/fM+IL4X3D98z4gqNgeJRDxKhQVq37xvwhV1YrPvG/CFXVQRFdtFtmuta2mgw0Y1pJHe7G0cXHwQVIo3yyCOJjnvduDWjJPyW3p9Fb7UNDo7bMAf9Zhn5iFbqL7BamOo9G2CMAaslc9oMsp7cZ90LQVFVUVLy+onlleeLpHlxP1VReq9HbxRtLp7dUBo4ua3WA+YytYrlBda+3yB9HVzRHua7cfMcCt4ySk0paYpIoqS87zHIwasdSe5w7HeKDmEX1LG+GV8UrCyRhLXNcMEEdi+VQRFCIIiKgiIiCIioIiIChShBABIODw8VRChSiDVUYiNZAKj7kyN9Z8Od/RezXqtucOndjoonyR2yRjjqs3NkeA7IPfgBu5eKAEkAAkngAu3guWmLHWsz2WsqDbXOMTn0cms4FurhxHHA+fflY1t2NM65SUmljL42T7Na6bZjMMHUw/Ornfq41cdncvFl22k930wvVG6GstNXS0bMvkbFSyNa4DflxOdw49y4lMBERUfcDtSaN44tcD1XSVQxUSeeVzLRlwHeV09Yc1L/NY39Ovj+dYVirPci+ayLHWe5F81U1WRFBUR0trd9k6K1lyZ7NXWybJC7tazGXuHnwXNrobtv0NsGrw9ZUa3nrDHRc8g2tgsNVe53iFzIoIhmeeQ4bG3v6H/osuldjZYLjHSx1Bna+ES65bq8SR3+C1TKmeOnkp2SvbDKQZGA4DiOGe/iup9Jv68pf7kz8zkPrkV0l0P2totR3N/tVVHJsk7u1zMZY4/guaXRWn+Zt+1uHrKfV89Y56IrnkRFAXZekCipKShsbqWlhhdLC4yGOMNLzhnHHHifquNXfekCE1EGjUDTh0jCwHzEYQ3tyNustzubC+hoppmDcXtbhue7J3LrdCqSoorbpLBWQSQyimblkjSD7sis6b3yp0eNFZ7KRSxsgDy9oBOMkAb/Iknicq1ozfai9aM3cVxa+qp4Hh0oaAXtLXEZx3YKJ8eaU8E1VM2GmifLK73WRtLifkFerdHrvQwevqrfPHEBkv1chvnjh812ugNDNTaM1dxt8EctxncWQ65wABgcT2ZyT34C2OjsWl0dxDb36uaikDhJrOZ7JxuIA+mPFCvL6GhqrhMYaKnknkDdYtjGSB39QrdLo9eKuEzU9uqHxj9rUxnyzx+S7TRWhjtvpCutJCMRMp3Fg5Q50bgPlnC0Vbptd2Xh8lPOGUsUpDKcMAbqA4wd2d4H+WFFrnqe3VtTVOpYKWZ9Q3OtEGHWbjjkdi6rTbRQW98MlnopjTtic+dwJcG47TnhuVj0hzz2nSSCut0pgnmpsPcwbzgkb/AJYHyVv0m3Suo5qampql8cM8DxKwYw4E43/JIVoJrnXy6FU9u+ySKUyYZVgbnHWJwBjjnIznvWw/gcf4HbR9nz/bGv7mTnGvj3eHBfVS4s9FlA5pw4VBII7D6x62P2zcf4uPtHa37Z6zHrt2cesx+CqOCdZ7k2GeZ1FOI6dxbM7UOGEYyD9QqkMUk8rIoWF8j3BrWtGSSeAC7f0f3N1wrLlbLlKZBcI3PJceLsYd8y0//FVtA7Q9ulU5qgA2265eezXGWj95+Si1y1ZR1NDMYKyB8MoAOo8YOFgWwv1wN1vFXWnOJZCWZ7Gjc3oAtesqK+Pcj+AKgr4+7j+AJvS52lY6r9HHx/uX2viq/Rx8f7lMXVNERaZdHosG0FFcr44AyUrBHTZ/1r92fkPxXPPc57i57i5zjkknJJXQR/zBm1eP2m3W8vV7uq51EbzR+wsuVNU19dVto7fTYEkpbrEk9gH/AJxG4qzdtHqJtpfdrJcDV0kTwyVsjNV7CcD58R2LSUrq2dot9K+d7JnjFOxx1Xu78cM7hv8ABdPejBo5o66wskEtwqnNkq3NO6IbiGj6Dqe0Kjj10kJ+1tEZ45PaqbU4PiPaYnnBb5A71za6LRL9Hvut7n2ZJnzyMKGueREUBegUtPatFdHKO51VE2uraxrXNDwMNyM4GQcADtwST4cPP121l0otdTZ4rRpLTGSGLDY5WtJAA4ZxvBHDI7FrE1cor1YdKDJQ3W3QUMhYTHOHtGPJ2Bg+G8HC40WmpmuNTR2+N1YYHuGtCMhzQca27sK63+CNivMT36O3X+VALvVSHI+mA4DxOV8ejSCWl0huFPO3VlihLHt7iHgFEcxSaP3esp9oprfO+IjIcG41h4Z4/Ja+WOSGR0czHMkacOa4YIPiF09bpvdzcny0c7YqVj8RQCNurqDgDuzvA67sLcaY0EF3ksFwYz1RuDo4pCOOH4I+YyUHHW+yXO5MMlFRTSxj9sNw36ncq1ZRVVDN6msp5IJMZ1ZGkZHeO8L1PSGm0hYael0aZHBRxRgZa5oJPdv7AAPqqWklFW1mhT5b3DGLjSEOD2kbxkAnd3g7x3hWFee0Ftrbk8soaWWct97UbkN8zwC+q+1XC2kbdRzQgnAc9vsk9wPAruL5Xy6J6NWyitYbFUVDdaSXVBOQAXHf2kn5ALTUemUstrq7ffInVzJm4Y/2Q5nTfg4IPYoMUV0rm6FS0IteaQv31nYPaB3jHHO7Oe5aKhoKu4SmKippZ3jiGNzjz7l19P8A0W1P9sP8Rq3VvobhQ6HUbNHY49sqWtlllcWggOGc79xPAeSqPPLhZ7jbQDXUcsLScBzm+yT3ZG5Vqamnq5hDSwyTSngyNpcfoF6rZKO91VHV0GlDGTU8rMMfrNLh4bvqD2YWl9HxYygutHTSxQ3YuIY547AMA+IDs/VBx9dY7pb4vW1lDPFH2vLctHmRwWvXoD6vSyxxVH2rS/aNG5pDiSHADtO7eBjvC8/PFBK+4fvmfEFjWSH75nxBBsDxKhSeJUKCtW/et+EKus9b9434QsC0guimP2VolBHH7NRdHF8p7RE04DfIneueW+0r+4ser7n2bFjzycoNAuhtuj9IbZHc71cNjppXFsTWsLnvxnJ8OHcVzy2NslopphHe56zZY2H1QgcCWuyOw7gMZ4eCqLV9sLLfSU1woaxtZQVBIZJq6pB37iPkfody0zHOY4OYS1wOQQcEFdjpU2KTRm3usr2us8UhBac+sEhzvdnzP17sLjEHQ6TBtdR2+9NAElUwx1GOHrGbs/MfgufW/k/mJDrcftJ2r5er39VoEBQpRUdj6RKCmpq2gjoKSKIyRn2YYw3WORjhxK55tgu76k0zbdUetADi3UO4HOCTwHA/Rdhp7+vrJ5j84X3p/pDX22vho7fL6gGISPe0DWcSSAN/l1QcJXW+st8ojrqaSB53gPbjPl3rr7tBLUej+yxU8T5ZXTjVZG0uJ9mTgAs1zqn3r0ditrsPqYZR7eMZOvq53eBViW7T2f0f26ekwJ5CI2PIB1M6xJ3+AP1QcRXWW52+MS1lDPFGce2W+yPM9ipQxSTyNihjfJI44axjSST4AL0HQi7Vd9bcLddZdojdFkF7RkA7iOo+ix+jmiLLVcLlTRMlrcmKEP3AENBxnxJGfJKkcnU6PXilgM89vnbEBku1c6o7zjh81So6OprpvU0kL5pcE6rBk4XpVkZphFc2Punq5aR5xI3WZ7I7xjuVO1UMVv8ASPVQwMDInQmRrRwGsAT1yrSOLbY7o6nmqNhnEMIcZHubgDVznjxxg8FuL3XXK52i00L7Q6FoDRBI0Z9d7OBqjG4Y348k0o0ouk1wrqKOf1VI174PVNaN7QS05OM71sdKp5abRvRqeneWSxxMc1w4g6jUGK8aImLR63y0FBO64P1doaCSR7Jzu7N645kE0kjo44nue3i1rSSF6JpFeLhS6IWmsgqnsqJtT1kgxl2WEnqtLoXdLnSsqmW21CtlkfryykkEdwJ4d5+ZTN2G484jeWPa9vFpBC7f+NK+/wDprf8A8p//AO1xETgyRjnDIDgSO9enfxh6O/7Bf/yo1Gl6y6SXHSrRW9h1PDDVQwuaHsYSyQOa72QCdxwO/tB8F5CvRL56SIqi1zUFntxpxMwsMjyBqA7jho7cduV52mAiIgsUEfra2BmM5eM+Wd63sztaV7hwLjha6xR4llqTwiZhvxHd/mrqz9dc9eKViq/ci+ayLHV/dxfNVNVlClQoOktTTd9GKy1xjWqqSTa4G9r2Yw9o/HC5tWKCtqLfWRVdJIY5onZa4fh5Lf1NBR6Rk1dlMcFe/Jmt73Aazu0xk7iPBBzK3umF5pr5cYamkZKxkdO2IiUAHIJPYTu3rU1VFV0jyyqpZoXDskjLfxSloaureGUtLNM49kcZd+CCuukuzTadGKO1v9mqq5Nrnb2sbjDGn8cL7pqGj0cIq7yY569u+G3scHarux0hG4Y7loK+tnuFZLVVchkmldlzj+HkoMCIiAu99IcjoaTRyWM4eyJzmnxAjK4JFB6ZfrPHptTUl1s9TCJmx+rkjlcRgbzg4BwQSfPP1s2SzxWPR68Ub6mKauNO59QIzkMBa7VHQn5ryyOR8ZzG9zT3tOF88VaR3mhFZT3Gw1ej09WaWoe4up5A7BOcHA7yCM47QVlpdDbnBK6W9Xv1FFGCXviqHZ+rgAF58vt8sjwA97nAcMnOFCO59HzoHaY15pZZZoNneI5JjlzwHswSuIq/0qb43fisSIsdx6Vv1pQ/3c/mK2mnFqdpDQU94ttRA+Cnp3veC45LQNbdgceO44XmaAkAgEgHilSO4rP6KqH+8H/Eeruj1M2/aASWmlniZVskOWvPD29YZxvwR2rzpASDkEg+CUjaQuqNHNIWF5Bmo5xr6h3OA4gHxGR816FpdLS2qxXGuo3AzXdzGhw4FpZj6aocfNy4HR2GyzVEpv8AVTQxtALBGCdc53g4B/cremV/ivVVBFRMMdDSs1IQRjPecdg3AAeCU+udREWVFf8A6uP4AqCvj3I/gCb0udi+Kr9HHx/uWRY6r9HHx/uUxdU0UqFpl0Wi2K+kuNjcQJKuMSU+eHrWbwPmMj5Ln3sdG9zHtLXtOHNIwQe5TDLJDKyWF7mSMcHNc04II7V0swpNKWiZkkVJesASRvIbHVHvaeAd4dqIaHXq0WRk81bBVOrX5bHLC1rvVsx2ax45z2d3isVxqNF54Kh9Oy7mseC5r53MILz2u35WorbZX0Dyyso54SOdhAPkeBWGCmqKh4ZTwSyuPBsbC4n6KjEujiabRojM+X2ai7Pa2NvaIWHJd8zuUU1lp7U0VmkjtTA1o6Brv5WU9mtyt8961d4uc92rnVVRgbtVkbfdjaODR4KCkiIoC706PWzSa0U8+j7qelrImgTwuJwScceJHA4ON64Jfccj4nh8T3MeODmnBCqPQ9GdE59H6/7Wu9ZTxRQNdgMecHII9okDvTQquZctMrvWRDEcsZLN2N2s0A/QLz+epqKkg1E8spHD1jy7H1XQ6BXeis9yqJrhKY43w6rSGF2TrA9itI2UugklwrTVWyupXW2d2ux+SXNaeIwBg48/op0zvNNSVlpoba4SstbmvdvyNZuNVue8Ab/NcQyR7Gua17mh3EA4yvlKPTb5bJ9KBBc9H7mGtdGGyROlc0Dt7M4O/eCtFpFZ47NZdS4Xeee5yEYp2S5jxneSDvxjt3b1yUcj4zrRvcw97ThfJyePFKkeiPpodNtHKJtNUxx3KibquZIcdgBzjfg4BB+SoO0UobFaamq0injkqC0inhhkIy7G7syTnwwFxTSWuDmkgjgQjnOe4ueS5x4knJKEdxT/ANFtT/bD/Ear1vcNKNFKago60Utxow1urrlusGjAzjfgjG/sK85CkEgggkEdoVo7xujctspJqrSO9zRRtH8mymnOs893tDefABajRixUV8o6hra50F1Y4mJjnDVcMAg8M8c5xw3LnHvfI7Wkc5zu9xyV8oPU9H6a66PsqajSO6RuoWsw1r5C862eIJGeG7A45XmFQ6N9RK+FupG55LG9wzuC+XvfIcvc5xxjJOV8ogFkh++Z8QWNZIfvmfEEF8+8fNEPE+aKCrW/eN+ELAFnrfvW/CFXC0iV0MrTddE4XxjWqLU5zZR2mJxyHfI7lz3artouc9qrW1NPg7tV8bvdkaeLT4IKS6amu9or7VTUF+gqQ+ly2GopiM6p7CD5DsKxVNmp7o01ejrtcEa0lC538rEe3V5m+W9aOemnp3lk8MkThxD2FpH1Qbu9XqhktUNos1PLFRsf6yR8xGvI7xxu/wDBwwtCxrpHtYxpc5xwGgZJKs0dsrq54ZSUk0pJ/ZYcDzPALdQik0YBlfJFVXnBDGMIdHTHvJ7XeHYqjHpORQ0tvsrSC+kYX1BHD1r95HyG5c+vqWR80r5ZXl8jyXOc45JJ7V8oCIio9A0+/X1k8x+cLWek3+cEX91b+Zy5FSg7WD+i6o/th/iNUX7+jqz/ANsPweuKKIjtPRd+taz+7/8A2CnQK4U0lDW2Opn2d1Tl0UgODkjBAPfuBHzXFIrCu9p9DbtFUa9xvIjomZL5GTu1sfMYH/nFYNENn/hvMKKomqKdsTmslmOXOwBk57s5x4Li3SPe0Nc9xa3gCcgL5SFXr7+u7h/epPzFdPpl/NTR3+xb+Rq4pFYPRnW46T6F22nt08Imp9XXbI4jBDS0g4BIParXo9ngFnkoWSMjq4J3mVu4l3+95cB8l5eCRwJHkiQrT00RqKiKEODTI8MBPAZOF63eKrRLQ009vmtDZ5nRa+sKdj3FuSMuc7jkg/Ts3LyOLV9azXOG6wye4L2C8T6D3oQm5XCGaSFmo2X1rg/HcSOPz8e9Z1po7jppotUW+qgp7CWTSQvYx+zRDVcQQDkHvXnC9IuVs0AZbqp9JWtNQ2F5iAnccvwcbvPC83TAUgEnAGSVC29ppBGBWTt4fdNPae/yCm7GvHx5atxw7JSx0/7fvyfEez5KFLiXEknJPFQpmR03bosdZ93F81kXxUt1oWuH7B3/ADRNVEREQQEg5G4oiDb0elF8o2BkFynDRwDyHgf8WVNZpRe61hZPcpy08QwhgP8Aw4WnRBJJJyd5KhSigIiKAiIgIiIoiIEBERAREQEAQKQoCIigIiICvj3I/gCogFxAHEq+4Yw3lACb0udix1X6OPj/AHL7UTN14HAcQdZZztd6UlCkKFpkRERG0odIbvQMDKW4TsYODS7WA8gchZqnSy/VLC2W5zAHj6vDPygLSqVaPp7nPcXPcXOO8knJK+URFSiIogiIqCIiApUKUQUqFKAiIgIFCkKiUREQClQERBZIfvmfEFjWambrTN7hvKouniURFFVa371vwhYFZrWn2X9nAqqFWUoilAY5zHhzHFrgcgg4IW4p9Kb5TNDY7lMQOGvh/wCYFaZFRsq2/wB2rmllVXzvYeLQ7VB8wMLWqVCqClEQERQqCKVCIIiKgiIiCIiAiIqCIio0aIgGTgcVlsRXae11U2HFnqmc8nshbOmpqajw6Meum53jcPILPL+N54b99KlBbAAKitBDOLIu1/n3BXpJDI7JwOwAcAFD3Oe4ucSSe0qEn3W/WZMEREQUg47Mg8R3qEUVifTZOYnDHKeK+Nlm5OoVhESK+yzcnUJss3J1CsIpSK+yzcnUJss3J1CsKQlIr7LNydQmyzcnULOUUqxg2Wbk6hNlm5OoVhEpFfZZuTqE2Wbk6hWEUpxV9lm5OoTZZuTqFYRKvFW2Wbk6hTss3J1CsIlIr7LNydQmyzcnUKyilIrbLNydQmyzcnUKyicjirbLNydQp2Wbk6hWFKlOKts03J1CbNNydQrCJSK+zTcnUIKWbtaB5kKyiU4vmKJsW/Os/v7AvpEU3VzIKQcHIUIoMclOHHMRA/3SseyzcnUKygWqnFW2Wbk6hNlm5OoVlSlTiq7LNydQmyzcnUK0iUirss3J1CbLNydQrSJyIrbLNydQmyzcnUK0ESpFXZZuTqE2Wbk6hWlKUipss3J1CbLNydQralORFTZZuTqE2Wbk6hW0SpFTZZuTqFOyzcnUK0pVpFTZZuTqE2Wbk6hW0SkU9lm5OoU7LNydQrYUq1IqbNNydQmyzcnUK2gSkVNlm5OoTZpuTqFcRKkVG0shPtYaPEq1GxsbdVvbxPevpEoIiIBAc0tcMg8VWfSuH3ZDh47irKlWopCmm5OoU7NNydQriKop7LNydQmzTcnUK4itFPZpuTqE2abk6hXURFLZpuTqE2Wbk6hXgiopbNNydQo2Wbk6hXkQUdmm5OoTZZuTqFeUKopbLNydQmyzcnUK6ioo7LNydQmzTcnUK8hRFHZZuTqE2Wbk6hXUVFLZZuTqE2Wbk6hXUQUtmm5OoTZpuTqFdTCpVEQUQ92jZ83krKyQRfcRRReLGAFEWOOPTy18ue55y9xJ8SvlERBERAREUUREUBERRRERNBERQSoRFFSiIgIiKAiIgIiKCUREBERRRSiICIigIiICIiIKURAREQFKIgIiICIiApREQUhEQERERKIioKUREERFQUoiIIERBKIiqJREQERFUFKIqgiIgIiKokIiKgpREQREVQKhEVBERBClEVRCIiqCIiAiIqP/2Q==">
+  <!-- R1 est monté ici par §A. -->
+
+<script type="module">
+import { bootEngine, loadExampleDocument } from "./engine.mjs?v=278";
+import { renderEquipmentStep, rayonsEtEtageres } from "./equipment-step.mjs?v=278";
+import { armerJeton } from "./glisser.mjs?v=278";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   § A — LE BLOC R1. ⭐ CETTE SECTION PARTIRA DANS LE BUILDER, D'UN SEUL GESTE
+   (elle et son bloc de style §A). Elle ne lit rien de la page : on lui donne
+   les deux organes du produit, elle rend un nœud.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const el = (balise, classe, texte) => {
+  const n = document.createElement(balise);
+  if (classe) n.className = classe;
+  if (texte !== undefined) n.textContent = texte;
+  return n;
+};
+
+/** Les trois cibles de R (vault, « FHPCv2 écrans équipement » §2).
+ *  ⏳ `TO GEAR DROP → B1` est une LECTURE non tranchée (§5.1 du même fichier) :
+ *  R1 l'affiche, il ne la décide pas. */
+const COLLECTEURS = [
+  { creneau: "craft", mot: "CRAFT DROP", vers: "B4" },
+  { creneau: "shopping", mot: "SHOPPING LIST", vers: "B2" },
+  { creneau: "gear", mot: "TO GEAR DROP", vers: "B1" }
+];
+const BOUTONS = ["GEAR", "CART", "CRAFT", "NEXT"];
+
+/**
+ * MONTE R1 — les six morceaux, dans l'ordre du croquis.
+ * @param {object} organes
+ * @param {Element} organes.tambour  le nœud `.equipment-drum` DU PRODUIT
+ * @param {Element} organes.grille   le nœud `.equipment-grille` DU PRODUIT
+ * @param {Array} organes.arbre      `rayonsEtEtageres(query)` — pour les comptes
+ * @returns {{ noeud: Element, mesurer: Function }}
+ */
+export function construireR1({ tambour, grille, arbre }) {
+  const noeud = el("section", "r1");
+  noeud.dataset.ecran = "FF";
+  const corps = el("div", "r1-corps");
+
+  /* 2 — LA RECHERCHE, présente et inactive. */
+  const recherche = el("div", "r1-recherche");
+  recherche.dataset.sim = "oui";
+  recherche.append(el("span", null, "SEARCH"));
+
+  /* 5 — LES COLLECTEURS. */
+  const collecteurs = el("div", "r1-collecteurs");
+  collecteurs.dataset.sim = "oui";
+  for (const c of COLLECTEURS) {
+    const cible = el("div", "r1-collecteur");
+    cible.dataset.creneau = c.creneau;   // ⭐ la SEULE chose que glisser.mjs demande d'une cible
+    cible.dataset.vise = "false";
+    cible.append(el("span", null, c.mot), el("em", null, c.vers));
+    collecteurs.append(cible);
+  }
+
+  /* 6 — LES BOUTONS. */
+  const boutons = el("div", "r1-boutons");
+  boutons.dataset.sim = "oui";
+  for (const mot of BOUTONS) {
+    const b = el("button", "r1-bouton", mot);
+    b.type = "button";
+    boutons.append(b);
+  }
+
+  /* B1 — la fiche, en recouvrement. */
+  const fiche = el("div", "r1-b1");
+  fiche.dataset.sim = "oui";
+  fiche.hidden = true;
+  const ficheNom = el("p", "r1-b1-nom");
+  const pied = el("div", "r1-b1-pied");
+  const retour = el("button", "r1-bouton", "BACK");
+  retour.type = "button";
+  retour.addEventListener("click", () => { fiche.hidden = true; });
+  pied.append(retour);
+  for (const mot of ["CRAFT", "BUY", "FREE"]) {
+    const b = el("button", "r1-bouton", mot);
+    b.type = "button";
+    pied.append(b);
+  }
+  fiche.append(
+    el("h2", null, "ITEM DESCRIPTION"), el("p", "r1-b1-compte", "1/1"),
+    ficheNom, el("div", "r1-b1-corps"), pied
+  );
+
+  corps.append(tambour, recherche, grille, collecteurs, boutons);
+  noeud.append(corps, fiche);
+
+  /* ══ LES DEUX SOINS À DONNER AUX CASES, ET ILS SE REDONNENT ═════════════
+     🔴 UNE SEULE PASSE NE SUFFIT PAS, MESURÉ : la grille se REMPLIT toute
+     seule 500 ms après l'arrêt d'une roue, et à chaque page. Les yeux retirés
+     au montage étaient tous revenus — 15 sur 15 — au premier tour de roue.
+     C'est donc un observateur qui les tient, jamais un geste unique.
+       · L'ŒIL DISPARAÎT — Eric, 23/08 : *« y'a pas besoin d'œil ; par un clic,
+         la page B1 s'affiche en FF »*. Retiré du RENDU, jamais du produit — et
+         le jeton reprend alors toute la largeur de sa case, ce qui est la
+         vraie géométrie de cette décision.
+       · LE JETON S'ARME, avec l'organe de glisser du dépôt et pas une seconde
+         écriture du geste.
+     ⚠️ Retirer un nœud ici réveille l'observateur une seconde fois ; la passe
+     suivante ne trouve plus rien et s'arrête. */
+  /* ══ LES COMPTES SUR LES CRANS ═══════════════════════════════════════════
+     Deux tables, une par étage, et les CHIFFRES VIENNENT DU PRODUIT : c'est
+     `rayonsEtEtageres` — la fonction de l'écran, pas une seconde arithmétique
+     — qui les rend. Un compte calculé ici divergerait du contenu de la grille
+     au premier réglage de la taxonomie.
+     ⚠️ Les tables sont indexées par LIBELLE, et par étage : « Gear » nomme à
+     la fois un rayon et l'étagère des non-classés de ce rayon. */
+  const comptesRayon = new Map();
+  const comptesEtagere = new Map();
+  for (const rayon of arbre || []) {
+    comptesRayon.set(rayon.label, rayon.etageres.reduce((n, e) => n + e.objets.length, 0));
+    for (const etagere of rayon.etageres) comptesEtagere.set(etagere.label, etagere.objets.length);
+  }
+  function annoterLesCrans() {
+    for (const roue of tambour.querySelectorAll(".roue")) {
+      const table = roue.dataset.niveau === "rayons" ? comptesRayon : comptesEtagere;
+      for (const cran of roue.querySelectorAll(".roue-cran")) {
+        const n = table.get(cran.textContent);
+        if (n === undefined) delete cran.dataset.compte;
+        else cran.dataset.compte = String(n);
+      }
+    }
+  }
+  annoterLesCrans();
+  /* Les crans se refont à chaque tour de roue (l'étage du bas se REMPLIT
+     500 ms après l'arrêt du haut) : l'annotation se redonne, comme les deux
+     soins de la grille juste en dessous. */
+  new MutationObserver(annoterLesCrans).observe(tambour, { childList: true, subtree: true });
+
+  const armes = new WeakSet();
+  function soignerLesCases() {
+    for (const oeil of grille.querySelectorAll(".grille-oeil")) oeil.remove();
+    for (const jeton of grille.querySelectorAll(".grille-jeton")) {
+      if (armes.has(jeton)) continue;
+      armes.add(jeton);
+      const nom = (jeton.getAttribute("aria-label") || "").replace(/^Add\s+/, "") || jeton.textContent;
+      armerJeton(jeton, {
+        onTap: () => { ficheNom.textContent = nom; fiche.hidden = false; },
+        onDepot: (creneau) => {
+          /* ⭐ ON SAUTE B1 — la cible dit l'intention. R1 ne fait pas encore
+             l'acte : il montre QUE la cible l'a reçu. */
+          const cible = collecteurs.querySelector(`[data-creneau="${creneau}"]`);
+          if (!cible) return;
+          cible.dataset.recu = "oui";
+          setTimeout(() => { delete cible.dataset.recu; }, 900);
+        }
+      });
+    }
+  }
+  soignerLesCases();
+  new MutationObserver(soignerLesCases).observe(grille, { childList: true, subtree: true });
+
+  /** LE BUDGET DE HAUTEUR — ce que le cadre offre, ce que les six morceaux
+   *  prennent. ⛔ Un dépassement ne se rattrape pas par un défilement : il se
+   *  NOMME, et on demande au contenu ce qu'il porte en trop. */
+  function mesurer() {
+    const style = getComputedStyle(noeud);
+    const dispo = noeud.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    const pris = [...corps.children].reduce((somme, n) => {
+      const s = getComputedStyle(n);
+      return somme + n.offsetHeight + parseFloat(s.marginTop) + parseFloat(s.marginBottom);
+    }, 0);
+    return { dispo: Math.round(dispo), pris: Math.round(pris) };
+  }
+
+  return { noeud, mesurer };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   § B — L'ÉCHAFAUDAGE. ⛔ RIEN D'ICI NE PART : il monte le moteur, emprunte
+   les deux organes à l'écran réel, donne le tout à §A, et relève les chiffres.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const mesure = document.getElementById("mesure");
+
+(async () => {
+  try {
+    const [moteur, exemple] = await Promise.all([bootEngine(), loadExampleDocument()]);
+    const out = moteur.build.verbs.rebuild({ document: exemple });
+
+    /* ON REND LE VRAI ÉCRAN, puis on lui emprunte ses deux organes. ⛔ Le nœud
+       de recherche du produit n'est jamais monté : c'est ça, « inactive » —
+       rien n'est débranché, il n'est simplement pas là. */
+    const ecran = renderEquipmentStep({
+      document: out.document, resolved: out.resolved,
+      query: moteur.layers.verbs.query, search: false
+    }, () => { /* R1 n'écrit rien dans le personnage */ });
+
+    const tambour = ecran.querySelector(".equipment-drum");
+    const grille = ecran.querySelector(".equipment-grille");
+    if (!tambour || !grille) throw new Error("le tambour ou la grille a changé de nom dans l'écran");
+
+    /* ⭐ LES COMPTES VIENNENT DE LA FONCTION DE L'ÉCRAN, pas d'un second
+       calcul : `rayonsEtEtageres` est exportée, on la lit telle quelle. */
+    const r1 = construireR1({ tambour, grille, arbre: rayonsEtEtageres(moteur.layers.verbs.query) });
+    document.body.append(r1.noeud);
+
+    let derniere = null;
+    function veiller() {
+      const l = document.documentElement.clientWidth;
+      const h = document.documentElement.clientHeight;
+      const { dispo, pris } = r1.mesurer();
+      const empreinte = `${l}×${h}·${dispo}·${pris}`;
+      if (empreinte === derniere) return;
+      derniere = empreinte;
+      const reste = dispo - pris;
+      mesure.dataset.deborde = reste < 0 ? "oui" : "non";
+      mesure.textContent = `écran ${l} × ${h} px — R1 : ${dispo} dispo · ${pris} pris · ` +
+        (reste >= 0 ? `${reste} de reste` : `${-reste} EN TROP`);
+    }
+    veiller();
+    if (typeof ResizeObserver === "function") new ResizeObserver(veiller).observe(document.documentElement);
+    window.addEventListener("resize", veiller);
+    window.addEventListener("orientationchange", () => setTimeout(veiller, 200));
+    setInterval(veiller, 500);
+  } catch (error) {
+    /* ⛔ UNE PANNE NE SE TAIT PAS : une page blanche ferait chercher le défaut
+       dans l'écran alors qu'il est dans le chargement. */
+    mesure.textContent = `Le moteur n'a pas démarré : ${error.message}`;
+  }
+})();
+</script>
+</body>
+</html>
