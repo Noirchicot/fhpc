@@ -95,14 +95,27 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
 /* La grille du repère — un décor de banc, elle ne part pas dans le produit. */
 .b3-grille { stroke: var(--border); stroke-width: 1; opacity: .5; }
 .b3-cadre { fill: none; stroke: var(--border-strong); stroke-width: 2; }
-.b3-corps { fill: var(--dalle-simple); stroke: var(--border-strong); stroke-width: 2; }
+/* ⭐ LE CORPS EST PEINT, PAS DESSINÉ : le masque donne la forme, ce jeton donne
+   l'encre. Changer de thème change la couleur du pantin sans toucher au tracé. */
+.b3-corps { fill: var(--text-soft); }
 
 /* ⭐ UN ANCRAGE SE PREND AU DOIGT. `touch-action: none` — sans lui le doigt
    fait défiler la page et le navigateur annule la séquence en cours de route,
    exactement comme pour les jetons de l'écran R (`glisser.mjs`, en tête). */
 .b3-ancre { fill: var(--accent); stroke: var(--surface); stroke-width: 3; cursor: grab; touch-action: none; }
 .b3-ancre[data-pris="oui"] { fill: var(--critical); cursor: grabbing; }
-.b3-etiquette { fill: var(--text-soft); font-size: 26px; font-family: inherit; pointer-events: none; }
+/* ⚠️ UN HALO, PARCE QUE L'ÉTIQUETTE PASSE SUR LE CORPS. Vu à l'écran : « Tête 8 »
+   se lisait « te 8 » et « Mains 43 » se lisait « ains », le mot disparaissant
+   dans la silhouette claire. ⛔ Et c'est justement le mot qu'Eric doit lire pour
+   savoir quelle pastille il déplace — un banc dont l'étiquette s'efface ne sert
+   pas à ce pour quoi on l'a fait.
+   ⭐ `paint-order: stroke` peint le contour SOUS la lettre : le trait épaissit
+   le fond, jamais le dessin de la lettre. Sans lui, le contour mange le glyphe
+   de l'intérieur et le gras devient illisible. */
+.b3-etiquette {
+  fill: var(--text); font-size: 26px; font-family: inherit; pointer-events: none;
+  paint-order: stroke; stroke: var(--bg); stroke-width: 6; stroke-linejoin: round;
+}
 
 .banc-releve {
   flex: 1 1 220px; min-width: 0; overflow: auto;
@@ -129,27 +142,33 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
     <svg class="b3-repere" viewBox="0 0 1000 1600" id="repere" aria-label="Le repère du dressing">
       <g class="b3-grille" id="grille"></g>
       <rect class="b3-cadre" x="1" y="1" width="998" height="1598"></rect>
-      <!-- ⏳ CORPS DE SUBSTITUTION — il tient la place et les proportions.
-           Le remplacer par le tracé d'Eric ne déplacera AUCUN ancrage : ils
-           vivent dans le repère, pas sur l'image. C'est tout l'intérêt. -->
-      <g class="b3-corps" id="corps">
-        <circle cx="500" cy="215" r="95"></circle>
-        <rect x="405" y="320" width="190" height="60" rx="24"></rect>
-        <rect x="345" y="370" width="310" height="360" rx="46"></rect>
-        <rect x="250" y="385" width="80" height="330" rx="38"></rect>
-        <rect x="670" y="385" width="80" height="330" rx="38"></rect>
-        <rect x="360" y="730" width="120" height="480" rx="52"></rect>
-        <rect x="520" y="730" width="120" height="480" rx="52"></rect>
-        <rect x="345" y="1210" width="150" height="70" rx="26"></rect>
-        <rect x="505" y="1210" width="150" height="70" rx="26"></rect>
-      </g>
-      <g id="ancres"></g>
+      <!-- 🔴 LES DEUX CORPS, ET ILS SONT CALÉS SUR LEUR ENCRE — pas sur leur
+           fichier. Mesuré : le monsieur fait 918 px d'encre, la dame 866, dans
+           des fichiers de taille IDENTIQUE. Posés tels quels, la dame serait 6 %
+           plus petite et les ancrages tomberaient à côté sur l'un des deux.
+           ⭐ Les deux sont donc ramenés à **1400 unités de haut**, et leurs
+           largeurs diffèrent (441 et 390) — c'est l'anatomie, pas un défaut.
+           ⛔ EN MASQUE, PAS EN IMAGE : les PNG d'Eric ont un fond BLANC OPAQUE
+           (0 % de pixels transparents, mesuré) ; posés tels quels sur la carte
+           sombre, ils feraient un rectangle blanc. Transformés en masque, le
+           corps est PEINT par un jeton — il suit le thème clair/sombre, et il
+           reste une forme, pas une photo. -->
+      <defs>
+        <mask id="masque-h" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
+          <image href="./assets/pantin-h.png?v=284" x="280" y="100" width="441" height="1400"></image>
+        </mask>
+        <mask id="masque-f" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
+          <image href="./assets/pantin-f.png?v=284" x="305" y="100" width="390" height="1400"></image>
+        </mask>
+      </defs>
+      <rect class="b3-corps" id="corps" x="0" y="0" width="1000" height="1600" mask="url(#masque-h)"></rect>      <g id="ancres"></g>
     </svg>
 
     <aside class="banc-releve">
       <h2>Les dix ancrages</h2>
       <pre id="json">…</pre>
       <button type="button" id="copier">Copier le JSON</button>
+      <button type="button" id="corpsSuivant">Voir l'autre corps</button>
       <button type="button" id="remettre">Remettre au départ</button>
     </aside>
   </div>
@@ -176,6 +195,7 @@ const EMPLACEMENTS = [
 ];
 
 const SVG = "http://www.w3.org/2000/svg";
+let corpsCourant = "h";
 const repere = document.getElementById("repere");
 const hote = document.getElementById("ancres");
 const sortie = document.getElementById("json");
@@ -264,13 +284,24 @@ function relever() {
   const echelle = (r.width / 1000);
   mesure.textContent =
     `repère 1000 × 1600 · rendu ${Math.round(r.width)} × ${Math.round(r.height)} px ` +
-    `· 1 unité = ${echelle.toFixed(3)} px — ⭐ les ancrages ne bougent pas quand ce chiffre change`;
+    `· 1 unité = ${echelle.toFixed(3)} px · corps : ${corpsCourant === "h" ? "monsieur" : "dame"} ` +
+    `— ⭐ les ancrages ne bougent ni avec l'échelle ni avec le corps`;
 }
 
 document.getElementById("copier").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(sortie.textContent); }
   catch { /* ⛔ un refus du presse-papier n'est pas une panne : le JSON est à l'écran */ }
 });
+/* 🔴 LES DEUX CORPS SE REGARDENT AVEC LES MÊMES ANCRAGES — c'est tout l'objet
+   de ce bouton. Un ancrage juste sur le monsieur et faux sur la dame n'est pas
+   un ancrage, c'est un réglage. ⭐ Et rien ne bouge en changeant de corps : les
+   pastilles vivent dans le repère, pas sur l'image. */
+document.getElementById("corpsSuivant").addEventListener("click", () => {
+  corpsCourant = corpsCourant === "h" ? "f" : "h";
+  document.getElementById("corps").setAttribute("mask", `url(#masque-${corpsCourant})`);
+  relever();
+});
+
 document.getElementById("remettre").addEventListener("click", () => {
   etat.forEach((e, i) => { e.x = EMPLACEMENTS[i].x; e.y = EMPLACEMENTS[i].y; });
   dessiner();
