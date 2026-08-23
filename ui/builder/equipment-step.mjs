@@ -318,24 +318,42 @@ export function rayonsEtEtageres(query) {
 
 /* ══ L'ATTENTE — ☆ ☉ ☾, ET CE QUI LES DÉCLENCHE ══════════════════════════
    Règle d'Eric, arrivée en cinq passes le 22/08 et étendue à la grille le
-   23/08 : « dès qu'une roue tourne, tout l'aval montre ses marqueurs ; 500 ms
-   d'immobilité, et le choix paraît ». Le compte mesure L'IMMOBILITÉ, pas le
-   temps : il se réarme à chaque geste.
+   23/08 : « dès qu'une roue BOUGE, tout l'aval cesse d'afficher un choix ;
+   500 ms d'immobilité, et le choix reparaît ». Le compte mesure
+   L'IMMOBILITÉ, pas le temps : il se réarme à chaque geste.
 
    ⭐ CE QUI A PRIS CINQ PASSES : le mécanisme n'a jamais changé, seul son
    MOMENT. Marqueurs sans délai → ça clignote à chaque cran franchi. Masquage
-   complet → la moitié de l'écran disparaît à chaque geste. */
+   complet → la moitié de l'écran disparaît à chaque geste.
+
+   🔴 ET LE MOMENT ÉTAIT ENCORE FAUX — MESURÉ AU NAVIGATEUR LE 2026-08-23,
+   après qu'Eric l'a vu sur son iPhone (*« j'ai bougé, la 2ᵉ et la 3ᵉ montrent
+   des items ou une liste — pas normal »*). L'attente s'armait depuis `juger()`,
+   qui rend la main AVANT `quandCran` quand le viseur n'a pas changé de cran
+   (`if (i === dernier) return`). Le déclencheur n'était donc pas LE MOUVEMENT
+   mais LE FRANCHISSEMENT D'UN CRAN.
+   📏 L'instant observé, et il est nommé : la roue du haut poussée de **24 px**
+   (un cran en vaut 82), état aval REMPLI. Relevé 6 s plus tard — `pisteB`
+   `data-attente="non"` portant le cran « Gear », grille `data-attente="non"`
+   portant ses quinze objets, titre « Gear ». **Aucun marqueur n'a jamais
+   paru.** Tout début de geste, jusqu'au premier franchissement, vivait le même
+   défaut ; un geste plus court que le demi-cran ne le quittait jamais.
+   ➡️ Le déclencheur est donc l'ÉVÉNEMENT DE DÉFILEMENT lui-même (`quandBouge`),
+   pas le verdict du viseur. */
 const ATTENTE_MS = 500;
+
+/** ⭐ ☆ ☉ ☾, DANS L'ORDRE, À CHAQUE ÉTAGE — Eric, 2026-08-23 : *« le 3 doit
+ *  être des étoiles soleil lune, répartition dans l'ordre que j'ai dit, à
+ *  chaque étage »*. La grille a TROIS colonnes : une rangée porte donc la
+ *  série entière, et chaque rangée la répète.
+ *  ⛔ IL N'Y A PLUS DE TIRAGE — donc plus la question du lot 84 (« se refait-il
+ *  à chaque attente ou une fois pour toutes ? »). La retirer était la moitié de
+ *  l'ordre : un commentaire qui pose une question morte est un commentaire
+ *  faux. */
 const SYMBOLES_ATTENTE = ["☆", "☉", "☾"]; // ☆ ☉ ☾
 
-/** ⭐ CHOIX PAR DÉFAUT ASSUMÉ (lot 84) — LE TIRAGE SE FAIT UNE FOIS PAR
- *  MONTAGE DE L'ÉCRAN, jamais à chaque attente. C'est la question qu'Eric a
- *  laissée ouverte, et son inquiétude tranche dans ce sens : « un tirage qui
- *  change à chaque geste attire l'œil sur du bruit ». Le renverser tient en
- *  une ligne — appeler ceci depuis `enAttente` au lieu du montage. */
-function tirerLesSymboles(combien) {
-  return Array.from({ length: combien },
-    () => SYMBOLES_ATTENTE[Math.floor(Math.random() * SYMBOLES_ATTENTE.length)]);
+function symbolesDAttente(combien) {
+  return Array.from({ length: combien }, (_, i) => SYMBOLES_ATTENTE[i % SYMBOLES_ATTENTE.length]);
 }
 
 /* ══ LA GRILLE — 5 LIGNES × 3 COLONNES ══════════════════════════════════ */
@@ -472,7 +490,7 @@ function profondeurAccordee() {
    l'interdit dans tout `ui/` hors du moteur de dés recopié. Couper
    l'aimantation le temps d'un bond passe donc par un ATTRIBUT, et la feuille
    fait le reste — ce qui est de toute façon la bonne place du décor. */
-function monterRoue(piste, { longueur, rangCourant, quandCran }) {
+function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   let pasCache = 0;
   let dernier = -1;
   let idImage = 0;
@@ -587,7 +605,20 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
     quandCran(i, programmatique > 0);
   }
 
+  /* 🔴 DEUX CHOSES ARRIVENT SUR UN `scroll`, ET ELLES N'ONT PAS LE MÊME
+     MOMENT. `juger` attend une image, parce qu'il LIT la mise en page et
+     qu'une lecture par événement coûterait 36 recalculs. `quandBouge`, lui,
+     n'a rien à lire : il dit « ça bouge », et c'est vrai TOUT DE SUITE.
+     ⭐ C'est ce décalage qui a fait le défaut du 23/08 : l'attente vivait
+     dans `juger`, donc derrière le verdict du viseur — elle ne s'armait qu'au
+     franchissement d'un cran, jamais au mouvement. Mesuré : 24 px de geste,
+     aucun marqueur, jamais.
+     ⛔ ET IL RESTE BORNÉ PAR `programmatique` : nos propres écritures de
+     `scrollLeft` (le placement au montage, la couture, le repos après un
+     remplissage) ne sont pas des gestes, et les compter rearmerait l'attente
+     en boucle. */
   piste.addEventListener("scroll", () => {
+    if (programmatique === 0 && quandBouge) quandBouge();
     annulerImage(idImage);
     idImage = demanderImage(juger);
   }, { passive: true });
@@ -617,6 +648,13 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
    *  ressemblerait à un geste et rearmerait l'attente en boucle. */
   function reposer() {
     dernier = -1;
+    /* 🔴 LA FENÊTRE PROGRAMMATIQUE S'OUVRE ICI, PAS À LA PROCHAINE IMAGE.
+       Le remplissage vient de remplacer les crans, et ce remplacement peut
+       émettre un `scroll` AVANT que l'image demandée ne s'exécute. Non marqué,
+       ce `scroll` ressemble à un geste : depuis que `quandBouge` écoute
+       l'événement lui-même, il rearmerait l'attente en boucle — c'est
+       exactement le risque que le commentaire d'à côté nommait déjà. */
+    programmatique += 1;
     demanderImage(() => programmatiquement(() => {
       /* ⭐ « Le premier est celui qui s'ouvre » — règle d'Eric au banc. La roue
          ne se pose donc pas au hasard du tour du milieu : elle se pose sur le
@@ -625,6 +663,7 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
       const cible = positionDe(rangCourant());
       if (cible !== null) sauter(cible);
       juger();
+      demanderImage(() => { programmatique -= 1; });
     }));
   }
 
@@ -735,11 +774,10 @@ const positionDuTambour = { rayon: null, etagere: null, page: 0 };
  */
 function renderTambour({ query, onAction }) {
   const arbre = rayonsEtEtageres(query);
-  const symboles = tirerLesSymboles(CASES_PAR_PAGE);
+  const symboles = symbolesDAttente(CASES_PAR_PAGE);
 
   const pisteA = el("div", "roue-piste");
   const pisteB = el("div", "roue-piste");
-  const titre = el("span", "grille-titre");
   const compte = el("span", "grille-compte");
   const cases = el("div", "grille-cases");
 
@@ -777,15 +815,23 @@ function renderTambour({ query, onAction }) {
      ⛔ ON NE DÉMONTE PAS LA PISTE : on remplace son contenu. Démonter mettrait
      `scrollWidth` à zéro, et la roue perdrait sa couture au moment précis où
      elle en a besoin. L'attribut coupe l'aimantation, la perspective et les
-     `pointer-events` — une bande figée dit qu'il n'y a rien à choisir. */
+     `pointer-events` — une bande figée dit qu'il n'y a rien à choisir.
+
+     🔴 ET LES DEUX SONT IDEMPOTENTES, PARCE QUE LEUR APPELANT A CHANGÉ. Depuis
+     que l'attente s'arme sur l'ÉVÉNEMENT de défilement, elles sont appelées à
+     chaque image d'un geste — soixante fois par seconde. Reconstruire les
+     quinze marqueurs à chaque fois, c'est soixante `swapContent` pour un
+     écran qui ne change pas : un mur qu'on repeint pendant qu'on le regarde.
+     Sortir tôt quand on est DÉJÀ en attente rend le geste gratuit. */
   function attendreB() {
+    if (pisteB.dataset.attente === "oui") return;
     pisteB.dataset.attente = "oui";
     swapContent(pisteB, symboles.slice(0, 3).map((s) => faireMarqueur(s, "roue-cran roue-marqueur")));
   }
   function attendreGrille() {
+    if (cases.dataset.attente === "oui") return;
     cases.dataset.attente = "oui";
     swapContent(cases, symboles.map((s) => faireMarqueur(s, "grille-case grille-marqueur")));
-    titre.textContent = "—";
     compte.textContent = "—";
   }
 
@@ -804,7 +850,6 @@ function renderTambour({ query, onAction }) {
     page = vue.page;
     cases.dataset.attente = "non";
     swapContent(cases, vue.objets.map((item) => faireCase(item, onAction)));
-    titre.textContent = etagere.label;
     compte.textContent = `${vue.page + 1}/${vue.pages}`;
     if (!vierge) positionDuTambour.page = page;
   }
@@ -841,6 +886,32 @@ function renderTambour({ query, onAction }) {
       (noeud) => roueB.viser(noeud)
     )));
     roueB.reposer();
+  }
+
+  /* ── CE QUE FAIT UN MOUVEMENT, ET C'EST LA PHRASE D'ERIC MOT POUR MOT ────
+     *« dès que la roue du haut bouge, tout ce qui est en dessous cesse
+     d'afficher un choix »* — et ne le retrouve qu'après une demi-seconde
+     d'immobilité.
+     ⭐ CES DEUX-LÀ NE LISENT NI LE VISEUR NI LE RANG : ils ne savent que « ça
+     bouge », qui est la seule chose vraie au premier pixel. Le RANG, lui,
+     arrive plus tard par `quandCran` — une image plus tard au mieux, un cran
+     plus tard au pire, et c'est précisément ce retard qui faisait le défaut
+     du 23/08.
+     ⚠️ `vierge` TOMBE ICI AUSSI. Un geste réel qui n'aurait pas encore
+     franchi de cran laissait le drapeau levé, et l'aval restait figé sur ses
+     marqueurs sans jamais rien remplir — l'autre moitié de ce qu'Eric a vu
+     (« la 2ᵉ reste inactive »). */
+  function bougeRayon() {
+    vierge = false;
+    attendreB();
+    attendreGrille();
+    armer(() => { remplirB(); remplirGrille(); });
+  }
+
+  function bougeEtagere() {
+    vierge = false;
+    attendreGrille();
+    armer(remplirGrille);
   }
 
   function quandRayon(rang, programmatique) {
@@ -894,12 +965,14 @@ function renderTambour({ query, onAction }) {
   roueA = monterRoue(pisteA, {
     longueur: () => arbre.length,
     rangCourant: () => Math.max(0, arbre.findIndex((r) => r.id === rayonId)),
-    quandCran: quandRayon
+    quandCran: quandRayon,
+    quandBouge: bougeRayon
   });
   roueB = monterRoue(pisteB, {
     longueur: () => etageresCourantes().length,
     rangCourant: () => Math.max(0, etageresCourantes().findIndex((e) => e.id === etagereId)),
-    quandCran: quandEtagere
+    quandCran: quandEtagere,
+    quandBouge: bougeEtagere
   });
 
   if (vierge) { attendreB(); attendreGrille(); } else { remplirB(); remplirGrille(); }
