@@ -43,9 +43,9 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=278";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=278";
-import { swapContent } from "./socle.mjs?v=278";
+import { renderPicker } from "./carnet.mjs?v=279";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=279";
+import { swapContent } from "./socle.mjs?v=279";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -53,14 +53,14 @@ import { swapContent } from "./socle.mjs?v=278";
    `gear[n]`, cette liste ne fait que dire à QUI `query({kind})` est posée.
 
    ── ⭐ LOT 84 — `item` ENTRE, ET C'EST UNE DÉCISION D'ERIC (2026-08-23,
-   « oui ça rentre à l'équipement »). Le catalogue passe donc de 133 à 386
-   records (mesuré : 82 + 38 + 13 + 253). La commande du lot l'INTERDISAIT
+   « oui ça rentre à l'équipement »). Le catalogue passe donc de 133 à 391
+   records (mesuré : 82 + 38 + 13 + 258). La commande du lot l'INTERDISAIT
    tant que personne n'avait tranché ; il est tranché.
 
    ── 🔴 CE QUE `item` APPORTE ET CE QU'IL N'A PAS, mesuré sur
-   `layers/srd-5.2.1-en.layer.json` : les 253 objets magiques portent
-   `category` (non vide 253/253) — c'est le SEUL vrai second niveau du
-   catalogue — mais **0 sur 253 portent un `cost`, 0 sur 253 portent un
+   `layers/srd-5.2.1-en.layer.json` : les 258 objets magiques portent
+   `category` (non vide 258/258) — c'est le SEUL vrai second niveau du
+   catalogue — mais **0 sur 258 portent un `cost`, 0 sur 258 portent un
    `weight`**. Un autre chantier les remplira. Cet écran doit donc afficher
    un objet SANS PRIX ET SANS POIDS sans rien casser et sans inventer de
    valeur : `recordCost`/`recordWeight` rendent `null`, et la ligne de méta
@@ -215,7 +215,7 @@ function catalogue(query) {
                      p. 92, mais l'extracteur les ENJAMBE : c'est un lot de
                      `fh-srd`, pas d'ici)
      weapon   38     ✅ `weapon_category` — martial 24 · simple 14
-     item    253     ✅ `category` — wondrous-item 127 · weapon 28 · potion 24
+     item    258     ✅ `category` — wondrous-item 127 · weapon 33 · potion 24
                      · ring 22 · armor 19 · wand 13 · staff 12 · rod 7 · scroll 1
 
    ⛔ AUCUN ANALYSEUR DE PROSE. Ni sur `cost`, ni sur `weight`, ni sur
@@ -318,24 +318,42 @@ export function rayonsEtEtageres(query) {
 
 /* ══ L'ATTENTE — ☆ ☉ ☾, ET CE QUI LES DÉCLENCHE ══════════════════════════
    Règle d'Eric, arrivée en cinq passes le 22/08 et étendue à la grille le
-   23/08 : « dès qu'une roue tourne, tout l'aval montre ses marqueurs ; 500 ms
-   d'immobilité, et le choix paraît ». Le compte mesure L'IMMOBILITÉ, pas le
-   temps : il se réarme à chaque geste.
+   23/08 : « dès qu'une roue BOUGE, tout l'aval cesse d'afficher un choix ;
+   500 ms d'immobilité, et le choix reparaît ». Le compte mesure
+   L'IMMOBILITÉ, pas le temps : il se réarme à chaque geste.
 
    ⭐ CE QUI A PRIS CINQ PASSES : le mécanisme n'a jamais changé, seul son
    MOMENT. Marqueurs sans délai → ça clignote à chaque cran franchi. Masquage
-   complet → la moitié de l'écran disparaît à chaque geste. */
+   complet → la moitié de l'écran disparaît à chaque geste.
+
+   🔴 ET LE MOMENT ÉTAIT ENCORE FAUX — MESURÉ AU NAVIGATEUR LE 2026-08-23,
+   après qu'Eric l'a vu sur son iPhone (*« j'ai bougé, la 2ᵉ et la 3ᵉ montrent
+   des items ou une liste — pas normal »*). L'attente s'armait depuis `juger()`,
+   qui rend la main AVANT `quandCran` quand le viseur n'a pas changé de cran
+   (`if (i === dernier) return`). Le déclencheur n'était donc pas LE MOUVEMENT
+   mais LE FRANCHISSEMENT D'UN CRAN.
+   📏 L'instant observé, et il est nommé : la roue du haut poussée de **24 px**
+   (un cran en vaut 82), état aval REMPLI. Relevé 6 s plus tard — `pisteB`
+   `data-attente="non"` portant le cran « Gear », grille `data-attente="non"`
+   portant ses quinze objets, titre « Gear ». **Aucun marqueur n'a jamais
+   paru.** Tout début de geste, jusqu'au premier franchissement, vivait le même
+   défaut ; un geste plus court que le demi-cran ne le quittait jamais.
+   ➡️ Le déclencheur est donc l'ÉVÉNEMENT DE DÉFILEMENT lui-même (`quandBouge`),
+   pas le verdict du viseur. */
 const ATTENTE_MS = 500;
+
+/** ⭐ ☆ ☉ ☾, DANS L'ORDRE, À CHAQUE ÉTAGE — Eric, 2026-08-23 : *« le 3 doit
+ *  être des étoiles soleil lune, répartition dans l'ordre que j'ai dit, à
+ *  chaque étage »*. La grille a TROIS colonnes : une rangée porte donc la
+ *  série entière, et chaque rangée la répète.
+ *  ⛔ IL N'Y A PLUS DE TIRAGE — donc plus la question du lot 84 (« se refait-il
+ *  à chaque attente ou une fois pour toutes ? »). La retirer était la moitié de
+ *  l'ordre : un commentaire qui pose une question morte est un commentaire
+ *  faux. */
 const SYMBOLES_ATTENTE = ["☆", "☉", "☾"]; // ☆ ☉ ☾
 
-/** ⭐ CHOIX PAR DÉFAUT ASSUMÉ (lot 84) — LE TIRAGE SE FAIT UNE FOIS PAR
- *  MONTAGE DE L'ÉCRAN, jamais à chaque attente. C'est la question qu'Eric a
- *  laissée ouverte, et son inquiétude tranche dans ce sens : « un tirage qui
- *  change à chaque geste attire l'œil sur du bruit ». Le renverser tient en
- *  une ligne — appeler ceci depuis `enAttente` au lieu du montage. */
-function tirerLesSymboles(combien) {
-  return Array.from({ length: combien },
-    () => SYMBOLES_ATTENTE[Math.floor(Math.random() * SYMBOLES_ATTENTE.length)]);
+function symbolesDAttente(combien) {
+  return Array.from({ length: combien }, (_, i) => SYMBOLES_ATTENTE[i % SYMBOLES_ATTENTE.length]);
 }
 
 /* ══ LA GRILLE — 5 LIGNES × 3 COLONNES ══════════════════════════════════ */
@@ -472,11 +490,23 @@ function profondeurAccordee() {
    l'interdit dans tout `ui/` hors du moteur de dés recopié. Couper
    l'aimantation le temps d'un bond passe donc par un ATTRIBUT, et la feuille
    fait le reste — ce qui est de toute façon la bonne place du décor. */
-function monterRoue(piste, { longueur, rangCourant, quandCran }) {
+function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   let pasCache = 0;
   let dernier = -1;
   let idImage = 0;
   let programmatique = 0;
+  /* 🔴 LA POSITION QUE NOUS VENONS D'ÉCRIRE, ET ELLE EXISTE PARCE QUE LE COMPTE
+     SEUL PERD LA COURSE — mesuré le 2026-08-23, au chargement de la page.
+     Un `scroll` n'est PAS dispatché dans la tâche qui écrit `scrollLeft` : le
+     navigateur l'émet à l'étape de rendu, APRÈS les rappels d'image. Or c'est
+     un rappel d'image qui décrémente le compte. Le `scroll` de NOTRE PROPRE
+     placement arrivait donc avec `programmatique === 0`, se faisait prendre
+     pour un geste, et l'aval se révélait tout seul une seconde après le
+     chargement — sans que personne n'ait touché l'écran.
+     ⭐ LA POSITION, ELLE, NE COURT PAS : tant que le défilement est encore là où
+     nous l'avons posé, il est de nous. Un doigt qui « bouge » jusqu'au pixel
+     exact que nous venons d'écrire n'a pas bougé. */
+  let positionEcrite = NaN;
 
   /** Le pas d'un cran, LU DANS LA MISE EN PAGE et mis en cache.
    *  ⭐ Il n'est écrit NULLE PART en JS : la cote vit dans `shell.css`
@@ -494,6 +524,21 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
       if (Number.isFinite(a) && Number.isFinite(b) && b > a) pasCache = b - a;
     }
     return pasCache;
+  }
+
+  /** L'ÉCART entre deux crans, LU dans la mise en page comme le pas, et jamais
+   *  recopié : la cote vit dans `shell.css` (`--roue-ecart`).
+   *  ⭐ IL SERT DE SEUIL : rien de plus petit qu'un écart ne peut être un
+   *  changement de choix. C'est la plus petite distance que le décor lui-même
+   *  reconnaisse. Rend `0` tant que la mise en page ne dit rien — et un seuil de
+   *  zéro ne laisse rien passer, ce qui est le bon défaut. */
+  function ecart() {
+    const enfants = piste.children;
+    if (enfants.length < 2) return 0;
+    const a = enfants[0];
+    const b = enfants[1];
+    const e = b.offsetLeft - (a.offsetLeft + a.offsetWidth);
+    return Number.isFinite(e) && e > 0 ? e : 0;
   }
 
   /** ⭐ L'INDEX SORT DE `scrollLeft` ET DU PAS, JAMAIS D'UN RECTANGLE PAR
@@ -541,6 +586,7 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
   function programmatiquement(faire) {
     programmatique += 1;
     faire();
+    positionEcrite = piste.scrollLeft;
     demanderImage(() => { programmatique -= 1; });
   }
 
@@ -548,7 +594,11 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
    *  🔴 RENDRE LA MAIN À LA PROCHAINE TÂCHE, PAS TOUT DE SUITE. Restaurer dans
    *  la même tâche, c'est n'avoir JAMAIS coupé l'aimantation : le navigateur ne
    *  voit que l'état final, re-snappe, et la roue saute — le « ça fait sauter
-   *  l'écran » d'Eric venait aussi de là. */
+   *  l'écran » d'Eric venait aussi de là.
+   *
+   *  📌 CE BOND LAISSE UNE TRACE APRÈS LUI, ET ELLE EST MESURÉE — voir la
+   *  tolérance de `deNous` dans l'écouteur de défilement : rendre l'aimantation
+   *  fait RECALER la position d'environ un pixel, une image plus tard. */
   function sauter(cible) {
     piste.dataset.couture = "oui";
     programmatiquement(() => { piste.scrollLeft = cible; });
@@ -587,7 +637,40 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
     quandCran(i, programmatique > 0);
   }
 
+  /* 🔴 DEUX CHOSES ARRIVENT SUR UN `scroll`, ET ELLES N'ONT PAS LE MÊME
+     MOMENT. `juger` attend une image, parce qu'il LIT la mise en page et
+     qu'une lecture par événement coûterait 36 recalculs. `quandBouge`, lui,
+     n'a rien à lire : il dit « ça bouge », et c'est vrai TOUT DE SUITE.
+     ⭐ C'est ce décalage qui a fait le défaut du 23/08 : l'attente vivait
+     dans `juger`, donc derrière le verdict du viseur — elle ne s'armait qu'au
+     franchissement d'un cran, jamais au mouvement. Mesuré : 24 px de geste,
+     aucun marqueur, jamais.
+     ⛔ ET IL RESTE BORNÉ PAR DEUX GARDES, PAS UN : nos propres écritures de
+     `scrollLeft` (le placement au montage, la couture, le repos après un
+     remplissage) ne sont pas des gestes, et les compter rearmerait l'attente en
+     boucle.
+
+     🔴 LE COMPTE SEUL A ÉTÉ MESURÉ INSUFFISANT, ET AUCUN NOMBRE D'IMAGES NE LE
+     SAUVE. Relevé au chargement, sans qu'un doigt touche l'écran :
+
+         scrollLeft 1024,5   écrit 1024,5   fenêtre ouverte   → de nous
+         scrollLeft 1023     écrit 1024,5   fenêtre FERMÉE    → pris pour un geste
+
+     Le second n'est pas un geste : c'est l'AIMANTATION qui recale notre propre
+     bond quand on la lui rend. ⛔ Et la fenêtre ne peut pas être élargie pour le
+     couvrir : un `scroll` est distribué à l'étape de rendu, APRÈS les rappels
+     d'image de cette même étape — un compte fermé par `demanderImage` arrive
+     toujours en avance, quel que soit le nombre d'images qu'on lui donne.
+     Essayé, mesuré, faux.
+     ⭐ D'OÙ UN SEUIL, ET IL SE LIT DANS LA MISE EN PAGE : un déplacement plus
+     petit que l'ÉCART entre deux crans n'est pas un choix, c'est un arrondi.
+     📏 Ce qu'il sépare, aux deux bouts : le recalage mesuré vaut **1,5 px**, le
+     geste le plus court qu'Eric ait signalé en vaut **24**, et l'écart tombe
+     entre les deux. ⛔ Aucune cote recopiée — `ecart()` mesure les crans, comme
+     `pas()`. */
   piste.addEventListener("scroll", () => {
+    const deNous = programmatique > 0 || Math.abs(piste.scrollLeft - positionEcrite) <= ecart();
+    if (!deNous && quandBouge) quandBouge();
     annulerImage(idImage);
     idImage = demanderImage(juger);
   }, { passive: true });
@@ -617,6 +700,13 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
    *  ressemblerait à un geste et rearmerait l'attente en boucle. */
   function reposer() {
     dernier = -1;
+    /* 🔴 LA FENÊTRE PROGRAMMATIQUE S'OUVRE ICI, PAS À LA PROCHAINE IMAGE.
+       Le remplissage vient de remplacer les crans, et ce remplacement peut
+       émettre un `scroll` AVANT que l'image demandée ne s'exécute. Non marqué,
+       ce `scroll` ressemble à un geste : depuis que `quandBouge` écoute
+       l'événement lui-même, il rearmerait l'attente en boucle — c'est
+       exactement le risque que le commentaire d'à côté nommait déjà. */
+    programmatique += 1;
     demanderImage(() => programmatiquement(() => {
       /* ⭐ « Le premier est celui qui s'ouvre » — règle d'Eric au banc. La roue
          ne se pose donc pas au hasard du tour du milieu : elle se pose sur le
@@ -625,6 +715,7 @@ function monterRoue(piste, { longueur, rangCourant, quandCran }) {
       const cible = positionDe(rangCourant());
       if (cible !== null) sauter(cible);
       juger();
+      demanderImage(() => { programmatique -= 1; });
     }));
   }
 
@@ -730,16 +821,16 @@ const positionDuTambour = { rayon: null, etagere: null, page: 0 };
 
 /**
  * LE TAMBOUR — deux roues et une grille paginée.
- * Rend DEUX nœuds séparés parce que le croquis les sépare : les roues sont
- * au-dessus de la recherche, la grille en dessous.
+ * Rend DEUX nœuds séparés parce que le croquis les sépare : les roues en haut,
+ * la grille en dessous. ⛔ Plus rien entre les deux : la barre de recherche que
+ * l'écran R posait là a été retirée le 2026-08-23 (*« dégage search »*).
  */
 function renderTambour({ query, onAction }) {
   const arbre = rayonsEtEtageres(query);
-  const symboles = tirerLesSymboles(CASES_PAR_PAGE);
+  const symboles = symbolesDAttente(CASES_PAR_PAGE);
 
   const pisteA = el("div", "roue-piste");
   const pisteB = el("div", "roue-piste");
-  const titre = el("span", "grille-titre");
   const compte = el("span", "grille-compte");
   const cases = el("div", "grille-cases");
 
@@ -777,15 +868,23 @@ function renderTambour({ query, onAction }) {
      ⛔ ON NE DÉMONTE PAS LA PISTE : on remplace son contenu. Démonter mettrait
      `scrollWidth` à zéro, et la roue perdrait sa couture au moment précis où
      elle en a besoin. L'attribut coupe l'aimantation, la perspective et les
-     `pointer-events` — une bande figée dit qu'il n'y a rien à choisir. */
+     `pointer-events` — une bande figée dit qu'il n'y a rien à choisir.
+
+     🔴 ET LES DEUX SONT IDEMPOTENTES, PARCE QUE LEUR APPELANT A CHANGÉ. Depuis
+     que l'attente s'arme sur l'ÉVÉNEMENT de défilement, elles sont appelées à
+     chaque image d'un geste — soixante fois par seconde. Reconstruire les
+     quinze marqueurs à chaque fois, c'est soixante `swapContent` pour un
+     écran qui ne change pas : un mur qu'on repeint pendant qu'on le regarde.
+     Sortir tôt quand on est DÉJÀ en attente rend le geste gratuit. */
   function attendreB() {
+    if (pisteB.dataset.attente === "oui") return;
     pisteB.dataset.attente = "oui";
     swapContent(pisteB, symboles.slice(0, 3).map((s) => faireMarqueur(s, "roue-cran roue-marqueur")));
   }
   function attendreGrille() {
+    if (cases.dataset.attente === "oui") return;
     cases.dataset.attente = "oui";
     swapContent(cases, symboles.map((s) => faireMarqueur(s, "grille-case grille-marqueur")));
-    titre.textContent = "—";
     compte.textContent = "—";
   }
 
@@ -804,7 +903,6 @@ function renderTambour({ query, onAction }) {
     page = vue.page;
     cases.dataset.attente = "non";
     swapContent(cases, vue.objets.map((item) => faireCase(item, onAction)));
-    titre.textContent = etagere.label;
     compte.textContent = `${vue.page + 1}/${vue.pages}`;
     if (!vierge) positionDuTambour.page = page;
   }
@@ -841,6 +939,32 @@ function renderTambour({ query, onAction }) {
       (noeud) => roueB.viser(noeud)
     )));
     roueB.reposer();
+  }
+
+  /* ── CE QUE FAIT UN MOUVEMENT, ET C'EST LA PHRASE D'ERIC MOT POUR MOT ────
+     *« dès que la roue du haut bouge, tout ce qui est en dessous cesse
+     d'afficher un choix »* — et ne le retrouve qu'après une demi-seconde
+     d'immobilité.
+     ⭐ CES DEUX-LÀ NE LISENT NI LE VISEUR NI LE RANG : ils ne savent que « ça
+     bouge », qui est la seule chose vraie au premier pixel. Le RANG, lui,
+     arrive plus tard par `quandCran` — une image plus tard au mieux, un cran
+     plus tard au pire, et c'est précisément ce retard qui faisait le défaut
+     du 23/08.
+     ⚠️ `vierge` TOMBE ICI AUSSI. Un geste réel qui n'aurait pas encore
+     franchi de cran laissait le drapeau levé, et l'aval restait figé sur ses
+     marqueurs sans jamais rien remplir — l'autre moitié de ce qu'Eric a vu
+     (« la 2ᵉ reste inactive »). */
+  function bougeRayon() {
+    vierge = false;
+    attendreB();
+    attendreGrille();
+    armer(() => { remplirB(); remplirGrille(); });
+  }
+
+  function bougeEtagere() {
+    vierge = false;
+    attendreGrille();
+    armer(remplirGrille);
   }
 
   function quandRayon(rang, programmatique) {
@@ -894,12 +1018,14 @@ function renderTambour({ query, onAction }) {
   roueA = monterRoue(pisteA, {
     longueur: () => arbre.length,
     rangCourant: () => Math.max(0, arbre.findIndex((r) => r.id === rayonId)),
-    quandCran: quandRayon
+    quandCran: quandRayon,
+    quandBouge: bougeRayon
   });
   roueB = monterRoue(pisteB, {
     longueur: () => etageresCourantes().length,
     rangCourant: () => Math.max(0, etageresCourantes().findIndex((e) => e.id === etagereId)),
-    quandCran: quandEtagere
+    quandCran: quandEtagere,
+    quandBouge: bougeEtagere
   });
 
   if (vierge) { attendreB(); attendreGrille(); } else { remplirB(); remplirGrille(); }
@@ -912,12 +1038,28 @@ function renderTambour({ query, onAction }) {
     ? "Wheel depth: on — the browser turns the drum from the scroll itself."
     : "Wheel depth: off — this browser shows the drum flat.")]));
 
-  const barre = el("div", "grille-barre");
-  barre.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"));
-  barre.append(titre, compte);
-  barre.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"));
+  /* ── LA GRILLE ET SES DEUX GOUTTIÈRES ──────────────────────────
+     🔴 LA BARRE HORIZONTALE A DISPARU — Eric, 2026-08-23 : *« les flèches peuvent
+     être à droite et à gauche des tokens ; le titre n'a pas lieu d'être, il est
+     porté par le rouleau »*. Le nom de l'étagère vivait à DEUX endroits — sur le
+     cran de la roue et dans cette barre — et un nom écrit deux fois est un nom
+     qui finit par diverger. Il ne reste que celui du rouleau.
+     ⚠️ MAIS LE COMPTE `x/x` RESTE : Eric n'a retiré QUE le titre. Il compte des
+     PAGES, donc il vit avec ce qui tourne les pages — dans la gouttière, sous la
+     flèche « suivante », celle qui le fait changer. ⭐ ET IL NE COÛTE AUCUNE
+     HAUTEUR : la gouttière fait déjà toute la hauteur de la grille, la flèche
+     n'en occupe qu'un `--touch`.
+     ⚠️ LA CIBLE TACTILE DES FLÈCHES NE RÉTRÉCIT PAS. Une flèche de bord reste un
+     bouton qu'un pouce doit atteindre : la feuille lui garde son `--touch`. Une
+     flèche décorative qui rate le doigt est pire qu'une flèche absente. */
+  const gaucheG = el("div", "grille-gouttiere");
+  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"));
+  const droiteG = el("div", "grille-gouttiere");
+  droiteG.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"), compte);
+  const rang = el("div", "grille-rang");
+  rang.append(gaucheG, cases, droiteG);
   const grille = el("section", "equipment-grille");
-  grille.append(barre, cases);
+  grille.append(rang);
 
   return { roues, grille };
 }

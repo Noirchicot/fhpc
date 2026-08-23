@@ -3683,7 +3683,18 @@ button { font: inherit; }
      images de l'animation justes sans les recalculer. */
   --roue-ecart: calc(var(--roue-pas) / 30.25);
   --roue-cran-l: calc(var(--roue-pas) - var(--roue-ecart));
-  --roue-cran-h: 60px;                  /* H 60 et pas la cible de 44 : « on peut superposer Mot 1 & Mot 2 » */
+  /* 🔴 −20 %, ORDRE D'ERIC DU 2026-08-23 : *« réduis la hauteur du tambour de
+     20 % »*. C'EST ICI QUE LA HAUTEUR DU TAMBOUR SE DÉCIDE — le tambour n'a pas
+     de cote à lui : il vaut deux crans, deux écarts et la ligne de profondeur.
+     ⚠️ ET LA COUPE N'EST PAS ÉQUIVALENTE SUR LES DEUX : 60 → 48 retire bien 20 %
+     au CRAN, mais seulement 24 px au TAMBOUR (mesuré : 139,5 → 115,5 à 375 px,
+     soit −17,2 %). La ligne de profondeur ne rétrécit pas avec les crans, et
+     c'est elle qui fait la différence — dite ici plutôt que laissée à croire.
+     ⭐ 48 reste AU-DESSUS du seuil tactile (`--touch`) : un cran se vise encore
+     au pouce. À 44 il le toucherait pile ; en dessous, il serait cassé.
+     📌 L'argument d'origine survit — « on peut superposer Mot 1 & Mot 2 » tient
+     encore à 48, deux lignes de `--t2` en demandant moins. */
+  --roue-cran-h: 48px;
   --roue-fuite: calc(12.9 * var(--roue-pas));
   --roue-champ: calc(3 * var(--roue-pas) - var(--roue-ecart));
   /* 🔧 AMENDÉ LE 2026-08-23 — LE FONDU VAUT 10 PX, ET IL EST FIXE.
@@ -3920,32 +3931,87 @@ button { font: inherit; }
    — « le joueur aurait acheté l'objet devant lequel il s'est arrêté » — doit
    rester impossible. La grille MONTRE, elle ne désigne pas. */
 .equipment-grille {
-  /* ⏳ LA TAILLE D'UNE CASE EST ICI, ET NULLE PART AILLEURS. Eric n'a pas
-     tranché « la case porte le NOM ou une IMAGE », et c'est ce qui décide de
-     cette cote. Le jour où il tranche : cette ligne, plus `contenuDeCase()`
-     dans `equipment-step.mjs`. Deux endroits, pas quinze. */
-  --fhpc-case-h: 56px;
+  /* 🔴 UNE CASE D'OBJET FAIT LA COTE D'UN JETON DE SORT — Eric, 2026-08-23 :
+     *« fait pareil que les sorts »*. ⛔ Et elle ne la RECOPIE pas, elle la LIT :
+     `--glisse-case` / `--glisse-h` sont les jetons du vivier des sorts, dans
+     `tokens.css`. Deux nombres égaux écrits à deux endroits divergent au premier
+     réglage — c'est la leçon de `--measure-f`, morte en une heure le 19/08.
+
+     ⚠️ ET CE N'ÉTAIT PAS LE CAS, PAR UNE MAUVAISE LECTURE. Le lot 88 avait posé
+     `--fhpc-case-h: var(--touch)` (44) « comme le standard des sorts ». Il y a
+     DEUX règles `.glisse-jeton` dans cette feuille, et il a lu la mauvaise :
+       · `.glisse-jeton` nue ............... `min-height: var(--touch)` = 44
+         → un jeton ISOLÉ, pas un vivier ;
+       · `.choix-glisse .glisse-jeton` ..... cellule `--glisse-case` **87**
+         × `min-height: --glisse-h` **48**  → ⭐ LE VIVIER DES SORTS, le standard.
+     📏 Mesuré au navigateur à 375 px avant correction : jeton de sort 87 × 48,
+     jeton d'objet 38,2 × 44. Ni la taille, ni la loi.
+
+     ⭐ ET C'EST LA LOI QUI S'ALIGNE, PAS SEULEMENT LE NOMBRE : une cote EXACTE,
+     et ce qui reste se partage aux deux bouts. Un tiers de contenant (`1fr`)
+     redonnerait un jeton d'une largeur différente à chaque écran — c'est
+     exactement ce qui avait fait le 38,2.
+     ⛔ MAIS PAS LA LOI A DES SORTS (« autant que la ligne en porte ») : R est
+     une grille de 15 à position stable, norme des listes du 23/08. Trois
+     colonnes, toujours — un objet ne change pas de place selon l'écran.
+
+     ⏳ Reste ouvert, et ça ne tient plus qu'à ça : « la case porte le NOM ou une
+     IMAGE ». Le jour où Eric tranche, c'est ici et `contenuDeCase()` dans
+     `equipment-step.mjs`. Deux endroits, pas quinze. */
+  --fhpc-case-h: var(--glisse-h);
+  --fhpc-case-w: var(--glisse-case);
+  /* 🔴 `width: 100%` EST INDISPENSABLE, ET SON ABSENCE ÉTAIT UN DÉFAUT MESURÉ.
+     Dans une colonne flex, une marge latérale `auto` ANNULE l'étirement : la
+     grille ne prenait plus la largeur de sa carte, elle prenait celle de son
+     contenu le plus large — la barre de titre. 📏 Relevé le 2026-08-23 sur
+     l'écran R à 375 px : grille **122,6 px** de large dans une carte de 341,
+     donc un jeton de **38,2 px** pendant qu'un collecteur en faisait 111.
+     ⭐ C'EST CE QU'ERIC A VU quand il a dit *« un drop fait la même taille que
+     l'item »* : ils faisaient 1 pour 3. Rendre sa largeur à la grille suffit à
+     les égaliser — sans rien rétrécir, et sans coûter un pixel de hauteur. */
+  width: 100%;
   max-width: var(--grid-w); margin: 0 auto var(--sp-24);
 }
-.grille-barre { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-8); }
+/* 🔴 LES FLÈCHES FLANQUENT LES JETONS, ET LA BARRE HORIZONTALE N'EXISTE PLUS —
+   Eric, 2026-08-23 : *« les flèches peuvent être à droite et à gauche des
+   tokens ; le titre n'a pas lieu d'être, il est porté par le rouleau »*.
+   📏 CE QUE ÇA REND, MESURÉ À 375 px : la barre pesait 44 px plus ses 8 px de
+   marge basse — **52 px rendus à la carte**, et c'est la plus grosse des sept
+   coupes du lot après la recherche.
+   ⚠️ C'EST UN REVIREMENT, PAS UNE ÉVIDENCE : le 15/08, sur simulateur, Eric
+   avait RETIRÉ ces flèches (« elles font moche »). Le croquis du 23/08 les
+   redessine et dit où. Le plus récent gagne — elles se regardent au doigt. */
+.grille-rang { display: flex; align-items: stretch; gap: var(--sp-4); }
+/* La gouttière fait toute la hauteur de la grille ; la flèche se centre dedans,
+   à hauteur des jetons, et le compte se pose sous elle. ⭐ Aucune des deux ne
+   coûte un pixel de HAUTEUR : la colonne existait déjà. */
+.grille-gouttiere {
+  flex: none; width: var(--touch);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4);
+}
 .grille-fleche {
   flex: none; min-width: var(--touch); min-height: var(--touch);
   border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
   background: var(--surface); color: var(--text); font-size: var(--t5); padding: 0; cursor: pointer;
 }
-.grille-titre {
-  flex: 1 1 auto; min-width: 0; text-align: center;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font-size: var(--t3); color: var(--text);
-  border-bottom: 1px solid var(--border);
-}
 /* Le `x/x` du croquis. ⛔ Il est DÉRIVÉ du nombre d'objets, jamais écrit à côté
-   du compte : un compte écrit deux fois finit par se contredire. */
-.grille-compte { flex: none; font-size: var(--t2); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+   du compte : un compte écrit deux fois finit par se contredire.
+   📌 IL A CHANGÉ DE PLACE, PAS DE RAISON D'ÊTRE : il compte des PAGES, donc il
+   vit dans la gouttière qui les tourne, sous la flèche « suivante ». */
+.grille-compte { flex: none; font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
 .grille-cases {
+  /* Entre les deux gouttières, la grille prend tout ce qui reste — et ce qui
+     dépasse des trois colonnes se partage aux deux bouts (`justify-content`),
+     comme le vivier des sorts le fait déjà. */
+  flex: 1 1 auto; min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* ⛔ PLUS DE `1fr` : la colonne fait la cote d'un jeton de sort, pas un tiers
+     de son contenant. Voir `.equipment-grille` juste au-dessus pour la mesure
+     qui l'exige. `minmax(0, …)` reste pour que le NOM cède avant la case. */
+  grid-template-columns: repeat(3, minmax(0, var(--fhpc-case-w)));
+  justify-content: center;
   /* 🔴 CINQ RANGÉES IMPOSÉES, ET C'EST CE QUI EMPÊCHE LA GRILLE DE SAUTER :
      une dernière page de deux objets doit occuper la même hauteur qu'une page
      pleine, sinon tout ce qui vit dessous remonte en tournant la page.
