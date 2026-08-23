@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — B3, le système de coordonnées du dressing</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     B3 — LE DRESSING. ⛔ CE FICHIER NE DESSINE PAS L'ÉCRAN : il pose son
+     SYSTÈME DE COORDONNÉES, et il sert à ce qu'ERIC place les ancrages
+     lui-même.
+
+     🔴 LA QUESTION D'ERIC, ET ELLE COMMANDE TOUT (2026-08-24) : *« je veux que
+     tout soit placé au pixel près sur ce B3 et que rien ne bouge d'un écran à
+     l'autre, comment on fait ? »*
+
+     ⛔ LA RÉPONSE N'EST PAS « POSER DES PIXELS ». Trois cotes justes, posées en
+     pixels, sont mortes dans la nuit du 23 au 24/08 :
+         --roue-pas: min(121px, …)   117+4 réglés à l'iPad → 73,8 au téléphone
+         --roue-fondu: 10px          fixe pendant que le cran rétrécit
+         --fiche-h: 440px            cote de CATALOGUE posée sur un FF
+     Un pixel n'est pas une adresse portable.
+
+     ⭐ CE QUI DONNE VRAIMENT LE PIXEL PRÈS : un REPÈRE. Tout ce qui doit
+     s'aligner vit dans UN SEUL `viewBox`. Le corps, les ancrages, les traits :
+     un seul système, mis à l'échelle d'un bloc. Rien ne peut dériver par
+     rapport à rien, parce que rien n'a de repère à soi.
+     ⛔ ET C'EST LA LEÇON DE LA VEILLE, MESURÉE : le tambour et la grille
+     calculaient chacun leur largeur — 2,5 px d'écart, et un décalage visible.
+     Deux repères = deux vérités.
+
+     ══ CE QUE CE BANC FAIT, ET C'EST TOUT ═══════════════════════════════════
+       · il pose le repère `--b3-repere` (voir le `viewBox` plus bas) ;
+       · il place les DIX EMPLACEMENTS du vault en pastilles DÉPLAÇABLES ;
+       · il relit leurs coordonnées et les rend en JSON, prêtes à figer.
+
+     ⭐ POURQUOI DÉPLAÇABLES : parce que la bonne place d'un ancrage ne se
+     calcule pas, elle se voit. C'est l'atelier qu'Eric emploie déjà pour les
+     cartes de forces — *il place, je relis les positions*. Le pixel est alors
+     le SIEN, posé à la main, puis figé. Pas le mien, deviné.
+
+     ⏳ CE QUI MANQUE, ET QUI NE PEUT VENIR QUE D'ERIC : la SILHOUETTE. Mesurée
+     dans le croquis du 23/08, elle y fait ~55 × 165 px — inexploitable pour un
+     tracé. Il faut un SVG (idéal : son tracé DEVIENT le repère) ou un PNG
+     détouré. En attendant, un corps de substitution tient la place, aux mêmes
+     proportions ; le remplacer ne déplacera aucun ancrage, puisqu'ils vivent
+     dans le repère, pas sur l'image.
+
+     ⛔ CE QUI N'EST PAS ICI : les boîtes de slots, la bourse, les GEAR BAGS, la
+     barre du bas. Elles viendront quand les ancrages seront figés — une boîte
+     se pose EN FACE d'un ancrage, donc après lui.
+     ⛔ ET AUCUN CÂBLAGE : Eric l'a dit — *« on dessine le pantin et le câblage
+     viendra après »*. La couche `srfh` qui porte le champ `slot` n'est pas
+     encore importée dans `fhpc` (c'est le lot 95).
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=284">
+<link rel="stylesheet" href="./shell.css?v=284">
+
+<style>
+html, body { height: 100%; }
+body { margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+
+/* LE RELEVÉ — comme celui de l'écran R : on ne juge pas à l'œil ce qu'un
+   chiffre peut dire. */
+.banc-mesure {
+  flex: none; margin: 0; padding: var(--sp-4) var(--sp-8);
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  color: var(--text-muted); font-size: var(--t1);
+  font-variant-numeric: tabular-nums; text-align: center;
+}
+
+.banc-scene {
+  flex: 1 1 auto; min-height: 0; display: flex; gap: var(--sp-8); padding: var(--sp-8);
+  align-items: stretch; justify-content: center;
+  /* ⚠️ IL PASSE À LA LIGNE PLUTÔT QUE DE ROGNER — mesuré : dans une fenêtre de
+     526 px la scène en demandait 594, et `justify-content: center` débordait
+     des DEUX côtés, coupant le pantin à gauche. ⛔ Un banc qui tronque ce qu'on
+     vient y regarder ne sert à rien. */
+  flex-wrap: wrap; align-content: flex-start;
+}
+
+/* 🔴 LE REPÈRE, ET IL N'Y EN A QU'UN. `preserveAspectRatio` par défaut
+   (`xMidYMid meet`) : la scène entière se met à l'échelle SANS se recomposer.
+   ⛔ C'est la différence avec une mise en page : une mise en page réarrange,
+   un repère agrandit. Ce qui est à 500,240 y reste, quel que soit l'écran.
+   ⚠️ `width: auto` ET `flex: 0 0 auto`, MESURÉ : laissé en `flex: 1 1 auto;
+   min-width: 0`, le repère se faisait écraser à **64 px de large** par le
+   panneau voisin — un pantin illisible dans une page qui avait pourtant la
+   place. Un SVG à `viewBox` calcule sa largeur DEPUIS sa hauteur ; lui laisser
+   négocier sa largeur en flex, c'est lui retirer précisément ce qu'on est venu
+   chercher. */
+.b3-repere { flex: 0 0 auto; height: 100%; width: auto; max-width: 100%; display: block; }
+
+/* La grille du repère — un décor de banc, elle ne part pas dans le produit. */
+.b3-grille { stroke: var(--border); stroke-width: 1; opacity: .5; }
+.b3-cadre { fill: none; stroke: var(--border-strong); stroke-width: 2; }
+.b3-corps { fill: var(--dalle-simple); stroke: var(--border-strong); stroke-width: 2; }
+
+/* ⭐ UN ANCRAGE SE PREND AU DOIGT. `touch-action: none` — sans lui le doigt
+   fait défiler la page et le navigateur annule la séquence en cours de route,
+   exactement comme pour les jetons de l'écran R (`glisser.mjs`, en tête). */
+.b3-ancre { fill: var(--accent); stroke: var(--surface); stroke-width: 3; cursor: grab; touch-action: none; }
+.b3-ancre[data-pris="oui"] { fill: var(--critical); cursor: grabbing; }
+.b3-etiquette { fill: var(--text-soft); font-size: 26px; font-family: inherit; pointer-events: none; }
+
+.banc-releve {
+  flex: 1 1 220px; min-width: 0; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: var(--sp-8); font-size: var(--t1); font-variant-numeric: tabular-nums;
+}
+.banc-releve h2 { margin: 0 0 var(--sp-8); font-size: var(--t2); color: var(--text-muted); }
+.banc-releve pre { margin: 0; white-space: pre-wrap; word-break: break-all; font-size: var(--t1); color: var(--text-soft); }
+.banc-releve button { margin-top: var(--sp-8); width: 100%; min-height: var(--touch); font: inherit; }
+</style>
+</head>
+<body>
+  <p class="banc-mesure" id="mesure">…</p>
+  <div class="banc-scene">
+    <!-- 🔴 LE REPÈRE : 1000 de large, 1600 de haut. Deux raisons, et aucune
+         n'est esthétique :
+         · des NOMBRES RONDS — un ancrage à 500,240 se lit, se dicte et se
+           retrouve ; à 487,233 il se recopie mal ;
+         · le ratio 0,625, celui d'un corps debout, pour que la silhouette
+           d'Eric entre sans être retaillée.
+         ⏳ Ces deux nombres sont les SEULS de ce fichier qu'Eric peut vouloir
+         changer, et les changer ne casse rien : les ancrages sont exprimés
+         DEDANS, donc ils suivent. -->
+    <svg class="b3-repere" viewBox="0 0 1000 1600" id="repere" aria-label="Le repère du dressing">
+      <g class="b3-grille" id="grille"></g>
+      <rect class="b3-cadre" x="1" y="1" width="998" height="1598"></rect>
+      <!-- ⏳ CORPS DE SUBSTITUTION — il tient la place et les proportions.
+           Le remplacer par le tracé d'Eric ne déplacera AUCUN ancrage : ils
+           vivent dans le repère, pas sur l'image. C'est tout l'intérêt. -->
+      <g class="b3-corps" id="corps">
+        <circle cx="500" cy="215" r="95"></circle>
+        <rect x="405" y="320" width="190" height="60" rx="24"></rect>
+        <rect x="345" y="370" width="310" height="360" rx="46"></rect>
+        <rect x="250" y="385" width="80" height="330" rx="38"></rect>
+        <rect x="670" y="385" width="80" height="330" rx="38"></rect>
+        <rect x="360" y="730" width="120" height="480" rx="52"></rect>
+        <rect x="520" y="730" width="120" height="480" rx="52"></rect>
+        <rect x="345" y="1210" width="150" height="70" rx="26"></rect>
+        <rect x="505" y="1210" width="150" height="70" rx="26"></rect>
+      </g>
+      <g id="ancres"></g>
+    </svg>
+
+    <aside class="banc-releve">
+      <h2>Les dix ancrages</h2>
+      <pre id="json">…</pre>
+      <button type="button" id="copier">Copier le JSON</button>
+      <button type="button" id="remettre">Remettre au départ</button>
+    </aside>
+  </div>
+
+<script type="module">
+/* ══ LES DIX EMPLACEMENTS ═══════════════════════════════════════════════════
+   ⛔ RECOPIÉS DU VAULT, PAS INVENTÉS : `FH-WEB/FHPC/FHPCv2 rangement
+   equipement.md`, § « Les 10 emplacements — tirés des 77 objets portés, 77/77,
+   aucun reste ». Les comptes sont ceux du fichier, y compris sa correction du
+   23/08 (le bouclier est aux MAINS, pas au torse : torse 17, mains 43).
+   ⏳ Les coordonnées ci-dessous sont un POINT DE DÉPART, pas une décision.
+   C'est Eric qui les pose ; ce fichier ne fait que les relire. */
+const EMPLACEMENTS = [
+  { clef: "tete",      nom: "Tête",      n: 8,  x: 500, y: 150 },
+  { clef: "yeux",      nom: "Yeux",      n: 4,  x: 640, y: 215 },
+  { clef: "cou",       nom: "Cou",       n: 13, x: 500, y: 350 },
+  { clef: "dos",       nom: "Dos",       n: 10, x: 300, y: 430 },
+  { clef: "torse",     nom: "Torse",     n: 17, x: 500, y: 520 },
+  { clef: "avantbras", nom: "Avant-bras", n: 2, x: 710, y: 600 },
+  { clef: "mains",     nom: "Mains",     n: 43, x: 290, y: 700 },
+  { clef: "taille",    nom: "Taille",    n: 2,  x: 500, y: 715 },
+  { clef: "doigts",    nom: "Doigts",    n: 22, x: 710, y: 720 },
+  { clef: "pieds",     nom: "Pieds",     n: 7,  x: 500, y: 1245 }
+];
+
+const SVG = "http://www.w3.org/2000/svg";
+const repere = document.getElementById("repere");
+const hote = document.getElementById("ancres");
+const sortie = document.getElementById("json");
+const mesure = document.getElementById("mesure");
+
+/* La grille du repère, tous les 100 — elle donne à l'œil de quoi juger une
+   position sans avoir à lire un chiffre. */
+{
+  const g = document.getElementById("grille");
+  for (let x = 100; x < 1000; x += 100) {
+    const l = document.createElementNS(SVG, "line");
+    l.setAttribute("x1", x); l.setAttribute("y1", 0);
+    l.setAttribute("x2", x); l.setAttribute("y2", 1600);
+    g.append(l);
+  }
+  for (let y = 100; y < 1600; y += 100) {
+    const l = document.createElementNS(SVG, "line");
+    l.setAttribute("x1", 0); l.setAttribute("y1", y);
+    l.setAttribute("x2", 1000); l.setAttribute("y2", y);
+    g.append(l);
+  }
+}
+
+const etat = EMPLACEMENTS.map((e) => ({ ...e }));
+
+function dessiner() {
+  hote.textContent = "";
+  for (const e of etat) {
+    const cercle = document.createElementNS(SVG, "circle");
+    cercle.setAttribute("class", "b3-ancre");
+    cercle.setAttribute("cx", e.x); cercle.setAttribute("cy", e.y);
+    cercle.setAttribute("r", 22);
+    cercle.dataset.clef = e.clef;
+    /* ⭐ IL S'ANNONCE : un ancrage qu'on déplace au doigt est un contrôle, et
+       un contrôle sans nom est invisible à qui ne voit pas l'écran. */
+    cercle.setAttribute("role", "img");
+    cercle.setAttribute("aria-label", `${e.nom} — ${e.n} objets`);
+    const mot = document.createElementNS(SVG, "text");
+    mot.setAttribute("class", "b3-etiquette");
+    mot.setAttribute("x", e.x + 32); mot.setAttribute("y", e.y + 9);
+    mot.textContent = `${e.nom} ${e.n}`;
+    hote.append(cercle, mot);
+    armer(cercle, mot, e);
+  }
+  relever();
+}
+
+/* ⭐ DU PIXEL D'ÉCRAN AU POINT DU REPÈRE, ET C'EST LA SEULE CONVERSION DU
+   FICHIER. `getScreenCTM().inverse()` la fait exactement, quelle que soit la
+   mise à l'échelle — ⛔ calculer un ratio à la main ici, c'est recréer un
+   second repère, et c'est précisément ce qu'on refuse. */
+function pointDuRepere(evt) {
+  const p = repere.createSVGPoint();
+  p.x = evt.clientX; p.y = evt.clientY;
+  return p.matrixTransform(repere.getScreenCTM().inverse());
+}
+
+function armer(cercle, mot, e) {
+  cercle.addEventListener("pointerdown", (evt) => {
+    evt.preventDefault();
+    cercle.setPointerCapture(evt.pointerId);
+    cercle.dataset.pris = "oui";
+  });
+  cercle.addEventListener("pointermove", (evt) => {
+    if (cercle.dataset.pris !== "oui") return;
+    const p = pointDuRepere(evt);
+    /* ⛔ ARRONDI À L'ENTIER : une coordonnée à 487,3164 ne se dicte pas, ne se
+       recopie pas et ne se retrouve pas. Le repère est assez fin pour que
+       l'entier suffise — 1 unité vaut un millième de la hauteur. */
+    e.x = Math.max(0, Math.min(1000, Math.round(p.x)));
+    e.y = Math.max(0, Math.min(1600, Math.round(p.y)));
+    cercle.setAttribute("cx", e.x); cercle.setAttribute("cy", e.y);
+    mot.setAttribute("x", e.x + 32); mot.setAttribute("y", e.y + 9);
+    relever();
+  });
+  const lacher = () => { delete cercle.dataset.pris; relever(); };
+  cercle.addEventListener("pointerup", lacher);
+  cercle.addEventListener("pointercancel", lacher);
+}
+
+function relever() {
+  const carte = {};
+  for (const e of etat) carte[e.clef] = [e.x, e.y];
+  sortie.textContent = JSON.stringify(carte, null, 1);
+  const r = repere.getBoundingClientRect();
+  const echelle = (r.width / 1000);
+  mesure.textContent =
+    `repère 1000 × 1600 · rendu ${Math.round(r.width)} × ${Math.round(r.height)} px ` +
+    `· 1 unité = ${echelle.toFixed(3)} px — ⭐ les ancrages ne bougent pas quand ce chiffre change`;
+}
+
+document.getElementById("copier").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(sortie.textContent); }
+  catch { /* ⛔ un refus du presse-papier n'est pas une panne : le JSON est à l'écran */ }
+});
+document.getElementById("remettre").addEventListener("click", () => {
+  etat.forEach((e, i) => { e.x = EMPLACEMENTS[i].x; e.y = EMPLACEMENTS[i].y; });
+  dessiner();
+});
+
+dessiner();
+window.addEventListener("resize", relever);
+</script>
+</body>
+</html>
