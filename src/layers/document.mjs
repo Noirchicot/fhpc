@@ -77,10 +77,26 @@ import { sha256Portable } from "./sha256.mjs";
    ⚠️ ET LE COMPTE DE MAÎTRISES N'EST PAS UN GENRE : il arrive comme un CHAMP
    sur les classes (`class.weapon_mastery_count`, 5 classes sur 12). Le vivier
    d'armes éligibles, lui, n'entre pas du tout — c'est une RELATION (classe ×
-   background × espèce), donc une règle Fate's Hand, pas une extraction. */
+   background × espèce), donc une règle Fate's Hand, pas une extraction.
+
+   ⭐ RÉVISION DU 2026-08-23 (lot 93) — `item-value` est le genre 19, et IL VIENT
+   de fh-srd (lot 92) : le barème des prix par rareté, UN record par langue.
+
+   🔴 CE PARAGRAPHE-CI EST LA TROISIÈME COPIE D'UNE LISTE, ET C'EST LA COPIE DU
+   GÉNÉRATEUR QUI VIENT DE COÛTER UNE JOURNÉE. `gen-srd-layer.mjs` nommait seize
+   genres en dur quand la source en portait dix-sept ; `item-value` n'a provoqué
+   aucune erreur — il était simplement absent de la couche. Le générateur ne
+   garde plus de LISTE : il DÉRIVE ses genres des exports fh-srd et refuse,
+   nommément, ce qu'il ne doit pas produire. Ce qu'il refuse toujours, ce sont
+   les genres MAISON — `arcana`, `training` — parce qu'un générateur SRD qui
+   produirait du contenu maison mélangerait les deux couches (loi §0.12).
+   ⛔ La phrase « `gen-srd-layer.mjs` garde ses 14 », répétée trois fois plus
+   haut, ne décrit plus rien : elle disait une RÈGLE avec un CHIFFRE, et c'est
+   le chiffre qui a fermé la porte à la source. Ici, la liste reste écrite —
+   c'est un CONTRAT, et un contrat s'ouvre par une révision qu'un humain lit. */
 export const GENRES = [
   "arcana", "armor", "background", "class", "class-progression", "feat", "gear",
-  "glossary", "item", "monster", "skill", "species", "spell", "tool", "training", "weapon",
+  "glossary", "item", "item-value", "monster", "skill", "species", "spell", "tool", "training", "weapon",
   "weapon-mastery", "weapon-property"
 ];
 const GENRE_SET = new Set(GENRES);

@@ -114,9 +114,13 @@ test("3 — un genre QUI a le champ le lit, et il ne lit que celui-là", () => {
     "`weapon_category` — mesuré 24 martial + 14 simple = 38");
 
   const item = arbre.find((r) => r.id === "item");
+  /* 📌 « Weapon » : 28 → 33 le 2026-08-23 (lot 93). Les cinq épées magiques que
+     l'extraction anglaise de fh-srd avalait sont revenues par son lot 86, et
+     elles portent toutes `category: weapon` — l'écart tombe donc entièrement
+     sur cette étagère-là, ce que les huit autres, inchangées, confirment. */
   assert.deepEqual(item.etageres.map((e) => [e.label, e.objets.length]), [
     ["Armor", 19], ["Potion", 24], ["Ring", 22], ["Rod", 7], ["Scroll", 1],
-    ["Staff", 12], ["Wand", 13], ["Weapon", 28], ["Wondrous Item", 127]
+    ["Staff", 12], ["Wand", 13], ["Weapon", 33], ["Wondrous Item", 127]
   ], "`item.category` — les neuf valeurs mesurées, et RIEN d'autre");
 });
 
@@ -145,10 +149,15 @@ test("4 — ⚔️ ATTAQUE : aucun libellé d'étagère n'est inventé, chacun s
 test("5 — le total des étagères redonne EXACTEMENT le catalogue : rien ne se perd, rien ne se compte deux fois", () => {
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, 386, "82 gear + 38 weapon + 13 armor + 253 item — le catalogue du lot 84");
+  assert.equal(total, 391, "82 gear + 38 weapon + 13 armor + 258 item — le catalogue du lot 84, remesuré au lot 93");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, 386, "et chaque record n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, 391, "et chaque record n'est rangé que sur UNE étagère");
+  /* ⚠️ ET `item-value` N'EST PAS ENTRÉ DANS LE CATALOGUE, ce qui est le bon
+     comportement : le genre neuf du lot 92 de fh-srd est un BARÈME (un record,
+     la table des prix par rareté), pas un objet qu'on met dans un sac.
+     `EQUIPMENT_RECORD_KINDS` ne le nomme pas, donc il ne se range nulle part —
+     et ce total le prouve, 391 et non 392. */
 });
 
 /* ══ LA PAGINATION — SUR LE CAS PLEIN, JAMAIS SUR LE CAS COURANT ══════════
@@ -275,11 +284,16 @@ test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui
 });
 
 test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran montre l'absence sans la combler", () => {
-  /* Mesuré le 2026-08-23 : 0 des 253 `item` porte un `cost`, 0 porte un
+  /* Mesuré le 2026-08-23 : 0 des 258 `item` porte un `cost`, 0 porte un
      `weight`. Un autre chantier les remplira. En attendant, l'écran ne doit
-     ni planter, ni inventer un « 0 gp » qui serait un mensonge. */
+     ni planter, ni inventer un « 0 gp » qui serait un mensonge.
+     ⭐ ET LES CINQ ÉPÉES REVENUES NE CHANGENT RIEN À CE CONSTAT : remesuré au
+     lot 93, c'est 258 sur 258, pas 253 sur 258. La matière du barème existe
+     désormais dans la couche — genre `item-value`, le prix par rareté — mais
+     elle n'est PAS sur les records d'objet, et cet écran ne la lit pas encore.
+     Une valeur qui vit ailleurs n'est pas une valeur présente. */
   const sansPrix = query({ kind: "item" }).filter((v) => v.record.data.cost === undefined);
-  assert.equal(sansPrix.length, 253, "témoin : c'est bien le corpus entier qui est sans prix");
+  assert.equal(sansPrix.length, 258, "témoin : c'est bien le corpus entier qui est sans prix");
 
   const node = renderEquipmentStep(ctx(), () => {});
   const input = rows(node, ".equipment-search-input")[0];

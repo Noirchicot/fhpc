@@ -17,8 +17,10 @@
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "14 + modificateur de Dex (max 2)",
           "cost": "50 po",
+          "don_doff": "s’enfile en 5 minutes, se retire en 1 minute",
           "name": "Armure d’écailles",
           "stealth_disadvantage": true,
           "strength": null,
@@ -34,15 +36,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "afbde20f80c6fd545a956c6601266e066b572939e1e4992c2340628b9ebe208f"
+        "contentHash": "dba61002130cc80d9fe68bb5203de2c3f83977a45400953d784a79244929db86"
       },
       "srd:armor:fr:armure-de-cuir": {
         "name": "Armure de cuir",
         "data": {
           "ac_base": 11,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "11 + modificateur de Dex",
           "cost": "10 po",
+          "don_doff": "s’enfile ou se retire en 1 minute",
           "name": "Armure de cuir",
           "stealth_disadvantage": false,
           "strength": null,
@@ -58,15 +62,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "e6642dca4813d263527f795c6f59f13ac4871597eb1caf6f05a9da557d3eafda"
+        "contentHash": "4ce22585ececfef2df5cf3d1214a645e2a1f70263a2c1b311a5b756f173f997b"
       },
       "srd:armor:fr:armure-de-cuir-cloute": {
         "name": "Armure de cuir clouté",
         "data": {
           "ac_base": 12,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "12 + modificateur de Dex",
           "cost": "45 po",
+          "don_doff": "s’enfile ou se retire en 1 minute",
           "name": "Armure de cuir clouté",
           "stealth_disadvantage": false,
           "strength": null,
@@ -82,15 +88,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "a951d45b423bc2b070f376dd0bd67c1d0bc28ad7ef84ac2911cc648f9fbe0fea"
+        "contentHash": "2be1de137f7ee151f59f52a11da5886bf12a997d89635a6d506194a320680536"
       },
       "srd:armor:fr:armure-de-peaux": {
         "name": "Armure de peaux",
         "data": {
           "ac_base": 12,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "12 + modificateur de Dex (max 2)",
           "cost": "10 po",
+          "don_doff": "s’enfile en 5 minutes, se retire en 1 minute",
           "name": "Armure de peaux",
           "stealth_disadvantage": false,
           "strength": null,
@@ -106,15 +114,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "c0db7e3bdc24fc54b1eddc975f9aad993f39047af6bd0f44e5a6ea455c858031"
+        "contentHash": "d51a4a0c2ece2da1df3cb37ac7e517fd1cff82e591d428d5a9462c5b740142f4"
       },
       "srd:armor:fr:armure-matelassee": {
         "name": "Armure matelassée",
         "data": {
           "ac_base": 11,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "11 + modificateur de Dex",
           "cost": "5 po",
+          "don_doff": "s’enfile ou se retire en 1 minute",
           "name": "Armure matelassée",
           "stealth_disadvantage": true,
           "strength": null,
@@ -130,15 +140,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "08716e5aa8ba0038469cadfbaf7cbc9032d098a69e4418c02bcf87aa5de10cf6"
+        "contentHash": "3b9868c11644473ed063b7356bd1ca7c9d95d46d82973659ec74372e067f387d"
       },
       "srd:armor:fr:bouclier": {
         "name": "Bouclier",
         "data": {
           "ac_base": null,
           "ac_bonus": 2,
+          "armor_category": "shield",
           "armor_class": "+2",
           "cost": "10 po",
+          "don_doff": "s’enfile ou se retire au prix de l’action Utilisation",
           "name": "Bouclier",
           "stealth_disadvantage": false,
           "strength": null,
@@ -154,15 +166,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "404fa03835dbf699d18ff97f87dd61a4519c4051b15b820ebef421a34d27bdc3"
+        "contentHash": "ff03da9ddb9c2d58d8b505490a18e38285de70665619f84b17bb4c01b5a8cd12"
       },
       "srd:armor:fr:broigne": {
         "name": "Broigne",
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "14",
           "cost": "30 po",
+          "don_doff": "s’enfile en 10 minutes, se retire en 5 minutes",
           "name": "Broigne",
           "stealth_disadvantage": true,
           "strength": null,
@@ -178,15 +192,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "e9ce1e003806a0019cb4491459b0ef0d45719dbced78c0938be229aba6134e88"
+        "contentHash": "8913e5c33627e02aaf88648ed87decbc321b93a042b94bea6602da72b57d1b14"
       },
       "srd:armor:fr:chemise-de-mailles": {
         "name": "Chemise de mailles",
         "data": {
           "ac_base": 13,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "13 + modificateur de Dex (max 2)",
           "cost": "50 po",
+          "don_doff": "s’enfile en 5 minutes, se retire en 1 minute",
           "name": "Chemise de mailles",
           "stealth_disadvantage": false,
           "strength": null,
@@ -202,15 +218,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "d2a8938be3e464025bdb1c37c2f6f00d0e71cc60d0be347d78932786fa7cc91f"
+        "contentHash": "b35fb4ba17a64e600f5c581c3bb924f3a1c5c1ecd805741990d451eba596c423"
       },
       "srd:armor:fr:clibanion": {
         "name": "Clibanion",
         "data": {
           "ac_base": 17,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "17",
           "cost": "200 po",
+          "don_doff": "s’enfile en 10 minutes, se retire en 5 minutes",
           "name": "Clibanion",
           "stealth_disadvantage": true,
           "strength": "For 15",
@@ -226,15 +244,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "fa384b0deb786deff883ffff5b71bd867784ec7b351f4ac7ebf26c7d12789f99"
+        "contentHash": "a47258c441d14ba01113d0b847b904e8973d969cb07a0c1bb9ddcb5ee12c021d"
       },
       "srd:armor:fr:cotte-de-mailles": {
         "name": "Cotte de mailles",
         "data": {
           "ac_base": 16,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "16",
           "cost": "75 po",
+          "don_doff": "s’enfile en 10 minutes, se retire en 5 minutes",
           "name": "Cotte de mailles",
           "stealth_disadvantage": true,
           "strength": "For 13",
@@ -250,15 +270,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "5ba8e26da32e42e54100d2934f3f8764398a05af9834762c28eddecaa84bc0c1"
+        "contentHash": "d3ff8ca39590eaa8df76508fda770e79b16a0419ed3274ec39b3834f447290eb"
       },
       "srd:armor:fr:cuirasse": {
         "name": "Cuirasse",
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "14 + modificateur de Dex (max 2)",
           "cost": "400 po",
+          "don_doff": "s’enfile en 5 minutes, se retire en 1 minute",
           "name": "Cuirasse",
           "stealth_disadvantage": false,
           "strength": null,
@@ -274,15 +296,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "db3b8ecb7baf0d75505fc66292ce6dc152b09246d1097548c218b4f7eddf279c"
+        "contentHash": "7eccbd98e79ae5fcfb2b9baf97bfe45281c326793259b2c5b5a36d60f443edb9"
       },
       "srd:armor:fr:demi-plate": {
         "name": "Demi-plate",
         "data": {
           "ac_base": 15,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "15 + modificateur de Dex (max 2)",
           "cost": "750 po",
+          "don_doff": "s’enfile en 5 minutes, se retire en 1 minute",
           "name": "Demi-plate",
           "stealth_disadvantage": true,
           "strength": null,
@@ -298,15 +322,17 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "f4dd0866ca45d22b1f7746c0c10b08a5bc0c1c288a4a63f703e39bf36cb14057"
+        "contentHash": "c21243bea2055e93919c6dcc5f944da5d556205104025637eb0cd987377ec49e"
       },
       "srd:armor:fr:harnois": {
         "name": "Harnois",
         "data": {
           "ac_base": 18,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "18",
           "cost": "1 500 po",
+          "don_doff": "s’enfile en 10 minutes, se retire en 5 minutes",
           "name": "Harnois",
           "stealth_disadvantage": true,
           "strength": "For 15",
@@ -322,7 +348,7 @@
           "locator": "p.98",
           "version": "5.2.1"
         },
-        "contentHash": "5e81d7269a202a7b9f8f3e0b892d7115ca6c9cecc2d6400429d6776d8b00caab"
+        "contentHash": "13f47a6f42671e78826503f9c525a860abfea193741e4664fd1cac5e3dd6d841"
       }
     },
     "background": {
@@ -18070,6 +18096,71 @@
           "version": "5.2.1"
         },
         "contentHash": "1c40450166a21217ac2bc8baf8b3983a7aa06b2fe9bf9cf61b8eb5e39ee70da6"
+      }
+    },
+    "item-value": {
+      "srd:item-value:fr:rarete-et-valeur-des-objets-magiques": {
+        "name": "Rareté et valeur des objets magiques",
+        "data": {
+          "add_base_cost_rule": "Quand un objet magique comprend un objet qui affiche un prix de vente dans « Équipement » (par exemple une arme ou une armure), ajoutez le prix de l’objet à la valeur de l’objet magique. La valeur d’une armure +1 (harnois), par exemple, sera de 5 500 po, somme de la valeur d’un objet magique rare (4 000 po) et d’un harnois (1 500 po).",
+          "name": "Rareté et valeur des objets magiques",
+          "tiers": [
+            {
+              "priced": true,
+              "rarity_key": "common",
+              "rarity_label": "Courante",
+              "value_gp": 100,
+              "value_label": "100 po"
+            },
+            {
+              "priced": true,
+              "rarity_key": "very-rare",
+              "rarity_label": "Très rare",
+              "value_gp": 40000,
+              "value_label": "40 000 po"
+            },
+            {
+              "priced": true,
+              "rarity_key": "uncommon",
+              "rarity_label": "Peu courante",
+              "value_gp": 400,
+              "value_label": "400 po"
+            },
+            {
+              "priced": true,
+              "rarity_key": "legendary",
+              "rarity_label": "Légendaire",
+              "value_gp": 200000,
+              "value_label": "200 000 po"
+            },
+            {
+              "priced": true,
+              "rarity_key": "rare",
+              "rarity_label": "Rare",
+              "value_gp": 4000,
+              "value_label": "4 000 po"
+            },
+            {
+              "priced": false,
+              "rarity_key": "artifact",
+              "rarity_label": "Artefact",
+              "value_gp": null,
+              "value_label": "Inestimable"
+            }
+          ],
+          "value_footnote": "*Réduire de moitié la valeur de tout objet à utilisation unique autre qu’un parchemin de sort. La valeur d’un parchemin de sort est égale au double du coût de fabrication du parchemin (tel qu’indiqué à « Écrire des parchemins de sort » dans « Équipement »)."
+        },
+        "slug": "rarete-et-valeur-des-objets-magiques",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "Cette œuvre inclut du matériel issu du System Reference Document 5.2.1 (« SRD 5.2.1 ») de Wizards of the Coast LLC, disponible à l’adresse https://www.dndbeyond.com/srd. Le SRD 5.2.1 est régi par la Licence Creative Commons Attribution 4.0 International, disponible à l’adresse https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-fr",
+          "locator": "p.216",
+          "version": "5.2.1"
+        },
+        "contentHash": "cff581a4a0fe709a08522424c5b1666dbeb10cf8107b559dccce4a571c777cad"
       }
     },
     "monster": {
@@ -59070,6 +59161,21 @@
           "mastery": "Ouverture",
           "name": "Arbalète de poing",
           "properties": "Chargement, Légère, Munitions (portée 9/36 ; carreaux)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            },
+            {
+              "detail": "portée 9/36 ; carreaux",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "1,5 kg"
@@ -59084,7 +59190,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "976a20c33b164e86db7ea698c99e4b01dbc431db55afbee22c930a153f6220d9"
+        "contentHash": "05e30197785f8b1b285829e600593b05309235d482ffc8de5efe69bd102e79a9"
       },
       "srd:weapon:fr:arbalete-legere": {
         "name": "Arbalète légère",
@@ -59096,6 +59202,21 @@
           "mastery": "Ralentissement",
           "name": "Arbalète légère",
           "properties": "Chargement, Deux mains, Munitions (portée 24/96 ; carreaux)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "detail": "portée 24/96 ; carreaux",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "2,5 kg"
@@ -59110,7 +59231,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "453295211089468c2d1e255a3aa38b379d55b15c6c7d45e4f6f9609342de0f21"
+        "contentHash": "0c72d34bfbc12ce0ff723f3cd1958753ed8073d0bdc5c2cd12e9204fd3672eac"
       },
       "srd:weapon:fr:arbalete-lourde": {
         "name": "Arbalète lourde",
@@ -59122,6 +59243,25 @@
           "mastery": "Poussée",
           "name": "Arbalète lourde",
           "properties": "Chargement, Deux mains, Lourde, Munitions (portée 30/120 ; carreaux)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            },
+            {
+              "detail": "portée 30/120 ; carreaux",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "9 kg"
@@ -59136,7 +59276,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "78767482018e31036da7dfd2158addc051b5c3b0d8aa1123f6b818143e1d58a7"
+        "contentHash": "96361c0d9723f5997448858b5916f52e49b4462f15c992a4d8c3329114f2abb1"
       },
       "srd:weapon:fr:arc-court": {
         "name": "Arc court",
@@ -59148,6 +59288,17 @@
           "mastery": "Ouverture",
           "name": "Arc court",
           "properties": "Deux mains, Munitions (portée 24/96 ; flèches)",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "detail": "portée 24/96 ; flèches",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "1 kg"
@@ -59162,7 +59313,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "9e6ea8b10bef78b3eb95d0e1dd7b12787a0f1be5b520692a9a37a62dddbff669"
+        "contentHash": "bb14f4e10ffb76c5ba4ff2af38b0be362655731196a6b48f2a6ae49ccd312980"
       },
       "srd:weapon:fr:arc-long": {
         "name": "Arc long",
@@ -59174,6 +59325,21 @@
           "mastery": "Ralentissement",
           "name": "Arc long",
           "properties": "Deux mains, Lourde, Munitions (portée 45/180 ; flèches)",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            },
+            {
+              "detail": "portée 45/180 ; flèches",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "1 kg"
@@ -59188,7 +59354,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "9a16ce0664759e056ab7c7f297bbbc8314ad5f707efe4bbfe85f844964ce626a"
+        "contentHash": "2dfa4d079a60d4109a432679b06c6cdd3b45a53874932473d8155d0360a16d81"
       },
       "srd:weapon:fr:baton-de-combat": {
         "name": "Bâton de combat",
@@ -59200,6 +59366,13 @@
           "mastery": "Renversement",
           "name": "Bâton de combat",
           "properties": "Polyvalente (1d8)",
+          "property_list": [
+            {
+              "detail": "1d8",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 kg"
@@ -59214,7 +59387,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "b7314c19530bb93097899261b1051d90990c37d1249ce01e59a5b9c3aa995cf0"
+        "contentHash": "58d192df4820c23004229de834fd64659ba2890157032b6109e02718589c2afd"
       },
       "srd:weapon:fr:cimeterre": {
         "name": "Cimeterre",
@@ -59226,6 +59399,16 @@
           "mastery": "Coup double",
           "name": "Cimeterre",
           "properties": "Finesse, Légère",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1,5 kg"
@@ -59240,7 +59423,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "aa8aba9b62707aa5c0acc5dc161671181003ff5e4c582fcedc72e87bff7ee8ae"
+        "contentHash": "999e68fb9633f097bf1b930bbcd6c752c7ab013e0ec9ce7406ca67dbecffbffc"
       },
       "srd:weapon:fr:coutille": {
         "name": "Coutille",
@@ -59252,6 +59435,20 @@
           "mastery": "Écorchure",
           "name": "Coutille",
           "properties": "Allonge, Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "reach",
+              "label": "Allonge"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 kg"
@@ -59266,7 +59463,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "2c038f44627ea916ac089ee85a90bca668ae5b789cedf6098564921bcbba3123"
+        "contentHash": "39f7605f6208c41d00a530e33f9a7c627add78439e9d60aa107b1b66af2c46d4"
       },
       "srd:weapon:fr:dague": {
         "name": "Dague",
@@ -59278,6 +59475,21 @@
           "mastery": "Coup double",
           "name": "Dague",
           "properties": "Finesse, Lancer (portée 6/18), Légère",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "0,5 kg"
@@ -59292,7 +59504,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "45b63f2f05a6819417b7c077102edd0fcf5dcda607b04fcb6efdac1af738de63"
+        "contentHash": "1cf63dd4c03a842d3405a862e76e861a48d8aa19d2d3a303216bf5aae465b11e"
       },
       "srd:weapon:fr:epee-a-deux-mains": {
         "name": "Épée à deux mains",
@@ -59304,6 +59516,16 @@
           "mastery": "Écorchure",
           "name": "Épée à deux mains",
           "properties": "Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 kg"
@@ -59318,7 +59540,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "1f759f9a837ec167bdd361249cf4a941aa09a94ae5e13b56a2668165afb9c117"
+        "contentHash": "61702a3d1cba1a621c88ccf4a918f0cf7458865b42f8c285dcac762a4411aace"
       },
       "srd:weapon:fr:epee-courte": {
         "name": "Épée courte",
@@ -59330,6 +59552,16 @@
           "mastery": "Ouverture",
           "name": "Épée courte",
           "properties": "Finesse, Légère",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59344,7 +59576,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "637b2bf6af617cdbec2faf50a9efcada744ff4a65b0bf003fd20b190ddfa4398"
+        "contentHash": "2f8b14f7575e91c2a553433ef2a9d5a57951df18140b50e20c7d487cb61bc7fd"
       },
       "srd:weapon:fr:epee-longue": {
         "name": "Épée longue",
@@ -59356,6 +59588,13 @@
           "mastery": "Sape",
           "name": "Épée longue",
           "properties": "Polyvalente (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1,5 kg"
@@ -59370,7 +59609,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "c43baefe32b1d058d5cacc8193bb4c82f5537fdeb3f6c349ce0838562660fe44"
+        "contentHash": "c572410808f38e21cd1d4c4d5646344622cec5a4fc719021b3e773f6657b0019"
       },
       "srd:weapon:fr:fleau-d-armes": {
         "name": "Fléau d’armes",
@@ -59382,6 +59621,7 @@
           "mastery": "Sape",
           "name": "Fléau d’armes",
           "properties": null,
+          "property_list": [],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59396,7 +59636,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "c6c92172af693787297b85f85428ae2f2d7ed18ff40cc4dbb4e9269b9238cebf"
+        "contentHash": "fd54d542bad81906accf86510193a81731264670e8826da0d7e73d0e18b0f8df"
       },
       "srd:weapon:fr:flechette": {
         "name": "Fléchette",
@@ -59408,6 +59648,17 @@
           "mastery": "Ouverture",
           "name": "Fléchette",
           "properties": "Finesse, Lancer (portée 6/18)",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "125 g"
@@ -59422,7 +59673,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "2852bd6faf6ebd2af02c750fcc9ec1161073350c4f503fa8e6942c04bdcd2e71"
+        "contentHash": "4cf4ffa2e3e429c18d747d92d64f6eaeb603b3e8be412eed5308d0a27e67f620"
       },
       "srd:weapon:fr:fouet": {
         "name": "Fouet",
@@ -59434,6 +59685,16 @@
           "mastery": "Ralentissement",
           "name": "Fouet",
           "properties": "Allonge, Finesse",
+          "property_list": [
+            {
+              "key": "reach",
+              "label": "Allonge"
+            },
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1,5 kg"
@@ -59448,7 +59709,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "9760d5dda66ee65a209cd2a0be5a6c6613053380ca78af0a8379b42226a4e07e"
+        "contentHash": "914217333feee0475218fe171a6c57b8bee8a5feb87eff283937aeaf6156ec9e"
       },
       "srd:weapon:fr:fronde": {
         "name": "Fronde",
@@ -59460,6 +59721,13 @@
           "mastery": "Ralentissement",
           "name": "Fronde",
           "properties": "Munitions (portée 9/36 ; billes)",
+          "property_list": [
+            {
+              "detail": "portée 9/36 ; billes",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "—"
@@ -59474,7 +59742,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "b706490e40b241d3a1dc93691bc2b2ae15bfad6a687119a50753722d312ac95c"
+        "contentHash": "b5efbd8d4495f94d309eeb0f3651bcf26e48d58daf072fdaf958b3761f8424f4"
       },
       "srd:weapon:fr:gourdin": {
         "name": "Gourdin",
@@ -59486,6 +59754,12 @@
           "mastery": "Ralentissement",
           "name": "Gourdin",
           "properties": "Légère",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59500,7 +59774,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "a0bb9d86f3bd7561123c99da1bcaabacb1eff1956daf4481f1e6ab2b71a024cc"
+        "contentHash": "f6c65d02445d6f4754703a61e4c862d79c2449461e47ca46026647a52943dda0"
       },
       "srd:weapon:fr:hache-a-deux-mains": {
         "name": "Hache à deux mains",
@@ -59512,6 +59786,16 @@
           "mastery": "Enchaînement",
           "name": "Hache à deux mains",
           "properties": "Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3,5 kg"
@@ -59526,7 +59810,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "49d2e79626c06ca905a49c08ad20368adbc439cc587eb1f3d494cb14cb36f3ef"
+        "contentHash": "a56522cd184785b50fb07aaacc5296f340a79fcc8fdcabef42602cc4b0a2b03e"
       },
       "srd:weapon:fr:hache-d-armes": {
         "name": "Hache d’armes",
@@ -59538,6 +59822,13 @@
           "mastery": "Renversement",
           "name": "Hache d’armes",
           "properties": "Polyvalente (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 kg"
@@ -59552,7 +59843,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "187550613722c85c79864a2367a0552ad1e1b82b23022a1d7e8746df09e567c6"
+        "contentHash": "aadbf16d9a5d2a1fb280a2b3b69b01aafe5da8546d12f7898c13a469035c37de"
       },
       "srd:weapon:fr:hachette": {
         "name": "Hachette",
@@ -59564,6 +59855,17 @@
           "mastery": "Ouverture",
           "name": "Hachette",
           "properties": "Lancer (portée 6/18), Légère",
+          "property_list": [
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59578,7 +59880,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "12737b74ebee72125d8b11489baca8814bb71592873da8a0030e312234e72281"
+        "contentHash": "b4d24e2c68da7f0c753f693ede0b690fa91849a84a9ff41aabcaaf2bce90feca"
       },
       "srd:weapon:fr:hallebarde": {
         "name": "Hallebarde",
@@ -59590,6 +59892,20 @@
           "mastery": "Enchaînement",
           "name": "Hallebarde",
           "properties": "Allonge, Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "reach",
+              "label": "Allonge"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 kg"
@@ -59604,7 +59920,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "bb7db601b78ad127e221a0bff919223f18b011e77508c4a694c2f357d3591559"
+        "contentHash": "20a2641fd007ea23f07d21610e3440a80c4a77dd0457c68cf02203ad8f3ff6a5"
       },
       "srd:weapon:fr:javeline": {
         "name": "Javeline",
@@ -59616,6 +59932,13 @@
           "mastery": "Ralentissement",
           "name": "Javeline",
           "properties": "Lancer (portée 9/36)",
+          "property_list": [
+            {
+              "detail": "portée 9/36",
+              "key": "thrown",
+              "label": "Lancer"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59630,7 +59953,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "8ae319957597e13e09d485c83c9631069b03ba11451514c8f76c362e2aea9624"
+        "contentHash": "c1bc77bc88dbc2bae085612f727f27afc7f4f4b1e8b1244b363fed62826eab9d"
       },
       "srd:weapon:fr:lance": {
         "name": "Lance",
@@ -59642,6 +59965,18 @@
           "mastery": "Sape",
           "name": "Lance",
           "properties": "Lancer (portée 6/18), Polyvalente (1d8)",
+          "property_list": [
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            },
+            {
+              "detail": "1d8",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1,5 kg"
@@ -59656,7 +59991,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "4df0e46860504ee27271e8ba0f6ed42b7cd40ba8244420abb90e01e32df85af3"
+        "contentHash": "b3de1e6287296c4afba9d231fc1d0ff9a3a11a7b3e6d414745168da0982a04a4"
       },
       "srd:weapon:fr:lance-d-arcon": {
         "name": "Lance d’arçon",
@@ -59668,6 +60003,21 @@
           "mastery": "Renversement",
           "name": "Lance d’arçon",
           "properties": "Allonge, Deux mains (sauf à cheval), Lourde",
+          "property_list": [
+            {
+              "key": "reach",
+              "label": "Allonge"
+            },
+            {
+              "detail": "sauf à cheval",
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 kg"
@@ -59682,7 +60032,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "2de7187b50b59f53dfe84f76b8c22dbc7f610a8f5ab3143d08109664d511ac3a"
+        "contentHash": "3309beabab5824120d5af7af8cc77bb72ce2974c3e36da152d79dd7e54decba1"
       },
       "srd:weapon:fr:maillet-d-armes": {
         "name": "Maillet d’armes",
@@ -59694,6 +60044,16 @@
           "mastery": "Renversement",
           "name": "Maillet d’armes",
           "properties": "Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "5 kg"
@@ -59708,7 +60068,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "b2039c8ac5664bb32bfbb1afbb40fe0e25dfcd74f60fca12866584f56be6e37f"
+        "contentHash": "06b50425efd6aed03deb77a29901ca51b1a99764b96b2e03afba206ac801ce25"
       },
       "srd:weapon:fr:marteau-de-guerre": {
         "name": "Marteau de guerre",
@@ -59720,6 +60080,13 @@
           "mastery": "Poussée",
           "name": "Marteau de guerre",
           "properties": "Polyvalente (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2,5 kg"
@@ -59734,7 +60101,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "b53e535d4c433f70ffe72e0aa85bd16eca1c6fb553a3ad8a9fc320e9df949f6c"
+        "contentHash": "1d1fefab4f7d07265cad9d1210d28db1a35412464df55f39b60be669e48c4c27"
       },
       "srd:weapon:fr:marteau-leger": {
         "name": "Marteau léger",
@@ -59746,6 +60113,17 @@
           "mastery": "Coup double",
           "name": "Marteau léger",
           "properties": "Lancer (portée 6/18), Légère",
+          "property_list": [
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            },
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59760,7 +60138,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "109a2f3c36b790685ef744f69fd697593ee16ccc53dd0852e9c582bde569cbaa"
+        "contentHash": "0974facdf8a3c5586ff4afc9e5bcc22593f9a7bd64de2d912d86b15b94db4565"
       },
       "srd:weapon:fr:masse-d-armes": {
         "name": "Masse d’armes",
@@ -59772,6 +60150,7 @@
           "mastery": "Sape",
           "name": "Masse d’armes",
           "properties": null,
+          "property_list": [],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 kg"
@@ -59786,7 +60165,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "5beae141f0a9b260335af1752ec1136f9d700ba1d4e588382fe0086d27237002"
+        "contentHash": "0537079ac4c6ad78cc7dd3cc5dc6f79dfad2a60aeed403c7fec6c5bdfbdc742e"
       },
       "srd:weapon:fr:massue": {
         "name": "Massue",
@@ -59798,6 +60177,12 @@
           "mastery": "Poussée",
           "name": "Massue",
           "properties": "Deux mains",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "5 kg"
@@ -59812,7 +60197,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "66366a2d28ef8cf4b348b4624a0584cb4209204cc2ef7e090fd06d424927f495"
+        "contentHash": "dc3bf6439ae0cfaf6fe5fcd6b09b4cbbb2a0fcbe84dc771dbcd3d4783e7b13ee"
       },
       "srd:weapon:fr:morgenstern": {
         "name": "Morgenstern",
@@ -59824,6 +60209,7 @@
           "mastery": "Sape",
           "name": "Morgenstern",
           "properties": null,
+          "property_list": [],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 kg"
@@ -59838,7 +60224,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "bc50d0356050bb8b28bb01e8ab9c069a5fa70dbe1844571423331e162002e74e"
+        "contentHash": "0d3641c7078e0503cc1a8b2b60d69f6ccb598b919419215c994c5a85e705fa32"
       },
       "srd:weapon:fr:mousquet": {
         "name": "Mousquet",
@@ -59850,6 +60236,21 @@
           "mastery": "Ralentissement",
           "name": "Mousquet",
           "properties": "Chargement, Deux mains, Munitions (portée 12/36 ; balles)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "detail": "portée 12/36 ; balles",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "5 kg"
@@ -59864,7 +60265,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "85a8af64e041822c84dc9cb6c515ef7b35b4696c5d7a632adfd8847062b4268e"
+        "contentHash": "7fac72348215782763e6ad4e0410cc8b2511d4b1556413720a63e2c38add0d38"
       },
       "srd:weapon:fr:pic-de-guerre": {
         "name": "Pic de guerre",
@@ -59876,6 +60277,13 @@
           "mastery": "Sape",
           "name": "Pic de guerre",
           "properties": "Polyvalente (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59890,7 +60298,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "5be63af1e54c8c93fcb9cf5a2b68b25de8c98da0311639c5a3e88a67f194f77e"
+        "contentHash": "171fb94fe44b1fc8053e6ff705d055343a928760caba3ebd4776a2ccafd222ba"
       },
       "srd:weapon:fr:pique": {
         "name": "Pique",
@@ -59902,6 +60310,20 @@
           "mastery": "Poussée",
           "name": "Pique",
           "properties": "Allonge, Deux mains, Lourde",
+          "property_list": [
+            {
+              "key": "reach",
+              "label": "Allonge"
+            },
+            {
+              "key": "two-handed",
+              "label": "Deux mains"
+            },
+            {
+              "key": "heavy",
+              "label": "Lourde"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "9 kg"
@@ -59916,7 +60338,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "d9cd479a15bca85baf21f5da38b1b7f3b2c99b0bd6592c40d32c691c493ae4a2"
+        "contentHash": "e3c98dd2d8a0785d4e93004a68c01503169c02c347a29fea3a15b1b97702a2ca"
       },
       "srd:weapon:fr:pistolet": {
         "name": "Pistolet",
@@ -59928,6 +60350,17 @@
           "mastery": "Ouverture",
           "name": "Pistolet",
           "properties": "Chargement, Munitions (portée 9/27 ; balles)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "detail": "portée 9/27 ; balles",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "1,5 kg"
@@ -59942,7 +60375,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "f2710c0ce0a96ea5c761c13d74938ded7d201fb191315aa56ff30598be3e23a8"
+        "contentHash": "4f192d401e71f09394a8c55a17f6d80f61b251264c6ec5ee421bbb53571fe5e2"
       },
       "srd:weapon:fr:rapiere": {
         "name": "Rapière",
@@ -59954,6 +60387,12 @@
           "mastery": "Ouverture",
           "name": "Rapière",
           "properties": "Finesse",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -59968,7 +60407,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "7b1e62123e41a10ef517b26f25298f14ec9750e35c9ca0fd5557842d6a6cb838"
+        "contentHash": "b5051da399e7314b5b382bf63cdf8db7fb6994a8d7a6582c0925ac2adbe328b8"
       },
       "srd:weapon:fr:sarbacane": {
         "name": "Sarbacane",
@@ -59981,6 +60420,17 @@
           "mastery": "Ouverture",
           "name": "Sarbacane",
           "properties": "Chargement, Munitions (portée 7,50/30 ; dards)",
+          "property_list": [
+            {
+              "key": "loading",
+              "label": "Chargement"
+            },
+            {
+              "detail": "portée 7,50/30 ; dards",
+              "key": "ammunition",
+              "label": "Munitions"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "0,5 kg"
@@ -59995,7 +60445,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "d88ffecbb57e55f3ac103a42f8d518307bca5822178ee0af876b3f66e378e1e5"
+        "contentHash": "a92034e234d159455cb64492f6197da90c05031457b83f993c8e5b186df15066"
       },
       "srd:weapon:fr:serpe": {
         "name": "Serpe",
@@ -60007,6 +60457,12 @@
           "mastery": "Coup double",
           "name": "Serpe",
           "properties": "Légère",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Légère"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 kg"
@@ -60021,7 +60477,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "8b64592ca2c90bf730b55c3e61a3a5d9f35701b6aa98238be5b236ec972c1b47"
+        "contentHash": "8712febfa57af8e0b60d1e1f5cd406f29bd05957c284246ca80f3869270d22cd"
       },
       "srd:weapon:fr:trident": {
         "name": "Trident",
@@ -60033,6 +60489,18 @@
           "mastery": "Renversement",
           "name": "Trident",
           "properties": "Lancer (portée 6/18), Polyvalente (1d10)",
+          "property_list": [
+            {
+              "detail": "portée 6/18",
+              "key": "thrown",
+              "label": "Lancer"
+            },
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Polyvalente"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 kg"
@@ -60047,7 +60515,7 @@
           "locator": "p.97",
           "version": "5.2.1"
         },
-        "contentHash": "be165c421a929cc630f426789d128c209df8800eab3eb1312fd99c2a90d354c1"
+        "contentHash": "4164f2b75eadf100c345184de43e30714822f43d03ee51f18a54b1bc354f6edc"
       }
     },
     "weapon-mastery": {

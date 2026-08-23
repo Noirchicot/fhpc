@@ -3,8 +3,10 @@
    Quatre obligations posées par le mandat : le MANIFEST se vérifie avant
    usage (mismatch → échec bruyant qui nomme le fichier) ; les deux couches
    valident contre fh-layer/1 ; les comptes par genre ne descendent pas sous
-   les seuils relevés à la génération (2 651 records au total : les 2 613 du kickoff §L4, plus les 19 records par langue des deux genres du lot 19) ;
-   trois ids connus se retrouvent tels quels.
+   les seuils relevés à la génération (2 658 records au total : les 2 613 du
+   kickoff §L4, plus les 19 par langue des deux genres du lot 19 de fh-srd,
+   plus les 5 objets rendus par son lot 86, plus `item-value` — 1 record par
+   langue, lot 92) ; trois ids connus se retrouvent tels quels.
 
    Le générateur est relancé ici (pas seulement lu depuis layers/ commité) :
    un test qui ne relit que la sortie déjà écrite ne prouve pas que la
@@ -17,7 +19,7 @@
 */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
@@ -26,13 +28,17 @@ import Ajv2020 from "ajv/dist/2020.js";
 
 import {
   GENRES,
+  GENRES_MAISON,
   LANGS,
   SRD_ROOT,
   verifyManifest,
   assertDigestMatches,
+  deriveGenres,
+  lireInventaire,
   buildLayer,
   generate
 } from "../src/tools/gen-srd-layer.mjs";
+import { GENRES as GENRES_DECLARES } from "../src/layers/document.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const layerSchema = JSON.parse(readFileSync(join(root, "schemas/fh-layer.schema.json"), "utf8"));
@@ -102,8 +108,17 @@ test("le MANIFEST se vérifie avant usage : une entrée absente nomme aussi le f
   );
 });
 
-test("verifyManifest() passe sur les exports fh-srd réels (32 fichiers, 16 genres × 2 langues)", () => {
+test("verifyManifest() passe sur les exports fh-srd réels — les genres DÉRIVÉS × les deux langues", () => {
   assert.doesNotThrow(() => verifyManifest());
+
+  /* ⚠️ CE LIBELLÉ DISAIT « 32 fichiers, 16 genres × 2 langues » PENDANT QUE LA
+     SOURCE EN PORTAIT 34 ET 17. Un chiffre écrit dans un titre de test n'est
+     relu par personne : il décore, il ne mesure pas. Le compte se prend donc
+     ICI, sur la liste dérivée — et en PLANCHER, comme les comptes par genre :
+     un genre SRD de plus est une bonne nouvelle, pas une régression. */
+  assert.ok(GENRES.length >= 17,
+    `${GENRES.length} genre(s) dérivé(s) — la source en portait 17 le 2026-08-23 ; en perdre serait une régression`);
+  assert.equal(LANGS.length, 2, "les deux langues, et un `verifyManifest()` qui ne vérifierait rien passerait aussi");
 });
 
 test("chaque couche générée valide contre fh-layer/1", () => {
@@ -114,17 +129,24 @@ test("chaque couche générée valide contre fh-layer/1", () => {
   }
 });
 
-test("les 16 genres sont présents dans chaque couche, aucun manquant, aucun en trop", () => {
+test("les genres DÉRIVÉS sont présents dans chaque couche, aucun manquant, aucun en trop", () => {
   for (const lang of LANGS) {
     const { layer } = buildLayer(lang);
     assert.deepEqual(Object.keys(layer.records).sort(), [...GENRES].sort());
   }
 });
 
-test("2 651 records au total — les 2 613 du kickoff §L4 + 19 par langue (weapon-property 11 · weapon-mastery 8)", () => {
+test("2 658 records au total — 2 656 dans la source + `item-value` × 2 langues (lot 92)", () => {
+  /* MESURÉ le 2026-08-23, et le chiffre précédent — 2 651 — était périmé de
+     SEPT : cinq objets `item` rendus à l'anglais par le lot 86 de fh-srd, et
+     les deux records `item-value` que la liste de genres écrite en dur sautait
+     en silence. Le total, lui, n'a jamais bougé tout seul : c'est la source
+     qu'on a corrigée, et la copie qui n'avait pas suivi. */
   const { total: totalFr } = buildLayer("fr");
   const { total: totalEn } = buildLayer("en");
-  assert.equal(totalFr + totalEn, 2651);
+  assert.equal(totalFr, 1329, "la couche FR seule");
+  assert.equal(totalEn, 1329, "la couche EN seule — elle a rattrapé le FR sur `item` (253 → 258)");
+  assert.equal(totalFr + totalEn, 2658);
 });
 
 /* Seuils relevés à la génération (mesurés ci-dessus) : un futur sync fh-srd
@@ -132,8 +154,21 @@ test("2 651 records au total — les 2 613 du kickoff §L4 + 19 par langue (weap
    casser ce test, pas passer inaperçu. */
 const FLOORS = {
   armor: 13, background: 4, class: 12, "class-progression": 12, feat: 17,
-  gear: 82, glossary: 152, item: 253, monster: 330, skill: 18, species: 9,
+  /* `item` : 253 → 258 le 2026-08-23. Ce n'était PAS une croissance de la
+     source : le FR portait déjà 258, et le lot 86 de fh-srd a rendu à l'EN
+     cinq objets que son extraction avalait — Dancing Sword, Frost Brand, Luck
+     Blade, Sword of Life Stealing, Sword of Wounding. Le plancher suivait donc
+     la langue la plus pauvre, et il l'aurait suivie indéfiniment. */
+  gear: 82, glossary: 152, item: 258, monster: 330, skill: 18, species: 9,
   spell: 339, tool: 25, weapon: 38,
+  /* Lot 92 de fh-srd — le barème des prix par rareté, UN record par langue.
+     ⭐ ET C'EST UNE ÉGALITÉ DÉGUISÉE DE PLUS, pour la même raison que les deux
+     ci-dessous : une seule table, donc un seul record. Un deuxième serait une
+     anomalie d'extraction. Ce genre est l'accusé de ce lot : il vivait dans la
+     source, inscrit au MANIFEST, dans les deux langues — et la couche l'a
+     ignoré une journée entière parce qu'une liste de seize noms ne le
+     connaissait pas. */
+  "item-value": 1,
   /* Lot 19 de fh-srd (2026-08-20) — les deux blocs de la page 90 du SRD 5.2.1.
      ⭐ CES DEUX SEUILS SONT DES ÉGALITÉS DÉGUISÉES, et c'est voulu : contrairement
      aux sorts ou aux monstres, ce sont des ensembles FERMÉS que la source énumère
@@ -145,6 +180,17 @@ const FLOORS = {
 };
 
 test("comptes par genre ≥ seuils relevés à la génération, pour les deux langues", () => {
+  /* ⚠️ UN GENRE SANS SEUIL N'EST PAS UN GENRE SANS PLANCHER — il est NON
+     MESURÉ, et `n >= undefined` vaut `false` en silence, ce qui rendrait
+     l'échec illisible (« attendu ≥ undefined »). Depuis que `GENRES` se dérive
+     de la source, un genre neuf arrive ICI avant d'arriver dans cette table :
+     il est donc nommé, avec ce qu'il faut faire. Une absence n'est pas une
+     réponse. */
+  const sansSeuil = GENRES.filter((genre) => !Number.isInteger(FLOORS[genre]));
+  assert.deepEqual(sansSeuil, [],
+    `genre(s) dérivé(s) de la source sans seuil déclaré : ${sansSeuil.join(", ")} — ` +
+    "relever le compte à la génération et l'inscrire dans FLOORS, ne pas laisser le garde deviner.");
+
   for (const lang of LANGS) {
     const { countsByGenre } = buildLayer(lang);
     for (const genre of GENRES) {
@@ -153,6 +199,158 @@ test("comptes par genre ≥ seuils relevés à la génération, pour les deux la
         `${lang}/${genre} : ${countsByGenre[genre]} record(s), attendu ≥ ${FLOORS[genre]}`
       );
     }
+  }
+});
+
+/* ══ LA PORTE QUI LAISSAIT PASSER — 2026-08-23 (lot 93) ════════════════════
+   🔴 CE GÉNÉRATEUR PORTAIT LA BONNE RÈGLE ET FAISAIT L'INVERSE. Son commentaire
+   disait « ce qui entre ici est un fichier d'export fh-srd, un point », et
+   trois lignes plus bas seize noms écrits en dur. `exports/srd/en/` en portait
+   DIX-SEPT. `item-value` — livré par le lot 92, présent dans les deux langues,
+   déjà inscrit au MANIFEST — n'a provoqué AUCUNE erreur : il était simplement
+   absent de la couche, et personne ne l'aurait su.
+
+   ⭐ ET LA RÉPONSE OPPOSÉE EXISTAIT DÉJÀ, LE MÊME SOIR, DANS LA SOURCE : chez
+   fh-srd, `build_web.py` a REFUSÉ le genre neuf tant qu'il n'était pas déclaré
+   — deux suites rouges, défaut trouvé en dix secondes. Le même problème, deux
+   réponses opposées ; ces deux attaques gardent la bonne.
+
+   ⚠️ ELLES ATTAQUENT LES DEUX MOITIÉS SÉPARÉMENT, et il faut les deux : la
+   première éprouve la RÈGLE sur un inventaire fabriqué, la seconde éprouve la
+   LECTURE en posant un vrai fichier sur un vrai disque. Un refus juste sur un
+   inventaire que personne ne sait remplir ne refuserait rien. */
+
+test("⚔️ ATTAQUE (la règle) — les quatre refus NOMMENT ce qu'ils écartent", () => {
+  const sain = {
+    fr: { disque: ["item", "spell"], manifest: ["item", "spell"] },
+    en: { disque: ["spell", "item"], manifest: ["spell", "item"] }
+  };
+  const declares = ["item", "spell"];
+
+  /* LE TÉMOIN D'ABORD : un garde qui refuse tout ne prouve rien de plus qu'un
+     garde qui accepte tout. Et il rend la liste TRIÉE — l'ordre des clefs
+     `records` de la couche écrite en dépend, donc de sa reproductibilité. */
+  assert.deepEqual(deriveGenres(sain, { declares }), ["item", "spell"]);
+
+  // ① LE GENRE MAISON — refusé pour SON motif, la loi §0.12.
+  assert.throws(
+    () => deriveGenres({ ...sain, en: { disque: ["item", "spell", "arcana"], manifest: ["item", "spell", "arcana"] } }, { declares: [...declares, "arcana"] }),
+    (e) => /arcana/.test(e.message) && /0\.12/.test(e.message) && /Refusé, pas sauté/.test(e.message),
+    "un genre Fate's Hand dans les exports SRD doit être nommé AVEC son motif"
+  );
+
+  // ② LE FICHIER NON VÉRIFIÉ — posé sans être inscrit au MANIFEST.
+  assert.throws(
+    () => deriveGenres({ ...sain, en: { disque: ["item", "spell", "tarot"], manifest: ["item", "spell"] } }, { declares }),
+    (e) => /srd\/en\/tarot\.json/.test(e.message) && /MANIFEST/.test(e.message),
+    "le chemin exact du fichier non inscrit doit être dans le message"
+  );
+
+  // ...et le sens inverse : inscrit au MANIFEST, absent du disque.
+  assert.throws(
+    () => deriveGenres({ ...sain, fr: { disque: ["item"], manifest: ["item", "spell"] } }, { declares }),
+    (e) => /srd\/fr\/spell\.json/.test(e.message) && /INTROUVABLE/.test(e.message),
+    "une source qui a perdu un export se nomme, elle ne se comble pas"
+  );
+
+  // ③ LE GENRE BOITEUX — publié dans une langue et pas dans l'autre.
+  assert.throws(
+    () => deriveGenres({
+      fr: { disque: ["item"], manifest: ["item"] },
+      en: { disque: ["item", "spell"], manifest: ["item", "spell"] }
+    }, { declares }),
+    (e) => /spell/.test(e.message) && /absent en fr/.test(e.message),
+    "l'asymétrie doit dire QUELLE langue manque — pas se rattraper par une intersection"
+  );
+
+  // ④ LE GENRE INCONNU DU CONTRAT — celui qui rendrait la couche invalide.
+  assert.throws(
+    () => deriveGenres({
+      fr: { disque: ["item", "tarot"], manifest: ["item", "tarot"] },
+      en: { disque: ["item", "tarot"], manifest: ["item", "tarot"] }
+    }, { declares }),
+    (e) => /tarot/.test(e.message) && /fh-layer\/1/.test(e.message),
+    "un genre que le contrat ne déclare pas doit être nommé, pas écrit sur le disque"
+  );
+
+  // ET LE VIDE N'EST PAS UNE RÉPONSE.
+  assert.throws(() => deriveGenres({}), /vide/);
+
+  /* Enfin, sur la VRAIE liste : ce que la source publie aujourd'hui est bien
+     déclaré au contrat, et aucun genre maison ne s'y est glissé. */
+  for (const genre of GENRES) {
+    assert.ok(GENRES_DECLARES.includes(genre), `${genre} dérivé mais absent du contrat fh-layer/1`);
+    assert.equal(GENRES_MAISON.includes(genre), false, `${genre} est un genre maison — il n'a rien à faire dans la couche SRD`);
+  }
+  assert.deepEqual(GENRES_MAISON, ["arcana", "training"]);
+});
+
+test("⚔️ ATTAQUE (la lecture) — un FICHIER d'export inconnu posé sur le disque est NOMMÉ, pas sauté", () => {
+  /* ⛔ L'ARBRE EST FABRIQUÉ DANS UN RÉPERTOIRE TEMPORAIRE. Poser le faux export
+     dans `~/tools/fh-srd` pour prouver qu'on sait le voir serait salir le dépôt
+     du voisin — la faute même que tests/tree-immuable.test.mjs interdit, un
+     cran plus loin. `lireInventaire()` prend donc sa racine en argument. */
+  const tmp = mkdtempSync(join(tmpdir(), "fhpc-faux-srd-"));
+  const ecrireManifest = (paths) =>
+    writeFileSync(join(tmp, "MANIFEST.json"), JSON.stringify({ files: paths.map((p) => ({ path: p, sha256: "0".repeat(64) })) }));
+  const poser = (lang, genre) => writeFileSync(join(tmp, "srd", lang, `${genre}.json`), "{}\n");
+
+  try {
+    for (const lang of ["fr", "en"]) mkdirSync(join(tmp, "srd", lang), { recursive: true });
+    for (const lang of ["fr", "en"]) { poser(lang, "item"); poser(lang, "spell"); }
+    const socle = ["srd/fr/item.json", "srd/fr/spell.json", "srd/en/item.json", "srd/en/spell.json"];
+    /* Le MANIFEST porte aussi ce qui n'est PAS un genre de la couche SRD — et
+       c'est le piège que la lecture doit éviter toute seule : `exclusions.json`
+       n'a pas de langue, `srd/correspondence.json` est sous `srd/` sans être
+       sous une langue, et `srfh/` est une AUTRE couche (lot 90, hors de ce lot). */
+    const bruit = ["exclusions.json", "srd/correspondence.json", "srfh/en/item.json", "srfh/en/shelving.json"];
+    ecrireManifest([...socle, ...bruit]);
+
+    // TÉMOIN — le bruit du MANIFEST ne devient pas un genre, et rien ne rougit.
+    const declares = ["item", "spell"];
+    assert.deepEqual(deriveGenres(lireInventaire(tmp), { declares }), ["item", "spell"],
+      "ni `exclusions`, ni `correspondence`, ni la couche `srfh` ne sont des genres de la couche SRD");
+
+    // ON POSE LE FAUX EXPORT — sur le disque seulement.
+    poser("en", "tarot");
+    assert.throws(() => deriveGenres(lireInventaire(tmp), { declares }),
+      (e) => /srd\/en\/tarot\.json/.test(e.message) && /MANIFEST/.test(e.message),
+      "un fichier posé et non inscrit doit être NOMMÉ — c'est exactement ce qu'une liste en dur sautait");
+
+    // ON L'INSCRIT AU MANIFEST — il reste boiteux, et il est encore nommé.
+    ecrireManifest([...socle, ...bruit, "srd/en/tarot.json"]);
+    assert.throws(() => deriveGenres(lireInventaire(tmp), { declares }),
+      (e) => /tarot/.test(e.message) && /absent en fr/.test(e.message));
+
+    // ON LE PUBLIE DANS LES DEUX LANGUES — le contrat le refuse, et le nomme.
+    poser("fr", "tarot");
+    ecrireManifest([...socle, ...bruit, "srd/en/tarot.json", "srd/fr/tarot.json"]);
+    assert.throws(() => deriveGenres(lireInventaire(tmp), { declares }),
+      (e) => /tarot/.test(e.message) && /fh-layer\/1/.test(e.message),
+      "⛔ ET C'EST LE DERNIER VERROU : sans lui, `node src/tools/gen-srd-layer.mjs` écrirait sur le disque une couche que le schéma refuse");
+
+    /* ⭐ LA PREUVE PAR L'ACCUSÉ : déclaré au contrat, le genre neuf ENTRE. Sans
+       ce dernier pas, ces attaques prouveraient seulement qu'on sait tout
+       refuser — et c'est précisément ce qu'il ne faut pas faire d'un genre SRD
+       de plus. C'est le chemin qu'`item-value` aurait dû suivre. */
+    assert.deepEqual(deriveGenres(lireInventaire(tmp), { declares: [...declares, "tarot"] }),
+      ["item", "spell", "tarot"]);
+
+    // ET LE GENRE MAISON, LUI, N'ENTRE JAMAIS — même déclaré, même inscrit.
+    for (const lang of ["fr", "en"]) poser(lang, "arcana");
+    ecrireManifest([...socle, ...bruit, "srd/en/tarot.json", "srd/fr/tarot.json", "srd/en/arcana.json", "srd/fr/arcana.json"]);
+    assert.throws(() => deriveGenres(lireInventaire(tmp), { declares: [...declares, "tarot", "arcana"] }),
+      (e) => /arcana/.test(e.message) && /0\.12/.test(e.message));
+
+    // UNE RACINE SANS MANIFEST SE NOMME, elle ne rend pas un inventaire vide.
+    const vide = mkdtempSync(join(tmpdir(), "fhpc-sans-manifest-"));
+    try {
+      assert.throws(() => lireInventaire(vide), (e) => /MANIFEST\.json illisible/.test(e.message) && e.message.includes(vide));
+    } finally {
+      rmSync(vide, { recursive: true, force: true });
+    }
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
   }
 });
 

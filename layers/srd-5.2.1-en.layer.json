@@ -17,8 +17,10 @@
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "14 + Dex modifier (max 2)",
           "cost": "400 GP",
+          "don_doff": "5 Minutes to Don and 1 Minute to Doff",
           "name": "Breastplate",
           "stealth_disadvantage": false,
           "strength": null,
@@ -34,15 +36,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "034e95c81155d26b34ed376941dd5e638c03520fca51069834cbd560e606a500"
+        "contentHash": "6567a667ce3c1d0adb5253392dd4f46168f16cb88a35015d5f0b8b3d315edf0a"
       },
       "srd:armor:en:chain-mail": {
         "name": "Chain Mail",
         "data": {
           "ac_base": 16,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "16",
           "cost": "75 GP",
+          "don_doff": "10 Minutes to Don and 5 Minutes to Doff",
           "name": "Chain Mail",
           "stealth_disadvantage": true,
           "strength": "Str 13",
@@ -58,15 +62,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "bd2889f8270482a87c0a91b1aaf72b6cf1d0284a6730d6ebd1e4f6932cd30c82"
+        "contentHash": "accbcb08bbfc680352c5d6351d31331e82d96957b70d4ab5a0a3f66fe4aae7b4"
       },
       "srd:armor:en:chain-shirt": {
         "name": "Chain Shirt",
         "data": {
           "ac_base": 13,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "13 + Dex modifier (max 2)",
           "cost": "50 GP",
+          "don_doff": "5 Minutes to Don and 1 Minute to Doff",
           "name": "Chain Shirt",
           "stealth_disadvantage": false,
           "strength": null,
@@ -82,15 +88,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "acfb35bde72774a4a9fcd9665c2e6258f55485b37c33ad24fc26beef03fb7e3c"
+        "contentHash": "a474cfd5d1165b915fa6a5e49e5052f3fac9d89298242eb4a58a7bca2c0c6e6c"
       },
       "srd:armor:en:half-plate-armor": {
         "name": "Half Plate Armor",
         "data": {
           "ac_base": 15,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "15 + Dex modifier (max 2)",
           "cost": "750 GP",
+          "don_doff": "5 Minutes to Don and 1 Minute to Doff",
           "name": "Half Plate Armor",
           "stealth_disadvantage": true,
           "strength": null,
@@ -106,15 +114,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "c35cd695a1f9d4c55daaf3dd1d596dca878c5d37b646b720bd3022395d8f7f2e"
+        "contentHash": "25f23b083c7c819275cb2e262770ab669790ccd8791082e9c1cd1021858de2fd"
       },
       "srd:armor:en:hide-armor": {
         "name": "Hide Armor",
         "data": {
           "ac_base": 12,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "12 + Dex modifier (max 2)",
           "cost": "10 GP",
+          "don_doff": "5 Minutes to Don and 1 Minute to Doff",
           "name": "Hide Armor",
           "stealth_disadvantage": false,
           "strength": null,
@@ -130,15 +140,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "8ec13c67d316e448518472038573ef079586a07809c9aab81c49e39fc5e16f55"
+        "contentHash": "ba3c8a811a5fd2ea0cb30ac1ae689d7679d35667e566a7842d6402833faeb935"
       },
       "srd:armor:en:leather-armor": {
         "name": "Leather Armor",
         "data": {
           "ac_base": 11,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "11 + Dex modifier",
           "cost": "10 GP",
+          "don_doff": "1 Minute to Don or Doff",
           "name": "Leather Armor",
           "stealth_disadvantage": false,
           "strength": null,
@@ -154,15 +166,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "d117ecafeb1e1bf532e1ceb02a720ed871efb74eefbff6e0bd8423f2c757d64d"
+        "contentHash": "980c8f649662017b1c15ecd1d9e17b48b378daf833627da00eff381d883c2ae6"
       },
       "srd:armor:en:padded-armor": {
         "name": "Padded Armor",
         "data": {
           "ac_base": 11,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "11 + Dex modifier",
           "cost": "5 GP",
+          "don_doff": "1 Minute to Don or Doff",
           "name": "Padded Armor",
           "stealth_disadvantage": true,
           "strength": null,
@@ -178,15 +192,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "ae22188bce043e260a150484854a1c80b8ffb49948b7938e2de34e8347642166"
+        "contentHash": "1cc39a255f1ea2f6b3760c80d6f0bdb743754aa04403ba5ceae437c8a2aac1a0"
       },
       "srd:armor:en:plate-armor": {
         "name": "Plate Armor",
         "data": {
           "ac_base": 18,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "18",
           "cost": "1,500 GP",
+          "don_doff": "10 Minutes to Don and 5 Minutes to Doff",
           "name": "Plate Armor",
           "stealth_disadvantage": true,
           "strength": "Str 15",
@@ -202,15 +218,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "e56c34ffc0b67bb2ea35a9053272aa3bf7fe1eda1ca84e3fb5d009886db93aa3"
+        "contentHash": "563c44404124d775e8145544bff9fb5c175a4c47d4166b43fbee592baf3bfc39"
       },
       "srd:armor:en:ring-mail": {
         "name": "Ring Mail",
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "14",
           "cost": "30 GP",
+          "don_doff": "10 Minutes to Don and 5 Minutes to Doff",
           "name": "Ring Mail",
           "stealth_disadvantage": true,
           "strength": null,
@@ -226,15 +244,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "e4920f6e1c3dfd5c9f9bce6bc10b9ab0dd8deed6054607902be0b78f092be93b"
+        "contentHash": "69ed0503d678684df3c13eaeca1eed6486df11bf9d86b341fa267f82ca08015b"
       },
       "srd:armor:en:scale-mail": {
         "name": "Scale Mail",
         "data": {
           "ac_base": 14,
           "ac_dex_cap": 2,
+          "armor_category": "medium",
           "armor_class": "14 + Dex modifier (max 2)",
           "cost": "50 GP",
+          "don_doff": "5 Minutes to Don and 1 Minute to Doff",
           "name": "Scale Mail",
           "stealth_disadvantage": true,
           "strength": null,
@@ -250,15 +270,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "e14a6157ea4175b5bfcfea12ef2b740db45a5b0b5cf07bb4acc41a0e15bb1c82"
+        "contentHash": "d03a20e55b0c413f3fcae99228f0cbd189e30478078036d6f81d8ac285971c5e"
       },
       "srd:armor:en:shield": {
         "name": "Shield",
         "data": {
           "ac_base": null,
           "ac_bonus": 2,
+          "armor_category": "shield",
           "armor_class": "+2",
           "cost": "10 GP",
+          "don_doff": "Utilize Action to Don or Doff",
           "name": "Shield",
           "stealth_disadvantage": false,
           "strength": null,
@@ -274,15 +296,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "e4f06a7d68d7755d58c74b9ed7376509a28db5b3d53801de4a36531890c021ec"
+        "contentHash": "4b9ee87586ebb8b681bc512ebf831aab6606c1c1e662c2a93bb09eb7e2c34af8"
       },
       "srd:armor:en:splint-armor": {
         "name": "Splint Armor",
         "data": {
           "ac_base": 17,
           "ac_dex_cap": 0,
+          "armor_category": "heavy",
           "armor_class": "17",
           "cost": "200 GP",
+          "don_doff": "10 Minutes to Don and 5 Minutes to Doff",
           "name": "Splint Armor",
           "stealth_disadvantage": true,
           "strength": "Str 15",
@@ -298,15 +322,17 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "72458d7f8bbcee2484d77f4bdd49ab1f9e03218c829d6efc0c22faf42f986a5b"
+        "contentHash": "1de1d010bc2a6a61def28d2326a7da9d3dfa623803a6b03002c629847a177a94"
       },
       "srd:armor:en:studded-leather-armor": {
         "name": "Studded Leather Armor",
         "data": {
           "ac_base": 12,
           "ac_dex_cap": null,
+          "armor_category": "light",
           "armor_class": "12 + Dex modifier",
           "cost": "45 GP",
+          "don_doff": "1 Minute to Don or Doff",
           "name": "Studded Leather Armor",
           "stealth_disadvantage": false,
           "strength": null,
@@ -322,7 +348,7 @@
           "locator": "p.92",
           "version": "5.2.1"
         },
-        "contentHash": "73a4d527d238e15a6914d132cdfbe7dab9e2853682406c8f4b47ac64ebc5d4e2"
+        "contentHash": "ffb5f5c8cd601e37369ded012f2352779943c9ed365b29a78ddfd2485b25a347"
       }
     },
     "background": {
@@ -13544,7 +13570,7 @@
         "data": {
           "attunement": false,
           "category": "weapon",
-          "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon.\n\nYou can take a Bonus Action to magically coat the blade with poison. The poison remains for 1 minute or until an attack using this weapon hits a creature. That creature must succeed on a DC 15 Constitution saving throw or take 2d10 Poison damage and have the Poisoned condition for 1 minute. The weapon can’t be used this way again until the next dawn. Dancing Sword Weapon (Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Very Rare (Requires Attunement)\n\nYou can take a Bonus Action to toss this magic weapon into the air. When you do so, the weapon begins to hover, flies up to 30 feet, and attacks one creature of your choice within 5 feet of itself. The weapon uses your attack roll and adds your ability modifier to damage rolls.\n\nWhile the weapon hovers, you can take a Bonus Action to cause it to fly up to 30 feet to another spot within 30 feet of you. As part of the same Bonus Action, you can cause the weapon to attack one creature within 5 feet of the weapon.\n\nAfter the hovering weapon attacks for the fourth time, it flies back to you and tries to return to your hand. If you have no hand free, the weapon falls to the ground in your space. If the weapon has no unobstructed path to you, it moves as close to you as it can and then falls to the ground. It also ceases to hover if you grasp it or are more than 30 feet away from it.",
+          "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon.\n\nYou can take a Bonus Action to magically coat the blade with poison. The poison remains for 1 minute or until an attack using this weapon hits a creature. That creature must succeed on a DC 15 Constitution saving throw or take 2d10 Poison damage and have the Poisoned condition for 1 minute. The weapon can’t be used this way again until the next dawn.",
           "name": "Dagger of Venom",
           "rarity": "Rare",
           "subtype": "Dagger"
@@ -13559,7 +13585,29 @@
           "locator": "p.216",
           "version": "5.2.1"
         },
-        "contentHash": "aff33f89d84ad6f8e7a33d2d842a797da80ccef7de4a5923a6788a0f09023793"
+        "contentHash": "b517c97f8fc4998f4cfcf546fe132c8c6b6078a8499aba40fc43d5e71d23b422"
+      },
+      "srd:item:en:dancing-sword": {
+        "name": "Dancing Sword",
+        "data": {
+          "attunement": true,
+          "category": "weapon",
+          "description": "You can take a Bonus Action to toss this magic weapon into the air. When you do so, the weapon begins to hover, flies up to 30 feet, and attacks one creature of your choice within 5 feet of itself. The weapon uses your attack roll and adds your ability modifier to damage rolls.\n\nWhile the weapon hovers, you can take a Bonus Action to cause it to fly up to 30 feet to another spot within 30 feet of you. As part of the same Bonus Action, you can cause the weapon to attack one creature within 5 feet of the weapon.\n\nAfter the hovering weapon attacks for the fourth time, it flies back to you and tries to return to your hand. If you have no hand free, the weapon falls to the ground in your space. If the weapon has no unobstructed path to you, it moves as close to you as it can and then falls to the ground. It also ceases to hover if you grasp it or are more than 30 feet away from it.",
+          "name": "Dancing Sword",
+          "rarity": "Very Rare (Requires Attunement)",
+          "subtype": "Greatsword, Longsword, Rapier, Scimitar, or Shortsword"
+        },
+        "slug": "dancing-sword",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.217",
+          "version": "5.2.1"
+        },
+        "contentHash": "a8b2f1c288ab16b745891add43ba0cd8bffb839a8cc359d31cb4e608bbecd504"
       },
       "srd:item:en:decanter-of-endless-water": {
         "name": "Decanter of Endless Water",
@@ -14138,7 +14186,7 @@
         "data": {
           "attunement": false,
           "category": "wondrous-item",
-          "description": "This object appears as a wooden box that measures 12 inches long, 6 inches wide, and 6 inches deep. It weighs 4 pounds and floats. It can be opened to store items inside. This item also has three command words, each requiring a Magic action to use:\n\nFirst Command Word. The box unfolds into a Rowboat. Second Command Word. The box unfolds into a Keelboat. Third Command Word. The Folding Boat folds back into a box if no creatures are aboard. Any objects in the vessel that can’t fit inside the box remain outside the box as it folds. Any objects in the vessel that can fit inside the box do so.\n\nWhen the box becomes a vessel, its weight becomes that of a normal vessel its size, and anything that was stored in the box remains in the boat.\n\nStatistics for the Rowboat and Keelboat appear in “Equipment.” If either vessel is reduced to 0 Hit Points, the Folding Boat is destroyed.\n\nFrost Brand Weapon (Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Very Rare (Requires Attunement)\n\nWhen you hit with an attack roll using this magic weapon, the target takes an extra 1d6 Cold damage. In addition, while you hold the weapon, you have Resistance to Fire damage.\n\nIn freezing temperatures, the weapon sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet.\n\nWhen you draw this weapon, you can extinguish all nonmagical flames within 30 feet of yourself. Once used, this property can’t be used again for 1 hour.",
+          "description": "This object appears as a wooden box that measures 12 inches long, 6 inches wide, and 6 inches deep. It weighs 4 pounds and floats. It can be opened to store items inside. This item also has three command words, each requiring a Magic action to use:\n\nFirst Command Word. The box unfolds into a Rowboat. Second Command Word. The box unfolds into a Keelboat. Third Command Word. The Folding Boat folds back into a box if no creatures are aboard. Any objects in the vessel that can’t fit inside the box remain outside the box as it folds. Any objects in the vessel that can fit inside the box do so.\n\nWhen the box becomes a vessel, its weight becomes that of a normal vessel its size, and anything that was stored in the box remains in the boat.\n\nStatistics for the Rowboat and Keelboat appear in “Equipment.” If either vessel is reduced to 0 Hit Points, the Folding Boat is destroyed.",
           "name": "Folding Boat",
           "rarity": "Rare",
           "subtype": null
@@ -14153,7 +14201,29 @@
           "locator": "p.223",
           "version": "5.2.1"
         },
-        "contentHash": "dfb4d5c7534fbdc01e9343b8dad0088b78d424220ee60fda4fac6855708589dd"
+        "contentHash": "0020fc8f1598ae272576506fc14731034015140a3618f568528c68aa6ceacf35"
+      },
+      "srd:item:en:frost-brand": {
+        "name": "Frost Brand",
+        "data": {
+          "attunement": true,
+          "category": "weapon",
+          "description": "When you hit with an attack roll using this magic weapon, the target takes an extra 1d6 Cold damage. In addition, while you hold the weapon, you have Resistance to Fire damage.\n\nIn freezing temperatures, the weapon sheds Bright Light in a 10-foot radius and Dim Light for an additional 10 feet.\n\nWhen you draw this weapon, you can extinguish all nonmagical flames within 30 feet of yourself. Once used, this property can’t be used again for 1 hour.",
+          "name": "Frost Brand",
+          "rarity": "Very Rare (Requires Attunement)",
+          "subtype": "Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword"
+        },
+        "slug": "frost-brand",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.223",
+          "version": "5.2.1"
+        },
+        "contentHash": "ba9a24d367f3e85b7331a9a89f9a3e5e55dfb2440a54f36fc7fd7532cfa0312a"
       },
       "srd:item:en:gauntlets-of-ogre-power": {
         "name": "Gauntlets of Ogre Power",
@@ -14798,7 +14868,7 @@
         "data": {
           "attunement": false,
           "category": "wondrous-item",
-          "description": "While lit, this hooded lantern burns for 6 hours on 1 pint of oil, shedding Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. Invisible creatures and objects are visible as long as they are in the lantern’s Bright Light. You can take a Utilize action to lower the hood, reducing the lantern’s light to Dim Light in a 5-foot radius.\n\nLuck Blade Weapon (Glaive, Greatsword, Longsword, Rapier, Scimitar, Sickle, or Shortsword), Legendary (Requires Attunement)\n\nYou gain a +1 bonus to attack rolls and damage rolls made with this magic weapon. While the weapon is on your person, you also gain a +1 bonus to saving throws.\n\nLuck. If the weapon is on your person, you can call on its luck (no action required) to reroll one failed D20 Test if you don’t have the Incapacitated condition. You must use the second roll. Once used, this property can’t be used again until the next dawn.\n\nWish. The weapon has 1d3 charges. While holding it, you can expend 1 charge and cast Wish from it. Once used, this property can’t be used again until the next dawn. The weapon loses this property if it has no charges.",
+          "description": "While lit, this hooded lantern burns for 6 hours on 1 pint of oil, shedding Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. Invisible creatures and objects are visible as long as they are in the lantern’s Bright Light. You can take a Utilize action to lower the hood, reducing the lantern’s light to Dim Light in a 5-foot radius.",
           "name": "Lantern of Revealing",
           "rarity": "Uncommon",
           "subtype": null
@@ -14813,7 +14883,29 @@
           "locator": "p.228",
           "version": "5.2.1"
         },
-        "contentHash": "d8d040c3452c4845998f015ffcc281bb7f9b5db0ac6715532ae2096813928418"
+        "contentHash": "393e25a7fa3e76c1d748d919d59f8350c5ab51c166cd4b93d1eb2b83e4ee01df"
+      },
+      "srd:item:en:luck-blade": {
+        "name": "Luck Blade",
+        "data": {
+          "attunement": true,
+          "category": "weapon",
+          "description": "You gain a +1 bonus to attack rolls and damage rolls made with this magic weapon. While the weapon is on your person, you also gain a +1 bonus to saving throws.\n\nLuck. If the weapon is on your person, you can call on its luck (no action required) to reroll one failed D20 Test if you don’t have the Incapacitated condition. You must use the second roll. Once used, this property can’t be used again until the next dawn.\n\nWish. The weapon has 1d3 charges. While holding it, you can expend 1 charge and cast Wish from it. Once used, this property can’t be used again until the next dawn. The weapon loses this property if it has no charges.",
+          "name": "Luck Blade",
+          "rarity": "Legendary (Requires Attunement)",
+          "subtype": "Glaive, Greatsword, Longsword, Rapier, Scimitar, Sickle, or Shortsword"
+        },
+        "slug": "luck-blade",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.229",
+          "version": "5.2.1"
+        },
+        "contentHash": "d5933e4aeb7200285d4e27718d51fd860e774d01cd83a99647f4cb3cdc7dc45b"
       },
       "srd:item:en:mace-of-disruption": {
         "name": "Mace of Disruption",
@@ -17262,7 +17354,7 @@
         "data": {
           "attunement": true,
           "category": "weapon",
-          "description": "This item appears to be a sword hilt.\n\nBlade of Radiance. While grasping the hilt, you can take a Bonus Action to cause a blade of pure radiance to spring into existence or make the\n\nblade disappear. While the blade exists, this magic weapon functions as a Longsword with the Finesse property. If you are proficient with Longswords or Shortswords, you are proficient with the Sun Blade.\n\nYou gain a +2 bonus to attack rolls and damage rolls made with this weapon, which deals Radiant damage instead of Slashing damage. When you hit an Undead with it, that target takes an extra 1d8 Radiant damage.\n\nSunlight. The sword’s luminous blade emits Bright Light in a 15-foot radius and Dim Light for an additional 15 feet. The light is sunlight. While the blade persists, you can take a Magic action to expand or reduce its radius of Bright Light and Dim Light by 5 feet each, to a maximum of 30 feet each or a minimum of 10 feet each.\n\nSword of Life Stealing Weapon (Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Rare (Requires Attunement)\n\nWhen you attack a creature with this magic weapon and roll a 20 on the d20 for the attack roll, that target takes an extra 15 Necrotic damage if it isn’t a Construct or an Undead, and you gain Temporary Hit Points equal to the amount of Necrotic damage taken.",
+          "description": "This item appears to be a sword hilt.\n\nBlade of Radiance. While grasping the hilt, you can take a Bonus Action to cause a blade of pure radiance to spring into existence or make the\n\nblade disappear. While the blade exists, this magic weapon functions as a Longsword with the Finesse property. If you are proficient with Longswords or Shortswords, you are proficient with the Sun Blade.\n\nYou gain a +2 bonus to attack rolls and damage rolls made with this weapon, which deals Radiant damage instead of Slashing damage. When you hit an Undead with it, that target takes an extra 1d8 Radiant damage.\n\nSunlight. The sword’s luminous blade emits Bright Light in a 15-foot radius and Dim Light for an additional 15 feet. The light is sunlight. While the blade persists, you can take a Magic action to expand or reduce its radius of Bright Light and Dim Light by 5 feet each, to a maximum of 30 feet each or a minimum of 10 feet each.",
           "name": "Sun Blade",
           "rarity": "Rare (Requires Attunement)",
           "subtype": "Longsword"
@@ -17277,14 +17369,36 @@
           "locator": "p.248",
           "version": "5.2.1"
         },
-        "contentHash": "86f1527665d391eecb77cdd42562622e016a31e1419777ce680b1708901bf000"
+        "contentHash": "04c4aeb4e154aa77689ee291afd3282901ea782d5a7272517e35faf4385e8e3a"
+      },
+      "srd:item:en:sword-of-life-stealing": {
+        "name": "Sword of Life Stealing",
+        "data": {
+          "attunement": true,
+          "category": "weapon",
+          "description": "When you attack a creature with this magic weapon and roll a 20 on the d20 for the attack roll, that target takes an extra 15 Necrotic damage if it isn’t a Construct or an Undead, and you gain Temporary Hit Points equal to the amount of Necrotic damage taken.",
+          "name": "Sword of Life Stealing",
+          "rarity": "Rare (Requires Attunement)",
+          "subtype": "Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword"
+        },
+        "slug": "sword-of-life-stealing",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.248",
+          "version": "5.2.1"
+        },
+        "contentHash": "bdae2543a654113ecf86b2b8d7450f65e48b1472cc0d5b9c6e2b69dbbd49e709"
       },
       "srd:item:en:sword-of-sharpness": {
         "name": "Sword of Sharpness",
         "data": {
           "attunement": true,
           "category": "weapon",
-          "description": "When you attack an object with this magic weapon and hit, maximize your weapon damage dice against the target.\n\nWhen you attack a creature with this weapon and roll a 20 on the d20 for the attack roll, that target takes an extra 14 Slashing damage and gains 1 Exhaustion level.\n\nSword of Wounding Weapon (Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword), Rare (Requires Attunement)\n\nWhen you hit a creature with an attack using this magic weapon, the target takes an extra 2d6 Necrotic damage and must succeed on a DC 15 Constitution saving throw or be unable to regain Hit Points for 1 hour. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "description": "When you attack an object with this magic weapon and hit, maximize your weapon damage dice against the target.\n\nWhen you attack a creature with this weapon and roll a 20 on the d20 for the attack roll, that target takes an extra 14 Slashing damage and gains 1 Exhaustion level.",
           "name": "Sword of Sharpness",
           "rarity": "Very Rare (Requires Attunement)",
           "subtype": "Glaive, Greatsword, Longsword, or Scimitar"
@@ -17299,7 +17413,29 @@
           "locator": "p.248",
           "version": "5.2.1"
         },
-        "contentHash": "5a6c36936ea774242adaa7b5ed78ca4e9c7c65ecd6167d711c99cf4a40dba094"
+        "contentHash": "36250e9a104641f5f3f9d2d21621321b1a7e5b59ce3d0e76e172aca073edcb8b"
+      },
+      "srd:item:en:sword-of-wounding": {
+        "name": "Sword of Wounding",
+        "data": {
+          "attunement": true,
+          "category": "weapon",
+          "description": "When you hit a creature with an attack using this magic weapon, the target takes an extra 2d6 Necrotic damage and must succeed on a DC 15 Constitution saving throw or be unable to regain Hit Points for 1 hour. The target repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+          "name": "Sword of Wounding",
+          "rarity": "Rare (Requires Attunement)",
+          "subtype": "Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword"
+        },
+        "slug": "sword-of-wounding",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.248",
+          "version": "5.2.1"
+        },
+        "contentHash": "4ffcd02cc235fc854dc7cb91fab1eb8894c5f9cde1b98609119d56edaffa8f99"
       },
       "srd:item:en:talisman-of-pure-good": {
         "name": "Talisman of Pure Good",
@@ -17960,6 +18096,71 @@
           "version": "5.2.1"
         },
         "contentHash": "8891e14a3e7f4c304b25fb810547f1f09befc04590ee1651a8f1cc4dfdf049e7"
+      }
+    },
+    "item-value": {
+      "srd:item-value:en:magic-item-rarities-and-values": {
+        "name": "Magic Item Rarities and Values",
+        "data": {
+          "add_base_cost_rule": "If a magic item incorporates an item that has a purchase cost in “Equipment” (such as a weapon or a suit of armor), add that item’s cost to the magic item’s value. For example, +1 Armor (Plate Armor) has a value of 5,500 GP, which is the sum of a Rare magic item’s value (4,000 GP) and the cost of Plate Armor (1,500 GP).",
+          "name": "Magic Item Rarities and Values",
+          "tiers": [
+            {
+              "priced": true,
+              "rarity_key": "common",
+              "rarity_label": "Common",
+              "value_gp": 100,
+              "value_label": "100 GP"
+            },
+            {
+              "priced": true,
+              "rarity_key": "very-rare",
+              "rarity_label": "Very Rare",
+              "value_gp": 40000,
+              "value_label": "40,000 GP"
+            },
+            {
+              "priced": true,
+              "rarity_key": "uncommon",
+              "rarity_label": "Uncommon",
+              "value_gp": 400,
+              "value_label": "400 GP"
+            },
+            {
+              "priced": true,
+              "rarity_key": "legendary",
+              "rarity_label": "Legendary",
+              "value_gp": 200000,
+              "value_label": "200,000 GP"
+            },
+            {
+              "priced": true,
+              "rarity_key": "rare",
+              "rarity_label": "Rare",
+              "value_gp": 4000,
+              "value_label": "4,000 GP"
+            },
+            {
+              "priced": false,
+              "rarity_key": "artifact",
+              "rarity_label": "Artifact",
+              "value_gp": null,
+              "value_label": "Priceless"
+            }
+          ],
+          "value_footnote": "*Halve the value for a consumable item other than a Spell Scroll. The value of a Spell Scroll is double what it costs to scribe the scroll (as specified in the “Scribing Spell Scrolls” section of “Equipment”)."
+        },
+        "slug": "magic-item-rarities-and-values",
+        "attribution": {
+          "license": "CC-BY-4.0",
+          "text": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode."
+        },
+        "source": {
+          "id": "srd-5.2.1-en",
+          "locator": "p.206",
+          "version": "5.2.1"
+        },
+        "contentHash": "52f27dd327320d6faad4b5fb28353e102bb73a3deba7109f4a960a23b72e63c2"
       }
     },
     "monster": {
@@ -58956,6 +59157,13 @@
           "mastery": "Topple",
           "name": "Battleaxe",
           "properties": "Versatile (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "4 lb."
@@ -58970,7 +59178,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "6b9e589adb92333f409f1f571cf2978342aea381c385ced97aeeac5a51acfa0f"
+        "contentHash": "84f0de9da5b74ccfb18160efdce312854c8822049b62309f591b62af355d983d"
       },
       "srd:weapon:en:blowgun": {
         "name": "Blowgun",
@@ -58983,6 +59191,17 @@
           "mastery": "Vex",
           "name": "Blowgun",
           "properties": "Ammunition (Range 25/100; Needle), Loading",
+          "property_list": [
+            {
+              "detail": "Range 25/100; Needle",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "1 lb."
@@ -58997,7 +59216,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "ab5c395d585eb1719584080d04c9238cb54dd865302b01853b543891dcadf56a"
+        "contentHash": "740442862a8bdccca609066029ed30644216be1bf15d5f521a13125203608015"
       },
       "srd:weapon:en:club": {
         "name": "Club",
@@ -59009,6 +59228,12 @@
           "mastery": "Slow",
           "name": "Club",
           "properties": "Light",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Light"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59023,7 +59248,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "5b570b5d04f287d39e2474150ebefbdc23c003aa95eee2c630177c2f3bbcd55c"
+        "contentHash": "0b4dd3b16b13d8b7c0ac322867f9de8953d1dab25511e30728e5d3580542eb92"
       },
       "srd:weapon:en:dagger": {
         "name": "Dagger",
@@ -59035,6 +59260,21 @@
           "mastery": "Nick",
           "name": "Dagger",
           "properties": "Finesse, Light, Thrown (Range 20/60)",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "light",
+              "label": "Light"
+            },
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "1 lb."
@@ -59049,7 +59289,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "b0fed64d014f632eba30702f0b60ce927d995da9ed16f7cf6f1f792404cf50ab"
+        "contentHash": "f8b26f2f82160c561347751f6e0f79e3f40358c0e97f2bb2a7113097f7a804a3"
       },
       "srd:weapon:en:dart": {
         "name": "Dart",
@@ -59061,6 +59301,17 @@
           "mastery": "Vex",
           "name": "Dart",
           "properties": "Finesse, Thrown (Range 20/60)",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "1/4 lb."
@@ -59075,7 +59326,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "1082c6509ef91052e3b49ff051e6e782872e70da23d188b60bc08509dcd45bee"
+        "contentHash": "a626a046c93f796f24b7dd9f457881811e6ae84e6a45c4efdce7f7eb88117547"
       },
       "srd:weapon:en:flail": {
         "name": "Flail",
@@ -59087,6 +59338,7 @@
           "mastery": "Sap",
           "name": "Flail",
           "properties": null,
+          "property_list": [],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59101,7 +59353,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "93660565922206d5977ac8335b4d150fb6e7315f4c7732f50cf11ccc199ec9bc"
+        "contentHash": "f8005dbe68628722c6ffd6a09272ca54cb7eaf45f946f29ccfd7a6f27dd05fc8"
       },
       "srd:weapon:en:glaive": {
         "name": "Glaive",
@@ -59113,6 +59365,20 @@
           "mastery": "Graze",
           "name": "Glaive",
           "properties": "Heavy, Reach, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "reach",
+              "label": "Reach"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "6 lb."
@@ -59127,7 +59393,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c02bdac7479805ca208f63a8bf31fa4b4abe91e92f149e9f20cfd58522eb7248"
+        "contentHash": "9db38a784c4f0731aac27bd7cd35fbc7395d746913142a819fc1c5e1be6741e9"
       },
       "srd:weapon:en:greataxe": {
         "name": "Greataxe",
@@ -59139,6 +59405,16 @@
           "mastery": "Cleave",
           "name": "Greataxe",
           "properties": "Heavy, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "7 lb."
@@ -59153,7 +59429,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "58a5e35a0496b9564b629375ec4425b1a8027d01651842513206a09670f4eb5c"
+        "contentHash": "a9e68a9baef7cc2051d7375eca77aa8739b65090e73d83e41fa63a3b331e2c2d"
       },
       "srd:weapon:en:greatclub": {
         "name": "Greatclub",
@@ -59165,6 +59441,12 @@
           "mastery": "Push",
           "name": "Greatclub",
           "properties": "Two-Handed",
+          "property_list": [
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "10 lb."
@@ -59179,7 +59461,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "d191d4201c36ad165ea681e5042fd46f4ef563d2b7b69d64110260ee0f1d5ff5"
+        "contentHash": "33ac7190c68c5b7b226ca3c35ffc441b290c64ae400ccdf0bf7c8afa4e5deec1"
       },
       "srd:weapon:en:greatsword": {
         "name": "Greatsword",
@@ -59191,6 +59473,16 @@
           "mastery": "Graze",
           "name": "Greatsword",
           "properties": "Heavy, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "6 lb."
@@ -59205,7 +59497,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "e716794be7132ad0a5befc6773c24964738b9d12823717a659bd957ec753b995"
+        "contentHash": "4a93e26737aec039869bcfa5af16fbe60f065c9da33a995365a811aaf67c9375"
       },
       "srd:weapon:en:halberd": {
         "name": "Halberd",
@@ -59217,6 +59509,20 @@
           "mastery": "Cleave",
           "name": "Halberd",
           "properties": "Heavy, Reach, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "reach",
+              "label": "Reach"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "6 lb."
@@ -59231,7 +59537,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c62c38e30950406d836f29b641227fa33276ca26982a783a120b1adf4fcaeb7b"
+        "contentHash": "aca7a74e9ab8ca65a95ccd68fc86706e9ba963de81d20fcad0b48906171dbf3c"
       },
       "srd:weapon:en:hand-crossbow": {
         "name": "Hand Crossbow",
@@ -59243,6 +59549,21 @@
           "mastery": "Vex",
           "name": "Hand Crossbow",
           "properties": "Ammunition (Range 30/120; Bolt), Light, Loading",
+          "property_list": [
+            {
+              "detail": "Range 30/120; Bolt",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "light",
+              "label": "Light"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "3 lb."
@@ -59257,7 +59578,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "4033ef4fc16b59b27530ebca66e890cdbc298a770820676ca6fa021ce67eb712"
+        "contentHash": "9db1aa9272381ec0ab01821e043256f87058b4fdf87c1ed145af558f141998be"
       },
       "srd:weapon:en:handaxe": {
         "name": "Handaxe",
@@ -59269,6 +59590,17 @@
           "mastery": "Vex",
           "name": "Handaxe",
           "properties": "Light, Thrown (Range 20/60)",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Light"
+            },
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59283,7 +59615,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "560b0304c7d7a88b458d45bba58d7b2c560bd74685afa559ec8cc7f3b32d6929"
+        "contentHash": "d6fd92e03dd65ea9ec07ab1707ba0ff60c85c71a850312f7266dc87de094a876"
       },
       "srd:weapon:en:heavy-crossbow": {
         "name": "Heavy Crossbow",
@@ -59295,6 +59627,25 @@
           "mastery": "Push",
           "name": "Heavy Crossbow",
           "properties": "Ammunition (Range 100/400; Bolt), Heavy, Loading, Two-Handed",
+          "property_list": [
+            {
+              "detail": "Range 100/400; Bolt",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "18 lb."
@@ -59309,7 +59660,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c241c6056b81870963f0a6b729d27fb9a058271e0f59e2d3b911ed5ba2c563d3"
+        "contentHash": "bfdbce7a4f718da6e32bb14fe7951e3e1e1cb79c53736ec7bad1580a59de22a9"
       },
       "srd:weapon:en:javelin": {
         "name": "Javelin",
@@ -59321,6 +59672,13 @@
           "mastery": "Slow",
           "name": "Javelin",
           "properties": "Thrown (Range 30/120)",
+          "property_list": [
+            {
+              "detail": "Range 30/120",
+              "key": "thrown",
+              "label": "Thrown"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59335,7 +59693,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "833f649419b5e2dd17ebe9b09e2ded22bab0d6f03e53cd8721cb55001eefd13a"
+        "contentHash": "08bd8f09f2ca1721a9e413ff587373206e89dbb0699592130488d01fff0d5345"
       },
       "srd:weapon:en:lance": {
         "name": "Lance",
@@ -59347,6 +59705,21 @@
           "mastery": "Topple",
           "name": "Lance",
           "properties": "Heavy, Reach, Two-Handed (unless mounted)",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "reach",
+              "label": "Reach"
+            },
+            {
+              "detail": "unless mounted",
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "6 lb."
@@ -59361,7 +59734,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "0916d8fa4ebcab54b96297a2c725e4ea5d98e8afd14d91e2074ad0deab249fca"
+        "contentHash": "9bb6ea96b5571fc8645083de8c18f24602be75058b1e71fd31fd3ca465c6a82e"
       },
       "srd:weapon:en:light-crossbow": {
         "name": "Light Crossbow",
@@ -59373,6 +59746,21 @@
           "mastery": "Slow",
           "name": "Light Crossbow",
           "properties": "Ammunition (Range 80/320; Bolt), Loading, Two-Handed",
+          "property_list": [
+            {
+              "detail": "Range 80/320; Bolt",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "5 lb."
@@ -59387,7 +59775,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "3185465741cc75f084efa55ffdca4ec753b09ff0efea8a936aeb91d32b8a5266"
+        "contentHash": "ee5c747ca6f5b46aa12adec17338b804a626af09a06c4da837e7e6164ca382c4"
       },
       "srd:weapon:en:light-hammer": {
         "name": "Light Hammer",
@@ -59399,6 +59787,17 @@
           "mastery": "Nick",
           "name": "Light Hammer",
           "properties": "Light, Thrown (Range 20/60)",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Light"
+            },
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59413,7 +59812,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "0a91bc61150443bfe40c25971f249c6d2d4bfc429f3e7001b37cc04e8ab1101b"
+        "contentHash": "8aac47f559f882570030c41f72ff273d70edfce700c66ea90e3213b8075032e5"
       },
       "srd:weapon:en:longbow": {
         "name": "Longbow",
@@ -59425,6 +59824,21 @@
           "mastery": "Slow",
           "name": "Longbow",
           "properties": "Ammunition (Range 150/600; Arrow), Heavy, Two-Handed",
+          "property_list": [
+            {
+              "detail": "Range 150/600; Arrow",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "2 lb."
@@ -59439,7 +59853,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "1cdd2587a88fdd9d4dd35fbf5a1a3649830666cafba4e1bd53dbcc1ae52b8d22"
+        "contentHash": "66aac9da8ae86b78c1df6d7012321b50db8af1160ff884be1f8deca1fb170459"
       },
       "srd:weapon:en:longsword": {
         "name": "Longsword",
@@ -59451,6 +59865,13 @@
           "mastery": "Sap",
           "name": "Longsword",
           "properties": "Versatile (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 lb."
@@ -59465,7 +59886,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c8dbc0e7e5556956dccfe8dfcfeec2216e85a4f0b7ed8ecc72dd9fcd28677b75"
+        "contentHash": "0ccb4f5835751175101862aee037373bca774e65ec08072d4ebad6eb375bcc92"
       },
       "srd:weapon:en:mace": {
         "name": "Mace",
@@ -59477,6 +59898,7 @@
           "mastery": "Sap",
           "name": "Mace",
           "properties": null,
+          "property_list": [],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "4 lb."
@@ -59491,7 +59913,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c74b945ae971e1e42a9adc79acfbd7d039e7994cbf4d70cb92a198e08b8ebc62"
+        "contentHash": "55d39e85828f780afb4078132c7ad5ed434d578d7ae5a07e4556ff564c439e3e"
       },
       "srd:weapon:en:maul": {
         "name": "Maul",
@@ -59503,6 +59925,16 @@
           "mastery": "Topple",
           "name": "Maul",
           "properties": "Heavy, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "10 lb."
@@ -59517,7 +59949,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "491cdf516bd7d4d2677dad64a74b7ed662786edc2bf3e7787ab85cb47c1de29c"
+        "contentHash": "cfa59c08f21c0e2fa2ab03d9f9a5da13ac05b9792bf89397c7999d311511e870"
       },
       "srd:weapon:en:morningstar": {
         "name": "Morningstar",
@@ -59529,6 +59961,7 @@
           "mastery": "Sap",
           "name": "Morningstar",
           "properties": null,
+          "property_list": [],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "4 lb."
@@ -59543,7 +59976,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "0f78c89007cdab405690cf62886e6ec21f0281de5a696512f3341a0f78f1fde6"
+        "contentHash": "e1c2292cc8ae279aca891240f9803e7f2c4b6fba8bee506f886435edfd47f8df"
       },
       "srd:weapon:en:musket": {
         "name": "Musket",
@@ -59555,6 +59988,21 @@
           "mastery": "Slow",
           "name": "Musket",
           "properties": "Ammunition (Range 40/120; Bullet), Loading, Two-Handed",
+          "property_list": [
+            {
+              "detail": "Range 40/120; Bullet",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "10 lb."
@@ -59569,7 +60017,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "f2a38a693f6bf5ec0131ac7420f98bb5c5488cf3408b5388d0194ad243bdcb98"
+        "contentHash": "e694695b437ea879ed8d96551cd83b72fff2d1c3ff9bb7f1f49a0637fe8855c2"
       },
       "srd:weapon:en:pike": {
         "name": "Pike",
@@ -59581,6 +60029,20 @@
           "mastery": "Push",
           "name": "Pike",
           "properties": "Heavy, Reach, Two-Handed",
+          "property_list": [
+            {
+              "key": "heavy",
+              "label": "Heavy"
+            },
+            {
+              "key": "reach",
+              "label": "Reach"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "18 lb."
@@ -59595,7 +60057,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "4321ef17915cf96bed004b698b5d1f9d418d16bfb8b1d03ababebbf4f8175193"
+        "contentHash": "63bfb6052a9022ee650662901445a7dd6f28b7446a49b9ec0eae93bb367db8c6"
       },
       "srd:weapon:en:pistol": {
         "name": "Pistol",
@@ -59607,6 +60069,17 @@
           "mastery": "Vex",
           "name": "Pistol",
           "properties": "Ammunition (Range 30/90; Bullet), Loading",
+          "property_list": [
+            {
+              "detail": "Range 30/90; Bullet",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "loading",
+              "label": "Loading"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "ranged",
           "weight": "3 lb."
@@ -59621,7 +60094,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "1fd8d2b4edeb6a10e89cefaec84774fa81c7fd18a507098756e21d7fa7d70350"
+        "contentHash": "c2205f35175f03c68a3772b26f875030bc039006e5c07b6ceb0a347196c1b522"
       },
       "srd:weapon:en:quarterstaff": {
         "name": "Quarterstaff",
@@ -59633,6 +60106,13 @@
           "mastery": "Topple",
           "name": "Quarterstaff",
           "properties": "Versatile (1d8)",
+          "property_list": [
+            {
+              "detail": "1d8",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "4 lb."
@@ -59647,7 +60127,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "a36d9f1322bb428d99ef1fb61e96729f5773f69bea2e5bc1dc82c8699073bc81"
+        "contentHash": "4e4940b6cf3b4b199f9bbb64c4527fba8a3d73489bf9c2c1b59648c5ef76888a"
       },
       "srd:weapon:en:rapier": {
         "name": "Rapier",
@@ -59659,6 +60139,12 @@
           "mastery": "Vex",
           "name": "Rapier",
           "properties": "Finesse",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59673,7 +60159,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "7ea2df3d26f4c28c8c4b8ede21c192b21c5518529f4631e7d9cd7279aa86908d"
+        "contentHash": "0e6dbe55d9cb8239027ec3ed07d12784080975c81348b9bfc7c7ee7865ff2eaf"
       },
       "srd:weapon:en:scimitar": {
         "name": "Scimitar",
@@ -59685,6 +60171,16 @@
           "mastery": "Nick",
           "name": "Scimitar",
           "properties": "Finesse, Light",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "light",
+              "label": "Light"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 lb."
@@ -59699,7 +60195,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "973fbedef8af824703bc17f82ed5d17a8515192ee17c06e9e1eae36a40886814"
+        "contentHash": "482ab66c9076944802875309946077b557cb079df5f4a73a5ab91c905a2434d6"
       },
       "srd:weapon:en:shortbow": {
         "name": "Shortbow",
@@ -59711,6 +60207,17 @@
           "mastery": "Vex",
           "name": "Shortbow",
           "properties": "Ammunition (Range 80/320; Arrow), Two-Handed",
+          "property_list": [
+            {
+              "detail": "Range 80/320; Arrow",
+              "key": "ammunition",
+              "label": "Ammunition"
+            },
+            {
+              "key": "two-handed",
+              "label": "Two-Handed"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "2 lb."
@@ -59725,7 +60232,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "771157b4c374e020810bcdb1169f0f01538939e579caf96996617bef7f860ab1"
+        "contentHash": "19ccdb1874236daa869e2b2cb85793936c3baeaef10faed838a6d80f36491a49"
       },
       "srd:weapon:en:shortsword": {
         "name": "Shortsword",
@@ -59737,6 +60244,16 @@
           "mastery": "Vex",
           "name": "Shortsword",
           "properties": "Finesse, Light",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "light",
+              "label": "Light"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59751,7 +60268,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "58cfc4c277db9b66de4e5d6f55763db303157a4e465b8a63b107950a52b2a1e2"
+        "contentHash": "4c34e95406bdeb52b84c802caf68a48bb1709a816a0687d63fcd856bf0b957fd"
       },
       "srd:weapon:en:sickle": {
         "name": "Sickle",
@@ -59763,6 +60280,12 @@
           "mastery": "Nick",
           "name": "Sickle",
           "properties": "Light",
+          "property_list": [
+            {
+              "key": "light",
+              "label": "Light"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59777,7 +60300,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c9bf594a4585ed1e71acb2bffb648ba3b3937e986a6807b1a7035b094e82f4dc"
+        "contentHash": "2040170d20e554b9d762ae60bc314fb3b2379c4dce4f2a84a6d652154bd96715"
       },
       "srd:weapon:en:sling": {
         "name": "Sling",
@@ -59789,6 +60312,13 @@
           "mastery": "Slow",
           "name": "Sling",
           "properties": "Ammunition (Range 30/120; Bullet)",
+          "property_list": [
+            {
+              "detail": "Range 30/120; Bullet",
+              "key": "ammunition",
+              "label": "Ammunition"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "ranged",
           "weight": "—"
@@ -59803,7 +60333,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "7b5f39161b2163966c0f9b1f3ee854b63bbf3040cbc2e87fc403eadfb762568d"
+        "contentHash": "74277f25fb0c757c837be4b3dbfc1cdd722e049ccce1caa513c9386d78cce103"
       },
       "srd:weapon:en:spear": {
         "name": "Spear",
@@ -59815,6 +60345,18 @@
           "mastery": "Sap",
           "name": "Spear",
           "properties": "Thrown (Range 20/60), Versatile (1d8)",
+          "property_list": [
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            },
+            {
+              "detail": "1d8",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "simple",
           "weapon_range": "melee",
           "weight": "3 lb."
@@ -59829,7 +60371,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "0bce9d6ef68f736b98a9220ce02b56d9816317dc2f962843f60f3d508e048d7e"
+        "contentHash": "d2c5c8a5b9754be8f0044415fd251c5831d9356a35e2aaa2ef87d6c1b2bfa62a"
       },
       "srd:weapon:en:trident": {
         "name": "Trident",
@@ -59841,6 +60383,18 @@
           "mastery": "Topple",
           "name": "Trident",
           "properties": "Thrown (Range 20/60), Versatile (1d10)",
+          "property_list": [
+            {
+              "detail": "Range 20/60",
+              "key": "thrown",
+              "label": "Thrown"
+            },
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "4 lb."
@@ -59855,7 +60409,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "e5608e12f72d8feb2ed17c7345734f09dcf8841f18ff456d7b0ea904d4a4250b"
+        "contentHash": "7477837bbe792505c568c969da90f206f3569e511c6c119613881833d7517d4b"
       },
       "srd:weapon:en:war-pick": {
         "name": "War Pick",
@@ -59867,6 +60421,13 @@
           "mastery": "Sap",
           "name": "War Pick",
           "properties": "Versatile (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "2 lb."
@@ -59881,7 +60442,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "4fab573db1b83d38a145bf82e839a15e8766013c59cccd15be12f41f3d54e91f"
+        "contentHash": "8ac2c100a16a57cd1dcc3e54fc238bf2bcdd60a721841cf058350c9a39f95e4a"
       },
       "srd:weapon:en:warhammer": {
         "name": "Warhammer",
@@ -59893,6 +60454,13 @@
           "mastery": "Push",
           "name": "Warhammer",
           "properties": "Versatile (1d10)",
+          "property_list": [
+            {
+              "detail": "1d10",
+              "key": "versatile",
+              "label": "Versatile"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "5 lb."
@@ -59907,7 +60475,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "c822f94f62f65d98a457ccf6a2a72070e0fc17592ce00ee9c524a9fd95c902d2"
+        "contentHash": "07f331b44a000a72024123f1ee2ea516c7c13b2d26f5c8db66be1a64aaff757c"
       },
       "srd:weapon:en:whip": {
         "name": "Whip",
@@ -59919,6 +60487,16 @@
           "mastery": "Slow",
           "name": "Whip",
           "properties": "Finesse, Reach",
+          "property_list": [
+            {
+              "key": "finesse",
+              "label": "Finesse"
+            },
+            {
+              "key": "reach",
+              "label": "Reach"
+            }
+          ],
           "weapon_category": "martial",
           "weapon_range": "melee",
           "weight": "3 lb."
@@ -59933,7 +60511,7 @@
           "locator": "p.91",
           "version": "5.2.1"
         },
-        "contentHash": "11dc88ce0dcad8a6daf958c95f45460d5eeebcc5670bbd08317a35639ae347ee"
+        "contentHash": "485676fb0c624744ec2a9be198deb89c081f983172cd9121c140d0a1526313f4"
       }
     },
     "weapon-mastery": {

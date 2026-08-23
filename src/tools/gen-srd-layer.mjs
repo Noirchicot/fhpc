@@ -13,38 +13,21 @@
 
    Usage :  node src/tools/gen-srd-layer.mjs
 */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
+
+/* Les genres que le CONTRAT fh-layer/1 déclare — importés, jamais recopiés :
+   une troisième copie de cette liste serait une troisième chance de dériver. */
+import { GENRES as GENRES_DECLARES } from "../layers/document.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = join(here, "..", "..");
 export const SRD_ROOT = join(homedir(), "tools", "fh-srd", "exports");
 export const OUT_DIR = join(REPO_ROOT, "layers");
 
-/* Les 16 genres fh-srd (kickoff §L4 : 12 + `skill` + `class-progression`
-   ajoutés par le lot 6-srd-tables, + `weapon-property` et `weapon-mastery`
-   par le lot 19 de fh-srd, 2026-08-20). Ordre alphabétique — celui du schéma
-   fh-layer/1 et des dossiers d'export.
-
-   🔴 CE NOMBRE N'EST PAS UNE FRONTIÈRE, ET IL A FAILLI LE DEVENIR. Le schéma
-   répétait « `gen-srd-layer.mjs` garde SA PROPRE liste de 14 » — la bonne règle
-   avec le mauvais chiffre. Ce que ce générateur doit refuser, ce sont les
-   genres FATE'S HAND (`arcana`, `training`) : un générateur SRD qui produirait
-   du contenu maison mélangerait les deux couches, et c'est la loi §0.12.
-   ⛔ Il n'a jamais eu à refuser un genre SRD DE PLUS — et le SRD vient d'en
-   publier deux. Un nombre gelé aurait fermé la porte à la source elle-même.
-
-   ⚠️ LA VRAIE RÈGLE, écrite sur le fait : ce qui entre ici est un fichier
-   d'export `fh-srd`, un point. `arcana` et `training` n'en sont pas et n'en
-   seront jamais — ils naissent dans ce dépôt-ci. */
-export const GENRES = [
-  "armor", "background", "class", "class-progression", "feat", "gear",
-  "glossary", "item", "monster", "skill", "species", "spell", "tool", "weapon",
-  "weapon-mastery", "weapon-property"
-];
 export const LANGS = ["fr", "en"];
 const SRD_VERSION = "5.2.1";
 
@@ -63,6 +46,201 @@ function readJson(rel) {
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
+
+/* ══ LES GENRES NE SONT PAS UNE LISTE, ILS SE DÉRIVENT — 2026-08-23 (lot 93) ══
+
+   🔴 CE FICHIER PORTAIT LA BONNE RÈGLE ET LE CODE FAISAIT L'INVERSE. Le
+   commentaire disait, mot pour mot : « ce qui entre ici est un fichier d'export
+   `fh-srd`, un point » — et trois lignes plus bas, seize noms écrits en dur.
+   Il portait même son propre avertissement : « CE NOMBRE N'EST PAS UNE
+   FRONTIÈRE, ET IL A FAILLI LE DEVENIR ». Il l'est redevenu.
+
+   ⛔ MESURE DU DÉFAUT : `exports/srd/en/` portait DIX-SEPT fichiers, la liste en
+   nommait SEIZE. `item-value` — le barème des prix par rareté, livré par le lot
+   92 de fh-srd, présent dans les deux langues, déjà inscrit au MANIFEST — n'a
+   provoqué AUCUNE erreur. Il était simplement absent de la couche, et personne
+   ne l'aurait su. Une journée entière.
+
+   ⭐ LA RÉPONSE OPPOSÉE EXISTAIT DÉJÀ, LE MÊME SOIR, DANS LA SOURCE : chez
+   fh-srd, `build_web.py` a REFUSÉ le genre neuf tant qu'il n'était pas déclaré
+   — deux suites rouges, défaut trouvé en dix secondes. Le même problème, deux
+   réponses : on garde celle qui refuse.
+
+   ➡️ Donc la liste vient de la SOURCE, et ce générateur refuse — nommément,
+   avec le motif — tout ce qu'il ne doit pas produire. Quatre portes, aucune ne
+   se traverse en silence :
+     ① un genre MAISON (`arcana`, `training`) : il naît ici, pas chez fh-srd,
+       et le produire mélangerait les deux couches (loi §0.12) ;
+     ② un fichier d'export non vérifié — présent d'un côté, absent de l'autre
+       entre le disque et le MANIFEST ;
+     ③ un genre boiteux, publié dans une langue et pas dans l'autre ;
+     ④ un genre que le contrat fh-layer/1 ne déclare pas — la couche produite
+       ne validerait pas, et l'écrire quand même serait mentir au disque.
+   Aucune de ces portes ne compte : elles LISENT. Un nombre gelé aurait refermé
+   la porte à la source elle-même, et c'est exactement ce qui vient d'arriver. */
+
+/** Les genres MAISON : ils naissent dans CE dépôt-ci et n'entrent jamais dans
+ *  une couche SRD, quoi qu'en dise le disque (loi §0.12). */
+export const GENRES_MAISON = ["arcana", "training"];
+
+const JSON_EXT = ".json";
+
+/** Ce que le dossier d'export d'une langue porte VRAIMENT sur le disque. */
+function genresSurDisque(root, lang) {
+  return readdirSync(join(root, "srd", lang), { withFileTypes: true })
+    .filter((e) => e.isFile() && e.name.endsWith(JSON_EXT))
+    .map((e) => e.name.slice(0, -JSON_EXT.length));
+}
+
+/** Ce que le MANIFEST déclare POUR CETTE LANGUE, et rien d'autre : le même
+ *  MANIFEST liste aussi `exclusions.json`, `srd/correspondence.json` et toute
+ *  la couche `srfh/` — aucun n'est un genre de la couche SRD. Le préfixe est
+ *  donc `srd/<lang>/`, jamais `srd/` seul. */
+function genresAuManifest(manifest, lang) {
+  const prefixe = `srd/${lang}/`;
+  return manifest.files
+    .map((f) => f.path)
+    .filter((p) => p.startsWith(prefixe) && p.endsWith(JSON_EXT))
+    .map((p) => p.slice(prefixe.length, -JSON_EXT.length))
+    .filter((g) => g !== "" && !g.includes("/"));
+}
+
+/** Dérive la liste des genres d'un INVENTAIRE — `{ <lang>: { disque, manifest } }`.
+ *
+ *  Fonction PURE (aucun accès disque), comme `assertDigestMatches` : les quatre
+ *  refus s'éprouvent sur un inventaire fabriqué, sans salir `fh-srd`. Un garde
+ *  qu'on n'a pas vu mordre ne mord pas. */
+export function deriveGenres(inventaire, {
+  maison = GENRES_MAISON, declares = GENRES_DECLARES
+} = {}) {
+  const langs = Object.keys(inventaire);
+  if (langs.length === 0) {
+    throw new Error("gen-srd-layer : inventaire de source vide — aucune langue à dériver, et un vide n'est pas une réponse.");
+  }
+
+  /* ① LA LOI D'ABORD, et sur TOUT ce qui se présente — disque comme MANIFEST.
+     Un genre maison inscrit d'un seul côté doit se voir refuser pour SON motif,
+     pas pour un défaut d'intégrité qui masquerait la vraie faute. */
+  const tousLesNoms = new Set();
+  for (const lang of langs) {
+    for (const g of inventaire[lang].disque || []) tousLesNoms.add(g);
+    for (const g of inventaire[lang].manifest || []) tousLesNoms.add(g);
+  }
+  const interdits = [...tousLesNoms].filter((g) => maison.includes(g)).sort();
+  if (interdits.length) {
+    throw new Error(
+      `gen-srd-layer : genre(s) MAISON dans les exports SRD — ${interdits.join(", ")}. ` +
+      "Ils naissent dans ce dépôt-ci, jamais chez fh-srd : un générateur SRD qui les produirait " +
+      "mélangerait les deux couches, et c'est la loi §0.12. Refusé, pas sauté."
+    );
+  }
+
+  /* ② L'INTÉGRITÉ, langue par langue. Les deux sens comptent : un fichier posé
+     sans être inscrit au MANIFEST entrerait dans la couche sans être vérifié ;
+     une entrée de MANIFEST sans fichier serait une source disparue. */
+  const vus = new Map();
+  for (const lang of langs) {
+    const surDisque = new Set(inventaire[lang].disque || []);
+    const auManifest = new Set(inventaire[lang].manifest || []);
+
+    const nonInscrits = [...surDisque].filter((g) => !auManifest.has(g)).sort();
+    if (nonInscrits.length) {
+      throw new Error(
+        `gen-srd-layer : ${nonInscrits.map((g) => `srd/${lang}/${g}${JSON_EXT}`).join(", ")} — ` +
+        "présent(s) dans les exports, ABSENT(S) de exports/MANIFEST.json. Un fichier non vérifié " +
+        "n'entre pas dans la couche ; il ne se saute pas non plus. Régénérer le MANIFEST chez " +
+        "fh-srd, ou retirer le fichier. Refusé, pas sauté."
+      );
+    }
+
+    const disparus = [...auManifest].filter((g) => !surDisque.has(g)).sort();
+    if (disparus.length) {
+      throw new Error(
+        `gen-srd-layer : ${disparus.map((g) => `srd/${lang}/${g}${JSON_EXT}`).join(", ")} — ` +
+        "inscrit(s) au MANIFEST, INTROUVABLE(S) sur le disque. La source a perdu un export : " +
+        "resynchroniser fh-srd. Refusé, pas sauté."
+      );
+    }
+
+    for (const g of surDisque) {
+      if (!vus.has(g)) vus.set(g, new Set());
+      vus.get(g).add(lang);
+    }
+  }
+
+  /* ③ LES DEUX LANGUES OU AUCUNE. Une couche par langue se construit sur la
+     MÊME liste de genres : un genre publié d'un seul côté rendrait les deux
+     couches asymétriques sans que rien ne le dise. */
+  const boiteux = [...vus.entries()]
+    .filter(([, ou]) => ou.size !== langs.length)
+    .map(([g, ou]) => `${g} (présent en ${[...ou].sort().join(", ")}, absent en ${langs.filter((l) => !ou.has(l)).sort().join(", ")})`)
+    .sort();
+  if (boiteux.length) {
+    throw new Error(
+      `gen-srd-layer : genre(s) publié(s) dans une seule langue — ${boiteux.join(" ; ")}. ` +
+      "Les deux couches se construisent sur la même liste : une asymétrie se répare à la source, " +
+      "elle ne se rattrape pas par une intersection silencieuse. Refusé, pas sauté."
+    );
+  }
+
+  /* ④ LE CONTRAT. `fh-layer/1` énumère ses genres et ferme la porte au reste
+     (`additionalProperties: false`) : produire un genre qu'il ne déclare pas
+     écrirait sur le disque une couche que le schéma refuse. */
+  const inconnus = [...vus.keys()].filter((g) => !declares.includes(g)).sort();
+  if (inconnus.length) {
+    throw new Error(
+      `gen-srd-layer : genre(s) inconnu(s) du contrat fh-layer/1 — ${inconnus.join(", ")}. ` +
+      "La couche produite ne validerait pas. Ouvrir le genre dans schemas/fh-layer.schema.json ET " +
+      "dans src/layers/document.mjs — les deux, le garde de dérive compare les listes mot pour mot — " +
+      "puis relancer. Refusé, pas sauté."
+    );
+  }
+
+  const genres = [...vus.keys()].sort();
+  if (genres.length === 0) {
+    throw new Error(
+      `gen-srd-layer : aucun genre dérivé de ${SRD_ROOT} — une source qui ne rend rien n'est pas ` +
+      "une source vide, c'est une lecture fausse. Refusé, pas sauté."
+    );
+  }
+  return genres;
+}
+
+/** Lit l'inventaire des deux langues sur le disque ET au MANIFEST.
+ *
+ *  ⚠️ `root` EST UN ARGUMENT, et c'est la leçon du lot 13 rejouée ici : une
+ *  attaque qui veut prouver qu'un fichier d'export inconnu est bien VU doit
+ *  pouvoir en poser un — et le poser dans `~/tools/fh-srd` serait salir le
+ *  dépôt du voisin pour se prouver qu'on sait voir la saleté. Le défaut
+ *  `SRD_ROOT` reste la source de PRODUCTION, nommée à un seul endroit. */
+export function lireInventaire(root = SRD_ROOT) {
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(join(root, "MANIFEST.json"), "utf8"));
+  } catch (cause) {
+    throw new Error(
+      `gen-srd-layer : MANIFEST.json illisible sous ${root} — fh-srd est une ` +
+      `dépendance FERME de ce générateur, pas un intrant optionnel. (${cause.message})`
+    );
+  }
+  const inventaire = {};
+  for (const lang of LANGS) {
+    try {
+      inventaire[lang] = { disque: genresSurDisque(root, lang), manifest: genresAuManifest(manifest, lang) };
+    } catch (cause) {
+      throw new Error(
+        `gen-srd-layer : srd/${lang}/ illisible sous ${root} — fh-srd est une ` +
+        `dépendance FERME de ce générateur. (${cause.message})`
+      );
+    }
+  }
+  return inventaire;
+}
+
+/** Les genres de la couche SRD, DÉRIVÉS de la source au chargement du module.
+ *  L'ordre est alphabétique — celui du schéma fh-layer/1, celui des dossiers
+ *  d'export, et celui des clefs `records` de la couche écrite. */
+export const GENRES = deriveGenres(lireInventaire());
 
 /** Vérifie un digest contre son entrée MANIFEST et jette, en NOMMANT le
  *  fichier, si l'entrée manque ou si le SHA-256 diverge. Fonction pure
@@ -83,8 +261,11 @@ export function assertDigestMatches(rel, digest, entry) {
 }
 
 /** Jette bruyamment, en nommant le fichier, au premier SHA-256 qui ne colle
- *  pas au MANIFEST. Ne vérifie que les 28 fichiers que ce générateur lit —
- *  `exclusions.json` n'est pas un intrant de ce lot. */
+ *  pas au MANIFEST. Ne vérifie que les fichiers que ce générateur lit —
+ *  `GENRES` × `LANGS`, soit 34 au 2026-08-23. ⚠️ CE NOMBRE SE MESURE, IL NE SE
+ *  DÉCIDE PAS : il suit la source, et la phrase qui disait « les 28 fichiers »
+ *  était déjà fausse de quatre le jour où on l'a relue. `exclusions.json`,
+ *  `srd/correspondence.json` et la couche `srfh/` ne sont pas des intrants. */
 export function verifyManifest() {
   const manifest = readJson("MANIFEST.json");
   const byPath = new Map(manifest.files.map((f) => [f.path, f]));
