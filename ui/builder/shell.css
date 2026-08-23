@@ -664,6 +664,21 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 .decision-card:has(> .abilities-step),
 .decision-card:has(> .equipment-step) { --card-w: var(--panel-w); }
 
+/* 🔴 4 px AU-DESSUS DU TAMBOUR, ET C'EST MESURÉ AVANT D'ÊTRE CODÉ — Eric,
+   2026-08-23 : *« il y a une marge au-dessus des tambours, réduis-la à 4
+   pixels, par rapport au haut de la dalle »*.
+   📏 D'OÙ ELLE VENAIT, ET CE N'ÉTAIT PAS DE LA CARTE R : mesuré à 375 px, le
+   haut du tambour, le haut de la carte et le haut de son corps sont au MÊME
+   pixel — la carte ne pose rien au-dessus de lui. Les 17 px venaient de la
+   DALLE qui la porte : `--card-pad` (16) plus son liseré (1).
+   ⭐ ET LA COTE DE 16 NE BOUGE PAS AILLEURS. C'est une mesure d'Eric (B4.3,
+   « le coupable est le PADDING de 32 px ») et elle vaut pour une carte qui
+   porte de la PROSE. R ne porte pas de prose : il porte une roue qui doit
+   commencer tout de suite, et une hauteur imposée qui compte chaque pixel.
+   ⛔ Le haut SEUL — les trois autres côtés gardent `--card-pad`. Les
+   gouttières de la grille et le centrage de la carte s'appuient dessus. */
+.decision-card:has(> .equipment-step) { padding-top: var(--sp-4); }
+
 /* ══ 🔴 LA CARTE S'EFFACE SOUS ABILITIES — le fond doit passer ENTRE ═══════
    Eric, 2026-08-16 : *« démerde-toi comme tu veux mais je veux voir du
    background entre ces deux dalles (ça a déjà été fait dans skills) »*.
