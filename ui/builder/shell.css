@@ -3636,3 +3636,346 @@ button { font: inherit; }
 /* UNE LIGNE EN ATTENTE D'UN AUTRE CHOIX EST GRISÉE, PAS ABSENTE (canon §4) :
    elle annonce ce qui vient, et c'est ce qui rend le vert lisible ensuite. */
 .feat-branche-bilan dd[data-attente="oui"] { color: var(--text-muted); }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE TAMBOUR D'EQUIPMENT (lot 84) — DEUX ROUES, PUIS UNE GRILLE PAGINÉE
+   Croquis d'Eric du 2026-08-23. Valeurs ratifiées à la 5e passe du banc
+   (2026-08-22, réglées AU POUCE par Eric sur l'appareil) :
+
+       courbure 3,36 x pas   angle max 61°   fuite 12,9 x pas
+       cran 117 x 60   ecart 4   -> pas 121, R 407 px, un cran 17,1°
+
+   ⭐ TOUT EN RAPPORT AU PAS, JAMAIS EN PIXELS ABSOLUS : un rayon absolu ne
+   survit pas au changement d'écran — sur l'iPad en paysage, la roue calibrée
+   en pixels alignait seize items sur 2000 px et le relevé annonçait lui-même
+   « ça glisse, ça ne tourne pas ».
+   ⭐ ET LE PAS N'EST ÉCRIT QUE LÀ : le JS le LIT dans la mise en page
+   (`monterRoue`/`pas()`), il ne le recopie pas. Un nombre écrit deux fois est
+   un nombre qui finit par se contredire.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.equipment-drum {
+  /* 🔴 MESURÉ AU NAVIGATEUR LE 2026-08-23, ET ÇA CONTREDIT LA COMMANDE.
+     Les cotes d'Eric (cran 117, écart 4) ont été réglées AU POUCE SUR SON
+     iPAD, le 22/08 — c'est-à-dire AVANT que le croquis du 23/08 n'ajoute une
+     paire de flèches par étage. Sur un écran de 375 px, la carte de l'étape
+     offre 327 px ; trois crans de 117 plus deux flèches de 44 en demandent
+     455. Mesuré : la piste rendait 229 px, soit MOINS DE DEUX crans visibles.
+     ⛔ Or « trois crans visibles exactement » est la règle qu'Eric a redite le
+     23/08, et la plus catégorique des deux (« suis-je clair ou pas ? »).
+     ⭐ ALORS LE PAS SE BORNE AU LIEU DE SE FIXER : il vaut 121 px partout où la
+     place existe — sur l'iPad, donc exactement ce qu'Eric a réglé — et il
+     rétrécit seulement quand elle manque. Trois crans, toujours.
+     ⭐ ET C'EST DÉJÀ LA LOI DU BANC, prise au sérieux jusqu'au bout : « TOUT EN
+     RAPPORT AU PAS, JAMAIS EN PIXELS — un rayon absolu ne survit pas au
+     changement d'écran ». L'écart, la courbure, la fuite et les 51 images de
+     l'animation sont tous des RAPPORTS au pas : ils suivent sans une retouche.
+     ⏳ À TRANCHER PAR ÉRIC, AU DOIGT : un cran de 77 px au lieu de 117 sur un
+     téléphone. S'il préfère deux crans à la bonne taille, c'est cette ligne. */
+  container-type: inline-size;
+  --roue-fleche-l: var(--touch);
+  --roue-pas-max: 121px;                /* 117 + 4, les cotes ratifiées du 22/08 */
+  --roue-pas: min(var(--roue-pas-max),
+                  calc((100cqw - 2 * var(--roue-fleche-l) - 2 * var(--sp-4)) / 3));
+  /* L'écart est un RAPPORT au pas (121 / 4 = 30,25), pas une constante : c'est
+     ce qui garde `d max = ±1,96694 pas` vrai à TOUTES les largeurs, donc les 51
+     images de l'animation justes sans les recalculer. */
+  --roue-ecart: calc(var(--roue-pas) / 30.25);
+  --roue-cran-l: calc(var(--roue-pas) - var(--roue-ecart));
+  --roue-cran-h: 60px;                  /* H 60 et pas la cible de 44 : « on peut superposer Mot 1 & Mot 2 » */
+  --roue-fuite: calc(12.9 * var(--roue-pas));
+  --roue-champ: calc(3 * var(--roue-pas) - var(--roue-ecart));
+  /* 🔧 AMENDÉ LE 2026-08-23 — LE FONDU VAUT 10 PX, ET IL EST FIXE.
+     🔴 Le masque en POURCENTAGE a coûté une passe de réglage entière : plus la
+     piste s'élargissait, plus il rongeait de crans, et Eric réglait « 7 » pour
+     en voir 5. ⛔ Et PAS de cran de marge non plus : une marge exprimée en cran
+     fabrique une piste à QUATRE crans, et il le voit tout de suite
+     (« on ne voyait que trois crans par étage, suis-je clair ou pas ? »). */
+  --roue-fondu: 10px;
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  margin-bottom: var(--sp-16);
+}
+
+/* Un étage : ses deux flèches, et sa piste entre elles. Les flèches sont HORS
+   du bloc sombre — au doigt on lance la roue, à la souris on n'a rien pour
+   avancer d'un cran. */
+.roue { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); }
+.roue-fleche {
+  flex: none; min-width: var(--touch); min-height: var(--touch);
+  border: 0; background: none; color: var(--text-muted);
+  font-size: var(--t5); line-height: 1; padding: 0; cursor: pointer;
+}
+
+.roue-piste {
+  /* 🔴 LA PISTE SE BORNE À TROIS CRANS ET SE CENTRE. Laissée pleine largeur
+     elle alignait SEIZE items sur 2000 px : un picker n'est pas un bandeau qui
+     s'étire, c'est un objet d'une taille donnée, posé au milieu. */
+  flex: 0 0 var(--roue-champ);
+  width: var(--roue-champ);
+  max-width: 100%;
+  margin-inline: auto;
+  display: flex;
+  gap: var(--roue-ecart);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  background: var(--sunken);
+  border-radius: var(--radius-md);
+  /* ⚠️ `mandatory` SEUL : il choisit le cran où la course s'achève, il ne bride
+     pas l'inertie. ⛔ SURTOUT PAS `scroll-snap-stop: always` — c'est LUI qui
+     empêchait la roue de rouler : un geste ample, si lancé soit-il, n'avançait
+     que d'un item et calait. Le doigt lance une roue, la roue refuse de tourner. */
+  scroll-snap-type: x mandatory;
+  /* Le lissage natif porte AUSSI le geste des flèches et du clic sur un cran :
+     un seul chemin d'animation pour les trois entrées. */
+  scroll-behavior: smooth;
+  /* 🔴 LA PERSPECTIVE VIT SUR LA PISTE, C'EST-À-DIRE SUR LE PARENT DIRECT DES
+     CRANS. Une passe de réglage entière a été perdue parce qu'elle était
+     déclarée un niveau trop haut : elle ne descend QU'aux enfants directs, et
+     `getComputedStyle(piste).perspective` rendait `none`. Eric réglait une
+     courbure dont il ne voyait que l'échelle, et son curseur de fuite ne
+     faisait littéralement rien.
+     📌 UNE FUITE AUSSI LOINTAINE APLATIT LA DÉFORMATION, et c'est un choix
+     d'Eric tenu sur les cinq passes : il garde la rotation et jette l'effet
+     d'optique. Un tambour qui tourne, pas un fisheye. */
+  perspective: var(--roue-fuite);
+  perspective-origin: 50% 50%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--roue-fondu), #000 calc(100% - var(--roue-fondu)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--roue-fondu), #000 calc(100% - var(--roue-fondu)), transparent 100%);
+}
+.roue-piste::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ⛔ LE BOND DE COUTURE : l'aimantation et le lissage lâchent LE TEMPS D'UNE
+   TÂCHE. Restaurer dans la même tâche, c'est n'avoir jamais rien coupé — le
+   navigateur ne voit que l'état final, re-snappe, et l'écran saute. */
+.roue-piste[data-couture="oui"] { scroll-snap-type: none; scroll-behavior: auto; }
+
+/* ⛔ SOUS TROIS CRANS, IL N'Y A PAS DE ROUE — tripler une liste d'un ou deux
+   crans fabrique une roue qui tourne sans avancer, et l'utilisateur voit trois
+   fois la même chose sans comprendre pourquoi. Le cas est RÉEL, pas théorique :
+   « Gear » et « Armor » n'ont chacun qu'UNE étagère, faute de champ dans les
+   records (§4). Une piste droite ne peut pas amener son unique cran au milieu
+   toute seule : cette cale d'un pas de chaque côté le lui permet.
+   📌 C'est la « cale d'un tiers » que le banc gardait pour ce cas ; elle ne
+   part PAS avec la roue de C. */
+.roue-piste[data-court="oui"] { padding-inline: var(--roue-pas); }
+
+/* L'ATTENTE : une bande qui tourne invite à choisir, une bande FIGÉE dit
+   qu'il n'y a rien à choisir. Ni défilement, ni aimantation, ni perspective.
+   ⛔ On ne DÉMONTE pas la piste — `scrollWidth` tomberait à zéro et la roue
+   perdrait sa couture au moment précis où elle en a besoin. */
+.roue-piste[data-attente="oui"] {
+  overflow-x: hidden; scroll-snap-type: none; perspective: none; pointer-events: none;
+}
+
+.roue-cran {
+  flex: 0 0 var(--roue-cran-l);
+  /* ⚠️ `border-box` EXPLICITE : sans lui la hauteur fixe s'ADDITIONNE au
+     rembourrage, la tuile rend 53 px au lieu de 44, et la bande change de
+     hauteur d'un rayon à l'autre — c'est ce qui faisait sauter tout ce qui vit
+     en dessous. */
+  box-sizing: border-box;
+  /* 🔴 LA HAUTEUR EST FIXE. Mesuré : `R.cat` variait de 172 à 182 px SELON LE
+     RAYON — un nom long se repliait sur trois lignes et poussait ses crans.
+     Une roue dont les crans changent de hauteur n'est pas une roue. */
+  height: var(--roue-cran-h);
+  /* 🔴 `min-width: 0`, ET C'EST LUI QUI FAIT « TOUS DE LA MÊME TAILLE » : avec
+     `auto`, un item flex refuse de descendre sous son mot le plus long — 120 px
+     là où ses voisins font 114, à `flex-basis` IDENTIQUE. Le défaut ne frappe
+     que certains libellés, ce qui le rend presque impossible à voir. */
+  min-width: 0;
+  max-width: none;
+  /* Le nom qui ne tient pas est COUPÉ, pas accommodé — règle du rail de Species. */
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--sp-2) var(--sp-4);
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text-soft);
+  font: inherit; font-size: var(--t2); line-height: 1.15;
+  cursor: pointer;
+  scroll-snap-align: center;
+  /* ⭐ LE GARDE-FOU EST GÉOMÉTRIQUE : passé 90° un item présente son dos —
+     il est de l'autre côté du tambour. Cette ligne le retire au lieu de le
+     laisser réapparaître à l'envers. */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* ⛔ PAS DE `will-change: transform`. Il promeut le cran en couche composite :
+     le navigateur le rasterise UNE FOIS, puis le GPU ÉTIRE LA TEXTURE. Nos
+     crans changent d'échelle en permanence — on étirerait une image figée au
+     lieu de redessiner du texte. Posé pour aider la fluidité, il abîmait la
+     netteté sans rien gagner. C'est ce qui « frise » à l'oeil. */
+}
+/* Le cran sous le viseur, et celui qui porte le choix posé. */
+.roue-cran[data-vise="true"] { color: var(--text); }
+.roue-cran[aria-current="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
+
+.roue-marqueur {
+  cursor: default; background: none; color: var(--text-muted); font-size: var(--t5);
+}
+
+/* ══ LA ROTATION VIENT DU COMPOSITEUR, PAS DU JS ═══════════════════════════
+   🔴 LE DÉFILEMENT EST COMPOSITÉ SUR UN THREAD SÉPARÉ. Du JS qui repeint les
+   transformations est structurellement EN RETARD d'une image ou deux — pas
+   trop lent, DÉSYNCHRONISÉ. Mesuré : passer de 0,448 ms à 0,050 ms par image
+   n'a rien changé à l'oeil. Seule une timeline évaluée par le compositeur est
+   en phase avec le doigt.
+
+   ⚠️ ET C'EST SOUS `@supports`, DÉLIBÉRÉMENT. Sans lui, un navigateur qui
+   ignore `animation-timeline` garderait quand même l'animation — sur la
+   timeline du document, en 0s, avec `fill: both` : les crans se figeraient TOUS
+   sur la dernière image, à +33,5°. La dégradation serait pire que l'absence.
+   Ici, un navigateur trop ancien n'a AUCUNE animation : les crans restent
+   plats, ce qui est la dégradation propre annoncée. Chrome 115+, Safari 26+.
+   📌 `equipment-step.mjs` teste EXACTEMENT la même condition et l'écrit à
+   l'écran (« Wheel depth: on / off ») — Eric lit sur son iPad s'il juge la roue
+   ou son ombre, au lieu de le deviner.
+
+   📐 LA GÉOMÉTRIE, ET ELLE EST CALCULÉE, PAS COMPOSÉE À L'OEIL :
+       θ = d / R     x = R·sin θ     z = R·(cos θ − 1)     rotY = −θ
+       correction = x − d   ← la mise en page a DÉJÀ posé l'item à d
+   📌 `correction` parce qu'on ne POSE pas l'item, on le CORRIGE : oublier cette
+   soustraction fait s'additionner le défilement et la roue, et les items se
+   chevauchent aux bords. C'est le piège de cette formule.
+   🔴 CE QUI DISTINGUE UNE ROUE D'UN CARROUSEL : incliner les items sur place
+   les laisse espacés régulièrement — l'oeil lit un ruban qui glisse. Ce qui
+   trahit la rotation, c'est que les écarts se RESSERRENT vers les bords.
+
+   ⭐ 51 IMAGES, TOUS LES 2 % — ET PAS TOUS LES 5 %. Entre deux points
+   l'interpolation est LINÉAIRE là où la courbe est sinusoïdale : à 5 %, la
+   rotation avançait par segments droits, et ça se voyait (le « frisage »).
+   MESURE : pas 121px · champ 359px · d max ±238px = ±1.96694 pas · θ max atteint 33.54° (borne 61° : jamais atteinte)
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes fhpc-roue {
+  0% { transform: translateX(calc(-0.11043 * var(--roue-pas))) translateZ(calc(-0.55947 * var(--roue-pas))) rotateY(-33.541deg); }
+  2% { transform: translateX(calc(-0.09784 * var(--roue-pas))) translateZ(calc(-0.51677 * var(--roue-pas))) rotateY(-32.199deg); }
+  4% { transform: translateX(calc(-0.08622 * var(--roue-pas))) translateZ(calc(-0.47563 * var(--roue-pas))) rotateY(-30.858deg); }
+  6% { transform: translateX(calc(-0.07555 * var(--roue-pas))) translateZ(calc(-0.43607 * var(--roue-pas))) rotateY(-29.516deg); }
+  8% { transform: translateX(calc(-0.06579 * var(--roue-pas))) translateZ(calc(-0.39811 * var(--roue-pas))) rotateY(-28.174deg); }
+  10% { transform: translateX(calc(-0.05689 * var(--roue-pas))) translateZ(calc(-0.36178 * var(--roue-pas))) rotateY(-26.833deg); }
+  12% { transform: translateX(calc(-0.04883 * var(--roue-pas))) translateZ(calc(-0.32709 * var(--roue-pas))) rotateY(-25.491deg); }
+  14% { transform: translateX(calc(-0.04156 * var(--roue-pas))) translateZ(calc(-0.29406 * var(--roue-pas))) rotateY(-24.149deg); }
+  16% { transform: translateX(calc(-0.03505 * var(--roue-pas))) translateZ(calc(-0.26272 * var(--roue-pas))) rotateY(-22.808deg); }
+  18% { transform: translateX(calc(-0.02924 * var(--roue-pas))) translateZ(calc(-0.23307 * var(--roue-pas))) rotateY(-21.466deg); }
+  20% { transform: translateX(calc(-0.02412 * var(--roue-pas))) translateZ(calc(-0.20514 * var(--roue-pas))) rotateY(-20.125deg); }
+  22% { transform: translateX(calc(-0.01962 * var(--roue-pas))) translateZ(calc(-0.17894 * var(--roue-pas))) rotateY(-18.783deg); }
+  24% { transform: translateX(calc(-0.01572 * var(--roue-pas))) translateZ(calc(-0.15448 * var(--roue-pas))) rotateY(-17.441deg); }
+  26% { transform: translateX(calc(-0.01238 * var(--roue-pas))) translateZ(calc(-0.13178 * var(--roue-pas))) rotateY(-16.1deg); }
+  28% { transform: translateX(calc(-0.00954 * var(--roue-pas))) translateZ(calc(-0.11085 * var(--roue-pas))) rotateY(-14.758deg); }
+  30% { transform: translateX(calc(-0.00717 * var(--roue-pas))) translateZ(calc(-0.0917 * var(--roue-pas))) rotateY(-13.416deg); }
+  32% { transform: translateX(calc(-0.00523 * var(--roue-pas))) translateZ(calc(-0.07434 * var(--roue-pas))) rotateY(-12.075deg); }
+  34% { transform: translateX(calc(-0.00367 * var(--roue-pas))) translateZ(calc(-0.05878 * var(--roue-pas))) rotateY(-10.733deg); }
+  36% { transform: translateX(calc(-0.00246 * var(--roue-pas))) translateZ(calc(-0.04504 * var(--roue-pas))) rotateY(-9.391deg); }
+  38% { transform: translateX(calc(-0.00155 * var(--roue-pas))) translateZ(calc(-0.03311 * var(--roue-pas))) rotateY(-8.05deg); }
+  40% { transform: translateX(calc(-0.0009 * var(--roue-pas))) translateZ(calc(-0.023 * var(--roue-pas))) rotateY(-6.708deg); }
+  42% { transform: translateX(calc(-0.00046 * var(--roue-pas))) translateZ(calc(-0.01473 * var(--roue-pas))) rotateY(-5.367deg); }
+  44% { transform: translateX(calc(-0.00019 * var(--roue-pas))) translateZ(calc(-0.00829 * var(--roue-pas))) rotateY(-4.025deg); }
+  46% { transform: translateX(calc(-0.00006 * var(--roue-pas))) translateZ(calc(-0.00368 * var(--roue-pas))) rotateY(-2.683deg); }
+  48% { transform: translateX(calc(-0.00001 * var(--roue-pas))) translateZ(calc(-0.00092 * var(--roue-pas))) rotateY(-1.342deg); }
+  50% { transform: translateX(calc(0 * var(--roue-pas))) translateZ(calc(0 * var(--roue-pas))) rotateY(0deg); }
+  52% { transform: translateX(calc(0.00001 * var(--roue-pas))) translateZ(calc(-0.00092 * var(--roue-pas))) rotateY(1.342deg); }
+  54% { transform: translateX(calc(0.00006 * var(--roue-pas))) translateZ(calc(-0.00368 * var(--roue-pas))) rotateY(2.683deg); }
+  56% { transform: translateX(calc(0.00019 * var(--roue-pas))) translateZ(calc(-0.00829 * var(--roue-pas))) rotateY(4.025deg); }
+  58% { transform: translateX(calc(0.00046 * var(--roue-pas))) translateZ(calc(-0.01473 * var(--roue-pas))) rotateY(5.367deg); }
+  60% { transform: translateX(calc(0.0009 * var(--roue-pas))) translateZ(calc(-0.023 * var(--roue-pas))) rotateY(6.708deg); }
+  62% { transform: translateX(calc(0.00155 * var(--roue-pas))) translateZ(calc(-0.03311 * var(--roue-pas))) rotateY(8.05deg); }
+  64% { transform: translateX(calc(0.00246 * var(--roue-pas))) translateZ(calc(-0.04504 * var(--roue-pas))) rotateY(9.391deg); }
+  66% { transform: translateX(calc(0.00367 * var(--roue-pas))) translateZ(calc(-0.05878 * var(--roue-pas))) rotateY(10.733deg); }
+  68% { transform: translateX(calc(0.00523 * var(--roue-pas))) translateZ(calc(-0.07434 * var(--roue-pas))) rotateY(12.075deg); }
+  70% { transform: translateX(calc(0.00717 * var(--roue-pas))) translateZ(calc(-0.0917 * var(--roue-pas))) rotateY(13.416deg); }
+  72% { transform: translateX(calc(0.00954 * var(--roue-pas))) translateZ(calc(-0.11085 * var(--roue-pas))) rotateY(14.758deg); }
+  74% { transform: translateX(calc(0.01238 * var(--roue-pas))) translateZ(calc(-0.13178 * var(--roue-pas))) rotateY(16.1deg); }
+  76% { transform: translateX(calc(0.01572 * var(--roue-pas))) translateZ(calc(-0.15448 * var(--roue-pas))) rotateY(17.441deg); }
+  78% { transform: translateX(calc(0.01962 * var(--roue-pas))) translateZ(calc(-0.17894 * var(--roue-pas))) rotateY(18.783deg); }
+  80% { transform: translateX(calc(0.02412 * var(--roue-pas))) translateZ(calc(-0.20514 * var(--roue-pas))) rotateY(20.125deg); }
+  82% { transform: translateX(calc(0.02924 * var(--roue-pas))) translateZ(calc(-0.23307 * var(--roue-pas))) rotateY(21.466deg); }
+  84% { transform: translateX(calc(0.03505 * var(--roue-pas))) translateZ(calc(-0.26272 * var(--roue-pas))) rotateY(22.808deg); }
+  86% { transform: translateX(calc(0.04156 * var(--roue-pas))) translateZ(calc(-0.29406 * var(--roue-pas))) rotateY(24.149deg); }
+  88% { transform: translateX(calc(0.04883 * var(--roue-pas))) translateZ(calc(-0.32709 * var(--roue-pas))) rotateY(25.491deg); }
+  90% { transform: translateX(calc(0.05689 * var(--roue-pas))) translateZ(calc(-0.36178 * var(--roue-pas))) rotateY(26.833deg); }
+  92% { transform: translateX(calc(0.06579 * var(--roue-pas))) translateZ(calc(-0.39811 * var(--roue-pas))) rotateY(28.174deg); }
+  94% { transform: translateX(calc(0.07555 * var(--roue-pas))) translateZ(calc(-0.43607 * var(--roue-pas))) rotateY(29.516deg); }
+  96% { transform: translateX(calc(0.08622 * var(--roue-pas))) translateZ(calc(-0.47563 * var(--roue-pas))) rotateY(30.858deg); }
+  98% { transform: translateX(calc(0.09784 * var(--roue-pas))) translateZ(calc(-0.51677 * var(--roue-pas))) rotateY(32.199deg); }
+  100% { transform: translateX(calc(0.11043 * var(--roue-pas))) translateZ(calc(-0.55947 * var(--roue-pas))) rotateY(33.541deg); }
+}
+
+@supports (animation-timeline: view()) {
+  .roue-piste:not([data-attente="oui"]) > .roue-cran {
+    animation-name: fhpc-roue;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view(inline);
+  }
+}
+
+.drum-profondeur { margin: 0; text-align: center; font-size: var(--t1); color: var(--text-muted); }
+
+/* ══ LA GRILLE — 5 LIGNES x 3 COLONNES, ET ELLE NE TOURNE PAS ═════════════
+   ⛔ Ni perspective, ni aimantation, ni `animation-timeline` : on n'étend pas
+   la mécanique de la roue à un objet qui PAGINE. Deux pièces différentes, deux
+   mécaniques différentes, et c'est voulu.
+   ⛔ ET ELLE N'A PAS DE VISEUR, ce qui est sa raison d'être : la règle d'Eric
+   — « le joueur aurait acheté l'objet devant lequel il s'est arrêté » — doit
+   rester impossible. La grille MONTRE, elle ne désigne pas. */
+.equipment-grille {
+  /* ⏳ LA TAILLE D'UNE CASE EST ICI, ET NULLE PART AILLEURS. Eric n'a pas
+     tranché « la case porte le NOM ou une IMAGE », et c'est ce qui décide de
+     cette cote. Le jour où il tranche : cette ligne, plus `contenuDeCase()`
+     dans `equipment-step.mjs`. Deux endroits, pas quinze. */
+  --fhpc-case-h: 56px;
+  max-width: var(--grid-w); margin: 0 auto var(--sp-24);
+}
+.grille-barre { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-8); }
+.grille-fleche {
+  flex: none; min-width: var(--touch); min-height: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
+  background: var(--surface); color: var(--text); font-size: var(--t5); padding: 0; cursor: pointer;
+}
+.grille-titre {
+  flex: 1 1 auto; min-width: 0; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--t3); color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+/* Le `x/x` du croquis. ⛔ Il est DÉRIVÉ du nombre d'objets, jamais écrit à côté
+   du compte : un compte écrit deux fois finit par se contredire. */
+.grille-compte { flex: none; font-size: var(--t2); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.grille-cases {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* 🔴 CINQ RANGÉES IMPOSÉES, ET C'EST CE QUI EMPÊCHE LA GRILLE DE SAUTER :
+     une dernière page de deux objets doit occuper la même hauteur qu'une page
+     pleine, sinon tout ce qui vit dessous remonte en tournant la page.
+     ⛔ Et les cases manquantes ne sont PAS rendues : une case vide serait une
+     cible tactile qui ne fait rien. */
+  grid-template-rows: repeat(5, var(--fhpc-case-h));
+  gap: var(--sp-4);
+}
+.grille-case {
+  display: flex; align-items: stretch; gap: var(--sp-2);
+  min-width: 0; box-sizing: border-box;
+}
+.grille-jeton {
+  flex: 1 1 auto; min-width: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--sp-2);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: var(--t2); line-height: 1.15; cursor: pointer;
+}
+/* Même famille que `.equipment-item-eye` : la cible fait toute la hauteur de la
+   case, et jamais moins que `--touch` en largeur. */
+.grille-oeil {
+  flex: none; min-width: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text); font-size: var(--t3);
+  padding: 0; cursor: pointer;
+}
+.grille-marqueur {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: var(--t5);
+}
+.grille-cases[data-attente="oui"] { pointer-events: none; }

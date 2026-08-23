@@ -278,9 +278,18 @@ test("chercheur — RIEN n'est rendu tant qu'on n'a pas cherché, puis seuls les
   const report = rebuild(fixture.document);
   const node = renderEquipmentStep(ctxFrom(report.document, report), () => {});
   assert.equal(rows(node, ".equipment-search-result").length, 0,
-    "une liste de 133 lignes d'un coup cacherait tout en montrant tout");
+    "une liste de 386 lignes d'un coup cacherait tout en montrant tout");
+  /* 🔴 LOT 84 — LE COMPTE PASSE DE 133 À 386, ET C'EST UNE DÉCISION D'ERIC
+     (2026-08-23 : « oui ça rentre à l'équipement »). `EQUIPMENT_RECORD_KINDS`
+     accueille `item`, les 253 objets magiques : 82 gear + 38 weapon + 13 armor
+     + 253 item = 386, mesuré sur `layers/srd-5.2.1-en.layer.json`.
+     ⭐ CE QUE CE TEST PROUVE N'A PAS BOUGÉ D'UN MOT : au départ on ne voit
+     rien, et le compte est ANNONCÉ plutôt que tu. Seul le nombre a suivi le
+     catalogue — c'est une mesure, pas une exigence assouplie.
+     ⛔ Et il reste ancré sur un NOMBRE EXACT plutôt que sur « au moins 133 » :
+     un garde qui accepte une fourchette ne verrait pas un genre qui disparaît. */
   const titre = rows(node, ".equipment-search-block h4")[0].textContent;
-  assert.match(titre, /133 records/, "le compte, lui, est annoncé — l'absence n'est pas un silence");
+  assert.match(titre, /386 records/, "le compte, lui, est annoncé — l'absence n'est pas un silence");
 
   const input = rows(node, ".equipment-search-input")[0];
   input.value = "dagger";
