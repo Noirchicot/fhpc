@@ -174,40 +174,6 @@ test("5 — une armure posée equipped: true change resolved.ac — la preuve qu
   assert.equal(after.resolved.ac, 16, "Chain Mail : ac_base 16, ac_dex_cap 0 — le Dex du personnage n'y entre pas");
 });
 
-/* ══ 6 — LA PHRASE DE CLASSE, TELLE QUELLE, LES DOUZE ═══════════════════
-   ⚠️ LOT 66 — ELLE A MIGRÉ DANS « WHAT YOU ALREADY HAVE » (B8.2), et ce
-   n'est pas une perte : Eric décrit une FENÊTRE qui « dit ce qu'on possède
-   déjà ET EXPLIQUE POURQUOI », qui « apparaît au début », se ferme en
-   cliquant dehors, et que le `?` rappelle. Le paquet de la classe est
-   exactement ça — un POURQUOI. En bloc permanent, il coûtait de la hauteur
-   à un écran qui en manque déjà.
-   ⭐ Ce que ces deux tests prouvent est INCHANGÉ : la phrase est recopiée
-   TELLE QUELLE, les douze, sans troncature ni « A ou B » supposé. */
-test("6 — les douze classes affichent leur phrase EXACTE, aucune troncature, aucun « A ou B » supposé", () => {
-  const classes = query({ kind: "class" });
-  assert.equal(classes.length, 12);
-  for (const view of classes) {
-    const phrase = view.record.data.starting_equipment;
-    const doc = { build: { choices: [{ path: "class", ref: { kind: "class", id: view.id } }] } };
-    const texte = whatYouHave({ document: doc, query });
-    assert.ok(texte.includes(phrase), `${view.id} : la phrase doit être recopiée telle quelle`);
-  }
-});
-
-test("6b — ⚔️ ATTAQUE : le Fighter a TROIS options, la phrase le dit toujours, rien ne suppose deux", () => {
-  const fighter = query({ kind: "class", id: "srd:class:en:fighter" });
-  const doc = { build: { choices: [{ path: "class", ref: { kind: "class", id: fighter.id } }] } };
-  const texte = whatYouHave({ document: doc, query });
-  assert.match(texte, /Choose A, B, or C/);
-  assert.doesNotMatch(texte, /Choose A or B[^,]/,
-    "le Fighter ne doit JAMAIS se lire comme s'il n'avait que deux options");
-  assert.ok(texte.includes(fighter.record.data.starting_equipment), "la phrase entière, jamais un extrait");
-});
-
-/* ══ 7 — RETIRER UNE LIGNE (commande §3, test 7) ═════════════════════════
-   Mesuré (voir INVENTAIRE-LOT-49.md) : `clear` sur `gear[N]` NE FAIT PAS
-   jeter `rebuild`, contrairement aux six caractéristiques (lot 45) — le
-   geste est donc OFFERT, pas caché derrière une mesure défavorable. */
 test("7 — clear est SÛR sur gear[N] : rebuild ne jette pas, la ligne disparaît, aucune orpheline ne reste", () => {
   const withLine = applyAddGearLine(fixture.document, {
     ref: { kind: "gear", id: "srd:gear:en:crowbar" }, quantity: 1, equipped: false
@@ -226,121 +192,47 @@ test("7 — clear est SÛR sur gear[N] : rebuild ne jette pas, la ligne dispara�
     "aucun `gear[N].quantity`/`gear[N].equipped` orphelin ne doit rester dans build.choices");
 });
 
-test("7b — le bouton Remove d'une ligne dispatche removeGearLine avec le bon index", () => {
-  const withLine = applyAddGearLine(fixture.document, {
-    ref: { kind: "gear", id: "srd:gear:en:crowbar" }, quantity: 1, equipped: false
-  });
-  const report = rebuild(withLine);
-  const index = currentGearLines(report.document).slice(-1)[0].index;
-  const calls = [];
-  const node = renderEquipmentStep(ctxFrom(report.document, report), (a) => calls.push(a));
-  const removeBtn = rows(node, ".equipment-gear-remove").slice(-1)[0];
-  removeBtn.click();
-  assert.deepEqual(calls[0], { kind: "removeGearLine", index });
-});
+/* ══ ⛔ NEUF TESTS ONT ÉTÉ RETIRÉS ICI LE 2026-08-23, ET CE N'EST PAS UN
+   ABANDON DE COUVERTURE ═══════════════════════════════════════════════════
+   Eric, en regardant l'écran : *« tout ce qu'il y a en dessous dégage »*, puis
+   *« dégage tout ce que je vois à l'écran, tu recâbleras après »*. L'étape
+   Équipement ne porte plus que la carte de l'écran R.
 
-/* ══ 8 — UNE CLASSE NON CHOISIE (commande §3, test 8) ═════════════════════ */
-test("8 — sans classe choisie, l'étape ne plante pas, et « what you have » le dit", () => {
-  /* ⚠️ Même migration qu'au test 6 : le mot est dans la fenêtre, plus dans un
-     bloc permanent. Ce qu'il prouve — l'écran ne plante pas, et il DIT
-     l'absence au lieu de la taire — ne bouge pas. */
-  const doc = { build: { choices: [] } };
-  assert.doesNotThrow(() => {
-    renderEquipmentStep(ctxFrom(doc, null), () => {});
-    const texte = whatYouHave({ document: doc, query });
-    assert.ok(texte.length > 0, "la fenêtre dit quelque chose, jamais rien");
-    assert.match(texte, /not added anything yet/i, "et elle nomme l'absence plutôt que de la taire");
-  });
-});
+   Ce qui est parti, et les tests qui l'éprouvaient avec :
+     · la phrase de classe ............ tests 6 et 6b
+     · le sac et son bouton Remove .... test 7b
+     · « what you have » .............. test 8
+     · le sac et la bourse sans classe  test 8b
+     · le chercheur ................... deux tests
+     · la bourse ...................... deux tests
 
-test("8b — sans classe choisie, le sac et la bourse restent utilisables (gear/currency ne dépendent pas de la classe)", () => {
-  const doc = { build: { choices: [] } };
-  const node = renderEquipmentStep(ctxFrom(doc, null), () => {});
-  assert.ok(rows(node, ".equipment-gear-block").length === 1);
-  assert.ok(rows(node, ".equipment-currency-block").length === 1);
-});
+   ⭐ CE QUI EST GARDÉ EST L'ESSENTIEL, ET IL EST INTACT : les tests 1 à 7 et
+   les trois gardes d'octets sur `shell.mjs` n'éprouvaient pas des NŒUDS, ils
+   éprouvaient le MODÈLE — `gear[N]` complet, `currency` tout ou rien, les
+   50 PO du Barbare ajoutés sans écraser, `clear` sûr, l'AC qui bouge quand une
+   armure s'équipe. Rien de cela n'a changé : ce sont les écrans qui liront ces
+   données qui n'existent pas encore.
+   ⛔ Ce qui a disparu, ce sont les tests d'un ÉCRAN, pas d'une règle.
 
-/* ══ LES GESTES DE L'ÉCRAN, VUS DEPUIS LE DOM ══════════════════════════ */
+   ⏳ « Tu recâbleras après » : le jour où `B1`, `B2` et `B3` ouvrent, ces
+   organes reviennent avec la géométrie du croquis — et leurs tests avec eux.
+   Les versions retirées sont dans l'historique ; ⛔ elles ne se recopient pas
+   telles quelles, elles éprouvaient une mise en page qu'Eric a écartée. */
+test("⛔ l'étape Équipement ne porte QUE la carte de l'écran R", () => {
+  /* 🔴 LE GARDE QUI REMPLACE LES NEUF. Il ne dit pas « ça marche », il dit
+     « rien n'est revenu » — et c'est exactement ce qu'un lot suivant risque de
+     faire sans le vouloir, en rebranchant un organe « le temps de ». */
+  const node = renderEquipmentStep({
+    document: fixture.document, resolved: fixture.resolved, query
+  }, () => {});
 
-/* ⏳ LOT 66 — LA BARRE EST REPLIÉE DERRIÈRE LA LOUPE (B8.1), donc les tests
-   du chercheur la DEMANDENT (`search: true`). Eric l'avait posé au
-   conditionnel — « si on a la place » — et la place existe : c'est ce qui
-   évite une CINQUIÈME barre fixe. Ce que ces tests prouvent ne change pas. */
-test("chercheur — RIEN n'est rendu tant qu'on n'a pas cherché, puis seuls les résultats", () => {
-  /* 🔴 LOT 66 — LE TEST S'INVERSE, ET C'EST UNE MESURE. Il exigeait que les
-     133 lignes soient TOUTES rendues puis masquées par `hidden`. Vu à
-     l'écran : `[hidden]` NE BAT PAS un `display: flex` d'auteur — les 133
-     lignes prenaient **7 054 px** tout en étant « repliées ». Et on ne peut
-     pas y répondre par un `display: none`, que le garde des jetons interdit
-     (défaut n°3). La bonne réponse est de ne pas les construire.
-     ⭐ Ce que le test prouve reste le même : au départ on ne voit rien, et
-     après « dagger » on ne voit que des dagues. */
-  const report = rebuild(fixture.document);
-  const node = renderEquipmentStep(ctxFrom(report.document, report), () => {});
-  assert.equal(rows(node, ".equipment-search-result").length, 0,
-    "une liste de 391 lignes d'un coup cacherait tout en montrant tout");
-  /* 🔴 LOT 84 — LE COMPTE PASSE DE 133 À 386, ET C'EST UNE DÉCISION D'ERIC
-     (2026-08-23 : « oui ça rentre à l'équipement »). `EQUIPMENT_RECORD_KINDS`
-     accueille `item`, les objets magiques : 82 gear + 38 weapon + 13 armor
-     + 258 item = 391, mesuré sur `layers/srd-5.2.1-en.layer.json`.
-     📌 386 → 391 LE MÊME JOUR (lot 93), ET LE CATALOGUE N'A PAS GRANDI TOUT
-     SEUL : le lot 86 de fh-srd a rendu à l'anglais cinq épées magiques que son
-     extraction avalait (Dancing Sword, Frost Brand, Luck Blade, Sword of Life
-     Stealing, Sword of Wounding), et la couche commitée ici ne l'avait pas
-     encore su. Le FR, lui, portait déjà 258.
-     ⭐ CE QUE CE TEST PROUVE N'A PAS BOUGÉ D'UN MOT : au départ on ne voit
-     rien, et le compte est ANNONCÉ plutôt que tu. Seul le nombre a suivi le
-     catalogue — c'est une mesure, pas une exigence assouplie.
-     ⛔ Et il reste ancré sur un NOMBRE EXACT plutôt que sur « au moins 133 » :
-     un garde qui accepte une fourchette ne verrait pas un genre qui disparaît. */
-  const titre = rows(node, ".equipment-search-block h4")[0].textContent;
-  assert.match(titre, /391 records/, "le compte, lui, est annoncé — l'absence n'est pas un silence");
+  assert.equal(rows(node, ".carte-r").length, 1, "la carte est là, et elle est seule");
 
-  const input = rows(node, ".equipment-search-input")[0];
-  input.value = "dagger";
-  input.dispatchEvent({ type: "input" });
-  const visible = rows(node, ".equipment-search-result");
-  assert.ok(visible.length > 0, "taper « dagger » doit révéler au moins un résultat");
-  assert.ok(visible.every((r) => r.textContent.toLowerCase().includes("dagger")));
-});
-
-test("chercheur — cliquer Add dispatche addGearLine avec quantity:1, equipped:false", () => {
-  const report = rebuild(fixture.document);
-  const calls = [];
-  const node = renderEquipmentStep(ctxFrom(report.document, report), (a) => calls.push(a));
-  const input = rows(node, ".equipment-search-input")[0];
-  input.value = "crowbar";
-  input.dispatchEvent({ type: "input" });
-  /* `hidden` est posé sur la RANGÉE (`.equipment-search-result`), jamais sur
-     le bouton lui-même — on retrouve le bouton DANS la rangée visible. */
-  const visibleRow = rows(node, ".equipment-search-result").find((r) => r.hidden !== true);
-  const addBtn = visibleRow.querySelectorAll(".equipment-item-add")[0];
-  addBtn.click();
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].kind, "addGearLine");
-  assert.equal(calls[0].quantity, 1);
-  assert.equal(calls[0].equipped, false);
-  assert.equal(calls[0].ref.id, "srd:gear:en:crowbar");
-});
-
-test("bourse — les champs cp/sp/gp/pp dispatchent set sur le bon chemin", () => {
-  const report = rebuild(fixture.document);
-  const calls = [];
-  const node = renderEquipmentStep(ctxFrom(report.document, report), (a) => calls.push(a));
-  const gpInput = rows(node, ".equipment-currency-input")[2]; // ordre CURRENCY_KEYS : cp, sp, gp, pp
-  gpInput.value = "42";
-  gpInput.dispatchEvent({ type: "change" });
-  assert.deepEqual(calls[0], { kind: "set", path: "currency.gp", value: 42 });
-});
-
-test("bourse — le bouton nomme les 50 PO et dispatche addInheritedPurse au clic", () => {
-  const report = rebuild(fixture.document);
-  const calls = [];
-  const node = renderEquipmentStep(ctxFrom(report.document, report), (a) => calls.push(a));
-  const btn = rows(node, ".equipment-purse-btn")[0];
-  assert.match(btn.textContent, /50 GP/);
-  btn.click();
-  assert.deepEqual(calls[0], { kind: "addInheritedPurse" });
+  for (const mort of [".equipment-gear-list", ".equipment-ac-readout", ".equipment-search-block",
+                      ".equipment-topbar", ".equipment-catbar", ".equipment-currency-block",
+                      ".equipment-heritage", ".equipment-class-phrase"]) {
+    assert.equal(rows(node, mort).length, 0, mort + " a dégagé et ne revient pas");
+  }
 });
 
 /* ══ LE GARDE D'OCTETS SUR shell.mjs (même patron que « garde 11 »,

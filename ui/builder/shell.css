@@ -2342,6 +2342,16 @@ button { font: inherit; }
 .equipment-empty-note { margin: 0; font-size: var(--t3); color: var(--text-soft); }
 
 .equipment-gear-block, .equipment-currency-block { margin-bottom: var(--sp-24); }
+/* ⏳ CE QUE R NE PORTE PAS, EN ATTENDANT B2 ET B3 — l'AC, ce qu'on possède
+   déjà, et la recherche. Le croquis les met derrière les boutons `GEAR` et
+   `CART` ; ces écrans ne sont pas construits, donc ils vivent SOUS la carte,
+   séparés d'un trait pour qu'on voie que ce n'est pas elle. ⛔ Hors du budget
+   de hauteur de la carte : il est dehors. Ce bloc meurt le jour où B2/B3
+   ouvrent — il ne se réaménage pas, il disparaît. */
+.equipment-heritage {
+  margin-top: var(--sp-24); padding-top: var(--sp-16);
+  border-top: 1px dashed var(--border);
+}
 .equipment-gear-block h3, .equipment-currency-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
 .equipment-ac-readout { margin: 0 0 var(--sp-12); font-size: var(--t5); font-weight: 600; }
 
@@ -3921,7 +3931,6 @@ button { font: inherit; }
   }
 }
 
-.drum-profondeur { margin: 0; text-align: center; font-size: var(--t1); color: var(--text-muted); }
 
 /* ══ LA GRILLE — 5 LIGNES x 3 COLONNES, ET ELLE NE TOURNE PAS ═════════════
    ⛔ Ni perspective, ni aimantation, ni `animation-timeline` : on n'étend pas
@@ -3990,10 +3999,20 @@ button { font: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--sp-4);
 }
+/* 🔴 LE MÊME CHEVRON QUE LE TAMBOUR — Eric, 2026-08-23, capture à l'appui :
+   *« remplace tes flèches comme ici »*, en montrant les chevrons nus des deux
+   roues. La pastille cerclée qu'elles portaient faisait d'un repère un BOUTON,
+   et il n'y a pas deux façons d'avancer dans cet écran : la roue et la grille
+   font le même geste, elles se dessinent pareil.
+   ⛔ ET LA CIBLE TACTILE NE BOUGE PAS D'UN PIXEL : `--touch` reste, en largeur
+   comme en hauteur. Ce qui disparaît est le CERCLE, pas la surface qu'un pouce
+   atteint — un chevron décoratif qui rate le doigt serait pire qu'une pastille.
+   ⭐ Écrit comme `.roue-fleche` parce que c'est la MÊME chose, pas parce que ça
+   se ressemble : mêmes cotes, même absence de cadre, même encre discrète. */
 .grille-fleche {
   flex: none; min-width: var(--touch); min-height: var(--touch);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
-  background: var(--surface); color: var(--text); font-size: var(--t5); padding: 0; cursor: pointer;
+  border: 0; background: none; color: var(--text-muted);
+  font-size: var(--t5); line-height: 1; padding: 0; cursor: pointer;
 }
 /* Le `x/x` du croquis. ⛔ Il est DÉRIVÉ du nombre d'objets, jamais écrit à côté
    du compte : un compte écrit deux fois finit par se contredire.
@@ -4045,3 +4064,194 @@ button { font: inherit; }
   color: var(--text-muted); font-size: var(--t5);
 }
 .grille-cases[data-attente="oui"] { pointer-events: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   L'ÉCRAN **R** DE L'ÉQUIPEMENT — LA CARTE ET SES QUATRE MORCEAUX.
+   ⭐ ARRIVÉE ICI PAR LA COUTURE DU 2026-08-23, et c'est le geste que le banc
+   annonçait depuis le lot 88 : *« le bloc qu'on construit sera importé dans le
+   builder à un moment »* (Eric). Ce bloc VENAIT de `ecran-r.html` §A ; il n'y
+   est plus, il n'en existe donc qu'une copie — le banc lit celle-ci comme le
+   builder, et les deux ne peuvent plus diverger.
+   ⛔ Ce qui est resté là-bas est l'ÉCHAFAUDAGE (le belt en image, le relevé de
+   hauteur) : il ne sert qu'à REGARDER la carte, et il ne part jamais.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   § A — LE BLOC R1. ⭐ CE BLOC-CI PARTIRA DANS LE BUILDER, D'UN SEUL GESTE.
+   Il ne connaît ni le belt, ni le relevé de mesure, ni cette page : il ne
+   décrit que les six morceaux et leur budget de hauteur.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* L'ÉCRAN EST UN **FF**, ET IL PORTE UNE **CARTE** — corrigé le 2026-08-23.
+   ⛔ « R1 » N'EST PAS UN NOM DE CADRE, et l'écrire ainsi était l'erreur :
+     · **R** est un nœud de l'ARBORESCENCE de l'Équipement (R · B1 · B2 · B3 ·
+       B4 · SB3.1/2/3) — une position, pas une géométrie ;
+     · **FF** est le cadre : belt, pas de menu latéral, le contenu sur toute la
+       scène (`CADRES.md` §1) ;
+     · ce qui vit dedans est une **carte** — `FF1` dans l'ancien vocabulaire,
+       celui qu'Eric parle encore.
+   ⚠️ La page autonome n'a pas de menu latéral, et c'est NORMAL : elle est un
+   banc. C'est le BLOC qui partira dans le builder, où le menu existe.
+
+   🔴 LA HAUTEUR EST IMPOSÉE, ET CE N'EST PAS « CE QUI RESTE SOUS LE BELT ».
+   Une carte fait `--fiche-h`, ni plus ni moins (Eric, 15/08 : « une fiche fait
+   un écran »). ⛔ La cote ne se recopie pas : elle vit dans `tokens.css`.
+   ⭐ TOUT LE LOT 94 SERT CETTE LIGNE : les sept coupes d'Eric ne « récupèrent
+   pas un peu d'espace », elles font ENTRER le contenu dans cette hauteur. Le
+   relevé du banc dit, en chiffres, si c'est gagné.
+
+   🔴 ET LA LARGEUR SE PLAFONNE À `--measure`. Mesuré le 23/08 : le jeton
+   n'apparaissait NULLE PART dans ce fichier, et aucune classe ne le recevait de
+   `shell.css`. Une carte se plafonne et se centre — c'est la mesure unique de
+   `CADRES.md` §2, la même avec et sans rail. */
+.carte-r {
+  flex: none;
+  height: var(--fiche-h);
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  background: var(--surface);
+  position: relative;
+  /* 🔴 NI BORDURE, NI MARGE, NI REMBOURRAGE — Eric, 23/08 : *« dégage le cadre
+     et la marge si ça fait récupérer de l'espace aussi »*. C'était une
+     CONDITION, et elle est vérifiée : mesuré à 375 px, le rembourrage rendait
+     16 px de hauteur utile et la bordure 2 — 18 px qui vont aux six morceaux.
+     La marge, elle, ne rendait rien À LA CARTE (elle vivait dehors) : elle part
+     quand même, parce qu'une carte qui se centre n'a rien à décaler. */
+  /* ⛔ RIEN NE DÉFILE — norme des listes du 2026-08-23, « une page non
+     scrollable ». Ce qui ne tient pas ne se cache pas plus bas : ça dépasse,
+     et le relevé de l'échafaudage le dit en chiffres. Un défilement posé ici
+     mentirait sur le budget, qui est justement ce qu'Eric juge. */
+  overflow: hidden;
+}
+.carte-r-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici.
+   ⛔ IL Y EN AVAIT UNE, ET ELLE ÉTAIT FAUSSE : cette ligne posait
+   `--fhpc-case-h: var(--touch)` (44) au nom de *« même dimension que le
+   standard des sorts »*, en lisant la règle `.glisse-jeton` NUE au lieu de
+   celle du vivier (87 × 48). Eric a tranché le 23/08 au soir — *« fait pareil
+   que les sorts »* — et la cote juste vit maintenant dans `shell.css`, sur
+   l'écran lui-même. Ce banc n'a plus à la corriger : il la reçoit. */
+/* Les collecteurs sont la RANGÉE SUIVANTE de la grille sur le croquis, pas un
+   bloc d'en dessous : l'écart entre eux et les jetons est donc celui des jetons
+   entre eux (`--sp-4`), et pas le double. 📏 8 → 4, soit **4 px** rendus. */
+.carte-r .equipment-grille { margin-bottom: var(--sp-4); }
+.carte-r .equipment-drum { margin-bottom: 0; }
+/* ⛔ LA LIGNE « Wheel depth: … » N'EST PAS DANS LA CARTE — et c'est le budget
+   qui tranche, pas le goût. C'est un DIAGNOSTIC (§6 : « ce que le navigateur a
+   vraiment accordé, dit plutôt que deviné »), écrit en anglais de développeur,
+   dans un écran que le joueur regarde. 📏 Elle coûte **15,5 px** : 11,5 de
+   texte plus les 4 du `gap` du tambour qui la sépare des roues.
+   ⭐ ELLE N'EST PAS SUPPRIMÉE, ELLE EST DÉPLACÉE HORS DU CHAMP DE LA CARTE : le
+   produit continue de la produire, et le banc continue de pouvoir la lire. Ce
+   qui disparaît, c'est sa place dans un budget de 440 px.
+   ⏳ Le jour où l'écran R part dans le builder, c'est une question à poser à
+   Eric : ce diagnostic vit-il ailleurs, ou nulle part ? */
+/* 🔴 SANS ÇA LE GLISSER N'EXISTE PAS AU DOIGT (`glisser.mjs`, en tête) : le
+   doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
+   séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
+   `.grille-jeton` non — il n'était pas glissable avant R1. */
+.carte-r .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
+.carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
+
+/* ⭐ « UNE CATÉGORIE AFFICHE TOUJOURS SON COMPTE » — Eric, 21/08 (vault,
+   « FHPCv2 rangement equipement ») : *« Vêtements 32 »*, pas *« Vêtements »* ;
+   le joueur doit savoir ce qui l'attend avant de cliquer, et une étagère à 8
+   ne fait alors pas plus peur qu'une à 33. L'écran du produit n'en affiche
+   aucun ; R1 les pose.
+   🔴 EN `::after`, ET C'EST DÉLIBÉRÉ : le compte n'entre pas dans le nœud de
+   texte du cran. L'organe du produit continue de porter EXACTEMENT le libellé
+   qu'il a écrit — R1 l'annote, il ne le réécrit pas. */
+.carte-r .roue-cran[data-compte]::after {
+  content: " " attr(data-compte);
+  font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+
+/* ⛔ 2. LA RECHERCHE A DÉGAGÉ — Eric, 2026-08-23 : *« dégage search »*. Le nœud
+   ET sa feuille de style, pas seulement le nœud : une règle qui ne coiffe plus
+   rien est un mort qui a l'air vivant. 📏 Elle pesait **52 px** (44 de hauteur
+   + 2 × 4 de marge), la plus grosse des sept coupes du lot. */
+
+/* 5. LES COLLECTEURS — les trois cibles de R (vault §2). Ils ne portent qu'un
+   `data-creneau`, et c'est TOUT ce que `glisser.mjs` demande d'une cible.
+
+   🔴 *« UN DROP FAIT LA MÊME TAILLE QUE L'ITEM »* — Eric, 2026-08-23. La règle
+   derrière, et elle vaut au-delà de cet écran : **une cible a la taille de ce
+   qu'on lui donne.** Un collecteur grand comme trois jetons ment sur ce qu'il
+   attend.
+   📏 MESURÉ, ET L'ÉCART ÉTAIT DE 1 À 3 : jeton **38,2 px** de large, collecteur
+   **111**. La cause n'était pas la taille des collecteurs — c'était la grille
+   qui ne prenait pas sa largeur (voir `shell.css`, `.equipment-grille`).
+   ⭐ LES DEUX SE RÈGLENT AU MÊME ENDROIT : la grille rendue à sa largeur, les
+   trois collecteurs alignés sur ses trois colonnes valent exactement un jeton.
+   Le rembourrage ci-dessous est la LARGEUR DES GOUTTIÈRES de la grille — la
+   flèche plus son écart — pour que les colonnes tombent l'une sur l'autre.
+   ⛔ Aucune cote recopiée : `--touch` et `--sp-4` sont les jetons que la grille
+   emploie elle-même. */
+/* 🔴 ET LA CONSIGNE SE TIENT EN SUIVANT LA GRILLE, PAS EN LA DEVINANT. Depuis
+   que la case d'objet fait la cote d'un jeton de sort (87 × 48, décision d'Eric
+   du 23/08 au soir), un collecteur en `1fr` valait 90,3 pour un jeton de 87 :
+   l'écart était revenu, plus petit et plus sournois.
+   ⭐ LES DEUX LISENT LA MÊME DÉCLARATION, `--glisse-case` — et c'est exactement
+   le principe du vivier des sorts, où le jeton et le créneau la lisent ensemble
+   « pour qu'il n'y ait pas deux réglages à accorder ». ⛔ Pas `--fhpc-case-w` :
+   elle est déclarée SUR la grille, et une variable descend, elle ne remonte pas
+   jusqu'à une rangée voisine — le repli aurait silencieusement rendu `1fr`,
+   c'est-à-dire le défaut qu'on vient de corriger, mais invisible.
+   ⚠️ La HAUTEUR, elle, reste `--touch` : un collecteur n'est pas un jeton qu'on
+   glisse, c'est une cible qu'on vise, et son plancher est le pouce. */
+.carte-r-collecteurs {
+  flex: none; display: grid;
+  grid-template-columns: repeat(3, minmax(0, var(--glisse-case)));
+  justify-content: center; gap: var(--sp-4);
+  padding-inline: calc(var(--touch) + var(--sp-4));
+}
+.carte-r-collecteur {
+  min-height: var(--touch);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font-size: var(--t1); line-height: 1.1; text-align: center; padding-inline: var(--sp-2);
+}
+.carte-r-collecteur em { font-style: normal; color: var(--text-muted); }
+.carte-r-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
+.carte-r-collecteur[data-recu="oui"] { border-style: solid; border-color: var(--accent); font-weight: 600; }
+
+/* 6. LES BOUTONS — la barre du bas du croquis.
+   🔴 *« LES CASES GEAR / CART / CRAFT / NEXT DOIVENT SE RÉDUIRE »* — Eric,
+   2026-08-23. Elles se réduisent EN LARGEUR : quatre colonnes étirées donnaient
+   82,3 px pour un mot de quatre lettres. À la taille de leur contenu, centrées,
+   la barre cesse d'être un bandeau.
+   ⛔ ET PAS EN HAUTEUR, PARCE QUE LE PLANCHER EST ATTEINT : elles font déjà
+   `--touch`, le seuil tactile, exactement. Les descendre rendrait 4 px chacune
+   — 8 px pour la barre entière avec les collecteurs — au prix d'un bouton qu'un
+   pouce rate. `--touch` est un plancher, pas une décoration : la coupe est
+   REFUSÉE ici, et le chiffre est donné pour qu'Eric arbitre. */
+.carte-r-boutons {
+  flex: none; display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--sp-4); margin-top: var(--sp-4);
+}
+.carte-r-bouton {
+  min-height: var(--touch); min-width: var(--touch); padding-inline: var(--sp-8);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: var(--t2); letter-spacing: .06em;
+}
+
+/* B1, LA FICHE D'OBJET — elle s'ouvre AU CLIC, l'œil ayant disparu. Elle
+   RECOUVRE le cadre : c'est une autre page, pas un panneau de plus. */
+/* ⛔ PAS DE `display: none` POUR LA CACHER, ET LE GARDE DES JETONS A RAISON
+   (défaut n°3 : effacer un mot). `[hidden]` fait déjà tout le travail — il ne
+   perdait que parce qu'une règle posait `display: flex` par-dessus lui. On ne
+   contre donc pas l'attribut, on ne le contredit plus : la mise en page ne
+   s'applique qu'à la fiche VISIBLE. */
+.carte-r-b1:not([hidden]) {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12);
+  background: var(--surface);
+}
+.carte-r-b1 h2 { margin: 0; font-size: var(--t4); text-align: center; letter-spacing: .08em; }
+.carte-r-b1 .carte-r-b1-compte { margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted); }
+.carte-r-b1 .carte-r-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
+.carte-r-b1 .carte-r-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.carte-r-b1 .carte-r-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }

@@ -68,7 +68,7 @@ function sansCommentairesCss(texte) {
 const CSS = sansCommentairesCss(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8"));
 const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8"));
 
-const { renderEquipmentStep, rayonsEtEtageres, pageDObjets, CASES_PAR_PAGE } =
+const { renderEquipmentStep, rayonsEtEtageres, pageDObjets, CASES_PAR_PAGE, profondeurAccordee } =
   await import("../ui/builder/equipment-step.mjs");
 
 const fixture = exempleFhEn();
@@ -294,16 +294,25 @@ test("13 — un cran s'annonce par `aria-current`, jamais par `aria-pressed` (ce
   }
 });
 
-test("14 — l'écran DIT ce que le navigateur lui a accordé, au lieu de laisser deviner", () => {
-  /* §6 : sur un Safari trop ancien la déclaration `animation-timeline` est
-     ignorée et les crans restent plats — dégradation propre, mais MUETTE.
-     Eric lit cette ligne sur son iPad et sait s'il juge la roue ou son ombre. */
+test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas y revenir", () => {
+  /* 🔴 RENVERSÉ LE 2026-08-23, ET C'EST ERIC QUI L'A RENVERSÉ. Ce test gardait
+     l'inverse : « la ligne existe ». Le §6 avait raison sur le BESOIN — savoir
+     si l'on juge la roue ou son ombre — et tort sur la PLACE : c'est de
+     l'anglais de développeur dans un écran que le joueur regarde, et 15,5 px
+     dans une carte de 440. Eric l'a montrée trois fois : *« enlève ça »*.
+     ⭐ LE BESOIN N'EST PAS ABANDONNÉ, IL DÉMÉNAGE : `profondeurAccordee` est
+     exportée, et le BANC (`ecran-r.html`) l'affiche dans son relevé. On lit la
+     réponse là où l'on regarde l'écran, pas dedans.
+     ⛔ Et ce garde mord dans les deux sens : il tient la ligne hors de l'écran,
+     ET il vérifie que la fonction qui la produit est toujours joignable — la
+     retirer pour de bon serait perdre le §6, pas le déplacer. */
   const node = renderEquipmentStep(ctx(), () => {});
-  const note = rows(node, ".drum-profondeur")[0];
-  assert.ok(note, "la ligne existe");
-  assert.match(note.textContent, /^Wheel depth: (on|off) —/);
+  assert.equal(rows(node, ".drum-profondeur").length, 0,
+    "l'écran du joueur ne porte aucune ligne de diagnostic");
+  assert.equal(typeof profondeurAccordee, "function",
+    "témoin : la mesure du §6 reste joignable, c'est le banc qui la lit");
+  assert.equal(typeof profondeurAccordee(), "boolean");
 });
-
 test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui parlent à la coquille", () => {
   /* ⭐ LE CŒUR DU LOT : `shell.mjs` répond à toute action par un `refresh()`
      qui reconstruit la carte entière. Un cran franchi qui dispatcherait ferait
@@ -319,29 +328,33 @@ test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui
     "et tourner une roue ou une page non plus — sinon la coquille démonterait l'écran sous le doigt");
 });
 
-test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran montre l'absence sans la combler", () => {
+test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran n'en invente aucun", () => {
   /* Mesuré le 2026-08-23 : 0 des 258 `item` porte un `cost`, 0 porte un
      `weight`. Un autre chantier les remplira. En attendant, l'écran ne doit
      ni planter, ni inventer un « 0 gp » qui serait un mensonge.
-     ⭐ ET LES CINQ ÉPÉES REVENUES NE CHANGENT RIEN À CE CONSTAT : remesuré au
-     lot 93, c'est 258 sur 258, pas 253 sur 258. La matière du barème existe
-     désormais dans la couche — genre `item-value`, le prix par rareté — mais
-     elle n'est PAS sur les records d'objet, et cet écran ne la lit pas encore.
-     Une valeur qui vit ailleurs n'est pas une valeur présente. */
+     🔴 CE QUI A CHANGÉ LE 23/08 AU SOIR : le chercheur a dégagé avec tout ce
+     qui était sous la carte, donc la ligne de résultat qui MONTRAIT l'absence
+     par un tiret n'existe plus. Le constat se fait maintenant là où les objets
+     se voient — dans la grille — et il est même plus fort : une case ne porte
+     que le NOM. Il n'y a plus d'endroit où un prix inventé POURRAIT paraître.
+     ⭐ Le témoin sur le corpus reste, et c'est lui qui donne son sens au reste :
+     sans lui, ce test passerait aussi sur un catalogue vide. */
   const sansPrix = query({ kind: "item" }).filter((v) => v.record.data.cost === undefined);
   assert.equal(sansPrix.length, 258, "témoin : c'est bien le corpus entier qui est sans prix");
 
   const node = renderEquipmentStep(ctx(), () => {});
-  const input = rows(node, ".equipment-search-input")[0];
-  input.value = "adamantine armor";
-  input.dispatchEvent({ type: "input" });
-  const ligne = rows(node, ".equipment-search-result")[0];
-  assert.ok(ligne, "un objet magique se trouve bien dans le catalogue depuis le lot 84");
-  const meta = ligne.querySelectorAll(".equipment-item-meta")[0];
-  assert.equal(meta.textContent, "—",
-    "l'absence est MONTRÉE — un prix inventé serait pire qu'un tiret");
+  assert.equal(rows(node, ".equipment-item-meta").length, 0,
+    "aucune ligne de méta ne subsiste où un prix pourrait être inventé");
+  /* ⚠️ AU MONTAGE LA GRILLE EST EN ATTENTE (☆ ☉ ☾) — c'est l'état de départ du
+     croquis, éprouvé par le test 11. Le témoin de CE test n'est donc pas « des
+     objets s'affichent », c'est « la grille est bien là et n'a aucune place où
+     loger un prix ». Prendre l'autre témoin ferait échouer un test juste. */
+  assert.equal(rows(node, ".grille-cases").length, 1, "témoin : la grille est bien montée");
+  for (const c of rows(node, ".grille-case")) {
+    assert.doesNotMatch(c.textContent, /\bgp\b|\blb\b/i,
+      "une case ne porte que le nom : ni prix, ni poids");
+  }
 });
-
 /* ══ LES HUIT PIÈGES PAYÉS, GARDÉS SUR LES OCTETS DE LA FEUILLE ═══════════
    ⭐ LEUR SIGNATURE COMMUNE : aucun ne fait rougir un test de comportement.
    Ils se voient à l'oeil, sur l'appareil, et ils ont coûté une journée. Un
