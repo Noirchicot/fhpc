@@ -4086,9 +4086,46 @@ button { font: inherit; }
   background: var(--surface); color: var(--text); font-size: var(--t3);
   padding: 0; cursor: pointer;
 }
+/* 🔴 UNE CASE EN ATTENTE EST UNE CARTE FACE CACHÉE — Eric, 2026-08-23 :
+   *« mets le dos de carte de tarot à la place des étoiles sur les items »*,
+   *« quart de tour de la carte bien sûr »*.
+   📏 LE QUART DE TOUR N'EST PAS UN GOÛT, C'EST LE RATIO : le dos est un PORTRAIT
+   (816 × 1400, ratio 0,58) et la case est COUCHÉE (87 × 48, ratio 1,81). Tournée,
+   la carte fait 1400 × 816, ratio **1,72** — à 5 % de la case. `cover` ne rogne
+   donc presque rien, et il rogne sur les bords où la mosaïque est la plus calme,
+   jamais sur l'octogone du centre.
+   ⛔ L'IMAGE EST TOURNÉE AU FICHIER, PAS PAR UN `transform` : une rotation CSS
+   laisserait la boîte en portrait et il faudrait la contre-tailler — deux
+   réglages à accorder au lieu d'un. Le pixel arrive déjà dans le bon sens.
+   📏 Et elle est TAILLÉE POUR SA CASE : 261 × 151, soit trois fois la case, pour
+   les écrans denses — 14 ko. ⛔ Pas le master de 816 × 1400 : quinze cases le
+   chargeraient pour l'afficher à un neuvième de sa surface. */
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
+  background-image: url("./assets/tarot-dos.jpg?v=280");
+  background-size: cover; background-position: center;
+}
+/* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
+   identique sur tous les tokens, toujours centrer les items du bas si la ligne
+   est incomplète »*. Treize objets sur une page de quinze, c'était quatre
+   rangées pleines et un jeton seul, collé à gauche.
+   ⭐ LA GRILLE RESTE UNE GRILLE À TROIS COLONNES, et c'est ce qui compte : on ne
+   passe pas en `flex-wrap`, qui centrerait tout seul mais mettrait QUATRE cases
+   par rangée dès qu'un grand écran le permet — la norme des listes en veut
+   trois, toujours, sinon un objet change de place selon l'écran.
+     · reste 1 — le dernier va dans la colonne du MILIEU. Rien à décaler, la
+       colonne 2 est déjà le centre ;
+     · reste 2 — les deux derniers occupent les colonnes 1 et 2 ; on les pousse
+       d'une DEMI-COLONNE plus la moitié de l'écart, et les voilà centrés.
+       `50%` est relatif à la case elle-même : la cote suit toute seule quand la
+       case rétrécit sur un écran étroit. ⛔ Aucun nombre écrit ici.
+   ⛔ ET LE RANG NE CHANGE PAS : un objet garde sa rangée et son ordre. Seule la
+   ligne sans voisin à droite se recentre — « la grille ne se recompose pas »
+   (norme des listes §5) reste vrai. */
+.grille-cases[data-reste="1"] > .grille-case:last-child { grid-column: 2; }
+.grille-cases[data-reste="2"] > .grille-case:nth-last-child(-n+2) {
+  transform: translateX(calc(50% + var(--sp-4) / 2));
 }
 .grille-cases[data-attente="oui"] { pointer-events: none; }
 

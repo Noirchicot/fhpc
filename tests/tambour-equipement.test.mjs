@@ -257,31 +257,40 @@ test("10 ter — les crans de la roue restent les SEULS porteurs du nom d'une é
   assert.ok(crans.length > 0, "l'étage du bas porte bien des crans");
 });
 
-test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille ☆ ☉ ☾", () => {
+test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille FACE CACHÉE", () => {
   const node = renderEquipmentStep(ctx(), () => {});
   const pistes = rows(node, ".roue-piste");
   assert.equal(pistes[0].dataset.attente, undefined, "la ligne du HAUT est remplie dès l'ouverture");
   assert.equal(pistes[1].dataset.attente, "oui", "la ligne du BAS attend");
   assert.equal(rows(node, ".grille-cases")[0].dataset.attente, "oui", "et la grille attend aussi (nouveau le 23/08)");
 
+  /* 🔴 LES ☆ ☉ ☾ RESTENT SUR LA ROUE, ET SEULEMENT LÀ — Eric, 2026-08-23 :
+     *« le 3 doit être des étoiles soleil lune, répartition dans l'ordre que
+     j'ai dit »*, puis, le soir même : *« mets le dos de carte de tarot à la
+     place des étoiles SUR LES ITEMS »*.
+     ⭐ Les deux ordres ne se contredisent pas, ils nomment deux organes. Un
+     cran de roue est un NOM masqué — un glyphe suffit. Une case de grille est
+     une CARTE À RETOURNER — elle montre son dos. */
+  const cransB = [...pistes[1].querySelectorAll(".roue-marqueur")].map((m) => m.textContent);
+  assert.deepEqual(cransB, ["☆", "☉", "☾"], "la roue du bas garde la série, dans l'ordre");
+
   const marqueurs = rows(node, ".grille-marqueur");
   assert.equal(marqueurs.length, CASES_PAR_PAGE);
-
-  /* 🔴 DANS L'ORDRE, PLUS AU HASARD — Eric, 2026-08-23 : *« le 3 doit être des
-     étoiles soleil lune, répartition dans l'ordre que j'ai dit, à chaque
-     étage »*. La grille a TROIS colonnes : une rangée porte la série entière,
-     et chaque rangée la répète.
-     ⭐ CE GARDE FERME AUSSI LA QUESTION DU LOT 84 (« le tirage se refait-il à
-     chaque attente ? ») : il n'y a plus de tirage, donc plus de question — et
-     un tirage réintroduit ferait rougir cette ligne au premier essai. */
-  assert.deepEqual(marqueurs.map((m) => m.textContent),
-    Array.from({ length: CASES_PAR_PAGE }, (_, i) => ["☆", "☉", "☾"][i % 3]),
-    "☆ ☉ ☾ · ☆ ☉ ☾ · … — cinq rangées de trois, toujours la même série");
   for (const m of marqueurs) {
-    assert.ok(["☆", "☉", "☾"].includes(m.textContent), `un marqueur porte ☆, ☉ ou ☾ — trouvé « ${m.textContent} »`);
-    assert.equal(m.getAttribute("aria-hidden"), "true", "trois glyphes décoratifs n'ont rien à annoncer");
+    /* ⛔ AUCUN CARACTÈRE DERRIÈRE L'IMAGE : un symbole laissé dessous se
+       devinerait en transparence, et un lecteur d'écran dirait deux choses là
+       où l'écran n'en montre qu'une. */
+    assert.equal(m.textContent, "", "une case face cachée ne porte aucun texte : la carte est peinte par la feuille");
+    assert.equal(m.getAttribute("aria-hidden"), "true", "un dos de carte n'a rien à annoncer");
     assert.equal(m.tagName, "SPAN", "un marqueur n'est PAS un bouton : il n'y a rien à choisir");
   }
+
+  /* ⚔️ ET LA CARTE EST VRAIMENT PEINTE — sans cette ligne, tout ce qui précède
+     passerait sur quinze cases VIDES, ce qui est exactement le défaut qu'on
+     risque en retirant un texte. Le garde lit la feuille, pas la promesse. */
+  assert.match(CSS, /\.grille-marqueur[^}]*background-image:\s*url\("\.\/assets\/tarot-dos\.jpg\?v=\d+"\)/,
+    "`.grille-marqueur` peint le dos de carte, et son `url()` porte sa version");
+
   assert.equal(rows(node, ".grille-compte")[0].textContent, "—",
     "et le compte ne MENT pas pendant l'attente — pas de « 1/1 » sur une grille qui ne montre rien");
 });
