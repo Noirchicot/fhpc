@@ -46,6 +46,9 @@
 import { renderPicker } from "./carnet.mjs?v=279";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=279";
 import { swapContent } from "./socle.mjs?v=279";
+/* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
+   la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
+import { armerJeton } from "./glisser.mjs?v=279";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -469,7 +472,7 @@ function tic() {
  *  dégradation propre, mais muette. §6 de la commande : « fais dire à l'écran
  *  ce qu'il a obtenu » plutôt que de laisser deviner. Eric lit cette ligne sur
  *  son iPad et sait tout de suite s'il juge la roue ou son ombre. */
-function profondeurAccordee() {
+export function profondeurAccordee() {
   if (typeof CSS === "undefined" || typeof CSS.supports !== "function") return false;
   try {
     return CSS.supports("animation-timeline: view()") || CSS.supports("animation-timeline", "view()");
@@ -1033,10 +1036,15 @@ function renderTambour({ query, onAction }) {
   const roues = el("section", "equipment-drum");
   roues.append(faireEtage("rayons", "aisle", pisteA, (sens) => roueA.avancer(sens)));
   roues.append(faireEtage("etageres", "shelf", pisteB, (sens) => roueB.avancer(sens)));
-  /* §6 — CE QUE LE NAVIGATEUR A VRAIMENT ACCORDÉ, DIT PLUTÔT QUE DEVINÉ. */
-  roues.append(el("p", "drum-profondeur", [text(profondeurAccordee()
-    ? "Wheel depth: on — the browser turns the drum from the scroll itself."
-    : "Wheel depth: off — this browser shows the drum flat.")]));
+  /* ⛔ LA LIGNE « Wheel depth » N'EST PLUS DANS L'ÉCRAN — Eric, 2026-08-23, en
+     la montrant pour la troisième fois : *« enlève ça »*. Elle disait §6 (« ce
+     que le navigateur a vraiment accordé, dit plutôt que deviné ») et elle
+     avait raison de le dire — mais pas ICI : c'est de l'anglais de
+     développeur dans un écran que le joueur regarde, et elle pesait 15,5 px
+     dans une carte de 440.
+     ⭐ LE BESOIN SURVIT, LA LIGNE DÉMÉNAGE : `profondeurAccordee` est exportée,
+     et c'est le BANC (`ecran-r.html`, son relevé) qui la lit. Eric garde sa
+     réponse — il la lit là où l'on regarde l'écran, pas dedans. */
 
   /* ── LA GRILLE ET SES DEUX GOUTTIÈRES ──────────────────────────
      🔴 LA BARRE HORIZONTALE A DISPARU — Eric, 2026-08-23 : *« les flèches peuvent
@@ -1273,37 +1281,33 @@ function recordProse(view) {
 /* ══ LE SAC — la liste des lignes déjà posées, plus le chercheur ═════════ */
 function renderGearBlock({ document, resolved, query, onAction, category, search }) {
   const wrap = el("section", "equipment-gear-block");
-  wrap.append(el("h3", null, [text("Gear")]));
 
-  /* La preuve que l'écran parle au moteur (commande §4, test 5) : l'AC
-     affichée ici est LUE dans `resolved.ac`, jamais recalculée — une armure
-     posée `equipped: true` la change sous les yeux, ou elle ne change rien
-     du tout. */
-  if (resolved && Number.isInteger(resolved.ac)) {
-    wrap.append(el("p", "equipment-ac-readout", [text(`Armor Class: ${resolved.ac}`)]));
-  }
+  /* ══ ⛔ IL N'Y A PLUS RIEN SOUS LA CARTE — Eric, 2026-08-23 ══════════════
+     *« tout ce qu'il y a en dessous dégage »*, dit en regardant l'écran une
+     fois la carte montée. Ce qui vivait là et qui part :
+       · le titre `Gear` .......... R n'a pas de titre, le rouleau le porte
+       · `Armor Class: N` ......... c'est une lecture de `B3`, le dressing
+       · ce qu'on possède déjà .... `B3` aussi, derrière le bouton `GEAR`
+       · la barre de recherche .... *« dégage search »*, dit deux fois
+       · la bourse ................ `B1`/`B2` la portent, et la barre
+                                    flottante l'affiche déjà en haut
+     ⭐ ET C'EST LE CROQUIS À LA LETTRE : R montre le tambour, les jetons, les
+     collecteurs et quatre boutons. Rien d'autre. Un écran qui porte en plus ce
+     que trois autres écrans porteront est un écran qui ment sur ce qu'il est.
+     ⚠️ CE QUE ÇA COÛTE, ET IL FAUT LE DIRE : tant que `B2` et `B3` ne sont pas
+     construits, l'équipement déjà possédé n'est plus atteignable depuis cette
+     étape. C'est un choix d'Eric, pas un oubli — et les organes qui le
+     rendaient sont dans l'historique, prêts à déménager. */
 
-  const lines = currentGearLines(document);
-  const list = el("div", "equipment-gear-list");
-  if (lines.length === 0) {
-    list.append(el("p", "equipment-empty-note", [
-      text("No gear yet — search the catalogue below to add a first item.")
-    ]));
-  } else {
-    for (const line of lines) list.append(renderGearRow(line, { query, onAction }));
-  }
-  wrap.append(list);
-
-  /* ══ LOT 84 — LE TAMBOUR, ET L'ORDRE VIENT DU CROQUIS ══════════════════
-     Eric, 2026-08-23 : les deux roues sont AU-DESSUS de la recherche, la
-     grille EN DESSOUS. Le dessin fait foi, et il sépare bien les deux — d'où
-     un tambour qui rend deux nœuds au lieu d'un bloc d'un seul tenant.
-     ⛔ LA RECHERCHE NE BOUGE PAS D'UNE LIGNE : elle reste ce qu'elle est,
-     entre les deux, avec sa loupe et ses 25 premiers résultats. */
+  /* ══ LA CARTE DE L'ÉCRAN R ENTRE DANS LE BUILDER ═══════════════════════
+     Eric, 2026-08-23 : *« mets ça dans le vrai builder »*. Le tambour et la
+     grille ne sont plus posés à plat dans le bloc : ils sont les deux organes
+     que la CARTE reçoit, avec ses collecteurs et ses boutons. C'est le même
+     nœud que le banc `ecran-r.html` montre — la même fonction, pas une copie.
+     ⛔ ET LA RECHERCHE N'EST PLUS ENTRE LES DEUX : *« dégage search »*. */
   const { roues, grille } = renderTambour({ query, onAction });
-  wrap.append(roues);
-  wrap.append(renderGearSearch({ query, onAction, category, search }));
-  wrap.append(grille);
+  const carte = construireLaCarteR({ tambour: roues, grille, arbre: rayonsEtEtageres(query) });
+  wrap.append(carte.noeud);
   return wrap;
 }
 
@@ -1456,8 +1460,11 @@ export function renderEquipmentStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const section = el("section", "equipment-step");
 
+  /* ⛔ LA BOURSE N'EST PLUS SOUS LA CARTE — Eric, 2026-08-23 : *« tout ce
+     qu'il y a en dessous dégage »*. Elle n'est pas perdue : la barre flottante
+     de l'étape l'affiche déjà en haut (`renderEquipmentBar`), et le croquis la
+     donne à `B1`/`B2`, sous le titre « MY GOLD ». Un écran, une chose. */
   section.append(renderGearBlock({ document: doc, resolved, query, onAction: act, category: ctx.category, search: ctx.search }));
-  section.append(renderCurrencyBlock({ document: doc, resolved, onAction: act }));
   return section;
 }
 
@@ -1467,4 +1474,186 @@ export function renderEquipmentStep(ctx, onAction) {
  *  `gear.*`). */
 export function equipmentValidate() {
   return { exists: true, ready: true, action: null, next: "step" };
+}
+
+/* ══ L'ÉCRAN R — LA CARTE, ET ELLE VIENT DU BANC ══════════════════════════
+   ⭐ LA COUTURE ANNONCÉE DEPUIS LE LOT 88 EST FAITE (2026-08-23). Eric :
+   *« le bloc qu'on construit sera importé dans le builder à un moment. Mais
+   on finit R avant. »* R est fini, le bloc arrive. `ecran-r.html` ne le
+   DÉFINIT plus, il l'IMPORTE — il n'en existe donc qu'une écriture, et le
+   banc ne peut plus montrer autre chose que le builder.
+   ⛔ Ce qui est resté au banc est l'ÉCHAFAUDAGE : le belt en image et le
+   relevé de hauteur. Ils servent à REGARDER la carte, pas à la faire.
+
+   ⚠️ `elt` N'EST PAS `el`, ET C'EST VOULU. `el` de ce fichier prend des
+   ENFANTS ; le bloc venu du banc écrivait un TEXTE. Traduire cent appels à la
+   main, c'est cent occasions de se tromper — on garde donc la petite fonction
+   qui parle sa langue, à côté de celle qui parle la nôtre. */
+function elt(balise, classe, texte) {
+  const n = document.createElement(balise);
+  if (classe) n.className = classe;
+  if (texte !== undefined) n.textContent = texte;
+  return n;
+}
+
+/** Les trois cibles de R (vault, « FHPCv2 écrans équipement » §2).
+ *  ⏳ `TO GEAR DROP → B1` est une LECTURE non tranchée (§5.1 du même fichier) :
+ *  R1 l'affiche, il ne la décide pas. */
+const COLLECTEURS = [
+  { creneau: "craft", mot: "CRAFT DROP", vers: "B4" },
+  { creneau: "shopping", mot: "SHOPPING LIST", vers: "B2" },
+  { creneau: "gear", mot: "TO GEAR DROP", vers: "B1" }
+];
+const BOUTONS = ["GEAR", "CART", "CRAFT", "NEXT"];
+
+/**
+ * MONTE LA CARTE DE L'ÉCRAN R — les quatre morceaux, dans l'ordre du croquis.
+ * @param {object} organes
+ * @param {Element} organes.tambour  le nœud `.equipment-drum` DU PRODUIT
+ * @param {Element} organes.grille   le nœud `.equipment-grille` DU PRODUIT
+ * @param {Array} organes.arbre      `rayonsEtEtageres(query)` — pour les comptes
+ * @returns {{ noeud: Element, mesurer: Function }}
+ */
+export function construireLaCarteR({ tambour, grille, arbre }) {
+  const noeud = elt("section", "carte-r");
+  /* L'écran porte la LETTRE, ce qui vit dedans porte son NOM (`CADRES.md` §2).
+     ⛔ Un objet n'écrit jamais de lettre — d'où `data-objet` sur la carte, et
+     `data-ecran` sur ce qui l'entoure. Ici le banc tient lieu d'écran. */
+  noeud.dataset.objet = "carte";
+  const corps = elt("div", "carte-r-corps");
+
+  /* ⛔ PLUS DE BARRE DE RECHERCHE : le nœud est parti avec sa feuille de style
+     (Eric, 23/08 — *« dégage search »*). */
+
+  /* 3 — LES COLLECTEURS. */
+  const collecteurs = elt("div", "carte-r-collecteurs");
+  collecteurs.dataset.sim = "oui";
+  for (const c of COLLECTEURS) {
+    const cible = elt("div", "carte-r-collecteur");
+    cible.dataset.creneau = c.creneau;   // ⭐ la SEULE chose que glisser.mjs demande d'une cible
+    cible.dataset.vise = "false";
+    cible.append(elt("span", null, c.mot), elt("em", null, c.vers));
+    collecteurs.append(cible);
+  }
+
+  /* 4 — LES BOUTONS. */
+  const boutons = elt("div", "carte-r-boutons");
+  boutons.dataset.sim = "oui";
+  for (const mot of BOUTONS) {
+    const b = elt("button", "carte-r-bouton", mot);
+    b.type = "button";
+    boutons.append(b);
+  }
+
+  /* B1 — la fiche, en recouvrement. */
+  const fiche = elt("div", "carte-r-b1");
+  fiche.dataset.sim = "oui";
+  fiche.hidden = true;
+  const ficheNom = elt("p", "carte-r-b1-nom");
+  const pied = elt("div", "carte-r-b1-pied");
+  const retour = elt("button", "carte-r-bouton", "BACK");
+  retour.type = "button";
+  retour.addEventListener("click", () => { fiche.hidden = true; });
+  pied.append(retour);
+  for (const mot of ["CRAFT", "BUY", "FREE"]) {
+    const b = elt("button", "carte-r-bouton", mot);
+    b.type = "button";
+    pied.append(b);
+  }
+  fiche.append(
+    elt("h2", null, "ITEM DESCRIPTION"), elt("p", "carte-r-b1-compte", "1/1"),
+    ficheNom, elt("div", "carte-r-b1-corps"), pied
+  );
+
+  corps.append(tambour, grille, collecteurs, boutons);
+  noeud.append(corps, fiche);
+
+  /* ══ LES DEUX SOINS À DONNER AUX CASES, ET ILS SE REDONNENT ═════════════
+     🔴 UNE SEULE PASSE NE SUFFIT PAS, MESURÉ : la grille se REMPLIT toute
+     seule 500 ms après l'arrêt d'une roue, et à chaque page. Les yeux retirés
+     au montage étaient tous revenus — 15 sur 15 — au premier tour de roue.
+     C'est donc un observateur qui les tient, jamais un geste unique.
+       · L'ŒIL DISPARAÎT — Eric, 23/08 : *« y'a pas besoin d'œil ; par un clic,
+         la page B1 s'affiche en FF »*. Retiré du RENDU, jamais du produit — et
+         le jeton reprend alors toute la largeur de sa case, ce qui est la
+         vraie géométrie de cette décision.
+       · LE JETON S'ARME, avec l'organe de glisser du dépôt et pas une seconde
+         écriture du geste.
+     ⚠️ Retirer un nœud ici réveille l'observateur une seconde fois ; la passe
+     suivante ne trouve plus rien et s'arrête. */
+  /* ══ LES COMPTES SUR LES CRANS ═══════════════════════════════════════════
+     Deux tables, une par étage, et les CHIFFRES VIENNENT DU PRODUIT : c'est
+     `rayonsEtEtageres` — la fonction de l'écran, pas une seconde arithmétique
+     — qui les rend. Un compte calculé ici divergerait du contenu de la grille
+     au premier réglage de la taxonomie.
+     ⚠️ Les tables sont indexées par LIBELLE, et par étage : « Gear » nomme à
+     la fois un rayon et l'étagère des non-classés de ce rayon. */
+  const comptesRayon = new Map();
+  const comptesEtagere = new Map();
+  for (const rayon of arbre || []) {
+    comptesRayon.set(rayon.label, rayon.etageres.reduce((n, e) => n + e.objets.length, 0));
+    for (const etagere of rayon.etageres) comptesEtagere.set(etagere.label, etagere.objets.length);
+  }
+  function annoterLesCrans() {
+    for (const roue of tambour.querySelectorAll(".roue")) {
+      const table = roue.dataset.niveau === "rayons" ? comptesRayon : comptesEtagere;
+      for (const cran of roue.querySelectorAll(".roue-cran")) {
+        const n = table.get(cran.textContent);
+        if (n === undefined) delete cran.dataset.compte;
+        else cran.dataset.compte = String(n);
+      }
+    }
+  }
+  annoterLesCrans();
+  /* Les crans se refont à chaque tour de roue (l'étage du bas se REMPLIT
+     500 ms après l'arrêt du haut) : l'annotation se redonne, comme les deux
+     soins de la grille juste en dessous. */
+  /* ⚠️ LE VEILLEUR N'EXISTE QUE DANS UN NAVIGATEUR, ET C'EST MESURÉ : la suite
+     monte cet écran sur un DOM minimal, qui n'a pas de `MutationObserver` —
+     tant que la carte vivait dans un banc HTML, la question ne se posait pas ;
+     depuis qu'elle est DANS LE PRODUIT, elle traverse les tests.
+     ⭐ Et la garde ne cache rien : la PREMIÈRE PASSE a déjà eu lieu juste
+     au-dessus, c'est elle que la suite éprouve. Ce que le veilleur ajoute — se
+     redonner après un remplissage — n'existe qu'au doigt, et ne se teste
+     qu'au doigt. ⛔ Pas de fausse promesse : sans lui, l'écran est juste au
+     montage et ne se rattrape pas. */
+  if (typeof MutationObserver === "function") new MutationObserver(annoterLesCrans).observe(tambour, { childList: true, subtree: true });
+
+  const armes = new WeakSet();
+  function soignerLesCases() {
+    for (const oeil of grille.querySelectorAll(".grille-oeil")) oeil.remove();
+    for (const jeton of grille.querySelectorAll(".grille-jeton")) {
+      if (armes.has(jeton)) continue;
+      armes.add(jeton);
+      const nom = (jeton.getAttribute("aria-label") || "").replace(/^Add\s+/, "") || jeton.textContent;
+      armerJeton(jeton, {
+        onTap: () => { ficheNom.textContent = nom; fiche.hidden = false; },
+        onDepot: (creneau) => {
+          /* ⭐ ON SAUTE B1 — la cible dit l'intention. R1 ne fait pas encore
+             l'acte : il montre QUE la cible l'a reçu. */
+          const cible = collecteurs.querySelector(`[data-creneau="${creneau}"]`);
+          if (!cible) return;
+          cible.dataset.recu = "oui";
+          setTimeout(() => { delete cible.dataset.recu; }, 900);
+        }
+      });
+    }
+  }
+  soignerLesCases();
+  if (typeof MutationObserver === "function") new MutationObserver(soignerLesCases).observe(grille, { childList: true, subtree: true });
+
+  /** LE BUDGET DE HAUTEUR — ce que le cadre offre, ce que les six morceaux
+   *  prennent. ⛔ Un dépassement ne se rattrape pas par un défilement : il se
+   *  NOMME, et on demande au contenu ce qu'il porte en trop. */
+  function mesurer() {
+    const style = getComputedStyle(noeud);
+    const dispo = noeud.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    const pris = [...corps.children].reduce((somme, n) => {
+      const s = getComputedStyle(n);
+      return somme + n.offsetHeight + parseFloat(s.marginTop) + parseFloat(s.marginBottom);
+    }, 0);
+    return { dispo: Math.round(dispo), pris: Math.round(pris) };
+  }
+
+  return { noeud, mesurer };
 }
