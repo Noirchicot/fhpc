@@ -283,9 +283,30 @@ test("Destiny — ⛔ l'écran à carte ne produit AUCUN bouton à état, et c'e
   assert.equal(node.querySelectorAll(".card-action").length, 2, "témoin : les deux boutons d'action SONT là");
 });
 
-test("Equipment — les pickers de gear (renderPicker) s'annoncent", () => {
+test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occupe seul", () => {
+  /* 🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ LE 2026-08-23, ET NON RELÂCHÉ — même geste
+     que le test de Class juste en dessous, et pour la même raison. Ce test
+     exigeait « au moins un `[data-active]` » ; il a rougi le jour où Eric a
+     fait dégager tout ce qui était sous la carte de l'écran R (*« tu
+     recâbleras après »*). Les paires `Equipped`/`Stowed` du sac étaient les
+     seuls boutons à état de cette étape ; le sac est parti à `B3`.
+     ⭐ ET L'ABSENCE EST LA BONNE RÉPONSE : un cran de roue s'annonce par
+     `aria-current` — il désigne où l'on est, il ne bascule pas — et un jeton
+     d'objet ne s'enfonce pas, il se glisse. Aucun des deux n'a d'état à dire.
+     ⛔ CE QUE CE GARDE TIENT DÉSORMAIS EST PLUS FORT QUE LE COMPTE QU'IL
+     REMPLACE : zéro `data-active`, zéro `aria-pressed`. Un lot qui rebrancherait
+     un `Equipped`/`Stowed` ici sans l'annoncer serait dit par ce test.
+     📌 Le garde d'ensemble n'a rien perdu : Abilities, Species, Skills,
+     Inheritance et Universe exigent toujours leur minimum. */
   const node = renderEquipmentStep({ document: report.document, resolved: report.resolved, query }, () => {});
-  assertToutBoutonActifAnnonceSonEtat(node, "Equipment", 1);
+  assert.deepEqual(elementsActifs(node), [],
+    "ni cran ni jeton n'est un interrupteur : aucun n'a d'état à annoncer");
+  for (const bouton of node.querySelectorAll("button")) {
+    assert.equal(bouton.getAttribute("aria-pressed"), null,
+      `${bouton.className} annonce un état que cet écran n'a plus`);
+  }
+  assert.ok(node.querySelectorAll(".roue-cran").length > 0,
+    "⚔️ et l'écran n'est pas VIDE : s'il ne rendait plus rien, l'assertion du dessus passerait pour rien");
 });
 
 test("Universe & Layers — les deux boutons de pile (SRD / SRD + FH) s'annoncent", () => {

@@ -3999,10 +3999,20 @@ button { font: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--sp-4);
 }
+/* 🔴 LE MÊME CHEVRON QUE LE TAMBOUR — Eric, 2026-08-23, capture à l'appui :
+   *« remplace tes flèches comme ici »*, en montrant les chevrons nus des deux
+   roues. La pastille cerclée qu'elles portaient faisait d'un repère un BOUTON,
+   et il n'y a pas deux façons d'avancer dans cet écran : la roue et la grille
+   font le même geste, elles se dessinent pareil.
+   ⛔ ET LA CIBLE TACTILE NE BOUGE PAS D'UN PIXEL : `--touch` reste, en largeur
+   comme en hauteur. Ce qui disparaît est le CERCLE, pas la surface qu'un pouce
+   atteint — un chevron décoratif qui rate le doigt serait pire qu'une pastille.
+   ⭐ Écrit comme `.roue-fleche` parce que c'est la MÊME chose, pas parce que ça
+   se ressemble : mêmes cotes, même absence de cadre, même encre discrète. */
 .grille-fleche {
   flex: none; min-width: var(--touch); min-height: var(--touch);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
-  background: var(--surface); color: var(--text); font-size: var(--t5); padding: 0; cursor: pointer;
+  border: 0; background: none; color: var(--text-muted);
+  font-size: var(--t5); line-height: 1; padding: 0; cursor: pointer;
 }
 /* Le `x/x` du croquis. ⛔ Il est DÉRIVÉ du nombre d'objets, jamais écrit à côté
    du compte : un compte écrit deux fois finit par se contredire.

@@ -1072,176 +1072,13 @@ function renderTambour({ query, onAction }) {
   return { roues, grille };
 }
 
-/* ══ LA PHRASE DE CLASSE (§1a) ═══════════════════════════════════════════
-   AFFICHÉE TELLE QUELLE — zéro découpage en « A »/« B »/« C », zéro
-   supposition sur le nombre d'options (le Fighter en a trois, §0.4). */
-function renderClassPhrase(query, classRef) {
-  const wrap = el("section", "equipment-class-block");
-  wrap.append(el("h3", null, [text("Class starting equipment")]));
-  if (!classRef) {
-    wrap.append(el("p", "equipment-empty-note", [
-      text("Choose a class first — its starting equipment text will show here.")
-    ]));
-    return wrap;
-  }
-  const view = query({ kind: classRef.kind, id: classRef.id });
-  const name = recordLabel(view);
-  if (name) wrap.append(el("p", "equipment-class-name", [text(name)]));
-  const phrase = view && view.record && view.record.data && typeof view.record.data.starting_equipment === "string"
-    ? view.record.data.starting_equipment
-    : null;
-  wrap.append(el("p", phrase ? "equipment-class-phrase" : "equipment-empty-note", [
-    text(phrase || "No starting equipment text on this class record.")
-  ]));
-  return wrap;
-}
 
-/* ══ UNE LIGNE DE SAC ═════════════════════════════════════════════════════
-   Éditable (quantity, equipped), retirable. « Retirable » n'est offert QUE
-   parce que c'est MESURÉ sûr — voir INVENTAIRE-LOT-49.md : `clear` sur
-   `gear[N]` ne fait PAS jeter `rebuild` (contrairement aux six
-   caractéristiques, lot 45), et les trois chemins (`gear[N]`, `.quantity`,
-   `.equipped`) sont retirés ensemble par `shell.mjs` (`removeGearLine`) pour
-   ne laisser aucune entrée orpheline dans `build.choices`. */
-function renderGearRow(line, { query, onAction }) {
-  const complete = Boolean(line.ref) && Number.isInteger(line.quantity) && typeof line.equipped === "boolean";
-  const row = el("div", "equipment-gear-row");
-  row.dataset.onSheet = String(complete);
 
-  const view = line.ref ? query({ kind: line.ref.kind, id: line.ref.id }) : null;
-  const name = recordLabel(view) || (line.ref ? line.ref.id : "(no item)");
-  row.append(el("span", "equipment-gear-name", [text(name)]));
-
-  const meta = [recordCost(view), recordWeight(view)].filter(Boolean).join(" · ");
-  if (meta) row.append(el("span", "equipment-gear-meta", [text(meta)]));
-
-  row.append(numberField({
-    value: line.quantity,
-    min: 1,
-    className: "equipment-gear-qty",
-    ariaLabel: `Quantity for ${name}`,
-    onChange: (raw) => {
-      const n = Number(raw);
-      if (Number.isInteger(n) && n > 0) onAction({ kind: "set", path: `gear[${line.index}].quantity`, value: n });
-    }
-  }));
-
-  row.append(renderPicker({
-    options: [true, false],
-    selected: typeof line.equipped === "boolean" ? [line.equipped] : [],
-    labelOf: (v) => (v ? "Equipped" : "Stowed"),
-    onSelect: (v) => onAction({ kind: "set", path: `gear[${line.index}].equipped`, value: v })
-  }));
-
-  row.append(button("Remove", "equipment-gear-remove",
-    () => onAction({ kind: "removeGearLine", index: line.index }),
-    `Remove ${name}`));
-
-  if (!complete) {
-    row.append(el("p", "equipment-gear-pending", [
-      text("Missing quantity or equipped — this line will not reach the sheet until both are set.")
-    ]));
-  }
-
-  return row;
-}
-
-/* ══ LE CHERCHEUR (§1a) — 133 records, un champ, l'action « Add » ═══════
-   Toutes les lignes sont rendues UNE FOIS (pas de reconstruction du DOM à
-   chaque frappe) et filtrées par `hidden` — même geste que le plan
-   escamotable de `shell.mjs` (`aside.hidden`), jamais `display: none` en
-   dur dans la feuille de style (garde `tests/ui-jetons.test.mjs`, clause 4).
-   Repliée par défaut (une liste de 133 boutons au premier coup d'œil serait
-   le défaut inverse de « rien ne se cache » : tout montrer d'un coup revient
-   à ne rien distinguer). */
-function renderGearSearch({ query, onAction, category, search }) {
-  const wrap = el("section", "equipment-search-block");
-
-  /* ⭐ B8.1 — LA MOLETTE FILTRE VRAIMENT. Sans ça elle serait un décor : les
-     133 records s'affichaient tous, et l'écran faisait 7 099 px. Le filtre
-     est un `kind`, lu sur l'item — jamais un test sur son nom. */
-  const tous = catalogue(query);
-  const items = !category || category === "all" ? tous : tous.filter((i) => i.kind === category);
-  wrap.append(el("h4", null, [text(`Add from the catalogue — ${items.length} records`)]));
-  /* ⚠️ LA PHRASE NOMMAIT TROIS GENRES, ET IL Y EN A QUATRE DEPUIS LE LOT 84.
-     Ce n'est pas un embellissement : `item` étant entré au catalogue, « gear,
-     weapon and armor » décrivait 133 des 386 records montrés. Une phrase que
-     la décision d'Eric a rendue fausse se corrige ; le COMPORTEMENT de la
-     recherche, lui, ne bouge pas d'une ligne. */
-  const emptyNote = el("p", "equipment-empty-note", [
-    text(`Type a name to search the ${items.length} records of the catalogue.`)
-  ]);
-  const resultsWrap = el("div", "equipment-search-results");
-  /* 🔴 ON NE REND QUE CE QUI S'AFFICHE, et c'est une mesure : les 133 lignes
-     étaient construites puis masquées par `hidden` — sauf qu'`[hidden]` ne
-     bat pas un `display: flex` d'auteur. Résultat vu à l'écran : **7 054 px**
-     de lignes invisibles mais présentes. Et on ne peut pas y répondre par un
-     `display: none` — le garde des jetons l'interdit dans `shell.css`
-     (défaut n°3 : effacer des mots). La bonne réponse était de ne pas les
-     construire.
-     ⛔ Le remplissage passe par `swapContent` (socle.mjs) : le garde du lot
-     58 n'autorise `replaceChildren` que là, et il a raison ici aussi. */
-  const indexed = items.map((item) => ({
-    name: (recordLabel(item.view) || "").toLowerCase(),
-    item
-  }));
-
-  const MAX_SHOWN = 25;
-  const moreNote = el("p", "equipment-search-more", []);
-  const afficher = (needle) => {
-    const trouves = needle.length === 0 ? [] : indexed.filter((e) => e.name.includes(needle));
-    swapContent(resultsWrap, trouves.slice(0, MAX_SHOWN).map((e) => renderSearchResultRow(e.item, onAction)));
-    emptyNote.hidden = needle.length > 0;
-    moreNote.textContent = trouves.length > MAX_SHOWN
-      ? `${trouves.length} matches — showing the first ${MAX_SHOWN}. Refine your search to see the rest.`
-      : "";
-  };
-  const input = searchField({
-    placeholder: "Search gear, weapons, armor…",
-    className: "equipment-search-input",
-    ariaLabel: "Search the equipment catalogue",
-    onInput: (raw) => afficher(raw.trim().toLowerCase())
-  });
-
-  /* ⏳ B8.1 — la barre de recherche est REPLIÉE DERRIÈRE LA LOUPE, et c'est
-     ce qui évite une CINQUIÈME barre fixe (le cumul que B7.6 signale). Eric
-     l'a formulé au conditionnel — « si on a la place » : la place existe,
-     mesurée, et la loupe la rend. */
-  if (search) wrap.append(input);
-  wrap.append(emptyNote, resultsWrap, moreNote);
-  return wrap;
-}
 
 /* ══ B8.3 — CHAQUE ITEM TIENT SUR DEUX LIGNES ════════════════════════════
    « Ligne 1 : le titre. Ligne 2 : prix et poids. `+` et `👁` à droite, et ils
    occupent les deux lignes en hauteur. »
 
-   ⭐ ET LA CONTRAINTE DE B7.3c NE S'APPLIQUE PAS ICI, c'est écrit noir sur
-   blanc : Compétences COMPRIME (une ligne), Equipment EMPILE (deux). Les
-   deux écrans les plus denses résolvent le même problème de largeur
-   différemment, et c'est délibéré — ⛔ ne pas « harmoniser ».
-   📌 C'est aussi ce qui règle les trois noms d'outils que Compétences devait
-   couper (`Calligrapher's Supplies`…) : ici, ils ont la ligne entière. */
-function renderSearchResultRow({ kind, view }, onAction) {
-  const row = el("div", "equipment-search-result");
-  const name = recordLabel(view) || view.id;
-  const texte = el("div", "equipment-item-text");
-  texte.append(el("span", "equipment-item-name", [text(name)]));
-  const meta = [recordCost(view), recordWeight(view)].filter(Boolean).join(" · ");
-  texte.append(el("span", "equipment-item-meta", [text(meta || "—")]));
-  row.append(texte);
-  row.append(button("+", "equipment-item-add",
-    () => onAction({ kind: "addGearLine", ref: { kind, id: view.id }, quantity: 1, equipped: false }),
-    `Add ${name}`));
-  /* B8.3d/e — « l'œil ouvre une GROSSE fenêtre en overlay avec le texte
-     associé », et « elle se ferme si on tape ou clique dehors ». C'est le
-     popup partagé (III.4, lot 62) — la troisième de ses trois occurrences
-     annoncées, et il n'a pas fallu en écrire une ligne de plus. */
-  row.append(button("\u{1F441}", "equipment-item-eye",
-    () => onAction({ kind: "popup", titre: name, texte: recordProse(view) }),
-    `About ${name}`));
-  return row;
-}
 
 /** LE TEXTE ASSOCIÉ À UN RECORD — recopié, jamais résumé. Les genres n'ont
  *  pas les mêmes champs : une arme porte ses dégâts et ses propriétés, une
@@ -1279,7 +1116,7 @@ function recordProse(view) {
 }
 
 /* ══ LE SAC — la liste des lignes déjà posées, plus le chercheur ═════════ */
-function renderGearBlock({ document, resolved, query, onAction, category, search }) {
+function renderGearBlock({ query, onAction }) {
   const wrap = el("section", "equipment-gear-block");
 
   /* ══ ⛔ IL N'Y A PLUS RIEN SOUS LA CARTE — Eric, 2026-08-23 ══════════════
@@ -1311,56 +1148,6 @@ function renderGearBlock({ document, resolved, query, onAction, category, search
   return wrap;
 }
 
-/* ══ LA BOURSE (§1b/§1c) ══════════════════════════════════════════════════
-   Quatre champs TOUJOURS visibles (le piège de §0.2 rendu, pas caché) plus
-   un geste explicite pour les 50 PO hérités — jamais posé tout seul au
-   rendu (§1b : « il ne les repose pas à chaque passage »), seulement au
-   clic (`addInheritedPurse`, `shell.mjs`). */
-function renderCurrencyBlock({ document, resolved, onAction }) {
-  const wrap = el("section", "equipment-currency-block");
-  wrap.append(el("h3", null, [text("Purse")]));
-
-  const current = currentCurrency(document);
-  const row = el("div", "equipment-currency-row");
-  for (const key of CURRENCY_KEYS) {
-    row.append(el("label", "equipment-currency-field", [
-      el("span", "equipment-currency-label", [text(key.toUpperCase())]),
-      numberField({
-        value: current[key],
-        min: 0,
-        className: "equipment-currency-input",
-        ariaLabel: `${key.toUpperCase()} coins`,
-        onChange: (raw) => {
-          const n = Number(raw);
-          if (Number.isInteger(n) && n >= 0) onAction({ kind: "set", path: `currency.${key}`, value: n });
-        }
-      })
-    ]));
-  }
-  wrap.append(row);
-
-  /* 🔴 LE PIÈGE, RENDU VISIBLE : tant que les quatre clefs ne sont pas
-     posées (zéros compris), `resolved.currency` n'existe pas — cette ligne
-     ne l'invente jamais, elle dit l'état tel quel. */
-  if (resolved && resolved.currency) {
-    const total = CURRENCY_KEYS.map((key) => `${resolved.currency[key]} ${key}`).join(", ");
-    wrap.append(el("p", "equipment-purse-readout", [text(`On the sheet: ${total}`)]));
-  } else {
-    wrap.append(el("p", "equipment-empty-note", [
-      text("All four denominations (cp / sp / gp / pp) must be set — zeros count — before a purse reaches the sheet.")
-    ]));
-  }
-
-  wrap.append(button(`Add the inherited purse (${INHERITED_PURSE_GP} GP)`, "equipment-purse-btn",
-    () => onAction({ kind: "addInheritedPurse" })));
-  wrap.append(el("p", "equipment-purse-note", [text(
-    "Where this comes from: Fate's Hand dropped the four SRD backgrounds, and with them their " +
-    "“or 50 GP” option. These 50 GP are inherited from that option, not invented — they " +
-    "add to whatever gold the class package already grants, they never replace it."
-  )]));
-
-  return wrap;
-}
 
 /**
  * @param {object} ctx
@@ -1389,61 +1176,7 @@ export const EQUIPMENT_CATEGORIES = [
   { id: "gear", label: "Gear" }
 ];
 
-/** LA BARRE FIXE de l'écran : la bourse, le `?`, la loupe, la molette. */
-export function renderEquipmentBar(ctx, onAction) {
-  const act = onAction || ctx.onAction || (() => {});
-  const wrap = el("div", "equipment-topbar");
 
-  const ligne = el("div", "equipment-purse-bar");
-  const purse = currentCurrency(ctx.document);
-  const pieces = CURRENCY_KEYS.map((k) => `${purse[k] || 0} ${k.toUpperCase()}`).join(" · ");
-  ligne.append(el("span", "equipment-purse-value", [text(pieces)]));
-  /* B8.1 — le point d'interrogation, À CÔTÉ DU BUDGET, qui rappelle la
-     fenêtre. B8.2d, mot pour mot. */
-  ligne.append(button("?", "equipment-help",
-    () => act({ kind: "popup", titre: "What you already have", texte: whatYouHave(ctx) }),
-    "What you already have"));
-  ligne.append(button("\u{1F50D}", "equipment-magnifier",
-    () => act({ kind: "equipmentSearch" }), "Search the catalogue"));
-  wrap.append(ligne);
-
-  const bar = el("nav", "equipment-catbar");
-  bar.setAttribute("aria-label", "Equipment categories");
-  for (const cat of EQUIPMENT_CATEGORIES) {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "equipment-cat";
-    item.dataset.value = cat.id;
-    item.setAttribute("aria-current", cat.id === (ctx.category || "all") ? "true" : "false");
-    item.textContent = cat.label;
-    item.addEventListener("click", () => act({ kind: "equipmentCategory", value: cat.id }));
-    bar.append(item);
-  }
-  wrap.append(bar);
-  return wrap;
-}
-
-/** B8.2 — « une fenêtre qui dit ce qu'on POSSÈDE DÉJÀ, et explique
- *  POURQUOI ». Le pourquoi vient du document : le paquet de la classe et les
- *  50 PO d'héritage sont deux origines distinctes, et le joueur doit savoir
- *  laquelle lui a donné quoi. */
-export function whatYouHave(ctx) {
-  const doc = ctx.document;
-  const lignes = currentGearLines(doc);
-  const purse = currentCurrency(doc);
-  const morceaux = [];
-  const classRef = currentClassRef(doc);
-  if (classRef) {
-    const view = ctx.query({ kind: "class", id: classRef.id });
-    const phrase = view && view.record && view.record.data && view.record.data.starting_equipment;
-    if (phrase) morceaux.push(`From your class:\n${phrase}`);
-  }
-  morceaux.push(`In your purse: ${CURRENCY_KEYS.map((k) => `${purse[k] || 0} ${k.toUpperCase()}`).join(" · ")}`);
-  morceaux.push(lignes.length > 0
-    ? `You have added ${lignes.length} line${lignes.length === 1 ? "" : "s"} of gear.`
-    : "You have not added anything yet.");
-  return morceaux.join("\n\n");
-}
 
 /**
  * @param {object} ctx
@@ -1454,17 +1187,20 @@ export function whatYouHave(ctx) {
  * @param {boolean} [ctx.search]  la barre de recherche est-elle invoquée
  */
 export function renderEquipmentStep(ctx, onAction) {
-  const doc = ctx.document || null;
-  const resolved = ctx.resolved || null;
   const query = ctx.query || (() => []);
   const act = onAction || ctx.onAction || (() => {});
   const section = el("section", "equipment-step");
 
-  /* ⛔ LA BOURSE N'EST PLUS SOUS LA CARTE — Eric, 2026-08-23 : *« tout ce
-     qu'il y a en dessous dégage »*. Elle n'est pas perdue : la barre flottante
-     de l'étape l'affiche déjà en haut (`renderEquipmentBar`), et le croquis la
-     donne à `B1`/`B2`, sous le titre « MY GOLD ». Un écran, une chose. */
-  section.append(renderGearBlock({ document: doc, resolved, query, onAction: act, category: ctx.category, search: ctx.search }));
+  /* ⛔ L'ÉTAPE NE PORTE PLUS QUE LA CARTE — Eric, 2026-08-23 : *« dégage tout
+     ce que je vois à l'écran, tu recâbleras après »*, puis *« sauf le
+     background »*. Sont partis avec le reste : la bourse, l'AC, le sac, la
+     recherche, la molette de catégories, le `?` et la loupe.
+     ⭐ `document` et `resolved` ne sont même plus LUS ici, et c'est la preuve
+     que la coupe est franche : l'écran R ne montre pas le personnage, il
+     montre le CATALOGUE. Ce qui regarde le personnage est à `B1`/`B2`/`B3`.
+     ⏳ « Tu recâbleras après » : le contexte continue de les porter, parce que
+     `equipmentValidate` et le futur `B3` en auront besoin. */
+  section.append(renderGearBlock({ query, onAction: act }));
   return section;
 }
 

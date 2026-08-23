@@ -62,7 +62,7 @@ import { ABILITY_KEYS } from "../../src/build/index.mjs?v=279";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
 } from "./destiny-step.mjs?v=279";
-import { renderEquipmentStep, renderEquipmentBar, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=279";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=279";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=279";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
@@ -225,10 +225,9 @@ const state = {
   /* LOT 64 — B4.1/B4.2 : quel panneau d'Inheritance est ouvert. Fermé, on
      voit les deux dalles ; ouvert, l'AUTRE disparaît. */
   inheritanceOpen: null, // "boost" | "feat" | null
-  /* LOT 66 — B8.1 : le filtre de la molette d'équipement, et la barre de
-     recherche invoquée par la loupe. Deux états d'écran, hors document. */
-  equipmentCategory: "all",
-  equipmentSearch: false,
+  /* ⛔ `equipmentCategory` ET `equipmentSearch` ONT DISPARU LE 2026-08-23 :
+     la molette et la loupe qu'ils pilotaient ne sont plus à l'écran. Un état
+     que personne ne lit est un état qui ment sur ce que l'écran sait faire. */
   /* ⛔ `rollingMethod` A DISPARU AU LOT 80 : `FH 3D6` et `4D6` ne sont plus
      une molette DANS la méthode « Roll dice », ce sont deux TUILES du
      sélecteur (croquis du 16/08). Un choix, plus deux. */
@@ -939,8 +938,8 @@ function applyDecisionAction(action) {
   /* B9 — une ligne de Review mène à son écran. Voir qu'il manque quelque
      chose sans pouvoir y aller ferait de Review un constat, pas un
      récapitulatif. */
-  if (action.kind === "equipmentCategory") { state.equipmentCategory = action.value; refresh(); return; }
-  if (action.kind === "equipmentSearch") { state.equipmentSearch = !state.equipmentSearch; refresh(); return; }
+  /* ⛔ `equipmentCategory` et `equipmentSearch` ne sont plus dispatchées par
+     personne depuis que la barre du haut de l'Équipement a dégagé (23/08). */
   if (action.kind === "goToStepId") {
     goToStep(STEPS.findIndex((step) => step.id === action.value));
     return;
@@ -1105,8 +1104,7 @@ function skillsCtx() {
 }
 function equipmentCtx() {
   return {
-    document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query,
-    category: state.equipmentCategory, search: state.equipmentSearch
+    document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query
   };
 }
 function surCompetences() {
@@ -2695,10 +2693,15 @@ function poserLaSortie(contenu, sortie) {
  *  les autres. Aujourd'hui : Compétences seul. Le slot PERSISTE, ce qu'un
  *  écran y met peut changer — même loi que le rail. */
 function paintTopbar() {
-  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction)
-    : (STEPS[state.step].id === "equipment" && state.engine)
-      ? renderEquipmentBar(equipmentCtx(), applyDecisionAction)
-      : null;
+  /* ⛔ L'ÉQUIPEMENT N'A PLUS DE BARRE DU HAUT — Eric, 2026-08-23, en montrant
+     l'écran : *« dégage tout ce que je vois à l'écran, tu recâbleras après »*.
+     La bourse, le `?` et la loupe s'en vont avec la molette de catégories : le
+     croquis de R ne les dessine pas, et l'écran ne porte plus que sa carte.
+     ⏳ « Tu recâbleras après » — la bourse revient par `B1`/`B2`, la recherche
+     par son propre écran. Ce qui part ici est le CÂBLAGE, pas le besoin.
+     ⭐ Le slot, lui, PERSISTE (B0.19) : c'est sa loi, un écran le garnit ou le
+     laisse vide. Compétences le garnit encore. */
+  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction) : null;
   frame.topbar.hidden = !barre;
   swapContent(frame.topbar, barre ? [barre] : []);
 }
