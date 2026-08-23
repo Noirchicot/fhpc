@@ -2505,6 +2505,17 @@ function renderSortieEtape() {
   /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
      Un bouton mort au bas de la dernière page ne dirait rien à personne. */
   if (STEPS[state.step].id === "review") return null;
+  /* ⛔ L'ÉQUIPEMENT NON PLUS — Eric, 2026-08-23 : *« dégage le Done en bas de
+     page »*, précisé aussitôt : *« qui est dans le background »*. C'était bien
+     la paire de la coquille, posée sous la dalle, à même le fond.
+     ⭐ ET C'EST EXACTEMENT L'EXCEPTION CH6 JUSTE EN DESSOUS, AVEC LE MÊME
+     ARGUMENT : l'écran R porte son propre `NEXT`, dessiné sur le croquis, dans
+     la rangée `GEAR CART CRAFT NEXT`. Garder les deux, c'est deux commandes
+     pour un geste — celle de la coquille en plus, hors de la dalle, sur le
+     fond, là où rien d'autre ne vit.
+     📌 La constante du croquis n'est pas touchée : le BELT reste visible, et
+     c'est lui qui fait reculer. */
+  if (STEPS[state.step].id === "equipment") return null;
   /* ⭐ CH6 — LES DEUX ÉCRANS À FICHE VALIDENT CHEZ EUX. Le pied de la fiche
      porte `CHOOSE`, qui ouvre EXACTEMENT la porte de ce bouton-ci ; les
      garder tous les deux serait deux commandes pour un geste, à dix pixels
