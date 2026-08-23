@@ -43,12 +43,12 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=282";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=282";
-import { swapContent } from "./socle.mjs?v=282";
+import { renderPicker } from "./carnet.mjs?v=284";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=284";
+import { swapContent } from "./socle.mjs?v=284";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=282";
+import { armerJeton } from "./glisser.mjs?v=284";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -813,74 +813,12 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
      ⭐ Viser le VOISIN plutôt qu'ajouter un pas rend la dérive impossible par
      construction : chaque bond repart de ce que la page montre, pas de ce qu'un
      compteur croit. Il n'y a plus rien à accumuler. */
-  /* 🔴 UN BOND DE FLÈCHE EST UNE ANIMATION QUE NOUS POSSÉDONS — corrigé le
-     2026-08-24, et c'est LA cause de ce qu'Eric a signalé cinq fois.
-
-     📏 LA CHAÎNE COMPLÈTE, MESURÉE : `avancer` écrivait `scrollLeft`, et
-     `.roue-piste` porte `scroll-behavior: smooth` → le navigateur lançait une
-     animation d'environ **400 ms**. Pendant ce vol, la RECOUTURE peut se
-     déclencher : elle pose `data-couture="oui"`, donc `scroll-behavior: auto`,
-     ce qui **tue l'animation native en cours**. Personne ne finit le voyage, et
-     la piste reste où le vol s'est arrêté — mesuré à **825,5** au lieu de
-     **839,66**, soit 14,5 px.
-     ⛔ ET RIEN NE LE RATTRAPE : l'aimantation ne se réapplique qu'à la FIN d'une
-     opération de défilement ou sur un CHANGEMENT DE MISE EN PAGE. Sur une piste
-     immobile, elle ne redéclenche rien — l'écart tient indéfiniment. (Vérifié :
-     la roue s'est recalée toute seule à 839,5 à la première mise en page qui a
-     bougé.) C'est pour ça qu'Eric voyait le cran se corriger **quand il
-     touchait**, jamais quand il cliquait la flèche.
-
-     ⭐ CE QUE « POSSÉDER » VEUT DIRE, ET C'EST LA CONDITION D'ARCHI 25 :
-     l'animation écrit `scrollLeft` elle-même, image par image, avec
-     l'aimantation ET le défilement doux COUPÉS pendant toute sa durée
-     (`data-couture`). Rien d'autre ne pilote le mouvement, donc rien ne peut
-     l'interrompre à mi-chemin. ⛔ Les deux ne sont pas deux réglages
-     indépendants : une animation maison par-dessus `smooth` actif, ce sont deux
-     moteurs qui se disputent la même piste.
-     ⭐ ET ELLE ATTERRIT PAR `sauter`, donc EXACTEMENT sur un point d'aimantation.
-     Le dernier pixel n'est pas interpolé : il est posé.
-     ⚠️ ELLE SE REBASE SI LA COUTURE TÉLÉPORTE LE BLOC SOUS SES PIEDS : la roue
-     est infinie, le saut de bloc peut survenir en plein vol. On décale l'origine
-     ET le but du même delta — le mouvement continue, la cible reste la même. */
-  let glisse = 0;
-  function glisserVers(cible) {
-    annulerImage(glisse); glisse = 0;
-    let origine = piste.scrollLeft;
-    let but = cible;
-    if (Math.abs(but - origine) < 0.5) { sauter(but); return; }
-    const horloge = () => (typeof performance === "object" && performance && typeof performance.now === "function")
-      ? performance.now() : Date.now();
-    const t0 = horloge();
-    let ecrit = origine;
-    piste.dataset.couture = "oui";
-    const image = () => {
-      const derive = piste.scrollLeft - ecrit;
-      if (Math.abs(derive) > 1) { origine += derive; but += derive; }
-      const k = Math.min(1, (horloge() - t0) / GLISSE_MS);
-      const e = 1 - Math.pow(1 - k, 3);            // easeOutCubic
-      programmatiquement(() => { piste.scrollLeft = origine + (but - origine) * e; });
-      ecrit = piste.scrollLeft;
-      if (k < 1) { glisse = demanderImage(image); return; }
-      glisse = 0;
-      sauter(but);
-    };
-    glisse = demanderImage(image);
-  }
-
-  function avancer(sens) {
-    const courant = cranSousLeViseur();
-    if (!courant) return;
-    const rang = [...piste.children].indexOf(courant);
-    const voisin = piste.children[rang + sens];
-    const cible = centreDe(voisin || courant);
-    if (cible === null) return;
-    /* ⭐ LE GESTE EST ANNONCÉ UNE FOIS, PAS SOIXANTE. Le vol écrit `scrollLeft`
-       à chaque image ; sans ce marquage, l'aval croirait à soixante gestes par
-       seconde. Mais un clic de flèche EST un geste — l'aval doit s'éteindre,
-       exactement comme quand le doigt lance la roue. */
-    if (typeof quandBouge === "function") quandBouge();
-    glisserVers(cible);
-  }
+  /* ⛔ `avancer` A DISPARU AVEC LES CHEVRONS (2026-08-24) : ils étaient son
+     seul appelant. Un organe qui ne sert plus personne est un nom mort, et le
+     garde le dirait.
+     ⭐ CE QU'IL PORTAIT SURVIT, ET C'EST L'ESSENTIEL : `glisserVers` — les
+     170 ms qui possèdent le mouvement — reste employé par `viser`, donc par
+     le clic sur un cran. Le geste change de porte, pas de nature. */
 
   /** Reposer la roue après un remplissage : les enfants sont neufs, l'ancien
    *  `dernier` désigne un nœud mort, et la position doit revenir sur le tour du
@@ -932,7 +870,7 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   }
 
   reposer();
-  return { avancer, reposer, viser };
+  return { reposer, viser };
 }
 
 /* ══ LES FABRIQUES DE NŒUDS ══════════════════════════════════════════════ */
@@ -989,17 +927,28 @@ function faireCase(item, onAction) {
   return case_;
 }
 
-/** L'étage d'une roue : ses deux flèches, et sa piste entre elles.
- *  ⚠️ LES FLÈCHES SONT NEUVES — mesuré : le banc du 22/08 n'en avait aucune.
- *  Le croquis en pose une paire par étage, HORS du bloc sombre, et le motif est
- *  évident : au doigt on lance la roue, à la souris on n'a rien pour avancer
- *  d'un cran. */
-function faireEtage(niveau, nom, piste, avancer) {
+/* ⛔ PLUS DE CHEVRONS SUR LE TAMBOUR — Eric, 2026-08-24 : *« enlève les chevrons
+   du haut à côté des tambours, ça fait trop moche »*. C'est la deuxième fois
+   qu'il les retire (déjà le 15/08 : *« les flèches gauche et droite font moche,
+   on les dégage »*) — ⭐ deux fois le même verdict à neuf jours d'écart, ce
+   n'est plus une humeur.
+
+   ⛔ ET LA SOURIS N'EST PAS PRISE AU PIÈGE, vérifié avant de couper : un cran
+   est cliquable et `viser` le ramène sous le viseur (`faireCran`, plus bas).
+   ⭐ L'affordance devient donc le CONTENU lui-même — on clique le mot qu'on
+   veut, on ne cherche pas un bouton à côté. C'est la même langue que le reste
+   de l'écran : *« y'a pas besoin d'œil, le jeton EST le contrôle »*.
+
+   📌 LA GOUTTIÈRE RESTE, SEUL LE CHEVRON PART. `--roue-fleche-l` continue de
+   réserver sa largeur dans le calcul du pas : sans elle la piste s'élargirait
+   d'un coup, les trois crans passeraient à 121 px et le tambour ne tomberait
+   plus sur les colonnes de la grille. ⏳ Et cette place vide est exactement
+   celle où Eric posera ce qu'il trouvera de plus joli. */
+function faireEtage(niveau, nom, piste) {
   const roue = el("div", "roue");
   roue.dataset.niveau = niveau;
-  roue.append(button("‹", "roue-fleche", () => avancer(-1), `Previous ${nom}`));
+  roue.dataset.nom = nom;
   roue.append(piste);
-  roue.append(button("›", "roue-fleche", () => avancer(1), `Next ${nom}`));
   return roue;
 }
 
@@ -1276,8 +1225,8 @@ function renderTambour({ query, onAction }) {
   if (vierge) { attendreB(); attendreGrille(); } else { remplirB(); remplirGrille(); }
 
   const roues = el("section", "equipment-drum");
-  roues.append(faireEtage("rayons", "aisle", pisteA, (sens) => roueA.avancer(sens)));
-  roues.append(faireEtage("etageres", "shelf", pisteB, (sens) => roueB.avancer(sens)));
+  roues.append(faireEtage("rayons", "aisle", pisteA));
+  roues.append(faireEtage("etageres", "shelf", pisteB));
   /* ⛔ LA LIGNE « Wheel depth » N'EST PLUS DANS L'ÉCRAN — Eric, 2026-08-23, en
      la montrant pour la troisième fois : *« enlève ça »*. Elle disait §6 (« ce
      que le navigateur a vraiment accordé, dit plutôt que deviné ») et elle

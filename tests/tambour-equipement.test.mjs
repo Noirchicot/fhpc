@@ -202,11 +202,22 @@ test("9 — la page BOUCLE aux deux bouts, et le compte reste dans ses bornes", 
 
 /* ══ L'ÉCRAN — CE QUI SE VOIT SANS MISE EN PAGE ══════════════════════════ */
 
-test("10 — l'écran porte les deux roues, leurs quatre flèches, les deux gouttières de la grille et ses quinze cases", () => {
+test("10 — l'écran porte les deux roues SANS chevron-bouton, les deux gouttières de la grille et ses quinze cases", () => {
   const node = renderEquipmentStep(ctx(), () => {});
   assert.equal(rows(node, ".equipment-drum").length, 1);
   assert.equal(rows(node, ".roue").length, 2, "DEUX étages — le troisième niveau est une grille, plus une roue");
-  assert.equal(rows(node, ".roue-fleche").length, 4, "une paire par étage, comme le croquis les pose");
+  /* 🔴 ZÉRO CHEVRON SUR LE TAMBOUR, ET C'EST UN GARDE, PAS UN TROU — Eric,
+     2026-08-24 : *« enlève les chevrons du haut à côté des tambours, ça fait
+     trop moche »*. Deuxième fois qu'il les retire (déjà le 15/08) : ce test
+     exigeait « une paire par étage », il exige maintenant l'inverse, pour
+     qu'un lot suivant ne les rapporte pas sans qu'on le sache.
+     ⭐ Et la souris n'est pas prise au piège : un cran est cliquable, `viser`
+     le ramène sous le viseur — l'affordance est le CONTENU, pas un bouton à
+     côté. Le trait posé à l'intérieur du bord l'annonce (`.roue::before/after`,
+     `pointer-events: none` pour qu'il montre sans recevoir). */
+  assert.equal(rows(node, ".roue-fleche").length, 0, "les chevrons-boutons ont dégagé, et ne reviennent pas");
+  assert.match(CSS, /\.roue::before[^{]*\{[^}]*pointer-events:\s*none/s,
+    "le chevron dessiné laisse passer le clic vers le cran qu'il désigne");
   assert.equal(rows(node, ".grille-rang").length, 1, "la grille et ses deux gouttières sur UNE rangée");
   assert.equal(rows(node, ".grille-gouttiere").length, 2, "une gouttière de chaque côté des jetons");
   assert.equal(rows(node, ".grille-fleche").length, 2);

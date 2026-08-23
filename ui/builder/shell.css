@@ -3745,14 +3745,51 @@ button { font: inherit; }
   margin-bottom: var(--sp-16);
 }
 
-/* Un étage : ses deux flèches, et sa piste entre elles. Les flèches sont HORS
-   du bloc sombre — au doigt on lance la roue, à la souris on n'a rien pour
-   avancer d'un cran. */
-.roue { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); }
-.roue-fleche {
-  flex: none; min-width: var(--touch); min-height: var(--touch);
-  border: 0; background: none; color: var(--text-muted);
-  font-size: var(--t5); line-height: 1; padding: 0; cursor: pointer;
+/* ⛔ `.roue-fleche` A DÉGAGÉ LE 2026-08-24 — Eric : *« enlève les chevrons du
+   haut à côté des tambours, ça fait trop moche »*, deuxième fois après le
+   15/08. Une règle qui ne coiffe plus rien est un mort qui a l'air vivant : on
+   la retire avec son nœud, pas seulement le nœud.
+   📌 ⛔ `--roue-fleche-l` RESTE, et ce n'est pas un oubli : elle réserve la
+   gouttière dans le calcul de `--roue-pas`. Sans elle, la piste s'élargirait,
+   les trois crans passeraient à 121 px et le tambour ne tomberait plus sur les
+   colonnes de la grille. ⏳ Cette place vide attend ce qu'Eric y mettra. */
+
+/* Un étage : sa piste, et rien d'autre. */
+.roue { display: flex; align-items: center; justify-content: center; position: relative; }
+
+/* 🔴 LE CHEVRON EST DANS LE TAMBOUR, SUR LE BORD — idée d'Eric, 2026-08-24,
+   dans la minute où il a fait retirer les boutons : *« tu peux dessiner un
+   chevron subtil à l'intérieur du tambour, vraiment sur le bord, pour inciter
+   au clic, mais un trait très léger »*.
+   ⭐ ET C'EST PLUS JUSTE QU'UN BOUTON, pas seulement plus joli. Un bouton à
+   côté de la roue dit « appuie ICI pour agir sur ça » — deux objets, deux
+   gestes à apprendre. Un trait posé SUR le bord dit « ça continue par là », et
+   ce qu'on clique est le cran lui-même. C'est la langue du reste de l'écran :
+   *« y'a pas besoin d'œil, le jeton EST le contrôle »*.
+   ⛔ `pointer-events: none` EST LA LIGNE QUI REND ÇA VRAI : sans elle, le
+   dessin intercepterait le clic destiné au cran qu'il désigne, et l'invitation
+   deviendrait un obstacle. Il montre, il ne reçoit pas.
+   📌 Il se pose à l'aplomb du bord de la PISTE, pas de l'étage : la piste est
+   centrée et large de `--roue-champ`, d'où la moitié du reste en décalage.
+   ⏳ L'épaisseur et l'encre sont volontairement au plus bas (`--verre-lisere`,
+   le liseré des dalles) : Eric a dit « très léger », c'est un réglage qui se
+   juge à l'œil, pas au chiffre. */
+.roue::before,
+.roue::after {
+  content: ""; position: absolute; top: 50%; z-index: 1;
+  width: var(--sp-8); height: var(--sp-8);
+  border-top: 1px solid var(--verre-lisere);
+  border-right: 1px solid var(--verre-lisere);
+  opacity: .28;
+  pointer-events: none;
+}
+.roue::before {
+  left: calc((100% - var(--roue-champ)) / 2 + var(--sp-4));
+  transform: translateY(-50%) rotate(-135deg);
+}
+.roue::after {
+  right: calc((100% - var(--roue-champ)) / 2 + var(--sp-4));
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .roue-piste {
@@ -3848,6 +3885,17 @@ button { font: inherit; }
   display: flex; align-items: center; justify-content: center; text-align: center;
   padding: var(--sp-2) var(--sp-4);
   border: 0; border-radius: var(--radius-sm);
+  /* 🔴 LE CRAN EST UNE CASE, ET IL FAUT LA VOIR — Eric, 2026-08-24 : *« c'était
+     plus joli le tambour quand les cases étaient plus dessinées »*. Il portait
+     `border: 0` et un fond si proche de la bande qu'il ne s'en détachait plus :
+     trois mots posés dans le noir, pas trois cases dans une roue.
+     ⭐ EN `inset`, PAS EN `border` — c'est la règle de la maison, écrite dans
+     `tokens.css` : *« un liseré en border déplacerait »*. Ici elle est doublement
+     vraie, la largeur du cran étant calculée au sous-pixel pour tomber sur les
+     colonnes de la grille : une bordure la décalerait, un liseré la peint.
+     ⏳ L'intensité se juge à l'œil, pas au chiffre — c'est le réglage qu'Eric
+     regardera. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
   background: var(--surface); color: var(--text-soft);
   font: inherit; font-size: var(--t2); line-height: 1.15;
   cursor: pointer;
@@ -4112,7 +4160,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=282");
+  background-image: url("./assets/tarot-dos.jpg?v=284");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
