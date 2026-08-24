@@ -43,12 +43,12 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=284";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=284";
-import { swapContent } from "./socle.mjs?v=284";
+import { renderPicker } from "./carnet.mjs?v=285";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=285";
+import { swapContent } from "./socle.mjs?v=285";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=284";
+import { armerJeton } from "./glisser.mjs?v=285";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
