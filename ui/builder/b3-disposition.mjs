@@ -73,8 +73,11 @@ export const BOITES = [
 export const COLLECTEUR = { centre: true, y: 458 };
 
 /** Send to (vert au croquis = dropdown) : List/Item → Backpack · Party
- *  inventory · Companion · Group PC · Merchant/NPC. Le détail vit au croquis. */
-export const ENVOI = { centre: true, y: 517, l: 95, h: 24 };
+ *  inventory · Companion · Group PC · Merchant/NPC. Le détail vit au croquis.
+ *  📏 Eric, 24/08 : « un peu trop bas » — mesuré : à h 24 il touchait la barre
+ *  à 1 px. Repris du croquis (h ≈ 18) et calé à PILE (8) du collecteur ET de
+ *  la barre : 506 + 8 = 514, 514 + 18 + 8 = 540. */
+export const ENVOI = { centre: true, y: 514, l: 95, h: 18 };
 
 /** La bourse (coin haut droit) : valeurs = INFO (vert foncé) · `+`/`−` =
  *  BOUTONS (rouge) · la rangée du milieu = TYPE IN (rose) · total en GP = INFO. */
@@ -93,13 +96,14 @@ export const BARRE = { y: 540, h: 32, l: 66, xs: [11, 88, 166, 243, 320],
  *  1000 × 1600 tombent sur les boîtes du croquis (mesuré : mains → rangée
  *  Hilt, taille → Belt, pieds → Foot/leg gear 2).
  *  `k` : 1400 unités d'encre → 303 px (têtes 120, pieds 423 — le croquis).
- *  `echelles` : la taille est un réglage d'Eric, pas une loi — « +20 %, ça
- *  resterait parlant ». */
+ *  `echelles` : la taille est un réglage d'Eric — et il a TRANCHÉ le 24/08 :
+ *  *« +20 % parfait ! »*. Le 1,2 est donc le DÉFAUT ; la taille croquis reste
+ *  disponible au banc pour comparer, jamais pour livrer. */
 export const CORPS_EN_SCENE = {
   k: 303 / 1400,
   dx: 90.3,   // repère x=500 (l'axe du corps) → scène 198.5, le milieu
   dy: 98.4,   // repère y=100 (le haut de l'encre) → scène 120
-  echelles: [1, 1.2],
+  echelles: [1.2, 1],
 };
 
 /** Du point du repère (1000 × 1600) au px de la scène, à l'échelle `e`,

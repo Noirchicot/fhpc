@@ -181,7 +181,9 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
          rendre. Le corps est le filigrane du fond, jamais une contrainte. -->
     <div class="b3-scene-panneau">
       <svg class="b3-scene" id="scene" aria-label="Le dressing — la scène du croquis"></svg>
-      <button type="button" id="corpsEchelle">Corps +20 %</button>
+      <!-- ⭐ Le +20 % est le DÉFAUT — ratifié par Eric (« +20 % parfait ! »).
+           Le bouton ne sert plus qu'à COMPARER avec la taille croquis. -->
+      <button type="button" id="corpsEchelle">Comparer : corps taille croquis</button>
     </div>
     <!-- 🔴 LE REPÈRE : 1000 de large, 1600 de haut. Deux raisons, et aucune
          n'est esthétique :
@@ -489,7 +491,7 @@ function peindreScene() {
   const xe = (SCENE.l - ENVOI.l) / 2;
   scene.append(formeScene("rect", "b3-envoi",
     { x: xe, y: ENVOI.y, width: ENVOI.l, height: ENVOI.h, rx: 4 }));
-  scene.append(texteScene("b3-nom", SCENE.l / 2, ENVOI.y + 15, "Send to ▾", "middle"));
+  scene.append(texteScene("b3-nom", SCENE.l / 2, ENVOI.y + 13, "Send to ▾", "middle"));
 
   /* La bourse : valeurs = INFO · +/− = BOUTONS · saisie = TYPE IN. */
   scene.append(formeScene("rect", "b3-info",
@@ -525,7 +527,9 @@ function peindreScene() {
 
 document.getElementById("corpsEchelle").addEventListener("click", (evt) => {
   echelleCorps = (echelleCorps + 1) % CORPS_EN_SCENE.echelles.length;
-  evt.target.textContent = echelleCorps ? "Corps taille croquis" : "Corps +20 %";
+  evt.target.textContent = echelleCorps
+    ? "Revenir au corps +20 % (le défaut)"
+    : "Comparer : corps taille croquis";
   peindreScene();
 });
 
