@@ -46,6 +46,18 @@ export function setTutorielActif(valeur) { ecrire(CLEF_ACTIF, valeur); }
 export function generalVu() { return lire(CLEF_VU, false); }
 export function setGeneralVu(valeur) { ecrire(CLEF_VU, valeur); }
 
+/* ══ LE GUIDE OBLIGATOIRE (« violet ») — Eric, 24/08 ═════════════════════════
+   *« la fenêtre de guide qui accueille le personnage doit lui dire qu'il a
+   son équipement ou 50 po à débourser […] qui vient MÊME si t'as éteint le
+   tutoriel »*. C'est un TROISIÈME étage, au-dessus de l'interrupteur : une
+   règle que le joueur doit avoir vue UNE fois, pas une aide qu'on peut
+   refuser d'avance. Sa clef est donc à part — `tutorielActif()` ne le
+   gouverne pas. En POPUP par-dessus la scène, jamais en bloc dans le flux :
+   un bloc pousserait tout vers le bas, et on refuse le défilement. */
+const CLEF_GUIDE_EQUIPEMENT = "fhpc.guide.equipement-vu";
+export function guideEquipementVu() { return lire(CLEF_GUIDE_EQUIPEMENT, false); }
+export function setGuideEquipementVu(valeur) { ecrire(CLEF_GUIDE_EQUIPEMENT, valeur); }
+
 function el(tag, className, children) {
   const node = document.createElement(tag);
   if (className) node.className = className;

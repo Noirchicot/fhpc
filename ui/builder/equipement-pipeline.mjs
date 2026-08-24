@@ -16,10 +16,10 @@
    · une ligne possédée = `gear[N]` du DOCUMENT (ref · quantity · equipped ·
      location · boite) — mesuré AVANT de construire : les verbes acceptent
      `location`, zéro violation au rebuild. `location` ∈ self|backpack|storage.
-   · le PANIER (pré-achat) = état de module, partagé par R, B2 et SB3.2 —
+   · le PANIER (pré-achat) = `cart[N]` DU DOCUMENT (décision d'Eric, 24/08) —
      *« SHOPPING LIST et CART sont la même chose vue de deux endroits »*
-     (vault). ⏳ Il meurt au rechargement : il n'est pas encore au personnage,
-     c'est un brouillon de courses.
+     (vault). Il survit au rechargement et suit le personnage, par la même
+     sauvegarde que tout le reste.
    · le prix vient du RECORD (`data.cost`, une chaîne SRD « 25 GP ») ; l'écran
      le PARSE et le montre, il n'invente aucun tarif. La case prix de B1/B2
      est un TYPE IN (rose au croquis) : le joueur peut marchander à la main.
@@ -28,7 +28,7 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=292";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=293";
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {
@@ -98,35 +98,46 @@ export function bourseCouvre(bourse, cout) {
   return CURRENCY_KEYS.every((k) => (bourse[k] || 0) >= (cout[k] || 0));
 }
 
-/* ══ LE PANIER — un seul, partagé (R le remplit, B2 et SB3.2 le montrent) ══
-   ⚠️ ANCRÉ AU GLOBAL, ET C'EST MESURÉ : l'étape importe ce module avec
-   `?v=N`, les suites sans — Node en fabrique alors DEUX instances, et un
-   panier rempli d'un côté est vide de l'autre (payé le 24/08 : « BUY paie »
-   rougissait sur un panier fantôme). Un module-état qui peut être instancié
-   deux fois n'est un singleton que s'il s'ancre plus haut que lui. */
-const COFFRE = globalThis.__fhpcPanierEquipement ??= { lignes: [], abonnes: new Set() };
-const PANIER = COFFRE.lignes;
-const ABONNES = COFFRE.abonnes;
-function prevenir() { for (const f of ABONNES) f(); }
+/* ══ LE PANIER — IL VIT AU PERSONNAGE (décision d'Eric, 24/08 : « ok on
+   fait le 2, si le pipeline existe ») ═══════════════════════════════════════
+   MESURÉ AVANT d'écrire : `cart[N]` (+ `.quantity`, `.gratuit`) passe les
+   verbes — zéro violation, zéro underived, les chemins relisent. Le panier
+   SURVIT donc au rechargement et suit le personnage d'un appareil à l'autre,
+   par la même sauvegarde que tout le reste — aucun stockage à côté.
+   ⛔ L'ancien panier-module (état global) est MORT : deux écritures d'une
+   même liste divergent au premier geste. Les écrans LISENT le document et
+   AGISSENT par la coquille (`cartAdd`/`cartSetQuantity`/`cartToggleFree`/
+   `cartClear`), comme toute décision. */
 
-export function panierLignes() { return PANIER.slice(); }
-export function panierCompte() { return PANIER.reduce((s, l) => s + l.qte, 0); }
-export function panierAbonner(f) { ABONNES.add(f); return () => ABONNES.delete(f); }
+/** Les lignes `cart[N]` du document — même lecture que `currentGearLines`. */
+export function currentCartLines(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const byIndex = new Map();
+  const pathRe = /^cart\[(\d+)\](?:\.(quantity|gratuit))?$/;
+  for (const choice of choices) {
+    const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
+    if (!match) continue;
+    const index = Number(match[1]);
+    if (!byIndex.has(index)) byIndex.set(index, { index });
+    const line = byIndex.get(index);
+    if (match[2] === "quantity") line.quantity = choice.value;
+    else if (match[2] === "gratuit") line.gratuit = choice.value;
+    else if (choice.ref) line.ref = choice.ref;
+  }
+  return [...byIndex.values()].filter((l) => l.ref).sort((a, b) => a.index - b.index);
+}
 
-export function panierAjouter({ ref, nom, cout }) {
-  const deja = PANIER.find((l) => l.ref.id === ref.id);
-  if (deja) { deja.qte += 1; prevenir(); return; }
-  PANIER.push({ ref, nom, cout, qte: 1, gratuit: false });
-  prevenir();
+export function nextCartIndex(document) {
+  const lignes = currentCartLines(document);
+  return lignes.length ? lignes[lignes.length - 1].index + 1 : 0;
 }
-export function panierRetirer(id) {
-  const i = PANIER.findIndex((l) => l.ref.id === id);
-  if (i >= 0) PANIER.splice(i, 1);
-  prevenir();
+
+export function cartCompte(document) {
+  return currentCartLines(document).reduce((s, l) => s + (l.quantity || 1), 0);
 }
-export function panierVider() { PANIER.length = 0; prevenir(); }
-export function panierTotal() {
-  return additionneCouts(PANIER.filter((l) => !l.gratuit).map((l) => multiplieCout(l.cout, l.qte)));
+
+export function cartTotal(lignes) {
+  return additionneCouts(lignes.filter((l) => !l.gratuit).map((l) => multiplieCout(l.cout, l.quantity || 1)));
 }
 
 /* ══ LES LIGNES DU PERSONNAGE, PAR LIEU ═════════════════════════════════════
@@ -286,7 +297,7 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
    B3, SEND range des objets DÉJÀ à soi (aucun paiement), ⏳ FREE improvisé :
    la liste part SANS paiement (cadeau du DM, butin — le monde extérieur d'où
    les objets arrivent gratuitement). */
-export function renderB2({ mode, bourse, onAction, retour, parPage = 4 }) {
+export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = 4 }) {
   const ecran = elp("section", "pipeline-ecran pipeline-b2");
   ecran.dataset.ecran = mode === "send" ? "SB3.2" : "B2";
   let page = 0;
@@ -303,9 +314,9 @@ export function renderB2({ mode, bourse, onAction, retour, parPage = 4 }) {
   const or = blocMyGold(bourse);
   const alerte = elp("p", "pipeline-alerte");
 
-  /* ⭐ RÈGLE D'ERIC (24/08) : *« si aucun destinataire, ça va dans backpack —
-     surtout si c'est un panier »* — une LISTE ne s'équipe pas d'un bloc, elle
-     se range ; le défaut est donc le sac. */
+  /* ⭐ RÈGLE D\u2019ERIC (24/08) : *« si aucun destinataire, ça va dans backpack —
+     surtout si c'est un panier »* — une LISTE se range, elle ne s'équipe pas
+     d'un bloc ; le défaut est le sac. */
   const destRang = elp("div", "pipeline-sendto");
   destRang.append(elp("span", "pipeline-libelle", "Send to"));
   const dest = elp("select", "pipeline-dropdown");
@@ -315,24 +326,28 @@ export function renderB2({ mode, bourse, onAction, retour, parPage = 4 }) {
   destRang.append(dest);
 
   function envoyerTout(payer) {
-    if (!PANIER.length) { alerte.textContent = "The list is empty."; return; }
+    if (!lignes.length) { alerte.textContent = "The list is empty."; return; }
     if (payer) {
-      const total = panierTotal();
+      const total = cartTotal(lignes);
       if (!bourseCouvre(bourse, total)) { alerte.textContent = "Not enough coin for the whole cart."; return; }
       if (enGP(total) > 0) onAction({ kind: "payer", cout: total });
     }
     const destination = dest.value || "backpack";
-    for (const l of PANIER) {
-      onAction({ kind: "addGearLine", ref: l.ref, quantity: l.qte,
+    for (const l of lignes) {
+      onAction({ kind: "addGearLine", ref: l.ref, quantity: l.quantity || 1,
         equipped: destination === "self", location: destination });
     }
-    panierVider();
+    onAction({ kind: "cartClear" });
     retour();
   }
 
-  const pied = elp("div", "pipeline-pied");
+  const pied = elp("div", "pipeline-pied pipeline-pied-panier");
   pied.append(
-    bouton("BACK", "pipeline-bouton", retour, "Back to the dressing"),
+    bouton("BACK", "pipeline-bouton", retour, "Back — the cart stays"),
+    /* ⭐ CANCEL — la loi d'Eric du 20/08 : *« back n'efface pas ; pour
+       effacer, c'est cancel »*. Demandé pour le panier le 24/08. Il VIDE la
+       liste (au document) et reste sur l'écran, qui montre alors le vide. */
+    bouton("CANCEL", "pipeline-bouton", () => { onAction({ kind: "cartClear" }); }, "Empty the cart"),
     bouton("CRAFT", "pipeline-bouton pipeline-inerte", () => {}, "Craft"),
     mode === "send"
       ? bouton("SEND", "pipeline-bouton", () => envoyerTout(false), "Send the list")
@@ -341,31 +356,33 @@ export function renderB2({ mode, bourse, onAction, retour, parPage = 4 }) {
   );
 
   function peindre() {
-    const pages = Math.max(1, Math.ceil(PANIER.length / parPage));
+    const pages = Math.max(1, Math.ceil(lignes.length / parPage));
     page = Math.min(page, pages - 1);
     compte.textContent = `${pages ? page + 1 : 1}/${pages}`;
     listeHote.textContent = "";
-    for (const l of PANIER.slice(page * parPage, (page + 1) * parPage)) {
+    if (!lignes.length) listeHote.append(elp("p", "pipeline-vide", "The cart is empty."));
+    for (const l of lignes.slice(page * parPage, (page + 1) * parPage)) {
       const rang = elp("div", "pipeline-ligne");
       rang.append(elp("span", "pipeline-ligne-nom", l.nom));
-      const qte = elp("span", "pipeline-ligne-qte", `×${l.qte}`);
-      const plus = bouton("+", "pipeline-pas", () => { l.qte += 1; peindre(); prevenir(); }, `One more ${l.nom}`);
-      const moins = bouton("−", "pipeline-pas", () => {
-        l.qte -= 1;
-        if (l.qte <= 0) panierRetirer(l.ref.id); else prevenir();
-        peindre();
-      }, `One less ${l.nom}`);
+      const qte = elp("span", "pipeline-ligne-qte", `×${l.quantity || 1}`);
+      const plus = bouton("+", "pipeline-pas",
+        () => onAction({ kind: "cartSetQuantity", index: l.index, quantity: (l.quantity || 1) + 1 }),
+        `One more ${l.nom}`);
+      const moins = bouton("−", "pipeline-pas",
+        () => onAction({ kind: "cartSetQuantity", index: l.index, quantity: (l.quantity || 1) - 1 }),
+        `One less ${l.nom}`);
       const prix = elp("span", "pipeline-ligne-prix",
-        l.gratuit ? "free" : formatCout(multiplieCout(l.cout, l.qte)));
-      const libre = bouton("FREE", "pipeline-ligne-libre", () => { l.gratuit = !l.gratuit; peindre(); }, `Toggle ${l.nom} free`);
+        l.gratuit ? "free" : formatCout(multiplieCout(l.cout, l.quantity || 1)));
+      const libre = bouton("FREE", "pipeline-ligne-libre",
+        () => onAction({ kind: "cartToggleFree", index: l.index }), `Toggle ${l.nom} free`);
       libre.dataset.actif = l.gratuit ? "oui" : "non";
+      libre.setAttribute("aria-pressed", l.gratuit ? "true" : "false");
       rang.append(qte, plus, moins, prix, libre);
       listeHote.append(rang);
     }
-    totalP.textContent = `Total (${panierCompte()} items) : ${formatCout(panierTotal())}`;
+    totalP.textContent = `Total (${lignes.reduce((n, l) => n + (l.quantity || 1), 0)} items) : ${formatCout(cartTotal(lignes))}`;
   }
   peindre();
-  panierAbonner(peindre);
 
   ecran.append(entete, gauche, droite, listeHote, totalP, or, destRang, alerte, pied);
   return ecran;

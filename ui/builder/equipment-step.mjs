@@ -43,25 +43,26 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=292";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=292";
+import { renderPicker } from "./carnet.mjs?v=293";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=293";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=292";
-import { swapContent } from "./socle.mjs?v=292";
+import { isGenre } from "../../src/layers/document.mjs?v=293";
+import { swapContent } from "./socle.mjs?v=293";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=292";
+import { armerJeton } from "./glisser.mjs?v=293";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=292";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=293";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
-import { parseCout, panierAjouter, panierCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=292";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=292";
+import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
+  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=293";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=293";
+import { guideEquipementVu, setGuideEquipementVu } from "./tutoriel.mjs?v=293";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -1565,14 +1566,45 @@ export function renderEquipmentStep(ctx, onAction) {
       montrer("b1");
     },
     mettreAuPanier(item) {
-      panierAjouter(ficheItem(item));
-      const bouton = section.querySelector('[data-mot="CART"]');
-      if (bouton) bouton.dataset.compte = String(panierCompte());
+      /* le panier vit au DOCUMENT : l'acte passe par la coquille, et le
+         compteur du CART se remet à jour au refresh qui suit. */
+      act({ kind: "cartAdd", ref: { kind: item.kind, id: item.view.id } });
     },
   };
 
   function construireDressing() {
     const dressing = el("div", "equipment-dressing");
+    /* ══ LE GUIDE OBLIGATOIRE — un POPUP par-dessus la scène, jamais un bloc
+       dans le flux (il pousserait tout vers le bas : défilement, refusé).
+       Il vient MÊME tutoriel éteint (sa clef est à part), une fois.
+       ⭐ Et il porte les 50 PO comme GESTE : `addInheritedPurse` attendait
+       exactement cet endroit depuis la purge du 23/08 — « posée par l'écran,
+       un CLIC, jamais un effet de rendu ». ⏳ Texte-brouillon, comme les
+       tutoriels : le mien, à corriger par Eric. */
+    if (!guideEquipementVu()) {
+      const voile = el("div", "guide-oblige");
+      const boite = el("div", "guide-oblige-carte");
+      boite.append(
+        el("h2", "guide-oblige-titre", [text("Your equipment")]),
+        el("p", "guide-oblige-texte", [text(
+          "You start equipped: your class kit is yours, already listed. " +
+          "Or set it aside and take 50 GP to spend as you please — the " +
+          "catalogue is behind the Equipment button.")]),
+      );
+      const fermer = (prendLOr) => {
+        if (prendLOr) act({ kind: "addInheritedPurse" });
+        setGuideEquipementVu(true);
+        voile.remove();
+      };
+      const pied = el("div", "guide-oblige-pied");
+      pied.append(
+        button("I keep my kit", "guide-oblige-bouton", () => fermer(false), "Close this notice"),
+        button("Take the 50 GP", "guide-oblige-bouton", () => fermer(true), "Add fifty gold to the purse"),
+      );
+      boite.append(pied);
+      voile.append(boite);
+      dressing.append(voile);
+    }
     const scene = construireLaSceneB3({
       surBouton: (mot) => {
         if (mot === "Equipment") montrer("r");
@@ -1598,7 +1630,7 @@ export function renderEquipmentStep(ctx, onAction) {
     for (const b of boutons) {
       if (b.dataset.mot === "GEAR") b.addEventListener("click", () => montrer("b3"));
       if (b.dataset.mot === "CART") {
-        b.dataset.compte = String(panierCompte());
+        b.dataset.compte = String(cartCompte(docu));
         b.addEventListener("click", () => montrer("b2"));
       }
       /* CRAFT : exclu du mandat · NEXT : appartient à la coquille (topbar). */
@@ -1612,8 +1644,17 @@ export function renderEquipmentStep(ctx, onAction) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
         bourse, onAction: actArbitre, fermer: () => montrer("r") });
     }
-    if (vue === "b2") return renderB2({ mode: "cart", bourse, onAction: actArbitre, retour: () => montrer("r") });
-    if (vue === "sb32") return renderB2({ mode: "send", bourse, onAction: actArbitre, retour: () => montrer("b3") });
+    if (vue === "b2" || vue === "sb32") {
+      /* le panier du document, HABILLÉ pour l'écran : nom et prix viennent du
+         record — le document ne stocke que la ref, jamais un tarif recopié. */
+      const panier = currentCartLines(docu).map((l) => {
+        const rec = cherche.record(l.ref);
+        return { ...l, nom: (rec && rec.name) || l.ref.id,
+          cout: parseCout(rec && rec.data ? rec.data.cost : undefined) };
+      });
+      if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, onAction: actArbitre, retour: () => montrer("r") });
+      return renderB2({ mode: "send", lignes: panier, bourse, onAction: actArbitre, retour: () => montrer("b3") });
+    }
     if (vue === "sb31" || vue === "sb33") {
       const lieu = vue === "sb33" ? "storage" : "backpack";
       return renderSacs({ lieu, lignes, chercheRecord: (ref) => ({ data: cherche.record(ref)?.data }),
