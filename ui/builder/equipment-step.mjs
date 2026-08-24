@@ -43,20 +43,20 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=287";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=287";
+import { renderPicker } from "./carnet.mjs?v=288";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=288";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=287";
-import { swapContent } from "./socle.mjs?v=287";
+import { isGenre } from "../../src/layers/document.mjs?v=288";
+import { swapContent } from "./socle.mjs?v=288";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=287";
+import { armerJeton } from "./glisser.mjs?v=288";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=287";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=288";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
