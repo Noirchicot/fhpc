@@ -153,7 +153,11 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
 .b3-boite-scene[data-optionnelle] { stroke-dasharray: 4 4; opacity: .6; }
 .b3-nom { fill: var(--text); font-size: 9px; font-family: inherit; }
 .b3-titre { fill: var(--text); font-size: 16px; font-family: inherit; letter-spacing: .2em; }
-.b3-attune { fill: var(--accent); }
+/* ⭐ LA PASTILLE EST UN ÉTAT, PAS UN ORNEMENT — Eric, 24/08 : « les points
+   orange = attuned OR NOT ». Éteinte par défaut (un dressing vide n'attune
+   rien) ; pleine quand l'objet posé dans la boîte est attuné. */
+.b3-attune { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .55; }
+.b3-attune[data-etat="oui"] { fill: var(--accent); opacity: 1; }
 /* Le pointillé ROUGE du croquis, recopié tel quel (Body forging · Torso gear 2). */
 .b3-pointille { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 2 3; }
 .b3-info { fill: none; stroke: var(--border-strong); stroke-width: 1; }

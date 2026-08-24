@@ -46,7 +46,9 @@ export const PILE = 8;
  *  · x : bord gauche ; `centre: true` = centrée sur la scène ;
  *  · y : bord haut ; les piles sont à exactement JETON.h + PILE l'une de l'autre ;
  *  · l : largeur si ≠ jeton (le torse est une DOUBLE boîte, 2 jetons accolés) ;
- *  · attunable : la pastille violette du croquis (● = attuned) ;
+ *  · attunable : la pastille du croquis — un ÉTAT, pas un ornement (Eric,
+ *    24/08 : « les points orange = attuned or not ») : éteinte par défaut,
+ *    pleine quand l'objet posé est attuné ;
  *  · pointille : le soulignage rouge pointillé qu'Eric a dessiné sur DEUX
  *    libellés (Body forging, Torso gear 2) — recopié, pas interprété : son
  *    sens est à lui. */
