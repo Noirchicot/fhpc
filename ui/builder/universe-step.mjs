@@ -58,6 +58,25 @@ import { markPressed } from "./carnet.mjs?v=285";
  *  le personnage d'exemple lui-même. Un garde tient désormais les deux
  *  listes ensemble (`tests/fiche-360.test.mjs`, garde 3). */
 export const SRD_LAYER_ID = "srd-5.2.1-en";
+
+/** 🔴 LA TROISIÈME COUCHE, ET ELLE N'EST DANS AUCUN DES DEUX CAMPS (lot 95).
+ *  `srfh` porte ce qui est AMBIGU — les ajustements de confort qui font
+ *  tourner le système sans amputer personne. Le test d'Eric porte sur le NOM :
+ *  *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Ranger un
+ *  objet sur une étagère : **on ne sait pas** — donc `srfh`, ni SRD ni FH.
+ *
+ *  ⭐ ELLE EST DONC MONTÉE DANS LES DEUX PILES NOMMÉES, et ce n'est pas une
+ *  commodité : la bascule de `shell.mjs` n'active/désactive que `FH_LAYER_IDS`,
+ *  donc `srfh` ne bouge jamais. Un joueur en « SRD seul » garde son tambour ;
+ *  sans elle, l'écran d'équipement serait VIDE dans ce mode — le rangement est
+ *  de la NAVIGATION, pas une règle de jeu.
+ *
+ *  ⏳ ET C'EST UNE DÉCISION QUI PEUT SE RENVERSER, elle est nommée ici pour ça :
+ *  si Eric veut qu'« SRD seul » veuille dire « rien qui ne soit dans le livre »,
+ *  cette liste sort de la pile `srd` — et il faudra alors répondre à ce que
+ *  devient le tambour. */
+export const SRFH_LAYER_IDS = ["srfh-shelving-en"];
+
 export const FH_LAYER_IDS = [
   "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-spells-en",
   "fh-fiche-en", "fh-lore-en"
@@ -71,11 +90,15 @@ export const FH_LAYER_IDS = [
 export function currentStack(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   const ids = new Set(layers.map((layer) => layer.id));
-  if (ids.size === 1 && ids.has(SRD_LAYER_ID)) return "srd";
+  /* Les deux piles portent le SRD ET `srfh` ; seules les couches FH les
+     distinguent. Le compte se DÉDUIT des listes, il ne s'écrit pas à côté —
+     un `5` en dur ici a déjà survécu à l'arrivée de deux couches (lot 77). */
+  const pileSrd = [SRD_LAYER_ID, ...SRFH_LAYER_IDS];
+  if (ids.size === pileSrd.length && pileSrd.every((id) => ids.has(id))) return "srd";
   /* Le compte se DÉDUIT de la liste, il ne se réécrit pas à côté d'elle :
      un `5` en dur ici a survécu à l'arrivée de deux couches et a fait
      accuser le personnage d'exemple (lot 77). */
-  const pileFh = [SRD_LAYER_ID, ...FH_LAYER_IDS];
+  const pileFh = [...pileSrd, ...FH_LAYER_IDS];
   if (ids.size === pileFh.length && pileFh.every((id) => ids.has(id))) return "srdfh";
   return null;
 }

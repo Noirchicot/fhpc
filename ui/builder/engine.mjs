@@ -24,6 +24,12 @@ import { versionQuery } from "./version.mjs?v=285";
    une seule des deux et l'écran et les tests divergeraient en silence. */
 export const LAYER_FILES = [
   "srd-5.2.1-en.layer.json",
+  /* ⭐ LOT 95 — `srfh` se monte JUSTE AU-DESSUS DU LIVRE, et cette place n'est
+     pas un choix d'ici : c'est le RANG 15 que fh-srd lui a donné (SRD 10,
+     phb_opt 20, fates_hand 30). Elle porte le rangement d'Eric et n'aplatit
+     rien — chaque record a son propre id et un `data.extends` vers l'objet
+     SRD qu'il habille. ⚠️ EN seulement, comme la source. */
+  "srfh-shelving-en.layer.json",
   "fh-species-en.layer.json",
   "fh-skills-en.layer.json",
   "fh-arcana-en.layer.json",

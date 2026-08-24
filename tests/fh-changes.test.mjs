@@ -184,10 +184,15 @@ test("⚔️ ATTAQUE — une pile dont le SRD n'est pas au bas est REFUSÉE", ()
      330 monstres compris — tout en restant vert, et publié en tête de chaque
      chapitre. */
   const inversee = [PILE[1], ...PILE.filter((_, i) => i !== 1)];
+  /* ⭐ LE NOM ATTENDU SE DÉRIVE DE LA PILE, IL NE S'ÉCRIT PAS ICI (lot 95).
+     Il était écrit `fh-species-en` — vrai tant que cette couche était la
+     deuxième, faux à la seconde où `srfh-shelving-en` s'est glissée entre elle
+     et le SRD. Le test mesurait alors le bon refus sur le mauvais nom. */
+  const vraiBas = PILE[1].replace(/^layers\//, "").replace(/\.layer\.json$/, "");
   assert.throws(() => build({ pile: inversee }), (erreur) => {
     assert.ok(erreur instanceof GenError, `attendu GenError, reçu ${erreur.constructor.name}`);
     assert.match(erreur.message, /couche du bas/);
-    assert.match(erreur.message, /fh-species-en/, "le refus doit NOMMER le vrai bas de pile");
+    assert.ok(erreur.message.includes(vraiBas), `le refus doit NOMMER le vrai bas de pile (${vraiBas}) : ${erreur.message}`);
     return true;
   });
 });

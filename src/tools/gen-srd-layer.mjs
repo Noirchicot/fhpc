@@ -79,9 +79,27 @@ function sha256(bytes) {
    Aucune de ces portes ne compte : elles LISENT. Un nombre gelé aurait refermé
    la porte à la source elle-même, et c'est exactement ce qui vient d'arriver. */
 
-/** Les genres MAISON : ils naissent dans CE dépôt-ci et n'entrent jamais dans
- *  une couche SRD, quoi qu'en dise le disque (loi §0.12). */
-export const GENRES_MAISON = ["arcana", "training"];
+/** Les genres qui n'entrent JAMAIS dans une couche SRD, quoi qu'en dise le
+ *  disque (loi §0.12). ⚠️ ILS N'Y SONT PAS TOUS POUR LA MÊME RAISON, et les
+ *  confondre reviendrait à en oublier un le jour où la source bouge :
+ *
+ *  · `arcana`, `training` — ils NAISSENT DANS CE DÉPÔT-CI. fh-srd n'en publie
+ *    aucun ; en voir un dans ses exports serait une anomalie de source.
+ *  · `shelving` — il naît bien chez fh-srd, mais dans la couche **`srfh`** :
+ *    c'est le RANGEMENT d'Eric, pas le livre. Le produire dans la couche SRD
+ *    ferait entrer une décision d'Eric dans la copie fidèle — exactement le
+ *    mélange que §0.12 interdit, et il ne se verrait nulle part.
+ *
+ *  🔴 CETTE TROISIÈME LIGNE EST UN TROU REFERMÉ, PAS UNE PRÉCAUTION. Le lot 95
+ *  a ouvert `shelving` au contrat pour que la couche `srfh` puisse exister ;
+ *  à cette seconde-là, le refus ④ (« un genre que le contrat ne déclare pas »)
+ *  a CESSÉ de couvrir ce nom. Ouvrir un genre au contrat DÉSARME donc une des
+ *  quatre portes : c'est le geste à ne pas faire seul. */
+export const GENRES_HORS_SRD = ["arcana", "shelving", "training"];
+
+/** @deprecated Ancien nom, gardé le temps qu'aucun appelant ne le lise plus.
+ *  Il disait « MAISON », ce qui n'est vrai que de deux des trois. */
+export const GENRES_MAISON = GENRES_HORS_SRD;
 
 const JSON_EXT = ".json";
 
@@ -111,7 +129,7 @@ function genresAuManifest(manifest, lang) {
  *  refus s'éprouvent sur un inventaire fabriqué, sans salir `fh-srd`. Un garde
  *  qu'on n'a pas vu mordre ne mord pas. */
 export function deriveGenres(inventaire, {
-  maison = GENRES_MAISON, declares = GENRES_DECLARES
+  maison = GENRES_HORS_SRD, declares = GENRES_DECLARES
 } = {}) {
   const langs = Object.keys(inventaire);
   if (langs.length === 0) {
@@ -129,9 +147,10 @@ export function deriveGenres(inventaire, {
   const interdits = [...tousLesNoms].filter((g) => maison.includes(g)).sort();
   if (interdits.length) {
     throw new Error(
-      `gen-srd-layer : genre(s) MAISON dans les exports SRD — ${interdits.join(", ")}. ` +
-      "Ils naissent dans ce dépôt-ci, jamais chez fh-srd : un générateur SRD qui les produirait " +
-      "mélangerait les deux couches, et c'est la loi §0.12. Refusé, pas sauté."
+      `gen-srd-layer : genre(s) qui n'appartiennent PAS à la couche SRD — ${interdits.join(", ")}. ` +
+      "Soit ils naissent dans ce dépôt-ci (`arcana`, `training`), soit ils naissent chez fh-srd mais " +
+      "dans la couche `srfh` (`shelving` : le rangement d'Eric, pas le livre). Dans les deux cas, les " +
+      "produire ici mélangerait la copie fidèle et une décision, et c'est la loi §0.12. Refusé, pas sauté."
     );
   }
 

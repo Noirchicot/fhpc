@@ -68,7 +68,7 @@ function sansCommentairesCss(texte) {
 const CSS = sansCommentairesCss(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8"));
 const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8"));
 
-const { renderEquipmentStep, rayonsEtEtageres, pageDObjets, CASES_PAR_PAGE, profondeurAccordee } =
+const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, pageDObjets, CASES_PAR_PAGE, profondeurAccordee } =
   await import("../ui/builder/equipment-step.mjs");
 
 const fixture = exempleFhEn();
@@ -78,86 +78,165 @@ const query = layers.verbs.query;
 function rows(node, selector) { return node.querySelectorAll(selector); }
 function ctx() { return { document: { build: { choices: [] } }, resolved: null, query, search: true }; }
 
-/* ══ 1 — LA COUTURE DE DONNÉE : ELLE LIT, ELLE N'INVENTE PAS ═════════════
-   Consigne d'Eric du 2026-08-23 : « une fois que le SRD est propre, oui on
-   rajoute les tags de catégories ». Les catégories manquantes viendront d'un
-   chantier de DONNÉES, jamais de cet écran. */
+/* ══ 1 — LA COUTURE DE DONNÉE : ELLE LIT LE RANGEMENT D'ERIC ═════════════
 
-test("1 — quatre rayons, et ce sont les genres que le catalogue interroge (aucun niveau inventé au-dessus)", () => {
+   🔴 CES TESTS DISAIENT L'INVERSE, ET ILS AVAIENT RAISON. Le tambour lisait le
+   GENRE des records, faute de taxonomie ; il affichait donc `Armor · Gear ·
+   Item · Weapon` au premier niveau. ⛔ Eric, le 2026-08-24 : *« je devais pas
+   voir armor au premier niveau, elles sont notées, on les respecte »*.
+
+   Son rangement est dans la donnée depuis le lot 90 de fh-srd — couche `srfh`,
+   genre `shelving`, 416 records portant `aisle` + `shelf` + `extends`. Le lot
+   95 la monte et l'écran la lit. ⭐ La couture n'a pas changé de FORME, elle a
+   changé de SOURCE : le rangement n'est plus déduit, il est LU là où Eric l'a
+   écrit. */
+
+const RANGEMENT = lireRangement(query);
+
+test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
-  assert.deepEqual(arbre.map((r) => r.id), ["armor", "gear", "item", "weapon"],
-    "les rayons sont les GENRES de records, triés — pas des familles inventées au-dessus d'eux");
-  assert.deepEqual(arbre.map((r) => r.label), ["Armor", "Gear", "Magic Items", "Weapons"]);
+  assert.deepEqual(arbre.map((r) => r.id),
+    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane"],
+    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique");
+  /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
+  for (const genre of ["armor", "gear", "item", "weapon"]) {
+    assert.equal(arbre.some((r) => r.id === genre), false,
+      `« ${genre} » est un GENRE DE DONNÉES — sa présence au premier niveau EST le défaut du lot 95`);
+  }
 });
 
-test("2 — 🔴 un genre SANS champ de second niveau rend UNE seule étagère, celle du rayon", () => {
+test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35", () => {
+  /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
+     toujours d'arriver à MOINS DE 35 ITEMS SUR LA DERNIÈRE CATÉGORIE, c'est
+     l'idée ». ⭐ Les rayons ne sont pas une classification pour elle-même : ils
+     existent pour qu'au bout de la descente le joueur tombe sur une étagère
+     qu'il peut EMBRASSER. C'est le seul chiffre qui dit si ce lot a réussi.
+     ⛔ 35 est une CIBLE DE DÉCOUPAGE, jamais un plafond de donnée : si un jour
+     une étagère déborde, c'est le DÉCOUPAGE qu'on refait, jamais la donnée
+     qu'on refuse — et la pagination, elle, n'a pas de plafond (test 9). */
   const arbre = rayonsEtEtageres(query);
-  const gear = arbre.find((r) => r.id === "gear");
-  const armor = arbre.find((r) => r.id === "armor");
-
-  /* Mesuré sur `layers/srd-5.2.1-en.layer.json` : les 82 `gear` ne portent que
-     `cost`/`name`/`weight`, les 13 `armor` que leurs cotes d'armure. Aucun des
-     deux n'a de champ de catégorie — et le SRD anglais EN A UN pour l'armure
-     (« Light/Medium/Heavy Armor », p. 92), c'est l'extracteur de `fh-srd` qui
-     l'enjambe. Un lot de DONNÉES le rendra ; cet écran ne le fabrique pas. */
-  assert.equal(gear.etageres.length, 1, "Gear n'a rien à quoi se raccrocher : une étagère, celle du rayon");
-  assert.equal(gear.etageres[0].label, "Gear", "et elle porte le nom du rayon, pas une étiquette de fantaisie");
-  assert.equal(gear.etageres[0].objets.length, 82);
-  assert.equal(armor.etageres.length, 1);
-  assert.equal(armor.etageres[0].objets.length, 13);
+  const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ nom: `${r.label} › ${e.label}`, n: e.objets.length })));
+  const debordent = toutes.filter((e) => e.n >= 35);
+  assert.deepEqual(debordent, [], "une étagère à 35 ou plus a raté l'unique raison d'être des rayons");
+  const plusGrosse = toutes.reduce((a, b) => (b.n > a.n ? b : a));
+  assert.equal(plusGrosse.n, 33, `mesuré le 2026-08-24 : la plus grosse est ${plusGrosse.nom}`);
 });
 
-test("3 — un genre QUI a le champ le lit, et il ne lit que celui-là", () => {
+test("3 — 🔴 UNE ÉTAGÈRE S'IDENTIFIE PAR `aisle:shelf`, JAMAIS PAR SON LIBELLÉ", () => {
+  /* LA LEÇON LA PLUS CHÈRE DU CHANTIER, payée le 23/08 : les tables étaient
+     indexées PAR LIBELLÉ, et l'écran a affiché « Armor 19 » au-dessus d'une
+     grille de 13 parce que deux étagères portaient ce mot.
+     ⭐ ET CE N'EST PAS THÉORIQUE DANS LA DONNÉE D'AUJOURD'HUI : `marvels` et
+     `mundane` portent CHACUN une étagère « Clothing ». Ce test le prouve avec
+     les deux vrais comptes — 32 et 5 — au lieu de l'affirmer. */
   const arbre = rayonsEtEtageres(query);
-  const weapon = arbre.find((r) => r.id === "weapon");
-  assert.deepEqual(weapon.etageres.map((e) => [e.label, e.objets.length]), [["Martial", 24], ["Simple", 14]],
-    "`weapon_category` — mesuré 24 martial + 14 simple = 38");
+  const homonymes = arbre.flatMap((r) => r.etageres.filter((e) => e.label === "Clothing").map((e) => [r.id, e.id, e.objets.length]));
+  assert.deepEqual(homonymes, [["marvels", "marvels:clothing", 32], ["mundane", "mundane:clothing", 5]],
+    "deux étagères, un seul mot — et deux identités distinctes");
 
-  const item = arbre.find((r) => r.id === "item");
-  /* 📌 « Weapon » : 28 → 33 le 2026-08-23 (lot 93). Les cinq épées magiques que
-     l'extraction anglaise de fh-srd avalait sont revenues par son lot 86, et
-     elles portent toutes `category: weapon` — l'écart tombe donc entièrement
-     sur cette étagère-là, ce que les huit autres, inchangées, confirment. */
-  assert.deepEqual(item.etageres.map((e) => [e.label, e.objets.length]), [
-    ["Armor", 19], ["Potion", 24], ["Ring", 22], ["Rod", 7], ["Scroll", 1],
-    ["Staff", 12], ["Wand", 13], ["Weapon", 33], ["Wondrous Item", 127]
-  ], "`item.category` — les neuf valeurs mesurées, et RIEN d'autre");
+  const ids = arbre.flatMap((r) => r.etageres.map((e) => e.id));
+  assert.equal(new Set(ids).size, ids.length, "aucune identité d'étagère n'est portée deux fois");
 });
 
-test("4 — ⚔️ ATTAQUE : aucun libellé d'étagère n'est inventé, chacun se retrouve dans les records", () => {
-  /* Le piège qu'on traque : une jolie table de correspondance (`potion` →
-     « Potions & Elixirs »). Elle serait une SECONDE écriture de la taxonomie,
-     et deux écritures divergent. Le libellé doit être la valeur lue, recasée. */
+test("4 — ⚔️ ATTAQUE : aucun libellé n'est inventé, chacun se retrouve dans le rangement", () => {
+  /* Le piège traqué depuis le lot 84 : une jolie table de correspondance
+     (`wands-rods-staves` → « Baguettes & Bâtons »). Elle serait une SECONDE
+     écriture de la taxonomie, et deux écritures divergent. Les noms d'Eric
+     vivent chez fh-srd ; ici le libellé n'est que la valeur lue, recasée. */
   const arbre = rayonsEtEtageres(query);
-  const valeurs = new Set();
-  for (const kind of ["weapon", "item"]) {
-    for (const view of query({ kind })) {
-      const d = view.record.data;
-      const brut = kind === "weapon" ? d.weapon_category : d.category;
-      valeurs.add(String(brut).split(/[-_\s]+/).map((m) => m[0].toUpperCase() + m.slice(1)).join(" "));
-    }
+  const recase = (v) => String(v).split(/[-_\s]+/).filter(Boolean).map((m) => m[0].toUpperCase() + m.slice(1)).join(" ");
+  const rayonsLus = new Set();
+  const etageresLues = new Set();
+  for (const vue of query({ kind: "shelving" })) {
+    const s = vue.record.data.shelf || {};
+    rayonsLus.add(recase(s.aisle));
+    etageresLues.add(recase(s.shelf));
   }
   for (const rayon of arbre) {
+    assert.ok(rayonsLus.has(rayon.label), `« ${rayon.label} » ne se retrouve dans aucun record de rangement`);
     for (const etagere of rayon.etageres) {
-      if (etagere.label === rayon.label) continue; // l'étagère par défaut porte le nom du rayon
-      assert.ok(valeurs.has(etagere.label),
-        `« ${etagere.label} » ne se retrouve dans aucun record — c'est une étiquette inventée`);
+      assert.ok(etageresLues.has(etagere.label), `« ${etagere.label} » est une étiquette inventée`);
     }
   }
 });
 
-test("5 — le total des étagères redonne EXACTEMENT le catalogue : rien ne se perd, rien ne se compte deux fois", () => {
+test("5 — 🔴 LES 416 RANGEMENTS SONT LUS, ET LES DEUX ÉCARTÉS SONT NOMMÉS", () => {
+  /* ⚠️ LE TOTAL N'EST PAS 416, ET C'EST CORRECT — un total juste ne dirait
+     rien du contenu, celui-ci dit quelque chose en NE tombant PAS juste.
+     `srfh` est construite sur le SRD seul ; deux de ses records rangent
+     `gaming-set` et `musical-instrument`, que la couche `fh-skills-en`
+     DÉSACTIVE (`op: disable`) pour les remplacer par sept outils plus fins.
+     Un objet rangé qui n'existe plus dans la pile montée ne s'affiche pas —
+     et il est COMPTÉ, jamais avalé. */
+  assert.equal(RANGEMENT.lus, 416, "les 416 records de rangement sont bien lus");
+  assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
+  assert.deepEqual(RANGEMENT.introuvables.map((x) => x.extends).sort(),
+    ["srd:tool:en:gaming-set", "srd:tool:en:musical-instrument"],
+    "les deux seuls écartés, nommés : `fh-skills-en` les désactive");
+
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, 391, "82 gear + 38 weapon + 13 armor + 258 item — le catalogue du lot 84, remesuré au lot 93");
+  assert.equal(total, 414, "416 rangements − 2 records désactivés par une couche du dessus");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, 391, "et chaque record n'est rangé que sur UNE étagère");
-  /* ⚠️ ET `item-value` N'EST PAS ENTRÉ DANS LE CATALOGUE, ce qui est le bon
-     comportement : le genre neuf du lot 92 de fh-srd est un BARÈME (un record,
-     la table des prix par rareté), pas un objet qu'on met dans un sac.
-     `EQUIPMENT_RECORD_KINDS` ne le nomme pas, donc il ne se range nulle part —
-     et ce total le prouve, 391 et non 392. */
+  assert.equal(ids.size, 414, "et chaque objet n'est rangé que sur UNE étagère");
+});
+
+test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 14 outils Fate's Hand sont NOMMÉS comme non rangés", () => {
+  /* AVANT CE LOT, ZÉRO OUTIL ÉTAIT VISIBLE : `EQUIPMENT_RECORD_KINDS` nommait
+     quatre genres et `tool` n'en faisait pas partie. Les 25 outils du SRD
+     étaient rangés depuis le lot 90 et invisibles depuis toujours.
+     🔴 ET LE COMPTE RESTANT EST UNE DETTE, PAS UN SUCCÈS : `fh-skills-en`
+     AJOUTE 14 outils Fate's Hand (jeux, instruments, véhicules, montures,
+     Soulforging) que `srfh` n'a jamais vus — elle est construite sur le SRD
+     seul. Ils n'ont AUCUNE étagère, donc ils n'apparaissent nulle part.
+     ⛔ Ce test les nomme pour qu'un ajout futur casse ici au lieu de
+     disparaître en silence : c'est la faute d'`item-value`, refusée d'avance. */
+  const arbre = rayonsEtEtageres(query);
+  const outils = arbre.find((r) => r.id === "crafting").etageres.find((e) => e.id === "crafting:tools");
+  assert.equal(outils.objets.length, 23, "25 outils SRD − les 2 que `fh-skills-en` désactive");
+
+  const ranges = new Set(query({ kind: "shelving" })
+    .filter((v) => v.record.data.of_kind === "tool").map((v) => v.record.data.extends));
+  const sansEtagere = query({ kind: "tool" }).map((v) => v.id).filter((id) => !ranges.has(id)).sort();
+  assert.deepEqual(sansEtagere, [
+    "fh:tool:en:gaming-set-cards", "fh:tool:en:gaming-set-dice",
+    "fh:tool:en:gaming-set-dragonchess", "fh:tool:en:gaming-set-three-dragon",
+    "fh:tool:en:instrument-other", "fh:tool:en:instrument-strings", "fh:tool:en:instrument-wind",
+    "fh:tool:en:mount-air", "fh:tool:en:mount-land", "fh:tool:en:mount-water",
+    "fh:tool:en:soulforging",
+    "fh:tool:en:vehicles-air", "fh:tool:en:vehicles-land", "fh:tool:en:vehicles-water"
+  ], "⏳ DETTE OUVERTE — 14 outils Fate's Hand sans étagère : le rangement d'Eric ne couvre que le SRD");
+});
+
+test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le dit", () => {
+  /* 🔴 LE MANDAT DU LOT 95 DEMANDAIT SEPT RAYONS, « `companions` porté à 0 et
+     affiché ». MA MESURE LE CONTREDIT, et c'est elle qui gagne : la structure
+     canonique déclare bien SEPT rayons et TRENTE étagères — mais elle vit dans
+     `~/tools/fh-srd/src/shelving.py`, un fichier Python que ce dépôt ne lit
+     pas, et `exports/srfh/en/shelving.json` ne porte QUE les combinaisons
+     PEUPLÉES : 6 rayons, 26 étagères.
+
+     ⛔ ET C'EST POURQUOI CE DÉPÔT NE LES ÉCRIT PAS À LA MAIN. Une liste de sept
+     noms posée ici serait une SECONDE écriture de la taxonomie — exactement
+     `ETAGERE_DE`, le défaut que ce lot vient de retirer, réinstallé un étage
+     plus haut. Un rayon vide s'affichera le jour où la SOURCE le déclarera.
+
+     ⏳ LOT À COMMANDER CHEZ fh-srd, et il tient en une ligne d'exportateur :
+     publier la structure déclarée (rayons et étagères, peuplés ou non) à côté
+     des records. Trois rayons/étagères manquent aujourd'hui à l'appel —
+     `companions › familiars`, `companions › henchmen`, `crafting › gems`,
+     `crafting › ingredients` : tous à zéro, tous invisibles. */
+  const arbre = rayonsEtEtageres(query);
+  assert.equal(arbre.length, 6, "six rayons PEUPLÉS — c'est tout ce que l'export porte");
+  assert.equal(arbre.some((r) => r.id === "companions"), false,
+    "⏳ le 7ᵉ rayon d'Eric est vide, donc absent de l'export : il n'apparaîtra qu'une fois la structure publiée");
+
+  /* Le garde qui tiendra le jour où la source bougera : les rayons viennent de
+     la DONNÉE et de rien d'autre. */
+  const dansLaDonnee = new Set(query({ kind: "shelving" }).map((v) => v.record.data.shelf.aisle));
+  assert.deepEqual(arbre.map((r) => r.id).sort(), [...dansLaDonnee].sort(),
+    "aucun rayon n'est ajouté ni retiré entre la donnée et l'écran");
 });
 
 /* ══ LA PAGINATION — SUR LE CAS PLEIN, JAMAIS SUR LE CAS COURANT ══════════
@@ -165,22 +244,26 @@ test("5 — le total des étagères redonne EXACTEMENT le catalogue : rien ne se
    piste qui grandit avec son contenu a l'air d'une piste qui se borne tant
    qu'elle n'a que trois objets. */
 
-test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 127 objets, donc 9 pages, et la dernière en porte 7", () => {
+test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 pages, et la dernière en porte 3", () => {
+  /* ⭐ ELLE EN FAISAIT 127 (« Wondrous Item ») JUSQU'AU LOT 97 DE fh-srd, qui a
+     cassé les 149 merveilleux en sept étagères. 127 sur un écran visé à 35,
+     c'était NEUF pages — le cas plein a maigri parce que le rangement a fait
+     son travail, pas parce que le test a été assoupli. */
   const arbre = rayonsEtEtageres(query);
-  const grosse = arbre.find((r) => r.id === "item").etageres.find((e) => e.label === "Wondrous Item");
-  assert.equal(grosse.objets.length, 127, "témoin : c'est bien le cas plein qu'on éprouve");
+  const grosse = arbre.find((r) => r.id === "arcana").etageres.find((e) => e.id === "arcana:consumables-and-potions");
+  assert.equal(grosse.objets.length, 33, "témoin : c'est bien le cas plein qu'on éprouve");
 
   const premiere = pageDObjets(grosse.objets, 0);
-  assert.equal(premiere.pages, 9, "ceil(127 / 15) = 9");
+  assert.equal(premiere.pages, 3, "ceil(33 / 15) = 3");
   assert.equal(premiere.objets.length, CASES_PAR_PAGE);
 
-  const derniere = pageDObjets(grosse.objets, 8);
-  assert.equal(derniere.objets.length, 7, "127 − 8 × 15 = 7 — une dernière page PARTIELLE, et c'est le cas normal");
+  const derniere = pageDObjets(grosse.objets, 2);
+  assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
-test("7 — 🔴 LE CAS DÉGÉNÉRÉ, ET IL EST RÉEL : `scroll` ne porte QU'UN objet", () => {
+test("7 — 🔴 LE CAS DÉGÉNÉRÉ, ET IL EST RÉEL : `projectiles` ne porte QU'UN objet", () => {
   const arbre = rayonsEtEtageres(query);
-  const minuscule = arbre.find((r) => r.id === "item").etageres.find((e) => e.label === "Scroll");
+  const minuscule = arbre.find((r) => r.id === "battlefield").etageres.find((e) => e.id === "battlefield:projectiles");
   assert.equal(minuscule.objets.length, 1, "témoin : une étagère à un seul objet existe vraiment dans les données");
   const vue = pageDObjets(minuscule.objets, 0);
   assert.equal(vue.pages, 1, "une page, jamais zéro — « 1/0 » serait un compte impossible");
@@ -306,7 +389,7 @@ test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ 
     "et le compte ne MENT pas pendant l'attente — pas de « 1/1 » sur une grille qui ne montre rien");
 });
 
-test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 4 rayons deviennent 36 crans, pas 12", () => {
+test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennent 36 crans, pas 18", () => {
   /* 🔴 LE PIÈGE N°4, ET IL EST MUET : la roue pose trois blocs et saute d'un
      bloc dès qu'on quitte celui du milieu. Avec 4 crans, un bloc fait 484 px
      pour une fenêtre de 359 — on en sort au moindre geste et la couture tire
@@ -315,8 +398,15 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 4 rayons deviennen
      ⭐ La parade : répéter la liste DANS le bloc jusqu'à 12 crans. */
   const node = renderEquipmentStep(ctx(), () => {});
   const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
-  assert.equal(crans.length, 36, "3 tours × ceil(12 / 4) × 4 rayons = 36 crans");
-  assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent), ["Armor", "Gear", "Magic Items", "Weapons"]);
+  /* ⭐ LE TOTAL N'A PAS BOUGÉ EN PASSANT DE 4 À 6 RAYONS, ET CE N'EST PAS UNE
+     COÏNCIDENCE HEUREUSE : la règle vise un PLANCHER de 12 crans par bloc, donc
+     4 se répète 3 fois et 6 se répète 2 fois — 12 dans les deux cas. ⛔ C'est
+     aussi pourquoi « 36 » ne prouve rien tout seul : c'est la liste des quatre
+     premiers libellés, en dessous, qui dit quels rayons on regarde. */
+  assert.equal(crans.length, 36, "3 tours × ceil(12 / 6) × 6 rayons = 36 crans");
+  assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
+    ["Adventuring", "Arcana", "Battlefield", "Crafting"],
+    "les rayons d'Eric, pas les genres de records");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.dataset.rang), ["0", "1", "2", "3"],
     "chaque cran connaît son RANG dans la vraie liste — c'est ce qui rend la répétition invisible");
 });
@@ -330,6 +420,54 @@ test("13 — un cran s'annonce par `aria-current`, jamais par `aria-pressed` (ce
     assert.equal(cran.getAttribute("aria-pressed"), null,
       "`aria-pressed` dirait « bouton à bascule » à un lecteur d'écran — un cran n'en est pas un");
   }
+});
+
+test("13 bis — 🔧 DETTE SOLDÉE : le courant s'ANNONCE une fois, et s'ALLUME sur toutes ses copies", () => {
+  /* ⛔ MESURÉ PAR LE LOT 94 ET LAISSÉ EXPRÈS pour ne pas faire de conflit :
+     `troisTours` répète la liste, et `aria-current="true"` était posé sur
+     CHAQUE copie du cran courant — 9 sur la roue A. Un lecteur d'écran
+     annonçait neuf fois « courant ».
+     ⭐ ET LA CORRECTION NAÏVE AURAIT CASSÉ LE VISUEL : c'est `aria-current` que
+     le CSS coiffait. Les deux rôles sont donc séparés — `data-courant` allume
+     (toutes les copies : l'œil suit une roue qui tourne), `aria-current`
+     annonce (une seule).
+
+     ⚠️ ÉPROUVÉ SUR LA FONCTION, PAS SUR L'ÉCRAN, et ce n'est pas un repli :
+     l'état « courant » ne s'atteint qu'en TOURNANT la roue, et
+     `scroll-snap: mandatory` rend ce geste intestable par script (limite
+     connue, écrite au logbook). Une piste fabriquée éprouve l'invariant
+     lui-même — même patron que `deriveGenres`, éprouvé sur un inventaire
+     fabriqué plutôt que sur le dépôt du voisin. */
+  const piste = document.createElement("div");
+  /* NEUF copies de trois rangs — la vraie forme de la roue A. */
+  for (let tour = 0; tour < 3; tour += 1) {
+    for (const rang of [0, 1, 2]) {
+      const cran = document.createElement("button");
+      cran.dataset.rang = String(rang);
+      cran.dataset.courant = rang === 1 ? "true" : "false";
+      piste.appendChild(cran);
+    }
+  }
+  annoncerCourant(piste);
+
+  const crans = piste.querySelectorAll("button");
+  const allumes = crans.filter((c) => c.dataset.courant === "true");
+  const annonces = crans.filter((c) => c.getAttribute("aria-current") === "true");
+  assert.equal(allumes.length, 3, "témoin : le cran courant est bien répété — c'est la condition du défaut");
+  assert.equal(annonces.length, 1, "UNE SEULE annonce, quel que soit le nombre de copies");
+  assert.equal(annonces[0].dataset.courant, "true", "la copie annoncée est bien une copie allumée");
+  assert.equal(crans.every((c) => c.hasAttribute("aria-current")), true,
+    "les autres portent `false` plutôt que rien : on voit qu'on a répondu, pas qu'on a oublié");
+});
+
+test("13 ter — au rendu, RIEN n'est annoncé : l'état d'attente du croquis n'a pas de cran courant", () => {
+  /* ⭐ CE N'EST PAS UN CAS DÉGÉNÉRÉ, C'EST L'ÉTAT DE DÉPART (test 11) : tant que
+     le joueur n'a rien touché, aucun rayon n'est choisi. Un `aria-current` posé
+     là annoncerait un choix qui n'a pas eu lieu. */
+  const node = renderEquipmentStep(ctx(), () => {});
+  const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
+  assert.equal(crans.filter((c) => c.getAttribute("aria-current") === "true").length, 0);
+  assert.equal(crans.filter((c) => c.dataset.courant === "true").length, 0);
 });
 
 test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas y revenir", () => {
@@ -441,11 +579,20 @@ test("piège 6 — `box-sizing: border-box` explicite sur le cran, et sa hauteur
     "une roue dont les crans changent de hauteur n'est pas une roue — et tout ce qui vit dessous sautait");
 });
 
-test("piège 7 — 🔧 LE FONDU EST FIXE À 10 PX, et la piste fait TROIS crans, sans cran de marge", () => {
-  /* Amendement du 2026-08-23. Le masque en POURCENTAGE a coûté une passe : plus
-     la piste s'élargissait, plus il rongeait de crans, et Eric réglait « 7 »
-     pour en voir 5. ⛔ Et pas de cran de marge : il en ferait voir QUATRE. */
-  assert.match(bloc(".equipment-drum"), /--roue-fondu:\s*10px/);
+test("piège 7 — 🔧 LE FONDU EST UN RAPPORT AU PAS, et la piste fait TROIS crans, sans cran de marge", () => {
+  /* Amendement du 2026-08-23, corrigé le 24. Le masque en POURCENTAGE DE LA
+     PISTE a coûté une passe : plus la piste s'élargissait, plus il rongeait de
+     crans, et Eric réglait « 7 » pour en voir 5. ⛔ Et pas de cran de marge :
+     il en ferait voir QUATRE.
+     ⭐ MAIS `10px` FIGÉ N'ÉTAIT PAS LA RÉPONSE NON PLUS, et c'est la dette que
+     le lot 95 solde : depuis que le pas est borné par `min()`, il tombe à 73,8
+     sur un téléphone — 10 px y rongent 13,5 % du cran contre 8,3 % à 121. Le
+     fondu grossissait à mesure que le cran maigrissait. `pas / 12.1` vaut 10 px
+     À L'IDENTIQUE là où la place existe, et suit le cran ailleurs.
+     🔴 Un pourcentage DE LA PISTE et un rapport AU PAS ne sont pas la même
+     grandeur : le premier suit l'écran, le second suit une valeur BORNÉE. */
+  assert.match(bloc(".equipment-drum"), /--roue-fondu:\s*calc\(var\(--roue-pas\) \/ 12\.1\)/,
+    "le fondu est un rapport au pas, comme --roue-ecart — jamais un pixel figé dans une roue fluide");
   assert.match(bloc(".equipment-drum"), /--roue-champ:\s*calc\(3 \* var\(--roue-pas\) - var\(--roue-ecart\)\)/,
     "trois pas moins un écart — trois crans exactement, jamais 4 ni 5");
   /* 🔴 MESURÉ AU NAVIGATEUR : à 375 px, trois crans de 117 plus deux flèches de

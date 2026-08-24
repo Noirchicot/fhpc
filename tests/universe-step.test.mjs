@@ -24,7 +24,7 @@ import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN,
 
 globalThis.document = createTestDocument();
 
-const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, FH_LAYER_IDS }
+const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS }
   = await import("../ui/builder/universe-step.mjs");
 /* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
    NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
@@ -56,15 +56,29 @@ test("A0 — la pile SRD+FH nommée est EXACTEMENT celle que le moteur monte", (
      Une liste écrite deux fois diverge : c'est la loi du dépôt, et elle
      vient de coûter une fois de plus. Le garde compare donc les DEUX
      sources réelles. */
+  /* ⭐ LOT 95 — LA PILE A TROIS PALIERS, PLUS DEUX. `srfh-shelving-en` n'est
+     ni le livre ni Fate's Hand : c'est ce qui est AMBIGU (le rangement
+     d'Eric). Elle a donc sa propre liste, et elle est montée dans les DEUX
+     piles nommées — la bascule de `shell.mjs` ne touche que `FH_LAYER_IDS`.
+     ⛔ La ranger dans l'une des deux aurait été plus court et faux : dans
+     `FH_LAYER_IDS` elle serait débrayée en mode SRD et le tambour se
+     viderait ; dans le SRD elle ferait passer une décision d'Eric pour du
+     livre. */
   const duMoteur = LAYER_FILES.map((f) => f.replace(/\.layer\.json$/, ""));
-  assert.deepEqual([SRD_LAYER_ID, ...FH_LAYER_IDS], duMoteur,
+  assert.deepEqual([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS], duMoteur,
     "la pile nommée « SRD + FH » doit être la pile que `engine.mjs` monte, dans le même ordre");
+  assert.deepEqual(SRFH_LAYER_IDS, ["srfh-shelving-en"],
+    "la couche srfh est nommée à part — ni SRD, ni FH");
 });
 
-test("A1 — currentStack reconnaît « srd » (une couche) et « srdfh » (les cinq)", () => {
-  assert.equal(currentStack(draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } })), "srd");
+test("A1 — currentStack reconnaît « srd » et « srdfh », qui portent TOUTES DEUX la couche srfh", () => {
+  /* ⭐ LOT 95 — « SRD » N'EST PLUS « UNE SEULE COUCHE ». Les deux piles portent
+     le livre ET le rangement d'Eric (`srfh`, ni l'un ni l'autre) ; seules les
+     couches Fate's Hand les distinguent. Les listes sont CONFRONTÉES, pas
+     recopiées : un nom écrit à la main ici a déjà coûté le lot 77. */
+  assert.equal(currentStack(draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } })), "srd");
   assert.equal(
-    currentStack(draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en", ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } })),
+    currentStack(draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } })),
     "srdfh"
   );
 });
@@ -125,7 +139,7 @@ function stackButtons(node) { return node.querySelectorAll(".bascule-ligne"); }
 function campaignField(node) { return node.querySelectorAll(".doc-field-input")[0]; }
 
 test("B1 — les deux boutons de pile existent, et celui qui correspond à la pile active est marqué", () => {
-  const doc = draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } });
+  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
   const buttons = stackButtons(node);
   assert.equal(buttons.length, 2);
@@ -135,7 +149,7 @@ test("B1 — les deux boutons de pile existent, et celui qui correspond à la pi
 });
 
 test("B2 — cliquer un bouton dispatche {kind:\"requestLayerStack\", value}, jamais un verbe directement", () => {
-  const doc = draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } });
+  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
   const actions = [];
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
   stackButtons(node)[1].click(); // "SRD + FH"
@@ -149,7 +163,7 @@ test("B2 bis — ⚔️ RECLIQUER LA LIGNE DÉJÀ ALLUMÉE NE FAIT RIEN — deux
      n'a pas lieu — et l'idée même d'éteindre les deux laisserait le personnage
      sans pile de règles. L'exclusivité se tient dans le code, elle ne s'espère
      pas. */
-  const doc = draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } });
+  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
   const actions = [];
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
   const lignes = stackButtons(node);
@@ -163,7 +177,7 @@ test("B2 bis — ⚔️ RECLIQUER LA LIGNE DÉJÀ ALLUMÉE NE FAIT RIEN — deux
 test("B3 — pendingStack ouvre la confirmation, NOMME les choix FH affectés, et ses boutons dispatchent confirm/cancel", () => {
   const doc = draftDocument({
     build: {
-      layers: manifestFor(["srd-5.2.1-en", ...FH_LAYER_IDS]), budgets: {}, overrides: [],
+      layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), budgets: {}, overrides: [],
       choices: [{ path: "background.originFeat[0]", ref: { kind: "feat", id: "fh:feat:en:auspicious" }, label: "Origin feat" }]
     }
   });
@@ -184,7 +198,7 @@ test("B3 — pendingStack ouvre la confirmation, NOMME les choix FH affectés, e
 });
 
 test("B3bis — sans pendingStack, aucune confirmation ne s'affiche", () => {
-  const doc = draftDocument({ build: { layers: manifestFor(["srd-5.2.1-en"]), choices: [], budgets: {}, overrides: [] } });
+  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, pendingStack: null }, () => {});
   assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
 });
@@ -211,7 +225,11 @@ test("B5 — la langue de la fiche et les unités s'affichent, lisibles (pas les
    PILE ET LE VRAI BLOC `build` (§3, test 5 de la commande) ═══════════════ */
 
 test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dégrade le résolu (refus NOMMÉS), et l'aller-retour restaure tout", () => {
-  const harness = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN] });
+  /* ⭐ LOT 95 — `srfh-shelving-en` est dans cette pile parce qu'elle est dans
+     les DEUX piles nommées : la bascule n'éteint que les couches FH, donc le
+     rangement d'Eric survit au passage en « SRD seul ». Une pile de test qui
+     l'oublierait ne serait reconnue NI comme « srd » NI comme « srdfh ». */
+  const harness = makeHarness({ layers: [SRD_EN, "layers/srfh-shelving-en.layer.json", FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN] });
   /* Le personnage d'exemple EN+FH DU DÉPÔT (`examples/personnage-fh-en-
      niveau1.fh-char.json`, lot 20) — celui que `engine.mjs`/`shell.mjs`
      chargent réellement au boot du builder, jamais recopié à la main. */

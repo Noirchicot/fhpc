@@ -63,6 +63,10 @@ export const SORTIE = "examples/personnage-fh-en-niveau1.fh-char.json";
    manquait n'était pas une frontière, c'était sa DÉCLARATION. La voici. */
 export const PILE = [
   "layers/srd-5.2.1-en.layer.json",
+  /* LOT 95 — même place que dans `LAYER_FILES` : le rang 15 déclaré par
+     fh-srd, juste au-dessus du livre. Le garde 3 de `fiche-360` compare les
+     deux listes, donc une seule des deux ne peut pas bouger. */
+  "layers/srfh-shelving-en.layer.json",
   "layers/fh-species-en.layer.json",
   "layers/fh-skills-en.layer.json",
   "layers/fh-arcana-en.layer.json",
