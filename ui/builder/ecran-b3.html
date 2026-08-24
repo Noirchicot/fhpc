@@ -461,7 +461,9 @@ function peindreScene() {
     { x: 0, y: 0, width: 1000, height: 1600, mask: `url(#masque-${corpsCourant})` }));
   scene.append(port);
 
-  scene.append(texteScene("b3-titre", 180, 28, "GEAR", "middle"));
+  /* « GEAR mieux centré » (Eric, 24/08) : sur l'AXE de la scène — le même que
+     la colonne centrale — plus la position à main levée du croquis. */
+  scene.append(texteScene("b3-titre", SCENE.l / 2, 28, "GEAR", "middle"));
 
   for (const b of BOITES) {
     const l = b.l || JETON.l;
