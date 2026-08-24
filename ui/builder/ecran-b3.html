@@ -461,12 +461,16 @@ function peindreScene() {
     if (b.optionnelle) r.dataset.optionnelle = "oui";
     scene.append(r);
     scene.append(texteScene("b3-nom", x + 5, b.y + 12, b.nom));
-    if (b.pointille) scene.append(formeScene("line", "b3-pointille",
+    /* Le pointillé rouge du croquis vit sous « Body forging » et sous le
+       SECOND libellé du torse (« Torso gear 2 ») — recopié, pas déplacé. */
+    if (b.pointille && !b.double) scene.append(formeScene("line", "b3-pointille",
       { x1: x + 5, y1: b.y + 15, x2: x + 5 + b.nom.length * 4.4, y2: b.y + 15 }));
     if (b.double) {
       scene.append(formeScene("line", "b3-boite-scene",
         { x1: x + l / 2, y1: b.y, x2: x + l / 2, y2: b.y + JETON.h }));
       scene.append(texteScene("b3-nom", x + l / 2 + 5, b.y + 12, b.double));
+      if (b.pointille) scene.append(formeScene("line", "b3-pointille",
+        { x1: x + l / 2 + 5, y1: b.y + 15, x2: x + l / 2 + 5 + b.double.length * 4.4, y2: b.y + 15 }));
       scene.append(formeScene("circle", "b3-attune", { cx: x - 5, cy: b.y + 5, r: 3 }));
     }
     if (b.attunable) scene.append(formeScene("circle", "b3-attune",
