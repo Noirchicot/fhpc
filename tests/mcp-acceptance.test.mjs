@@ -87,7 +87,7 @@ test("la pile est montée PAR LA SURFACE, depuis le texte des fichiers", () => {
   const { srd, homebrew, stack } = construire();
   assert.equal(srd.id, "srd-5.2.1-fr");
   assert.match(srd.hash, /^[0-9a-f]{64}$/, "l'empreinte est celle des octets transmis");
-  assert.equal(srd.records, 1329, "mesuré : la couche SRD FR seule — les 2 658 comptent les deux langues");
+  assert.equal(srd.records, 1367, "mesuré : la couche SRD FR seule — les 2 734 comptent les deux langues");
   assert.equal(homebrew.records > 0, true);
   assert.deepEqual(stack.map((layer) => layer.id), ["srd-5.2.1-fr", "exemple-homebrew-fr"]);
   assert.equal(stack.every((layer) => layer.enabled), true);

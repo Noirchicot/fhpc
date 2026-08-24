@@ -14,7 +14,7 @@
         {
           "id": "srd-5.2.1-fr",
           "version": "5.2.1",
-          "hash": "56b34af034c2d2fc346965b1f9c85b379f0c90e2d61fac0e7e8b048a6a19e077",
+          "hash": "8b7773565d1f570712d7904b5a86e06324b944c071c9af3990c264828ab9d52f",
           "name": "SRD 5.2.1 (FR)"
         },
         {
@@ -353,7 +353,7 @@
       {
         "id": "srd-5.2.1-fr",
         "version": "5.2.1",
-        "hash": "56b34af034c2d2fc346965b1f9c85b379f0c90e2d61fac0e7e8b048a6a19e077",
+        "hash": "8b7773565d1f570712d7904b5a86e06324b944c071c9af3990c264828ab9d52f",
         "name": "SRD 5.2.1 (FR)"
       },
       {
@@ -365,7 +365,7 @@
     ],
     "choices": [
       { "path": "species", "ref": { "kind": "species", "id": "srd:species:fr:elfe" }, "label": "Elfe" },
-      { "path": "species.lineage", "value": "haut-elfe", "label": "Haut-elfe" },
+      { "path": "species.lineage", "value": "high-elf", "label": "Haut-elfe" },
       { "path": "species.keenSenses", "value": "perception", "label": "Sens aiguisés : Perception" },
       { "path": "class", "ref": { "kind": "class", "id": "srd:class:fr:magicien" }, "label": "Magicien" },
       { "path": "background", "ref": { "kind": "background", "id": "srd:background:fr:sage" }, "label": "Sage" },

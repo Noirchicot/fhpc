@@ -270,14 +270,24 @@ test("le croisement se fait par le NOM DU RECORD de classe — prouvé par une c
   assert.equal(plan.expected, 1);
 });
 
-/* ══ 2b — LA PILE FR : les clefs de ressource sont langue-natives ═════════
-   `layers/TRADUCTION.md`, mesuré : la progression FR porte `sorts_mineurs` /
-   `sorts_prepares`. Le moteur ne porte AUCUNE table `sorts_mineurs →
-   cantrips` (la même faute que `"Sagesse" → wis`) : sur cette pile le compte
-   n'existe pas pour lui — il JUGE ce qui est posé, il n'invente ni créneau
-   manquant ni verrou de compte. */
+/* ══ 2b — LA PILE FR GUIDE, DEPUIS LE LOT 98 ═════════════════════════════
+   🔴 CE BLOC DISAIT L'INVERSE, ET IL AVAIT RAISON JUSQU'AU 2026-08-23. La
+   progression FRANÇAISE nommait ses ressources en français — `sorts_mineurs`
+   / `sorts_prepares` — et le moteur REFUSE, à juste titre, de porter une
+   table `sorts_mineurs → cantrips` (la même faute que `"Sagesse" → wis`).
+   Conséquence : sur la pile FR le compte n'existait pas pour lui, il JUGEAIT
+   ce qui était posé sans jamais guider.
 
-test("pile FR — le magicien d'exemple est JUGÉ sans compte inventé : 3/3 et 4/4, answered, sans provenance", () => {
+   ⭐ LE LOT 98 DE fh-srd A MIGRÉ CES 18 CLEFS DE RESSOURCE EN ANGLAIS DES
+   DEUX CÔTÉS, et la conséquence dépasse le renommage : la progression FR
+   porte maintenant `cantrips: 3` / `prepared_spells: 4`, donc le français
+   GUIDE — créneaux vides publiés, provenance nommée, exactement comme
+   l'anglais. Ce n'est pas le moteur qui a appris à traduire ; c'est la
+   couche qui a cessé de parler une langue qu'il avait interdiction de
+   deviner. La règle §1c n'a pas bougé d'une ligne : elle a cessé de mordre
+   parce que le record nomme enfin ses clefs. */
+
+test("pile FR — le magicien d'exemple est GUIDÉ comme l'anglais : 3/3 et 4/4, et le record nomme sa provenance", () => {
   const h = makeHarness();
   const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   const decisions = byPath(out);
@@ -285,8 +295,14 @@ test("pile FR — le magicien d'exemple est JUGÉ sans compte inventé : 3/3 et 
   assert.deepEqual(
     { expected: cantrips.expected, answered: cantrips.answered, status: cantrips.status },
     { expected: 3, answered: 3, status: "answered" },
-    "expected reflète les réponses valides — la couche ne déclare pas de compte lisible");
-  assert.equal("provenance" in cantrips, false, "aucun record n'a offert de compte lisible : pas de provenance");
+    "trois sorts mineurs attendus, trois posés");
+  /* ⭐ LE POINT DU LOT 101 : la provenance EXISTE désormais sur la pile FR, et
+     elle NOMME le record et le champ qui offrent le compte. Un compte sans
+     provenance serait un compte inventé ; celui-ci se laisse vérifier. */
+  assert.deepEqual(cantrips.provenance,
+    { mode: "offered", kind: "class-progression", id: "srd:class-progression:fr:magicien", field: "resources.cantrips" },
+    "le compte est OFFERT par un record français qui se nomme — plus aucune devinette");
+  assert.equal(decisions.get("class.prepared").provenance.field, "resources.prepared_spells");
   assert.equal(decisions.get("class.prepared").answered, 4);
   /* 16, pas 15 : la couche homebrew du harnais ajoute « Chuchotement des
      pages » (niveau 0, classes ["Magicien"]) — le croisement embarque
@@ -297,13 +313,24 @@ test("pile FR — le magicien d'exemple est JUGÉ sans compte inventé : 3/3 et 
   assert.equal(decisions.has("class.cantrips[3]"), false, "aucun créneau manquant inventé");
 });
 
-test("pile FR — un magicien SANS sort posé ne reçoit AUCUN plan : rien à guider, rien à juger", () => {
+test("pile FR — un magicien SANS sort posé reçoit ses SEPT créneaux vides : le français guide enfin", () => {
+  /* 🔴 CE TEST ATTENDAIT `false`, ET C'EST LE RENVERSEMENT LE PLUS PARLANT DU
+     LOT 98 : un magicien français qui n'avait rien posé ne recevait AUCUN
+     plan — l'écran ne pouvait donc rien lui proposer, faute d'un compte
+     lisible. Il en reçoit maintenant NEUF : les deux groupes, plus les 3 + 4
+     créneaux vides que la progression déclare. ⛔ Et ce n'est pas un compte
+     inventé : chaque plan porte la provenance du record qui l'offre. */
   const h = makeHarness();
   const example = readJson(EXAMPLE_CHAR);
   const document = acceptanceDocument(h.layers);
   document.build.choices = example.build.choices.filter((choice) => !/^class\.(cantrips|prepared)/.test(choice.path));
   const out = h.verbs.rebuild({ document });
-  assert.equal(out.decisions.some((entry) => /^class\.(cantrips|prepared)/.test(entry.path)), false);
+  const plans = out.decisions.filter((entry) => /^class\.(cantrips|prepared)/.test(entry.path));
+  assert.equal(plans.length, 9, "2 groupes + 3 créneaux de sorts mineurs + 4 de sorts préparés");
+  assert.equal(plans.every((plan) => plan.status === "pending" && plan.answered === 0), true,
+    "tous en attente : rien n'est posé, et rien n'est inventé à la place du joueur");
+  assert.equal(plans.every((plan) => plan.provenance?.id === "srd:class-progression:fr:magicien"), true,
+    "chaque créneau dit d'où vient son compte");
 });
 
 test("pile FR — magicien → roublard : les 7 sorts sont verrouillés quand même, le jugement ne dépend pas du compte", () => {
