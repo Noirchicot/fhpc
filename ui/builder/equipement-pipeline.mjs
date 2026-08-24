@@ -28,7 +28,7 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=291";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=292";
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {

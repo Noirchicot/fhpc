@@ -14,8 +14,8 @@
    reçoit `surBouton(mot)` et décide (le builder : « Equipment » → retour R). */
 
 import { SCENE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
-  from "./b3-disposition.mjs?v=291";
-import { CORPS } from "./b3-ancrages.mjs?v=291";
+  from "./b3-disposition.mjs?v=292";
+import { CORPS } from "./b3-ancrages.mjs?v=292";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -69,7 +69,7 @@ export function construireLaSceneB3(options = {}) {
     for (const [clef, c] of Object.entries(CORPS)) {
       const m = forme("mask", null, { id: `b3s-masque-${clef === "monsieur" ? "h" : "f"}`,
         maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1000, height: 1600 });
-      m.append(forme("image", null, { href: `./assets/${c.image}?v=291`,
+      m.append(forme("image", null, { href: `./assets/${c.image}?v=292`,
         x: c.x, y: c.y, width: c.largeur, height: c.hauteur }));
       defs.append(m);
     }
@@ -162,7 +162,26 @@ export function construireLaSceneB3(options = {}) {
       plus.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 55, "+", "middle"));
       if (contenu && contenu.surBourse) plus.addEventListener("click", () => contenu.surBourse(clef, 1));
       noeud.append(plus);
-      noeud.append(forme("rect", "b3-typein", { x: cx, y: BOURSE.y + 63, width: pas - 5, height: 13, rx: 2 }));
+      /* ⭐ LE TYPE IN DU CROQUIS, BRANCHÉ (Eric, 24/08 : « le type in de la
+         bourse peut être utile ») : un vrai champ par monnaie — la valeur
+         ABSOLUE, posée d'un coup (gagner 150 po ne se clique pas 150 fois). */
+      if (contenu && contenu.surBourseValeur) {
+        const fo = forme("foreignObject", null,
+          { x: cx, y: BOURSE.y + 63, width: pas - 5, height: 15 });
+        const champ = document.createElement("input");
+        champ.className = "b3-typein-champ";
+        champ.type = "text"; champ.inputMode = "numeric";
+        champ.setAttribute("aria-label", `Set ${mon}`);
+        champ.addEventListener("change", () => {
+          const v = parseInt(champ.value, 10);
+          if (Number.isInteger(v) && v >= 0) contenu.surBourseValeur(clef, v);
+          else champ.value = "";
+        });
+        fo.append(champ);
+        noeud.append(fo);
+      } else {
+        noeud.append(forme("rect", "b3-typein", { x: cx, y: BOURSE.y + 63, width: pas - 5, height: 13, rx: 2 }));
+      }
       const moins = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0, "aria-label": `One less ${mon}` });
       moins.append(forme("rect", "b3-bouton", { x: cx, y: BOURSE.y + 80, width: pas - 5, height: 13, rx: 2 }));
       moins.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 89, "−", "middle"));

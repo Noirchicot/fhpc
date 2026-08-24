@@ -4176,7 +4176,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=291");
+  background-image: url("./assets/tarot-dos.jpg?v=292");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4454,6 +4454,12 @@ button { font: inherit; }
 .b3-collecteur { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 .b3-envoi { fill: none; stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
 .b3-typein { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .7; }
+/* le champ vivant du type-in — même encre que son cadre décoratif */
+.b3-typein-champ {
+  width: 100%; height: 100%; box-sizing: border-box; text-align: center;
+  font: inherit; font-size: var(--t1); background: none; color: var(--text);
+  border: 1px solid var(--accent); border-radius: var(--radius-sm);
+}
 /* Le compteur ×N des six poches — médial (Pocket) ou latéral (Pocket/Sheath). */
 .b3-qte { fill: var(--surface); stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
 .b3-qte-texte { fill: var(--text); font-size: var(--t1); font-family: inherit; }
