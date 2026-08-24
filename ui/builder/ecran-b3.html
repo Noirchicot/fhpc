@@ -166,6 +166,10 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
 .b3-collecteur { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 .b3-envoi { fill: none; stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
 .b3-typein { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .7; }
+/* ⭐ LE COMPTEUR DE QUANTITÉ — le rond vert « QTY » du croquis. Eric, 24/08 :
+   il vit dans les POCKETS, et seulement quand l'objet posé en porte plusieurs. */
+.b3-qte { fill: var(--surface); stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
+.b3-qte-texte { fill: var(--text); font-size: 8px; font-family: inherit; }
 
 .banc-releve {
   flex: 1 1 220px; min-width: 0; overflow: auto;
@@ -481,6 +485,14 @@ function peindreScene() {
     }
     if (b.attunable) scene.append(formeScene("circle", "b3-attune",
       { cx: x + l + 5, cy: b.y + 5, r: 3 }));
+    /* ⭐ LE COMPTEUR ×N des six poches (« les 6 », Eric) — un état d'OBJET :
+       il ne paraît que si l'objet posé en porte plusieurs. ⏳ APERÇU DE BANC
+       sur Pocket 1 seulement, pour juger l'allure — le vrai compte viendra
+       avec le câblage (lot 95+). */
+    if (b.quantite && b.clef === "poche1") {
+      scene.append(formeScene("circle", "b3-qte", { cx: x + l - 12, cy: b.y, r: 7 }));
+      scene.append(texteScene("b3-qte-texte", x + l - 12, b.y + 3, "×3", "middle"));
+    }
   }
 
   /* Le collecteur — bleu au croquis, double lisière comme il l'a dessiné. */

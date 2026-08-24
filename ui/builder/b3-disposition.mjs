@@ -49,6 +49,11 @@ export const PILE = 8;
  *  · attunable : la pastille du croquis — un ÉTAT, pas un ornement (Eric,
  *    24/08 : « les points orange = attuned or not ») : éteinte par défaut,
  *    pleine quand l'objet posé est attuné ;
+ *  ⭐ et un SECOND état, la QUANTITÉ (le rond vert « QTY » du croquis) —
+ *    Eric, 24/08 : « certains items peuvent être stockés en quantités » et
+ *    « un compteur quantités peut apparaître dans POCKETS » : les quatre
+ *    Pocket ET les deux hybrides Pocket/Hilt le portent — « les 6 », son
+ *    mot — et le badge ×N ne paraît que si l'objet posé en porte plusieurs ;
  *  · pointille : le soulignage rouge pointillé qu'Eric a dessiné sur DEUX
  *    libellés (Body forging, Torso gear 2) — recopié, pas interprété : son
  *    sens est à lui. */
@@ -61,14 +66,14 @@ export const BOITES = [
   { clef: "hilt1",   nom: "Hilt 1",          x: 59,  y: 224, attunable: true },
   { clef: "hilt2",   nom: "Hilt 2",          x: 251, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
-  { clef: "hilt3",   nom: "Pocket/Hilt 3",   x: 59,  y: 280, attunable: true },
-  { clef: "hilt4",   nom: "Pocket/Hilt 4",   x: 251, y: 280, attunable: true },
+  { clef: "hilt3",   quantite: true, nom: "Pocket/Hilt 3",   x: 59,  y: 280, attunable: true },
+  { clef: "hilt4",   quantite: true, nom: "Pocket/Hilt 4",   x: 251, y: 280, attunable: true },
   { clef: "pied1",   nom: "Foot/leg gear 1", centre: true, y: 341, attunable: true },
-  { clef: "poche1",  nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
-  { clef: "poche2",  nom: "Pocket 2",        x: 299, y: 377, attunable: true },
+  { clef: "poche1",  quantite: true, nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
+  { clef: "poche2",  quantite: true, nom: "Pocket 2",        x: 299, y: 377, attunable: true },
   { clef: "pied2",   nom: "Foot/leg gear 2", centre: true, y: 397, attunable: true },
-  { clef: "poche3",  nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
-  { clef: "poche4",  nom: "Pocket 4",        x: 299, y: 433, attunable: true },
+  { clef: "poche3",  quantite: true, nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
+  { clef: "poche4",  quantite: true, nom: "Pocket 4",        x: 299, y: 433, attunable: true },
 ];
 
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */
