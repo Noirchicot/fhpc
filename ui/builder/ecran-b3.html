@@ -98,6 +98,9 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
 /* ⭐ LE CORPS EST PEINT, PAS DESSINÉ : le masque donne la forme, ce jeton donne
    l'encre. Changer de thème change la couleur du pantin sans toucher au tracé. */
 .b3-corps { fill: var(--text-soft); }
+/* Le filigrane des deux corps sous la zone commune — il montre ce qui DÉBORDE. */
+.b3-fantome { fill: var(--text-muted); opacity: .22; }
+.b3-fantome[hidden] { display: none; }
 
 /* ⭐ UN ANCRAGE SE PREND AU DOIGT. `touch-action: none` — sans lui le doigt
    fait défiler la page et le navigateur annule la séquence en cours de route,
@@ -160,7 +163,22 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
         <mask id="masque-f" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
           <image href="./assets/pantin-f.png?v=284" x="305" y="100" width="390" height="1400"></image>
         </mask>
+        <!-- 🔴 LA ZONE COMMUNE — Eric, 2026-08-24 : *« superpose les deux corps,
+             je trouve le point moyen »*. ⛔ Ce n'est PAS une superposition à
+             l'œil : c'est l'INTERSECTION, calculée pixel à pixel une fois les
+             deux corps mis à la même hauteur d'encre. Mesuré : 78 % du monsieur
+             et 90 % de la dame.
+             ⭐ Un ancrage posé DEDANS tient sur les deux par construction — il
+             n'y a plus rien à vérifier après coup. C'est la différence entre
+             « ça a l'air de tomber juste » et « ça ne peut pas tomber faux ». -->
+        <mask id="masque-x" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
+          <image href="./assets/pantin-x.png?v=284" x="280" y="100" width="441" height="1400"></image>
+        </mask>
       </defs>
+      <!-- Les deux en filigrane, la zone commune par-dessus : on voit d'un coup
+           ce qui déborde de l'un ou de l'autre, et ce qui appartient aux deux. -->
+      <rect class="b3-fantome" id="fantomeH" x="0" y="0" width="1000" height="1600" mask="url(#masque-h)" hidden></rect>
+      <rect class="b3-fantome" id="fantomeF" x="0" y="0" width="1000" height="1600" mask="url(#masque-f)" hidden></rect>
       <rect class="b3-corps" id="corps" x="0" y="0" width="1000" height="1600" mask="url(#masque-h)"></rect>      <g id="ancres"></g>
     </svg>
 
@@ -182,20 +200,32 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
    ⏳ Les coordonnées ci-dessous sont un POINT DE DÉPART, pas une décision.
    C'est Eric qui les pose ; ce fichier ne fait que les relire. */
 const EMPLACEMENTS = [
-  { clef: "tete",      nom: "Tête",      n: 8,  x: 500, y: 150 },
-  { clef: "yeux",      nom: "Yeux",      n: 4,  x: 640, y: 215 },
-  { clef: "cou",       nom: "Cou",       n: 13, x: 500, y: 350 },
-  { clef: "dos",       nom: "Dos",       n: 10, x: 300, y: 430 },
-  { clef: "torse",     nom: "Torse",     n: 17, x: 500, y: 520 },
-  { clef: "avantbras", nom: "Avant-bras", n: 2, x: 710, y: 600 },
-  { clef: "mains",     nom: "Mains",     n: 43, x: 290, y: 700 },
-  { clef: "taille",    nom: "Taille",    n: 2,  x: 500, y: 715 },
-  { clef: "doigts",    nom: "Doigts",    n: 22, x: 710, y: 720 },
-  { clef: "pieds",     nom: "Pieds",     n: 7,  x: 500, y: 1245 }
+  /* 🔴 CE SONT LES COORDONNÉES D'ERIC, POSÉES À LA MAIN LE 2026-08-24 — ⛔ plus
+     mes amorces au jugé. ⚠️ Sept des dix tiennent sur les DEUX corps ; trois
+     restent à régler, et le mode « zone commune » est fait pour ça :
+       · `mains` (332, 788)  ⛔ sur la dame seulement — chez le monsieur, le
+         point tombe dans l'écart entre le bras et le torse ;
+       · `doigts` (656, 823) ⛔ idem, 9 unités trop médial ;
+       · `pieds` (611, 1441) ✅ tient, mais il est sur le pied DROIT, pas centré.
+     📏 Les fenêtres communes mesurées, si tu veux rester sur le bras :
+         mains  y=788 → x 678..694 (milieu 686)   ou le torse : 374..617
+         doigts y=823 → x 665..683 (milieu 674)   ou le torse : 511..625
+     ⭐ Un point posé DANS la zone commune tient sur les deux par construction. */
+  { clef: "tete",      nom: "Tête",      n: 8,  x: 496, y: 117 },
+  { clef: "yeux",      nom: "Yeux",      n: 4,  x: 529, y: 191 },
+  { clef: "cou",       nom: "Cou",       n: 13, x: 503, y: 300 },
+  { clef: "dos",       nom: "Dos",       n: 10, x: 503, y: 409 },
+  { clef: "torse",     nom: "Torse",     n: 17, x: 504, y: 454 },
+  { clef: "avantbras", nom: "Avant-bras", n: 2, x: 670, y: 683 },
+  { clef: "mains",     nom: "Mains",     n: 43, x: 332, y: 788 },
+  { clef: "taille",    nom: "Taille",    n: 2,  x: 504, y: 657 },
+  { clef: "doigts",    nom: "Doigts",    n: 22, x: 656, y: 823 },
+  { clef: "pieds",     nom: "Pieds",     n: 7,  x: 611, y: 1441 }
 ];
 
 const SVG = "http://www.w3.org/2000/svg";
 let corpsCourant = "h";
+const NOM_CORPS_AVANCE = null;
 const repere = document.getElementById("repere");
 const hote = document.getElementById("ancres");
 const sortie = document.getElementById("json");
@@ -284,7 +314,7 @@ function relever() {
   const echelle = (r.width / 1000);
   mesure.textContent =
     `repère 1000 × 1600 · rendu ${Math.round(r.width)} × ${Math.round(r.height)} px ` +
-    `· 1 unité = ${echelle.toFixed(3)} px · corps : ${corpsCourant === "h" ? "monsieur" : "dame"} ` +
+    `· 1 unité = ${echelle.toFixed(3)} px · corps : ${NOM_CORPS[corpsCourant]} ` +
     `— ⭐ les ancrages ne bougent ni avec l'échelle ni avec le corps`;
 }
 
@@ -296,9 +326,17 @@ document.getElementById("copier").addEventListener("click", async () => {
    de ce bouton. Un ancrage juste sur le monsieur et faux sur la dame n'est pas
    un ancrage, c'est un réglage. ⭐ Et rien ne bouge en changeant de corps : les
    pastilles vivent dans le repère, pas sur l'image. */
+const TOUR = ["h", "f", "x"];
+const NOM_CORPS = { h: "monsieur", f: "dame", x: "ZONE COMMUNE aux deux" };
 document.getElementById("corpsSuivant").addEventListener("click", () => {
-  corpsCourant = corpsCourant === "h" ? "f" : "h";
+  corpsCourant = TOUR[(TOUR.indexOf(corpsCourant) + 1) % TOUR.length];
   document.getElementById("corps").setAttribute("mask", `url(#masque-${corpsCourant})`);
+  /* ⭐ EN MODE « ZONE COMMUNE », LES DEUX CORPS PARAISSENT EN FILIGRANE : sans
+     eux on verrait l'intersection sans savoir ce qu'elle a retiré, et on ne
+     saurait pas de QUEL côté un point est trop loin. */
+  const filigrane = corpsCourant === "x";
+  document.getElementById("fantomeH").hidden = !filigrane;
+  document.getElementById("fantomeF").hidden = !filigrane;
   relever();
 });
 
