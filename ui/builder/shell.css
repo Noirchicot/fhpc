@@ -4176,7 +4176,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=293");
+  background-image: url("./assets/tarot-dos.jpg?v=294");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4583,3 +4583,19 @@ button { font: inherit; }
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
+
+/* ══ Le titre de R et sa loupe (24/08) ══════════════════════════════════════ */
+.carte-r { position: relative; }
+.carte-r-titre {
+  margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted);
+  letter-spacing: .14em; text-transform: uppercase;
+}
+.carte-r-loupe {
+  position: absolute; right: var(--sp-4); bottom: var(--sp-4); z-index: 1;
+  min-width: var(--touch); min-height: var(--touch);
+  font: inherit; cursor: pointer; background: var(--surface);
+  color: var(--text); border: 1px solid var(--border-strong); border-radius: 50%;
+}
+.pipeline-recherche-champ { max-width: none; width: 100%; text-align: left; }
+.pipeline-resultat { width: 100%; font: inherit; cursor: pointer; background: none; color: var(--text); text-align: left; }
+.pipeline-pied-seul { grid-template-columns: 1fr; }

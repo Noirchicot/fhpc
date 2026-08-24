@@ -15,7 +15,7 @@ const scenario = location.hash.slice(1) || "b3";
 const graine = scenario === "b3equipe" ? "/fixture-equipe.json" : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
-f.src = "./index.html?v=293";
+f.src = "./index.html?v=294";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
   for (const type of ["pointerdown", "pointerup"]) {
@@ -43,13 +43,23 @@ f.addEventListener("load", async () => {
   // tout le reste passe par le catalogue
   q('.b3-scene [aria-label="Equipment"]')?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   await dors(600);
+  if (scenario === "recherche") {
+    tous(".carte-r-loupe").at(0)?.click();
+    await dors(300);
+    const champ = q(".pipeline-recherche-champ");
+    if (champ) { champ.value = "sword"; champ.dispatchEvent(new Event("input", { bubbles: true })); }
+    await dors(300);
+    document.title = "resultats=" + tous(".pipeline-resultat").length +
+      " compte=" + (q(".pipeline-compte")?.textContent || "?");
+    return;
+  }
   if (scenario === "b2") {
     /* ⛔ DANS LE ROYAUME DE L'IFRAME — un import depuis la page parente crée
        un SECOND panier (autre realm, autre module) : payé en photo vide. */
     const sc = d.createElement("script");
     sc.type = "module";
     sc.textContent = `
-      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=293";
+      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=294";
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:crowbar" }, nom: "Crowbar", cout: parseCout("2 GP") });
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:rope-hempen-50-feet" }, nom: "Rope, hempen (50 feet)", cout: parseCout("1 GP") });
       window.__panierPret = true;`;

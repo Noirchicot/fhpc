@@ -28,7 +28,7 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=293";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=294";
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {
@@ -442,5 +442,66 @@ export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surL
   pied.append(bouton("BACK", "pipeline-bouton", retour, "Back to the dressing"));
 
   ecran.append(entete, gauche, droite, cadran, listeHote, pied);
+  return ecran;
+}
+
+/* ══ LA RECHERCHE — invoquée à la LOUPE depuis le coin de R (Eric, 24/08) ════
+   « Once found, takes you directly to item menu » (son annotation du croquis
+   R) : un résultat touché OUVRE LA FICHE — la recherche est un raccourci vers
+   B1, pas un troisième catalogue. ⛔ Pas de défilement : des pages. */
+export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = 8 }) {
+  const ecran = elp("section", "pipeline-ecran pipeline-recherche");
+  ecran.dataset.ecran = "Recherche";
+  let page = 0;
+  let terme = "";
+
+  const entete = elp("header", "pipeline-entete");
+  entete.append(elp("h2", null, "Find equipment"));
+  const compte = elp("p", "pipeline-compte");
+  entete.append(compte);
+  const gauche = bouton("←", "pipeline-fleche", () => { page = Math.max(0, page - 1); peindre(); }, "Previous page");
+  const droite = bouton("→", "pipeline-fleche", () => { page += 1; peindre(); }, "Next page");
+
+  const champ = elp("input", "pipeline-typein pipeline-recherche-champ");
+  champ.type = "search";
+  champ.placeholder = "Type a name…";
+  champ.setAttribute("aria-label", "Search the catalogue");
+  champ.addEventListener("input", () => { terme = champ.value.trim().toLowerCase(); page = 0; peindre(); });
+
+  const listeHote = elp("div", "pipeline-lignes");
+
+  function resultats() {
+    if (terme.length < 2) return [];
+    return catalogue.filter((it) => (it.nom || "").toLowerCase().includes(terme));
+  }
+
+  function peindre() {
+    const trouves = resultats();
+    const pages = Math.max(1, Math.ceil(trouves.length / parPage));
+    page = Math.min(page, pages - 1);
+    compte.textContent = terme.length < 2 ? "—" : `${trouves.length} · ${page + 1}/${pages}`;
+    listeHote.textContent = "";
+    if (terme.length < 2) {
+      listeHote.append(elp("p", "pipeline-vide", "Two letters at least — the catalogue is wide."));
+      return;
+    }
+    if (!trouves.length) {
+      listeHote.append(elp("p", "pipeline-vide", "Nothing bears that name."));
+      return;
+    }
+    trouves.slice(page * parPage, (page + 1) * parPage).forEach((it) => {
+      const rang = bouton("", "pipeline-ligne pipeline-resultat",
+        () => onOuvrirFiche(trouves, trouves.indexOf(it)), `Open ${it.nom}`);
+      rang.append(elp("span", "pipeline-ligne-nom", it.nom),
+        elp("span", "pipeline-ligne-prix", it.coutTexte || "—"));
+      listeHote.append(rang);
+    });
+  }
+  peindre();
+
+  const pied = elp("div", "pipeline-pied pipeline-pied-seul");
+  pied.append(bouton("BACK", "pipeline-bouton", retour, "Back to the browser"));
+
+  ecran.append(entete, gauche, droite, champ, listeHote, pied);
   return ecran;
 }

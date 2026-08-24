@@ -43,26 +43,26 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=293";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=293";
+import { renderPicker } from "./carnet.mjs?v=294";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=294";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=293";
-import { swapContent } from "./socle.mjs?v=293";
+import { isGenre } from "../../src/layers/document.mjs?v=294";
+import { swapContent } from "./socle.mjs?v=294";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=293";
+import { armerJeton } from "./glisser.mjs?v=294";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=293";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=294";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=293";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=293";
-import { guideEquipementVu, setGuideEquipementVu } from "./tutoriel.mjs?v=293";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=294";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=294";
+import { guideEquipementVu, setGuideEquipementVu } from "./tutoriel.mjs?v=294";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -1491,10 +1491,14 @@ function ficheItem(item) {
 function fabriquerChercheur(query) {
   const parId = new Map();
   const slotParBase = new Map();
+  const tous = [];
   for (const kind of ["gear", "weapon", "armor", "item", "tool"]) {
     let vues = [];
     try { vues = query({ kind }); } catch { vues = []; }
-    for (const v of vues) parId.set(v.id, v.record || v);
+    for (const v of vues) {
+      parId.set(v.id, v.record || v);
+      tous.push({ kind: v.kind || kind, view: v });
+    }
   }
   try {
     for (const v of query({ kind: "shelving" })) {
@@ -1506,6 +1510,7 @@ function fabriquerChercheur(query) {
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
     slot: (ref) => slotParBase.get(ref && ref.id) || null,
+    tous: () => tous,
   };
 }
 
@@ -1626,13 +1631,14 @@ export function renderEquipmentStep(ctx, onAction) {
 
   function construireCatalogue() {
     const catalogue = renderGearBlock({ query, onAction: act });
-    const boutons = catalogue.querySelectorAll(".carte-r-bouton");
+    const boutons = catalogue.querySelectorAll(".carte-r-bouton, .carte-r-loupe");
     for (const b of boutons) {
       if (b.dataset.mot === "GEAR") b.addEventListener("click", () => montrer("b3"));
       if (b.dataset.mot === "CART") {
         b.dataset.compte = String(cartCompte(docu));
         b.addEventListener("click", () => montrer("b2"));
       }
+      if (b.dataset.mot === "LOUPE") b.addEventListener("click", () => montrer("recherche"));
       /* CRAFT : exclu du mandat · NEXT : appartient à la coquille (topbar). */
     }
     return catalogue;
@@ -1642,7 +1648,15 @@ export function renderEquipmentStep(ctx, onAction) {
     if (vue === "r") return construireCatalogue();
     if (vue === "b1" && ficheEnCours) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
-        bourse, onAction: actArbitre, fermer: () => montrer("r") });
+        bourse, onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });
+    }
+    if (vue === "recherche") {
+      /* le catalogue ENTIER, habillé une fois — et « once found, takes you
+         directly to item menu » : un résultat ouvre B1, qui REVIENT ici. */
+      const catalogue = cherche.tous().map(ficheItem);
+      return renderRecherche({ catalogue,
+        onOuvrirFiche: (liste, index) => { ficheEnCours = { liste, index, retour: "recherche" }; montrer("b1"); },
+        retour: () => montrer("r") });
     }
     if (vue === "b2" || vue === "sb32") {
       /* le panier du document, HABILLÉ pour l'écran : nom et prix viennent du
@@ -1702,6 +1716,13 @@ function elt(balise, classe, texte) {
 /** Les trois cibles de R (vault, « FHPCv2 écrans équipement » §2).
  *  ⏳ `TO GEAR DROP → B1` est une LECTURE non tranchée (§5.1 du même fichier) :
  *  R1 l'affiche, il ne la décide pas. */
+/* ⭐ LE TITRE DE R (Eric a demandé un titre le 24/08 ; « Browser » retenu :
+   le cœur de l'écran est de PARCOURIR — les roues font ça — la recherche est
+   l'outil qu'on invoque à la loupe, l'ajout passe par la fiche. « Carrousel »
+   évoqué puis écarté par lui-même. UN mot à changer ici s'il tranche autre
+   chose.) */
+export const TITRE_R = "Equipment Browser";
+
 const COLLECTEURS = [
   { creneau: "craft", mot: "CRAFT DROP", vers: "B4" },
   { creneau: "shopping", mot: "SHOPPING LIST", vers: "B2" },
@@ -1718,6 +1739,15 @@ const BOUTONS = ["GEAR", "CART", "CRAFT", "NEXT"];
  */
 export function construireLaCarteR({ tambour, grille }) {
   const noeud = elt("section", "carte-r");
+  /* le titre de l'écran — discret, au-dessus du tambour */
+  noeud.append(elt("h2", "carte-r-titre", TITRE_R));
+  /* 🔍 LA LOUPE — coin inférieur droit (Eric, 24/08) : elle INVOQUE l'écran
+     de recherche, branché par le pilote (data-mot, comme GEAR et CART). */
+  const loupe = elt("button", "carte-r-loupe", "🔍");
+  loupe.type = "button";
+  loupe.dataset.mot = "LOUPE";
+  loupe.setAttribute("aria-label", "Find equipment");
+  noeud.append(loupe);
   /* L'écran porte la LETTRE, ce qui vit dedans porte son NOM (`CADRES.md` §2).
      ⛔ Un objet n'écrit jamais de lettre — d'où `data-objet` sur la carte, et
      `data-ecran` sur ce qui l'entoure. Ici le banc tient lieu d'écran. */
