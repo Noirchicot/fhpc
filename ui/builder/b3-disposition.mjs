@@ -58,15 +58,15 @@ export const PILE = 8;
  *    gagne) : « Pocket 1 2 3 4 : MÉDIAL · Hilt 3 and 4 : latéralement » —
  *    `qte: "medial"` = à cheval sur le flanc INTERNE (vers le corps), à
  *    mi-hauteur ; `qte: "lateral"` = pareil sur le flanc EXTERNE ;
- *  · pointille : le soulignage rouge pointillé qu'Eric a dessiné sur DEUX
- *    libellés (Body forging, Torso gear 2) — recopié, pas interprété : son
- *    sens est à lui. */
+ *  ⛔ le soulignage rouge pointillé du croquis (Body forging, Torso gear 2)
+ *    n'existe plus : Eric, 24/08 — « aucun sens, tous les pointillés rouges
+ *    peuvent dégager ». C'était un trait de dessin, pas une donnée. */
 export const BOITES = [
-  { clef: "forge1",  nom: "Body forging",    x: 11,  y: 12,  attunable: true, pointille: true },
+  { clef: "forge1",  nom: "Body forging",    x: 11,  y: 12,  attunable: true },
   { clef: "forge2",  nom: "Body forging 2",  x: 11,  y: 68,  attunable: true, optionnelle: true },
   { clef: "tete1",   nom: "Head gear 1",     centre: true, y: 36,  attunable: true },
   { clef: "tete2",   nom: "Head gear 2",     centre: true, y: 92,  attunable: true },
-  { clef: "torse1",  nom: "Torso gear 1",    centre: true, y: 165, l: 182, double: "Torso gear 2", attunable: true, pointille: true },
+  { clef: "torse1",  nom: "Torso gear 1",    centre: true, y: 165, l: 182, double: "Torso gear 2", attunable: true },
   { clef: "hilt1",   nom: "Hilt 1",          x: 59,  y: 224, attunable: true },
   { clef: "hilt2",   nom: "Hilt 2",          x: 251, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },

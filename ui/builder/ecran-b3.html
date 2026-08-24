@@ -158,8 +158,6 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
    rien) ; pleine quand l'objet posé dans la boîte est attuné. */
 .b3-attune { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .55; }
 .b3-attune[data-etat="oui"] { fill: var(--accent); opacity: 1; }
-/* Le pointillé ROUGE du croquis, recopié tel quel (Body forging · Torso gear 2). */
-.b3-pointille { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 2 3; }
 .b3-info { fill: none; stroke: var(--border-strong); stroke-width: 1; }
 .b3-info-texte { fill: var(--text-muted); font-size: 8px; font-family: inherit; }
 .b3-bouton { fill: none; stroke: var(--critical); stroke-width: 1; }
@@ -473,16 +471,10 @@ function peindreScene() {
     if (b.optionnelle) r.dataset.optionnelle = "oui";
     scene.append(r);
     scene.append(texteScene("b3-nom", x + 5, b.y + 12, b.nom));
-    /* Le pointillé rouge du croquis vit sous « Body forging » et sous le
-       SECOND libellé du torse (« Torso gear 2 ») — recopié, pas déplacé. */
-    if (b.pointille && !b.double) scene.append(formeScene("line", "b3-pointille",
-      { x1: x + 5, y1: b.y + 15, x2: x + 5 + b.nom.length * 4.4, y2: b.y + 15 }));
     if (b.double) {
       scene.append(formeScene("line", "b3-boite-scene",
         { x1: x + l / 2, y1: b.y, x2: x + l / 2, y2: b.y + JETON.h }));
       scene.append(texteScene("b3-nom", x + l / 2 + 5, b.y + 12, b.double));
-      if (b.pointille) scene.append(formeScene("line", "b3-pointille",
-        { x1: x + l / 2 + 5, y1: b.y + 15, x2: x + l / 2 + 5 + b.double.length * 4.4, y2: b.y + 15 }));
       scene.append(formeScene("circle", "b3-attune", { cx: x - 5, cy: b.y + 5, r: 3 }));
     }
     if (b.attunable) scene.append(formeScene("circle", "b3-attune",
