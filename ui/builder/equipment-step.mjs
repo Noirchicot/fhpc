@@ -43,25 +43,25 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=289";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=289";
+import { renderPicker } from "./carnet.mjs?v=290";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=290";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=289";
-import { swapContent } from "./socle.mjs?v=289";
+import { isGenre } from "../../src/layers/document.mjs?v=290";
+import { swapContent } from "./socle.mjs?v=290";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=289";
+import { armerJeton } from "./glisser.mjs?v=290";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=289";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=290";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, panierAjouter, panierCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=289";
-import { SLOT_VERS_BOITES } from "./b3-disposition.mjs?v=289";
+  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=290";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=290";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -1513,13 +1513,14 @@ function fabriquerChercheur(query) {
  *  faire ratifier par Eric). Première boîte libre de la liste du slot ; un
  *  objet sans slot va aux poches ; plus de place = la ligne reste listée par
  *  SB3.x, jamais perdue. */
+function candidatesDuSlot(slot) {
+  /* la règle ratifiée : les boîtes du slot, PUIS les poches — pour tous. */
+  return [...((slot && SLOT_VERS_BOITES[slot]) || []), ...POCHES_DEBORD];
+}
 function attribuerBoites(portees, cherche) {
   const prises = new Map();
-  const POCHES = ["poche1", "poche2", "poche3", "poche4"];
   for (const ligne of portees) {
-    const slot = cherche.slot(ligne.ref);
-    const candidates = (slot && SLOT_VERS_BOITES[slot]) || POCHES;
-    const libre = candidates.find((b) => !prises.has(b));
+    const libre = candidatesDuSlot(cherche.slot(ligne.ref)).find((b) => !prises.has(b));
     if (libre) prises.set(libre, { nom: ligne.nomAffiche, qte: ligne.quantity || 1 });
   }
   return Object.fromEntries(prises);
@@ -1540,6 +1541,20 @@ export function renderEquipmentStep(ctx, onAction) {
   }
 
   const montrer = (vue) => { vueEquipement = vue; peindre(); };
+
+  /* ⭐ L'ARBITRE DU PORTAGE — la règle ratifiée d'Eric (24/08) : *« si c'est
+     libre l'item prend son slot, sinon Pocket, sinon backpack »*. Le tri se
+     fait AU MOMENT DU GESTE (un rendu n'écrit rien) : une destination
+     « self » sans boîte libre devient « backpack », l'objet va au sac. */
+  function actArbitre(a) {
+    if ((a.kind === "addGearLine" || a.kind === "moveGearLine") && a.location === "self") {
+      const prises = new Set(Object.keys(attribuerBoites(lignesParLieu(lignes, "self"), cherche)));
+      const ref = a.ref || (lignes.find((l) => l.index === a.index) || {}).ref;
+      const libre = candidatesDuSlot(cherche.slot(ref)).some((b) => !prises.has(b));
+      if (!libre) a = { ...a, location: "backpack", equipped: false };
+    }
+    act(a);
+  }
 
   /* le PILOTE que la carte R appelle (tap, dépôts) — voir `soignerLesCases` */
   piloteEquipement = {
@@ -1594,14 +1609,14 @@ export function renderEquipmentStep(ctx, onAction) {
     if (vue === "r") return construireCatalogue();
     if (vue === "b1" && ficheEnCours) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
-        bourse, onAction: act, fermer: () => montrer("r") });
+        bourse, onAction: actArbitre, fermer: () => montrer("r") });
     }
-    if (vue === "b2") return renderB2({ mode: "cart", bourse, onAction: act, retour: () => montrer("r") });
-    if (vue === "sb32") return renderB2({ mode: "send", bourse, onAction: act, retour: () => montrer("b3") });
+    if (vue === "b2") return renderB2({ mode: "cart", bourse, onAction: actArbitre, retour: () => montrer("r") });
+    if (vue === "sb32") return renderB2({ mode: "send", bourse, onAction: actArbitre, retour: () => montrer("b3") });
     if (vue === "sb31" || vue === "sb33") {
       const lieu = vue === "sb33" ? "storage" : "backpack";
       return renderSacs({ lieu, lignes, chercheRecord: (ref) => ({ data: cherche.record(ref)?.data }),
-        onAction: act, retour: () => montrer("b3"),
+        onAction: actArbitre, retour: () => montrer("b3"),
         surLieu: (l) => { if (l === "backpack") montrer("sb31"); else if (l === "storage") montrer("sb33"); else montrer("b3"); } });
     }
     return construireDressing();

@@ -88,24 +88,30 @@ export const BOITES = [
   { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 299, y: 433, attunable: true },
 ];
 
-/** ⏳ SLOT → BOÎTES — PROVISOIRE, À FAIRE RATIFIER PAR ERIC. Les DIX slots
- *  sont DONNÉS par la couche `shelving` (ils recopient ses dix ancrages,
- *  comptes identiques mesurés le 24/08) ; la répartition slot → boîte, elle,
- *  n'est écrite nulle part — celle-ci est une PROPOSITION lisible d'un coup
- *  d'œil, déclarée UNE fois, que le pilote consomme (première boîte libre de
- *  la liste). ⛔ Un objet sans slot va aux poches, jamais nulle part. */
+/** ⭐ SLOT → BOÎTES — RATIFIÉ PAR ERIC LE 24/08, ligne à ligne : « neck non,
+ *  head gear ; eyes headgear ; chapeau head » (les TROIS du haut vont à la
+ *  tête) · « torso et back idem, cape et armure » · « forearms sheath +
+ *  sheath/pocket, idem pour hands, idem pour anneaux » · « pantalons et
+ *  chaussures, bottes = feet ».
+ *  🔴 ET LA RÈGLE GÉNÉRALE, DE LUI AUSSI : *« si c'est libre l'item prend son
+ *  slot, sinon Pocket, sinon backpack »* — les POCHES sont le débord de TOUT
+ *  slot, et quand elles sont pleines l'objet va AU SAC (décidé au moment du
+ *  GESTE par le pilote, jamais pendant un rendu — un rendu n'écrit pas). */
 export const SLOT_VERS_BOITES = {
   head:     ["tete1", "tete2"],
-  eyes:     ["tete2", "tete1"],
-  neck:     ["torse1", "torse2"],
+  eyes:     ["tete1", "tete2"],
+  neck:     ["tete1", "tete2"],
   torso:    ["torse1", "torse2"],
-  back:     ["torse2", "torse1"],
+  back:     ["torse1", "torse2"],
   waist:    ["ceinture"],
-  forearms: ["fourreau1", "fourreau2"],
+  forearms: ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],
   hands:    ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],
-  fingers:  ["fourreau3", "fourreau4", "poche1", "poche2", "poche3", "poche4"],
+  fingers:  ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],
   feet:     ["pied1", "pied2"],
 };
+
+/** Le débord ratifié : « sinon Pocket » — pour tous les slots. */
+export const POCHES_DEBORD = ["poche1", "poche2", "poche3", "poche4"];
 
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */
 export const COLLECTEUR = { centre: true, y: 458 };
