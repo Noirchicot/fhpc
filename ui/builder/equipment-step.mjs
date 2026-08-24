@@ -45,6 +45,11 @@
 
 import { renderPicker } from "./carnet.mjs?v=285";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=285";
+/* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
+   demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
+   `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
+   un écran qui tombe en un record signalé. */
+import { isGenre } from "../../src/layers/document.mjs?v=285";
 import { swapContent } from "./socle.mjs?v=285";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
@@ -68,7 +73,13 @@ import { armerJeton } from "./glisser.mjs?v=285";
    un objet SANS PRIX ET SANS POIDS sans rien casser et sans inventer de
    valeur : `recordCost`/`recordWeight` rendent `null`, et la ligne de méta
    affiche « — ». L'absence est MONTRÉE, jamais comblée. */
-const EQUIPMENT_RECORD_KINDS = ["gear", "weapon", "armor", "item"];
+/* ⛔ `EQUIPMENT_RECORD_KINDS` A ÉTÉ RETIRÉ ICI (lot 95), et ce n'est pas un
+   nettoyage : c'est la liste qui MANQUAIT les 25 outils. Elle nommait quatre
+   genres, le rangement d'Eric en range cinq — les outils sont sur
+   `crafting › tools` depuis le lot 90 et n'apparaissaient nulle part.
+   ⭐ La leçon est celle d'`item-value` : une liste de genres écrite à la main
+   ne dit jamais qu'elle est incomplète. Le tambour lit maintenant les 416
+   records de rangement, qui portent chacun LEUR genre — plus de liste. */
 
 /* ADDENDUMS §4 (Eric, 2026-08-13), ratifié §0.1 de la commande : « Le
    paquet de la CLASSE, plus une bourse de 50 PO. » HÉRITÉ, pas inventé :
@@ -186,15 +197,10 @@ function recordWeight(view) {
   return data && typeof data.weight === "string" ? data.weight : null;
 }
 
-/** Les 133 records — `gear` ∪ `weapon` ∪ `armor`, TELS QUE `query({kind})`
- *  les rend (aucune liste composée à la main). */
-function catalogue(query) {
-  const items = [];
-  for (const kind of EQUIPMENT_RECORD_KINDS) {
-    for (const view of query({ kind }) || []) items.push({ kind, view });
-  }
-  return items;
-}
+/* ⛔ `catalogue()` A ÉTÉ RETIRÉ ICI (lot 95). Il pliait `EQUIPMENT_RECORD_KINDS`
+   en une liste plate, et PLUS RIEN NE L'APPELAIT depuis que le tambour a
+   remplacé la molette. Le tambour lit maintenant le rangement, qui porte ses
+   416 objets avec leur genre — la liste de genres n'a plus de lecteur. */
 
 /* ══ LE TAMBOUR (lot 84) — DEUX ROUES, PUIS UNE GRILLE PAGINÉE ════════════
    Croquis d'Eric du 2026-08-23. Rayon → étagère → objet, où les deux
@@ -209,68 +215,50 @@ function catalogue(query) {
    en C il faut un geste. */
 
 /* ══ §4 — LA COUTURE DE DONNÉE, ET IL N'Y EN A QU'UNE ════════════════════
-   🔴 LE TROU, MESURÉ le 2026-08-23 sur `layers/srd-5.2.1-en.layer.json` :
 
-     genre     n     champ de 2e niveau
-     gear     82     🔴 AUCUN — les records ne portent que cost/name/weight
-     armor    13     🔴 AUCUN DANS LA COUCHE (le SRD imprime bien
-                     « Light Armor / Medium Armor / Heavy Armor / Shield »
-                     p. 92, mais l'extracteur les ENJAMBE : c'est un lot de
-                     `fh-srd`, pas d'ici)
-     weapon   38     ✅ `weapon_category` — martial 24 · simple 14
-     item    258     ✅ `category` — wondrous-item 127 · weapon 33 · potion 24
-                     · ring 22 · armor 19 · wand 13 · staff 12 · rod 7 · scroll 1
+   🔴 CE BLOC DISAIT L'INVERSE JUSQU'AU 2026-08-24, ET IL AVAIT RAISON. Il
+   mesurait qu'aucun record ne portait de taxonomie, et il en tirait la seule
+   conclusion honnête : lire le GENRE du record et s'abstenir là où il n'y
+   avait rien. C'est ce qui affichait `Armor · Gear · Item · Weapon` au premier
+   niveau — des genres de données, présentés comme des rayons.
 
-   ⛔ AUCUN ANALYSEUR DE PROSE. Ni sur `cost`, ni sur `weight`, ni sur
-   `rarity`, ni sur les noms (« ça commence par "Potion of" donc c'est une
-   potion »). L'étape 3 de la route versatilité va TYPER ces champs, et tout
-   analyseur écrit cette semaine serait à jeter.
+   ⛔ ERIC, LE 2026-08-24 : *« je devais pas voir armor au premier niveau,
+   elles sont notées, on les respecte »*. Son rangement EXISTE, il est complet,
+   et il est dans la donnée depuis le lot 90 de fh-srd — l'écran ne le lisait
+   pas.
 
-   ⛔ ET AUCUNE CATÉGORIE INVENTÉE — consigne d'Eric du 2026-08-23 : « une
-   fois que le SRD est propre, oui on rajoute les tags de catégories ». Les
-   catégories qui manquent arriveront par un chantier de DONNÉES, jamais par
-   cet écran. Cette fonction LIT ce qui existe et S'ABSTIENT là où il n'y a
-   rien : un genre sans champ de second niveau rend UNE seule étagère, celle
-   du rayon lui-même. C'est pour ça que « Gear » et « Armor » n'ont qu'une
-   étagère aujourd'hui, et ce n'est pas un manque à combler ici.
+   ➡️ LA COUTURE A DONC CHANGÉ DE SOURCE, PAS DE FORME. Elle lit désormais la
+   couche `srfh` (genre `shelving`, 416 records) : chaque record y déclare
+   `data.shelf = {aisle, shelf}` et `data.extends` vers l'objet SRD qu'il
+   habille. ⭐ Le rangement n'est plus DÉDUIT d'un champ de donnée, il est LU
+   là où Eric l'a écrit. La table `ETAGERE_DE` a disparu : c'est elle qui
+   fabriquait les faux rayons.
 
-   ⭐ QUAND L'ÉTAPE 3 TYPERA LES CHAMPS : une seule ligne bouge dans tout le
-   dépôt — la table `ETAGERE_DE` juste en dessous. Rien d'autre de cet écran
-   ne sait d'où vient la taxonomie.
+   ⛔ ET LES OBJETS RESTENT DES RECORDS SRD. `shelving` dit OÙ, jamais QUOI :
+   le nom, le prix, le poids se lisent toujours sur le record que `extends`
+   désigne. La couche habille, elle n'aplatit pas.
 
-   ⚠️ LA LANGUE EST L'ANGLAIS, et c'est une décision d'Eric du 23/08 (« ici
-   pour le moment on construit autour de l'anglais »), pas une déduction.
-   Les mots du croquis (« Parchemins », « Baguettes ») sont ceux de sa main,
-   pas ceux de l'interface. 🔍 Et AUCUN test ne l'attrape :
-   `ui-player-facing-language.test.mjs` cherche le vocabulaire de chantier
-   (`LOT-`, `.md`, `TODO`), jamais le français. Règle tenue à l'œil.
-   📌 La couche française reste des LIBELLÉS PAR-DESSUS — jamais un second
-   jeu d'identifiants (route versatilité, lot 83). */
+   🔴 UN LIBELLÉ N'EST PAS UNE IDENTITÉ — la leçon la plus chère de ce
+   chantier, payée le 23/08 : les tables étaient indexées PAR LIBELLÉ, et
+   l'écran affichait « Armor 19 » au-dessus d'une grille de 13 parce que deux
+   étagères portaient ce mot. Ce n'est pas théorique dans la donnée actuelle :
+   `marvels › clothing` ET `mundane › clothing` s'affichent tous deux
+   « Clothing ». ⭐ L'identité d'une étagère est donc `aisle:shelf`, TOUJOURS,
+   et le libellé ne sert qu'à être lu.
 
-/** Le nom d'un rayon. Ce ne sont PAS des catégories inventées : ce sont les
- *  genres de records que cet écran interroge déjà, avec les mots que la
- *  molette d'aujourd'hui emploie (`EQUIPMENT_CATEGORIES`, plus bas). */
-const LIBELLE_DE_GENRE = {
-  gear: "Gear",
-  weapon: "Weapons",
-  armor: "Armor",
-  item: "Magic Items"
-};
-
-/** 🔴 LE SEUL ENDROIT DU DÉPÔT QUI SACHE D'OÙ SORT UNE ÉTAGÈRE.
- *  Un genre absent de cette table n'a PAS d'étagère — et c'est une mesure,
- *  pas un oubli : `gear` et `armor` ne portent aucun champ de second niveau.
- *  ⛔ N'y ajoute un genre que le jour où le champ EXISTE dans les records. */
-const ETAGERE_DE = {
-  weapon: (data) => data.weapon_category,
-  item: (data) => data.category
-};
+   ⚠️ LA LANGUE EST L'ANGLAIS, décision d'Eric du 23/08 (« ici pour le moment
+   on construit autour de l'anglais »). La couche `srfh` n'existe qu'en
+   anglais chez fh-srd, et le constructeur ne monte aujourd'hui AUCUNE couche
+   française (`LAYER_FILES`). ⛔ Le jour où une pile FR sera montée, il lui
+   faudra sa propre couche de rangement : cette fonction ne traduit rien et
+   n'invente rien — elle DIT qu'elle n'a pas de rangement (§ ci-dessous). */
 
 /** La valeur brute d'un champ, rendue lisible — et RIEN DE PLUS.
  *  ⛔ Pas de pluriel, pas de renommage, pas de table de correspondance : le
- *  libellé EST la valeur lue, seulement recasée. « wondrous-item » devient
- *  « Wondrous Item », jamais « Wondrous Items » — une table de jolis noms
- *  serait une seconde écriture de la taxonomie, et deux écritures divergent. */
+ *  libellé EST la valeur lue, seulement recasée. « wands-rods-staves » devient
+ *  « Wands Rods Staves », jamais un joli nom choisi ici — une table de jolis
+ *  noms serait une seconde écriture de la taxonomie, et deux écritures
+ *  divergent. Les noms d'Eric vivent chez fh-srd, dans `src/shelving.py`. */
 function titreDeValeur(valeur) {
   return String(valeur).split(/[-_\s]+/).filter(Boolean)
     .map((mot) => mot.charAt(0).toUpperCase() + mot.slice(1))
@@ -280,43 +268,84 @@ function titreDeValeur(valeur) {
 const parLibelle = (a, b) => a.label.localeCompare(b.label, "en");
 const parNom = (a, b) => (recordLabel(a.view) || "").localeCompare(recordLabel(b.view) || "", "en");
 
+/** Le genre `shelving` de la couche `srfh` — nommé une seule fois. */
+const GENRE_RANGEMENT = "shelving";
+
 /**
- * L'arbre du tambour : rayons → étagères → objets.
+ * L'arbre du tambour : rayons → étagères → objets, LU dans le rangement
+ * d'Eric (couche `srfh`, genre `shelving`).
  *
- * ⏳ PROVISOIRE — la taxonomie n'existe pas encore dans les records
- * (lot 84, §4). Quand l'étape 3 de la route versatilité type les champs,
- * SEULE `ETAGERE_DE` ci-dessus change ; cette fonction, elle, ne bouge pas.
+ * ⭐ TROIS ABSENCES SONT TRAITÉES, ET AUCUNE N'EST COMBLÉE EN SILENCE — une
+ * absence n'est jamais une réponse :
+ *   · pas de couche de rangement du tout → l'arbre est VIDE, et l'appelant
+ *     l'affiche comme tel. ⛔ Pas de repli sur les genres : ce repli EST le
+ *     défaut qu'on vient de retirer, et il reviendrait sans qu'on le voie ;
+ *   · un record de rangement sans `aisle` ou sans `shelf` → il est COMPTÉ
+ *     dans `orphelins`, jamais rangé de force sous une étiquette inventée ;
+ *   · un `extends` qui ne résout pas → COMPTÉ dans `introuvables`. Un objet
+ *     rangé dont le record a disparu est une pile incohérente, pas un vide.
  *
  * @param {Function} query `layers.verbs.query`
  * @returns {Array<{id:string,label:string,etageres:Array<{id:string,label:string,objets:Array}>}>}
  */
 export function rayonsEtEtageres(query) {
-  const rayons = [];
-  for (const kind of EQUIPMENT_RECORD_KINDS) {
-    const libelle = LIBELLE_DE_GENRE[kind] || titreDeValeur(kind);
-    const lire = ETAGERE_DE[kind];
-    /* Une `Map` plutôt qu'un objet : elle garde l'ordre de rencontre, qu'on
-       remplace ensuite par un tri explicite — jamais l'ordre du hasard. */
-    const paniers = new Map();
-    for (const view of query({ kind }) || []) {
-      const data = (view && view.record && view.record.data) || {};
-      const brut = lire ? lire(data) : null;
-      /* ⚠️ UNE ABSENCE N'EST JAMAIS UNE RÉPONSE : une valeur vide n'est pas
-         une catégorie « vide », c'est un record NON CLASSÉ. Il tombe dans le
-         panier du rayon, sous le nom du rayon — visible, jamais rangé de
-         force sous une étiquette qu'il ne porte pas. */
-      const clef = typeof brut === "string" && brut !== "" ? brut : "";
-      if (!paniers.has(clef)) paniers.set(clef, []);
-      paniers.get(clef).push({ kind, view });
+  const { rayons } = lireRangement(query);
+  return rayons;
+}
+
+/** La lecture complète, refus compris. Séparée de `rayonsEtEtageres` pour que
+ *  les tests puissent LIRE ce qui a été écarté : un compte d'écartés qu'aucun
+ *  appelant ne peut obtenir est un compte que personne ne relira. */
+export function lireRangement(query) {
+  const rangements = query({ kind: GENRE_RANGEMENT }) || [];
+  const orphelins = [];
+  const introuvables = [];
+  /* `Map` plutôt qu'objet : elle garde l'ordre de rencontre, remplacé ensuite
+     par un tri explicite — jamais l'ordre du hasard. */
+  const parRayon = new Map();
+
+  for (const vue of rangements) {
+    const data = (vue && vue.record && vue.record.data) || {};
+    const shelf = data.shelf || {};
+    const rayon = typeof shelf.aisle === "string" && shelf.aisle !== "" ? shelf.aisle : null;
+    const etagere = typeof shelf.shelf === "string" && shelf.shelf !== "" ? shelf.shelf : null;
+    if (!rayon || !etagere) {
+      orphelins.push({ id: vue && vue.id, aisle: shelf.aisle, shelf: shelf.shelf });
+      continue;
     }
-    const etageres = [...paniers].map(([clef, objets]) => ({
-      id: clef === "" ? kind : `${kind}:${clef}`,
-      label: clef === "" ? libelle : titreDeValeur(clef),
-      objets: objets.sort(parNom)
-    })).sort(parLibelle);
-    rayons.push({ id: kind, label: libelle, etageres });
+
+    /* L'OBJET est le record SRD que `extends` désigne. ⚠️ `query` JETTE sur un
+       genre inconnu (c'est sa force), donc `of_kind` est vérifié AVANT d'être
+       passé : un rangement qui nommerait un genre absent du contrat ferait
+       tomber tout l'écran au lieu d'être signalé. */
+    const genre = typeof data.of_kind === "string" ? data.of_kind : null;
+    const cible = typeof data.extends === "string" ? data.extends : null;
+    const objet = genre && cible && isGenre(genre) ? query({ kind: genre, id: cible }) : null;
+    if (!objet) {
+      introuvables.push({ id: vue && vue.id, of_kind: data.of_kind, extends: data.extends });
+      continue;
+    }
+
+    if (!parRayon.has(rayon)) parRayon.set(rayon, new Map());
+    const etageres = parRayon.get(rayon);
+    /* 🔴 L'IDENTITÉ EST `aisle:shelf`, JAMAIS LE LIBELLÉ. Deux rayons portent
+       une étagère « Clothing » ; les confondre afficherait le compte de l'une
+       au-dessus de la grille de l'autre. C'est arrivé le 23/08. */
+    if (!etageres.has(etagere)) etageres.set(etagere, []);
+    etageres.get(etagere).push({ kind: genre, view: objet });
   }
-  return rayons.sort(parLibelle);
+
+  const rayons = [...parRayon].map(([rayon, etageres]) => ({
+    id: rayon,
+    label: titreDeValeur(rayon),
+    etageres: [...etageres].map(([etagere, objets]) => ({
+      id: `${rayon}:${etagere}`,
+      label: titreDeValeur(etagere),
+      objets: objets.sort(parNom)
+    })).sort(parLibelle)
+  })).sort(parLibelle);
+
+  return { rayons, orphelins, introuvables, lus: rangements.length };
 }
 
 /* ══ L'ATTENTE — ☆ ☉ ☾, ET CE QUI LES DÉCLENCHE ══════════════════════════
@@ -886,10 +915,33 @@ function faireCran(libelle, rang, courant, onClic) {
   cran.className = "roue-cran";
   cran.dataset.rang = String(rang);
   cran.dataset.vise = "false";
-  cran.setAttribute("aria-current", courant ? "true" : "false");
+  /* 🔴 DEUX RÔLES, DEUX ATTRIBUTS — DETTE SOLDÉE (lot 94 → lot 95). Le cran
+     courant est RÉPÉTÉ dans la piste : 9 copies sur la roue A, 6 sur la B.
+     `aria-current` était posé sur CHACUNE, et un lecteur d'écran annonçait
+     donc NEUF FOIS « courant ». ⛔ Retirer l'attribut des copies aurait cassé
+     le visuel : c'est lui que le CSS coiffait.
+     ➡️ Le VISUEL passe sur `data-courant` (toutes les copies, c'est ce que
+     l'œil doit voir sur une roue qui tourne) et l'ANNONCE reste sur
+     `aria-current`, posée sur UNE SEULE copie par `annoncerCourant`. */
+  cran.dataset.courant = courant ? "true" : "false";
   cran.textContent = libelle;
   cran.addEventListener("click", onClic);
   return cran;
+}
+
+/** N'annonce le cran courant QU'UNE FOIS, sur la première de ses copies.
+ *  ⚠️ `aria-current="false"` n'est pas retiré des autres : l'attribut absent
+ *  et l'attribut à `false` disent la même chose aux lecteurs d'écran, mais
+ *  le garder rend la mesure lisible — on voit qu'on a répondu, pas qu'on a
+ *  oublié. Une absence n'est jamais une réponse, ici non plus. */
+export function annoncerCourant(piste) {
+  let annonce = false;
+  for (const enfant of piste.children) {
+    const estCourant = enfant.dataset && enfant.dataset.courant === "true";
+    const premier = estCourant && !annonce;
+    if (premier) annonce = true;
+    if (enfant.setAttribute) enfant.setAttribute("aria-current", premier ? "true" : "false");
+  }
 }
 
 /** UN MARQUEUR D'ATTENTE — ni bouton, ni cible : une bande qui tourne invite à
@@ -1018,8 +1070,11 @@ function renderTambour({ query, onAction }) {
 
   function marquerCourant(piste, rang) {
     for (const enfant of piste.children) {
-      enfant.setAttribute("aria-current", String(Number(enfant.dataset.rang) === rang));
+      /* Le visuel sur TOUTES les copies… */
+      enfant.dataset.courant = String(Number(enfant.dataset.rang) === rang);
     }
+    /* …et l'annonce sur une seule. */
+    annoncerCourant(piste);
   }
 
   /* ── L'ATTENTE ─────────────────────────────────────────────────────────
@@ -1132,6 +1187,7 @@ function renderTambour({ query, onAction }) {
       etagere.label, liste.indexOf(etagere), etagere.id === etagereId,
       (noeud) => roueB.viser(noeud)
     )));
+    annoncerCourant(pisteB);
     roueB.reposer();
   }
 
@@ -1209,6 +1265,7 @@ function renderTambour({ query, onAction }) {
     rayon.label, arbre.indexOf(rayon), rayon.id === rayonId,
     (noeud) => roueA.viser(noeud)
   )));
+  annoncerCourant(pisteA);
   roueA = monterRoue(pisteA, {
     longueur: () => arbre.length,
     rangCourant: () => Math.max(0, arbre.findIndex((r) => r.id === rayonId)),

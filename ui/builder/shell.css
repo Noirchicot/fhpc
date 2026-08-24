@@ -3734,13 +3734,24 @@ button { font: inherit; }
   --roue-cran-h: 48px;
   --roue-fuite: calc(12.9 * var(--roue-pas));
   --roue-champ: calc(3 * var(--roue-pas) - var(--roue-ecart));
-  /* 🔧 AMENDÉ LE 2026-08-23 — LE FONDU VAUT 10 PX, ET IL EST FIXE.
-     🔴 Le masque en POURCENTAGE a coûté une passe de réglage entière : plus la
-     piste s'élargissait, plus il rongeait de crans, et Eric réglait « 7 » pour
-     en voir 5. ⛔ Et PAS de cran de marge non plus : une marge exprimée en cran
-     fabrique une piste à QUATRE crans, et il le voit tout de suite
-     (« on ne voyait que trois crans par étage, suis-je clair ou pas ? »). */
-  --roue-fondu: 10px;
+  /* 🔧 AMENDÉ LE 2026-08-23, PUIS LE 2026-08-24 — LE FONDU EST UN RAPPORT AU PAS.
+     🔴 Le masque en POURCENTAGE DE LA PISTE a coûté une passe de réglage
+     entière : plus la piste s'élargissait, plus il rongeait de crans, et Eric
+     réglait « 7 » pour en voir 5. ⛔ Et PAS de cran de marge non plus : une
+     marge exprimée en cran fabrique une piste à QUATRE crans, et il le voit
+     tout de suite (« on ne voyait que trois crans par étage, suis-je clair ou
+     pas ? »).
+
+     ⭐ DETTE SOLDÉE (lot 94 → lot 95), ET CE N'EST PAS UN RETOUR EN ARRIÈRE :
+     un pourcentage DE LA PISTE et un rapport AU PAS ne sont pas la même
+     grandeur. La piste s'élargit avec l'écran ; le pas, lui, est BORNÉ
+     (`min(121px, …)`). Depuis que la roue est fluide, `10px` figé rongeait
+     13,5 % d'un cran tombé à 73,8 px, contre 8,3 % à 121 px — le fondu
+     grossissait à mesure que le cran maigrissait, exactement l'inverse de ce
+     qu'on voulait. Le rapport `pas / 12.1` vaut 10 px À L'IDENTIQUE sur l'iPad
+     d'Eric (121 / 12.1 = 10) et suit le cran ailleurs. C'est la même écriture
+     que `--roue-ecart`, pour la même raison. */
+  --roue-fondu: calc(var(--roue-pas) / 12.1);
   display: flex; flex-direction: column; gap: var(--sp-4);
   margin-bottom: var(--sp-16);
 }
@@ -3913,7 +3924,12 @@ button { font: inherit; }
 }
 /* Le cran sous le viseur, et celui qui porte le choix posé. */
 .roue-cran[data-vise="true"] { color: var(--text); }
-.roue-cran[aria-current="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
+/* 🔴 LE VISUEL SE COIFFE SUR `data-courant`, PAS SUR `aria-current` (lot 95).
+   Le cran courant est RÉPÉTÉ dans la piste — 9 copies sur la roue A. Toutes
+   doivent s'allumer (l'œil suit une roue qui tourne), mais UNE SEULE doit
+   s'annoncer : `aria-current` sur les neuf faisait dire « courant » neuf fois
+   à un lecteur d'écran. Deux rôles, deux attributs. */
+.roue-cran[data-courant="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
 
 .roue-marqueur {
   cursor: default; background: none; color: var(--text-muted); font-size: var(--t5);

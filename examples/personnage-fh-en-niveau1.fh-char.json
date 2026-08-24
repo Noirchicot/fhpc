@@ -22,6 +22,12 @@
         "name": "SRD 5.2.1 (EN)"
       },
       {
+        "id": "srfh-shelving-en",
+        "version": "0.1.0",
+        "hash": "2c4f7d6978ac06d6291837974b3557c6d6cc34e0104061951b055b72726f2949",
+        "name": "SRFH — Shelving (EN)"
+      },
+      {
         "id": "fh-species-en",
         "version": "0.1.0",
         "hash": "40e235b4f0b69733f032379693e9ab2c56a9d95e3b6d83e7c39447b02b285d42",
@@ -387,6 +393,12 @@
           "version": "5.2.1",
           "hash": "a68262ccdda6590494ecb4a30ec5dd49937233cd6ce0bc82e186afff6d838e07",
           "name": "SRD 5.2.1 (EN)"
+        },
+        {
+          "id": "srfh-shelving-en",
+          "version": "0.1.0",
+          "hash": "2c4f7d6978ac06d6291837974b3557c6d6cc34e0104061951b055b72726f2949",
+          "name": "SRFH — Shelving (EN)"
         },
         {
           "id": "fh-species-en",

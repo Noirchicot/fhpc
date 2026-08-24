@@ -116,10 +116,25 @@ import { sha256Portable } from "./sha256.mjs";
    lot 100 a mesuré et REFUSÉ d'en poser une (38 contre 38, mais ni le coût ni
    le niveau ne discriminent — c'est un groupe ouvert). Une clef anglaise des
    deux côtés ne dit donc PAS que les deux catalogues sont appariés record par
-   record ; ils ne le sont pas encore. */
+   record ; ils ne le sont pas encore.
+
+   ⭐ RÉVISION DU 2026-08-24 (lot 95) — `shelving` est le genre 21, et c'est le
+   PREMIER genre de la couche `srfh` : ni le livre, ni Fate's Hand, mais les
+   décisions de RANGEMENT d'Eric (416 records, `aisle` + `shelf`, plus
+   `extends` vers le record SRD que chacun habille).
+
+   ⛔ IL N'APLATIT RIEN, ET C'EST LA RAISON DU GENRE À PART. Un record
+   `shelving` s'AJOUTE ; il ne modifie aucun record `srd:`. Ranger un objet
+   n'est pas une donnée du livre — verser `aisle` dans le record `gear`
+   mélangerait la copie fidèle et une décision d'Eric dans la même couche, ce
+   que la loi §0.12 interdit. La couche EMPILE, elle n'aplatit pas.
+
+   ⚠️ PUBLIÉ EN ANGLAIS SEULEMENT, et ce n'est PAS un manque à combler ici :
+   `exports/srfh/` n'existe qu'en anglais chez fh-srd. ⛔ Ne fabrique pas un
+   `srfh:shelving:fr:` en traduisant — ce serait inventer une source. */
 export const GENRES = [
   "arcana", "armor", "background", "class", "class-option", "class-progression", "feat", "gear",
-  "glossary", "item", "item-value", "monster", "skill", "species", "spell", "tool", "training", "weapon",
+  "glossary", "item", "item-value", "monster", "shelving", "skill", "species", "spell", "tool", "training", "weapon",
   "weapon-mastery", "weapon-property"
 ];
 const GENRE_SET = new Set(GENRES);

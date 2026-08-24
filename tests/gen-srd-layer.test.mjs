@@ -290,7 +290,13 @@ test("⚔️ ATTAQUE (la règle) — les quatre refus NOMMENT ce qu'ils écarten
     assert.ok(GENRES_DECLARES.includes(genre), `${genre} dérivé mais absent du contrat fh-layer/1`);
     assert.equal(GENRES_MAISON.includes(genre), false, `${genre} est un genre maison — il n'a rien à faire dans la couche SRD`);
   }
-  assert.deepEqual(GENRES_MAISON, ["arcana", "training"]);
+  /* ⭐ LOT 95 — LA LISTE PASSE À TROIS, ET LE TROISIÈME N'Y EST PAS POUR LA
+     MÊME RAISON. `arcana` et `training` naissent dans ce dépôt-ci ; `shelving`
+     naît chez fh-srd, mais dans la couche `srfh` — c'est le rangement d'Eric,
+     pas le livre. 🔴 Il a été ajouté parce qu'ouvrir un genre au contrat
+     DÉSARME le refus ④ qui le couvrait jusque-là : la porte « genre non
+     déclaré » ne protège plus un nom qu'on vient de déclarer. */
+  assert.deepEqual(GENRES_MAISON, ["arcana", "shelving", "training"]);
 });
 
 test("⚔️ ATTAQUE (la lecture) — un FICHIER d'export inconnu posé sur le disque est NOMMÉ, pas sauté", () => {
