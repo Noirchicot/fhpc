@@ -54,6 +54,9 @@ import { swapContent } from "./socle.mjs?v=287";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
 import { armerJeton } from "./glisser.mjs?v=287";
+/* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
+   (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=287";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -1448,7 +1451,32 @@ export function renderEquipmentStep(ctx, onAction) {
      montre le CATALOGUE. Ce qui regarde le personnage est à `B1`/`B2`/`B3`.
      ⏳ « Tu recâbleras après » : le contexte continue de les porter, parce que
      `equipmentValidate` et le futur `B3` en auront besoin. */
-  section.append(renderGearBlock({ query, onAction: act }));
+  const catalogue = renderGearBlock({ query, onAction: act });
+  section.append(catalogue);
+
+  /* ══ B3 — LE DRESSING, DANS LE BUILDER (Eric, 24/08 : « faut l'intégrer au
+     builder maintenant ») ══════════════════════════════════════════════════
+     L'étape porte DEUX vues et une seule est visible : R (le catalogue) et
+     B3 (le dressing). Le croquis donne les deux poignées — le bouton GEAR de
+     la carte R ouvre le dressing, le bouton Equipment de sa barre revient.
+     ⏳ Corps : « monsieur » en attendant que le personnage le dise (lot 95+).
+     ⏳ Craft/Send/Companions : dessinés, pas branchés — leurs écrans (B4,
+     SB3.2, SB3.3) n'existent pas encore. */
+  const dressing = el("div", "equipment-dressing");
+  dressing.hidden = true;
+  const sceneB3 = construireLaSceneB3({ surBouton: (mot) => {
+    if (mot === "Equipment") { dressing.hidden = true; catalogue.hidden = false; }
+  } });
+  dressing.append(sceneB3.noeud);
+  section.append(dressing);
+  const boutonGear = catalogue.querySelector(".carte-r-boutons .carte-r-bouton");
+  if (boutonGear && boutonGear.textContent === "GEAR") {
+    boutonGear.addEventListener("click", () => {
+      catalogue.hidden = true;
+      dressing.hidden = false;
+    });
+  }
+
   return section;
 }
 

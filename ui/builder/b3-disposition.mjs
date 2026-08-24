@@ -45,17 +45,22 @@ export const PILE = 8;
 /** LES BOÎTES — noms du croquis, positions relevées puis régularisées :
  *  · x : bord gauche ; `centre: true` = centrée sur la scène ;
  *  · y : bord haut ; les piles sont à exactement JETON.h + PILE l'une de l'autre ;
- *  · l : largeur si ≠ jeton (le torse est une DOUBLE boîte, 2 jetons accolés) ;
+ *  · l : largeur si ≠ jeton — le torse est une PAIRE : deux jetons pleins de
+ *    87, séparés de `ecart` (« 4 pixels entre torso 1 et 2 », Eric 24/08),
+ *    soit 178 au total, centrée comme une seule pièce ;
  *  · attunable : la pastille du croquis — un ÉTAT, pas un ornement (Eric,
  *    24/08 : « les points orange = attuned or not ») : éteinte par défaut,
- *    pleine quand l'objet posé est attuné ;
+ *    pleine quand l'objet posé est attuné. Sa place (Eric, 24/08) :
+ *    « attunements latéraux partout, sauf sur Belt : ce sera supérieur » ;
  *  ⭐ et un SECOND état, la QUANTITÉ (le rond vert « QTY » du croquis) —
  *    Eric, 24/08 : « certains items peuvent être stockés en quantités » et
  *    « un compteur quantités peut apparaître dans POCKETS » : les quatre
- *    Pocket ET les deux hybrides Pocket/Hilt le portent — « les 6 », son
+ *    Pocket ET les deux hybrides Pocket/Sheath le portent — « les 6 », son
  *    mot — et le badge ×N ne paraît que si l'objet posé en porte plusieurs.
  *    Sa PLACE est de lui aussi (24/08, en deux temps — sa dernière parole
- *    gagne) : « Pocket 1 2 3 4 : MÉDIAL · Hilt 3 and 4 : latéralement » —
+ *    gagne) : « Pocket 1 2 3 4 : MÉDIAL · [Sheath] 3 and 4 : latéralement » —
+ *    (⭐ terminologie corrigée par Eric le 24/08 : « c'est pas hilt, c'est
+ *    Sheath / fourreau » — le fourreau se PORTE, la poignée non) —
  *    `qte: "medial"` = à cheval sur le flanc INTERNE (vers le corps), à
  *    mi-hauteur ; `qte: "lateral"` = pareil sur le flanc EXTERNE ;
  *  ⛔ le soulignage rouge pointillé du croquis (Body forging, Torso gear 2)
@@ -66,12 +71,12 @@ export const BOITES = [
   { clef: "forge2",  nom: "Body forging 2",  x: 11,  y: 68,  attunable: true, optionnelle: true },
   { clef: "tete1",   nom: "Head gear 1",     centre: true, y: 36,  attunable: true },
   { clef: "tete2",   nom: "Head gear 2",     centre: true, y: 92,  attunable: true },
-  { clef: "torse1",  nom: "Torso gear 1",    centre: true, y: 165, l: 182, double: "Torso gear 2", attunable: true },
-  { clef: "hilt1",   nom: "Hilt 1",          x: 59,  y: 224, attunable: true },
-  { clef: "hilt2",   nom: "Hilt 2",          x: 251, y: 224, attunable: true },
+  { clef: "torse1",  nom: "Torso gear 1",    centre: true, y: 165, l: 178, double: "Torso gear 2", ecart: 4, attunable: true },
+  { clef: "fourreau1",   nom: "Sheath 1",          x: 59,  y: 224, attunable: true },
+  { clef: "fourreau2",   nom: "Sheath 2",          x: 251, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
-  { clef: "hilt3",   qte: "lateral", nom: "Pocket/Hilt 3",   x: 59,  y: 280, attunable: true },
-  { clef: "hilt4",   qte: "lateral", nom: "Pocket/Hilt 4",   x: 251, y: 280, attunable: true },
+  { clef: "fourreau3",   qte: "lateral", nom: "Pocket/Sheath 3",   x: 59,  y: 280, attunable: true },
+  { clef: "fourreau4",   qte: "lateral", nom: "Pocket/Sheath 4",   x: 251, y: 280, attunable: true },
   { clef: "pied1",   nom: "Foot/leg gear 1", centre: true, y: 341, attunable: true },
   { clef: "poche1",  qte: "medial", nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
   { clef: "poche2",  qte: "medial", nom: "Pocket 2",        x: 299, y: 377, attunable: true },
@@ -91,8 +96,11 @@ export const COLLECTEUR = { centre: true, y: 458 };
 export const ENVOI = { centre: true, y: 514, l: 95, h: 18 };
 
 /** La bourse (coin haut droit) : valeurs = INFO (vert foncé) · `+`/`−` =
- *  BOUTONS (rouge) · la rangée du milieu = TYPE IN (rose) · total en GP = INFO. */
-export const BOURSE = { x: 262, y: 7, l: 131, h: 136, monnaies: ["PP", "GP", "SP", "CP", "EP"] };
+ *  BOUTONS (rouge) · la rangée du milieu = TYPE IN (rose) · total en GP = INFO.
+ *  ⭐ QUATRE monnaies, pas cinq — Eric, 24/08 : « j'ai fait une erreur sur la
+ *  monnaie, pas d'electrum lol ». Et ça RÉCONCILIE l'écran avec le moteur :
+ *  `CURRENCY_KEYS` (src/build) n'a que quatre clefs, `ep` n'y a jamais été. */
+export const BOURSE = { x: 262, y: 7, l: 131, h: 136, monnaies: ["PP", "GP", "SP", "CP"] };
 
 /** Gear weight (INFO) : Self · Backpack · Storage. */
 export const POIDS = { x: 306, y: 153, l: 80, h: 59, lignes: ["Self", "Backpack", "Storage"] };
@@ -105,7 +113,7 @@ export const BARRE = { y: 540, h: 32, l: 66, xs: [11, 88, 166, 243, 320],
 
 /** LE CORPS EN SCÈNE — le filigrane. Calé pour que les ancrages du repère
  *  1000 × 1600 tombent sur les boîtes du croquis (mesuré : mains → rangée
- *  Hilt, taille → Belt, pieds → Foot/leg gear 2).
+ *  Sheath, taille → Belt, pieds → Foot/leg gear 2).
  *  `k` : 1400 unités d'encre → 303 px (têtes 120, pieds 423 — le croquis).
  *  `echelles` : la taille est un réglage d'Eric — et il a TRANCHÉ le 24/08 :
  *  *« +20 % parfait ! »*. Le 1,2 est donc le DÉFAUT ; la taille croquis reste

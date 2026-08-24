@@ -228,6 +228,14 @@ test("⛔ l'étape Équipement ne porte QUE la carte de l'écran R", () => {
 
   assert.equal(rows(node, ".carte-r").length, 1, "la carte est là, et elle est seule");
 
+  /* ⭐ B3 EST ENTRÉ (24/08, « faut l'intégrer au builder maintenant ») : le
+     dressing vit dans l'étape mais CACHÉ au départ — R d'abord, GEAR l'ouvre.
+     Un dressing visible d'entrée serait une régression d'écran, pas un plus. */
+  const dressings = rows(node, ".equipment-dressing");
+  assert.equal(dressings.length, 1, "le dressing est là, et il n'y en a qu'un");
+  assert.equal(dressings[0].hidden, true, "et il attend le bouton GEAR — R se montre en premier");
+  assert.equal(rows(node, ".b3-scene").length, 1, "la scène B3 est montée dedans");
+
   for (const mort of [".equipment-gear-list", ".equipment-ac-readout", ".equipment-search-block",
                       ".equipment-topbar", ".equipment-catbar", ".equipment-currency-block",
                       ".equipment-heritage", ".equipment-class-phrase"]) {

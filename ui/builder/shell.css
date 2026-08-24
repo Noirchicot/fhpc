@@ -4428,3 +4428,38 @@ button { font: inherit; }
 .carte-r-b1 .carte-r-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
 .carte-r-b1 .carte-r-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
 .carte-r-b1 .carte-r-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+
+/* ══ B3 — LA SCÈNE DU DRESSING (`b3-scene.mjs`) ══════════════════════════════
+   ⭐ Rendue à SCENE.l px EXACTEMENT (la loi du jeton 87 × 48, Eric 24/08) :
+   1 unité SVG = 1 px CSS partout — les cotes vivent dans `b3-disposition.mjs`,
+   ce bloc ne porte que l'ENCRE. Le corps est un repère en filigrane, second
+   plan, +20 % ratifié. */
+.b3-scene { display: block; }
+.b3-scene-cadre { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
+.b3-scene-corps { fill: var(--text-soft); opacity: .18; }
+.b3-boite-scene { fill: none; stroke: var(--text); stroke-width: 1.5; }
+/* Body forging 2 : « optional when feat » — présent en creux tant que le don
+   n'est pas pris. */
+.b3-boite-scene[data-optionnelle] { stroke-dasharray: 4 4; opacity: .6; }
+.b3-nom { fill: var(--text); font-size: var(--t1); font-family: inherit; }
+.b3-titre { fill: var(--text); font-size: var(--t4); font-family: inherit; letter-spacing: .2em; }
+/* La pastille d'attunement — un ÉTAT (« attuned or not ») : éteinte par
+   défaut, pleine quand l'objet posé est attuné. */
+.b3-attune { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .55; }
+.b3-attune[data-etat="oui"] { fill: var(--accent); opacity: 1; }
+.b3-info { fill: none; stroke: var(--border-strong); stroke-width: 1; }
+.b3-info-texte { fill: var(--text-muted); font-size: var(--t1); font-family: inherit; }
+.b3-bouton { fill: none; stroke: var(--critical); stroke-width: 1; }
+.b3-barre-bouton { cursor: pointer; }
+.b3-collecteur { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+.b3-envoi { fill: none; stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
+.b3-typein { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .7; }
+/* Le compteur ×N des six poches — médial (Pocket) ou latéral (Pocket/Sheath). */
+.b3-qte { fill: var(--surface); stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
+.b3-qte-texte { fill: var(--text); font-size: var(--t1); font-family: inherit; }
+
+/* Le dressing dans l'étape Équipement : la scène se CENTRE, jamais ne se
+   dilate — et l'étape bascule R ↔ B3 d'un bouton. ⛔ Pas de `display: none`
+   ici (garde 4, l'exception du dé est seule) : le `display` n'est posé que
+   hors `[hidden]`, et l'attribut garde son effet natif. */
+.equipment-dressing:not([hidden]) { display: flex; justify-content: center; }

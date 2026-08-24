@@ -348,6 +348,11 @@ class FakeDocument {
      navigateur, et l'écran jetterait au premier `pointermove`. */
   constructor() { this.body = new FakeElement("body"); }
   createElement(tag) { return new FakeElement(tag); }
+  /* ⭐ AJOUTÉ LE 2026-08-24 POUR B3 : la scène du dressing (`b3-scene.mjs`)
+     est un SVG, et un SVG se crée avec `createElementNS`. Le stub ne
+     distingue pas les espaces de noms — il n'en a pas besoin : les tests
+     jugent l'ARBRE (classes, attributs, enfants), pas le rendu vectoriel. */
+  createElementNS(_ns, tag) { return new FakeElement(tag); }
   /* ⭐ AJOUTÉ LE 2026-08-16 POUR LE LOT 79, et le stub grandit comme il a
      toujours grandi : avec ce que `ui/` emploie RÉELLEMENT, jamais d'avance.
      Le glisser-déposer cherche le créneau SOUS le pointeur ; sans point

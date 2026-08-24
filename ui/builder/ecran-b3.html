@@ -137,37 +137,10 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
   paint-order: stroke; stroke: var(--bg); stroke-width: 6; stroke-linejoin: round;
 }
 
-/* ══ LA SCÈNE — le dressing du croquis, à l'échelle VRAIE ═══════════════════
-   🔴 RENDUE À `SCENE.l` px EXACTEMENT, jamais mise à l'échelle : la loi d'Eric
-   est que le jeton 87 × 48 est le même sur tous les écrans. Le viewBox ne sert
-   donc pas à s'adapter ici — il sert à ce que 1 unité = 1 px, partout, et que
-   la scène soit UN repère (pas une mise en page qui recompose). */
-.b3-scene { flex: 0 0 auto; display: block; }
+/* ══ LA SCÈNE — importée de `b3-scene.mjs`, ses styles vivent dans
+   `shell.css` : le banc REGARDE le produit, il ne le redessine pas. */
 .b3-scene-panneau { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--sp-4); align-items: center; }
 .b3-scene-panneau button { min-height: var(--touch); font: inherit; }
-.b3-scene-cadre { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
-/* ⭐ LE CORPS EST UN REPÈRE, PAS UN CADRE — Eric : « en transparence, qu'on la
-   devine, en second plan ». La même encre que l'atelier, mais en filigrane. */
-.b3-scene-corps { fill: var(--text-soft); opacity: .18; }
-.b3-boite-scene { fill: none; stroke: var(--text); stroke-width: 1.5; rx: 6; }
-.b3-boite-scene[data-optionnelle] { stroke-dasharray: 4 4; opacity: .6; }
-.b3-nom { fill: var(--text); font-size: 9px; font-family: inherit; }
-.b3-titre { fill: var(--text); font-size: 16px; font-family: inherit; letter-spacing: .2em; }
-/* ⭐ LA PASTILLE EST UN ÉTAT, PAS UN ORNEMENT — Eric, 24/08 : « les points
-   orange = attuned OR NOT ». Éteinte par défaut (un dressing vide n'attune
-   rien) ; pleine quand l'objet posé dans la boîte est attuné. */
-.b3-attune { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .55; }
-.b3-attune[data-etat="oui"] { fill: var(--accent); opacity: 1; }
-.b3-info { fill: none; stroke: var(--border-strong); stroke-width: 1; }
-.b3-info-texte { fill: var(--text-muted); font-size: 8px; font-family: inherit; }
-.b3-bouton { fill: none; stroke: var(--critical); stroke-width: 1; }
-.b3-collecteur { fill: none; stroke: var(--accent); stroke-width: 1.5; }
-.b3-envoi { fill: none; stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
-.b3-typein { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .7; }
-/* ⭐ LE COMPTEUR DE QUANTITÉ — le rond vert « QTY » du croquis. Eric, 24/08 :
-   il vit dans les POCKETS, et seulement quand l'objet posé en porte plusieurs. */
-.b3-qte { fill: var(--surface); stroke: var(--ok, var(--border-strong)); stroke-width: 1; }
-.b3-qte-texte { fill: var(--text); font-size: 8px; font-family: inherit; }
 
 .banc-releve {
   flex: 1 1 220px; min-width: 0; overflow: auto;
@@ -186,7 +159,6 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
          Sa géométrie vit dans `b3-disposition.mjs` — ce SVG ne fait que la
          rendre. Le corps est le filigrane du fond, jamais une contrainte. -->
     <div class="b3-scene-panneau">
-      <svg class="b3-scene" id="scene" aria-label="Le dressing — la scène du croquis"></svg>
       <!-- ⭐ Le +20 % est le DÉFAUT — ratifié par Eric (« +20 % parfait ! »).
            Le bouton ne sert plus qu'à COMPARER avec la taille croquis. -->
       <button type="button" id="corpsEchelle">Comparer : corps taille croquis</button>
@@ -257,8 +229,11 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
    ferait de ce banc une seconde vérité, et il finirait par montrer autre chose
    que l'écran — exactement ce que le repère est censé rendre impossible. */
 import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=287";
-import { SCENE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
-  from "./b3-disposition.mjs?v=287";
+import { CORPS_EN_SCENE } from "./b3-disposition.mjs?v=287";
+/* ⭐ LA SCÈNE EST IMPORTÉE, PLUS DESSINÉE ICI — même couture que la carte R :
+   le banc regarde le produit (`b3-scene.mjs`), il ne peut plus montrer autre
+   chose que lui. Les APERÇUS (faux ×N) sont une option de banc. */
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=287";
 
 const SVG = "http://www.w3.org/2000/svg";
 const REPERE_MILIEU = 500;
@@ -411,7 +386,7 @@ document.getElementById("corpsSuivant").addEventListener("click", () => {
   const filigrane = corpsCourant === "x";
   document.getElementById("fantomeH").hidden = !filigrane;
   document.getElementById("fantomeF").hidden = !filigrane;
-  peindreScene();   /* la scène suit le même corps que l'atelier */
+  laScene.peindre({ corps: corpsCourant === "f" ? "f" : "h" });   /* la scène suit l'atelier (h/f) */
   relever();
 });
 
@@ -420,139 +395,20 @@ document.getElementById("remettre").addEventListener("click", () => {
   dessiner();
 });
 
-/* ══ LA SCÈNE — le croquis rendu, boîtes au jeton VRAI ══════════════════════
-   ⛔ Toute la géométrie vient de `b3-disposition.mjs` : ce bloc ne décide
-   d'aucune cote, il peint. La scène est rendue à SCENE.l px EXACTEMENT —
-   c'est la loi du jeton (87 × 48 partout), donc 1 unité = 1 px ici. */
-const scene = document.getElementById("scene");
-scene.setAttribute("viewBox", `0 0 ${SCENE.l} ${SCENE.h}`);
-scene.setAttribute("width", SCENE.l);
-scene.setAttribute("height", SCENE.h);
+/* ══ LA SCÈNE — montée depuis le module du produit ═════════════════════════ */
+const laScene = construireLaSceneB3({ apercus: true });
+document.querySelector(".b3-scene-panneau").prepend(laScene.noeud);
 let echelleCorps = 0;
-
-function formeScene(nom, cl, attrs) {
-  const n = document.createElementNS(SVG, nom);
-  if (cl) n.setAttribute("class", cl);
-  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
-  return n;
-}
-function texteScene(cl, x, y, mot, ancre) {
-  const t = formeScene("text", cl, { x, y });
-  if (ancre) t.setAttribute("text-anchor", ancre);
-  t.textContent = mot;
-  return t;
-}
-
-function peindreScene() {
-  scene.textContent = "";
-  scene.append(formeScene("rect", "b3-scene-cadre",
-    { x: .75, y: .75, width: SCENE.l - 1.5, height: SCENE.h - 1.5, rx: 8 }));
-
-  /* Le corps, en filigrane, au SECOND PLAN — et sa taille est un réglage
-     d'Eric (« +20 %, ça resterait parlant »), grossi sur place autour du
-     centre de son encre, jamais une contrainte sur les boîtes. */
-  const e = CORPS_EN_SCENE.echelles[echelleCorps];
-  const { k, dx, dy } = CORPS_EN_SCENE;
-  const port = formeScene("g", null, { transform:
-    `translate(198.5 271.5) scale(${e}) translate(-198.5 -271.5) translate(${dx} ${dy}) scale(${k})` });
-  port.append(formeScene("rect", "b3-scene-corps",
-    { x: 0, y: 0, width: 1000, height: 1600, mask: `url(#masque-${corpsCourant})` }));
-  scene.append(port);
-
-  /* « GEAR mieux centré » (Eric, 24/08) : sur l'AXE de la scène — le même que
-     la colonne centrale — plus la position à main levée du croquis. */
-  scene.append(texteScene("b3-titre", SCENE.l / 2, 20, "GEAR", "middle"));
-
-  for (const b of BOITES) {
-    const l = b.l || JETON.l;
-    const x = b.centre ? (SCENE.l - l) / 2 : b.x;
-    const r = formeScene("rect", "b3-boite-scene",
-      { x, y: b.y, width: l, height: JETON.h, rx: 6 });
-    if (b.optionnelle) r.dataset.optionnelle = "oui";
-    scene.append(r);
-    scene.append(texteScene("b3-nom", x + 5, b.y + 12, b.nom));
-    if (b.double) {
-      scene.append(formeScene("line", "b3-boite-scene",
-        { x1: x + l / 2, y1: b.y, x2: x + l / 2, y2: b.y + JETON.h }));
-      scene.append(texteScene("b3-nom", x + l / 2 + 5, b.y + 12, b.double));
-      scene.append(formeScene("circle", "b3-attune", { cx: x - 5, cy: b.y + 5, r: 3 }));
-    }
-    if (b.attunable) scene.append(formeScene("circle", "b3-attune",
-      { cx: x + l + 5, cy: b.y + 5, r: 3 }));
-    /* ⭐ LE COMPTEUR ×N des six poches (« les 6 », Eric) — un état d'OBJET :
-       il ne paraît que si l'objet posé en porte plusieurs. Sa place est de
-       lui (24/08) : Pocket 1-4 → flanc MÉDIAL (vers le corps) · Pocket/Hilt
-       3-4 → flanc LATÉRAL (externe) — à mi-hauteur, à cheval sur le bord.
-       ⏳ APERÇUS DE BANC sur Pocket 1 (×3) et Pocket/Hilt 3 (×2) — le vrai
-       compte viendra avec le câblage. */
-    if (b.qte && (b.clef === "poche1" || b.clef === "hilt3")) {
-      const aGauche = x + l / 2 < SCENE.l / 2;
-      const cx = b.qte === "medial"
-        ? (aGauche ? x + l + 4 : x - 4)
-        : (aGauche ? x - 4 : x + l + 4);
-      const cy = b.y + JETON.h / 2;
-      const n = b.clef === "poche1" ? "×3" : "×2";
-      scene.append(formeScene("circle", "b3-qte", { cx, cy, r: 7 }));
-      scene.append(texteScene("b3-qte-texte", cx, cy + 3, n, "middle"));
-    }
-  }
-
-  /* Le collecteur — bleu au croquis, double lisière comme il l'a dessiné. */
-  const xc = (SCENE.l - JETON.l) / 2;
-  scene.append(formeScene("rect", "b3-collecteur",
-    { x: xc, y: COLLECTEUR.y, width: JETON.l, height: JETON.h, rx: 6 }));
-  scene.append(formeScene("rect", "b3-collecteur",
-    { x: xc + 3, y: COLLECTEUR.y + 3, width: JETON.l - 6, height: JETON.h - 6, rx: 4 }));
-  scene.append(texteScene("b3-nom", SCENE.l / 2, COLLECTEUR.y + 22, "Send", "middle"));
-  scene.append(texteScene("b3-nom", SCENE.l / 2, COLLECTEUR.y + 33, "collector", "middle"));
-
-  const xe = (SCENE.l - ENVOI.l) / 2;
-  scene.append(formeScene("rect", "b3-envoi",
-    { x: xe, y: ENVOI.y, width: ENVOI.l, height: ENVOI.h, rx: 4 }));
-  scene.append(texteScene("b3-nom", SCENE.l / 2, ENVOI.y + 13, "Send to ▾", "middle"));
-
-  /* La bourse : valeurs = INFO · +/− = BOUTONS · saisie = TYPE IN. */
-  scene.append(formeScene("rect", "b3-info",
-    { x: BOURSE.x, y: BOURSE.y, width: BOURSE.l, height: BOURSE.h, rx: 4 }));
-  scene.append(texteScene("b3-nom", BOURSE.x + BOURSE.l / 2, BOURSE.y + 12, "Purse", "middle"));
-  BOURSE.monnaies.forEach((mon, i) => {
-    const cx = BOURSE.x + 5 + i * 25;
-    scene.append(texteScene("b3-info-texte", cx + 10, BOURSE.y + 24, mon, "middle"));
-    scene.append(formeScene("rect", "b3-envoi",  { x: cx, y: BOURSE.y + 29, width: 21, height: 13, rx: 2 }));
-    scene.append(formeScene("rect", "b3-bouton", { x: cx, y: BOURSE.y + 46, width: 21, height: 13, rx: 2 }));
-    scene.append(texteScene("b3-info-texte", cx + 10, BOURSE.y + 55, "+", "middle"));
-    scene.append(formeScene("rect", "b3-typein", { x: cx, y: BOURSE.y + 63, width: 21, height: 13, rx: 2 }));
-    scene.append(formeScene("rect", "b3-bouton", { x: cx, y: BOURSE.y + 80, width: 21, height: 13, rx: 2 }));
-    scene.append(texteScene("b3-info-texte", cx + 10, BOURSE.y + 89, "−", "middle"));
-  });
-  scene.append(texteScene("b3-info-texte", BOURSE.x + 8, BOURSE.y + 112, "Total in GP"));
-  scene.append(formeScene("rect", "b3-envoi",
-    { x: BOURSE.x + 62, y: BOURSE.y + 103, width: 40, height: 13, rx: 2 }));
-
-  scene.append(formeScene("rect", "b3-info",
-    { x: POIDS.x, y: POIDS.y, width: POIDS.l, height: POIDS.h, rx: 4 }));
-  scene.append(texteScene("b3-nom", POIDS.x + POIDS.l / 2, POIDS.y + 12, "Gear weight", "middle"));
-  POIDS.lignes.forEach((ligne, i) => {
-    scene.append(texteScene("b3-info-texte", POIDS.x + 6, POIDS.y + 25 + i * 11, ligne));
-  });
-
-  BARRE.noms.forEach((nom, i) => {
-    scene.append(formeScene("rect", "b3-bouton",
-      { x: BARRE.xs[i], y: BARRE.y, width: BARRE.l, height: BARRE.h, rx: 4 }));
-    if (nom) scene.append(texteScene("b3-nom", BARRE.xs[i] + BARRE.l / 2, BARRE.y + 20, nom, "middle"));
-  });
-}
 
 document.getElementById("corpsEchelle").addEventListener("click", (evt) => {
   echelleCorps = (echelleCorps + 1) % CORPS_EN_SCENE.echelles.length;
   evt.target.textContent = echelleCorps
     ? "Revenir au corps +20 % (le défaut)"
     : "Comparer : corps taille croquis";
-  peindreScene();
+  laScene.peindre({ echelle: CORPS_EN_SCENE.echelles[echelleCorps] });
 });
 
 dessiner();
-peindreScene();
 window.addEventListener("resize", relever);
 </script>
 </body>

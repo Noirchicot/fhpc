@@ -79,7 +79,7 @@ test("B3 — les piles gardent l'écart déclaré (jeton + PILE)", () => {
   const par = Object.fromEntries(rectangles().map((r) => [r.clef, r]));
   const pas = dispo.JETON.h + dispo.PILE;
   for (const [haut, bas] of [["forge1", "forge2"], ["tete1", "tete2"],
-                             ["hilt1", "hilt3"], ["hilt2", "hilt4"],
+                             ["fourreau1", "fourreau3"], ["fourreau2", "fourreau4"],
                              ["pied1", "pied2"], ["poche1", "poche3"], ["poche2", "poche4"]]) {
     assert.equal(par[bas].y - par[haut].y, pas, `la pile ${haut} → ${bas} suit le pas`);
   }
