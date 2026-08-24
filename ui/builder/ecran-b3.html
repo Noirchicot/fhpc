@@ -54,8 +54,8 @@
      encore importée dans `fhpc` (c'est le lot 95).
 ═══════════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=284">
-<link rel="stylesheet" href="./shell.css?v=284">
+<link rel="stylesheet" href="./tokens.css?v=285">
+<link rel="stylesheet" href="./shell.css?v=285">
 
 <style>
 html, body { height: 100%; }
@@ -158,10 +158,10 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
            reste une forme, pas une photo. -->
       <defs>
         <mask id="masque-h" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-h.png?v=284" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-h.png?v=285" x="280" y="100" width="441" height="1400"></image>
         </mask>
         <mask id="masque-f" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-f.png?v=284" x="305" y="100" width="390" height="1400"></image>
+          <image href="./assets/pantin-f.png?v=285" x="305" y="100" width="390" height="1400"></image>
         </mask>
         <!-- 🔴 LA ZONE COMMUNE — Eric, 2026-08-24 : *« superpose les deux corps,
              je trouve le point moyen »*. ⛔ Ce n'est PAS une superposition à
@@ -172,7 +172,7 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
              n'y a plus rien à vérifier après coup. C'est la différence entre
              « ça a l'air de tomber juste » et « ça ne peut pas tomber faux ». -->
         <mask id="masque-x" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-x.png?v=284" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-x.png?v=285" x="280" y="100" width="441" height="1400"></image>
         </mask>
       </defs>
       <!-- Les deux en filigrane, la zone commune par-dessus : on voit d'un coup
@@ -192,36 +192,12 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
   </div>
 
 <script type="module">
-/* ══ LES DIX EMPLACEMENTS ═══════════════════════════════════════════════════
-   ⛔ RECOPIÉS DU VAULT, PAS INVENTÉS : `FH-WEB/FHPC/FHPCv2 rangement
-   equipement.md`, § « Les 10 emplacements — tirés des 77 objets portés, 77/77,
-   aucun reste ». Les comptes sont ceux du fichier, y compris sa correction du
-   23/08 (le bouclier est aux MAINS, pas au torse : torse 17, mains 43).
-   ⏳ Les coordonnées ci-dessous sont un POINT DE DÉPART, pas une décision.
-   C'est Eric qui les pose ; ce fichier ne fait que les relire. */
-const EMPLACEMENTS = [
-  /* 🔴 CE SONT LES COORDONNÉES D'ERIC, POSÉES À LA MAIN LE 2026-08-24 — ⛔ plus
-     mes amorces au jugé. ⚠️ Sept des dix tiennent sur les DEUX corps ; trois
-     restent à régler, et le mode « zone commune » est fait pour ça :
-       · `mains` (332, 788)  ⛔ sur la dame seulement — chez le monsieur, le
-         point tombe dans l'écart entre le bras et le torse ;
-       · `doigts` (656, 823) ⛔ idem, 9 unités trop médial ;
-       · `pieds` (611, 1441) ✅ tient, mais il est sur le pied DROIT, pas centré.
-     📏 Les fenêtres communes mesurées, si tu veux rester sur le bras :
-         mains  y=788 → x 678..694 (milieu 686)   ou le torse : 374..617
-         doigts y=823 → x 665..683 (milieu 674)   ou le torse : 511..625
-     ⭐ Un point posé DANS la zone commune tient sur les deux par construction. */
-  { clef: "tete",      nom: "Tête",      n: 8,  x: 496, y: 117 },
-  { clef: "yeux",      nom: "Yeux",      n: 4,  x: 529, y: 191 },
-  { clef: "cou",       nom: "Cou",       n: 13, x: 503, y: 300 },
-  { clef: "dos",       nom: "Dos",       n: 10, x: 503, y: 409 },
-  { clef: "torse",     nom: "Torse",     n: 17, x: 504, y: 454 },
-  { clef: "avantbras", nom: "Avant-bras", n: 2, x: 670, y: 683 },
-  { clef: "mains",     nom: "Mains",     n: 43, x: 332, y: 788 },
-  { clef: "taille",    nom: "Taille",    n: 2,  x: 504, y: 657 },
-  { clef: "doigts",    nom: "Doigts",    n: 22, x: 656, y: 823 },
-  { clef: "pieds",     nom: "Pieds",     n: 7,  x: 611, y: 1441 }
-];
+/* ⛔ LES DIX ANCRAGES NE SONT PAS DÉCLARÉS ICI — ils vivent dans
+   `b3-ancrages.mjs`, et ce banc les LIT. C'est la loi qu'on applique partout
+   depuis cette nuit : une seule écriture, plusieurs lecteurs. Les recopier ici
+   ferait de ce banc une seconde vérité, et il finirait par montrer autre chose
+   que l'écran — exactement ce que le repère est censé rendre impossible. */
+import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=285";
 
 const SVG = "http://www.w3.org/2000/svg";
 let corpsCourant = "h";
