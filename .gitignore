@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+# graines du banc de parcours (générées, jamais commitées)
+fixture-banc.json
+fixture-equipe.json

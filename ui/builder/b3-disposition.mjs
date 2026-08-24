@@ -45,9 +45,8 @@ export const PILE = 8;
 /** LES BOÎTES — noms du croquis, positions relevées puis régularisées :
  *  · x : bord gauche ; `centre: true` = centrée sur la scène ;
  *  · y : bord haut ; les piles sont à exactement JETON.h + PILE l'une de l'autre ;
- *  · l : largeur si ≠ jeton — le torse est une PAIRE : deux jetons pleins de
- *    87, séparés de `ecart` (« 4 pixels entre torso 1 et 2 », Eric 24/08),
- *    soit 178 au total, centrée comme une seule pièce ;
+ *  · l : largeur si ≠ jeton (aucune boîte n'en use aujourd'hui : même le
+ *    torse est une paire de jetons pleins, voir sa note) ;
  *  · attunable : la pastille du croquis — un ÉTAT, pas un ornement (Eric,
  *    24/08 : « les points orange = attuned or not ») : éteinte par défaut,
  *    pleine quand l'objet posé est attuné. Sa place (Eric, 24/08) :
@@ -71,7 +70,11 @@ export const BOITES = [
   { clef: "forge2",  nom: "Body forging 2",  x: 11,  y: 68,  attunable: true, optionnelle: true },
   { clef: "tete1",   nom: "Head gear 1",     centre: true, y: 36,  attunable: true },
   { clef: "tete2",   nom: "Head gear 2",     centre: true, y: 92,  attunable: true },
-  { clef: "torse1",  nom: "Torso gear 1",    centre: true, y: 165, l: 178, double: "Torso gear 2", ecart: 4, attunable: true },
+  /* la PAIRE du torse : DEUX boîtes pleines de 87, à 4 px (« 4 pixels entre
+     torso 1 et 2 »), centrées ENSEMBLE — deux clefs vraies, pour que la
+     carte slot → boîte ne vise jamais un fantôme. */
+  { clef: "torse1",  nom: "Torso gear 1",    x: 110, y: 165, attunable: true },
+  { clef: "torse2",  nom: "Torso gear 2",    x: 201, y: 165, attunable: true },
   { clef: "fourreau1",   nom: "Sheath 1",          x: 59,  y: 224, attunable: true },
   { clef: "fourreau2",   nom: "Sheath 2",          x: 251, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
@@ -84,6 +87,25 @@ export const BOITES = [
   { clef: "poche3",  qte: "medial", nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
   { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 299, y: 433, attunable: true },
 ];
+
+/** ⏳ SLOT → BOÎTES — PROVISOIRE, À FAIRE RATIFIER PAR ERIC. Les DIX slots
+ *  sont DONNÉS par la couche `shelving` (ils recopient ses dix ancrages,
+ *  comptes identiques mesurés le 24/08) ; la répartition slot → boîte, elle,
+ *  n'est écrite nulle part — celle-ci est une PROPOSITION lisible d'un coup
+ *  d'œil, déclarée UNE fois, que le pilote consomme (première boîte libre de
+ *  la liste). ⛔ Un objet sans slot va aux poches, jamais nulle part. */
+export const SLOT_VERS_BOITES = {
+  head:     ["tete1", "tete2"],
+  eyes:     ["tete2", "tete1"],
+  neck:     ["torse1", "torse2"],
+  torso:    ["torse1", "torse2"],
+  back:     ["torse2", "torse1"],
+  waist:    ["ceinture"],
+  forearms: ["fourreau1", "fourreau2"],
+  hands:    ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],
+  fingers:  ["fourreau3", "fourreau4", "poche1", "poche2", "poche3", "poche4"],
+  feet:     ["pied1", "pied2"],
+};
 
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */
 export const COLLECTEUR = { centre: true, y: 458 };

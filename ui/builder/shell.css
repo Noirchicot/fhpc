@@ -4176,7 +4176,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=288");
+  background-image: url("./assets/tarot-dos.jpg?v=289");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4463,3 +4463,93 @@ button { font: inherit; }
    ici (garde 4, l'exception du dé est seule) : le `display` n'est posé que
    hors `[hidden]`, et l'attribut garde son effet natif. */
 .equipment-dressing:not([hidden]) { display: flex; justify-content: center; }
+
+/* ══ LE PIPELINE DE L'ÉQUIPEMENT — B1 · B2 · SB3.1/2/3 (24/08) ══════════════
+   Des écrans de LISTE ET DE FICHE, au même gabarit que la carte R : la mesure
+   les borne, les pages remplacent le défilement, chaque contrôle tient le
+   plancher du doigt. */
+.b3-objet { fill: var(--text); font-size: var(--t2); font-family: inherit; font-weight: 600; }
+.b3-boite-scene[data-occupe] { stroke: var(--accent); }
+.carte-r-bouton[data-compte]:not([data-compte="0"])::after {
+  content: " (" attr(data-compte) ")";
+  color: var(--accent);
+}
+
+.pipeline-ecran {
+  position: relative; display: flex; flex-direction: column; gap: var(--sp-8);
+  max-width: var(--measure); margin-inline: auto; padding: var(--sp-8);
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+}
+.pipeline-entete { text-align: center; }
+.pipeline-entete h2 { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; }
+.pipeline-compte { margin: 0; color: var(--text-muted); font-size: var(--t2); font-variant-numeric: tabular-nums; }
+.pipeline-fleche {
+  position: absolute; top: var(--sp-8); min-width: var(--touch); min-height: var(--touch);
+  border: 1px solid var(--border-strong); border-radius: 50%; background: none; color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.pipeline-fleche:first-of-type { left: var(--sp-8); }
+.pipeline-fleche:last-of-type { right: var(--sp-8); }
+
+.pipeline-b1-corps { min-height: 0; }
+.pipeline-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
+.pipeline-b1-infos { margin: 0; text-align: center; color: var(--text-muted); font-size: var(--t2); }
+.pipeline-b1-prose { margin: 0; font-size: var(--t3); white-space: pre-line; }
+
+.pipeline-mygold { text-align: center; }
+.pipeline-mygold h3 { margin: 0; font-size: var(--t3); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+.pipeline-mygold-rang { margin: 0; display: flex; justify-content: center; gap: var(--sp-12); font-variant-numeric: tabular-nums; }
+
+.pipeline-reglages, .pipeline-sendto { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); flex-wrap: wrap; }
+.pipeline-libelle { color: var(--text-muted); font-size: var(--t2); text-transform: uppercase; letter-spacing: .06em; }
+.pipeline-typein {
+  min-height: var(--touch); max-width: 8ch; text-align: center; font: inherit;
+  background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
+}
+.pipeline-qte { max-width: 5ch; }
+.pipeline-pas {
+  min-width: var(--touch); min-height: var(--touch); font: inherit; cursor: pointer;
+  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+}
+.pipeline-dropdown {
+  min-height: var(--touch); font: inherit; background: var(--surface); color: var(--text);
+  border: 1px solid var(--ok, var(--border-strong)); border-radius: var(--radius-sm);
+}
+.pipeline-alerte { margin: 0; min-height: 1.2em; text-align: center; color: var(--critical); font-size: var(--t2); }
+
+.pipeline-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+.pipeline-sac .pipeline-pied { grid-template-columns: 1fr; }
+.pipeline-bouton {
+  min-height: var(--touch); font: inherit; cursor: pointer; text-transform: uppercase;
+  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+}
+.pipeline-inerte { opacity: .4; cursor: default; }
+
+.pipeline-lignes { display: flex; flex-direction: column; gap: var(--sp-4); }
+.pipeline-ligne {
+  display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--sp-4);
+  min-height: var(--glisse-h);
+}
+.pipeline-ligne-nom { flex: 1 1 12ch; font-weight: 600; }
+.pipeline-ligne-qte { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.pipeline-ligne-prix { font-variant-numeric: tabular-nums; margin-left: auto; }
+.pipeline-ligne-libre {
+  min-height: var(--touch); font: inherit; cursor: pointer;
+  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+}
+.pipeline-ligne-libre[data-actif="oui"] { background: var(--critical); color: var(--surface); }
+.pipeline-ligne-envoi {
+  min-height: var(--touch); font: inherit; font-size: var(--t2); cursor: pointer;
+  background: none; color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+}
+.pipeline-danger { border-color: var(--critical); color: var(--critical); }
+.pipeline-total { margin: 0; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pipeline-vide { margin: 0; text-align: center; color: var(--text-muted); }
+
+.pipeline-poids { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--sp-4); }
+.pipeline-poids h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+.pipeline-poids-ligne {
+  display: block; width: 100%; text-align: left; min-height: var(--touch); font: inherit; cursor: pointer;
+  background: none; color: var(--text); border: 0; border-radius: var(--radius-sm);
+}

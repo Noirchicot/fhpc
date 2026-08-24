@@ -1,0 +1,80 @@
+<!doctype html><meta charset="utf-8">
+<!-- ══ LE BANC DE PARCOURS — il joue le pipeline ENTIER dans un vrai Chrome ══
+     Usage :  node bin/… (générer les graines, voir ci-dessous), puis
+       chrome --headless=new --screenshot=…  "http://localhost:PORT/ui/builder/banc-parcours.html#SCENARIO"
+     Scénarios : b3 · b3equipe · b1 · b2 · sb31 · sb32.
+     Graines (non commitées, à générer depuis la racine du dépôt) :
+       node -e "const{exempleFhEn}=await import('./src/tools/exemple-fh-en.mjs');
+         (await import('node:fs')).writeFileSync('fixture-banc.json',
+         JSON.stringify(exempleFhEn().document));" --input-type=module
+     ⭐ C'est CE banc qui a attrapé le clic mort des crans (Event ≠ nœud) le
+     24/08 — un parcours joué vaut mieux qu'un rendu regardé. -->
+<style>html,body{margin:0;height:100%}iframe{border:0;width:100vw;height:100vh}</style>
+<script type="module">
+const scenario = location.hash.slice(1) || "b3";
+const graine = scenario === "b3equipe" ? "/fixture-equipe.json" : "/fixture-banc.json";
+localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
+const f = document.createElement("iframe");
+f.src = "./index.html?v=289";
+const dors = (ms) => new Promise((r) => setTimeout(r, ms));
+const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
+  for (const type of ["pointerdown", "pointerup"]) {
+    n.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 1, isPrimary: true,
+      clientX: 10, clientY: 10 }));
+  }
+};
+f.addEventListener("load", async () => {
+  const d = f.contentDocument;
+  const q = (s) => d.querySelector(s);
+  const tous = (s) => [...d.querySelectorAll(s)];
+  await dors(800);
+  tous("button").find((b) => b.textContent.includes("Equipment"))?.click();
+  await dors(500);
+  if (scenario === "b3" || scenario === "b3equipe") return;                 // le dressing, tel quel
+  if (scenario === "sb31") { // Gear weight › Backpack
+    tous('.b3-scene [aria-label="Open Backpack"]').at(0)
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return;
+  }
+  if (scenario === "sb32") {
+    q('.b3-scene [aria-label="Send"]')?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return;
+  }
+  // tout le reste passe par le catalogue
+  q('.b3-scene [aria-label="Equipment"]')?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await dors(600);
+  if (scenario === "b2") {
+    /* ⛔ DANS LE ROYAUME DE L'IFRAME — un import depuis la page parente crée
+       un SECOND panier (autre realm, autre module) : payé en photo vide. */
+    const sc = d.createElement("script");
+    sc.type = "module";
+    sc.textContent = `
+      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=289";
+      panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:crowbar" }, nom: "Crowbar", cout: parseCout("2 GP") });
+      panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:rope-hempen-50-feet" }, nom: "Rope, hempen (50 feet)", cout: parseCout("1 GP") });
+      window.__panierPret = true;`;
+    d.head.append(sc);
+    for (let i = 0; i < 40 && !f.contentWindow.__panierPret; i++) await dors(100);
+    tous(".carte-r-bouton").find((b) => b.dataset.mot === "CART")?.click();
+    return;
+  }
+  if (scenario === "b1") {
+    const note = (m) => { document.title = m; };
+    const cranA = tous('.roue[data-niveau="rayons"] .roue-cran').find((c) => c.textContent.trim() === "Arcana");
+    note("cranA=" + Boolean(cranA));
+    cranA?.click();
+    await dors(1500);
+    const cransB = tous('.roue[data-niveau="etageres"] .roue-cran').map((c) => c.textContent.trim());
+    note("B=" + [...new Set(cransB)].join("|"));
+    const cranB = tous('.roue[data-niveau="etageres"] .roue-cran').find((c) => /[A-Za-z]/.test(c.textContent));
+    cranB?.click();
+    await dors(1500);
+    const jeton = q(".grille-jeton[data-ref-id]");
+    note((document.title) + " jeton=" + Boolean(jeton));
+    if (jeton) tape(jeton);
+    await dors(400);
+    note(document.title + " b1=" + Boolean(q('[data-ecran=\"B1\"]')));
+  }
+});
+document.body.append(f);
+</script>

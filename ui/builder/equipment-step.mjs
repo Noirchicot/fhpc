@@ -43,20 +43,25 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=288";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=288";
+import { renderPicker } from "./carnet.mjs?v=289";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=289";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=288";
-import { swapContent } from "./socle.mjs?v=288";
+import { isGenre } from "../../src/layers/document.mjs?v=289";
+import { swapContent } from "./socle.mjs?v=289";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=288";
+import { armerJeton } from "./glisser.mjs?v=289";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=288";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=289";
+/* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
+   monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
+import { parseCout, panierAjouter, panierCompte, lignesParLieu, poidsParLieu,
+  renderB1, renderB2, renderSacs } from "./equipement-pipeline.mjs?v=289";
+import { SLOT_VERS_BOITES } from "./b3-disposition.mjs?v=289";
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -152,7 +157,9 @@ function currentClassRef(document) {
 export function currentGearLines(document) {
   const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
   const byIndex = new Map();
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped))?$/;
+  /* `location` (PIPELINE 24/08) : self | backpack | storage — facultative,
+     absente = « backpack » (rien n'est porté sans geste). */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -161,6 +168,7 @@ export function currentGearLines(document) {
     const line = byIndex.get(index);
     if (match[2] === "quantity") line.quantity = choice.value;
     else if (match[2] === "equipped") line.equipped = choice.value;
+    else if (match[2] === "location") line.location = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -928,7 +936,12 @@ function faireCran(libelle, rang, courant, onClic) {
      `aria-current`, posée sur UNE SEULE copie par `annoncerCourant`. */
   cran.dataset.courant = courant ? "true" : "false";
   cran.textContent = libelle;
-  cran.addEventListener("click", onClic);
+  /* ⛔ LE NŒUD, PAS L'ÉVÉNEMENT — payé le 24/08 : les appelants écrivent
+     `(noeud) => viser(noeud)`, et `centreDe(Event)` rendait null en silence.
+     Le CLIC d'un cran ne faisait RIEN depuis la refonte du glissement — au
+     doigt on glisse, personne ne cliquait, et aucun garde ne cliquait non
+     plus. Le parcours headless du pipeline l'a dit le premier. */
+  cran.addEventListener("click", () => onClic(cran));
   return cran;
 }
 
@@ -958,27 +971,26 @@ function faireMarqueur(symbole, className) {
   return marqueur;
 }
 
-/** UNE CASE DE LA GRILLE — le jeton, plus l'œil.
- *  ⛔ LE GESTE SUR UN OBJET GARDE L'ACTION D'AUJOURD'HUI : `+` ajoute une
- *  ligne, `👁` ouvre le popup. Le croquis dit « tap → la fiche B1 » — B1
- *  n'existe pas, et un lot qui l'inventerait coderait deux fois. */
-function faireCase(item, onAction) {
+/** UNE CASE DE LA GRILLE — le jeton seul, et le STANDARD DU GLISSER s'y
+ *  applique enfin en entier (croquis 23/08, vault §2) :
+ *      tap → B1, la fiche · glisser sur une cible → l'acte de la cible ·
+ *      glisser à vide → RIEN.
+ *  ⛔ Le clic n'ajoute PLUS de ligne : c'était l'action d'attente d'avant B1
+ *  (le commentaire d'alors le disait — « B1 n'existe pas »). B1 existe.
+ *  📌 Le jeton porte son id en `data-ref-id` ; la résolution id → item vit
+ *  dans `itemsDeLaPage`, remplie par `remplirGrille` — une seule écriture. */
+const itemsDeLaPage = new Map();
+function faireCase(item) {
   const nom = recordLabel(item.view) || item.view.id;
   const case_ = el("div", "grille-case");
 
   const jeton = document.createElement("button");
   jeton.type = "button";
   jeton.className = "grille-jeton";
-  jeton.setAttribute("aria-label", `Add ${nom}`);
+  jeton.setAttribute("aria-label", nom);
+  jeton.dataset.refId = item.view.id;
   for (const enfant of contenuDeCase(item)) jeton.append(enfant);
-  jeton.addEventListener("click", () => onAction({
-    kind: "addGearLine", ref: { kind: item.kind, id: item.view.id }, quantity: 1, equipped: false
-  }));
   case_.append(jeton);
-
-  case_.append(button("\u{1F441}", "grille-oeil",
-    () => onAction({ kind: "popup", titre: nom, texte: recordProse(item.view) }),
-    `About ${nom}`));
   return case_;
 }
 
@@ -1135,7 +1147,11 @@ function renderTambour({ query, onAction }) {
     const vue = pageDObjets(etagere.objets, page);
     page = vue.page;
     cases.dataset.attente = "non";
-    swapContent(cases, vue.objets.map((item) => faireCase(item, onAction)));
+    /* ⭐ LA PAGE COURANTE EST LA LISTE DE B1 (« un x/x permet de passer d'un
+       objet au suivant sans revenir à R ») — on la publie pour le pilote. */
+    itemsDeLaPage.clear();
+    for (const item of vue.objets) itemsDeLaPage.set(item.view.id, item);
+    swapContent(cases, vue.objets.map((item) => faireCase(item)));
     /* 🔴 LA DERNIÈRE RANGÉE SE CENTRE QUAND ELLE EST INCOMPLÈTE — Eric,
        2026-08-23 : *« règle identique sur tous les tokens, toujours centrer les
        items du bas si la ligne est incomplète »*.
@@ -1437,46 +1453,164 @@ export const EQUIPMENT_CATEGORIES = [
  * @param {string} [ctx.category] le filtre courant de la molette
  * @param {boolean} [ctx.search]  la barre de recherche est-elle invoquée
  */
+/* ══ LE PILOTE DE L'ÉTAPE — SEPT ÉCRANS, UNE SEULE VUE À LA FOIS ════════════
+   Mandat d'Eric (24/08) : *« enchaîne R/B1/B2/B3/SB3.1/2/3 · INVERSE les
+   positions de R et de B3 · fais le pipeline — les échanges à l'intérieur du
+   personnage. Pas de Craft, pas de Companions, pas de groupe/DM. »*
+
+       B3 (dressing) ─ Equipment → R ─ tap/TO GEAR DROP → B1
+        │                │─ SHOPPING LIST → panier · CART → B2
+        │─ Send → SB3.2  │─ GEAR → retour B3
+        │─ Gear weight › Backpack → SB3.1 · › Storage → SB3.3 (⏳ improvisé)
+
+   `vueEquipement` et `ficheEnCours` sont de l'ÉTAT D'ÉCRAN (même loi que la
+   position du tambour) : ils survivent aux re-rendus de la coquille, jamais
+   au personnage — rien d'eux n'est une donnée. */
+let vueEquipement = "b3";
+let ficheEnCours = null;
+let piloteEquipement = null;
+
+/** Un item de grille → la matière de B1/du panier. Le PRIX vient du record
+ *  (`data.cost`, chaîne SRD), jamais d'un tarif écrit ici. */
+function ficheItem(item) {
+  const data = (item.view && item.view.record && item.view.record.data) || {};
+  return {
+    ref: { kind: item.kind, id: item.view.id },
+    nom: recordLabel(item.view) || item.view.id,
+    coutTexte: typeof data.cost === "string" ? data.cost : "",
+    cout: parseCout(data.cost),
+    poidsTexte: typeof data.weight === "string" ? data.weight : "",
+    prose: recordProse(item.view),
+  };
+}
+
+/** id → record (toutes sortes), et id de base → slot (la couche `shelving`
+ *  du lot 95 : `data.slot.slot`, dix valeurs qui recopient les dix ancrages
+ *  d'Eric). Une passe par rendu, jamais une recherche par ligne. */
+function fabriquerChercheur(query) {
+  const parId = new Map();
+  const slotParBase = new Map();
+  for (const kind of ["gear", "weapon", "armor", "item", "tool"]) {
+    let vues = [];
+    try { vues = query({ kind }); } catch { vues = []; }
+    for (const v of vues) parId.set(v.id, v.record || v);
+  }
+  try {
+    for (const v of query({ kind: "shelving" })) {
+      const d = (v.record && v.record.data) || {};
+      const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
+      if (d.extends && slot) slotParBase.set(d.extends, slot);
+    }
+  } catch { /* la couche absente n'est pas une panne : les boîtes restent vides */ }
+  return {
+    record: (ref) => parId.get(ref && ref.id) || null,
+    slot: (ref) => slotParBase.get(ref && ref.id) || null,
+  };
+}
+
+/** LES PORTÉS DANS LEURS BOÎTES — slot (donné par la couche) → boîte, via
+ *  `SLOT_VERS_BOITES` (⏳ PROVISOIRE, déclaré dans `b3-disposition.mjs`, à
+ *  faire ratifier par Eric). Première boîte libre de la liste du slot ; un
+ *  objet sans slot va aux poches ; plus de place = la ligne reste listée par
+ *  SB3.x, jamais perdue. */
+function attribuerBoites(portees, cherche) {
+  const prises = new Map();
+  const POCHES = ["poche1", "poche2", "poche3", "poche4"];
+  for (const ligne of portees) {
+    const slot = cherche.slot(ligne.ref);
+    const candidates = (slot && SLOT_VERS_BOITES[slot]) || POCHES;
+    const libre = candidates.find((b) => !prises.has(b));
+    if (libre) prises.set(libre, { nom: ligne.nomAffiche, qte: ligne.quantity || 1 });
+  }
+  return Object.fromEntries(prises);
+}
+
 export function renderEquipmentStep(ctx, onAction) {
   const query = ctx.query || (() => []);
   const act = onAction || ctx.onAction || (() => {});
+  const docu = ctx.document || null;
   const section = el("section", "equipment-step");
 
-  /* ⛔ L'ÉTAPE NE PORTE PLUS QUE LA CARTE — Eric, 2026-08-23 : *« dégage tout
-     ce que je vois à l'écran, tu recâbleras après »*, puis *« sauf le
-     background »*. Sont partis avec le reste : la bourse, l'AC, le sac, la
-     recherche, la molette de catégories, le `?` et la loupe.
-     ⭐ `document` et `resolved` ne sont même plus LUS ici, et c'est la preuve
-     que la coupe est franche : l'écran R ne montre pas le personnage, il
-     montre le CATALOGUE. Ce qui regarde le personnage est à `B1`/`B2`/`B3`.
-     ⏳ « Tu recâbleras après » : le contexte continue de les porter, parce que
-     `equipmentValidate` et le futur `B3` en auront besoin. */
-  const catalogue = renderGearBlock({ query, onAction: act });
-  section.append(catalogue);
-
-  /* ══ B3 — LE DRESSING, DANS LE BUILDER (Eric, 24/08 : « faut l'intégrer au
-     builder maintenant ») ══════════════════════════════════════════════════
-     L'étape porte DEUX vues et une seule est visible : R (le catalogue) et
-     B3 (le dressing). Le croquis donne les deux poignées — le bouton GEAR de
-     la carte R ouvre le dressing, le bouton Equipment de sa barre revient.
-     ⏳ Corps : « monsieur » en attendant que le personnage le dise (lot 95+).
-     ⏳ Craft/Send/Companions : dessinés, pas branchés — leurs écrans (B4,
-     SB3.2, SB3.3) n'existent pas encore. */
-  const dressing = el("div", "equipment-dressing");
-  dressing.hidden = true;
-  const sceneB3 = construireLaSceneB3({ surBouton: (mot) => {
-    if (mot === "Equipment") { dressing.hidden = true; catalogue.hidden = false; }
-  } });
-  dressing.append(sceneB3.noeud);
-  section.append(dressing);
-  const boutonGear = catalogue.querySelector(".carte-r-boutons .carte-r-bouton");
-  if (boutonGear && boutonGear.textContent === "GEAR") {
-    boutonGear.addEventListener("click", () => {
-      catalogue.hidden = true;
-      dressing.hidden = false;
-    });
+  const bourse = currentCurrency(docu);
+  const cherche = fabriquerChercheur(query);
+  const lignes = currentGearLines(docu).filter((l) => l.ref);
+  for (const l of lignes) {
+    const rec = cherche.record(l.ref);
+    l.nomAffiche = (rec && rec.name) || l.ref.id;
   }
 
+  const montrer = (vue) => { vueEquipement = vue; peindre(); };
+
+  /* le PILOTE que la carte R appelle (tap, dépôts) — voir `soignerLesCases` */
+  piloteEquipement = {
+    ouvrirFiche(item) {
+      const liste = [...itemsDeLaPage.values()].map(ficheItem);
+      const index = Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id));
+      ficheEnCours = { liste, index };
+      montrer("b1");
+    },
+    mettreAuPanier(item) {
+      panierAjouter(ficheItem(item));
+      const bouton = section.querySelector('[data-mot="CART"]');
+      if (bouton) bouton.dataset.compte = String(panierCompte());
+    },
+  };
+
+  function construireDressing() {
+    const dressing = el("div", "equipment-dressing");
+    const scene = construireLaSceneB3({
+      surBouton: (mot) => {
+        if (mot === "Equipment") montrer("r");
+        if (mot === "Send") montrer("sb32");
+        /* Craft · Companions : le mandat du 24/08 les exclut — inertes. */
+      },
+      contenu: {
+        boites: attribuerBoites(lignesParLieu(lignes, "self"), cherche),
+        bourse,
+        poids: poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data })),
+        surBourse: (clef, delta) => act({ kind: "setCurrency", key: clef, value: (bourse[clef] || 0) + delta }),
+        surLieu: (lieu) => { if (lieu === "backpack") montrer("sb31"); if (lieu === "storage") montrer("sb33"); },
+      },
+    });
+    dressing.append(scene.noeud);
+    return dressing;
+  }
+
+  function construireCatalogue() {
+    const catalogue = renderGearBlock({ query, onAction: act });
+    const boutons = catalogue.querySelectorAll(".carte-r-bouton");
+    for (const b of boutons) {
+      if (b.dataset.mot === "GEAR") b.addEventListener("click", () => montrer("b3"));
+      if (b.dataset.mot === "CART") {
+        b.dataset.compte = String(panierCompte());
+        b.addEventListener("click", () => montrer("b2"));
+      }
+      /* CRAFT : exclu du mandat · NEXT : appartient à la coquille (topbar). */
+    }
+    return catalogue;
+  }
+
+  function construireVue(vue) {
+    if (vue === "r") return construireCatalogue();
+    if (vue === "b1" && ficheEnCours) {
+      return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
+        bourse, onAction: act, fermer: () => montrer("r") });
+    }
+    if (vue === "b2") return renderB2({ mode: "cart", bourse, onAction: act, retour: () => montrer("r") });
+    if (vue === "sb32") return renderB2({ mode: "send", bourse, onAction: act, retour: () => montrer("b3") });
+    if (vue === "sb31" || vue === "sb33") {
+      const lieu = vue === "sb33" ? "storage" : "backpack";
+      return renderSacs({ lieu, lignes, chercheRecord: (ref) => ({ data: cherche.record(ref)?.data }),
+        onAction: act, retour: () => montrer("b3"),
+        surLieu: (l) => { if (l === "backpack") montrer("sb31"); else if (l === "storage") montrer("sb33"); else montrer("b3"); } });
+    }
+    return construireDressing();
+  }
+
+  function peindre() {
+    swapContent(section, [construireVue(vueEquipement)]);
+  }
+  peindre();
   return section;
 }
 
@@ -1547,37 +1681,25 @@ export function construireLaCarteR({ tambour, grille }) {
     collecteurs.append(cible);
   }
 
-  /* 4 — LES BOUTONS. */
+  /* 4 — LES BOUTONS. ⛔ Plus de `data-sim` : GEAR, CART et leurs suites sont
+     branchés par le PILOTE (`renderEquipmentStep`) — CRAFT reste inerte (le
+     mandat du 24/08 l'exclut), NEXT appartient à la coquille. Le compteur du
+     CART (croquis) vit dans `data-compte`, peint par la feuille. */
   const boutons = elt("div", "carte-r-boutons");
-  boutons.dataset.sim = "oui";
   for (const mot of BOUTONS) {
     const b = elt("button", "carte-r-bouton", mot);
     b.type = "button";
+    b.dataset.mot = mot;
     boutons.append(b);
   }
 
-  /* B1 — la fiche, en recouvrement. */
-  const fiche = elt("div", "carte-r-b1");
-  fiche.dataset.sim = "oui";
-  fiche.hidden = true;
-  const ficheNom = elt("p", "carte-r-b1-nom");
-  const pied = elt("div", "carte-r-b1-pied");
-  const retour = elt("button", "carte-r-bouton", "BACK");
-  retour.type = "button";
-  retour.addEventListener("click", () => { fiche.hidden = true; });
-  pied.append(retour);
-  for (const mot of ["CRAFT", "BUY", "FREE"]) {
-    const b = elt("button", "carte-r-bouton", mot);
-    b.type = "button";
-    pied.append(b);
-  }
-  fiche.append(
-    elt("h2", null, "ITEM DESCRIPTION"), elt("p", "carte-r-b1-compte", "1/1"),
-    ficheNom, elt("div", "carte-r-b1-corps"), pied
-  );
+  /* ⛔ LA FICHE-MAQUETTE A DÉGAGÉ (24/08) : B1 est un ÉCRAN à part entière
+     (`equipement-pipeline.mjs`), plus un recouvrement de la carte. Le stub
+     `carte-r-b1` n'avait qu'un nom et quatre boutons morts — le garder aurait
+     fait vivre DEUX fiches, dont une qui ment. */
 
   corps.append(tambour, grille, collecteurs, boutons);
-  noeud.append(corps, fiche);
+  noeud.append(corps);
 
   /* ══ LES DEUX SOINS À DONNER AUX CASES, ET ILS SE REDONNENT ═════════════
      🔴 UNE SEULE PASSE NE SUFFIT PAS, MESURÉ : la grille se REMPLIT toute
@@ -1620,16 +1742,27 @@ export function construireLaCarteR({ tambour, grille }) {
     for (const jeton of grille.querySelectorAll(".grille-jeton")) {
       if (armes.has(jeton)) continue;
       armes.add(jeton);
-      const nom = (jeton.getAttribute("aria-label") || "").replace(/^Add\s+/, "") || jeton.textContent;
       armerJeton(jeton, {
-        onTap: () => { ficheNom.textContent = nom; fiche.hidden = false; },
+        /* ⭐ LE STANDARD DU CROQUIS, EN ENTIER (24/08) : tap → B1 la fiche ·
+           lâcher sur SHOPPING LIST → le panier (on saute B1) · sur TO GEAR
+           DROP → B1 (le seul des trois qui passe par la fiche, vault §5.1) ·
+           sur CRAFT DROP → rien encore (le mandat exclut le craft), la cible
+           accuse réception et c'est tout. Le PILOTE fait les actes — la carte
+           ne connaît ni le panier ni les écrans, elle publie le geste. */
+        onTap: () => {
+          const item = itemsDeLaPage.get(jeton.dataset.refId);
+          if (item && piloteEquipement) piloteEquipement.ouvrirFiche(item);
+        },
         onDepot: (creneau) => {
-          /* ⭐ ON SAUTE B1 — la cible dit l'intention. R1 ne fait pas encore
-             l'acte : il montre QUE la cible l'a reçu. */
           const cible = collecteurs.querySelector(`[data-creneau="${creneau}"]`);
-          if (!cible) return;
-          cible.dataset.recu = "oui";
-          setTimeout(() => { delete cible.dataset.recu; }, 900);
+          if (cible) {
+            cible.dataset.recu = "oui";
+            setTimeout(() => { delete cible.dataset.recu; }, 900);
+          }
+          const item = itemsDeLaPage.get(jeton.dataset.refId);
+          if (!item || !piloteEquipement) return;
+          if (creneau === "shopping") piloteEquipement.mettreAuPanier(item);
+          if (creneau === "gear") piloteEquipement.ouvrirFiche(item);
         }
       });
     }

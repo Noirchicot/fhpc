@@ -14,8 +14,8 @@
    reçoit `surBouton(mot)` et décide (le builder : « Equipment » → retour R). */
 
 import { SCENE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
-  from "./b3-disposition.mjs?v=288";
-import { CORPS } from "./b3-ancrages.mjs?v=288";
+  from "./b3-disposition.mjs?v=289";
+import { CORPS } from "./b3-ancrages.mjs?v=289";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -46,6 +46,10 @@ export function construireLaSceneB3(options = {}) {
   let echelle = options.echelle ?? CORPS_EN_SCENE.echelles[0];
   const apercus = Boolean(options.apercus);
   const surBouton = options.surBouton || null;
+  /* ⭐ LE CONTENU (pilote, 24/08) : { boites: {clef → {nom, qte}}, bourse,
+     poids: {somme, compte}, surBourse(clef, ±1), surLieu(lieu) }. Sans lui la
+     scène reste la maquette du banc — mêmes cotes, rien de vivant. */
+  const contenu = options.contenu || null;
 
   const noeud = forme("svg", "b3-scene", {
     viewBox: `0 0 ${SCENE.l} ${SCENE.h}`, width: SCENE.l, height: SCENE.h,
@@ -65,7 +69,7 @@ export function construireLaSceneB3(options = {}) {
     for (const [clef, c] of Object.entries(CORPS)) {
       const m = forme("mask", null, { id: `b3s-masque-${clef === "monsieur" ? "h" : "f"}`,
         maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1000, height: 1600 });
-      m.append(forme("image", null, { href: `./assets/${c.image}?v=288`,
+      m.append(forme("image", null, { href: `./assets/${c.image}?v=289`,
         x: c.x, y: c.y, width: c.largeur, height: c.hauteur }));
       defs.append(m);
     }
@@ -87,25 +91,18 @@ export function construireLaSceneB3(options = {}) {
     for (const b of BOITES) {
       const l = b.l || JETON.l;
       const x = b.centre ? (SCENE.l - l) / 2 : b.x;
-      if (b.double) {
-        /* La PAIRE du torse : deux jetons PLEINS de 87, séparés de `ecart`
-           (« 4 pixels entre torso 1 et 2 », Eric) — pas une boîte fendue. */
-        const g = b.ecart || 0;
-        const l1 = (l - g) / 2;
-        for (const [dxp, nom] of [[0, b.nom], [l1 + g, b.double]]) {
-          noeud.append(forme("rect", "b3-boite-scene",
-            { x: x + dxp, y: b.y, width: l1, height: JETON.h, rx: 6 }));
-          noeud.append(texte("b3-nom", x + dxp + 5, b.y + 12, nom));
-        }
-        noeud.append(forme("circle", "b3-attune", { cx: x - 5, cy: b.y + 5, r: 3 }));
-        noeud.append(forme("circle", "b3-attune", { cx: x + l + 5, cy: b.y + 5, r: 3 }));
-        continue;
-      }
       const r = forme("rect", "b3-boite-scene",
         { x, y: b.y, width: l, height: JETON.h, rx: 6 });
       if (b.optionnelle) r.dataset.optionnelle = "oui";
       noeud.append(r);
       noeud.append(texte("b3-nom", x + 5, b.y + 12, b.nom));
+      const pose = contenu && contenu.boites && contenu.boites[b.clef];
+      if (pose) {
+        r.dataset.occupe = "oui";
+        noeud.append(texte("b3-objet", x + 5, b.y + 28,
+          pose.nom.length > 16 ? pose.nom.slice(0, 15) + "…" : pose.nom));
+        if (pose.qte > 1) noeud.append(texte("b3-objet", x + 5, b.y + 41, `×${pose.qte}`));
+      }
       /* La pastille d'attunement — Eric, 24/08 : « attunements LATÉRAUX
          partout, sauf sur Belt : ce sera SUPÉRIEUR ». Flanc externe pour les
          colonnes (haut du flanc — le ×N tient le mi-hauteur), côté droit pour
@@ -153,23 +150,48 @@ export function construireLaSceneB3(options = {}) {
     const pas = (BOURSE.l - 10) / BOURSE.monnaies.length;
     BOURSE.monnaies.forEach((mon, i) => {
       const cx = BOURSE.x + 5 + i * pas;
+      const clef = mon.toLowerCase();
       noeud.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 24, mon, "middle"));
       noeud.append(forme("rect", "b3-envoi",  { x: cx, y: BOURSE.y + 29, width: pas - 5, height: 13, rx: 2 }));
-      noeud.append(forme("rect", "b3-bouton", { x: cx, y: BOURSE.y + 46, width: pas - 5, height: 13, rx: 2 }));
-      noeud.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 55, "+", "middle"));
+      /* la VALEUR vit dans le document — « — » tant que la clef n'est pas posée */
+      const v = contenu && contenu.bourse ? contenu.bourse[clef] : undefined;
+      noeud.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 39,
+        Number.isInteger(v) ? String(v) : "—", "middle"));
+      const plus = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0, "aria-label": `One more ${mon}` });
+      plus.append(forme("rect", "b3-bouton", { x: cx, y: BOURSE.y + 46, width: pas - 5, height: 13, rx: 2 }));
+      plus.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 55, "+", "middle"));
+      if (contenu && contenu.surBourse) plus.addEventListener("click", () => contenu.surBourse(clef, 1));
+      noeud.append(plus);
       noeud.append(forme("rect", "b3-typein", { x: cx, y: BOURSE.y + 63, width: pas - 5, height: 13, rx: 2 }));
-      noeud.append(forme("rect", "b3-bouton", { x: cx, y: BOURSE.y + 80, width: pas - 5, height: 13, rx: 2 }));
-      noeud.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 89, "−", "middle"));
+      const moins = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0, "aria-label": `One less ${mon}` });
+      moins.append(forme("rect", "b3-bouton", { x: cx, y: BOURSE.y + 80, width: pas - 5, height: 13, rx: 2 }));
+      moins.append(texte("b3-info-texte", cx + (pas - 5) / 2, BOURSE.y + 89, "−", "middle"));
+      if (contenu && contenu.surBourse) moins.addEventListener("click", () => contenu.surBourse(clef, -1));
+      noeud.append(moins);
     });
     noeud.append(texte("b3-info-texte", BOURSE.x + 8, BOURSE.y + 112, "Total in GP"));
     noeud.append(forme("rect", "b3-envoi",
       { x: BOURSE.x + 62, y: BOURSE.y + 103, width: 40, height: 13, rx: 2 }));
+    if (contenu && contenu.bourse) {
+      const b = contenu.bourse;
+      const totalGP = (b.pp || 0) * 10 + (b.gp || 0) + (b.sp || 0) / 10 + (b.cp || 0) / 100;
+      noeud.append(texte("b3-info-texte", BOURSE.x + 82, BOURSE.y + 113,
+        String(Math.round(totalGP * 100) / 100), "middle"));
+    }
 
     noeud.append(forme("rect", "b3-info",
       { x: POIDS.x, y: POIDS.y, width: POIDS.l, height: POIDS.h, rx: 4 }));
     noeud.append(texte("b3-nom", POIDS.x + POIDS.l / 2, POIDS.y + 12, "Gear weight", "middle"));
     POIDS.lignes.forEach((ligne, i) => {
-      noeud.append(texte("b3-info-texte", POIDS.x + 6, POIDS.y + 25 + i * 11, ligne));
+      const lieu = ligne.toLowerCase();
+      const y = POIDS.y + 25 + i * 11;
+      const mot = contenu && contenu.poids
+        ? `${ligne}  ${contenu.poids.compte[lieu] || 0} · ${Math.round((contenu.poids.somme[lieu] || 0) * 10) / 10} lb`
+        : ligne;
+      const g = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0, "aria-label": `Open ${ligne}` });
+      g.append(texte("b3-info-texte", POIDS.x + 6, y, mot));
+      if (contenu && contenu.surLieu) g.addEventListener("click", () => contenu.surLieu(lieu));
+      noeud.append(g);
     });
 
     /* La barre — le seul geste branché de la scène : `surBouton(mot)`. */

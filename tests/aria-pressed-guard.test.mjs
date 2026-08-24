@@ -298,10 +298,18 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
      un `Equipped`/`Stowed` ici sans l'annoncer serait dit par ce test.
      📌 Le garde d'ensemble n'a rien perdu : Abilities, Species, Skills,
      Inheritance et Universe exigent toujours leur minimum. */
+  /* ⚠️ ÉLARGI LE 2026-08-24, PAS ASSOUPLI : depuis l'inversion (mandat
+     d'Eric), l'étape ouvre sur B3 — on entre au catalogue par sa porte,
+     comme le joueur. Et UNE exception nommée est née avec le pipeline : le
+     `FREE` de ligne du panier (B2/SB3.2) est un VRAI interrupteur du croquis
+     — lui s'annonce (`aria-pressed`), et il est le SEUL admis. */
   const node = renderEquipmentStep({ document: report.document, resolved: report.resolved, query }, () => {});
+  const porte = node.querySelector('[aria-label="Equipment"]');
+  if (porte) porte.click();
   assert.deepEqual(elementsActifs(node), [],
     "ni cran ni jeton n'est un interrupteur : aucun n'a d'état à annoncer");
   for (const bouton of node.querySelectorAll("button")) {
+    if ((bouton.className || "").includes("pipeline-ligne-libre")) continue;
     assert.equal(bouton.getAttribute("aria-pressed"), null,
       `${bouton.className} annonce un état que cet écran n'a plus`);
   }

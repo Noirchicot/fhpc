@@ -218,23 +218,30 @@ test("7 — clear est SÛR sur gear[N] : rebuild ne jette pas, la ligne dispara�
    organes reviennent avec la géométrie du croquis — et leurs tests avec eux.
    Les versions retirées sont dans l'historique ; ⛔ elles ne se recopient pas
    telles quelles, elles éprouvaient une mise en page qu'Eric a écartée. */
-test("⛔ l'étape Équipement ne porte QUE la carte de l'écran R", () => {
-  /* 🔴 LE GARDE QUI REMPLACE LES NEUF. Il ne dit pas « ça marche », il dit
-     « rien n'est revenu » — et c'est exactement ce qu'un lot suivant risque de
-     faire sans le vouloir, en rebranchant un organe « le temps de ». */
+test("⛔ l'étape Équipement OUVRE SUR B3, et une seule vue vit à la fois (l'inversion du 24/08)", () => {
+  /* 🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ LE 2026-08-24, ET NON RELÂCHÉ. Ce garde
+     exigeait « la carte de R, seule » ; Eric a INVERSÉ les positions le jour
+     même (*« inverse les positions de R et de B3 »*) : le dressing devient
+     l'écran d'entrée, le catalogue vit derrière son bouton Equipment.
+     Ce que le garde tient n'a pas molli : UNE vue à la fois, et aucun organe
+     mort ne revient. */
   const node = renderEquipmentStep({
     document: fixture.document, resolved: fixture.resolved, query
   }, () => {});
 
-  assert.equal(rows(node, ".carte-r").length, 1, "la carte est là, et elle est seule");
+  assert.equal(rows(node, ".b3-scene").length, 1, "le dressing est l'écran d'entrée");
+  assert.equal(rows(node, ".carte-r").length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
 
-  /* ⭐ B3 EST ENTRÉ (24/08, « faut l'intégrer au builder maintenant ») : le
-     dressing vit dans l'étape mais CACHÉ au départ — R d'abord, GEAR l'ouvre.
-     Un dressing visible d'entrée serait une régression d'écran, pas un plus. */
-  const dressings = rows(node, ".equipment-dressing");
-  assert.equal(dressings.length, 1, "le dressing est là, et il n'y en a qu'un");
-  assert.equal(dressings[0].hidden, true, "et il attend le bouton GEAR — R se montre en premier");
-  assert.equal(rows(node, ".b3-scene").length, 1, "la scène B3 est montée dedans");
+  const porte = node.querySelector('[aria-label="Equipment"]');
+  assert.ok(porte, "la barre B3 porte la porte vers le catalogue");
+  porte.click();
+  assert.equal(rows(node, ".carte-r").length, 1, "Equipment ouvre le catalogue…");
+  assert.equal(rows(node, ".b3-scene").length, 0, "…et le dressing s'efface — jamais deux vues empilées");
+
+  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
+  assert.ok(gear, "la carte R porte GEAR");
+  gear.click();
+  assert.equal(rows(node, ".b3-scene").length, 1, "GEAR ramène au dressing — l'aller-retour est complet");
 
   for (const mort of [".equipment-gear-list", ".equipment-ac-readout", ".equipment-search-block",
                       ".equipment-topbar", ".equipment-catbar", ".equipment-currency-block",

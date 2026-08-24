@@ -19,58 +19,58 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=288";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=288";
-import { mountPopup } from "./popup.mjs?v=288";
-import { renderLorePanel } from "./lore.mjs?v=288";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=288";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=289";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=289";
+import { mountPopup } from "./popup.mjs?v=289";
+import { renderLorePanel } from "./lore.mjs?v=289";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=289";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=288";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=288";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=289";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=289";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=288";
+} from "./tutoriel.mjs?v=289";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=288";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=289";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=288";
-import { renderChoixGlisses } from "./glisser.mjs?v=288";
-import { renderConceptStep } from "./concept-step.mjs?v=288";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=288";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=288";
+import { planAt, planSlots } from "./carnet.mjs?v=289";
+import { renderChoixGlisses } from "./glisser.mjs?v=289";
+import { renderConceptStep } from "./concept-step.mjs?v=289";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=289";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=289";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=288";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=288";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=288";
+} from "./catalogue.mjs?v=289";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=289";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=289";
 import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
   renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=288";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=288";
+  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=289";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=289";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=288";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=289";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=288";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=288";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=288";
+} from "./destiny-step.mjs?v=289";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=289";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=289";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=288";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=289";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -89,16 +89,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=288";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=288";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=289";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=288";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=288";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=289";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=289";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=288";
+import { versionQuery } from "./version.mjs?v=289";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1018,7 +1018,56 @@ function applyDecisionAction(action) {
     document = verbs.choose({ document, path: `gear[${index}]`, ref: action.ref }).document;
     document = verbs.set({ document, path: `gear[${index}].quantity`, value: action.quantity }).document;
     document = verbs.set({ document, path: `gear[${index}].equipped`, value: action.equipped }).document;
+    /* ⭐ PIPELINE (24/08) — la POSITION d'une ligne : self | backpack | storage.
+       Mesurée AVANT d'écrire : les verbes l'acceptent, zéro violation au
+       rebuild. Facultative — les lignes d'avant ce champ se lisent
+       « backpack » (rien n'est porté sans geste). */
+    if (action.location) {
+      document = verbs.set({ document, path: `gear[${index}].location`, value: action.location }).document;
+    }
     state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
+  /* PIPELINE (24/08) — DÉPLACER une ligne à l'intérieur du personnage :
+     self ↔ backpack ↔ storage. `equipped` SUIT la position (porté = self),
+     jamais l'inverse — une seule écriture de la vérité. */
+  if (action.kind === "moveGearLine") {
+    let document = state.document;
+    document = verbs.set({ document, path: `gear[${action.index}].location`, value: action.location }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: action.location === "self" }).document;
+    state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
+  /* PIPELINE (24/08) — PAYER : soustrait un coût de la bourse, les quatre
+     clefs d'un coup. ⛔ REFUSE de produire un négatif — l'écran vérifie avant
+     (`bourseCouvre`), ce garde-ci est la ceinture : si une clef manque, RIEN
+     n'est écrit (jamais une bourse à moitié débitée). */
+  if (action.kind === "payer") {
+    const bourse = currentCurrency(state.document);
+    const apres = {};
+    for (const key of CURRENCY_KEYS) {
+      apres[key] = (Number.isInteger(bourse[key]) ? bourse[key] : 0) - (action.cout[key] || 0);
+      if (apres[key] < 0) { refresh(); return; }
+    }
+    let document = state.document;
+    for (const key of CURRENCY_KEYS) {
+      document = verbs.set({ document, path: `currency.${key}`, value: apres[key] }).document;
+    }
+    state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
+  /* PIPELINE (24/08) — LA BOURSE DE B3, une clef à la fois (les +/− du
+     croquis). Plancher à zéro : une bourse n'a pas de dette. */
+  if (action.kind === "setCurrency") {
+    const valeur = Math.max(0, Math.trunc(action.value));
+    if (!CURRENCY_KEYS.includes(action.key) || !Number.isFinite(valeur)) { refresh(); return; }
+    state.document = verbs.set({ document: state.document, path: `currency.${action.key}`, value: valeur }).document;
     rebuild();
     refresh();
     return;

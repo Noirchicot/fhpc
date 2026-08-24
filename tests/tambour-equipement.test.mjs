@@ -71,6 +71,17 @@ const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equip
 const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, pageDObjets, CASES_PAR_PAGE, profondeurAccordee } =
   await import("../ui/builder/equipment-step.mjs");
 
+/* ⭐ DEPUIS L'INVERSION DU 24/08 (mandat d'Eric), l'étape OUVRE SUR B3 — le
+   dressing. Ces suites regardent le CATALOGUE : on y entre comme le joueur,
+   par le bouton Equipment de la barre B3. L'état de vue persiste entre les
+   rendus (c'est le produit), le clic est donc conditionnel. */
+function monterR(ctx, onAction) {
+  const node = renderEquipmentStep(ctx, onAction || (() => {}));
+  const porte = node.querySelector('[aria-label="Equipment"]');
+  if (porte) porte.click();
+  return node;
+}
+
 const fixture = exempleFhEn();
 const { layers } = fixture;
 const query = layers.verbs.query;
@@ -286,7 +297,7 @@ test("9 — la page BOUCLE aux deux bouts, et le compte reste dans ses bornes", 
 /* ══ L'ÉCRAN — CE QUI SE VOIT SANS MISE EN PAGE ══════════════════════════ */
 
 test("10 — l'écran porte les deux roues SANS chevron-bouton, les deux gouttières de la grille et ses quinze cases", () => {
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   assert.equal(rows(node, ".equipment-drum").length, 1);
   assert.equal(rows(node, ".roue").length, 2, "DEUX étages — le troisième niveau est une grille, plus une roue");
   /* 🔴 ZÉRO CHEVRON SUR LE TAMBOUR, ET C'EST UN GARDE, PAS UN TROU — Eric,
@@ -331,7 +342,7 @@ test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Er
      écrit à deux endroits est un nom qui finit par diverger : celui du cran de
      la roue est le seul qui reste. 📏 Et la barre pesait 52 px dans une carte
      qui en cherchait 12 — la coupe n'est pas cosmétique. */
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   assert.equal(rows(node, ".grille-titre").length, 0, "plus aucun nœud de titre");
   assert.equal(rows(node, ".grille-barre").length, 0, "et plus de barre horizontale pour le porter");
 
@@ -346,13 +357,13 @@ test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Er
 test("10 ter — les crans de la roue restent les SEULS porteurs du nom d'une étagère", () => {
   /* Le garde qui rend « il est porté par le rouleau » vérifiable : si un lot
      réintroduisait un titre ailleurs, ce compte bougerait. */
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   const crans = rows(node, ".roue-piste")[1].querySelectorAll(".roue-cran");
   assert.ok(crans.length > 0, "l'étage du bas porte bien des crans");
 });
 
 test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille FACE CACHÉE", () => {
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   const pistes = rows(node, ".roue-piste");
   assert.equal(pistes[0].dataset.attente, undefined, "la ligne du HAUT est remplie dès l'ouverture");
   assert.equal(pistes[1].dataset.attente, "oui", "la ligne du BAS attend");
@@ -396,7 +407,7 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennen
      presque en permanence. Eric l'a entendu avant de le voir : « la roue A bien
      fluide, la roue B pas bien, ça clignote », À CODE IDENTIQUE.
      ⭐ La parade : répéter la liste DANS le bloc jusqu'à 12 crans. */
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
   /* ⭐ LE TOTAL N'A PAS BOUGÉ EN PASSANT DE 4 À 6 RAYONS, ET CE N'EST PAS UNE
      COÏNCIDENCE HEUREUSE : la règle vise un PLANCHER de 12 crans par bloc, donc
@@ -412,7 +423,7 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennen
 });
 
 test("13 — un cran s'annonce par `aria-current`, jamais par `aria-pressed` (ce n'est pas une bascule)", () => {
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   const crans = rows(node, ".roue-cran").filter((c) => c.tagName === "BUTTON");
   assert.ok(crans.length > 0);
   for (const cran of crans) {
@@ -464,7 +475,7 @@ test("13 ter — au rendu, RIEN n'est annoncé : l'état d'attente du croquis n'
   /* ⭐ CE N'EST PAS UN CAS DÉGÉNÉRÉ, C'EST L'ÉTAT DE DÉPART (test 11) : tant que
      le joueur n'a rien touché, aucun rayon n'est choisi. Un `aria-current` posé
      là annoncerait un choix qui n'a pas eu lieu. */
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
   assert.equal(crans.filter((c) => c.getAttribute("aria-current") === "true").length, 0);
   assert.equal(crans.filter((c) => c.dataset.courant === "true").length, 0);
@@ -482,7 +493,7 @@ test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas 
      ⛔ Et ce garde mord dans les deux sens : il tient la ligne hors de l'écran,
      ET il vérifie que la fonction qui la produit est toujours joignable — la
      retirer pour de bon serait perdre le §6, pas le déplacer. */
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   assert.equal(rows(node, ".drum-profondeur").length, 0,
     "l'écran du joueur ne porte aucune ligne de diagnostic");
   assert.equal(typeof profondeurAccordee, "function",
@@ -495,7 +506,7 @@ test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui
      donc DÉMONTER LA ROUE AU MILIEU DU GESTE. Le tambour se met à jour
      lui-même ; il ne parle à la coquille que pour les gestes du joueur. */
   const calls = [];
-  const node = renderEquipmentStep(ctx(), (a) => calls.push(a));
+  const node = monterR(ctx(), (a) => calls.push(a));
   assert.equal(calls.length, 0, "monter le tambour ne dispatche RIEN");
 
   for (const fleche of rows(node, ".roue-fleche")) fleche.click();
@@ -518,7 +529,7 @@ test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran
   const sansPrix = query({ kind: "item" }).filter((v) => v.record.data.cost === undefined);
   assert.equal(sansPrix.length, 258, "témoin : c'est bien le corpus entier qui est sans prix");
 
-  const node = renderEquipmentStep(ctx(), () => {});
+  const node = monterR(ctx());
   assert.equal(rows(node, ".equipment-item-meta").length, 0,
     "aucune ligne de méta ne subsiste où un prix pourrait être inventé");
   /* ⚠️ AU MONTAGE LA GRILLE EST EN ATTENTE (☆ ☉ ☾) — c'est l'état de départ du
