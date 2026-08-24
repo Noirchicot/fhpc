@@ -28,7 +28,7 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=290";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=291";
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {
@@ -227,11 +227,15 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
     elp("span", "pipeline-libelle", "Qty"), qteChamp, plus, moins);
 
   /* SEND TO — les destinations INTERNES au personnage (le mandat exclut
-     groupe, DM, companions ; le croquis les liste pour plus tard). */
+     groupe, DM, companions ; le croquis les liste pour plus tard).
+     ⭐ RÈGLE D'ERIC (24/08) : *« un item individuel, si pas de choix
+     pertinent, ça peut aller au slot approprié, pockets, backpack »* — le
+     défaut d'UN objet est donc la CASCADE (l'arbitre du pilote la joue :
+     slot libre → poche libre → le sac). */
   const destRang = elp("div", "pipeline-sendto");
   destRang.append(elp("span", "pipeline-libelle", "Send to"));
   const dest = elp("select", "pipeline-dropdown");
-  for (const [v, mot] of [["backpack", "Backpack"], ["self", "Worn (self)"], ["storage", "Storage"]]) {
+  for (const [v, mot] of [["self", "Slot (auto)"], ["backpack", "Backpack"], ["storage", "Storage"]]) {
     const o = elp("option", null, mot); o.value = v; dest.append(o);
   }
   destRang.append(dest);
@@ -246,7 +250,7 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
       if (!bourseCouvre(bourse, cout)) { alerte.textContent = "Not enough coin in the purse."; return; }
       onAction({ kind: "payer", cout });
     }
-    const destination = dest.value || "backpack";
+    const destination = dest.value || "self";   /* item seul : la cascade */
     onAction({ kind: "addGearLine", ref: item().ref, quantity: qte,
       equipped: destination === "self", location: destination });
     fermer();
@@ -299,10 +303,13 @@ export function renderB2({ mode, bourse, onAction, retour, parPage = 4 }) {
   const or = blocMyGold(bourse);
   const alerte = elp("p", "pipeline-alerte");
 
+  /* ⭐ RÈGLE D'ERIC (24/08) : *« si aucun destinataire, ça va dans backpack —
+     surtout si c'est un panier »* — une LISTE ne s'équipe pas d'un bloc, elle
+     se range ; le défaut est donc le sac. */
   const destRang = elp("div", "pipeline-sendto");
   destRang.append(elp("span", "pipeline-libelle", "Send to"));
   const dest = elp("select", "pipeline-dropdown");
-  for (const [v, mot] of [["backpack", "Backpack"], ["self", "Worn (self)"], ["storage", "Storage"]]) {
+  for (const [v, mot] of [["backpack", "Backpack"], ["self", "Slot (auto)"], ["storage", "Storage"]]) {
     const o = elp("option", null, mot); o.value = v; dest.append(o);
   }
   destRang.append(dest);
