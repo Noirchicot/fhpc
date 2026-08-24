@@ -53,7 +53,11 @@ export const PILE = 8;
  *    Eric, 24/08 : « certains items peuvent être stockés en quantités » et
  *    « un compteur quantités peut apparaître dans POCKETS » : les quatre
  *    Pocket ET les deux hybrides Pocket/Hilt le portent — « les 6 », son
- *    mot — et le badge ×N ne paraît que si l'objet posé en porte plusieurs ;
+ *    mot — et le badge ×N ne paraît que si l'objet posé en porte plusieurs.
+ *    Sa PLACE est de lui aussi (24/08, en deux temps — sa dernière parole
+ *    gagne) : « Pocket 1 2 3 4 : MÉDIAL · Hilt 3 and 4 : latéralement » —
+ *    `qte: "medial"` = à cheval sur le flanc INTERNE (vers le corps), à
+ *    mi-hauteur ; `qte: "lateral"` = pareil sur le flanc EXTERNE ;
  *  · pointille : le soulignage rouge pointillé qu'Eric a dessiné sur DEUX
  *    libellés (Body forging, Torso gear 2) — recopié, pas interprété : son
  *    sens est à lui. */
@@ -66,14 +70,14 @@ export const BOITES = [
   { clef: "hilt1",   nom: "Hilt 1",          x: 59,  y: 224, attunable: true },
   { clef: "hilt2",   nom: "Hilt 2",          x: 251, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
-  { clef: "hilt3",   quantite: true, nom: "Pocket/Hilt 3",   x: 59,  y: 280, attunable: true },
-  { clef: "hilt4",   quantite: true, nom: "Pocket/Hilt 4",   x: 251, y: 280, attunable: true },
+  { clef: "hilt3",   qte: "lateral", nom: "Pocket/Hilt 3",   x: 59,  y: 280, attunable: true },
+  { clef: "hilt4",   qte: "lateral", nom: "Pocket/Hilt 4",   x: 251, y: 280, attunable: true },
   { clef: "pied1",   nom: "Foot/leg gear 1", centre: true, y: 341, attunable: true },
-  { clef: "poche1",  quantite: true, nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
-  { clef: "poche2",  quantite: true, nom: "Pocket 2",        x: 299, y: 377, attunable: true },
+  { clef: "poche1",  qte: "medial", nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
+  { clef: "poche2",  qte: "medial", nom: "Pocket 2",        x: 299, y: 377, attunable: true },
   { clef: "pied2",   nom: "Foot/leg gear 2", centre: true, y: 397, attunable: true },
-  { clef: "poche3",  quantite: true, nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
-  { clef: "poche4",  quantite: true, nom: "Pocket 4",        x: 299, y: 433, attunable: true },
+  { clef: "poche3",  qte: "medial", nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
+  { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 299, y: 433, attunable: true },
 ];
 
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */

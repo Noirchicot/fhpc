@@ -486,15 +486,20 @@ function peindreScene() {
     if (b.attunable) scene.append(formeScene("circle", "b3-attune",
       { cx: x + l + 5, cy: b.y + 5, r: 3 }));
     /* ⭐ LE COMPTEUR ×N des six poches (« les 6 », Eric) — un état d'OBJET :
-       il ne paraît que si l'objet posé en porte plusieurs, et il paraît
-       LATÉRALEMENT par rapport à la boîte (son mot, 24/08) : côté externe,
-       loin du corps, à mi-hauteur, à cheval sur le bord. ⏳ APERÇU DE BANC
-       sur Pocket 1 seulement — le vrai compte viendra avec le câblage. */
-    if (b.quantite && b.clef === "poche1") {
+       il ne paraît que si l'objet posé en porte plusieurs. Sa place est de
+       lui (24/08) : Pocket 1-4 → flanc MÉDIAL (vers le corps) · Pocket/Hilt
+       3-4 → flanc LATÉRAL (externe) — à mi-hauteur, à cheval sur le bord.
+       ⏳ APERÇUS DE BANC sur Pocket 1 (×3) et Pocket/Hilt 3 (×2) — le vrai
+       compte viendra avec le câblage. */
+    if (b.qte && (b.clef === "poche1" || b.clef === "hilt3")) {
       const aGauche = x + l / 2 < SCENE.l / 2;
-      const cx = aGauche ? x - 4 : x + l + 4;
-      scene.append(formeScene("circle", "b3-qte", { cx, cy: b.y + JETON.h / 2, r: 7 }));
-      scene.append(texteScene("b3-qte-texte", cx, b.y + JETON.h / 2 + 3, "×3", "middle"));
+      const cx = b.qte === "medial"
+        ? (aGauche ? x + l + 4 : x - 4)
+        : (aGauche ? x - 4 : x + l + 4);
+      const cy = b.y + JETON.h / 2;
+      const n = b.clef === "poche1" ? "×3" : "×2";
+      scene.append(formeScene("circle", "b3-qte", { cx, cy, r: 7 }));
+      scene.append(texteScene("b3-qte-texte", cx, cy + 3, n, "middle"));
     }
   }
 
