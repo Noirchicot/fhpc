@@ -25,8 +25,8 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=335";
-import { swapContent } from "./socle.mjs?v=335";
+import { pageDeListe } from "./normes.mjs?v=336";
+import { swapContent } from "./socle.mjs?v=336";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
