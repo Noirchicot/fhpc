@@ -174,7 +174,7 @@ export function renderReviewStep(ctx, onAction) {
   const section = el("section", "review-step");
 
   /* B9.3 — UNE DALLE MAJEURE, UNE SEULE. Tout tient dedans. */
-  const dalle = el("section", "review-mask dalle-majeure");
+  const dalle = el("section", "review-mask dalle-intermediaire");
 
   const identite = resolved && resolved.identity ? resolved.identity : {};
   const classe = Array.isArray(identite.classes) && identite.classes[0] ? identite.classes[0].name : null;

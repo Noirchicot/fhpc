@@ -87,7 +87,7 @@ function conclusion(peutAvancer) {
    carte de plus dans ce compte ferait choisir la mauvaise espèce. Il se lit,
    il se dépasse. C'est la seule chose qui le distingue encore d'une fiche. */
 export function renderGuideGeneral({ titre, texte }) {
-  const carte = el("section", "guide-general dalle-majeure");
+  const carte = el("section", "guide-general dalle-intermediaire");
   carte.dataset.objet = "carte";
   if (titre) carte.append(el("h2", "guide-titre", [text(titre)]));
   for (const para of String(texte || "").split(/\n{2,}/)) {
@@ -112,7 +112,17 @@ export function renderGuideGeneral({ titre, texte }) {
    19/08, et la seule raison d'être de `build.confirmed`. */
 export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, onAction }) {
   const act = onAction || (() => {});
-  const page = el("section", "parcours-guide dalle-majeure");
+  /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
+     la dalle de ça à 50 % »*. ⛔ Pas 35 : il a désigné l'objet et donné le
+     nombre dans la même phrase.
+     ⭐ C'EST LE MÊME VOILE QUE LA FICHE D'ESPÈCE, et ce n'est pas un hasard :
+     les deux sont ce que le joueur LIT longuement. Le 50 est donc le barreau
+     de la dalle qu'on lit, pas un barreau vide — NORMES §4 écrivait
+     *« 50 % → aucun organe aujourd'hui »*, c'est faux et ça se corrige là.
+     🔴 ET C'EST LE CADRE SOUS ELLE QUI REND CE VOILE VISIBLE : tant que
+     `.decision-card` peignait, ce 50 % se posait sur de l'opaque et ne montrait
+     rien. Les deux changements ne valent QUE l'un avec l'autre. */
+  const page = el("section", "parcours-guide dalle-intermediaire");
   page.dataset.objet = "dalle";
   page.dataset.racine = racine;
 
@@ -218,7 +228,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
    le joueur doit savoir AVANT de cliquer `Back` que ça ne validera rien. */
 export function renderItem({ racine, item, titre, corps, onAction }) {
   const act = onAction || (() => {});
-  const page = el("section", "parcours-item-dalle dalle-majeure");
+  const page = el("section", "parcours-item-dalle dalle-intermediaire");
   page.dataset.objet = "dalle";
   page.dataset.item = item && item.path;
 
@@ -255,7 +265,7 @@ export function renderItem({ racine, item, titre, corps, onAction }) {
    c'est la seule chose que cet écran a besoin de savoir à ce sujet. */
 export function renderBilan({ racine, titre, lignes, onAction }) {
   const act = onAction || (() => {});
-  const page = el("section", "parcours-bilan dalle-majeure");
+  const page = el("section", "parcours-bilan dalle-intermediaire");
   page.dataset.objet = "dalle";
   page.dataset.racine = racine;
 

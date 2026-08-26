@@ -207,8 +207,15 @@ test("Les trois portes sont là, EN BAS, et dans la MÊME dalle (B9.3)", async (
   const { renderReviewStep } = await import("../ui/builder/review-step.mjs");
   const gestes = [];
   const section = renderReviewStep({ document: { name: "Ilyra" }, decisions: [] }, (a) => gestes.push(a.kind));
-  const dalles = section.querySelectorAll(".dalle-majeure");
-  assert.equal(dalles.length, 1, "B9.3 — une dalle majeure UNIQUE, pas plusieurs");
+  /* ⭐ CE QUE B9.3 DEMANDE, C'EST *UNE* DALLE — pas un BARREAU de voile.
+     Ce garde nommait `.dalle-majeure` parce que c'était l'habit du jour ; le
+     2026-08-26 le fond a cessé de peindre et les dalles d'écran sont passées
+     à 35 % (`dalle-simple`, Eric : *« le fond n'a pas de voile · la dalle
+     voile 35 % »*). ⛔ Écrit sur l'habit, ce garde serait tombé sur un
+     changement de teinte tout en laissant passer DEUX dalles — l'inverse de
+     son intention. Il compte donc les dalles, quel que soit leur voile. */
+  const dalles = section.querySelectorAll(".dalle-simple, .dalle-intermediaire, .dalle-majeure");
+  assert.equal(dalles.length, 1, "B9.3 — une dalle UNIQUE, pas plusieurs (son voile n'entre pas en compte)");
   const portes = dalles[0].querySelectorAll(".review-porte");
   assert.deepEqual([...portes].map((p) => p.textContent), ["Expert view", "Export JSON", "Export HTML"]);
   for (const p of portes) p.dispatchEvent({ type: "click" });

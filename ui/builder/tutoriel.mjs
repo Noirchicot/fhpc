@@ -115,7 +115,7 @@ function bloc(dalle, { titre, chapo, points, chute }) {
 /* ══ LE TUTORIEL GÉNÉRAL — fond bleu, FF2 ══════════════════════════════════ */
 export function renderTutorielGeneral({ onAction, ...contenu }) {
   const act = onAction || (() => {});
-  const dalle = el("section", "tuto-general dalle-majeure");
+  const dalle = el("section", "tuto-general dalle-intermediaire");
   dalle.dataset.objet = "dalle";
   bloc(dalle, contenu);
   /* DEUX BOUTONS CENTRÉS EN BAS — « I understand » d'abord, parce que c'est le
@@ -132,7 +132,7 @@ export function renderTutorielGeneral({ onAction, ...contenu }) {
    c'est exactement ce que le chiffre 3 nomme (CADRES.md §2 ter bis). */
 export function renderTutorielSpecifique({ onAction, ...contenu }) {
   const act = onAction || (() => {});
-  const dalle = el("section", "tuto-specifique dalle-majeure");
+  const dalle = el("section", "tuto-specifique dalle-intermediaire");
   dalle.dataset.objet = "dalle";
   dalle.dataset.saigne = "oui";
   bloc(dalle, contenu);

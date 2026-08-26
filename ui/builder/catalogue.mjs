@@ -208,8 +208,17 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        dit quelle encre a le droit d'y vivre (la matrice du lot 59 interdit
        `--text-muted` sur du verre). Une classe qui ment sur son régime
        autorise en silence une encre illisible. */
+    /* 🔴 ⛔ LA FICHE NE BOUGE PAS, ET C'EST UN ORDRE — Eric, 2026-08-26, en
+       montrant le R de Species servi sur son téléphone : *« on part de ça !
+       état actuel »*. Cet écran EST le modèle vers lequel les autres vont ;
+       le modifier serait déplacer la cible en visant.
+       ⭐ J'avais commencé par la faire descendre à 35 % au motif que NORMES §4
+       écrit *« 50 % → aucun organe aujourd'hui »*. C'était corriger l'objet
+       d'après le document. ⛔ C'est le document qui a tort : la fiche est ici
+       depuis toujours, Eric la regarde tous les jours, et il vient de la
+       désigner comme la référence. §4 sera corrigé, pas la fiche. */
     const hote = ctx.fiche ? el("div", "fiche-dalle dalle-intermediaire") : card;
-    if (!ctx.fiche) card.className = "catalogue-card dalle-majeure";
+    if (!ctx.fiche) card.className = "catalogue-card dalle-intermediaire";
     hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
     const noeuds = renderCard(ctx.query, id) || [];
     /* ⭐ LA FICHE A-T-ELLE UNE ZONE D'INFOS ? Eric, 2026-08-15 : quand elle

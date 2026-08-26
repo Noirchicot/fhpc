@@ -449,7 +449,7 @@ function renderSkillRow(skill, ctx) {
    celui des catalogues (SOCLE.md). Le label voyage en `data-label` : la
    molette le lit, l'écran ne l'affiche pas. */
 function renderCategoryGroup(label, skills, ctx) {
-  const group = el("section", "skills-group dalle-majeure");
+  const group = el("section", "skills-group dalle-intermediaire");
   group.dataset.snap = "skills";
   group.dataset.label = label;
   const rows = el("div", "skills-rows");
@@ -627,7 +627,7 @@ function renderToolsAndTrainings(ctx) {
      ⛔ Pas de titre non plus (B7.3b) : la molette le porte déjà. Ses TROIS
      sous-blocs, eux, gardent leurs intertitres — ils distinguent des choses
      différentes DANS la même dalle, ce que la molette ne dit pas. */
-  const section = el("section", "skills-group skills-tools-trainings dalle-majeure");
+  const section = el("section", "skills-group skills-tools-trainings dalle-intermediaire");
   section.dataset.snap = "skills";
   section.dataset.label = TOOLS_LABEL;
   section.append(renderToolsBlock(ctx));

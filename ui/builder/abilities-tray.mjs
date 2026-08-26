@@ -203,7 +203,7 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   /* ⛔ JAMAIS `undefined` ICI : `mecaniqueDeJet` retombe sur la première
      entrée plutôt que de laisser un appelant lire `.jets` sur du vide. */
   const meca = mecanique && mecanique.jets ? mecanique : mecaniqueDeJet(mecanique && mecanique.id);
-  const dalle = el("section", "tray dalle-majeure");
+  const dalle = el("section", "tray dalle-intermediaire");
   /* La feuille a besoin de savoir combien de dés elle héberge : quatre dés ne
      tiennent pas à la cote de trois (voir `REGLAGES.tailleMobile4`). */
   dalle.dataset.des = String(meca.des);
