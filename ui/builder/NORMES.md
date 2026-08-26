@@ -287,8 +287,17 @@ ne porte pas les organes fixes.** Deux couches — **le flux**, et **ce qui rest
 
 | couche | ce qu'elle porte |
 |---|---|
+| **ce qui reste, en haut** | 🔴 **le TITRE** *(Eric : « laisse le titre dans le dressing aussi »)* |
 | **le flux** | les emplacements portés, le sac, les contenants — **ça grandit avec le personnage** |
-| **ce qui reste** | 🔴 **les boutons**, collés en bas |
+| **ce qui reste, en bas** | 🔴 **les boutons** |
+
+⭐ **Le titre du dressing n'est PAS une exception au §1 quinquies, il l'applique** : le dressing
+**n'a pas de tambour** — c'est `Équipement › R` qui le porte. **Rien ne nomme B3**, donc B3 a un
+titre. La loi tient sans amendement.
+
+⭐ **Et la forme des deux écrans qui défilent est désormais la MÊME** : titre collé en haut · flux
+au milieu · contrôles collés en bas. ➡️ **Un écran qui défile a trois bandes, pas deux** — et les
+deux du dehors ne bougent jamais.
 
 ⭐ **Et les deux exceptions se ressemblent, ce qui confirme la règle** : le Seuil et le dressing
 sont tous deux des écrans dont **le contenu grandit sans qu'aucun compte n'ait à se lire d'un coup
