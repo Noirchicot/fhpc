@@ -1062,6 +1062,31 @@ function renderTambour({ query, onAction }) {
      la même écriture. */
   const total = el("span", "grille-compte");
   const cases = el("div", "grille-cases");
+  /* 🔴 UNE SEULE PAGE N'A PAS DE FLÈCHES — Eric, 2026-08-26 : *« quand il y a 3
+     tokens, on n'affiche que 3 tokens, pas besoin de flèches »*.
+     ⭐ CE N'EST PAS UNE NOUVEAUTÉ, C'EST UNE GÉNÉRALISATION : `glisser.mjs` le
+     fait depuis le lot A, et sa note disait mot pour mot *« un mot d'Eric le
+     renverse »*. Le mot est venu, et il CONFIRME — donc la règle cesse d'être
+     le choix prudent d'un lot pour devenir celle du site.
+     ⛔ ET ÉQUIPEMENT NE POUVAIT PAS COPIER LE GESTE DE `glisser.mjs`, qui est
+     de ne PAS créer les gouttières : ici la grille est bâtie UNE fois et
+     `remplirGrille()` la recharge à chaque cran du tambour — l'étagère change
+     sous le même DOM, donc le nombre de pages aussi. Ce qui se décide au
+     montage ne peut pas suivre. On publie donc le compte à chaque remplissage
+     et la feuille décale : **le JS compte, la feuille cache** — la consigne est
+     déjà écrite vingt lignes plus bas pour la dernière rangée.
+     ⚠️ « 1 » AU DÉPART, PAS « 0 » NI RIEN : tant qu'aucune étagère n'est
+     chargée, la grille montre des dos de cartes — deux flèches mortes au-dessus
+     d'une attente seraient le pire moment pour les afficher. */
+  /* ⚠️ ET LA RANGÉE NAÎT ICI, PAS EN BAS : c'est `remplirGrille()` qui la
+     recompose à chaque cran du tambour, et une `const` déclarée après la
+     fonction qui la lit serait dans sa zone morte — l'écran planterait au
+     premier remplissage. Elle est simplement déclarée où on s'en sert. */
+  const gaucheG = el("div", "grille-gouttiere");
+  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"), total);
+  const droiteG = el("div", "grille-gouttiere");
+  droiteG.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"), compte);
+  const rang = el("div", "grille-rang");
 
   let rayonId = positionDuTambour.rayon;
   let etagereId = positionDuTambour.etagere;
@@ -1114,6 +1139,21 @@ function renderTambour({ query, onAction }) {
     swapContent(pisteB, symboles.slice(0, 3).map((s) => faireMarqueur(s, "roue-cran roue-marqueur")));
   }
   function attendreGrille() {
+    /* ⚠️ L'ATTENTE COMPOSE LA RANGÉE ELLE AUSSI, et l'oublier a fait
+       DISPARAÎTRE LA GRILLE ENTIÈRE au montage — attrapé par le test 16, dont
+       le témoin est *« la grille est bien montée »*. Depuis que la rangée se
+       recompose au lieu de se cacher, elle naît VIDE : le seul chemin du
+       démarrage (`if (vierge) { attendreB(); attendreGrille(); }`) ne passe pas
+       par `remplirGrille()`, donc plus personne n'y mettait les cases.
+       ⛔ ET L'ATTENTE GARDE SES DEUX GOUTTIÈRES, contrairement à ce que j'avais
+       écrit d'abord. Mon raisonnement — *« rien n'est chargé, donc aucune page
+       à tourner »* — était cohérent et il était HORS SUJET : Eric a parlé des
+       listes COURTES (*« quand il y a 3 tokens »*), pas de l'écran qui charge.
+       ⭐ Et trois tests ratifiés disent que cet état porte ses gouttières, dont
+       le test 11 qui le nomme *« l'état de départ du CROQUIS »*. Un croquis
+       d'Eric prime sur ma déduction : étendre sa consigne à un état dont il n'a
+       rien dit, ce serait décider à sa place. */
+    swapContent(rang, [gaucheG, cases, droiteG]);
     if (cases.dataset.attente === "oui") return;
     cases.dataset.attente = "oui";
     /* 🔴 LE DOS DE CARTE DE TAROT REMPLACE LES ☆ ☉ ☾ — Eric, 2026-08-23 :
@@ -1171,6 +1211,28 @@ function renderTambour({ query, onAction }) {
        ligne, celle qui n'a pas de voisin à droite, se recentre sur elle-même. */
     cases.dataset.reste = String(vue.objets.length % 3);
     compte.textContent = `${vue.page + 1}/${vue.pages}`;
+    /* 🔴 UNE SEULE PAGE : LA RANGÉE N'EST QUE SES TOKENS — Eric, 2026-08-26 :
+       *« quand il y a 3 tokens, on n'affiche que 3 tokens, pas besoin de
+       flèches »*. Les deux gouttières sortent ENTIÈRES, le `1/1` avec elles.
+       ⭐ CE N'EST PAS UNE NOUVEAUTÉ MAIS UNE GÉNÉRALISATION : `glisser.mjs` ne
+       construit pas les siennes depuis le lot A, et sa note disait mot pour mot
+       *« un mot d'Eric le renverse »*. Le mot est venu, et il CONFIRME — la
+       règle cesse d'être la prudence d'un lot pour devenir celle du site.
+
+       ⛔ ET SURTOUT PAS `display: none` : je l'avais écrit ainsi, le garde 4 de
+       `ui-jetons.test.mjs` l'a refusé, et **il avait raison** — c'est le défaut
+       n°3 du dépôt, *« effacer un mot au lieu de recomposer »*. Une flèche
+       masquée garde sa place dans la grille et reste atteignable au clavier :
+       on retirerait l'image du problème en laissant le problème.
+       ⭐⭐ LE GARDE ET ERIC DISENT LA MÊME CHOSE : *« on n'affiche que 3
+       tokens »*, c'est-à-dire que la rangée EST ses trois tokens, pas une
+       rangée à cinq places dont deux se taisent. On recompose.
+       ⚠️ Par `swapContent` et rien d'autre : `removeChild`/`replaceChildren`
+       sont sur la liste noire de `socle.test.mjs`, et `socle.mjs` est le seul
+       remplaçant du dépôt (il préserve au passage la position de défilement).
+       Les trois nœuds sont les MÊMES d'un appel à l'autre — on les re-parente,
+       on ne les reconstruit pas : les écouteurs des flèches survivent. */
+    swapContent(rang, vue.pages > 1 ? [gaucheG, cases, droiteG] : [cases]);
     /* ⛔ LE TOTAL EST CELUI DE L'ÉTAGÈRE, PAS DE LA PAGE : c'est ce qui attend
        le joueur, pas ce qu'il a sous les yeux. Et il vient de la MÊME source
        que les cases (`etagere.objets`) — un compte calculé à côté finirait par
@@ -1331,12 +1393,11 @@ function renderTambour({ query, onAction }) {
      ⚠️ LA CIBLE TACTILE DES FLÈCHES NE RÉTRÉCIT PAS. Une flèche de bord reste un
      bouton qu'un pouce doit atteindre : la feuille lui garde son `--touch`. Une
      flèche décorative qui rate le doigt est pire qu'une flèche absente. */
-  const gaucheG = el("div", "grille-gouttiere");
-  gaucheG.append(button("‹", "grille-fleche", () => tournerPage(-1), "Previous page"), total);
-  const droiteG = el("div", "grille-gouttiere");
-  droiteG.append(button("›", "grille-fleche", () => tournerPage(1), "Next page"), compte);
-  const rang = el("div", "grille-rang");
-  rang.append(gaucheG, cases, droiteG);
+  /* ⚠️ LES GOUTTIÈRES SE CONSTRUISENT ICI MAIS N'ENTRENT PAS D'OFFICE : c'est
+     `remplirGrille()` qui décide, à chaque étagère, si la rangée en a besoin
+     (voir la note qu'il porte). Tant qu'aucune étagère n'est chargée la grille
+     montre des dos de cartes — deux flèches mortes au-dessus d'une attente
+     seraient le pire moment pour les afficher. */
   const grille = el("section", "equipment-grille");
   grille.append(rang);
 
