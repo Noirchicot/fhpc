@@ -137,8 +137,20 @@ plus et on retombe à deux par ligne** »*.
 ➡️ **Changer la cible change le jeton.** Tout budget calculé sur 375 est faux : il donne du mou
 qui n'existe pas.
 
-📌 La rangée en met **autant qu'elle peut** : **3 dès 277 px · 4 dès 372 · 5 dès 467**. ⛔ Et la
-case **ne grandit pas** pour remplir sa rangée — *« une case qui s'étire ne laisse RIEN à
+🔴 **RENVERSÉ LE 2026-08-26 — TROIS COLONNES, TOUJOURS.** Eric, les deux lois posées devant lui :
+**« trois colonnes, toujours »**. Ce paragraphe décrivait la **loi A** *(« la rangée en met autant
+qu'elle peut : 3 dès 277 px · 4 dès 372 · 5 dès 467 »)*, qui vivait dans le vivier pendant que la
+grille de R imposait déjà trois. **Les deux ne peuvent pas être vraies en même temps.**
+
+⭐ **SA RAISON EST ÉCRITE DANS LE CODE DEPUIS LE 23/08, et c'est elle qui a gagné** :
+*« R est une grille à position stable — **un objet ne change pas de place selon l'écran** »*. Une
+rangée qui se remplit fait bouger le douzième objet d'une ligne à l'autre entre un téléphone et une
+tablette ; le joueur perd le seul repère qu'il a.
+
+⚠️ **CE QUE ÇA COÛTE, dit plutôt que masqué** : sur un écran large, la rangée reste à trois et
+laisse du blanc aux deux bouts. C'est le prix de la position stable, et il est assumé.
+
+⛔ Et la case **ne grandit pas** pour remplir sa rangée — *« une case qui s'étire ne laisse RIEN à
 centrer »*, et le centrage du reliquat *(§5)* disparaîtrait.
 
 🔴 **Toute conclusion de budget doit dire sur laquelle des deux hauteurs elle repose.** Une
@@ -355,7 +367,47 @@ de la ligne de flottaison** n'est pas tranché.
 | **zone de drop** | rectangle **très arrondi** | **creux** : texte d'attente + liseré, aucun fond | max, voire nulle |
 | **jeton** | rectangle **très arrondi** | **teinté** *(doré)* | +20 % d'accent → **68 % cumulés** *(sur une dalle à 50)* |
 | **bouton** | 🔴 **OCTOGONE à coupe** | **plein, en signal** | 🔴 **100 % — OPAQUE** |
-| **collecteur** | comme le jeton | — | **comme sa dalle — 50 %** *(corrigé le 26/08 avec la norme du site)* |
+| **collecteur** | comme le jeton | 🔴 **vide : creux, tireté · REMPLI : l'habit du jeton** *(voir §2 ter)* | — |
+
+### 🔴 2 ter — LE COLLECTEUR : LE FOND DIT CE QU'IL PORTE, LE LISERÉ DIT SON ÉTAT
+
+> Eric, 2026-08-26 : *« rempli prend le **doré ET LE RELIEF** du jeton, juste un **liseré bleu**
+> autour pour rappeler que c'est un collecteur »*, puis : *« ce même liseré peut appliquer **les
+> codes couleurs qu'on connaît** »*.
+
+| l'état | le fond | le liseré |
+|---|---|---|
+| **vide** | ⛔ aucun — **creux** *(`--creux`)* | **tireté** |
+| **rempli, valide** | 🔴 **le doré du jeton** + **`--relief`** | 🔵 **bleu** — *« celui-ci est bon »* |
+| **mauvaise pose** | idem, le doré reste | 🔴 **rouge** |
+| **tout posé** | idem | 🟢 **vert, sur tous à la fois** |
+
+⭐⭐ **DEUX CANAUX, DEUX MESSAGES, ET C'EST LA TROUVAILLE** : le **REMPLISSAGE** dit *« je porte un
+jeton »* · le **LISERÉ** dit *« je suis un collecteur, et voilà mon état »*.
+
+⛔ **CE QUE ÇA RÉPARE, ET C'ÉTAIT MESURABLE** : avant le 26/08, l'état peignait le FOND — un
+créneau invalide effaçait le doré sous un lavis rouge. **Le joueur perdait l'information « il y a un
+objet là-dedans » au moment précis où il en a le plus besoin pour le retirer.**
+
+⭐ **L'échelle du 19/08 n'est pas perdue, elle a déménagé sur le bord** — *« une pose valide =
+récepteur BLEU, une mauvaise pose = ROUGE, toutes les poses valides = tous VERTS »*. Les trois
+teintes tiennent, et la raison d'Eric tient avec elles : *« un vert posé dès le premier dépôt ne
+laisse plus rien à dire quand tout est fini — il dépense la récompense trop tôt. »*
+
+📏 **MESURÉ AU PIXEL, parce qu'Eric a demandé si le liseré RECOUVRE** *(sonde horizontale traversant
+le bord, jour)* : fond de page · **1 SEUL pixel de liseré** · une transition · **le doré, stable**.
+➡️ **Il entoure, il ne recouvre pas.** Rien du jeton n'est mangé.
+
+🔴 **ET LE RELIEF REMPLACE LE CREUX, il ne s'y ajoute pas** : un creux dit *« pose ici »*, un relief
+dit *« quelque chose est posé »*. Les garder tous les deux ferait un organe qui demande et qui a
+reçu en même temps.
+
+⚠️ **CE QUI RESTE VRAI DE LA COTE** : le collecteur de l'Équipement *(`.carte-r-collecteur`)* garde
+sa hauteur `--touch` **44** et non `--glisse-h` 48 — *« un collecteur n'est pas un jeton qu'on
+glisse, c'est une cible qu'on VISE, et son plancher est le pouce »*. ⛔ Le doré du rempli ne change
+pas cette cote.
+
+---
 
 ### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
 
@@ -599,6 +651,45 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 | **navigation** | **chevrons latéraux**, jusqu'au bout du contenant |
 | **sous la liste** | les **collecteurs**, puis **encore dessous** les boutons |
 | **cible** | tout tient sur un **iPhone SE** |
+
+### 🔴 SA PORTÉE : LE SITE ENTIER — et elle n'est appliquée que dans UN chapitre
+
+> Eric, **2026-08-23** : *« il faudra normaliser **l'ensemble du site** sur 15 items glissables max
+> … donc pour la liste des sorts niveau 1 on fera ça, pour les maîtrises idem »*.
+> Le vault le grave en tête de `FHPCv2 norme des listes` : *« Ce n'est pas une règle de l'écran
+> Équipement. **C'est une règle du produit entier.** »*
+
+📏 **MESURÉ LE 26/08 — elle ne vit que dans l'Équipement.** `LISTE_PAR_PAGE` et `pageDeListe` sont au
+socle, mais seuls `equipment-step.mjs` et `equipement-pipeline.mjs` les appellent. Partout ailleurs
+`.glisse-vivier` est un `flex-wrap` **sans aucune pagination** : la dalle grandit sans fin.
+⚠️ Et le *« 3 par rangée »* qu'on y observe est un **accident d'arithmétique**, pas une règle :
+3 × 87 + 2 × 8 = **277** pour une rangée de 278. Le quatrième ne rentre pas, voilà tout.
+
+⏳ **Ce qui reste à faire est donc un LOT, pas une décision** : porter la pagination aux huit autres
+listes *(sorts niveau 1 : 4 pages · outils : 2 · dons : 2 · compétences : 2 · arcanes : 2 —
+et quatre listes tiennent déjà sur une page)*.
+
+### ⚠️ LE 15 VIT À DEUX ENDROITS, ET C'EST UNE DETTE MESURÉE
+
+| où | ce qui est écrit |
+|---|---|
+| `ui/builder/normes.mjs` | `LISTE_PAR_PAGE = 15` — gardé par `tests/listes.test.mjs` |
+| `ui/builder/shell.css` | `grid-template-rows: repeat(**5**, var(--fhpc-case-h))` |
+
+⛔ **Changer l'un sans l'autre casse la grille en silence** : le JS servirait 12 objets dans une
+grille qui en réserve 15, ou l'inverse. ⏳ Aucun garde ne les tient d'accord.
+
+### ⏳ CE QUI N'EST TOUJOURS PAS TRANCHÉ
+
+| | |
+|---|---|
+| **les flèches quand il n'y a qu'une page** | disparaissent-elles ? **Quatre listes sur neuf** tiennent sur une page — espèces, classes, maîtrises d'arme, propriétés d'arme |
+| **les 127 objets merveilleux = 9 pages** | le vault : *« ce n'est pas un défaut de la norme, c'est le signe que **cette étagère est trop grosse** »* — elle appelle un niveau de rangement de plus |
+
+✅ **Et un point s'est refermé le 26/08** : *« ce que devient un jeton trop long pour sa case »* —
+c'est `ABREGE_MAX = 16`, ratifié le même jour *(§2 bis)*.
+
+---
 
 🔴 **`pages = ceil(objets ÷ 15)`, TOUJOURS, sans plafond.** Le **35 par étagère** est une cible de
 **découpe**, jamais un plafond de données — le homebrew le fera déborder, **c'est prévu**.
