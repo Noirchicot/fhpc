@@ -1586,6 +1586,53 @@ côte, ils disaient qu'ils se valaient. ➡️ **⭕ à gauche on LIT · le bout
 ⚠️ **Un organe sans texte doit se NOMMER** : `aria-label`, sinon il disparaît de la page pour qui ne
 voit pas le dessin. Le garde l'exige.
 
+### 🔴 UN BOUTON SE POSE SUR UNE DALLE, JAMAIS SUR LE FOND *(tranché 26/08)*
+
+> Eric, 2026-08-26 : **« aucun bouton dans le fond »** · *« Destiny, la carte TEXTE doit avoir sa
+> rangée de boutons »*.
+
+⭐ **LA RAISON EST DANS §1 quinquies bis** : le fond ne peint rien. **Ce n'est pas une surface, c'est
+une respiration** — un contrôle posé dessus n'a **rien sous lui**.
+
+📏 **LE DÉFAUT QUE ÇA A RÉVÉLÉ, mesuré le 26/08** : les deux boutons de Destiny *(`Draw again`,
+`Choose yourself`)* étaient posés **directement dans `.card-step`**, donc sur le cadre d'écran. Tant
+que le cadre peignait, ils **avaient l'air** d'être sur quelque chose. Depuis que le fond est nu, ils
+flottent sur l'image.
+
+➡️ **Ils vivent désormais sur la carte TEXTE**, avec le Score qui les suit pour la même raison : il
+porte du texte, il va où le texte va.
+
+⚠️ **ET LE CAS SANS DALLE EST NOMMÉ, pas masqué** : quand il n'y a pas de carte texte, il n'y a pas
+de dalle où poser les boutons. On les **garde visibles** — *un écran qui perd ses gestes est pire
+qu'un écran mal rangé* — et le code le dit à l'endroit où ça se produit.
+
+---
+
+### ⚖️ L'EXCEPTION DU TAROT — argumentée, parce qu'une norme en admet *(26/08)*
+
+> Eric, 2026-08-26 : **« les normes peuvent avoir des exceptions, elles sont argumentées »**, puis,
+> sur ce cas : **« tu as raison, le tarot est un bouton exception »**.
+
+La carte de Destiny *(`.card-face`)* est un **`<button>` qui ne contient qu'une IMAGE**. Elle
+déroge à trois normes, et voici pourquoi chacune cède :
+
+| la norme | ce que le tarot fait | l'argument |
+|---|---|---|
+| §2 — le bouton est un **OCTOGONE à coupe** | ⛔ un **rectangle**, aux proportions d'une carte | **la carte EST l'objet**. Un octogone la découperait — on ne rogne pas un tarot pour qu'il ressemble à un bouton |
+| §4 — le voile de la dalle est **50 %** | ⛔ **100 %, opaque** *(`dalle-majeure`)* | §4 le prévoit lui-même : *« 100 % — beaucoup de contenu, **ou des images** »*. Un voile sur une illustration la salit |
+| §1 quinquies — un objet **porte un titre** | ⛔ **aucun texte** | *« on ne nomme pas deux fois »* : la carte se nomme par son image, et son nom accessible est sur le bouton *(`aria-label`)*. ⭐ Le texte, lui, vit sur la carte d'à côté — **une carte montre, l'autre explique** |
+
+⛔ **ET ELLE NE REÇOIT AUCUN ORGANE POSÉ** — ni `?`, ni livre, ni pastille. **Mesuré le 26/08 par le
+lot G** : le `?` y était appendu, donc un `<button>` DANS un `<button>` — **demander de l'aide
+RETOURNAIT LA CARTE**. Le chercheur d'hôte exclut désormais les boutons.
+
+⭐⭐ **CE QUE CETTE EXCEPTION ENSEIGNE, ET C'EST POURQUOI ELLE EST ÉCRITE** : une norme qui n'admet
+aucune exception se fait contourner en silence. Écrite avec son argument, l'exception **se relit** —
+et le prochain siège saura si son cas lui ressemble. ⛔ Une exception **non argumentée** n'en est pas
+une : c'est un oubli qui se défend.
+
+---
+
 ### 🔴 LA PAIRE — les deux ronds encadrent la rangée *(tranché 26/08)*
 
 > Eric, 2026-08-26 : *« ils sont tous deux **cadrés à gauche et à droite de la rangée de

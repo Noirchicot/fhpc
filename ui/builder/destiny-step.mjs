@@ -216,10 +216,36 @@ export function renderDestinyStep(ctx, onAction) {
      d'avance. */
   if (!retournee) return section;
 
+  /* 🔴 LA RANGÉE DE BOUTONS VIT SUR LA CARTE TEXTE — Eric, 2026-08-26 :
+     *« Destiny, la carte TEXTE doit avoir sa rangée de boutons »* ·
+     *« aucun bouton dans le fond »*.
+
+     ⛔ CE QUI ÉTAIT FAUX, ET QUI NE SE VOYAIT PAS AVANT LE 26/08 : les deux
+     boutons étaient posés **directement dans `.card-step`**, c'est-à-dire sur
+     le CADRE d'écran. Tant que le cadre peignait, ils avaient l'air d'être sur
+     quelque chose. Depuis que le fond ne peint plus rien *(NORMES §1 quinquies
+     bis)*, ils **flottent sur l'image**.
+
+     ⭐ ET C'EST UNE LOI GÉNÉRALE, PAS UN CAS DE DESTINY : **un bouton se pose
+     sur une dalle, jamais sur le fond.** Le fond n'est pas une surface, c'est
+     une respiration — un contrôle posé dessus n'a rien sous lui.
+
+     📌 LE SCORE SUIT LA MÊME LOI et le même mouvement : il porte du texte, donc
+     il vit sur la carte qui porte le texte. */
   if (ctx.revealed) {
     const reveal = renderReveal({ query, drawnId });
-    if (reveal) section.append(reveal);
+    if (reveal) {
+      const score = renderScore(ctx.resolved);
+      if (score) reveal.append(score);
+      reveal.append(renderActions(ctx, act));
+      section.append(reveal);
+      return section;
+    }
   }
+  /* ⏳ SANS CARTE TEXTE, IL N'Y A PAS DE DALLE OÙ LES POSER. On les garde
+     visibles plutôt que de les faire disparaître — un écran qui perd ses
+     gestes est pire qu'un écran mal rangé — et on le DIT ici pour que ça ne
+     passe pas pour un oubli. */
   const score = renderScore(ctx.resolved);
   if (score) section.append(score);
   section.append(renderActions(ctx, act));
