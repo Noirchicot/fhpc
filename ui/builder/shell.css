@@ -1557,20 +1557,27 @@ button { font: inherit; }
 .ability-methodes-boutons { display: flex; gap: var(--sp-4); }
 /* 🔴 « Choix identique ⇒ dalle de taille identique » (III.2) : `1 1 0` donne
    cinq parts ÉGALES, aucun classement implicite par la largeur. */
+/* ⛔ CE BLOC NE POSE PLUS QUE LA GÉOMÉTRIE. Son habit — fond, liseré, rayon,
+   relief — vient désormais du patron de l'octogone, plus haut dans cette
+   feuille. ⛔ Ne pas y remettre un `border-radius` ni un `background` : ils
+   gagneraient par la place dans la pile et désarmeraient la coupe en silence,
+   *« une déclaration invalide crie, une déclaration PERDANTE se tait »*. */
 .ability-entry {
   flex: 1 1 0; min-width: 0;
   min-height: var(--touch);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: none;
-  color: var(--text);
   font-family: inherit;
   font-size: var(--t2);
   padding: var(--sp-4) var(--sp-2);
   text-align: center;
   cursor: pointer;
 }
-.ability-entry[data-active="true"] { border-color: var(--accent); background: var(--accent-wash); font-weight: 600; }
+/* 🔴 LA COULEUR SE DÉRIVE DE L'ÉTAT, elle n'est pas écrite au balisage (§6).
+   ⭐ GRIS tant qu'aucune méthode n'est prise — *« rien n'est encore fait »* ;
+   🔵 BLEU sur celle qu'on a choisie — *« mouvement non impactant »* : choisir
+   une méthode déplace le joueur vers un écran de jet, ça n'écrit encore rien
+   dans le document. ⛔ Pas de vert : rien n'est FINI tant que les six valeurs
+   ne sont pas posées. */
+.ability-entry[data-active="true"] { --bouton-fond: var(--info); font-weight: 600; }
 .ability-entry-label { display: block; overflow-wrap: anywhere; }
 /* ⛔ ET `INFO` PREND UNE PART COMME LES AUTRES — Eric, 2026-08-16 : *« je veux
    que les 4 boutons soient de dimension égale »*.
@@ -5297,7 +5304,18 @@ button { font: inherit; }
    mais le gris de l'échelle n'a jamais été nommé par Eric. À ratifier. */
 .species-done,
 .parcours-item-porte,
-.parcours-pied button {
+.parcours-pied button,
+/* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
+   en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
+   loi »*.
+   ⛔ CE QU'ILS ÉTAIENT : `border-radius: --radius-md`, `background: none`, un
+   liseré — ni octogone, ni opaque, ni relief. Ils contredisaient §2 et §3 en
+   silence depuis leur écriture.
+   ⭐ ET LE REGISTRE DES BOUTONS DIT POURQUOI ILS Y ENTRENT : ils portent un
+   LIBELLÉ (`FH 3D6`, `4D6`, `ARRAY`, `FREE`, `INFO`), donc ils sont du gabarit
+   à mot — et *« l'octogone est l'habit des trois gabarits À LIBELLÉ »*. Un
+   bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
+.ability-entry {
   --bouton-fond: var(--text-muted);
   /* 🔴 LA COUPE ET L'OMBRE NE PEUVENT PAS TENIR SUR LE MÊME ÉLÉMENT, ET C'EST
      MESURÉ (26/08, Chrome 151 sans écran, sonde à quatre variantes) : un
@@ -5339,7 +5357,8 @@ button { font: inherit; }
    d'autre. */
 .species-done::before,
 .parcours-item-porte::before,
-.parcours-pied button::before {
+.parcours-pied button::before,
+.ability-entry::before {
   content: "";
   position: absolute;
   inset: 0;
