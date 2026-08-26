@@ -539,7 +539,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 
 | type | couleur |
 |---|---|
-| choix de mode | **on = vert · off = rouge · désactivé = gris** |
+| ~~choix de mode~~ | 🔴 **CE N'EST PAS UN BOUTON** → voir *« l'interrupteur »* ci-dessous |
 | `done` *(étapes)* | 🟢 **VERT** — *« c'est fini »*. ⭐ Il **NE SIGNE RIEN** : c'est la **tuile** qui signe. `Done` dit « j'ai fini ici » et **remonte d'un cran** |
 | `next` *(étapes)* | 🔵 **BLEU** — *« on continue »* |
 | `next` d'alerte | **cadre rouge, corps bleu** → **popup** entre `done` et `next` |
@@ -658,6 +658,37 @@ explique.**
 
 ⏳ **Non tranché** : le gendarme accompagne-t-il **tout** rouge, ou seulement ceux dont la raison
 n'est pas devinable ?
+
+### 🔴 L'INTERRUPTEUR — un organe à part entière *(tranché 26/08)*
+
+> Eric, 2026-08-26 : *« les boutons on/off, il y en a plein dans le menu »* · **« on/off
+> interrupteur, oui »**.
+
+⛔ **Un `on/off` N'EST PAS UN BOUTON.** C'est un **organe distinct**, au même titre que le jeton,
+le collecteur ou le dropdown.
+
+⭐ **La raison est mécanique, pas esthétique** : les quatre couleurs sont **une ÉCHELLE
+D'AVANCEMENT** — gris, bleu, vert, rouge — et **un interrupteur ne la parcourt pas.** Il n'est ni
+« en cours » ni « fini » : **il est dans une position, et il y reste.** Son rouge ne dit pas
+*« c'est faux »*, il dit *« c'est éteint »*.
+
+➡️ **Deux sens du rouge sur le même écran, c'est un rouge qui ne signale plus rien.** La collision
+se règle donc **par la FORME**, exactement comme la coupe d'angle distingue le bouton du jeton.
+
+| | |
+|---|---|
+| **on** | **vert** |
+| **off** | **rouge** |
+| **désactivé** | **gris** |
+| 🔴 **sa forme** | ⏳ **à dessiner** — elle doit être **reconnaissable d'un coup d'œil comme n'étant pas un bouton** |
+| sa cible | **`--touch` 44**, comme tout ce qui se touche |
+
+⭐ **Et il y en a « plein dans le menu »** *(Eric)* : `Langue` fr/en · `Système d'unités`
+métrique/impérial · l'activation du guide *(le `?` propose « désactiver totalement », §7)*.
+➡️ **Ce n'est pas un cas marginal : c'est un organe de premier plan du Seuil.**
+
+⏳ **Non tranché** : sa forme · s'il porte ses deux libellés *(`fr` / `en`)* ou seulement l'état
+courant · et s'il peut porter une **raison** comme les portes muettes.
 
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
