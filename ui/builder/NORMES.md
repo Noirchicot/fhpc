@@ -343,12 +343,22 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 |---|---|---|
 | **le GUIDE** | 📜 **parchemin** — la surface elle-même | une aide **OPTIONNELLE** |
 | **l'AIGUILLEUR** | 🔵 **bleu** | **une consigne** — *« fais ceci »* |
-| **le GENDARME** | 🟣 **violet** | **une impossibilité** — *« ça ne peut pas marcher »* |
+| **le GENDARME** | 🔴 **ROUGE** *(corrigé 26/08 — le violet est pris)* | **une impossibilité** — *« ça ne peut pas marcher »* |
 
 ⭐ **Le guide n'a pas de couleur de signal, et c'est ce qui le rend optionnel** : il ne réclame
 rien. Les deux autres portent un signal, **donc ils interrompent**.
-⛔ **Le violet n'est pas un rouge de secours** : le gendarme n'accuse pas le joueur, il annonce un
-**mur**.
+🔴 **LE VIOLET EST PRIS : violet = MAGIE** *(Eric, 26/08)* — les voyants d'attunement, et tout ce
+qui relève du magique dans l'Équipement. ⛔ Il ne peut donc pas servir à un popup. **Le gendarme
+redevient rouge.**
+
+⚠️ **Mesuré le 26/08** : la pastille d'attunement (`shell.css:4448`) porte aujourd'hui `--accent`,
+et **il n'existe aucun violet dans `tokens.css`** *(la palette a cinq teintes : accent, positive,
+caution, critical, info)*. **`violet = magie` est donc une déclaration neuve**, à créer, pas un
+constat.
+
+⭐ **Et le rouge du gendarme ne crée aucune ambiguïté, parce que le PORTEUR diffère** : le rouge
+d'un **bouton** dit *« ce bouton défait »* ou *« cet état est faux »* ; le rouge d'un **popup** dit
+*« voilà le mur »*. On ne confond pas une chose qu'on appuie avec une chose qui parle.
 ⭐ **Un composant, trois teintes, trois intentions** — la plomberie `.popup` existe déjà.
 
 ### 🔴 Le `?` — le rappel permanent
