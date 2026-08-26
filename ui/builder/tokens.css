@@ -244,6 +244,51 @@
      question, c'est la divergence garantie — la leçon de `--measure-f`. */
   --glisse-case: 87px;
   --glisse-h: 48px;
+
+  /* ══ LES TROIS ORGANES — ratifiés par Eric le 2026-08-24 ═══════════════
+     ⛔ LES COTES NE SONT PAS REDÉCLARÉES ICI. La case et la hauteur sont
+     `--glisse-case` / `--glisse-h` juste au-dessus ; la cible tactile est
+     `--touch` ; les rayons du bouton sont `--radius-sm`. Redonner un second
+     nom à 87 ou 48 serait refaire `--measure-f`, qui a vécu une heure le
+     2026-08-19 avant qu'Eric le tue pour cette raison exacte.
+
+     ⭐ CE QUI SUIT EST DONC CE QUI MANQUAIT, ET RIEN D'AUTRE : cinq jetons.
+     Le POURQUOI de chacun vit dans le vault — `FHPC norme des organes` —
+     parce qu'une raison ne se met pas dans une feuille de style. */
+
+  /* Le rayon de la famille du jeton. ⛔ CE N'EST PAS UN QUATRIÈME BARREAU de
+     l'échelle des rayons (elle en a trois, et le §3d dit pourquoi) : c'est une
+     COTE DE FAMILLE, comme 87 et 48. Le jeton, son emplacement vide et le
+     créneau la portent ; un bouton ne la porte jamais. */
+  --organe-rayon: 16px;
+
+  /* Le pan coupé du bouton — sa signature exclusive. Rien d'autre dans
+     l'interface n'a de coins coupés. */
+  --bouton-coupe: 10px;
+
+  /* La face du jeton au repos. ⚠️ À NE PAS CONFONDRE AVEC `--accent-wash`
+     (10 %), qui teinte un fond de code : celui-ci est la MATIÈRE du jeton, et
+     c'est par sa teinte qu'il se distingue — mesuré, sa valeur ne le détache
+     de sa dalle que de 1,20. */
+  --jeton-teinte: color-mix(in srgb, var(--accent) 20%, transparent);
+
+  /* ⭐ LES DEUX RELIEFS. Ils ne portent AUCUNE couleur du thème : ce sont des
+     arêtes de lumière et d'ombre, elles marchent sur n'importe quelle face et
+     ne basculent pas. */
+  --creux:  inset 0 5px 7px -3px rgba(0,0,0,.52),
+            inset 0 2px 2px -1px rgba(0,0,0,.30),
+            inset 0 -1.5px 0    rgba(255,255,255,.40),
+            inset 0 0 0 1px     rgba(0,0,0,.20);
+
+  --relief: inset 0 1.5px 0     rgba(255,255,255,.58),
+            inset 0 -1.5px 0    rgba(0,0,0,.45),
+            inset 1.5px 0 0     rgba(255,255,255,.16),
+            inset -1.5px 0 0    rgba(0,0,0,.20),
+            inset 0 0 0 1px     rgba(0,0,0,.26),
+            0 2px 4px           rgba(0,0,0,.30);
+  /* 🔴 LE BOUTON NE PEUT PAS PORTER `--relief` : un `clip-path` découpe aussi
+     les `box-shadow`. Son biseau se peint en dégradé dans le fond et son ombre
+     passe par `filter: drop-shadow`. Voir la norme au vault. */
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -369,6 +414,22 @@
      source pour la surface, le voile la module. */
   --dalle-simple: color-mix(in srgb, var(--surface) var(--voile-simple), transparent);
   --dalle-inter: color-mix(in srgb, var(--surface) var(--voile-inter), transparent);
+
+  /* ── LE FOND D'UN DROPDOWN (§8, ratifié le 2026-08-26) ─────────────────
+     🔴 *« Il reste rectangulaire, très large, peu haut, transparence 20 %,
+     caractères gras contrastant »* — et ⛔ *« PAS DE LISERÉ sur un dropdown »*
+     (Eric corrigeant sa propre dictée le jour même).
+
+     ⛔ CE 20 % N'EST PAS UN QUATRIÈME BARREAU DES VOILES. Les trois barreaux
+     (35 / 50 / 100) disent la DENSITÉ D'INFORMATION d'une DALLE ; celui-ci est
+     la matière d'un CONTRÔLE, la même mécanique que `--jeton-teinte` — §4 le
+     dit d'ailleurs de lui-même à propos du jeton : *« il n'est sur aucun des
+     trois barreaux »*, et 48 % cumulés ne sont pas le barreau « 50 ».
+     ⭐ Écrit selon le modèle que §4 désigne comme celui « à copier pour toute
+     nouvelle norme » : un pourcentage nommé, une surface CALCULÉE par
+     `color-mix`, une seule source. */
+  --voile-dropdown: 20%;
+  --dropdown-fond: color-mix(in srgb, var(--surface) var(--voile-dropdown), transparent);
 
   /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
      bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
