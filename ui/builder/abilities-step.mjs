@@ -1043,6 +1043,19 @@ export function renderAbilitiesStep(ctx, onAction) {
      mais un état d'écran se lit, il ne se suppose pas. */
   if (!entry) return section;
 
+  /* 🔴 LA PAGE D'UNE MÉTHODE DÉCLARE QU'ELLE EST À TROIS BANDES — et c'est une
+     DÉCLARATION, jamais une inférence (le même partage que `data-sortie-ici` et
+     `data-scroller`). La racine, elle, ne la porte pas : 125 px mesurés dans une
+     fenêtre de 493, aucune zone de scroll, donc rien à encadrer — la portée que
+     le croquis se donne lui-même.
+     ⚠️ ET C'EST UN ATTRIBUT PARCE QUE LE CSS NE SAIT PAS LE DEMANDER : la forme
+     naturelle, `.stage:has(> .decision-card > .abilities-step:has(> .ability-collecteur))`,
+     est INVALIDE — `:has()` ne s'imbrique pas dans `:has()`. Mesuré dans la page
+     avant de le comprendre : la règle passait pour écrite et la carte gardait
+     677 px de contenu pour 493 de fenêtre. Une déclaration invalide crie ; une
+     déclaration que le navigateur jette en silence, non. */
+  section.dataset.bandes = "true";
+
   /* ── L'ORGANE : l'explication, et le jet quand il y en a un ────────── */
   const organe = el("section", "ability-organe dalle-intermediaire");
   organe.dataset.methode = entry.id;
@@ -1056,13 +1069,39 @@ export function renderAbilitiesStep(ctx, onAction) {
      MÊME classe que le titre du collecteur : deux dalles de la même page qui
      se titrent de deux façons se mettraient à diverger au premier réglage. */
   organe.append(el("h2", "ability-dalle-titre ability-methode-titre", [text(entry.label)]));
-  organe.append(el("p", "ability-organe-mot", [text(explicationDe(entry))]));
+  /* ══ LES TROIS BANDES — croquis d'Eric du 2026-08-26 ═══════════════════
+     `fh-phb/croquis/2026-08-26-gabarit-ecran-trois-bandes.jpg` : un TITRE
+     fixe · une ZONE DE SCROLL dont **le cadre ne bouge pas** et dont **le bord
+     est invisible** · une bande basse fixe.
+
+     📏 CE QUE ÇA RÉPARE, MESURÉ LE 26/08 (Chrome, 360 × 553) : la page d'une
+     méthode débordait `.stage` de **200 px** en `FREE`, **66** en `FH 3D6`,
+     **47** en `4D6` — et c'était la SCÈNE ENTIÈRE qui défilait, le pied
+     compris. Relevé en `FREE` : le pied de la coquille tombait à y=677 pour
+     une fenêtre qui s'arrête à 553 — il fallait faire défiler le collecteur
+     pour atteindre `Done`, c'est-à-dire perdre de vue les six cibles sur
+     lesquelles on venait de poser ses dés. `ARRAY`, lui, tenait déjà (0 de
+     débordement) : le gabarit est un DÉFAUT, il ne lui impose rien.
+
+     🔴 LE TITRE RESTE DANS SA DALLE, et ce n'est pas un compromis : c'est
+     l'ordre d'Eric du 17/08 (*« Free doit être en titre de la première dalle
+     et à l'intérieur »*) ET la forme de la recette qui marche — sur Species et
+     Class, `.guide-titre` vit lui aussi DANS `.parcours-guide`. La bande titre
+     du croquis est le haut de la dalle, jamais une barre posée par-dessus.
+
+     ⭐ CE QUI CÈDE ICI, C'EST L'EXPLICATION ET LE VIVIER DE VALEURS — de la
+     prose et un tableau, exactement ce que NORMES §5 bis autorise à défiler.
+     ⛔ CE QUI NE CÈDE PAS : le collecteur. Ses six créneaux sont la CIBLE d'un
+     glisser ; une cible qu'il faut aller chercher n'est plus une cible. */
+  const flux = el("div", "ability-flux");
+  organe.append(flux);
+  flux.append(el("p", "ability-organe-mot", [text(explicationDe(entry))]));
   if (entry.mecanique) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES depuis ce lot — trois dés et dix
        jets, ou quatre dés et six jets. C'est le tableau qui le dit, jamais un
        `if` ici. ⛔ Ses rappels ne passent PAS par `refresh()` : voir l'en-tête
        d'`abilities-tray.mjs` et les actions du shell. */
-    organe.append(renderTray({
+    flux.append(renderTray({
       mecanique: mecaniqueDeJet(entry.mecanique),
       lot: rollBatch && rollBatch.method === entry.mecanique ? rollBatch : null,
       revele: ctx.revele || 0,
@@ -1176,7 +1215,11 @@ export function renderAbilitiesStep(ctx, onAction) {
   /* ⭐ LA PALETTE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le
      croquis les dessine dans UN SEUL cadre (« CHOOSE EXPLICATION »). Elle a
      besoin du contexte, d'où l'organe posé ICI et non plus haut. */
-  if (composable) organe.append(renderPalette(glisseCtx, act));
+  /* ⚠️ DANS LE FLUX, PAS DANS LA DALLE : la palette de seize valeurs est le
+     plus gros bloc de la page (328 px mesurés, pour 493 de fenêtre). C'est
+     elle qui faisait déborder `FREE` de 200 px, et c'est donc elle qui doit
+     céder — la dalle, son titre et le collecteur ne bougent pas d'un pixel. */
+  if (composable) flux.append(renderPalette(glisseCtx, act));
   section.append(organe);
 
   const vivier = renderVivier(glisseCtx);

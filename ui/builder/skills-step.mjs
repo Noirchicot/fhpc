@@ -662,7 +662,27 @@ export function renderSkillsTopbar(ctx, onAction) {
     item.dataset.label = label;
     item.setAttribute("aria-current", index === (ctx.cursor || 0) ? "true" : "false");
     item.append(el("span", "skills-cat-label", [text(label)]));
-    item.addEventListener("click", () => act({ kind: "snapTo", index }));
+    /* 🔴 LA MOLETTE VISE MAINTENANT LA ZONE DE SCROLL, PLUS LA SCÈNE — et
+       c'est la conséquence directe des trois bandes. Tant que `.stage` portait
+       le débordement, `snapTo` le faisait défiler (`shell.mjs`) ; depuis que
+       le flux de l'écran prend la hauteur qui reste, `.stage` ne défile plus
+       du tout et l'ordre de la coquille tomberait dans le vide.
+       ⭐ AUCUNE COQUILLE TOUCHÉE : la molette trouve le flux par son MARQUEUR
+       (`data-scroller`, l'idiome de `scrollParent`), pas par un chemin de DOM.
+       ⛔ ET L'ACTION PART QUAND MÊME : le contrat `snapTo` reste celui de la
+       coquille (le rail des catalogues l'émet aussi), et son `keepInView` sur
+       une scène qui ne défile plus se borne à ne rien faire. Deux
+       propriétaires du geste ? Non : un seul ordre, deux cadres, dont un
+       muet. */
+    item.addEventListener("click", () => {
+      const flux = typeof document !== "undefined" && document.querySelector
+        ? document.querySelector('[data-scroller="skills"]') : null;
+      if (flux) {
+        const cibles = flux.querySelectorAll("[data-snap]");
+        if (cibles[index]) keepInView(flux, cibles[index], "y-start");
+      }
+      act({ kind: "snapTo", index });
+    });
     bar.append(item);
   });
   const wrap = el("div", "skills-topbar");
@@ -710,17 +730,99 @@ export function renderSkillsStep(ctx, onAction) {
   const rowCtx = skillsRowCtx(ctx, act);
   const counter = computeCounter(resolved, decisions);
 
-  /* 📜 LIGNE 2 — le calcul, et il DÉFILE (B7.1). La ligne 1 est ailleurs :
-     elle flotte dans le slot fixe du cadre, avec `Reset` (B7.8). */
+  /* ══ LES TROIS BANDES — croquis d'Eric du 2026-08-26 ═══════════════════
+     `fh-phb/croquis/2026-08-26-gabarit-ecran-trois-bandes.jpg` : un TITRE
+     fixe en haut · une ZONE DE SCROLL dont **le cadre ne bouge pas** et dont
+     **le bord est invisible** · une bande basse fixe, boutons CENTRÉS.
+
+     📏 CE QUE ÇA RÉPARE, ET C'EST MESURÉ (26/08, Chrome, 360 × 553) : cet
+     écran n'avait AUCUNE des trois. `.stage` portait 4 357 px de contenu pour
+     384 de fenêtre, et le pied de la coquille (`.sortie`) vivait DANS ce flux,
+     en simple frère de `.decision-card`. Relevé : à `scrollTop` 0 le pied est
+     à y=553, à 506 il est à y=47 — il monte pixel pour pixel avec le texte, et
+     `Done` finit posé sur la molette de catégories. C'est le *« les boutons
+     cachent le texte »* d'Eric du matin même, et la pile relevée sous le
+     bouton le dit sans appel : `.skills-rows` PAR-DESSUS `.sortie-done`.
+
+     ⭐ RIEN N'EST INVENTÉ ICI — c'est la recette de Species et Class
+     (`.parcours-guide` › `.parcours-items` › `.parcours-pied`, shell.css),
+     étendue à l'écran qui ne l'avait pas : deux bandes `flex: none` autour
+     d'un flux `flex: 1 1 auto; min-height: 0; overflow-y: auto`.
+
+     ⛔ ET LE PIED N'EST PAS FABRIQUÉ ICI. La coquille reste seule à savoir ce
+     qu'est une sortie (`renderSortieEtape`, garde 17) ; cet écran DÉCLARE
+     seulement qu'il l'héberge (`data-sortie-ici`), exactement comme le
+     collecteur d'Abilities le fait depuis le 17/08. */
+
+  /* ── BANDE 1 : LE TITRE, ET LA DALLE QUI SAUVE DEUX LIGNES ──────────────
+     🔴 LES DEUX LIGNES DU POOL TOMBAIENT SUR LE FOND NU. `--text-muted` sur
+     l'image de fond, sans dalle dessous : contraste MESURÉ à **1,05 le jour** —
+     NORMES §4 est explicite, *seul `--text` survit sur du verre*. Les faire
+     entrer dans une dalle est la seule réparation qui ne change ni leur mot ni
+     leur encre. La notification d'Expertise (`--text-soft`) avait exactement le
+     même défaut et entre par la même porte : elle parle du même pool.
+
+     ⭐ ET LA DALLE DU HAUT REPRÉSENTE L'ANCRE DU « ? ». La coquille pose le
+     rappel sur la PREMIÈRE dalle de la carte ; tant que c'était un groupe de
+     compétences, le `?` défilait avec lui — *« un rappel qui défile n'est plus
+     un rappel »* (NORMES §1 sexies). Il se pose désormais dans la bande fixe,
+     sans qu'une ligne de la coquille ait à bouger.
+
+     ⚠️ LE TITRE EST EN TENSION AVEC NORMES §1 quinquies, ET JE LE DIS PLUTÔT
+     QUE DE CHOISIR EN SILENCE : *« une étape du parcours — la ceinture la nomme
+     à 8 px de là — titre ⛔ non »*. Le croquis du 26/08, lui, dessine une bande
+     TITRE, et le relevé du même jour marque son absence sur Compétences comme
+     un défaut à réparer. Les croquis priment sur le texte, donc il est là ;
+     son coût est mesuré (voir le rapport du lot) et une seule ligne le retire
+     si Eric tranche dans l'autre sens. */
+  const tete = el("header", "skills-tete dalle-intermediaire");
+  tete.append(el("h2", "skills-titre guide-titre", [text("Skills")]));
   if (counter) {
     const poolViolation = violations.find((v) => v.key === "skill-pool.overspent") || null;
-    section.append(renderPoolDetail(counter, poolViolation, rowCtx.pool));
+    tete.append(renderPoolDetail(counter, poolViolation, rowCtx.pool));
     const notice = renderRogueNotice(rowCtx.pool, rowCtx.classView, resolved.identity && resolved.identity.level);
-    if (notice) section.append(notice);
+    if (notice) tete.append(notice);
   }
+  section.append(tete);
 
-  section.append(renderMainGrid(rowCtx));
-  section.append(renderToolsAndTrainings(rowCtx));
+  /* ── BANDE 2 : LA ZONE DE SCROLL ────────────────────────────────────────
+     🔴 SON CADRE NE BOUGE PAS, SON BORD EST INVISIBLE (les mots du croquis) :
+     aucune bordure, aucun fond, aucune cote écrite — elle prend CE QUI RESTE
+     une fois les deux bandes servies, et la formule vit dans le `flex`, pas
+     dans un pixel (§1 ter).
+     ⭐ ET C'EST ELLE QUI PORTE DÉSORMAIS L'AIMANTATION : les `[data-snap]` des
+     groupes de catégories vivent dedans, donc c'est ce cadre-ci que la molette
+     déplace (voir `renderSkillsTopbar`). */
+  const flux = el("div", "skills-flux");
+  flux.dataset.scroller = "skills";
+  /* 🔴 ET LE SPY DU SOCLE DOIT APPRENDRE QUE C'EST ICI QUE ÇA DÉFILE.
+     `watchSnap` est posé UNE FOIS sur `.stage` par la coquille, et un
+     événement `scroll` NE REMONTE PAS tout seul. Sans ce relais, la molette
+     cesserait de surligner la section courante dès qu'on défile à la main —
+     une régression silencieuse sur II.3.
+     ⭐ UN RELAIS, PAS UN SECOND SPY : c'est toujours l'observateur du socle
+     qui décide du cran (il relit les `[data-snap]` et ne retient aucun nœud,
+     cf. `socle.mjs`). Cet écran ne fait que lui dire « regarde », ce qui est
+     exactement ce que `spy.settle()` fait déjà après chaque redessin.
+     ⛔ `isTrusted` EST LA GARDE ANTI-BOUCLE : l'écho que l'on émet nous
+     revient par la phase cible, et sans ce test il se rappellerait sans fin. */
+  flux.addEventListener("scroll", (ev) => {
+    if (!ev || ev.isTrusted !== true) return;
+    if (typeof Event !== "function") return;
+    flux.dispatchEvent(new Event("scroll", { bubbles: true }));
+  }, { passive: true });
+  flux.append(renderMainGrid(rowCtx));
+  flux.append(renderToolsAndTrainings(rowCtx));
+  section.append(flux);
+
+  /* ── BANDE 3 : LE PIED, FIXE, BOUTONS CENTRÉS ───────────────────────────
+     ⭐ LE CENTRAGE ET LA COLONNE DU `?` SONT DÉJÀ ÉCRITS DANS `.sortie`
+     (`justify-content: center` + `padding-right: calc(--sp-16 + --touch)`,
+     shell.css) — la loi des *« deux petits organes qui ne se centrent pas »*.
+     L'hôte n'a donc rien à peindre : il n'est qu'une bande qui ne cède pas. */
+  const pied = el("div", "skills-pied");
+  pied.dataset.sortieIci = "true";
+  section.append(pied);
   return section;
 }
 
