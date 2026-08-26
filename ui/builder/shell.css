@@ -3494,7 +3494,28 @@ button { font: inherit; }
   background: color-mix(in srgb, var(--info) 12%, transparent);
   color: var(--text-soft);
   font-size: var(--t1);
-  line-height: 1.5;
+  /* 🔴 TROIS LIGNES, PRISES VERS LE HAUT — Eric, 2026-08-27 : *« remonte
+     l'aiguilleur d'une hauteur de ligne de son texte, SANS remonter les
+     boutons »*, et la veille : *« tu pourras même donner 3 lignes à
+     l'aiguilleur, tu prends la place au-dessus »*. C'est la même demande dite
+     deux fois — la bande passe de 2 à 3 lignes, et elle grandit vers le HAUT.
+
+     📏 MESURÉ AVANT : une ligne vaut **15 px** (corps 10, interligne 1,5), et il
+     n'y avait que **12 px** au-dessus de la bande. La remonter de 15 par une
+     marge négative l'aurait fait chevaucher le texte de 3 px — c'est le défaut
+     qu'on vient de passer la soirée à retirer de cet écran.
+     ⭐⭐ LA PLACE VIENT DONC D'AILLEURS, ET ELLE EXISTE : la fenêtre de scroll
+     est `flex: 1 1 auto`, elle CÈDE d'elle-même ce que la bande prend. Les
+     boutons, eux, ne bougent pas d'un pixel — ils sont sous elle, pas liés à
+     elle. **On ne déplace rien : on donne une hauteur, et le voisin élastique
+     s'ajuste.**
+
+     ⛔ ET LE 1,5 N'EST ÉCRIT QU'UNE FOIS : le sortir en variable locale évite
+     que `line-height` et `min-height` divergent le jour où l'un des deux bouge.
+     Deux nombres qui doivent rester d'accord sont un nombre. */
+  --aiguilleur-interligne: 1.5;
+  line-height: var(--aiguilleur-interligne);
+  min-height: calc(3 * var(--aiguilleur-interligne) * 1em);
 }
 
 /* ② LE GUIDE SPÉCIFIQUE */
@@ -4404,6 +4425,16 @@ button { font: inherit; }
    bas (`--sp-4`) : y toucher aurait collé le texte au mot. */
 .parcours-item[data-sans-choix="true"] > .parcours-item-tete {
   padding-bottom: 0;
+  /* 🔴 UN MOT N'EST PAS UNE CIBLE TACTILE — Eric, 2026-08-27 : *« la fenêtre de
+     texte peut encore remonter de 8 sous Granted »*.
+     ⭐ ET LE POSTE ÉTAIT LÀ, PAS AILLEURS : `.parcours-item-tete` porte
+     `min-height: var(--touch)` — 44 px — parce qu'elle héberge d'ordinaire un
+     BOUTON qu'un pouce doit atteindre. La tête de `Granted` n'héberge qu'un
+     mot : ces 44 px enfermaient un texte de 19 dans une boîte de 44, et les
+     25 px d'air poussaient la fenêtre vers le bas sans rien protéger.
+     ⭐⭐ C'est la loi du sacré lue à l'endroit : `--touch` protège un BOUTON.
+     Là où il n'y a pas de bouton, il ne protège rien — il coûte. */
+  min-height: 0;
 }
 
 /* 🔴 UN POINT VERT D'OFFICE SUR CE QUI EST ACCORDÉ — Eric, 2026-08-27 : *« tu
@@ -4593,7 +4624,12 @@ button { font: inherit; }
      ⚠️ Elle vise `[data-sans-choix]` et non « le troisième » : le jour où une
      espèce n'a qu'un item réglable, c'est toujours le bloc SANS PORTE qui doit
      se coller — pas celui qui occupe le rang 3. */
-  margin-top: calc(-1 * var(--sp-8));
+  /* 🔴 −4 DE PLUS — Eric, 2026-08-27 : *« Granted auto peut encore remonter de
+     4 »*. On passe de −8 à −12 : le bloc vient toucher `Skill budget` puis
+     mordre de 4 px sur l'espace que la liste laissait entre eux.
+     ⚠️ Il ne mord PAS sur le bouton lui-même : c'est le `gap` de 8 de la liste
+     qui est consommé, et il en restait 8. */
+  margin-top: calc(-1 * var(--sp-12));
 }
 .parcours-item[data-sans-choix="true"] > .parcours-resume {
   overflow-y: auto;
