@@ -274,9 +274,15 @@ test("3 — index.html, le décideur : AUCUN chargement ne part sans version", (
          un autre lot écrit `shell.css` en ce moment, et un fichier n'a
          qu'un écrivain. Elle est chargée APRÈS lui — les quelques règles
          `.catalogue-*` qu'elle reprend le sont à égalité de spécificité,
-         c'est donc l'ordre qui tranche, délibérément. */
-  assert.equal(refs.length, 5,
-    `index.html porte ${refs.length} chargements, 5 attendus — si tu viens d'en ajouter un, ` +
+         c'est donc l'ordre qui tranche, délibérément.
+       · 2026-08-26 : 6 — `listes.css` entre avec la pagination des viviers
+         (NORMES.md §5, portée au produit entier). MÊME PORTE, MÊME RAISON
+         qu'au lot 77 : `shell.css` a déjà un écrivain. ⭐ Elle, en revanche,
+         ne compte PAS sur l'ordre : son sélecteur exige `.grille-rang`, la
+         rangée que `glisser.mjs` ne pose qu'au-delà d'une page, et il pèse
+         (0,0,3,1) contre (0,0,2,1) — elle gagne par spécificité, nommément. */
+  assert.equal(refs.length, 6,
+    `index.html porte ${refs.length} chargements, 6 attendus — si tu viens d'en ajouter un, ` +
     "mets ce compte à jour ET dis pourquoi juste au-dessus ; si tu n'as rien ajouté, cherche qui l'a fait");
 });
 

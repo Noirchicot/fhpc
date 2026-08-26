@@ -25,6 +25,24 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
+import { pageDeListe } from "./normes.mjs?v=302";
+import { swapContent } from "./socle.mjs?v=302";
+
+/* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
+   🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
+   par un `refresh()` qui reconstruit la carte entière : un numéro de page
+   gardé dans la fermeture de `renderChoixGlisses` retomberait à zéro au
+   premier sort posé. Le joueur serait renvoyé page 1 à chaque choix, sur la
+   liste même où il en fait quinze.
+   ⭐ MÊME PRÉCÉDENT QU'AU TAMBOUR (`positionDuTambour`, equipment-step), et
+   même clef qu'ailleurs dans le dépôt : le CHEMIN du premier créneau
+   (`class.prepared[0]`, `species.lineage`…). Deux viviers de deux écrans ne
+   partagent jamais un chemin.
+   ⛔ ET ELLE N'ENTRE PAS DANS LE DOCUMENT : une page regardée n'est pas une
+   décision de personnage. Elle meurt avec l'onglet, comme la position du
+   tambour. */
+const pageDuVivier = new Map();
+
 /* ══ 🔴 L'INCIDENT DU 22/08 — LA CAPTURE MANGEAIT LE DÉFILEMENT ══════════
    Eric, sur son iPhone, page rechargée : *« défilement vertical toujours
    bloqué »*. Une liste d'objets qui défile, dont chaque ligne est un jeton :
@@ -166,6 +184,21 @@ function el(tag, className, children) {
   return node;
 }
 function text(value) { return document.createTextNode(String(value)); }
+
+/** UN CHEVRON DE PAGINATION — le MÊME objet qu'au tambour, pas un cousin.
+ *  🔴 NORMES.md §6 : *« un seul objet, deux rôles … ⛔ Ne pas en fabriquer
+ *  deux »*. On reprend donc les classes d'Équipement telles quelles
+ *  (`grille-fleche`, dans une `grille-gouttiere`, sous elle un
+ *  `grille-compte`) : le dessin, la cible tactile `--touch` et l'encre
+ *  discrète sont déjà décidés là-bas, et les redéclarer serait deux réglages
+ *  à tenir d'accord. */
+function chevron(signe, annonce, onClick) {
+  const b = el("button", "grille-fleche", [text(signe)]);
+  b.type = "button";
+  b.setAttribute("aria-label", annonce);
+  b.addEventListener("click", onClick);
+  return b;
+}
 
 /* ⛔ IL N'Y A PAS DE FANTÔME QUI SUIT LE DOIGT, ET C'EST UN GARDE QUI L'A
    DÉCIDÉ. La première écriture en posait un — une pastille flottante placée à
@@ -463,9 +496,19 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   /* 🧊 IL N'Y A PLUS DE SECOND DÉFILEMENT ICI — Eric, 2026-08-20 : *« il ne
      faut plus d'ascenseurs couplés avec des actions drag and drop »*. Le
      vivier déclarait `data-scroller="grille"` parce qu'il en portait un ; il
-     n'en porte plus, donc il ne déclare plus rien. La liste défile avec la
-     page, comme tout le reste du builder. */
-  for (const id of slots[0].options || []) {
+     n'en porte plus, donc il ne déclare plus rien.
+     ⚠️ LA SUITE DE CETTE PHRASE A CHANGÉ LE 2026-08-26, et c'est ce lot-ci :
+     elle disait *« la liste défile avec la page »*. Une liste de jetons ne
+     défile plus du tout — elle PAGINE (NORMES.md §5). *« On lit un texte de
+     haut en bas ; on CHOISIT parmi des jetons, et un jeton hors écran est
+     introuvable »* (§5 bis). */
+  const options = slots[0].options || [];
+  /** UN JETON DU VIVIER, AVEC SON GESTE ARMÉ.
+   *  ⭐ EXTRAIT POUR LA PAGINATION, ET C'EST LA SEULE RAISON : tourner une page
+   *  remplace les `li` du vivier, donc il faut savoir en refabriquer un — armé,
+   *  pas seulement dessiné. Une page tournée dont les jetons ne répondent plus
+   *  au doigt serait pire qu'une liste sans fin. */
+  const faireJeton = (id) => {
     const item = el("li", null);
     const jeton = el("button", "glisse-jeton", [text(abrege(labelOf ? labelOf(id) : id))]);
     jeton.type = "button";
@@ -516,9 +559,76 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
       });
     }
     item.append(jeton);
-    vivier.append(item);
+    return item;
+  };
+
+  /* ══ LA PAGINATION — NORMES.md §5, portée du produit ENTIER ═════════════
+     🔴 ELLE EST ICI ET PAS DANS LES QUATRE ÉCRANS. Species, Class, Inheritance
+     et Identity ne fabriquent pas leur vivier : ils remettent un plan à cet
+     organe, qui en tire les jetons. Paginer chez eux, ce serait quatre copies
+     de la même arithmétique et quatre jeux de chevrons — exactement ce que
+     `tests/listes.test.mjs` existe pour empêcher (*« le premier de ces écrans à
+     se construire pouvait écrire 12 ou 20 »*). Un seul organe, quatre écrans
+     servis, et le cinquième — les langues de l'Héritage, rendues par la
+     coquille — servi sans qu'on ait eu à y toucher.
+
+     ⛔ ET LE NOMBRE NE SE RECOPIE PAS : `pageDeListe` porte le défaut au socle
+     (`normes.mjs`). Cet organe n'a aucune raison de dévier, donc il ne passe
+     aucun nombre. */
+  const clefDePage = slots[0].path;
+  let page = pageDuVivier.get(clefDePage) || 0;
+  /* ⛔ LE COMPTE D'OBJETS EST CELUI DE LA LISTE ENTIÈRE, PAS DE LA PAGE : c'est
+     ce qui attend le joueur, pas ce qu'il a sous les yeux — et il vient de la
+     MÊME source que les jetons. Écriture d'Équipement, au mot près : le total
+     à gauche, la page à droite. */
+  const totalDesObjets = el("span", "grille-compte", [text(String(options.length))]);
+  const compteDesPages = el("span", "grille-compte");
+
+  function remplirVivier() {
+    const vue = pageDeListe(options, page);
+    page = vue.page;
+    pageDuVivier.set(clefDePage, page);
+    /* ⛔ ON NE REMPLACE PAS SOI-MÊME : `tests/socle.test.mjs` tient une liste
+       NOIRE — `innerHTML`, `replaceChildren`, `removeChild` — et `socle.mjs`
+       est le seul remplaçant du dépôt. Le vivier ne défile plus depuis le
+       2026-08-20, donc il n'a aucune position à conserver ; ce n'est pas une
+       raison d'ouvrir la porte que ce garde ferme. */
+    swapContent(vivier, vue.objets.map((id) => faireJeton(id)));
+    compteDesPages.textContent = `${vue.page + 1}/${vue.pages}`;
+    return vue;
   }
-  bloc.append(vivier);
+  const vue = remplirVivier();
+
+  /* ⏳ LES CHEVRONS S'EFFACENT QUAND IL N'Y A QU'UNE PAGE — et ce point n'est
+     PAS tranché par Eric (NORMES.md §5, *« les flèches quand il n'y a qu'une
+     page : disparaissent-elles ? »*). Le choix le plus SOBRE est pris ici, et
+     il est dit plutôt que masqué : deux flèches qui ne mènent nulle part sont
+     deux cibles tactiles mortes, et surtout elles coûtent 96 px de largeur à
+     une rangée qui n'en a que 20 de reste. ⭐ Sa conséquence mesurée : sept des
+     neuf viviers du personnage-témoin ne changent pas d'un pixel.
+     🔴 UN MOT D'ERIC LE RENVERSE — il suffit de rendre la rangée toujours. */
+  if (vue.pages > 1) {
+    const gauche = el("div", "grille-gouttiere");
+    gauche.append(chevron("‹", "Previous page", () => tournerPage(-1)), totalDesObjets);
+    const droite = el("div", "grille-gouttiere");
+    droite.append(chevron("›", "Next page", () => tournerPage(1)), compteDesPages);
+    const rang = el("div", "grille-rang");
+    rang.append(gauche, vivier, droite);
+    bloc.append(rang);
+  } else {
+    bloc.append(vivier);
+  }
+
+  /* ⭐ TOURNER UNE PAGE NE PASSE PAS PAR `onAction`, ET C'EST LA MÊME RAISON
+     QU'AU TAMBOUR : la coquille répond à toute action par un `refresh()` qui
+     reconstruit la carte entière. Une page tournée qui dispatcherait ferait
+     démonter le vivier sous le doigt. On se met à jour soi-même ; le carnet
+     n'a rien à savoir d'un numéro de page — ce n'est pas une décision de
+     personnage. */
+  function tournerPage(sens) {
+    page += sens;
+    remplirVivier();
+  }
 
   /* ── LES CRÉNEAUX : les cibles du glisser, et le seul endroit qui vide ── */
   const rangee = el("div", "glisse-creneaux");

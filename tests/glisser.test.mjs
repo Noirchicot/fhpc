@@ -449,6 +449,146 @@ test("6 — ⚔️ ATTAQUE : sans slots, l'organe rend `null` — jamais un cadr
     "sans plan, rien — le « faux magasin » que ce dépôt interdit");
 });
 
+/* ══ 13 — LA PAGINATION DU VIVIER — NORMES.md §5 ═════════════════════════
+   🔴 CE QU'ELLE EXISTE POUR EMPÊCHER, ET C'EST MESURÉ AU NAVIGATEUR LE
+   2026-08-26 : les sorts préparés d'un Mage font 31 objets, et le vivier
+   rendait une dalle de **608 px** qui poussait tout le reste hors de l'écran.
+   La règle d'Eric du 23/08 — *« 15 items glissables max … pour la liste des
+   sorts niveau 1 on fera ça »* — vivait au socle (`normes.mjs`) et n'était
+   appelée que par l'Équipement.
+
+   ⭐ ET ELLE EST DANS CET ORGANE, PAS DANS LES QUATRE ÉCRANS. Species, Class,
+   Inheritance et Identity remettent un plan ; c'est ici que le vivier se
+   fabrique. Un seul organe paginé sert les quatre — plus les langues de
+   l'Héritage, rendues par la coquille.
+
+   ⛔ CE QUE CES TESTS NE PEUVENT PAS DIRE, et qui a été mesuré à part
+   (`ui/builder/banc-listes.html`, Chrome 151, 360 × 553) : que la rangée tient
+   TROIS colonnes une fois les deux gouttières posées. C'est un fait de
+   peinture — le stub ne fait pas de mise en page. */
+
+/** Une liste de `n` options, avec deux créneaux — la forme des sorts préparés.
+ *  ⚠️ LA CLEF EST UN PARAMÈTRE, ET C'EST LA MÉMOIRE DE PAGE QUI L'EXIGE : elle
+ *  vit au MODULE (c'est ce qui la fait survivre au `refresh()` de la coquille),
+ *  donc deux cas qui partageraient un chemin partageraient leur page — le
+ *  second lirait l'état que le premier a laissé. Un test qui dépend de son
+ *  voisin ne prouve rien. Chaque cas prend donc SON chemin. */
+const slotsLongs = (n, clef = "class.prepared") => {
+  const options = Array.from({ length: n }, (_, i) => `sort-${i}`);
+  return [
+    { path: `${clef}[0]`, index: 0, options, selected: [] },
+    { path: `${clef}[1]`, index: 1, options, selected: [] }
+  ];
+};
+const chevrons = (n) => n.querySelectorAll(".grille-fleche");
+const comptes = (n) => n.querySelectorAll(".grille-compte").map((c) => c.textContent);
+
+test("13 — au-delà de 15 options, le vivier n'en rend que 15 — la dalle cesse de grandir", () => {
+  const n = ecran(slotsLongs(31, "cas.compte"), []);
+  assert.equal(jetons(n).length, 15,
+    "31 options, 15 jetons : le nombre se LIT au socle (`LISTE_PAR_PAGE`), il n'est pas recopié ici");
+  assert.deepEqual(jetons(n).slice(0, 2).map((b) => b.getAttribute("data-valeur")), ["sort-0", "sort-1"],
+    "la première page commence au premier objet");
+});
+
+test("13 bis — les chevrons flanquent la liste, et SOUS chacun un compte (NORMES §6)", () => {
+  const n = ecran(slotsLongs(31, "cas.chevrons"), []);
+  const rang = n.querySelectorAll(".grille-rang");
+  assert.equal(rang.length, 1, "une rangée, et le vivier est son enfant du MILIEU");
+  assert.deepEqual([...rang[0].children].map((c) => c.className),
+    ["grille-gouttiere", "glisse-vivier", "grille-gouttiere"],
+    "🔴 à GAUCHE et à DROITE — ⛔ pas au-dessus (NORMES.md §6)");
+  assert.deepEqual(chevrons(n).map((b) => b.getAttribute("aria-label")), ["Previous page", "Next page"]);
+  /* ⛔ LE TOTAL EST CELUI DE LA LISTE, PAS DE LA PAGE : c'est ce qui attend le
+     joueur. Écriture d'Équipement au mot près — le total à gauche, la page à
+     droite. */
+  assert.deepEqual(comptes(n), ["31", "1/3"], "combien il y en a · où l'on est");
+});
+
+test("13 ter — `pages = ceil(objets ÷ 15)` jusqu'au bout, et la DERNIÈRE page est partielle", () => {
+  const n = ecran(slotsLongs(31, "cas.tranches"), []);
+  const suivante = chevrons(n)[1];
+  suivante.click();
+  assert.deepEqual(comptes(n), ["31", "2/3"]);
+  assert.equal(jetons(n).length, 15);
+  assert.equal(jetons(n)[0].getAttribute("data-valeur"), "sort-15", "la deuxième page commence au seizième");
+  suivante.click();
+  assert.deepEqual(comptes(n), ["31", "3/3"]);
+  assert.equal(jetons(n).length, 1, "31 − 2 × 15 = 1 — et on ne fabrique pas de case vide pour combler");
+});
+
+test("13 quater — la page BOUCLE : au-delà de la dernière on revient à la première", () => {
+  /* Une flèche qui ne fait rien au bout serait une cible tactile morte. */
+  const n = ecran(slotsLongs(31, "cas.boucle"), []);
+  for (let i = 0; i < 3; i += 1) chevrons(n)[1].click();
+  assert.deepEqual(comptes(n), ["31", "1/3"]);
+  chevrons(n)[0].click();
+  assert.deepEqual(comptes(n), ["31", "3/3"], "en deçà de la première, on va à la dernière");
+});
+
+test("13 quinquies — ⛔ TOURNER UNE PAGE N'EST PAS UNE DÉCISION : aucune action n'est émise", () => {
+  /* 🔴 Et ce n'est pas une élégance : la coquille répond à toute action par un
+     `refresh()` qui reconstruit la carte entière — une page tournée qui
+     dispatcherait ferait démonter le vivier sous le doigt. */
+  const actions = [];
+  const n = ecran(slotsLongs(31, "cas.muet"), actions);
+  chevrons(n)[1].click();
+  chevrons(n)[0].click();
+  assert.deepEqual(actions, [], "un numéro de page ne va pas au carnet — ce n'est pas un choix de personnage");
+});
+
+test("13 sexies — 🔴 LA PAGE SURVIT AU RE-RENDU, sinon le joueur est renvoyé au début à chaque sort", () => {
+  /* Mesuré au navigateur le 2026-08-26 : poser un sort de la page 3 laisse
+     l'écran sur « 3/3 ». Sans mémoire au module, le `refresh()` de la coquille
+     ramènerait « 1/3 » — sur la liste même où l'on fait quinze choix. */
+  const n = ecran(slotsLongs(31, "cas.memoire"), []);
+  chevrons(n)[1].click();
+  assert.deepEqual(comptes(n), ["31", "2/3"]);
+  const rejoue = ecran(slotsLongs(31, "cas.memoire"), []);   // ce que fait `refresh()`
+  assert.deepEqual(comptes(rejoue), ["31", "2/3"], "la page est retrouvée, pas recommencée");
+  assert.equal(jetons(rejoue)[0].getAttribute("data-valeur"), "sort-15");
+  /* ⛔ ET ELLE EST PROPRE À SON CHEMIN : deux viviers ne se marchent pas
+     dessus. `slots[0].path` est la clef — `class.prepared[0]` ici. */
+  const autre = renderChoixGlisses({
+    plan: planDe(), slots: [{ path: "cas.voisin[0]", index: 0, options: slotsLongs(31)[0].options, selected: [] }],
+    titre: "Cantrips", mot: "Cantrip", onAction: () => {}
+  });
+  assert.deepEqual(comptes(autre), ["31", "1/3"], "un autre chemin, une autre page — jamais celle du voisin");
+});
+
+test("13 septies — ⏳ À UNE SEULE PAGE, PAS DE CHEVRONS — choix SOBRE, non tranché par Eric", () => {
+  /* 🔴 NORMES.md §5 le range dans « CE QUI N'EST TOUJOURS PAS TRANCHÉ » :
+     *« les flèches quand il n'y a qu'une page : disparaissent-elles ? »*. Le
+     choix pris ici est le plus sobre, et il est dit plutôt que masqué : deux
+     flèches qui ne mènent nulle part sont deux cibles tactiles mortes, et
+     surtout elles coûtent 96 px de largeur (deux `--touch` et deux `--sp-4`) à
+     une rangée qui n'en a que 20 de reste — mesuré au navigateur à 360.
+     ⭐ Sa conséquence : sept des neuf viviers du personnage-témoin ne changent
+     pas d'un pixel. ⚠️ UN MOT D'ERIC LE RENVERSE, et alors c'est CE test qu'il
+     faudra corriger, pas l'organe. */
+  for (const combien of [1, 3, 14, 15]) {
+    const n = ecran(slotsLongs(combien, `cas.une-page-${combien}`), []);
+    assert.equal(n.querySelectorAll(".grille-rang").length, 0, `${combien} options tiennent sur une page`);
+    assert.equal(chevrons(n).length, 0, "pas de chevron sans page à tourner");
+    assert.equal(jetons(n).length, combien);
+    assert.equal(n.querySelectorAll(".glisse-vivier").length, 1,
+      "et le vivier reste l'enfant direct du bloc, exactement comme avant ce lot");
+  }
+  /* La frontière, nommément : 15 tient, 16 pagine. */
+  assert.equal(ecran(slotsLongs(16, "cas.seize"), []).querySelectorAll(".grille-rang").length, 1);
+});
+
+test("13 octies — un jeton de page 2 est ARMÉ comme les autres : le tap pose toujours", () => {
+  /* ⛔ Une page tournée dont les jetons ne répondent plus au doigt serait pire
+     qu'une liste sans fin — c'est la raison d'être de `faireJeton`. */
+  const actions = [];
+  const n = ecran(slotsLongs(31, "cas.arme"), actions);
+  chevrons(n)[1].click();
+  geste(jetons(n)[0], { cible: null });
+  assert.deepEqual(actions, [{ kind: "set", path: "cas.arme[0]", value: "sort-15" }],
+    "le jeton de la deuxième page pose dans le premier créneau libre, comme celui de la première");
+});
+
 /* ══ 9 — LA COTE DE HAUTEUR, DANS LA FEUILLE ════════════════════════════
    🔴 CE GARDE TIENT UNE PHRASE DU CROQUIS, PAS UN GOÛT : *« 30 1st level
    spells, scrollable, MUST BE THE SAME HEIGHT AS CANTRIPS »*. Deux grilles,
@@ -457,8 +597,16 @@ test("6 — ⚔️ ATTAQUE : sans slots, l'organe rend `null` — jamais un cadr
    ⚠️ ET IL LIT LES OCTETS DE LA FEUILLE, comme les gardes de jetons : la
    hauteur d'une grille est un fait de peinture, aucun test de rendu ne peut
    la dire hors navigateur. */
-const shellCss = fs.readFileSync(
-  path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "shell.css"), "utf8");
+/* 🔴 TOUTES LES FEUILLES QUI PARLENT D'UN VIVIER, PAS SEULEMENT `shell.css`.
+   Le 2026-08-26, `listes.css` est entrée avec la pagination et porte des
+   sélecteurs `.glisse-vivier` : un garde resté sur une seule feuille aurait
+   laissé la fenêtre revenir par la porte d'à côté, en silence. ⛔ Le garde
+   suit la RÈGLE, pas le fichier où elle campait le jour de sa naissance. */
+const BUILDER_CSS = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
+const FEUILLES_DE_VIVIER = ["shell.css", "listes.css"];
+const shellCss = FEUILLES_DE_VIVIER
+  .map((nom) => fs.readFileSync(path.join(BUILDER_CSS, nom), "utf8"))
+  .join("\n");
 
 /** Chaque règle dont le sélecteur parle d'un VIVIER, avec son corps —
  *  commentaires ôtés (un `height` cité dans un commentaire n'habille rien). */
