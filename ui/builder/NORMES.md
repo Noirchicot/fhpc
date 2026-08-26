@@ -166,9 +166,9 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | type | couleur |
 |---|---|
 | choix de mode | **on = vert · off = rouge · désactivé = gris** |
-| `done` *(étapes)* | 🔵 **bleu** — ⭐ il **NE SIGNE RIEN** : c'est la **tuile** qui signe. `Done` = « j'ai fini ici », il **remonte d'un cran** |
-| `next` *(étapes)* | 🟢 **vert** — action |
-| `next` d'alerte | **cadre rouge, corps vert** → **popup** entre `done` et `next` |
+| `done` *(étapes)* | 🟢 **VERT** — *« c'est fini »*. ⭐ Il **NE SIGNE RIEN** : c'est la **tuile** qui signe. `Done` dit « j'ai fini ici » et **remonte d'un cran** |
+| `next` *(étapes)* | 🔵 **BLEU** — *« on continue »* |
+| `next` d'alerte | **cadre rouge, corps bleu** → **popup** entre `done` et `next` |
 | annulation | 🔴 **rouge** → **popup** |
 | navigation *(next, back)* | 🔵 **bleu** |
 | **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
@@ -195,9 +195,10 @@ dérive de l'état.**
 en cours · validé · problème. **Une seule échelle, deux porteurs** — un bouton qu'on appuie, un
 cercle qu'on ne peut pas appuyer.
 
-⭐ **Elle éclaire aussi `done` et `next`** : `done` est **bleu parce qu'on est encore dedans**,
-`next` est **vert parce que c'est fini**. Ce n'étaient pas deux conventions arbitraires, c'était
-déjà cette échelle.
+⭐ **Elle éclaire `done` et `next`, et elle a corrigé la dictée** *(Eric, 26/08 : « le done est
+vert, le next est bleu » — l'inverse de ce qu'il avait dicté)* : **`done` est VERT parce que c'est
+FINI**, **`next` est BLEU parce qu'on CONTINUE**. Ce ne sont pas deux conventions arbitraires,
+c'est **l'échelle elle-même**, et c'est elle qui a tranché.
 
 ### 🟣 Le rouge peut être accompagné
 
@@ -337,8 +338,9 @@ sombre le jour : **même intention, et ça survit au thème.**
 ⭐ **La règle se lit à l'envers, et c'est ce qui la rend juste** : ⛔ **une valeur qui n'a pas
 changé ne se colore pas.** La couleur est réservée à ce qui bouge — sinon elle ne signale plus rien.
 
-⭐ **Et le bleu s'en trouve libéré** : il ne sert plus qu'à la **navigation** (`done`, `next`,
-`back`) et à l'**aiguilleur**. Une teinte, deux emplois voisins — *« on te dit où aller »*.
+⭐ **Et le bleu s'en trouve libéré** : il ne sert plus qu'à ce qui est **EN COURS** (`next`,
+`back`, la navigation) et à l'**aiguilleur**. Une teinte, un seul sens — *« ça continue, voilà où
+aller »*.
 
 🔴 **Page unique, sauf mention contraire.**
 
