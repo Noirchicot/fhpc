@@ -246,6 +246,47 @@ de ceinture, **le titre n'est pas du gras : c'est la seule chose qui dise où on
 
 ---
 
+## 1 sexies. ✅ LE SEUIL — sa sortie et son défilement *(tranché 26/08)*
+
+> Eric : *« la première fenêtre qui amène sur FH Web propose d'ouvrir **une autre fenêtre** vers le
+> site. **Le titre est la sortie = économie d'espace, donc OK.** Je pense que cette fenêtre doit
+> être **scrollable**. »*
+
+| | |
+|---|---|
+| **le cadre** | **`FS`** — plein écran, ni ceinture ni menu latéral |
+| **le titre** | ✅ **il existe** *(rien d'autre ne nomme le Seuil, §1 quinquies)* |
+| 🔴 **le titre EST la sortie** | il paie **une fois pour deux besoins** — ~40 px au lieu de 40 + 52 |
+| 🔴 **la sortie OUVRE UNE AUTRE FENÊTRE** | ⛔ elle **ne quitte pas** le Companion |
+| 🔴 **le Seuil DÉFILE** | c'est **le seul écran** dans ce cas |
+
+⭐ **Ouvrir plutôt que quitter, c'est ce qui protège le travail en cours.** Un joueur qui va lire
+une règle sur FH Web **ne perd pas** son personnage à moitié créé : il revient sur un onglet
+resté vivant. ⛔ Une sortie qui navigue aurait rendu le titre dangereux au lieu d'utile.
+
+### 🔴 CE QUE LE DÉFILEMENT DU SEUIL IMPOSE
+
+Le Seuil est **l'exception** à *« la page ne défile jamais »* — et il l'est parce qu'il n'est pas
+une page de travail : c'est **un vestibule**, dont le contenu grandit *(des personnages, des
+campagnes)* sans qu'aucun compte n'ait à se lire d'un coup d'œil.
+
+⛔ **Mais un écran qui défile ne peut pas porter ses organes fixes dans son flux.**
+
+| l'organe | où il doit vivre |
+|---|---|
+| **le titre-sortie** | 🔴 **collé en haut** — sinon on ne peut plus sortir une fois descendu |
+| **le `?`** | 🔴 **collé en bas à droite** *(§7)* — un rappel qui défile n'est plus un rappel |
+| tout le reste | dans le flux, il défile |
+
+⭐ **La règle qui en sort, et elle vaut pour tout écran qui défilera un jour** : ⛔ **ce qui défile
+ne porte pas les organes fixes.** Deux couches — **le flux**, et **ce qui reste**.
+
+⚠️ Et le budget du Seuil *(≈380 px, §1 quater)* **cesse d'être une contrainte dure** : il devient
+la hauteur du **premier écran vu**, pas celle de l'écran entier. ⏳ Ce qui doit tenir **au-dessus
+de la ligne de flottaison** n'est pas tranché.
+
+---
+
 ## 2. LES TROIS ORGANES — forme ET remplissage *(validé 26/08 sur maquette)*
 
 | organe | forme | remplissage | voile |
