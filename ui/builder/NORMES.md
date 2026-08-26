@@ -281,6 +281,24 @@ campagnes)* sans qu'aucun compte n'ait à se lire d'un coup d'œil.
 ⭐ **La règle qui en sort, et elle vaut pour tout écran qui défilera un jour** : ⛔ **ce qui défile
 ne porte pas les organes fixes.** Deux couches — **le flux**, et **ce qui reste**.
 
+### ✅ LE DRESSING défile aussi *(Eric, 26/08 — « un dressing qui scrolle, des boutons fixes »)*
+
+**`Équipement › B3`** est le **second** écran à défiler, et il applique la même loi :
+
+| couche | ce qu'elle porte |
+|---|---|
+| **le flux** | les emplacements portés, le sac, les contenants — **ça grandit avec le personnage** |
+| **ce qui reste** | 🔴 **les boutons**, collés en bas |
+
+⭐ **Et les deux exceptions se ressemblent, ce qui confirme la règle** : le Seuil et le dressing
+sont tous deux des écrans dont **le contenu grandit sans qu'aucun compte n'ait à se lire d'un coup
+d'œil**. Un vestibule, une garde-robe. ⛔ Une **liste de choix** — jetons, sorts, dons — n'est ni
+l'un ni l'autre : elle **pagine** *(§5)*.
+
+⚠️ **Ceci N'EST PAS une commande de lot** : `Équipement` est un chantier à part entière *(Eric,
+26/08 : « abilities / skills / destiny / équipement / identity nécessitent un boulot à part
+entière »)*. C'est **une contrainte à respecter le jour où ce chantier s'ouvrira.**
+
 ⚠️ Et le budget du Seuil *(≈380 px, §1 quater)* **cesse d'être une contrainte dure** : il devient
 la hauteur du **premier écran vu**, pas celle de l'écran entier. ⏳ Ce qui doit tenir **au-dessus
 de la ligne de flottaison** n'est pas tranché.
