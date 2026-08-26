@@ -2670,8 +2670,15 @@ button { font: inherit; }
 }
 .glisse-jeton {
   min-height: var(--touch); padding: 0 var(--sp-12);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: none; color: var(--text); font-family: inherit; font-size: var(--t3);
+  /* 🔴 §2 (26/08) — LE JETON EST TRÈS ARRONDI ET TEINTÉ. `--organe-rayon` est
+     une COTE DE FAMILLE, pas un quatrième barreau de l'échelle des rayons (le
+     jeton, son emplacement vide et le créneau la portent ; un bouton jamais) ;
+     `--jeton-teinte` est sa MATIÈRE — 20 % d'accent, soit 48 % cumulés sur une
+     dalle à 35 %, et §4 précise que ce 48 n'est PAS le barreau « 50 ».
+     ⛔ Le liseré `--border-strong` reste : c'est la cible 3:1 d'un contrôle. */
+  border: 1px solid var(--border-strong); border-radius: var(--organe-rayon);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  color: var(--text); font-family: inherit; font-size: var(--t3);
   cursor: grab;
   /* 🔴 SANS `touch-action: none`, LE GESTE N'EXISTE PAS SUR MOBILE : le doigt
      qui part d'un jeton ferait défiler la scène, et le navigateur annulerait la
@@ -2926,8 +2933,15 @@ button { font: inherit; }
   flex: 1 1 0; min-height: var(--touch);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--sp-2); padding: var(--sp-8);
-  border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
-  background: none; color: var(--text); font-family: inherit;
+  /* 🔴 §2 (26/08) — LA ZONE DE DROP EST TRÈS ARRONDIE ET CREUSE : texte
+     d'attente + liseré, ⛔ AUCUN fond. `background: none` était déjà juste ;
+     ce qui manquait était le rayon de famille et le CREUX, qui est ce qui la
+     fait lire comme une place à remplir plutôt que comme une case vide.
+     ⭐ `--creux` ne porte aucune couleur du thème : ce sont des arêtes de
+     lumière et d'ombre, elles marchent sur n'importe quelle face. */
+  border: 1px dashed var(--border-strong); border-radius: var(--organe-rayon);
+  background: none; box-shadow: var(--creux);
+  color: var(--text); font-family: inherit;
 }
 .glisse-creneau[data-rempli="true"] { border-style: solid; background: var(--dalle-inter); }
 /* La cible SOUS le doigt s'annonce — sans ce retour, on dépose à l'aveugle. */
@@ -3489,7 +3503,14 @@ button { font: inherit; }
      cède, jamais le nom du sort »*. Le gabarit reste un plancher : deux cases
      côte à côte gardent la même hauteur, celle de la plus haute. */
   min-height: var(--glisse-h);
-  border-radius: var(--radius-sm);
+  /* 🔴 §2 (26/08) — `--radius-sm` EST DEVENU `--organe-rayon` ICI AUSSI, et
+     c'est cette règle-ci qui décidait vraiment : mesuré au navigateur, le
+     jeton du lignage rendait **4 px** alors que sa règle nue disait 16 —
+     `.choix-glisse .glisse-jeton` (0,0,2,0) bat `.glisse-jeton` (0,0,1,0).
+     ⛔ Corriger l'une sans l'autre aurait laissé la norme fausse dans la page
+     et vraie dans la feuille : exactement ce que §0 « GOOGLE HEADLESS »
+     interdit de croire. */
+  border-radius: var(--organe-rayon);
   box-sizing: border-box;
 }
 /* 🔴 LA RECETTE DU WIZARD DEVIENT LE STANDARD DE TOUTE CASE — Eric,
@@ -4710,3 +4731,98 @@ button { font: inherit; }
 .pipeline-recherche-champ { max-width: none; width: 100%; text-align: left; }
 .pipeline-resultat { width: 100%; font: inherit; cursor: pointer; background: none; color: var(--text); text-align: left; }
 .pipeline-pied-seul { grid-template-columns: 1fr; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §2 / §3 — LES TROIS ORGANES : forme ET remplissage
+   ══════════════════════════════════════════════════════════════════════════
+   Ratifié par Eric le 2026-08-26 sur maquette (`ui/builder/NORMES.md` §2) :
+
+     | organe        | forme                 | remplissage                     |
+     |---------------|-----------------------|---------------------------------|
+     | zone de drop  | très arrondie         | CREUX — texte + liseré, AUCUN fond |
+     | jeton         | très arrondi          | TEINTÉ                          |
+     | bouton        | OCTOGONE à coupe      | PLEIN, en signal, 🔴 OPAQUE      |
+
+   ⭐ LA COUPE D'ANGLE APPARTIENT AU BOUTON SEUL : c'est ce qui interdit de le
+   confondre avec un jeton, quelle que soit sa couleur.
+
+   ⚠️ ÉCRIT EN FIN DE FEUILLE, ET LE PIÈGE N°1 DU DÉPÔT EST CONNU (un bloc
+   générique posé ici vole la cascade de tout ce qui précède). Celui-ci ne le
+   peut pas : ses sélecteurs sont des classes EXISTANTES qu'il surcharge
+   NOMMÉMENT, une par une. Il n'introduit aucun sélecteur large.
+
+   📏 CE QUI A ÉTÉ MESURÉ AVANT D'ÉCRIRE, et ce n'était pas prévu par le
+   mandat : §3 donne la preuve de l'opacité en contrastes — *« étiquette jour
+   6,07–6,13 · étiquette nuit 5,59–5,61 »* — sans dire QUELLE encre. Recalculé
+   ici sur les valeurs du fichier, les trois signaux avec `--on-accent` :
+
+     jour   #ffffff sur --positive 6,13 · --info 6,11 · --critical 6,07
+     nuit   #14120e sur --positive 5,59 · --info 5,61 · --critical 5,59
+
+   ➡️ Les six nombres du §3 tombent au centième. **L'encre de l'étiquette est
+   donc `--on-accent`**, et c'est une lecture MESURÉE de la norme, pas un choix
+   de ce lot.
+
+   ⛔ LES DEUX PREMIERS ORGANES NE SONT PAS HABILLÉS ICI, ET C'EST VOULU : leur
+   rayon et leur fond se corrigent **à leur source** (`.glisse-jeton`,
+   `.glisse-creneau`, et la recette commune `.choix-glisse .glisse-*`), pas par
+   une surcharge de fin de feuille. Une seconde déclaration plus spécifique
+   aurait marché et aurait été le piège n°1 : on aurait eu DEUX endroits qui
+   disent le rayon d'un jeton. Seul le BOUTON est décrit ici, parce que sa
+   forme est neuve et qu'aucune règle existante ne la portait. */
+
+/* ── ③ LE BOUTON — octogone à coupe, plein, OPAQUE ───────────────────────
+   🔴 ET C'EST ICI QUE LA DETTE NOMMÉE PAR §3 SE PAIE : `.species-done`
+   portait `--dalle-inter`, l'habit d'une DALLE en fond de bouton. §3 :
+   *« un bouton ne porte JAMAIS l'habit d'une dalle — c'est ce qui les rendait
+   anonymes »*, et la feuille l'écrivait déjà elle-même trois fois (« un fond
+   peint avec le fond ne dessine rien »). Le voile part, l'opaque arrive.
+
+   ⛔ ET LE CERNE PART AVEC LUI, PARCE QU'IL N'A PLUS DE RAISON D'ÊTRE : le
+   `box-shadow: inset 0 0 0 1px` existait précisément pour rattraper un fond
+   invisible. Un bouton opaque en signal se voit sans qu'on le souligne.
+   🔴 IL LE FALLAIT DE TOUTE FAÇON — contrainte technique écrite le 24/08 sur
+   `design-organes-jetons` : *« le bouton ne peut pas porter --relief : un
+   clip-path découpe aussi les box-shadow »*. Coupe d'angle et ombre interne ne
+   cohabitent pas. ⛔ Ne pas chercher à forcer.
+
+   📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
+   `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici — la coupe est le
+   jeton, et les 100 % sont les bords de l'élément. */
+/* 🔴 LE FOND EST UNE VARIABLE, PAS UNE COULEUR — §6 : *« un lot ne déclare
+   JAMAIS `class="bouton-vert"`. Il déclare un bouton, et l'ÉTAT peint. »* Ce
+   bloc pose donc la FORME et le DÉFAUT de l'échelle (gris = rien n'est encore
+   fait) ; ce qui repeint `--bouton-fond` vit dans le bloc de l'échelle,
+   juste dessous. ⛔ Aucune couleur ne descend dans le balisage.
+
+   📏 POURQUOI `--text-muted` PORTE LE GRIS, et c'est mesuré, pas choisi : la
+   palette n'a AUCUN gris de signal, et l'échelle en réclame un. Des deux
+   neutres opaques disponibles, un seul rejoint la bande que §3 a ratifiée
+   pour les trois autres barreaux (6,07–6,13 le jour · 5,59–5,61 la nuit) :
+
+     --text-muted   avec --on-accent :  6,06 jour · 5,59 nuit   ✅ dans la bande
+     --border-strong avec --on-accent : 4,09 jour · 3,73 nuit   ✗ hors bande
+
+   ⏳ C'est un EMPLOI NOUVEAU d'un jeton existant, pas une teinte inventée —
+   mais le gris de l'échelle n'a jamais été nommé par Eric. À ratifier. */
+.species-done,
+.parcours-item-porte,
+.parcours-pied button {
+  --bouton-fond: var(--text-muted);
+  background: var(--bouton-fond);
+  color: var(--on-accent);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(
+    var(--bouton-coupe) 0,
+    calc(100% - var(--bouton-coupe)) 0,
+    100% var(--bouton-coupe),
+    100% calc(100% - var(--bouton-coupe)),
+    calc(100% - var(--bouton-coupe)) 100%,
+    var(--bouton-coupe) 100%,
+    0 calc(100% - var(--bouton-coupe)),
+    0 var(--bouton-coupe)
+  );
+}
