@@ -1637,6 +1637,40 @@ qu'un écran mal rangé* — et le code le dit à l'endroit où ça se produit.
 
 ---
 
+### 🔴 LE FLUX NE PORTE AUCUN BOUTON — ce sont les BANDES FIXES qui les portent *(26/08)*
+
+> Eric, 2026-08-26, en montrant l'écran des Compétences : *« les listes restent identiques et
+> scrollables. **Exception : elles ne portent pas de bouton. C'est la carte FIXE qui les porte.** »*
+> · *« la barre blanche doit **totalement disparaître**, et ses éléments reportés sur la petite dalle
+> sous le titre. **Cette petite dalle restera fixe.** »*
+
+| la bande | c'est une dalle ? | porte-t-elle des contrôles ? |
+|---|---|---|
+| **la tête** *(fixe)* | ✅ **oui** | ✅ le titre, les onglets, les compteurs, le `?`, le livre |
+| **le flux** *(il défile)* | ⛔ **non** — *« son bord est invisible »* | ⛔ **aucun contrôle d'écran** |
+| **le pied** *(fixe)* | ✅ **oui** | ✅ la rangée de boutons |
+
+⭐⭐ **LA RAISON EST MÉCANIQUE, PAS ESTHÉTIQUE, ET C'EST CE QUI LA REND SÛRE** : un contrôle qui
+défile **s'en va**. Le joueur qui cherche `Done` doit alors se rappeler **où** il l'a laissé — un
+bouton qu'il faut retrouver n'est plus un bouton, c'est une chasse. ➡️ **Ce qui commande reste ; ce
+qui se lit défile.**
+
+⛔ **ET ÇA REJOINT « PAS DE BOUTONS DANS LE FOND »** : un pied transparent n'est pas une bande, c'est
+un vide. 📏 Mesuré le 26/08 sur Compétences : `Done` était posé sur l'image, sans rien sous lui.
+**Les deux bandes fixes sont donc des DALLES ; le flux n'en est pas une** — et c'est précisément ce
+qui lui permet de défiler sans emporter de contrôle.
+
+📏 **CE QUE ÇA A RETIRÉ, mesuré** : la barre blanche de Compétences vivait dans `.stage-topbar`, le
+slot horizontal du **CADRE** — donc hors de toute dalle. Tant que le cadre peignait, elle avait l'air
+d'appartenir à l'écran. ⭐ **Le slot ne disparaît pas, il se vide** : c'est sa loi *(B0.19 — un écran
+le garnit ou le laisse vide)*, la même qui a servi à l'Équipement le 23/08.
+
+⚠️ ⛔ **CE QUE CETTE RÈGLE NE DIT PAS** : les **lignes** d'une liste gardent leurs propres commandes
+— les trois crans de palier d'une compétence, le `+`/`−` d'une quantité. Ce sont des organes **de la
+ligne**, pas des contrôles **de l'écran**. La règle vise ce qui commande la PAGE.
+
+---
+
 ### ⚖️ L'EXCEPTION DU TAROT — argumentée, parce qu'une norme en admet *(26/08)*
 
 > Eric, 2026-08-26 : **« les normes peuvent avoir des exceptions, elles sont argumentées »**, puis,

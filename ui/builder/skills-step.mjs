@@ -777,6 +777,25 @@ export function renderSkillsStep(ctx, onAction) {
      si Eric tranche dans l'autre sens. */
   const tete = el("header", "skills-tete dalle-intermediaire");
   tete.append(el("h2", "skills-titre guide-titre", [text("Skills")]));
+  /* 🔴 LA BARRE BLANCHE ENTRE ICI — Eric, 2026-08-26, en montrant l'écran :
+     *« la barre blanche doit TOTALEMENT disparaître, et ses éléments reportés
+     sur la petite dalle sous le titre Skills. Cette petite dalle restera
+     fixe. »*
+
+     📏 CE QU'ELLE ÉTAIT : `.skills-topbar` vivait dans `.stage-topbar`, le slot
+     horizontal du CADRE — donc **hors de toute dalle**. Tant que le cadre
+     peignait, elle avait l'air d'appartenir à l'écran ; depuis que le fond est
+     nu *(§1 quinquies bis)*, c'est une bande opaque posée sur l'image.
+
+     ⭐ ET C'EST LE MÊME MOUVEMENT QU'À L'ÉQUIPEMENT LE 23/08 — *« dégage tout
+     ce que je vois à l'écran »*. Le slot du haut ne disparaît pas, il se vide :
+     c'est sa loi *(B0.19 — un écran le garnit ou le laisse vide)*. Compétences
+     cesse de le garnir.
+
+     ⛔ ET ELLE NE SE DÉDOUBLE PAS : `renderSkillsBar` reste l'organe unique qui
+     la fabrique, et `shell.mjs` cesse simplement de l'appeler. Deux fabricants
+     pour une barre auraient divergé au premier réglage. */
+  tete.append(renderSkillsBar(ctx, act));
   if (counter) {
     const poolViolation = violations.find((v) => v.key === "skill-pool.overspent") || null;
     tete.append(renderPoolDetail(counter, poolViolation, rowCtx.pool));
@@ -820,7 +839,15 @@ export function renderSkillsStep(ctx, onAction) {
      (`justify-content: center` + `padding-right: calc(--sp-16 + --touch)`,
      shell.css) — la loi des *« deux petits organes qui ne se centrent pas »*.
      L'hôte n'a donc rien à peindre : il n'est qu'une bande qui ne cède pas. */
-  const pied = el("div", "skills-pied");
+  /* 🔴 LE PIED EST UNE DALLE, PAS UN VIDE — Eric, 2026-08-26 : *« pas de
+     boutons dans le fond ! »* et *« les listes ne portent pas de bouton, c'est
+     la carte FIXE qui les porte »*.
+     📏 Mesuré sur la capture du même jour : `Done` était un bouton posé sur
+     l'image, sans rien sous lui. Le pied était une bande transparente.
+     ⭐ LES DEUX BANDES FIXES SONT DONC DES DALLES, et le FLUX n'en est pas
+     une : c'est ce qui fait que la liste peut défiler sans emporter de
+     contrôle. Une carte montre, une carte porte — la même loi qu'à Destiny. */
+  const pied = el("div", "skills-pied dalle-intermediaire");
   pied.dataset.sortieIci = "true";
   section.append(pied);
   return section;

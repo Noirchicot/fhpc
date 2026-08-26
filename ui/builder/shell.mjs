@@ -3066,7 +3066,14 @@ function paintTopbar() {
      par son propre écran. Ce qui part ici est le CÂBLAGE, pas le besoin.
      ⭐ Le slot, lui, PERSISTE (B0.19) : c'est sa loi, un écran le garnit ou le
      laisse vide. Compétences le garnit encore. */
-  const barre = surCompetences() ? renderSkillsBar(skillsCtx(), applyDecisionAction) : null;
+  /* ⛔ COMPÉTENCES NE GARNIT PLUS LE SLOT DU HAUT — Eric, 2026-08-26 : *« la
+     barre blanche doit TOTALEMENT disparaître »*. Sa molette de catégories et
+     sa ligne de pool vivent désormais sur la DALLE FIXE de l'écran
+     (`skills-step.mjs`, bande 1), où elles ont quelque chose sous elles.
+     ⭐ Le slot, lui, PERSISTE et reste vide — c'est sa loi (B0.19), la même qui
+     a servi à l'Équipement le 23/08. ⛔ Ne pas le supprimer : un écran futur
+     peut le garnir, et le retirer demanderait de le réinventer. */
+  const barre = null;
   frame.topbar.hidden = !barre;
   swapContent(frame.topbar, barre ? [barre] : []);
 }
