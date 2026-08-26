@@ -171,7 +171,25 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | `next` d'alerte | **cadre rouge, corps vert** → **popup** entre `done` et `next` |
 | annulation | 🔴 **rouge** → **popup** |
 | navigation *(next, back)* | 🔵 **bleu** |
-| carrés | **`+` vert · `−` rouge** |
+| **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
+
+### 🔴 `+` ET `−` — la seule exception à la coupe d'angle
+
+> Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*.
+
+| | |
+|---|---|
+| **forme** | **carré** ou **petit cercle** — au choix |
+| **couleur** | **`+` vert · `−` rouge** |
+| ⛔ **pas d'octogone** | ils **ne portent pas** la coupe d'angle du §2 |
+
+⭐ **Et ça ne casse pas la règle de la coupe, ça la précise** : la coupe distingue un **bouton de
+commande** d'un jeton. Un `+`/`−` n'est pas une commande du parcours — c'est un **incrément
+répété**, comme le chevron est une amorce. **Sa forme est dictée par son glyphe**, qui se lit déjà
+tout seul.
+
+🔴 **Mais `--touch` 44 tient, même si le cercle est petit.** ⛔ Un contrôle ne se laisse jamais
+dimensionner par son dessin : le rond peut faire 24 px, **sa cible en fait 44**.
 
 ### Signalisation — ⛔ NON CLIQUABLE
 Cercle avec numéro d'étape : **rien fait** = liseré basique · **en cours** = bleu · **validé** =
