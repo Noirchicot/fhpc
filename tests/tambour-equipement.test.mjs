@@ -358,12 +358,43 @@ test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Er
     "il compte des PAGES, donc il vit avec les flèches qui les tournent");
 });
 
-test("10 ter — les crans de la roue restent les SEULS porteurs du nom d'une étagère", () => {
-  /* Le garde qui rend « il est porté par le rouleau » vérifiable : si un lot
-     réintroduisait un titre ailleurs, ce compte bougerait. */
-  const node = monterR(ctx());
-  const crans = rows(node, ".roue-piste")[1].querySelectorAll(".roue-cran");
-  assert.ok(crans.length > 0, "l'étage du bas porte bien des crans");
+test("10 ter — 🔴 UNE SEULE PAGE : LA RANGÉE N'EST QUE SES TOKENS — Eric, 26/08", () => {
+  /* Eric, 2026-08-26 : *« quand il y a 3 tokens, on n'affiche que 3 tokens,
+     pas besoin de flèches »*. Deux flèches qui ne mènent nulle part sont deux
+     cibles tactiles de 44 px que le pouce vise pour rien, et les gouttières
+     coûtent 96 px de largeur à une rangée qui n'en a que 20 de reste.
+
+     ⛔ ET SURTOUT PAS `display: none` : écrit ainsi d'abord, refusé par le
+     garde 4 de `ui-jetons.test.mjs`, qui avait raison — c'est le défaut n°3 du
+     dépôt, *« effacer un mot au lieu de recomposer »*. Une flèche masquée garde
+     sa place et reste atteignable au clavier. Le garde et Eric disent la même
+     chose : la rangée EST ses trois tokens, pas une rangée à cinq places dont
+     deux se taisent.
+
+     ⚠️ CE GARDE LIT LA SOURCE, ET IL FAUT DIRE POURQUOI — c'est plus faible
+     qu'un clic, et ce n'était pas le premier choix. Conduire la roue au banc
+     lève `getBoundingClientRect() sans géométrie déclarée` : le stub REFUSE de
+     fabriquer une mise en page, à raison, et la sélection d'étagère est
+     couplée au recentrage visuel du cran. Une géométrie inventée ferait passer
+     un test qui ne mesurerait rien.
+     ⭐ CE QU'IL TIENT QUAND MÊME, ET QUI EST LE VRAI RISQUE : que les DEUX
+     écrans qui paginent gardent la MÊME règle. `glisser.mjs` la porte depuis le
+     lot A, Équipement depuis aujourd'hui — deux endroits, donc une divergence
+     possible. Si l'un des deux perd sa condition, ce test rougit. */
+  const equipement = JS;
+  const glisse = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "glisser.mjs"), "utf8"));
+
+  assert.match(equipement, /swapContent\(\s*rang\s*,\s*vue\.pages > 1\s*\?/,
+    "Équipement recompose sa rangée selon le nombre de pages");
+  assert.match(glisse, /if \(vue\.pages > 1\)/,
+    "et `glisser.mjs` porte la même condition — une règle, pas deux");
+
+  /* ⛔ ET AUCUN DES DEUX NE CACHE : le garde 4 tient `shell.css`, mais rien ne
+     tenait le JS. Un `style.display` posé à la main y passerait sans bruit. */
+  for (const [nom, source] of [["equipment-step", equipement], ["glisser", glisse]]) {
+    assert.doesNotMatch(source, /style\.display\s*=/,
+      `${nom}.mjs efface un mot au lieu de recomposer (défaut n°3)`);
+  }
 });
 
 test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille FACE CACHÉE", () => {
