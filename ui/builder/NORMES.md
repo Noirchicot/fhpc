@@ -1047,9 +1047,29 @@ l'un des deux** : le **PORTEUR** diffère, comme pour le rouge du gendarme.
 |---|---|
 | un **bouton de commande** *(`Done`)* | **fini** — l'échelle |
 | un **bouton `On`/`Off`** | **en marche** — un état |
+| 🔴 une **pastille de coffre** *(Seuil, tranché 26/08)* | **vivant** — une santé |
 
 ⛔ **Un lot ne doit donc JAMAIS dériver l'état d'un `On`/`Off` de la même source que la couleur
 d'un bouton de parcours.** Ce sont deux mécaniques distinctes qui rendent la même teinte.
+
+### ✅ LE TROISIÈME SENS DU VERT — la pastille de coffre *(tranché 26/08)*
+
+> Eric, 2026-08-26, les trois formes rendues devant lui : **« C — la pastille et la date »**.
+
+Le bloc coffre du **Seuil** porte, en 2ᵉ ligne, une **pastille** *(un point de 8 px)* + le **mot de
+l'état** + **· depuis quand** : `🟢 Vivant · vu il y a 3 jours` · `🔴 Injoignable · …` ·
+`🟠 Changé · …`.
+
+⭐ **POURQUOI LES DEUX, ET ÇA S'EST VU AU RENDU, PAS DANS LE RAISONNEMENT** : la **date seule est
+muette sur l'état** *(« il y a 12 jours » ne dit pas si le coffre est mort ou tranquille)* ; la
+**pastille seule est muette sur le temps** *(un « Vivant » ne distingue pas ce matin d'il y a un
+mois)*. ➡️ **La pastille signale, la date explique** — la loi du §7 *(« le rouge signale, le violet
+explique »)* appliquée à un bloc qui ne parle pas.
+
+⭐⭐ **ET LA RÈGLE QUI TIENT LES TROIS VERTS EST TOUJOURS LA MÊME : le PORTEUR diffère.** Un bouton
+qu'on appuie · un interrupteur qu'on bascule · **un point qu'on ne touche pas**. ⛔ Ne jamais
+« corriger » l'un d'après un autre : ils ne dérivent pas de la même source et n'ont aucune raison
+de converger.
 
 ⚠️ **Et le sélecteur exclusif, lui, ne change pas** : il reste **sans aucune couleur** *(position du
 pouce, encre pleine — décision du 17/08)*. **Les deux espèces divergent donc aussi par le dessin**,
