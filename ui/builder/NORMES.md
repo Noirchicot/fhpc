@@ -1348,6 +1348,16 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 > guide `?` doit être fait par contre »**. Voir §7 *(le `?`)* : son passage dans la rangée, ses deux
 > aspects, et le popup-parchemin porté aux étapes qui ne l'ont pas encore.
 >
+> ⏳ **ET LES FENÊTRES DERRIÈRE EN FONT PARTIE** *(Eric, 26/08 : « ça fait partie du standby »)*.
+> 📏 Mesuré le même jour, **trois objets, trois traitements** : `.popup` ne voile **rien** *(la page
+> reste entière et cliquable)* · `.aiguilleur` du départ voile **tout l'écran à 72 %** ·
+> `.confirm-dialog` vit **dans le flux**. ⛔ **Aucune règle n'est écrite**, et ce paragraphe n'en
+> écrit pas.
+> ⚠️ **Ce qu'un lot doit savoir quand même** : le `.popup` a une raison DURE de ne rien poser
+> derrière — ancré `bottom: 0`, il est **là où vivent les récepteurs du glisser**, et un dépôt
+> atterrissait dessus *(défaut mesuré le 20/08, payé par `pointer-events: none`)*. ⛔ Ne pas lui
+> ajouter un voile « pour faire comme l'aiguilleur ».
+>
 > ⏳ Le chantier est ouvert au vault, `0.TASKS/Tasks RPG.md` — *« FHPC : les trois voix »*.
 
 ### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
