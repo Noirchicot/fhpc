@@ -114,6 +114,67 @@ Et ⭐ **une cote DONNÉE bat toujours une cote DÉDUITE** — si Eric a dit un 
 
 ---
 
+## 1 quater. 📏 LE BUDGET DE LA PAGE — des cotes VOULUES, jamais écrites dans le code
+
+> ⚠️ **Ces nombres ne sont PAS des jetons CSS et ne doivent pas le devenir** *(§1 ter)*. Ce sont
+> les cotes que la page **doit tenir**, connues **d'avance**, pour dessiner sans se tromper.
+
+### La cible
+
+| | |
+|---|---|
+| **l'appareil de référence** | **iPhone SE** |
+| **largeur** | **375** — dont **335 utiles** |
+| **hauteur, Safari** *(barres visibles)* | **≈ 553** — ⚠️ **valeur courante, NON mesurée sur l'appareil** |
+| **hauteur, plein écran** | **667** |
+| **la page ne défile jamais** | `.app { height: 100dvh; overflow: hidden }` — c'est **structurel** |
+
+🔴 **Toute conclusion de budget doit dire sur laquelle des deux hauteurs elle repose.** Une
+conclusion qui tient sur **553** tient partout ; une conclusion qui n'a besoin que de **667** est
+fragile.
+
+### La ceinture (`.belt`)
+
+| | |
+|---|---|
+| ⛔ **aucune cote déclarée** | elle n'a **ni hauteur ni jeton** |
+| **elle se DÉDUIT** | de sa police, son interligne, son `padding`, son `gap` |
+| **au réglage d'aujourd'hui** | ≈ **60 px** — ⚠️ **un relevé, pas une constante** : il bouge si un libellé change |
+| **et elle n'est PAS sur tous les écrans** | ⛔ **Entrée › R n'en a pas** : c'est un **seuil**, pas une étape du parcours à 8 temps. **60 px récupérés.** |
+
+### Le budget d'une page de jetons *(les 15, en rangées de 3)*
+
+| bande | px |
+|---|---|
+| ceinture d'étapes | 60 |
+| titre + consigne | 40 |
+| **15 jetons — 5 × 48 + 4 × 8** | **272** |
+| collecteurs | 48 |
+| boutons | 44 |
+| 4 écarts de 8 + marge basse | 44 |
+| **TOTAL** | **508 sur 553 — il reste 45** |
+
+⭐ **3 par rangée à 375, sans discussion** : 277 px pour 335 utiles ; quatre en demanderaient 372.
+**Les 58 px de mou sont exactement ce qui permet le centrage du reliquat** *(§5)*.
+
+🔴 **45 px, c'est mince — une ligne de plus les mange**, et ⛔ **la réponse n'est JAMAIS un
+défilement** *(§5)*. La réponse est : **qu'est-ce que la page porte EN TROP ?** Trois candidats
+mesurés, ⏳ **aucun choisi** : le titre+consigne (40, alors que la ceinture nomme déjà l'étape) ·
+la ceinture réduite aux numéros (−16) · **les collecteurs (48), qui disparaissent d'eux-mêmes sur
+un écran où chaque emplacement porte un nom** *(mesuré sur Species : zéro collecteur)*.
+
+### Le budget de **Entrée › R**
+
+**≈ 380 sur 553 — il reste 173.** Avec la raison exigée sous chaque porte muette *(§ du cahier
+de R)* : **125** dans le cas le plus étroit. ⭐ **R a de la place**, et la conclusion tient sur les
+deux hauteurs.
+
+⚠️ **Ce 380 est un PLAFOND PRUDENT, pas une mesure** : les sept blocs y sont comptés à `--touch`
+44, alors que **quatre n'en sont pas** — la zone d'écriture, les deux promesses affichées, et les
+trois portes, dont la forme n'est pas tranchée. **Il ne peut que descendre.**
+
+---
+
 ## 2. LES TROIS ORGANES — forme ET remplissage *(validé 26/08 sur maquette)*
 
 | organe | forme | remplissage | voile |
