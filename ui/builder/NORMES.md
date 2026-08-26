@@ -173,6 +173,44 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | navigation *(next, back)* | 🔵 **bleu** |
 | **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
 
+### 🔴 LES QUATRE COULEURS SONT UNE ÉCHELLE D'AVANCEMENT *(tranché 26/08)*
+
+> Eric : *« le bleu on garde, ce sont les actions sous les états intermédiaires. **Un bouton va
+> passer de bleu à vert voire à rouge** dans les zones de choix — quand on prend +4 alors qu'on a
+> droit à +2. »*
+
+| couleur | ce qu'elle dit |
+|---|---|
+| **gris** | **rien n'est encore fait** |
+| 🔵 **bleu** | **en cours** |
+| 🟢 **vert** | **c'est bon, on a fini** |
+| 🔴 **rouge** | **ce n'est pas bon** |
+
+⭐ **Ce ne sont donc pas quatre couleurs de boutons : c'est UNE échelle, et le bouton la
+PARCOURT.** Un même bouton passe de gris à bleu, de bleu à vert, et **retombe au rouge** si le
+joueur dépasse son droit. ⛔ Ne jamais figer la couleur d'un bouton à sa déclaration — **elle se
+dérive de l'état.**
+
+⭐ **Et c'est la MÊME échelle que la signalisation** *(le cercle d'étape, plus bas)* : rien fait ·
+en cours · validé · problème. **Une seule échelle, deux porteurs** — un bouton qu'on appuie, un
+cercle qu'on ne peut pas appuyer.
+
+⭐ **Elle éclaire aussi `done` et `next`** : `done` est **bleu parce qu'on est encore dedans**,
+`next` est **vert parce que c'est fini**. Ce n'étaient pas deux conventions arbitraires, c'était
+déjà cette échelle.
+
+### 🟣 Le rouge peut être accompagné
+
+> Eric : *« le rouge c'est pas bon — **tu peux me mettre un flic en même temps** »*.
+
+Un bouton rouge **dit qu'il y a un problème** ; le **GENDARME** *(popup violet, §7)* **dit lequel**.
+⭐ **Les deux ne font pas double emploi** : la couleur se voit d'un coup d'œil et ne prend pas de
+place ; le gendarme prend la parole et coûte une interruption. **Le rouge signale, le violet
+explique.**
+
+⏳ **Non tranché** : le gendarme accompagne-t-il **tout** rouge, ou seulement ceux dont la raison
+n'est pas devinable ?
+
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
 > Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*
