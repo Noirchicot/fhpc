@@ -4352,7 +4352,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=296");
+  background-image: url("./assets/tarot-dos.jpg?v=297");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4620,9 +4620,12 @@ button { font: inherit; }
 .b3-nom { fill: var(--text); font-size: var(--t1); font-family: inherit; }
 .b3-titre { fill: var(--text); font-size: var(--t4); font-family: inherit; letter-spacing: .2em; }
 /* La pastille d'attunement — un ÉTAT (« attuned or not ») : éteinte par
-   défaut, pleine quand l'objet posé est attuné. */
-.b3-attune { fill: none; stroke: var(--accent); stroke-width: 1; opacity: .55; }
-.b3-attune[data-etat="oui"] { fill: var(--accent); opacity: 1; }
+   défaut, pleine quand l'objet posé est attuné.
+   🔮 Son encre est LA MAGIE (26/08, NORMES §7 : « violet = magie ») : le
+   croquis la dessine violette et le croquis prime — `--accent` (#845933, un
+   brun mesuré à 28°) était l'écart que §7 nommait. */
+.b3-attune { fill: none; stroke: var(--magie); stroke-width: 1; opacity: .55; }
+.b3-attune[data-etat="oui"] { fill: var(--magie); opacity: 1; }
 .b3-info { fill: none; stroke: var(--border-strong); stroke-width: 1; }
 .b3-info-texte { fill: var(--text-muted); font-size: var(--t1); font-family: inherit; }
 .b3-bouton { fill: none; stroke: var(--critical); stroke-width: 1; }
@@ -5106,8 +5109,12 @@ button { font: inherit; }
 /* ══ LOT 5 — LE DRESSING DANS LE CADRE : la chaîne de hauteur ═══════════════
    Le `.stage` est la fenêtre (absolute inset:0, la seule bornée). Quand la
    vue Équipement est le dressing, la carte prend toute la fenêtre et c'est
-   le FLUX du dressing qui défile — le stage, lui, n'a plus rien à faire
-   défiler. Les autres vues laissent la carte vivre normalement. */
+   le FLUX du dressing qui défile. ⚠️ MESURÉ (Archi 27, 360×553) : le stage
+   garde 8 px de RÉSIDU (scrollHeight 501 / clientHeight 493) — du
+   défilement MORT, qui n'emporte ni bande ni budget (tiré à scrollTop 999 :
+   les deux bandes bougent de 0,0 px). ⛔ Dire « 0 » ici serait la faute de
+   §1 quater : un budget établi sur un chiffre non mesuré. Les autres vues
+   laissent la carte vivre normalement. */
 .decision-card:has(.dressing) {
   height: 100%; box-sizing: border-box;
   display: flex; flex-direction: column;
