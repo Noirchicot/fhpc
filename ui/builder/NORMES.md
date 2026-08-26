@@ -26,6 +26,43 @@ son propre `R`, ses propres `B`.
 
 ---
 
+## 0. 🔴 LA RÈGLE UNIVERSELLE — **« GOOGLE HEADLESS »**
+
+> Eric, 2026-08-26 : *« et la règle universelle désormais : **GOOGLE HEADLESS** »*.
+
+🔴 **UNE NORME SE VÉRIFIE SUR LA PAGE RENDUE, PAS DANS LA SOURCE.**
+
+| ⛔ ce qui ne prouve rien | ✅ ce qui prouve |
+|---|---|
+| lire une valeur dans `tokens.css` | **ouvrir la page dans un navigateur sans écran et la mesurer** |
+| lire le **nom** d'un jeton | lire sa **valeur calculée**, celle que le navigateur applique |
+| regarder un écran de démonstration | **mesurer tous les cas**, y compris ceux qu'on n'a pas dessinés |
+| calculer un contraste sur une couleur pure | le calculer sur le **rendu cumulé**, voile compris |
+
+⭐ **Cette règle est née de quatre fautes de la même nuit**, toutes de la même famille : *conclure
+sur la source au lieu de regarder la chose.*
+- j'ai lu **`--accent`** et j'ai écrit *« pas du violet »* — sans lire `#845933` ;
+- j'ai retapé un `client_id` à la main et changé un `O` en `0` ;
+- un budget vertical a été établi sur un chiffre de hauteur **non mesuré** ;
+- « pas de conflit avec un bouton » allait être **constaté à l'œil** sur un seul écran.
+
+⭐ **Et ça vaut aussi pour les gardes** : un test qui lit un fichier CSS vérifie **ce qui est
+écrit** ; un test qui rend la page vérifie **ce que le joueur voit**. `tests/decor.test.mjs` fait
+déjà le premier — **le second manque.**
+
+### Ce qu'on a sous la main *(mesuré le 26/08)*
+
+| | |
+|---|---|
+| **Google Chrome** | ✅ `151.0.7922.174`, installé |
+| **puppeteer / playwright** | 🔴 **absents** de `fhpc` — à ajouter, épinglés, comme toute dépendance de dev |
+
+⚠️ **⛔ Ne pas confondre avec la règle des PDF** : les PDF Fate's Hand se génèrent à la
+**weasyprint**, jamais à Chrome headless *(qui plante sur ce pipeline)*. **Chrome headless sert à
+REGARDER une page, pas à en fabriquer une.**
+
+---
+
 ## 1 bis. 🔴 RIEN N'EST JAMAIS DANS LA MARGE
 
 > Eric, 2026-08-26, en majuscules : *« **RIEN ne doit jamais être dans la marge !!!** »* ·
