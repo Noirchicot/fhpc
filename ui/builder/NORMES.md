@@ -877,18 +877,40 @@ qu'il n'apparaisse.
 | **cotes bâties** | ligne **44** · piste **44 × 24** en `--radius-pill` · pouce **18 × 18** |
 | son écrivain unique | `markPressed`, tenu par `tests/aria-pressed-guard.test.mjs` |
 
-### 🔴 UN SECOND TRAITEMENT EXISTE, ET IL EST EN ÉCART
+### ✅ LA BASCULE SIMPLE GARDE SON BOUTON — tranché 26/08
 
-`.universe-bascule` *(19/08)* : un **bouton** 72 × 44, libellé `On`/`Off`, **liseré vert** quand
-actif. C'est lui qui porte le on/off du guide aujourd'hui.
+> Eric, 26/08, sur le choix entre la ligne à bascule et le bouton : **« bouton On/Off (19/08,
+> 72 × 44, liseré vert) »**, puis, l'objection du vert posée : **« a »** — *on l'assume*.
 
-⚠️ **Le Menu contient donc les deux formes pour le même geste** — incohérence déjà en production.
-Et son vert **dit « en marche » là où l'échelle dit « fini »**. ⏳ **Non tranché : lequel des deux
-survit.**
+| | |
+|---|---|
+| **la forme** | un **bouton 72 × 44**, rayon 8, libellé **`On`** / **`Off`** |
+| **allumé** | **liseré vert** |
+| **éteint** | pas de liseré |
+| ⛔ **le rouge de la dictée** | **SUPPRIMÉ** — un *« éteint »* n'est pas un *« pas bon »* |
 
-⛔ **Et la ligne « on = vert · off = rouge · désactivé = gris » de la dictée est DOUBLEMENT
-fausse** : le rouge dirait *« pas bon »* pour un simple *« éteint »*, et elle contredit la décision
-du 17/08 qui dit **aucune couleur**. ⏳ **Elle sort dès qu'Eric confirme.**
+🔴 **LE VERT PORTE DONC DEUX SENS — ET C'EST ASSUMÉ.** Dans l'échelle il dit *« fini »* ; ici il
+dit *« en marche »*.
+
+⭐ **Ce qui rend la double lecture tenable, et il faut l'écrire pour que personne ne « corrige »
+l'un des deux** : le **PORTEUR** diffère, comme pour le rouge du gendarme.
+
+| le vert sur… | ce qu'il dit |
+|---|---|
+| un **bouton de commande** *(`Done`)* | **fini** — l'échelle |
+| un **bouton `On`/`Off`** | **en marche** — un état |
+
+⛔ **Un lot ne doit donc JAMAIS dériver l'état d'un `On`/`Off` de la même source que la couleur
+d'un bouton de parcours.** Ce sont deux mécaniques distinctes qui rendent la même teinte.
+
+⚠️ **Et le sélecteur exclusif, lui, ne change pas** : il reste **sans aucune couleur** *(position du
+pouce, encre pleine — décision du 17/08)*. **Les deux espèces divergent donc aussi par le dessin**,
+et c'est cette divergence qui les rend reconnaissables :
+
+| l'espèce | son dessin |
+|---|---|
+| **sélecteur exclusif** *(`Langue`, `Unités`)* | piste + pouce, ⛔ **aucune couleur** |
+| **bascule simple** *(le guide)* | bouton `On`/`Off`, **liseré vert allumé** |
 
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
