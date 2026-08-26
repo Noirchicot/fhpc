@@ -2704,7 +2704,16 @@ button { font: inherit; }
    monospace) : un refus se lit pareil partout dans le builder. */
 .concept-step, .universe-step { max-width: var(--measure); margin-inline: auto; } /* PROSE, pas grille (§3e) ; centrage LOT 69, no-op à 360 */
 
-.doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
+/* 🔴 8 ET NON 16 ENTRE DEUX CHAMPS — Eric, 2026-08-26 : *« les deux marges de
+   16 deviennent des marges de 8 »*, dans la chasse aux 78 px qui manquent pour
+   tenir dans une hauteur d'iPhone SE.
+   📏 CE QUE ÇA REND : deux marges seulement en portent une (Name et Gender —
+   celle d'Alignment est déjà tombée avec `:not(:has(~ .doc-field))`), donc
+   **16 px** rendus au budget. Le dépassement passe de 78 à 62.
+   ⭐ ET C'EST UN JETON, PAS UN NOMBRE : `--sp-8` est l'échelon juste en dessous
+   de `--sp-16` dans l'échelle du dépôt — on descend d'un cran, on n'invente pas
+   une cote. Le jour où l'échelle bouge, cette marge bouge avec elle. */
+.doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-8); }
 
 /* 🔴 LE DERNIER CHAMP NE PORTE PAS DE MARGE BASSE — Eric, 2026-08-26 :
    *« réduis l'espace entre le collecteur alignement et Done »*.
