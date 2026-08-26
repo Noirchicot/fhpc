@@ -119,7 +119,22 @@ function textField({ id, label, value, maxLength, ariaDescribedBy, error, datali
    avant ce lot peut porter « chaotic-ish » : la restreindre d'autorité
    l'effacerait au premier rendu, en silence. Elle entre donc dans le menu
    comme une option de plus, et le joueur la remplace s'il le veut. */
-const GENRES = ["Man", "Woman", "Something else"];
+/* 🔴 « OTHER », PAS « SOMETHING ELSE » — Eric, 2026-08-26 : *« Man woman other
+   sur une ligne, sinon pas cohérent »*.
+   ⛔ CE QUI N'ALLAIT PAS N'ÉTAIT PAS LE NOMBRE DE JETONS PAR LIGNE — ils sont
+   bien trois sur une ligne, mesuré. C'est le MOT qui se pliait : « Something
+   else » fait 14 caractères, donc il passe sous `ABREGE_MAX` (16) et n'est pas
+   abrégé — mais il ne tient pas dans les 77 px utiles d'une case à T1, et il
+   se coupait en « Somethi / ng else ». Deux jetons à une ligne, un à deux : la
+   rangée n'était plus homogène, et c'est ça, l'incohérence qu'Eric voit.
+   ⭐ ET SA CONSIGNE EST LA BONNE PARADE, celle qu'il applique partout : un
+   contenu qui ne tient pas, on demande ce qu'il porte EN TROP — jamais on ne
+   rétrécit la case ni on n'ajoute une ligne. « Other » dit la même chose en
+   cinq lettres.
+   📌 ⛔ CE N'EST PAS UNE DONNÉE SRD : les trois genres sont un libellé
+   d'interface, écrits ici et nulle part ailleurs. Les renommer ne touche
+   aucune règle ni aucun contenu de jeu. */
+const GENRES = ["Man", "Woman", "Other"];
 
 /* ══ UN CHAMP DE DOCUMENT, RENDU COMME UN CHOIX GLISSÉ — Eric, 2026-08-19 ═══
    *« le drop-down c'est moche. Je préfère avoir du drag and drop quand il y a
@@ -158,7 +173,27 @@ function champGlisse({ id, label, value, options, field, onAction }) {
     else if (action.kind === "clear") onAction({ kind: "describe", field, value: "" });
   };
 
-  const bloc = renderChoixGlisses({ plan, slots: [slot], titre: label, mot: label, onAction: relais });
+  /* 🔴 LE MOT DU COLLECTEUR N'EST PAS LE TITRE DE LA CARTE — Eric, 2026-08-26 :
+     *« Identity : taille token = taille collecteur ! »*. Mesuré sur la page :
+     le collecteur faisait **87 × 66** là où le token fait 87 × 48.
+
+     ⛔ ET CE N'ÉTAIT PAS LA RÈGLE DE TAILLE QUI ÉTAIT FAUSSE — `min-height:
+     var(--glisse-h)` vaut bien 48. C'est le CONTENU qui débordait, et
+     l'arithmétique le dit sans ambiguïté : 8 de rembourrage + **35** de nom
+     + 2 d'écart + 12 de valeur + 8 = 65. Le nom « Gender (optional) 1 » se
+     pliait sur **trois lignes** dans 69 px de large.
+
+     ⭐ ET IDENTITY ÉTAIT LE SEUL ÉCRAN DANS CE CAS, ce qui désignait le
+     coupable : partout ailleurs le mot est court — `Skill`, `Choice`,
+     `Mastery`, ou le sigle d'une caractéristique (`STR`). Ici, et ici seul, on
+     passait **le titre de la carte** comme mot du collecteur. Deux métiers,
+     une seule chaîne : le titre NOMME la question, le mot ÉTIQUETTE le
+     récepteur — et un récepteur s'étiquette en un mot.
+     ⚠️ Le `(optional)` n'est pas perdu : il reste dans `titre`, au-dessus, où
+     il se lit une fois. Le répéter dans le collecteur, c'était le défaut « un
+     nom écrit deux fois » que ce dépôt nomme ailleurs. */
+  const motDuCreneau = label.replace(/\s*\([^)]*\)\s*$/, "").trim() || label;
+  const bloc = renderChoixGlisses({ plan, slots: [slot], titre: label, mot: motDuCreneau, onAction: relais });
   const enveloppe = el("div", "doc-field", []);
   if (bloc) enveloppe.append(bloc);
   return enveloppe;
@@ -248,10 +283,25 @@ export function renderConceptStep(ctx, onAction) {
      détacher un chapitre du site. Le popup est un pis-aller ASSUMÉ : un
      bouton qui dit la règle vaut mieux qu'un bouton mort ou qu'un lien qui
      perd la place du joueur. */
+  /* 🔴 `Rules` EST DEVENU UN LIVRE, DANS LA RANGÉE — Eric, 2026-08-26 :
+     *« Rules dégage sous forme d'un livre dans la rangée de boutons »*.
+
+     ⛔ CE QU'IL ÉTAIT : un bouton libellé de **609 px de large**, pleine
+     largeur, collé sous le menu d'Alignment — mesuré à l'audit du rang R. Il
+     ne ressemblait à aucun autre bouton du site, et il occupait une ligne
+     entière pour dire un mot.
+     ⭐ ET LE REGISTRE DONNAIT DÉJÀ SA FORME : ce bouton OUVRE UN TEXTE. C'est
+     la définition du livre — *« l'organe qui veut dire : le texte est là »*,
+     rond, 22 px de dessin dans 44 de cible, la jumelle du `?`. Il n'y avait
+     pas de forme à inventer, seulement une à reconnaître.
+     ⚠️ CE QUI NE CHANGE PAS : il ouvre le MÊME popup, avec le MÊME texte. La
+     note ⏳ ci-dessus reste entière — sa forme finale (un chapitre en FS qui
+     recouvre tout) est décidée et attend toujours qu'un chemin hors du builder
+     existe. On corrige son DESSIN, pas son destin. */
   const regles = document.createElement("button");
   regles.type = "button";
-  regles.className = "doc-field-regles";
-  regles.append(document.createTextNode("Rules"));
+  regles.className = "fiche-livre livre-de-sortie";
+  regles.setAttribute("aria-label", "Alignment rules");
   regles.addEventListener("click", () => onAction({
     kind: "popup",
     texte: "Alignment is two axes: how you treat law and order, and how you treat others. " +
@@ -262,9 +312,21 @@ export function renderConceptStep(ctx, onAction) {
     id: "concept-alignment", label: "Alignment (optional)",
     value: doc.alignment, options: ALIGNMENTS, field: "alignment", onAction
   });
-  /* Le bouton `Rules` reste avec son champ : il explique CE choix-là. */
-  alignement.append(regles);
   section.append(alignement);
+
+  /* 🔴 LE LIVRE NE VIT PLUS AVEC SON CHAMP, IL VIT DANS LA RANGÉE — et c'est
+     un renversement assumé de la note du 19/08 (*« il reste avec son champ :
+     il explique CE choix-là »*). Elle était juste tant que le livre était un
+     bouton libellé posé quelque part ; depuis qu'Eric a ratifié la PAIRE — le
+     livre à gauche, le `?` à droite, aux deux bouts de la rangée de boutons —
+     un livre posé ailleurs casse la paire.
+     ⚠️ ET L'ÉCRAN NE PEUT PAS L'Y METTRE LUI-MÊME : la rangée est produite par
+     la COQUILLE (`renderSortieEtape`), pas par cet écran — c'est le garde 17.
+     Il le DÉCLARE donc, exactement comme il déclare `data-sortie-ici` : la
+     coquille trouvera `.livre-de-sortie` dans l'hôte et le glissera en tête de
+     la rangée qu'elle construit. **Le marqueur est une déclaration, pas une
+     inférence** — même partage que `data-scroller` et `data-sortie-ici`. */
+  section.append(regles);
 
   return section;
 }

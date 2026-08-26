@@ -35,13 +35,23 @@ test("aucune règle .sortie n'efface la colonne réservée au « ? »", () => {
      ⭐ CE QUE CE GARDE EXIGE N'EST PAS « pas de raccourci » — ce serait un mur,
      et `.ability-collecteur > .sortie` a une exception ARGUMENTÉE (elle retire
      la gouttière de 16 px que sa dalle porte déjà). Il exige la seule chose
-     qui compte : **si tu poses le raccourci, tu reposes la réserve APRÈS.** */
+     qui compte : **si tu poses le raccourci, tu reposes la réserve APRÈS.**
+
+     ⚠️ ET « LA RÉSERVE » N'EST PLUS SEULEMENT `padding-right` — 26/08, second
+     temps. Depuis que le LIVRE tient la gauche et le `?` la droite, `.sortie`
+     réserve **autant des deux côtés** (`padding-inline`), ce qui est ce qui
+     ramène `Done` au centre exact de la dalle — Eric : *« bien, mais Done
+     centré »*. Un garde qui n'aurait connu que `padding-right` aurait donc
+     rougi sur la règle JUSTE, et poussé à rétablir l'asymétrie pour le calmer.
+     ⭐ **C'est la faute à laquelle un garde est le plus exposé : défendre la
+     FORME d'hier au lieu de la propriété qu'elle servait.** Il accepte donc
+     les deux écritures, parce que les deux réservent. */
   const fautes = [];
   for (const { selecteur, corps } of reglesDe(sansCommentaires)) {
     if (!selecteur.split(",").some((p) => p.trim().endsWith(".sortie"))) continue;
     const raccourci = corps.search(/(^|;)\s*padding\s*:/);
     if (raccourci === -1) continue;
-    const droiteApres = corps.slice(raccourci).search(/padding-right\s*:/) !== -1;
+    const droiteApres = corps.slice(raccourci).search(/padding-(right|inline)\s*:/) !== -1;
     if (!droiteApres) fautes.push(selecteur);
   }
   assert.deepEqual(fautes, [],
