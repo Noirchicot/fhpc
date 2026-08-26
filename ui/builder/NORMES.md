@@ -707,9 +707,37 @@ courant · et s'il peut porter une **raison** comme les portes muettes.
 🔴 **`--touch` 44 tient, même si le cercle est petit.** ⛔ Un contrôle ne se laisse jamais
 dimensionner par son dessin : le rond peut faire 24 px, **sa cible en fait 44**.
 
-### Signalisation — ⛔ NON CLIQUABLE
-Cercle avec numéro d'étape : **rien fait** = liseré basique · **en cours** = bleu · **validé** =
-vert · **problème** = rouge.
+### 🔴 LE VOYANT D'AVANCEMENT — c'est le CRAN DE LA CEINTURE *(tranché 26/08)*
+
+> Eric, 2026-08-26 : *« le voyant d'avancement (dans le belt) : **rouge erreur / bleu avancement /
+> vert fin** »*.
+
+⛔ **Ce n'est pas un organe de plus.** Le « cercle avec numéro d'étape » de la dictée **EST**
+`.belt-index`, le chiffre d'un cran de ceinture. ⛔ Ne pas en fabriquer un second.
+
+| état | le voyant | dans le code |
+|---|---|---|
+| **rien fait** | liseré basique, chiffre nu | ✅ le défaut |
+| 🔵 **avancement** | **bleu** | 🔴 **n'existe pas** |
+| 🟢 **fin** | **disque PLEIN vert**, chiffre en `--on-accent` | ✅ `.belt-item[data-fait="true"]` |
+| 🔴 **erreur** | **rouge** | 🔴 **n'existe pas** |
+
+⭐ **Une règle de dessin qu'Eric a déjà donnée le 19/08, et qui vaut pour les quatre états** :
+*« le 1 dans le belt doit être **TOTALEMENT** vert, et on doit voir le chiffre dessus »*.
+➡️ **Un anneau se lit « en cours », un disque PLEIN se lit « fait ».** C'est la différence entre
+**un contour et un état** — et elle doit tenir pour le bleu et le rouge aussi.
+
+⚠️ **Et l'encre du chiffre est celle du FOND, pas du texte** : sur un disque plein, `--text`
+(clair de nuit) tomberait sous le seuil. `--on-accent` est le jeton fait pour ça.
+
+⭐ **Une distinction déjà payée, à ne pas perdre** : le vert vivait sur `data-status="done"`, qui
+veut dire *« tu es passé devant »* — **un chapitre traversé sans rien y poser s'allumait quand
+même**. Il vit désormais sur `data-fait`, prononcé par le juge de Review. ⛔ **Traverser n'est pas
+finir**, et le bleu ne devra pas retomber dans le même piège : *« en cours »* n'est pas *« ouvert
+une fois »*.
+
+⏳ **Reste à construire** : le **bleu** et le **rouge**. ⏳ Et à trancher : quel juge prononce
+« erreur » sur une étape ?
 
 ### 🔴 LES CHEVRONS — un seul objet, deux rôles *(tranché 26/08)*
 
