@@ -581,7 +581,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 
 | couleur | ce qu'elle dit |
 |---|---|
-| **gris** | **rien n'est encore fait** |
+| **gris** — 🔴 le jeton est **`--text-muted`** | **rien n'est encore fait** |
 | 🔵 **bleu** | 🔴 **un MOUVEMENT NON IMPACTANT** — on se déplace, rien ne change *(donc : on est toujours en cours)* |
 | 🟢 **vert** | **c'est bon, on a fini** |
 | 🔴 **rouge** | **ce n'est pas bon** |
@@ -747,6 +747,28 @@ l'origine — **un état qui demeure n'a rien à dire à une échelle qui mesure
 📌 **La leçon, pour les prochains renversements** : une règle ancienne ne tombe pas en bloc. Elle
 tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleurs**. ⛔ Vérifier
 pourquoi elle avait été écrite avant de la retirer.
+
+### ✅ LE GRIS EST `--text-muted`, ET UN `DONE` INACHEVÉ EST GRIS *(tranché 26/08)*
+
+> Eric, 2026-08-26 : *« gris c'est mieux, **le bleu impliquerait un mouvement** »*.
+
+⭐⭐ **L'argument est de sens, pas de lisibilité, et c'est ce qui le rend juste** : le bleu veut
+dire **« mouvement non impactant »** — or **un `Done` sur une étape inachevée ne bouge pas**, il
+attend. Le peindre en bleu lui prêterait une activité qu'il n'a pas.
+
+➡️ **`Done` reste GRIS tant que l'étape n'est pas achevée**, et il passe au **vert** quand elle
+l'est. ⛔ Il ne passe jamais par le bleu.
+
+| le jeton | pourquoi lui |
+|---|---|
+| 🔴 **`--text-muted`** | **6,06** le jour · **5,59** la nuit — **dans la bande** des autres boutons (5,6–6,1) |
+| ⛔ pas `--border-strong` | 4,09 / 3,73 — **hors bande**, plus pâle que tout le reste |
+
+⭐ **Un bouton gris doit rester LISIBLE.** *« Rien n'est fait »* n'est pas *« désactivé au point
+d'être illisible »* : **le joueur doit pouvoir lire ce qu'il n'a pas encore fait.**
+
+📌 ⛔ **Aucune teinte n'a été inventée** — c'est un jeton existant, réemployé. La palette garde ses
+cinq teintes.
 
 ### 🟣 Le rouge peut être accompagné
 
