@@ -648,12 +648,13 @@ pour ce qui **détruit du travail déjà fait** — là, elle suit **l'acte**, e
 
 | le geste | couleur |
 |---|---|
-| **il ne coûte rien** — on remonte, le travail reste | 🔵 **bleu** *(navigation, en cours)* |
-| **il détruit du travail déjà fait** | 🔴 **rouge** + **popup** |
+| **il ne coûte rien** — on se déplace, le travail reste | 🔵 **bleu** |
+| **il détruit du travail déjà fait** | 🔴 **rouge** + **popup**, ⛔ **et il ne s'appelle PAS `Back`** |
 
-⭐ **Donc `Back` n'a pas UNE couleur : il a la couleur de sa conséquence.** Le même libellé est
-bleu là où il ne coûte rien, rouge là où il efface. ⛔ Un lot qui peint `Back` en bleu « parce que
-c'est un back » se trompera le jour où ce back-là jette une étape entière.
+⛔ **AMENDÉ le 26/08 — « back et next = navigation uniquement ».** J'avais écrit ici que « `Back`
+a la couleur de sa conséquence ». **C'est caduc** : un `Back` ne coûte rien **par définition**, et
+un bouton qui détruit porte **un autre mot** *(famille DÉFAIRE)*. Le critère du coût reste vrai —
+il ne s'applique simplement plus à `Back`, mais **au choix du LIBELLÉ**.
 
 ⭐ **Et ça referme la règle des deux axes proprement** : la couleur suit **l'état**, sauf quand le
 bouton **détruit** — et « détruit » se mesure au **travail perdu**, pas au vocabulaire du libellé.
@@ -672,6 +673,34 @@ avec popup.
 
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
+
+### 🔴 `BACK` ET `NEXT` NE FONT QUE NAVIGUER — c'est une définition, pas une couleur
+
+> Eric, 2026-08-26 : **« back et next = navigation uniquement »**.
+
+⛔ **Un `Back` ou un `Next` NE MODIFIE JAMAIS LE DOCUMENT.** Ce n'est pas une préférence de
+dessin : c'est **ce que ces deux mots ont le droit de faire.**
+
+| | |
+|---|---|
+| ce qu'ils font | **déplacer le regard**, rien d'autre |
+| leur couleur | 🔵 **bleu**, toujours — *« mouvement non impactant »*, §6 |
+| ⛔ ce qu'ils ne font pas | **valider · écrire · effacer · signer un choix** |
+
+⭐⭐ **ET ÇA SUPPRIME UN CAS QU'ON AVAIT OUVERT.** J'avais écrit *(§ « le critère »)* qu'un `Back`
+« qui détruit du travail » serait rouge. ⛔ **Ce cas n'existe plus** : un bouton qui détruit du
+travail **n'est pas un `Back`**, c'est un bouton de la famille **DÉFAIRE**, et il doit **porter un
+autre mot** — `Cancel`, `I changed my mind`.
+
+➡️ **Le libellé cesse d'être ambigu** : on ne se demande plus *« ce back-là coûte-t-il quelque
+chose ? »*. **Un `Back` ne coûte rien, par définition. S'il coûte, ce n'est pas un `Back`.**
+
+⭐ **C'est la même discipline que « un état, pas deux actions »** : Eric ne règle pas le cas
+ambigu, **il supprime l'ambiguïté en séparant les mots.** ⛔ Un bouton dont on doit deviner le
+coût est un bouton mal nommé.
+
+📌 **Ce qui se garde** : qu'aucun `Back` ni `Next` n'écrive dans le document. C'est vérifiable
+mécaniquement, et ça vaut mieux qu'une relecture.
 
 ### ✅ `BACK` ET `DONE` PRENNENT LEUR COULEUR — le 26/08 renverse le 17/08
 
