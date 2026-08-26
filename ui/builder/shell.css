@@ -3002,7 +3002,9 @@ button { font: inherit; }
 .species-done {
   align-self: stretch; min-height: var(--touch); /* la cible tactile du dépôt */
   border: 0; border-radius: var(--radius-md);
-  background: var(--dalle-inter); color: var(--text);
+  /* ⛔ NI FOND NI CERNE ICI — ils appartiennent à l'organe BOUTON (§2/§3, en
+     fin de feuille), qui est opaque et peint par l'état. Les laisser aurait
+     fait DEUX endroits qui disent le fond d'un bouton. */
   font: inherit; font-weight: 600; cursor: pointer;
 }
 
@@ -3086,10 +3088,11 @@ button { font: inherit; }
 .parcours-item-porte {
   min-height: var(--touch); padding: 0 var(--sp-16);
   border: 0; border-radius: var(--radius-md);
-  background: var(--dalle-inter); color: var(--text);
+  /* ⛔ NI FOND NI CERNE ICI — ils appartiennent à l'organe BOUTON (§2/§3, en
+     fin de feuille), qui est opaque et peint par l'état. Les laisser aurait
+     fait DEUX endroits qui disent le fond d'un bouton. */
   font: inherit; font-weight: 600; font-size: var(--t4);
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 /* Un item sans choix n'est pas cliquable : son mot le dit en s'effaçant un peu. */
 /* 🔴 IL RESSEMBLE À SES COUSINS — Eric, 2026-08-19 : *« agrandir le texte de
@@ -3156,7 +3159,9 @@ button { font: inherit; }
      centrés à la taille de leur texte laissent la place d'eux-mêmes. */
   flex: 0 0 auto; padding: 0 var(--sp-16); min-height: var(--touch);
   border: 0; border-radius: var(--radius-md);
-  background: var(--dalle-inter); color: var(--text);
+  /* ⛔ NI FOND NI CERNE ICI — ils appartiennent à l'organe BOUTON (§2/§3, en
+     fin de feuille), qui est opaque et peint par l'état. Les laisser aurait
+     fait DEUX endroits qui disent le fond d'un bouton. */
   font: inherit; font-weight: 600; cursor: pointer;
   /* 🔴 ENCADRÉS COMME LES AUTRES — Eric, 2026-08-19 : *« encadre correctement
      I changed my mind et Next »*, puis *« c'est pas encadré comme les autres
@@ -3170,7 +3175,6 @@ button { font: inherit; }
      presse — donc ils portent le même bord. Le `--verre-lisere` que portait
      `Done` seul était deux fois plus pâle : il expliquait pourquoi lui non
      plus ne se voyait pas, et pourquoi ses deux voisins n'avaient rien. */
-  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 
 /* La carte d'étape ancre le « ? » : sans repère, il se poserait sur la scène. */
