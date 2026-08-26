@@ -530,7 +530,29 @@
      un des 14 jetons de la palette, donc signalé à part. */
   --scrim: rgba(0, 0, 0, 0.4);
 
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* ── LA POLICE EST EMBARQUÉE, PAS EMPRUNTÉE — Eric, 2026-08-27, « stabiliser
+     tout ça d'un appareil à l'autre ». La pile système rendait un texte
+     DIFFÉRENT par machine (San Francisco sur Mac, Segoe UI sur PC : glyphes
+     plus larges, lignes en plus) — et sur une carte à hauteur imposée, des
+     lignes en plus sortent du cadre. Une seule police, servie par le dépôt,
+     rend les mêmes retours à la ligne partout. Le système reste en repli le
+     temps du chargement, rien de plus. */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("assets/fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("assets/fonts/InterVariable-Italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
 }
 
 @media (prefers-color-scheme: dark) {
