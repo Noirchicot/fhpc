@@ -952,8 +952,14 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 | l'organe | couleur | ce qu'il dit |
 |---|---|---|
 | **le GUIDE** | 📜 **parchemin** — la surface elle-même | une aide **OPTIONNELLE** |
-| **l'AIGUILLEUR** | 🔵 **bleu** | **une consigne** — *« fais ceci »* |
-| **le GENDARME** | 🔴 **ROUGE** *(corrigé 26/08 — le violet est pris)* | **une impossibilité** — *« ça ne peut pas marcher »* |
+| **l'AIGUILLEUR** | 🔵 **bleu** | 🔴 **il PRÉVIENT** — *« attention, voilà où tu vas »* |
+| **le GENDARME** | 🔴 **ROUGE** *(corrigé 26/08 — le violet est pris)* | 🔴 **il DIT L'ERREUR** — *« voilà ce qui ne va pas »* |
+
+⭐ **Eric, 26/08, en trois mots chacun** : *« le gendarme **dit l'erreur** »* · *« l'aiguilleur
+**prévient** »*.
+➡️ **Le temps les sépare** : l'aiguilleur parle **AVANT** *(ça va coincer)*, le gendarme parle
+**APRÈS** *(ça a coincé, voilà quoi)*. ⛔ Deux voix, deux moments — un aiguilleur qui constate
+arrive trop tard, un gendarme qui anticipe crie pour rien.
 
 ⭐ **Le guide n'a pas de couleur de signal, et c'est ce qui le rend optionnel** : il ne réclame
 rien. Les deux autres portent un signal, **donc ils interrompent**.
