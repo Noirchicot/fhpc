@@ -251,17 +251,26 @@
 
      🧊 `--glisse-l` (9rem) A ÉTÉ RETIRÉE, pas commentée : deux cotes pour une
      question, c'est la divergence garantie — la leçon de `--measure-f`. */
-  /* 🔴 L'ÉPAISSEUR DU LISERÉ TÉMOIN D'UN COLLECTEUR — Eric, 2026-08-26 :
+  /* 🔴 L'ÉPAISSEUR DU LISERÉ D'UN COLLECTEUR **REMPLI** — Eric, 2026-08-26 :
      *« le collecteur doit doubler son épaisseur de liseré témoin, trop fin pas
-     assez visible »*, puis : *« ça c'est global à tout le site »*.
-     ⭐ C'EST UN JETON PARCE QUE C'EST UNE RÈGLE DE SITE. Écrire `2px` dans la
-     feuille aurait fait deux choses de travers : rougir le garde des littéraux
-     *(qui n'excepte que le `1px` de bordure, l'unité minimale)*, et surtout
-     poser une cote SANS NOM — donc introuvable le jour où elle rebouge.
-     ⚠️ Il ne vaut QUE pour le liseré d'attente : un collecteur REMPLI passe en
-     trait plein et prend le relief du jeton ; ce qu'Eric trouvait trop discret,
-     c'est la case VIDE, celle qui doit dire « il manque quelque chose ici ». */
-  --creneau-lisere: 2px;
+     assez visible »*, puis : *« ça c'est global à tout le site »*, puis, quand
+     j'avais visé à côté : *« je parle du collecteur qui, lorsqu'il reçoit un
+     token, est entouré par une couleur »*.
+
+     ⛔ MA PREMIÈRE LECTURE ÉTAIT FAUSSE, et il faut dire laquelle : j'avais
+     épaissi la bordure de BASE, donc le pointillé d'ATTENTE en même temps que
+     le trait plein. Eric ne parlait que du second — celui qui **annonce que la
+     case a reçu quelque chose**. Une case vide n'a rien à crier ; une case
+     remplie, si.
+     ⭐ D'où deux cotes séparées : le pointillé d'attente garde `1px` *(l'unité
+     minimale visible, l'exception nommée du garde des littéraux)*, et seul
+     l'état rempli passe à `2px`.
+
+     ⭐⭐ ET C'EST UN JETON PARCE QUE C'EST UNE RÈGLE DE SITE. Écrire `2px` dans
+     la feuille aurait fait deux choses de travers : rougir le garde des
+     littéraux, et surtout poser une cote SANS NOM — donc introuvable le jour où
+     elle rebouge. */
+  --creneau-lisere-rempli: 2px;
   --glisse-case: 87px;
   --glisse-h: 48px;
 
