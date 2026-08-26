@@ -17,7 +17,7 @@ const scenario = location.hash.slice(1) || "b3";
    bougent pas d'un pixel. */
 if (scenario === "dressing") {
   const f2 = document.createElement("iframe");
-  f2.src = "./ecran-b3.html?v=296";
+  f2.src = "./ecran-b3.html?v=297";
   f2.addEventListener("load", async () => {
     const d = f2.contentDocument;
     await new Promise((r) => setTimeout(r, 700));
@@ -42,7 +42,7 @@ const graine = scenario === "b3equipe" ? "/fixture-equipe.json"
   : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
-f.src = "./index.html?v=296";
+f.src = "./index.html?v=297";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
   for (const type of ["pointerdown", "pointerup"]) {
@@ -88,6 +88,18 @@ f.addEventListener("load", async () => {
     }
     document.title = "rang=" + rang.getBoundingClientRect().height.toFixed(1) +
       " listeTop=" + (lr.top - er.top).toFixed(0) + " basStack=" + bas.toFixed(0);
+    return;
+  }
+  if (scenario === "magie") {
+    /* §0 GOOGLE HEADLESS : la couleur CALCULÉE de la pastille, pas son nom. */
+    const pastille = d.querySelector(".b3-attune");
+    const encre = pastille ? getComputedStyle(pastille).stroke : "absente";
+    const surface = getComputedStyle(d.querySelector(".dressing")).backgroundColor;
+    const lum = (c) => { const m = c.match(/\d+/g).map(Number);
+      const [r, g, b] = m.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const [h, l] = [lum(encre), lum(surface)].sort((a, b) => b - a);
+    document.title = "encre=" + encre + " contraste=" + ((h + 0.05) / (l + 0.05)).toFixed(2);
     return;
   }
   if (scenario === "sb31") { // Gear weight › Backpack

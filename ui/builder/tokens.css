@@ -69,6 +69,15 @@
   --caution: #736109;
   --critical: #aa3f2f;
   --info: #396496;
+  /* 🔮 VIOLET = MAGIE (Eric, 26/08 — NORMES §7 : « le violet est pris ») :
+     l'encre de tout ce qui relève du magique, à commencer par la pastille
+     d'attunement du dressing (le croquis la dessine violette, et le croquis
+     prime). ⭐ PROVENANCE, pas invention : c'est la famille du violet BARDIC
+     déjà ratifiée au dice tray (« bardic violet », dice3d.mjs) — foncé le
+     jour, clair la nuit, comme les autres signaux. 📏 Contraste sur surface
+     gardé ≥ 3:1 aux deux thèmes (tests/b3-dressing.test.mjs) et mesuré sur
+     la page rendue (banc-parcours #magie). */
+  --magie: #5c3d7e;
 
   /* Le seul jeton DÉRIVÉ (§3b) : l'accent à 10 % d'alpha. Une seule
      source pour l'accent — le changer change le lavis avec lui, dans les
@@ -446,7 +455,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=296");
+  --bg-image: url("./assets/bg-day.jpg?v=297");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -521,6 +530,7 @@
     --caution: #a48b0d;
     --critical: #dd6a58;
     --info: #5f90c7;
+    --magie: #906db0;
 
     --tier-1: #9e81bb; /* demi   — 4,53:1 sur --sunken nuit */
     --tier-2: #b29bc9; /* plein  — 6,05:1 */
@@ -531,7 +541,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=296");
+    --bg-image: url("./assets/bg-night.jpg?v=297");
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
