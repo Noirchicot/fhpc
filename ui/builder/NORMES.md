@@ -390,6 +390,29 @@ ce qu'elle accepte avant qu'on lâche.
 
 ---
 
+## 2 bis. ✅ LE JETON AUJOURD'HUI : LA COULEUR DE BASE ET LE RELIEF — RIEN D'AUTRE
+
+> Eric, 2026-08-26, sur les variantes, l'échelle de valeur du liseré et ce que porte le fond :
+> **« on ne fait rien pour le moment, juste la couleur de base et le relief »**.
+
+| ✅ ce qu'on construit **maintenant** | ⏳ ce qui attend |
+|---|---|
+| **la couleur de base** *(le doré)* | les **variantes** — feat / feature / trait / training |
+| **le relief** | le **liseré par famille** |
+| | l'**échelle de valeur** du liseré d'équipement |
+| | ce que porte le **fond** |
+| **le texte : 🔴 T1** *(voir §13)* | le **standard d'abréviations** |
+
+⭐⭐ **Cohérent avec ce qu'il avait déjà dit** : *« dès qu'on a un jeton, on peut déjà faire cela »*.
+**Le jeton unique se construit d'abord ; tout le reste se pose PAR-DESSUS sans le redessiner.**
+⛔ Attendre d'avoir tranché les variantes pour dessiner le jeton serait attendre pour rien.
+
+📌 ⛔ **Ce n'est pas de la dette, c'est une séquence.** La couleur de base et le relief sont ce dont
+**tous** les jetons auront besoin, quelle que soit leur famille — les construire maintenant
+**n'engage aucun choix futur**.
+
+---
+
 ## 3. 🔴 LE BOUTON EST OPAQUE — mesuré, pas préféré
 
 | le bouton sur une dalle à 35 % | cumulé | étiquette jour | étiquette nuit |
