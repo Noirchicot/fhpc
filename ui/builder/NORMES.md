@@ -173,22 +173,21 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | navigation *(next, back)* | 🔵 **bleu** |
 | **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
 
-### 🔴 `+` ET `−` — la seule exception à la coupe d'angle
+### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
-> Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*.
+> Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*
+> · **« ce sont des boutons »**.
 
 | | |
 |---|---|
-| **forme** | **carré** ou **petit cercle** — au choix |
+| **ce que c'est** | 🔴 **un BOUTON**, un quatrième gabarit à côté de small / large / no-constraint |
+| **forme** | **carré** ou **petit cercle** |
 | **couleur** | **`+` vert · `−` rouge** |
-| ⛔ **pas d'octogone** | ils **ne portent pas** la coupe d'angle du §2 |
 
-⭐ **Et ça ne casse pas la règle de la coupe, ça la précise** : la coupe distingue un **bouton de
-commande** d'un jeton. Un `+`/`−` n'est pas une commande du parcours — c'est un **incrément
-répété**, comme le chevron est une amorce. **Sa forme est dictée par son glyphe**, qui se lit déjà
-tout seul.
+⭐ **Donc la coupe d'angle n'est pas « ce qui fait un bouton » — c'est l'habit des trois gabarits
+à libellé.** Un `+`/`−` n'a pas de libellé : son glyphe le nomme, sa forme n'a rien à porter.
 
-🔴 **Mais `--touch` 44 tient, même si le cercle est petit.** ⛔ Un contrôle ne se laisse jamais
+🔴 **`--touch` 44 tient, même si le cercle est petit.** ⛔ Un contrôle ne se laisse jamais
 dimensionner par son dessin : le rond peut faire 24 px, **sa cible en fait 44**.
 
 ### Signalisation — ⛔ NON CLIQUABLE
