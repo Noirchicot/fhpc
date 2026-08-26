@@ -6337,8 +6337,23 @@ button { font: inherit; }
    📏 Les deux mesurés côte à côte le 27/08 : Identity `padding: 0px`, le
    parcours `padding: 0px 16px` — **une seule ligne différait**, et c'est de les
    avoir comparés qui l'a trouvée. */
-.fiche-livre,
-.tuto-point {
+/* 🔴 ⛔ `button.` DEVANT, ET C'EST LA DIFFÉRENCE ENTRE MARCHER ET NE PAS
+   MARCHER. Écrite d'abord `.fiche-livre` seule, cette règle était PERDANTE et
+   je l'ai déployée en croyant l'avoir posée : mesuré sur la page en ligne, le
+   livre gardait `padding: 0 16px` et `border-radius: 8px`.
+   📏 L'ARITHMÉTIQUE DE LA CASCADE : `.parcours-pied button` vaut **(0,1,1)** —
+   une classe PLUS un élément — contre `.fiche-livre` qui vaut **(0,1,0)**.
+   **La spécificité bat l'ordre** : être en fin de feuille ne rachète pas un
+   sélecteur plus faible.
+   ⚠️ ET C'EST LA QUATRIÈME FOIS AUJOURD'HUI QUE JE PAIE UNE DÉCLARATION
+   PERDANTE — après le `padding` de `.sortie`, le `margin` de `.saignee` et
+   celui du titre. Les trois premières étaient des raccourcis qui écrasaient ;
+   celle-ci est l'inverse, un sélecteur trop faible pour écraser. **Même
+   symptôme dans les deux sens : rien ne casse, rien ne prévient.**
+   ⭐ `button.fiche-livre` vaut (0,1,1) — à égalité, et posé plus bas, donc il
+   gagne. Aucun artifice : c'est la forme la plus faible qui suffise. */
+button.fiche-livre,
+button.tuto-point {
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -6348,8 +6363,8 @@ button { font: inherit; }
    se peint dans un `::before`, exactement là où ces deux-là peignent le leur.
    Sans cette ligne, la rangée gagnerait le dessin et l'organe deviendrait un
    losange — ce qui est arrivé. */
-.fiche-livre::before,
-.tuto-point::before {
+button.fiche-livre::before,
+button.tuto-point::before {
   clip-path: none;
   background-image: none;
 }

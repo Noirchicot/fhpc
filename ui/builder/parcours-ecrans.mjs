@@ -155,7 +155,24 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
      📌 Elle est CONSTRUITE ici, à côté du texte dont elle sort, et POSÉE plus
      bas : séparer les deux évite d'avoir à retrouver `texte` en fin de
      fonction, là où plus rien ne dit d'où il vient. */
-  const bandeAiguilleur = String(texte || "").split(/\n{2,}/)
+  /* 🔴 ET C'EST ELLE QUI DIT « THIS STEP IS SETTLED » — Eric, 2026-08-27 : *« le
+     texte vert dégage du coup, l'aiguilleur s'en charge »* · *« c'est lui qui va
+     dire this step is settled »*.
+
+     ⭐ ET C'EST COHÉRENT AVEC CE QU'EST UN AIGUILLEUR : il dit *où l'on en est
+     et ce qui vient*. Tant qu'il reste à faire, il l'annonce ; quand tout est
+     fait, il dit que c'est fait. **Une seule voix pour un seul rôle**, au lieu
+     d'un mot en haut et d'un autre, vert, en bas.
+     ⛔ CE QUE ÇA RETIRE AU PASSAGE : `.parcours-conclu` posait sa propre saignée
+     et son propre paragraphe — deux blocs de plus dans un écran qu'on venait de
+     resserrer au pixel. Et son VERT disait « réglé » à un endroit où les voyants
+     le disaient déjà. */
+  const motGuide = acheve
+    ? (conclu
+        ? "This step is settled. Change your mind if you want to start it over."
+        : "This step is settled. Move on when you are ready — or change your mind and start it over.")
+    : String(texte || "");
+  const bandeAiguilleur = motGuide.split(/\n{2,}/)
     .map((para) => para.trim())
     .filter((ligne) => ligne.length > 0)
     .map((ligne) => el("p", "guide-mot", [text(ligne)]));
@@ -340,7 +357,9 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
   pied.append(livre);
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
-  if (acheve) page.append(...conclusion(!conclu));
+  /* ⛔ PLUS DE BLOC DE CONCLUSION SÉPARÉ — son texte est passé dans la bande
+     d'aiguilleur (voir sa note plus haut). `conclusion()` reste écrite : elle
+     sert encore au bilan d'Identity, qui n'a pas d'aiguilleur. */
   /* 🔴 TOUJOURS UN SECOND BOUTON À CÔTÉ DE `I changed my mind` — Eric,
      2026-08-26 : *« la bonne chose à faire, toujours un Next à côté de I
      changed my mind »*, capture d'Identity à l'appui, où les deux se font face.

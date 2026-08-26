@@ -28,9 +28,25 @@ test("le `?` et le livre gardent leur habit dans N'IMPORTE QUELLE rangée", () =
      et ce test tient sa POSITION, pas seulement son existence. */
   const regles = reglesDe(sansCommentaires);
   const paire = regles.filter((r) =>
-    /\.fiche-livre|\.tuto-point/.test(r.selecteur) && /padding\s*:\s*0|clip-path\s*:\s*none/.test(r.corps));
+    /\.fiche-livre\b|\.tuto-point\b/.test(r.selecteur) && /padding\s*:\s*0|clip-path\s*:\s*none/.test(r.corps));
   assert.ok(paire.length >= 2,
     "la feuille doit poser les invariants de la paire (rembourrage nul, aucun corps octogonal)");
+
+  /* 🔴 ⛔ ET LA POSITION NE SUFFIT PAS — ce garde l'a appris en laissant passer
+     une feuille qui NE MARCHAIT PAS. Il vérifiait que la protection venait
+     après les rangées ; elle y était, et le livre gardait quand même son
+     `padding: 0 16px` en production.
+     📏 LA CAUSE EST ARITHMÉTIQUE : `.parcours-pied button` vaut (0,1,1) — une
+     classe plus un élément — contre `.fiche-livre` qui vaut (0,1,0). **La
+     spécificité bat l'ordre.** Un garde qui ne regarde que l'ordre valide donc
+     des règles perdantes, et il le fait en silence.
+     ⭐ D'où la seconde exigence : le sélecteur doit porter `button.` — (0,1,1),
+     à égalité avec les rangées, et il gagne par sa position. */
+  for (const r of paire) {
+    assert.match(r.selecteur, /button\.(fiche-livre|tuto-point)/,
+      `« ${r.selecteur} » vaut (0,1,0) et perd contre « .une-rangee button » `
+      + "qui vaut (0,1,1) — la position ne rachète pas une spécificité plus faible");
+  }
 
   /* ⛔ ET APRÈS TOUTE RÈGLE DE RANGÉE : une protection écrite avant ce qu'elle
      protège ne protège rien — c'est une déclaration perdante de plus. */
@@ -55,7 +71,7 @@ test("⚔️ ATTAQUE — une rangée qui octogonalise ses boutons ne doit pas at
      qu'aucune protection n'est bornée à un écran particulier. */
   const paire = reglesDe(sansCommentaires)
     .filter((r) => /padding\s*:\s*0|clip-path\s*:\s*none/.test(r.corps))
-    .filter((r) => /\.fiche-livre|\.tuto-point/.test(r.selecteur));
+    .filter((r) => /\.fiche-livre\b|\.tuto-point\b/.test(r.selecteur));
   for (const r of paire) {
     assert.doesNotMatch(r.selecteur, /parcours|concept|species|abilities|equipment/,
       `« ${r.selecteur} » borne la paire à UN écran — Eric a dit « partout »`);
