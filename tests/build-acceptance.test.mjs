@@ -176,7 +176,7 @@ test("ACCEPTATION — les DIX-HUIT compétences, nommément, avec leur bonus et 
   assert.deepEqual(got.skills, FICHIER.resolved.skills);
 
   const maitrisees = got.skills.filter((skill) => skill.proficiency === "adept").map((skill) => skill.id);
-  assert.deepEqual(maitrisees.sort(), ["arcanes", "histoire", "investigation", "perception", "religion"],
+  assert.deepEqual(maitrisees.sort(), ["arcana", "history", "investigation", "perception", "religion"],
     "deux de l'arrière-plan, deux de la classe, une de l'espèce");
   assert.equal(got.skills.find((skill) => skill.id === "perception").bonus, 3,
     "Sagesse +1 et maîtrise +2 : la compétence accordée par l'Elfe passe par `granted_skill_choice`");
@@ -205,33 +205,33 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
      de plus ou de moins fait rougir. Chaque famille est expliquée. */
   const ecarts = divergences(attendu.spells, got.spells, "spells");
   assert.deepEqual(ecarts, [
-    "spells[bouclier].castType",
-    "spells[bouclier].castingTime",
-    "spells[bouclier].text",
     "spells[chuchotement-des-pages].castType",
     "spells[chuchotement-des-pages].concentration",
     "spells[chuchotement-des-pages].ritual",
     "spells[chuchotement-des-pages].text",
-    "spells[detection-de-la-magie].castType",
-    "spells[detection-de-la-magie].duration",
-    "spells[detection-de-la-magie].range",
-    "spells[detection-de-la-magie].text",
-    "spells[lumiere].castType",
-    "spells[lumiere].text",
+    "spells[detect-magic].castType",
+    "spells[detect-magic].duration",
+    "spells[detect-magic].range",
+    "spells[detect-magic].text",
+    "spells[light].castType",
+    "spells[light].text",
+    "spells[magic-missile].castType",
+    "spells[magic-missile].damage",
+    "spells[magic-missile].text",
     "spells[prestidigitation].castType",
     "spells[prestidigitation].duration",
     "spells[prestidigitation].text",
-    "spells[projectile-magique].castType",
-    "spells[projectile-magique].damage",
-    "spells[projectile-magique].text",
-    "spells[rayon-de-givre].castType",
-    "spells[rayon-de-givre].damage",
-    "spells[rayon-de-givre].text",
-    "spells[sommeil].castType",
-    "spells[sommeil].duration",
-    "spells[sommeil].saveAbility",
-    "spells[sommeil].saveEffect",
-    "spells[sommeil].text"
+    "spells[ray-of-frost].castType",
+    "spells[ray-of-frost].damage",
+    "spells[ray-of-frost].text",
+    "spells[shield].castType",
+    "spells[shield].castingTime",
+    "spells[shield].text",
+    "spells[sleep].castType",
+    "spells[sleep].duration",
+    "spells[sleep].saveAbility",
+    "spells[sleep].saveEffect",
+    "spells[sleep].text"
   ]);
 
   /* REWRITTEN 2026-08-08 (fusion du lot 8) — LA CONCENTRATION A QUITTÉ CETTE
@@ -268,8 +268,8 @@ test("ACCEPTATION — l'incantation : DD, bonus d'attaque, emplacements et les h
   assert.equal(8 + 8 + 6 + 5, ecarts.length, "quatre familles, et RIEN d'autre");
 
   /* Le pendant positif de la concentration : elle est LÀ, et elle est juste. */
-  assert.equal(got.spells.find((spell) => spell.id === "sommeil").concentration, true);
-  assert.equal(got.spells.find((spell) => spell.id === "bouclier").concentration, false);
+  assert.equal(got.spells.find((spell) => spell.id === "sleep").concentration, true);
+  assert.equal(got.spells.find((spell) => spell.id === "shield").concentration, false);
 
   /* Et le pendant positif : le texte est bien LÀ, et c'est celui du record. */
   for (const spell of got.spells) {
@@ -354,16 +354,16 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
      LÉGITIME — mais ça ne rend pas `gear` « identique au fichier », et c'est
      ici qu'on le dit. La liste est exacte. */
   assert.deepEqual(divergences(FICHIER.resolved.gear, got.gear, "gear"), [
-    "gear[baton-de-combat].weight",
-    "gear[dague].weight",
+    "gear[backpack].weight",
+    "gear[book].weight",
+    "gear[calligrapher-s-supplies].weight",
+    "gear[component-pouch].weight",
+    "gear[dagger].weight",
     "gear[lanterne-pliante].note",
     "gear[lanterne-pliante].weight",
-    "gear[livre].weight",
-    "gear[materiel-de-calligraphe].weight",
+    "gear[quarterstaff].weight",
     "gear[rations].weight",
-    "gear[sac-a-dos].weight",
-    "gear[sacoche-a-composantes].weight",
-    "gear[torche].weight"
+    "gear[torch].weight"
   ], "AUCUNE différence d'id, de quantité ni de port — seulement le poids (facultatif) et une note d'objet");
 
   // Les identités, les quantités et le port, eux, sont ceux du fichier.
@@ -378,18 +378,18 @@ test("LES OVERRIDES PASSENT EN DERNIER, ET SURVIVENT À LA RECONSTRUCTION", () =
      c'est l'override du MJ. Deux torches achetées, quatre au sac. */
   const sansOverride = reconstruire({ overrides: [] }).resolved;
   assert.equal(sansOverride.vitals.hpMax, 8, "la dérivation seule : d6 + Constitution 2");
-  assert.equal(sansOverride.gear.find((item) => item.id === "torche").quantity, 2, "le choix seul : deux torches");
+  assert.equal(sansOverride.gear.find((item) => item.id === "torch").quantity, 2, "le choix seul : deux torches");
 
   const avec = reconstruire();
   assert.equal(avec.resolved.vitals.hpMax, 9, "l'override du MJ, appliqué APRÈS la dérivation");
-  assert.equal(avec.resolved.gear.find((item) => item.id === "torche").quantity, 4);
+  assert.equal(avec.resolved.gear.find((item) => item.id === "torch").quantity, 4);
   assert.deepEqual(avec.overridesApplied.map((entry) => entry.path),
-    ["resolved.vitals.hpMax", "resolved.gear[torche].quantity"]);
+    ["resolved.vitals.hpMax", "resolved.gear[torch].quantity"]);
 
   // Et une SECONDE reconstruction ne les efface pas : `build` n'a pas bougé.
   const encore = dispatch("build.rebuild", {});
   assert.equal(encore.resolved.vitals.hpMax, 9);
-  assert.equal(encore.resolved.gear.find((item) => item.id === "torche").quantity, 4);
+  assert.equal(encore.resolved.gear.find((item) => item.id === "torch").quantity, 4);
   assert.deepEqual(encore.document.build.overrides, FICHIER.build.overrides,
     "une reconstruction relit `build`, elle ne le réécrit jamais");
 });
@@ -493,7 +493,7 @@ test("LES DIVERGENCES AVEC LE FICHIER D'EXEMPLE SONT NOMMÉES, PAS MAQUILLÉES",
      fichier sur arbitrage du 2026-08-08 : un exemple qui nomme un objet
      inexistant fait repayer la découverte à chaque lot suivant. */
   assert.ok(!FICHIER.resolved.gear.some((item) => item.id === "livre-de-sorts"));
-  assert.ok(got.gear.some((item) => item.id === "livre"));
+  assert.ok(got.gear.some((item) => item.id === "book"));
 
   /* 4. Le POIDS et les NOTES d'objet ne sont pas dérivés : « 0,5 kg » est une
      phrase, et le contrat ne nomme aucun champ de masse. Les deux sont

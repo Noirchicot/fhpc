@@ -300,7 +300,7 @@ test("pile FR — le magicien d'exemple est GUIDÉ comme l'anglais : 3/3 et 4/4,
      elle NOMME le record et le champ qui offrent le compte. Un compte sans
      provenance serait un compte inventé ; celui-ci se laisse vérifier. */
   assert.deepEqual(cantrips.provenance,
-    { mode: "offered", kind: "class-progression", id: "srd:class-progression:fr:magicien", field: "resources.cantrips" },
+    { mode: "offered", kind: "class-progression", id: "srd:class-progression:en:wizard", field: "resources.cantrips" },
     "le compte est OFFERT par un record français qui se nomme — plus aucune devinette");
   assert.equal(decisions.get("class.prepared").provenance.field, "resources.prepared_spells");
   assert.equal(decisions.get("class.prepared").answered, 4);
@@ -329,14 +329,14 @@ test("pile FR — un magicien SANS sort posé reçoit ses SEPT créneaux vides :
   assert.equal(plans.length, 9, "2 groupes + 3 créneaux de sorts mineurs + 4 de sorts préparés");
   assert.equal(plans.every((plan) => plan.status === "pending" && plan.answered === 0), true,
     "tous en attente : rien n'est posé, et rien n'est inventé à la place du joueur");
-  assert.equal(plans.every((plan) => plan.provenance?.id === "srd:class-progression:fr:magicien"), true,
+  assert.equal(plans.every((plan) => plan.provenance?.id === "srd:class-progression:en:wizard"), true,
     "chaque créneau dit d'où vient son compte");
 });
 
 test("pile FR — magicien → roublard : les 7 sorts sont verrouillés quand même, le jugement ne dépend pas du compte", () => {
   const h = makeHarness();
   h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
-  h.verbs.choose({ path: "class", ref: { kind: "class", id: "srd:class:fr:roublard" } });
+  h.verbs.choose({ path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } });
   const out = h.verbs.rebuild({});
   const verrous = out.decisions.filter((d) => /^class\.(cantrips|prepared)/.test(d.path) && d.lock);
   assert.equal(verrous.length, 9, "2 groupes + 7 étapes");

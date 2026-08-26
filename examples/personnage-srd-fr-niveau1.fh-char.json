@@ -14,13 +14,13 @@
         {
           "id": "srd-5.2.1-fr",
           "version": "5.2.1",
-          "hash": "8b7773565d1f570712d7904b5a86e06324b944c071c9af3990c264828ab9d52f",
+          "hash": "f149a733491132199e6dee422ea965c529f3ee8a16d9e59126fb806145b45dc8",
           "name": "SRD 5.2.1 (FR)"
         },
         {
           "id": "exemple-homebrew-fr",
           "version": "1.0.0",
-          "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+          "hash": "c47bf99af50152ddb0404660b3e5bda9ef076766d2dfa56bbef0e1f5d953aeae",
           "name": "Exemple — couche homebrew (FR)"
         }
       ]
@@ -61,28 +61,28 @@
       "cha": { "bonus": 0, "proficient": false }
     },
     "skills": [
-      { "id": "acrobaties", "name": "Acrobaties", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "arcanes", "name": "Arcanes", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "athletisme", "name": "Athlétisme", "ability": "str", "bonus": -1, "proficiency": "none" },
-      { "id": "discretion", "name": "Discrétion", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "dressage", "name": "Dressage", "ability": "wis", "bonus": 1, "proficiency": "none" },
-      { "id": "escamotage", "name": "Escamotage", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "histoire", "name": "Histoire", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "acrobatics", "name": "Acrobaties", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "animal-handling", "name": "Dressage", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "arcana", "name": "Arcanes", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "athletics", "name": "Athlétisme", "ability": "str", "bonus": -1, "proficiency": "none" },
+      { "id": "deception", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" },
+      { "id": "history", "name": "Histoire", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "insight", "name": "Intuition", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "intimidation", "name": "Intimidation", "ability": "cha", "bonus": 0, "proficiency": "none" },
-      { "id": "intuition", "name": "Intuition", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "investigation", "name": "Investigation", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "medecine", "name": "Médecine", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "medicine", "name": "Médecine", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "nature", "name": "Nature", "ability": "int", "bonus": 3, "proficiency": "none" },
       { "id": "perception", "name": "Perception", "ability": "wis", "bonus": 3, "proficiency": "adept" },
+      { "id": "performance", "name": "Représentation", "ability": "cha", "bonus": 0, "proficiency": "none" },
       { "id": "persuasion", "name": "Persuasion", "ability": "cha", "bonus": 0, "proficiency": "none" },
       { "id": "religion", "name": "Religion", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "representation", "name": "Représentation", "ability": "cha", "bonus": 0, "proficiency": "none" },
-      { "id": "survie", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" },
-      { "id": "tromperie", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" }
+      { "id": "sleight-of-hand", "name": "Escamotage", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "stealth", "name": "Discrétion", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "survival", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" }
     ],
     "tools": [
       {
-        "id": "materiel-de-calligraphe",
+        "id": "calligrapher-s-supplies",
         "name": "Matériel de calligraphe",
         "ability": "dex",
         "bonus": 4,
@@ -132,7 +132,7 @@
       }
     ],
     "spellcasting": {
-      "id": "magicien",
+      "id": "wizard",
       "name": "Magicien",
       "ability": "int",
       "dc": 13,
@@ -140,7 +140,7 @@
       "slots": { "1": { "max": 2, "current": 2 } },
       "spells": [
         {
-          "id": "rayon-de-givre",
+          "id": "ray-of-frost",
           "name": "Rayon de givre",
           "level": 0,
           "prepared": true,
@@ -154,7 +154,7 @@
           "text": "La cible touchée voit sa Vitesse réduite de 3 m jusqu'au début de votre prochain tour."
         },
         {
-          "id": "lumiere",
+          "id": "light",
           "name": "Lumière",
           "level": 0,
           "prepared": true,
@@ -191,7 +191,7 @@
           "text": "Sort mineur obtenu par le don Initié à la magie. Il vient de la couche homebrew d'exemple, pas du SRD."
         },
         {
-          "id": "projectile-magique",
+          "id": "magic-missile",
           "name": "Projectile magique",
           "level": 1,
           "prepared": true,
@@ -205,7 +205,7 @@
           "text": "Trois fléchettes, chacune touchant automatiquement une cible visible à portée."
         },
         {
-          "id": "bouclier",
+          "id": "shield",
           "name": "Bouclier",
           "level": 1,
           "prepared": true,
@@ -218,7 +218,7 @@
           "text": "+5 à la CA jusqu'au début de votre prochain tour, y compris contre l'attaque déclenchante."
         },
         {
-          "id": "detection-de-la-magie",
+          "id": "detect-magic",
           "name": "Détection de la magie",
           "level": 1,
           "prepared": true,
@@ -230,7 +230,7 @@
           "ritual": true
         },
         {
-          "id": "sommeil",
+          "id": "sleep",
           "name": "Sommeil",
           "level": 1,
           "prepared": true,
@@ -307,14 +307,14 @@
       }
     ],
     "gear": [
-      { "id": "dague", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
-      { "id": "baton-de-combat", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
-      { "id": "livre", "name": "Livre", "quantity": 1, "equipped": false, "weight": 2.5 },
-      { "id": "sacoche-a-composantes", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
-      { "id": "materiel-de-calligraphe", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
-      { "id": "sac-a-dos", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
+      { "id": "dagger", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
+      { "id": "quarterstaff", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
+      { "id": "book", "name": "Livre", "quantity": 1, "equipped": false, "weight": 2.5 },
+      { "id": "component-pouch", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
+      { "id": "calligrapher-s-supplies", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
+      { "id": "backpack", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
       { "id": "rations", "name": "Rations", "quantity": 5, "equipped": false, "weight": 1 },
-      { "id": "torche", "name": "Torche", "quantity": 4, "equipped": false, "weight": 0.5 },
+      { "id": "torch", "name": "Torche", "quantity": 4, "equipped": false, "weight": 0.5 },
       {
         "id": "lanterne-pliante",
         "name": "Lanterne pliante",
@@ -353,23 +353,23 @@
       {
         "id": "srd-5.2.1-fr",
         "version": "5.2.1",
-        "hash": "8b7773565d1f570712d7904b5a86e06324b944c071c9af3990c264828ab9d52f",
+        "hash": "f149a733491132199e6dee422ea965c529f3ee8a16d9e59126fb806145b45dc8",
         "name": "SRD 5.2.1 (FR)"
       },
       {
         "id": "exemple-homebrew-fr",
         "version": "1.0.0",
-        "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+        "hash": "c47bf99af50152ddb0404660b3e5bda9ef076766d2dfa56bbef0e1f5d953aeae",
         "name": "Exemple — couche homebrew (FR)"
       }
     ],
     "choices": [
-      { "path": "species", "ref": { "kind": "species", "id": "srd:species:fr:elfe" }, "label": "Elfe" },
+      { "path": "species", "ref": { "kind": "species", "id": "srd:species:en:elf" }, "label": "Elfe" },
       { "path": "species.lineage", "value": "high-elf", "label": "Haut-elfe" },
       { "path": "species.keenSenses", "value": "perception", "label": "Sens aiguisés : Perception" },
-      { "path": "class", "ref": { "kind": "class", "id": "srd:class:fr:magicien" }, "label": "Magicien" },
-      { "path": "background", "ref": { "kind": "background", "id": "srd:background:fr:sage" }, "label": "Sage" },
-      { "path": "background.originFeat[0]", "ref": { "kind": "feat", "id": "srd:feat:fr:initie-a-la-magie" }, "label": "Initié à la magie (Magicien)" },
+      { "path": "class", "ref": { "kind": "class", "id": "srd:class:en:wizard" }, "label": "Magicien" },
+      { "path": "background", "ref": { "kind": "background", "id": "srd:background:en:sage" }, "label": "Sage" },
+      { "path": "background.originFeat[0]", "ref": { "kind": "feat", "id": "srd:feat:en:magic-initiate" }, "label": "Initié à la magie (Magicien)" },
       { "path": "abilities.mode", "value": "standard", "label": "Tableau standard" },
       { "path": "abilities.str", "value": 8 },
       { "path": "abilities.dex", "value": 14 },
@@ -381,41 +381,41 @@
       { "path": "background.boost.con", "value": 1 },
       { "path": "class.skills[0]", "value": "investigation" },
       { "path": "class.skills[1]", "value": "religion" },
-      { "path": "class.cantrips[0]", "ref": { "kind": "spell", "id": "srd:spell:fr:rayon-de-givre" } },
-      { "path": "class.cantrips[1]", "ref": { "kind": "spell", "id": "srd:spell:fr:lumiere" } },
-      { "path": "class.cantrips[2]", "ref": { "kind": "spell", "id": "srd:spell:fr:prestidigitation" } },
-      { "path": "class.prepared[0]", "ref": { "kind": "spell", "id": "srd:spell:fr:projectile-magique" } },
-      { "path": "class.prepared[1]", "ref": { "kind": "spell", "id": "srd:spell:fr:bouclier" } },
-      { "path": "class.prepared[2]", "ref": { "kind": "spell", "id": "srd:spell:fr:detection-de-la-magie" } },
-      { "path": "class.prepared[3]", "ref": { "kind": "spell", "id": "srd:spell:fr:sommeil" } },
+      { "path": "class.cantrips[0]", "ref": { "kind": "spell", "id": "srd:spell:en:ray-of-frost" } },
+      { "path": "class.cantrips[1]", "ref": { "kind": "spell", "id": "srd:spell:en:light" } },
+      { "path": "class.cantrips[2]", "ref": { "kind": "spell", "id": "srd:spell:en:prestidigitation" } },
+      { "path": "class.prepared[0]", "ref": { "kind": "spell", "id": "srd:spell:en:magic-missile" } },
+      { "path": "class.prepared[1]", "ref": { "kind": "spell", "id": "srd:spell:en:shield" } },
+      { "path": "class.prepared[2]", "ref": { "kind": "spell", "id": "srd:spell:en:detect-magic" } },
+      { "path": "class.prepared[3]", "ref": { "kind": "spell", "id": "srd:spell:en:sleep" } },
       { "path": "feat.magicInitiate.cantrip", "ref": { "kind": "spell", "id": "exemple:spell:fr:chuchotement-des-pages" } },
       { "path": "feat.extra", "ref": { "kind": "feat", "id": "exemple:feat:fr:lecteur-de-marges" }, "label": "Lecteur de marges (couche homebrew)" },
       { "path": "languages[0]", "value": "draconique" },
 
       { "path": "level", "value": 1, "label": "Niveau 1" },
 
-      { "path": "gear[0]", "ref": { "kind": "weapon", "id": "srd:weapon:fr:dague" } },
+      { "path": "gear[0]", "ref": { "kind": "weapon", "id": "srd:weapon:en:dagger" } },
       { "path": "gear[0].quantity", "value": 1 },
       { "path": "gear[0].equipped", "value": true },
-      { "path": "gear[1]", "ref": { "kind": "weapon", "id": "srd:weapon:fr:baton-de-combat" } },
+      { "path": "gear[1]", "ref": { "kind": "weapon", "id": "srd:weapon:en:quarterstaff" } },
       { "path": "gear[1].quantity", "value": 1 },
       { "path": "gear[1].equipped", "value": true },
-      { "path": "gear[2]", "ref": { "kind": "gear", "id": "srd:gear:fr:livre" } },
+      { "path": "gear[2]", "ref": { "kind": "gear", "id": "srd:gear:en:book" } },
       { "path": "gear[2].quantity", "value": 1 },
       { "path": "gear[2].equipped", "value": false },
-      { "path": "gear[3]", "ref": { "kind": "gear", "id": "srd:gear:fr:sacoche-a-composantes" } },
+      { "path": "gear[3]", "ref": { "kind": "gear", "id": "srd:gear:en:component-pouch" } },
       { "path": "gear[3].quantity", "value": 1 },
       { "path": "gear[3].equipped", "value": true },
-      { "path": "gear[4]", "ref": { "kind": "tool", "id": "srd:tool:fr:materiel-de-calligraphe" } },
+      { "path": "gear[4]", "ref": { "kind": "tool", "id": "srd:tool:en:calligrapher-s-supplies" } },
       { "path": "gear[4].quantity", "value": 1 },
       { "path": "gear[4].equipped", "value": false },
-      { "path": "gear[5]", "ref": { "kind": "gear", "id": "srd:gear:fr:sac-a-dos" } },
+      { "path": "gear[5]", "ref": { "kind": "gear", "id": "srd:gear:en:backpack" } },
       { "path": "gear[5].quantity", "value": 1 },
       { "path": "gear[5].equipped", "value": true },
-      { "path": "gear[6]", "ref": { "kind": "gear", "id": "srd:gear:fr:rations" } },
+      { "path": "gear[6]", "ref": { "kind": "gear", "id": "srd:gear:en:rations" } },
       { "path": "gear[6].quantity", "value": 5 },
       { "path": "gear[6].equipped", "value": false },
-      { "path": "gear[7]", "ref": { "kind": "gear", "id": "srd:gear:fr:torche" } },
+      { "path": "gear[7]", "ref": { "kind": "gear", "id": "srd:gear:en:torch" } },
       { "path": "gear[7].quantity", "value": 2 },
       { "path": "gear[7].equipped", "value": false },
       { "path": "gear[8]", "ref": { "kind": "gear", "id": "exemple:gear:fr:lanterne-pliante" } },
@@ -436,7 +436,7 @@
         "by": "gm"
       },
       {
-        "path": "resolved.gear[torche].quantity",
+        "path": "resolved.gear[torch].quantity",
         "value": 4,
         "note": "Deux torches achetées en route.",
         "by": "player"

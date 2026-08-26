@@ -3,7 +3,15 @@
    Quatre obligations posées par le mandat : le MANIFEST se vérifie avant
    usage (mismatch → échec bruyant qui nomme le fichier) ; les deux couches
    valident contre fh-layer/1 ; les comptes par genre ne descendent pas sous
-   les seuils relevés à la génération (2 734 records au total : les 2 613 du
+   🔴 ET LES DEUX LANGUES NE SONT PLUS À ÉGALITÉ depuis la transition à froid
+   de fh-srd (2026-08-24). L'écart existait déjà dans les LIVRES ; deux
+   catalogues séparés le cachaient :
+     FR 1 369 = 1 366 appariés + 3 que le livre FRANÇAIS seul imprime
+                (`Vitesse d'escalade / de nage / de vol`, sous une adresse
+                anglaise ADOPTÉE que le livre anglais imprime 74 fois sans
+                leur donner d'entrée)
+     EN 1 367 = 1 366 appariés + 1 que le livre ANGLAIS seul imprime (`Size`)
+   les seuils relevés à la génération (2 736 records au total : les 2 613 du
    kickoff §L4, plus les 19 par langue des deux genres du lot 19 de fh-srd,
    plus les 5 objets rendus par son lot 86, plus `item-value` — 1 record par
    langue, lot 92 — plus les 38 par langue de `class-option`, lot 100) ;
@@ -137,7 +145,7 @@ test("les genres DÉRIVÉS sont présents dans chaque couche, aucun manquant, au
   }
 });
 
-test("2 734 records au total — 2 656 + `item-value` × 2 (lot 92) + `class-option` × 2 (lot 100)", () => {
+test("2 736 records — et les deux langues ont CESSÉ d'être à égalité", () => {
   /* MESURÉ le 2026-08-23, et le chiffre précédent — 2 651 — était périmé de
      SEPT : cinq objets `item` rendus à l'anglais par le lot 86 de fh-srd, et
      les deux records `item-value` que la liste de genres écrite en dur sautait
@@ -145,9 +153,9 @@ test("2 734 records au total — 2 656 + `item-value` × 2 (lot 92) + `class-opt
      qu'on a corrigée, et la copie qui n'avait pas suivi. */
   const { total: totalFr } = buildLayer("fr");
   const { total: totalEn } = buildLayer("en");
-  assert.equal(totalFr, 1367, "la couche FR seule");
-  assert.equal(totalEn, 1367, "la couche EN seule — elle a rattrapé le FR sur `item` (253 → 258)");
-  assert.equal(totalFr + totalEn, 2734);
+  assert.equal(totalFr, 1369, "la couche FR : 1 366 appariés + les 3 vitesses adoptées");
+  assert.equal(totalEn, 1367, "la couche EN : 1 366 appariés + `Size`");
+  assert.equal(totalFr + totalEn, 2736);
 });
 
 /* Seuils relevés à la génération (mesurés ci-dessus) : un futur sync fh-srd
@@ -376,8 +384,8 @@ test("spot-check — un sort, une espèce, un don connus survivent tels quels", 
   assert.equal(en.records.species["srd:species:en:dragonborn"].name, "Dragonborn");
   assert.equal(en.records.feat["srd:feat:en:alert"].name, "Alert");
 
-  assert.equal(fr.records.spell["srd:spell:fr:boule-de-feu"].name, "Boule de feu");
-  assert.equal(fr.records.species["srd:species:fr:drakeide"].name, "Drakéide");
+  assert.equal(fr.records.spell["srd:spell:en:fireball"].name, "Boule de feu");
+  assert.equal(fr.records.species["srd:species:en:dragonborn"].name, "Drakéide");
 });
 
 test("piège de forme — class-progression du lanceur de pacte n'est pas « corrigé »", () => {
@@ -410,15 +418,44 @@ test("piège de forme — class-progression du lanceur de pacte n'est pas « cor
   for (const v of levels) assert.ok([0, 5, 9].includes(v), `spell_slot_levels doit être 0, 5 ou 9 — obtenu ${v}`);
 });
 
-test("aucune correspondance FR↔EN inventée — les deux couches restent autonomes", () => {
+/* REWRITTEN 2026-08-26 (transition à froid) — CE TEST DISAIT L'INVERSE.
+   Il s'appelait « aucune correspondance FR↔EN inventée » et vérifiait que
+   ZÉRO id de sort n'était partagé entre les deux couches. C'était la garantie
+   juste tant que le français était un jeu de records autonome : rapprocher
+   deux records de langues différentes n'aurait pu se faire que par leur NOM.
+
+   La loi §0.13 a retourné la question. La correspondance n'est plus inventée
+   par le générateur — elle est PROUVÉE en amont, à froid, et livrée comme un
+   troisième artefact. Le générateur ne l'invente toujours pas : il la LIT. Le
+   partage d'adresse n'est donc plus un symptôme, c'est le produit.
+
+   ⛔ Ce qui reste interdit — et ce que ce test garde — c'est que le partage
+   vienne d'un rapprochement PAR LE MOT. La garde a donc changé de cible : on
+   ne compte plus les adresses communes, on vérifie que les MOTS diffèrent
+   sous une adresse commune. Deux records qui partagent une adresse ET leur
+   nom seraient le signe d'un appariement par libellé. */
+
+test("l'adresse est partagée, les mots ne le sont pas — la correspondance est lue, jamais devinée", () => {
   const { layer: en } = buildLayer("en");
   const { layer: fr } = buildLayer("fr");
   assert.equal(en.lang, "en");
   assert.equal(fr.lang, "fr");
-  const enSpellIds = new Set(Object.keys(en.records.spell));
-  const frSpellIds = new Set(Object.keys(fr.records.spell));
-  const shared = [...enSpellIds].filter((id) => frSpellIds.has(id));
-  assert.equal(shared.length, 0, "aucun id de sort ne devrait être partagé entre les deux langues");
+
+  const enIds = Object.keys(en.records.spell);
+  const frIds = Object.keys(fr.records.spell);
+  const partagees = enIds.filter((id) => frIds.includes(id));
+  assert.equal(partagees.length, enIds.length,
+    "les deux langues servent le MÊME jeu d'adresses — c'est ce que la transition à froid produit");
+  assert.ok(partagees.length > 300, `et il y en a ${partagees.length}, pas une poignée`);
+
+  /* ⛔ LA GARDE QUI COMPTE. Si les noms coïncidaient massivement sous une
+     adresse commune, ce ne serait pas une correspondance lue mais un
+     appariement par le mot. On tolère les homographes réels (« Prestidigitation »
+     s'écrit pareil dans les deux livres) ; on refuse qu'ils soient la règle. */
+  const memeMot = partagees.filter((id) => en.records.spell[id].name === fr.records.spell[id].name);
+  assert.ok(memeMot.length < partagees.length / 10,
+    `${memeMot.length} sorts sur ${partagees.length} portent le même nom dans les deux langues — ` +
+    "au-delà des homographes, ça signalerait un appariement par libellé");
 });
 
 test("déterminisme — deux générations produisent des objets byte-identiques une fois sérialisés", () => {

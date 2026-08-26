@@ -207,7 +207,7 @@ test("l'adaptateur n'atteint le domaine QUE par dispatch — et seulement par le
   const { client, routes } = localSurface();
   routes.length = 0;
   client.ok("layers.stack");
-  client.ok("layers.query", { kind: "species", id: "srd:species:fr:elfe" });
+  client.ok("layers.query", { kind: "species", id: "srd:species:en:elf" });
   client.ok("build.validate", { document: documentVierge(client.ok("layers.stack")) });
   /* REWRITTEN 2026-08-08 (lot 19) — `layers.flags` s'ajoute, et elle n'est PAS
      empruntée par l'adaptateur : c'est `build.validate` qui la prend, en aval,
@@ -400,7 +400,7 @@ test("`shadowed` TRAVERSE JUSQU'À L'IA — sur un recouvrement VOULU, pas sur u
      On fabrique donc un recouvrement DÉLIBÉRÉ : une couche de scénario qui
      repose, par un `add`, un record que le SRD porte déjà. Le recouvrement
      devient lisible, et il ne peut pas disparaître sans qu'on le voie. */
-  const RECOUVERT = "srd:spell:fr:lumiere";
+  const RECOUVERT = "srd:spell:en:light";
   const scenario = {
     schema: "fh-layer/1",
     id: "scenario-recouvrement",

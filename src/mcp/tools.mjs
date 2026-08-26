@@ -172,7 +172,7 @@ export const TOOLS = [
             "recopiée ici : elle l'était, et elle avait déjà dérivé d'un genre. Un genre inconnu est refusé " +
             "en le NOMMANT, et le refus énumère les genres légaux — c'est là qu'il faut lire la liste vraie."
         },
-        id: { type: "string", description: "L'identifiant du record (par exemple srd:species:fr:elfe). Omis, tout le genre est rendu." }
+        id: { type: "string", description: "L'identifiant du record (par exemple srd:species:en:elf). Omis, tout le genre est rendu." }
       },
       required: ["kind"],
       additionalProperties: false

@@ -6,7 +6,7 @@ jointure.**
 
 - Zéro identifiant commun sur les 339 sorts, 9 espèces et 17 dons vérifiés par
   l'architecte — et le même constat s'étend aux 14 genres transportés ici :
-  chaque id porte sa langue (`srd:species:fr:drakeide` contre
+  chaque id porte sa langue (`srd:species:en:dragonborn` contre
   `srd:species:en:dragonborn`).
 - Les slugs diffèrent (translittération, pas traduction mécanique).
 - Aucun champ `translation_of` nulle part dans les exports fh-srd.
@@ -15,7 +15,7 @@ jointure.**
   tombe en face de *Dwarf*).
 - Les clés de ressource de `class-progression` sont elles-mêmes
   langue-native : `srd:class-progression:en:wizard` porte `cantrips` /
-  `prepared_spells`, `srd:class-progression:fr:magicien` porte
+  `prepared_spells`, `srd:class-progression:en:wizard` porte
   `sorts_mineurs` / `sorts_prepares` (`fh-srd/docs/RECORD-SHAPES.md`).
 
 ## Conséquence pour un personnage

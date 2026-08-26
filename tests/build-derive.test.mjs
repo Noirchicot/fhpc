@@ -94,10 +94,10 @@ test("UNE CLEF DE CARACTÉRISTIQUE HORS DES SIX JETTE — le moteur ne la rattra
      tient un bout, ce test tient l'autre. */
   const h = makeHarness({
     extra: uneCouche("scenario-clef-hors-catalogue",
-      ampute("skill", "srd:skill:fr:athletisme", "Athlétisme", { ability_key: "for" }))
+      ampute("skill", "srd:skill:en:athletics", "Athlétisme", { ability_key: "for" }))
   });
   assert.throws(() => h.verbs.rebuild({ document: acceptanceDocument(h.layers) }), (error) => {
-    assert.match(error.message, /srd:skill:fr:athletisme/, "la violation nomme le record");
+    assert.match(error.message, /srd:skill:en:athletics/, "la violation nomme le record");
     assert.match(error.message, /"for"/, "et la clef fautive");
     assert.match(error.message, /str, dex, con, int, wis, cha/, "et le catalogue des six");
     return true;
@@ -147,16 +147,16 @@ test("un document jamais construit ADOPTE la pile montée — et c'est la seule 
    qui ne garde que la prose — l'amputation est DÉLIBÉRÉE et lisible, au lieu
    d'être un accident de la source dont la disparition passerait inaperçue. */
 const COUCHE_AMPUTEE = uneCouche("scenario-sans-champs-mecaniques", Object.assign(
-  ampute("class", "srd:class:fr:magicien", "Magicien", {
+  ampute("class", "srd:class:en:wizard", "Magicien", {
     hit_point_die: "d6 par niveau de Magicien",
     saving_throw_proficiencies: ["Intelligence", "Sagesse"],
     primary_ability: "Intelligence"
   }),
-  ampute("background", "srd:background:fr:sage", "Sage", {
+  ampute("background", "srd:background:en:sage", "Sage", {
     skill_proficiencies: ["Arcanes", "Histoire"],
     tool_proficiency: "matériel de calligraphe"
   }),
-  ampute("species", "srd:species:fr:elfe", "Elfe", {
+  ampute("species", "srd:species:en:elf", "Elfe", {
     speed: "9 m",
     size: "M (moyenne, entre 1,50 m et 1,80 m)"
   })
@@ -248,13 +248,13 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
      que la source s'est enrichie. */
   const h = makeHarness({
     extra: uneCouche("scenario-outil-sans-clef",
-      ampute("tool", "srd:tool:fr:materiel-de-calligraphe", "Matériel de calligraphe",
+      ampute("tool", "srd:tool:en:calligrapher-s-supplies", "Matériel de calligraphe",
         { ability: "Dextérité", cost: "10 po" }))
   });
   const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
   assert.deepEqual(out.resolved.tools, [],
     "`resolved.tools[].ability` est obligatoire : on ne pose pas une entrée à moitié");
-  const entree = out.underived.find((e) => e.field === "tools[materiel-de-calligraphe]");
+  const entree = out.underived.find((e) => e.field === "tools[calligrapher-s-supplies]");
   /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
   assert.match(renderUnderived(entree, frUnderived), /ability_key/);
 
@@ -262,7 +262,7 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
   const vraie = makeHarness();
   const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
   assert.deepEqual(bon.resolved.tools, [{
-    id: "materiel-de-calligraphe", name: "Matériel de calligraphe",
+    id: "calligrapher-s-supplies", name: "Matériel de calligraphe",
     ability: "dex", bonus: 4, proficiency: "adept"
   }]);
 });
@@ -281,10 +281,10 @@ test("la CA avec armure, et son refus platement quand le champ mécanique manque
 
   const habiller = (doc) => {
     doc.build.choices.push(
-      { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:fr:armure-de-cuir" } },
+      { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:en:leather-armor" } },
       { path: `gear[${index}].quantity`, value: 1 },
       { path: `gear[${index}].equipped`, value: true },
-      { path: `gear[${index + 1}]`, ref: { kind: "armor", id: "srd:armor:fr:bouclier" } },
+      { path: `gear[${index + 1}]`, ref: { kind: "armor", id: "srd:armor:en:shield" } },
       { path: `gear[${index + 1}].quantity`, value: 1 },
       { path: `gear[${index + 1}].equipped`, value: true }
     );
@@ -302,8 +302,8 @@ test("la CA avec armure, et son refus platement quand le champ mécanique manque
      le pire des deux. */
   const nu = makeHarness({
     extra: uneCouche("scenario-armures-sans-ca", Object.assign(
-      ampute("armor", "srd:armor:fr:armure-de-cuir", "Armure de cuir", { armor_class: "11 + modificateur de Dex" }),
-      ampute("armor", "srd:armor:fr:bouclier", "Bouclier", { armor_class: "+2" })
+      ampute("armor", "srd:armor:en:leather-armor", "Armure de cuir", { armor_class: "11 + modificateur de Dex" }),
+      ampute("armor", "srd:armor:en:shield", "Bouclier", { armor_class: "+2" })
     ))
   });
   const doc = habiller(acceptanceDocument(nu.layers));
@@ -351,7 +351,7 @@ test("QUESTION 6 — LA DISSOLUTION ANNONCÉE A EU LIEU, et la règle stricte mo
   const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   assert.equal(out.resolved.vitals.hpMax, 9, "l'override du MJ s'applique — plus aucun refus");
   assert.deepEqual(out.overridesApplied.map((entry) => entry.path),
-    ["resolved.vitals.hpMax", "resolved.gear[torche].quantity"]);
+    ["resolved.vitals.hpMax", "resolved.gear[torch].quantity"]);
 
   /* ET LA RÈGLE STRICTE N'A PAS ÉTÉ RELÂCHÉE POUR AUTANT. Sur une couche
      amputée de `hit_die`, `hpMax` redevient non dérivé — et le même override
@@ -530,12 +530,12 @@ test("le `shadowed` de la pile REMONTE dans rebuild — il ne s'avale pas", () =
   const bytes = Buffer.from(JSON.stringify({
     schema: "fh-layer/1", id: "couche-de-table", version: "1.0.0", name: "Table", lang: "fr",
     flags: [], attribution: { license: "CC0-1.0" },
-    records: { skill: { "srd:skill:fr:perception": { op: "add", name: "Perception", slug: "perception", data: { ability_key: "wis" } } } }
+    records: { skill: { "srd:skill:en:perception": { op: "add", name: "Perception", slug: "perception", data: { ability_key: "wis" } } } }
   }), "utf8");
   h.layers.verbs.register({ bytes, origin: "test" });
   const doc = acceptanceDocument(h.layers);
   const apres = h.verbs.rebuild({ document: doc });
-  assert.deepEqual(apres.shadowed, [{ kind: "skill", id: "srd:skill:fr:perception", by: "couche-de-table", over: "srd-5.2.1-fr" }]);
+  assert.deepEqual(apres.shadowed, [{ kind: "skill", id: "srd:skill:en:perception", by: "couche-de-table", over: "srd-5.2.1-fr" }]);
 });
 
 /* ── `validate` ─────────────────────────────────────────────────────── */
@@ -565,9 +565,9 @@ test("`validate` compte les compétences à choisir, et refuse un boost illégal
 test("`validate` voit un ref mort, et ne change RIEN", () => {
   const h = makeHarness();
   const doc = acceptanceDocument(h.layers);
-  h.verbs.choose({ document: doc, path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:fr:sort-fantome" } });
+  h.verbs.choose({ document: doc, path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ghost-spell" } });
   const verdict = h.verbs.validate({});
-  assert.ok(verdict.violations.some((line) => /srd:spell:fr:sort-fantome/.test(line)));
+  assert.ok(verdict.violations.some((line) => /srd:spell:en:ghost-spell/.test(line)));
 
   // `validate` n'écrit rien : le `resolved` du document n'a pas bougé.
   const apres = h.verbs.validate({});
@@ -616,7 +616,7 @@ test("UN PERSONNAGE SRD PUR, SANS AUCUNE COUCHE FH, TRAVERSE LA DÉRIVATION DE B
 test("`choose` pose un record, `set` pose un scalaire — jamais les deux, jamais aucun", () => {
   const h = makeHarness();
   const doc = acceptanceDocument(h.layers);
-  assert.throws(() => h.verbs.choose({ document: doc, path: "class", value: "magicien" }), /pour un scalaire, c'est `set`/);
+  assert.throws(() => h.verbs.choose({ document: doc, path: "class", value: "wizard" }), /pour un scalaire, c'est `set`/);
   assert.throws(() => h.verbs.set({ path: "class", ref: { kind: "class", id: "x" } }), /pour un record, c'est `choose`/);
   assert.throws(() => h.verbs.set({ path: "class", value: { kind: "class" } }), /une structure serait une règle déguisée/);
   assert.throws(() => h.verbs.choose({ path: "class", ref: { kind: "class", id: "x" }, value: 1 }), /exactement un/);
@@ -676,13 +676,13 @@ test("⚔️ le plafond de Dex à ZÉRO plafonne vraiment — `0` n'est pas « p
 
   /* Le harnois : `ac_base` 18, `ac_dex_cap` 0 — lus dans la couche, pas écrits
      ici. Si la couche changeait ces valeurs, ce test doit suivre la couche. */
-  const harnois = h.layers.verbs.query({ kind: "armor", id: "srd:armor:fr:harnois" });
+  const harnois = h.layers.verbs.query({ kind: "armor", id: "srd:armor:en:plate-armor" });
   assert.equal(harnois.record.data.ac_base, 18, "témoin : la couche porte bien la base du harnois");
   assert.equal(harnois.record.data.ac_dex_cap, 0, "témoin : et son plafond est ZÉRO, pas absent");
 
   const doc = structuredClone(base);
   doc.build.choices.push(
-    { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:fr:harnois" } },
+    { path: `gear[${index}]`, ref: { kind: "armor", id: "srd:armor:en:plate-armor" } },
     { path: `gear[${index}].quantity`, value: 1 },
     { path: `gear[${index}].equipped`, value: true }
   );

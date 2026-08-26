@@ -85,13 +85,13 @@ test("le carnet SRD pur projette les familles réelles — sorts compris depuis 
   assert.equal(out.decisions.every((entry) => entry.status === "answered"), true,
     "une décision complète reste visible answered, sans fausse étape pending");
   assert.deepEqual(decisions.get("class.skills").provenance, {
-    mode: "offered", kind: "class", id: "srd:class:fr:magicien", field: "skill_choice"
+    mode: "offered", kind: "class", id: "srd:class:en:wizard", field: "skill_choice"
   });
   /* LOT 43, §1b — `background.feat` a disparu ; le don d'origine se projette
      désormais sur `background.originFeat[0]`, le SEUL chemin que les modules
      lisaient déjà. Un `feat_id` imposé (le cas SRD) reste `required`. */
   assert.deepEqual(decisions.get("background.originFeat[0]").provenance, {
-    mode: "required", kind: "background", id: "srd:background:fr:sage", field: "feat_id"
+    mode: "required", kind: "background", id: "srd:background:en:sage", field: "feat_id"
   });
 });
 
@@ -103,9 +103,9 @@ test("set / clear / rebuild ferment la boucle : partiel, restauration, statut", 
   let decisions = byPath(out);
   assert.deepEqual(decisions.get("class.skills"), {
     path: "class.skills",
-    options: ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"],
+    options: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"],
     selected: ["investigation"], expected: 2, answered: 1,
-    provenance: { mode: "offered", kind: "class", id: "srd:class:fr:magicien", field: "skill_choice" },
+    provenance: { mode: "offered", kind: "class", id: "srd:class:en:wizard", field: "skill_choice" },
     remaining: 1, status: "pending"
   });
   assert.equal(decisions.get("class.skills[0]").status, "answered");
@@ -125,7 +125,7 @@ test("les refs, le grant d'espèce, les boosts et le don ferment chacun clear / 
   const cases = [
     {
       path: "species", kind: "choice", projected: "species",
-      restore: () => h.verbs.choose({ path: "species", ref: { kind: "species", id: "srd:species:fr:elfe" } })
+      restore: () => h.verbs.choose({ path: "species", ref: { kind: "species", id: "srd:species:en:elf" } })
     },
     {
       path: "species.keenSenses", kind: "choice", projected: "species.skills",
@@ -140,13 +140,13 @@ test("les refs, le grant d'espèce, les boosts et le don ferment chacun clear / 
       restore: () => h.verbs.set({ path: "background.boost.con", value: 1 })
     },
     {
-      /* LOT 43, §1b/§3d — `srd:background:fr:sage` porte `feat_id` (imposé) :
+      /* LOT 43, §1b/§3d — `srd:background:en:sage` porte `feat_id` (imposé) :
          le plan l'ANNONCE (`options: [featId], selected: [featId]`) sur le
          patron de `tool_id`, sans jamais lire `choices` — un `clear` n'a donc
          RIEN à retirer, et le statut reste `answered` tout du long. C'est
          `condition de sortie n°6` rendue observable : un SRD pur ne perd rien. */
       path: "background.originFeat[0]", kind: "choice", projected: "background.originFeat[0]", statusAfterClear: "answered",
-      restore: () => h.verbs.choose({ path: "background.originFeat[0]", ref: { kind: "feat", id: "srd:feat:fr:initie-a-la-magie" } })
+      restore: () => h.verbs.choose({ path: "background.originFeat[0]", ref: { kind: "feat", id: "srd:feat:en:magic-initiate" } })
     }
   ];
   for (const scenario of cases) {
@@ -164,14 +164,14 @@ test("un faux choix reste dans le carnet, locked, avec une clef du paquet commun
   const h = makeHarness();
   h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
-  h.verbs.set({ path: "class.skills[7]", value: "athletisme" });
+  h.verbs.set({ path: "class.skills[7]", value: "athletics" });
   let out = h.verbs.rebuild({});
   let decisions = byPath(out);
   const locked = decisions.get("class.skills[7]");
   assert.equal(locked.status, "locked");
   assert.equal(locked.lock.key, "decision.option-unavailable");
   assert.deepEqual(Object.keys(locked.lock).sort(), ["key", "params", "path"]);
-  assert.match(renderBuildViolation(locked.lock), /athletisme/,
+  assert.match(renderBuildViolation(locked.lock), /athletics/,
     "la clef de verrou est disponible dans le mécanisme de libellés existant");
   assert.equal(decisions.get("class.skills").status, "locked",
     "le plan entier ne prétend pas être simplement pending quand une de ses étapes est illégale");
@@ -188,26 +188,26 @@ test("une compétence sans `ability_key` reste illégale pour le pli ET pour la 
   const h = makeHarness({
     extra: uneCouche("scenario-competence-sans-clef", {
       skill: {
-        "srd:skill:fr:arcanes": {
-          op: "add", name: "Arcanes sans clef", slug: "arcanes", data: { ability: "Intelligence" }
+        "srd:skill:en:arcana": {
+          op: "add", name: "Arcanes sans clef", slug: "arcana", data: { ability: "Intelligence" }
         }
       }
     })
   });
   let out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   let decisions = byPath(out);
-  assert.equal(decisions.get("class.skills").options.includes("arcanes"), false,
+  assert.equal(decisions.get("class.skills").options.includes("arcana"), false,
     "la projection n'annonce jamais une compétence que le pli doit sauter");
-  assert.equal(out.resolved.skills.some((skill) => skill.id === "arcanes"), false,
+  assert.equal(out.resolved.skills.some((skill) => skill.id === "arcana"), false,
     "le comportement historique de derive reste le saut de l'entrée incomplète");
-  const underived = out.underived.find((entry) => entry.field === "skills[arcanes]");
+  const underived = out.underived.find((entry) => entry.field === "skills[arcana]");
   /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` (loi §0.13,
      le moteur produit des identifiants). Le mot se relit via `renderUnderived`. */
   assert.equal(underived.key, "underived.skill-missing-ability-key");
   assert.match(renderUnderived(underived, frUnderived), /ability_key/, "le saut conserve sa raison historique explicite");
 
   h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
-  h.verbs.set({ path: "class.skills[1]", value: "arcanes" });
+  h.verbs.set({ path: "class.skills[1]", value: "arcana" });
   out = h.verbs.rebuild({});
   decisions = byPath(out);
   assert.equal(decisions.get("class.skills").status, "locked",
@@ -273,13 +273,13 @@ test("choose / clear / rebuild pilotent aussi le `tool_choice` réel du Soldat",
   let doc = acceptanceDocument(h.layers);
   doc.build.choices = doc.build.choices.filter((choice) => choice.path !== "background" && choice.path !== "background.feat" &&
     !choice.path.startsWith("background.boost."));
-  doc.build.choices.push({ path: "background", ref: { kind: "background", id: "srd:background:fr:soldat" } });
+  doc.build.choices.push({ path: "background", ref: { kind: "background", id: "srd:background:en:soldier" } });
   let out = h.verbs.rebuild({ document: doc });
   let tool = byPath(out).get("background.tool");
   assert.equal(tool.status, "pending");
-  assert.deepEqual(tool.options, ["srd:tool:fr:boite-de-jeux"]);
+  assert.deepEqual(tool.options, ["srd:tool:en:gaming-set"]);
 
-  h.verbs.choose({ path: "background.tool", ref: { kind: "tool", id: "srd:tool:fr:boite-de-jeux" } });
+  h.verbs.choose({ path: "background.tool", ref: { kind: "tool", id: "srd:tool:en:gaming-set" } });
   out = h.verbs.rebuild({});
   assert.equal(byPath(out).get("background.tool").status, "answered");
   h.verbs.clear({ path: "background.tool", kind: "choice" });
