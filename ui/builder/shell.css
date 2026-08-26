@@ -4500,6 +4500,24 @@ button { font: inherit; }
    BOUTON — il éloigne le résumé d'une cible tactile. Sous un simple mot, il
    n'éloigne rien de rien. ⛔ Le `gap` de l'item, lui, est déjà au barreau du
    bas (`--sp-4`) : y toucher aurait collé le texte au mot. */
+/* 🔴 ⛔ ET LA MARGE NÉGATIVE NE VAUT QUE S'IL SUIT QUELQU'UN — `:not(:first-child)`
+   ci-dessus, ajouté le 2026-08-27 après l'ÉPREUVE qu'Eric avait demandée.
+
+   📏 CE QUI S'EST PASSÉ, MESURÉ SUR **ARAAG** : cette espèce n'a **qu'UN item**
+   — `Granted automatically`, sans lignage ni bourse. La marge de −8, écrite
+   pour le coller sous `Skill budget` sur ELF, l'a fait sortir **par le haut** de
+   sa liste : haut de la liste **99**, haut de l'item **91**, sa tête hors champ.
+   Eric l'a vu tout de suite : *« la fenêtre scrollable est remontée jusqu'en
+   haut »*.
+
+   ⭐⭐ ET C'EST EXACTEMENT L'ÉPREUVE ANNONCÉE. Le gabarit du rang B a été dicté
+   cote par cote sur UN écran ; la norme le dit *« proof of concept à mettre à
+   l'épreuve »*. Il a cédé sur **la première espèce de structure différente** —
+   pas dans six mois, dans les dix minutes.
+   📌 **Une cote écrite en regardant un seul écran décrit une POSITION, pas une
+   RELATION.** « −8 au-dessus de Granted » supposait qu'il y ait un dessus.
+   `:not(:first-child)` dit la relation : *« colle-toi à ce qui précède, s'il y
+   a quelque chose »*. */
 .parcours-item[data-sans-choix="true"] > .parcours-item-tete {
   padding-bottom: 0;
   /* 🔴 UN MOT N'EST PAS UNE CIBLE TACTILE — Eric, 2026-08-27 : *« la fenêtre de
@@ -4688,7 +4706,7 @@ button { font: inherit; }
    de ce que TOUS les items l'étaient et se disputaient la hauteur à trois. Ici
    les deux premiers sont `flex: 0 0 auto` — ils prennent ce qu'il leur faut, et
    celui-ci prend **exactement ce qui reste**. C'est le rôle d'un dernier bloc. */
-.parcours-item[data-sans-choix="true"] {
+.parcours-item[data-sans-choix="true"]:not(:first-child) {
   flex: 1 1 auto;
   min-height: 0;
   /* 🔴 −8 px DEVANT LUI — Eric, 2026-08-26 : *« réduis l'espace entre Skill et
