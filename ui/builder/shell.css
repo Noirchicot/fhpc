@@ -937,7 +937,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      resté décalé alors même que la règle du socle le centre. Une exception
      écrite pour un monde asymétrique devient une faute dans un monde
      symétrique : ce bloc ne règle plus que le rembourrage VERTICAL. */
-  padding-block: var(--sp-16) var(--sp-4);
+  /* 🔴 12 EN HAUT, 0 EN BAS — Eric, 2026-08-26 : *« idem inf alignment, idem
+     inf done »*, soit −4 de chaque côté de la rangée.
+     📏 CE QUE CHACUN VALAIT : au-dessus, 16 séparaient le dernier collecteur de
+     `Done` ; en dessous, 4 s'ajoutaient aux 8 de rembourrage que la dalle porte
+     déjà — **12 sous un bouton qui n'a plus rien après lui**. La gouttière du
+     bas était donc payée deux fois ; celle du haut descend d'un cran d'échelle.
+     ⭐ Et `0` est légitime là où un jeton ne l'est pas : une longueur nulle
+     n'est l'expression d'aucune cote — c'est l'absence de cote. */
+  padding-block: var(--sp-12) 0;
   margin-inline: 0;
 }
 /* ⭐ SEUL, `DONE` SE CENTRE — et la règle se lit sur le FAIT, pas sur l'écran :
@@ -1492,7 +1500,14 @@ button { font: inherit; }
   /* Le CADRE ne change pas de forme au seuil : il est né à 360 px. Ce qui
      change, c'est la place que la fiche peut se permettre — et le rail, qui
      est déjà à son minimum lisible, ne rétrécit pas davantage. */
-  .decision-card { margin: var(--sp-8); }
+  /* 🔴 4 ET NON 8 ENTRE LA CEINTURE ET LA CARTE — Eric, 2026-08-26 : *« marge
+   entre belt et carte : réduit »*, dans la chasse aux px qui manquent pour
+   tenir dans une hauteur d'iPhone SE.
+   ⚠️ C'EST CETTE RÈGLE-CI QUI DÉCIDE, PAS CELLE DU HAUT DE LA FEUILLE : plus
+   haut, `.decision-card` pose `margin: var(--sp-16)` ; celle-ci la remplace.
+   Toucher la première n'aurait rien changé — et n'aurait rien dit non plus.
+   📏 Mesuré avant : 8 px entre le bas de la ceinture et le haut de la carte. */
+.decision-card { margin: var(--sp-4); }
   /* La sortie d'étape suit la carte, au même cran (voir sa règle). */
   /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
      `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
@@ -2713,7 +2728,7 @@ button { font: inherit; }
    ⭐ ET C'EST UN JETON, PAS UN NOMBRE : `--sp-8` est l'échelon juste en dessous
    de `--sp-16` dans l'échelle du dépôt — on descend d'un cran, on n'invente pas
    une cote. Le jour où l'échelle bouge, cette marge bouge avec elle. */
-.doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-8); }
+.doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-4); }
 
 /* 🔴 LE DERNIER CHAMP NE PORTE PAS DE MARGE BASSE — Eric, 2026-08-26 :
    *« réduis l'espace entre le collecteur alignement et Done »*.
