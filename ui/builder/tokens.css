@@ -461,7 +461,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=304");
+  --bg-image: url("./assets/bg-day.jpg?v=305");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -547,7 +547,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=304");
+    --bg-image: url("./assets/bg-night.jpg?v=305");
 
     /* 🔴 LA NUIT, L'OMBRE DEVIENT UNE LUEUR — Eric, 2026-08-26, la mesure
        posée devant lui : *« une lueur claire la nuit »*.

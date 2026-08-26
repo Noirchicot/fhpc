@@ -4745,7 +4745,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=304");
+  background-image: url("./assets/tarot-dos.jpg?v=305");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4941,8 +4941,21 @@ button { font: inherit; }
   justify-content: center; gap: var(--sp-4);
   padding-inline: calc(var(--touch) + var(--sp-4));
 }
+/* 🔴 ÉMETTEUR = RÉCEPTEUR, JUSQU'À LA COTE — Eric, 2026-08-26 : **« size
+   collecteur = size token »**.
+   ⛔ CECI RENVERSE LA NOTE QUI VIVAIT ICI. Elle disait : *« la HAUTEUR reste
+   `--touch` : un collecteur n'est pas un jeton qu'on glisse, c'est une cible
+   qu'on VISE, et son plancher est le pouce »*. Le raisonnement était bon et la
+   conclusion trop timide : **48 est PLUS GRAND que 44**. Prendre la cote du
+   jeton ne coûte rien au pouce — elle la contient.
+   ⭐ Et la LARGEUR lisait déjà `--glisse-case` depuis le 23/08, sur la même
+   phrase d'Eric : *« un drop fait la même taille que l'item »*. Il ne manquait
+   que la hauteur pour que la paire soit entière.
+   📌 La règle se lit maintenant sans exception : **un collecteur a la taille du
+   jeton qu'il attend.** Un récepteur plus petit que ce qu'il reçoit était une
+   promesse fausse. */
 .carte-r-collecteur {
-  min-height: var(--touch);
+  min-height: var(--glisse-h);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text);
