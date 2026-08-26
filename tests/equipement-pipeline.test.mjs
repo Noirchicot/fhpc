@@ -52,6 +52,17 @@ function appliquer(doc, a) {
     }
     return d;
   }
+  if (a.kind === "choisirDepart") {
+    let d = verbs.set({ document: doc, path: "depart", value: a.valeur }).document;
+    if (a.valeur === "purse") {
+      const bourse = currentCurrency(d);
+      for (const k of CURRENCY_KEYS) {
+        const base = Number.isInteger(bourse[k]) ? bourse[k] : 0;
+        d = verbs.set({ document: d, path: `currency.${k}`, value: k === "gp" ? base + 50 : base }).document;
+      }
+    }
+    return d;
+  }
   if (a.kind === "addGearLine") {
     const i = nextGearIndex(doc);
     let d = verbs.choose({ document: doc, path: `gear[${i}]`, ref: a.ref }).document;
@@ -200,4 +211,38 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
   node = rendre();
   [...node.querySelectorAll('[data-ecran="B2"] button')].find((b) => b.textContent === "CANCEL").click();
   assert.equal(cartCompte(doc), 0, "CANCEL efface — c'est son seul métier");
+});
+
+test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (requalifiée 26/08)", () => {
+  /* ⛔ Un « guide obligatoire » en clef navigateur ratait le SECOND personnage
+     du même navigateur : la décision est PAR PERSONNAGE, donc au document. */
+  let doc = fixture.document;
+  const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
+    (a) => { doc = appliquer(doc, a); });
+
+  /* la vue persiste entre les tests : on rejoint le dressing depuis
+     n'importe où, par les portes du joueur. */
+  let node = rendre();
+  for (let i = 0; i < 5 && !node.querySelector(".decision-kit"); i++) {
+    const porte = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
+      || [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR")
+      || node.querySelector('[aria-label="Equipment"]');
+    if (porte) porte.click();
+    node = rendre();
+  }
+  assert.ok(node.querySelector(".decision-kit"), "un personnage sans `depart` reçoit la question");
+
+  const prendre = [...node.querySelectorAll(".decision-kit-bouton")]
+    .find((b) => b.textContent.includes("50"));
+  const gpAvant = currentCurrency(doc).gp || 0;
+  prendre.click();
+  assert.equal(doc.build.choices.find((c) => c.path === "depart")?.value, "purse", "le choix est ÉCRIT au document");
+  assert.equal(currentCurrency(doc).gp, gpAvant + 50, "et les 50 po tombent dans la bourse — le geste ratifié, pas une copie");
+
+  node = rendre();
+  assert.equal(node.querySelectorAll(".decision-kit").length, 0, "la question ne se repose pas : le document a répondu");
+
+  const ressuscite = JSON.parse(JSON.stringify(doc));
+  assert.equal(ressuscite.build.choices.find((c) => c.path === "depart")?.value, "purse",
+    "et la réponse traverse un rechargement — c'est tout le point du document");
 });

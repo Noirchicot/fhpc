@@ -17,7 +17,7 @@ const scenario = location.hash.slice(1) || "b3";
    bougent pas d'un pixel. */
 if (scenario === "dressing") {
   const f2 = document.createElement("iframe");
-  f2.src = "./ecran-b3.html?v=295";
+  f2.src = "./ecran-b3.html?v=296";
   f2.addEventListener("load", async () => {
     const d = f2.contentDocument;
     await new Promise((r) => setTimeout(r, 700));
@@ -40,7 +40,7 @@ if (scenario === "dressing") {
 const graine = scenario === "b3equipe" ? "/fixture-equipe.json" : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
-f.src = "./index.html?v=295";
+f.src = "./index.html?v=296";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
   for (const type of ["pointerdown", "pointerup"]) {
@@ -84,7 +84,7 @@ f.addEventListener("load", async () => {
     const sc = d.createElement("script");
     sc.type = "module";
     sc.textContent = `
-      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=295";
+      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=296";
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:crowbar" }, nom: "Crowbar", cout: parseCout("2 GP") });
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:rope-hempen-50-feet" }, nom: "Rope, hempen (50 feet)", cout: parseCout("1 GP") });
       window.__panierPret = true;`;

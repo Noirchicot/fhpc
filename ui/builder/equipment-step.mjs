@@ -43,27 +43,27 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=295";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=295";
+import { renderPicker } from "./carnet.mjs?v=296";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=296";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=295";
-import { swapContent } from "./socle.mjs?v=295";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=295";
+import { isGenre } from "../../src/layers/document.mjs?v=296";
+import { swapContent } from "./socle.mjs?v=296";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=296";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=295";
+import { armerJeton } from "./glisser.mjs?v=296";
 /* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
    (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=295";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=296";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=295";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=295";
-import { guideEquipementVu, setGuideEquipementVu } from "./tutoriel.mjs?v=295";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=296";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=296";
+
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
    records. Bookkeeping d'ÉCRAN (quels genres ce chercheur interroge) — pas
@@ -1582,32 +1582,32 @@ export function renderEquipmentStep(ctx, onAction) {
 
   function construireDressing() {
     const dressing = el("div", "equipment-dressing");
-    /* ══ LE GUIDE OBLIGATOIRE — un POPUP par-dessus la scène, jamais un bloc
-       dans le flux (il pousserait tout vers le bas : défilement, refusé).
-       Il vient MÊME tutoriel éteint (sa clef est à part), une fois.
-       ⭐ Et il porte les 50 PO comme GESTE : `addInheritedPurse` attendait
-       exactement cet endroit depuis la purge du 23/08 — « posée par l'écran,
-       un CLIC, jamais un effet de rendu ». ⏳ Texte-brouillon, comme les
-       tutoriels : le mien, à corriger par Eric. */
-    if (!guideEquipementVu()) {
-      const voile = el("div", "guide-oblige");
-      const boite = el("div", "guide-oblige-carte");
+    /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
+       🔴 REQUALIFIÉE le 26/08 (Archi 27) : ce n'est PAS un guide — un objet
+       qui EXIGE une réponse et ÉCRIT au document est une DÉCISION. Elle se
+       présente en recouvrement (jamais dans le flux — rien ne se pousse), et
+       son état vit AU PERSONNAGE : `depart` (mesuré accepté par les verbes,
+       zéro violation) — un second personnage dans le même navigateur reçoit
+       SA question, ce que la clef navigateur d'avant ratait.
+       ⏳ Texte-brouillon (le mien), à corriger par Eric. */
+    const depart = (docu && docu.build && Array.isArray(docu.build.choices)
+      ? docu.build.choices.find((c) => c.path === "depart") : null);
+    if (!depart) {
+      const voile = el("div", "decision-kit");
+      const boite = el("div", "decision-kit-carte");
       boite.append(
-        el("h2", "guide-oblige-titre", [text("Your equipment")]),
-        el("p", "guide-oblige-texte", [text(
+        el("h2", "decision-kit-titre", [text("Your equipment")]),
+        el("p", "decision-kit-texte", [text(
           "You start equipped: your class kit is yours, already listed. " +
           "Or set it aside and take 50 GP to spend as you please — the " +
           "catalogue is behind the Equipment button.")]),
       );
-      const fermer = (prendLOr) => {
-        if (prendLOr) act({ kind: "addInheritedPurse" });
-        setGuideEquipementVu(true);
-        voile.remove();
-      };
-      const pied = el("div", "guide-oblige-pied");
+      const pied = el("div", "decision-kit-pied");
       pied.append(
-        button("I keep my kit", "guide-oblige-bouton", () => fermer(false), "Close this notice"),
-        button("Take the 50 GP", "guide-oblige-bouton", () => fermer(true), "Add fifty gold to the purse"),
+        button("I keep my kit", "decision-kit-bouton",
+          () => act({ kind: "choisirDepart", valeur: "kit" }), "Keep the class kit"),
+        button("Take the 50 GP", "decision-kit-bouton",
+          () => act({ kind: "choisirDepart", valeur: "purse" }), "Add fifty gold to the purse"),
       );
       boite.append(pied);
       voile.append(boite);

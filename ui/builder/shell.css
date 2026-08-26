@@ -521,6 +521,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   pointer-events: none;
 }
 .popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
+/* §7 (26/08) — LES TROIS PASTILLES : un composant, trois teintes, trois
+   intentions. Le GUIDE est le défaut et ne signale rien (parchemin — la
+   surface elle-même) ; l'AIGUILLEUR prévient (bleu) ; le GENDARME dit
+   l'erreur (rouge — le liseré historique de ce bloc devient SA pastille). */
+.popup[data-role="guide"] { border-color: var(--border-strong); }
+.popup[data-role="aiguilleur"] { border-color: var(--info); }
+.popup[data-role="gendarme"] { border-color: var(--critical); }
 
 /* ── LES CHEVRONS FLOTTANTS (I.7, B0.22) ──────────────────────────
    « À l'extrême droite de l'écran » (B0.22a) · « ils s'effacent après ~1 s »
@@ -4345,7 +4352,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=295");
+  background-image: url("./assets/tarot-dos.jpg?v=296");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4740,26 +4747,27 @@ button { font: inherit; }
   background: none; color: var(--text); border: 0; border-radius: var(--radius-sm);
 }
 
-/* ══ LE GUIDE OBLIGATOIRE de l'étape Équipement (24/08) ═════════════════════
-   Un RECOUVREMENT par-dessus la scène — jamais un bloc dans le flux, qui
-   pousserait le dressing sous le pli (défilement, refusé). Il vient même
-   tutoriel éteint : c'est une règle à avoir vue, pas une aide refusable. */
-.equipment-dressing { position: relative; }
-.guide-oblige {
+/* ══ LA DÉCISION DU DÉPART (kit OU 50 po) — requalifiée le 26/08 ═══════════
+   ⛔ Ce n'est PAS un guide (Archi 27) : un objet qui EXIGE une réponse et
+   ÉCRIT au document est une DÉCISION. Recouvrement par-dessus la scène —
+   jamais dans le flux, rien ne se pousse. Son état vit AU PERSONNAGE
+   (`depart`), pas au navigateur. */
+.equipment-dressing, .dressing { position: relative; }
+.decision-kit {
   position: absolute; inset: 0; z-index: 2;
   display: flex; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
 }
-.guide-oblige-carte {
+.decision-kit-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));
   background: var(--surface); border: 1px solid var(--accent);
   border-radius: var(--radius-md); padding: var(--sp-16);
   display: flex; flex-direction: column; gap: var(--sp-8);
 }
-.guide-oblige-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
-.guide-oblige-texte { margin: 0; font-size: var(--t3); }
-.guide-oblige-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
-.guide-oblige-bouton {
+.decision-kit-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.decision-kit-texte { margin: 0; font-size: var(--t3); }
+.decision-kit-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+.decision-kit-bouton {
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
@@ -5028,7 +5036,7 @@ button { font: inherit; }
 
 /* — LE BOUTON : la forme, patron du socle — */
 .pipeline-bouton, .dressing-bouton, .carte-r-bouton,
-.pipeline-ligne-envoi, .pipeline-pas, .guide-oblige-bouton {
+.pipeline-ligne-envoi, .pipeline-pas, .decision-kit-bouton {
   --bouton-fond: var(--text-muted);
   position: relative;
   background: none;
@@ -5039,7 +5047,7 @@ button { font: inherit; }
   filter: var(--bouton-ombre);
 }
 .pipeline-bouton::before, .dressing-bouton::before, .carte-r-bouton::before,
-.pipeline-ligne-envoi::before, .pipeline-pas::before, .guide-oblige-bouton::before {
+.pipeline-ligne-envoi::before, .pipeline-pas::before, .decision-kit-bouton::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -5070,7 +5078,7 @@ button { font: inherit; }
 .pipeline-bouton[aria-label^="Pay"],
 .pipeline-bouton[aria-label^="Send"],
 .pipeline-bouton[aria-label^="Add fifty"],
-.guide-oblige-bouton { --bouton-fond: var(--positive); }
+.decision-kit-bouton { --bouton-fond: var(--positive); }
 .pipeline-bouton[aria-label^="Empty"],
 .pipeline-danger { --bouton-fond: var(--critical); }
 .pipeline-inerte { filter: none; }
