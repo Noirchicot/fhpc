@@ -3617,6 +3617,117 @@ button { font: inherit; }
 .parcours-resume-titre { margin: 0 0 var(--sp-4); font-weight: 600; color: var(--text); }
 .parcours-resume-mot { margin: 0 0 var(--sp-4); }
 
+/* ══ §5 bis — LE DÉFILEMENT INTERNE : LA PROSE DÉFILE, LES CONTRÔLES NON ═════
+   Eric, 2026-08-26 : *« quand on a un long bloc de texte […] je voudrais un
+   scrollable interne — pas la dalle, mais uniquement la ZONE DE TEXTE. Ça
+   permettrait de garder le bilan Species sur une page. »*
+
+   📏 CE QUI ÉTAIT MESURÉ AVANT CE BLOC, au navigateur sans écran, à la cible
+   360 × 553 (`--virtual-time-budget`, `getBoundingClientRect`) :
+
+     | l'écran            | la dalle | la fenêtre | le pied `Done` |
+     |--------------------|----------|------------|----------------|
+     | Species › guide    | **847**  | 493        | y 872..916 — **379 px sous le pli** |
+     | Class   › guide    | **673**  | 493        | y 698..742 — **205 px sous le pli** |
+     | Inheritance › guide|   380    | 493        | visible — il tenait déjà |
+
+   ⛔ ET C'ÉTAIT `.stage` QUI DÉFILAIT — `scrollHeight` 905 pour 493 sur
+   Species. Donc la DALLE défilait, et la BANDE DE CONTRÔLES avec elle : les
+   deux choses que §5 bis interdit nommément. Le joueur devait défiler pour
+   trouver `Done`.
+
+   📏 LA CAUSE, ET ELLE TIENT EN UN NOMBRE : sur Species, `.parcours-resume` de
+   la ligne « Granted automatically » vaut **448 px à lui seul** — les traits de
+   l'Elfe. 847 − 448 = **399 px** de non-prose, qui tiennent dans 493. La prose
+   était le seul coupable, et c'est exactement elle que §5 bis autorise à
+   défiler.
+
+   ⭐ AUCUNE COTE N'EST ÉCRITE ICI (§1 ter). La boîte qui défile ne porte pas
+   un nombre de lignes : elle prend **ce qui reste** de la dalle, une fois les
+   contrôles servis. La formule vit dans le `flex`, pas dans un pixel — le jour
+   où un libellé grandit, la boîte rétrécit d'elle-même.
+   ⛔ Et ce n'est PAS la dalle qui porte la hauteur : `max-height: 100%` la
+   BORNE à sa fenêtre, ce qui est le contraire de lui en donner une. */
+
+/* ① LA DALLE NE DÉPASSE PLUS SA FENÊTRE — et elle ne défile pas pour autant.
+   ⚠️ ET IL A FALLU OUVRIR LE CHEMIN, sinon la borne ne mord sur rien : mesuré,
+   la chaîne est `.stage` (493, définie) › `.decision-card` › `.catalogue-step`
+   › `.parcours-guide`, et les DEUX intermédiaires étaient des blocs à hauteur
+   `auto`. Un `max-height: 100%` posé sous une hauteur `auto` se résout à
+   `none` — la déclaration était là, et elle ne faisait rien.
+   ⛔ LES DEUX ENVELOPPES NE SONT TOUCHÉES QUE QUAND ELLES PORTENT UN PARCOURS
+   (`:has()`, l'idiome que `.decision-card` emploie déjà six fois plus haut) :
+   les autres écrans — dont les cinq qui auront leur propre lot — ne voient
+   strictement rien changer.
+   📏 ET LE CHEMIN PASSE PAR UN FLEX, PAS PAR UN `height: 100%` — mesuré
+   aussi : avec `height: 100%`, la carte faisait bien 493, mais ses marges (8
+   en haut, 8 en bas à la cible) s'ajoutaient PAR-DESSUS et `.stage` gardait
+   **509 de contenu pour 493** de fenêtre. Une hauteur en pourcentage ignore
+   les marges de l'élément qui la porte ; `flex: 1 1 auto` les compte. */
+.stage:has(> .decision-card > .catalogue-step > .parcours-guide),
+.stage:has(> .decision-card > .catalogue-step > .parcours-bilan) {
+  display: flex; flex-direction: column;
+}
+.decision-card:has(> .catalogue-step > .parcours-guide),
+.decision-card:has(> .catalogue-step > .parcours-bilan) {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.catalogue-step:has(> .parcours-guide),
+.catalogue-step:has(> .parcours-bilan) {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.parcours-guide,
+.parcours-bilan { max-height: 100%; min-height: 0; }
+
+/* ② CE QUI NE CÈDE JAMAIS : la tête d'un item (son voyant et son bouton) et le
+   pied. Ce sont des CONTRÔLES — §5 bis les nomme un par un. */
+.parcours-item-tete,
+.parcours-pied { flex: none; }
+
+/* ③ CE QUI CÈDE : la zone des items, et dedans la prose de chaque bilan.
+   ⚠️ `min-height: var(--touch)` reste posé sur `.parcours-item` (plus haut) et
+   c'est lui qui garantit qu'un item comprimé ne descend jamais sous la cible
+   tactile — le plancher est déjà écrit, on ne le redit pas ici. */
+/* ⚠️ ET ELLE PORTE LA SOUPAPE DE DERNIER RECOURS, `overflow-y: auto`. Elle ne
+   s'ouvre QUE quand les planchers ne tiennent plus — mesuré, c'est le cas de
+   Class › guide : quatre portes (4 × 53 = 222), le mot du guide (63), le titre
+   (21) et un bilan à son plancher (44) demandent plus que la dalle n'offre, et
+   sans elle le bilan CHEVAUCHAIT le pied (y 453..497 contre 460..504).
+   🔴 CE N'EST PAS UNE NORME, C'EST UN FILET : §5 bis dit qu'une bande de
+   contrôles ne défile pas. Qu'il faille l'ouvrir ici est le signe que **Class
+   › guide porte quelque chose EN TROP** (§1 quater) — une question de CONTENU,
+   qui revient à Eric, pas un réglage à choisir dans un lot. Le jour où cet
+   écran s'allège, la soupape ne s'ouvrira plus d'elle-même. */
+.parcours-items { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+
+/* 📏 ET SEUL L'ITEM QUI PORTE DE LA PROSE CÈDE. Sans cette paire, mesuré : les
+   items 1 et 2 (des têtes nues, 53 px) étaient comprimés à 48 et se
+   CHEVAUCHAIENT de 5 px — le rétrécissement se répartissait sur les trois au
+   prorata, alors qu'un seul avait du texte à donner. */
+.parcours-item { flex: none; }
+.parcours-item:has(> .parcours-resume) { flex: 1 1 auto; min-height: 0; }
+
+/* ④ LA BOÎTE QUI DÉFILE, ET ELLE SEULE. `overscroll-behavior: contain` empêche
+   le geste de remonter à `.stage` une fois la prose au bout — sinon la page
+   bougerait derrière, ce qu'elle ne doit jamais faire (§1 quater). */
+/* 🔴 ET ELLE A UN PLANCHER, SINON LE DÉFILEMENT NE SERT À RIEN. Mesuré sans
+   plancher : le bilan de Species tombait à **36 px** et celui de Class à
+   **ZÉRO** — la page tenait sur un écran, et la prose avait disparu. Un texte
+   invisible n'est pas un texte qui défile.
+   ⭐ LE PLANCHER EST `--touch`, ET CE N'EST PAS UN NOMBRE CHOISI : §1 quater
+   l'écrit lui-même — *« tout ce qui se touche a le même plancher »*. Une boîte
+   qu'on fait défiler AU DOIGT est une chose qu'on touche ; elle prend donc la
+   cote déjà ratifiée, pas une cote inventée pour l'occasion.
+   ⚠️ CE QUE ÇA COÛTE, ET C'EST ASSUMÉ : un bilan court de 20 px occupe quand
+   même 44. On ne sait pas exprimer en CSS « le plus petit des deux ». */
+.parcours-resume,
+.parcours-acquis {
+  flex: 1 1 auto; min-height: var(--touch);
+  overflow-y: auto; overscroll-behavior: contain;
+}
+
 /* ⑤ LE DÉPASSEMENT — tous les récepteurs passent au rouge. Écrit APRÈS le bleu
    ET après le vert : un budget explosé l'emporte sur « tout est posé », parce
    que c'est la seule chose qu'il faut voir. (Eric, 2026-08-19, sur capture :
