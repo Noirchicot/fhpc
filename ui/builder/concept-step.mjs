@@ -63,14 +63,32 @@ function text(value) { return document.createTextNode(String(value)); }
  *  `<input>` accepte. */
 function textField({ id, label, value, maxLength, ariaDescribedBy, error, datalistId, datalistOptions, onCommit }) {
   const wrap = el("div", "doc-field");
-  const labelNode = el("label", "doc-field-label", [text(label)]);
-  labelNode.setAttribute("for", id);
-  wrap.append(labelNode);
 
   const input = document.createElement("input");
   input.type = "text";
   input.id = id;
   input.className = "doc-field-input";
+  /* 🔴 LE LIBELLÉ VIT DANS L'ENCART, PLUS AU-DESSUS — Eric, 2026-08-26 :
+     *« Name peut figurer dans l'encart d'écriture, avant d'être remplacé par le
+     nom du perso »*, puis : *« on gagne un champ »*.
+
+     ⭐ ET C'EST EXACTEMENT CE QU'UN PLACEHOLDER EST FAIT POUR DIRE : il occupe
+     la place de la réponse tant qu'il n'y en a pas, et il s'efface dès que le
+     joueur écrit. Le mot « Name » n'a donc jamais besoin d'exister EN MÊME
+     TEMPS que le nom du personnage — or c'est exactement ce qu'une étiquette
+     au-dessus imposait : deux lignes pour une seule information, dont l'une
+     devient redondante à la seconde où elle sert.
+     📏 CE QUE ÇA REND AU BUDGET : l'étiquette pesait 17 px et son écart 4 —
+     **21 px**, dans une carte à qui il en manque 62 pour tenir dans une hauteur
+     d'iPhone SE.
+
+     ⚠️ ⛔ ET IL GARDE SON NOM POUR QUI NE VOIT PAS L'ÉCRAN. Un `placeholder`
+     n'est PAS une étiquette : les lecteurs d'écran ne s'engagent pas à
+     l'annoncer, et il disparaît dès la première frappe. `aria-label` reste donc
+     posé, et il porte le même mot. **Gagner une ligne à l'œil ne doit jamais se
+     payer par un champ anonyme à l'oreille.** */
+  input.placeholder = label;
+  input.setAttribute("aria-label", label);
   input.value = typeof value === "string" ? value : "";
   if (typeof maxLength === "number") input.maxLength = maxLength;
   if (ariaDescribedBy) input.setAttribute("aria-describedby", ariaDescribedBy);
