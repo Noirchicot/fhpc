@@ -642,15 +642,30 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    ⛔ Cette règle ne pose donc plus que la FORME : liseré, rayon, rembourrage,
    marge. Aucun `background`. */
 .decision-card {
-  border: 1px solid var(--border); /* décorative : le contour d'une carte, aucune cible de contraste (§3b) */
-  border-radius: var(--radius-md);
+  /* 🔴 NI LISERÉ NI RAYON — Eric, 2026-08-26, en regardant v298 : *« le cadre
+     en blanc pourquoi ? derrière la dalle que fait-il là ? »*. Rien. Il
+     dessinait une boîte autour de vide.
+     ⭐ SA RÈGLE DU 17/08 EN RETIRAIT TROIS CHOSES, je n'en avais retiré qu'une.
+     Elle est écrite plus bas, pour trois écrans : `padding: 0; border: none;
+     background: none`. Le fond était parti, le contour et le rembourrage
+     étaient restés — et un contour EST une peinture.
+     ⛔ Un liseré n'est décoratif que s'il borde quelque chose. Celui-ci
+     bordait le vide : il annonçait une surface qui n'existe plus. */
+  border: none;
   /* ⭐ 32 → 16 px, ET C'EST UNE MESURE D'ERIC APPLIQUÉE, PAS UN GOÛT
      (ERGONOMIE-BUILDER.md, B4.3) : « le coupable n'est pas le nombre de
      colonnes — c'est le PADDING de 32 px, qui mange 64 px, soit 18 % de la
      largeur de l'écran ». À 360 px, la largeur utile passe de 264 à 296 px.
      Le même padding est nommé une seconde fois en B7.5 (Compétences).
      Il venait du desktop et n'avait jamais été repensé pour 360. */
-  padding: var(--card-pad); /* LOT 69 — 16 px à l'étroit (B4.3, inchangé), 24 en Large : le jeton porte la grandeur */
+  /* ⛔ PLUS DE REMBOURRAGE NON PLUS. Il creusait un intervalle entre le
+     contour et la dalle — l'écart blanc qu'Eric a vu. Un fond qui ne peint
+     pas n'a rien à espacer de son bord : c'est la DALLE qui porte sa propre
+     gouttière, et elle la porte déjà.
+     ⭐ LA MARGE, ELLE, RESTE, et c'est sa règle du 17/08 mot pour mot :
+     *« sans elle, les dalles toucheraient les bords de l'écran. C'est la
+     carte qui s'efface, pas ses gouttières. »* */
+  padding: 0;
   margin: var(--sp-16);
   /* LOT 69 — LE CENTRAGE, et pourquoi il est inoffensif à 360 : des marges
      `auto` ne partagent que le MOU. À l'étroit la carte remplit déjà tout
