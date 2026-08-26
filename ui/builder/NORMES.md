@@ -270,9 +270,17 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 | gabarit | capacité | sa largeur |
 |---|---|---|
 | **small** | **6 caractères**, **deux étages possibles** | 🔴 **DÉDUITE** du compte de caractères |
-| **large** | **12 caractères**, deux étages | 🔴 **DÉDUITE** |
+| **medium** | **12 caractères**, deux étages | 🔴 **DÉDUITE** — mot-témoin : **`COMPANIONS`** (10) |
 | **no constraint** | libre | — |
 | 🔴 **`+` / `−`** | un glyphe | **le plus petit possible** *(voir ci-dessous)* |
+
+🔴 **`large` A ÉTÉ RENOMMÉ `medium`** *(Eric, 26/08)*. Sur trois gabarits, *« large »* se lisait
+comme **le plus grand** alors que c'est **celui du milieu** — le plus grand est `no constraint`.
+**small · medium · no constraint** : l'ordre se lit tout seul, et un lot ne peut plus se tromper
+de gabarit.
+
+⭐ **Chaque gabarit a son MOT-TÉMOIN** — un mot réel qui prouve la cote, jamais un compte
+abstrait : **`CANCEL`** (6) pour `small`, **`COMPANIONS`** (10) pour `medium`.
 
 ⭐ **Un gabarit est un COMPTE DE CARACTÈRES, pas une largeur en pixels.** C'est §1 ter appliqué :
 la largeur se **déduit** du compte et de la police. ⛔ Écrire `width: 96px` figerait un gabarit qui
@@ -280,7 +288,7 @@ mentirait au premier changement de corps.
 
 ⚠️ **Et il manque une pièce pour pouvoir déduire** : ⛔ **aucune taille de texte n'est déclarée
 pour un bouton** — `.species-done` porte `font: inherit`. Tant que le corps d'un bouton n'est pas
-nommé *(T-quoi ?)*, **les largeurs de `small` et `large` ne sont pas calculables.** ⏳ À trancher.
+nommé *(T-quoi ?)*, **les largeurs de `small` et `medium` ne sont pas calculables.** ⏳ À trancher.
 
 ### 📐 LES COTES DES BOUTONS — extrapolées le 26/08
 
@@ -293,7 +301,7 @@ règle **« même largeur sur une ligne »** :
 | gabarit | par ligne | largeur | ce qu'il porte |
 |---|---|---|---|
 | **small** | **3** | 🔴 **87** | `NEXT` · `DONE` · `BACK` · `CANCEL` — **6 caractères** |
-| **large** | **2** | **135** | 12 caractères |
+| **medium** | **2** | **135** | 12 caractères — **`COMPANIONS`** |
 | **no constraint** | **1** | **278** | libre |
 | *(4 par ligne)* | 4 | *64* | ⏳ jamais demandé |
 
@@ -306,11 +314,11 @@ sans réglage.
 
 | gabarit | à **T3** (14) | à **T4** (16) |
 |---|---|---|
-| small — 6 car. | besoin 65 / 87 · **marge 22** ✅ | besoin 72 / 87 · marge 15 ✅ |
-| large — 12 car. | besoin 113 / 135 · **marge 22** ✅ | besoin 127 / 135 · 🔴 **marge 8** |
+| **small** — 6 car. | besoin 65 / 87 · **marge 22** ✅ | besoin 72 / 87 · marge 15 ✅ |
+| **medium** — 12 car. | besoin 113 / 135 · **marge 22** ✅ | besoin 127 / 135 · 🔴 **marge 8** |
 
 ➡️ **T3 est le corps recommandé** : c'est le seul qui laisse la **même marge (22 px) aux deux
-gabarits**. ⚠️ À T4, `large` n'a plus que 8 px — **un mot un peu large déborde**, et le déficit ne
+gabarits**. ⚠️ À T4, `medium` n'a plus que 8 px — **un mot un peu large déborde**, et le déficit ne
 se verrait que sur ce gabarit-là.
 
 ### La hauteur
