@@ -42,7 +42,7 @@
           "description": "Vous effleurez un texte écrit et en entendez la première phrase, prononcée dans la langue où elle a été tracée. Le sort ne traduit rien et ne révèle rien d'un texte chiffré."
         }
       },
-      "srd:spell:fr:bouclier-de-feu": {
+      "srd:spell:en:fire-shield": {
         "op": "disable",
         "reason": "À cette table, la magie de feu protectrice appartient à un ordre disparu : le sort n'est pas disponible aux personnages joueurs."
       }
@@ -60,7 +60,7 @@
       }
     },
     "weapon": {
-      "srd:weapon:fr:dague": {
+      "srd:weapon:en:dagger": {
         "op": "patch",
         "note": "Prix local : les dagues sont taxées à l'entrée de la ville franche.",
         "changes": {

@@ -422,19 +422,19 @@ test("REJET — id de record hors convention", () => {
 
 test("REJET — patch sans changes", () => {
   const layer = clone(layerExample);
-  delete layer.records.weapon["srd:weapon:fr:dague"].changes;
+  delete layer.records.weapon["srd:weapon:en:dagger"].changes;
   assertRejected(validateLayer, layer, "un patch sans modification");
 });
 
 test("REJET — patch dont un chemin de changes est mal formé", () => {
   const layer = clone(layerExample);
-  layer.records.weapon["srd:weapon:fr:dague"].changes = { "data..cost": "3 po" };
+  layer.records.weapon["srd:weapon:en:dagger"].changes = { "data..cost": "3 po" };
   assertRejected(validateLayer, layer, "un chemin de patch mal formé");
 });
 
 test("REJET — record mêlant deux opérations", () => {
   const layer = clone(layerExample);
-  layer.records.weapon["srd:weapon:fr:dague"].op = "disable";
+  layer.records.weapon["srd:weapon:en:dagger"].op = "disable";
   assertRejected(validateLayer, layer, "un record à la fois patch et disable");
 });
 
@@ -585,8 +585,8 @@ test("un document mutilé fait dire une VIOLATION, jamais planter le validateur"
 test("genres 13 et 14 — une couche peut porter `skill` et `class-progression`", () => {
   const layer = clone(layerExample);
   const record = clone(Object.values(layer.records[Object.keys(layer.records)[0]])[0]);
-  layer.records.skill = { "srd:skill:fr:athletisme": record };
-  layer.records["class-progression"] = { "srd:class-progression:fr:magicien": clone(record) };
+  layer.records.skill = { "srd:skill:en:athletics": record };
+  layer.records["class-progression"] = { "srd:class-progression:en:wizard": clone(record) };
   assertValid(validateLayer, layer, "les deux genres neufs sont acceptés");
 });
 

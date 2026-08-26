@@ -32,12 +32,12 @@ on("layers-changed", (event) => changes.push(event));
    compétences » n'est pas un COMPTE — un compte reste vert si la pile en rend
    dix-huit fausses. */
 const DIX_HUIT = [
-  "srd:skill:fr:acrobaties", "srd:skill:fr:arcanes", "srd:skill:fr:athletisme",
-  "srd:skill:fr:discretion", "srd:skill:fr:dressage", "srd:skill:fr:escamotage",
-  "srd:skill:fr:histoire", "srd:skill:fr:intimidation", "srd:skill:fr:intuition",
-  "srd:skill:fr:investigation", "srd:skill:fr:medecine", "srd:skill:fr:nature",
-  "srd:skill:fr:perception", "srd:skill:fr:persuasion", "srd:skill:fr:religion",
-  "srd:skill:fr:representation", "srd:skill:fr:survie", "srd:skill:fr:tromperie"
+  "srd:skill:en:acrobatics", "srd:skill:en:arcana", "srd:skill:en:athletics",
+  "srd:skill:en:stealth", "srd:skill:en:animal-handling", "srd:skill:en:sleight-of-hand",
+  "srd:skill:en:history", "srd:skill:en:intimidation", "srd:skill:en:insight",
+  "srd:skill:en:investigation", "srd:skill:en:medicine", "srd:skill:en:nature",
+  "srd:skill:en:perception", "srd:skill:en:persuasion", "srd:skill:en:religion",
+  "srd:skill:en:performance", "srd:skill:en:survival", "srd:skill:en:deception"
 ];
 
 /* La couche de table : elle PATCHE une compétence et en DÉSACTIVE une autre,
@@ -50,12 +50,12 @@ const COUCHE_DE_TABLE = bytes(aLayer({
   flags: ["maison.veillee"],
   records: {
     skill: {
-      "srd:skill:fr:perception": {
+      "srd:skill:en:perception": {
         op: "patch",
         note: "À cette table, la Perception passive est annoncée par le MJ.",
         changes: { "data[example_uses]": "Le MJ annonce ce que les sens relèvent sans qu'on ait à le demander." }
       },
-      "srd:skill:fr:dressage": {
+      "srd:skill:en:animal-handling": {
         op: "disable",
         reason: "Pas de bêtes dressées dans cette campagne."
       }
@@ -65,25 +65,52 @@ const COUCHE_DE_TABLE = bytes(aLayer({
 
 /* ── 1. Les deux vraies couches SRD se chargent ─────────────────────── */
 
-test("les deux couches SRD réelles se chargent, 18 genres et 2 734 records", () => {
+test("les deux couches SRD réelles se chargent, 18 genres et 2 736 records", () => {
   const fr = dispatch("layers.register", { bytes: fileBytes(SRD_FR), origin: SRD_FR });
   const en = dispatch("layers.register", { bytes: fileBytes(SRD_EN), origin: SRD_EN });
 
   assert.equal(fr.id, "srd-5.2.1-fr");
   assert.equal(en.id, "srd-5.2.1-en");
-  /* MESURÉ le 2026-08-23 (lot 93). Les deux langues sont désormais À ÉGALITÉ,
-     et c'est une information : l'EN traînait 1 323 parce que l'extraction de
-     fh-srd avalait cinq épées magiques (rendues par son lot 86), et les deux
-     langues ont gagné `item-value` — un genre que la couche sautait en silence
-     depuis une journée, faute d'être dans une liste écrite en dur. */
-  assert.equal(fr.records, 1367);
-  assert.equal(en.records, 1367);
-  assert.equal(fr.records + en.records, 2734, "la matière annoncée par le kickoff, entière — plus les genres des lots 19, 92 et 100 de fh-srd");
+  /* 🔴 LES DEUX LANGUES NE SONT PLUS À ÉGALITÉ, ET C'EST UNE INFORMATION.
+     Elles l'étaient à 1 367 depuis le lot 93. La transition à froid de fh-srd
+     (2026-08-24) a fait apparaître un écart qui existait déjà dans les LIVRES
+     et que deux catalogues séparés cachaient :
 
+       FR 1 369 = 1 366 appariés + 3 que le livre FRANÇAIS seul imprime
+                  (`Vitesse d'escalade / de nage / de vol`)
+       EN 1 367 = 1 366 appariés + 1 que le livre ANGLAIS seul imprime (`Size`)
+
+     ⭐ Les trois françaises portent une adresse ANGLAISE ADOPTÉE — `climb-speed`,
+     `swim-speed`, `fly-speed` — que le livre anglais imprime 74 fois SANS leur
+     donner d'entrée de glossaire. Elles ne sont pas inventées : elles sont
+     prises dans le livre. */
+  assert.equal(fr.records, 1369);
+  assert.equal(en.records, 1367);
+
+  /* 🔴🔴 ET LA PILE N'EN PORTE PAS 2 736, ELLE EN PORTE 1 370 — C'EST TOUTE LA
+     MIGRATION, VUE PAR LE MOTEUR.
+
+     Ce test affirmait : « aucun id ne collisionne entre les deux langues ».
+     C'était vrai, et ça ne l'est plus : les deux langues d'un record occupent
+     désormais LA MÊME ADRESSE. Montées ensemble, elles ne s'additionnent pas,
+     elles se RECOUVRENT — et celle du dessus donne les mots.
+
+       1 370 = 1 366 adresses partagées
+             +     3 que le livre FRANÇAIS seul imprime (les vitesses adoptées)
+             +     1 que le livre ANGLAIS seul imprime (`Size`)
+
+     ⭐ ET LE MOTEUR AVAIT DÉJÀ LE VOCABULAIRE : `shadowed` NOMME chacun des
+     1 366 recouvrements, avec qui recouvre qui. Ce n'est pas un accident
+     rattrapé, c'est le mécanisme du patch qui se voit. */
   const event = changes[changes.length - 1];
-  assert.equal(event.total, 2734, "et rien ne s'est perdu au pli : aucun id ne collisionne entre les deux langues");
+  assert.equal(event.total, 1370, "une adresse par record, quelle que soit la langue qui l'affiche");
   assert.equal(Object.keys(event.counts).length, 18);
-  assert.deepEqual(event.shadowed, [], "aucune couche n'en recouvre une autre");
+  assert.equal(event.shadowed.length, 1366,
+    "le recouvrement n'est pas silencieux : le moteur nomme chaque adresse " +
+    "que la couche du dessus reprend à celle du dessous");
+  assert.equal(event.shadowed.every((s) => s.by === "srd-5.2.1-en"
+                                        && s.over === "srd-5.2.1-fr"), true,
+    "l'anglais est monté en DERNIER ici, donc c'est lui qui donne les mots");
 
   /* L'empreinte rendue est celle des octets du fichier — c'est elle que
      `build.layers[].hash` transportera dans un `fh-char/1`. */
@@ -99,7 +126,7 @@ test("query rend les DIX-HUIT compétences, nommément", () => {
     .map((view) => view.id).sort();
   assert.deepEqual(ids, DIX_HUIT.slice().sort());
 
-  const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
+  const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" });
   assert.equal(perception.record.name, "Perception");
   // REWRITTEN 2026-08-08 — arbitrage de l'architecte, à la fusion du lot 8.
   // L'assertion épinglait « sag » et invoquait layers/TRADUCTION.md : c'était une
@@ -122,10 +149,10 @@ test("une couche de table patche une compétence et en désactive une autre — 
   const restantes = dispatch("layers.query", { kind: "skill" })
     .map((view) => view.id).filter((id) => id.startsWith("srd:skill:fr:"));
   assert.equal(restantes.length, 17, "le disable en a retiré une");
-  assert.equal(restantes.includes("srd:skill:fr:dressage"), false);
-  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:dressage" }), null);
+  assert.equal(restantes.includes("srd:skill:en:animal-handling"), false);
+  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:en:animal-handling" }), null);
 
-  const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
+  const perception = dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" });
   assert.match(perception.record.data.example_uses, /^Le MJ annonce/, "le patch a pris");
   // REWRITTEN 2026-08-08 — même arbitrage. Ce que l'assertion PROUVE ne change pas
   // (un patch n'emporte rien d'autre) ; seule la valeur attendue suit la source.
@@ -143,15 +170,15 @@ test("une couche de table patche une compétence et en désactive une autre — 
 
 test("éteindre la couche de table REND ce qu'elle avait pris", () => {
   dispatch("layers.disable", { id: "table-eric" });
-  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:dressage" }).record.name, "Dressage");
+  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:en:animal-handling" }).record.name, "Dressage");
   assert.match(
-    dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" }).record.data.example_uses,
+    dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" }).record.data.example_uses,
     /^Par l’intermédiaire/,
     "et la Perception retrouve son texte SRD, mot pour mot"
   );
   assert.deepEqual(dispatch("layers.flags"), []);
   dispatch("layers.enable", { id: "table-eric" });
-  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:dressage" }), null);
+  assert.equal(dispatch("layers.query", { kind: "skill", id: "srd:skill:en:animal-handling" }), null);
 });
 
 /* ── 4. La couche d'exemple du lot 2, sur la vraie pile ─────────────── */
@@ -166,12 +193,12 @@ test("la couche d'exemple du lot 2 s'applique au vrai SRD : elle ajoute, patche 
 
   assert.equal(dispatch("layers.query", { kind: "gear", id: "exemple:gear:fr:lanterne-pliante" }).record.name,
     "Lanterne pliante", "l'ajout est là");
-  assert.equal(dispatch("layers.query", { kind: "weapon", id: "srd:weapon:fr:dague" }).record.data.cost,
+  assert.equal(dispatch("layers.query", { kind: "weapon", id: "srd:weapon:en:dagger" }).record.data.cost,
     "3 po", "le patch a touché le VRAI record SRD (2 po chez le SRD)");
-  assert.equal(dispatch("layers.query", { kind: "spell", id: "srd:spell:fr:bouclier-de-feu" }), null,
+  assert.equal(dispatch("layers.query", { kind: "spell", id: "srd:spell:en:fire-shield" }), null,
     "et le disable a retiré le vrai sort");
 
-  const dague = dispatch("layers.query", { kind: "weapon", id: "srd:weapon:fr:dague" });
+  const dague = dispatch("layers.query", { kind: "weapon", id: "srd:weapon:en:dagger" });
   assert.equal(dague.record.data.damage, "1d4 perforants", "le reste du record est intact");
   assert.deepEqual(dague.provenance.patchedBy[0].applied, [{ path: "data.cost", created: false }]);
 });
@@ -193,7 +220,7 @@ test("les deux langues cohabitent sans jamais s'apparier", () => {
 
   /* La pile LIT `lang`, elle ne la devine jamais. Perception (fr) patchée,
      Perception (en) intacte — deux records, deux vies. */
-  assert.match(dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" }).record.data.example_uses,
+  assert.match(dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" }).record.data.example_uses,
     /^Le MJ annonce/);
   assert.match(dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" }).record.data.example_uses,
     /^Using/, "l'anglais n'a rien reçu du patch français");

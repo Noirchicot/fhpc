@@ -290,7 +290,7 @@ test("AUCUN OUTIL NE REND LE DOCUMENT DANS SON RÉSULTAT — il est à la resour
   assert.equal(rebuilt.structuredContent.document, undefined,
     "`rebuild` rend `resolved`, `decisions`, `underived`, `shadowed`… mais le document a une adresse, et une seule");
   const choix = client.call("build.choose",
-    { path: "species", ref: { kind: "species", id: "srd:species:fr:elfe" }, label: "Elfe" });
+    { path: "species", ref: { kind: "species", id: "srd:species:en:elf" }, label: "Elfe" });
   assert.equal(choix.structuredContent.document, undefined);
   assert.deepEqual(Object.keys(choix.structuredContent), ["choice"]);
   assert.equal(choix.structuredContent.choice.replaced, true, "la même décision, reposée, REMPLACE");

@@ -376,8 +376,8 @@ test("spot-check — un sort, une espèce, un don connus survivent tels quels", 
   assert.equal(en.records.species["srd:species:en:dragonborn"].name, "Dragonborn");
   assert.equal(en.records.feat["srd:feat:en:alert"].name, "Alert");
 
-  assert.equal(fr.records.spell["srd:spell:fr:boule-de-feu"].name, "Boule de feu");
-  assert.equal(fr.records.species["srd:species:fr:drakeide"].name, "Drakéide");
+  assert.equal(fr.records.spell["srd:spell:en:fireball"].name, "Boule de feu");
+  assert.equal(fr.records.species["srd:species:en:dragonborn"].name, "Drakéide");
 });
 
 test("piège de forme — class-progression du lanceur de pacte n'est pas « corrigé »", () => {

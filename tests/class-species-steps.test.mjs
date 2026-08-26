@@ -483,8 +483,8 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
       layers: manifestOf(srdHarness.layers),
       choices: [
         { path: "level", value: 1, label: "Level 1" },
-        { path: "class", ref: { kind: "class", id: "srd:class:fr:magicien" }, label: "Magicien" },
-        { path: "species", ref: { kind: "species", id: "srd:species:fr:humain" }, label: "Humain" },
+        { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" }, label: "Magicien" },
+        { path: "species", ref: { kind: "species", id: "srd:species:en:human" }, label: "Humain" },
         { path: "abilities.mode", value: "standard", label: "Standard array" },
         { path: "abilities.str", value: 8 }, { path: "abilities.dex", value: 14 },
         { path: "abilities.con", value: 13 }, { path: "abilities.int", value: 15 },

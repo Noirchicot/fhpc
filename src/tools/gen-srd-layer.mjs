@@ -294,7 +294,90 @@ export function verifyManifest() {
       assertDigestMatches(rel, sha256(readBytes(rel)), byPath.get(rel));
     }
   }
+  // ⛔ LA TABLE DE CONVERSION EST UN INTRANT COMME UN AUTRE depuis que la
+  // couche française est un patch : sans elle, un poids français serait rendu
+  // en livres. Un fichier non vérifié n'entre pas dans la couche.
+  const conv = "srd/conversions.json";
+  assertDigestMatches(conv, sha256(readBytes(conv)), byPath.get(conv));
 }
+
+/* ══ LA COUCHE FRANÇAISE EST UN PATCH DEPUIS LA TRANSITION À FROID ═════════
+
+   🔴 CE GÉNÉRATEUR LISAIT `doc.records` DES DEUX CÔTÉS, ET C'EST DEVENU UN
+   `TypeError` LE 2026-08-24. Chez `fh-srd`, la couche française a cessé d'être
+   un embranchement : il n'y a plus qu'UN jeu de records, adressé en anglais, et
+   `exports/srd/fr/*.json` porte des **patches** posés dessus.
+
+   ⭐ CE N'EST PAS UNE COUCHE PÉRIMÉE — une couche périmée donnerait des comptes
+   faux, pas un « not iterable ». C'est un CHANGEMENT DE FORME de la source, et
+   la bonne réponse est de suivre, pas de replâtrer.
+
+   TROIS COUCHES, ET L'ORDRE COMPTE — la même lecture que
+   `~/tools/fh-srd/src/french_layer.py`, qui est la référence :
+
+     ① le RECORD anglais    la structure, les clefs, les nombres
+     ② la CONVERSION        un nombre français se RECALCULE (`conversions.json`)
+     ③ le PATCH             un mot français se PREND dans le livre
+
+   ⭐ Le patch passe en DERNIER exprès : si le livre français écrivait un jour
+   autre chose qu'une simple conversion, c'est le LIVRE qui gagnerait.
+
+   ⚠️ Une adresse ADOPTÉE n'a pas de record anglais derrière elle — le livre
+   anglais imprime le terme (`Climb Speed`, 15 fois) mais ne lui donne pas
+   d'entrée. Sa base est vide et le patch porte tout. C'est prévu. */
+
+let conversionsCache = null;
+
+function conversions() {
+  if (conversionsCache === null) {
+    conversionsCache = readJson("srd/conversions.json").fields;
+  }
+  return conversionsCache;
+}
+
+/** Les records d'un fichier d'export, reconstitués si c'est un patch.
+ *
+ *  ⛔ Un fichier qui ne porte NI `records` NI `patches` n'est pas un fichier
+ *  vide : c'est une forme qu'on ne connaît pas. On refuse en la nommant, plutôt
+ *  que de rendre une liste vide qui ressemblerait à une réponse.
+ */
+function recordsOf(doc, genre, lang) {
+  if (Array.isArray(doc.records)) return doc.records;
+  if (!Array.isArray(doc.patches)) {
+    throw new Error(
+      `gen-srd-layer : ${relPath(lang, genre)} ne porte ni \`records\` ni ` +
+      "`patches` — forme inconnue, rien n'est produit. Refusé, pas sauté.");
+  }
+  const anglais = new Map(
+    readJson(relPath("en", genre)).records.map((r) => [r.id, r]));
+  const table = conversions();
+  return doc.patches.map((patch) => {
+    const base = anglais.get(patch.id);
+    const data = base ? structuredClone(base.data) : {};
+
+    // ② les conversions, AVANT le patch
+    for (const [champ, valeur] of Object.entries(data)) {
+      if (typeof valeur !== "string") continue;
+      const fr = table[champ] && table[champ][valeur];
+      if (fr !== undefined) data[champ] = fr;
+    }
+    // ③ les mots du livre français
+    Object.assign(data, patch.data);
+
+    const record = base ? structuredClone(base) : {};
+    Object.assign(record, {
+      id: patch.id, lang: "fr", name: patch.name, data,
+      kind: (base && base.kind) || genre,
+      slug: (base && base.slug) || patch.id.split(":").pop(),
+    });
+    for (const champ of ["license", "attribution", "source_id",
+                         "source_locator", "srd_version", "content_hash"]) {
+      if (patch[champ] !== undefined) record[champ] = patch[champ];
+    }
+    return record;
+  });
+}
+
 
 /** Transporte un record fh-srd tel quel dans un geste `add` de fh-layer/1. */
 function toAddEntry(record) {
@@ -331,15 +414,16 @@ export function buildLayer(lang) {
     if (!sourceMeta) sourceMeta = doc.source;
 
     const genreRecords = {};
-    for (const record of doc.records) {
+    for (const record of recordsOf(doc, genre, lang)) {
       if (Object.hasOwn(genreRecords, record.id)) {
         throw new Error(`gen-srd-layer : id de record dupliqué "${record.id}" dans ${rel}.`);
       }
       genreRecords[record.id] = toAddEntry(record);
     }
+    const lus = recordsOf(doc, genre, lang);
     records[genre] = genreRecords;
-    countsByGenre[genre] = doc.records.length;
-    total += doc.records.length;
+    countsByGenre[genre] = lus.length;
+    total += lus.length;
   }
 
   const layer = {

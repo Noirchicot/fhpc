@@ -59,7 +59,7 @@ test("DETTE B, test 1 — un boost hors catalogue ne rend plus qu'UNE SEULE `bac
     "un seul refus — AVANT ce lot, ce même document en rendait DEUX (mesuré, voir INVENTAIRE-LOT-52.md)");
   assert.deepEqual(disallowed[0], {
     key: "background.boost-disallowed",
-    params: { path: "background.boost.str", backgroundId: "srd:background:fr:sage", abilityKeys: "con, int, wis" },
+    params: { path: "background.boost.str", backgroundId: "srd:background:en:sage", abilityKeys: "con, int, wis" },
     path: "background.boost.str"
   }, "et c'est bien LE bon refus, pas un autre qui masquerait le compte");
   assert.equal(verdict.ok, false, "le document reste illégal — le correctif ne fait PAS disparaître le refus");
@@ -118,7 +118,7 @@ test("DETTE B, test 3 — `background.ability-key-invalid` mord toujours, sur le
   const h = makeHarness({
     extra: Object.assign(uneCouche("scenario-dette-b-ability-key-invalide", {
       background: {
-        "srd:background:fr:sage": { op: "patch", changes: { "data[ability_keys]": ["con", "int", "pied"] } }
+        "srd:background:en:sage": { op: "patch", changes: { "data[ability_keys]": ["con", "int", "pied"] } }
       }
     }), { flags: [] })
   });
@@ -127,6 +127,6 @@ test("DETTE B, test 3 — `background.ability-key-invalid` mord toujours, sur le
   const invalid = verdict.violations.filter((v) => v.key === "background.ability-key-invalid");
   assert.equal(invalid.length, 1, "une seule violation — le record ne porte qu'une seule clef cassée");
   assert.deepEqual(invalid[0].params, {
-    backgroundId: "srd:background:fr:sage", key: '"pied"', abilityKeys: "str, dex, con, int, wis, cha"
+    backgroundId: "srd:background:en:sage", key: '"pied"', abilityKeys: "str, dex, con, int, wis, cha"
   });
 });

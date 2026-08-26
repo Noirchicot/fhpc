@@ -138,7 +138,7 @@ test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
   assert.equal(registered.id, "srd-5.2.1-fr");
   assert.equal(registered.records, 1367, "mesuré le 2026-08-24 : 1 329 + les 38 records `class-option` du lot 100 de fh-srd");
 
-  const skill = dispatch("layers.query", { kind: "skill", id: "srd:skill:fr:perception" });
+  const skill = dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" });
   assert.equal(skill.record.name, "Perception");
 
   // Un verbe inconnu jette en le NOMMANT — jamais un échec muet (loi §0.5).

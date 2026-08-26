@@ -94,7 +94,7 @@ const CORPUS = [
 
   // ── oneOf : « ref OU value, jamais les deux, jamais aucun »
   ["un choix qui porte `ref` ET `value`",
-    (d) => { d.build.choices[0] = { path: "species", ref: { kind: "species", id: "srd:species:fr:elfe" }, value: 3 }; },
+    (d) => { d.build.choices[0] = { path: "species", ref: { kind: "species", id: "srd:species:en:elf" }, value: 3 }; },
     "refusé"],
   ["un choix qui ne porte ni l'un ni l'autre", (d) => { d.build.choices[0] = { path: "species" }; }, "refusé"],
   ["`spellcasting` à null (un personnage sans incantation)", (d) => { d.resolved.spellcasting = null; }, "admis"],
