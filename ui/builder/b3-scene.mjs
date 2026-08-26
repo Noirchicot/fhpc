@@ -13,9 +13,9 @@
    le lot 95. Le seul geste branché : la BARRE — celui qui monte la scène
    reçoit `surBouton(mot)` et décide (le builder : « Equipment » → retour R). */
 
-import { SCENE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
-  from "./b3-disposition.mjs?v=294";
-import { CORPS } from "./b3-ancrages.mjs?v=294";
+import { SCENE, SCENE_PIECE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
+  from "./b3-disposition.mjs?v=295";
+import { CORPS } from "./b3-ancrages.mjs?v=295";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -46,14 +46,22 @@ export function construireLaSceneB3(options = {}) {
   let echelle = options.echelle ?? CORPS_EN_SCENE.echelles[0];
   const apercus = Boolean(options.apercus);
   const surBouton = options.surBouton || null;
+  /* ⭐ `piece: true` (26/08, trois bandes — NORMES §1 sexies) : la scène se
+     rend comme la PIÈCE du flux — SANS titre (absorbé par la bande haute :
+     « on ne nomme pas deux fois ») et SANS barre (extraite vers la bande
+     basse), cadrée à SCENE_PIECE. ⛔ Par défaut elle reste l'écran d'hier —
+     le pilote (equipment-step, gelé sous 5-VISEUR) la monte encore ainsi ;
+     le lot 5 fera basculer la couture, pas ce fichier. */
+  const piece = Boolean(options.piece);
+  const CADRE = piece ? SCENE_PIECE : SCENE;
   /* ⭐ LE CONTENU (pilote, 24/08) : { boites: {clef → {nom, qte}}, bourse,
      poids: {somme, compte}, surBourse(clef, ±1), surLieu(lieu) }. Sans lui la
      scène reste la maquette du banc — mêmes cotes, rien de vivant. */
   const contenu = options.contenu || null;
 
   const noeud = forme("svg", "b3-scene", {
-    viewBox: `0 0 ${SCENE.l} ${SCENE.h}`, width: SCENE.l, height: SCENE.h,
-    "aria-label": "Le dressing — GEAR",
+    viewBox: `0 0 ${CADRE.l} ${CADRE.h}`, width: CADRE.l, height: CADRE.h,
+    "aria-label": piece ? "The dressing piece" : "Le dressing — GEAR",
   });
 
   function peindre(o = {}) {
@@ -69,14 +77,14 @@ export function construireLaSceneB3(options = {}) {
     for (const [clef, c] of Object.entries(CORPS)) {
       const m = forme("mask", null, { id: `b3s-masque-${clef === "monsieur" ? "h" : "f"}`,
         maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1000, height: 1600 });
-      m.append(forme("image", null, { href: `./assets/${c.image}?v=294`,
+      m.append(forme("image", null, { href: `./assets/${c.image}?v=295`,
         x: c.x, y: c.y, width: c.largeur, height: c.hauteur }));
       defs.append(m);
     }
     noeud.append(defs);
 
     noeud.append(forme("rect", "b3-scene-cadre",
-      { x: .75, y: .75, width: SCENE.l - 1.5, height: SCENE.h - 1.5, rx: 8 }));
+      { x: .75, y: .75, width: CADRE.l - 1.5, height: CADRE.h - 1.5, rx: 8 }));
 
     /* Le corps — un repère en filigrane, SECOND PLAN, grossi sur place. */
     const { k, dx, dy } = CORPS_EN_SCENE;
@@ -86,7 +94,9 @@ export function construireLaSceneB3(options = {}) {
       { x: 0, y: 0, width: 1000, height: 1600, mask: `url(#b3s-masque-${corps === "f" ? "f" : "h"})` }));
     noeud.append(port);
 
-    noeud.append(texte("b3-titre", SCENE.l / 2, 20, "GEAR", "middle"));
+    /* ⛔ en mode pièce le mot est absorbé : le TITRE du dressing devient la
+       seule chose qui nomme B3 — il ne pourra plus disparaître (Archi 27). */
+    if (!piece) noeud.append(texte("b3-titre", SCENE.l / 2, 20, "GEAR", "middle"));
 
     for (const b of BOITES) {
       const l = b.l || JETON.l;
@@ -213,8 +223,8 @@ export function construireLaSceneB3(options = {}) {
       noeud.append(g);
     });
 
-    /* La barre — le seul geste branché de la scène : `surBouton(mot)`. */
-    BARRE.noms.forEach((nom, i) => {
+    /* La barre — extraite vers la bande basse en mode pièce. */
+    if (!piece) BARRE.noms.forEach((nom, i) => {
       const g = forme("g", "b3-barre-bouton", nom ? { role: "button", tabindex: 0, "aria-label": nom } : {});
       g.append(forme("rect", "b3-bouton",
         { x: BARRE.xs[i], y: BARRE.y, width: BARRE.l, height: BARRE.h, rx: 4 }));

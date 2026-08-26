@@ -28,7 +28,7 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=294";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=295";
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {
@@ -394,6 +394,25 @@ export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = 4 }
    vers la remise — et c'est lui qui complète les ÉCHANGES INTERNES :
    chaque ligne porte ses trois destinations, l'écran devient la plaque
    tournante self ↔ backpack ↔ storage. */
+/** UNE RANGÉE D'ÉCHANGE — nom ×qte, les destinations, DROP. ⭐ PARTAGÉE :
+ *  les écrans SB3.1/SB3.3 la paginent, le FLUX du dressing (trois bandes,
+ *  26/08) la déroule — une seule écriture du geste d'échange. */
+export function rangeeEchange(l, lieu, onAction) {
+  const DESTS = [["self", "Worn"], ["backpack", "Backpack"], ["storage", "Storage"]];
+  const rang = elp("div", "pipeline-ligne");
+  rang.append(elp("span", "pipeline-ligne-nom", `${l.nomAffiche} ×${l.quantity || 1}`));
+  for (const [v, mot] of DESTS) {
+    if (v === lieu) continue;
+    rang.append(bouton(`→ ${mot}`, "pipeline-ligne-envoi",
+      () => onAction({ kind: "moveGearLine", index: l.index, location: v }),
+      `Move ${l.nomAffiche} to ${mot}`));
+  }
+  rang.append(bouton("DROP", "pipeline-ligne-envoi pipeline-danger",
+    () => onAction({ kind: "removeGearLine", index: l.index }),
+    `Drop ${l.nomAffiche}`));
+  return rang;
+}
+
 export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surLieu, parPage = 8 }) {
   const ecran = elp("section", "pipeline-ecran pipeline-sac");
   ecran.dataset.ecran = lieu === "storage" ? "SB3.3" : "SB3.1";
@@ -410,8 +429,6 @@ export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surL
   const listeHote = elp("div", "pipeline-lignes");
   const ici = lignesParLieu(lignes, lieu);
 
-  const DESTS = [["self", "Worn"], ["backpack", "Backpack"], ["storage", "Storage"]];
-
   function peindre() {
     const pages = Math.max(1, Math.ceil(ici.length / parPage));
     page = Math.min(page, pages - 1);
@@ -420,18 +437,7 @@ export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surL
     if (!ici.length) listeHote.append(elp("p", "pipeline-vide",
       lieu === "storage" ? "Nothing stored." : "The backpack is empty."));
     for (const l of ici.slice(page * parPage, (page + 1) * parPage)) {
-      const rang = elp("div", "pipeline-ligne");
-      rang.append(elp("span", "pipeline-ligne-nom", `${l.nomAffiche} ×${l.quantity || 1}`));
-      for (const [v, mot] of DESTS) {
-        if (v === lieu) continue;
-        rang.append(bouton(`→ ${mot}`, "pipeline-ligne-envoi",
-          () => onAction({ kind: "moveGearLine", index: l.index, location: v }),
-          `Move ${l.nomAffiche} to ${mot}`));
-      }
-      rang.append(bouton("DROP", "pipeline-ligne-envoi pipeline-danger",
-        () => onAction({ kind: "removeGearLine", index: l.index }),
-        `Drop ${l.nomAffiche}`));
-      listeHote.append(rang);
+      listeHote.append(rangeeEchange(l, lieu, onAction));
     }
   }
   peindre();

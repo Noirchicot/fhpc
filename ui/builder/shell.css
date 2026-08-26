@@ -4345,7 +4345,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=294");
+  background-image: url("./assets/tarot-dos.jpg?v=295");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4980,3 +4980,39 @@ button { font: inherit; }
 /* ── LA PORTE D'UN ITEM — elle prend l'avancement de son voyant ──────────
    validé = vert · rien fait = le gris par défaut, hérité de l'organe. */
 .parcours-item[data-allume="true"] .parcours-item-porte { --bouton-fond: var(--positive); }
+
+/* ══ LE DRESSING EN TROIS BANDES (NORMES §1 sexies, 26/08) ══════════════════
+   « un dressing qui scrolle, des boutons fixes » — titre collé en haut, flux
+   au milieu, barre collée en bas. ⛔ Ce qui défile ne porte pas les organes
+   fixes : le flux est la SEULE bande à défiler, et c'est l'exception ratifiée
+   à « la page ne défile jamais » (le Seuil, puis le dressing). */
+.dressing {
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+}
+.dressing-titre {
+  flex: none; margin: 0; padding: var(--sp-8);
+  text-align: center; font-size: var(--t4); letter-spacing: .14em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.dressing-flux {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);
+  padding: var(--sp-8);
+}
+/* la pièce ne se dilate pas — le flux défile autour d'elle */
+.dressing-piece { flex: none; }
+.dressing-section { align-self: stretch; display: flex; flex-direction: column; gap: var(--sp-4); }
+.dressing-section-titre {
+  margin: 0; font-size: var(--t3); color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.dressing-barre {
+  flex: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-4);
+  padding: var(--sp-8); border-top: 1px solid var(--border);
+}
+.dressing-bouton {
+  min-height: var(--touch); font: inherit; cursor: pointer; text-transform: uppercase;
+  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+}

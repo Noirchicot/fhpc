@@ -54,8 +54,8 @@
      encore importée dans `fhpc` (c'est le lot 95).
 ═══════════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=294">
-<link rel="stylesheet" href="./shell.css?v=294">
+<link rel="stylesheet" href="./tokens.css?v=295">
+<link rel="stylesheet" href="./shell.css?v=295">
 
 <style>
 html, body { height: 100%; }
@@ -140,6 +140,9 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
 /* ══ LA SCÈNE — importée de `b3-scene.mjs`, ses styles vivent dans
    `shell.css` : le banc REGARDE le produit, il ne le redessine pas. */
 .b3-scene-panneau { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--sp-4); align-items: center; }
+/* la borne du banc : 620 px de fenêtre pour un dressing qui doit prouver son
+   défilement — la pièce fait 536, le flux DOIT déborder. */
+.b3-scene-panneau .dressing { height: 620px; width: 413px; }
 .b3-scene-panneau button { min-height: var(--touch); font: inherit; }
 
 .banc-releve {
@@ -188,10 +191,10 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
            reste une forme, pas une photo. -->
       <defs>
         <mask id="masque-h" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-h.png?v=294" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-h.png?v=295" x="280" y="100" width="441" height="1400"></image>
         </mask>
         <mask id="masque-f" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-f.png?v=294" x="305" y="100" width="390" height="1400"></image>
+          <image href="./assets/pantin-f.png?v=295" x="305" y="100" width="390" height="1400"></image>
         </mask>
         <!-- 🔴 LA ZONE COMMUNE — Eric, 2026-08-24 : *« superpose les deux corps,
              je trouve le point moyen »*. ⛔ Ce n'est PAS une superposition à
@@ -202,7 +205,7 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
              n'y a plus rien à vérifier après coup. C'est la différence entre
              « ça a l'air de tomber juste » et « ça ne peut pas tomber faux ». -->
         <mask id="masque-x" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-x.png?v=294" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-x.png?v=295" x="280" y="100" width="441" height="1400"></image>
         </mask>
       </defs>
       <!-- Les deux en filigrane, la zone commune par-dessus : on voit d'un coup
@@ -228,12 +231,12 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
    depuis cette nuit : une seule écriture, plusieurs lecteurs. Les recopier ici
    ferait de ce banc une seconde vérité, et il finirait par montrer autre chose
    que l'écran — exactement ce que le repère est censé rendre impossible. */
-import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=294";
-import { CORPS_EN_SCENE } from "./b3-disposition.mjs?v=294";
+import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=295";
+import { CORPS_EN_SCENE } from "./b3-disposition.mjs?v=295";
 /* ⭐ LA SCÈNE EST IMPORTÉE, PLUS DESSINÉE ICI — même couture que la carte R :
    le banc regarde le produit (`b3-scene.mjs`), il ne peut plus montrer autre
    chose que lui. Les APERÇUS (faux ×N) sont une option de banc. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=294";
+import { construireLeDressing } from "./b3-dressing.mjs?v=295";
 
 const SVG = "http://www.w3.org/2000/svg";
 const REPERE_MILIEU = 500;
@@ -395,9 +398,18 @@ document.getElementById("remettre").addEventListener("click", () => {
   dessiner();
 });
 
-/* ══ LA SCÈNE — montée depuis le module du produit ═════════════════════════ */
-const laScene = construireLaSceneB3({ apercus: true });
-document.querySelector(".b3-scene-panneau").prepend(laScene.noeud);
+/* ══ LE DRESSING EN TROIS BANDES — monté depuis le module du produit ═══════
+   ⭐ Avec de FAUSSES lignes de sac (aperçu de banc) : un flux qui ne déborde
+   pas ne prouverait rien sur le défilement — on juge les bandes immobiles
+   PENDANT que le flux bouge (GOOGLE HEADLESS, banc-parcours #dressing). */
+const lignesDemo = Array.from({ length: 14 }, (_, i) => ({
+  index: i, ref: { id: `demo-${i}` }, nomAffiche: `Demo item ${i + 1}`,
+  quantity: 1 + (i % 3), location: i < 10 ? "backpack" : "storage",
+}));
+const leDressing = construireLeDressing({ apercus: true, lignes: lignesDemo,
+  onAction: () => {}, surBouton: () => {} });
+const laScene = { noeud: leDressing.noeud, peindre: leDressing.peindreScene };
+document.querySelector(".b3-scene-panneau").prepend(leDressing.noeud);
 let echelleCorps = 0;
 
 document.getElementById("corpsEchelle").addEventListener("click", (evt) => {

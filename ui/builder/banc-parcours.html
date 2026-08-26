@@ -12,10 +12,35 @@
 <style>html,body{margin:0;height:100%}iframe{border:0;width:100vw;height:100vh}</style>
 <script type="module">
 const scenario = location.hash.slice(1) || "b3";
+/* #dressing : PAS l'app — le banc ecran-b3.html, qui monte les trois bandes.
+   La mesure (GOOGLE HEADLESS) : le flux défile, le titre et la barre ne
+   bougent pas d'un pixel. */
+if (scenario === "dressing") {
+  const f2 = document.createElement("iframe");
+  f2.src = "./ecran-b3.html?v=295";
+  f2.addEventListener("load", async () => {
+    const d = f2.contentDocument;
+    await new Promise((r) => setTimeout(r, 700));
+    const flux = d.querySelector(".dressing-flux");
+    const titre = d.querySelector(".dressing-titre").getBoundingClientRect();
+    const barre = d.querySelector(".dressing-barre").getBoundingClientRect();
+    flux.scrollTop = 300;
+    await new Promise((r) => setTimeout(r, 200));
+    const titre2 = d.querySelector(".dressing-titre").getBoundingClientRect();
+    const barre2 = d.querySelector(".dressing-barre").getBoundingClientRect();
+    document.title =
+      "scroll=" + Math.round(flux.scrollTop) +
+      " titreBouge=" + Math.abs(titre2.top - titre.top).toFixed(1) +
+      " barreBouge=" + Math.abs(barre2.top - barre.top).toFixed(1) +
+      " deborde=" + (flux.scrollHeight > flux.clientHeight);
+  });
+  document.body.append(f2);
+  throw new Error("scenario dressing: fin"); // court-circuite le reste du module
+}
 const graine = scenario === "b3equipe" ? "/fixture-equipe.json" : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
-f.src = "./index.html?v=294";
+f.src = "./index.html?v=295";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
   for (const type of ["pointerdown", "pointerup"]) {
@@ -59,7 +84,7 @@ f.addEventListener("load", async () => {
     const sc = d.createElement("script");
     sc.type = "module";
     sc.textContent = `
-      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=294";
+      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=295";
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:crowbar" }, nom: "Crowbar", cout: parseCout("2 GP") });
       panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:rope-hempen-50-feet" }, nom: "Rope, hempen (50 feet)", cout: parseCout("1 GP") });
       window.__panierPret = true;`;
