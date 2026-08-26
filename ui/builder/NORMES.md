@@ -1284,6 +1284,45 @@ ouverte dans tous les états, celle qui défait. Elle reste rouge dans les deux
 
 ---
 
+### 🔴 LA LOI DE LA PORTE — voyant et texte disent la MÊME chose *(27/08)*
+
+> Eric, 2026-08-27, en deux lignes :
+> **« condition remplie → voyant vert / texte de RÉSOLUTION »**
+> **« condition non remplie → voyant vide / texte de PROPOSITION »**
+
+| l'état | le voyant | le texte de la porte |
+|---|---|---|
+| **condition non remplie** | ⚪ **vide** | **proposition** — *« Lineage »*, *« Skill budget »* |
+| **condition remplie** | 🟢 **vert** | **résolution** — *« High Elf »* sur *lineage*, *« Skill budget »* sur *spent* |
+
+⭐⭐ **CE QUE CE VOCABULAIRE RÈGLE, ET QUE « question / réponse » NE RÉGLAIT PAS** : une porte
+peut avoir plusieurs résolutions à la fois. `Skill budget` n'a pas UNE réponse — il en a autant que
+de compétences dotées *(« Survival +1, Vigilance +1 »)*, et aucune ne tient dans une porte. Sa
+résolution n'est donc pas un nom, c'est un **état** : `spent`. **Une résolution dit que c'est
+résolu ; elle ne dit pas forcément par quoi.**
+
+📐 **LE GABARIT DES DEUX LIGNES** *(ratifié 27/08)*
+
+| ligne | corps | pourquoi |
+|---|---|---|
+| **la résolution** | **T3** | c'est elle qu'on vient lire |
+| **la proposition**, dessous | **T1 italique** | même habit que *« drop it here »* dans un collecteur vide — **l'italique dit *« je ne suis pas une donnée »*** |
+
+⛔ **ET LES DEUX SIGNAUX NE PEUVENT PAS SE CONTREDIRE — c'est le défaut qui a fait écrire cette
+loi.** Le 27/08, les portes annonçaient *« High Elf »* et *« spent »* pendant que **les voyants à
+leur gauche étaient vides**.
+🔴 **La cause était une confusion de notions** : l'écran d'appel savait ce qui était **POSÉ**
+*(`answered >= expected`)*, le voyant disait ce qui était **CONFIRMÉ** *(passé par son `Done`)*. Ce
+ne sont pas les mêmes états — **on peut poser un lignage sans valider son écran**.
+⭐ **La parade est un partage des rôles** : l'appelant sait **QUELLE** est la résolution, l'écran
+sait **SI** elle compte. Tant qu'elle ne compte pas, il aplatit — et la porte redit sa proposition.
+
+⚠️ **ET CETTE LOI S'ARRÊTE À LA VALIDATION DE L'ÉTAPE** : une fois le `Done` du pied poussé, la
+porte **disparaît** et c'est le résumé qui parle *(§ « soit la porte, soit le résumé »)*. Les trois
+états se suivent donc : **proposition → résolution → plus de porte du tout.**
+
+---
+
 ### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
@@ -2017,6 +2056,22 @@ une : c'est un oubli qui se défend.
 | **la même place** | aux **deux bouts de la rangée de boutons**, dans les colonnes réservées |
 | **la même réserve** | 🔴 **autant à gauche qu'à droite** — c'est elle qui recentre les boutons *(ci-dessous)* |
 | ⛔ **hors du centrage** | les boutons se centrent sur ce qui reste entre eux |
+
+🔴 **DANS LA RANGÉE, MAIS PAS DE SON HABIT — Eric, 2026-08-27, quand j'ai buté dessus** :
+*« ce sont des boutons SPÉCIAUX, mais ils rentrent dans leur rangée quand même : l'un cadré à
+droite, l'autre à gauche »* · *« le livre est un cercle »*.
+
+⭐ **LES DEUX MOITIÉS COMPTENT, ET ELLES TIRENT EN SENS INVERSE.** Ils sont **DANS** la rangée —
+donc tout sélecteur écrit « les boutons de ce pied » les attrape. Et ils n'ont **PAS** son habit —
+l'octogone est réservé aux gabarits à libellé *(§6)*, un bouton à **dessin** n'a pas de mot à cadrer.
+
+⛔ **CE QUE ÇA COÛTE QUAND ON L'OUBLIE, mesuré le 27/08** : le livre posé au pied du parcours est
+sorti en **LOSANGE**. `.parcours-pied button` figurait dans la liste des sélecteurs octogonaux, et
+le livre l'a hérité sans que rien ne le demande — **il n'existait pas quand cette liste a été
+écrite**.
+📌 **Un sélecteur écrit par POSITION *(« tout bouton de ce pied »)* attrape ce qui arrivera plus
+tard, et il ne prévient pas.** Quand une rangée peut accueillir les deux familles, elle se nomme
+`:not(.fiche-livre)` — ou par la classe du gabarit, jamais par l'endroit.
 
 ⭐⭐ **L'ÉGALITÉ EST CE QUI FAIT LA PAIRE, et ce n'est pas décoratif** : deux ronds de tailles
 différentes aux deux bouts d'une rangée se lisent comme **deux objets sans rapport**. À la même cote,

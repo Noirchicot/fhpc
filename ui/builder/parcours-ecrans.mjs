@@ -123,7 +123,7 @@ export function motDe(libelle) {
   return String(libelle);
 }
 
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, livreDe, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
      la dalle de ça à 50 % »*. ⛔ Pas 35 : il a désigné l'objet et donné le
@@ -304,6 +304,40 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
   for (const mot of bandeAiguilleur) page.append(mot);
 
   const pied = el("div", "parcours-pied");
+  /* 🔴 LE LIVRE TIENT LA GAUCHE DE LA RANGÉE — Eric, 2026-08-27 : *« une fois
+     cela fait, tu dois mettre le bouton livre en bas à gauche dans les
+     boutons »*.
+     ⭐ C'EST LA PAIRE RATIFIÉE LE 26/08, appliquée à ce pied-ci : le livre à
+     gauche, le `?` à droite, les boutons centrés entre eux. Identity l'a depuis
+     le lot 33 ; cet écran la reçoit à son tour, par le même dessin.
+     ⚖️ ET IL N'OUVRE ENCORE RIEN, ce qui est une exception ARGUMENTÉE et non un
+     oubli : Eric l'a nommée le 26/08 — *« le livre n'est pas toujours câblé, il
+     le sera »* — et le dépôt la pratique déjà dans `catalogue.mjs`, où le livre
+     naît `disabled` et se rallume quand sa fiche a de quoi le nourrir.
+     ⛔ `disabled`, PAS un bouton muet : un livre qui répond au doigt sans rien
+     ouvrir apprend au joueur à ne plus le regarder — c'est exactement ce que la
+     norme du `?` interdit, et la raison pour laquelle cette exception est bornée
+     à la construction. */
+  const livre = el("button", "fiche-livre parcours-livre");
+  livre.type = "button";
+  /* 🔴 ET IL EST CÂBLÉ — Eric, 2026-08-27 : *« tu peux le câbler directement,
+     une fois posé »*. Il ouvre le LORE de ce qu'on regarde, exactement comme le
+     livre du catalogue ouvre celui d'une fiche.
+     ⚠️ ⛔ MAIS IL RESTE `disabled` QUAND IL N'Y A RIEN À OUVRIR, et ce n'est pas
+     une précaution de style : un livre qui répond au doigt sans rien montrer
+     apprend au joueur à ne plus le regarder — c'est le défaut que la norme du
+     `?` interdit en toutes lettres. **Un organe muet doit avoir l'air muet.**
+     ⭐ L'appelant décide : il donne `{titre, texte}`, ou il ne donne rien. Cet
+     écran ne va pas chercher le lore — il ne sait même pas ce qu'il montre. */
+  livre.setAttribute("aria-label", "Lore");
+  if (livreDe && livreDe.texte) {
+    livre.addEventListener("click", () => act({
+      kind: "popup", titre: livreDe.titre || "Lore", texte: livreDe.texte
+    }));
+  } else {
+    livre.disabled = true;
+  }
+  pied.append(livre);
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
   if (acheve) page.append(...conclusion(!conclu));

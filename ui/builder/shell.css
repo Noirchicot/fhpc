@@ -3729,6 +3729,26 @@ button { font: inherit; }
   padding-inline: var(--touch);
   margin-bottom: var(--sp-4);
 }
+
+/* 🔴 LE LIVRE NE PARTICIPE PAS AU CENTRAGE — 2026-08-27, même loi qu'au pied
+   d'Identity : les deux petits ronds encadrent la rangée, les boutons se
+   centrent sur ce qui reste entre eux.
+   ⭐ ET C'EST UNE MARGE AUTOMATIQUE QUI LE FAIT, pas une réserve : `margin-right:
+   auto` pousse le livre contre le bord gauche et laisse le reste se centrer
+   dans la place déjà réservée des deux côtés (`padding-inline: --touch`). Rien
+   à recalculer — la symétrie existante fait le travail. */
+/* ⚠️ ⛔ ET LE LIVRE N'EST PAS DE LA FAMILLE OCTOGONALE — mesuré sur la page : il
+   sortait en LOSANGE. `.parcours-pied button` figure dans la liste des
+   sélecteurs qui reçoivent le pan coupé, et mon livre rond, posé dans ce pied,
+   l'a hérité sans que rien ne le demande.
+   🔴 C'EST LA FAUTE QUE LE REGISTRE NOMME EXPRESSÉMENT : *« un lot qui
+   octogonaliserait le `?` ou le `+` appliquerait la règle du mauvais membre de
+   la famille »* — l'octogone est l'habit des gabarits À LIBELLÉ, et un bouton à
+   DESSIN n'a pas de mot à cadrer. Le `:not(.fiche-livre)` l'en sort.
+   📌 **Un sélecteur écrit par POSITION (« tout bouton de ce pied ») attrape ce
+   qui arrivera plus tard**, et il ne prévient pas : le livre n'existait pas
+   quand cette liste a été écrite. */
+.parcours-livre { margin-right: auto; }
 .parcours-pied button {
   /* 🔴 À LA TAILLE DE LEUR MOT — Eric, 2026-08-19 : *« donc rapetisser les
      boutons »*. Ils s'étiraient sur toute la ligne (`flex: 1`), ce qui les
@@ -5986,7 +6006,7 @@ button { font: inherit; }
 .sortie-bouton,
 .species-done,
 .parcours-item-porte,
-.parcours-pied button,
+.parcours-pied button:not(.fiche-livre),
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -6040,7 +6060,7 @@ button { font: inherit; }
 .sortie-bouton::before,
 .species-done::before,
 .parcours-item-porte::before,
-.parcours-pied button::before,
+.parcours-pied button:not(.fiche-livre)::before,
 .ability-entry::before {
   content: "";
   position: absolute;

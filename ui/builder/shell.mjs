@@ -2205,6 +2205,10 @@ function renderParcoursGuide(cfg, ctx) {
     texte: cfg.guideTexte ? cfg.guideTexte(ctx) : DEFAUT_GUIDE,
     items,
     labelOf: (item) => (cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path)),
+    /* Le livre du pied ouvre le LORE de ce que l'écran montre — Eric, 27/08.
+       ⭐ La coquille ne le CONNAÎT pas : elle demande à la configuration de
+       l'étape, qui seule sait où vit son lore. */
+    livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */
     resumeDe: cfg.resumeItem ? (item) => cfg.resumeItem(item, ctx) : null,
