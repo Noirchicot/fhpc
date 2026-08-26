@@ -20,10 +20,10 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=313";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=313";
-import { renderConfirmDialog } from "./confirm.mjs?v=313";
-import { renderChoixGlisses } from "./glisser.mjs?v=313";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=314";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=314";
+import { renderConfirmDialog } from "./confirm.mjs?v=314";
+import { renderChoixGlisses } from "./glisser.mjs?v=314";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
