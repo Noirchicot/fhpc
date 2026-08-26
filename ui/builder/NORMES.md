@@ -673,6 +673,28 @@ avec popup.
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 
+### ✅ `BACK` ET `DONE` PRENNENT LEUR COULEUR — le 26/08 renverse le 17/08
+
+> Eric, 2026-08-26 : **« back bleu, done vert »**.
+
+⚠️ `shell.css` porte un commentaire daté : **« AUCUNE COULEUR DANS BACK ET DONE — Eric,
+2026-08-17 »**. 🔴 **Il est renversé.** La règle du 26/08 s'applique, et le commentaire du 17/08
+n'a plus autorité sur ces deux boutons.
+
+⭐ **Et le renversement est cohérent, il n'est pas un caprice** : le 17/08, l'échelle des quatre
+couleurs n'existait pas — « aucune couleur » était alors la seule façon de ne pas mentir. Depuis
+qu'une échelle dit ce que chaque teinte signifie, **une couleur n'est plus du bruit : c'est une
+information.** `Back` est bleu parce qu'il **ne coûte rien** ; `Done` est vert parce que **c'est
+fini**.
+
+⛔ **Mais le 17/08 SURVIT là où il porte sur un autre organe** : *« aucune couleur »* reste la
+règle de **l'INTERRUPTEUR** *(§ « deux espèces d'interrupteur »)*, et pour la même raison qu'à
+l'origine — **un état qui demeure n'a rien à dire à une échelle qui mesure l'avancement.**
+
+📌 **La leçon, pour les prochains renversements** : une règle ancienne ne tombe pas en bloc. Elle
+tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleurs**. ⛔ Vérifier
+pourquoi elle avait été écrite avant de la retirer.
+
 ### 🟣 Le rouge peut être accompagné
 
 > Eric : *« le rouge c'est pas bon — **tu peux me mettre un flic en même temps** »*.
