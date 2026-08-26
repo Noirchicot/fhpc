@@ -675,20 +675,56 @@ D'AVANCEMENT** — gris, bleu, vert, rouge — et **un interrupteur ne la parcou
 ➡️ **Deux sens du rouge sur le même écran, c'est un rouge qui ne signale plus rien.** La collision
 se règle donc **par la FORME**, exactement comme la coupe d'angle distingue le bouton du jeton.
 
+### 🔴 DEUX ESPÈCES D'INTERRUPTEUR — et une seule pose une question
+
+> Eric, 2026-08-26 : *« certains s'allument et **conditionnent l'éteinte de l'autre** : langues,
+> impérial/métrique »*.
+
+| l'espèce | ce que c'est | exemples |
+|---|---|---|
+| **le SÉLECTEUR EXCLUSIF** | plusieurs lignes, **une seule allumée** — allumer l'une **éteint** l'autre | **`Langue`** fr/en · **`Unités`** impérial/métrique · `SRD` / `SRD+FH` |
+| **la BASCULE SIMPLE** | un seul état, on/off | l'activation du **guide** *(§7)* |
+
+⭐ **Et le sélecteur exclusif est DÉJÀ BÂTI** — c'est la décision d'Eric du **2026-08-17**, citée
+dans `shell.css:792` :
+
+> *« SRD et SRD + FH sont des **sélecteurs, PAS des boutons**. Mets-les en texte l'un au-dessus de
+> l'autre avec un bouton on/off ; **quand l'un s'allume, l'autre s'éteint**. »*
+
+Le bloc porte son titre : **« LES LIGNES À BASCULE — un état, pas deux actions »**.
+
+### 🔴 SA RÈGLE DE DESSIN — ⛔ AUCUNE COULEUR
+
+> `shell.css:803` : *« ⚠️ **AUCUNE COULEUR NON PLUS ICI** : l'allumé se dit par la **POSITION du
+> pouce** et par l'**encre pleine**, l'éteint par une encre sourde. **Deux canaux, pas un** — et
+> `aria-pressed` le dit une troisième fois. »*
+
+⭐⭐ **C'EST CE QUI RÈGLE LE CONFLIT AVEC L'ÉCHELLE, ET PAR CONSTRUCTION** : un organe qui
+**n'emprunte aucune couleur** ne peut pas contredire une échelle de couleurs. La formulation
+d'Eric du 17/08 — **« un état, pas deux actions »** — avait nommé le problème neuf jours avant
+qu'il n'apparaisse.
+
 | | |
 |---|---|
-| **on** | **vert** |
-| **off** | **rouge** |
-| **désactivé** | **gris** |
-| 🔴 **sa forme** | ⏳ **à dessiner** — elle doit être **reconnaissable d'un coup d'œil comme n'étant pas un bouton** |
-| sa cible | **`--touch` 44**, comme tout ce qui se touche |
+| **la forme** | une **piste et un pouce**, ⛔ **DESSINÉS, jamais un glyphe** *(un glyphe change de forme selon la police installée)* |
+| **allumé** | le pouce **à droite**, l'encre **pleine**, le mot en **600** |
+| **éteint** | le pouce à gauche, une **encre sourde** |
+| ⛔ **il ne porte aucun mot** | son nom vient **du texte à sa gauche** |
+| **cotes bâties** | ligne **44** · piste **44 × 24** en `--radius-pill` · pouce **18 × 18** |
+| son écrivain unique | `markPressed`, tenu par `tests/aria-pressed-guard.test.mjs` |
 
-⭐ **Et il y en a « plein dans le menu »** *(Eric)* : `Langue` fr/en · `Système d'unités`
-métrique/impérial · l'activation du guide *(le `?` propose « désactiver totalement », §7)*.
-➡️ **Ce n'est pas un cas marginal : c'est un organe de premier plan du Seuil.**
+### 🔴 UN SECOND TRAITEMENT EXISTE, ET IL EST EN ÉCART
 
-⏳ **Non tranché** : sa forme · s'il porte ses deux libellés *(`fr` / `en`)* ou seulement l'état
-courant · et s'il peut porter une **raison** comme les portes muettes.
+`.universe-bascule` *(19/08)* : un **bouton** 72 × 44, libellé `On`/`Off`, **liseré vert** quand
+actif. C'est lui qui porte le on/off du guide aujourd'hui.
+
+⚠️ **Le Menu contient donc les deux formes pour le même geste** — incohérence déjà en production.
+Et son vert **dit « en marche » là où l'échelle dit « fini »**. ⏳ **Non tranché : lequel des deux
+survit.**
+
+⛔ **Et la ligne « on = vert · off = rouge · désactivé = gris » de la dictée est DOUBLEMENT
+fausse** : le rouge dirait *« pas bon »* pour un simple *« éteint »*, et elle contredit la décision
+du 17/08 qui dit **aucune couleur**. ⏳ **Elle sort dès qu'Eric confirme.**
 
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
