@@ -1554,7 +1554,25 @@ button { font: inherit; }
   font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
   color: var(--text); font-weight: 600; text-align: center;
 }
-.ability-methodes-boutons { display: flex; gap: var(--sp-4); }
+/* 🔴 LE GABARIT `small` — 87 px, PAS UNE PART ÉTIRÉE. Eric, 2026-08-26 :
+   *« petit bouton, c'est plus joli — cf. normes »* · *« plus petit »*.
+   ⛔ CE QU'ILS FAISAIENT : `flex: 1 1 0` leur donnait CINQ PARTS ÉGALES de la
+   rangée — leur largeur venait donc du CONTENANT, pas de leur mot. Sur un iPad
+   ils atteignaient ~160 px pour porter `4D6`.
+   ⭐ NORMES §6 : *« un gabarit est un COMPTE DE CARACTÈRES, pas une largeur en
+   pixels »*, et small = **6 caractères → 87 px**. Les cinq mots y tiennent
+   tous : `FH 3D6` (6), `ARRAY` (5), `FREE` (4), `INFO` (4), `4D6` (3).
+   ⭐⭐ ET 87 N'EST PAS UN NOMBRE CHOISI : *« un petit bouton fait 87 —
+   EXACTEMENT la largeur d'un jeton. Les deux se déduisent de la MÊME rangée de
+   278 avec la MÊME gouttière. »* C'est pourquoi il se lit `--glisse-case` et
+   non un littéral : le jour où la rangée change, les deux suivent ensemble.
+   📌 ILS PASSENT DONC À LA LIGNE plutôt que de s'étirer — trois puis deux, et
+   §5 centre le reliquat. C'est la loi des listes appliquée à une bande de
+   boutons : *« la grille ne s'étire pas pour combler le vide »*. */
+.ability-methodes-boutons {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--sp-4);
+}
 /* 🔴 « Choix identique ⇒ dalle de taille identique » (III.2) : `1 1 0` donne
    cinq parts ÉGALES, aucun classement implicite par la largeur. */
 /* ⛔ CE BLOC NE POSE PLUS QUE LA GÉOMÉTRIE. Son habit — fond, liseré, rayon,
@@ -1563,7 +1581,7 @@ button { font: inherit; }
    gagneraient par la place dans la pile et désarmeraient la coupe en silence,
    *« une déclaration invalide crie, une déclaration PERDANTE se tait »*. */
 .ability-entry {
-  flex: 1 1 0; min-width: 0;
+  flex: 0 1 var(--glisse-case); max-width: var(--glisse-case); min-width: 0;
   min-height: var(--touch);
   font-family: inherit;
   font-size: var(--t2);
@@ -5427,6 +5445,11 @@ button { font: inherit; }
    sans rien signer — l'écran l'écrit lui-même à sa ligne d'avertissement,
    *« Leaving this open marks nothing »*. Aucun des deux ne touche le
    document : bleu. */
+/* 🔴 `Next` EST UN `small` LUI AUSSI — Eric, 2026-08-26 : *« idem next »*.
+   Quatre caractères : il tient largement dans les 87, et il n'a aucune raison
+   d'être plus large que `DONE` ou `BACK` à côté de lui. ⛔ Une bande de boutons
+   où l'un s'étire dit qu'il compte plus que les autres. */
+.parcours-pied .parcours-next { max-width: var(--glisse-case); }
 .parcours-pied .parcours-next,
 .parcours-pied .sortie-back { --bouton-fond: var(--info); }
 
