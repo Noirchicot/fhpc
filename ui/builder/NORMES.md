@@ -264,6 +264,34 @@ de ceinture, **le titre n'est pas du gras : c'est la seule chose qui dise où on
 une règle sur FH Web **ne perd pas** son personnage à moitié créé : il revient sur un onglet
 resté vivant. ⛔ Une sortie qui navigue aurait rendu le titre dangereux au lieu d'utile.
 
+### ✅ L'ORDRE DES BLOCS DU SEUIL — tranché 26/08, option ②
+
+| # | le bloc | |
+|---|---|---|
+| — | `‹ FH Web — Player Companion` | 🔴 **collé en haut**, c'est la sortie |
+| 1 | **Nom de joueur** | l'identité |
+| 2 | **Connecter mon coffre** | ⭐ **l'action principale** quand il n'y a pas de coffre |
+| 3 | **New character** | la porte qui marche **toujours**, même sans coffre |
+| 4 | **My characters** | ⏳ porte sa raison quand rien à lire |
+| 5 | **DM** | ⏳ idem |
+| 6 | **Langue** · anglais | 🔽 **prévalidé** |
+| 7 | **Système d'unités** · impérial | 🔽 **prévalidé** |
+| — | le **`?`** | 🔴 **collé en bas à droite** |
+
+⭐ **La lecture : je me déclare, j'entre, je me règle.**
+
+⭐ **Et ce n'est pas un goût, c'est la règle d'Eric appliquée** : *« en bas de page, **PRÉVALIDÉS**,
+pour ne pas surcharger le joueur »*. `Langue` et `Unités` ont exactement ce profil — un bon défaut,
+déjà juste, qu'on ne lit que si on veut le changer. **Ils descendent.**
+
+📌 ⛔ **`Connecter mon coffre` ne descend PAS avec eux** : sans coffre, c'est **l'action principale
+de l'écran**. Ce n'est pas un réglage prévalidé, c'est la deuxième chose à faire après s'être nommé.
+
+⚠️ **Le point faible, dit d'avance** : `New character` passe **avant** les deux portes muettes,
+donc **les deux refus tombent au MILIEU de l'écran**, pas à la fin. C'est le bon sens de lecture
+*(ce qui marche d'abord)*, mais ça met deux « non » en travers du chemin. ⏳ **À regarder au doigt**
+avant de figer.
+
 ### 🔴 CE QUE LE DÉFILEMENT DU SEUIL IMPOSE
 
 Le Seuil est **l'exception** à *« la page ne défile jamais »* — et il l'est parce qu'il n'est pas
