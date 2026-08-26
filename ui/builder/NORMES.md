@@ -154,6 +154,39 @@ fragile.
 | **au réglage d'aujourd'hui** | ≈ **60 px** — ⚠️ **un relevé, pas une constante** : il bouge si un libellé change |
 | **et elle n'est PAS sur tous les écrans** | ⛔ **Entrée › R n'en a pas** : c'est un **seuil**, pas une étape du parcours à 8 temps. **60 px récupérés.** |
 
+### 📐 LA TABLE DES HAUTEURS — pour calculer un budget sans rien mesurer
+
+| la bande | hauteur | d'où elle vient |
+|---|---|---|
+| **une rangée de jetons** | **48** | `--glisse-h` — cote écrite |
+| **écart entre rangées** | **8** | la gouttière, la même qu'en largeur |
+| **un collecteur** | **48** | même cote que le jeton |
+| **un bouton, un étage** | **44** | 🔴 **`--touch`** — le texte n'en demande que ~33 |
+| **un bouton, deux étages** | **48** *(T3)* · **56** *(T4)* | déduit du corps |
+| **un `+` / `−`** | **44** de cible | le dessin est plus petit |
+| 🔴 **un dropdown** | **44** | ⭐ **`--touch` aussi** — c'est un contrôle qu'on touche |
+| **une zone d'écriture** | **44** | idem |
+| **la ceinture d'étapes** | ≈ **60** | ⚠️ **déduite**, pas écrite — bouge avec le libellé |
+| **un titre + consigne** | ≈ **40** | déduit |
+
+⭐ **Cinq organes sur dix retombent sur 44, et ce n'est pas un hasard** : **tout ce qui se touche a
+le même plancher**. ➡️ Un budget se compte donc en **multiples de 44 et 48**, et il se calcule de
+tête.
+
+⭐ **Exemple, la bande basse d'un écran d'équipement** : collecteurs 48 + écart 8 + boutons 44 =
+**100 px**, toujours, quel que soit l'écran.
+
+### ⚠️ Le dropdown : la hauteur est juste, le reste est en écart
+
+| | la norme *(26/08)* | le code aujourd'hui |
+|---|---|---|
+| hauteur | 44 | ✅ `min-height: var(--touch)` sur les **deux** dropdowns existants |
+| liseré | ⛔ **aucun** | 🔴 **1 px** — et `.pipeline-dropdown` porte même **`--ok`, une bordure VERTE conditionnelle**, exactement le liseré vert supprimé |
+| fond | **transparence 20 %** | 🔴 **opaque** (`--surface`, `--sunken`) |
+| caractères | **gras** | 🔴 `font: inherit`, pas de gras |
+
+⏳ Trois corrections à faire quand les organes seront refaits. **La hauteur, elle, n'a pas à bouger.**
+
 ### Le budget d'une page de jetons *(les 15, en rangées de 3)*
 
 | bande | px |
