@@ -415,6 +415,22 @@
   --dalle-simple: color-mix(in srgb, var(--surface) var(--voile-simple), transparent);
   --dalle-inter: color-mix(in srgb, var(--surface) var(--voile-inter), transparent);
 
+  /* ── LE FOND D'UN DROPDOWN (§8, ratifié le 2026-08-26) ─────────────────
+     🔴 *« Il reste rectangulaire, très large, peu haut, transparence 20 %,
+     caractères gras contrastant »* — et ⛔ *« PAS DE LISERÉ sur un dropdown »*
+     (Eric corrigeant sa propre dictée le jour même).
+
+     ⛔ CE 20 % N'EST PAS UN QUATRIÈME BARREAU DES VOILES. Les trois barreaux
+     (35 / 50 / 100) disent la DENSITÉ D'INFORMATION d'une DALLE ; celui-ci est
+     la matière d'un CONTRÔLE, la même mécanique que `--jeton-teinte` — §4 le
+     dit d'ailleurs de lui-même à propos du jeton : *« il n'est sur aucun des
+     trois barreaux »*, et 48 % cumulés ne sont pas le barreau « 50 ».
+     ⭐ Écrit selon le modèle que §4 désigne comme celui « à copier pour toute
+     nouvelle norme » : un pourcentage nommé, une surface CALCULÉE par
+     `color-mix`, une seule source. */
+  --voile-dropdown: 20%;
+  --dropdown-fond: color-mix(in srgb, var(--surface) var(--voile-dropdown), transparent);
+
   /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
      bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
      "narrow") que `shell.mjs` lit ; il ne porte jamais le chiffre 720. Un
