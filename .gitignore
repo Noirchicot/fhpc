@@ -3,3 +3,4 @@ node_modules/
 # graines du banc de parcours (générées, jamais commitées)
 fixture-banc.json
 fixture-equipe.json
+fixture-panier.json

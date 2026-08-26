@@ -28,7 +28,26 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=295";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=296";
+import { pageDeListe } from "./normes.mjs?v=296";
+
+/* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
+   NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
+   passe SON nombre en argument, DÉDUIT de son budget (§1 ter) — jamais un
+   littéral recopié. 📏 MESURÉS GOOGLE HEADLESS le 26/08 (banc-parcours
+   #mesureB2 · #mesureSB · #recherche, fenêtre 553 — la référence Safari de
+   NORMES §1 quater), puis déduits :
+
+     écran        rangée  chrome (haut+bas)   budget    N
+     B2/SB3.2      54+4      50 + 203          ~290  →  5   (5×54+4×4 = 286)
+     SB3.1/SB3.3   54+4     221 +  44          ~278  →  4   (4×54+3×4 = 228)
+     Recherche     48+4     102 +  44          ~397  →  7   (7×48+6×4 = 360)
+
+   ⛔ Si une rangée change de hauteur, ces trois nombres se REMESURENT — ils
+   ne se discutent pas. */
+export const B2_LIGNES = 5;
+export const SACS_LIGNES = 4;
+export const RECHERCHE_LIGNES = 7;
 
 /* ── petites mains DOM, la langue du fichier voisin ── */
 function elp(balise, classe, texte) {
@@ -297,7 +316,7 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
    B3, SEND range des objets DÉJÀ à soi (aucun paiement), ⏳ FREE improvisé :
    la liste part SANS paiement (cadeau du DM, butin — le monde extérieur d'où
    les objets arrivent gratuitement). */
-export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = 4 }) {
+export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = B2_LIGNES }) {
   const ecran = elp("section", "pipeline-ecran pipeline-b2");
   ecran.dataset.ecran = mode === "send" ? "SB3.2" : "B2";
   let page = 0;
@@ -306,7 +325,7 @@ export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = 4 }
   entete.append(elp("h2", null, mode === "send" ? "Send list = cart" : "Cart"));
   const compte = elp("p", "pipeline-compte");
   entete.append(compte);
-  const gauche = bouton("←", "pipeline-fleche", () => { page = Math.max(0, page - 1); peindre(); }, "Previous page");
+  const gauche = bouton("←", "pipeline-fleche", () => { page -= 1; peindre(); }, "Previous page");
   const droite = bouton("→", "pipeline-fleche", () => { page += 1; peindre(); }, "Next page");
 
   const listeHote = elp("div", "pipeline-lignes");
@@ -356,12 +375,12 @@ export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = 4 }
   );
 
   function peindre() {
-    const pages = Math.max(1, Math.ceil(lignes.length / parPage));
-    page = Math.min(page, pages - 1);
-    compte.textContent = `${pages ? page + 1 : 1}/${pages}`;
+    const vue = pageDeListe(lignes, page, parPage);
+    page = vue.page;
+    compte.textContent = `${vue.page + 1}/${vue.pages}`;
     listeHote.textContent = "";
     if (!lignes.length) listeHote.append(elp("p", "pipeline-vide", "The cart is empty."));
-    for (const l of lignes.slice(page * parPage, (page + 1) * parPage)) {
+    for (const l of vue.objets) {
       const rang = elp("div", "pipeline-ligne");
       rang.append(elp("span", "pipeline-ligne-nom", l.nom));
       const qte = elp("span", "pipeline-ligne-qte", `×${l.quantity || 1}`);
@@ -413,7 +432,7 @@ export function rangeeEchange(l, lieu, onAction) {
   return rang;
 }
 
-export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surLieu, parPage = 8 }) {
+export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surLieu, parPage = SACS_LIGNES }) {
   const ecran = elp("section", "pipeline-ecran pipeline-sac");
   ecran.dataset.ecran = lieu === "storage" ? "SB3.3" : "SB3.1";
   let page = 0;
@@ -430,19 +449,17 @@ export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surL
   const ici = lignesParLieu(lignes, lieu);
 
   function peindre() {
-    const pages = Math.max(1, Math.ceil(ici.length / parPage));
-    page = Math.min(page, pages - 1);
-    compte.textContent = `${page + 1}/${pages}`;
+    const vue = pageDeListe(ici, page, parPage);
+    page = vue.page;
+    compte.textContent = `${vue.page + 1}/${vue.pages}`;
     listeHote.textContent = "";
     if (!ici.length) listeHote.append(elp("p", "pipeline-vide",
       lieu === "storage" ? "Nothing stored." : "The backpack is empty."));
-    for (const l of ici.slice(page * parPage, (page + 1) * parPage)) {
-      listeHote.append(rangeeEchange(l, lieu, onAction));
-    }
+    for (const l of vue.objets) listeHote.append(rangeeEchange(l, lieu, onAction));
   }
   peindre();
 
-  const gauche = bouton("←", "pipeline-fleche", () => { page = Math.max(0, page - 1); peindre(); }, "Previous page");
+  const gauche = bouton("←", "pipeline-fleche", () => { page -= 1; peindre(); }, "Previous page");
   const droite = bouton("→", "pipeline-fleche", () => { page += 1; peindre(); }, "Next page");
   const pied = elp("div", "pipeline-pied");
   pied.append(bouton("BACK", "pipeline-bouton", retour, "Back to the dressing"));
@@ -455,7 +472,7 @@ export function renderSacs({ lieu, lignes, chercheRecord, onAction, retour, surL
    « Once found, takes you directly to item menu » (son annotation du croquis
    R) : un résultat touché OUVRE LA FICHE — la recherche est un raccourci vers
    B1, pas un troisième catalogue. ⛔ Pas de défilement : des pages. */
-export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = 8 }) {
+export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = RECHERCHE_LIGNES }) {
   const ecran = elp("section", "pipeline-ecran pipeline-recherche");
   ecran.dataset.ecran = "Recherche";
   let page = 0;
@@ -465,7 +482,7 @@ export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = 8 
   entete.append(elp("h2", null, "Find equipment"));
   const compte = elp("p", "pipeline-compte");
   entete.append(compte);
-  const gauche = bouton("←", "pipeline-fleche", () => { page = Math.max(0, page - 1); peindre(); }, "Previous page");
+  const gauche = bouton("←", "pipeline-fleche", () => { page -= 1; peindre(); }, "Previous page");
   const droite = bouton("→", "pipeline-fleche", () => { page += 1; peindre(); }, "Next page");
 
   const champ = elp("input", "pipeline-typein pipeline-recherche-champ");
@@ -483,9 +500,9 @@ export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = 8 
 
   function peindre() {
     const trouves = resultats();
-    const pages = Math.max(1, Math.ceil(trouves.length / parPage));
-    page = Math.min(page, pages - 1);
-    compte.textContent = terme.length < 2 ? "—" : `${trouves.length} · ${page + 1}/${pages}`;
+    const vue = pageDeListe(trouves, page, parPage);
+    page = vue.page;
+    compte.textContent = terme.length < 2 ? "—" : `${trouves.length} · ${vue.page + 1}/${vue.pages}`;
     listeHote.textContent = "";
     if (terme.length < 2) {
       listeHote.append(elp("p", "pipeline-vide", "Two letters at least — the catalogue is wide."));
@@ -495,7 +512,7 @@ export function renderRecherche({ catalogue, onOuvrirFiche, retour, parPage = 8 
       listeHote.append(elp("p", "pipeline-vide", "Nothing bears that name."));
       return;
     }
-    trouves.slice(page * parPage, (page + 1) * parPage).forEach((it) => {
+    vue.objets.forEach((it) => {
       const rang = bouton("", "pipeline-ligne pipeline-resultat",
         () => onOuvrirFiche(trouves, trouves.indexOf(it)), `Open ${it.nom}`);
       rang.append(elp("span", "pipeline-ligne-nom", it.nom),

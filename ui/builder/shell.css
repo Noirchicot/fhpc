@@ -521,6 +521,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   pointer-events: none;
 }
 .popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
+/* §7 (26/08) — LES TROIS PASTILLES : un composant, trois teintes, trois
+   intentions. Le GUIDE est le défaut et ne signale rien (parchemin — la
+   surface elle-même) ; l'AIGUILLEUR prévient (bleu) ; le GENDARME dit
+   l'erreur (rouge — le liseré historique de ce bloc devient SA pastille). */
+.popup[data-role="guide"] { border-color: var(--border-strong); }
+.popup[data-role="aiguilleur"] { border-color: var(--info); }
+.popup[data-role="gendarme"] { border-color: var(--critical); }
 
 /* ── LES CHEVRONS FLOTTANTS (I.7, B0.22) ──────────────────────────
    « À l'extrême droite de l'écran » (B0.22a) · « ils s'effacent après ~1 s »
@@ -4345,7 +4352,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=295");
+  background-image: url("./assets/tarot-dos.jpg?v=296");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -4740,26 +4747,27 @@ button { font: inherit; }
   background: none; color: var(--text); border: 0; border-radius: var(--radius-sm);
 }
 
-/* ══ LE GUIDE OBLIGATOIRE de l'étape Équipement (24/08) ═════════════════════
-   Un RECOUVREMENT par-dessus la scène — jamais un bloc dans le flux, qui
-   pousserait le dressing sous le pli (défilement, refusé). Il vient même
-   tutoriel éteint : c'est une règle à avoir vue, pas une aide refusable. */
-.equipment-dressing { position: relative; }
-.guide-oblige {
+/* ══ LA DÉCISION DU DÉPART (kit OU 50 po) — requalifiée le 26/08 ═══════════
+   ⛔ Ce n'est PAS un guide (Archi 27) : un objet qui EXIGE une réponse et
+   ÉCRIT au document est une DÉCISION. Recouvrement par-dessus la scène —
+   jamais dans le flux, rien ne se pousse. Son état vit AU PERSONNAGE
+   (`depart`), pas au navigateur. */
+.equipment-dressing, .dressing { position: relative; }
+.decision-kit {
   position: absolute; inset: 0; z-index: 2;
   display: flex; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
 }
-.guide-oblige-carte {
+.decision-kit-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));
   background: var(--surface); border: 1px solid var(--accent);
   border-radius: var(--radius-md); padding: var(--sp-16);
   display: flex; flex-direction: column; gap: var(--sp-8);
 }
-.guide-oblige-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
-.guide-oblige-texte { margin: 0; font-size: var(--t3); }
-.guide-oblige-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
-.guide-oblige-bouton {
+.decision-kit-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.decision-kit-texte { margin: 0; font-size: var(--t3); }
+.decision-kit-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+.decision-kit-bouton {
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
@@ -5016,3 +5024,96 @@ button { font: inherit; }
   min-height: var(--touch); font: inherit; cursor: pointer; text-transform: uppercase;
   background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
 }
+
+/* ══ LOT 3 (chapitre Équipement) — LES ORGANES DU 26/08 SUR LE CHAPITRE ══════
+   Les formes ratifiées (NORMES §2/§3/§6/§8) appliquées aux organes du
+   chapitre : le BOUTON octogone-à-coupe (le patron du socle, copié à
+   l'identique — corps sur ::before, filtre sur le bouton), les ZONES DE DROP
+   creuses au liseré-couleur-du-jeton-attendu, le DROPDOWN sans liseré.
+   ⛔ Aucune couleur ne descend dans le balisage : la FORME ici, l'ÉTAT par
+   `--bouton-fond` selon les trois verbes ratifiés (a244326) — naviguer
+   (bleu) · valider (vert) · défaire (rouge) · muet (gris défaut). */
+
+/* — LE BOUTON : la forme, patron du socle — */
+.pipeline-bouton, .dressing-bouton, .carte-r-bouton,
+.pipeline-ligne-envoi, .pipeline-pas, .decision-kit-bouton {
+  --bouton-fond: var(--text-muted);
+  position: relative;
+  background: none;
+  color: var(--on-accent);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: var(--bouton-ombre);
+}
+.pipeline-bouton::before, .dressing-bouton::before, .carte-r-bouton::before,
+.pipeline-ligne-envoi::before, .pipeline-pas::before, .decision-kit-bouton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bouton-fond);
+  background-image: var(--bouton-biseau);
+  clip-path: polygon(
+    var(--bouton-coupe) 0,
+    calc(100% - var(--bouton-coupe)) 0,
+    100% var(--bouton-coupe),
+    100% calc(100% - var(--bouton-coupe)),
+    calc(100% - var(--bouton-coupe)) 100%,
+    var(--bouton-coupe) 100%,
+    0 calc(100% - var(--bouton-coupe)),
+    0 var(--bouton-coupe)
+  );
+}
+/* — l'état par les trois verbes (le libellé ne change jamais, la couleur dit
+   le verbe) : NAVIGUER = bleu · VALIDER = vert · DÉFAIRE = rouge. Les muets
+   (CRAFT, COMPANIONS, réserve) restent au gris du défaut. — */
+.pipeline-bouton[aria-label^="Back"],
+.dressing-bouton[aria-label="Equipment"],
+.dressing-bouton[aria-label="Send"],
+.carte-r-bouton[data-mot="GEAR"],
+.carte-r-bouton[data-mot="CART"],
+.carte-r-bouton[data-mot="NEXT"],
+.pipeline-fleche { --bouton-fond: var(--info); }
+.pipeline-bouton[aria-label^="Pay"],
+.pipeline-bouton[aria-label^="Send"],
+.pipeline-bouton[aria-label^="Add fifty"],
+.decision-kit-bouton { --bouton-fond: var(--positive); }
+.pipeline-bouton[aria-label^="Empty"],
+.pipeline-danger { --bouton-fond: var(--critical); }
+.pipeline-inerte { filter: none; }
+
+/* les flèches restent RONDES (une flèche n'est pas un bouton d'échelle mais
+   elle navigue : encre bleue, forme conservée) */
+.pipeline-fleche { background: var(--info); color: var(--on-accent); border: 0; filter: var(--bouton-ombre); }
+
+/* — LA ZONE DE DROP (§2) : très arrondie, CREUSE, le liseré porte la couleur
+   du jeton attendu — la cible annonce ce qu'elle accepte avant qu'on lâche.
+   Le jeton d'équipement est teinté `--jeton-teinte` : son liseré aussi. — */
+.carte-r-collecteur {
+  border: 1px dashed var(--accent);
+  border-radius: var(--organe-rayon);
+  background: none;
+}
+
+/* — LE DROPDOWN (§8) : très large, peu haut, AUCUN liseré, voile 20 %, gras — */
+.pipeline-dropdown {
+  border: 0;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--text) 20%, transparent);
+}
+
+/* ══ LOT 5 — LE DRESSING DANS LE CADRE : la chaîne de hauteur ═══════════════
+   Le `.stage` est la fenêtre (absolute inset:0, la seule bornée). Quand la
+   vue Équipement est le dressing, la carte prend toute la fenêtre et c'est
+   le FLUX du dressing qui défile — le stage, lui, n'a plus rien à faire
+   défiler. Les autres vues laissent la carte vivre normalement. */
+.decision-card:has(.dressing) {
+  height: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column;
+}
+.decision-card:has(.dressing) .equipment-step {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.equipment-step > .dressing { flex: 1 1 auto; min-height: 0; height: auto; }
