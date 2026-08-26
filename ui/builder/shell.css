@@ -4804,8 +4804,15 @@ button { font: inherit; }
    invisible. Un bouton opaque en signal se voit sans qu'on le souligne.
    🔴 IL LE FALLAIT DE TOUTE FAÇON — contrainte technique écrite le 24/08 sur
    `design-organes-jetons` : *« le bouton ne peut pas porter --relief : un
-   clip-path découpe aussi les box-shadow »*. Coupe d'angle et ombre interne ne
-   cohabitent pas. ⛔ Ne pas chercher à forcer.
+   clip-path découpe aussi les box-shadow »*. Coupe d'angle et ombre INTERNE ne
+   cohabitent pas.
+
+   ⚠️ ET C'EST TOUT CE QUE ÇA DIT — la suite de la phrase, oubliée jusqu'au
+   26/08, donne la parade : *« son biseau se peint en dégradé dans le fond et
+   son ombre passe par filter: drop-shadow »*. ⛔ Coupe et RELIEF cohabitent
+   très bien ; seul le VÉHICULE change. Le bouton porte donc les mêmes arêtes
+   que le jeton, reportées en `--bouton-biseau` (fond) et `--bouton-ombre`
+   (`filter`) — voir la table de report dans `tokens.css`.
 
    📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
    `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici — la coupe est le
@@ -4830,11 +4837,53 @@ button { font: inherit; }
 .parcours-item-porte,
 .parcours-pied button {
   --bouton-fond: var(--text-muted);
-  background: var(--bouton-fond);
+  /* 🔴 LA COUPE ET L'OMBRE NE PEUVENT PAS TENIR SUR LE MÊME ÉLÉMENT, ET C'EST
+     MESURÉ (26/08, Chrome 151 sans écran, sonde à quatre variantes) : un
+     `clip-path` s'applique APRÈS le `filter`, donc il rogne l'ombre portée que
+     le filtre venait de calculer. Le relevé, en clair — luminance des pixels
+     juste sous le bord bas, fond blanc témoin à 255 :
+
+       clip-path ET filter sur le même élément  → 255  ⛔ aucune ombre
+       filter seul, sans coupe                  → 106 … 236  ✅ mais rectangle
+       coupe sur un ENFANT, filter sur le parent → 135 … 251  ✅ ombre + coupe
+       box-shadow (externe) sous clip-path       → 255  ⛔ confirme la note
+
+     ⭐ D'OÙ CE DESSIN, ET IL N'INVENTE RIEN : le `::before` porte le CORPS
+     (fond, biseau, coupe), le bouton porte le FILTRE. L'ombre est alors
+     calculée sur ce que le `::before` a réellement peint — donc sur
+     l'octogone, coins compris. C'est exactement ce que la note de `tokens.css`
+     annonce (*« son ombre passe par filter: drop-shadow »*) ; il lui manquait
+     seulement de dire SUR QUEL ÉLÉMENT.
+     ⛔ Ne pas remonter le `clip-path` sur le bouton : l'ombre disparaîtrait
+     sans qu'aucun test de source ne s'en aperçoive. */
+  position: relative;
+  background: none;
   color: var(--on-accent);
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  filter: var(--bouton-ombre);
+}
+
+/* 🔴 LE CORPS DU BOUTON — c'est LUI qui est découpé, pas le bouton.
+   📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
+   `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici.
+   🔴 LE FOND EN DEUX COUCHES : la teinte de l'échelle reste seule à décider de
+   la couleur (`background-color`, repeinte par `--bouton-fond`) ; le biseau
+   est un CALQUE par-dessus (`background-image`). ⛔ Ne pas les fusionner en un
+   seul `background` — l'échelle effacerait le biseau à chaque état.
+   ⚠️ `z-index: -1` ne fuit pas derrière la dalle : le `filter` du bouton crée
+   un contexte d'empilement, donc le corps reste sous l'ÉTIQUETTE et rien
+   d'autre. */
+.species-done::before,
+.parcours-item-porte::before,
+.parcours-pied button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bouton-fond);
+  background-image: var(--bouton-biseau);
   clip-path: polygon(
     var(--bouton-coupe) 0,
     calc(100% - var(--bouton-coupe)) 0,
