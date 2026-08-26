@@ -169,7 +169,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | `done` *(étapes)* | 🟢 **VERT** — *« c'est fini »*. ⭐ Il **NE SIGNE RIEN** : c'est la **tuile** qui signe. `Done` dit « j'ai fini ici » et **remonte d'un cran** |
 | `next` *(étapes)* | 🔵 **BLEU** — *« on continue »* |
 | `next` d'alerte | **cadre rouge, corps bleu** → **popup** entre `done` et `next` |
-| annulation | 🔴 **rouge** → **popup** |
+| **défaire** *(`Cancel`, « j'ai changé d'avis », « refaire mon perso »)* | 🔴 **rouge, TOUJOURS** → **popup** *(voir la famille « défaire »)* |
 | navigation *(next, back)* | 🔵 **bleu** |
 | **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
 
@@ -224,6 +224,26 @@ informations, aucune redondance**.
 📌 **Ce qui se garde** : qu'aucune couleur ne soit figée dans le balisage, et que la couleur se
 dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
+
+### 🔴 LA FAMILLE « DÉFAIRE » — rouge, toujours, quel que soit l'état
+
+> Eric, 2026-08-26 : *« le **cancel** est rouge »* · *« **j'ai changé d'avis** est rouge »*.
+
+| le bouton | |
+|---|---|
+| `Cancel` | 🔴 rouge |
+| `I changed my mind` / *« je ne veux pas ça »* | 🔴 rouge |
+| *« je veux refaire mon perso »* | 🔴 rouge |
+
+⭐ **C'est la seule famille où la couleur ne dit PAS où on en est — elle dit ce que le bouton
+FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défait** ne doit jamais
+pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
+
+⭐ **Et la règle générale n'en souffre pas, elle se précise** : la couleur suit l'**état**, sauf
+pour ce qui **détruit du travail déjà fait** — là, elle suit **l'acte**, et elle prévient.
+
+📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
+confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 
 ### 🟣 Le rouge peut être accompagné
 
