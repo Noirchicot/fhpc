@@ -258,6 +258,32 @@ de ceinture, **le titre n'est pas du gras : c'est la seule chose qui dise où on
 
 ---
 
+## 1 quinquies bis. 🔴 LE CADRE D'ÉCRAN NE PORTE NI FOND, NI LISERÉ, NI REMBOURRAGE *(26/08)*
+
+> Eric, 2026-08-26, en regardant v298 servie : **« le cadre en blanc pourquoi ? derrière la dalle
+> que fait-il là ? »**
+
+**Rien.** Il dessinait une boîte autour du vide.
+
+| ce que `.decision-card` porte | |
+|---|---|
+| un **fond** | ⛔ **non** |
+| un **liseré** | ⛔ **non** |
+| un **rembourrage** | ⛔ **non** — c'est lui qui creusait l'écart blanc entre le contour et la dalle |
+| une **marge** | ✅ **oui, elle reste** |
+
+⭐ **La marge reste, et c'est sa phrase du 17/08** : *« sans elle, les dalles toucheraient les bords
+de l'écran. **C'est la carte qui s'efface, pas ses gouttières.** »*
+
+⛔ **UN CONTOUR EST UNE PEINTURE.** J'avais généralisé `background: none` et laissé `border` et
+`padding` — sa règle du 17/08 en retirait **trois**. ⭐ Appliquer une règle à moitié donne la
+confiance de l'avoir appliquée.
+
+📏 **Mesuré après** : fond transparent · liseré 0 · rayon 0 · rembourrage 0 · marge 16 conservée ·
+**écart cadre → dalle = 0 des trois côtés**.
+
+---
+
 ## 1 sexies. ✅ LE SEUIL — sa sortie et son défilement *(tranché 26/08)*
 
 > Eric : *« la première fenêtre qui amène sur FH Web propose d'ouvrir **une autre fenêtre** vers le
@@ -420,7 +446,8 @@ pas cette cote.
 | **le DROPDOWN** *(de choix · directionnel)* | rectangle **très large, peu haut** | ⛔ **aucun liseré** · voile 20 % · gras | §8 |
 | **la ZONE D'ÉCRITURE** | libre | ✅ rien à normer, elle est bien par défaut | §8 |
 | **le POPUP** *(guide · aiguilleur · gendarme)* | une bulle ancrée en bas | **la teinte dit le rôle** — parchemin · bleu · rouge | §7 |
-| **le `?`** | petit et discret | **collé en bas à droite**, hors du flux | §7 |
+| **le `?`** | petit et discret | **collé en bas à droite** de la rangée | §7 |
+| 🔴 **le LIVRE** *(organe neuf, 26/08)* | un **rond DESSINÉ** — cercle 28 px, un livre à couverture et **dos** | **collé en bas à gauche**, la jumelle du `?` | §7 bis |
 
 ⭐ **Deux d'entre eux ne portent AUCUNE couleur de l'échelle, et c'est délibéré** : l'interrupteur
 *(il porte un ÉTAT qui demeure, pas une action qui avance)* et le guide *(il est optionnel, donc il
@@ -471,13 +498,38 @@ ce qu'elle accepte avant qu'on lâche.
 > Eric, 2026-08-26, sur les variantes, l'échelle de valeur du liseré et ce que porte le fond :
 > **« on ne fait rien pour le moment, juste la couleur de base et le relief »**.
 
+### 🔴 ⛔ IL N'Y A PAS DE VARIANTES DE JETON — tranché 26/08
+
+> Eric, 2026-08-26 : **« il n'y a pas de variantes de jetons (juste une exception : les jetons
+> craft) »**.
+
+⭐⭐ **C'EST LA DÉCISION QUI FERME LE PLUS GROS NŒUD DE LA NOMENCLATURE.** Quatre points y étaient
+ouverts depuis des jours — *les variantes feat/feature/trait/training · la « légère variante » entre
+elles · l'échelle de valeur du liseré d'équipement · ce que porte le fond*. **Ils tombent tous
+ensemble, parce qu'il n'y a rien à distinguer.**
+
+| | |
+|---|---|
+| 🔴 **UN SEUL MODÈLE DE JETON** | le doré, le relief, T1. **Point.** |
+| ⛔ **pas de liseré par famille** | feat, feature, trait, training, skill, tool, équipement : **le même jeton** |
+| ⛔ **pas d'échelle de valeur** sur le liseré d'équipement | un objet rare n'a pas un bord différent |
+| ⛔ **le fond ne code rien** | il est la matière du jeton, pas un message |
+| ✅ **UNE seule exception** | les **jetons CRAFT** — ⏳ leur forme n'est pas décrite |
+
+⭐ **Et ça confirme ce que §2 disait déjà sans oser en tirer la conséquence** : *« bouton = 3
+couleurs · **jeton = UN SEUL modèle** · collecteur = UN SEUL modèle »*. La ligne existait ; c'est la
+liste des « variantes à trancher » juste en dessous qui la contredisait.
+
+⚠️ **Ce qui reste vraiment ouvert sur le jeton** : le **standard d'abréviations** *(le SEUIL vaut 16,
+c'est le vocabulaire des abrégés qui manque)* et la **forme du jeton craft**.
+
+---
+
 | ✅ ce qu'on construit **maintenant** | ⏳ ce qui attend |
 |---|---|
-| **la couleur de base** *(le doré)* | les **variantes** — feat / feature / trait / training |
-| **le relief** | le **liseré par famille** |
-| | l'**échelle de valeur** du liseré d'équipement |
-| | ce que porte le **fond** |
-| **le texte : 🔴 T1** *(ci-dessous)* | le **standard d'abréviations** |
+| **la couleur de base** *(le doré)* | ⛔ **plus rien sur les variantes — il n'y en a pas** |
+| **le relief** | le **standard d'abréviations** *(le seuil est tranché, pas le vocabulaire)* |
+| **le texte : 🔴 T1** *(ci-dessous)* | la **forme du jeton CRAFT**, la seule exception |
 
 ⭐⭐ **Cohérent avec ce qu'il avait déjà dit** : *« dès qu'on a un jeton, on peut déjà faire cela »*.
 **Le jeton unique se construit d'abord ; tout le reste se pose PAR-DESSUS sans le redessiner.**
@@ -524,6 +576,27 @@ la langue par défaut du Seuil.
 |---|---|
 | ⛔ **la règle nue ne dit pas le corps rendu** | `.choix-glisse .glisse-jeton` **(0,0,2,0)** bat `.glisse-jeton` **(0,0,1,0)**. Le jeton rendait **12 px** pendant que sa règle nue en annonçait 14 — §0 « Google Headless », le même piège que le rayon de 4 px du lignage |
 | ⛔ **un compte de caractères n'est pas une largeur** | `supplémentaires` fait **15** car. et **80** px — il sort ; `Prestidigitation` en fait **16** et **73** — il tient. **Aucun seuil en caractères ne sépare ces deux-là** ; le repli (`overflow-wrap: break-word`) rattrape le cas, la case garde ses 48 px |
+
+### ✅ LA CASE DE LA GRILLE **EST** UN JETON — tranché 26/08
+
+> Eric, 2026-08-26 : **« c'est un jeton — aligne-la sur T1 »**.
+
+`.grille-jeton`, la case du tambour d'Équipement, portait `--t2` et n'avait **jamais** été tranchée.
+Elle porte **`--t1`**, comme tout jeton.
+
+⛔ **ET J'AVAIS SOUTENU L'INVERSE, À TORT.** J'avais arrêté un lot en écrivant *« un organe qu'on
+GLISSE et un objet de PAGINATION ne sont pas la même chose »*. La feuille disait déjà le contraire,
+vingt lignes plus bas : `.carte-r .grille-jeton { touch-action: none }` — et son propre commentaire
+l'écrit : *« `.grille-jeton` n'était pas glissable avant R1 »*. **Elle se glisse. C'est un jeton.**
+
+📌 **La leçon** : j'ai tiré une distinction d'un RAISONNEMENT sur les gestes au lieu de lire ce que
+le code FAIT du geste. ⛔ Un nom qu'on croit menteur mérite qu'on vérifie l'objet d'abord.
+
+⏳ **CE QUI RESTE DIFFÉRENT, mesuré et NON tranché** : la case porte encore `--radius-sm` *(le jeton
+a `--organe-rayon`)*, `--surface` opaque *(le jeton a `--jeton-teinte`)* et **aucun `--relief`**.
+Eric a tranché **le CORPS**, pas l'habit complet. ⛔ Ne pas aligner le reste sans lui.
+
+---
 
 ### ✅ LE SEUIL D'ABRÉVIATION SUIT LE CORPS — **16**, ratifié 26/08
 
@@ -1258,6 +1331,34 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 
 ## 7. LES TROIS POPUPS — trois rôles, trois couleurs *(26/08)*
 
+> 🔴 **⛔ CHANTIER EN STANDBY — Eric, 2026-08-26 : « les guide gendarme aiguilleur, toujours en
+> standby et à l'étude ».**
+>
+> ⛔ **AUCUN LOT NE TOUCHE À LA FORME DES TROIS VOIX** tant qu'Eric n'a pas rouvert. Ce qui suit
+> décrit leurs RÔLES, qui sont tranchés ; leur DESSIN ne l'est pas.
+> ⏳ Le chantier est ouvert au vault, `0.TASKS/Tasks RPG.md` — *« FHPC : les trois voix »*.
+
+### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
+
+> Eric : **« c'est plutôt un aiguilleur, on a TOUJOURS besoin de lui »**.
+
+La fenêtre qui demande *« I keep my kit »* ou *« Take the 50 GP »* s'appelait **« guide
+obligatoire »**, puis `decision-kit`, puis **`aiguilleur`** — trois noms en un jour, et chacun a
+corrigé une faute.
+
+⭐⭐ **SA PHRASE PORTE LE CRITÈRE, PAS SEULEMENT LE MOT** : le **guide** est défini par son caractère
+**OPTIONNEL** — *« il ne réclame rien »*, on le congédie, on le rouvre au `?`. Celui-ci ne se
+congédie pas : sans réponse, l'étape n'a pas de point de départ.
+➡️ 🔴 **CE QU'ON NE PEUT PAS REFUSER N'EST PAS UNE AIDE.**
+
+⏳ **ET CE QUE ÇA LAISSE OUVERT, dans le chantier en standby** : §7 range l'aiguilleur parmi les
+POPUPS, et §2 dit qu'un popup *« parle, on ne l'appuie pas »*. Celui-ci porte **deux boutons**. Un
+aiguilleur qui exige une réponse n'est pas la même forme qu'un aiguilleur qui prévient en passant.
+⛔ **À Eric de dire si ce sont deux organes ou un seul.**
+
+---
+
+
 | l'organe | couleur | ce qu'il dit |
 |---|---|---|
 | **le GUIDE** | 📜 **parchemin** — la surface elle-même | une aide **OPTIONNELLE** |
@@ -1368,12 +1469,60 @@ trop ? »* garde toute sa force.
 | | |
 |---|---|
 | **place** | **en bas à droite**, fixe |
-| 🔴 **contrainte** | **jamais en conflit avec un bouton** → la largeur de la rangée de boutons est **bornée par calcul**, pas à l'œil. ⛔ `--touch` 44 du `?` ne cède **jamais** |
+| 🔴 **où il vit** | ✅ **TRANCHÉ le 26/08 — il ENTRE DANS LA RANGÉE de boutons**, collé à droite, et ⛔ **il ne participe pas au centrage**. Eric : *« il n'entre pas en conflit avec le centrage des boutons, il sera toujours collé à droite »*. ⛔ `--touch` 44 ne cède **jamais** |
 | ⛔ **pas dans la marge** | il est **sur** la dalle, en bas à droite *(voir §1 bis)* |
 | **cycle de vie** | il **apparaît de base** · il propose **systématiquement d'être désactivé totalement** · un simple **`ok`** le fait partir pour cette fois |
 | **retour** | il **revient spontanément à chaque nouveau personnage** — ⛔ **sauf s'il a été désactivé dans le menu** |
 | **réactivation** | **toujours possible en cliquant sur `?`** |
 | ⛔ **borné** | aux écrans qui **ont** un guide. Un `?` qui n'ouvre rien apprend à ne plus le regarder |
+
+### 🔴 POURQUOI « BORNER LA LARGEUR » NE RÉPARAIT RIEN — mesuré le 26/08
+
+Ce paragraphe demandait de **borner la largeur de la rangée par calcul**. ⛔ **La largeur n'était
+pas la variable.**
+
+📏 `.sortie` était en **`space-between`** : le bouton de droite **EST** le bord droit, quel que soit
+son mot. Le `?` vise le même coin, à 44 px du bord. **Recouvrement : 44 px, à 360 comme à 375** — le
+nombre ne bougeait pas, parce que les deux objets visaient le même coin **par construction**.
+Rétrécir la rangée déplaçait son bord **gauche** ; celui de droite se recollait.
+
+✅ **LA SORTIE, tranchée par Eric** : la rangée passe à **`justify-content: center`** et **réserve
+une colonne de `--touch` de chaque côté**. Les boutons se centrent sur ce qui reste ; les deux
+petits organes — le **livre** à gauche, le **`?`** à droite — vivent dans les colonnes réservées et
+**ne décalent jamais le centre**.
+
+⭐⭐ **ET LE MÉCANISME EXISTAIT DÉJÀ DANS LA FEUILLE** : `.parcours-pied` porte `center` +
+`padding-right: var(--touch)` depuis le **19/08** et n'a **jamais** eu le conflit. ⛔ On n'a rien
+inventé : on a étendu une recette qui marchait sur un écran à celle qui ne l'avait pas.
+
+📏 Mesuré à 360 après : rembourrage gauche **8**, droite **52** *(8 + 44)*, boutons centrés.
+
+---
+
+### 🔴 7 bis — LE LIVRE : la jumelle gauche du `?` *(organe neuf, 26/08)*
+
+> Eric, 2026-08-26 : *« plutôt qu'un bouton rules ou lore, on crée un bouton de même dimension que
+> `?` mais à ma gauche, **il contient un livre**… et exit le bouton lore »*, puis : *« **deux petits
+> organes à gauche et à droite**, prenant peu de place dans la rangée des boutons, **ils ne se
+> centrent pas** »*.
+
+| | |
+|---|---|
+| **sa place** | **en bas à GAUCHE**, dans la colonne réservée de la rangée |
+| **sa cible** | 🔴 **`--touch` 44** — comme le `?`, comme tout ce qui se touche |
+| **son dessin** | un cercle de **28 px** *(le `?` en fait 22)* — Eric : *« quitte à agrandir un peu le cercle pour que ça ressemble à un livre »* |
+| ⛔ **dessiné, pas écrit** | un glyphe 📖 change de forme selon la police installée et rend une couleur qui n'est pas la nôtre — même raison qu'au pouce de l'interrupteur *(§6)* |
+| **ce qu'il remplace** | le bouton **`LORE`** du pied de fiche, qui disparaît |
+
+⭐⭐ **CE QUE ÇA RANGE DÉPASSE LA PLACE** : le pied portait **deux mots** pour deux gestes de nature
+différente — `LORE` ouvre une **lecture**, `CHOOSE` **écrit dans le document**. Au même habit, côte à
+côte, ils disaient qu'ils se valaient. ➡️ **⭕ à gauche on LIT · le bouton au centre on CHOISIT ·
+⭕ à droite on demande de l'AIDE.**
+
+⚠️ **Un organe sans texte doit se NOMMER** : `aria-label`, sinon il disparaît de la page pour qui ne
+voit pas le dessin. Le garde l'exige.
+
+---
 
 ⭐ **Le `?` est ce qui autorise le guide à disparaître** : on ne ferme franchement une aide que si
 l'on sait la retrouver.
