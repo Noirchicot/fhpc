@@ -91,12 +91,27 @@ test("1 — les trois champs affichent la valeur actuelle du document", () => {
   assert.ok(jetonDe(alignement, "Chaotic Good (mostly)"), "idem pour l'alignement");
 });
 
-test("1bis — genre et alignement absents du document s'affichent vides, pas « undefined »", () => {
+test("1bis — genre et alignement absents du document DISENT ce qu'ils attendent", () => {
   const node = renderConceptStep({ document: draftDocument(), fieldErrors: {} }, () => {});
   const [genre, alignement] = blocs(node);
-  /* Un récepteur vide porte le tiret, pas le mot « undefined ». */
-  assert.equal(valeurDe(genre), "—");
-  assert.equal(valeurDe(alignement), "—");
+  /* 🔴 LE TIRET EST DEVENU UNE CONSIGNE — Eric, 2026-08-26 : *« drop it here, en
+     T1, dans le collecteur ; ça disparaît quand c'est rempli »*.
+
+     ⭐ ET C'EST LA SUITE DIRECTE DU RETRAIT DU POINTILLÉ, le même jour : tant
+     qu'un contour tireté entourait la case, le tiret suffisait — la BOÎTE disait
+     « dépose ici », le tiret disait « rien encore ». Le contour parti, il ne
+     restait qu'un tiret pour porter les deux messages, et un tiret ne dit pas ce
+     qu'on attend de vous.
+
+     ⚠️ CE QUE CE TEST GARDE N'A PAS CHANGÉ : il interdit toujours qu'une valeur
+     ABSENTE s'affiche « undefined ». C'est le mot de remplacement qui bouge, pas
+     la vigilance — un champ vide doit dire quelque chose de VOULU. */
+  assert.equal(valeurDe(genre), "drop it here");
+  assert.equal(valeurDe(alignement), "drop it here");
+  /* ⛔ Et jamais le mot du moteur. */
+  for (const bloc of [genre, alignement]) {
+    assert.doesNotMatch(valeurDe(bloc), /undefined|null|NaN/);
+  }
 });
 
 /* ══ 2 — COMMIT SUR `change`, ET LE VERBE REND `rename`/`describe` ════════ */

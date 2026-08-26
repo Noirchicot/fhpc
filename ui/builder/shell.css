@@ -3232,6 +3232,22 @@ button { font: inherit; }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */
 .ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
+
+/* 🔴 LA CONSIGNE N'A PAS L'AIR D'UNE RÉPONSE — Eric, 2026-08-26 : *« de la même
+   couleur qu'Alignment, et en italique »*.
+   ⭐ ET C'EST LE POINT QUI MANQUAIT À « drop it here » : posé dans la case, au
+   même corps et à la même couleur qu'un nom choisi, il se lisait comme UNE
+   RÉPONSE — comme si le personnage s'appelait « drop it here ». Deux signaux le
+   rangent du bon côté : **la couleur du LIBELLÉ** au-dessus (`--text-muted`,
+   celle d'« ALIGNMENT »), qui dit *« je suis de la famille des étiquettes »*, et
+   **l'italique**, qui dit *« je ne suis pas une donnée »*.
+   ⚠️ ⛔ ET SEULEMENT QUAND LA CASE EST VIDE : `[data-rempli="false"]`. Une
+   réponse posée reprend le plein et le droit — sinon on aurait remplacé une
+   ambiguïté par une autre, dans l'autre sens. */
+.glisse-creneau[data-rempli="false"] .glisse-creneau-valeur {
+  color: var(--text-muted);
+  font-style: italic;
+}
 .ability-creneau .ability-row-final { font-size: var(--t1); }
 
 /* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */

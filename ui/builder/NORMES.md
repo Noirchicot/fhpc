@@ -428,12 +428,67 @@ de la ligne de flottaison** n'est pas tranché.
 > autour pour rappeler que c'est un collecteur »*, puis : *« ce même liseré peut appliquer **les
 > codes couleurs qu'on connaît** »*.
 
-| l'état | le fond | le liseré |
-|---|---|---|
-| **vide** | ⛔ aucun — **creux** *(`--creux`)* | **tireté** |
-| **rempli, valide** | 🔴 **le doré du jeton** + **`--relief`** | 🔵 **bleu** — *« celui-ci est bon »* |
-| **mauvaise pose** | idem, le doré reste | 🔴 **rouge** |
-| **tout posé** | idem | 🟢 **vert, sur tous à la fois** |
+| l'état | le fond | le liseré | ce qu'il DIT |
+|---|---|---|---|
+| **vide** | ⛔ aucun — **creux** *(`--creux`)* | ⛔ **AUCUN** — transparent *(26/08)* | 🔴 **« drop it here »**, T1, minuscules |
+| **rempli, valide** | 🔴 **le doré du jeton** + **`--relief`** | 🔵 **bleu, 2 px** — *« celui-ci est bon »* | le nom de ce qui est posé |
+| **mauvaise pose** | idem, le doré reste | 🔴 **rouge, 2 px** | idem |
+| **tout posé** | idem | 🟢 **vert, 2 px, sur tous à la fois** | idem |
+
+---
+
+#### ✅ TROIS PRÉCISIONS DU 26/08 — *« règle générale pour tout le site »*
+
+> Eric : *« le collecteur doit **doubler son épaisseur** de liseré, trop fin pas assez visible »* ·
+> *« on voit bien le liseré quand il est rempli, **ton pointillé sert à rien** »* ·
+> *« **drop it here** en T1 dans le collecteur, ça **disparaît quand c'est rempli** »* ·
+> *« en **minuscules** bien sûr »*.
+
+**① Le liseré REMPLI vaut `--creneau-lisere-rempli` — 2 px.** À 1 px il se confondait avec le
+liseré que tout organe porte, alors qu'il est **le seul trait de l'écran qui dise « cette case a
+reçu quelque chose »**.
+⛔ **Et 2 px est un JETON, pas un littéral** : le garde des littéraux n'excepte que le `1px` de
+bordure *(l'unité minimale visible)*, et surtout une cote sans nom est introuvable le jour où elle
+rebouge.
+⚠️ **Ma première lecture a visé à côté** : j'avais épaissi la bordure de BASE, donc le pointillé
+d'attente en même temps. Une case vide n'a rien à crier ; une case remplie, si.
+
+**② Le pointillé d'attente a DISPARU.** La cible s'allume **au moment où on l'approche**
+*(`[data-vise]`)* : un contour qui crie en permanence pour un rôle qu'il ne joue qu'à l'instant du
+dépôt ajoute une boîte à un écran qui en porte déjà douze.
+🔴 **MAIS LA BORDURE RESTE, EN TRANSPARENT** — c'est tout l'écart entre *retirer le dessin* et
+*retirer la cote*. Un `border-style: none` ferait disparaître 2 px de chaque côté : **la case
+sauterait au moment où elle se remplit**, et le geste le plus important de l'écran ferait bouger ce
+qu'on vient de viser.
+
+**③ Vide, la case DIT ce qu'elle attend.** Et ça découle du ② : tant qu'un contour tireté
+l'entourait, le tiret suffisait — la BOÎTE disait *« dépose ici »*, le tiret disait *« rien
+encore »*. Le contour parti, un tiret seul ne dit plus ce qu'on attend de vous.
+⭐ Le mot occupe **la ligne que le tiret occupait déjà**, dans le même corps : il ne coûte rien.
+⚠️ **Il s'efface au remplissage** — une consigne qui reste après avoir été suivie devient du bruit,
+et pire, elle ferait douter de ce qui est posé.
+📌 **Les minuscules sont garanties par la RÈGLE, pas par la source** : le nom du collecteur porte
+`text-transform: uppercase` *(→ ALIGNMENT)*, la valeur porte `none`. Elle ne **peut pas** se
+retrouver en capitales.
+
+**④ Et la consigne n'a pas l'air d'une RÉPONSE** — Eric : *« de la même couleur qu'Alignment, et en
+italique »*. C'est ce qui manquait à *« drop it here »* : posé dans la case, au même corps et à la
+même couleur qu'un nom choisi, il se lisait comme une réponse — **comme si le personnage
+s'appelait « drop it here »**. Deux signaux le rangent du bon côté :
+
+| signal | ce qu'il dit |
+|---|---|
+| la **couleur du LIBELLÉ** *(`--text-muted`, celle d'« ALIGNMENT »)* | *« je suis de la famille des étiquettes »* |
+| l'**italique** | *« je ne suis pas une donnée »* |
+
+⛔ **Et seulement quand la case est vide** *(`[data-rempli="false"]`)* : une réponse posée reprend le
+plein et le droit. Sinon on aurait remplacé une ambiguïté par une autre, dans l'autre sens.
+📏 **Mesuré** : vide → `rgb(146,140,127)` italique, **identique au libellé au pixel de couleur
+près** · rempli → `rgb(216,211,201)` droit.
+
+📏 **Mesuré à 375 × 553, un collecteur rempli et un vide côte à côte** : `2px solid rgb(70,157,106)`
+contre `2px solid transparent`, **tous deux 87 × 48** — aucun saut ; *« drop it here »* à 10 px sur
+une ligne, sans débord.
 
 ⭐⭐ **DEUX CANAUX, DEUX MESSAGES, ET C'EST LA TROUVAILLE** : le **REMPLISSAGE** dit *« je porte un
 jeton »* · le **LISERÉ** dit *« je suis un collecteur, et voilà mon état »*.

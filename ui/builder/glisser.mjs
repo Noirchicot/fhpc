@@ -681,7 +681,20 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     creneau.append(el("span", "glisse-creneau-valeur", [
       /* Le récepteur abrège comme le vivier : c'est la MÊME case, et un nom
          qui déborderait ici déborderait de la réponse, pas de la question. */
-      text(choisi ? abrege(labelOf ? labelOf(choisi) : choisi) : "—")
+      /* 🔴 VIDE, LA CASE DIT CE QU'ELLE ATTEND — Eric, 2026-08-26 : *« drop it
+         here, en T1, dans le collecteur ; ça disparaît quand c'est rempli »*.
+
+         ⭐ ET ÇA VIENT JUSTE APRÈS LE RETRAIT DU POINTILLÉ, ce qui n'est pas un
+         hasard : tant qu'un contour tireté entourait la case, le tiret suffisait
+         — la BOÎTE disait « dépose ici », le tiret disait « rien encore ». Le
+         contour parti, il ne restait qu'un tiret pour porter les deux messages,
+         et un tiret ne dit pas ce qu'on attend de vous.
+         ⭐⭐ Le mot le fait, et il ne coûte rien de plus : il occupe la ligne
+         que le tiret occupait déjà, dans le même corps.
+         ⚠️ IL S'EFFACE AU REMPLISSAGE, c'est la seconde moitié de la consigne —
+         une consigne qui reste après avoir été suivie devient du bruit, et pire,
+         elle ferait douter de ce qui est posé. */
+      text(choisi ? abrege(labelOf ? labelOf(choisi) : choisi) : "drop it here")
     ]));
     /* 🔴 ON N'ANNULE PLUS EN TAPANT — Eric, 2026-08-19, et sa raison est une
        PRÉVISION, pas un goût : *« clic annule : non, car si on implémente le
