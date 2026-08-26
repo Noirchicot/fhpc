@@ -1904,7 +1904,42 @@ function renderStepContent() {
       if (hote) hote.append(renderPointInterrogation(applyDecisionAction, { vu }));
     }
   }
+  effacerLesTitresEnDouble(card);
   return card;
+}
+
+/** ⛔ ON NE NOMME PAS DEUX FOIS — Eric, 2026-08-26 : *« si doublon de titre,
+ *  effacer celui de la DALLE »*.
+ *
+ *  📏 LE DÉFAUT, MESURÉ PAR LE LOT A le même jour, sur l'écran des sorts
+ *  préparés de Class : « Prepared spells » s'écrit **deux fois** — une fois en
+ *  `h2.guide-titre` (le titre de l'écran) et une fois en `h3` dans la dalle du
+ *  vivier. Le second coûtait une ligne de hauteur sur une page qui débordait
+ *  déjà de 237 px.
+ *
+ *  ⭐ POURQUOI ICI ET PAS DANS `glisser.mjs` : l'organe du vivier ne PEUT PAS
+ *  savoir qu'il double un titre — il reçoit un mot, il ne voit pas l'écran
+ *  autour. Et le faire dire par les CINQ appelants, ce serait cinq endroits où
+ *  l'oublier au premier écran neuf. ⭐ Ici, les deux titres se rencontrent pour
+ *  la première fois : c'est le seul endroit où la question a une réponse.
+ *
+ *  ⛔ ET ON COMPARE LE TEXTE RENDU, PAS UNE INTENTION. Un vivier dont le titre
+ *  DIFFÈRE de celui de l'écran garde le sien — « Skill budget » sous « Elf »
+ *  nomme deux choses, ce n'est pas un doublon. Seul le mot identique s'efface.
+ *
+ *  📌 C'est §1 quinquies appliqué à la lettre : *« la règle se lit à l'envers,
+ *  et c'est ce qui la rend juste : on ne nomme pas deux fois. Un titre posé
+ *  au-dessus d'un objet qui dit déjà de quoi il s'agit coûte 40 px pour ne rien
+ *  apprendre. »* */
+function effacerLesTitresEnDouble(card) {
+  const ecran = card.querySelector("h1, h2");
+  if (!ecran) return;
+  const mot = (ecran.textContent || "").trim().toLowerCase();
+  if (!mot) return;
+  for (const titre of card.querySelectorAll("h2, h3")) {
+    if (titre === ecran) continue;
+    if ((titre.textContent || "").trim().toLowerCase() === mot) titre.remove();
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
