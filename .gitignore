@@ -1,4 +1,12 @@
-node_modules/
+# 🔴 SANS LA BARRE, ET CE N'EST PAS UN DÉTAIL — 2026-08-26.
+# `node_modules/` ne vise qu'un DOSSIER. Or chaque worktree de ce dépôt reçoit
+# un LIEN `ln -s ~/tools/fhpc/node_modules node_modules` pour partager les
+# paquets : un lien n'est pas un dossier, donc il n'était pas ignoré, et un
+# `git add -A` l'a embarqué dans un commit de lot (rattrapé avant la fusion).
+# ⚠️ Rien ne prévenait : le lien fait UNE ligne dans le diff, au milieu de 200.
+# ⭐ Sans barre, le motif vise le dossier ET le lien. Les 34 worktrees sont
+# couverts d'un coup, au lieu de compter sur l'attention de celui qui commite.
+node_modules
 .DS_Store
 # graines du banc de parcours (générées, jamais commitées)
 fixture-banc.json
