@@ -244,17 +244,41 @@ personnage suivant.**
 
 ## 8. AUTRES ORGANES ET TEXTES
 
-| organe | forme |
-|---|---|
-| **dropdown** | rectangulaire, **très large, peu haut** · liseré **vert** · transparence **20 %** · caractères **gras** |
-| **zone d'écriture** | forme variable · liseré **rose** · fond normal |
+### 🔴 LES DEUX DROPDOWNS — ils ne font pas le même métier *(tranché 26/08)*
 
-| texte qui change | couleur |
+| | **de CHOIX** | **DIRECTIONNEL** |
+|---|---|---|
+| ce qu'il fait | on y prend une valeur | il dit **où va** l'objet |
+| 🔴 **valeur par défaut** | — | ✅ **OBLIGATOIRE** |
+| exemple | — | le **collecteur d'équipement** : dropdown **`backpack`** par défaut + bouton **`Send`** |
+
+⛔ **PAS DE LISERÉ sur un dropdown** *(Eric, 26/08 — corrige sa propre dictée)*. Il reste
+rectangulaire, **très large, peu haut**, transparence **20 %**, caractères **gras** contrastant.
+
+⭐ **Pourquoi le directionnel exige un défaut** : il répond à une question que le joueur ne s'est
+pas posée. Sans défaut, l'objet reste en l'air et le geste échoue en silence — **avec `backpack`
+déjà là, `Send` marche du premier coup** et le joueur ne change la destination que s'il le veut.
+C'est exactement la règle des **« prévalidés »** : *un réglage qui a un bon défaut se montre sans
+se demander.*
+
+✅ **La zone d'écriture** : ⛔ **rien à normer, elle est bien par défaut** *(Eric, 26/08 — annule
+le liseré rose de sa dictée, qui n'existait dans aucune palette)*.
+
+### Les textes qui changent
+
+| cas | couleur |
 |---|---|
 | normal | **bleu** *(peut varier)* |
 | **gain** | **vert** |
 | **perte** | **rouge** |
-| ne bouge pas | **noir** |
+| **ne bouge pas** | 🔴 **l'encre normale — `--text`** |
+
+⛔ **« Ne bouge pas » ne veut PAS dire « noir littéral ».** Mesuré : un `#000` sur le fond de nuit
+`#14120e` rend **1,11:1** — *le texte disparaît*. `--text` vaut `#d8d3c9` la nuit et une encre
+sombre le jour : **même intention, et ça survit au thème.**
+
+⭐ **La règle se lit à l'envers, et c'est ce qui la rend juste** : ⛔ **une valeur qui n'a pas
+changé ne se colore pas.** La couleur est réservée à ce qui bouge — sinon elle ne signale plus rien.
 
 🔴 **Page unique, sauf mention contraire.**
 
