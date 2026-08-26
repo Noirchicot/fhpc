@@ -491,7 +491,7 @@ function applyDecisionAction(action) {
       state.document = state.docWriters.rename({ document: state.document, name: action.name });
       state.fieldErrors = { ...state.fieldErrors, name: null };
     } catch (error) {
-      state.fieldErrors = { ...state.fieldErrors, name: error.message };
+      state.fieldErrors = { ...state.fieldErrors, name: motDuRefus(error, action.name, "name") };
     }
     refresh();
     return;
@@ -506,7 +506,7 @@ function applyDecisionAction(action) {
       state.document = state.docWriters.describe({ document: state.document, [action.field]: action.value });
       state.fieldErrors = { ...state.fieldErrors, [action.field]: null };
     } catch (error) {
-      state.fieldErrors = { ...state.fieldErrors, [action.field]: error.message };
+      state.fieldErrors = { ...state.fieldErrors, [action.field]: motDuRefus(error, action.value, action.field) };
     }
     refresh();
     return;
@@ -2617,7 +2617,7 @@ function pressDone() {
         /* ⛔ UN REFUS D'ÉCRITURE NE SE MANGE PAS. Il remonte dans le carnet des
            champs, comme ceux de `rename`, au lieu de laisser le joueur croire
            qu'il a validé. */
-        state.fieldErrors = { ...state.fieldErrors, parcours: error.message };
+        state.fieldErrors = { ...state.fieldErrors, parcours: motDuRefus(error, null, "parcours") };
       }
     }
     openSurface();
@@ -2891,6 +2891,44 @@ function surUneRacineQuiBranche() {
      Abilities n'a que deux paliers aujourd'hui, donc les deux écritures disent
      la même chose ; l'une reste vraie si un cran s'ajoute, l'autre non. */
   return STEPS[state.step].id === "abilities" && state.palier < 2;
+}
+
+/** Traduit un refus du noyau en une phrase de JOUEUR — ou en une phrase honnête
+ *  quand on ne sait pas laquelle.
+ *
+ *  🔴 CE QUI ARRIVAIT AVANT, ET QU'ERIC A VU LE 2026-08-26 : le message du
+ *  noyau partait TEL QUEL à l'écran. En effaçant son nom pour le retaper, le
+ *  joueur lisait, en rouge, sur cinq lignes :
+ *
+ *    « fhpc/doc: rename : le document ne valide pas contre `fh-char/1` —
+ *      1 refus : — « document.name » : 0 caractère(s), au moins 1 attendu(s). »
+ *
+ *  ⛔ C'est du français de DÉVELOPPEUR dans un écran que le joueur regarde —
+ *  exactement ce qu'Eric avait déjà fait retirer le 23/08 de l'écran R
+ *  d'Équipement. Et ça coûtait cinq lignes, qui faisaient sauter le budget de
+ *  hauteur au moment précis où le joueur tape.
+ *
+ *  ⭐ ET ON LIT LA CAUSE, PAS LE TEXTE DU MESSAGE. Renifler les mots du noyau
+ *  (« au moins 1 attendu ») marcherait aujourd'hui et casserait à la première
+ *  reformulation, sans que rien ne le dise. La VALEUR, elle, dit tout : vide,
+ *  ou trop longue. C'est la même donnée que le noyau a jugée.
+ *
+ *  ⚠️ ⛔ ET LE REPLI NE RECOPIE JAMAIS LE MESSAGE BRUT — c'est précisément par
+ *  un repli « au pire on affiche l'erreur » que la fuite s'était installée. Un
+ *  refus qu'on n'a pas prévu se dit en une phrase honnête, et le détail part
+ *  dans la console, pour qui débogue. */
+function motDuRefus(error, valeur, champ) {
+  const texte = typeof valeur === "string" ? valeur : "";
+  if (champ === "name") {
+    if (texte.trim().length === 0) return "A character needs a name — even a placeholder.";
+    if (texte.length > 200) return "That name is too long.";
+  }
+  /* ⚠️ ON NE SAIT PAS : ON LE DIT. Le détail part dans la console, pour qui
+     débogue — c'est sa place, et c'est la seule. */
+  if (typeof console !== "undefined" && console.warn) {
+    console.warn(`refus sur « ${champ} » :`, error && error.message);
+  }
+  return "That change could not be recorded.";
 }
 
 function renderSortieEtape() {

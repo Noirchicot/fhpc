@@ -2775,7 +2775,16 @@ button { font: inherit; }
   font-family: inherit;
 }
 .doc-field-input[aria-invalid="true"] { border-color: var(--critical); }
-.doc-field-error { font-size: var(--t2); color: var(--critical); margin: 0; font-family: ui-monospace, monospace; }
+/* 🔴 UNE PHRASE DE JOUEUR NE S'ÉCRIT PAS EN CHASSE FIXE — 2026-08-26, même
+   lot que la traduction du refus. Le message est devenu humain (« A character
+   needs a name »), mais il restait en `ui-monospace` : **une phrase de joueur
+   en police de terminal se lit encore comme une sortie machine**, et c'est
+   précisément ce qu'Eric a fait retirer en voyant l'erreur brute.
+   ⭐ La chasse fixe avait un sens tant que la ligne portait un chemin de champ
+   et un tag de schéma — de la donnée, qu'on aligne. Elle n'en a plus dès que
+   la ligne porte une phrase. Elle hérite donc de la police de l'écran ; seule
+   la COULEUR dit encore que c'est un refus. */
+.doc-field-error { font-size: var(--t2); color: var(--critical); margin: 0; }
 .doc-field-note { font-size: var(--t2); color: var(--text-muted); margin: var(--sp-4) 0 0; }
 
 .universe-stack-block { margin-bottom: var(--sp-24); }
@@ -3260,7 +3269,7 @@ button { font: inherit; }
      fait lire comme une place à remplir plutôt que comme une case vide.
      ⭐ `--creux` ne porte aucune couleur du thème : ce sont des arêtes de
      lumière et d'ombre, elles marchent sur n'importe quelle face. */
-  border: 1px dashed var(--border-strong); border-radius: var(--organe-rayon);
+  border: var(--creneau-lisere) dashed var(--border-strong); border-radius: var(--organe-rayon);
   background: none; box-shadow: var(--creux);
   color: var(--text); font-family: inherit;
 }
