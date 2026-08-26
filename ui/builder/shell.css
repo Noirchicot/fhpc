@@ -3323,10 +3323,28 @@ button { font: inherit; }
    négative vaut la gouttière du panneau, donc le filet touche exactement les
    bords, sans jamais élargir la boîte (`width: auto` + marges, pas de
    `width: 100vw` qui provoquerait un défilement horizontal). */
+/* 🔴 LA SAIGNÉE SE COLLE SOUS SON TITRE — Eric, 2026-08-26 : *« lineage à 8 px
+   de Elf »*, dans un but qu'il a fini par nommer : *« on fait de l'espace pour
+   la fenêtre, laisse ceux du bas où ils sont »*.
+   📏 CE QU'ELLE COÛTAIT, MESURÉ : **17 px pour un trait de 1** — 8 de marge
+   au-dessus, 8 en dessous. Sur les 25 px qui séparaient « Elf » de « Lineage »,
+   elle en prenait 17 à elle seule.
+   ⭐ ET C'EST SA MARGE DU HAUT QUI SAUTE, PAS CELLE DU BAS : un trait posé sous
+   un titre lui APPARTIENT — il le souligne. Celui du bas, lui, sépare vraiment
+   deux choses, et c'est exactement les 8 px qu'Eric demande devant `Lineage`.
+   ⚠️ Le titre perd la sienne en même temps, sinon les deux s'additionneraient —
+   le défaut que cette feuille répète depuis ce matin. */
 .saignee {
+  /* ⚠️ ⛔ LE DÉBORD LATÉRAL RESTE — je l'avais PERDU en réécrivant cette marge :
+     `var(--saignee-debord)` sort le trait du rembourrage de la dalle, c'est ce
+     qui le fait courir d'un bord à l'autre. En visant la cote VERTICALE, mon
+     remplacement a emporté l'horizontale avec elle.
+     📌 **Un raccourci qu'on réécrit pour une seule de ses valeurs emporte
+     toutes les autres en silence.** C'est la même leçon que `padding` en
+     raccourci, payée une fois de plus dans la même journée. */
+  margin: 0 var(--saignee-debord) var(--sp-8);
   border: 0;
   border-top: 1px solid var(--border);
-  margin: var(--sp-8) var(--saignee-debord);
   width: auto;
 }
 
@@ -3414,14 +3432,13 @@ button { font: inherit; }
      question est ce qu'il porte EN TROP — jamais une barre de plus. */
   height: var(--fiche-h);
 }
-.guide-titre { /* 🔴 −8 px ENTRE LE TITRE ET LE PREMIER BOUTON — Eric, 2026-08-26 : *« réduis
-     espace elf / lineage de 8 px »*.
-     📏 MESURÉ À 25, ET DÉCOMPOSÉ : 8 de marge basse du titre, puis la saignée
-     qui pose 8 au-dessus d'elle, 1 de trait, 8 en dessous. **Encore deux marges
-     qui s'additionnent** — troisième fois de la journée.
-     ⭐ ON RETIRE CELLE DU TITRE, PAS CELLE DE LA SAIGNÉE : un trait de
-     séparation doit respirer SYMÉTRIQUEMENT, sinon il penche. Le titre, lui,
-     n'a rien à séparer — la saignée juste en dessous s'en charge. */
+.guide-titre { /* 🔴 SA MARGE REVIENT — Eric, 2026-08-26 : *« t'as DESCENDU Elf plutôt que de
+     tout remonter de 8 px »*. Il avait raison, et la nuance est la leçon : j'ai
+     retiré la marge sous le titre, donc **le contenu est monté vers un titre
+     resté en place**. Ce qu'il voulait, c'est que le BLOC ENTIER remonte —
+     titre compris. Rapprocher deux choses et déplacer un ensemble ne sont pas
+     le même geste, même quand ils rendent le même nombre de pixels.
+     ⭐ Le vrai levier était le rembourrage HAUT de la dalle, corrigé plus bas. */
   margin-bottom: 0; font-size: var(--t5); }
 /* 🔴 LA BANDE D'AIGUILLEUR — Eric, 2026-08-26 : *« ce texte-là c'est
    l'AIGUILLEUR ! on pourrait lui garder sa petite fenêtre au-dessus des
@@ -3478,7 +3495,11 @@ button { font: inherit; }
 .parcours-item-dalle,
 .parcours-bilan {
   margin: 0 auto var(--sp-8);
-  padding: var(--sp-16) var(--sp-16) var(--sp-4);
+  /* 🔴 4 px EN HAUT — Eric, 2026-08-26 : *« Elf peut être à 4 du haut »*, après
+     avoir constaté que j'avais rapproché le contenu au lieu de faire remonter
+     l'ensemble. C'est ICI que le bloc entier monte : le titre suit, et tout ce
+     qui vient après lui aussi. */
+  padding: var(--sp-4) var(--sp-16);
   display: flex; flex-direction: column;
 }
 
@@ -4356,6 +4377,17 @@ button { font: inherit; }
   gap: var(--sp-8); min-height: var(--touch);
   padding-bottom: var(--sp-8);
   border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+/* 🔴 −8 px ENTRE « Granted » ET SON TEXTE — Eric, 2026-08-26 : *« scroll zone
+   trop loin de Granted, la remonter de 8 »*.
+   ⭐ ET ON PREND LES 8 SUR LE REMBOURRAGE DE LA TÊTE, pas ailleurs : ce
+   `padding-bottom` sépare une tête de ce qui la suit, et il a du sens sous un
+   BOUTON — il éloigne le résumé d'une cible tactile. Sous un simple mot, il
+   n'éloigne rien de rien. ⛔ Le `gap` de l'item, lui, est déjà au barreau du
+   bas (`--sp-4`) : y toucher aurait collé le texte au mot. */
+.parcours-item[data-sans-choix="true"] > .parcours-item-tete {
+  padding-bottom: 0;
 }
 .parcours-item-tete .parcours-item-porte { flex: 0 0 auto; text-align: center; }
 .parcours-item-tete .parcours-item-mot { flex: 0 0 auto; }
