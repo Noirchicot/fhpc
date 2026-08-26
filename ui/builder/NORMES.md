@@ -942,6 +942,34 @@ d'un **bouton** dit *« ce bouton défait »* ou *« cet état est faux »* ; le
 *« voilà le mur »*. On ne confond pas une chose qu'on appuie avec une chose qui parle.
 ⭐ **Un composant, trois teintes, trois intentions** — la plomberie `.popup` existe déjà.
 
+### 🔴 LE GUIDE EST UN POPUP — il ne vit JAMAIS dans le flux *(tranché 26/08)*
+
+> Eric, 2026-08-26, en réponse à « Class › guide déborde de 553 » : **« le guide devient un popup,
+> donc il ne déborde pas »**.
+
+| | |
+|---|---|
+| ⛔ **le guide n'est pas un bloc de la page** | il ne prend **aucune place** dans le budget vertical |
+| ✅ **c'est un popup** | il se pose **par-dessus**, et il se ferme |
+| **on le rouvre** | par le **`?`** *(ci-dessous)* |
+
+⭐⭐ **Et c'est la réponse la plus économe qu'on pouvait donner au débordement.** La question était
+*« qu'est-ce que Class porte EN TROP ? »* — la réponse n'est pas *« on enlève quelque chose »*,
+c'est **« ce quelque chose n'avait rien à faire dans le flux »**. Mesuré : le mot du guide valait
+**63 px sur Class**, et le `.parcours-resume` de Species **448 px à lui seul**.
+
+➡️ ⛔ **Aucun écran ne compte plus le guide dans sa hauteur.** Le budget §1 quater s'allège d'autant,
+**partout**, sans rien retirer au joueur.
+
+⭐ **Et ça referme la boucle du §7** : le guide était déjà défini comme **optionnel** et
+**congédiable**, avec le `?` pour le rappeler. **Un contenu optionnel qui occupe une place fixe
+n'est pas optionnel** — il l'est enfin vraiment.
+
+⚠️ **Ce que ça N'AUTORISE PAS** : ⛔ sortir du flux tout ce qui gêne. Le guide en sort **parce
+qu'il est optionnel**, pas parce qu'il est encombrant. Un bilan, une liste, une consigne
+**nécessaires** restent dans la page — et si elles débordent, la question *« qu'est-ce qui est en
+trop ? »* garde toute sa force.
+
 ### 🔴 Le `?` — le rappel permanent
 
 | | |
