@@ -1291,6 +1291,35 @@ et c'est cette divergence qui les rend reconnaissables :
 | **sélecteur exclusif** *(`Langue`, `Unités`)* | piste + pouce, ⛔ **aucune couleur** |
 | **bascule simple** *(le guide)* | bouton `On`/`Off`, **liseré vert allumé** |
 
+### 🔴 LE REGISTRE DES BOUTONS — la famille entière, en une table *(26/08)*
+
+> Eric, 2026-08-26, en les énumérant : *« le `?` et le livre **sont des boutons** »* · *« `+` et `−`
+> sont **aussi** des boutons, avec leur propre forme, l'un rouge l'autre vert »*.
+
+| le bouton | sa forme | sa couleur |
+|---|---|---|
+| `Back` · `Next` | **octogone à coupe** | 🔵 bleu — *mouvement non impactant* |
+| `Done` | octogone | ⚪ gris inachevé → 🟢 vert fini |
+| `Cancel` · `I changed my mind` | octogone | 🔴 rouge **+ popup** |
+| **`+`** | 🔴 **carré ou petit cercle** | 🟢 **VERT** |
+| **`−`** | la **même** forme que le `+` | 🔴 **ROUGE** |
+| **le `?`** | un **rond** de 22 px | ⛔ **aucune couleur de l'échelle** — parchemin ou contour |
+| **le livre** | un **rond** de 22 px, la jumelle du `?` | ⛔ aucune |
+| **`On` / `Off`** | un bouton **72 × 44** | 🟢 liseré vert allumé |
+| 🃏 **le tarot** | ⚖️ **une CARTE** — exception argumentée *(ci-dessus)* | — |
+
+⭐ **CE QUE LA TABLE APPREND, ET QU'AUCUNE LIGNE SEULE NE DISAIT** : *« bouton »* ne veut pas dire
+*« octogone »*. **L'octogone est l'habit des trois gabarits À LIBELLÉ** ; un bouton qui porte un
+**glyphe** ou un **dessin** n'a pas de mot à cadrer, donc pas de coupe à porter. ⛔ Un lot qui
+octogonaliserait le `?` ou le `+` appliquerait la règle du mauvais membre de la famille.
+
+📏 **UN DÉFAUT MESURÉ EN ÉCRIVANT CETTE TABLE** : `.pipeline-pas` servait le `+` **et** le `−` avec
+une seule règle portant `border: 1px solid var(--critical)`. **Le `+` était rouge** — il disait
+*« ce n'est pas bon »* au moment précis où le joueur AJOUTE quelque chose. ✅ Corrigé le 26/08 : la
+**forme** leur reste commune, la **couleur** les sépare.
+
+---
+
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
 
 > Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*

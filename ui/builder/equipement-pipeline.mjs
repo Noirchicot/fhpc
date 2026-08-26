@@ -251,8 +251,8 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
     qte = Number.isInteger(n) && n > 0 ? n : 1;
     peindre();
   });
-  const plus = bouton("+", "pipeline-pas", () => { qte += 1; peindre(); }, "One more");
-  const moins = bouton("−", "pipeline-pas", () => { qte = Math.max(1, qte - 1); peindre(); }, "One less");
+  const plus = bouton("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindre(); }, "One more");
+  const moins = bouton("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindre(); }, "One less");
   reglages.append(elp("span", "pipeline-libelle", "Price"), prixChamp,
     elp("span", "pipeline-libelle", "Qty"), qteChamp, plus, moins);
 
@@ -384,10 +384,10 @@ export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = B2_
       const rang = elp("div", "pipeline-ligne");
       rang.append(elp("span", "pipeline-ligne-nom", l.nom));
       const qte = elp("span", "pipeline-ligne-qte", `×${l.quantity || 1}`);
-      const plus = bouton("+", "pipeline-pas",
+      const plus = bouton("+", "pipeline-pas pipeline-pas-plus",
         () => onAction({ kind: "cartSetQuantity", index: l.index, quantity: (l.quantity || 1) + 1 }),
         `One more ${l.nom}`);
-      const moins = bouton("−", "pipeline-pas",
+      const moins = bouton("−", "pipeline-pas pipeline-pas-moins",
         () => onAction({ kind: "cartSetQuantity", index: l.index, quantity: (l.quantity || 1) - 1 }),
         `One less ${l.nom}`);
       const prix = elp("span", "pipeline-ligne-prix",
