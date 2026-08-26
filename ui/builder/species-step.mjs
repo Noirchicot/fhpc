@@ -301,6 +301,15 @@ export const SPECIES_CATALOGUE = {
   path: "species", kind: "species", label: "Species", fiche: true, parcours: true,
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
      l'écran ATTEND, et il se corrige ICI, à un seul endroit. */
+  /** Le lore de l'espèce regardée — ce que le livre du pied ouvre.
+   *  ⛔ AUCUN TEXTE FABRIQUÉ : il vient du record, et rend `null` si le record
+   *  n'en porte pas. Un livre sans lore reste éteint (voir `parcours-ecrans`). */
+  livreDe: (ctx) => {
+    const record = especeRetenue(ctx);
+    const lore = record && record.data && record.data.lore;
+    const texte = lore && typeof lore.text === "string" ? lore.text : null;
+    return texte ? { titre: record.name || "Lore", texte } : null;
+  },
   itemCorps: corpsDeLItem,
   resumeItem: resumeDeLItem,
   /* 🔴 LA PORTE DIT CE QU'IL Y A DERRIÈRE — Eric, 2026-08-27 : *« à la limite,
