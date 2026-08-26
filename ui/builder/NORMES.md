@@ -353,9 +353,9 @@ de la ligne de flottaison** n'est pas tranché.
 | organe | forme | remplissage | voile |
 |---|---|---|---|
 | **zone de drop** | rectangle **très arrondi** | **creux** : texte d'attente + liseré, aucun fond | max, voire nulle |
-| **jeton** | rectangle **très arrondi** | **teinté** *(doré)* | +20 % d'accent → **48 % cumulés** |
+| **jeton** | rectangle **très arrondi** | **teinté** *(doré)* | +20 % d'accent → **68 % cumulés** *(sur une dalle à 50)* |
 | **bouton** | 🔴 **OCTOGONE à coupe** | **plein, en signal** | 🔴 **100 % — OPAQUE** |
-| **collecteur** | comme le jeton | — | 35 %, comme sa dalle |
+| **collecteur** | comme le jeton | — | **comme sa dalle — 50 %** *(corrigé le 26/08 avec la norme du site)* |
 
 ### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
 
@@ -458,7 +458,7 @@ pas* — celle-ci ne vivait même pas là.
 
 ## 3. 🔴 LE BOUTON EST OPAQUE — mesuré, pas préféré
 
-| le bouton sur une dalle à 35 % | cumulé | étiquette jour | étiquette nuit |
+| le bouton sur une dalle *(mesuré à 35 %, avant la norme du 26/08 — ⏳ à remesurer sur 50)* | cumulé | étiquette jour | étiquette nuit |
 |---|---|---|---|
 | **opaque** | 100 % | **6,07–6,13** ✓ | **5,59–5,61** ✓ |
 | voilé à 50 % | 68 % | 3,63 ✗ | 3,00 ✗ |
@@ -474,19 +474,38 @@ pas* — celle-ci ne vivait même pas là.
 
 ## 4. LES VOILES — et la loi qui les gouverne
 
-| option | emploi |
+> 🔴 **LA NORME DU SITE, RATIFIÉE LE 2026-08-26 devant la page déployée** — Eric, après avoir
+> regardé v299 : *« voilà c'est ça la norme du site en terme de transparence : **50 %** (c'est pas
+> 35 %) »*.
+
+| étage | voile |
 |---|---|
-| **35 %** | la **dalle**, et le **collecteur** |
-| **50 %** | ✅ **GARDÉ au registre** *(Eric, 26/08 : « ça servira peut-être un jour »)* — ⏳ aucun organe aujourd'hui |
+| **le FOND** *(`.decision-card`, le cadre de l'écran)* | 🔴 **AUCUN** — ni couleur, ni liseré, ni rembourrage. Il ne garde que sa **marge** |
+| **la DALLE** | 🔴 **50 %** — *« c'est ça la norme du site »* |
+| **35 %** | ⏳ **le barreau des petits blocs INTÉRIEURS** *(mesuré : `ability-methodes`, `card-reveal`, `card-action`, `inheritance-panel`)* |
 | **100 %** | le **bouton**, et lui seul |
 
-✅ **LE BARREAU DU MILIEU RESTE, MÊME INEMPLOYÉ** *(Eric, 26/08)*. ⛔ Ne pas le retirer sous
-prétexte que rien ne l'utilise : une échelle à **deux** barreaux ne dit plus qu'un contraste
-*(léger / opaque)* ; à **trois**, elle dit une **progression** — et c'est elle qui permettra de
-placer un organe futur **sans rouvrir la question**.
+⭐⭐ **ET ÇA N'INVENTE RIEN : C'EST SA RÈGLE DU 17/08, ÉTENDUE.** Elle vivait déjà dans
+`shell.css`, en **exception** pour trois écrans :
 
-⭐ **Un registre n'est pas un inventaire de ce qui sert : c'est la grammaire de ce qu'on a le droit
-de faire.** ⛔ Le vider de ses cases inemployées, c'est le réduire à un constat.
+> *« la carte est une `dalle-majeure` OPAQUE ; tant qu'elle peint, aucun voile posé sur son contenu
+> ne se voit. **La carte s'efface, l'écran devient la dalle.** »*
+
+Trois écrans avaient l'exception *(Abilities, Universe, Concept)*. **Tous l'ont depuis v299.**
+
+🔴 **POURQUOI 50 ET PAS 35, ET C'EST MESURÉ, PAS UN GOÛT** : la **fiche d'espèce** — la carte que le
+joueur regarde le plus longtemps — porte **50 %** depuis toujours. Eric l'a désignée en disant
+*« on part de ça, état actuel »*. ⛔ Le document affirmait *« 50 % → aucun organe aujourd'hui »* :
+**c'était faux**, et c'est le document qui a été corrigé, pas la fiche.
+
+📌 **La leçon de forme, parce qu'elle s'est payée deux fois dans la même heure** : j'ai commencé par
+faire descendre la fiche à 35 **au motif que ce paragraphe l'exigeait**. ⛔ **Corriger l'objet
+d'après le document, c'est prendre le document pour la mesure.** L'objet est là depuis des semaines,
+Eric le regarde tous les jours ; le paragraphe, lui, n'avait jamais été remesuré.
+
+⚠️ **CE QUE 35 EST DEVENU** — il n'est ni mort ni « gardé au cas où » : c'est le voile des **petits
+blocs posés DANS une dalle**. Quatre le portent aujourd'hui, comptés dans `ui/`. Un bloc intérieur
+plus léger que sa dalle se lit comme un creux ; l'inverse ferait une tache.
 
 🔴 **LES ALPHAS S'ADDITIONNENT : 35 % dans 35 % rend 57,7 %.**
 ➡️ ⛔ **Jamais deux voiles empilés** → **pas de conteneur d'écran, des dalles autonomes.**
