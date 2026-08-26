@@ -199,6 +199,25 @@ function champGlisse({ id, label, value, options, field, onAction }) {
   return enveloppe;
 }
 
+/** Lit une section du SRD par son SLUG, et rend `{titre, texte}` — ou `null`.
+ *
+ *  ⭐ POURQUOI CETTE FONCTION EXISTE AU LIEU D'UN APPEL EN LIGNE : elle est le
+ *  seul endroit qui connaît la FORME d'une vue de couche (`view.record.data
+ *  .description`). Trois niveaux de champs recopiés à chaque usage seraient
+ *  trois occasions de se tromper en silence — une vue dont la forme change
+ *  rendrait `undefined`, et `undefined` s'affiche comme un popup vide.
+ *  ⛔ ELLE NE FABRIQUE RIEN : sans couche, sans entrée, ou sans description,
+ *  elle rend `null`. C'est l'appelant qui décide quoi dire — jamais elle. */
+function lireLaSectionSrd(query, slug) {
+  if (typeof query !== "function") return null;
+  const liste = query({ kind: "glossary" });
+  if (!Array.isArray(liste)) return null;
+  const vue = liste.find((v) => v && v.record && v.record.slug === slug);
+  const texte = vue && vue.record && vue.record.data && vue.record.data.description;
+  if (typeof texte !== "string" || texte.length === 0) return null;
+  return { titre: vue.record.name || slug, texte };
+}
+
 function selectField({ id, label, value, options, onCommit, extra }) {
   const wrap = el("div", "doc-field", []);
   const lab = document.createElement("label");
@@ -238,6 +257,14 @@ function selectField({ id, label, value, options, onCommit, extra }) {
 export function renderConceptStep(ctx, onAction) {
   const doc = ctx.document;
   const errors = ctx.fieldErrors || {};
+  /* ⭐ LA COUCHE ARRIVE PAR LE CONTEXTE, comme partout ailleurs dans ce dépôt
+     (`inheritance-step`, `class-step`, `catalogue` la reçoivent déjà). Cet
+     écran ne l'avait jamais demandée parce qu'il n'affichait aucun contenu de
+     règle — c'est ce qui change avec le livre de l'alignement.
+     ⚠️ Elle peut manquer : le banc de tests monte cet écran sans couche, et
+     c'est légitime — Identity se dessine entièrement sans SRD. `lireLaSectionSrd`
+     rend alors `null`, et le livre le DIT au lieu d'inventer. */
+  const ctxQuery = ctx.query;
   /* `dalle-intermediaire` — le voile à 50 %, pris à la matrice des dalles
      (lot 59) et jamais réécrit en couleur ici. */
   const section = el("section", "concept-step dalle-intermediaire");
@@ -277,12 +304,42 @@ export function renderConceptStep(ctx, onAction) {
      avec DEUX portes — sortir (et retomber exactement ici), ou ouvrir le
      Player Companion dans une autre fenêtre.
 
-     ⛔ CE QUI MANQUE POUR L'ÉCRIRE, et c'est pour ça qu'il attend : il
-     n'existe aujourd'hui AUCUN chemin hors du builder (question n°1 des
-     questions ouvertes — *« vers quoi exactement ? »*), et rien ne sait
-     détacher un chapitre du site. Le popup est un pis-aller ASSUMÉ : un
-     bouton qui dit la règle vaut mieux qu'un bouton mort ou qu'un lien qui
-     perd la place du joueur. */
+     ⛔ CE QUI MANQUAIT POUR L'ÉCRIRE : il n'existait AUCUN chemin hors du
+     builder — question n°1 des questions ouvertes, *« vers quoi exactement ? »*.
+
+     ✅ ET ERIC Y A RÉPONDU LE 2026-08-26 : *« ou sur le site FH »*. La
+     destination est donc nommée, et elle EXISTE — vérifié dans `fh-phb` :
+     `docs/chapters/identity.md`, section `## Your alignment`, publiée à
+     `https://noirchicot.github.io/fh-phb/chapters/identity/#your-alignment`.
+     ⏳ CE QUI RESTE À DÉCIDER, ET QUI EST À LUI : ouvrir ce chapitre EN FS
+     par-dessus la scène *(sa spec du 19/08 : « rules on recouvre tout »)*, ou
+     dans une autre fenêtre. Les deux existent dans sa description ; laquelle
+     est le geste PAR DÉFAUT n'a pas été tranché, et un lien qui sort du
+     builder sans bouton de retour perdrait la place du joueur.
+
+     📌 EN ATTENDANT, LE LIVRE OUVRE LA SECTION SRD, et ce n'est plus un
+     pis-aller : c'est une source datée, versionnée, avec son attribution — pas
+     deux phrases écrites par l'interface.
+
+     ✅⭐ ET « PAR DÉFAUT SUR FH, SINON SRD » EST DÉJÀ CE QUE FAIT CE CODE —
+     Eric, 2026-08-26 : *« par défaut sur FH, sinon SRD »* · *« ça c'est si on
+     a fait le choix FH au début »*. Rien à câbler, et c'est vérifié :
+
+       · le livre interroge la pile **PLIÉE** (`query`), jamais une couche
+         nommée — il suit donc le choix `SRD` / `SRD + FH` du Menu, qui monte
+         ou non les sept couches `fh-*` ;
+       · le pli applique *« le dernier qui parle gagne »* (`stack.mjs`), et les
+         couches FH sont montées APRÈS le SRD : une entrée FH de même id
+         l'emporte, automatiquement.
+
+     ⛔ CE QUI MANQUE N'EST DONC PAS DU CODE, C'EST DU CONTENU — mesuré le
+     26/08 : les **sept** couches `fh-*` portent **zéro** entrée de glossaire.
+     Le texte FH sur l'alignement existe, mais dans le LIVRE PUBLIÉ
+     (`fh-phb/docs/chapters/identity.md`, `## Your alignment`), pas dans une
+     couche. Le jour où il y entre, ce livre le servira sans qu'on touche à cet
+     écran — et le joueur en `SRD` seul continuera de voir le SRD.
+     ⚠️ ⛔ NE PAS RECOPIER CE TEXTE ICI EN ATTENDANT : ce serait refaire
+     exactement la faute que ce lot répare. */
   /* 🔴 `Rules` EST DEVENU UN LIVRE, DANS LA RANGÉE — Eric, 2026-08-26 :
      *« Rules dégage sous forme d'un livre dans la rangée de boutons »*.
 
@@ -302,11 +359,38 @@ export function renderConceptStep(ctx, onAction) {
   regles.type = "button";
   regles.className = "fiche-livre livre-de-sortie";
   regles.setAttribute("aria-label", "Alignment rules");
-  regles.addEventListener("click", () => onAction({
-    kind: "popup",
-    texte: "Alignment is two axes: how you treat law and order, and how you treat others. " +
-      "Nothing in Fate's Hand forces you to play it — it is a description, not a leash."
-  }));
+  /* 🔴 LE LIVRE OUVRE LE SRD, PLUS UN TEXTE DE MOI — Eric, 2026-08-26 :
+     *« connecte le livre à la section alignement dans le SRD »*.
+
+     ⛔ CE QU'IL OUVRAIT : deux phrases que j'avais écrites. Elles n'étaient pas
+     fausses, et c'est précisément le problème — **un texte de règle écrit dans
+     l'interface est une règle publiée par l'interface**, sans source, sans
+     version, sans empreinte. Le dépôt a un mot pour ça (§0.8) : on ne publie
+     pas des nombres ni des règles dont on ne sait pas s'ils sont SRD.
+
+     ⭐ ET LA SECTION EXISTE, ELLE, DEPUIS TOUJOURS : `glossary` /
+     `srd:glossary:en:alignment`, 392 caractères, avec son attribution CC-BY et
+     sa source (SRD 5.2.1, p. 176). Il n'y avait rien à écrire, seulement à
+     brancher.
+
+     ⚠️ ON LA CHERCHE PAR SON **SLUG**, PAS PAR SON ID. `srd:glossary:EN:…`
+     porte la langue dans son identifiant : figer cet id ici, c'est câbler
+     l'anglais dans un écran qui n'a aucune raison de le connaître — et la
+     couche `srd-5.2.1-fr` existe déjà à côté. Le slug (`alignment`) est stable
+     d'une langue à l'autre. */
+  regles.addEventListener("click", () => {
+    const entree = lireLaSectionSrd(ctxQuery, "alignment");
+    if (!entree) {
+      /* ⛔ ON NE REMPLACE PAS UNE SOURCE ABSENTE PAR UN TEXTE INVENTÉ — c'est
+         exactement ce qu'on vient de retirer. Un livre qui ne trouve pas sa
+         section le DIT : le joueur sait alors que le défaut est chez nous, et
+         il ne repart pas avec une règle que personne n'a écrite. */
+      onAction({ kind: "popup", role: "gendarme", titre: "Alignment",
+        texte: "This rule text could not be loaded from the SRD." });
+      return;
+    }
+    onAction({ kind: "popup", titre: entree.titre, texte: entree.texte });
+  });
 
   const alignement = champGlisse({
     id: "concept-alignment", label: "Alignment (optional)",

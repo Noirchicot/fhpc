@@ -1602,7 +1602,22 @@ function renderStepContent() {
       card.append(renderConceptStep({
         document: state.document,
         writers: state.docWriters,
-        fieldErrors: state.fieldErrors
+        fieldErrors: state.fieldErrors,
+        /* Le livre de l'alignement lit sa section DANS la couche SRD — Eric,
+           2026-08-26 : *« connecte le livre à la section alignement dans le
+           SRD »*. La coquille est le seul endroit qui tient la pile montée.
+           🔴 ⛔ LE CHEMIN EST `state.engine.layers.verbs.query`, PAS
+           `state.query` — j'ai écrit le second d'abord, et il n'existe pas.
+           ⚠️ ET CETTE FAUTE N'AURAIT RIEN CASSÉ DE VISIBLE : `undefined` serait
+           passé au lecteur, qui rend `null`, et le livre aurait affiché « this
+           rule text could not be loaded » — **le repli élégant se serait fait
+           passer pour le comportement normal**. Un garde-fou qui absorbe une
+           erreur de câblage est pire qu'une exception : il la rend crédible.
+           📌 Le témoin qui l'a attrapée : `grep state.query` — zéro occurrence
+           avant celle-ci. Vérifier qu'un champ EXISTE coûte une commande.
+           ⚠️ `state.engine` est nul tant que le moteur n'est pas monté : la
+           chaîne optionnelle rend `undefined`, et le livre le dira honnêtement. */
+        query: state.engine && state.engine.layers.verbs.query
       }, applyDecisionAction));
     }
   } else if (step.id === "concept" && state.engineError) {
