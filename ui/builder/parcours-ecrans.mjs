@@ -206,9 +206,25 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
   if (acheve) page.append(...conclusion(!conclu));
-  if (acheve && !conclu) {
+  /* 🔴 TOUJOURS UN SECOND BOUTON À CÔTÉ DE `I changed my mind` — Eric,
+     2026-08-26 : *« la bonne chose à faire, toujours un Next à côté de I
+     changed my mind »*, capture d'Identity à l'appui, où les deux se font face.
+
+     ⛔ CE QUI MANQUAIT ÉTAIT UN QUATRIÈME ÉTAT, ET IL NE SE VOYAIT PAS. Le code
+     traitait `acheve && !conclu` (→ Next) et `!acheve` (→ Done) ; le cas
+     `acheve && conclu` — l'étape réglée ET déjà conclue, celui où le joueur
+     REVIENT sur un chapitre fini — ne tombait dans aucune branche. Sa rangée ne
+     portait donc qu'un seul bouton : celui qui DÉFAIT. La seule porte offerte à
+     qui relit une étape achevée était de la démolir.
+     ⚠️ Un `else if` sans `else` ne prévient jamais qu'il ne couvre pas tout —
+     il rend simplement moins que prévu, et se tait.
+
+     ⭐ LA RÈGLE TIENT MAINTENANT EN UNE PHRASE, ET C'EST CE QUI LA REND SÛRE :
+     réglée → on avance (`Next`) ; pas réglée → on règle (`Done`). Deux
+     branches, aucun trou possible, et jamais `I changed my mind` tout seul. */
+  if (acheve) {
     pied.append(bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine })));
-  } else if (!acheve) {
+  } else {
     pied.append(bouton("Done", "parcours-done", () => act({ kind: "parcoursDone", racine })));
   }
   page.append(pied);
