@@ -342,7 +342,13 @@ de la ligne de flottaison** n'est pas tranché.
 
 ---
 
-## 2. LES TROIS ORGANES — forme ET remplissage *(validé 26/08 sur maquette)*
+## 2. LES ORGANES — forme ET remplissage
+
+> 🔴 **UN ORGANE SE RECONNAÎT À SA FORME, PAS À SA COULEUR.** C'est la loi qui gouverne toute
+> cette section : la couleur peut changer *(elle porte l'état, §6)*, **la forme ne change jamais**.
+> ⛔ Deux organes qui se ressemblent sont deux organes qu'on confondra.
+
+### Les quatre du glisser *(validé 26/08 sur maquette)*
 
 | organe | forme | remplissage | voile |
 |---|---|---|---|
@@ -350,6 +356,26 @@ de la ligne de flottaison** n'est pas tranché.
 | **jeton** | rectangle **très arrondi** | **teinté** *(doré)* | +20 % d'accent → **48 % cumulés** |
 | **bouton** | 🔴 **OCTOGONE à coupe** | **plein, en signal** | 🔴 **100 % — OPAQUE** |
 | **collecteur** | comme le jeton | — | 35 %, comme sa dalle |
+
+### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
+
+| organe | forme | ce qui le distingue | où il est décrit |
+|---|---|---|---|
+| **l'INTERRUPTEUR — sélecteur exclusif** | une **piste + un pouce**, DESSINÉS | ⛔ **AUCUNE COULEUR** — la **position du pouce** et l'**encre pleine** | §6, *« deux espèces d'interrupteur »* |
+| **l'INTERRUPTEUR — bascule simple** | idem | idem | §6 |
+| 🔴 **le VOYANT D'AVANCEMENT** | un **disque** portant un chiffre | ⛔ **NON CLIQUABLE** · un **anneau** = en cours, un **disque PLEIN** = fait | §6, *« le voyant est le cran de la ceinture »* |
+| **le CHEVRON** | une **barrette** | il **s'efface, mais sa zone reste** | §6 |
+| **le DROPDOWN** *(de choix · directionnel)* | rectangle **très large, peu haut** | ⛔ **aucun liseré** · voile 20 % · gras | §8 |
+| **la ZONE D'ÉCRITURE** | libre | ✅ rien à normer, elle est bien par défaut | §8 |
+| **le POPUP** *(guide · aiguilleur · gendarme)* | une bulle ancrée en bas | **la teinte dit le rôle** — parchemin · bleu · rouge | §7 |
+| **le `?`** | petit et discret | **collé en bas à droite**, hors du flux | §7 |
+
+⭐ **Deux d'entre eux ne portent AUCUNE couleur de l'échelle, et c'est délibéré** : l'interrupteur
+*(il porte un ÉTAT qui demeure, pas une action qui avance)* et le guide *(il est optionnel, donc il
+ne signale rien)*. ➡️ **Un organe qui n'emprunte pas à l'échelle ne peut pas la contredire.**
+
+⚠️ **Et deux d'entre eux ne se touchent pas** : le **voyant** *(non cliquable)* et le **popup**
+*(il parle, on ne l'appuie pas)*. ⛔ Ne pas leur donner l'apparence d'un contrôle.
 
 ⭐ **La coupe d'angle appartient au bouton SEUL.** C'est ce qui interdit de le confondre avec un
 jeton, quelle que soit la couleur.
