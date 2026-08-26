@@ -70,7 +70,7 @@ test("ATTAQUE — `__proto__` enfoui dans un record est refusé AVANT d'exister"
      prototype au lieu de créer une clef, et l'attaque n'aurait pas lieu. */
   const layer = aLayer({ records: { gear: { "t:gear:fr:x": anAdd("X", { a: 1 }) } } });
   const text = JSON.stringify(layer).replace('"a":1', '"a":{"__proto__":{"pollue":true}}');
-  rejects(() => readLayer(text, "attaque"), /__proto__/, "une couche portant __proto__");
+  rejects(() => readLayer(text, "attack"), /__proto__/, "une couche portant __proto__");
   assert.equal({}.pollue, undefined, "et rien n'a été pollué au passage");
 });
 
@@ -79,7 +79,7 @@ test("ATTAQUE — chacune des dix clefs interdites est refusée, où qu'elle soi
     const text = JSON.stringify(aLayer({
       records: { gear: { "t:gear:fr:x": anAdd("X", { a: 1 }) } }
     })).replace('"a":1', `"a":{"nid":{${JSON.stringify(key)}:1}}`);
-    rejects(() => readLayer(text, "attaque"), new RegExp(key.replace(/[$_]/g, "\\$&")),
+    rejects(() => readLayer(text, "attack"), new RegExp(key.replace(/[$_]/g, "\\$&")),
       `une couche portant « ${key} » en profondeur`);
   }
 });
@@ -92,8 +92,8 @@ test("ATTAQUE — la clef interdite passée par le CHEMIN d'un patch est refusé
      le chemin est lu, et c'est là qu'il est. */
   assert.match(PATTERNS.changePath.source, /a-zA-Z/, "la grammaire laisse bien passer un tel identifiant");
   assert.equal(PATTERNS.changePath.test("data.constructor"), true, "le schéma seul ne le refuserait pas");
-  rejects(() => parseChangePath("data.constructor", "attaque"), /constructor/, "un patch visant data.constructor");
-  rejects(() => parseChangePath("data.__proto__.x", "attaque"), /__proto__/, "un patch traversant __proto__");
+  rejects(() => parseChangePath("data.constructor", "attack"), /constructor/, "un patch visant data.constructor");
+  rejects(() => parseChangePath("data.__proto__.x", "attack"), /__proto__/, "un patch traversant __proto__");
   assert.deepEqual(parseChangePath("data.cost"), [
     { kind: "name", value: "data" }, { kind: "name", value: "cost" }
   ], "et un chemin honnête se lit toujours");

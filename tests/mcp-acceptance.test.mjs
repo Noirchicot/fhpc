@@ -87,7 +87,7 @@ test("la pile est montée PAR LA SURFACE, depuis le texte des fichiers", () => {
   const { srd, homebrew, stack } = construire();
   assert.equal(srd.id, "srd-5.2.1-fr");
   assert.match(srd.hash, /^[0-9a-f]{64}$/, "l'empreinte est celle des octets transmis");
-  assert.equal(srd.records, 1367, "mesuré : la couche SRD FR seule — les 2 734 comptent les deux langues");
+  assert.equal(srd.records, 1369, "la couche SRD FR seule : 1 366 appariés + les 3 vitesses adoptées");
   assert.equal(homebrew.records > 0, true);
   assert.deepEqual(stack.map((layer) => layer.id), ["srd-5.2.1-fr", "exemple-homebrew-fr"]);
   assert.equal(stack.every((layer) => layer.enabled), true);
@@ -122,6 +122,7 @@ test("ACCEPTATION — le magicien elfe niveau 1 est construit par la SURFACE MCP
      déclarée non dérivée (test suivant). */
   assert.deepEqual(got.senses, [{ id: "darkvision", name: "Vision dans le noir", value: 18, unit: "m" }]);
 
+
   /* REWRITTEN 2026-08-08 (lot 13) — LES TRAITS AUSSI, maintenant qu'ils sont
      dérivés. Ils n'étaient pas assertés ici tant qu'ils étaient refusés : seule
      leur ligne dans `underived` l'était. La liste est exacte, et « Vision dans
@@ -145,9 +146,9 @@ test("ACCEPTATION — le magicien elfe niveau 1 est construit par la SURFACE MCP
      traversé la surface. */
   assert.equal(got.vitals.hpMax, 9);
   assert.equal(got.vitals.hpMax, attendu.vitals.hpMax);
-  assert.equal(got.gear.find((item) => item.id === "torche").quantity, 4);
+  assert.equal(got.gear.find((item) => item.id === "torch").quantity, 4);
   assert.deepEqual(construire().rebuilt.structuredContent.overridesApplied.map((entry) => entry.path),
-    ["resolved.vitals.hpMax", "resolved.gear[torche].quantity"]);
+    ["resolved.vitals.hpMax", "resolved.gear[torch].quantity"]);
 
   /* L'INCANTATION, jusqu'aux huit sorts et à leur ordre. */
   assert.equal(got.spellcasting.ability, "int");
@@ -238,7 +239,7 @@ test("LOT 28 — `decisions` traverse MCP avec ses chemins, compteurs et statuts
   assert.deepEqual({ status: skills.status, expected: skills.expected, answered: skills.answered, remaining: skills.remaining },
     { status: "answered", expected: 2, answered: 2, remaining: 0 });
   assert.deepEqual(skills.options,
-    ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"]);
+    ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"]);
   /* LOT 72 — le carnet gagne les sorts : 13 + 2 groupes + 7 étapes = 22.
      LOT 74 — puis les six scores de base (borne de création 3–18) : 28.
      2026-08-18 — puis le lignage de l'Elfe : 29. Le document le POSAIT
@@ -302,19 +303,19 @@ test("le personnage se relit et se reconstruit sans jamais repasser le document"
      les overrides ne s'effacent pas. */
   const encore = client.ok("build.rebuild", {});
   assert.equal(encore.resolved.vitals.hpMax, 9);
-  assert.equal(encore.resolved.gear.find((item) => item.id === "torche").quantity, 4);
+  assert.equal(encore.resolved.gear.find((item) => item.id === "torch").quantity, 4);
 });
 
 test("`build.clear` lève l'override du MJ SUR LA LIGNE — la fiche revient aux règles", () => {
   construire();
-  const clear = client.call("build.clear", { path: "resolved.gear[torche].quantity", kind: "override" });
+  const clear = client.call("build.clear", { path: "resolved.gear[torch].quantity", kind: "override" });
   assert.equal(clear.isError, false);
   assert.deepEqual(Object.keys(clear.structuredContent), ["cleared"],
     "comme les cinq autres verbes, aucun outil ne rend le document dans son résultat");
   assert.deepEqual(clear.structuredContent.cleared,
-    { path: "resolved.gear[torche].quantity", kind: "override", removed: true });
+    { path: "resolved.gear[torch].quantity", kind: "override", removed: true });
 
   const encore = client.ok("build.rebuild", {});
-  assert.equal(encore.resolved.gear.find((item) => item.id === "torche").quantity, 2,
+  assert.equal(encore.resolved.gear.find((item) => item.id === "torch").quantity, 2,
     "l'override levé, la quantité redevient celle que les règles ont produite");
 });

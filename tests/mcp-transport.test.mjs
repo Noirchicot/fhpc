@@ -57,7 +57,7 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      défaut, l'empreinte ne tomberait pas juste et la suite s'arrêterait ici. */
   const srd = await server.ok("layers.register", { layer: fileText(SRD_FR), origin: SRD_FR });
   assert.equal(srd.id, "srd-5.2.1-fr");
-  assert.equal(srd.records, 1367);
+  assert.equal(srd.records, 1369);
   assert.equal(srd.hash, FICHIER.build.layers[0].hash,
     "L'EMPREINTE A SURVÉCU AU TUYAU : c'est celle que le personnage d'exemple déclare déjà. " +
     "Un octet perdu au passage la ferait diverger sans rien casser d'autre.");
@@ -89,7 +89,7 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
   assert.equal(got.spellcasting.dc, 13);
   assert.deepEqual(got.spellcasting.spells.map((spell) => spell.id), attendu.spellcasting.spells.map((spell) => spell.id));
   assert.equal(got.vitals.hpMax, 9, "l'override du MJ a traversé le tuyau, et il passe toujours en dernier");
-  assert.equal(got.gear.find((item) => item.id === "torche").quantity, 4);
+  assert.equal(got.gear.find((item) => item.id === "torch").quantity, 4);
 
   /* `underived` traverse le TUYAU aussi — c'est tout l'intérêt du M2.
      REWRITTEN 2026-08-08 (lot 13) — l'assertion demandait que `traits (espèce)`
@@ -107,6 +107,11 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
   assert.equal(out.underived.length, 13);
   assert.equal(out.underived.some((entry) => entry.field === "stats"), true);
   assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);
+  /* ⛔ La clef de trait reste FRANÇAISE, et c'est l'arbitrage du lot 13 (voir
+     `build-acceptance`) : « Vision dans le noir » est un TRAIT (la règle) et un
+     SENS (le nombre) ; le sens porte l'adresse `darkvision`, le trait porte la
+     clef du record. Les rapprocher demanderait de les apparier par leur nom
+     affichable — ce que la loi §0.13 interdit. */
   assert.deepEqual(got.traits.map((trait) => trait.id),
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"],
     "LES CINQ TRAITS DE L'ELFE ONT TRAVERSÉ 3,1 Mo DE COUCHE ET UN TUYAU JSON-RPC");

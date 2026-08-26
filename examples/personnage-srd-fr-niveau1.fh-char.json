@@ -20,7 +20,7 @@
         {
           "id": "exemple-homebrew-fr",
           "version": "1.0.0",
-          "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+          "hash": "c47bf99af50152ddb0404660b3e5bda9ef076766d2dfa56bbef0e1f5d953aeae",
           "name": "Exemple — couche homebrew (FR)"
         }
       ]
@@ -61,28 +61,28 @@
       "cha": { "bonus": 0, "proficient": false }
     },
     "skills": [
-      { "id": "acrobaties", "name": "Acrobaties", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "arcanes", "name": "Arcanes", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "athletisme", "name": "Athlétisme", "ability": "str", "bonus": -1, "proficiency": "none" },
-      { "id": "discretion", "name": "Discrétion", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "dressage", "name": "Dressage", "ability": "wis", "bonus": 1, "proficiency": "none" },
-      { "id": "escamotage", "name": "Escamotage", "ability": "dex", "bonus": 2, "proficiency": "none" },
-      { "id": "histoire", "name": "Histoire", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "acrobatics", "name": "Acrobaties", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "animal-handling", "name": "Dressage", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "arcana", "name": "Arcanes", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "athletics", "name": "Athlétisme", "ability": "str", "bonus": -1, "proficiency": "none" },
+      { "id": "deception", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" },
+      { "id": "history", "name": "Histoire", "ability": "int", "bonus": 5, "proficiency": "adept" },
+      { "id": "insight", "name": "Intuition", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "intimidation", "name": "Intimidation", "ability": "cha", "bonus": 0, "proficiency": "none" },
-      { "id": "intuition", "name": "Intuition", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "investigation", "name": "Investigation", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "medecine", "name": "Médecine", "ability": "wis", "bonus": 1, "proficiency": "none" },
+      { "id": "medicine", "name": "Médecine", "ability": "wis", "bonus": 1, "proficiency": "none" },
       { "id": "nature", "name": "Nature", "ability": "int", "bonus": 3, "proficiency": "none" },
       { "id": "perception", "name": "Perception", "ability": "wis", "bonus": 3, "proficiency": "adept" },
+      { "id": "performance", "name": "Représentation", "ability": "cha", "bonus": 0, "proficiency": "none" },
       { "id": "persuasion", "name": "Persuasion", "ability": "cha", "bonus": 0, "proficiency": "none" },
       { "id": "religion", "name": "Religion", "ability": "int", "bonus": 5, "proficiency": "adept" },
-      { "id": "representation", "name": "Représentation", "ability": "cha", "bonus": 0, "proficiency": "none" },
-      { "id": "survie", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" },
-      { "id": "tromperie", "name": "Tromperie", "ability": "cha", "bonus": 0, "proficiency": "none" }
+      { "id": "sleight-of-hand", "name": "Escamotage", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "stealth", "name": "Discrétion", "ability": "dex", "bonus": 2, "proficiency": "none" },
+      { "id": "survival", "name": "Survie", "ability": "wis", "bonus": 1, "proficiency": "none" }
     ],
     "tools": [
       {
-        "id": "materiel-de-calligraphe",
+        "id": "calligrapher-s-supplies",
         "name": "Matériel de calligraphe",
         "ability": "dex",
         "bonus": 4,
@@ -132,7 +132,7 @@
       }
     ],
     "spellcasting": {
-      "id": "magicien",
+      "id": "wizard",
       "name": "Magicien",
       "ability": "int",
       "dc": 13,
@@ -140,7 +140,7 @@
       "slots": { "1": { "max": 2, "current": 2 } },
       "spells": [
         {
-          "id": "rayon-de-givre",
+          "id": "ray-of-frost",
           "name": "Rayon de givre",
           "level": 0,
           "prepared": true,
@@ -154,7 +154,7 @@
           "text": "La cible touchée voit sa Vitesse réduite de 3 m jusqu'au début de votre prochain tour."
         },
         {
-          "id": "lumiere",
+          "id": "light",
           "name": "Lumière",
           "level": 0,
           "prepared": true,
@@ -191,7 +191,7 @@
           "text": "Sort mineur obtenu par le don Initié à la magie. Il vient de la couche homebrew d'exemple, pas du SRD."
         },
         {
-          "id": "projectile-magique",
+          "id": "magic-missile",
           "name": "Projectile magique",
           "level": 1,
           "prepared": true,
@@ -205,7 +205,7 @@
           "text": "Trois fléchettes, chacune touchant automatiquement une cible visible à portée."
         },
         {
-          "id": "bouclier",
+          "id": "shield",
           "name": "Bouclier",
           "level": 1,
           "prepared": true,
@@ -218,7 +218,7 @@
           "text": "+5 à la CA jusqu'au début de votre prochain tour, y compris contre l'attaque déclenchante."
         },
         {
-          "id": "detection-de-la-magie",
+          "id": "detect-magic",
           "name": "Détection de la magie",
           "level": 1,
           "prepared": true,
@@ -230,7 +230,7 @@
           "ritual": true
         },
         {
-          "id": "sommeil",
+          "id": "sleep",
           "name": "Sommeil",
           "level": 1,
           "prepared": true,
@@ -307,14 +307,14 @@
       }
     ],
     "gear": [
-      { "id": "dague", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
-      { "id": "baton-de-combat", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
-      { "id": "livre", "name": "Livre", "quantity": 1, "equipped": false, "weight": 2.5 },
-      { "id": "sacoche-a-composantes", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
-      { "id": "materiel-de-calligraphe", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
-      { "id": "sac-a-dos", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
+      { "id": "dagger", "name": "Dague", "quantity": 1, "equipped": true, "weight": 0.5 },
+      { "id": "quarterstaff", "name": "Bâton de combat", "quantity": 1, "equipped": true, "weight": 2 },
+      { "id": "book", "name": "Livre", "quantity": 1, "equipped": false, "weight": 2.5 },
+      { "id": "component-pouch", "name": "Sacoche à composantes", "quantity": 1, "equipped": true, "weight": 1 },
+      { "id": "calligrapher-s-supplies", "name": "Matériel de calligraphe", "quantity": 1, "equipped": false, "weight": 0.5 },
+      { "id": "backpack", "name": "Sac à dos", "quantity": 1, "equipped": true, "weight": 2.5 },
       { "id": "rations", "name": "Rations", "quantity": 5, "equipped": false, "weight": 1 },
-      { "id": "torche", "name": "Torche", "quantity": 4, "equipped": false, "weight": 0.5 },
+      { "id": "torch", "name": "Torche", "quantity": 4, "equipped": false, "weight": 0.5 },
       {
         "id": "lanterne-pliante",
         "name": "Lanterne pliante",
@@ -359,7 +359,7 @@
       {
         "id": "exemple-homebrew-fr",
         "version": "1.0.0",
-        "hash": "2981312445062be4e1136aa3401fbaf94efa1ad62f6ffeddf5189dfd899d2ebd",
+        "hash": "c47bf99af50152ddb0404660b3e5bda9ef076766d2dfa56bbef0e1f5d953aeae",
         "name": "Exemple — couche homebrew (FR)"
       }
     ],
@@ -436,7 +436,7 @@
         "by": "gm"
       },
       {
-        "path": "resolved.gear[torche].quantity",
+        "path": "resolved.gear[torch].quantity",
         "value": 4,
         "note": "Deux torches achetées en route.",
         "by": "player"

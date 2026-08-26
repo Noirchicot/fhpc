@@ -145,7 +145,7 @@ test("REJET — valeur d'override porteuse d'une clef de pollution de prototype"
 
 test("REJET — choix portant à la fois ref et value", () => {
   const doc = clone(charExample);
-  doc.build.choices[0].value = "elfe";
+  doc.build.choices[0].value = "elf";
   assertRejected(validateChar, doc, "un choix ambigu (ref + value)");
 });
 
@@ -399,7 +399,7 @@ test("REJET — dénomination hors SRD 2024 (l'électrum a disparu)", () => {
 test("la charnière du multiclassage lanceur existe et reste facultative", () => {
   // La porte de sortie : `spellcasting` pourra devenir un tableau sans invalider
   // un seul document, et `id`/`name` nomment déjà la source d'incantation.
-  assert.equal(charExample.resolved.spellcasting.id, "magicien");
+  assert.equal(charExample.resolved.spellcasting.id, "wizard");
   const doc = clone(charExample);
   delete doc.resolved.spellcasting.id;
   delete doc.resolved.spellcasting.name;
@@ -492,7 +492,7 @@ test("REJET (hors schéma) — deux overrides sur le même chemin", () => {
 
 test("REJET (hors schéma) — deux choix sur le même chemin", () => {
   const doc = clone(charExample);
-  doc.build.choices.push({ path: "class", value: "roublard" });
+  doc.build.choices.push({ path: "class", value: "rogue" });
   const violations = charInvariantViolations(doc);
   assert.equal(violations.length, 1);
   assert.match(violations[0], /build\.choices.*« class »/);
@@ -528,7 +528,7 @@ test("REJET (hors schéma) — deux compétences portent le même id (ancre d'ov
   assertValid(validateChar, doc, "le document (le schéma seul ne voit pas le doublon d'ancre)");
   const violations = charInvariantViolations(doc);
   assert.equal(violations.length, 1);
-  assert.match(violations[0], /resolved\.skills.*acrobaties.*aucune ne gagne/);
+  assert.match(violations[0], /resolved\.skills.*acrobatics.*aucune ne gagne/);
 });
 
 test("REJET (hors schéma) — le doublon d'ancre est vu dans TOUTE collection de resolved", () => {
@@ -686,7 +686,7 @@ test("une action peut nommer l'objet qui la porte — et l'ancre reste un slug",
      garde creux, et un garde creux est pire que pas de garde. */
   assert.ok(doc.resolved.actions.length > 0, "l'exemple porte des actions — sinon ce test ne prouve rien");
   const action = doc.resolved.actions[0];
-  action.gearId = "epee-longue";
+  action.gearId = "longsword";
   assertValid(validateChar, doc, "désarmer un personnage peut enfin retirer une attaque");
   action.gearId = "Épée Longue !!";
   assertRejected(validateChar, doc, "une ancre est un identifiant machine, pas un libellé");

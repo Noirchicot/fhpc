@@ -254,7 +254,7 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
   const out = h.verbs.rebuild({ document: sansOverrides(h.layers) });
   assert.deepEqual(out.resolved.tools, [],
     "`resolved.tools[].ability` est obligatoire : on ne pose pas une entrée à moitié");
-  const entree = out.underived.find((e) => e.field === "tools[materiel-de-calligraphe]");
+  const entree = out.underived.find((e) => e.field === "tools[calligrapher-s-supplies]");
   /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}`. */
   assert.match(renderUnderived(entree, frUnderived), /ability_key/);
 
@@ -262,7 +262,7 @@ test("un outil sans `ability_key` est SAUTÉ et NOMMÉ — jamais émis à moiti
   const vraie = makeHarness();
   const bon = vraie.verbs.rebuild({ document: acceptanceDocument(vraie.layers) });
   assert.deepEqual(bon.resolved.tools, [{
-    id: "materiel-de-calligraphe", name: "Matériel de calligraphe",
+    id: "calligrapher-s-supplies", name: "Matériel de calligraphe",
     ability: "dex", bonus: 4, proficiency: "adept"
   }]);
 });
@@ -351,7 +351,7 @@ test("QUESTION 6 — LA DISSOLUTION ANNONCÉE A EU LIEU, et la règle stricte mo
   const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   assert.equal(out.resolved.vitals.hpMax, 9, "l'override du MJ s'applique — plus aucun refus");
   assert.deepEqual(out.overridesApplied.map((entry) => entry.path),
-    ["resolved.vitals.hpMax", "resolved.gear[torche].quantity"]);
+    ["resolved.vitals.hpMax", "resolved.gear[torch].quantity"]);
 
   /* ET LA RÈGLE STRICTE N'A PAS ÉTÉ RELÂCHÉE POUR AUTANT. Sur une couche
      amputée de `hit_die`, `hpMax` redevient non dérivé — et le même override
@@ -616,7 +616,7 @@ test("UN PERSONNAGE SRD PUR, SANS AUCUNE COUCHE FH, TRAVERSE LA DÉRIVATION DE B
 test("`choose` pose un record, `set` pose un scalaire — jamais les deux, jamais aucun", () => {
   const h = makeHarness();
   const doc = acceptanceDocument(h.layers);
-  assert.throws(() => h.verbs.choose({ document: doc, path: "class", value: "magicien" }), /pour un scalaire, c'est `set`/);
+  assert.throws(() => h.verbs.choose({ document: doc, path: "class", value: "wizard" }), /pour un scalaire, c'est `set`/);
   assert.throws(() => h.verbs.set({ path: "class", ref: { kind: "class", id: "x" } }), /pour un record, c'est `choose`/);
   assert.throws(() => h.verbs.set({ path: "class", value: { kind: "class" } }), /une structure serait une règle déguisée/);
   assert.throws(() => h.verbs.choose({ path: "class", ref: { kind: "class", id: "x" }, value: 1 }), /exactement un/);

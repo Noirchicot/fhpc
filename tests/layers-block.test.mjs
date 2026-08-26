@@ -136,7 +136,7 @@ test("le bloc s'enregistre sur le noyau et répond à dispatch", () => {
 
   const registered = dispatch("layers.register", { bytes: fileBytes(SRD_FR), origin: SRD_FR });
   assert.equal(registered.id, "srd-5.2.1-fr");
-  assert.equal(registered.records, 1367, "mesuré le 2026-08-24 : 1 329 + les 38 records `class-option` du lot 100 de fh-srd");
+  assert.equal(registered.records, 1369, "la couche FR après la transition à froid : 1 366 adresses partagées avec l'anglais, plus les 3 vitesses adoptées que le livre français seul imprime");
 
   const skill = dispatch("layers.query", { kind: "skill", id: "srd:skill:en:perception" });
   assert.equal(skill.record.name, "Perception");

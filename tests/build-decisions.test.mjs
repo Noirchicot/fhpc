@@ -103,7 +103,7 @@ test("set / clear / rebuild ferment la boucle : partiel, restauration, statut", 
   let decisions = byPath(out);
   assert.deepEqual(decisions.get("class.skills"), {
     path: "class.skills",
-    options: ["arcanes", "histoire", "intuition", "investigation", "medecine", "nature", "religion"],
+    options: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"],
     selected: ["investigation"], expected: 2, answered: 1,
     provenance: { mode: "offered", kind: "class", id: "srd:class:en:wizard", field: "skill_choice" },
     remaining: 1, status: "pending"
@@ -164,14 +164,14 @@ test("un faux choix reste dans le carnet, locked, avec une clef du paquet commun
   const h = makeHarness();
   h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
-  h.verbs.set({ path: "class.skills[7]", value: "athletisme" });
+  h.verbs.set({ path: "class.skills[7]", value: "athletics" });
   let out = h.verbs.rebuild({});
   let decisions = byPath(out);
   const locked = decisions.get("class.skills[7]");
   assert.equal(locked.status, "locked");
   assert.equal(locked.lock.key, "decision.option-unavailable");
   assert.deepEqual(Object.keys(locked.lock).sort(), ["key", "params", "path"]);
-  assert.match(renderBuildViolation(locked.lock), /athletisme/,
+  assert.match(renderBuildViolation(locked.lock), /athletics/,
     "la clef de verrou est disponible dans le mécanisme de libellés existant");
   assert.equal(decisions.get("class.skills").status, "locked",
     "le plan entier ne prétend pas être simplement pending quand une de ses étapes est illégale");
@@ -189,25 +189,25 @@ test("une compétence sans `ability_key` reste illégale pour le pli ET pour la 
     extra: uneCouche("scenario-competence-sans-clef", {
       skill: {
         "srd:skill:en:arcana": {
-          op: "add", name: "Arcanes sans clef", slug: "arcanes", data: { ability: "Intelligence" }
+          op: "add", name: "Arcanes sans clef", slug: "arcana", data: { ability: "Intelligence" }
         }
       }
     })
   });
   let out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   let decisions = byPath(out);
-  assert.equal(decisions.get("class.skills").options.includes("arcanes"), false,
+  assert.equal(decisions.get("class.skills").options.includes("arcana"), false,
     "la projection n'annonce jamais une compétence que le pli doit sauter");
-  assert.equal(out.resolved.skills.some((skill) => skill.id === "arcanes"), false,
+  assert.equal(out.resolved.skills.some((skill) => skill.id === "arcana"), false,
     "le comportement historique de derive reste le saut de l'entrée incomplète");
-  const underived = out.underived.find((entry) => entry.field === "skills[arcanes]");
+  const underived = out.underived.find((entry) => entry.field === "skills[arcana]");
   /* REWRITTEN 2026-08-13 (lot 41) — `.reason` → `{key, params}` (loi §0.13,
      le moteur produit des identifiants). Le mot se relit via `renderUnderived`. */
   assert.equal(underived.key, "underived.skill-missing-ability-key");
   assert.match(renderUnderived(underived, frUnderived), /ability_key/, "le saut conserve sa raison historique explicite");
 
   h.verbs.clear({ path: "class.skills[1]", kind: "choice" });
-  h.verbs.set({ path: "class.skills[1]", value: "arcanes" });
+  h.verbs.set({ path: "class.skills[1]", value: "arcana" });
   out = h.verbs.rebuild({});
   decisions = byPath(out);
   assert.equal(decisions.get("class.skills").status, "locked",
