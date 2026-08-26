@@ -982,6 +982,44 @@ d'un **bouton** dit *« ce bouton défait »* ou *« cet état est faux »* ; le
 *« voilà le mur »*. On ne confond pas une chose qu'on appuie avec une chose qui parle.
 ⭐ **Un composant, trois teintes, trois intentions** — la plomberie `.popup` existe déjà.
 
+### ✅ LES TROIS COEXISTENT — UN SEUL POPUP, TROIS PASTILLES *(tranché 26/08)*
+
+> Eric : *« c'est **le vrai problème**, ça. **Le rouge est au-dessus, le bleu au-dessus du
+> parchemin.** Une pastille permet de naviguer d'une couleur à l'autre **SANS FERMER**, sur chacun
+> des trois. Donc un rouge peut porter une pastille bleue et parchemin. »*
+
+**L'ordre de la pile — le plus urgent devant :**
+
+```
+🔴  GENDARME    « ça ne peut pas marcher »   ← au-dessus de tout
+🔵  AIGUILLEUR  « fais ceci »
+📜  GUIDE       « si tu veux »               ← au fond
+```
+
+**Les pastilles — ce qui est là, mais pas devant :**
+
+| ce que le joueur voit | ce que ça dit |
+|---|---|
+| un popup **rouge** portant une **pastille bleue** et une **parchemin** | *« il y a un mur ; il y a aussi une consigne et une aide, quand tu voudras »* |
+| il touche la pastille bleue | 🔵 l'aiguilleur **passe devant — ⛔ SANS FERMER** |
+
+⭐⭐ **Trois choses que ce dessin règle d'un coup :**
+
+| | |
+|---|---|
+| **la coexistence** | ⛔ jamais trois bulles empilées à l'écran — **une seule** |
+| **la hiérarchie** | ⭐ **elle est portée par LA PILE, pas par la couleur** : le plus urgent est devant, et ça se voit **sans lire** |
+| **rien n'est perdu** | un popup qui en cacherait un autre **ferait disparaître une information** ; **la pastille prouve qu'elle existe** |
+
+⭐ **Et « sans fermer » est le mot qui compte** : fermer pour rouvrir ferait perdre le fil et
+obligerait à se souvenir. **Naviguer entre trois voix d'une même bulle, non.**
+
+⛔ **La pastille n'apparaît QUE si l'autre voix a quelque chose à dire.** Une pastille qui ne mène
+à rien est un bouton qui ment — et **le joueur cesserait de les regarder.**
+
+⏳ **Non tranché** : si le gendarme se ferme tout seul · la **forme** de la pastille · ce qu'on voit
+quand **un seul** des trois parle *(zéro pastille, sans doute)*.
+
 ### 🔴 LE GUIDE EST UN POPUP — il ne vit JAMAIS dans le flux *(tranché 26/08)*
 
 > Eric, 2026-08-26, en réponse à « Class › guide déborde de 553 » : **« le guide devient un popup,
