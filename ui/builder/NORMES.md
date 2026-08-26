@@ -242,6 +242,22 @@ pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans l
 ⭐ **Et la règle générale n'en souffre pas, elle se précise** : la couleur suit l'**état**, sauf
 pour ce qui **détruit du travail déjà fait** — là, elle suit **l'acte**, et elle prévient.
 
+### ⭐ LE CRITÈRE : ce n'est pas le MOT, c'est ce que le geste COÛTE
+
+> Eric, 2026-08-26 : *« un bouton **back** sera bleu je pense, **s'il n'impacte rien** »*.
+
+| le geste | couleur |
+|---|---|
+| **il ne coûte rien** — on remonte, le travail reste | 🔵 **bleu** *(navigation, en cours)* |
+| **il détruit du travail déjà fait** | 🔴 **rouge** + **popup** |
+
+⭐ **Donc `Back` n'a pas UNE couleur : il a la couleur de sa conséquence.** Le même libellé est
+bleu là où il ne coûte rien, rouge là où il efface. ⛔ Un lot qui peint `Back` en bleu « parce que
+c'est un back » se trompera le jour où ce back-là jette une étape entière.
+
+⭐ **Et ça referme la règle des deux axes proprement** : la couleur suit **l'état**, sauf quand le
+bouton **détruit** — et « détruit » se mesure au **travail perdu**, pas au vocabulaire du libellé.
+
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 
