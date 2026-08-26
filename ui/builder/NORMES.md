@@ -1331,11 +1331,23 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 
 ## 7. LES TROIS POPUPS — trois rôles, trois couleurs *(26/08)*
 
-> 🔴 **⛔ CHANTIER EN STANDBY — Eric, 2026-08-26 : « les guide gendarme aiguilleur, toujours en
-> standby et à l'étude ».**
+> 🔴 **C'EST L'APPLICATION QUI EST EN STANDBY, PAS LA NORME** — Eric, 2026-08-26 : *« les guide
+> gendarme aiguilleur, toujours en standby et à l'étude »*, puis, sur ce paragraphe même :
+> **« c'est juste son APPLICATION qui est en standby »**.
 >
-> ⛔ **AUCUN LOT NE TOUCHE À LA FORME DES TROIS VOIX** tant qu'Eric n'a pas rouvert. Ce qui suit
-> décrit leurs RÔLES, qui sont tranchés ; leur DESSIN ne l'est pas.
+> ✅ **CE QUI SUIT FAIT AUTORITÉ.** Les trois rôles, leurs couleurs, la pile et les pastilles sont
+> **tranchés** : un lot qui construit un popup s'y conforme, et un lot qui les contredit est refusé.
+> ⛔ **CE QUI ATTEND** : aller **déployer** les trois voix sur les écrans — dessiner le gendarme,
+> poser les pastilles, migrer les tutoriels. **Personne ne part faire ça sans qu'Eric rouvre.**
+>
+> ⭐ **LA DIFFÉRENCE COMPTE POUR UN LOT** : il LIT cette section et l'applique à ce qu'il touche ;
+> il ne PART PAS en chantier dessus. Une norme en standby resterait une norme non écrite — celle-ci
+> ne l'est pas.
+>
+> ✅ **ET UNE PIÈCE SORT EXPRESSÉMENT DU STANDBY** — Eric, le même jour : **« le point d'entrée au
+> guide `?` doit être fait par contre »**. Voir §7 *(le `?`)* : son passage dans la rangée, ses deux
+> aspects, et le popup-parchemin porté aux étapes qui ne l'ont pas encore.
+>
 > ⏳ Le chantier est ouvert au vault, `0.TASKS/Tasks RPG.md` — *« FHPC : les trois voix »*.
 
 ### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
