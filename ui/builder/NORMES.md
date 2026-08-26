@@ -182,7 +182,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | couleur | ce qu'elle dit |
 |---|---|
 | **gris** | **rien n'est encore fait** |
-| 🔵 **bleu** | **en cours** |
+| 🔵 **bleu** | 🔴 **un MOUVEMENT NON IMPACTANT** — on se déplace, rien ne change *(donc : on est toujours en cours)* |
 | 🟢 **vert** | **c'est bon, on a fini** |
 | 🔴 **rouge** | **ce n'est pas bon** |
 
@@ -257,6 +257,18 @@ c'est un back » se trompera le jour où ce back-là jette une étape entière.
 
 ⭐ **Et ça referme la règle des deux axes proprement** : la couleur suit **l'état**, sauf quand le
 bouton **détruit** — et « détruit » se mesure au **travail perdu**, pas au vocabulaire du libellé.
+
+### ⭐ LA DÉFINITION DU BLEU, en trois mots
+
+> Eric, 2026-08-26 : **« bleu = mouvement non impactant »**.
+
+⭐ **C'est plus serré que « en cours », et ça dit la même chose** : un mouvement qui ne change
+rien **te laisse là où tu étais** — donc toujours en cours. `next`, `back`, la navigation,
+l'aiguilleur : **tous déplacent, aucun ne modifie.**
+
+⛔ **Le test tient en une question** : *après ce clic, le document a-t-il changé ?*
+**Non → bleu.** Oui et c'est fini → vert. Oui et c'est faux → rouge. Oui et **ça efface** → rouge
+avec popup.
 
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
