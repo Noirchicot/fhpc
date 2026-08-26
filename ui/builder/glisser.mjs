@@ -94,11 +94,52 @@ const SEUIL_GLISSER = 6;
    refuse : une liste se périme au premier sort ajouté, et personne ne sait
    qu'elle existe. La règle, elle, vaut pour ce qui n'est pas encore écrit.
 
-   📏 LE SEUIL, MESURÉ À 360 px (la cible d'Eric) : la case fait 87 px, dont
-   **77** pour le mot. À `--t2`, un mot de 12 caractères en pèse 80 — il sort.
-   Onze en pèsent 73 — il passe. On coupe donc au-delà de **dix**, à neuf plus
-   le point : « Prestidigitation » → « Prestidig. », « Elementalism » →
-   « Elemental. », « Thaumaturgy » → « Thaumatur. ».
+   📏 LE SEUIL SE DÉDUIT DU CORPS — il n'est pas un nombre en soi. La case fait
+   87 px, dont **77** pour le mot (mesuré : 87 − 8 de rembourrage − 2 de
+   liseré). Le corps décide du reste.
+
+   🔴 REDÉRIVÉ LE 2026-08-26, PARCE QUE LE CORPS A CHANGÉ. Eric a tranché le
+   jeton à **T1** (*« 13 T1 on aura moins d'enmerdes on jugera apres coup »*).
+   Le seuil de **10** ci-dessous avait été déduit de `--t2` — le laisser aurait
+   été garder une conséquence après avoir retiré sa cause, et abréger
+   « Prestidigitation » alors qu'il tient désormais ENTIER.
+
+   ┌ mesuré au navigateur, dans la case réelle, sur les 77 px utiles ──────┐
+   │ mot                    car.   à T2      à T1                          │
+   │ Prestidigitation ....... 16   85 ⛔     **73 ✅**  ← le mot-témoin     │
+   │ d'invulnérabilité ...... 17   90 ⛔      77 ✅  (pile sur la limite)   │
+   │ caractéristique ........ 15   85 ⛔      72 ✅                         │
+   │ Invulnerability ........ 15   79 ⛔      67 ✅                         │
+   │ Leatherworker's ........ 15   91 ⛔      78 ⛔                         │
+   │ supplémentaires ........ 15   94 ⛔      80 ⛔                         │
+   └───────────────────────────────────────────────────────────────────────┘
+
+   ➡️ **`ABREGE_MAX` passe de 10 à 16**, et le nombre se lit sur la ligne du
+   mot-témoin : à T1 « Prestidigitation », 16 caractères sans une seule espace
+   où se couper, pèse 73 des 77 px. Il ne doit PAS être abrégé — c'est
+   exactement le bénéfice qu'Eric achetait en descendant d'un barreau.
+
+   ⭐ CE QUE ÇA CHANGE, COMPTÉ SUR LE CORPUS RÉEL (3 831 mots distincts des
+   couches, `layers/*.layer.json`) :
+       seuil 10, à T2 ... **435** mots abrégés (122 anglais · 317 français)
+       seuil 16, à T1 ... **3** mots abrégés (**0 anglais** · 3 français)
+   ⭐⭐ *« On aura moins d'emmerdes »* : 435 → 3, et zéro en anglais, la langue
+   par défaut du Seuil. La mesure dit ce qu'il avait prévu.
+
+   ⚠️ 15 OU 16 ? LE SEUL ARBITRAGE DE CE LOT, ET IL EST DIT PLUTÔT QUE MASQUÉ.
+   La méthode du 19/08 prenait « un cran sous le dernier qui passe », ce qui
+   donnerait 15 ici. ⛔ Mais 15 abrégerait « Prestidigitation » (16 car.), donc
+   annulerait la raison même du passage à T1. **16 est retenu parce qu'il sert
+   la raison d'Eric ; un mot de lui le renverse.**
+
+   🔴 ET LA LIMITE DE LA MÉTHODE, MESURÉE, PARCE QU'ELLE NE SE VOIT PAS :
+   **un compte de caractères n'est pas une largeur.** « supplémentaires » fait
+   15 caractères et 80 px — il SORT ; « Prestidigitation » en fait 16 et 73 —
+   il TIENT. Aucun seuil en caractères ne peut séparer ces deux-là. Le repli
+   (`overflow-wrap: break-word`, shell.css) rattrape le cas : le mot se coupe
+   au lieu de sortir de sa case, et la case garde ses 48 px — vérifié sur les
+   neuf pires mots du corpus, aux deux corps. ⏳ Mesurer le mot au lieu de le
+   compter demanderait une mesure au rendu ; personne ne l'a demandée.
 
    ⛔ ET SEULEMENT LE MOT QUI DÉPASSE. « Shocking Grasp » a une espace où se
    couper : la ligne se replie, les deux mots restent entiers. Abréger ce qui
@@ -106,8 +147,12 @@ const SEUIL_GLISSER = 6;
    ⚠️ ÇA NE VAUT QUE DANS LA CASE. Le panneau d'info, le bilan et la fiche
    reçoivent le nom ENTIER : ils ont la place, et c'est là qu'on lit vraiment.
    L'abrégé est une contrainte de vitrine, pas une renomination. */
-const ABREGE_MAX = 10;
-function abrege(mot) {
+const ABREGE_MAX = 16;
+/* ⭐ EXPORTÉ POUR ÊTRE MESURABLE, et c'est la loi du dépôt (« on teste la
+   fonction, pas la page ») : la règle d'abrégé est de l'arithmétique de
+   chaîne — elle se vérifie sur le mot-témoin sans un nœud de DOM.
+   `tests/jeton-corps.test.mjs` la tient. */
+export function abrege(mot) {
   return String(mot == null ? "" : mot)
     .split(" ")
     .map((m) => (m.length > ABREGE_MAX ? `${m.slice(0, ABREGE_MAX - 1)}.` : m))

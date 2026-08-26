@@ -2678,7 +2678,13 @@ button { font: inherit; }
      ⛔ Le liseré `--border-strong` reste : c'est la cible 3:1 d'un contrôle. */
   border: 1px solid var(--border-strong); border-radius: var(--organe-rayon);
   background: var(--jeton-teinte); box-shadow: var(--relief);
-  color: var(--text); font-family: inherit; font-size: var(--t3);
+  /* 🔴 T1 ICI AUSSI, PARCE QUE §2 DIT *« jeton = UN SEUL modèle »*. Cette
+     règle-ci ne gagne que HORS d'un `.choix-glisse` ; y laisser `--t3` aurait
+     rendu un jeton à 14 px et l'autre à 10, soit DEUX modèles pour un organe
+     dont la norme dit qu'il n'en a qu'un. ⛔ Corriger la règle gagnante seule
+     aurait laissé l'écart vivant là où personne ne le cherche — la leçon du
+     rayon de 4 px, encore elle. */
+  color: var(--text); font-family: inherit; font-size: var(--t1);
   cursor: grab;
   /* 🔴 SANS `touch-action: none`, LE GESTE N'EXISTE PAS SUR MOBILE : le doigt
      qui part d'un jeton ferait défiler la scène, et le navigateur annulerait la
@@ -3541,7 +3547,29 @@ button { font: inherit; }
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau-valeur {
   padding: 0 var(--sp-4);
-  font-size: var(--t2);
+  /* 🔴 T1, ET C'EST LA RÈGLE QUI DÉCIDE VRAIMENT — Eric, 2026-08-26, à la
+     question « T1 ou T2 dans le jeton » : *« 13 T1 on aura moins d'enmerdes on
+     jugera apres coup »*. Sa raison est le MOINDRE REGRET : à T1 tout rentre,
+     donc aucun nom ne force à inventer une abréviation aujourd'hui ; si c'est
+     trop petit au doigt, ça se verra et on remontera. L'inverse — T2, puis des
+     noms qui débordent — coûterait un standard d'abréviations écrit dans
+     l'urgence. NORMES.md §2 bis.
+
+     🔴 ET C'EST ICI QU'IL FALLAIT L'ÉCRIRE, PAS SUR LA RÈGLE NUE. Mesuré au
+     navigateur le 26/08 : `.choix-glisse .glisse-jeton` (0,0,2,0) bat
+     `.glisse-jeton` (0,0,1,0), donc le jeton rendait **12 px** pendant que sa
+     règle nue en annonçait 14. ⛔ Lire la règle nue et croire connaître le
+     corps du jeton est exactement ce que §0 « GOOGLE HEADLESS » interdit —
+     c'est le même piège que le rayon de 4 px du lignage, deux notes plus haut.
+
+     📏 CE QUE T1 ACHÈTE, MESURÉ DANS LA CASE (87 px, dont **77** utiles) :
+       Prestidigitation .... T2 85 px ⛔ sort  ·  T1 **73 px** ✅ entier
+       caractéristique ..... T2 85 px ⛔       ·  T1 72 px ✅
+       Invulnerability ..... T2 79 px ⛔       ·  T1 67 px ✅
+     ⭐ « Prestidigitation » est le mot-témoin de toute la dérivation du 19/08 —
+     16 caractères, AUCUNE espace où se couper. À T1 il tient entier. C'est
+     précisément la promesse d'Eric, et elle est vraie. */
+  font-size: var(--t1);
 }
 /* ⚠️ LE FILET DE SÉCURITÉ, PAS LA RÈGLE. La règle est d'ABRÉGER le mot
    (`ABREGES`, glisser.mjs) — Eric : *« si le mot est trop long, on réduit la

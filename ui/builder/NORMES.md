@@ -401,7 +401,7 @@ ce qu'elle accepte avant qu'on lâche.
 | **le relief** | le **liseré par famille** |
 | | l'**échelle de valeur** du liseré d'équipement |
 | | ce que porte le **fond** |
-| **le texte : 🔴 T1** *(voir §13)* | le **standard d'abréviations** |
+| **le texte : 🔴 T1** *(ci-dessous)* | le **standard d'abréviations** |
 
 ⭐⭐ **Cohérent avec ce qu'il avait déjà dit** : *« dès qu'on a un jeton, on peut déjà faire cela »*.
 **Le jeton unique se construit d'abord ; tout le reste se pose PAR-DESSUS sans le redessiner.**
@@ -410,6 +410,49 @@ ce qu'elle accepte avant qu'on lâche.
 📌 ⛔ **Ce n'est pas de la dette, c'est une séquence.** La couleur de base et le relief sont ce dont
 **tous** les jetons auront besoin, quelle que soit leur famille — les construire maintenant
 **n'engage aucun choix futur**.
+
+### ✅ LE CORPS DU JETON EST **T1** — tranché 26/08, appliqué le 26/08
+
+> Eric, 2026-08-26, à la question *« T1 ou T2 dans le jeton ? »* : **« 13 T1 on aura moins
+> d'enmerdes on jugera apres coup »**. *(Le « 13 » était le numéro de la question dans une liste,
+> pas une section — ⛔ un ancien renvoi « §13 » de ce fichier ne pointait nulle part.)*
+
+| | |
+|---|---|
+| **le corps** | 🔴 **`--t1` = 10 px** sur le **libellé du jeton**, et sur lui seul |
+| **où il est écrit** | `.choix-glisse .glisse-jeton` **et** `.glisse-jeton` nue — **les deux** |
+| **le garde** | `tests/jeton-corps.test.mjs` |
+
+⭐ **SA RAISON EST LE MOINDRE REGRET, et c'est ce qui la rend solide** : à T1 tout rentre, donc
+**aucun nom ne force à inventer une abréviation aujourd'hui** ; si c'est trop petit au doigt, ça se
+verra et on remontera d'un barreau. L'inverse — T2, puis trente noms qui débordent — coûterait un
+**standard d'abréviations écrit dans l'urgence**. ⏳ *« On jugera après coup »* : le doigt tranchera.
+
+📏 **MESURÉ AU NAVIGATEUR, dans la case réelle** *(87 px, dont **77** utiles : 87 − 8 de rembourrage
+− 2 de liseré)* :
+
+| le mot | car. | à T2 | à T1 |
+|---|---|---|---|
+| **`Prestidigitation`** — le mot-témoin de la dérivation du 19/08 | 16 | 85 px ⛔ | 🔴 **73 px ✅ entier** |
+| `caractéristique` | 15 | 85 px ⛔ | 72 px ✅ |
+| `Invulnerability` | 15 | 79 px ⛔ | 67 px ✅ |
+| `supplémentaires` | 15 | 94 px ⛔ | 80 px ⛔ |
+
+⭐⭐ **Et le compte du corpus dit qu'il avait raison** *(3 831 mots distincts des couches)* : le seuil
+d'abréviation à T2 coupait **435** mots ; redérivé à T1 il en coupe **3**, et **zéro en anglais** —
+la langue par défaut du Seuil.
+
+🔴 **DEUX PIÈGES MESURÉS, à ne pas repayer :**
+
+| | |
+|---|---|
+| ⛔ **la règle nue ne dit pas le corps rendu** | `.choix-glisse .glisse-jeton` **(0,0,2,0)** bat `.glisse-jeton` **(0,0,1,0)**. Le jeton rendait **12 px** pendant que sa règle nue en annonçait 14 — §0 « Google Headless », le même piège que le rayon de 4 px du lignage |
+| ⛔ **un compte de caractères n'est pas une largeur** | `supplémentaires` fait **15** car. et **80** px — il sort ; `Prestidigitation` en fait **16** et **73** — il tient. **Aucun seuil en caractères ne sépare ces deux-là** ; le repli (`overflow-wrap: break-word`) rattrape le cas, la case garde ses 48 px |
+
+⚠️ **CE QUE CE PARAGRAPHE RÉPARE, ET IL FAUT LE DIRE** : la décision du 26/08 n'avait **jamais été
+écrite ici** — elle n'apparaissait que dans un mot d'une case de tableau, derrière un renvoi mort.
+Le vault la listait encore comme **ouverte**. ⭐ *Une norme qui ne vit que dans un document n'existe
+pas* — celle-ci ne vivait même pas là.
 
 ---
 
