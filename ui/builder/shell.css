@@ -394,7 +394,18 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      📏 CE QUI L'A ATTRAPÉE : la valeur CALCULÉE relevée au navigateur valait
      `0px` là où j'attendais 44. Lire la feuille aurait dit « c'est écrit,
      donc c'est fait ». */
-  padding-right: calc(var(--sp-16) + var(--touch));
+  /* 🔴 LA MÊME COLONNE DES DEUX CÔTÉS — Eric, 2026-08-26 : *« bien, mais Done
+     centré »*.
+     ⭐ ET C'EST LA PAIRE QUI LE PERMET, PAS UN RÉGLAGE : tant que seul le `?`
+     occupait un bout, réserver sa place à droite décalait forcément le centre
+     de la moitié de cette réserve — Done tombait 26 px à gauche du milieu, et
+     c'était le prix assumé de la note du 26/08 (*« il n'entre pas en conflit
+     avec le centrage, il sera toujours collé à droite »*).
+     ⭐⭐ DEPUIS QUE LE LIVRE TIENT LA GAUCHE, les deux bouts sont occupés :
+     réserver **autant à gauche qu'à droite** rend le centre du contenu égal au
+     centre de la rangée. Done est centré sur la dalle, et les deux ronds
+     restent hors du centrage. Rien n'est arbitré, c'est de l'arithmétique. */
+  padding-inline: calc(var(--sp-16) + var(--touch));
   max-width: var(--frame-w);
   margin-inline: auto;
 }
@@ -921,8 +932,12 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    l'effacer, `padding-right` retombe sur elle, @media comprise. */
 .universe-step > .sortie,
 .concept-step > .sortie {
+  /* ⛔ `padding-left: 0` A DÛ SAUTER AVEC LE CENTRAGE — il écrasait la réserve
+     GAUCHE que `.sortie` pose désormais des deux côtés, donc Done y serait
+     resté décalé alors même que la règle du socle le centre. Une exception
+     écrite pour un monde asymétrique devient une faute dans un monde
+     symétrique : ce bloc ne règle plus que le rembourrage VERTICAL. */
   padding-block: var(--sp-16) var(--sp-4);
-  padding-left: 0;
   margin-inline: 0;
 }
 /* ⭐ SEUL, `DONE` SE CENTRE — et la règle se lit sur le FAIT, pas sur l'écran :
@@ -1482,7 +1497,7 @@ button { font: inherit; }
   /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
      `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
      étroite + `--touch`. ⛔ Ne pas revenir à `padding-inline` ici. */
-  .sortie { padding-left: var(--sp-8); padding-right: calc(var(--sp-8) + var(--touch)); }
+  .sortie { padding-inline: calc(var(--sp-8) + var(--touch)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
