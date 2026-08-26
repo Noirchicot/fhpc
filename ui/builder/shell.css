@@ -3728,19 +3728,50 @@ button { font: inherit; }
 
    ⚠️ Le fond reste un VOILE : un aplat plein ferait passer le libellé sous le
    seuil de contraste, et c'est le libellé qu'on lit. Le liseré est franc. */
+/* 🔴 UN CRÉNEAU REMPLI PORTE L'HABIT DU JETON, ET SON LISERÉ DIT QU'IL EST UN
+   COLLECTEUR — Eric, 2026-08-26 : *« rempli prend le doré ET LE RELIEF du
+   jeton, juste un liseré bleu autour pour rappeler que c'est un collecteur »*.
+
+   ⭐⭐ CE QUE ÇA SÉPARE, ET C'EST LA TROUVAILLE : le REMPLISSAGE dit *« je porte
+   un jeton »*, le LISERÉ dit *« je suis un collecteur, et voilà mon état »*.
+   Deux canaux, deux messages. Avant, le fond bleu portait les deux à la fois —
+   et un créneau plein ne ressemblait pas à ce qu'il contenait.
+
+   ⛔ L'ÉCHELLE D'ÉRIC DU 19/08 N'EST PAS PERDUE, ELLE DÉMÉNAGE SUR LE LISERÉ :
+   *« une pose valide = récepteur BLEU, une mauvaise pose = ROUGE, toutes les
+   poses valides = tous VERTS »*. Les trois teintes tiennent, sur le bord au
+   lieu du fond — et le vert d'ensemble (`[data-complet]`, plus bas) ne pose
+   QUE `border-color`, donc il garde le doré sous lui. Rien à réécrire là-bas.
+
+   🔴 ET LE RELIEF REMPLACE LE CREUX, pas s'y ajoute : un creux dit *« pose
+   ici »*, un relief dit *« quelque chose est posé »*. Les garder tous les deux
+   ferait un organe qui demande et qui a reçu en même temps. */
 .choix-glisse .glisse-creneau[data-rempli="true"] {
   border-color: var(--info);
-  background: color-mix(in srgb, var(--info) 18%, transparent);
+  background: var(--jeton-teinte);
+  box-shadow: var(--relief);
 }
+/* 🔴 L'INVALIDE SUIT LA MÊME LOI — Eric, 2026-08-26 : *« ce même liseré peut
+   appliquer les codes couleurs qu'on connaît »*. Le liseré porte l'échelle ;
+   le fond, lui, dit seulement si le créneau porte quelque chose.
+   ⛔ IL NE REPEINT DONC PLUS LE FOND. Avant, un créneau invalide effaçait le
+   doré sous un lavis rouge — deux canaux pour un message, et le joueur perdait
+   l'information « il y a un objet là-dedans » au moment précis où il en a le
+   plus besoin pour le retirer. */
 .choix-glisse .glisse-creneau[data-invalide="true"] {
   border-color: var(--critical);
-  background: color-mix(in srgb, var(--critical) 18%, transparent);
 }
 /* TOUT EST POSÉ ET VALIDE : les récepteurs passent au vert, ensemble. Écrit
    APRÈS le bleu — c'est la cascade qui fait la bascule, sans une ligne de JS. */
 .choix-glisse[data-complet="true"] .glisse-creneau {
+  /* 🔴 LE VERT AUSSI EST UN LISERÉ, PLUS UN FOND — 2026-08-26, la même loi que
+     ses deux voisins : *« ce même liseré peut appliquer les codes couleurs
+     qu'on connaît »*. Les TROIS teintes de l'échelle du 19/08 vivent désormais
+     sur le bord, et le doré du jeton reste visible dessous.
+     ⭐ Ce qui rend la bascule d'ensemble encore lisible : le liseré change de
+     teinte sur TOUS les créneaux à la fois. C'est le mouvement simultané qui
+     dit *« l'ensemble est bon »*, pas la force de la couleur. */
   border-color: var(--positive);
-  background: color-mix(in srgb, var(--positive) 18%, transparent);
 }
 
 /* ══ B0 : LE BOUTON EST CENTRÉ, SON BILAN NE L'EST PAS ════════════════════
