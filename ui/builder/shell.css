@@ -3871,7 +3871,39 @@ button { font: inherit; }
    loi. Un vivier propose et se lit en trois colonnes ; une rangée de
    collecteurs REÇOIT, et son nombre est dicté par ce que l'étape demande. */
 .choix-glisse .glisse-vivier {
-  max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8));
+  /* 🔴 LA LARGEUR EST DÉCLARÉE, PLUS DÉDUITE — Eric, 2026-08-26, capture iPad :
+     *« c'est pas le bon layout là »* — ses trois jetons Gender étaient EMPILÉS
+     un par ligne, pendant que les neuf d'Alignment tenaient en 3 × 3 dans la
+     MÊME carte, sous les MÊMES règles.
+
+     ⛔ ET JE N'AI PAS REPRODUIT LA PANNE, il faut le dire : mesuré à 900,
+     1024, 1194 et 1366 px dans Chrome de bureau, les deux viviers rendent
+     `[3]` et `[3,3,3]`, case 87 × 48, vivier 277 — et leurs styles calculés
+     sont **rigoureusement identiques** (`max-width: 277px`, `width: 277px`,
+     `flex: 0 1 auto`, même chaîne de parents).
+
+     ⚠️ J'AI D'ABORD ÉCRIT « SAFARI » ICI, ET C'ÉTAIT FAUX : Eric est sur
+     **Chrome**. ⭐ Mais sa capture est un **iPad**, et iOS/iPadOS impose WebKit
+     à TOUS les navigateurs — « Chrome sur iPad » rend donc en WebKit, pas en
+     Blink. Le diagnostic tenait, l'étiquette non.
+     📌 **La leçon vaut au-delà de ce lot : sur iPad, le nom du navigateur ne
+     dit pas le moteur.** Un écart de rendu qu'on n'y reproduit pas sur Chrome
+     de bureau n'est pas « un mystère Chrome » — c'est du WebKit.
+
+     ⭐ CE QUE JE CORRIGE N'EST DONC PAS « le bug », C'EST LA FRAGILITÉ QUI LE
+     PERMET. `max-width` + `margin-inline: auto` sur un enfant de flex en
+     colonne laisse le navigateur choisir entre `fit-content`, `min-content` et
+     l'étirement — trois réponses légitimes, et un conteneur qui ENVELOPPE
+     (`flex-wrap: wrap`) a un `min-content` d'UNE case. Un navigateur qui
+     tranche ainsi produit exactement ce qu'Eric voit.
+     ⭐⭐ Une largeur DÉCLARÉE ne laisse plus rien à trancher : `width` dit 277,
+     `min()` la borne au conteneur quand il est plus étroit. Plus de
+     `fit-content`, donc plus de désaccord possible entre moteurs.
+     ⚠️ Et le multiplicateur passe APRÈS la variable (`var(…) * 3`) : c'est la
+     forme la plus anciennement supportée de `calc()`, et une déclaration
+     invalide ne crie pas — elle est simplement jetée, et on retombe sur le
+     comportement qu'on essayait de fuir. */
+  width: min(100%, calc(var(--glisse-case) * 3 + var(--sp-8) * 2));
   margin-inline: auto;
 }
 /* 🔴🔴 ICI VIVAIT UNE RÈGLE QUI A ÉCRASÉ LES JETONS EN LIGNE — écrite par moi

@@ -75,14 +75,20 @@ test("le vivier vaut trois colonnes, et c'est la RANGÉE qui les compte", () => 
      ⭐ Le gabarit de la case ne se négocie pas, donc c'est la RANGÉE qui vaut
      trois colonnes. Vérifié après correction à 360 · 372 · 467 · 1100 · 1600 :
      `[3,3,3,3]` partout, case 87×48, rangée 277. */
+  /* 🔴 ET LA LARGEUR EST DÉCLARÉE, PAS SEULEMENT BORNÉE — 26/08, second temps.
+     `max-width` seul laissait le navigateur choisir la largeur RÉELLE parmi
+     `fit-content`, `min-content` et l'étirement ; sur l'iPad d'Eric, les trois
+     jetons Gender se sont retrouvés empilés un par ligne pendant que les neuf
+     d'Alignment tenaient en 3 × 3, sous les mêmes règles.
+     ⭐ Une largeur déclarée ne laisse rien à trancher. */
   const vivier = reglesDe(sansCommentaires)
     .find((r) => r.selecteur === ".choix-glisse .glisse-vivier"
-      && /max-width/.test(r.corps));
-  assert.ok(vivier, "`.choix-glisse .glisse-vivier` doit borner sa largeur");
-  const borne = vivier.corps.match(/max-width\s*:\s*([^;]+)/)[1].replace(/\s+/g, " ").trim();
-  assert.equal(borne, "calc(3 * var(--glisse-case) + 2 * var(--sp-8))",
-    "la borne doit se LIRE comme trois cases et deux gouttières — un chiffre "
-    + "en dur (277px) mentirait le jour où le gabarit bouge");
+      && /width\s*:/.test(r.corps));
+  assert.ok(vivier, "`.choix-glisse .glisse-vivier` doit DÉCLARER sa largeur");
+  const borne = vivier.corps.match(/(^|;)\s*width\s*:\s*([^;]+)/)[2].replace(/\s+/g, " ").trim();
+  assert.equal(borne, "min(100%, calc(var(--glisse-case) * 3 + var(--sp-8) * 2))",
+    "la largeur doit se LIRE comme trois cases et deux gouttières, bornée au "
+    + "conteneur — un chiffre en dur (277px) mentirait le jour où le gabarit bouge");
 });
 
 test("Identity ne repeint pas un fond opaque par-dessus sa dalle", () => {
