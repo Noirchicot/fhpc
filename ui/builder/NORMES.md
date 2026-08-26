@@ -213,7 +213,34 @@ tête.
 
 ⭐ **3 par rangée à 360, et c'est juste** : la rangée dispose de **278**, trois jetons en prennent
 **277** *(3 × 87 + 2 × 8)*. **Il reste 1 px.** ⛔ **Quatre en demanderaient 372 — impossible à la
-cible.** Le « mou » de 58 px que j'avais annoncé venait d'un calcul à **375**, une largeur qui
+cible.**
+
+🔴 **⚠️ MAIS CE BUDGET NE COMPTE PAS LES CHEVRONS, et le lot A l'a mesuré le 26/08.** Dès qu'une
+liste **pagine**, elle porte deux gouttières de chevron — **2 × `--touch` + 2 × `--sp-4` = 96 px**.
+Il ne reste alors que **201** pour trois cases qui en demandent 277.
+
+| la liste | ce que la rangée offre | la case rendue |
+|---|---|---|
+| **sans pagination** | 278 | **87** — la cote pleine |
+| le **tambour** d'Équipement *(paginé)* | — | **75** *(mesuré, en production depuis le 24/08)* |
+| un **vivier paginé** | 201 | 🔴 **62** |
+
+⛔ **ET LA CASE CÈDE, ELLE NE PASSE PAS À LA LIGNE.** Sans quoi la rangée retombe à **DEUX** par
+ligne — ce qui contredit *« trois colonnes, toujours »* **et rend la pagination inutile** : quinze
+jetons sur deux colonnes pèsent 440 px, autant que trente-et-un sur trois.
+
+⭐ **Une loi du souple à connaître, mesurée par le lot A** : `flex-shrink` seul **n'y suffit pas** —
+*un conteneur qui enveloppe passe à la ligne AVANT de rétrécir.* Le découpage en lignes se fait sur
+la taille **hypothétique** de chaque case ; le rétrécissement ne travaille que sur une ligne déjà
+trop pleine. La parade est de donner à la case **un tiers de la rangée** comme base : la ligne en
+contient trois **par construction**, il n'y a plus de calcul à réussir.
+
+⏳ **CE QUE ÇA COÛTE, ET C'EST UNE DETTE OUVERTE** : à **62 px**, `ABREGE_MAX = 16` *(calibré sur
+77 px utiles, §2 bis)* **ne promet plus rien** — le repli tient, mais un nom long y prend trois
+lignes. ⭐ **La piste mesurée, non prise faute de mandat** : rendre la rangée **saignante**
+*(`--saignee-debord`, l'idiome existe)* pour qu'elle occupe les **329** de la carte au lieu des 297
+de l'item — la case remonterait à **72**, à un pixel de l'Équipement. ⛔ Ça touche la géométrie de
+la dalle, pas la pagination : **décision d'Eric**. Le « mou » de 58 px que j'avais annoncé venait d'un calcul à **375**, une largeur qui
 n'est pas la nôtre : **il n'existe pas.**
 
 🔴 **45 px, c'est mince — une ligne de plus les mange**, et ⛔ **la réponse n'est JAMAIS un
@@ -737,7 +764,22 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 > Le vault le grave en tête de `FHPCv2 norme des listes` : *« Ce n'est pas une règle de l'écran
 > Équipement. **C'est une règle du produit entier.** »*
 
-📏 **MESURÉ LE 26/08 — elle ne vit que dans l'Équipement.** `LISTE_PAR_PAGE` et `pageDeListe` sont au
+✅ **PORTÉE AUX VIVIERS LE 26/08 AU SOIR (lot A).** L'organe unique `renderChoixGlisses`
+*(`glisser.mjs`)* pagine désormais **tous** les viviers de choix — Species, Class, Inheritance,
+Identity — plus un cinquième appelant que le mandat n'avait pas vu, `renderLanguesGlisse`.
+⭐ **Un seul endroit, pas quatre** : les écrans ne fabriquent pas leur vivier, ils remettent un plan
+à l'organe. Paginer chez eux aurait fait quatre copies de la même arithmétique — exactement ce que
+`tests/listes.test.mjs` existe pour empêcher.
+📏 Mesuré au rendu *(360 × 553)* : `Prepared spells` passe de **31 jetons** et un débord de 571 px à
+**15 jetons**, 3 pages *(15/15/1)*, le compte **31** sous le chevron gauche et **1/3** sous le droit,
+la page **boucle**, et elle **survit au rafraîchissement**. Les sept viviers courts n'ont pas bougé
+d'un pixel.
+
+⚖️ **UN CHOIX QUE LE LOT A PRIS, ET QU'UN MOT D'ERIC RENVERSE** : les chevrons **disparaissent quand
+il n'y a qu'une page**. §5 ne le disait pas. Sans ça, sept viviers sur neuf perdaient **96 px** pour
+deux flèches mortes.
+
+📏 **L'ÉTAT D'AVANT, gardé pour mémoire :** `LISTE_PAR_PAGE` et `pageDeListe` sont au
 socle, mais seuls `equipment-step.mjs` et `equipement-pipeline.mjs` les appellent. Partout ailleurs
 `.glisse-vivier` est un `flex-wrap` **sans aucune pagination** : la dalle grandit sans fin.
 ⚠️ Et le *« 3 par rangée »* qu'on y observe est un **accident d'arithmétique**, pas une règle :
