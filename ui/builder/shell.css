@@ -4826,3 +4826,60 @@ button { font: inherit; }
     0 var(--bouton-coupe)
   );
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §6 — L'ÉCHELLE D'AVANCEMENT : LE BOUTON LA PARCOURT, IL NE LA PORTE PAS
+   ══════════════════════════════════════════════════════════════════════════
+   Eric, 2026-08-26 : *« un bouton va passer de bleu à vert voire à rouge »*.
+
+     gris    rien n'est encore fait          --text-muted   (défaut, plus haut)
+     bleu    un MOUVEMENT NON IMPACTANT      --info
+     vert    c'est bon, on a fini            --positive
+     rouge   ce n'est pas bon, ou ça défait  --critical
+
+   ⭐ CE NE SONT PAS QUATRE COULEURS DE BOUTONS, C'EST UNE ÉCHELLE. Le libellé
+   dit ce que le bouton FAIT et ne change jamais ; la couleur dit OÙ ON EN EST
+   et change à chaque acte. ⛔ Aucune couleur n'est écrite dans le balisage :
+   les classes posées par `parcours-ecrans.mjs` (`parcours-annuler`,
+   `parcours-next`, `parcours-done`) nomment des ACTES, pas des teintes, et
+   c'est cette feuille qui les traduit en avancement.
+
+   🔴 ET LE VERT DE LA PORTE D'UN ITEM SE DÉRIVE DU MÊME ÉTAT QUE SON CERCLE —
+   §6 l'exige en toutes lettres : *« la couleur se dérive du MÊME état que le
+   cercle de signalisation ; deux dérivations séparées finiraient par diverger
+   »*. Le voyant lit `data-allume` ; la porte lit `data-allume`. Un seul
+   attribut, deux porteurs.
+
+   ⏳ `DONE` RESTE AU GRIS, ET C'EST UNE LECTURE, PAS UN OUBLI. §6 précise que
+   *« done = vert »* ne veut pas dire « le bouton Done est vert » mais *« un
+   Done est vert QUAND l'étape est finie »*, et qu'*« sur une étape incomplète,
+   le même bouton est gris ou bleu »*. Or `parcours-ecrans.mjs` ne dessine
+   `Done` QUE lorsque l'étape n'est PAS achevée (`else if (!acheve)`) — dès
+   qu'elle l'est, c'est `Next` qui prend sa place. Un `Done` visible est donc
+   toujours un `Done` d'étape inachevée : le vert ne peut jamais lui échoir sur
+   cet écran-ci. Entre « gris ou bleu », §6 ne tranche pas — le gris est le
+   défaut, on ne choisit pas à la place d'Eric.
+
+   ⏳ ET LA PAIRE `BACK`/`DONE` DE LA COQUILLE N'EST PEINTE QUE DANS UN PIED DE
+   PARCOURS. `.sortie-bouton` sert DIX écrans, dont les cinq qui auront leur
+   propre lot ; la repeindre ici les toucherait tous. La règle est donc bornée
+   à `.parcours-pied`, et ce qui reste est à commander avec ces lots-là. */
+
+/* ── LA FAMILLE « DÉFAIRE » — rouge, TOUJOURS, quel que soit l'état ───────
+   ⭐ La seule famille où la couleur ne dit PAS où on en est : elle dit ce que
+   le bouton FAIT. Un bouton qui défait ne doit jamais pouvoir être appuyé par
+   distraction — ⛔ un `Cancel` gris, ça s'appuie sans le vouloir. */
+.parcours-pied .parcours-annuler { --bouton-fond: var(--critical); }
+
+/* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
+   ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
+   changé ?* `Next` déplace vers l'étape suivante et `Back` referme un item
+   sans rien signer — l'écran l'écrit lui-même à sa ligne d'avertissement,
+   *« Leaving this open marks nothing »*. Aucun des deux ne touche le
+   document : bleu. */
+.parcours-pied .parcours-next,
+.parcours-pied .sortie-back { --bouton-fond: var(--info); }
+
+/* ── LA PORTE D'UN ITEM — elle prend l'avancement de son voyant ──────────
+   validé = vert · rien fait = le gris par défaut, hérité de l'organe. */
+.parcours-item[data-allume="true"] .parcours-item-porte { --bouton-fond: var(--positive); }
