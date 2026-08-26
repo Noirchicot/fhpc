@@ -779,16 +779,12 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
     idImage = demanderImage(juger);
   }, { passive: true });
 
-  /** Un cran de plus ou de moins — le geste de la FLÈCHE, que le croquis pose
-   *  hors du bloc sombre, une paire par étage.
-   *  ⭐ ELLE PASSE PAR LE MÊME CHEMIN QUE LE DOIGT, littéralement : elle écrit
-   *  `scrollLeft`, et c'est le défilement natif (`scroll-behavior: smooth` +
-   *  `scroll-snap`) qui porte le mouvement, émet ses `scroll` et déclenche la
-   *  même cascade. Une animation maison aurait été un SECOND chemin, et deux
-   *  chemins divergent au premier réglage.
-   *  ⏳ CHOIX PAR DÉFAUT ASSUMÉ : le lissage natif dure ~400 ms et n'est pas
-   *  réglable. C'est le prix du chemin unique ; s'il gêne au doigt, c'est ici
-   *  qu'on le reprendra. */
+  /* ⛔ CE BLOC DÉCRIVAIT LA FLÈCHE ET SON « défilement natif (`scroll-behavior:
+     smooth`) » — retiré le 2026-08-26, parce que NI L'UN NI L'AUTRE N'EXISTE
+     PLUS. Les chevrons sont partis le 24/08 avec `avancer` ; `scroll-behavior:
+     smooth` a été retiré de `.roue-piste` le même jour. Un commentaire qui
+     nomme deux organes morts envoie chercher au mauvais endroit — c'est
+     littéralement ce qui est arrivé en cherchant `glisserVers`. */
   /* ⭐ CENTRER UN CRAN, ET LE LIRE SUR LE CRAN — l'organe unique dont
      `positionDe`, `avancer` et `viser` manquaient chacun à sa façon.
      C'est mot pour mot ce que fait `scroll-snap-align: center` : on atterrit
@@ -857,9 +853,34 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   /* ⛔ `avancer` A DISPARU AVEC LES CHEVRONS (2026-08-24) : ils étaient son
      seul appelant. Un organe qui ne sert plus personne est un nom mort, et le
      garde le dirait.
-     ⭐ CE QU'IL PORTAIT SURVIT, ET C'EST L'ESSENTIEL : `glisserVers` — les
-     170 ms qui possèdent le mouvement — reste employé par `viser`, donc par
-     le clic sur un cran. Le geste change de porte, pas de nature. */
+
+     🔴 ET LE COMMENTAIRE QUI TENAIT ICI ÉTAIT FAUX — corrigé le 2026-08-26.
+     Il affirmait que `glisserVers` « survit » et « reste employé par `viser` ».
+     📏 MESURÉ : le même commit qui a retiré `avancer` (`de88997`) a retiré
+     `glisserVers` avec lui, et n'a PAS suivi son appel. Chrome 151, page
+     servie en local, un clic sur un cran du tambour :
+
+         Uncaught ReferenceError: glisserVers is not defined
+
+     ⛔ Le clic ne faisait donc RIEN : ni bond, ni rayon, ni étagère. Seul le
+     doigt (ou la molette) choisissait encore.
+     ⭐ LA LEÇON N'EST PAS « il manquait une fonction », c'est QU'UN MESSAGE DE
+     COMMIT AFFIRMAIT LA SURVIE D'UN ORGANE QUE SON PROPRE DIFF SUPPRIMAIT, et
+     que rien dans le dépôt ne pouvait le contredire — aucun test ne CLIQUAIT un
+     cran, et aucun test ne lisait les appels de `ui/`. Les deux gardes sont
+     posés depuis (`tests/viseur-tambour.test.mjs`).
+
+     ⛔ ET RIEN NE GLISSE PLUS AUJOURD'HUI, il faut le dire plutôt que le
+     laisser deviner. Les 170 ms `easeOutCubic` sont parties avec la fonction ;
+     `scroll-behavior: smooth` a été retiré de `.roue-piste` le 24/08 EN
+     ÉCHANGE de ces 170 ms. Le seul organe qui amène encore la piste à une
+     position est `sauter` — et c'est déjà par lui que `reposer` pose la roue
+     sur le cran courant. `viser` le rejoint : un seul chemin, pas deux.
+     ⏳ CE QUI RESTE À TRANCHER, ET C'EST À ERIC : le cran se pose donc
+     INSTANTANÉMENT sous le viseur au lieu de s'y rendre en 170 ms. La cote
+     `GLISSE_MS` (170) est gardée juste au-dessus, inemployée, parce qu'elle
+     est la recette d'Archi 25 ; le corps de `glisserVers` est dans
+     l'historique (`git show de88997^:ui/builder/equipment-step.mjs`). */
 
   /** Reposer la roue après un remplissage : les enfants sont neufs, l'ancien
    *  `dernier` désigne un nœud mort, et la position doit revenir sur le tour du
@@ -903,11 +924,13 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
   function viser(noeud) {
     const cible = centreDe(noeud);
     if (cible === null) return;
-    /* ⭐ MÊME GLISSEMENT QUE LA FLÈCHE : cliquer un cran et cliquer la flèche
-       sont le même acte — amener un cran sous le viseur. Deux mouvements
-       différents pour un même acte se remarquent tout de suite. */
+    /* ⭐ LE MÊME ORGANE QUE `reposer` : `sauter` est le seul qui amène la piste
+       à une position, et il y atterrit EXACTEMENT sur un point d'aimantation
+       (`behavior: "instant"` + la couture). Deux mouvements différents pour un
+       même acte — poser la roue, viser un cran — divergeraient au premier
+       réglage. */
     if (typeof quandBouge === "function") quandBouge();
-    glisserVers(cible);
+    sauter(cible);
   }
 
   reposer();
