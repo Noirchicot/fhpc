@@ -399,6 +399,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   margin-inline: auto;
 }
 .sortie-bouton {
+  /* ⚠️ `position: relative` EST CE QUI ANCRE LE CORPS : le `::before` est en
+     `position: absolute; inset: 0` — sans ancre il se cadrerait sur le premier
+     ancêtre positionné, c'est-à-dire n'importe où. */
+  position: relative;
   min-height: var(--touch); /* le seuil tactile — voir `--touch` dans tokens.css */
   border: 1px solid var(--border-strong); /* bordure de CONTRÔLE, cible 3:1 (§3b du lot 38) */
   border-radius: var(--radius-sm);
@@ -2686,7 +2690,26 @@ button { font: inherit; }
 .concept-step, .universe-step { max-width: var(--measure); margin-inline: auto; } /* PROSE, pas grille (§3e) ; centrage LOT 69, no-op à 360 */
 
 .doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
-.doc-field-label { font-size: var(--t3); color: var(--text-muted); }
+/* 🔴 LE NOM SE CENTRE, ET SA BOÎTE AUSSI — Eric, 2026-08-26 : *« Name centré,
+   boîte de texte plus petite, centrée en dessous »*.
+   ⭐ ET LA LARGEUR N'EST PAS UN NOMBRE CHOISI : c'est **la rangée de trois
+   cases**, `3 × --glisse-case + 2 × --sp-8` — exactement la colonne où vivent
+   les jetons de Gender et d'Alignment, juste en dessous. Identity se lit alors
+   sur UNE seule colonne du haut en bas, au lieu d'un champ pleine largeur
+   suivi de rangées étroites.
+   ⛔ NE PAS ÉCRIRE 277 : le jour où le gabarit du jeton bouge, ce champ
+   suivrait de lui-même — un nombre recopié, non. */
+.doc-field-label {
+  text-align: center;
+  font-size: var(--t3);
+  color: var(--text-muted);
+}
+.doc-field-input {
+  max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8));
+  margin-inline: auto;
+  width: 100%;
+  text-align: center;
+}
 .doc-field-input {
   border: 1px solid var(--border-strong);
   background: var(--surface);
@@ -5462,6 +5485,18 @@ button { font: inherit; }
 
    ⏳ C'est un EMPLOI NOUVEAU d'un jeton existant, pas une teinte inventée —
    mais le gris de l'échelle n'a jamais été nommé par Eric. À ratifier. */
+/* 🔴 `.sortie-bouton` ENTRE DANS LA FAMILLE — mesuré le 2026-08-26, audit du
+   rang R des huit étapes. Le MÊME bouton `Done` portait deux formes selon
+   l'écran : sur Inheritance et Class, `.parcours-done` — `clip-path:
+   polygon(10px 0px…)`, **72 px** ; sur Identity, Destiny et Skills,
+   `.sortie-bouton` — `clip-path: none`, `border-radius: 4px`, **77 px**.
+   ⛔ Deux implémentations d'un même bouton avaient divergé, et rien ne le
+   disait : chacune était cohérente avec elle-même.
+   ⭐ LE REGISTRE TRANCHE SANS DÉBAT — `Done`, `Back`, `Next`, `Cancel` et
+   `I changed my mind` y sont nommés « octogone ». `.sortie-bouton` sert
+   exactement ces libellés sur dix écrans : il n'avait aucune raison de faire
+   exception, seulement une histoire différente. */
+.sortie-bouton,
 .species-done,
 .parcours-item-porte,
 .parcours-pied button,
@@ -5515,6 +5550,7 @@ button { font: inherit; }
    ⚠️ `z-index: -1` ne fuit pas derrière la dalle : le `filter` du bouton crée
    un contexte d'empilement, donc le corps reste sous l'ÉTIQUETTE et rien
    d'autre. */
+.sortie-bouton::before,
 .species-done::before,
 .parcours-item-porte::before,
 .parcours-pied button::before,
@@ -5604,10 +5640,23 @@ button { font: inherit; }
    au milieu, barre collée en bas. ⛔ Ce qui défile ne porte pas les organes
    fixes : le flux est la SEULE bande à défiler, et c'est l'exception ratifiée
    à « la page ne défile jamais » (le Seuil, puis le dressing). */
+/* ⛔ PLUS DE FOND NI DE LISERÉ ÉCRITS ICI — 2026-08-26. Mesuré sur la page en
+   ligne : cette dalle rendait `rgb(31, 28, 22)`, **opaque, sans canal alpha**,
+   seule surface de ce genre parmi les huit étapes. Elle contredisait la norme
+   qu'Eric a ratifiée le même jour : *« voilà c'est ça la norme du site en
+   terme de transparence : 50 % »*.
+   ⭐ C'est `dalle-intermediaire`, posée dans le DOM par `b3-dressing.mjs`, qui
+   porte désormais le voile ET le liseré — deux sources pour une même surface,
+   c'est une divergence qui attend son tour.
+   ⚠️ ET J'AI FAILLI RATER CETTE RÈGLE : ma première recherche est tombée sur un
+   AUTRE bloc `.dressing` (`{ position: relative }`) et a rendu « ancre
+   introuvable ». Un sélecteur qui apparaît deux fois dans une feuille de 5 600
+   lignes n'est pas une anomalie — chercher le NOM ne suffit pas, il faut
+   chercher la DÉCLARATION. */
 .dressing {
   display: flex; flex-direction: column;
   min-height: 0; height: 100%;
-  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  border-radius: var(--radius-md);
 }
 .dressing-titre {
   flex: none; margin: 0; padding: var(--sp-8);

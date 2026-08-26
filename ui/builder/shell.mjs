@@ -1571,11 +1571,34 @@ function renderStepContent() {
     if (estConfirme(state.document, "concept")) {
       card.append(renderParcoursBilan(IDENTITY_PARCOURS, { query: null }));
     } else {
-      if (tutorielActif() && !generalVu()) {
-        card.append(renderTutorielGeneral({ ...TUTO_GENERAL, onAction: applyDecisionAction }));
-      } else if (tutorielActif()) {
-        card.append(renderTutorielSpecifique({ ...TUTO_IDENTITY, onAction: applyDecisionAction }));
-      }
+      /* 🔴 IDENTITY N'OUVRE PLUS SUR UN PANNEAU — Eric, 2026-08-26 : *« dégage
+         le welcome aiguilleur de Identity, on y reviendra à la trilogie des
+         guides mais après »*.
+
+         ⚠️ J'AI RETIRÉ LES DEUX MONTAGES, PAS SEULEMENT LE « WELCOME », et il
+         faut le dire parce que ce n'est pas mot pour mot ce qu'il a demandé.
+         Le code lisait `if (général) … else if (spécifique) …` : retirer le
+         seul général aurait fait monter le tutoriel D'IDENTITY à la même
+         place, à la ligne suivante. L'écran se serait encore ouvert sur un
+         panneau — c'est-à-dire exactement ce qu'Eric fait cesser. La consigne
+         porte sur ce qui s'ouvre, pas sur un nom de variable.
+         ⭐ Et *« on y reviendra à la trilogie des guides »* dit que le système
+         entier est reporté, pas la moitié.
+
+         ⛔ RIEN N'EST SUPPRIMÉ : `TUTO_GENERAL`, `TUTO_IDENTITY`,
+         `renderTutorielGeneral` et `renderTutorielSpecifique` restent entiers,
+         avec leurs tests. Ce qui est retiré, c'est **le montage sur cet
+         écran** — trois lignes à remettre le jour où la trilogie revient.
+         📌 ET IDENTITY ÉTAIT LE SEUL ÉCRAN À EN MONTER UN — vérifié après coup :
+         `renderTutorielGeneral` et `renderTutorielSpecifique` n'avaient aucun
+         autre appelant dans tout `ui/builder/`. *« Le reste aussi »* (Eric) est
+         donc déjà satisfait par ces trois lignes : **aucune étape ne s'ouvre
+         plus sur un panneau**. Ce qui reste debout est le `?`, qu'Eric a
+         explicitement sorti du standby le 26/08.
+         ⚠️ `tutorielActif()` reste lu plus bas (l'interrupteur du Menu) ;
+         `generalVu()` n'est plus lu nulle part — c'est le drapeau « le Welcome
+         a déjà été vu », et il n'a plus de Welcome à garder. ⛔ Ne pas le
+         supprimer : il tient un état persistant que la trilogie relira. */
       card.append(renderConceptStep({
         document: state.document,
         writers: state.docWriters,
@@ -3050,6 +3073,19 @@ function poserLaSortie(contenu, sortie) {
   if (!contenu || !sortie || typeof contenu.querySelector !== "function") return noeuds;
   const hote = contenu.querySelector("[data-sortie-ici]");
   if (!hote) return noeuds;
+  /* 🔴 LE LIVRE DÉCLARÉ PAR L'ÉCRAN ENTRE EN TÊTE DE LA RANGÉE — Eric,
+     2026-08-26 : *« Rules dégage sous forme d'un livre dans la rangée de
+     boutons »*, et la paire ratifiée le même jour : *« le livre et le `?` sont
+     cadrés à gauche et à droite de la rangée »*.
+     ⭐ POURQUOI CE DÉTOUR AU LIEU D'UN `append` DANS L'ÉCRAN : la rangée est
+     produite ICI et nulle part ailleurs (garde 17). Un écran qui la
+     fabriquerait pour y glisser son livre reprendrait la main sur `Back` et
+     `Done` — c'est précisément ce que le garde interdit. Il pose donc un
+     NŒUD et la coquille le place, comme elle place tout le reste.
+     ⚠️ `prepend`, pas `append` : la gauche est la place du livre, la droite
+     celle du `?`. Et si aucun écran n'en déclare, il ne se passe rien. */
+  const livre = hote.querySelector(":scope > .livre-de-sortie");
+  if (livre) sortie.prepend(livre);
   hote.append(sortie);
   return [contenu];
 }

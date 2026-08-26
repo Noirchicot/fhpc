@@ -238,6 +238,20 @@ export function renderDestinyStep(ctx, onAction) {
       const score = renderScore(ctx.resolved);
       if (score) reveal.append(score);
       reveal.append(renderActions(ctx, act));
+      /* 🔴 ET LE PIED DE LA COQUILLE ENTRE ICI AUSSI — mesuré le 2026-08-26 sur
+         la page en ligne : le `Done` de Destiny vivait à `button → .sortie →
+         MAIN.stage`, **sans aucune carte entre les deux**. Il flottait sur
+         l'image, à 1257 px du haut.
+         ⛔ LE LOT PRÉCÉDENT N'AVAIT DÉPLACÉ QUE LA MOITIÉ DU PROBLÈME : les
+         boutons de l'écran (`renderActions`) étaient bien passés sur la carte
+         texte, mais `Done` n'appartient pas à l'écran — il est produit par la
+         COQUILLE, qui le pose au bas de la scène tant que personne ne déclare
+         l'accueillir. Corriger ce que Destiny produit ne pouvait donc pas
+         suffire : il fallait aussi déclarer l'hôte.
+         ⭐ `data-sortie-ici` est ce protocole, et il existait déjà : l'écran
+         POSE UN ATTRIBUT VIDE, la coquille décide seule du contenu. Le garde
+         17 reste entier — Destiny n'écrit ni `Done` ni `pressDone`. */
+      reveal.dataset.sortieIci = "true";
       section.append(reveal);
       return section;
     }

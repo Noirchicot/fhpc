@@ -650,7 +650,14 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
        compétences de classe. Mais la bourse d'espèce a des récepteurs qui SONT
        des compétences nommées : « Skill 1 » y perdait l'information qu'on
        vise. Un `mot` posé sur le créneau gagne donc sur la numérotation. */
-    const nom = slot.mot || `${mot || "Choice"} ${slot.index + 1}`;
+    /* 🔴 ET L'INDEX NE SE POSE QUE S'IL Y A DE QUOI COMPTER — 26/08. Un
+       créneau unique s'appelait « Gender 1 » : ⛔ **un « 1 » qui n'est jamais
+       suivi d'un « 2 » ne numérote rien** — il occupe une ligne pour ne rien
+       distinguer, et cette ligne est exactement celle qui faisait déborder le
+       collecteur de son gabarit. */
+    const nom = slot.mot || (slots.length > 1
+      ? `${mot || "Choice"} ${slot.index + 1}`
+      : (mot || "Choice"));
     creneau.append(el("span", "glisse-creneau-nom", [text(nom)]));
     creneau.append(el("span", "glisse-creneau-valeur", [
       /* Le récepteur abrège comme le vivier : c'est la MÊME case, et un nom

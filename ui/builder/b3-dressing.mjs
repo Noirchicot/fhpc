@@ -49,7 +49,16 @@ export function construireLeDressing(options = {}) {
   const onAction = options.onAction || (() => {});
   const surBouton = options.surBouton || null;
 
-  const noeud = eld("section", "dressing");
+  /* 🔴 LE DRESSING PREND LE VOILE DU SITE — mesuré le 2026-08-26 : sa dalle
+     rendait `rgb(31, 28, 22)`, **opaque, sans canal alpha**, seule surface de
+     ce genre parmi les huit étapes. Elle contredisait la norme qu'Eric a
+     ratifiée le même jour : *« voilà c'est ça la norme du site en terme de
+     transparence : 50 % »*.
+     ⭐ ET LA CLASSE DÉCIDE, PAS UNE VALEUR RECOPIÉE : `dalle-intermediaire`
+     porte le 50 % au socle. Écrire la couleur ici ferait exactement ce que le
+     fond d'Identity a fait pendant six jours — dire « comme les autres » avec
+     un nombre qui cesse d'être vrai dès que les autres bougent. */
+  const noeud = eld("section", "dressing dalle-intermediaire");
 
   /* ── bande HAUTE — le titre, et rien d'autre ── */
   const titre = eld("h2", "dressing-titre", "Gear");
