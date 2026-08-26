@@ -36,44 +36,14 @@
   min-width: 0;
 }
 
-/* ── ⭐ LA CASE CÈDE, ET C'EST LA SEULE FAÇON DE TENIR TROIS COLONNES ──────
-   📏 MESURÉ AU NAVIGATEUR, Chrome 151, iframe à 360 × 553, le 2026-08-26 :
-     · le vivier d'un item de parcours fait **297** px ;
-     · deux gouttières `--touch` + deux `--sp-4` en coûtent **96** ;
-     · il reste **201**, et trois cases de 87 en demandent **277**.
-   ➡️ Sans cette règle, `flex: 0 0 var(--glisse-case)` (shell.css) refuse de
-   céder et la rangée retombe à **DEUX** par ligne — mesuré, pas déduit. Or
-   NORMES.md §1 quater tranche *« trois colonnes, toujours »*, et sa raison est
-   la position stable : *« un objet ne change pas de place selon l'écran »*.
-   Deux colonnes rendraient la pagination inutile par-dessus le marché : quinze
-   jetons sur deux colonnes pèsent 440 px, autant que les trente-et-un
-   d'aujourd'hui sur trois.
-
-   🔴 ⛔ ET CE N'EST PAS `flex: 0 1 var(--glisse-case)` — C'EST MESURÉ, PAS
-   DÉDUIT. Premier jet, écrit et rendu le 2026-08-26 : la case restait à 87 et
-   la rangée à DEUX par ligne. La raison est une loi du souple qu'on oublie :
-   **un conteneur qui enveloppe passe à la ligne AVANT de rétrécir.** Le
-   découpage en lignes se fait sur la taille hypothétique de chaque case ; le
-   `flex-shrink` ne travaille QUE sur une ligne déjà trop pleine. Trois cases
-   de 87 ne tenant pas dans 201, la troisième passe dessous — et personne ne
-   rétrécit. `flex-shrink` était donc une intention, pas un effet.
-
-   ⭐ CE QUI MARCHE : donner à la case une base qui est LE TIERS DE LA RANGÉE,
-   gouttières déduites. La ligne en contient trois par construction, quelle que
-   soit la largeur restante — il n'y a plus de calcul à réussir. `max-width:
-   var(--glisse-case)` (shell.css) reste et plafonne la case à 87 : elle cède
-   quand la place manque, elle ne s'étire jamais au-delà de son gabarit.
-   ⚠️ ET C'EST LA MÊME CONCESSION QU'À L'ÉQUIPEMENT, dont la grille écrit
-   `minmax(0, var(--fhpc-case-w))` et dont la case tombe de 87 à **75** à la
-   cible. Rien n'est inventé ici : c'est dit dans la grammaire du souple au
-   lieu de celle de la grille.
-   ⭐ `0 1` — ET LE ZÉRO EST LA MOITIÉ QUI COMPTE : `flex-grow` reste à zéro,
-   donc le centrage du reliquat (§5, *« on centre le dernier ou les deux
-   derniers »*) survit intact. Une case qui s'étire ne laisse rien à centrer.
-   🔴 CE QUE ÇA COÛTE, DIT PLUTÔT QUE MASQUÉ : la case d'un vivier paginé est
-   plus étroite que 87, donc `ABREGE_MAX = 16` (calibré sur 77 px utiles) n'y
-   promet plus rien. Le repli tient — `overflow-wrap: break-word` coupe le mot
-   au lieu de le sortir de sa case — mais la case grandit en HAUTEUR. */
-.choix-glisse .grille-rang > .glisse-vivier > li {
-  flex: 0 1 calc((100% - 2 * var(--sp-8)) / 3);
-}
+/* 🔴 CETTE RÈGLE EST PARTIE AU SOCLE — 2026-08-26. Elle vivait ici parce que
+   `shell.css` était tenu par un autre lot le jour où elle a été écrite ; sa
+   note disait *« elle est écrite pour se replier dans shell.css le jour où il
+   est libre »*. Il l'est, et elle s'y replie sous
+   `.choix-glisse .glisse-vivier > li`, GÉNÉRALISÉE à tous les viviers au lieu
+   des seuls paginés — Eric : *« sur écran large, fais idem que sur 360 »*.
+   ⛔ NE PAS LA REPOSER ICI : la même valeur écrite à deux endroits est une
+   divergence qui attend son tour. La borne des trois colonnes vit désormais
+   sur la RANGÉE (`max-width: 3 × --glisse-case + 2 × --sp-8`), pas sur la
+   case — `max-width` écrasait la base d'un tiers avant que la ligne ne soit
+   coupée, et il en tenait six à 1100 px. */

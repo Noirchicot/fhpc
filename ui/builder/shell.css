@@ -871,14 +871,54 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    que ce qui est le même ; ici ça a cessé de l'être.
    ⚠️ Universe n'est PAS touchée par cette ligne — elle garde exactement ce
    qu'elle avait. */
-.concept-step { background: var(--surface); }
+/* 🔴 ⛔ CETTE LIGNE EST TOMBÉE AVEC SA RAISON — retirée le 2026-08-26.
+   Eric : *« Identity n'a pas sa transparence »*.
+
+   ⭐ ELLE N'ÉTAIT PAS FAUSSE QUAND ELLE A ÉTÉ ÉCRITE, ET C'EST TOUT LE PIÈGE.
+   Le 20/08, Eric demandait *« mets-moi Identity à la même transparence que les
+   autres »* — et « les autres » étaient alors des `dalle-majeure` OPAQUES. La
+   règle disait donc « comme les autres » en écrivant `--surface`.
+   🔴 DEPUIS v298, « LES AUTRES » SONT À 50 %. La règle a continué de dire la
+   même chose pendant que son référent bougeait : elle rendait Identity opaque
+   au nom d'une ressemblance qui n'existait plus.
+
+   📌 LA LEÇON, ET ELLE VAUT POUR TOUTE LA FEUILLE : **une règle écrite par
+   RESSEMBLANCE à une autre doit nommer ce à quoi elle ressemble, pas recopier
+   sa valeur.** `background: var(--surface)` ne dit pas « comme les autres » —
+   il dit « opaque », et personne ne voit la différence tant que les autres ne
+   bougent pas. Identity porte déjà `dalle-intermediaire` dans le DOM : c'est
+   ELLE qui doit décider, et elle suit le site sans qu'on y revienne. */
 /* Le pied vient s'accrocher au bas de la dalle : elle porte déjà sa gouttière
    de 8, le rembourrage latéral du pied ferait double emploi. Et la marge
    automatique doit sauter, sinon elle absorbe la place libre et le bloc cesse
    de s'étirer (mesuré au collecteur : 169 px au lieu de 343). */
+/* 🔴 ET LA COLONNE DU `?` DOIT SURVIVRE À CE RACCOURCI — mesuré par le lot G
+   le 2026-08-26 : `padding` en raccourci **remet la droite à zéro**, donc
+   `padding-right: calc(--sp-16 + --touch)` de `.sortie` était effacé ici, et
+   la colonne réservée mesurait **0 px** sur le Menu et sur Identity.
+   ⛔ C'est le piège de la « déclaration perdante » — *une déclaration invalide
+   crie, une déclaration PERDANTE se tait* — repayé une troisième fois dans la
+   même journée, toujours par un raccourci écrit après une propriété longue.
+   ⭐ LA PARADE EST D'ÉCRIRE LES CÔTÉS SÉPARÉMENT : ce bloc ne veut retirer que
+   le rembourrage LATÉRAL de gauche (la dalle porte déjà sa gouttière) ; il n'a
+   jamais voulu toucher à la réserve de droite.
+
+   ⛔⛔ ET IL NE LA RÉÉCRIT PAS NON PLUS — mesuré sur la page rendue le
+   2026-08-26 : ma première correction posait ici `padding-right: calc(--sp-16
+   + --touch)`, et Identity réservait **60 px quand Destiny et Skills en
+   réservaient 52**. La réserve n'est pas une constante : `.sortie` la fixe à
+   60, et l'@media étroite la ramène à **52** *(--sp-8 + --touch)*. En la
+   recopiant ici je lui donnais une spécificité (0,0,2,0) qui battait l'@media
+   (0,0,1,0) — Identity cessait de suivre le site sur téléphone.
+   ⭐⭐ C'EST LA MÊME FAUTE QUE LE FOND JUSTE AU-DESSUS, à trois minutes
+   d'intervalle : **une règle qui RECOPIE une valeur au lieu de NOMMER sa
+   source ment dès que la source bouge.** Ici la source est `.sortie`, et la
+   façon de la nommer est de **ne rien écrire du tout** : sans raccourci pour
+   l'effacer, `padding-right` retombe sur elle, @media comprise. */
 .universe-step > .sortie,
 .concept-step > .sortie {
-  padding: var(--sp-16) 0 var(--sp-4);
+  padding-block: var(--sp-16) var(--sp-4);
+  padding-left: 0;
   margin-inline: 0;
 }
 /* ⭐ SEUL, `DONE` SE CENTRE — et la règle se lit sur le FAIT, pas sur l'écran :
@@ -3589,6 +3629,31 @@ button { font: inherit; }
    qu'aucune largeur soit écrite deux fois. Poser un nombre de chaque côté, ce
    serait deux nombres à tenir d'accord — et ils divergeraient au premier
    libellé long. */
+/* 🔴 TROIS COLONNES, TOUJOURS — Eric, 2026-08-26 : *« sur écran LARGE, fais
+   idem que sur 360 pour les tokens »*.
+
+   ⛔ CE QUE `flex-wrap` FAISAIT SEUL : *« autant que la ligne en porte »* — 3 à
+   360, **4 à 372**, 5 à 467. C'est la LOI A, qu'Eric a renversée le même jour
+   *(NORMES §1 quater)*. ⚠️ ET LA FAUTE NE SE VOYAIT PAS À 360 : trois cases de
+   87 y prennent 277 sur 278, le quatrième ne rentre pas. **Elle n'apparaissait
+   qu'à partir de 372 px — c'est-à-dire sur l'iPad, jamais sur le téléphone.**
+
+   ⭐ SA RAISON EST LA POSITION STABLE, et elle est écrite depuis le 23/08 :
+   *« un objet ne change pas de place selon l'écran »*. Une rangée qui se
+   remplit fait bouger le douzième jeton d'une ligne à l'autre entre un
+   téléphone et une tablette ; le joueur perd le seul repère qu'il a.
+
+   ⭐⭐ ET LA MÉCANIQUE EST CELLE QUE LE LOT A A MESURÉE : `flex-shrink` ne
+   suffit pas — *un conteneur qui enveloppe passe à la ligne AVANT de
+   rétrécir*. On donne donc à la case **un tiers de la rangée** comme base : la
+   ligne en contient trois PAR CONSTRUCTION, il n'y a plus de calcul à réussir.
+   `max-width: --glisse-case` (plus bas) la plafonne à 87 : elle cède quand la
+   place manque, elle ne s'étire jamais au-delà de son gabarit.
+
+   📌 CETTE RÈGLE VENAIT DE `listes.css`, où le lot A l'avait posée faute de
+   pouvoir écrire ici. Sa note disait : *« elle est écrite pour se replier dans
+   shell.css le jour où il est libre »*. Il l'est, et elle s'y replie —
+   généralisée à TOUS les viviers au lieu des seuls paginés. */
 .choix-glisse .glisse-vivier {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: var(--sp-8);
@@ -3705,6 +3770,36 @@ button { font: inherit; }
    pleines s'alignent d'elles-mêmes (mêmes cases, même largeur) ; seule la
    dernière, incomplète, se centre — et c'est ce qu'on lui demande. */
 .choix-glisse .glisse-vivier > li { display: flex; }
+/* 🔴 ET C'EST LA RANGÉE QU'ON BORNE, PAS LA CASE — mesuré sur la page rendue
+   avant d'y croire : ma première écriture donnait à chaque case `flex-basis:
+   (100% - 2 gouttières) / 3`, et à 1100 px le vivier en affichait **SIX par
+   ligne**. ⛔ LA RAISON EST UNE RÈGLE DU MODÈLE FLEXIBLE QU'IL FAUT CONNAÎTRE :
+   **`max-width` écrase `flex-basis` AVANT que la ligne ne soit coupée.** La
+   case porte `max-width: var(--glisse-case)` — son gabarit ratifié, 87 px, qui
+   ne se négocie pas — donc sa taille hypothétique valait `min(192, 87) = 87`,
+   et six y tenaient. La base d'un tiers ne servait à rien : elle était calculée
+   puis jetée.
+   ⚠️ ET ELLE SEMBLAIT MARCHER À 360, ce qui la rendait crédible : trois cases
+   y prennent 277 sur 278 disponibles, la quatrième ne rentre pas. **Ce n'était
+   pas ma règle qui tenait les trois colonnes, c'était l'étroitesse de
+   l'écran** — le témoin ne pouvait pas accuser.
+
+   ⭐ LA FORME JUSTE EST L'INVERSE : le gabarit de la case est intouchable, donc
+   c'est la RANGÉE qui doit valoir trois colonnes — `3 × 87 + 2 gouttières`.
+   Bornée là, elle en contient trois et coupe à la quatrième, à 360 comme à
+   1100 comme à 1600, sans qu'aucun calcul n'ait à réussir.
+   `margin-inline: auto` la recentre dans la place qu'on lui laisse. */
+.choix-glisse .glisse-vivier {
+  max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8));
+  margin-inline: auto;
+}
+/* ⭐ Et la case garde de quoi CÉDER sous 360 (téléphones étroits) : une base
+   d'un tiers que `max-width` plafonne à 87 — jamais plus large que son
+   gabarit, jamais plus de trois par ligne puisque la rangée les compte. */
+.choix-glisse .glisse-vivier > li {
+  flex: 0 1 calc((100% - 2 * var(--sp-8)) / 3);
+  min-width: 0;
+}
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
   /* 🔴 LA COTE STANDARD VAUT POUR TOUTE LA LIGNE — Eric, 2026-08-19 : *« donc
