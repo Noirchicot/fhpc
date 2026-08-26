@@ -1125,6 +1125,26 @@ l'on sait la retrouver.
 désactivation = « plus jamais, et c'est dans le menu ». **La seconde est la seule qui survit au
 personnage suivant.**
 
+### ✅ SON ASPECT — tranché 26/08
+
+> Eric : *« le `?` **en parchemin quand jamais vu**, juste **un cercle quand consommé** »*.
+
+| l'état du guide | le `?` |
+|---|---|
+| **jamais vu** | 📜 **plein, en parchemin** — il **appelle** |
+| **déjà vu** | ⭕ **un simple cercle** — contour seul, il **attend** |
+
+⭐⭐ **C'est la loi du voyant de la ceinture, appliquée à un autre organe** : *un anneau se lit
+« en cours », un disque PLEIN se lit « fait »*. Ici : **plein = il y a quelque chose pour toi**,
+**contour = tu l'as lu, je reste là**.
+
+⭐ **Et il n'emprunte AUCUNE couleur de l'échelle.** Le vert avait été envisagé puis écarté : dans
+l'échelle il dit *« fini »*, ce qui est **l'inverse** de *« jamais vu »*. **Le parchemin ne veut
+dire qu'une chose — le guide.**
+
+⛔ **Et ça ne crie pas.** Le guide est **optionnel** : un `?` en couleur de signal réclamerait
+l'attention qu'il a précisément **le droit de ne pas prendre**.
+
 ---
 
 ## 8. AUTRES ORGANES ET TEXTES
