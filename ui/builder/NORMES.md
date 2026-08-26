@@ -566,7 +566,12 @@ pas* — celle-ci ne vivait même pas là.
 à 35 % rend `#74493b` de nuit — un brun.
 
 ⛔ **Un bouton ne porte JAMAIS l'habit d'une dalle** — c'est ce qui les rendait anonymes.
-*(Dette connue : `.species-done` porte encore `--dalle-inter`.)*
+
+✅ **LA DETTE EST PAYÉE — remesurée le 2026-08-26.** Cette ligne annonçait que `.species-done`
+portait encore `--dalle-inter`. **C'est faux** : il porte `--bouton-fond: var(--text-muted)` et le
+patron octogone à deux étages, exactement comme `.parcours-item-porte` et `.parcours-pied button`.
+⭐ **Une dette recopiée n'est pas une dette vérifiée** — celle-ci a survécu à sa propre réparation
+parce que personne n'avait refait la mesure.
 
 ### ✅ L'OMBRE DU BOUTON DEVIENT UNE LUEUR LA NUIT — tranché 26/08
 
