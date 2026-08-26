@@ -2894,6 +2894,26 @@ function surUneRacineQuiBranche() {
 }
 
 function renderSortieEtape() {
+  /* 🔴 UNE ÉTAPE VALIDÉE NE PRODUIT PLUS DE `Done` — Eric, 2026-08-26, capture
+     à l'appui : *« y'a un Done dans le vide après validation de Identity »*.
+
+     📏 REPRODUIT ET MESURÉ (375 × 553) : la carte-bilan portait
+     `I changed my mind` · `Next` · `?`, et **88 px plus bas, sur le fond nu,
+     un `Done`** que plus rien ne reliait à l'écran.
+
+     ⛔ ET CE N'ÉTAIT PAS QU'UN DÉFAUT DE PLACEMENT — c'est ce qui rend ce
+     correctif différent de celui de Destiny, où il suffisait de déclarer un
+     hôte. Ici `Done` et `Next` étaient à l'écran EN MÊME TEMPS, ce que la
+     norme écrite le matin même interdit : *« ils ne coexistent jamais — c'est
+     le même moment vu avant et après »* (§6, les trois verbes d'Eric).
+     ⭐ L'étape est validée : **il n'y a plus rien à valider**. Le déplacer dans
+     la carte aurait donc rangé un bouton qui n'a plus d'office ; on le retire.
+
+     ⚠️ ET LE BILAN N'EST PAS DÉMUNI POUR AUTANT : ses deux portes sont
+     produites par `parcours-ecrans.mjs`, dans sa propre rangée — `I changed my
+     mind` pour défaire, `Next` pour avancer. C'est exactement la ligne
+     « validée » de la table de la norme. */
+  if (estConfirme(state.document, STEPS[state.step].id)) return null;
   /* B9 — Review est la DESTINATION : aucun pas suivant, donc pas de porte.
      Un bouton mort au bas de la dernière page ne dirait rien à personne. */
   if (STEPS[state.step].id === "review") return null;
