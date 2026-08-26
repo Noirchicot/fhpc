@@ -319,7 +319,27 @@ export function renderConceptStep(ctx, onAction) {
 
      📌 EN ATTENDANT, LE LIVRE OUVRE LA SECTION SRD, et ce n'est plus un
      pis-aller : c'est une source datée, versionnée, avec son attribution — pas
-     deux phrases écrites par l'interface. */
+     deux phrases écrites par l'interface.
+
+     ✅⭐ ET « PAR DÉFAUT SUR FH, SINON SRD » EST DÉJÀ CE QUE FAIT CE CODE —
+     Eric, 2026-08-26 : *« par défaut sur FH, sinon SRD »* · *« ça c'est si on
+     a fait le choix FH au début »*. Rien à câbler, et c'est vérifié :
+
+       · le livre interroge la pile **PLIÉE** (`query`), jamais une couche
+         nommée — il suit donc le choix `SRD` / `SRD + FH` du Menu, qui monte
+         ou non les sept couches `fh-*` ;
+       · le pli applique *« le dernier qui parle gagne »* (`stack.mjs`), et les
+         couches FH sont montées APRÈS le SRD : une entrée FH de même id
+         l'emporte, automatiquement.
+
+     ⛔ CE QUI MANQUE N'EST DONC PAS DU CODE, C'EST DU CONTENU — mesuré le
+     26/08 : les **sept** couches `fh-*` portent **zéro** entrée de glossaire.
+     Le texte FH sur l'alignement existe, mais dans le LIVRE PUBLIÉ
+     (`fh-phb/docs/chapters/identity.md`, `## Your alignment`), pas dans une
+     couche. Le jour où il y entre, ce livre le servira sans qu'on touche à cet
+     écran — et le joueur en `SRD` seul continuera de voir le SRD.
+     ⚠️ ⛔ NE PAS RECOPIER CE TEXTE ICI EN ATTENDANT : ce serait refaire
+     exactement la faute que ce lot répare. */
   /* 🔴 `Rules` EST DEVENU UN LIVRE, DANS LA RANGÉE — Eric, 2026-08-26 :
      *« Rules dégage sous forme d'un livre dans la rangée de boutons »*.
 
