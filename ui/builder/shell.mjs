@@ -1458,7 +1458,16 @@ function renderStepContent() {
      se lire sur l'élément, sinon personne ne sait quel régime porte un
      écran. Majeure parce qu'un écran dense porte des libellés en
      `--text-muted` — voir la matrice en tête de `shell.css`. */
-  const card = el("section", "decision-card dalle-majeure");
+  /* 🔴 LE FOND NE PORTE AUCUN VOILE — Eric, 2026-08-26 : *« le fond n'a pas de
+     voile · la dalle voile 35 % »*. `.decision-card` EST le fond de chaque
+     écran : elle ne peint plus rien, elle ne garde que sa FORME (liseré,
+     rayon, rembourrage). Ce sont les dalles posées dessus qui peignent, à 35 %,
+     et une seule fois — c'est §4 appliqué à la lettre : *« jamais deux voiles
+     empilés → pas de conteneur d'écran, des dalles autonomes »*.
+     ⛔ ELLE NE PORTE PLUS `dalle-majeure`, et c'est le point : tant qu'elle la
+     portait, tout voile posé dessus s'ajoutait à un fond opaque — le fond
+     d'image n'atteignait jamais l'œil. */
+  const card = el("section", "decision-card");
   /* ⭐ TROUVÉ EN REGARDANT LA PAGE, PAS EN LISANT UN TEST : la feuille de
      style du lot attendait `[data-bleed]` pour donner sa hauteur à la
      chaîne des fiches de classe, et personne ne l'écrivait — les 935 tests
@@ -1835,7 +1844,14 @@ function renderStepContent() {
     const fiches = card.querySelectorAll(".fiche-dalle");
     const hotes = fiches.length > 0
       ? Array.from(fiches)
-      : [card.querySelector("[data-objet='dalle'], .dalle-majeure, .dalle-intermediaire")];
+      /* ⭐ `dalle-simple` EST ENTRÉE DANS CETTE LISTE le 2026-08-26, et il le
+         fallait : les dalles d'écran sont passées de `majeure` à `simple`
+         quand le fond a cessé de peindre. Sans elle, ce chercheur serait
+         devenu muet — il aurait rendu `null` et le `?` aurait disparu des
+         écrans sans qu'aucun test ne le dise. Une absence n'est jamais une
+         réponse. Les deux anciens habits restent listés : le bouton garde
+         `majeure` (§4), et l'état actif garde `intermediaire`. */
+      : [card.querySelector("[data-objet='dalle'], .dalle-simple, .dalle-majeure, .dalle-intermediaire")];
     for (const hote of hotes) {
       if (hote) hote.append(renderPointInterrogation(applyDecisionAction));
     }

@@ -619,12 +619,28 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    la carte, les boutons Back/Continue et la barre du plan — les trois sont
    partis : `Back` n'existe plus (I.5), `Continue` est devenu l'unique
    `Validate` de la ligne de commande (I.3), et `Show plan` y a suivi. */
-/* ⭐ `.decision-card` EST UNE DALLE MAJEURE, et la classe le dit maintenant
-   dans le DOM (`shell.mjs`, `renderStepContent`). Pourquoi majeure et pas
-   intermédiaire : elle porte des libellés en `--text-muted`, des bordures de
-   contrôle et des champs — la matrice ci-dessus les interdit sur du verre.
-   Son fond vient donc de `.dalle-majeure` ; cette règle-ci ne pose plus que
-   sa forme. */
+/* 🔴 `.decision-card` EST LE FOND, ET UN FOND NE PEINT RIEN — Eric,
+   2026-08-26 : *« le fond n'a pas de voile · la dalle voile 35 % »*.
+   ⛔ CECI RENVERSE LA NOTE DU LOT 59, qui vivait ici et disait l'inverse
+   (*« elle EST une dalle majeure… son fond vient de `dalle-majeure` »*).
+   Sa raison était bonne dans son monde : *« elle porte des libellés en
+   `--text-muted` — la matrice ci-dessus les interdit sur du verre »*. Mais
+   elle traitait le FOND comme une dalle, et c'est ce que §4 interdit :
+   *« jamais deux voiles empilés → pas de conteneur d'écran, des dalles
+   autonomes »*. Un fond opaque sous des dalles voilées, c'est un voile qui
+   ne montre rien.
+
+   📏 CE QUE LA MESURE A DIT AVANT LE CHANGEMENT (§0, six étapes parcourues au
+   navigateur) : si le fond cesse de peindre, **quatre nœuds de texte** en tout
+   se retrouvent directement sur l'image — deux sur Abilities en `--text`
+   (l'encre qui survit au verre) et deux sur Skills en `--text-muted`
+   (celle que la matrice interdit). ⭐ La note du lot 59 avait donc raison sur
+   l'existence du risque, et se trompait sur son AMPLEUR : elle a rendu tout un
+   fond opaque pour deux lignes. Ces deux-là sont traitées à leur place,
+   `.skills-pooldetail-line`, pas en repeignant l'écran.
+
+   ⛔ Cette règle ne pose donc plus que la FORME : liseré, rayon, rembourrage,
+   marge. Aucun `background`. */
 .decision-card {
   border: 1px solid var(--border); /* décorative : le contour d'une carte, aucune cible de contraste (§3b) */
   border-radius: var(--radius-md);
