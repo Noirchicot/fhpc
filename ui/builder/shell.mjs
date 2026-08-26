@@ -31,6 +31,7 @@ import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ET
 import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=302";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
+  guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
 } from "./tutoriel.mjs?v=302";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
@@ -821,20 +822,41 @@ function applyDecisionAction(action) {
   if (action.kind === "tutoBascule") { setTutorielActif(Boolean(action.value)); refresh(); return; }
   if (action.kind === "tutoCompris") { setGeneralVu(true); refresh(); return; }
   if (action.kind === "tutoDesactiver") { setTutorielActif(false); refresh(); return; }
-  /* Le « ? » rallume les deux : celui qui le cherche est perdu, et lui rendre
-     le seul tutoriel spécifique le laisserait sans le mode d'emploi général. */
+  /* ══ LE `?` OUVRE LE GUIDE DE L'ÉTAPE — §7, sorti du standby le 26/08 ═════
+     Eric : *« le point d'entrée au guide `?` doit être fait par contre »*.
+     Une aide OPTIONNELLE, en POPUP-parchemin (*« le guide est un popup, il ne
+     vit jamais dans le flux »*), qu'on congédie d'un tap dehors.
+
+     ⛔ IL NE BASCULE PLUS LA PRÉFÉRENCE DE TUTORIEL, et c'est un changement
+     qu'il faut lire en entier. Ce geste faisait `setTutorielActif(true)` +
+     `setGeneralVu(false)` — c'est-à-dire qu'il RALLUMAIT DE FORCE une
+     préférence que le joueur venait peut-être d'éteindre, et qu'il rejouait le
+     tutoriel d'accueil depuis le début. Mesuré à 360 : sur neuf écrans sur
+     dix, ces deux écritures ne changeaient RIEN À L'ÉCRAN — seule Identity
+     rend encore des dalles de tutoriel. Le `?` était donc un bouton qui, vu du
+     joueur, ne faisait rien, et qui, vu du réglage, défaisait son choix.
+
+     ✅ ET `Turn tutorials off` RESTE RÉVERSIBLE — la seconde moitié existe
+     depuis le 19/08 : Menu › Tutorials, l'interrupteur de `universe-step.mjs`,
+     nommé et trouvable. C'est lui le filet de sécurité, pas ce bouton-ci.
+     Vérifié au rendu : l'interrupteur bascule On/Off et le tutoriel d'Identity
+     revient avec lui.
+
+     ⛔ ET IL N'OUVRE RIEN QUAND IL N'Y A RIEN — même garde que la pose du `?`
+     dans `renderCard`, même lecteur (`guideDeLEtape`). Un `?` sans guide n'est
+     pas censé exister ; s'il existait quand même, il ne mentirait pas deux
+     fois. */
   if (action.kind === "tutoRouvrir") {
-    /* §7 (26/08) — sur l'Équipement, le `?` ouvre le VRAI guide : une aide
-       OPTIONNELLE, en POPUP-parchemin (« le guide est un popup — il ne vit
-       jamais dans le flux »), qu'on congédie d'un tap dehors. Les autres
-       étapes gardent leur mécanique de tutoriel en attendant leur migration.
-       ⏳ Texte-brouillon (le mien), à corriger par Eric. */
-    if (STEPS[state.step] && STEPS[state.step].id === "equipment") {
-      state.popup = { titre: "Gear", role: "guide", texte: GUIDE_EQUIPEMENT };
-      refresh();
-      return;
-    }
-    setTutorielActif(true); setGeneralVu(false); refresh(); return;
+    const guide = guideDeLEtape();
+    if (!guide) return;
+    /* 🔴 VU AVANT MONTRÉ, ET DANS CET ORDRE. `refresh()` redessine le `?` :
+       marquer après aurait laissé un parchemin plein au-dessus d'un guide
+       ouvert, jusqu'au prochain redessin. L'aspect doit être vrai à l'instant
+       où le joueur regarde. */
+    setGuideVu(guide.etape);
+    state.popup = { titre: guide.titre, role: "guide", texte: guide.texte };
+    refresh();
+    return;
   }
 
   if (action.kind === "parcoursItem") {
@@ -1840,7 +1862,12 @@ function renderStepContent() {
      Ailleurs, rien ne change : une seule, sur la première dalle.
      ⛔ ET TOUJOURS PAS SUR UN TUTORIEL : proposer d'ouvrir ce qu'on lit est du
      bruit. */
-  if (!card.querySelector(".tuto-general, .tuto-specifique")) {
+  /* 🔴 BORNÉ AUX ÉCRANS QUI ONT UN GUIDE — §7 : *« un `?` qui n'ouvre rien
+     apprend à ne plus le regarder »*. La table `GUIDES` décide, et elle décide
+     aussi pour `tutoRouvrir` : un seul lecteur, donc pas de divergence
+     possible entre le bouton posé et l'action qui répond. */
+  const guide = guideDeLEtape();
+  if (guide && !card.querySelector(".tuto-general, .tuto-specifique")) {
     const fiches = card.querySelectorAll(".fiche-dalle");
     const hotes = fiches.length > 0
       ? Array.from(fiches)
@@ -1851,9 +1878,30 @@ function renderStepContent() {
          écrans sans qu'aucun test ne le dise. Une absence n'est jamais une
          réponse. Les deux anciens habits restent listés : le bouton garde
          `majeure` (§4), et l'état actif garde `intermediaire`. */
-      : [card.querySelector("[data-objet='dalle'], .dalle-simple, .dalle-majeure, .dalle-intermediaire")];
+      /* ⛔ `:not(button)` — UN `?` NE SE POSE PAS DANS UN BOUTON, et ce n'est
+         pas une précaution de principe : mesuré à 360 sur DESTINY, la première
+         dalle de l'écran est `button.card-face` (la carte qu'on retourne). Le
+         `?` y était donc un `<button>` DANS un `<button>` — du HTML invalide,
+         et surtout un clic qui remonte : demander l'aide RETOURNAIT LA CARTE.
+         Avec l'exclusion, l'hôte devient `section.card-reveal`, juste dessous. */
+      : [card.querySelector(":is([data-objet='dalle'], .dalle-simple, .dalle-majeure, .dalle-intermediaire):not(button)")
+         /* 🔴 L'ÉCRAN LUI-MÊME, QUAND IL NE DESSINE AUCUNE DALLE — et ce n'est
+            pas une hypothèse : l'ÉQUIPEMENT est dans ce cas depuis le virage
+            B3 du 23/08 (*« dégage tout ce que je vois à l'écran »*). Mesuré à
+            360 : `section.equipment-step` et rien d'autre, zéro dalle, donc
+            zéro `?` — c'est-à-dire que le SEUL guide déjà écrit dans ce dépôt
+            était injoignable, et l'a été trois jours sans qu'un test le dise.
+            ⛔ Et la retombée s'arrête à une `section` : un `<p class=
+            "placeholder">` (« Loading the engine… ») n'est pas un hôte, et un
+            `?` posé sur un écran en charge serait à nouveau un bouton posé sur
+            rien. Une absence n'est jamais une réponse — ici on la NOMME. */
+         || card.querySelector("section")];
+    /* L'aspect est décidé UNE FOIS pour l'étape et passé à chaque `?` : sur un
+       catalogue, les fiches en portent une chacune (leçon des cinq dons du
+       20/08), et deux `?` de la même étape ne peuvent pas se contredire. */
+    const vu = guideVu(guide.etape);
     for (const hote of hotes) {
-      if (hote) hote.append(renderPointInterrogation(applyDecisionAction));
+      if (hote) hote.append(renderPointInterrogation(applyDecisionAction, { vu }));
     }
   }
   return card;
@@ -2253,12 +2301,125 @@ const TUTO_GENERAL = {
   chute: "You can reopen this whenever you like: the small ? in the corner of a panel brings it back."
 };
 
-/* Le guide de l'Équipement — l'aide optionnelle du `?` (§7, popup parchemin). */
-const GUIDE_EQUIPEMENT =
-  "The dressing shows what your character wears and carries.\n" +
-  "Equipment opens the catalogue: turn the two wheels, tap an item for its card, " +
-  "drag it onto a target to act at once.\n" +
-  "The cart gathers purchases; BUY pays once for everything.";
+/* ══ LES GUIDES — l'aide OPTIONNELLE du `?` (NORMES §7, popup parchemin) ════
+   🔴 UN GUIDE PAR ÉTAPE, DANS UNE SEULE TABLE. C'est ce que §7 sort
+   expressément du standby — Eric, 26/08 : *« le point d'entrée au guide `?`
+   doit être fait par contre »*, et le §7 précise : *« le popup-parchemin porté
+   aux étapes qui ne l'ont pas encore »*.
+
+   📏 CE QUI EXISTAIT AVANT CETTE TABLE, MESURÉ AU NAVIGATEUR À 360 : le `?`
+   ouvrait un vrai guide sur **ZÉRO écran sur dix**. Le code n'en câblait qu'un
+   (l'Équipement), et l'Équipement — seul écran sans dalle depuis le virage B3
+   du 23/08 — ne portait **aucun `?`**. La seule aide existante était donc
+   injoignable, et les neuf autres `?` ne faisaient rien du tout : ils
+   rallumaient deux préférences de tutoriel qu'aucun de ces écrans ne rend.
+   ⭐ ⛔ « Un `?` qui n'ouvre rien apprend à ne plus le regarder » (§7) — c'est
+   exactement l'état qu'on avait, sur neuf écrans.
+
+   ⛔ LA TABLE EST LA CLEF DU BORNAGE : une étape absente d'ici n'a pas de
+   guide, donc elle n'a PAS de `?` (voir `renderCard`). C'est la seule façon
+   d'empêcher un `?` orphelin de renaître — le bornage ne se surveille pas, il
+   se rend impossible.
+
+   ⏳ LES TEXTES SONT DES BROUILLONS — les miens, pas ceux d'Eric, comme
+   `TUTO_GENERAL` juste au-dessus. Ils vivent ICI, à un seul endroit, et se
+   corrigent ici. Ils sont écrits sur ce que les écrans FONT, relevé au
+   navigateur, pas sur ce que je croyais qu'ils faisaient.
+
+   ⚠️ UN GUIDE EST OPTIONNEL, DONC IL NE RÉCLAME RIEN (§7) : pas d'impératif
+   qui commande, pas de mise en garde. Ce qui EXIGE une réponse est un
+   aiguilleur, ce qui DIT L'ERREUR est un gendarme — deux autres organes, tous
+   deux en standby. ⛔ Ne pas glisser l'une de ces deux voix dans cette table. */
+const GUIDES = {
+  universe: {
+    titre: "Menu",
+    texte:
+      "The menu holds what frames the whole character, not the character itself.\n" +
+      "Rules picks the layer stack: SRD alone, or SRD plus Fate's Hand.\n" +
+      "Tutorials can be switched off here, and switched back on in the same place.\n" +
+      "The character is kept in this browser; export it from the sheet to keep a copy."
+  },
+  concept: {
+    titre: "Identity",
+    texte:
+      "Identity settles who the character is. None of it touches the rules.\n" +
+      "Only the name is really asked of you — gender and alignment can wait.\n" +
+      "Nothing here is final: you can come back to this step at any time."
+  },
+  species: {
+    titre: "Species",
+    texte:
+      "The rail on the left lists the species; the panel shows one at a time.\n" +
+      "What the species grants on its own is displayed as it is — nothing to settle there.\n" +
+      "What it asks of you is listed as openable lines: open each one and mark it Done.\n" +
+      "I changed my mind releases the species and gives the rail back."
+  },
+  background: {
+    titre: "Inheritance",
+    texte:
+      "Inheritance is what the character carries from where they come from.\n" +
+      "Three lines ask something of you: ability boosts, languages, and an origin feat.\n" +
+      "The origin feat opens its own catalogue, one feat card at a time.\n" +
+      "Done tells you what is still missing rather than going grey on you."
+  },
+  destiny: {
+    titre: "Destiny",
+    texte:
+      "A card is drawn for you. It carries an impact, a meaning, a power and a vibration.\n" +
+      "Draw again is unlimited — nothing is spent by looking further.\n" +
+      "Choose yourself picks a card instead of drawing one."
+  },
+  class: {
+    titre: "Class",
+    texte:
+      "The rail on the left lists the classes; the panel shows one at a time.\n" +
+      "What the class grants at level 1 is displayed as it is — nothing to settle there.\n" +
+      "What it asks of you is listed as openable lines: open each one and mark it Done.\n" +
+      "I changed my mind releases the class and gives the rail back."
+  },
+  abilities: {
+    titre: "Abilities",
+    texte:
+      "Pick one generation method before anything else — the rest of the step follows from it.\n" +
+      "INFO opens what separates the methods, side by side.\n" +
+      "The six scores only become the character's once the step is settled."
+  },
+  skills: {
+    titre: "Skills",
+    texte:
+      "Skills are bought from a pool, and the counter above the list says what is left.\n" +
+      "Three tiers, in this order: Novice, then Adept, then Expert.\n" +
+      "A skill already granted by species or class is shown as placed — it costs nothing.\n" +
+      "Nothing is locked: a point taken back returns to the pool."
+  },
+  equipment: {
+    titre: "Gear",
+    texte:
+      "The dressing shows what your character wears and carries.\n" +
+      "Equipment opens the catalogue: turn the two wheels, tap an item for its card, " +
+      "drag it onto a target to act at once.\n" +
+      "The cart gathers purchases; BUY pays once for everything."
+  },
+  review: {
+    titre: "Sheet",
+    texte:
+      "The sheet gathers everything settled so far, step by step.\n" +
+      "A line that still misses something says so, and leads back to its step.\n" +
+      "Expert view opens the full sheet; Export JSON and Export HTML take a copy out of this browser."
+  }
+};
+
+/** Le guide de l'étape COURANTE, ou `null` si elle n'en a pas.
+ *  🔴 C'EST LE SEUL LECTEUR DE `GUIDES`, et les deux organes du `?` — celui
+ *  qui l'OUVRE (`tutoRouvrir`) et celui qui le POSE (`renderCard`) — passent
+ *  tous les deux par lui. Deux lectures séparées auraient pu diverger : un
+ *  écran aurait porté un `?` que l'action refusait d'ouvrir, ou l'inverse, et
+ *  rien n'aurait crié. */
+function guideDeLEtape() {
+  const etape = STEPS[state.step] ? STEPS[state.step].id : null;
+  const guide = etape ? GUIDES[etape] : null;
+  return guide ? { etape, titre: guide.titre, texte: guide.texte } : null;
+}
 
 const TUTO_IDENTITY = {
   titre: "Identity",

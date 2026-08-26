@@ -3409,6 +3409,48 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 
+/* 🔴 SES DEUX ASPECTS — §7, tranché le 26/08 ────────────────────────────────
+   Eric : *« le `?` **en parchemin quand jamais vu**, juste **un cercle quand
+   consommé** »*. Plein = *il y a quelque chose pour toi* · contour = *tu l'as
+   lu, je reste là*. C'est la loi du voyant de la ceinture, portée sur un autre
+   organe.
+
+   ⛔ AUCUNE COULEUR DE L'ÉCHELLE. Le vert avait été envisagé puis écarté :
+   dans l'échelle il dit *« fini »*, ce qui est l'INVERSE de *« jamais vu »*.
+   ⛔ ET ÇA NE CRIE PAS : le guide est optionnel, une couleur de signal
+   réclamerait l'attention qu'il a le droit de ne pas prendre. `--surface`,
+   c'est la famille `parchemin` elle-même — exactement ce que porte déjà
+   `.popup[data-role="guide"]`, qui ne signale rien non plus.
+
+   📏 LE DISQUE EST LE FOND DU BOUTON, PAS LE `::before`, et c'est une mesure
+   qui l'a décidé : le `::before` est `position: absolute` sans `z-index`, donc
+   il PEINT AU-DESSUS du texte en flux — un disque opaque posé là aurait effacé
+   le `?` lui-même. Un dégradé radial de 11 px de rayon (le `::before` fait
+   22 px de côté, donc le même cercle, au pixel) peint sous le glyphe sans
+   toucher à l'ordre de peinture. Le liseré, lui, reste sur le `::before` :
+   il est présent dans les DEUX états, c'est le cercle qui ne s'en va jamais. */
+.tuto-point[data-vu="non"] {
+  background: radial-gradient(circle 11px at 50% 50%, var(--surface) 96%, transparent 100%);
+}
+
+/* 🔴 LE `?` SE POSE SUR SON HÔTE — et sans cette ligne il ne le faisait pas.
+   📏 MESURÉ AU NAVIGATEUR À 360, AVANT (règle §0, « Google Headless ») :
+     · Abilities — hôte `.ability-methodes` à y 68, haut de 125 px ; le `?`
+       rendu à **y 748**, soit 655 px SOUS sa dalle, sur le fond nu ;
+     · Skills — hôte `.skills-group` à y 169 ; le `?` rendu à **y 4424**, tout
+       en bas d'un écran de 4,4 m de haut.
+   LA CAUSE : `position: absolute` remonte au premier ANCÊTRE POSITIONNÉ.
+   `.concept-step`, `.universe-step` et `.review-mask` sont `relative` depuis le
+   19/08 — et c'est exactement pour ça que le `?` était juste sur ces trois
+   écrans-là, et faux partout où l'on ne l'avait pas regardé.
+   ⭐ C'EST LE MÊME DÉFAUT QU'ERIC A TUÉ LE 19/08 (*« dégage tous les ? qui ne
+   sont pas à leur place »*) : il avait été réparé écran par écran, donc il est
+   revenu dès qu'un écran neuf a porté un `?`.
+   ✅ LA PARADE EST PORTÉE PAR L'ORGANE, PAS PAR L'ÉCRAN : la règle se lit sur
+   le FAIT — *« cet élément contient un `?` »* — et aucun nom d'écran n'y
+   figure. Un écran qui en portera un demain est réparé d'avance. */
+.stage :has(> .tuto-point) { position: relative; }
+
 /* LES DEUX MENUS COURTS D'IDENTITY — Eric : « champ à largeur limitée à 80/100
    pixels ». Un menu de neuf alignements n'a pas besoin de toute la ligne, et
    un champ large ment sur la longueur de ce qu'on y met. */
