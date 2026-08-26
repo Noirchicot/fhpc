@@ -1574,7 +1574,7 @@ inventé : on a étendu une recette qui marchait sur un écran à celle qui ne l
 |---|---|
 | **sa place** | **en bas à GAUCHE**, dans la colonne réservée de la rangée |
 | **sa cible** | 🔴 **`--touch` 44** — comme le `?`, comme tout ce qui se touche |
-| **son dessin** | un cercle de **28 px** *(le `?` en fait 22)* — Eric : *« quitte à agrandir un peu le cercle pour que ça ressemble à un livre »* |
+| **son dessin** | 🔴 **un cercle de 22 px — LA COTE EXACTE DU `?`** *(Eric, 26/08 : « le livre doit être dans un bouton rond, **même taille que `?`** »)* |
 | ⛔ **dessiné, pas écrit** | un glyphe 📖 change de forme selon la police installée et rend une couleur qui n'est pas la nôtre — même raison qu'au pouce de l'interrupteur *(§6)* |
 | **ce qu'il remplace** | le bouton **`LORE`** du pied de fiche, qui disparaît |
 
@@ -1585,6 +1585,33 @@ côte, ils disaient qu'ils se valaient. ➡️ **⭕ à gauche on LIT · le bout
 
 ⚠️ **Un organe sans texte doit se NOMMER** : `aria-label`, sinon il disparaît de la page pour qui ne
 voit pas le dessin. Le garde l'exige.
+
+### 🔴 LA PAIRE — les deux ronds encadrent la rangée *(tranché 26/08)*
+
+> Eric, 2026-08-26 : *« ils sont tous deux **cadrés à gauche et à droite de la rangée de
+> boutons** »* · *« le livre n'est pas toujours câblé, **il le sera** »*.
+
+| | |
+|---|---|
+| **la même cote** | 🔴 **22 px de dessin, 44 de cible**, des deux côtés |
+| **la même place** | aux **deux bouts de la rangée de boutons**, dans les colonnes réservées |
+| ⛔ **hors du centrage** | les boutons se centrent sur ce qui reste entre eux |
+
+⭐⭐ **L'ÉGALITÉ EST CE QUI FAIT LA PAIRE, et ce n'est pas décoratif** : deux ronds de tailles
+différentes aux deux bouts d'une rangée se lisent comme **deux objets sans rapport**. À la même cote,
+ils se lisent comme **les deux bornes d'un même geste** — ⭕ à gauche on **LIT** · au centre on
+**AGIT** · ⭕ à droite on demande de l'**AIDE**.
+
+⚖️ **ET LE LIVRE PEUT EXISTER SANS ÊTRE CÂBLÉ** *(Eric, le même jour)*. ⛔ C'est une **exception
+nommée** à la règle du `?` — *« un `?` qui n'ouvre rien apprend à ne plus le regarder »* — et elle
+ne vaut QUE pendant la construction. ⏳ Un livre qui n'ouvrirait toujours rien le jour où le reste
+est fini serait le défaut que cette règle-là interdit.
+
+⏳ **CE QUI RESTE À FAIRE, mesuré par le lot G le 26/08** : la rangée réserve bien sa colonne, mais
+**elle est vide sur les dix écrans** — le `?` vit encore au coin bas-droit d'une dalle *(règle du
+19/08)*, et **cinq écrans sur dix n'ont aucune rangée**. Le déplacer demande de changer l'ordre de
+rendu *(la rangée est posée APRÈS la carte, le `?` ne peut pas la voir depuis là)* et de répondre
+pour les cinq écrans sans rangée. **C'est un lot, pas une retouche.**
 
 ---
 

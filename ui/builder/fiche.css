@@ -541,15 +541,30 @@
   border: 0; background: transparent; color: var(--text-soft);
   padding: 0; cursor: pointer;
 }
+/* 🔴 **22 px, LA COTE EXACTE DU `?`** — Eric, 2026-08-26 : *« le livre doit
+   être dans un bouton rond, **même taille que `?`** »*.
+   ⛔ CECI CORRIGE MA LECTURE. Il avait dit *« quitte à agrandir un peu le
+   cercle pour que ça ressemble à un livre »* et j'en avais fait **28**. Sa
+   phrase autorisait un agrandissement, elle ne le commandait pas — et il
+   tranche maintenant l'égalité.
+   ⭐ ET L'ÉGALITÉ EST CE QUI FAIT LA PAIRE : deux ronds de tailles différentes
+   aux deux bouts d'une rangée se lisent comme deux objets sans rapport. À la
+   même cote, ils se lisent comme **les deux bornes d'un même geste** —
+   ⭕ à gauche on LIT · ⭕ à droite on demande de l'AIDE.
+   📌 La cible, elle, ne bouge pas : `--touch` 44 des deux côtés. C'est le
+   DESSIN qui s'aligne, pas la zone. */
 .fiche-livre::before {
-  content: ""; position: absolute; width: 28px; height: 28px; border-radius: 999px;
+  content: ""; position: absolute; width: 22px; height: 22px; border-radius: 999px;
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 /* Le livre lui-même : une couverture, et le DOS au milieu. Le dos est ce qui
    le distingue d'un simple rectangle — sans lui on lit une fenêtre. */
 .fiche-livre::after {
   content: ""; position: relative;
-  width: 15px; height: 12px;
+  /* 📐 Le livre suit son cercle : 15 × 12 tenaient dans 28, il en faut 12 × 10
+     dans 22 — même rapport, même respiration au bord. ⛔ Garder 15 aurait fait
+     toucher le trait au liseré du rond. */
+  width: 12px; height: 10px;
   border: 1.5px solid currentColor;
   border-radius: 1px;
   background: linear-gradient(to right,
