@@ -1151,6 +1151,45 @@ par diverger — c'est la faute des deux échelles typographiques que le dépôt
 FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défait** ne doit jamais
 pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
 
+### 🔴 LES TROIS VERBES DE LA RANGÉE — la définition d'Eric, mot pour mot *(26/08)*
+
+> Eric, 2026-08-26, en trois lignes :
+> **« `Done` valide les choix · `I changed my mind` les annule · `Next` : navigation »**
+
+| le bouton | ce qu'il FAIT | ce qu'il ne fait pas |
+|---|---|---|
+| **`Done`** | **valide** les choix de l'étape | ⛔ il ne fait pas avancer |
+| **`I changed my mind`** | **annule** ces choix | ⛔ il ne recule pas — il DÉFAIT |
+| **`Next`** | **navigation**, rien d'autre | ⛔ il ne valide rien |
+| **`Back`** | **navigation**, et **UNIQUEMENT dans les sous-menus** | ⛔ il n'existe pas au rang R |
+
+🔴 **`Back` NE PARAÎT JAMAIS À L'ENTRÉE D'UNE ÉTAPE** — Eric, 2026-08-26 : *« le
+`back` c'est uniquement dans les sous-menus »*. Au rang **R**, on ne revient de
+nulle part : la ceinture d'étapes EST la navigation de ce niveau. ✅ **Déjà
+câblé, vérifié dans la source** : `renderSortieEtape` ne produit un retour que
+si `state.palier > 1` ou si l'on est dans un item de parcours — donc jamais à
+l'entrée. La norme ne change rien ici, **elle nomme ce que le code faisait déjà
+sans que ce soit écrit**, ce qui est exactement ce qui permet à un lot de ne pas
+le défaire par erreur.
+
+⭐ **CE QUE CETTE TABLE RÈGLE, ET QUI N'ÉTAIT PAS ÉCRIT** : pourquoi `Done` et
+`Next` ne coexistent jamais. Ce ne sont pas deux façons d'avancer — c'est **le même
+moment vu avant et après**. Tant que les choix ne sont pas validés, la rangée offre
+de VALIDER ; une fois validés, il n'y a plus rien à valider et elle offre de
+NAVIGUER. D'où la séquence, qu'Eric a lui-même reformulée en question :
+
+| où l'on est | l'étape est… | la rangée porte |
+|---|---|---|
+| **rang R** *(entrée)* | en cours | `I changed my mind` · **`Done`** |
+| **rang R** *(entrée)* | validée | `I changed my mind` · **`Next`** |
+| **sous-menu** *(B, SB)* | — | **`Back`** · `Done` — ⭐ c'est le SEUL endroit où `Back` paraît |
+
+⚠️ **ET `I changed my mind` NE BOUGE PAS ENTRE LES DEUX** : c'est la seule porte
+ouverte dans tous les états, celle qui défait. Elle reste rouge dans les deux
+*(§6, la famille « défaire »)*.
+
+---
+
 ### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
@@ -1882,6 +1921,7 @@ une : c'est un oubli qui se défend.
 |---|---|
 | **la même cote** | 🔴 **22 px de dessin, 44 de cible**, des deux côtés |
 | **la même place** | aux **deux bouts de la rangée de boutons**, dans les colonnes réservées |
+| **la même réserve** | 🔴 **autant à gauche qu'à droite** — c'est elle qui recentre les boutons *(ci-dessous)* |
 | ⛔ **hors du centrage** | les boutons se centrent sur ce qui reste entre eux |
 
 ⭐⭐ **L'ÉGALITÉ EST CE QUI FAIT LA PAIRE, et ce n'est pas décoratif** : deux ronds de tailles
@@ -1920,6 +1960,38 @@ doit pas l'être aussi pour un lecteur d'écran.
 **ABOVE** »* quand elle vivait SOUS la rangée. Remontée au-dessus *(Eric : « le texte devait être en
 haut », il recouvrait le `?`)*, **le même mot désignait la barre d'étapes**. ⛔ **Un déplacement peut
 rendre faux un texte qu'on n'a pas touché** : la phrase ne parlait pas d'elle-même, elle POINTAIT.
+
+---
+
+### ✅ LA RÉSERVE EST SYMÉTRIQUE, ET C'EST CE QUI CENTRE LES BOUTONS *(26/08, second temps)*
+
+> Eric, 2026-08-26, devant Identity : **« bien mais Done centré »**, puis **« fais
+> comme pour tous les panels »**.
+
+🔴 **Tant qu'un seul bout était occupé, le centrage était FAUX par construction.**
+Réserver la place du `?` à droite décalait le centre de la moitié de cette
+réserve — mesuré : `Done` tombait **26 px à gauche** du milieu de sa dalle. Ce
+n'était pas un réglage raté, c'était le prix assumé de la note du matin *(« il
+n'entre pas en conflit avec le centrage, il sera toujours collé à droite »)*.
+
+⭐ **DEPUIS QUE LE LIVRE TIENT LA GAUCHE, LES DEUX BOUTS SONT OCCUPÉS** — donc
+réserver **autant des deux côtés** (`padding-inline`) rend le centre du contenu
+égal au centre de la rangée. **Rien n'est arbitré : c'est de l'arithmétique.**
+
+📏 **Mesuré après correction** *(900 px)* : Identity `60/60`, écart **0** ·
+Species, Inheritance, Class `44/44`, écart **0**.
+
+⚠️ **DEUX PIEDS, UNE SEULE LOI.** `.sortie` *(Identity, Destiny, Skills)* et
+`.parcours-pied` *(Species, Inheritance, Class)* sont deux pieds **nés
+séparément** qui font le même métier ; ils avaient divergé sans que rien ne le
+dise. Le second réservait `0 / 44`. ⛔ **Deux implémentations d'un même organe
+sont une divergence qui attend son tour** — c'est la troisième fois de la journée
+que ce dépôt la paie *(voir aussi le `Done` à deux formes, §6)*.
+
+📌 **Les deux chiffres diffèrent, et c'est argumenté** : `.sortie` réserve
+`--sp-16 + --touch` au bas de la SCÈNE ; `.parcours-pied` réserve `--touch` seul,
+parce qu'il vit DANS une dalle qui porte déjà son rembourrage. ⭐ **Ce qui compte
+n'est pas le chiffre, c'est qu'il soit LE MÊME à gauche et à droite.**
 
 ---
 
