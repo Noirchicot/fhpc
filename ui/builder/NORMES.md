@@ -566,7 +566,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | type | couleur |
 |---|---|
 | ~~choix de mode~~ | 🔴 **CE N'EST PAS UN BOUTON** → voir *« l'interrupteur »* ci-dessous |
-| `done` *(étapes)* | 🟢 **VERT** — *« c'est fini »*. ⭐ Il **NE SIGNE RIEN** : c'est la **tuile** qui signe. `Done` dit « j'ai fini ici » et **remonte d'un cran** |
+| `done` *(étapes)* | 🟢 **VERT** — 🔴 **`Done` = VALIDATION** *(Eric, 26/08)*. Il **valide** ce qui est là, **puis remonte d'un cran** |
 | `next` *(étapes)* | 🔵 **BLEU** — *« on continue »* |
 | `next` d'alerte | **cadre rouge, corps bleu** → **popup** entre `done` et `next` |
 | **défaire** *(`Cancel`, « j'ai changé d'avis », « refaire mon perso »)* | 🔴 **rouge, TOUJOURS** → **popup** *(voir la famille « défaire »)* |
@@ -673,6 +673,30 @@ avec popup.
 
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
+
+### 🔴 LES TROIS VERBES — chaque famille de boutons en porte UN
+
+> Eric, 2026-08-26 : *« back et next = **navigation** uniquement »* · **« done = validation »**.
+
+| la famille | son verbe | ce qu'elle fait au document | sa couleur |
+|---|---|---|---|
+| **`Back` · `Next`** | **NAVIGUER** | ⛔ **rien** | 🔵 bleu |
+| **`Done`** | 🔴 **VALIDER** | ✅ il **signe** ce qui est là, puis **remonte d'un cran** | 🟢 vert |
+| **`Cancel` · `I changed my mind`** | **DÉFAIRE** | 🔴 il **détruit** du travail fait | 🔴 rouge **+ popup** |
+
+⭐⭐ **Trois familles, trois verbes, aucun recouvrement.** ⛔ Un bouton qui fait deux de ces choses
+est un bouton mal nommé — c'est la discipline qu'Eric applique depuis le 17/08 : **il ne règle pas
+le cas ambigu, il sépare les mots.**
+
+⚠️ **CECI AMENDE UNE LIGNE QUE J'AVAIS GRAVÉE LE MATIN MÊME.** J'avais écrit : *« `Done` ne signe
+rien, c'est la TUILE qui signe »*, en m'appuyant sur `shell.mjs:600` *(« le palier s'avance ICI
+plutôt que par `pressDone` »)*. **J'avais sur-lu** : ce commentaire dit que **le palier** avance
+par la tuile — il ne dit pas que `Done` ne valide pas. Et la phrase d'Eric du 20/08, citée dans
+`catalogue.mjs:573`, disait déjà l'inverse : *« si je dis à BS Done, direction R **POUR VALIDER**
+la… »*.
+
+📌 **La leçon** : j'ai lu un commentaire qui parlait **d'un mécanisme** et j'en ai tiré une règle
+**sur une intention**. ⛔ Un commentaire de code dit comment ça marche, **pas ce que ça veut dire**.
 
 ### 🔴 `BACK` ET `NEXT` NE FONT QUE NAVIGUER — c'est une définition, pas une couleur
 
