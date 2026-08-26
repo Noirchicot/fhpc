@@ -3398,7 +3398,25 @@ button { font: inherit; }
 .parcours-pied {
   display: flex; justify-content: center; gap: var(--sp-8);
   margin: var(--sp-16) 0 0;
-  padding-right: var(--touch);
+  /* 🔴 LA MÊME COLONNE DES DEUX CÔTÉS — Eric, 2026-08-26 : *« bien mais Done
+     centré »*, puis *« fais comme pour tous les panels »*.
+     ⛔ MESURÉ AVANT : `0 px / 44 px`. Les boutons de Species, Inheritance et
+     Class se centraient donc sur la rangée MOINS la colonne du `?`, c'est-à-dire
+     **22 px à gauche du milieu de la dalle** — exactement le défaut qu'Eric
+     vient de faire corriger sur Identity, à un autre endroit du code.
+     ⭐ ET LES DEUX PIEDS DU SITE CONVERGENT ICI : `.sortie` (Identity, Destiny,
+     Skills) et `.parcours-pied` (Species, Inheritance, Class) sont deux pieds
+     nés séparément qui font le même métier. Ils réservent désormais la même
+     chose de la même façon.
+     ⚠️ `--touch` SANS LA GOUTTIÈRE, et c'est délibéré : ce pied vit DANS une
+     dalle qui porte déjà son rembourrage, comme `.ability-collecteur > .sortie`
+     (exception argumentée, §2 bis). Ce qui compte n'est pas le chiffre, c'est
+     qu'il soit LE MÊME à gauche et à droite.
+     📌 ⚠️ ET IL Y AVAIT DEUX `padding-right: var(--touch)` DANS LA FEUILLE —
+     mon premier remplacement a été refusé par son propre garde. L'autre est
+     ligne 2241 et ne concerne pas ce pied. Chercher la DÉCLARATION ne suffit
+     pas non plus : il faut la situer. */
+  padding-inline: var(--touch);
 }
 .parcours-pied button {
   /* 🔴 À LA TAILLE DE LEUR MOT — Eric, 2026-08-19 : *« donc rapetisser les
