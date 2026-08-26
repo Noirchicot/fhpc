@@ -110,6 +110,19 @@ export function renderGuideGeneral({ titre, texte }) {
    ⚠️ LE VOYANT LIT LA SIGNATURE, PAS LE REMPLISSAGE. Un item dont la valeur est
    posée mais que le joueur a quitté par `Back` reste ÉTEINT. C'est la règle du
    19/08, et la seule raison d'être de `build.confirmed`. */
+/** Un libellé de porte peut être une chaîne OU `{mot, sous}` — ceci en rend
+ *  toujours une phrase.
+ *  ⭐ Elle existe parce que DEUX endroits consomment le même libellé : la porte,
+ *  qui peut l'afficher sur deux lignes, et le refus (« Not yet: … ») qui les
+ *  énumère dans une phrase. ⛔ Sans elle, le refus aurait affiché
+ *  « [object Object] » — et il ne l'aurait dit qu'au joueur. */
+export function motDe(libelle) {
+  if (libelle && typeof libelle === "object") {
+    return libelle.sous ? `${libelle.mot} (${libelle.sous})` : String(libelle.mot);
+  }
+  return String(libelle);
+}
+
 export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
@@ -197,10 +210,26 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
       tete.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
       ligne.dataset.sansChoix = "true";
     } else {
-      const porte = bouton(labelOf ? labelOf(item) : item.path, "parcours-item-porte",
+      /* 🔴 UNE PORTE PEUT PORTER DEUX LIGNES — Eric, 2026-08-27 : *« Lineage
+         devient High Elf en T2, avec italique T1 en dessous "lineage" »*.
+         ⭐ `labelOf` rend soit une CHAÎNE (la question : « Lineage »), soit un
+         couple `{mot, sous}` (la réponse et sa question : « High Elf » /
+         *lineage*). L'écran ne DÉCIDE pas laquelle : c'est l'appelant qui sait
+         si le choix est posé, et il le dit par la forme de ce qu'il rend.
+         ⚠️ ⛔ ET L'ÉTIQUETTE ACCESSIBLE RESTE UNE PHRASE : un lecteur d'écran
+         doit entendre « High Elf — lineage — done », pas deux nœuds côte à côte
+         dont l'ordre ne dit rien. C'est `motDe()` qui l'aplatit. */
+      const libelle = labelOf ? labelOf(item) : item.path;
+      const porte = bouton("", "parcours-item-porte",
         () => act({ kind: "parcoursItem", racine, path: item.path }));
+      if (libelle && typeof libelle === "object") {
+        porte.append(el("span", "parcours-item-mot-fort", [text(libelle.mot)]));
+        porte.append(el("span", "parcours-item-sous", [text(libelle.sous)]));
+      } else {
+        porte.append(text(String(libelle)));
+      }
       porte.setAttribute("aria-label",
-        `${labelOf ? labelOf(item) : item.path} — ${item.confirme ? "done" : "not done yet"}`);
+        `${motDe(libelle)} — ${item.confirme ? "done" : "not done yet"}`);
       tete.append(porte);
     }
     ligne.append(tete);

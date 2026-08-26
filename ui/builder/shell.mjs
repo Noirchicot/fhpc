@@ -28,7 +28,7 @@ import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mj
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
 import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=330";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral } from "./parcours-ecrans.mjs?v=330";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=330";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
@@ -2197,7 +2197,7 @@ function itemsDuParcours(cfg) {
 function renderParcoursGuide(cfg, ctx) {
   const items = itemsDuParcours(cfg);
   const refus = Array.isArray(state.parcoursRefus) && state.parcoursRefus.length > 0
-    ? `Not yet: ${state.parcoursRefus.map((c) => (cfg.itemLabel ? cfg.itemLabel(c, ctx) : motDuChemin(c))).join(", ")}.`
+    ? `Not yet: ${state.parcoursRefus.map((c) => motDe(cfg.itemLabel ? cfg.itemLabel(c, ctx) : motDuChemin(c))).join(", ")}.`
     : null;
   return renderGuideSpecifique({
     racine: cfg.path,
