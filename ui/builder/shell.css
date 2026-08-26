@@ -3598,7 +3598,14 @@ button { font: inherit; }
   /* ⛔ NI FOND NI CERNE ICI — ils appartiennent à l'organe BOUTON (§2/§3, en
      fin de feuille), qui est opaque et peint par l'état. Les laisser aurait
      fait DEUX endroits qui disent le fond d'un bouton. */
-  font: inherit; font-weight: 600; font-size: var(--t4);
+  font: inherit; font-weight: 600; /* 🔴 T3 POUR TOUTES LES PORTES — Eric, 2026-08-27 : *« idem pour Skill budget,
+     du coup il passe en T3 »*, après avoir vu « High Elf » y passer.
+     📏 MESURÉ : la porte était à **16 px (T4)** pendant que « High Elf » était à
+     **14 (T3)** — deux portes voisines, deux corps. Le sous-titre en T1 rendait
+     l'écart encore plus visible.
+     ⭐ C'est la RÈGLE qui descend, pas une exception qui monte : une porte est
+     une porte, qu'elle porte une question ou une réponse. */
+  font-size: var(--t3);
   cursor: pointer;
 }
 
