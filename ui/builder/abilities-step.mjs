@@ -722,6 +722,22 @@ function renderCollecteur(ctx) {
 function renderSelecteurMethode(actif, infoOuvert, act) {
   const bloc = el("section", "ability-methodes dalle-simple");
   bloc.append(el("h3", "ability-methodes-titre", [text("Choose an ability generation method")]));
+  /* 🔴 LE MOT EST EN HAUT, PAS EN BAS — Eric, 2026-08-26, capture à l'appui :
+     *« ici la barre de texte recouvre la zone de boutons ; le texte devait être
+     en haut »*. En bas, la phrase courait sous le `?` que la dalle pose à son
+     coin, et les deux se chevauchaient sur un écran large.
+     ⭐ ET C'EST AUSSI L'ORDRE DE LECTURE JUSTE : elle dit QUOI FAIRE avec les
+     boutons ; une consigne se lit avant le geste qu'elle commande, pas après.
+     Elle reste DANS la dalle — *« texte à intégrer dedans »* (16/08) tient
+     toujours, c'est sa place dans la dalle qui change, pas sa dalle. */
+  /* ⚠️ « BELOW », PAS « ABOVE » — et ce mot a dû changer AVEC la place. La
+     phrase d'Eric disait *« pick one of the methods ABOVE »* quand elle vivait
+     SOUS la rangée ; remontée au-dessus, le même mot désignait la barre
+     d'étapes. Un déplacement peut rendre faux un texte qu'on n'a pas touché :
+     la phrase ne parlait pas d'elle-même, elle POINTAIT. */
+  bloc.append(el("p", "ability-methodes-mot", [text(
+    "Pick one of the methods below to begin. The book explains the key differences."
+  )]));
   const rangee = el("div", "ability-methodes-boutons");
   for (const entry of ABILITY_ENTRIES) {
     const tuile = el("button", "ability-entry");
@@ -732,34 +748,35 @@ function renderSelecteurMethode(actif, infoOuvert, act) {
     tuile.addEventListener("click", () => act({ kind: "abilityMethod", value: entry.id }));
     rangee.append(tuile);
   }
-  /* ⛔ `INFO` N'EST PAS UNE CINQUIÈME MÉTHODE — c'est un interrupteur. Il vit
-     dans la même rangée parce que le croquis l'y met, et il porte son état
-     (`aria-pressed`) parce qu'il en a un : le panneau est ouvert, ou non. */
-  const info = el("button", "ability-entry ability-info-bouton");
+  /* 🔴 `INFO` EST DEVENU LE LIVRE — Eric, 2026-08-26 : *« info doit devenir un
+     livre et disparaître »*. Les deux moitiés comptent : il prend la forme du
+     livre, ET le mot « INFO » quitte l'écran.
+
+     ⛔ IL N'A JAMAIS ÉTÉ UNE CINQUIÈME MÉTHODE, et c'était tout le problème :
+     porter `ability-entry` lui donnait le gabarit, l'octogone et le pan coupé
+     des quatre autres, si bien qu'un cinquième bouton identique proposait
+     quelque chose qui n'est pas un choix. Un commentaire de 2026-08-16
+     l'admettait déjà à demi-mot — *« il ne se distingue plus par sa forme »*,
+     et il fallait une phrase sous la rangée pour le rendre découvrable.
+     ⭐ LE LIVRE RÈGLE LES DEUX D'UN COUP : c'est l'organe du dépôt qui veut
+     dire « le texte est là » (`.fiche-livre`, registre §2), rond, de la taille
+     du `?`, et il ne ressemble à aucune méthode. La phrase peut donc le
+     nommer au lieu de rattraper une confusion.
+     ⚠️ IL GARDE SON ÉTAT : c'est un interrupteur (le panneau est ouvert ou
+     non), donc `aria-pressed` reste — un livre qui bascule doit le dire.
+     ⭐⭐ ET IL SE CADRE À UN BOUT DE LA RANGÉE, comme Eric l'a ratifié le
+     26/08 : *« le livre doit être dans un bouton rond, même taille que ? ; ils
+     sont tous deux cadrés à gauche et à droite de la rangée de boutons »*. Le
+     `?` tient la droite (la dalle le pose à son coin) — le livre prend la
+     gauche, et les quatre méthodes restent centrées entre eux. */
+  const info = el("button", "fiche-livre ability-methodes-livre");
   info.type = "button";
   info.dataset.entry = "info";
   markPressed(info, infoOuvert);
-  info.append(el("span", "ability-entry-label", [text("INFO")]));
+  info.setAttribute("aria-label", "Compare the methods");
   info.addEventListener("click", () => act({ kind: "abilityInfo", value: !infoOuvert }));
-  rangee.append(info);
+  rangee.prepend(info);
   bloc.append(rangee);
-  /* ⌨️ LE MOT DE LA RACINE, D'ERIC, MOT POUR MOT (2026-08-16) — et il vit DANS
-     la dalle du sélecteur, pas en dessous : *« texte à intégrer dedans »*.
-
-     ⚠️ CE QU'IL REMPLACE, ET POURQUOI CE N'EST PAS QU'UN LIBELLÉ. La phrase
-     d'avant (« Nothing to act on yet — pick one of the methods above to
-     begin ») était une note de PORTE : elle n'apparaissait que tant que
-     `DONE` restait éteint, pour qu'un bouton muet ne le reste pas (lot 74).
-     🔴 Or la racine n'a plus de `DONE` du tout (Eric, le même jour) : une
-     note qui explique un bouton absent n'explique rien. Celle-ci ne parle plus
-     d'un état, elle dit QUOI FAIRE — donc elle est là en permanence, comme le
-     titre au-dessus d'elle.
-     ⭐ Et sa seconde phrase fait un travail que rien ne faisait : elle rend
-     `INFO` DÉCOUVRABLE. C'est d'autant plus utile depuis qu'il a la taille des
-     quatre autres et ne se distingue plus par sa forme. */
-  bloc.append(el("p", "ability-methodes-mot", [text(
-    "Pick one of the methods above to begin. Click on info to understand the key differences."
-  )]));
   return bloc;
 }
 

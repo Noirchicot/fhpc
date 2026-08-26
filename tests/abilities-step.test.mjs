@@ -117,6 +117,14 @@ function valeurDe(creneau) {
   return v ? v.textContent : null;
 }
 function tuiles(node) { return node.querySelectorAll(".ability-entry"); }
+/** 🔴 LE LIVRE N'EST PLUS UNE TUILE — Eric, 2026-08-26 : *« info doit devenir
+ *  un livre et disparaître »*. Il portait `ability-entry`, donc le gabarit,
+ *  l'octogone et le pan coupé des quatre méthodes : un cinquième bouton
+ *  identique proposait quelque chose qui n'est pas un choix. Il a maintenant
+ *  sa propre classe, et ces suites le cherchent par elle.
+ *  ⛔ NE PAS LE REMETTRE DANS `tuiles()` pour « faire passer un test » : c'est
+ *  précisément la confusion qu'Eric a fait cesser. */
+function livre(node) { return node.querySelectorAll(".fiche-livre")[0]; }
 
 /** LE GESTE DU CROQUIS : on prend un dé, on le lâche sur une cible. Sans
  *  `cible`, c'est un TAP.
@@ -432,15 +440,25 @@ test("🔴 LES QUATRE MÉTHODES DU CROQUIS, plus INFO — et `Point buy` n'est t
      tuile morte serait un faux magasin. Ce test garde l'absence VOLONTAIRE. */
   assert.equal(ABILITY_ENTRIES.some((e) => /point/i.test(e.id + e.label)), false);
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
-  assert.deepEqual(tuiles(node).map((t) => t.dataset.entry), ["fh3d6", "4d6", "standard", "free", "info"],
-    "cinq boutons dans la rangée — les quatre méthodes, puis INFO qui n'en est pas une");
+  assert.deepEqual(tuiles(node).map((t) => t.dataset.entry), ["fh3d6", "4d6", "standard", "free"],
+    "QUATRE tuiles — les quatre méthodes, et rien qui leur ressemble sans en être une");
+  /* ⭐ Le cinquième bouton existe toujours, mais il ne se déguise plus en
+     méthode : c'est le livre, et il se cherche par sa forme. */
+  assert.equal(livre(node).dataset.entry, "info", "le livre est là, hors de la famille des méthodes");
 });
 
 test("⚔️ le nom accessible d'une tuile est le libellé humain, jamais l'id", () => {
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
   const libelles = tuiles(node).map((t) => t.textContent);
-  assert.deepEqual(libelles, ["FH 3D6", "4D6", "ARRAY", "FREE", "INFO"]);
+  assert.deepEqual(libelles, ["FH 3D6", "4D6", "ARRAY", "FREE"]);
   assert.equal(libelles.some((l) => /^(fh3d6|standard|free|info)$/.test(l)), false, "jamais une clef machine à l'écran");
+  /* 🔴 ET LE MOT « INFO » A QUITTÉ L'ÉCRAN — la seconde moitié de la consigne
+     d'Eric (*« et disparaître »*). Le livre ne porte plus de libellé visible ;
+     son nom vit dans `aria-label`, qui est fait pour ça. */
+  assert.equal(livre(node).textContent, "", "le livre ne porte aucun mot");
+  assert.equal(livre(node).getAttribute("aria-label"), "Compare the methods",
+    "⚠️ mais il se NOMME pour qui ne voit pas le dessin — un bouton muet à "
+    + "l'écran ne doit pas l'être aussi pour un lecteur d'écran");
 });
 
 test("B5.1b/c — une tuile commet `abilityMethod`, et RIEN n'est déplié d'avance", () => {
@@ -453,7 +471,7 @@ test("B5.1b/c — une tuile commet `abilityMethod`, et RIEN n'est déplié d'ava
   assert.deepEqual(calls, [{ kind: "abilityMethod", value: "free" }]);
 });
 
-test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend INFO découvrable", () => {
+test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend LE LIVRE découvrable", () => {
   /* ⚠️ CE TEST A CHANGÉ DE LOI, PAS DE VIGILANCE. Il gardait un APPARIEMENT
      (lot 74) : tant que `DONE` restait éteint au repos, une phrase devait dire
      pourquoi — « un bouton éteint ET muet » était le défaut mesuré.
@@ -463,7 +481,13 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend INF
      dit QUOI FAIRE, donc elle est là en permanence.
 
      ⌨️ Le texte est celui d'Eric, mot pour mot — un libellé est à lui. */
-  const MOT = "Pick one of the methods above to begin. Click on info to understand the key differences.";
+  /* 🔴 LA PHRASE A SUIVI LE BOUTON — 2026-08-26. Elle disait *« click on
+     INFO »* ; il n'y a plus d'INFO à cliquer, il y a un livre. Une consigne
+     qui nomme un bouton disparu est pire qu'aucune consigne.
+     ⭐ ET ELLE EST EN HAUT MAINTENANT : *« ici la barre de texte recouvre la
+     zone de boutons ; le texte devait être en haut »* — elle courait sous le
+     `?` de la dalle. Une consigne se lit AVANT le geste qu'elle commande. */
+  const MOT = "Pick one of the methods below to begin. The book explains the key differences.";
   const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
   const note = racine.querySelectorAll(".ability-methodes-mot")[0];
   assert.ok(note, "la racine porte son mot");
@@ -487,11 +511,19 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend INF
     ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
   assert.equal(page.querySelectorAll(".ability-methodes-mot").length, 0);
 
-  /* 🔴 ET LE MOT NOMME `info`, ce qui est le seul endroit de l'écran qui le
-     rende DÉCOUVRABLE — d'autant plus depuis qu'`INFO` a la taille des quatre
-     méthodes et ne se distingue plus par sa forme. */
-  assert.match(note.textContent, /\binfo\b/i);
-  assert.ok(tuiles(racine).some((t) => t.dataset.entry === "info"), "témoin : le bouton qu'il nomme existe");
+  /* 🔴 ET LE MOT NOMME LE LIVRE, PLUS `INFO` — Eric, 2026-08-26 : *« Abilities :
+     info doit disparaître et devenir un bouton livre ! »*
+     ⭐ LE TRAVAIL DE CETTE PHRASE N'A PAS CHANGÉ, SON OBJET SI : elle rend le
+     bouton DÉCOUVRABLE. Elle était née parce qu'`INFO` portait le gabarit des
+     quatre méthodes et ne se distinguait plus par sa forme — elle rattrapait
+     une confusion. Le livre, lui, ne ressemble à aucune méthode : la phrase
+     n'a plus à réparer, seulement à désigner.
+     ⛔ ET LE GARDE APPARIE TOUJOURS LES DEUX MOITIÉS : un mot qui nomme un
+     bouton absent est pire qu'aucun mot. Si le livre disparaît, ce test
+     rougit — c'est ce que la seconde assertion tient. */
+  assert.match(note.textContent, /\bbook\b/i);
+  assert.ok(livre(racine), "témoin : le bouton que la phrase nomme existe bien");
+  assert.equal(livre(racine).textContent, "", "et il n'écrit pas « INFO » : le mot a disparu de l'écran");
 });
 
 test("🔴 SUR DU VERRE, SEULE `--text` TIENT — le mot de la racine n'écrit pas en gris", () => {
@@ -810,7 +842,7 @@ test("⭐ §5.4 — `INFO` ouvre le panneau déjà écrit, et le panneau se ferm
   const calls = [];
   const ferme = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), (a) => calls.push(a));
   assert.equal(ferme.querySelectorAll(".ability-info").length, 0, "fermé par défaut : il ne s'impose pas");
-  tuiles(ferme).find((t) => t.dataset.entry === "info").click();
+  livre(ferme).click();
   assert.deepEqual(calls, [{ kind: "abilityInfo", value: true }]);
 
   const ouvert = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null, info: true }), (a) => calls.push(a));
