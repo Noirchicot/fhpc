@@ -267,11 +267,34 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 
 ## 6. LES BOUTONS
 
-| gabarit | capacité |
+| gabarit | capacité | sa largeur |
+|---|---|---|
+| **small** | **6 caractères**, **deux étages possibles** | 🔴 **DÉDUITE** du compte de caractères |
+| **large** | **12 caractères**, deux étages | 🔴 **DÉDUITE** |
+| **no constraint** | libre | — |
+| 🔴 **`+` / `−`** | un glyphe | **le plus petit possible** *(voir ci-dessous)* |
+
+⭐ **Un gabarit est un COMPTE DE CARACTÈRES, pas une largeur en pixels.** C'est §1 ter appliqué :
+la largeur se **déduit** du compte et de la police. ⛔ Écrire `width: 96px` figerait un gabarit qui
+mentirait au premier changement de corps.
+
+⚠️ **Et il manque une pièce pour pouvoir déduire** : ⛔ **aucune taille de texte n'est déclarée
+pour un bouton** — `.species-done` porte `font: inherit`. Tant que le corps d'un bouton n'est pas
+nommé *(T-quoi ?)*, **les largeurs de `small` et `large` ne sont pas calculables.** ⏳ À trancher.
+
+### 🔴 `+` / `−` : le dessin le plus petit possible, la cible au minimum tactile
+
+> Eric, 2026-08-26 : *« boutons + / − : **le plus petit possible / minimum acceptable sur
+> tactile** »*.
+
+| | |
 |---|---|
-| **small** | 6 caractères, deux étages possibles |
-| **large** | 12 caractères, deux étages |
-| **no constraint** | libre |
+| **le DESSIN** | 🔴 **le plus petit possible** — il ne porte qu'un glyphe |
+| **la CIBLE** | 🔴 **`--touch` 44**, le minimum acceptable au doigt |
+
+⭐ **C'est le cas où les deux divergent le plus, et il est voulu.** *« Un contrôle ne se laisse
+jamais dimensionner par un dessin »* : le rond peut faire 24 px, **sa zone en fait 44**. ⛔ Réduire
+la cible pour l'accorder au dessin serait exactement la faute inverse.
 
 Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les boutons d'une même ligne.**
 
