@@ -266,12 +266,14 @@ le liseré rose de sa dictée, qui n'existait dans aucune palette)*.
 
 ### Les textes qui changent
 
+> ✅ **Simplifié par Eric le 26/08 : « normal noir / gain vert / perte rouge ».**
+> **Trois états, pas quatre** — le *bleu* de la dictée disparaît des textes.
+
 | cas | couleur |
 |---|---|
-| normal | **bleu** *(peut varier)* |
+| **normal** | 🔴 **l'encre normale — `--text`** |
 | **gain** | **vert** |
 | **perte** | **rouge** |
-| **ne bouge pas** | 🔴 **l'encre normale — `--text`** |
 
 ⛔ **« Ne bouge pas » ne veut PAS dire « noir littéral ».** Mesuré : un `#000` sur le fond de nuit
 `#14120e` rend **1,11:1** — *le texte disparaît*. `--text` vaut `#d8d3c9` la nuit et une encre
@@ -279,6 +281,9 @@ sombre le jour : **même intention, et ça survit au thème.**
 
 ⭐ **La règle se lit à l'envers, et c'est ce qui la rend juste** : ⛔ **une valeur qui n'a pas
 changé ne se colore pas.** La couleur est réservée à ce qui bouge — sinon elle ne signale plus rien.
+
+⭐ **Et le bleu s'en trouve libéré** : il ne sert plus qu'à la **navigation** (`done`, `next`,
+`back`) et à l'**aiguilleur**. Une teinte, deux emplois voisins — *« on te dit où aller »*.
 
 🔴 **Page unique, sauf mention contraire.**
 
