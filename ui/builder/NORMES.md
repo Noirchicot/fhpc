@@ -123,11 +123,23 @@ Et ⭐ **une cote DONNÉE bat toujours une cote DÉDUITE** — si Eric a dit un 
 
 | | |
 |---|---|
-| **l'appareil de référence** | **iPhone SE** |
-| **largeur** | **375** — dont **335 utiles** |
+| 🔴 **LA LARGEUR CIBLE** | **360 px** — ⛔ **pas 375**. C'est la base sur laquelle tout est dessiné |
+| la rangée utile à 360 | **278** — moins deux gouttières de 8 |
 | **hauteur, Safari** *(barres visibles)* | **≈ 553** — ⚠️ **valeur courante, NON mesurée sur l'appareil** |
 | **hauteur, plein écran** | **667** |
 | **la page ne défile jamais** | `.app { height: 100dvh; overflow: hidden }` — c'est **structurel** |
+
+⭐ **Et le 360 n'est pas une préférence : c'est ce qui a FABRIQUÉ la cote du jeton.** Mesuré, écrit
+dans `tokens.css:228` : *« à 360 px la rangée dispose de 278, moins deux gouttières de 8, soit
+87,3 pour trois — **87** est donc la cote qui tient la promesse à la largeur cible ; **un pixel de
+plus et on retombe à deux par ligne** »*.
+
+➡️ **Changer la cible change le jeton.** Tout budget calculé sur 375 est faux : il donne du mou
+qui n'existe pas.
+
+📌 La rangée en met **autant qu'elle peut** : **3 dès 277 px · 4 dès 372 · 5 dès 467**. ⛔ Et la
+case **ne grandit pas** pour remplir sa rangée — *« une case qui s'étire ne laisse RIEN à
+centrer »*, et le centrage du reliquat *(§5)* disparaîtrait.
 
 🔴 **Toute conclusion de budget doit dire sur laquelle des deux hauteurs elle repose.** Une
 conclusion qui tient sur **553** tient partout ; une conclusion qui n'a besoin que de **667** est
@@ -154,8 +166,10 @@ fragile.
 | 4 écarts de 8 + marge basse | 44 |
 | **TOTAL** | **508 sur 553 — il reste 45** |
 
-⭐ **3 par rangée à 375, sans discussion** : 277 px pour 335 utiles ; quatre en demanderaient 372.
-**Les 58 px de mou sont exactement ce qui permet le centrage du reliquat** *(§5)*.
+⭐ **3 par rangée à 360, et c'est juste** : la rangée dispose de **278**, trois jetons en prennent
+**277** *(3 × 87 + 2 × 8)*. **Il reste 1 px.** ⛔ **Quatre en demanderaient 372 — impossible à la
+cible.** Le « mou » de 58 px que j'avais annoncé venait d'un calcul à **375**, une largeur qui
+n'est pas la nôtre : **il n'existe pas.**
 
 🔴 **45 px, c'est mince — une ligne de plus les mange**, et ⛔ **la réponse n'est JAMAIS un
 défilement** *(§5)*. La réponse est : **qu'est-ce que la page porte EN TROP ?** Trois candidats
