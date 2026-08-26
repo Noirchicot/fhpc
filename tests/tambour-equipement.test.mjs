@@ -17,7 +17,7 @@
    ⭐ CE QUE CE FICHIER MESURE DONC, ET C'EST TOUT CE QUI EST MESURABLE :
      1. la COUTURE DE DONNÉE (`rayonsEtEtageres`) — pure, et c'est la pièce
         qui décide de la forme du lot ;
-     2. la PAGINATION (`pageDObjets`) — pure, éprouvée sur le cas PLEIN et sur
+     2. la PAGINATION (`pageDeListe`) — pure, éprouvée sur le cas PLEIN et sur
         le cas dégénéré, jamais sur le cas courant ;
      3. l'ÉTAT D'ATTENTE et la structure, au DOM ;
      4. les HUIT PIÈGES DÉJÀ PAYÉS, sur les octets de la feuille de style —
@@ -68,8 +68,12 @@ function sansCommentairesCss(texte) {
 const CSS = sansCommentairesCss(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8"));
 const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8"));
 
-const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, pageDObjets, CASES_PAR_PAGE, profondeurAccordee } =
+const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, profondeurAccordee } =
   await import("../ui/builder/equipment-step.mjs");
+/* ⭐ LA PAGINATION A DÉMÉNAGÉ AU SOCLE (2026-08-26) : le 15 est une norme du
+   produit entier (NORMES.md §5), plus une constante de cet écran. Les mêmes
+   mesures, sur la fonction partagée. */
+const { pageDeListe, LISTE_PAR_PAGE } = await import("../ui/builder/normes.mjs");
 
 /* ⭐ DEPUIS L'INVERSION DU 24/08 (mandat d'Eric), l'étape OUVRE SUR B3 — le
    dressing. Ces suites regardent le CATALOGUE : on y entre comme le joueur,
@@ -264,11 +268,11 @@ test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 
   const grosse = arbre.find((r) => r.id === "arcana").etageres.find((e) => e.id === "arcana:consumables-and-potions");
   assert.equal(grosse.objets.length, 33, "témoin : c'est bien le cas plein qu'on éprouve");
 
-  const premiere = pageDObjets(grosse.objets, 0);
+  const premiere = pageDeListe(grosse.objets, 0);
   assert.equal(premiere.pages, 3, "ceil(33 / 15) = 3");
-  assert.equal(premiere.objets.length, CASES_PAR_PAGE);
+  assert.equal(premiere.objets.length, LISTE_PAR_PAGE);
 
-  const derniere = pageDObjets(grosse.objets, 2);
+  const derniere = pageDeListe(grosse.objets, 2);
   assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
@@ -276,22 +280,22 @@ test("7 — 🔴 LE CAS DÉGÉNÉRÉ, ET IL EST RÉEL : `projectiles` ne porte Q
   const arbre = rayonsEtEtageres(query);
   const minuscule = arbre.find((r) => r.id === "battlefield").etageres.find((e) => e.id === "battlefield:projectiles");
   assert.equal(minuscule.objets.length, 1, "témoin : une étagère à un seul objet existe vraiment dans les données");
-  const vue = pageDObjets(minuscule.objets, 0);
+  const vue = pageDeListe(minuscule.objets, 0);
   assert.equal(vue.pages, 1, "une page, jamais zéro — « 1/0 » serait un compte impossible");
   assert.equal(vue.objets.length, 1);
 });
 
 test("8 — une étagère VIDE tient quand même : une page, aucune case, jamais une division par zéro", () => {
-  const vue = pageDObjets([], 0);
+  const vue = pageDeListe([], 0);
   assert.deepEqual([vue.page, vue.pages, vue.objets.length], [0, 1, 0]);
 });
 
 test("9 — la page BOUCLE aux deux bouts, et le compte reste dans ses bornes", () => {
   const cent = Array.from({ length: 100 }, (_, i) => i); // 7 pages
-  assert.equal(pageDObjets(cent, 0).pages, 7);
-  assert.equal(pageDObjets(cent, 7).page, 0, "au-delà de la dernière on revient à la première");
-  assert.equal(pageDObjets(cent, -1).page, 6, "en deçà de la première on va à la dernière");
-  assert.equal(pageDObjets(cent, 20).page, 20 % 7);
+  assert.equal(pageDeListe(cent, 0).pages, 7);
+  assert.equal(pageDeListe(cent, 7).page, 0, "au-delà de la dernière on revient à la première");
+  assert.equal(pageDeListe(cent, -1).page, 6, "en deçà de la première on va à la dernière");
+  assert.equal(pageDeListe(cent, 20).page, 20 % 7);
 });
 
 /* ══ L'ÉCRAN — CE QUI SE VOIT SANS MISE EN PAGE ══════════════════════════ */
@@ -334,7 +338,7 @@ test("10 — l'écran porte les deux roues SANS chevron-bouton, les deux goutti�
      survivrait au tiret des pages parlerait d'une étagère qui n'est pas là. */
   assert.equal(chiffres[0].textContent, "—");
   assert.equal(chiffres[1].textContent, "—");
-  assert.equal(rows(node, ".grille-case").length, CASES_PAR_PAGE, "quinze cases — 5 lignes × 3 colonnes");
+  assert.equal(rows(node, ".grille-case").length, LISTE_PAR_PAGE, "quinze cases — 5 lignes × 3 colonnes");
 });
 
 test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Eric, 23/08", () => {
@@ -380,7 +384,7 @@ test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ 
   assert.deepEqual(cransB, ["☆", "☉", "☾"], "la roue du bas garde la série, dans l'ordre");
 
   const marqueurs = rows(node, ".grille-marqueur");
-  assert.equal(marqueurs.length, CASES_PAR_PAGE);
+  assert.equal(marqueurs.length, LISTE_PAR_PAGE);
   for (const m of marqueurs) {
     /* ⛔ AUCUN CARACTÈRE DERRIÈRE L'IMAGE : un symbole laissé dessous se
        devinerait en transparence, et un lecteur d'écran dirait deux choses là
