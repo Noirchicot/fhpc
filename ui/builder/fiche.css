@@ -516,7 +516,47 @@
      le pied du parcours ne pouvait pas faire, ses deux mots étant de longueurs
      très différentes. */
   padding-right: var(--touch);
+  /* 🔴 ET AUTANT À GAUCHE DEPUIS LE 26/08 : le livre y prend la place que le
+     `?` prend à droite. ⭐ La symétrie n'est pas décorative — sans elle,
+     `CHOOSE` se centrerait sur une ligne amputée d'un seul côté et paraîtrait
+     décalé. Deux réserves égales, un centre vrai. */
+  padding-left: var(--touch);
+  justify-content: center;
 }
+
+/* 🔴 LE LIVRE — la jumelle GAUCHE du `?` (Eric, 2026-08-26).
+   ⛔ SA CIBLE NE CÈDE PAS : `--touch` 44, comme le `?`, comme tout ce qui se
+   touche. *« Un contrôle ne se laisse jamais dimensionner par son dessin. »*
+   ⭐ LE DESSIN, LUI, GRANDIT : 22 px pour le `?`, **28** ici — Eric : *« quitte
+   à agrandir un peu le cercle pour que ça puisse ressembler à un livre »*. Un
+   point d'interrogation se lit à 22 ; un livre a besoin d'une couverture et
+   d'un dos, donc de surface.
+   ⛔ ET IL EST DESSINÉ, PAS ÉCRIT : un glyphe de livre (📖) change de forme
+   selon la police installée et rend une couleur qui n'est pas la nôtre —
+   la même raison qui interdit un glyphe au pouce de l'interrupteur (§6). */
+.fiche-livre {
+  position: absolute; left: var(--sp-8); bottom: var(--sp-8);
+  width: var(--touch); height: var(--touch);
+  display: grid; place-items: center;
+  border: 0; background: transparent; color: var(--text-soft);
+  padding: 0; cursor: pointer;
+}
+.fiche-livre::before {
+  content: ""; position: absolute; width: 28px; height: 28px; border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+/* Le livre lui-même : une couverture, et le DOS au milieu. Le dos est ce qui
+   le distingue d'un simple rectangle — sans lui on lit une fenêtre. */
+.fiche-livre::after {
+  content: ""; position: relative;
+  width: 15px; height: 12px;
+  border: 1.5px solid currentColor;
+  border-radius: 1px;
+  background: linear-gradient(to right,
+    transparent calc(50% - .75px), currentColor calc(50% - .75px),
+    currentColor calc(50% + .75px), transparent calc(50% + .75px));
+}
+.fiche-livre[disabled] { opacity: .55; cursor: default; }
 .fiche-action {
   flex: 1 1 0;
   min-height: var(--touch);

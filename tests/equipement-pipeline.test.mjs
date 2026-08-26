@@ -223,16 +223,22 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
   /* la vue persiste entre les tests : on rejoint le dressing depuis
      n'importe où, par les portes du joueur. */
   let node = rendre();
-  for (let i = 0; i < 5 && !node.querySelector(".decision-kit"); i++) {
+  for (let i = 0; i < 5 && !node.querySelector(".aiguilleur"); i++) {
     const porte = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
       || [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR")
       || node.querySelector('[aria-label="Equipment"]');
     if (porte) porte.click();
     node = rendre();
   }
-  assert.ok(node.querySelector(".decision-kit"), "un personnage sans `depart` reçoit la question");
+  /* ⭐ LA CLASSE A CHANGÉ TROIS FOIS EN UN JOUR — `guide-oblige`, puis
+     `decision-kit`, puis `aiguilleur` (Eric, 26/08 : *« c'est plutôt un
+     aiguilleur, on a toujours besoin de lui »*). Ce que ce test défend n'a
+     jamais bougé : un personnage SANS `depart` reçoit la question, un
+     personnage qui a répondu ne la revoit pas. ⛔ Si un quatrième nom arrive,
+     c'est le sélecteur qu'on change, pas l'assertion. */
+  assert.ok(node.querySelector(".aiguilleur"), "un personnage sans `depart` reçoit la question");
 
-  const prendre = [...node.querySelectorAll(".decision-kit-bouton")]
+  const prendre = [...node.querySelectorAll(".aiguilleur-bouton")]
     .find((b) => b.textContent.includes("50"));
   const gpAvant = currentCurrency(doc).gp || 0;
   prendre.click();
@@ -240,7 +246,7 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
   assert.equal(currentCurrency(doc).gp, gpAvant + 50, "et les 50 po tombent dans la bourse — le geste ratifié, pas une copie");
 
   node = rendre();
-  assert.equal(node.querySelectorAll(".decision-kit").length, 0, "la question ne se repose pas : le document a répondu");
+  assert.equal(node.querySelectorAll(".aiguilleur").length, 0, "la question ne se repose pas : le document a répondu");
 
   const ressuscite = JSON.parse(JSON.stringify(doc));
   assert.equal(ressuscite.build.choices.find((c) => c.path === "depart")?.value, "purse",

@@ -344,6 +344,12 @@
       rgba(255,255,255,.16) 0,     rgba(255,255,255,.16) 1.5px,
       rgba(255,255,255,0)   1.5px, rgba(255,255,255,0)   calc(100% - 1.5px),
       rgba(0,0,0,.20)       calc(100% - 1.5px), rgba(0,0,0,.20) 100%);
+  /* 🔴 L'OMBRE DU BOUTON EST UNE OMBRE **LE JOUR SEULEMENT** — voir sa jumelle
+     de nuit dans le bloc `prefers-color-scheme: dark`. Mesuré au navigateur
+     sans écran le 2026-08-26 : sous le bord bas, le jour tombe de 243,1 à
+     197,3 (Δ 45,8) ; la nuit, de 18,1 à 15,2 — **Δ 2,9, seize fois moins**.
+     Du noir posé sur du presque-noir ne peut rien assombrir : sous 5 % de
+     luminance il n'y a plus de marge à descendre. */
   --bouton-ombre: drop-shadow(0 2px 4px rgba(0,0,0,.30));
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
@@ -542,6 +548,23 @@
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
     --bg-image: url("./assets/bg-night.jpg?v=300");
+
+    /* 🔴 LA NUIT, L'OMBRE DEVIENT UNE LUEUR — Eric, 2026-08-26, la mesure
+       posée devant lui : *« une lueur claire la nuit »*.
+       ⭐ LA RAISON EST PHYSIQUE, PAS DÉCORATIVE : un objet posé sur une
+       surface CLAIRE se détache par l'ombre qu'il projette ; sur une surface
+       SOMBRE il se détache par la lumière qu'il renvoie. Le jour, le fond est
+       à 243 de luminance et un noir à 30 % le fait tomber à 197 — 45 points de
+       marge. La nuit le fond est à 18 : il ne reste que 18 points AVANT le
+       noir absolu, et une ombre à 30 % n'en prend que 3. **C'est le fond qui
+       décide de la direction, pas le goût.**
+       📌 ET LE DÉPÔT LE FAIT DÉJÀ AILLEURS : `--verre-lisere` vaut 55 % de
+       blanc le jour et 14 % la nuit — la même teinte, deux forces, parce que
+       la marge disponible n'est pas la même. Ici on va plus loin : ce n'est
+       pas la force qui change, c'est le SENS.
+       ⛔ Ne pas remonter l'alpha du noir « pour compenser » : il n'y a rien à
+       compenser, la marge n'existe pas. */
+    --bouton-ombre: drop-shadow(0 2px 4px rgba(255,255,255,.22));
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

@@ -380,6 +380,30 @@ ne signale rien)*. ➡️ **Un organe qui n'emprunte pas à l'échelle ne peut p
 ⭐ **La coupe d'angle appartient au bouton SEUL.** C'est ce qui interdit de le confondre avec un
 jeton, quelle que soit la couleur.
 
+### ✅ LES QUATRE PANS COUPÉS NE PORTENT PAS D'ARÊTE — tranché 26/08
+
+> Eric, 2026-08-26, la mesure posée devant lui : **« non, ça me va »**.
+
+📏 **Mesuré au navigateur sans écran** *(Chrome 151, bouton gris, jour)* : les pixels de la diagonale
+valent **158-160**, entre le fond à **243** et le corps à **98**. C'est de l'**anticrénelage**, pas
+une lumière. Le pan reste à la teinte du corps.
+
+| | |
+|---|---|
+| **le haut et le bas** | portent l'arête *(blanc .58 · noir .45)* |
+| **les côtés** | portent la leur *(blanc .16 · noir .20)* |
+| 🔴 **les quatre pans coupés** | ⛔ **rien, et c'est voulu** |
+
+⭐ **Ce n'est pas un oubli, c'est la limite du médium** : un `linear-gradient` éclaire des bandes
+**droites**. La diagonale d'un pan tombe hors des 1,5 px du haut comme des 1,5 px du côté — aucun
+stop ne peut l'atteindre. L'éclairer demanderait un `conic-gradient` et des angles qu'Eric n'a
+jamais nommés.
+
+➡️ **Ça se lit comme la TRANCHE du biseau**, et Eric l'a validé en connaissance de la mesure.
+
+⛔ **AUCUN LOT NE ROUVRE CETTE QUESTION.** Un futur siège qui verra les pans nus croira à un défaut :
+il n'en est pas un. La cause est écrite ci-dessus, la décision est datée.
+
 🔴 **Le liseré d'une zone de drop porte la couleur du corps du jeton attendu** — la cible annonce
 ce qu'elle accepte avant qu'on lâche.
 
@@ -449,6 +473,28 @@ la langue par défaut du Seuil.
 | ⛔ **la règle nue ne dit pas le corps rendu** | `.choix-glisse .glisse-jeton` **(0,0,2,0)** bat `.glisse-jeton` **(0,0,1,0)**. Le jeton rendait **12 px** pendant que sa règle nue en annonçait 14 — §0 « Google Headless », le même piège que le rayon de 4 px du lignage |
 | ⛔ **un compte de caractères n'est pas une largeur** | `supplémentaires` fait **15** car. et **80** px — il sort ; `Prestidigitation` en fait **16** et **73** — il tient. **Aucun seuil en caractères ne sépare ces deux-là** ; le repli (`overflow-wrap: break-word`) rattrape le cas, la case garde ses 48 px |
 
+### ✅ LE SEUIL D'ABRÉVIATION SUIT LE CORPS — **16**, ratifié 26/08
+
+> Eric, 2026-08-26, les deux options chiffrées devant lui : **« 16 — garde ce que tu as fait »**.
+
+`ABREGE_MAX` valait **10**, déduit de `--t2`. Le corps est passé à T1, donc le seuil devait suivre :
+garder une conséquence après avoir retiré sa cause, c'est laisser le code mentir.
+
+| le seuil | ce qu'il fait au mot-témoin | mots abrégés sur les 3 831 du corpus |
+|---|---|---|
+| 🔴 **16** *(retenu)* | `Prestidigitation` reste **ENTIER** | **3**, tous français — **zéro en anglais** |
+| 15 *(la méthode du 19/08)* | `Prestidigitation` → `Prestidigit.` | 11 |
+
+⭐ **Pourquoi la méthode a été écartée, et Eric l'a confirmé** : le 19/08 prenait *« un cran sous le
+dernier qui passe »*, ce qui donnerait 15. Mais **15 abrégerait le mot-témoin lui-même** — celui qui
+a servi à justifier tout le passage à T1. Le seuil aurait annulé le bénéfice qu'il était censé
+servir.
+
+🔴 **ET LA LIMITE DE LA MÉTHODE, MESURÉE** : *un compte de caractères n'est pas une largeur.*
+« supplémentaires » fait **15** caractères et **80** px — il sort ; « Prestidigitation » en fait
+**16** et **73** — il tient. ⛔ **Aucun seuil en caractères ne sépare ces deux-là.** Le repli
+(`overflow-wrap: break-word`) rattrape le cas et la case garde ses 48 px.
+
 ⚠️ **CE QUE CE PARAGRAPHE RÉPARE, ET IL FAUT LE DIRE** : la décision du 26/08 n'avait **jamais été
 écrite ici** — elle n'apparaissait que dans un mot d'une case de tableau, derrière un renvoi mort.
 Le vault la listait encore comme **ouverte**. ⭐ *Une norme qui ne vit que dans un document n'existe
@@ -469,6 +515,29 @@ pas* — celle-ci ne vivait même pas là.
 
 ⛔ **Un bouton ne porte JAMAIS l'habit d'une dalle** — c'est ce qui les rendait anonymes.
 *(Dette connue : `.species-done` porte encore `--dalle-inter`.)*
+
+### ✅ L'OMBRE DU BOUTON DEVIENT UNE LUEUR LA NUIT — tranché 26/08
+
+> Eric, 2026-08-26, la mesure posée devant lui : **« une lueur claire la nuit »**.
+
+| | le fond | sous le bord bas | l'écart |
+|---|---|---|---|
+| **jour** *(ombre noire, inchangée)* | 243,1 | 197,3 | **Δ 45,8** ✅ |
+| **nuit** *(avant)* | 18,1 | 15,2 | **Δ 2,9** ⛔ — absente, pas discrète |
+| **nuit** *(la lueur, blanc 22 %)* | 18,1 | **50,9** | **Δ 32,8** ✅ |
+
+⭐⭐ **LA RAISON EST PHYSIQUE, PAS DÉCORATIVE, ET C'EST CE QUI LA REND NON NÉGOCIABLE** : un objet
+posé sur une surface **claire** se détache par l'ombre qu'il projette ; sur une surface **sombre**,
+par la lumière qu'il renvoie. Le jour il reste **45 points de marge** sous le fond ; la nuit il n'en
+reste que **18 avant le noir absolu**, et une ombre à 30 % n'en prend que 3. **C'est le fond qui
+décide de la direction.**
+
+⛔ **Ne pas remonter l'alpha du noir « pour compenser »** : il n'y a rien à compenser, la marge
+n'existe pas.
+
+📌 **Le dépôt le faisait déjà à moitié** : `--verre-lisere` vaut 55 % de blanc le jour et 14 % la
+nuit — même teinte, deux forces, parce que la marge n'est pas la même. Ici on va un cran plus loin :
+⭐ **ce n'est pas la force qui change, c'est le SENS.**
 
 ---
 

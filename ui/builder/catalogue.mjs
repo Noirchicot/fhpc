@@ -334,13 +334,34 @@ export function renderCardRows(rows) {
  *  classe ou d'espèce. */
 function renderFicheActions() {
   const pied = el("div", "fiche-actions");
-  for (const mot of ["Lore", "Choose"]) {
-    const bouton = el("button", "fiche-action", [text(mot)]);
-    bouton.type = "button";
-    bouton.dataset.action = mot.toLowerCase();
-    bouton.disabled = true;   // `renderCatalogueCards` rallume les deux s'ils ont un destinataire
-    pied.append(bouton);
-  }
+
+  /* 🔴 `LORE` N'EST PLUS UN MOT, C'EST UN LIVRE — Eric, 2026-08-26 : *« plutôt
+     qu'un bouton rules ou lore, on crée un bouton de même dimension que `?`
+     mais à ma gauche, il contient un livre… et exit le bouton lore »*.
+
+     ⭐ CE QUE ÇA RANGE, ET C'EST PLUS QUE DE LA PLACE : le pied portait DEUX
+     mots pour deux gestes de nature différente — `LORE` ouvre une lecture,
+     `CHOOSE` écrit dans le document. Les mettre côte à côte au même habit
+     disait qu'ils se valaient. Le rond les sépare : ⭕ à gauche on LIT, le
+     bouton au centre on CHOISIT, ⭕ à droite on demande de l'AIDE.
+     ⭐⭐ Et les deux ronds deviennent une PAIRE symétrique — le `?` était seul
+     dans son coin depuis le 19/08.
+
+     ⛔ LE RÔLE NE CHANGE PAS : `data-action="lore"` reste, donc
+     `renderCatalogueCards` câble le cran exactement comme avant. Ce lot change
+     un DESSIN, pas un branchement. */
+  const livre = el("button", "fiche-livre");
+  livre.type = "button";
+  livre.dataset.action = "lore";
+  livre.disabled = true;      // rallumé par `renderCatalogueCards`, comme avant
+  livre.setAttribute("aria-label", "Lore");
+  pied.append(livre);
+
+  const choisir = el("button", "fiche-action", [text("Choose")]);
+  choisir.type = "button";
+  choisir.dataset.action = "choose";
+  choisir.disabled = true;
+  pied.append(choisir);
   return pied;
 }
 
