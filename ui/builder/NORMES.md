@@ -146,11 +146,34 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 Cercle avec numéro d'étape : **rien fait** = liseré basique · **en cours** = bleu · **validé** =
 vert · **problème** = rouge.
 
-### Chevrons de menu
-`>` — **petit et discret**. ⛔ **PAS dans la marge** *(voir §1 bis)* : il se pose **sur** la dalle,
-au ras de son bord. Appuyer = **scroll**. Il apparaît à
-l'approche *(500 ms de présence suffisent)*, puis **disparaît — mais LA ZONE RESTE CLIQUABLE**.
-⭐ *« pas besoin d'être efficace au tactile, surtout utile pour la souris. »*
+### 🔴 LES CHEVRONS — un seul objet, deux rôles *(tranché 26/08)*
+
+> Eric : *« pour le moment le chevron est une aide à la navigation latérale **AUSSI** »*.
+
+⭐ **Un seul objet.** Il amorce le défilement **et** il fait naviguer dans une liste paginée.
+⛔ Ne pas en fabriquer deux.
+
+| | |
+|---|---|
+| **place** | 🔴 **à GAUCHE et à DROITE** — ⛔ **pas au-dessus** |
+| **sous chaque chevron** | 🔴 le **nombre de pages** et le **nombre d'items** |
+| **allure** | **petit et discret** |
+| ⛔ **pas dans la marge** | il se pose **sur** la dalle, au ras de son bord *(§1 bis)* |
+| **apparition** | à l'approche du doigt ou de la souris — **500 ms de présence suffisent** |
+| **disparition** | il s'efface, **MAIS LA ZONE RESTE CLIQUABLE** |
+| **effet** | appuyer = **scroll** / page suivante |
+
+⭐ *« Pas besoin d'être efficace au tactile — surtout utile pour la souris. »*
+
+⭐ **Et le compte sous le chevron est ce qui accomplit la norme des listes** : sans lui, une liste
+paginée est un défilement sans fin ; avec lui, **toute liste a une taille connue** et le joueur
+sait toujours où il en est.
+
+⚠️ **Écart mesuré avec le code du 15/08** : `.stage-chevrons` est aujourd'hui **en haut et en bas**
+(`position: absolute; inset: 0`, 36 × 14, non tactile — *« une amorce redondante avec le geste de
+défilement, pas un contrôle »*). La norme le déplace **à gauche et à droite** et lui ajoute un
+compte. ⛔ La cote 36 × 14 et le refus du `--touch` 44 datent d'un objet qui n'était **qu'**une
+amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pagination.**
 
 ---
 
