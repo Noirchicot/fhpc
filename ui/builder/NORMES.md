@@ -473,6 +473,15 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 **découpe**, jamais un plafond de données — le homebrew le fera déborder, **c'est prévu**.
 ⛔ **Aucun garde ne doit affirmer « une étagère fait au plus trois pages ».**
 
+✅ **Déjà câblé** *(2026-08-26)* : `LISTE_PAR_PAGE` et `pageDeListe()` dans **`normes.mjs`** — le
+pendant JS de `tokens.css` —, gardés par **`tests/listes.test.mjs`** (la **valeur** *et* l'**absence
+de littéral**). C'est le modèle de `--voile-simple`, copié pour un nombre de JavaScript.
+⚖️ **Et c'est un DÉFAUT** : un écran qui dévie passe **son** nombre à `pageDeListe(objets, page, N)`,
+explicitement, et le garde reste muet. Ce qu'il interdit, c'est de **recopier le 15**.
+📏 **Mesuré sur la page rendue** *(Chrome 151, 360 × 553 et 360 × 667)* : étagère à **33 objets** →
+`33` à gauche, `1/3` à droite, **15 jetons** en 5 × 3, dernière page **3** ; `scrollHeight` =
+`clientHeight` — **la page ne défile pas**.
+
 ---
 
 ## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition

@@ -51,6 +51,7 @@ import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=294";
    un écran qui tombe en un record signalé. */
 import { isGenre } from "../../src/layers/document.mjs?v=294";
 import { swapContent } from "./socle.mjs?v=294";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=294";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
 import { armerJeton } from "./glisser.mjs?v=294";
@@ -405,37 +406,16 @@ function symbolesDAttente(combien) {
   return Array.from({ length: combien }, (_, i) => SYMBOLES_ATTENTE[i % SYMBOLES_ATTENTE.length]);
 }
 
-/* ══ LA GRILLE — 5 LIGNES × 3 COLONNES ══════════════════════════════════ */
-export const CASES_PAR_PAGE = 15;
-
-/**
- * UNE PAGE DE LA GRILLE — l'arithmétique seule, sans un nœud de DOM.
- *
- * ⭐ EXTRAITE EXPRÈS, ET C'EST LA LOI DU DÉPÔT (« on teste la fonction, pas la
- * page ») : tout ce qui touche à la ROUE a besoin d'une mise en page pour
- * exister — position de défilement, viseur, cascade — et ne se teste donc
- * qu'au doigt. La PAGINATION, elle, est de l'arithmétique pure. La sortir
- * d'ici, c'est la rendre mesurable sur le cas PLEIN (127 objets, 9 pages) et
- * sur le cas dégénéré (1 objet, 1 page) sans navigateur.
- *
- * ⛔ LE NOMBRE DE PAGES EST DÉRIVÉ, JAMAIS STOCKÉ : un compte écrit deux fois
- * est un compte qui finit par se contredire.
- * ⭐ Et la page BOUCLE : au-delà de la dernière on revient à la première, en
- * deçà de la première on va à la dernière. Une flèche qui ne fait rien au bout
- * serait une cible tactile morte.
- *
- * @param {Array} objets tous les objets de l'étagère
- * @param {number} page  la page demandée, éventuellement hors bornes
- * @returns {{page:number, pages:number, objets:Array}} la page RAMENÉE dans ses bornes
- */
-export function pageDObjets(objets, page) {
-  const total = Array.isArray(objets) ? objets.length : 0;
-  const pages = Math.max(1, Math.ceil(total / CASES_PAR_PAGE));
-  const brut = Number.isInteger(page) ? page : 0;
-  const p = ((brut % pages) + pages) % pages;
-  const debut = p * CASES_PAR_PAGE;
-  return { page: p, pages, objets: (objets || []).slice(debut, debut + CASES_PAR_PAGE) };
-}
+/* ══ LA GRILLE — 5 LIGNES × 3 COLONNES ══════════════════════════════════
+   ⭐ LE 15 N'EST PLUS ÉCRIT ICI, ET C'EST LE POINT (2026-08-26). C'est une
+   norme du PRODUIT ENTIER — Eric, 23/08 : *« pour la liste des sorts niveau 1
+   on fera ça, pour les maîtrises idem »* — donc elle vit au socle
+   (`normes.mjs`, NORMES.md §5) et cet écran la LIT. Il ne la porte plus, et
+   il n'a aucune raison de dévier : `LISTE_PAR_PAGE` nu, jamais un littéral.
+   Le garde : `tests/listes.test.mjs`.
+   ⛔ ET IL N'Y A PAS DE PLAFOND DE PAGES : `ceil(objets ÷ 15)`, toujours. Une
+   étagère qui déborde des 35 visés (homebrew — « c'est prévu ») fait
+   simplement plus de pages. */
 
 /** ⏳ CE QU'UNE CASE PORTE — LE NOM, en attendant qu'Eric tranche.
  *  Sa question est ouverte (« les cases portent le NOM ou une IMAGE ? ») et
@@ -1042,7 +1022,7 @@ const positionDuTambour = { rayon: null, etagere: null, page: 0 };
  */
 function renderTambour({ query, onAction }) {
   const arbre = rayonsEtEtageres(query);
-  const symboles = symbolesDAttente(CASES_PAR_PAGE);
+  const symboles = symbolesDAttente(LISTE_PAR_PAGE);
 
   const pisteA = el("div", "roue-piste");
   const pisteB = el("div", "roue-piste");
@@ -1143,9 +1123,9 @@ function renderTambour({ query, onAction }) {
   function remplirGrille() {
     const etagere = etagereCourante();
     if (!etagere) { attendreGrille(); return; }
-    /* ⭐ TOUTE L'ARITHMÉTIQUE EST DEHORS (`pageDObjets`) — ce qui reste ici est
+    /* ⭐ TOUTE L'ARITHMÉTIQUE EST DEHORS (`pageDeListe`, au socle) — ce qui reste ici est
        du rendu, et rien d'autre. */
-    const vue = pageDObjets(etagere.objets, page);
+    const vue = pageDeListe(etagere.objets, page);
     page = vue.page;
     cases.dataset.attente = "non";
     /* ⭐ LA PAGE COURANTE EST LA LISTE DE B1 (« un x/x permet de passer d'un
