@@ -222,6 +222,30 @@ trois portes, dont la forme n'est pas tranchée. **Il ne peut que descendre.**
 
 ---
 
+## 1 quinquies. 🔴 LE TITRE EST UN NOM DE SECOURS, PAS UN NOM PAR DÉFAUT
+
+> Eric, 2026-08-26 : *« le seuil a un titre **quand un autre objet ne le désigne pas** : exemple
+> équipement, où le tambour désigne. »*
+
+| l'écran | ce qui le nomme | titre ? |
+|---|---|---|
+| **Équipement › R** | 🥁 **le tambour** — il affiche le rayon et l'étagère | ⛔ **non** |
+| **Entrée › R (le Seuil)** | rien | ✅ **oui** |
+| une **étape du parcours** | 🎗️ **la ceinture** — elle nomme l'étape à 8 px de là | ⛔ **non** |
+
+⭐ **La règle se lit à l'envers, et c'est ce qui la rend juste** : ⛔ **on ne nomme pas deux fois.**
+Un titre posé au-dessus d'un objet qui dit déjà de quoi il s'agit **coûte 40 px pour ne rien
+apprendre** — et sur une page qui ne défile pas, 40 px, c'est presque une rangée de jetons.
+
+➡️ **Avant de poser un titre, la question est : « qu'est-ce qui nomme déjà cet écran ? »** Si
+quelque chose le fait, le titre est **en trop** — au sens exact du §1 quater.
+
+⚠️ **Et ça règle le débat « titre + consigne » du budget** : les 40 px du titre ne sont un candidat
+au « en trop » que sur les écrans **où la ceinture nomme déjà l'étape**. Sur le Seuil, qui n'a pas
+de ceinture, **le titre n'est pas du gras : c'est la seule chose qui dise où on est.**
+
+---
+
 ## 2. LES TROIS ORGANES — forme ET remplissage *(validé 26/08 sur maquette)*
 
 | organe | forme | remplissage | voile |
