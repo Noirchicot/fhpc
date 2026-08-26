@@ -653,6 +653,45 @@ c'est un jeton ordinaire dont le libellé est un nombre.
 
 ---
 
+### 🔒 LES JETONS ET LES BOUTONS SONT **SACRÉS** — 26/08
+
+> Eric, 2026-08-26, au milieu d'une chasse aux pixels : **« les jetons et les boutons
+> sont sacrés »** · **« on les laisse en paix »**.
+
+🔴 **C'EST UNE LOI DE DERNIER RECOURS, ET ELLE SE DÉCLENCHE EXACTEMENT QUAND ON EN A
+BESOIN** : le jour où un écran ne tient pas, le gabarit d'un jeton est ce qu'il y a de
+plus tentant à rogner — il est gros, il est répété, et deux pixels de moins ne se
+voient pas *sur une case*. Ils se voient sur toutes.
+
+| ce qui est sacré | ce qui ne l'est pas |
+|---|---|
+| la cote du jeton — **87 × 48** | les **écarts** entre les blocs |
+| le **corps** du jeton — **T1** | le corps des **titres** |
+| la cible tactile d'un bouton — **44** | les **marges** d'un champ |
+| le gabarit d'un bouton libellé | les gouttières d'une rangée |
+
+⭐ **ET LA RAISON EST MESURABLE, PAS SENTIMENTALE** : un jeton porte un mot qui doit
+rester lisible et une cible que le pouce doit atteindre ; un écart ne porte rien. **Quand
+un écran déborde, ce sont les VIDES qui doivent céder, jamais les ORGANES.**
+
+📏 **Éprouvé le 26/08 sur Identity, du dépassement à l'ajustement exact** — 78 px de
+trop au départ, **0** à l'arrivée, sans qu'un seul jeton ni un seul bouton bouge :
+
+| ce qui a cédé | rendu |
+|---|---|
+| marges entre champs *(16 → 8 → 4)* | 24 |
+| `Name` passé dans l'encart d'écriture | 21 |
+| quatre écarts à −4 *(belt, Gender ×2, rangée)* | 16 |
+| titres descendus d'un T *(t3 → t2)* | ~6 |
+| écarts internes d'un choix *(12 → 8)* | 16 |
+
+⛔ **CE QU'ON A REFUSÉ EN CHEMIN, ET QUI AURAIT « MARCHÉ »** : descendre le corps du
+jeton d'un cran. Ça n'aurait d'ailleurs rien rendu — **la case mesure 48 px par
+GABARIT, quel que soit le corps qu'elle porte**. La tentation était donc doublement
+mauvaise : elle brisait une norme, et elle ne payait pas.
+
+---
+
 ### ⚖️ LES EXCEPTIONS EXISTENT, ET ELLES S'ARGUMENTENT — 26/08
 
 > Eric, 2026-08-26 : **« il y aura des exceptions pour tokens et collecteurs, mais ils doivent être

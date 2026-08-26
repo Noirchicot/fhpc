@@ -2939,7 +2939,17 @@ button { font: inherit; }
    📐 Croquis C, 2ᵉ écran. Le vivier au-dessus, les créneaux en dessous, la
    consigne au pied. Eric teste les DEUX gestes (tap et glisser) : rien ici ne
    doit donner l'impression qu'il n'y en a qu'un. */
-.choix-glisse { display: flex; flex-direction: column; gap: var(--sp-12); }
+/* 🔴 LES ÉCARTS DESCENDENT D'UN CRAN, UNIFORMÉMENT — Eric, 2026-08-26 :
+   *« rogne encore les espaces uniformément »*. Cet écart-ci sépare le titre du
+   vivier, et le vivier du collecteur : 12 → 8, soit **8 px rendus par choix**,
+   16 sur Identity qui en porte deux.
+   ⭐ « UNIFORMÉMENT » SE LIT SUR L'ÉCHELLE, PAS EN PIXELS : on descend d'un
+   barreau (`--sp-12` → `--sp-8`), on ne retranche pas un nombre. Les autres
+   écarts de la carte sont DÉJÀ au barreau du bas (`--sp-4`) ou portent une
+   cote horizontale qui entre dans l'arithmétique des trois colonnes
+   (`--sp-8` entre jetons) — les toucher ne serait plus uniforme, ce serait
+   arbitraire. */
+.choix-glisse { display: flex; flex-direction: column; gap: var(--sp-8); }
 /* 🔴 `Name` PORTE LE MÊME HABIT QUE `Gender` ET `Alignment` — Eric,
    2026-08-26 : *« Name en gras comme alignment »*. Les deux autres titres
    d'Identity sont des `h3` (corps plein, gras) ; `Name` était un `<label>`
@@ -2954,7 +2964,13 @@ button { font: inherit; }
 .choix-glisse h3,
 .doc-field-label {
   margin: 0;
-  font-size: var(--t3);
+  /* 🔴 UN CRAN PLUS BAS — Eric, 2026-08-26 : *« rogne sur la police, descends
+     d'un T »*, dans la chasse aux derniers px du budget iPhone SE.
+     ⛔ ET ÇA NE PEUT VISER QUE LES TITRES, PAS LES JETONS : le corps du jeton
+     est **T1, ratifié le matin même** (§2 bis) — y descendre romprait sa propre
+     norme. Et ça ne rendrait rien : la case mesure 48 px de haut par GABARIT,
+     quel que soit le corps qu'elle porte. Le titre, lui, EST sa hauteur. */
+  font-size: var(--t2);
   color: var(--text);
   font-weight: 700;
 }
