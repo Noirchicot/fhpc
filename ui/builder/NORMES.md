@@ -1622,9 +1622,30 @@ déroge à trois normes, et voici pourquoi chacune cède :
 | §4 — le voile de la dalle est **50 %** | ⛔ **100 %, opaque** *(`dalle-majeure`)* | §4 le prévoit lui-même : *« 100 % — beaucoup de contenu, **ou des images** »*. Un voile sur une illustration la salit |
 | §1 quinquies — un objet **porte un titre** | ⛔ **aucun texte** | *« on ne nomme pas deux fois »* : la carte se nomme par son image, et son nom accessible est sur le bouton *(`aria-label`)*. ⭐ Le texte, lui, vit sur la carte d'à côté — **une carte montre, l'autre explique** |
 
-⛔ **ET ELLE NE REÇOIT AUCUN ORGANE POSÉ** — ni `?`, ni livre, ni pastille. **Mesuré le 26/08 par le
-lot G** : le `?` y était appendu, donc un `<button>` DANS un `<button>` — **demander de l'aide
-RETOURNAIT LA CARTE**. Le chercheur d'hôte exclut désormais les boutons.
+### 🔴 LA RÈGLE DES DEUX DALLES, dans les mots d'Eric
+
+> Eric, 2026-08-26 : **« la dalle tarot ne porte AUCUN AUTRE bouton que le tarot. C'est la dalle
+> TEXTE qui porte les éléments classiques. »**
+
+| la dalle | ce qu'elle porte |
+|---|---|
+| 🃏 **la dalle TAROT** | **elle-même, et rien d'autre.** ⛔ Ni `?`, ni livre, ni pastille, ni rangée de boutons |
+| ⭐ *et la règle se referme d'elle-même* | **le `?` et le livre SONT des boutons** *(Eric, 26/08)* — donc *« aucun autre bouton que le tarot »* les exclut **par construction**, sans qu'on ait à les nommer un par un |
+| 📄 **la dalle TEXTE** | 🔴 **tous les éléments classiques** — la rangée de boutons, le Score, le `?`, le livre |
+
+⭐⭐ **ET C'EST CE QUI REND L'EXCEPTION TENABLE.** Une exception qui prendrait la place d'une norme
+sans la remplacer laisserait un trou : où iraient les organes ? Ici, **la carte d'à côté les
+reçoit** — l'écran n'a rien perdu, il a réparti. **Une carte montre, l'autre porte.**
+
+📏 **CE QU'IL EN COÛTAIT DE NE PAS L'ÉCRIRE, mesuré le 26/08 par le lot G** : le `?` était appendu
+dans la carte du tarot — un `<button>` DANS un `<button>`, du HTML invalide, et surtout un clic qui
+remonte : **demander de l'aide RETOURNAIT LA CARTE.** Le chercheur d'hôte exclut désormais les
+boutons, et l'hôte devient la carte texte, juste dessous.
+
+⚠️ **MAIS L'EXCLUSION DES BOUTONS EST UN EFFET, PAS LA RÈGLE.** Elle marche ici parce que le tarot
+*se trouve* être un bouton. ⛔ Le jour où une dalle-image ne serait pas un bouton, elle recevrait le
+`?` sans que rien ne proteste. **C'est la règle ci-dessus qui fait autorité, et c'est elle que le
+garde mesure** *(`tests/destiny-deux-dalles.test.mjs`)*.
 
 ⭐⭐ **CE QUE CETTE EXCEPTION ENSEIGNE, ET C'EST POURQUOI ELLE EST ÉCRITE** : une norme qui n'admet
 aucune exception se fait contourner en silence. Écrite avec son argument, l'exception **se relit** —
