@@ -200,6 +200,31 @@ vert, le next est bleu » — l'inverse de ce qu'il avait dicté)* : **`done` es
 FINI**, **`next` est BLEU parce qu'on CONTINUE**. Ce ne sont pas deux conventions arbitraires,
 c'est **l'échelle elle-même**, et c'est elle qui a tranché.
 
+### 🔴 LE LIBELLÉ ET LA COULEUR SONT DEUX AXES INDÉPENDANTS
+
+> Eric, 2026-08-26 : *« **mais un même bouton peut changer de couleur, à voir dans l'acte** »*.
+
+| l'axe | ce qu'il dit | il change |
+|---|---|---|
+| **le LIBELLÉ** | **ce que fait** le bouton | ⛔ **jamais** — `Done` reste `Done` |
+| **la COULEUR** | **où on en est** | ✅ **à chaque acte** |
+
+⭐ **Donc « `done` = vert » ne veut PAS dire « le bouton Done est vert ».** Ça veut dire : *un
+`Done` est vert **quand l'étape est finie***. Sur une étape incomplète, **le même bouton est gris
+ou bleu** ; sur un choix hors droit, **il est rouge**.
+
+⛔ **Un lot ne déclare donc JAMAIS `class="bouton-vert"`.** Il déclare un bouton, et **l'état
+peint**. Une couleur écrite dans le balisage est un bogue — elle mentira au premier changement
+d'état.
+
+⭐ **Et c'est ce qui rend le bouton lisible sans le lire** : le joueur voit **où il en est** avant
+même de lire ce qu'il peut faire. La couleur porte l'avancement, le mot porte l'acte — **deux
+informations, aucune redondance**.
+
+📌 **Ce qui se garde** : qu'aucune couleur ne soit figée dans le balisage, et que la couleur se
+dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
+par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
+
 ### 🟣 Le rouge peut être accompagné
 
 > Eric : *« le rouge c'est pas bon — **tu peux me mettre un flic en même temps** »*.
