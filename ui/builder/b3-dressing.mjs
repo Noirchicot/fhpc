@@ -22,9 +22,9 @@
    `ecran-b3.html` le montre, le banc de parcours le mesure (GOOGLE
    HEADLESS). */
 
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=306";
-import { rangeeEchange, lignesParLieu } from "./equipement-pipeline.mjs?v=306";
-import { BARRE } from "./b3-disposition.mjs?v=306";
+import { construireLaSceneB3 } from "./b3-scene.mjs?v=307";
+import { rangeeEchange, lignesParLieu } from "./equipement-pipeline.mjs?v=307";
+import { BARRE } from "./b3-disposition.mjs?v=307";
 
 function eld(balise, classe, texte) {
   const n = document.createElement(balise);

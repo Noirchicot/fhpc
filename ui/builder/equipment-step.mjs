@@ -43,26 +43,26 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=306";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=306";
+import { renderPicker } from "./carnet.mjs?v=307";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=307";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=306";
-import { swapContent } from "./socle.mjs?v=306";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=306";
+import { isGenre } from "../../src/layers/document.mjs?v=307";
+import { swapContent } from "./socle.mjs?v=307";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=307";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=306";
+import { armerJeton } from "./glisser.mjs?v=307";
 /* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
    écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=306";
+import { construireLeDressing } from "./b3-dressing.mjs?v=307";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=306";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=306";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=307";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=307";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
