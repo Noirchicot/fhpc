@@ -48,7 +48,7 @@ export function setGeneralVu(valeur) { ecrire(CLEF_VU, valeur); }
 
 /* ⛔ ICI A VÉCU 48 h un « guide obligatoire » (clef navigateur) — Archi 27 l'a
    requalifié le 26/08 : un objet qui EXIGE une réponse et ÉCRIT au document
-   est une DÉCISION, pas une aide. Il est devenu la carte `decision-kit`, et
+   est une DÉCISION, pas une aide. Il est devenu la carte `aiguilleur`, et
    son état vit AU PERSONNAGE (`depart` dans le document) — une décision par
    personnage ne se range pas dans le navigateur. */
 

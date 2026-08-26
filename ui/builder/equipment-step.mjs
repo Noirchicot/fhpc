@@ -1615,20 +1615,40 @@ export function renderEquipmentStep(ctx, onAction) {
     const depart = (docu && docu.build && Array.isArray(docu.build.choices)
       ? docu.build.choices.find((c) => c.path === "depart") : null);
     if (!depart) {
-      const voile = el("div", "decision-kit");
-      const boite = el("div", "decision-kit-carte");
+      /* 🔴 C'EST UN AIGUILLEUR — Eric, 2026-08-26 : *« c'est plutôt un
+         aiguilleur, on a TOUJOURS besoin de lui »*.
+         ⭐ SA PHRASE PORTE LE CRITÈRE, PAS SEULEMENT LE MOT. NORMES §7 définit
+         le GUIDE par son caractère optionnel — *« il ne réclame rien »*, on le
+         congédie, on le rouvre au `?`. Celui-ci ne se congédie pas : sans
+         réponse, l'étape n'a pas de point de départ. **Ce qu'on ne peut pas
+         refuser n'est pas une aide.**
+         ⭐ Et l'aiguilleur est précisément la voix qui parle AVANT — *« il
+         PRÉVIENT : attention, voilà où tu vas »*. Ici il fait exactement ça :
+         il pose l'embranchement du chapitre (le kit, ou les 50 PO).
+         📌 TROISIÈME NOM EN UN JOUR, et chacun a corrigé une faute : il
+         s'appelait « guide obligatoire » (faux : un guide est optionnel), puis
+         `decision-kit` (juste sur la mécanique, muet sur le rôle), puis
+         `aiguilleur` — le seul qui dise à la fois ce qu'il fait et pourquoi on
+         ne peut pas s'en passer.
+         ⏳ CE QUE ÇA LAISSE OUVERT, et je ne le tranche pas : §7 range
+         l'aiguilleur parmi les POPUPS, et §2 dit qu'un popup *« parle, on ne
+         l'appuie pas »*. Celui-ci porte DEUX boutons. Un aiguilleur qui exige
+         une réponse n'est donc pas la même forme qu'un aiguilleur qui prévient
+         en passant. À Eric de dire si ce sont deux organes ou un seul. */
+      const voile = el("div", "aiguilleur");
+      const boite = el("div", "aiguilleur-carte");
       boite.append(
-        el("h2", "decision-kit-titre", [text("Your equipment")]),
-        el("p", "decision-kit-texte", [text(
+        el("h2", "aiguilleur-titre", [text("Your equipment")]),
+        el("p", "aiguilleur-texte", [text(
           "You start equipped: your class kit is yours, already listed. " +
           "Or set it aside and take 50 GP to spend as you please — the " +
           "catalogue is behind the Equipment button.")]),
       );
-      const pied = el("div", "decision-kit-pied");
+      const pied = el("div", "aiguilleur-pied");
       pied.append(
-        button("I keep my kit", "decision-kit-bouton",
+        button("I keep my kit", "aiguilleur-bouton",
           () => act({ kind: "choisirDepart", valeur: "kit" }), "Keep the class kit"),
-        button("Take the 50 GP", "decision-kit-bouton",
+        button("Take the 50 GP", "aiguilleur-bouton",
           () => act({ kind: "choisirDepart", valeur: "purse" }), "Add fifty gold to the purse"),
       );
       boite.append(pied);

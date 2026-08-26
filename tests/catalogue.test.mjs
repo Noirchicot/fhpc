@@ -160,10 +160,27 @@ for (const cfg of ECRANS) {
        Ce qu'on garde à la place est plus exact : les SEULS boutons tolérés
        sont ces deux-là, nommés, et AUCUN ne porte de valeur de record —
        remettre les douze options du lot 42 rougirait toujours. */
+    /* ⚠️ 2026-08-26 — `LORE` N'EST PLUS UN MOT, C'EST UN LIVRE. Eric : *« plutôt
+       qu'un bouton lore, un bouton de même dimension que `?` mais à gauche, il
+       contient un livre… et exit le bouton lore »*. Le garde comptait les
+       TEXTES ; un organe dessiné n'en a pas.
+       ⭐ CE QU'IL DÉFEND N'A PAS BOUGÉ D'UN POUCE — deux actions par fiche, ni
+       plus ni moins, et AUCUNE ne porte l'identité d'un record. On les compte
+       donc par leur RÔLE (`data-action`), qui est ce que le catalogue câble,
+       plutôt que par leur libellé, qui est du dessin.
+       ⛔ Compter des textes revenait à faire tenir un invariant de branchement
+       par une chaîne de caractères : le jour où le mot change, le garde tombe
+       en criant sur la mauvaise chose. C'est exactement ce qui vient
+       d'arriver. */
     const cards = renderCatalogueCards(ctxDe(cfg), cfg.body);
     const boutons = cards.querySelectorAll("button");
-    assert.deepEqual(boutons.map((b) => b.textContent), Array(12).fill(["Lore", "Choose"]).flat(),
+    assert.deepEqual(boutons.map((b) => b.dataset.action), Array(12).fill(["lore", "choose"]).flat(),
       "une fiche porte exactement les deux actions du croquis, et rien d'autre");
+    const livres = cards.querySelectorAll(".fiche-livre");
+    assert.equal(livres.length, 12, "le LORE est dessiné, un livre par fiche");
+    for (const l of livres)
+      assert.equal(l.getAttribute("aria-label"), "Lore",
+        "⛔ un organe sans texte doit se NOMMER pour un lecteur d'écran — sinon il disparaît de la page pour qui ne voit pas le dessin");
     for (const b of boutons)
       assert.equal(b.getAttribute("data-value"), null,
         "⛔ un bouton qui porte un record est un geste de SÉLECTION — II.1 le supprime : on défile");

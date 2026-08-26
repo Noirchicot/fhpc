@@ -349,7 +349,29 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    `DONE` collé contre un `BACK` se presse par erreur au pouce. */
 .sortie {
   display: flex;
-  justify-content: space-between;
+  /* 🔴 CENTRÉS, ET UNE COLONNE RÉSERVÉE AU `?` — Eric, 2026-08-26, le calcul
+     posé devant lui : *« ② entre dans la rangée, mais il n'entre pas en
+     conflit avec le centrage des boutons, il sera toujours collé à droite »*.
+
+     📏 CE QUE `space-between` FAISAIT, ET POURQUOI AUCUNE BORNE DE LARGEUR NE
+     POUVAIT LE RÉPARER : il colle le dernier bouton au bord DROIT. Le `?` vise
+     ce même coin, à 44 px du bord. Recouvrement mesuré : **44 px, à 360 comme
+     à 375** — le nombre ne bougeait pas, parce que la gouttière est la même des
+     deux côtés et que les deux objets visaient le même coin par construction.
+     ⛔ Rétrécir la rangée déplaçait son bord GAUCHE ; le bouton de droite se
+     recollait au bord droit. §7 demandait de *« borner la largeur par calcul »*
+     — la largeur n'était pas la variable.
+
+     ⭐⭐ ET LE MÉCANISME EXISTAIT DÉJÀ DANS CETTE FEUILLE : `.parcours-pied`
+     porte `justify-content: center` + `padding-right: var(--touch)` depuis le
+     19/08. Il n'a jamais eu le conflit. **On ne fabrique rien ici, on étend une
+     recette qui marchait sur un écran à celle qui ne l'avait pas.**
+
+     ⚖️ ET LE `?` NE PARTICIPE PAS AU CENTRAGE : la colonne est réservée par un
+     `padding`, donc les boutons se centrent sur ce qui RESTE. Un `?` posé comme
+     un membre ordinaire aurait décalé le centre à chaque écran selon qu'il est
+     là ou non — deux écrans, deux centres, sans que rien ne le dise. */
+  justify-content: center;
   gap: var(--sp-8);
   /* 📏 LA GOUTTIÈRE LATÉRALE, ET ELLE RÉPARE UN DÉFAUT ANTÉRIEUR À CE LOT.
      Mesuré à 375 : ce bloc fait toute la largeur de la scène (0 → 375) alors
@@ -363,6 +385,16 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      à l'étroit par le même `@media` qui la sert (§2 bis : « un seul jeton pour
      tout le vocabulaire »). */
   padding: var(--sp-20) var(--sp-16) var(--sp-12);
+  /* 🔴 APRÈS LE RACCOURCI, ET C'EST TOUT LE POINT. Posée AVANT, cette ligne
+     était une DÉCLARATION PERDANTE : le `padding` en raccourci, deux lignes
+     plus bas dans la même règle, remettait la droite à 16. Elle ne faisait
+     rien, et rien ne le disait — *« une déclaration invalide crie, une
+     déclaration PERDANTE se tait »*, la leçon est écrite ailleurs dans cette
+     feuille et je viens de la repayer.
+     📏 CE QUI L'A ATTRAPÉE : la valeur CALCULÉE relevée au navigateur valait
+     `0px` là où j'attendais 44. Lire la feuille aurait dit « c'est écrit,
+     donc c'est fait ». */
+  padding-right: calc(var(--sp-16) + var(--touch));
   max-width: var(--frame-w);
   margin-inline: auto;
 }
@@ -1381,7 +1413,10 @@ button { font: inherit; }
      est déjà à son minimum lisible, ne rétrécit pas davantage. */
   .decision-card { margin: var(--sp-8); }
   /* La sortie d'étape suit la carte, au même cran (voir sa règle). */
-  .sortie { padding-inline: var(--sp-8); }
+  /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
+     `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
+     étroite + `--touch`. ⛔ Ne pas revenir à `padding-inline` ici. */
+  .sortie { padding-left: var(--sp-8); padding-right: calc(var(--sp-8) + var(--touch)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4378,13 +4413,32 @@ button { font: inherit; }
   display: flex; align-items: stretch; gap: var(--sp-2);
   min-width: 0; box-sizing: border-box;
 }
+/* 🔴 LA CASE DE LA GRILLE **EST** UN JETON — tranché par Eric le 2026-08-26 :
+   *« c'est un jeton — aligne-la sur T1 »*.
+
+   ⛔ ET J'AVAIS SOUTENU L'INVERSE, à tort. J'avais arrêté un lot en écrivant
+   *« un organe qu'on GLISSE et un objet de PAGINATION ne sont pas la même
+   chose »*. La feuille disait déjà le contraire, vingt lignes plus bas :
+       `.carte-r .grille-jeton { touch-action: none; … }`
+       `.carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }`
+   — et son propre commentaire l'écrit : *« `.grille-jeton` n'était pas
+   glissable avant R1 »*. Il l'est depuis. **La case se glisse, donc c'est un
+   jeton**, et son nom ne mentait pas.
+   📌 LA LEÇON : j'ai tiré une distinction d'un RAISONNEMENT sur les gestes au
+   lieu de lire ce que le code fait du geste. Un nom qu'on croit menteur mérite
+   qu'on vérifie l'objet avant de vouloir le renommer.
+
+   ⏳ CE QUI RESTE DIFFÉRENT DU JETON DE GLISSER, mesuré et NON tranché — la
+   case porte encore `--radius-sm` (le jeton a `--organe-rayon`), `--surface`
+   opaque (le jeton a `--jeton-teinte`) et aucun `--relief`. Eric a tranché LE
+   CORPS, pas l'habit complet. ⛔ Ne pas aligner le reste sans lui. */
 .grille-jeton {
   flex: 1 1 auto; min-width: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center; text-align: center;
   padding: var(--sp-2);
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text);
-  font: inherit; font-size: var(--t2); line-height: 1.15; cursor: pointer;
+  font: inherit; font-size: var(--t1); line-height: 1.15; cursor: pointer;
 }
 /* Même famille que `.equipment-item-eye` : la cible fait toute la hauteur de la
    case, et jamais moins que `--touch` en largeur. */
@@ -4815,21 +4869,21 @@ button { font: inherit; }
    jamais dans le flux, rien ne se pousse. Son état vit AU PERSONNAGE
    (`depart`), pas au navigateur. */
 .equipment-dressing, .dressing { position: relative; }
-.decision-kit {
+.aiguilleur {
   position: absolute; inset: 0; z-index: 2;
   display: flex; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
 }
-.decision-kit-carte {
+.aiguilleur-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));
   background: var(--surface); border: 1px solid var(--accent);
   border-radius: var(--radius-md); padding: var(--sp-16);
   display: flex; flex-direction: column; gap: var(--sp-8);
 }
-.decision-kit-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
-.decision-kit-texte { margin: 0; font-size: var(--t3); }
-.decision-kit-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
-.decision-kit-bouton {
+.aiguilleur-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.aiguilleur-texte { margin: 0; font-size: var(--t3); }
+.aiguilleur-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+.aiguilleur-bouton {
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
@@ -5098,7 +5152,7 @@ button { font: inherit; }
 
 /* — LE BOUTON : la forme, patron du socle — */
 .pipeline-bouton, .dressing-bouton, .carte-r-bouton,
-.pipeline-ligne-envoi, .pipeline-pas, .decision-kit-bouton {
+.pipeline-ligne-envoi, .pipeline-pas, .aiguilleur-bouton {
   --bouton-fond: var(--text-muted);
   position: relative;
   background: none;
@@ -5109,7 +5163,7 @@ button { font: inherit; }
   filter: var(--bouton-ombre);
 }
 .pipeline-bouton::before, .dressing-bouton::before, .carte-r-bouton::before,
-.pipeline-ligne-envoi::before, .pipeline-pas::before, .decision-kit-bouton::before {
+.pipeline-ligne-envoi::before, .pipeline-pas::before, .aiguilleur-bouton::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -5140,7 +5194,7 @@ button { font: inherit; }
 .pipeline-bouton[aria-label^="Pay"],
 .pipeline-bouton[aria-label^="Send"],
 .pipeline-bouton[aria-label^="Add fifty"],
-.decision-kit-bouton { --bouton-fond: var(--positive); }
+.aiguilleur-bouton { --bouton-fond: var(--positive); }
 .pipeline-bouton[aria-label^="Empty"],
 .pipeline-danger { --bouton-fond: var(--critical); }
 .pipeline-inerte { filter: none; }
