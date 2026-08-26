@@ -268,16 +268,54 @@ export const LIGNE_ACQUIS = {
   label: "Granted automatically"
 };
 
+/** Le nom du lignage POSÉ, ou `null`.
+ *
+ *  ⭐ Il lit exactement là où `resumeDeLItem` lit déjà — `planAt(decisions,
+ *  "species.lineage[0]")` puis le record de l'espèce. ⛔ Deux lectures
+ *  différentes du même choix finiraient par se contredire : celle-ci reprend
+ *  la sienne, mot pour mot. */
+function lignageChoisi(ctx) {
+  if (!ctx) return null;
+  const record = especeRetenue(ctx);
+  if (!record) return null;
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, "species.lineage[0]") || planAt(decisions, "species.lineage");
+  const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  if (!pose) return null;
+  const choisi = (lignagesDe(record) || []).find((o) => o && o.id === pose);
+  return choisi ? choisi.name : null;
+}
+
 export const SPECIES_CATALOGUE = {
   path: "species", kind: "species", label: "Species", fiche: true, parcours: true,
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
      l'écran ATTEND, et il se corrige ICI, à un seul endroit. */
   itemCorps: corpsDeLItem,
   resumeItem: resumeDeLItem,
-  itemLabel: (chemin) => (chemin === "species.lineage" ? "Lineage"
-    : chemin === "species.skillBudget" ? "Skill budget"
-    : chemin === "species.skills" ? "Species skill"
-    : chemin === LIGNE_ACQUIS.path ? LIGNE_ACQUIS.label : chemin),
+  /* 🔴 LA PORTE DIT CE QU'IL Y A DERRIÈRE — Eric, 2026-08-27 : *« à la limite,
+     Lineage écrit sur le bouton peut devenir High Elf »*, précisé ensuite :
+     *« Lineage devient High Elf en T2, avec italique T1 en dessous "lineage" »*
+     · *« quand on choisit High Elf »*.
+
+     ⭐ CE QUE ÇA CHANGE POUR LE JOUEUR : tant que rien n'est posé, la porte
+     annonce la QUESTION (« Lineage »). Une fois le lignage choisi, elle annonce
+     la RÉPONSE — et garde la question en sous-titre, pour qu'on sache toujours
+     de quoi « High Elf » est la réponse. **Une porte réglée n'a plus à demander,
+     elle a à rendre compte.**
+     ⚠️ Et ça ne vaut QUE tant que l'étape n'est pas validée : après le `Done` du
+     pied, la porte disparaît et c'est le résumé qui parle *(lot 46)*.
+
+     📌 `ctx` ÉTAIT DÉJÀ LÀ : `shell.mjs` appelle `itemLabel(item.path, ctx)`
+     depuis toujours — cet écran ne s'en servait pas. Rien à câbler en amont. */
+  itemLabel: (chemin, ctx) => {
+    if (chemin === "species.lineage") {
+      const nom = lignageChoisi(ctx);
+      return nom ? { mot: nom, sous: "lineage" } : "Lineage";
+    }
+    return chemin === "species.skillBudget" ? "Skill budget"
+      : chemin === "species.skills" ? "Species skill"
+      : chemin === LIGNE_ACQUIS.path ? LIGNE_ACQUIS.label : chemin;
+  },
   lignesEnPlus: [LIGNE_ACQUIS],
   guideGeneral: {
     titre: "Choosing a species",

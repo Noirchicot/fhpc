@@ -3601,6 +3601,35 @@ button { font: inherit; }
   font: inherit; font-weight: 600; font-size: var(--t4);
   cursor: pointer;
 }
+
+/* 🔴 LA PORTE À DEUX LIGNES — Eric, 2026-08-27 : *« Lineage devient High Elf en
+   T2, avec italique T1 en dessous "lineage" »*.
+   ⭐ LES DEUX LIGNES NE DISENT PAS LA MÊME CHOSE, ET LEUR HABIT LE DIT : la
+   RÉPONSE prend le corps plein (T2) parce que c'est elle qu'on vient lire ; la
+   QUESTION passe en T1 italique — le même habit que « drop it here » dans un
+   collecteur vide, et pour la même raison : **l'italique dit « je ne suis pas
+   une donnée, je dis de quoi l'autre est la réponse »**.
+   ⚠️ La porte reste au gabarit d'un bouton : deux lignes de 15 et 12 tiennent
+   dans ses 44 px de cible. ⛔ Rien à agrandir — le sacré ne bouge pas. */
+.parcours-item-porte {
+  /* ⚠️ ⛔ `display: flex` D'ABORD — sans lui, `flex-direction` ne dirige RIEN :
+     un `button` est `inline-block` par défaut, et mes deux lignes se sont
+     retrouvées côte à côte (« High Elf*lineage* » sur une seule ligne). Une
+     propriété de disposition posée sur un élément qui n'a pas la disposition
+     correspondante est **ignorée en silence** — elle ne prévient pas plus
+     qu'une déclaration perdante. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  line-height: 1.15;
+}
+/* 🔴 T3 POUR LA RÉPONSE — Eric, 2026-08-27 : *« High Elf peut monter en T3 »*,
+   après avoir vu le T2 sur la page. La réponse est ce qu'on vient lire ; elle
+   passe devant la question qui la surmonte, restée en T1 italique. */
+.parcours-item-mot-fort { font-size: var(--t3); }
+.parcours-item-sous { font-size: var(--t1); font-style: italic; opacity: .8; }
 /* Un item sans choix n'est pas cliquable : son mot le dit en s'effaçant un peu. */
 /* 🔴 IL RESSEMBLE À SES COUSINS — Eric, 2026-08-19 : *« agrandir le texte de
    granted et le blanchir pour qu'il ressemble plus à ses cousins »*. Il n'est
@@ -4629,7 +4658,9 @@ button { font: inherit; }
      mordre de 4 px sur l'espace que la liste laissait entre eux.
      ⚠️ Il ne mord PAS sur le bouton lui-même : c'est le `gap` de 8 de la liste
      qui est consommé, et il en restait 8. */
-  margin-top: calc(-1 * var(--sp-12));
+  /* ⚠️ ET ERIC EST REVENU À −8 : *« remets 4 au-dessus de Granted »*. Le −12
+     collait trop. Une cote se juge sur la page, et il l'a jugée deux fois. */
+  margin-top: calc(-1 * var(--sp-8));
 }
 .parcours-item[data-sans-choix="true"] > .parcours-resume {
   overflow-y: auto;
