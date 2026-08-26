@@ -287,7 +287,16 @@ export function renderConceptStep(ctx, onAction) {
   }));
 
   section.append(champGlisse({
-    id: "concept-gender", label: "Gender (optional)",
+    /* 🔴 PLUS DE « (optional) » SUR GENDER — Eric, 2026-08-26 : *« enlève
+       optional sur gender »*.
+       ⭐ ET LE MOT NE MANQUE PAS : ce champ EST facultatif, et l'écran le dit
+       déjà mieux qu'une parenthèse — on peut passer `Done` sans y toucher, et
+       rien ne le réclame. Un libellé qui répète une permission que l'interface
+       accorde déjà est du bruit dans un titre.
+       ⚠️ ALIGNMENT GARDE LA SIENNE : Eric n'a nommé que Gender, et décider
+       pour les deux serait décider à sa place. La différence est visible à
+       l'écran — c'est ce qui la rendra facile à trancher d'un mot. */
+    id: "concept-gender", label: "Gender",
     value: doc.gender, options: GENRES, field: "gender", onAction
   }));
 
