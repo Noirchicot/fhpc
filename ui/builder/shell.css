@@ -3414,20 +3414,107 @@ button { font: inherit; }
      question est ce qu'il porte EN TROP — jamais une barre de plus. */
   height: var(--fiche-h);
 }
-.guide-titre { margin: 0 0 var(--sp-8); font-size: var(--t5); }
-.guide-mot { margin: 0 0 var(--sp-12); color: var(--text-soft); font-size: var(--t3); line-height: 1.5; }
+.guide-titre { /* 🔴 −8 px ENTRE LE TITRE ET LE PREMIER BOUTON — Eric, 2026-08-26 : *« réduis
+     espace elf / lineage de 8 px »*.
+     📏 MESURÉ À 25, ET DÉCOMPOSÉ : 8 de marge basse du titre, puis la saignée
+     qui pose 8 au-dessus d'elle, 1 de trait, 8 en dessous. **Encore deux marges
+     qui s'additionnent** — troisième fois de la journée.
+     ⭐ ON RETIRE CELLE DU TITRE, PAS CELLE DE LA SAIGNÉE : un trait de
+     séparation doit respirer SYMÉTRIQUEMENT, sinon il penche. Le titre, lui,
+     n'a rien à séparer — la saignée juste en dessous s'en charge. */
+  margin-bottom: 0; font-size: var(--t5); }
+/* 🔴 LA BANDE D'AIGUILLEUR — Eric, 2026-08-26 : *« ce texte-là c'est
+   l'AIGUILLEUR ! on pourrait lui garder sa petite fenêtre au-dessus des
+   boutons sans nécessiter un popup »* · *« cet espace, on peut lui faire une
+   place sur chaque dalle, à l'avance »*.
+
+   ⭐ POURQUOI BLEU, ET POURQUOI CE N'EST PAS UN GOÛT : §7 assigne une couleur à
+   chacune des trois voix — guide (parchemin, il ne signale rien), **aiguilleur
+   (bleu, il PRÉVIENT)**, gendarme (rouge, il dit l'erreur). Le vert n'y est pas
+   une voix : c'est la couleur de l'ACHÈVEMENT.
+   ⛔ ET LE MESURER TRANCHE LA QUESTION D'ERIC *(« du bleu ou on reste vert ? »)* :
+   le mot de conclusion de ce même écran est **déjà vert** (`.parcours-conclu`,
+   `rgb(70,157,106)`, mesuré). Peindre la bande du haut en vert ferait dire à la
+   MÊME couleur *« voilà ce qu'il reste à faire »* et *« c'est réglé »*, sur un
+   écran dont tout le travail est justement de distinguer les deux.
+
+   ⚠️ ⛔ ET ON NE RÉUTILISE PAS `.aiguilleur` : ce nom est DÉJÀ PRIS par la
+   décision du départ d'Équipement — un recouvrement plein écran dont le
+   commentaire dit *« ce n'est PAS un guide, c'est une DÉCISION »*. Deux objets
+   sous un nom est la confusion que ce commentaire écarte ; on n'y retombe pas.
+
+   ⚠️ ET LA BANDE NE COÛTE RIEN QUAND ELLE EST VIDE : *« une place à l'avance »*
+   veut dire un EMPLACEMENT normé — en tête de dalle, avant les portes — pas des
+   pixels réservés. Une dalle sans mot n'a pas de bande, donc pas de hauteur
+   perdue. C'est ce qui permet de tenir le budget SE en la gardant. */
+.guide-mot {
+  /* 🔴 8 px SOUS LA BANDE, PAS 4 — Eric, 2026-08-26, en révisant sa propre cote
+     une fois l'écran sous les yeux : *« aiguilleur, remonte-le de 4 »* · *« trop
+     près des boutons = moche »*.
+     ⭐ ET C'EST LA BONNE FAÇON DE FIXER UN ÉCART : il avait dicté 4 avant de le
+     voir, il corrige en le voyant. Une cote se juge SUR LA PAGE, pas dans une
+     liste. ⛔ Ne pas « revenir à 4 » au motif que c'était écrit en premier. */
+  margin: var(--sp-8) 0 var(--sp-8);
+  padding: var(--sp-4) var(--sp-8);
+  border-left: var(--creneau-lisere-rempli) solid var(--info);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+  color: var(--text-soft);
+  font-size: var(--t1);
+  line-height: 1.5;
+}
 
 /* ② LE GUIDE SPÉCIFIQUE */
+/* 🔴 4 px SOUS LE PIED — Eric, 2026-08-26, dernière ligne de son gabarit d'Elf :
+   *« 4 px sous les boutons »*.
+   📏 MESURÉ À 20 AVANT, et le coupable n'était PAS la marge du pied (déjà remise
+   à 0) : c'est le rembourrage BAS de la dalle. Une cote juste au mauvais endroit
+   se corrige au mauvais endroit — il a fallu remonter la chaîne pour trouver
+   qui payait vraiment ces 20 px.
+   ⚠️ Seul le BAS descend : les 16 px du haut et des côtés tiennent la dalle
+   au-dessus de son titre et de ses bords. Ce qu'Eric a cadré, c'est l'espace
+   sous le dernier organe — pas la respiration de la dalle entière. */
 .parcours-guide,
 .parcours-item-dalle,
 .parcours-bilan {
   margin: 0 auto var(--sp-8);
-  padding: var(--sp-16);
+  padding: var(--sp-16) var(--sp-16) var(--sp-4);
   display: flex; flex-direction: column;
 }
 
-.parcours-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-.parcours-item { display: flex; align-items: center; gap: var(--sp-12); min-height: var(--touch); }
+/* 🔴 8 px ENTRE LES ITEMS — Eric, 2026-08-26, en dictant le gabarit d'Elf ligne
+   par ligne : *« titre Elf · bouton Lineage · **8 px d'espace** · bouton Skill
+   budget · **8 px d'espace** · Granted auto · texte en scroll »*. */
+.parcours-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
+/* 🔴 EN COLONNE, PAS EN RANGÉE — mesuré sur Elf validé le 2026-08-26, et c'est
+   une CONTRADICTION ENTRE LE CODE ET LA FEUILLE, pas un réglage à ajuster.
+   `parcours-ecrans.mjs` écrit, mot pour mot : *« LE BILAN DE LA LIGNE, SOUS son
+   bouton, aligné à gauche »*. La feuille, elle, laissait `flex-direction` à sa
+   valeur par défaut — `row`. La tête et le résumé se retrouvaient donc CÔTE À
+   CÔTE, et `align-items: center` centrait le résumé verticalement sur la tête.
+
+   ⛔ CE QUE ÇA PRODUISAIT, MESURÉ : le résumé de `Lineage` occupait y 262→306
+   pendant que le mot `Skill budget` commençait à **265**. Trois chevauchements
+   sur un écran de trois lignes — on lisait « Elven Lineage » à travers « Skill
+   budget », et « …Vigilance skill » superposé à « Size ».
+   ⚠️ ET AUCUN DES DEUX CÔTÉS N'AVAIT TORT TOUT SEUL : le JS décrivait une
+   colonne, la feuille dessinait une rangée, et chacun était cohérent avec
+   lui-même. **C'est l'accord entre les deux que personne ne vérifiait.**
+
+   ⭐ `.parcours-item-tete` garde son propre `flex row` : le voyant et le bouton
+   restent alignés horizontalement. Seule la relation TÊTE ↔ RÉSUMÉ change. */
+.parcours-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* 🔴 −8 px ENTRE LA TÊTE ET SON TEXTE — Eric, 2026-08-26 : *« réduis l'espace
+     entre Granted et le scroll de 8 px »*. Mesuré à **33** (12 de cet écart, 8
+     de rembourrage sous la tête, et l'air que sa hauteur tactile lui laisse),
+     donc on descend de 12 à 4 : la cote exacte qu'il demande, prise sur le seul
+     poste qui soit un ÉCART et pas un seuil tactile. */
+  gap: var(--sp-4);
+  min-height: var(--touch);
+}
 
 /* LE VOYANT. ⚠️ Éteint, il n'est pas invisible : un creux se voit et annonce
    qu'il PEUT s'allumer. Un vide, lui, ne promet rien. */
@@ -3509,9 +3596,24 @@ button { font: inherit; }
    capture, `Done` et la pastille se chevauchaient. Les boutons se centrent
    donc dans la place QUI RESTE, et non dans toute la largeur : la réserve vaut
    une cible tactile, pas un chiffre choisi. */
+/* 🔴 ET 4 px SOUS LES BOUTONS — Eric, 2026-08-26, dernière ligne de son
+   gabarit d'Elf : *« 4 px sous les boutons »*.
+   ⚠️ La dalle porte déjà son rembourrage : ces 4 px s'ajoutent à lui, ils ne le
+   remplacent pas. C'est la même arithmétique qu'au pied d'Identity, où 4 + 8
+   faisaient 12 sous un bouton qui n'a plus rien après lui — ici Eric fixe la
+   part du pied, la dalle garde la sienne. */
 .parcours-pied {
   display: flex; justify-content: center; gap: var(--sp-8);
-  margin: var(--sp-16) 0 0;
+  /* 🔴 4 px AU-DESSUS ET 4 EN DESSOUS — Eric, 2026-08-26, en dictant le gabarit
+     d'Elf : *« l'aiguilleur 2/3 lignes · **4 px** · les boutons »* puis *« 4 px
+     sous les boutons »*.
+     ⛔ MESURÉ AVANT : **20 px des deux côtés**, et l'arithmétique dit pourquoi —
+     `margin-top: 16` du pied venait s'ajouter aux 4 que la bande d'aiguilleur
+     pose sous elle, et en dessous les 4 du pied s'ajoutaient aux 16 de la dalle.
+     ⚠️ **Deux marges légitimes qui s'additionnent**, exactement le défaut réparé
+     sur Identity ce matin — troisième fois aujourd'hui. Ici le pied cesse de
+     poser la sienne : c'est le bloc qui PRÉCÈDE qui décide de l'écart. */
+  margin: 0;
   /* 🔴 LA MÊME COLONNE DES DEUX CÔTÉS — Eric, 2026-08-26 : *« bien mais Done
      centré »*, puis *« fais comme pour tous les panels »*.
      ⛔ MESURÉ AVANT : `0 px / 44 px`. Les boutons de Species, Inheritance et
@@ -3531,6 +3633,7 @@ button { font: inherit; }
      ligne 2241 et ne concerne pas ce pied. Chercher la DÉCLARATION ne suffit
      pas non plus : il faut la situer. */
   padding-inline: var(--touch);
+  margin-bottom: var(--sp-4);
 }
 .parcours-pied button {
   /* 🔴 À LA TAILLE DE LEUR MOT — Eric, 2026-08-19 : *« donc rapetisser les
@@ -4354,7 +4457,19 @@ button { font: inherit; }
    CHEVAUCHAIENT de 5 px — le rétrécissement se répartissait sur les trois au
    prorata, alors qu'un seul avait du texte à donner. */
 .parcours-item { flex: none; }
-.parcours-item:has(> .parcours-resume) { flex: 1 1 auto; min-height: 0; }
+/* 🔴 UN ITEM N'EST PAS ÉCRASABLE — mesuré sur Elf validé, 2026-08-26.
+   ⛔ L'ARITHMÉTIQUE LE DIT SANS APPEL : l'item mesurait **47 px** pendant que
+   ses deux enfants en demandaient **100** (tête 44 + résumé 44 + écart 12).
+   `flex: 1 1 auto` avec `min-height: 0` l'autorisait à être compressé sous sa
+   taille naturelle — les trois items se partageaient les 181 px de la liste, et
+   leurs contenus DÉBORDAIENT par-dessus le voisin. On lisait « Elven Lineage »
+   à travers « Skill budget ».
+   ⭐⭐ LA CAUSE DE FOND ÉTAIT TROIS DÉFILEMENTS IMBRIQUÉS qui se disputaient la
+   même hauteur : la liste défile, l'item se laisse écraser, le résumé défile à
+   son tour. **Un seul niveau doit défiler** — la liste. */
+.parcours-item:has(> .parcours-resume) {
+  flex: 0 0 auto;
+}
 
 /* ④ LA BOÎTE QUI DÉFILE, ET ELLE SEULE. `overscroll-behavior: contain` empêche
    le geste de remonter à `.stage` une fois la prose au bout — sinon la page
@@ -4369,10 +4484,60 @@ button { font: inherit; }
    cote déjà ratifiée, pas une cote inventée pour l'occasion.
    ⚠️ CE QUE ÇA COÛTE, ET C'EST ASSUMÉ : un bilan court de 20 px occupe quand
    même 44. On ne sait pas exprimer en CSS « le plus petit des deux ». */
+/* 🔴 ET LE RÉSUMÉ PREND SA HAUTEUR NATURELLE — il ne défile plus lui-même.
+   ⭐ CE N'EST PAS UN RENIEMENT DE §5 bis *(« la prose défile »)*, c'est son
+   application PROPRE : la norme autorise **une** zone de texte à défiler, pas
+   une poupée russe. Ici c'est `.parcours-items` qui défile, et il porte
+   exactement la prose que §5 bis vise. Un résumé qui défilait DANS une liste
+   qui défile offrait deux gestes pour un seul contenu — et surtout, il
+   permettait à l'item de mentir sur sa taille.
+   ⚠️ `min-height: var(--touch)` a sauté avec : il imposait 44 px à un résumé
+   d'une ligne comme à un résumé de dix. Ni l'un ni l'autre n'était sa hauteur. */
 .parcours-resume,
 .parcours-acquis {
-  flex: 1 1 auto; min-height: var(--touch);
-  overflow-y: auto; overscroll-behavior: contain;
+  min-height: 0;
+}
+
+/* 🔴 LE SEUL BLOC QUI DÉFILE EST CELUI QUI N'A PAS DE PORTE — Eric, 2026-08-26 :
+   *« Granted auto · **texte en scroll** »*, et plus tôt : *« tu peux pas mettre
+   un scroll sur granted ? »*.
+
+   ⭐ ET ÇA CORRIGE CE QUE JE VENAIS D'ÉCRIRE : j'avais retiré le défilement de
+   TOUS les résumés pour tuer le chevauchement. C'était trop large — le
+   chevauchement venait de l'item ÉCRASABLE, pas du défilement. Retirer les deux
+   revenait à jeter avec le défaut la seule chose que §5 bis autorise
+   expressément : *« un scrollable interne, uniquement la zone de texte »*.
+
+   ⭐⭐ ET LA LIGNE DE PARTAGE EST CELLE DE LA PORTE, pas celle du contenu :
+     · un item AVEC porte *(Lineage, Skill budget)* — son résumé n'apparaît
+       qu'une fois l'étape validée, il est court, il prend sa hauteur ;
+     · un item SANS porte *(`Granted automatically`)* — son contenu n'existe que
+       là, il est long, et il n'a aucun écran où aller le lire. **C'est lui, et
+       lui seul, qui a besoin d'une fenêtre.**
+
+   ⚠️ `flex: 1 1 auto` NE LE REND PAS ÉCRASABLE COMME AVANT : le défaut venait
+   de ce que TOUS les items l'étaient et se disputaient la hauteur à trois. Ici
+   les deux premiers sont `flex: 0 0 auto` — ils prennent ce qu'il leur faut, et
+   celui-ci prend **exactement ce qui reste**. C'est le rôle d'un dernier bloc. */
+.parcours-item[data-sans-choix="true"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* 🔴 −8 px DEVANT LUI — Eric, 2026-08-26 : *« réduis l'espace entre Skill et
+     Granted de 8 px »*. Mesuré à **8** exactement (le `gap` de la liste), donc
+     « −8 » veut dire zéro : les deux blocs se touchent.
+     ⭐ ET ON L'ANNULE ICI, PAS SUR LA LISTE : le `gap` de 8 est celui qu'Eric a
+     dicté entre `Lineage` et `Skill budget` deux minutes plus tôt. Le baisser
+     sur `.parcours-items` aurait défait sa consigne précédente pour honorer la
+     suivante. Une marge négative sur le seul bloc concerné ne touche que lui.
+     ⚠️ Elle vise `[data-sans-choix]` et non « le troisième » : le jour où une
+     espèce n'a qu'un item réglable, c'est toujours le bloc SANS PORTE qui doit
+     se coller — pas celui qui occupe le rang 3. */
+  margin-top: calc(-1 * var(--sp-8));
+}
+.parcours-item[data-sans-choix="true"] > .parcours-resume {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════════════

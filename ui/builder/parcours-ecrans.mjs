@@ -127,10 +127,25 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
   page.dataset.racine = racine;
 
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));
-  for (const para of String(texte || "").split(/\n{2,}/)) {
-    const ligne = para.trim();
-    if (ligne.length > 0) page.append(el("p", "guide-mot", [text(ligne)]));
-  }
+  /* 🔴 LA BANDE D'AIGUILLEUR SE POSE EN BAS — Eric, 2026-08-26 : *« c'est trop
+     gros ton aiguilleur, et on le met en bas »* · *« juste au-dessus des
+     boutons, on se garde 2/3 lignes en T1 »* · *« mais la présentation me
+     plaît »*.
+
+     ⭐ ELLE NE VOYAGE PAS PAR GOÛT : en tête, elle repoussait LA LISTE — le
+     joueur lisait une consigne avant de voir ce qu'elle commande. Juste
+     au-dessus des boutons, elle est lue **au moment où l'on cherche la
+     sortie**, c'est-à-dire quand la question « et maintenant ? » se pose.
+     ⚠️ Le cadre bleu reste : c'est la seule chose qu'Eric a explicitement
+     gardée. Ce qui change est sa PLACE et sa TAILLE (T1, deux ou trois lignes),
+     pas son habit.
+     📌 Elle est CONSTRUITE ici, à côté du texte dont elle sort, et POSÉE plus
+     bas : séparer les deux évite d'avoir à retrouver `texte` en fin de
+     fonction, là où plus rien ne dit d'où il vient. */
+  const bandeAiguilleur = String(texte || "").split(/\n{2,}/)
+    .map((para) => para.trim())
+    .filter((ligne) => ligne.length > 0)
+    .map((ligne) => el("p", "guide-mot", [text(ligne)]));
 
   page.append(saignee());
 
@@ -158,7 +173,27 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
     voyant.setAttribute("aria-hidden", "true");
     tete.append(voyant);
 
-    if (item.sansChoix) {
+    /* 🔴 UNE ÉTAPE VALIDÉE N'A PLUS DE PORTES — Eric, 2026-08-26 : *« quand t'as
+       appuyé sur Done, les boutons Lineage et Skill budget disparaissent ; déjà
+       c'est un gain de place énorme. Ils reviennent si je fais I changed my
+       mind »* — et il a précisé qu'il parlait bien du `Done` DU PIED, celui qui
+       devient `Next`, pas de ceux qui vivent DANS Lineage et Skill budget.
+
+       ⛔ ET CE N'EST PAS QU'UN GAIN DE PLACE : ça répare un CHEVAUCHEMENT
+       mesuré sur Elf validé. Chaque item écrit son résumé sous son bouton ;
+       une fois les trois réglés, les résumés s'allongent et passent PAR-DESSUS
+       les boutons restés en place — on lisait « Elven Lineage » à travers
+       `Skill budget`, et « …Vigilance skill » superposé à « Size ».
+
+       ⭐ LA RAISON DE FOND EST CELLE DES TROIS VERBES *(NORMES §6)* : une porte
+       sert à ALLER RÉGLER quelque chose. Quand tout est réglé, elle n'ouvre plus
+       sur une décision — elle ouvre sur un écran qui n'a plus rien à demander.
+       Le nom suffit alors à porter le résumé, exactement comme pour un item
+       `sansChoix`, qui n'a jamais eu de porte.
+       ⚠️ ET ELLES REVIENNENT SEULES : `I changed my mind` défait la validation,
+       donc `acheve` retombe et les portes se reconstruisent. Rien à câbler pour
+       le retour — c'est la même expression qui décide dans les deux sens. */
+    if (item.sansChoix || acheve) {
       tete.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
       ligne.dataset.sansChoix = "true";
     } else {
@@ -170,9 +205,29 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
     }
     ligne.append(tete);
 
-    /* LE BILAN DE LA LIGNE, sous son bouton, aligné à gauche. */
+    /* 🔴 SOIT LA PORTE, SOIT LE RÉSUMÉ — JAMAIS LES DEUX. Eric, 2026-08-26 :
+       *« avant le dernier Done, pas de texte : tout est derrière les
+       boutons »*, en miroir de *« quand t'as appuyé sur Done, les boutons
+       disparaissent »*.
+
+       ⭐ C'EST LA RÈGLE QUI EXPLIQUE LE CHEVAUCHEMENT, et pas seulement qui le
+       répare : l'écran montrait les DEUX à la fois, donc chaque résumé
+       s'allongeait sous un bouton resté en place et finissait par passer
+       par-dessus le suivant. Ce n'était pas un défaut de marge — c'était deux
+       présentations du même contenu superposées.
+       ⭐⭐ Et elle se dit en une phrase : **une porte dit qu'il reste à faire,
+       un résumé dit ce qui est fait.** Les deux ne peuvent pas être vrais du
+       même item au même instant.
+
+       ⚠️ ⛔ SAUF POUR UN ITEM SANS PORTE, et c'est le seul cas que la règle ne
+       couvre pas d'elle-même : `Granted automatically` n'a rien à ouvrir — son
+       contenu n'existe QUE dans ce résumé. Le cacher avant validation le
+       rendrait **inatteignable**, pas discret. Il garde donc le sien.
+       ⏳ Ce qui laisse une question ouverte pour Eric : ce bloc-là porte 369 px
+       de contenu dans 78 px de fenêtre (mesuré sur Elf). Le cacher n'est pas la
+       réponse ; lui donner une porte, peut-être. */
     const resume = resumeDe ? resumeDe(item) : null;
-    if (resume) ligne.append(el("div", "parcours-resume", [resume]));
+    if (resume && (acheve || item.sansChoix)) ligne.append(el("div", "parcours-resume", [resume]));
     liste.append(ligne);
   }
   page.append(liste);
@@ -202,6 +257,10 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
 
      ⚠️ ET `I changed my mind` NE DISPARAÎT JAMAIS : c'est la seule porte qui
      reste ouverte dans les trois états, celle qui défait. */
+  /* La bande d'aiguilleur entre ICI — voir sa note en tête de fonction : après
+     la liste, juste avant le pied. */
+  for (const mot of bandeAiguilleur) page.append(mot);
+
   const pied = el("div", "parcours-pied");
   pied.append(bouton("I changed my mind", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
