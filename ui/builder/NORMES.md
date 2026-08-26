@@ -625,6 +625,86 @@ Eric a tranché **le CORPS**, pas l'habit complet. ⛔ Ne pas aligner le reste s
 
 ---
 
+### ✅ LA TAILLE STANDARD — **le token ET son collecteur**, ratifié 26/08
+
+> Eric, 2026-08-26, en quatre messages successifs :
+> **« les +1 / +2 / +x sont des tokens »** · **« on va les appeler des BONUS TOKENS, taille
+> standard »** · **« tous les tokens et leurs collecteurs, taille standard »** ·
+> **« Identity : taille token = taille collecteur ! »**
+
+**La cote standard est `--glisse-case` × `--glisse-h` — aujourd'hui 87 × 48 px.** Elle vaut pour
+**tout token** et pour **tout collecteur**, sur les huit étapes.
+
+🔴 **ET LES DEUX LISENT LE MÊME JETON DE MESURE, PAS DEUX NOMBRES ÉGAUX.** C'est la seule forme qui
+tienne : deux nombres égaux divergent au premier qui bouge, et personne ne voit le jour où ils l'ont
+fait. La feuille les habille par **une règle qui les nomme tous les deux** :
+
+```css
+.choix-glisse .glisse-vivier > li,
+.choix-glisse .glisse-creneaux:not(.ability-creneaux) > .glisse-creneau {
+  flex: 0 0 var(--glisse-case);
+  max-width: var(--glisse-case);
+}
+```
+
+📌 **Vocabulaire** : un **bonus token** est un token qui porte une valeur à poser (`+1`, `+2`, `+x`)
+au lieu d'un nom. ⛔ **Ce n'est pas une variante de jeton** *(il n'y en a pas — voir plus haut)* :
+c'est un jeton ordinaire dont le libellé est un nombre.
+
+---
+
+### ⚖️ LES EXCEPTIONS EXISTENT, ET ELLES S'ARGUMENTENT — 26/08
+
+> Eric, 2026-08-26 : **« il y aura des exceptions pour tokens et collecteurs, mais ils doivent être
+> argumentés. Notamment pour les augmentations des caractéristiques, ou les ability rolls. »**
+
+C'est la même loi que partout ailleurs dans ce document : *« les normes peuvent avoir des
+exceptions, elles sont argumentées »*. Une exception se pose **à côté de son argument**, dans la
+feuille, à l'endroit où elle s'écrit — jamais dans un addendum, jamais en silence.
+
+| Exception nommée par Eric | Pourquoi elle a de quoi s'argumenter |
+|---|---|
+| **les augmentations de caractéristique** | six collecteurs sur une ligne, un par caractéristique — leur nombre est dicté par la fiche, pas par la mise en page |
+| **les ability rolls** | l'objet qu'on prend est un **dé**, pas un jeton : il porte `fs-de` et non `glisse-jeton`, et sa forme dit qu'il a été **jeté** |
+
+⛔ **CE QUE « ARGUMENTÉE » VEUT DIRE, ET CE QU'ELLE NE VEUT PAS DIRE.** Une exception argumentée dit
+**ce qu'elle retire et pourquoi ce retrait est juste ICI**. Exemple en place, `.ability-collecteur >
+.sortie` : elle réserve `--touch` (44) là où le site réserve 52, **parce que la gouttière de 16 est
+déjà portée par sa dalle** — la réserve tactile, elle, est intacte. ⛔ Une exception qui dit
+seulement *« ici c'est différent »* n'est pas argumentée, c'est un écart.
+
+---
+
+### ✅ TROIS MAX POUR UNE **SÉLECTION** — les collecteurs, eux, sont libres *(26/08)*
+
+> Eric, 2026-08-26, la mesure sous les yeux : **« oui, 4 collecteurs à côté sur une ligne on peut ;
+> mais pas une SÉLECTION de 4 tokens, là c'est 3 max »**.
+
+| Objet | Loi |
+|---|---|
+| **le vivier** *(`.glisse-vivier`)* — ce qui **propose** | **trois colonnes, toujours**, à toute largeur |
+| **la rangée de collecteurs** *(`.glisse-creneaux`)* — ce qui **reçoit** | **libre** : son nombre est dicté par ce que l'étape demande |
+
+🔴 **ET C'EST LA RANGÉE QU'ON BORNE, PAS LA CASE.** Le gabarit du token ne se négocie pas, donc la
+rangée vaut `3 × --glisse-case + 2 × --sp-8` = 277 px, `margin-inline: auto`. Bornée là, elle en
+contient trois et coupe à la quatrième — à 360 comme à 1600, **sans qu'aucun calcul n'ait à
+réussir**.
+
+⛔ **LA FORME QUI NE MARCHE PAS, ET QUI A ÉTÉ DÉPLOYÉE UNE JOURNÉE** *(v311, 26/08)* : donner à la
+case `flex: 0 1 calc((100% − 2 gouttières) / 3)`. Un vivier n'a pas de largeur imposée — il se
+mesure sur son contenu. Une base en **pourcentage** y est donc **circulaire** (la case veut un tiers
+du vivier, le vivier veut la somme des cases), le navigateur tranche par le contenu, et comme la
+base autorisait de **rétrécir**, les bonus tokens `+1` et `+2` d'*Ability boosts* sont tombés à
+**12 × 48 px**.
+
+⚠️ **ET ELLE PASSAIT SIX MESURES JUSTES** : Lineage à 360, 372, 467, 900, 1100 et 1600 rendait
+`[3,3,3,3]` partout. Six largeurs, **un seul témoin** — un vivier PLEIN, dont les douze cases se
+soutiennent. Le cas qui casse est le vivier **presque vide** : deux cases, rien pour les tenir.
+📌 **La leçon, et elle vaut au-delà de ce cas : le NOMBRE de mesures ne rachète pas un témoin
+unique.** Six mesures sur le même objet restent une mesure.
+
+---
+
 ### ✅ LE SEUIL D'ABRÉVIATION SUIT LE CORPS — **16**, ratifié 26/08
 
 > Eric, 2026-08-26, les deux options chiffrées devant lui : **« 16 — garde ce que tu as fait »**.
@@ -710,6 +790,31 @@ nuit — même teinte, deux forces, parce que la marge n'est pas la même. Ici o
 | **la DALLE** | 🔴 **50 %** — *« c'est ça la norme du site »* |
 | **35 %** | ⏳ **le barreau des petits blocs INTÉRIEURS** *(mesuré : `ability-methodes`, `card-reveal`, `card-action`, `inheritance-panel`)* |
 | **100 %** | le **bouton**, et lui seul |
+
+### 🔴 UNE RÈGLE ÉCRITE PAR **RESSEMBLANCE** DOIT NOMMER SA SOURCE, JAMAIS RECOPIER SA VALEUR
+
+> Eric, 2026-08-26 : **« Identity n'a pas sa transparence ni ses boutons »**.
+
+`.concept-step { background: var(--surface) }` — Identity était **opaque**, seule des huit étapes.
+⭐ **ET CETTE RÈGLE N'ÉTAIT PAS FAUSSE LE JOUR OÙ ELLE A ÉTÉ ÉCRITE, C'EST TOUT LE PIÈGE.** Le
+20/08, Eric demandait *« mets-moi Identity à la **même transparence que les autres** »* — et
+« les autres » étaient alors des `dalle-majeure` **opaques**. La règle disait donc « comme les
+autres » en écrivant `--surface`.
+
+🔴 **Depuis la v298, « les autres » sont à 50 %.** La règle a continué de dire la même chose pendant
+que **son référent bougeait** : elle rendait Identity opaque au nom d'une ressemblance qui n'existait
+plus. ⛔ **`background: var(--surface)` ne dit pas « comme les autres » — il dit « opaque »**, et
+personne ne voit la différence tant que les autres ne bougent pas.
+
+📌 **La parade est de ne rien écrire du tout.** Identity porte déjà `dalle-intermediaire` dans le
+DOM : c'est **elle** qui décide, et elle suit le site sans qu'on y revienne.
+
+⚠️ **ET J'AI REFAIT LA MÊME FAUTE TROIS MINUTES PLUS TARD**, sur la colonne du `?` de la même
+étape : j'y recopiais `calc(--sp-16 + --touch)`, si bien qu'Identity réservait **60 px** là où
+Destiny et Skills en réservent **52** *(l'`@media` étroite)*. La réserve n'est pas une constante.
+**Même parade, même forme : ne rien écrire, et laisser `padding-right` retomber sur `.sortie`.**
+
+---
 
 ⭐⭐ **ET ÇA N'INVENTE RIEN : C'EST SA RÈGLE DU 17/08, ÉTENDUE.** Elle vivait déjà dans
 `shell.css`, en **exception** pour trois écrans :
@@ -803,11 +908,36 @@ grille qui en réserve 15, ou l'inverse. ⏳ Aucun garde ne les tient d'accord.
 
 | | |
 |---|---|
-| **les flèches quand il n'y a qu'une page** | disparaissent-elles ? **Quatre listes sur neuf** tiennent sur une page — espèces, classes, maîtrises d'arme, propriétés d'arme |
 | **les 127 objets merveilleux = 9 pages** | le vault : *« ce n'est pas un défaut de la norme, c'est le signe que **cette étagère est trop grosse** »* — elle appelle un niveau de rangement de plus |
 
-✅ **Et un point s'est refermé le 26/08** : *« ce que devient un jeton trop long pour sa case »* —
-c'est `ABREGE_MAX = 16`, ratifié le même jour *(§2 bis)*.
+✅ **Et DEUX points se sont refermés le 26/08** : *« ce que devient un jeton trop long pour sa
+case »* — `ABREGE_MAX = 16` *(§2 bis)* — et les flèches à une seule page, juste ci-dessous.
+
+---
+
+### ✅ UNE SEULE PAGE N'A PAS DE FLÈCHES — tranché 26/08
+
+> Eric, 2026-08-26 : **« quand il y a 3 tokens, on n'affiche que 3 tokens, pas besoin de flèches
+> ni de titre s'il est déjà présent »**.
+
+⭐ **Ce point était en attente depuis le lot A**, qui avait pris le choix sobre **en le disant** :
+*« 🔴 un mot d'Eric le renverse »*. Le mot est venu, et il **confirme** — la règle cesse d'être la
+prudence d'un lot pour devenir celle du site. Elle vaut pour **les deux écrans qui paginent** :
+`glisser.mjs` *(qui ne construit pas ses gouttières)* et Équipement *(qui recompose sa rangée)*.
+
+**Pourquoi ce n'est pas qu'une question de goût** : une flèche qui ne mène nulle part reste une
+cible tactile de 44 px que le pouce vise pour rien, et les deux gouttières coûtent **96 px** de
+largeur à une rangée qui n'en a que 20 de reste sur un téléphone.
+
+⛔ **ET SURTOUT PAS `display: none`.** C'est le **défaut n°3** du dépôt — *« effacer un mot au lieu
+de recomposer »* — et le garde 4 de `ui-jetons.test.mjs` le refuse. Une flèche masquée garde sa
+place dans la grille et reste atteignable au clavier : on retire l'image du problème en laissant le
+problème. **La rangée EST ses trois tokens**, pas une rangée à cinq places dont deux se taisent.
+
+⚖️ **L'exception, et elle est argumentée** : l'**état d'attente** d'Équipement *(dos de cartes,
+aucune étagère chargée)* **garde** ses deux gouttières. Eric a parlé des listes COURTES ; étendre sa
+consigne à un état dont il n'a rien dit serait décider à sa place — et le test 11 nomme cet état
+*« l'état de départ du **croquis** »*. **Un croquis d'Eric prime sur une déduction.**
 
 ---
 
@@ -1020,6 +1150,32 @@ par diverger — c'est la faute des deux échelles typographiques que le dépôt
 ⭐ **C'est la seule famille où la couleur ne dit PAS où on en est — elle dit ce que le bouton
 FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défait** ne doit jamais
 pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
+
+### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
+
+> Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
+> côté de I changed my mind »**.
+
+**La règle tient en une phrase, et c'est ce qui la rend sûre** :
+
+| l'étape est… | le second bouton |
+|---|---|
+| **réglée** | `Next` — on avance |
+| **pas réglée** | `Done` — on règle |
+
+⛔ **CE QUI MANQUAIT ÉTAIT UN QUATRIÈME ÉTAT, ET IL NE SE VOYAIT PAS.** Le pied traitait
+`acheve && !conclu` (→ `Next`) et `!acheve` (→ `Done`). Le cas **`acheve && conclu`** — l'étape
+réglée ET déjà conclue, **celui où le joueur REVIENT sur un chapitre fini** — ne tombait dans aucune
+branche : sa rangée ne portait **que le bouton qui défait**. La seule porte offerte à qui relit une
+étape achevée était de la **démolir**.
+
+📌 **La leçon, et elle a une famille** : ⛔ **un `else if` sans `else` ne prévient jamais qu'il ne
+couvre pas tout.** Il rend simplement moins que prévu, et **se tait** — c'est *« une absence n'est
+jamais une réponse »* sous une autre forme. Le garde ne compte donc pas les boutons *(compter deux
+boutons dans un état laisserait entrer un cinquième état non couvert)* : **il refuse le trou**, en
+exigeant un `if/else` complet.
+
+---
 
 ⭐ **Et la règle générale n'en souffre pas, elle se précise** : la couleur suit l'**état**, sauf
 pour ce qui **détruit du travail déjà fait** — là, elle suit **l'acte**, et elle prévient.
@@ -1732,6 +1888,40 @@ une : c'est un oubli qui se défend.
 différentes aux deux bouts d'une rangée se lisent comme **deux objets sans rapport**. À la même cote,
 ils se lisent comme **les deux bornes d'un même geste** — ⭕ à gauche on **LIT** · au centre on
 **AGIT** · ⭕ à droite on demande de l'**AIDE**.
+
+### ✅ PREMIER CÂBLAGE RÉEL DU LIVRE — **Abilities**, 26/08
+
+> Eric, 2026-08-26, deux fois pour lever tout doute : **« Info doit devenir un livre et
+> disparaître »**, puis **« Abilities : info doit disparaître et devenir un bouton livre ! »**
+
+**Les deux moitiés comptent** : il prend la **forme du livre**, ET le mot « INFO » **quitte
+l'écran**.
+
+⛔ **POURQUOI CE BOUTON ÉTAIT UN DÉFAUT AVANT DE DEVENIR UN LIVRE.** Il portait `ability-entry` —
+donc le gabarit, l'octogone et le pan coupé des **quatre méthodes**. Un cinquième bouton identique
+proposait quelque chose **qui n'est pas un choix**. La feuille l'admettait déjà à demi-mot en
+2026-08-16 : *« il ne se distingue plus par sa forme »*, et il fallait **une phrase sous la rangée**
+pour le rendre découvrable — une phrase dont le seul travail était de **rattraper une confusion de
+forme**.
+
+⭐ **Le livre règle les deux d'un coup** : c'est l'organe qui veut dire *« le texte est là »*, rond,
+**à la cote du `?`**, et il ne ressemble à **aucune** méthode. La phrase peut donc le **désigner**
+au lieu de réparer.
+
+📏 **Mesuré sur la page rendue** *(1100 px, v313)* : livre **44 × 44** à gauche · `?` **44 × 44** à
+droite · les quatre méthodes centrées entre eux — la paire, exactement comme elle est décrite
+ci-dessus.
+
+⚠️ **IL GARDE `aria-pressed`** : c'est un **interrupteur** *(le panneau est ouvert, ou non)*, et un
+livre qui bascule doit le dire. ⚠️ **Et il garde un `aria-label`** — un bouton muet à l'écran ne
+doit pas l'être aussi pour un lecteur d'écran.
+
+📌 **Une leçon de déplacement, pas de dessin.** La consigne disait *« pick one of the methods
+**ABOVE** »* quand elle vivait SOUS la rangée. Remontée au-dessus *(Eric : « le texte devait être en
+haut », il recouvrait le `?`)*, **le même mot désignait la barre d'étapes**. ⛔ **Un déplacement peut
+rendre faux un texte qu'on n'a pas touché** : la phrase ne parlait pas d'elle-même, elle POINTAIT.
+
+---
 
 ⚖️ **ET LE LIVRE PEUT EXISTER SANS ÊTRE CÂBLÉ** *(Eric, le même jour)*. ⛔ C'est une **exception
 nommée** à la règle du `?` — *« un `?` qui n'ouvre rien apprend à ne plus le regarder »* — et elle
