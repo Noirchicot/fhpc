@@ -31,6 +31,14 @@
 /** La scène. 397 × 584 = le croquis (1040 × 1528) à l'échelle du jeton. */
 export const SCENE = { l: 397, h: 584 };
 
+/** ⭐ LA PIÈCE (26/08, les trois bandes de NORMES §1 sexies) : la scène MOINS
+ *  le titre (absorbé par la bande haute du dressing — « on ne nomme pas deux
+ *  fois ») et MOINS la barre (extraite vers la bande basse). 🔴 DÉDUITE,
+ *  jamais posée (§1 ter) : bas du Send-to (ENVOI.y + ENVOI.h = 532) + une
+ *  respiration de 4 = 536. Elle est FIXE — le dressing défile AUTOUR d'elle,
+ *  elle ne se dilate pas (la loi du jeton tient). */
+export const SCENE_PIECE = { l: SCENE.l, h: 536 };
+
 /** ⛔ CES DEUX NOMBRES NE SONT PAS UNE SOURCE : ils RECOPIENT `--glisse-case`
  *  et `--glisse-h` de `tokens.css`, parce qu'un SVG ne lit pas une variable
  *  CSS dans ses attributs. Le garde `tests/b3-disposition.test.mjs` vérifie
