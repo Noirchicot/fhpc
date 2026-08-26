@@ -999,9 +999,26 @@ button { font: inherit; }
   padding: var(--sp-4) var(--sp-12) var(--sp-8);
 }
 .skills-poolbar[data-refus="true"] { border-top: 1px solid var(--critical); }
-/* 📜 LIGNE 2 — le calcul, plus petit, et il DÉFILE avec le contenu. */
+/* 📜 LIGNE 2 — le calcul, plus petit. Il vit dans la BANDE DU HAUT depuis le
+   gabarit des trois bandes (26/08) ; avant, il défilait avec le contenu.
+
+   🔴 ET SON ENCRE A DÛ CHANGER AVEC SON FOND, SINON LA DALLE NE RÉPARAIT RIEN.
+   Ces deux lignes tombaient sur l'image de fond NUE. Contraste refait avec
+   l'arithmétique de `tests/decor.test.mjs` (pire pixel mesuré du fond servi) :
+
+     `--text-muted` sur le fond NU        : 1,83 jour · 2,48 nuit   ⛔
+     `--text-muted` sur la dalle inter    : 3,15 jour · 3,66 nuit   ⛔ encore
+     `--text`       sur la dalle inter    : 7,24 jour · 8,21 nuit   ✅
+
+   ⭐ LA DALLE SEULE NE SUFFISAIT PAS, ET C'EST LE PIÈGE : entrer dans un verre
+   fait gagner 1,3 point, il en manquait 2,7. NORMES §4 le dit sans détour et
+   ce n'est pas une préférence — *seul `--text` survit sur du verre*. La même
+   correction a déjà été faite mot pour mot sur `.ability-organe` (« cette
+   dalle passe en 50 %, donc son texte ne peut PAS rester gris »).
+   ⛔ ET LA HIÉRARCHIE NE SE PERD PAS : elle est portée par `--t2`, la taille,
+   qui reste. Un gris illisible n'était pas une hiérarchie, c'était une perte. */
 .skills-pooldetail { margin-bottom: var(--sp-12); }
-.skills-pooldetail-line { margin: 0; font-size: var(--t2); color: var(--text-muted); }
+.skills-pooldetail-line { margin: 0; font-size: var(--t2); color: var(--text); }
 
 /* ⚠️ `.skills-counter` A DISPARU AVEC SON BALISAGE : le compteur ne défile
    plus « collé avec la barre » (décision n°5 du lot 39) — Eric l'a coupé en
@@ -1011,7 +1028,12 @@ button { font: inherit; }
 .skills-counter-value { font-size: var(--t5); font-weight: 600; }
 .skills-counter-line[data-over="true"] .skills-counter-value { color: var(--critical); }
 
-.skills-rogue-notice { font-size: var(--t3); color: var(--text-soft); margin: 0 0 var(--sp-16); }
+/* 🔴 MÊME DÉFAUT, MÊME REMÈDE : cette ligne parle du même pool, elle est
+   entrée dans la même dalle, et `--text-soft` n'y tenait pas non plus
+   (2,01 jour sur le fond nu · 3,45 sur la dalle inter — la cible est 4,5).
+   ⛔ Ne la corriger qu'à moitié aurait laissé UNE ligne grise dans une dalle
+   dont les deux voisines sont noires : plus visible que le défaut d'avant. */
+.skills-rogue-notice { font-size: var(--t3); color: var(--text); margin: 0 0 var(--sp-16); }
 
 /* B7.8 — `Reset` vit dans la barre du pool, donc il flotte : toujours
    atteignable, sans remonter. */
@@ -2117,6 +2139,22 @@ button { font: inherit; }
      quand elle vit au bas de la scène (largeur pleine, plafond `--frame-w`) ;
      dans une dalle, c'est la dalle qui centre déjà. */
   margin-inline: 0;
+  /* 🔴 MAIS LA COLONNE DU « ? » SE RÉSERVE ICI AUSSI — croquis du 26/08 :
+     *« les deux petits organes ne participent pas au centrage »*. Le raccourci
+     ci-dessus remettait la droite à ZÉRO, et le `padding-right` que `.sortie`
+     déclare en tête de feuille était donc PERDU sur cet écran (spécificité 2
+     contre 1). Mesuré en `FREE` : les deux boutons se centraient sur 16..344,
+     donc sur 180 — le milieu de la dalle, `?` compris, pendant que le rappel
+     occupe 308..352 dans la MÊME rangée (y 501..545 contre 489..533).
+     ⚠️ Aucun conflit ne se voyait avec `Back · Done` (259 contre 308) — et
+     c'est exactement pourquoi il fallait le réserver : le mot le plus long de
+     cette famille, *« I changed my mind »*, mesure 40 px de plus à lui seul.
+     ⭐ LA RÉSERVE VAUT UNE CIBLE TACTILE, PAS UN CHIFFRE CHOISI — `--touch`,
+     la même que `.parcours-pied` depuis le 19/08, sans la gouttière de 16 que
+     `.sortie` ajoute au bas de la SCÈNE : ici, la dalle porte déjà la sienne.
+     ⛔ ET APRÈS LE RACCOURCI, jamais avant : une déclaration invalide crie,
+     une déclaration PERDANTE se tait (la leçon est déjà écrite en tête). */
+  padding-right: var(--touch);
 }
 
 /* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
@@ -3959,6 +3997,175 @@ button { font: inherit; }
   flex: 1 1 auto; min-height: var(--touch);
   overflow-y: auto; overscroll-behavior: contain;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LE GABARIT DES TROIS BANDES — porté à ABILITIES et COMPÉTENCES
+   ══════════════════════════════════════════════════════════════════════
+   Croquis d'Eric, `fh-phb/croquis/2026-08-26-gabarit-ecran-trois-bandes.jpg`,
+   annoté de sa main :
+
+     ┌──────────── TITRE ────────────┐
+     │  ╔═════════════════════════╗  │
+     │  ║      ZONE DE SCROLL     ║  │  ← « NE BOUGE PAS · BORD INVISIBLE »
+     │  ╚═════════════════════════╝  │
+     │  📖   [ btn ]  [ btn ]     ❓  │  ← « BOUTONS CENTRÉS »
+     └───────────────────────────────┘
+
+   ⚖️ SA PORTÉE EST BORNÉE PAR SES MOTS : *« s'il y a une zone de scroll. Si on
+   n'est pas déjà dans le guide ou dans les règles bien sûr. »* C'est un DÉFAUT,
+   pas un mur — un écran qui tient déjà (ARRAY : 0 de débordement mesuré) n'a
+   rien à en faire, et la règle ne lui impose aucune barre.
+
+   📏 CE QU'ELLE RÉPARE, ET C'EST MESURÉ (26/08, Chrome, 360 × 553) :
+
+     | l'écran        | contenu | fenêtre | débordement | le pied        |
+     |----------------|---------|---------|-------------|----------------|
+     | Compétences    | 4 357   | 384     | **3 886**   | DANS le flux   |
+     | Abilities FREE |   693   | 493     | **200**     | DANS le flux   |
+     | Abilities 3D6  |   559   | 493     |      66     | DANS le flux   |
+     | Abilities 4D6  |   540   | 493     |      47     | DANS le flux   |
+     | Abilities ARRAY|   493   | 493     |       0     | DANS le flux   |
+
+   ⭐⭐ RIEN N'EST INVENTÉ DANS CE BLOC. C'est la recette écrite trente lignes
+   plus haut pour `.parcours-guide` — deux bandes `flex: none` autour d'un flux
+   `flex: 1 1 auto; min-height: 0; overflow-y: auto` —, avec la MÊME chaîne de
+   hauteur et le MÊME idiome `:has()`. Species et Class l'avaient ; ces deux
+   écrans-là ne l'avaient pas. On étend, on ne recommence pas.
+
+   ⛔ ET SURTOUT PAS `position: sticky` : NORMES §1 sexies est explicite —
+   *« ce qui défile ne porte pas les organes fixes. Deux couches : le flux, et
+   ce qui reste. »* Un pied collant reste DANS le flux ; c'est précisément ce
+   que la molette de Compétences a déjà dû quitter au lot 39. */
+
+/* ① LA CHAÎNE DE HAUTEUR — et il FAUT l'ouvrir, sinon la borne ne mord sur
+   rien. `max-height: 100%` posé sous une hauteur `auto` se résout à `none` :
+   les deux enveloppes (`.decision-card`, puis l'écran) doivent devenir des
+   colonnes flex, exactement comme pour le parcours.
+   ⛔ ET SEULEMENT QUAND ELLES PORTENT CES ÉCRANS-LÀ (`:has()`) : les huit
+   autres étapes ne voient strictement rien changer.
+   ⭐ ABILITIES SE DÉCLARE, ELLE NE SE DEVINE PAS : la page d'une méthode pose
+   `data-bandes`, la page racine (le sélecteur, 125 px mesurés dans 493, aucune
+   zone de scroll) ne le pose pas — la portée que le croquis se donne lui-même.
+   ⚠️ ET L'ATTRIBUT N'EST PAS UN CONFORT : la forme qu'on voudrait écrire ici,
+   `.abilities-step:has(> .ability-collecteur)`, est INVALIDE dès qu'elle entre
+   dans un autre `:has()` — **`:has()` ne s'imbrique pas**. Écrite ainsi, la
+   règle a été SERVIE, jetée en silence, et la carte gardait 677 px de contenu
+   pour 493 de fenêtre. C'est la règle §0 qui l'a attrapée : la page rendue,
+   jamais la feuille lue. */
+.stage:has(> .decision-card > .skills-step),
+.stage:has(> .decision-card > .abilities-step[data-bandes="true"]) {
+  display: flex; flex-direction: column;
+}
+.decision-card:has(> .skills-step),
+.decision-card:has(> .abilities-step[data-bandes="true"]) {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.skills-step,
+.abilities-step[data-bandes="true"] {
+  max-height: 100%; min-height: 0;
+  display: flex; flex-direction: column;
+}
+
+/* ② CE QUI NE CÈDE JAMAIS — les deux bandes du dehors.
+   🔴 LE COLLECTEUR EST UNE BANDE BASSE, PAS DU CONTENU : ses six créneaux sont
+   la CIBLE d'un glisser, et NORMES §5 bis nomme les collecteurs parmi ce qui ne
+   défile jamais. Le vivier d'îlots est de la même famille — on y PREND un dé.
+   ⭐ Et c'est là que le pied de la coquille s'accroche depuis le 17/08 (*« Back
+   et Done vont en dessous du texte “Drag a die onto an ability” »*) : la bande
+   basse du croquis et la dalle d'Eric sont le même objet. */
+.skills-tete,
+.skills-pied,
+.ability-methode-titre,
+.ability-des-gardes,
+.ability-collecteur { flex: none; }
+
+/* ②bis 🔴 `width: 100%` N'EST PAS UN ORNEMENT : IL REND LEUR LARGEUR AUX
+   DALLES, et il répare un défaut que ce lot a FABRIQUÉ avant de le voir.
+
+   LA CAUSE, UNE ET LA MÊME AUX DEUX ÉTAGES : `.skills-step` comme les trois
+   dalles d'Abilities portent `margin-inline: auto` (plus haut dans cette
+   feuille). Tant que leur parent était un BLOC, ce couple `max-width` + marge
+   automatique valait « pleine largeur, plafonnée ». Dans une COLONNE FLEX,
+   **une marge automatique dans l'axe croisé absorbe la place libre** : l'étirage
+   ne s'applique plus, et l'élément retombe à sa largeur de CONTENU.
+
+   📏 LES DEUX RELEVÉS, ET ILS TOMBENT DANS LES DEUX SENS :
+     · Abilities ARRAY, dont la phrase est courte → l'organe RÉTRÉCIT à
+       **236 px** sous un collecteur de 344. Deux dalles, deux largeurs.
+     · Compétences, dont la grille a une largeur minimale → l'écran GROSSIT à
+       **374 px** dans une carte de 360, et le `?` — ancré à son coin — part de
+       308..352 à **322..366**, donc 6 px hors de l'écran.
+   ⚠️ ET LE SECOND NE SE SERAIT PAS VU EN REGARDANT LA HAUTEUR : `.app` ne
+   déborde pas plus qu'avant verticalement, `scrollHeight` valait 553 dans les
+   deux cas. C'est `.stage.scrollWidth` (360 → 374) qui l'a dit.
+
+   ⭐ LA LARGEUR REDEVIENT DÉFINIE, DONC LES MARGES REDEVIENNENT UN CENTRAGE —
+   ce qu'elles sont partout ailleurs. `--measure` et `--grid-w` continuent de
+   plafonner ; rien n'est recopié, aucune cote n'est écrite. */
+.skills-step,
+.abilities-step[data-bandes="true"],
+.abilities-step[data-bandes="true"] > * { width: 100%; }
+
+/* ③ L'ORGANE D'ABILITIES DEVIENT LA COLONNE TITRE + FLUX. Le titre reste DANS
+   la dalle (Eric, 17/08) et c'est le corps de la dalle qui défile — la même
+   forme que `.parcours-guide`, où `.guide-titre` ne bouge pas pendant que
+   `.parcours-items` cède. */
+.ability-organe:has(> .ability-flux) {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+
+/* ④ LA ZONE DE SCROLL — « NE BOUGE PAS · BORD INVISIBLE », ses mots.
+   ⛔ AUCUNE COTE ÉCRITE (§1 ter) : elle prend CE QUI RESTE une fois les deux
+   bandes servies. La formule vit dans le `flex`, pas dans un pixel — le jour
+   où un libellé grandit, elle rétrécit d'elle-même.
+   ⛔ NI FOND NI LISERÉ NI RAYON : « bord invisible » est une consigne de
+   dessin, et la tenir consiste à ne RIEN déclarer. On ne l'écrit donc pas —
+   ce commentaire est là pour que personne ne vienne les ajouter.
+   ⭐ `overscroll-behavior: contain` empêche le geste de remonter à la scène
+   une fois au bout : sans lui, la page bougerait derrière, ce qu'elle ne doit
+   jamais faire (§1 quater). */
+.skills-flux,
+.ability-flux {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+}
+/* 🔴 L'AIMANTATION SUIT LE CADRE QUI DÉFILE. `.stage` porte
+   `scroll-snap-type: y mandatory` pour les catalogues ; les groupes de
+   compétences portent déjà `scroll-snap-align: start`, et leur scrollport
+   n'est plus la scène. Sans cette ligne, les crans existeraient sans aimant. */
+.skills-flux { scroll-snap-type: y mandatory; }
+
+/* ⑤ LA BANDE DU HAUT DE COMPÉTENCES — et elle répare un contraste, pas un
+   dessin.
+   📏 MESURÉ LE 26/08 : les deux lignes du pool (`.skills-pooldetail-line`,
+   `--text-muted`) tombaient sur l'image de fond NUE, sans dalle dessous.
+   Contraste relevé : **1,05 le jour** — illisible. NORMES §4 le dit sans
+   détour : *seul `--text` survit sur du verre*. Les faire entrer dans une
+   dalle est la réparation qui ne touche ni leur mot ni leur encre.
+   ⭐ Les cotes sont celles des groupes de compétences (`.skills-group`, juste
+   au-dessus) : deux dalles du même écran qui se rembourrent de deux façons
+   commencent à diverger au premier réglage. */
+.skills-tete { margin: var(--sp-8); padding: var(--sp-8); }
+/* 📏 ET LE BAS DE LA BANDE REND SA MARGE — 12 px mesurés sous le calcul du
+   pool (et 16 sous la ligne d'Expertise). Ils séparaient ce bloc d'un contenu
+   qui n'est plus derrière lui : la grille a cessé de le suivre le jour où il
+   est devenu une bande. Dans une bande FIXE, 12 px sont 12 px pris à la zone
+   de scroll — §1 quater demande *« qu'est-ce que la page porte EN TROP ? »*,
+   et c'était ça.
+   ⛔ NOMMÉS, PAS DEVINÉS PAR `:last-child` : essayé, mesuré, ça ne retirait
+   rien. Le dernier enfant de cette dalle n'est aucun des deux — c'est le `?`,
+   que la coquille y pose après coup. **Une position n'est pas une identité.** */
+.skills-tete .skills-pooldetail,
+.skills-tete .skills-rogue-notice { margin-bottom: 0; }
+
+/* ⑥ LA BANDE BASSE — elle n'a RIEN à peindre.
+   ⭐ Le centrage et la colonne réservée au `?` sont déjà écrits dans `.sortie`
+   (`justify-content: center` + `padding-right: calc(--sp-16 + --touch)`, en
+   tête de cette feuille) : c'est la loi des *« deux petits organes qui ne se
+   centrent pas »*. L'hôte n'est qu'une bande qui ne cède pas ; lui donner un
+   rembourrage à lui rentrerait les boutons une seconde fois. */
 
 /* ⑤ LE DÉPASSEMENT — tous les récepteurs passent au rouge. Écrit APRÈS le bleu
    ET après le vert : un budget explosé l'emporte sur « tout est posé », parce
