@@ -1050,6 +1050,66 @@ explicitement, et le garde reste muet. Ce qu'il interdit, c'est de **recopier le
 
 ---
 
+## 4 ter. 📐 LE GABARIT DU RANG **B** — le menu d'une étape *(dicté par Eric, 27/08)*
+
+> Eric, 2026-08-27 : **« note bien aussi toutes les cotes de ce niveau B : tout Species va en
+> hériter »** · **« et potentiellement Classes aussi »** · **« c'est proof of concept À METTRE À
+> L'ÉPREUVE »**.
+
+> [!warning] ⏳ **STATUT : PREUVE DE CONCEPT, PAS UNE COTE GRAVÉE**
+> Ce gabarit a été **dicté cote par cote sur UN écran** — Elf — et il tient sur celui-là. Eric l'a
+> qualifié lui-même : **à mettre à l'épreuve**.
+> ⛔ **Ne pas le citer comme ratifié** tant que l'épreuve n'est pas faite. Ce qui la fera :
+> une espèce **sans lignage** *(le bloc 4 change de contenu)* · une espèce à **`skill_points`**
+> *(Human, Araag, Elestu — le seul champ qu'Elf n'a pas)* · **Class**, qui a d'autres portes et un
+> autre volume de prose.
+> ⭐ **Ce qui est déjà sûr, en revanche, ce sont les LOIS** — le sacré, les trois âges de la porte,
+> la paire, le défilement unique. Elles ne dépendent d'aucune cote.
+
+🔴 **CE N'EST PAS LE GABARIT D'ELF, C'EST CELUI DE `renderGuideSpecifique`** — l'organe qui rend le
+menu d'étape. Il sert **déjà** trois étapes : **Species** *(les 12 espèces)*, **Inheritance** et
+**Class**. Une cote posée ici est posée quinze fois.
+
+### L'ordre vertical, et les écarts *(mesurés à 375 × 553, iPhone SE)*
+
+| | bloc | cote |
+|---|---|---|
+| | *(rembourrage de la dalle)* | **4** haut · **16** côtés · **4** bas |
+| 1 | **le titre** *(« Elf »)* | T5 · à **4 px** du haut |
+| 2 | **la saignée** | collée sous le titre · **8 px** avant la suite |
+| 3 | **les portes**, l'une sous l'autre | **8 px** entre elles · écart interne **4** |
+| 4 | **le bloc sans porte** *(« Granted automatically »)* | **0 px** avant lui · **9 px** avant son texte |
+| 5 | **sa fenêtre de texte** | prend **tout ce qui reste**, et défile |
+| 6 | **la bande d'aiguilleur** | **12 px** avant · **3 lignes T1** · **8 px** après |
+| 7 | **le pied** | livre à gauche · boutons centrés · `?` à droite · **8 px** dessous |
+
+⭐⭐ **LA CLEF DE CE GABARIT EST À LA LIGNE 5** : tout ce qui est resserré au-dessus va **à la
+fenêtre**. C'est le but qu'Eric a fini par nommer — *« on fait de l'espace pour la fenêtre, laisse
+ceux du bas où ils sont »*. 📏 **Mesuré : 78 px au départ, 184 à l'arrivée.**
+
+### ⛔ Ce qui n'est PAS négociable dans ce gabarit
+
+| | |
+|---|---|
+| **la porte** | 44 px de cible, corps **T3** — c'est un bouton, il est **sacré** *(§2 bis)* |
+| **le `?` et le livre** | 22 de dessin dans 44 de cible, aux deux bouts *(§7 bis)* |
+| **la fenêtre** | elle **défile**, elle ne se tronque pas *(§5 bis)* |
+
+### 📌 Les postes qui ont payé, et où les reprendre
+
+| poste | avant | après | ce qu'il était |
+|---|---|---|---|
+| la **saignée** | 17 | **8** | 8 + trait 1 + 8 — *17 px pour un trait* |
+| la tête d'un bloc **sans porte** | 44 | **auto** | `--touch` protégeait un bouton **absent** |
+| le rembourrage **bas** de la dalle | 16 | **4** | |
+| la marge du **titre** | 8 | **0** | elle s'ajoutait à celle de la saignée |
+
+⚠️ **ET CE GABARIT SE MESURE, IL NE SE RELIT PAS.** Trois de ces quatre postes étaient **deux
+marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne les voit qu'en
+**décomposant** l'écart : *« 32 = 16 + 16 »*.
+
+---
+
 ## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition
 
 > Eric, 2026-08-26 : *« quand on a un long bloc de texte, comme celui pour la description des

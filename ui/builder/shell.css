@@ -3748,7 +3748,28 @@ button { font: inherit; }
    📌 **Un sélecteur écrit par POSITION (« tout bouton de ce pied ») attrape ce
    qui arrivera plus tard**, et il ne prévient pas : le livre n'existait pas
    quand cette liste a été écrite. */
-.parcours-livre { margin-right: auto; }
+.parcours-livre {
+  margin-right: auto;
+  /* 🔴 ⛔ ET IL REPREND LE REMBOURRAGE DU LIVRE D'IDENTITY — Eric, 2026-08-27 :
+     *« ton livre est mal centré sur le bouton, tu peux aller piquer le bon
+     alignement dans Identity »*.
+     📏 LES DEUX MESURÉS CÔTE À CÔTE, ET UNE SEULE LIGNE DIFFÉRAIT :
+       Identity      `padding: 0px`
+       le parcours   `padding: 0px 16px`   ⚠️
+     Tout le reste était identique — 44 × 44, `grid`, `center`, dessin 22 × 22
+     posé à 11/11. **Comparer deux objets qui devraient être le même est ce qui
+     a trouvé la faute en une mesure** ; la chercher dans le seul écran fautif
+     aurait pris dix fois plus.
+
+     ⭐ CES 16 px VIENNENT DE `.parcours-pied button { padding: 0 var(--sp-16) }`
+     — la règle des boutons À LIBELLÉ de ce pied, qui écarte un mot de ses bords.
+     Un livre n'a pas de mot. ⛔ **C'EST LA MÊME FAUTE QUE L'OCTOGONE, AU MÊME
+     ENDROIT ET LE MÊME JOUR** : un sélecteur écrit par POSITION (« tout bouton
+     de ce pied ») attrape un organe qui n'existait pas quand il a été écrit.
+     📌 Deux symptômes, une cause — c'est le signe qu'il fallait traiter la
+     CAUSE. Les deux exclusions sont maintenant côte à côte, nommées. */
+  padding: 0;
+}
 .parcours-pied button {
   /* 🔴 À LA TAILLE DE LEUR MOT — Eric, 2026-08-19 : *« donc rapetisser les
      boutons »*. Ils s'étiraient sur toute la ligne (`flex: 1`), ce qui les
@@ -6287,3 +6308,48 @@ button { font: inherit; }
   display: flex; flex-direction: column;
 }
 .equipment-step > .dressing { flex: 1 1 auto; min-height: 0; height: auto; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   🔴 LA PAIRE, PARTOUT — Eric, 2026-08-27 : *« la règle livre et `?` va être
+   PARTOUT »*.
+   ══════════════════════════════════════════════════════════════════════════
+
+   ⛔ CE QUI A FAIT ÉCRIRE CE BLOC, ET C'EST ARRIVÉ DEUX FOIS LE MÊME JOUR, AU
+   MÊME ENDROIT : en posant le livre au pied du parcours, il est sorti en
+   **LOSANGE** *(il héritait de l'octogone de `.parcours-pied button`)*, puis
+   **DÉCENTRÉ** *(il héritait de son `padding: 0 var(--sp-16)`)*. Deux symptômes,
+   **une seule cause** : un sélecteur écrit par POSITION — « tout bouton de ce
+   pied » — attrape un organe qui n'existait pas quand il a été écrit.
+
+   ⭐⭐ ET LA PARADE N'EST PAS D'EXCLURE AU CAS PAR CAS. J'avais commencé par
+   deux `:not(.fiche-livre)` locaux ; la TROISIÈME rangée qui accueillera un
+   livre aurait repayé la même faute, et personne ne l'aurait vue venir. Eric a
+   nommé le vrai périmètre : la règle vaut PARTOUT. Ce bloc est donc posé **en
+   fin de feuille**, pour gagner sur n'importe quelle rangée, présente ou à
+   venir.
+
+   ⭐ CE QU'IL RÉTABLIT EST EXACTEMENT LE REGISTRE *(§6, §7 bis)* : le `?` et le
+   livre **sont des boutons** — ils entrent dans la rangée — mais ils portent
+   **leur** forme, celle d'un rond de 22 px dans une cible de 44. L'octogone est
+   l'habit des gabarits **à libellé** ; un bouton à DESSIN n'a pas de mot à
+   cadrer, donc rien à écarter de ses bords.
+   📏 Les deux mesurés côte à côte le 27/08 : Identity `padding: 0px`, le
+   parcours `padding: 0px 16px` — **une seule ligne différait**, et c'est de les
+   avoir comparés qui l'a trouvée. */
+.fiche-livre,
+.tuto-point {
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background-image: none;
+}
+/* ⛔ ET LEUR DESSIN NE SE FAIT PAS RECOUVRIR : le corps octogonal d'une rangée
+   se peint dans un `::before`, exactement là où ces deux-là peignent le leur.
+   Sans cette ligne, la rangée gagnerait le dessin et l'organe deviendrait un
+   losange — ce qui est arrivé. */
+.fiche-livre::before,
+.tuto-point::before {
+  clip-path: none;
+  background-image: none;
+}
