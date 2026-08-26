@@ -3269,7 +3269,23 @@ button { font: inherit; }
      fait lire comme une place à remplir plutôt que comme une case vide.
      ⭐ `--creux` ne porte aucune couleur du thème : ce sont des arêtes de
      lumière et d'ombre, elles marchent sur n'importe quelle face. */
-  border: 1px dashed var(--border-strong); border-radius: var(--organe-rayon);
+  /* 🔴 PLUS DE POINTILLÉ D'ATTENTE — Eric, 2026-08-26 : *« on voit bien le
+     liseré quand il est rempli. Ton pointillé sert à rien »*.
+
+     ⭐ ET SON ARGUMENT TIENT SEUL : la cible **s'allume au moment où on
+     l'approche** (`[data-vise="true"]`, trait plein accentué). Un contour qui
+     crie en permanence pour un rôle qu'il ne joue qu'à l'instant du dépôt
+     ajoute une boîte à un écran qui en porte déjà douze. Il disait « il y a
+     quelque chose ici » à un endroit où le mot et le tiret le disaient déjà.
+
+     ⚠️ ⛔ MAIS LA BORDURE RESTE, EN TRANSPARENT — et c'est tout l'écart entre
+     « retirer le dessin » et « retirer la cote ». Un `border-style: none`
+     ferait disparaître 2 px de chaque côté, donc **la case sauterait au moment
+     où elle se remplit** — le geste le plus important de l'écran ferait bouger
+     ce qu'on vient de viser. La place est gardée, seul le trait s'efface.
+     ⭐ Et les trois états qui PEIGNENT ce liseré (`rempli`, `visé`, `invalide`)
+     n'ont rien à changer : ils posaient déjà une couleur par-dessus. */
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
   background: none; box-shadow: var(--creux);
   color: var(--text); font-family: inherit;
 }
