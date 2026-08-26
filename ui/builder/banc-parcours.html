@@ -37,7 +37,9 @@ if (scenario === "dressing") {
   document.body.append(f2);
   throw new Error("scenario dressing: fin"); // court-circuite le reste du module
 }
-const graine = scenario === "b3equipe" ? "/fixture-equipe.json" : "/fixture-banc.json";
+const graine = scenario === "b3equipe" ? "/fixture-equipe.json"
+  : (scenario === "b2" || scenario === "mesureB2") ? "/fixture-panier.json"
+  : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
 f.src = "./index.html?v=296";
@@ -49,6 +51,7 @@ const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans 
   }
 };
 f.addEventListener("load", async () => {
+  try {
   const d = f.contentDocument;
   const q = (s) => d.querySelector(s);
   const tous = (s) => [...d.querySelectorAll(s)];
@@ -56,6 +59,24 @@ f.addEventListener("load", async () => {
   tous("button").find((b) => b.textContent.includes("Equipment"))?.click();
   await dors(500);
   if (scenario === "b3" || scenario === "b3equipe") return;                 // le dressing, tel quel
+  if (scenario === "mesureSB") {
+    tous('.b3-scene [aria-label="Open Backpack"]').at(0)
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await dors(400);
+    const ecran = d.querySelector('[data-ecran="SB3.1"]');
+    const liste = ecran.querySelector(".pipeline-lignes");
+    const rang = ecran.querySelector(".pipeline-ligne");
+    const lr = liste.getBoundingClientRect();
+    const er = ecran.getBoundingClientRect();
+    let bas = 0, apres = false;
+    for (const c of ecran.children) {
+      if (c === liste) { apres = true; continue; }
+      if (apres) bas += c.getBoundingClientRect().height;
+    }
+    document.title = "rang=" + rang.getBoundingClientRect().height.toFixed(1) +
+      " listeTop=" + (lr.top - er.top).toFixed(0) + " basStack=" + bas.toFixed(0);
+    return;
+  }
   if (scenario === "sb31") { // Gear weight › Backpack
     tous('.b3-scene [aria-label="Open Backpack"]').at(0)
       ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -74,23 +95,42 @@ f.addEventListener("load", async () => {
     const champ = q(".pipeline-recherche-champ");
     if (champ) { champ.value = "sword"; champ.dispatchEvent(new Event("input", { bubbles: true })); }
     await dors(300);
+    const ecran = d.querySelector('[data-ecran="Recherche"]');
+    const liste = ecran.querySelector(".pipeline-lignes");
+    const rang = ecran.querySelector(".pipeline-resultat");
+    let bas = 0, apres = false;
+    for (const c of ecran.children) {
+      if (c === liste) { apres = true; continue; }
+      if (apres) bas += c.getBoundingClientRect().height;
+    }
     document.title = "resultats=" + tous(".pipeline-resultat").length +
-      " compte=" + (q(".pipeline-compte")?.textContent || "?");
+      " rang=" + (rang ? rang.getBoundingClientRect().height.toFixed(1) : "?") +
+      " listeTop=" + (liste.getBoundingClientRect().top - ecran.getBoundingClientRect().top).toFixed(0) +
+      " basStack=" + bas.toFixed(0);
     return;
   }
-  if (scenario === "b2") {
-    /* ⛔ DANS LE ROYAUME DE L'IFRAME — un import depuis la page parente crée
-       un SECOND panier (autre realm, autre module) : payé en photo vide. */
-    const sc = d.createElement("script");
-    sc.type = "module";
-    sc.textContent = `
-      import { panierAjouter, parseCout } from "/ui/builder/equipement-pipeline.mjs?v=296";
-      panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:crowbar" }, nom: "Crowbar", cout: parseCout("2 GP") });
-      panierAjouter({ ref: { kind: "gear", id: "srd:gear:en:rope-hempen-50-feet" }, nom: "Rope, hempen (50 feet)", cout: parseCout("1 GP") });
-      window.__panierPret = true;`;
-    d.head.append(sc);
-    for (let i = 0; i < 40 && !f.contentWindow.__panierPret; i++) await dors(100);
+  if (scenario === "mesureB2" || scenario === "b2") {
+    /* le panier vit AU DOCUMENT depuis le 24/08 : la graine `#panier` le
+       porte déjà — plus aucune injection de module (l'API d'hier a coûté une
+       mesure muette le 26/08). */
     tous(".carte-r-bouton").find((b) => b.dataset.mot === "CART")?.click();
+    await dors(400);
+    if (scenario === "b2") return;
+    const ecran = d.querySelector('[data-ecran="B2"]');
+    const liste = ecran.querySelector(".pipeline-lignes");
+    const rang = ecran.querySelector(".pipeline-ligne");
+    const rr = rang.getBoundingClientRect();
+    const er = ecran.getBoundingClientRect();
+    const lr = liste.getBoundingClientRect();
+    let bas = 0, apres = false;
+    for (const c of ecran.children) {
+      if (c === liste) { apres = true; continue; }
+      if (apres) bas += c.getBoundingClientRect().height;
+    }
+    const gap = parseFloat(getComputedStyle(liste).rowGap) || 0;
+    document.title = "rang=" + rr.height.toFixed(1) + " gap=" + gap +
+      " listeTop=" + (lr.top - er.top).toFixed(0) + " basStack=" + bas.toFixed(0) +
+      " ecranH=" + er.height.toFixed(0) + " fenetre=" + f.contentWindow.innerHeight;
     return;
   }
   if (scenario === "b1") {
@@ -110,6 +150,7 @@ f.addEventListener("load", async () => {
     await dors(400);
     note(document.title + " b1=" + Boolean(q('[data-ecran=\"B1\"]')));
   }
+  } catch (e) { document.title = "ERREUR: " + e.message; }
 });
 document.body.append(f);
 </script>
