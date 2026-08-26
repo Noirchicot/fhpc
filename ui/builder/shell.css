@@ -2714,11 +2714,7 @@ button { font: inherit; }
    suivi de rangées étroites.
    ⛔ NE PAS ÉCRIRE 277 : le jour où le gabarit du jeton bouge, ce champ
    suivrait de lui-même — un nombre recopié, non. */
-.doc-field-label {
-  text-align: center;
-  font-size: var(--t3);
-  color: var(--text-muted);
-}
+.doc-field-label { text-align: center; }
 .doc-field-input {
   max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8));
   margin-inline: auto;
@@ -2900,7 +2896,24 @@ button { font: inherit; }
    consigne au pied. Eric teste les DEUX gestes (tap et glisser) : rien ici ne
    doit donner l'impression qu'il n'y en a qu'un. */
 .choix-glisse { display: flex; flex-direction: column; gap: var(--sp-12); }
-.choix-glisse h3 { margin: 0; font-size: var(--t3); color: var(--text); }
+/* 🔴 `Name` PORTE LE MÊME HABIT QUE `Gender` ET `Alignment` — Eric,
+   2026-08-26 : *« Name en gras comme alignment »*. Les deux autres titres
+   d'Identity sont des `h3` (corps plein, gras) ; `Name` était un `<label>`
+   grisé et maigre. Trois champs voisins, deux traitements.
+   ⭐ ET IL LIT LA MÊME RÈGLE, IL N'EN RECOPIE PAS LES VALEURS : le sélecteur
+   les nomme tous les deux. Recopier `--t3` et `--text` ici aurait créé une
+   seconde source qui aurait divergé au premier réglage — c'est la faute que ce
+   dépôt a payée trois fois aujourd'hui.
+   ⚠️ `font-weight` DOIT ÊTRE ÉCRIT : un `h3` est gras par défaut du
+   navigateur, un `<label>` non. Sans cette ligne, la règle partagée les
+   rendrait identiques SAUF sur le point qu'Eric demande. */
+.choix-glisse h3,
+.doc-field-label {
+  margin: 0;
+  font-size: var(--t3);
+  color: var(--text);
+  font-weight: 700;
+}
 .choix-glisse-compte { margin: 0; font-size: var(--t2); color: var(--text-muted); }
 
 /* LE VIVIER — les options, en pastilles qui se replient. */
