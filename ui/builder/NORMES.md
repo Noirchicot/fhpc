@@ -351,10 +351,21 @@ rien. Les deux autres portent un signal, **donc ils interrompent**.
 qui relève du magique dans l'Équipement. ⛔ Il ne peut donc pas servir à un popup. **Le gendarme
 redevient rouge.**
 
-⚠️ **Mesuré le 26/08** : la pastille d'attunement (`shell.css:4448`) porte aujourd'hui `--accent`,
-et **il n'existe aucun violet dans `tokens.css`** *(la palette a cinq teintes : accent, positive,
-caution, critical, info)*. **`violet = magie` est donc une déclaration neuve**, à créer, pas un
-constat.
+### ⚠️ Le code est en ÉCART sur ce point — et c'est le code qui a tort
+
+| | |
+|---|---|
+| **le croquis d'Eric** | la pastille d'attunement est **violette** |
+| **le code aujourd'hui** | `.b3-attune` porte **`--accent`** = **`#845933`**, mesuré : **teinte 28°**, un brun-cuivre |
+| **la palette** | ⛔ **aucun violet** dans `tokens.css` *(accent, positive, caution, critical, info)* |
+
+⭐ **Les croquis d'Eric priment sur le texte et sur le code.** Donc : **`--magie` est une teinte à
+créer**, et la pastille d'attunement doit la porter. ⏳ Travail réel, pas une convention à écrire.
+
+📌 **Et la leçon de la façon dont on l'a trouvé** : j'ai d'abord écrit *« elle porte `--accent`,
+pas du violet »* — en lisant **le NOM du jeton, pas sa VALEUR**. Eric a répondu « c'est du
+violet », j'ai mesuré `#845933`, et c'était un brun. **Aucun de nous deux ne lisait la même chose.**
+⛔ Un nom de jeton ne dit pas sa couleur : **la mesurer**.
 
 ⭐ **Et le rouge du gendarme ne crée aucune ambiguïté, parce que le PORTEUR diffère** : le rouge
 d'un **bouton** dit *« ce bouton défait »* ou *« cet état est faux »* ; le rouge d'un **popup** dit
