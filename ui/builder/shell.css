@@ -5098,10 +5098,27 @@ button { font: inherit; }
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
 .pipeline-qte { max-width: 5ch; }
+/* 🔴 `+` VERT · `−` ROUGE — NORMES §6, et le code disait ROUGE AUX DEUX.
+   Eric l'a renommé le 2026-08-26 : *« + et − sont aussi des boutons, avec leur
+   propre forme, l'un rouge l'autre vert »*.
+   📏 LE DÉFAUT, mesuré : `.pipeline-pas` servait les DEUX glyphes avec une
+   seule règle portant `border: 1px solid var(--critical)`. Le `+` était donc
+   rouge — c'est-à-dire qu'il disait *« ce n'est pas bon »* au moment précis où
+   le joueur AJOUTE quelque chose.
+   ⭐ ET C'EST LA MÊME FAMILLE QUE TOUTE LA JOURNÉE : une règle écrite pour
+   deux organes qui n'en font qu'un. La forme leur est commune, la COULEUR ne
+   l'est pas — et elle est justement ce qui les distingue au premier coup d'œil,
+   avant même de lire le glyphe.
+   📌 La FORME reste commune et carrée (`--radius-sm`) : §6 dit *« carré OU
+   petit cercle »*, les deux sont légaux, et un seul dessin pour la paire est ce
+   qui les fait lire comme une paire. */
 .pipeline-pas {
   min-width: var(--touch); min-height: var(--touch); font: inherit; cursor: pointer;
-  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+  background: none; color: var(--text); border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
 }
+.pipeline-pas-plus { border-color: var(--positive); }
+.pipeline-pas-moins { border-color: var(--critical); }
 /* 🔴 §8 (26/08) — LES TROIS ÉCARTS DU DROPDOWN. La hauteur, elle, était juste
    et ne bouge pas : `--touch`, parce que c'est un contrôle qu'on touche.
      · ⛔ LISERÉ : la norme n'en veut AUCUN. Celui-ci était pire qu'un liseré —
