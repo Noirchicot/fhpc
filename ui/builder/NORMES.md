@@ -434,8 +434,16 @@ ce qu'elle accepte avant qu'on lâche.
 | option | emploi |
 |---|---|
 | **35 %** | la **dalle**, et le **collecteur** |
-| **50 %** | ⏳ aucun organe aujourd'hui — au registre |
+| **50 %** | ✅ **GARDÉ au registre** *(Eric, 26/08 : « ça servira peut-être un jour »)* — ⏳ aucun organe aujourd'hui |
 | **100 %** | le **bouton**, et lui seul |
+
+✅ **LE BARREAU DU MILIEU RESTE, MÊME INEMPLOYÉ** *(Eric, 26/08)*. ⛔ Ne pas le retirer sous
+prétexte que rien ne l'utilise : une échelle à **deux** barreaux ne dit plus qu'un contraste
+*(léger / opaque)* ; à **trois**, elle dit une **progression** — et c'est elle qui permettra de
+placer un organe futur **sans rouvrir la question**.
+
+⭐ **Un registre n'est pas un inventaire de ce qui sert : c'est la grammaire de ce qu'on a le droit
+de faire.** ⛔ Le vider de ses cases inemployées, c'est le réduire à un constat.
 
 🔴 **LES ALPHAS S'ADDITIONNENT : 35 % dans 35 % rend 57,7 %.**
 ➡️ ⛔ **Jamais deux voiles empilés** → **pas de conteneur d'écran, des dalles autonomes.**
