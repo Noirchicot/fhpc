@@ -298,6 +298,42 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 
 ---
 
+## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition
+
+> Eric, 2026-08-26 : *« quand on a un long bloc de texte, comme celui pour la description des
+> inheritances, je voudrais un **scrollable interne — pas la dalle, mais uniquement la ZONE DE
+> TEXTE**. Ça permettrait de garder le bilan Species sur une page. »*
+
+| ✅ ce qui peut défiler | ⛔ ce qui ne défile JAMAIS |
+|---|---|
+| **une zone de texte** — de la prose longue | **la page** *(`100dvh`, `overflow: hidden`)* |
+| une **table** dans sa boîte *(déjà en place : `.lore-table-boite`)* | **la dalle** qui la porte |
+| | une **liste de jetons** → elle **pagine** *(§5)* |
+| | une **bande de contrôles** — boutons, collecteurs |
+
+⭐ **La ligne de partage est nette : LA PROSE DÉFILE, LES CONTRÔLES NON.**
+- On **lit** un texte de haut en bas : le défilement est le geste naturel de la lecture, et rien
+  n'est **perdu** — juste plus bas.
+- On **choisit** parmi des jetons : un jeton hors écran est **introuvable**, et le joueur ne sait
+  plus **combien** il en reste. D'où la pagination et **le compte sous le chevron**.
+
+⭐ **Et ça ne contredit pas la loi « demander ce que la page porte EN TROP »** *(§1 quater)* : cette
+loi vise **les contrôles**, dont la lecture d'un seul coup d'œil est le service rendu. Un bloc de
+lore n'a pas ce service à rendre — **le tronquer à la cote serait une perte, le faire défiler n'en
+est pas une.**
+
+🔴 **Ce que ça débloque, et c'est la raison d'Eric** : *« garder le bilan Species sur une page »*.
+Sans défilement interne, une description longue pousse le bilan hors de l'écran ; avec, **la page
+garde sa forme quel que soit le lignage choisi**.
+
+⛔ **Deux gardes-fous** :
+1. **La boîte qui défile porte une hauteur, pas la dalle** — sinon la dalle grandit et la page
+   déborde, ce qu'elle ne peut pas faire.
+2. **On doit VOIR qu'il y a plus** — sinon le joueur croit avoir tout lu. *(Le chevron du §6
+   existe pour ça ; ⏳ reste à dire s'il s'applique aussi à une zone de prose.)*
+
+---
+
 ## 6. LES BOUTONS
 
 | gabarit | capacité | sa largeur |
