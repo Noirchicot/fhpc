@@ -59,8 +59,36 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    📌 Conséquence de mise en page, dite ici parce qu'elle surprend : un écran
    dense est une dalle MAJEURE, donc opaque, donc le fond ne le traverse
    pas. **Le fond respire ENTRE et AUTOUR des dalles, pas à travers elles.*/
-.dalle-simple { background: var(--dalle-simple); border-radius: var(--radius-md); }
-.dalle-intermediaire { background: var(--dalle-inter); border-radius: var(--radius-md); }
+/* 🔴 L'ARÊTE DE VERRE APPARTIENT À LA DALLE, PAS À L'ÉCRAN — Eric, 2026-08-26,
+   après avoir regardé v299 : *« le liseré autour et collé à la carte dans
+   Species R, est-il présent sur la suite ? on dirait pas »*. Mesuré : il avait
+   raison. La fiche d'espèce portait `--verre-lisere` ; le bilan, les écrans de
+   choix et les tutoriels, non. Deux objets au même voile, deux bords
+   différents.
+
+   ⭐ ELLE MONTE ICI, ET C'EST LE MODÈLE DE `--voile-simple` : une déclaration
+   au socle, lue par tous, plutôt qu'une ligne recopiée écran par écran. Avant
+   ce lot, `inset 0 0 0 1px var(--verre-lisere)` était écrit HUIT fois dans
+   cette feuille — huit endroits où l'oublier, et sept l'avaient oublié pour
+   les dalles neuves.
+
+   ⚠️ CE N'EST PAS UN LISERÉ, et le mot compte : c'est une OMBRE INTERNE posée
+   sur le bord même (`inset`). Un `border` prendrait de la place et pousserait
+   le contenu ; celle-ci se pose DANS la dalle et ne déplace rien. C'est ce qui
+   lui donne son air de verre plutôt que son air de cadre.
+
+   ⚖️ ET C'EST UN DÉFAUT, PAS UN MUR : une dalle qui déclare son propre
+   `box-shadow` plus bas dans la feuille garde le sien — même spécificité, la
+   dernière gagne. Les huit anciens sites d'écriture continuent donc de valoir
+   exactement ce qu'ils valaient. ⛔ Aucun rendu existant ne change.
+
+   🔴 SA COTE VIENT DU THÈME, PAS D'UN LITTÉRAL : `--verre-lisere` vaut 55 % de
+   blanc le jour et 14 % la nuit. Une arête écrite en `rgba()` ici serait
+   aveugle au thème — c'est la loi de `tokens.css`. */
+.dalle-simple { background: var(--dalle-simple); border-radius: var(--radius-md);
+                box-shadow: inset 0 0 0 1px var(--verre-lisere); }
+.dalle-intermediaire { background: var(--dalle-inter); border-radius: var(--radius-md);
+                       box-shadow: inset 0 0 0 1px var(--verre-lisere); }
 .dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
 
 /* ── LA MOLETTE DES ÉTAPES (B0.1-B0.5) — fixe, horizontale ────────
