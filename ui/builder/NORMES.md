@@ -779,8 +779,26 @@ Un bouton rouge **dit qu'il y a un problème** ; le **GENDARME** *(popup violet,
 place ; le gendarme prend la parole et coûte une interruption. **Le rouge signale, le violet
 explique.**
 
-⏳ **Non tranché** : le gendarme accompagne-t-il **tout** rouge, ou seulement ceux dont la raison
-n'est pas devinable ?
+### ✅ QUAND LE GENDARME PARLE — tranché 26/08
+
+> Eric : *« le gendarme **quand ça risque de bloquer**, pas tout rouge je pense »*.
+
+| le cas | le rouge | le gendarme |
+|---|---|---|
+| un choix hors droit *(+4 pour un droit de +2)* | ✅ | ⛔ **non** — le joueur voit ce qu'il a fait, il défait |
+| ⛔ **ça BLOQUE** — on ne peut pas continuer tant que ce n'est pas résolu | ✅ | 🔴 **OUI** |
+
+⭐⭐ **Le critère est mécanique, pas esthétique : le gendarme parle quand le rouge EMPÊCHE
+D'AVANCER.** Un rouge qu'on peut corriger soi-même en un geste n'a besoin de personne ; un rouge
+qui ferme la route doit dire **pourquoi**, sinon le joueur cherche.
+
+⛔ **Et un gendarme sur chaque rouge serait pire que pas de gendarme du tout** : une interruption
+qui survient tout le temps cesse d'être lue. **On la ferme sans la lire, et le jour où elle compte,
+elle est fermée aussi.**
+
+📌 **Ce qui se garde** : qu'un gendarme n'apparaisse **que** sur un état qui empêche de continuer.
+C'est vérifiable — le juge qui décide « on peut avancer » est le même qui décide « le gendarme
+parle ».
 
 ### 🔴 L'INTERRUPTEUR — un organe à part entière *(tranché 26/08)*
 
