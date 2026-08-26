@@ -224,11 +224,31 @@ function displayNoneViolations(cssText) {
  *  du `body`, ce qu'un `<button>` ne fait pas.
  *
  *  ⚠️ CE QU'IL NE VOIT TOUJOURS PAS : un contrôle sans `cursor: pointer` ET
- *  sans « button » au sélecteur. Dit plutôt que masqué. */
+ *  sans « button » au sélecteur. Dit plutôt que masqué.
+ *
+ *  ── L'EXCEPTION DU PSEUDO-ÉLÉMENT (2026-08-26), ET SA RAISON ────────────
+ *  ⛔ UN `::before` N'EST PAS UN CONTRÔLE, et le défaut n°4 ne peut pas
+ *  l'atteindre : le noir imposé par l'agent utilisateur frappe le `<button>`
+ *  lui-même. Un pseudo-élément à `content: ""` ne porte AUCUN texte, et il
+ *  hérite de toute façon la `color` de son hôte — lui réclamer une encre,
+ *  c'est réclamer une encre pour un rectangle sans lettre.
+ *  ⭐ CE QUI L'A RENDUE NÉCESSAIRE : depuis le 26/08, le CORPS du bouton
+ *  (fond + biseau + coupe) vit dans un `::before`, parce qu'un `clip-path`
+ *  s'applique après un `filter` et rognerait l'ombre portée s'ils étaient sur
+ *  le même élément. L'encre, elle, n'a pas bougé : elle est sur la règle du
+ *  bouton, juste au-dessus, dans le même bloc de `shell.css`.
+ *  🔴 PORTÉE ÉTROITE, ET C'EST CE QUI LA REND SÛRE : le sélecteur doit être
+ *  fait ENTIÈREMENT de branches de pseudo-élément. Une seule branche qui
+ *  habille un vrai bouton — `.a::before, .b button` — et la règle repasse
+ *  sous le garde. L'ATTAQUE 6 bis le mesure. */
+const TOUT_EN_PSEUDO = (selector) =>
+  selector.split(",").every((branche) => /::(before|after)\b/.test(branche));
+
 function buttonInkViolations(cssText) {
   const text = stripComments(cssText);
   const hits = [];
   for (const [, selector, body] of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (TOUT_EN_PSEUDO(selector)) continue;
     const looksLikeControl = /\bbutton\b/.test(selector) || /(^|[;\s])cursor\s*:\s*pointer/.test(body);
     if (!looksLikeControl) continue;
     const setsBackground = /(^|[;\s])background(-color)?\s*:/.test(body);
@@ -508,6 +528,27 @@ test("⚔️ ATTAQUE 6 — retirer l'encre du bouton secondaire fait rougir SEUL
   assert.deepEqual(fontSizeViolations(mutated), fontSizeViolations(shellCssRaw), "ni le garde de type");
   assert.deepEqual(spacingRadiusViolations(mutated), spacingRadiusViolations(shellCssRaw), "ni celui d'espacement");
   assert.deepEqual(displayNoneViolations(mutated), displayNoneViolations(shellCssRaw), "ni celui de display:none");
+});
+
+test("⚔️ ATTAQUE 6 bis — l'exception du pseudo-élément ne couvre QUE des pseudo-éléments", () => {
+  /* ⭐ Une exception qui ne dit jamais NON n'est pas une exception, c'est une
+     porte. Celle-ci doit laisser passer le corps du bouton (2026-08-26) et
+     arrêter tout le reste — on le lui fait dire dans les DEUX sens. */
+
+  /* ① elle laisse passer ce pour quoi elle a été écrite */
+  assert.deepEqual(
+    buttonInkViolations('.parcours-pied button::before { background-color: var(--bouton-fond); }'),
+    [], "un ::before qui peint le corps d'un bouton ne réclame pas d'encre");
+
+  /* ② ⛔ une seule branche sans `::` et TOUT le sélecteur repasse au garde */
+  const melange = '.a::before, .parcours-pied button { background-color: var(--bouton-fond); }';
+  assert.deepEqual(buttonInkViolations(melange), [".a::before, .parcours-pied button"],
+    "un sélecteur MIXTE habille un vrai bouton — l'exception ne doit pas l'abriter");
+
+  /* ③ ⛔ et le défaut n°4 d'origine rougit toujours, à l'octet */
+  assert.deepEqual(
+    buttonInkViolations('.sortie-bouton { background: var(--surface); cursor: pointer; }'),
+    [".sortie-bouton"], "le défaut du 2026-08-13 reste vu — l'exception n'a rien désarmé");
 });
 
 test("⚔️ ATTAQUE 2 — remettre font-size: 13px sur .skills-budget-note fait rougir SEULEMENT le garde de type", () => {

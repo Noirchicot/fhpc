@@ -1,0 +1,138 @@
+<!doctype html><meta charset="utf-8">
+<title>FHPC — banc de mesure des organes</title>
+<!-- ══ LE BANC DE MESURE — NORMES §0 « GOOGLE HEADLESS » ═══════════════════
+     🔴 Une norme se vérifie SUR LA PAGE RENDUE, pas dans la source. Ce banc
+     pose les organes à des COORDONNÉES CONNUES, sur les DEUX thèmes à la
+     fois, pour qu'un outil puisse échantillonner les pixels sans deviner où
+     regarder.
+
+     Usage (depuis la racine du dépôt) :
+       python3 -m http.server 8899 &
+       chrome --headless --disable-gpu --window-size=760,560 \
+              --screenshot=banc.png \
+              "http://localhost:8899/ui/builder/banc-mesure.html"
+       (puis échantillonner banc.png aux coordonnées ci-dessous)
+
+     ⭐ LES DEUX THÈMES SONT EXPLICITES, ET C'EST LA RAISON D'ÊTRE DU SCRIPT.
+     🔴 MESURÉ LE 26/08, Chrome 151 : sans écran, `prefers-color-scheme` vaut
+     **DARK**. Une mesure faite « sur le thème par défaut » parle donc de la
+     NUIT sans le dire, et le jour n'est jamais regardé. Le script recopie
+     les DEUX blocs de
+     `tokens.css` — le `:root` nu (jour) et celui du `@media (prefers-color-
+     scheme: dark)` (nuit) — sur deux panneaux, en les lisant dans le CSSOM.
+     ⛔ Aucune valeur n'est retranscrite à la main : ce qui est mesuré est ce
+     que la feuille porte, quoi qu'elle porte.
+
+     📐 LA GRILLE — chaque spécimen occupe une cellule de 160 × 96, son
+     bouton fait 120 × 44 collé en haut à gauche de la cellule :
+       cellule(col, lig) = ( 40 + col*180 , 60 + lig*96 )   panneau jour
+       le panneau nuit est décalé de +380 en X.
+     Les colonnes : 0 = gris (défaut) · 1 = bleu (next). Les lignes :
+       0 = .parcours-pied button · 1 = .parcours-item-porte · 2 = .species-done
+       3 = le JETON de référence (.glisse-jeton), qui porte `--relief`. -->
+<link rel="stylesheet" href="./tokens.css?v=294">
+<link rel="stylesheet" href="./shell.css?v=294">
+<style>
+  html, body { margin: 0; }
+  body { display: flex; font-family: var(--font); }
+  .panneau { position: relative; width: 380px; height: 560px; background: var(--bg); }
+  .cellule { position: absolute; width: 120px; }
+  /* 🔴 LA GÉOMÉTRIE EST ÉPINGLÉE, SINON LA SONDE MESURE À CÔTÉ. En production
+     un bouton se déduit de son mot (§6) et un jeton porte un liseré d'1 px ;
+     ici tous les spécimens font 120 × 44 pile, pour que « y+43 » soit le bord
+     bas de CHACUN et pas d'un seul. ⛔ C'est du banc, pas de la norme. */
+  .cellule > button { width: 120px; height: 44px; }
+  /* Le pied est un flex centré en production ; ici il est une simple boîte
+     de 120 posée à une coordonnée connue — sa marge de production ferait
+     glisser le bouton hors de la grille. */
+  .cellule.parcours-pied { margin: 0; padding-right: 0; display: block; }
+  .repere { position: absolute; font-size: 9px; color: var(--text-muted); }
+</style>
+<div class="panneau jour" id="jour"></div>
+<div class="panneau nuit" id="nuit"></div>
+<script>
+/* ── 1. Les deux jeux de jetons, lus dans le CSSOM de `tokens.css`. ────── */
+function declarations(estLeBonBloc) {
+  const sortie = [];
+  for (const feuille of document.styleSheets) {
+    let regles;
+    try { regles = feuille.cssRules; } catch { continue; }   // feuille d'un autre hôte
+    for (const regle of regles) {
+      if (regle.type === CSSRule.STYLE_RULE && estLeBonBloc(null) && regle.selectorText === ":root") {
+        sortie.push(regle.style.cssText);
+      }
+      if (regle.type === CSSRule.MEDIA_RULE && estLeBonBloc(regle.conditionText)) {
+        for (const interne of regle.cssRules) {
+          if (interne.selectorText === ":root") sortie.push(interne.style.cssText);
+        }
+      }
+    }
+  }
+  return sortie.join(" ");
+}
+const jour = declarations((cond) => cond === null);
+const nuit = declarations((cond) => cond !== null && /prefers-color-scheme\s*:\s*dark/.test(cond));
+if (!jour || !nuit) document.title = "BANC CASSÉ — un des deux thèmes est vide";
+const feuille = document.createElement("style");
+feuille.textContent = `.jour{${jour}} .nuit{${nuit}}`;
+document.head.append(feuille);
+
+/* ── 2. Les spécimens, aux coordonnées annoncées en tête. ───────────────── */
+const LIGNES = [
+  { nom: "pied",   monte: (etat) => {
+      const pied = document.createElement("div");
+      pied.className = "cellule parcours-pied";
+      const b = document.createElement("button");
+      b.className = etat === "bleu" ? "parcours-next" : "parcours-done";
+      b.textContent = etat === "bleu" ? "NEXT" : "DONE";
+      pied.append(b);
+      return pied; } },
+  { nom: "porte",  monte: (etat) => {
+      const item = document.createElement("div");
+      item.className = "cellule parcours-item";
+      if (etat === "bleu") item.dataset.allume = "true";
+      const b = document.createElement("button");
+      b.className = "parcours-item-porte";
+      b.textContent = "OPEN";
+      item.append(b);
+      return item; } },
+  { nom: "species", monte: () => {
+      const boite = document.createElement("div");
+      boite.className = "cellule";
+      const b = document.createElement("button");
+      b.className = "species-done";
+      b.textContent = "DONE";
+      boite.append(b);
+      return boite; } },
+  { nom: "jeton",  monte: () => {
+      const boite = document.createElement("div");
+      boite.className = "cellule choix-glisse";
+      const b = document.createElement("button");
+      b.className = "glisse-jeton";
+      b.textContent = "JETON";
+      b.style.width = "120px";
+      boite.append(b);
+      return boite; } }
+];
+for (const panneau of [document.getElementById("jour"), document.getElementById("nuit")]) {
+  LIGNES.forEach((ligne, i) => {
+    ["gris", "bleu"].forEach((etat, j) => {
+      const cellule = ligne.monte(etat);
+      cellule.style.left = `${40 + j * 180}px`;
+      cellule.style.top = `${60 + i * 96}px`;
+      panneau.append(cellule);
+      const repere = document.createElement("div");
+      repere.className = "repere";
+      repere.style.left = `${40 + j * 180}px`;
+      repere.style.top = `${60 + i * 96 - 12}px`;
+      repere.textContent = `${ligne.nom} · ${etat}`;
+      panneau.append(repere);
+    });
+  });
+  const titre = document.createElement("div");
+  titre.className = "repere";
+  titre.style.cssText = "left:40px;top:20px;font-size:14px;";
+  titre.textContent = panneau.className.includes("jour") ? "JOUR" : "NUIT";
+  panneau.append(titre);
+}
+</script>
