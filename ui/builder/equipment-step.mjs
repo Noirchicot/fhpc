@@ -55,9 +55,9 @@ import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=296";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
 import { armerJeton } from "./glisser.mjs?v=296";
-/* 🧍 B3 — LE DRESSING, importé comme la carte R l'a été : une seule écriture
-   (`b3-scene.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLaSceneB3 } from "./b3-scene.mjs?v=296";
+/* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
+   écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
+import { construireLeDressing } from "./b3-dressing.mjs?v=296";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
@@ -1581,15 +1581,37 @@ export function renderEquipmentStep(ctx, onAction) {
   };
 
   function construireDressing() {
-    const dressing = el("div", "equipment-dressing");
+    /* ══ LA COUTURE DU LOT 5 (26/08) — le pilote monte les TROIS BANDES.
+       La scène d'hier (titre + barre dans le SVG) n'est plus montée par
+       personne ici : le titre vit dans la bande haute, la barre dans la
+       bande basse, et le flux porte la pièce puis le sac puis la remise.
+       Les écrans SB3.1/SB3.3 restent des portes (Gear weight) — leur sort
+       est sur la table d'Eric. */
+    const dressing = construireLeDressing({
+      lignes,
+      onAction: actArbitre,
+      surBouton: (mot) => {
+        if (mot === "Equipment") montrer("r");
+        if (mot === "Send") montrer("sb32");
+        /* Craft · Companions : le mandat du 24/08 les exclut — muets. */
+      },
+      contenu: {
+        boites: attribuerBoites(lignesParLieu(lignes, "self"), cherche),
+        bourse,
+        poids: poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data })),
+        surBourse: (clef, delta) => act({ kind: "setCurrency", key: clef, value: (bourse[clef] || 0) + delta }),
+        surBourseValeur: (clef, valeur) => act({ kind: "setCurrency", key: clef, value: valeur }),
+        surLieu: (lieu) => { if (lieu === "backpack") montrer("sb31"); if (lieu === "storage") montrer("sb33"); },
+      },
+    });
+    const noeud = dressing.noeud;
+
     /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
-       🔴 REQUALIFIÉE le 26/08 (Archi 27) : ce n'est PAS un guide — un objet
-       qui EXIGE une réponse et ÉCRIT au document est une DÉCISION. Elle se
-       présente en recouvrement (jamais dans le flux — rien ne se pousse), et
-       son état vit AU PERSONNAGE : `depart` (mesuré accepté par les verbes,
-       zéro violation) — un second personnage dans le même navigateur reçoit
-       SA question, ce que la clef navigateur d'avant ratait.
-       ⏳ Texte-brouillon (le mien), à corriger par Eric. */
+       🔴 REQUALIFIÉE le 26/08 (Archi 27) : un objet qui EXIGE une réponse et
+       ÉCRIT au document est une DÉCISION, pas un guide. Recouvrement sur le
+       dressing — rien ne se pousse — et son état vit AU PERSONNAGE
+       (`depart`) : un second personnage du même navigateur reçoit SA
+       question. ⏳ Texte-brouillon (le mien), à corriger par Eric. */
     const depart = (docu && docu.build && Array.isArray(docu.build.choices)
       ? docu.build.choices.find((c) => c.path === "depart") : null);
     if (!depart) {
@@ -1611,25 +1633,9 @@ export function renderEquipmentStep(ctx, onAction) {
       );
       boite.append(pied);
       voile.append(boite);
-      dressing.append(voile);
+      noeud.append(voile);
     }
-    const scene = construireLaSceneB3({
-      surBouton: (mot) => {
-        if (mot === "Equipment") montrer("r");
-        if (mot === "Send") montrer("sb32");
-        /* Craft · Companions : le mandat du 24/08 les exclut — inertes. */
-      },
-      contenu: {
-        boites: attribuerBoites(lignesParLieu(lignes, "self"), cherche),
-        bourse,
-        poids: poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data })),
-        surBourse: (clef, delta) => act({ kind: "setCurrency", key: clef, value: (bourse[clef] || 0) + delta }),
-        surBourseValeur: (clef, valeur) => act({ kind: "setCurrency", key: clef, value: valeur }),
-        surLieu: (lieu) => { if (lieu === "backpack") montrer("sb31"); if (lieu === "storage") montrer("sb33"); },
-      },
-    });
-    dressing.append(scene.noeud);
-    return dressing;
+    return noeud;
   }
 
   function construireCatalogue() {

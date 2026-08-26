@@ -5102,3 +5102,18 @@ button { font: inherit; }
   font-weight: 600;
   background: color-mix(in srgb, var(--text) 20%, transparent);
 }
+
+/* ══ LOT 5 — LE DRESSING DANS LE CADRE : la chaîne de hauteur ═══════════════
+   Le `.stage` est la fenêtre (absolute inset:0, la seule bornée). Quand la
+   vue Équipement est le dressing, la carte prend toute la fenêtre et c'est
+   le FLUX du dressing qui défile — le stage, lui, n'a plus rien à faire
+   défiler. Les autres vues laissent la carte vivre normalement. */
+.decision-card:has(.dressing) {
+  height: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column;
+}
+.decision-card:has(.dressing) .equipment-step {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.equipment-step > .dressing { flex: 1 1 auto; min-height: 0; height: auto; }

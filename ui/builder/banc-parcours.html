@@ -58,7 +58,20 @@ f.addEventListener("load", async () => {
   await dors(800);
   tous("button").find((b) => b.textContent.includes("Equipment"))?.click();
   await dors(500);
-  if (scenario === "b3" || scenario === "b3equipe") return;                 // le dressing, tel quel
+  if (scenario === "b3" || scenario === "b3equipe") {
+    /* les trois bandes AU PRODUIT : le flux défile, les bandes non. */
+    const flux = d.querySelector(".dressing-flux");
+    if (flux) {
+      const t1 = d.querySelector(".dressing-titre").getBoundingClientRect().top;
+      const b1 = d.querySelector(".dressing-barre").getBoundingClientRect().top;
+      flux.scrollTop = 250;
+      await dors(200);
+      document.title = "produit scroll=" + Math.round(flux.scrollTop) +
+        " titreBouge=" + Math.abs(d.querySelector(".dressing-titre").getBoundingClientRect().top - t1).toFixed(1) +
+        " barreBouge=" + Math.abs(d.querySelector(".dressing-barre").getBoundingClientRect().top - b1).toFixed(1);
+    } else document.title = "PAS DE FLUX";
+    return;
+  }
   if (scenario === "mesureSB") {
     tous('.b3-scene [aria-label="Open Backpack"]').at(0)
       ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -87,7 +100,7 @@ f.addEventListener("load", async () => {
     return;
   }
   // tout le reste passe par le catalogue
-  q('.b3-scene [aria-label="Equipment"]')?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  tous('[aria-label="Equipment"]').at(0)?.click();   /* la porte vit dans la BANDE BASSE depuis le lot 5 */
   await dors(600);
   if (scenario === "recherche") {
     tous(".carte-r-loupe").at(0)?.click();
