@@ -3788,18 +3788,65 @@ button { font: inherit; }
    c'est la RANGÉE qui doit valoir trois colonnes — `3 × 87 + 2 gouttières`.
    Bornée là, elle en contient trois et coupe à la quatrième, à 360 comme à
    1100 comme à 1600, sans qu'aucun calcul n'ait à réussir.
-   `margin-inline: auto` la recentre dans la place qu'on lui laisse. */
+   `margin-inline: auto` la recentre dans la place qu'on lui laisse.
+
+   ⭐⭐ ET LE PLAFOND EST SUR LA SÉLECTION, PAS SUR LES RÉCEPTEURS — Eric,
+   2026-08-26, quand je lui ai montré la mesure : *« oui, 4 collecteurs à côté
+   sur une ligne on peut ; mais pas une SÉLECTION de 4 tokens, là c'est 3
+   max »*. Le sélecteur ci-dessous nomme `.glisse-vivier`, et lui seul : la
+   rangée de collecteurs (`.glisse-creneaux`) n'est pas touchée, et c'est ce
+   qui permet aux SIX caractéristiques d'Ability boosts — STR DEX CON INT WIS
+   CHA — de tenir sur une ligne.
+   ⛔ NE PAS ÉTENDRE CE PLAFOND AUX COLLECTEURS : ce sont deux objets qui se
+   ressemblent (même gabarit, même habillage) et qui ne suivent PAS la même
+   loi. Un vivier propose et se lit en trois colonnes ; une rangée de
+   collecteurs REÇOIT, et son nombre est dicté par ce que l'étape demande. */
 .choix-glisse .glisse-vivier {
   max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8));
   margin-inline: auto;
 }
-/* ⭐ Et la case garde de quoi CÉDER sous 360 (téléphones étroits) : une base
-   d'un tiers que `max-width` plafonne à 87 — jamais plus large que son
-   gabarit, jamais plus de trois par ligne puisque la rangée les compte. */
-.choix-glisse .glisse-vivier > li {
-  flex: 0 1 calc((100% - 2 * var(--sp-8)) / 3);
-  min-width: 0;
-}
+/* 🔴🔴 ICI VIVAIT UNE RÈGLE QUI A ÉCRASÉ LES JETONS EN LIGNE — écrite par moi
+   le 2026-08-26, déployée en v311, et retirée le jour même. Elle donnait à
+   chaque case `flex: 0 1 calc((100% - 2 gouttières) / 3)` avec `min-width: 0`.
+   ⛔ MESURÉ SUR LE SITE, ÉCRAN « ABILITY BOOSTS » : les jetons `+1` et `+2`
+   faisaient **12 × 48 px** dans un vivier de 52. Eric l'a vu avant moi et l'a
+   dit en trois mots : *« les +1/+2/+x sont des tokens »*.
+
+   ⭐ LA MÉCANIQUE, PARCE QU'ELLE SE REPRÉSENTERA : le vivier n'a pas de
+   largeur imposée — il se dimensionne sur son contenu, plafonné à trois
+   colonnes. Une base en POURCENTAGE dans un conteneur qui se mesure sur son
+   contenu est CIRCULAIRE : la case veut un tiers du vivier, le vivier veut la
+   somme des cases. Le navigateur tranche par le contenu, et comme ma base
+   autorisait en plus de RÉTRÉCIR (`0 1 …` au lieu de `0 0 …`), la case tombait
+   à 12 px.
+
+   ⛔⛔ ET VOICI CE QUI REND CETTE FAUTE PLUS BÊTE QU'ELLE N'EN A L'AIR : LA
+   BONNE RÈGLE ÉTAIT DÉJÀ ÉCRITE, seize lignes plus bas —
+   `.choix-glisse .glisse-vivier > li { flex: 0 0 var(--glisse-case) }`, base
+   FIXE, aucun rétrécissement, le gabarit posé net. Ma règle avait la MÊME
+   spécificité et venait APRÈS : elle l'écrasait, en silence. Je n'ai donc pas
+   ajouté un défaut à une feuille neutre — **j'ai remplacé une règle juste par
+   une règle fausse sans jamais chercher si la juste existait.**
+   ⚠️ Et j'avais même écrit noir sur blanc *« ⛔ ne pas le remplacer par
+   flex: 0 0 var(--glisse-case) »* — un avertissement qui visait exactement la
+   ligne correcte. Il valait quand la rangée n'avait pas de plafond ; depuis
+   que la RANGÉE compte les colonnes, la base fixe est précisément ce qu'il
+   faut. **Une mise en garde ne se recopie pas d'un monde à l'autre.**
+
+   ⚠️ ET ELLE PASSAIT TOUS MES TÉMOINS : j'avais mesuré Lineage à 360, 372,
+   467, 900, 1100 et 1600 — six largeurs, `[3,3,3,3]` partout. Six mesures
+   justes sur un vivier PLEIN (12 cases, qui remplissent la rangée et se
+   soutiennent). Le cas qui casse est le vivier PRESQUE VIDE — deux cases, qui
+   n'ont rien pour les tenir. **Je n'avais pas nommé ce témoin-là.**
+
+   ⭐⭐ ET ELLE N'ÉTAIT PAS SEULEMENT NUISIBLE, ELLE ÉTAIT INUTILE : les trois
+   colonnes sont tenues par le `max-width` de la RANGÉE, juste au-dessus. La
+   base d'un tiers venait de `listes.css`, où le lot A la posait pour un vivier
+   PAGINÉ qui, lui, a une largeur imposée par sa `grille-rang`. Sortie de ce
+   cadre, elle n'avait plus de quoi se calculer.
+   ⛔ NE PAS LA REPOSER : une case porte son gabarit (87 × 48, `.glisse-jeton`
+   et `.glisse-creneau` plus bas) et la rangée compte jusqu'à trois. Il n'y a
+   pas de troisième chiffre à écrire. */
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
   /* 🔴 LA COTE STANDARD VAUT POUR TOUTE LA LIGNE — Eric, 2026-08-19 : *« donc
