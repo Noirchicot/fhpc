@@ -282,6 +282,48 @@ mentirait au premier changement de corps.
 pour un bouton** — `.species-done` porte `font: inherit`. Tant que le corps d'un bouton n'est pas
 nommé *(T-quoi ?)*, **les largeurs de `small` et `large` ne sont pas calculables.** ⏳ À trancher.
 
+### 📐 LES COTES DES BOUTONS — extrapolées le 26/08
+
+> ⚠️ **EXTRAPOLATION, pas mesure.** Elle repose sur un ratio de **0,58 em par caractère**
+> *(semi-gras, casse mixte)*. 🔴 **À vérifier au navigateur sans écran** *(§0)* avant d'être gravée.
+
+**Tout se déduit de la rangée de 278 et de la gouttière de 8** *(les mêmes que le jeton)*, sous ta
+règle **« même largeur sur une ligne »** :
+
+| gabarit | par ligne | largeur | ce qu'il porte |
+|---|---|---|---|
+| **small** | **3** | 🔴 **87** | `NEXT` · `DONE` · `BACK` · `CANCEL` — **6 caractères** |
+| **large** | **2** | **135** | 12 caractères |
+| **no constraint** | **1** | **278** | libre |
+| *(4 par ligne)* | 4 | *64* | ⏳ jamais demandé |
+
+⭐⭐ **UN PETIT BOUTON FAIT 87 — EXACTEMENT LA LARGEUR D'UN JETON.** Ce n'est pas une coïncidence :
+les deux se déduisent de la **même** rangée de 278 avec la **même** gouttière. ➡️ **Boutons et
+jetons partagent une seule grille**, et une bande de boutons s'aligne sous une rangée de jetons
+sans réglage.
+
+### Le corps du texte
+
+| gabarit | à **T3** (14) | à **T4** (16) |
+|---|---|---|
+| small — 6 car. | besoin 65 / 87 · **marge 22** ✅ | besoin 72 / 87 · marge 15 ✅ |
+| large — 12 car. | besoin 113 / 135 · **marge 22** ✅ | besoin 127 / 135 · 🔴 **marge 8** |
+
+➡️ **T3 est le corps recommandé** : c'est le seul qui laisse la **même marge (22 px) aux deux
+gabarits**. ⚠️ À T4, `large` n'a plus que 8 px — **un mot un peu large déborde**, et le déficit ne
+se verrait que sur ce gabarit-là.
+
+### La hauteur
+
+| | |
+|---|---|
+| **un étage** | 🔴 **44** — le texte n'en demande que ~33, **c'est `--touch` qui décide** |
+| **deux étages** *(T3)* | **48** |
+| **deux étages** *(T4)* | **56** |
+
+⭐ **Le plancher tactile gouverne la hauteur d'un bouton à un étage** : la typographie n'y arrive
+pas. C'est encore *« un contrôle ne se laisse jamais dimensionner par un dessin »*.
+
 ### 🔴 `+` / `−` : le dessin le plus petit possible, la cible au minimum tactile
 
 > Eric, 2026-08-26 : *« boutons + / − : **le plus petit possible / minimum acceptable sur
