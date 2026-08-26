@@ -219,7 +219,20 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
          ⚠️ ⛔ ET L'ÉTIQUETTE ACCESSIBLE RESTE UNE PHRASE : un lecteur d'écran
          doit entendre « High Elf — lineage — done », pas deux nœuds côte à côte
          dont l'ordre ne dit rien. C'est `motDe()` qui l'aplatit. */
-      const libelle = labelOf ? labelOf(item) : item.path;
+      /* 🔴 LA RÉPONSE NE PARAÎT QUE SI L'ITEM EST CONFIRMÉ — défaut mesuré le
+         2026-08-27, sur la capture : les portes annonçaient « High Elf » et
+         « spent » pendant que **les voyants à leur gauche étaient vides**. Deux
+         signaux contradictoires sur la même ligne.
+
+         ⛔ LA CAUSE ÉTAIT UNE CONFUSION DE NOTIONS : l'appelant sait ce qui est
+         POSÉ (`answered >= expected`), le voyant dit ce qui est CONFIRMÉ (passé
+         par son `Done`). Ce ne sont pas les mêmes états — on peut poser un
+         lignage sans valider son écran.
+         ⭐ CHACUN SON RÔLE : l'appelant sait QUELLE est la réponse, cet écran
+         sait SI elle compte. On aplatit tant qu'elle ne compte pas — la porte
+         redit alors sa question, ce qu'elle a toujours fait. */
+      const libelleBrut = labelOf ? labelOf(item) : item.path;
+      const libelle = item.confirme ? libelleBrut : motDe(libelleBrut).replace(/\s*\([^)]*\)$/, "");
       const porte = bouton("", "parcours-item-porte",
         () => act({ kind: "parcoursItem", racine, path: item.path }));
       if (libelle && typeof libelle === "object") {

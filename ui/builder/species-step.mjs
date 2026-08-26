@@ -286,6 +286,17 @@ function lignageChoisi(ctx) {
   return choisi ? choisi.name : null;
 }
 
+/** Le budget de compétences est-il ENTIÈREMENT dépensé ?
+ *  ⭐ Il lit le plan, comme tout le reste de cet écran — jamais le document en
+ *  direct : c'est le plan qui sait ce qu'une espèce attend. */
+function budgetDepense(ctx) {
+  if (!ctx) return false;
+  const plan = planAt(ctx.decisions || [], "species.skillBudget");
+  if (!plan) return false;
+  const attendu = Number(plan.expected);
+  return Number.isFinite(attendu) && attendu > 0 && Number(plan.answered) >= attendu;
+}
+
 export const SPECIES_CATALOGUE = {
   path: "species", kind: "species", label: "Species", fiche: true, parcours: true,
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
@@ -312,8 +323,20 @@ export const SPECIES_CATALOGUE = {
       const nom = lignageChoisi(ctx);
       return nom ? { mot: nom, sous: "lineage" } : "Lineage";
     }
-    return chemin === "species.skillBudget" ? "Skill budget"
-      : chemin === "species.skills" ? "Species skill"
+    if (chemin === "species.skillBudget") {
+      /* 🔴 « spent » EN SOUS-TITRE — Eric, 2026-08-27 : *« tu peux mettre un
+         spent en italique en T1 en dessous »*.
+         ⭐ ET IL NE DIT PAS LA MÊME CHOSE QUE « lineage » SOUS « High Elf ».
+         Là, le sous-titre porte la QUESTION sous sa réponse. Ici, le mot fort
+         EST déjà la question — parce qu'un budget n'a pas une réponse, il en a
+         plusieurs (« Survival +1, Vigilance +1 »), et aucune ne tient dans une
+         porte. Le sous-titre porte donc l'ÉTAT : dépensé, ou rien.
+         ⚠️ Il n'apparaît QUE quand tout est posé : un « spent » sous un budget
+         à moitié dépensé serait un mensonge, et le voyant à gauche dit déjà
+         l'inachevé. */
+      return budgetDepense(ctx) ? { mot: "Skill budget", sous: "spent" } : "Skill budget";
+    }
+    return chemin === "species.skills" ? "Species skill"
       : chemin === LIGNE_ACQUIS.path ? LIGNE_ACQUIS.label : chemin;
   },
   lignesEnPlus: [LIGNE_ACQUIS],
