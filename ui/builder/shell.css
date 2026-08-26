@@ -2705,6 +2705,26 @@ button { font: inherit; }
 .concept-step, .universe-step { max-width: var(--measure); margin-inline: auto; } /* PROSE, pas grille (§3e) ; centrage LOT 69, no-op à 360 */
 
 .doc-field { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
+
+/* 🔴 LE DERNIER CHAMP NE PORTE PAS DE MARGE BASSE — Eric, 2026-08-26 :
+   *« réduis l'espace entre le collecteur alignement et Done »*.
+   📏 MESURÉ AVANT : **32 px**, et l'arithmétique le dit sans ambiguïté — 16 de
+   `margin-bottom` sur le dernier `.doc-field` + 16 de `padding-top` sur la
+   `.sortie`. Deux gouttières parfaitement légitimes **qui s'additionnent**.
+   ⭐ ET ON RETIRE CELLE QUI N'A PLUS D'OFFICE, pas celle qu'on préfère : la
+   marge d'un champ sert à le séparer du champ SUIVANT. Le dernier n'en a pas.
+   ⛔ Ne pas rogner la gouttière de la `.sortie` à la place : elle sépare la
+   rangée de boutons de TOUT ce qui la précède, sur les dix écrans — la rétrécir
+   ici pour un cas particulier ferait payer neuf autres écrans.
+   🔴 ⛔ ET `:last-of-type` NE MARCHE PAS ICI — écrit d'abord, mesuré ensuite :
+   l'écart est resté à **32 px**. `:last-of-type` regarde le dernier frère du
+   même NOM DE BALISE, et la `.sortie` est un `div` que la coquille ajoute
+   APRÈS les champs : c'est donc ELLE le dernier `div`, et la règle ne visait
+   personne. Une règle qui ne matche rien ne casse rien — **elle se tait**, et
+   c'est pour ça qu'il fallait remesurer au lieu de croire l'édition.
+   ⭐ `:not(:has(~ .doc-field))` dit ce qu'on veut vraiment : « le dernier champ,
+   quoi qu'il y ait après lui ». */
+.doc-field:not(:has(~ .doc-field)) { margin-bottom: 0; }
 /* 🔴 LE NOM SE CENTRE, ET SA BOÎTE AUSSI — Eric, 2026-08-26 : *« Name centré,
    boîte de texte plus petite, centrée en dessous »*.
    ⭐ ET LA LARGEUR N'EST PAS UN NOMBRE CHOISI : c'est **la rangée de trois

@@ -468,14 +468,33 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   const bloc = el("section", "choix-glisse");
   bloc.dataset.status = plan.status;
   bloc.append(el("h3", null, [text(titre)]));
-  /* ⭐ « chosen » OU « points spent » — 2026-08-20. Deux écrans emploient cet
-     organe pour deux économies : on CHOISIT des sorts (un par créneau), on
-     DÉPENSE des points (un expert en pèse 4). Écrire « 3 of 6 chosen » sur une
+  /* 🔴 LE COMPTE NE PARAÎT QUE S'IL COMPTE QUELQUE CHOSE — Eric, 2026-08-26 :
+     *« dégage les 1 of 1 chosen »*, puis, quand j'avais tout retiré : *« on les
+     remet quand c'est utile, PAS LÀ »*.
+
+     ⛔ CE QUE J'AVAIS FAIT ET QUI ÉTAIT TROP : je l'avais supprimé partout, et
+     j'avais même écrit dans ce fichier qu'il ne fallait surtout pas le
+     remettre pour les choix multiples. Eric a tranché l'inverse, et il a
+     raison — la note est réécrite dans son sens, elle ne reste pas debout à
+     côté de sa décision.
+
+     ⭐ LE CRITÈRE EST « EST-CE QUE ÇA APPREND QUELQUE CHOSE ? » : à UN créneau,
+     « 0 of 1 chosen » n'apprend rien. Le collecteur est sous les yeux du
+     joueur — rempli, il porte le doré et le relief ; vide, son liseré
+     pointillé et un tiret. **Compter une case que l'on VOIT, c'est dire deux
+     fois la même chose**, et ici c'est une ligne entière pour zéro information.
+     ⭐⭐ À PLUSIEURS, IL APPREND VRAIMENT : « 2 of 4 chosen » sur quatre
+     créneaux se lit d'un coup d'œil là où il faudrait sinon compter les cases
+     pleines — et le QCM de classe en a 2, 3 ou 4 selon la classe.
+
+     📌 `unite` reste ce qu'il était (2026-08-20) : deux écrans, deux économies
+     — on CHOISIT des sorts, on DÉPENSE des points, et « 3 of 6 chosen » sur une
      bourse dirait au joueur qu'il lui reste trois choix quand il lui reste deux
-     points. ⛔ L'organe ne le DEVINE pas : l'appelant le dit, comme il dit déjà
-     son titre et sa consigne. */
-  bloc.append(el("p", "choix-glisse-compte",
-    [text(`${plan.answered} of ${plan.expected} ${unite || "chosen"}`)]));
+     points. ⛔ L'organe ne le devine pas : l'appelant le dit. */
+  if (plan.expected > 1) {
+    bloc.append(el("p", "choix-glisse-compte",
+      [text(`${plan.answered} of ${plan.expected} ${unite || "chosen"}`)]));
+  }
 
   const poser = (valeur, chemin) => act(refKind
     ? { kind: "choose", path: chemin, ref: { kind: refKind, id: valeur } }

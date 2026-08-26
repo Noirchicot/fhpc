@@ -3101,6 +3101,36 @@ function poserLaSortie(contenu, sortie) {
      celle du `?`. Et si aucun écran n'en déclare, il ne se passe rien. */
   const livre = hote.querySelector(":scope > .livre-de-sortie");
   if (livre) sortie.prepend(livre);
+  /* 🔴 ET LE `?` ENTRE PAR LA DROITE — Eric, 2026-08-26 : *« on veut avoir une
+     chance de tenir dans une hauteur de SE »*, et sa norme de la PAIRE :
+     *« le livre et le `?` cadrés à gauche et à droite de la rangée »*.
+
+     ⛔ ET ÇA NE RÉCUPÈRE AUCUNE HAUTEUR — je l'avais écrit ici, c'était FAUX,
+     et la correction vaut d'être gardée. J'avais lu le `?` à « 44 px » dans un
+     rectangle et j'en avais déduit qu'il occupait une ligne. Il porte
+     `position: absolute; right: 8; bottom: 8` : **il ne coûtait rien au flux**.
+     ⭐ CE QUI M'A DÉTROMPÉ EST UNE ADDITION, pas une intuition : 58 + 16 + 137
+     + 16 + 249 + 64 + 16 de rembourrage = **556**, et la carte mesure 555. Le
+     compte fermait DÉJÀ sans les 44 px — donc ils n'y avaient jamais été.
+     📌 **Un rectangle de 44 px de haut ne dit pas qu'un élément occupe 44 px de
+     flux.** `getBoundingClientRect` mesure ce qui est PEINT, pas ce qui POUSSE.
+     Pour savoir ce qu'un bloc coûte, on additionne, ou on lit sa position.
+
+     ⭐ CE QUE CE DÉPLACEMENT APPORTE QUAND MÊME, ET C'EST SUFFISANT : le `?`
+     cesse d'être une pastille flottante posée sur un coin de dalle pour entrer
+     dans la rangée que la norme lui assigne — la PAIRE, livre à gauche, `?` à
+     droite, mesurée ici à 24 · 150 · 307 px.
+
+     ⚠️ POURQUOI ICI ET PAS LÀ OÙ LE `?` EST FABRIQUÉ : il est posé pendant
+     `renderStepContent`, c'est-à-dire **avant que la rangée n'existe** — c'est
+     `poserLaSortie` qui la reçoit. Un `append` au moment de sa fabrication ne
+     pouvait donc viser qu'un nœud absent. On le DÉPLACE une fois la rangée
+     posée, exactement comme le livre trois lignes plus haut.
+     ⭐ `append` pour le `?`, `prepend` pour le livre : c'est toute la paire, et
+     elle tient en deux lignes symétriques. Un écran sans rangée hébergée ne
+     change pas d'un pixel — le `?` y reste où il était. */
+  const interro = hote.querySelector(":scope > .tuto-point");
+  if (interro) sortie.append(interro);
   hote.append(sortie);
   return [contenu];
 }
