@@ -3439,7 +3439,17 @@ button { font: inherit; }
      titre compris. Rapprocher deux choses et déplacer un ensemble ne sont pas
      le même geste, même quand ils rendent le même nombre de pixels.
      ⭐ Le vrai levier était le rembourrage HAUT de la dalle, corrigé plus bas. */
-  margin-bottom: 0; font-size: var(--t5); }
+  /* 🔴 ⛔ `margin: 0` ET PAS SEULEMENT `margin-bottom` — ma régression du lot 47,
+     mesurée ici : le titre s'était remis à **14,94 px** du haut. En remplaçant
+     `margin: 0 0 var(--sp-8)` par un `margin-bottom` seul, j'ai supprimé le
+     `margin: 0` qui neutralisait la marge HAUTE que le navigateur pose d'office
+     sur un `h2` — et elle est revenue, invisible dans la feuille.
+     📌 **Troisième fois dans la même journée qu'un raccourci réécrit pour une
+     seule de ses valeurs emporte les autres en silence** (padding de `.sortie`,
+     margin de `.saignee`, celui-ci). Un raccourci ne se remplace pas par une
+     propriété longue : il se REMPLACE PAR UN RACCOURCI, ou on écrit tous les
+     côtés. Ici les deux sont à zéro — la saignée juste en dessous porte l'écart. */
+  margin: 0; font-size: var(--t5); }
 /* 🔴 LA BANDE D'AIGUILLEUR — Eric, 2026-08-26 : *« ce texte-là c'est
    l'AIGUILLEUR ! on pourrait lui garder sa petite fenêtre au-dessus des
    boutons sans nécessiter un popup »* · *« cet espace, on peut lui faire une
@@ -3471,7 +3481,13 @@ button { font: inherit; }
      ⭐ ET C'EST LA BONNE FAÇON DE FIXER UN ÉCART : il avait dicté 4 avant de le
      voir, il corrige en le voyant. Une cote se juge SUR LA PAGE, pas dans une
      liste. ⛔ Ne pas « revenir à 4 » au motif que c'était écrit en premier. */
-  margin: var(--sp-8) 0 var(--sp-8);
+  /* 🔴 −8 px AU-DESSUS — Eric, 2026-08-27 : *« tu peux encore gagner 8 px sous
+     Granted »*, et son but déjà nommé : *« on fait de l'espace pour la
+     fenêtre »*.
+     📏 MESURÉ À 20 : 8 de cette marge + 12 que le résumé pose sous lui. Encore
+     deux marges qui s'additionnent. Celle qui saute est la nôtre — le résumé
+     garde la sienne, il en a besoin quand il n'y a pas de bande derrière. */
+  margin: 0 0 var(--sp-8);
   padding: var(--sp-4) var(--sp-8);
   border-left: var(--creneau-lisere-rempli) solid var(--info);
   border-radius: var(--radius-sm);
@@ -4388,6 +4404,19 @@ button { font: inherit; }
    bas (`--sp-4`) : y toucher aurait collé le texte au mot. */
 .parcours-item[data-sans-choix="true"] > .parcours-item-tete {
   padding-bottom: 0;
+}
+
+/* 🔴 UN POINT VERT D'OFFICE SUR CE QUI EST ACCORDÉ — Eric, 2026-08-27 : *« tu
+   peux mettre un point vert de base sur Granted »*.
+   ⭐ ET C'EST LE VOYANT QUI DIT VRAI, PAS UNE FAVEUR : le vert de ce site veut
+   dire **réglé**. Un item `sansChoix` n'a rien à régler — il est acquis à la
+   seconde où l'espèce est choisie. Le laisser au cercle vide disait *« il te
+   reste ça à faire »* sur la seule ligne de l'écran où il n'y a jamais rien eu
+   à faire, et c'est le contraire du service que rend un voyant.
+   ⚠️ Il vise `[data-sans-choix]` et non un rang : le jour où une espèce en porte
+   deux, ou zéro, la règle suit sans qu'on y revienne. */
+.parcours-item[data-sans-choix="true"] .parcours-voyant {
+  background: var(--positive);
 }
 .parcours-item-tete .parcours-item-porte { flex: 0 0 auto; text-align: center; }
 .parcours-item-tete .parcours-item-mot { flex: 0 0 auto; }
