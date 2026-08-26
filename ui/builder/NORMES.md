@@ -46,6 +46,37 @@ marge si possible »*, corrigé par Eric le jour même.
 
 ---
 
+## 1 ter. 🔴 UNE COTE DE CONTENANT NE S'ÉCRIT PAS — ELLE SE DÉDUIT D'AVANCE
+
+> Eric, 2026-08-26 : *« **on ne note pas la cote dans le code, mais on doit chercher à la déduire
+> à l'avance** »*.
+
+| ⛔ ce qu'on ne fait pas | ✅ ce qu'on fait |
+|---|---|
+| figer `--belt-h: 60px` | **calculer** la hauteur depuis ses parts : police, interligne, `padding`, `gap` |
+| relever un pixel à l'écran et le graver | écrire **la formule**, et s'en servir **avant** de dessiner |
+
+⭐ **Une cote figée MENT.** Le jour où un libellé grandit d'un point, la ceinture change de hauteur
+et le jeton ne le sait pas : tout le budget vertical se décale **sous** celui qui l'avait calculé.
+La déduction, elle, reste vraie — elle suit la cause.
+
+⭐ **Et c'est ce qui rend le budget prévisible SANS mesurer** : on sait ce que la page peut porter
+**avant** de l'avoir affichée. ⛔ Un budget établi en regardant un écran ne prouve rien sur les
+autres — c'est la même faute que « constater à l'œil qu'il n'y a pas de conflit ».
+
+### ⛔ La distinction, elle, ne bouge pas
+
+| ce qui se DÉDUIT | ce qui reste une COTE ÉCRITE |
+|---|---|
+| la hauteur d'un **contenant** *(ceinture, bande de boutons, dalle)* | `--touch: 44` — **une cible tactile ne cède jamais** |
+| | `--glisse-case: 87` · `--glisse-h: 48` — la cote d'un **organe** |
+| | `--measure: 62ch` · `--fiche-h: 440` — des cotes **données par Eric** |
+
+⭐ **La règle se lit en une phrase** : *un ORGANE porte sa cote, un CONTENANT la déduit.*
+Et ⭐ **une cote DONNÉE bat toujours une cote DÉDUITE** — si Eric a dit un nombre, il gagne.
+
+---
+
 ## 2. LES TROIS ORGANES — forme ET remplissage *(validé 26/08 sur maquette)*
 
 | organe | forme | remplissage | voile |
