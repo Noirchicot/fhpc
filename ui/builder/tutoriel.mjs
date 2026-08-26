@@ -46,6 +46,31 @@ export function setTutorielActif(valeur) { ecrire(CLEF_ACTIF, valeur); }
 export function generalVu() { return lire(CLEF_VU, false); }
 export function setGeneralVu(valeur) { ecrire(CLEF_VU, valeur); }
 
+/* ══ LE GUIDE A ÉTÉ VU, OU NON — une clef PAR ÉTAPE ════════════════════════
+   NORMES §7 (26/08), *« son aspect »* : le `?` est **plein, en parchemin**
+   tant que le guide de CETTE étape n'a jamais été ouvert, et **un simple
+   cercle** une fois qu'il l'a été.
+
+   🔴 UNE CLEF PAR ÉTAPE, ET PAS UN DRAPEAU GLOBAL. Chaque étape a SON guide :
+   avoir lu celui des Compétences ne dit rien de celui de l'Équipement. Un seul
+   drapeau aurait éteint les neuf autres `?` au premier clic — c'est-à-dire
+   qu'il aurait menti huit fois sur dix.
+
+   ⚠️ MÊME NATURE QUE LES DEUX DRAPEAUX AU-DESSUS : une PRÉFÉRENCE DE LECTEUR,
+   pas un fait du personnage. Deux joueurs qui ouvrent le même personnage n'ont
+   pas lu les mêmes guides, et un export ne doit pas emporter ça.
+
+   ⏳ CE QUI N'EST PAS CÂBLÉ ICI, et c'est délibéré : §7 dit que le guide
+   *« revient spontanément à chaque nouveau personnage »*. Ce retour-là est le
+   travail de l'OUVERTURE AUTOMATIQUE du guide, qui est en standby (§7, *« les
+   trois voix »*). Ce drapeau-ci ne gouverne que l'ASPECT du `?`. */
+const clefGuideVu = (etape) => `fhpc.guide.vu.${etape}`;
+
+/** Le guide de `etape` a-t-il déjà été ouvert ? Faux par défaut — un guide
+ *  jamais ouvert est exactement le cas que le parchemin plein doit appeler. */
+export function guideVu(etape) { return lire(clefGuideVu(etape), false); }
+export function setGuideVu(etape, valeur = true) { ecrire(clefGuideVu(etape), valeur); }
+
 /* ⛔ ICI A VÉCU 48 h un « guide obligatoire » (clef navigateur) — Archi 27 l'a
    requalifié le 26/08 : un objet qui EXIGE une réponse et ÉCRIT au document
    est une DÉCISION, pas une aide. Il est devenu la carte `aiguilleur`, et
@@ -73,15 +98,45 @@ function boutonEteindre(act) {
   return bouton("Turn tutorials off", "tuto-eteindre", () => act({ kind: "tutoDesactiver" }));
 }
 
-/* ══ LE « ? » ═══════════════════════════════════════════════════════════════
+/* ══ LE « ? » — LE POINT D'ENTRÉE DU GUIDE ═════════════════════════════════
    *« petit rond discret en haut à gauche de toutes les dalles »*.
    ⚠️ DISCRET NE VEUT PAS DIRE INVISIBLE : il garde sa cible tactile pleine
    (`--touch`) sous un rond peint plus petit — un point de 16 px se rate au
-   pouce, et un joueur perdu est précisément celui qui le cherche. */
-export function renderPointInterrogation(onAction) {
+   pouce, et un joueur perdu est précisément celui qui le cherche.
+
+   ══ SES DEUX ASPECTS — NORMES §7, tranché le 26/08 ═══════════════════════
+   Eric : *« le `?` **en parchemin quand jamais vu**, juste **un cercle quand
+   consommé** »*.
+
+   | l'état du guide | le `?`                                            |
+   |-----------------|---------------------------------------------------|
+   | jamais vu       | 📜 PLEIN, en parchemin — *il y a quelque chose*    |
+   | déjà vu         | ⭕ contour seul — *tu l'as lu, je reste là*        |
+
+   ⭐ C'EST LA LOI DU VOYANT DE LA CEINTURE, sur un autre organe : un anneau se
+   lit « en cours », un disque plein se lit « fait ». Ici le sens s'inverse
+   parce que l'objet n'est pas une tâche mais une OFFRE — plein = à prendre.
+   ⛔ ET IL N'EMPRUNTE AUCUNE COULEUR DE L'ÉCHELLE : le vert avait été envisagé
+   puis écarté (dans l'échelle il dit « fini », l'inverse de « jamais vu »). Le
+   parchemin ne veut dire qu'une chose — le guide. La teinte vit en CSS.
+
+   ⚠️ L'ÉTAT EST REÇU, PAS LU ICI : ce module expose `guideVu()`, mais le `?`
+   ne l'appelle pas lui-même — la coquille le lui passe. Même loi que partout
+   ailleurs dans ce dépôt, un organe qui irait chercher `localStorage` seul
+   deviendrait impossible à rendre dans un test. */
+export function renderPointInterrogation(onAction, options) {
   const act = onAction || (() => {});
+  const vu = Boolean(options && options.vu);
   const b = bouton("?", "tuto-point", () => act({ kind: "tutoRouvrir" }));
-  b.setAttribute("aria-label", "Show the tutorial for this step");
+  /* ⛔ `data-vu`, pas une seconde classe : c'est un ÉTAT de l'organe, pas un
+     autre organe. Une classe `.tuto-point-vu` aurait laissé les deux
+     coexister, et rien n'aurait crié. */
+  b.dataset.vu = vu ? "oui" : "non";
+  /* ⚠️ ET L'ÉTAT SE PRONONCE. Le parchemin plein ne dit rien à qui ne voit pas
+     l'écran ; le libellé, si. Même exigence qu'au livre (§7 bis). */
+  b.setAttribute("aria-label", vu
+    ? "Show this step's guide again"
+    : "Show this step's guide");
   return b;
 }
 
