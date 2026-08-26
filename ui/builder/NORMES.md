@@ -1635,6 +1635,45 @@ et c'est cette divergence qui les rend reconnaissables :
 | **le livre** | un **rond** de 22 px, la jumelle du `?` | ⛔ aucune |
 | **`On` / `Off`** | un bouton **72 × 44** | 🟢 liseré vert allumé |
 | 🃏 **le tarot** | ⚖️ **une CARTE** — exception argumentée *(ci-dessus)* | — |
+| 🚪 **le bouton de PROPOSITION** | octogone, **T3** | ⚪ neutre — *« il reste ça à faire »* |
+| 🚪 **le bouton de RÉSOLUTION** | octogone, **T3** + un sous-titre **T1 italique** | 🟢 vert — *« c'est réglé »* |
+
+---
+
+#### 🚪 LES DEUX BOUTONS DE MENU DE CRÉATION *(Eric, 27/08)*
+
+> **« nouvelles normes aussi pour les boutons de menus de création : bouton de PROPOSITION /
+> bouton de RÉSOLUTION »**
+
+🔴 **C'EST LE BOUTON LE PLUS FRÉQUENT DU BUILDER, ET IL MANQUAIT À CE REGISTRE.** Chaque menu
+d'étape en aligne deux, trois ou quatre — `Lineage`, `Skill budget`, `Ability boosts`, `Languages`,
+`Origin feat`, `Cantrips`… Ils portaient un habit sans avoir de nom.
+
+| | le bouton de **proposition** | le bouton de **résolution** |
+|---|---|---|
+| **ce qu'il dit** | *« voilà ce qui reste à décider »* | *« voilà ce qui a été décidé »* |
+| **son texte** | le nom de la question — *« Lineage »* | la **résolution** — *« High Elf »* |
+| **son sous-titre** | ⛔ aucun | la question, en **T1 italique** — *lineage* |
+| **son voyant** | ⚪ **vide** | 🟢 **vert** |
+| **quand** | tant que la condition n'est pas remplie | dès qu'elle l'est |
+
+⭐⭐ **CE N'EST PAS DEUX BOUTONS, C'EST UN BOUTON À DEUX ÂGES.** Le même organe, au même endroit,
+qui change de discours quand la condition bascule. ⛔ **Ne pas en faire deux composants** : le jour
+où ils divergeraient, un menu montrerait une proposition résolue.
+
+⚠️ **ET UNE RÉSOLUTION N'EST PAS TOUJOURS UN NOM.** `Skill budget` n'a pas UNE réponse — il en a
+autant que de compétences dotées, et aucune ne tient dans un bouton. Sa résolution est un **état** :
+*spent*. **Une résolution dit que c'est résolu ; elle ne dit pas forcément par quoi.**
+
+⛔ **LES DEUX SIGNAUX NE PEUVENT PAS SE CONTREDIRE**, et c'est le défaut qui a fait écrire cette
+norme : le 27/08, des boutons annonçaient *« High Elf »* et *« spent »* pendant que **leurs voyants
+étaient vides**. La cause était une confusion de notions — l'écran d'appel savait ce qui était
+**POSÉ**, le voyant disait ce qui était **CONFIRMÉ**. **On peut poser un lignage sans valider son
+écran.**
+
+📌 **LE TROISIÈME ÂGE EST L'ABSENCE** : une fois l'étape entière validée par le `Done` du pied, le
+bouton **disparaît** et son résumé prend sa place *(§ « soit la porte, soit le résumé »)*.
+**proposition → résolution → plus de bouton du tout.**
 
 ⭐ **CE QUE LA TABLE APPREND, ET QU'AUCUNE LIGNE SEULE NE DISAIT** : *« bouton »* ne veut pas dire
 *« octogone »*. **L'octogone est l'habit des trois gabarits À LIBELLÉ** ; un bouton qui porte un
