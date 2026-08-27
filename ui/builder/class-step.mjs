@@ -180,10 +180,17 @@ const SPELL_QCMS = [
      *« plus d'ascenseurs couplés avec des actions drag and drop »*.
      ⛔ `renderSlotQcm` reste importé et VIVANT : il sert l'espèce, sa bourse
      captive et le don d'origine. Deux formes, un seul contrat d'action. */
-  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip",
-    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
-  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell",
-    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
+  /* ⛔ plus de consigne dans le corps — le standard du SB (Eric, 27/08 :
+     « ça dégage ») : l'aiguilleur est le seul texte de guidage, et il porte
+     désormais le geste précis (itemAiguilleur, lot 79). Mesuré : la consigne
+     coûtait 34 px, et Cantrips défilait à 527/493. */
+  { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip" },
+  /* ⚖️ prepared DÉVIE à 12 par page, et c'est la déviation que NORMES §5
+     prévoit (« un écran qui dévie passe SON nombre ») : ses QUATRE créneaux
+     prennent une seconde rangée (104 px au lieu de 48) — cinq rangées de
+     vivier ne tiennent plus au-dessus. Mesuré : 583/493 avant, 493 pile
+     après. Le garde du littéral reste muet : le nombre passe par pageDeListe. */
+  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell", parPage: 12 }
 ];
 
 /** La classe RETENUE, lue au carnet — le pendant exact d'`especeRetenue`.
@@ -327,6 +334,29 @@ function resumeDeLItem(item, ctx) {
    des chemins sous une racine, jamais un nom d'étape. */
 export const CLASS_CATALOGUE = {
   path: "class", kind: "class", label: "Classes", fiche: true, parcours: true,
+  /** Le lore de la classe regardée — le livre du pied, câblé comme chez
+   *  Species (Eric, 2026-08-28 : « Livre pas câblé ») : le texte vient du
+   *  record (couche fh-lore), et un record sans lore laisse le livre éteint. */
+  livreDe: (ctx) => {
+    const record = classeRetenue(ctx);
+    const lore = record && record.data && record.data.lore;
+    const texte = lore && typeof lore.text === "string" ? lore.text : null;
+    return texte ? { titre: record.name || "Lore", texte } : null;
+  },
+  /* 🔵 chaque SB nomme SON geste (Eric, 2026-08-28 : « texte aiguilleur plus
+     précis ») — le socle de prévention reste, la première phrase dit quoi
+     faire ICI. Les mots des consignes dégagées vivent désormais là. */
+  itemAiguilleur: (chemin) => (chemin === "class.cantrips"
+    ? "Tap a spell to read it — drag a cantrip into each slot. Leaving this open marks nothing — only Done records the choice."
+    : chemin === "class.prepared"
+      ? "Tap a spell to read it — drag a spell into each slot. Leaving this open marks nothing — only Done records the choice."
+    : chemin === "class.weaponMastery"
+      ? "Tap a weapon to read its mastery — drag one into each slot. Leaving this open marks nothing — only Done records the choice."
+    : chemin === "class.skillBudget"
+      ? "Drag a price onto a skill to spend your points. Leaving this open marks nothing — only Done records the choice."
+    : chemin === "class.skills"
+      ? "Tap a skill, or drag it onto a slot. Leaving this open marks nothing — only Done records the choice."
+    : null),
   /* ⭐ LE CORPS D'UN ITEM NE REND QUE SON BLOC — même contrat que Species
      (`itemCorps`), et c'est ce qui rend les deux chapitres identiques à
      l'usage. Sans lui, le parcours retombait sur `cfg.choices()`, donc sur
@@ -576,7 +606,7 @@ export function renderClassChoices(ctx, onAction, seulement) {
       titre: groupe.title, mot: groupe.slotWord,
       refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
       onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
-      consigne: groupe.consigne
+      parPage: groupe.parPage
     }) : null;
     if (bloc && retenu(groupe.basePath)) menu.append(bloc);
   }
@@ -600,8 +630,7 @@ export function renderClassChoices(ctx, onAction, seulement) {
     plan: maitrises, slots: planSlots(decisions, "class.weaponMastery"),
     titre: "Weapon mastery", mot: "Mastery",
     refKind: "weapon", labelOf: (id) => weaponLabel(query, id), onAction: act,
-    onInfo: (id) => { const info = weaponInfo(query, id); if (info) act(info); },
-    consigne: "Drag a weapon onto a slot to choose its mastery · tap or right-click for info"
+    onInfo: (id) => { const info = weaponInfo(query, id); if (info) act(info); }
   }) : null;
   if (blocMaitrises && retenu("class.weaponMastery")) menu.append(blocMaitrises);
 
