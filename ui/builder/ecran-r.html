@@ -69,14 +69,14 @@
 
      📌 HORS CHAMP DES GARDES. Le garde du graphe versionné ne compte les
      chargements que d'`index.html`, seul décideur ; les autres gardes
-     n'arpentent que les `.mjs`. Cette page porte quand même `?v=350` sur tout
+     n'arpentent que les `.mjs`. Cette page porte quand même `?v=351` sur tout
      ce qu'elle charge, et `bin/nouvelle-version.mjs` la met à jour avec les
      autres. ⛔ Elle ne recopie pas l'import map : une seconde copie ferait un
      second décideur du graphe, capable d'être à moitié à jour.
 ═══════════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=350">
-<link rel="stylesheet" href="./shell.css?v=350">
+<link rel="stylesheet" href="./tokens.css?v=351">
+<link rel="stylesheet" href="./shell.css?v=351">
 
 <style>
 /* ⛔ LE BLOC DE STYLE DE LA CARTE N'EST PLUS ICI — il est passé dans
@@ -123,8 +123,8 @@ body { display: flex; flex-direction: column; }
   <!-- R1 est monté ici par §A. -->
 
 <script type="module">
-import { bootEngine, loadExampleDocument } from "./engine.mjs?v=350";
-import { renderEquipmentStep, profondeurAccordee } from "./equipment-step.mjs?v=350";
+import { bootEngine, loadExampleDocument } from "./engine.mjs?v=351";
+import { renderEquipmentStep, profondeurAccordee } from "./equipment-step.mjs?v=351";
 /* ⛔ NI `armerJeton` NI `construireLaCarteR` : ce banc ne CONSTRUIT plus rien.
    Il monte l'écran du produit et lui emprunte sa carte, telle quelle. Un banc
    qui rebâtit ce qu'il observe finit par observer autre chose. */
