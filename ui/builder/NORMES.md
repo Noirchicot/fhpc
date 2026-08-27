@@ -1117,13 +1117,6 @@ marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne 
 > **« chaque élément se pose là où il faut et à la bonne proportion : sur iPad, sur Mac, sur
 > iPhone »** · **« si je crée une nouvelle classe tout rentre là-dedans et sera joli partout »**.
 
-> ⚖️ **PORTÉE ÉTENDUE — Eric, 2026-08-27 : « la norme des cartes de species [est] valide pour
-> tous les écrans ».** La MÉCANIQUE de ce paragraphe — l'échelle `--u`, le plafond u = 1, le pied
-> hors homothétie, le moule qui impose son format au contenu — est la loi de **TOUTE carte du
-> builder**, pas seulement celle du catalogue. Ce qui reste propre à chaque écran : son **dessin
-> de référence** (les colonnes, les rangées, les corps), qui se dicte écran par écran comme
-> celui-ci l'a été. Un écran à carte qui arrive sans dessin dicté copie celui-ci en attendant.
-
 🔴 **LE PRINCIPE : la carte est un DESSIN, pas une somme de cotes.** Chaque habit a sa référence —
 **269 × 440 en portrait** (dicté), **625 × 440 en paysage** (validé) — et toutes les cotes internes,
 **corps de texte compris**, se dérivent d'UNE échelle `--u` = largeur rendue / largeur de référence.
