@@ -2676,6 +2676,26 @@ function pressDone() {
     if (currentGate(state.palier + 1).exists === false) {
       const cfg = catalogueCourant();
       if (cfg && cfg.fin === "close") { fermerLePanneau(); return; }
+      /* 🔴 UNE ÉTAPE À PARCOURS NE SAUTE PLUS — 27/08. Le `goToStep` d'en
+         dessous date d'AVANT le parcours d'étape : « pousser vers un menu
+         vide serait un geste pour rien » supposait qu'une espèce sans choix
+         n'avait rien à montrer. Depuis le 19/08 le B montre TOUJOURS le
+         granted et son bilan. La prémisse est morte, le saut est devenu un
+         piège : CHOOSE sur Orc projetait le joueur sur les Ability boosts
+         d'Inheritance, et Eric lui-même a lu ça comme « des species qui
+         donnent des bonus de caractéristiques ». L'écran qui suit un choix
+         d'espèce est LE B DE L'ESPÈCE — on en repart par Next. */
+      if (cfg && cfg.parcours) {
+        if (state.docWriters && state.document && !estConfirme(state.document, cfg.path)) {
+          try {
+            state.document = state.docWriters.confirm({ document: state.document, path: cfg.path });
+          } catch (error) {
+            state.fieldErrors = { ...state.fieldErrors, parcours: motDuRefus(error, null, "parcours") };
+          }
+        }
+        openSurface();
+        return;
+      }
       goToStep(state.step + 1);
       return;
     }
