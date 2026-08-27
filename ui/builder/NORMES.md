@@ -1503,6 +1503,39 @@ porte **disparaît** et c'est le résumé qui parle *(§ « soit la porte, soit 
 
 ---
 
+### 🚨 LE VERROU, LE GENDARME, ET LES BOUTONS BLOQUÉS *(dicté au banc, nuit du 27/08)*
+
+> Eric, devant le cas réel (un budget à 3 points pour 2, conclu avant le correctif) :
+> **« tu peux bloquer le Next et faire parler le gendarme en rouge à la place de l'aiguilleur »** ·
+> **« il faut bloquer le Done aussi, et laisser le bouton visible pour pouvoir retourner dans
+> Skill budget »** · **« le bouton est rouge »** · **« si tu bypass par le menu, t'as Keen Senses
+> en rouge dans le bilan »** · **« image de blocage = main sur le bouton · le bouton rouge vers
+> lequel tu dois aller : image de doigt »** · **« sur Wood Elf j'ai pas le bouton pour revenir
+> en arrière »**.
+
+🔴 **LA LOI : UN VERROU DU NOYAU PRIME SUR UNE SIGNATURE.** Une étape signée dont un plan porte
+un verrou (`skill-budget.overspent`…) n'est PAS une étape réglée — et l'écran entier le dit,
+d'une seule voix :
+
+| organe | sous verrou |
+|---|---|
+| **la bande** | elle cesse de guider : le **GENDARME** parle — rouge, le mot du refus (*« Overspent by 1 — 3 of 2 points spent. Go back and remove the extra. »*) |
+| **`Done` / `Next`** | **désarmés ET rouges** · au survol : **la main d'arrêt** (`not-allowed`) |
+| **la porte fautive** | **octogone ROUGE PLEIN** (il bat le vert de la signature) · au survol : **le doigt** — elle reste le SEUL chemin, elle rouvre le sous-écran |
+| **le voyant de la ligne** | rouge — la loi de la porte vaut aussi en rouge : les deux signaux ne se contredisent jamais |
+| **la tête du bilan** (étape conclue) | elle **redevient une PORTE**, rouge — *« j'ai pas le bouton pour revenir en arrière »* : même conclue, une étape verrouillée offre son chemin de retour, sans démolir le reste |
+
+⭐ **LES DEUX ROUGES NE DISENT PAS LE MÊME GESTE, et c'est le curseur qui les sépare** : le bouton
+désarmé montre la MAIN D'ARRÊT (tu ne passes pas par là), la porte accusée offre le DOIGT (c'est
+par ici). Un seul rouge, deux invitations opposées — sans un mot de plus.
+
+⛔ **LE BUG QUI A FAIT ÉCRIRE TOUT ÇA** (lot 67) : le noyau posait le verrou, et l'écran testait
+`answered >= expected` — trois novices passaient pour « spent ». **Un dépassement n'est pas une
+réponse.** Le compte d'une bourse est EXACT (`===`), et un plan verrouillé n'est jamais résolu.
+
+📌 **Où c'est câblé** : crochet `cfg.gendarme(ctx) → {mot, chemin}` (le catalogue nomme le verrou
+et l'item fautif) ; `renderGuideSpecifique` fait le reste. Gardes : `tests/budget-verrou.test.mjs`.
+
 ### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
