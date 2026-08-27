@@ -2209,6 +2209,7 @@ function renderParcoursGuide(cfg, ctx) {
     /* Le livre du pied ouvre le LORE de ce que l'écran montre — Eric, 27/08.
        ⭐ La coquille ne le CONNAÎT pas : elle demande à la configuration de
        l'étape, qui seule sait où vit son lore. */
+    gendarme: cfg.gendarme ? cfg.gendarme(ctx) : null,
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */

@@ -42,9 +42,11 @@ test("`I changed my mind` n'est JAMAIS seul dans sa rangée", () => {
 
 test("⚔️ ATTAQUE — rétablir l'ancien `else if` sans `else` fait rougir le garde", () => {
   /* Une exigence qu'on ne voit jamais échouer ne protège rien. */
+  /* la forme du pied a changé au lot 68 (le Next se désarme sous gendarme) :
+     l'attaque mute la nouvelle forme — `const next = bouton("Next"…)`. */
   const mute = SRC.replace(
-    /if \(acheve\) \{\s*pied\.append\(bouton\("Next"/,
-    'if (acheve && !conclu) {\n    pied.append(bouton("Next"');
+    /if \(acheve\) \{\s*const next = bouton\("Next"/,
+    'if (acheve && !conclu) {\n    const next = bouton("Next"');
   assert.notEqual(mute, SRC, "témoin : la mutation a bien mordu dans la source");
   const bloc = mute.split('bouton("I changed my mind"')[1].slice(0, 700);
   assert.match(bloc, /acheve && !conclu/, "l'état non couvert est de retour");

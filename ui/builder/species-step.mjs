@@ -373,15 +373,35 @@ export const SPECIES_CATALOGUE = {
   itemAiguilleur: (chemin) => (chemin === "species.lineage"
     ? "Tap a lineage to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
     : null),
+  /* 🚨 LE MOT DU GENDARME — le verrou du noyau, dit au joueur. Le libellé
+     reprend celui du chapitre Skills (« Overspent by… ») : deux endroits,
+     une même voix. */
+  gendarme: (ctx) => {
+    const plan = planAt(ctx.decisions || [], "species.skillBudget");
+    if (plan && plan.lock && plan.lock.key === "skill-budget.overspent") {
+      const p = plan.lock.params || {};
+      const over = Number(p.spent) - Number(p.points);
+      return { mot: `Overspent by ${Number.isFinite(over) ? over : "?"} — ${p.spent} of ${p.points} points spent. Go back and remove the extra.`,
+        chemin: "species.skillBudget" };
+    }
+    return null;
+  },
   bilanLabel: (chemin, ctx) => {
     /* « le titre devait être : Keen Senses… et sur le bouton tu peux laisser
        Skill budget, mais pas dans le rendu final » — Eric, 27/08. La PORTE
        garde son mot ; la tête du BILAN porte le nom du trait qui accorde la
        bourse (générique : un autre trait donnera le sien). */
-    if (chemin === "species.skillBudget" && budgetDepense(ctx)) {
-      const record = especeRetenue(ctx);
-      const trait = record ? traitQuiAccorde(record, "species.skillBudget") : null;
-      return (trait && trait.name) || "Skill budget";
+    if (chemin === "species.skillBudget") {
+      const plan = planAt(ctx.decisions || [], "species.skillBudget");
+      const verrouille = !!(plan && plan.lock);
+      /* « si tu bypass par le menu, t'as Keen Senses en ROUGE dans le
+         bilan » — Eric, 27/08 : la tête s'affiche AUSSI sous verrou, et
+         c'est le rendu qui la peint en rouge (data-verrou). */
+      if (budgetDepense(ctx) || verrouille) {
+        const record = especeRetenue(ctx);
+        const trait = record ? traitQuiAccorde(record, "species.skillBudget") : null;
+        return (trait && trait.name) || "Skill budget";
+      }
     }
     return null;
   },

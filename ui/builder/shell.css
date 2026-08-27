@@ -6359,6 +6359,46 @@ button { font: inherit; }
    📏 Les deux mesurés côte à côte le 27/08 : Identity `padding: 0px`, le
    parcours `padding: 0px 16px` — **une seule ligne différait**, et c'est de les
    avoir comparés qui l'a trouvée. */
+
+/* 🚨 LA BANDE-GENDARME — Eric, 27/08 : « faire parler le gendarme en rouge à
+   la place de l'aiguilleur ». Même organe que la bande bleue, l'encre du
+   problème : le rouge signale, le mot dit lequel (§7). */
+.guide-mot[data-gendarme="oui"] {
+  border-left-color: var(--critical);
+  background: color-mix(in srgb, var(--critical) 12%, transparent);
+  color: var(--text);
+}
+
+/* la tête d'item que le gendarme accuse — « Keen Senses en rouge dans le bilan » */
+.parcours-item-mot[data-verrou="oui"] { color: var(--critical); }
+
+/* la PORTE que le gendarme accuse — rouge, et toujours ouverte : c'est le
+   chemin du retour (« le bouton est rouge », Eric 27/08 — l'échelle du §6 :
+   un bouton retombe au rouge quand on dépasse son droit) */
+/* le fond rouge PLEIN, l'habit de la famille « il y a un problème » — et la
+   spécificité bat le vert de l'item signé (data-allume, plus haut) : un
+   verrou prime sur une signature. */
+.parcours-item[data-allume="true"] .parcours-item-porte[data-verrou="oui"],
+.parcours-item-porte[data-verrou="oui"] {
+  --bouton-fond: var(--critical);
+  color: var(--on-accent);
+}
+/* et le voyant suit la porte — la loi de la porte vaut aussi en rouge */
+.parcours-item[data-verrou="oui"] .parcours-voyant { background: var(--critical); }
+
+/* « image de blocage = main sur le bouton » (Eric, 27/08) : un bouton du
+   parcours désarmé par le gendarme montre l'arrêt au survol */
+.parcours-pied button:disabled { cursor: not-allowed; }
+
+/* « le bouton est inactif ET rouge · le bouton rouge vers lequel tu dois
+   aller : image de doigt » (Eric, 27/08) — les deux rouges ne disent pas le
+   même geste : le désarmé montre la main d'arrêt, la porte offre le doigt. */
+.parcours-pied button[data-verrou="oui"] {
+  color: var(--critical);
+  box-shadow: inset 0 0 0 1px var(--critical);
+}
+.parcours-item-porte[data-verrou="oui"] { cursor: pointer; }
+
 /* 🔴 ⛔ `button.` DEVANT, ET C'EST LA DIFFÉRENCE ENTRE MARCHER ET NE PAS
    MARCHER. Écrite d'abord `.fiche-livre` seule, cette règle était PERDANTE et
    je l'ai déployée en croyant l'avoir posée : mesuré sur la page en ligne, le
@@ -6467,3 +6507,4 @@ button.tuto-point::before {
    plus large », de l'air entre les blocs */
 .bilan-ligne { margin: 0 0 var(--sp-4); line-height: 1.45; font-size: var(--t2); color: var(--text); }
 .species-acquis-bilan, .species-lignage-bilan { margin-bottom: var(--sp-8); }
+
