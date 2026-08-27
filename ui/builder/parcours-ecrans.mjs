@@ -405,7 +405,9 @@ export function renderItem({ racine, item, titre, corps, livreDe, onAction }) {
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));
   if (corps) page.append(corps);
 
-  page.append(saignee());
+  /* ⛔ la saignée d'avant-pied a DÉGAGÉ — Eric, 27/08 : « l'aiguilleur à la
+     même distance que dans le niveau B », et le B n'a pas de trait là. Le
+     trait + ses marges rendaient 17 px là où le gabarit en veut 12. */
   /* 🔵 L'AVERTISSEMENT EST DEVENU LA BANDE D'AIGUILLEUR — Eric, 2026-08-27 :
      « remplacée par les 3 lignes d'aiguilleur au-dessus des boutons ». Même
      organe que le rang B (`guide-mot`), même place (sous la fenêtre, avant
