@@ -155,9 +155,9 @@
             }
           ],
           "data[fiche_lineage_lvl1]": {
-            "drow": "Darkvision 120 ft — Dancing Lights cantrip known.",
-            "high-elf": "Prestidigitation cantrip known — after a Long Rest, replace it with any Wizard cantrip.",
-            "wood-elf": "Speed 35 ft — Druidcraft cantrip known."
+            "drow": "Darkvision 120 ft — [[Dancing Lights]] cantrip known.",
+            "high-elf": "[[Prestidigitation]] — can be replaced with any Wizard cantrip after a Long Rest.",
+            "wood-elf": "Speed 35 ft — [[Druidcraft]] cantrip known."
           }
         }
       },

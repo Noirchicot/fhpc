@@ -226,7 +226,18 @@ function resumeDeLItem(item, ctx, act) {
     for (const trait of traitsDe(record)) {
       if (!couverts.has(trait.id)) lignes.push([trait.name, trait.text || "—"]);
     }
-    return renderCardRows(lignes);
+    /* « mets en gras, deux-points, démarre le texte juste derrière » — Eric,
+       27/08. Le tableau à deux colonnes dégage : chaque ligne devient
+       « **Mot :** texte », enchaîné, pleine largeur. */
+    const bloc = el("div", "species-acquis-bilan");
+    for (const [mot, valeur] of lignes) {
+      if (valeur === null || valeur === undefined) continue;
+      const ligne = el("p", "bilan-ligne");
+      ligne.append(el("strong", null, [text(`${mot} : `)]));
+      ligne.append(text(String(valeur)));
+      bloc.append(ligne);
+    }
+    return bloc;
   }
 
   if (!item.confirme) return null;
@@ -238,15 +249,9 @@ function resumeDeLItem(item, ctx, act) {
     const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
     const choisi = options.find((o) => o && o.id === pose);
     if (!choisi) return null;
-    const trait = traitQuiAccorde(record, "species.lineage");
-    /* la même mise en mots que la fenêtre du SB — une seule voix */
-    const bloc = el("div", "species-lignage-bilan");
-    const tete = renderCardRows([trait ? [trait.name, choisi.name] : [choisi.name, ""]]);
-    if (tete) bloc.append(tete);
-    const liste = el("dl", "species-lignage-benefices species-lignage-benefices-bilan");
-    renderLignesLignage(liste, choisi, ctx.query, act || (() => {}), courtsDe(record));
-    bloc.append(liste);
-    return bloc;
+    /* ⛔ plus de ligne « Elven Lineage : High Elf » — Eric, 27/08 : « t'as
+       pas besoin de répéter deux fois » : la tête de l'item le dit déjà. */
+    return renderLignageBilan(choisi, ctx.query, act || (() => {}), courtsDe(record));
   }
 
   /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
@@ -266,16 +271,19 @@ function resumeDeLItem(item, ctx, act) {
       return palier ? [slug, motPropre(skillLabel(ctx.query, slug)), String(palier)] : null;
     }).filter(Boolean);
     if (dotes.length === 0) return null;
-    /* chaque skill est un LIEN vers le livre web — Eric, 27/08 : « dans FH
-       tous les skills sont linked à FH WEB ». Le palier reste du texte. */
-    const ligne = el("p", "parcours-resume-bourse");
+    /* « Bound skills : (gras) puis texte normal — Delve (link) novice en
+       italique » (Eric, 27/08). Chaque skill est un lien vers le livre web ;
+       LE PALIER SEUL est en italique. */
+    const ligne = el("p", "bilan-ligne parcours-resume-bourse");
+    ligne.append(el("strong", null, [text("Bound skills : ")]));
     dotes.forEach(([slug, nom, palier], i) => {
       if (i > 0) ligne.append(text(", "));
       const lien = el("a", "lien-sort", [text(nom)]);
       lien.href = lienSkillFhWeb(slug);
       lien.target = "_blank"; lien.rel = "noopener";
       ligne.append(lien);
-      ligne.append(text(` ${palier}`));
+      const pal = el("em", null, [text(` ${palier}`)]);
+      ligne.append(pal);
     });
     return ligne;
   }
@@ -637,6 +645,65 @@ function renderLignesLignage(liste, option, query, act, courts) {
 /** Le même contenu, en TEXTE — le popup du tap/clic droit sur un token. */
 function texteDuLignage(option, courts) {
   return lignesDuLignage(option, courts).map(([texte, nomSort]) => texte + (nomSort || "")).join("\n");
+}
+
+/** LE LIEN D'UN SORT — un seul fabricant : FF interne (SRD), livre web si la
+ *  couche fh le modifie, texte simple s'il est introuvable (un faux lien
+ *  apprend à ne plus cliquer). */
+function lienDeSort(nomSort, query, act) {
+  const id = sortParNom(query, nomSort);
+  if (id !== null && sortEstModifieFh(id)) {
+    const lien = el("a", "lien-sort", [text(nomSort)]);
+    lien.href = lienSortFhWeb();
+    lien.target = "_blank"; lien.rel = "noopener";
+    return lien;
+  }
+  if (id !== null) {
+    const lien = el("button", "lien-sort", [text(nomSort)]);
+    lien.type = "button";
+    lien.addEventListener("click", () => { const info = spellInfo(query, id); if (info) act(info); });
+    return lien;
+  }
+  return text(nomSort);
+}
+
+/** LINKIFIE une string de fiche : les sorts s'y marquent `[[Nom]]` (la
+ *  convention des textes de fiche, 27/08 — la dictée d'Eric portait le lien
+ *  DANS le texte : « prestidigitation (link) — can be replaced… »). */
+function linkifie(cible, texte, query, act) {
+  const morceaux = String(texte).split(/\[\[([^\]]+)\]\]/);
+  morceaux.forEach((morceau, i) => {
+    if (i % 2 === 1) cible.append(lienDeSort(morceau, query, act));
+    else if (morceau) cible.append(text(morceau));
+  });
+}
+
+/** LE BILAN D'UN LIGNAGE — la dictée typographique d'Eric (27/08, devant sa
+ *  capture v343) : « t'as pas besoin de répéter "Elven Lineage High Elf"
+ *  deux fois · (en gras cadré à gauche) At level 1 : (texte normal à la
+ *  suite) · At subsequent levels : Faerie Fire (link) at level 3 and
+ *  Darkness (link) at level 5 ». Deux paragraphes, préfixe en gras, tout
+ *  enchaîné. */
+function renderLignageBilan(option, query, act, courts) {
+  const bloc = el("div", "species-lignage-bilan");
+  const paliers = (option && option.levels) || {};
+  const p1 = el("p", "bilan-ligne");
+  p1.append(el("strong", null, [text("At level 1 : ")]));
+  linkifie(p1, (courts && courts[option.id]) || paliers["1"] || "", query, act);
+  bloc.append(p1);
+  const suivants = Object.keys(paliers).filter((n) => n !== "1").sort((a, b) => Number(a) - Number(b));
+  if (suivants.length > 0) {
+    const p2 = el("p", "bilan-ligne");
+    p2.append(el("strong", null, [text("At subsequent levels : ")]));
+    suivants.forEach((niveau, i) => {
+      if (i > 0) p2.append(text(i === suivants.length - 1 ? " and " : ", "));
+      p2.append(lienDeSort(paliers[niveau], query, act));
+      p2.append(text(` at level ${niveau}`));
+    });
+    p2.append(text("."));
+    bloc.append(p2);
+  }
+  return bloc;
 }
 
 /** Les condensés de niveau 1, posés par fh-fiche (data[fiche_lineage_lvl1]). */
