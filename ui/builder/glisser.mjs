@@ -462,7 +462,7 @@ function fantomeSuivre(x, y) {
     `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
@@ -607,7 +607,10 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   const compteDesPages = el("span", "grille-compte");
 
   function remplirVivier() {
-    const vue = pageDeListe(options, page);
+    /* ⚖️ `parPage` : la déviation DÉCLARÉE de NORMES §5 — l'appelant qui ne
+       peut pas offrir cinq rangées passe SON nombre, et le défaut du socle
+       reste seul partout ailleurs. */
+    const vue = parPage ? pageDeListe(options, page, parPage) : pageDeListe(options, page);
     page = vue.page;
     pageDuVivier.set(clefDePage, page);
     /* ⛔ ON NE REMPLACE PAS SOI-MÊME : `tests/socle.test.mjs` tient une liste
