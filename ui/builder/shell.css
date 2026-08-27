@@ -6521,9 +6521,31 @@ button.tuto-point::before {
    tableau plutôt qu'un long scroll ». Deux colonnes serrées, T2, un filet
    discret entre les lignes ; elle vit dans la fenêtre du SB et n'a pas
    besoin d'en déborder : dix lignes de T2 tiennent debout. */
-.species-lignage-table { border-collapse: collapse; width: 100%; font-size: var(--t2); }
-.species-lignage-table th { text-align: left; font-weight: 600; padding: var(--sp-2) var(--sp-8) var(--sp-2) 0; }
-.species-lignage-table td { color: var(--text-soft); padding: var(--sp-2) 0; }
+/* 🔴 COMPOSÉE, PAS ÉTIRÉE — Eric, 28/08, devant la v351 : la table à 100 %
+   écartelait ses colonnes (les noms collés au bord, les dégâts perdus au
+   milieu d'un blanc), un dump de données. Un tableau se dimensionne sur son
+   CONTENU et se centre ; le couple nom-valeur reste un couple. Et il se
+   REGARDE avant de se livrer — je l'avais seulement compté. */
+.species-lignage-intro {
+  font-size: var(--t2);
+  color: var(--text-soft);
+  margin: 0 0 var(--sp-12);
+}
+.species-lignage-table {
+  border-collapse: collapse;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+  font-size: var(--t2);
+}
+.species-lignage-table th {
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+  font-weight: 600;
+  padding: var(--sp-2) var(--sp-16) var(--sp-2) 0;
+}
+.species-lignage-table td { color: var(--text-soft); text-align: left; vertical-align: top; padding: var(--sp-2) 0; }
 .species-lignage-table tr + tr th, .species-lignage-table tr + tr td {
-  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
 }

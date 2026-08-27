@@ -807,6 +807,15 @@ function renderLineageBlock(ctx, record, act) {
      table — Dragonborn, Goliath (« idem tableau pour Goliath »), et Hoddon
      qui a la même forme. Les lignages à PALIERS multiples (Elf, Tiefling)
      gardent leur prose « At level 1… ». */
+  /* 📖 L'INTRO AVANT LE TABLEAU — Eric, 27/08 : « un peu de texte en intro,
+     pour dire que c'est des souffles, le cône, les dégâts, la résistance —
+     et après le tableau pour chaque élément » ; « un petit texte pour
+     expliquer le tableau c'est bien » (Goliath). La règle commune se lit en
+     phrase, le tableau ne porte que ce qui varie. Le texte vit dans la
+     SOURCE des espèces (LINEAGE_INTROS → data[lineage_intro]) : l'écran le
+     lit, il ne l'invente pas. */
+  const intro = record && record.data && record.data.lineage_intro;
+  if (intro) bloc.append(el("p", "species-lignage-intro", [text(intro)]));
   const uneEntree = (o) => o && (typeof o.damage === "string" ||
     (o.levels && Object.keys(o.levels).length === 1 && o.levels["1"] !== undefined));
   if (options.every(uneEntree)) {

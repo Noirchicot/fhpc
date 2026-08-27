@@ -47,7 +47,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   LAYER, SPECIES, SRD_LAYER_ID, DESTINY_BASE,
-  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, KEEN_SENSES_BUDGET_POINTS, srdSpeciesId, LINEAGES
+  KEEN_SENSES_SKILLS, KEEN_SENSES_TEXT, KEEN_SENSES_BUDGET_POINTS, srdSpeciesId, LINEAGES, LINEAGE_INTROS
 } from "./fh-species-source.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -453,6 +453,11 @@ function patchEntry(srd, entry) {
         "après avoir comparé les deux règle par règle.");
     }
     changes["data[lineages]"] = structuredClone(lignages);
+    /* l'intro du tableau voyage avec les lignages qu'elle explique —
+       Eric, 27/08 : « un peu de texte en intro… et après le tableau ». */
+    if (LINEAGE_INTROS[lineageKey(entry)]) {
+      changes["data[lineage_intro]"] = LINEAGE_INTROS[lineageKey(entry)];
+    }
   }
 
   changes["data.destiny"] = destinyOf(entry);

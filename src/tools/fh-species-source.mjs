@@ -460,6 +460,29 @@ const HUMAN_DESCRIPTION = {
    ⛔ CES VALEURS NE SE CORRIGENT PAS ICI. Leur source est le chapitre du
    vault publié par le site — `0. D&D 5+ Rules/2. Species Modifications/
    D&D 5+ Races & Species.md`. Une règle se corrige DANS le chapitre. */
+/* ── L'INTRO DU TABLEAU — dictée d'Eric, 27/08, devant la table nue :
+   « Un peu de texte en intro. Et pour dire que c'est des souffles, le cône,
+   les dégâts, la résistance — et après le tableau pour chaque élément » ;
+   puis sur le Goliath : « un petit texte pour expliquer le tableau c'est
+   bien ». Un tableau sans phrase d'entrée est un dump de données : la ligne
+   « Black : Acid » ne dit ni qu'il s'agit d'un souffle, ni qu'une résistance
+   vient avec. L'intro porte la RÈGLE COMMUNE, le tableau ne porte que ce qui
+   varie. ⚠️ Chaque cote est COPIÉE du texte du trait (breath-weapon,
+   giant-ancestry) — une intro qui arrondit une cote devient une deuxième
+   source qui ment. */
+export const LINEAGE_INTROS = {
+  dragonborn:
+    "Every lineage grants the same Breath Weapon — an exhalation of magical " +
+    "energy in a 15-foot Cone or a 30-foot Line (Dexterity save, 1d10 damage, " +
+    "half on a success), usable twice, plus one more use at character levels " +
+    "5, 9, 13, and 17 — and Resistance to the same damage type. Only the " +
+    "element changes; the table gives it for each lineage.",
+  goliath:
+    "Each ancestry recalls a Giant forebear and grants its supernatural boon, " +
+    "usable twice, plus one more use at character levels 5, 9, 13, and 17. " +
+    "The table gives each boon."
+};
+
 export const LINEAGES = {
   dragonborn: [
     { id: "black",  name: "Black",  damage: "Acid" },
