@@ -606,6 +606,14 @@
       "srd:class:en:bard": {
         "op": "patch",
         "changes": {
+          "data[skill_choice][from]": [
+            "srd:skill:en:history",
+            "srd:skill:en:performance",
+            "fh:skill:en:academics",
+            "srd:skill:en:persuasion",
+            "srd:skill:en:deception",
+            "fh:skill:en:streetwise"
+          ],
           "data[granted_skill_budget]": {
             "points": 3
           },
