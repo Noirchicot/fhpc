@@ -239,7 +239,19 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
        ⚠️ ET ELLES REVIENNENT SEULES : `I changed my mind` défait la validation,
        donc `acheve` retombe et les portes se reconstruisent. Rien à câbler pour
        le retour — c'est la même expression qui décide dans les deux sens. */
-    if (item.sansChoix || acheve) {
+    if (gendarme && gendarme.chemin && item.path === gendarme.chemin && !item.sansChoix) {
+      /* 🚨 LA TÊTE ACCUSÉE REDEVIENT UNE PORTE — Eric, 27/08 : « sur Wood Elf
+         j'ai pas le bouton pour revenir en arrière ». Même conclue, une étape
+         verrouillée doit offrir le chemin du retour : la porte rouge rouvre
+         le sous-écran fautif, sans démolir le reste de l'étape. */
+      const porte = bouton("", "parcours-item-porte", () => act({ kind: "parcoursItem", racine, path: item.path }));
+      const motBilan = bilanLabel ? bilanLabel(item) : null;
+      porte.append(text(motBilan || motDe(labelOf ? labelOf(item) : item.path)));
+      porte.dataset.verrou = "oui";
+      porte.setAttribute("aria-label", `${motBilan || item.path} — needs fixing`);
+      ligne.dataset.verrou = "oui";
+      tete.append(porte);
+    } else if (item.sansChoix || acheve) {
       /* ⛔ `motDe`, PAS le libellé brut — depuis le 27/08 un `labelOf` peut
          rendre un OBJET {mot, sous} (la résolution d'une porte). Cette
          branche le passait tel quel à text() : « [object Object] » à
