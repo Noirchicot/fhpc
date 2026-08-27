@@ -118,12 +118,16 @@ export function renderGuideGeneral({ titre, texte }) {
  *  « [object Object] » — et il ne l'aurait dit qu'au joueur. */
 export function motDe(libelle) {
   if (libelle && typeof libelle === "object") {
-    return libelle.sous ? `${libelle.mot} (${libelle.sous})` : String(libelle.mot);
+    /* « High Elf Lineage », pas « High Elf (lineage) » — Eric, 27/08, en
+       dictant le bilan : « si on met tout en mode texte : "High Elf
+       Lineage" ». Le sous-titre se capitalise et suit le mot, sans habit. */
+    const sous = libelle.sous ? String(libelle.sous) : "";
+    return sous ? `${libelle.mot} ${sous[0].toUpperCase()}${sous.slice(1)}` : String(libelle.mot);
   }
   return String(libelle);
 }
 
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, resumeDe, refus, acheve, conclu, livreDe, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
      la dalle de ça à 50 % »*. ⛔ Pas 35 : il a désigné l'objet et donné le
@@ -230,7 +234,8 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
          l'écran, en production, vu par Eric sur son iPhone. La branche
          PORTE le dépliait déjà ; celle-ci l'avait raté — un libellé qui
          change de forme doit être déplié PARTOUT où il s'affiche. */
-      tete.append(el("span", "parcours-item-mot", [text(motDe(labelOf ? labelOf(item) : item.path))]));
+      const motBilan = bilanLabel ? bilanLabel(item) : null;
+      tete.append(el("span", "parcours-item-mot", [text(motBilan || motDe(labelOf ? labelOf(item) : item.path))]));
       ligne.dataset.sansChoix = "true";
     } else {
       /* 🔴 UNE PORTE PEUT PORTER DEUX LIGNES — Eric, 2026-08-27 : *« Lineage

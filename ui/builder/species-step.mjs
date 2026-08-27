@@ -249,14 +249,18 @@ function resumeDeLItem(item, ctx) {
   if (item.path === "species.skillBudget") {
     const budget = planAt(decisions, "species.skillBudget");
     if (!budget) return null;
-    const lignes = (budget.options || []).map((slug) => {
+    /* UNE LIGNE, EN ITALIQUE — Eric, 27/08, en dictant le bilan : « "Bound
+       skill points" / Delve novice (en italique), Survival novice (en
+       italique) ». Le tableau d'avant (une rangée par compétence, plus la
+       ligne du trait) redevient une respiration : le bilan dit ce qu'on A,
+       en un souffle. La casse du palier est la sienne : minuscule. */
+    const mots = (budget.options || []).map((slug) => {
       const etape = planAt(decisions, `species.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
-      return palier ? [motPropre(skillLabel(ctx.query, slug)), tierLabel(palier)] : null;
+      return palier ? `${motPropre(skillLabel(ctx.query, slug))} ${String(palier)}` : null;
     }).filter(Boolean);
-    if (lignes.length === 0) return null;
-    const trait = traitQuiAccorde(record, "species.skillBudget");
-    return renderCardRows(trait ? [[trait.name, trait.text || ""], ...lignes] : lignes);
+    if (mots.length === 0) return null;
+    return el("p", "parcours-resume-bourse", [text(mots.join(", "))]);
   }
   return null;
 }
@@ -327,6 +331,14 @@ export const SPECIES_CATALOGUE = {
 
      📌 `ctx` ÉTAIT DÉJÀ LÀ : `shell.mjs` appelle `itemLabel(item.path, ctx)`
      depuis toujours — cet écran ne s'en servait pas. Rien à câbler en amont. */
+  /* 🔤 LE MOT DU BILAN — Eric, 27/08, en deux temps : « "Bound skill
+     points" » puis la correction « en titre skill budget, en dessous les
+     niveaux ». La TÊTE du bilan dit la question, nue — les niveaux dessous
+     disent la réponse ; le « spent » de la porte n'a plus rien à dire ici. */
+  bilanLabel: (chemin, ctx) => {
+    if (chemin === "species.skillBudget" && budgetDepense(ctx)) return "Skill budget";
+    return null;
+  },
   itemLabel: (chemin, ctx) => {
     if (chemin === "species.lineage") {
       const nom = lignageChoisi(ctx);

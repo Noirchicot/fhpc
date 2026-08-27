@@ -6441,3 +6441,7 @@ button.tuto-point::before {
 }
 .parcours-item-dalle > .guide-mot { margin-top: var(--sp-12); }
 .parcours-item-dalle > .parcours-pied { margin-top: auto; }
+
+/* Le résumé de la bourse au bilan — une ligne, en italique (Eric, 27/08 :
+   « Delve novice (en italique), Survival novice (en italique) »). */
+.parcours-resume-bourse { margin: 0; font-style: italic; font-size: var(--t2); color: var(--text); }

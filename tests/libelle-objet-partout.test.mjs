@@ -18,8 +18,10 @@ const PARCOURS = readFileSync(new URL("../ui/builder/parcours-ecrans.mjs", impor
 const SHELL = readFileSync(new URL("../ui/builder/shell.mjs", import.meta.url), "utf8");
 
 test("la tête d'un item réglé passe par motDe — jamais le libellé brut", () => {
+  /* depuis le lot 64, un mot de BILAN (bilanLabel) peut primer — mais le
+     repli passe TOUJOURS par motDe : c'est lui que ce garde tient. */
   assert.match(PARCOURS,
-    /"parcours-item-mot", \[text\(motDe\(labelOf \? labelOf\(item\) : item\.path\)\)\]/,
+    /"parcours-item-mot", \[text\(motBilan \|\| motDe\(labelOf \? labelOf\(item\) : item\.path\)\)\]/,
     "parcours-ecrans.mjs : la branche sansChoix/acheve déplie le libellé");
 });
 
@@ -32,6 +34,6 @@ test("le titre du sous-écran passe par motDe — jamais l'objet brut", () => {
 test("motDe sait lire les deux formes — la string ET l'objet", async () => {
   const { motDe } = await import("../ui/builder/parcours-ecrans.mjs");
   assert.equal(motDe("Lineage"), "Lineage");
-  assert.equal(motDe({ mot: "High Elf", sous: "lineage" }), "High Elf (lineage)");
+  assert.equal(motDe({ mot: "High Elf", sous: "lineage" }), "High Elf Lineage"); /* Eric, 27/08 : « "High Elf Lineage" », sans parenthèses */
   assert.equal(motDe({ mot: "Skill budget" }), "Skill budget");
 });
