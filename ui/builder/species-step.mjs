@@ -796,6 +796,35 @@ function renderLineageBlock(ctx, record, act) {
   });
   if (glisse) bloc.append(glisse);
 
+  /* 🗒️ UN TABLEAU QUAND CHAQUE LIGNÉE TIENT EN UNE VALEUR — Eric, 28/08 :
+     « le Dragonborn pourrait avoir un tableau plutôt qu'un long scroll pour
+     décrire ses résistances et souffles ». Quand TOUTES les options portent
+     `damage` (le seul lignage à valeur sèche), la fenêtre devient une table
+     à deux colonnes — dix lignées d'un coup d'œil, sans défilement. Les
+     lignages à paliers (Elf, Hoddon, Tiefling) gardent leur prose. */
+  /* le critère est STRUCTUREL, pas une liste d'espèces : une lignée qui
+     tient en UNE entrée (un type de dégâts, ou un unique palier) se lit en
+     table — Dragonborn, Goliath (« idem tableau pour Goliath »), et Hoddon
+     qui a la même forme. Les lignages à PALIERS multiples (Elf, Tiefling)
+     gardent leur prose « At level 1… ». */
+  const uneEntree = (o) => o && (typeof o.damage === "string" ||
+    (o.levels && Object.keys(o.levels).length === 1 && o.levels["1"] !== undefined));
+  if (options.every(uneEntree)) {
+    const table = el("table", "species-lignage-table");
+    for (const option of options) {
+      const tr = el("tr", null);
+      tr.dataset.lignage = option.id;
+      const nom = el("th", null, [text(option.name)]);
+      if (option.fh) nom.append(el("span", "species-lignage-fh", [text("FH")]));
+      tr.append(nom);
+      const td = el("td", null);
+      linkifie(td, typeof option.damage === "string" ? option.damage : option.levels["1"], ctx.query, act);
+      tr.append(td);
+      table.append(tr);
+    }
+    bloc.append(table);
+    return bloc;
+  }
   const liste = el("dl", "species-lignage-benefices");
   for (const option of options) {
     const nom = el("dt", null, [text(option.name)]);
