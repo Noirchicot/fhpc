@@ -979,7 +979,7 @@
       },
       "srd:class:en:sorcerer": {
         "op": "patch",
-        "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 6, saves con/cha, weapon Simple, armor None->none) + fh-skills-en base=12. Spells=arcane. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Draconic Sorcery »), gained by the level-3 feature « Sorcerer Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source.",
+        "note": "Stats: SRD 5.2.1 (primary_ability Charisma, hit_die 6, saves con/cha, weapon Simple, armor None->none) + fh-skills-en base=12. Spells=arcane. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Draconic Sorcery »), gained by the level-3 feature « Sorcerer Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source. Subclasses: SRD Draconic, plus Moonkeeper — the one complete Fate's Hand subclass (Lunar Sorcery, its own chapter). Eric, 2026-08-28.",
         "changes": {
           "data.blurb": {
             "text": "A sorcerer's magic showed up before any teacher could claim credit—inherited, inborn, or triggered by something that only happened once. It answers to instinct more than study: faster to reach for than a wizard's spell, harder to leash even after years of aiming it. Ask how it works and watch them shrug: it just does.",
@@ -1018,6 +1018,10 @@
             {
               "label": "Draconic",
               "value": "Dragon within"
+            },
+            {
+              "label": "Moonkeeper",
+              "value": "Moon-fed"
             }
           ]
         }
@@ -1069,7 +1073,7 @@
       },
       "srd:class:en:wizard": {
         "op": "patch",
-        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Evoker »), gained by the level-3 feature « Wizard Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source.",
+        "note": "Copied verbatim from Eric's own model (blurb + fiche_stats) per brief — not rederived. Infos: SRD 5.2.1 carries exactly ONE subclass for this class (data.subclass, « Evoker »), gained by the level-3 feature « Wizard Subclass » -> Subclass '1 type, at level 3'. The band announces, it does not invite: no subclass is chosen at level 1. — 2026-08-20 : la ligne « Free points » QUITTE cette couche. Elle y était RECOPIÉE à la main (« 10 pts »…) alors que le nombre vit dans `fh-skills-en` (`data[fh_skill_pool].free_point_pool`). Les douze valeurs concordaient encore, et rien ne les tenait d'accord : c'est la divergence garantie au premier réglage de règle. L'écran DÉRIVE désormais les trois totaux du canon §B.1 depuis le pool, une seule source. Subclasses: SRD only — Evoker. Eric, 2026-08-28: only SRD subclasses and complete ones are listed; Fatebinder, Dreamwright and Soulforger are Fate's Hand drafts and were removed.",
         "changes": {
           "data.blurb": {
             "text": "Weavers of arcane grammar, wizards bend reality through study, not birth. Spellbooks hold their power—lost pages mean lost magic. They shape fire, bend time, pierce minds, through relentless intellect. Fragile in armor, mighty in will, they trade strength for the universe's deepest secrets, one spell slot at a time.",
@@ -1106,16 +1110,8 @@
               "title": "Subclasses"
             },
             {
-              "label": "Fatebinder",
-              "value": "Fate bends for me"
-            },
-            {
-              "label": "Dreamwright",
-              "value": "Dreams made real"
-            },
-            {
-              "label": "Soulforger",
-              "value": "Souls into matter"
+              "label": "Evoker",
+              "value": "Free evocations"
             }
           ]
         }

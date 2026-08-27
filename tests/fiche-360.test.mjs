@@ -598,15 +598,29 @@ test("garde 6 bis — les comptes annoncés sont ceux de la DONNÉE, pas d'un do
        (« Path of the », « College of »…) est le même pour toutes les voies
        d'une classe : information nulle dans un résumé, le nom complet vit au
        rang B. */
-    if (who === "wizard") continue;   /* FH donne à Wizard TROIS voies
-       (Fatebinder · Dreamwright · Soulforger, dictées puis retaillées le
-       27/08) là où le SRD n'en donne qu'une — l'écart est un CHOIX FH datant
-       du test d'Eric du 16/08, gardé tel quel. ⏳ Le jour où ces voies
-       deviennent une donnée structurée d'une couche fh, ce continue tombe. */
+    /* 🔴 L'EXCEPTION A CHANGÉ DE CLASSE LE 2026-08-28 — Eric : *« les
+       subclasses, ne prends que celles qui sont dans le SRD et complètes ; en
+       l'occurrence uniquement le Moonkeeper »*.
+       ⛔ WIZARD PERD LA SIENNE, ET C'EST LE POINT : ses trois voies
+       (Fatebinder · Dreamwright · Soulforger) sont des brouillons Fate's Hand,
+       pas des sous-classes complètes — elles quittent les règles et attendent
+       la plume d'Eric. Le magicien repasse donc au garde commun, sur sa voie
+       SRD (Evoker), et le `continue` qui l'exemptait tombe.
+       ⚖️ SORCERER EN GAGNE UNE, ARGUMENTÉE : le **Moonkeeper** est la seule
+       sous-classe maison COMPLÈTE (Lunar Sorcery, son propre chapitre, ses
+       aptitudes aux niveaux 3·6·14·18). Le garde ne s'assouplit pas pour
+       autant — il exige que la PREMIÈRE ligne reste celle du SRD et que la
+       seconde soit exactement le Moonkeeper : une quatrième voie inventée
+       demain rougirait ici. */
     const bande = infosDe("class", who);
     assert.equal(bande[0].title, "Subclasses", `${who} : la bande s'ouvre sur son intertitre`);
     const lignes = bande.filter((l) => typeof l.label === "string");
-    assert.equal(lignes.length, 1, `${who} : le SRD donne UNE sous-classe — une ligne`);
+    if (who === "sorcerer") {
+      assert.deepEqual(lignes.map((l) => l.label), ["Draconic", "Moonkeeper"],
+        "sorcerer : la voie SRD d'abord, puis la SEULE maison ratifiée — le Moonkeeper");
+    } else {
+      assert.equal(lignes.length, 1, `${who} : le SRD donne UNE sous-classe — une ligne`);
+    }
     assert.ok(rec.data.subclass.name.includes(lignes[0].label),
       `${who} : le nom court « ${lignes[0].label} » doit vivre dans le vrai nom SRD « ${rec.data.subclass.name} »`);
     assert.ok(String(lignes[0].value).length > 0, `${who} : des mots, pas un compte`);
