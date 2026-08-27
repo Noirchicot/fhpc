@@ -407,7 +407,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
 
    ⚠️ LA LIGNE D'AVERTISSEMENT EST TOUJOURS LÀ, pas seulement quand on hésite :
    le joueur doit savoir AVANT de cliquer `Back` que ça ne validera rien. */
-export function renderItem({ racine, item, titre, corps, livreDe, onAction }) {
+export function renderItem({ racine, item, titre, corps, livreDe, aiguilleur, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-item-dalle dalle-intermediaire");
   page.dataset.objet = "dalle";
@@ -425,8 +425,11 @@ export function renderItem({ racine, item, titre, corps, livreDe, onAction }) {
      le pied), et il garde le mot qui prévient : la règle d'Eric du gabarit
      FF2 — « une ligne de texte peut prévenir le joueur » — vit désormais
      dans l'aiguilleur, pas dans un organe à part. */
+  /* le mot peut être PRÉCISÉ par l'écran — Eric, 27/08 : « l'aiguilleur
+     peut préciser cela » (le geste tap-info du lignage). Le mot de
+     prévention reste le socle commun. */
   page.append(el("p", "guide-mot", [text(
-    "Leaving this open marks nothing — only Done records the choice."
+    aiguilleur || "Leaving this open marks nothing — only Done records the choice."
   )]));
 
   /* ⛔ CET ÉCRAN N'ÉCRIT AUCUN BOUTON, ET C'EST UN GARDE QUI ME L'A APPRIS :

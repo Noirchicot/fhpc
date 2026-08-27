@@ -99,7 +99,7 @@
       },
       "srd:species:en:elf": {
         "op": "patch",
-        "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency.",
+        "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency. · 27/08 : fiche_lineage_lvl1 = le FORMAT RACCOURCI des niveaux 1 pour les fiches (esprit SRFH — ni SRD ni règle FH, un ajustement de confort ; Eric : « c'est un format raccourci pour entrer dans les fiches »). ⏳ Migrera dans une vraie famille srfh de fh-srd le jour où l'importeur la porte.",
         "changes": {
           "data.blurb": {
             "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, without breaking it. Sleep is optional; a few hours of trance covers it, and charm slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age.",
@@ -153,7 +153,12 @@
               "label": "Wood Elf",
               "value": "Speed 35 ft"
             }
-          ]
+          ],
+          "data[fiche_lineage_lvl1]": {
+            "drow": "Darkvision 120 ft — Dancing Lights cantrip known.",
+            "high-elf": "Prestidigitation cantrip known — after a Long Rest, replace it with any Wizard cantrip.",
+            "wood-elf": "Speed 35 ft — Druidcraft cantrip known."
+          }
         }
       },
       "srd:species:en:gnome": {

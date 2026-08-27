@@ -31,6 +31,8 @@
 import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=342";
 import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=342";
 import { renderChoixGlisses } from "./glisser.mjs?v=342";
+import { spellInfo } from "./class-step.mjs?v=342";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=342";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -200,7 +202,7 @@ function traitQuiAccorde(record, chemin) {
   return traitsDe(record).find((trait) => ids.includes(trait.id)) || null;
 }
 
-function resumeDeLItem(item, ctx) {
+function resumeDeLItem(item, ctx, act) {
   const record = especeRetenue(ctx);
   if (!record || !item) return null;
   const data = record.data || {};
@@ -237,10 +239,14 @@ function resumeDeLItem(item, ctx) {
     const choisi = options.find((o) => o && o.id === pose);
     if (!choisi) return null;
     const trait = traitQuiAccorde(record, "species.lineage");
-    return renderCardRows([
-      ...(trait ? [[trait.name, choisi.name]] : [[choisi.name, ""]]),
-      ...beneficesDe(choisi)
-    ]);
+    /* la même mise en mots que la fenêtre du SB — une seule voix */
+    const bloc = el("div", "species-lignage-bilan");
+    const tete = renderCardRows([trait ? [trait.name, choisi.name] : [choisi.name, ""]]);
+    if (tete) bloc.append(tete);
+    const liste = el("dl", "species-lignage-benefices species-lignage-benefices-bilan");
+    renderLignesLignage(liste, choisi, ctx.query, act || (() => {}), courtsDe(record));
+    bloc.append(liste);
+    return bloc;
   }
 
   /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
@@ -254,13 +260,24 @@ function resumeDeLItem(item, ctx) {
        italique) ». Le tableau d'avant (une rangée par compétence, plus la
        ligne du trait) redevient une respiration : le bilan dit ce qu'on A,
        en un souffle. La casse du palier est la sienne : minuscule. */
-    const mots = (budget.options || []).map((slug) => {
+    const dotes = (budget.options || []).map((slug) => {
       const etape = planAt(decisions, `species.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
-      return palier ? `${motPropre(skillLabel(ctx.query, slug))} ${String(palier)}` : null;
+      return palier ? [slug, motPropre(skillLabel(ctx.query, slug)), String(palier)] : null;
     }).filter(Boolean);
-    if (mots.length === 0) return null;
-    return el("p", "parcours-resume-bourse", [text(mots.join(", "))]);
+    if (dotes.length === 0) return null;
+    /* chaque skill est un LIEN vers le livre web — Eric, 27/08 : « dans FH
+       tous les skills sont linked à FH WEB ». Le palier reste du texte. */
+    const ligne = el("p", "parcours-resume-bourse");
+    dotes.forEach(([slug, nom, palier], i) => {
+      if (i > 0) ligne.append(text(", "));
+      const lien = el("a", "lien-sort", [text(nom)]);
+      lien.href = lienSkillFhWeb(slug);
+      lien.target = "_blank"; lien.rel = "noopener";
+      ligne.append(lien);
+      ligne.append(text(` ${palier}`));
+    });
+    return ligne;
   }
   return null;
 }
@@ -335,6 +352,11 @@ export const SPECIES_CATALOGUE = {
      points" » puis la correction « en titre skill budget, en dessous les
      niveaux ». La TÊTE du bilan dit la question, nue — les niveaux dessous
      disent la réponse ; le « spent » de la porte n'a plus rien à dire ici. */
+  /* le mot d'aiguilleur du SB1 — Eric, 27/08 : « l'aiguilleur peut préciser
+     cela » (le tap/clic droit qui ouvre la fenêtre d'un lignage). */
+  itemAiguilleur: (chemin) => (chemin === "species.lineage"
+    ? "Tap a lineage to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
+    : null),
   bilanLabel: (chemin, ctx) => {
     if (chemin === "species.skillBudget" && budgetDepense(ctx)) return "Skill budget";
     return null;
@@ -540,6 +562,88 @@ function beneficesDe(option) {
     .map((niveau) => [`Level ${niveau}`, paliers[niveau]]);
 }
 
+/* ── LA MISE EN MOTS D'UN LIGNAGE — dictée d'Eric, 27/08 :
+   « At level 1 : the range of your darkvision… / At subsequent levels you
+   gain spells : / level 3 : Faerie Fire (lien) / level 5 : Darkness (lien) ».
+   ⭐ UNE SEULE SOURCE pour trois consommateurs — la fenêtre du SB (avec les
+   liens), le popup du tap sur un token, le bilan du B. Trois copies de ce
+   format divergeraient à la première retouche.
+   La forme : [texte, nomDeSort|null] — un sort nommé devient un lien là où
+   les liens existent, du texte partout ailleurs. */
+function lignesDuLignage(option, courts) {
+  if (option && typeof option.damage === "string") return [[`Damage : ${option.damage}`, null]];
+  const paliers = (option && option.levels) || {};
+  const niveaux = Object.keys(paliers).sort((a, b) => Number(a) - Number(b));
+  const lignes = [];
+  const suivants = [];
+  for (const niveau of niveaux) {
+    /* le FORMAT RACCOURCI (fh-fiche, data[fiche_lineage_lvl1]) prime sur la
+       prose SRD — Eric, 27/08 : « raccourcis le texte au max », « c'est un
+       format raccourci pour entrer dans les fiches ». La règle longue reste
+       au SRD, intacte ; la fiche lit son condensé. */
+    if (niveau === "1") lignes.push([`At level 1 : ${(courts && courts[option.id]) || paliers[niveau]}`, null]);
+    else suivants.push(niveau);
+  }
+  if (suivants.length > 0) {
+    lignes.push(["At subsequent levels you gain spells :", null]);
+    for (const niveau of suivants) lignes.push([`level ${niveau} : `, paliers[niveau]]);
+  }
+  return lignes;
+}
+
+/** Le view d'un sort retrouvé PAR SON NOM — les lignages ne portent que le
+ *  nom (« Faerie Fire »), jamais l'id. Introuvable → null, et l'appelant
+ *  écrit le nom en texte simple : ⛔ un lien qui n'ouvre rien apprend à ne
+ *  plus cliquer (la loi du `?`). */
+function sortParNom(query, nom) {
+  if (typeof query !== "function") return null;
+  const liste = query({ kind: "spell" });
+  if (!Array.isArray(liste)) return null;
+  const vue = liste.find((v) => v && v.record && v.record.name === nom);
+  if (!vue) return null;
+  return vue.id !== undefined ? vue.id : (vue.record.slug || null);
+}
+
+/** Le fragment DOM des bénéfices — la fenêtre du SB et le bilan du B. Les
+ *  sorts y sont des LIENS : « (lien vers le srd, format fenêtre FF) » —
+ *  spellInfo compose l'action popup, le même organe que le tap d'un jeton
+ *  de sort au chapitre Class (lot 79). */
+function renderLignesLignage(liste, option, query, act, courts) {
+  for (const [texte, nomSort] of lignesDuLignage(option, courts)) {
+    const dd = el("dd", null, [text(texte)]);
+    dd.dataset.lignage = option.id;
+    if (nomSort) {
+      const id = sortParNom(query, nomSort);
+      if (id !== null && sortEstModifieFh(id)) {
+        /* un sort MODIFIÉ par FH pointe vers le livre web — Eric, 27/08 :
+           « tous les sorts au SRD, sauf sorts modifiés » */
+        const lien = el("a", "lien-sort", [text(nomSort)]);
+        lien.href = lienSortFhWeb();
+        lien.target = "_blank"; lien.rel = "noopener";
+        dd.append(lien);
+      } else if (id !== null) {
+        const lien = el("button", "lien-sort", [text(nomSort)]);
+        lien.type = "button";
+        lien.addEventListener("click", () => { const info = spellInfo(query, id); if (info) act(info); });
+        dd.append(lien);
+      } else {
+        dd.append(text(nomSort));
+      }
+    }
+    liste.append(dd);
+  }
+}
+
+/** Le même contenu, en TEXTE — le popup du tap/clic droit sur un token. */
+function texteDuLignage(option, courts) {
+  return lignesDuLignage(option, courts).map(([texte, nomSort]) => texte + (nomSort || "")).join("\n");
+}
+
+/** Les condensés de niveau 1, posés par fh-fiche (data[fiche_lineage_lvl1]). */
+function courtsDe(record) {
+  return (record && record.data && record.data.fiche_lineage_lvl1) || null;
+}
+
 /* ── BLOC 1 — LE CHOIX DE LIGNAGE ──────────────────────────────────────── */
 
 /** ⭐ IL RÉUTILISE `renderChoixGlisses`, l'organe du lot 79 : mêmes gestes que
@@ -578,10 +682,13 @@ function renderLineageBlock(ctx, record, act) {
     labelOf: nomDe, onAction: act,
     /* ⛔ plus de consigne — Eric, 27/08 : « ça dégage ». La bande d'aiguilleur
        du gabarit (posée par renderItem) est le seul texte de guidage du SB. */
+    /* 🔦 LE TAP (ou clic droit) OUVRE LA FENÊTRE — Eric, 27/08 : « idem clic
+       droit sur un token, ou tap sur un token ». Le marquage lu/non-lu
+       d'avant est remplacé : l'info est une lecture, elle s'ouvre en FF
+       comme celle d'un sort. glisser.mjs écoute déjà les deux gestes. */
     onInfo: (id) => {
-      for (const ligne of bloc.querySelectorAll("[data-lignage]")) {
-        ligne.dataset.lu = ligne.dataset.lignage === id ? "oui" : "non";
-      }
+      const option = options.find((o) => o && o.id === id);
+      if (option) act({ kind: "popup", titre: option.name, texte: texteDuLignage(option, null) });
     }
   });
   if (glisse) bloc.append(glisse);
@@ -594,11 +701,10 @@ function renderLineageBlock(ctx, record, act) {
        du vault l'écrit : `The Mole People *(FH)*`. */
     if (option.fh) nom.append(el("span", "species-lignage-fh", [text("FH")]));
     liste.append(nom);
-    for (const [etiquette, corps] of beneficesDe(option)) {
-      const valeur = el("dd", null, [text(`${etiquette} — ${corps}`)]);
-      valeur.dataset.lignage = option.id;
-      liste.append(valeur);
-    }
+    /* la FENÊTRE garde les textes complets — Eric, 27/08 : « dans lineages
+       on a la place, on peut garder le format, mais tu link les spells ».
+       Le raccourci (fiche_lineage_lvl1) sert les FICHES : le bilan. */
+    renderLignesLignage(liste, option, ctx.query, act, null);
   }
   bloc.append(liste);
   return bloc;

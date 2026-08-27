@@ -2212,7 +2212,7 @@ function renderParcoursGuide(cfg, ctx) {
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */
-    resumeDe: cfg.resumeItem ? (item) => cfg.resumeItem(item, ctx) : null,
+    resumeDe: cfg.resumeItem ? (item) => cfg.resumeItem(item, ctx, applyDecisionAction) : null,
     /* ⚠️ DEUX ÉTATS, PAS UN. `acheve` = plus rien à faire ; `conclu` = le
        joueur est déjà reparti par `Next`. Le pied lit les deux : `Done`,
        puis `Next`, puis plus rien. Les fondre en un seul booléen redonnerait
@@ -2238,6 +2238,7 @@ function renderParcoursItem(cfg, ctx) {
     corps: cfg.itemCorps ? cfg.itemCorps(item, ctx, applyDecisionAction)
       : cfg.choices(ctx, applyDecisionAction),
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
+    aiguilleur: cfg.itemAiguilleur ? cfg.itemAiguilleur(item.path, ctx) : null,
     onAction: applyDecisionAction
   });
 }
