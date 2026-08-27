@@ -6427,3 +6427,17 @@ button.tuto-point::before {
 }
 /* « 4 pixels entre lineage et token » */
 .parcours-item-dalle > .guide-titre { margin: 0 0 var(--sp-4); }
+
+/* ── LES ÉCARTS DE LA BANDE AU SOUS-ÉCRAN — Eric, 27/08 : « rapprocher
+   l'aiguilleur de skill budget à la même distance que dans le niveau B »
+   · « idem aussi dans SB1 et SB2 ». Le témoin (mesuré au B) : 12 avant la
+   bande, 8 après. Un corps SANS fenêtre ne s'étire plus — le mou tombe
+   entre la bande et le pied, qui reste au fond ; un corps À fenêtre
+   absorbe le mou dedans et les 12/8 sont exacts. */
+.parcours-item-dalle > section { flex: 0 0 auto; }
+.parcours-item-dalle > section:has(.species-lignage-benefices) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.parcours-item-dalle > .guide-mot { margin-top: var(--sp-12); }
+.parcours-item-dalle > .parcours-pied { margin-top: auto; }
