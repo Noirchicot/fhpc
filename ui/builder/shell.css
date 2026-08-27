@@ -6443,11 +6443,17 @@ button.tuto-point::before {
 /* La chaîne de hauteur, bornée POUR LE SEUL sous-écran : le catalogue, lui,
    compte sur une decision-card haute de douze scènes — un :has() cible
    l'état, pas l'organe. */
-.decision-card:has(> .catalogue-step > .parcours-item-dalle) { height: 100%; }
+/* ⛔ MARGES À ZÉRO DANS LE 100 % — mesuré le 27/08 sur le SB Dragonborn :
+   996 pour une scène de 964, et l'écart se DÉCOMPOSE : 8 (marge de dalle)
+   + 16 (marge de decision-card) + 8. Une dalle à 100 % de hauteur ne peut
+   pas exprimer une marge verticale : elle ne fabrique que du défilement de
+   page. La leçon des deux marges qui s'additionnent — en trio. */
+.decision-card:has(> .catalogue-step > .parcours-item-dalle) { height: 100%; margin-block: 0; }
 .catalogue-step:has(> .parcours-item-dalle) { height: 100%; }
 .parcours-item-dalle {
   height: 100%;
   min-height: 0;
+  margin-block: 0;
   display: flex;
   flex-direction: column;
 }
