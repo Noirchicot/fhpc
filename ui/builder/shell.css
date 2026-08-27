@@ -6444,7 +6444,10 @@ button.tuto-point::before {
 
 /* Le résumé de la bourse au bilan — une ligne, en italique (Eric, 27/08 :
    « Delve novice (en italique), Survival novice (en italique) »). */
-.parcours-resume-bourse { margin: 0; font-style: italic; font-size: var(--t2); color: var(--text); }
+/* l'italique a QUITTÉ le paragraphe (27/08, second passage) : « Delve (link)
+   novice italique » — seuls les PALIERS penchent (leurs <em>), le préfixe
+   gras et les liens restent droits. */
+.parcours-resume-bourse { margin: 0; font-size: var(--t2); color: var(--text); }
 
 /* Le lien d'un sort dans la prose d'un lignage — Eric, 27/08 : « (lien vers
    le srd, format fenêtre FF) ». Un bouton habillé en lien : bleu-info (une
@@ -6456,3 +6459,11 @@ button.tuto-point::before {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* ══ LE BILAN POLI — la dictée typographique d'Eric (27/08, devant v343) ══ */
+/* les liens : « le texte en bleu, non souligné » */
+.lien-sort { text-decoration: none; }
+/* les lignes du bilan : préfixe gras, texte enchaîné, interligne « un peu
+   plus large », de l'air entre les blocs */
+.bilan-ligne { margin: 0 0 var(--sp-4); line-height: 1.45; font-size: var(--t2); color: var(--text); }
+.species-acquis-bilan, .species-lignage-bilan { margin-bottom: var(--sp-8); }
