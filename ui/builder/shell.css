@@ -3283,6 +3283,18 @@ button { font: inherit; }
   flex: 1 1 0; min-height: var(--touch);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--sp-2); padding: var(--sp-8);
+  /* 🔴 ET LES BANDES À 2 — Eric, 2026-08-28, second temps : « Skill points :
+     token = collector ». Une tête qui prend DEUX lignes (« ANIMAL HANDLING »
+     demande 106 px pour 83 au mieux — aucune largeur ne la tient) poussait la
+     boîte à 58 : 2 + 8 + 24 + 2 + 12 + 8 + 2. Le padding vertical est un VIDE,
+     la cote du collecteur est un ORGANE — c'est le vide qui cède (§2 bis).
+     À 2 : la tête à deux lignes rend 46, `min-height` reprend à 48, et les
+     collecteurs à une ligne ne bougent pas d'un pixel (ils étaient déjà tenus
+     par le plancher).
+     📏 Mesuré au banc : la rangée entière était à 58 pour UN seul nom trop
+     long — `align-items` étire les voisins, donc un défaut sur une case en
+     faisait trois hors cote. */
+  padding-block: var(--sp-2);
   /* 🔴 LES FLANCS À 4 — Eric, 2026-08-28 : « Token size = collecteur size ».
      La tête « LANGUAGE 1 » ratait sa ligne pour TROIS pixels (70 requis, 67
      utiles à pad 8) et cassait en deux — le collecteur montait à 58 quand le
@@ -4718,7 +4730,7 @@ button { font: inherit; }
    de ce que TOUS les items l'étaient et se disputaient la hauteur à trois. Ici
    les deux premiers sont `flex: 0 0 auto` — ils prennent ce qu'il leur faut, et
    celui-ci prend **exactement ce qui reste**. C'est le rôle d'un dernier bloc. */
-.parcours-item[data-sans-choix="true"]:not(:first-child) {
+.parcours-item[data-sans-porte="true"]:not(:first-child) {
   flex: 1 1 auto;
   min-height: 0;
   /* 🔴 −8 px DEVANT LUI — Eric, 2026-08-26 : *« réduis l'espace entre Skill et
@@ -4740,7 +4752,7 @@ button { font: inherit; }
      collait trop. Une cote se juge sur la page, et il l'a jugée deux fois. */
   margin-top: calc(-1 * var(--sp-8));
 }
-.parcours-item[data-sans-choix="true"] > .parcours-resume {
+.parcours-item[data-sans-porte="true"] > .parcours-resume {
   overflow-y: auto;
   overscroll-behavior: contain;
   min-height: 0;

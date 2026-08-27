@@ -24,6 +24,7 @@ import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=356";
 import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=356";
 import { renderConfirmDialog } from "./confirm.mjs?v=356";
 import { renderChoixGlisses } from "./glisser.mjs?v=356";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=356";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -185,12 +186,13 @@ const SPELL_QCMS = [
      désormais le geste précis (itemAiguilleur, lot 79). Mesuré : la consigne
      coûtait 34 px, et Cantrips défilait à 527/493. */
   { basePath: "class.cantrips", title: "Cantrips", slotWord: "Cantrip" },
-  /* ⚖️ prepared DÉVIE à 12 par page, et c'est la déviation que NORMES §5
-     prévoit (« un écran qui dévie passe SON nombre ») : ses QUATRE créneaux
-     prennent une seconde rangée (104 px au lieu de 48) — cinq rangées de
-     vivier ne tiennent plus au-dessus. Mesuré : 583/493 avant, 493 pile
-     après. Le garde du littéral reste muet : le nombre passe par pageDeListe. */
-  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell", parPage: 12 }
+  /* ⚖️ LA DÉVIATION À 12 EST TOMBÉE (lot 80) : elle payait la SECONDE rangée
+     de créneaux (4 × 87 = 372 > 335). Depuis que le collecteur lit la cote
+     CÉDÉE du vivier paginé (74, comme sa case), les quatre tiennent sur UNE
+     rangée — 4 × 74 + 3 × 8 = 320 — et le défaut du socle (15) revient.
+     ⭐ Une déviation qui n'a plus sa cause se retire : la garder ferait mentir
+     son argument. Mesuré après : 493/493, quinze jetons. */
+  { basePath: "class.prepared", title: "Prepared spells", slotWord: "Spell" }
 ];
 
 /** La classe RETENUE, lue au carnet — le pendant exact d'`especeRetenue`.
@@ -234,7 +236,49 @@ export const LIGNE_ACQUIS_CLASSE = Object.freeze({
    ⛔ ET RIEN N'EST COMPOSÉ ICI : les lignes sont celles du record (celles-là
    mêmes que la fiche affichait, `fiche_stats`), les noms viennent des records
    de compétence et de sort. On descend des mots, on n'en fabrique pas. */
-function resumeDeLItem(item, ctx) {
+/* ══ UNE LIGNE DE BILAN — LE MODÈLE D'ELF, TRANSPOSÉ ══════════════════════
+   Eric, 2026-08-28 : *« gros gâchis d'espace sur bilan : liste du choix des
+   sorts, prendre bilan elfe comme exemple »*.
+
+   ⭐ CE QUE LE MODÈLE DIT, et il est déjà écrit dans `species-step` : « **Bound
+   skills :** Delve *novice*, Survival *novice* » — un mot en gras, deux-points,
+   puis la liste ENCHAÎNÉE, chaque acquis suivi de sa qualification en italique.
+   ⛔ Le tableau à deux colonnes dégage : il donnait une RANGÉE par sort (six
+   rangées pour six sorts, mesuré) là où une phrase en prend deux.
+   📌 La forme est la même pour les cinq items de Class — sorts, maîtrises,
+   bourse, QCM — parce que c'est la MÊME nature d'information : ce qu'on a. */
+function ligneDeBilan(mot, entrees, classe) {
+  if (!Array.isArray(entrees) || entrees.length === 0) return null;
+  const mot_ = (valeur) => document.createTextNode(String(valeur));
+  const ligne = el("p", `bilan-ligne${classe ? ` ${classe}` : ""}`);
+  /* ⛔ UN RÉSUMÉ NE REDIT PAS SA TÊTE — Eric, 27/08 : « t'as pas besoin de
+     répéter deux fois ». `mot` est donc FACULTATIF : il ne s'écrit que quand
+     il nomme autre chose que l'item (la bourse : « Bound skills » sous une
+     tête « Skill points »). Sans lui, la liste parle seule. */
+  if (mot) ligne.append(el("strong", null, [mot_(`${mot} : `)]));
+  entrees.forEach((entree, i) => {
+    if (i > 0) ligne.append(mot_(", "));
+    if (entree.href) {
+      const lien = el("a", "lien-sort", [mot_(entree.nom)]);
+      lien.href = entree.href;
+      lien.target = "_blank"; lien.rel = "noopener";
+      ligne.append(lien);
+    } else if (entree.onInfo) {
+      /* ⛔ un nom qui ouvre une fenêtre est un BOUTON, pas un lien : il ne
+         mène à aucune adresse (NORMES §7 ter — le sort ouvre la FF interne). */
+      const bouton = el("button", "lien-sort", [mot_(entree.nom)]);
+      bouton.type = "button";
+      bouton.addEventListener("click", entree.onInfo);
+      ligne.append(bouton);
+    } else {
+      ligne.append(mot_(entree.nom));
+    }
+    if (entree.qualif) ligne.append(el("em", null, [mot_(` ${entree.qualif}`)]));
+  });
+  return ligne;
+}
+
+function resumeDeLItem(item, ctx, act) {
   const record = classeRetenue(ctx);
   if (!record || !item) return null;
   const data = record.data || {};
@@ -273,35 +317,48 @@ function resumeDeLItem(item, ctx) {
   if (item.path === "class.skillBudget") {
     const budget = planAt(decisions, "class.skillBudget");
     if (!budget) return null;
-    const lignes = (budget.options || []).map((slug) => {
+    /* la MÊME phrase que la bourse d'Elf : le skill lié au livre, le palier
+       en italique — ⛔ le PRIX ne s'y écrit plus, un bilan dit ce qu'on a,
+       pas ce qu'il a coûté (le budget, lui, vit dans son écran). */
+    const dotes = (budget.options || []).map((slug) => {
       const etape = planAt(decisions, `class.skillBudget.${slug}`);
       const palier = etape && Array.isArray(etape.selected) ? etape.selected[0] : null;
       return palier
-        ? [skillLabel(ctx.query, slug), `${nomDuPalier(palier)} (${prixDuPalier(palier)})`]
+        /* la casse du palier est celle d'Eric au bilan d'Elf : MINUSCULE
+           (« Delve novice ») — le mot capitalisé reste celui de l'ÉCRAN de
+           budget, où il nomme un prix à payer, pas un acquis. */
+        ? { nom: skillLabel(ctx.query, slug), qualif: String(palier), href: lienSkillFhWeb(slug) }
         : null;
     }).filter(Boolean);
-    return lignes.length > 0 ? renderCardRows(lignes) : null;
+    /* ⭐ « Bound skills », PAS « Skill points » — le mot d'Elf, pour la même
+       chose : la tête de l'item dit déjà la QUESTION (le budget), le résumé
+       dit ce qu'on a GAGNÉ. Eric, 27/08 : « t'as pas besoin de répéter deux
+       fois ». */
+    return ligneDeBilan("Bound skills", dotes, "parcours-resume-bourse");
   }
 
   /* ── LE QCM SRD, quand c'est lui qui vit (pile sans couche maison). */
   if (item.path === "class.skills") {
     const qcm = planAt(decisions, "class.skills");
-    const lignes = (qcm && Array.isArray(qcm.selected) ? qcm.selected : [])
-      .map((id) => [skillLabel(ctx.query, id), "Trained"]);
-    return lignes.length > 0 ? renderCardRows(lignes) : null;
+    const pris = (qcm && Array.isArray(qcm.selected) ? qcm.selected : [])
+      .map((id) => ({ nom: skillLabel(ctx.query, id), href: lienSkillFhWeb(id) }));
+    return ligneDeBilan(null, pris);
   }
 
   /* ── LES MAÎTRISES : l'arme choisie, et la PROPRIÉTÉ qu'elle apporte. C'est
      la propriété qui est le gain — « Maul » seul ne dirait pas ce qu'on a. */
   if (item.path === "class.weaponMastery") {
     const plan = planAt(decisions, "class.weaponMastery");
-    const lignes = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+    const prises = (plan && Array.isArray(plan.selected) ? plan.selected : [])
       .map((id) => {
         const view = ctx.query ? ctx.query({ kind: "weapon", id }) : null;
         const mastery = view && view.record && view.record.data && view.record.data.mastery;
-        return [weaponLabel(ctx.query, id), typeof mastery === "string" && mastery !== "" ? mastery : "—"];
+        /* la propriété EST le gain — « Maul » seul ne dirait pas ce qu'on a */
+        return { nom: weaponLabel(ctx.query, id),
+          qualif: typeof mastery === "string" && mastery !== "" ? mastery.toLowerCase() : null,
+          onInfo: () => { const info = weaponInfo(ctx.query, id); if (info && act) act(info); } };
       });
-    return lignes.length > 0 ? renderCardRows(lignes) : null;
+    return ligneDeBilan(null, prises);
   }
 
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
@@ -310,13 +367,14 @@ function resumeDeLItem(item, ctx) {
   for (const groupe of SPELL_QCMS) {
     if (item.path !== groupe.basePath) continue;
     const plan = planAt(decisions, groupe.basePath);
-    const lignes = (plan && Array.isArray(plan.selected) ? plan.selected : [])
-      .map((id) => {
-        const view = ctx.query ? ctx.query({ kind: "spell", id }) : null;
-        const ecole = view && view.record && view.record.data && view.record.data.school;
-        return [spellLabel(ctx.query, id), typeof ecole === "string" && ecole !== "" ? ecole : "—"];
-      });
-    return lignes.length > 0 ? renderCardRows(lignes) : null;
+    /* ⛔ L'ÉCOLE NE S'ÉCRIT PLUS : elle est une PROPRIÉTÉ du sort, pas ce que
+       le joueur a gagné — et six écoles en toutes lettres étaient le gâchis
+       qu'Eric a nommé. Elle reste à un doigt : le nom ouvre la fenêtre du
+       sort, comme le tap sur son jeton (NORMES §7 ter). */
+    const pris = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => ({ nom: spellLabel(ctx.query, id),
+        onInfo: () => { const info = spellInfo(ctx.query, id); if (info && act) act(info); } }));
+    return ligneDeBilan(null, pris);
   }
   return null;
 }

@@ -62,6 +62,26 @@
    base fixe du socle reste seule (ce sélecteur exige `.grille-rang`).
    ⭐ Spécificité (0,0,3,1) : elle bat la base fixe (0,0,2,1) par NOM, jamais
    par place dans la pile — la règle d'écriture de cette feuille. */
+/* 🔴 LA COTE CÉDÉE EST UNE, ET LES DEUX LA LISENT — Eric, 2026-08-28 :
+   « bard collector change de taille sur cantrip, idem spells », et sa loi du
+   même jour « token size = collecteur size ». Dans un vivier PAGINÉ la case
+   cède (74 mesuré, les gouttières prennent 96) ; le collecteur, lui, restait à
+   87 : les deux organes de la même paire ne se répondaient plus.
+   ⭐ NORMES §2 bis l'écrit déjà pour la cote pleine — *« les deux lisent le
+   MÊME jeton de mesure, pas deux nombres égaux »* : deux nombres égaux
+   divergent au premier qui bouge, et c'est exactement ce qui vient d'arriver.
+   La cote cédée devient donc une VARIABLE, posée sur le bloc, lue par les deux.
+   📐 Elle se DÉDUIT de la rangée (§1 ter) : la largeur du bloc, moins les deux
+   colonnes de chevron et leurs gaps, moins les deux gouttières de jeton, en
+   trois. */
+.choix-glisse:has(.grille-rang) {
+  --case-cedee: calc((100% - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3);
+}
+.choix-glisse:has(.grille-rang) .glisse-creneaux > .glisse-creneau {
+  flex: 0 0 var(--case-cedee);
+  max-width: var(--case-cedee);
+  min-width: 0;
+}
 .choix-glisse .grille-rang > .glisse-vivier > li {
   flex: 1 1 calc((100% - 2 * var(--sp-8)) / 3);
   min-width: 0;

@@ -1357,10 +1357,31 @@
     overflow: hidden;
   }
 }
-/* ⛔ pas de nowrap au PORTRAIT : la bande y vit dans la colonne du bloc 1
-   (128u) et une ligne de 30 caractères n'y tiendra jamais — elle se replie,
-   comme la composition mobile validée. La cote des 31 caractères est une
-   cote du PAYSAGE. */
+/* 🔴 RENVERSÉ LE 2026-08-28 — Eric, en regardant le Barbare : « R : subclass
+   sur une ligne ». Le portrait se repliait en silence : « Berserker : » rendait
+   23 px (deux lignes) et la bande mentait sur son nombre de lignées, exactement
+   le défaut que le nowrap du paysage existe pour rendre visible.
+   ⭐ LE MOULE IMPOSE LA LIGNE, LE CONTENU S'Y TAILLE (§4 quater) — c'est la loi
+   de la carte, et elle ne connaît pas d'habit : ce qui change d'un habit à
+   l'autre est la COTE (226u au paysage, 121 px au portrait), jamais la règle.
+   ⛔ L'ancienne note disait « une ligne de 30 caractères n'y tiendra jamais » —
+   mesuré le 28/08, c'est faux pour 7 classes sur 12 : elles tiennent dans 121.
+   Les 5 qui dépassent sont un défaut de CONTENU, et l'ellipsis le dit.
+   📏 Mesuré (portrait 375, demande nowrap / 121 dispo) : Barbarian 154 ·
+   Wizard 143/154/136 · Monk 138 · Paladin 123 — les 7 autres à 121 ou moins. */
+.fiche-dalle:not([data-dressing="prose"]) .fiche-info-row {
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* ⭐ L'ELLIPSIS PORTE SUR LA VOIE, PAS SUR LE NOM : c'est le `dd` qui cède,
+   le `dt` (le nom de la sous-classe) reste entier — un nom coupé ne se
+   reconnaît plus, une promesse abrégée se devine encore. */
+.fiche-dalle:not([data-dressing="prose"]) .fiche-info-row dt { flex: 0 0 auto; }
+.fiche-dalle:not([data-dressing="prose"]) .fiche-info-row dd {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── CHOOSE PASSE AU GABARIT `small` — Eric, 27/08 : « choose = petit
    bouton ». 87 = --glisse-case, la largeur d'un jeton (NORMES §6 : les deux

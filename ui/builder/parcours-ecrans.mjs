@@ -264,6 +264,14 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
       if (gendarme && gendarme.chemin && item.path === gendarme.chemin) motTete.dataset.verrou = "oui";
       tete.append(motTete);
       ligne.dataset.sansChoix = "true";
+      /* 🔴 ET ON DISTINGUE LES DEUX CAS QUE CETTE BRANCHE SERT (lot 80) :
+         `sansChoix` dit « pas de porte AFFICHÉE » — vrai aussi d'un item
+         simplement ACHEVÉ — quand `sansPorte` dit « n'en a JAMAIS eu ».
+         ⛔ La géométrie du dernier bloc (il prend ce qui reste, il défile)
+         n'appartient qu'au SECOND : appliquée au premier, elle faisait se
+         partager la hauteur à trois résumés qui n'en demandaient pas, et un
+         bilan d'une ligne rendait 1 px — mesuré sur Class, v356. */
+      if (item.sansChoix) ligne.dataset.sansPorte = "true";
     } else {
       /* 🔴 UNE PORTE PEUT PORTER DEUX LIGNES — Eric, 2026-08-27 : *« Lineage
          devient High Elf en T2, avec italique T1 en dessous "lineage" »*.
