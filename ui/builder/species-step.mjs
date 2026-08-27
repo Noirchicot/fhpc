@@ -564,7 +564,8 @@ function renderLineageBlock(ctx, record, act) {
   const glisse = renderChoixGlisses({
     plan: groupe, slots: etape, titre: "Lineage", mot: "Lineage",
     labelOf: nomDe, onAction: act,
-    consigne: "Drag a lineage into the slot — tap one to read what it grants.",
+    /* ⛔ plus de consigne — Eric, 27/08 : « ça dégage ». La bande d'aiguilleur
+       du gabarit (posée par renderItem) est le seul texte de guidage du SB. */
     onInfo: (id) => {
       for (const ligne of bloc.querySelectorAll("[data-lignage]")) {
         ligne.dataset.lu = ligne.dataset.lignage === id ? "oui" : "non";

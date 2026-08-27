@@ -6390,3 +6390,40 @@ button.tuto-point::before {
   clip-path: none;
   background-image: none;
 }
+
+/* ══ LE SOUS-ÉCRAN (SB) AU GABARIT — Eric, 2026-08-27, en dictant sur le
+   banc : « en SB lineage : le texte doit être dans une fenêtre scroll » ·
+   « il faut une place pour l'aiguilleur sous la fenêtre » · « 4 pixels entre
+   lineage et token ». Le squelette du rang B, transposé : titre · organes du
+   glisser (sacrés) · LA FENÊTRE qui prend le reste et défile · l'aiguilleur ·
+   le pied. ⛔ Avant : la prose des lignages vivait en flux libre, la dalle
+   montait à 679 px pour 493 de scène, et la PAGE défilait — le pied hors
+   écran, les gestes perdus. ═══════════════════════════════════════════════ */
+
+/* La chaîne de hauteur, bornée POUR LE SEUL sous-écran : le catalogue, lui,
+   compte sur une decision-card haute de douze scènes — un :has() cible
+   l'état, pas l'organe. */
+.decision-card:has(> .catalogue-step > .parcours-item-dalle) { height: 100%; }
+.catalogue-step:has(> .parcours-item-dalle) { height: 100%; }
+.parcours-item-dalle {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* le corps du SB (species-lignage aujourd'hui, tout corps d'item demain)
+   porte la fenêtre : lui cède, jamais les organes ni le pied */
+.parcours-item-dalle > section {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.species-lignage-benefices {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* « 4 pixels entre lineage et token » */
+.parcours-item-dalle > .guide-titre { margin: 0 0 var(--sp-4); }

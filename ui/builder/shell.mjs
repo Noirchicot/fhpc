@@ -2233,6 +2233,7 @@ function renderParcoursItem(cfg, ctx) {
     titre: cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path),
     corps: cfg.itemCorps ? cfg.itemCorps(item, ctx, applyDecisionAction)
       : cfg.choices(ctx, applyDecisionAction),
+    livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
     onAction: applyDecisionAction
   });
 }
