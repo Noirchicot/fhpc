@@ -1166,6 +1166,70 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 
 ---
 
+## 4 quinquies. 📐 LE SOUS-ÉCRAN (SB) ET LE BILAN DU B *(dictés au banc, nuit du 27/08)*
+
+> Eric : **« en SB lineage : le texte doit être dans une fenêtre scroll »** · **« il faut une
+> place pour l'aiguilleur sous la fenêtre »** · **« une harmonie de principe B, SB1 et SB2 »** ·
+> **« c'est le scroll qui récupère le rab »**.
+
+### Le gabarit du SB — le squelette du B, transposé
+
+| bloc | cote |
+|---|---|
+| **le titre** | à 4 du haut · **4 px** avant les jetons (*« 4 pixels entre lineage et token »*) |
+| **les organes du glisser** | sacrés, intouchés |
+| **LA FENÊTRE** | prend tout ce qui reste et **défile** — *« c'est le scroll qui récupère le rab »* ; un SB **sans** prose laisse le rab entre la bande et le pied |
+| **la bande d'aiguilleur** | **12 avant · 3 lignes T1 · 8 après** — les cotes du B, mesurées puis reproduites ; elle porte le mot de prévention (*« Leaving this open marks nothing — only Done records the choice »*), et l'écran peut le **préciser** (le geste tap-info du lignage) |
+| **le pied** | livre à gauche · boutons centrés, gaps 8 · `?` à droite · **8 du bord** — l'harmonie mesurée : B 8/12/8, SB1 8/12/8, SB2 8/12/rab |
+
+⛔ **L'ancienne consigne du glisser a dégagé** (*« ça dégage »*) — l'aiguilleur est le seul texte
+de guidage du SB. ⛔ **La saignée d'avant-pied aussi** : le B n'a pas de trait là, et elle rendait
+17 px pour un gabarit à 12.
+
+### Le bilan du B parle en MODE TEXTE
+
+> Eric : **« si on met tout en mode texte : "High Elf Lineage" · "Skill budget" · en dessous les
+> niveaux — Delve novice (en italique), Survival novice (en italique) »**.
+
+| l'item réglé | sa tête | dessous |
+|---|---|---|
+| le lignage | **High Elf Lineage** — `motDe` sans parenthèses, le sous-titre capitalisé | la mise en mots du lignage (ci-dessous) |
+| la bourse | **Skill budget**, nu — le « spent » de la porte n'a plus rien à dire | *Delve novice, Survival novice* — **une ligne, en italique**, chaque skill étant un lien |
+
+### La mise en mots d'un lignage — UNE source, trois consommateurs
+
+> Eric : **« At level 1 : the range of your darkvision… / At subsequent levels you gain spells : /
+> level 3 : Faerie Fire (lien) / level 5 : Darkness (lien) »** — et il y tient : *« je tiens à
+> "At subsequent levels" »*.
+
+`lignesDuLignage` (species-step) est la seule voix — la fenêtre du SB1, le popup du tap sur un
+token, le bilan du B la consomment tous les trois. **SB1 garde les textes complets** (*« dans
+lineages on a la place, on peut garder le format, mais tu link les spells »*) ; **le bilan lit le
+FORMAT RACCOURCI** (`data[fiche_lineage_lvl1]`, couche fh-fiche — esprit SRFH : *« c'est un format
+raccourci pour entrer dans les fiches »* ; ⏳ migrera dans une vraie famille srfh de fh-srd).
+
+### 🔗 §7 ter — LES LIENS DE LA PROSE
+
+> Eric : **« dans FH tous les skills sont linked à FH WEB »** · **« tous les sorts au SRD, sauf
+> sorts modifiés »** · **« et t'as toujours le lien vers le SRD pour le spell et aussi vers le
+> species via le livre »**.
+
+**La règle : la fiche condense, LES LIENS mènent au long.**
+
+| l'objet cité | son lien |
+|---|---|
+| **un sort** | la fenêtre **FF interne** (`spellInfo`, le SRD plié) |
+| **un sort MODIFIÉ par FH** (id `fh:`) | le **livre web** (chapitre Magic) |
+| **un skill** | **toujours le livre web** (chapitre Skills & Tools — les records internes n'ont pas de prose) |
+| **l'espèce** | le **livre** du pied (lot 61) |
+| le geste sur un **token** | tap au doigt · **clic droit** à la souris → la même fenêtre FF (*« idem clic droit sur un token, ou tap sur un token »*) |
+
+La table des ancres vit dans `ui/builder/liens-fh.mjs` — une table de NAVIGATION, pas des mots de
+règle. ⛔ Un lien qui n'ouvre rien apprend à ne plus cliquer (la loi du `?`) : un sort introuvable
+au query s'écrit en texte simple, jamais en faux lien.
+
+---
+
 ## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition
 
 > Eric, 2026-08-26 : *« quand on a un long bloc de texte, comme celui pour la description des

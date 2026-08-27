@@ -6445,3 +6445,14 @@ button.tuto-point::before {
 /* Le résumé de la bourse au bilan — une ligne, en italique (Eric, 27/08 :
    « Delve novice (en italique), Survival novice (en italique) »). */
 .parcours-resume-bourse { margin: 0; font-style: italic; font-size: var(--t2); color: var(--text); }
+
+/* Le lien d'un sort dans la prose d'un lignage — Eric, 27/08 : « (lien vers
+   le srd, format fenêtre FF) ». Un bouton habillé en lien : bleu-info (une
+   LECTURE, pas un choix), souligné pour se dire cliquable. */
+.lien-sort {
+  background: none; border: 0; padding: 0;
+  font: inherit;
+  color: var(--info);
+  text-decoration: underline;
+  cursor: pointer;
+}
