@@ -396,7 +396,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
 
    ⚠️ LA LIGNE D'AVERTISSEMENT EST TOUJOURS LÀ, pas seulement quand on hésite :
    le joueur doit savoir AVANT de cliquer `Back` que ça ne validera rien. */
-export function renderItem({ racine, item, titre, corps, onAction }) {
+export function renderItem({ racine, item, titre, corps, livreDe, onAction }) {
   const act = onAction || (() => {});
   const page = el("section", "parcours-item-dalle dalle-intermediaire");
   page.dataset.objet = "dalle";
@@ -406,7 +406,13 @@ export function renderItem({ racine, item, titre, corps, onAction }) {
   if (corps) page.append(corps);
 
   page.append(saignee());
-  page.append(el("p", "parcours-avertit", [text(
+  /* 🔵 L'AVERTISSEMENT EST DEVENU LA BANDE D'AIGUILLEUR — Eric, 2026-08-27 :
+     « remplacée par les 3 lignes d'aiguilleur au-dessus des boutons ». Même
+     organe que le rang B (`guide-mot`), même place (sous la fenêtre, avant
+     le pied), et il garde le mot qui prévient : la règle d'Eric du gabarit
+     FF2 — « une ligne de texte peut prévenir le joueur » — vit désormais
+     dans l'aiguilleur, pas dans un organe à part. */
+  page.append(el("p", "guide-mot", [text(
     "Leaving this open marks nothing — only Done records the choice."
   )]));
 
@@ -421,8 +427,20 @@ export function renderItem({ racine, item, titre, corps, onAction }) {
      vivent dans `pressBack`/`pressDone`, là où l'emboîtement est déjà écrit. */
   const hote = el("div", "parcours-pied");
   hote.dataset.sortieIci = "";
+  /* 📖 LE LIVRE, À GAUCHE DE LA RANGÉE — Eric, 2026-08-27 : « il manque le
+     livre dans les boutons ». Le nœud est posé ICI, la coquille le range
+     (`poserLaSortie` prepend `:scope > .livre-de-sortie`) — le même détour
+     que partout : l'écran ne fabrique jamais la rangée (garde 17). */
+  const livre = el("button", "fiche-livre livre-de-sortie");
+  livre.type = "button";
+  livre.setAttribute("aria-label", "Lore");
+  if (livreDe && livreDe.texte) {
+    livre.addEventListener("click", () => act({ kind: "popup", titre: livreDe.titre || "Lore", texte: livreDe.texte }));
+  } else {
+    livre.disabled = true;
+  }
+  hote.append(livre);
   page.append(hote);
-  void act;
   return page;
 }
 
