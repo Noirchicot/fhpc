@@ -259,7 +259,9 @@ function resumeDeLItem(item, ctx, act) {
      qu'on A, pas ce qu'on aurait pu avoir. */
   if (item.path === "species.skillBudget") {
     const budget = planAt(decisions, "species.skillBudget");
-    if (!budget) return null;
+    /* un plan VERROUILLÉ (overspent) n'a pas de bilan : le bilan dit ce
+       qu'on A — un dépassement n'est pas un acquis. */
+    if (!budget || budget.lock) return null;
     /* UNE LIGNE, EN ITALIQUE — Eric, 27/08, en dictant le bilan : « "Bound
        skill points" / Delve novice (en italique), Survival novice (en
        italique) ». Le tableau d'avant (une rangée par compétence, plus la
@@ -322,8 +324,14 @@ function budgetDepense(ctx) {
   if (!ctx) return false;
   const plan = planAt(ctx.decisions || [], "species.skillBudget");
   if (!plan) return false;
+  /* ⛔ `>=` MENTAIT — trouvé par Eric le 27/08 (« tu ne peux qu'en choisir
+     2 ») : trois novices (3 points pour 2) rendaient la porte « spent »
+     pendant que le noyau posait `skill-budget.overspent` sur le plan. Une
+     bourse est dépensée quand le compte est EXACT et que rien n'est
+     verrouillé — un dépassement n'est pas une réponse, c'est une faute. */
+  if (plan.lock) return false;
   const attendu = Number(plan.expected);
-  return Number.isFinite(attendu) && attendu > 0 && Number(plan.answered) >= attendu;
+  return Number.isFinite(attendu) && attendu > 0 && Number(plan.answered) === attendu;
 }
 
 export const SPECIES_CATALOGUE = {
@@ -366,7 +374,15 @@ export const SPECIES_CATALOGUE = {
     ? "Tap a lineage to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
     : null),
   bilanLabel: (chemin, ctx) => {
-    if (chemin === "species.skillBudget" && budgetDepense(ctx)) return "Skill budget";
+    /* « le titre devait être : Keen Senses… et sur le bouton tu peux laisser
+       Skill budget, mais pas dans le rendu final » — Eric, 27/08. La PORTE
+       garde son mot ; la tête du BILAN porte le nom du trait qui accorde la
+       bourse (générique : un autre trait donnera le sien). */
+    if (chemin === "species.skillBudget" && budgetDepense(ctx)) {
+      const record = especeRetenue(ctx);
+      const trait = record ? traitQuiAccorde(record, "species.skillBudget") : null;
+      return (trait && trait.name) || "Skill budget";
+    }
     return null;
   },
   itemLabel: (chemin, ctx) => {
