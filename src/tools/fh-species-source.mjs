@@ -113,6 +113,28 @@ export const srdSpeciesId = (slug) => `srd:species:en:${slug}`;
    douze » deviendrait faux dans les données mêmes qui prétendent le dire. */
 export const DESTINY_BASE = 2;
 
+/* ══ LA CONVERSION « PROFICIENCY BONUS » → L'ÉCHELLE ÉCRITE ═══════════════
+   Eric, 2026-08-27/28 : *« certaines species donnent… c'est pas SRD, à
+   corriger »* puis *« fais faire le boulot de prose par un agent »* et *« sur
+   FH web modifie les species pour que ça s'adapte »*.
+   ⛔ « Proficiency Bonus » n'existe pas en FH (les paliers Novice/Adept/
+   Expert ne le remplacent PAS ici : un compteur d'utilisations n'est pas un
+   palier de compétence). La conversion retenue — candidat A de la passe de
+   prose, valeurs 5e EXACTES à tous les niveaux — écrit l'échelle en clair :
+   2, puis +1 aux niveaux de personnage 5, 9, 13 et 17.
+   ⏳ [À TRANCHER par Eric] : nommer un TERME FH pour cette échelle (écrit une
+   fois au chapitre, cité partout) au lieu de la recopier — cinq copies
+   peuvent dériver. La source du texte reste le chapitre du vault
+   (D&D 5+ Races & Species.md), converti le même jour, même formulation.
+   🔴 Le FRAGMENT est commun aux cinq traits (vérifié verbatim au layer) :
+   un `find` qui casse au premier SRD reformulé est un garde, pas un bug. */
+const PROF_USES = {
+  find: "a number of times equal to your Proficiency Bonus, and you regain",
+  put: "twice — plus one more use at character levels 5, 9, 13, and 17 — and you regain",
+  why: "PROF n'existe pas en FH ; l'échelle écrite reproduit les valeurs 5e exactes (conversion 27/08, candidat A)"
+};
+
+
 /* ── LES POINTS DE COMPÉTENCE — LA VERSION VRAIE ─────────────────────
    ⚠️ Les chapitres 2 et 4 se CONTREDISAIENT. Eric a tranché le 2026-08-08 :
 
@@ -308,6 +330,7 @@ const NECROTIC_RESISTANCE = {
 
 const HODDON_DESCRIPTION = {
   substitutions: [
+    PROF_USES, /* la prose complète porte le même fragment que le trait — même conversion */
     { find: "As a Gnome", put: "As a Hoddon",
       why: "le Hoddon EST le Gnome, renommé (Eric, chapitre 2 : « Hoddon = Gnome, simple renommage »)" },
     { find: "Gnomish Cunning", put: "Hoddon Cunning",
@@ -339,8 +362,11 @@ const HODDON_DESCRIPTION = {
    Le paragraphe SRD du trait `gnomish-lineage` énumère ses deux sous-lignées
    en toutes lettres. On ne le recopie pas : on déclare, et le générateur
    recalcule depuis le texte SRD courant. */
+/* le lignage du Hoddon porte AUSSI le fragment PROF commun (Speak with
+   Animals « a number of times equal to… ») — la même échelle s'applique. */
 const HODDON_LINEAGE_TRAIT = {
   substitutions: [
+    PROF_USES,
     { find: "Forest Gnome", put: "Forest Folk",
       why: "le trait disait « Forest Gnome » pendant que le bouton du builder disait « Forest Folk » — " +
         "le joueur lisait un nom et cliquait sur un autre" },
@@ -469,7 +495,7 @@ export const LINEAGES = {
      C'est la seule option de tout ce fichier qui n'a pas d'équivalent SRD. */
   hoddon: [
     { id: "forest-folk", name: "Forest Folk", levels: {
-      "1": "You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared, and you can cast it without expending a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest." } },
+      "1": "You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared, and you can cast it without expending a spell slot twice — plus one more use at character levels 5, 9, 13, and 17 —, and you regain all expended uses when you finish a Long Rest." } },
     { id: "rock-folk", name: "Rock Folk", levels: {
       "1": "You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes creating a Tiny clockwork device (AC 5, 1 HP) that carries one Prestidigitation effect of your choice; you can have up to three such devices at a time." } },
     { id: "mole-people", name: "The Mole People", fh: true, levels: {
@@ -510,13 +536,22 @@ export const SPECIES = [
   {
     fhName: "Dragonborn",
     op: "patch",
-    target: srdSpeciesId("dragonborn")
+    target: srdSpeciesId("dragonborn"),
+    traitSubstitutions: {
+      "breath-weapon": { substitutions: [
+        { find: "(DC 8 plus your Constitution modifier and Proficiency Bonus)",
+          put: "(DC 8 plus your Constitution modifier, plus 2 — the bonus rises to 3 at character level 5, 4 at level 9, 5 at level 13, and 6 at level 17)",
+          why: "même échelle que PROF_USES — le DC 5e est reproduit à l'unité près à tous les niveaux" },
+        PROF_USES
+      ] }
+    }
   },
 
   {
     fhName: "Dwarf",
     op: "patch",
-    target: srdSpeciesId("dwarf")
+    target: srdSpeciesId("dwarf"),
+    traitSubstitutions: { "stonecunning": { substitutions: [PROF_USES] } }
   },
 
   {
@@ -554,7 +589,8 @@ export const SPECIES = [
   {
     fhName: "Goliath",
     op: "patch",
-    target: srdSpeciesId("goliath")
+    target: srdSpeciesId("goliath"),
+    traitSubstitutions: { "giant-ancestry": { substitutions: [PROF_USES] } }
   },
 
   {
@@ -639,7 +675,15 @@ export const SPECIES = [
   {
     fhName: "Orc",
     op: "patch",
-    target: srdSpeciesId("orc")
+    target: srdSpeciesId("orc"),
+    traitSubstitutions: {
+      "adrenaline-rush": { substitutions: [
+        { find: "a number of Temporary Hit Points equal to your Proficiency Bonus",
+          put: "2 Temporary Hit Points — 3 at character level 5, 4 at level 9, 5 at level 13, and 6 at level 17",
+          why: "même échelle que PROF_USES, appliquée aux PV temporaires (valeurs 5e exactes)" },
+        PROF_USES
+      ] }
+    }
   },
 
   {

@@ -63,8 +63,11 @@ test("sous un rendu FRANÇAIS, la couche FH d'espèces REFUSE de se monter — e
     (erreur) => {
       const dit = String(erreur.message);
       assert.match(dit, /fh-species-en/, "le refus nomme LA COUCHE fautive");
-      assert.match(dit, /srd:species:en:elf/, "et L'ESPÈCE visée");
-      assert.match(dit, /data\.traits\[keen-senses\]/, "et LE CHEMIN qui ne vise rien");
+      /* 27/08 — le PREMIER chemin fautif a changé : la conversion PROF fait
+         du dragonborn (breath-weapon) le premier patch de trait rencontré.
+         Le SENS du garde ne bouge pas : couche, espèce, chemin, raison. */
+      assert.match(dit, /srd:species:en:dragonborn/, "et L'ESPÈCE visée");
+      assert.match(dit, /data\.traits\[breath-weapon\]/, "et LE CHEMIN qui ne vise rien");
       assert.match(dit, /ne devine pas la forme/, "et LA RAISON, en clair");
       return true;
     },
@@ -72,7 +75,7 @@ test("sous un rendu FRANÇAIS, la couche FH d'espèces REFUSE de se monter — e
   );
 });
 
-test("LE COÛT, CHIFFRÉ : 6 chemins sur 3 espèces — pas 9 espèces", () => {
+test("LE COÛT, CHIFFRÉ : 10 chemins sur 6 espèces — pas 9 espèces (élargi le 27/08 par la conversion PROF)", () => {
   /* Le chiffre « 9 espèces sur 9 divergentes » mesure la DIVERGENCE. Ce qui
      coûte, c'est ce qui s'APPUIE dessus. Les six autres espèces divergent
      aussi et ne coûtent rien : aucune couche ne vise leurs clefs. */
@@ -83,13 +86,22 @@ test("LE COÛT, CHIFFRÉ : 6 chemins sur 3 espèces — pas 9 espèces", () => {
       if (p.startsWith("data.traits[")) chemins.push(`${adresse} ${p}`);
     }
   }
+  /* 2026-08-27 — QUATRE CHEMINS DE PLUS, et la dette est assumée : la
+     conversion « Proficiency Bonus » → échelle écrite (dictée d'Eric) vise
+     les textes de breath-weapon, stonecunning, giant-ancestry et
+     adrenaline-rush. Le relevé de fh-srd/docs/TRAIT-KEYS.md est à rafraîchir
+     en conséquence. */
   assert.deepEqual(chemins.sort(), [
+    "srd:species:en:dragonborn data.traits[breath-weapon].text",
+    "srd:species:en:dwarf data.traits[stonecunning].text",
     "srd:species:en:elf data.traits[keen-senses].text",
     "srd:species:en:gnome data.traits[gnomish-cunning].name",
     "srd:species:en:gnome data.traits[gnomish-lineage].name",
     "srd:species:en:gnome data.traits[gnomish-lineage].text",
+    "srd:species:en:goliath data.traits[giant-ancestry].text",
     "srd:species:en:human data.traits[resourceful]",
-    "srd:species:en:human data.traits[skillful].text"
+    "srd:species:en:human data.traits[skillful].text",
+    "srd:species:en:orc data.traits[adrenaline-rush].text"
   ], "si cette liste grandit, la dette grandit avec elle — et le relevé de `fh-srd/docs/TRAIT-KEYS.md` est périmé");
 });
 

@@ -22,7 +22,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 5–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Draconic Ancestry** — your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table; your choice sets your **Breath Weapon** and **Damage Resistance**, and your appearance.\n\n- **Breath Weapon** — in place of one attack, exhale magical energy in a 15-foot Cone or a 30-foot Line, 5 feet wide. Dexterity save (DC 8 + Constitution modifier + Proficiency Bonus); 1d10 damage of your ancestry's type, half on a success. It rises to 2d10 at level 5, 3d10 at 11 and 4d10 at 17. Uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Damage Resistance** — to the damage type set by your Draconic Ancestry.\n\n- **Draconic Flight** — at level 5, sprout spectral wings as a Bonus Action for 10 minutes: a Fly Speed equal to your Speed.\n\n- **Destiny** *(FH)* — Base 2."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 5–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 60 feet.\n\n- **Draconic Ancestry** — your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table; your choice sets your **Breath Weapon** and **Damage Resistance**, and your appearance.\n\n- **Breath Weapon** — in place of one attack, exhale magical energy in a 15-foot Cone or a 30-foot Line, 5 feet wide. Dexterity save (DC 8 + Constitution modifier + 2, rising by 1 at levels 5, 9, 13 and 17); 1d10 damage of your ancestry's type, half on a success. It rises to 2d10 at level 5, 3d10 at 11 and 4d10 at 17. 2 uses (+1 at levels 5, 9, 13 and 17), regained on a Long Rest.\n\n- **Damage Resistance** — to the damage type set by your Draconic Ancestry.\n\n- **Draconic Flight** — at level 5, sprout spectral wings as a Bonus Action for 10 minutes: a Fly Speed equal to your Speed.\n\n- **Destiny** *(FH)* — Base 2."
               },
               {
                 "heading": "Draconic Ancestors",
@@ -89,7 +89,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 4–5 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Dwarven Resilience** — resistance to Poison damage, and Advantage on saves to avoid or end the Poisoned condition.\n\n- **Dwarven Toughness** — your hit point maximum increases by 1, and by 1 again at every level.\n\n- **Stonecunning** — as a Bonus Action, gain Tremorsense 60 feet for 10 minutes while on a stone surface. Uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 4–5 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Dwarven Resilience** — resistance to Poison damage, and Advantage on saves to avoid or end the Poisoned condition.\n\n- **Dwarven Toughness** — your hit point maximum increases by 1, and by 1 again at every level.\n\n- **Stonecunning** — as a Bonus Action, gain Tremorsense 60 feet for 10 minutes while on a stone surface. 2 uses (+1 at levels 5, 9, 13 and 17), regained on a Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
               }
             ]
           }
@@ -164,7 +164,7 @@
                   "rows": [
                     [
                       "**Forest Folk**",
-                      "You know *Minor Illusion*, and always have *Speak with Animals* prepared — castable without a slot a number of times equal to your Proficiency Bonus per Long Rest"
+                      "You know *Minor Illusion*, and always have *Speak with Animals* prepared — castable without a slot 2 times (+1 at levels 5, 9, 13 and 17) per Long Rest"
                     ],
                     [
                       "**Rock Folk**",
@@ -191,7 +191,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 7–8 feet tall) · **Speed** 35 feet\n\n- **Giant Ancestry** — choose one boon from the table below; uses equal to your Proficiency Bonus, regained on a Long Rest.\n\n- **Large Form** — at level 5, as a Bonus Action, become Large for 10 minutes: Advantage on Strength checks, and your Speed increases by 10 feet. Once per Long Rest.\n\n- **Powerful Build** — Advantage on saves against the Grappled condition, and you count as one size larger for carrying capacity.\n\n- **Destiny** *(FH)* — Base 2."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 7–8 feet tall) · **Speed** 35 feet\n\n- **Giant Ancestry** — choose one boon from the table below; 2 uses (+1 at levels 5, 9, 13 and 17), regained on a Long Rest.\n\n- **Large Form** — at level 5, as a Bonus Action, become Large for 10 minutes: Advantage on Strength checks, and your Speed increases by 10 feet. Once per Long Rest.\n\n- **Powerful Build** — Advantage on saves against the Grappled condition, and you count as one size larger for carrying capacity.\n\n- **Destiny** *(FH)* — Base 2."
               },
               {
                 "heading": "Giant Ancestry",
@@ -274,7 +274,7 @@
             "sections": [
               {
                 "heading": "Traits",
-                "text": "**Creature type** Humanoid · **Size** Medium (about 6–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Adrenaline Rush** — take the Dash action as a Bonus Action and gain temporary hit points equal to your Proficiency Bonus. Uses equal to your Proficiency Bonus, regained on a Short or Long Rest.\n\n- **Relentless Endurance** — when you drop to 0 hit points and don't die outright, you can drop to 1 instead. Once per Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
+                "text": "**Creature type** Humanoid · **Size** Medium (about 6–7 feet tall) · **Speed** 30 feet\n\n- **Darkvision** — 120 feet.\n\n- **Adrenaline Rush** — take the Dash action as a Bonus Action and gain 2 temporary hit points (+1 at levels 5, 9, 13 and 17). 2 uses (+1 at levels 5, 9, 13 and 17), regained on a Short or Long Rest.\n\n- **Relentless Endurance** — when you drop to 0 hit points and don't die outright, you can drop to 1 instead. Once per Long Rest.\n\n- **Destiny** *(FH)* — Base 2."
               }
             ]
           }
