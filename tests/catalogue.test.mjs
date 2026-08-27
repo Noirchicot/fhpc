@@ -342,37 +342,21 @@ for (const cfg of ECRANS) {
   });
 }
 
-test("CH6 quater — un catalogue à pied DÉCLARE `fiche` ; sans pied, il garde son Validate", async () => {
-  /* 🔴 CE GARDE A CHANGÉ DE CAMP POUR LE DON D'ORIGINE — Eric, 2026-08-20 :
-     *« le choix des feats doit fonctionner comme les choix de species, même
-     logique »*, *« il faut que ce soit du F1 pour les feats »*. Le don PASSE
-     désormais par `renderFicheBody`, donc il a un pied, donc il DOIT porter
-     son drapeau `fiche` — c'est la règle elle-même, appliquée dans l'autre
-     sens.
-     ⭐ CE QUE LA RÈGLE DIT VRAIMENT, et qui n'a pas bougé : **pied et drapeau
-     vont ensemble**. Un pied sans drapeau donnerait deux boutons pour une même
-     porte ; un drapeau sans pied, une fiche qu'on ne peut pas prendre — le
-     défaut mesuré ce jour-là, une carte de 440 sans aucun `Choose`.
-     ⚠️ Les arcanes de Destiny, elles, n'ont toujours pas de pied : la
-     réciproque garde donc son cas. */
-  const { renderFeatCardBody } = await import("../ui/builder/inheritance-step.mjs");
+test("CH6 quater — un catalogue SANS pied garde son Validate (les arcanes)", async () => {
+  /* 🔴 LA MOITIÉ « DON D'ORIGINE » DE CE GARDE EST MORTE AU LOT 77 — Eric,
+     2026-08-28 : *« le choix des feats ça devient un choix de token »*. Le don
+     ne passe plus par le catalogue (rail + fiches + CHOOSE) : il se choisit au
+     GLISSER, dans la dalle FF de son item — voir tests/inheritance-step.test
+     .mjs, qui garde les mêmes invariants sur le nouvel organe.
+     ⭐ CE QUI RESTE À CE GARDE : la réciproque. Un catalogue sans pied (les
+     arcanes de Destiny) garde son Validate générique — pied et drapeau
+     `fiche` vont toujours ensemble, et la boucle CH6 ter le prouve pour ceux
+     qui l'ont. */
   const { renderArcanaCardBody } = await import("../ui/builder/destiny-step.mjs");
-  const feats = fixture.report.decisions.find((d) => d.path === "background.originFeat[0]");
-  assert.ok(feats && feats.options.length > 0, "garde-fou de portée : le plan des dons publie ses options");
 
-  const cartes = renderCatalogueCards(
-    { decisions, query, path: "background.originFeat[0]", kind: "feat", cursor: 0 },
-    renderFeatCardBody, () => {}
-  );
-  assert.ok(cartes.querySelectorAll("[data-snap]").length > 0, "garde-fou : les cartes de dons sont bien rendues");
-  assert.ok(cartes.querySelectorAll(".fiche-actions").length > 0,
-    "le don d'origine a un pied depuis le 2026-08-20 — donc son drapeau `fiche`, sinon la fiche n'est pas prenable");
-  assert.ok(cartes.querySelector('[data-action="choose"]'),
-    "et ce pied porte le CHOOSE : c'est le geste qui acte, comme sur une espèce");
-
-  /* Les arcanes : mêmes cartes, mêmes conclusions. ⚠️ Elles ne lisent pas
-     `decisions[]` (aucun plan ne les publie, mesuré au lot 45) — elles
-     passent par la porte étroite `ctx.options`, comme dans `shell.mjs`. */
+  /* Les arcanes : ⚠️ elles ne lisent pas `decisions[]` (aucun plan ne les
+     publie, mesuré au lot 45) — elles passent par la porte étroite
+     `ctx.options`, comme dans `shell.mjs`. */
   const arcanes = (query({ kind: "arcana" }) || []).map((v) => v.id);
   assert.ok(arcanes.length >= 20, `garde-fou de portée : les 22 arcanes majeurs (lu : ${arcanes.length})`);
   const cartesArcanes = renderCatalogueCards(
@@ -380,7 +364,7 @@ test("CH6 quater — un catalogue à pied DÉCLARE `fiche` ; sans pied, il garde
     renderArcanaCardBody, () => {}
   );
   assert.equal(cartesArcanes.querySelectorAll(".fiche-actions").length, 0,
-    "les arcanes non plus — leur écran garde son Validate générique");
+    "les arcanes n'ont pas de pied — leur écran garde son Validate générique");
 });
 
 test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couche est montée", () => {

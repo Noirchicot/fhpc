@@ -31,9 +31,8 @@ import { decisionRefusalWord } from "../ui/builder/carnet.mjs";
 
 globalThis.document = createTestDocument();
 
-const { renderInheritanceStep, renderFeatCardBody, inheritanceValidate, INHERITANCE_PANELS } =
+const { renderInheritanceStep, renderFeatGlisse, featInfo, inheritanceValidate, INHERITANCE_PANELS } =
   await import("../ui/builder/inheritance-step.mjs");
-const { renderCatalogueCards } = await import("../ui/builder/catalogue.mjs");
 
 const fixture = exempleFhEn();
 const { build, layers } = fixture;
@@ -78,26 +77,21 @@ function documentDe(h, choices) {
   };
 }
 
-/* ⚠️ LOT 64 — L'ÉCRAN A DEUX PANNEAUX, ET `open` DIT LEQUEL EST OUVERT.
-   B4.1 : au repos, on ne voit que deux dalles ; B4.2 : ouvrir l'une fait
-   DISPARAÎTRE l'autre. Les tests nomment donc le panneau qu'ils exercent.
-   ⭐ Et les dons ne sont plus des cartes empilées : B4.4 dit qu'ils se
-   choisissent « EXACTEMENT comme Class et Species » — c'est-à-dire par le
-   catalogue partagé (lot 60), fiche plein écran et défilement aimanté.
-   `cartesDeDon()` monte donc ce catalogue-là, avec le corps que cet écran
-   fournit. Ce que les tests prouvent ne bouge pas : les options viennent du
-   plan, chaque fiche porte son nom et sa description. */
+/* ⚠️ LOT 77 — LES DONS SONT DES JETONS, PLUS DES CARTES — Eric, 2026-08-28 :
+   *« le choix des feats ça devient un choix de token : on tap sur le token
+   pour l'info, on drop pour le prendre »*. `jetonsDeDon()` monte donc le
+   GLISSER du don (`renderFeatGlisse`), l'organe qui a remplacé le catalogue.
+   Ce que ces tests prouvent NE BOUGE PAS : les options viennent du plan,
+   jamais d'une liste locale, et le nom comme la description viennent du
+   record — c'est l'organe qui a changé, pas l'invariant. */
 function ctxFrom(report, extra) {
   return Object.assign({ decisions: report.decisions, document: report.document, resolved: report.resolved, query }, extra || {});
 }
 
-function cartesDeDon(ctx) {
-  return renderCatalogueCards(
-    { decisions: ctx.decisions, query: ctx.query, path: "background.originFeat[0]", kind: "feat", cursor: 0 },
-    renderFeatCardBody
-  );
+function jetonsDeDon(ctx) {
+  const node = renderFeatGlisse(ctx, () => {});
+  return node ? [...node.querySelectorAll(".glisse-jeton")] : [];
 }
-function featCards(node) { return node.querySelectorAll("[data-snap]"); }
 function boostRow(node, key) { return node.querySelectorAll(`.inheritance-boost[data-row="${key}"]`)[0] || null; }
 function boostButtons(row) { return row.querySelectorAll(".inheritance-notch"); }
 
@@ -114,61 +108,38 @@ test("les dons d'origine viennent du plan : un plan à 2 options affiche 2 carte
       expected: 1, answered: 0, status: "pending"
     }
   ];
-  const node = cartesDeDon({ decisions, query: () => null });
-  assert.equal(featCards(node).length, 2, "exactement les 2 du plan fabriqué, jamais les 5 réelles");
+  const jetons = jetonsDeDon({ decisions, query: () => null });
+  assert.equal(jetons.length, 2, "exactement les 2 du plan fabriqué, jamais les 5 réelles");
 });
 
 test("le personnage d'exemple (pile FH réelle) offre bien les CINQ dons d'origine", () => {
   const report = rebuild(fixture.document);
-  const node = cartesDeDon(ctxFrom(report));
-  assert.equal(featCards(node).length, 5);
+  const jetons = jetonsDeDon(ctxFrom(report));
+  assert.equal(jetons.length, 5);
   const attendu = layers.verbs.query({ kind: "feat" })
     .filter((view) => view.record.data && view.record.data.category === "origin")
     .map((view) => view.id).sort();
   assert.equal(attendu.length, 5, "sonde : quatre du SRD + Auspicious (fh)");
-  const rendered = featCards(node).map((card) => card.getAttribute("data-value")).sort();
+  const rendered = jetons.map((jeton) => jeton.getAttribute("data-valeur")).sort();
   assert.deepEqual(rendered, attendu, "les CINQ ids rendus sont EXACTEMENT ceux du plan, rien composé ici");
 });
 
-test("chaque fiche de don porte son NOM et sa DESCRIPTION, lus par `query({kind:\"feat\", id})`", () => {
+test("chaque jeton de don porte son NOM, et son INFO vient du record", () => {
+  /* 🔴 LA DESCRIPTION A CHANGÉ D'ORGANE, PAS DE RÔLE — lot 77 : la fiche de
+     440 px est morte, l'info vit dans la FENÊTRE du tap (« on tap sur le
+     token pour l'info sur le feat »). Ce que ce cas garde est inchangé : le
+     nom ET le texte viennent du record, lus par `query({kind:"feat", id})`,
+     jamais composés par l'écran. */
   const report = rebuild(fixture.document);
-  const node = cartesDeDon(ctxFrom(report));
-  const auspicious = featCards(node).find((card) => card.getAttribute("data-value") === "fh:feat:en:auspicious");
-  assert.ok(auspicious, "la fiche Auspicious (fh) existe");
-  assert.equal(auspicious.querySelectorAll(".catalogue-card-name")[0].textContent, "Auspicious (fh)");
-  /* 🔴 LA DESCRIPTION A CHANGÉ D'ORGANE, PAS DE RÔLE — Eric, 2026-08-20 :
-     *« le choix des feats doit fonctionner comme les choix de species, même
-     logique »*. Le don passe désormais par `renderFicheBody`, donc sa prose
-     est un `.fiche-blurb` — la moitié basse, pleine largeur — et non plus un
-     paragraphe libre. Ce que ce cas garde est inchangé : la description EXISTE
-     et vient du record. */
-  const desc = auspicious.querySelectorAll(".fiche-blurb");
-  assert.ok(desc.length > 0, "la description existe — pas seulement le nom");
-  assert.ok(auspicious.querySelector('[data-action="choose"]'),
-    "et la fiche est PRENABLE : sans son pied, on la lit sans pouvoir la choisir");
-  assert.match(desc[0].textContent, /Destiny/, "c'est bien le texte du record, pas un résumé");
-  /* ⚠️ LOT 64 — LE DON CHOISI NE SE MARQUE PLUS « ACTIF » SUR SA FICHE, et
-     c'est l'invariant II.1 : le choix, c'est le DÉFILEMENT. Le catalogue
-     s'ouvre DEVANT le don déjà posé (`catalogueCursor`), et c'est le rail
-     qui le surligne — un `data-active` sur la fiche redirait la même chose
-     avec un autre mécanisme, et les deux finiraient par diverger. */
-
-  /* ⚔️ LOT 53, TROISIÈME INSTANCE (architecte, à la revue) — LA CARTE
-     N'ANNONCE PLUS SON IDENTIFIANT. Avant, elle portait
-     `aria-label="fh:feat:en:auspicious"` : un lecteur d'écran lisait l'id
-     au lieu du nom du don. L'identifiant est passé dans `data-value` (deux
-     lignes plus haut, c'est LUI qui retrouve la carte maintenant), et le
-     nom accessible redevient le contenu textuel — qui porte déjà
-     « Auspicious (fh) », assertion ci-dessus.
-
-     📌 Le défaut venait d'un CONFLIT D'USAGE, pas d'une étourderie : la
-     valeur brute était là parce que CE TEST s'en servait comme crochet. Un
-     attribut d'accessibilité réquisitionné en identifiant machine. */
-  assert.equal(auspicious.getAttribute("aria-label"), null,
-    "un `aria-label` qui contredit le texte visible est pire que pas d'aria-label du tout");
+  const jetons = jetonsDeDon(ctxFrom(report));
+  const auspicious = jetons.find((jeton) => jeton.getAttribute("data-valeur") === "fh:feat:en:auspicious");
+  assert.ok(auspicious, "le jeton Auspicious (fh) existe");
+  assert.match(auspicious.textContent, /Auspicious/, "le jeton porte le NOM du record");
+  const info = featInfo(query, "fh:feat:en:auspicious");
+  assert.ok(info && info.kind === "popup", "le tap a une fenêtre à ouvrir");
+  assert.equal(info.titre, "Auspicious (fh)");
+  assert.match(info.texte, /Destiny/, "c'est bien le texte du record, pas un résumé inventé");
 });
-
-/* ══ 2 — LES SIX CARACS SONT PROPOSÉES, LE COMPTEUR LIT answered/expected ══ */
 
 test("les SIX caractéristiques sont les lignes de boost, et le compteur lit answered/expected au plan", () => {
   const report = rebuild(fixture.document); // 2 boosts déjà posés (int+2, con+1) = 3 points, légal

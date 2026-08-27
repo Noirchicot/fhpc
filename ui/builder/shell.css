@@ -4917,54 +4917,6 @@ button { font: inherit; }
 }
 .choix-glisse[data-trop="true"] .glisse-consigne { color: var(--critical); }
 
-/* ══ B0 — LA BRANCHE UNIQUE D'UN DON ══════════════════════════════════════
-   ⚠️ ÉCRIT EN BAS DE FEUILLE, ET C'EST LE PIÈGE N°1 DE CE DÉPÔT (canon §10) :
-   un bloc GÉNÉRIQUE posé ici volerait la cascade de toutes les variantes
-   écrites plus haut, en silence. Celui-ci ne le peut pas — ses quatre
-   sélecteurs sont des classes NEUVES que personne d'autre ne porte. C'est la
-   condition, et elle est vérifiable : si un jour `.feat-branche-*` se met à
-   décrire autre chose, ce bloc remonte avec sa règle. */
-.feat-branche { display: flex; flex-direction: column; gap: var(--sp-16); position: relative; }
-
-/* LES CHOIX — empilés, chacun à la cible tactile pleine. ⛔ Pas une rangée :
-   « Choose Cleric » et « Choose Wizard » n'ont pas la même longueur, et trois
-   boutons côte à côte à 360 tomberaient sous le seuil de lecture. */
-.feat-branche-choix { display: flex; flex-direction: column; gap: var(--sp-8); }
-.feat-branche-liste {
-  min-height: var(--touch);
-  padding: 0 var(--sp-16);
-  border: 0;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  font-size: var(--t3);
-  font-weight: 600;
-  cursor: pointer;
-  /* LE CERNE, PAS UN FOND — la leçon revenue trois fois : `--dalle-inter` posé
-     sur une dalle ne dessine rien, un bouton qui doit se voir porte un cerne. */
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-/* CELUI QUI PORTE LE CHOIX EST BLEU : « celui-ci est bon », jamais vert — le
-   vert dit que L'ENSEMBLE est bon, et il reste deux sorts à prendre. */
-.feat-branche-liste[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--info); color: var(--text); }
-
-/* LE BILAN — étiquette et valeur, la paire qui s'empile toute seule au-delà
-   d'une ligne (règle générale du builder). */
-.feat-branche-bilan {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--sp-4) var(--sp-12);
-  margin: 0;
-  font-size: var(--t3);
-}
-.feat-branche-bilan dt { color: var(--text-soft); }
-.feat-branche-bilan dd { margin: 0; color: var(--text); }
-/* UNE LIGNE EN ATTENTE D'UN AUTRE CHOIX EST GRISÉE, PAS ABSENTE (canon §4) :
-   elle annonce ce qui vient, et c'est ce qui rend le vert lisible ensuite. */
-.feat-branche-bilan dd[data-attente="oui"] { color: var(--text-muted); }
-
-
 /* ══════════════════════════════════════════════════════════════════════════
    LE TAMBOUR D'EQUIPMENT (lot 84) — DEUX ROUES, PUIS UNE GRILLE PAGINÉE
    Croquis d'Eric du 2026-08-23. Valeurs ratifiées à la 5e passe du banc
@@ -5381,6 +5333,26 @@ button { font: inherit; }
    avait RETIRÉ ces flèches (« elles font moche »). Le croquis du 23/08 les
    redessine et dit où. Le plus récent gagne — elles se regardent au doigt. */
 .grille-rang { display: flex; align-items: stretch; gap: var(--sp-4); }
+
+/* ── LA SORTIE DÉPOSÉE DANS UN PIED DE DALLE PERD SA PEAU DE SCÈNE ────────
+   🔴 LOT 77, mesuré sur le SB « Level 1 spell » : la `.sortie` garde ses
+   rembourrages de SCÈNE (20 haut · 12 bas · 52 côtés) quand `poserLaSortie`
+   la dépose dans l'hôte `[data-sortie-ici]` — qui porte DÉJÀ la géométrie du
+   pied (padding 0 44). Deux peaux pour un pied : 32 px verticaux en trop,
+   « 32 = 20 + 12 » — deux marges légitimes qui s'additionnent, la leçon des
+   NORMES au mot près. La peau de scène sert quand la sortie flotte au bas de
+   la scène ; dans un pied de dalle, l'hôte est la seule peau. */
+.parcours-pied > .sortie {
+  padding: 0;
+  /* ⚖️ EXCEPTION ARGUMENTÉE (la forme du garde trois-colonnes-et-reserve) :
+     la réserve des deux ronds est REPOSÉE à zéro parce que c'est L'HÔTE qui
+     la porte — `.parcours-pied` réserve déjà `--touch` de chaque côté
+     (padding 0 44), le livre vit dans son flux et le `?` dans la colonne
+     droite de la dalle. La redire ici la DOUBLERAIT (52 dans 44) — même
+     famille que `.ability-collecteur > .sortie`, dont la dalle porte la
+     gouttière. */
+  padding-inline: 0;
+}
 /* La gouttière fait toute la hauteur de la grille ; la flèche se centre dedans,
    à hauteur des jetons, et le compte se pose sous elle. ⭐ Aucune des deux ne
    coûte un pixel de HAUTEUR : la colonne existait déjà. */

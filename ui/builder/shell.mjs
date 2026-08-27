@@ -52,9 +52,9 @@ import {
 } from "./catalogue.mjs?v=353";
 import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=353";
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=353";
-import { renderInheritanceStep, inheritanceValidate, renderFeatCardBody, renderBoostGlisse,
-  renderFeatListScreen, featListPlan,
-  renderFeatSpellsScreen, featSpellsDone } from "./inheritance-step.mjs?v=353";
+import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
+  featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
+  featSousLabel } from "./inheritance-step.mjs?v=353";
 import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=353";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
@@ -557,7 +557,6 @@ function applyDecisionAction(action) {
      l'un ou par l'autre. */
   if (action.kind === "inheritanceOpen") {
     state.inheritanceOpen = action.value;
-    if (action.value === "feat") state.cursor = inheritanceFeatCursor();
     openSurface();
     return;
   }
@@ -861,22 +860,10 @@ function applyDecisionAction(action) {
 
   if (action.kind === "parcoursItem") {
     state.parcoursRefus = null;
-    /* 🔴 LE DON D'ORIGINE S'OUVRE EN ÉCRAN F, PAS EN DALLE — Eric,
-       2026-08-20 : *« le choix des feats doit fonctionner comme les choix de
-       species, même logique »*, *« il faut que ce soit du F1 pour les
-       feats »*.
-       ⭐ UN CATALOGUE NE TIENT PAS DANS UN ITEM. Il a un rail et des cartes de
-       440 px : c'est un ÉCRAN, pas le contenu d'une dalle. Ouvrir cet item est
-       donc un DÉPLACEMENT — on pose le catalogue et on laisse
-       `catalogueCourant()` le rendre, exactement comme Species rend le sien.
-       ⛔ Et on NE POSE PAS `parcoursItem` : les deux se disputeraient l'écran,
-       et la coquille poserait une seconde paire de portes. */
-    if (action.path === "background.originFeat[0]") {
-      state.inheritanceOpen = "feat";
-      state.palier = 1;
-      openSurface();
-      return;
-    }
+    /* 🔴 LE DON D'ORIGINE EST UN ITEM COMME LES AUTRES DEPUIS LE LOT 77 —
+       Eric, 2026-08-28 : *« le choix des feats ça devient un choix de token »*
+       · *« et on sera sur une page ff »*. Le catalogue F (rail + cartes) est
+       mort ; l'item ouvre sa dalle FF et le glisser fait le reste. */
     state.parcoursItem = { racine: action.racine, path: action.path };
     openSurface();
     return;
@@ -932,7 +919,12 @@ function applyDecisionAction(action) {
       state.document = document;
       rebuild();
     }
-    state.parcoursItem = null;
+    /* 🚪 « I changed my mind » sur le B EMBOÎTÉ du don (lot 77) ne quitte
+       pas l'item : le don efface, on retombe sur le choix du jeton — c'est
+       le retour au catalogue du species complexe, en une dalle. */
+    state.parcoursItem = action.racine !== parcoursRacineCourante()
+      ? { racine: parcoursRacineCourante(), path: action.racine }
+      : null;
     state.parcoursRefus = null;
     state.palier = 1;
     openSurface();
@@ -950,22 +942,18 @@ function applyDecisionAction(action) {
     if (state.docWriters && state.document && !estConfirme(state.document, action.racine)) {
       state.document = state.docWriters.confirm({ document: state.document, path: action.racine });
     }
+    /* 🚪 LE NEXT D'UN B EMBOÎTÉ (le don, lot 77) NE QUITTE PAS L'ÉTAPE : il
+       signe l'item et remonte au guide de l'Inheritance — le « Done, direction
+       R pour valider la totalité » du species complexe, pas un pas d'étape. */
+    if (action.racine !== parcoursRacineCourante()) {
+      state.parcoursItem = null;
+      openSurface();
+      return;
+    }
     goToStep(state.step + 1);
     return;
   }
 
-  /* ⭐ CHOISIR UNE LISTE DESCEND DANS SA BRANCHE — Eric, 2026-08-20 :
-     *« Choose Arcane → BS1 »*, et sa correction du même jour : *« BSS le choix
-     des sorts »*. Le geste est donc UN : on choisit la liste ET on entre dans
-     ses sorts. Demander ensuite un `Done` pour descendre ferait deux clics pour
-     une seule intention — la double validation que ce builder chasse partout.
-     ⛔ L'ÉCRAN NE NAVIGUE PAS : il dit « cette branche est choisie », la
-     coquille décide où ça mène (I.4, elle possède l'enchaînement des paliers). */
-  if (action.kind === "brancheChoisie") {
-    applyDecisionAction({ kind: "choose", path: action.path, ref: action.ref });
-    if (currentGate(state.palier + 1).exists) { state.palier += 1; openSurface(); }
-    return;
-  }
   if (action.kind === "ficheChoose") {
     state.cursor = action.index;
     pressDone();
@@ -1217,6 +1205,28 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
+  /* 🔁 REMPLACER LE DON EFFACE SES BRANCHES — lot 77. La règle du « retour
+     qui efface » (Eric, 2026-08-20 : les choix de l'ancien don n'ont plus
+     d'objet dès qu'on repart en choisir un autre), portée au glisser : la
+     liste, les sorts et LEURS SIGNATURES tombent avec l'ancien don. La racine
+     survit — le nouveau `ref` la remplit dans la foulée, et `revoke` balaye
+     déjà le préfixe entier (même paire d'organes que `parcoursCancel`). */
+  if (action.kind === "choose" && action.path === "background.originFeat[0]"
+      && action.ref && state.document) {
+    const courant = choixDeDon();
+    if (courant && courant !== action.ref.id) {
+      if (state.docWriters) {
+        state.document = state.docWriters.revoke({ document: state.document, path: "background.originFeat[0]" });
+      }
+      const prefixe = "background.originFeat[0].";
+      const poses = (state.document.build && state.document.build.choices) || [];
+      let document = state.document;
+      for (const chemin of poses.map((c) => c && c.path).filter((c) => typeof c === "string" && c.startsWith(prefixe))) {
+        document = verbs.clear({ document, path: chemin, kind: "choice" }).document;
+      }
+      state.document = document;
+    }
+  }
   /* LOT 42, §0.3 — MESURÉ : cette fonction ne savait poser que `set`/`clear`,
      jamais un RECORD. Class et Species posent leur choix avec `choose`
      (`{path, ref:{kind, id}}`, `src/build/block.mjs`) — même forme que les
@@ -1268,12 +1278,6 @@ function surCompetences() {
   return Boolean(state.engine) && STEPS[state.step].id === "skills";
 }
 
-/** Le catalogue du don d'origine s'ouvre devant celui qui est déjà posé —
- *  même loi que Class, Species et Destiny. */
-function inheritanceFeatCursor() {
-  return catalogueCursor(state.decisions, "background.originFeat[0]");
-}
-
 function arcanaCatalog() {
   return state.engine ? (state.engine.layers.verbs.query({ kind: "arcana" }) || []) : [];
 }
@@ -1305,91 +1309,11 @@ const CATALOGUES = {
   species: { ...SPECIES_CATALOGUE, cardBody: renderSpeciesCardBody, choices: renderSpeciesChoices, palier2: speciesPalier2 },
   /* Destiny n'a qu'UN palier : `palier2` rend `null`, donc `Validate` acte la
      carte et passe à l'étape suivante (voir `pressDone`). */
-  /* Le don d'origine : UN palier (B4.4 — « une seule validation suffit »),
-     donc `palier2` rend `null` et `Validate` ferme le panneau. */
-  feat: {
-    /* 🔴 `fiche: true` — C'EST ÇA, « DU F1 POUR LES FEATS ». Eric, 2026-08-20 :
-       *« le choix des feats doit fonctionner comme les choix de species, même
-       logique »*.
-       📏 SANS LUI, MESURÉ À 360 px : la carte faisait **720 px** — la hauteur
-       de sa rangée — au lieu de porter une dalle de 440. Et la cause n'était
-       ni `--fiche-h` ni la hauteur de rangée (toutes deux correctes une fois
-       ajoutées) : c'est ce DRAPEAU qui décide si la carte est enveloppée dans
-       une `.fiche-dalle`, et cette dalle est la seule à porter la cote.
-       ⚠️ TROIS ENDROITS POUR UNE MÊME COTE, et n'en corriger qu'un ne change
-       rien : le conteneur porte `--fiche-h`, la carte porte la hauteur de sa
-       rangée, la DALLE porte les 440. Je les ai réparés dans cet ordre en
-       croyant chaque fois avoir fini. */
-    path: "background.originFeat[0]", kind: "feat", label: "Origin feats", fiche: true,
-    /* ⭐ CE CATALOGUE N'EST PAS UNE ÉTAPE, C'EST UN ITEM. Le finir rend au
-       guide de l'Inheritance — où les bonus attendent encore leur signature —
-       et signe le don au passage. Species et Class, elles, avancent d'une
-       étape : c'est pour ça que la sortie se DÉCLARE ici. */
-    fin: "close",
-    /* 🔴 LES DEUX PORTES DE BS — Eric, 2026-08-20 : *« si je dis à BS "I changed
-       my mind" je reviens à B pour rechoisir un feat ; si je dis à BS "Done",
-       direction R pour valider la totalité »*.
-       ⭐ Le retour de BS n'est donc PAS un recul : c'est un CHANGEMENT D'AVIS,
-       et il porte le mot qui efface — parce qu'il efface vraiment. Les choix de
-       l'ancien don (sa liste, ses sorts) n'ont plus d'objet dès qu'on repart en
-       choisir un autre ; les garder ferait resurgir des sorts de Magicien sous
-       un don qui n'en donne plus. */
-    retourEfface: true,
-    cardBody: renderFeatCardBody,
-    /* ══ L'ARBRE DU DON, DANS LA NOMENCLATURE D'ERIC (2026-08-20, corrigée) ══
-         R0  le menu racine de l'Inheritance — feat / bonus
-          └ B    la liste des dons          (palier 1 de ce catalogue)
-             └ BS   le choix de la LISTE de sorts   (palier 2)
-                └ BSS  le choix des SORTS           (palier 3)
-       ⛔ Ce vocabulaire est celui de l'ARBRE DES CHOIX, pas celui du canon
-       (F/FF pour l'écran, carte/dalle/tuile pour l'objet). Une branche n'est
-       pas un cadre. */
-    /* BS — il EXISTE si le don choisi porte une branche. Il est PRÊT quand
-       TOUT le don est rempli (la liste ET les sorts) : son `Done` est celui qui
-       remonte à R0 et signe l'item, et signer un don à moitié posé serait dire
-       « c'est fait » sur un magasin vide. */
-    palier2: (decisions) => {
-      const plan = featListPlan(decisions);
-      if (!plan) return null;
-      return { ready: plan.answered >= plan.expected && featSpellsDone(decisions), plan };
-    },
-    /* BSS — il n'existe QUE quand la liste est choisie : avant, il n'y aurait
-       aucun sort à proposer. Il est PRÊT quand les créneaux sont remplis, et
-       son `Done` REMONTE à BS, où le bilan vient de se remplir. */
-    palier3: (decisions) => {
-      const plan = featListPlan(decisions);
-      if (!plan || plan.answered < plan.expected) return null;
-      return { ready: featSpellsDone(decisions) };
-    },
-    /* ⭐ UNE SEULE FONCTION POUR LES DEUX CRANS, et c'est le palier qui décide —
-       pas le contenu. BS demande la liste, BSS demande les sorts. */
-    choices: (ctx, act) => (ctx.palier === 3
-      ? renderFeatSpellsScreen({ decisions: ctx.decisions, query: ctx.query }, act)
-      : renderFeatListScreen({ decisions: ctx.decisions, query: ctx.query, featId: choixDeDon() }, act))
-  },
   destiny: {
     path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
     cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
   }
 };
-/* ══ B0 — LE 2ᵉ PALIER DU CATALOGUE DES DONS ═════════════════════════════
-   📐 L'arborescence d'Eric (2026-08-20) : **R3** est le troisième item de la
-   liste des dons, **B0** sa branche unique, **BS1/2/3** les branches
-   secondaires. Ici : R3 vit au 1ᵉʳ palier (la fiche du catalogue), B0 au 2ᵉ.
-
-   ⭐ ET IL PASSE PAR LA COUTURE EXISTANTE, PAS À CÔTÉ. Un catalogue déclare
-   déjà son second palier par deux fonctions : `palier2(decisions)` dit S'IL
-   EXISTE, `choices(ctx, act)` le DESSINE. Species et Class s'en servent depuis
-   le lot 60.
-   🔴 J'AI D'ABORD ÉCRIT UNE BRANCHE PARALLÈLE, ET LA PAGE L'A REFUSÉE : elle
-   court-circuitait `catalogueCourant()`, donc `currentGate()` — qui interroge
-   le palier SUIVANT pour savoir s'il existe — répondait « non », et `CHOOSE`
-   sautait à l'étape Destiny au lieu d'ouvrir B0. Le mécanisme savait déjà
-   poser la question ; il fallait lui donner la bonne réponse, pas la contourner.
-
-   ⛔ ET AUCUN IDENTIFIANT DE DON N'ENTRE ICI : le second palier existe si le
-   moteur publie le plan, c'est-à-dire si le don CHOISI déclare ses listes. */
-
 /** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
  *  d'un choix (le carnet, lui, dit ce qui RESTE à faire). */
 function choixDeDon() {
@@ -1409,12 +1333,6 @@ function catalogueCourant() {
      (`ctx.options`, voir `catalogueOptions`). */
   if (STEPS[state.step].id === "destiny") {
     return state.destinyMode === "choice" ? CATALOGUES.destiny : null;
-  }
-  /* B4.4, étape 4 — le don d'origine « se choisit EXACTEMENT comme Class et
-     Species : défilement aimanté + scrollspy ». C'est donc le catalogue
-     partagé, et pas une troisième copie. */
-  if (STEPS[state.step].id === "background") {
-    return state.inheritanceOpen === "feat" ? CATALOGUES.feat : null;
   }
   return CATALOGUES[STEPS[state.step].id] || null;
 }
@@ -1755,8 +1673,18 @@ function renderStepContent() {
     const ctx = inheritanceCtx();
     const section = el("section", "catalogue-step");
     const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path });
-    if (state.parcoursItem) section.append(renderParcoursItem(cfg, ctx));
-    else section.append(renderParcoursGuide(cfg, ctx));   /* guide ET bilan : voir plus haut */
+    if (state.parcoursItem && state.parcoursItem.racine === FEAT_RACINE) {
+      /* SB du don — la liste ou les sorts, par le cfg emboîté */
+      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));
+    } else if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
+        && featListPlan(state.decisions)) {
+      /* 🚪 LE B DU DON (lot 77) — un don à branches posé remplace le glisser
+         par son menu : le species complexe d'Eric, rendu par le MÊME moule
+         que le guide d'étape. « I changed my mind » y ramène au jeton. */
+      section.append(renderParcoursGuide(FEAT_PARCOURS, ctx));
+    } else if (state.parcoursItem) {
+      section.append(renderParcoursItem(cfg, ctx));
+    } else section.append(renderParcoursGuide(cfg, ctx));   /* guide ET bilan : voir plus haut */
     card.append(section);
   } else if (step.id === "background" && state.engine) {
     /* LOT 46 — même trio de branches que Class/Species/Compétences (moteur
@@ -2313,6 +2241,17 @@ function parcoursRacineCourante() {
   return null;
 }
 
+/** LE PARENT D'UN ITEM DE PARCOURS — `null` pour un item de l'étape, et
+ *  l'item porteur pour un sous-item d'un B EMBOÎTÉ (lot 77 : le don). Fermer
+ *  un sous-écran de Magic Initiate rend son menu, jamais le guide de
+ *  l'Inheritance deux crans plus haut. */
+function parentDeLItem(ouvert) {
+  const racineEtape = parcoursRacineCourante();
+  return ouvert && racineEtape && ouvert.racine !== racineEtape
+    ? { racine: racineEtape, path: ouvert.racine }
+    : null;
+}
+
 /** LE PARCOURS D'UN CHAPITRE, s'il en a un — sinon `null`.
  *  ⚠️ `CATALOGUES` NE SUFFIT PAS : l'Inheritance n'y est pas (elle ne se
  *  choisit pas, donc elle n'a pas de catalogue) et son parcours vit à part.
@@ -2342,14 +2281,63 @@ const INHERITANCE_PARCOURS = {
        resurgi deux fois depuis sans jamais redevenir vraie. */
     : item.path === "background.languages"
       ? renderLanguesGlisse(ctx, act)
-    /* ⏳ LE DON D'ORIGINE VEUT UN ÉCRAN F, PAS UNE DALLE — Eric : *« il faut
-       que ce soit du F1 pour les feats »*. Un catalogue a un rail et des
-       cartes de 440 ; il ne tient pas dans le corps d'un item. Son ouverture
-       est donc un DÉPLACEMENT (voir `parcoursItem`), pas un rendu. */
+    /* 🎫 LE DON D'ORIGINE EST UN CHOIX DE TOKEN — Eric, 2026-08-28 : *« le
+       choix des feats ça devient un choix de token »*. La dalle FF de l'item
+       porte le glisser ; le F1 d'avant (rail + cartes) est mort au lot 77. */
+    : item.path === FEAT_RACINE
+      ? renderFeatGlisse(ctx, act)
     : null),
-  itemLabel: (chemin) => (chemin === "background.boost" ? "Ability boosts"
+  itemLabel: (chemin, ctx) => (chemin === "background.boost" ? "Ability boosts"
     : chemin === "background.languages" ? "Languages"
-    : chemin === "background.originFeat[0]" ? "Origin feat" : chemin)
+    /* 🚪 la porte RÉSOLUE NOMME le don — « Auspicious (fh) » T3, *origin
+       feat* en T1 italique dessous : la loi de la porte, comme le lignage. */
+    : chemin === FEAT_RACINE ? featPorteLabel(ctx) : chemin),
+  itemAiguilleur: (chemin) => (chemin === FEAT_RACINE
+    ? "Tap a feat to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
+    : null)
+};
+
+/* ══ LE B EMBOÎTÉ DU DON — lot 77 ═══════════════════════════════════════════
+   Eric, 2026-08-28 : *« remoule magic initiate au format standard choix de
+   spells comme ailleurs — tu peux le construire comme un species complexe »* ·
+   *« le mouler sur un B standard »*.
+
+   ⭐ C'EST LE MOULE DU PARCOURS, APPLIQUÉ À UNE RACINE D'ITEM. Rien de neuf
+   n'est dessiné : `renderGuideSpecifique` rend le menu (portes, voyants, loi
+   de la porte, aiguilleur, pied), `itemsDeLEtape` liste les sous-décisions que
+   le moteur publie sous `background.originFeat[0]` (.list, puis .cantrips et
+   .prepared quand la liste est choisie), et les sous-écrans passent par
+   `renderParcoursItem` avec CE cfg. Un don sans branches ne publie rien : il
+   ne voit jamais ce menu.
+
+   ⚠️ LES PORTES DE SORTS N'APPARAISSENT QU'APRÈS LE CHOIX DE LA LISTE — c'est
+   le moteur qui le dit (featSpellPlans : « on ne demande pas de choisir un
+   sort avant de savoir dans quel livre le prendre »), et le menu grandit avec
+   le carnet, comme partout. */
+const FEAT_RACINE = "background.originFeat[0]";
+
+/** La porte du guide de l'Inheritance : le nom du don posé, ou la question. */
+function featPorteLabel(ctx) {
+  const plan = (state.decisions || []).find((entry) => entry && entry.path === FEAT_RACINE);
+  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  const nom = id && ctx && typeof ctx.query === "function" ? recordName(ctx.query, "feat", id) : null;
+  return nom ? { mot: nom, sous: "origin feat" } : "Origin feat";
+}
+
+const FEAT_PARCOURS = {
+  path: FEAT_RACINE, kind: "feat", label: "Origin feat", parcours: true,
+  itemCorps: (item, ctx, act) => (item.path === `${FEAT_RACINE}.list`
+    ? renderFeatListeGlisse(ctx, act)
+    : renderFeatSortsGlisse(ctx, act, item.path)),
+  itemLabel: (chemin, ctx) => {
+    if (chemin === `${FEAT_RACINE}.list`) {
+      const plan = (state.decisions || []).find((entry) => entry && entry.path === chemin);
+      const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+      const nom = id && ctx && typeof ctx.query === "function" ? recordName(ctx.query, "class", id) : null;
+      return nom ? { mot: nom, sous: "spell list" } : "Spell list";
+    }
+    return featSousLabel(chemin) || chemin;
+  }
 };
 
 /** Les deux langues offertes par l'Héritage, au glisser.
@@ -2549,7 +2537,7 @@ function currentGate(palier = state.palier) {
   if (STEPS[state.step].id === "review") return reviewValidate();
   /* B4 — sur Inheritance, `Validate` FERME le panneau ouvert, ou avance
      quand les deux cercles sont cochés. */
-  if (STEPS[state.step].id === "background" && state.engine && state.inheritanceOpen !== "feat") {
+  if (STEPS[state.step].id === "background" && state.engine) {
     return inheritanceValidate({ decisions: state.decisions, open: state.inheritanceOpen });
   }
   /* B5 — sur Abilities, `Validate` JETTE au premier palier, puis avance. */
@@ -2593,15 +2581,8 @@ function currentGate(palier = state.palier) {
  *  palier terminal et l'absence de palier. Recopier le corps aurait fait deux
  *  fermetures dont une seule signerait. */
 function fermerLePanneau() {
-  const ferme = state.inheritanceOpen;
   state.inheritanceOpen = null;
   state.palier = 1;
-  if (ferme === "feat" && state.docWriters && state.document) {
-    const chemin = "background.originFeat[0]";
-    if (!estConfirme(state.document, chemin)) {
-      state.document = state.docWriters.confirm({ document: state.document, path: chemin });
-    }
-  }
   openSurface();
 }
 
@@ -2620,7 +2601,16 @@ function pressDone() {
      même écran et ne laissent pas le même document — c'est toute la règle. */
   if (gate.next === "item") {
     const ouvert = state.parcoursItem;
-    state.parcoursItem = null;
+    /* ⛔ UN ITEM QUI PORTE DES SOUS-DÉCISIONS NE SE SIGNE PAS À MOITIÉ — le
+       même refus-qui-nomme que le Done du guide (lot 77 : le don à branches).
+       Un item sans sous-plans rend un refus nul et passe comme avant. */
+    const refusItem = ouvert ? refusDuDone({
+      decisions: state.decisions, document: state.document, racine: ouvert.path
+    }) : null;
+    if (refusItem) { state.parcoursRefus = refusItem.manquants; refresh(); return; }
+    /* 🚪 UN SOUS-ITEM REMONTE À SON B EMBOÎTÉ, pas au guide de l'étape — c'est
+       le `parent` qui fait tenir le species complexe dans la même machinerie. */
+    state.parcoursItem = parentDeLItem(ouvert);
     if (ouvert && state.docWriters && state.document) {
       try {
         state.document = state.docWriters.confirm({ document: state.document, path: ouvert.path });
@@ -2729,7 +2719,7 @@ function pressBack() {
   /* ⭐ L'ITEM SE REFERME AVANT TOUT (2026-08-19). Il est le cran le plus
      intérieur du parcours, et le refermer ne valide RIEN — c'est la règle
      d'Eric : *« si je fais back sur un item, ça ne valide pas l'item »*. */
-  if (state.parcoursItem) { state.parcoursItem = null; openSurface(); return; }
+  if (state.parcoursItem) { state.parcoursItem = parentDeLItem(state.parcoursItem); openSurface(); return; }
   if (state.lore) { state.lore = null; openSurface(); return; }
   /* 🔴 UN RETOUR QUI EFFACE, PARCE QU'IL PORTE LE MOT QUI EFFACE — Eric,
      2026-08-20 : *« si je dis à BS "I changed my mind" je reviens à B pour
@@ -3018,6 +3008,12 @@ function renderSortieEtape() {
      📌 Une borne écrite en `!==` sur un compteur qui peut grandir est une
      borne qui rouille : elle est juste tant que personne n'ajoute un cran. */
   if (fiche && fiche.fiche && state.palier < 2 && !state.parcoursItem) return null;
+  /* 🚪 LE B EMBOÎTÉ DU DON PORTE SON PROPRE PIED (lot 77) — il est rendu par
+     `renderGuideSpecifique`, qui pose « I changed my mind · Done/Next » comme
+     tout guide. La paire de la coquille en plus serait le doublon du 19/08,
+     à dix pixels de la sienne. */
+  if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
+      && featListPlan(state.decisions) && !state.lore) return null;
   /* 🔴 UN GUIDE DE PARCOURS PORTE SON PROPRE PIED — et il a fallu qu'Eric
      demande le `Next` pour que le doublon se voie. Mesuré à l'écran : la dalle
      de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et

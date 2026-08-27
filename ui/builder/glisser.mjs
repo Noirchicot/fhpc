@@ -467,7 +467,10 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
   bloc.dataset.status = plan.status;
-  bloc.append(el("h3", null, [text(titre)]));
+  /* ⛔ ON NE NOMME PAS DEUX FOIS (§1 quinquies) — un appelant dont la DALLE
+     porte déjà le nom de l'écran passe `titre: null`, et l'organe se tait.
+     Les appels existants ne changent pas d'un pixel (lot 77). */
+  if (titre) bloc.append(el("h3", null, [text(titre)]));
   /* 🔴 LE COMPTE NE PARAÎT QUE S'IL COMPTE QUELQUE CHOSE — Eric, 2026-08-26 :
      *« dégage les 1 of 1 chosen »*, puis, quand j'avais tout retiré : *« on les
      remet quand c'est utile, PAS LÀ »*.

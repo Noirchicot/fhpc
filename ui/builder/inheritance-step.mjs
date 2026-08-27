@@ -32,7 +32,6 @@ import {
 } from "./carnet.mjs?v=353";
 import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=353";
 import { renderChoixGlisses } from "./glisser.mjs?v=353";
-import { renderFicheBody } from "./catalogue.mjs?v=353";
 import { spellLabel, spellInfo } from "./class-step.mjs?v=353";
 
 function el(tag, className, children) {
@@ -398,80 +397,71 @@ export function renderBoostGlisse(ctx, act) {
   });
 }
 
-/** LE CORPS D'UNE FICHE DE DON, pour le catalogue partagé (B4.4 : « comme
- *  Class et Species »). Le don porte sa DESCRIPTION, que la commande du lot
- *  46 exigeait déjà — c'est ce que la fiche plein écran offre enfin. */
-export function renderFeatCardBody(query, id) {
+/* ══ LE DON D'ORIGINE, AU GLISSER — lot 77 (Eric, 2026-08-28) ═══════════════
+   *« le choix des feats ça devient un choix de token »* · *« on tap sur le
+   token pour l'info sur le feat, on drop pour le prendre »* · *« et on sera
+   sur une page ff »*.
+
+   ⭐ MÊME ORGANE QUE LE LIGNAGE D'ELF, MOT POUR MOT : un vivier de jetons, un
+   collecteur, tap = info (la fenêtre FF), drop = prendre. Le catalogue de
+   cartes du don (rail + fiches + CHOOSE) disparaît — c'est l'écran que ce
+   jeton REMPLACE, pas un écran à garder à côté. L'item du parcours est déjà
+   une page FF (aucun rail) : la lettre vient du cadre, pas d'ici.
+
+   ⛔ AUCUN NOM DE DON ICI : le plan publie les options, la couche porte les
+   textes. Un don qui arrive demain obtient le même écran. */
+
+/** L'info d'un jeton de don — le blurb court s'il existe, sinon la
+ *  description SRD entière. Même fenêtre que le tap d'un lignage. */
+export function featInfo(query, id) {
   const view = query({ kind: "feat", id });
   const data = (view && view.record && view.record.data) || {};
-  /* 🔴 LE BLURB PASSE AVANT LA DESCRIPTION — Eric, 2026-08-20 : *« il faut
-     améliorer Magic Initiate »*, et sa fiche perdait 300 px.
-     📏 MESURÉ À 360, LES CINQ DONS : la boîte de prose offre 343 px ; Magic
-     Initiate en rendait 643. Les quatre autres tiennent — Alert, le plus
-     long, remplit la boîte pile. La borne rognait donc UN don, en silence,
-     ce que ce dépôt interdit.
-     ⭐ ET LA RÉPONSE EST CELLE DE SPECIES ET DE CLASS, pas une invention :
-     leurs douze fiches lisent déjà `data.blurb` (le court, sur la carte) et
-     laissent le texte long à la couche. Un don n'avait simplement jamais reçu
-     le champ. Il arrive par `fh-feats-en`, en AJOUT — le texte SRD n'est pas
-     réécrit, il reste entier dans sa couche, sous sa licence.
-     ⛔ ET PAS DE TRONCATURE ICI. Couper la description à N caractères aurait
-     été la même perte, décidée par un écran au lieu d'une couche. */
-  const desc = typeof data.blurb === "string" && data.blurb.length > 0
+  const texte = typeof data.blurb === "string" && data.blurb.length > 0
     ? data.blurb
     : (typeof data.description === "string" ? data.description : null);
-  /* Le bonus de pool que certains dons accordent (`skill_points.bonus`) —
-     lu au record, jamais recalculé. */
+  if (!texte) return null;
+  /* le bonus de pool que certains dons accordent — lu au record, jamais
+     recalculé (la même ligne que portait la fiche d'avant le lot 77) */
   const bonus = data.skill_points && data.skill_points.bonus;
-  /* 🔴 LE DON PASSE PAR LA FICHE DE SPECIES, ET C'EST TOUTE LA DEMANDE —
-     Eric, 2026-08-20 : *« le choix des feats doit fonctionner comme les choix
-     de species, même logique. »*
-     📏 CE QUI MANQUAIT, MESURÉ DANS LA PAGE : la fiche du don n'avait AUCUN
-     bouton — ni `Lore` ni `Choose`. On pouvait la lire et pas la prendre. Le
-     pied est fabriqué par `renderFicheBody` et par lui seul ; un corps qui
-     rend ses propres paragraphes ne l'obtient jamais, et `renderCatalogueCards`
-     ne trouve alors rien à câbler (il le dit lui-même dans son commentaire).
-     ⭐ EMPRUNTER L'ORGANE PLUTÔT QUE RECOPIER SON PIED : c'est ce qui garantit
-     que le don reste identique à l'espèce le jour où la fiche change.
-     ⚠️ UN DON N'A PAS DE STATISTIQUES : il porte un nom et une description. Il
-     passe donc par le `blurb` — la moitié basse, pleine largeur — et laisse
-     `stats` vide. La fiche s'en accommode ; c'est ce qu'elle fait déjà pour
-     une espèce sans trait. */
-  const lignes = [];
-  if (desc) lignes.push(desc);
-  if (Number.isInteger(bonus)) lignes.push(`+${bonus} skill points`);
-  return renderFicheBody({ blurb: lignes.join("\n\n"), dressing: "prose" });
+  return {
+    kind: "popup",
+    titre: (view && view.record && view.record.name) || id,
+    texte: Number.isInteger(bonus) ? `${texte}\n\n+${bonus} skill points` : texte
+  };
 }
 
-/* ══ B0 — LA BRANCHE UNIQUE DU DON ════════════════════════════════════════
-   📐 L'ARBORESCENCE D'ERIC, 2026-08-20, dans ses mots : *« R3 = troisième item
-   à la racine dans la liste des feats · B0 = branche unique · BS1/BS2/BS3 =
-   branches secondaires »*. Ce vocabulaire est celui de l'ARBRE DES CHOIX ; il
-   ne remplace pas celui du canon (F/FF pour l'écran, carte/dalle/tuile pour
-   l'objet), il en dit autre chose — une branche n'est pas un cadre.
+export function renderFeatGlisse(ctx, act) {
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, "background.originFeat[0]");
+  if (!plan) return null;
+  /* ⚠️ le plan EST le créneau — `backgroundFeatPlan` ne publie aucun groupe
+     au-dessus de `originFeat[0]` (decisions.mjs). Même repli que le lignage
+     posé sans indice : un créneau fabriqué du plan, index 0. Le jour où le
+     moteur publie `originFeat[1]` (Versatile), `planSlots` prendra le relais
+     sans que cet écran change. */
+  const creneaux = planSlots(decisions, "background.originFeat");
+  const slots = creneaux.length > 0 ? creneaux : [{ ...plan, index: 0 }];
+  /* titre: null — la dalle d'item nomme déjà l'écran (§1 quinquies) */
+  return renderChoixGlisses({
+    plan, slots, titre: null, mot: "Feat",
+    refKind: "feat", labelOf: (id) => featLabel(ctx.query, id), onAction: act,
+    onInfo: (id) => { const info = featInfo(ctx.query, id); if (info) act(info); }
+  });
+}
 
-   ⛔ **AUCUN BLURB ICI** — Eric, mot pour mot : *« mets pas de blurb sur B0,
-   juste les choix, le bilan et les boutons »*. La prose du don a déjà été lue
-   sur sa fiche ; la redire ferait lire deux fois pour avancer d'un cran, ce que
-   le canon reproche déjà au bilan d'étape.
+/* ══ LES SOUS-CHOIX D'UN DON À BRANCHES — le moule du species complexe ═════
+   Eric, 2026-08-28 : *« remoule magic initiate au format standard choix de
+   spells comme ailleurs — tu peux le construire comme un species complexe »* ·
+   *« le mouler sur un B standard »*.
 
-   ⭐ LES TROIS `Choose` SONT DES CHOIX, PAS DES BOUTONS DE PIED, et c'est ce
-   qui rend l'écran tenable. Eric l'a vu venir lui-même : *« pire, 5 boutons
-   comme y'a 3 listes »*. `CADRES.md` §0bis mesure le pied à 76 px **tant que
-   la paire tient sur une ligne**, et nomme le TROISIÈME bouton comme le vrai
-   risque — cinq ne tiennent pas à 360. Sa propre phrase distingue d'ailleurs
-   « les choix » et « les boutons » : les premiers vivent dans le corps, les
-   seconds restent la paire que la coquille pose.
-   ⚠️ RESTE UN ÉCART DE MOT À TRANCHER : la coquille pose `CANCEL`/`DONE` sur
-   un écran d'item, quand Eric écrit `Done` / `I changed my mind`. Je n'invente
-   pas un second retour — garde 17, *« un seul BACK dans tout ui/ »* — donc
-   l'écran garde la paire de la coquille, et le mot se change là où il est posé,
-   pas ici. */
+   ⭐ LE B DU DON EST RENDU PAR LA MACHINERIE DU PARCOURS — renderGuideSpecifique
+   sur la racine `background.originFeat[0]` (shell.mjs, FEAT_PARCOURS) : portes,
+   voyants, loi de la porte, aiguilleur et pied y viennent du moule, pas d'ici.
+   Ce fichier ne fournit que les CORPS des sous-écrans, comme species-step
+   fournit ceux d'Elf. */
 const FEAT_SPELL_BLOCS = Object.freeze([
-  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip",
-    consigne: "Drag a cantrip onto a slot to choose it · tap or right-click for info" },
-  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell",
-    consigne: "Drag a spell onto a slot to choose it · tap or right-click for info" }
+  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip" },
+  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell" }
 ]);
 
 export function featListPlan(decisions) {
@@ -485,134 +475,41 @@ function listeLabel(query, id) {
   return (view && view.record && view.record.name) || id;
 }
 
-/** L'ÉCRAN B0. Trois choses et pas une de plus : les choix, le bilan, l'hôte
- *  du pied. */
-export function renderFeatListScreen(ctx, onAction) {
-  const act = typeof onAction === "function" ? onAction : () => {};
-  const plan = featListPlan(ctx.decisions);
-  const query = ctx.query;
-  const section = el("section", "feat-branche");
-  section.dataset.objet = "dalle";
-
-  section.append(el("h2", "guide-titre", [text(featLabel(query, ctx.featId))]));
-
-  /* ── LES CHOIX ────────────────────────────────────────────────────────
-     Un bouton par liste, à la cible tactile pleine. `markPressed` dit lequel
-     porte le choix courant — le même organe que partout, jamais une classe
-     « active » inventée pour cet écran. */
-  const choix = el("div", "feat-branche-choix");
-  for (const id of (plan ? plan.options : [])) {
-    const actif = Boolean(plan && plan.selected.includes(id));
-    const bouton = document.createElement("button");
-    bouton.type = "button";
-    bouton.className = "feat-branche-liste";
-    bouton.dataset.value = id;
-    markPressed(bouton, actif);
-    bouton.append(el("span", null, [text(`Choose ${listeLabel(query, id)}`)]));
-    /* ⭐ CHOISIR ENTRE DANS LA BRANCHE. L'écran ne navigue pas — il annonce le
-       choix, la coquille décide où ça mène (voir `brancheChoisie`). */
-    bouton.addEventListener("click", () => {
-      act({ kind: "brancheChoisie", path: plan.path, ref: { kind: "class", id } });
-    });
-    choix.append(bouton);
-  }
-  section.append(choix);
-
-  /* ── LE BILAN — il se remplit, il ne s'invente pas ────────────────────
-     ⭐ Eric : *« un bilan qui se remplira en fonction de ce qui est choisi »*.
-     Une ligne dont la réponse n'est pas encore là reste GRISÉE et ANNONCE ce
-     qui vient (canon §4 : « grisée, pas absente ») — c'est ce qui rend le vert
-     lisible quand il arrive.
-     ⏳ Les deux lignes de sorts sont annoncées et pas encore remplissables :
-     leurs plans arrivent avec BS1/BS2/BS3. Elles sont ici parce que les
-     cacher ferait croire l'étape finie au moment où la liste est choisie. */
-  const bilan = el("dl", "feat-branche-bilan");
-  const ligne = (mot, valeur) => {
-    const dt = el("dt", null, [text(mot)]);
-    const dd = el("dd", null, [text(valeur === null ? "—" : valeur)]);
-    if (valeur === null) dd.dataset.attente = "oui";
-    bilan.append(dt, dd);
-  };
-  const listeChoisie = plan && plan.selected.length > 0 ? plan.selected[0] : null;
-  ligne("Spell list", listeChoisie ? listeLabel(query, listeChoisie) : null);
-  /* ⭐ LE BILAN SE REMPLIT AVEC CE QUI A ÉTÉ POSÉ EN BSS — Eric, 2026-08-20 :
-     *« faut remonter de BSS à BS pour avoir un bilan »*. Sans ces deux lignes,
-     remonter ne montrait rien de plus qu'avant de descendre, et le voyage
-     n'avait pas d'objet. Les NOMS viennent des records, jamais d'une table.
-     ⚠️ Une ligne sans réponse reste GRISÉE et annonce ce qui vient (canon §4) —
-     elle ne disparaît pas. */
-  for (const bloc of FEAT_SPELL_BLOCS) {
-    const p = planAt(ctx.decisions, bloc.basePath);
-    const poses = p && Array.isArray(p.selected) ? p.selected : [];
-    ligne(bloc.titre, poses.length > 0 ? poses.map((id) => spellLabel(query, id)).join(" · ") : null);
-  }
-  section.append(bilan);
-
-  /* L'HÔTE DU PIED — la coquille y dépose sa paire, et elle seule. */
-  const hote = el("div", "parcours-pied");
-  hote.dataset.sortieIci = "";
-  section.append(hote);
-  return section;
-}
-
-/* ══ BS1 / BS2 / BS3 — LES SORTS DU DON, AU GLISSER ═══════════════════════
-   📐 Eric, 2026-08-20 : *« BS1 Arcane : choix drag and drop du cantrip et du
-   sort lvl 1, et done ou back ou lore »*, et pareil pour BS2 et BS3.
-
-   ⭐ TROIS BRANCHES, UN SEUL ORGANE. Ce ne sont pas trois écrans à écrire :
-   c'est le même, dont les OPTIONS changent avec la liste choisie en B0. Écrire
-   trois rendus aurait fait diverger trois fois le jour où le geste change.
-
-   ⭐ ET LE GESTE EST CELUI DU MAGICIEN, MOT POUR MOT — c'est la demande
-   d'Eric : *« il faut le construire comme le choix que fait un mago pour ses
-   sorts »*. Même `renderChoixGlisses`, même `refKind: "spell"`, mêmes libellés
-   et même popup d'info (`spellLabel` / `spellInfo`, empruntés à `class-step`,
-   pas recopiés).
-
-   ⛔ RIEN SI LA LISTE N'EST PAS CHOISIE : `planAt` rend `null`, et l'écran
-   n'affiche alors AUCUN cadre vide — la règle que Class applique déjà pour un
-   Rogue qui ne lance rien. */
-
-
-export function renderFeatSpellsScreen(ctx, onAction) {
-  const act = typeof onAction === "function" ? onAction : () => {};
-  const decisions = ctx.decisions || [];
-  const query = ctx.query;
-  const section = el("section", "feat-branche");
-  section.dataset.objet = "dalle";
-
-  /* LE TITRE NOMME LA LISTE, pas le don : on est DANS la branche, et c'est la
-     liste qui dit dans quel livre on prend. Le nom vient du RECORD. */
-  const liste = featListPlan(decisions);
-  const listeId = liste && liste.selected.length > 0 ? liste.selected[0] : null;
-  section.append(el("h2", "guide-titre", [text(listeId ? listeLabel(query, listeId) : "Spells")]));
-
-  for (const bloc of FEAT_SPELL_BLOCS) {
-    const plan = planAt(decisions, bloc.basePath);
-    if (!plan) continue;
-    section.append(renderChoixGlisses({
-      plan, slots: planSlots(decisions, bloc.basePath),
-      titre: bloc.titre, mot: bloc.mot,
-      refKind: "spell", labelOf: (id) => spellLabel(query, id), onAction: act,
-      onInfo: (id) => { const info = spellInfo(query, id); if (info) act(info); },
-      consigne: bloc.consigne
-    }));
-  }
-
-  const hote = el("div", "parcours-pied");
-  hote.dataset.sortieIci = "";
-  section.append(hote);
-  return section;
-}
-
-/** Les trois créneaux du don sont-ils remplis ? ⛔ Lu au carnet, jamais
- *  recompté : c'est le moteur qui sait ce qu'il attend. */
-export function featSpellsDone(decisions) {
-  return FEAT_SPELL_BLOCS.every((bloc) => {
-    const plan = planAt(decisions || [], bloc.basePath);
-    return plan ? plan.answered >= plan.expected : true;
+/** SB — la liste de sorts, au jeton elle aussi : trois classes, une case.
+ *  ⛔ Pas d'onInfo : une classe n'a pas de fenêtre d'info ici, et le geste
+ *  tap-info est borné aux écrans qui en ont une (NORMES). */
+export function renderFeatListeGlisse(ctx, act) {
+  const plan = featListPlan(ctx.decisions || []);
+  if (!plan) return null;
+  return renderChoixGlisses({
+    plan, slots: [{ ...plan, index: 0 }], titre: null, mot: "List",
+    refKind: "class", labelOf: (id) => listeLabel(ctx.query, id), onAction: act
   });
 }
+
+/** SB — les sorts d'un groupe (cantrips ou niveau 1) : le geste du magicien,
+ *  mot pour mot — même organe, même refKind, même fenêtre d'info. */
+export function renderFeatSortsGlisse(ctx, act, basePath) {
+  const decisions = ctx.decisions || [];
+  const bloc = FEAT_SPELL_BLOCS.find((b) => b.basePath === basePath);
+  const plan = planAt(decisions, basePath);
+  if (!bloc || !plan) return null;
+  return renderChoixGlisses({
+    plan, slots: planSlots(decisions, basePath),
+    titre: null, mot: bloc.mot,
+    refKind: "spell", labelOf: (id) => spellLabel(ctx.query, id), onAction: act,
+    onInfo: (id) => { const info = spellInfo(ctx.query, id); if (info) act(info); }
+  });
+}
+
+/** Le mot d'écran d'un sous-choix du don — la porte du B et le titre du SB. */
+export function featSousLabel(chemin) {
+  const bloc = FEAT_SPELL_BLOCS.find((b) => b.basePath === chemin);
+  if (bloc) return bloc.titre;
+  return chemin === "background.originFeat[0].list" ? "Spell list" : null;
+}
+
+export { listeLabel };
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :
  *  « toutes les fenêtres intermédiaires disparaissent »). Panneaux fermés :
