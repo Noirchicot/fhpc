@@ -127,7 +127,7 @@ export function motDe(libelle) {
   return String(libelle);
 }
 
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
      la dalle de ça à 50 % »*. ⛔ Pas 35 : il a désigné l'objet et donné le
@@ -180,6 +180,18 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
     .map((para) => para.trim())
     .filter((ligne) => ligne.length > 0)
     .map((ligne) => el("p", "guide-mot", [text(ligne)]));
+  /* 🚨 LE GENDARME PARLE À LA PLACE DE L'AIGUILLEUR — Eric, 27/08 : « tu
+     peux bloquer le Next et faire parler le gendarme en rouge à la place de
+     l'aiguilleur ». Quand l'étape porte un VERROU du noyau (un budget dépassé
+     conclu avant d'être corrigé, par exemple), la bande cesse de guider :
+     elle accuse, en rouge, avec le mot du refus — et le Next se désarme au
+     pied. Le rouge signale, le mot dit lequel (NORMES §7). */
+  if (gendarme) {
+    const rouge = el("p", "guide-mot", [text(gendarme.mot || String(gendarme))]);
+    rouge.dataset.gendarme = "oui";
+    bandeAiguilleur.length = 0;
+    bandeAiguilleur.push(rouge);
+  }
 
   page.append(saignee());
 
@@ -235,7 +247,10 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
          PORTE le dépliait déjà ; celle-ci l'avait raté — un libellé qui
          change de forme doit être déplié PARTOUT où il s'affiche. */
       const motBilan = bilanLabel ? bilanLabel(item) : null;
-      tete.append(el("span", "parcours-item-mot", [text(motBilan || motDe(labelOf ? labelOf(item) : item.path))]));
+      const motTete = el("span", "parcours-item-mot", [text(motBilan || motDe(labelOf ? labelOf(item) : item.path))]);
+      /* la tête de l'item que le gendarme accuse rougit avec lui */
+      if (gendarme && gendarme.chemin && item.path === gendarme.chemin) motTete.dataset.verrou = "oui";
+      tete.append(motTete);
       ligne.dataset.sansChoix = "true";
     } else {
       /* 🔴 UNE PORTE PEUT PORTER DEUX LIGNES — Eric, 2026-08-27 : *« Lineage
@@ -271,6 +286,14 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
       }
       porte.setAttribute("aria-label",
         `${motDe(libelle)} — ${item.confirme ? "done" : "not done yet"}`);
+      /* la porte que le gendarme accuse est ROUGE, et toujours ouverte —
+         Eric, 27/08 : « laisser le bouton visible pour pouvoir retourner
+         dans Skill budget, et le bouton est rouge ». L'échelle du §6 au mot
+         près : un bouton retombe au rouge quand on dépasse son droit. */
+      if (gendarme && gendarme.chemin && item.path === gendarme.chemin) {
+        porte.dataset.verrou = "oui";
+        ligne.dataset.verrou = "oui"; /* le voyant suit — les deux signaux ne se contredisent jamais (loi de la porte) */
+      }
       tete.append(porte);
     }
     ligne.append(tete);
@@ -388,9 +411,13 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
      réglée → on avance (`Next`) ; pas réglée → on règle (`Done`). Deux
      branches, aucun trou possible, et jamais `I changed my mind` tout seul. */
   if (acheve) {
-    pied.append(bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine })));
+    const next = bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine }));
+    if (gendarme) { next.disabled = true; next.dataset.verrou = "oui"; } /* on ne quitte pas une étape que le noyau refuse */
+    pied.append(next);
   } else {
-    pied.append(bouton("Done", "parcours-done", () => act({ kind: "parcoursDone", racine })));
+    const done = bouton("Done", "parcours-done", () => act({ kind: "parcoursDone", racine }));
+    if (gendarme) { done.disabled = true; done.dataset.verrou = "oui"; } /* on ne signe pas une étape que le noyau refuse */
+    pied.append(done);
   }
   page.append(pied);
   return page;
