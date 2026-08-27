@@ -493,19 +493,28 @@ test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pi
      être validés »*, et *« quand la pastille bonus et la pastille feat est
      verte, [je veux] un petit prompt vert et un Next à la place du Done »*. */
 
-  /* ① LA SORTIE SE DÉCLARE. Species et Class sont des ÉTAPES : les finir mène à
-     la suivante. Le don d'origine est un ITEM de l'Inheritance : le finir doit
-     RENDRE au guide, et c'est ce `close` qui SIGNE l'item au passage — sans
-     lui, la pastille du don restait éteinte quoi qu'on fasse. */
-  assert.match(shellText, /path: "background\.originFeat\[0\]"[\s\S]{0,400}?fin: "close"/,
-    "le catalogue des dons sort par `close` — il n'est pas une étape, il est un item");
-  const catalogueText = stripComments(fs.readFileSync(path.join(UI_DIR, "catalogue.mjs"), "utf8"));
-  assert.match(catalogueText, /const fin = ctx\.fin === "close" \? "close" : "step";/,
-    "et c'est le catalogue qui LIT la déclaration — jamais un id d'étape écrit dans le module partagé");
-  /* ⚔️ LE TÉMOIN : les autres catalogues ne la déclarent pas, donc ils gardent
-     « step ». Un défaut qui les ferait tous fermer bloquerait le builder. */
-  assert.doesNotMatch(shellText, /kind: "class"[\s\S]{0,300}?fin: "close"/,
-    "Class reste une étape : elle avance, elle ne se referme pas");
+  /* ① LA SORTIE D'UN ITEM À BRANCHES REMONTE, ELLE NE CHANGE PAS D'ÉTAPE.
+     🔴 RÉÉCRIT AU LOT 77 — Eric, 2026-08-28 : le don n'est plus un catalogue
+     (*« le choix des feats ça devient un choix de token »*), donc `fin:
+     "close"` n'existe plus. La règle d'origine, elle, SURVIT mot pour mot :
+     *« la fin de la validation doit ramener au menu racine »* — c'est
+     désormais le B EMBOÎTÉ qui la porte, par trois faits :
+       · `parentDeLItem` : fermer un SOUS-item rend le B du don, jamais le
+         guide de l'étape deux crans plus haut ;
+       · le `parcoursNext` d'une racine EMBOÎTÉE signe l'item et remonte au
+         guide — il n'avance jamais l'étape ;
+       · un item à sous-décisions ne se SIGNE pas à moitié : son Done refuse
+         et nomme, comme celui du guide. */
+  assert.match(shellText, /function parentDeLItem\(/,
+    "fermer un sous-écran du don rend son B emboîté — le parent est calculé, jamais null en dur");
+  assert.match(shellText, /parcoursNext[\s\S]{0,900}?action\.racine !== parcoursRacineCourante\(\)[\s\S]{0,200}?state\.parcoursItem = null/,
+    "le Next d'un B emboîté signe l'item et remonte au guide — il ne change pas d'étape");
+  assert.match(shellText, /refusDuDone\(\{[\s\S]{0,120}?racine: ouvert\.path[\s\S]{0,300}?parcoursRefus = refusItem\.manquants/,
+    "un item à branches ne se signe pas à moitié : le Done refuse et NOMME, comme au guide");
+  /* ⚔️ LE TÉMOIN : Class reste une étape — son parcoursNext passe par
+     `goToStep`, et rien ne déclare plus de `fin: "close"` nulle part. */
+  assert.doesNotMatch(shellText, /fin: "close"/,
+    "plus aucun catalogue ne « se ferme » : l'emboîtement du parcours a remplacé le mécanisme");
 
   /* ② LE PIED APPARTIENT AU GUIDE QUAND IL Y EN A UN. Mesuré à l'écran sur
      l'Inheritance le 19/08 : un `Done` FLOTTAIT sous la dalle pendant que le

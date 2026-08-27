@@ -47,3 +47,36 @@
    sur la RANGÉE (`max-width: 3 × --glisse-case + 2 × --sp-8`), pas sur la
    case — `max-width` écrasait la base d'un tiers avant que la ligne ne soit
    coupée, et il en tenait six à 1100 px. */
+
+/* ── LA CASE D'UN VIVIER PAGINÉ CÈDE — elle ne passe pas à la ligne ────────
+   🔴 REPOSÉE AU LOT 77, ET C'EST LA PARADE DU LOT A (NORMES §1 quater) : dès
+   que la rangée pagine, ses deux gouttières (2 × --touch + gaps) laissent au
+   vivier MOINS que trois cases pleines — mesuré : 239 px pour 3 × 87 + 16 =
+   277. Avec la base FIXE du socle, la case ne cédait pas : elle passait à la
+   ligne — DEUX par rangée, 15 jetons = 8 rangées = 440 px, et l'écran du
+   sort de niveau 1 défilait (666/493, lot 77). « Trois colonnes, toujours »
+   et « la case cède, elle ne passe pas à la ligne » sont ratifiés tous deux.
+   ⭐ LA BASE D'UN TIERS EST SÛRE ICI, ET SEULEMENT ICI : la largeur du vivier
+   paginé est IMPOSÉE par sa `.grille-rang` (voir la règle au-dessus) — le
+   calcul n'est pas circulaire, c'est le cadre du lot A. Hors pagination, la
+   base fixe du socle reste seule (ce sélecteur exige `.grille-rang`).
+   ⭐ Spécificité (0,0,3,1) : elle bat la base fixe (0,0,2,1) par NOM, jamais
+   par place dans la pile — la règle d'écriture de cette feuille. */
+.choix-glisse .grille-rang > .glisse-vivier > li {
+  flex: 1 1 calc((100% - 2 * var(--sp-8)) / 3);
+  min-width: 0;
+  /* ⛔ pas de `max-width: none` : le plafond du socle (--glisse-case, 87)
+     reste — la case CÈDE sous 87 dans une rangée étroite, elle ne GRANDIT
+     jamais au-dessus (mesuré à 768 : elle s'étirait à 160, et un jeton est
+     sacré dans les deux sens). */
+}
+
+/* ── ET LA RANGÉE PAGINÉE SE BORNE À SA COTE DÉDUITE ─────────────────────
+   3 cases + 2 gouttières de jeton + 2 colonnes de chevron + leurs gaps —
+   la même arithmétique que la rangée non paginée (max-width 277), gouttières
+   comprises. Sur un écran large, elle se centre ; sur 375, la dalle est plus
+   étroite que la borne et rien ne bouge. */
+.choix-glisse .grille-rang {
+  max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8) + 2 * var(--touch) + 2 * var(--sp-4));
+  margin-inline: auto;
+}
