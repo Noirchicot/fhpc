@@ -572,15 +572,18 @@
     currentColor calc(50% + .75px), transparent calc(50% + .75px));
 }
 .fiche-livre[disabled] { opacity: .55; cursor: default; }
+/* 🔴 LE VIEIL HABIT A CÉDÉ — Eric, 28/08 : « t'as toujours pas fait le
+   bouton Choose du R ». Le lot 58 lui avait donné la LARGEUR small (87),
+   mais liseré + coins ronds + fond transparent + capitales contredisaient
+   le gabarit pièce par pièce. CHOOSE porte un LIBELLÉ : il est de la
+   famille octogonale (registre §6), habillé par shell.css comme Done et
+   Next. ⚠️ fiche.css charge APRÈS shell.css : tout habit résiduel écrit ici
+   BATTRAIT la famille — ne rien y remettre. */
 .fiche-action {
   flex: 1 1 0;
   min-height: var(--touch);
   font-size: var(--t3);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: none;
   color: var(--text);
-  text-transform: uppercase;
 }
 /* ⏳ ÉTEINTS, ET ILS LE DISENT. Le panneau `lore` plein écran (avec son
    `copier`) est un organe partagé par trois écrans et il a son propre lot ;

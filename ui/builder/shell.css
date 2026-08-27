@@ -6050,6 +6050,7 @@ button { font: inherit; }
 .species-done,
 .parcours-item-porte,
 .parcours-pied button:not(.fiche-livre),
+.fiche-action, /* CHOOSE — un libellé, donc l'octogone (Eric, 28/08) */
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -6104,6 +6105,7 @@ button { font: inherit; }
 .species-done::before,
 .parcours-item-porte::before,
 .parcours-pied button:not(.fiche-livre)::before,
+.fiche-action::before,
 .ability-entry::before {
   content: "";
   position: absolute;
@@ -6514,3 +6516,14 @@ button.tuto-point::before {
 .bilan-ligne { margin: 0 0 var(--sp-4); line-height: 1.45; font-size: var(--t2); color: var(--text); }
 .species-acquis-bilan, .species-lignage-bilan { margin-bottom: var(--sp-8); }
 
+
+/* La table des lignées à valeur sèche (Dragonborn) — Eric, 28/08 : « un
+   tableau plutôt qu'un long scroll ». Deux colonnes serrées, T2, un filet
+   discret entre les lignes ; elle vit dans la fenêtre du SB et n'a pas
+   besoin d'en déborder : dix lignes de T2 tiennent debout. */
+.species-lignage-table { border-collapse: collapse; width: 100%; font-size: var(--t2); }
+.species-lignage-table th { text-align: left; font-weight: 600; padding: var(--sp-2) var(--sp-8) var(--sp-2) 0; }
+.species-lignage-table td { color: var(--text-soft); padding: var(--sp-2) 0; }
+.species-lignage-table tr + tr th, .species-lignage-table tr + tr td {
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
