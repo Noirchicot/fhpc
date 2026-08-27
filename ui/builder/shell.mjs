@@ -3142,6 +3142,17 @@ function renderSortieEtape() {
      pourquoi par son apparence, jamais disparaître. */
   done.dataset.lit = String(gate.ready);
   done.disabled = !gate.ready;
+  /* 🟢 L'AVANCEMENT DE L'ITEM, LU AU CARNET — 27/08, revue d'Archi 28 :
+     « Done reste GRIS à 3 of 3 chosen ». `gate.ready` dit si le bouton
+     RÉPOND (toujours, sur un item) ; `data-avance` dit où en est le CONTENU —
+     c'est lui que l'échelle peint (§6). Même expression que `itemsDeLEtape`
+     (répondu = answered ≥ expected), même refus du verrou que le gendarme. */
+  if (state.parcoursItem) {
+    const plan = (state.decisions || []).find((p) => p && p.path === state.parcoursItem.path);
+    const repondu = Boolean(plan && Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
+      && plan.answered >= plan.expected && !plan.lock);
+    done.dataset.avance = repondu ? "fait" : "en-cours";
+  }
 
   return el("div", "sortie", [back, done].filter(Boolean));
 }

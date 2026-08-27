@@ -6167,7 +6167,12 @@ button { font: inherit; }
    ⭐ La seule famille où la couleur ne dit PAS où on en est : elle dit ce que
    le bouton FAIT. Un bouton qui défait ne doit jamais pouvoir être appuyé par
    distraction — ⛔ un `Cancel` gris, ça s'appuie sans le vouloir. */
-.parcours-pied .parcours-annuler { --bouton-fond: var(--critical); }
+/* ⚠️ `button.` N'EST PAS DU ZÈLE, C'EST LA SPÉCIFICITÉ — mesuré au banc le
+   27/08 : « I changed my mind » rendait le GRIS du défaut (#928c7f). Le
+   défaut de la famille est porté par `.parcours-pied button:not(.fiche-livre)`
+   (0,2,1) ; une règle d'état à (0,2,0) perd contre lui quel que soit l'ordre.
+   L'état doit peser autant et venir après. */
+.parcours-pied button.parcours-annuler { --bouton-fond: var(--critical); }
 
 /* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
    ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
@@ -6179,13 +6184,25 @@ button { font: inherit; }
    Quatre caractères : il tient largement dans les 87, et il n'a aucune raison
    d'être plus large que `DONE` ou `BACK` à côté de lui. ⛔ Une bande de boutons
    où l'un s'étire dit qu'il compte plus que les autres. */
-.parcours-pied .parcours-next { max-width: var(--glisse-case); }
-.parcours-pied .parcours-next,
-.parcours-pied .sortie-back { --bouton-fond: var(--info); }
+.parcours-pied button.parcours-next { max-width: var(--glisse-case); }
+.parcours-pied button.parcours-next,
+.parcours-pied button.sortie-back { --bouton-fond: var(--info); }
 
 /* ── LA PORTE D'UN ITEM — elle prend l'avancement de son voyant ──────────
    validé = vert · rien fait = le gris par défaut, hérité de l'organe. */
 .parcours-item[data-allume="true"] .parcours-item-porte { --bouton-fond: var(--positive); }
+
+/* ── LE `Done` D'UN ITEM PARCOURT LA MÊME ÉCHELLE — 27/08, revue d'Archi 28 :
+   « Done reste GRIS à 3 of 3 chosen ». Gris = rien n'est encore fait ; posé
+   au complet, il verdit — même loi que la porte et son voyant (§6 : le bouton
+   parcourt l'échelle). La coquille pose `data-avance` en lisant le carnet. */
+.parcours-pied button.sortie-done[data-avance="fait"] { --bouton-fond: var(--positive); }
+
+/* ── CHOOSE EST VERT — Eric, 27/08 : « bouton grisé choose des species
+   bizarre, vert mieux non ? ». C'est LE geste de la carte, pas un état
+   « rien n'est fait » : il porte la couleur de l'action qui avance, comme la
+   porte validée. `[disabled]` garde son voile (fiche.css, opacity .55). */
+.fiche-action { --bouton-fond: var(--positive); }
 
 /* ══ LE DRESSING EN TROIS BANDES (NORMES §1 sexies, 26/08) ══════════════════
    « un dressing qui scrolle, des boutons fixes » — titre collé en haut, flux

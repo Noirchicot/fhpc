@@ -382,6 +382,19 @@
         "note": "Two more torches bought on the road.",
         "by": "player"
       }
+    ],
+    "confirmed": [
+      "background",
+      "background.boost",
+      "background.languages",
+      "background.originFeat[0]",
+      "class",
+      "class.cantrips",
+      "class.prepared",
+      "class.skillBudget",
+      "species",
+      "species.lineage",
+      "species.skillBudget"
     ]
   },
   "resolved": {

@@ -31,6 +31,7 @@ import { createLayers } from "../layers/index.mjs";
 import { createBuild } from "../build/index.mjs";
 import { createFhDestinyStat } from "../modules/fh/destiny-stat.mjs";
 import { createFhSkillPoolStat } from "../modules/fh/skill-pool.mjs";
+import { itemsDeLEtape } from "../../ui/builder/parcours.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -242,6 +243,34 @@ export function exempleFhEn() {
       overrides: structuredClone(OVERRIDES)
     }
   };
+
+  /* ══ LES SIGNATURES D'UN PERSONNAGE FINI — 27/08 ══════════════════════════
+     Mesuré au banc par l'architecte en formation : Ilyra affichait « High Elf
+     Lineage » et « Skill budget Spent » sur ses portes avec les DEUX voyants
+     éteints — la contradiction exacte que la loi de la porte interdit, rendue
+     sur le personnage TÉMOIN. L'écran disait vrai : ce document était rempli
+     mais jamais signé (`build.confirmed` absent). Un exemple « fini » doit
+     porter les signatures qu'un joueur aurait posées en le finissant.
+     ⭐ LE CRITÈRE EST STRUCTUREL, pas une liste d'étapes : une racine de
+     parcours est un plan SANS point (`species`, `class`, `background`) qui a
+     des items dessous ; on signe la racine et ses items quand tout est
+     répondu — les mêmes chemins que `pressDone` écrit, lus par le même organe
+     (`itemsDeLEtape`). ⛔ `abilities` n'a pas de plan racine : pas un
+     parcours, pas de signature. */
+  const premier = build.verbs.rebuild({ document });
+  const racines = premier.decisions
+    .filter((plan) => plan && typeof plan.path === "string" && !/[.[]/.test(plan.path))
+    .map((plan) => plan.path);
+  const signatures = [];
+  for (const racine of racines) {
+    const items = itemsDeLEtape({ decisions: premier.decisions, document: premier.document, racine });
+    if (items.length > 0 && items.every((item) => item.repondu)) {
+      signatures.push(racine, ...items.map((item) => item.path));
+    }
+  }
+  /* la même forme que l'écrivain `confirm` : uniques, triés — deux exécutions
+     rendent le même octet. */
+  document.build.confirmed = [...new Set(signatures)].sort();
 
   const report = build.verbs.rebuild({ document });
   return { document: report.document, report, layers, build };
