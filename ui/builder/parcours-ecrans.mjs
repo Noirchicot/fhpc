@@ -224,7 +224,13 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, re
        donc `acheve` retombe et les portes se reconstruisent. Rien à câbler pour
        le retour — c'est la même expression qui décide dans les deux sens. */
     if (item.sansChoix || acheve) {
-      tete.append(el("span", "parcours-item-mot", [text(labelOf ? labelOf(item) : item.path)]));
+      /* ⛔ `motDe`, PAS le libellé brut — depuis le 27/08 un `labelOf` peut
+         rendre un OBJET {mot, sous} (la résolution d'une porte). Cette
+         branche le passait tel quel à text() : « [object Object] » à
+         l'écran, en production, vu par Eric sur son iPhone. La branche
+         PORTE le dépliait déjà ; celle-ci l'avait raté — un libellé qui
+         change de forme doit être déplié PARTOUT où il s'affiche. */
+      tete.append(el("span", "parcours-item-mot", [text(motDe(labelOf ? labelOf(item) : item.path))]));
       ligne.dataset.sansChoix = "true";
     } else {
       /* 🔴 UNE PORTE PEUT PORTER DEUX LIGNES — Eric, 2026-08-27 : *« Lineage
