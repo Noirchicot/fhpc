@@ -54,7 +54,7 @@ import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 
 import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=354";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel } from "./inheritance-step.mjs?v=354";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=354";
 import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=354";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
@@ -2294,6 +2294,11 @@ const INHERITANCE_PARCOURS = {
     : chemin === FEAT_RACINE ? featPorteLabel(ctx) : chemin),
   itemAiguilleur: (chemin) => (chemin === FEAT_RACINE
     ? "Tap a feat to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
+    : null),
+  /* le livre ne s'allume que sur l'écran du don — les autres items n'ont pas
+     encore de lore à ouvrir, et un livre muet reste éteint */
+  livreDe: (ctx) => (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
+    ? livreDuDon(ctx)
     : null)
 };
 
@@ -2324,8 +2329,31 @@ function featPorteLabel(ctx) {
   return nom ? { mot: nom, sous: "origin feat" } : "Origin feat";
 }
 
+/** Le lore que le LIVRE ouvre sur les écrans du don : le texte du don POSÉ
+ *  (blurb du record, via featInfo) — « le livre ouvre le lore de ce que
+ *  l'écran montre ». Rien de posé → null, et le livre reste éteint (un organe
+ *  muet doit avoir l'air muet). Eric, 2026-08-28 : « Livre pas câblé. » */
+function livreDuDon(ctx) {
+  const plan = (state.decisions || []).find((entry) => entry && entry.path === FEAT_RACINE);
+  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  if (!id || !ctx || typeof ctx.query !== "function") return null;
+  const info = featInfo(ctx.query, id);
+  return info ? { titre: info.titre, texte: info.texte } : null;
+}
+
 const FEAT_PARCOURS = {
   path: FEAT_RACINE, kind: "feat", label: "Origin feat", parcours: true,
+  livreDe: (ctx) => livreDuDon(ctx),
+  /* 🔵 L'AIGUILLEUR DIT LE GESTE DE CHAQUE SOUS-ÉCRAN — Eric, 2026-08-28 :
+     « Texte aiguilleur plus précis. » Le socle de prévention reste ; la
+     première phrase nomme ce qu'on fait ICI. */
+  itemAiguilleur: (chemin) => (chemin === `${FEAT_RACINE}.list`
+    ? "Drop the class whose spell list this feat draws from. Leaving this open marks nothing — only Done records the choice."
+    : chemin === `${FEAT_RACINE}.cantrips`
+      ? "Tap a spell to read it — drag a cantrip into each slot. Leaving this open marks nothing — only Done records the choice."
+    : chemin === `${FEAT_RACINE}.prepared`
+      ? "Tap a spell to read it — drag your level 1 spell into the slot. Leaving this open marks nothing — only Done records the choice."
+    : null),
   itemCorps: (item, ctx, act) => (item.path === `${FEAT_RACINE}.list`
     ? renderFeatListeGlisse(ctx, act)
     : renderFeatSortsGlisse(ctx, act, item.path)),
@@ -2601,10 +2629,17 @@ function pressDone() {
      même écran et ne laissent pas le même document — c'est toute la règle. */
   if (gate.next === "item") {
     const ouvert = state.parcoursItem;
-    /* ⛔ UN ITEM QUI PORTE DES SOUS-DÉCISIONS NE SE SIGNE PAS À MOITIÉ — le
-       même refus-qui-nomme que le Done du guide (lot 77 : le don à branches).
-       Un item sans sous-plans rend un refus nul et passe comme avant. */
-    const refusItem = ouvert ? refusDuDone({
+    /* ⛔ UN B EMBOÎTÉ NE SE SIGNE PAS À MOITIÉ — le même refus-qui-nomme que
+       le Done du guide (lot 77 : le don à branches).
+       🔴 BORNÉ À LA RACINE EMBOÎTÉE, ET C'EST UNE RÉGRESSION PAYÉE (lot 78,
+       vue par Eric en prod : « le Done de Ability boosts ne fonctionne
+       pas ») : écrit sur « l'item a des sous-plans », le refus attrapait
+       AUSSI les sous-plans de CONTENU — `background.boost.str`,
+       `species.skillBudget.survival` — qui ne portent jamais de signature
+       propre : le Done refusait pour toujours. Seuls les enfants d'un B
+       EMBOÎTÉ se signent un à un, et l'emboîtement est DÉCLARÉ
+       (FEAT_PARCOURS) — le refus ne lit que lui. */
+    const refusItem = ouvert && ouvert.path === FEAT_PARCOURS.path ? refusDuDone({
       decisions: state.decisions, document: state.document, racine: ouvert.path
     }) : null;
     if (refusItem) { state.parcoursRefus = refusItem.manquants; refresh(); return; }
@@ -2779,6 +2814,13 @@ function goToStep(index) {
      famille que le palier juste au-dessus : ce qui est propre à un écran
      meurt quand on le quitte. */
   state.lore = null;
+  /* ⭐ ET SANS ITEM DE PARCOURS OUVERT (lot 78) — le trou de la même famille,
+     attrapé à la sonde : changer d'étape par la ceinture pendant qu'un
+     sous-écran du don était ouvert rendait, sur la NOUVELLE étape, l'item de
+     l'ancienne — titre en chemin brut (« background.originFeat[0].list »).
+     Un item appartient à son étape ; il meurt avec elle. */
+  state.parcoursItem = null;
+  state.parcoursRefus = null;
   /* ⭐ ET IL REPART SUR LE CHOIX DÉJÀ POSÉ, PAS EN HAUT DE LA LISTE — trouvé
      en regardant la page : le personnage d'exemple est un Magicien, et
      arriver sur Class le posait devant Barbarian. Comme le défilement EST le
