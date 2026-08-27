@@ -377,18 +377,22 @@ test("ACCEPTATION — les traits SRD que FH ne touche pas sont intacts, mot pour
      déjà rendu une suite verte sur un garde qui ne tournait plus).
      Six des neuf espèces SRD ne reçoivent QUE leur Base : leurs traits doivent
      être ceux du SRD, à l'octet près. C'est la décision D1 rendue vérifiable. */
-  for (const slug of ["dragonborn", "dwarf", "goliath", "halfling", "orc", "tiefling"]) {
+  /* 🔴 RÉÉCRIT LE 2026-08-27 (conversion « Proficiency Bonus ») : dragonborn,
+     dwarf, goliath et orc ont quitté cette liste — leurs traits à compteur
+     portent désormais l'échelle FH écrite (2, +1 aux niveaux 5/9/13/17),
+     dictée d'Eric (« c'est pas SRD, à corriger »). Restent intacts : halfling
+     et tiefling. */
+  for (const slug of ["halfling", "tiefling"]) {
     const id = `srd:species:en:${slug}`;
     assert.deepEqual(dataOf(verbs, id).traits, srd.records.species[id].data.traits,
       `${slug} : la couche FH ne réécrit AUCUN trait SRD`);
   }
 
-  /* Stonecunning est l'exemple du mandat : le chapitre d'Eric le RÉSUME
-     (« Tremorsense 60 ft, a few times per day »), le SRD le porte avec ses
-     vrais nombres, et la couche n'y touche pas. */
+  /* Stonecunning est devenu L'EXEMPLE INVERSE : converti le 27/08. Le texte
+     FH ne porte plus « Proficiency Bonus » et écrit l'échelle en clair. */
   const stone = dataOf(verbs, "srd:species:en:dwarf").traits.find((t) => t.id === "stonecunning");
-  assert.equal(stone.text, srd.records.species["srd:species:en:dwarf"].data.traits
-    .find((t) => t.id === "stonecunning").text);
+  assert.ok(!stone.text.includes("Proficiency Bonus"), "PROF a quitté Stonecunning");
+  assert.ok(stone.text.includes("character levels 5, 9, 13, and 17"), "l'échelle écrite est là");
 });
 
 test("ACCEPTATION — retirer la couche FH rend le Gnome, et emporte les trois espèces neuves", () => {
@@ -446,7 +450,7 @@ test("ATTAQUE — le garde anti-recopie rougit, et NOMME le record et le chemin"
   });
 });
 
-test("D1 — les CINQ espèces sans différence FH ne portent QUE leur Base de Destinée", () => {
+test("D1 — les espèces sans différence FH ne portent QUE leur Base de Destinée (le Tiefling, seul depuis le 27/08)", () => {
   const layer = fhLayer();
   const uneSeuleLigne = [];
   for (const [id, entry] of Object.entries(layer.records.species)) {
@@ -460,8 +464,12 @@ test("D1 — les CINQ espèces sans différence FH ne portent QUE leur Base de D
      donnée, et sans donnée un personnage ne peut pas INSCRIRE qu'il descend
      d'un dragon rouge. Le Tiefling, lui, reste ici : le SRD monte ses trois
      legs tout seul, donc Fate's Hand n'a rien à y ajouter. */
+  /* 2026-08-27 — LE DWARF ET L'ORC ONT BOUGÉ à leur tour : la conversion
+     « Proficiency Bonus » → échelle écrite (dictée d'Eric) leur ajoute un
+     texte de trait. Le Tiefling reste seul : ses legs sont montés par le SRD
+     et aucun de ses traits ne portait PROF dans un texte AFFICHÉ. */
   assert.deepEqual(uneSeuleLigne.sort(), [
-    "srd:species:en:dwarf", "srd:species:en:orc", "srd:species:en:tiefling"
+    "srd:species:en:tiefling"
   ]);
   for (const id of uneSeuleLigne) {
     assert.deepEqual(Object.keys(layer.records.species[id].changes), ["data.destiny"],
