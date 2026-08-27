@@ -393,6 +393,27 @@ function buildTrainings(srd, especes) {
    trio que la bourse captive de Keen Senses. Les confondre serait croire qu'une
    liste de classe est une table de conversion ; elle dit ce qu'une classe sait
    faire. */
+/* ══ LES LISTES DICTÉES — Eric écrit la liste d'une classe, elle prime ═════
+   🔴 Eric, 2026-08-28, pour le barde : *« bound skills : 3 — history,
+   performance, academics, persuasion, déception, streetwise »*.
+
+   ⭐ CE QUE ÇA OUVRE, ET C'ÉTAIT LE TROU N°1 DU CHAPITRE : jusqu'ici une liste
+   FH ne pouvait naître que d'un REMPLACEMENT mécanique — la classe dont la
+   liste SRD nommait Perception recevait le trio. Cinq classes l'ont eu ; les
+   sept autres gardaient la liste du SRD, et six d'entre elles ne pouvaient
+   atteindre AUCUNE des neuf compétences neuves de Fate's Hand. Une liste
+   dictée n'est pas un remplacement : c'est Eric qui dit ce qu'une classe sait
+   faire, et elle bat la mécanique.
+   ⛔ CHAQUE ID EST CONFRONTÉ À LA PILE comme le trio l'est déjà : une liste qui
+   nommerait une compétence éteinte perdrait l'option EN SILENCE — c'est le
+   défaut exact que le remplacement de Perception a refermé. */
+const LISTES_DICTEES = Object.freeze({
+  "srd:class:en:bard": Object.freeze([
+    "srd:skill:en:history", "srd:skill:en:performance", "fh:skill:en:academics",
+    "srd:skill:en:persuasion", "srd:skill:en:deception", "fh:skill:en:streetwise"
+  ])
+});
+
 const PERCEPTION_ID = "srd:skill:en:perception";
 const TRIO_DE_CLASSE = Object.freeze(["fh:skill:en:delve", "fh:skill:en:vigilance", "srd:skill:en:survival"]);
 
@@ -478,7 +499,18 @@ function buildClasses(srd, skillIdsDeLaPile) {
        une compétence inexistante rejouerait exactement le trou qu'on referme. */
     const listeSrd = ((recordDeClasse.data || {}).skill_choice || {}).from;
     let listeFh = null;
-    if (Array.isArray(listeSrd) && listeSrd.includes(PERCEPTION_ID)) {
+    /* ⭐ LA LISTE DICTÉE PASSE AVANT LA MÉCANIQUE (voir LISTES_DICTEES) : quand
+       Eric a écrit la liste d'une classe, il n'y a plus rien à déduire. */
+    const dictee = LISTES_DICTEES[entry.target];
+    if (dictee) {
+      for (const id of dictee) {
+        if (!skillIdsDeLaPile.has(id)) {
+          fail(`« ${entry.target} » verrait sa liste DICTÉE offrir « ${id} », que la pile ne porte pas. ` +
+            "Une liste qui nomme une compétence inexistante perd l'option en silence.");
+        }
+      }
+      listeFh = [...dictee];
+    } else if (Array.isArray(listeSrd) && listeSrd.includes(PERCEPTION_ID)) {
       for (const id of TRIO_DE_CLASSE) {
         if (!skillIdsDeLaPile.has(id)) {
           fail(`« ${entry.target} » verrait sa liste offrir « ${id} », que la pile ne porte pas. ` +
