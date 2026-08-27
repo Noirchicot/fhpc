@@ -1110,6 +1110,62 @@ marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne 
 
 ---
 
+## 4 quater. 📐 LA CARTE DU RANG R EST UN DESSIN PROPORTIONNEL *(dicté au banc, 27/08)*
+
+> Eric, 2026-08-27, une séance entière en direct : **« je voudrais que les blocs gardent leurs
+> proportions d'un écran à l'autre »** · **« stabiliser tout ça d'un appareil à l'autre »** ·
+> **« chaque élément se pose là où il faut et à la bonne proportion : sur iPad, sur Mac, sur
+> iPhone »** · **« si je crée une nouvelle classe tout rentre là-dedans et sera joli partout »**.
+
+🔴 **LE PRINCIPE : la carte est un DESSIN, pas une somme de cotes.** Chaque habit a sa référence —
+**269 × 440 en portrait** (dicté), **625 × 440 en paysage** (validé) — et toutes les cotes internes,
+**corps de texte compris**, se dérivent d'UNE échelle `--u` = largeur rendue / largeur de référence.
+Le nombre de caractères par ligne devient constant, donc les retours à la ligne — et les
+proportions — sont les mêmes de 375 à 1920. Avec la **police embarquée** (Inter, lot 57), le rendu
+cesse aussi de dépendre de la machine : c'est ce qui a fermé le débordement des blocs 2/3 vu sur le
+PC d'un ami d'Eric.
+
+| loi | détail |
+|---|---|
+| ⚠️ **plafond d'échelle u = 1** | la carte scale vers le **BAS** seulement — *« en format large il n'est pas beau ton Araag »* : la proportion pure gonflait le dessin du téléphone en poster |
+| ⛔ **le pied est HORS homothétie** | `height = 396u + 44px` — CHOOSE (gabarit **small**, 87), le livre et le `?` gardent leurs cibles de 44 à toute échelle |
+| ⚠️ **renversement daté** | CADRES.md §8 (*« le corps de fiche ne se met pas à l'échelle avec la dalle »*) est **renversé pour cette carte seule** — la stabilité entre appareils prime, une carte-résumé se lit comme une image se regarde. §8 tient partout ailleurs |
+| 🔴 **le moule impose son format au CONTENU** | *« c'est un résumé de classe »* · *« transformer un player handbook de taille livre en ce petit condensé »* — le contenu se taille pour les boîtes, jamais l'inverse |
+
+### Le format du contenu — les cotes du condensé
+
+| boîte | cote | source |
+|---|---|---|
+| **ligne de lineage/subclass** | **≤ 31 caractères**, une ligne, `nowrap` au paysage | mesuré : « Ten lines : breath + resistance », 31 car. = 226 px pile — ⚖️ UNE exception mesurée : « Berserker : Rage into Violent fury » (34 car., 226/226 au pixel, Eric : *« si t'as la place »*) |
+| **bande de classe** | intertitre `Subclasses` + la voie sous un **nom COURT** : *« Berserker : Rage into fury »* — ⛔ *« on dégage path »* : le préfixe générique est une information nulle, le nom complet vit au rang B | garde 6 bis réécrit : le nom court doit **vivre dans** le vrai nom SRD |
+| **blurb portrait** | **8 lignes pleines** = 3/10 de la zone — arbitré en trois temps : *« 1/3 → vers 1/4, sinon on s'asphyxie → 3/10 »* ; **justifié + césure** | la boîte se compte en LIGNES, jamais une ligne coupée aux deux tiers |
+| **abréviations ratifiées** | **ADV** (advantage) · **SV** (saves) | *« saves pourrait s'écrire SV, advantage ADV »* |
+
+### Le paysage, dernier réglage d'Eric
+
+`220 (image) | bloc 1 | 200 (texte) | 16 (respiration)` — *« une symétrie entre la largeur du blurb
+et le png »* puis *« rapetisser un peu le blurb, agrandir un peu le barbare »*. Image **220 × 340**,
+corps de la colonne texte **10,5u** (descendu avec sa largeur : même ratio, les lignes qui tenaient
+tiennent). Interligne **unique 1,2** sur tout le bloc 1 (*« espacement pas homogène, ça fait
+chelou »*).
+
+### 🔦 Le halo du scrollspy
+
+> Eric : *« le scrollspy n'est pas assez visible — un halo de luminance autour de Elf dans les
+> tuiles à gauche »*, puis *« pas mal mais un peu moins large »*.
+
+Jeton **`--spy-halo`**, un par thème : **lueur blanche la nuit, encre le jour** — une lueur sur
+parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current="true"]` du rail.
+
+### ⛔ Deux pièges de géométrie, payés le jour même
+
+| piège | ce qui s'est passé |
+|---|---|
+| **une rangée vide garde ses DEUX gouttières** | sans bande, la rangée `auto → 0` volait un gap au bloc voisin : 11 px d'asymétrie mesurés (les 7 « bloc 3 mal centré » de l'audit d'Eric). Parade : le voisin **enjambe** la rangée vide (`grid-row: n / m`) — la symétrie revient par construction |
+| **une règle d'un habit FUIT dans l'autre** | l'enjambement portrait, écrit nu à (0,4,0), battait la règle paysage (0,3,0) — *« bloc 1 trop haut »*, vu par Eric avant moi. Une règle propre à un habit se **borne à son media query** |
+
+---
+
 ## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition
 
 > Eric, 2026-08-26 : *« quand on a un long bloc de texte, comme celui pour la description des
