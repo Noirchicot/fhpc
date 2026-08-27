@@ -588,18 +588,28 @@ test("garde 6 bis — les comptes annoncés sont ceux de la DONNÉE, pas d'un do
     const niveaux = rec.data.features.filter((f) => f.name.toLowerCase().endsWith(" subclass")).map((f) => f.level);
     assert.deepEqual(niveaux, [3],
       `${who} : « at level 3 » vient de l'aptitude « ${rec.data.name} Subclass », et d'elle seule`);
-    /* 🧪 EXCEPTION D'ESSAI, DATÉE ET NOMMÉE — 2026-08-16. La fiche `wizard`
-       porte le contenu du test d'Eric (un intertitre `Subclasses` et trois
-       lignes factices) pour qu'il regarde la bande à quatre lignes sur son
-       iPad. Ces trois lignes MENTENT sur le SRD, qui ne donne qu'UNE
-       sous-classe par classe — et c'est exactement ce que ce garde existe pour
-       attraper (« c'est le genre de nombre qu'on recopie de travers », Eric).
-       ⛔ L'exception est donc NOMMÉE ici plutôt que le garde affaibli : les
-       ONZE autres classes restent tenues au mot près, et cette ligne-ci est le
-       rappel qu'il reste quelque chose à retirer. */
-    if (who === "wizard") continue;   // 🧪 essai bande à 4 lignes — à retirer
-    assert.deepEqual(infosDe("class", who), [{ label: "Subclass", value: "1 type, at level 3" }],
-      `${who} : la bande annonce ce que la donnée porte — une sous-classe, au niveau 3`);
+    /* 🔴 RÉÉCRIT LE 2026-08-27 — la bande de classe NOMME, elle aussi.
+       Eric, en dictant sur le banc : « Subclasses / path of the berserker :
+       Rage into fury », puis « oui on dégage path ». Le format : l'intertitre
+       `Subclasses`, puis la sous-classe sous un NOM COURT et quelques mots.
+       Ce qui reste confronté à la DONNÉE : le nom court doit vivre DANS le
+       vrai nom SRD (« Berserker » ∈ « Path of the Berserker ») — un nom
+       inventé ou recopié de travers casse ici. Le préfixe générique
+       (« Path of the », « College of »…) est le même pour toutes les voies
+       d'une classe : information nulle dans un résumé, le nom complet vit au
+       rang B. */
+    if (who === "wizard") continue;   /* FH donne à Wizard TROIS voies
+       (Fatebinder · Dreamwright · Soulforger, dictées puis retaillées le
+       27/08) là où le SRD n'en donne qu'une — l'écart est un CHOIX FH datant
+       du test d'Eric du 16/08, gardé tel quel. ⏳ Le jour où ces voies
+       deviennent une donnée structurée d'une couche fh, ce continue tombe. */
+    const bande = infosDe("class", who);
+    assert.equal(bande[0].title, "Subclasses", `${who} : la bande s'ouvre sur son intertitre`);
+    const lignes = bande.filter((l) => typeof l.label === "string");
+    assert.equal(lignes.length, 1, `${who} : le SRD donne UNE sous-classe — une ligne`);
+    assert.ok(rec.data.subclass.name.includes(lignes[0].label),
+      `${who} : le nom court « ${lignes[0].label} » doit vivre dans le vrai nom SRD « ${rec.data.subclass.name} »`);
+    assert.ok(String(lignes[0].value).length > 0, `${who} : des mots, pas un compte`);
   }
 });
 

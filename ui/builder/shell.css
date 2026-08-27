@@ -1434,6 +1434,10 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
 .catalogue-rail-item[aria-current="true"] { background: var(--dalle-inter); font-weight: 600; }
+/* Le halo de luminance du spy — Eric, 27/08 : « pas assez visible ». Le fond
+   inter et la graisse restent ; le halo s'ajoute PAR-DESSUS, il ne remplace
+   pas. Sa couleur vit dans tokens.css (--spy-halo) et bascule avec le thème. */
+.catalogue-rail-item[aria-current="true"] { box-shadow: 0 0 6px 1px var(--spy-halo); } /* Eric, 27/08 : « pas mal mais un peu moins large » */
 
 .catalogue-choices { display: flex; flex-direction: column; gap: var(--sp-16); }
 

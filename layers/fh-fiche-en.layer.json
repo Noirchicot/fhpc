@@ -50,7 +50,7 @@
             },
             {
               "label": "Ten lines",
-              "value": "breath + its resistance"
+              "value": "breath + resistance"
             }
           ]
         }
@@ -60,7 +60,7 @@
         "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted.",
         "changes": {
           "data.blurb": {
-            "text": "Dwarves don't rush, having outlasted enough hurried kingdoms already—history gets measured here in mined seams, not crowned heads. Poison barely slows one down, and eyes built for lightless tunnels see twice as far as most. A dwarf never loses track of who owes what to whom. Settle a debt cleanly, and the friendship lasts.",
+            "text": "Dwarves don't rush—they've outlasted enough hurried kingdoms; history is measured in mined seams, not crowned heads. Poison barely slows one down, and tunnel-bred eyes see deep into the dark. A dwarf never loses track of who owes what; settle a debt cleanly and the friendship lasts.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -130,7 +130,7 @@
             },
             {
               "name": "Fey Ancestry",
-              "effect": "advantage vs Charmed"
+              "effect": "ADV vs Charmed"
             }
           ],
           "data[fiche_infos]": [
@@ -185,7 +185,7 @@
           "data[fiche_traits]": [
             {
               "name": "Hoddon Cunning",
-              "effect": "advantage on INT, WIS, CHA saves"
+              "effect": "ADV on INT, WIS, CHA SV"
             }
           ],
           "data[fiche_infos]": [
@@ -194,15 +194,15 @@
             },
             {
               "label": "Forest Folk",
-              "value": "illusions, speaks to beasts"
+              "value": "illusion & beasts"
             },
             {
               "label": "Rock Folk",
-              "value": "repairs, clockwork devices"
+              "value": "clockwork & repairs"
             },
             {
               "label": "Mole People",
-              "value": "Darkvision 120, tinkers"
+              "value": "Darkvision 120 ft"
             }
           ]
         }
@@ -245,7 +245,11 @@
             },
             {
               "label": "Six lines",
-              "value": "one boon, a few times a day"
+              "value": "one giant's boon"
+            },
+            {
+              "label": "Boon",
+              "value": "a few uses per day"
             }
           ]
         }
@@ -293,7 +297,7 @@
         "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. No lineage-choice trait -> Lineages omitted.",
         "changes": {
           "data.blurb": {
-            "text": "Humans are the species that got wiped off the map once and simply refused to stay gone. Badly outnumbered by older peoples, they make up for it in volume: cities built in a hurry, arguments louder than needed, ambitions well past what the numbers justify. Having survived erasure once, a human treats most setbacks as background noise.",
+            "text": "Humans got wiped off the map once and simply refused to stay gone. Outnumbered by older peoples, they compensate in volume: cities built in a hurry, arguments louder than needed, ambitions past what the numbers justify. Having survived erasure, a human treats setbacks as background noise.",
             "provenance": "fh-original"
           },
           "data[fiche_stats]": [
@@ -402,7 +406,7 @@
             },
             {
               "label": "All",
-              "value": "a resistance and a thread of spells"
+              "value": "a resistance + spells"
             },
             {
               "label": "Abyssal",
@@ -448,7 +452,7 @@
           "data[fiche_traits]": [
             {
               "name": "Soulforged Affinity",
-              "effect": "Body Forge a Soulgem free"
+              "effect": "Bodyforge once more"
             },
             {
               "name": "Necrotic Resistance",
@@ -490,7 +494,7 @@
           "data[fiche_traits]": [
             {
               "name": "Fey Ancestry",
-              "effect": "advantage vs Charmed"
+              "effect": "ADV vs Charmed"
             },
             {
               "name": "Keen Senses",
@@ -583,8 +587,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Berserker",
+              "value": "Rage into Violent fury"
             }
           ]
         }
@@ -625,8 +632,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Lore",
+              "value": "Words that cut"
             }
           ]
         }
@@ -667,8 +677,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Life",
+              "value": "Potent healing"
             }
           ]
         }
@@ -709,8 +722,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Land",
+              "value": "Natural recovery"
             }
           ]
         }
@@ -755,8 +771,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Champion",
+              "value": "Easier crits"
             }
           ]
         }
@@ -797,8 +816,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Open Hand",
+              "value": "Mastered strikes"
             }
           ]
         }
@@ -843,8 +865,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Devotion",
+              "value": "Sacred weapon"
             }
           ]
         }
@@ -889,8 +914,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Hunter",
+              "value": "Chosen prey"
             }
           ]
         }
@@ -935,8 +963,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Thief",
+              "value": "Fast hands"
             }
           ]
         }
@@ -977,8 +1008,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Draconic",
+              "value": "Dragon within"
             }
           ]
         }
@@ -1019,8 +1053,11 @@
           ],
           "data[fiche_infos]": [
             {
-              "label": "Subclass",
-              "value": "1 type, at level 3"
+              "title": "Subclasses"
+            },
+            {
+              "label": "Fiend",
+              "value": "Infernal gifts"
             }
           ]
         }
@@ -1065,15 +1102,15 @@
             },
             {
               "label": "Fatebinder",
-              "value": "Fate bends before me."
+              "value": "Fate bends for me"
             },
             {
               "label": "Dreamwright",
-              "value": "Dreams become real."
+              "value": "Dreams made real"
             },
             {
               "label": "Soulforger",
-              "value": "Souls become matter."
+              "value": "Souls into matter"
             }
           ]
         }
