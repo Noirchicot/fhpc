@@ -28,8 +28,8 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=349";
-import { pageDeListe } from "./normes.mjs?v=349";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=350";
+import { pageDeListe } from "./normes.mjs?v=350";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
