@@ -3283,6 +3283,14 @@ button { font: inherit; }
   flex: 1 1 0; min-height: var(--touch);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: var(--sp-2); padding: var(--sp-8);
+  /* 🔴 LES FLANCS À 4 — Eric, 2026-08-28 : « Token size = collecteur size ».
+     La tête « LANGUAGE 1 » ratait sa ligne pour TROIS pixels (70 requis, 67
+     utiles à pad 8) et cassait en deux — le collecteur montait à 58 quand le
+     jeton fait 48. À pad latéral 4, l'utile passe à 75 : la tête tient, la
+     somme retombe à 46 et le min-height 48 reprend — la cote standard revient
+     par construction, sans toucher un mot. Le haut et le bas gardent leurs 8.
+     (Repose APRÈS le raccourci — la règle du garde des réserves.) */
+  padding-inline: var(--sp-4);
   /* 🔴 §2 (26/08) — LA ZONE DE DROP EST TRÈS ARRONDIE ET CREUSE : texte
      d'attente + liseré, ⛔ AUCUN fond. `background: none` était déjà juste ;
      ce qui manquait était le rayon de famille et le CREUX, qui est ce qui la
