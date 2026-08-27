@@ -2230,7 +2230,10 @@ function renderParcoursItem(cfg, ctx) {
   return renderItemDalle({
     racine: cfg.path,
     item,
-    titre: cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path),
+    /* `motDe` : un itemLabel peut rendre un objet {mot, sous} (porte
+       résolue) — le titre du sous-écran rouvert affichait « [object
+       Object] » (mesuré au banc le 27/08, même racine que la tête du B). */
+    titre: motDe(cfg.itemLabel ? cfg.itemLabel(item.path, ctx) : motDuChemin(item.path)),
     corps: cfg.itemCorps ? cfg.itemCorps(item, ctx, applyDecisionAction)
       : cfg.choices(ctx, applyDecisionAction),
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
