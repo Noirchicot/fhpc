@@ -1243,7 +1243,18 @@
   /* le bloc 2 vit dans la COLONNE du bloc 1 — même largeur, cadré à gauche */
   grid-column: 1; grid-row: 3;
   margin-left: calc(var(--u) * 8);
-  font-size: calc(var(--u) * 11);
+  /* 🔴 10,5u ET NON 11 — Eric, 2026-08-28 : *« on garde la terminologie de
+     base si elle passe, par PRIORITÉ sur les raccourcis »*. Le corps d'une
+     bande n'est pas un goût : il se DÉDUIT de la colonne qu'elle occupe
+     (§1 ter), et c'est déjà ce que le paysage fait — sa note dit *« suit la
+     colonne à 200 — la plus large ligne rend 197 »*. Le portrait gardait 11
+     et coupait deux mots ENTIERS pour 2 et 5 px : « Devotion : Sacred weapon »
+     et « Moonkeeper : Lunar Magic ». À 10,5 les deux passent.
+     ⚠️ CE QUE ÇA NE SAUVE PAS, ET IL FAUT LE DIRE : « Rage into Violent fury »
+     (−34) et « Mastered strikes » (−17) ne tiennent à AUCUN corps lisible —
+     leurs raccourcis restent ceux d'Eric. La cote gagne des pixels, elle ne
+     fait pas de miracle. */
+  font-size: calc(var(--u) * 10.5);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
   /* la boîte basse du portrait — boîte FERMÉE en lignes entières : c'est
