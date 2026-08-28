@@ -280,7 +280,11 @@ function resumeDeLItem(item, ctx, act) {
     ligne.append(el("strong", null, [text("Bound skills : ")]));
     dotes.forEach(([slug, nom, palier], i) => {
       if (i > 0) ligne.append(text(", "));
-      const lien = el("a", "lien-sort", [text(nom)]);
+      /* 🔴 PLUS DE BLEU AU BILAN — Eric, 2026-08-28. La dictée du 27/08
+         (« Delve (link) novice ») disait que le mot EST un lien, pas qu'il
+         doit être peint : il l'ouvre toujours, il ne le crie plus. Le bleu
+         reste à la PROSE du lignage, où rien d'autre ne le dirait. */
+      const lien = el("a", "bilan-nom", [text(nom)]);
       lien.href = lienSkillFhWeb(slug);
       lien.target = "_blank"; lien.rel = "noopener";
       ligne.append(lien);
