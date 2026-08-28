@@ -596,7 +596,7 @@
             },
             {
               "label": "Berserker",
-              "value": "Rage into Violent fury"
+              "value": "Rage into fury"
             }
           ]
         }
@@ -825,7 +825,7 @@
             },
             {
               "label": "Open Hand",
-              "value": "Mastered strikes"
+              "value": "Mst. Strikes"
             }
           ]
         }
@@ -1021,7 +1021,7 @@
             },
             {
               "label": "Moonkeeper",
-              "value": "Moon-fed"
+              "value": "Lunar Magic"
             }
           ]
         }
@@ -1111,7 +1111,7 @@
             },
             {
               "label": "Evoker",
-              "value": "Free evocations"
+              "value": "Spells for free"
             }
           ]
         }
