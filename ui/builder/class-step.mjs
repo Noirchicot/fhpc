@@ -259,14 +259,25 @@ function ligneDeBilan(mot, entrees, classe) {
   entrees.forEach((entree, i) => {
     if (i > 0) ligne.append(mot_(", "));
     if (entree.href) {
-      const lien = el("a", "lien-sort", [mot_(entree.nom)]);
+      /* même règle que ci-dessous : au bilan, un nom EST un jeton posé — il
+         mène au livre sans avoir à crier qu'il y mène (Eric, 28/08). */
+      const lien = el("a", "bilan-nom", [mot_(entree.nom)]);
       lien.href = entree.href;
       lien.target = "_blank"; lien.rel = "noopener";
       ligne.append(lien);
     } else if (entree.onInfo) {
       /* ⛔ un nom qui ouvre une fenêtre est un BOUTON, pas un lien : il ne
-         mène à aucune adresse (NORMES §7 ter — le sort ouvre la FF interne). */
-      const bouton = el("button", "lien-sort", [mot_(entree.nom)]);
+         mène à aucune adresse (NORMES §7 ter — le sort ouvre la FF interne).
+         🔴 ET IL NE PORTE PAS LE BLEU — Eric, 2026-08-28 : *« pas besoin de
+         mettre le texte des tokens en bleu, la carac d'un token est déjà de
+         l'interactif sur un clic »*.
+         ⭐ LA RÈGLE QUE ÇA POSE, ET ELLE VAUT PARTOUT : **le bleu signale un
+         mot cliquable DANS DE LA PROSE**, là où rien ne le dirait autrement.
+         Un objet dont l'interactivité est déjà évidente — un jeton qu'on tape,
+         un nom au bilan qui EST le jeton posé — n'a rien à signaler : le peindre
+         ajoute une couleur sans ajouter d'information. Le nom reste cliquable
+         (l'info s'ouvre), il cesse seulement de crier qu'il l'est. */
+      const bouton = el("button", "bilan-nom", [mot_(entree.nom)]);
       bouton.type = "button";
       bouton.addEventListener("click", entree.onInfo);
       ligne.append(bouton);

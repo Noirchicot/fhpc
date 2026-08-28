@@ -6506,6 +6506,19 @@ button.tuto-point::before {
    gras et les liens restent droits. */
 .parcours-resume-bourse { margin: 0; font-size: var(--t2); color: var(--text); }
 
+/* 🔴 LE BLEU EST POUR LA PROSE, PAS POUR LES ORGANES — Eric, 2026-08-28 :
+   *« pas besoin de mettre le texte des tokens en bleu, la carac d'un token est
+   déjà de l'interactif sur un clic »*.
+   ⭐ `.bilan-nom` est le nom d'un jeton POSÉ, relu au bilan : il s'ouvre au
+   clic comme le jeton s'ouvre au tap, et il garde donc l'encre du texte. Seule
+   la PROSE (le lignage, où un nom de sort est un mot dans une phrase) porte
+   `.lien-sort` — là, rien d'autre ne dirait que le mot répond. */
+.bilan-nom {
+  background: none; border: 0; padding: 0;
+  font: inherit; color: inherit;
+  cursor: pointer;
+}
+
 /* Le lien d'un sort dans la prose d'un lignage — Eric, 27/08 : « (lien vers
    le srd, format fenêtre FF) ». Un bouton habillé en lien : bleu-info (une
    LECTURE, pas un choix), souligné pour se dire cliquable. */
