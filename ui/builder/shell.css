@@ -752,6 +752,20 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      page. */
   margin-inline: auto;
   max-width: var(--card-w); /* LOT 69 — mesure de prose à l'étroit (62ch, inchangé), largeur de carte en Large (§3e : une carte n'est pas toujours de la prose) */
+  /* ⛔ PAS DE `width: 100%` ICI — ESSAYÉ LE 2026-08-29, MESURÉ, RETIRÉ.
+     Trois écrans (Species, Inheritance, Class) rendaient **624** pour un
+     plafond de **765** : leur `catalogue-step` est intrinsèquement étroit, et
+     un item flex prend la largeur de son contenu. `width: 100%` les remplissait
+     — et cassait le bord droit à 360 : un pourcentage se calcule sur le
+     CONTENANT SANS DÉDUIRE LES MARGES, donc la carte demandait 360 + 8 et
+     sortait de 4 px. La marge est la loi d'Eric du 17/08 (*« sans elle, les
+     dalles toucheraient les bords »*), elle ne cède pas pour un remplissage.
+     📌 ET LE STRETCH N'EST PAS LA SORTIE NON PLUS : `margin-inline: auto`
+     (le centrage du lot 69) DÉSACTIVE l'étirement en cross-axis — c'est une
+     règle de CSS, pas un réglage. Remplir ET centrer demanderait de porter les
+     gouttières sur le CADRE plutôt que sur la carte ; c'est un lot en soi.
+     ⭐ Ce que le vide à droite devient alors : il est CENTRÉ, donc réparti des
+     deux côtés — pas un accident de mise en page. */
   /* CORRECTIF, mesuré au lot 39 à 360px : `.stage` est `display:flex` (lot
      30), et un enfant flex a un `min-width` initial de `auto` — il refuse de
      rétrécir sous la largeur intrinsèque de son PLUS LARGE descendant.
@@ -1201,6 +1215,18 @@ button { font: inherit; }
    chaque fiche de classe perdait 2 px : le pas du défilement (678) cessait
    d'égaler le champ (680) et les points d'aimantation dérivaient de 22 px
    sur les douze. Invisible à l'œil sur une fiche, fatal sur douze. */
+/* ✅ `data-bleed` GARDE SON ABSENCE DE PLAFOND — ET C'EST UNE DÉCISION D'ERIC,
+   2026-08-29 : j'avais mesuré Skills à **1440 px** à côté de sept écrans tenus
+   entre 765 et 886, et je le plafonnais au nom de sa phrase *« limiter la
+   largeur max sur grand écran »*. Il a tranché dans l'autre sens : *« le data
+   bleed de Skills me convient »*.
+   ⭐ SA LECTURE EST LA BONNE, ET ELLE EST DANS LE CANON : le bleed est le mode
+   où la carte cesse d'être une surface pour laisser le décor passer entre des
+   dalles qui FLOTTENT (B0.23b). Un écran ainsi composé n'a pas de bloc de
+   texte à borner — ce sont ses dalles qui portent leur propre cote. Le plafond
+   de carte ne le concerne pas.
+   ⛔ NE PAS « CORRIGER » CETTE LIGNE : `max-width: none` est voulu, mesuré,
+   et ratifié. */
 .decision-card[data-bleed="true"] {
   height: 100%;
   padding: 0;
@@ -1512,6 +1538,20 @@ button { font: inherit; }
    Toucher la première n'aurait rien changé — et n'aurait rien dit non plus.
    📏 Mesuré avant : 8 px entre le bas de la ceinture et le haut de la carte. */
 .decision-card { margin: var(--sp-4); }
+  /* 🔵 LA GOUTTIÈRE RESTE À 360 — ET C'EST LA MESURE QUI L'A DÉCIDÉ.
+     Eric, 2026-08-29, en deux temps : *« pour les 360 on se passe de marge,
+     mais faut que ça rentre »*, puis *« si en 360 la marge est possible sans
+     impacter tout le monde, on l'applique »*. Sa condition est vérifiable, et
+     elle est vérifiée :
+       · avec la gouttière, les huit écrans rendent 352 dans 360 et AUCUN ne
+         déborde — « ça rentre » est déjà vrai ;
+       · les collecteurs de skills tiennent leurs quatre par ligne (74 px) et
+         les six caractéristiques leur ligne unique (47 px, au-dessus du seuil
+         tactile de 44).
+     Ce qu'elle coûte est mesuré et minime : 2 px par case (76 → 74, 48 → 47).
+     ⛔ NE PAS LA RETIRER SANS REMESURER : je l'avais annulée sur sa première
+     phrase, avant que la seconde ne pose la vraie règle — la marge cède si et
+     seulement si un organe ne rentre pas sans elle. Ici, tout rentre. */
   /* La sortie d'étape suit la carte, au même cran (voir sa règle). */
   /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
      `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
@@ -5477,7 +5517,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=369");
+  background-image: url("./assets/tarot-dos.jpg?v=374");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
