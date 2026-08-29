@@ -114,6 +114,28 @@ test("les collecteurs de skills se rangent par quatre, la ligne courte centrée"
   assert.ok(wrap, "la rangée des skills ne passe pas à la ligne");
 });
 
+test("la rangée de skills est BORNÉE à quatre cases — pas seulement la case", () => {
+  /* ⚔️ CE TEST EST NÉ D'UN DÉFAUT QUE CE FICHIER A LAISSÉ PASSER. Eric,
+     2026-08-29, capture iPad : la rangée montrait SIX collecteurs par ligne.
+     Le garde était vert — il vérifiait que la COTE se déduit d'un quart, et
+     c'était vrai. Mais borner une case ne borne pas une rangée : dès que la
+     cote plafonne au socle (87 px), une rangée large en accueille autant
+     qu'elle peut. « Quatre par ligne » n'était donc vrai qu'à l'étroit.
+     ⭐ LA LEÇON : un garde qui vérifie la CAUSE doit aussi vérifier l'EFFET
+     dicté. Ici l'effet est un nombre par ligne, et il se borne sur la rangée. */
+  const bornes = REGLES.filter((r) => /\.glisse-creneaux|\.glisse-vivier/.test(r.sel)
+    && /max-width\s*:\s*calc\(\s*4\s*\*/.test(r.corps));
+  assert.ok(bornes.length >= 2,
+    "la rangée des collecteurs et le vivier doivent TOUS DEUX être bornés à " +
+    "quatre cases (`max-width: calc(4 * var(--collecteur-case) + …)`) — sinon " +
+    "« quatre par ligne » n'est vrai qu'à l'étroit.");
+  for (const b of bornes) {
+    assert.match(b.corps, /var\(--collecteur-case\)/,
+      `« ${b.sel} » borne la rangée avec autre chose que la cote partagée : ` +
+      "la borne et la case divergeraient.");
+  }
+});
+
 test("les six caractéristiques tiennent sur une ligne, et se nomment", () => {
   const caracs = REGLES.filter((r) => /--caracs/.test(r.sel));
   assert.ok(caracs.length, "aucune règle pour la rangée des caractéristiques");

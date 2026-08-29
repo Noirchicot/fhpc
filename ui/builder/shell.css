@@ -3372,7 +3372,24 @@ button { font: inherit; }
 .glisse-creneau[data-rempli="true"] { border-style: solid; background: var(--dalle-inter); }
 /* La cible SOUS le doigt s'annonce — sans ce retour, on dépose à l'aveugle. */
 .glisse-creneau[data-vise="true"] { border-color: var(--accent); border-style: solid; }
-.glisse-creneau-nom { font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+/* 🔴 UN NOM D'UN SEUL MOT DOIT POUVOIR SE COUPER — Eric, 2026-08-29, capture
+   iPad à l'appui : *« INVESTIGATION en capitales et en T3 ? »*, le mot sortant
+   de sa case des deux côtés.
+   📏 LA CAUSE N'EST NI LA CASSE NI LE CORPS (le nom est en `--t1`, le plus
+   petit ; la capitale est la norme §2, ratifiée pour distinguer l'ÉTIQUETTE de
+   la VALEUR) : c'est qu'un mot SANS ESPACE n'a aucun point de coupure.
+   « ANIMAL HANDLING » revenait à la ligne — la boîte est faite pour, elle
+   porte `padding-block: var(--sp-2)` exprès. « INVESTIGATION » ne le pouvait
+   pas, et débordait au lieu de casser.
+   ⭐ `overflow-wrap: anywhere` autorise la coupure DANS le mot, mais seulement
+   quand aucun espace ne le permet — les noms à deux mots cassent toujours à
+   l'espace, comme avant. */
+.glisse-creneau-nom {
+  font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
 .glisse-creneau-valeur { font-size: var(--t3); }
 .glisse-consigne { margin: 0; font-size: var(--t2); color: var(--text-muted); }
 
@@ -5517,7 +5534,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=374");
+  background-image: url("./assets/tarot-dos.jpg?v=376");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6557,7 +6574,19 @@ button.tuto-point::before {
   background: none; border: 0; padding: 0;
   font: inherit; color: inherit;
   cursor: pointer;
+  /* ⛔ ET PAS DE SOULIGNEMENT — Eric, 2026-08-29, capture du bilan Wizard :
+     *« texte de bilan Wizard mal fait »*. Deux entrées du même bilan portaient
+     deux habits : les SORTS (rendus en `<button>`, car ils ouvrent la fenêtre
+     interne) restaient à l'encre nue, les COMPÉTENCES (rendues en `<a href>`
+     vers le livre) arrivaient SOULIGNÉES — le trait par défaut du navigateur,
+     que cette règle ne retirait pas.
+     🔴 C'EST LA MÊME LOI QUE LE BLEU, ET ELLE ÉTAIT DÉJÀ ÉCRITE JUSTE AU-DESSUS :
+     le nom d'un jeton posé ne CRIE pas qu'il est cliquable. Le soulignement
+     criait, et il ne le faisait que pour la moitié des entrées — deux
+     traitements dans une seule phrase. */
+  text-decoration: none;
 }
+.bilan-nom:hover, .bilan-nom:focus-visible { text-decoration: none; }
 
 /* Le lien d'un sort dans la prose d'un lignage — Eric, 27/08 : « (lien vers
    le srd, format fenêtre FF) ». Un bouton habillé en lien : bleu-info (une

@@ -133,6 +133,15 @@
 .choix-glisse:not(:has(.grille-rang)) .glisse-creneaux:not(.ability-creneaux) {
   flex-wrap: wrap;
   justify-content: center;   /* la ligne incomplète se centre */
+  /* 🔴 ET LA RANGÉE EST BORNÉE À QUATRE CASES — sans ça, « quatre par ligne »
+     n'est vrai qu'à l'étroit. Mesuré à 1024 : la cote plafonne à 87 (le socle),
+     la rangée offre 900, et il y rentre SIX cases — la règle d'Eric était donc
+     respectée sur un téléphone et fausse partout ailleurs.
+     ⛔ BORNER LA CASE NE BORNE PAS LA RANGÉE : c'est le nombre par ligne qui
+     est dicté, pas la taille d'une case. La borne se déduit de la même cote
+     (§1 ter) — quatre cases et leurs trois gouttières, rien de plus. */
+  max-width: calc(4 * var(--collecteur-case) + 3 * var(--sp-8));
+  margin-inline: auto;
 }
 .choix-glisse:not(:has(.grille-rang)) .glisse-creneaux:not(.ability-creneaux)
   > .glisse-creneau {
@@ -156,6 +165,10 @@
 .choix-glisse:not(:has(.grille-rang)) .glisse-vivier {
   width: 100%;
   justify-content: center;   /* même centrage que la rangée de collecteurs */
+  /* le vivier suit la MÊME borne : les deux rangées sont jumelles, elles ne
+     peuvent pas avoir deux largeurs sans que la cote partagée mente. */
+  max-width: calc(4 * var(--collecteur-case) + 3 * var(--sp-8));
+  margin-inline: auto;
 }
 .choix-glisse:not(:has(.grille-rang)) .glisse-vivier > li {
   flex: 0 0 var(--collecteur-case);
