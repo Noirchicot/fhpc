@@ -234,7 +234,7 @@ la sur-extension que ce paragraphe interdit désormais.
 
 🎨 **LA COULEUR EST `--lien`, UN BLEU À UN SOUFFLE DE L'ENCRE** *(Eric, 29/08 : « plus discret
 encore : on sait qu'il est là, mais on le voit à peine. Choisis un bleu très proche du noir »)* —
-`#1d2633` de jour contre l'encre `#2d2c2a`, `#ccd4e2` de nuit contre `#d8d3c9`. ⛔ `--info` garde
+`#223f6d` de jour contre l'encre `#2d2c2a`, `#b9cce9` de nuit contre `#d8d3c9` *(remonté d'un cran le 30/08 : « encore un peu plus bleu, pas assez visible »)*. ⛔ `--info` garde
 ses autres métiers (voyants, popups, boutons) : un lien n'est pas une information qui crie.
 ⏳ **NOTE DALTONIENS** *(demande d'Eric, même jour)* : prévoir une **option de soulignage des
 liens** — un réglage joueur pour qui ne distingue pas ce bleu de l'encre ; à trancher avec Eric le
