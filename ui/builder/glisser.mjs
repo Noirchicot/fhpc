@@ -25,10 +25,10 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=408";
+import { pageDeListe } from "./normes.mjs?v=409";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=408";
-import { swapContent } from "./socle.mjs?v=408";
+import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=409";
+import { swapContent } from "./socle.mjs?v=409";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -491,6 +491,18 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      la MÊME spécificité et ne peuvent pas se battre : une seule est vraie. */
   bloc.dataset.rangs = rangeeStyle === "caracs" ? "caracs"
     : refKind === "spell" ? "sorts" : "skills";
+  /* 📏 ET LA RANGÉE LA PLUS DENSE SE DÉCLARE — précision du 29/08 au soir.
+     La cote cédée divisait par la LOI des collecteurs (4) même quand l'écran
+     n'a qu'UN créneau : à 360, Identity rendait des cases de 78 et la tête
+     « ALIGNMENT » cassait en deux pour neuf pixels — un prix payé à une
+     rangée qui n'existe pas. La rangée la plus dense d'un écran est
+     max(3 jetons, ses collecteurs RÉELS plafonnés à la loi) ; l'émetteur la
+     connaît, le style la lit. Les six caracs gardent leur mot. */
+  /* ⛔ EN ATTRIBUT, JAMAIS EN STYLE EN LIGNE (garde 7) : trois valeurs d'un
+     même attribut, même spécificité, lues par listes.css. */
+  bloc.dataset.dense = String(rangeeStyle === "caracs" ? 6
+    : Math.max(3, Math.min(bloc.dataset.rangs === "sorts" ? 3 : 4,
+        Array.isArray(slots) ? slots.length : 1)));
   bloc.dataset.status = plan.status;
   /* ⛔ ON NE NOMME PAS DEUX FOIS (§1 quinquies) — un appelant dont la DALLE
      porte déjà le nom de l'écran passe `titre: null`, et l'organe se tait.

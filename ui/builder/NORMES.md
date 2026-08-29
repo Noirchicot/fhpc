@@ -229,8 +229,16 @@ la sur-extension que ce paragraphe interdit désormais.
 | ce qu'on lit | habit | pourquoi |
 |---|---|---|
 | le texte **sur un jeton** | **encre** | l'organe dit déjà qu'il répond |
-| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), **non souligné** *(dictée du 27/08 devant v343)* | rien d'autre ne dit qu'il répond |
-| un nom **au bilan** (`.bilan-nom`) | **bleu** (`--info`), non souligné | c'est de la prose — le jeton est ailleurs |
+| un nom **dans une phrase** (`.lien-sort`) | **`--lien`**, non souligné | rien d'autre ne dit qu'il répond |
+| un nom **au bilan** (`.bilan-nom`) | **`--lien`**, non souligné | c'est de la prose — le jeton est ailleurs |
+
+🎨 **LA COULEUR EST `--lien`, UN BLEU À UN SOUFFLE DE L'ENCRE** *(Eric, 29/08 : « plus discret
+encore : on sait qu'il est là, mais on le voit à peine. Choisis un bleu très proche du noir »)* —
+`#1d2633` de jour contre l'encre `#2d2c2a`, `#ccd4e2` de nuit contre `#d8d3c9`. ⛔ `--info` garde
+ses autres métiers (voyants, popups, boutons) : un lien n'est pas une information qui crie.
+⏳ **NOTE DALTONIENS** *(demande d'Eric, même jour)* : prévoir une **option de soulignage des
+liens** — un réglage joueur pour qui ne distingue pas ce bleu de l'encre ; à trancher avec Eric le
+jour du panneau d'options, jamais un défaut imposé.
 
 ⛔ **ET LE SOULIGNEMENT SUIT LA MÊME LOI.** Un `<a href>` est souligné par DÉFAUT par le
 navigateur : une règle qui pose l'encre sans retirer la décoration laisse la moitié des entrées
@@ -244,6 +252,17 @@ complète, pas partielle — et le garde vérifie qu'aucune troisième n'apparai
 ---
 
 ## 1 ter ter. 📐 COMMENT UNE RANGÉE DE COLLECTEURS SE RANGE *(dicté le 29/08)*
+
+> ⚖️ **PRÉCISION DU 29/08 AU SOIR — « JAMAIS PLUS, JAMAIS MOINS »** (Eric) : les **JETONS** ne
+> dépassent **jamais 3 par ligne** ; les **COLLECTEURS** jamais **4**. Ce sont **deux lois**, pas
+> une : `--par-rangee` est la loi DES COLLECTEURS, le vivier a la sienne (3, câblée en dur).
+> ⛔ Mesuré avant la coupure : « même base, même borne » donnait la borne des collecteurs au
+> vivier — Alignment rendait 9 jetons en 4+4+1.
+> **Exceptions, toutes NOMMÉES** : les **six caractéristiques** (FOR DEX CON INT SAG CHA) tiennent
+> sur UNE ligne de collecteurs (`data-rangs="caracs"`) ; les **dés d'Ability rolls** — 1 dé = 1
+> jeton — tiennent à SIX sur une ligne, jetons comme collecteurs, dans leur organe propre
+> (`fs-rangee` / `ability-creneaux`, hors vivier). Et la taille ne bouge jamais : un collecteur
+> = un jeton (§1 ter bis).
 
 | rangée | règle | dicté |
 |---|---|---|

@@ -182,18 +182,50 @@
    garde `collecteur-jeton` refuse désormais le pourcentage à la racine. */
 .choix-glisse[data-rangs]:not(:has(.grille-rang)) {
   container-type: inline-size;
+  /* 📏 LA COTE CÈDE À LA RANGÉE LA PLUS DENSE DE L'ÉCRAN, déclarée par
+     l'émetteur (`--rangee-dense`, glisser.mjs) — pas à la loi maximale des
+     collecteurs. Mesuré à 360 : Identity (un seul créneau) payait la division
+     par 4 d'une rangée absente — cases 78, « ALIGNMENT » cassée en deux.
+     Le repli reste la loi (`--par-rangee`) pour un émetteur qui ne déclare
+     rien. */
+  --rangee-dense: var(--par-rangee);
   --collecteur-case: min(var(--glisse-case),
-    calc((100cqw - (var(--par-rangee) - 1) * var(--sp-8)) / var(--par-rangee)));
+    calc((100cqw - (var(--rangee-dense) - 1) * var(--sp-8)) / var(--rangee-dense)));
 }
+/* la déclaration de l'émetteur — un attribut, jamais un style en ligne
+   (garde 7) ; trois valeurs d'un même attribut, même spécificité.
+   ⚠️ ET LE MÊME POIDS QUE LE REPLI : le bloc du repli porte `:not(:has(...))`
+   (0,0,3,0) — sans le même qualificatif ici, la déclaration PERDAIT contre le
+   repli qu'elle est censée précéder (mesuré : data-dense="3" posé, cote 78).
+   La leçon des trois régimes, une fois de plus : à poids inégal, la cascade
+   décide en silence. */
+.choix-glisse[data-dense="3"]:not(:has(.grille-rang)) { --rangee-dense: 3; }
+.choix-glisse[data-dense="4"]:not(:has(.grille-rang)) { --rangee-dense: 4; }
+.choix-glisse[data-dense="6"]:not(:has(.grille-rang)) { --rangee-dense: 6; }
 
-/* les deux rangées : même base, même borne, même centrage */
+/* 🔴 DEUX RANGÉES, DEUX LOIS — précision d'Eric du 29/08 (« JAMAIS PLUS,
+   JAMAIS MOINS ») : les JETONS ne dépassent jamais 3 par ligne, les
+   COLLECTEURS jamais 4 — et `--par-rangee` est la loi DES COLLECTEURS.
+   ⛔ La version d'avant écrivait « même base, même borne » et donnait la borne
+   des collecteurs au vivier : mesuré sur Alignment, 9 jetons en 4+4+1 (max-
+   width 372 = 4 cases). La ressemblance des organes (même gabarit, même
+   habillage) avait recollé deux lois qu'Eric sépare depuis le 26/08 (« oui,
+   4 collecteurs à côté on peut ; mais pas une SÉLECTION de 4 tokens »).
+   ⭐ LA CASE RESTE LA MÊME DES DEUX CÔTÉS (un collecteur = un jeton en
+   taille) : seule la COMPTE par ligne diffère. Les dés d'Ability rolls — six
+   sur une ligne — vivent hors vivier, dans leur organe nommé (`fs-rangee`). */
 .choix-glisse[data-rangs]:not(:has(.grille-rang)) .glisse-vivier,
 .choix-glisse[data-rangs]:not(:has(.grille-rang)) .glisse-creneaux {
   width: 100%;
-  max-width: calc(var(--par-rangee) * var(--collecteur-case)
-                  + (var(--par-rangee) - 1) * var(--sp-8));
   margin-inline: auto;
   justify-content: center;   /* une ligne incomplète se centre */
+}
+.choix-glisse[data-rangs]:not(:has(.grille-rang)) .glisse-creneaux {
+  max-width: calc(var(--par-rangee) * var(--collecteur-case)
+                  + (var(--par-rangee) - 1) * var(--sp-8));
+}
+.choix-glisse[data-rangs]:not(:has(.grille-rang)) .glisse-vivier {
+  max-width: calc(3 * var(--collecteur-case) + 2 * var(--sp-8));
 }
 .choix-glisse[data-rangs="caracs"]:not(:has(.grille-rang)) .glisse-creneaux {
   flex-wrap: nowrap;         /* les six ne se coupent jamais */

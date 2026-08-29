@@ -4460,6 +4460,14 @@ button { font: inherit; }
      invalide ne crie pas — elle est simplement jetée, et on retombe sur le
      comportement qu'on essayait de fuir. */
   width: min(100%, calc(var(--glisse-case) * 3 + var(--sp-8) * 2));
+  /* 🔴 ET LA BORNE EST AUSSI UN `max-width` — précision du 29/08 (Eric :
+     *« JAMAIS PLUS, JAMAIS MOINS — jamais plus de 3 [jetons] sur une ligne »*,
+     mesuré : Alignment rendait 4+4+1). Une largeur déclarée en `width` seule
+     CÈDE sous flex : dans la rangée de pagination (`.grille-rang`), le vivier
+     porte `flex: 1 1 auto` et le GROW l'élargissait au-delà de la borne — 4
+     jetons rentraient. `max-width` est la seule des deux cotes que flex ne
+     dépasse jamais. */
+  max-width: calc(var(--glisse-case) * 3 + var(--sp-8) * 2);
   margin-inline: auto;
 }
 /* 🔴🔴 ICI VIVAIT UNE RÈGLE QUI A ÉCRASÉ LES JETONS EN LIGNE — écrite par moi
@@ -5679,7 +5687,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=408");
+  background-image: url("./assets/tarot-dos.jpg?v=409");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6734,7 +6742,7 @@ button.tuto-point::before {
      tort : elle parle du texte SUR le jeton, pas d'un nom relu dans la prose
      du bilan. La ligne de partage ratifiée : **le jeton reste encre, tout
      lien HORS jeton est bleu** — bilan compris. Non souligné (dictée v343). */
-  color: var(--info);
+  color: var(--lien);
   cursor: pointer;
   /* ⛔ ET PAS DE SOULIGNEMENT — Eric, 2026-08-29, capture du bilan Wizard :
      *« texte de bilan Wizard mal fait »*. Deux entrées du même bilan portaient
@@ -6756,7 +6764,9 @@ button.tuto-point::before {
 .lien-sort {
   background: none; border: 0; padding: 0;
   font: inherit;
-  color: var(--info);
+  /* 🔗 `--lien`, pas `--info` — Eric, 29/08 : *« plus discret encore : on sait
+     qu'il est là, mais on le voit à peine. Un bleu très proche du noir. »* */
+  color: var(--lien);
   text-decoration: underline;
   cursor: pointer;
 }

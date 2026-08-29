@@ -131,27 +131,36 @@ test("les trois régimes de rangement existent, et par un SEUL patron", () => {
 test("la cote ET la borne se déduisent du même nombre par rangée", () => {
   const cote = REGLES.find((r) => /--collecteur-case\s*:/.test(r.corps));
   assert.ok(cote, "aucune cote déduite");
-  assert.match(cote.corps, /var\(--par-rangee\)/,
-    "la cote doit se déduire du nombre par rangée, pas d'un chiffre écrit");
+  assert.match(cote.corps, /var\(--rangee-dense\)/,
+    "la cote doit se déduire de la rangée la plus DENSE déclarée par l'écran " +
+    "(repli : la loi --par-rangee) — diviser par la loi maximale fait payer " +
+    "à Identity (1 créneau) la rangée de 4 qu'il n'a pas (ALIGNMENT cassée).");
+  assert.match(cote.corps.replace(/\s+/g, " "), /--rangee-dense: var\(--par-rangee\)/,
+    "sans déclaration de l'émetteur, la cote doit replier sur la loi.");
   assert.match(cote.corps, /min\(/,
     "la cote doit être plafonnée par min() : une case ne grandit jamais " +
     "au-dessus du socle.");
 
   /* ⚔️ BORNER LA CASE NE BORNE PAS LA RANGÉE — mesuré : la cote plafonnait au
      socle et il entrait SIX cases dans une rangée large. « Quatre par ligne »
-     n'était vrai qu'à l'étroit. */
-  const bornees = REGLES.filter((r) => /max-width\s*:\s*calc\(\s*var\(--par-rangee\)/.test(r.corps));
-  assert.ok(bornees.length, "la rangée n'est pas bornée au nombre par rangée");
-  for (const b of bornees) {
-    assert.match(b.corps, /width\s*:\s*100%/,
-      `« ${b.sel} » est bornée mais ne PREND pas cette largeur : une borne dit ` +
-      "« pas plus large que », jamais « aussi large que ». Sans width:100%, " +
-      "le vivier s'étire et la rangée se tasse — deux bases, deux cotes " +
-      "(mesuré : 63/74, 49/74, 28/87).");
-  }
-  assert.ok(bornees.some((b) => /\.glisse-vivier/.test(b.sel))
-    && bornees.some((b) => /\.glisse-creneaux/.test(b.sel)),
-    "les DEUX rangées (vivier et collecteurs) doivent être bornées");
+     n'était vrai qu'à l'étroit.
+     ⚖️ RÉÉCRIT LE 29/08 AU SOIR (« JAMAIS PLUS, JAMAIS MOINS ») : les deux
+     rangées restent bornées, mais plus par le MÊME nombre — `--par-rangee`
+     est la loi des collecteurs, le vivier plafonne à 3. L'ancienne version de
+     ce garde exigeait la borne commune : elle figeait la couture qu'Eric a
+     défaite (Alignment 4+4+1). */
+  const borneCreneaux = REGLES.find((r) => /\.glisse-creneaux$/.test(r.sel.trim())
+    && /max-width\s*:\s*calc\(\s*var\(--par-rangee\)/.test(r.corps));
+  assert.ok(borneCreneaux, "la rangée de collecteurs n'est plus bornée par --par-rangee");
+  const borneVivier = REGLES.find((r) => /\.glisse-vivier$/.test(r.sel.trim())
+    && /max-width\s*:\s*calc\(3 \* var\(--collecteur-case\)/.test(r.corps));
+  assert.ok(borneVivier, "le vivier n'est plus plafonné à 3 cases");
+  /* et les deux rangées PRENNENT leur largeur (le bloc partagé) : une borne
+     dit « pas plus large que », jamais « aussi large que ». */
+  const partage = REGLES.find((r) => /\.glisse-vivier,/.test(r.sel) && /\.glisse-creneaux/.test(r.sel));
+  assert.ok(partage && /width\s*:\s*100%/.test(partage.corps),
+    "le bloc partagé des deux rangées ne prend plus width:100% — le vivier " +
+    "s'étire et la rangée se tasse (mesuré : 63/74, 49/74, 28/87).");
 });
 
 test("le jeton et la valeur d'un collecteur portent le MÊME corps", () => {
@@ -192,11 +201,11 @@ test("tout lien hors jeton est bleu — le bilan compris", () => {
     for (const b of blocs(shell)) if (b.sel === sel) return b.corps;
     return "";
   };
-  assert.match(bloc(".lien-sort"), /color:\s*var\(--info\)/,
-    "un lien dans la prose doit porter le bleu d'information : sans lui, rien " +
-    "ne dit que le mot répond.");
-  assert.match(bloc(".bilan-nom"), /color:\s*var\(--info\)/,
-    "un nom au bilan est de la PROSE, pas un jeton : il porte le bleu " +
+  assert.match(bloc(".lien-sort"), /color:\s*var\(--lien\)/,
+    "un lien dans la prose porte `--lien`, le bleu à un souffle de l'encre " +
+    "(Eric, 29/08 : « on sait qu'il est là, mais on le voit à peine »).");
+  assert.match(bloc(".bilan-nom"), /color:\s*var\(--lien\)/,
+    "un nom au bilan est de la PROSE, pas un jeton : il porte `--lien` " +
     "(2ᵉ rappel d'Eric, 29/08 — sorts et cantrips du magicien).");
   assert.match(bloc(".bilan-nom"), /text-decoration:\s*none/,
     "un <a> est souligné PAR DÉFAUT : sans retrait explicite, la moitié des " +
@@ -268,4 +277,24 @@ test("la hauteur d'un jeton ne se laisse pas dicter par un voisin", () => {
   assert.match(bloc[1], /align-self\s*:\s*center/,
     "le vivier s'étire à la hauteur de la colonne du chevron : tout jeton " +
     "seul sur sa page redevient plus haut que sa case (Unseen Servant, 60 vs 48).");
+});
+
+test("deux lois de rangée : le vivier plafonne à 3, les collecteurs à --par-rangee", () => {
+  /* ⚖️ « JAMAIS PLUS, JAMAIS MOINS » — Eric, 29/08. Mesuré avant la coupure :
+     « même base, même borne » donnait la borne des collecteurs (4) au vivier,
+     et Alignment rendait 9 jetons en 4+4+1. Le garde exige que les DEUX bornes
+     existent SÉPARÉMENT — et que celle du vivier soit un `max-width` : une
+     borne en `width` seule CÈDE sous flex-grow (la rangée de pagination). */
+  const listes = stripComments(fs.readFileSync(path.join(UI, "listes.css"), "utf8"));
+  const creneaux = /\.glisse-creneaux\s*\{[^}]*max-width:\s*calc\(var\(--par-rangee\)/.test(listes);
+  assert.ok(creneaux,
+    "la rangée de collecteurs ne se borne plus par --par-rangee (4 par défaut, 6 caracs).");
+  const vivier = /\.glisse-vivier\s*\{[^}]*max-width:\s*calc\(3 \* var\(--collecteur-case\)/.test(listes);
+  assert.ok(vivier,
+    "le vivier ne plafonne plus à 3 cases : une sélection de 4 jetons sur une " +
+    "ligne revient (Alignment 4+4+1).");
+  const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
+  assert.match(shell, /\.choix-glisse \.glisse-vivier \{[^}]*max-width:\s*calc\(var\(--glisse-case\) \* 3/s,
+    "la borne générique du vivier (hors régimes) n'est plus un max-width : " +
+    "le flex-grow de la rangée de pagination la dépasse.");
 });
