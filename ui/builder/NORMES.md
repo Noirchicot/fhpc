@@ -1404,17 +1404,31 @@ lineages on a la place, on peut garder le format, mais tu link les spells »*) ;
 FORMAT RACCOURCI** (`data[fiche_lineage_lvl1]`, couche fh-fiche — esprit SRFH : *« c'est un format
 raccourci pour entrer dans les fiches »* ; ⏳ migrera dans une vraie famille srfh de fh-srd).
 
-### 🔗 §7 ter — LES LIENS DE LA PROSE
+### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
 
-> Eric : **« dans FH tous les skills sont linked à FH WEB »** · **« tous les sorts au SRD, sauf
-> sorts modifiés »** · **« et t'as toujours le lien vers le SRD pour le spell et aussi vers le
-> species via le livre »**.
+> ⚖️ **LA LOI-MÈRE, dictée le 2026-08-30** — Eric : *« Règle générale, partout dans le builder,
+> dans FH web, dans la future fiche de perso : dès qu'un **skill, feat, trait, feature, spell,
+> invocation, training** apparaît, il y a un **lien vers le site FH web**. Ou **vers le SRD quand
+> on joue en mode SRD**. »* Et sa précision : *« cantrips = spells »*.
+>
+> Un lien suppose une **cible** : le livre fabrique des ancres prévisibles (`l<niveau>-<nom>`
+> pour une feature, `opt-<nom>` pour une option de classe, `spell-<slug>` pour un sort — depuis
+> le 30/08, 339 sorts ancrés). Une famille sans ancre est une famille qu'on ne peut pas lier :
+> l'ancre se fabrique AVANT le lien.
+> ⏳ **LE MODE SRD** (lien vers le SRD au lieu du site) est déclaré ici et attend son câblage —
+> la fenêtre FF interne, qui plie le texte SRD, en tient lieu sur les écrans de choix.
+> 📌 La fenêtre FF reste le geste des **écrans de choix** (tap sur un jeton = info) ; la loi des
+> liens porte sur les NOMS écrits — bilans, prose, fiches.
+
+> Dictées antérieures, absorbées par la loi-mère : *« dans FH tous les skills sont linked à FH
+> WEB »* · *« tous les sorts au SRD, sauf sorts modifiés »* · *« le lien vers le SRD pour le
+> spell et aussi vers le species via le livre »*.
 
 **La règle : la fiche condense, LES LIENS mènent au long.**
 
 | l'objet cité | son lien |
 |---|---|
-| **un sort** | la fenêtre **FF interne** (`spellInfo`, le SRD plié) |
+| **un sort — cantrip compris** *(30/08)* | le **livre web**, à l'ancre près (`chapters/spells/#spell-<slug>`) ; la FF interne reste le geste d'info des écrans de choix |
 | **un sort MODIFIÉ par FH** (id `fh:`) | le **livre web** (chapitre Magic) |
 | **un skill** | **toujours le livre web** (chapitre Skills & Tools — les records internes n'ont pas de prose) |
 | **l'espèce** | le **livre** du pied (lot 61) |

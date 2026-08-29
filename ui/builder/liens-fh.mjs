@@ -44,6 +44,21 @@ export function lienFeatureFhWeb(classe, niveau, nom) {
   return `${FH_WEB}/chapters/classes/${slug(classe)}/#l${niveau}-${slug(nom)}`;
 }
 
+/** L'URL FH web d'une OPTION de classe (invocation, metamagic), à l'ancre
+ *  près — les ancres `opt-<nom>` que le livre fabrique (`sync_from_vault.py`,
+ *  section des options, 29/08). */
+export function lienOptionDeClasseFhWeb(classe, nom) {
+  const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${FH_WEB}/chapters/classes/${slug(classe)}/#opt-${slug(nom)}`;
+}
+
+/** L'URL FH web d'un SORT, à l'ancre près — les ancres `spell-<slug>` que le
+ *  chapitre des sorts fabrique (2026-08-30, la loi générale des liens). */
+export function lienSortParNomFhWeb(nom) {
+  const slug = String(nom || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${FH_WEB}/chapters/spells/#spell-${slug}`;
+}
+
 /** L'URL FH web du chapitre des dons. */
 export function lienFeatsFhWeb() {
   return `${FH_WEB}/chapters/feats/`;

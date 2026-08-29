@@ -168,3 +168,40 @@ test("un document qui porte une invocation peut encore être SIGNÉ", () => {
     "la signature n'a pas pris : le schéma refuse probablement un ref.kind " +
     "que le moteur accepte — les deux registres ont divergé.");
 });
+
+test("le bilan de l'item affiche l'invocation choisie, liée au livre à l'ancre près", async () => {
+  /* Eric, 30/08 : « display dans le résumé de fin et lien vers les eldritch
+     invocations choisies ». La cible est l'ancre `opt-<nom>` de la page
+     Warlock — celle que le générateur fabrique pour nous. */
+  const { createTestDocument } = await import("./dom-stub.mjs");
+  if (!globalThis.document) globalThis.document = createTestDocument();
+  const { CLASS_CATALOGUE } = await import("../ui/builder/class-step.mjs");
+  const out = rebuild(docWith({ extra: [{ path: "class.invocations[0]",
+    ref: { kind: "class-option", id: "srd:class-option:en:pact-of-the-tome" } }] }));
+  const ctx = { decisions: out.decisions, query, document: docWith({}) };
+  const noeud = CLASS_CATALOGUE.resumeItem({ path: "class.invocations", confirme: true }, ctx, () => {});
+  assert.ok(noeud, "aucune ligne de bilan pour l'invocation choisie.");
+  const lien = noeud.querySelector("a.bilan-nom");
+  assert.ok(lien, "le nom choisi n'est pas un lien.");
+  assert.equal(lien.textContent, "Pact of the Tome");
+  /* `.href` en PROPRIÉTÉ : le stub DOM ne la reflète pas dans getAttribute. */
+  assert.match(String(lien.href), /chapters\/classes\/warlock\/#opt-pact-of-the-tome$/,
+    "le lien ne mène pas à l'ancre opt-<nom> de la page Warlock.");
+});
+
+test("au bilan, un sort choisi est un LIEN vers le site — cantrips compris", async () => {
+  /* ⚖️ La loi-mère du 30/08 : « dès qu'un spell apparaît, lien vers le site
+     FH web » + « cantrips = spells ». Avant : un bouton vers la FF interne. */
+  const { createTestDocument } = await import("./dom-stub.mjs");
+  if (!globalThis.document) globalThis.document = createTestDocument();
+  const { CLASS_CATALOGUE } = await import("../ui/builder/class-step.mjs");
+  const out = rebuild(docWith({ extra: [
+    { path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:eldritch-blast" } }
+  ] }));
+  const ctx = { decisions: out.decisions, query, document: docWith({}) };
+  const noeud = CLASS_CATALOGUE.resumeItem({ path: "class.cantrips", confirme: true }, ctx, () => {});
+  const lien = noeud && noeud.querySelector("a.bilan-nom");
+  assert.ok(lien, "le cantrip du bilan n'est pas un lien.");
+  assert.match(String(lien.href), /chapters\/spells\/#spell-eldritch-blast$/,
+    "le lien ne mène pas à l'ancre spell-<slug> du chapitre des sorts.");
+});

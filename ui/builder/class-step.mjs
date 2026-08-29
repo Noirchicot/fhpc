@@ -20,11 +20,11 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=414";
-import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=414";
-import { renderConfirmDialog } from "./confirm.mjs?v=414";
-import { renderChoixGlisses } from "./glisser.mjs?v=414";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb } from "./liens-fh.mjs?v=414";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=416";
+import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=416";
+import { renderConfirmDialog } from "./confirm.mjs?v=416";
+import { renderChoixGlisses } from "./glisser.mjs?v=416";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=416";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -479,6 +479,20 @@ function resumeDeLItem(item, ctx, act) {
     return ligneDeBilan(null, prises);
   }
 
+  /* ── LES INVOCATIONS : le nom choisi, lié au LIVRE à l'ancre près — Eric,
+     30/08 : *« display dans le résumé de fin et lien vers les eldritch
+     invocations choisies »*. La destination est l'ancre `opt-<nom>` de la
+     page Warlock, fabriquée par le générateur le 29/08 exactement pour que le
+     builder pointe à la ligne près. Même habit que les skills de la bourse
+     (`bilan-nom` + href, bleu `--lien`). */
+  if (item.path === "class.invocations") {
+    const plan = planAt(decisions, "class.invocations");
+    const prises = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => ({ nom: invocationLabel(ctx.query, id),
+        href: lienOptionDeClasseFhWeb(record.name, invocationLabel(ctx.query, id)) }));
+    return ligneDeBilan(null, prises);
+  }
+
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
      absente laisse la ligne debout avec un tiret plutôt que de la faire
      disparaître : le sort EST choisi, c'est le fait qui compte. */
@@ -489,9 +503,16 @@ function resumeDeLItem(item, ctx, act) {
        le joueur a gagné — et six écoles en toutes lettres étaient le gâchis
        qu'Eric a nommé. Elle reste à un doigt : le nom ouvre la fenêtre du
        sort, comme le tap sur son jeton (NORMES §7 ter). */
+    /* 🔗 LE NOM MÈNE AU SITE, PLUS À LA FENÊTRE INTERNE — Eric, 2026-08-30,
+       loi générale des liens : *« dès qu'un spell apparaît, il y a un lien
+       vers le site FH web »*, et sa précision : *« cantrips = spells »*. La
+       fenêtre FF reste le geste des ÉCRANS DE CHOIX (tap sur le jeton) ; au
+       bilan, le nom est une référence — il pointe vers l'ancre `spell-<slug>`
+       que le chapitre des sorts fabrique. ⏳ Le mode SRD pur (lien vers le SRD
+       plutôt que le site) est déclaré au §7 ter et attend son câblage. */
     const pris = (plan && Array.isArray(plan.selected) ? plan.selected : [])
       .map((id) => ({ nom: spellLabel(ctx.query, id),
-        onInfo: () => { const info = spellInfo(ctx.query, id); if (info && act) act(info); } }));
+        href: lienSortParNomFhWeb(spellLabel(ctx.query, id)) }));
     return ligneDeBilan(null, pris);
   }
   return null;
