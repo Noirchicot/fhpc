@@ -219,14 +219,18 @@ déclaration, pas son sauveteur.
 > Et son complément du 28/08 : *« pas besoin de mettre le texte des tokens en bleu, la carac d'un
 > token est déjà de l'interactif sur un clic »*.
 
-⭐ **LE BLEU SIGNALE UN MOT CLIQUABLE DANS DE LA PROSE**, là où rien d'autre ne le dirait. Un objet
-déjà manifestement interactif — un jeton qu'on tape, un nom au bilan qui **est** le jeton posé — n'a
-rien à signaler : il garde l'encre du texte.
+⭐ **LA LIGNE DE PARTAGE EST LE JETON, PAS L'INTERACTIVITÉ** *(corrigée le 29/08 — deuxième rappel
+d'Eric : « pas de liens bleus sur sorts et cantrips du wizard »)*. La dictée du 28/08 (« pas besoin
+de mettre le texte des tokens en bleu ») parle du texte **SUR le jeton** — un organe déjà
+manifestement interactif. Un nom relu **dans la prose du bilan** n'est PAS un jeton : il est un mot
+au milieu d'autres mots, et il porte le bleu. ⛔ J'avais étendu la dictée du jeton au bilan — c'est
+la sur-extension que ce paragraphe interdit désormais.
 
 | ce qu'on lit | habit | pourquoi |
 |---|---|---|
-| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), **non souligné** *(dictée du 27/08 devant v343 : « le texte en bleu, non souligné »)* | c'est un mot au milieu d'autres mots ; sans le bleu, rien ne dit qu'il répond |
-| le nom d'un **jeton posé** (`.bilan-nom`) | **encre**, aucune décoration | il s'ouvre au clic comme le jeton s'ouvre au tap — l'objet dit déjà ce qu'il est |
+| le texte **sur un jeton** | **encre** | l'organe dit déjà qu'il répond |
+| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), **non souligné** *(dictée du 27/08 devant v343)* | rien d'autre ne dit qu'il répond |
+| un nom **au bilan** (`.bilan-nom`) | **bleu** (`--info`), non souligné | c'est de la prose — le jeton est ailleurs |
 
 ⛔ **ET LE SOULIGNEMENT SUIT LA MÊME LOI.** Un `<a href>` est souligné par DÉFAUT par le
 navigateur : une règle qui pose l'encre sans retirer la décoration laisse la moitié des entrées

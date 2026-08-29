@@ -177,9 +177,13 @@ test("le jeton et la valeur d'un collecteur portent le MÊME corps", () => {
     "distingue de la valeur, jamais la taille.");
 });
 
-test("un lien hors jeton est bleu, un nom de jeton posé reste à l'encre", () => {
-  /* Eric, 2026-08-29 : « règle générale : liens hors token en bleu », et son
-     complément du 28/08 : le nom d'un jeton posé n'a rien à signaler.
+test("tout lien hors jeton est bleu — le bilan compris", () => {
+  /* Eric, 2026-08-29, DEUXIÈME rappel : *« pas de liens bleus sur sorts et
+     cantrips du wizard »*. La dictée du 28/08 (« pas besoin de mettre le texte
+     des tokens en bleu ») parle du texte SUR le jeton ; je l'avais sur-étendue
+     aux noms du bilan, et ce garde figeait ma sur-extension (`color: inherit`).
+     La ligne de partage ratifiée : le jeton reste encre, tout lien HORS jeton
+     est bleu — `.lien-sort` comme `.bilan-nom`.
      ⚔️ Le garde compte les FAMILLES de liens produites : le builder n'en a que
      deux, donc la règle est complète. Une troisième qui apparaîtrait sans habit
      déclaré passerait aujourd'hui inaperçue. */
@@ -191,9 +195,9 @@ test("un lien hors jeton est bleu, un nom de jeton posé reste à l'encre", () =
   assert.match(bloc(".lien-sort"), /color:\s*var\(--info\)/,
     "un lien dans la prose doit porter le bleu d'information : sans lui, rien " +
     "ne dit que le mot répond.");
-  assert.match(bloc(".bilan-nom"), /color:\s*inherit/,
-    "le nom d'un jeton posé garde l'encre du texte — l'objet dit déjà qu'il " +
-    "est interactif.");
+  assert.match(bloc(".bilan-nom"), /color:\s*var\(--info\)/,
+    "un nom au bilan est de la PROSE, pas un jeton : il porte le bleu " +
+    "(2ᵉ rappel d'Eric, 29/08 — sorts et cantrips du magicien).");
   assert.match(bloc(".bilan-nom"), /text-decoration:\s*none/,
     "un <a> est souligné PAR DÉFAUT : sans retrait explicite, la moitié des " +
     "entrées d'un bilan crie et l'autre non.");
@@ -205,7 +209,7 @@ test("un lien hors jeton est bleu, un nom de jeton posé reste à l'encre", () =
     .map((m) => m[1]))].sort();
   assert.deepEqual(familles, ["bilan-nom", "lien-sort"],
     `familles de liens inattendues : ${familles.join(" · ")} — chacune doit ` +
-    "déclarer son habit (bleu en prose, encre sur un jeton posé).");
+    "déclarer son habit (bleu partout hors jeton).");
 });
 
 test("aucune cote partagée ne porte de POURCENTAGE", () => {

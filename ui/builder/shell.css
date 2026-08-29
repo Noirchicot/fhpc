@@ -5679,7 +5679,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=407");
+  background-image: url("./assets/tarot-dos.jpg?v=408");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6726,7 +6726,15 @@ button.tuto-point::before {
    `.lien-sort` — là, rien d'autre ne dirait que le mot répond. */
 .bilan-nom {
   background: none; border: 0; padding: 0;
-  font: inherit; color: inherit;
+  font: inherit;
+  /* 🔴 BLEU — Eric, 2026-08-29, DEUXIÈME rappel : *« pas de liens bleus sur
+     sorts et cantrips du wizard »* après *« liens bleus vers feat, skills,
+     features, traits, spells »*. J'avais étendu sa dictée du 28/08 (« pas
+     besoin de mettre le texte des TOKENS en bleu ») aux noms du bilan — à
+     tort : elle parle du texte SUR le jeton, pas d'un nom relu dans la prose
+     du bilan. La ligne de partage ratifiée : **le jeton reste encre, tout
+     lien HORS jeton est bleu** — bilan compris. Non souligné (dictée v343). */
+  color: var(--info);
   cursor: pointer;
   /* ⛔ ET PAS DE SOULIGNEMENT — Eric, 2026-08-29, capture du bilan Wizard :
      *« texte de bilan Wizard mal fait »*. Deux entrées du même bilan portaient
