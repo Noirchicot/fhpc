@@ -488,6 +488,8 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
+  padding-inline: var(--sp-16);
   scroll-behavior: smooth;
   /* 🔴 II.1 — « LE DÉFILEMENT EST LE CHOIX », `scroll-snap`, tranché par
      Eric le 2026-08-14. ⚠️ TROUVÉ EN REGARDANT LA PAGE : `scroll-snap-align`
@@ -741,7 +743,21 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      *« sans elle, les dalles toucheraient les bords de l'écran. C'est la
      carte qui s'efface, pas ses gouttières. »* */
   padding: 0;
-  margin: var(--sp-16);
+  /* 🔴 LES GOUTTIÈRES SONT AU CADRE, PAS SUR LA CARTE — Eric, 2026-08-29, après
+     quatre vidages de cache : *« rien n'a changé »*, capture d'un iPad où la
+     carte tient un quart de l'écran quand elle mesure 765 px ici.
+     ⚠️ LA CAUSE EST UN CONFLIT QUE LES MOTEURS N'ARBITRENT PAS PAREIL :
+     `width: 100%` ET des marges latérales sur la MÊME boîte. Le pourcentage se
+     calcule sans déduire la marge, donc la boîte demande plus que son
+     contenant ; Chromium la borne au `max-width` (765 mesuré), un autre moteur
+     peut retomber sur la largeur du CONTENU (≈280 chez Eric). Le défaut ne se
+     voyait donc PAS sur le banc — §0 « Google Headless » ne protège que de ce
+     qu'on regarde, et je regardais le mauvais moteur.
+     ⭐ La gouttière passe au `.stage` (padding), à TOUTES les largeurs : plus
+     aucune boîte ne porte à la fois `width: 100%` et une marge latérale, donc
+     il n'y a plus rien à arbitrer. Le `margin-block` reste sur la carte. */
+  margin-block: var(--sp-16);
+  margin-inline: 0;
   /* LOT 69 — LE CENTRAGE, et pourquoi il est inoffensif à 360 : des marges
      `auto` ne partagent que le MOU. À l'étroit la carte remplit déjà tout
      (max-width > champ), le mou est nul, rien ne bouge — et le bloc étroit
@@ -4893,6 +4909,8 @@ button { font: inherit; }
 .parcours-item[data-sans-porte="true"] > .parcours-resume {
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
+  padding-inline: var(--sp-16);
   min-height: 0;
 }
 
@@ -5615,7 +5633,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=394");
+  background-image: url("./assets/tarot-dos.jpg?v=395");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6619,6 +6637,8 @@ button.tuto-point::before {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
+  padding-inline: var(--sp-16);
 }
 /* « 4 pixels entre lineage et token » */
 .parcours-item-dalle > .guide-titre { margin: 0 0 var(--sp-4); }
