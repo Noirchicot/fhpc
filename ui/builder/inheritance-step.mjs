@@ -29,10 +29,10 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=362";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=362";
-import { renderChoixGlisses } from "./glisser.mjs?v=362";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=362";
+} from "./carnet.mjs?v=369";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=369";
+import { renderChoixGlisses } from "./glisser.mjs?v=369";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=369";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -389,7 +389,7 @@ export function renderBoostGlisse(ctx, act) {
     };
   });
   return renderChoixGlisses({
-    plan, slots, titre: "Ability boosts", mot: "Ability",
+    plan, slots, titre: "Ability boosts", mot: "Ability", rangee: "caracs",
     labelOf: (id) => `+${id}`,
     consigne: `${plan.answered} of ${plan.expected} points spent — drag +1 or +2 onto an ability.`,
     reutilisable: true,

@@ -106,8 +106,12 @@ test("1bis — genre et alignement absents du document DISENT ce qu'ils attenden
      ⚠️ CE QUE CE TEST GARDE N'A PAS CHANGÉ : il interdit toujours qu'une valeur
      ABSENTE s'affiche « undefined ». C'est le mot de remplacement qui bouge, pas
      la vigilance — un champ vide doit dire quelque chose de VOULU. */
-  assert.equal(valeurDe(genre), "drop it here");
-  assert.equal(valeurDe(alignement), "drop it here");
+  /* ⏩ RACCOURCI LE 2026-08-29 : « drop it here » ne tenait pas dans la case
+     de 47 px des six caractéristiques (il poussait le collecteur à 58 quand le
+     jeton reste à 48). Eric, mis devant le choix entre masquer le mot et le
+     raccourcir : *« ok alors "drop here" »* — la consigne survit partout. */
+  assert.equal(valeurDe(genre), "drop here");
+  assert.equal(valeurDe(alignement), "drop here");
   /* ⛔ Et jamais le mot du moteur. */
   for (const bloc of [genre, alignement]) {
     assert.doesNotMatch(valeurDe(bloc), /undefined|null|NaN/);

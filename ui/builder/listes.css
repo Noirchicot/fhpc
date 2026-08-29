@@ -100,3 +100,105 @@
   max-width: calc(3 * var(--glisse-case) + 2 * var(--sp-8) + 2 * var(--touch) + 2 * var(--sp-4));
   margin-inline: auto;
 }
+
+/* ══ QUATRE PAR LIGNE, ET LA DERNIÈRE SE CENTRE ═══════════════════════════
+   🔴 Eric, 2026-08-29 : *« pour tous les collecteurs de skills, se limiter à
+   des lignes de 4 ; après on passe à la ligne suivante ; si on ne complète pas
+   la ligne à 4, on centre »* — et, le même jour, *« taille du collecteur
+   toujours la même que le jeton, partout »*.
+
+   ⚠️ LES DEUX RÈGLES SE CONTREDISENT SI ON LES ÉCRIT EN NOMBRES. Mesuré à
+   375 px : la rangée offre 335, et quatre cases pleines (4 × 87) plus leurs
+   trois gouttières en demandent 372. Il manque 37 px — aucune écriture ne les
+   invente.
+
+   ⭐ LA SORTIE EST CELLE QUE §2 bis A DÉJÀ RATIFIÉE POUR LA RANGÉE PAGINÉE :
+   la cote se DÉDUIT du cadre, une seule fois, et le collecteur COMME le jeton
+   la lisent. Deux nombres égaux divergent au premier qui bouge ; un jeton de
+   mesure partagé ne peut pas diverger.
+
+   `min()` porte le plafond du socle : sur un écran large, quatre parts
+   dépasseraient 87 et la case ne GRANDIT jamais au-dessus (loi du lot A) ;
+   sur 375, c'est le quart qui gagne et la case cède — un vide qui recule,
+   jamais un organe qu'on ampute.
+
+   ⛔ BORNÉ AUX COLLECTEURS DE SKILLS : `.choix-glisse` sans `.grille-rang`
+   (la rangée paginée garde ses trois colonnes, ratifiées) et sans
+   `.ability-creneaux` (les six caractéristiques tiennent leur propre règle).
+   Une exception se NOMME, elle ne se déduit pas de la place dans la pile. */
+.choix-glisse:not(:has(.grille-rang)) {
+  --collecteur-case: min(var(--glisse-case),
+                         calc((100% - 3 * var(--sp-8)) / 4));
+}
+.choix-glisse:not(:has(.grille-rang)) .glisse-creneaux:not(.ability-creneaux) {
+  flex-wrap: wrap;
+  justify-content: center;   /* la ligne incomplète se centre */
+}
+.choix-glisse:not(:has(.grille-rang)) .glisse-creneaux:not(.ability-creneaux)
+  > .glisse-creneau {
+  flex: 0 0 var(--collecteur-case);
+  max-width: var(--collecteur-case);
+  min-width: 0;
+}
+/* ⭐ ET LE JETON LIT LA MÊME COTE — c'est tout l'objet de la loi d'Eric.
+   ⚠️ `0 0`, JAMAIS `0 1` : avec un shrink de 1, un jeton court (« +1 ») se
+   laissait écraser par son contenu — mesuré à **10 px** de large à côté d'un
+   collecteur de 74. Une cote partagée qui rétrécit d'un côté n'est plus une
+   cote partagée. Le jeton remplit ensuite sa case (`width: 100%`), sinon il
+   se recentrerait sur son mot et rendrait la rangée irrégulière. */
+/* ⚠️ ET LES DEUX RANGÉES PARTENT DU MÊME BORD. `--collecteur-case` porte un
+   POURCENTAGE, et un pourcentage se résout chez CELUI QUI L'UTILISE : le
+   vivier ne s'étirait pas (277 px) là où la rangée de collecteurs tient les
+   320 du cadre, donc « un quart » ne valait pas la même chose des deux côtés
+   — 63 contre 74, mesuré. Une cote partagée n'est partagée que si sa BASE
+   l'est. Le vivier prend donc toute la largeur de son cadre, comme sa rangée
+   jumelle : c'est le cadre qui décide, plus le contenu. */
+.choix-glisse:not(:has(.grille-rang)) .glisse-vivier {
+  width: 100%;
+  justify-content: center;   /* même centrage que la rangée de collecteurs */
+}
+.choix-glisse:not(:has(.grille-rang)) .glisse-vivier > li {
+  flex: 0 0 var(--collecteur-case);
+  max-width: var(--collecteur-case);
+  min-width: 0;
+}
+.choix-glisse:not(:has(.grille-rang)) .glisse-vivier > li > .glisse-jeton {
+  width: 100%;
+  max-width: none;
+}
+
+/* ══ LES SIX CARACTÉRISTIQUES TIENNENT SUR UNE LIGNE ══════════════════════
+   🔴 Eric, 2026-08-29 : *« tous les collecteurs avec les 6 caracs — STR DEX
+   CON INT WIS CHA — règle spécifique : là on met tout sur une ligne ! »*
+
+   ⛔ LA RANGÉE SE NOMME, ELLE NE SE COMPTE PAS. `glisse-creneaux--caracs` est
+   posée par l'appelant (`renderChoixGlisses({ rangee: "caracs" })`), pas
+   déduite d'un `:nth-child(6)` qui aurait rangé sur une ligne n'importe quel
+   écran à six créneaux. Même loi que `:not(.ability-creneaux)` juste avant :
+   une exception se nomme.
+
+   📏 MESURÉ à 360 (la largeur cible du dépôt) : le cadre offre 320, cinq
+   gouttières en prennent 40, il reste 280 pour six cases — 46 px chacune,
+   au-dessus du seuil tactile de 44. Les mots sont des sigles de trois lettres :
+   c'est le cas où six tiennent, et c'est pourquoi la règle est spécifique. */
+/* ⚠️ LA COTE SE POSE SUR LE CADRE, PAS SUR LA RANGÉE. Déclarée sur la rangée
+   seule, le VIVIER ne la voyait pas — mesuré : jeton 74 contre collecteur 47,
+   la loi « collecteur = jeton » cassée par l'endroit de la déclaration. Elle
+   remonte donc au `.choix-glisse`, le seul ancêtre commun des deux rangées. */
+.choix-glisse:has(.glisse-creneaux--caracs) {
+  --collecteur-case: calc((100% - 5 * var(--sp-8)) / 6);
+}
+.choix-glisse .glisse-creneaux--caracs {
+  flex-wrap: nowrap;
+}
+/* 🔴 ⛔ LA CONSIGNE N'EST PLUS MASQUÉE — Eric, 2026-08-29, mis devant le choix :
+   *« ok alors "drop here" »*. J'avais retiré le mot du flux parce que « drop it
+   here » poussait le collecteur à 58 dans une case de 47 ; il a préféré le
+   RACCOURCIR. C'est le meilleur des deux : la consigne survit partout (elle
+   enseigne le geste), et elle tient dans la case la plus étroite du builder.
+   Le mot vit dans `glisser.mjs` — un seul endroit, tous les écrans. */
+.choix-glisse .glisse-creneaux--caracs > .glisse-creneau {
+  flex: 0 0 var(--collecteur-case);
+  max-width: var(--collecteur-case);
+  min-width: 0;
+}

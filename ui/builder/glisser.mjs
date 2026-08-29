@@ -25,8 +25,8 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=362";
-import { swapContent } from "./socle.mjs?v=362";
+import { pageDeListe } from "./normes.mjs?v=369";
+import { swapContent } from "./socle.mjs?v=369";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -462,7 +462,7 @@ function fantomeSuivre(x, y) {
     `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   const bloc = el("section", "choix-glisse");
@@ -655,8 +655,14 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     remplirVivier();
   }
 
-  /* ── LES CRÉNEAUX : les cibles du glisser, et le seul endroit qui vide ── */
-  const rangee = el("div", "glisse-creneaux");
+  /* ── LES CRÉNEAUX : les cibles du glisser, et le seul endroit qui vide ──
+     🔴 `rangee: "caracs"` — Eric, 2026-08-29 : *« tous les collecteurs avec
+     les 6 caracs : STR DEX CON INT WIS CHA, règle spécifique, là on met tout
+     sur une ligne »*. L'appelant le DIT, le style ne le devine pas : compter
+     six créneaux aurait rangé sur une ligne n'importe quel écran qui en porte
+     six, et une exception se NOMME (loi de cette feuille). */
+  const rangee = el("div", "glisse-creneaux"
+    + (rangeeStyle === "caracs" ? " glisse-creneaux--caracs" : ""));
   for (const slot of slots) {
     const creneau = el("button", "glisse-creneau");
     creneau.type = "button";
@@ -700,7 +706,7 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
          ⚠️ IL S'EFFACE AU REMPLISSAGE, c'est la seconde moitié de la consigne —
          une consigne qui reste après avoir été suivie devient du bruit, et pire,
          elle ferait douter de ce qui est posé. */
-      text(choisi ? abrege(labelOf ? labelOf(choisi) : choisi) : "drop it here")
+      text(choisi ? abrege(labelOf ? labelOf(choisi) : choisi) : "drop here")
     ]));
     /* 🔴 ON N'ANNULE PLUS EN TAPANT — Eric, 2026-08-19, et sa raison est une
        PRÉVISION, pas un goût : *« clic annule : non, car si on implémente le
