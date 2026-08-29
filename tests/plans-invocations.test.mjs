@@ -114,3 +114,22 @@ test("la porte du parcours porte un MOT, jamais le chemin brut", async () => {
   assert.equal(CLASS_CATALOGUE.itemLabel("class.invocations"), "Eldritch invocations",
     "la porte des invocations affiche son chemin : nommer le plan dans itemLabel.");
 });
+
+test("l'info d'une invocation parle le contrat du popup — titre/texte, jamais title/body", async () => {
+  /* 🔴 MESURÉ LE 30/08, SUR LE DOIGT D'ERIC : « eldritch invocations pas
+     cliquables ». Le tap au doigt EST l'info (la seule chose qu'un tap fait
+     sur cet écran) — et `invocationInfo` rendait `title`/`body` là où le
+     popup lit `titre`/`texte` : il s'ouvrait VIDE, donc invisible, et l'écran
+     entier semblait mort. Un contrat se copie de `spellInfo`, il ne se
+     réinvente pas en anglais. */
+  const { createTestDocument } = await import("./dom-stub.mjs");
+  if (!globalThis.document) globalThis.document = createTestDocument();
+  const { invocationInfo } = await import("../ui/builder/class-step.mjs");
+  const info = invocationInfo(query, "srd:class-option:en:pact-of-the-tome");
+  assert.ok(info && typeof info.titre === "string" && info.titre.length > 0,
+    "le popup n'a pas de `titre` : il s'ouvre sans nom.");
+  assert.ok(typeof info.texte === "string" && info.texte.length > 0,
+    "le popup n'a pas de `texte` : il s'ouvre vide — l'écran semble mort au tap.");
+  assert.equal(info.title, undefined, "clef anglaise `title` : le popup ne la lit pas.");
+  assert.equal(info.body, undefined, "clef anglaise `body` : le popup ne la lit pas.");
+});

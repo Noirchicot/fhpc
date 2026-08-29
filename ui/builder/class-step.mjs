@@ -20,11 +20,11 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=411";
-import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=411";
-import { renderConfirmDialog } from "./confirm.mjs?v=411";
-import { renderChoixGlisses } from "./glisser.mjs?v=411";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb } from "./liens-fh.mjs?v=411";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=412";
+import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=412";
+import { renderConfirmDialog } from "./confirm.mjs?v=412";
+import { renderChoixGlisses } from "./glisser.mjs?v=412";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb } from "./liens-fh.mjs?v=412";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -135,10 +135,15 @@ export function invocationInfo(query, id) {
   const corps = [];
   if (data.prerequisite) corps.push(`Prerequisite: ${data.prerequisite}`);
   if (data.description) corps.push(data.description);
+  /* ⛔ `titre`/`texte`, PAS `title`/`body` — mesuré le 30/08 : le popup des
+     invocations partait avec les mauvaises clefs et s'ouvrait VIDE, donc
+     invisible. Au doigt, tap=info : l'écran entier semblait muet (« pas
+     cliquables » — Eric, sur la fiche Warlock). Le contrat du popup est
+     celui de `spellInfo`, en français, et il se copie — pas se réinvente. */
   return {
     kind: "popup",
-    title: view.record.name,
-    body: corps.join("\n\n")
+    titre: view.record.name,
+    texte: corps.join("\n\n")
   };
 }
 
