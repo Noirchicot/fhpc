@@ -34,6 +34,19 @@
 .choix-glisse .grille-rang > .glisse-vivier {
   flex: 1 1 auto;
   min-width: 0;
+  /* 🔴 ET IL SE CENTRE AU LIEU DE S'ÉTIRER — Eric, 2026-08-29 : *« Unseen
+     servant : token = collector »*. Mesuré : le jeton rendait 87×60 contre une
+     case à 87×48, avec UNE seule ligne de texte (76×12). Ce n'était pas le nom
+     qui poussait — c'était la colonne du CHEVRON (flèche + compte, 60 px) : le
+     `align-items: stretch` de la rangée étirait le vivier à la hauteur de son
+     voisin, et le jeton suivait. Une cote dictée par un voisin n'est pas une
+     cote (la leçon du `--touch` qui ne cède jamais).
+     ⭐ CE QUE `center` PRÉSERVE, ET C'EST POURQUOI LA COUPE EST ICI : deux
+     jetons côte à côte dont un nom se replie s'égalisent toujours — cette
+     égalisation vit UN NIVEAU PLUS BAS (les `li` s'étirent dans le vivier, à
+     la hauteur du plus haut CONTENU). On ne coupe que le lien voisin→jeton,
+     jamais le lien contenu→rangée. */
+  align-self: center;
 }
 
 /* 🔴 CETTE RÈGLE EST PARTIE AU SOCLE — 2026-08-26. Elle vivait ici parce que

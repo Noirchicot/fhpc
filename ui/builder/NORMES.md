@@ -175,6 +175,17 @@ nul rend la cote partagée décorative.
 
 ---
 
+### ⚠️ La leçon d'« Unseen Servant » *(29/08)* — une cote dictée par un VOISIN n'est pas une cote
+
+Mesuré : un jeton à **87×60** contre une case à **87×48**, avec UNE ligne de texte (76×12). Ce
+n'était pas le nom qui poussait — la colonne du **chevron** (flèche + compte, 60 px) étirait le
+vivier par le `align-items: stretch` de la rangée, et le jeton suivait. Parade : le vivier se
+**centre** dans sa rangée (`align-self: center`, `listes.css`) ; l'égalisation par CONTENU (deux
+jetons côte à côte, un nom qui se replie) vit un niveau plus bas et reste intacte. Garde :
+`tests/collecteur-jeton.test.mjs`.
+
+---
+
 ## 1 ter bis². ✍️ LES MÊMES RÈGLES D'ÉCRITURE POUR LE JETON ET LE COLLECTEUR *(29/08)*
 
 > Eric, 2026-08-29 : *« Norme : **les mêmes règles d'écriture s'appliquent aux tokens et aux

@@ -248,3 +248,20 @@ test("la largeur de référence du dépôt reste 360", () => {
     "le seuil tactile a bougé : la cote des six caractéristiques (46 px à " +
     "360) était calculée pour rester au-dessus de lui.");
 });
+
+test("la hauteur d'un jeton ne se laisse pas dicter par un voisin", () => {
+  /* 🔴 MESURÉ LE 29/08 SUR « UNSEEN SERVANT » (Eric : *« token = collector »*) :
+     le jeton rendait 87×60 contre une case à 87×48 — avec UNE ligne de texte.
+     Ce n'était pas le nom qui poussait : la colonne du CHEVRON (60 px) étirait
+     le vivier par le `align-items: stretch` de la rangée, et le jeton suivait.
+     Une cote dictée par un voisin n'est pas une cote.
+     ⭐ La parade est UNE ligne, et c'est elle qu'on fige : le vivier se centre
+     dans la rangée (`align-self`), l'égalisation par CONTENU (deux jetons côte
+     à côte, un nom sur deux lignes) vivant un niveau plus bas, intacte. */
+  const listes = stripComments(fs.readFileSync(path.join(UI, "listes.css"), "utf8"));
+  const bloc = /\.choix-glisse \.grille-rang > \.glisse-vivier\s*\{([^}]*)\}/.exec(listes);
+  assert.ok(bloc, "le bloc du vivier entre ses gouttières a disparu de listes.css.");
+  assert.match(bloc[1], /align-self\s*:\s*center/,
+    "le vivier s'étire à la hauteur de la colonne du chevron : tout jeton " +
+    "seul sur sa page redevient plus haut que sa case (Unseen Servant, 60 vs 48).");
+});
