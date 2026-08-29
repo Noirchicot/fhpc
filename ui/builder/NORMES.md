@@ -146,6 +146,33 @@ nul rend la cote partagée décorative.
 
 ---
 
+## 1 ter bis². ✍️ LES MÊMES RÈGLES D'ÉCRITURE POUR LE JETON ET LE COLLECTEUR *(29/08)*
+
+> Eric, 2026-08-29 : *« Norme : **les mêmes règles d'écriture s'appliquent aux tokens et aux
+> collecteurs** »*, et sa raison, donnée juste avant : *« comme les collecteurs se transforment
+> en token »*.
+
+⭐ **UN COLLECTEUR REMPLI PORTE LE MOT DU JETON DÉPOSÉ.** Deux corps pour le même mot selon qu'il
+est *tenu* ou *posé*, ce serait deux modèles pour un organe dont §2 dit qu'il n'en a qu'un.
+
+| | corps | pourquoi |
+|---|---|---|
+| le **jeton** | `--t1` | sa règle du 26/08 : *« 13 T1, on aura moins d'emmerdes, on jugera après coup »* — le moindre regret, à T1 tout rentre |
+| la **valeur** d'un collecteur | `--t1` | c'est le même mot, une fois posé |
+| le **nom** d'un collecteur | `--t1`, en capitales | l'ÉTIQUETTE, pas la valeur — la capitale est ce qui les distingue, jamais la taille |
+
+⛔ **ET LA RÈGLE EST VRAIE PAR CONSTRUCTION, PAS PAR SAUVETAGE.** `.glisse-creneau-valeur` a porté
+`--t3` (14 px) pendant tout ce temps sans que rien ne se voie : une règle plus spécifique la
+rattrapait à T1 dans les écrans de choix, et le seul émetteur de cette classe y vit. L'écart était
+**dormant** — faux nulle part, et vrai le jour où un collecteur naîtrait ailleurs. Il est retiré à
+la source.
+
+🔴 **C'EST LA MÊME FAUTE QUE §1 ter bis NOMME POUR LES COTES** : une valeur qui n'est juste que
+parce qu'une autre la corrige plus loin n'est pas juste, elle est *couverte*. On répare la
+déclaration, pas son sauveteur.
+
+---
+
 ## 1 ter ter. 📐 COMMENT UNE RANGÉE DE COLLECTEURS SE RANGE *(dicté le 29/08)*
 
 | rangée | règle | dicté |

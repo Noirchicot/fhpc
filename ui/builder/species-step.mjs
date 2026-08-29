@@ -28,11 +28,11 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=376";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=376";
-import { renderChoixGlisses } from "./glisser.mjs?v=376";
-import { spellInfo } from "./class-step.mjs?v=376";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=376";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=382";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=382";
+import { renderChoixGlisses } from "./glisser.mjs?v=382";
+import { spellInfo } from "./class-step.mjs?v=382";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=382";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent

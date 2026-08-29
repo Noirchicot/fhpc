@@ -99,62 +99,82 @@ test("un jeton ne rétrécit jamais sous sa cote (shrink 0)", () => {
   }
 });
 
-test("les collecteurs de skills se rangent par quatre, la ligne courte centrée", () => {
-  const quatre = REGLES.find((r) => /--collecteur-case\s*:/.test(r.corps)
-    && /\/\s*4\b/.test(r.corps));
-  assert.ok(quatre, "aucune cote déduite d'un quart de rangée");
-  assert.match(quatre.corps, /min\(/,
-    "la cote doit être plafonnée par min() : sur un large écran une case ne " +
-    "grandit jamais au-dessus du socle.");
-  const centre = REGLES.find((r) => /\.glisse-creneaux/.test(r.sel)
-    && /justify-content\s*:\s*center/.test(r.corps));
-  assert.ok(centre, "la ligne incomplète n'est pas centrée");
-  const wrap = REGLES.find((r) => /\.glisse-creneaux/.test(r.sel)
-    && /flex-wrap\s*:\s*wrap/.test(r.corps));
-  assert.ok(wrap, "la rangée des skills ne passe pas à la ligne");
-});
-
-test("la rangée de skills est BORNÉE à quatre cases — pas seulement la case", () => {
-  /* ⚔️ CE TEST EST NÉ D'UN DÉFAUT QUE CE FICHIER A LAISSÉ PASSER. Eric,
-     2026-08-29, capture iPad : la rangée montrait SIX collecteurs par ligne.
-     Le garde était vert — il vérifiait que la COTE se déduit d'un quart, et
-     c'était vrai. Mais borner une case ne borne pas une rangée : dès que la
-     cote plafonne au socle (87 px), une rangée large en accueille autant
-     qu'elle peut. « Quatre par ligne » n'était donc vrai qu'à l'étroit.
-     ⭐ LA LEÇON : un garde qui vérifie la CAUSE doit aussi vérifier l'EFFET
-     dicté. Ici l'effet est un nombre par ligne, et il se borne sur la rangée. */
-  const bornes = REGLES.filter((r) => /\.glisse-creneaux|\.glisse-vivier/.test(r.sel)
-    && /max-width\s*:\s*calc\(\s*4\s*\*/.test(r.corps));
-  assert.ok(bornes.length >= 2,
-    "la rangée des collecteurs et le vivier doivent TOUS DEUX être bornés à " +
-    "quatre cases (`max-width: calc(4 * var(--collecteur-case) + …)`) — sinon " +
-    "« quatre par ligne » n'est vrai qu'à l'étroit.");
-  for (const b of bornes) {
-    assert.match(b.corps, /var\(--collecteur-case\)/,
-      `« ${b.sel} » borne la rangée avec autre chose que la cote partagée : ` +
-      "la borne et la case divergeraient.");
+test("les trois régimes de rangement existent, et par un SEUL patron", () => {
+  /* Eric, 2026-08-29 : skills par 4 · les six caracs sur une ligne · les sorts
+     par 3 sur 5 rangées (cantrips compris).
+     ⚔️ CE GARDE A ÉTÉ RÉÉCRIT LE JOUR MÊME. Il exigeait l'ancienne écriture —
+     trois blocs qui s'excluaient en `:not()` des deux autres. Cette forme
+     s'est cassée TROIS fois : un `:not()` de plus déplace la spécificité, donc
+     un régime se met à battre un autre par accident (les six caracs repassées
+     au socle, rangées 3 + 3). Le patron unique `data-rangs` + `--par-rangee`
+     donne aux trois la MÊME spécificité : une seule valeur est vraie, elles ne
+     peuvent plus se battre. Le garde juge donc le PATRON, pas les trois cas. */
+  const regimes = {};
+  for (const r of REGLES) {
+    const m = r.sel.match(/\[data-rangs="(\w+)"\]/);
+    const p = r.corps.match(/--par-rangee\s*:\s*(\d+)/);
+    if (m && p) regimes[m[1]] = Number(p[1]);
   }
+  assert.equal(regimes.sorts, 3, "les sorts (cantrips compris) se rangent par trois");
+  assert.equal(regimes.caracs, 6, "les six caractéristiques tiennent sur une ligne");
+  const defaut = REGLES.find((r) => /\[data-rangs\]/.test(r.sel)
+    && /--par-rangee\s*:\s*4/.test(r.corps));
+  assert.ok(defaut, "le défaut (skills) doit valoir quatre par rangée");
+
+  /* La classe vient de la SOURCE : six créneaux ne font pas six caractéristiques. */
+  const glisser = fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8");
+  assert.match(glisser, /dataset\.rangs/, "le régime n'est pas posé à la source");
+  assert.ok(!/:nth-child\(6\)/.test(listes),
+    "un régime est reconnu par un compte d'enfants — une exception se nomme.");
 });
 
-test("les six caractéristiques tiennent sur une ligne, et se nomment", () => {
-  const caracs = REGLES.filter((r) => /--caracs/.test(r.sel));
-  assert.ok(caracs.length, "aucune règle pour la rangée des caractéristiques");
-  const cote = caracs.find((r) => /--collecteur-case\s*:/.test(r.corps))
-    || REGLES.find((r) => /--caracs/.test(r.sel) && /\/\s*6\b/.test(r.corps))
-    || REGLES.find((r) => /:has\(\.glisse-creneaux--caracs\)/.test(r.sel));
-  assert.ok(cote && /\/\s*6\b/.test(cote.corps),
-    "la cote des caractéristiques ne se déduit pas d'un sixième de rangée");
-  assert.ok(caracs.some((r) => /flex-wrap\s*:\s*nowrap/.test(r.corps)),
-    "la rangée des six peut passer à la ligne");
+test("la cote ET la borne se déduisent du même nombre par rangée", () => {
+  const cote = REGLES.find((r) => /--collecteur-case\s*:/.test(r.corps));
+  assert.ok(cote, "aucune cote déduite");
+  assert.match(cote.corps, /var\(--par-rangee\)/,
+    "la cote doit se déduire du nombre par rangée, pas d'un chiffre écrit");
+  assert.match(cote.corps, /min\(/,
+    "la cote doit être plafonnée par min() : une case ne grandit jamais " +
+    "au-dessus du socle.");
 
-  /* La classe est POSÉE PAR LA SOURCE, pas déduite d'un compte d'enfants :
-     six créneaux ne font pas six caractéristiques. */
-  const glisser = fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8");
-  assert.match(glisser, /glisse-creneaux--caracs/,
-    "la rangée des caractéristiques n'est pas nommée à la source");
-  assert.ok(!/:nth-child\(6\)/.test(listes),
-    "la rangée des six est reconnue par un compte d'enfants — une exception " +
-    "se nomme, elle ne se compte pas.");
+  /* ⚔️ BORNER LA CASE NE BORNE PAS LA RANGÉE — mesuré : la cote plafonnait au
+     socle et il entrait SIX cases dans une rangée large. « Quatre par ligne »
+     n'était vrai qu'à l'étroit. */
+  const bornees = REGLES.filter((r) => /max-width\s*:\s*calc\(\s*var\(--par-rangee\)/.test(r.corps));
+  assert.ok(bornees.length, "la rangée n'est pas bornée au nombre par rangée");
+  for (const b of bornees) {
+    assert.match(b.corps, /width\s*:\s*100%/,
+      `« ${b.sel} » est bornée mais ne PREND pas cette largeur : une borne dit ` +
+      "« pas plus large que », jamais « aussi large que ». Sans width:100%, " +
+      "le vivier s'étire et la rangée se tasse — deux bases, deux cotes " +
+      "(mesuré : 63/74, 49/74, 28/87).");
+  }
+  assert.ok(bornees.some((b) => /\.glisse-vivier/.test(b.sel))
+    && bornees.some((b) => /\.glisse-creneaux/.test(b.sel)),
+    "les DEUX rangées (vivier et collecteurs) doivent être bornées");
+});
+
+test("le jeton et la valeur d'un collecteur portent le MÊME corps", () => {
+  /* Eric, 2026-08-29 : « les mêmes règles d'écriture s'appliquent aux tokens et
+     aux collecteurs » — parce qu'un collecteur rempli PORTE le mot du jeton.
+     ⚔️ L'écart était DORMANT : `.glisse-creneau-valeur` valait `--t3`, et une
+     règle plus spécifique le rattrapait à T1 dans les écrans de choix. Faux
+     nulle part, vrai le jour où un collecteur naîtrait ailleurs. */
+  const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
+  const corpsDe = (sel) => {
+    for (const b of blocs(shell)) {
+      if (b.sel !== sel) continue;
+      const f = b.corps.match(/font-size\s*:\s*var\(--(t\d)\)/);
+      if (f) return f[1];
+    }
+    return null;
+  };
+  assert.equal(corpsDe(".glisse-creneau-valeur"), "t1",
+    "la valeur d'un collecteur doit porter --t1, comme le jeton : c'est le " +
+    "même mot une fois posé.");
+  assert.equal(corpsDe(".glisse-creneau-nom"), "t1",
+    "le nom d'un collecteur porte --t1 lui aussi — c'est la CAPITALE qui le " +
+    "distingue de la valeur, jamais la taille.");
 });
 
 test("la largeur de référence du dépôt reste 360", () => {

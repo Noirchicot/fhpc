@@ -3390,7 +3390,19 @@ button { font: inherit; }
   overflow-wrap: anywhere;
   min-width: 0;
 }
-.glisse-creneau-valeur { font-size: var(--t3); }
+/* 🔴 T1, COMME LE JETON — Eric, 2026-08-29 : *« les mêmes règles d'écriture
+   s'appliquent aux tokens ET aux collecteurs »*, et sa raison : *« comme les
+   collecteurs se transforment en token »*. Un collecteur rempli PORTE le mot
+   du jeton déposé ; deux corps pour un même mot selon qu'il est tenu ou posé,
+   c'est deux modèles pour un organe qui n'en a qu'un (NORMES §2).
+   ⚠️ CETTE DÉCLARATION VALAIT `--t3` (14 px) ET NE S'APPLIQUAIT JAMAIS : une
+   règle plus spécifique (`.choix-glisse .glisse-creneau-valeur`, §2 bis) la
+   rattrapait à T1 partout, et le seul émetteur de cette classe vit toujours
+   dans un `.choix-glisse`. C'était donc un écart DORMANT — vrai le jour où un
+   collecteur naîtrait ailleurs, et faux nulle part en attendant. Le fichier
+   nomme lui-même cette faute plus haut : *« corriger la règle gagnante seule
+   aurait laissé l'écart vivant là où personne ne le cherche »*. */
+.glisse-creneau-valeur { font-size: var(--t1); }
 .glisse-consigne { margin: 0; font-size: var(--t2); color: var(--text-muted); }
 
 
@@ -5534,7 +5546,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=376");
+  background-image: url("./assets/tarot-dos.jpg?v=382");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

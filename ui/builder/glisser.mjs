@@ -25,8 +25,8 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=376";
-import { swapContent } from "./socle.mjs?v=376";
+import { pageDeListe } from "./normes.mjs?v=382";
+import { swapContent } from "./socle.mjs?v=382";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -465,7 +465,30 @@ function fantomeSuivre(x, y) {
 export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
+  /* 🔴 UNE RANGÉE DE SORTS SE RANGE PAR TROIS — Eric, 2026-08-29 : *« je veux
+     qu'ils respectent la règle des rangées de 3, max 5 rangées superposées sur
+     TOUS les écrans »*, et *« [les cantrips] doivent continuer à se nommer
+     cantrips, mais les règles de rangement sont les mêmes que les sorts »*.
+     ⚠️ MESURÉ FAUX AVANT : l'écran Cantrips n'est PAS paginé (il tient en une
+     page), donc il n'a pas de `.grille-rang` — et la règle des QUATRE, écrite
+     pour les collecteurs de skills, l'attrapait : 4-4-4-3 à 1440. Deux écrans
+     de sorts se rangeaient différemment selon qu'ils débordaient ou non.
+     ⭐ LA NATURE SE DIT, ELLE NE SE DEVINE PAS : `refKind` est déjà la donnée
+     qui dit « ce sont des sorts » — le cadre la porte, le style la lit. */
   const bloc = el("section", "choix-glisse");
+  /* 🔴 LE RÉGIME DE RANGEMENT SE DIT, IL NE SE DÉDUIT PAS — et il tient en UN
+     mot, lu par le style. Trois régimes coexistent (Eric, 2026-08-29) :
+       · `sorts`  → trois par rangée, cinq rangées (15 = LISTE_PAR_PAGE) ;
+       · `caracs` → les six sur une seule ligne ;
+       · `skills` → quatre par rangée, la ligne courte centrée.
+     ⛔ POURQUOI UN ATTRIBUT ET PAS TROIS CLASSES QUI S'EXCLUENT : la version
+     précédente écrivait chaque régime en `:not()` des deux autres. Elle s'est
+     cassée TROIS fois de suite — un `:not()` de plus change la spécificité,
+     donc un régime se mettait à battre un autre par accident (les six caracs
+     repassées au socle et rangées 3 + 3). Trois valeurs d'un même attribut ont
+     la MÊME spécificité et ne peuvent pas se battre : une seule est vraie. */
+  bloc.dataset.rangs = rangeeStyle === "caracs" ? "caracs"
+    : refKind === "spell" ? "sorts" : "skills";
   bloc.dataset.status = plan.status;
   /* ⛔ ON NE NOMME PAS DEUX FOIS (§1 quinquies) — un appelant dont la DALLE
      porte déjà le nom de l'écran passe `titre: null`, et l'organe se tait.
