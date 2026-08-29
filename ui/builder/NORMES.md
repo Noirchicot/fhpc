@@ -114,6 +114,86 @@ Et ⭐ **une cote DONNÉE bat toujours une cote DÉDUITE** — si Eric a dit un 
 
 ---
 
+## 1 ter bis. 🔴 UN COLLECTEUR ET SON JETON ONT UNE SEULE COTE *(dicté le 29/08)*
+
+> Eric, 2026-08-29 : *« taille du collecteur toujours la même que le jeton, partout — règle à
+> faire respecter sur tout le site »*, puis *« règle universelle : **un collecteur = un jeton en
+> taille. Ne varie jamais.** »*
+
+⭐ **C'est §1 ter appliqué à une paire.** La cote ne s'écrit nulle part : elle se **déduit du
+cadre**, une seule fois, et **les deux organes la lisent** (`--collecteur-case`, déclarée sur
+`.choix-glisse`). Deux nombres égaux divergent au premier qui bouge ; un jeton de mesure partagé
+ne peut pas diverger.
+
+### ⛔ TROIS FAÇONS DE LA FAIRE DIVERGER — les trois ont été commises, toutes mesurées
+
+| ce qui a été écrit | ce que ça a rendu |
+|---|---|
+| deux `87px`, un de chaque côté | le premier qui bouge laisse l'autre derrière |
+| le jeton lit la cote, mais en `flex: 0 **1**` | il s'écrase sur son contenu court : **10 px** contre 74 |
+| la cote vaut `25%` — **un pourcentage** | le vivier faisait 277 px, la rangée 320 : **63 contre 74** |
+
+🔴 **LE TROISIÈME EST LE PLUS RETORS, ET C'EST UNE LOI GÉNÉRALE** : *un pourcentage se résout chez
+**celui qui l'utilise**.* Une cote partagée n'est partagée que si sa **BASE** l'est. Elle se
+déclare donc sur l'**ancêtre commun** des deux organes, jamais sur l'un des deux — et les deux
+rangées prennent la largeur du même cadre.
+
+⛔ **Et un organe ne rétrécit jamais sous sa cote** : `flex: 0 0`, jamais `0 1`. Un `shrink` non
+nul rend la cote partagée décorative.
+
+**Garde** : `tests/collecteur-jeton.test.mjs` — il ne compte pas des pixels, il juge la mécanique
+(la cote sur l'ancêtre commun, les deux lecteurs, aucun nombre en dur, `shrink` 0).
+
+---
+
+## 1 ter ter. 📐 COMMENT UNE RANGÉE DE COLLECTEURS SE RANGE *(dicté le 29/08)*
+
+| rangée | règle | dicté |
+|---|---|---|
+| **collecteurs de skills** | **quatre par ligne** ; au-delà on passe à la ligne ; une ligne incomplète se **centre** | *« pour tous les collecteurs de skills se limiter à des lignes de 4 »* |
+| **les six caractéristiques** | **tout sur une ligne**, jamais de retour | *« STR DEX CON INT WIS CHA — règle spécifique, là on met tout sur une ligne ! »* |
+
+⛔ **LA RANGÉE DES SIX SE NOMME, ELLE NE SE COMPTE PAS.** La classe vient de l'appelant
+(`renderChoixGlisses({ rangee: "caracs" })`), pas d'un `:nth-child(6)` qui aurait rangé sur une
+ligne n'importe quel écran à six créneaux. **Une exception se nomme** — même loi que
+`:not(.ability-creneaux)`.
+
+⚠️ **LES DEUX RÈGLES DE LARGEUR SE CONTREDISENT SI ON LES ÉCRIT EN NOMBRES.** À 360 la rangée
+offre 320, et quatre cases pleines plus leurs gouttières en demandent 372. C'est la cote déduite
+(§1 ter bis) qui les réconcilie : `min(socle, (100% − gouttières) / 4)` — sur un grand écran le
+socle plafonne, à l'étroit le quart gagne et **le vide cède, jamais l'organe**.
+
+---
+
+## 1 ter quater. 📏 360 EST LA LARGEUR DE RÉFÉRENCE — et la marge cède la dernière *(29/08)*
+
+> Eric : *« on vise toujours la compatibilité avec **360** sur tout le site »* · *« ce que je veux
+> est simple : que ça **tienne toujours en largeur sur 360**, et que les grands écrans soient
+> **normalisés sur une largeur max** »*.
+
+**Toute mesure de largeur se prend à 360.** C'est déjà la largeur du banc (`banc-listes.html`), et
+le garde le vérifie — si le banc changeait de largeur en silence, toutes les mesures du dépôt
+parleraient d'un autre écran.
+
+### La gouttière cède si et seulement si un organe ne rentre pas sans elle
+
+Eric, en deux temps le même jour : *« pour les 360 on se passe de marge, mais faut que ça
+rentre »*, puis *« **si en 360 la marge est possible sans impacter tout le monde, on
+l'applique** »*.
+
+⭐ **Sa condition est VÉRIFIABLE, et c'est ce qui en fait une règle** : on retire la marge
+seulement après avoir mesuré qu'un organe ne rentre pas avec elle. Mesuré le 29/08 : les huit
+écrans rendent 352 dans 360, aucun ne déborde, les skills tiennent leur 4 + 3 et les six caracs
+leur ligne unique — **la marge reste**.
+
+⛔ **CE QU'ON NE FAIT PAS POUR REMPLIR UNE LARGEUR** : `width: 100%` sur une boîte qui porte une
+marge. Un pourcentage se calcule sur le contenant **sans déduire les marges** — mesuré : la carte
+demandait 360 + 8 et sortait de 4 px. Et `margin-inline: auto` **désactive** l'étirement en
+cross-axis : remplir ET centrer demande de porter les gouttières sur le **cadre**, pas sur la
+boîte.
+
+---
+
 ## 1 quater. 📏 LE BUDGET DE LA PAGE — des cotes VOULUES, jamais écrites dans le code
 
 > ⚠️ **Ces nombres ne sont PAS des jetons CSS et ne doivent pas le devenir** *(§1 ter)*. Ce sont
