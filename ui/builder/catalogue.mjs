@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=391";
-import { versionQuery } from "./version.mjs?v=391";
+import { planAt } from "./carnet.mjs?v=394";
+import { versionQuery } from "./version.mjs?v=394";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -273,6 +273,37 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
  *  Une ligne sans valeur ne s'affiche pas — jamais un tiret inventé pour
  *  remplir (le pool FH est absent d'un personnage SRD pur, et alors la ligne
  *  n'existe simplement pas). */
+/* ══ LE BILAN ÉTIQUETÉ — « **Mot :** texte », enchaîné, pleine largeur ══════
+   🔴 Eric, 2026-08-27 : *« mets en gras, deux-points, démarre le texte juste
+   derrière — le tableau à deux colonnes DÉGAGE »*. Et le 29/08, capture à
+   l'appui pour la troisième fois : *« Species = ce que je veux · Classes =
+   Wizard toujours pas bon »*.
+
+   ⚠️ SA DICTÉE N'AVAIT ÉTÉ APPLIQUÉE QU'À SPECIES. Elle vivait, écrite en
+   toutes lettres, DANS `species-step.mjs` — donc Class ne pouvait pas en
+   hériter, et continuait de tabuler. Une règle de présentation enfermée dans
+   un écran n'est pas une règle : c'est un cas particulier qui a l'air d'une
+   règle.
+   ⭐ Elle sort ici, à côté de `renderCardRows` qu'elle remplace dans un
+   RÉSUMÉ. Les deux coexistent et ne disent pas la même chose : un tableau
+   pour une fiche qu'on compare, de la prose étiquetée pour un bilan qu'on lit.
+
+   ⛔ ET C'EST LE MÊME DOM QUE SPECIES, pas un jumeau : `p.bilan-ligne` +
+   `strong`. Deux balisages « équivalents » divergent au premier style. */
+export function renderBilanLignes(rows) {
+  const bloc = el("div", "species-acquis-bilan");
+  let posees = 0;
+  for (const [label, value] of rows) {
+    if (value === null || value === undefined || value === "") continue;
+    const ligne = el("p", "bilan-ligne");
+    ligne.append(el("strong", null, [text(`${label} : `)]));
+    ligne.append(text(String(value)));
+    bloc.append(ligne);
+    posees += 1;
+  }
+  return posees > 0 ? bloc : null;
+}
+
 export function renderCardRows(rows) {
   const dl = el("dl", "catalogue-card-list");
   let posees = 0;

@@ -1404,7 +1404,19 @@ button { font: inherit; }
    une largeur. Ce que 13ch disait de vrai est gardé ; ce qu'il imposait à tort
    est retiré. */
 .catalogue-card-row dt { margin: 0; color: var(--text-muted); }
-/* ⚠️ ET C'EST LA LISTE QUI TIENT LA COLONNE, PAS CHAQUE LIGNE. Premier essai,
+/* ⛔ ET SEULEMENT HORS D'UN RÉSUMÉ — Eric, 2026-08-29, capture à l'appui, pour
+   la troisième fois : *« Species = ce que je veux · Classes = Wizard toujours
+   pas bon »*.
+   📏 LA CAUSE ÉTAIT MA GRILLE ELLE-MÊME. Dans un `.parcours-resume`, les paires
+   se lisent EN LIGNE et se replient (`flex-wrap: wrap; column-gap: 0`) — c'est
+   le format d'Elf, celui qu'Eric valide. `display: grid` sur la liste et
+   `display: contents` sur les lignes ANNULAIENT ce flex : Wizard repassait en
+   deux colonnes, l'étiquette d'un côté, la valeur loin de l'autre.
+   ⭐ La grille reste utile là où la liste est vraiment un TABLEAU (la fiche
+   d'une carte de catalogue) ; elle n'a rien à faire dans un résumé, qui est de
+   la PROSE étiquetée. Le retrait du `width: 13ch` — le vrai coupable du trou —
+   vaut, lui, dans les deux cas.
+   ⚠️ ET C'EST LA LISTE QUI TIENT LA COLONNE, PAS CHAQUE LIGNE. Premier essai,
    mesuré et retiré : `width: max-content` sur l'étiquette supprimait bien le
    trou, mais chaque ligne se taillait alors sur SON mot (43, 56, 41, 64 px) et
    les valeurs cessaient d'être alignées (383 · 396 · 380 · 403…). Un tableau
@@ -1413,12 +1425,13 @@ button { font: inherit; }
    calcule sur le plus long libellé de TOUTES les lignes, et les lignes
    deviennent transparentes (`display: contents`) pour que leurs deux cellules
    entrent dans la grille de la liste. */
-.catalogue-card-list {
+.catalogue-card-list:not(.parcours-resume .catalogue-card-list):not(.parcours-bilan .catalogue-card-list) {
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   column-gap: var(--sp-8);
 }
-.catalogue-card-list > .catalogue-card-row { display: contents; }
+.catalogue-card-list:not(.parcours-resume .catalogue-card-list):not(.parcours-bilan .catalogue-card-list)
+  > .catalogue-card-row { display: contents; }
 .catalogue-card-row dd { margin: 0; font-weight: 600; }
 .catalogue-card-features h3 { margin: 0 0 var(--sp-4); font-size: var(--t3); color: var(--text-muted); }
 .catalogue-card-name-list { margin: 0; padding-left: var(--sp-16); font-size: var(--t4); }
@@ -5602,7 +5615,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=391");
+  background-image: url("./assets/tarot-dos.jpg?v=394");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

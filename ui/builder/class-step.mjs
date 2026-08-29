@@ -20,11 +20,11 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=391";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=391";
-import { renderConfirmDialog } from "./confirm.mjs?v=391";
-import { renderChoixGlisses } from "./glisser.mjs?v=391";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=391";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=394";
+import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=394";
+import { renderConfirmDialog } from "./confirm.mjs?v=394";
+import { renderChoixGlisses } from "./glisser.mjs?v=394";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=394";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -315,7 +315,10 @@ function resumeDeLItem(item, ctx, act) {
     const level1 = (Array.isArray(data.features) ? data.features : [])
       .filter((f) => f && f.level === 1 && typeof f.name === "string")
       .map((f) => f.name);
-    const corps = [renderCardRows(stats), renderCardNames("Level 1 features", level1)]
+    /* 🔴 LE MÊME FORMAT QUE SPECIES — la dictée d'Eric du 27/08 (« le tableau
+       à deux colonnes dégage ») vaut pour TOUT bilan, pas pour le seul écran
+       où elle a été écrite. `renderCardRows` tabule ; ici on LIT. */
+    const corps = [renderBilanLignes(stats), renderCardNames("Level 1 features", level1)]
       .filter(Boolean);
     return corps.length > 0 ? el("div", "parcours-resume-corps", corps) : null;
   }

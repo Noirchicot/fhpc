@@ -25,8 +25,10 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=391";
-import { swapContent } from "./socle.mjs?v=391";
+import { pageDeListe } from "./normes.mjs?v=394";
+/* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
+import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=394";
+import { swapContent } from "./socle.mjs?v=394";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -782,11 +784,24 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
 
      ⛔ ET DÉPASSÉ N'EST PAS COMPLET : un `Done` vert sur un budget explosé
      inviterait à valider une faute. */
-  const trop = Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
-    && plan.answered > plan.expected;
+  /* 🚨 ET LE VERROU DU NOYAU COMPTE AUTANT QUE LE NOMBRE — Eric, 2026-08-29 :
+     *« SB3 Wizard : blocage des boutons oui mais PAS DE GENDARME putain ! »*
+     ⚠️ MESURÉ : `answered > expected` compare des RÉPONSES. Sur une bourse, on
+     peut remplir deux collecteurs (2 de 2 répondus, donc « pas trop ») en
+     dépensant cinq points pour deux — le budget explose, l'écran reste calme.
+     Le noyau, lui, l'avait dit : il posait `plan.lock`. Personne ne l'écoutait.
+     ⭐ MÊME LOI QU'AU PIED (le `Done` désarmé sous verrou, corrigé le même
+     jour) : quand le noyau refuse, l'écran le DIT — le rouge signale, et le mot
+     dit lequel. Un blocage sans explication laisse le joueur deviner. */
+  const trop = Boolean(plan.lock)
+    || (Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
+      && plan.answered > plan.expected);
   bloc.dataset.trop = String(trop);
   bloc.dataset.complet = String(!trop && slots.every((s) => choisiDe(s) && !s.lock));
 
-  if (consigne) bloc.append(el("p", "glisse-consigne", [text(consigne)]));
+  /* Le mot du gendarme REMPLACE la consigne : une consigne qui explique
+     comment faire, sous un refus, dit la mauvaise chose au mauvais moment. */
+  const motDuPied = plan.lock ? refusalWord(plan.lock) : consigne;
+  if (motDuPied) bloc.append(el("p", "glisse-consigne", [text(motDuPied)]));
   return bloc;
 }
