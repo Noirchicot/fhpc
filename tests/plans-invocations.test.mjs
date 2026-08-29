@@ -103,3 +103,14 @@ test("une invocation hors vivier est verrouillée en le disant", () => {
   assert.ok(creneau && creneau.lock,
     "Witch Sight (Level 15+) est acceptée au niveau 1 sans verrou.");
 });
+
+test("la porte du parcours porte un MOT, jamais le chemin brut", async () => {
+  /* 🔴 VU À L'ÉCRAN LE JOUR MÊME : la porte affichait « class.invocations » —
+     le chemin, pas un nom. `itemLabel` est une table par chemin : tout nouveau
+     plan qui n'y entre pas ressort en jargon moteur devant le joueur. */
+  const { createTestDocument } = await import("./dom-stub.mjs");
+  if (!globalThis.document) globalThis.document = createTestDocument();
+  const { CLASS_CATALOGUE } = await import("../ui/builder/class-step.mjs");
+  assert.equal(CLASS_CATALOGUE.itemLabel("class.invocations"), "Eldritch invocations",
+    "la porte des invocations affiche son chemin : nommer le plan dans itemLabel.");
+});
