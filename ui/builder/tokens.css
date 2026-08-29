@@ -141,7 +141,23 @@
      `--measure` est une mesure de PROSE (caractères par ligne confortable),
      `--grid-w` est la largeur d'une GRILLE (3 colonnes). Une grille n'a pas
      de mesure, elle a une largeur — deux jetons, deux natures. */
-  --measure: 62ch; /* .decision-card — valeur déjà en place, zéro changement visible */
+  /* 🔴 EN PIXELS, PLUS EN `ch` — Eric, 2026-08-29, après cinq correctifs qui
+     marchaient chez moi et pas chez lui : *« trouve cette putain de solution
+     tout seul »*. La voici, et elle était sous le nez depuis le début.
+     📏 MESURÉ, ET C'EST LA PREUVE : `76ch` rend **765 px** avec Inter, **766**
+     en police système… et **608 en police de repli** — 157 px d'écart pour la
+     MÊME déclaration. Car `ch` est la largeur du « 0 » de la police RÉSOLUE au
+     point d'usage : une custom property qui la porte se recalcule chez chaque
+     lecteur, avec la fonte qu'il a **à cet instant**.
+     ⛔ D'OÙ UN DÉFAUT INVISIBLE CHEZ MOI ET PERMANENT CHEZ LUI : ici Inter est
+     toujours chargée quand je mesure ; sur son iPad, le calcul tombait pendant
+     ou après un repli, et deux états du même écran rendaient deux largeurs
+     (904 puis 690 px sur ses captures). Une cote de CADRE ne peut pas dépendre
+     d'une police — c'est une largeur de boîte, pas une longueur de ligne.
+     ⭐ LES VALEURS NE CHANGENT PAS : ce sont celles que CADRES §2 bis publie
+     depuis toujours à côté des `ch` (« 62 ch ≈ 625 »). Le `ch` reste la RAISON
+     (62 caractères, la ligne confortable) ; le px est la COTE. */
+  --measure: 625px; /* 62ch de raison, figés — voir ci-dessus */
 
   /* ⛔ `--measure-f` A VÉCU UNE HEURE, ET ERIC L'A TUÉE — 2026-08-19 : *« 62
      fonctionne sur le plus petit comme le plus grand, avec et sans rail. On
@@ -149,7 +165,7 @@
      règle à retenir et une case à se tromper, pour un confort que la première
      donnait déjà aux deux bouts. UNE SEULE MESURE, `--measure`, pour tous les
      écrans — avec rail ou sans. */
-  --grid-w: 60ch;  /* .skills-step — la grille à 3 colonnes du lot 39 */
+  --grid-w: 605px; /* 60ch de raison — une grille a une largeur, pas une mesure */
 
   /* ── LOT 69 — LES LARGEURS DE LA GRANDEUR (bible §3) ──────────────────
      La bible définit TROIS grandeurs (Large ≥ 1140 · Moyenne 720–1140 ·
@@ -481,7 +497,7 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=401");
+  --bg-image: url("./assets/bg-day.jpg?v=402");
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -598,7 +614,7 @@
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
        surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=401");
+    --bg-image: url("./assets/bg-night.jpg?v=402");
 
     /* 🔴 LA NUIT, L'OMBRE DEVIENT UNE LUEUR — Eric, 2026-08-26, la mesure
        posée devant lui : *« une lueur claire la nuit »*.
@@ -679,9 +695,12 @@
        dedans). `--frame-w` 96ch : Show plan et Validate encadrent la
        colonne de contenu au lieu des bords de la fenêtre (Validate était à
        1400 px du contenu). */
-    --card-w: 76ch;
-    --panel-w: 88ch;
-    --grid-w: 76ch;
+    /* Mêmes valeurs qu'avant, figées en px pour la raison dite plus haut :
+       `ch` dépend de la police résolue et rendait 608 au lieu de 766 sur un
+       repli de fonte. CADRES §2 bis publie ces équivalences depuis l'origine. */
+    --card-w: 766px;
+    --panel-w: 887px;
+    --grid-w: 766px;
     --fiche-w: 88ch;
     --frame-w: 96ch;
     --rail-w: 120px;          /* le rail de catalogue : 84 px était « pas un

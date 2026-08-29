@@ -80,15 +80,17 @@ test("les cotes que CADRES recopie correspondent encore à la feuille", () => {
      ce n'est pas la mise en page qu'on protège, c'est l'accord des chiffres. */
   const section = cadres.slice(cadres.indexOf("## 2 bis."),
                                cadres.indexOf("## 3."));
-  for (const [nom, attendu] of [["card-w", ["76ch"]], ["panel-w", ["88ch"]],
-                                ["grid-w", ["60ch", "76ch"]]]) {
+  /* ⏩ EN PIXELS DEPUIS LE 29/08 (voir CADRES §2 bis) : `ch` dépend de la
+     police résolue et rendait 608 au lieu de 766 sur un repli de fonte. */
+  for (const [nom, attendu] of [["card-w", ["766px"]], ["panel-w", ["887px"]],
+                                ["grid-w", ["605px", "766px"]]]) {
     const dans = valeurs(nom);
     for (const v of attendu) {
       assert.ok(dans.includes(v),
         `tokens.css ne déclare plus --${nom}: ${v} (il porte ${dans.join(" · ")}). ` +
         "Si la cote a changé, CADRES §2 bis doit être recopié avec sa date.");
-      const ch = v.replace("ch", "");
-      assert.ok(section.includes(`${ch} ch`) || section.includes(`${ch}ch`),
+      const n = v.replace("px", "");
+      assert.ok(section.includes(`${n} px`) || section.includes(`${n}px`),
         `CADRES §2 bis ne mentionne plus ${v} pour --${nom} : la table des ` +
         "cotes a divergé de la feuille.");
     }

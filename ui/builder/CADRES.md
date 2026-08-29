@@ -231,9 +231,28 @@ jeton pour tout le vocabulaire** — elles ne font donc pas partie du barème.
 | | jeton | étroit | grand écran |
 |---|---|---|---|
 | **Marge** (4 côtés) | `--sp-8` / `--sp-16` | **8** | **16** |
-| **Largeur max — carte** | `--card-w` | 62 ch ≈ **625** | 76 ch ≈ **766** |
-| **Largeur max — écran à contrôles** | `--panel-w` | 62 ch ≈ **625** | 88 ch ≈ **887** |
-| **Largeur max — grille** | `--grid-w` | 60 ch ≈ **605** | 76 ch ≈ **766** |
+| **Largeur max — carte** | `--card-w` | **625 px** *(62 ch)* | **766 px** *(76 ch)* |
+| **Largeur max — écran à contrôles** | `--panel-w` | **625 px** *(62 ch)* | **887 px** *(88 ch)* |
+| **Largeur max — grille** | `--grid-w` | **605 px** *(60 ch)* | **766 px** *(76 ch)* |
+
+### 🔴 LA COTE EST EN PIXELS, LE `ch` N'EST PLUS QUE SA RAISON *(29/08)*
+
+Ces largeurs ont vécu en `ch` jusqu'à ce jour, et **c'était un défaut invisible d'ici**.
+
+📏 **MESURÉ** : `76ch` rend **765 px** avec Inter, **766** en police système… et **608 px** en
+police de repli. 157 px d'écart pour la MÊME déclaration — car `ch` est la largeur du « 0 » de la
+police **résolue au point d'usage**, et une custom property qui la porte se recalcule chez chaque
+lecteur, avec la fonte qu'il a *à cet instant*.
+
+⛔ **CE QUE ÇA A COÛTÉ** : cinq correctifs de largeur, tous vérifiés justes ici (Inter toujours
+chargée quand je mesure) et tous faux chez Eric, dont l'iPad calculait pendant ou après un repli
+de fonte — au point que deux états du même écran rendaient deux largeurs (904 puis 690 px sur ses
+captures). *« Google Headless » ne protège que du moteur qu'on regarde.*
+
+⭐ **LA RÈGLE QUI EN SORT, ET ELLE VAUT AU-DELÀ D'ICI** : une cote de **CADRE** est une largeur de
+boîte, elle se fige en px. Le `ch` reste légitime pour une **mesure de prose** (une longueur de
+ligne EST une affaire de caractères) — mais alors il borne du texte, jamais une boîte dont
+dépendent d'autres cotes.
 
 ⚠️ **IL N'Y A PAS UNE MESURE, IL Y EN A TROIS, ET C'EST VOULU** : une grille de
 compétences n'est pas un paragraphe, une rangée de caractéristiques non plus
