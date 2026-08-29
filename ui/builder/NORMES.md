@@ -11,6 +11,35 @@
 
 ---
 
+
+> ## 📚 CES TROIS FICHIERS SONT UN SEUL CORPUS *(Eric, 2026-08-29)*
+>
+> *« Ok que ça soit dans trois fichiers, mais **l'application au builder est la même**. »*
+>
+> | fichier | ce qu'il porte |
+> |---|---|
+> | **NORMES.md** | **les organes** : jeton, collecteur, bouton, liste, popup · les voiles et le relief · les cotes partagées · l'écriture · les gestes |
+> | **CADRES.md** | **les écrans** : F · FF · FS, la carte, la dalle, la tuile · les largeurs (`--card-w`, `--panel-w`, `--grid-w`, `--measure`) · l'habillage `D-` · `data-bleed` |
+> | **SOCLE.md** | **le mécanisme** : qui possède quoi, les trois verbes, ce qui ne se redessine jamais, le contrat d'un écran |
+>
+> ⭐ **TROIS PORTES, UNE SEULE LOI.** Le découpage sert à trouver, pas à cloisonner : aucune règle
+> n'est vraie « seulement dans son fichier ». Une règle d'organe vaut sur tous les écrans, une cote
+> d'écran vaut pour tous les organes qu'il porte, et le mécanisme vaut pour les deux.
+>
+> ⚖️ **AVEC LES EXCEPTIONS NOMMÉES** — la règle d'Eric du 26/08 : *« il y aura des exceptions pour
+> tokens et collecteurs, mais ils doivent être argumentés »*. Une exception se **nomme** (jamais un
+> `:nth-child` qui devine) et se pose **à côté de son argument**.
+>
+> ⚠️ **NOMMER N'EST PAS METTRE À L'ABRI**, et ça a coûté trois lots le 29/08 : trois régimes de
+> rangement écrits en `:not()` l'un de l'autre étaient tous nommés — et se sont battus quand même,
+> parce qu'**une exclusion de plus déplace la spécificité**. La forme sûre est un attribut à
+> plusieurs valeurs (`data-rangs`), qui donne à tous les cas la MÊME spécificité.
+>
+> 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
+> ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
+
+---
+
 ## 1. ⛔ LES QUATRE VOCABULAIRES — ils ne se mélangent jamais
 
 | vocabulaire | ce qu'il nomme |
