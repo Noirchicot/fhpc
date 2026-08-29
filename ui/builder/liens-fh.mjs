@@ -36,6 +36,19 @@ export function lienSkillFhWeb(slugOuNom) {
   return `${FH_WEB}/chapters/skills-and-tools/#${ancre}`;
 }
 
+/** L'URL FH web d'une aptitude de classe, à l'ancre près. Les ancres sont
+ *  FABRIQUÉES par le livre (`sync_from_vault.py`, `_ancre`) : `l<niveau>-<nom>`
+ *  en minuscules-tirets — prévisibles, donc composables sans lire la page. */
+export function lienFeatureFhWeb(classe, niveau, nom) {
+  const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${FH_WEB}/chapters/classes/${slug(classe)}/#l${niveau}-${slug(nom)}`;
+}
+
+/** L'URL FH web du chapitre des dons. */
+export function lienFeatsFhWeb() {
+  return `${FH_WEB}/chapters/feats/`;
+}
+
 /** Un sort MODIFIÉ par Fate's Hand pointe vers le livre web ; l'id d'une
  *  couche fh commence par `fh:`. */
 export function sortEstModifieFh(id) {

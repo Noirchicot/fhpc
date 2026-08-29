@@ -529,8 +529,13 @@ test("Review route les deux chemins de sorts vers l'étape Class, et les montre 
      cinq classes sur douze la portent, et sans ce chemin un Roublard sans
      maîtrise choisie compterait pour FINI — au récapitulatif comme dans la
      lumière du belt, qui lit la même table. */
+  /* ⭐ `class.invocations` ENTRE LE 2026-08-29 — Eric : *« choix des eldritch
+     invocations sous forme de token pas fait »*. Troisième fois que cette
+     liste s'allonge pour la même raison, et c'est le signe que le garde sert :
+     un chemin non recensé fait compter FINI une étape inachevée. */
   assert.deepEqual(groupe.paths,
-    ["class", "class.skillBudget", "class.weaponMastery", "class.cantrips", "class.prepared"]);
+    ["class", "class.skillBudget", "class.weaponMastery", "class.invocations",
+     "class.cantrips", "class.prepared"]);
 
   /* Sur le personnage d'exemple : la ligne Class est FAITE, quatre états
      « done ». Sur le même passé Rogue sans nettoyage : elle crie. */

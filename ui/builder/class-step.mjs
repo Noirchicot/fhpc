@@ -20,11 +20,11 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=403";
-import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=403";
-import { renderConfirmDialog } from "./confirm.mjs?v=403";
-import { renderChoixGlisses } from "./glisser.mjs?v=403";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=403";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=405";
+import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=405";
+import { renderConfirmDialog } from "./confirm.mjs?v=405";
+import { renderChoixGlisses } from "./glisser.mjs?v=405";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb } from "./liens-fh.mjs?v=405";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -119,6 +119,29 @@ export function spellLabel(query, id) {
    fabrique pas), et ces mots-là n'existent dans aucune couche.
    ⚠️ Une valeur absente disparaît de la ligne — elle ne devient pas un vide
    à côté d'un séparateur. */
+export function invocationLabel(query, id) {
+  const view = query({ kind: "class-option", id });
+  return view ? view.record.name : id;
+}
+
+/* ⚠️ ET LE PRÉRÉQUIS EST PORTÉ PAR L'INFO, PAS PAR LE FILTRE. Le vivier ne sait
+   filtrer que les prérequis de NIVEAU (`classInvocationPlans` le dit) ; ceux qui
+   demandent un pacte ou un cantrip restent au texte, sous les yeux du joueur.
+   Une condition qu'on ne sait pas vérifier se montre — elle ne se tait pas. */
+export function invocationInfo(query, id) {
+  const view = query({ kind: "class-option", id });
+  if (!view) return null;
+  const data = view.record.data || {};
+  const corps = [];
+  if (data.prerequisite) corps.push(`Prerequisite: ${data.prerequisite}`);
+  if (data.description) corps.push(data.description);
+  return {
+    kind: "popup",
+    title: view.record.name,
+    body: corps.join("\n\n")
+  };
+}
+
 export function spellInfo(query, id) {
   const view = query({ kind: "spell", id });
   const record = view && view.record;
@@ -247,6 +270,63 @@ export const LIGNE_ACQUIS_CLASSE = Object.freeze({
    rangées pour six sorts, mesuré) là où une phrase en prend deux.
    📌 La forme est la même pour les cinq items de Class — sorts, maîtrises,
    bourse, QCM — parce que c'est la MÊME nature d'information : ce qu'on a. */
+/* ⛔ LÀ OÙ LE MOTEUR SE TROMPE, ON NOTE — et on ne note QUE ça. Eric,
+   2026-08-29 : *« soit c'est un moteur, soit il est noté quelque part »*. Le
+   moteur (la première phrase) est juste onze fois sur douze ; l'exception se
+   nomme, comme partout ailleurs dans ce dépôt.
+   📌 `Martial Arts` du moine est le seul cas : sa première phrase se termine
+   par « which are the following: » — elle ANNONCE une liste au lieu de définir.
+   Une phrase qui ouvre sur rien n'est pas un résumé. */
+const RESUME_DICTE = Object.freeze({
+  "Martial Arts": "Your Unarmed Strikes and Monk weapons gain a martial arts die, "
+    + "and you can strike a second time as a Bonus Action."
+});
+
+/* 🔗 LES LIENS EN PHRASE SE NOTENT, ILS NE SE DEVINENT PAS — même partage
+   qu'au résumé : *« soit c'est un moteur, soit c'est noté quelque part »*.
+   Mesuré le 29/08 sur les 35 phrases : DEUX portent un nom qui mérite un lien
+   (« Hunter's Mark » chez le rôdeur, « Fighting Style » chez le guerrier) — et
+   le moteur qui chercherait les noms du catalogue MENTIRAIT : « Shield » chez
+   le moine est l'armure, pas le sort. Deux cas se notent. */
+const LIENS_DICTES = Object.freeze({
+  "Favored Enemy": { mot: "Hunter’s Mark", sort: "srd:spell:en:hunter-s-mark" },
+  "Fighting Style": { mot: "Fighting Style", href: () => lienFeatsFhWeb() }
+});
+
+/** La phrase d'une aptitude en NŒUD, son lien noté habillé en prose (§7 ter :
+ *  un sort ouvre la FF interne — un bouton ; un chapitre s'ouvre — un lien). */
+function phraseDeFeature(f, query, act) {
+  const texte = resumeDeFeature(f);
+  const note = LIENS_DICTES[f.name];
+  const idx = note ? texte.indexOf(note.mot) : -1;
+  if (!note || idx < 0) return texte;
+  const bout = document.createElement("span");
+  bout.append(document.createTextNode(texte.slice(0, idx)));
+  if (note.sort) {
+    const b = el("button", "lien-sort", [document.createTextNode(note.mot)]);
+    b.type = "button";
+    b.addEventListener("click", () => { const info = spellInfo(query, note.sort); if (info && act) act(info); });
+    bout.append(b);
+  } else {
+    const a = el("a", "lien-sort", [document.createTextNode(note.mot)]);
+    a.href = note.href();
+    a.target = "_blank"; a.rel = "noopener";
+    bout.append(a);
+  }
+  bout.append(document.createTextNode(texte.slice(idx + note.mot.length)));
+  return bout;
+}
+
+/** La ligne de bilan d'une aptitude : sa définition, en une phrase. */
+export function resumeDeFeature(f) {
+  const dicte = RESUME_DICTE[f.name];
+  if (dicte) return dicte;
+  const premier = String(f.description || "").split("\n")
+    .map((s) => s.trim()).find((s) => s.length > 0) || "";
+  const phrase = premier.match(/^.*?[.!?](?=\s|$)/);
+  return (phrase ? phrase[0] : premier).trim() || "—";
+}
+
 function ligneDeBilan(mot, entrees, classe) {
   if (!Array.isArray(entrees) || entrees.length === 0) return null;
   const mot_ = (valeur) => document.createTextNode(String(valeur));
@@ -308,20 +388,33 @@ function resumeDeLItem(item, ctx, act) {
         ["Primary ability", data.primary_ability],
         ["Saving throws", Array.isArray(data.saving_throw_proficiencies)
           ? data.saving_throw_proficiencies.join(", ") : null]];
-    /* 🔴 LE BILAN PORTE LE TEXTE DES APTITUDES, PAS SEULEMENT LEURS NOMS —
-       Eric, 2026-08-29 : *« le texte de bilan complet harmonisé, complet, pas
-       trois pauvres lignes. Tu fais idem Species. »*
-       📏 CE QUE SPECIES FAIT ET QUE CLASS NE FAISAIT PAS : Species liste chaque
-       trait avec SON TEXTE (« Fey Ancestry : You have Advantage on saving
-       throws… »). Class n'affichait que trois noms nus — le joueur lisait
-       « Ritual Adept » sans savoir ce que c'est, et devait ouvrir le livre.
-       ⭐ Les textes existent (mesuré : 3994, 202 et 540 caractères pour le
-       magicien) ; ils n'étaient simplement pas lus. Même forme que Species —
-       « **Nom :** texte » — donc `renderBilanLignes` les porte comme le reste,
-       et les douze classes en héritent d'un coup. */
+    /* 🔴 UNE SYNTHÈSE, PAS UN DÉVERSEMENT — Eric, 2026-08-29, en me montrant
+       ce que j'avais livré : *« je demande un résumé très synthétique, comme
+       dans Species, pas un bloc de texte sans formatage »*.
+       ⚠️ MA FAUTE, ET ELLE MÉRITE D'ÊTRE NOMMÉE : j'avais cru « faire idem
+       Species » en collant la description SRD entière. Species affiche des
+       traits COURTS et déjà rédigés (« Fey Ancestry : You have Advantage on
+       saving throws… », 90 caractères) ; le SRD d'une classe, lui, déroule des
+       pages — la seule aptitude *Spellcasting* du magicien fait 3994
+       caractères, **table de progression en texte plat comprise**. Le format
+       était respecté et le résultat illisible : la ressemblance de forme
+       masquait une différence de nature.
+       ⭐ CE QUE LE JOUEUR VEUT ICI, c'est une VUE D'ENSEMBLE — le détail vit
+       au livre et sur la fiche. La première phrase d'une aptitude EST sa
+       définition : mesuré sur les douze classes, elle donne une ligne juste et
+       courte pour 11 d'entre elles (« Ritual Adept : You can cast any spell as
+       a Ritual… »). Le douzième cas se note à la main, voir `RESUME_DICTE`.
+       ⛔ ET LA COUPE S'ARRÊTE À LA PREMIÈRE PHRASE DU PREMIER PARAGRAPHE : les
+       lignes suivantes du SRD sont des sous-règles (« Cantrips. », « Spell
+       Slots. ») et, chez quatre classes, une table recollée en texte. */
+    /* 🔗 ET CHAQUE TÊTE MÈNE AU LIVRE, À L'ANCRE PRÈS — Eric, 29/08 : *« liens
+       bleus vers feat, skills, features, traits, spells »*. Une feature est un
+       nom dans de la prose (jamais un jeton posé) : habit de prose, bleu
+       souligné, et l'ancre `l1-<nom>` que le livre fabrique pour nous. */
     const level1 = (Array.isArray(data.features) ? data.features : [])
       .filter((f) => f && f.level === 1 && typeof f.name === "string")
-      .map((f) => [f.name, (f.description || "").trim() || "—"]);
+      .map((f) => [f.name, phraseDeFeature(f, ctx.query, act),
+        { href: lienFeatureFhWeb(record.name, 1, f.name) }]);
     /* 🔴 LE MÊME FORMAT QUE SPECIES — la dictée d'Eric du 27/08 (« le tableau
        à deux colonnes dégage ») vaut pour TOUT bilan, pas pour le seul écran
        où elle a été écrite. `renderCardRows` tabule ; ici on LIT. */
@@ -712,6 +805,23 @@ export function renderClassChoices(ctx, onAction, seulement) {
   }) : null;
   if (blocMaitrises && retenu("class.weaponMastery")) menu.append(blocMaitrises);
 
+  /* ══ LES INVOCATIONS OCCULTES, AU GLISSER — 2026-08-29 ═══════════════════
+     🔴 CE QUE ÇA COMBLE : Eric — *« choix des eldritch invocations sous forme
+     de token pas fait »*. Le sorcier-pacte lisait « You gain one invocation of
+     your choice » et n'avait aucun écran pour la choisir.
+     ⭐ LE MÊME ORGANE, POUR LA QUATRIÈME FOIS : jetons, récepteurs, info au tap
+     ou au clic droit. Compétences, sorts, maîtrises, invocations — un seul
+     geste à apprendre, jamais un dessin par choix.
+     ⛔ ET IL REND `null` SANS PLAN : un Magicien n'affiche RIEN ici. */
+  const invocations = planAt(decisions, "class.invocations");
+  const blocInvocations = invocations ? renderChoixGlisses({
+    plan: invocations, slots: planSlots(decisions, "class.invocations"),
+    titre: "Eldritch invocations", mot: "Invocation",
+    refKind: "class-option", labelOf: (id) => invocationLabel(query, id), onAction: act,
+    onInfo: (id) => { const info = invocationInfo(query, id); if (info) act(info); }
+  }) : null;
+  if (blocInvocations && retenu("class.invocations")) menu.append(blocInvocations);
+
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════
      Les anciens `class.skills[n]` que le `choose` ne nettoie pas
      (verrouillés) DOIVENT s'effacer — après confirmation, en NOMMANT ce qui
@@ -779,7 +889,10 @@ export function classPalier2(decisions) {
   /* ⚠️ LES MAÎTRISES ENTRENT DANS LE COMPTE (2026-08-20) : un Guerrier à 6/6
      points mais 0/3 maîtrises n'est pas prêt. Même règle que les sorts, et un
      plan absent (un Magicien) ne compte pas. */
-  const plans = ["class.skillBudget", "class.weaponMastery", ...SPELL_QCMS.map((groupe) => groupe.basePath)]
+  /* ⚠️ ET LES INVOCATIONS AUSSI (2026-08-29) : un Warlock à 2/2 cantrips mais
+     0/1 invocation n'est pas prêt — même règle, même raison. */
+  const plans = ["class.skillBudget", "class.weaponMastery", "class.invocations",
+                 ...SPELL_QCMS.map((groupe) => groupe.basePath)]
     .map((path) => planAt(decisions, path))
     .filter(Boolean);
   if (plans.length === 0) return null;

@@ -47,7 +47,7 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=403";
+import { planAt } from "./carnet.mjs?v=405";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -84,7 +84,11 @@ export const REVIEW_GROUPS = [
      belt, qui lit la même table. Un plan absent (un Magicien) ne change rien :
      `planAt` rend `null`, la ligne ne bouge pas. */
   { step: "class", label: "Class",
-    paths: ["class", "class.skillBudget", "class.weaponMastery", "class.cantrips", "class.prepared"] },
+  /* ⭐ `class.invocations` AJOUTÉ LE 2026-08-29, pour la raison exacte de la
+     ligne au-dessus : sans lui, un Warlock sans invocation choisie comptait
+     pour FINI — au récapitulatif comme dans la lumière du belt. */
+    paths: ["class", "class.skillBudget", "class.weaponMastery", "class.invocations",
+            "class.cantrips", "class.prepared"] },
   { step: "skills", label: "Skills", paths: [] },
   { step: "equipment", label: "Equipment", paths: [] }
 ];

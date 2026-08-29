@@ -1120,6 +1120,33 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     underived.declare("traits (maîtrises d'arme)", "underived.weapon-mastery-text-missing", {});
   }
 
+  /* ── LES INVOCATIONS OCCULTES ──────────────────────────────────────────
+     🔴 SANS CECI, LE CHOIX N'ARRIVE NULLE PART : le plan `class.invocations`
+     peut demander l'invocation et l'écran peut la faire poser, elle ressort
+     `unconsumed` — le joueur choisit Pact of the Tome et sa fiche n'en porte
+     aucune trace. C'est un garde qui me l'a dit, pas une relecture : les six
+     autres tests du lot passaient au vert avec ce trou grand ouvert.
+
+     ⭐ ET ELLES ENTRENT COMME LES MAÎTRISES D'ARME — un trait porteur de sa
+     catégorie. Une invocation n'est ni une compétence, ni un sort, ni un
+     équipement : elle accorde « an abiding magical ability ». `traits[]` est
+     la seule colonne qui ne l'oblige pas à mentir sur ce qu'elle est.
+     ⛔ Un choix introuvable au catalogue reste `unconsumed` — même règle
+     qu'au-dessus : on ne fabrique pas un trait à partir d'un identifiant. */
+  const invocationChoices = picked.order.filter((entry) => entry.choice.ref &&
+    entry.choice.ref.kind === "class-option" &&
+    typeof entry.choice.path === "string" &&
+    entry.choice.path.startsWith("class.invocations["));
+  for (const entry of invocationChoices) {
+    const view = reader.maybe("class-option", entry.choice.ref.id);
+    if (!view) continue;
+    entry.consumed = true;
+    const data = view.record.data || {};
+    const trait = { id: view.id, name: view.record.name, category: "eldritch-invocation" };
+    if (typeof data.description === "string") trait.text = data.description;
+    traits.push(trait);
+  }
+
   resolved.traits = traits;
   underived.declare("traits (classe, don, arrière-plan)", "underived.no-trait-field-for-class-feat-background", {});
 

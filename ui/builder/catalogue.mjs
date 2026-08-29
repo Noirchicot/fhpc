@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=403";
-import { versionQuery } from "./version.mjs?v=403";
+import { planAt } from "./carnet.mjs?v=405";
+import { versionQuery } from "./version.mjs?v=405";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -293,11 +293,29 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
 export function renderBilanLignes(rows) {
   const bloc = el("div", "species-acquis-bilan");
   let posees = 0;
-  for (const [label, value] of rows) {
+  for (const [label, value, opts] of rows) {
     if (value === null || value === undefined || value === "") continue;
     const ligne = el("p", "bilan-ligne");
-    ligne.append(el("strong", null, [text(`${label} : `)]));
-    ligne.append(text(String(value)));
+    /* 🔗 LA TÊTE PEUT MENER AU LIVRE (§7 ter, étendu le 29/08) : une feature
+       de classe est un nom DANS DE LA PROSE — le joueur ne l'a pas posée, rien
+       ne dit qu'elle répond. Elle porte donc l'habit de la prose (`.lien-sort`,
+       bleu souligné), jamais l'encre du jeton posé (§1 ter bis³). */
+    if (opts && opts.href) {
+      const lien = el("a", "lien-sort", [text(label)]);
+      lien.href = opts.href;
+      lien.target = "_blank"; lien.rel = "noopener";
+      const tete = el("strong", null, [lien]);
+      tete.append(text(" : "));
+      ligne.append(tete);
+    } else {
+      ligne.append(el("strong", null, [text(`${label} : `)]));
+    }
+    /* Une valeur-nœud s'append telle quelle : c'est ce qui permet à une phrase
+       de porter un lien noté (« Hunter's Mark ») sans qu'un moteur devine —
+       mesuré le 29/08 : « Shield » chez le moine est l'ARMURE, l'auto-lien
+       aurait menti. */
+    if (typeof value === "object" && value.nodeType) ligne.append(value);
+    else ligne.append(text(String(value)));
     bloc.append(ligne);
     posees += 1;
   }

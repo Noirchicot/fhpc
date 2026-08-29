@@ -214,7 +214,7 @@ rien à signaler : il garde l'encre du texte.
 
 | ce qu'on lit | habit | pourquoi |
 |---|---|---|
-| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), souligné | c'est un mot au milieu d'autres mots ; sans le bleu, rien ne dit qu'il répond |
+| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), **non souligné** *(dictée du 27/08 devant v343 : « le texte en bleu, non souligné »)* | c'est un mot au milieu d'autres mots ; sans le bleu, rien ne dit qu'il répond |
 | le nom d'un **jeton posé** (`.bilan-nom`) | **encre**, aucune décoration | il s'ouvre au clic comme le jeton s'ouvre au tap — l'objet dit déjà ce qu'il est |
 
 ⛔ **ET LE SOULIGNEMENT SUIT LA MÊME LOI.** Un `<a href>` est souligné par DÉFAUT par le
@@ -1384,11 +1384,18 @@ raccourci pour entrer dans les fiches »* ; ⏳ migrera dans une vraie famille s
 | **un sort MODIFIÉ par FH** (id `fh:`) | le **livre web** (chapitre Magic) |
 | **un skill** | **toujours le livre web** (chapitre Skills & Tools — les records internes n'ont pas de prose) |
 | **l'espèce** | le **livre** du pied (lot 61) |
+| **une feature de classe** *(29/08)* | le **livre web**, à l'ancre près — `chapters/classes/<classe>/#l<niveau>-<nom>`, les ancres que `sync_from_vault.py` fabrique |
+| **un don** *(29/08)* | le **livre web** (chapitre Feats) |
 | le geste sur un **token** | tap au doigt · **clic droit** à la souris → la même fenêtre FF (*« idem clic droit sur un token, ou tap sur un token »*) |
 
 La table des ancres vit dans `ui/builder/liens-fh.mjs` — une table de NAVIGATION, pas des mots de
 règle. ⛔ Un lien qui n'ouvre rien apprend à ne plus cliquer (la loi du `?`) : un sort introuvable
 au query s'écrit en texte simple, jamais en faux lien.
+
+⚠️ **ET UN LIEN EN PHRASE SE NOTE, IL NE SE DEVINE PAS** *(29/08)* : chercher les noms du
+catalogue dans une phrase MENT — mesuré, « Shield » chez le moine est l'armure, pas le sort.
+Les cas réels se comptent (deux sur 35 phrases de bilan) et vivent dans `LIENS_DICTES`
+(`class-step.mjs`), comme les résumés d'exception vivent dans `RESUME_DICTE`.
 
 ---
 

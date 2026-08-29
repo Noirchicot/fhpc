@@ -796,7 +796,75 @@ function classWeaponMasteryPlans(query, choices, classView) {
   });
 }
 
+/* ══ LES INVOCATIONS OCCULTES — `class.invocations[n]` ══════════════════════
+   🔴 CE QUE ÇA COMBLE : Eric, 2026-08-29 — *« choix des eldritch invocations
+   sous forme de token pas fait »*. Le sorcier-pacte lisait *« You gain one
+   invocation of your choice »* dans son bilan et n'avait AUCUN écran pour la
+   choisir. Les 28 records existaient déjà (`class-option`, catégorie
+   `eldritch-invocation`) ; rien ne les demandait.
+
+   ⭐ C'EST LE PATRON DES SORTS, PAS CELUI DES MAÎTRISES D'ARME, et le choix se
+   mesure : le compte vit dans `class-progression.levels[].resources`
+   (`eldritch_invocations` : 1 au niveau 1, 3 au niveau 2). Comme les sorts, il
+   GRANDIT avec le niveau — l'écrire sur le patron `weapon_mastery_count`, posé
+   à plat sur la classe, l'aurait figé à sa valeur de niveau 1.
+
+   ⚠️ ET LE VIVIER SE FILTRE PAR PRÉREQUIS — c'est là que je me suis trompé une
+   première fois. Un filtre cherchant la chaîne « Level 2 » laisse passer
+   « Level 5+ » et « Level 9+ » : il donnait 19 invocations éligibles au
+   niveau 1 au lieu de 5. Le compte avait l'air plausible et le contenu était
+   faux. On lit donc le nombre, pas la présence d'un mot.
+
+   ⛔ CE QUE CE FILTRE NE FAIT PAS, ET IL FAUT LE DIRE : les prérequis qui ne
+   sont pas des niveaux — « Pact of the Blade Invocation », « a Warlock Cantrip
+   That Deals Damage » — ne sont PAS vérifiés. Mesuré : au niveau 1 aucun cas ne
+   se pose (les cinq éligibles n'ont aucun prérequis), donc l'écran est juste là
+   où le builder travaille aujourd'hui ; au-delà, le texte du prérequis reste
+   affiché à l'info et c'est le joueur qui juge. Un garde fige les deux faits. */
+function niveauMinimalDInvocation(prerequisite) {
+  const m = /Level\s+(\d+)\s*\+/.exec(String(prerequisite || ""));
+  return m ? Number(m[1]) : 1;
+}
+
+function classInvocationPlans(query, choices, classView) {
+  const levelChoice = choices.find((choice) => choice && choice.path === "level");
+  const level = levelChoice && Number.isInteger(levelChoice.value) ? levelChoice.value : null;
+
+  /* Même lien que les sorts : la progression pointe SA classe. */
+  const progression = viewsOf(query, "class-progression")
+    .find((view) => view.record.data && view.record.data.class === classView.id) || null;
+  const row = progression && level !== null && Array.isArray(progression.record.data.levels)
+    ? progression.record.data.levels.find((entry) => entry && entry.level === level) || null
+    : null;
+  const declared = row && row.resources ? row.resources.eldritch_invocations : undefined;
+  const expected = Number.isInteger(declared) && declared > 0 ? declared : null;
+
+  const candidates = choices.filter((choice) => choice &&
+    typeof choice.path === "string" && /^class\.invocations\[[0-9]+\]$/.test(choice.path));
+  if (expected === null && candidates.length === 0) return [];
+
+  const options = sorted(viewsOf(query, "class-option")
+    .filter((view) => {
+      const data = view.record.data || {};
+      if (data.category !== "eldritch-invocation") return false;
+      return level === null || niveauMinimalDInvocation(data.prerequisite) <= level;
+    })
+    .map((view) => view.id));
+
+  const from = expected !== null && progression
+    ? recordProvenance("offered", "class-progression", progression, "resources.eldritch_invocations")
+    : null;
+
+  return refSlotPlans({
+    basePath: "class.invocations",
+    kind: "class-option",
+    countKey: "invocation-grant.count-mismatch",
+    options, expected, candidates, from
+  });
+}
+
 function classSpellPlans(query, choices, classView) {
+
   const levelChoice = choices.find((choice) => choice && choice.path === "level");
   const level = levelChoice && Number.isInteger(levelChoice.value) ? levelChoice.value : null;
 
@@ -904,6 +972,8 @@ export function projectDecisions({ query, choices }) {
     /* Les maîtrises d'arme lisent LE MÊME `classView` — une seule réponse à
        « quelle est la classe ? » (leçon du lot 71). */
     entries.push(...classWeaponMasteryPlans(query, list, classView));
+    /* Les invocations aussi — même `classView`, même raison. */
+    entries.push(...classInvocationPlans(query, list, classView));
   }
 
   const speciesChoice = list.find((choice) => choice && choice.path === "species" && choice.ref && choice.ref.kind === "species");
