@@ -1043,6 +1043,7 @@
               },
               "category": {
                 "enum": [
+                  "eldritch-invocation",
                   "training",
                   "weapon-mastery"
                 ]
@@ -1455,6 +1456,7 @@
         "armor",
         "background",
         "class",
+        "class-option",
         "class-progression",
         "feat",
         "gear",

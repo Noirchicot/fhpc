@@ -18,6 +18,10 @@ import assert from "node:assert/strict";
 
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { manifestOf } from "./build-harness.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createDocWriters } from "../src/doc/writers.mjs";
 
 const { layers, build } = exempleFhEn();
 const query = layers.verbs.query;
@@ -132,4 +136,35 @@ test("l'info d'une invocation parle le contrat du popup — titre/texte, jamais 
     "le popup n'a pas de `texte` : il s'ouvre vide — l'écran semble mort au tap.");
   assert.equal(info.title, undefined, "clef anglaise `title` : le popup ne la lit pas.");
   assert.equal(info.body, undefined, "clef anglaise `body` : le popup ne la lit pas.");
+});
+
+test("un document qui porte une invocation peut encore être SIGNÉ", () => {
+  /* 🔴 LE DÉFAUT LE PLUS SOURNOIS DU LOT — Eric, 30/08 : « drop marche mais
+     quand j'appuie sur Done, lumière pas allumée ». La POSE passait (le
+     `choose` ne revalide pas le document entier), mais `confirm` le revalide —
+     et l'enum `$defs/kind` du SCHÉMA ne connaissait pas `class-option` : le
+     registre du moteur l'avait (genre 20, lot 101), le schéma avait pris du
+     retard. Dès qu'une invocation était posée, TOUTE signature échouait dans
+     un try/catch silencieux : plus aucune lumière, fiche bloquée.
+     ⭐ Le test passe par les VRAIS écrivains et le VRAI schéma — c'est le
+     chemin qui a menti, c'est lui qu'on tient. */
+  const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const schema = JSON.parse(fs.readFileSync(path.join(ROOT, "schemas", "fh-char.schema.json"), "utf8"));
+  const w = createDocWriters({ schema });
+  const doc = {
+    schema: "fh-char/1", id: "sig", name: "sig", lang: "en",
+    units: { distance: "ft", weight: "lb" },
+    generator: { name: "tests/plans-invocations", version: "1.0.0" },
+    created: "2026-08-14T00:00:00Z", modified: "2026-08-14T00:00:00Z",
+    build: { layers: [], choices: [
+      { path: "level", value: 1 },
+      { path: "class", ref: { kind: "class", id: WARLOCK } },
+      { path: "class.invocations[0]",
+        ref: { kind: "class-option", id: "srd:class-option:en:armor-of-shadows" } }
+    ], budgets: {}, overrides: [] }
+  };
+  const out = w.confirm({ document: doc, path: "class.invocations" });
+  assert.deepEqual(out.build.confirmed, ["class.invocations"],
+    "la signature n'a pas pris : le schéma refuse probablement un ref.kind " +
+    "que le moteur accepte — les deux registres ont divergé.");
 });
