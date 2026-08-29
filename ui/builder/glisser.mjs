@@ -25,10 +25,10 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=410";
+import { pageDeListe } from "./normes.mjs?v=411";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=410";
-import { swapContent } from "./socle.mjs?v=410";
+import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=411";
+import { swapContent } from "./socle.mjs?v=411";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
