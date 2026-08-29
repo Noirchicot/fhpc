@@ -208,6 +208,34 @@ test("un lien hors jeton est bleu, un nom de jeton posé reste à l'encre", () =
     "déclarer son habit (bleu en prose, encre sur un jeton posé).");
 });
 
+test("aucune cote partagée ne porte de POURCENTAGE", () => {
+  /* ⚔️ LA FAUTE QUI EST REVENUE TROIS FOIS, ET QUE CE GARDE FERME.
+     Eric, 2026-08-29 : « taille des collecteurs de spells dans SB2 putain ! » —
+     mesuré : jeton 87, collecteur 160 sur le même écran.
+     🔴 LA CAUSE, TOUJOURS LA MÊME : `100%` se résout chez CELUI QUI L'UTILISE.
+     La même déclaration donnait 55 px dans le vivier (parent 277) et 87 dans
+     la rangée (parent 592). Une cote écrite en pourcentage n'est PAS partagée,
+     quoi qu'en dise le commentaire qui l'accompagne — et deux commentaires
+     successifs ont prétendu le contraire.
+     ⭐ LA PARADE : `cqw` se résout sur le CONTENEUR NOMMÉ (`container-type:
+     inline-size`), donc sur la même base pour tous ses descendants. */
+  for (const r of REGLES) {
+    if (!/--(collecteur-case|case-cedee)\s*:/.test(r.corps)) continue;
+    assert.ok(!/\d\s*%/.test(r.corps),
+      `« ${r.sel} » calcule une cote partagée avec un POURCENTAGE :\n` +
+      `  ${r.corps.replace(/\s+/g, " ").trim()}\n` +
+      "Un pourcentage se résout chez celui qui l'utilise — les deux organes " +
+      "obtiendront des valeurs différentes. Employer cqw sur un conteneur nommé.");
+  }
+  const conteneurs = REGLES.filter((r) => /container-type\s*:\s*inline-size/.test(r.corps));
+  const cqw = REGLES.filter((r) => /cqw/.test(r.corps));
+  if (cqw.length) {
+    assert.ok(conteneurs.length,
+      "des cotes emploient cqw mais aucun conteneur n'est nommé " +
+      "(`container-type: inline-size`) : cqw retomberait sur la fenêtre.");
+  }
+});
+
 test("la largeur de référence du dépôt reste 360", () => {
   /* Eric, 2026-08-29 : *« on vise toujours la compatibilité avec 360 sur tout
      le site »*. Le banc EST cette norme : s'il changeait de largeur en

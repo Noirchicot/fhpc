@@ -75,15 +75,41 @@
    colonnes de chevron et leurs gaps, moins les deux gouttières de jeton, en
    trois. */
 .choix-glisse:has(.grille-rang) {
-  --case-cedee: calc((100% - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3);
+  /* 🔴 PLAFONNÉE PAR LE SOCLE — Eric, 2026-08-29 : *« taille des collecteurs de
+     spells dans SB2 putain ! »*, capture à l'appui : les SPELL 2/3/4 faisaient
+     le double des jetons.
+     📏 MESURÉ à 1024 : jeton **87**, collecteur **160**. La cause est la panne
+     n°3 dans son dernier recoin — DEUX formules sur DEUX bases pour un même
+     « un tiers » : le collecteur déduisait les chevrons de la largeur du CADRE
+     (592 → 160), le jeton se calculait sur celle du VIVIER (277 → 87).
+     ⚠️ ET LE COMMENTAIRE DE CETTE RÈGLE PRÉTENDAIT DÉJÀ L'AVOIR CORRIGÉ
+     (« la cote cédée devient une VARIABLE, lue par les deux ») : elle n'était
+     lue que par le collecteur, le jeton gardant la sienne. Une cote partagée
+     que l'un des deux ignore n'est pas partagée.
+     ⭐ `min()` suffit à les réconcilier, et il applique la loi écrite dix
+     lignes plus bas : *« la case CÈDE sous 87 dans une rangée étroite, elle ne
+     GRANDIT jamais au-dessus »*. Le plafond du socle était déjà la règle — il
+     manquait au collecteur. */
+  /* ⭐ ET LA COTE NE CONTIENT PLUS DE POURCENTAGE — c'est ce qui la rendait
+     impartageable. `100%` se résout chez CELUI QUI L'UTILISE : la même
+     déclaration donnait 55 px dans le vivier (parent 277) et 87 dans la rangée
+     (parent 592). `100cqw` se résout sur LE CONTENEUR NOMMÉ ci-dessous, donc
+     sur la même base pour les deux — une cote enfin partagée pour de bon.
+     📌 C'est la troisième écriture de cette cote : deux nombres égaux, puis un
+     pourcentage « partagé », puis l'unité de conteneur. Les deux premières
+     étaient plausibles et fausses. */
+  container-type: inline-size;
+  --case-cedee: min(var(--glisse-case),
+    calc((100cqw - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3));
 }
-.choix-glisse:has(.grille-rang) .glisse-creneaux > .glisse-creneau {
+.choix-glisse:has(.grille-rang) .glisse-creneaux > .glisse-creneau,
+/* ⭐ ET LE JETON LIT LA MÊME COTE, plus sa propre formule sur sa propre base. */
+.choix-glisse:has(.grille-rang) .grille-rang > .glisse-vivier > li {
   flex: 0 0 var(--case-cedee);
   max-width: var(--case-cedee);
   min-width: 0;
 }
 .choix-glisse .grille-rang > .glisse-vivier > li {
-  flex: 1 1 calc((100% - 2 * var(--sp-8)) / 3);
   min-width: 0;
   /* ⛔ pas de `max-width: none` : le plafond du socle (--glisse-case, 87)
      reste — la case CÈDE sous 87 dans une rangée étroite, elle ne GRANDIT
@@ -133,10 +159,18 @@
 .choix-glisse[data-rangs="sorts"]  { --par-rangee: 3; }
 .choix-glisse[data-rangs="caracs"] { --par-rangee: 6; }
 
-/* la cote se DÉDUIT du cadre — une fois, sur l'ancêtre commun des deux rangées */
+/* la cote se DÉDUIT du cadre — une fois, sur l'ancêtre commun des deux rangées
+   ⭐ EN `cqw`, PAS EN `%` : un pourcentage se résout chez CELUI QUI L'UTILISE,
+   donc la même déclaration donnait deux valeurs selon la rangée qui la lisait
+   (mesuré ailleurs : 55 contre 87). `100cqw` se résout sur le conteneur nommé
+   juste en dessous — une seule base pour tous ses descendants.
+   📌 Ça marchait ici PAR ACCIDENT : les deux rangées portent `width: 100%`,
+   donc elles avaient la même base. Un pansement, pas une cote partagée — et le
+   garde `collecteur-jeton` refuse désormais le pourcentage à la racine. */
 .choix-glisse[data-rangs]:not(:has(.grille-rang)) {
+  container-type: inline-size;
   --collecteur-case: min(var(--glisse-case),
-    calc((100% - (var(--par-rangee) - 1) * var(--sp-8)) / var(--par-rangee)));
+    calc((100cqw - (var(--par-rangee) - 1) * var(--sp-8)) / var(--par-rangee)));
 }
 
 /* les deux rangées : même base, même borne, même centrage */
