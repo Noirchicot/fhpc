@@ -490,10 +490,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
-  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
-     propriété de la carte — une marge `auto` sur la carte, elle, aurait
-     désactivé son étirement. */
-  align-items: center;
+  /* ⛔ PAS D'`align-items: center` ICI — ESSAYÉ (v396), MESURÉ, RETIRÉ.
+     Dans un flex COLUMN, `align-items` gouverne la largeur : `center` retire
+     le `stretch` par défaut, et l'enfant retombe sur la largeur de son
+     CONTENU. C'est-à-dire exactement le défaut qu'on poursuit — je l'avais
+     donc RENFORCÉ en croyant centrer. Le centrage se fait par `margin-inline:
+     auto` sur la carte, qui marche que le cadre soit `flex` ou `block` (il est
+     les deux selon l'écran, mesuré). */
   scroll-behavior: smooth;
   /* 🔴 II.1 — « LE DÉFILEMENT EST LE CHOIX », `scroll-snap`, tranché par
      Eric le 2026-08-14. ⚠️ TROUVÉ EN REGARDANT LA PAGE : `scroll-snap-align`
@@ -4947,10 +4950,13 @@ button { font: inherit; }
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
-  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
-     propriété de la carte — une marge `auto` sur la carte, elle, aurait
-     désactivé son étirement. */
-  align-items: center;
+  /* ⛔ PAS D'`align-items: center` ICI — ESSAYÉ (v396), MESURÉ, RETIRÉ.
+     Dans un flex COLUMN, `align-items` gouverne la largeur : `center` retire
+     le `stretch` par défaut, et l'enfant retombe sur la largeur de son
+     CONTENU. C'est-à-dire exactement le défaut qu'on poursuit — je l'avais
+     donc RENFORCÉ en croyant centrer. Le centrage se fait par `margin-inline:
+     auto` sur la carte, qui marche que le cadre soit `flex` ou `block` (il est
+     les deux selon l'écran, mesuré). */
   min-height: 0;
 }
 
@@ -5673,7 +5679,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=398");
+  background-image: url("./assets/tarot-dos.jpg?v=399");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6679,10 +6685,13 @@ button.tuto-point::before {
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
-  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
-     propriété de la carte — une marge `auto` sur la carte, elle, aurait
-     désactivé son étirement. */
-  align-items: center;
+  /* ⛔ PAS D'`align-items: center` ICI — ESSAYÉ (v396), MESURÉ, RETIRÉ.
+     Dans un flex COLUMN, `align-items` gouverne la largeur : `center` retire
+     le `stretch` par défaut, et l'enfant retombe sur la largeur de son
+     CONTENU. C'est-à-dire exactement le défaut qu'on poursuit — je l'avais
+     donc RENFORCÉ en croyant centrer. Le centrage se fait par `margin-inline:
+     auto` sur la carte, qui marche que le cadre soit `flex` ou `block` (il est
+     les deux selon l'écran, mesuré). */
 }
 /* « 4 pixels entre lineage et token » */
 .parcours-item-dalle > .guide-titre { margin: 0 0 var(--sp-4); }

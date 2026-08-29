@@ -19,47 +19,82 @@
 <script type="importmap">
 {
   "imports": {
-    "../../src/build/block.mjs": "../../src/build/block.mjs?v=398",
-    "../../src/build/clock.mjs": "../../src/build/clock.mjs?v=398",
-    "../../src/build/decisions.mjs": "../../src/build/decisions.mjs?v=398",
-    "../../src/build/derive.mjs": "../../src/build/derive.mjs?v=398",
-    "../../src/build/diff.mjs": "../../src/build/diff.mjs?v=398",
-    "../../src/build/errors.mjs": "../../src/build/errors.mjs?v=398",
-    "../../src/build/paths.mjs": "../../src/build/paths.mjs?v=398",
-    "../../src/build/skills.mjs": "../../src/build/skills.mjs?v=398",
-    "../../src/build/validate.mjs": "../../src/build/validate.mjs?v=398",
-    "../../src/doc/errors.mjs": "../../src/doc/errors.mjs?v=398",
-    "../../src/doc/schema.mjs": "../../src/doc/schema.mjs?v=398",
-    "../../src/kernel/bus.mjs": "../../src/kernel/bus.mjs?v=398",
-    "../../src/kernel/registry.mjs": "../../src/kernel/registry.mjs?v=398",
-    "../../src/labels.mjs": "../../src/labels.mjs?v=398",
-    "../../src/layers/document.mjs": "../../src/layers/document.mjs?v=398",
-    "../../src/layers/paths.mjs": "../../src/layers/paths.mjs?v=398",
-    "../../src/layers/sha256.mjs": "../../src/layers/sha256.mjs?v=398",
-    "../../src/layers/stack.mjs": "../../src/layers/stack.mjs?v=398",
-    "../../src/modules/fh/labels.mjs": "../../src/modules/fh/labels.mjs?v=398",
-    "../../src/play/labels.mjs": "../../src/play/labels.mjs?v=398",
-    "../../src/schemas/invariants.mjs": "../../src/schemas/invariants.mjs?v=398"
+    "../../src/build/block.mjs": "../../src/build/block.mjs?v=399",
+    "../../src/build/clock.mjs": "../../src/build/clock.mjs?v=399",
+    "../../src/build/decisions.mjs": "../../src/build/decisions.mjs?v=399",
+    "../../src/build/derive.mjs": "../../src/build/derive.mjs?v=399",
+    "../../src/build/diff.mjs": "../../src/build/diff.mjs?v=399",
+    "../../src/build/errors.mjs": "../../src/build/errors.mjs?v=399",
+    "../../src/build/paths.mjs": "../../src/build/paths.mjs?v=399",
+    "../../src/build/skills.mjs": "../../src/build/skills.mjs?v=399",
+    "../../src/build/validate.mjs": "../../src/build/validate.mjs?v=399",
+    "../../src/doc/errors.mjs": "../../src/doc/errors.mjs?v=399",
+    "../../src/doc/schema.mjs": "../../src/doc/schema.mjs?v=399",
+    "../../src/kernel/bus.mjs": "../../src/kernel/bus.mjs?v=399",
+    "../../src/kernel/registry.mjs": "../../src/kernel/registry.mjs?v=399",
+    "../../src/labels.mjs": "../../src/labels.mjs?v=399",
+    "../../src/layers/document.mjs": "../../src/layers/document.mjs?v=399",
+    "../../src/layers/paths.mjs": "../../src/layers/paths.mjs?v=399",
+    "../../src/layers/sha256.mjs": "../../src/layers/sha256.mjs?v=399",
+    "../../src/layers/stack.mjs": "../../src/layers/stack.mjs?v=399",
+    "../../src/modules/fh/labels.mjs": "../../src/modules/fh/labels.mjs?v=399",
+    "../../src/play/labels.mjs": "../../src/play/labels.mjs?v=399",
+    "../../src/schemas/invariants.mjs": "../../src/schemas/invariants.mjs?v=399"
   }
 }
 </script>
-<link rel="stylesheet" href="./tokens.css?v=398">
-<link rel="stylesheet" href="./shell.css?v=398">
+<link rel="stylesheet" href="./tokens.css?v=399">
+<link rel="stylesheet" href="./shell.css?v=399">
 <!-- LOT 77 — la fiche à 360 (Class/Species). APRÈS `shell.css` : les
      quelques règles `.catalogue-*` qu'elle reprend le sont à égalité de
      spécificité, et c'est l'ordre qui tranche — délibérément. Elle porte le
      MÊME <N> que ses voisines (garde : tests/versions-graphe.test.mjs). -->
-<link rel="stylesheet" href="./fiche.css?v=398">
+<link rel="stylesheet" href="./fiche.css?v=399">
 <!-- LA RANGÉE PAGINÉE D'UN VIVIER (NORMES.md §5). Même porte que `fiche.css`
      et pour la même raison, dite au lot 77 : un autre lot écrit `shell.css`,
      et un fichier n'a qu'un écrivain. ⭐ Elle ne gagne PAS par l'ordre — son
      sélecteur est plus spécifique (0,0,3,1) — et elle ne s'applique qu'aux
      viviers qui portent une `.grille-rang`, c'est-à-dire plus d'une page. -->
-<link rel="stylesheet" href="./listes.css?v=398">
-<link rel="stylesheet" href="./dice3d.css?v=398">
+<link rel="stylesheet" href="./listes.css?v=399">
+<link rel="stylesheet" href="./dice3d.css?v=399">
 </head>
 <body>
   <div id="app" class="app"></div>
-  <script type="module" src="./shell.mjs?v=398"></script>
+  <script type="module" src="./shell.mjs?v=399"></script>
+  <!-- ══ LE RUBAN DE DIAGNOSTIC — `?diag` ═══════════════════════════════════
+       🔴 NORMES §0 « Google Headless » dit de vérifier sur la PAGE RENDUE.
+       Pendant quatre lots j'ai vérifié sur la page rendue… d'UN SEUL moteur.
+       Eric voyait un défaut que mon banc ne reproduisait pas, et chaque
+       correctif partait d'une mesure vraie chez moi et fausse chez lui.
+       ⭐ Ce ruban rend la mesure PORTABLE : il n'apparaît qu'avec `?diag` dans
+       l'adresse, et affiche ce que l'appareil calcule vraiment. Il est
+       autonome (aucune classe, aucun jeton) — un instrument qui dépend de ce
+       qu'il mesure ment. ⛔ Rien ne change sans le paramètre. -->
+  <script>
+  if (location.search.includes("diag")) addEventListener("load", () => {
+    const bande = document.createElement("div");
+    bande.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;"
+      + "background:#111;color:#0f0;font:12px/1.5 ui-monospace,monospace;"
+      + "padding:6px 8px;white-space:pre-wrap";
+    const lire = () => {
+      const c = document.querySelector(".decision-card");
+      if (!c) return "carte absente";
+      const r = c.getBoundingClientRect(), s = getComputedStyle(c);
+      const p = c.parentElement, ps = getComputedStyle(p);
+      return [
+        "viewport " + innerWidth + "  dpr " + devicePixelRatio,
+        "carte " + Math.round(r.width) + "  (g" + Math.round(r.left)
+          + " d" + Math.round(innerWidth - r.right) + ")",
+        "width:" + s.width + "  max:" + s.maxWidth,
+        "--card-w:" + s.getPropertyValue("--card-w").trim()
+          + "  --measure:" + s.getPropertyValue("--measure").trim(),
+        "cadre " + ps.display + " align:" + ps.alignItems + " pad:" + ps.paddingLeft
+      ].join("\n");
+    };
+    document.body.append(bande);
+    const tic = () => { bande.textContent = lire(); };
+    tic(); setInterval(tic, 500);
+  });
+  </script>
 </body>
 </html>
