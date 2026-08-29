@@ -177,6 +177,37 @@ test("le jeton et la valeur d'un collecteur portent le MÊME corps", () => {
     "distingue de la valeur, jamais la taille.");
 });
 
+test("un lien hors jeton est bleu, un nom de jeton posé reste à l'encre", () => {
+  /* Eric, 2026-08-29 : « règle générale : liens hors token en bleu », et son
+     complément du 28/08 : le nom d'un jeton posé n'a rien à signaler.
+     ⚔️ Le garde compte les FAMILLES de liens produites : le builder n'en a que
+     deux, donc la règle est complète. Une troisième qui apparaîtrait sans habit
+     déclaré passerait aujourd'hui inaperçue. */
+  const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
+  const bloc = (sel) => {
+    for (const b of blocs(shell)) if (b.sel === sel) return b.corps;
+    return "";
+  };
+  assert.match(bloc(".lien-sort"), /color:\s*var\(--info\)/,
+    "un lien dans la prose doit porter le bleu d'information : sans lui, rien " +
+    "ne dit que le mot répond.");
+  assert.match(bloc(".bilan-nom"), /color:\s*inherit/,
+    "le nom d'un jeton posé garde l'encre du texte — l'objet dit déjà qu'il " +
+    "est interactif.");
+  assert.match(bloc(".bilan-nom"), /text-decoration:\s*none/,
+    "un <a> est souligné PAR DÉFAUT : sans retrait explicite, la moitié des " +
+    "entrées d'un bilan crie et l'autre non.");
+
+  /* Aucune troisième famille de liens sans habit déclaré. */
+  const sources = fs.readdirSync(UI).filter((f) => f.endsWith(".mjs"))
+    .map((f) => fs.readFileSync(path.join(UI, f), "utf8")).join("\n");
+  const familles = [...new Set([...sources.matchAll(/el\("a",\s*"([a-z-]+)"/g)]
+    .map((m) => m[1]))].sort();
+  assert.deepEqual(familles, ["bilan-nom", "lien-sort"],
+    `familles de liens inattendues : ${familles.join(" · ")} — chacune doit ` +
+    "déclarer son habit (bleu en prose, encre sur un jeton posé).");
+});
+
 test("la largeur de référence du dépôt reste 360", () => {
   /* Eric, 2026-08-29 : *« on vise toujours la compatibilité avec 360 sur tout
      le site »*. Le banc EST cette norme : s'il changeait de largeur en

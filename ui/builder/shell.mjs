@@ -19,61 +19,61 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=382";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=382";
-import { mountPopup } from "./popup.mjs?v=382";
-import { renderLorePanel } from "./lore.mjs?v=382";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=382";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=388";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=388";
+import { mountPopup } from "./popup.mjs?v=388";
+import { renderLorePanel } from "./lore.mjs?v=388";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=388";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=382";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=382";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=388";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=388";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=382";
+} from "./tutoriel.mjs?v=388";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=382";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=388";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=382";
-import { renderChoixGlisses } from "./glisser.mjs?v=382";
-import { renderConceptStep } from "./concept-step.mjs?v=382";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=382";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=382";
+import { planAt, planSlots } from "./carnet.mjs?v=388";
+import { renderChoixGlisses } from "./glisser.mjs?v=388";
+import { renderConceptStep } from "./concept-step.mjs?v=388";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=388";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=388";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=382";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=382";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=382";
+} from "./catalogue.mjs?v=388";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=388";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=388";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=382";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=382";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=388";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=388";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=382";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=388";
 import {
   renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
-} from "./destiny-step.mjs?v=382";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=382";
+} from "./destiny-step.mjs?v=388";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=388";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=382";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=382";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=388";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=388";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=382";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=388";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -92,16 +92,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=382";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=382";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=388";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=382";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=382";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=388";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=388";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=382";
+import { versionQuery } from "./version.mjs?v=388";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2122,6 +2122,36 @@ function itemsDuParcours(cfg) {
   return items;
 }
 
+/* 🚨 LE GENDARME PAR DÉFAUT — Eric, 2026-08-29, devant l'écran Skill points
+   de la classe qui affichait « 3 of 2 points spent » en rouge avec un `Done`
+   toujours armé : *« le blocage bouton et le gendarme ne font pas leur boulot,
+   à faire idem Species. L'action de blocage est une RÈGLE GÉNÉRALE. »*
+
+   ⚠️ RIEN NE MANQUAIT AU MÉCANISME — `renderGuideSpecifique` désarme déjà le
+   `Done` et le `Next`, rougit la porte et fait parler le rouge. Ce qui
+   manquait, c'est que l'étape le DÉCLARE : `species-step` était la SEULE des
+   huit à porter un `gendarme:`. Un verrou du noyau existait pour la classe
+   (le même `skill-budget.overspent`, posé par `build/decisions.mjs` sur tout
+   budget captif) et personne ne le lisait.
+
+   ⭐ D'OÙ LE DÉFAUT PARTAGÉ, plutôt que sept recopies : la coquille cherche
+   elle-même un plan verrouillé parmi les items de l'étape. Une étape qui veut
+   un mot particulier garde son `gendarme:` — le défaut ne ferme aucune porte
+   (NORMES : une norme est un défaut, pas un mur).
+   ⛔ ET LE MOT VIENT D'UNE SEULE VOIX (`skillsRefusalWord`, déjà importée ici) :
+   Species écrivait sa
+   propre formulation du même refus. Deux voix pour un même verrou, c'est une
+   divergence qui attend son tour. */
+function gendarmeParDefaut(cfg, ctx) {
+  for (const item of itemsDuParcours(cfg)) {
+    if (item.sansChoix) continue;
+    const plan = planAt(ctx.decisions || state.decisions || [], item.path);
+    if (!plan || !plan.lock) continue;
+    return { mot: skillsRefusalWord(plan.lock), chemin: item.path };
+  }
+  return null;
+}
+
 function renderParcoursGuide(cfg, ctx) {
   const items = itemsDuParcours(cfg);
   const refus = Array.isArray(state.parcoursRefus) && state.parcoursRefus.length > 0
@@ -2137,7 +2167,7 @@ function renderParcoursGuide(cfg, ctx) {
     /* Le livre du pied ouvre le LORE de ce que l'écran montre — Eric, 27/08.
        ⭐ La coquille ne le CONNAÎT pas : elle demande à la configuration de
        l'étape, qui seule sait où vit son lore. */
-    gendarme: cfg.gendarme ? cfg.gendarme(ctx) : null,
+    gendarme: cfg.gendarme ? cfg.gendarme(ctx) : gendarmeParDefaut(cfg, ctx),
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */
@@ -3190,6 +3220,25 @@ function renderSortieEtape() {
     const repondu = Boolean(plan && Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
       && plan.answered >= plan.expected && !plan.lock);
     done.dataset.avance = repondu ? "fait" : "en-cours";
+    /* 🚨 ON NE SIGNE PAS UN SOUS-ÉCRAN QUE LE NOYAU REFUSE — Eric, 2026-08-29,
+       capture du SB3 « 3 of 2 points spent » en rouge avec un `Done` armé :
+       *« le blocage bouton et le gendarme ne font pas leur boulot, à faire idem
+       Species. L'action de blocage est une RÈGLE GÉNÉRALE. »*
+
+       ⚠️ LE VERROU ÉTAIT DÉJÀ LU ICI — deux lignes plus haut, dans `repondu`.
+       Mais il ne servait qu'à PEINDRE le bouton (`data-avance`), jamais à le
+       désarmer : `done.disabled` ne regardait que `gate.ready`, qui compte les
+       réponses et ignore les violations. Le bouton disait « en cours » et
+       restait pressable — la couleur avertissait, la porte s'ouvrait quand même.
+       ⭐ MÊME LOI QU'AU PIED DU GUIDE (`parcours-ecrans.mjs`, où `gendarme`
+       désarme `Done` et `Next`) : c'est la MÊME phrase, appliquée au cran du
+       dessous. Le retour (`Cancel`) reste armé — Eric : *« ainsi que la
+       possibilité de revenir en arrière »*. */
+    if (plan && plan.lock) {
+      done.disabled = true;
+      done.dataset.lit = "false";
+      done.dataset.verrou = "oui";
+    }
   }
 
   return el("div", "sortie", [back, done].filter(Boolean));

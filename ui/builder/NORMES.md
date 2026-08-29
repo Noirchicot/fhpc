@@ -202,6 +202,32 @@ déclaration, pas son sauveteur.
 
 ---
 
+## 1 ter bis³. 🔗 UN LIEN HORS JETON EST BLEU *(29/08)*
+
+> Eric, 2026-08-29 : *« Règle générale : **liens hors token en bleu**. »* — pour tous les écrans.
+> Et son complément du 28/08 : *« pas besoin de mettre le texte des tokens en bleu, la carac d'un
+> token est déjà de l'interactif sur un clic »*.
+
+⭐ **LE BLEU SIGNALE UN MOT CLIQUABLE DANS DE LA PROSE**, là où rien d'autre ne le dirait. Un objet
+déjà manifestement interactif — un jeton qu'on tape, un nom au bilan qui **est** le jeton posé — n'a
+rien à signaler : il garde l'encre du texte.
+
+| ce qu'on lit | habit | pourquoi |
+|---|---|---|
+| un nom **dans une phrase** (`.lien-sort`) | **bleu** (`--info`), souligné | c'est un mot au milieu d'autres mots ; sans le bleu, rien ne dit qu'il répond |
+| le nom d'un **jeton posé** (`.bilan-nom`) | **encre**, aucune décoration | il s'ouvre au clic comme le jeton s'ouvre au tap — l'objet dit déjà ce qu'il est |
+
+⛔ **ET LE SOULIGNEMENT SUIT LA MÊME LOI.** Un `<a href>` est souligné par DÉFAUT par le
+navigateur : une règle qui pose l'encre sans retirer la décoration laisse la moitié des entrées
+crier. Mesuré le 29/08 au bilan du magicien — les sorts (rendus en `<button>`) restaient nus,
+les compétences (rendues en `<a>` vers le livre) arrivaient soulignées. **Deux habits dans une
+seule phrase.**
+
+📌 **PORTÉE MESURÉE** : le builder ne produit que ces deux familles de liens. La règle est donc
+complète, pas partielle — et le garde vérifie qu'aucune troisième n'apparaisse sans habit.
+
+---
+
 ## 1 ter ter. 📐 COMMENT UNE RANGÉE DE COLLECTEURS SE RANGE *(dicté le 29/08)*
 
 | rangée | règle | dicté |

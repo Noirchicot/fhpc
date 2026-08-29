@@ -127,7 +127,12 @@ const TIER_LABEL = {
    où lire cette paire avant le premier clic. Signalé, pas caché — voir
    INVENTAIRE-LOT-39.md. */
 
-const REFUSAL_WORDS = {
+/* ⭐ EXPORTÉE — Eric, 2026-08-29 : *« l'action de blocage est une règle
+   générale »*, *« processus idem species »*. Le mot d'un verrou ne s'écrit
+   plus deux fois : le gendarme de N'IMPORTE QUELLE étape le lit ici (voir
+   `motDuVerrou` dans shell.mjs). Species écrivait le sien à la main, avec sa
+   propre formulation — deux voix pour un même refus. */
+export const REFUSAL_WORDS = {
   "skill-pool.overspent": (p) => `Overspent by ${p.over} — ${p.spent} of ${p.available} spent.`,
   "skill-spend.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
   "skill-spend.tier-invalid": (p) => `“${p.value}” isn't a valid tier.`,
@@ -156,8 +161,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=382";
-import { keepInView, scrollParent } from "./socle.mjs?v=382";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=388";
+import { keepInView, scrollParent } from "./socle.mjs?v=388";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

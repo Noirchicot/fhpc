@@ -28,11 +28,15 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=382";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=382";
-import { renderChoixGlisses } from "./glisser.mjs?v=382";
-import { spellInfo } from "./class-step.mjs?v=382";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=382";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=388";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=388";
+import { renderChoixGlisses } from "./glisser.mjs?v=388";
+import { spellInfo } from "./class-step.mjs?v=388";
+/* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
+   `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
+   deux tables sont disjointes, ce sont deux domaines et non deux voix. */
+import { skillsRefusalWord } from "./skills-step.mjs?v=388";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=388";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -382,11 +386,18 @@ export const SPECIES_CATALOGUE = {
      une même voix. */
   gendarme: (ctx) => {
     const plan = planAt(ctx.decisions || [], "species.skillBudget");
-    if (plan && plan.lock && plan.lock.key === "skill-budget.overspent") {
-      const p = plan.lock.params || {};
-      const over = Number(p.spent) - Number(p.points);
-      return { mot: `Overspent by ${Number.isFinite(over) ? over : "?"} — ${p.spent} of ${p.points} points spent. Go back and remove the extra.`,
-        chemin: "species.skillBudget" };
+    if (plan && plan.lock) {
+      /* 🔴 LA MÊME VOIX QUE PARTOUT AILLEURS — Eric, 2026-08-29 : *« processus
+         idem Species »*, en demandant que la classe se comporte comme ici.
+         ⚠️ En le vérifiant, l'écart était dans l'AUTRE sens : Species
+         reformulait à la main un refus dont la table `REFUSAL_WORDS` porte
+         déjà le mot (« Overspent by 1 — 3 of 2 spent. »). Deux voix pour un
+         même verrou divergent au premier réglage — c'est donc Species qui
+         rejoint la table, pas la table qui recopie Species.
+         ⛔ ET LA CONDITION S'ÉLARGIT : elle ne visait que `overspent`, donc
+         tout AUTRE verrou du noyau sur ce plan (palier interdit, option hors
+         catalogue…) laissait le `Done` armé. Un verrou est un verrou. */
+      return { mot: skillsRefusalWord(plan.lock), chemin: "species.skillBudget" };
     }
     return null;
   },
