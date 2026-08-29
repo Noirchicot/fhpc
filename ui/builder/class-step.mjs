@@ -20,11 +20,11 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=402";
-import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=402";
-import { renderConfirmDialog } from "./confirm.mjs?v=402";
-import { renderChoixGlisses } from "./glisser.mjs?v=402";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=402";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=403";
+import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=403";
+import { renderConfirmDialog } from "./confirm.mjs?v=403";
+import { renderChoixGlisses } from "./glisser.mjs?v=403";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=403";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -308,18 +308,24 @@ function resumeDeLItem(item, ctx, act) {
         ["Primary ability", data.primary_ability],
         ["Saving throws", Array.isArray(data.saving_throw_proficiencies)
           ? data.saving_throw_proficiencies.join(", ") : null]];
-    /* ⛔ LES FEATURES SE LISTENT, ELLES NE SE TABULENT PAS : elles n'ont pas de
-       valeur en face — `renderCardRows` jette d'ailleurs toute ligne dont la
-       valeur est vide, donc les y mettre les ferait disparaître en silence.
-       C'est `renderCardNames` qui les porte, comme sur la fiche SRD. */
+    /* 🔴 LE BILAN PORTE LE TEXTE DES APTITUDES, PAS SEULEMENT LEURS NOMS —
+       Eric, 2026-08-29 : *« le texte de bilan complet harmonisé, complet, pas
+       trois pauvres lignes. Tu fais idem Species. »*
+       📏 CE QUE SPECIES FAIT ET QUE CLASS NE FAISAIT PAS : Species liste chaque
+       trait avec SON TEXTE (« Fey Ancestry : You have Advantage on saving
+       throws… »). Class n'affichait que trois noms nus — le joueur lisait
+       « Ritual Adept » sans savoir ce que c'est, et devait ouvrir le livre.
+       ⭐ Les textes existent (mesuré : 3994, 202 et 540 caractères pour le
+       magicien) ; ils n'étaient simplement pas lus. Même forme que Species —
+       « **Nom :** texte » — donc `renderBilanLignes` les porte comme le reste,
+       et les douze classes en héritent d'un coup. */
     const level1 = (Array.isArray(data.features) ? data.features : [])
       .filter((f) => f && f.level === 1 && typeof f.name === "string")
-      .map((f) => f.name);
+      .map((f) => [f.name, (f.description || "").trim() || "—"]);
     /* 🔴 LE MÊME FORMAT QUE SPECIES — la dictée d'Eric du 27/08 (« le tableau
        à deux colonnes dégage ») vaut pour TOUT bilan, pas pour le seul écran
        où elle a été écrite. `renderCardRows` tabule ; ici on LIT. */
-    const corps = [renderBilanLignes(stats), renderCardNames("Level 1 features", level1)]
-      .filter(Boolean);
+    const corps = [renderBilanLignes(stats), renderBilanLignes(level1)].filter(Boolean);
     return corps.length > 0 ? el("div", "parcours-resume-corps", corps) : null;
   }
 
