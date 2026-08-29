@@ -490,6 +490,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
+  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
+     propriété de la carte — une marge `auto` sur la carte, elle, aurait
+     désactivé son étirement. */
+  align-items: center;
   scroll-behavior: smooth;
   /* 🔴 II.1 — « LE DÉFILEMENT EST LE CHOIX », `scroll-snap`, tranché par
      Eric le 2026-08-14. ⚠️ TROUVÉ EN REGARDANT LA PAGE : `scroll-snap-align`
@@ -766,8 +770,35 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      coller à gauche — mesuré à 1440 × 900 : 625 px de contenu et ~780 px de
      vide À DROITE, une dalle qui lisait comme un accident, pas une mise en
      page. */
+  /* 🔴 UNE SEULE PROPRIÉTÉ DÉCIDE DE LA LARGEUR — Eric, 2026-08-29, après trois
+     allers-retours et deux navigateurs testés de son côté : *« tu n'as semble-
+     t-il pas trouvé la solution sur la largeur d'affichage »*.
+     ⚠️ MES DEUX TENTATIVES PRÉCÉDENTES ONT ÉCHOUÉ POUR LA MÊME RAISON : elles
+     faisaient COHABITER trois mécanismes qui se disputent la même cote —
+     `width: 100%`, `max-width`, et une marge (auto pour centrer). Chaque moteur
+     arbitre ce trio à sa façon : Chromium bornait à 765 (ce que je mesurais),
+     Safari et Chrome iPad retombaient sur la largeur du CONTENU (480 à 690 px
+     sur ses captures, selon l'écran). Un défaut qui ne se reproduit pas est un
+     défaut qu'on ne corrige pas — il fallait retirer le duel, pas le trancher.
+     ⭐ `width: min(100%, var(--card-w))` dit la MÊME chose en UNE déclaration :
+     « prends tout, sans dépasser le plafond ». Plus de `max-width` à arbitrer,
+     plus de marge auto qui désactive l'étirement, plus de pourcentage qui
+     déborde de sa marge. Le centrage passe au CADRE (`.stage`,
+     `align-items: center`), qui n'entre en conflit avec rien.
+     📌 `--card-w` garde tout son rôle : les exceptions nommées (`--panel-w`
+     pour Abilities et Equipment) continuent de la surcharger, et `data-bleed`
+     reprend 100 % juste après. */
+  width: min(100%, var(--card-w));
+  /* ⭐ ET LE CENTRAGE REDEVIENT SÛR SUR LA CARTE. Une marge `auto` désactivait
+     l'étirement d'un flex item — c'était vrai tant que la largeur DÉPENDAIT de
+     cet étirement. Elle n'en dépend plus : `width` la fixe seul. La marge ne
+     fait donc plus que ce pour quoi elle est là, centrer.
+     ⚠️ ET IL LA FAUT ICI, PAS SUR LE CADRE : mesuré, `.stage` est tantôt
+     `display: flex` (Species, Class), tantôt `display: block` (Identity,
+     Destiny) — et `align-items` ne fait RIEN en block. Le centrage posé sur le
+     cadre marchait donc sur la moitié des écrans (215 px de marge d'un côté,
+     16 de l'autre). Une marge auto centre dans les deux modes. */
   margin-inline: auto;
-  max-width: var(--card-w); /* LOT 69 — mesure de prose à l'étroit (62ch, inchangé), largeur de carte en Large (§3e : une carte n'est pas toujours de la prose) */
   /* 🔴 LA CARTE REMPLIT SON PLAFOND — Eric, 2026-08-29, capture iPad :
      *« fiche étroite pas normal sur iPad »*. Mesuré à 1024 : **377 px** rendus
      pour un plafond de **624**. Un item flex prend la largeur de son CONTENU
@@ -782,7 +813,11 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
      La carte peut alors prendre 100 % de ce qui reste, rester plafonnée, et
      rester centrée — les trois à la fois. Mesuré : 344 dans 360 (8 de
      gouttière de chaque côté), et le plafond atteint sur grand écran. */
-  width: 100%;
+  /* ⛔ L'ANCIEN `width: 100%` EST RETIRÉ ICI — il suivait la règle ci-dessus
+     et la battait par sa place dans la pile : la carte reprenait toute la
+     largeur et le plafond ne s'appliquait plus (1162 px mesurés à 1194).
+     Deux déclarations de la même propriété dans le même bloc, c'est la
+     dernière qui gagne — et c'était l'ancienne. */
   /* ⛔ ANCIENNE NOTE, GARDÉE POUR LA RAISON :
      Trois écrans (Species, Inheritance, Class) rendaient **624** pour un
      plafond de **765** : leur `catalogue-step` est intrinsèquement étroit, et
@@ -1262,6 +1297,7 @@ button { font: inherit; }
   height: 100%;
   padding: 0;
   margin: 0;
+  width: 100%;      /* le bleed reprend toute la largeur — voir ci-dessous */
   max-width: none;
   border: none;
   background: none;
@@ -4911,6 +4947,10 @@ button { font: inherit; }
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
+  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
+     propriété de la carte — une marge `auto` sur la carte, elle, aurait
+     désactivé son étirement. */
+  align-items: center;
   min-height: 0;
 }
 
@@ -5633,7 +5673,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=395");
+  background-image: url("./assets/tarot-dos.jpg?v=398");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6639,6 +6679,10 @@ button.tuto-point::before {
   overscroll-behavior: contain;
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
+  /* ⭐ ET LE CENTRAGE AUSSI : sur le cadre, il ne se dispute avec aucune
+     propriété de la carte — une marge `auto` sur la carte, elle, aurait
+     désactivé son étirement. */
+  align-items: center;
 }
 /* « 4 pixels entre lineage et token » */
 .parcours-item-dalle > .guide-titre { margin: 0 0 var(--sp-4); }
