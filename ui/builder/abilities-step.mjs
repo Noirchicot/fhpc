@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=421";
-import { renderTray } from "./abilities-tray.mjs?v=421";
-import { armerJeton } from "./glisser.mjs?v=421";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=421";
-import { createDieHost, mount } from "./dice3d.mjs?v=421";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=421";
+import { markPressed } from "./carnet.mjs?v=422";
+import { renderTray } from "./abilities-tray.mjs?v=422";
+import { armerJeton } from "./glisser.mjs?v=422";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=422";
+import { createDieHost, mount } from "./dice3d.mjs?v=422";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=422";
 
 export { rollAbilitySet };
 
@@ -420,7 +420,16 @@ function fantomeLever(valeur, x, y) {
      en page pendant le seul moment de l'écran qui doit être fluide, et on
      connaît déjà les deux facteurs. */
   fantomeDemi = (FS.fantome * FANTOME_ECHELLE) / 2;
-  document.body.append(fantome);
+  /* 🔴 DANS `.app`, PAS SUR `<body>` — corrigé le 2026-08-30 au soir.
+     Le zoom du builder vit sur `.app` (shell.css), et `.app` est un enfant de
+     `<body>` : un fantôme posé sur le corps ÉCHAPPE donc à l'échelle. Mesuré
+     au cran 3 : l'organe sous le doigt se peignait à 261 px et son fantôme à
+     87 — trois fois trop petit, pendant le seul geste où l'œil compare les
+     deux. « TOUT LE BUILDER SUIT LE ZOOM » était faux ici, et aucun test ne
+     pouvait le dire.
+     ⚠️ Le repli sur `<body>` reste, pour le seul cas où `.app` n'existe pas
+     (bancs, stub DOM) : un fantôme mal placé vaut mieux qu'un geste qui jette. */
+  (document.querySelector(".app") || document.body).append(fantome);
   fantomeBouger(x, y);
 }
 

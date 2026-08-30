@@ -360,6 +360,18 @@ class FakeDocument {
      navigateur. Par défaut il ne trouve rien — un test qui veut simuler une
      cible pose `document.elementFromPoint = () => noeud`. */
   elementFromPoint() { return null; }
+  /* ⭐ AJOUTÉ LE 2026-08-30 AU SOIR, et le stub grandit comme il a toujours
+     grandi : avec ce que `ui/` emploie RÉELLEMENT. Depuis que le zoom vit sur
+     `.app` (lot 85), les deux fantômes du glisser se montent DANS `.app` et
+     non plus sur `<body>` — sinon ils échappent à l'échelle et se peignent
+     trois fois trop petits au cran 3, pendant le seul geste où l'œil compare
+     le fantôme et l'organe.
+     ⚠️ Le stub ne construit pas de coquille : `.app` n'y existe pas, et c'est
+     JUSTE — il rend donc `null`, le code de production retombe sur `body`, et
+     les tests continuent de juger l'arbre. Ce qui compte est qu'il réponde au
+     lieu de jeter. */
+  querySelector(selector) { return this.body.querySelector(selector); }
+  querySelectorAll(selector) { return this.body.querySelectorAll(selector); }
   createTextNode(text) { return new FakeTextNode(text); }
 }
 

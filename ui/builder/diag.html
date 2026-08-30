@@ -118,6 +118,19 @@
   <div class="verdict" id="verdict-zoom" data-ok="non">…</div>
   <p class="note" id="zoom-chiffres">…</p>
 
+  <h1>Les deux familles de lecture se séparent-elles&nbsp;?</h1>
+  <!-- 🔴 CE N'EST PAS LA MÊME QUESTION QUE LES BARRES, et c'est tout l'intérêt.
+       Les barres disent « le zoom AGIT ». Ce rapport-ci dit « et les deux
+       familles de lectures géométriques se séparent COMME AU BANC ».
+       Sous un zoom conforme, `getBoundingClientRect()` rend le PEINT et
+       `offsetWidth` la MISE EN PAGE : leur rapport vaut le zoom. Si un moteur
+       rendait les deux en mise en page, le rapport vaudrait 1 — et alors
+       `facteurZoom` (echelle.mjs) ne convertirait plus rien : `keepInView`
+       (le rail, la ceinture) et la roue d'Équipement cesseraient de compenser,
+       INVISIBLEMENT au cran 1 et faux à tous les autres. Aucun test ne peut
+       voir ça ; seul cet appareil-ci le peut. -->
+  <div class="verdict" id="verdict-familles" data-ok="non">…</div>
+
   <h1>Taille d'interface enregistrée</h1>
   <div class="chiffre"><span id="cran">—</span></div>
   <p class="note" id="cran-note">…</p>
@@ -168,6 +181,14 @@
        200 contre 100. Si ces deux chiffres se contredisent avec ce que l'œil
        voit sur les barres, c'est cet écart-là qu'il faut rapporter — il dit
        comment le moteur se comporte, et c'est ce qu'aucune fiche ne donne. */
+    var vf = document.getElementById("verdict-familles");
+    var rapport = page > 0 ? peint / page : 0;
+    var separent = rapport > 1.5;
+    vf.dataset.ok = separent ? "oui" : "non";
+    vf.textContent = separent
+      ? "✅ rapport " + rapport.toFixed(2) + " — le rectangle rend le peint, offsetWidth la mise en page. C'est ce que le banc a mesuré, tout compense correctement."
+      : "⛔ rapport " + rapport.toFixed(2) + " au lieu de 2 — ce moteur rend les DEUX lectures dans la même unité. `facteurZoom` ne convertit alors rien : le rail, la ceinture et la roue d'Équipement cessent de compenser. C'est un défaut qu'aucun test ne peut voir.";
+
     document.getElementById("zoom-chiffres").textContent =
       "Chiffres bruts — barre zoomée : rectangle " + Math.round(peint) +
       " px, offsetWidth " + Math.round(page) +

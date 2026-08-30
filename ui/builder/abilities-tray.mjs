@@ -106,24 +106,25 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=421";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=421";
-import { swapContent } from "./socle.mjs?v=421";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=422";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=422";
+import { swapContent } from "./socle.mjs?v=422";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
 export const REGLAGES = {
-  tailleMobile: 72,
-  tailleBureau: 82,
+  /* ⚖️ `tailleBureau` (82) A ÉTÉ RETIRÉE avec le seuil qui la choisissait —
+     30/08 au soir. UNE cote de dé, désormais, et c'est l'échelle qui la
+     fait grandir. Voir `tailleDeDe` plus bas pour la raison complète. */
+  taille: 72,
   /* 🔴 QUATRE DÉS NE TIENNENT PAS À LA COTE DE TROIS, et c'est de
      l'arithmétique, pas un goût — même famille que l'écart de 4 des îlots FS.
      La largeur utile du plateau est **294** (mesurée en tête de ce fichier,
      jamais le 312 théorique du gabarit) : quatre dés de 72 plus trois écarts
      de 4 demandent **300**. Il déborderait de 6 px sur l'iPhone SE d'Eric —
      exactement la faute que `Reset` coupé au bord droit a déjà coûtée.
-     ⭐ (294 − 3×4) ÷ 4 = 70,5 → **70**, et le même calcul en Large. */
-  tailleMobile4: 70,
-  tailleBureau4: 80,
+     ⭐ (294 − 3×4) ÷ 4 = 70,5 → **70**,  */
+  taille4: 70,
   ecart: 4,
   pauseMs: 2500,   // « pause 2500 bien » — il a essayé 2000 et a préféré plus lent
   /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « on voit le résultat et c'est tout,
@@ -133,14 +134,22 @@ export const REGLAGES = {
      contredirait son « je veux qu'il voie ». Faux — les deux coexistent : il
      VEUT voir, et il veut AUSSI pouvoir ne pas voir. Ce sont deux modes, pas
      deux principes qui s'excluent. Le joueur choisit s'il regarde. */
-  seuilBureau: 768
 };
 
 function tailleDeDe(nbDes) {
-  const large = typeof window !== "undefined" && window.matchMedia
-    && window.matchMedia(`(min-width: ${REGLAGES.seuilBureau}px)`).matches;
-  if (nbDes > 3) return large ? REGLAGES.tailleBureau4 : REGLAGES.tailleMobile4;
-  return large ? REGLAGES.tailleBureau : REGLAGES.tailleMobile;
+  /* 🧊 LE TROISIÈME SEUIL DE LARGEUR EST MORT — 2026-08-30 au soir.
+     Il valait `matchMedia("(min-width: 768px)")` et choisissait une COTE de dé
+     (72 au doigt, 82 au bureau). C'est le jumeau EXACT du `@media (min-width:
+     768px)` de shell.css, supprimé le matin même pour la raison d'Eric : une
+     cote conditionnée à la largeur CHANGE UN RAPPORT, et la loi du zoom
+     l'interdit. Celui-ci a survécu parce qu'il vivait en JS, où les gardes des
+     seuils ne balayaient pas — c'est réparé aussi (garde 5 / 5 bis).
+     ⛔ Et il mentait doublement sous zoom : `matchMedia` interroge la fenêtre
+     BRUTE, jamais la fenêtre en blg. À 1024 au cran 2 il annonçait « bureau »
+     pour une fenêtre effective de 512.
+     ⭐ Rien n'est perdu : 72 blg au cran 2 rendent 144 pixels, bien au-delà
+     des 82 que le bureau obtenait. Le dé grandit par l'ÉCHELLE désormais. */
+  return nbDes > 3 ? REGLAGES.taille4 : REGLAGES.taille;
 }
 
 function el(tag, className, children) {
@@ -205,7 +214,7 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   const meca = mecanique && mecanique.jets ? mecanique : mecaniqueDeJet(mecanique && mecanique.id);
   const dalle = el("section", "tray dalle-intermediaire");
   /* La feuille a besoin de savoir combien de dés elle héberge : quatre dés ne
-     tiennent pas à la cote de trois (voir `REGLAGES.tailleMobile4`). */
+     tiennent pas à la cote de trois (voir `REGLAGES.taille4`). */
   dalle.dataset.des = String(meca.des);
   /* ⛔ PAS DE STYLE EN LIGNE ICI — l'écart des dés vit dans `shell.css`
      (`--tray-ecart`). Le DOM des tests (`tests/dom-stub.mjs`) n'a pas de

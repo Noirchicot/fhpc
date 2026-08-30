@@ -196,6 +196,29 @@ export function facteurZoom(noeud) {
   return peint > 0 ? peint / enPage : 1;
 }
 
+/** Le facteur du zoom, mesuré sur LA RACINE D'ÉCHELLE (`.app`).
+ *
+ *  🔴 IL EXISTE PARCE QUE `facteurZoom(n)` NE PEUT PAS CONVERTIR `n` LUI-MÊME,
+ *  et j'ai mis une nuit à le voir. `facteurZoom(n)` vaut `rect(n) / offset(n)` ;
+ *  écrire `rect(n) / facteurZoom(n)` se simplifie donc en `offset(n)` — un
+ *  ENTIER. C'est exactement ce que faisait `centreDe` (equipment-step.mjs)
+ *  depuis le lot 85, sous une note qui promettait le contraire : *« c'est lui
+ *  qui donne la FRACTION que clientWidth arrondit… diviser garde la
+ *  fraction »*. Elle ne la gardait pas. Une note qui affirme ce qui n'est pas
+ *  est le défaut le plus grave de ce dépôt.
+ *
+ *  ⭐ LA SORTIE EST DE MESURER AILLEURS : `.app` porte le zoom, son rapport
+ *  est un vrai facteur, et diviser le rectangle d'un AUTRE nœud par lui rend
+ *  bien une largeur de mise en page FRACTIONNAIRE.
+ *  ⚠️ `keepInView` (socle.mjs) n'a pas ce défaut et n'a pas à changer : il
+ *  divise un ÉCART entre deux rectangles distincts, jamais le rectangle du
+ *  nœud qui a servi à mesurer le facteur. */
+export function facteurZoomCourant(document_) {
+  const doc = document_ || (typeof document !== "undefined" ? document : null);
+  const racine = doc && doc.querySelector ? doc.querySelector(".app") : null;
+  return racine ? facteurZoom(racine) : 1;
+}
+
 /** La grandeur, en blg. C'est ce que `data-grandeur` porte, et les feuilles
  *  n'ont jamais à connaître les deux nombres. */
 export function grandeurDe(largeurBlg) {

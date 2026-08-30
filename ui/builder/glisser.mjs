@@ -25,10 +25,10 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=421";
+import { pageDeListe } from "./normes.mjs?v=422";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=421";
-import { swapContent } from "./socle.mjs?v=421";
+import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=422";
+import { swapContent } from "./socle.mjs?v=422";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -454,7 +454,16 @@ function fantomeLever(jeton, x, y) {
   copie.disabled = true;
   copie.setAttribute("aria-hidden", "true");
   fantomeGlisse = copie;
-  document.body.append(copie);
+  /* 🔴 DANS `.app`, PAS SUR `<body>` — corrigé le 2026-08-30 au soir.
+     Le zoom du builder vit sur `.app` (shell.css), et `.app` est un enfant de
+     `<body>` : un fantôme posé sur le corps ÉCHAPPE donc à l'échelle. Mesuré
+     au cran 3 : l'organe sous le doigt se peignait à 261 px et son fantôme à
+     87 — trois fois trop petit, pendant le seul geste où l'œil compare les
+     deux. « TOUT LE BUILDER SUIT LE ZOOM » était faux ici, et aucun test ne
+     pouvait le dire.
+     ⚠️ Le repli sur `<body>` reste, pour le seul cas où `.app` n'existe pas
+     (bancs, stub DOM) : un fantôme mal placé vaut mieux qu'un geste qui jette. */
+  (document.querySelector(".app") || document.body).append(copie);
   fantomeSuivre(x, y);
 }
 

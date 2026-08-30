@@ -3008,7 +3008,7 @@ button { font: inherit; }
    quatre dés de 72 plus trois écarts de 4 demandent **300**, soit 6 px de
    débordement sur l'iPhone SE d'Eric. C'est exactement la faute qui lui a
    coupé `Reset` au bord droit le 15/08. (294 − 3×4) ÷ 4 = 70,5 → 70.
-   ⛔ La cote est RECOPIÉE de `REGLAGES.tailleMobile4` (abilities-tray.mjs) :
+   ⛔ La cote est RECOPIÉE de `REGLAGES.taille4` (abilities-tray.mjs) :
    le moteur 3D veut des pixels, il ne lit pas cette feuille. */
 .tray[data-des="4"] { --tray-de: 70px; --tray-cases: 6; }
 /* (idem pour quatre dés : le rehaussement à 80 est parti avec le sien.) */
@@ -5714,7 +5714,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=421");
+  background-image: url("./assets/tarot-dos.jpg?v=422");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

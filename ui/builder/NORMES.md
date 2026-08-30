@@ -75,6 +75,36 @@
 | ⛔ **jamais un `@media` de largeur** | il **ne se réévalue pas** sous `zoom` — mesuré au banc : à 1920 au cran 5, `min-width: 1140px` matchait encore et le rail rendait **600 px réels**. La grandeur passe par `data-grandeur`, calculé sur `innerWidth / échelle` |
 | ⚠️ **le cran est borné, jamais clampé** | le menu **n'offre pas** un cran qui ne laisse plus de quoi dessiner. Un réglage qui se transforme en un autre est un réglage qui ment |
 
+### ⏳ Le repli désigné, **écrit et non construit** *(30/08 au soir)*
+
+Si un moteur n'honorait pas `zoom` — improbable : la propriété vient d'Internet
+Explorer, **WebKit l'a implémentée très tôt** et Safari l'honore depuis ses
+premières versions ; le retardataire fut Firefox, en 126 (mai 2024), quand le
+CSSWG a spécifié *ce que WebKit et Blink faisaient déjà* — le repli désigné est :
+
+```css
+.app { transform: scale(var(--echelle)); transform-origin: top left;
+       width: calc(100% / var(--echelle)); height: calc(100% / var(--echelle)); }
+```
+
+| | |
+|---|---|
+| ✅ **ce qui ne bouge pas** | `facteurZoom` — mesuré : `offsetWidth` ignore les transformations, `getBoundingClientRect()` les rend, **le rapport vaut ×2 sous les deux mécanismes** · les divisions `vw`/`vh` par `--echelle` · les deux seuils · les `container-type` · le plancher de 340 blg |
+| ⚠️ **ce qui change** | un `position: fixed` sous `.app` vise **`.app`**, plus la fenêtre · `.app` devient un contexte d'empilement · la netteté passe du raster au compositeur — **à mesurer au cran 3 sur un vrai appareil avant de poser quoi que ce soit** (le dépôt porte déjà ce défaut écrit : `will-change: transform` retiré de `.roue-cran`, *« le GPU ÉTIRE LA TEXTURE… ça frise à l'œil »*) |
+| ⛔ **son seul défaut propre** | il ne réserve **aucune place de mise en page** : un hôte `<div>` à hauteur `auto` recevrait `calc(100%/E)` résolu en `auto`. Borné au mode widget en `<div>`, qui n'existe pas — et où le cran est déjà faux sous `zoom` (`appliquerEchelle` lit `innerWidth`, la fenêtre de l'hôte) |
+
+🔴 **IL N'EST PAS CONSTRUIT, ET IL NE DOIT PAS L'ÊTRE** tant que la mesure n'est
+pas faite. Une **détection automatique** `zoom` → repli serait exactement le code
+mort que la loi §0.6 interdit : elle ne peut pas mesurer au démarrage (au cran 1
+les deux régimes sont indistinguables), elle doublerait le sens de chaque
+lecture géométrique du dépôt, et une branche jamais parcourue est une branche
+jamais testée. Si le verdict tombe mal, on **substitue** — quatre lignes contre
+quatre lignes, dans un seul fichier, pour tout le monde. Une substitution n'a
+pas besoin d'être détectée.
+
+📏 **L'instrument existe** : `ui/builder/diag.html`, la règle à deux barres et
+le rapport des deux familles de lecture. Cinq minutes sur l'appareil.
+
 ### Ce que ça supprime
 
 ⚖️ **Trois renversements datés du 30/08**, chacun écrit à sa place :

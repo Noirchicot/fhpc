@@ -507,14 +507,27 @@ test("garde 5 bis — 🔴 AUCUNE requête média de LARGEUR dans ui/builder/", 
      ne dépendent de l'échelle. */
   const hits = [];
   for (const nom of fs.readdirSync(UI_DIR)) {
-    if (!nom.endsWith(".css")) continue;
+    /* ⚠️ LES `.mjs` AUSSI, DEPUIS LE 30/08 AU SOIR — et c'est un trou qui a
+       coûté un défaut réel. Ce garde ne balayait que les feuilles ; un
+       `matchMedia("(min-width: 768px)")` survivait donc tranquillement dans
+       `abilities-tray.mjs`, où il choisissait une COTE de dé (72 ou 82) — le
+       jumeau EXACT du `@media` supprimé le matin même dans `shell.css`, pour
+       la raison exacte d'Eric. Une requête de largeur en JS est PIRE que son
+       équivalent CSS sous zoom : `matchMedia` interroge la fenêtre BRUTE, donc
+       elle ment à tous les crans au lieu de simplement ne pas se réévaluer. */
+    if (!nom.endsWith(".css") && !nom.endsWith(".mjs")) continue;
     const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
-    for (const [regle] of texte.matchAll(/@media[^{]*\{/g)) {
-      if (/\b(min|max)-(width|height)\b|\bwidth\s*[<>=]/.test(regle)) hits.push(`${nom} : ${regle.trim()}`);
+    const motifs = nom.endsWith(".css")
+      ? [/@media[^{]*\{/g]
+      : [/matchMedia\s*\(\s*[`"'][^`"']*[`"']/g, /@media[^"'`]*/g];
+    for (const motif of motifs) {
+      for (const [regle] of texte.matchAll(motif)) {
+        if (/\b(min|max)-(width|height)\b|\bwidth\s*[<>=]/.test(regle)) hits.push(`${nom} : ${regle.trim().slice(0, 70)}`);
+      }
     }
   }
   assert.deepEqual(hits, [],
-    "une requête média de largeur ne se réévalue pas sous zoom — la grandeur passe par `data-grandeur`");
+    "une requête de largeur ne se réévalue pas sous zoom (CSS) et lit la fenêtre brute (matchMedia) — la grandeur passe par `data-grandeur`");
 });
 
 test("garde 5 ter — 🔴 aucune unité de VIEWPORT non divisée par l'échelle", () => {
@@ -620,6 +633,18 @@ test("⚔️ ATTAQUE — le garde 5 bis mord (il ne passe pas parce qu'il ne lit
   assert.equal(voit("@media (min-width: 40em) { .a { color: red } }"), 1, "en em aussi");
   assert.equal(voit("@media (prefers-color-scheme: dark) { .a { color: red } }"), 0, "et il laisse passer le thème");
   assert.equal(voit("@media (orientation: landscape) { .a { color: red } }"), 0, "et l'orientation");
+  /* ⚔️ ET LA FORME JS, celle qui avait échappé au garde jusqu'au 30/08. */
+  const voitJs = (js) => {
+    const t = stripComments(js);
+    return [...t.matchAll(/matchMedia\s*\(\s*[`"'][^`"']*[`"']/g)]
+      .filter(([r]) => /\b(min|max)-(width|height)\b/.test(r)).length;
+  };
+  assert.equal(voitJs('window.matchMedia("(min-width: 768px)").matches'), 1,
+    "un seuil de largeur en matchMedia est vu");
+  assert.equal(voitJs("window.matchMedia(`(min-width: ${SEUIL}px)`).matches"), 1,
+    "y compris interpolé — c'est la forme exacte qui avait survécu");
+  assert.equal(voitJs('window.matchMedia("(prefers-reduced-motion: reduce)").matches'), 0,
+    "et une requête de préférence passe : elle ne dépend pas de l'échelle");
 });
 
 
