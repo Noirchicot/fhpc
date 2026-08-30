@@ -1663,10 +1663,10 @@ function renderStepContent() {
       echelle: {
         crans: CRANS,
         choisi: cranChoisi(),
-        auto: cranAuto(window.innerWidth, document.documentElement),
+        auto: cranAuto(window.innerWidth, window.innerHeight, document.documentElement),
         /* Ceux qui laissent encore de quoi dessiner dans CETTE fenêtre : le
            menu grise les autres au lieu de les clamper en silence. */
-        tiennent: CRANS.filter((c) => cranTient(c, window.innerWidth, document.documentElement))
+        tiennent: CRANS.filter((c) => cranTient(c, window.innerWidth, window.innerHeight, document.documentElement))
       },
       document: state.document,
       query: state.engine.layers.verbs.query,

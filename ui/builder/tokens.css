@@ -245,6 +245,29 @@
      d'écart + 100 d'image + 8 = 242. CADRES §4 la publie comme « le plancher
      documenté : ce que le format vaut à 360, le plus petit écran servi ».
      ⛔ Elle n'est plus écrite qu'ICI : `fiche.css` la LIT désormais. */
+  /* ══ LE PANNEAU — la fenêtre de dessin, et elle ne s'élargit jamais ══
+     📐 Eric, 2026-08-31 : *« si mon écran s'étend en largeur la fenêtre doit
+     rester au ratio mobile, sinon ça marche pas »*, puis la règle chiffrée :
+     *« c'est du 375×520, il y a une marge c'est joli. Pour du 360×520, il n'y
+     a pas de marge c'est moins joli, mais ça fonctionne. En dessous achète un
+     téléphone qui tient la route ou va sur ton ordi. »*
+
+     ⭐ TROIS NOMBRES, TROIS RÔLES DIFFÉRENTS — ne pas les confondre :
+       · `--panneau-l`   la CIBLE. Le panneau ne dépasse jamais cette largeur ;
+                         tout écran plus large reçoit de la marge, pas de la
+                         place à remplir. C'est elle que `cranAuto` vise.
+       · `--panneau-min` le PLANCHER. En dessous, rien n'est promis — la
+                         gouttière a déjà été rendue, c'est la limite d'Eric.
+       · `--panneau-h`   la place VERTICALE qu'il faut pour tenir debout :
+                         ceinture 60 (mesurée) + carte 440 (`--fiche-h`) +
+                         marges 8 = 508, et 12 blg de mou. C'est la SECONDE
+                         contrainte du cran — sans elle, un iPad couché
+                         choisirait un cran que sa hauteur ne porte pas.
+     ⛔ Ce sont des cotes DONNÉES par Eric, pas des sommes déduites. Le jour où
+     elles bougent, elles bougent ICI et `echelle.mjs` les relit. */
+  --panneau-l: 375px;
+  --panneau-min: 360px;
+  --panneau-h: 520px;
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */

@@ -43,10 +43,31 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    `100dvh`, zéro `100vh`). C'est pour ça que le mode widget ne demande rien
    d'autre : le builder lisait déjà son conteneur, pas l'écran. */
 html, body { height: 100dvh; }
+/* 🔴 LE PANNEAU NE S'ÉLARGIT JAMAIS — Eric, 2026-08-31 : *« si mon écran
+   s'étend en largeur la fenêtre doit rester au ratio mobile, sinon ça marche
+   pas »*.
+
+   📏 CE QUI L'A DÉCIDÉ, mesuré sur l'écran Species : à 375 blg la fiche fait
+   269 pour une carte de 277 — elle REMPLIT. À 683 blg (son iPad en Auto) la
+   fiche fait toujours 269 pour une carte de 585 : le contenu est resté juste,
+   le contenant a doublé, et le rapport fiche/carte est passé de 0,97 à 0,46.
+   Un ratio qui change avec l'écran, c'est exactement ce que la loi du 30/08
+   interdit — le lot 85 l'avait tenue sur les organes, pas sur la fenêtre.
+
+   ⭐ `min(100%, …)` ET NON `max-width` SEUL : sous 375 blg le panneau prend
+   tout ce qu'on lui donne et ne déborde pas ; au-delà il s'arrête net et
+   `margin-inline: auto` pose le reste en marge. Un seul mécanisme pour les
+   deux côtés du seuil, donc aucune branche à ne jamais parcourir.
+   ⚠️ Une page ne peut PAS redimensionner la fenêtre du navigateur
+   (`window.resizeTo` est refusé, et sur iPad il n'y a pas de fenêtre) : ce
+   que l'œil lit comme « la fenêtre est au ratio mobile » est ce panneau-ci,
+   centré, avec le fond de la page autour. */
 .app {
   zoom: var(--echelle);
   display: flex;
   flex-direction: column;
+  width: min(100%, var(--panneau-l));
+  margin-inline: auto;
   height: 100%;
   overflow: hidden;
   background-image: var(--bg-image);

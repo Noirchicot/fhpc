@@ -40,7 +40,10 @@ function faireRacine(jetons) {
 /** Les cotes RÉELLES du dépôt au moment où ce test est écrit — elles servent
  *  de décor, jamais d'attente : le test qui compte lit celles du fichier. */
 const JETONS = { "--measure": "625px", "--rail-w": "90px", "--sp-16": "16px",
-                 "--fiche-dalle-w": "242px", "--sp-4": "4px" };
+                 "--fiche-dalle-w": "242px", "--sp-4": "4px",
+                 /* Le PANNEAU — les trois cotes d'Eric du 31/08. Décor, jamais
+                    attente : les tests qui comptent les BOUGENT et regardent. */
+                 "--panneau-l": "375px", "--panneau-min": "360px", "--panneau-h": "520px" };
 
 function poserDecor(racine) {
   globalThis.getComputedStyle = (noeud) => ({
@@ -49,6 +52,10 @@ function poserDecor(racine) {
   const magasin = new Map();
   globalThis.window = {
     innerWidth: 1024,
+    /* ⚠️ LA HAUTEUR ENTRE DANS LE CALCUL DEPUIS LE 31/08 — sans elle, un iPad
+       couché recevrait un cran que sa hauteur ne porte pas. Un stub qui ne la
+       porterait pas rendrait `NaN`, et le garde ne verrait rien. */
+    innerHeight: 1366,
     localStorage: {
       getItem: (k) => (magasin.has(k) ? magasin.get(k) : null),
       setItem: (k, v) => magasin.set(k, v),
@@ -102,52 +109,72 @@ test("les trois grandeurs découpent bien la droite, aux bornes comprises", () =
 
 /* ══ 2 — LA LARGEUR VOULUE EST LUE, PAS RECOPIÉE ══════════════════════ */
 
-test("🔴 le cran auto suit les JETONS — bouger --measure change le résultat", () => {
+test("🔴 le cran auto suit les JETONS — bouger --panneau-l change le résultat", () => {
   /* ⛔ LE PIÈGE NOMMÉ PAR `fiche.css` LE 16/08 : *« une somme ne se fige pas,
-     elle se déduit »*. `--measure` a déjà bougé une fois (migration ch → px,
-     29/08) et `--rail-w` deux fois (84 → 78 → 90). Une somme recopiée dans le
-     JS serait fausse au réglage suivant, en silence. */
-  window.innerWidth = 1600;
-  const avant = cranAuto(1600, racine);
-  racine.__jetons.set("--measure", "1200px"); // le dessin veut soudain bien plus
-  const apres = cranAuto(1600, racine);
-  racine.__jetons.set("--measure", "625px");
+     elle se déduit »*. Les trois cotes du panneau sont DONNÉES par Eric, donc
+     elles bougeront ; recopiées dans le JS elles seraient fausses au réglage
+     suivant, en silence. */
+  const avant = cranAuto(1600, 1600, racine);
+  racine.__jetons.set("--panneau-l", "800px");   // le panneau veut soudain bien plus
+  const apres = cranAuto(1600, 1600, racine);
+  racine.__jetons.set("--panneau-l", "375px");
   assert.ok(apres < avant,
-    "un dessin plus large doit faire BAISSER le cran automatique — sinon la somme est figée quelque part");
+    "un panneau plus large doit faire BAISSER le cran — sinon la cote est figée quelque part");
 });
 
-test("le cran auto reste au plancher tant que la fenêtre n'offre pas la place", () => {
-  /* Le téléphone et la colonne de VTT sont DÉJÀ dessinés pour cette taille :
-     ils n'ont rien à agrandir, et c'est ce qui garantit zéro régression
-     visuelle là où Eric teste. */
-  for (const largeur of [360, 390, 480, 600, 720]) {
-    assert.equal(cranAuto(largeur, racine), 1,
-      `à ${largeur} px, l'auto doit rester au plancher — le dessin y tient déjà tout juste`);
+test("🔴 et il suit AUSSI --panneau-h — la hauteur est une vraie contrainte", () => {
+  /* 📏 LE DÉFAUT QUE CETTE CLAUSE GARDE, mesuré le 31/08 sur l'iPad d'Eric
+     couché (1366 × 1024) : sur la seule largeur, l'auto rendait ×3 — panneau
+     de 1125 px de large et **341 blg de haut** pour 520 nécessaires. La carte
+     se serait coupée. C'est le défaut qu'on venait de fermer, rouvert par
+     l'autre bout. */
+  const avant = cranAuto(1600, 1600, racine);
+  racine.__jetons.set("--panneau-h", "1200px");  // il faut soudain bien plus de hauteur
+  const apres = cranAuto(1600, 1600, racine);
+  racine.__jetons.set("--panneau-h", "520px");
+  assert.ok(apres < avant, "une hauteur exigée plus grande doit retirer des crans");
+  assert.equal(cranAuto(1366, 1024, racine), 1.5,
+    "l'iPad COUCHÉ reçoit 1,5 : la largeur en offrirait 3, la hauteur n'en porte que 1,97");
+  assert.equal(cranAuto(1024, 1366, racine), 2,
+    "le même iPad DEBOUT reçoit 2 — tourner l'appareil change le cran, et c'est la hauteur qui le dit");
+});
+
+test("le cran auto reste au plancher tant que l'écran n'offre pas le panneau", () => {
+  /* Le téléphone est DÉJÀ dessiné pour cette taille : il n'a rien à agrandir,
+     et c'est ce qui garantit zéro régression là où Eric teste.
+     🔴 LA BORNE A CHANGÉ AVEC LE PANNEAU, ET C'EST LE TEST QUI ÉTAIT PÉRIMÉ :
+     l'ancienne facture était la colonne de contenu (657 blg), la nouvelle est
+     le panneau (375). Un 720 offrait donc le plancher hier et offre ×1,5
+     aujourd'hui — ce n'est pas un défaut, c'est la nouvelle cote. Le premier
+     cran au-dessus de 1 demande 1,25 × 375 = 469 blg : c'est LÀ qu'est la
+     frontière, et elle se calcule ici plutôt que de se recopier. */
+  const frontiere = 1.25 * 375;
+  for (const largeur of [360, 375, 390, 430, Math.floor(frontiere) - 1]) {
+    assert.equal(cranAuto(largeur, 1366, racine), 1,
+      `à ${largeur} px, l'auto doit rester au plancher — le panneau y tient déjà tout juste`);
   }
+  assert.equal(cranAuto(Math.ceil(frontiere), 1366, racine), 1.25,
+    "et juste au-dessus de la frontière, il monte d'un cran — sinon la borne est ailleurs qu'annoncé");
 });
 
 test("et il monte quand la place existe, sans jamais dépasser le dernier cran", () => {
-  const voulue = 625 + 2 * 16; // 657 — la COLONNE, recalculée ici, jamais lue du module
-  assert.ok(cranAuto(voulue * 2, racine) >= 1.5, "le double de la largeur voulue mérite mieux que le plancher");
-  assert.equal(cranAuto(99999, racine), CRANS[CRANS.length - 1],
+  assert.ok(cranAuto(375 * 2, 520 * 2, racine) >= 1.5,
+    "le double du panneau, dans les DEUX sens, mérite mieux que le plancher");
+  assert.equal(cranAuto(99999, 99999, racine), CRANS[CRANS.length - 1],
     "un écran immense reçoit le plafond, jamais une valeur hors tableau");
-  for (const largeur of [360, 480, 1024, 1920, 3840]) {
-    assert.ok(CRANS.includes(cranAuto(largeur, racine)),
-      `le cran rendu doit toujours être UN DES CRANS (${largeur} px)`);
+  for (const l of [360, 480, 1024, 1920, 3840]) {
+    assert.ok(CRANS.includes(cranAuto(l, l, racine)), `le cran rendu doit toujours être UN DES CRANS (${l} px)`);
   }
 });
 
 test("un cran automatique tient toujours la promesse qu'il fait", () => {
-  /* ⭐ LE VRAI CONTRAT : le cran choisi automatiquement ne doit jamais
-     demander plus de place que la fenêtre n'en a. C'est ce qui remplace la
-     bascule que ce lot n'a pas construite. */
-  /* ⚖️ 657 depuis la recalibration du 30/08 au soir : la facture de l'auto
-     est la colonne de contenu, plus l'écran F idéal — voir echelle.mjs. */
-  const voulue = 625 + 2 * 16;
-  for (const largeur of [360, 480, 768, 1024, 1440, 1920, 2560, 3840]) {
-    const c = cranAuto(largeur, racine);
-    assert.ok(c === CRANS[0] || c * voulue <= largeur,
-      `à ${largeur} px le cran ${c} demande ${c * voulue} blg de place — il n'y en a pas tant`);
+  /* ⭐ LE VRAI CONTRAT : le cran choisi automatiquement ne demande jamais plus
+     de place que l'écran n'en a — dans les deux sens. */
+  for (const [l, h] of [[360, 640], [375, 812], [768, 1024], [1024, 1366],
+                        [1366, 1024], [1440, 900], [1920, 1080], [3840, 2160]]) {
+    const c = cranAuto(l, h, racine);
+    assert.ok(c === CRANS[0] || (c * 375 <= l && c * 520 <= h),
+      `à ${l} × ${h} le cran ${c} demande ${c * 375} × ${c * 520} blg — il n'y en a pas tant`);
   }
 });
 
@@ -209,41 +236,46 @@ test("localStorage qui JETTE ne fait pas tomber le builder", () => {
 
 /* ══ 4 — LE CRAN À LA MAIN EST BORNÉ, ET IL N'EST PAS CLAMPÉ ══════════ */
 
-test("🔴 cranTient dit non quand le cran ne laisserait plus de quoi dessiner", () => {
-  /* Le plancher vaut rail 90 + fiche 242 + 2 × 4 = 340 blg. Un cran qui
-     ramène la fenêtre sous ce chiffre coupe la colonne de stats. */
-  const plancher = 90 + 242 + 2 * 4;
-  assert.equal(cranTient(1, 360, racine), true, "à 360 le cran de base tient — c'est la base du dessin");
-  assert.equal(cranTient(2, 360, racine), false, "360 / 2 = 180 blg : la fiche ne rentre plus");
-  assert.equal(cranTient(3, 1920, racine), true, "1920 / 3 = 640 blg, au-dessus du plancher");
-  assert.equal(cranTient(3, 900, racine), false, `900 / 3 = 300 blg, sous ${plancher}`);
+test("🔴 cranTient dit non quand le cran ne porterait plus le panneau", () => {
+  assert.equal(cranTient(1, 375, 812, racine), true, "un iPhone porte le panneau au cran 1");
+  assert.equal(cranTient(2, 375, 812, racine), false, "375 / 2 = 188 blg : le panneau n'y est plus");
+  assert.equal(cranTient(2, 1024, 1366, racine), true, "1024 × 1366 au cran 2 : 512 × 683, le panneau tient");
+  assert.equal(cranTient(3, 1366, 1024, racine), false,
+    "1366 / 3 = 455 de large, ça irait — mais 1024 / 3 = 341 de haut pour 520 : NON");
 });
 
-test("cranTient suit le PLANCHER déclaré, il ne le recopie pas", () => {
-  const avant = cranTient(2, 800, racine);
-  racine.__jetons.set("--fiche-dalle-w", "600px"); // une fiche soudain bien plus large
-  const apres = cranTient(2, 800, racine);
-  racine.__jetons.set("--fiche-dalle-w", "242px");
-  assert.ok(avant && !apres, "élargir le plancher doit retirer des crans — sinon la somme est figée dans le JS");
+test("cranTient suit les COTES DÉCLARÉES, il ne les recopie pas", () => {
+  const avantL = cranTient(2, 800, 1400, racine);
+  racine.__jetons.set("--panneau-l", "600px");
+  const apresL = cranTient(2, 800, 1400, racine);
+  racine.__jetons.set("--panneau-l", "375px");
+  assert.ok(avantL && !apresL, "élargir le panneau doit retirer des crans — sinon la cote est figée");
+
+  const avantH = cranTient(2, 800, 1400, racine);
+  racine.__jetons.set("--panneau-h", "900px");
+  const apresH = cranTient(2, 800, 1400, racine);
+  racine.__jetons.set("--panneau-h", "520px");
+  assert.ok(avantH && !apresH, "et la HAUTEUR aussi — c'est elle qui décide en paysage");
 });
 
 test("l'automatique ne propose JAMAIS un cran qui ne tient pas", () => {
-  /* ⭐ C'est la promesse qui remplace la bascule non construite : aucune
-     combinaison écran × auto ne peut produire un écran coupé.
-     ⚠️ À PARTIR DE 360, ET C'EST LE CONTRAT, PAS UNE FAIBLESSE DU TEST. Eric :
-     *« le plancher c'est la taille 360 sur laquelle on travaille »*. Une
-     fenêtre de 320 blg ne tient pas le dessin et ne l'a jamais tenu — l'auto y
-     rend le cran 1 parce qu'il n'existe rien de plus petit, pas parce qu'il se
-     trompe. Descendre sous 360 est hors contrat, et le rester est une décision
-     d'Eric, pas un oubli. */
-  assert.equal(cranAuto(320, racine), CRANS[0],
+  /* ⚠️ À PARTIR DE 360, ET C'EST LE CONTRAT, PAS UNE FAIBLESSE DU TEST.
+     Eric, 2026-08-31 : *« c'est du 375×520, il y a une marge c'est joli. Pour
+     du 360×520, il n'y a pas de marge c'est moins joli, mais ça fonctionne. En
+     dessous achète un téléphone qui tient la route ou va sur ton ordi. »*
+     Une fenêtre de 320 blg est HORS CONTRAT : l'auto y rend le cran 1 parce
+     qu'il n'a rien de plus petit, pas parce qu'il se trompe — et `cranTient`
+     ne prétend pas le contraire. */
+  assert.equal(cranAuto(320, 640, racine), CRANS[0],
     "sous le plancher servi, l'auto rend la base — il n'a rien de plus petit à offrir");
-  assert.equal(cranTient(CRANS[0], 320, racine), false,
+  assert.equal(cranTient(CRANS[0], 320, 640, racine), false,
     "et il ne PRÉTEND pas que ça tient : 320 est hors contrat, le menu le dira");
-  for (const largeur of [360, 390, 480, 600, 768, 834, 1024, 1280, 1440, 1920, 2560, 3840]) {
-    const c = cranAuto(largeur, racine);
-    assert.ok(cranTient(c, largeur, racine),
-      `à ${largeur} px l'auto a choisi le cran ${c}, qui ne laisse pas la place de dessiner`);
+  for (const [l, h] of [[360, 640], [375, 812], [390, 844], [480, 800], [768, 1024],
+                        [834, 1112], [1024, 1366], [1366, 1024], [1280, 800],
+                        [1440, 900], [1920, 1080], [2560, 1440], [3840, 2160]]) {
+    const c = cranAuto(l, h, racine);
+    assert.ok(cranTient(c, l, h, racine) || c === CRANS[0],
+      `à ${l} × ${h} l'auto a choisi le cran ${c}, qui ne porte pas le panneau`);
   }
 });
 

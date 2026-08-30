@@ -83,86 +83,61 @@ export function setCran(valeur) {
 
 export function cranChoisi() { return lireCran(); }
 
-/** La largeur que le DESSIN veut : la COLONNE DE CONTENU — le plafond de la
- *  carte plus ses deux gouttières. C'est elle que l'œil met à l'échelle.
- *
- *  ⚖️ RECALIBRÉE LE 2026-08-30 AU SOIR, SUR L'IPAD D'ERIC. La première
- *  formule ajoutait `--rail-w` : elle exigeait tout l'écran F idéal (777 blg)
- *  avant de monter d'un cran. Mesuré : chaque iPad en PORTRAIT (744 à 834 de
- *  large) restait au cran 1, et la fenêtre d'Eric (~1000) plafonnait à 1,25
- *  quand 1,5 y tient — « sur mon iPad aucun changement », et il avait raison.
- *  ⛔ Le rail n'a rien à faire dans cette facture : il n'existe que sur les
- *  écrans F, où la fiche derrière lui a un PLANCHER de 242 blg — au pire cran
- *  proposé il lui reste plus du double (mesuré : 657 − 90 = 567). C'est
- *  `cranTient`, ci-dessous, qui garde ce plancher-là ; la facture de l'auto
- *  ne doit compter que ce qui cesse d'être confortable quand on zoome : la
- *  colonne qu'on lit.
- *
- *  🔴 LUE DANS LES JETONS, JAMAIS ÉCRITE ICI. `--measure` a déjà bougé une
- *  fois (migration `ch` → px du 29/08). Une somme recopiée dans le JS serait
- *  fausse au prochain réglage d'Eric, sans qu'aucun test ne bronche — le
- *  piège « une somme ne se fige pas, elle se déduit » (fiche.css, 16/08).
- *  ⚠️ Lue sur `documentElement`, donc HORS du zoom : ces jetons y valent leur
+/** Les trois cotes du PANNEAU, lues dans les jetons. Elles ne se recopient
+ *  pas ici : `--measure` a déjà bougé une fois (migration `ch` → px du 29/08),
+ *  et une somme figée dans le JS serait fausse au prochain réglage d'Eric sans
+ *  qu'aucun test ne bronche. Le repli n'est qu'un filet pour le stub des tests.
+ *  ⚠️ Lues sur `documentElement`, donc HORS du zoom : elles y valent leur
  *  compte de blg, ce qui est justement l'unité de ce calcul. */
-function largeurVoulue(racine) {
+function cotesDuPanneau(racine) {
   const cs = getComputedStyle(racine);
   const px = (nom, defaut) => {
     const v = parseFloat(cs.getPropertyValue(nom));
     return Number.isFinite(v) && v > 0 ? v : defaut;
   };
-  return px("--measure", 625) + 2 * px("--sp-16", 16);
+  return { largeur: px("--panneau-l", 375), hauteur: px("--panneau-h", 520) };
 }
 
-/** Le PLANCHER : la place minimale, en blg, sous laquelle l'écran à rail ne
- *  tient plus — le rail, ses deux gouttières de scène, et le plancher de la
- *  fiche.
+/** Ce cran laisse-t-il le panneau ENTIER, dans les deux sens ?
  *
- *  📏 LES TROIS SONT MESURÉS, PAS CHOISIS, et chacun est cloué par un mot réel
- *  de l'interface : le rail par `Dragonborn` (70,4 blg en gras + 2 × 8 de
- *  rembourrage), la colonne de stats par `Weapons : Smpl+FL` (115,1 pour 118),
- *  l'image parce que c'est un cadre. La somme vaut **340** aujourd'hui, et
- *  CADRES §4 la publie — mais elle se LIT, elle ne se recopie pas : le rail a
- *  déjà bougé deux fois. */
-function plancher(racine) {
-  const cs = getComputedStyle(racine);
-  const px = (nom, defaut) => {
-    const v = parseFloat(cs.getPropertyValue(nom));
-    return Number.isFinite(v) && v > 0 ? v : defaut;
-  };
-  return px("--rail-w", 90) + px("--fiche-dalle-w", 242) + 2 * px("--sp-4", 4);
+ *  🔴 DEUX CONTRAINTES, ET LA SECONDE VIENT D'UNE MESURE. Ne garder que la
+ *  largeur donnait au 1366 × 1024 d'Eric un cran 3 : le panneau y aurait eu
+ *  1125 px de large et **341 blg de haut** pour 520 nécessaires — la carte
+ *  aurait défilé ou se serait coupée, c'est-à-dire le défaut qu'on venait de
+ *  fermer, rouvert par l'autre bout. En paysage c'est la HAUTEUR qui décide.
+ *
+ *  ⛔ Et on ne CLAMPE PAS en silence : le menu n'OFFRE pas les crans qui ne
+ *  tiennent pas, il ne les transforme pas en un autre. Un réglage qui se
+ *  change tout seul est un réglage qui ment. */
+export function cranTient(cran, largeurFenetre, hauteurFenetre, racine) {
+  const p = cotesDuPanneau(racine);
+  return largeurFenetre / cran >= p.largeur && hauteurFenetre / cran >= p.hauteur;
 }
 
-/** Ce cran laisse-t-il encore de quoi dessiner ?
+/** Le cran automatique : le plus grand qui porte le panneau entier.
  *
- *  ⭐ C'EST CE QUI REMPLACE LA BASCULE QUE CE LOT N'A PAS CONSTRUITE. Plutôt
- *  que de replier le rail quand la place manque — un second régime de mise en
- *  page à dessiner, à mesurer et à garder —, le menu n'OFFRE pas les crans qui
- *  ne tiennent pas. Un réglage qui ne peut pas décevoir n'a pas besoin de
- *  rattrapage.
- *  ⛔ Et on ne CLAMPE PAS en silence : un cran choisi qui se transformerait en
- *  un autre est un réglage qui ment. Il est proposé, ou il ne l'est pas. */
-export function cranTient(cran, largeurFenetre, racine) {
-  return largeurFenetre / cran >= plancher(racine);
-}
-
-/** Le cran automatique : le plus grand qui laisse encore le dessin tenir dans
- *  la fenêtre. En dessous de la largeur voulue on reste au plancher — le
- *  téléphone et la colonne de VTT sont DÉJÀ dessinés pour cette taille-là,
- *  ils n'ont rien à agrandir.
+ *  📐 Eric, 2026-08-31 : *« quand j'ouvre le builder, quel que soit l'écran,
+ *  la fenêtre doit rester dans la proportion que nous connaissons, avec le
+ *  zoom approprié. »* Le panneau ne s'élargit pas — c'est le PIXEL qui grandit
+ *  sous lui, et ce cran-ci est le facteur.
  *
- *  ⭐ LA FORMULE EST LA LIMITE HAUTE ELLE-MÊME, bornée par le tableau des
- *  crans : le cran monte tant que la COLONNE tient encore à ce cran-là
- *  (c × 657 ≤ fenêtre). Un 1024 reçoit 1,5 ; un 1920 reçoit 2 ; un 4K non
- *  mis à l'échelle demande ×5,84 et reçoit le plafond. */
-export function cranAuto(largeurFenetre, racine) {
-  const voulue = largeurVoulue(racine);
-  const vise = largeurFenetre / voulue;
+ *  📏 Ce que la formule rend, mesuré :
+ *      iPhone   375 × 812  → largeur 1,00 · hauteur 1,56  → ×1
+ *      iPad ▯  1024 × 1366 → largeur 2,73 · hauteur 2,63  → ×2
+ *      iPad ▭  1366 × 1024 → largeur 3,64 · hauteur 1,97  → ×1,5
+ *  ⚠️ Coucher l'iPad RAPETISSE donc l'app (750 px de panneau debout, 562
+ *  couché) : c'est la hauteur qui l'impose, et c'est le prix de la proportion.
+ *  Eric l'a tranché en la redemandant après l'avoir vu chiffré.
+ *
+ *  ⭐ LE PLANCHER EST 1, et rien ne descend dessous : *« le plancher c'est la
+ *  taille 360 sur laquelle on travaille »*. Un écran plus étroit que le
+ *  panneau reçoit donc le cran 1 et le panneau se serre sur lui (`min(100%,…)`
+ *  dans la feuille) — jusqu'à `--panneau-min`, en dessous duquel Eric ne
+ *  promet rien : *« achète un téléphone qui tient la route ou va sur ton
+ *  ordi »*. */
+export function cranAuto(largeurFenetre, hauteurFenetre, racine) {
   let cran = CRANS[0];
-  /* ⚠️ DEUX CONDITIONS, PAS UNE : le cran doit valoir la peine (`<= vise`) ET
-     laisser de quoi dessiner (`cranTient`). La première seule suffisait tant
-     que la largeur voulue dépassait le plancher — c'est vrai aujourd'hui (777
-     contre 340), ça n'a pas à le rester. Un garde mesure la promesse. */
-  for (const c of CRANS) if (c <= vise && cranTient(c, largeurFenetre, racine)) cran = c;
+  for (const c of CRANS) if (cranTient(c, largeurFenetre, hauteurFenetre, racine)) cran = c;
   return cran;
 }
 
@@ -237,9 +212,18 @@ export function appliquerEchelle(fenetre, racine) {
   const vue = fenetre || window;
   const html = racine || document.documentElement;
   const choisi = lireCran();
-  const cran = choisi === null ? cranAuto(vue.innerWidth, html) : choisi;
+  const cran = choisi === null ? cranAuto(vue.innerWidth, vue.innerHeight, html) : choisi;
   html.style.setProperty("--echelle", String(cran));
-  const grandeur = grandeurDe(vue.innerWidth / cran);
+  /* 🔴 LA GRANDEUR SE LIT SUR LE PANNEAU, PLUS SUR LA FENÊTRE — 2026-08-31.
+     C'est la suite exacte du défaut que le lot 85 avait trouvé (« un seuil lu
+     sur la fenêtre brute est juste au cran 1 et faux à tous les autres ») :
+     depuis que `.app` s'arrête à `--panneau-l`, la fenêtre n'est plus ce que
+     le dessin occupe. Mesuré au banc : à 1366 blg avec un panneau de 375, la
+     fenêtre annonçait « moyenne » et la carte se coupait de 39 blg — forcer
+     « etroite » à la main a fait tomber le débordement à 15. Le seuil doit
+     donc mesurer LE PANNEAU. */
+  const panneau = Math.min(cotesDuPanneau(html).largeur, vue.innerWidth / cran);
+  const grandeur = grandeurDe(panneau);
   html.dataset.grandeur = grandeur;
   return { cran, grandeur, auto: choisi === null };
 }
