@@ -6252,6 +6252,7 @@ button { font: inherit; }
 .species-done,
 .parcours-item-porte,
 .parcours-pied button:not(.fiche-livre),
+.card-pied button,
 .fiche-action, /* CHOOSE — un libellé, donc l'octogone (Eric, 28/08) */
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
@@ -6307,6 +6308,7 @@ button { font: inherit; }
 .species-done::before,
 .parcours-item-porte::before,
 .parcours-pied button:not(.fiche-livre)::before,
+.card-pied button::before,
 .fiche-action::before,
 .ability-entry::before {
   content: "";
@@ -6619,6 +6621,281 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--critical);
 }
 .parcours-item-porte[data-verrou="oui"] { cursor: pointer; }
+
+/* 🖼️ UN CRAN À VIGNETTE — Eric, 2026-08-30 : « il y a un scrollspy avec les
+   cartes de tarot », « oui des cartes ». Le nom reste SOUS l'image : une
+   vignette de 90 px ne se lit pas, elle se reconnaît — et le rail sert aussi
+   à chercher une carte dont on a le nom en tête, pas la figure. */
+.catalogue-rail-item[data-vignette="oui"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-block: var(--sp-4);
+}
+.catalogue-rail-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DESTINY — LA CÉRÉMONIE ET SON ÉCRAN FINAL (lot 109)
+   Croquis d'Eric du 2026-08-30, planches « B.1 » et « B2 ». Trois séquences
+   en plein écran noir, puis l'écran final à deux colonnes.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── LE PLEIN ÉCRAN (FS) — « ni belt ni menu, ça recouvre tout » ─────────
+   ⛔ IL RECOUVRE VRAIMENT : `position: fixed` sort du flux, donc la scène
+   qui le porte ne bouge pas d'un pixel. C'est ce qui permet de le poser dans
+   la carte d'étape sans rien réorganiser — le nœud est dans l'arbre, l'écran
+   est par-dessus. */
+.ceremonie {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--ceremonie-fond);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-24);
+  overflow: hidden;
+  touch-action: manipulation;  /* le triple tap ne doit pas zoomer la page */
+}
+/* ⚠️ `align-content`, PAS `place-items` SEUL — mesuré au banc le 30/08 : avec
+   deux enfants, la grille leur donnait une rangée CHACUN, moitié d'écran
+   chacune, et la petite ligne se retrouvait tout en bas, à six cents pixels
+   de son texte. Les deux se tiennent ensemble, au centre. */
+.ceremonie-scene {
+  display: grid;
+  grid-auto-rows: max-content;
+  align-content: center;
+  justify-items: center;
+  gap: var(--sp-16);
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+/* ① LA FRAPPE — blanc sur noir, très gros ; le curseur ne clignote que
+   pendant qu'elle écrit. */
+.ceremonie-texte {
+  margin: 0;
+  color: var(--ceremonie-encre);
+  font-size: var(--t7);
+  line-height: 1.25;
+  max-width: 18ch;
+  min-height: 2.5em;      /* la scène ne saute pas quand le texte grandit */
+}
+.ceremonie-texte[data-frappe="encours"]::after {
+  content: "▌";
+  animation: ceremonie-curseur 900ms steps(2, jump-none) infinite;
+}
+@keyframes ceremonie-curseur { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.ceremonie-ligne {
+  margin: 0;
+  color: var(--ceremonie-mention);
+  font-size: var(--t2);
+  font-style: italic;
+  max-width: 34ch;
+}
+/* « A s'estompe » (Eric) : le gros texte ET sa petite ligne partent ensemble,
+   juste avant que les cartes n'entrent. */
+.ceremonie-scene[data-estompe="oui"] > * {
+  opacity: 0;
+  transition: opacity 620ms ease-in;
+}
+
+/* ② LE MÉLANGE — douze copies du même dos.
+   📏 Le voyage de chaque carte est écrit dans SES variables (`--dx/--dy/
+   --rot`, tirées au montage) et son `--retard` fait la cascade. La feuille
+   ne connaît ni positions ni ordre : elle ne sait que « d'où » vers « le
+   centre ». */
+.ceremonie-pile {
+  position: relative;
+  width: min(52vw, 40vh);
+  aspect-ratio: 480 / 823;
+  transform: scale(.5);
+  transition: transform 1900ms cubic-bezier(.22, .61, .36, 1);
+}
+.ceremonie-pile[data-etape="grossit"] { transform: scale(1); }
+/* 🔴 LA DISPERSION EST ÉCRITE ICI, PAS POSÉE PAR LE SCRIPT — garde 7 : aucun
+   style en ligne dans `ui/`, et son attaque montre que même
+   `setProperty("--x", …)` est refusé (voir la même leçon dans `glisser.mjs`).
+   ⭐ CE QUE ÇA CHANGE, ET C'EST MIEUX : douze départs et douze retards vivent
+   dans la feuille ; le script ne pose que deux CHIFFRES par carte. Le mélange
+   ne se répète pas parce que les deux séries sont permutées à chaque montage —
+   144 figures possibles pour zéro pixel de décor dans le JS. */
+.ceremonie-dos {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 30px var(--ceremonie-ombre);
+  transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0deg));
+  transition: transform 900ms cubic-bezier(.34, .08, .2, 1) var(--retard, 0ms);
+}
+.ceremonie-dos[data-part="1"]  { --dx: -38vw; --dy: -22vh; --rot: -31deg; }
+.ceremonie-dos[data-part="2"]  { --dx:  34vw; --dy: -28vh; --rot:  24deg; }
+.ceremonie-dos[data-part="3"]  { --dx: -44vw; --dy:  18vh; --rot:  17deg; }
+.ceremonie-dos[data-part="4"]  { --dx:  41vw; --dy:  25vh; --rot: -22deg; }
+.ceremonie-dos[data-part="5"]  { --dx: -25vw; --dy:  31vh; --rot:  35deg; }
+.ceremonie-dos[data-part="6"]  { --dx:  28vw; --dy: -33vh; --rot: -14deg; }
+.ceremonie-dos[data-part="7"]  { --dx: -46vw; --dy:  -6vh; --rot:  28deg; }
+.ceremonie-dos[data-part="8"]  { --dx:  45vw; --dy:   8vh; --rot: -37deg; }
+.ceremonie-dos[data-part="9"]  { --dx: -18vw; --dy: -34vh; --rot:  11deg; }
+.ceremonie-dos[data-part="10"] { --dx:  20vw; --dy:  33vh; --rot: -19deg; }
+.ceremonie-dos[data-part="11"] { --dx: -33vw; --dy:   4vh; --rot: -26deg; }
+.ceremonie-dos[data-part="12"] { --dx:  36vw; --dy:  -3vh; --rot:  33deg; }
+.ceremonie-dos[data-cascade="1"]  { --retard:   0ms; }
+.ceremonie-dos[data-cascade="2"]  { --retard:  55ms; }
+.ceremonie-dos[data-cascade="3"]  { --retard: 110ms; }
+.ceremonie-dos[data-cascade="4"]  { --retard: 165ms; }
+.ceremonie-dos[data-cascade="5"]  { --retard: 220ms; }
+.ceremonie-dos[data-cascade="6"]  { --retard: 275ms; }
+.ceremonie-dos[data-cascade="7"]  { --retard: 330ms; }
+.ceremonie-dos[data-cascade="8"]  { --retard: 385ms; }
+.ceremonie-dos[data-cascade="9"]  { --retard: 440ms; }
+.ceremonie-dos[data-cascade="10"] { --retard: 495ms; }
+.ceremonie-dos[data-cascade="11"] { --retard: 550ms; }
+.ceremonie-dos[data-cascade="12"] { --retard: 605ms; }
+.ceremonie-pile[data-rassemble="oui"] .ceremonie-dos { transform: none; }
+
+/* ③ LE RETOURNEMENT — deux faces, une seule visible.
+   ⚠️ `backface-visibility` fait tout le travail : la carte apparaît PAR le
+   retournement, jamais par une substitution d'image. */
+.ceremonie-flip {
+  position: relative;
+  width: min(64vw, 74vh);
+  aspect-ratio: 480 / 823;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ceremonie-encre);  /* garde 6 : un <button> n'hérite pas de `color` */
+  transform-style: preserve-3d;
+  transform: rotateY(0deg) scale(1);
+  transition: transform 760ms cubic-bezier(.3, .7, .3, 1);
+  cursor: pointer;
+}
+.ceremonie-flip[data-face="up"] { transform: rotateY(180deg) scale(1); }
+.ceremonie-flip[data-etat="dezoom"] { transform: rotateY(180deg) scale(.5); }
+.ceremonie-flip-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md);
+  backface-visibility: hidden;
+  box-shadow: 0 14px 40px var(--ceremonie-ombre);
+}
+.ceremonie-flip-carte { transform: rotateY(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ceremonie-pile, .ceremonie-dos, .ceremonie-flip, .ceremonie-scene > * { transition: none; }
+  .ceremonie-texte[data-frappe="encours"]::after { animation: none; }
+}
+
+/* ── LE R : L'AMBIANCE ET SES DEUX PORTES ──────────────────────────────── */
+.card-porte-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); }
+.card-porte-mot {
+  margin: 0 0 var(--sp-8);
+  max-width: var(--measure);
+  color: var(--text-soft);
+}
+
+/* ── LA RANGÉE DE BOUTONS, commune au R et à l'écran final ──────────────
+   Elle suit la loi du pied : les boutons se posent sur la dalle, jamais sur
+   le fond, et ils gardent leur cible tactile. */
+/* ⭐ PAS DE RANGÉE À MOI : le R et l'écran final portent `.parcours-pied`,
+   l'organe des autres chapitres (Eric, 2026-08-30 : « I changed my mind comme
+   dans les autres chapitres, organes livre et ? »). Il apporte l'octogone, le
+   rouge du défaire, le bleu du mouvement, ses 4 px et la place du livre.
+   ⚠️ IL RESTE UNE CHOSE À RÉSERVER : le `?` de la coquille se pose en bas à
+   droite de la DALLE (Eric, 19/08) et tombait sur le dernier bouton — mesuré
+   au banc le 30/08. La rangée de ces deux écrans lui garde sa place. */
+.card-porte .parcours-pied,
+.card-final .parcours-pied { padding-inline-end: var(--touch); }
+
+
+/* ── L'ÉCRAN FINAL — deux colonnes, et le texte reste DANS le cadre ─────
+   🔴 « ça doit rester dans le cadre que j'ai dessiné » (Eric, 2026-08-30) :
+   la dalle tient sa hauteur, la colonne de texte prend ce qui reste et
+   défile. C'est le gabarit de la fenêtre du SB1 des espèces. */
+/* 🔴 « ÇA DOIT RESTER DANS LE CADRE QUE J'AI DESSINÉ » (Eric, 2026-08-30) —
+   et sur un iPhone, ça ne tenait pas : la dalle mesurait 846 px dans une
+   scène de 607, le pied tombait hors de l'écran et le texte ne défilait
+   nulle part (banc, 30/08). La colonne s'allongeait au lieu de défiler.
+   ⭐ LA CHAÎNE DE HAUTEUR EST LE MÊME GABARIT QUE LE SB DES ESPÈCES : chaque
+   maillon prend la hauteur de son parent et rend son `min-height` nul, sinon
+   un seul d'entre eux suffit à rendre le défilement impossible. La fenêtre
+   de texte, tout en bas, est alors la seule à céder — et c'est elle qui doit
+   céder. */
+.stage:has(> .decision-card > .card-step > .card-final) { height: 100%; }
+.decision-card:has(> .card-step > .card-final) { height: 100%; margin-block: 0; }
+.card-step:has(> .card-final) { height: 100%; min-height: 0; }
+.card-final {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.card-final-tete {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--sp-8);
+}
+.card-final[data-allume="true"] .parcours-voyant {
+  background: var(--positive);
+  box-shadow: inset 0 0 0 1px var(--positive);
+}
+.card-final-corps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-16);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.card-final-carte { display: grid; place-items: start center; min-height: 0; }
+.card-final-img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--ombre-dalle, 0 8px 24px var(--ceremonie-ombre));
+}
+.card-final-texte {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: var(--sp-4);
+}
+.card-final-nom { margin: 0 0 var(--sp-8); font-size: var(--t4); }
+.card-final-sous { margin: var(--sp-12) 0 var(--sp-4); font-size: var(--t3); }
+.card-liste-rangs { margin: 0; font-size: var(--t2); }
+.card-liste-rangs dt { font-weight: 600; margin-top: var(--sp-4); }
+.card-liste-rangs dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
+
+/* ⭐ LE SCORE RÉUTILISE `.card-score`, l'organe qui existait déjà (lot 61) —
+   il porte la même chose au même endroit. Ce lot ne lui ajoute qu'un filet
+   au-dessus : « tu le mets tout en bas » (Eric, 2026-08-30), donc il ferme la
+   lecture, et un trait dit qu'on a fini de lire. */
+.card-final-texte .card-score {
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--border);
+}
+
+/* ⚠️ DEUX COLONNES NE TIENNENT PAS À 375 : la carte passe au-dessus, le texte
+   dessous, et c'est le texte qui garde le défilement. */
+@media (max-width: 34em) {
+  .card-final-corps { grid-template-columns: minmax(0, 1fr); }
+  .card-final-carte { max-height: 42vh; }
+  .card-final-img { max-height: 42vh; width: auto; }
+}
+
 
 /* 🔴 ⛔ `button.` DEVANT, ET C'EST LA DIFFÉRENCE ENTRE MARCHER ET NE PAS
    MARCHER. Écrite d'abord `.fiche-livre` seule, cette règle était PERDANTE et

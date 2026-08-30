@@ -274,13 +274,17 @@ test("Destiny — ⛔ l'écran à carte ne produit AUCUN bouton à état, et c'e
      ⭐ Le garde reste utile en s'inversant : si quelqu'un remettait un état
      sur ces boutons sans l'annoncer, `data-active` apparaîtrait ici et le
      compte cesserait d'être zéro. */
+  /* 🔴 REFAIT AU LOT 109 : l'écran final a remplacé la scène du lot 61, et
+     ses deux boutons s'appellent maintenant `I changed my mind` / `Next`.
+     La loi, elle, n'a pas bougé d'un mot — ils FONT, ils ne représentent pas,
+     et rien n'y reste « enfoncé ». */
   const node = renderDestinyStep({
-    document: report.document, resolved: report.resolved, query,
-    intro: false, drawnId: currentArcanaId(report.document), face: "up", revealed: true
+    phase: "final", document: report.document, resolved: report.resolved, query,
+    drawnId: currentArcanaId(report.document)
   }, () => {});
   assert.equal(node.querySelectorAll("[data-active]").length, 0,
     "aucun bouton à état sur cet écran — la carte est un geste, pas une bascule");
-  assert.equal(node.querySelectorAll(".card-action").length, 2, "témoin : les deux boutons d'action SONT là");
+  assert.equal(node.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre")).length, 2, "témoin : les deux boutons SONT là");
 });
 
 test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occupe seul", () => {

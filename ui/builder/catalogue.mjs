@@ -143,6 +143,25 @@ export function renderCatalogueRail(ctx, onAction) {
     const item = el("li", null);
     const cran = el("button", "catalogue-rail-item", [text(recordName(ctx.query, ctx.kind, id))]);
     cran.type = "button";
+    /* 🖼️ UN CRAN PEUT PORTER SA VIGNETTE — Eric, 2026-08-30, sur le scrollspy
+       de Destiny : *« il y a un scrollspy avec les cartes de tarot »*, puis
+       *« oui des cartes »*.
+       ⭐ C'EST L'ÉCRAN QUI FOURNIT L'IMAGE, PAS LE RAIL QUI LA DEVINE :
+       `ctx.railImage` rend une URL ou rien. Les catalogues qui n'en donnent
+       pas gardent le cran de texte, à l'octet — un rail qui irait chercher
+       lui-même une image par genre serait un rail qui connaît les couches.
+       ⚠️ La vignette est DÉCORATIVE (`alt=""`) : le nom reste écrit sous elle,
+       donc l'annonce à l'oreille ne perd rien. */
+    const src = typeof ctx.railImage === "function" ? ctx.railImage(id) : null;
+    if (src) {
+      const img = document.createElement("img");
+      img.className = "catalogue-rail-img";
+      img.src = src;
+      img.alt = "";
+      img.loading = "lazy";
+      cran.prepend(img);
+      cran.dataset.vignette = "oui";
+    }
     cran.dataset.value = id;
     cran.setAttribute("aria-current", index === cursor ? "true" : "false");
     cran.addEventListener("click", () => act({ kind: "snapTo", index }));

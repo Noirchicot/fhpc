@@ -8,10 +8,13 @@
    `<button>` — du HTML invalide, et surtout un clic qui remonte :
    **demander de l'aide RETOURNAIT LA CARTE.**
 
-   ⚠️ ET LA PARADE POSÉE ALORS EST UN EFFET, PAS LA RÈGLE. `:not(button)` dans
-   le chercheur d'hôte marche parce que le tarot *se trouve* être un bouton.
-   ⛔ Le jour où une dalle-image n'en serait pas un, elle recevrait le `?` sans
-   que rien ne proteste. Ce fichier mesure **la règle**, pas son effet de bord.
+   ⭐ LA RÈGLE A SURVÉCU À LA REFONTE DU LOT 109, ET SES SÉLECTEURS ONT CHANGÉ.
+   Les croquis d'Eric du 30/08 dessinent exactement les mêmes deux colonnes —
+   `TAROT` à gauche, `TEXTE EXPLICATIF` à droite — et rangent la paire de
+   boutons SOUS elles. C'est la même loi, sur un écran refait : la colonne
+   d'image ne porte rien, la colonne de texte porte le reste.
+   ⛔ Un garde qu'on supprime « parce que l'écran a changé » emporte la leçon
+   avec l'implémentation. Celui-ci est réécrit, pas retiré.
 
    ⚖️ CE QU'IL N'AFFIRME PAS : ni que le tarot doit être un bouton, ni quelle
    forme il a. Il affirme **ce qu'il ne porte pas**, et **où va ce qu'il ne
@@ -23,28 +26,40 @@ import { createTestDocument } from "./dom-stub.mjs";
 
 globalThis.document = createTestDocument();
 const { renderDestinyStep } = await import("../ui/builder/destiny-step.mjs");
+const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
 
 const ARCANE = "srd:arcana:en:the-magician";
-const query = () => ({ record: { name: "The Magician", data: { numeral: "I", meaning: "…", destiny: { impact: 2 } } } });
+const query = () => ({
+  record: {
+    name: "The Magician",
+    data: {
+      numeral: "I", meaning: "…", power: "…", ability: "Intelligence",
+      destiny: { impact: 2 },
+      vibrations: [{ rank: 1, name: "Sleight of Will", effect: "…" }]
+    }
+  }
+});
 
-/** L'écran, carte retournée et texte révélé — l'état où les deux dalles vivent. */
+/** L'écran final — celui où les deux dalles vivent, quelle que soit la
+ *  branche qui y a mené (tirage ou choix : le croquis les dessine jumeaux).
+ *  ⚠️ LA FORME DU `resolved` COMPTE, et mon premier jet l'avait devinée :
+ *  le Score lit `resolved.stats`, un TABLEAU. Un objet `{ destiny: { value } }`
+ *  le fait rendre `null` en silence — une fixture inventée mesure la fixture,
+ *  pas le code. */
 function ecran() {
   return renderDestinyStep({
-    /* ⚠️ LA FORME DU `resolved` COMPTE, et mon premier jet l'avait devinée :
-       `renderScore` lit `resolved.stats`, un TABLEAU, et y cherche l'entrée
-       `fh:destiny`. Un objet `{ destiny: { value } }` le fait rendre `null` en
-       silence — le Score disparaissait et le test accusait le mauvais coupable.
-       ⛔ Une fixture inventée mesure la fixture, pas le code. */
-    document: {}, resolved: { stats: [{ id: "fh:destiny", value: 2 }] }, query,
-    intro: false, drawnId: ARCANE, face: "up", revealed: true
+    phase: "final", document: {},
+    resolved: { stats: [{ id: "fh:destiny", value: 2 }] },
+    query, drawnId: ARCANE
   }, () => {});
 }
 
 test("1 — 🃏 LA DALLE TAROT NE PORTE QUE LE TAROT", () => {
   const s = ecran();
-  const tarot = s.querySelector(".card-face");
-  assert.ok(tarot, "témoin : la carte du tarot est là");
-  const dedans = tarot.querySelectorAll("button, .tuto-point, .fiche-livre, .card-action");
+  const tarot = s.querySelector(".card-final-carte");
+  assert.ok(tarot, "témoin : la colonne du tarot est là");
+  assert.equal(tarot.querySelectorAll("img").length, 1, "témoin : elle porte bien la carte");
+  const dedans = tarot.querySelectorAll("button, .tuto-point, .fiche-livre, .parcours-pied");
   assert.equal(dedans.length, 0,
     "⛔ ni `?`, ni livre, ni bouton d'action, ni pastille. Un bouton DANS le tarot est un clic qui " +
     "remonte : demander l'aide retournerait la carte (mesuré le 26/08).");
@@ -52,34 +67,25 @@ test("1 — 🃏 LA DALLE TAROT NE PORTE QUE LE TAROT", () => {
 
 test("2 — 📄 LA DALLE TEXTE PORTE LES ÉLÉMENTS CLASSIQUES", () => {
   const s = ecran();
-  const texte = s.querySelector(".card-reveal");
-  assert.ok(texte, "témoin : la carte texte est là");
-  const actions = texte.querySelectorAll(".card-action");
-  assert.equal(actions.length, 2, "les deux gestes — `Draw again` et `Choose yourself` — vivent SUR elle");
-  assert.ok(texte.querySelector(".card-score"), "le Score aussi : il porte du texte, il va où le texte va");
+  const texte = s.querySelector(".card-final-texte");
+  assert.ok(texte, "témoin : la colonne de texte est là");
+  assert.ok(texte.querySelector(".card-score"), "le Score vit avec le texte — il EST du texte");
+  /* la paire de boutons vit dans la DALLE, sous les deux colonnes : c'est le
+     croquis d'Eric, et c'est la loi « un bouton se pose sur une dalle, jamais
+     sur le fond ». */
+  const pied = s.querySelector(".parcours-pied");
+  assert.ok(pied, "la rangée de boutons est dans la dalle");
+  const gestes = pied.querySelectorAll("button").filter((b) => !b.className.includes("fiche-livre"));
+  assert.equal(gestes.length, 2, "« I changed my mind » et « Next »");
+  assert.ok(pied.querySelector(".fiche-livre"), "et le livre, l'organe des autres chapitres (Eric, 30/08)");
 });
 
-test("3 — ⛔ AUCUN BOUTON DANS LE FOND — Eric, 26/08", () => {
-  /* Le fond ne peint rien (NORMES §1 quinquies bis) : ce n'est pas une
-     surface, c'est une respiration. Un contrôle posé dessus n'a rien sous lui.
-     Ici : aucun `.card-action` ne doit être un enfant DIRECT de l'écran. */
-  const s = ecran();
-  /* ⚠️ On lit `className`, PAS `classList` : le stub de test ne rend pas la
-     seconde, et un garde qui s'appuie dessus rend `[]` sur tout — il serait
-     vert pour toujours, y compris sur le défaut qu'il défend. Mesuré en
-     écrivant ce fichier : l'attaque ci-dessous ne mordait pas. */
-  const orphelins = [...s.children].filter((e) => String(e.className || "").split(/\s+/).includes("card-actions"));
-  assert.deepEqual(orphelins, [],
-    "les boutons étaient posés directement dans `.card-step`, donc sur le cadre d'écran. " +
-    "Tant que le cadre peignait, ils AVAIENT L'AIR d'être sur quelque chose.");
-});
-
-test("⚔️ ATTAQUE — remettre les actions dans le fond fait rougir le test 3", () => {
-  const faux = document.createElement("section");
-  faux.className = "card-step";
-  const actions = document.createElement("div");
-  actions.className = "card-actions";
-  faux.append(actions);
-  const orphelins = [...faux.children].filter((e) => String(e.className || "").split(/\s+/).includes("card-actions"));
-  assert.equal(orphelins.length, 1, "témoin : le test 3 sait voir un bouton posé sur le fond");
+test("3 — 🃏 PENDANT LA CÉRÉMONIE AUSSI : la carte ne contient aucun autre bouton", () => {
+  /* La séquence 3 fait de la carte elle-même un bouton (c'est le geste du
+     retournement). Raison de plus pour qu'elle ne contienne rien d'autre : un
+     bouton imbriqué y serait invalide ET ferait remonter le clic. */
+  const fs = renderCeremonie({ phase: "seq3", drawnId: ARCANE, face: "down" }, () => {});
+  const carte = fs.querySelector(".ceremonie-flip");
+  assert.ok(carte, "témoin : la carte de la cérémonie est là");
+  assert.equal(carte.querySelectorAll("button, .tuto-point, .fiche-livre").length, 0);
 });

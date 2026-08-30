@@ -569,6 +569,21 @@
      parchemin clair serait invisible — le halo s'y fait d'encre. */
   --spy-halo: rgba(45, 44, 42, 0.45);
 
+  /* ══ LA CÉRÉMONIE DE DESTINY (lot 109) ════════════════════════════════
+     🔴 LA SEULE SCÈNE DU BUILDER QUI NE SUIT PAS LE THÈME, et c'est le
+     croquis d'Eric qui le dit : *« fond noir »*, trois fois. Une cérémonie
+     jouée sur parchemin clair le jour et sur nuit sombre le soir ne serait
+     pas la même cérémonie — ici le noir EST le décor, pas un fond.
+     ⛔ Ces quatre jetons ne se redéfinissent donc dans AUCUN thème. */
+  --ceremonie-fond: #000000;
+  --ceremonie-encre: #ffffff;
+  --ceremonie-mention: rgba(255, 255, 255, 0.62);
+  --ceremonie-ombre: rgba(0, 0, 0, 0.58);
+  /* ⛔ PAS DE JETON DE TAILLE ICI : le garde des barreaux n'accepte que
+     `var(--t1..t7)` — la frappe prend donc `--t7`, le « grand nombre », qui
+     est exactement ce qu'elle est. Un huitième barreau pour un seul écran
+     aurait cassé l'échelle pour tout le monde. */
+
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 

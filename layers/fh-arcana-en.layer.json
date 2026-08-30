@@ -25,7 +25,40 @@
           },
           "meaning": "innocence, beginnings, carefreeness, freedom. Unlimited potential, stepping into the unknown without fear. Exploration without attachments, trust in chance.",
           "power": "once per long rest, roll 2 Destiny dice at once, take the total of both as a bonus, and pay only the price of the highest.",
-          "vibration": "luck effect (Bless or Guidance depending on level)."
+          "vibration": "luck effect (Bless or Guidance depending on level).",
+          "ability": "Dexterity",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Fool's Step",
+              "effect": "reroll one failed ability check; take the new roll"
+            },
+            {
+              "rank": 2,
+              "name": "Tumbler's Grace",
+              "effect": "1 min: advantage on DEX saves and you ignore falling damage from 20 ft or less"
+            },
+            {
+              "rank": 3,
+              "name": "Vagabond's Stride",
+              "effect": "1 h: +10 ft speed and spider climb"
+            },
+            {
+              "rank": 4,
+              "name": "Leap of Faith",
+              "effect": "*Blink*"
+            },
+            {
+              "rank": 5,
+              "name": "Unbound Road",
+              "effect": "*Freedom of Movement*"
+            },
+            {
+              "rank": 6,
+              "name": "Step Beyond",
+              "effect": "*Passwall*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-magician": {
@@ -39,7 +72,40 @@
           },
           "meaning": "ingenuity, creativity, mastery of tools. The intellect shapes reality. The initiator of change through willpower.",
           "power": "once per long rest, adjust the size of a Destiny die of a willing creature (d4 into d12 or vice-versa).",
-          "vibration": "minor illusion effect (Silent Image)."
+          "vibration": "minor illusion effect (Silent Image).",
+          "ability": "Intelligence",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Sleight of Will",
+              "effect": "one *Prestidigitation* effect, lasting up to 1 hour"
+            },
+            {
+              "rank": 2,
+              "name": "Tool of Will",
+              "effect": "1 h: a weapon you touch is a +1 weapon"
+            },
+            {
+              "rank": 3,
+              "name": "Threefold Hand",
+              "effect": "1 min: a spectral hand manipulates at 30 ft and can strike as a bonus action, 1d6 force"
+            },
+            {
+              "rank": 4,
+              "name": "Will into Form",
+              "effect": "*Major Image*"
+            },
+            {
+              "rank": 5,
+              "name": "Master's Fabrication",
+              "effect": "*Fabricate*"
+            },
+            {
+              "rank": 6,
+              "name": "Reality's Apprentice",
+              "effect": "*Creation*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-high-priestess": {
@@ -53,7 +119,40 @@
           },
           "meaning": "hidden knowledge, intuition, mystery. Inner wisdom, revelation through patient study. Silence and secrets of the soul.",
           "power": "roll a Destiny die in secret and store it; you may use the result before the end of the next long rest.",
-          "vibration": "divination effect (Detect Evil and Good, Augury)."
+          "vibration": "divination effect (Detect Evil and Good, Augury).",
+          "ability": "Wisdom",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Inner Whisper",
+              "effect": "advantage on one Intelligence or Wisdom check to recall or uncover lore"
+            },
+            {
+              "rank": 2,
+              "name": "Third Eye",
+              "effect": "1 h: tremorsense 30 ft"
+            },
+            {
+              "rank": 3,
+              "name": "Moonlit Augury",
+              "effect": "*Augury*"
+            },
+            {
+              "rank": 4,
+              "name": "Read the Unseen",
+              "effect": "10 min: blindsight 30 ft"
+            },
+            {
+              "rank": 5,
+              "name": "Pierce the Veil",
+              "effect": "*Divination*"
+            },
+            {
+              "rank": 6,
+              "name": "The Silent Oracle",
+              "effect": "*Legend Lore*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-empress": {
@@ -67,7 +166,40 @@
           },
           "meaning": "fertility, abundance, growth, prosperity. Support, harmony, generosity.",
           "power": "recover an additional Destiny Point after a long rest if you have 2 or less.",
-          "vibration": "healing or reinforcement (Cure Wounds, Heroism)."
+          "vibration": "healing or reinforcement (Cure Wounds, Heroism).",
+          "ability": "Constitution",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Nurturing Touch",
+              "effect": "touch: a creature regains 1d4+1 HP"
+            },
+            {
+              "rank": 2,
+              "name": "Mother's Mending",
+              "effect": "*Cure Wounds*"
+            },
+            {
+              "rank": 3,
+              "name": "Bountiful Aid",
+              "effect": "*Aid*"
+            },
+            {
+              "rank": 4,
+              "name": "Verdant Embrace",
+              "effect": "1 min: allies who start their turn within 10 ft of you regain 1d4 HP"
+            },
+            {
+              "rank": 5,
+              "name": "Blessing of the Evergrowth",
+              "effect": "1 min: one creature regains 1d6 HP at the start of each of its turns"
+            },
+            {
+              "rank": 6,
+              "name": "The Empress's Garden",
+              "effect": "*Mass Cure Wounds*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-emperor": {
@@ -81,7 +213,40 @@
           },
           "meaning": "authority, order, stable power. Construction, organization, protection.",
           "power": "once per long rest, sacrifice a die to obtain the highest possible bonus non-critical result.",
-          "vibration": "defensive effect (Mage Armor, Shield minor effect)."
+          "vibration": "defensive effect (Mage Armor, Shield minor effect).",
+          "ability": "Charisma",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Sovereign Bearing",
+              "effect": "advantage on one saving throw"
+            },
+            {
+              "rank": 2,
+              "name": "Imperial Aegis",
+              "effect": "*Shield of Faith*"
+            },
+            {
+              "rank": 3,
+              "name": "Bond of the Crown",
+              "effect": "*Warding Bond*"
+            },
+            {
+              "rank": 4,
+              "name": "Imperial Writ",
+              "effect": "*Dispel Magic*"
+            },
+            {
+              "rank": 5,
+              "name": "Throne's Bulwark",
+              "effect": "1 h: resistance to bludgeoning, piercing and slashing"
+            },
+            {
+              "rank": 6,
+              "name": "The Unshaken Throne",
+              "effect": "when you or an ally within 30 ft fails a saving throw, it succeeds instead"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-hierophant": {
@@ -95,7 +260,40 @@
           },
           "meaning": "tradition, teaching, spiritual guidance. Faith, rituals, sacred order.",
           "power": "once per short rest, as a reaction within 30 feet, convert one of your Destiny dice into healing and add it to one individual short-rest dice (+ Constitution bonus), with no cost in Destiny Points.",
-          "vibration": "sacred blessing (Bless, Protection from Evil and Good)."
+          "vibration": "sacred blessing (Bless, Protection from Evil and Good).",
+          "ability": "Wisdom",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Rite of Guidance",
+              "effect": "as *Guidance*, one use"
+            },
+            {
+              "rank": 2,
+              "name": "Anointed Ward",
+              "effect": "1 h: advantage on saving throws against celestials, fiends and undead"
+            },
+            {
+              "rank": 3,
+              "name": "Congregation's Voice",
+              "effect": "up to six creatures add 1d4 to their next d20 test within 10 minutes"
+            },
+            {
+              "rank": 4,
+              "name": "Choir Unseen",
+              "effect": "*Spirit Guardians*"
+            },
+            {
+              "rank": 5,
+              "name": "Guardian Rite",
+              "effect": "*Guardian of Faith*"
+            },
+            {
+              "rank": 6,
+              "name": "Voice of the Divine",
+              "effect": "*Commune*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-lovers": {
@@ -109,7 +307,40 @@
           },
           "meaning": "choice, harmony, relationships, moral dilemmas. Union, sacrifice, cooperation.",
           "power": "once per long rest, as a reaction, roll a Destiny die to the benefit of one party member within 30 ft of you, while another (including you) suffers the cost.",
-          "vibration": "social charm / inspiration (Charm Person)."
+          "vibration": "social charm / inspiration (Charm Person).",
+          "ability": "Charisma",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Heart's Glance",
+              "effect": "advantage on one Charisma (Persuasion) check"
+            },
+            {
+              "rank": 2,
+              "name": "Entwined Hearts",
+              "effect": "*Charm Person*"
+            },
+            {
+              "rank": 3,
+              "name": "Shared Burden",
+              "effect": "1 h: bond two willing creatures — when one takes damage, the other may take half of it instead"
+            },
+            {
+              "rank": 4,
+              "name": "Whispered Vow",
+              "effect": "*Sending*"
+            },
+            {
+              "rank": 5,
+              "name": "Union's Shield",
+              "effect": "1 h: bond with one willing creature — while within 5 ft of each other, you both gain +1 AC and advantage on saving throws"
+            },
+            {
+              "rank": 6,
+              "name": "Twin Souls",
+              "effect": "*Telepathic Bond*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-chariot": {
@@ -123,7 +354,40 @@
           },
           "meaning": "victory, determination, triumph. Active control, moving toward success.",
           "power": "once per long rest, you have advantage on a Destiny die. Choose either the lowest or the highest.",
-          "vibration": "acceleration (Longstrider, Expeditious Retreat)."
+          "vibration": "acceleration (Longstrider, Expeditious Retreat).",
+          "ability": "Strength",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Charge Onward",
+              "effect": "+10 ft speed for 1 minute"
+            },
+            {
+              "rank": 2,
+              "name": "Jaunt of the Charioteer",
+              "effect": "as a bonus action, teleport up to 30 ft to a space you can see"
+            },
+            {
+              "rank": 3,
+              "name": "Trample",
+              "effect": "move up to 30 ft in a line; each creature in your path: 3d6 bludgeoning and knocked prone (STR save)"
+            },
+            {
+              "rank": 4,
+              "name": "Unstoppable Course",
+              "effect": "*Haste*"
+            },
+            {
+              "rank": 5,
+              "name": "Triumphal Surge",
+              "effect": "*Dimension Door*"
+            },
+            {
+              "rank": 6,
+              "name": "Master of the Field",
+              "effect": "*Telekinesis*"
+            }
+          ]
         }
       },
       "fh:arcana:en:strength": {
@@ -137,7 +401,40 @@
           },
           "meaning": "courage, mastery of instincts, perseverance, moral and physical endurance.",
           "power": "the critical range of your Destiny dice is doubled (3 or 4 on a d4, 5 or 6 on a d6).",
-          "vibration": "physical enhancement (Enhance Ability — Strength)."
+          "vibration": "physical enhancement (Enhance Ability — Strength).",
+          "ability": "Strength",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Steady Nerve",
+              "effect": "advantage on one Strength check or saving throw"
+            },
+            {
+              "rank": 2,
+              "name": "Lion's Heart",
+              "effect": "*Heroism*"
+            },
+            {
+              "rank": 3,
+              "name": "Tamer's Grip",
+              "effect": "*Enhance Ability* (Strength)"
+            },
+            {
+              "rank": 4,
+              "name": "Endurance of the Mountain",
+              "effect": "1 min: when you take damage, use your reaction to reduce it by 1d12 + CON"
+            },
+            {
+              "rank": 5,
+              "name": "The Lion Tamed",
+              "effect": "*Polymorph* (beast form)"
+            },
+            {
+              "rank": 6,
+              "name": "Chains Undone",
+              "effect": "1 min: immune to grappled, restrained, paralyzed and stunned; advantage on STR and CON saves"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-hermit": {
@@ -151,7 +448,40 @@
           },
           "meaning": "introspection, solitude, search for truth. Knowledge found in inner calm.",
           "power": "once per long rest, store the result of your lowest available Destiny die and use it later.",
-          "vibration": "clairvoyance / guidance (e.g. Guidance)."
+          "vibration": "clairvoyance / guidance (e.g. Guidance).",
+          "ability": "Intelligence",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Quiet Mind",
+              "effect": "advantage on one check made with no ally within 30 ft"
+            },
+            {
+              "rank": 2,
+              "name": "Lantern of the Unseen",
+              "effect": "1 h: you see normally in darkness, magical or not, to 120 ft"
+            },
+            {
+              "rank": 3,
+              "name": "See Truly",
+              "effect": "*See Invisibility*"
+            },
+            {
+              "rank": 4,
+              "name": "Solitude's Shield",
+              "effect": "*Nondetection*"
+            },
+            {
+              "rank": 5,
+              "name": "Hermit's Cell",
+              "effect": "*Resilient Sphere*"
+            },
+            {
+              "rank": 6,
+              "name": "Eye of the Summit",
+              "effect": "truesight 120 ft for 10 minutes"
+            }
+          ]
         }
       },
       "fh:arcana:en:wheel-of-fortune": {
@@ -165,7 +495,40 @@
           },
           "meaning": "change, unstable destiny, opportunity, unpredictability. Embracing the cycle of ups and downs.",
           "power": "on the first Destiny roll of the day choose advantage or disadvantage, then a cycle is in place. That same day, any individual (including you) within 30 ft rolling a Destiny die rolls with advantage if you chose disadvantage, or the contrary.",
-          "vibration": "random yet beneficial effect (e.g. advantage on the next roll)."
+          "vibration": "random yet beneficial effect (e.g. advantage on the next roll).",
+          "ability": "Charisma",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Spin of Fate",
+              "effect": "reroll one d20 just rolled by any creature you can see"
+            },
+            {
+              "rank": 2,
+              "name": "Turn of the Wheel",
+              "effect": "*Bless* **or** *Bane* — choose when released"
+            },
+            {
+              "rank": 3,
+              "name": "Rising Spoke",
+              "effect": "1 min: at the start of each of your turns roll 1d6 — even: advantage on your first d20 test; odd: the first attack against you this round has disadvantage"
+            },
+            {
+              "rank": 4,
+              "name": "Fortune Reversed",
+              "effect": "*Bestow Curse* **or** *Remove Curse* — choose when released"
+            },
+            {
+              "rank": 5,
+              "name": "The Great Cycle",
+              "effect": "*Confusion*"
+            },
+            {
+              "rank": 6,
+              "name": "Fate Rewritten",
+              "effect": "within the next minute, when a creature within 60 ft succeeds or fails a d20 test, you may invert the result — a success becomes a failure or the reverse (once)"
+            }
+          ]
         }
       },
       "fh:arcana:en:justice": {
@@ -179,7 +542,40 @@
           },
           "meaning": "fairness, responsibility, moral order. Evaluating, assuming responsibility, restoring balance.",
           "power": "after a long rest, transfer up to 2 Destiny Points and 2 Destiny dice from the strongest to the weakest. Recipients may be willing or not. You may freely rule on ties. Up to 4 individuals.",
-          "vibration": "restore balance (e.g. Lesser Restoration)."
+          "vibration": "restore balance (e.g. Lesser Restoration).",
+          "ability": "Intelligence",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Even Hand",
+              "effect": "advantage on one Wisdom (Insight) check"
+            },
+            {
+              "rank": 2,
+              "name": "Weigh the Heart",
+              "effect": "*Detect Evil and Good*"
+            },
+            {
+              "rank": 3,
+              "name": "Scales Righted",
+              "effect": "*Lesser Restoration*"
+            },
+            {
+              "rank": 4,
+              "name": "Retribution",
+              "effect": "1 min: when a creature within 30 ft damages you, your reaction deals it half that damage back as radiant"
+            },
+            {
+              "rank": 5,
+              "name": "The Blind Balance",
+              "effect": "*Banishment*"
+            },
+            {
+              "rank": 6,
+              "name": "Final Sentence",
+              "effect": "one creature: 7d6 radiant and frightened of you for 1 minute (WIS save, save ends)"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-hanged-man": {
@@ -193,7 +589,40 @@
           },
           "meaning": "sacrifice, letting go, new perspective. Renouncing to gain understanding.",
           "power": "if you invoke Chaos on a natural 1, you do not lose but immediately regain 2 Destiny Points and just roll 1d6 on the Chaos table.",
-          "vibration": "neutralization (e.g. targeted Slow)."
+          "vibration": "neutralization (e.g. targeted Slow).",
+          "ability": "Dexterity",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Inverted Sight",
+              "effect": "swap your initiative with a willing creature's for the encounter"
+            },
+            {
+              "rank": 2,
+              "name": "Letting Go",
+              "effect": "*Feather Fall*"
+            },
+            {
+              "rank": 3,
+              "name": "Martyr's Trade",
+              "effect": "1 min: when an ally within 30 ft takes damage, your reaction lets you take it instead, reduced by 1d6"
+            },
+            {
+              "rank": 4,
+              "name": "Rope Unseen",
+              "effect": "one creature is restrained and suspended 5 ft off the ground for 1 minute, no damage (WIS save, save ends at turn end)"
+            },
+            {
+              "rank": 5,
+              "name": "Eye Unbound",
+              "effect": "*Arcane Eye*"
+            },
+            {
+              "rank": 6,
+              "name": "The Price of Knowing",
+              "effect": "*Contact Other Plane*"
+            }
+          ]
         }
       },
       "fh:arcana:en:death": {
@@ -207,7 +636,40 @@
           },
           "meaning": "transformation, end of a cycle, rebirth. Radical change, not absolute finality.",
           "power": "you are immune to everything above 6 on the Chaos table, and trigger an Awakening on a 12.",
-          "vibration": "survival / minor necromancy effect (e.g. False Life)."
+          "vibration": "survival / minor necromancy effect (e.g. False Life).",
+          "ability": "Constitution",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Last Breath Sensed",
+              "effect": "as *Spare the Dying*, and you learn how close to death the target is"
+            },
+            {
+              "rank": 2,
+              "name": "Borrowed Time",
+              "effect": "*False Life*"
+            },
+            {
+              "rank": 3,
+              "name": "Grave Chill",
+              "effect": "one creature: 3d6 necrotic and its speed is halved for 1 round (CON save)"
+            },
+            {
+              "rank": 4,
+              "name": "End of a Cycle",
+              "effect": "*Speak with Dead*"
+            },
+            {
+              "rank": 5,
+              "name": "Harvest of Souls",
+              "effect": "one creature: 9d6 necrotic (CON save half)"
+            },
+            {
+              "rank": 6,
+              "name": "Rebirth",
+              "effect": "*Raise Dead*"
+            }
+          ]
         }
       },
       "fh:arcana:en:temperance": {
@@ -221,7 +683,40 @@
           },
           "meaning": "moderation, harmony, compromise. Finding balance and the right measure.",
           "power": "once per long rest, in a 30 ft radius, as a reaction roll a Destiny die that acts as a buffer limiting the Destiny cost.",
-          "vibration": "purification (e.g. Protection from Poison)."
+          "vibration": "purification (e.g. Protection from Poison).",
+          "ability": "Constitution",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Measured Breath",
+              "effect": "advantage on one Constitution saving throw"
+            },
+            {
+              "rank": 2,
+              "name": "Purity of the Cup",
+              "effect": "*Purify Food and Drink*"
+            },
+            {
+              "rank": 3,
+              "name": "Balanced Humors",
+              "effect": "1 h: resistance to poison damage and advantage on saves against poison and disease"
+            },
+            {
+              "rank": 4,
+              "name": "Even Keel",
+              "effect": "1 min: you can gain neither advantage nor disadvantage, and critical hits against you become normal hits"
+            },
+            {
+              "rank": 5,
+              "name": "Waters Commanded",
+              "effect": "*Control Water*"
+            },
+            {
+              "rank": 6,
+              "name": "The Unbreached Measure",
+              "effect": "*Antilife Shell*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-devil": {
@@ -235,7 +730,40 @@
           },
           "meaning": "temptation, illusions, voluntary servitude. Power at the cost of freedom.",
           "power": "once per short rest, roll a Destiny die in advance if you have one, and give it to anyone within 30 ft. It costs the recipient one Destiny Point; you collect this as a temporary Destiny Point, and your die is blocked until they use it or their next long rest ends. When used it acts as their own; your die then resets. An infernal Awakening may have strange consequences.",
-          "vibration": "minor curse (e.g. Bane)."
+          "vibration": "minor curse (e.g. Bane).",
+          "ability": "Charisma",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Whispered Doubt",
+              "effect": "one creature you can see takes −1d4 on its next saving throw"
+            },
+            {
+              "rank": 2,
+              "name": "Chains of Desire",
+              "effect": "*Bane*"
+            },
+            {
+              "rank": 3,
+              "name": "Sweet Bondage",
+              "effect": "*Suggestion*"
+            },
+            {
+              "rank": 4,
+              "name": "Contract Sealed",
+              "effect": "touch: 4d6 necrotic (CON save half), you regain half the damage dealt as HP"
+            },
+            {
+              "rank": 5,
+              "name": "Chains Made Flesh",
+              "effect": "creatures in a 20-ft radius: 3d6 fire and restrained for 1 round (DEX save)"
+            },
+            {
+              "rank": 6,
+              "name": "Soul in Thrall",
+              "effect": "*Dominate Person*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-tower": {
@@ -249,7 +777,40 @@
           },
           "meaning": "shock, collapse, brutal revelation. Destruction to rebuild on truth.",
           "power": "once per long rest, as a reaction, sacrifice all your Destiny Points to transform any successful roll into a critical failure within 30 ft. Ignore the Chaos Effect.",
-          "vibration": "controlled destruction (e.g. Thunderwave)."
+          "vibration": "controlled destruction (e.g. Thunderwave).",
+          "ability": "Strength",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "First Crack",
+              "effect": "1d6 thunder damage to one target, audible 300 ft away"
+            },
+            {
+              "rank": 2,
+              "name": "Sudden Rupture",
+              "effect": "*Thunderwave*"
+            },
+            {
+              "rank": 3,
+              "name": "Shattering Peal",
+              "effect": "*Shatter*"
+            },
+            {
+              "rank": 4,
+              "name": "Bolt from Heaven",
+              "effect": "*Lightning Bolt*"
+            },
+            {
+              "rank": 5,
+              "name": "Sky's Collapse",
+              "effect": "7d6 thunder, 20-ft-radius sphere (DEX save half) *(5 pp = 7d6 @A)*"
+            },
+            {
+              "rank": 6,
+              "name": "The Tower Falls",
+              "effect": "9d6 thunder and fire, 20-ft-radius sphere (DEX save half) *(6 pp = 9d6 @A)*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-star": {
@@ -263,7 +824,40 @@
           },
           "meaning": "hope, inspiration, celestial guidance. A beacon in the night, trust in the future.",
           "power": "once per long rest, take the average (rounded up) of a Destiny die instead of rolling.",
-          "vibration": "minor inspiration / healing (e.g. Healing Word, Guidance)."
+          "vibration": "minor inspiration / healing (e.g. Healing Word, Guidance).",
+          "ability": "Wisdom",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Starlit Spark",
+              "effect": "add 1d4 to one ability check"
+            },
+            {
+              "rank": 2,
+              "name": "Gleam of Hope",
+              "effect": "*Healing Word*"
+            },
+            {
+              "rank": 3,
+              "name": "Vigil of the Star",
+              "effect": "1 min: one creature has advantage on all saving throws"
+            },
+            {
+              "rank": 4,
+              "name": "Beacon Ascendant",
+              "effect": "*Beacon of Hope*"
+            },
+            {
+              "rank": 5,
+              "name": "The Pole Star",
+              "effect": "1 h: allies who can see you have advantage on saving throws against being charmed or frightened"
+            },
+            {
+              "rank": 6,
+              "name": "Dream of Morning",
+              "effect": "*Dream*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-moon": {
@@ -277,7 +871,40 @@
           },
           "meaning": "illusions, dreams, nocturnal mysteries. The unconscious mind, distorted perception.",
           "power": "except for a critical Fail / Success, the Destiny cost is reduced by 1.",
-          "vibration": "illusion (e.g. Silent Image)."
+          "vibration": "illusion (e.g. Silent Image).",
+          "ability": "Dexterity",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Moonlit Eye",
+              "effect": "darkvision 60 ft for 1 hour"
+            },
+            {
+              "rank": 2,
+              "name": "Moonlit Veil",
+              "effect": "1 h: in dim light or darkness, you are invisible to creatures more than 30 ft away"
+            },
+            {
+              "rank": 3,
+              "name": "Pale Radiance",
+              "effect": "*Moonbeam*"
+            },
+            {
+              "rank": 4,
+              "name": "Waking Dream",
+              "effect": "*Hypnotic Pattern*"
+            },
+            {
+              "rank": 5,
+              "name": "Tide of the Unreal",
+              "effect": "10 min: blindsight 30 ft, and you see illusions for what they are"
+            },
+            {
+              "rank": 6,
+              "name": "Court of Masks",
+              "effect": "*Seeming*"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-sun": {
@@ -291,7 +918,40 @@
           },
           "meaning": "success, vitality, clarity, joy. Dispels shadows, brings optimism and truth.",
           "power": "once per short rest, add +2 to the result of a Destiny die without any additional cost.",
-          "vibration": "minor light and healing (e.g. Light + small heal)."
+          "vibration": "minor light and healing (e.g. Light + small heal).",
+          "ability": "Charisma",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Ray of Morning",
+              "effect": "as *Light*, and one creature in its glow gains 1d4 temporary HP"
+            },
+            {
+              "rank": 2,
+              "name": "All Made Plain",
+              "effect": "*Faerie Fire*"
+            },
+            {
+              "rank": 3,
+              "name": "Solar Lash",
+              "effect": "one creature: 5d6 radiant (DEX save half)"
+            },
+            {
+              "rank": 4,
+              "name": "Cleansing Light",
+              "effect": "*Daylight*"
+            },
+            {
+              "rank": 5,
+              "name": "Corona",
+              "effect": "creatures in a 10-ft emanation around you: 9d6 fire and radiant (DEX save half)"
+            },
+            {
+              "rank": 6,
+              "name": "Zenith of Life",
+              "effect": "*Greater Restoration*"
+            }
+          ]
         }
       },
       "fh:arcana:en:judgement": {
@@ -305,7 +965,40 @@
           },
           "meaning": "rebirth, higher calling, final reckoning. Weighing the past, offering redemption or judgment.",
           "power": "once per short rest, spend a Destiny die with no cost in Destiny Points to replace any d20 roll by a 10.",
-          "vibration": "moral command (e.g. Command)."
+          "vibration": "moral command (e.g. Command).",
+          "ability": "Wisdom",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Herald's Note",
+              "effect": "advantage on one Charisma (Intimidation) check"
+            },
+            {
+              "rank": 2,
+              "name": "First Trumpet",
+              "effect": "*Command*"
+            },
+            {
+              "rank": 3,
+              "name": "Voice That Wakes",
+              "effect": "*Zone of Truth*"
+            },
+            {
+              "rank": 4,
+              "name": "Called to Account",
+              "effect": "*Revivify*"
+            },
+            {
+              "rank": 5,
+              "name": "The Reckoning",
+              "effect": "one creature: 6d6 radiant and frightened for 1 round (WIS save)"
+            },
+            {
+              "rank": 6,
+              "name": "The Court Eternal",
+              "effect": "1 min: 30-ft aura — undead and fiends inside have disadvantage on every d20 test, and your allies inside cannot be frightened"
+            }
+          ]
         }
       },
       "fh:arcana:en:the-world": {
@@ -319,7 +1012,40 @@
           },
           "meaning": "accomplishment, wholeness, unity. The end of one cycle, opening to a new beginning.",
           "power": "after a long rest, restore one Destiny Point to group members excluding yourself. Roll a die: 1d4 for 1-4 people, 1d6 for 5-6, 1d8 for 7-8, 1d10 for 9-10, 1d12 for 11-12. You pay the price rolled.",
-          "vibration": "versatile beneficial effect (small global buff)."
+          "vibration": "versatile beneficial effect (small global buff).",
+          "ability": "Constitution",
+          "vibrations": [
+            {
+              "rank": 1,
+              "name": "Well-Rounded",
+              "effect": "advantage on one check with a skill you lack proficiency in"
+            },
+            {
+              "rank": 2,
+              "name": "Every Tongue",
+              "effect": "*Comprehend Languages*"
+            },
+            {
+              "rank": 3,
+              "name": "Wayfarer's Gift",
+              "effect": "1 h: swim and climb speeds, and you can breathe water"
+            },
+            {
+              "rank": 4,
+              "name": "The World Beneath",
+              "effect": "1 h: fly speed 30 ft"
+            },
+            {
+              "rank": 5,
+              "name": "The Four Corners",
+              "effect": "*Conjure Minor Elementals*"
+            },
+            {
+              "rank": 6,
+              "name": "The Crown Traversed",
+              "effect": "*Teleportation Circle*"
+            }
+          ]
         }
       }
     }

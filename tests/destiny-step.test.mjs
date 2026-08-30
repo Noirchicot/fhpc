@@ -1,17 +1,19 @@
-/* ══ LES TESTS DE L'ÉTAPE DESTINY — lot 45, REFAITS AU LOT 61 (B6) ════════
+/* ══ LES TESTS DE L'ÉTAPE DESTINY — lot 45, refaits au 61, REFAITS AU 109 ══
 
-   Même patron que `abilities-step.test.mjs`. ⛔ AUCUN plan `decisions[]`
-   (mesuré au lot 45, toujours vrai) — `ctx` porte `document` (le brut, pour
-   la carte déjà ACTÉE) et `resolved` (le Score, à l'octet).
+   ⛔ AUCUN plan `decisions[]` (mesuré au lot 45, toujours vrai) — `ctx` porte
+   `document` (le brut, pour la carte déjà ACTÉE) et `resolved` (le Score).
 
-   ⚠️ CE QUI A CHANGÉ AU LOT 61, et pourquoi ces tests ont bougé : l'écran
-   n'est plus un sélecteur de mode + un bouton « Draw ». C'est la scène de
-   B6 — un texte qu'on chasse, UNE carte de dos, un TAP pour la retourner,
-   le texte une seconde après. Et surtout : **le tirage n'écrit plus rien**
-   (B6.2, « rien n'est acté tant que Valid n'est pas tapé »).
-   ⭐ Les lois que les anciens tests prouvaient sont TOUTES conservées — le
+   ⚠️ CE QUI A CHANGÉ AU LOT 109, et pourquoi ces tests ont bougé : l'étape a
+   maintenant trois temps (croquis d'Eric du 2026-08-30). Un **R** d'ambiance
+   avec deux portes, une **cérémonie** plein écran ou le **catalogue** des 22,
+   puis un **écran final commun** aux deux branches.
+   ⭐ LES LOIS QUE LES ANCIENS TESTS PROUVAIENT SONT TOUTES CONSERVÉES — le
    Score lu à l'octet, les six champs recopiés, les 22 options du catalogue,
-   le mode hors document. Seule la porte d'entrée a changé. */
+   le mode hors document, et surtout **rien n'est acté avant la sortie**. Seuls
+   les gestes ont changé de nom : `OK` est devenu `Draw`/`Choose`, `Validate`
+   est devenu `Next`, et le retournement vit dans la cérémonie.
+   ⛔ Un test supprimé « parce que l'écran a changé » emporte sa leçon ; ceux-ci
+   sont réécrits sur la nouvelle vérité, pas retirés. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -35,13 +37,13 @@ const query = fixture.layers.verbs.query;
 
 function rebuild(document) { return build.verbs.rebuild({ document }); }
 
-/** La scène APRÈS le retournement — c'est là que vivent le Score, le texte
- *  et les deux boutons (B6.1b : rien d'autre à l'écran tant qu'elle est de
- *  dos). `intro: false` : le petit texte a été chassé. */
+/** L'écran FINAL — c'est là que vivent le Score, le texte et la paire de
+ *  boutons. `phase: "final"` : la cérémonie est passée, ou le catalogue a
+ *  rendu sa carte. */
 function ctxFrom(document, report, extra) {
   return Object.assign({
-    document, resolved: report.resolved, query,
-    intro: false, drawnId: currentArcanaId(document), face: "up", revealed: true
+    phase: "final", document, resolved: report.resolved, query,
+    drawnId: currentArcanaId(document)
   }, extra || {});
 }
 
@@ -98,38 +100,51 @@ test("un catalogue à 3 cartes (pile réduite) n'en affiche QUE 3 — jamais 22 
    écrivait `choose` dans le document sur-le-champ. Eric : « tant que Valid
    n'est pas tapé, ça n'est pas acté », et « Draw again est illimité ». */
 
-test("🔴 tirer et retourner une carte n'appelle AUCUN verbe de document", () => {
-  const report = rebuild(fixture.document);
+test("🔴 la cérémonie n'appelle AUCUN verbe de document — elle ne fait que des gestes d'écran", async () => {
+  const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
   const appels = [];
-  const node = renderDestinyStep(
-    ctxFrom(report.document, report, { drawnId: "fh:arcana:en:the-tower", face: "down", revealed: false }),
-    (a) => appels.push(a)
-  );
-  const carte = node.querySelectorAll(".card-face")[0];
+  const fs = renderCeremonie({ phase: "seq3", drawnId: "fh:arcana:en:the-tower", face: "down" },
+    (a) => appels.push(a));
+  const carte = fs.querySelectorAll(".ceremonie-flip")[0];
   assert.ok(carte, "la carte est là, de dos");
   carte.click();
   assert.deepEqual(appels, [{ kind: "destinyFlip" }],
     "le tap ne produit QU'UN geste d'écran — aucun `choose`, aucun chemin de document");
 });
 
-test("🔴 c'est `Validate` qui acte, et il pose le MÊME `choose` qu'au lot 45", () => {
-  const porte = destinyValidate({ drawnId: "fh:arcana:en:the-tower", face: "up" });
+test("🔴 le R ne commet rien non plus : ses deux portes sont des gestes d'écran", () => {
+  const report = rebuild(fixture.document);
+  const appels = [];
+  const node = renderDestinyStep(
+    { phase: "porte", document: {}, resolved: report.resolved, query }, (a) => appels.push(a));
+  const boutons = node.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre"));
+  assert.deepEqual(boutons.map((b) => b.textContent), ["Draw", "Choose"],
+    "deux gestes, deux textes — l'héritage du lot 55 §3 tient");
+  boutons[0].click();
+  boutons[1].click();
+  assert.deepEqual(appels, [{ kind: "destinyDraw" }, { kind: "destinyMode", value: "choice" }],
+    "ni l'un ni l'autre n'écrit au document — `fh.destiny.mode` ferait JETER rebuild() (mesuré lot 45)");
+});
+
+test("🔴 c'est la SORTIE qui acte, et elle pose le MÊME `choose` qu'au lot 45", () => {
+  const porte = destinyValidate({ drawnId: "fh:arcana:en:the-tower" });
   assert.equal(porte.ready, true);
   assert.deepEqual(porte.action,
     { kind: "choose", path: "fh.destiny.arcana", ref: { kind: "arcana", id: "fh:arcana:en:the-tower" } });
   assert.equal(porte.next, "step");
 });
 
-test("🔴 `Validate` reste ÉTEINT tant que la carte n'est pas retournée (B6.1e)", () => {
-  assert.equal(destinyValidate({ drawnId: "fh:arcana:en:the-tower", face: "down" }).ready, false);
-  assert.equal(destinyValidate({ drawnId: null, face: "up" }).ready, false,
-    "et sans carte non plus — une scène vide n'a rien à valider");
-  assert.equal(destinyValidate({ drawnId: null, face: "down" }).action, null);
+test("🔴 DESTINY NE LAISSE PAS LA COQUILLE POSER SA PAIRE — `exists: false`", () => {
+  /* Les deux écrans portent leur propre pied (`Draw`/`Choose` au R,
+     `I changed my mind`/`Next` à la fin). La paire de la coquille en plus
+     serait le doublon du 19/08 : deux commandes pour un geste. */
+  assert.equal(destinyValidate({ drawnId: "fh:arcana:en:the-tower" }).exists, false);
+  assert.equal(destinyValidate({ drawnId: null }).ready, false,
+    "sans carte, rien à valider — une scène vide n'a rien à acter");
+  assert.equal(destinyValidate({ drawnId: null }).action, null);
 });
 
 test("le document rendu par `choose` est celui qui compte : un rebuild dessus voit la NOUVELLE carte", () => {
-  /* La moitié moteur de l'ancien test 7, conservée telle quelle : ce que
-     `Validate` commet doit vraiment changer le Score. */
   const avant = rebuild(fixture.document);
   const scoreAvant = avant.resolved.stats.find((s) => s.id === "fh:destiny").value;
   const { document: apres } = build.verbs.choose({
@@ -142,83 +157,128 @@ test("le document rendu par `choose` est celui qui compte : un rebuild dessus vo
     `le Score existe toujours après le changement de carte (avant : ${scoreAvant})`);
 });
 
-/* ══ B6.1b/c — LA SCÈNE : DE DOS, RIEN D'AUTRE, PUIS LE TAP ══════════════ */
+/* ══ LA CÉRÉMONIE — trois séquences, et rien qu'elles ════════════════════ */
 
-test("🔴 de dos, il n'y a RIEN D'AUTRE que la carte (B6.1b)", () => {
-  const report = rebuild(fixture.document);
-  const node = renderDestinyStep(
-    ctxFrom(report.document, report, { face: "down", revealed: false }), () => {}
-  );
-  assert.equal(node.querySelectorAll(".card-face").length, 1);
-  assert.equal(node.querySelectorAll(".card-score").length, 0, "pas de Score");
-  assert.equal(node.querySelectorAll(".card-reveal").length, 0, "pas de texte");
-  assert.equal(node.querySelectorAll(".card-action").length, 0, "pas de boutons");
-  assert.equal(node.querySelectorAll(".card-face-img")[0].getAttribute("src"), ARCANA_BACK_SRC);
+test("🔴 de dos, il n'y a RIEN D'AUTRE que la carte (l'héritage de B6.1b)", async () => {
+  const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
+  const fs = renderCeremonie({ phase: "seq3", drawnId: "fh:arcana:en:the-tower", face: "down" }, () => {});
+  assert.equal(fs.querySelectorAll(".ceremonie-flip").length, 1);
+  assert.equal(fs.querySelectorAll(".card-score").length, 0, "pas de Score");
+  assert.equal(fs.querySelectorAll(".card-pied").length, 0, "pas de boutons");
+  /* ⚠️ PAR MOTIF, PAS PAR ÉGALITÉ : les `src` portent la version du graphe,
+     lue dans l'URL du module qui les fabrique — le test importe le sien par
+     une autre URL, donc deux constantes également justes ne sont pas égales. */
+  assert.match(fs.querySelectorAll(".ceremonie-flip-dos")[0].getAttribute("src"), /back\.webp/);
 });
 
-test("retournée, la carte montre SA face, et cesse d'être un geste", () => {
-  const report = rebuild(fixture.document);
-  const id = currentArcanaId(report.document);
-  const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
-  const carte = node.querySelectorAll(".card-face")[0];
-  assert.equal(carte.dataset.face, "up");
+test("retournée, la carte cesse d'être un geste — et sa face est la carte tirée", async () => {
+  const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
+  const id = "fh:arcana:en:the-tower";
+  const fs = renderCeremonie({ phase: "seq3", drawnId: id, face: "up" }, () => {});
+  const carte = fs.querySelectorAll(".ceremonie-flip")[0];
   assert.equal(carte.disabled, true, "une carte déjà retournée n'est plus tapable");
-  assert.equal(node.querySelectorAll(".card-face-img")[0].getAttribute("src"), arcanaImageSrc(id));
+  assert.match(fs.querySelectorAll(".ceremonie-flip-carte")[0].getAttribute("src"), /the-tower\.webp/);
 });
 
-test("B6.1a — le petit texte occupe la scène SEUL, et son OK le chasse", () => {
-  const report = rebuild(fixture.document);
+test("la frappe écrit les mots d'Eric, et la scène ne porte rien d'autre", async () => {
+  const { renderCeremonie, CEREMONIE_TEXTE } = await import("../ui/builder/destiny-ceremonie.mjs");
+  const fs = renderCeremonie({ phase: "seq1" }, () => {});
+  assert.equal(fs.querySelectorAll(".ceremonie-texte").length, 1);
+  assert.equal(fs.querySelectorAll("button").length, 0,
+    "aucun bouton : la cérémonie ne s'interrompt que par insistance (trois taps)");
+  assert.doesNotMatch(CEREMONIE_TEXTE, /\.$/, "pas de point final — Eric, 2026-08-30");
+});
+
+test("🔴 LA FRAPPE A LE TEMPS DE FINIR — la séquence 1 dure ce qu'elle écrit", async () => {
+  /* Mesuré au banc le 30/08 : à 85 ms le caractère, les 31 signes prenaient
+     2,6 s des 3 s de la séquence, et le mélange emportait la phrase avant
+     qu'on ait pu la lire. Une durée écrite en dur ment dès que le texte change
+     d'un mot — celle-ci se calcule, et ce garde vérifie qu'elle laisse de quoi
+     LIRE, pas seulement de quoi écrire. */
+  const { DUREES, CEREMONIE_TEXTE } = await import("../ui/builder/destiny-ceremonie.mjs");
+  const frappe = DUREES.frappe * CEREMONIE_TEXTE.length;
+  assert.ok(DUREES.seq1 > frappe,
+    `la séquence (${DUREES.seq1} ms) doit dépasser la frappe (${frappe} ms) — sinon le texte est coupé`);
+  assert.ok(DUREES.seq1 - frappe >= 700,
+    "et lui laisser au moins 0,7 s de lecture une fois le dernier caractère posé");
+  assert.ok(DUREES.seq1 <= 4000, "sans dépasser les « 3 secondes » du croquis d'Eric d'une seconde entière");
+});
+
+test("le mélange ne pose AUCUN style en ligne — deux chiffres, et la feuille fait le reste", async () => {
+  const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
+  const fs = renderCeremonie({ phase: "seq2", etape: "melange" }, () => {});
+  const dos = fs.querySelectorAll(".ceremonie-dos");
+  assert.equal(dos.length, 12, "douze copies du même dos");
+  for (const img of dos) {
+    assert.equal(img.getAttribute("style"), null,
+      "garde 7 : aucun style en ligne dans ui/ — même `setProperty` est refusé");
+    assert.ok(img.dataset.part && img.dataset.cascade, "le script ne pose que deux chiffres");
+  }
+});
+
+test("🔴 TROIS TAPS RÉSOLVENT, un seul ne fait rien — le plein écran les compte", async () => {
+  const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
   const appels = [];
-  const node = renderDestinyStep(
-    ctxFrom(report.document, report, { intro: true }), (a) => appels.push(a)
-  );
-  assert.equal(node.querySelectorAll(".card-intro").length, 1);
-  assert.equal(node.querySelectorAll(".card-face").length, 0, "la carte n'entre qu'après l'OK");
-  node.querySelectorAll(".card-ok")[0].click();
-  assert.deepEqual(appels, [{ kind: "destinyIntroDone" }]);
+  const fs = renderCeremonie({ phase: "seq2", etape: "melange" }, (a) => appels.push(a));
+  fs.dispatchEvent({ type: "pointerdown" });
+  assert.deepEqual(appels, [{ kind: "destinyTap" }],
+    "l'écran REMONTE chaque tap ; c'est la coquille qui décide si trois d'affilée résolvent");
 });
 
-test("B6.1d — le texte n'apparaît QU'APRÈS le délai (`revealed`), pas au retournement", () => {
-  const report = rebuild(fixture.document);
-  const sansDelai = renderDestinyStep(ctxFrom(report.document, report, { revealed: false }), () => {});
-  assert.equal(sansDelai.querySelectorAll(".card-reveal").length, 0);
-  assert.equal(sansDelai.querySelectorAll(".card-action").length, 2,
-    "les deux boutons, eux, sont là dès le retournement (B6.1f/h)");
-  const apresDelai = renderDestinyStep(ctxFrom(report.document, report), () => {});
-  assert.equal(apresDelai.querySelectorAll(".card-reveal").length, 1);
-});
+/* ══ L'ÉCRAN FINAL — ce qu'il montre, et ce qu'il calcule ════════════════ */
 
-/* ══ B6.1f/h — LES DEUX BOUTONS, ET CE QU'ILS COMMETTENT ═════════════════
-   L'héritage du lot 55 (§3) tient : deux gestes différents ne portent jamais
-   le même texte. */
-
-test("« Draw again » et « Choose yourself » : deux textes, deux gestes, aucun verbe de document", () => {
-  const report = rebuild(fixture.document);
-  const appels = [];
-  const node = renderDestinyStep(ctxFrom(report.document, report), (a) => appels.push(a));
-  const boutons = node.querySelectorAll(".card-action");
-  assert.deepEqual(boutons.map((b) => b.textContent), ["Draw again", "Choose yourself"]);
-  boutons[0].click();
-  boutons[1].click();
-  assert.deepEqual(appels, [{ kind: "destinyDraw" }, { kind: "destinyMode", value: "choice" }],
-    "ni l'un ni l'autre n'écrit au document — B6.2, et `fh.destiny.mode` ferait JETER rebuild() (mesuré lot 45)");
-});
-
-/* ══ La carte montre ses six champs, RECOPIÉS (lot 45, §3b.3) ════════════ */
-
-test("la carte retournée affiche numeral/name/impact/meaning/power/vibration, recopiés du record", () => {
+test("l'écran final recopie les champs du record, jamais une reformulation", () => {
   const report = rebuild(fixture.document);
   const id = currentArcanaId(report.document);
   const view = query({ kind: "arcana", id });
   const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
-  const titre = node.querySelectorAll(".card-reveal h3")[0].textContent;
-  assert.ok(titre.includes(view.record.name));
-  assert.ok(titre.includes(String(view.record.data.numeral)));
-  const valeurs = node.querySelectorAll(".card-reveal dd").map((dd) => dd.textContent);
-  for (const champ of ["meaning", "power", "vibration"]) {
+  assert.ok(node.querySelectorAll(".card-final-nom")[0].textContent.includes(view.record.name));
+  const valeurs = node.querySelectorAll(".card-final-texte dd").map((dd) => dd.textContent);
+  for (const champ of ["meaning", "power", "ability"]) {
     const attendu = view.record.data[champ];
     if (attendu) assert.ok(valeurs.includes(String(attendu)), `« ${champ} » doit être recopié tel quel`);
   }
+});
+
+test("🔴 SEULES LES VIBRATIONS À PORTÉE SONT LISTÉES (Eric, 2026-08-30)", async () => {
+  const { vibrationsAccessibles, rangMaxDeVibration } = await import("../ui/builder/destiny-step.mjs");
+  const data = { vibrations: [1, 2, 3, 4, 5, 6].map((rank) => ({ rank, name: `V${rank}`, effect: "…" })) };
+  /* la table du chapitre Destiny & Arcana §8, tranchée le 29/08 */
+  assert.deepEqual([1, 3, 5, 7, 11, 16, 21].map(rangMaxDeVibration), [1, 1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(vibrationsAccessibles(data, 2).map((v) => v.rank), [1]);
+  assert.deepEqual(vibrationsAccessibles(data, 12).map((v) => v.rank), [1, 2, 3, 4]);
+  assert.deepEqual(vibrationsAccessibles(data, 30).map((v) => v.rank), [1, 2, 3, 4, 5, 6],
+    "un Score de 21+ ouvre tout — et rien de plus que tout");
+});
+
+test("🔴 LE SCORE PROJETÉ AJOUTE L'IMPACT D'UNE CARTE PAS ENCORE ACTÉE, ET LUI SEUL", async () => {
+  const { scoreDeDestinee } = await import("../ui/builder/destiny-step.mjs");
+  const resolved = { stats: [{ id: "fh:destiny", value: 7 }] };
+  assert.equal(scoreDeDestinee(resolved, 2), 9, "la carte pressentie compte : le joueur voit ce qu'il aura");
+  assert.equal(scoreDeDestinee(resolved, 0), 7, "actée, son impact est DÉJÀ dans le Score du socle");
+  assert.equal(scoreDeDestinee({ stats: [] }, 2), null, "pas de stat, pas de Score inventé");
+});
+
+test("le pied final nomme les deux gestes du croquis, et n'en commet aucun tout seul", () => {
+  const report = rebuild(fixture.document);
+  const appels = [];
+  const node = renderDestinyStep(ctxFrom(report.document, report), (a) => appels.push(a));
+  const boutons = node.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre"));
+  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Next"]);
+  boutons[0].click();
+  boutons[1].click();
+  assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyNext" }]);
+});
+
+test("le voyant est un VOYANT — jamais un bouton (Eric : « idem voyant dans species »)", () => {
+  const report = rebuild(fixture.document);
+  const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
+  const tete = node.querySelectorAll(".card-final-tete")[0];
+  assert.ok(tete, "la tête de la dalle porte le voyant");
+  assert.equal(tete.querySelectorAll("button").length, 0,
+    "le croquis l'appelait « bouton vert de validation » — c'est un état, pas une commande");
+  assert.equal(tete.querySelectorAll(".parcours-voyant").length, 1,
+    "et c'est le MÊME organe que les voyants d'items de Species");
 });
 
 /* ══ Le garde des jetons — vérifié par la suite complète, pas ici ═══════ */

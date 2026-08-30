@@ -342,16 +342,21 @@ for (const cfg of ECRANS) {
   });
 }
 
-test("CH6 quater — un catalogue SANS pied garde son Validate (les arcanes)", async () => {
+test("CH6 quater — LES ARCANES PORTENT LEUR `CHOOSE` DEPUIS LE LOT 109", async () => {
   /* 🔴 LA MOITIÉ « DON D'ORIGINE » DE CE GARDE EST MORTE AU LOT 77 — Eric,
-     2026-08-28 : *« le choix des feats ça devient un choix de token »*. Le don
-     ne passe plus par le catalogue (rail + fiches + CHOOSE) : il se choisit au
-     GLISSER, dans la dalle FF de son item — voir tests/inheritance-step.test
-     .mjs, qui garde les mêmes invariants sur le nouvel organe.
-     ⭐ CE QUI RESTE À CE GARDE : la réciproque. Un catalogue sans pied (les
-     arcanes de Destiny) garde son Validate générique — pied et drapeau
-     `fiche` vont toujours ensemble, et la boucle CH6 ter le prouve pour ceux
-     qui l'ont. */
+     2026-08-28 : *« le choix des feats ça devient un choix de token »*.
+     🔴 ET SA SECONDE MOITIÉ EST MORTE AU LOT 109, RETOURNÉE PAR UN CROQUIS :
+     la planche « B2 » d'Eric (2026-08-30) dessine `CHOOSE` au pied de la carte
+     de tarot, comme sur les fiches d'espèce. Le garde disait « un catalogue
+     sans pied garde son Validate » ; Destiny n'est plus ce catalogue-là.
+     ⭐ CE QUI RESTE VRAI, ET C'EST LE CŒUR DE CH6 : *« chaque écran valide chez
+     lui »*. Un pied de fiche EXISTE ou n'existe pas, mais quand il existe il
+     porte le rôle `choose`, et c'est le catalogue — seul à connaître l'index —
+     qui l'allume. Ce test mesure cette chaîne de bout en bout.
+     ⛔ MESURÉ AVANT DE L'ÉCRIRE (banc, 30/08) : sans ce pied, la branche du
+     choix n'avait AUCUNE porte — le `Done` de la coquille restait éteint faute
+     de carte tirée, et le joueur regardait vingt-deux cartes sans pouvoir en
+     prendre une. */
   const { renderArcanaCardBody } = await import("../ui/builder/destiny-step.mjs");
 
   /* Les arcanes : ⚠️ elles ne lisent pas `decisions[]` (aucun plan ne les
@@ -359,12 +364,17 @@ test("CH6 quater — un catalogue SANS pied garde son Validate (les arcanes)", a
      `ctx.options`, comme dans `shell.mjs`. */
   const arcanes = (query({ kind: "arcana" }) || []).map((v) => v.id);
   assert.ok(arcanes.length >= 20, `garde-fou de portée : les 22 arcanes majeurs (lu : ${arcanes.length})`);
+  const appels = [];
   const cartesArcanes = renderCatalogueCards(
     { decisions, query, path: "fh.destiny.arcana", kind: "arcana", cursor: 0, options: arcanes },
-    renderArcanaCardBody, () => {}
+    renderArcanaCardBody, (a) => appels.push(a)
   );
-  assert.equal(cartesArcanes.querySelectorAll(".fiche-actions").length, 0,
-    "les arcanes n'ont pas de pied — leur écran garde son Validate générique");
+  const choisirs = cartesArcanes.querySelectorAll('[data-action="choose"]');
+  assert.equal(choisirs.length, arcanes.length, "chaque fiche d'arcane porte SON `CHOOSE`");
+  assert.equal(choisirs[0].disabled, false, "et le catalogue l'a allumé — il naît éteint, faute d'index");
+  choisirs[3].click();
+  assert.deepEqual(appels, [{ kind: "ficheChoose", index: 3 }],
+    "le bouton porte l'index de SA fiche — jamais le curseur du spy, qui peut n'avoir pas relu");
 });
 
 test("C bis — les lignes de fiche s'affichent, et SEULEMENT parce que la couche est montée", () => {

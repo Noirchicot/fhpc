@@ -61,8 +61,10 @@ import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes 
    recopié : une seconde liste de six clefs finirait par diverger. */
 import { ABILITY_KEYS } from "../../src/build/index.mjs?v=416";
 import {
-  renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana
+  renderDestinyStep, renderArcanaCardBody, destinyValidate, currentArcanaId, drawArcana,
+  DESTINY_ARCANA_PATH, arcanaImageSrc
 } from "./destiny-step.mjs?v=416";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=416";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=416";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
 import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=416";
@@ -261,10 +263,17 @@ const state = {
      c'est la quatrième des cinq choses que `innerHTML = ""` détruisait, et
      SOCLE.md l'annonçait — « il vivra dans `state` comme le reste ». */
   popup: null,            // { texte } quand il est ouvert, sinon null
-  destinyIntro: true,     // le petit texte de B6.1a, chassé par OK
-  destinyDraw: null,      // la carte TIRÉE, pas encore actée
-  destinyFace: "down",    // B6.1c — retournée ou non
-  destinyRevealed: false, // B6.1d — le texte arrive UNE SECONDE après
+  /* ⭐ LES CINQ TEMPS DE DESTINY (lot 109, croquis d'Eric du 2026-08-30) :
+     `porte` (le R : Draw ou Choose) · `seq1` `seq2` `seq3` (la cérémonie
+     plein écran) · `final` (l'écran commun aux deux branches).
+     ⛔ Aucun de ces états n'entre au document : `fh.destiny.*` est un
+     namespace strict, et seul `Next` y écrit la carte. */
+  destinyPhase: "porte",
+  destinySeq2: "melange",  // sous-étape de la séquence 2 : "melange" puis "grossit"
+  destinyDezoom: false,    // séquence 3 : la carte retournée repart à 50 %
+  destinyTaps: [],         // horodatages des taps — trois d'affilée résolvent
+  destinyDraw: null,       // la carte TIRÉE ou CHOISIE, pas encore actée
+  destinyFace: "down",     // B6.1c — retournée ou non
   /* LOT 54 — Concept/Universe. `docWriters` = `createDocWriters({schema})`,
      construit UNE FOIS au boot (juste en dessous) : PUR, sans magasin ni bus
      (voir shell.mjs, imports, et universe-step.mjs en tête). `fieldErrors`
@@ -985,33 +994,112 @@ function applyDecisionAction(action) {
   if (action.kind === "exportJson") { exporterJson(); return; }
   if (action.kind === "exportHtml") { exporterFiche("download"); return; }
   if (action.kind === "expertView") { exporterFiche("tab"); return; }
-  if (action.kind === "destinyIntroDone") {
-    state.destinyIntro = false;
-    if (!state.destinyDraw) tirerUneCarte();
-    openSurface();
+  /* ══ LA CÉRÉMONIE DU TIRAGE — lot 109 ═══════════════════════════════════
+     Les minuteurs qui font avancer les phases vivent ICI et nulle part
+     ailleurs : la coquille est la seule à savoir quand le joueur quitte
+     l'écran, donc la seule à pouvoir les annuler. Un minuteur posé par un
+     écran survit à son écran — c'est la fuite classique du builder. */
+  if (action.kind === "destinyDraw") {
+    tirerUneCarte();
+    state.destinyPhase = "seq1";
+    state.destinySeq2 = "melange";
+    state.destinyDezoom = false;
+    state.destinyTaps = [];
+    programmerDestiny(DESTINY_DUREES.seq1, () => {
+      state.destinyPhase = "seq2";
+      state.destinySeq2 = "melange";
+      refresh();
+      /* le mélange, PUIS le grossissement : deux temps du même écran, donc
+         deux minuteurs enchaînés et non deux phases (le nœud ne doit pas être
+         reconstruit entre les deux, sinon les cartes repartent de leur
+         dispersion). */
+      programmerDestiny(DESTINY_DUREES.melange, () => {
+        const pile = document.querySelector(".ceremonie-pile");
+        if (pile) pile.dataset.etape = "grossit";
+        programmerDestiny(DESTINY_DUREES.grossit, () => {
+          state.destinyPhase = "seq3";
+          refresh();
+        });
+      });
+    });
+    refresh();
     return;
   }
-  if (action.kind === "destinyDraw") {
-    /* `Draw again` est ILLIMITÉ (Eric, B6.2). La carte repart DE DOS : le
-       geste de retournement est ce qui fait l'écran, le sauter le viderait. */
-    tirerUneCarte();
-    openSurface();
+  /* 🔴 TROIS TAPS RAPIDES RÉSOLVENT — Eric, 2026-08-30 : *« un petit tap ou
+     clic au mauvais moment ne change rien »* · *« succession rapide de 3 =
+     résolution immédiate »*. Le compte se garde dans une fenêtre glissante :
+     hors fenêtre, il repart de zéro — c'est ce qui distingue l'insistance de
+     la distraction. */
+  if (action.kind === "destinyTap") {
+    const maintenant = Date.now();
+    state.destinyTaps = [...state.destinyTaps, maintenant]
+      .filter((t) => maintenant - t <= DESTINY_DUREES.tripleTap);
+    if (state.destinyTaps.length >= 3) {
+      state.destinyTaps = [];
+      annulerDestiny();
+      state.destinyFace = "up";
+      state.destinyPhase = "final";
+      refresh();
+    }
     return;
   }
   if (action.kind === "destinyFlip") {
     state.destinyFace = "up";
+    annulerDestiny();
     refresh();
-    /* B6.1d — « le texte apparaît UNE SECONDE APRÈS le retournement ».
-       ⚠️ Ce minuteur ne retient AUCUN nœud : il n'écrit que `state` et
-       rappelle `refresh()`. Un remplacement de contenu entre-temps ne le
-       casse donc pas — c'est la règle du socle (SOCLE.md, « ce qui doit
-       survivre »). */
-    if (destinyTimer !== null) clearTimeout(destinyTimer);
-    destinyTimer = setTimeout(() => {
-      destinyTimer = null;
-      state.destinyRevealed = true;
+    /* la carte reste retournée, puis dézoome, puis le fondu vers l'écran
+       final — les trois temps du croquis, dans l'ordre. */
+    programmerDestiny(DESTINY_DUREES.retournee, () => {
+      state.destinyDezoom = true;
       refresh();
-    }, DESTINY_REVEAL_MS);
+      programmerDestiny(DESTINY_DUREES.dezoom, () => {
+        state.destinyPhase = "final";
+        refresh();
+      });
+    });
+    return;
+  }
+  /* 🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
+     tout »*) et rend au **R**, pas à l'étape d'avant : le joueur y retrouve
+     ses deux portes.
+     📌 IL EFFACE SANS DEMANDER, comme les `I changed my mind` du parcours
+     (`parcoursCancel`) — le builder n'a aucun organe de confirmation, et en
+     inventer un ici en ferait un geste à part. ⏳ La norme §6 veut « rouge ET
+     confirmé » : la dette est la même sur les cinq écrans qui portent ce mot,
+     elle se paiera d'un coup ou pas du tout. */
+  if (action.kind === "destinyReset") {
+    annulerDestiny();
+    state.destinyPhase = "porte";
+    state.destinyMode = "draw";
+    state.destinyDraw = null;
+    state.destinyFace = "down";
+    state.destinyDezoom = false;
+    state.destinyTaps = [];
+    state.palier = 1;
+    /* la carte déjà écrite au document part avec le reste — sinon l'écran
+       dirait « tu n'as rien » pendant que la fiche porterait encore l'arcane. */
+    if (state.engine && currentArcanaId(state.document)) {
+      state.document = state.engine.build.verbs.clear({
+        document: state.document, path: DESTINY_ARCANA_PATH, kind: "choice"
+      }).document;
+      rebuild();
+    }
+    refresh();
+    return;
+  }
+  /* `Next` ACTE LA CARTE puis avance — c'est le seul point d'écriture de
+     l'étape (B6.2 tient depuis le lot 61). */
+  if (action.kind === "destinyNext") {
+    annulerDestiny();
+    const id = state.destinyDraw || currentArcanaId(state.document);
+    if (id && state.engine && currentArcanaId(state.document) !== id) {
+      const suivant = state.engine.build.verbs.choose({
+        document: state.document, path: DESTINY_ARCANA_PATH, ref: { kind: "arcana", id }
+      });
+      state.document = suivant.document || suivant;
+      rebuild();
+    }
+    goToStep(state.step + 1);
     return;
   }
   const verbs = state.engine.build.verbs;
@@ -1288,7 +1376,21 @@ function tirerUneCarte() {
   const carte = drawArcana(arcanaCatalog(), Math.random);
   state.destinyDraw = carte ? carte.id : null;
   state.destinyFace = "down";
-  state.destinyRevealed = false;
+}
+
+/* ⏱️ LES MINUTEURS DE LA CÉRÉMONIE — un seul à la fois, et il s'annule.
+   ⚠️ Ils n'écrivent QUE dans `state` avant de rappeler `refresh()` : aucun ne
+   retient un nœud, donc un remplacement de contenu ne les casse pas (SOCLE,
+   « ce qui doit survivre »). Mais un joueur qui quitte l'étape en pleine
+   cérémonie doit les voir mourir — d'où `annulerDestiny`, appelé à chaque
+   changement d'étape. */
+
+function annulerDestiny() {
+  if (destinyTimer !== null) { clearTimeout(destinyTimer); destinyTimer = null; }
+}
+function programmerDestiny(ms, suite) {
+  annulerDestiny();
+  destinyTimer = setTimeout(() => { destinyTimer = null; suite(); }, ms);
 }
 /** En mode « Choose yourself », le catalogue s'ouvre devant la carte déjà
  *  actée s'il y en a une — même loi que Class et Species. */
@@ -1311,7 +1413,9 @@ const CATALOGUES = {
      carte et passe à l'étape suivante (voir `pressDone`). */
   destiny: {
     path: "fh.destiny.arcana", kind: "arcana", label: "Major Arcana",
-    cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null
+    cardBody: renderArcanaCardBody, choices: () => el("div", "catalogue-choices"), palier2: () => null,
+    /* le seul catalogue dont le rail porte des vignettes — Eric, 2026-08-30 */
+    railImage: arcanaImageSrc
   }
 };
 /** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
@@ -1353,7 +1457,10 @@ function catalogueCtx(cfg) {
     palier: state.palier, cursor: state.cursor,
     /* Seul Destiny en fournit — les autres lisent leur plan (voir
        `catalogueOptions`, la porte étroite). */
-    options: cfg.kind === "arcana" ? arcanaCatalog().map((v) => v.id) : undefined
+    options: cfg.kind === "arcana" ? arcanaCatalog().map((v) => v.id) : undefined,
+    /* la vignette des crans du rail, quand le catalogue en fournit une —
+       Destiny est le seul aujourd'hui (Eric, 2026-08-30 : « oui des cartes »). */
+    railImage: cfg.railImage || null
   };
 }
 
@@ -1727,15 +1834,27 @@ function renderStepContent() {
     /* LOT 61 — le mode « choice » est rendu par la branche CATALOGUE
        au-dessus (`catalogueCourant`) ; on n'arrive ici qu'en mode « draw »,
        l'écran théâtral. */
-    card.append(renderDestinyStep({
-      document: state.document,
-      resolved: state.resolved,
-      query: state.engine.layers.verbs.query,
-      intro: state.destinyIntro,
-      drawnId: state.destinyDraw,
-      face: state.destinyFace,
-      revealed: state.destinyRevealed
-    }, applyDecisionAction));
+    /* ⭐ LA CÉRÉMONIE EST UN PLEIN ÉCRAN, DONC ELLE NE VIT PAS DANS LA CARTE
+       D'ÉTAPE : `renderCeremonie` rend un nœud qui se pose par-dessus tout
+       (CADRES §2 — FS : ni belt ni menu). Les trois séquences sortent ici, le
+       R et l'écran final passent par l'aiguilleur ordinaire. */
+    if (state.destinyPhase === "seq1" || state.destinyPhase === "seq2" || state.destinyPhase === "seq3") {
+      card.append(renderCeremonie({
+        phase: state.destinyPhase,
+        etape: state.destinySeq2,
+        drawnId: state.destinyDraw,
+        face: state.destinyFace,
+        dezoom: state.destinyDezoom
+      }, applyDecisionAction));
+    } else {
+      card.append(renderDestinyStep({
+        phase: state.destinyPhase,
+        document: state.document,
+        resolved: state.resolved,
+        query: state.engine.layers.verbs.query,
+        drawnId: state.destinyDraw
+      }, applyDecisionAction));
+    }
   } else if (step.id === "destiny" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
@@ -2645,8 +2764,33 @@ function fermerLePanneau() {
 }
 
 function pressDone() {
+  /* 🔴 LE `CHOOSE` DE DESTINY NE SORT PAS DE L'ÉTAPE — croquis « B2 » d'Eric
+     (2026-08-30) : il mène à l'écran final, celui-là même où aboutit le
+     tirage. Ailleurs `CHOOSE` valide et avance ; ici l'étape a un temps de
+     plus, et sauter par-dessus priverait le joueur de sa carte en grand.
+     ⭐ ET C'EST ICI QU'ON L'ÉCRIT, PAS DANS `ficheChoose` : le garde 18 le
+     dit — la fiche pose le curseur puis PASSE LA MAIN au propriétaire des
+     paliers. Deux propriétaires d'une même porte, c'est deux vérités.
+     ⚠️ ET AVANT `gate.ready`, PAS APRÈS : mesuré au banc le 30/08 — la porte
+     du catalogue est ÉTEINTE sur Destiny (aucun plan ne publie les arcanes,
+     donc rien à compter), et le `return` d'en dessous avalait le clic. Le
+     `CHOOSE` était allumé, câblé, et ne faisait rien. Ce geste-ci n'a pas
+     besoin de la porte : il ne valide pas l'étape, il ouvre son dernier
+     temps. */
+  if (STEPS[state.step].id === "destiny" && state.destinyMode === "choice" && state.engine) {
+    const vue = arcanaCatalog()[state.cursor];
+    if (vue) {
+      state.destinyDraw = vue.id;
+      state.destinyFace = "up";
+      state.destinyPhase = "final";
+      state.destinyMode = "draw";  // referme le rail : on n'est plus au catalogue
+      state.palier = 1;
+      refresh();
+      return;
+    }
   const gate = currentGate();
   if (!gate.ready) return;
+  }
   /* L'ACTION D'ABORD, LE PALIER ENSUITE : `applyDecisionAction` appelle
      `rebuild()` puis `refresh()`, donc le carnet est à jour AVANT que le
      palier suivant ne le lise. */
@@ -2861,12 +3005,17 @@ function goToStep(index) {
        rejouer le théâtre devant un choix déjà pris serait le proposer à
        nouveau sans le dire. */
     const dejaActee = currentArcanaId(state.document);
+    annulerDestiny();
     state.destinyMode = "draw";
-    state.destinyIntro = !dejaActee;
+    /* Une carte déjà actée ramène à l'écran final — rejouer le théâtre devant
+       un choix déjà pris serait le proposer à nouveau sans le dire. Sinon, le
+       R : ses deux portes, et rien n'est encore tiré. */
+    state.destinyPhase = dejaActee ? "final" : "porte";
     state.destinyDraw = dejaActee || null;
     state.destinyFace = dejaActee ? "up" : "down";
-    state.destinyRevealed = Boolean(dejaActee);
-    if (!dejaActee) tirerUneCarte();
+    state.destinySeq2 = "melange";
+    state.destinyDezoom = false;
+    state.destinyTaps = [];
     openSurface();
     return;
   }
@@ -3059,6 +3208,14 @@ function renderSortieEtape() {
      📌 La constante du croquis n'est pas touchée : le BELT reste visible, et
      c'est lui qui fait reculer. */
   if (STEPS[state.step].id === "equipment") return null;
+  /* 🚪 DESTINY PORTE SON PROPRE PIED (lot 109) — le R a `Draw`/`Choose`,
+     l'écran final a `I changed my mind`/`Next`, et la cérémonie n'a aucun
+     bouton (trois taps la résolvent). La paire de la coquille en plus serait
+     le doublon du 19/08 : deux commandes pour un geste.
+     ⛔ SAUF AU CATALOGUE : la branche `Choose` est un écran à fiche, et son
+     `CHOOSE` vit sur la fiche — c'est la clause `fiche` juste en dessous qui
+     s'en occupe, pas celle-ci. */
+  if (STEPS[state.step].id === "destiny" && state.destinyMode !== "choice") return null;
   /* ⭐ CH6 — LES DEUX ÉCRANS À FICHE VALIDENT CHEZ EUX. Le pied de la fiche
      porte `CHOOSE`, qui ouvre EXACTEMENT la porte de ce bouton-ci ; les
      garder tous les deux serait deux commandes pour un geste, à dix pixels
