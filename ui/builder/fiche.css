@@ -63,7 +63,6 @@
      fonction d'une hauteur, deux commits plus tôt.
      📐 175 est la largeur que l'image OCCUPAIT quand la composition tenait
      (mesurée 173 avec le dos de carte, 175 après l'agrandissement de 20 %). */
-  --fiche-image-w-paysage: 175px;
   /* ⚠️ RECOTÉES LE 2026-08-16 POUR LE TEST DE LA BANDE (Eric : « réduit pour
      que ça rentre, c'est un test »). Le budget vertical de la fiche est FERMÉ —
      8 + 22 + 8 + 126 + 8 + <bande> + 8 + <texte> + 8 + 44 + 8 = 440 — donc tout
@@ -868,198 +867,35 @@
 .fiche-trait-effet { color: var(--text); font-style: italic; display: block; }
 
 
-/* ══ LA COMPOSITION HORIZONTALE — croquis « VERTICAL / HORIZONTAL » d'Eric,
-   2026-08-16 ═══════════════════════════════════════════════════════════════
-   🔴 MA PREMIÈRE ÉCRITURE ÉTAIT FAUSSE, ET SON IPAD L'A PROUVÉ. J'avais coté
-   le déclencheur sur la HAUTEUR (`max-height: 500px = 440 fiche + 60
-   ceinture`), en argumentant qu'« un iPad couché a toute la place et n'a rien
-   à recomposer ». Le raisonnement était cohérent et le résultat inutilisable :
-   son iPad couché fait ~900 px de haut, il n'a donc JAMAIS reçu la
-   composition, et il a vu la fiche debout étirée en large.
-   ⭐ SA RÈGLE EST PLUS SIMPLE ET C'EST LA BONNE : il a écrit « VERTICAL » et
-   « HORIZONTAL » sur son croquis. **La composition suit la FORME de l'écran**,
-   pas la place qui reste. Un écran couché reçoit une composition couchée.
-   📌 La leçon, pour la prochaine fois : j'ai remplacé un critère qu'il avait
-   nommé par un critère que j'avais déduit. Une déduction ne prime pas sur un
-   dessin.
+/* ⛔ L'HABIT PAYSAGE A ÉTÉ RETIRÉ — 2026-08-31, décision d'Eric (« A je
+   valide »), après mesure sur son iPad.
 
-   ── LE CROQUIS, LU LIGNE À LIGNE ─────────────────────────────────────────
-   TROIS colonnes, et chacune porte son annotation :
-     · COLONNE G — l'IMAGE, « AGRANDIE, CENTRÉE VERTICALEMENT, CADRÉE G » ;
-     · COLONNE CENTRE — TEXTE 1 (le bloc d'identité : nom + stats),
-       « CENTRÉE VERTICALEMENT, CENTRÉ HORIZONTALEMENT » ;
-     · COLONNE DROITE — TEXTE 2 (la bande d'infos) EMPILÉ SUR TEXTE 3 (le
-       blurb ou les traits), « CENTRÉE VERTICALEMENT, CADRÉE À DROITE » ;
-     · le PIED (`LORE`/`CHOOSE`) en bas, sous les colonnes G et CENTRE — pas
-       sous la colonne droite, le dessin est net là-dessus.
+   📏 CE QUI A ÉTÉ MESURÉ, et c'est ça qui a décidé : sous `zoom`, un iPad
+   couché de 1366 blg au cran 2 n'offre plus que **683 blg**. La requête, elle,
+   ne lit que l'ORIENTATION — elle répondait donc toujours « paysage », et
+   l'habit paysage réclamait 625 blg dans une carte qui n'en recevait que 585.
+   Les 40 blg de trop étaient **coupés, pas défilables** : le texte tranché en
+   plein mot, l'illustration poussée hors du champ. Aucun test ne pouvait le
+   voir ; c'est une capture d'Eric qui l'a montré.
 
-   ⭐ COMMENT LES TROIS COLONNES SE CENTRENT SANS UNE SEULE ENVELOPPE : deux
-   rangées `1fr` encadrent les deux rangées de contenu. Le nom et les stats
-   occupent les rangées 2 et 3 de la colonne du centre, la bande et le texte
-   les mêmes rangées à droite — chaque PAIRE est donc centrée verticalement
-   par construction, et l'image, qui traverse les quatre rangées, l'est aussi.
-   ⛔ Aucune `<div>` de regroupement n'a été ajoutée : elle aurait dû exister
-   aussi en portrait, où elle ne sert à rien, et la structure d'une fiche ne
-   doit pas porter les besoins d'une seule orientation. */
-@media (orientation: landscape) {
-  .fiche-dalle {
-    /* ⭐ `min()` ET NON `100%` : sur un téléphone couché la scène fait 315 px
-       et la dalle s'y ajuste ; sur un iPad couché elle en fait ~840, et la
-       dalle garde ses 440 — sinon elle deviendrait un carré géant, quand le
-       croquis dessine un rectangle couché. La hauteur reste donc plafonnée
-       par F1, et seule la place manquante la fait céder. */
-    height: min(var(--fiche-h), calc(100% - var(--sp-16)));
-    margin-block: var(--sp-8);
-    /* 🔴 LE MOU EST AU MILIEU, ET C'EST TOUT L'ENJEU — corrigé le 16/08 sur
-       capture d'Eric. Première écriture : `auto auto minmax(0,1fr)`, donc la
-       colonne du milieu valait son contenu et TOUT l'espace libre tombait dans
-       la troisième. Résultat, un seul défaut mais deux symptômes : TEXTE 1
-       n'était pas centré (sa colonne n'avait aucun mou où se centrer) et
-       TEXTE 2/3 n'étaient pas cadrés à droite (ils flottaient à gauche d'une
-       colonne trop large). Eric a vu les deux : « le bloc texte 1 n'est pas
-       centré horizontalement », « les blocs texte 2 et 3 ne sont pas cadrés à
-       droite ».
-       ⭐ Le mou passe donc au MILIEU : la colonne droite se réduit à son
-       contenu et vient donc buter contre le bord droit de la dalle, et la
-       colonne centrale reçoit tout l'espace libre — c'est là-dedans que
-       TEXTE 1 se centre. Une seule ligne répare les deux symptômes, parce
-       qu'ils n'ont jamais eu qu'une cause. */
-    /* 🔴 `minmax(max-content, 1fr)` AU MILIEU, ET CE N'EST PAS UNE PRÉCAUTION
-       DE STYLE — c'est la réparation d'un écrasement vu sur l'iPad d'Eric. Avec
-       un simple `1fr`, la colonne centrale peut tomber à ZÉRO si les autres
-       réclament de la place : le bloc de stats a alors débordé de sa colonne et
-       s'est affiché SOUS l'image, texte contre texte (« Wizard » amputé en
-       « zard »). Le plancher `max-content` lui interdit désormais de descendre
-       sous son propre contenu ; le `1fr` lui donne toujours le mou où se
-       centrer. */
-    /* 🔴 LA COLONNE DE TEXTE EST UNE COTE IMPOSÉE, PAS UN RESTE — corrigé le
-       2026-08-16, et c'est Eric qui a nommé la cause : *« tu n'as peut-être pas
-       respecté l'espace qu'on s'est imposé »*. Elle valait `auto`, donc elle se
-       partageait la place avec les deux autres ; le jour où la première vraie
-       image est arrivée — un mage au rapport 0,72 quand le dos de carte faisait
-       0,58 — la colonne de gauche est passée de 173 à 216 px et le texte est
-       tombé à 203,6 pour 226 dus. Les lignes de sous-classes se sont repliées.
-       ⭐ Elle est donc FIXÉE à la largeur utile de la dalle mobile (242 − 2 × 8),
-       la même que sa `max-width` : ce qui était imposé est désormais réservé, et
-       c'est l'IMAGE qui cède quand la place manque. Le bon ordre : une cote de
-       lecture ne recule pas devant un décor. */
-    /* image (ce qui reste) │ LE MOU │ le bloc de droite, à sa cote */
-    grid-template-columns: auto minmax(max-content, 1fr) calc(var(--fiche-dalle-w) - 2 * var(--sp-8));
-    /* ⭐ LE NOM PREND UNE RANGÉE À LUI, EN TÊTE — Eric, 2026-08-16 : « si Wizard
-       est une boîte distincte en paysage aussi, mets-le tout en haut de la
-       dalle, centré, et 1,5× plus gros ». Il quitte donc la colonne du centre
-       et devient un BANDEAU sur toute la largeur.
-       nom · mou · TEXTE 2 · TEXTE 3 · mou · pied — les deux `1fr` centrent ce
-       qui est entre eux, le bandeau et le pied restent aux deux bouts. */
-    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
-  }
-  /* COLONNE G — l'image traverse les quatre rangées de contenu, centrée et
-     cadrée à gauche. `width: auto` + `height` en pourcentage : c'est le
-     rapport naturel du fichier qui donne la largeur, jamais une cote écrite. */
-  .fiche-dalle .fiche-image {
-    grid-column: 1;
-    grid-row: 2 / 6;          /* sous le bandeau du nom, au-dessus du pied */
-    align-self: center;
-    justify-self: start;
-    /* 🔴 UN CADRE, PAS UNE DÉDUCTION : largeur ET hauteur imposées, et
-       `object-fit: contain` (règle de base) fait entrer l'illustration dedans
-       quel que soit son rapport — elle rapetisse, elle n'est jamais coupée.
-       ⭐ +20 % le 2026-08-16 sur la hauteur (Eric) : 75 × 1,2 = 90. Le facteur
-       est appliqué, pas empilé — `calc(75% * 1.2)` laisserait deux nombres à
-       tenir d'accord. */
-    width: var(--fiche-image-w-paysage);
-    height: 90%;
-  }
-  .fiche-dalle .fiche-image img { width: auto; height: 100%; }
+   🔴 ET ÇA RENVERSE UNE NOTE ÉCRITE ICI MÊME LE 27/08 : *« ce n'est pas une
+   taille conditionnée à la place : c'est un habit conditionné à l'ORIENTATION,
+   et l'orientation ne change pas avec le zoom. Il survit donc intact à la loi
+   du 30/08. »* L'orientation ne change pas, en effet — mais la PLACE qu'elle
+   promettait, si. La note était juste sur sa prémisse et fausse sur sa
+   conclusion.
 
-  /* COLONNE CENTRE — TEXTE 1 : le nom au-dessus de ses stats, l'ensemble
-     centré dans les deux sens. */
-  /* LE BANDEAU DU NOM — toute la largeur, en tête, et 1,5× la taille du
-     portrait (`--t5` vaut 18 px à l'étroit, 20 en Large → 27 et 30).
-     ⛔ Le facteur est écrit comme un CALCUL sur le jeton, jamais comme un
-     nombre en dur : le jour où `--t5` bouge, le titre suit. */
-  .fiche-dalle .catalogue-card-name {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    justify-self: stretch;
-    align-self: start;
-    font-size: calc(var(--t5) * 1.5);
-  }
-  /* TEXTE 1 se retrouve SEUL dans la colonne du centre : il se centre donc sur
-     les deux rangées de contenu, en face de la colonne de droite. */
-  .fiche-dalle .fiche-bloc1 { grid-column: 2; grid-row: 3 / 5; justify-self: center; align-self: center; }
+   ⭐ LA RÈGLE QUI REMPLACE, et c'est celle du 30/08 poussée jusqu'au bout :
+   **un seul habit, celui du portrait, qui grandit avec le zoom.** Eric,
+   2026-08-31, devant le rendu de son téléphone : *« je veux ce rendu
+   partout »*.
 
-  /* COLONNE DROITE — TEXTE 2 sur TEXTE 3, cadrés à droite. */
-  /* ⭐ LA BOÎTE DE TEXTE EST BORNÉE, ET C'EST LE RATIO MOBILE QUI DONNE LA
-     BORNE — Eric, 2026-08-16 : « s'il faut dimensionner les ratios H/L des
-     boîtes de texte, utilise le ratio mobile ». Il fallait, et voici pourquoi :
-     🔴 SANS BORNE, LA COLONNE DE DROITE MANGE TOUTE LA DALLE. La largeur
-     « naturelle » d'un blurb de classe est le paragraphe entier sur UNE ligne
-     (~2 000 px) ; une piste `auto` la réclame, et il ne reste rien aux deux
-     autres colonnes. C'est ce qui a écrasé le centre et fait passer les stats
-     sous l'image. Une liste de traits d'espèce, elle, ne réclamait que ~212 px
-     — d'où un défaut invisible côté species et brutal côté class.
-     📏 LA BORNE EST LA BOÎTE MOBILE ELLE-MÊME : 226 × 160, soit le rapport
-     1,41 qu'Eric désigne, écrit à partir du jeton pour que les deux nombres ne
-     puissent pas diverger. Le texte se replie dedans, et la rangée `auto` du
-     paysage lui donne autant de lignes qu'il en faut — la limite des 10 lignes
-     est une cote de PORTRAIT, elle ne s'applique pas ici. */
-  /* ⭐ BOÎTE 2 ET BOÎTE 3 PARTAGENT LEURS DEUX BORDS — Eric, 2026-08-16 :
-     « le texte de la boîte 2 ou la boîte 2 ne s'aligne pas avec la boîte 3 ».
-     Diagnostic : leurs bords DROITS étaient bien alignés (8 px chacun, mesuré),
-     mais la bande d'infos se dimensionnait sur son contenu (106 px) quand le
-     texte en faisait 226 — donc les deux textes ne COMMENÇAIENT pas au même
-     endroit. `width: 100%` les met toutes deux à la largeur de leur colonne :
-     mêmes bords gauche ET droit, donc des textes qui s'alignent. */
-  /* ⚠️ LA BORNE EST ACCROCHÉE À LA LARGEUR MOBILE, PAS À SA HAUTEUR — corrigé
-     le 2026-08-16, et l'erreur mérite d'être nommée : elle était écrite
-     `calc(var(--fiche-blurb-h) * 226 / 160)`, c'est-à-dire « le ratio mobile
-     appliqué à la hauteur de la boîte ». Le jour où cette hauteur est passée de
-     160 à 144 pour loger la bande à quatre lignes, la borne a rétréci AVEC
-     ELLE — de 226 à 203 px — et une ligne de sous-classe s'est repliée sans que
-     rien ne le signale. Une borne de LARGEUR n'a rien à faire d'une hauteur.
-     ⭐ Elle vaut donc la largeur utile de la dalle mobile : 242 − 2 × 8 = 226,
-     déduite de ses deux jetons, jamais réécrite en chiffre. */
-  .fiche-dalle .fiche-infos,
-  .fiche-dalle .fiche-blurb {
-    max-width: calc(var(--fiche-dalle-w) - 2 * var(--sp-8));
-    width: 100%;
-  }
-  .fiche-dalle .fiche-infos { grid-column: 3; grid-row: 3; align-self: end; justify-self: end; }
-  .fiche-dalle .fiche-blurb { grid-column: 3; grid-row: 4; align-self: start; justify-self: end; }
+   ⚠️ CE QUI EST PERDU, ET IL FAUT LE DIRE : le croquis « VERTICAL /
+   HORIZONTAL » du 16/08 (le bandeau du nom, l'image à gauche, les trois
+   colonnes) et l'habit « qui plaît » du 27/08. Ils sont dans l'historique —
+   `git show 2578b85:ui/builder/fiche.css` — et un lot qui voudrait les
+   rouvrir devra les conditionner à la PLACE, jamais à l'orientation seule. */
 
-  /* LE PIED — sous les colonnes G et CENTRE, comme le dessin le pose.
-     ⭐ Il reste dans le champ quoi qu'il arrive : `CHOOSE` est la validation
-     de l'écran (Ch6), le pousser hors de la dalle ferait un écran qu'on ne
-     peut plus valider. */
-  /* ⭐ CENTRÉS, ET NON ÉTIRÉS — Eric, 2026-08-16 : « et les boutons Lore et
-     Choose centrés ! ». En portrait ils se partagent toute la largeur de la
-     dalle (`flex: 1 1 0`), parce qu'à 360 px il n'y a rien d'autre à en
-     faire ; ici la dalle est trois fois plus large et deux boutons étirés sur
-     389 px ne ressemblent plus à des boutons. Ils reprennent donc leur taille
-     propre et se centrent dans la bande qu'ils occupent — celle des colonnes
-     G et CENTRE, là où le croquis les pose.
-     ⛔ Le rembourrage horizontal doit être écrit ICI : la règle de base n'en
-     a aucun (elle n'en avait pas besoin, `flex: 1 1 0` donnait la largeur).
-     Sans lui, un bouton qui cesse de s'étirer se réduit à son texte. */
-  /* ⭐ CENTRÉS SUR LA DALLE, PAS SUR UNE SOUS-BANDE — Eric, 2026-08-16 :
-     « boutons Lore et Choose pas bien centrés, en paysage ». Ils l'étaient
-     déjà, mais dans la bande des colonnes G et CENTRE (leur centre tombait à
-     203 quand celui de la dalle est à 312) : centrés par rapport à un repère
-     que l'œil ne voit pas. Ils prennent maintenant toute la largeur, comme le
-     bandeau du nom en tête — le titre et le pied se répondent aux deux bouts,
-     sur le même axe. */
-  .fiche-dalle .fiche-actions { grid-column: 1 / -1; grid-row: 6; justify-content: center; }
-  .fiche-dalle .fiche-action { flex: 0 0 auto; padding-inline: var(--sp-24); }
-
-  /* Le second gabarit (celui des fiches SANS bande d'infos) n'a pas lieu
-     d'être ici : la colonne droite se compose d'elle-même, avec ou sans
-     bande. Une fiche sans infos laisse simplement sa rangée vide. */
-  .fiche-dalle[data-infos="oui"] {
-    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
-  }
-  .fiche-dalle[data-infos="oui"] .fiche-actions { grid-row: 6; }
-}
 
 /* ══ LE PANNEAU DE LORE — lot 82 ═════════════════════════════════════════
    📐 Croquis A d'Eric : *« lore sends to full page description »*, avec
@@ -1297,73 +1133,6 @@
   grid-column: 1 / -1; grid-row: 5;
 }
 
-/* ── L'HABIT PAYSAGE — la composition « qui plaît » du 27/08, à l'échelle ──
-   titre centré en haut · image centrée en vertical, cadrée à gauche · bloc 1
-   centré des deux axes · blocs 2 et 3 centrés verticalement à droite. */
-@media (orientation: landscape) {
-  .fiche-dalle:not([data-dressing="prose"]) {
-    /* Le dessin de référence du PAYSAGE — 625 × 396, l'autre composition
-       d'Eric (27/08). Ce n'est pas une taille conditionnée à la place : c'est
-       un habit conditionné à l'ORIENTATION, et l'orientation ne change pas
-       avec le zoom. Il survit donc intact à la loi du 30/08. */
-    --carte-w: 625px;
-    --fiche-ligne: 14.4px; /* la ligne du PAYSAGE — le portrait l'a descendue à 13,2 */
-    --fiche-image-w-paysage: 175px;
-    /* colonnes : image 175 · le bloc 1 prend le mou · la colonne de texte
-       226 · une RESPIRATION de 8u — Eric, 27/08 : « bloc 3 trop près du bord
-       extérieur ». La colonne fantôme écarte le texte du bord (16u au total)
-       sans rogner ses 226u : la ligne la plus large passe encore entière. */
-    /* col3 à 210 (était 226) — Eric, 27/08 : « quitte à raccourcir ton blurb…
-       blurb plus étroit quoi » : la place va à l'image (190). Le corps de la
-       colonne descend à 11u en même temps : 210/11 = le ratio de 226/12, les
-       lignes qui tenaient tiennent encore, et bande + blurb gardent leurs
-       DEUX bords communs (la règle d'Eric du 16/08). */
-    grid-template-columns: 220px minmax(0, 1fr) 200px 16px; /* 220 | bloc 1 | 200 — Eric, 27/08, dernier réglage : « rapetisser un peu le blurb en largeur, agrandir un peu la largeur du barbare » */
-    /* rangées : titre · mou · bloc 2 · bloc 3 · mou · pied — les deux `1fr`
-       centrent le groupe 2+3 verticalement, comme le dessin validé */
-    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) 44px;
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .catalogue-card-name {
-    grid-column: 1 / -1; grid-row: 1;
-    font-size: 27px;
-    align-self: start;
-    margin-left: 0;
-    margin-bottom: 0; /* les marges de 4u/8u sont des souffles du PORTRAIT — ici elles décentraient le titre */
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-image {
-    grid-column: 1; grid-row: 2 / 6;
-    justify-self: start; align-self: center;
-    /* 190 × 330 (était 175 × 296) — Eric, 27/08 : « la latitude pour
-       agrandir le PNG et sembler être plus sous le titre » : centrée, elle
-       grandit des deux côtés, donc son haut MONTE vers le titre. */
-    width: 220px;
-    height: 340px; /* le max entre titre et pied — Eric : « t'as de la place pour agrandir l'image là » */
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-bloc1 {
-    grid-column: 2; grid-row: 2 / 6;
-    justify-self: center; align-self: center;
-    margin-left: 0; /* souffle du portrait */
-    translate: 5px 0; /* Eric, 27/08 : « décale bloc 1 très légèrement à droite, 4 voire 6 px » — optique, hors grille */
-    font-size: 12px;
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
-    grid-column: 3; grid-row: 3;
-    align-self: end; justify-self: stretch;
-    max-width: none;
-    margin-left: 0; /* souffle du portrait */
-    font-size: 10.5px; /* suit la colonne à 200 — la plus large ligne rend 197 */
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
-    grid-column: 3; grid-row: 4;
-    align-self: start; justify-self: stretch;
-    max-width: none;
-    font-size: 10.5px;
-    line-height: 12.6px; /* la ligne suit le corps — même rapport 1,2 */
-  }
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-actions {
-    grid-column: 1 / -1; grid-row: 6;
-  }
-}
 
 /* Les organes de texte INTERNES suivent l'échelle de leur bloc — sans cette
    règle, leurs corps jetonnés (--t2, --t3) écrasaient l'héritage et le bloc 1
@@ -1380,20 +1149,6 @@
   line-height: 1.2;
 }
 
-/* ── UNE LIGNE PAR LINEAGE — Eric, 27/08 : « surtout les lineages sont bien
-   présentés, tout sur une ligne par lineage (y'a un problème là-dessus avec
-   Hoddon par exemple) » puis « sur les lineages faut raccourcir ».
-   Le moule impose la LIGNE ; le contenu se taille pour y tenir (≤ 31
-   caractères, la cote mesurée de la boîte de 226u à 12u —
-   tests/fiche-moule.test.mjs la tient). ⛔ Sans le nowrap, une ligne trop
-   longue se replie en silence et la bande ment sur son nombre de lignées ;
-   avec lui, elle se COUPE visiblement — un défaut qui se voit se corrige. */
-@media (orientation: landscape) {
-  .fiche-dalle:not([data-dressing="prose"]) .fiche-info-row {
-    white-space: nowrap;
-    overflow: hidden;
-  }
-}
 /* 🔴 RENVERSÉ LE 2026-08-28 — Eric, en regardant le Barbare : « R : subclass
    sur une ligne ». Le portrait se repliait en silence : « Berserker : » rendait
    23 px (deux lignes) et la bande mentait sur son nombre de lignées, exactement
@@ -1431,19 +1186,6 @@
   padding-inline: 0;
 }
 
-/* ── LE BLURB SEUL ENJAMBE LA RANGÉE VIDE — mesuré le 27/08 : sans bande,
-   le centrage rendait 160/149. Les 11 px = UN gap de grille : une rangée
-   vide (auto → 0) garde ses DEUX gouttières, donc trois gaps au-dessus du
-   blurb contre deux en dessous. En enjambant (3/5), il en a deux de chaque
-   côté — la symétrie revient par construction, pas par compensation.
-   C'est le défaut qu'Eric a relevé sur les sept espèces sans bande
-   (« halfling bloc 3 mal centré verticalement », puis idem ×6). */
-@media (orientation: landscape) {
-  .fiche-dalle:not([data-dressing="prose"]):not([data-infos="oui"]) .fiche-blurb {
-    grid-row: 3 / 5;
-    align-self: center;
-  }
-}
 
 /* ── LE BLOC 1 SEUL ENJAMBE LA RANGÉE VIDE (portrait) — même géométrie que
    le blurb du paysage : sans bande, la rangée 3 (auto → 0) garde ses deux
@@ -1452,8 +1194,10 @@
    (0,4,0) battait la règle paysage (0,3,0) et collait le bloc 1 en haut de
    la carte large — Eric l'a vu avant moi (« bloc 1 trop haut »). Une règle
    d'un habit qui gagne en spécificité FUIT dans l'autre habit. */
-@media (orientation: portrait) {
-  .fiche-dalle:not([data-dressing="prose"]):not([data-infos="oui"]) .fiche-bloc1 {
-    grid-row: 2 / 4;
-  }
+/* ⚠️ PLUS DE `@media` : l'habit paysage est parti (2026-08-31), donc la
+   règle qui devait s'en défendre n'a plus de rival. Le ⛔ d'origine —
+   « bornée au portrait, sinon elle fuit dans l'autre habit » — est sans
+   objet : il n'y a plus d'autre habit. */
+.fiche-dalle:not([data-dressing="prose"]):not([data-infos="oui"]) .fiche-bloc1 {
+  grid-row: 2 / 4;
 }

@@ -1905,15 +1905,13 @@ button { font: inherit; }
    au-dessus d'une zone de dépôt. Les grossir ensemble ferait crier la seconde.
    Ce qui reste commun (la marge, le centrage) vit toujours dans la règle
    au-dessus ; seule la taille se sépare.
-   ⛔ La cote est LUE au jeton, jamais recopiée : `--t5` et son facteur 1,5 en
-   paysage sont exactement ce que `fiche.css` écrit pour `.catalogue-card-name`.
-   Le jour où le nom d'une fiche change de taille, celui-ci suit. */
+   ⛔ LE FACTEUR 1,5 DU PAYSAGE EST PARTI AVEC L'HABIT PAYSAGE — 2026-08-31.
+   Il suivait `.catalogue-card-name`, qui ne l'a plus : un seul habit, une
+   seule taille. Le titre reste à `--t5`, et il grandit par le zoom comme
+   tout le reste. */
 .ability-methode-titre {
   font-size: var(--t5); letter-spacing: normal; text-transform: none;
   font-weight: 700;
-}
-@media (orientation: landscape) {
-  .ability-methode-titre { font-size: calc(var(--t5) * 1.5); }
 }
 
 /* ── ÉTAGE 1 · L'ORGANE — FF2, dalle 50 % ─────────────────────────────
