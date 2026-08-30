@@ -256,8 +256,21 @@
        · `--panneau-l`   la CIBLE. Le panneau ne dépasse jamais cette largeur ;
                          tout écran plus large reçoit de la marge, pas de la
                          place à remplir. C'est elle que `cranAuto` vise.
-       · `--panneau-min` le PLANCHER. En dessous, rien n'est promis — la
-                         gouttière a déjà été rendue, c'est la limite d'Eric.
+       ⛔ IL N'Y A PLUS DE JETON DE PLANCHER, et c'est une suppression datée.
+          `--panneau-min: 360` a vécu quelques heures le 31/08, du temps où
+          l'échelle avait cinq crans et où un écran trop étroit se faisait
+          COUPER — Eric avait alors fixé 360 comme limite (« en dessous achète
+          un téléphone qui tient la route »). L'échelle continue a renversé ce
+          régime le soir même : plus rien n'est coupé, tout rapetisse. Le jeton
+          n'était plus lu par personne, et un jeton que personne ne lit est un
+          mensonge qui attend son lecteur.
+       ⭐ LE PALIER S'APPELLE **MINI** — Eric, 2026-08-31 : *« si tu réduis de
+          4 % la taille sur mini mobile, c'est ok. Donc ce palier s'appelle
+          mini, c'est ok. »* C'est le nom de la bande sous `--panneau-l`, là où
+          l'échelle passe sous 1 (un 360 rend 0,96). Ce n'est PAS un régime de
+          mise en page : rien n'y change de forme, tout y est simplement un peu
+          plus petit. D'où l'absence de seuil dans le code — le nommer suffit,
+          et un attribut que personne ne lirait serait le jeton mort d'après.
        · `--panneau-h`   la HAUTEUR du panneau. Avec `--panneau-l` elle forme
                          la PROPORTION, et c'est elle qu'Eric veut voir tenir :
                          *« il faut que le builder garde toujours sa
@@ -283,7 +296,6 @@
      les deux emplois : la feuille multiplie par `1px` là où il faut une
      longueur, `echelle.mjs` lit le nombre tel quel. */
   --panneau-l: 375;
-  --panneau-min: 360;
   --panneau-h: 560;
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */

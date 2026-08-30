@@ -41,9 +41,14 @@ function faireRacine(jetons) {
  *  de décor, jamais d'attente : le test qui compte lit celles du fichier. */
 const JETONS = { "--measure": "625px", "--rail-w": "90px", "--sp-16": "16px",
                  "--fiche-dalle-w": "242px", "--sp-4": "4px",
-                 /* Le PANNEAU — les trois cotes d'Eric du 31/08. Décor, jamais
-                    attente : les tests qui comptent les BOUGENT et regardent. */
-                 "--panneau-l": "375px", "--panneau-min": "360px", "--panneau-h": "520px" };
+                 /* Le PANNEAU — les deux cotes du 31/08. Décor, jamais attente :
+                    les tests qui comptent les BOUGENT et regardent.
+                    🔴 NUES ET À JOUR, ET C'EST UN DÉFAUT DÉJÀ PAYÉ : ce décor a
+                    porté « 520px » quelques heures après que le dépôt soit passé
+                    à 560. Les clauses passaient quand même — une clause
+                    ANTÉRIEURE remettait 560 dans cette racine partagée. Un garde
+                    dont le vert dépend de l'ORDRE des tests ne garde rien. */
+                 "--panneau-l": "375", "--panneau-h": "560" };
 
 function poserDecor(racine) {
   globalThis.getComputedStyle = (noeud) => ({
