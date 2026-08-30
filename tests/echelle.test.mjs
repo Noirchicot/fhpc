@@ -184,11 +184,11 @@ test("un cran hors tableau enregistré à la main est IGNORÉ, pas appliqué", (
   /* Une valeur écrite dans `localStorage` vient du dehors — une session
      ancienne, une console ouverte, un cran retiré du tableau depuis. Elle ne
      doit jamais devenir l'échelle de la page. */
-  magasin.set("fhpc.echelle.cran", "0.5");
+  magasin.set("fhpc.echelle.cran.2", "0.5");
   assert.equal(cranChoisi(), null, "0,5 n'est pas un cran : on retombe sur l'automatique");
-  magasin.set("fhpc.echelle.cran", "n'importe quoi");
+  magasin.set("fhpc.echelle.cran.2", "n'importe quoi");
   assert.equal(cranChoisi(), null);
-  magasin.delete("fhpc.echelle.cran");
+  magasin.delete("fhpc.echelle.cran.2");
 });
 
 test("localStorage qui JETTE ne fait pas tomber le builder", () => {
@@ -245,4 +245,18 @@ test("l'automatique ne propose JAMAIS un cran qui ne tient pas", () => {
     assert.ok(cranTient(c, largeur, racine),
       `à ${largeur} px l'auto a choisi le cran ${c}, qui ne laisse pas la place de dessiner`);
   }
+});
+
+test("⚖️ la clef v1 est ignorée ET effacée — le cran piégé du 30/08 ne survit pas", () => {
+  /* L'iPad d'Eric portait `fhpc.echelle.cran = "1"`, enregistré sous
+     l'étiquette trompeuse de la première heure. Personne ne doit avoir à
+     rouvrir un menu pour s'en défaire : la simple LECTURE du cran purge la
+     clef morte, et le choix revient à l'automatique tout seul. */
+  magasin.set("fhpc.echelle.cran", "1");
+  assert.equal(cranChoisi(), null, "le « Standard » piégé ne compte pas comme un choix");
+  assert.equal(magasin.has("fhpc.echelle.cran"), false, "et la clef morte est effacée au passage");
+  /* Un choix fait APRÈS la correction, sous la clef 2, reste souverain. */
+  setCran(2);
+  assert.equal(cranChoisi(), 2, "la clef 2 porte les vrais choix");
+  setCran(null);
 });

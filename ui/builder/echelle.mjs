@@ -45,7 +45,18 @@ export const CRANS = [1, 1.25, 1.5, 2, 3];
 const SEUIL_ETROIT = 720;
 const SEUIL_LARGE = 1140;
 
-const CLEF_CRAN = "fhpc.echelle.cran";
+/* ⚖️ LA CLEF v1 EST ABANDONNÉE ET ACTIVEMENT EFFACÉE — 2026-08-30 au soir.
+   Pendant sa première heure en ligne, le menu enregistrait sous
+   `fhpc.echelle.cran` des choix faits sous une étiquette trompeuse :
+   « Standard » se lisait comme « le réglage normal » et figeait en réalité le
+   cran de base — mesuré sur l'iPad d'Eric, qui l'a tapé en croyant choisir le
+   défaut, puis a cherché pourquoi rien ne grandissait. Un choix recueilli par
+   un instrument qui ment n'est pas un choix : la clef est abandonnée, pas
+   migrée, et on l'efface au passage pour que personne ne garde un cran qu'il
+   n'a jamais voulu. Les choix faits DEPUIS la note corrigée vivent sous la
+   clef 2 et sont, eux, dignes de foi. */
+const CLEF_CRAN = "fhpc.echelle.cran.2";
+const CLEF_MORTE = "fhpc.echelle.cran";
 
 /** ⚠️ `localStorage` peut JETER (navigation privée, quota, iframe cloisonnée)
  *  — même loi que `tutoriel.mjs` : une préférence d'affichage n'est jamais une
@@ -53,6 +64,7 @@ const CLEF_CRAN = "fhpc.echelle.cran";
  *  dit dans le code plutôt que de laisser un `try` muet. */
 function lireCran() {
   try {
+    window.localStorage.removeItem(CLEF_MORTE); // la clef v1, effacée — voir sa note
     const brut = window.localStorage.getItem(CLEF_CRAN);
     if (brut === null) return null;
     const n = Number(brut);
