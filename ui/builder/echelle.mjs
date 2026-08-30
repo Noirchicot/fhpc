@@ -71,13 +71,24 @@ export function setCran(valeur) {
 
 export function cranChoisi() { return lireCran(); }
 
-/** La largeur que le DESSIN veut : le plafond de la fiche, plus le rail, plus
- *  les deux gouttières de scène.
+/** La largeur que le DESSIN veut : la COLONNE DE CONTENU — le plafond de la
+ *  carte plus ses deux gouttières. C'est elle que l'œil met à l'échelle.
+ *
+ *  ⚖️ RECALIBRÉE LE 2026-08-30 AU SOIR, SUR L'IPAD D'ERIC. La première
+ *  formule ajoutait `--rail-w` : elle exigeait tout l'écran F idéal (777 blg)
+ *  avant de monter d'un cran. Mesuré : chaque iPad en PORTRAIT (744 à 834 de
+ *  large) restait au cran 1, et la fenêtre d'Eric (~1000) plafonnait à 1,25
+ *  quand 1,5 y tient — « sur mon iPad aucun changement », et il avait raison.
+ *  ⛔ Le rail n'a rien à faire dans cette facture : il n'existe que sur les
+ *  écrans F, où la fiche derrière lui a un PLANCHER de 242 blg — au pire cran
+ *  proposé il lui reste plus du double (mesuré : 657 − 90 = 567). C'est
+ *  `cranTient`, ci-dessous, qui garde ce plancher-là ; la facture de l'auto
+ *  ne doit compter que ce qui cesse d'être confortable quand on zoome : la
+ *  colonne qu'on lit.
  *
  *  🔴 LUE DANS LES JETONS, JAMAIS ÉCRITE ICI. `--measure` a déjà bougé une
- *  fois (625 depuis la migration `ch` → px du 29/08) et `--rail-w` deux fois
- *  (84 → 78 → 90). Une somme recopiée dans le JS serait fausse au prochain
- *  réglage d'Eric, sans qu'aucun test ne bronche — c'est la famille exacte du
+ *  fois (migration `ch` → px du 29/08). Une somme recopiée dans le JS serait
+ *  fausse au prochain réglage d'Eric, sans qu'aucun test ne bronche — le
  *  piège « une somme ne se fige pas, elle se déduit » (fiche.css, 16/08).
  *  ⚠️ Lue sur `documentElement`, donc HORS du zoom : ces jetons y valent leur
  *  compte de blg, ce qui est justement l'unité de ce calcul. */
@@ -87,7 +98,7 @@ function largeurVoulue(racine) {
     const v = parseFloat(cs.getPropertyValue(nom));
     return Number.isFinite(v) && v > 0 ? v : defaut;
   };
-  return px("--measure", 625) + px("--rail-w", 90) + 2 * px("--sp-16", 16);
+  return px("--measure", 625) + 2 * px("--sp-16", 16);
 }
 
 /** Le PLANCHER : la place minimale, en blg, sous laquelle l'écran à rail ne
@@ -128,8 +139,9 @@ export function cranTient(cran, largeurFenetre, racine) {
  *  ils n'ont rien à agrandir.
  *
  *  ⭐ LA FORMULE EST LA LIMITE HAUTE ELLE-MÊME, bornée par le tableau des
- *  crans. Un 1920 demande ×2,47 et reçoit le cran 2 ; un 4K non mis à
- *  l'échelle demande ×4,94 et reçoit le plafond. */
+ *  crans : le cran monte tant que la COLONNE tient encore à ce cran-là
+ *  (c × 657 ≤ fenêtre). Un 1024 reçoit 1,5 ; un 1920 reçoit 2 ; un 4K non
+ *  mis à l'échelle demande ×5,84 et reçoit le plafond. */
 export function cranAuto(largeurFenetre, racine) {
   const voulue = largeurVoulue(racine);
   const vise = largeurFenetre / voulue;

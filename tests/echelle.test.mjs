@@ -127,7 +127,7 @@ test("le cran auto reste au plancher tant que la fenêtre n'offre pas la place",
 });
 
 test("et il monte quand la place existe, sans jamais dépasser le dernier cran", () => {
-  const voulue = 625 + 90 + 2 * 16; // 777 — recalculé ici, jamais lu du module
+  const voulue = 625 + 2 * 16; // 657 — la COLONNE, recalculée ici, jamais lue du module
   assert.ok(cranAuto(voulue * 2, racine) >= 1.5, "le double de la largeur voulue mérite mieux que le plancher");
   assert.equal(cranAuto(99999, racine), CRANS[CRANS.length - 1],
     "un écran immense reçoit le plafond, jamais une valeur hors tableau");
@@ -141,7 +141,9 @@ test("un cran automatique tient toujours la promesse qu'il fait", () => {
   /* ⭐ LE VRAI CONTRAT : le cran choisi automatiquement ne doit jamais
      demander plus de place que la fenêtre n'en a. C'est ce qui remplace la
      bascule que ce lot n'a pas construite. */
-  const voulue = 625 + 90 + 2 * 16;
+  /* ⚖️ 657 depuis la recalibration du 30/08 au soir : la facture de l'auto
+     est la colonne de contenu, plus l'écran F idéal — voir echelle.mjs. */
+  const voulue = 625 + 2 * 16;
   for (const largeur of [360, 480, 768, 1024, 1440, 1920, 2560, 3840]) {
     const c = cranAuto(largeur, racine);
     assert.ok(c === CRANS[0] || c * voulue <= largeur,

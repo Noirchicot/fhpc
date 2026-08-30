@@ -42,8 +42,8 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=418";
-import { markPressed } from "./carnet.mjs?v=418";
+import { renderConfirmDialog } from "./confirm.mjs?v=419";
+import { markPressed } from "./carnet.mjs?v=419";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -381,10 +381,18 @@ export function renderUniverseStep(ctx, onAction) {
       `×${valeur}`, !tiennent.includes(valeur)));
   });
   taille.append(rampe);
+  /* 🔴 LE CHIFFRE D'AUTO EST DANS LA NOTE, PAS DANS `title` — corrigé le
+     30/08 au soir : une infobulle n'existe pas au doigt, et c'est au doigt
+     qu'Eric a choisi « Standard » en croyant choisir le défaut. La note dit
+     maintenant ce qu'Auto DÉCIDERAIT pour cette fenêtre, et ce que Standard
+     fait vraiment : figer la base — donc rien ne grandit, nulle part. Un
+     réglage qui peut être pris pour un autre est un réglage qui ment. */
   taille.append(el("p", "universe-note", [
     text(echelle.choisi === null
-      ? "Everything scales together — text, spacing, panels. Auto picks a size from your window; it stays small in a narrow column and grows on a wide screen."
-      : "Everything scales together — text, spacing, panels. Pick Auto to let the window decide again.")
+      ? `Everything scales together — text, spacing, panels. Auto is sizing this window at ×${echelle.auto}; narrow columns stay at ×1.`
+      : echelle.choisi === 1
+        ? `Standard pins the base size — nothing grows, on any screen. Auto would pick ×${echelle.auto} here.`
+        : `Everything scales together — text, spacing, panels. Pick Auto to let the window decide again (×${echelle.auto} here).`)
   ]));
   section.append(taille);
 
