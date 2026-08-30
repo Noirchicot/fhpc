@@ -57,6 +57,12 @@
   dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
   dt { color: var(--doux); }
   dd { margin: 0; font-variant-numeric: tabular-nums; }
+  button {
+    font: inherit; font-weight: 600;
+    padding: 10px 18px; min-height: 44px;
+    border: 1px solid var(--encre); border-radius: 8px;
+    background: transparent; color: var(--encre); cursor: pointer;
+  }
   p.note { font-size: 13px; color: var(--doux); margin: 20px 0 0; }
 </style>
 </head>
@@ -76,6 +82,20 @@
     <dt>Écran physique</dt><dd id="phys">—</dd>
     <dt>Orientation</dt><dd id="ori">—</dd>
   </dl>
+
+  <h1>Le zoom CSS marche-t-il sur ce navigateur&nbsp;?</h1>
+  <div class="verdict" id="verdict-zoom" data-ok="non">…</div>
+  <!-- ⛔ UNE SONDE, PAS UNE DÉCLARATION DE SUPPORT. On pose une boîte de
+       100 px sous `zoom: 2` et on lit ce qu'elle MESURE. Un `@supports` dirait
+       seulement que la propriété est reconnue ; ici on veut savoir si elle
+       AGIT. C'est la seule question qui compte, et c'est celle qu'aucune fiche
+       de compatibilité ne répond pour l'appareil qu'on a sous la main. -->
+  <div id="sonde-zoom" style="zoom:2;width:100px;height:1px;visibility:hidden"></div>
+
+  <h1>Taille d'interface enregistrée</h1>
+  <div class="chiffre"><span id="cran">—</span></div>
+  <p class="note" id="cran-note">…</p>
+  <p><button id="cran-effacer" type="button">Revenir à « Auto »</button></p>
 
   <p class="note">
     ⚠️ Si la largeur est plus petite que l'écran attendu, regarde
@@ -99,6 +119,33 @@
       Math.round(w * (window.devicePixelRatio || 1)) + " × " +
       Math.round(document.documentElement.clientHeight * (window.devicePixelRatio || 1)) + " px réels";
     document.getElementById("ori").textContent = w > document.documentElement.clientHeight ? "paysage" : "portrait";
+    /* 🔴 LE ZOOM EST MESURÉ, JAMAIS SUPPOSÉ. La boîte fait 100 px sous
+       `zoom: 2` : si la propriété agit, son rectangle rend 200. C'est le seul
+       chiffre qui dise si le mécanisme d'échelle du builder peut fonctionner
+       sur CET appareil — et il fallait le demander à l'appareil, parce
+       qu'aucun banc de la maison ne porte WebKit. */
+    var sonde = document.getElementById("sonde-zoom");
+    var large = sonde ? sonde.getBoundingClientRect().width : 0;
+    var vz = document.getElementById("verdict-zoom");
+    var marche = large > 150;
+    vz.dataset.ok = marche ? "oui" : "non";
+    vz.textContent = marche
+      ? "✅ oui — une boîte de 100 px sous zoom 2 en mesure " + Math.round(large) + ". Le builder peut se mettre à l'échelle."
+      : "⛔ NON — une boîte de 100 px sous zoom 2 en mesure " + Math.round(large) +
+        " au lieu de 200. Ce navigateur ignore `zoom` : aucun cran ne changera rien.";
+
+    /* Le cran ENREGISTRÉ, brut. Cette page ne recalcule pas l'automatique —
+       elle n'a pas à connaître la formule du builder (elle mentirait le jour
+       où celle-ci bouge). Elle rapporte ce que le navigateur a en mémoire. */
+    var cran = null;
+    try { cran = window.localStorage.getItem("fhpc.echelle.cran"); } catch (_) { cran = "?"; }
+    document.getElementById("cran").textContent = cran === null ? "Auto" : "×" + cran;
+    document.getElementById("cran-note").textContent = cran === null
+      ? "Aucun cran choisi : le builder déduit la taille de la fenêtre. C'est le défaut."
+      : cran === "1"
+        ? "« Standard » est enregistré — c'est le cran de BASE, donc rien ne grandit. C'est normal, et ce n'est probablement pas ce que tu voulais : reviens à Auto."
+        : "Un cran a été choisi à la main : le builder ignore la fenêtre tant qu'il est là.";
+
     var v = document.getElementById("verdict");
     var tient = w >= cible;
     v.dataset.ok = tient ? "oui" : "non";
@@ -127,6 +174,10 @@
   if (typeof ResizeObserver === "function") new ResizeObserver(veiller).observe(document.documentElement);
   window.addEventListener("resize", veiller);
   window.addEventListener("orientationchange", function () { setTimeout(veiller, 200); });
+  document.getElementById("cran-effacer").addEventListener("click", function () {
+    try { window.localStorage.removeItem("fhpc.echelle.cran"); } catch (_) { /* rien à faire */ }
+    relire();
+  });
   setInterval(veiller, 500);
 </script>
 </body>
