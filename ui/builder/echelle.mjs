@@ -98,47 +98,54 @@ function cotesDuPanneau(racine) {
   return { largeur: px("--panneau-l", 375), hauteur: px("--panneau-h", 520) };
 }
 
-/** Ce cran laisse-t-il le panneau ENTIER, dans les deux sens ?
+/** 🔴 L'ÉCHELLE EST CONTINUE — Eric, 2026-08-31 :
+ *  *« ce n'est pas 5 changements de tailles, c'est un redimensionnement qui
+ *  suit la fenêtre dans toutes situations. RÈGLE SACRÉE : le builder garde
+ *  toujours son ratio. »*
  *
- *  🔴 DEUX CONTRAINTES, ET LA SECONDE VIENT D'UNE MESURE. Ne garder que la
- *  largeur donnait au 1366 × 1024 d'Eric un cran 3 : le panneau y aurait eu
- *  1125 px de large et **341 blg de haut** pour 520 nécessaires — la carte
- *  aurait défilé ou se serait coupée, c'est-à-dire le défaut qu'on venait de
- *  fermer, rouvert par l'autre bout. En paysage c'est la HAUTEUR qui décide.
+ *  ⭐ CE QUE ÇA SIMPLIFIE, ET C'EST LE CŒUR DU LOT : le panneau ne se serre
+ *  plus jamais, ne se coupe plus jamais, ne perd plus jamais sa gouttière. Il
+ *  vaut **toujours exactement `--panneau-l` × `--panneau-h` blg** ; c'est le
+ *  PIXEL qui grandit ou rapetisse sous lui. La feuille n'a donc plus rien à
+ *  arbitrer — plus de `min(100%, …)`, plus de plancher à défendre.
  *
- *  ⛔ Et on ne CLAMPE PAS en silence : le menu n'OFFRE pas les crans qui ne
- *  tiennent pas, il ne les transforme pas en un autre. Un réglage qui se
- *  change tout seul est un réglage qui ment. */
-export function cranTient(cran, largeurFenetre, hauteurFenetre, racine) {
+ *  ⛔ ET ÇA RENVERSE « LE PLANCHER EST 1 » (30/08). Sous 375 blg de large,
+ *  le facteur descend sous 1 — un 360 rend 0,96. C'est VOULU et c'est mieux
+ *  que ce qu'on avait : la règle d'hier faisait perdre 15 blg à la carte sur
+ *  un téléphone de 360 (mesuré, et Eric l'avait accepté) ; ici rien n'est
+ *  retiré, tout est simplement 4 % plus petit. La proportion, elle, ne cède
+ *  jamais — c'est la règle sacrée.
+ *  ⚠️ Rien ne borne le haut non plus : sur un mur de 4 000 px l'app suit. Si
+ *  un plafond devient nécessaire, il se posera comme une cote d'Eric, pas
+ *  comme une prudence d'architecte. */
+export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine) {
   const p = cotesDuPanneau(racine);
-  return largeurFenetre / cran >= p.largeur && hauteurFenetre / cran >= p.hauteur;
+  const parLargeur = largeurFenetre / p.largeur;
+  const parHauteur = hauteurFenetre / p.hauteur;
+  const f = Math.min(parLargeur, parHauteur);
+  return Number.isFinite(f) && f > 0 ? f : 1;
 }
 
-/** Le cran automatique : le plus grand qui porte le panneau entier.
+/** Un cran CHOISI à la main tient-il ? Il tient s'il ne demande pas plus que
+ *  ce que la fenêtre porte — sinon le panneau sortirait de l'écran.
+ *  ⛔ On ne CLAMPE toujours pas en silence : le menu grise, il ne transforme
+ *  pas. Un réglage qui se change tout seul est un réglage qui ment. */
+export function cranTient(cran, largeurFenetre, hauteurFenetre, racine) {
+  return cran <= echelleQuiTient(largeurFenetre, hauteurFenetre, racine) + 1e-9;
+}
+
+/** L'échelle automatique — le facteur exact, jamais arrondi à un cran.
  *
- *  📐 Eric, 2026-08-31 : *« quand j'ouvre le builder, quel que soit l'écran,
- *  la fenêtre doit rester dans la proportion que nous connaissons, avec le
- *  zoom approprié. »* Le panneau ne s'élargit pas — c'est le PIXEL qui grandit
- *  sous lui, et ce cran-ci est le facteur.
- *
- *  📏 Ce que la formule rend, mesuré :
- *      iPhone   375 × 812  → largeur 1,00 · hauteur 1,56  → ×1
- *      iPad ▯  1024 × 1366 → largeur 2,73 · hauteur 2,63  → ×2
- *      iPad ▭  1366 × 1024 → largeur 3,64 · hauteur 1,97  → ×1,5
- *  ⚠️ Coucher l'iPad RAPETISSE donc l'app (750 px de panneau debout, 562
- *  couché) : c'est la hauteur qui l'impose, et c'est le prix de la proportion.
- *  Eric l'a tranché en la redemandant après l'avoir vu chiffré.
- *
- *  ⭐ LE PLANCHER EST 1, et rien ne descend dessous : *« le plancher c'est la
- *  taille 360 sur laquelle on travaille »*. Un écran plus étroit que le
- *  panneau reçoit donc le cran 1 et le panneau se serre sur lui (`min(100%,…)`
- *  dans la feuille) — jusqu'à `--panneau-min`, en dessous duquel Eric ne
- *  promet rien : *« achète un téléphone qui tient la route ou va sur ton
- *  ordi »*. */
+ *  📏 Ce qu'elle rend, mesuré, pour un panneau 375 × 560 :
+ *      iPhone   375 × 812   → min(1,00 ; 1,45) = **1,00**
+ *      iPad ▯  1024 × 1366  → min(2,73 ; 2,44) = **2,44**
+ *      iPad ▭  1366 × 1024  → min(3,64 ; 1,83) = **1,83**
+ *      360 nu   360 × 640   → min(0,96 ; 1,14) = **0,96**
+ *  ⚠️ En paysage c'est la HAUTEUR qui décide, et l'app rapetisse quand on
+ *  couche l'appareil. C'est le prix de la proportion, et Eric l'a redemandée
+ *  après l'avoir vu chiffré. */
 export function cranAuto(largeurFenetre, hauteurFenetre, racine) {
-  let cran = CRANS[0];
-  for (const c of CRANS) if (cranTient(c, largeurFenetre, hauteurFenetre, racine)) cran = c;
-  return cran;
+  return echelleQuiTient(largeurFenetre, hauteurFenetre, racine);
 }
 
 /** ⚠️ LE CONVERTISSEUR — 2026-08-30, et il vient d'un défaut MESURÉ.
@@ -222,8 +229,7 @@ export function appliquerEchelle(fenetre, racine) {
      fenêtre annonçait « moyenne » et la carte se coupait de 39 blg — forcer
      « etroite » à la main a fait tomber le débordement à 15. Le seuil doit
      donc mesurer LE PANNEAU. */
-  const panneau = Math.min(cotesDuPanneau(html).largeur, vue.innerWidth / cran);
-  const grandeur = grandeurDe(panneau);
+  const grandeur = grandeurDe(cotesDuPanneau(html).largeur);
   html.dataset.grandeur = grandeur;
   return { cran, grandeur, auto: choisi === null };
 }

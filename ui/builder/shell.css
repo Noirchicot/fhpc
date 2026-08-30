@@ -42,7 +42,14 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    ⛔ C'ÉTAIT LA SEULE UNITÉ DE VIEWPORT DE TOUTE LA COQUILLE (mesuré : un
    `100dvh`, zéro `100vh`). C'est pour ça que le mode widget ne demande rien
    d'autre : le builder lisait déjà son conteneur, pas l'écran. */
+/* ⭐ `body` CENTRE LE PANNEAU DANS LES DEUX SENS — depuis que `.app` a une
+   proportion verrouillée (2026-08-31), le surplus de la fenêtre est de la
+   MARGE, en largeur comme en hauteur. `margin: auto` sur un enfant de flex le
+   centre sur les deux axes d'un coup ; il n'y a donc rien à aligner à la main.
+   ⛔ Le `100dvh` reste ICI et nulle part ailleurs : `html, body` vivent HORS
+   du zoom, ce sont eux qui donnent sa taille au reste (garde 5 ter). */
 html, body { height: 100dvh; }
+body { display: flex; }
 /* 🔴 LE PANNEAU NE S'ÉLARGIT JAMAIS — Eric, 2026-08-31 : *« si mon écran
    s'étend en largeur la fenêtre doit rester au ratio mobile, sinon ça marche
    pas »*.
@@ -66,9 +73,22 @@ html, body { height: 100dvh; }
   zoom: var(--echelle);
   display: flex;
   flex-direction: column;
-  width: min(100%, var(--panneau-l));
-  margin-inline: auto;
-  height: 100%;
+  /* 🔴 LA PROPORTION EST SACRÉE — Eric, 2026-08-31 : *« règle sacrée : le
+     builder garde toujours son ratio »*, et *« ce n'est pas 5 changements de
+     tailles, c'est un redimensionnement qui suit la fenêtre dans toutes
+     situations »*.
+     ⭐ D'OÙ LA SIMPLICITÉ DE CES TROIS LIGNES : `echelle.mjs` rend un facteur
+     CONTINU, exactement celui que la fenêtre porte. Le panneau vaut donc
+     toujours `--panneau-l` × `--panneau-h` blg, sans condition — il n'y a plus
+     rien à arbitrer ici, ni `min(100%, …)`, ni plancher à défendre. Le surplus
+     de la fenêtre est de la marge, en largeur comme en hauteur, et c'est ce
+     vide qu'un lot futur remplira (Eric : *« on remplit des vides autour »*).
+     ⚠️ `aspect-ratio` AVEC `height: auto` : la hauteur se DÉDUIT de la largeur,
+     jamais l'inverse — la proportion est exacte, pas approchée. */
+  width: calc(var(--panneau-l) * 1px);
+  aspect-ratio: var(--panneau-l) / var(--panneau-h);
+  height: auto;
+  margin: auto;
   overflow: hidden;
   background-image: var(--bg-image);
   background-size: cover;

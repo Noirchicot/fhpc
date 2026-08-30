@@ -258,16 +258,33 @@
                          place à remplir. C'est elle que `cranAuto` vise.
        · `--panneau-min` le PLANCHER. En dessous, rien n'est promis — la
                          gouttière a déjà été rendue, c'est la limite d'Eric.
-       · `--panneau-h`   la place VERTICALE qu'il faut pour tenir debout :
-                         ceinture 60 (mesurée) + carte 440 (`--fiche-h`) +
-                         marges 8 = 508, et 12 blg de mou. C'est la SECONDE
-                         contrainte du cran — sans elle, un iPad couché
-                         choisirait un cran que sa hauteur ne porte pas.
+       · `--panneau-h`   la HAUTEUR du panneau. Avec `--panneau-l` elle forme
+                         la PROPORTION, et c'est elle qu'Eric veut voir tenir :
+                         *« il faut que le builder garde toujours sa
+                         proportionnalité »*, *« que ça change de taille, no
+                         prob »*.
+                         🔴 560 EST MESURÉ, PAS DÉDUIT — et ma déduction était
+                         fausse. J'avais posé 520 (ceinture 60 + carte 440 +
+                         marges 8, plus du mou) ; passées les huit étapes dans
+                         une fenêtre de 375 × 520 exactement, **Identity
+                         débordait de 31 blg** — sa carte réclame 483, il ne
+                         lui en restait que 452 — et Equipment de 4. Le besoin
+                         réel est donc 551 ; 560 le couvre avec 9 blg de mou.
+                         ⚠️ Le débordement de Species (5 520) n'en est pas un :
+                         c'est le rail des douze espèces, qui défile par
+                         construction.
      ⛔ Ce sont des cotes DONNÉES par Eric, pas des sommes déduites. Le jour où
      elles bougent, elles bougent ICI et `echelle.mjs` les relit. */
-  --panneau-l: 375px;
-  --panneau-min: 360px;
-  --panneau-h: 520px;
+  /* ⚠️ NUS, SANS UNITÉ — et c'est une contrainte de `aspect-ratio`, pas un
+     goût : elle n'accepte QUE des nombres. Écrits en `px`, les deux jetons
+     donnaient `aspect-ratio: 375px / 560px`, déclaration invalide que le
+     navigateur jette en silence — mesuré, le panneau retombait à la hauteur
+     de sa ceinture (375 × 60 blg au lieu de 375 × 560). Une seule source pour
+     les deux emplois : la feuille multiplie par `1px` là où il faut une
+     longueur, `echelle.mjs` lit le nombre tel quel. */
+  --panneau-l: 375;
+  --panneau-min: 360;
+  --panneau-h: 560;
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */

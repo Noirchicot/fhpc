@@ -122,59 +122,55 @@ test("🔴 le cran auto suit les JETONS — bouger --panneau-l change le résult
     "un panneau plus large doit faire BAISSER le cran — sinon la cote est figée quelque part");
 });
 
-test("🔴 et il suit AUSSI --panneau-h — la hauteur est une vraie contrainte", () => {
+test("🔴 et il suit AUSSI --panneau-h — en paysage c'est la HAUTEUR qui décide", () => {
   /* 📏 LE DÉFAUT QUE CETTE CLAUSE GARDE, mesuré le 31/08 sur l'iPad d'Eric
-     couché (1366 × 1024) : sur la seule largeur, l'auto rendait ×3 — panneau
-     de 1125 px de large et **341 blg de haut** pour 520 nécessaires. La carte
-     se serait coupée. C'est le défaut qu'on venait de fermer, rouvert par
+     couché (1366 × 1024) : sur la seule largeur, l'échelle rendait 3,64 —
+     panneau de 1365 px de large et 281 blg de haut pour 560 nécessaires. La
+     carte se serait coupée : le défaut qu'on venait de fermer, rouvert par
      l'autre bout. */
   const avant = cranAuto(1600, 1600, racine);
-  racine.__jetons.set("--panneau-h", "1200px");  // il faut soudain bien plus de hauteur
+  racine.__jetons.set("--panneau-h", "1200px");
   const apres = cranAuto(1600, 1600, racine);
-  racine.__jetons.set("--panneau-h", "520px");
-  assert.ok(apres < avant, "une hauteur exigée plus grande doit retirer des crans");
-  assert.equal(cranAuto(1366, 1024, racine), 1.5,
-    "l'iPad COUCHÉ reçoit 1,5 : la largeur en offrirait 3, la hauteur n'en porte que 1,97");
-  assert.equal(cranAuto(1024, 1366, racine), 2,
-    "le même iPad DEBOUT reçoit 2 — tourner l'appareil change le cran, et c'est la hauteur qui le dit");
+  racine.__jetons.set("--panneau-h", "560px");
+  assert.ok(apres < avant, "une hauteur exigée plus grande doit faire baisser l'échelle");
+
+  const arrondi = (x) => Math.round(x * 100) / 100;
+  assert.equal(arrondi(cranAuto(1366, 1024, racine)), 1.83,
+    "iPad COUCHÉ : la largeur en offrirait 3,64, la hauteur n'en porte que 1,83");
+  assert.equal(arrondi(cranAuto(1024, 1366, racine)), 2.44,
+    "le même iPad DEBOUT : 2,44 — tourner l'appareil change l'échelle, et c'est la hauteur qui le dit");
 });
 
-test("le cran auto reste au plancher tant que l'écran n'offre pas le panneau", () => {
-  /* Le téléphone est DÉJÀ dessiné pour cette taille : il n'a rien à agrandir,
-     et c'est ce qui garantit zéro régression là où Eric teste.
-     🔴 LA BORNE A CHANGÉ AVEC LE PANNEAU, ET C'EST LE TEST QUI ÉTAIT PÉRIMÉ :
-     l'ancienne facture était la colonne de contenu (657 blg), la nouvelle est
-     le panneau (375). Un 720 offrait donc le plancher hier et offre ×1,5
-     aujourd'hui — ce n'est pas un défaut, c'est la nouvelle cote. Le premier
-     cran au-dessus de 1 demande 1,25 × 375 = 469 blg : c'est LÀ qu'est la
-     frontière, et elle se calcule ici plutôt que de se recopier. */
-  const frontiere = 1.25 * 375;
-  for (const largeur of [360, 375, 390, 430, Math.floor(frontiere) - 1]) {
-    assert.equal(cranAuto(largeur, 1366, racine), 1,
-      `à ${largeur} px, l'auto doit rester au plancher — le panneau y tient déjà tout juste`);
-  }
-  assert.equal(cranAuto(Math.ceil(frontiere), 1366, racine), 1.25,
-    "et juste au-dessus de la frontière, il monte d'un cran — sinon la borne est ailleurs qu'annoncé");
+test("🔴 L'ÉCHELLE EST CONTINUE — jamais arrondie à un cran du tableau", () => {
+  /* ⛔ LA RÈGLE SACRÉE D'ERIC (31/08) : « ce n'est pas 5 changements de
+     tailles, c'est un redimensionnement qui suit la fenêtre dans toutes
+     situations. Le builder garde toujours son ratio. » Une échelle posée sur
+     le cran le plus proche ferait perdre au panneau les quelques pour cent qui
+     le séparent du bord — donc du ratio à l'écran. */
+  const f = cranAuto(1000, 900, racine);
+  assert.ok(!CRANS.includes(f), `${f} ne doit PAS être un cran du tableau — l'échelle est continue`);
+  assert.equal(Math.round(f * 1000) / 1000, Math.round(900 / 560 * 1000) / 1000,
+    "elle vaut exactement le plus contraignant des deux rapports, sans arrondi");
 });
 
-test("et il monte quand la place existe, sans jamais dépasser le dernier cran", () => {
-  assert.ok(cranAuto(375 * 2, 520 * 2, racine) >= 1.5,
-    "le double du panneau, dans les DEUX sens, mérite mieux que le plancher");
-  assert.equal(cranAuto(99999, 99999, racine), CRANS[CRANS.length - 1],
-    "un écran immense reçoit le plafond, jamais une valeur hors tableau");
-  for (const l of [360, 480, 1024, 1920, 3840]) {
-    assert.ok(CRANS.includes(cranAuto(l, l, racine)), `le cran rendu doit toujours être UN DES CRANS (${l} px)`);
-  }
+test("🔴 elle descend SOUS 1 plutôt que de couper — le plancher est renversé", () => {
+  /* ⛔ CE QUI EST RENVERSÉ, et c'est mieux : « le plancher c'est la taille 360 »
+     (30/08) faisait perdre 15 blg à la carte sur un téléphone de 360 — mesuré,
+     et Eric l'avait accepté. Avec une échelle continue rien n'est retiré : tout
+     est 4 % plus petit et la proportion tient. */
+  const f = cranAuto(360, 640, racine);
+  assert.ok(f < 1 && f > 0.9, `à 360 × 640 l'échelle vaut ${f} — sous 1, et c'est voulu`);
+  assert.equal(Math.round(f * 100) / 100, 0.96);
 });
 
-test("un cran automatique tient toujours la promesse qu'il fait", () => {
-  /* ⭐ LE VRAI CONTRAT : le cran choisi automatiquement ne demande jamais plus
-     de place que l'écran n'en a — dans les deux sens. */
+test("l'échelle suit la fenêtre dans les deux sens, sans jamais rien couper", () => {
   for (const [l, h] of [[360, 640], [375, 812], [768, 1024], [1024, 1366],
                         [1366, 1024], [1440, 900], [1920, 1080], [3840, 2160]]) {
-    const c = cranAuto(l, h, racine);
-    assert.ok(c === CRANS[0] || (c * 375 <= l && c * 520 <= h),
-      `à ${l} × ${h} le cran ${c} demande ${c * 375} × ${c * 520} blg — il n'y en a pas tant`);
+    const f = cranAuto(l, h, racine);
+    assert.ok(f * 375 <= l + 1e-9 && f * 560 <= h + 1e-9,
+      `à ${l} × ${h} l'échelle ${f} donne ${f * 375} × ${f * 560} blg — ça ne rentre pas`);
+    assert.ok(f * 375 >= l - 1e-9 || f * 560 >= h - 1e-9,
+      `à ${l} × ${h} l'échelle ${f} laisse de la place des DEUX côtés : elle est trop petite`);
   }
 });
 
@@ -258,25 +254,14 @@ test("cranTient suit les COTES DÉCLARÉES, il ne les recopie pas", () => {
   assert.ok(avantH && !apresH, "et la HAUTEUR aussi — c'est elle qui décide en paysage");
 });
 
-test("l'automatique ne propose JAMAIS un cran qui ne tient pas", () => {
-  /* ⚠️ À PARTIR DE 360, ET C'EST LE CONTRAT, PAS UNE FAIBLESSE DU TEST.
-     Eric, 2026-08-31 : *« c'est du 375×520, il y a une marge c'est joli. Pour
-     du 360×520, il n'y a pas de marge c'est moins joli, mais ça fonctionne. En
-     dessous achète un téléphone qui tient la route ou va sur ton ordi. »*
-     Une fenêtre de 320 blg est HORS CONTRAT : l'auto y rend le cran 1 parce
-     qu'il n'a rien de plus petit, pas parce qu'il se trompe — et `cranTient`
-     ne prétend pas le contraire. */
-  assert.equal(cranAuto(320, 640, racine), CRANS[0],
-    "sous le plancher servi, l'auto rend la base — il n'a rien de plus petit à offrir");
-  assert.equal(cranTient(CRANS[0], 320, 640, racine), false,
-    "et il ne PRÉTEND pas que ça tient : 320 est hors contrat, le menu le dira");
-  for (const [l, h] of [[360, 640], [375, 812], [390, 844], [480, 800], [768, 1024],
-                        [834, 1112], [1024, 1366], [1366, 1024], [1280, 800],
-                        [1440, 900], [1920, 1080], [2560, 1440], [3840, 2160]]) {
-    const c = cranAuto(l, h, racine);
-    assert.ok(cranTient(c, l, h, racine) || c === CRANS[0],
-      `à ${l} × ${h} l'auto a choisi le cran ${c}, qui ne porte pas le panneau`);
-  }
+test("un cran CHOISI plus grand que ce que la fenêtre porte ne tient pas", () => {
+  /* ⛔ Le menu grise, il ne clampe pas : un réglage qui se transforme en un
+     autre est un réglage qui ment. */
+  assert.equal(cranTient(1, 375, 812, racine), true, "un iPhone porte le panneau à 1");
+  assert.equal(cranTient(2, 375, 812, racine), false, "375 / 2 : le panneau n'y est plus");
+  assert.equal(cranTient(2, 1024, 1366, racine), true, "1024 × 1366 porte encore 2 (l'auto y vaut 2,44)");
+  assert.equal(cranTient(2, 1366, 1024, racine), false,
+    "1366 de large porterait 2, mais 1024 de haut n'en porte que 1,83 : NON");
 });
 
 test("⚖️ la clef v1 est ignorée ET effacée — le cran piégé du 30/08 ne survit pas", () => {
