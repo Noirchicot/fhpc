@@ -57,6 +57,20 @@
   dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
   dt { color: var(--doux); }
   dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .regle { margin: 12px 0; }
+  .barre {
+    height: 34px; margin-bottom: 6px;
+    background: var(--encre); color: var(--fond);
+    display: flex; align-items: center;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+    width: 200px;
+  }
+  .barre span { padding-left: 6px; }
+  /* La seule règle qui compte de toute la page : 100 px, doublés par le zoom.
+     Si la barre s'aligne sur celle du dessus, le mécanisme d'échelle du
+     builder peut fonctionner ici. */
+  .barre-zoom { width: 100px; zoom: 2; font-size: 6px; }
+  .barre-zoom span { padding-left: 3px; }
   button {
     font: inherit; font-weight: 600;
     padding: 10px 18px; min-height: 44px;
@@ -84,13 +98,25 @@
   </dl>
 
   <h1>Le zoom CSS marche-t-il sur ce navigateur&nbsp;?</h1>
+
+  <!-- 🔴 DEUX BARRES, ET C'EST L'ŒIL QUI TRANCHE — refait le 2026-08-30 au
+       soir. La sonde d'avant lisait `getBoundingClientRect()` et en tirait un
+       verdict. Elle avait un défaut que je ne pouvais pas mesurer d'ici : rien
+       ne garantit que TOUS les moteurs rapportent le rectangle d'un élément
+       zoomé de la même façon. Un moteur où `zoom` AGIT mais où le rectangle se
+       lit non zoomé aurait fait dire « ⛔ » à la sonde — un faux négatif, sur
+       l'outil même qui devait trancher.
+       ⭐ Une règle visuelle n'a pas ce défaut. La barre du bas fait 100 px sous
+       `zoom: 2` ; celle du haut fait 200 px, sans zoom. Si elles sont de MÊME
+       LONGUEUR, le zoom agit — et aucune API n'est intervenue pour le dire.
+       Les chiffres restent affichés dessous, parce qu'un écart entre l'œil et
+       les chiffres est lui-même un renseignement. -->
+  <div class="regle">
+    <div class="barre" id="barre-ref"><span>200 px, sans zoom</span></div>
+    <div class="barre barre-zoom" id="barre-zoom"><span>100 px sous zoom&nbsp;2</span></div>
+  </div>
   <div class="verdict" id="verdict-zoom" data-ok="non">…</div>
-  <!-- ⛔ UNE SONDE, PAS UNE DÉCLARATION DE SUPPORT. On pose une boîte de
-       100 px sous `zoom: 2` et on lit ce qu'elle MESURE. Un `@supports` dirait
-       seulement que la propriété est reconnue ; ici on veut savoir si elle
-       AGIT. C'est la seule question qui compte, et c'est celle qu'aucune fiche
-       de compatibilité ne répond pour l'appareil qu'on a sous la main. -->
-  <div id="sonde-zoom" style="zoom:2;width:100px;height:1px;visibility:hidden"></div>
+  <p class="note" id="zoom-chiffres">…</p>
 
   <h1>Taille d'interface enregistrée</h1>
   <div class="chiffre"><span id="cran">—</span></div>
@@ -124,15 +150,29 @@
        chiffre qui dise si le mécanisme d'échelle du builder peut fonctionner
        sur CET appareil — et il fallait le demander à l'appareil, parce
        qu'aucun banc de la maison ne porte WebKit. */
-    var sonde = document.getElementById("sonde-zoom");
-    var large = sonde ? sonde.getBoundingClientRect().width : 0;
+    var bz = document.getElementById("barre-zoom");
+    var br = document.getElementById("barre-ref");
+    var peint = bz ? bz.getBoundingClientRect().width : 0;
+    var page  = bz ? bz.offsetWidth : 0;
+    var ref   = br ? br.getBoundingClientRect().width : 0;
     var vz = document.getElementById("verdict-zoom");
-    var marche = large > 150;
+    /* On juge sur le RAPPORT des deux barres à l'écran, jamais sur un seuil
+       absolu : la page peut elle-même être sous un zoom de navigateur. */
+    var marche = ref > 0 && peint / ref > 0.9;
     vz.dataset.ok = marche ? "oui" : "non";
     vz.textContent = marche
-      ? "✅ oui — une boîte de 100 px sous zoom 2 en mesure " + Math.round(large) + ". Le builder peut se mettre à l'échelle."
-      : "⛔ NON — une boîte de 100 px sous zoom 2 en mesure " + Math.round(large) +
-        " au lieu de 200. Ce navigateur ignore `zoom` : aucun cran ne changera rien.";
+      ? "✅ Les deux barres font la même longueur — `zoom` agit. Le builder peut se mettre à l'échelle ici."
+      : "⛔ La barre du bas est PLUS COURTE que celle du haut — ce navigateur n'applique pas `zoom`. Aucun cran ne changera rien, et il faut un autre mécanisme.";
+    /* ⚠️ LES DEUX FAMILLES DE LECTURE, TOUJOURS AFFICHÉES. Sous un zoom qui
+       agit, le rectangle rend du PEINT et `offsetWidth` de la MISE EN PAGE :
+       200 contre 100. Si ces deux chiffres se contredisent avec ce que l'œil
+       voit sur les barres, c'est cet écart-là qu'il faut rapporter — il dit
+       comment le moteur se comporte, et c'est ce qu'aucune fiche ne donne. */
+    document.getElementById("zoom-chiffres").textContent =
+      "Chiffres bruts — barre zoomée : rectangle " + Math.round(peint) +
+      " px, offsetWidth " + Math.round(page) +
+      " · barre de référence : " + Math.round(ref) + " px." +
+      (marche ? "" : "  ⚠️ Si les deux barres ont pourtant l'air identiques à l'écran, c'est CE désaccord qu'il faut signaler.");
 
     /* Le cran ENREGISTRÉ, brut. Cette page ne recalcule pas l'automatique —
        elle n'a pas à connaître la formule du builder (elle mentirait le jour
