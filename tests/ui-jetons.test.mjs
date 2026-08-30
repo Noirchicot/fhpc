@@ -517,6 +517,99 @@ test("garde 5 bis — 🔴 AUCUNE requête média de LARGEUR dans ui/builder/", 
     "une requête média de largeur ne se réévalue pas sous zoom — la grandeur passe par `data-grandeur`");
 });
 
+test("garde 5 ter — 🔴 aucune unité de VIEWPORT non divisée par l'échelle", () => {
+  /* ⛔ LE SECOND PIÈGE DE `zoom`, ET IL A ÉCHAPPÉ À LA PREMIÈRE PASSE DU LOT.
+     `zoom` ne rebase PAS `vw`/`vh` : une valeur en unités de viewport est
+     calculée sur la fenêtre BRUTE, puis peinte × le cran. Mesuré à 1440 × 900 :
+     `.ceremonie-flip` (`min(64vw, 74vh)`) rendait **1998 px de large dans une
+     fenêtre de 1440** au cran 3, et `max-height: 42vh` demandait 1134 px de
+     haut dans 900. La cérémonie de Destiny sortait de l'écran dès le cran 2.
+
+     ⭐ LA RÈGLE : dans le sous-arbre zoomé, toute unité de viewport se DIVISE
+     par l'échelle. Elle vaut alors la même fraction de la fenêtre réelle à
+     tous les crans — ce qui est toujours l'intention quand on écrit `vh`.
+     ⚠️ `dvh` sur `html, body` est EXEMPTÉ, et c'est le seul : ces deux-là
+     vivent HORS du zoom (il est posé sur `.app`), donc leur `100dvh` vaut déjà
+     la vraie fenêtre. C'est même lui qui donne sa taille au reste. */
+  const hits = [];
+  for (const nom of fs.readdirSync(UI_DIR)) {
+    if (!nom.endsWith(".css")) continue;
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    for (const m of texte.matchAll(/([-a-zA-Z]+)\s*:\s*([^;{}]*\d\s*v[hw]\b[^;{}]*)/g)) {
+      const [, prop, valeur] = m;
+      if (/\bdv[hw]\b/.test(valeur)) continue;
+      if (valeur.includes("/ var(--echelle)")) continue;
+      hits.push(`${nom} — ${prop}: ${valeur.trim()}`);
+    }
+  }
+  assert.deepEqual(hits, [],
+    "zoom ne rebase pas vw/vh : sans division, la valeur est calculée sur la fenêtre brute puis peinte × le cran");
+});
+
+test("garde 5 quater — 🔴 tout `getBoundingClientRect` est ramené en unités de mise en page", () => {
+  /* ⛔ LE TROISIÈME PIÈGE DE `zoom`, ET LE PLUS SILENCIEUX DES TROIS. Les
+     lectures géométriques se séparent en deux familles qui ne s'accordent plus
+     — mesuré sur un bloc de 200 blg dans `.app` :
+
+         cran               1     2     3
+         offsetWidth       200   200   200    ← la MISE EN PAGE, en blg
+         clientWidth       200   200   200    ← idem
+         computed width    200   200   200    ← idem
+         rect.width        200   400   600    ← ce qui est PEINT
+
+     🔴 DEUX ENDROITS LES MÉLANGEAIENT, et aucun ne se voyait au cran 1 :
+     `keepInView` ajoutait un écart de rectangle à `scrollTop` (qui est en
+     blg) — mesuré sur le rail de Species à 480×640, viser le 7ᵉ cran sur 12
+     posait `scrollTop` à **352 au lieu de 117** au cran 3, trois fois trop
+     loin ; et la roue d'Equipment lisait la largeur d'un cran en blg et le
+     champ de sa piste en pixels peints.
+
+     ⭐ LA RÈGLE : un rectangle qui va servir à un calcul de MISE EN PAGE se
+     divise par `facteurZoom(nœud)`. Un rectangle lu pour lui-même — la taille
+     à donner à un canvas, par exemple — n'a rien à convertir. */
+  const EXCEPTIONS = [
+    /* Le moteur 3D recopié : il dimensionne le TAMPON d'un canvas, et pour ça
+       c'est bien la taille PEINTE qu'il faut — plus de pixels d'appareil, un
+       dé plus net. Rien n'y est mêlé à une lecture de mise en page. */
+    "dice3d.mjs",
+    /* Le convertisseur lui-même : c'est lui qui compare les deux familles. */
+    "echelle.mjs"
+  ];
+  const hits = [];
+  for (const nom of fs.readdirSync(UI_DIR)) {
+    if (!nom.endsWith(".mjs") || EXCEPTIONS.includes(nom)) continue;
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    for (const m of texte.matchAll(/([\w.]*)\.getBoundingClientRect\(\)([^;\n]*)/g)) {
+      const ligne = m[0];
+      /* Une lecture est SAINE si elle est divisée sur place, ou si le fichier
+         ne s'en sert que pour comparer deux rectangles entre eux — auquel cas
+         il importe `facteurZoom` et l'applique à l'écart. */
+      if (/facteurZoom/.test(texte)) continue;
+      hits.push(`${nom} : ${ligne.trim().slice(0, 60)}`);
+    }
+  }
+  assert.deepEqual(hits, [],
+    "un rectangle est en pixels PEINTS : mêlé à offsetLeft/clientWidth/scrollTop, il est faux × le cran");
+});
+
+test("⚔️ ATTAQUE — le garde 5 ter mord, et il laisse passer ce qu'il doit", () => {
+  const voit = (css) => {
+    const t = stripComments(css);
+    const out = [];
+    for (const m of t.matchAll(/([-a-zA-Z]+)\s*:\s*([^;{}]*\d\s*v[hw]\b[^;{}]*)/g)) {
+      if (/\bdv[hw]\b/.test(m[2])) continue;
+      if (m[2].includes("/ var(--echelle)")) continue;
+      out.push(m[0]);
+    }
+    return out.length;
+  };
+  assert.equal(voit(".a { max-height: 42vh; }"), 1, "une hauteur de viewport nue est vue");
+  assert.equal(voit(".a { --dx: -46vw; }"), 1, "un jeton de trajectoire aussi");
+  assert.equal(voit(".a { width: min(64vw, 74vh); }"), 1, "et même caché dans un min()");
+  assert.equal(voit(".a { max-height: calc(42vh / var(--echelle)); }"), 0, "divisée, elle passe");
+  assert.equal(voit("html, body { height: 100dvh; }"), 0, "et `dvh` hors zoom reste permis");
+});
+
 test("⚔️ ATTAQUE — le garde 5 bis mord (il ne passe pas parce qu'il ne lit rien)", () => {
   const voit = (css) => {
     const t = stripComments(css);

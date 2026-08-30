@@ -44,6 +44,7 @@
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
 import { renderPicker } from "./carnet.mjs?v=417";
+import { facteurZoom } from "./echelle.mjs?v=417";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=417";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
@@ -798,7 +799,15 @@ function monterRoue(piste, { longueur, rangCourant, quandCran, quandBouge }) {
     if (rang < 0) return null;
     const largeur = parseFloat(getComputedStyle(premier).width);
     const ecart = parseFloat(getComputedStyle(piste).columnGap) || 0;
-    const champ = piste.getBoundingClientRect().width;
+    /* 🔴 LE RECTANGLE EST EN PIXELS PEINTS, LA LARGEUR CALCULÉE EN BLG — et
+       sous `zoom` (lot 85) ce ne sont plus les mêmes unités : mesuré, un bloc
+       de 200 blg rend `rect.width` 600 au cran 3 quand `getComputedStyle`
+       rend toujours 200. Les soustraire l'un de l'autre donnait une cible
+       fausse × le cran. On ramène donc le champ dans la famille des autres.
+       ⭐ Et la RAISON du rectangle tient toujours : c'est lui qui donne la
+       FRACTION que `clientWidth`, entier, arrondit — le demi-pixel qui faisait
+       corriger l'aimantation. Diviser garde la fraction. */
+    const champ = piste.getBoundingClientRect().width / facteurZoom(piste);
     if (!(largeur > 0) || !(champ > 0)) return null;
     return premier.offsetLeft + rang * (largeur + ecart) + largeur / 2 - champ / 2;
   }

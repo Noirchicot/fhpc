@@ -170,12 +170,68 @@ doit d'abord rouvrir la ligne avec Eric.
 
 ```
 avant : 1268 tests · 1256 verts · 12 rouges
-après : 1284 tests · 1272 verts · 12 rouges
+après : 1286 tests · 1274 verts · 12 rouges
 ```
 
-**+16 tests, exactement les mêmes 12 rouges** — toutes `Cannot find package 'ajv'`,
+**+18 tests, exactement les mêmes 12 rouges** — toutes `Cannot find package 'ajv'`,
 la dépendance de dev absente du conteneur de mesure. Aucun garde CSS, jeton ou UI n'est
 rouge.
+
+---
+
+## 8 bis. 🔴 SECONDE PASSE — trois défauts trouvés APRÈS le déploiement
+
+Eric, une fois en ligne : **« c'est bon tout scale ? »**. La première passe n'avait
+mesuré **qu'un écran**. Le balayage des huit étapes est passé sans un débordement —
+mais trois familles restaient, et aucune ne se voit au cran 1.
+
+### 1 · `zoom` ne rebase pas `vw`/`vh` — 30 valeurs
+
+Je l'avais corrigé pour `.app` et **nulle part ailleurs**. Mesuré à 1440 × 900 :
+
+| | cran 1 | ×2 | ×3 | dans une fenêtre de |
+|---|---|---|---|---|
+| `.ceremonie-flip` `min(64vw,74vh)` | 666 | 1332 | **1998** | 1440 |
+| `.ceremonie-pile` `min(52vw,40vh)` | 360 | 720 | **1080** | 1440 |
+| `--dx: -46vw` (trajectoire) | −662 | −1325 | **−1987** | 1440 |
+| `max-height: 42vh` | 378 | 756 | **1134** | 900 |
+
+**La cérémonie de Destiny sortait de l'écran dès le cran 2.**
+→ les 30 valeurs divisées par `--echelle`. Remesuré : constantes d'un cran à l'autre.
+→ **garde 5 ter** : aucune unité de viewport non divisée. Seule exception, `dvh` sur
+`html, body` — ils vivent HORS du zoom, c'est même eux qui donnent sa taille au reste.
+
+⚠️ Et ça **renverse une note que j'avais écrite dans ce même lot** : je disais que le
+plafond de la vignette *« reste en vh, elle ne se met pas à l'échelle, et c'est juste »*.
+C'était faux, et la mesure le dit.
+
+### 2 · Les lectures géométriques se séparent en deux familles
+
+Mesuré sur un bloc de 200 blg dans `.app` :
+
+| | cran 1 | ×2 | ×3 | |
+|---|---|---|---|---|
+| `offsetWidth` · `clientWidth` · `getComputedStyle().width` | 200 | 200 | 200 | la **mise en page**, en blg |
+| `getBoundingClientRect().width` | 200 | 400 | 600 | ce qui est **peint** |
+
+**Deux endroits les mélangeaient :**
+
+- **`keepInView` (socle)** — il ajoutait un écart de rectangle à `scrollTop`, qui est en
+  blg. Mesuré sur le rail de Species à 480 × 640, viser le 7ᵉ cran sur 12 :
+  `scrollTop` à **352 au lieu de 117** au cran 3. Trois fois trop loin. Au cran 1 :
+  identique. Ça touchait le rail **et** la ceinture ;
+- **la roue d'Equipment** — largeur du cran en blg, champ de la piste en pixels peints.
+
+→ `facteurZoom(nœud)` dans `echelle.mjs` : il **se mesure sur le nœud** (`rect ÷ offset`),
+ne lit aucun jeton, et vaut 1 quand il n'y a pas de mise en page (le stub des tests).
+→ **garde 5 quater** : tout `getBoundingClientRect` d'`ui/` est converti, sauf deux
+exceptions nommées — le moteur 3D (il dimensionne un **tampon de canvas**, la taille
+peinte est la bonne) et le convertisseur lui-même.
+
+### 3 · Rien d'autre
+
+Les huit étapes, à trois crans, à 1440 × 900 : aucun débordement de document, aucun
+débordement de scène, ceinture à 60 · 120 · 180 exactement.
 
 ---
 

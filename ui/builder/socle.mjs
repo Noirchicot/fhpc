@@ -22,6 +22,12 @@
    prouve — sur une source inventée d'abord (l'attaque), sur le vrai arbre
    ensuite. */
 
+/* ⭐ LA SEULE DÉPENDANCE DU SOCLE, ET ELLE N'AJOUTE PAS UNE CINQUIÈME FONCTION
+   ICI : `facteurZoom` appartient à l'échelle, qui la possède (lot 85). Le socle
+   la CONSOMME pour ramener un écart peint en unités de mise en page — voir sa
+   raison dans `keepInView`. */
+import { facteurZoom } from "./echelle.mjs?v=417";
+
 /* ── 1. LE REMPLAÇANT DE CONTENU ───────────────────────────────────────
    La seule fonction du dépôt qui vide et regarnit un nœud.
 
@@ -71,6 +77,18 @@ export function keepInView(scroller, child, axis) {
   if (!scroller || !child || typeof child.getBoundingClientRect !== "function") return;
   const box = scroller.getBoundingClientRect();
   const item = child.getBoundingClientRect();
+  /* 🔴 LES RECTANGLES SONT EN PIXELS PEINTS, `scrollTop` EST EN BLG — et sous
+     `zoom` les deux ne sont plus la même chose. Mesuré : un bloc de 200 blg
+     rend `rect.width` 400 au cran 2, `offsetWidth` 200. Ajouter un écart de
+     rectangle à `scrollTop` faisait donc défiler DEUX FOIS TROP LOIN au cran 2,
+     trois fois au cran 3 — sur le rail de Species comme sur la ceinture.
+     ⛔ Ça ne se voyait pas au cran 1, et aucun test ne l'aurait dit : c'est
+     exactement la famille de défaut que le lot 85 a passé sa journée à
+     débusquer. On divise donc chaque écart par le zoom effectif, mesuré sur le
+     champ lui-même (`facteurZoom`). */
+  const z = facteurZoom(scroller) || 1;
+  const dY = (a, b) => (a - b) / z;
+  const dX = (a, b) => (a - b) / z;
   /* ⚠️ `instant`, TOUJOURS, ET C'EST MESURÉ. `scroll-behavior: smooth` en CSS
      s'applique aussi aux écritures de script : arriver sur Class devant la
      classe déjà choisie (la douzième) déclenchait une DESCENTE ANIMÉE DE
@@ -80,20 +98,20 @@ export function keepInView(scroller, child, axis) {
      laissent le CSS décider (`mountChevrons`, plus bas). */
   const to = (patch) => scroller.scrollTo({ ...patch, behavior: "instant" });
   if (axis === "y-start") {
-    to({ top: scroller.scrollTop + (item.top - box.top) });
+    to({ top: scroller.scrollTop + dY(item.top, box.top) });
     return;
   }
   if (axis === "x") {
     /* Centré : une molette montre ses voisins des deux côtés, c'est ce qui
        dit qu'il y a du hors-champ (bible §4). */
-    to({ left: scroller.scrollLeft + (item.left + item.width / 2) - (box.left + box.width / 2) });
+    to({ left: scroller.scrollLeft + dX(item.left + item.width / 2, box.left + box.width / 2) });
     return;
   }
   /* Vertical : « au plus près », jamais centré — un rail de 4 crans qui
      recentre à chaque cran saute sans arrêt. On ne bouge que si l'élément
      sort. */
-  if (item.top < box.top) to({ top: scroller.scrollTop - (box.top - item.top) });
-  else if (item.bottom > box.bottom) to({ top: scroller.scrollTop + (item.bottom - box.bottom) });
+  if (item.top < box.top) to({ top: scroller.scrollTop - dY(box.top, item.top) });
+  else if (item.bottom > box.bottom) to({ top: scroller.scrollTop + dY(item.bottom, box.bottom) });
 }
 
 /* ── 3. LE POINT D'AIMANTATION — QUI EST LA FICHE COURANTE ─────────────

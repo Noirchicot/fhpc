@@ -6740,7 +6740,7 @@ button { font: inherit; }
    centre ». */
 .ceremonie-pile {
   position: relative;
-  width: min(52vw, 40vh);
+  width: calc(min(52vw, 40vh) / var(--echelle));
   aspect-ratio: 480 / 823;
   transform: scale(.5);
   transition: transform 1900ms cubic-bezier(.22, .61, .36, 1);
@@ -6763,18 +6763,18 @@ button { font: inherit; }
   transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0deg));
   transition: transform 900ms cubic-bezier(.34, .08, .2, 1) var(--retard, 0ms);
 }
-.ceremonie-dos[data-part="1"]  { --dx: -38vw; --dy: -22vh; --rot: -31deg; }
-.ceremonie-dos[data-part="2"]  { --dx:  34vw; --dy: -28vh; --rot:  24deg; }
-.ceremonie-dos[data-part="3"]  { --dx: -44vw; --dy:  18vh; --rot:  17deg; }
-.ceremonie-dos[data-part="4"]  { --dx:  41vw; --dy:  25vh; --rot: -22deg; }
-.ceremonie-dos[data-part="5"]  { --dx: -25vw; --dy:  31vh; --rot:  35deg; }
-.ceremonie-dos[data-part="6"]  { --dx:  28vw; --dy: -33vh; --rot: -14deg; }
-.ceremonie-dos[data-part="7"]  { --dx: -46vw; --dy:  -6vh; --rot:  28deg; }
-.ceremonie-dos[data-part="8"]  { --dx:  45vw; --dy:   8vh; --rot: -37deg; }
-.ceremonie-dos[data-part="9"]  { --dx: -18vw; --dy: -34vh; --rot:  11deg; }
-.ceremonie-dos[data-part="10"] { --dx:  20vw; --dy:  33vh; --rot: -19deg; }
-.ceremonie-dos[data-part="11"] { --dx: -33vw; --dy:   4vh; --rot: -26deg; }
-.ceremonie-dos[data-part="12"] { --dx:  36vw; --dy:  -3vh; --rot:  33deg; }
+.ceremonie-dos[data-part="1"]  { --dx: calc(-38vw / var(--echelle)); --dy: calc(-22vh / var(--echelle)); --rot: -31deg; }
+.ceremonie-dos[data-part="2"]  { --dx: calc(34vw / var(--echelle)); --dy: calc(-28vh / var(--echelle)); --rot:  24deg; }
+.ceremonie-dos[data-part="3"]  { --dx: calc(-44vw / var(--echelle)); --dy: calc(18vh / var(--echelle)); --rot:  17deg; }
+.ceremonie-dos[data-part="4"]  { --dx: calc(41vw / var(--echelle)); --dy: calc(25vh / var(--echelle)); --rot: -22deg; }
+.ceremonie-dos[data-part="5"]  { --dx: calc(-25vw / var(--echelle)); --dy: calc(31vh / var(--echelle)); --rot:  35deg; }
+.ceremonie-dos[data-part="6"]  { --dx: calc(28vw / var(--echelle)); --dy: calc(-33vh / var(--echelle)); --rot: -14deg; }
+.ceremonie-dos[data-part="7"]  { --dx: calc(-46vw / var(--echelle)); --dy: calc(-6vh / var(--echelle)); --rot:  28deg; }
+.ceremonie-dos[data-part="8"]  { --dx: calc(45vw / var(--echelle)); --dy: calc(8vh / var(--echelle)); --rot: -37deg; }
+.ceremonie-dos[data-part="9"]  { --dx: calc(-18vw / var(--echelle)); --dy: calc(-34vh / var(--echelle)); --rot:  11deg; }
+.ceremonie-dos[data-part="10"] { --dx: calc(20vw / var(--echelle)); --dy: calc(33vh / var(--echelle)); --rot: -19deg; }
+.ceremonie-dos[data-part="11"] { --dx: calc(-33vw / var(--echelle)); --dy: calc(4vh / var(--echelle)); --rot: -26deg; }
+.ceremonie-dos[data-part="12"] { --dx: calc(36vw / var(--echelle)); --dy: calc(-3vh / var(--echelle)); --rot:  33deg; }
 .ceremonie-dos[data-cascade="1"]  { --retard:   0ms; }
 .ceremonie-dos[data-cascade="2"]  { --retard:  55ms; }
 .ceremonie-dos[data-cascade="3"]  { --retard: 110ms; }
@@ -6794,7 +6794,7 @@ button { font: inherit; }
    retournement, jamais par une substitution d'image. */
 .ceremonie-flip {
   position: relative;
-  width: min(64vw, 74vh);
+  width: calc(min(64vw, 74vh) / var(--echelle));
   aspect-ratio: 480 / 823;
   padding: 0;
   border: 0;
@@ -6928,14 +6928,17 @@ button { font: inherit; }
 
 /* ⚠️ DEUX COLONNES NE TIENNENT PAS À 375 : la carte passe au-dessus, le texte
    dessous, et c'est le texte qui garde le défilement.
-   📌 `@container` et non `@media` — voir la note sur `.card-final-corps`. Le
-   plafond de la vignette reste en `vh` : c'est une fraction de la HAUTEUR
-   RÉELLE de la fenêtre, pas une cote de dessin — elle ne se met pas à
-   l'échelle, et c'est juste, une image ne doit jamais dépasser l'écran. */
+   📌 `@container` et non `@media` — voir la note sur `.card-final-corps`.
+   🔴 ET LE PLAFOND DE LA VIGNETTE EST DIVISÉ PAR L'ÉCHELLE. Ma première
+   version disait le contraire — *« une fraction de la hauteur RÉELLE, elle ne
+   se met pas à l'échelle »* — et c'était faux, mesuré : `zoom` ne rebase pas
+   `vh`, donc `42vh` se peint × le cran. À 1440 × 900 au cran 3, la vignette
+   demandait **1134 px de haut dans une fenêtre de 900**. Divisée, elle vaut
+   42 % de la fenêtre à tous les crans, ce qui EST l'intention. */
 @container (max-width: 34em) {
   .card-final-corps { grid-template-columns: minmax(0, 1fr); }
-  .card-final-carte { max-height: 42vh; }
-  .card-final-img { max-height: 42vh; width: auto; }
+  .card-final-carte { max-height: calc(42vh / var(--echelle)); }
+  .card-final-img { max-height: calc(42vh / var(--echelle)); width: auto; }
 }
 
 

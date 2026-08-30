@@ -142,6 +142,36 @@ export function cranAuto(largeurFenetre, racine) {
   return cran;
 }
 
+/** ⚠️ LE CONVERTISSEUR — 2026-08-30, et il vient d'un défaut MESURÉ.
+ *
+ *  🔴 SOUS `zoom`, LES LECTURES GÉOMÉTRIQUES SE SÉPARENT EN DEUX FAMILLES, et
+ *  elles ne s'accordent plus. Mesuré sur un bloc de 200 px dans `.app` :
+ *
+ *      cran            1      2      3
+ *      offsetWidth    200    200    200     ← la MISE EN PAGE, en blg
+ *      clientWidth    200    200    200     ← idem
+ *      computed width 200    200    200     ← idem
+ *      rect.width     200    400    600     ← ce qui est PEINT, en pixels
+ *
+ *  ⛔ LES MÉLANGER DONNE UN RÉSULTAT FAUX × LE CRAN, et deux endroits le
+ *  faisaient : `keepInView` (socle) calculait un écart en pixels peints et
+ *  l'ajoutait à `scrollTop`, qui est en blg ; la roue d'Equipment lisait la
+ *  largeur d'un cran en blg et le champ de la piste en pixels peints. Aucun
+ *  des deux ne se voyait au cran 1 — c'est pour ça que ce convertisseur existe
+ *  plutôt qu'une relecture attentive.
+ *
+ *  ⭐ IL SE MESURE SUR LE NŒUD, il ne lit aucun jeton : le rapport entre les
+ *  deux familles EST le zoom effectif à cet endroit, quel que soit l'empilement.
+ *  ⚠️ Repli à 1 si la mise en page n'existe pas — c'est le cas du stub DOM des
+ *  tests, qui ne fabrique pas de géométrie et n'a rien à convertir. */
+export function facteurZoom(noeud) {
+  if (!noeud || typeof noeud.getBoundingClientRect !== "function") return 1;
+  const enPage = noeud.offsetWidth;
+  if (!enPage) return 1;
+  const peint = noeud.getBoundingClientRect().width;
+  return peint > 0 ? peint / enPage : 1;
+}
+
 /** La grandeur, en blg. C'est ce que `data-grandeur` porte, et les feuilles
  *  n'ont jamais à connaître les deux nombres. */
 export function grandeurDe(largeurBlg) {
