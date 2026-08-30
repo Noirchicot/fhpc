@@ -670,7 +670,15 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      cotes, ce test rougit, et c'est le comportement voulu : les nombres du
      garde ont bougé avec elle. */
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "fiche.css"), "utf8");
-  assert.match(css, /--fiche-dalle-w:\s*242px/, "la dalle : 242 px, dont 226 utiles");
+  /* ⏩ `--fiche-dalle-w` A DÉMÉNAGÉ LE 2026-08-30, il n'a pas changé de valeur.
+     Il vit désormais sur `:root` dans `tokens.css` : `echelle.mjs` en a besoin
+     pour savoir quels crans de zoom laissent encore de quoi dessiner, et une
+     variable descend, elle ne remonte pas. Même geste que `--fiche-h` le
+     23/08, et la même raison. Le garde suit la cote à sa nouvelle adresse. */
+  const tokens = fs.readFileSync(path.join(ROOT, "ui", "builder", "tokens.css"), "utf8");
+  assert.match(tokens, /--fiche-dalle-w:\s*242px/, "la dalle : 242 px, dont 226 utiles");
+  assert.doesNotMatch(css, /--fiche-dalle-w:\s*\d/,
+    "et elle n'est plus DÉCLARÉE dans fiche.css — une cote, un écrivain");
   /* 🔴 LES COTES SE COMPTENT EN LIGNES DEPUIS LE 2026-08-17, et il a fallu un
      défaut pour ça : l'interligne était dérivé de la hauteur de la boîte
      (`--fiche-blurb-h / 10`). Le jour où cette boîte a changé, l'interligne

@@ -99,18 +99,26 @@ function amorceConsommee(css) {
 
 /** Clause 4 : le jeton — `none` à la base (l'étroit intouché), fondu
  *  noir/transparent en Large, profondeur en jeton d'espacement. */
+/* ⚖️ RÉÉCRIT LE 2026-08-30 — LE CONTRAT TIENT, SON PORTEUR A CHANGÉ.
+   Ce scanner cherchait le bloc `@media (min-width: 1140px)`. Il n'existe
+   plus : sous `zoom`, une requête média ne se réévalue pas (mesuré au banc),
+   donc la grandeur est devenue un ATTRIBUT calculé, `data-grandeur`, posé par
+   `echelle.mjs` sur la fenêtre divisée par l'échelle.
+   🔴 CE QU'ON GARDE EST MOT POUR MOT CE QU'ON GARDAIT : l'amorce est `none` à
+   la base — à 360, l'octet reste celui d'avant le lot 70 — et elle s'allume à
+   la grandeur large, dans la même forme de masque. */
 function amorceJeton(tokensCss) {
   const stripped = stripComments(tokensCss);
   const darkIdx = stripped.indexOf("@media (prefers-color-scheme: dark)");
-  const largeIdx = stripped.indexOf("@media (min-width: 1140px)");
-  if (darkIdx === -1 || largeIdx === -1) return ["<blocs sombre/Large introuvables>"];
+  const largeIdx = stripped.indexOf(':root[data-grandeur="large"]');
+  if (darkIdx === -1 || largeIdx === -1) return ["<bloc sombre ou bloc de grandeur introuvable>"];
   const hits = [];
   if (!/--stage-amorce:\s*none;/.test(stripped.slice(0, darkIdx))) {
     hits.push("la BASE n'est pas `none` — à 360, l'octet doit rester celui d'avant le lot");
   }
   const large = stripped.slice(largeIdx);
   const enLarge = large.match(/--stage-amorce:\s*([^;]+);/);
-  if (!enLarge) hits.push("le bloc Large ne porte pas l'amorce — le desktop resterait « une page sans suite »");
+  if (!enLarge) hits.push("la grandeur large ne porte pas l'amorce — le desktop resterait « une page sans suite »");
   else {
     if (!/^linear-gradient\(to bottom,\s*black calc\(100% - var\(--sp-\d+\)\),\s*transparent\)$/.test(enLarge[1].trim())) {
       hits.push(`la forme du fondu a dérivé : ${enLarge[1].trim()} — noir/transparent y encodent la VISIBILITÉ, la profondeur vient d'un jeton d'espacement`);
@@ -141,9 +149,9 @@ test("desktop-fini 3 — l'amorce de la fiche est consommée sous data-more, en 
     "« il y a une suite » : le fondu bible §4, la même famille que l'amorce des molettes");
 });
 
-test("desktop-fini 4 — --stage-amorce : none à la base, fondu en Large — l'étroit ne bouge pas d'un octet", () => {
+test("desktop-fini 4 — --stage-amorce : none à la base, fondu à la grandeur large — l'étroit ne bouge pas d'un octet", () => {
   assert.deepEqual(amorceJeton(tokensCssRaw), [],
-    "même contrat que le garde 6 du lot 69 : réparer le desktop en touchant une base ferait payer le téléphone");
+    "réparer le desktop en touchant une base ferait payer le téléphone — le contrat du lot 70, porté par data-grandeur depuis le 30/08");
 });
 
 /* ══ ⚔️ LES ATTAQUES — un garde jamais attaqué n'est pas un garde ═══════
@@ -186,16 +194,22 @@ test("⚔️ ATTAQUE 4 — allumer l'amorce À LA BASE rougit le contrat de l'é
     "réparer le desktop en touchant une base : exactement le geste que le garde 6 du lot 69 interdit déjà ailleurs");
 });
 
-test("⚔️ ATTAQUE 5 — une amorce en rgb() dans le bloc Large rougit DEUX gardes : la forme ici, le thème au lot 69", () => {
+test("⚔️ ATTAQUE 5 — une amorce en rgb() dans la grandeur large rougit DEUX gardes : la forme ici, la couleur là-bas", () => {
   const mutated = tokensCssRaw.replace(
     /--stage-amorce:\s*linear-gradient\(to bottom,\s*black calc\(100% - var\(--sp-32\)\),\s*transparent\);/,
     "--stage-amorce: linear-gradient(to bottom, rgb(0 0 0) calc(100% - var(--sp-32)), transparent);"
   );
   assert.notEqual(mutated, tokensCssRaw);
   assert.equal(amorceJeton(mutated).length, 1, "la forme a dérivé — ce garde-ci le dit");
-  /* Et la forme rgb() est EXACTEMENT ce que le scanner des thèmes du lot 69
-     attrape (`themeViolationsInLarge`, forme de couleur) : le noir du masque
-     n'est toléré que parce qu'il encode une visibilité, pas une teinte. */
-  assert.match(mutated.slice(stripComments(mutated).indexOf("@media (min-width: 1140px)")), /\brgb\(/,
-    "la mutation vit bien dans le bloc Large, là où le garde des thèmes balaie");
+  /* Et la forme rgb() est EXACTEMENT ce que le scanner de couleurs de
+     `ui-grandeur-large.test.mjs` attrape : le noir d'un masque n'est toléré
+     que parce qu'il encode une VISIBILITÉ, pas une teinte. Dès qu'il prend
+     une forme de fonction de couleur, il redevient une couleur.
+     📌 Le bloc visé est `[data-grandeur="large"]` depuis le 2026-08-30 — plus
+     un `@media`, qui ne se réévalue pas sous zoom. */
+  const strippedMute = stripComments(mutated);
+  const largeIdx = strippedMute.indexOf(':root[data-grandeur="large"]');
+  assert.ok(largeIdx > 0, "le bloc de grandeur existe dans la copie mutée");
+  assert.match(strippedMute.slice(largeIdx), /\brgb\(/,
+    "la mutation vit bien dans le bloc de grandeur, là où le garde des couleurs balaie");
 });

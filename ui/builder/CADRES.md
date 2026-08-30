@@ -228,12 +228,30 @@ justement le texte que ce bouton sert à rouvrir.
 Les marges sont sur **les quatre côtés**, systématiquement, et c'est **un seul
 jeton pour tout le vocabulaire** — elles ne font donc pas partie du barème.
 
-| | jeton | étroit | grand écran |
-|---|---|---|---|
-| **Marge** (4 côtés) | `--sp-8` / `--sp-16` | **8** | **16** |
-| **Largeur max — carte** | `--card-w` | **625 px** *(62 ch)* | **766 px** *(76 ch)* |
-| **Largeur max — écran à contrôles** | `--panel-w` | **625 px** *(62 ch)* | **887 px** *(88 ch)* |
-| **Largeur max — grille** | `--grid-w` | **605 px** *(60 ch)* | **766 px** *(76 ch)* |
+| | jeton | la cote, en **blg** |
+|---|---|---|
+| **Marge** (4 côtés) | `--sp-8` / `--sp-16` | **8** · **16** |
+| **Largeur max — carte** | `--card-w` | **625** *(62 ch de raison)* |
+| **Largeur max — écran à contrôles** | `--panel-w` | **625** *(62 ch)* |
+| **Largeur max — grille** | `--grid-w` | **605** *(60 ch)* |
+
+### ⚖️ UNE SEULE COLONNE DEPUIS LE 2026-08-30 — *le renversement, et sa raison*
+
+La table en avait **deux** : « étroit » et « grand écran », où la même carte valait 625 puis 766,
+le panneau 625 puis 887. C'était la grandeur Large du lot 69, et elle est **supprimée**.
+
+🔴 **La loi d'Eric du 30/08** : *« TOUT LE BUILDER SUIT LE ZOOM, LES RATIOS NE CHANGENT NULLE
+PART. »* Une largeur qui double sur grand écran pendant que `--sp-8` ne bouge pas **change un
+rapport** — c'est exactement ce que la loi interdit, et c'est le même métier que le zoom, fait
+deux fois et à moitié.
+
+⭐ **CE QUI REMPLACE LA SECONDE COLONNE** : l'échelle. Une carte fait 625 blg à tous les crans ;
+au cran 2 elle rend 1 250 pixels, bien au-delà des 766 que le desktop obtenait. Le grand écran
+n'est plus servi par des cotes plus grandes, il est servi par des **pixels plus gros**.
+
+📌 **ET C'EST POURQUOI LA COLONNE S'APPELLE « blg »** — le *blurg*, l'unité de dessin
+(`tokens.css`). Un blg est ce que vaut un `px` de feuille une fois le zoom appliqué. Le nombre de
+blg ne change jamais ; c'est le pixel qui bouge sous lui.
 
 ### 🔴 LA COTE EST EN PIXELS, LE `ch` N'EST PLUS QUE SA RAISON *(29/08)*
 

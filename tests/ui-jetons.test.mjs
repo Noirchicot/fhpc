@@ -396,7 +396,18 @@ const STYLE_EN_LIGNE_EXCEPTIONS = [
      peut PAS vivre dans une feuille de style : sa position change par image,
      et une règle CSS ne se réécrit pas soixante fois par seconde. C'est la
      seule raison qui vaut, et elle est la même que pour le fantôme des dés. */
-  { fichier: "glisser.mjs", forme: ".style.transform" }
+  { fichier: "glisser.mjs", forme: ".style.transform" },
+  /* ⚠️ ÉLARGI LE 2026-08-30, ET C'EST LA MÊME RAISON QUE LES DEUX AU-DESSUS :
+     une valeur CALCULÉE ne peut pas vivre dans une feuille. `echelle.mjs`
+     pose `--echelle` sur `<html>` — un cran choisi par le joueur, ou déduit
+     de la largeur de fenêtre. Aucune règle CSS ne peut porter ça : le
+     nombre n'existe qu'à l'exécution.
+     ⛔ ET CE N'EST PAS DE L'HABILLAGE, ce que ce garde poursuit. Le décor
+     reste entier dans `shell.css` (`zoom: var(--echelle)` sur `.app`, une
+     déclaration) ; le JS ne pose qu'un scalaire sans unité. La forme est
+     UNIQUE et vérifiée par l'attaque ci-dessous — une taille ou une couleur
+     posée en ligne rougirait toujours. */
+  { fichier: "echelle.mjs", forme: ".style.setProperty" }
 ];
 
 function inlineStyleViolations() {
@@ -434,6 +445,15 @@ test("⚔️ ATTAQUE — le garde 7 mord vraiment (il ne passe pas parce qu'il n
   assert.ok(formes.length > 0, "le fantôme écrit bien un style en ligne — sinon l'exception ne protège rien");
   assert.deepEqual([...new Set(formes)], [".style.transform"],
     "et SEULEMENT `.style.transform` : une taille ou une couleur posée en ligne doit rougir, exception en place");
+  /* ⚔️ LA TROISIÈME EXCEPTION EST RÉELLE AUSSI, ET PLUS ÉTROITE ENCORE :
+     `echelle.mjs` n'écrit QUE `--echelle`, et rien d'autre ne passe par là. */
+  const ech = stripComments(fs.readFileSync(path.join(UI_DIR, "echelle.mjs"), "utf8"));
+  const formesEch = [...ech.matchAll(/\.style\s*(\.\w+|\[)/g)].map(([f]) => f.trim());
+  assert.ok(formesEch.length > 0, "l'échelle écrit bien un style en ligne — sinon l'exception ne protège rien");
+  assert.deepEqual([...new Set(formesEch)], [".style.setProperty"],
+    "et SEULEMENT `setProperty` : un `.style.width` posé là rougirait");
+  assert.equal((ech.match(/setProperty\(/g) || []).length, 1,
+    "un SEUL appel : c'est `--echelle`, et le garde du seuil ci-dessous vérifie qu'il n'y en a pas d'autre");
 });
 
 test("garde 6 — aucune règle n'habille un bouton sans lui poser son encre (défaut n°4)", () => {
@@ -441,25 +461,74 @@ test("garde 6 — aucune règle n'habille un bouton sans lui poser son encre (d�
     "un <button> n'hérite pas de `color` : sans encre déclarée, l'agent utilisateur lui impose du noir");
 });
 
-test("garde 5 — le seuil de bascule (720) n'apparaît qu'une fois dans tout ui/builder/", () => {
+test("garde 5 — les DEUX seuils de grandeur n'existent qu'une fois, et dans echelle.mjs", () => {
+  /* ⚠️ RÉÉCRIT LE 2026-08-30 — L'INTENTION EST INCHANGÉE, L'ADRESSE A BOUGÉ.
+     Le lot 38 exigeait que « 720 » n'existe qu'une fois, et il vivait dans le
+     `@media (max-width: 720px)` de `shell.css` : un `@media` ne sait pas lire
+     une custom property, donc le nombre devait bien être écrit quelque part.
+
+     🔴 CE QUI A CHANGÉ : il n'y a plus de `@media` de largeur du tout. Sous
+     `zoom`, une requête média NE SE RÉÉVALUE PAS — mesuré au banc sur le vrai
+     builder : à 1024 au cran 1,5 (fenêtre effective 683 blg, sous le seuil)
+     le drapeau annonçait toujours « wide » ; à 1920 au cran 5, `min-width:
+     1140px` matchait encore et `--rail-w` rendait 600 pixels réels. Les deux
+     seuils vivent donc là où l'on connaît l'échelle : `echelle.mjs`.
+
+     ⭐ LA LOI EST LA MÊME — un nombre, un endroit — et elle couvre maintenant
+     les DEUX seuils au lieu d'un. */
   const files = [
     ...walkSources(UI_DIR),
     path.join(UI_DIR, "shell.css"),
     path.join(UI_DIR, "tokens.css"),
     path.join(UI_DIR, "index.html")
   ];
-  let count = 0;
-  const where = [];
-  for (const file of files) {
-    const text = stripComments(fs.readFileSync(file, "utf8"));
-    const matches = text.match(/\b720(?!\d)/g) || [];
-    count += matches.length;
-    if (matches.length > 0) where.push(`${path.relative(ROOT, file)} (${matches.length})`);
+  for (const [seuil, motif] of [["720", /\b720(?!\d)/g], ["1140", /\b1140(?!\d)/g]]) {
+    let count = 0;
+    const where = [];
+    for (const file of files) {
+      const text = stripComments(fs.readFileSync(file, "utf8"));
+      const matches = text.match(motif) || [];
+      count += matches.length;
+      if (matches.length > 0) where.push(`${path.relative(ROOT, file)} (${matches.length})`);
+    }
+    assert.equal(count, 1, `« ${seuil} » doit exister UNE fois — trouvé : ${where.join(", ") || "nulle part"}`);
+    assert.deepEqual(where, ["ui/builder/echelle.mjs (1)"],
+      `et c'est ${seuil === "720" ? "le seuil étroit" : "le seuil large"} d'echelle.mjs qui le porte`);
   }
-  assert.equal(count, 1, `« 720 » doit exister UNE fois — trouvé : ${where.join(", ") || "nulle part"}`);
-  assert.deepEqual(where, ["ui/builder/shell.css (1)"],
-    "et c'est le @media de shell.css qui le porte — aucun @media CSS ne peut lire une custom property");
 });
+
+test("garde 5 bis — 🔴 AUCUNE requête média de LARGEUR dans ui/builder/", () => {
+  /* ⛔ LE PIÈGE QUE CE LOT A DÉCOUVERT, ET LE SEUL GARDE QUI L'ATTRAPE.
+     `zoom` ne réévalue pas les `@media` : une requête de largeur écrite dans
+     ces feuilles serait donc JUSTE au cran 1 et FAUSSE à tous les autres,
+     silencieusement — la pire forme de défaut, celle qui passe la relecture.
+     Les requêtes de PRÉFÉRENCE (`prefers-color-scheme`, `prefers-reduced-
+     motion`) et d'ORIENTATION restent permises : ni le thème ni l'orientation
+     ne dépendent de l'échelle. */
+  const hits = [];
+  for (const nom of fs.readdirSync(UI_DIR)) {
+    if (!nom.endsWith(".css")) continue;
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    for (const [regle] of texte.matchAll(/@media[^{]*\{/g)) {
+      if (/\b(min|max)-(width|height)\b|\bwidth\s*[<>=]/.test(regle)) hits.push(`${nom} : ${regle.trim()}`);
+    }
+  }
+  assert.deepEqual(hits, [],
+    "une requête média de largeur ne se réévalue pas sous zoom — la grandeur passe par `data-grandeur`");
+});
+
+test("⚔️ ATTAQUE — le garde 5 bis mord (il ne passe pas parce qu'il ne lit rien)", () => {
+  const voit = (css) => {
+    const t = stripComments(css);
+    return [...t.matchAll(/@media[^{]*\{/g)]
+      .filter(([r]) => /\b(min|max)-(width|height)\b|\bwidth\s*[<>=]/.test(r)).length;
+  };
+  assert.equal(voit("@media (max-width: 720px) { .a { color: red } }"), 1, "il voit une largeur");
+  assert.equal(voit("@media (min-width: 40em) { .a { color: red } }"), 1, "en em aussi");
+  assert.equal(voit("@media (prefers-color-scheme: dark) { .a { color: red } }"), 0, "et il laisse passer le thème");
+  assert.equal(voit("@media (orientation: landscape) { .a { color: red } }"), 0, "et l'orientation");
+});
+
 
 /* ══ ⚔️ LES CINQ ATTAQUES — un garde jamais attaqué n'est pas un garde ═══
 

@@ -38,6 +38,10 @@ import {
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
 import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=417";
+/* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
+   la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
+   proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
+import { CRANS, cranChoisi, setCran, cranAuto, cranTient, appliquerEchelle } from "./echelle.mjs?v=417";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
@@ -828,6 +832,10 @@ function applyDecisionAction(action) {
      ⛔ AUCUN N'ÉCRIT DANS LE DOCUMENT : ce sont des préférences de lecteur,
      pas des faits du personnage (voir la tête de `tutoriel.mjs`). */
   if (action.kind === "tutoBascule") { setTutorielActif(Boolean(action.value)); refresh(); return; }
+  /* ⭐ LE CRAN D'ÉCHELLE — `null` rend la main à l'automatique. `refresh()` et
+     pas `openSurface()` : changer la taille ne renvoie pas le joueur en haut
+     de l'écran qu'il lisait, exactement comme `resize` (voir sa note). */
+  if (action.kind === "echelleCran") { setCran(action.value); appliquerEchelle(); refresh(); return; }
   if (action.kind === "tutoCompris") { setGeneralVu(true); refresh(); return; }
   if (action.kind === "tutoDesactiver") { setTutorielActif(false); refresh(); return; }
   /* ══ LE `?` OUVRE LE GUIDE DE L'ÉTAPE — §7, sorti du standby le 26/08 ═════
@@ -1464,17 +1472,12 @@ function catalogueCtx(cfg) {
   };
 }
 
-/* ⚠️ LOT 38 : plus de "720" ici. Un `@media` CSS ne peut pas exposer sa
-   propre valeur à `var()` — c'est une limite native, pas un choix — donc le
-   seuil ne peut vivre qu'à UN endroit : le `@media (max-width: 720px)` de
-   `shell.css`, qui pose le drapeau `--bp-hint` ("wide"/"narrow") sur
-   `:root`. Cette fonction lit le drapeau, jamais le nombre — voir
-   `tokens.css` et INVENTAIRE-LOT-38.md pour la mesure qui a fait diverger
-   ce lot de la piste `--bp-mid` suggérée par la commande. */
-function isMobile() {
-  const hint = getComputedStyle(document.documentElement).getPropertyValue("--bp-hint").trim();
-  return hint === "narrow";
-}
+/* 🧊 `isMobile()` A ÉTÉ RETIRÉ — 2026-08-30, et deux raisons valaient chacune
+   pour elle-même : il n'était appelé par PERSONNE (mesuré avant retrait), et
+   le drapeau qu'il lisait (`--bp-hint`, posé par le `@media` de shell.css)
+   n'existe plus. La grandeur se calcule maintenant dans `echelle.mjs`, sur la
+   fenêtre DIVISÉE PAR L'ÉCHELLE, et se pose en `data-grandeur` — parce qu'une
+   requête média ne se réévalue pas sous `zoom` (mesuré au banc). */
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -1655,6 +1658,16 @@ function renderStepContent() {
       /* L'écran REÇOIT l'état du tutoriel, il ne va pas le chercher : un écran
          qui lirait `localStorage` lui-même deviendrait impossible à tester. */
       tutoriel: tutorielActif(),
+      /* L'échelle telle que le Menu doit la montrer : le cran EFFECTIF (celui
+         qui est appliqué) et le fait qu'il vienne du choix ou de la fenêtre. */
+      echelle: {
+        crans: CRANS,
+        choisi: cranChoisi(),
+        auto: cranAuto(window.innerWidth, document.documentElement),
+        /* Ceux qui laissent encore de quoi dessiner dans CETTE fenêtre : le
+           menu grise les autres au lieu de les clamper en silence. */
+        tiennent: CRANS.filter((c) => cranTient(c, window.innerWidth, document.documentElement))
+      },
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
@@ -3625,7 +3638,16 @@ function openSurface(at) {
    doit pas renvoyer le joueur en haut d'un écran de 16 513 px. C'était le
    cas avant ce lot (l'ancien `render` était branché tel quel sur `resize`),
    et personne ne l'avait mesuré. */
-window.addEventListener("resize", refresh);
+/* 🔴 L'ÉCHELLE SE REPOSE À CHAQUE REDIMENSIONNEMENT, ET AVANT LE REDESSIN.
+   En mode automatique le cran DÉPEND de la fenêtre : tourner la tablette ou
+   étirer la colonne du VTT peut changer de cran, et la grandeur avec. L'ordre
+   compte — `appliquerEchelle` d'abord, `refresh` ensuite, sinon l'écran se
+   redessine sur la grandeur d'avant.
+   ⛔ Elle n'écrit que deux attributs sur `<html>` : aucun nœud n'est touché,
+   donc le défilement survit (SOCLE.md, « le cadre »). */
+function surRedimensionnement() { appliquerEchelle(); refresh(); }
+window.addEventListener("resize", surRedimensionnement);
+appliquerEchelle();
 refresh();
 
 /* Le moteur charge en tâche de fond ; l'écran s'affiche immédiatement

@@ -40,6 +40,57 @@
 
 ---
 
+## 0 bis. 🔴 **LE ZOOM, ET LE `blg`** *(Eric, 2026-08-30)*
+
+> **« TOUT LE BUILDER SUIT LE ZOOM, LES RATIOS NE CHANGENT NULLE PART. Tout grandit de manière
+> proportionnelle. »**
+>
+> **« Le plancher c'est la taille 360 sur laquelle on travaille. »**
+
+### Le mot
+
+⭐ **Un `blg`** — *« blurg »*, le mot d'Eric — **est l'unité de dessin du builder** : ce que vaut un
+`px` de feuille de style une fois le zoom appliqué. `--t4: 16px` se lit **« T4 = 16 blg »**.
+
+| | zoom ×1 | ×1,5 | ×3 |
+|---|---|---|---|
+| **10 blg** | 10 px | 15 px | 30 px |
+| `--t4` = **16 blg** | 16 | 24 | 48 |
+| le rail = **90 blg** | 90 | 135 | 270 |
+
+🔴 **Le nombre de blg ne change JAMAIS ; c'est le pixel qui bouge sous lui.** Deux organes à 8 et
+16 blg restent dans un rapport de 1 à 2 sur n'importe quel écran, à n'importe quel cran.
+
+📌 **Eric autorise `bg` ou `px` à l'oral** — *« si je suis feignant »*. **À l'écrit c'est `blg`** :
+`--bg` est déjà le parchemin (`tokens.css`), et un nom qui dit deux choses n'a pas sa place ici.
+
+### Les six lois
+
+| loi | détail |
+|---|---|
+| 🔴 **aucune exception** | ni les filets d'un blg, ni les ombres, ni `--touch`. Une valeur qui resterait fixe pendant que le reste grandit **change un rapport** — c'est ce que la loi interdit |
+| 📌 **plancher = 1** | *« la taille 360 sur laquelle on travaille »*. Rien ne rétrécit sous le barème ratifié : **aucun texte ne peut passer sous T1** |
+| ⭐ **`--touch` n'a plus de `max()`** | 44 blg valent toujours ≥ 44 px sur une échelle qui ne descend jamais. La loi d'Apple et celle d'Eric disent la même chose — *tant que le plancher tient*, et un garde le mesure |
+| ⛔ **le reflux survit, le redimensionnement meurt** | une rangée qui passe de 4 cases à 3 ne change **aucun** rapport (loi du 19/08, *« si on peut faire 4, on fait 4 »*). Une cote qui double sur grand écran, si |
+| ⛔ **jamais un `@media` de largeur** | il **ne se réévalue pas** sous `zoom` — mesuré au banc : à 1920 au cran 5, `min-width: 1140px` matchait encore et le rail rendait **600 px réels**. La grandeur passe par `data-grandeur`, calculé sur `innerWidth / échelle` |
+| ⚠️ **le cran est borné, jamais clampé** | le menu **n'offre pas** un cran qui ne laisse plus de quoi dessiner. Un réglage qui se transforme en un autre est un réglage qui ment |
+
+### Ce que ça supprime
+
+⚖️ **Trois renversements datés du 30/08**, chacun écrit à sa place :
+
+1. **la grandeur Large** (`@media (min-width: 1140px)`) — elle rehaussait `--t6` de 22 à 28 pendant
+   que `--t4` restait à 16 : le rapport titre/corps sautait de 1,375 à 1,75. Même métier que le
+   zoom, fait deux fois et à moitié. **Avec elle tombe *« T1–T4 ne bougent pas »*** *(tokens.css
+   §69)* : au cran 3 le corps vaut 48 blg ;
+2. **l'homothétie `--u` de la carte-résumé** — voir §4 quater ;
+3. **la seconde colonne de CADRES §2 bis** — 766 · 887 n'existent plus.
+
+⭐ **Et ça ne supprime AUCUNE cote.** Les 265 valeurs en pixels du dépôt étaient déjà des blg ; il
+leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, **une ligne**.
+
+---
+
 ## 1. ⛔ LES QUATRE VOCABULAIRES — ils ne se mélangent jamais
 
 | vocabulaire | ce qu'il nomme |
@@ -1315,16 +1366,32 @@ marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne 
 
 🔴 **LE PRINCIPE : la carte est un DESSIN, pas une somme de cotes.** Chaque habit a sa référence —
 **269 × 440 en portrait** (dicté), **625 × 440 en paysage** (validé) — et toutes les cotes internes,
-**corps de texte compris**, se dérivent d'UNE échelle `--u` = largeur rendue / largeur de référence.
-Le nombre de caractères par ligne devient constant, donc les retours à la ligne — et les
-proportions — sont les mêmes de 375 à 1920. Avec la **police embarquée** (Inter, lot 57), le rendu
+**corps de texte compris**, sont celles de CE dessin-là, **en blg** *(⚠️ elles passaient par une
+échelle locale `--u` jusqu'au 30/08 — voir l'encadré ci-dessous)*. Le nombre de caractères par
+ligne est constant, donc les retours à la ligne — et les proportions — sont les mêmes de 375 à
+1920, **et à tous les crans**. Avec la **police embarquée** (Inter, lot 57), le rendu
 cesse aussi de dépendre de la machine : c'est ce qui a fermé le débordement des blocs 2/3 vu sur le
 PC d'un ami d'Eric.
 
+> ## ⚖️ **`--u` A ÉTÉ RETIRÉE LE 2026-08-30 — le principe reste, son moteur change**
+>
+> Eric : *« la carte s'adaptait car je voulais que ça soit joli sur 2 proportionnalités
+> différentes, donc là ça devient **hors sujet** »*. L'adaptation **remonte d'un cran** : c'est le
+> CRAN qui s'adapte à la fenêtre, plus chaque organe à sa boîte.
+>
+> 📏 **Et la mesure lui donnait raison avant l'argument.** Au banc, sous `zoom`, cette échelle
+> locale devenait **non monotone** — à 1920 la dalle rendait `625 → 781 → 937 → **1420** → **920**`
+> aux cinq crans. *Elle rétrécissait en zoomant.* Deux échelles qui se croisent.
+>
+> ⭐ **CE QUI RESTE EST LE DESSIN LUI-MÊME**, aux cotes du 27/08, en **blg** : 269 × 440 en
+> portrait, 625 × 440 en paysage. À l'échelle 1, la carte est identique au pixel près.
+> ⛔ **Ce qui est interdit, c'est qu'une SECONDE échelle réapparaisse** — un garde le mesure
+> (`tests/fiche-moule.test.mjs`).
+
 | loi | détail |
 |---|---|
-| ⚠️ **plafond d'échelle u = 1** | la carte scale vers le **BAS** seulement — *« en format large il n'est pas beau ton Araag »* : la proportion pure gonflait le dessin du téléphone en poster |
-| ⛔ **le pied est HORS homothétie** | `height = 396u + 44px` — CHOOSE (gabarit **small**, 87), le livre et le `?` gardent leurs cibles de 44 à toute échelle |
+| 🧊 ~~**plafond d'échelle u = 1**~~ | **levé le 30/08.** Il bornait une croissance **subie** (le conteneur gonflait un dessin de téléphone en poster) ; le zoom est une croissance **choisie**. Même goût, mécanisme opposé |
+| ⭐ **le pied, et ce que « sacré » veut dire** | `height = 440 blg` (396 de dessin + 44 de rangée tactile). La hauteur s'écrivait `396u + 44px` parce que l'échelle locale pouvait **rétrécir** ; le zoom global ne descend jamais sous 1, donc 44 blg valent toujours ≥ 44 px. La loi ne dit plus *« fixe »*, elle dit **« jamais moins »** — même promesse au doigt, un seul nombre |
 | ⚠️ **renversement daté** | CADRES.md §8 (*« le corps de fiche ne se met pas à l'échelle avec la dalle »*) est **renversé pour cette carte seule** — la stabilité entre appareils prime, une carte-résumé se lit comme une image se regarde. §8 tient partout ailleurs |
 | 🔴 **le moule impose son format au CONTENU** | *« c'est un résumé de classe »* · *« transformer un player handbook de taille livre en ce petit condensé »* — le contenu se taille pour les boîtes, jamais l'inverse |
 

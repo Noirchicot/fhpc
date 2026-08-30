@@ -75,15 +75,31 @@ test("CHOOSE porte le gabarit small — 87, la largeur d'un jeton", () => {
   );
 });
 
-test("le pied est hors homothétie — la hauteur de carte l'écrit en clair", () => {
-  /* La zone dessinée scale (396u), la rangée tactile jamais (+ 44px). Si
-     quelqu'un « simplifie » la hauteur en tout-proportionnel, les boutons
-     scaleront avec elle — et un bouton est sacré (NORMES §2 bis). */
-  const hauteurs = FICHE.match(/height:\s*calc\(var\(--u\) \* 396 \+ 44px\)/g) || [];
-  assert.ok(hauteurs.length >= 1, "height: calc(var(--u) * 396 + 44px) présent");
-  /* et le pied ne porte aucun corps à l'échelle */
+test("la carte est une COMPOSITION EN BLG — plus une seule échelle locale", () => {
+  /* ⚖️ RÉÉCRIT LE 2026-08-30. Ce test exigeait `height: calc(var(--u) * 396 +
+     44px)` : la zone dessinée suivait l'échelle LOCALE de la carte, la rangée
+     tactile jamais. Eric a retiré cette échelle-là — *« la carte s'adaptait
+     car je voulais que ça soit joli sur 2 proportionnalités différentes, donc
+     là ça devient hors sujet »* — et la mesure lui donnait raison avant
+     l'argument : sous `zoom`, cette homothétie devenait NON MONOTONE (à 1920,
+     la dalle rendait 625 → 781 → 937 → 1420 → 920 aux cinq crans).
+
+     🔴 L'INVARIANT QUE CE TEST PROTÈGE N'A PAS CHANGÉ DE NATURE, il a changé
+     d'expression : la carte reste le DESSIN de référence, aux cotes du 27/08,
+     et le zoom global le fait grandir en bloc. Ce qui est interdit, c'est
+     qu'une SECONDE échelle réapparaisse — deux échelles qui se croisent, c'est
+     exactement ce que la loi du 30/08 refuse. */
+  assert.doesNotMatch(FICHE, /var\(--u\)/,
+    "aucune échelle locale ne doit revenir dans la carte : le zoom global est la seule");
+  assert.doesNotMatch(FICHE, /\b100cq[wh]\b/,
+    "ni requête de conteneur : la carte ne se mesure plus sur sa scène");
+  /* La hauteur reste UNE cote, et c'est toujours la même : 396 de dessin plus
+     44 de rangée tactile. Elle grandit avec tout le reste, jamais seule. */
+  assert.match(FICHE, /height:\s*440px/,
+    "la hauteur de la carte reste 440 blg — 396 + 44, les cotes du dessin validé");
+  /* Et le pied ne se donne toujours aucun corps à part. */
   const pied = FICHE.match(/\.fiche-dalle:not\(\[data-dressing="prose"\]\) \.fiche-actions \{[^}]*\}/gs) || [];
   for (const regle of pied) {
-    assert.doesNotMatch(regle, /font-size:\s*calc\(var\(--u\)/, "le pied ne scale pas son texte");
+    assert.doesNotMatch(regle, /font-size:/, "le pied n'invente pas sa taille de texte");
   }
 });

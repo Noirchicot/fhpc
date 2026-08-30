@@ -294,7 +294,23 @@ test("E ter — `resize` est branché sur refresh, jamais sur openSurface", () =
      `resize`, donc tourner le téléphone renvoyait en haut d'un écran de
      16 513 px. Personne ne l'avait mesuré — ce n'était qu'un cas de plus du
      défaut §0, mais celui-là ne demande même pas de cliquer. */
-  assert.match(shellText, /window\.addEventListener\("resize", refresh\)/);
+  /* ⚠️ RÉÉCRIT LE 2026-08-30 — L'INVARIANT EST LE MÊME, LE CHEMIN A UN CRAN
+     DE PLUS. `resize` passe désormais par `surRedimensionnement`, qui repose
+     l'échelle AVANT de redessiner : en mode automatique le cran dépend de la
+     fenêtre, donc étirer la colonne peut changer de cran et de grandeur.
+     🔴 Ce qui compte n'a pas bougé : ce chemin appelle `refresh`, JAMAIS
+     `openSurface` — tourner le téléphone ne renvoie pas en haut de l'écran.
+     Le test le vérifie sur le CORPS du gestionnaire, pas sur son nom. */
+  const brancheResize = shellText.match(/window\.addEventListener\("resize",\s*(\w+)\)/);
+  assert.ok(brancheResize, "`resize` doit être branché sur un gestionnaire nommé");
+  const nomDuGestionnaire = brancheResize[1];
+  if (nomDuGestionnaire !== "refresh") {
+    const corps = shellText.match(new RegExp(`function ${nomDuGestionnaire}\\(\\)\\s*\\{([^}]*)\\}`));
+    assert.ok(corps, `le gestionnaire \`${nomDuGestionnaire}\` doit être une fonction lisible d'un coup d'œil`);
+    assert.match(corps[1], /\brefresh\(\)/, "il redessine par `refresh`");
+    assert.doesNotMatch(corps[1], /\bopenSurface\(/,
+      "et JAMAIS par `openSurface` : tourner le téléphone renverrait en haut d'un écran de 16 513 px");
+  }
 });
 
 test("E quater — le cadre est monté UNE FOIS : `mountFrame()` n'est appelée qu'à un seul endroit", () => {

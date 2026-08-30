@@ -326,6 +326,68 @@ export function renderUniverseStep(ctx, onAction) {
   ]));
   section.append(reglages);
 
+  /* ══ LA TAILLE DE L'INTERFACE — Eric, 2026-08-30 ════════════════════════
+     *« le réglage le plus simple serait dans menu (au mieux reconnaissance de
+     l'écran adaptation auto) »*. Les deux, donc : **Auto** est le défaut et
+     déduit le cran de la fenêtre ; les crans sont là pour la main.
+
+     ⭐ ICI ET PAS AILLEURS, PARCE QUE LE MENU EXISTE DÉJÀ. La ligne de
+     commande fixe a été supprimée le 15/08 — *« elle coûtait 45 px sur les
+     dix écrans, tout le temps, pour deux boutons »*. Rouvrir une bande pour
+     un réglage qu'on touche une fois aurait racheté ce qu'on venait de
+     vendre. Le Menu est un onglet de la ceinture : cette ligne coûte zéro
+     hauteur fixe.
+
+     ⛔ CE N'EST PAS UNE DONNÉE DE PERSONNAGE — même nature que le tutoriel :
+     deux joueurs qui ouvrent la même fiche n'ont ni le même écran ni les
+     mêmes yeux. La préférence vit dans le navigateur (`echelle.mjs`), jamais
+     dans `fh-char/1`, sinon elle voyagerait avec un export.
+
+     ⚠️ LES CRANS SONT NOMMÉS PAR LEUR EFFET, PAS PAR LEUR NOMBRE. « ×1,25 »
+     ne dit rien à un joueur ; un rang dans une échelle, si. Le nombre reste
+     lisible pour qui le cherche (`title`), il n'occupe simplement pas le
+     bouton. */
+  const taille = el("div", "universe-reglages", []);
+  taille.append(el("h3", null, [text("Interface size")]));
+  const echelle = ctx.echelle || { crans: [1], choisi: null, auto: 1 };
+  const rangs = ["Standard", "Large", "Larger", "Huge", "Giant"];
+  const rampe = el("div", "universe-rampe", []);
+  const cran = (libelle, valeur, actif, infobulle, horsPortee) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "universe-bascule";
+    b.dataset.actif = String(actif);
+    /* ⛔ UN CRAN QUI NE TIENDRAIT PAS N'EST PAS PROPOSÉ — et il n'est pas
+       CLAMPÉ non plus : un réglage qui se transforme en un autre est un
+       réglage qui ment. Il est là, gris, avec sa raison dans l'infobulle. */
+    if (horsPortee) {
+      b.disabled = true;
+      b.title = "Too large for this window";
+    }
+    /* L'état est PRONONCÉ, pas seulement peint — même règle que l'interrupteur
+       du tutoriel juste au-dessus : `aria-pressed` dit à un lecteur d'écran ce
+       qu'une pastille colorée ne dit qu'à l'œil. */
+    b.setAttribute("aria-pressed", String(actif));
+    if (infobulle) b.title = infobulle;
+    b.append(text(libelle));
+    b.addEventListener("click", () => onAction({ kind: "echelleCran", value: valeur }));
+    return b;
+  };
+  rampe.append(cran("Auto", null, echelle.choisi === null,
+    `Follows the window — currently ×${echelle.auto}`));
+  const tiennent = echelle.tiennent || echelle.crans;
+  echelle.crans.forEach((valeur, i) => {
+    rampe.append(cran(rangs[i] || `×${valeur}`, valeur, echelle.choisi === valeur,
+      `×${valeur}`, !tiennent.includes(valeur)));
+  });
+  taille.append(rampe);
+  taille.append(el("p", "universe-note", [
+    text(echelle.choisi === null
+      ? "Everything scales together — text, spacing, panels. Auto picks a size from your window; it stays small in a narrow column and grows on a wide screen."
+      : "Everything scales together — text, spacing, panels. Pick Auto to let the window decide again.")
+  ]));
+  section.append(taille);
+
   /* ══ OÙ VIT CE PERSONNAGE — 2026-08-20 ═══════════════════════════════════
      Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
      disparaît s'il n'est pas enregistré s'il y a un reset. »*

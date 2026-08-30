@@ -68,8 +68,10 @@ test("les cotes que CADRES recopie correspondent encore à la feuille", () => {
   const tokens = stripComments(lire("tokens.css"));
   const cadres = lire("CADRES.md");
 
-  /* La feuille déclare deux fois chaque largeur : le défaut (étroit) puis la
-     grandeur Large, dans un @media. On lit les deux dans l'ordre du fichier. */
+  /* ⚠️ UNE SEULE FOIS DEPUIS LE 2026-08-30. La feuille déclarait chaque
+     largeur DEUX fois — le défaut, puis la grandeur Large dans un `@media`.
+     Le bloc Large est supprimé (il changeait des ratios, ce que la loi du
+     zoom interdit), donc chaque jeton n'a plus qu'une valeur, en **blg**. */
   const valeurs = (nom) => [...tokens.matchAll(
     new RegExp(`--${nom}\\s*:\\s*([^;]+);`, "g"))].map((m) => m[1].trim());
 
@@ -82,18 +84,43 @@ test("les cotes que CADRES recopie correspondent encore à la feuille", () => {
                                cadres.indexOf("## 3."));
   /* ⏩ EN PIXELS DEPUIS LE 29/08 (voir CADRES §2 bis) : `ch` dépend de la
      police résolue et rendait 608 au lieu de 766 sur un repli de fonte. */
-  for (const [nom, attendu] of [["card-w", ["766px"]], ["panel-w", ["887px"]],
-                                ["grid-w", ["605px", "766px"]]]) {
-    const dans = valeurs(nom);
-    for (const v of attendu) {
-      assert.ok(dans.includes(v),
-        `tokens.css ne déclare plus --${nom}: ${v} (il porte ${dans.join(" · ")}). ` +
-        "Si la cote a changé, CADRES §2 bis doit être recopié avec sa date.");
-      const n = v.replace("px", "");
-      assert.ok(section.includes(`${n} px`) || section.includes(`${n}px`),
-        `CADRES §2 bis ne mentionne plus ${v} pour --${nom} : la table des ` +
-        "cotes a divergé de la feuille.");
-    }
+  /* ⭐ UN CRAN DE `var()` EST RÉSOLU, ET IL FAUT L'ÊTRE : `--card-w` vaut
+     `var(--measure)`, pas un nombre. Comparer la déclaration littérale à la
+     table reviendrait à exiger que CADRES publie « var(--measure) » au lieu
+     de la cote — c'est le CHIFFRE que la table doit dire, et c'est le chiffre
+     qu'un lecteur vérifie. Un seul cran : au-delà, on réécrirait un moteur
+     CSS pour garder une table. */
+  const resolue = (nom) => {
+    const brut = valeurs(nom)[0];
+    if (!brut) return null;
+    const indirect = brut.match(/^var\(--([\w-]+)\)$/);
+    return indirect ? (valeurs(indirect[1])[0] || null) : brut;
+  };
+  for (const [nom, attendu] of [["card-w", "625px"], ["panel-w", "625px"], ["grid-w", "605px"]]) {
+    const v = resolue(nom);
+    assert.equal(v, attendu,
+      `tokens.css ne déclare plus --${nom}: ${attendu} (il porte ${v}). ` +
+      "Si la cote a changé, CADRES §2 bis doit être recopié avec sa date.");
+    const n = attendu.replace("px", "");
+    assert.ok(section.includes(`${n} px`) || section.includes(`${n}px`) ||
+              new RegExp(`\\*\\*${n}\\*\\*`).test(section),
+      `CADRES §2 bis ne mentionne plus ${attendu} pour --${nom} : la table des ` +
+      "cotes a divergé de la feuille.");
+  }
+
+  /* ⚠️ ET LA TABLE NE DOIT PLUS PORTER DE SECONDE COLONNE — 2026-08-30. Les
+     cotes de la grandeur Large (766 · 887) ont disparu de la feuille ; si
+     elles reparaissent dans CADRES, c'est que quelqu'un a « restauré » une
+     table sans rouvrir la décision qui l'a supprimée. */
+  /* ⛔ SUR LES LIGNES DE TABLE UNIQUEMENT. La prose du §2 bis cite 766 et 765
+     dans le post-mortem du `ch` (« 76ch rend 765 px avec Inter, 766 en police
+     système ») — ce sont des MESURES racontées, pas des cotes publiées, et
+     elles doivent rester lisibles. C'est la table qui fait foi. */
+  const lignesDeTable = section.split("\n").filter((l) => l.trim().startsWith("|"));
+  for (const morte of ["766", "887"]) {
+    const coupable = lignesDeTable.find((l) => l.includes(morte));
+    assert.equal(coupable, undefined,
+      `la table du §2 bis porte encore la cote Large ${morte} — le bloc qui la déclarait est supprimé depuis le 30/08.`);
   }
 
   /* Les deux cotes d'organe que le reste du corpus calcule à partir d'elles. */

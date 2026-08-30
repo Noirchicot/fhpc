@@ -138,6 +138,21 @@ Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 nommé par la commande du lot : un socle écrit pour des besoins imaginés,
 avant qu'un seul écran fonctionne.
 
+## L'échelle — un organe hors socle, mais qui obéit à sa loi
+
+`echelle.mjs` (lot 85) pose **deux attributs sur `<html>`** — `--echelle` et
+`data-grandeur` — et **aucun nœud**. C'est la règle du cadre appliquée telle
+quelle : changer de taille ne redessine rien, le navigateur remet en page tout
+seul, et **le défilement survit**.
+
+⚠️ **`resize` passe désormais par `surRedimensionnement`** : l'échelle se repose
+AVANT `refresh()`, parce qu'en mode automatique le cran dépend de la fenêtre.
+L'ordre compte — sinon l'écran se redessine sur la grandeur d'avant. 🔴 Et c'est
+toujours `refresh()`, **jamais `openSurface()`** : tourner la tablette ne renvoie
+pas le joueur en haut de l'écran qu'il lisait (garde E ter).
+
+---
+
 ## Le contrat d'un écran
 
 Un module d'écran exporte une fonction qui **rend un nœud** et ne connaît

@@ -18,10 +18,36 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    (`overflow: hidden` ci-dessous, B0.21a — seule la scène défile), donc son
    fond est immobile par construction. Une propriété de moins, et celle-là
    est justement connue pour ramer sur mobile. */
+/* ══ LE ZOOM — Eric, 2026-08-30 ════════════════════════════════════════
+   🔴 *« TOUT LE BUILDER SUIT LE ZOOM, LES RATIOS NE CHANGENT NULLE PART. »*
+   Cette déclaration est TOUT le mécanisme : à partir d'ici, chaque `px` des
+   cinq feuilles est un **blg** (voir tokens.css). Aucune cote n'a été
+   touchée — les 265 valeurs en pixels du dépôt en étaient déjà.
+
+   📌 SUR `.app`, ET PAS SUR `:root` — c'est ce qui rend le MODE WIDGET
+   possible. Posé sur `.app`, le zoom laisse la boîte se mesurer sur son
+   parent : le builder remplit ce qu'on lui donne, plein écran, iframe ou
+   `<div>` dans la page d'un VTT. Mesuré au banc dans un cadre de 380 × 700
+   sur une page de 1920 : la scène rend 290 blg au cran 1, 100 blg au cran 2,
+   sans un pixel de débordement.
+
+   🔴 ET LA HAUTEUR PASSE DE `100dvh` À `100%`, CE N'EST PAS COSMÉTIQUE.
+   `zoom` ne rebase PAS les unités de viewport — mesuré : à 360 × 640 au
+   cran 5, `scrollHeight` rendait **3200** dans une fenêtre de 640, cadre
+   compris ; la ceinture s'en allait avec la page. En `100%`, `.app` prend la
+   hauteur de son conteneur et le zoom la divise pour son contenu. `100dvh`
+   remonte donc d'un cran, sur `html, body`, où il garde son métier (la barre
+   d'adresse mobile) — et où un hôte de dock peut le remplacer par sa boîte.
+
+   ⛔ C'ÉTAIT LA SEULE UNITÉ DE VIEWPORT DE TOUTE LA COQUILLE (mesuré : un
+   `100dvh`, zéro `100vh`). C'est pour ça que le mode widget ne demande rien
+   d'autre : le builder lisait déjà son conteneur, pas l'écran. */
+html, body { height: 100dvh; }
 .app {
+  zoom: var(--echelle);
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100%;
   overflow: hidden;
   background-image: var(--bg-image);
   background-size: cover;
@@ -1628,60 +1654,45 @@ button { font: inherit; }
    ⛔ Pas d'effacement des libellés (l'ancien `.belt-label { display: none }`
    EST le défaut n°3 : il efface des mots). Les mots restent, à toutes les
    largeurs ; la rangée défile à la place. */
-@media (max-width: 720px) {
-  /* ⚠️ LE SEUIL EST ICI, LITTÉRALEMENT — et c'est la SEULE façon de
-     l'écrire : un `@media` CSS ne peut pas lire une custom property (ni
-     `var(--bp-mid)`, ni aucune autre forme), c'est une limite native du
-     langage, pas un choix de ce lot. La piste suggérée par la commande
-     (`--bp-mid` lu par `shell.mjs`) laissait donc quand même « 720 » écrit
-     deux fois. Ce que ce lot fait à la place : ce bloc pose un DRAPEAU
-     (`--bp-hint`) que `shell.mjs` lit — le chiffre 720 n'existe plus que
-     là, à cet unique endroit de tout `ui/builder/`. Mesuré avec
-     `grep -rn "720" ui/builder/`, voir INVENTAIRE-LOT-38.md. */
-  :root { --bp-hint: narrow; }
+/* ⚠️ 2026-08-30 — CE BLOC N'EST PLUS UN `@media`, ET C'EST MESURÉ.
+   Sous `zoom`, une requête média ne se réévalue jamais : au banc, à 1024
+   au cran 1,5 — fenêtre effective 683 blg, donc SOUS le seuil — le drapeau
+   annonçait toujours « wide ». Le seuil ne peut donc plus vivre dans la
+   feuille. C'est `shell.mjs` qui divise la fenêtre par l'échelle et pose
+   `data-grandeur` sur `<html>` ; les deux nombres (720 et 1140) vivent là,
+   et là seulement.
 
-  /* Le CADRE ne change pas de forme au seuil : il est né à 360 px. Ce qui
-     change, c'est la place que la fiche peut se permettre — et le rail, qui
-     est déjà à son minimum lisible, ne rétrécit pas davantage. */
-  /* 🔴 4 ET NON 8 ENTRE LA CEINTURE ET LA CARTE — Eric, 2026-08-26 : *« marge
+   🔴 `:where()` N'EST PAS UNE COQUETTERIE — il ramène la spécificité du
+   préfixe à ZÉRO, donc chaque règle ci-dessous pèse EXACTEMENT ce qu'elle
+   pesait dans le `@media` : `.decision-card` reste (0,1,0). Sans lui, le
+   préfixe la ferait passer à (0,2,1) et elle se mettrait à battre des
+   règles qui la battaient hier — le défaut nommé par SOCLE.md, *« une
+   exclusion de plus déplace la spécificité »*, qui a coûté trois lots le
+   29/08. La conversion est donc neutre par construction, pas par relecture.
+
+   ⛔ Pas d'effacement des libellés (l'ancien `.belt-label { display: none }`
+   EST le défaut n°3 : il efface des mots). Les mots restent, à toutes les
+   grandeurs ; la rangée défile à la place. */
+
+/* 🔴 4 ET NON 8 ENTRE LA CEINTURE ET LA CARTE — Eric, 2026-08-26 : *« marge
    entre belt et carte : réduit »*, dans la chasse aux px qui manquent pour
    tenir dans une hauteur d'iPhone SE.
    ⚠️ C'EST CETTE RÈGLE-CI QUI DÉCIDE, PAS CELLE DU HAUT DE LA FEUILLE : plus
-   haut, `.decision-card` pose `margin: var(--sp-16)` ; celle-ci la remplace.
-   Toucher la première n'aurait rien changé — et n'aurait rien dit non plus.
-   📏 Mesuré avant : 8 px entre le bas de la ceinture et le haut de la carte. */
-.decision-card { margin: var(--sp-4); }
-/* ⭐ LA GOUTTIÈRE LATÉRALE PASSE AU CADRE — Eric, 2026-08-29 : *« fiche étroite
-   pas normal sur iPad »*. Mesuré à 1024 : la carte rendait **377** pour un
-   plafond de 624, parce qu'un item flex prend la largeur de son CONTENU.
+   haut, `.decision-card` pose `margin: var(--sp-16)` ; celle-ci la remplace. */
+:where(:root[data-grandeur="etroite"]) .decision-card { margin: var(--sp-4); }
+/* ⭐ LA GOUTTIÈRE LATÉRALE EST AU CADRE — Eric, 2026-08-29 : *« fiche étroite
+   pas normal sur iPad »*. Mesuré à 1024 : la carte rendait 377 pour un plafond
+   de 624, parce qu'un item flex prend la largeur de son CONTENU.
    ⚠️ On ne peut pas la faire remplir tant que la gouttière vit SUR ELLE :
-   `width: 100%` ignore les marges (elle sortait de 4 px à 360), et
-   `margin-inline: auto` — le centrage — DÉSACTIVE l'étirement. Déplacée sur
-   `.stage`, les trois cohabitent : remplir, plafonner, centrer.
-   ⛔ SEULEMENT LES FLANCS : le `margin-block` de la carte reste, c'est la
-   mesure d'Eric du 26/08 (« marge entre belt et carte : réduit »). */
-.stage { padding-inline: var(--sp-4); }
-.decision-card { margin-inline: 0; }
-  /* 🔵 LA GOUTTIÈRE RESTE À 360 — ET C'EST LA MESURE QUI L'A DÉCIDÉ.
-     Eric, 2026-08-29, en deux temps : *« pour les 360 on se passe de marge,
-     mais faut que ça rentre »*, puis *« si en 360 la marge est possible sans
-     impacter tout le monde, on l'applique »*. Sa condition est vérifiable, et
-     elle est vérifiée :
-       · avec la gouttière, les huit écrans rendent 352 dans 360 et AUCUN ne
-         déborde — « ça rentre » est déjà vrai ;
-       · les collecteurs de skills tiennent leurs quatre par ligne (74 px) et
-         les six caractéristiques leur ligne unique (47 px, au-dessus du seuil
-         tactile de 44).
-     Ce qu'elle coûte est mesuré et minime : 2 px par case (76 → 74, 48 → 47).
-     ⛔ NE PAS LA RETIRER SANS REMESURER : je l'avais annulée sur sa première
-     phrase, avant que la seconde ne pose la vraie règle — la marge cède si et
-     seulement si un organe ne rentre pas sans elle. Ici, tout rentre. */
-  /* La sortie d'étape suit la carte, au même cran (voir sa règle). */
-  /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
-     `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
-     étroite + `--touch`. ⛔ Ne pas revenir à `padding-inline` ici. */
-  .sortie { padding-inline: calc(var(--sp-8) + var(--touch)); }
-}
+   `width: 100%` ignore les marges, et `margin-inline: auto` DÉSACTIVE
+   l'étirement. Déplacée sur `.stage`, les trois cohabitent.
+   ⛔ SEULEMENT LES FLANCS : le `margin-block` de la carte reste. */
+:where(:root[data-grandeur="etroite"]) .stage { padding-inline: var(--sp-4); }
+:where(:root[data-grandeur="etroite"]) .decision-card { margin-inline: 0; }
+/* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
+   `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
+   étroite + `--touch`. ⛔ Ne pas revenir à `padding-inline` ici. */
+:where(:root[data-grandeur="etroite"]) .sortie { padding-inline: calc(var(--sp-8) + var(--touch)); }
 
 @media (prefers-reduced-motion: reduce) {
   /* Invariant de la bible (§5) : le recentrage de la molette devient
@@ -2982,7 +2993,15 @@ button { font: inherit; }
   padding: var(--sp-8);
   margin-bottom: var(--sp-12);
 }
-@media (min-width: 768px) { .tray { --tray-de: 82px; } }
+/* 🧊 LE REHAUSSEMENT DESKTOP DU DÉ A SAUTÉ — 2026-08-30. C'était
+   `@media (min-width: 768px) { --tray-de: 82px }` : une COTE conditionnée à
+   la largeur, donc un ratio qui changeait — 72 blg de dé contre 8 blg de
+   gouttière d'un côté, 82 contre 8 de l'autre. La loi du zoom l'interdit.
+   ⭐ ET ON N'Y PERD RIEN, C'EST MÊME L'INVERSE : 72 blg au cran 2 rendent
+   144 pixels, bien au-delà des 82 que le desktop obtenait. Le dé grandit
+   maintenant parce que l'ÉCHELLE monte, plus parce que la fenêtre est large.
+   ⚠️ Et un `@media` de largeur ne se réévalue pas sous `zoom` : celui-ci
+   serait resté allumé à tous les crans (mesuré au banc). */
 /* 🔴 QUATRE DÉS NE TIENNENT PAS À LA COTE DE TROIS, et c'est de l'arithmétique
    — même famille que l'écart de 4 des îlots FS. La largeur utile du plateau
    est **294** (mesurée dans la page, jamais le 312 théorique du gabarit) :
@@ -2992,7 +3011,7 @@ button { font: inherit; }
    ⛔ La cote est RECOPIÉE de `REGLAGES.tailleMobile4` (abilities-tray.mjs) :
    le moteur 3D veut des pixels, il ne lit pas cette feuille. */
 .tray[data-des="4"] { --tray-de: 70px; --tray-cases: 6; }
-@media (min-width: 768px) { .tray[data-des="4"] { --tray-de: 80px; } }
+/* (idem pour quatre dés : le rehaussement à 80 est parti avec le sien.) */
 
 /* LES BOUTONS PRENNENT LEUR PROPRE RANGÉE — choix A d'Eric, et c'est une
    MESURE, pas un goût : la colonne `ROLL`/`ROLL 10` fait 80 px et `CLEAR` 70
@@ -4225,6 +4244,14 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 .universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
+/* ⭐ LA RAMPE DE TAILLE D'INTERFACE (2026-08-30) — six crans côte à côte,
+   qui RETOURNENT À LA LIGNE plutôt que de défiler : c'est un réglage qu'on
+   lit d'un coup d'œil, pas une molette qu'on balaie, et à 360 blg six
+   boutons ne tiennent pas sur une ligne. Le reflux est la seule adaptation
+   admise sous la loi du zoom — il ne change aucun rapport, il réarrange.
+   ⛔ Aucune cote propre : les boutons sont des `.universe-bascule`, ils
+   portent déjà leur gabarit et leur cible tactile. */
+.universe-rampe { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
 .universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
 
 /* OÙ VIT CE PERSONNAGE (2026-08-20) — même gabarit que le bloc au-dessus, et
@@ -6850,6 +6877,17 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--positive);
 }
 .card-final-corps {
+  /* 🔴 CONTENEUR DE REQUÊTE — 2026-08-30. Le passage à une colonne était un
+     `@media (max-width: 34em)`, et un `@media` ne se réévalue pas sous
+     `zoom` : la carte serait restée sur deux colonnes à tous les crans, sur
+     n'importe quelle fenêtre. La bonne question n'était de toute façon pas
+     « quelle est la taille de l'écran » mais « cette carte a-t-elle la place
+     de deux colonnes » — c'est une requête de CONTENEUR, et `listes.css` en
+     pose déjà deux pour la même raison.
+     ⭐ LE SEUIL NE BOUGE PAS : 34em, mesuré et ratifié. Il se lit simplement
+     sur la boîte au lieu de la fenêtre, donc il reste juste à tous les crans
+     ET en mode widget, où la fenêtre ne dit rien de la place réelle. */
+  container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--sp-16);
@@ -6889,8 +6927,12 @@ button { font: inherit; }
 }
 
 /* ⚠️ DEUX COLONNES NE TIENNENT PAS À 375 : la carte passe au-dessus, le texte
-   dessous, et c'est le texte qui garde le défilement. */
-@media (max-width: 34em) {
+   dessous, et c'est le texte qui garde le défilement.
+   📌 `@container` et non `@media` — voir la note sur `.card-final-corps`. Le
+   plafond de la vignette reste en `vh` : c'est une fraction de la HAUTEUR
+   RÉELLE de la fenêtre, pas une cote de dessin — elle ne se met pas à
+   l'échelle, et c'est juste, une image ne doit jamais dépasser l'écran. */
+@container (max-width: 34em) {
   .card-final-corps { grid-template-columns: minmax(0, 1fr); }
   .card-final-carte { max-height: 42vh; }
   .card-final-img { max-height: 42vh; width: auto; }

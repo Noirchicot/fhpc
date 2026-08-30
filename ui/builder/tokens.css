@@ -9,16 +9,17 @@
    THÈME suffisent : `:root` pour le jour, `@media (prefers-color-scheme:
    dark)` pour la nuit. Un troisième bloc pour un thème qui n'existe pas
    encore serait du code mort derrière un interrupteur (loi §0.6).
-   ⚠️ LOT 69 — un bloc de LARGEUR s'ajoute en FIN de fichier (`@media
-   (min-width: 1140px)`, la grandeur Large de la bible §3). Ce n'est pas un
-   thème : il ne redéfinit QUE des jetons de taille et de mise en page,
-   jamais une couleur ni un voile — la matrice du verre (lot 59) est
-   calculée par thème, pas par largeur, et un jeton de couleur conditionné
-   à la largeur la rendrait fausse en silence. Un garde le vérifie
-   (`tests/ui-grandeur-large.test.mjs`). Il vit APRÈS le bloc sombre parce
-   que les gardes existants découpent le fichier à ce `@media`-là et lisent
-   l'échelle de type dans ce qui le PRÉCÈDE — l'échelle de base reste donc
-   mesurée telle quelle. */
+   ⚠️ 2026-08-30 — LE BLOC DE LARGEUR A DISPARU. C'était `@media (min-width:
+   1140px)`, la grandeur Large : il rehaussait des jetons de TAILLE, donc il
+   changeait des ratios, ce que la loi du zoom interdit désormais. Ce qui
+   reste en fin de fichier est un bloc de GRANDEUR (`[data-grandeur]`), et il
+   ne porte que des comportements — jamais une taille, jamais une couleur ni
+   un voile : la matrice du verre (lot 59) est calculée par THÈME, et un
+   jeton de couleur conditionné à la place disponible la rendrait fausse en
+   silence. Un garde le vérifie (`tests/ui-grandeur-large.test.mjs`).
+   📌 Il vit toujours APRÈS le bloc sombre : les gardes existants découpent
+   le fichier au `@media` suivant et lisent l'échelle de type dans ce qui le
+   PRÉCÈDE — l'échelle de base reste donc mesurée telle quelle. */
 
 :root {
   /* ── COULEURS — jour. Famille `parchemin`, ratifiée le 2026-08-12.
@@ -103,6 +104,34 @@
   --tier-2: #60437d; /* plein (●)  — 6,01:1 */
   --tier-3: #49335f; /* expertise (★) — 8,12:1 */
 
+  /* ══ L'ÉCHELLE, ET LE MOT QUI VA AVEC — Eric, 2026-08-30 ═══════════════
+     ⭐ LE **blg** (« blurg », abrégé `blg`) : l'unité de dessin du builder.
+     Un blg est ce que vaut un `px` de feuille de style UNE FOIS le zoom
+     appliqué. `--t4: 16px` se lit donc « T4 = 16 blg » — et seize blg valent
+     16 pixels au cran 1, 24 au cran 1,5, 80 au cran 5.
+
+     🔴 LA LOI D'ERIC, MOT POUR MOT (30/08) : *« TOUT LE BUILDER SUIT LE ZOOM,
+     LES RATIOS NE CHANGENT NULLE PART. Tout grandit de manière
+     proportionnelle. »* Aucune exception n'est admise — pas les filets d'un
+     blg, pas les ombres, pas `--touch`. Sur une échelle qui ne descend
+     jamais sous 1, la cible tactile d'Apple et cette loi disent la même
+     chose : 44 blg valent toujours au moins 44 px.
+
+     ⛔ ET C'EST POURQUOI AUCUNE COTE DE CE FICHIER N'A CHANGÉ. Les 265
+     valeurs en pixels du dépôt étaient DÉJÀ des blg ; il leur manquait la
+     déclaration qui le dit — `zoom` sur `.app` (shell.css). Multiplier les
+     jetons un par un a été essayé et écarté : c'est ce que faisait `--cd-fs`
+     au dock v1, et TRAPS.md §17-18 raconte comment ça a fini — *« moved the
+     fonts but left the width pinned »*, plus un cycle silencieux. Le zoom
+     n'a ni liste à tenir ni cycle possible.
+
+     📌 Le PLANCHER est 1, et c'est une décision d'Eric : *« le plancher c'est
+     la taille 360 sur laquelle on travaille »*. Rien ne rétrécit jamais sous
+     le barème ratifié — aucun texte ne peut passer sous T1.
+     📌 La valeur est posée par `shell.mjs` (cran choisi ou déduit de la
+     fenêtre) ; ce jeton n'est que son point d'entrée. */
+  --echelle: 1;
+
   /* ── L'ÉCHELLE DE TYPE — T1…T7, ratifiée le 2026-08-13 (§3c). Sept
      barreaux, six continus + un grand nombre à part. Valeurs LOCALES à
      cette zone (le builder est plein écran ; le dock est une fenêtre
@@ -183,10 +212,10 @@
      d'Abilities coupée (scrollWidth 382 > clientWidth 310, deux valeurs
      sur six hors champ ; le mode « choose » : 941 > 442).
 
-     ICI LES VALEURS DE BASE = LE COMPORTEMENT D'AUJOURD'HUI, à l'octet :
-     chaque jeton vaut ce que la règle qu'il remplace rendait déjà. Le bloc
-     `@media (min-width: 1140px)` en fin de fichier les rehausse pour la
-     grandeur Large — c'est le SEUL endroit où le desktop existe.
+     ⚠️ 2026-08-30 — CES LARGEURS NE SONT PLUS REHAUSSÉES. Le bloc Large qui
+     les doublait est supprimé : elles valent la même chose à tous les crans,
+     et c'est l'échelle qui les fait grandir. Ce sont donc des cotes en
+     **blg**, comme tout le reste du fichier.
 
      ⚠️ POURQUOI UNE RANGÉE DE CARACTÉRISTIQUE N'EST PAS DE LA PROSE :
      `--measure` mesure des lignes de TEXTE. Une rangée d'Abilities est une
@@ -206,6 +235,17 @@
      descend et ne remonte pas ». Depuis `:root` elle descend sur le conteneur ET
      sur la fiche — c'est la même règle, appliquée un cran plus haut.
      ⛔ Et elle n'est plus écrite qu'ICI : `fiche.css` la LIT désormais. */
+  /* 🔴 LE PLANCHER DE LA FICHE, REMONTÉ ICI LE 2026-08-30 — même geste que
+     `--fiche-h` le 23/08, et la même raison : il vivait sur `.fiche-dalle`
+     dans `fiche.css`, donc SEULE cette règle-là le connaissait. `echelle.mjs`
+     en a besoin pour savoir quels crans tiennent dans une fenêtre, et une
+     variable descend, elle ne remonte pas.
+     📏 C'EST UNE SOMME MESURÉE, pas une cote choisie : 8 de rembourrage + 118
+     de colonne de stats (`Weapons : Smpl+FL`, le rogue, mesure 115,1) + 8
+     d'écart + 100 d'image + 8 = 242. CADRES §4 la publie comme « le plancher
+     documenté : ce que le format vaut à 360, le plus petit écran servi ».
+     ⛔ Elle n'est plus écrite qu'ICI : `fiche.css` la LIT désormais. */
+  --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
   --card-pad: var(--sp-16);   /* remplissage de carte — B4.3 l'a mesuré : 16 à l'étroit */
@@ -537,15 +577,15 @@
   --voile-dropdown: 20%;
   --dropdown-fond: color-mix(in srgb, var(--surface) var(--voile-dropdown), transparent);
 
-  /* ── LE SEUIL DE BASCULE (§3g) — PAS un nombre : voir la note sous le
-     bloc `@media` de shell.css. `--bp-hint` est un DRAPEAU ("wide" /
-     "narrow") que `shell.mjs` lit ; il ne porte jamais le chiffre 720. Un
-     `@media` CSS ne peut pas consommer une custom property (limite native,
-     pas un choix), donc le nombre ne peut vivre qu'à UN endroit : dans le
-     `@media (max-width: 720px)` de shell.css lui-même. C'est la mesure qui
-     a fait diverger ce lot de la piste suggérée par la commande — voir
-     INVENTAIRE-LOT-38.md, section « ce qui a changé ». */
-  --bp-hint: wide;
+  /* 🧊 `--bp-hint` A ÉTÉ RETIRÉ — 2026-08-30. C'était le drapeau que le
+     `@media (max-width: 720px)` de shell.css posait pour que `shell.mjs`
+     lise le seuil sans écrire 720. Le détour n'a plus lieu d'être : sous
+     `zoom`, un `@media` ne se réévalue pas (mesuré), donc c'est `shell.mjs`
+     qui CALCULE la grandeur — `innerWidth / échelle` — et la pose en
+     `data-grandeur` sur `<html>`. Il connaît les seuils de première main ;
+     il n'a plus à les relire dans la feuille.
+     ⛔ Le lecteur qui allait avec, `isMobile()`, est parti aussi : il
+     n'était appelé par personne (mesuré avant retrait). */
 
   /* ── UTILITAIRE HORS PALETTE — le voile derrière le plan escamotable
      (`.scrim`). Ni une encre du §3b ni un dérivé de l'accent : c'est un
@@ -666,97 +706,58 @@
   }
 }
 
-/* ══ LOT 69 — LA GRANDEUR LARGE (bible §3 : ≥ 1140 px) ═══════════════════
-   Le builder a été refait base 360 (IV.4) ; ce bloc est l'extrapolation
-   desktop que la même décision annonçait (« le desktop s'extrapole
-   ensuite »). Tout le régime Large tient dans CES jetons : `shell.css` les
-   consomme sans jamais connaître le chiffre — comme `--bp-hint` pour 720.
+/* ══ LA GRANDEUR — ⚠️ CE N'EST PLUS UN `@media`, ET C'EST MESURÉ ═════════
+   Eric, 2026-08-30 : le builder passe au zoom global (`--echelle`, plus
+   haut). Un `@media` ne se réévalue PAS sous `zoom` — mesuré au banc sur le
+   vrai builder, à 1920 × cran 5 : la fenêtre effective vaut 384 blg et
+   `@media (min-width: 1140px)` matchait toujours, donc `--rail-w` rendait
+   120 blg = **600 px réels**. Le seuil ne peut donc plus vivre dans la
+   feuille : c'est `shell.mjs` qui divise la fenêtre par l'échelle et pose
+   `data-grandeur` sur `<html>` — « etroite » < 720 blg · « moyenne » ·
+   « large » ≥ 1140 blg.
 
-   🔴 LE SEUIL 1140 N'EXISTE QU'ICI, dans tout `ui/builder/` — même règle
-   que le 720 de `shell.css` (garde 5 des jetons), même raison : un `@media`
-   CSS ne peut pas lire une custom property, donc le nombre doit être écrit
-   quelque part, et ce quelque part est UNIQUE. Un garde le mesure
-   (`tests/ui-grandeur-large.test.mjs`).
+   🔴 ET LES JETONS DE TAILLE QUE CE BLOC REHAUSSAIT SONT SUPPRIMÉS, PAS
+   DÉPLACÉS. Ils changeaient les RATIOS — `--t6` passait de 22 à 28 pendant
+   que `--t4` restait à 16, le rapport titre/corps sautait de 1,375 à 1,75 ;
+   `--rail-w` de 90 à 120 pendant que `--sp-8` ne bougeait pas. C'est
+   exactement ce que la loi du 30/08 interdit, et c'est le même métier que le
+   zoom, fait deux fois et à moitié.
 
-   ⚠️ ENTRE 720 ET 1140 (la grandeur Moyenne — l'iPad d'Eric), RIEN ne
-   change ici : la carte se contente de se CENTRER (marges auto, shell.css),
-   et les molettes gardent leur défilement au doigt — c'est un écran
-   tactile, l'amorce et le balayage y font leur travail. Le régime Large
-   est celui de la souris.
+   ⚖️ RENVERSEMENT DATÉ — 2026-08-30. Le bloc supprimé portait cette règle :
+   *« ⛔ T1–T4 NE BOUGENT PAS : micro, mention, libellé et corps sont des
+   tailles de LECTURE — 16 px se lit pareil à 360 et à 1440. »* La loi
+   d'Eric du 30/08 dit l'inverse : au cran 5 le corps vaut 80 blg. Les deux
+   ne peuvent pas coexister ; la seconde est plus récente et elle est
+   générale. Un lot futur qui voudrait « réparer » T1–T4 doit d'abord
+   rouvrir cette ligne-ci avec Eric.
 
-   ⛔ QUE DES TAILLES ET DES LARGEURS. Jamais une couleur, un voile, une
-   image : la matrice du verre (lot 59, tête de shell.css) est mesurée par
-   THÈME — la conditionner à la largeur la fausserait sans qu'aucun garde
-   de contraste ne le voie. */
-@media (min-width: 1140px) {
-  :root {
-    /* ── LA TYPO DE LA GRANDEUR — §3ter d'ERGONOMIE-BUILDER.md : « la
-       typographie est plate », et à 1440 px un titre de 22 px dans un champ
-       de 1356 n'a plus l'air d'un titre. La bible §1 (ratifiée le
-       2026-08-12) donne le mécanisme : « le même nom vaut une valeur
-       différente selon la grandeur » — un nom dit un RÔLE, jamais un nombre.
-       ⚠️ IV.1 (T1–T7 = 10·12·14·16·18·22·44) reste le barème de RÉFÉRENCE,
-       celui de la base 360 : le bloc jour ci-dessus le porte intact, et le
-       garde des sept barreaux le mesure LÀ-BAS, pas ici.
-       ⛔ T1–T4 NE BOUGENT PAS : micro, mention, libellé et corps sont des
-       tailles de LECTURE — 16 px se lit pareil à 360 et à 1440. Seuls les
-       deux barreaux d'AFFICHAGE montent (accent, titre), pour que la
-       hiérarchie se voie de loin. Les rapports restent croissants :
-       16→20 = 1,25 · 20→28 = 1,40 · 28→44 = 1,57 (le principe du
-       conseiller : « le rapport doit s'ouvrir en montant »). */
-    --t5: 20px;
-    --t6: 28px;
-
-    /* ── LES LARGEURS — mesurées, pas choisies :
-       `--panel-w` 88ch = 887 px : la rangée d'Abilities au PIRE cas mesuré
-       (six options toutes annotées ≈ 562 px de molette + étiquette 43 +
-       source 104 + finale 91 + gouttières) tient sur UNE ligne, sans
-       défilement. `--grid-w` 76ch : la ligne d'Equipment la plus longue
-       (« Calligrapher's Supplies » + quantité + Equipped/Stowed + Remove)
-       cesse de casser. `--fiche-w` 88ch : la fiche de classe flotte sur le
-       fond au lieu de l'occulter (B0.23b) — l'ardoise respire des deux
-       côtés. `--card-w` 76ch : la carte générique respire sans étirer la
-       prose (les écrans-prose gardent leur `--measure` de 62ch, centrés
-       dedans). `--frame-w` 96ch : Show plan et Validate encadrent la
-       colonne de contenu au lieu des bords de la fenêtre (Validate était à
-       1400 px du contenu). */
-    /* Mêmes valeurs qu'avant, figées en px pour la raison dite plus haut :
-       `ch` dépend de la police résolue et rendait 608 au lieu de 766 sur un
-       repli de fonte. CADRES §2 bis publie ces équivalences depuis l'origine. */
-    --card-w: 766px;
-    --panel-w: 887px;
-    --grid-w: 766px;
-    --fiche-w: 88ch;
-    --frame-w: 96ch;
-    --rail-w: 120px;          /* le rail de catalogue : 84 px était « pas un
-                                 pixel de plus » POUR 360 — la contrainte
-                                 tombe quand la place existe */
-    --card-pad: var(--sp-24); /* B4.3 : le padding de 32 « venait du desktop » ;
-                                 24 rend l'air sans reprendre le défaut */
-
-    /* ── LA MOLETTE S'ENROULE — au doigt on balaie, à la souris rien ne
-       dit qu'il y a du contenu à droite (mesuré : « 10 (DEX) » et « 8 »
-       inatteignables). En Large les options se posent toutes à l'écran ;
-       l'amorce n'a plus rien à annoncer, elle s'éteint. */
-    --wheel-wrap: wrap;
-    --wheel-mask: none;
-
-    /* ── L'AMORCE DE LA FICHE S'ALLUME — le miroir exact de la molette :
-       elle, s'éteint en Large parce que tout tient ; la fiche, elle,
-       s'annonce en Large parce que la souris ne découvre rien au balayage
-       (mesuré à 1440 × 900 : barre de défilement invisible sur Mac, champ
-       rempli exactement par la fiche — « une page sans suite »). 32 px de
-       fondu sur un champ de ~800 : l'annonce, pas un voile. Noir/transparent
-       encodent la visibilité d'un masque, pas une couleur — le garde des
-       thèmes (forme hex/rgb/hsl/color-mix/url) reste muet, à raison. */
-    --stage-amorce: linear-gradient(to bottom, black calc(100% - var(--sp-32)), transparent);
-
-    /* ── LES GOUTTIÈRES CALCULÉES — `max(le remplissage d'avant, la moitié
-       du surplus)` : sous le seuil la formule rend exactement l'ancien
-       remplissage, au-dessus elle centre. Le `%` se résout à l'USAGE
-       (contre la boîte de l'élément), seuls les jetons globaux sont
-       substitués ici. */
-    --gutter-frame: max(var(--sp-12), calc((100% - var(--frame-w)) / 2));
-    --gutter-popup: max(var(--sp-16), calc((100% - var(--measure)) / 2));
-  }
+   ⭐ CE QUI RESTE, ET POURQUOI : deux jetons qui ne sont pas des tailles mais
+   des COMPORTEMENTS. Un comportement qui change avec la place disponible
+   n'est pas un changement de ratio — c'est du reflux, et le reflux survit
+   (loi du 19/08 : « si on peut faire 4, on fait 4 »). */
+:root[data-grandeur="large"] {
+  /* L'AMORCE DE LA FICHE — à la souris, une fiche qui remplit le champ
+     ressemble à une page sans suite ; au doigt on balaie et on découvre.
+     C'est une affordance, pas une cote : elle ne porte aucun rapport. */
+  --stage-amorce: linear-gradient(to bottom, black calc(100% - var(--sp-32)), transparent);
 }
+
+/* ⭐ PROMU EN BASE, ET LA FORMULE LE PERMETTAIT DÉJÀ : `max(l'ancien
+   remplissage, la moitié du surplus)` rend EXACTEMENT `--sp-16` tant qu'il
+   n'y a pas de surplus — à 360 blg, `(100% - 625px) / 2` est négatif et le
+   `max` reprend les 16. Le conditionner à une grandeur ne servait donc à
+   rien : une seule déclaration couvre les deux cas, et c'est un `%` — il se
+   résout à l'usage, sur la boîte, jamais ici. */
+:root {
+  --gutter-popup: max(var(--sp-16), calc((100% - var(--measure)) / 2));
+}
+
+/* 🧊 SUPPRIMÉS AVEC LE BLOC, ET NOMMÉS POUR QU'ON NE LES CHERCHE PAS :
+   · `--t5` / `--t6` rehaussés · `--card-w` · `--panel-w` · `--grid-w`
+     `--fiche-w` · `--frame-w` · `--rail-w` · `--card-pad` — des ratios ;
+   · `--wheel-wrap` / `--wheel-mask` / `--gutter-frame` — **plus consommés
+     nulle part** (mesuré : 0 `var()` dans les cinq feuilles). Ils étaient
+     déjà morts avant ce lot ; ils partent avec.
+   ⚠️ `--fiche-w: 88ch` et `--frame-w: 96ch` étaient les deux rescapées de la
+   migration `ch` → px du 29/08 (CADRES §2 bis). Elles s'éteignent ici sans
+   qu'on ait à les convertir — le défaut meurt avec son porteur. */

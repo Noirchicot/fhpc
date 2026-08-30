@@ -1,31 +1,42 @@
-/* ══ LE GARDE DE LA GRANDEUR LARGE — lot 69 ═══════════════════════════
+/* ══ LE GARDE DE LA GRANDEUR — réécrit le 2026-08-30 ═══════════════════
 
-   La bible §3 définit TROIS grandeurs (Large ≥ 1140 · Moyenne 720–1140 ·
-   Étroite < 720, dessinée à 360). Le lot 69 construit la Large : un bloc
-   `@media (min-width: 1140px)` en fin de `tokens.css`, qui ne redéfinit
-   QUE des jetons de taille et de mise en page. Ce fichier garde les
-   quatre contrats de ce bloc :
+   ⚖️ CE FICHIER GARDAIT UN MÉCANISME QUI N'EXISTE PLUS. Le lot 69 avait
+   construit la grandeur Large comme un bloc `@media (min-width: 1140px)` en
+   fin de `tokens.css`, qui REHAUSSAIT des jetons de taille. Eric a tranché le
+   2026-08-30 :
 
-     1. le seuil 1140 n'existe qu'UNE fois dans tout `ui/builder/` — même
-        loi que le 720 (garde 5 des jetons), même raison : un `@media` CSS
-        ne peut pas lire une custom property, le nombre doit donc être
-        écrit quelque part, et ce quelque part est unique ;
-     2. le bloc Large ne porte JAMAIS une couleur, une image ou un voile —
-        la matrice du verre (lot 59, `tests/decor.test.mjs`) est calculée
-        par THÈME : un jeton de couleur conditionné à la largeur la
-        fausserait sans qu'aucun garde de contraste ne rougisse ;
-     3. T1–T4 (micro, mention, libellé, corps) ne bougent pas avec la
-        largeur — 16 px se lit pareil à 360 et à 1440 ; seuls les barreaux
-        d'AFFICHAGE (T5, T6) montent, et l'échelle recomposée reste
-        croissante, aucun barreau à moins de 12,5 % du suivant (la même
-        exigence que le garde des sept barreaux sur l'échelle de base) ;
-     4. les jetons de grandeur valent, À LA BASE, le comportement d'avant
-        le lot — `--panel-w` EST `--measure`, la molette d'Abilities est
-        `nowrap` sous amorce : à 360, rien n'a le droit d'avoir bougé.
+     🔴 *« TOUT LE BUILDER SUIT LE ZOOM, LES RATIOS NE CHANGENT NULLE PART. »*
 
-   ⚠️ MÊME MÉTHODE QUE `tests/ui-jetons.test.mjs` : un balayage d'octets,
-   pas de DOM, pas de paquet — et des ATTAQUES en mémoire qui prouvent que
-   chaque clause mord. */
+   Un bloc qui fait passer `--t6` de 22 à 28 pendant que `--t4` reste à 16 —
+   rapport titre/corps de 1,375 à 1,75 — est exactement ce que cette loi
+   interdit. Il est supprimé, et la grandeur devient un ATTRIBUT calculé
+   (`data-grandeur`, posé par `echelle.mjs` sur la fenêtre divisée par
+   l'échelle) qui ne porte plus que des COMPORTEMENTS.
+
+   ⛔ ET LA CLAUSE 3 DE L'ANCIEN GARDE EST MORTE AVEC LUI, délibérément :
+   elle exigeait que T1–T4 ne bougent jamais (« 16 px se lit pareil à 360 et
+   à 1440 »). La loi du 30/08 dit l'inverse — au cran 5 le corps vaut 80 blg.
+   Un lot futur qui voudrait la restaurer doit d'abord rouvrir la ligne avec
+   Eric ; ce n'est pas un oubli.
+
+   ── CE QUE CE FICHIER GARDE AUJOURD'HUI ──────────────────────────────────
+     1. le bloc de grandeur ne porte JAMAIS une couleur, une image ou un
+        voile — inchangé, et pour la raison inchangée : la matrice du verre
+        (lot 59) est calculée par THÈME, un jeton de couleur conditionné à la
+        place disponible la fausserait sans qu'aucun garde de contraste ne
+        rougisse ;
+     2. il ne porte AUCUNE cote non plus — plus une seule taille, plus une
+        seule largeur : c'est la clause qui remplace l'ancienne clause 3, et
+        elle est plus large qu'elle ;
+     3. les trois grandeurs sont nommées à un seul endroit (`echelle.mjs`) et
+        les feuilles ne connaissent que leurs noms ;
+     4. l'échelle ne descend JAMAIS sous 1 — le plancher d'Eric, *« c'est la
+        taille 360 sur laquelle on travaille »* : aucun texte ne peut donc
+        passer sous le barème ratifié.
+
+   ⚠️ MÊME MÉTHODE QUE `tests/ui-jetons.test.mjs` : un balayage d'octets, pas
+   de DOM, pas de paquet — et des ATTAQUES en mémoire qui prouvent que chaque
+   clause mord. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -33,220 +44,162 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { stripComments, walkSources } from "./source-scan.mjs";
+import { stripComments } from "./source-scan.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..");
 const UI_DIR = path.join(ROOT, "ui", "builder");
-const TOKENS_CSS_PATH = path.join(UI_DIR, "tokens.css");
+const tokensCss = fs.readFileSync(path.join(UI_DIR, "tokens.css"), "utf8");
+const echelleMjs = fs.readFileSync(path.join(UI_DIR, "echelle.mjs"), "utf8");
 
-const tokensCssRaw = fs.readFileSync(TOKENS_CSS_PATH, "utf8");
-
-/* ── LES SCANNERS — fonctions pures, réutilisées par les attaques ────── */
-
-/** Compte les « 1140 » (hors commentaires) d'un ensemble de fichiers.
- *  Même motif que le garde 5 du lot 38 : `\b1140(?!\d)`. */
-function seuilLargeCount(files) {
-  let count = 0;
-  const where = [];
-  for (const [name, text] of files) {
-    const matches = stripComments(text).match(/\b1140(?!\d)/g) || [];
-    count += matches.length;
-    if (matches.length > 0) where.push(`${name} (${matches.length})`);
+/** Le corps de chaque bloc `[data-grandeur=…]` d'une feuille — sur le texte
+ *  DÉPOUILLÉ, pour qu'un exemple écrit dans un commentaire ne compte pas. */
+function blocsDeGrandeur(cssText) {
+  const texte = stripComments(cssText);
+  const out = [];
+  for (const m of texte.matchAll(/:root\[data-grandeur="([a-z]+)"\]\s*\{([^}]*)\}/g)) {
+    out.push({ grandeur: m[1], corps: m[2] });
   }
-  return { count, where };
+  return out;
 }
 
-/** Le bloc Large de tokens.css : de son `@media` à la fin du fichier (il
- *  est dernier — le garde d'ordre ci-dessous le vérifie avant tout). */
-function largeBlock(cssText) {
-  const stripped = stripComments(cssText);
-  const idx = stripped.indexOf("@media (min-width: 1140px)");
-  return idx === -1 ? null : stripped.slice(idx);
-}
-
-/** Les `--nom: valeur;` d'un bloc — même extraction à plat que le lot 38. */
-function extractCustomProps(cssText) {
-  const props = new Map();
-  for (const match of cssText.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) {
-    props.set(match[1], match[2].trim());
-  }
-  return props;
-}
-
-/* Les jetons de THÈME — ceux que le bloc Large n'a pas le droit de
-   toucher par NOM. Liste noire, pas blanche (leçon du lot 56 : une liste
-   blanche recopiée reproduit le risque qu'on corrige) : elle nomme ce
-   qu'on protège, pas ce qu'on autorise. */
-const THEME_TOKENS = [
-  "bg", "surface", "sunken", "text", "text-soft", "text-muted",
-  "border-strong", "border", "accent", "on-accent",
-  "positive", "caution", "critical", "info",
-  "tier-1", "tier-2", "tier-3",
-  "accent-wash", "bg-image", "scrim",
-  "voile-simple", "voile-inter", "voile-majeure",
-  "dalle-simple", "dalle-inter"
-];
-
-/** Chaque redéfinition du bloc Large qui touche un jeton de thème PAR SON
- *  NOM, ou dont la VALEUR a une forme de couleur ou d'image (hex, rgb(),
- *  hsl(), color-mix(), url()) — les deux directions, pour qu'un jeton de
- *  couleur NOUVEAU (hors liste) soit pris par sa valeur. */
-function themeViolationsInLarge(cssText) {
-  const block = largeBlock(cssText);
-  if (block === null) return ["<bloc Large absent>"];
+/** Toute déclaration du corps qui porte une COULEUR, par nom ou par forme. */
+function couleursDuBloc(corps) {
   const hits = [];
-  for (const [name, value] of extractCustomProps(block)) {
-    if (THEME_TOKENS.includes(name)) hits.push(`--${name} (jeton de thème)`);
-    else if (/#[0-9a-fA-F]{3,8}\b|\b(rgb|rgba|hsl|hsla|color-mix|url)\(/i.test(value)) {
-      hits.push(`--${name}: ${value} (forme de couleur/d'image)`);
+  for (const m of corps.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) {
+    const [, nom, valeur] = m;
+    if (/^(bg|surface|sunken|text|text-soft|text-muted|border|border-strong|accent|on-accent|positive|caution|critical|info|lien|magie)$/.test(nom)) {
+      hits.push(`${nom} (par le nom)`);
+      continue;
+    }
+    /* La FORME suffit à trahir un jeton neuf : un hex, une fonction de
+       couleur, un mélange, une image. ⛔ `black`/`transparent` d'un masque
+       sont exemptés — un masque encode une VISIBILITÉ, pas une teinte (même
+       doctrine que le garde des couleurs des jetons). */
+    const sansMasque = /gradient\(/.test(valeur) && /\b(black|transparent|white)\b/.test(valeur)
+      ? valeur.replace(/\b(black|transparent|white)\b/g, "")
+      : valeur;
+    if (/#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|color-mix|url)\(/.test(sansMasque)) {
+      hits.push(`${nom} (par la forme : ${valeur.trim()})`);
     }
   }
   return hits;
 }
 
-/** Les barreaux de LECTURE (T1–T4) redéfinis dans le bloc Large — interdits :
- *  une taille de lecture ne suit pas la largeur de la fenêtre. */
-function readingRungsInLarge(cssText) {
-  const block = largeBlock(cssText);
-  if (block === null) return ["<bloc Large absent>"];
-  return [...extractCustomProps(block).keys()].filter((n) => /^t[1-4]$/.test(n)).map((n) => `--${n}`);
+/** Toute déclaration du corps qui porte une COTE — une longueur chiffrée. */
+function cotesDuBloc(corps) {
+  const hits = [];
+  for (const m of corps.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) {
+    const [, nom, valeur] = m;
+    /* Un masque porte des longueurs (`calc(100% - var(--sp-32))`) sans être
+       une cote : ce sont des positions d'arrêt dans un dégradé, pas une
+       taille d'organe. Elles ne sortent jamais de leur image. */
+    if (/gradient\(/.test(valeur)) continue;
+    if (/\d+(\.\d+)?(px|em|rem|ch|vh|vw|%)/.test(valeur)) hits.push(`${nom}: ${valeur.trim()}`);
+  }
+  return hits;
 }
 
-/* ── 1 — LE SEUIL EST UNIQUE, ET C'EST tokens.css QUI LE PORTE ───────── */
+/* ══ 1 — LE BLOC DE GRANDEUR NE PORTE AUCUNE COULEUR ══════════════════ */
 
-test("grandeur Large 1 — « 1140 » n'existe qu'une fois dans tout ui/builder/, dans tokens.css", () => {
-  const files = [
-    ...walkSources(UI_DIR).map((f) => [path.relative(ROOT, f), fs.readFileSync(f, "utf8")]),
-    ["ui/builder/shell.css", fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8")],
-    ["ui/builder/tokens.css", tokensCssRaw],
-    ["ui/builder/index.html", fs.readFileSync(path.join(UI_DIR, "index.html"), "utf8")]
-  ];
-  const { count, where } = seuilLargeCount(files);
-  assert.equal(count, 1, `« 1140 » doit exister UNE fois — trouvé : ${where.join(", ") || "nulle part"}`);
-  assert.deepEqual(where, ["ui/builder/tokens.css (1)"],
-    "et c'est le @media de tokens.css qui le porte — tout le régime Large est des jetons, " +
-    "shell.css les consomme sans connaître le chiffre (même mécanique que --bp-hint pour 720)");
-});
-
-/* ── 2 — LE BLOC LARGE VIT APRÈS LE BLOC SOMBRE ──────────────────────────
-   Les gardes du lot 38 et du lot 59 découpent tokens.css au premier
-   `@media (prefers-color-scheme: dark)` et lisent l'échelle de base dans
-   ce qui le PRÉCÈDE. Un bloc Large placé AVANT le bloc sombre entrerait
-   dans leur « bloc jour » : le garde des sept barreaux mesurerait les
-   valeurs Large en croyant mesurer la base. L'ordre n'est pas un détail
-   d'esthétique, c'est ce qui garde les autres gardes véridiques. */
-
-test("grandeur Large 2 — le bloc Large est APRÈS le bloc sombre (les gardes du jour mesurent la base, pas lui)", () => {
-  const stripped = stripComments(tokensCssRaw);
-  const darkIdx = stripped.indexOf("@media (prefers-color-scheme: dark)");
-  const largeIdx = stripped.indexOf("@media (min-width: 1140px)");
-  assert.ok(darkIdx > 0, "le bloc sombre doit exister");
-  assert.ok(largeIdx > 0, "le bloc Large doit exister");
-  assert.ok(largeIdx > darkIdx,
-    "le bloc Large doit suivre le bloc sombre — avant lui, il polluerait le « bloc jour » " +
-    "que les gardes des lots 38/59 mesurent");
-});
-
-/* ── 3 — QUE DES TAILLES : jamais une couleur, une image, un voile ───── */
-
-test("grandeur Large 3 — le bloc Large ne redéfinit aucun jeton de thème, par nom ni par forme de valeur", () => {
-  assert.deepEqual(themeViolationsInLarge(tokensCssRaw), [],
-    "la matrice du verre (lot 59) est calculée par THÈME — une couleur conditionnée " +
-    "à la largeur la fausserait sans qu'aucun garde de contraste ne rougisse");
-});
-
-/* ── 4 — LA TYPO : T1–T4 immobiles, l'échelle recomposée reste une échelle ── */
-
-test("grandeur Large 4 — T1–T4 (tailles de LECTURE) ne bougent pas avec la largeur", () => {
-  assert.deepEqual(readingRungsInLarge(tokensCssRaw), [],
-    "micro, mention, libellé et corps se lisent pareil à 360 et à 1440 — " +
-    "seuls les barreaux d'affichage (T5, T6) portent la grandeur");
-});
-
-test("grandeur Large 5 — l'échelle recomposée en Large reste croissante, aucun barreau à moins de 12,5 % du suivant", () => {
-  const stripped = stripComments(tokensCssRaw);
-  const darkIdx = stripped.indexOf("@media (prefers-color-scheme: dark)");
-  const base = extractCustomProps(stripped.slice(0, darkIdx));
-  const large = extractCustomProps(largeBlock(tokensCssRaw) || "");
-  const rungs = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"].map((name) => {
-    const raw = large.get(name) ?? base.get(name);
-    assert.ok(raw, `--${name} doit exister (base ou Large)`);
-    const px = Number(raw.replace("px", ""));
-    assert.ok(Number.isFinite(px) && px > 0, `--${name} doit être une longueur (lu : "${raw}")`);
-    return px;
-  });
-  assert.deepEqual(rungs, [...rungs].sort((a, b) => a - b), "les sept valeurs recomposées sont croissantes");
-  assert.equal(new Set(rungs).size, 7, "et distinctes");
-  for (let i = 1; i < rungs.length; i += 1) {
-    const ratio = rungs[i] / rungs[i - 1];
-    assert.ok(ratio >= 1.125,
-      `en Large, T${i + 1} (${rungs[i]}px) est à moins de 12,5 % de T${i} (${rungs[i - 1]}px) — ratio ${ratio.toFixed(4)}`);
+test("grandeur 1 — aucun bloc [data-grandeur] ne redéfinit une couleur, par nom ni par forme", () => {
+  for (const bloc of blocsDeGrandeur(tokensCss)) {
+    assert.deepEqual(couleursDuBloc(bloc.corps), [],
+      `[data-grandeur="${bloc.grandeur}"] porte une couleur — la matrice du verre est mesurée par THÈME, pas par place disponible`);
   }
 });
 
-/* ── 5 — À LA BASE, LES JETONS DE GRANDEUR SONT LE COMPORTEMENT D'AVANT ──
-   Le contrat « rien ne bouge à 360 » n'est pas une promesse de prose : il
-   est écrit dans les valeurs de base elles-mêmes. Si quelqu'un « répare »
-   le desktop en changeant une BASE au lieu du bloc Large, c'est le
-   téléphone qui paie — et c'est ici que ça rougit. */
-
-test("grandeur Large 6 — les valeurs de BASE des jetons de grandeur sont celles d'avant le lot (l'étroit est intouché)", () => {
-  const stripped = stripComments(tokensCssRaw);
-  const darkIdx = stripped.indexOf("@media (prefers-color-scheme: dark)");
-  const base = extractCustomProps(stripped.slice(0, darkIdx));
-  assert.equal(base.get("card-w"), "var(--measure)", "--card-w de base EST la mesure de prose");
-  assert.equal(base.get("panel-w"), "var(--measure)", "--panel-w de base EST la mesure — Abilities ne s'élargit qu'en Large");
-  assert.equal(base.get("fiche-w"), "100%", "--fiche-w de base : la fiche de catalogue reste pleine largeur");
-  assert.equal(base.get("frame-w"), "100%", "--frame-w de base : la ligne de commande reste sans plafond");
-  assert.equal(base.get("card-pad"), "var(--sp-16)", "--card-pad de base : le 16 px de B4.3, pas le 32 du desktop d'avant");
-  assert.equal(base.get("wheel-wrap"), "nowrap", "à l'étroit, la molette DÉFILE (B5.5) — elle ne se replie pas");
-  assert.match(base.get("wheel-mask") || "", /linear-gradient/,
-    "à l'étroit, l'amorce en fondu reste — c'est elle qui dit « il y a du hors-champ »");
-  assert.equal(base.get("gutter-frame"), "var(--sp-12)", "--gutter-frame de base = l'ancien padding de .command");
-  assert.equal(base.get("gutter-popup"), "var(--sp-16)", "--gutter-popup de base = l'ancienne marge du popup");
+test("⚔️ ATTAQUE A — glisser --text: #ff0000 dans un bloc de grandeur le fait rougir", () => {
+  const faux = ':root[data-grandeur="large"] { --text: #ff0000; }';
+  const [bloc] = blocsDeGrandeur(faux);
+  assert.ok(bloc, "le scanner voit bien le bloc synthétique — sinon l'attaque ne prouve rien");
+  assert.equal(couleursDuBloc(bloc.corps).length, 1, "il mord par le nom");
 });
 
-/* ══ ⚔️ LES ATTAQUES — un garde jamais attaqué n'est pas un garde ═══════
-   Chacune mute une COPIE en mémoire et vérifie que LA clause visée rougit,
-   seule. Rien n'est écrit sur le disque. */
-
-test("⚔️ ATTAQUE A — glisser --text: #ff0000 dans le bloc Large fait rougir SEULEMENT le garde des thèmes", () => {
-  assert.deepEqual(themeViolationsInLarge(tokensCssRaw), [], "le vrai fichier est propre avant l'attaque");
-  const mutated = tokensCssRaw.replace("    --t5: 20px;", "    --text: #ff0000;\n    --t5: 20px;");
-  assert.notEqual(mutated, tokensCssRaw, "la substitution a trouvé sa cible");
-  assert.deepEqual(themeViolationsInLarge(mutated), ["--text (jeton de thème)"],
-    "le garde voit EXACTEMENT le jeton de thème passé en douce");
-  assert.deepEqual(readingRungsInLarge(mutated), [], "le garde des barreaux de lecture ne bouge pas");
+test("⚔️ ATTAQUE B — un jeton NEUF à valeur de couleur rougit par sa FORME", () => {
+  const faux = ':root[data-grandeur="large"] { --lueur-du-large: color-mix(in srgb, #123456 20%, transparent); }';
+  const [bloc] = blocsDeGrandeur(faux);
+  assert.equal(couleursDuBloc(bloc.corps).length, 1,
+    "un nom inconnu ne protège rien : c'est la forme de la valeur qui trahit");
 });
 
-test("⚔️ ATTAQUE B — un jeton NOUVEAU à valeur de couleur dans le bloc Large rougit par sa FORME", () => {
-  const mutated = tokensCssRaw.replace("    --t5: 20px;", "    --halo-desktop: rgb(255 0 0);\n    --t5: 20px;");
-  assert.notEqual(mutated, tokensCssRaw);
-  assert.deepEqual(themeViolationsInLarge(mutated), ["--halo-desktop: rgb(255 0 0) (forme de couleur/d'image)"],
-    "un nom hors liste noire est quand même pris — par la forme de sa valeur");
+test("⚔️ ATTAQUE B bis — et il laisse passer un MASQUE, qui n'est pas une teinte", () => {
+  const vrai = ':root[data-grandeur="large"] { --stage-amorce: linear-gradient(to bottom, black calc(100% - var(--sp-32)), transparent); }';
+  const [bloc] = blocsDeGrandeur(vrai);
+  assert.deepEqual(couleursDuBloc(bloc.corps), [],
+    "noir/transparent dans un dégradé encodent une VISIBILITÉ — aucun jeton de palette ne prétend dire ça");
 });
 
-test("⚔️ ATTAQUE C — redéfinir --t4 en Large fait rougir SEULEMENT le garde des tailles de lecture", () => {
-  const mutated = tokensCssRaw.replace("    --t5: 20px;", "    --t4: 18px;\n    --t5: 20px;");
-  assert.notEqual(mutated, tokensCssRaw);
-  assert.deepEqual(readingRungsInLarge(mutated), ["--t4"], "le corps ne grandit pas avec la fenêtre");
-  assert.deepEqual(themeViolationsInLarge(mutated), [], "le garde des thèmes ne bouge pas — 18px n'est pas une couleur");
+/* ══ 2 — NI AUCUNE COTE (la clause qui remplace « T1–T4 ne bougent pas ») ══ */
+
+test("grandeur 2 — 🔴 aucun bloc [data-grandeur] ne porte de COTE", () => {
+  /* ⛔ LA CLAUSE CENTRALE DE CE LOT. Une cote conditionnée à la place
+     disponible EST un changement de ratio : c'est ce que faisait l'ancien
+     bloc Large (`--t6` 22 → 28, `--rail-w` 90 → 120), et c'est ce que la loi
+     du 30/08 interdit. Une grandeur ne peut porter que des COMPORTEMENTS. */
+  for (const bloc of blocsDeGrandeur(tokensCss)) {
+    assert.deepEqual(cotesDuBloc(bloc.corps), [],
+      `[data-grandeur="${bloc.grandeur}"] porte une cote — elle changerait un rapport, ce que la loi du zoom interdit`);
+  }
 });
 
-test("⚔️ ATTAQUE D — écrire 1140 une seconde fois (le défaut 720 rejoué) fait rougir le compte du seuil", () => {
-  /* Le défaut d'origine du seuil 720 était un matchMedia dans shell.mjs
-     (garde 5 du lot 38, attaque 5). On rejoue le MÊME geste sur 1140 :
-     un fichier de ui/builder qui écrirait le chiffre en code. */
-  const shellCssPath = path.join(UI_DIR, "shell.css");
-  const realShellCss = fs.readFileSync(shellCssPath, "utf8");
-  const files = [
-    ["ui/builder/tokens.css", tokensCssRaw],
-    ["ui/builder/shell.css", `${realShellCss}\n@media (min-width: 1140px) { .decision-card { min-width: 0; } }\n`]
-  ];
-  const { count } = seuilLargeCount(files);
-  assert.equal(count, 2, "la copie mutée porte deux 1140 — le garde 1 rougirait");
-  /* Et le vrai shell.css sur disque n'a jamais porté le chiffre : */
-  assert.doesNotMatch(stripComments(realShellCss), /\b1140(?!\d)/,
-    "shell.css ne connaît pas le seuil Large — il consomme des jetons");
+test("⚔️ ATTAQUE C — redéfinir --t4 dans un bloc de grandeur fait rougir SEULEMENT le garde des cotes", () => {
+  const faux = ':root[data-grandeur="large"] { --t4: 20px; }';
+  const [bloc] = blocsDeGrandeur(faux);
+  assert.equal(cotesDuBloc(bloc.corps).length, 1, "la cote est vue");
+  assert.deepEqual(couleursDuBloc(bloc.corps), [], "et le garde des couleurs reste muet — chacun son métier");
+});
+
+test("⚔️ ATTAQUE C bis — un rehaussement de largeur rougit aussi, c'est la même faute", () => {
+  const faux = ':root[data-grandeur="large"] { --rail-w: 120px; }';
+  const [bloc] = blocsDeGrandeur(faux);
+  assert.equal(cotesDuBloc(bloc.corps).length, 1,
+    "90 → 120 pendant que --sp-8 ne bouge pas : le rapport rail/gouttière saute de 11,25 à 15");
+});
+
+/* ══ 3 — LES TROIS GRANDEURS SONT NOMMÉES À UN SEUL ENDROIT ═══════════ */
+
+test("grandeur 3 — les trois noms vivent dans echelle.mjs, et les feuilles n'en connaissent pas d'autres", () => {
+  const source = stripComments(echelleMjs);
+  for (const nom of ["etroite", "moyenne", "large"]) {
+    assert.match(source, new RegExp(`"${nom}"`), `echelle.mjs doit nommer la grandeur « ${nom} »`);
+  }
+  const employees = new Set();
+  for (const nom of fs.readdirSync(UI_DIR)) {
+    if (!nom.endsWith(".css")) continue;
+    const texte = stripComments(fs.readFileSync(path.join(UI_DIR, nom), "utf8"));
+    for (const m of texte.matchAll(/data-grandeur="([a-z]+)"/g)) employees.add(m[1]);
+  }
+  for (const nom of employees) {
+    assert.ok(["etroite", "moyenne", "large"].includes(nom),
+      `« ${nom} » n'est pas une grandeur connue — une feuille a inventé un nom que personne ne pose`);
+  }
+});
+
+/* ══ 4 — L'ÉCHELLE NE DESCEND JAMAIS SOUS 1 ═══════════════════════════ */
+
+test("grandeur 4 — 🔴 le plancher de l'échelle est 1 (la décision d'Eric : « la taille 360 »)", async () => {
+  const { CRANS } = await import("../ui/builder/echelle.mjs");
+  assert.ok(Array.isArray(CRANS) && CRANS.length > 0, "les crans existent");
+  assert.equal(CRANS[0], 1, "le premier cran EST la base — rien ne rétrécit sous le barème ratifié");
+  assert.deepEqual(CRANS, [...CRANS].sort((a, b) => a - b), "les crans sont croissants");
+  assert.equal(new Set(CRANS).size, CRANS.length, "et distincts");
+  for (const c of CRANS) {
+    assert.ok(c >= 1, `le cran ${c} descend sous le plancher — un texte y passerait sous T1`);
+  }
+});
+
+test("grandeur 4 bis — la cible tactile ne peut pas tomber sous 44, et c'est une CONSÉQUENCE", async () => {
+  /* ⭐ CE TEST N'A PAS DE CODE À PROTÉGER, IL A UN RAISONNEMENT À FIGER.
+     `--touch: 44px` n'a plus de `max()` : sous une échelle qui ne descend
+     jamais sous 1, 44 blg valent toujours au moins 44 pixels. La loi d'Apple
+     et la loi d'Eric disent la même chose — mais seulement TANT QUE le
+     plancher tient. Si un lot futur ajoutait un cran à 0,875, ce test
+     tomberait, et c'est exactement ce qu'on lui demande. */
+  const { CRANS } = await import("../ui/builder/echelle.mjs");
+  const touch = 44;
+  for (const c of CRANS) {
+    assert.ok(touch * c >= 44,
+      `au cran ${c}, la cible tactile rendrait ${touch * c} px — sous le seuil d'Apple. Il faudrait rendre son max() à --touch`);
+  }
 });

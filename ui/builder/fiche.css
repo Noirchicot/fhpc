@@ -49,7 +49,9 @@
      `position: absolute` n'a de coin que si quelqu'un le lui donne. */
   position: relative;
   /* ── LES COTES MESURÉES, déclarées une fois ───────────────────────── */
-  --fiche-dalle-w: 242px; /* la dalle — 360 − 16 marge − 78 rail − 8 écart − 16 marge */
+  /* ⏩ `--fiche-dalle-w` (242) VIT MAINTENANT DANS `tokens.css`, sur `:root` —
+     `echelle.mjs` en a besoin pour borner les crans, et une variable descend.
+     Les règles d'ici la lisent comme avant. */
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
   --fiche-image-w: 100px; /* l'image, DEBOUT — 242 − 8 − 118 − 8 − 8 */
   /* ⭐ L'IMAGE COUCHÉE A SA PROPRE LARGEUR IMPOSÉE — Eric, 2026-08-16 : *« il
@@ -1141,13 +1143,16 @@
    sera joli partout ».
 
    🔴 LE PRINCIPE : la carte est un DESSIN, pas une somme de cotes en pixels.
-   Chaque habit garde sa référence (625 × 440 en paysage, 269 × 440 en
-   portrait — les compositions qu'Eric a validées le 27/08), et TOUTES les
-   cotes internes se dérivent d'UNE échelle `--u` = largeur rendue / largeur
-   de référence. Le texte suit la même échelle : le nombre de caractères par
-   ligne devient CONSTANT, donc les retours à la ligne — et les proportions —
-   sont les mêmes sur tout écran. Avec la police embarquée (lot 57), le rendu
-   cesse de dépendre de la machine.
+   Chaque habit garde sa référence — 625 × 440 en paysage, 269 × 440 en
+   portrait, les compositions qu'Eric a validées le 27/08 — et toutes les
+   cotes internes sont celles de CE dessin-là, en **blg**.
+   ⚠️ 2026-08-30 — ELLES NE PASSENT PLUS PAR `--u`. L'échelle locale de la
+   carte a été retirée (voir le bloc de règles plus bas) : c'est le zoom
+   global qui fait grandir le dessin, comme il fait grandir tout le reste.
+   Le principe est INCHANGÉ et même renforcé — le nombre de caractères par
+   ligne reste constant, donc les retours à la ligne et les proportions sont
+   les mêmes sur tout écran et à tout cran. Avec la police embarquée
+   (lot 57), le rendu cesse de dépendre de la machine.
 
    ⚠️ RENVERSEMENT ASSUMÉ : CADRES.md §8 disait « les 16 px du corps de fiche
    ne se mettent pas à l'échelle avec la dalle ». La raison de cette règle
@@ -1156,10 +1161,15 @@
    carte-résumé se lit comme une image se regarde. La règle du §8 tient
    partout ailleurs.
 
-   ⛔ LE PIED EST HORS HOMOTHÉTIE : les boutons sont sacrés (NORMES §2 bis).
-   `CHOOSE`, le livre et le `?` gardent leurs cibles de 44 px à toute échelle
-   — c'est pour ça que la hauteur s'écrit `calc(var(--u) * 396 + 44px)` : la
-   zone dessinée scale, la rangée tactile jamais.
+   ⛔ LE PIED : les boutons sont sacrés (NORMES §2 bis). `CHOOSE`, le livre
+   et le `?` gardent leurs 44.
+   ⚠️ 2026-08-30 — CE QUE « SACRÉ » VEUT DIRE A CHANGÉ, ET C'EST PLUS SIMPLE.
+   La hauteur s'écrivait `calc(var(--u) * 396 + 44px)` : la zone dessinée
+   suivait l'échelle locale, la rangée tactile JAMAIS. Sous le zoom global
+   il n'y a plus qu'une échelle et elle ne descend jamais sous 1 — donc 44
+   blg valent toujours au moins 44 px. La loi tenait « fixe » parce que
+   l'échelle pouvait rétrécir ; elle tient désormais « jamais moins », et
+   c'est la même promesse au doigt. La hauteur redevient un seul nombre.
 
    📌 LES NOMBRES DE CE BLOC SONT LES COTES DE RÉFÉRENCE DU DESSIN, relevées
    sur la page rendue le 27/08 (v337) avant d'écrire — ce ne sont pas des
@@ -1167,44 +1177,57 @@
    composition validée rendait à l'échelle 1.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* Le conteneur d'échelle : la scène d'une fiche. `size` et non `inline-size`
-   parce que la carte se cale sur les DEUX axes (contain). Sa hauteur ne vient
-   pas de son contenu (height: 100 % du champ, posé plus haut dans
-   shell.css) : le containment ne lui retire donc rien. */
-.catalogue-card { container-type: size; }
+/* 🧊 LE CONTENEUR D'ÉCHELLE A ÉTÉ RETIRÉ — 2026-08-30.
+   `.catalogue-card` portait `container-type: size` pour que la carte se
+   mesure sur la scène. Plus rien ne l'interroge : les `100cqw`/`100cqh` sont
+   partis avec l'homothétie, et un containment que personne ne lit est un
+   coût sans contrepartie. */
 
 .fiche-dalle:not([data-dressing="prose"]) {
-  /* 100cq… moins les 2 × 16 de rembourrage de la scène, moins le pied fixe :
-     la carte prend toute la place que la scène offre, au ratio près. */
-  /* ⚠️ LE PLAFOND EST LE DESSIN DE RÉFÉRENCE — Eric, 27/08, devant un
-     1920 : « en format large il n'est pas beau ton Araag ». La proportion
-     pure AGRANDIT le dessin du téléphone : à u 1,37 les corps rendaient 16 px
-     et la carte 854 — un poster, pas une fiche. La carte scale donc vers le
-     BAS seulement : jamais plus grande que la composition validée, centrée
-     dans la scène quand la place déborde. */
-  --carte-w: min(269px, 100cqw - 32px, (100cqh - 76px) * 269 / 396);
-  --u: calc(var(--carte-w) / 269);
-  width: var(--carte-w);
-  height: calc(var(--u) * 396 + 44px);
-  margin: auto; /* centrée dans la scène, les deux axes */
-  padding: calc(var(--u) * 8);
-  gap: calc(var(--u) * 8);
+  /* ══ 🧊 L'HOMOTHÉTIE `--u` A ÉTÉ RETIRÉE — Eric, 2026-08-30 ════════════
+     ⚖️ RENVERSEMENT DATÉ. La carte dérivait toute sa composition d'une
+     échelle À ELLE, calculée sur la scène (`--u = --carte-w / 269`) et
+     plafonnée à 1 — la règle du 27/08, *« en format large il n'est pas beau
+     ton Araag »*. Eric la lève : *« la carte s'adaptait car je voulais que
+     ça soit joli sur 2 proportionnalités différentes, donc là ça devient
+     hors sujet »*. L'adaptation est remontée d'un cran : c'est le CRAN qui
+     s'adapte à la fenêtre, plus chaque organe à sa boîte.
 
-  /* Les jetons locaux de la fiche, re-dérivés à l'échelle : la grille
-     existante les lit déjà, elle suit sans être réécrite. */
-  --fiche-image-w: calc(var(--u) * 100);
+     🔴 ET LA MESURE LUI DONNAIT RAISON AVANT L'ARGUMENT. Au banc, sous
+     `zoom`, cette échelle-ci devenait NON MONOTONE — à 1920 la dalle rendait
+     625 → 781 → 937 → **1420** → **920** aux crans 1 · 1,25 · 1,5 · 2,5 · 5.
+     Elle rétrécissait en zoomant : deux échelles qui se croisent, exactement
+     ce que la loi du 30/08 interdit.
+
+     ⭐ CE QUI RESTE EST LE DESSIN DE RÉFÉRENCE LUI-MÊME, en blg — les cotes
+     relevées sur la page validée du 27/08, celles que `--u = 1` rendait.
+     Chaque nombre ci-dessous est donc la valeur EXACTE d'avant ce lot au
+     cran 1 : à l'échelle 1, cette carte est identique au pixel près.
+     📌 Le pied garde ses 44 : c'est `--touch`, et sous le zoom global il
+     grandit avec le reste — la loi « les boutons sont sacrés » (NORMES §2
+     bis) tient toujours, elle ne dit plus « fixe », elle dit « jamais
+     moins ». */
+  --carte-w: 269px;
+  width: var(--carte-w);
+  height: 440px; /* 396 de dessin + 44 de rangée tactile */
+  margin: auto; /* centrée dans la scène, les deux axes */
+  padding: 8px;
+  gap: 8px;
+
+  /* Les jetons locaux de la fiche, aux cotes du dessin de référence. */
+  --fiche-image-w: 100px;
   /* la ligne du blurb PORTRAIT : 13,2 = 11 × 1,2 — le corps est descendu à
      11u (Eric, 27/08 : « on peut réduire les t s'il faut aussi ») pour
      racheter la respiration latérale sans perdre la 8e ligne. La boîte
      (rangée × 8) lit le MÊME jeton : les deux ne peuvent pas diverger. */
-  --fiche-ligne: calc(var(--u) * 13.2);
+  --fiche-ligne: 13.2px;
 
   /* ── L'HABIT PORTRAIT, dicté par Eric le 27/08 ──────────────────────────
      « titre en haut et à gauche centré au-dessus du bloc 1 · bloc 1 texte
      centré · bloc 2 même largeur que le bloc 1, moins haut, texte cadré à
      gauche · bloc 3 tout le 1/3 inférieur · image cadrée à droite et en
      haut, proportionnelle aux blocs 1 et 2 à sa gauche ». */
-  grid-template-columns: calc(var(--u) * 145) minmax(0, 1fr);
+  grid-template-columns: 145px minmax(0, 1fr);
   /* Le blurb : HUIT lignes pleines — Eric, 27/08, en trois temps : « tout le
      1/3 inférieur », puis « tu peux descendre vers 1/4 … sinon on s'asphyxie »,
      et l'arbitrage final : « 3/10 ». 8 lignes = 115u = 3/10 des 388u de zone,
@@ -1219,19 +1242,19 @@
    c'est un visuel, pas une ligne à lire. */
 .fiche-dalle:not([data-dressing="prose"]) .catalogue-card-name {
   grid-column: 1; grid-row: 1;
-  font-size: calc(var(--u) * 18);
+  font-size: 18px;
   align-self: end;
-  margin-left: calc(var(--u) * 8);
+  margin-left: 8px;
   /* Eric, 27/08, sur le banc : « titre un peu trop collé au paragraphe 1 » */
-  margin-bottom: calc(var(--u) * 4);
+  margin-bottom: 4px;
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-bloc1 {
   grid-column: 1; grid-row: 2;
-  margin-left: calc(var(--u) * 8);
+  margin-left: 8px;
   /* 13 : descendu deux fois le 27/08 (16 → 14 → 13, « on peut réduire les t
      s'il faut aussi ») — chaque respiration rend la colonne plus étroite, et
      c'est le corps qui paie, jamais les boîtes du bas ni le pied. */
-  font-size: calc(var(--u) * 13);
+  font-size: 13px;
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-image {
   grid-column: 2; grid-row: 1 / 4;
@@ -1242,7 +1265,7 @@
 .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
   /* le bloc 2 vit dans la COLONNE du bloc 1 — même largeur, cadré à gauche */
   grid-column: 1; grid-row: 3;
-  margin-left: calc(var(--u) * 8);
+  margin-left: 8px;
   /* 🔴 10,5u ET NON 11 — Eric, 2026-08-28 : *« on garde la terminologie de
      base si elle passe, par PRIORITÉ sur les raccourcis »*. Le corps d'une
      bande n'est pas un goût : il se DÉDUIT de la colonne qu'elle occupe
@@ -1254,7 +1277,7 @@
      (−34) et « Mastered strikes » (−17) ne tiennent à AUCUN corps lisible —
      leurs raccourcis restent ceux d'Eric. La cote gagne des pixels, elle ne
      fait pas de miracle. */
-  font-size: calc(var(--u) * 10.5);
+  font-size: 10.5px;
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
   /* la boîte basse du portrait — boîte FERMÉE en lignes entières : c'est
@@ -1262,8 +1285,8 @@
      La marge : Eric, 27/08 — « bloc texte 3 trop près du bord », même
      respiration que le paysage : le texte s'arrête à 16u du bord. */
   grid-column: 1 / -1; grid-row: 4;
-  margin-inline: calc(var(--u) * 8);
-  font-size: calc(var(--u) * 11);
+  margin-inline: 8px;
+  font-size: 11px;
   /* Eric, 27/08 : « justifié plus joli, pour le texte 3 ». La césure évite
      les rivières que la justification creuse dans une colonne étroite. */
   text-align: justify;
@@ -1279,10 +1302,13 @@
    centré des deux axes · blocs 2 et 3 centrés verticalement à droite. */
 @media (orientation: landscape) {
   .fiche-dalle:not([data-dressing="prose"]) {
-    --carte-w: min(625px, 100cqw - 32px, (100cqh - 76px) * 625 / 396); /* plafond = le dessin validé, voir le portrait */
-    --fiche-ligne: calc(var(--u) * 14.4); /* la ligne du PAYSAGE — le portrait l'a descendue à 13,2 */
-    --u: calc(var(--carte-w) / 625);
-    --fiche-image-w-paysage: calc(var(--u) * 175);
+    /* Le dessin de référence du PAYSAGE — 625 × 396, l'autre composition
+       d'Eric (27/08). Ce n'est pas une taille conditionnée à la place : c'est
+       un habit conditionné à l'ORIENTATION, et l'orientation ne change pas
+       avec le zoom. Il survit donc intact à la loi du 30/08. */
+    --carte-w: 625px;
+    --fiche-ligne: 14.4px; /* la ligne du PAYSAGE — le portrait l'a descendue à 13,2 */
+    --fiche-image-w-paysage: 175px;
     /* colonnes : image 175 · le bloc 1 prend le mou · la colonne de texte
        226 · une RESPIRATION de 8u — Eric, 27/08 : « bloc 3 trop près du bord
        extérieur ». La colonne fantôme écarte le texte du bord (16u au total)
@@ -1292,14 +1318,14 @@
        colonne descend à 11u en même temps : 210/11 = le ratio de 226/12, les
        lignes qui tenaient tiennent encore, et bande + blurb gardent leurs
        DEUX bords communs (la règle d'Eric du 16/08). */
-    grid-template-columns: calc(var(--u) * 220) minmax(0, 1fr) calc(var(--u) * 200) calc(var(--u) * 16); /* 220 | bloc 1 | 200 — Eric, 27/08, dernier réglage : « rapetisser un peu le blurb en largeur, agrandir un peu la largeur du barbare » */
+    grid-template-columns: 220px minmax(0, 1fr) 200px 16px; /* 220 | bloc 1 | 200 — Eric, 27/08, dernier réglage : « rapetisser un peu le blurb en largeur, agrandir un peu la largeur du barbare » */
     /* rangées : titre · mou · bloc 2 · bloc 3 · mou · pied — les deux `1fr`
        centrent le groupe 2+3 verticalement, comme le dessin validé */
     grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) 44px;
   }
   .fiche-dalle:not([data-dressing="prose"]) .catalogue-card-name {
     grid-column: 1 / -1; grid-row: 1;
-    font-size: calc(var(--u) * 27);
+    font-size: 27px;
     align-self: start;
     margin-left: 0;
     margin-bottom: 0; /* les marges de 4u/8u sont des souffles du PORTRAIT — ici elles décentraient le titre */
@@ -1310,29 +1336,29 @@
     /* 190 × 330 (était 175 × 296) — Eric, 27/08 : « la latitude pour
        agrandir le PNG et sembler être plus sous le titre » : centrée, elle
        grandit des deux côtés, donc son haut MONTE vers le titre. */
-    width: calc(var(--u) * 220);
-    height: calc(var(--u) * 340); /* le max entre titre et pied — Eric : « t'as de la place pour agrandir l'image là » */
+    width: 220px;
+    height: 340px; /* le max entre titre et pied — Eric : « t'as de la place pour agrandir l'image là » */
   }
   .fiche-dalle:not([data-dressing="prose"]) .fiche-bloc1 {
     grid-column: 2; grid-row: 2 / 6;
     justify-self: center; align-self: center;
     margin-left: 0; /* souffle du portrait */
-    translate: calc(var(--u) * 5) 0; /* Eric, 27/08 : « décale bloc 1 très légèrement à droite, 4 voire 6 px » — optique, hors grille */
-    font-size: calc(var(--u) * 12);
+    translate: 5px 0; /* Eric, 27/08 : « décale bloc 1 très légèrement à droite, 4 voire 6 px » — optique, hors grille */
+    font-size: 12px;
   }
   .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
     grid-column: 3; grid-row: 3;
     align-self: end; justify-self: stretch;
     max-width: none;
     margin-left: 0; /* souffle du portrait */
-    font-size: calc(var(--u) * 10.5); /* suit la colonne à 200 — la plus large ligne rend 197 */
+    font-size: 10.5px; /* suit la colonne à 200 — la plus large ligne rend 197 */
   }
   .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
     grid-column: 3; grid-row: 4;
     align-self: start; justify-self: stretch;
     max-width: none;
-    font-size: calc(var(--u) * 10.5);
-    line-height: calc(var(--u) * 12.6); /* la ligne suit le corps — même rapport 1,2 */
+    font-size: 10.5px;
+    line-height: 12.6px; /* la ligne suit le corps — même rapport 1,2 */
   }
   .fiche-dalle:not([data-dressing="prose"]) .fiche-actions {
     grid-column: 1 / -1; grid-row: 6;
