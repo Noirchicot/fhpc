@@ -1152,7 +1152,8 @@ DOM : c'est **elle** qui décide, et elle suit le site sans qu'on y revienne.
 
 ⚠️ **ET J'AI REFAIT LA MÊME FAUTE TROIS MINUTES PLUS TARD**, sur la colonne du `?` de la même
 étape : j'y recopiais `calc(--sp-16 + --touch)`, si bien qu'Identity réservait **60 px** là où
-Destiny et Skills en réservent **52** *(l'`@media` étroite)*. La réserve n'est pas une constante.
+Destiny et Skills en réservent **52** *(la grandeur étroite — un `[data-grandeur]`
+depuis le 30/08, plus un `@media`)*. La réserve n'est pas une constante.
 **Même parade, même forme : ne rien écrire, et laisser `padding-right` retomber sur `.sortie`.**
 
 ---

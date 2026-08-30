@@ -131,9 +131,13 @@ n'est pas un cadre : c'est la coquille. Un cadre commence sous elle.
 | **F** *(Floating)* | **gardé** — la colonne étroite de gauche | ce qui reste |
 | **FF** *(Floating Full)* | **absent** | toute la scène |
 
-Le menu latéral, c'est `.stage-aside` — `--rail-w` : **90 px** à l'étroit,
-**120 px** en Large. Il n'existe que là où il y a une liste à suivre (les
-douze classes, les douze espèces, les 22 arcanes).
+Le menu latéral, c'est `.stage-aside` — `--rail-w` : **90 blg**, partout.
+⚖️ *(Il valait 90 à l'étroit et 120 en grandeur Large jusqu'au 2026-08-30 :
+c'était un rapport qui changeait avec la place — 11,25 fois `--sp-8` d'un côté,
+15 de l'autre — et le zoom l'a remplacé. Sur un 1920 au cran 2 le rail rend
+180 pixels, bien au-delà des 120 que le desktop obtenait.)*
+Il n'existe que là où il y a une liste à suivre (les douze classes, les douze
+espèces, les 22 arcanes).
 
 ## 2. ✅ LE MODÈLE RATIFIÉ — Eric, 2026-08-19
 
@@ -149,7 +153,7 @@ douze classes, les douze espèces, les 22 arcanes).
 
 | | ce qu'il montre | mesure |
 |---|---|---|
-| **F** | belt + **menu latéral** (`--rail-w` 90 px · 120 en Large) + une colonne | `--measure` |
+| **F** | belt + **menu latéral** (`--rail-w` **90 blg**) + une colonne | `--measure` |
 | **FF** | belt + le contenu sur toute la scène | `--measure` |
 | **FS** | **plein écran** : ni belt ni menu, ça recouvre tout | `--measure` |
 
@@ -301,10 +305,14 @@ EMPLOIE, pas une contrainte du format.** Deux écrans du même format peuvent
 avoir des largeurs différentes sans qu'aucune règle ne soit violée — c'est même
 le cas aujourd'hui, sur le format le plus employé du builder.
 
-📌 **ET `--measure` EST LE SEUL DES TROIS QUI NE BOUGE PAS EN GRANDEUR LARGE**
-(62 ch partout, là où `--card-w` passe à 76 et `--panel-w` à 88). C'est ce qui
-en fait le seul moyen de dire *« la même largeur que Destiny »* et que ce soit
-vrai sur un bureau autant que sur un téléphone.
+📌 **ET DEPUIS LE 2026-08-30, AUCUN DES TROIS NE BOUGE.** Ce paragraphe disait
+que `--measure` était *« le seul des trois à ne pas bouger en grandeur Large »*,
+là où `--card-w` passait à 76 ch et `--panel-w` à 88. Le zoom a supprimé ces
+rehaussements : les trois valent la même chose à tous les crans, en **blg**.
+⭐ **Ce que la note voulait dire reste vrai, et vaut maintenant pour les trois** :
+dire *« la même largeur que Destiny »* et que ce soit vrai sur un bureau comme
+sur un téléphone. C'est l'échelle qui fait la différence entre les deux, plus la
+cote.
 
 ## 3. LA CARTE — *la fiche* · species et classes  ⟨ex-F1⟩
 
@@ -397,7 +405,9 @@ latérale »*), et le code lui donne raison.
 ```
 
 * **hauteur : celle du contenu** — c'est tout ce qui la sépare de F1.
-* **largeur `--card-w`** : `--measure` (62 ch) à l'étroit, **76 ch** en Large.
+* **largeur `--card-w`** : `--measure` (**625 blg**, 62 ch de raison), partout.
+  ⚖️ *(Elle passait à 76 ch en grandeur Large jusqu'au 2026-08-30 — voir §2 bis,
+  « une seule colonne depuis le 30/08 ».)*
   ⚠️ C'est la largeur de son utilisateur, PAS une propriété du format — voir
   §2 bis, « la largeur n'est pas une propriété du format ».
 * ⏳ **Personne ne l'emploie, et rien ne l'implémente** : aucun écran du
