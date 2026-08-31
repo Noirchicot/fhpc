@@ -49,7 +49,28 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
    ⛔ Le `100dvh` reste ICI et nulle part ailleurs : `html, body` vivent HORS
    du zoom, ce sont eux qui donnent sa taille au reste (garde 5 ter). */
 html, body { height: 100dvh; }
-body { display: flex; }
+/* 🔴 LE FOND EST AU SOL, PLUS SUR LE PANNEAU — 2026-08-31, et c'est un défaut
+   qu'Eric a vu en ligne une heure après le déploiement du 112 : *« je ne veux
+   pas le builder avec un écran noir à droite et à gauche, c'est moche. »*
+
+   📏 MESURÉ SUR LE SITE DÉPLOYÉ, fenêtre 1600 × 900 : `body` rendait
+   `rgb(20, 18, 14)` — un aplat presque noir, SANS image — pendant que
+   `bg-night.jpg` était peint sur `.app` seul. Le décor s'arrêtait donc au bord
+   du panneau, et tout ce qui dépassait était un aplat.
+   ⭐ Le lot 112 avait rendu la marge INÉVITABLE (le panneau ne s'élargit plus) ;
+   il ne l'avait pas rendue REGARDABLE. C'est ce que ce lot répare, et rien
+   d'autre : la loi du ratio ne bouge pas d'un blg.
+
+   ⛔ ET C'EST BIEN `body`, PAS `html` : `body` porte déjà le centrage du
+   panneau (`display: flex` + `margin: auto` sur `.app`) et il fait `100dvh`.
+   Poser le décor ailleurs demanderait un second nœud à tenir d'accord. */
+body {
+  display: flex;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
 /* 🔴 LE PANNEAU NE S'ÉLARGIT JAMAIS — Eric, 2026-08-31 : *« si mon écran
    s'étend en largeur la fenêtre doit rester au ratio mobile, sinon ça marche
    pas »*.
@@ -90,9 +111,9 @@ body { display: flex; }
   height: auto;
   margin: auto;
   overflow: hidden;
-  background-image: var(--bg-image);
-  background-size: cover;
-  background-position: center;
+  /* ⛔ PLUS DE DÉCOR ICI — il est descendu sur `body` (voir sa note). Le
+     panneau laisse le sol traverser ; ce qui le distingue du fond, ce sont ses
+     dalles, comme partout ailleurs dans le builder. */
 }
 
 /* ══ LES TROIS DALLES (III.2, bible §5) ════════════════════════════════
