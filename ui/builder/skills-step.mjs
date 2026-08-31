@@ -161,8 +161,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=423";
-import { keepInView, scrollParent } from "./socle.mjs?v=423";
+import { planAt, violationAt, markPressed } from "./carnet.mjs?v=424";
+import { keepInView, scrollParent } from "./socle.mjs?v=424";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
