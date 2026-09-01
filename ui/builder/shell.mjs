@@ -2801,9 +2801,21 @@ function pressDone() {
       refresh();
       return;
     }
+  }
+  /* 🔴 CES DEUX LIGNES VIVENT AU NIVEAU DE LA FONCTION, PAS DANS LE BLOC
+     DESTINY — et ça a coûté deux jours de builder mort (lot 115, 2026-09-02).
+     Le commit du 30/08 (`d0d3af6`) qui a posé le bloc ci-dessus a descendu
+     son accolade fermante SOUS `const gate`, donc `gate` n'existait que pour
+     Destiny : sur toute autre étape, `if (gate.action)` jetait
+     `ReferenceError: gate is not defined`. Chaque `Done` et chaque `Choose`
+     du builder ne faisait plus rien, en production de v417 à v424.
+     ⛔ 1536 tests verts n'ont rien vu : ce fichier n'est jamais EXÉCUTÉ par
+     la suite, seulement lu ; et le garde des orphelins (viseur-tambour §B)
+     annonce lui-même ce silence — « une liaison de bloc lue hors de son
+     bloc : le fichier entier fait portée ici ». Le garde qui ferme ce trou
+     est `tests/portee-de-bloc.test.mjs`. */
   const gate = currentGate();
   if (!gate.ready) return;
-  }
   /* L'ACTION D'ABORD, LE PALIER ENSUITE : `applyDecisionAction` appelle
      `rebuild()` puis `refresh()`, donc le carnet est à jour AVANT que le
      palier suivant ne le lise. */

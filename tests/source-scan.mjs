@@ -330,3 +330,91 @@ export function maskGenreVocabulary(text, genres) {
   for (const genre of genres) out = out.split(`"${genre}"`).join('""');
   return out;
 }
+
+
+/* ══ LE TEXTE EFFACÉ, LA PLACE GARDÉE — venu de viseur-tambour.test.mjs (lot 115) ══
+   Deux gardes de source lisent le code sans analyseur syntaxique ; ce qu'ils
+   ont en commun vit ici. `stripComments` retire les commentaires en gardant
+   les chaînes (un chemin d'import est du code) ; `sansTexte` vide ensuite le
+   CONTENU des chaînes et des regex, index par index, en gardant le code des
+   interpolations `${…}`. Après les deux, il ne reste que du code. */
+/** Vide le CONTENU des littéraux de texte et des regex, EN GARDANT LEUR PLACE
+ *  (mêmes index, donc les positions restent comparables) et en gardant le CODE
+ *  des interpolations `${…}` d'un gabarit.
+ *  ⚠️ `stripComments` conserve délibérément les chaînes — un chemin d'import
+ *  est du code qui compte pour LUI. Pour CE garde-ci elles sont du bruit :
+ *  `"translate(3px)"` n'appelle rien. D'où cette seconde passe, à part, qui ne
+ *  retire rien à la première. */
+export function sansTexte(texte) {
+  const out = texte.split("");
+  const efface = (i) => { out[i] = " "; };
+  let i = 0;
+  let precedent = ""; // dernier caractère significatif : `/` division ou `/` regex ?
+  const gabarit = []; // profondeur d'accolades dans le `${…}` courant ; 0 = texte brut
+  while (i < texte.length) {
+    const c = texte[i];
+    const dansTexteDeGabarit = gabarit.length > 0 && gabarit[gabarit.length - 1] === 0;
+
+    if (dansTexteDeGabarit) {
+      if (c === "\\") { efface(i); efface(i + 1); i += 2; continue; }
+      if (c === "`") { gabarit.pop(); i += 1; precedent = "`"; continue; }
+      if (c === "$" && texte[i + 1] === "{") { gabarit[gabarit.length - 1] = 1; i += 2; precedent = "{"; continue; }
+      efface(i); i += 1; continue;
+    }
+
+    if (c === "'" || c === '"') {
+      const fin = finDeChaine(texte, i);
+      for (let k = i + 1; k < fin - 1 && k < texte.length; k += 1) efface(k);
+      i = fin; precedent = c; continue;
+    }
+    if (c === "`") { gabarit.push(0); i += 1; continue; }
+    if (c === "/" && texte[i + 1] !== "/" && texte[i + 1] !== "*" && regexPossible(precedent)) {
+      const fin = finDeRegex(texte, i);
+      if (fin > i) { for (let k = i + 1; k < fin - 1; k += 1) efface(k); i = fin; precedent = "/"; continue; }
+    }
+    if (gabarit.length > 0 && gabarit[gabarit.length - 1] > 0) {
+      if (c === "{") gabarit[gabarit.length - 1] += 1;
+      else if (c === "}") gabarit[gabarit.length - 1] -= 1;
+    }
+    if (!/\s/.test(c)) precedent = c;
+    i += 1;
+  }
+  return out.join("");
+}
+
+function finDeChaine(texte, debut) {
+  const guillemet = texte[debut];
+  let i = debut + 1;
+  while (i < texte.length) {
+    if (texte[i] === "\\") { i += 2; continue; }
+    if (texte[i] === guillemet) return i + 1;
+    if (texte[i] === "\n") return i; // chaîne non terminée : on rend la main
+    i += 1;
+  }
+  return texte.length;
+}
+
+/* Même heuristique que `source-scan.mjs` : après ces caractères un `/` ouvre
+   une regex ; après un identifiant, un nombre, `)` ou `]`, c'est une division. */
+function regexPossible(precedent) {
+  return precedent === "" || "(,=:[!&|?{};+-*%~^<>".includes(precedent);
+}
+
+function finDeRegex(texte, debut) {
+  let i = debut + 1;
+  let classe = false;
+  while (i < texte.length) {
+    const c = texte[i];
+    if (c === "\\") { i += 2; continue; }
+    if (c === "\n") return debut; // ce n'était pas une regex
+    if (c === "[") classe = true;
+    else if (c === "]") classe = false;
+    else if (c === "/" && !classe) {
+      i += 1;
+      while (i < texte.length && /[a-z]/.test(texte[i])) i += 1;
+      return i;
+    }
+    i += 1;
+  }
+  return debut;
+}
