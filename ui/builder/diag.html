@@ -199,7 +199,8 @@
        elle n'a pas à connaître la formule du builder (elle mentirait le jour
        où celle-ci bouge). Elle rapporte ce que le navigateur a en mémoire. */
     var cran = null;
-    try { cran = window.localStorage.getItem("fhpc.echelle.cran"); } catch (_) { cran = "?"; }
+    /* lot 118 : les DEUX clefs sont mortes (la v1 du 30/08 au matin, la clef 2 du soir) — le builder les efface, la règle les montre si elles traînent encore */
+    try { cran = ["fhpc.echelle.cran", "fhpc.echelle.cran.2"].map((k) => window.localStorage.getItem(k)).filter((v) => v !== null).join(" · ") || null; } catch (_) { cran = "?"; }
     document.getElementById("cran").textContent = cran === null ? "Auto" : "×" + cran;
     document.getElementById("cran-note").textContent = cran === null
       ? "Aucun cran choisi : le builder déduit la taille de la fenêtre. C'est le défaut."
@@ -236,7 +237,7 @@
   window.addEventListener("resize", veiller);
   window.addEventListener("orientationchange", function () { setTimeout(veiller, 200); });
   document.getElementById("cran-effacer").addEventListener("click", function () {
-    try { window.localStorage.removeItem("fhpc.echelle.cran"); } catch (_) { /* rien à faire */ }
+    try { for (const k of ["fhpc.echelle.cran", "fhpc.echelle.cran.2"]) window.localStorage.removeItem(k); } catch (_) { /* rien à faire */ }
     relire();
   });
   setInterval(veiller, 500);

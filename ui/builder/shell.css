@@ -4304,14 +4304,6 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 .universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
-/* ⭐ LA RAMPE DE TAILLE D'INTERFACE (2026-08-30) — six crans côte à côte,
-   qui RETOURNENT À LA LIGNE plutôt que de défiler : c'est un réglage qu'on
-   lit d'un coup d'œil, pas une molette qu'on balaie, et à 360 blg six
-   boutons ne tiennent pas sur une ligne. Le reflux est la seule adaptation
-   admise sous la loi du zoom — il ne change aucun rapport, il réarrange.
-   ⛔ Aucune cote propre : les boutons sont des `.universe-bascule`, ils
-   portent déjà leur gabarit et leur cible tactile. */
-.universe-rampe { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
 .universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
 
 /* OÙ VIT CE PERSONNAGE (2026-08-20) — même gabarit que le bloc au-dessus, et

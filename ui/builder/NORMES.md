@@ -73,7 +73,7 @@
 | ⭐ **`--touch` n'a plus de `max()`** | 44 blg valent toujours ≥ 44 px sur une échelle qui ne descend jamais. La loi d'Apple et celle d'Eric disent la même chose — *tant que le plancher tient*, et un garde le mesure |
 | ⛔ **le reflux survit, le redimensionnement meurt** | une rangée qui passe de 4 cases à 3 ne change **aucun** rapport (loi du 19/08, *« si on peut faire 4, on fait 4 »*). Une cote qui double sur grand écran, si |
 | ⛔ **jamais un `@media` de largeur** | il **ne se réévalue pas** sous `zoom` — mesuré au banc : à 1920 au cran 5, `min-width: 1140px` matchait encore et le rail rendait **600 px réels**. La grandeur passe par `data-grandeur`, calculé sur `innerWidth / échelle` |
-| ⚠️ **le cran est borné, jamais clampé** | le menu **n'offre pas** un cran qui ne laisse plus de quoi dessiner. Un réglage qui se transforme en un autre est un réglage qui ment |
+| ~~⚠️ **le cran est borné, jamais clampé**~~ | **renversé le 2026-09-02** — Eric : *« si l'auto fait bien son travail, effectivement les boutons sont obsolètes »*. La rampe de crans du Menu est **retirée** (lot 118) : depuis l'échelle continue, Auto rend déjà le plus grand facteur que la fenêtre porte, et un cran manuel ne pouvait que **rapetisser** (mesuré à 1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). La taille se règle en **redimensionnant la fenêtre** ; sur téléphone et tablette, l'appareil décide. Les clefs `fhpc.echelle.cran*` sont effacées à chaque lecture |
 
 ### ⏳ Le repli désigné, **écrit et non construit** *(30/08 au soir)*
 

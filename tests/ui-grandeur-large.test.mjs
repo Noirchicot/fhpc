@@ -176,30 +176,32 @@ test("grandeur 3 — les trois noms vivent dans echelle.mjs, et les feuilles n'e
   }
 });
 
-/* ══ 4 — L'ÉCHELLE NE DESCEND JAMAIS SOUS 1 ═══════════════════════════ */
+/* ══ 4 — L'ÉCHELLE EST CONTINUE, ET IL N'Y A PLUS DE CRAN À LA MAIN ════════
+   Réécrit au lot 118 (2026-09-02). Ces deux clauses gardaient le tableau
+   `CRANS` — « le premier cran est la base, aucun ne descend sous 1 ». Le
+   tableau est parti avec la rampe du Menu (Eric : « les boutons sont
+   obsolètes »), et le plancher lui-même a été renversé le 31/08 : sous 375 blg
+   de fenêtre l'échelle descend (0,96 à 360, le palier « mini » d'Eric) au lieu
+   de couper. Ce qu'il reste à garder est plus simple : le module n'offre plus
+   de cran, et la cible tactile reste une CONSÉQUENCE de l'échelle. */
 
-test("grandeur 4 — 🔴 le plancher de l'échelle est 1 (la décision d'Eric : « la taille 360 »)", async () => {
-  const { CRANS } = await import("../ui/builder/echelle.mjs");
-  assert.ok(Array.isArray(CRANS) && CRANS.length > 0, "les crans existent");
-  assert.equal(CRANS[0], 1, "le premier cran EST la base — rien ne rétrécit sous le barème ratifié");
-  assert.deepEqual(CRANS, [...CRANS].sort((a, b) => a - b), "les crans sont croissants");
-  assert.equal(new Set(CRANS).size, CRANS.length, "et distincts");
-  for (const c of CRANS) {
-    assert.ok(c >= 1, `le cran ${c} descend sous le plancher — un texte y passerait sous T1`);
-  }
+test("grandeur 4 — 🔴 aucun cran manuel ne survit dans echelle.mjs", async () => {
+  const mod = await import("../ui/builder/echelle.mjs");
+  assert.equal("CRANS" in mod, false, "le tableau des crans est parti avec la rampe (lot 118)");
+  assert.equal(typeof mod.cranAuto, "function", "l'automatique, lui, reste le seul régime");
 });
 
-test("grandeur 4 bis — la cible tactile ne peut pas tomber sous 44, et c'est une CONSÉQUENCE", async () => {
+test("grandeur 4 bis — la cible tactile suit l'échelle, et c'est une CONSÉQUENCE", async () => {
   /* ⭐ CE TEST N'A PAS DE CODE À PROTÉGER, IL A UN RAISONNEMENT À FIGER.
-     `--touch: 44px` n'a plus de `max()` : sous une échelle qui ne descend
-     jamais sous 1, 44 blg valent toujours au moins 44 pixels. La loi d'Apple
-     et la loi d'Eric disent la même chose — mais seulement TANT QUE le
-     plancher tient. Si un lot futur ajoutait un cran à 0,875, ce test
-     tomberait, et c'est exactement ce qu'on lui demande. */
-  const { CRANS } = await import("../ui/builder/echelle.mjs");
-  const touch = 44;
-  for (const c of CRANS) {
-    assert.ok(touch * c >= 44,
-      `au cran ${c}, la cible tactile rendrait ${touch * c} px — sous le seuil d'Apple. Il faudrait rendre son max() à --touch`);
+     `--touch: 44px` n'a plus de `max()` : 44 blg valent 44 × échelle pixels.
+     À 375 de large l'échelle vaut exactement 1 ; en dessous elle descend un
+     peu (mini), et Eric l'a accepté chiffré. Si un lot futur voulait un
+     plancher, il se poserait comme une cote d'Eric — et ce test changerait. */
+  const { cranAuto } = await import("../ui/builder/echelle.mjs");
+  if (typeof globalThis.getComputedStyle !== "function") {
+    globalThis.getComputedStyle = () => ({ getPropertyValue: () => "" });
   }
+  const racine = {};
+  assert.equal(cranAuto(375, 812, racine), 1, "à 375 de large, l'échelle est la base : 44 blg = 44 px");
+  assert.ok(cranAuto(360, 640, racine) < 1, "à 360 elle descend un peu — le palier mini, assumé");
 });

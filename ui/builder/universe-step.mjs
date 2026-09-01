@@ -326,75 +326,16 @@ export function renderUniverseStep(ctx, onAction) {
   ]));
   section.append(reglages);
 
-  /* ══ LA TAILLE DE L'INTERFACE — Eric, 2026-08-30 ════════════════════════
-     *« le réglage le plus simple serait dans menu (au mieux reconnaissance de
-     l'écran adaptation auto) »*. Les deux, donc : **Auto** est le défaut et
-     déduit le cran de la fenêtre ; les crans sont là pour la main.
-
-     ⭐ ICI ET PAS AILLEURS, PARCE QUE LE MENU EXISTE DÉJÀ. La ligne de
-     commande fixe a été supprimée le 15/08 — *« elle coûtait 45 px sur les
-     dix écrans, tout le temps, pour deux boutons »*. Rouvrir une bande pour
-     un réglage qu'on touche une fois aurait racheté ce qu'on venait de
-     vendre. Le Menu est un onglet de la ceinture : cette ligne coûte zéro
-     hauteur fixe.
-
-     ⛔ CE N'EST PAS UNE DONNÉE DE PERSONNAGE — même nature que le tutoriel :
-     deux joueurs qui ouvrent la même fiche n'ont ni le même écran ni les
-     mêmes yeux. La préférence vit dans le navigateur (`echelle.mjs`), jamais
-     dans `fh-char/1`, sinon elle voyagerait avec un export.
-
-     ⚠️ LES CRANS SONT NOMMÉS PAR LEUR EFFET, PAS PAR LEUR NOMBRE. « ×1,25 »
-     ne dit rien à un joueur ; un rang dans une échelle, si. Le nombre reste
-     lisible pour qui le cherche (`title`), il n'occupe simplement pas le
-     bouton. */
-  const taille = el("div", "universe-reglages", []);
-  taille.append(el("h3", null, [text("Interface size")]));
-  const echelle = ctx.echelle || { crans: [1], choisi: null, auto: 1 };
-  const rangs = ["Standard", "Large", "Larger", "Huge", "Giant"];
-  const rampe = el("div", "universe-rampe", []);
-  const cran = (libelle, valeur, actif, infobulle, horsPortee) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "universe-bascule";
-    b.dataset.actif = String(actif);
-    /* ⛔ UN CRAN QUI NE TIENDRAIT PAS N'EST PAS PROPOSÉ — et il n'est pas
-       CLAMPÉ non plus : un réglage qui se transforme en un autre est un
-       réglage qui ment. Il est là, gris, avec sa raison dans l'infobulle. */
-    if (horsPortee) {
-      b.disabled = true;
-      b.title = "Too large for this window";
-    }
-    /* L'état est PRONONCÉ, pas seulement peint — même règle que l'interrupteur
-       du tutoriel juste au-dessus : `aria-pressed` dit à un lecteur d'écran ce
-       qu'une pastille colorée ne dit qu'à l'œil. */
-    b.setAttribute("aria-pressed", String(actif));
-    if (infobulle) b.title = infobulle;
-    b.append(text(libelle));
-    b.addEventListener("click", () => onAction({ kind: "echelleCran", value: valeur }));
-    return b;
-  };
-  rampe.append(cran("Auto", null, echelle.choisi === null,
-    `Follows the window — currently ×${echelle.auto}`));
-  const tiennent = echelle.tiennent || echelle.crans;
-  echelle.crans.forEach((valeur, i) => {
-    rampe.append(cran(rangs[i] || `×${valeur}`, valeur, echelle.choisi === valeur,
-      `×${valeur}`, !tiennent.includes(valeur)));
-  });
-  taille.append(rampe);
-  /* 🔴 LE CHIFFRE D'AUTO EST DANS LA NOTE, PAS DANS `title` — corrigé le
-     30/08 au soir : une infobulle n'existe pas au doigt, et c'est au doigt
-     qu'Eric a choisi « Standard » en croyant choisir le défaut. La note dit
-     maintenant ce qu'Auto DÉCIDERAIT pour cette fenêtre, et ce que Standard
-     fait vraiment : figer la base — donc rien ne grandit, nulle part. Un
-     réglage qui peut être pris pour un autre est un réglage qui ment. */
-  taille.append(el("p", "universe-note", [
-    text(echelle.choisi === null
-      ? `Everything scales together — text, spacing, panels. Auto is sizing this window at ×${echelle.auto}; narrow columns stay at ×1.`
-      : echelle.choisi === 1
-        ? `Standard pins the base size — nothing grows, on any screen. Auto would pick ×${echelle.auto} here.`
-        : `Everything scales together — text, spacing, panels. Pick Auto to let the window decide again (×${echelle.auto} here).`)
-  ]));
-  section.append(taille);
+  /* ⚖️ LA RAMPE « INTERFACE SIZE » A VÉCU DU 30/08 AU 02/09 — retirée au lot
+     118. Eric, 2026-09-02 : *« si l'auto fait bien son travail, effectivement
+     les boutons sont obsolètes, et le redimensionnement peut être fait à la
+     main sur la fenêtre du navigateur »*. Depuis la règle sacrée (31/08),
+     l'échelle suit la fenêtre en continu et rend déjà le plus grand facteur
+     qu'elle porte : un cran choisi ici ne pouvait que RAPETISSER le builder —
+     mesuré à 1366 × 1024, Auto ×1,83 et « Large » ×1,25. Six boutons, dont
+     quatre grisés en permanence, pour un réglage qui mentait. Ce que le
+     joueur veut plus grand ou plus petit, il l'obtient en redimensionnant sa
+     fenêtre ; sur téléphone et tablette, l'appareil décide. */
 
   /* ══ OÙ VIT CE PERSONNAGE — 2026-08-20 ═══════════════════════════════════
      Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et

@@ -73,8 +73,7 @@ function poserDecor(racine) {
 
 const racine = faireRacine(JETONS);
 const magasin = poserDecor(racine);
-const { CRANS, cranAuto, cranTient, grandeurDe, appliquerEchelle, setCran, cranChoisi } =
-  await import("../ui/builder/echelle.mjs");
+const { cranAuto, grandeurDe, appliquerEchelle } = await import("../ui/builder/echelle.mjs");
 
 /* ══ 1 — LA GRANDEUR SE LIT EN BLG, PAS EN PIXELS D'ÉCRAN ═════════════ */
 
@@ -84,13 +83,18 @@ test("🔴 la grandeur se calcule sur la fenêtre DIVISÉE par l'échelle", () =
      vaut 683 blg — sous le seuil étroit — et l'ancien drapeau annonçait
      toujours « wide ». À 1920 au cran 5, `min-width: 1140px` matchait encore
      et le rail rendait 600 pixels réels. */
-  setCran(1.5);
-  window.innerWidth = 1024;
+  /* RÉÉCRIT AU LOT 118 : cette clause forçait un cran à la main (1,5) pour
+     prouver la division. Les crans manuels sont partis ; la preuve se fait
+     avec la fenêtre elle-même, et elle dit plus : depuis le 31/08 la grandeur
+     se lit sur le PANNEAU (375 blg), pas sur la fenêtre divisée — une fenêtre
+     de 1920 au facteur 1,93 reste « etroite », parce que c'est la place du
+     dessin qui décide, et le dessin fait toujours 375. */
+  window.innerWidth = 1920;
+  window.innerHeight = 1080;
   const r = appliquerEchelle(window, racine);
-  assert.equal(r.cran, 1.5);
+  assert.ok(r.cran > 1.9 && r.cran < 2, `1080 / 560 = 1,93 attendu, rendu ${r.cran}`);
   assert.equal(racine.dataset.grandeur, "etroite",
-    "1024 / 1,5 = 683 blg, donc sous le seuil étroit — c'est la PLACE qui décide, pas la taille de l'écran");
-  setCran(null);
+    "1920 de large et pourtant étroite : la grandeur mesure le panneau, jamais l'écran");
 });
 
 test("⚔️ ATTAQUE — lire la fenêtre BRUTE donnerait une autre réponse, et c'est là tout le lot", () => {
@@ -153,7 +157,9 @@ test("🔴 L'ÉCHELLE EST CONTINUE — jamais arrondie à un cran du tableau", (
      le cran le plus proche ferait perdre au panneau les quelques pour cent qui
      le séparent du bord — donc du ratio à l'écran. */
   const f = cranAuto(1000, 900, racine);
-  assert.ok(!CRANS.includes(f), `${f} ne doit PAS être un cran du tableau — l'échelle est continue`);
+  /* Les cinq crans d'hier, gardés ici comme TÉMOIN — le tableau lui-même est
+     parti avec la rampe du Menu (lot 118). */
+  assert.ok(![1, 1.25, 1.5, 2, 3].includes(f), `${f} ne doit PAS être un des cinq crans d'hier — l'échelle est continue`);
   assert.equal(Math.round(f * 1000) / 1000, Math.round(900 / 560 * 1000) / 1000,
     "elle vaut exactement le plus contraignant des deux rapports, sans arrondi");
 });
@@ -193,30 +199,33 @@ test("appliquerEchelle n'écrit QUE --echelle et data-grandeur", () => {
   assert.deepEqual(Object.keys(r2.dataset), ["grandeur"], "un seul attribut de données");
 });
 
-test("le choix du joueur bat l'automatique, et « Auto » rend la main", () => {
+/* ══ 3 bis — LES CRANS MANUELS SONT PARTIS, ET LEURS CLEFS AVEC EUX ══════
+   Eric, 2026-09-02 : « si l'auto fait bien son travail, effectivement les
+   boutons sont obsolètes ». Ce qui reste à garder : qu'aucune clef d'une
+   version antérieure ne fige plus l'échelle, et que le module n'offre plus de
+   cran à la main — sinon un écran futur le rebrancherait sans le savoir. */
+
+test("⚖️ un cran enregistré par une version antérieure est IGNORÉ ET EFFACÉ (lot 118)", () => {
   window.innerWidth = 1920;
-  const auto = appliquerEchelle(window, racine);
-  assert.equal(auto.auto, true, "sans choix enregistré, on est en automatique");
-
-  setCran(CRANS[CRANS.length - 1]);
-  const choisi = appliquerEchelle(window, racine);
-  assert.equal(choisi.auto, false);
-  assert.equal(choisi.cran, CRANS[CRANS.length - 1], "le cran du joueur est appliqué tel quel");
-
-  setCran(null);
-  assert.equal(cranChoisi(), null, "« Auto » efface le choix au lieu d'enregistrer une valeur");
-  assert.equal(appliquerEchelle(window, racine).auto, true);
+  window.innerHeight = 1080;
+  magasin.set("fhpc.echelle.cran.2", "1");
+  magasin.set("fhpc.echelle.cran", "1");
+  const r = appliquerEchelle(window, racine);
+  assert.equal(r.cran, cranAuto(1920, 1080, racine), "l'échelle est celle de la fenêtre, jamais celle d'une clef");
+  assert.equal(magasin.has("fhpc.echelle.cran.2"), false, "la clef 2 est effacée au passage");
+  assert.equal(magasin.has("fhpc.echelle.cran"), false, "et la clef v1 aussi");
 });
 
-test("un cran hors tableau enregistré à la main est IGNORÉ, pas appliqué", () => {
-  /* Une valeur écrite dans `localStorage` vient du dehors — une session
-     ancienne, une console ouverte, un cran retiré du tableau depuis. Elle ne
-     doit jamais devenir l'échelle de la page. */
-  magasin.set("fhpc.echelle.cran.2", "0.5");
-  assert.equal(cranChoisi(), null, "0,5 n'est pas un cran : on retombe sur l'automatique");
-  magasin.set("fhpc.echelle.cran.2", "n'importe quoi");
-  assert.equal(cranChoisi(), null);
-  magasin.delete("fhpc.echelle.cran.2");
+test("⚔️ ATTAQUE — la clause d'au-dessus DISTINGUE : ×1 n'est pas l'automatique de cette fenêtre", () => {
+  assert.notEqual(cranAuto(1920, 1080, racine), 1,
+    "si l'auto valait 1 ici, un module qui relirait la clef passerait au vert par hasard");
+});
+
+test("⛔ echelle.mjs n'offre plus AUCUN cran à la main", async () => {
+  const mod = await import("../ui/builder/echelle.mjs");
+  for (const nom of ["CRANS", "setCran", "cranChoisi", "cranTient"]) {
+    assert.equal(nom in mod, false, `${nom} est parti avec la rampe du Menu — le rebrancher serait rouvrir un réglage qui ment`);
+  }
 });
 
 test("localStorage qui JETTE ne fait pas tomber le builder", () => {
@@ -229,56 +238,7 @@ test("localStorage qui JETTE ne fait pas tomber le builder", () => {
     setItem() { throw new Error("bloqué"); },
     removeItem() { throw new Error("bloqué"); }
   };
-  assert.equal(cranChoisi(), null, "on retombe sur l'automatique");
-  assert.doesNotThrow(() => setCran(2), "et écrire ne jette pas");
-  assert.doesNotThrow(() => appliquerEchelle(window, racine));
+  assert.doesNotThrow(() => appliquerEchelle(window, racine), "effacer les clefs mortes ne jette pas non plus");
   window.localStorage = vrai;
 });
 
-/* ══ 4 — LE CRAN À LA MAIN EST BORNÉ, ET IL N'EST PAS CLAMPÉ ══════════ */
-
-test("🔴 cranTient dit non quand le cran ne porterait plus le panneau", () => {
-  assert.equal(cranTient(1, 375, 812, racine), true, "un iPhone porte le panneau au cran 1");
-  assert.equal(cranTient(2, 375, 812, racine), false, "375 / 2 = 188 blg : le panneau n'y est plus");
-  assert.equal(cranTient(2, 1024, 1366, racine), true, "1024 × 1366 au cran 2 : 512 × 683, le panneau tient");
-  assert.equal(cranTient(3, 1366, 1024, racine), false,
-    "1366 / 3 = 455 de large, ça irait — mais 1024 / 3 = 341 de haut pour 520 : NON");
-});
-
-test("cranTient suit les COTES DÉCLARÉES, il ne les recopie pas", () => {
-  const avantL = cranTient(2, 800, 1400, racine);
-  racine.__jetons.set("--panneau-l", "600px");
-  const apresL = cranTient(2, 800, 1400, racine);
-  racine.__jetons.set("--panneau-l", "375px");
-  assert.ok(avantL && !apresL, "élargir le panneau doit retirer des crans — sinon la cote est figée");
-
-  const avantH = cranTient(2, 800, 1400, racine);
-  racine.__jetons.set("--panneau-h", "900px");
-  const apresH = cranTient(2, 800, 1400, racine);
-  racine.__jetons.set("--panneau-h", "520px");
-  assert.ok(avantH && !apresH, "et la HAUTEUR aussi — c'est elle qui décide en paysage");
-});
-
-test("un cran CHOISI plus grand que ce que la fenêtre porte ne tient pas", () => {
-  /* ⛔ Le menu grise, il ne clampe pas : un réglage qui se transforme en un
-     autre est un réglage qui ment. */
-  assert.equal(cranTient(1, 375, 812, racine), true, "un iPhone porte le panneau à 1");
-  assert.equal(cranTient(2, 375, 812, racine), false, "375 / 2 : le panneau n'y est plus");
-  assert.equal(cranTient(2, 1024, 1366, racine), true, "1024 × 1366 porte encore 2 (l'auto y vaut 2,44)");
-  assert.equal(cranTient(2, 1366, 1024, racine), false,
-    "1366 de large porterait 2, mais 1024 de haut n'en porte que 1,83 : NON");
-});
-
-test("⚖️ la clef v1 est ignorée ET effacée — le cran piégé du 30/08 ne survit pas", () => {
-  /* L'iPad d'Eric portait `fhpc.echelle.cran = "1"`, enregistré sous
-     l'étiquette trompeuse de la première heure. Personne ne doit avoir à
-     rouvrir un menu pour s'en défaire : la simple LECTURE du cran purge la
-     clef morte, et le choix revient à l'automatique tout seul. */
-  magasin.set("fhpc.echelle.cran", "1");
-  assert.equal(cranChoisi(), null, "le « Standard » piégé ne compte pas comme un choix");
-  assert.equal(magasin.has("fhpc.echelle.cran"), false, "et la clef morte est effacée au passage");
-  /* Un choix fait APRÈS la correction, sous la clef 2, reste souverain. */
-  setCran(2);
-  assert.equal(cranChoisi(), 2, "la clef 2 porte les vrais choix");
-  setCran(null);
-});

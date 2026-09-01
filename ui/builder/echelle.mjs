@@ -26,18 +26,6 @@
    l'avait mise dans `shell.css` parce qu'un `@media` ne sait pas lire une
    custom property ; il n'y a plus de `@media`, donc plus de raison. */
 
-/** Les cinq crans. Le PLANCHER est 1, et c'est une décision d'Eric —
- *  *« le plancher c'est la taille 360 sur laquelle on travaille »* : rien ne
- *  rétrécit jamais sous le barème ratifié, donc aucun texte ne peut passer
- *  sous T1. Toute la question du « plancher sous 12 px » tombe d'elle-même.
- *
- *  ⏳ LE PLAFOND EST LE SEUL NOMBRE QU'ERIC N'A PAS TRANCHÉ. Il a donné un
- *  ordre de grandeur — *« sur mega écran zoom x5 »* — et la formule ci-dessous
- *  lui donne raison : un 4K non mis à l'échelle demande ×4,94. Trois est posé
- *  ici comme défaut défendable (corps à 48 blg, fenêtre effective de 640 blg
- *  sur un 1920) ; monter à 5 est UN chiffre à changer dans ce tableau, et
- *  rien d'autre. */
-export const CRANS = [1, 1.25, 1.5, 2, 3];
 
 /** Les deux seuils de grandeur, en **blg** — donc mesurés APRÈS division par
  *  l'échelle. « La bible §3 » les donne en pixels d'écran ; sous le zoom, un
@@ -45,43 +33,31 @@ export const CRANS = [1, 1.25, 1.5, 2, 3];
 const SEUIL_ETROIT = 720;
 const SEUIL_LARGE = 1140;
 
-/* ⚖️ LA CLEF v1 EST ABANDONNÉE ET ACTIVEMENT EFFACÉE — 2026-08-30 au soir.
-   Pendant sa première heure en ligne, le menu enregistrait sous
-   `fhpc.echelle.cran` des choix faits sous une étiquette trompeuse :
-   « Standard » se lisait comme « le réglage normal » et figeait en réalité le
-   cran de base — mesuré sur l'iPad d'Eric, qui l'a tapé en croyant choisir le
-   défaut, puis a cherché pourquoi rien ne grandissait. Un choix recueilli par
-   un instrument qui ment n'est pas un choix : la clef est abandonnée, pas
-   migrée, et on l'efface au passage pour que personne ne garde un cran qu'il
-   n'a jamais voulu. Les choix faits DEPUIS la note corrigée vivent sous la
-   clef 2 et sont, eux, dignes de foi. */
-const CLEF_CRAN = "fhpc.echelle.cran.2";
-const CLEF_MORTE = "fhpc.echelle.cran";
+/* ⚖️ LES CRANS MANUELS SONT OBSOLÈTES — Eric, 2026-09-02 : *« si l'auto fait
+   bien son travail, effectivement les boutons sont obsolètes, et le
+   redimensionnement peut être fait à la main sur la fenêtre du navigateur »*.
+   Depuis la règle sacrée (31/08), l'échelle automatique rend déjà le plus
+   grand facteur que la fenêtre porte ; un cran choisi à la main ne pouvait
+   donc que RAPETISSER le builder — mesuré à 1366 × 1024 : Auto ×1,83,
+   « Large » ×1,25. Le libellé mentait dans le sens inverse de celui que la
+   note du 30/08 redoutait. La rampe du Menu est partie (lot 118), et avec
+   elle `CRANS`, `setCran`, `cranChoisi` et `cranTient`.
+
+   ⛔ UN CHOIX ENREGISTRÉ PAR UNE VERSION ANTÉRIEURE NE DOIT PAS SURVIVRE :
+   sans bouton pour le défaire, un joueur resterait figé à ×1 sans savoir
+   pourquoi. Les deux clefs — la v1 du 30/08 au matin et la clef 2 du soir —
+   sont effacées à chaque application de l'échelle. C'est la loi qui effaçait
+   déjà la clef v1, un rang plus haut. */
+const CLEFS_MORTES = ["fhpc.echelle.cran", "fhpc.echelle.cran.2"];
 
 /** ⚠️ `localStorage` peut JETER (navigation privée, quota, iframe cloisonnée)
- *  — même loi que `tutoriel.mjs` : une préférence d'affichage n'est jamais une
- *  raison de faire tomber le builder. On retombe sur l'automatique, et on le
- *  dit dans le code plutôt que de laisser un `try` muet. */
-function lireCran() {
+ *  — même loi que `tutoriel.mjs` : effacer une préférence morte n'est jamais
+ *  une raison de faire tomber le builder. */
+function effacerLesClefsMortes() {
   try {
-    window.localStorage.removeItem(CLEF_MORTE); // la clef v1, effacée — voir sa note
-    const brut = window.localStorage.getItem(CLEF_CRAN);
-    if (brut === null) return null;
-    const n = Number(brut);
-    return CRANS.includes(n) ? n : null;
-  } catch (_) { return null; }
+    for (const clef of CLEFS_MORTES) window.localStorage.removeItem(clef);
+  } catch (_) { /* sans mémoire, il n'y a rien à effacer */ }
 }
-
-/** `null` efface le choix et rend la main à l'automatique — c'est le geste
- *  « Auto » du menu, pas une absence de réglage. */
-export function setCran(valeur) {
-  try {
-    if (valeur === null) window.localStorage.removeItem(CLEF_CRAN);
-    else window.localStorage.setItem(CLEF_CRAN, String(valeur));
-  } catch (_) { /* sans mémoire, l'automatique reprend au rechargement */ }
-}
-
-export function cranChoisi() { return lireCran(); }
 
 /** Les trois cotes du PANNEAU, lues dans les jetons. Elles ne se recopient
  *  pas ici : `--measure` a déjà bougé une fois (migration `ch` → px du 29/08),
@@ -124,14 +100,6 @@ export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine) {
   const parHauteur = hauteurFenetre / p.hauteur;
   const f = Math.min(parLargeur, parHauteur);
   return Number.isFinite(f) && f > 0 ? f : 1;
-}
-
-/** Un cran CHOISI à la main tient-il ? Il tient s'il ne demande pas plus que
- *  ce que la fenêtre porte — sinon le panneau sortirait de l'écran.
- *  ⛔ On ne CLAMPE toujours pas en silence : le menu grise, il ne transforme
- *  pas. Un réglage qui se change tout seul est un réglage qui ment. */
-export function cranTient(cran, largeurFenetre, hauteurFenetre, racine) {
-  return cran <= echelleQuiTient(largeurFenetre, hauteurFenetre, racine) + 1e-9;
 }
 
 /** L'échelle automatique — le facteur exact, jamais arrondi à un cran.
@@ -218,8 +186,8 @@ export function grandeurDe(largeurBlg) {
 export function appliquerEchelle(fenetre, racine) {
   const vue = fenetre || window;
   const html = racine || document.documentElement;
-  const choisi = lireCran();
-  const cran = choisi === null ? cranAuto(vue.innerWidth, vue.innerHeight, html) : choisi;
+  effacerLesClefsMortes();
+  const cran = cranAuto(vue.innerWidth, vue.innerHeight, html);
   html.style.setProperty("--echelle", String(cran));
   /* 🔴 LA GRANDEUR SE LIT SUR LE PANNEAU, PLUS SUR LA FENÊTRE — 2026-08-31.
      C'est la suite exacte du défaut que le lot 85 avait trouvé (« un seuil lu
@@ -231,5 +199,5 @@ export function appliquerEchelle(fenetre, racine) {
      donc mesurer LE PANNEAU. */
   const grandeur = grandeurDe(cotesDuPanneau(html).largeur);
   html.dataset.grandeur = grandeur;
-  return { cran, grandeur, auto: choisi === null };
+  return { cran, grandeur };
 }

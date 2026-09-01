@@ -41,7 +41,7 @@ import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=427";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
-import { CRANS, cranChoisi, setCran, cranAuto, cranTient, appliquerEchelle } from "./echelle.mjs?v=427";
+import { appliquerEchelle } from "./echelle.mjs?v=427";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
@@ -835,7 +835,6 @@ function applyDecisionAction(action) {
   /* ⭐ LE CRAN D'ÉCHELLE — `null` rend la main à l'automatique. `refresh()` et
      pas `openSurface()` : changer la taille ne renvoie pas le joueur en haut
      de l'écran qu'il lisait, exactement comme `resize` (voir sa note). */
-  if (action.kind === "echelleCran") { setCran(action.value); appliquerEchelle(); refresh(); return; }
   if (action.kind === "tutoCompris") { setGeneralVu(true); refresh(); return; }
   if (action.kind === "tutoDesactiver") { setTutorielActif(false); refresh(); return; }
   /* ══ LE `?` OUVRE LE GUIDE DE L'ÉTAPE — §7, sorti du standby le 26/08 ═════
@@ -1658,16 +1657,6 @@ function renderStepContent() {
       /* L'écran REÇOIT l'état du tutoriel, il ne va pas le chercher : un écran
          qui lirait `localStorage` lui-même deviendrait impossible à tester. */
       tutoriel: tutorielActif(),
-      /* L'échelle telle que le Menu doit la montrer : le cran EFFECTIF (celui
-         qui est appliqué) et le fait qu'il vienne du choix ou de la fenêtre. */
-      echelle: {
-        crans: CRANS,
-        choisi: cranChoisi(),
-        auto: cranAuto(window.innerWidth, window.innerHeight, document.documentElement),
-        /* Ceux qui laissent encore de quoi dessiner dans CETTE fenêtre : le
-           menu grise les autres au lieu de les clamper en silence. */
-        tiennent: CRANS.filter((c) => cranTient(c, window.innerWidth, window.innerHeight, document.documentElement))
-      },
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
