@@ -89,7 +89,7 @@ export function construireLaSceneB3(options = {}) {
     /* Le corps — un repère en filigrane, SECOND PLAN, grossi sur place. */
     const { k, dx, dy } = CORPS_EN_SCENE;
     const port = forme("g", null, { transform:
-      `translate(198.5 271.5) scale(${echelle}) translate(-198.5 -271.5) translate(${dx} ${dy}) scale(${k})` });
+      `translate(${SCENE.l / 2} 271.5) scale(${echelle}) translate(${-SCENE.l / 2} -271.5) translate(${dx} ${dy}) scale(${k})` });
     port.append(forme("rect", "b3-scene-corps",
       { x: 0, y: 0, width: 1000, height: 1600, mask: `url(#b3s-masque-${corps === "f" ? "f" : "h"})` }));
     noeud.append(port);

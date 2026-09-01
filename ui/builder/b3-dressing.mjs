@@ -98,7 +98,13 @@ export function construireLeDressing(options = {}) {
      réservé — un espace, pas un bouton mort. ── */
   const barre = eld("div", "dressing-barre");
   for (const nom of BARRE.noms) {
-    if (!nom) { barre.append(eld("span", "dressing-reserve")); continue; }
+    /* ⛔ LE 5ᵉ CADRE NE POSE PLUS DE NŒUD — lot 117 (2026-09-02). La barre a
+       quatre colonnes depuis que le panneau vaut 375 blg (voir shell.css) ; un
+       `<span>` vide y ouvrirait une seconde rangée fantôme de 4 blg. La
+       réserve reste un FAIT du croquis, écrite dans `BARRE.noms` et dessinée
+       par la scène du banc — pas un organe du DOM. Le jour où elle porte un
+       bouton, elle reprend sa colonne ici. */
+    if (!nom) continue;
     const b = eld("button", "dressing-bouton", nom);
     b.type = "button";
     b.setAttribute("aria-label", nom);

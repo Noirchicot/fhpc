@@ -28,8 +28,21 @@
    à `SCENE.l` px de large, donc 1 unité = 1 px, partout, par construction.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/** La scène. 397 × 584 = le croquis (1040 × 1528) à l'échelle du jeton. */
-export const SCENE = { l: 397, h: 584 };
+/** La scène. 397 × 584 = le croquis (1040 × 1528) à l'échelle du jeton.
+ *
+ *  🔴 359 DE LARGE DEPUIS LE LOT 117 (2026-09-02) — la règle sacrée du 31/08
+ *  a fixé le panneau à 375 blg, et le dressing lui laisse deux gouttières de
+ *  8 : la scène a 359. Mesurée à 397, elle débordait de 38 à TOUTES les
+ *  tailles (le zoom agrandit le dessin et la fenêtre ensemble, l'écart ne se
+ *  résorbe jamais) : la bourse coupée, le `?` hors panneau, une barre de
+ *  défilement horizontale. Eric, 02/09 : *« les organes eux doivent garder
+ *  leurs tailles respectives »* — donc les jetons restent 87 × 48, et ce sont
+ *  les ÉCARTS entre colonnes qui cèdent (§2 bis : le vide cède, jamais
+ *  l'organe). Ce qui bouge : la colonne de droite (299 → 261), les paires
+ *  latérales recentrées, la bourse ramenée de 131 à 125 pour ne pas mordre
+ *  sur les casques centrés. La hauteur ne change pas : le dressing défile.
+ *  📌 La bourse est laissée telle quelle pour le reste (Eric, même jour). */
+export const SCENE = { l: 359, h: 584 };
 
 /** ⭐ LA PIÈCE (26/08, les trois bandes de NORMES §1 sexies) : la scène MOINS
  *  le titre (absorbé par la bande haute du dressing — « on ne nomme pas deux
@@ -81,19 +94,19 @@ export const BOITES = [
   /* la PAIRE du torse : DEUX boîtes pleines de 87, à 4 px (« 4 pixels entre
      torso 1 et 2 »), centrées ENSEMBLE — deux clefs vraies, pour que la
      carte slot → boîte ne vise jamais un fantôme. */
-  { clef: "torse1",  nom: "Torso gear 1",    x: 110, y: 165, attunable: true },
-  { clef: "torse2",  nom: "Torso gear 2",    x: 201, y: 165, attunable: true },
-  { clef: "fourreau1",   nom: "Sheath 1",          x: 59,  y: 224, attunable: true },
-  { clef: "fourreau2",   nom: "Sheath 2",          x: 251, y: 224, attunable: true },
+  { clef: "torse1",  nom: "Torso gear 1",    x: 90,  y: 165, attunable: true },
+  { clef: "torse2",  nom: "Torso gear 2",    x: 181, y: 165, attunable: true },
+  { clef: "fourreau1",   nom: "Sheath 1",          x: 40,  y: 224, attunable: true },
+  { clef: "fourreau2",   nom: "Sheath 2",          x: 232, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
-  { clef: "fourreau3",   qte: "lateral", nom: "Pocket/Sheath 3",   x: 59,  y: 280, attunable: true },
-  { clef: "fourreau4",   qte: "lateral", nom: "Pocket/Sheath 4",   x: 251, y: 280, attunable: true },
+  { clef: "fourreau3",   qte: "lateral", nom: "Pocket/Sheath 3",   x: 40,  y: 280, attunable: true },
+  { clef: "fourreau4",   qte: "lateral", nom: "Pocket/Sheath 4",   x: 232, y: 280, attunable: true },
   { clef: "pied1",   nom: "Foot/leg gear 1", centre: true, y: 341, attunable: true },
   { clef: "poche1",  qte: "medial", nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
-  { clef: "poche2",  qte: "medial", nom: "Pocket 2",        x: 299, y: 377, attunable: true },
+  { clef: "poche2",  qte: "medial", nom: "Pocket 2",        x: 261, y: 377, attunable: true },
   { clef: "pied2",   nom: "Foot/leg gear 2", centre: true, y: 397, attunable: true },
   { clef: "poche3",  qte: "medial", nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
-  { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 299, y: 433, attunable: true },
+  { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 261, y: 433, attunable: true },
 ];
 
 /** ⭐ SLOT → BOÎTES — RATIFIÉ PAR ERIC LE 24/08, ligne à ligne : « neck non,
@@ -136,15 +149,15 @@ export const ENVOI = { centre: true, y: 514, l: 95, h: 18 };
  *  ⭐ QUATRE monnaies, pas cinq — Eric, 24/08 : « j'ai fait une erreur sur la
  *  monnaie, pas d'electrum lol ». Et ça RÉCONCILIE l'écran avec le moteur :
  *  `CURRENCY_KEYS` (src/build) n'a que quatre clefs, `ep` n'y a jamais été. */
-export const BOURSE = { x: 262, y: 7, l: 131, h: 136, monnaies: ["PP", "GP", "SP", "CP"] };
+export const BOURSE = { x: 223, y: 7, l: 125, h: 136, monnaies: ["PP", "GP", "SP", "CP"] };
 
 /** Gear weight (INFO) : Self · Backpack · Storage. */
-export const POIDS = { x: 306, y: 153, l: 80, h: 59, lignes: ["Self", "Backpack", "Storage"] };
+export const POIDS = { x: 268, y: 153, l: 80, h: 59, lignes: ["Self", "Backpack", "Storage"] };
 
 /** La barre du bas — boutons rouges du croquis. Send : 1 item → vide le
  *  collecteur et envoie ; une liste → SB3.2. Le 5ᵉ cadre est VIDE sur le
  *  croquis : il est réservé, pas oublié. */
-export const BARRE = { y: 540, h: 32, l: 66, xs: [11, 88, 166, 243, 320],
+export const BARRE = { y: 540, h: 32, l: 60, xs: [11, 80, 149, 218, 287],
   noms: ["Equipment", "Craft", "Send", "Companions", ""] };
 
 /** LE CORPS EN SCÈNE — le filigrane. Calé pour que les ancrages du repère
@@ -156,7 +169,7 @@ export const BARRE = { y: 540, h: 32, l: 66, xs: [11, 88, 166, 243, 320],
  *  disponible au banc pour comparer, jamais pour livrer. */
 export const CORPS_EN_SCENE = {
   k: 303 / 1400,
-  dx: 90.3,   // repère x=500 (l'axe du corps) → scène 198.5, le milieu
+  dx: 71.3,   // repère x=500 (l'axe du corps) → scène 179.5, le milieu (lot 117 : SCENE.l / 2)
   dy: 98.4,   // repère y=100 (le haut de l'encre) → scène 120
   echelles: [1.2, 1],
 };
@@ -166,7 +179,7 @@ export const CORPS_EN_SCENE = {
  *  il grossit SUR PLACE, ancré au milieu de son encre). */
 export function versLaScene(x, y, e = 1) {
   const { k, dx, dy } = CORPS_EN_SCENE;
-  const cx = 198.5, cy = 271.5;           // le centre de l'encre en scène
+  const cx = SCENE.l / 2, cy = 271.5;     // le centre de l'encre en scène — l'axe suit la largeur
   return {
     x: cx + (dx + x * k - cx) * e,
     y: cy + (dy + y * k - cy) * e,

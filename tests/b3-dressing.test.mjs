@@ -14,7 +14,7 @@ globalThis.document = createTestDocument();
 
 import { construireLeDressing } from "../ui/builder/b3-dressing.mjs";
 import { construireLaSceneB3 } from "../ui/builder/b3-scene.mjs";
-import { SCENE, SCENE_PIECE } from "../ui/builder/b3-disposition.mjs";
+import { SCENE, SCENE_PIECE, BARRE } from "../ui/builder/b3-disposition.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,7 +60,12 @@ test("la barre — Equipment publie son geste, le 5ᵉ cadre est un espace rése
   assert.ok(equipment, "la porte vers le catalogue vit dans la bande basse");
   equipment.click();
   assert.deepEqual(gestes, ["Equipment"]);
-  assert.equal(noeud.querySelectorAll(".dressing-reserve").length, 1, "le cadre vide du croquis reste un espace");
+  /* RÉÉCRIT AU LOT 117 (2026-09-02) : la réserve du 5ᵉ cadre n'est plus un
+     nœud — la barre a deux colonnes depuis que le panneau vaut 375 blg, et un
+     `<span>` vide y ouvrirait une rangée fantôme. Elle reste un FAIT du
+     croquis, écrite dans `BARRE.noms` : c'est ça qu'on garde désormais. */
+  assert.equal(noeud.querySelectorAll(".dressing-reserve").length, 0, "la réserve ne pose plus de nœud dans la barre");
+  assert.ok(BARRE.noms.includes(""), "…mais le 5ᵉ cadre du croquis reste écrit dans la disposition");
   assert.equal(noeud.querySelectorAll(".dressing-bouton").length, 4, "quatre boutons nommés, pas cinq");
 });
 

@@ -6526,7 +6526,11 @@ button { font: inherit; }
 .dressing-flux {
   flex: 1 1 auto; min-height: 0; overflow-y: auto;
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);
-  padding: var(--sp-8);
+  /* 📏 LA GOUTTIÈRE CÈDE, PAS L'ORGANE (§1 ter quater) — lot 117. Le cadre
+     laisse 367 blg au dressing (375 moins 4 de chaque côté) ; la scène en
+     prend 359. À 8 de rembourrage le flux réclamait 375 et le stage défilait
+     de 4 en largeur (mesuré 379/375) ; à 4, l'addition ferme : 4 + 359 + 4. */
+  padding: var(--sp-8) var(--sp-4);
 }
 /* la pièce ne se dilate pas — le flux défile autour d'elle */
 .dressing-piece { flex: none; }
@@ -6536,11 +6540,24 @@ button { font: inherit; }
   text-transform: uppercase; letter-spacing: .08em;
 }
 .dressing-barre {
-  flex: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-4);
-  padding: var(--sp-8); border-top: 1px solid var(--border);
+  /* 📏 DEUX PAR LIGNE, PLUS CINQ — lot 117 (2026-09-02). À cinq colonnes dans
+     un panneau de 375 blg, une case valait 65 : COMPANIONS n'y tenait à aucun
+     corps lisible, la rangée débordait de 42 blg et poussait le `?` hors du
+     panneau (mesuré 417/375). À quatre, une fois réservées les deux colonnes
+     de la paire livre / `?` (44 chacune), il restait 65 par bouton — le `?`
+     se posait SUR le dernier (mesuré).
+     ⚖️ DEUX PAR LIGNE, C'EST LE GABARIT `medium` DU §6, dont le mot-témoin est
+     justement COMPANIONS (12 caractères, 135 blg). Le prix : une rangée de
+     plus, 48 blg pris sur le flux, qui défile de toute façon. Le 5ᵉ cadre du
+     croquis reste réservé — il reprendra sa place le jour où il portera un
+     bouton, pas avant. */
+  flex: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4);
+  padding: var(--sp-8) calc(var(--sp-8) + var(--touch)); border-top: 1px solid var(--border);
 }
 .dressing-bouton {
-  min-height: var(--touch); font: inherit; cursor: pointer; text-transform: uppercase;
+  /* T3 : le corps recommandé du §6 — la seule taille qui laisse la même marge
+     aux gabarits small et medium. Même largeur sur la ligne, par la grille. */
+  min-height: var(--touch); font: inherit; font-size: var(--t3); cursor: pointer; text-transform: uppercase;
   background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
 }
 
