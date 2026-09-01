@@ -6926,6 +6926,13 @@ button { font: inherit; }
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  /* 📏 LE REMBOURRAGE DU RANG B (NORMES §4 ter : 4 haut · 16 côtés · 4 bas),
+     mesuré absent ici le 2026-09-02 (lot 116) : la dalle portait 0 des quatre
+     côtés, le texte touchait son bord gauche, et le pied — dont la marge basse
+     vaut 4 — s'arrêtait à 4 blg du bas pendant que le livre et le `?` (posés à
+     8) flottaient 4 blg plus haut que les boutons. Avec le bas à 4, les trois
+     retombent sur la même ligne, par arithmétique et non par réglage. */
+  padding: var(--sp-4) var(--sp-16);
 }
 .card-final-tete {
   display: flex;
@@ -6937,28 +6944,75 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--positive);
 }
 .card-final-corps {
-  /* 🔴 CONTENEUR DE REQUÊTE — 2026-08-30. Le passage à une colonne était un
-     `@media (max-width: 34em)`, et un `@media` ne se réévalue pas sous
-     `zoom` : la carte serait restée sur deux colonnes à tous les crans, sur
-     n'importe quelle fenêtre. La bonne question n'était de toute façon pas
-     « quelle est la taille de l'écran » mais « cette carte a-t-elle la place
-     de deux colonnes » — c'est une requête de CONTENEUR, et `listes.css` en
-     pose déjà deux pour la même raison.
-     ⭐ LE SEUIL NE BOUGE PAS : 34em, mesuré et ratifié. Il se lit simplement
-     sur la boîte au lieu de la fenêtre, donc il reste juste à tous les crans
-     ET en mode widget, où la fenêtre ne dit rien de la place réelle. */
-  container-type: inline-size;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--sp-16);
+  /* 🔴 UNE SEULE COLONNE, TOUJOURS — lot 116, 2026-09-02.
+     📏 MESURÉ AU BANC, À 375 COMME À 1366 (quatre fenêtres, échelles 1 à 2,44) :
+     la carte tirée rendait DEUX colonnes dans un panneau de 375 blg — la
+     colonne de texte tombait à ~40 blg, un mot par ligne, avec une barre de
+     défilement horizontale. Identique à toutes les tailles, parce que le
+     panneau vaut toujours 375 blg (règle sacrée du 31/08).
+     ⛔ LA CAUSE : le `@container (max-width: 34em)` qui devait ramener à une
+     colonne était écrit SUR `.card-final-corps`, qui portait lui-même
+     `container-type`. Une requête de conteneur interroge l'ANCÊTRE conteneur
+     le plus proche, jamais l'élément lui-même : la règle « une colonne » ne
+     s'est jamais appliquée, depuis le 30/08.
+     ⭐ ET LA REQUÊTE N'A PLUS DE RAISON D'ÊTRE : depuis que le panneau vaut
+     375 blg partout, la carte n'a JAMAIS la place de deux colonnes. Une
+     branche que personne ne parcourt est une branche que personne ne teste
+     (§0.6) — le grid à deux colonnes est retiré, pas conditionné. La carte
+     au-dessus, le texte dessous, et c'est le texte qui défile. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
   flex: 1 1 auto;
   min-height: 0;
 }
-.card-final-carte { display: grid; place-items: start center; min-height: 0; }
+.card-final-carte { flex: none; display: grid; place-items: center; }
 .card-final-img {
-  width: 100%;
+  /* La vignette prend 42 % de la hauteur du PANNEAU — l'intention du 30/08
+     (« 42 % de la fenêtre à tous les crans ») lue dans le jeton qui porte
+     désormais cette hauteur, au lieu d'un `vh` divisé par l'échelle : le
+     panneau fait toujours 560 blg, la cote est la même sur toute fenêtre. */
+  width: auto;
   height: auto;
-  max-height: 100%;
+  max-width: 100%;
+  max-height: calc(var(--panneau-h) * 1px * 0.42);
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--ombre-dalle, 0 8px 24px var(--ceremonie-ombre));
+}
+.card-final-texte {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: var(--sp-4);
+}
+.card-final-nom { margin: 0 0 var(--sp-8); font-size: var(--t4); }
+.card-final-sous { margin: var(--sp-12) 0 var(--sp-4); font-size: var(--t3); }
+.card-liste-rangs { margin: 0; font-size: var(--t2); }
+.card-liste-rangs dt { font-weight: 600; margin-top: var(--sp-4); }
+.card-liste-rangs dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
+
+/* ⭐ LE SCORE RÉUTILISE `.card-score`, l'organe qui existait déjà (lot 61) —
+   il porte la même chose au même endroit. Ce lot ne lui ajoute qu'un filet
+   au-dessus : « tu le mets tout en bas » (Eric, 2026-08-30), donc il ferme la
+   lecture, et un trait dit qu'on a fini de lire. */
+.card-final-texte .card-score {
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--border);
+}
+
+.card-final-carte { flex: none; display: grid; place-items: center; }
+.card-final-img {
+  /* La vignette prend 42 % de la hauteur du PANNEAU — l'intention du 30/08
+     (« 42 % de la fenêtre à tous les crans ») lue dans le jeton qui porte
+     désormais cette hauteur, au lieu d'un `vh` divisé par l'échelle : le
+     panneau fait toujours 560 blg, la cote est la même sur toute fenêtre. */
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(var(--panneau-h) * 1px * 0.42);
   object-fit: contain;
   border-radius: var(--radius-md);
   box-shadow: var(--ombre-dalle, 0 8px 24px var(--ceremonie-ombre));
