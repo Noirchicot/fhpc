@@ -230,22 +230,31 @@ test("aucune cote partagée ne porte de POURCENTAGE", () => {
      la rangée (parent 592). Une cote écrite en pourcentage n'est PAS partagée,
      quoi qu'en dise le commentaire qui l'accompagne — et deux commentaires
      successifs ont prétendu le contraire.
-     ⭐ LA PARADE : `cqw` se résout sur le CONTENEUR NOMMÉ (`container-type:
-     inline-size`), donc sur la même base pour tous ses descendants. */
-  for (const r of REGLES) {
-    if (!/--(collecteur-case|case-cedee)\s*:/.test(r.corps)) continue;
+     ⭐ LA PARADE A ÉTÉ `cqw` — ELLE A TENU DU 29/08 AU 02/09, ET ELLE EST
+     TOMBÉE. `cqw` se résolvait bien sur le CONTENEUR NOMMÉ, donc sur la même
+     base pour tous ses descendants… sous Chromium. ⛔ Sous WebKit, `zoom` ne
+     rebase PAS les unités de conteneur : elles rendent des pixels PEINTS là
+     où le dépôt compte en blg. Mesuré le 02/09 sur les captures d'Eric —
+     Ability boosts, six caracs sur iPhone, QUATRE sur iPad.
+     ⭐ LA PARADE D'AUJOURD'HUI EST UNE COTE DÉDUITE : `--colonne-dalle`,
+     posée sur `.stage` depuis `--panneau-l` (la règle sacrée du 31/08 : le
+     panneau vaut toujours 375 blg). Elle est partagée par CONSTRUCTION —
+     elle ne dépend d'aucune boîte, donc ni de celle du lecteur.
+     📌 Le ban des unités de conteneur vit dans son propre garde
+     (`tests/unite-de-conteneur.test.mjs`) ; ici on vérifie que la cote lit
+     bien une COTE DÉDUITE et pas une grandeur relative de plus. */
+  const porteuses = REGLES.filter((r) => /--(collecteur-case|case-cedee)\s*:/.test(r.corps));
+  assert.ok(porteuses.length >= 2,
+    "les deux cotes partagées (--collecteur-case, --case-cedee) doivent être lues ici — sinon ce garde ne mesure rien");
+  for (const r of porteuses) {
     assert.ok(!/\d\s*%/.test(r.corps),
       `« ${r.sel} » calcule une cote partagée avec un POURCENTAGE :\n` +
       `  ${r.corps.replace(/\s+/g, " ").trim()}\n` +
       "Un pourcentage se résout chez celui qui l'utilise — les deux organes " +
-      "obtiendront des valeurs différentes. Employer cqw sur un conteneur nommé.");
-  }
-  const conteneurs = REGLES.filter((r) => /container-type\s*:\s*inline-size/.test(r.corps));
-  const cqw = REGLES.filter((r) => /cqw/.test(r.corps));
-  if (cqw.length) {
-    assert.ok(conteneurs.length,
-      "des cotes emploient cqw mais aucun conteneur n'est nommé " +
-      "(`container-type: inline-size`) : cqw retomberait sur la fenêtre.");
+      "obtiendront des valeurs différentes. Lire la cote DÉDUITE `--colonne-dalle`.");
+    assert.match(r.corps, /var\(--colonne-(dalle|ecran)\)/,
+      `« ${r.sel} » ne lit aucune colonne déduite : une cote partagée se ` +
+      "déduit du cadre (NORMES §1 ter), elle ne s'interroge plus au rendu.");
   }
 });
 

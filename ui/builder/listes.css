@@ -106,14 +106,33 @@
   /* ⭐ ET LA COTE NE CONTIENT PLUS DE POURCENTAGE — c'est ce qui la rendait
      impartageable. `100%` se résout chez CELUI QUI L'UTILISE : la même
      déclaration donnait 55 px dans le vivier (parent 277) et 87 dans la rangée
-     (parent 592). `100cqw` se résout sur LE CONTENEUR NOMMÉ ci-dessous, donc
-     sur la même base pour les deux — une cote enfin partagée pour de bon.
-     📌 C'est la troisième écriture de cette cote : deux nombres égaux, puis un
-     pourcentage « partagé », puis l'unité de conteneur. Les deux premières
-     étaient plausibles et fausses. */
-  container-type: inline-size;
+     (parent 592). Cette moitié-là du diagnostic reste vraie, et ⛔ ON NE
+     REVIENT PAS À `%`.
+     📌 C'EST LA QUATRIÈME ÉCRITURE DE CETTE COTE, et l'histoire des trois
+     premières se garde : deux nombres égaux, puis un pourcentage « partagé »,
+     puis `100cqw` sur un conteneur nommé. Les deux premières étaient
+     plausibles et fausses. La troisième était juste — sous un seul moteur.
+     🔴 POURQUOI `cqw` EST TOMBÉE — 2026-09-02, mesuré par contraste.
+     Sous WebKit, `zoom` NE REBASE PAS les unités de conteneur : `100cqw` rend
+     des PIXELS PEINTS, là où le dépôt compte en blg (NORMES §0 bis). Même
+     famille exactement que « `zoom` ne rebase pas `vw`/`vh` » (lot 85,
+     seconde passe). La sonde posée dans Chromium sous la même app zoomée à
+     1,829, avec cette formule et un conteneur de 352, rend **51,996** —
+     c'est-à-dire la valeur en unités de dessin. Chromium rebase, Safari non :
+     **les deux moteurs sont en désaccord, donc aucune formule écrite en `cqw`
+     ne peut être juste sur les deux.**
+     ⭐ ET LA PRÉMISSE A CHANGÉ, C'EST CE QUI REND LA RÉPARATION SIMPLE. Depuis
+     la règle sacrée du 31/08 (NORMES §0 bis), le panneau vaut TOUJOURS
+     375 × 560 blg : la largeur d'une rangée est une CONSTANTE en blg. Il n'y
+     a donc plus rien à interroger — la cote se DÉDUIT (§1 ter) des jetons
+     déjà déclarés, par `--colonne-dalle` (posée sur `.stage`, rétrécie par la
+     dalle qui la rétrécit). Et une cote déduite est partagée par construction :
+     elle ne dépend plus de la boîte de CELUI QUI LA LIT.
+     📏 MESURÉ LE 02/09, AUX DEUX TAILLES DE FENÊTRE (375 × 812 · 1366 × 1024),
+     rendu identique en blg avant et après :
+       `(335 − 2×44 − 2×4 − 2×8) / 3 = 223 / 3 = 74,33` → case 74 blg. */
   --case-cedee: min(var(--glisse-case),
-    calc((100cqw - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3));
+    calc((var(--colonne-dalle) - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3));
 }
 .choix-glisse:has(.grille-rang) .glisse-creneaux > .glisse-creneau,
 /* ⭐ ET LE JETON LIT LA MÊME COTE, plus sa propre formule sur sa propre base. */
@@ -173,15 +192,46 @@
 .choix-glisse[data-rangs="caracs"] { --par-rangee: 6; }
 
 /* la cote se DÉDUIT du cadre — une fois, sur l'ancêtre commun des deux rangées
-   ⭐ EN `cqw`, PAS EN `%` : un pourcentage se résout chez CELUI QUI L'UTILISE,
-   donc la même déclaration donnait deux valeurs selon la rangée qui la lisait
-   (mesuré ailleurs : 55 contre 87). `100cqw` se résout sur le conteneur nommé
-   juste en dessous — une seule base pour tous ses descendants.
-   📌 Ça marchait ici PAR ACCIDENT : les deux rangées portent `width: 100%`,
-   donc elles avaient la même base. Un pansement, pas une cote partagée — et le
-   garde `collecteur-jeton` refuse désormais le pourcentage à la racine. */
+   ⛔ NI `%` NI `cqw` : un pourcentage se résout chez CELUI QUI L'UTILISE, donc
+   la même déclaration donnait deux valeurs selon la rangée qui la lisait
+   (mesuré ailleurs : 55 contre 87). Cette raison-là reste vraie, et on ne
+   revient pas à `%`.
+   📌 Ça marchait en `%` ici PAR ACCIDENT : les deux rangées portent
+   `width: 100%`, donc elles avaient la même base. Un pansement, pas une cote
+   partagée — et le garde `collecteur-jeton` refuse le pourcentage à la racine.
+
+   🔴 ET `100cqw` EST TOMBÉE LE 2026-09-02 (lot 121) — LE DÉFAUT QU'ERIC A VU.
+   📏 Mesuré sur ses captures du 02/09 (iPhone et iPad, même version 429 du
+   site déployé) : sur **Ability boosts**, l'iPhone montre les six collecteurs
+   `STR DEX CON INT WIS CHA` sur une ligne ; l'iPad n'en montre que **quatre**,
+   `STR` et `CHA` coupées aux deux bords. L'arithmétique colle au pixel près :
+
+     iPhone (zoom 1)     100cqw lu 352 → (352 − 40)/6 = 52  → min(87 ; 52)  = 52  ✅ six tiennent
+     iPad  (zoom 1,83)   100cqw lu 644 → (644 − 40)/6 = 101 → min(87 ; 101) = 87  ⛔ six demandent 562 dans 352
+
+   562 dans 352, rangée centrée : 105 blg dépassent de chaque côté, donc deux
+   cases sortent. C'est exactement la capture.
+   ⛔ LA CAUSE : sous WebKit, `zoom` NE REBASE PAS les unités de conteneur —
+   elles rendent des pixels PEINTS là où le dépôt compte en blg (NORMES §0 bis).
+   Même famille que « `zoom` ne rebase pas `vw`/`vh` » (lot 85, seconde passe),
+   et la sonde de contraste posée dans Chromium le confirme dans l'autre sens :
+   sous la même app zoomée à 1,829, cette formule et un conteneur de 352
+   rendent **51,996**, la valeur en unités de dessin. Chromium rebase, Safari
+   non — **aucune formule en `cqw` ne peut être juste sur les deux.**
+
+   ⭐ CE QUI LA REMPLACE, ET POURQUOI C'EST PLUS SIMPLE QU'AVANT : depuis la
+   règle sacrée du 31/08, le panneau vaut TOUJOURS 375 × 560 blg, donc la
+   largeur d'une rangée est une CONSTANTE en blg. Plus rien à interroger : la
+   cote se DÉDUIT (§1 ter) par `--colonne-dalle`, déclarée sur `.stage` et
+   rétrécie par la dalle qui la rétrécit. Une cote déduite est partagée par
+   construction — elle ne dépend plus de la boîte de celui qui la lit, ce qui
+   était l'argument même du `cqw`.
+   📏 MESURÉ LE 02/09, AUX DEUX TAILLES DE FENÊTRE (375 × 812 · 1366 × 1024),
+   rendu identique en blg avant et après :
+     caracs (6) : `(335 − 5×8)/6 = 49,17` → 49    · six sur une ligne ✅
+     skills (4) : `(335 − 3×8)/4 = 77,75` → 78
+     sorts  (3) : `(335 − 2×8)/3 = 106,3` → plafonné par `--glisse-case` → 87 */
 .choix-glisse[data-rangs]:not(:has(.grille-rang)) {
-  container-type: inline-size;
   /* 📏 LA COTE CÈDE À LA RANGÉE LA PLUS DENSE DE L'ÉCRAN, déclarée par
      l'émetteur (`--rangee-dense`, glisser.mjs) — pas à la loi maximale des
      collecteurs. Mesuré à 360 : Identity (un seul créneau) payait la division
@@ -190,7 +240,7 @@
      rien. */
   --rangee-dense: var(--par-rangee);
   --collecteur-case: min(var(--glisse-case),
-    calc((100cqw - (var(--rangee-dense) - 1) * var(--sp-8)) / var(--rangee-dense)));
+    calc((var(--colonne-dalle) - (var(--rangee-dense) - 1) * var(--sp-8)) / var(--rangee-dense)));
 }
 /* la déclaration de l'émetteur — un attribut, jamais un style en ligne
    (garde 7) ; trois valeurs d'un même attribut, même spécificité.

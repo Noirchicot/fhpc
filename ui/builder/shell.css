@@ -576,8 +576,37 @@ body {
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
-  padding-inline: var(--sp-16);
+  /* la gouttière de la carte, portée par le cadre (voir `.decision-card`)
+     ⭐ ELLE A UN NOM DEPUIS LE 2026-09-02 (lot 121), et c'est ce qui rend la
+     colonne DÉDUCTIBLE : la gouttière était écrite une fois ici et une
+     seconde fois plus bas (`[data-grandeur="etroite"]`, `--sp-4`). Une
+     déduction qui recopierait l'un des deux nombres serait le troisième — la
+     divergence qui attend son tour. Un seul jeton, deux lecteurs : la
+     déclaration de `padding-inline` et le calcul de `--colonne-ecran`. */
+  --stage-gouttiere: var(--sp-16);
+  padding-inline: var(--stage-gouttiere);
+  /* ══ 📐 LA COLONNE QUE L'ÉCRAN OFFRE — déduite, jamais écrite ═══════════
+     🔴 NORMES §1 ter : *« une cote de contenant ne s'écrit pas, elle se
+     déduit d'avance »*. Depuis la règle sacrée du 31/08 (`--panneau-l` : le
+     panneau vaut TOUJOURS 375 blg, sur tout appareil et à toute échelle),
+     cette largeur est une CONSTANTE en blg — il n'y a plus rien à interroger
+     au rendu, donc plus aucune raison de demander sa largeur au navigateur.
+     📏 MESURÉ AU BANC LE 2026-09-02, aux deux tailles de fenêtre (375 × 812,
+     échelle 1 · 1366 × 1024, échelle 1,829) — les deux relevés sont
+     identiques en blg, ce que la règle sacrée promettait :
+       FF (pas de rail) : 375 − 2 × 4 = 367   ⟨`.decision-card` mesurée 367⟩
+       F  (rail 90)     : 375 − 90 − 8 = 277  ⟨`.decision-card` mesurée 277⟩
+     ⚠️ Le rail ne se devine pas : il se lit sur `.stage-area[data-aside]`,
+     l'attribut que `paintAside` écrit déjà, et la règle qui décale `.stage`
+     (`left: var(--rail-w)`) le redit juste en dessous. Une seule condition,
+     au seul endroit qui la connaisse — CADRES §1 : *« le menu latéral est la
+     seule chose qui sépare F de FF »*. */
+  --colonne-ecran: calc(var(--panneau-l) * 1px - 2 * var(--stage-gouttiere));
+  /* Le repli de la colonne d'une DALLE, pour un organe qui n'est dans aucune :
+     l'écran tout entier. Chaque dalle qui rétrécit la colonne le redéclare
+     elle-même (`.parcours-item-dalle`, `.concept-step`) — c'est CELLE QUI
+     RÉTRÉCIT qui sait de combien, jamais l'organe qui subit. */
+  --colonne-dalle: var(--colonne-ecran);
   /* ⛔ PAS D'`align-items: center` ICI — ESSAYÉ (v396), MESURÉ, RETIRÉ.
      Dans un flex COLUMN, `align-items` gouverne la largeur : `center` retire
      le `stretch` par défaut, et l'enfant retombe sur la largeur de son
@@ -650,7 +679,14 @@ body {
      DALLES posées sur le fond, pas un panneau plein qui en contient. */
   background: none;
 }
-.stage-area[data-aside="on"] .stage { left: var(--rail-w); }
+/* ⭐ ET C'EST LA MÊME LIGNE QUI DÉCALE LA SCÈNE ET QUI RÉTRÉCIT SA COLONNE
+   (lot 121, 2026-09-02) : le rail prend 90 blg à gauche, donc il en retire 90
+   à ce que l'écran offre. Deux règles séparées auraient pu se contredire ; ici
+   la cause et la conséquence sont écrites d'un seul trait. */
+.stage-area[data-aside="on"] .stage {
+  left: var(--rail-w);
+  --colonne-ecran: calc(var(--panneau-l) * 1px - var(--rail-w) - 2 * var(--stage-gouttiere));
+}
 
 /* ── LE POPUP (III.4) — « se ferme en cliquant dehors » ───────────
    ⛔ À CODER UNE FOIS, PAS TROIS (l'invariant le dit en toutes lettres) :
@@ -1032,6 +1068,15 @@ body {
      propre note : 169 px au lieu de 343 sans ça). */
   max-width: var(--measure); margin-inline: auto;
   padding: var(--sp-8);
+  /* 📐 SA COLONNE EST PLUS LARGE QUE CELLE D'UNE DALLE DE PARCOURS, ET ELLE
+     LE DIT (lot 121, 2026-09-02) : son rembourrage vaut 8, pas 16. Mesuré le
+     02/09 sur Identity, aux deux tailles de fenêtre : 367 − 16 = **351 blg**
+     pour le `.doc-field` et le `.choix-glisse` qu'il porte.
+     ⚠️ Sans cette ligne, l'organe lirait le repli de `.stage` (367) et se
+     croirait 16 blg plus au large qu'il ne l'est. Une colonne déduite se
+     déduit chez CELUI QUI LA RÉTRÉCIT — c'est la seule façon qu'elle reste
+     vraie quand un rembourrage bouge. */
+  --colonne-dalle: calc(var(--colonne-ecran) - 2 * var(--sp-8));
   color: var(--text);
   /* Le liseré de verre — le même filet clair que les dalles d'Abilities, pris
      au jeton et jamais réécrit en `rgba()`. */
@@ -1749,7 +1794,11 @@ button { font: inherit; }
    `width: 100%` ignore les marges, et `margin-inline: auto` DÉSACTIVE
    l'étirement. Déplacée sur `.stage`, les trois cohabitent.
    ⛔ SEULEMENT LES FLANCS : le `margin-block` de la carte reste. */
-:where(:root[data-grandeur="etroite"]) .stage { padding-inline: var(--sp-4); }
+/* ⚠️ ELLE POSE LE JETON, PLUS LA PROPRIÉTÉ (lot 121, 2026-09-02) : `.stage`
+   déclare `padding-inline: var(--stage-gouttiere)` ET en déduit sa colonne.
+   Écrire `padding-inline` ici aurait laissé la déduction sur l'ancienne
+   valeur — une gouttière de 4 peinte, une colonne calculée sur 16. */
+:where(:root[data-grandeur="etroite"]) .stage { --stage-gouttiere: var(--sp-4); }
 :where(:root[data-grandeur="etroite"]) .decision-card { margin-inline: 0; }
 /* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
    `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
@@ -3833,6 +3882,12 @@ button { font: inherit; }
      l'ensemble. C'est ICI que le bloc entier monte : le titre suit, et tout ce
      qui vient après lui aussi. */
   padding: var(--sp-4) var(--sp-16);
+  /* 📐 ET ELLE DIT DE COMBIEN ELLE RÉTRÉCIT LA COLONNE (lot 121, 2026-09-02) —
+     ses deux rembourrages latéraux, les mêmes que la ligne au-dessus. Mesuré
+     le 02/09 sur les trois hôtes de `.choix-glisse` qui passent par ici
+     (`parcours-item-dalle`, `catalogue-choices`, `species-lignage`) : 367 − 32
+     = **335 blg**, aux deux tailles de fenêtre. */
+  --colonne-dalle: calc(var(--colonne-ecran) - 2 * var(--sp-16));
   display: flex; flex-direction: column;
 }
 
@@ -5261,11 +5316,26 @@ button { font: inherit; }
      l'animation sont tous des RAPPORTS au pas : ils suivent sans une retouche.
      ⏳ À TRANCHER PAR ÉRIC, AU DOIGT : un cran de 77 px au lieu de 117 sur un
      téléphone. S'il préfère deux crans à la bonne taille, c'est cette ligne. */
-  container-type: inline-size;
+  /* 🔴 LA LARGEUR NE SE DEMANDE PLUS AU CONTENEUR — 2026-09-02, lot 121.
+     `100cqw` disait « la largeur de ma boîte », et c'était juste sous
+     Chromium. ⛔ Sous WebKit, `zoom` NE REBASE PAS les unités de conteneur :
+     elles rendent des PIXELS PEINTS là où tout le dépôt compte en blg. Sur
+     l'iPad d'Eric (échelle 1,83) `100cqw` valait 671 au lieu de 367, le pas
+     montait à `min(121 ; (671−96)/3 = 191,67)` = **121**, et trois crans de
+     121 plus deux flèches de 44 demandaient 451 blg dans une colonne de 367.
+     ⭐ CE QUE LA COLONNE DÉDUITE APPORTE : elle est en blg par construction,
+     donc les deux moteurs lisent le même nombre. Le pas garde sa valeur,
+     mesurée le 02/09 aux deux tailles : `(367 − 88 − 8) / 3 = 90,33`, cran
+     rendu **87** — identique au pixel près à ce que `cqw` donnait sous
+     Chromium.
+     📌 `--colonne-dalle` et non `--colonne-ecran` : le tambour ne vit dans
+     aucune dalle qui rétrécit, donc le repli de `.stage` lui rend la colonne
+     de l'écran — 367. Mesuré : `.carte-r-corps` = 367, sans rembourrage.
+     Lire le jeton de la dalle le suivrait le jour où il déménagerait. */
   --roue-fleche-l: var(--touch);
   --roue-pas-max: 121px;                /* 117 + 4, les cotes ratifiées du 22/08 */
   --roue-pas: min(var(--roue-pas-max),
-                  calc((100cqw - 2 * var(--roue-fleche-l) - 2 * var(--sp-4)) / 3));
+                  calc((var(--colonne-dalle) - 2 * var(--roue-fleche-l) - 2 * var(--sp-4)) / 3));
   /* L'écart est un RAPPORT au pas (121 / 4 = 30,25), pas une constante : c'est
      ce qui garde `d max = ±1,96694 pas` vrai à TOUTES les largeurs, donc les 51
      images de l'animation justes sans les recalculer. */
@@ -7049,20 +7119,22 @@ button { font: inherit; }
   border-top: 1px solid var(--border);
 }
 
-/* ⚠️ DEUX COLONNES NE TIENNENT PAS À 375 : la carte passe au-dessus, le texte
-   dessous, et c'est le texte qui garde le défilement.
-   📌 `@container` et non `@media` — voir la note sur `.card-final-corps`.
-   🔴 ET LE PLAFOND DE LA VIGNETTE EST DIVISÉ PAR L'ÉCHELLE. Ma première
-   version disait le contraire — *« une fraction de la hauteur RÉELLE, elle ne
-   se met pas à l'échelle »* — et c'était faux, mesuré : `zoom` ne rebase pas
-   `vh`, donc `42vh` se peint × le cran. À 1440 × 900 au cran 3, la vignette
-   demandait **1134 px de haut dans une fenêtre de 900**. Divisée, elle vaut
-   42 % de la fenêtre à tous les crans, ce qui EST l'intention. */
-@container (max-width: 34em) {
-  .card-final-corps { grid-template-columns: minmax(0, 1fr); }
-  .card-final-carte { max-height: calc(42vh / var(--echelle)); }
-  .card-final-img { max-height: calc(42vh / var(--echelle)); width: auto; }
-}
+/* 🧊 LE `@container (max-width: 34em)` A ÉTÉ RETIRÉ — 2026-09-02, lot 121.
+   ⛔ IL NE S'APPLIQUAIT PLUS DEPUIS LE LOT 116, et rien ne le disait. Ce lot
+   avait retiré le `container-type` de `.card-final-corps` (« la carte n'a
+   JAMAIS la place de deux colonnes » — le grid est retiré, pas conditionné)
+   mais laissé le bloc qui l'interrogeait. Une requête de conteneur sans
+   conteneur ancêtre ne s'applique jamais : c'était trois règles mortes.
+   📏 PROUVÉ, PAS SUPPOSÉ : plus aucune feuille d'`ui/builder/` ne déclare de
+   `container-type` (les trois derniers servaient les `100cqw` de ce lot-ci),
+   donc ce bloc n'avait littéralement aucun ancêtre à interroger.
+   ⭐ ET LES DEUX COTES QU'IL PORTAIT SURVIVENT AILLEURS, C'EST POURQUOI SON
+   RETRAIT NE CHANGE RIEN : la colonne unique est le `display: flex` de
+   `.card-final-corps` (lot 116), et le plafond de la vignette est le
+   `max-height: calc(var(--panneau-h) * 1px * 0.42)` de `.card-final-img` —
+   le même 42 %, lu sur le jeton qui porte la hauteur du panneau au lieu d'un
+   `vh` divisé par l'échelle. Garde : `tests/unite-de-conteneur.test.mjs`
+   (A bis) refuse désormais un `@container` orphelin. */
 
 
 /* 🔴 ⛔ `button.` DEVANT, ET C'EST LA DIFFÉRENCE ENTRE MARCHER ET NE PAS

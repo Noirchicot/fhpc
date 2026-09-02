@@ -100,18 +100,28 @@ test("A — AUCUN `@container` D'`ui/builder/` NE VISE SON PROPRE CONTENEUR", ()
     "une règle @container vise l'élément qui porte container-type — elle ne s'appliquera jamais, en silence :\n  " + prises.join("\n  "));
 });
 
-test("A bis — ET LES CONTENEURS DE LA MAISON SONT BIEN VUS (le garde n'est pas vide)", () => {
-  /* 📏 MESURÉ EN POSANT CE GARDE : `listes.css` et `shell.css` déclarent des
-     conteneurs pour leurs unités `cqw`, et AUCUNE feuille ne porte plus de
-     bloc `@container` — le seul qui existait était le fautif du 30/08, retiré
-     par ce lot. Le garde A est donc vide aujourd'hui, et c'est voulu : il
-     attend le prochain `@container`. Ce qu'on vérifie ici, c'est que le
-     lecteur VOIT les conteneurs — un garde qui ne lirait rien serait vert
-     pour toujours. */
-  const css = fs.readFileSync(path.join(ROOT, "ui/builder/listes.css"), "utf8");
-  const texte = sansCommentaires(css);
-  const conteneurs = regles(texte.replace(/@container[^{]*\{[\s\S]*?\n\}/g, "")).filter((r) => /container-type\s*:/.test(r.corps));
-  assert.ok(conteneurs.length >= 1, "listes.css déclare au moins un conteneur de requête — sinon ce garde ne mesure rien");
+test("A bis — ET LE LECTEUR VOIT BIEN LES CONTENEURS (le garde n'est pas vide)", () => {
+  /* ⚖️ RÉÉCRIT LE 2026-09-02 (lot 121), ET LE TÉMOIN A CHANGÉ DE NATURE.
+     Sa première version lisait `listes.css` et exigeait qu'elle déclare au
+     moins un `container-type` — vrai tant que le dépôt employait `100cqw`.
+     Le lot 121 a retiré les unités de conteneur (sous WebKit, `zoom` ne les
+     rebase pas : elles rendent des pixels peints), et les trois
+     `container-type` sont partis avec elles, n'ayant plus rien à servir.
+     ⛔ CE TÉMOIN-LÀ NE POUVAIT DONC QUE MOURIR : il mesurait la présence
+     d'une écriture qu'un autre garde interdit désormais
+     (`tests/unite-de-conteneur.test.mjs`). Deux gardes qui se contredisent,
+     c'est celui qui rougit qu'on désactive.
+     ⭐ LE TÉMOIN NEUF NE DÉPEND PLUS DE LA PRODUCTION : on donne au lecteur
+     un conteneur ÉCRIT ICI et on vérifie qu'il le voit. Le garde A garde donc
+     tout son sens le jour où un `@container` légitime reviendra, et il ne
+     peut plus devenir vert par disparition de son sujet. */
+  const temoin = `
+.une-boite { container-type: inline-size; display: grid; }
+.une-autre { color: red; }
+`;
+  const conteneurs = regles(sansCommentaires(temoin)).filter((r) => /container-type\s*:/.test(r.corps));
+  assert.deepEqual(conteneurs.map((r) => r.selecteur), [".une-boite"],
+    "le lecteur de conteneurs ne voit plus rien — le garde A serait vert pour toujours");
 });
 
 /* ══ §C — L'ATTAQUE ═══════════════════════════════════════════════════════ */
