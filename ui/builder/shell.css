@@ -7315,9 +7315,65 @@ button { font: inherit; }
    --rot`, tirées au montage) et son `--retard` fait la cascade. La feuille
    ne connaît ni positions ni ordre : elle ne sait que « d'où » vers « le
    centre ». */
+/* 🔴 LA COTE DE LA CARTE S'ÉCRIT SUR LA **HAUTEUR** — lot 140, 2026-09-02.
+   Eric, sur ses captures iPad : *« zoom sur le dos de carte, problématique.
+   première partie du zoom insuffisante, 2e partie excessive »* · *« ça saute
+   un peu »*.
+
+   ⛔ CE QUI N'ALLAIT PAS, ET C'ÉTAIT DE L'ARITHMÉTIQUE, PAS DU GOÛT. Les deux
+   cotes étaient écrites sur la LARGEUR, bornées en `vh`. Puis `aspect-ratio`
+   multiplie par 823/480 = **1,7146**, puis `--echelle` divise :
+
+       hauteur réellement vue = borne × 1,7146 ÷ échelle
+       « 40vh » sur la largeur  →   68,6 % de la hauteur ÷ échelle
+       « 74vh » sur la largeur  →  127,0 % de la hauteur ÷ échelle
+
+   📏 MESURÉ à 1366 × 954 : le mélange finissait à **47 %** de la hauteur et le
+   gros plan rendait **127 %** — coupé de 256 px en haut et en bas, ce que les
+   captures d'Eric montrent. ⭐ **Un « 74vh » posé sur la largeur d'une carte
+   portrait veut dire 127 % de la hauteur** : le nombre a l'air d'être une
+   fraction de l'écran, il ne l'est pas, et rien dans la déclaration ne dit
+   quelle part de l'écran on verra.
+   ⭐ LA HAUTEUR EST LA DIMENSION QUI DOIT TENIR, c'est donc elle qui porte la
+   cote. La largeur suit par le rapport. `88vh` veut alors dire 88 % de la
+   hauteur, chez tout le monde. Le second terme borne la LARGEUR à 88vw pour
+   les écrans étroits : `88vw × 823/480` est la hauteur qu'une largeur de 88vw
+   produirait, donc `min()` retient celle des deux qui rentre.
+
+   ⭐⭐ ET ELLE NE S'ÉCRIT PLUS EN UNITÉS DE FENÊTRE DU TOUT — Eric, 2026-09-02 :
+   *« tu connais les blg ? normalement c'est bon pour un écran c'est bon pour
+   tous les écrans »*. Il a raison, et il ferme la question que je m'apprêtais
+   à traiter par un calcul.
+   ⛔ CE QUE J'AI ESSAYÉ AVANT, ET POURQUOI C'ÉTAIT DEUX FOIS FAUX. J'ai d'abord
+   proposé de RETIRER la division par `--echelle` — le `garde 5 ter` l'a refusé,
+   avec sa mesure (*« zoom ne rebase pas vw/vh : la valeur est calculée sur la
+   fenêtre brute, puis peinte × le cran »* ; la cérémonie sortait de l'écran dès
+   le cran 2 à 1440 × 900). J'ai ensuite gardé la division en corrigeant la
+   dimension — et une sonde sur la page a rendu **76 %** là où j'attendais 88 :
+   le calcul `vh ÷ échelle` ne dit toujours pas ce qu'on verra.
+   ⭐ LA SORTIE N'EST PAS UN MEILLEUR CALCUL, C'EST DE NE PLUS EN FAIRE. Le
+   panneau vaut **560 blg de haut sur tous les écrans** (règle sacrée du 31/08) :
+   une cote écrite contre `--panneau-h` vaut la même fraction partout, par
+   construction, sans qu'aucune unité de fenêtre n'entre dans l'affaire. Plus de
+   `vh`, donc plus de piège de zoom, et le garde 5 ter n'a plus rien à dire.
+   📌 L'IDIOME EXISTAIT DÉJÀ À TRENTE LIGNES D'ICI : `.card-final-img` porte
+   `max-height: calc(var(--panneau-h) * 1px * 0.42)` depuis le lot 116, posé
+   avec exactement cette raison — *« l'intention lue dans le jeton qui porte
+   cette hauteur, au lieu d'un vh divisé par l'échelle »*. J'ai reconstruit un
+   calcul là où il fallait relire le voisin.
+
+   📏 CE QUE ÇA DONNE, ET C'EST VÉRIFIABLE SANS ÉCRAN :
+       hauteur = 560 × 0,88 = **492,8 blg**  (88 %, tranché par Eric)
+       largeur = 492,8 × 480/823 = **287,4 blg**, soit 77 % des 375 du panneau
+   ⭐ Aucune borne de largeur n'est nécessaire : 287 tient dans 375 par le seul
+   rapport de la carte. Une borne qui ne peut jamais mordre est une branche que
+   personne ne parcourt. */
 .ceremonie-pile {
   position: relative;
-  width: calc(min(52vw, 40vh) / var(--echelle));
+  /* ⛔ UNE SEULE COTE POUR LES DEUX SÉQUENCES — voir `.ceremonie-flip`, qui la
+     répète à l'identique. C'est ce qui supprime le saut PAR CONSTRUCTION. */
+  height: calc(var(--panneau-h) * 1px * 0.88);
+  width: auto;
   aspect-ratio: 480 / 823;
   transform: scale(.5);
   transition: transform 1900ms cubic-bezier(.22, .61, .36, 1);
@@ -7336,7 +7392,29 @@ button { font: inherit; }
   width: 100%;
   height: 100%;
   border-radius: var(--radius-sm);
-  box-shadow: 0 10px 30px var(--ceremonie-ombre);
+  /* 🔴 UNE OMBRE LÉGÈRE, PARCE QU'ELLES SONT DOUZE — lot 140, Eric : *« le
+     mélange pourrait être plus fluide »* · *« ça saute un peu »*.
+     📏 CE QUE ÇA COÛTAIT : `0 10px 30px` est un flou de 30 px recalculé à
+     CHAQUE image du mouvement, sur DOUZE nœuds qui se déplacent en même temps.
+     ⭐ ET ONZE D'ENTRE ELLES NE SE VOIENT JAMAIS : à l'arrivée les douze copies
+     sont empilées au centre, donc onze ombres sont derrière la douzième. On
+     paie douze flous pour en montrer un.
+     ⛔ LA CARTE SEULE, ELLE, GARDE SON OMBRE PLEINE — `.ceremonie-flip-face`
+     porte `0 14px 40px` et n'est qu'UN nœud. Ce lot n'y touche pas : le gros
+     plan est le moment où l'ombre se regarde. */
+  box-shadow: 0 4px 12px var(--ceremonie-ombre);
+  /* 🔴 `will-change`, ET IL S'ARGUMENTE — NORMES porte un ⛔ dessus pour le cran
+     de ceinture, avec sa raison : *« il promeut le cran en couche composite »*,
+     et le cran vit toute la session.
+     ⚖️ CES DOUZE-LÀ VIVENT CINQ SECONDES. Le nœud est créé au montage de la
+     séquence 2 et meurt avec elle ; la couche composite est rendue au
+     navigateur aussitôt après. Le coût que la norme refuse — une couche
+     permanente pour un organe permanent — n'existe pas ici, et le gain est
+     exactement celui qu'elle décrit : douze `transform` simultanées qui ne
+     repeignent plus.
+     ⛔ Ne pas le recopier ailleurs sans refaire cet argument : c'est la durée
+     de vie du nœud qui le rend légitime, pas le fait qu'il bouge. */
+  will-change: transform;
   transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0deg));
   transition: transform 900ms cubic-bezier(.34, .08, .2, 1) var(--retard, 0ms);
 }
@@ -7371,7 +7449,20 @@ button { font: inherit; }
    retournement, jamais par une substitution d'image. */
 .ceremonie-flip {
   position: relative;
-  width: calc(min(64vw, 74vh) / var(--echelle));
+  /* 🔴 LA MÊME COTE QUE LA PILE, AU CARACTÈRE PRÈS — lot 140, et c'est LA
+     réparation du « ça saute ».
+     📏 MESURÉ AVANT : la pile finissait à 449 px de haut et ce bouton en
+     montait 831 — **×1,85 d'un coup**, entre deux nœuds différents, sans
+     transition possible puisque l'un remplace l'autre.
+     ⭐ ET LE CROQUIS NE DEMANDAIT QU'UNE TAILLE : la séquence 2 finit à
+     *« 100 % remplit l'écran »*, la séquence 3 est *« zoom max »*. Ce sont deux
+     façons de nommer le MÊME plein écran. Deux cotes là où le dessin en montre
+     une, c'est une marche que rien ne justifie.
+     ⛔ Un garde tient l'égalité (`tests/ceremonie-cote.test.mjs`) : elle ne se
+     maintient pas toute seule, et une seule des deux qui bouge fait revenir le
+     saut sans qu'aucun test de rendu ne le voie. */
+  height: calc(var(--panneau-h) * 1px * 0.88);
+  width: auto;
   aspect-ratio: 480 / 823;
   padding: 0;
   border: 0;
