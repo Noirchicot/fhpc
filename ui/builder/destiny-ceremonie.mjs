@@ -24,7 +24,7 @@
    d'un coup et les cartes ne voyagent pas — la cérémonie garde son rythme,
    elle perd son agitation. */
 
-import { ARCANA_BACK_SRC, arcanaImageSrc } from "./destiny-step.mjs?v=451";
+import { ARCANA_BACK_SRC, arcanaImageSrc } from "./destiny-step.mjs?v=452";
 
 /* ⭐ LES MOTS SONT D'ERIC (candidat A, retenu le 2026-08-30), et il a tranché
    la ponctuation : **pas de point final**. Ils vivent ICI, à un seul endroit —

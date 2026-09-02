@@ -26,7 +26,7 @@
    ICI : `facteurZoom` appartient à l'échelle, qui la possède (lot 85). Le socle
    la CONSOMME pour ramener un écart peint en unités de mise en page — voir sa
    raison dans `keepInView`. */
-import { facteurZoom } from "./echelle.mjs?v=451";
+import { facteurZoom } from "./echelle.mjs?v=452";
 
 /* ── 1. LE REMPLAÇANT DE CONTENU ───────────────────────────────────────
    La seule fonction du dépôt qui vide et regarnit un nœud.
