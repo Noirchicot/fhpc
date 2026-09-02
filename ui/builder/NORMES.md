@@ -2415,6 +2415,33 @@ ceinture à **60**. À 1,2 la tuile rendait 46,4, et la ceinture 62 — deux blg
 un `textContent`. ⭐ C'est exactement ce que *« ça va en partie s'extrapoler à la version large »*
 voulait dire.
 
+### ⭐ LA LEÇON À PART : **UN VIDE SE PAIE AILLEURS QU'OÙ ON LE REGARDE** *(02/09)*
+
+> Relevée en mesurant la tuile, et sortie de sa section à la demande de l'architecte : elle ne
+> parle pas du belt, elle parle de tous les budgets.
+
+📏 **LE CAS, EN TROIS NOMBRES.** Le libellé de la tuile était à l'interligne **1,2**. On regardait
+ce vide comme un réglage de TEXTE — deux blg de blanc autour d'un mot, la chose la plus anodine
+d'une feuille de style. Mesuré, il rendait la tuile à **46,4** au lieu de 44, donc la ceinture à
+**62** au lieu de 60 : **deux blg pris à la SCÈNE**, à l'autre bout du panneau, sur un budget qui
+n'a que **9 blg** de mou *(mesure du 31/08)*.
+
+🔴 **LA LOI : UN VIDE N'EST PAS LOCAL.** Dans une chaîne de boîtes, tout espace intérieur remonte —
+l'interligne pousse la ligne, la ligne pousse la tuile, la tuile pousse la ceinture, la ceinture
+prend sa place à ce qui est dessous. ⛔ **Le regarder à l'endroit où il est écrit ne dit donc rien
+de ce qu'il coûte.** C'est la même famille que *« 32 = 16 + 16 »* du §4 ter — deux marges
+légitimes, chacune juste de son côté, qui ne se voient qu'en **décomposant** l'écart.
+
+⭐ **ET C'EST LE COMPLÉMENT EXACT DE LA LOI DU §2 bis** *(« quand un écran déborde, ce sont les
+VIDES qui cèdent, jamais les organes »)*. Cette loi-là dit **quoi** faire céder ; celle-ci dit
+**où chercher** — ⛔ pas forcément dans la boîte qui déborde. Le vide qui a sauvé le corps du
+libellé n'était pas dans la ligne du texte, il était dans l'interligne d'un mot à deux boîtes de
+là.
+
+➡️ **LE GESTE, EN UNE PHRASE** : avant de descendre un organe d'un barreau, **écrire la somme
+verticale de sa boîte** et regarder lequel de ses termes est un vide. Un organe qu'on rétrécit
+*« parce qu'il manque un demi-pixel »* est presque toujours un vide qu'on n'a pas décomposé.
+
 ### 🎚️ LE CHEVRON DU BELT — un organe du seul format étroit
 
 | | |

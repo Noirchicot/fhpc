@@ -97,6 +97,35 @@ test("🔴 le libellé tient à T2 — parce que ce sont les VIDES qui ont céd�
     "⛔ jamais deux lignes : le budget vertical du belt n'en a pas (44 blg, pile)");
 });
 
+test("🔴 LE BUDGET VERTICAL DE LA TUILE — les trois vides sont à leur plancher", () => {
+  /* ⭐ CE QUE CE GARDE TIENT VRAIMENT, ET CE N'EST PAS LE BELT : un vide se
+     paie AILLEURS qu'où on le regarde (NORMES §6 ter, la leçon à part).
+     L'interligne du libellé passait pour un réglage de texte ; mesuré, il
+     rendait la tuile à 46,4 au lieu de 44, donc la ceinture à 62 au lieu de
+     60 — **deux blg pris à la scène**, sur un budget qui n'a que 9 blg de mou
+     (31/08).
+
+     📐 LA SOMME QUE CE GARDE PROTÈGE, terme par terme :
+         rembourrage --sp-4 .... 4
+         pastille .............. 22
+         écart --sp-2 ..........  2
+         libellé T2, interligne 1  12
+         rembourrage --sp-4 ....  4
+         ──────────────────────── 44  = --touch  →  ceinture 60
+     ⛔ Faire grandir N'IMPORTE LEQUEL des trois vides sort de 44. Le garde les
+     nomme donc un par un : une prochaine main qui remonte l'interligne « pour
+     aérer » verra l'arithmétique avant de le faire, pas le débordement après. */
+  const tuile = regle(shellCss, /^\.belt-item$/);
+  const libelle = regle(shellCss, /^\.belt-label$/);
+  assert.match(tuile, /padding:\s*var\(--sp-4\) var\(--sp-2\)/,
+    "le rembourrage : 4 en hauteur (le budget) et 2 en largeur (la place du mot)");
+  assert.match(tuile, /gap:\s*var\(--sp-2\)/, "l'écart entre la pastille et le nom : 2");
+  assert.match(libelle, /line-height:\s*1(?![.\d])/,
+    "l'interligne : 1. À 1,2 la ceinture rend 62 et la scène perd deux blg");
+  assert.match(tuile, /min-height:\s*var\(--touch\)/,
+    "et la tuile ne descend jamais sous le plancher tactile");
+});
+
 /* ══ 2 — LE CHEVRON : LA CIBLE COMMANDE, LE DESSIN SUIT ════════════════════ */
 
 test("🔴 la cible du chevron vaut `--touch`, et le DESSIN se déduit d'elle", () => {
