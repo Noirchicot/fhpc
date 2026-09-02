@@ -187,7 +187,7 @@ test("🔴 elle descend SOUS 1 plutôt que de couper — le plancher est renvers
 test("l'échelle ne fait jamais déborder le panneau, sur aucune des deux dimensions", () => {
   /* ⚠️ RÉÉCRIT AU LOT 133 : la seconde moitié de cette clause exigeait que le
      panneau TOUCHE un bord. C'était vrai d'une échelle continue ; le partage
-     d'Eric laisse justement du vide autour — *« combien la fenêtre donne au
+     (formule de l'architecte, 30/08) laisse justement du vide autour — *« combien la fenêtre donne au
      builder, et combien elle laisse à côté »*. Ce qui reste vrai partout,
      c'est qu'on ne déborde pas. Le bord touché reste exigé SOUS `mobile`. */
   for (const [l, h] of [[360, 640], [375, 812], [768, 1024], [1024, 1366],

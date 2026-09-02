@@ -82,8 +82,17 @@
 > saute un cran en dessous. »** · **« Tout passe en mode widget pour desktops. »**
 > **« iPad tu suggères 1/2 donc, là où petit écran tu suggères 1/3. »** · **« 7 crans »**
 
-⭐ **Ce n'est pas une taille d'écran, c'est un PARTAGE** — et c'est le mot d'Eric du 31/08 :
-*« combien la fenêtre donne au builder, et combien elle laisse à côté »*. `1/4` dit « un quart pour
+⭐ **Ce n'est pas une taille d'écran, c'est un PARTAGE** — *« combien la fenêtre donne au
+builder, et combien elle laisse à côté »*.
+⚠️ **ATTRIBUTION CORRIGÉE LE 02/09** : cette phrase a été écrite ici comme « le mot d'Eric du
+31/08 ». Elle ne l'est pas. Vérifié au transcrit brut, champ `role` : c'est une **reformulation de
+l'architecte** (30/08 23h45 UTC, `role = assistant`, *« ton échelle […] c'est une échelle de
+partage »* — il s'adresse à Eric, il ne le cite pas). Eric ne l'a jamais tapée ; il l'a laissée
+passer. ⭐ **La formulation reste** — elle est juste et elle éclaire la règle. C'est sa **signature**
+qui était fausse. ⛔ Une norme qui cite faux se défend ensuite toute seule : c'est le même défaut
+que la cote DÉDUITE prise pour une cote DONNÉE.
+Les citations d'Eric de cette section, elles, sont vérifiées : *« Tout passe en mode widget pour
+desktops »* · *« largeur plutôt basée sur la largeur, et un plancher à la hauteur »* · *« 7 crans »*. `1/4` dit « un quart pour
 le builder, trois pour le décor ». **La taille en découle, elle ne se décide pas ailleurs.**
 
 | # | cran | part | écran type | panneau | échelle | hauteur prise |

@@ -107,7 +107,8 @@ function cotesDeLApp(racine, colonnes) {
    place. »* · *« iPad tu suggères 1/2 donc, là où petit écran tu suggères
    1/3. »*
 
-   ⭐ CE QUE LA FRACTION DIT VRAIMENT, ET C'EST LE MOT D'ERIC DU 31/08 :
+   ⭐ CE QUE LA FRACTION DIT VRAIMENT — ⚠️ formule de l'ARCHITECTE (30/08), pas
+   d'Eric : l'attribution a été corrigée le 02/09, la phrase est gardée :
    *« combien la fenêtre donne au builder, et combien elle laisse à côté »*.
    Ce n'est pas une taille d'écran, c'est un PARTAGE — 1/4 dit « un quart pour
    le builder, trois pour le décor ». La taille en découle, elle ne se décide
