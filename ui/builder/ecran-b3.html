@@ -54,8 +54,8 @@
      encore importée dans `fhpc` (c'est le lot 95).
 ═══════════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=449">
-<link rel="stylesheet" href="./shell.css?v=449">
+<link rel="stylesheet" href="./tokens.css?v=450">
+<link rel="stylesheet" href="./shell.css?v=450">
 
 <style>
 html, body { height: 100%; }
@@ -191,10 +191,10 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
            reste une forme, pas une photo. -->
       <defs>
         <mask id="masque-h" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-h.png?v=449" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-h.png?v=450" x="280" y="100" width="441" height="1400"></image>
         </mask>
         <mask id="masque-f" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-f.png?v=449" x="305" y="100" width="390" height="1400"></image>
+          <image href="./assets/pantin-f.png?v=450" x="305" y="100" width="390" height="1400"></image>
         </mask>
         <!-- 🔴 LA ZONE COMMUNE — Eric, 2026-08-24 : *« superpose les deux corps,
              je trouve le point moyen »*. ⛔ Ce n'est PAS une superposition à
@@ -205,7 +205,7 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
              n'y a plus rien à vérifier après coup. C'est la différence entre
              « ça a l'air de tomber juste » et « ça ne peut pas tomber faux ». -->
         <mask id="masque-x" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1600">
-          <image href="./assets/pantin-x.png?v=449" x="280" y="100" width="441" height="1400"></image>
+          <image href="./assets/pantin-x.png?v=450" x="280" y="100" width="441" height="1400"></image>
         </mask>
       </defs>
       <!-- Les deux en filigrane, la zone commune par-dessus : on voit d'un coup
@@ -231,12 +231,12 @@ body { margin: 0; display: flex; flex-direction: column; background: var(--bg); 
    depuis cette nuit : une seule écriture, plusieurs lecteurs. Les recopier ici
    ferait de ce banc une seconde vérité, et il finirait par montrer autre chose
    que l'écran — exactement ce que le repère est censé rendre impossible. */
-import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=449";
-import { CORPS_EN_SCENE } from "./b3-disposition.mjs?v=449";
+import { ANCRAGES as EMPLACEMENTS } from "./b3-ancrages.mjs?v=450";
+import { CORPS_EN_SCENE } from "./b3-disposition.mjs?v=450";
 /* ⭐ LA SCÈNE EST IMPORTÉE, PLUS DESSINÉE ICI — même couture que la carte R :
    le banc regarde le produit (`b3-scene.mjs`), il ne peut plus montrer autre
    chose que lui. Les APERÇUS (faux ×N) sont une option de banc. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=449";
+import { construireLeDressing } from "./b3-dressing.mjs?v=450";
 
 const SVG = "http://www.w3.org/2000/svg";
 const REPERE_MILIEU = 500;
