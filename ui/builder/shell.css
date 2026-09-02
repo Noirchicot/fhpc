@@ -7363,16 +7363,30 @@ button { font: inherit; }
    calcul là où il fallait relire le voisin.
 
    📏 CE QUE ÇA DONNE, ET C'EST VÉRIFIABLE SANS ÉCRAN :
-       hauteur = 560 × 0,88 = **492,8 blg**  (88 %, tranché par Eric)
-       largeur = 492,8 × 480/823 = **287,4 blg**, soit 77 % des 375 du panneau
-   ⭐ Aucune borne de largeur n'est nécessaire : 287 tient dans 375 par le seul
+       hauteur = 560 × 0,95 = **532 blg**   (95 %, tranché par Eric le 02/09)
+       largeur = 532 × 480/823 = **310,3 blg**, soit 83 % des 375 du panneau
+   ⭐ Aucune borne de largeur n'est nécessaire : 310 tient dans 375 par le seul
    rapport de la carte. Une borne qui ne peut jamais mordre est une branche que
-   personne ne parcourt. */
+   personne ne parcourt.
+
+   ⚠️ ET « 95 % » VEUT DIRE 95 % DU **PANNEAU**, PAS DE L'ÉCRAN — la distinction
+   a coûté un aller-retour, elle est donc écrite ici. L'échelle est QUANTIFIÉE
+   en sept crans : le cran retenu est celui qui rentre, avec du mou. Le panneau
+   n'occupe donc pas toute la hauteur — mesuré sur l'iPad d'Eric (1366 × 954,
+   cran 1,457) : `560 × 1,457 = 816 px sur 954`, soit **86 %**. La carte prend
+   95 % de ces 86 %, c'est-à-dire **82 % de son écran**.
+   ⭐ C'EST LA CONTREPARTIE ASSUMÉE DE LA COTE EN BLG : elle est STABLE par
+   rapport au panneau et VARIABLE par rapport à l'écran. L'inverse — stable par
+   rapport à l'écran — demanderait des unités de fenêtre, que le `garde 5 ter`
+   interdit dans le sous-arbre zoomé, avec sa mesure. On garde donc la stabilité
+   qu'on peut tenir, et le chiffre écrit dit désormais de quoi il est la part.
+   📏 Le pire cas reste borné : là où le panneau remplit toute la hauteur, la
+   carte en prend 95 % — elle ne peut pas déborder. */
 .ceremonie-pile {
   position: relative;
   /* ⛔ UNE SEULE COTE POUR LES DEUX SÉQUENCES — voir `.ceremonie-flip`, qui la
      répète à l'identique. C'est ce qui supprime le saut PAR CONSTRUCTION. */
-  height: calc(var(--panneau-h) * 1px * 0.88);
+  height: calc(var(--panneau-h) * 1px * 0.95);
   width: auto;
   aspect-ratio: 480 / 823;
   transform: scale(.5);
@@ -7461,7 +7475,7 @@ button { font: inherit; }
      ⛔ Un garde tient l'égalité (`tests/ceremonie-cote.test.mjs`) : elle ne se
      maintient pas toute seule, et une seule des deux qui bouge fait revenir le
      saut sans qu'aucun test de rendu ne le voie. */
-  height: calc(var(--panneau-h) * 1px * 0.88);
+  height: calc(var(--panneau-h) * 1px * 0.95);
   width: auto;
   aspect-ratio: 480 / 823;
   padding: 0;
