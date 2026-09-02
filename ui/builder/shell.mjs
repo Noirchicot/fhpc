@@ -28,6 +28,7 @@ import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mj
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
 import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=439";
+import { STEPS } from "./etapes.mjs?v=439";
 import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=439";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
@@ -170,18 +171,12 @@ import { versionQuery } from "./version.mjs?v=439";
    — l'écran montre l'état d'un dossier, le chapitre explique un personnage.
    Deux noms pour un écran est un défaut ; deux noms pour deux choses n'en est
    pas un. */
-const STEPS = [
-  { id: "universe",   label: "Menu" },       // ⟵ « Universe & Layers », puis « Settings »
-  { id: "concept",    label: "Identity" },   // ⟵ « Biography » — Eric, 2026-08-18
-  { id: "species",    label: "Species" },
-  { id: "background", label: "Inheritance" }, // LOT 42, §3d — l'arrière-plan n'existe plus en Fate's Hand ; le libellé change seul
-  { id: "destiny",    label: "Destiny" },
-  { id: "class",      label: "Class" },
-  { id: "abilities",  label: "Abilities" },
-  { id: "skills",     label: "Skills" },
-  { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
-  { id: "review",     label: "Sheet" }      // ⟵ « Review » — le CHAPITRE, lui, s'appelle Character
-];
+/* 🔴 LA LISTE ELLE-MÊME A DÉMÉNAGÉ DANS `etapes.mjs` (lot 129) — la coquille
+   n'est plus la seule à avoir besoin de l'ordre : le texte vert de portage,
+   sur l'écran Species, NOMME l'étape où un effet se règle (« step 3,
+   Inheritance »). Recopier ce numéro et ce mot là-bas aurait donné deux voix
+   pour un même ordre. ⛔ Rien d'autre ne change : `STEPS` se lit ici comme
+   avant, et tout ce qui suit continue de travailler sur l'`id`. */
 /* LOT 40 — trouvé PAR l'id, jamais par la position. `STEPS.length - 1`
    désigne le même index aujourd'hui (review est le dernier pas de la
    ceinture), mais le bouton final (§3c) doit mener à Review PARCE QUE c'est

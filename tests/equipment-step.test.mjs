@@ -258,11 +258,17 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
     'action.kind === "addGearLine"',
     'action.kind === "removeGearLine"',
     'action.kind === "addInheritedPurse"',
-    'id: "equipment"',
     "renderEquipmentStep("
   ]) {
     assert.ok(shellText.includes(needle), `shell.mjs devrait contenir « ${needle} » — sans quoi le lot 49 n'est pas branché`);
   }
+  /* 📌 LE CRAN LUI-MÊME A DÉMÉNAGÉ DANS `etapes.mjs` (lot 129) : la liste des
+     étapes est partagée depuis que l'écran Species doit nommer l'étape où un
+     effet se règle. Ce que ce garde exige n'a pas changé — l'étape equipment
+     existe dans la ceinture — seule la source où elle se déclare a bougé. */
+  const etapesText = stripComments(fs.readFileSync(path.join(UI_DIR, "etapes.mjs"), "utf8"));
+  assert.ok(etapesText.includes('id: "equipment"'),
+    "etapes.mjs devrait contenir « id: \"equipment\" » — sans quoi le lot 49 n'est pas branché");
 });
 
 /* ⚔️ ATTAQUE MANUELLE JOUÉE SUR CE LOT (commande §3, « une attaque manuelle

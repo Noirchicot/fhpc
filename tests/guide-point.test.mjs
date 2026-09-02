@@ -55,9 +55,15 @@ import { createTestDocument } from "./dom-stub.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SHELL = path.join(ROOT, "ui", "builder", "shell.mjs");
+/* 📌 `STEPS` A DÉMÉNAGÉ DANS `etapes.mjs` (lot 129) — la liste des crans est
+   partagée depuis que l'écran Species doit NOMMER l'étape où un effet se
+   règle. Ce garde lit donc deux sources : la liste là où elle vit, la table
+   des guides là où elle vit. L'invariant, lui, n'a pas bougé d'un mot. */
+const ETAPES = path.join(ROOT, "ui", "builder", "etapes.mjs");
 const CSS = path.join(ROOT, "ui", "builder", "shell.css");
 
 const shell = stripComments(fs.readFileSync(SHELL, "utf8"));
+const etapes = stripComments(fs.readFileSync(ETAPES, "utf8"));
 const css = fs.readFileSync(CSS, "utf8");
 
 /** Les `id` déclarés par `STEPS`, lus dans la source de la coquille — la
@@ -65,8 +71,8 @@ const css = fs.readFileSync(CSS, "utf8");
  *  chargement). ⚠️ On lit la LISTE, pas un compte : un compte juste ne dirait
  *  rien des noms. */
 function idsDesEtapes() {
-  const bloc = shell.match(/const STEPS = \[([\s\S]*?)\n\];/);
-  assert.ok(bloc, "STEPS introuvable dans shell.mjs — ce garde lit la mauvaise source");
+  const bloc = etapes.match(/const STEPS = \[([\s\S]*?)\n\];/);
+  assert.ok(bloc, "STEPS introuvable dans etapes.mjs — ce garde lit la mauvaise source");
   return [...bloc[1].matchAll(/id:\s*"([a-z]+)"/g)].map((m) => m[1]);
 }
 

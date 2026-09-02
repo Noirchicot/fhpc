@@ -37,6 +37,7 @@ import { spellInfo } from "./class-step.mjs?v=439";
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
 import { motDuVerrou } from "./skills-step.mjs?v=439";
 import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=439";
+import { etapeParId } from "./etapes.mjs?v=439";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -247,6 +248,88 @@ function traitQuiAccorde(record, chemin) {
   return traitsDe(record).find((trait) => ids.includes(trait.id)) || null;
 }
 
+/* ══ 🟢 CE QUI EST GAGNÉ ICI MAIS SE RÈGLE AILLEURS — Eric, 2026-09-02 ═════
+   *« Je ne vois pas le petit texte vert qui indique, sur les pouvoirs granted,
+   que c'est transféré à un choix dans un autre chapitre. Pour le reste la
+   pastille verte signifie que tout le contenu est enregistré direct dans la
+   fiche de perso. »* Puis, en le bornant : *« Texte vert : free points, feats,
+   destiny. »*
+
+   ⭐ L'INVARIANT : un trait du bloc « gagné d'office » dont l'effet est des
+   POINTS LIBRES, un DON ou un BONUS DE DESTINÉE **nomme l'étape où cet effet
+   se règle**. La pastille verte reste vraie pour tout le reste — elle promet
+   que le contenu part directement à la fiche, et ces trois-là n'y partent pas
+   encore : ils attendent un choix, plus loin dans la ceinture.
+
+   🔴 LA LISTE SE DÉRIVE DE L'EFFET, JAMAIS D'UNE LISTE DE NOMS. Une liste
+   d'exceptions par nom ne dit jamais qu'elle est incomplète : le 02/09, un
+   filtre qui cherchait « skill point » au SINGULIER a raté `fast-learner`
+   (Araag, Elestu) qui dit « skill points » — et c'est Eric qui l'a vu.
+     · POINTS LIBRES → `data.skill_points.trait` : la déclaration NOMME son
+       trait. C'est une donnée sûre, et elle bat toute recherche de mots.
+     · BONUS DE DESTINÉE → `data.destiny.base_bonus_trait` : idem, nommé.
+       ⛔ Pas une recherche sur « destiny » : `twice-born` (Human) parle de
+       Destiny Points et ne se règle nulle part ailleurs — il serait ramassé.
+     · DON → aucune déclaration structurée n'existe au dépôt ; le seul signal
+       est l'effet écrit du trait, qui dit accorder un *feat*. Le mot est
+       cherché ENTIER (`\bfeats?\b`) : sans la borne, « feature » suffirait.
+       ⚠️ C'est la seule des trois qui lit du texte, et c'est donc la seule
+       qui peut dériver : le garde en nomme les six couples mesurés, pour
+       qu'une entrée ou une sortie se DISE au lieu de se glisser.
+
+   ⛔ LE FAUX POSITIF À NE PAS RAMASSER, mesuré : `breath-weapon` dit *« choose
+   the shape each time »*. C'est un choix EN JEU, à chaque souffle — pas un
+   effet reporté à un chapitre. Aucun des trois cribles ne l'atteint, et c'est
+   la preuve qu'ils ne cherchent pas « un choix » mais un EFFET nommé. */
+const PORTAGES = [
+  /* l'étape est désignée par son ID ; son NUMÉRO et son MOT se lisent au
+     parcours (`etapeParId`), ⛔ jamais recopiés en littéral. */
+  { etape: "skills", porte: (data, trait) => ((data.skill_points || {}).trait === trait.id) },
+  { etape: "destiny", porte: (data, trait) => ((data.destiny || {}).base_bonus_trait === trait.id) },
+  { etape: "background", porte: (data, trait) => /\bfeats?\b/i.test(typeof trait.text === "string" ? trait.text : "") }
+];
+
+/** L'étape où l'effet de ce trait se règle — `{ numero, mot }` — ou `null`.
+ *  ⚠️ Elle se lit sur l'EFFET (voir `PORTAGES`), et sur la source du trait :
+ *  un condensé d'écran peut taire le mot « feat » sans que la règle change. */
+function etapeQuiRegle(data, trait) {
+  const trouve = PORTAGES.find((p) => p.porte(data || {}, trait || {}));
+  return trouve ? etapeParId(trouve.etape) : null;
+}
+
+/** LA LIGNE VERTE — sous la ligne du trait, dans l'encre de l'avancement.
+ *  ⛔ Elle ne redit pas l'effet : elle dit OÙ il se règle, et rien d'autre. */
+function ligneDePortage(etape) {
+  const ligne = el("p", "bilan-ligne bilan-portage");
+  ligne.append(text(`→ chosen at step ${etape.numero}, ${etape.mot}`));
+  return ligne;
+}
+
+/* ── 🔴 LA BASE DE DESTINÉE — UNE LECTURE, PAS TROIS ──────────────────────
+   Eric, 2026-09-02, en voyant l'écran S de l'Elfe : la ligne annonçait
+   `Destiny : 2` pendant que le trait juste en dessous disait *« Your Destiny
+   Base increases by 2, for a Destiny Base of 4 at character creation »*. Un
+   écran qui se contredit à deux lignes d'écart.
+
+   📏 LA CAUSE, MESURÉE : trois endroits de ce fichier lisaient
+   `data.destiny.base` chacun pour son compte, et les trois ignoraient
+   `base_bonus`. L'Elfe est la SEULE des douze à en porter un — la maladie
+   était donc invisible sur onze espèces sur douze, ce qui est exactement la
+   raison pour laquelle elle a survécu.
+
+   ⛔ ET LA DONNÉE NE PORTE PAS DE TOTAL EN DUR, délibérément : `base: 2` +
+   `base_bonus: 2` est ce que le moteur lit déjà (`src/modules/fh/destiny-stat.mjs`
+   en tire DEUX lignes de Base) et ce que le chapitre publié écrit (« Base 2.
+   Splinter of Anon : +2 »). Un `base: 4` ferait mentir la ligne du trait —
+   « +2 Destiny Base » : inclus, ou pas ? — et divergerait du livre.
+   ⭐ Le défaut était une LECTURE. Il se répare dans la lecture, une fois. */
+function baseDeDestinee(data) {
+  const destiny = (data && data.destiny) || {};
+  if (!Number.isFinite(destiny.base)) return null;
+  const bonus = Number.isFinite(destiny.base_bonus) ? destiny.base_bonus : 0;
+  return destiny.base + bonus;
+}
+
 function resumeDeLItem(item, ctx, act) {
   const record = especeRetenue(ctx);
   if (!record || !item) return null;
@@ -258,10 +341,10 @@ function resumeDeLItem(item, ctx, act) {
     const sens = Array.isArray(data.senses)
       ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
       : null;
-    const destiny = data.destiny && data.destiny.base;
+    const destiny = baseDeDestinee(data);
     const lignes = [
       ["Size", data.size], ["Speed", data.speed], ["Creature type", data.creature_type],
-      ["Senses", sens], ["Destiny", Number.isFinite(destiny) ? String(destiny) : null]
+      ["Senses", sens], ["Destiny", destiny === null ? null : String(destiny)]
     ];
     /* LES TRAITS, UN PAR LIGNE, ET SANS CEUX QUE LES AUTRES LIGNES PORTENT. */
     const couverts = new Set();
@@ -278,15 +361,20 @@ function resumeDeLItem(item, ctx, act) {
        `trait.text` EN DIRECT — c'est la seule lecture (voir sa tête). */
     const courts = courtsDeTraits(record);
     for (const trait of traitsDe(record)) {
-      if (!couverts.has(trait.id)) lignes.push([trait.name, contenuDuTrait(trait, courts) || "—"]);
+      /* 🟢 le 3ᵉ terme est l'étape qui RÈGLE cet effet, ou `null` (voir
+         `PORTAGES`) — les cinq lignes fixes n'en ont jamais. */
+      if (!couverts.has(trait.id)) {
+        lignes.push([trait.name, contenuDuTrait(trait, courts) || "—", etapeQuiRegle(data, trait)]);
+      }
     }
     /* « mets en gras, deux-points, démarre le texte juste derrière » — Eric,
        27/08. Le tableau à deux colonnes dégage : chaque ligne devient
        « **Mot :** texte », enchaîné, pleine largeur. */
     const bloc = el("div", "species-acquis-bilan");
-    for (const [mot, valeur] of lignes) {
+    for (const [mot, valeur, portage] of lignes) {
       if (valeur === null || valeur === undefined) continue;
       bloc.append(ligneEnGras(mot, valeur, ctx.query, act));
+      if (portage) bloc.append(ligneDePortage(portage));
     }
     return bloc;
   }
@@ -568,14 +656,14 @@ function renderSpeciesCardBodySrd(data) {
   const sens = Array.isArray(data.senses)
     ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
     : null;
-  const destiny = data.destiny && data.destiny.base;
+  const destiny = baseDeDestinee(data);
   const bump = data.skill_points && data.skill_points.by_level && data.skill_points.by_level["1"];
   const rows = renderCardRows([
     ["Size", data.size],
     ["Speed", data.speed],
     ["Creature type", data.creature_type],
     ["Senses", sens],
-    ["Destiny", Number.isFinite(destiny) ? String(destiny) : null],
+    ["Destiny", destiny === null ? null : String(destiny)],
     ["Skill points", Number.isFinite(bump) ? `+${bump}` : null]
   ]);
   const traits = (Array.isArray(data.traits) ? data.traits : [])
@@ -788,7 +876,20 @@ function sortParNom(query, nom) {
  *  sorts y sont des LIENS : « (lien vers le srd, format fenêtre FF) » —
  *  spellInfo compose l'action popup, le même organe que le tap d'un jeton
  *  de sort au chapitre Class (lot 79). */
-function renderLignesLignage(liste, option, query, act, courts) {
+function renderLignesLignage(liste, option, query, act, courts, fenetres) {
+  /* 🪟 LE TEXTE DE FENÊTRE PREND LA MAIN QUAND IL EXISTE — une `<dd>` par
+     ligne, et rien de recollé (voir `lignesDeFenetre`). ⛔ Sinon : la prose,
+     exactement comme avant. Les deux branches vivent. */
+  const fenetre = lignesDeFenetre(option, fenetres);
+  if (fenetre) {
+    for (const ligne of fenetre) {
+      const dd = el("dd", null);
+      dd.dataset.lignage = option.id;
+      linkifie(dd, ligne, query, act || (() => {}));
+      liste.append(dd);
+    }
+    return;
+  }
   for (const [texte, nomSort] of lignesDuLignage(option, courts)) {
     const dd = el("dd", null, [text(texte)]);
     dd.dataset.lignage = option.id;
@@ -818,8 +919,15 @@ function renderLignesLignage(liste, option, query, act, courts) {
  *  ⚠️ Les marques de lien (`[[Nom]]`, la convention des textes de fiche) sont
  *  RETIRÉES ici : le popup est du texte nu, et des crochets doubles à l'écran
  *  ne sont pas un lien, c'est une fuite de balisage. */
-function texteDuLignage(option, courts) {
-  return lignesDuLignage(option, courts)
+function texteDuLignage(option, courts, fenetres) {
+  /* 🪟 LE MÊME TEXTE QUE LA FENÊTRE QUAND IL EXISTE — NORMES §4 quinquies :
+     le popup RÉPÈTE ce que la fenêtre montre. Lui laisser la prose pendant
+     que la fenêtre sert le texte restructuré serait rouvrir les deux voix. */
+  const fenetre = lignesDeFenetre(option, fenetres);
+  const lignes = fenetre
+    ? fenetre.map((ligne) => [ligne, null])
+    : lignesDuLignage(option, courts);
+  return lignes
     .map(([texte, nomSort]) => String(texte).replace(/\[\[([^\]]+)\]\]/g, "$1") + (nomSort || ""))
     .join("\n");
 }
@@ -903,6 +1011,56 @@ function courtsDe(record) {
   return (record && record.data && record.data.fiche_lineage_lvl1) || null;
 }
 
+/* ══ 🪟 LE TEXTE DE FENÊTRE D'UNE LIGNÉE — UN TROISIÈME NIVEAU ═════════════
+   Eric, 2026-09-02, devant la fenêtre du SB du Hoddon, qui servait la prose
+   du SRD telle quelle : *« Quelle forme ? Les mêmes infos, plus court, mieux
+   structuré avec les liens, comme l'Elfe. »*
+
+   ⭐ CE N'EST NI L'UN NI L'AUTRE DES DEUX TEXTES DÉJÀ POSÉS, et c'est le
+   point :
+     · `fiche_lineage_lvl1` (lot 126) — le CONDENSÉ d'UNE ligne, pour le bilan
+       et les fiches : il abrège, il perd des faits ;
+     · la PROSE du record — la règle complète, longue, celle du livre ;
+     · `fiche_lineage_text` (ici) — **l'information COMPLÈTE, restructurée** :
+       rien de perdu, une ligne par fait, les sorts en `[[lien]]`.
+
+   🔴 ET IL VIT DANS LA COUCHE DE PRÉSENTATION, JAMAIS DANS `levels["1"]`. La
+   prose du record vient du convertisseur qui applique les renommages d'Eric,
+   et le chapitre publié du site en dépend (`fh-phb/docs/chapters/species/
+   hoddon.md`) : la réécrire changerait ce que le LIVRE imprime. Une couche de
+   fiche décide comment un écran montre une règle ; elle ne décide jamais de la
+   règle.
+
+   📌 LE REPLI EST GARDÉ : une lignée sans texte de fenêtre sert sa prose comme
+   avant. Un blanc serait pire que le pavé (lot 126, même arbitrage). */
+function fenetresDe(record) {
+  return (record && record.data && record.data.fiche_lineage_text) || null;
+}
+
+/** Le texte de fenêtre d'une lignée, EN LIGNES SÉPARÉES, ou `null`.
+ *
+ *  ⚠️ LES LIGNES SONT LE FOND, PAS LA MISE EN PAGE. « Darkvision 120 ft » et
+ *  « Novice in tinker's tools » sont deux faits ; recollés en un paragraphe,
+ *  ils redeviennent le pavé qu'Eric a refusé. La source les sépare par des
+ *  sauts de ligne, et l'écran doit les rendre séparés. */
+function lignesDeFenetre(option, fenetres) {
+  const texte = fenetres && option ? fenetres[option.id] : null;
+  if (typeof texte !== "string") return null;
+  const lignes = texte.split("\n").map((ligne) => ligne.trim()).filter((ligne) => ligne.length > 0);
+  return lignes.length > 0 ? lignes : null;
+}
+
+/** Les mêmes lignes, posées dans une cible — un `<p>` par ligne, les sorts
+ *  linkifiés. Un seul poseur pour les deux formes de fenêtre (la table et la
+ *  prose) : deux mises en page recopiées divergeraient à la première retouche. */
+function poseLesLignesDeFenetre(cible, lignes, query, act) {
+  for (const ligne of lignes) {
+    const p = el("p", "species-lignage-ligne");
+    linkifie(p, ligne, query, act || (() => {}));
+    cible.append(p);
+  }
+}
+
 /* ── BLOC 1 — LE CHOIX DE LIGNAGE ──────────────────────────────────────── */
 
 /** ⭐ IL RÉUTILISE `renderChoixGlisses`, l'organe du lot 79 : mêmes gestes que
@@ -946,6 +1104,8 @@ function renderLineageBlock(ctx, record, act) {
      la fenêtre du SB1 montre déjà les textes complets, et le popup les répète
      tels quels (NORMES §4 quinquies, dictée du 27/08) : rien n'y bouge. */
   const courts = LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx)) ? courtsDe(record) : null;
+  /* 🪟 lu UNE fois, servi aux deux formes de fenêtre (table et prose). */
+  const fenetres = fenetresDe(record);
   const glisse = renderChoixGlisses({
     plan: groupe, slots: etape, titre: "Lineage", mot: "Lineage",
     labelOf: nomDe, onAction: act,
@@ -957,7 +1117,7 @@ function renderLineageBlock(ctx, record, act) {
        comme celle d'un sort. glisser.mjs écoute déjà les deux gestes. */
     onInfo: (id) => {
       const option = options.find((o) => o && o.id === id);
-      if (option) act({ kind: "popup", titre: option.name, texte: texteDuLignage(option, courts) });
+      if (option) act({ kind: "popup", titre: option.name, texte: texteDuLignage(option, courts, fenetres) });
     }
   });
   if (glisse) bloc.append(glisse);
@@ -1037,10 +1197,14 @@ function renderLineageBlock(ctx, record, act) {
       if (option.fh) nom.append(el("span", "species-lignage-fh", [text("FH")]));
       tr.append(nom);
       const td = el("td", null);
-      /* la table lit la MÊME source que les trois voix — elle ne relit pas
+      /* 🪟 LE TEXTE DE FENÊTRE D'ABORD, EN LIGNES SÉPARÉES (voir sa tête) —
+         c'est la cellule que le Hoddon remplissait de prose SRD. */
+      const fenetreDeLOption = lignesDeFenetre(option, fenetres);
+      if (fenetreDeLOption) poseLesLignesDeFenetre(td, fenetreDeLOption, ctx.query, act);
+      /* ⛔ SINON, LA MÊME SOURCE QUE LES TROIS VOIX — elle ne relit pas
          l'option pour son compte (c'est cette relecture-là qui a vidé le
          bilan du Dragonborn). */
-      linkifie(td, contenuDuLignage(option, null).texte || "", ctx.query, act);
+      else linkifie(td, contenuDuLignage(option, null).texte || "", ctx.query, act);
       tr.append(td);
       table.append(tr);
     }
@@ -1059,7 +1223,7 @@ function renderLineageBlock(ctx, record, act) {
     /* la FENÊTRE garde les textes complets — Eric, 27/08 : « dans lineages
        on a la place, on peut garder le format, mais tu link les spells ».
        Le raccourci (fiche_lineage_lvl1) sert les FICHES : le bilan. */
-    renderLignesLignage(liste, option, ctx.query, act, null);
+    renderLignesLignage(liste, option, ctx.query, act, null, fenetres);
   }
   fenetre.append(liste);
   bloc.append(fenetre);
@@ -1159,52 +1323,18 @@ function poseLesTraitsDeLignee(cible, record, element, query, act) {
   }
 }
 
-function renderGrantedBlock(ctx, record, act) {
-  const data = (record && record.data) || {};
-  const bloc = el("section", "species-acquis");
-  bloc.append(el("h3", null, [text("Granted automatically")]));
-
-  const sens = Array.isArray(data.senses)
-    ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
-    : null;
-  const destiny = data.destiny && data.destiny.base;
-  const points = data.skill_points && data.skill_points.by_level && data.skill_points.by_level["1"];
-  const rows = renderCardRows([
-    ["Size", data.size],
-    ["Speed", data.speed],
-    ["Creature type", data.creature_type],
-    ["Senses", sens],
-    ["Destiny", Number.isFinite(destiny) ? String(destiny) : null],
-    ["Skill points", Number.isFinite(points) ? `+${points}` : null]
-  ]);
-  if (rows) bloc.append(rows);
-
-  /* ⭐ LA SECONDE VOIX SUIT LA MÊME RÈGLE : un trait que la lignée porte n'est
-     pas « gagné d'office » (voir `TRAITS_DE_LIGNEE`). Un invariant gardé d'un
-     seul côté est toujours l'autre qui casse — et cette voix-là ne peint plus
-     l'écran de Species, ce qui est exactement pourquoi elle dériverait sans
-     bruit. */
-  const portes = lignagesDe(record) ? TRAITS_DE_LIGNEE : [];
-  const traits = traitsDe(record).filter((trait) => !portes.includes(trait.id));
-  if (traits.length > 0) {
-    const courts = courtsDeTraits(record);
-    const liste = el("dl", "species-traits");
-    for (const trait of traits) {
-      liste.append(el("dt", null, [text(trait.name)]));
-      /* la MÊME lecture que la ligne « Granted automatically » du parcours ;
-         seule la mise en mots diffère (une `<dd>` ici, « **Mot :** texte »
-         là-bas). ⛔ Ne pas relire `trait.text` pour son compte. */
-      const dit = contenuDuTrait(trait, courts);
-      if (dit) {
-        const dd = el("dd");
-        linkifie(dd, dit, ctx.query, act || (() => {}));
-        liste.append(dd);
-      }
-    }
-    bloc.append(liste);
-  }
-  return bloc;
-}
+/* ⛔ `renderGrantedBlock` A ÉTÉ RETIRÉ LE 2026-09-02 (lot 129) — Eric :
+   *« organe mort dégage »*. Il peignait le bloc « Granted automatically » du
+   PANNEAU du 2ᵉ palier (`renderSpeciesChoices`), et plus rien ne l'atteignait
+   depuis que Species porte le parcours d'étape : `etatDeLEtape` rend `guide`
+   ou `bilan` dès qu'une espèce est choisie, et la branche `state.palier === 2`
+   de la coquille ne peut plus être atteinte sur cet écran. Le bloc que le
+   joueur lit vraiment est celui de `resumeDeLItem` (`LIGNE_ACQUIS`).
+   ⚠️ Ce qui l'a gardé en vie deux semaines, ce sont ses TESTS : trois gardes
+   l'appelaient comme « voix 2 » et restaient verts sur un organe que personne
+   ne voyait. Un organe qui n'a plus qu'un public de tests dérive sans bruit —
+   et c'est bien ce qui était arrivé (il ne filtrait pas les traits portés par
+   la lignée, mesuré au lot 128). */
 
 /* ── BLOC 4 — CE QUI EST ACQUIS ────────────────────────────────────────── */
 
@@ -1267,7 +1397,6 @@ export function renderSpeciesChoices(ctx, onAction) {
 
   const lignage = record ? renderLineageBlock(ctx, record, act) : null;
   if (lignage) blocs.push(lignage);
-  if (record) blocs.push(renderGrantedBlock(ctx, record, act));
 
   /* LES CHOIX À FAIRE — la bourse captive OU le QCM, jamais les deux (voir
      les états d'espèce en tête de fichier). Inchangés : ce lot les ENTOURE,

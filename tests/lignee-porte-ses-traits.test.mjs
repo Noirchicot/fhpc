@@ -37,7 +37,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 
 globalThis.document = createTestDocument();
 
-const { SPECIES_CATALOGUE, renderSpeciesChoices } = await import("../ui/builder/species-step.mjs");
+const { SPECIES_CATALOGUE } = await import("../ui/builder/species-step.mjs");
 
 const QUERY = exempleFhEn().layers.verbs.query;
 
@@ -122,13 +122,12 @@ function blocAccorde(query, id, choisi) {
   ));
 }
 
-/** VOIX 2 — la `<dl>` du panneau de choix : les NOMS qu'elle sert. */
-function nomsDuPanneau(query, id, choisi) {
-  const noeud = renderSpeciesChoices({ decisions: decisionsDe(query, id, choisi), query }, () => {});
-  const liste = noeud.querySelectorAll("dl.species-traits")[0];
-  if (!liste) return [];
-  return [...liste.childNodes].filter((n) => n.tagName === "DT").map((n) => n.textContent);
-}
+/* ⛔ LA « VOIX 2 » A DISPARU AU LOT 129 — la `<dl>` du panneau de choix était
+   peinte par `renderGrantedBlock`, un organe que plus rien n'atteignait depuis
+   que Species porte le parcours d'étape. Ce garde ne mesure plus que des
+   organes VIVANTS : le bloc accordé, le SB, le bilan. ⚠️ Sa couverture rétrécit
+   d'un endroit, et c'est le POINT — elle mesurait un écran que personne ne
+   voyait, donc elle protégeait du vide. */
 
 /** LE SB — l'écran où l'on choisit, lignage encore ouvert. */
 function blocDuSB(query, id) {
@@ -203,7 +202,7 @@ test("témoin — les quatre espèces témoins peuvent vraiment accuser", () => 
 
 /* ══ 1. L'INVARIANT ══════════════════════════════════════════════════════ */
 
-test("🔴 un trait qui dépend du choix n'est JAMAIS dans le bloc accordé — les deux voix, avant et après la signature", () => {
+test("🔴 un trait qui dépend du choix n'est JAMAIS dans le bloc accordé — avant comme après la signature", () => {
   const fautes = [];
   for (const id of LES_DOUZE) {
     const dependants = nomsQuiDependentDuChoix(QUERY, id);
@@ -213,9 +212,6 @@ test("🔴 un trait qui dépend du choix n'est JAMAIS dans le bloc accordé — 
       const quand = etat === null ? "avant signature" : etat;
       for (const nom of blocAccorde(QUERY, id, etat).keys()) {
         if (dependants.includes(nom)) fautes.push(`voix 1 ${id}/${quand} : ${nom}`);
-      }
-      for (const nom of nomsDuPanneau(QUERY, id, etat)) {
-        if (dependants.includes(nom)) fautes.push(`voix 2 ${id}/${quand} : ${nom}`);
       }
     }
   }
@@ -362,18 +358,39 @@ test("⚔️ privé de tout condensé, le trait porté sert sa PROSE, dans les D
 
 /* ══ 4. LES TÉMOINS N'ONT PAS BOUGÉ ══════════════════════════════════════ */
 
-test("les quatre témoins servent TOUS leurs traits dans le bloc accordé, comme avant", () => {
+/** LES TRAITS QUE LEUR ITEM PORTE À LEUR PLACE — mesuré au lot 129, NOMMÉ ici.
+ *
+ *  ⭐ « Un trait couvert ne disparaît pas, il change de place » (19/08) : un
+ *  trait qui JUSTIFIE un item quitte le bloc accordé, et c'est la porte de
+ *  l'item qui le représente (« Lineage » / « High Elf », « Skill budget » puis
+ *  « Keen Senses » une fois la bourse dépensée). Ils ne sont donc pas perdus.
+ *
+ *  ⚠️ ET LA LISTE EST ÉCRITE, PAS DÉDUITE : elle NOMME ce qui n'est plus servi
+ *  en toutes lettres, pour qu'une entrée comme une sortie fasse rougir. Un
+ *  `deepEqual` sur `[]` ne dirait rien le jour où un troisième trait s'évapore
+ *  pour de bon.
+ *
+ *  🔴 ET ELLE PORTE UNE DETTE, mesurée en la posant : le CONDENSÉ de ces
+ *  traits (`fiche_trait_text`, lot 127) n'a plus aucun consommateur depuis que
+ *  la `<dl>` du panneau est partie. Il est écrit et il ne s'affiche nulle part
+ *  — c'est un arbitrage d'Eric, pas une réparation de test. */
+const PORTES_PAR_LEUR_ITEM = {
+  "srd:species:en:elf": ["Elven Lineage", "Keen Senses"],
+  "srd:species:en:tiefling": ["Fiendish Legacy"]
+};
+
+test("les quatre témoins ne PERDENT aucun trait — servi, ou porté par son item", () => {
   /* ⚠️ Sept espèces sur douze n'ont pas de lignée, et quatre en ont une que
      rien n'éclate : aucune ne doit perdre une ligne à cause de ce lot. */
   for (const id of [...TEMOINS_SANS_LIGNEE, ...TEMOINS_LIGNEE_ENTIERE]) {
     const attendus = traitsDuRecord(recordDe(QUERY, id)).map((t) => t.name);
     const servis = new Set([
       ...blocAccorde(QUERY, id, null).keys(),
-      ...blocDuSB(QUERY, id).keys(),
-      ...nomsDuPanneau(QUERY, id, null)
+      ...blocDuSB(QUERY, id).keys()
     ]);
     const perdus = attendus.filter((nom) => !servis.has(nom));
-    assert.deepEqual(perdus, [], `${id} : aucun trait ne doit s'évaporer — ils sont tous servis quelque part`);
+    assert.deepEqual(perdus, PORTES_PAR_LEUR_ITEM[id] || [],
+      `${id} : un trait qui n'est ni servi ni porté par un item s'est ÉVAPORÉ`);
   }
 });
 

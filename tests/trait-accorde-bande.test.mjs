@@ -37,7 +37,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 
 globalThis.document = createTestDocument();
 
-const { SPECIES_CATALOGUE, renderSpeciesChoices } = await import("../ui/builder/species-step.mjs");
+const { SPECIES_CATALOGUE } = await import("../ui/builder/species-step.mjs");
 
 const QUERY = exempleFhEn().layers.verbs.query;
 
@@ -126,21 +126,15 @@ function ligneAccordee(query, id) {
   }).filter(([mot]) => mot && !FIXES.has(mot));
 }
 
-/** VOIX 2 — la `<dl>` du panneau de choix (`renderSpeciesChoices`). */
-function panneauAccorde(query, id) {
-  const noeud = renderSpeciesChoices({ decisions: decisionsDe(query, id), query }, () => {});
-  const liste = noeud.querySelectorAll("dl.species-traits")[0];
-  if (!liste) return [];
-  const paires = [];
-  let nom = null;
-  for (const enfant of liste.childNodes) {
-    if (enfant.tagName === "DT") nom = enfant.textContent;
-    else if (enfant.tagName === "DD" && nom !== null) { paires.push([nom, enfant.textContent]); nom = null; }
-  }
-  return paires;
-}
+/* ⛔ LA « VOIX 2 » A DISPARU AU LOT 129 — la `<dl>` du panneau de choix était
+   peinte par `renderGrantedBlock`, un organe que plus rien n'atteignait depuis
+   que Species porte le parcours d'étape ; seuls ces gardes l'appelaient.
+   ⚠️ ET ELLE ÉTAIT DÉJÀ FAUSSE : elle ne filtrait pas les traits que la lignée
+   porte, donc elle resservait `Draconic Ancestry` en entier. Un organe dont le
+   seul public est une suite de tests dérive sans que personne le voie — c'est
+   exactement ce qui lui était arrivé. */
 
-/** VOIX 3 — les traits que la LIGNÉE porte, servis par le SB (lot 128,
+/** VOIX 2 — les traits que la LIGNÉE porte, servis par le SB (lot 128,
  *  2026-09-02). Sans elle, ce garde aurait perdu `Breath Weapon` sans le dire
  *  le jour où ce trait a quitté « gagné d'office » : sa couverture aurait
  *  rétréci en silence, et l'invariant (« TOUT trait servi à l'écran tient dans
@@ -164,11 +158,11 @@ function ligneDeLignee(query, id) {
   }).filter(([mot]) => mot);
 }
 
-/** LES TROIS VOIX D'UN COUP — c'est « servi à l'écran » qui est gardé, pas un
+/** LES DEUX VOIX D'UN COUP — c'est « servi à l'écran » qui est gardé, pas un
  *  bloc en particulier. Un trait qui déménage d'une voix à l'autre reste
  *  couvert ; un trait qui sort des trois se verrait au témoin de compte. */
 function toutCeQuiEstServi(query, id) {
-  return [...ligneAccordee(query, id), ...panneauAccorde(query, id), ...ligneDeLignee(query, id)];
+  return [...ligneAccordee(query, id), ...ligneDeLignee(query, id)];
 }
 
 /* ══ 0. LES TÉMOINS — sans eux, les tests suivants balaieraient le vide ══ */
@@ -259,20 +253,19 @@ test("⚔️ un trait rendu à sa prose SRD fait bien ROUGIR le contrôle de ban
     delete data.fiche_trait_text;
     return { ...vue, record: { ...vue.record, data } };
   };
-  /* ⚠️ SUR LES TROIS VOIX, ET C'EST LE POINT (lot 128) : `Breath Weapon` a
+  /* ⚠️ SUR LES DEUX VOIX, ET C'EST LE POINT (lot 128) : `Breath Weapon` a
      quitté « gagné d'office » pour la lignée qui le porte. Mesuré sur la
      seule voix 1, ce contrôle n'aurait plus attendu qu'un pavé au lieu de
      deux — vert, et aveugle sur le plus gros des deux (833 car.). */
   const trop = [...new Set(toutCeQuiEstServi(ampute, id)
     .filter(([, dit]) => dit.length > PLAFOND).map(([nom]) => nom))].sort();
-  /* ⭐ TROIS, PAS DEUX — et le troisième était là depuis toujours. Ce contrôle
-     n'attendait que deux noms parce qu'il ne regardait que la voix 1 ; la voix
-     2 (la `<dl>` du panneau) ne filtre PAS le trait porteur, et resert donc
-     `Draconic Ancestry` en entier (386 car. de prose SRD) dès qu'on lui retire
-     son condensé. Sur la pile réelle il tient dans la bande (85 car.) — le
-     test d'invariant ci-dessus le vérifie —, donc rien n'est cassé à l'écran :
-     ce qui était faux, c'était le COMPTE de ce garde. */
-  assert.deepEqual(trop, ["Breath Weapon", "Draconic Ancestry", "Draconic Flight"],
+  /* ⭐ DEUX, ET LE TROISIÈME EST PARTI AVEC SON ORGANE (lot 129). `Draconic
+     Ancestry` n'apparaissait QUE dans la `<dl>` du panneau de choix — un écran
+     que plus rien n'atteignait, et qui ne filtrait pas le trait porteur : il y
+     resservait 386 car. de prose SRD que personne ne pouvait lire. L'organe
+     retiré, ce nom sort du compte, et ce que ce garde mesure redevient ce que
+     le joueur reçoit vraiment. */
+  assert.deepEqual(trop, ["Breath Weapon", "Draconic Flight"],
     "privé de ses condensés, le Dragonborn resert ses pavés — c'est CE cas que l'invariant refuse");
   const voisine = toutCeQuiEstServi(ampute, "srd:species:en:orc").filter(([, dit]) => dit.length > PLAFOND);
   assert.deepEqual(voisine, [], "et l'Orc intact reste dans la bande : l'amputation est bornée, pas globale");
@@ -290,4 +283,39 @@ test("⚔️ un condensé trop long fait rougir le contrôle, même s'il est bie
   };
   const trop = ligneAccordee(gonfle, id).filter(([, dit]) => dit.length > PLAFOND).map(([nom]) => nom);
   assert.deepEqual(trop, ["Darkvision"]);
+});
+
+
+/* ══ 3. LE BALISAGE NE FUIT PAS — repris de `trait-accorde-voix-unique`, ═══
+   supprimé au lot 129 avec la voix qu'il comparait. Ces deux contrôles-ci ne
+   portaient PAS sur la comparaison : ils portent sur ce que le joueur reçoit,
+   et cet organe-là est bien vivant. Les perdre avec le fichier aurait été
+   retirer une couverture qui protège encore quelque chose. */
+
+test("🔴 le balisage de lien ne fuit JAMAIS à l'écran — ni `[[`, ni `]]`", () => {
+  /* Les condensés portent les sorts en `[[Nom]]`, la convention des textes de
+     fiche. Des crochets doubles affichés ne sont pas un lien : c'est une
+     fuite de balisage (même arbitrage que le popup du lignage, 27/08). */
+  const fuites = [];
+  for (const id of LES_DOUZE) {
+    for (const [nom, texte] of toutCeQuiEstServi(QUERY, id)) {
+      if (texte.includes("[[") || texte.includes("]]")) fuites.push(`${id}/${nom}`);
+    }
+  }
+  assert.deepEqual(fuites, []);
+});
+
+test("…et le sort d'un condensé devient un VRAI lien, pas un nom effacé", () => {
+  /* ⛔ Sans ce contrôle, le précédent resterait vert si le nom du sort était
+     simplement EFFACÉ avec ses crochets. */
+  const id = "srd:species:en:tiefling";
+  const dit = new Map(ligneAccordee(QUERY, id));
+  assert.match(dit.get("Otherworldly Presence") || "", /Thaumaturgy/,
+    "le nom du sort est écrit, crochets retirés");
+  const noeud = SPECIES_CATALOGUE.resumeItem(
+    { path: "species.granted", confirme: true },
+    { decisions: decisionsDe(QUERY, id), query: QUERY }, () => {}
+  );
+  const liens = noeud.querySelectorAll(".lien-sort").map((n) => n.textContent);
+  assert.deepEqual(liens, ["Thaumaturgy"], "et c'est un lien, pas du texte mort");
 });

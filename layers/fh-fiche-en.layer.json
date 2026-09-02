@@ -188,7 +188,7 @@
       },
       "srd:species:en:gnome": {
         "op": "patch",
-        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
+        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc. · 02/09 (lot 129) : fiche_lineage_text posé — un TROISIÈME niveau de texte, ni le condensé d'une ligne (fiche_lineage_lvl1) ni la prose SRD : l'information COMPLÈTE, restructurée, une ligne par fait, les sorts en [[lien]]. Eric, 2026-09-02, devant la fenêtre du SB du Hoddon : « Quelle forme ? Les mêmes infos, plus court, mieux structuré avec les liens, comme l'Elfe. » Il vit ICI et jamais dans levels[\"1\"] : cette prose-là vient du convertisseur et le chapitre publié du site en dépend. Une lignée sans ce texte sert sa prose comme avant — le repli est gardé.",
         "changes": {
           "data.blurb": {
             "text": "Meeting a Hoddon is rare, by design—the little folk keep their holds hidden and their business private. Charm, threats, and clever lies mostly bounce off a Hoddon's mind mid-sentence. Some lean toward the deep woods and what lives there, others toward small ingenious contraptions. Either way, trust is earned slowly.",
@@ -242,6 +242,11 @@
           },
           "data[fiche_trait_text]": {
             "gnomish-lineage": "Choose a lineage — the cantrips and gifts it grants (INT, WIS or CHA casts them)."
+          },
+          "data[fiche_lineage_text]": {
+            "forest-folk": "[[Minor Illusion]] cantrip known.\n[[Speak with Animals]] always prepared — cast it free twice per Long Rest, plus one more use at levels 5, 9, 13 and 17.",
+            "rock-folk": "[[Mending]] and [[Prestidigitation]] cantrips known.\nTen minutes of work builds a Tiny clockwork device (AC 5, 1 HP) carrying one [[Prestidigitation]] effect — up to three at a time.",
+            "mole-people": "Darkvision 120 ft.\nMeticulous — ADV on Investigation checks.\nNovice in tinker's tools."
           }
         }
       },

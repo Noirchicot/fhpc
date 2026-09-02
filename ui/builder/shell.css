@@ -7729,6 +7729,20 @@ button.tuto-point::before {
 .bilan-ligne { margin: 0 0 var(--sp-4); line-height: 1.45; font-size: var(--t2); color: var(--text); }
 .species-acquis-bilan, .species-lignage-bilan { margin-bottom: var(--sp-8); }
 
+/* 🟢 LE PORTAGE — lot 129. Eric : *« le petit texte vert qui indique, sur les
+   pouvoirs granted, que c'est transféré à un choix dans un autre chapitre »*.
+   ⭐ LE VERT N'EST PAS DÉCORATIF : c'est `--positive`, l'encre EXACTE des
+   voyants d'items et de la conclusion d'étape (`.parcours-conclu`). La
+   pastille verte promet « enregistré direct dans la fiche » ; cette ligne-ci
+   dit la seule exception, dans la même encre — deux verts différents feraient
+   croire à deux états.
+   ⚠️ Elle est RENTRÉE et plus petite que la ligne qu'elle suit : c'est une
+   note sur la ligne du dessus, pas une ligne de plus. */
+.bilan-portage {
+  margin: 0 0 var(--sp-8) var(--sp-12);
+  color: var(--positive); font-size: var(--t1); font-weight: 600;
+}
+
 
 /* La table des lignées à valeur sèche (Dragonborn) — Eric, 28/08 : « un
    tableau plutôt qu'un long scroll ». Deux colonnes serrées, T2, un filet
@@ -7764,6 +7778,14 @@ button.tuto-point::before {
   padding: var(--sp-2) var(--sp-16) var(--sp-2) 0;
 }
 .species-lignage-table td { color: var(--text-soft); text-align: left; vertical-align: top; padding: var(--sp-2) 0; }
+
+/* 🪟 UNE LIGNE PAR FAIT — lot 129. Le texte de fenêtre d'une lignée
+   (`fiche_lineage_text`) n'est pas un paragraphe : « Darkvision 120 ft » et
+   « Novice in tinker's tools » sont deux faits, et recollés ils redeviennent
+   le pavé qu'Eric a refusé. Le dernier n'ajoute rien sous lui : c'est la
+   cellule qui porte son propre rembourrage. */
+.species-lignage-ligne { margin: 0 0 var(--sp-4); }
+.species-lignage-ligne:last-child { margin-bottom: 0; }
 .species-lignage-table tr + tr th, .species-lignage-table tr + tr td {
   border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
 }
