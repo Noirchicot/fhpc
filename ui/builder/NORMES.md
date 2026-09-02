@@ -2570,16 +2570,39 @@ verticale de sa boîte** et regarder lequel de ses termes est un vide. Un organe
 |---|---|
 | **où** | dans la gouttière **entre l'onglet de bout et la première tuile**, aux deux bouts |
 | **la cible** | 🔴 **`--touch` 44** — *« il doit fonctionner en tactile et en clic souris »* |
-| **le dessin** | **28** = `--touch − 2 × --sp-8`, **déduit de la cible**, jamais l'inverse |
-| **son habit** | 🔴 **le voile d'un cran — 35 %**, la même arête de verre, la même hauteur |
+| **sa boîte** | **28** = `--touch − 2 × --sp-8`, **déduite de la cible**, jamais l'inverse |
+| **le trait** | **12** dans cette boîte, épaisseur `--sp-2` |
+| **son habit** | 🔴 **AUCUNE TUILE** — le trait seul, à **35 %** *(`--chevron-trait`)*, flottant sur le décor |
 | ⛔ **dessiné, jamais un glyphe** | deux bords d'un carré tournés de 45° *(la loi du pouce et du livre)* |
 | **le pas** | **une tuile**, jamais un écran : la rangée passe de `1 2 3` à `2 3 4` |
 | **en bout de course** | 🔴 **il disparaît** — ⭐ **et sa place reste** |
 
-⭐ **« S'INTERCALER PARFAITEMENT » SE LIT DANS LE VOILE**, et c'est ce qui a décidé son habit : un
-cran est une **dalle à 35 %** *(15/08)* — le chevron en est une aussi. Il appartient à la rangée.
-⛔ **Et c'est pour ça que les deux BOUTS passent à 100 % le même jour** : eux n'y appartiennent
-pas, et l'opacité le dit sans un mot. **Un seul geste, deux moitiés.**
+⚖️ **LE VOILE EST SUR LE TRAIT, PAS SOUS LUI — renversé le 2026-09-02, et c'est une LECTURE qui
+était fausse, pas une consigne qui a changé.** Eric : *« rends sa tuile invisible, voile 0 % ; je
+veux juste voir la flèche, qui flotte au-dessus du background. La flèche est un organe (c'est un
+bouton spécial) et a un voile à 35 %. »*
+
+⛔ **CE QUE J'AVAIS ÉCRIT ICI, ET POURQUOI C'ÉTAIT FAUX.** J'avais lu son *« transparence voile
+35 % »* comme le voile d'une **dalle posée SOUS** la flèche, au motif qu'un cran est une dalle à
+35 % *(15/08)* et que le chevron *« s'intercale entre les tuiles »*. La déduction se tenait — et
+son croquis ne dessinait **qu'un trait nu**. C'était une **surface de plus** dans une rangée qui
+en porte onze.
+⭐ **Le 35 % vit donc sur l'ENCRE** : `--chevron-trait` vaut `color-mix(in srgb, var(--text)
+var(--voile-simple), transparent)` — la formule exacte des trois dalles, transposée d'un fond à un
+trait. ⛔ Aucun pourcentage inventé, et elle bascule avec le thème puisque `--text` le fait déjà.
+
+⭐ **CE QUI SURVIT DE LA LECTURE FAUSSE, ET C'EST L'ESSENTIEL** : la CIBLE n'a pas bougé d'un blg,
+ni la place réservée dans la piste. **On a retiré une PEINTURE, pas une COTE** — la distinction du
+collecteur du 26/08, *« retirer le dessin, pas la cote »*.
+
+⛔ **ET LES DEUX BOUTS RESTENT À 100 %** *(même jour)* : `Menu` et `Sheet` ne sont pas des étapes,
+et l'opacité le dit sans un mot. La raison tient sans la dalle du chevron — elle ne dépendait
+d'elle que dans ma phrase, pas dans les faits.
+
+📌 **ET LE TRAIT REMPLIT SA BOÎTE** *(02/09, lot 131)* : il a dessiné **8** blg dans une boîte de
+**28** pendant une demi-journée — vingt blg de vide autour d'une flèche qu'Eric avait demandé à
+voir. Rien n'était faux, aucune cote ne débordait, la suite était verte. ⭐ **Un rendu se regarde :
+compter ne dit rien de ce que l'œil reçoit.**
 
 🔴 **SA PLACE RESTE QUAND IL DISPARAÎT**, et c'est la moitié qu'on oublie : le chevron est posé en
 ABSOLU sur une zone que la piste **réserve** dans son écart. Le retirer ne déplace donc aucune
@@ -2596,6 +2619,49 @@ défilement — le chevron, le recentrage, l'aimantation — tombent sur les mê
 ⭐ C'est ce qui autorise la piste à **clipper** son contenu *(un écart, plus un rembourrage)* sans
 contredire la règle du 15/08 : *« une dalle tranchée net fait une arête, pas une amorce »* — il
 n'y a jamais de dalle tranchée.
+
+### 🔒 TROIS TUILES, ET T2 — la question est FERMÉE PAR LA MESURE *(02/09)*
+
+> Eric : *« regarde si tu peux mettre 4 boutons sur une vue sans que rien ne se chevauche »*, puis,
+> après l'avoir essayé lui-même : *« ça ne passe pas, on reste à 3 visibles d'un coup »* · *« essaie
+> de voir si tu peux mettre du T3 partout sinon T2 »* · **« priorité 1 ergonomique, priorité 2
+> joli »**.
+
+📏 **LA RANGÉE EST PLEINE AU BLG PRÈS**, relevée abscisse par abscisse sur le site DÉPLOYÉ, à 375 :
+
+```
+onglet Menu   −29 →  29        chevron      302 → 346   (44 = --touch)
+chevron        29 →  73  (44)  onglet Sheet 346 → 404
+piste          73 → 302  (229 = 71 + 8 + 71 + 8 + 71)
+                     29 + 44 + 229 + 44 + 29 = 375
+```
+
+⭐ **UNE SOMME QUI FERME PROUVE QU'IL N'Y A RIEN À PRENDRE** — là où *« ça a l'air serré »* ne
+prouve rien. ⛔ Une tuile ne peut donc s'élargir qu'en prenant sur une **cible tactile** : le
+chevron à `--touch`, ou la moitié visible d'un onglet (29). **Priorité 1 l'interdit.**
+
+📏 **ET T3 NE PASSE PAS** — mesuré au rendu sur `Inheritance`, le mot le plus long, dans la police
+servie : il demande **74,2 blg**.
+
+| ce que la tuile offre au mot | T3 (74,2) |
+|---|---|
+| **en service** *(rembourrage 2)* — **67** | manque **7,2** |
+| rembourrage 0 — 71 | manque 3,2 |
+| gouttière 4 **et** rembourrage 0 — 73,7 | manque **0,5** |
+| onglets poussés à 19 visibles — 73,7 | manque **0,5** |
+| onglets 19 **et** rembourrage 1 — 75,7 | ✅ passe, de 1,5 |
+
+🔴 **SEULE LA DERNIÈRE PASSE, ET ELLE FAIT TOMBER LA PRISE DE L'ONGLET DE 29 À 19 BLG.** Refusée —
+priorité 1. **C'est T2**, et ce n'est pas un goût : c'est ce que la rangée porte.
+📌 Et T3 rate **aussi en vue double** *(tuile 78, offert 74, demandé 74,2 — il manque 0,2)* : le
+repli d'Eric s'applique des deux côtés.
+
+⭐⭐ **POURQUOI CETTE TABLE EST DANS LA BIBLE PLUTÔT QUE DANS UN RAPPORT** : un refus CHIFFRÉ se
+discute, un refus d'opinion se contourne. Le jour où quelqu'un redemande quatre tuiles ou T3, il
+lit **de combien** ça rate et **ce que ça coûterait**, au lieu de refaire la mesure.
+⛔ **Les trois seules réserves de largeur sont des cotes DATÉES** : la cible du chevron *(02/09)*,
+la moitié visible des onglets *(19/08)* et l'air entre tuiles *(15/08, « la taille du a de
+Barde »)*. En libérer une est une décision d'Eric, jamais une conséquence d'un lot.
 
 ### 🎛️ LES DEUX BOUTS — `Menu` et `Sheet`, à 100 %
 
