@@ -35,7 +35,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { stripComments } from "./source-scan.mjs";
+import { stripComments, reglesDeLaFeuille } from "./source-scan.mjs";
 /* Le test F REND l'écran, il ne fait pas que lire sa source — un ordre
    d'organes ne se prouve pas en cherchant deux chaînes dans un fichier. Le
    module d'écran a donc besoin d'un `document`, comme dans
@@ -49,52 +49,6 @@ const UI = path.join(ROOT, "ui", "builder");
 const shellCss = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
 const destinyJs = stripComments(fs.readFileSync(path.join(UI, "destiny-step.mjs"), "utf8"));
 
-/** Toutes les règles de la feuille, avec le contexte `@` qui les enveloppe.
- *
- *  ⚠️ ÉCRIT COMME UN SCANNER, PAS COMME UNE EXPRESSION RÉGULIÈRE, et ça a
- *  coûté un aller-retour : une regex qui exige `{` juste après le sélecteur
- *  RATE toute règle écrite en liste — et le témoin de ce garde,
- *  `.parcours-guide`, est justement le premier de trois sélecteurs séparés par
- *  des virgules. Le garde rendait alors `null` pour lui et accusait la dalle
- *  réparée. **Un lecteur qui ne sait pas lire accuse le mauvais.**
- *
- *  ⭐ ET LE CONTEXTE `@` FAIT PARTIE DE L'IDENTITÉ D'UNE RÈGLE. La même
- *  déclaration au même sélecteur, une fois au premier niveau et une fois sous
- *  `@media (prefers-color-scheme: dark)`, n'est PAS un doublon : c'est
- *  l'idiome du thème. Sans ce contexte dans la clef, le garde D crierait au
- *  doublon sur des paires parfaitement légitimes. */
-function reglesDeLaFeuille(css) {
-  const regles = [];
-  const contexte = [];
-  let tete = "";
-  let i = 0;
-  while (i < css.length) {
-    const c = css[i];
-    if (c === "{") {
-      const prelude = tete.trim().replace(/\s+/g, " ");
-      tete = "";
-      if (prelude.startsWith("@")) { contexte.push(prelude); i++; continue; }
-      let j = i + 1, prof = 1;
-      while (j < css.length && prof > 0) {
-        if (css[j] === "{") prof++;
-        else if (css[j] === "}") prof--;
-        j++;
-      }
-      regles.push({
-        sel: prelude,
-        parts: prelude.split(",").map((p) => p.trim()).filter(Boolean),
-        corps: css.slice(i + 1, j - 1).trim().replace(/\s+/g, " "),
-        sous: contexte.join(" >> ")
-      });
-      i = j;
-      continue;
-    }
-    if (c === "}") { contexte.pop(); tete = ""; i++; continue; }
-    tete += c;
-    i++;
-  }
-  return regles;
-}
 
 const REGLES = reglesDeLaFeuille(shellCss);
 
@@ -175,6 +129,20 @@ test("C — CHAQUE dalle de Destiny se rembourre comme la dalle du rang B", () =
       "`padding` dans shell.css — donc 0 sur les quatre côtés : le titre touche le bord haut, le " +
       "texte touche les bords gauche et droit. C'est le défaut exact qu'Eric a relevé le 2026-09-02 " +
       `sur le R. La cote à poser est celle du témoin : « ${temoin} ».`);
+    /* ⚖️ DEUX EXCEPTIONS NOMMÉES, ET ELLES SONT BORNÉES — Eric, 2026-09-03 :
+       la DROITE cède 8 blg à la carte de l'écran final (*« on laisse 8 px de
+       marge à droite »*), le BAS en prend 8 au lieu de 4 (*« 8 blg sous les
+       boutons stp »* — ce qui aligne du même coup le livre, posé à 8 par la
+       coquille, sur les boutons qui rendaient 4).
+       ⛔ LE GARDE NE S'OUVRE PAS SUR « n'importe quelle valeur » : les deux
+       exceptions valent `var(--sp-8)`, épelé ici. Une exception qui n'est pas
+       bornée n'est plus une exception, c'est une porte — et la nuit du 03/09 a
+       vu cette cote valoir 42, 40, 38, 33 puis 42 % en six heures.
+       ⭐ CE QUI GARDE TOUTE SA MORSURE : le HAUT et la GAUCHE, strictement. */
+    const cote = (p, i) => { const t = p.split(/\s+/); return (t.length === 2 ? [t[0], t[1], t[0], t[1]] : t)[i]; };
+    const bordsTenus = [0, 3].every((i) => cote(pose, i) === cote(temoin, i));
+    const cessions = [1, 2].every((i) => cote(pose, i) === cote(temoin, i) || cote(pose, i) === "var(--sp-8)");
+    if (pose !== temoin && bordsTenus && cessions) continue;
     assert.equal(pose, temoin,
       `${dalle} rembourre en « ${pose} » là où la dalle du rang B rembourre en « ${temoin} ». ` +
       "Deux dalles du même parcours qui se cadrent différemment, c'est l'hétérogénéité qu'Eric " +

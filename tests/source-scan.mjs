@@ -418,3 +418,67 @@ function finDeRegex(texte, debut) {
   }
   return debut;
 }
+
+/** ══ LE LECTEUR DE FEUILLE — un seul, partagé (lot 142) ═══════════════════
+ *
+ *  ⛔ TROIS GARDES ONT ÉCRIT LEUR PROPRE LECTEUR DE CSS, ET DEUX SE SONT
+ *  TROMPÉS DE LA MÊME FAÇON : une expression régulière qui exige `{` juste
+ *  après le sélecteur rate toute règle écrite en LISTE (`a, b, c { … }`), et un
+ *  `matchAll` ancré sur `}` en rate une sur deux — le `}` d'une règle est
+ *  consommé, donc il ne peut plus ancrer la suivante. Les deux échouent en
+ *  rendant `null`, c'est-à-dire en ACCUSANT une feuille juste.
+ *  ⭐ Un scanner à profondeur ne peut pas se tromper là-dessus : il lit les
+ *  accolades, pas un motif. Il vit ici pour qu'il n'y ait plus qu'un lecteur.
+ *
+ *  ⭐ ET LE CONTEXTE `@` FAIT PARTIE DE L'IDENTITÉ D'UNE RÈGLE : la même
+ *  déclaration au même sélecteur, une fois au premier niveau et une fois sous
+ *  `prefers-color-scheme: dark`, n'est pas un doublon — c'est l'idiome du thème.
+ *
+ *  @param {string} css — la feuille, commentaires retirés (`stripComments`)
+ *  @returns {{sel:string, parts:string[], corps:string, sous:string}[]}
+ */
+export function reglesDeLaFeuille(css) {
+  const regles = [];
+  const contexte = [];
+  let tete = "";
+  let i = 0;
+  while (i < css.length) {
+    const c = css[i];
+    if (c === "{") {
+      const prelude = tete.trim().replace(/\s+/g, " ");
+      tete = "";
+      if (prelude.startsWith("@")) { contexte.push(prelude); i++; continue; }
+      let j = i + 1, prof = 1;
+      while (j < css.length && prof > 0) {
+        if (css[j] === "{") prof++;
+        else if (css[j] === "}") prof--;
+        j++;
+      }
+      regles.push({
+        sel: prelude,
+        parts: prelude.split(",").map((p) => p.trim()).filter(Boolean),
+        corps: css.slice(i + 1, j - 1).trim().replace(/\s+/g, " "),
+        sous: contexte.join(" >> ")
+      });
+      i = j;
+      continue;
+    }
+    if (c === "}") { contexte.pop(); tete = ""; i++; continue; }
+    tete += c;
+    i++;
+  }
+  return regles;
+}
+
+/** La DERNIÈRE déclaration d'une propriété pour un sélecteur, au premier niveau.
+ *  ⚖️ La dernière l'emporte, comme dans la cascade à spécificité égale : prendre
+ *  la première mentirait sur ce que le navigateur applique. */
+export function declarationDe(regles, selecteur, propriete) {
+  let dernier = null;
+  for (const r of regles) {
+    if (r.sous || !r.parts.includes(selecteur)) continue;
+    const m = r.corps.match(new RegExp(`(?:^|;)\\s*${propriete}:\\s*([^;}]+)`));
+    if (m) dernier = m[1].trim().replace(/\s+/g, " ");
+  }
+  return dernier;
+}

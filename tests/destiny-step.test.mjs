@@ -238,7 +238,7 @@ test("l'écran final recopie les champs du record, jamais une reformulation", ()
      encadrées. La LOI qu'il porte n'a pas bougé d'un mot : le champ du record est
      recopié TEL QUEL, jamais reformulé. Un test qui épelle une balise se casse au
      premier redessin et emporte sa loi avec lui. */
-  const valeurs = node.querySelectorAll(".card-final-texte *").map((n) => n.textContent);
+  const valeurs = node.querySelectorAll(".card-final-corps *").map((n) => n.textContent);
   for (const champ of ["meaning", "power", "ability"]) {
     const attendu = view.record.data[champ];
     if (attendu) assert.ok(valeurs.includes(String(attendu)), `« ${champ} » doit être recopié tel quel`);

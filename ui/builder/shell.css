@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=454");
+  background-image: url("./assets/tarot-dos.jpg?v=466");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7618,7 +7618,14 @@ button { font: inherit; }
    soit 36 sous les boutons avec le rembourrage de la dalle. */
 /* 📏 16 DU BORD INFÉRIEUR — Eric, 2026-09-03. La dalle garde 4 de rembourrage
    bas, la marge en pose donc 12 : 12 + 4 = 16 sous les boutons. */
-.card-final .parcours-pied { margin-top: calc(var(--sp-32) + var(--sp-8)); margin-bottom: var(--sp-12); }
+/* 📏 8 AU-DESSUS, 8 EN DESSOUS — resserrage final. Les 40 du dessus et les 16
+   du dessous rendent 40 blg à eux deux ; avec les 20 des deux autres écarts,
+   l'écran repasse sous le budget de 500. Le bas vaut 4 de marge + 4 de
+   rembourrage de dalle. */
+/* 📏 8 AU-DESSUS, 4 EN DESSOUS — les 4 blg qui manquaient pour rentrer dans le
+   budget de 500 sont pris SOUS les boutons (Eric, 2026-09-03). Le bas vaut donc
+   le seul rembourrage de la dalle. */
+.card-final .parcours-pied { margin-top: var(--sp-8); margin-bottom: 0; }
 .card-final { padding-bottom: 0; }
 
 
@@ -7661,7 +7668,21 @@ button { font: inherit; }
      vaut 4 — s'arrêtait à 4 blg du bas pendant que le livre et le `?` (posés à
      8) flottaient 4 blg plus haut que les boutons. Avec le bas à 4, les trois
      retombent sur la même ligne, par arithmétique et non par réglage. */
-  padding: var(--sp-4) var(--sp-16);
+  /* ⚖️ LA MARGE DROITE CÈDE 8, ET C'EST UNE EXCEPTION NOMMÉE — Eric, 2026-09-03 :
+     *« en rognant un peu sur la marge à droite »*, pour que la carte gagne ses
+     10 %. ⛔ NORMES §2 bis veut les marges « sur les quatre côtés,
+     systématiquement » : le haut, le bas et la GAUCHE gardent leur cote du rang
+     B, seule la droite paie. La demande est datée, l'entorse est bornée à cet
+     écran, et le garde du gabarit la connaît. */
+  /* ⚖️ LE BAS CÈDE 4, DEUXIÈME EXCEPTION NOMMÉE — Eric, 2026-09-03 : *« 8 blg
+     sous les boutons stp »*. Le rang B pose 4 ; les boutons rendaient donc 4 et
+     le livre 8 (il est POSÉ par la coquille au bas de la dalle, pas dans le
+     flux). ⭐ CE RÉGLAGE RÉPARE AUSSI LE DÉCALAGE OUVERT AU LOT 138 : à 8, les
+     deux retombent sur la même ligne par arithmétique, sans second réglage.
+     ⛔ ET C'EST LE REMBOURRAGE QUI L'ÉCRIT, PAS UNE MARGE SUR LE PIED : 4 + 4
+     aurait rendu les mêmes 8 avec DEUX écrivains, et c'est précisément la faute
+     que cette nuit a défaite trois fois. */
+  padding: var(--sp-4) var(--sp-8) var(--sp-8) var(--sp-16);
 }
 .card-final-tete {
   display: flex;
@@ -7693,6 +7714,26 @@ button { font: inherit; }
      ce qui reste. 📏 335 de champ − 8 de gouttière − 180 = **147 blg** au plus
      pour la carte, soit 252 de haut à son rapport. */
   grid-template-columns: minmax(180px, 1fr) auto;
+  /* 🔴 LES HUIT CASES, NOMMÉES — Eric, 2026-09-03 : *« tu as 7 blocs texte et un
+     bloc image, place-les et fige-les »*. Le dessin de l'écran se lit ICI, en
+     sept lignes, et se change en déplaçant un mot.
+     ⭐ CE QUE ÇA REMPLACE : une soirée de marges poussées pour déplacer des blocs
+     qui n'avaient pas d'adresse. Un bloc placé ne se règle plus par compensation.
+     📏 LE TITRE PREND LA PLEINE LARGEUR ET L'IMAGE LES SIX AUTRES RANGÉES.
+     🔴 Eric, 2026-09-03 : *« centre le titre "The Hermit" horizontalement »* — il
+     le veut centré sur la DALLE, pas sur sa colonne. Un titre centré dans une
+     colonne de 198 se lit décentré de 61 blg dans un cadre de 328 : centré au
+     sens de CSS, décentré à l'œil. C'est l'œil qui décide.
+     ⛔ CECI DÉFAIT LA LIGNE DU 02/09 (« le titre a quitté la pleine largeur pour
+     la colonne de gauche ») : la demande est plus récente, et elle est datée. */
+  grid-template-areas:
+    "titre       titre"
+    "ability     image"
+    "impact      image"
+    "meaning     image"
+    "power       image"
+    "rangs       image"
+    "score       image";
   gap: var(--sp-8);
   align-items: start;
   /* 🔴 `start`, ET SANS LUI LA GRILLE FABRIQUE DES CREUX — mesuré le 2026-09-03 :
@@ -7739,20 +7780,37 @@ button { font: inherit; }
    perdus sous POWER, qu'aucune marge négative de 16 ne pouvait rattraper.
    ⭐ LA CARTE PORTE MAINTENANT SA PROPRE COTE, EN BLG, et ne dimensionne plus
    rien : le TEXTE commande la rangée, et Vibrations remonte de tout le creux. */
+/* 📏 CENTRÉE VERTICALEMENT — Eric, 2026-09-03 : *« on pourra centrer la carte
+   verticalement »*. Elle le peut depuis que les vibrations sont passées en liens :
+   la colonne de gauche a raccourci, la carte n'a plus à se caler en haut pour ne
+   pas la pousser. */
+/* 🔴 LA CARTE COUVRE LES DEUX PREMIÈRES RANGÉES, ET S'Y CENTRE — Eric,
+   2026-09-03 : *« centre la carte verticalement ! »*.
+   ⛔ `align-self: center` SEUL NE FAISAIT RIEN, et c'est mesuré : la carte était
+   l'élément le PLUS HAUT de sa rangée, donc il n'y avait aucun espace autour
+   d'elle à répartir. Centrer dans une boîte qu'on remplit exactement ne se voit
+   pas — la sonde répondait `false` sous une ligne qui semblait verte.
+   ⭐ CE QUI LE REND POSSIBLE : depuis que les vibrations ne sont plus que des
+   NOMS (leur effet est passé en popup), elles tiennent dans la colonne de
+   gauche et n'ont plus besoin de la pleine largeur. La colonne droite est donc
+   libre sur deux rangées, et la carte s'y centre pour de bon. */
 .card-final-carte {
-  grid-column: 2; grid-row: 1; align-self: start;
-  display: grid; place-items: start center; min-height: 0;
-  /* 📏 +12 blg — Eric, 2026-09-03 : *« descend la carte hermit de entre 8 et
-     16 blg, faut pas que ça recouvre le texte de vibrations »*. 12 est le milieu
-     de sa fourchette.
-     ⚠️ SA MISE EN GARDE EST JUSTE, ET ELLE SE MESURE : le bloc des Vibrations
-     s'arrête à 292 blg et la carte commence à 233 — ils SE CROISENT de 59 blg
-     en largeur. Un recouvrement est donc possible dès que la carte descend.
-     ⭐ CE QUI L'EN EMPÊCHE N'EST PAS CETTE MARGE, C'EST LA GRILLE : la carte est
-     en rangée 1, les Vibrations en rangée 2. La marge fait GRANDIR la rangée 1,
-     elle ne fait pas déborder la carte dessus. Le garde de non-recouvrement est
-     structurel, pas numérique — il tiendrait aussi à 16. */
-  margin-top: var(--sp-12);
+  /* 🔴 LA CELLULE COUVRE LES SEPT RANGÉES, ET C'EST ELLE QUI PORTE LE CENTRAGE.
+     Eric, 2026-09-03 : *« la carte n'est pas centrée verticalement »* · *« ta
+     cellule va faire toute la hauteur et tu vas centrer l'image dedans »*.
+     ⛔ MA MESURE MESURAIT LE MAUVAIS TÉMOIN : la cellule s'arrêtait au-dessus du
+     Score (six rangées sur sept), l'image y était bien à 22/22 — centrée dans SA
+     case, et haute d'une trentaine de blg dans la DALLE, qui est ce qu'Eric
+     regarde. Un centrage juste sur le mauvais cadre est un centrage faux : même
+     faute que les témoins de la nuit du 22/08.
+     ⭐ La case `image` occupe donc AUSSI la rangée du Score. Le Score reprend la
+     colonne de gauche — ses lignes mesurent 122 blg pour 198 disponibles, il n'a
+     jamais eu besoin de la pleine largeur.
+     ⛔ `align-self: center` RÉTRÉCIT la cellule à son contenu : il ne reste alors
+     rien à répartir. C'est `stretch` qui l'étire, et `place-items` qui centre
+     l'image DEDANS. */
+  align-self: stretch;
+  display: grid; place-items: center; min-height: 0;
 }
 .card-final-img {
   width: auto;
@@ -7779,7 +7837,9 @@ button { font: inherit; }
      ⚠️ ELLE A PERDU 24 % DE SA HAUTEUR EN QUATRE RÉGLAGES (42 → 40 → 38 → 33),
      et chacun était juste pris isolément. C'est le budget qu'il faut regarder,
      pas le geste suivant. */
-  height: calc(var(--panneau-h) * 1px * 0.38);
+  /* 📏 42 % — +10 % de sa taille (0,38 × 1,1 = 0,418), Eric le 2026-09-03. Les
+     29 blg rendus par les vibrations en liens le permettent. */
+  height: calc(var(--panneau-h) * 1px * 0.42);
   max-width: 100%;
   object-fit: contain;
   border-radius: var(--radius-md);
@@ -7806,7 +7866,9 @@ button { font: inherit; }
      au milieu, 4 par le haut et 4 par le bas. */
   /* 📏 12 = 4 + 8 — Eric, 2026-09-03 : *« rajoute 8 px entre le titre et
      Ability »*, après les 4 qu'il avait déjà demandés. */
-  margin: 0 0 var(--sp-12);
+  /* 📏 0 — lot 142, resserrage final : l'écart au bloc suivant est le `gap` de
+     la colonne, 8 comme partout. La marge de 12 posait 20. */
+  margin: 0;
   font-size: var(--t4);
   text-align: center;
 }
@@ -7882,7 +7944,7 @@ button { font: inherit; }
 .card-final-rang-cout { font-weight: 600; }
 
 /* les blocs qui traversent les deux colonnes : Vibrations, puis le Score */
-.card-final-large { grid-column: 1 / -1; }
+
 /* 📏 LE BLOC DES VIBRATIONS VA JUSQU'À LA MOITIÉ DE LA CARTE — Eric,
    2026-09-03, après deux repères essayés et abandonnés.
    MESURÉ SUR LA PAGE : la carte occupe **233 → 351 blg** depuis le bord gauche
@@ -7896,36 +7958,19 @@ button { font: inherit; }
    pixel dans l'image : le cartouche du nom court de 252 à 332), qui
    dépend de l'illustration de chacune des vingt-deux. La moitié de la carte,
    elle, ne dépend que de la grille — elle vaut la même chose pour les 22. */
+/* ⛔ LE BLOC DES VIBRATIONS QUITTE LA PLEINE LARGEUR — il la tenait pour que ses
+   effets tiennent en trois lignes ; les effets sont partis en popup, il n'a plus
+   que des noms à porter. Il revient donc dans la colonne de gauche, ce qui rend
+   la colonne droite entière à la carte. */
 .card-final-etale {
-  max-width: calc(292px - var(--sp-16));
-  /* 🧊 LE CENTRAGE A ÉTÉ ESSAYÉ PUIS RETIRÉ — Eric, 2026-09-03 : *« c'est le
-     bloc 6 "vibrations" que tu centres »*, puis, en le voyant : *« c'est moche
-     recadre à gauche »*.
-     ⭐ ET C'EST COHÉRENT AVEC LE RESTE DE L'ÉCRAN : les six blocs sont ferrés à
-     gauche, sur la colonne de texte. Le seul organe centré est le TITRE, qui
-     coiffe sa colonne. Un bloc de prose centré au milieu de cinq blocs ferrés se
-     lit comme une erreur, pas comme une intention. */
-  /* 📏 −8 blg — Eric, 2026-09-03 : *« remonte vibration du coup »*, après avoir
-     descendu la carte de 12.
-     ⚠️ ET 8 EST LE PLAFOND, PAS UN CHOIX. Mesuré : le bas de la carte tombe à
-     228, le haut du bloc à 236. Au-delà de 8, le bloc passe SOUS la carte — ils
-     se croisent de 59 blg en largeur depuis qu'il va jusqu'à sa moitié — et
-     c'est exactement ce qu'Eric a interdit dans la phrase d'avant.
-     ⭐ LES DEUX CONSIGNES SE TIENNENT PAR UN FIL : descendre la carte de 12
-     consomme la place que remonter le bloc réclame. Pour aller plus haut, il
-     faudrait que le bloc s'arrête au bord GAUCHE de la carte (217) au lieu de sa
-     moitié (292) — il gagnerait alors 22 au lieu de 8. */
-  /* 📏 −12 au lieu de −8 : les 4 blg de plus qu'Eric demande le 2026-09-03
-     (*« remonte vibrations de 4 »*), qui s'ajoutent aux 8 déjà pris. */
-  /* 📏 −4, PAS −12 — Eric, 2026-09-03 : *« espace entre le bloc power et
-     vibrations ? 8 px »*. Mesuré à 0 : la remontée de 12 avait mangé les 8 du
-     `gap`, et les quatre autres écarts de l'écran valent 8. On rend donc 8 des
-     12 pris. ⭐ Le −4 qui reste est ce que la CARTE impose : elle dépasse le
-     texte, et le bloc se cale sur le bas de la rangée, pas sur celui du texte. */
-  /* 📏 0 — Eric, 2026-09-03 : *« augmente espace au-dessus vibrations de 4px »*.
-     La remontée de 4 est rendue ; l'écart devient celui du `gap`, comme partout
-     ailleurs sur cet écran. */
-  margin-top: 0;
+  /* 🧊 LA MARGE NÉGATIVE A ÉTÉ RETIRÉE — lot 142. Elle valait −8 et servait à
+     rattraper la carte qui dépassait la colonne de texte, du temps où le bloc se
+     calait sur le bas de la RANGÉE. Depuis que chaque bloc a sa CASE, la carte ne
+     commande plus rien — et cette marge, devenue orpheline, mangeait le `gap` :
+     l'écart POWER → VIBRATIONS mesurait 0 au lieu de 8, et le bloc débordait de
+     sa rangée de 8 blg.
+     ⭐ C'est la troisième marge de compensation retirée cette nuit. Toutes
+     réparaient une cause disparue, et toutes sont devenues le défaut suivant. */
 }
 /* ⛔ LE −16 DU BLOC TEXTE 3 A ÉTÉ RETIRÉ — et c'est la bonne façon de lire une
    demande de réglage. Eric, 02/09 : *« c'est le bloc texte 3 qui remonte de
@@ -7950,7 +7995,7 @@ button { font: inherit; }
    ⚖️ C'est le SEUL des quatre à être centré : les trois autres restent ferrés à
    gauche, sur la colonne de texte. Le Score n'appartient à aucune colonne — il
    ferme la lecture, comme le titre l'ouvre. */
-.card-final-score { grid-column: 1 / -1; }
+
 /* 🔴 UN TERME PAR LIGNE, EN T1 — Eric, 2026-09-03. L'enroulement est abandonné :
    il mettait deux ou trois termes par ligne selon la longueur des mots, donc la
    forme du bloc changeait d'une carte à l'autre. Empilés, les termes se lisent
@@ -8244,3 +8289,26 @@ button.tuto-point::before {
 .species-lignage-table tr + tr th, .species-lignage-table tr + tr td {
   border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
 }
+
+
+/* ══ LES HUIT CASES DE L'ÉCRAN FINAL — figées le 2026-09-03 ═══════════════ */
+.card-final-nom        { grid-area: titre; }
+.aire-ability          { grid-area: ability; }
+.aire-impact           { grid-area: impact; }
+.aire-meaning          { grid-area: meaning; }
+.aire-power            { grid-area: power; }
+.aire-rangs            { grid-area: rangs; }
+.aire-score            { grid-area: score; }
+.card-final-carte      { grid-area: image; }
+
+
+/* 📏 LES DEUX RESPIRATIONS DE L'ÉCRAN — 16 au lieu de 8, et elles sont nommées.
+   ⭐ CE QU'ELLES SÉPARENT N'EST PAS DEUX BLOCS, C'EST DEUX NATURES : au-dessus,
+   ce que la carte EST (son ability, son impact, son sens, son pouvoir) ; en
+   dessous, ce qu'elle OUVRE (les vibrations) puis ce qu'elle PÈSE (le Score).
+   Les cinq autres écarts restent à 8 — ils séparent des lignes d'une même liste.
+   ⚖️ OUI, C'EST UNE MARGE QUI S'AJOUTE AU `gap`, et c'est assumé ici : 8 + 8 = 16,
+   voulu et écrit. La faute de la nuit n'était pas d'additionner, c'était
+   d'additionner SANS LE SAVOIR. */
+.aire-rangs,
+.aire-score { margin-top: var(--sp-8); }

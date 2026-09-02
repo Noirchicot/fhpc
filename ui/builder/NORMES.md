@@ -1595,6 +1595,146 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 
 ---
 
+## 4 quater bis. 📐 LE GABARIT DE L'ÉCRAN FINAL DE DESTINY *(figé au banc, 2026-09-03)*
+
+> Eric : **« tu mesures tout précisément »** · **« tu figes tout ça »** · **« tu as 7 blocs texte
+> et un bloc image, place-les et fige-les »**.
+> Chaque nombre est un **RELEVÉ** sur la page rendue à 375 × 500 blg, cran 1, carte *l'Ermite*.
+> Gardes : `tests/destiny-final-budget.test.mjs` et `tests/dalle-du-rang.test.mjs`.
+
+### 🔴 LE BUDGET, ET IL EST FERMÉ
+
+    panneau      560 blg      (règle sacrée du 31/08)
+    ceinture     − 60
+    ─────────────────────
+    scène        500 blg  ←  LE BUDGET D'UN ÉCRAN
+
+⚠️ **`500` n'est PAS une limite de l'iPhone SE**, et la confusion a coûté une soirée. C'est ce qui
+reste du panneau une fois la ceinture posée ; le panneau de 560 est calibré pour tenir sur un SE
+(553 de haut utile, peint au cran « mini » à 96 %). ➡️ **La limite est la même sur tous les
+appareils** — un iPad ne donne pas plus de blg, il les peint plus gros.
+
+### 🔴 HUIT BLOCS, HUIT CASES NOMMÉES
+
+⛔ **CINQ BLOCS VIVAIENT DANS UN CONTENEUR**, et c'est ce qui rendait l'écran irréglable : un bloc
+enfermé ne peut pas être PLACÉ, il subit le flux de sa boîte. Une soirée entière s'est passée à
+pousser des marges pour déplacer des blocs qui n'avaient pas d'adresse.
+
+    grid-template-columns: minmax(180px, 1fr) auto        gap: 8
+
+    "titre       titre"
+    "ability     image"
+    "impact      image"
+    "meaning     image"
+    "power       image"
+    "rangs       image"
+    "score       image"
+
+⭐ **Le dessin se lit ici, en sept lignes, et se change en déplaçant un mot** — plus en compensant
+une marge par une autre.
+
+### La colonne des postes — 475 sur 500
+
+| | poste | blg |
+|---|---|---|
+| | rembourrage haut | **4** |
+| 1 | **le voyant** *(`.card-final-tete`)* | **10** |
+| 2 | **le corps** — les huit cases | **~395** |
+| | écart au pied | **8** |
+| 3 | **le pied** — quatre boutons | **44** |
+| | rembourrage bas | **8** |
+| | **TOTAL mesuré** | **479**, soit **21 de marge** |
+
+⚠️ **LE VOYANT COMPTE POUR 10, ET IL A ÉTÉ OUBLIÉ DEUX FOIS** dans le décompte de la séance — la
+somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans les marges.
+
+### Les blocs, leur forme et leur cote
+
+| bloc | largeur | hauteur | forme |
+|---|---|---|---|
+| **titre** | 343 | 20 | **pleine largeur, centré sur la DALLE**, T4 |
+| **ABILITY** | 198 | 15 | étiquette + valeur sur une ligne |
+| **IMPACT** | 198 | 15 | idem |
+| **MEANING** | 198 | 62 | étiquette, puis sa fenêtre |
+| **POWER** | 198 | 62 | idem |
+| **VIBRATIONS** *(case `rangs`)* | 198 | 70 | **une par ligne, NOMMÉE seulement** — « N vp » en gras + un LIEN |
+| **DESTINY SCORE** | 198 | 99 | total sur la ligne de l'étiquette, un terme nommé par ligne |
+| **l'image** | 137 × 235 | — | **centrée** dans une cellule étirée sur SIX rangées (toutes sauf le titre) |
+| *(le pied)* | 343 | 44 | quatre boutons — frère de la grille, hors budget des cases |
+
+### 🔴 CE QUE L'ÉCRAN NE MONTRE PAS, ET OÙ ÇA VIT
+
+> Eric, 2026-09-03 : *« les vibrations peuvent n'être que nommées »* · *« les vibrations = popup »*
+> · *« le livre mène aux règles dans FH Web »*.
+
+| | où |
+|---|---|
+| l'**effet** d'une vibration | un **popup**, ouvert par le lien sur son nom |
+| la **règle entière** de la carte | le **livre** du pied → `fh-phb/chapters/arcana/<slug>/` *(les 22 vérifiées en 200 le 03/09)* |
+
+⭐⭐ **C'EST LA LOI DU DÉPÔT APPLIQUÉE, PAS UNE TROUVAILLE** : *« un contenu qui ne tient pas :
+demander ce qu'il porte EN TROP, jamais ajouter un défilement »*. L'effet n'était pas en trop dans
+le JEU, il était en trop **sur cet écran**. On ne l'a pas coupé, on l'a déplacé.
+📏 **Ce que ça a rendu : 29 blg**, et c'est ce qui a fait rentrer l'écran dans le budget sans
+toucher à un seul texte de règle.
+
+⚖️ **HABIT DU LIEN** : `.lien-sort` — `--lien`, **non souligné**, rendu en `<button>` (§1 ter bis³).
+⛔ Pas `--info` : un lien n'est pas une information qui crie.
+
+### Les écarts — **8**, et deux **16** qui séparent trois natures
+
+    titre=8   ability=8   impact=8   meaning=8   power=16   vibrations=16
+
+⭐ Les deux 16 ne séparent pas deux blocs, ils séparent trois NATURES : ce que la carte **est**
+(ability, impact, sens, pouvoir) · ce qu'elle **ouvre** (les vibrations) · ce qu'elle **pèse** (le
+Score). Les cinq 8 séparent des lignes d'une même liste.
+
+### 🎨 L'encre porte la structure, depuis que les cadres sont invisibles
+
+| | |
+|---|---|
+| **étiquettes** | `--text`, T2, capitales |
+| **valeurs, fenêtres, termes du Score** | `--text-soft` |
+| **« N vp » et les valeurs du Score** | **gras**, encre de corps — jamais `--text` |
+| **noms de vibration** | `--lien` |
+
+🔴 **AUCUN BLOC N'A DE CADRE NI DE REMBOURRAGE** — même loi que le gabarit du 26/08 : *« la zone de
+scroll a un bord invisible »*. Ce qu'un croquis dessine comme un rectangle est une PLACE réservée.
+
+⚖️ **DEUX EXCEPTIONS DE MARGE, NOMMÉES ET BORNÉES** : le rembourrage de la dalle vaut
+`4 · 8 · 8 · 16`. La **droite** cède 8 blg à la carte, le **bas** en prend 8 au lieu de 4 (Eric,
+03/09 : *« 8 blg sous les boutons »*) — ⭐ et c'est ce qui aligne enfin le **livre** sur les
+boutons : il est POSÉ par la coquille au bas de la dalle, il rendait 8 quand les boutons rendaient
+4. La dette du lot 138 se paie par arithmétique, pas par un second réglage.
+🔴 Le **haut** et la **GAUCHE** ne cèdent jamais, et les deux cessions valent `var(--sp-8)`,
+épelé dans les gardes : une exception qui n'est pas bornée n'est plus une exception, c'est une
+porte.
+
+### ⛔ TROIS PIÈGES PAYÉS CETTE NUIT, ET ILS SE RESSEMBLENT
+
+1. **`align-self: center` RÉTRÉCIT la cellule** à son contenu : il ne reste alors rien à répartir,
+   et le centrage ne déplace rien. Mesuré : cellule 235 pour une image de 235. La cellule doit
+   `stretch`, et c'est l'IMAGE qui se centre dedans.
+2. **`align-items` ne dimensionne pas les rangées** — `align-content: start` le fait. Sans lui, une
+   grille qui reçoit une hauteur ÉTIRE ses rangées et distribue du vide entre les blocs (mesuré :
+   242/97/79 pour des contenus de 202/72/38).
+3. **UNE MARGE DE COMPENSATION SURVIT À SA CAUSE.** Trois ont été retirées cette nuit ; chacune
+   réparait un défaut disparu et était devenue le défaut suivant. La dernière mangeait le `gap` et
+   faisait mesurer 0 là où on lisait 8.
+
+### ⏳ Ce qui n'est PAS figé
+
+- **la hauteur de l'image** — elle a valu 42, 40, 38, 33 puis 42 % du panneau dans la même soirée ;
+- **le voyant** : il n'est pas sur le croquis d'Eric, gardé faute de décision ;
+- **l'ancrage du livre et du `?`** : ancrés au bas de la DALLE (posés par la coquille) quand la
+  paire vit dans le flux — 8 blg de décalage mesuré, et aucun espacement ne les alignera ;
+- 🔴 **le budget des 21 autres cartes.** Mesuré le 03/09 AVANT le passage des vibrations en
+  popup : 11 sur 22 débordaient à trois vibrations, 22 sur 22 à six. *L'Ermite est la MÉDIANE* —
+  c'est pourquoi tout tombait juste sur elle et sur aucune autre. ⏳ **À remesurer** depuis que
+  l'effet des vibrations est parti en popup.
+
+---
+
 ## 4 quinquies. 📐 LE SOUS-ÉCRAN (SB) ET LE BILAN DU B *(dictés au banc, nuit du 27/08)*
 
 > Eric : **« en SB lineage : le texte doit être dans une fenêtre scroll »** · **« il faut une

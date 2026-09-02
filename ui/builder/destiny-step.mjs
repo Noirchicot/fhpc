@@ -25,16 +25,22 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=454";
-import { renderCardRows } from "./catalogue.mjs?v=454";
+import { drawArcana } from "./dice.mjs?v=466";
+import { renderCardRows } from "./catalogue.mjs?v=466";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=454";
+import { versionQuery } from "./version.mjs?v=466";
 
 export { drawArcana };
 
 export const DESTINY_ARCANA_PATH = "fh.destiny.arcana";
+
+/** 📖 Le chapitre des arcanes sur le site des règles — écrit UNE fois.
+ *  ⚠️ `major-arcana` n'est qu'une page de redirection : le chapitre vivant est
+ *  `fates-hand-mechanic`, et chaque carte a SA page sous `chapters/arcana/`.
+ *  Vérifié le 2026-09-03 : les vingt-deux répondent 200. */
+export const LIVRE_ARCANES = "https://noirchicot.github.io/fh-phb/chapters/arcana/";
 const DESTINY_STAT_ID = "fh:destiny";
 
 /** Le dossier des 22 faces + le dos. ⛔ Le nom du fichier EST le slug du
@@ -76,8 +82,21 @@ function pied(livreDe, act) {
   const rangee = el("div", "parcours-pied");
   const livre = el("button", "fiche-livre parcours-livre");
   livre.type = "button";
-  livre.setAttribute("aria-label", "Lore");
-  if (livreDe && livreDe.texte) {
+  livre.setAttribute("aria-label", "Rules");
+  if (livreDe && livreDe.href) {
+    /* 📖 LE LIVRE OUVRE LES RÈGLES SUR FH WEB — Eric, 2026-09-03 : *« le livre
+       mène aux règles dans FH Web »* · *« ouverture d'une fenêtre dans le site
+       des règles »*.
+       ⭐ CE N'EST PLUS UN POPUP DE TEXTE, ET C'EST MIEUX : la page du chapitre
+       est une source datée, versionnée, avec son attribution — pas deux phrases
+       recopiées par l'interface. C'est déjà la doctrine de Concept (26/08) :
+       *« par défaut sur FH, sinon SRD »*.
+       ⛔ `noopener` N'EST PAS UN ORNEMENT : sans lui, la page ouverte reçoit un
+       `window.opener` sur le builder et peut le renavigger.
+       📏 LES VINGT-DEUX DESTINATIONS EXISTENT — vérifiées une par une le
+       2026-09-03, toutes en 200 : `fh-phb/chapters/arcana/<slug>/`. */
+    livre.addEventListener("click", () => { window.open(livreDe.href, "_blank", "noopener"); });
+  } else if (livreDe && livreDe.texte) {
     livre.addEventListener("click", () => act({
       kind: "popup", titre: livreDe.titre || "Lore", texte: livreDe.texte
     }));
@@ -280,7 +299,6 @@ export function renderDestinyFinal(ctx, onAction) {
      Croquis : `ABILITY` et `IMPACT` sont des lignes courtes (une valeur tient
      à côté du mot) ; `MEANING`, `POWER` et `VIBRATIONS` portent chacun une
      FENÊTRE encadrée sous leur libellé. */
-  const fenetre = el("div", "card-final-texte");
 
   /* 🔴 LE TITRE VIT DANS LA COLONNE DE GAUCHE — Eric, 2026-09-02 : *« centre
      Hermit au-dessus des blocs texte 1 et 2 »*. Il ne coiffe donc pas la dalle
@@ -289,36 +307,43 @@ export function renderDestinyFinal(ctx, onAction) {
      titre au-dessus d'elle, donc la carte peut remonter jusqu'au bord haut du
      corps — c'est ce qu'Eric demande dans la même phrase. Poser le titre en
      pleine largeur l'en aurait empêché, quel que soit le réglage. */
-  if (record) fenetre.append(el("h2", "card-final-nom", [text(record.name)]));
+  if (record) corps.append(el("h2", "card-final-nom", [text(record.name)]));
 
-  const ligne = (libelle, valeur) => {
+  const ligne = (libelle, valeur, place) => {
     if (valeur === null || valeur === undefined || valeur === "") return null;
-    const l = el("p", "card-final-ligne");
+    const l = el("p", `card-final-ligne ${place}`);
     l.append(el("span", "card-final-etiq", [text(libelle)]));
     l.append(el("span", "card-final-val", [text(String(valeur))]));
     return l;
   };
-  const bloc = (libelle, contenu) => {
+  const bloc = (libelle, contenu, place) => {
     if (!contenu) return null;
-    const b = el("div", "card-final-bloc");
+    const b = el("div", `card-final-bloc ${place || ""}`.trim());
     b.append(el("h3", "card-final-etiq", [text(libelle)]));
     b.append(contenu);
     return b;
   };
 
+  /* 🔴 LES HUIT BLOCS SONT DES ENFANTS DIRECTS DE LA GRILLE — Eric, 2026-09-03 :
+     *« tu as 7 blocs texte et un bloc image, place-les et fige-les »*.
+     ⛔ CINQ D'ENTRE EUX VIVAIENT DANS UN CONTENEUR, et c'est ce qui rendait
+     l'écran impossible à régler : un bloc enfermé ne peut pas être PLACÉ, il
+     subit le flux de sa boîte. Toute la soirée s'est passée à pousser des marges
+     pour déplacer des blocs qui n'avaient pas d'adresse.
+     ⭐ Chacun porte maintenant SA case, nommée dans `grid-template-areas`. Le
+     dessin se lit dans la feuille en sept lignes, et se change en déplaçant un
+     mot — plus en compensant une marge par une autre. */
   const courtes = [
-    ligne("Ability", data.ability || null),
-    ligne("Impact", Number.isFinite(impact) && impact !== 0 ? (impact > 0 ? `+${impact}` : String(impact)) : null)
+    ligne("Ability", data.ability || null, "aire-ability"),
+    ligne("Impact", Number.isFinite(impact) && impact !== 0 ? (impact > 0 ? `+${impact}` : String(impact)) : null, "aire-impact")
   ].filter(Boolean);
-  for (const l of courtes) fenetre.append(l);
+  for (const l of courtes) corps.append(l);
 
-  const meaning = bloc("Meaning", data.meaning ? el("p", "card-final-cadre", [text(data.meaning)]) : null);
-  if (meaning) fenetre.append(meaning);
+  const meaning = bloc("Meaning", data.meaning ? el("p", "card-final-cadre", [text(data.meaning)]) : null, "aire-meaning");
+  if (meaning) corps.append(meaning);
 
-  const power = bloc("Power", data.power ? el("p", "card-final-cadre", [text(data.power)]) : null);
-  if (power) fenetre.append(power);
-
-  corps.append(fenetre);
+  const power = bloc("Power", data.power ? el("p", "card-final-cadre", [text(data.power)]) : null, "aire-power");
+  if (power) corps.append(power);
 
   /* ── LES VIBRATIONS, EN PLEINE LARGEUR SOUS LA CARTE ─────────────────────
      🔴 Eric, 2026-09-02 : *« la carte remonte jusqu'à être au-dessus du bloc
@@ -339,13 +364,42 @@ export function renderDestinyFinal(ctx, onAction) {
          texte · 2 vp (en gras) texte · 3 vp idem »*. Le rang ouvre la ligne sous
          sa forme de COÛT, et c'est lui seul qui porte le gras ; le nom de la
          vibration repasse dans le texte courant avec son effet. */
+      /* 🔴 LA VIBRATION N'EST QUE NOMMÉE — Eric, 2026-09-03 : *« les vibrations
+         peuvent n'être que nommées »* · *« dans tous les cas le livre permet de
+         voir la description entière »*.
+         📏 CE QUE ÇA REND, ET C'EST LE POSTE QUI DÉBORDAIT : trois lignes
+         courtes au lieu de cinq longues, soit ~48 blg sur un budget de 500. On
+         ne coupe pas le texte, on le DÉPLACE — il est en entier dans le livre,
+         l'organe du pied qui existait déjà.
+         ⭐ ET C'EST LA LOI DU DÉPÔT, PAS UNE TROUVAILLE : « un contenu qui ne
+         tient pas : demander ce qu'il porte EN TROP, jamais ajouter un
+         défilement ». L'effet n'était pas en trop dans le jeu, il était en trop
+         SUR CET ÉCRAN. */
       const ligneVib = el("p", "card-final-rang");
       ligneVib.append(el("b", "card-final-rang-cout", [text(`${v.rank} vp`)]));
-      ligneVib.append(text(` ${v.name} — ${String(v.effect).replace(/\*/g, "")}`));
+      /* 🔗 LE NOM EST UN LIEN, ET IL OUVRE UN POPUP — Eric, 2026-09-03 : *« les
+         vibrations = popup »*.
+         ⚖️ HABIT : `.lien-sort`, la classe du dépôt pour « un nom dans une
+         phrase » — `--lien`, ce bleu à un souffle de l'encre, **non souligné**
+         (NORMES §1 ter bis³). ⛔ Pas `--info` : un lien n'est pas une
+         information qui crie. Et c'est un `<button>`, pas un `<a>` : un `<a>`
+         arriverait souligné par défaut, et la norme a mesuré ce défaut le 29/08.
+         ⭐ RIEN N'EST PERDU, TOUT EST DÉPLACÉ : le popup porte l'effet entier,
+         le livre porte le chapitre. L'écran ne montre que ce qui tient. */
+      const lien = document.createElement("button");
+      lien.type = "button";
+      lien.className = "lien-sort";
+      lien.textContent = v.name;
+      const effet = String(v.effect).replace(/\*/g, "");
+      lien.addEventListener("click", () => act({
+        kind: "popup", titre: `${v.rank} vp · ${v.name}`, texte: effet
+      }));
+      ligneVib.append(text(" "));
+      ligneVib.append(lien);
       liste.append(ligneVib);
     }
     const b = bloc("Vibrations", liste);
-    b.className += " card-final-large card-final-etale";
+    b.className += " card-final-etale aire-rangs";
     corps.append(b);
   }
 
@@ -364,7 +418,7 @@ export function renderDestinyFinal(ctx, onAction) {
        il fallait suivre les termes jusqu'au bout pour trouver le résultat, et sa
        place changeait avec l'enroulement. Ici le total est toujours au même
        endroit, quel que soit le nombre de termes. */
-    const b = el("div", "card-final-bloc card-final-score");
+    const b = el("div", "card-final-bloc card-final-score aire-score");
     const tete = el("h3", "card-final-etiq card-final-score-tete");
     tete.append(el("span", null, [text("Destiny Score")]));
     tete.append(el("span", "card-final-total", [text(String(score))]));
@@ -407,7 +461,11 @@ export function renderDestinyFinal(ctx, onAction) {
      confirmé », et les CINQ écrans qui portent ce mot en sont là.
      ⛔ Un commentaire qui promet un organe absent envoie le lot suivant chercher
      un popup pendant vingt minutes, puis croire qu'il l'a cassé. */
-  const rangee = pied(data.meaning ? { titre: record ? record.name : "Lore", texte: data.meaning } : null, act);
+  /* 📖 LE LIVRE MÈNE À LA PAGE DE CETTE CARTE, sur le site des règles. Le slug
+     du record EST le nom de la page (`the-hermit` → `/chapters/arcana/the-hermit/`),
+     comme il est déjà le nom du fichier d'image. Une seule convention. */
+  const slug = record && record.slug ? record.slug : String(id || "").replace("fh:arcana:en:", "");
+  const rangee = pied(slug ? { href: `${LIVRE_ARCANES}${slug}/` } : null, act);
   rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
   /* 🔴 « DONE », PAS « NEXT » — croquis d'Eric du 2026-09-02. Le geste n'a pas
      changé (`destinyNext`), c'est le mot. ⚖️ NORMES §6 sépare les deux : `NEXT`

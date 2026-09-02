@@ -67,8 +67,12 @@ test("1 — 🃏 LA DALLE TAROT NE PORTE QUE LE TAROT", () => {
 
 test("2 — 📄 LA DALLE TEXTE PORTE LES ÉLÉMENTS CLASSIQUES", () => {
   const s = ecran();
-  const texte = s.querySelector(".card-final-texte");
-  assert.ok(texte, "témoin : la colonne de texte est là");
+  /* ⛔ LE TÉMOIN NOMMAIT UNE COLONNE MORTE — corrigé au lot 142. `.card-final-texte`
+     enveloppait cinq blocs ; ils sont désormais les enfants DIRECTS du corps, chacun
+     dans sa case nommée. Un bloc enfermé ne peut pas être placé, c'est ce qui rendait
+     l'écran irréglable. ⭐ La loi ne bouge pas : le témoin devient le CORPS. */
+  const texte = s.querySelector(".card-final-corps");
+  assert.ok(texte, "témoin : le corps de la dalle est là");
   /* ⭐ RÉÉCRIT AU LOT 142, ET SA LOI NE BOUGE PAS D'UN MOT : le Score EST du
      texte, il ne vit jamais dans la colonne de l'image. Ce qui a changé est sa
      PLACE — le croquis d'Eric du 2026-09-02 le met en pleine largeur, sous la
