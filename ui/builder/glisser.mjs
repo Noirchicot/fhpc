@@ -27,8 +27,12 @@
 
 import { pageDeListe } from "./normes.mjs?v=432";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=432";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=432";
 import { swapContent } from "./socle.mjs?v=432";
+/* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
+   `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
+   pas. Voir `fantomeSuivre`. */
+import { facteurZoomCourant } from "./echelle.mjs?v=432";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -442,13 +446,26 @@ function fantomeRanger() {
    exister n'a rien à faire dans un chemin que les tests traversent.
    📌 Les deux cotes sont celles du gabarit : `--touch` (44) en hauteur, et la
    colonne minimale de la grille (9rem ≈ 144) en largeur. */
-const FANTOME_L = 144;   /* --glisse-l, 9rem */
-const FANTOME_H = 48;    /* --glisse-h */
+/* ⛔ LES DEUX CONSTANTES SONT PARTIES — lot 125, et elles portaient DEUX
+   fautes à elles seules.
+     · `FANTOME_L = 144` citait `--glisse-l, 9rem`, un jeton **retiré** du
+       dépôt. La feuille peint le fantôme à `--glisse-case`, c'est-à-dire
+       **87** : la demi-largeur était donc fausse de `72 − 43,5 = 28,5 blg`,
+       et le fantôme flottait d'autant à GAUCHE du doigt. À l'échelle 1 c'est
+       ce décalage qu'on mesurait.
+     · Et une cote recopiée à côté d'une feuille qui en dit une autre est le
+       défaut que §1 ter interdit : **elle se déduit, elle ne s'écrit pas.**
+   ⭐ ELLE SE MESURE DONC SUR LA COPIE ELLE-MÊME, une fois montée : `offsetWidth`
+   rend la MISE EN PAGE (des blg), exactement l'unité dans laquelle le
+   `translate` ci-dessous travaille. Le jour où Eric bouge `--glisse-case`, le
+   fantôme suit sans qu'on y revienne.
+   ⚠️ Repli à zéro quand il n'y a pas de mise en page (le stub DOM des tests) :
+   le fantôme se pose alors par son coin plutôt que par son centre — un décor
+   décalé vaut mieux qu'un geste qui jette. */
 
 function fantomeLever(jeton, x, y) {
   fantomeRanger();
   if (!document.body || typeof jeton.cloneNode !== "function") return;
-  fantomeDemi = [FANTOME_L / 2, FANTOME_H / 2];
   const copie = jeton.cloneNode(true);
   copie.className = `${jeton.className} glisse-fantome`;
   copie.disabled = true;
@@ -464,13 +481,37 @@ function fantomeLever(jeton, x, y) {
      ⚠️ Le repli sur `<body>` reste, pour le seul cas où `.app` n'existe pas
      (bancs, stub DOM) : un fantôme mal placé vaut mieux qu'un geste qui jette. */
   (document.querySelector(".app") || document.body).append(copie);
+  /* Mesurée APRÈS le montage : avant, la copie n'a pas de mise en page. */
+  fantomeDemi = [(copie.offsetWidth || 0) / 2, (copie.offsetHeight || 0) / 2];
   fantomeSuivre(x, y);
 }
 
+/** 🔴 LE DOIGT PARLE EN PIXELS PEINTS, LE FANTÔME EN BLG — lot 125.
+ *
+ *  ⛔ LE DÉFAUT, ET IL GRANDISSAIT AVEC L'ÉCRAN. Le fantôme est monté DANS
+ *  `.app`, qui porte le `zoom` : un `translate(N px)` écrit là est donc peint
+ *  à `N × zoom`. Les coordonnées d'un pointeur, elles, arrivent en pixels de
+ *  FENÊTRE. Les mélanger donnait, mesuré :
+ *
+ *      écart = x × (z − 1) − 28,5 × z
+ *
+ *  — nul au cran 1 à la demi-largeur près, et **+493 / +996 px** à l'échelle
+ *  2,107, l'écart croissant avec la distance à l'origine. C'est la famille
+ *  exacte que `facteurZoom` a été écrit pour fermer (TRAPS : *« les mélanger
+ *  donne un résultat faux × le cran »*), et c'était le dernier site du dépôt
+ *  qui la portait encore.
+ *
+ *  ⭐ ON DIVISE DONC AVANT DE POSER, et on mesure le facteur sur la RACINE
+ *  D'ÉCHELLE (`facteurZoomCourant`), jamais sur le fantôme : `facteurZoom(n)`
+ *  ne peut pas convertir `n` lui-même — la note d'`echelle.mjs` a coûté une
+ *  nuit à l'écrire.
+ *  ⚠️ Sans `.app` (bancs, stub), le facteur vaut 1 et l'expression retombe
+ *  exactement sur celle d'avant ce lot. */
 function fantomeSuivre(x, y) {
   if (!fantomeGlisse) return;
+  const z = facteurZoomCourant() || 1;
   fantomeGlisse.style.transform =
-    `translate(${x - fantomeDemi[0]}px, ${y - fantomeDemi[1]}px)`;
+    `translate(${x / z - fantomeDemi[0]}px, ${y / z - fantomeDemi[1]}px)`;
 }
 
 export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle }) {

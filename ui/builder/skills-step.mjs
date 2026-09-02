@@ -150,18 +150,40 @@ export const REFUSAL_WORDS = {
  *  un écran qui plante sur une clef que le moteur apprendrait demain. */
 /** Le mot d'un refus, EXPORTÉ pour la coquille : c'est elle qui réveille le
  *  popup à chaque écart (B7.7c), mais le vocabulaire appartient à l'écran. */
-export function skillsRefusalWord(violation) { return refusalWord(violation); }
+/** 🔴 LE MOT D'UN VERROU — UNE SEULE VOIX POUR LES DEUX TABLES *(lot 125)*.
+ *
+ *  ⛔ CE QUE ÇA RÉPARE, ET C'ÉTAIT VISIBLE À L'ÉCRAN : deux tables de mots
+ *  existaient — les onze clefs `skill-*` d'ici, et les clefs de DÉCISION du
+ *  carnet (`background.*`, `decision.*`, `skill-grant.*`). Deux appelants
+ *  (`shell.mjs`, `glisser.mjs`) ne consultaient que la PREMIÈRE, dont le repli
+ *  est *« rends la clef »*. Résultat : `background.boost-total-mismatch`
+ *  s'affichait en rouge, tel quel, sur deux écrans — du français de
+ *  développeur dans un écran de joueur, ce qu'Eric a déjà fait retirer le
+ *  23/08.
+ *  ⭐ LA PHRASE EXISTAIT, à soixante lignes de là. Ce n'était pas un mot
+ *  manquant, c'était un mot **non demandé**.
+ *
+ *  ⚠️ ET LE NOM A CHANGÉ AVEC LE MÉTIER : `skillsRefusalWord` promettait les
+ *  compétences et sert TOUS les verrous. *« Un nom qui dit deux choses n'a pas
+ *  sa place ici. »*
+ *  📌 L'ordre compte : la table d'ici d'abord (elle est plus précise sur les
+ *  compétences), le carnet ensuite, et c'est LUI qui porte le repli final —
+ *  un seul endroit où la clef nue peut encore sortir, et un garde le surveille. */
+export function motDuVerrou(violation) {
+  if (!violation || typeof violation.key !== "string") return "";
+  const mots = REFUSAL_WORDS[violation.key];
+  return mots ? mots(violation.params || {}) : decisionRefusalWord(violation);
+}
 
 function refusalWord(violation) {
-  const words = REFUSAL_WORDS[violation.key];
-  return words ? words(violation.params || {}) : violation.key;
+  return motDuVerrou(violation);
 }
 
 /* LOT 42 — `planAt`/`violationAt` étaient définies ICI (lignes 118/121) ;
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed } from "./carnet.mjs?v=432";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=432";
 import { keepInView, scrollParent } from "./socle.mjs?v=432";
 
 function el(tag, className, children) {

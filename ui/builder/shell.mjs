@@ -50,7 +50,7 @@ import { planAt, planSlots } from "./carnet.mjs?v=432";
 import { renderChoixGlisses } from "./glisser.mjs?v=432";
 import { renderConceptStep } from "./concept-step.mjs?v=432";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=432";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, skillsRefusalWord } from "./skills-step.mjs?v=432";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=432";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
 } from "./catalogue.mjs?v=432";
@@ -381,7 +381,7 @@ function rebuild() {
 function motDeRefus() {
   const v = state.violations[state.violations.length - 1];
   if (!v) return null;
-  if (surCompetences()) return skillsRefusalWord(v);
+  if (surCompetences()) return motDuVerrou(v);
   return null;
 }
 
@@ -2259,7 +2259,7 @@ function itemsDuParcours(cfg) {
    elle-même un plan verrouillé parmi les items de l'étape. Une étape qui veut
    un mot particulier garde son `gendarme:` — le défaut ne ferme aucune porte
    (NORMES : une norme est un défaut, pas un mur).
-   ⛔ ET LE MOT VIENT D'UNE SEULE VOIX (`skillsRefusalWord`, déjà importée ici) :
+   ⛔ ET LE MOT VIENT D'UNE SEULE VOIX (`motDuVerrou`, déjà importée ici) :
    Species écrivait sa
    propre formulation du même refus. Deux voix pour un même verrou, c'est une
    divergence qui attend son tour. */
@@ -2268,7 +2268,7 @@ function gendarmeParDefaut(cfg, ctx) {
     if (item.sansChoix) continue;
     const plan = planAt(ctx.decisions || state.decisions || [], item.path);
     if (!plan || !plan.lock) continue;
-    return { mot: skillsRefusalWord(plan.lock), chemin: item.path };
+    return { mot: motDuVerrou(plan.lock), chemin: item.path };
   }
   return null;
 }

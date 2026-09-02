@@ -69,7 +69,15 @@ const DECISION_REFUSAL_WORDS = {
      au-dessus, aucun recalcul (`value`/`cap`/`total`/`expected` viennent
      tels quels du `lock`). */
   "background.boost-cap-exceeded": (p) => `+${p.value} on one ability — the cap is +${p.cap}.`,
-  "background.boost-total-mismatch": (p) => `${p.total} points spent, ${p.expected} expected.`
+  "background.boost-total-mismatch": (p) => `${p.total} points spent, ${p.expected} expected.`,
+  /* ⛔ CES DEUX-CI SORTAIENT EN CODE BRUT — trouvés en MESURANT la couverture,
+     pas en les rencontrant à l'écran (lot 125). `decisions.mjs` peut poser DIX
+     clefs sur un plan ; huit avaient un mot, deux non — et un verrou sans mot
+     s'affiche en rouge, avec sa clef machine, dans un écran que le joueur
+     regarde. C'est le défaut que le garde ferme désormais pour de bon.
+     📌 Mêmes `params` que le noyau, repris tels quels — aucun recalcul. */
+  "background.boost-disallowed": (p) => `That ability is not one this background raises (${p.abilityKeys}).`,
+  "abilities.score-out-of-creation-range": (p) => `${p.value} is outside the range for a starting score — pick between ${p.min} and ${p.max}.`
 };
 export function decisionRefusalWord(violation) {
   const words = DECISION_REFUSAL_WORDS[violation.key];

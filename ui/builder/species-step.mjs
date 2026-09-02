@@ -35,7 +35,7 @@ import { spellInfo } from "./class-step.mjs?v=432";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { skillsRefusalWord } from "./skills-step.mjs?v=432";
+import { motDuVerrou } from "./skills-step.mjs?v=432";
 import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=432";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
@@ -397,7 +397,7 @@ export const SPECIES_CATALOGUE = {
          ⛔ ET LA CONDITION S'ÉLARGIT : elle ne visait que `overspent`, donc
          tout AUTRE verrou du noyau sur ce plan (palier interdit, option hors
          catalogue…) laissait le `Done` armé. Un verrou est un verrou. */
-      return { mot: skillsRefusalWord(plan.lock), chemin: "species.skillBudget" };
+      return { mot: motDuVerrou(plan.lock), chemin: "species.skillBudget" };
     }
     return null;
   },
