@@ -407,7 +407,24 @@ const STYLE_EN_LIGNE_EXCEPTIONS = [
      déclaration) ; le JS ne pose qu'un scalaire sans unité. La forme est
      UNIQUE et vérifiée par l'attaque ci-dessous — une taille ou une couleur
      posée en ligne rougirait toujours. */
-  { fichier: "echelle.mjs", forme: ".style.setProperty" }
+  { fichier: "echelle.mjs", forme: ".style.setProperty" },
+  /* ⚠️ ÉLARGI LE 2026-09-02 (lot 134), ET C'EST ENCORE LA MÊME RAISON : une
+     valeur CHOISIE PAR LE JOUEUR ne peut pas vivre dans une feuille. Le
+     dépôt sert plusieurs COLLECTIONS de fonds (des paires jour/nuit) et le
+     joueur en change depuis le Menu ; `fonds.mjs` pose la paire choisie sur
+     `<html>` en deux custom properties, `--bg-jour` et `--bg-nuit`.
+
+     ⛔ L'ALTERNATIVE ÉTAIT PIRE, ET C'EST ELLE QUI TRANCHE : mettre les paires
+     dans la feuille demanderait un bloc CSS PAR COLLECTION. Ajouter un fond
+     cesserait alors d'être une opération de données pour redevenir une
+     modification de code — exactement ce que ce lot existe pour supprimer.
+
+     ⛔ ET CE N'EST PAS DE L'HABILLAGE : `fonds.mjs` ne touche JAMAIS
+     `--bg-image`, le jeton du THÈME, qui reste entier dans `tokens.css` (une
+     media query, en CSS pur). Il ne pose que la PAIRE. La forme est UNIQUE, et
+     `tests/decor.test.mjs` (garde « 2 quinquies ») tient l'autre moitié du
+     contrat : une taille ou une couleur posée en ligne rougirait toujours. */
+  { fichier: "fonds.mjs", forme: ".style.setProperty" }
 ];
 
 function inlineStyleViolations() {

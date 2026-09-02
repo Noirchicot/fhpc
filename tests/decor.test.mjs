@@ -26,7 +26,20 @@
    il garantit la CORRESPONDANCE entre un fichier et une mesure, jamais la
    justesse de la mesure elle-même. C'est pourquoi les deux pixels extrêmes
    sont dans le JSON plutôt qu'un simple verdict : au moins l'arithmétique
-   qui en découle est refaite ici, à chaque suite. */
+   qui en découle est refaite ici, à chaque suite.
+
+   ══ LOT 134 — IL BOUCLE MAINTENANT SUR LES COLLECTIONS ════════════════════
+   Le dépôt sert PLUSIEURS paires jour/nuit, et le joueur en change depuis le
+   Menu. ⭐ CE FICHIER NE NOMME DONC PLUS AUCUNE IMAGE : il lit `collections`
+   dans le registre et refait tout — condensat, poids, bande, matrice — pour
+   CHACUNE. Une troisième collection déposée dans le JSON entre dans le garde
+   toute seule, sans qu'une ligne de test soit écrite ; et une collection
+   déclarée sans mesure, ou mesurée sans être déclarée, est nommée (garde 0).
+
+   ⛔ ET C'EST BIEN CHAQUE COLLECTION QUI DOIT PASSER, pas la première : le
+   joueur qui choisit la troisième voit son texte sur SON fond. Un garde qui
+   ne mesurerait que le défaut laisserait entrer une paire illisible derrière
+   un réglage que personne du chantier n'a ouvert. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -78,15 +91,57 @@ function sousLeVoile(surface, pixel, voile) {
   return [0, 1, 2].map((i) => voile * surface[i] + (1 - voile) * pixel[i]);
 }
 
-const THEMES = [
-  { nom: "jour", fichier: "bg-day.jpg" },
-  { nom: "nuit", fichier: "bg-night.jpg" }
-];
+/* ⭐ LES PAIRES À MESURER, LUES DANS LE REGISTRE — jamais écrites ici.
+   Rendu : `[{ collection, nom, fichier }]`, une entrée par image servie. */
+const COLLECTIONS = Array.isArray(MESURE.collections) ? MESURE.collections : [];
+const THEMES = COLLECTIONS.flatMap((c) => [
+  { collection: c.id, nom: "jour", fichier: c.jour },
+  { collection: c.id, nom: "nuit", fichier: c.nuit }
+]);
+
+/* ══ 0 — LE REGISTRE SE TIENT DEBOUT TOUT SEUL ════════════════════════════
+   ⛔ CE QU'IL EMPÊCHE, ET RIEN D'AUTRE NE LE VERRAIT : une collection ajoutée
+   à moitié. Déclarer une paire sans déposer sa mesure rendrait `MESURE
+   .fichiers[fichier]` indéfini — et un `undefined.sha256` fait tomber le
+   garde 1 avec une pile, pas avec une phrase. Mesurer un fichier que plus
+   aucune collection ne nomme est l'autre moitié : du poids mort qui traverse
+   les publications sans que personne le sache. */
+
+test("0 — le registre : au moins deux collections, chacune complète et mesurée", () => {
+  assert.ok(COLLECTIONS.length >= 2,
+    `${COLLECTIONS.length} collection(s) déclarée(s) — le dépôt en sert plusieurs depuis le lot 134`);
+  const fautes = [];
+  const nommes = new Set();
+  const ids = new Set();
+  for (const c of COLLECTIONS) {
+    if (!c.id || !c.nom) fautes.push(`collection sans id ou sans nom : ${JSON.stringify(c)}`);
+    if (ids.has(c.id)) fautes.push(`deux collections portent l'id « ${c.id} »`);
+    ids.add(c.id);
+    for (const role of ["jour", "nuit"]) {
+      const fichier = c[role];
+      if (!fichier) { fautes.push(`${c.id} n'a pas d'image ${role}`); continue; }
+      nommes.add(fichier);
+      if (!MESURE.fichiers[fichier]) fautes.push(`${c.id} → ${fichier} n'a AUCUNE mesure dans \`fichiers\``);
+      if (!fs.existsSync(path.join(ASSETS, fichier))) fautes.push(`${c.id} → ${fichier} n'est pas dans assets/`);
+    }
+  }
+  for (const fichier of Object.keys(MESURE.fichiers)) {
+    if (!nommes.has(fichier)) fautes.push(`${fichier} est mesuré mais AUCUNE collection ne le nomme`);
+  }
+  assert.deepEqual(fautes, [],
+    "ajouter une collection est UNE opération de données : deux JPEG, une entrée dans `collections`, " +
+    "deux dans `fichiers` — ce garde nomme la moitié qui manque");
+  /* Et le défaut existe : c'est lui que `tokens.css` peint avant qu'un module
+     ait tourné, et celui sur lequel `fonds.mjs` retombe quand l'id gardé
+     désigne une collection retirée. */
+  assert.ok(COLLECTIONS.some((c) => c.id === MESURE.defaut),
+    `le défaut « ${MESURE.defaut} » n'est pas une collection déclarée`);
+});
 
 /* ══ 1 — LES FICHIERS SERVIS SONT CEUX QUI ONT ÉTÉ MESURÉS ════════════════ */
 
-for (const { nom, fichier } of THEMES) {
-  test(`1 — ${fichier} : le fichier servi est EXACTEMENT celui qui a été mesuré (sha256)`, () => {
+for (const { collection, nom, fichier } of THEMES) {
+  test(`1 — ${collection}/${nom} — ${fichier} : le fichier servi est EXACTEMENT celui qui a été mesuré (sha256)`, () => {
     const bytes = fs.readFileSync(path.join(ASSETS, fichier));
     const sha = crypto.createHash("sha256").update(bytes).digest("hex");
     assert.equal(sha, MESURE.fichiers[fichier].sha256,
@@ -94,7 +149,7 @@ for (const { nom, fichier } of THEMES) {
       "une image remplacée en silence peut rendre un écran illisible sans qu'une ligne de CSS bouge.");
   });
 
-  test(`1bis — ${fichier} est bien un JPEG, et léger`, () => {
+  test(`1bis — ${collection}/${nom} — ${fichier} est bien un JPEG, et léger`, () => {
     const bytes = fs.readFileSync(path.join(ASSETS, fichier));
     /* Les octets magiques, pas l'extension : un PNG renommé `.jpg` passerait
        le nom et pèserait 1,9 Mo (mesuré sur les sources). */
@@ -105,7 +160,7 @@ for (const { nom, fichier } of THEMES) {
       "le flou cuit ou le JPEG (les sources PNG faisaient 1,9 et 1,5 Mo pour la MÊME image)");
   });
 
-  test(`1ter — ${fichier} : la mesure enregistrée dit ZÉRO pixel hors bande`, () => {
+  test(`1ter — ${collection}/${nom} — ${fichier} : la mesure enregistrée dit ZÉRO pixel hors bande`, () => {
     const m = MESURE.fichiers[fichier];
     assert.equal(m.hors_bande, 0, `${m.hors_bande} pixels hors de la bande ${m.bande.join("–")}`);
     const [lo, hi] = m.bande;
@@ -146,13 +201,54 @@ test("2bis — les trois dalles existent en CSS et lisent leur voile, jamais un 
 test("2ter — l'image de fond bascule avec le thème, et vient d'un jeton", () => {
   assert.match(shellCss, /background-image:\s*var\(--bg-image\)/,
     "shell.css ne doit nommer aucun fichier — l'image est un jeton, comme une couleur");
-  /* Lot 75 : l'url porte `?v=<N>` — la version du graphe (tête de
-     `ui/builder/version.mjs`). ICI on exige le BON FICHIER par thème et
-     la présence d'UNE version ; que le <N> soit LE MÊME partout est le
-     contrat d'un autre garde, `tests/versions-graphe.test.mjs` — pas de
-     chiffre en dur ici, sinon chaque publication rougirait ce test. */
-  assert.match(JETONS.jour.get("bg-image"), /^url\("\.\/assets\/bg-day\.jpg\?v=\d+"\)$/);
-  assert.match(JETONS.nuit.get("bg-image"), /^url\("\.\/assets\/bg-night\.jpg\?v=\d+"\)$/);
+});
+
+/* ══ 2 quater — 🔴 LES DEUX AXES NE SE CONFONDENT PAS (LOT 134) ═══════════
+   LA COLLECTION dit quelle PAIRE sert · LE THÈME dit LAQUELLE des deux
+   images. Le contrat de câblage qui les sépare :
+
+     `--bg-jour` / `--bg-nuit`  = la PAIRE   → posés par `fonds.mjs` sur :root
+     `--bg-image`               = le THÈME   → aiguillage de `tokens.css` seul
+
+   ⛔ CE QU'IL EMPÊCHE, ET ÇA NE SE VOIT PAS À LA LECTURE : que `fonds.mjs`
+   « simplifie » en écrivant directement `--bg-image`. Ça marcherait — au
+   chargement. Puis l'appareil basculerait en mode sombre à 19 h, et le fond
+   resterait celui du jour, parce qu'une propriété posée en ligne bat la media
+   query pour toujours. Un défaut qu'aucun rendu de chantier ne rencontre. */
+
+test("2 quater — tokens.css sépare la PAIRE (--bg-jour/--bg-nuit) du THÈME (--bg-image)", () => {
+  /* Le jour et la nuit aiguillent, ils ne nomment pas de fichier. */
+  assert.equal(JETONS.jour.get("bg-image"), "var(--bg-jour)");
+  assert.equal(JETONS.nuit.get("bg-image"), "var(--bg-nuit)");
+  /* Et la paire écrite en CSS est celle du DÉFAUT — ce que le navigateur peint
+     avant qu'un module ait tourné. ⛔ Les autres collections ne sont nommées
+     NULLE PART dans le CSS : c'est ce qui rend leur ajout gratuit en code. */
+  const defaut = COLLECTIONS.find((c) => c.id === MESURE.defaut);
+  assert.equal(JETONS.jour.get("bg-jour"), `url("./assets/${defaut.jour}?v=${JETONS.jour.get("bg-jour").match(/\?v=(\d+)/)[1]}")`);
+  assert.equal(JETONS.jour.get("bg-nuit"), `url("./assets/${defaut.nuit}?v=${JETONS.jour.get("bg-nuit").match(/\?v=(\d+)/)[1]}")`);
+  /* La version est EXIGÉE, mais pas son chiffre : `bin/nouvelle-version.mjs`
+     l'incrémente à chaque publication, et un chiffre en dur ici rougirait à
+     chaque fois (contrat du lot 75, tenu par tests/versions-graphe). */
+  assert.match(JETONS.jour.get("bg-jour"), /^url\("\.\/assets\/[\w.-]+\?v=\d+"\)$/);
+  assert.match(JETONS.jour.get("bg-nuit"), /^url\("\.\/assets\/[\w.-]+\?v=\d+"\)$/);
+  for (const c of COLLECTIONS) {
+    if (c.id === MESURE.defaut) continue;
+    assert.ok(!strippedTokens.includes(c.jour) && !strippedTokens.includes(c.nuit),
+      `tokens.css nomme un fichier de la collection « ${c.id} » — ajouter une collection ` +
+      "ne doit coûter AUCUNE ligne de CSS, sinon le mécanisme n'en est pas un");
+  }
+});
+
+test("2 quinquies — fonds.mjs pose la PAIRE et ne touche JAMAIS --bg-image", () => {
+  /* Byte-check assumé (patron `shell-wiring`) : ce module écrit dans le DOM,
+     on ne peut pas l'exécuter ici pour le prendre en faute — mais la
+     DISCIPLINE, elle, se lit. */
+  const fonds = stripComments(fs.readFileSync(path.join(UI_DIR, "fonds.mjs"), "utf8"));
+  assert.match(fonds, /setProperty\("--bg-jour"/, "fonds.mjs doit poser --bg-jour");
+  assert.match(fonds, /setProperty\("--bg-nuit"/, "fonds.mjs doit poser --bg-nuit");
+  assert.ok(!/--bg-image/.test(fonds),
+    "fonds.mjs nomme --bg-image : une propriété posée EN LIGNE bat la media query pour toujours, " +
+    "et le fond cesserait de suivre le thème dès la première bascule système");
 });
 
 /* ══ 3 — ⭐ LA MATRICE, RECALCULÉE ICI ════════════════════════════════════
@@ -175,9 +271,9 @@ const ENCRES = [
   { jeton: "accent", cible: 4.5, doitPasser: false }
 ];
 
-for (const { nom, fichier } of THEMES) {
+for (const { collection, nom, fichier } of THEMES) {
   for (const voileNom of ["voile-simple", "voile-inter"]) {
-    test(`3 — ${nom}, ${voileNom} : seul --text tient sur le verre`, () => {
+    test(`3 — ${collection}/${nom}, ${voileNom} : seul --text tient sur le verre`, () => {
       const jetons = JETONS[nom];
       const voile = Number(jetons.get(voileNom).replace("%", "")) / 100;
       const surface = hexToRgb(jetons.get("surface"));
@@ -205,7 +301,7 @@ for (const { nom, fichier } of THEMES) {
     });
   }
 
-  test(`3bis — ${nom}, dalle MAJEURE : toutes les encres passent (c'est là qu'elles vivent)`, () => {
+  test(`3bis — ${collection}/${nom}, dalle MAJEURE : toutes les encres passent (c'est là qu'elles vivent)`, () => {
     const jetons = JETONS[nom];
     const surface = hexToRgb(jetons.get("surface"));
     for (const { jeton, cible } of ENCRES) {

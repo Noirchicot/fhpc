@@ -50,6 +50,17 @@ import { appliquerEchelle, laPlaceDuDouble } from "./echelle.mjs?v=445";
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
 import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=445";
+/* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
+   Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
+   une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
+   Même famille que la vue et le tutoriel : une PRÉFÉRENCE DE LECTEUR, gardée
+   dans le navigateur, jamais un fait du personnage. ⛔ Et deux axes qui ne se
+   confondent pas — la COLLECTION dit quelle paire, le THÈME de l'appareil dit
+   laquelle des deux images ; le second reste une media query de `tokens.css`,
+   sans une ligne ici. */
+import {
+  fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
+} from "./fonds.mjs?v=445";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
@@ -228,6 +239,13 @@ const state = {
      repartirait de l'exemple sans jamais apprendre qu'il a perdu quelque
      chose, ce qui est le repli silencieux que la loi §0.5 interdit. */
   memoireIgnoree: null,
+  /* ⭐ LE REGISTRE DES FONDS, BRUT — lot 134. On garde le registre, PAS une
+     liste dérivée : `collections()` et `collectionServie()` le relisent à
+     chaque rendu, et il n'y a donc jamais deux états à tenir d'accord. `null`
+     tant qu'il n'est pas chargé, et `null` pour toujours s'il ne se lit pas —
+     `tokens.css` sert alors la collection par défaut, et le Menu n'affiche pas
+     le réglage plutôt que d'afficher une liste vide. */
+  registreFonds: null,
   /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
      2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
      Ces deux champs sont donc ici, hors de `document`, exactement comme
@@ -858,6 +876,19 @@ function applyDecisionAction(action) {
     const voulue = Boolean(action.value);
     if (voulue && state.stepSecond === state.step) state.stepSecond = cranSecondParDefaut();
     setVueDoubleVoulue(voulue);
+    refresh();
+    return;
+  }
+  /* ══ LE CHOIX DE COLLECTION DE FOND — lot 134 ═══════════════════════════
+     Même famille encore : une préférence de lecteur. ⭐ LE DÉCOR CHANGE
+     AVANT LE `refresh()`, et l'ordre compte : `appliquerCollection` repose
+     deux custom properties sur `<html>` — aucun nœud n'est touché, donc le
+     joueur voit son fond changer sans que l'écran qu'il lisait bouge d'un
+     pixel. Le `refresh()` qui suit n'est là que pour rallumer la bonne ligne
+     du sélecteur. */
+  if (action.kind === "fondChoisi") {
+    setFondVoulu(action.value);
+    appliquerCollection(collectionServie(state.registreFonds, action.value), document.documentElement);
     refresh();
     return;
   }
@@ -1693,6 +1724,13 @@ function renderStepContent() {
          n'aurait que le second oublierait le choix en le grisant. */
       vueDouble: vueDoubleVoulue(),
       vueDoublePossible: laPlaceExiste(),
+      /* ⭐ DEUX FAITS, PAS UN, ET POUR LA MÊME RAISON QU'AU-DESSUS : `fonds`
+         est ce que le registre PORTE, `fond` la collection réellement SERVIE.
+         ⛔ Ce n'est pas `fondVoulu()` : un id gardé peut désigner une
+         collection retirée depuis, et la ligne allumée doit être celle qu'on
+         voit à l'écran — jamais celle qu'on a demandée un jour. */
+      fonds: collections(state.registreFonds),
+      fond: (collectionServie(state.registreFonds, fondVoulu()) || {}).id,
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
@@ -4070,6 +4108,27 @@ window.addEventListener("resize", surRedimensionnement);
 reglerLaVue();
 appliquerEchelle();
 refresh();
+
+/* ══ LE DÉCOR — LOT 134 ════════════════════════════════════════════════════
+   Le registre des fonds charge SÉPARÉMENT du moteur, et c'est délibéré : un
+   moteur en panne laisse quand même au joueur le décor qu'il a choisi, et un
+   registre illisible ne retarde pas d'une milliseconde le montage des couches.
+   Les deux n'ont rien à se dire.
+
+   ⚠️ CE QUE CE FIL NE PEUT PAS FAIRE, ÉCRIT ICI PARCE QUE ÇA NE SE VOIT PAS :
+   `tokens.css` a déjà peint la collection PAR DÉFAUT avant qu'un module ait
+   tourné. Un joueur qui a choisi une autre collection voit donc le défaut le
+   temps d'un aller-retour réseau. ⛔ Le remède serait de recopier la paire
+   choisie quelque part que la page lit AVANT ses modules — c'est-à-dire une
+   seconde source de vérité, libre de mentir le jour où une collection change
+   de fichiers. On paie l'aller-retour plutôt que le mensonge. */
+(async () => {
+  const registre = await chargerRegistre();
+  if (!registre) return;                       // ⛔ pas de registre = pas de réglage, jamais une liste vide
+  state.registreFonds = registre;
+  appliquerCollection(collectionServie(registre, fondVoulu()), document.documentElement);
+  refresh();                                   // le Menu peut maintenant montrer le sélecteur
+})();
 
 /* Le moteur charge en tâche de fond ; l'écran s'affiche immédiatement
    (placeholder « Loading… » sur l'étape Compétences) et se corrige une

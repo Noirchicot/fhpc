@@ -208,6 +208,59 @@ function renderStackChoice({ stack, onPick }) {
   return wrap;
 }
 
+/** LES COLLECTIONS DE FONDS — lot 134, Eric 2026-09-02 : *« On a déjà deux
+ *  collections jour nuit, nous en aurons une 3e. Tu vas les stocker pour
+ *  qu'on puisse les changer dans le menu. »*
+ *
+ *  ⭐ UN SÉLECTEUR EXCLUSIF, PAS UNE BASCULE (NORMES §6, et le tableau du
+ *  §2325 le range nommément avec `Langue` et `SRD`/`SRD+FH`) : plusieurs
+ *  lignes, une seule allumée. Il COPIE `renderStackChoice` à la ligne près —
+ *  même liste, même piste, même `markPressed` — parce que c'est la même
+ *  espèce d'organe. ⛔ Deux dessins pour une même espèce dans le même écran
+ *  serait exactement ce que le double affichage a refusé quinze pixels plus
+ *  haut.
+ *
+ *  🔴 IL EST BÂTI SUR LA LISTE REÇUE, jamais sur des lignes écrites ici :
+ *  c'est ce qui fait qu'une troisième collection arrive par les DONNÉES
+ *  (`assets/backgrounds.measured.json`) et ne coûte pas une ligne de ce
+ *  fichier. Un `for` sur deux paires nommées en dur aurait marché aujourd'hui
+ *  et menti au prochain fond.
+ *
+ *  ⛔ AUCUN BLOC QUAND LA LISTE EST VIDE — registre absent ou illisible : le
+ *  builder sert alors la collection de `tokens.css`, et un titre « Background »
+ *  suivi de rien serait un réglage qui ment. */
+function renderFondChoice({ fonds, fond, onPick }) {
+  if (fonds.length === 0) return el("div", "universe-fond-vide");
+  const wrap = el("div", "universe-reglages");
+  wrap.append(el("h3", null, [text("Background")]));
+  const list = el("div", "bascule-liste");
+  list.setAttribute("role", "group");
+  list.setAttribute("aria-label", "Background");
+  for (const collection of fonds) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bascule-ligne";
+    markPressed(btn, collection.id === fond);
+    btn.append(el("span", "bascule-mot", [text(collection.nom || collection.id)]));
+    /* L'interrupteur est DESSINÉ (une piste, un pouce), jamais un glyphe —
+       même raison qu'aux règles : un glyphe change de forme selon la police
+       installée. Il ne porte aucun mot, le nom accessible vient de sa gauche. */
+    btn.append(el("span", "bascule-piste", [el("span", "bascule-pouce")]));
+    btn.addEventListener("click", () => { if (collection.id !== fond) onPick(collection.id); });
+    list.append(btn);
+  }
+  wrap.append(list);
+  /* ⚠️ CE TEXTE EST LU PAR UN JOUEUR : il dit ce que le réglage fait et ce
+     qu'il ne fait PAS — le décor a deux images par collection, et c'est
+     l'appareil qui choisit entre elles, pas cette liste. Sans cette phrase, un
+     joueur en thème sombre qui choisit « Ruins » croirait avoir choisi
+     l'image de nuit qu'il voit, et se demanderait où est passée l'autre. */
+  wrap.append(el("p", "universe-note", [
+    text("Each background is a pair — one for light, one for dark. Your device picks which of the two you see.")
+  ]));
+  return wrap;
+}
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document            le document `fh-char/1` courant
@@ -365,6 +418,12 @@ export function renderUniverseStep(ctx, onAction) {
         : "Show a second panel beside this one — the menu, or any other step. Needs a window wide enough for two panels.")
   ]));
   section.append(vue);
+
+  section.append(renderFondChoice({
+    fonds: Array.isArray(ctx.fonds) ? ctx.fonds : [],
+    fond: ctx.fond,
+    onPick: (value) => onAction({ kind: "fondChoisi", value })
+  }));
 
   /* ⚖️ LA RAMPE « INTERFACE SIZE » A VÉCU DU 30/08 AU 02/09 — retirée au lot
      118. Eric, 2026-09-02 : *« si l'auto fait bien son travail, effectivement

@@ -667,7 +667,25 @@
   /* `?v=<N>` (lot 75) : les fonds sont des chargements d'exécution — ils
      portent la version du graphe comme tout le reste, même <N> partout
      (garde : tests/versions-graphe.test.mjs ; loi : ui/builder/version.mjs). */
-  --bg-image: url("./assets/bg-day.jpg?v=445");
+  /* ══ LOT 134 — DEUX AXES, ET IL FAUT LES TENIR SÉPARÉS ═════════════════
+     🔴 LA COLLECTION dit QUELLE PAIRE d'images sert · LE THÈME dit LAQUELLE
+     DES DEUX s'affiche. Ce sont deux décisions indépendantes : le joueur
+     choisit sa collection dans le Menu, l'appareil choisit le thème.
+
+     ⭐ D'OÙ L'INDIRECTION, ET ELLE EST LE MÉCANISME : `--bg-jour` et
+     `--bg-nuit` portent la PAIRE, `--bg-image` n'est plus qu'un aiguillage
+     de THÈME entre les deux. `fonds.mjs` repose les deux jetons de paire sur
+     `:root` quand le joueur change de collection ; il ne touche JAMAIS
+     `--bg-image`, donc le basculement jour/nuit reste ce qu'il a toujours
+     été — une media query, en CSS pur, sans une ligne de JavaScript.
+
+     📌 CE QUI EST ÉCRIT ICI EST LA COLLECTION PAR DÉFAUT, et c'est aussi ce
+     que voit un navigateur avant que le moindre module ait tourné. Les
+     autres collections vivent dans `assets/backgrounds.measured.json` —
+     ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
+  --bg-jour: url("./assets/bg-day.jpg?v=445");
+  --bg-nuit: url("./assets/bg-night.jpg?v=445");
+  --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
      Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -814,8 +832,11 @@
        voiles ne sont pas redéclarés (ce sont des pourcentages, pas des
        teintes), et `--dalle-simple`/`--dalle-inter` non plus : une custom
        property se résout à L'USAGE, donc leur `var(--surface)` lit déjà la
-       surface DE NUIT ici — même mécanique que `--accent-wash`. */
-    --bg-image: url("./assets/bg-night.jpg?v=445");
+       surface DE NUIT ici — même mécanique que `--accent-wash`.
+       ⭐ LOT 134 — ET C'EST TOUT CE QUE LA NUIT DÉCIDE : elle aiguille vers
+       l'image NUIT de la paire courante, elle ne nomme aucun fichier. La
+       paire est l'autre axe, et il se règle sur `:root` (voir plus haut). */
+    --bg-image: var(--bg-nuit);
 
     /* 🔴 LA NUIT, L'OMBRE DEVIENT UNE LUEUR — Eric, 2026-08-26, la mesure
        posée devant lui : *« une lueur claire la nuit »*.

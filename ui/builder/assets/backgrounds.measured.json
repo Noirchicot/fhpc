@@ -1,10 +1,31 @@
 {
-  "_": "Mesure des fonds SERVIS (flou 5 px déjà cuit dans le JPEG) — bible esthétique §5c.",
+  "_": "Le REGISTRE des fonds du builder : les collections servies, et la mesure de chaque image (flou 5 px déjà cuit dans le JPEG) — bible esthétique §5c, logbook FHV2 §10.",
+  "_collection": "⭐ UNE COLLECTION EST UNE PAIRE JOUR/NUIT QUI PORTE UN NOM. Les deux axes sont INDÉPENDANTS : la collection dit QUELLE paire, le thème de l'appareil dit LAQUELLE des deux images. Le joueur choisit sa collection dans le Menu.",
+  "_ajouter": "⭐ AJOUTER UNE COLLECTION EST UNE OPÉRATION DE DONNÉES, JAMAIS UNE MODIFICATION DE CODE : deux JPEG dans ce dossier, une entrée dans `collections`, deux entrées dans `fichiers`. Rien d'autre. `tests/decor.test.mjs` boucle sur ce fichier — la collection neuve entre dans le garde toute seule.",
   "_lien": "Le sha256 LIE la mesure au fichier : remplacer une image sans remesurer fait rougir tests/decor.test.mjs.",
   "_extremes": "pixel_le_plus_sombre / _clair sont les DEUX pires cas possibles sous un voile. Le garde recalcule le contraste depuis eux — il n'a donc pas besoin de décoder l'image.",
-  "mesure_le": "2026-08-18",
+  "_en_place": "🔴 TOUTE COLLECTION VISE LES MÊMES EXTRÊMES (142–169 le jour, 74–102 la nuit), pas le milieu de sa bande : c'est ce qui rend les collections INTERCHANGEABLES sous la matrice de contraste de shell.css, sans la réécrire à chaque paire.",
   "flou_cuit_px": 5,
   "zone_mesuree": "recadrage 360:780, les ~19 % latéraux retirés",
+  "defaut": "banner",
+  "collections": [
+    {
+      "id": "banner",
+      "nom": "Banner",
+      "jour": "bg-day.jpg",
+      "nuit": "bg-night.jpg",
+      "mesure_le": "2026-08-18",
+      "note": "Les teintes du bandeau du site (or #D8B65A, rouge #C97A5F, bleu #5A82AA), portées derrière le builder. Un lavis abstrait, aucune scène."
+    },
+    {
+      "id": "ruins",
+      "nom": "Ruins",
+      "jour": "bg-ruins-day.jpg",
+      "nuit": "bg-ruins-night.jpg",
+      "mesure_le": "2026-09-02",
+      "note": "Jour : ruines et pont suspendus dans une mer de brume ivoire. Nuit : forêt noyée, lac noir et sanctuaire abandonné dans une brume rouge. Paire validée à l'œil par Eric le 2026-09-02."
+    }
+  ],
   "fichiers": {
     "bg-day.jpg": {
       "sha256": "08677a4ad7e2a98f16987209d077dd1a5a2afda99ecf79bd20d7a6d8f3a9abf0",
@@ -62,6 +83,64 @@
         102,
         72,
         46
+      ]
+    },
+    "bg-ruins-day.jpg": {
+      "sha256": "8598f6db7e1e15ec9b40085cfa49193ef2c33f7ef1c4499ec5e6ddd72976f8b1",
+      "octets": 64167,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        104,
+        190
+      ],
+      "min": 142,
+      "max": 169,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        142,
+        131,
+        109
+      ],
+      "pixel_le_plus_clair": [
+        169,
+        153,
+        128
+      ]
+    },
+    "bg-ruins-night.jpg": {
+      "sha256": "113f2e3d772172accacf9bdff6b38f877d0014e02d8dc728c703a5fbccc5e5ef",
+      "octets": 82681,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        45,
+        125
+      ],
+      "min": 74,
+      "max": 102,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        74,
+        70,
+        69
+      ],
+      "pixel_le_plus_clair": [
+        102,
+        88,
+        79
       ]
     }
   }
