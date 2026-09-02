@@ -29,10 +29,10 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=430";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=430";
-import { renderChoixGlisses } from "./glisser.mjs?v=430";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=430";
+} from "./carnet.mjs?v=431";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=431";
+import { renderChoixGlisses } from "./glisser.mjs?v=431";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=431";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
