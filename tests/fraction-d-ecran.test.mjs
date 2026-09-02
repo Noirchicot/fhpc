@@ -47,7 +47,22 @@ function faireRacine(jetons = JETONS) {
 globalThis.getComputedStyle = (n) => ({ getPropertyValue: (nom) => (n.__jetons.get(nom) ?? "") });
 const racine = faireRacine();
 
-const { BARREAUX, barreauPour, barreauVoisin, tailleDuBarreau, cranAuto, laPlaceDuDouble } =
+/* ⚠️ `echelle.mjs` LIT `localStorage` DEPUIS LE LOT 136 (la surcharge du
+   joueur). Node n'en a pas ; le module retombe déjà sur `null` dans son
+   `try`, mais un magasin en mémoire est nécessaire pour ÉPROUVER la
+   surcharge — sans lui, la clause ne prouverait que le repli. */
+const MAGASIN = new Map();
+globalThis.window = {
+  localStorage: {
+    getItem: (k) => (MAGASIN.has(k) ? MAGASIN.get(k) : null),
+    setItem: (k, v) => MAGASIN.set(k, String(v)),
+    removeItem: (k) => MAGASIN.delete(k)
+  }
+};
+
+const { BARREAUX, CRANS_OFFERTS, ECHELONS, barreauPour, barreauVoisin, tailleDuBarreau,
+        cranAuto, cranEffectif, cranVoulu, setCranVoulu, cranSurcharge, motDeLEchelon,
+        etatDeLEchelle, laPlaceDuDouble } =
   await import("../ui/builder/echelle.mjs");
 
 /** La largeur et la hauteur PEINTES du panneau, en pixels d'écran. */
@@ -114,8 +129,186 @@ test("⚔️ ATTAQUE — l'iPad Air couché DÉBORDERAIT sans le saut de cran, e
   assert.ok(p.l < sansSaut - 1e-9,
     `le saut doit RÉTRÉCIR : ${p.l.toFixed(0)} contre ${sansSaut.toFixed(0)}`);
   assert.ok(p.h <= 820 + 1e-9, `et tenir après : ${p.h.toFixed(0)} pour 820`);
-  assert.equal(Math.round(p.l), 393, "393 de large — la mesure d'Eric, refaite");
-  assert.equal(Math.round(p.h), 587, "587 de haut, soit 72 % de l'écran");
+  /* 📏 LA MESURE A CHANGÉ LE 02/09 AU SOIR, ET C'EST LE LOT 136 : la descente
+     se fait par DEMI-CRAN. Le cran entier rendait 393 × 587 ; le demi rend
+     472 × 705 — même écran, même règle, une marche deux fois plus fine. */
+  assert.equal(Math.round(p.l), 472, "472 de large — le demi-cran, mesuré");
+  assert.equal(Math.round(p.h), 705, "705 de haut, pour 820 disponibles");
+});
+
+/* ══ 1 bis — 🪜 LE DEMI-CRAN, ET CE QU'IL COÛTE (lot 136) ════════════════ */
+
+test("⚔️ ATTAQUE — le DEMI-cran rend plus que le cran ENTIER, et le témoin est l'iPad Air", () => {
+  /* 🔴 LE RED PROOF DES DEUX CÔTÉS DE L'ALTERNATIVE. On refait ici la descente
+     par cran ENTIER — celle d'avant ce lot — sur le même écran, et on exige
+     qu'elle rende MOINS. ⛔ Si les deux tombaient d'accord, le demi-cran ne
+     ferait rien et cette clause serait verte pour rien. */
+  const entier = (largeur, hauteur) => {
+    let b = barreauPour(largeur, PANNEAU);
+    let taille = tailleDuBarreau(b, PANNEAU, largeur);
+    while (taille * (HAUTEUR / PANNEAU) > hauteur) {
+      const dessous = barreauVoisin(b, -1);
+      if (!dessous) break;
+      b = dessous;
+      const moindre = tailleDuBarreau(b, PANNEAU, largeur);
+      if (moindre < taille) taille = moindre;
+    }
+    return taille;
+  };
+  assert.equal(Math.round(entier(1180, 820)), 393, "témoin : le cran entier rendait bien 393");
+  assert.equal(Math.round(panneauPeint(1180, 820).l), 472, "et le demi rend 472");
+});
+
+test("🔴 le demi-cran ne rend JAMAIS moins que le cran entier, et ne fait jamais déborder", () => {
+  /* 📏 BALAYÉ SUR TOUTE LA TABLE ET SES BORDS : la marche plus fine ne peut que
+     rendre de la place. ⛔ Une seule fenêtre plus petite, ou une seule qui
+     déborde alors qu'elle ne débordait pas, et ce n'est plus un raffinement de
+     la descente — c'est un second mécanisme. */
+  const entier = (largeur, hauteur) => {
+    let b = barreauPour(largeur, PANNEAU);
+    let taille = tailleDuBarreau(b, PANNEAU, largeur);
+    while (taille * (HAUTEUR / PANNEAU) > hauteur) {
+      const dessous = barreauVoisin(b, -1);
+      if (!dessous) break;
+      b = dessous;
+      const moindre = tailleDuBarreau(b, PANNEAU, largeur);
+      if (moindre < taille) taille = moindre;
+    }
+    return taille;
+  };
+  let plusGrandes = 0;
+  for (const [l, h] of balayage()) {
+    if (barreauPour(l, PANNEAU).part === 1) continue;
+    const demi = panneauPeint(l, h).l;
+    assert.ok(demi >= entier(l, h) - 1e-9, `à ${l} × ${h} le demi-cran RÉTRÉCIT (${demi} < ${entier(l, h)})`);
+    if (demi > entier(l, h) + 0.5) plusGrandes += 1;
+  }
+  assert.ok(plusGrandes > 0,
+    "⚔️ le balayage doit CONTENIR des fenêtres que le demi-cran agrandit — sinon il ne fait rien");
+});
+
+test("🪜 un échelon est un barreau, ou le MILIEU EXACT de deux voisins — jamais un nom neuf", () => {
+  /* ⛔ Le prix du demi-cran est réel : l'automatique atterrit sur une part qui
+     n'est le nom d'aucun cran. Ce qu'on refuse, c'est d'INVENTER un nom pour
+     elle — un demi-cran porte ceux de ses deux voisins, et c'est l'écran
+     Display qui l'affiche tel quel. */
+  const durs = CRANS_OFFERTS.filter((b) => b.part > 1);
+  assert.equal(ECHELONS.length, durs.length * 2 - 1, "un barreau, un demi, un barreau…");
+  let precedent = 0;
+  for (const e of ECHELONS) {
+    assert.ok(e.part > precedent, "les parts d'une échelle ne peuvent que croître");
+    precedent = e.part;
+    if (e.barreaux.length === 1) assert.equal(e.part, e.barreaux[0].part);
+    else {
+      assert.equal(e.barreaux.length, 2, "un échelon porte un barreau, ou deux");
+      assert.equal(e.part, (e.barreaux[0].part + e.barreaux[1].part) / 2, "le MILIEU, pas un chiffre choisi");
+      assert.equal(motDeLEchelon(e), `${e.barreaux[0].libelle} – ${e.barreaux[1].libelle}`);
+    }
+  }
+});
+
+test("🔴 les crans OFFERTS au joueur : un par part, et c'est le RÉGIME, pas le repli", () => {
+  /* ⛔ `mini` et `mobile` partagent la part 1 : deux lignes qui rendraient la
+     même chose seraient une liste qui ment. Et c'est le RÉGIME qui est offert,
+     jamais l'état réduit où l'on TOMBE — la table range le repli en premier. */
+  assert.equal(CRANS_OFFERTS.length, new Set(BARREAUX.map((b) => b.part)).size);
+  for (const b of CRANS_OFFERTS) {
+    const memePart = BARREAUX.filter((a) => a.part === b.part);
+    assert.equal(b, memePart[memePart.length - 1], "le dernier déclaré de sa part");
+  }
+  for (const b of BARREAUX) {
+    assert.ok(typeof b.libelle === "string" && b.libelle.length > 0,
+      `${b.nom} n'a pas de libellé — l'écran Display en écrirait un, et il y aurait deux voix`);
+  }
+});
+
+/* ══ 1 ter — 🎛️ LA SURCHARGE DU JOUEUR (lot 136) ═════════════════════════ */
+
+test("🔴 l'AUTO reste le défaut : sans choix gardé, l'effectif EST l'auto", () => {
+  setCranVoulu(null);
+  assert.equal(cranVoulu(), null);
+  assert.equal(cranSurcharge(), null);
+  for (const [l, h] of balayage()) {
+    assert.equal(cranEffectif(l, h, racine), cranAuto(l, h, racine),
+      `à ${l} × ${h} l'effectif s'écarte de l'auto alors que rien n'est choisi`);
+  }
+});
+
+test("🎛️ un cran choisi SURCHARGE l'auto — et il peut AGRANDIR, ce que le lot 118 ne pouvait plus", () => {
+  /* ⚖️ LA RAISON DU RETRAIT DE 2026-09-02 EST MORTE, et c'est mesuré ici :
+     avec l'échelle continue, un cran manuel ne pouvait que rapetissier. Sur le
+     partage, choisir le demi sur un 1920 × 1080 rend PLUS que l'automatique.
+     ⛔ Si cette clause devenait verte à égalité, l'organe ne servirait à rien. */
+  const demi = CRANS_OFFERTS.find((b) => b.part === 2);
+  setCranVoulu(null);
+  const auto = cranAuto(1920, 1080, racine);
+  setCranVoulu(demi.nom);
+  const surcharge = cranEffectif(1920, 1080, racine);
+  assert.ok(surcharge > auto + 1e-9,
+    `le cran choisi doit AGRANDIR : ${surcharge.toFixed(2)} contre ${auto.toFixed(2)}`);
+  /* ⛔ ET IL N'A PAS TOUCHÉ L'AUTO : les deux réponses restent distinctes,
+     sinon l'écran Display afficherait « Auto » en écho du choix du joueur. */
+  assert.equal(cranAuto(1920, 1080, racine), auto, "l'auto n'a pas bougé");
+  setCranVoulu(null);
+});
+
+test("🔴 la HAUTEUR garde encore, même sous un cran choisi : plus grand ne veut pas dire COUPÉ", () => {
+  /* Le joueur surcharge le premier temps (la largeur pose le cran), pas le
+     second (la hauteur fait descendre). ⛔ Sans cette défense, choisir le demi
+     sur un 1920 × 1080 rendrait 960 × 1434 pour 1080 de haut. */
+  const demi = CRANS_OFFERTS.find((b) => b.part === 2);
+  setCranVoulu(demi.nom);
+  const f = cranEffectif(1920, 1080, racine);
+  assert.ok(HAUTEUR * f <= 1080 + 1e-9, `le panneau ferait ${(HAUTEUR * f).toFixed(0)} de haut pour 1080`);
+  assert.ok(PANNEAU * f < 960 - 1e-9, "et il a donc DESCENDU sous la part demandée");
+  setCranVoulu(null);
+});
+
+test("⚔️ ATTAQUE — un cran gardé qui n'existe plus sert l'AUTO, et n'est PAS effacé", () => {
+  /* Même loi que `collectionServie` : une version intermédiaire qui ne porte
+     pas ce cran ne doit pas faire perdre le choix d'Eric pour de bon. */
+  setCranVoulu("un-cran-qui-n-existe-pas");
+  assert.equal(cranSurcharge(), null, "un nom inconnu ne désigne aucun cran");
+  assert.equal(cranEffectif(1180, 820, racine), cranAuto(1180, 820, racine), "on sert l'auto");
+  assert.equal(cranVoulu(), "un-cran-qui-n-existe-pas", "⛔ et on garde ce qu'il a demandé");
+  setCranVoulu(null);
+  assert.equal(cranVoulu(), null, "le retour à Auto EFFACE — un réglage sans retour est un piège");
+});
+
+test("⛔ la clef de la surcharge n'est PAS une des clefs mortes du lot 118", () => {
+  /* Le lot 118 EFFACE `fhpc.echelle.cran` et `fhpc.echelle.cran.2` à chaque
+     application de l'échelle. Réutiliser un de ces deux noms mettrait deux
+     mécanismes en travers l'un de l'autre : celui-ci écrirait, celui-là
+     effacerait, et le réglage aurait l'air de ne pas tenir. */
+  const demi = CRANS_OFFERTS.find((b) => b.part === 2);
+  setCranVoulu(demi.nom);
+  const clefs = [...MAGASIN.keys()];
+  assert.equal(clefs.length, 1, `une seule clef écrite, trouvé : ${clefs.join(", ")}`);
+  assert.ok(!/^fhpc\.echelle\.cran/.test(clefs[0]),
+    `« ${clefs[0] } » est une clef que le lot 118 efface — le réglage ne survivrait pas au prochain resize`);
+  setCranVoulu(null);
+});
+
+test("📋 l'état lu par l'écran Display dit l'auto, le choix, l'effectif — et ce que chaque cran REND", () => {
+  /* 🔴 UN ÉCRAN NE REFAIT PAS L'ARITHMÉTIQUE. Ce que cette clause garde, c'est
+     que le tableau affiché et le builder servi sortent du MÊME calcul : la
+     taille annoncée pour un cran doit être celle que le builder rend quand on
+     le choisit. Une mesure juste sur le mauvais témoin est une mesure fausse. */
+  setCranVoulu(null);
+  const fenetre = { innerWidth: 1180, innerHeight: 820 };
+  const etat = etatDeLEchelle(fenetre, racine);
+  assert.equal(etat.choisi, null, "sur Auto");
+  assert.equal(etat.effectif.part, etat.auto.part, "sans choix, l'effectif EST l'auto");
+  assert.equal(etat.auto.barreaux.length, 2, "1180 × 820 atterrit ENTRE deux crans — c'est le prix du demi");
+  assert.equal(Math.round(etat.autoRendu.largeur), 472);
+  assert.equal(etat.offres.length, CRANS_OFFERTS.length, "un cran offert, une ligne");
+  for (const offre of etat.offres) {
+    setCranVoulu(offre.barreau.nom);
+    const f = cranEffectif(1180, 820, racine);
+    assert.ok(Math.abs(PANNEAU * f - offre.rendu.largeur) < 1e-9,
+      `la ligne « ${offre.barreau.libelle} » annonce ${offre.rendu.largeur.toFixed(0)} et le builder rend ${(PANNEAU * f).toFixed(0)}`);
+  }
+  setCranVoulu(null);
 });
 
 test("⚔️ ATTAQUE — le saut ne se déclenche PAS quand la hauteur porte le cran", () => {

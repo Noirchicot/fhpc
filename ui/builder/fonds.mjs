@@ -104,15 +104,143 @@ export function urlsDeLaCollection(collection, moduleUrl = import.meta.url) {
   };
 }
 
+/* ══ 🎨 LES ENCRES D'UNE COLLECTION — lot 136, 2026-09-02 ══════════════════
+   Eric : *« Les backgrounds ont aussi leurs couleurs de texte et boutons
+   associés bien sûr. »*
+
+   ⭐ C'EST UNE EXTENSION DU REGISTRE, PAS UN THÈME DE PLUS. Une collection
+   déclare ses encres À CÔTÉ de ses images, dans le même fichier de données —
+   donc ajouter une quatrième collection, encres comprises, reste une
+   OPÉRATION DE DONNÉES. C'est la promesse que le lot 135 a vérifiée, et elle
+   ne se casse pas ici.
+
+   🔴 ET C'EST UN DÉFAUT, PAS UNE DICTATURE : une collection qui ne déclare
+   RIEN sert la palette de `tokens.css`, telle quelle. Les trois axes restent
+   séparés et aucun ne connaît les autres :
+
+     la COLLECTION  → quelle paire, et quelles encres   (ce module)
+     le THÈME       → laquelle des deux                 (media query, CSS pur)
+     la NORME       → la palette quand rien n'est dit   (`tokens.css`)
+
+   ⛔ POURQUOI UNE FEUILLE, ET PAS `racine.style.setProperty` COMME LES IMAGES.
+   C'est exactement le piège que le garde « 2 quinquies » nomme pour
+   `--bg-image` : **une propriété posée EN LIGNE bat la media query pour
+   toujours**. Une encre écrite en ligne figerait le thème au chargement — la
+   bascule système de 19 h ne repeindrait plus le texte. La feuille, elle,
+   PORTE la media query : le thème continue de basculer tout seul, sans un
+   écouteur à tenir.
+
+   ⚠️ ET PAS NON PLUS UNE PAIRE `--text-jour` / `--text-nuit` DANS `tokens.css`
+   — c'eût été le câblage jumeau de celui des images, et c'est celui que
+   j'aurais choisi : il oblige à réécrire la déclaration de chaque encre de la
+   palette, donc à toucher un fichier qu'un autre lot lit à la ligne près
+   (`tests/double-affichage.test.mjs` lit `--text` sous sa forme littérale).
+   ⏳ Le jour où `tokens.css` n'a plus qu'un écrivain, cette feuille s'y replie.
+   C'est une dette, elle est dite ici pour être payée — même porte, même
+   raison que `fiche.css` (lot 77) et `listes.css` (26/08).
+
+   🔴 LE CONTRAT DE CONTRASTE NE CÈDE PAS, ET C'EST L'ENCRE QUI CÈDE. Le
+   registre impose déjà à toute collection les mêmes extrêmes en place
+   (142–169 le jour, 74–102 la nuit) pour que la matrice de `shell.css` reste
+   valide sans être réécrite ; les encres entrent sous la MÊME loi, et
+   `tests/decor.test.mjs` refait la matrice pour chacune. Mesuré en
+   construisant ce lot : le bleu de nuit proposé pour `slate` rendait 4,49:1
+   sur dalle majeure, sous les 4,5 — c'est LUI qui a bougé (#5590c4), ni le
+   voile ni le jeton. */
+
+/** 🔴 LES SEULS JETONS QU'UNE COLLECTION PEUT REPEINDRE — et c'est une liste
+ *  BLANCHE, délibérément : le registre est une donnée, et une donnée ne doit
+ *  jamais pouvoir écrire du CSS arbitraire dans la page. Un nom hors liste est
+ *  ignoré en silence ; le garde, lui, le NOMME.
+ *  ⛔ `--surface` n'y est PAS : c'est le VERRE, pas une encre. Le bouger
+ *  changerait les trois voiles d'un coup (`--dalle-simple`, `--dalle-inter`)
+ *  et la matrice entière — ce n'est pas « la couleur du texte et des boutons »
+ *  qu'Eric a demandée, c'est le socle sur lequel elle se mesure.
+ *  ⭐ C'EST LA MÊME LISTE QUE LA MATRICE, et un garde tient les deux ensemble
+ *  (`tests/decor.test.mjs`) : une encre repeignable que la matrice ne mesure
+ *  pas serait une encre qui entre sans passer le contraste. */
+export const ENCRES_ADMISES = Object.freeze([
+  "text", "text-soft", "text-muted", "border-strong", "accent"
+]);
+
+/** Une couleur d'encre : six chiffres hexadécimaux, rien d'autre. ⛔ Pas de
+ *  `color-mix`, pas de `var()`, pas de mot-clef — le garde calcule un
+ *  contraste sur ces valeurs, et il ne sait le faire que sur du RGB. Une
+ *  valeur qu'il ne peut pas mesurer ne doit pas pouvoir entrer. */
+const HEXA = /^#[0-9a-f]{6}$/i;
+
+/** Les encres RETENUES d'une collection — `null` si elle n'en déclare aucune
+ *  de valide, ce qui veut dire « la palette de `tokens.css` », le défaut.
+ *  ⚠️ Le filtre est SILENCIEUX ici et BRUYANT dans le garde : au navigateur,
+ *  une encre malformée doit rendre la palette normale plutôt que casser le
+ *  décor ; au dépôt, elle doit faire rougir. Les deux ne sont pas en
+ *  contradiction — ils répondent à deux questions différentes. */
+export function encresDeLaCollection(collection) {
+  const declare = collection && collection.encres;
+  if (!declare || typeof declare !== "object") return null;
+  const retenu = {};
+  for (const theme of ["jour", "nuit"]) {
+    const bloc = declare[theme];
+    if (!bloc || typeof bloc !== "object") continue;
+    for (const jeton of ENCRES_ADMISES) {
+      const valeur = bloc[jeton];
+      if (typeof valeur === "string" && HEXA.test(valeur)) {
+        if (!retenu[theme]) retenu[theme] = {};
+        retenu[theme][jeton] = valeur;
+      }
+    }
+  }
+  return retenu.jour || retenu.nuit ? retenu : null;
+}
+
+/** Le TEXTE de la feuille — pur, donc testable sans navigateur. C'est la
+ *  seule fonction du module qui connaisse la forme du CSS. */
+export function feuilleDesEncres(encres) {
+  if (!encres) return "";
+  const lignes = (paire) => ENCRES_ADMISES
+    .filter((jeton) => paire[jeton])
+    .map((jeton) => `  --${jeton}: ${paire[jeton]};`)
+    .join("\n");
+  const morceaux = [];
+  if (encres.jour) morceaux.push(`:root {\n${lignes(encres.jour)}\n}`);
+  /* ⭐ LA MEDIA QUERY EST DANS LA FEUILLE, ET C'EST TOUT LE MÉCANISME : le
+     thème continue de basculer en CSS pur, sans que ce module soit rappelé. */
+  if (encres.nuit) morceaux.push(`@media (prefers-color-scheme: dark) {\n  :root {\n${lignes(encres.nuit).replace(/^ {2}/gm, "    ")}\n  }\n}`);
+  return morceaux.join("\n");
+}
+
+/** Pose (ou retire) les encres de la collection servie.
+ *  ⛔ UNE SEULE FEUILLE, RETROUVÉE PAR SON ATTRIBUT, jamais une de plus par
+ *  changement de collection : le joueur qui essaie les trois fonds empilerait
+ *  trois feuilles, et la dernière gagnerait — jusqu'au jour où il revient sur
+ *  la première, qui perdrait contre elle-même.
+ *  ⭐ ET UNE COLLECTION SANS ENCRES VIDE LA FEUILLE plutôt que de la laisser :
+ *  revenir au fond par défaut doit rendre la palette par défaut. */
+export function appliquerEncres(collection, doc) {
+  const d = doc || (typeof document !== "undefined" ? document : null);
+  if (!d || !d.head || typeof d.createElement !== "function") return;
+  let feuille = d.head.querySelector('style[data-fhpc="encres"]');
+  if (!feuille) {
+    feuille = d.createElement("style");
+    feuille.setAttribute("data-fhpc", "encres");
+    d.head.append(feuille);
+  }
+  feuille.textContent = feuilleDesEncres(encresDeLaCollection(collection));
+}
+
 /** Pose la paire sur `:root`. ⛔ NE TOUCHE PAS `--bg-image` : c'est le jeton
  *  du THÈME, et il appartient à `tokens.css`. Écrire l'image finale ici
  *  figerait le thème au moment du chargement — une bascule système en cours
- *  de session ne changerait plus rien. */
-export function appliquerCollection(collection, racine) {
+ *  de session ne changerait plus rien.
+ *  ⭐ ET LES ENCRES SUIVENT LA MÊME PORTE : un seul appelant pour un seul
+ *  geste (« servir cette collection »), sinon un site du dépôt reposerait les
+ *  images sans reposer les encres, et le texte resterait celui d'avant. */
+export function appliquerCollection(collection, racine, doc) {
   if (!collection || !racine || !racine.style) return;
   const { jour, nuit } = urlsDeLaCollection(collection);
   racine.style.setProperty("--bg-jour", jour);
   racine.style.setProperty("--bg-nuit", nuit);
+  appliquerEncres(collection, doc);
 }
 
 /** Le registre, chargé depuis `assets/`. Rend `null` si le fichier manque ou

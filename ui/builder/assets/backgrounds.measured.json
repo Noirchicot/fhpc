@@ -4,6 +4,7 @@
   "_ajouter": "⭐ AJOUTER UNE COLLECTION EST UNE OPÉRATION DE DONNÉES, JAMAIS UNE MODIFICATION DE CODE : deux JPEG dans ce dossier, une entrée dans `collections`, deux entrées dans `fichiers`. Rien d'autre. `tests/decor.test.mjs` boucle sur ce fichier — la collection neuve entre dans le garde toute seule.",
   "_lien": "Le sha256 LIE la mesure au fichier : remplacer une image sans remesurer fait rougir tests/decor.test.mjs.",
   "_extremes": "pixel_le_plus_sombre / _clair sont les DEUX pires cas possibles sous un voile. Le garde recalcule le contraste depuis eux — il n'a donc pas besoin de décoder l'image.",
+  "_encres": "🎨 UNE COLLECTION PEUT DÉCLARER SES ENCRES — `encres: { jour: {…}, nuit: {…} }`, les jetons de TEXTE et de BOUTON qu'elle repeint (`text`, `text-soft`, `text-muted`, `border-strong`, `accent`). ⛔ Jamais `surface` : c'est le VERRE, pas une encre. Une collection qui n'en déclare aucune sert la palette de `tokens.css` — un DÉFAUT, pas une dictature. 🔴 Les encres passent la MÊME matrice de contraste que la palette normale : `tests/decor.test.mjs` la refait pour chacune, et si une encre échoue, c'est l'ENCRE qui cède, jamais le voile ni le jeton.",
   "_en_place": "🔴 TOUTE COLLECTION VISE LES MÊMES EXTRÊMES (142–169 le jour, 74–102 la nuit), pas le milieu de sa bande : c'est ce qui rend les collections INTERCHANGEABLES sous la matrice de contraste de shell.css, sans la réécrire à chaque paire.",
   "flou_cuit_px": 5,
   "zone_mesuree": "recadrage 360:780, les ~19 % latéraux retirés",
@@ -31,6 +32,24 @@
       "jour": "bg-slate-day.jpg",
       "nuit": "bg-slate-night.jpg",
       "mesure_le": "2026-09-02",
+      "encres": {
+        "jour": {
+          "text": "#2a2c2f",
+          "text-soft": "#545c60",
+          "text-muted": "#585f67",
+          "border-strong": "#6e7d84",
+          "accent": "#33597f"
+        },
+        "nuit": {
+          "text": "#c9d3d8",
+          "text-soft": "#869298",
+          "text-muted": "#7f8c92",
+          "border-strong": "#626f74",
+          "accent": "#5590c4"
+        }
+      },
+      "encres_mesure_le": "2026-09-02",
+      "encres_note": "⏳ LES TEINTES SONT À TRANCHER PAR ERIC — ce sont les encres de `tokens.css` basculées du chaud vers le froid, pour accompagner la seule collection dont le bleu domine le rouge. Ce qui est MESURÉ, en revanche, ne se négocie pas : le bleu de nuit proposé à #4c88bb rendait 4,49:1 sur dalle majeure, sous les 4,5 exigés — c'est l'ENCRE qui a cédé (#5590c4, 4,99:1), ni le voile ni le jeton. Les changer est une édition de CE bloc, rien d'autre.",
       "note": "La paire FROIDE, la première du builder (lot 59, 13/08), remplacée le 18/08 par « banner » et rappelée ici sur demande d'Eric. Une matière fibreuse gris-bleu — papier de chiffon ou ardoise — sans aucune scène. Seule collection dont le bleu domine le rouge (+15 le jour, +28 la nuit ; les deux autres sont chaudes). ⭐ Servie TELLE QU'ELLE ÉTAIT, octet pour octet : ses fichiers sont ceux du commit 2a508e4, ils tenaient déjà dans les bandes et dans les extrêmes en place — aucune refabrication, l'image n'a rien eu à céder."
     }
   ],

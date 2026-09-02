@@ -44,6 +44,12 @@
 
 import { renderConfirmDialog } from "./confirm.mjs?v=448";
 import { markPressed } from "./carnet.mjs?v=448";
+/* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
+   déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
+   et un écran qui joindrait lui-même les libellés en serait une seconde.
+   ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
+   l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
+import { motDeLEchelon } from "./echelle.mjs?v=448";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -208,57 +214,158 @@ function renderStackChoice({ stack, onPick }) {
   return wrap;
 }
 
-/** LES COLLECTIONS DE FONDS — lot 134, Eric 2026-09-02 : *« On a déjà deux
- *  collections jour nuit, nous en aurons une 3e. Tu vas les stocker pour
- *  qu'on puisse les changer dans le menu. »*
- *
- *  ⭐ UN SÉLECTEUR EXCLUSIF, PAS UNE BASCULE (NORMES §6, et le tableau du
- *  §2325 le range nommément avec `Langue` et `SRD`/`SRD+FH`) : plusieurs
- *  lignes, une seule allumée. Il COPIE `renderStackChoice` à la ligne près —
- *  même liste, même piste, même `markPressed` — parce que c'est la même
- *  espèce d'organe. ⛔ Deux dessins pour une même espèce dans le même écran
- *  serait exactement ce que le double affichage a refusé quinze pixels plus
- *  haut.
+/** ⭐ UN DROPDOWN DE CHOIX — Eric, 2026-09-02 : *« Les backgrounds en drop
+ *  down. »* Il remplace la rampe de bascules du lot 134, et c'est un
+ *  RANGEMENT, pas un revirement : le réglage descend d'un rang (Menu ›
+ *  Display) et l'organe suit le rang. Une liste de trois lignes à piste et
+ *  pouce occupait 132 px dans l'écran d'entrée pour un choix qu'on fait une
+ *  fois ; un dropdown en occupe 44 dans l'écran qui lui est consacré.
  *
  *  🔴 IL EST BÂTI SUR LA LISTE REÇUE, jamais sur des lignes écrites ici :
- *  c'est ce qui fait qu'une troisième collection arrive par les DONNÉES
+ *  c'est ce qui fait qu'une quatrième collection arrive par les DONNÉES
  *  (`assets/backgrounds.measured.json`) et ne coûte pas une ligne de ce
- *  fichier. Un `for` sur deux paires nommées en dur aurait marché aujourd'hui
- *  et menti au prochain fond.
+ *  fichier. Un `for` sur trois paires nommées en dur aurait marché
+ *  aujourd'hui et menti au prochain fond.
  *
  *  ⛔ AUCUN BLOC QUAND LA LISTE EST VIDE — registre absent ou illisible : le
  *  builder sert alors la collection de `tokens.css`, et un titre « Background »
  *  suivi de rien serait un réglage qui ment. */
 function renderFondChoice({ fonds, fond, onPick }) {
   if (fonds.length === 0) return el("div", "universe-fond-vide");
-  const wrap = el("div", "universe-reglages");
+  const wrap = el("div", "display-bloc");
   wrap.append(el("h3", null, [text("Background")]));
-  const list = el("div", "bascule-liste");
-  list.setAttribute("role", "group");
-  list.setAttribute("aria-label", "Background");
+  const select = document.createElement("select");
+  select.className = "display-select";
+  select.setAttribute("aria-label", "Background");
   for (const collection of fonds) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "bascule-ligne";
-    markPressed(btn, collection.id === fond);
-    btn.append(el("span", "bascule-mot", [text(collection.nom || collection.id)]));
-    /* L'interrupteur est DESSINÉ (une piste, un pouce), jamais un glyphe —
-       même raison qu'aux règles : un glyphe change de forme selon la police
-       installée. Il ne porte aucun mot, le nom accessible vient de sa gauche. */
-    btn.append(el("span", "bascule-piste", [el("span", "bascule-pouce")]));
-    btn.addEventListener("click", () => { if (collection.id !== fond) onPick(collection.id); });
-    list.append(btn);
+    const option = document.createElement("option");
+    option.value = collection.id;
+    option.append(text(collection.nom || collection.id));
+    if (collection.id === fond) option.selected = true;
+    select.append(option);
   }
-  wrap.append(list);
+  /* ⚠️ LA VALEUR EST POSÉE EXPLICITEMENT, en plus de l'option `selected` —
+     même raison qu'aux deux menus d'Identity : un navigateur déduit l'une de
+     l'autre, le stub DOM de la suite non, et c'est lui qui a raison de le
+     signaler. */
+  select.value = typeof fond === "string" ? fond : "";
+  select.addEventListener("change", () => { if (select.value !== fond) onPick(select.value); });
+  wrap.append(select);
   /* ⚠️ CE TEXTE EST LU PAR UN JOUEUR : il dit ce que le réglage fait et ce
      qu'il ne fait PAS — le décor a deux images par collection, et c'est
      l'appareil qui choisit entre elles, pas cette liste. Sans cette phrase, un
      joueur en thème sombre qui choisit « Ruins » croirait avoir choisi
      l'image de nuit qu'il voit, et se demanderait où est passée l'autre. */
-  wrap.append(el("p", "universe-note", [
-    text("Each background is a pair — one for light, one for dark. Your device picks which of the two you see.")
+  wrap.append(el("p", "display-note", [
+    text("Each background is a pair — one for light, one for dark. Your device picks which of the two you see. Some backgrounds also bring their own text and button colours.")
   ]));
   return wrap;
+}
+
+/* ══ 📐 LE CRAN D'INTERFACE — Eric, 2026-09-02 ═════════════════════════════
+   *« Toutes les résolutions en drop down. »*
+
+   ⚖️ ET LA RAMPE DE 2026-08-30 NE REVIENT PAS POUR AUTANT — le lot 118 l'avait
+   retirée avec une raison MESURÉE : avec l'échelle continue d'alors, un cran
+   choisi à la main ne pouvait que RAPETISSER le builder (1366 × 1024 : Auto
+   ×1,83, « Large » ×1,25 — le libellé mentait). ⭐ Le partage d'écran fait
+   tomber cette raison : l'automatique rend maintenant de ×0,96 à ×1,53, donc
+   un réglage peut agrandir autant que réduire. C'est un organe NEUF sur une
+   arithmétique neuve, pas une résurrection ; et la clef qu'il garde est neuve
+   aussi — celles du 30/08 restent effacées à chaque lecture.
+
+   🔴 L'AUTO EST LA PREMIÈRE LIGNE ET RESTE LE DÉFAUT. Le joueur SURCHARGE, il
+   ne remplace pas, et il doit pouvoir revenir — une norme est un défaut, pas
+   une dictature.
+
+   🔴 CHAQUE LIGNE DIT CE QU'ELLE REND, en pixels, sur CETTE fenêtre : *« le
+   joueur choisit une taille, pas une fraction abstraite »*. ⛔ Et c'est la
+   taille APRÈS la descente de hauteur, jamais la part demandée — sinon le
+   libellé mentirait précisément là où la descente mord.
+
+   ⚠️ DEUX LIGNES PEUVENT RENDRE LA MÊME CHOSE, et c'est la vérité de la
+   fenêtre, pas un défaut de la liste : sous le panneau nu tout retombe sur le
+   dessin, et une fenêtre basse plafonne plusieurs crans au même endroit. La
+   note le DIT quand ça arrive — un joueur qui choisit deux fois de suite sans
+   rien voir changer doit savoir pourquoi. */
+function renderCranChoice({ echelle, onPick }) {
+  if (!echelle || !Array.isArray(echelle.offres) || echelle.offres.length === 0) {
+    return el("div", "universe-cran-vide");
+  }
+  const cote = (rendu) => `${Math.round(rendu.largeur)} × ${Math.round(rendu.hauteur)}`;
+  const wrap = el("div", "display-bloc");
+  wrap.append(el("h3", null, [text("Interface size")]));
+  const select = document.createElement("select");
+  select.className = "display-select";
+  select.setAttribute("aria-label", "Interface size");
+  const choisi = echelle.choisi ? echelle.choisi.nom : "";
+
+  /* ⭐ L'AUTO PORTE LE NOM DE CE QU'IL A CHOISI — *« elle dit lequel l'auto a
+     choisi »*. Sans ça, « Auto » serait le seul libellé de la liste à ne rien
+     dire, et le joueur ne saurait pas d'où il part. */
+  const auto = document.createElement("option");
+  auto.value = "";
+  auto.append(text(`Auto — ${motDeLEchelon(echelle.auto)}, ${cote(echelle.autoRendu)}`));
+  if (choisi === "") auto.selected = true;
+  select.append(auto);
+
+  for (const offre of echelle.offres) {
+    const option = document.createElement("option");
+    option.value = offre.barreau.nom;
+    option.append(text(`${offre.barreau.libelle} — ${cote(offre.rendu)}`));
+    if (offre.barreau.nom === choisi) option.selected = true;
+    select.append(option);
+  }
+  select.value = choisi;
+  /* ⛔ LA CHAÎNE VIDE VEUT DIRE « AUTO », et elle traverse telle quelle : c'est
+     la coquille qui la traduit en `null` (effacer la clef). Un écran qui
+     écrirait `null` ici deviendrait un second décideur de la préférence. */
+  select.addEventListener("change", () => { if (select.value !== choisi) onPick(select.value); });
+  wrap.append(select);
+
+  const cotes = echelle.offres.map((o) => cote(o.rendu));
+  const doublons = cotes.length !== new Set(cotes).size;
+  wrap.append(el("p", "display-note", [
+    text(echelle.choisi
+      ? `Set by you. Auto would use ${motDeLEchelon(echelle.auto)}. The builder never grows past what the window's height can hold.`
+      : "Auto follows the window: the widest share it can hold, dropped half a step at a time until the height fits.")
+  ]));
+  if (doublons) {
+    wrap.append(el("p", "display-note", [
+      text("Sizes that read the same really are: the panel never shrinks below its drawn size.")
+    ]));
+  }
+  return wrap;
+}
+
+/** 🪟 L'ÉCRAN DISPLAY — le sous-menu du Menu (le rang B : *« Back · Done, le
+ *  SEUL endroit où `Back` paraît »*, NORMES §6).
+ *
+ *  ⛔ IL NE PORTE PAS SA PROPRE SORTIE : `data-sortie-ici` la déclare, et
+ *  c'est la coquille qui produit la paire — la même loi que l'écran d'entrée
+ *  juste en dessous. Un écran qui fabriquerait son `Back` serait le doublon
+ *  que le 19/08 a fait sauter partout ailleurs.
+ *
+ *  ⏳ CE QU'IL NE PREND PAS, ET POURQUOI : `Double view` reste dans l'écran
+ *  d'entrée. C'est un réglage d'affichage, il aurait sa place ici — mais la
+ *  vue double appartient à un autre chantier en cours, et déplacer son organe
+ *  pendant qu'on l'écrit est le meilleur moyen de le perdre. À rapatrier
+ *  quand ce chantier est fusionné. */
+function renderDisplayEcran(ctx, onAction) {
+  const section = el("section", "universe-step display-ecran dalle-intermediaire");
+  section.dataset.objet = "dalle";
+  section.dataset.sortieIci = "true";
+  section.dataset.ecran = "display";
+  section.append(renderCranChoice({
+    echelle: ctx.echelle,
+    onPick: (value) => onAction({ kind: "cranChoisi", value })
+  }));
+  section.append(renderFondChoice({
+    fonds: Array.isArray(ctx.fonds) ? ctx.fonds : [],
+    fond: ctx.fond,
+    onPick: (value) => onAction({ kind: "fondChoisi", value })
+  }));
+  return section;
 }
 
 /**
@@ -273,6 +380,10 @@ function renderFondChoice({ fonds, fond, onPick }) {
  *   `{kind:"cancelLayerStack"}` · `{kind:"describe", field:"campaign", value}`.
  */
 export function renderUniverseStep(ctx, onAction) {
+  /* 🔴 UN SEUL POINT D'ENTRÉE POUR LES DEUX RANGS, et c'est ce qui garde la
+     coquille ignorante du dedans de l'étape : elle dit à quel RANG on est
+     (`ecran`), l'écran dit ce qu'on y voit. */
+  if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
   const doc = ctx.document;
   const query = ctx.query;
   const errors = ctx.fieldErrors || {};
@@ -419,11 +530,22 @@ export function renderUniverseStep(ctx, onAction) {
   ]));
   section.append(vue);
 
-  section.append(renderFondChoice({
-    fonds: Array.isArray(ctx.fonds) ? ctx.fonds : [],
-    fond: ctx.fond,
-    onPick: (value) => onAction({ kind: "fondChoisi", value })
-  }));
+  /* ══ 🚪 LA PORTE DE DISPLAY — Eric, 2026-09-02 ═══════════════════════════
+     *« Menu peut avoir une branche S. On y va via un bouton Display. »*
+
+     ⭐ CE QUI DESCEND DERRIÈRE ELLE : le choix de fond (qui vivait ici depuis
+     le lot 134) et le cran d'interface. Deux réglages qu'on pose une fois et
+     qu'on ne relit pas — ils encombraient un écran d'entrée qui doit d'abord
+     dire les RÈGLES et où vit le personnage.
+     ⛔ Elle est là même si le registre des fonds n'a pas (encore) chargé : le
+     cran d'interface, lui, ne dépend d'aucun réseau, et une porte qui
+     apparaîtrait en cours de route serait pire qu'une porte qui attend. */
+  const porte = document.createElement("button");
+  porte.type = "button";
+  porte.className = "display-porte";
+  porte.append(text("Display"));
+  porte.addEventListener("click", () => onAction({ kind: "ouvrirDisplay" }));
+  section.append(porte);
 
   /* ⚖️ LA RAMPE « INTERFACE SIZE » A VÉCU DU 30/08 AU 02/09 — retirée au lot
      118. Eric, 2026-09-02 : *« si l'auto fait bien son travail, effectivement

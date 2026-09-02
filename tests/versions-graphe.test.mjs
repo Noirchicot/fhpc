@@ -280,9 +280,14 @@ test("3 — index.html, le décideur : AUCUN chargement ne part sans version", (
          qu'au lot 77 : `shell.css` a déjà un écrivain. ⭐ Elle, en revanche,
          ne compte PAS sur l'ordre : son sélecteur exige `.grille-rang`, la
          rangée que `glisser.mjs` ne pose qu'au-delà d'une page, et il pèse
-         (0,0,3,1) contre (0,0,2,1) — elle gagne par spécificité, nommément. */
-  assert.equal(refs.length, 6,
-    `index.html porte ${refs.length} chargements, 6 attendus — si tu viens d'en ajouter un, ` +
+         (0,0,3,1) contre (0,0,2,1) — elle gagne par spécificité, nommément.
+       · lot 136 (2026-09-02) : 7 — `display.css` entre avec l'écran
+         Menu › Display. MÊME PORTE, MÊME RAISON, une troisième fois :
+         `shell.css` a un écrivain. ⭐ Elle ne dépend ni de l'ordre ni de la
+         spécificité — ses sélecteurs `.display-*` n'existent nulle part
+         ailleurs, elle ne redéclare donc rien. */
+  assert.equal(refs.length, 7,
+    `index.html porte ${refs.length} chargements, 7 attendus — si tu viens d'en ajouter un, ` +
     "mets ce compte à jour ET dis pourquoi juste au-dessus ; si tu n'as rien ajouté, cherche qui l'a fait");
 });
 

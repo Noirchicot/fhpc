@@ -183,14 +183,20 @@ function cotesDeLApp(racine, colonnes) {
  *  ⭐ ET LE MINI COUCHÉ SE RÈGLE TOUT SEUL : 1133 de large, donc `tablette`,
  *  puis un saut de cran que sa hauteur de 744 impose — il rend 378 × 564.
  *  ⛔ Aucun cas particulier n'est écrit pour lui, et il ne doit jamais l'être. */
+/** ⭐ `libelle` — LE MOT QUE LE JOUEUR LIT, et il vit ICI pour la même raison
+ *  que `nom` : l'écran Display affiche des crans, et un libellé recopié
+ *  ailleurs survivrait à un renommage en mentant. ⛔ Ce n'est PAS une
+ *  traduction du nom interne — `nom` est la clef (elle voyage dans
+ *  `localStorage`), `libelle` est de l'anglais d'interface. Les deux se
+ *  corrigent d'une seule édition, au même endroit. */
 export const BARREAUX = Object.freeze([
-  { nom: "mini",     depuis: null, part: 1 },
-  { nom: "mobile",   depuis: null, part: 1 },
-  { nom: "tablette", depuis:  768, part: 2 },
-  { nom: "petit",    depuis: 1440, part: 3 },
-  { nom: "moyen",    depuis: 1680, part: 4 },
-  { nom: "grand",    depuis: 2200, part: 5 },
-  { nom: "xtra",     depuis: 3000, part: 6 }
+  { nom: "mini",     depuis: null, part: 1, libelle: "Mini" },
+  { nom: "mobile",   depuis: null, part: 1, libelle: "Full screen" },
+  { nom: "tablette", depuis:  768, part: 2, libelle: "Half" },
+  { nom: "petit",    depuis: 1440, part: 3, libelle: "Third" },
+  { nom: "moyen",    depuis: 1680, part: 4, libelle: "Quarter" },
+  { nom: "grand",    depuis: 2200, part: 5, libelle: "Fifth" },
+  { nom: "xtra",     depuis: 3000, part: 6, libelle: "Sixth" }
 ].map(Object.freeze));
 
 /** Le barreau que la LARGEUR pose — premier temps du mécanisme, et rien
@@ -236,6 +242,134 @@ export function tailleDuBarreau(barreau, panneau, largeurFenetre) {
   return Math.max(panneau, largeurFenetre / barreau.part);
 }
 
+/* ══ 🪜 LES ÉCHELONS — LE DEMI-CRAN, 2026-09-02 ════════════════════════════
+   🔴 CE QUE ÇA CORRIGE, MESURÉ AVANT D'ÊTRE ÉCRIT : quand la hauteur ne porte
+   pas la part, on descendait d'un CRAN ENTIER. L'iPad Air couché
+   (1180 × 820) manque de **61 px** au demi et reculait de `590` à `393` — une
+   marche entière pour un petit décrochage.
+   📏 Le demi-cran (`1/2,5`) lui rend **472 × 705**, et il tient (705 ≤ 820).
+
+   📏 CE QUE LE PARTAGE FIN CHANGE, BALAYÉ SUR 66 899 FENÊTRES avant d'agir :
+   **5 602 rendent un panneau PLUS GRAND · 0 plus petit · 0 qui déborde alors
+   qu'elle ne débordait pas.** Le demi-cran ne peut donc que rendre de la
+   place — c'est un raffinement de la DESCENTE, jamais un nouveau régime.
+
+   ⚠️ ET LA PORTÉE EST PLUS LARGE QUE LES TROIS TABLETTES ANNONCÉES. Mesuré,
+   par hauteur de fenêtre, les largeurs qui changent :
+
+       720 → 965–1205 · 1447–1679 · 1929–2169 · 2411–2651
+       768 → 1029–1285 · 1543–1679 · 2058–2199 · 2572–2828
+       820 → 1099–1372 · 1648–1679 · 2197–2199 · 2746–2999
+       900 → 1206–1439      1024 → 1372–1439      1080 → AUCUNE
+
+   ⭐ La règle qui en sort : **une fenêtre BASSE change, une fenêtre HAUTE
+   non** — parce que seule une fenêtre basse déclenchait la descente. Les
+   écrans 4:3 (1024 × 768, 1366 × 1024, 1376 × 1032) ne bougent d'aucun pixel,
+   et aucune fenêtre de 1080 de haut ou plus non plus.
+
+   ⛔ ET LE PRIX EST RÉEL, IL N'EST PAS CACHÉ : l'automatique atterrit
+   désormais sur une part qui **n'est le nom d'aucun cran** (`1/2,5`). C'est
+   l'écran Display qui l'absorbe — il montre où l'on est, y compris entre deux
+   barreaux, et c'est pour ça que les deux sont dans le même lot. */
+
+/** Un échelon : une PART, et le ou les barreaux qui la nomment.
+ *  · sur un barreau      → `barreaux` en porte UN ;
+ *  · entre deux barreaux → il en porte DEUX, dans l'ordre de l'échelle.
+ *  ⛔ AUCUN NOM NEUF N'EST INVENTÉ ICI, et c'est la condition pour que la
+ *  table des barreaux reste la seule déclaration des noms : un demi-cran
+ *  n'a pas de nom à lui, il porte ceux de ses deux voisins. */
+function echelonEntre(a, b) {
+  return Object.freeze({ part: (a.part + b.part) / 2, barreaux: Object.freeze([a, b]) });
+}
+function echelonDe(barreau) {
+  return Object.freeze({ part: barreau.part, barreaux: Object.freeze([barreau]) });
+}
+
+/** 🔴 LES CRANS OFFERTS AU JOUEUR — un par PART distincte.
+ *  ⛔ `mini` et `mobile` partagent la part 1 (le plein écran) : deux lignes qui
+ *  rendraient exactement la même chose seraient une liste qui ment.
+ *  ⭐ ET C'EST LE DERNIER DÉCLARÉ DE CHAQUE PART QUI EST OFFERT, parce que la
+ *  table range un ÉTAT RÉDUIT AVANT SON RÉGIME : elle dit elle-même que
+ *  *« `mini` n'est pas un barreau, c'est l'état réduit de `mobile` »*, et que
+ *  `mini` est *« le premier de la liste, donc le repli naturel »*. Offrir un
+ *  repli comme un choix serait proposer au joueur l'état où l'on TOMBE.
+ *  ⛔ Ce filtre n'écrit aucun nom : c'est la table qui dit lequel, ici comme
+ *  partout. */
+export const CRANS_OFFERTS = Object.freeze(
+  BARREAUX.filter((b, i) => BARREAUX.findLastIndex((a) => a.part === b.part) === i)
+);
+
+/** L'échelle FINE, du plus généreux au plus serré : chaque barreau dur, et le
+ *  demi-cran entre deux voisins. ⛔ Le plein écran n'y entre pas — il ne
+ *  descend jamais (voir `largeurVisee`), il n'a donc pas d'échelon de
+ *  descente. */
+export const ECHELONS = Object.freeze(CRANS_OFFERTS
+  .filter((b) => b.part > 1)
+  .flatMap((b, i, durs) => (durs[i + 1] ? [echelonDe(b), echelonEntre(b, durs[i + 1])] : [echelonDe(b)])));
+
+/** Le mot d'un échelon, tel que l'écran Display l'affiche.
+ *  ⛔ Il ne fabrique pas de nom : il joint ceux que la table déclare. */
+export function motDeLEchelon(echelon) {
+  return echelon ? echelon.barreaux.map((b) => b.libelle).join(" – ") : "";
+}
+
+/* ══ 🎛️ LA SURCHARGE DU JOUEUR — lot 136, 2026-09-02 ═══════════════════════
+   Eric : *« Menu peut avoir une branche S. On y va via un bouton Display.
+   Toutes les résolutions en drop down. »*
+
+   🔴 L'AUTO RESTE LE DÉFAUT, ET LE JOUEUR SURCHARGE — il ne remplace pas.
+   Une norme se câble en défaut partagé, jamais en mur : sans choix gardé,
+   c'est l'automatique qui décide, exactement comme avant ce lot.
+
+   ⛔ ET SURTOUT PAS LES CLEFS `fhpc.echelle.cran*`. Le lot 118 les EFFACE à
+   chaque application de l'échelle (`CLEFS_MORTES`, plus haut) : les
+   ressusciter mettrait deux mécanismes en travers l'un de l'autre — celui-ci
+   écrirait, celui-là effacerait, et le réglage aurait l'air de ne pas tenir.
+   Clef neuve, nom neuf, et les mortes restent mortes.
+
+   ⭐ CE QUE LA SURCHARGE REMPLACE, ET CE QU'ELLE NE REMPLACE PAS :
+     · elle remplace ① — le barreau que la LARGEUR posait ;
+     · elle ne remplace PAS ② — la descente en hauteur, qui reste une
+       DÉFENSE. ⛔ Un cran qui ne tient pas en hauteur ne rend pas un builder
+       plus grand, il rend un builder COUPÉ. Le joueur qui vise plus grand
+       obtient donc le plus grand que sa fenêtre PORTE, et l'écran Display lui
+       dit lequel — jamais un libellé qui ment sur ce qu'il rend.
+
+   ⚠️ MÊME MÉCANISME DE PRÉFÉRENCE QUE `fonds.mjs` ET `vue.mjs`, pas un
+   second : une clef de navigateur, un `try` qui ne fait jamais tomber le
+   builder, et un id gardé qui peut désigner un cran disparu — auquel cas on
+   sert l'AUTO sans effacer ce que le joueur a demandé. */
+const CLEF_CRAN = "fhpc.affichage.cran";
+
+function lireLaClef(clef) {
+  try {
+    const valeur = window.localStorage.getItem(clef);
+    return typeof valeur === "string" && valeur !== "" ? valeur : null;
+  } catch (_) { return null; }
+}
+
+/** Le NOM de cran que le joueur a demandé — `null` s'il n'a jamais choisi,
+ *  c'est-à-dire s'il est sur Auto. ⛔ Ce n'est pas « le cran servi » : un nom
+ *  gardé peut désigner un cran retiré de la table depuis. C'est
+ *  `cranSurcharge` qui tranche, et lui seul (même loi que `collectionServie`). */
+export function cranVoulu() { return lireLaClef(CLEF_CRAN); }
+
+/** Pose le choix — ⛔ `null` EFFACE et rend la main à l'automatique. C'est le
+ *  retour à Auto, et il doit exister : un réglage sans retour est un piège. */
+export function setCranVoulu(nom) {
+  try {
+    if (nom === null || nom === undefined) window.localStorage.removeItem(CLEF_CRAN);
+    else window.localStorage.setItem(CLEF_CRAN, String(nom));
+  } catch (_) { /* sans mémoire, le choix ne survit pas à la page — tant pis */ }
+}
+
+/** Le barreau surchargé, ou `null` (= automatique). Un nom inconnu rend
+ *  `null` : on sert l'auto, et ⛔ on n'efface PAS la préférence au passage. */
+export function cranSurcharge() {
+  const nom = cranVoulu();
+  return CRANS_OFFERTS.find((b) => b.nom === nom) || null;
+}
+
 /** 🔴 CE QUI EST AMENDÉ, ET CE QUI NE L'EST PAS — 2026-09-02.
  *
  *  La règle sacrée du 31/08 disait `min(largeur/375, hauteur/560)` : *« ce
@@ -253,9 +387,11 @@ export function tailleDuBarreau(barreau, panneau, largeurFenetre) {
  *  vient du barreau, et la hauteur ne rabote plus rien (voir `largeurVisee`).
  *
  *  ⛔ ET C'EST BIEN UN RENVERSEMENT DE LA CONTINUITÉ, PAS UN RÉGLAGE : au
- *  delà de 768 l'échelle est DISCRÈTE, quatre valeurs pour toute la bande de
- *  bureau (×1,00 · ×1,02 · ×1,14 · ×1,31). C'est ce que « six crans » veut
- *  dire, et c'est ce qui rend le réglage joueur du lot 134 possible. */
+ *  delà de 768 l'échelle est DISCRÈTE. C'est ce que « six crans » veut dire,
+ *  et c'est ce qui rend le réglage joueur possible — il est construit, c'est
+ *  `Menu › Display` (lot 136). ⚠️ Les quatre valeurs de bureau qui étaient
+ *  citées ici (×1,00 · ×1,02 · ×1,14 · ×1,31) ne sont plus la mesure du jour :
+ *  le demi-cran en a ajouté. Le compte se relit, il ne se recopie pas. */
 
 /** La largeur que le builder VISE, en blg — le mécanisme d'Eric en deux temps.
  *
@@ -263,61 +399,88 @@ export function tailleDuBarreau(barreau, panneau, largeurFenetre) {
  *     donne sa taille. Rien d'autre n'intervient à ce stade.
  *  ② LA HAUTEUR NE FAIT QUE DESCENDRE. Si la place en hauteur ne porte pas la
  *     taille (`taille × 560/375`), ⛔ on ne rabote pas la largeur d'un
- *     continuum : on SAUTE UN CRAN EN DESSOUS, autant de fois qu'il le faut.
+ *     continuum : on descend d'un ÉCHELON, autant de fois qu'il le faut.
  *
- *  ⚠️ « UN CRAN EN DESSOUS » EST LE BARREAU PRÉCÉDENT DE L'ÉCHELLE, ⛔ jamais
- *  « le partage du palier d'en dessous appliqué à cet écran-ci » : sur un
- *  3440, `grand` appliqué à la fenêtre rendrait 573 contre 491 — la seconde
- *  lecture MONTE, et elle casserait tout.
- *  ⛔ La descente s'arrête sur un barreau qui ne rend pas moins : c'est le
- *  plancher (`mobile`, cent pour cent) et ce sont les barreaux mous. Sous le
- *  dernier barreau, il n'y a rien.
+ *  🪜 ET UN ÉCHELON EST UN DEMI-CRAN DEPUIS LE LOT 136 — voir la table des
+ *  `ECHELONS`. La descente était d'un barreau entier jusqu'au 02/09 ; elle
+ *  faisait reculer l'iPad Air couché de 590 à 393 pour 61 px manquants.
+ *  ⚠️ « EN DESSOUS » SE COMPTE SUR L'ÉCHELLE, ⛔ jamais « le partage du palier
+ *  d'en dessous appliqué à cet écran-ci » : sur un 3440, `grand` appliqué à la
+ *  fenêtre rendrait 573 contre 491 — la seconde lecture MONTE, et elle
+ *  casserait tout.
+ *  ⛔ La descente ENJAMBE un échelon qui ne rend pas moins — le plancher du
+ *  panneau nu peut en rattraper deux — et elle s'arrête sous le dernier :
+ *  là, il n'y a rien.
  *  ⚠️ SI MÊME LE DERNIER NE PASSE PAS EN HAUTEUR — une fenêtre de bureau de
  *  moins de 560 de haut — le builder garde 375 et déborde. C'est un cas à
  *  signaler à Eric, pas un huitième barreau à inventer. */
-function largeurVisee(largeurFenetre, hauteurFenetre, p) {
+function largeurVisee(largeurFenetre, hauteurFenetre, p, impose) {
+  return viseeEtEchelon(largeurFenetre, hauteurFenetre, p, impose).taille;
+}
+
+/** La largeur visée ET l'échelon qui l'a produite — deux réponses à la même
+ *  lecture, parce que l'écran Display doit NOMMER où l'on a atterri, et qu'un
+ *  second parcours de l'échelle pour retrouver le nom pourrait diverger du
+ *  premier. Une lecture, deux sorties.
+ *
+ *  `impose` — le barreau que le JOUEUR a choisi, ou `null` pour l'automatique.
+ *  Il remplace le premier temps (la largeur pose le barreau) et rien d'autre. */
+function viseeEtEchelon(largeurFenetre, hauteurFenetre, p, impose) {
   /* ⛔ LA VUE DOUBLE NE PASSE PAS PAR LES BARREAUX : le partage d'Eric parle
      de l'*« affichage simple »*, et deux panneaux au demi font déjà la
      largeur de l'écran. La règle sacrée du 31/08 la gouverne, intacte — c'est
      elle que `laPlaceDuDouble` interroge, et ce lot ne la referme pas. */
-  if (p.colonnes !== 1) return largeurFenetre;
-  let barreau = barreauPour(largeurFenetre, p.panneau);
+  if (p.colonnes !== 1) return { taille: largeurFenetre, echelon: null };
+  const barreau = impose || barreauPour(largeurFenetre, p.panneau);
   /* ⛔ `mini` ET `mobile` NE SAUTENT PAS DE CRAN : ils prennent toute la place
      et c'est la règle sacrée du 31/08 qui plafonne leur hauteur, en continu —
      *« sur téléphone et tablette, l'appareil décide »*. Un saut de cran ici
      rendrait un panneau de 375 sur un téléphone de 700, ce qui n'est plus
      « plein écran ». */
-  if (barreau.part === 1) return largeurFenetre;
-  let taille = tailleDuBarreau(barreau, p.panneau, largeurFenetre);
+  if (barreau.part === 1) return { taille: largeurFenetre, echelon: echelonDe(barreau) };
+  let i = ECHELONS.findIndex((e) => e.part === barreau.part);
+  /* ⚠️ Un barreau hors de l'échelle fine n'existe pas — mais `findIndex` rend
+     −1 plutôt que de crier, et un −1 lu comme un indice sauterait au dernier
+     échelon. On retombe sur le premier, jamais sur un indice négatif. */
+  if (i < 0) i = 0;
+  let echelon = ECHELONS[i];
+  let taille = tailleDuBarreau(echelon, p.panneau, largeurFenetre);
   const parHauteur = p.hauteur / p.panneau;   /* le ratio sacré, par l'autre bout */
   while (taille * parHauteur > hauteurFenetre) {
-    const dessous = barreauVoisin(barreau, -1);
+    const dessous = ECHELONS[i + 1];
     if (!dessous) break;                       /* passé le dernier, il n'y a rien */
-    barreau = dessous;
-    const moindre = tailleDuBarreau(barreau, p.panneau, largeurFenetre);
-    /* ⭐ UN BARREAU QUI NE RÉTRÉCIT PAS EST ENJAMBÉ, PAS UN POINT D'ARRÊT : le
-       plancher du panneau nu peut rattraper deux barreaux voisins, et un cran
-       qui rend la même chose ne sert à rien. Descendre veut dire RÉTRÉCIR. */
-    if (moindre < taille) taille = moindre;
+    i += 1;
+    const moindre = tailleDuBarreau(dessous, p.panneau, largeurFenetre);
+    /* ⭐ UN ÉCHELON QUI NE RÉTRÉCIT PAS EST ENJAMBÉ, PAS UN POINT D'ARRÊT : le
+       plancher du panneau nu peut rattraper deux échelons voisins, et un cran
+       qui rend la même chose ne sert à rien. Descendre veut dire RÉTRÉCIR.
+       ⛔ Et l'échelon RETENU est celui qui a produit la taille servie, jamais
+       celui qu'on vient d'enjamber : nommer un cran qui n'a rien changé
+       serait exactement le libellé qui ment. */
+    if (moindre < taille) { taille = moindre; echelon = dessous; }
   }
-  return taille;
+  return { taille, echelon };
 }
 
 /** Le régime : sur les barreaux, ou sous la règle sacrée du 31/08 ?
  *  ⛔ Les deux conditions sont NÉCESSAIRES, et les confondre casserait la vue
- *  double : elle garde la règle sacrée sur tous les écrans. */
-function surLesBarreaux(largeurFenetre, p) {
-  return p.colonnes === 1 && barreauPour(largeurFenetre, p.panneau).part !== 1;
+ *  double : elle garde la règle sacrée sur tous les écrans.
+ *  ⚠️ ET LE CRAN IMPOSÉ COMPTE ICI AUSSI : un joueur qui choisit le plein
+ *  écran sur un bureau doit retomber sous la règle sacrée, sinon son panneau
+ *  prendrait 1920 blg de large. */
+function surLesBarreaux(largeurFenetre, p, impose) {
+  const barreau = impose || barreauPour(largeurFenetre, p.panneau);
+  return p.colonnes === 1 && barreau.part !== 1;
 }
 
-export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes) {
+export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes, impose) {
   const p = cotesDeLApp(racine, colonnes);
-  const parLargeur = largeurVisee(largeurFenetre, hauteurFenetre, p) / p.largeur;
+  const parLargeur = largeurVisee(largeurFenetre, hauteurFenetre, p, impose) / p.largeur;
   /* 🔴 PAS DE `min` SUR LES BARREAUX, ET C'EST LE CŒUR DE L'AMENDEMENT : la
      hauteur a DÉJÀ parlé, en faisant descendre d'un cran. La reprendre ici en
      rapport continu ramènerait exactement la bande haute et étroite qu'Eric
      refuse — et ferait passer un 1920 × 1080 de ×1,02 à ×1,93. */
-  const f = surLesBarreaux(largeurFenetre, p)
+  const f = surLesBarreaux(largeurFenetre, p, impose)
     ? parLargeur
     : Math.min(parLargeur, hauteurFenetre / p.hauteur);
   return Number.isFinite(f) && f > 0 ? f : 1;
@@ -354,6 +517,58 @@ export function laPlaceDuDouble(largeurFenetre, hauteurFenetre, racine) {
  *  après l'avoir vu chiffré. */
 export function cranAuto(largeurFenetre, hauteurFenetre, racine) {
   return echelleQuiTient(largeurFenetre, hauteurFenetre, racine);
+}
+
+/** L'échelle RÉELLEMENT SERVIE — l'automatique, surchargé par le choix du
+ *  joueur s'il en a un. ⛔ Deux fonctions et pas une, délibérément : `cranAuto`
+ *  doit rester la réponse de l'AUTOMATIQUE SEUL, parce que l'écran Display
+ *  affiche les deux côte à côte (*« elle dit lequel l'auto a choisi »*). Les
+ *  confondre rendrait le tableau tautologique — l'auto dirait toujours ce que
+ *  le joueur vient de demander. */
+export function cranEffectif(largeurFenetre, hauteurFenetre, racine) {
+  return echelleQuiTient(largeurFenetre, hauteurFenetre, racine, undefined, cranSurcharge());
+}
+
+/** 📋 CE QUE L'ÉCRAN DISPLAY AFFICHE — tout lu ici, rien recalculé là-bas.
+ *
+ *  🔴 UN ÉCRAN NE REFAIT PAS L'ARITHMÉTIQUE DE L'ÉCHELLE. C'est la loi des
+ *  écrans du dépôt (« un écran REÇOIT l'état, il ne va pas le chercher ») et
+ *  c'est aussi la seule façon d'être sûr que la ligne « Auto » et le panneau
+ *  affiché parlent du même calcul.
+ *
+ *  Rend :
+ *   · `auto`     — l'échelon que l'automatique choisit sur cette fenêtre ;
+ *   · `choisi`   — le barreau surchargé, ou `null` (le joueur est sur Auto) ;
+ *   · `effectif` — l'échelon réellement servi (l'un ou l'autre, descendu) ;
+ *   · `offres`   — une ligne par cran offert : le barreau, l'échelon où il
+ *     atterrit sur CETTE fenêtre, et la taille peinte en pixels.
+ *
+ *  ⭐ `rendu` EST CE QUE L'ŒIL RECEVRA, pas la part demandée : c'est
+ *  `--panneau-l` × l'échelle, donc la descente de hauteur y est déjà. Un
+ *  tableau qui afficherait la part demandée mentirait précisément là où la
+ *  descente mord — c'est-à-dire là où le joueur a besoin d'être informé. */
+export function etatDeLEchelle(fenetre, racine) {
+  const vue = fenetre || window;
+  const html = racine || document.documentElement;
+  const l = vue.innerWidth;
+  const h = vue.innerHeight;
+  const p = cotesDeLApp(html);
+  const rendu = (impose) => {
+    const f = echelleQuiTient(l, h, html, undefined, impose);
+    return { largeur: p.panneau * f, hauteur: p.hauteur * f, facteur: f };
+  };
+  const choisi = cranSurcharge();
+  return {
+    auto: viseeEtEchelon(l, h, p, null).echelon,
+    autoRendu: rendu(null),
+    choisi,
+    effectif: viseeEtEchelon(l, h, p, choisi).echelon,
+    offres: CRANS_OFFERTS.map((b) => ({
+      barreau: b,
+      echelon: viseeEtEchelon(l, h, p, b).echelon,
+      rendu: rendu(b)
+    }))
+  };
 }
 
 /** ⚠️ LE CONVERTISSEUR — 2026-08-30, et il vient d'un défaut MESURÉ.
@@ -427,7 +642,12 @@ export function appliquerEchelle(fenetre, racine) {
   const vue = fenetre || window;
   const html = racine || document.documentElement;
   effacerLesClefsMortes();
-  const cran = cranAuto(vue.innerWidth, vue.innerHeight, html);
+  /* 🔴 L'EFFECTIF, PAS L'AUTO — depuis le lot 136 le joueur peut surcharger le
+     cran depuis Menu › Display. ⛔ Et `effacerLesClefsMortes` reste au-dessus :
+     il efface les clefs du lot 118, jamais celle de la surcharge (autre nom,
+     autre mécanisme). Les mettre dans la même liste rendrait le réglage
+     inopérant sans qu'aucun test ne bronche. */
+  const cran = cranEffectif(vue.innerWidth, vue.innerHeight, html);
   html.style.setProperty("--echelle", String(cran));
   /* 🔴 LA GRANDEUR SE LIT SUR LE PANNEAU, PLUS SUR LA FENÊTRE — 2026-08-31.
      C'est la suite exacte du défaut que le lot 85 avait trouvé (« un seuil lu

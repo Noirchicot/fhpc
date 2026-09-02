@@ -42,7 +42,14 @@ import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=448";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
-import { appliquerEchelle, laPlaceDuDouble } from "./echelle.mjs?v=448";
+import {
+  appliquerEchelle, laPlaceDuDouble,
+  /* ⭐ LE CRAN D'INTERFACE (lot 136) — la SURCHARGE du joueur, et l'état que
+     l'écran Display affiche. ⛔ `etatDeLEchelle` est lu ICI et passé à l'écran :
+     un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
+     cran que le builder ne sert pas. */
+  setCranVoulu, etatDeLEchelle
+} from "./echelle.mjs?v=448";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
@@ -892,9 +899,27 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* ⭐ LE CRAN D'ÉCHELLE — `null` rend la main à l'automatique. `refresh()` et
-     pas `openSurface()` : changer la taille ne renvoie pas le joueur en haut
-     de l'écran qu'il lisait, exactement comme `resize` (voir sa note). */
+  /* ══ 🚪 LA PORTE DE DISPLAY — lot 136 ═══════════════════════════════════
+     Le Menu gagne un rang. ⛔ AUCUN MÉCANISME NEUF : c'est `state.palier`, le
+     même compteur que tous les sous-écrans du dépôt — donc `pressBack` sait
+     déjà remonter, `renderSortieEtape` sait déjà poser un `Back`, et
+     `goToStep` sait déjà le remettre à 1 en quittant l'étape. Un second
+     mécanisme de rang aurait dû réapprendre les trois. */
+  if (action.kind === "ouvrirDisplay") { state.palier = 2; openSurface(); return; }
+  /* ⭐ LE CRAN D'INTERFACE — la chaîne vide rend la main à l'automatique.
+     🔴 L'ORDRE EST CELUI DU REDIMENSIONNEMENT, ET IL N'EST PAS NÉGOCIABLE :
+     changer le cran change l'échelle, donc la place, donc la PORTE du double
+     affichage. `surRedimensionnement` fait déjà exactement ces trois gestes
+     dans le bon ordre (vue, échelle, rendu) — l'appeler évite d'écrire une
+     seconde séquence qui divergerait de lui au premier réglage.
+     ⛔ Et c'est un `refresh()` (dans `surRedimensionnement`), pas un
+     `openSurface()` : changer la taille ne renvoie pas le joueur en haut de
+     l'écran qu'il lisait, exactement comme `resize` (garde E ter). */
+  if (action.kind === "cranChoisi") {
+    setCranVoulu(action.value === "" || action.value === null ? null : action.value);
+    surRedimensionnement();
+    return;
+  }
   if (action.kind === "tutoCompris") { setGeneralVu(true); refresh(); return; }
   if (action.kind === "tutoDesactiver") { setTutorielActif(false); refresh(); return; }
   /* ══ LE `?` OUVRE LE GUIDE DE L'ÉTAPE — §7, sorti du standby le 26/08 ═════
@@ -1731,6 +1756,13 @@ function renderStepContent() {
          voit à l'écran — jamais celle qu'on a demandée un jour. */
       fonds: collections(state.registreFonds),
       fond: (collectionServie(state.registreFonds, fondVoulu()) || {}).id,
+      /* ⭐ LE RANG, DIT PAR LA COQUILLE — elle sait à quel palier on est,
+         l'écran sait ce qu'on y montre. ⛔ Elle ne lui passe pas `state.palier`
+         nu : un écran qui lirait un COMPTEUR devrait deviner ce que « 2 »
+         veut dire, et un troisième rang le ferait mentir en silence. */
+      ecran: state.palier >= 2 ? "display" : null,
+      /* ⭐ TOUT L'ÉTAT DE L'ÉCHELLE, LU ICI. Voir la note de l'import. */
+      echelle: etatDeLEchelle(),
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
@@ -2989,6 +3021,13 @@ function currentGate(palier = state.palier) {
     });
   }
   /* B7.3d — sur Compétences, `Validate` s'illumine quand le compte est bon. */
+  /* 🚪 LE SOUS-ÉCRAN DU MENU (lot 136) — `Done` REMONTE d'un rang, il ne
+     pousse pas à l'étape suivante. ⛔ Sans cette clause, la porte retombait
+     sur le défaut « avancer d'une étape » et le `Done` de Display aurait
+     projeté le joueur sur Identity depuis un écran de réglage. */
+  if (STEPS[state.step].id === "universe" && state.palier >= 2) {
+    return { exists: true, ready: true, action: null, next: "remonter" };
+  }
   if (surCompetences()) return skillsValidate(skillsCtx());
   /* B6.1e — sur Destiny en mode « draw », `Validate` s'allume quand la carte
      est retournée, et c'est LUI qui l'acte (B6.2). */

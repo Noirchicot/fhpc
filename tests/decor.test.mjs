@@ -49,6 +49,11 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { stripComments } from "./source-scan.mjs";
+/* ⭐ LE MODULE LUI-MÊME, PAS UNE COPIE DE SES RÈGLES — lot 136. La liste des
+   encres repeignables et le filtre qui les retient sont chez lui ; les
+   recopier ici aurait donné deux voix pour une même loi, et c'est exactement
+   la maladie que ce dépôt traque. */
+import { ENCRES_ADMISES, encresDeLaCollection, feuilleDesEncres } from "../ui/builder/fonds.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI_DIR = path.join(ROOT, "ui", "builder");
@@ -271,6 +276,110 @@ const ENCRES = [
   { jeton: "accent", cible: 4.5, doitPasser: false }
 ];
 
+/* ══ LOT 136 — 🎨 UNE COLLECTION PEUT PORTER SES PROPRES ENCRES ═══════════
+   Eric : *« Les backgrounds ont aussi leurs couleurs de texte et boutons
+   associés bien sûr. »*
+
+   🔴 ET LE CONTRAT DE CONTRASTE NE CÈDE PAS : les encres d'une collection
+   passent la MÊME matrice que la palette de `tokens.css`, sur SES pixels
+   extrêmes. ⛔ Une encre qui échoue est une encre qui CÈDE — jamais le voile,
+   jamais le jeton, jamais ce garde.
+
+   ⭐ CE QUI REND L'AJOUT D'UNE 4ᵉ COLLECTION ENCORE GRATUIT : rien ici ne
+   nomme une collection ni une couleur. La matrice lit `encresEffectives`, qui
+   part de `tokens.css` et laisse la collection en repeindre une partie. Une
+   collection sans encres retombe donc EXACTEMENT sur les clauses d'avant. */
+
+/** Les encres RÉELLEMENT servies pour une collection et un thème : la palette
+ *  de `tokens.css`, repeinte par ce que la collection déclare.
+ *  ⚠️ Le témoin est nommé : le DÉFAUT est `tokens.css`, l'ÉCART est la
+ *  collection. Mesurer la collection contre elle-même ne dirait rien. */
+function encresEffectives(collectionId, theme) {
+  const jetons = JETONS[theme];
+  const collection = COLLECTIONS.find((c) => c.id === collectionId);
+  const declare = (encresDeLaCollection(collection) || {})[theme] || {};
+  const table = new Map();
+  for (const { jeton } of ENCRES) table.set(jeton, declare[jeton] || jetons.get(jeton));
+  return table;
+}
+
+test("3 ter — la liste des encres repeignables est CELLE de la matrice, pas une seconde", () => {
+  /* ⛔ Une encre que `fonds.mjs` laisserait repeindre sans que la matrice la
+     mesure entrerait dans la page sans passer le contraste. Et une encre
+     mesurée ici qu'aucune collection ne peut repeindre n'aurait rien à faire
+     dans la liste blanche. Les deux moitiés, dans les deux sens. */
+  assert.deepEqual([...ENCRES_ADMISES], ENCRES.map((e) => e.jeton));
+  assert.ok(!ENCRES_ADMISES.includes("surface"),
+    "`--surface` est le VERRE, pas une encre : le repeindre changerait les trois voiles et toute la matrice");
+});
+
+test("3 quater — toute encre DÉCLARÉE est admise, hexadécimale, et RETENUE", () => {
+  /* ⛔ Le filtre de `fonds.mjs` est silencieux au navigateur (une encre
+     malformée y rend la palette normale plutôt que de casser le décor). Ici il
+     doit être BRUYANT : une encre écrite dans le registre et jetée en silence
+     est une couleur qu'Eric croit avoir posée. */
+  const fautes = [];
+  for (const c of COLLECTIONS) {
+    if (!c.encres) continue;
+    const retenu = encresDeLaCollection(c) || {};
+    for (const [theme, bloc] of Object.entries(c.encres)) {
+      if (!["jour", "nuit"].includes(theme)) { fautes.push(`${c.id} : « ${theme} » n'est ni jour ni nuit`); continue; }
+      for (const [jeton, valeur] of Object.entries(bloc)) {
+        if (!ENCRES_ADMISES.includes(jeton)) fautes.push(`${c.id}/${theme} : « ${jeton} » n'est pas une encre repeignable`);
+        else if (!(retenu[theme] && retenu[theme][jeton] === valeur))
+          fautes.push(`${c.id}/${theme}/${jeton} : « ${valeur} » a été JETÉE (il faut #rrggbb)`);
+      }
+    }
+  }
+  assert.deepEqual(fautes, []);
+});
+
+test("3 quinquies — la feuille des encres PORTE la media query, elle ne la contourne pas", () => {
+  /* 🔴 MÊME PIÈGE QUE `--bg-image`, ET IL VAUT DOUBLE ICI : une encre posée EN
+     LIGNE sur `:root` battrait la media query pour toujours, et le texte
+     cesserait de suivre le thème dès la première bascule système à 19 h.
+     C'est pour ça que ce module écrit une FEUILLE et non `style.setProperty`. */
+  const froide = COLLECTIONS.find((c) => c.encres && c.encres.nuit);
+  assert.ok(froide, "au moins une collection doit déclarer des encres — sinon ce garde ne mesure rien");
+  const css = feuilleDesEncres(encresDeLaCollection(froide));
+  assert.match(css, /@media \(prefers-color-scheme: dark\)/);
+  assert.match(css, /^:root \{/m);
+  /* ⛔ ET LE GARDE COMPTE LES `setProperty`, IL NE CHERCHE PAS DES NOMS. Un
+     nom LITTÉRAL se cherche ; un nom CALCULÉ (`"--" + jeton`) passerait à
+     travers, et c'est exactement la faute qu'une première rédaction de cette
+     clause a laissé passer — éprouvée, restée verte, réécrite. La propriété
+     tenue est donc : `fonds.mjs` n'a le droit de poser EN LIGNE que la paire
+     d'images, et ces deux-là seulement. */
+  const fonds = stripComments(fs.readFileSync(path.join(UI_DIR, "fonds.mjs"), "utf8"));
+  const poses = [...fonds.matchAll(/setProperty\(([^,]*)/g)].map((m) => m[1].trim());
+  assert.deepEqual(poses, ['"--bg-jour"', '"--bg-nuit"'],
+    "fonds.mjs ne pose EN LIGNE que la paire d'images : une encre écrite en ligne battrait la " +
+    "media query pour toujours, et le texte cesserait de suivre le thème dès la première bascule système");
+});
+
+test("⚔️ ATTAQUE 🎨 — une encre de collection qui ÉCHOUE au contraste est vue, et une qui passe ne l'est pas", () => {
+  /* 🔴 UN GARDE QUI N'A JAMAIS ROUGI EST UNE INTENTION. On mesure ici les DEUX
+     côtés de l'alternative, sur la même collection et le même thème :
+     · un `--text` volontairement pâle DOIT tomber sous 4,5 ;
+     · celui que le registre déclare vraiment DOIT tenir.
+     ⛔ Si la première ligne devenait verte, la matrice ne mesurerait plus les
+     encres de collection du tout. */
+  const froide = COLLECTIONS.find((c) => c.encres && c.encres.nuit);
+  const m = MESURE.fichiers[froide.nuit];
+  const jetons = JETONS.nuit;
+  const voile = Number(jetons.get("voile-simple").replace("%", "")) / 100;
+  const surface = hexToRgb(jetons.get("surface"));
+  const pire = (hex) => Math.min(
+    contrast(hexToRgb(hex), sousLeVoile(surface, m.pixel_le_plus_sombre, voile)),
+    contrast(hexToRgb(hex), sousLeVoile(surface, m.pixel_le_plus_clair, voile))
+  );
+  const truque = encresDeLaCollection({ encres: { nuit: { ...froide.encres.nuit, text: "#6b6660" } } });
+  assert.ok(pire(truque.nuit.text) < 4.5,
+    "l'encre truquée doit ÉCHOUER — sinon la clause ne prouve rien");
+  assert.ok(pire(encresEffectives(froide.id, "nuit").get("text")) >= 4.5,
+    "et celle du registre doit tenir");
+});
+
 for (const { collection, nom, fichier } of THEMES) {
   for (const voileNom of ["voile-simple", "voile-inter"]) {
     test(`3 — ${collection}/${nom}, ${voileNom} : seul --text tient sur le verre`, () => {
@@ -278,9 +387,10 @@ for (const { collection, nom, fichier } of THEMES) {
       const voile = Number(jetons.get(voileNom).replace("%", "")) / 100;
       const surface = hexToRgb(jetons.get("surface"));
       const m = MESURE.fichiers[fichier];
+      const encres = encresEffectives(collection, nom);
 
       for (const { jeton, cible, doitPasser } of ENCRES) {
-        const encre = hexToRgb(jetons.get(jeton));
+        const encre = hexToRgb(encres.get(jeton));
         /* Les DEUX extrêmes : selon que l'encre est plus claire ou plus
            sombre que le fond, le pire cas est l'un ou l'autre. */
         const pire = Math.min(
@@ -304,11 +414,12 @@ for (const { collection, nom, fichier } of THEMES) {
   test(`3bis — ${collection}/${nom}, dalle MAJEURE : toutes les encres passent (c'est là qu'elles vivent)`, () => {
     const jetons = JETONS[nom];
     const surface = hexToRgb(jetons.get("surface"));
+    const encresLa = encresEffectives(collection, nom);
     for (const { jeton, cible } of ENCRES) {
       /* Voile 100 % : l'image ne traverse plus, on retombe exactement sur le
          cas que les gardes du lot 38 mesurent déjà. Ce test vérifie que la
          SORTIE existe — sans elle, la matrice interdirait sans rien offrir. */
-      const pire = contrast(hexToRgb(jetons.get(jeton)), surface);
+      const pire = contrast(hexToRgb(encresLa.get(jeton)), surface);
       assert.ok(pire >= cible, `--${jeton} ne tient que ${pire.toFixed(2)}:1 sur une dalle majeure (${nom})`);
     }
   });

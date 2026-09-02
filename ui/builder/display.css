@@ -1,0 +1,69 @@
+/* ══ L'ÉCRAN DISPLAY — le sous-menu de réglage du Menu (lot 136) ═══════════
+
+   Eric, 2026-09-02 : *« Menu peut avoir une branche S. On y va via un bouton
+   Display. Toutes les résolutions en drop down. Les backgrounds en drop
+   down. »*
+
+   🔴 POURQUOI CETTE FEUILLE EXISTE, ET C'EST LE PRÉCÉDENT DU LOT 77 PUIS DE
+   `listes.css`, MOT POUR MOT : *« Une feuille À PART et pas trois règles de
+   plus dans `shell.css` : un autre lot écrit `shell.css` en ce moment, et un
+   fichier n'a qu'un écrivain »*. `fiche.css` est entrée par cette porte le
+   23/08, `listes.css` le 26/08 ; celle-ci entre par la même, le 02/09.
+
+   ⏳ ELLE EST DONC PROVISOIRE PAR CONSTRUCTION, comme ses deux aînées : le
+   jour où `shell.css` n'a plus d'écrivain, ces règles s'y replient. Une
+   feuille de plus est une dette, pas une architecture — elle est dite ici
+   pour être payée.
+
+   ⛔ ELLE NE REDÉCLARE AUCUNE RÈGLE DE `shell.css` : tous ses sélecteurs sont
+   des classes neuves (`.display-*`), qui n'existent que sur cet écran.
+
+   ⭐ ET LE DROPDOWN Y EST À LA NORME, LES QUATRE LIGNES — NORMES §1 quater
+   compte trois écarts sur les deux dropdowns existants (liseré, fond opaque,
+   pas de gras) et note *« trois corrections à faire quand les organes seront
+   refaits »*. Celui-ci naît corrigé : hauteur `--touch`, ⛔ aucun liseré, fond
+   à 20 % (`--dropdown-fond`), caractères gras. Il est **de CHOIX**, pas
+   directionnel — on y prend une valeur, il n'envoie rien nulle part. */
+
+/* ── LA PORTE, sur l'écran d'entrée du Menu ──────────────────────────────
+   Un bouton d'un étage : 44, la cote de tout ce qui se touche (NORMES §
+   « la table des hauteurs »). Il est PLEINE LARGEUR parce qu'il ouvre un
+   écran — ce n'est pas un choix parmi d'autres posés à côté de lui. */
+.display-porte {
+  display: block; width: 100%;
+  min-height: var(--touch);
+  padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--dalle-inter); color: var(--text);
+  font: inherit; font-size: var(--t4); font-weight: 600;
+  text-align: left; cursor: pointer;
+}
+
+/* ── LES BLOCS DE L'ÉCRAN ─────────────────────────────────────────────── */
+.display-ecran { display: flex; flex-direction: column; gap: var(--sp-16); }
+.display-bloc { display: flex; flex-direction: column; gap: var(--sp-8); }
+
+/* 🔴 LE TITRE DE BLOC — MÊME CORPS QUE CEUX DU MENU (`--t3`), pour que les
+   deux rangs se lisent comme une seule famille ; ⛔ MAIS PAS LA MÊME ENCRE.
+   Les trois titres du Menu (`Rules`, `Tutorials`, `Sheet language & units`)
+   sont en `--text-muted` SUR DU VERRE — or la matrice mesure `--text-muted` à
+   2,6–3,5:1 sous les voiles, et CADRES §8 tranche : *« sur du verre, seule
+   `--text` tient les 4,5:1 »*. Sans ce mot le défaut se recopiait dans un
+   organe neuf, ce qui est la seule façon dont une norme meurt.
+   ⏳ Les trois titres du Menu restent à corriger — ils vivent dans
+   `shell.css`, qui a un autre écrivain aujourd'hui. */
+.display-bloc h3 { margin: 0; font-size: var(--t3); color: var(--text); }
+
+/* ── LE DROPDOWN, À LA NORME (§8 + §1 quater) ─────────────────────────────
+   « très large, peu haut, AUCUN liseré, transparence 20 %, gras ». */
+.display-select {
+  width: 100%; min-height: var(--touch);
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--dropdown-fond); color: var(--text);
+  font: inherit; font-size: var(--t3); font-weight: 600;
+}
+
+/* ⚠️ LA NOTE EST LUE PAR UN JOUEUR, pas par le chantier : elle dit ce que le
+   réglage fait et ce qu'il ne fait pas. Sur du verre, seule `--text` tient les
+   4,5:1 (CADRES §8) — ⛔ donc jamais `--text-soft` ici. */
+.display-note { margin: 0; font-size: var(--t2); color: var(--text); }
