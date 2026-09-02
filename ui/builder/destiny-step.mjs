@@ -251,9 +251,15 @@ export function renderDestinyFinal(ctx, onAction) {
 
   /* ── le pied : la paire du croquis ──
      🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
-     tout »*) — donc il est ROUGE, et il demande confirmation avant de défaire,
-     comme toute la famille du défaire (NORMES §6). La coquille porte le popup ;
-     cet écran ne fait que nommer le geste. */
+     tout »*) — donc il est ROUGE, et il rend au **R**, pas à l'étape d'avant.
+     ⚠️ CORRIGÉ AU LOT 138 : cette ligne annonçait *« il demande confirmation
+     avant de défaire […] la coquille porte le popup »*. **Elle décrivait une
+     architecture qui n'existe pas** — `destinyReset` (shell.mjs) efface sans
+     rien demander, et le builder n'a aucun organe de confirmation. Le commentaire
+     de la coquille, lui, est exact et nomme la dette : NORMES §6 veut « rouge ET
+     confirmé », et les CINQ écrans qui portent ce mot en sont là.
+     ⛔ Un commentaire qui promet un organe absent envoie le lot suivant chercher
+     un popup pendant vingt minutes, puis croire qu'il l'a cassé. */
   const rangee = pied(data.meaning ? { titre: record ? record.name : "Lore", texte: data.meaning } : null, act);
   rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
   rangee.append(bouton("Next", "parcours-next", () => act({ kind: "destinyNext" })));

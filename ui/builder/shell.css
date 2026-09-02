@@ -295,6 +295,13 @@ body {
                 box-shadow: inset 0 0 0 1px var(--verre-lisere); }
 .dalle-intermediaire { background: var(--dalle-inter); border-radius: var(--radius-md);
                        box-shadow: inset 0 0 0 1px var(--verre-lisere); }
+/* B0.23 — LA DALLE MAJEURE : « beaucoup de contenu, ou des images », voile
+   100 %. ⏳ Les trois pourcentages sont NOTÉS, PAS ARRÊTÉS (Eric : « on verra
+   quand on y sera ») — seule la majeure est construite, parce que seule elle
+   est employée ici. `--surface` EST le voile opaque tant qu'aucune image de
+   fond n'existe derrière (voir `.app`).
+   📌 Ce commentaire vivait au-dessus d'une SECONDE écriture de la même règle
+   (lot 59 → lot 138) ; il a suivi la règle qui reste. */
 .dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
 
 /* ── LA MOLETTE DES ÉTAPES (B0.1-B0.5) — fixe, horizontale ────────
@@ -1848,12 +1855,14 @@ button { font: inherit; }
    qu'une à l'écran (B2.1f). Leurs coins arrondis suffisent à les séparer
    pendant le geste. */
 .catalogue-cards { padding: 0 var(--sp-8); }
-/* B0.23 — LA DALLE MAJEURE : « beaucoup de contenu, ou des images », voile
-   100 %. ⏳ Les trois pourcentages sont NOTÉS, PAS ARRÊTÉS (Eric : « on verra
-   quand on y sera ») — seule la majeure est construite, parce que seule elle
-   est employée ici. `--surface` EST le voile opaque tant qu'aucune image de
-   fond n'existe derrière (voir `.app`). */
-.dalle-majeure { background: var(--surface); border-radius: var(--radius-md); }
+/* 🗑️ `.dalle-majeure` ÉTAIT ÉCRITE ICI UNE SECONDE FOIS — retirée au lot 138.
+   Le lot 59 a remonté les trois dalles auprès de leurs voiles (haut de
+   fichier) sans supprimer celle-ci, restée identique octet pour octet.
+   ⚠️ ET CE N'ÉTAIT PAS SANS CONSÉQUENCE : `tests/decor.test.mjs` lit le corps
+   de la règle par la PREMIÈRE occurrence trouvée. Il gardait donc la copie du
+   haut, et celle-ci vivait sans surveillance depuis le lot 59 — un garde vert
+   qui ne regardait pas tout ce qu'il croyait regarder.
+   ➡️ Son commentaire B0.23 est parti avec elle, auprès de la règle qui reste. */
 
 .catalogue-card-name { margin: 0; font-size: var(--t6); }
 .catalogue-card-list { margin: 0; display: flex; flex-direction: column; gap: var(--sp-8); }
@@ -7392,6 +7401,30 @@ button { font: inherit; }
 }
 
 /* ── LE R : L'AMBIANCE ET SES DEUX PORTES ──────────────────────────────── */
+/* 🔴 LE REMBOURRAGE DU RANG B, QUI MANQUAIT ICI ET NULLE PART AILLEURS —
+   Eric, 2026-09-02 : *« pour le R. Sur la dalle, le texte est mal cadré.
+   aucune marge au dessus en dessous et à droite »*.
+   📏 MESURÉ SUR LA PAGE EN LIGNE (v447, 375 × 700, cran 1) — il avait raison,
+   et de plus qu'il ne disait : la dalle rendait **0 sur les quatre côtés**,
+   gauche comprise. Le titre touchait le bord haut ET le bord gauche, les deux
+   paragraphes touchaient le bord droit.
+   ⭐ CE N'EST PAS UNE COTE NEUVE, C'EST CELLE DES QUATRE AUTRES DALLES DU
+   PARCOURS. Recensées le même jour, à l'écran, sur les huit étapes :
+
+       Species · Inheritance · Class   `.parcours-guide`   4 / 16 / 4 / 16  ✅
+       Destiny ④  (l'écran final)      `.card-final`       4 / 16 / 4 / 16  ✅
+       Destiny R  (cet écran-ci)       `.card-porte`       0 /  0 / 0 /  0  ⛔
+       Identity                        `.concept-step`     8 /  8 / 8 /  8  ⏳
+
+   Le lot 116 avait posé la cote sur `.card-final` en citant NORMES §4 ter, et
+   n'avait pas vu que le R — la MÊME étape, le module d'à côté — ne l'avait pas.
+   ⛔ Le `data-objet="dalle"` que les deux écrivent déjà n'y changeait rien :
+   il est écrit par NEUF sites en JS et lu par ZÉRO règle de feuille. Un
+   contrat que personne ne consomme ne protège personne.
+   ⏳ Identity reste à 8 des quatre côtés : le ramener au rang B déplace un
+   écran qui n'est pas de ce lot — c'est une décision d'Eric, pas une
+   conséquence de ce paragraphe. */
+.card-porte { padding: var(--sp-4) var(--sp-16); }
 .card-porte-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); }
 .card-porte-mot {
   margin: 0 0 var(--sp-8);
@@ -7511,42 +7544,20 @@ button { font: inherit; }
   border-top: 1px solid var(--border);
 }
 
-.card-final-carte { flex: none; display: grid; place-items: center; }
-.card-final-img {
-  /* La vignette prend 42 % de la hauteur du PANNEAU — l'intention du 30/08
-     (« 42 % de la fenêtre à tous les crans ») lue dans le jeton qui porte
-     désormais cette hauteur, au lieu d'un `vh` divisé par l'échelle : le
-     panneau fait toujours 560 blg, la cote est la même sur toute fenêtre. */
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: calc(var(--panneau-h) * 1px * 0.42);
-  object-fit: contain;
-  border-radius: var(--radius-md);
-  box-shadow: var(--ombre-dalle, 0 8px 24px var(--ceremonie-ombre));
-}
-.card-final-texte {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: var(--sp-4);
-}
-.card-final-nom { margin: 0 0 var(--sp-8); font-size: var(--t4); }
-.card-final-sous { margin: var(--sp-12) 0 var(--sp-4); font-size: var(--t3); }
-.card-liste-rangs { margin: 0; font-size: var(--t2); }
-.card-liste-rangs dt { font-weight: 600; margin-top: var(--sp-4); }
-.card-liste-rangs dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
-
-/* ⭐ LE SCORE RÉUTILISE `.card-score`, l'organe qui existait déjà (lot 61) —
-   il porte la même chose au même endroit. Ce lot ne lui ajoute qu'un filet
-   au-dessus : « tu le mets tout en bas » (Eric, 2026-08-30), donc il ferme la
-   lecture, et un trait dit qu'on a fini de lire. */
-.card-final-texte .card-score {
-  margin-top: var(--sp-16);
-  padding-top: var(--sp-8);
-  border-top: 1px solid var(--border);
-}
+/* 🗑️ ET TRENTE-SEPT LIGNES EN DOUBLE ONT ÉTÉ RETIRÉES ICI — lot 138, 02/09.
+   📏 MESURÉ, PAS SUPPOSÉ : les neuf règles ci-dessus (`.card-final-carte` →
+   `.card-final-texte .card-score`) étaient écrites DEUX FOIS, et `diff` sur
+   les deux tranches de 33 lignes rend le vide — identiques octet pour octet.
+   ⛔ NÉ AU LOT 116, SURVÉCU AU LOT 121. `git show -S` le date : la feuille
+   portait 1 occurrence de `.card-final-carte` avant `0f01be0`, 2 après, et
+   2 encore à la v447. Le lot 121 est passé exactement dessus — il a retiré le
+   `@container` orphelin qui les enveloppait — sans voir que leur contenu avait
+   été recopié plus haut. **Deux copies identiques ne se contredisent jamais**,
+   et c'est ce qui les rend invisibles : aucun rendu ne change, aucun test ne
+   rougit, jusqu'au premier réglage qui n'en corrige qu'une.
+   ⭐ AUCUN RENDU NE CHANGE ICI NON PLUS, et c'est le but : une déclaration
+   identique répétée vaut la première. Ce qui change, c'est qu'il n'y a plus
+   qu'un seul endroit à corriger le jour où la vignette bouge. */
 
 /* 🧊 LE `@container (max-width: 34em)` A ÉTÉ RETIRÉ — 2026-09-02, lot 121.
    ⛔ IL NE S'APPLIQUAIT PLUS DEPUIS LE LOT 116, et rien ne le disait. Ce lot
