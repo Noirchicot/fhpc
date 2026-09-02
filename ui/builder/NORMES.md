@@ -1612,6 +1612,43 @@ Les gardes : `tests/trait-accorde-bande.test.mjs` (la bande, **et le repli**, le
 de l'alternative) et `tests/trait-accorde-voix-unique.test.mjs` (les deux voix disent la même
 chose, avec les condensés **comme sans eux**).
 
+### 🧬 UN TRAIT QUI DÉPEND DU CHOIX APPARTIENT À LA LIGNÉE *(lot 128, 02/09)*
+
+> Eric : **« Un trait dont le CONTENU dépend du choix de lignée appartient à la lignée, pas au
+> bloc *Granted automatically*. »**
+
+⭐ **LA RÈGLE N'EST PAS NEUVE — elle était déjà écrite dans `species-step.mjs`** depuis le 19/08,
+au-dessus du bilan d'une ligne : *« ⛔ il n'apparaît qu'une fois le choix signé — **sauf « gagné
+d'office », qui est là dès le début parce qu'il ne dépend de rien** »*. Ce qui manquait, ce
+n'était pas la loi, c'était **son application à deux traits** : `Breath Weapon` et
+`Damage Resistance` n'étaient dans aucune table. ⚠️ *Une absence n'est jamais une réponse* — un
+trait absent d'une table ne dit pas qu'il est gagné d'office, il dit que **personne ne l'a rangé**.
+
+| la loi | le détail |
+|---|---|
+| 🔴 **le critère** | le **contenu** du trait change avec l'option choisie. Structurellement : **la lignée porte une valeur qu'un AUTRE trait consomme** (`option.damage`) |
+| 🪟 **deux formes, une lecture** | au **SB** (l'écran où l'on choisit) la forme **GÉNÉRALE**, sans l'élément — c'est commun aux dix lignées ; au **bilan de S**, une fois signé, la forme **SPÉCIFIQUE** : `Fire — ` puis le **même texte** |
+| 🏠 **la source** | `contenuDuTrait` (lot 127) — ⛔ la spécifique **n'est pas un second texte**, c'est le premier **préfixé**. Deux textes recopiés divergent à la première retouche |
+| 📌 **l'élément** | il **se lit sur la lignée**, jamais en littéral. Sans élément (lignée à paliers), la forme spécifique **retombe sur la générale** plutôt que d'en inventer un |
+| 🚫 **le bloc accordé** | il les perd **dès que l'espèce ouvre un choix de lignée**, signé ou non — c'est **avant** la signature que leur place y mentirait le plus |
+| ⛔ **ce que ce n'est pas** | `TRAITS_COUVERTS` retire un trait qui **se redirait** (`Elven Lineage` EST la ligne Lineage). Celui-ci retire un trait qui, seul, **mentirait**. Deux tables, deux raisons |
+
+📏 **MESURÉ SUR LES DOUZE ESPÈCES avant d'agir.** Cinq portent des lignées ; **le Dragonborn est
+le seul dont l'effet est éclaté** sur plusieurs traits. ⛔ `otherworldly-presence` (Tiefling) cite
+bien `Fiendish Legacy`, mais pour son **abilité de lanceur, que le joueur choisit à part** — les
+trois legacies le laissent identique : **il ne relève pas de cette règle**, et le Tiefling reste
+donc un témoin qui *peut* accuser.
+
+📐 **Au rendu, 375 × 812** : le bloc *Granted automatically* du Dragonborn passe de **318 px de
+contenu pour 251 de fenêtre** à **206 pour 206** — plus rien sous le pli. Les onze autres espèces
+sont **identiques au caractère près**, dans les trois voix.
+
+Le garde : `tests/lignee-porte-ses-traits.test.mjs`. ⭐ Il **ne récite aucune table** : il définit
+*« dépendre du choix »* par ce que l'écran FAIT — **un nom de trait dont le texte servi change
+d'une lignée à l'autre** — puis exige de ces noms-là l'absence du bloc accordé et les deux formes.
+Éprouvé **rouge des deux côtés** de l'alternative : la générale servie au bilan, la spécifique
+servie au SB.
+
 ### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
 
 > ⚖️ **LA LOI-MÈRE, dictée le 2026-08-30** — Eric : *« Règle générale, partout dans le builder,

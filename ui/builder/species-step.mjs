@@ -178,6 +178,47 @@ const TRAITS_COUVERTS = {
   "species.skills": []
 };
 
+/* ══ 🔴 LES TRAITS QUE LA LIGNÉE PORTE — Eric, 2026-09-02 ══════════════════
+   *« Un trait dont le CONTENU dépend du choix de lignée appartient à la
+   lignée, pas au bloc "Granted automatically". »*
+
+   ⭐ LA RÈGLE N'EST PAS NEUVE, elle est écrite dix lignes plus haut depuis le
+   19/08 : *« ⛔ IL N'APPARAÎT QU'UNE FOIS LE CHOIX SIGNÉ — sauf "gagné
+   d'office", qui est là dès le début parce qu'il ne dépend de rien. »* Breath
+   Weapon et Damage Resistance dépendent, eux : leur dégât et leur résistance
+   se lisent sur la lignée. Ils n'étaient nulle part rangés — et une absence
+   n'est jamais une réponse.
+
+   ⛔ CE N'EST PAS `TRAITS_COUVERTS`, ET LES DEUX NE DISENT PAS LA MÊME CHOSE.
+   Celui-là retire un trait qui SE REDIRAIT (`Elven Lineage` EST la ligne
+   Lineage). Celui-ci retire un trait qui, seul, MENTIRAIT : « Resistance to
+   the damage type determined by your Draconic Ancestry trait » sous « gagné
+   d'office », avant tout choix, annonce un acquis dont personne ne connaît
+   encore la moitié.
+
+   📏 MESURÉ SUR LES DOUZE ESPÈCES avant d'agir. Cinq portent des lignées, et
+   trois traits seulement citent le trait porteur :
+     · `breath-weapon` et `damage-resistance` (Dragonborn) — leur contenu
+       CHANGE avec l'option : elle porte `damage` (Acid…Cold), et eux le lisent ;
+     · `otherworldly-presence` (Tiefling) — il cite `Fiendish Legacy`, mais
+       pour son ABILITÉ de lanceur, que le joueur choisit à part (« choose the
+       ability when you select the legacy ») : les trois legacies le laissent
+       identique. ⛔ Il ne relève PAS de cette règle, et le Tiefling reste donc
+       un témoin valable.
+   Le Dragonborn est le seul dont l'effet de lignée est ÉCLATÉ sur plusieurs
+   traits ; le critère est structurel — une option qui porte une valeur qu'un
+   AUTRE trait consomme — mais la table reste EXPLICITE, comme sa voisine : un
+   rapprochement par ressemblance de nom casserait au premier renommage.
+
+   🪟 ET IL SE MONTRE SOUS DEUX FORMES (Eric, même jour) :
+     · dans le SB, l'écran où l'on choisit — la forme GÉNÉRALE, sans l'élément :
+       c'est une info commune aux dix lignées ;
+     · au bilan de S, une fois le choix signé — la forme SPÉCIFIQUE, l'élément
+       nommé.
+   ⛔ Deux textes recopiés divergeraient à la première retouche : c'est UNE
+   lecture (`contenuDuTrait`, lot 127) et DEUX mises en mots. */
+const TRAITS_DE_LIGNEE = ["breath-weapon", "damage-resistance"];
+
 /** Un mot d'écran à partir d'un slug : `delve` → `Delve`. Les slugs sont des
  *  clefs de moteur ; les montrer tels quels donne un bilan qui a l'air d'un
  *  export de base de données. */
@@ -227,6 +268,12 @@ function resumeDeLItem(item, ctx, act) {
     for (const [chemin, ids] of Object.entries(TRAITS_COUVERTS)) {
       if (planAt(decisions, chemin)) for (const id of ids) couverts.add(id);
     }
+    /* ⭐ ET CEUX QUE LA LIGNÉE PORTE (voir `TRAITS_DE_LIGNEE`) : ils partent
+       dès que l'espèce OUVRE un choix de lignée, signé ou non — c'est
+       justement avant la signature que leur place ici mentirait le plus. */
+    if (planAt(decisions, "species.lineage")) {
+      for (const id of TRAITS_DE_LIGNEE) couverts.add(id);
+    }
     /* 🔴 LE TEXTE D'UN TRAIT PASSE PAR `contenuDuTrait`, JAMAIS PAR
        `trait.text` EN DIRECT — c'est la seule lecture (voir sa tête). */
     const courts = courtsDeTraits(record);
@@ -239,14 +286,7 @@ function resumeDeLItem(item, ctx, act) {
     const bloc = el("div", "species-acquis-bilan");
     for (const [mot, valeur] of lignes) {
       if (valeur === null || valeur === undefined) continue;
-      const ligne = el("p", "bilan-ligne");
-      ligne.append(el("strong", null, [text(`${mot} : `)]));
-      /* ⚠️ `linkifie` ET PAS `text()` : un condensé écrit `[[Thaumaturgy]]`
-         comme ceux des lignées, et des crochets doubles à l'écran ne sont pas
-         un lien, c'est une fuite de balisage. Sur une valeur sans crochets —
-         Size, Speed, une prose SRD — il rend le MÊME nœud de texte qu'avant. */
-      linkifie(ligne, String(valeur), ctx.query, act || (() => {}));
-      bloc.append(ligne);
+      bloc.append(ligneEnGras(mot, valeur, ctx.query, act));
     }
     return bloc;
   }
@@ -262,7 +302,13 @@ function resumeDeLItem(item, ctx, act) {
     if (!choisi) return null;
     /* ⛔ plus de ligne « Elven Lineage : High Elf » — Eric, 27/08 : « t'as
        pas besoin de répéter deux fois » : la tête de l'item le dit déjà. */
-    return renderLignageBilan(choisi, ctx.query, act || (() => {}), courtsDe(record));
+    const bilan = renderLignageBilan(choisi, ctx.query, act || (() => {}), courtsDe(record));
+    /* ⭐ ET CE QUE LA LIGNÉE PORTE, À LA FORME SPÉCIFIQUE — le choix est signé,
+       l'élément est connu, il se nomme (voir `TRAITS_DE_LIGNEE`). Sur une
+       espèce qui ne porte rien, la boucle ne pose rien : le bilan est celui
+       d'avant, au nœud près. */
+    poseLesTraitsDeLignee(bilan, record, elementDeLaLignee(choisi), ctx.query, act);
+    return bilan;
   }
 
   /* ── LA BOURSE : une ligne par compétence dotée, son palier en toutes
@@ -809,6 +855,19 @@ function linkifie(cible, texte, query, act) {
   });
 }
 
+/** LA LIGNE DE BILAN, UNE SEULE FOIS — Eric, 27/08 : *« mets en gras,
+ *  deux-points, démarre le texte juste derrière »*. Trois blocs la dessinaient
+ *  chacun pour son compte ; ils la demandent maintenant ici.
+ *  ⚠️ `linkifie` et pas `text()` : un condensé écrit `[[Thaumaturgy]]`, et des
+ *  crochets doubles à l'écran ne sont pas un lien, c'est une fuite de balisage.
+ *  Sur une valeur sans crochets, le nœud rendu est identique. */
+function ligneEnGras(mot, valeur, query, act, classe) {
+  const ligne = el("p", classe ? `bilan-ligne ${classe}` : "bilan-ligne");
+  ligne.append(el("strong", null, [text(`${mot} : `)]));
+  linkifie(ligne, String(valeur), query, act || (() => {}));
+  return ligne;
+}
+
 /** LE BILAN D'UN LIGNAGE — la dictée typographique d'Eric (27/08, devant sa
  *  capture v343) : « t'as pas besoin de répéter "Elven Lineage High Elf"
  *  deux fois · (en gras cadré à gauche) At level 1 : (texte normal à la
@@ -822,10 +881,9 @@ function linkifie(cible, texte, query, act) {
 function renderLignageBilan(option, query, act, courts) {
   const bloc = el("div", "species-lignage-bilan");
   const { tete, texte, suivants } = contenuDuLignage(option, courts);
-  const p1 = el("p", "bilan-ligne");
-  p1.append(el("strong", null, [text(`${tete} : `)]));
-  linkifie(p1, texte || "", query, act);
-  bloc.append(p1);
+  /* la MÊME ligne « **Mot :** texte » que partout ailleurs (`ligneEnGras`) —
+     trois blocs la dessinaient chacun pour son compte. */
+  bloc.append(ligneEnGras(tete, texte || "", query, act));
   if (suivants.length > 0) {
     const p2 = el("p", "bilan-ligne");
     p2.append(el("strong", null, [text("At subsequent levels : ")]));
@@ -940,6 +998,21 @@ function renderLineageBlock(ctx, record, act) {
      avant qu'on sache de quoi il est fait. La forme suivante en héritera
      sans qu'on y pense. */
   const fenetre = el("div", "species-lignage-fenetre");
+  /* ⭐ CE QUE LA LIGNÉE PORTE, À LA FORME GÉNÉRALE — sans l'élément, parce
+     qu'ici aucun n'est encore choisi et que la règle est commune aux dix
+     (voir `TRAITS_DE_LIGNEE`). C'est elle qui rend le choix lisible : on
+     choisit un élément, pas un souffle. ⛔ La condition est STRUCTURELLE, pas
+     l'exception nommée du Dragonborn : une autre espèce qui éclaterait son
+     effet de lignée l'aurait aussi, sans qu'on y pense.
+
+     ⚖️ ET ELLE PASSE DEVANT L'INTRO, ce qui n'est pas un choix de goût :
+     mesuré à 375 × 812, la fenêtre du Dragonborn fait **74 blg** et son
+     contenu **180** — l'intro seule en demandait déjà 102 pour 70 (lot 126).
+     Ce que la fenêtre montre AU PREMIER COUP D'ŒIL est donc ce qu'Eric a
+     demandé d'y voir, nommé trait par trait ; l'intro reste, à un défilement.
+     ⛔ Elle n'est PAS retirée : c'est la prose d'Eric, et elle redit la même
+     règle en d'autres mots — un doublon mesuré, mais que lui seul tranche. */
+  poseLesTraitsDeLignee(fenetre, record, null, ctx.query, act);
   const intro = record && record.data && record.data.lineage_intro;
   if (intro) fenetre.append(el("p", "species-lignage-intro", [text(intro)]));
 
@@ -1040,6 +1113,52 @@ function contenuDuTrait(trait, courts) {
   return prose.length > 0 ? prose : null;
 }
 
+/** L'ÉLÉMENT qu'une lignée donne aux traits qu'elle porte, ou `null`.
+ *
+ *  📌 IL SE LIT SUR LA LIGNÉE, IL NE SE RECOPIE JAMAIS EN LITTÉRAL. `damage`
+ *  est la seule forme d'option qui porte une valeur qu'un AUTRE trait
+ *  consomme (Acid · Lightning · Fire · Poison · Cold) ; une lignée à paliers
+ *  n'en a pas, et ses traits portés — s'il en apparaît un jour — resteront à
+ *  la forme générale plutôt que de s'inventer un élément. */
+function elementDeLaLignee(option) {
+  const valeur = option && option.damage;
+  return typeof valeur === "string" && valeur.length > 0 ? valeur : null;
+}
+
+/** ── 🔴 UNE LECTURE, DEUX MISES EN MOTS (voir `TRAITS_DE_LIGNEE`) ─────────
+ *  Rend `[nom, texte]` pour chaque trait que la lignée porte :
+ *    · `element === null` → la forme GÉNÉRALE, celle du SB — le texte du trait
+ *      tel que `contenuDuTrait` le lit, commun aux dix lignées ;
+ *    · un élément → la forme SPÉCIFIQUE, celle du bilan de S : le MÊME texte,
+ *      l'élément posé devant.
+ *  ⛔ Ce n'est pas un second texte : c'est le premier, préfixé. Le jour où le
+ *  condensé d'un trait change, les deux formes changent ensemble. */
+function lignesDesTraitsDeLignee(record, element) {
+  const courts = courtsDeTraits(record);
+  const lignes = [];
+  for (const trait of traitsDe(record)) {
+    if (!TRAITS_DE_LIGNEE.includes(trait.id)) continue;
+    const dit = contenuDuTrait(trait, courts);
+    if (!dit) continue;
+    lignes.push([trait.name, element ? `${element} — ${dit}` : dit]);
+  }
+  return lignes;
+}
+
+/** Les mêmes lignes, posées dans un bloc — la typographie d'Eric, une seule
+ *  fois (`ligneEnGras`), pour que le SB et le bilan ne divergent pas non plus
+ *  de forme. */
+function poseLesTraitsDeLignee(cible, record, element, query, act) {
+  for (const [mot, valeur] of lignesDesTraitsDeLignee(record, element)) {
+    /* ⚠️ LA LIGNE DIT QUEL ORGANE L'A ÉCRITE — `trait-de-lignee`. Sans cette
+       marque, le contrôle ⚔️ du lot 126 (« une lignée privée de sa matière ne
+       peut RIEN écrire ») mesurerait le bloc ENTIER et resterait vert grâce à
+       ces lignes-ci : un garde qui ne peut plus accuser. La marque lui rend
+       son témoin, et ⛔ elle ne peint rien (aucune règle CSS ne la vise). */
+    cible.append(ligneEnGras(mot, valeur, query, act, "trait-de-lignee"));
+  }
+}
+
 function renderGrantedBlock(ctx, record, act) {
   const data = (record && record.data) || {};
   const bloc = el("section", "species-acquis");
@@ -1060,7 +1179,13 @@ function renderGrantedBlock(ctx, record, act) {
   ]);
   if (rows) bloc.append(rows);
 
-  const traits = traitsDe(record);
+  /* ⭐ LA SECONDE VOIX SUIT LA MÊME RÈGLE : un trait que la lignée porte n'est
+     pas « gagné d'office » (voir `TRAITS_DE_LIGNEE`). Un invariant gardé d'un
+     seul côté est toujours l'autre qui casse — et cette voix-là ne peint plus
+     l'écran de Species, ce qui est exactement pourquoi elle dériverait sans
+     bruit. */
+  const portes = lignagesDe(record) ? TRAITS_DE_LIGNEE : [];
+  const traits = traitsDe(record).filter((trait) => !portes.includes(trait.id));
   if (traits.length > 0) {
     const courts = courtsDeTraits(record);
     const liste = el("dl", "species-traits");

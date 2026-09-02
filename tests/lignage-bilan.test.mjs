@@ -84,12 +84,25 @@ function bilanDe(query, id, lineageId) {
     { decisions, query }, () => {});
 }
 
-/** Ce que le joueur LIT, l'amorce en gras retirée. C'est ça qui manquait. */
+/** Ce que le joueur LIT DE LA LIGNÉE, l'amorce en gras retirée. C'est ça qui
+ *  manquait.
+ *
+ *  ⚠️ ET LE TÉMOIN S'EST RESSERRÉ AU LOT 128 (2026-09-02). Le bilan de la
+ *  ligne Lineage porte désormais AUSSI les traits que la lignée accorde
+ *  (`.trait-de-lignee` — Breath Weapon, Damage Resistance chez le
+ *  Dragonborn). Mesuré sur le bloc entier, ce contrôle serait resté vert le
+ *  jour où la lignée redeviendrait muette : ces lignes-là l'auraient rempli à
+ *  sa place. ⛔ Un témoin qui ne peut plus accuser n'est plus un témoin — il
+ *  ne lit que ce que la LIGNÉE écrit. */
 function contenuLu(noeud) {
   if (!noeud) return "";
-  const gras = [...noeud.querySelectorAll("strong")].map((n) => n.textContent);
-  let texte = String(noeud.textContent || "");
-  for (const mot of gras) texte = texte.replace(mot, "");
+  const portes = new Set(noeud.querySelectorAll(".trait-de-lignee"));
+  const propres = [...noeud.querySelectorAll("p")].filter((p) => !portes.has(p));
+  const lignes = propres.length > 0 || portes.size > 0 ? propres : [noeud];
+  let texte = lignes.map((n) => String(n.textContent || "")).join("");
+  for (const n of lignes) {
+    for (const fort of n.querySelectorAll("strong")) texte = texte.replace(fort.textContent, "");
+  }
   return texte.trim();
 }
 

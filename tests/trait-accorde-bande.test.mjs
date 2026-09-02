@@ -140,6 +140,37 @@ function panneauAccorde(query, id) {
   return paires;
 }
 
+/** VOIX 3 — les traits que la LIGNÉE porte, servis par le SB (lot 128,
+ *  2026-09-02). Sans elle, ce garde aurait perdu `Breath Weapon` sans le dire
+ *  le jour où ce trait a quitté « gagné d'office » : sa couverture aurait
+ *  rétréci en silence, et l'invariant (« TOUT trait servi à l'écran tient dans
+ *  la bande ») serait devenu faux sans qu'un seul test rougisse.
+ *
+ *  ⚖️ C'est la forme GÉNÉRALE qui se mesure ici, et c'est la bonne : elle rend
+ *  exactement ce que `contenuDuTrait` lit, donc la même chose que les voix 1
+ *  et 2. La forme SPÉCIFIQUE ajoute l'élément et son tiret (7 à 12 car.) — une
+ *  mise en mots dictée par Eric, pas un texte : elle est gardée pour ce
+ *  qu'elle est dans `tests/lignee-porte-ses-traits.test.mjs`. */
+function ligneDeLignee(query, id) {
+  const noeud = SPECIES_CATALOGUE.itemCorps(
+    { path: "species.lineage" }, { decisions: decisionsDe(query, id), query }, () => {}
+  );
+  if (!noeud) return [];
+  return noeud.querySelectorAll(".trait-de-lignee").map((p) => {
+    const fort = p.querySelectorAll("strong")[0];
+    const mot = fort ? fort.textContent.replace(/ : $/, "") : "";
+    const dit = String(p.textContent).slice(fort ? fort.textContent.length : 0);
+    return [mot, dit];
+  }).filter(([mot]) => mot);
+}
+
+/** LES TROIS VOIX D'UN COUP — c'est « servi à l'écran » qui est gardé, pas un
+ *  bloc en particulier. Un trait qui déménage d'une voix à l'autre reste
+ *  couvert ; un trait qui sort des trois se verrait au témoin de compte. */
+function toutCeQuiEstServi(query, id) {
+  return [...ligneAccordee(query, id), ...panneauAccorde(query, id), ...ligneDeLignee(query, id)];
+}
+
 /* ══ 0. LES TÉMOINS — sans eux, les tests suivants balaieraient le vide ══ */
 
 test("témoin — douze espèces, quarante-sept traits, trente-trois traits distincts", () => {
@@ -178,11 +209,8 @@ test("témoin — le plafond 102 est bien la cote du plus long condensé de LIGN
 test("🔴 tout trait servi à l'écran tient dans la bande — les douze espèces, trait par trait", () => {
   const trop = [];
   for (const id of LES_DOUZE) {
-    for (const [nom, dit] of ligneAccordee(QUERY, id)) {
+    for (const [nom, dit] of toutCeQuiEstServi(QUERY, id)) {
       if (dit.length > PLAFOND) trop.push(`${id}/${nom} (${dit.length})`);
-    }
-    for (const [nom, dit] of panneauAccorde(QUERY, id)) {
-      if (dit.length > PLAFOND) trop.push(`panneau ${id}/${nom} (${dit.length})`);
     }
   }
   assert.deepEqual(trop, [],
@@ -195,11 +223,8 @@ test("🔴 …et privé des condensés, chaque trait sert quand même sa PROSE :
   const query = requete({ sansCondense: true });
   const vides = [];
   for (const id of LES_DOUZE) {
-    for (const [nom, dit] of ligneAccordee(query, id)) {
+    for (const [nom, dit] of toutCeQuiEstServi(query, id)) {
       if (dit.trim().length === 0 || dit.trim() === "—") vides.push(`${id}/${nom}`);
-    }
-    for (const [nom, dit] of panneauAccorde(query, id)) {
-      if (dit.trim().length === 0) vides.push(`panneau ${id}/${nom}`);
     }
   }
   assert.deepEqual(vides, [], "⛔ sans condensé, la prose du record prend le relais — jamais un blanc");
@@ -234,10 +259,22 @@ test("⚔️ un trait rendu à sa prose SRD fait bien ROUGIR le contrôle de ban
     delete data.fiche_trait_text;
     return { ...vue, record: { ...vue.record, data } };
   };
-  const trop = ligneAccordee(ampute, id).filter(([, dit]) => dit.length > PLAFOND).map(([nom]) => nom);
-  assert.deepEqual(trop, ["Breath Weapon", "Draconic Flight"],
-    "privé de ses condensés, le Dragonborn resert les deux pavés — c'est CE cas que l'invariant refuse");
-  const voisine = ligneAccordee(ampute, "srd:species:en:orc").filter(([, dit]) => dit.length > PLAFOND);
+  /* ⚠️ SUR LES TROIS VOIX, ET C'EST LE POINT (lot 128) : `Breath Weapon` a
+     quitté « gagné d'office » pour la lignée qui le porte. Mesuré sur la
+     seule voix 1, ce contrôle n'aurait plus attendu qu'un pavé au lieu de
+     deux — vert, et aveugle sur le plus gros des deux (833 car.). */
+  const trop = [...new Set(toutCeQuiEstServi(ampute, id)
+    .filter(([, dit]) => dit.length > PLAFOND).map(([nom]) => nom))].sort();
+  /* ⭐ TROIS, PAS DEUX — et le troisième était là depuis toujours. Ce contrôle
+     n'attendait que deux noms parce qu'il ne regardait que la voix 1 ; la voix
+     2 (la `<dl>` du panneau) ne filtre PAS le trait porteur, et resert donc
+     `Draconic Ancestry` en entier (386 car. de prose SRD) dès qu'on lui retire
+     son condensé. Sur la pile réelle il tient dans la bande (85 car.) — le
+     test d'invariant ci-dessus le vérifie —, donc rien n'est cassé à l'écran :
+     ce qui était faux, c'était le COMPTE de ce garde. */
+  assert.deepEqual(trop, ["Breath Weapon", "Draconic Ancestry", "Draconic Flight"],
+    "privé de ses condensés, le Dragonborn resert ses pavés — c'est CE cas que l'invariant refuse");
+  const voisine = toutCeQuiEstServi(ampute, "srd:species:en:orc").filter(([, dit]) => dit.length > PLAFOND);
   assert.deepEqual(voisine, [], "et l'Orc intact reste dans la bande : l'amputation est bornée, pas globale");
 });
 

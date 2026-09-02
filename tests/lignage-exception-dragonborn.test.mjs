@@ -166,7 +166,15 @@ test("6 — ce que le popup montre est la MÊME matière que le bilan du B — p
     ];
     const bilan = SPECIES_CATALOGUE.resumeItem({ path: "species.lineage", confirme: true },
       { decisions, query: QUERY }, () => {});
-    const luAuBilan = String(bilan.textContent).replace(/^At level 1 : /, "").trim();
+    /* ⚠️ LE TÉMOIN S'EST RESSERRÉ AU LOT 128 : le bilan porte aussi les traits
+       que la lignée accorde (`.trait-de-lignee`), que le popup n'a jamais
+       montrés. Comparer les deux blocs entiers ferait rougir une divergence
+       qui n'en est pas une — et masquerait celle qu'on cherche. On compare ce
+       que chacun dit DE LA LIGNÉE. */
+    const portes = new Set(bilan.querySelectorAll(".trait-de-lignee"));
+    const propres = [...bilan.querySelectorAll("p")].filter((p) => !portes.has(p));
+    const luAuBilan = propres.map((p) => String(p.textContent))
+      .join("").replace(/^At level 1 : /, "").trim();
     assert.equal(popup.replace(/^At level 1 : /, "").trim(), luAuBilan,
       `${option.id} : le tap et le bilan disent la même chose — deux voix divergeraient au premier réglage`);
   }
