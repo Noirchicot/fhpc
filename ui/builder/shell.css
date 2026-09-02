@@ -200,7 +200,15 @@ body {
    📌 Eric a écarté lui-même la confusion avec le halo du rail : *« il n'y a
    qu'une espèce visible à la fois »* — celui-ci vit AUTOUR d'un panneau,
    l'autre DANS un panneau. */
-.panneau[data-actif="true"] { box-shadow: 0 0 6px 2px var(--spy-halo); }
+/* 🔴 BORNÉ À LA VUE DOUBLE — défaut relevé le 02/09 par la réconciliation
+   Bible ↔ code, puis CONFIRMÉ À L'ÉCRAN (375 × 812, un seul panneau visible,
+   `box-shadow` pourtant peint). Un halo qui désigne le panneau actif alors
+   qu'il n'y en a qu'un ne désigne rien : il ajoute du bruit sur les dix
+   écrans du builder. ⭐ Il se pose donc sous la même condition que les deux
+   épaisseurs du belt — il n'y a d'« actif » que là où il y a un « autre ». */
+:root[data-vue="double"] .panneau[data-actif="true"] {
+  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
+}
 
 /* ── LE CAPTEUR D'ÉVEIL — on change de panneau actif en CLIQUANT DESSUS ─────
    Eric, 2026-09-02 : on change de panneau actif en cliquant dessus, et
@@ -501,9 +509,10 @@ body {
    règles couvre les crans ET les deux onglets, sans rien reprendre.
    ⭐ L'ÉPAIS EST LE FIN, DEUX FOIS : la même lueur repassée, donc jamais deux
    réglages à tenir d'accord. */
-[data-vue-cran="passif"] { filter: drop-shadow(0 0 2px var(--spy-halo)); }
+[data-vue-cran="passif"] { filter: drop-shadow(0 0 var(--halo-fin) var(--spy-halo)); }
 [data-vue-cran="actif"] {
-  filter: drop-shadow(0 0 3px var(--spy-halo)) drop-shadow(0 0 3px var(--spy-halo));
+  filter: drop-shadow(0 0 var(--halo-epais) var(--spy-halo))
+          drop-shadow(0 0 var(--halo-epais) var(--spy-halo));
 }
 
 /* ══ LES DEUX ONGLETS DE BOUT ═══════════════════════════════════════════

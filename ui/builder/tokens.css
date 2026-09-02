@@ -312,6 +312,21 @@
      réévalue pas sous `zoom`) : c'est `shell.mjs` qui pose `data-vue` sur
      `<html>`, là où l'échelle est connue. */
   --colonnes: 1;
+  /* ══ LES DEUX ÉPAISSEURS DE HALO — et il n'y en a QUE deux ═══════════════
+     Eric, 2026-09-02 : *« un halo FIN autour du cran de l'écran inactif, un
+     halo ÉPAIS autour du cran de l'écran actif »*, et *« un halo non coloré
+     autour de la dalle active »*.
+
+     ⛔ ELLES SONT NOMMÉES PARCE QU'ELLES ÉTAIENT TROIS — relevé par la
+     réconciliation Bible ↔ code du 02/09 : le code posait `2px`, `3px` (deux
+     fois) et `6px 2px`, pendant que la spec n'en déclarait que deux. **Une
+     cote qui n'est pas dans la spec est une cote que personne ne pourra
+     défendre dans six semaines.** Les trois porteurs — le cran passif, le
+     cran actif, le panneau actif — lisent désormais ces deux jetons et rien
+     d'autre.
+     ⭐ La teinte, elle, reste `--spy-halo` : sans couleur, par thème. */
+  --halo-fin: 2px;
+  --halo-epais: 3px;
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */

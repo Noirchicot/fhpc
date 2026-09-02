@@ -110,6 +110,42 @@ test("🔴 `--spy-halo` est L'ENCRE le jour et LE BLANC la nuit — jamais une t
   }
 });
 
+test("🔴 IL N'Y A QUE DEUX ÉPAISSEURS DE HALO, et le FIN est plus fin que l'ÉPAIS", () => {
+  /* ⚠️ TROISIÈME DÉFAUT DE LA MÊME FAMILLE, relevé le 02/09 : les gardes
+     tenaient la COULEUR du halo et rien d'autre. Or l'épaisseur est
+     exactement ce qui distingue l'actif de l'inactif — une main qui les
+     égaliserait effacerait la distinction sans qu'aucune couleur ne bouge, et
+     aucune suite ne rougirait.
+     ⛔ Et le code en posait TROIS (2px, 3px, 6px+2px) pendant que la spec en
+     déclarait deux. Une cote hors spec est une cote indéfendable. */
+  const tokens = stripComments(tokensCss);
+  const fin = tokens.match(/--halo-fin:\s*(\d+(?:\.\d+)?)px/);
+  const epais = tokens.match(/--halo-epais:\s*(\d+(?:\.\d+)?)px/);
+  assert.ok(fin && epais, "les deux épaisseurs sont NOMMÉES dans les jetons");
+  assert.ok(Number(fin[1]) < Number(epais[1]),
+    `le fin (${fin[1]}px) doit rester plus fin que l'épais (${epais[1]}px) — c'est TOUTE la distinction`);
+  /* Et aucun des trois porteurs ne réécrit une épaisseur en littéral. */
+  const porteurs = [
+    ...reglesPortant(shellCss, /data-vue-cran/),
+    ...reglesPortant(shellCss, /\.panneau\[data-actif/)
+  ];
+  assert.equal(porteurs.length, 3, "trois porteurs : le cran passif, le cran actif, le panneau actif");
+  for (const { selecteur, corps } of porteurs) {
+    assert.ok(!/\d+px/.test(corps),
+      `\`${selecteur}\` écrit une épaisseur en dur — les trois lisent les deux jetons, et rien d'autre`);
+  }
+});
+
+test("🔴 le halo du PANNEAU est borné à la vue double — sinon il ne désigne rien", () => {
+  /* 📏 CONFIRMÉ À L'ÉCRAN avant correction (375 × 812) : un seul panneau
+     visible, et `box-shadow` pourtant peint. Un halo qui marque l'actif
+     quand il n'y a pas d'« autre » est du bruit sur les dix écrans. */
+  const porteurs = reglesPortant(shellCss, /\.panneau\[data-actif/);
+  assert.equal(porteurs.length, 1, "un seul porteur pour le halo du panneau");
+  assert.match(porteurs[0].selecteur, /^:root\[data-vue="double"\]/,
+    "il se pose sous la condition de la vue double, comme les deux épaisseurs du belt");
+});
+
 /* ══ 2 — L'INTERRUPTEUR EST GRISÉ SOUS LA PORTE ════════════════════════════
    Proposition de l'architecte, écrite en « À TRANCHER » dans la spec : le
    double affichage n'est offert que si la fenêtre porte deux panneaux à une
