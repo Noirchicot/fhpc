@@ -6443,7 +6443,7 @@ button { font: inherit; }
   filter: var(--bouton-ombre);
 }
 
-/* 🔴 LE CORPS DU BOUTON — c'est LUI qui est découpé, pas le bouton.
+/* 🔴 L'ARÊTE DU BOUTON — c'est ELLE qui est découpée, pas le bouton.
    📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
    `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici.
    🔴 LE FOND EN DEUX COUCHES : la teinte de l'échelle reste seule à décider de
@@ -6463,9 +6463,38 @@ button { font: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-biseau);
+  clip-path: polygon(
+    var(--bouton-coupe) 0,
+    calc(100% - var(--bouton-coupe)) 0,
+    100% var(--bouton-coupe),
+    100% calc(100% - var(--bouton-coupe)),
+    calc(100% - var(--bouton-coupe)) 100%,
+    var(--bouton-coupe) 100%,
+    0 calc(100% - var(--bouton-coupe)),
+    0 var(--bouton-coupe)
+  );
+}
+
+/* 🔴 LA FACE EN RETRAIT — le second octogone laisse visible un ruban tout
+   autour du premier. C'est ce ruban géométrique, et non quatre bandes dans
+   une boîte, qui fait suivre l'arête aux huit côtés. La coupe extérieure reste
+   exactement `--bouton-coupe` ; ce retrait ne change aucune cote du bouton. */
+.sortie-bouton::after,
+.species-done::after,
+.parcours-item-porte::after,
+.parcours-pied button:not(.fiche-livre)::after,
+.card-pied button::after,
+.fiche-action::after,
+.ability-entry::after {
+  content: "";
+  position: absolute;
+  inset: var(--bouton-biseau-epaisseur);
+  z-index: -1;
+  background-color: var(--bouton-fond);
+  background-image: var(--bouton-bombage);
   clip-path: polygon(
     var(--bouton-coupe) 0,
     calc(100% - var(--bouton-coupe)) 0,
@@ -6649,9 +6678,28 @@ button { font: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-biseau);
+  clip-path: polygon(
+    var(--bouton-coupe) 0,
+    calc(100% - var(--bouton-coupe)) 0,
+    100% var(--bouton-coupe),
+    100% calc(100% - var(--bouton-coupe)),
+    calc(100% - var(--bouton-coupe)) 100%,
+    var(--bouton-coupe) 100%,
+    0 calc(100% - var(--bouton-coupe)),
+    0 var(--bouton-coupe)
+  );
+}
+.pipeline-bouton::after, .dressing-bouton::after, .carte-r-bouton::after,
+.pipeline-ligne-envoi::after, .pipeline-pas::after, .aiguilleur-bouton::after {
+  content: "";
+  position: absolute;
+  inset: var(--bouton-biseau-epaisseur);
+  z-index: -1;
+  background-color: var(--bouton-fond);
+  background-image: var(--bouton-bombage);
   clip-path: polygon(
     var(--bouton-coupe) 0,
     calc(100% - var(--bouton-coupe)) 0,

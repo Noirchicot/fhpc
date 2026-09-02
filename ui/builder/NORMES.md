@@ -848,29 +848,24 @@ ne signale rien)*. ➡️ **Un organe qui n'emprunte pas à l'échelle ne peut p
 ⭐ **La coupe d'angle appartient au bouton SEUL.** C'est ce qui interdit de le confondre avec un
 jeton, quelle que soit la couleur.
 
-### ✅ LES QUATRE PANS COUPÉS NE PORTENT PAS D'ARÊTE — tranché 26/08
+### 🔴 LES QUATRE PANS COUPÉS PORTENT L'ARÊTE — rouvert et tranché 02/09
 
-> Eric, 2026-08-26, la mesure posée devant lui : **« non, ça me va »**.
+> Eric, 2026-09-02 : **« le relief est mal fait, tous les boutons octogonaux ont ce problème »**.
 
-📏 **Mesuré au navigateur sans écran** *(Chrome 151, bouton gris, jour)* : les pixels de la diagonale
-valent **158-160**, entre le fond à **243** et le corps à **98**. C'est de l'**anticrénelage**, pas
-une lumière. Le pan reste à la teinte du corps.
+La décision du 26/08 *(pans nus acceptés)* est rouverte par Eric lui-même. La mesure nouvelle montre
+que quatre bandes droites dessinent un rectangle dans l'octogone : le trait du haut s'arrête avant
+les pans, et l'objet se lit comme un aplat portant une ombre plutôt que comme un bouton bombé.
 
 | | |
 |---|---|
-| **le haut et le bas** | portent l'arête *(blanc .58 · noir .45)* |
-| **les côtés** | portent la leur *(blanc .16 · noir .20)* |
-| 🔴 **les quatre pans coupés** | ⛔ **rien, et c'est voulu** |
+| **les huit côtés** | portent une arête continue, diagonales comprises |
+| **le haut** | est au moins aussi marqué que le bas — la lumière vient d'en haut |
+| **la projection de jour** | reste une ombre, mais ne domine plus le biseau |
+| **la projection de nuit** | reste une lueur blanche |
 
-⭐ **Ce n'est pas un oubli, c'est la limite du médium** : un `linear-gradient` éclaire des bandes
-**droites**. La diagonale d'un pan tombe hors des 1,5 px du haut comme des 1,5 px du côté — aucun
-stop ne peut l'atteindre. L'éclairer demanderait un `conic-gradient` et des angles qu'Eric n'a
-jamais nommés.
-
-➡️ **Ça se lit comme la TRANCHE du biseau**, et Eric l'a validé en connaissance de la mesure.
-
-⛔ **AUCUN LOT NE ROUVRE CETTE QUESTION.** Un futur siège qui verra les pans nus croira à un défaut :
-il n'en est pas un. La cause est écrite ci-dessus, la décision est datée.
+⭐ **Le médium change, pas la forme** : un premier octogone peint l'arête ; un second, en retrait,
+repeint la face bombée. Le ruban visible entre les deux suit mécaniquement les huit côtés. La coupe
+extérieure reste `--bouton-coupe` **10**, les cotes et l'opacité ne bougent pas.
 
 🔴 **Le liseré d'une zone de drop porte la couleur du corps du jeton attendu** — la cible annonce
 ce qu'elle accepte avant qu'on lâche.

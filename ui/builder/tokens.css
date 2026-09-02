@@ -447,46 +447,43 @@
      ⚠️ ET LA PARADE A UNE CONDITION QUE LA NOTE NE DISAIT PAS — mesurée le
      26/08 : `clip-path` s'applique APRÈS `filter`. Les deux sur le MÊME
      élément et l'ombre est rognée aussitôt calculée (relevé dans `shell.css`,
-     §5). Il faut donc DEUX étages : la coupe sur le `::before` qui peint le
-     corps, le filtre sur le bouton. C'est ce que `shell.css` fait.
+     §5). Il faut donc DEUX étages : la coupe sur les pseudo-éléments qui
+     peignent le corps, le filtre sur le bouton. C'est ce que `shell.css` fait.
 
-     ⭐ LES DEUX JETONS CI-DESSOUS SONT `--relief`, MOT POUR MOT, DANS L'AUTRE
-     MÉDIUM. ⛔ Aucune teinte neuve, aucune alpha neuve — la table de report :
-       arête haute    blanc .58 sur 1,5 px  → premier stop du dégradé vertical
-       arête basse    noir  .45 sur 1,5 px  → dernier stop du même
-       arête gauche   blanc .16 sur 1,5 px  → premier stop du dégradé horizontal
-       arête droite   noir  .20 sur 1,5 px  → dernier stop du même
-       ombre portée   0 2px 4px noir .30    → `--bouton-ombre`, tel quel
+     🔴 CORRIGÉ LE 02/09 : peindre quatre bandes dans UN octogone dessinait
+     encore un rectangle — les quatre pans coupés restaient sans arête. Le
+     patron porte désormais DEUX octogones : `::before` peint l'arête entière,
+     `::after` remet la face en retrait. Le ruban visible entre les deux suit
+     donc les huit côtés sans demander huit angles indépendants.
 
-     ⛔ LA SIXIÈME ARÊTE N'EST PAS REPORTÉE, ET C'EST MESURÉ, PAS OUBLIÉ :
-     `inset 0 0 0 1px rgba(0,0,0,.26)` est un cerne d'UN pixel que les quatre
-     arêtes de 1,5 px recouvrent entièrement, sur le jeton comme ici — il ne
-     peint aucun pixel visible. Le reporter aurait demandé quatre stops de
-     plus pour un rendu identique.
-
-     ⚠️ CE QUE LE DÉGRADÉ NE PEUT PAS FAIRE, et il faut le savoir : les QUATRE
-     PANS COUPÉS ne reçoivent pas d'arête. Un dégradé linéaire éclaire des
-     bandes droites ; la diagonale du pan tombe hors des 1,5 px du haut et des
-     1,5 px du côté. Les pans restent donc à la teinte du corps — ce qui se lit
-     comme la tranche du biseau, mais ce n'est pas un choix, c'est la limite du
-     médium. Une lumière sur les diagonales demanderait un `conic-gradient` et
-     des angles qu'Eric n'a pas nommés. ⏳ À lui de dire si ça le gêne. */
+     ⭐ LA LUMIÈRE VIENT TOUJOURS D'EN HAUT. Le dégradé de l'arête est large
+     parce que seul son ruban de `--bouton-biseau-epaisseur` reste visible ; le
+     dégradé de la face, plus doux, donne le bombage. Le bas et sa projection
+     sont allégés : ils détachent le bouton sans peser davantage que le haut. */
+  --bouton-biseau-epaisseur: 1.5px;
   --bouton-biseau:
     linear-gradient(to bottom,
-      rgba(255,255,255,.58) 0,     rgba(255,255,255,.58) 1.5px,
-      rgba(255,255,255,0)   1.5px, rgba(255,255,255,0)   calc(100% - 1.5px),
-      rgba(0,0,0,.45)       calc(100% - 1.5px), rgba(0,0,0,.45) 100%),
+      rgba(255,255,255,.72) 0,
+      rgba(255,255,255,.44) 28%,
+      rgba(255,255,255,.18) 55%,
+      rgba(0,0,0,.22) 100%),
     linear-gradient(to right,
-      rgba(255,255,255,.16) 0,     rgba(255,255,255,.16) 1.5px,
-      rgba(255,255,255,0)   1.5px, rgba(255,255,255,0)   calc(100% - 1.5px),
-      rgba(0,0,0,.20)       calc(100% - 1.5px), rgba(0,0,0,.20) 100%);
+      rgba(255,255,255,.16) 0,
+      rgba(255,255,255,0) 50%,
+      rgba(0,0,0,.14) 100%);
+  --bouton-bombage:
+    linear-gradient(to bottom,
+      rgba(255,255,255,.18) 0,
+      rgba(255,255,255,.06) 32%,
+      rgba(255,255,255,0) 58%,
+      rgba(0,0,0,.12) 100%);
   /* 🔴 L'OMBRE DU BOUTON EST UNE OMBRE **LE JOUR SEULEMENT** — voir sa jumelle
      de nuit dans le bloc `prefers-color-scheme: dark`. Mesuré au navigateur
      sans écran le 2026-08-26 : sous le bord bas, le jour tombe de 243,1 à
      197,3 (Δ 45,8) ; la nuit, de 18,1 à 15,2 — **Δ 2,9, seize fois moins**.
      Du noir posé sur du presque-noir ne peut rien assombrir : sous 5 % de
      luminance il n'y a plus de marge à descendre. */
-  --bouton-ombre: drop-shadow(0 2px 4px rgba(0,0,0,.30));
+  --bouton-ombre: drop-shadow(0 1px 3px rgba(0,0,0,.24));
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -748,7 +745,7 @@
        pas la force qui change, c'est le SENS.
        ⛔ Ne pas remonter l'alpha du noir « pour compenser » : il n'y a rien à
        compenser, la marge n'existe pas. */
-    --bouton-ombre: drop-shadow(0 2px 4px rgba(255,255,255,.22));
+    --bouton-ombre: drop-shadow(0 1px 3px rgba(255,255,255,.18));
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
