@@ -5,8 +5,7 @@
   "_lien": "Le sha256 LIE la mesure au fichier : remplacer une image sans remesurer fait rougir tests/decor.test.mjs.",
   "_extremes": "pixel_le_plus_sombre / _clair sont les DEUX pires cas possibles sous un voile. Le garde recalcule le contraste depuis eux — il n'a donc pas besoin de décoder l'image.",
   "_encres": "🎨 UNE COLLECTION PEUT DÉCLARER SES ENCRES — `encres: { jour: {…}, nuit: {…} }`, les jetons de TEXTE et de BOUTON qu'elle repeint (`text`, `text-soft`, `text-muted`, `border-strong`, `accent`). ⛔ Jamais `surface` : c'est le VERRE, pas une encre. Une collection qui n'en déclare aucune sert la palette de `tokens.css` — un DÉFAUT, pas une dictature. 🔴 Les encres passent la MÊME matrice de contraste que la palette normale : `tests/decor.test.mjs` la refait pour chacune, et si une encre échoue, c'est l'ENCRE qui cède, jamais le voile ni le jeton.",
-  "_en_place": "🔴 TOUTE COLLECTION VISE LES MÊMES EXTRÊMES (142–169 le jour, 74–102 la nuit), pas le milieu de sa bande : c'est ce qui rend les collections INTERCHANGEABLES sous la matrice de contraste de shell.css, sans la réécrire à chaque paire.",
-  "flou_cuit_px": 5,
+  "_en_place": "🔴 CETTE RÈGLE A ÉTÉ MESURÉE, PUIS DESSERRÉE — 2026-09-02, lot 140. Elle disait : « toute collection vise 142–169 le jour, 74–102 la nuit, pour rester interchangeable sous la matrice ». ⛔ CE N'ÉTAIT PAS UNE CONTRAINTE DE CONTRASTE, c'était une marge de prudence héritée : aucun garde ne lisait ces six chiffres, et `tests/decor.test.mjs` recalcule DÉJÀ la matrice depuis les pixels extrêmes de CHAQUE fichier — la sécurité venait de la mesure, jamais de l'uniformité. Le vrai mur, cherché par balayage exhaustif des 65 000 bandes entières contre les 20 verdicts : jour min 108 (le pixel le plus sombre est CHAUD, pas gris — à V égal un pixel chaud a une luminance plus basse, ce qui monte le mur de 19 niveaux au-dessus de l'estimation faite sur un gris), côté clair AUCUNE borne (255 tient) ; nuit max 147, côté sombre aucune borne. La seule encre qui borne est `--text` sous le voile simple ; les quatre autres DOIVENT échouer et s'éloignent de leur cible quand la bande s'élargit — elles ne bornent donc rien. ⭐ CE QUI REMPLACE LA RÈGLE : chaque collection déclare SA bande et SES extrêmes, et le garde refait la matrice sur eux. Une collection reste interchangeable parce qu'elle est MESURÉE, pas parce qu'elle copie les cotes d'une autre. ⚠️ CONSÉQUENCE ASSUMÉE : `ruins` vise 108–255 / 1–147, `banner` et `slate` sont restées à 142–169 / 74–102 — les trois collections ne visent plus la même chose, et c'est visible. 🔴 CE QUI NE CÈDE PAS : si un verdict échoue, c'est l'IMAGE qui recule, jamais le voile ni le jeton.",
   "zone_mesuree": "recadrage 360:780, les ~19 % latéraux retirés",
   "defaut": "banner",
   "collections": [
@@ -15,6 +14,7 @@
       "nom": "Banner",
       "jour": "bg-day.jpg",
       "nuit": "bg-night.jpg",
+      "flou_cuit_px": 5,
       "mesure_le": "2026-08-18",
       "note": "Les teintes du bandeau du site (or #D8B65A, rouge #C97A5F, bleu #5A82AA), portées derrière le builder. Un lavis abstrait, aucune scène."
     },
@@ -23,14 +23,18 @@
       "nom": "Ruins",
       "jour": "bg-ruins-day.jpg",
       "nuit": "bg-ruins-night.jpg",
+      "flou_cuit_px": 0,
       "mesure_le": "2026-09-02",
-      "note": "Jour : ruines et pont suspendus dans une mer de brume ivoire. Nuit : forêt noyée, lac noir et sanctuaire abandonné dans une brume rouge. Paire validée à l'œil par Eric le 2026-09-02."
+      "note": "Jour : ruines et pont suspendus dans une mer de brume ivoire. Nuit : forêt noyée, lac noir et sanctuaire abandonné dans une brume rouge. Paire validée à l'œil par Eric le 2026-09-02. ⭐ REFABRIQUÉE le 2026-09-02 (lot 140) depuis les PNG D'ORIGINE du vault (948×1659, sans perte) et SANS l'étape de flou — Eric : « enlève le flou ». Les JPEG `v4` du vault sont une génération de compression plus loin ; partir des PNG retire aussi ce passage-là. ⚠️ Ce que le flou masquait n'était PAS le principal : le réancrage vers 142–169 écrase 255 niveaux sur 27 et retire à lui seul les trois quarts du détail — retirer le flou double ce qui reste, sans plus.",
+      "cadrage": "📐 Le témoin de cadrage est LA LIGNE OÙ LA STRUCTURE BÂTIE REJOINT LE VIDE : le tablier du pont le jour (65,3 % de la source), la rive du sanctuaire sur le lac noir la nuit (68,7 %) — les deux remesurées ici par deux détecteurs indépendants (chute de texture, marche de luminance). Eric a validé AU RENDU le jour à f = 0,6009, ce qui pose son témoin à 56,53 % de l'image servie : c'est CETTE cote qui est validée, pas le nombre f. La nuit reçoit donc la même (Eric, 2026-09-02 : « même manip sur les 2 ») en résolvant f = 0,6400. ⛔ Reprendre f = 0,6009 tel quel aurait été un appariement par POSITION : le sanctuaire serait tombé 4,3 points plus bas, sous les écrans.",
+      "bande_note": "📐 Bande élargie le 2026-09-02 (Eric : « je veux voir les paysages dans celle-là », puis « mon œil veut voir ») : 27 niveaux → 147 le jour, 146 la nuit. C'est le MAXIMUM LÉGAL, celui où `--text` tient 4,5:1 tout juste (mesuré 4,67 le jour, 4,82 la nuit sur les fichiers écrits). ⏳ RECUL IMMÉDIAT SI L'ŒIL D'ERIC DIT « TROP », déjà calculé — `--text` à 5,0:1 : jour [121, 255], nuit [1, 134] ; à 5,5:1 : jour [134, 255], nuit [1, 124]. Un cran se change en refaisant `fonds.py` avec les deux bornes, rien d'autre."
     },
     {
       "id": "slate",
       "nom": "Slate",
       "jour": "bg-slate-day.jpg",
       "nuit": "bg-slate-night.jpg",
+      "flou_cuit_px": 5,
       "mesure_le": "2026-09-02",
       "encres": {
         "jour": {
@@ -113,8 +117,8 @@
       ]
     },
     "bg-ruins-day.jpg": {
-      "sha256": "5e03e156963ba329ebd0fbc25ab4e9a8b3fa72947be86fe7cc9dac1a057ec430",
-      "octets": 66249,
+      "sha256": "5b4d5b5259544c5fceda2cc88e305b555bb613b3b5bc0188c508f74c4359d0c4",
+      "octets": 115466,
       "dimensions": [
         1024,
         1792
@@ -124,26 +128,26 @@
         1792
       ],
       "bande": [
-        104,
-        190
+        108,
+        255
       ],
-      "min": 142,
-      "max": 169,
+      "min": 108,
+      "max": 255,
       "hors_bande": 0,
       "pixel_le_plus_sombre": [
-        142,
-        131,
-        109
+        108,
+        105,
+        90
       ],
       "pixel_le_plus_clair": [
-        169,
-        149,
-        122
+        255,
+        237,
+        200
       ]
     },
     "bg-ruins-night.jpg": {
-      "sha256": "d71c17850896ff6f1ee45f7bd0da8b341f3e961bbf7d60b975590f86d90ec9f8",
-      "octets": 89008,
+      "sha256": "75720f60e0b8afc203b1a395499db214c1fef8eb4124e6d51377f8a0e613558c",
+      "octets": 120996,
       "dimensions": [
         1024,
         1792
@@ -153,21 +157,21 @@
         1792
       ],
       "bande": [
-        45,
-        125
+        1,
+        147
       ],
-      "min": 74,
-      "max": 102,
+      "min": 1,
+      "max": 147,
       "hors_bande": 0,
       "pixel_le_plus_sombre": [
-        74,
-        68,
-        68
+        1,
+        1,
+        1
       ],
       "pixel_le_plus_clair": [
-        102,
-        87,
-        80
+        147,
+        112,
+        90
       ]
     },
     "bg-slate-day.jpg": {
@@ -228,5 +232,6 @@
         100
       ]
     }
-  }
+  },
+  "_flou": "🔴 LE FLOU EST UNE PROPRIÉTÉ DE LA COLLECTION, PAS DU REGISTRE — `flou_cuit_px` vit dans chaque entrée de `collections`. Eric, 2026-09-02 : « enlève le flou ». `ruins` est refabriquée depuis ses PNG d'origine SANS l'étape de flou (0). ⛔ `banner` et `slate` n'ont plus de source : leur flou est cuit dans le JPEG et il est IRRÉVERSIBLE — mesuré sur un témoin dont on connaît la vérité, aucune déconvolution de Wiener ne rapproche l'image floutée de sa version nette (meilleur réglage : 0,266 d'écart RMS contre 0,273 sans rien faire, soit 2 % — et l'inversion exacte à 0,25 cyc/px demanderait un gain de 2,5·10¹³, c'est-à-dire amplifier du bruit de quantification). ⛔ Ne PAS inventer un accentuage : il fabriquerait du détail qui n'existe plus. Leur valeur reste celle du registre du 18/08."
 }
