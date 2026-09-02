@@ -326,6 +326,46 @@ export function renderUniverseStep(ctx, onAction) {
   ]));
   section.append(reglages);
 
+  /* ══ L'INTERRUPTEUR DU DOUBLE AFFICHAGE — Eric, 2026-09-02 ═══════════════
+     Croquis `2026-09-02-double-view-belt-deroule.jpg` : deux panneaux du
+     builder côte à côte, un seul belt déroulé au-dessus. Eric : *« accessible
+     depuis le Menu »*, et le second écran est *« par défaut Menu, mais
+     configurable »*.
+
+     ⭐ IL COPIE `Tutorials`, ET C'EST VOULU : c'est la même espèce d'organe —
+     une BASCULE SIMPLE, dont NORMES §6 a ratifié la forme le 26/08 (*« bouton
+     On/Off, 72 × 44, liseré vert allumé »*). ⛔ Lui donner la piste-et-pouce du
+     SÉLECTEUR EXCLUSIF ferait deux dessins pour une même espèce dans le même
+     écran, à quinze pixels l'un de l'autre.
+
+     🚪 LA PORTE DE LARGEUR — il est PRÉSENT mais éteint et GRISÉ quand la
+     fenêtre ne porte pas deux panneaux à l'échelle 1 (758 × 560 px, mesuré).
+     ⛔ Ni caché, ni retiré : un réglage qui disparaît laisse croire qu'il
+     n'existe pas, et le joueur ne saura pas qu'agrandir sa fenêtre le lui
+     rend. Il DIT pourquoi il dort, à l'endroit où on le cherche.
+     ⚠️ `disabled` ET la note : le gris seul dirait « éteint », pas « pas ici ». */
+  const vue = el("div", "universe-reglages", []);
+  vue.append(el("h3", null, [text("Double view")]));
+  const possible = ctx.vueDoublePossible !== false;
+  const vueEtat = ctx.vueDouble === true;
+  const vueBascule = document.createElement("button");
+  vueBascule.type = "button";
+  vueBascule.className = "universe-bascule";
+  vueBascule.dataset.actif = String(vueEtat && possible);
+  vueBascule.setAttribute("aria-pressed", String(vueEtat && possible));
+  vueBascule.disabled = !possible;
+  vueBascule.append(text(vueEtat && possible ? "On" : "Off"));
+  vueBascule.addEventListener("click", () => onAction({ kind: "vueBascule", value: !vueEtat }));
+  vue.append(vueBascule);
+  vue.append(el("p", "universe-note", [
+    text(!possible
+      ? "This window is too small for two panels. Make it wider — at least two panels across — and this comes back."
+      : vueEtat
+        ? "Two panels side by side, one belt across the top. Click a panel to work in it; the belt moves the panel you are working in."
+        : "Show a second panel beside this one — the menu, or any other step. Needs a window wide enough for two panels.")
+  ]));
+  section.append(vue);
+
   /* ⚖️ LA RAMPE « INTERFACE SIZE » A VÉCU DU 30/08 AU 02/09 — retirée au lot
      118. Eric, 2026-09-02 : *« si l'auto fait bien son travail, effectivement
      les boutons sont obsolètes, et le redimensionnement peut être fait à la

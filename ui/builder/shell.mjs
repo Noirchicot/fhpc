@@ -41,7 +41,14 @@ import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=434";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
-import { appliquerEchelle } from "./echelle.mjs?v=434";
+import { appliquerEchelle, laPlaceDuDouble } from "./echelle.mjs?v=434";
+/* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
+   Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
+   clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
+   seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
+   confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
+   PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=434";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
@@ -192,6 +199,18 @@ const ECRANS_QUI_LISENT_LA_FICHE = new Set([
 
 const state = {
   step: 0,
+  /* ══ LE DOUBLE AFFICHAGE (lot 120) — deux crans, jamais deux `state` ══════
+     Eric, 2026-09-02 : deux panneaux côte à côte, *« si je clique sur le belt,
+     c'est l'élément actif qui bouge »*.
+
+     🔴 `state.step` RESTE LE CRAN DE L'ACTIF, et c'est ce qui rend le lot
+     petit : les quarante lectures du fichier (`STEPS[state.step]`,
+     `catalogueCourant`, `pressDone`…) parlent toutes du panneau qu'on
+     commande, comme avant. Le second cran est un champ de plus, pas un second
+     état — dupliquer `state` aurait donné deux documents à tenir d'accord.
+     ⛔ `stepSecond` ne vaut RIEN quand la vue est simple : c'est le rendu qui
+     le lit, jamais le moteur. */
+  stepSecond: 0,          // le cran du panneau PASSIF — Menu par défaut (Eric)
   engine: null,       // { build, layers, bus } — set once bootEngine() resolves
   document: null,      // the live fh-char/1 document
   decisions: [],        // the last rebuild()'s carnet
@@ -832,6 +851,21 @@ function applyDecisionAction(action) {
      ⛔ AUCUN N'ÉCRIT DANS LE DOCUMENT : ce sont des préférences de lecteur,
      pas des faits du personnage (voir la tête de `tutoriel.mjs`). */
   if (action.kind === "tutoBascule") { setTutorielActif(Boolean(action.value)); refresh(); return; }
+  /* ══ L'INTERRUPTEUR DU DOUBLE AFFICHAGE — lot 120 ════════════════════════
+     Même famille que le tutoriel : une PRÉFÉRENCE DE LECTEUR, jamais un fait
+     du personnage (voir la tête de `vue.mjs`).
+     ⭐ `refresh()` et pas `openSurface()` : allumer un second panneau ne
+     renvoie pas le joueur en haut de l'écran qu'il lisait — exactement comme
+     `resize`, et pour la même raison. Le cran du second panneau est posé ICI
+     parce que c'est le seul instant où la vue s'allume : le peintre, lui, ne
+     ferait que rattraper une collision. */
+  if (action.kind === "vueBascule") {
+    const voulue = Boolean(action.value);
+    if (voulue && state.stepSecond === state.step) state.stepSecond = cranSecondParDefaut();
+    setVueDoubleVoulue(voulue);
+    refresh();
+    return;
+  }
   /* ⭐ LE CRAN D'ÉCHELLE — `null` rend la main à l'automatique. `refresh()` et
      pas `openSurface()` : changer la taille ne renvoie pas le joueur en haut
      de l'écran qu'il lisait, exactement comme `resize` (voir sa note). */
@@ -1657,6 +1691,13 @@ function renderStepContent() {
       /* L'écran REÇOIT l'état du tutoriel, il ne va pas le chercher : un écran
          qui lirait `localStorage` lui-même deviendrait impossible à tester. */
       tutoriel: tutorielActif(),
+      /* ⭐ DEUX FAITS, PAS UN — et l'écran ne peut pas les déduire l'un de
+         l'autre : `vueDouble` est ce que le JOUEUR a demandé, `vueDoublePossible`
+         ce que la FENÊTRE porte. Un interrupteur qui n'aurait que le premier
+         s'afficherait allumé sur un téléphone où rien n'a changé ; un qui
+         n'aurait que le second oublierait le choix en le grisant. */
+      vueDouble: vueDoubleVoulue(),
+      vueDoublePossible: laPlaceExiste(),
       document: state.document,
       query: state.engine.layers.verbs.query,
       fieldErrors: state.fieldErrors,
@@ -2050,9 +2091,32 @@ function effacerLesTitresEnDouble(card) {
    remplace. Et il n'y a QU'UN SEUL `Validate` dans toute l'interface (I.3,
    répété deux fois par Eric) — celui-ci. Aucun écran n'a le droit d'en
    poser un second ; c'est pourquoi il est construit ICI et pas là-bas. */
-const frame = mountFrame();
+/* ══ LOT 120 — LA COQUILLE SE DÉDOUBLE, LE BELT NON ═══════════════════════
+   📐 Eric, 2026-09-02, croquis `2026-09-02-double-view-belt-deroule.jpg` :
+   *« belt totalement déroulé »*, `Menu` à gauche, `Sheet` à droite, et DEUX
+   panneaux dessous.
 
-function mountFrame() {
+   🔴 UN SEUL BELT POUR LES DEUX PANNEAUX — c'est le croquis qui le dit, et
+   c'est aussi ce que la coquille disait déjà : *« BELT IS ALWAYS VISIBLE »*
+   (CADRES §0), *« elle n'est pas un cadre, c'est la coquille »*. Il monte donc
+   d'un cran : frère des panneaux, plus leur parent.
+
+   ⭐ `frame` RESTE LE NOM DU PANNEAU ACTIF, et c'est ce qui garde le lot
+   petit : les quarante lectures de `frame.stage`, `frame.aside`, `frame.spy`
+   ne bougent pas d'une ligne. Ce qui s'ajoute, c'est le RENDU du second.
+   ⛔ `let` et non `const`, avec UN SEUL point de réassignation —
+   `activerPanneau`. Un second endroit qui l'écrirait rendrait impossible de
+   savoir quel panneau commande. */
+const belt = monterBelt();
+/* L'hôte des panneaux — posé APRÈS le belt, donc sous lui, et une seule fois.
+   ⭐ C'est lui qui porte la gouttière entre les deux (`--sp-8`, la gouttière
+   du dépôt) : ni l'un ni l'autre panneau n'a de marge à connaître. */
+const panneauxHote = el("div", "panneaux");
+app.append(panneauxHote);
+const panneaux = [monterPanneau(0), monterPanneau(1)];
+let frame = panneaux[0];
+
+function monterBelt() {
   /* ── LA MOLETTE (B0.1-B0.5) ─────────────────────────────────────── */
   const belt = el("nav", "belt");
   belt.setAttribute("aria-label", "Character creation steps");
@@ -2110,17 +2174,33 @@ function mountFrame() {
     return item;
   });
   belt.append(track);
+  app.append(belt);
+  return { racine: belt, track, items };
+}
 
-  /* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
-     Elle coûtait 45 px sur les dix écrans, tout le temps, pour deux boutons.
-     `Show plan` disparaît — Review EST le plan, lu au carnet — et la sortie
-     d'étape descend dans le contenu de chaque écran (`renderSortieEtape`), là
-     où le geste se termine. Mesuré : la hauteur figée passe de 106 px à 61.
-     ⚠️ Le bouton qui descendait alors s'appelait `Validate` ; il a disparu
-     à son tour le 16/08 (lot 80, §5.1), remplacé par la paire `BACK`/`DONE`.
-     Ce que ce paragraphe mesure — 45 px repris sur dix écrans — n'a pas
-     bougé : c'est la LIGNE FIXE qui est partie, pas ce qu'elle portait. */
+/* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
+   Elle coûtait 45 px sur les dix écrans, tout le temps, pour deux boutons.
+   `Show plan` disparaît — Review EST le plan, lu au carnet — et la sortie
+   d'étape descend dans le contenu de chaque écran (`renderSortieEtape`), là
+   où le geste se termine. Mesuré : la hauteur figée passe de 106 px à 61.
+   ⚠️ Le bouton qui descendait alors s'appelait `Validate` ; il a disparu
+   à son tour le 16/08 (lot 80, §5.1), remplacé par la paire `BACK`/`DONE`.
+   Ce que ce paragraphe mesure — 45 px repris sur dix écrans — n'a pas
+   bougé : c'est la LIGNE FIXE qui est partie, pas ce qu'elle portait. */
 
+/** UN PANNEAU — la coquille d'UN écran : sa barre du haut, son rail, sa
+ *  scène, ses chevrons, son popup. Appelée DEUX fois (lot 120).
+ *
+ *  🔴 CE QUI ÉTAIT DÉJÀ VRAI POUR UN L'EST POUR DEUX : ces nœuds sont créés
+ *  une fois et ne sont jamais remplacés. Les `paint*` n'écrivent que des
+ *  attributs dessus (SOCLE.md). Passer de un à deux panneaux ne change donc
+ *  RIEN à la loi du cadre — ça la duplique.
+ *
+ *  ⚠️ ET CHAQUE PANNEAU A SES PROPRES ÉCOUTEURS. Un `mountChevrons` ou un
+ *  `watchSnap` partagé lirait la géométrie de l'autre panneau : deux scènes
+ *  qui défilent, deux minuteurs, deux spys. C'est la raison même pour
+ *  laquelle cette fabrique existe plutôt qu'un second `append`. */
+function monterPanneau(rang) {
   /* ── LA ZONE DE FICHE : le seul défilement de l'écran (B0.21a) ───── */
   const area = el("div", "stage-area");
   const stage = el("main", "stage");
@@ -2156,7 +2236,26 @@ function mountFrame() {
   popup.hidden = true;
   area.append(aside, stage, chevrons, popup);
 
-  app.append(belt, topbar, area);
+  const racine = el("section", "panneau");
+  /* ⛔ UN PANNEAU PASSIF EST INERTE, ET C'EST SON CONTENU QUI L'EST — jamais
+     lui : le capteur d'éveil vit DANS le panneau, et une inertie posée sur le
+     panneau l'emporterait avec elle. Deux nœuds, deux rôles.
+     🔴 LA RAISON N'EST PAS ESTHÉTIQUE : les boutons d'un écran (`Done`,
+     `Next`, un jeton) sont câblés sur `state`, c'est-à-dire sur le cran
+     ACTIF. Laisser le panneau de gauche cliquable ferait agir ses boutons sur
+     l'étape de droite — un geste qui ment. */
+  const contenu = el("div", "panneau-contenu");
+  contenu.append(topbar, area);
+  /* Le capteur d'éveil (Eric : on change de panneau actif en cliquant
+     dessus). Un ORGANE, pas un écouteur : le contenu passif est `inert`, donc
+     inatteignable au clavier — sans ce bouton, un joueur au clavier n'aurait
+     aucun chemin vers le second panneau. */
+  const eveil = button("", () => activerPanneau(rang));
+  eveil.className = "panneau-eveil";
+  eveil.setAttribute("aria-label", "Work in this panel");
+  eveil.hidden = true;
+  racine.append(contenu, eveil);
+  panneauxHote.append(racine);
 
   /* LES DEUX ÉCOUTEURS QUI DOIVENT SURVIVRE — posés ICI, une fois, sur des
      nœuds qui ne meurent pas. C'est la différence entre ce lot et tout ce
@@ -2165,7 +2264,7 @@ function mountFrame() {
   const popupLayer = mountPopup(popup, () => { state.popup = null; refresh(); });
   const spy = watchSnap(stage, onSnapSettle);
 
-  return { belt, track, items, area, stage, aside, topbar, popup, popupLayer, chevrons, scroller, spy };
+  return { rang, racine, contenu, eveil, area, stage, aside, topbar, popup, popupLayer, chevrons, scroller, spy };
 }
 
 /* ══ LE SCROLLSPY EST LE SÉLECTEUR (II.3) ═══════════════════════════════
@@ -3027,6 +3126,15 @@ function oublierSousLaRacine(racine) {
 function goToStep(index) {
   const target = Math.max(0, Math.min(REVIEW_INDEX, index));
   if (target === state.step) return;
+  /* ⭐ EN VUE DOUBLE, LE BELT COMMANDE L'ACTIF — Eric, 2026-09-02 : *« si je
+     clique sur le belt, c'est l'élément actif qui bouge »*.
+     ⚠️ ET S'IL VISE LE CRAN DE L'AUTRE, LES DEUX ÉCHANGENT. Le panneau passif
+     ne peut pas simplement céder sa place : les deux montreraient le même
+     écran, et le joueur aurait perdu celui qu'il regardait sans l'avoir
+     demandé. L'échange, lui, ne perd rien et se défait du même clic.
+     ⏳ « À TRANCHER » dans la spec — c'est le défaut le plus sobre, pas une
+     décision d'Eric. */
+  if (vueDoubleRendue() && target === state.stepSecond) state.stepSecond = state.step;
   state.step = target;
   /* Un écran neuf repart à son PREMIER palier, jamais à celui d'avant. */
   state.palier = 1;
@@ -3080,7 +3188,14 @@ function goToStep(index) {
 /* ══ LES PEINTRES — ILS N'ÉCRIVENT QUE DES ATTRIBUTS ════════════════════ */
 
 function paintBelt() {
-  frame.items.forEach((item, index) => {
+  /* ⭐ LES DEUX HALOS DU BELT — Eric, 2026-09-02 : *« un halo fin autour du
+     cran de l'écran inactif, un halo épais autour du cran de l'écran actif »*,
+     et *« bon on lâche les traits »* (les deux traits du croquis).
+     🔴 SANS COULEUR : la feuille le rend avec `--spy-halo`, le jeton neutre du
+     scrollspy — le vert et le bleu du belt disent l'AVANCEMENT (§6), pas où
+     l'on regarde. Ici on ne fait que NOMMER lequel est lequel. */
+  const enDouble = vueDoubleRendue();
+  belt.items.forEach((item, index) => {
     /* ⚠️ DEUX FAITS DIFFÉRENTS, DEUX ATTRIBUTS — et ils étaient confondus.
        `data-status` dit OÙ ON EST dans la traversée (passé, courant, à venir) :
        c'est de la navigation. `data-fait` dit si le chapitre est FINI : c'est
@@ -3131,16 +3246,44 @@ function paintBelt() {
       })
     ));
     item.setAttribute("aria-current", index === state.step ? "step" : "false");
+    /* 🔴 LES DEUX HALOS, ET SEULEMENT EN VUE DOUBLE : à un panneau il n'y a
+       pas de « second écran » à désigner, et un halo qui ne distingue rien
+       serait un signal de plus pour rien. */
+    if (!enDouble) delete item.dataset.vueCran;
+    else if (index === state.step) item.dataset.vueCran = "actif";
+    else if (index === state.stepSecond) item.dataset.vueCran = "passif";
+    else delete item.dataset.vueCran;
+    /* ══ LE CRAN RÉDUIT À SON NUMÉRO — la mesure, pas un goût ══════════════
+       📏 Les huit crans AVEC leurs libellés demandent 995 blg (939 + 7 × 8) ;
+       la piste, dans une app de 758, en offre 684. Il manque 311, et aucun
+       corps ne les rend (T2 : 876 · T1 : 817). Le croquis d'Eric dessine
+       d'ailleurs huit rectangles VIDES.
+       ⭐ LE NOM N'EST PAS PERDU, IL DÉMÉNAGE : `aria-label` le porte dans les
+       DEUX vues, donc un lecteur d'écran annonce « Species » à l'identique.
+       ⛔ ET PAS DE `display: none` — c'est le défaut n°3 (« effacer un mot au
+       lieu de recomposer », garde 4). On écrit le `textContent`, comme le
+       socle l'autorise pour un nœud qui ne meurt jamais : le cran change de
+       FORME, il ne cache pas un mot sous un masque. */
+    const label = item.querySelector(".belt-label");
+    if (label) {
+      const mot = STEPS[index].label;
+      item.setAttribute("aria-label", mot);
+      const voulu = enDouble ? "" : mot;
+      if (label.textContent !== voulu) label.textContent = voulu;
+    }
   });
   /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
      feuille de style : le garde 4 des jetons l'interdit dans `shell.css`,
      et un bouton retiré du flux ne doit pas laisser sa place vide. */
   /* ⛔ ET LE RECENTRAGE NE VISE QUE CE QUI EST DANS LA PISTE. Les deux bouts
-     en sont sortis (voir `mountFrame`) : demander à la piste de faire défiler
-     jusqu'à un nœud qu'elle ne contient pas la ferait sauter au hasard. */
-  const current = frame.items[state.step];
-  if (current && frame.track.contains(current)) keepInView(frame.track, current, "x");
+     en sont sortis (voir `monterBelt`) : demander à la piste de faire défiler
+     jusqu'à un nœud qu'elle ne contient pas la ferait sauter au hasard.
+     ⚠️ ET IL NE VISE RIEN EN VUE DOUBLE : le belt y est DÉROULÉ, il ne défile
+     plus (Eric : *« belt totalement déroulé »*). Recentrer une piste sans mou
+     ne fait rien — on ne le demande donc pas. */
+  const current = belt.items[state.step];
+  if (!enDouble && current && belt.track.contains(current)) keepInView(belt.track, current, "x");
 }
 
 /* ══ LA SORTIE D'ÉTAPE — 🔴 `Validate` A DISPARU PARTOUT (lot 80, §5.1) ═══
@@ -3629,10 +3772,136 @@ function memoriser() {
   state.memoire = issue.ok ? { ok: true } : { ok: false, raison: issue.raison };
 }
 
+/* ══ LA VUE DOUBLE — lot 120 ═══════════════════════════════════════════════
+   ⭐ DEUX QUESTIONS, DEUX RÉPONSES, ET LES CONFONDRE SERAIT LE DÉFAUT :
+   `vueDoubleVoulue()` dit ce que le JOUEUR a demandé (une clef de
+   navigateur) ; `laPlaceDuDouble()` dit ce que la FENÊTRE porte. La vue
+   rendue est le ET des deux — et la préférence, elle, ne se perd jamais :
+   rétrécir sa fenêtre replie l'affichage, la rouvrir le rend. */
+function laPlaceExiste() {
+  return laPlaceDuDouble(window.innerWidth, window.innerHeight, document.documentElement);
+}
+function vueDoubleRendue() { return vueDoubleVoulue() && laPlaceExiste(); }
+
+/** Le cran que porte le panneau PASSIF quand on allume la vue double.
+ *
+ *  🔴 « Par défaut Menu, mais configurable » (Eric, 2026-09-02) — le défaut
+ *  est donc le Menu. ⚠️ SAUF SI L'ACTIF EST DÉJÀ LE MENU : deux Menu côte à
+ *  côte ne diraient rien, et le joueur aurait allumé un réglage pour voir
+ *  deux fois le même écran. Il reçoit alors l'étape suivante. */
+function cranSecondParDefaut() {
+  return state.step === 0 ? 1 : 0;
+}
+
+/** 🔴 LE PANNEAU ACTIF CHANGE — et c'est le SEUL endroit qui réassigne
+ *  `frame`. Eric : on change de panneau actif en cliquant dessus.
+ *
+ *  ⭐ LES DEUX PANNEAUX ÉCHANGENT LEURS CRANS, ILS N'ÉCHANGENT PAS LEUR
+ *  CONTENU : le panneau qu'on active garde l'écran qu'il montrait déjà, donc
+ *  son défilement, son rail et son popup survivent au changement. C'est la
+ *  même loi que le reste du cadre — on écrit des attributs, on ne déplace pas
+ *  de nœuds. */
+function activerPanneau(rang) {
+  if (!vueDoubleRendue()) return;
+  if (panneaux[rang] === frame) return;
+  const ancien = state.step;
+  state.step = state.stepSecond;
+  state.stepSecond = ancien;
+  frame = panneaux[rang];
+  refresh();
+}
+
+/** Ce que la vue pose sur le DOM — des ATTRIBUTS, jamais un nœud (SOCLE.md).
+ *
+ *  ⚠️ ELLE COURT AVANT `appliquerEchelle`, et l'ordre compte : l'échelle lit
+ *  `--colonnes`, que `data-vue` gouverne. Peindre après ferait calculer le
+ *  facteur sur la largeur d'avant — le même piège que la grandeur du 30/08. */
+function peindreLaVue() {
+  const double = vueDoubleRendue();
+  document.documentElement.dataset.vue = double ? "double" : "simple";
+  if (!double) {
+    /* ⭐ EN VUE SIMPLE, L'ACTIF REDEVIENT LE PANNEAU 0 — sinon un joueur qui
+       rétrécit sa fenêtre pendant qu'il travaille dans le panneau de droite
+       verrait disparaître celui qu'il commandait. */
+    frame = panneaux[0];
+  } else if (state.stepSecond === state.step) {
+    /* ⛔ DEUX PANNEAUX SUR LE MÊME CRAN NE PEUVENT PAS ARRIVER : le second
+       céderait au premier et l'écran montrerait deux fois la même chose. On
+       le rattrape ici, à l'endroit unique où la vue se décide. */
+    state.stepSecond = cranSecondParDefaut();
+  }
+  for (const panneau of panneaux) {
+    const actif = panneau === frame;
+    /* ⛔ `hidden`, et la feuille ne pose son `display` que sur
+       `:not([hidden])` — un `display: none` écrit dans `shell.css` est le
+       défaut n°3 (garde 4), et une règle d'auteur inconditionnelle battrait
+       de toute façon le `[hidden]` de l'agent utilisateur. */
+    panneau.racine.hidden = !double && !actif;
+    panneau.racine.dataset.actif = String(actif);
+    /* 🔴 L'ORDRE GAUCHE/DROITE SUIT LE BELT — Eric : *« couleur la plus à
+       gauche dans le menu = écran le plus à gauche »*. ⚠️ Conséquence non
+       tranchée, écrite en « À TRANCHER » dans la spec : quand l'actif passe
+       DEVANT le passif dans l'ordre des crans, les deux panneaux échangent de
+       côté. C'est le croquis pris à la lettre. */
+    const monCran = actif ? state.step : state.stepSecond;
+    const autreCran = actif ? state.stepSecond : state.step;
+    panneau.racine.dataset.cote = monCran <= autreCran ? "gauche" : "droite";
+    /* 🔴 LE PASSIF EST INERTE, ET SON CAPTEUR EST LA SEULE PORTE. Les deux
+       moitiés comptent : `inert` retire le contenu du clic, du focus clavier
+       et du lecteur d'écran ; le capteur rend au joueur un chemin — au doigt
+       comme au clavier — vers le panneau qu'il veut commander. */
+    panneau.contenu.inert = !actif;
+    panneau.eveil.hidden = actif;
+  }
+}
+
+/** 🔴 LA VUE SE POSE, PUIS L'ÉCHELLE SE REPOSE — et seulement si la vue a
+ *  CHANGÉ.
+ *
+ *  ⚠️ L'ORDRE EST LA MOITIÉ DU MÉCANISME, et c'est le défaut du 30/08 sous une
+ *  autre forme : `appliquerEchelle` lit `--colonnes`, que `data-vue`
+ *  gouverne. Poser la vue APRÈS le calcul ferait tenir le facteur d'une app de
+ *  375 à une app de 758 — le panneau déborderait de la fenêtre d'un facteur
+ *  deux, à tous les crans.
+ *  ⭐ ET LE TEST DE CHANGEMENT ÉVITE LE RECALCUL INUTILE : la vue est peinte à
+ *  chaque `refresh()` (c'est ce qui la garde vraie), l'échelle ne se rejoue
+ *  qu'aux deux instants où elle peut avoir bougé. */
+function reglerLaVue() {
+  const avant = document.documentElement.dataset.vue;
+  peindreLaVue();
+  if (document.documentElement.dataset.vue !== avant) appliquerEchelle();
+}
+
+/** Rendre l'écran d'un AUTRE cran que l'actif — pour le panneau passif.
+ *
+ *  🔴 ON PRÊTE LE CRAN, ON NE DUPLIQUE PAS LE MOTEUR. `renderStepContent`
+ *  fait 518 lignes de branches sur `state` ; en écrire une seconde version
+ *  pour le panneau de gauche donnerait deux moteurs d'écrans qui divergeraient
+ *  au premier réglage — la maladie que ce dépôt a déjà payée plusieurs fois
+ *  (les deux pieds, les deux échelles typographiques).
+ *
+ *  📏 ET LE PRÊT EST SÛR PARCE QUE C'EST UNE LECTURE, mesuré avant de
+ *  l'écrire : `renderStepContent` n'écrit AUCUN `state` et n'arme AUCUN
+ *  minuteur — zéro occurrence de `state.x =`, `setTimeout` et
+ *  `programmerDestiny` dans ses 518 lignes.
+ *  ⛔ LE `finally` N'EST PAS UNE PRÉCAUTION DE STYLE : un écran qui jetterait
+ *  pendant son rendu laisserait le builder entier sur le cran du panneau
+ *  passif — c'est-à-dire que le `Done` du joueur signerait la mauvaise étape. */
+function rendreLEcranDe(index) {
+  const avant = { step: state.step, palier: state.palier, lore: state.lore, cursor: state.cursor };
+  Object.assign(state, { step: index, palier: 1, lore: null, cursor: 0 });
+  try {
+    return poserLaSortie(renderStepContent(), renderSortieEtape());
+  } finally {
+    Object.assign(state, avant);
+  }
+}
+
 function refresh() {
   /* ⚠️ AVANT DE PEINDRE, pas après : le Menu affiche `state.memoire`, et
      l'écrire après le rendu montrerait l'état du tour précédent. */
   memoriser();
+  reglerLaVue();
   paintBelt();
   paintAside();
   paintTopbar();
@@ -3644,6 +3913,25 @@ function refresh() {
      passe par ce verbe. SANS annonce — un choix cliqué n'est pas une
      surface neuve. */
   frame.scroller.settle();
+  peindreLePassif();
+}
+
+/** Le second panneau — rendu APRÈS l'actif, et seulement s'il est à l'écran.
+ *
+ *  ⭐ SON RAIL ET SA BARRE DU HAUT RESTENT VIDES, et c'est délibéré : ce sont
+ *  des slots que l'écran ACTIF garnit (`paintAside`, `paintTopbar` visent
+ *  `frame`). Le panneau passif est une VUE ; lui donner un rail de catalogue
+ *  qu'on ne peut pas cliquer serait promettre un geste qui n'existe pas. */
+function peindreLePassif() {
+  const passif = panneaux.find((p) => p !== frame);
+  if (!passif || passif.racine.hidden) return;
+  /* `poserLaSortie` rend une LISTE de nœuds (le contenu, et la rangée de
+     sortie quand l'écran ne l'a pas absorbée) — la même que `refresh` passe à
+     `swapContent`. ⛔ L'envelopper dans un tableau de plus poserait un
+     tableau dans le DOM. */
+  swapContent(passif.stage, rendreLEcranDe(state.stepSecond));
+  passif.spy.settle();
+  passif.scroller.settle();
 }
 
 /** UNE NOUVELLE SURFACE — changement d'étape, ou changement de palier. Le
@@ -3680,8 +3968,15 @@ function openSurface(at) {
    redessine sur la grandeur d'avant.
    ⛔ Elle n'écrit que deux attributs sur `<html>` : aucun nœud n'est touché,
    donc le défilement survit (SOCLE.md, « le cadre »). */
-function surRedimensionnement() { appliquerEchelle(); refresh(); }
+/* 🔴 ET LA VUE SE RÈGLE AVANT L'ÉCHELLE (lot 120) : redimensionner peut faire
+   franchir la PORTE du double affichage — la place apparaît, ou disparaît — et
+   l'échelle se calcule sur une app d'une ou de deux colonnes. Poser la vue
+   après ferait tenir le facteur de l'app d'avant. */
+function surRedimensionnement() { reglerLaVue(); appliquerEchelle(); refresh(); }
 window.addEventListener("resize", surRedimensionnement);
+/* Au démarrage, le même ordre qu'au redimensionnement : la vue dit combien de
+   colonnes, l'échelle mesure ce que la fenêtre en porte, le rendu suit. */
+reglerLaVue();
 appliquerEchelle();
 refresh();
 

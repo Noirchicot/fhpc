@@ -104,17 +104,127 @@ body {
      rien à arbitrer ici, ni `min(100%, …)`, ni plancher à défendre. Le surplus
      de la fenêtre est de la marge, en largeur comme en hauteur, et c'est ce
      vide qu'un lot futur remplira (Eric : *« on remplit des vides autour »*).
-     ⚠️ `aspect-ratio` AVEC `height: auto` : la hauteur se DÉDUIT de la largeur,
-     jamais l'inverse — la proportion est exacte, pas approchée. */
-  width: calc(var(--panneau-l) * 1px);
-  aspect-ratio: var(--panneau-l) / var(--panneau-h);
-  height: auto;
+     ⚠️ `aspect-ratio` A LAISSÉ LA PLACE À LA HAUTEUR ÉCRITE — lot 120, et
+     c'est une ÉGALITÉ, pas un renversement : la largeur de l'app est absolue
+     (elle vaut un nombre de blg, jamais un pourcentage), donc
+     `aspect-ratio: 375/560` + `height: auto` et `height: 560px` rendent
+     EXACTEMENT la même boîte. La hauteur écrite, elle, ne dépend pas du
+     nombre de colonnes — un ratio aurait dû se recalculer pour 758/560, et
+     `aspect-ratio` n'accepte que des nombres (le piège de tokens.css §291 :
+     `375px / 560px` est jeté en silence, le panneau retombe à 60 blg).
+     📏 Mesuré au navigateur avant et après : 375 × 560 dans les deux régimes.
+
+     🔴 LA LARGEUR SE DÉDUIT DU COMPTE DE COLONNES — lot 120, une seule
+     formule pour la vue simple et la vue double (§1 ter : *« une cote de
+     contenant ne s'écrit pas »*). À `--colonnes: 1` elle rend 375 + 0 ; à 2,
+     `375 × 2 + 8 = 758`. ⛔ Aucune seconde règle, donc aucune branche à ne
+     jamais parcourir. */
+  width: calc(var(--panneau-l) * var(--colonnes) * 1px
+              + var(--sp-8) * (var(--colonnes) - 1));
+  height: calc(var(--panneau-h) * 1px);
   margin: auto;
   overflow: hidden;
   /* ⛔ PLUS DE DÉCOR ICI — il est descendu sur `body` (voir sa note). Le
      panneau laisse le sol traverser ; ce qui le distingue du fond, ce sont ses
      dalles, comme partout ailleurs dans le builder. */
 }
+
+/* ══ LES DEUX PANNEAUX — lot 120, le double affichage ══════════════════════
+   📐 Eric, 2026-09-02, croquis `2026-09-02-double-view-belt-deroule.jpg` :
+   deux panneaux côte à côte, UN SEUL belt déroulé au-dessus des deux,
+   *« background commun aux deux éléments »*.
+
+   🔴 LE BELT N'EST PAS DUPLIQUÉ, ET C'EST LE CROQUIS QUI LE DIT : il traverse
+   toute la largeur, `Menu` à gauche, `Sheet` à droite, les huit étapes entre.
+   Il monte donc d'un cran dans l'arbre — frère des panneaux, plus leur parent.
+
+   ⭐ CHAQUE PANNEAU GARDE SA COTE SACRÉE : `--panneau-l` blg, jamais un
+   partage de la place (`flex: 0 0`, jamais `1 1`). Deux panneaux qui se
+   partageraient 758 rendraient 375 aujourd'hui et 300 le jour où une
+   gouttière bouge — c'est la règle sacrée du 31/08, et elle ne se négocie pas
+   plus à deux qu'à un. */
+.panneaux {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: var(--sp-8);
+  /* ⭐ CENTRÉ, et ça se voit en vue SIMPLE : le panneau unique reste au milieu
+     de l'app quel que soit le sort du second. */
+  justify-content: center;
+}
+/* ⛔ `:not([hidden])` PLUTÔT QU'UN `display: none` — c'est le défaut n°3 du
+   dépôt (garde 4 de `ui-jetons.test.mjs`) et l'idiome que la coquille emploie
+   déjà (`aside.hidden`, `topbar.hidden`). Une règle d'auteur qui poserait
+   `display: flex` sans condition battrait le `[hidden]` de l'agent
+   utilisateur, et le second panneau resterait visible en vue simple.
+   ⭐ ET LE PANNEAU DISPARAÎT VRAIMENT : il ne garde ni place, ni focus, ni
+   voix pour un lecteur d'écran — on RECOMPOSE, on ne masque pas. */
+.panneau:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
+  flex: 0 0 calc(var(--panneau-l) * 1px);
+  max-width: calc(var(--panneau-l) * 1px);
+  border-radius: var(--radius-md);
+}
+/* 🔴 LE CONTENU DU PANNEAU CONTINUE LA CHAÎNE DE HAUTEUR — et l'oublier
+   VIDE L'ÉCRAN, mesuré au navigateur avant de l'écrire. `.stage` est
+   `position: absolute; inset: 0` : elle ne peint que si son `.stage-area`
+   porte une hauteur, et `.stage-area` ne la tient que d'un parent qui la lui
+   donne. Tant que ce nœud était un bloc ordinaire, `flex: 1 1 auto` ne
+   s'adressait à personne, la zone rendait 0 et le panneau montrait le décor.
+   ⭐ La chaîne va donc de bout en bout : `.app` (colonne) → `.panneaux`
+   (rangée) → `.panneau` (colonne) → CE nœud (colonne) → la zone de fiche. */
+.panneau-contenu {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* 🔴 L'ORDRE GAUCHE/DROITE SUIT LE BELT — Eric, 2026-09-02 : *« couleur la
+   plus à gauche dans le menu = écran le plus à gauche »*.
+   ⭐ ET AUCUN NŒUD NE BOUGE : c'est `order` qui range, `shell.mjs` qui écrit
+   le côté. Un panneau déplacé dans le DOM perdrait son défilement à chaque
+   échange ; un attribut ne perd rien. */
+.panneau[data-cote="gauche"] { order: 0; }
+.panneau[data-cote="droite"] { order: 1; }
+
+/* ── LE HALO DE LA DALLE ACTIVE ────────────────────────────────────────────
+   Eric, 2026-09-02 : *« un halo non coloré autour de la dalle active »*.
+
+   🔴 SANS COULEUR, ET LE JETON EXISTE DÉJÀ : `--spy-halo`, posé le 27/08 pour
+   le scrollspy du rail — encre le jour, lueur la nuit. ⛔ Aucune teinte de
+   l'échelle d'avancement (§6) : le vert, le bleu et le rouge disent où on en
+   est, pas où on regarde.
+   📌 Eric a écarté lui-même la confusion avec le halo du rail : *« il n'y a
+   qu'une espèce visible à la fois »* — celui-ci vit AUTOUR d'un panneau,
+   l'autre DANS un panneau. */
+.panneau[data-actif="true"] { box-shadow: 0 0 6px 2px var(--spy-halo); }
+
+/* ── LE CAPTEUR D'ÉVEIL — on change de panneau actif en CLIQUANT DESSUS ─────
+   Eric, 2026-09-02 : on change de panneau actif en cliquant dessus, et
+   *« si je clique sur le belt, c'est l'élément actif qui bouge »*.
+
+   🔴 POURQUOI UN ORGANE ET PAS UN ÉCOUTEUR SUR LE PANNEAU : le contenu du
+   panneau passif est `inert` — donc ni cliquable, ni ATTEIGNABLE AU CLAVIER.
+   Sans ce bouton, un joueur au clavier n'aurait AUCUN chemin vers le second
+   panneau. Il porte donc son nom (`aria-label`), comme tout organe muet.
+   ⛔ Il n'est pas un décor : il ne peint rien, il ne fait qu'attendre le clic
+   qui arme le panneau. */
+.panneau-eveil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: none;
+  padding: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  -webkit-tap-highlight-color: transparent;
+}
+.panneau-eveil:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
 
 /* ══ LES TROIS DALLES (III.2, bible §5) ════════════════════════════════
    Le voile suit la DENSITÉ D'INFORMATION du panneau, pas le goût.
@@ -338,6 +448,63 @@ body {
   font-weight: 700;
 }
 .belt-item { scroll-snap-align: center; flex: none; }
+
+/* ══ LE BELT DÉROULÉ — lot 120, vue double ════════════════════════════════
+   📐 Eric, 2026-09-02 : *« belt totalement déroulé »*. Il s'étale sur toute
+   la largeur et ⛔ NE DÉFILE PLUS : les huit crans tiennent tous, à l'œil, en
+   même temps.
+
+   📏 CE QUE LA MESURE A IMPOSÉ, ET ELLE NE LAISSAIT PAS LE CHOIX (témoin : le
+   cran du belt v429 AVEC son libellé, échelle 1, Chromium 375 × 812) :
+
+     Identity 114 · Species 118 · Inheritance 142 · Destiny 114
+     Class     99 · Abilities 117 · Skills       97 · Equipment 138
+     ─────────────────────────────────────────────────────────────
+     les huit crans .................. 939
+     + 7 gouttières de 8 .............  56
+     IL FAUDRAIT ..................... 995 blg
+     la piste offre, dans 758 ........ 684   (758 − 37 − 37, les deux
+                                              rembourrages d'onglet)
+     IL MANQUE ....................... 311
+
+   ⛔ Aucun corps ne les sauve : à T2 il faudrait encore 876 blg, à T1 817.
+   ✅ DONC LE CRAN PORTE SON NUMÉRO SEUL, et c'est exactement ce que le croquis
+   dessine — huit rectangles égaux et VIDES. Le nom n'est pas perdu : il
+   déménage dans l'`aria-label` du cran, que `paintBelt` pose dans les deux
+   vues (⛔ pas de `display: none` — on RECOMPOSE le cran, on ne masque pas un
+   mot ; c'est le défaut n°3, garde 4).
+   ⭐ NORMES §1 quater nommait déjà *« la ceinture réduite aux numéros »* parmi
+   les trois économies possibles ; ici elle rend 311 blg de largeur, ce qui la
+   rend nécessaire plutôt que souhaitable. */
+:root[data-vue="double"] .belt-track { overflow-x: hidden; }
+:root[data-vue="double"] .belt-item {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+}
+
+/* ── LES DEUX HALOS DU BELT ────────────────────────────────────────────────
+   Eric, 2026-09-02 : *« un halo fin autour du cran de l'écran inactif, un
+   halo épais autour du cran de l'écran actif »*, et *« bon on lâche les
+   traits »* — les deux traits du croquis sont abandonnés, le halo les
+   remplace.
+
+   🔴 SANS COULEUR : même jeton `--spy-halo` que la dalle active. Le vert et le
+   bleu du belt appartiennent à l'échelle d'avancement (§6) et n'ont rien à
+   dire sur « où je regarde ».
+
+   ⭐ `filter: drop-shadow` ET PAS `box-shadow`, ET C'EST UNE RAISON DE
+   MÉCANIQUE : un cran porte DÉJÀ son `box-shadow` — le liseré de verre, plus
+   le lavis d'accent quand il est courant, plus les deux liserés d'onglet qui
+   diffèrent par bout. Réécrire la propriété effacerait tout ça et il faudrait
+   la recomposer quatre fois. Le filtre, lui, S'AJOUTE : une seule paire de
+   règles couvre les crans ET les deux onglets, sans rien reprendre.
+   ⭐ L'ÉPAIS EST LE FIN, DEUX FOIS : la même lueur repassée, donc jamais deux
+   réglages à tenir d'accord. */
+[data-vue-cran="passif"] { filter: drop-shadow(0 0 2px var(--spy-halo)); }
+[data-vue-cran="actif"] {
+  filter: drop-shadow(0 0 3px var(--spy-halo)) drop-shadow(0 0 3px var(--spy-halo));
+}
 
 /* ══ LES DEUX ONGLETS DE BOUT ═══════════════════════════════════════════
    Eric, 2026-08-19. Ils sont posés SUR la piste, collés en haut de l'écran,
@@ -4359,6 +4526,14 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 .universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
+/* 🚪 UN INTERRUPTEUR QUE LA FENÊTRE NE PORTE PAS — lot 120, la porte du double
+   affichage. ⛔ NI CACHÉ NI RETIRÉ : un réglage qui disparaît laisse croire
+   qu'il n'existe pas. Il reste lisible et il DIT pourquoi il dort (la note
+   sous lui) — c'est la même loi que le `Done` gris de §6, *« le joueur doit
+   pouvoir lire ce qu'il n'a pas encore fait »*.
+   ⭐ `--text-muted` et pas `--border-strong` : le jeton du gris ratifié le
+   26/08, celui qui reste DANS la bande de contraste des autres boutons. */
+.universe-bascule:disabled { color: var(--text-muted); cursor: not-allowed; }
 .universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
 
 /* OÙ VIT CE PERSONNAGE (2026-08-20) — même gabarit que le bloc au-dessus, et

@@ -313,9 +313,22 @@ test("E ter — `resize` est branché sur refresh, jamais sur openSurface", () =
   }
 });
 
-test("E quater — le cadre est monté UNE FOIS : `mountFrame()` n'est appelée qu'à un seul endroit", () => {
-  const appels = shellText.match(/mountFrame\(\)/g) || [];
-  assert.equal(appels.length, 2, "sa déclaration et son unique appel — pas un troisième site qui remonterait le cadre");
+/* ⚠️ RÉÉCRIT AU LOT 120 — L'INVARIANT TIENT, IL A DEUX MOITIÉS MAINTENANT.
+   La clause comptait `mountFrame()` : deux occurrences, sa déclaration et son
+   unique appel. Le double affichage (Eric, 2026-09-02) a coupé cette fonction
+   en deux — un BELT monté une fois, un PANNEAU monté deux fois — donc la
+   phrase « le cadre est monté une fois » était devenue fausse telle quelle.
+   ⛔ Elle n'est PAS relâchée pour autant (TRAPS : *« réécrire à la nouvelle
+   vérité, jamais relâcher »*) : elle est plus serrée qu'avant, parce qu'elle
+   tient maintenant DEUX comptes au lieu d'un. Un troisième panneau, ou un
+   second belt, la fait rougir. */
+test("E quater — un seul BELT, exactement DEUX panneaux", () => {
+  const belts = shellText.match(/monterBelt\(\)/g) || [];
+  assert.equal(belts.length, 2,
+    "sa déclaration et son unique appel — un second belt et le croquis d'Eric n'est plus respecté (« belt totalement déroulé », UN pour les deux panneaux)");
+  const panneaux = shellText.match(/monterPanneau\(/g) || [];
+  assert.equal(panneaux.length, 3,
+    "sa déclaration et ses DEUX appels — le double affichage en pose deux, jamais un troisième");
 });
 
 /* ══ F — ⭐ CHAQUE MODULE DE `ui/` SE PARSE, ET LA COQUILLE AUSSI ══════════

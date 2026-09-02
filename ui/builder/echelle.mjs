@@ -59,19 +59,44 @@ function effacerLesClefsMortes() {
   } catch (_) { /* sans mémoire, il n'y a rien à effacer */ }
 }
 
-/** Les trois cotes du PANNEAU, lues dans les jetons. Elles ne se recopient
+/** Les cotes de l'APP, lues dans les jetons. Elles ne se recopient
  *  pas ici : `--measure` a déjà bougé une fois (migration `ch` → px du 29/08),
  *  et une somme figée dans le JS serait fausse au prochain réglage d'Eric sans
  *  qu'aucun test ne bronche. Le repli n'est qu'un filet pour le stub des tests.
  *  ⚠️ Lues sur `documentElement`, donc HORS du zoom : elles y valent leur
- *  compte de blg, ce qui est justement l'unité de ce calcul. */
-function cotesDuPanneau(racine) {
+ *  compte de blg, ce qui est justement l'unité de ce calcul.
+ *
+ *  🔴 DEUX LARGEURS, ET LES CONFONDRE SERAIT LA FAUTE « NOMMER LE TÉMOIN »
+ *  (lot 120) :
+ *    · `panneau` — la largeur d'UN panneau (375). C'est elle que la GRANDEUR
+ *      mesure, et c'est la décision du 31/08 : *« à 1366 blg avec un panneau
+ *      de 375, la fenêtre annonçait moyenne et la carte se coupait »* ;
+ *    · `largeur` — la largeur de l'APP, un ou deux panneaux plus la gouttière
+ *      qui les sépare. C'est elle que l'ÉCHELLE vise, puisque c'est elle qui
+ *      doit tenir dans la fenêtre.
+ *  ⭐ Une seule formule pour les deux vues : à une colonne elle rend le
+ *  panneau nu, à deux `375 × 2 + 8`. Le compte vient de `--colonnes`
+ *  (tokens.css), que `data-vue` gouverne — jamais d'un `@media` de largeur
+ *  (§0 bis : il ne se réévalue pas sous `zoom`).
+ *
+ *  `colonnes` : un compte imposé, pour DEMANDER ce que rendrait une autre vue
+ *  sans y passer. C'est ce dont la porte du double affichage a besoin —
+ *  savoir si deux panneaux tiendraient, alors qu'on n'en affiche qu'un. */
+function cotesDeLApp(racine, colonnes) {
   const cs = getComputedStyle(racine);
   const px = (nom, defaut) => {
     const v = parseFloat(cs.getPropertyValue(nom));
     return Number.isFinite(v) && v > 0 ? v : defaut;
   };
-  return { largeur: px("--panneau-l", 375), hauteur: px("--panneau-h", 520) };
+  const panneau = px("--panneau-l", 375);
+  const gouttiere = px("--sp-8", 8);
+  const n = Number.isFinite(colonnes) && colonnes > 0 ? colonnes : px("--colonnes", 1);
+  return {
+    panneau,
+    colonnes: n,
+    largeur: panneau * n + gouttiere * (n - 1),
+    hauteur: px("--panneau-h", 520)
+  };
 }
 
 /** 🔴 L'ÉCHELLE EST CONTINUE — Eric, 2026-08-31 :
@@ -94,12 +119,31 @@ function cotesDuPanneau(racine) {
  *  ⚠️ Rien ne borne le haut non plus : sur un mur de 4 000 px l'app suit. Si
  *  un plafond devient nécessaire, il se posera comme une cote d'Eric, pas
  *  comme une prudence d'architecte. */
-export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine) {
-  const p = cotesDuPanneau(racine);
+export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes) {
+  const p = cotesDeLApp(racine, colonnes);
   const parLargeur = largeurFenetre / p.largeur;
   const parHauteur = hauteurFenetre / p.hauteur;
   const f = Math.min(parLargeur, parHauteur);
   return Number.isFinite(f) && f > 0 ? f : 1;
+}
+
+/** 🚪 LA PORTE DU DOUBLE AFFICHAGE — lot 120.
+ *
+ *  Le double affichage n'est offert que si la fenêtre porte DEUX panneaux à
+ *  une échelle d'au moins 1 : sous ce seuil, deux panneaux ne tiendraient
+ *  qu'en rapetissant le dessin sous sa taille de lecture, ce qui est
+ *  exactement ce que la règle sacrée refuse de faire subir aux organes.
+ *
+ *  📏 CE QUE ÇA VAUT, mesuré sur les cotes du jour (375 × 560, gouttière 8) :
+ *  la fenêtre doit faire au moins **758 × 560 px**. Un iPad couché
+ *  (1366 × 1024) rend ×1,80 et REMPLIT l'écran ; un iPhone debout
+ *  (375 × 812) rend ×0,49 et reste donc en vue simple.
+ *
+ *  ⛔ ELLE NE SE LIT PAS DANS UN `@media` (§0 bis), et elle ne se lit pas non
+ *  plus sur `--colonnes` : on demande ce que rendraient DEUX colonnes pendant
+ *  qu'on en affiche peut-être une. C'est à ça que sert le compte imposé. */
+export function laPlaceDuDouble(largeurFenetre, hauteurFenetre, racine) {
+  return echelleQuiTient(largeurFenetre, hauteurFenetre, racine, 2) >= 1;
 }
 
 /** L'échelle automatique — le facteur exact, jamais arrondi à un cran.
@@ -197,7 +241,12 @@ export function appliquerEchelle(fenetre, racine) {
      fenêtre annonçait « moyenne » et la carte se coupait de 39 blg — forcer
      « etroite » à la main a fait tomber le débordement à 15. Le seuil doit
      donc mesurer LE PANNEAU. */
-  const grandeur = grandeurDe(cotesDuPanneau(html).largeur);
+  /* ⚠️ ET C'EST LE PANNEAU QU'ON MESURE, PAS L'APP — lot 120, « nommer le
+     témoin ». La grandeur dit la place d'un DESSIN (375 blg, toujours) ; la
+     largeur de l'app dit ce qui doit tenir dans la fenêtre (375 ou 758). Les
+     confondre ferait basculer tout le builder en grandeur « moyenne » le jour
+     où l'on ouvre un second panneau, alors qu'aucun écran n'a gagné un pixel. */
+  const grandeur = grandeurDe(cotesDeLApp(html).panneau);
   html.dataset.grandeur = grandeur;
   return { cran, grandeur };
 }

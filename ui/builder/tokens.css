@@ -297,6 +297,21 @@
      longueur, `echelle.mjs` lit le nombre tel quel. */
   --panneau-l: 375;
   --panneau-h: 560;
+  /* ══ COMBIEN DE PANNEAUX L'APP PORTE — lot 120, le double affichage ═══════
+     Eric, 2026-09-02, croquis à l'appui : *« belt totalement déroulé »*, deux
+     panneaux côte à côte, *« background commun aux deux éléments »*.
+
+     🔴 UN COMPTE, PAS UNE LARGEUR. C'est §1 ter appliqué à la lettre — *« une
+     cote de contenant ne s'écrit pas, elle se déduit »* : la largeur de l'app
+     vaut `--panneau-l × --colonnes + --sp-8 × (--colonnes − 1)`, et cette
+     formule est écrite UNE FOIS, dans `.app`. Le jour où Eric bouge
+     `--panneau-l`, les deux vues suivent sans qu'on y revienne.
+     ⭐ ET UNE SEULE FORMULE POUR LES DEUX VUES : à une colonne elle rend
+     375 + 0, à deux 375 × 2 + 8 = 758. Aucune branche à ne jamais parcourir.
+     ⛔ La vue ne se lit PAS dans un `@media` de largeur (§0 bis : il ne se
+     réévalue pas sous `zoom`) : c'est `shell.mjs` qui pose `data-vue` sur
+     `<html>`, là où l'échelle est connue. */
+  --colonnes: 1;
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
@@ -675,6 +690,15 @@
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+/* ══ LA VUE DOUBLE — le SEUL endroit qui change le compte de colonnes ═══════
+   `shell.mjs` pose `data-vue="double"` sur `<html>` quand l'interrupteur du
+   Menu est allumé ET que la fenêtre porte deux panneaux à l'échelle 1 (voir
+   `vue.mjs`, la porte de largeur). Tout le reste — la largeur de l'app, le
+   belt déroulé, les halos — se dérive de ce seul attribut.
+   ⭐ UN ATTRIBUT, PAS UN NŒUD : c'est la règle du socle. Changer de vue ne
+   redessine pas le cadre, le navigateur remet en page tout seul. */
+:root[data-vue="double"] { --colonnes: 2; }
 
 @font-face {
   font-family: "Inter";
