@@ -142,6 +142,22 @@ export function vibrationsAccessibles(data, score) {
   return toutes.filter((v) => Number(v.rank) <= max);
 }
 
+/* ⭐ LE MOT DE L'AIGUILLEUR DU R — Eric, 2026-09-02 : *« l'aiguilleur donne une
+   explication plus META de ce qui va se passer »*.
+   ⚖️ C'EST CE QUI LE SÉPARE DE LA PROSE AU-DESSUS, et les deux sont sur la même
+   dalle : les deux paragraphes parlent de **Nymedes** (vingt-deux cartes vous
+   regardent), celui-ci parle du **builder** (ce que les deux boutons vont
+   faire de vous). Un aiguilleur *« PRÉVIENT »* (NORMES §7) — il ne raconte pas.
+   ⛔ IL NE PROMET PAS CE QUE L'ÉCRAN NE TIENT PAS : les deux branches finissent
+   bien sur le même écran (`renderDestinyFinal`, un seul rendu pour deux
+   chemins), et rien n'entre au document avant `Next` (B6.2, le tirage vit dans
+   l'état d'écran). Les deux moitiés de la phrase sont donc vérifiables.
+   📌 IL VIT ICI, À UN SEUL ENDROIT — un texte d'écran recopié dans un test
+   diverge au premier réglage (même loi que `CEREMONIE_TEXTE`). */
+export const PORTE_AIGUILLEUR =
+  "Both doors end on the same screen — Draw plays a short ceremony, " +
+  "Choose opens the deck. Nothing reaches your sheet until you press Next.";
+
 /* ══ ① LE R — L'AMBIANCE, ET LES DEUX PORTES ═══════════════════════════════
    Eric, 2026-08-30 : *« explicatif sur R : juste explication globale, peu
    détaillée, ambiance »*. Le détail est pour la fin ; ici on donne l'envie et
@@ -157,6 +173,23 @@ export function renderDestinyPorte(act) {
   dalle.append(el("p", "card-porte-mot", [text(
     "Let fate deal it, or walk the deck and take the face you recognise."
   )]));
+
+  /* 🔵 LA BANDE D'AIGUILLEUR, JUSTE AU-DESSUS DES BOUTONS — Eric, 2026-09-02 :
+     *« insère un bloc pour placer l'aiguilleur au dessus des boutons »*.
+     ⭐ C'EST `.guide-mot`, L'ORGANE DU RANG B, PAS UN SOSIE. Il apporte déjà le
+     liseré bleu, le fond à 12 %, le corps T1, l'interligne 1,5 et ses trois
+     lignes de hauteur minimale — les six réglages que le 26 et le 27/08 ont
+     coûté. Une bande « presque pareille » écrite ici aurait divergé au premier
+     ajustement, exactement comme l'aurait fait un pied à moi (voir `pied()`).
+     ⛔ ET SA PLACE EST LA MÊME QU'AILLEURS : *« on le met en bas, juste
+     au-dessus des boutons »* (Eric, 26/08) — il se lit au moment où l'on
+     cherche la sortie, c'est-à-dire quand la question « et maintenant ? » se
+     pose. Ici c'est littéralement la question que le R pose.
+     📌 Ses 8 blg au-dessus et en dessous ne sont PAS écrits sur lui : la dalle
+     les donne par son `gap`, une seule fois pour tous ses enfants (shell.css).
+     C'est ce qui empêche que deux marges s'additionnent — la faute que
+     NORMES §4 ter nomme trois fois. */
+  dalle.append(el("p", "guide-mot", [text(PORTE_AIGUILLEUR)]));
 
   const rangee = pied(null, act);
   rangee.append(bouton("Draw", "parcours-next", () => act({ kind: "destinyDraw" })));

@@ -36,6 +36,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { stripComments } from "./source-scan.mjs";
+/* Le test F REND l'écran, il ne fait pas que lire sa source — un ordre
+   d'organes ne se prouve pas en cherchant deux chaînes dans un fichier. Le
+   module d'écran a donc besoin d'un `document`, comme dans
+   `destiny-step.test.mjs`, et il doit exister AVANT son import. */
+import { createTestDocument } from "./dom-stub.mjs";
+
+globalThis.document = createTestDocument();
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui", "builder");
@@ -174,6 +181,60 @@ test("C — CHAQUE dalle de Destiny se rembourre comme la dalle du rang B", () =
       "reproche au livre composite. Si l'écart est VOULU, il s'argumente à côté de sa règle " +
       "(NORMES : une exception se nomme) — et ce garde se rouvre pour le dire.");
   }
+});
+
+test("E — le R espace ses enfants par UN gap, et aucun d'eux ne pose de marge verticale", () => {
+  /* ⛔ CE GARDE EXISTE POUR EMPÊCHER LE RETOUR DE LA FAUTE, pas pour figer une
+     forme. Eric a dicté « marges sup et inf 8 blg » autour de la bande
+     d'aiguilleur ; l'écrire EN MARGE sur la bande l'aurait ajoutée aux 8 que le
+     paragraphe du dessus pose déjà — 16 en haut, 8 en bas. NORMES §4 ter a payé
+     cette addition trois fois (« 32 = 16 + 16 »).
+     ⭐ L'INVARIANT ÉPELÉ : dans cette dalle, l'écart a UN SEUL écrivain. Tant
+     qu'il est vrai, aucune cote ne peut s'additionner à une autre — quel que
+     soit le nombre d'organes qu'on ajoutera au R demain. */
+  const dalle = REGLES.filter((r) => !r.sous && r.parts.includes(".card-porte"));
+  assert.ok(dalle.length > 0, "la règle `.card-porte` doit exister dans shell.css");
+  const corps = dalle.map((r) => r.corps).join(";");
+  assert.match(corps, /gap:\s*var\(--sp-8\)/,
+    "`.card-porte` doit poser son écart en `gap: var(--sp-8)` — c'est la cote " +
+    "qu'Eric a dictée le 2026-09-02 pour la bande d'aiguilleur, et la poser une " +
+    "seule fois sur le conteneur est ce qui empêche deux marges de s'additionner.");
+  assert.match(corps, /flex-direction:\s*column/,
+    "un `gap` ne s'applique qu'à une grille ou une boîte flexible — `.card-porte` " +
+    "doit déclarer sa colonne, sinon l'écart est écrit et ne rend rien.");
+
+  const remise = REGLES.find((r) => !r.sous && r.parts.includes(".card-porte > *"));
+  assert.ok(remise && /margin-block:\s*0/.test(remise.corps),
+    "`.card-porte > * { margin-block: 0 }` manque. Sans cette remise à zéro, la " +
+    "marge basse que chaque enfant porte déjà (titre 8, paragraphes 8, `.guide-mot` 8) " +
+    "S'AJOUTE au `gap` : l'écart voulu à 8 en rend 16, et personne ne le voit venir.");
+});
+
+test("F — la bande d'aiguilleur du R est l'organe partagé, et elle est juste au-dessus des boutons", async () => {
+  /* 🔴 DEUX CHOSES, ET LA SECONDE EST LA PLUS FRAGILE. Qu'il y ait une bande se
+     verrait ; qu'elle soit le DERNIER organe avant le pied ne se voit qu'ici.
+     Eric, 26/08 puis 02/09 : « on le met en bas, juste au-dessus des boutons ».
+     Un organe glissé plus haut par un lot pressé rendrait un écran qui a l'air
+     juste et qui ne se lit plus au bon moment. */
+  const { renderDestinyPorte, PORTE_AIGUILLEUR } = await import("../ui/builder/destiny-step.mjs");
+  const dalle = renderDestinyPorte(() => {});
+  const enfants = [...dalle.childNodes].filter((n) => n.className !== undefined);
+  const rangs = enfants.map((n) => String(n.className));
+
+  const iBande = rangs.findIndex((c) => c.split(/\s+/).includes("guide-mot"));
+  assert.ok(iBande >= 0,
+    `le R ne porte aucune bande \`.guide-mot\` — ses enfants sont ${JSON.stringify(rangs)}. ` +
+    "C'est l'organe du rang B, réutilisé ; une bande écrite à côté sous un autre nom " +
+    "perdrait ses six réglages du 26 et du 27/08 et divergerait au premier ajustement.");
+  const iPied = rangs.findIndex((c) => c.split(/\s+/).includes("parcours-pied"));
+  assert.ok(iPied >= 0, "le R doit porter le pied `.parcours-pied`");
+  assert.equal(iBande, iPied - 1,
+    `la bande est en position ${iBande} et le pied en ${iPied} : elle doit être JUSTE ` +
+    `au-dessus des boutons. Ordre rendu : ${JSON.stringify(rangs)}.`);
+
+  assert.equal(dalle.querySelectorAll(".guide-mot")[0].textContent, PORTE_AIGUILLEUR,
+    "le mot rendu doit être celui de la constante exportée — un texte d'écran recopié " +
+    "dans un test diverge au premier réglage (même loi que `CEREMONIE_TEXTE`).");
 });
 
 test("D — aucune règle de la feuille n'est écrite deux fois à l'identique", () => {

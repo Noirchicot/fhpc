@@ -7424,8 +7424,38 @@ button { font: inherit; }
    ⏳ Identity reste à 8 des quatre côtés : le ramener au rang B déplace un
    écran qui n'est pas de ce lot — c'est une décision d'Eric, pas une
    conséquence de ce paragraphe. */
-.card-porte { padding: var(--sp-4) var(--sp-16); }
-.card-porte-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); }
+/* 🔴 UN SEUL ÉCART, UN SEUL ÉCRIVAIN — Eric, 2026-09-02, en demandant la bande
+   d'aiguilleur : *« marges sup et inf 8 blg »*.
+   ⭐ CE N'EST PAS UNE MARGE POSÉE SUR LA BANDE, C'EST LE `gap` DE LA DALLE, et
+   la différence est toute la leçon de NORMES §4 ter. Une marge de 8 posée sur
+   l'aiguilleur se serait AJOUTÉE aux 8 que le dernier paragraphe pose déjà
+   sous lui : 16 au-dessus, 8 en dessous, et un écran qui boite. C'est
+   exactement la faute que §4 ter a payée trois fois — *« 32 = 16 + 16 »*, deux
+   marges légitimes chacune de son côté.
+   📏 MESURÉ AVANT D'Y TOUCHER : les trois écarts du R valaient DÉJÀ 8 (titre →
+   mot, mot → mot, mot → pied), chacun payé par la marge basse de l'enfant du
+   dessus. Le `gap` les reproduit à l'identique et les rend INADDITIONNABLES —
+   c'est un remplacement, pas un réglage : `4 · 4 · 4` de cotes deviennent une.
+   ⛔ LES ENFANTS NE POSENT DONC PLUS AUCUNE MARGE VERTICALE. La seule qui
+   survit est celle du pied, rendue nommément juste après : elle ne sert pas
+   d'écart entre deux organes, elle porte les 4 blg sous le dernier — et avec
+   les 4 du rembourrage bas, elle rend les 8 sous les boutons du témoin. */
+.card-porte {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-4) var(--sp-16);
+}
+.card-porte > * { margin-block: 0; }
+/* (0,2,0) — il faut battre `.card-porte > *` ET `.parcours-pied`, tous deux à
+   (0,1,0). La spécificité bat l'ordre : leçon `button.fiche-livre`, 02/09. */
+.card-porte > .parcours-pied { margin-bottom: var(--sp-4); }
+
+/* 🔴 LE TITRE DU R EST CENTRÉ — Eric, 2026-09-02 : *« your major arcana
+   centré »*. ⚖️ C'est une exception NOMMÉE au rang B, où le titre est ferré à
+   gauche (`.guide-titre`) : le R n'est pas un menu qu'on parcourt, c'est une
+   page de garde à deux portes, et son titre coiffe la dalle entière. */
+.card-porte-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); text-align: center; }
 .card-porte-mot {
   margin: 0 0 var(--sp-8);
   max-width: var(--measure);
