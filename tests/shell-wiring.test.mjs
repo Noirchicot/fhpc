@@ -183,11 +183,41 @@ test("14 — ⛔ LA CEINTURE N'A PLUS DE CHEVRONS DU TOUT, et c'est la décision
      recentre à la sélection. Une flèche qui double un geste déjà acquis
      n'ajoute rien — elle occupe.
 
-     Le garde s'inverse donc : il interdit leur retour silencieux. */
-  assert.equal(/belt-chevron/.test(shellText), false,
-    "aucun chevron de ceinture ne doit revenir sans une décision d'Eric");
+     Le garde s'inverse donc : il interdit leur retour silencieux.
+
+     ══ ⚖️ ET LE RETOUR A EU LIEU LE 2026-09-02 — IL N'AVAIT RIEN DE SILENCIEUX
+     Eric, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` à l'appui :
+     *« sur la version courte je rajoute ces chevrons cliquables, qui
+     s'intercalent parfaitement entre les tuiles »* · *« quand je suis en bout
+     de course le chevron disparaît »* · *« il doit fonctionner en tactile et
+     en clic souris »*. ⭐ **Le garde a fait exactement son travail** : il a
+     exigé une décision, et la décision est venue — datée, dessinée, chiffrée.
+
+     🔴 ET L'OBJECTION DU 15/08 EST RÉPONDUE, PAS OUBLIÉE. Ce qui était moche
+     alors, c'était que les flèches étaient posées PAR-DESSUS la piste et
+     tombaient sur le NUMÉRO du cran voisin. Les nouvelles vivent dans une
+     zone que la piste **réserve** dans son écart : mesuré au navigateur, la
+     cible occupe 29 → 73 blg et la première tuile commence à 73. Elles ne
+     recouvrent plus rien.
+
+     ➡️ LE GARDE SE RÉÉCRIT DONC À LA NOUVELLE VÉRITÉ (TRAPS : *« réécrire à
+     la nouvelle vérité, jamais relâcher »*), et il est PLUS serré qu'avant :
+     il ne comptait qu'une absence, il tient maintenant les quatre propriétés
+     qu'Eric a nommées. */
+  assert.match(shellText, /className = "belt-chevron"/,
+    "les deux chevrons du belt étroit existent (décision d'Eric du 2026-09-02, croquis à l'appui)");
+  assert.equal((shellText.match(/className = "belt-chevron"/g) || []).length, 1,
+    "et ils sortent d'un SEUL producteur — deux fabriques divergeraient au premier réglage");
+  assert.match(shellText, /belt\.avant\.hidden = mou <= 0 \|\| auDebut/,
+    "🔴 en bout de course, le chevron DISPARAÎT — *« quand je suis en bout de course le chevron disparaît »*");
+  assert.match(shellText, /belt\.apres\.hidden = mou <= 0 \|\| aLaFin/,
+    "des deux côtés, et la même condition efface les deux en vue double (mou nul)");
+  assert.match(shellText, /crans\[1\]\.offsetLeft - crans\[0\]\.offsetLeft/,
+    "le pas se MESURE (une tuile plus sa gouttière), il ne s'écrit pas — §1 ter");
+  assert.equal(/scrollBy\(\{ left: sens \* pas, behavior/.test(shellText), false,
+    "⛔ aucun `behavior` en dur : un geste laisse le CSS trancher, `prefers-reduced-motion` compris");
   assert.equal(/frame\.prev\b|frame\.next\b/.test(shellText), false,
-    "et rien ne doit plus les piloter");
+    "et les DEUX BOUTONS D'AVANT ne reviennent pas : ce sont des organes du belt, pas de la coquille");
 });
 
 test("14 bis — et le saut lui-même est BORNÉ par REVIEW_INDEX, jamais par la longueur du tableau", () => {

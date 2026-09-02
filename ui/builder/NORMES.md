@@ -2319,7 +2319,14 @@ une fois »*.
 | **disparition** | il s'efface, **MAIS LA ZONE RESTE CLIQUABLE** |
 | **effet** | appuyer = **scroll** / page suivante |
 
-⭐ *« Pas besoin d'être efficace au tactile — surtout utile pour la souris. »*
+~~⭐ *« Pas besoin d'être efficace au tactile — surtout utile pour la souris. »*~~
+🔴 **RENVERSÉ LE 2026-09-02** — Eric, sur le chevron du belt : *« il doit fonctionner en tactile
+et en clic souris »*. C'était la **seule** exception à `--touch` 44 de tout le registre ; elle
+tombe. ➡️ La cible d'un chevron vaut `--touch`, et c'est le DESSIN qui se déduit d'elle
+(`44 − 2 × 8 = 28`), jamais l'inverse. ⚠️ **Et ça se paie ailleurs, dit plutôt que masqué** : au
+belt étroit, les 12 blg gagnés par chaque cible sont pris aux trois tuiles, qui passent de 79 à
+**71 blg**. *« Un contrôle ne se laisse jamais dimensionner par un dessin »* — ni par ses
+voisins. Voir §6 ter, le belt.
 
 ⭐ **Et le compte sous le chevron est ce qui accomplit la norme des listes** : sans lui, une liste
 paginée est un défilement sans fin ; avec lui, **toute liste a une taille connue** et le joueur
@@ -2330,6 +2337,115 @@ sait toujours où il en est.
 défilement, pas un contrôle »*). La norme le déplace **à gauche et à droite** et lui ajoute un
 compte. ⛔ La cote 36 × 14 et le refus du `--touch` 44 datent d'un objet qui n'était **qu'**une
 amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pagination.**
+
+---
+
+## 6 ter. 🎗️ LE BELT — DEUX LARGEURS, ET CE QUI CHANGE DANS CHACUNE *(2026-09-02)*
+
+> Eric, 2026-09-02, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` :
+> **« TOUTES LES TUILES DU MENU FONT LA MÊME TAILLE »** · *« sur la version courte je rajoute ces
+> chevrons cliquables, qui s'intercalent parfaitement entre les tuiles »* · *« quand je suis en
+> bout de course le chevron disparaît »* · *« mets le voile à 100 % pour menu et sheet »* ·
+> **« désormais le belt fonctionne sur deux largeurs, avec des exceptions dans chaque format ;
+> il doit fonctionner en tactile et en clic souris »**.
+
+🔴 **CE QUI NE CHANGE PAS, ET C'EST LA CONSTANTE DE CADRES §0** : la ceinture est **toujours
+visible**, elle fait **60 blg**, et le panneau garde ses **500**. Tout ce qui suit se loge dans ces
+60 blg — un belt qui grandit prend sa place à la scène, et le 31/08 a mesuré qu'il n'y a que
+**9 blg** de mou.
+
+### ⭐ LA LOI, EN UNE PHRASE : **une tuile vaut la piste divisée par ce qu'elle montre**
+
+| | **le belt ÉTROIT** *(vue simple)* | **le belt DÉROULÉ** *(vue double)* |
+|---|---|---|
+| ce que la piste montre | **3** crans *(le croquis en dessine trois)* | **les 8** |
+| la piste | **229** blg | **684** blg |
+| **une tuile** | **71** | **78,5** |
+| le chevron | ✅ **deux**, un par bout | ⛔ **aucun** — il n'y a plus de course |
+| le défilement | oui, d'un cran à la fois | ⛔ **aucun** — tout est là |
+
+⛔ **CE N'EST PAS DEUX RÈGLES, C'EST UNE RÈGLE ET DEUX COMPTES.** La même formule sert les deux
+formats ; ce sont *« les exceptions dans chaque format »* qu'Eric nomme, et elles se réduisent à
+un nombre de crans visibles. ⭐ Une seule ligne de feuille bascule le tout —
+`--belt-chevron-zone`, qui vaut 24 en étroit et 0 en double.
+
+### 📐 LA TUILE — deux rangs, et c'est ce qui rend « la même taille » possible
+
+| | |
+|---|---|
+| **le dessin** | la **pastille numérotée** AU-DESSUS, le **nom** en dessous, centrés |
+| **le corps du nom** | 🔴 **T1** |
+| **la hauteur** | **44** — `--touch`, le plancher, atteint pile |
+| **la largeur** | ⛔ **jamais écrite** — elle se déduit de la piste *(§1 ter)* |
+
+⭐ **POURQUOI DEUX RANGS, ET CE N'EST PAS UN GOÛT** : côte à côte, la pastille et le mot faisaient
+une largeur qui suivait **le mot** — mesuré, `Class` 99 blg contre `Inheritance` 142. Empilés, la
+largeur ne dépend plus de rien, et *« toutes les tuiles font la même taille »* devient possible
+**par construction** plutôt que par réglage.
+
+📏 **ET C'EST LA LARGEUR QUI A CHOISI LE CORPS**, mesuré au `measureText` avec la police embarquée,
+sur le mot le plus long — `Inheritance` : **84 blg à T4** *(le corps d'avant)* · 74 à T3 ·
+63,6 à T2 · **53 à T1**. La tuile en offre **63**. ⛔ Seul T1 passe.
+⭐ Même arbitrage qu'au jeton le 26/08 *(« 13 T1, on aura moins d'emmerdes »)* : à T1 tout rentre,
+donc **aucun nom ne force à inventer une abréviation**.
+
+⚖️ **ET ÇA RENVERSE UNE DÉCISION DU LOT 120, DONT LA CAUSE A DISPARU.** Le 120 rendait le cran en
+**numéro seul** en vue double, parce que les huit crans à un rang demandaient **995 blg pour
+684**. Deux rangs suppriment cette largeur : **le nom est revenu partout**, et plus rien n'efface
+un `textContent`. ⭐ C'est exactement ce que *« ça va en partie s'extrapoler à la version large »*
+voulait dire.
+
+### 🎚️ LE CHEVRON DU BELT — un organe du seul format étroit
+
+| | |
+|---|---|
+| **où** | dans la gouttière **entre l'onglet de bout et la première tuile**, aux deux bouts |
+| **la cible** | 🔴 **`--touch` 44** — *« il doit fonctionner en tactile et en clic souris »* |
+| **le dessin** | **28** = `--touch − 2 × --sp-8`, **déduit de la cible**, jamais l'inverse |
+| **son habit** | 🔴 **le voile d'un cran — 35 %**, la même arête de verre, la même hauteur |
+| ⛔ **dessiné, jamais un glyphe** | deux bords d'un carré tournés de 45° *(la loi du pouce et du livre)* |
+| **le pas** | **une tuile**, jamais un écran : la rangée passe de `1 2 3` à `2 3 4` |
+| **en bout de course** | 🔴 **il disparaît** — ⭐ **et sa place reste** |
+
+⭐ **« S'INTERCALER PARFAITEMENT » SE LIT DANS LE VOILE**, et c'est ce qui a décidé son habit : un
+cran est une **dalle à 35 %** *(15/08)* — le chevron en est une aussi. Il appartient à la rangée.
+⛔ **Et c'est pour ça que les deux BOUTS passent à 100 % le même jour** : eux n'y appartiennent
+pas, et l'opacité le dit sans un mot. **Un seul geste, deux moitiés.**
+
+🔴 **SA PLACE RESTE QUAND IL DISPARAÎT**, et c'est la moitié qu'on oublie : le chevron est posé en
+ABSOLU sur une zone que la piste **réserve** dans son écart. Le retirer ne déplace donc aucune
+tuile — sans ça, la rangée sauterait d'un cran chaque fois qu'on atteint un bout. C'est la loi du
+§6 *(« il s'efface, mais la zone reste »)*, appliquée à la lettre.
+⛔ **`hidden`, jamais un `display: none` en feuille** *(défaut n°3, garde 4)* — et la règle
+d'auteur se borne à `:not([hidden])`, faute de quoi elle **bat** le `[hidden]` de l'agent
+utilisateur : mesuré le jour même, le chevron restait peint en annonçant qu'il n'y était plus.
+
+📐 **AUCUNE TUILE N'EST JAMAIS COUPÉE, ET C'EST DE L'ARITHMÉTIQUE** : la piste vaut
+`3 × 71 + 2 × 8 = 229`, le pas vaut `71 + 8 = 79`, et `keepInView` **centre** le cran courant —
+donc `scrollLeft = 79 × (n − 1)`, toujours un multiple exact du pas. **Les trois régimes de
+défilement — le chevron, le recentrage, l'aimantation — tombent sur les mêmes bornes.**
+⭐ C'est ce qui autorise la piste à **clipper** son contenu *(un écart, plus un rembourrage)* sans
+contredire la règle du 15/08 : *« une dalle tranchée net fait une arête, pas une amorce »* — il
+n'y a jamais de dalle tranchée.
+
+### 🎛️ LES DEUX BOUTS — `Menu` et `Sheet`, à 100 %
+
+| | |
+|---|---|
+| **leur voile** | 🔴 **100 %, opaque** *(ils valaient 80 % depuis leur naissance)* |
+| **ce que ça dit** | ⛔ **ils ne sont pas des étapes** — ils sortent de la rangée sans un mot |
+| le reste | inchangé : demi-pastille happée par le bord, mot vertical, liseré 1 px |
+
+### ⚠️ CE QUE LE BANC NE SAIT PAS MESURER, dit plutôt que masqué
+
+📏 Mesuré le 02/09 dans le navigateur du banc : **aucun défilement lissé de script ne bouge** —
+ni sur la piste, ni sur la scène, dont les chevrons sont pourtant en production depuis le lot 70 ;
+et **aucun événement `scroll` n'est délivré**, même à un écouteur posé à la main juste avant.
+⛔ **C'est l'instrument qui est muet, pas le dépôt** — la même leçon que le `WKWebView` du 31/08,
+où l'iPad d'Eric a renversé le banc. On ne change pas le code pour plaire à un banc.
+⭐ **Ce que ça impose quand même, et c'est une bonne règle** : un geste peint **lui-même** l'état
+de ses chevrons, sur la position **visée** — jamais en attendant un événement. Un chevron qui
+mentirait pendant toute l'animation mentirait précisément pendant qu'on le regarde.
 
 ---
 

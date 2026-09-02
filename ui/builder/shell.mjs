@@ -2174,8 +2174,105 @@ function monterBelt() {
     return item;
   });
   belt.append(track);
+
+  /* ══ LES DEUX CHEVRONS DU BELT — lot 122 ═══════════════════════════════
+     Eric, 2026-09-02 : *« sur la version courte je rajoute ces chevrons
+     cliquables, qui s'intercalent parfaitement entre les tuiles »*.
+
+     🔴 HORS DE LA PISTE, ET C'EST LA MOITIÉ DU MÉCANISME : posés DANS la
+     piste, ils défileraient avec elle et sortiraient de l'écran au premier
+     geste. Ils vivent donc sur `.belt` — comme les deux onglets de bout,
+     pour la même raison — et la piste leur RÉSERVE leur place dans son
+     rembourrage (`--belt-chevron-zone`).
+     ⛔ Deux nœuds, posés une fois, jamais remplacés : `peindreLesChevrons`
+     n'écrit qu'un attribut dessus (SOCLE.md, « le cadre »). */
+  const chevrons = [-1, 1].map((sens) => {
+    const bouton = button("", () => decalerLeBelt(sens));
+    bouton.className = "belt-chevron";
+    bouton.dataset.sens = sens < 0 ? "avant" : "apres";
+    /* Un organe sans texte doit se NOMMER (§7 bis) — sinon il disparaît de la
+       page pour qui ne voit pas le dessin. */
+    bouton.setAttribute("aria-label", sens < 0 ? "Earlier steps" : "Later steps");
+    bouton.append(el("span", "belt-chevron-dalle"));
+    belt.append(bouton);
+    return bouton;
+  });
+
+  /* ⭐ LE DÉFILEMENT NE REDESSINE RIEN — SOCLE.md, la troisième ligne : il
+     écrit un attribut et s'arrête là. C'est le même contrat que le spy. */
+  track.addEventListener("scroll", () => peindreLesChevrons(), { passive: true });
+
   app.append(belt);
-  return { racine: belt, track, items };
+  return { racine: belt, track, items, avant: chevrons[0], apres: chevrons[1] };
+}
+
+/** Avancer la piste d'UNE tuile — le geste du croquis : la rangée passe de
+ *  `1 2 3` à `2 3 4`.
+ *
+ *  ⭐ LE PAS SE MESURE, IL NE S'ÉCRIT PAS (§1 ter) : c'est l'écart entre deux
+ *  crans voisins, donc la tuile PLUS sa gouttière, quelles que soient leurs
+ *  cotes du jour. Un `79 + 8` en dur mentirait au premier réglage.
+ *  ⚠️ `offsetLeft` et `scrollBy` vivent tous deux dans la MISE EN PAGE (des
+ *  blg), jamais dans les pixels peints — il n'y a donc rien à convertir par
+ *  `facteurZoom` ici, contrairement à tout `getBoundingClientRect`. */
+function decalerLeBelt(sens) {
+  const crans = belt.track.querySelectorAll(".belt-item");
+  if (crans.length < 2) return;
+  const pas = crans[1].offsetLeft - crans[0].offsetLeft;
+  /* ⭐ AUCUN `behavior` DEMANDÉ, ET C'EST LA LOI DU SOCLE : un chevron est un
+     GESTE du joueur, donc il a le droit de s'animer, et `scroll-behavior` en
+     CSS tranche pour lui — y compris sous `prefers-reduced-motion`, qui le
+     repasse à `auto`. Écrire `"smooth"` en dur passerait par-dessus ce réglage
+     système (socle.mjs, `mountChevrons.step`, même phrase).
+     ⚠️ ET LE BANC NE PEUT PAS EN JUGER : mesuré dans le navigateur du banc,
+     AUCUN défilement lissé de script ne bouge — ni ici, ni sur la scène, dont
+     les chevrons sont pourtant en production depuis le lot 70. C'est
+     l'instrument qui est muet, pas le dépôt ; la vérification du geste s'est
+     donc faite en neutralisant la seule animation, jamais en changeant le
+     code pour plaire au banc. (Même leçon que le `WKWebView` du 31/08 :
+     l'appareil d'Eric bat le banc.) */
+  /* 🔴 LE GESTE PEINT SES PROPRES CHEVRONS, SUR LA POSITION VISÉE — et il ne
+     l'a pas toujours fait. Deux raisons, la seconde mesurée :
+       · un défilement LISSÉ n'arrive qu'après coup — attendre son événement
+         laisserait le chevron mentir pendant toute l'animation, c'est-à-dire
+         exactement pendant qu'on le regarde ;
+       · et l'événement peut ne jamais venir : mesuré au banc, ce navigateur
+         ne délivre AUCUN `scroll` sur cette piste, même à un écouteur posé à
+         la main juste avant.
+     ⭐ On calcule donc où l'on VA, on le peint, et l'écouteur ci-dessus reste
+     pour ce que le geste ne connaît pas : le défilement au doigt. */
+  const mou = belt.track.scrollWidth - belt.track.clientWidth;
+  const cible = Math.max(0, Math.min(mou, belt.track.scrollLeft + sens * pas));
+  belt.track.scrollBy({ left: sens * pas });
+  peindreLesChevrons(cible);
+}
+
+/** 🔴 EN BOUT DE COURSE, LE CHEVRON DISPARAÎT — Eric, 2026-09-02, mot pour
+ *  mot : *« remarque que quand je suis en bout de course le chevron
+ *  disparaît »*. Le croquis le montre : sa première rangée, posée au début du
+ *  parcours, n'a pas de chevron gauche du tout.
+ *
+ *  ⭐ ET SA PLACE, ELLE, RESTE — c'est ce qui empêche les trois tuiles de
+ *  sauter d'un cran chaque fois qu'on atteint un bout. Le chevron est posé en
+ *  ABSOLU sur la zone que la piste réserve dans son rembourrage : le retirer
+ *  ne déplace rien. C'est la loi du §6, *« il s'efface, mais la zone reste »*,
+ *  appliquée à la lettre.
+ *  ⛔ `hidden` et pas un `display: none` en feuille — le défaut n°3 (garde 4).
+ *
+ *  ⭐ ET LA VUE DOUBLE TOMBE SOUS LA MÊME CONDITION, SANS BRANCHE : le belt y
+ *  est déroulé, donc `scrollWidth === clientWidth`, donc le mou vaut zéro et
+ *  les deux chevrons s'effacent. Une seule question posée une seule fois. */
+function peindreLesChevrons(position) {
+  const piste = belt.track;
+  const mou = piste.scrollWidth - piste.clientWidth;
+  /* `position` : là où le geste VA. Sans elle, on lit là où l'on est — ce que
+     fait l'écouteur de défilement, seul cas où la position est déjà vraie. */
+  const ou = Number.isFinite(position) ? position : piste.scrollLeft;
+  /* Un blg de tolérance : un défilement lissé s'arrête sur une fraction. */
+  const auDebut = ou <= 1;
+  const aLaFin = ou >= mou - 1;
+  belt.avant.hidden = mou <= 0 || auDebut;
+  belt.apres.hidden = mou <= 0 || aLaFin;
 }
 
 /* ⛔ LA LIGNE DE COMMANDE N'EXISTE PLUS (refonte 2 §1, Eric 2026-08-15).
@@ -3253,24 +3350,17 @@ function paintBelt() {
     else if (index === state.step) item.dataset.vueCran = "actif";
     else if (index === state.stepSecond) item.dataset.vueCran = "passif";
     else delete item.dataset.vueCran;
-    /* ══ LE CRAN RÉDUIT À SON NUMÉRO — la mesure, pas un goût ══════════════
-       📏 Les huit crans AVEC leurs libellés demandent 995 blg (939 + 7 × 8) ;
-       la piste, dans une app de 758, en offre 684. Il manque 311, et aucun
-       corps ne les rend (T2 : 876 · T1 : 817). Le croquis d'Eric dessine
-       d'ailleurs huit rectangles VIDES.
-       ⭐ LE NOM N'EST PAS PERDU, IL DÉMÉNAGE : `aria-label` le porte dans les
-       DEUX vues, donc un lecteur d'écran annonce « Species » à l'identique.
-       ⛔ ET PAS DE `display: none` — c'est le défaut n°3 (« effacer un mot au
-       lieu de recomposer », garde 4). On écrit le `textContent`, comme le
-       socle l'autorise pour un nœud qui ne meurt jamais : le cran change de
-       FORME, il ne cache pas un mot sous un masque. */
+    /* ⚖️ LE NOM EST REVENU EN VUE DOUBLE — lot 122, et c'est un renversement
+       du lot 120 dont la cause a disparu. Le 120 effaçait le libellé parce
+       que les huit crans, pastille et mot CÔTE À CÔTE, demandaient 995 blg
+       pour 684. La tuile à deux rangs (croquis du 02/09) supprime cette
+       largeur : à T1, `Inheritance` tient dans les 63 blg de la tuile.
+       ⛔ Plus rien n'efface un `textContent` ici — il n'y avait qu'un seul
+       endroit, et il n'a plus de raison d'être.
+       ⭐ L'`aria-label` reste, lui : un cran qui porte deux nœuds annonce
+       « 3 Inheritance » sans lui, et « Inheritance » avec. */
     const label = item.querySelector(".belt-label");
-    if (label) {
-      const mot = STEPS[index].label;
-      item.setAttribute("aria-label", mot);
-      const voulu = enDouble ? "" : mot;
-      if (label.textContent !== voulu) label.textContent = voulu;
-    }
+    if (label) item.setAttribute("aria-label", STEPS[index].label);
   });
   /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
@@ -3284,6 +3374,12 @@ function paintBelt() {
      ne fait rien — on ne le demande donc pas. */
   const current = belt.items[state.step];
   if (!enDouble && current && belt.track.contains(current)) keepInView(belt.track, current, "x");
+  /* ⚠️ APRÈS le recentrage, jamais avant : les chevrons disent où l'on est
+     dans la course, et `keepInView` vient de la déplacer. Lus avant, ils
+     annonceraient la position d'avant le geste.
+     📌 Le défilement lissé les remettra à jour tout seul en arrivant —
+     l'écouteur de `scroll` est posé une fois, dans `monterBelt`. */
+  peindreLesChevrons();
 }
 
 /* ══ LA SORTIE D'ÉTAPE — 🔴 `Validate` A DISPARU PARTOUT (lot 80, §5.1) ═══

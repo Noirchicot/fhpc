@@ -773,8 +773,14 @@ test("⚔️ ATTAQUE 2 bis — un multiple de barreau passe, une COTE déguisée
 });
 
 test("⚔️ ATTAQUE 3 — remettre padding: 10px sur .belt-item fait rougir SEULEMENT le garde d'espacement", () => {
+  /* ⚠️ L'ANCRE A BOUGÉ AU LOT 122, PAS LA LOI : la tuile du belt est passée à
+     deux rangs et son rembourrage de `var(--sp-8) var(--sp-12)` à
+     `var(--sp-4)`. L'attaque vise toujours LE MÊME organe avec LA MÊME
+     violation — un `10px` littéral là où un jeton est dû. ⛔ Elle n'est pas
+     relâchée : si l'ancre disparaissait, `assert.notEqual` juste en dessous
+     rougirait plutôt que de laisser passer une attaque qui ne mord plus. */
   const mutated = shellCssRaw.replace(
-    "padding: var(--sp-8) var(--sp-12); /* 10px → même arrondi */",
+    "padding: var(--sp-4);",
     "padding: 10px;"
   );
   assert.notEqual(mutated, shellCssRaw);

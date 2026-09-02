@@ -327,6 +327,32 @@
      ⭐ La teinte, elle, reste `--spy-halo` : sans couleur, par thème. */
   --halo-fin: 2px;
   --halo-epais: 3px;
+  /* ══ LE CHEVRON DU BELT ÉTROIT — lot 122 ══════════════════════════════════
+     Eric, 2026-09-02 : *« sur la version courte je rajoute ces chevrons
+     cliquables, qui s'intercalent parfaitement entre les tuiles »*, et
+     *« quand je suis en bout de course le chevron disparaît »*.
+
+     🔴 DEUX COTES, ET ELLES NE DISENT PAS LA MÊME CHOSE :
+       · `--belt-chevron`      le DESSIN — la largeur de la petite dalle ;
+       · `--belt-chevron-zone` la PLACE RÉSERVÉE dans la piste : le dessin
+         plus sa gouttière. C'est elle que le rembourrage de la piste lit.
+     ⭐ ET LA ZONE TOMBE À ZÉRO EN VUE DOUBLE, en une ligne : le belt y est
+     déroulé, les huit crans tiennent, il n'y a rien à faire défiler. Le
+     rembourrage retombe alors exactement sur celui d'avant ce lot (37 blg).
+     ⛔ Une seule formule pour les deux vues — aucune branche à ne jamais
+     parcourir. */
+  /* 🔴 LE DESSIN SE DÉDUIT DE LA CIBLE, JAMAIS L'INVERSE — Eric, 2026-09-02 :
+     *« il doit fonctionner en tactile et en clic souris »*.
+     ⚖️ ET C'EST UN RENVERSEMENT DATÉ : NORMES §6 portait, sur cet organe
+     précisément, *« pas besoin d'être efficace au tactile — surtout utile
+     pour la souris »*. C'était la SEULE exception à `--touch` 44 du chevron ;
+     elle tombe. La cible vaut donc `--touch`, et le dessin est ce qui reste
+     une fois ses deux gouttières retirées — `44 − 2 × 8 = 28`.
+     ⭐ Écrit dans ce sens, le jour où `--touch` bouge, le dessin suit ; écrit
+     à l'envers, c'est la cible qui aurait menti. *« Un contrôle ne se laisse
+     jamais dimensionner par un dessin »* (§1 ter). */
+  --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
+  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
   --fiche-dalle-w: 242px;
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
@@ -545,7 +571,16 @@
      moins les liserés tranchent (1,69 et 1,16). Aucune densité ne réconcilie
      les deux thèmes ; seul le noir le fait.
      ⭐ REVENIR AU NOIR EST UN MOT : remettre `#101010` et `#ffffff` ci-dessous. */
-  --onglet-fond: color-mix(in srgb, var(--surface) 80%, transparent);
+  /* 🔴 VOILE 100 % — Eric, 2026-09-02 : *« mets le voile à 100 % pour menu et
+     sheet »*, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg`.
+     ⭐ CE QUE ÇA SÉPARE, ET C'EST TOUT SON TRAVAIL : les huit crans sont des
+     dalles à 35 % (`--dalle-simple`) et le CHEVRON en est une aussi — il
+     *« s'intercale parfaitement entre les tuiles »*. Les deux bouts, eux,
+     ne sont pas des étapes (croquis du 19/08) : les rendre OPAQUES les fait
+     sortir de la rangée sans un mot, là où 80 % les y laissait à demi.
+     ⚖️ Ils valaient 80 % depuis leur naissance ; c'est un renversement daté,
+     pas un réglage. */
+  --onglet-fond: var(--surface);
   --onglet-encre: var(--text);
   /* 🔴 LE SEUIL DES ROUGES, MESURÉ. Un liseré doit tenir 3:1 sur le noir du
      disque, et un rouge a besoin d'environ QUINZE POINTS DE CLARTÉ DE PLUS
@@ -713,7 +748,12 @@
    belt déroulé, les halos — se dérive de ce seul attribut.
    ⭐ UN ATTRIBUT, PAS UN NŒUD : c'est la règle du socle. Changer de vue ne
    redessine pas le cadre, le navigateur remet en page tout seul. */
-:root[data-vue="double"] { --colonnes: 2; }
+:root[data-vue="double"] {
+  --colonnes: 2;
+  /* ⛔ PAS DE CHEVRON EN VUE DOUBLE : le belt y est déroulé et ne défile
+     plus (lot 120), donc il n'y a aucune course dont on serait au bout. */
+  --belt-chevron-zone: 0px;
+}
 
 @font-face {
   font-family: "Inter";

@@ -392,18 +392,49 @@ body {
 .belt-track::-webkit-scrollbar,
 .skills-catbar::-webkit-scrollbar,
 .equipment-catbar::-webkit-scrollbar { width: 0; height: 0; }
+/* ══ LA TUILE DU BELT — DEUX RANGS, UNE SEULE COTE (lot 122) ══════════════
+   📐 Eric, 2026-09-02, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` :
+   *« TOUTES LES TUILES DU MENU FONT LA MÊME TAILLE »*, et le croquis dessine
+   la pastille numérotée AU-DESSUS du nom.
+
+   ⭐ LES DEUX MOITIÉS SE TIENNENT, ET C'EST CE QUI REND LA CONSIGNE POSSIBLE :
+   côte à côte, la pastille et le mot faisaient une largeur qui suivait le MOT
+   (mesuré : `Class` 99 blg contre `Inheritance` 142). Empilés, la largeur ne
+   dépend plus de rien — elle se déduit de la piste.
+
+   📏 LE BUDGET VERTICAL, ET LE BELT NE GRANDIT PAS D'UN BLG :
+       rembourrage --sp-4 .... 4
+       pastille .............. 22
+       écart --sp-2 ..........  2
+       libellé T1 (10, lh 1) . 12
+       rembourrage --sp-4 ....  4
+       ──────────────────────── 44  = --touch, le plancher d'avant
+       belt = 44 + 2 × --sp-8 = 60  ← la cote du 16/08, inchangée
+   ⛔ C'ÉTAIT LA CONDITION : le panneau vaut 560 blg dont 500 pour la scène, et
+   le 31/08 a mesuré qu'il ne restait que 9 blg de mou. Une ceinture qui
+   grandit de 8 les mangerait tous. */
 .belt-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--sp-12); /* 10px d'origine : ni sp-8 ni sp-12 n'a priorité, l'écart est le même des deux côtés — arrondi au cran du dessus, règle tenue pour tout le fichier */
+  justify-content: center;
+  gap: var(--sp-2);
   border: none;
   /* ⭐ CHAQUE CRAN EST UNE DALLE TRANSPARENTE — Eric, 2026-08-15 (Ch2) :
      *« le belt doit être constitué de dalles transparentes »*. Avant, seul le
      cran COURANT avait un fond ; les neuf autres flottaient sans surface, et
      la ceinture ne se lisait pas comme une rangée de dalles. */
   background: var(--dalle-simple);
-  text-align: left;
-  padding: var(--sp-8) var(--sp-12); /* 10px → même arrondi */
+  text-align: center;
+  /* ⚠️ 4 PARTOUT, ET LES DEUX AXES ONT LEUR RAISON :
+       · en HAUTEUR, c'est ce qui garde la tuile à 44 blg avec deux rangs au
+         lieu d'un — donc la ceinture à 60, donc le panneau à 500 ;
+       · en LARGEUR, c'est ce que la cible tactile du chevron a coûté. La
+         tuile est passée de 79 à 71 blg le 02/09 (Eric : *« il doit
+         fonctionner en tactile »*), et 8 de rembourrage n'auraient laissé que
+         55 blg au mot pour 53 mesurés — deux blg de marge, c'est-à-dire
+         aucune. À 4, il en reste 63, et `Inheritance` en garde dix. */
+  padding: var(--sp-4);
   /* LOT 70 — le cran mesurait 38 px (padding 8+8 + pastille 22), sous le
      seuil tactile que le CADRE s'impose depuis le lot 58 (--touch, 44 px
      Apple). Défaut antérieur au lot 69, mesuré identique avant lui. La
@@ -455,7 +486,37 @@ body {
   color: var(--on-accent);
   font-weight: 700;
 }
-.belt-item { scroll-snap-align: center; flex: none; }
+/* 🔴 LE LIBELLÉ PASSE À T1, ET C'EST LA LARGEUR QUI L'A DÉCIDÉ — lot 122.
+   📏 Mesuré au `measureText`, police embarquée, sur le mot le plus long
+   (`Inheritance`) : **84 blg à T4** (le corps d'avant), 74 à T3, 63,6 à T2,
+   **53 à T1**. La tuile en offre 63. Seul T1 passe, et il passe avec 10 blg
+   de reste — le second mot le plus long (`Equipment`, 50,4) aussi.
+   ⭐ C'est le même arbitrage qu'au jeton le 26/08 (*« 13 T1, on aura moins
+   d'emmerdes »*) : à T1 tout rentre, donc aucun nom ne force à inventer une
+   abréviation. ⛔ Et T1 est le plancher du barème, jamais franchi (§0 bis). */
+.belt-label {
+  font-size: var(--t1);
+  line-height: 1.2;
+  white-space: nowrap;   /* ⛔ jamais deux lignes : le budget vertical n'en a pas */
+}
+
+/* 🔴 UNE TUILE, UNE COTE, DÉDUITE DE LA PISTE — *« toutes les tuiles du menu
+   font la même taille »* (Eric, 2026-09-02).
+   ⭐ LA LOI TIENT EN UNE PHRASE : **une tuile vaut la piste divisée par ce
+   qu'elle montre.** En étroit la piste montre TROIS crans (le croquis en
+   dessine trois) ; en double elle les montre tous les huit. Les deux vues
+   lisent la même formule, avec leur propre compte.
+   📏 Rendu : **79 blg** en étroit, **78,5** en double — un demi-blg d'écart,
+   et il ne vient d'aucun choix : c'est la piste qui n'a pas la même largeur.
+   ⛔ `flex: 0 0`, jamais `0 1` : un organe ne rétrécit pas sous sa cote
+   (§1 ter bis, la faute des bonus tokens tombés à 12 px le 26/08). */
+.belt-item {
+  scroll-snap-align: center;
+  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3);
+}
+:root[data-vue="double"] .belt-item {
+  flex: 0 0 calc((100% - 7 * var(--sp-8)) / 8);
+}
 
 /* ══ LE BELT DÉROULÉ — lot 120, vue double ════════════════════════════════
    📐 Eric, 2026-09-02 : *« belt totalement déroulé »*. Il s'étale sur toute
@@ -485,11 +546,13 @@ body {
    les trois économies possibles ; ici elle rend 311 blg de largeur, ce qui la
    rend nécessaire plutôt que souhaitable. */
 :root[data-vue="double"] .belt-track { overflow-x: hidden; }
-:root[data-vue="double"] .belt-item {
-  flex: 1 1 0;
-  min-width: 0;
-  justify-content: center;
-}
+/* ⚖️ RENVERSÉ AU LOT 122, ET LE LOT 120 AVAIT RAISON D'ÊTRE PROVISOIRE ICI :
+   il rendait le cran en NUMÉRO SEUL parce que les libellés côte à côte
+   demandaient 995 blg pour 684. La tuile à deux rangs supprime la cause — à
+   T1, `Inheritance` tient dans 63 blg — donc **le nom revient en vue double
+   aussi**, et le `textContent` n'est plus effacé nulle part.
+   ⭐ C'est exactement ce que « ça va en partie s'extrapoler à la version
+   large » voulait dire (Eric, 2026-09-02). */
 
 /* ── LES DEUX HALOS DU BELT ────────────────────────────────────────────────
    Eric, 2026-09-02 : *« un halo fin autour du cran de l'écran inactif, un
@@ -527,8 +590,107 @@ body {
    commandes-là sont secondaires. L'état courant ne l'épaissit donc pas : il le
    RALLUME, en passant de la teinte translucide à la teinte pleine. */
 .belt { position: relative; }
-.belt-track { padding-left: calc(var(--onglet-taille) / 2 + var(--sp-8));
-              padding-right: calc(var(--onglet-taille) / 2 + var(--sp-8)); }
+/* 🔴 LA PISTE S'ÉCARTE DES BOUTS PAR SA MARGE, PLUS PAR SON REMBOURRAGE —
+   lot 122, et c'est un défaut MESURÉ qui l'a imposé.
+
+   ⛔ CE QUE LE REMBOURRAGE FAISAIT : la zone rembourrée fait partie du champ
+   de défilement, donc le contenu s'y peint dès qu'on défile. Résultat vu au
+   navigateur : la QUATRIÈME tuile apparaissait SOUS le chevron droit, à
+   travers son voile de 35 %. Le bout de la rangée devenait illisible —
+   chevron, demi-tuile et onglet empilés sur 60 blg.
+   ⭐ La marge, elle, sort la zone du champ : la piste est CLIPPÉE à son
+   propre bord, et le bout de la rangée rend exactement ce que dessine le
+   croquis — trois tuiles, le chevron, l'onglet.
+
+   📐 ET AUCUNE TUILE N'EST JAMAIS COUPÉE POUR AUTANT, c'est de
+   l'arithmétique : la piste mesure `3 × 79 + 2 × 8 = 253`, le pas d'un
+   chevron vaut `79 + 8 = 87`, et `keepInView` CENTRE le cran courant — donc
+   `scrollLeft = 87 × (n − 1)`, toujours un multiple exact du pas. Les trois
+   régimes de défilement (le chevron, le recentrage, l'aimantation) tombent
+   sur les mêmes bornes. ⛔ La règle du 15/08 (*« une dalle tranchée net fait
+   une arête, pas une amorce »*) n'est donc pas contredite : il n'y a jamais
+   de dalle tranchée.
+
+   ⭐ Une seule formule pour les deux vues : `--belt-chevron-zone` vaut 24 en
+   étroit et 0 en double — l'écart rend 61 puis 37, la cote d'avant ce lot. */
+.belt-track { margin-left: calc(var(--onglet-taille) / 2 + var(--sp-8) + var(--belt-chevron-zone));
+              margin-right: calc(var(--onglet-taille) / 2 + var(--sp-8) + var(--belt-chevron-zone));
+              padding-left: 0;
+              padding-right: 0; }
+/* ══ LES DEUX CHEVRONS DU BELT ÉTROIT — lot 122 ═══════════════════════════
+   📐 Eric, 2026-09-02, croquis à l'appui : *« sur la version courte je rajoute
+   ces chevrons cliquables, qui s'intercalent parfaitement entre les tuiles »* ·
+   *« chevron placé exactement là, de cette forme là, transparence voile 35 % »* ·
+   *« quand je suis en bout de course le chevron disparaît »*.
+
+   ⭐ « S'INTERCALER PARFAITEMENT » SE LIT DANS LE VOILE, et c'est ce qui a
+   décidé le dessin : un cran est une **dalle à 35 %** (`--dalle-simple`,
+   décision du 15/08) — le chevron en est une aussi, à la même transparence,
+   à la même hauteur, avec la même arête de verre. Il appartient à la rangée.
+   ⛔ Et c'est exactement pour ça que les deux BOUTS passent à 100 % le même
+   jour : ils n'appartiennent pas à la rangée, et l'opacité le dit sans un mot.
+
+   🔴 DEUX LARGEURS, ET LA DIFFÉRENCE EST VOULUE : le DESSIN fait
+   `--belt-chevron` (16 blg), la CIBLE en fait 32 — le dessin plus les deux
+   gouttières qui l'entourent, qui n'appartiennent à personne d'autre.
+   ⚖️ **C'est une exception NOMMÉE à `--touch` 44**, et elle est ratifiée :
+   NORMES §6, *« pas besoin d'être efficace au tactile — surtout utile pour la
+   souris »* (Eric, sur cet organe précisément). ⛔ Prendre 44 en largeur
+   coûterait 12 blg à chacune des trois tuiles, c'est-à-dire le nom qu'elles
+   portent.
+
+   📏 LA CIBLE NE MORD SUR PERSONNE, mesuré : elle occupe 29 → 61 blg ; la
+   demi-pastille de l'onglet s'arrête à 29, la première tuile commence à 61. */
+/* ⛔ `:not([hidden])`, ET CE N'EST PAS UNE COQUETTERIE — mesuré au navigateur
+   sur ce lot même : une règle d'auteur qui pose `display: grid` sans condition
+   BAT le `[hidden] { display: none }` de l'agent utilisateur, et le chevron
+   gauche restait peint au début de la course alors que son attribut disait
+   qu'il n'y était plus. Deux vérités contradictoires, et c'est le dessin qui
+   gagnait. (Même piège que `.panneau`, fermé de la même façon.) */
+.belt-chevron:not([hidden]) {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--touch);   /* 🔴 LA CIBLE, ratifiée le 02/09 — voir tokens.css */
+  z-index: 1;   /* sous les onglets de bout (2), au-dessus de la piste */
+  display: grid;
+  place-items: center;
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.belt-chevron[data-sens="avant"] { left: calc(var(--onglet-taille) / 2); }
+.belt-chevron[data-sens="apres"] { right: calc(var(--onglet-taille) / 2); }
+.belt-chevron:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
+/* La petite dalle — le voile d'un cran, la hauteur d'un cran. */
+.belt-chevron-dalle {
+  position: relative;
+  width: var(--belt-chevron);
+  height: var(--touch);
+  border-radius: var(--radius-md);
+  background: var(--dalle-simple);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+/* ⛔ LE TRAIT EST DESSINÉ, JAMAIS UN GLYPHE — la loi du pouce de
+   l'interrupteur et du livre (§6, §7 bis) : un caractère change de forme
+   selon la police installée et rend une couleur qui n'est pas la nôtre.
+   Deux bords d'un carré tournés de 45°, épaisseur `--sp-2`. */
+.belt-chevron-dalle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--sp-8);
+  height: var(--sp-8);
+  border-top: var(--sp-2) solid currentColor;
+  border-right: var(--sp-2) solid currentColor;
+}
+.belt-chevron[data-sens="avant"] .belt-chevron-dalle::before { transform: rotate(-135deg); }
+.belt-chevron[data-sens="apres"] .belt-chevron-dalle::before { transform: rotate(45deg); }
+
 .belt-onglet {
   position: absolute;
   top: 0;

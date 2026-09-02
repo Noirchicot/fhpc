@@ -122,6 +122,16 @@ n'est pas un cadre : c'est la coquille. Un cadre commence sous elle.
 
     hauteur mesurée : 60 px (375 × 553, le 2026-08-16)
 
+🔴 **ET ELLE FAIT TOUJOURS 60 blg, SUR LES DEUX LARGEURS** *(2026-09-02)*.
+Depuis le double affichage, la ceinture a **deux formats** — étroite (elle
+montre trois crans et porte deux chevrons) et déroulée (elle les montre tous
+les huit) — mais **une seule hauteur**, et c'est une contrainte dure : le
+panneau vaut 560 blg dont 500 pour la scène, et le 31/08 a mesuré qu'il ne
+reste que **9 blg** de mou. Une ceinture qui grandit les prend à la scène.
+➡️ **Le détail des deux formats vit dans `NORMES.md` §6 ter** — la tuile à
+deux rangs, sa cote déduite, le chevron et son bout de course, les deux bouts
+à 100 %. Il n'est pas recopié ici : deux copies divergent.
+
 ---
 
 ## 1. LES DEUX FAMILLES

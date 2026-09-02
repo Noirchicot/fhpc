@@ -206,8 +206,14 @@ test("🔴 `--colonnes` vaut 1 par défaut et n'est porté à 2 QUE par `data-vu
   const declarations = [...texte.matchAll(/--colonnes:\s*([^;]+);/g)].map((m) => m[1].trim());
   assert.deepEqual(declarations, ["1", "2"],
     "deux déclarations exactement : le défaut, et le double — un troisième régime serait une vue que personne n'a demandée");
-  assert.match(texte, /:root\[data-vue="double"\]\s*\{\s*--colonnes:\s*2;\s*\}/,
+  /* ⚠️ RÉÉCRIT AU LOT 122 : le bloc du double affichage porte désormais DEUX
+     jetons — le compte de colonnes, et la zone du chevron qui tombe à zéro
+     (le belt déroulé n'a pas de course). La clause ne vérifie donc plus la
+     forme exacte du bloc, elle vérifie que le 2 vit BIEN LÀ. */
+  assert.match(texte, /:root\[data-vue="double"\]\s*\{[^}]*--colonnes:\s*2;/,
     "le 2 vit sous `data-vue=\"double\"`, l'attribut que `shell.mjs` pose sur `<html>`");
+  assert.match(texte, /:root\[data-vue="double"\]\s*\{[^}]*--belt-chevron-zone:\s*0px;/,
+    "et le belt déroulé ne réserve aucune place de chevron — il n'y a pas de course (lot 122)");
 });
 
 test("⚠️ la GRANDEUR mesure le panneau, l'ÉCHELLE mesure l'app — nommer le témoin", () => {
