@@ -205,9 +205,41 @@ test("E — le R espace ses enfants par UN gap, et aucun d'eux ne pose de marge 
 
   const remise = REGLES.find((r) => !r.sous && r.parts.includes(".card-porte > *"));
   assert.ok(remise && /margin-block:\s*0/.test(remise.corps),
-    "`.card-porte > * { margin-block: 0 }` manque. Sans cette remise à zéro, la " +
-    "marge basse que chaque enfant porte déjà (titre 8, paragraphes 8, `.guide-mot` 8) " +
-    "S'AJOUTE au `gap` : l'écart voulu à 8 en rend 16, et personne ne le voit venir.");
+    "`.card-porte > * { margin-block: 0 }` manque. Il neutralise la marge que les organes " +
+    "VENUS D'AILLEURS portent (`.guide-mot` la tient du rang B) et à laquelle ils ne " +
+    "peuvent pas renoncer pour un seul de leurs hôtes.");
+
+  /* ⛔ ET VOICI CE QUE LA VERSION D'AVANT NE VOYAIT PAS, PAYÉ EN PRODUCTION.
+     Elle s'arrêtait à la ligne ci-dessus : la remise à zéro EXISTE, donc vert.
+     Mais `.card-porte > *` vaut (0,1,0) et `.card-porte-mot` aussi — et cette
+     dernière était écrite DIX LIGNES PLUS BAS, donc elle gagnait. La v450 est
+     partie en ligne avec trois écarts à 16 au lieu de 8.
+     ⭐ UN GARDE QUI VÉRIFIE QU'UNE DÉCLARATION EXISTE NE DIT RIEN SUR QUI GAGNE.
+     Celui-ci ne demande donc plus une neutralisation : il exige qu'il n'y ait
+     RIEN À NEUTRALISER. Aucun enfant propre au R ne déclare de marge verticale,
+     et alors ni l'ordre du fichier ni la spécificité ne peuvent trancher contre
+     nous — il n'y a plus deux écrivains pour un même écart. */
+  const coupables = REGLES
+    .filter((r) => !r.sous && r.parts.some((p) => /^\.card-porte-[\w-]+$/.test(p)))
+    .map((r) => {
+      const m = r.corps.match(/(?:^|;)\s*margin(-block|-top|-bottom)?:\s*([^;}]+)/);
+      if (!m) return null;
+      const val = m[2].trim();
+      /* `margin: 0` et `margin: 0 <x>` n'ont pas de composante verticale. */
+      const parts = val.split(/\s+/);
+      const vertical = m[1] === "-top" || m[1] === "-bottom" || m[1] === "-block"
+        ? parts[0]
+        : (parts.length >= 3 ? parts[2] : parts[0]);
+      return /^0(px|blg)?$/.test(vertical) ? null : { sel: r.sel, val };
+    })
+    .filter(Boolean);
+
+  assert.deepEqual(coupables, [],
+    "un ou plusieurs enfants propres au R déclarent une marge verticale : " +
+    JSON.stringify(coupables) + ". Elle S'AJOUTE au `gap` de la dalle — c'est " +
+    "exactement ce qui a envoyé la v450 en ligne avec 16 blg là où Eric en a dicté 8. " +
+    "L'écart de cette dalle a UN écrivain, et c'est le `gap` : retire la marge de " +
+    "l'enfant, ne la neutralise pas depuis le parent.");
 });
 
 test("F — la bande d'aiguilleur du R est l'organe partagé, et elle est juste au-dessus des boutons", async () => {

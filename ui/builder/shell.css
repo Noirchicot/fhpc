@@ -7446,6 +7446,18 @@ button { font: inherit; }
   gap: var(--sp-8);
   padding: var(--sp-4) var(--sp-16);
 }
+/* 🔴 LA REMISE À ZÉRO NE SERT PLUS QU'AUX ORGANES VENUS D'AILLEURS — lot 139.
+   ⛔ CE QU'ELLE NE PEUT PAS FAIRE, ET QUE J'AI CRU QU'ELLE FAISAIT : battre une
+   règle de MÊME spécificité écrite PLUS BAS. `.card-porte > *` vaut (0,1,0),
+   `.card-porte-mot` aussi — et elle était dix lignes en dessous, donc elle
+   gagnait. Mesuré sur la page DÉPLOYÉE en v450 : trois écarts à **16** au lieu
+   de 8, parce que la marge de l'enfant s'ajoutait au `gap`. Exactement
+   l'addition que ce bloc existe pour empêcher, commise en l'empêchant.
+   ⭐ ELLE RESTE UTILE POUR `.guide-mot`, qui porte sa marge depuis le rang B
+   (feuille, ligne ~4224 — bien AVANT ici, donc la remise gagne). Un organe
+   partagé ne peut pas renoncer à sa marge pour un seul de ses hôtes.
+   ⛔ MAIS LES ENFANTS PROPRES AU R, EUX, N'EN DÉCLARENT PLUS : voir plus bas.
+   C'est la seule forme qui ne dépende ni de l'ordre ni de la spécificité. */
 .card-porte > * { margin-block: 0; }
 /* (0,2,0) — il faut battre `.card-porte > *` ET `.parcours-pied`, tous deux à
    (0,1,0). La spécificité bat l'ordre : leçon `button.fiche-livre`, 02/09. */
@@ -7455,9 +7467,16 @@ button { font: inherit; }
    centré »*. ⚖️ C'est une exception NOMMÉE au rang B, où le titre est ferré à
    gauche (`.guide-titre`) : le R n'est pas un menu qu'on parcourt, c'est une
    page de garde à deux portes, et son titre coiffe la dalle entière. */
-.card-porte-titre { margin: 0 0 var(--sp-8); font-size: var(--t4); text-align: center; }
+/* ⛔ NI L'UN NI L'AUTRE NE DÉCLARE DE MARGE VERTICALE — lot 139, et c'est la
+   correction du défaut ci-dessus. Ils portaient `margin: 0 0 var(--sp-8)`, qui
+   S'AJOUTAIT au `gap` de la dalle : 16 blg là où Eric en a dicté 8. Retirer la
+   marge de l'enfant vaut mieux que la neutraliser depuis le parent — un `gap`
+   et une marge qui se disputent le même écart, c'est deux écrivains pour une
+   cote, et le gagnant dépend de l'ordre du fichier. Ici il n'y a plus de
+   dispute : la dalle donne l'écart, les enfants n'en donnent aucun. */
+.card-porte-titre { margin: 0; font-size: var(--t4); text-align: center; }
 .card-porte-mot {
-  margin: 0 0 var(--sp-8);
+  margin: 0;
   max-width: var(--measure);
   color: var(--text-soft);
 }
