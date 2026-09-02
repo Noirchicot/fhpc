@@ -702,13 +702,24 @@ body {
    ⭐ Une flèche qui flotte sur le décor sans rien sous elle doit être DISCRÈTE
    — c'est ce que le 35 % dit, et c'est le mot d'Eric sur le chevron depuis le
    26/08 : *« petit et discret »*. */
+/* 📏 LE TRAIT GRANDIT DANS SA BOÎTE — Eric, 2026-09-02 : *« élargis les
+   boutons de manière à ce que ce soit joli, et qu'il y ait de la place pour
+   tout le monde, chevrons boutons sheet et menu inclus »*.
+   ⭐ C'EST LE SEUL GAIN GRATUIT DE LA RANGÉE, et c'est mesuré : la rangée à
+   375 vaut `29 + 44 + 229 + 44 + 29`, elle est pleine au blg près. Une tuile
+   ne peut donc s'élargir qu'en prenant sur une CIBLE TACTILE (le chevron à
+   `--touch`, l'onglet à 29) — priorité 1 l'interdit. ⛔ Mais la boîte du
+   chevron mesure 28 blg et le trait n'en dessinait que 8 : **vingt blg de
+   vide autour d'une flèche qu'Eric a demandé à voir.**
+   ⚠️ Il grandit DANS sa boîte : ni la cible, ni l'écart réservé, ni la piste,
+   ni les tuiles ne bougent d'un blg. On remplit un vide, on n'en prend pas. */
 .belt-chevron-fleche::before {
   content: "";
   position: absolute;
   inset: 0;
   margin: auto;
-  width: var(--sp-8);
-  height: var(--sp-8);
+  width: var(--sp-12);
+  height: var(--sp-12);
   border-top: var(--sp-2) solid var(--chevron-trait);
   border-right: var(--sp-2) solid var(--chevron-trait);
 }
