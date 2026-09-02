@@ -24,6 +24,14 @@
       "nuit": "bg-ruins-night.jpg",
       "mesure_le": "2026-09-02",
       "note": "Jour : ruines et pont suspendus dans une mer de brume ivoire. Nuit : forêt noyée, lac noir et sanctuaire abandonné dans une brume rouge. Paire validée à l'œil par Eric le 2026-09-02."
+    },
+    {
+      "id": "slate",
+      "nom": "Slate",
+      "jour": "bg-slate-day.jpg",
+      "nuit": "bg-slate-night.jpg",
+      "mesure_le": "2026-09-02",
+      "note": "La paire FROIDE, la première du builder (lot 59, 13/08), remplacée le 18/08 par « banner » et rappelée ici sur demande d'Eric. Une matière fibreuse gris-bleu — papier de chiffon ou ardoise — sans aucune scène. Seule collection dont le bleu domine le rouge (+15 le jour, +28 la nuit ; les deux autres sont chaudes). ⭐ Servie TELLE QU'ELLE ÉTAIT, octet pour octet : ses fichiers sont ceux du commit 2a508e4, ils tenaient déjà dans les bandes et dans les extrêmes en place — aucune refabrication, l'image n'a rien eu à céder."
     }
   ],
   "fichiers": {
@@ -141,6 +149,64 @@
         102,
         88,
         79
+      ]
+    },
+    "bg-slate-day.jpg": {
+      "sha256": "a518943f04e5668b4de17393bf6876d999079c6f62d1f29fb747edf98f0c421b",
+      "octets": 23668,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        104,
+        190
+      ],
+      "min": 144,
+      "max": 167,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        129,
+        136,
+        144
+      ],
+      "pixel_le_plus_clair": [
+        152,
+        159,
+        167
+      ]
+    },
+    "bg-slate-night.jpg": {
+      "sha256": "a6d5922e1d5eb6e565025e012b4ae1afe02134a264ddbb2ac0a70ca49890fca2",
+      "octets": 27059,
+      "dimensions": [
+        1024,
+        1792
+      ],
+      "zone_vue": [
+        827,
+        1792
+      ],
+      "bande": [
+        45,
+        125
+      ],
+      "min": 76,
+      "max": 100,
+      "hors_bande": 0,
+      "pixel_le_plus_sombre": [
+        49,
+        63,
+        76
+      ],
+      "pixel_le_plus_clair": [
+        72,
+        84,
+        100
       ]
     }
   }
