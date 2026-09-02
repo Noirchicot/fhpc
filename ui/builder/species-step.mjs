@@ -377,10 +377,20 @@ export const SPECIES_CATALOGUE = {
      niveaux ». La TÊTE du bilan dit la question, nue — les niveaux dessous
      disent la réponse ; le « spent » de la porte n'a plus rien à dire ici. */
   /* le mot d'aiguilleur du SB1 — Eric, 27/08 : « l'aiguilleur peut préciser
-     cela » (le tap/clic droit qui ouvre la fenêtre d'un lignage). */
-  itemAiguilleur: (chemin) => (chemin === "species.lineage"
-    ? "Tap a lineage to read what it grants — drag it into the slot to choose. Leaving this open marks nothing — only Done records the choice."
-    : null),
+     cela » (le tap/clic droit qui ouvre la fenêtre d'un lignage).
+     ⚖️ ET C'EST LUI QUI PORTE L'EXCEPTION DU 02/09 : là où la table des dix a
+     dégagé, la bande dit ce qu'elle disait — combien il y en a, et que le tap
+     les ouvre. Eric a demandé *« plus joli »* que sa propre formulation ; le
+     compte (« Ten ») est gardé contre la couche, il ne se croit pas sur
+     parole. La seconde phrase est le socle de prévention, commun à tous. */
+  itemAiguilleur: (chemin, ctx) => {
+    if (chemin !== "species.lineage") return null;
+    const prevention = "Leaving this open marks nothing — only Done records the choice.";
+    if (LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx))) {
+      return `Ten lineages, one element each — tap to read, drag one into the slot to choose. ${prevention}`;
+    }
+    return `Tap a lineage to read what it grants — drag it into the slot to choose. ${prevention}`;
+  },
   /* 🚨 LE MOT DU GENDARME — le verrou du noyau, dit au joueur. Le libellé
      reprend celui du chapitre Skills (« Overspent by… ») : deux endroits,
      une même voix. */
@@ -595,15 +605,40 @@ function saignee() {
   return trait;
 }
 
-/** Le record de l'espèce RETENUE — lu dans le carnet, jamais deviné.
- *  ⚠️ `selected` est un TABLEAU (leçon du lot 79, tête de `renderChoixGlisses`). */
+/** L'ID de l'espèce RETENUE — lu dans le carnet, jamais deviné.
+ *  ⚠️ `selected` est un TABLEAU (leçon du lot 79, tête de `renderChoixGlisses`).
+ *  ⭐ Il est extrait parce qu'une EXCEPTION NOMMÉE a besoin d'un nom, et que ce
+ *  nom est l'id du record — pas un `:nth-child`, pas une devinette sur la forme
+ *  du contenu (la faute du lot 123, NORMES §5 bis). */
+function idEspeceRetenue(ctx) {
+  const plan = planAt((ctx && ctx.decisions) || [], "species");
+  return plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+}
+
+/** Le record de l'espèce RETENUE — lu dans le carnet, jamais deviné. */
 function especeRetenue(ctx) {
-  const plan = planAt(ctx.decisions || [], "species");
-  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  const id = idEspeceRetenue(ctx);
   if (!id || !ctx.query) return null;
   const view = ctx.query({ kind: "species", id });
   return view && view.record ? view.record : null;
 }
+
+/* ══ ⚖️ L'EXCEPTION NOMMÉE DU DRAGONBORN — Eric, 2026-09-02 ═══════════════
+   *« Dragonborn, SB lignages : exception, on change le donné. Le texte de
+   l'aiguilleur dit "il y a 10 lignées, cliquer sur les tokens de choix pour
+   regarder les options". Tu fais court, tu fais plus joli que ça. C'est là
+   que vivra la version synthétique pour chaque choix. »*
+
+   📏 LA MESURE QUI LA MOTIVE (375 × 812, dalle de 500 blg) : ses DIX jetons
+   occupent QUATRE rangées, et il ne reste que **74 blg** de fenêtre pour le
+   texte — l'intro seule s'y voit, la table des dix demande 316 blg et vit
+   entièrement sous le pli. C'est la question de NORMES §1 quater (*« qu'est-ce
+   que cet écran porte EN TROP ? »*) et la réponse est : la table.
+
+   ⛔ CE N'EST PAS UNE RÈGLE GÉNÉRALE, et surtout pas « les espèces à beaucoup
+   de lignées » : le Goliath (6) et le Hoddon (3) GARDENT leur table. L'écran
+   qui cède est nommé, un par un, et son argument est mesuré à côté de lui. */
+const LIGNAGES_SANS_TABLE = ["srd:species:en:dragonborn"];
 
 function lignagesDe(record) {
   const liste = record && record.data && record.data.lineages;
@@ -621,31 +656,64 @@ function beneficesDe(option) {
     .map((niveau) => [`Level ${niveau}`, paliers[niveau]]);
 }
 
+/* ── 🔴 LA LECTURE D'UN LIGNAGE — LA SOURCE, AVANT TOUTE MISE EN MOTS ─────
+   NORMES §4 quinquies promet *« UNE source, trois consommateurs »*, et le
+   dépôt ne la tenait qu'à moitié : `lignesDuLignage` connaissait les DEUX
+   formes d'une option (`damage` chez le Dragonborn, `levels` partout
+   ailleurs), mais `renderLignageBilan` relisait l'option pour son compte et
+   n'en connaissait qu'UNE. D'où le défaut d'Eric du 01/09, capture à l'appui
+   (v432) : *« S bilan : erreur ! le choix de lignée est absent. »* — le titre
+   et l'amorce s'écrivaient, le contenu manquait, sur les DIX lignées.
+
+   ⭐ LA SOURCE N'EST PAS UNE PHRASE, C'EST UNE LECTURE. Les trois voix ne
+   disent pas la même phrase (la fenêtre du SB1 énumère, le bilan enchaîne
+   *« … at level 3 and … at level 5 »*, le popup est en texte nu) : ce qu'elles
+   doivent partager est ce qu'elles LISENT dans l'option. Une seule fonction
+   lit `damage`, `levels` et le format raccourci ; les trois la consomment.
+   ⛔ Toute nouvelle forme d'option s'ajoute ICI, une fois — pas trois.
+
+   La forme rendue :
+     · `tete`     — le mot qui ouvre la ligne (`At level 1` · `Damage`) ;
+     · `texte`    — ce que le niveau 1 accorde, ou `null` s'il n'y a rien ;
+     · `suivants` — `[niveau, nomDeSort]`, triés, jamais le niveau 1. */
+function contenuDuLignage(option, courts) {
+  const paliers = (option && option.levels) || {};
+  /* le FORMAT RACCOURCI (fh-fiche, data[fiche_lineage_lvl1]) prime sur TOUTE
+     autre forme — Eric, 27/08 : « raccourcis le texte au max », « c'est un
+     format raccourci pour entrer dans les fiches » ; et le 02/09 : *« la
+     décision c'est d'écrire les versions minimalistes et synthétiques qui
+     n'existent pas »*. La règle longue reste au SRD, intacte ; la fiche lit
+     son condensé.
+     🔴 IL PRIME AUSSI SUR `damage`, et c'est le point : sans ça, un condensé
+     écrit pour le Dragonborn n'aurait atteint aucun des trois consommateurs. */
+  const court = courts && option ? courts[option.id] : null;
+  const suivants = Object.keys(paliers)
+    .filter((niveau) => niveau !== "1")
+    .sort((a, b) => Number(a) - Number(b))
+    .map((niveau) => [niveau, paliers[niveau]]);
+  if (court) return { tete: "At level 1", texte: court, suivants };
+  /* ⛔ LE REPLI QUAND LE CONDENSÉ MANQUE — pile SRD nue, ou lignage neuf : le
+     Dragonborn porte `damage` au lieu de `levels`, son lignage ne donne pas un
+     texte de bénéfice mais le dégât que Breath Weapon lira. On le DIT plutôt
+     que de rendre une ligne vide (le défaut du 01/09). */
+  if (option && typeof option.damage === "string") {
+    return { tete: "Damage", texte: option.damage, suivants: [] };
+  }
+  return { tete: "At level 1", texte: paliers["1"] || null, suivants };
+}
+
 /* ── LA MISE EN MOTS D'UN LIGNAGE — dictée d'Eric, 27/08 :
    « At level 1 : the range of your darkvision… / At subsequent levels you
    gain spells : / level 3 : Faerie Fire (lien) / level 5 : Darkness (lien) ».
-   ⭐ UNE SEULE SOURCE pour trois consommateurs — la fenêtre du SB (avec les
-   liens), le popup du tap sur un token, le bilan du B. Trois copies de ce
-   format divergeraient à la première retouche.
    La forme : [texte, nomDeSort|null] — un sort nommé devient un lien là où
    les liens existent, du texte partout ailleurs. */
 function lignesDuLignage(option, courts) {
-  if (option && typeof option.damage === "string") return [[`Damage : ${option.damage}`, null]];
-  const paliers = (option && option.levels) || {};
-  const niveaux = Object.keys(paliers).sort((a, b) => Number(a) - Number(b));
+  const { tete, texte, suivants } = contenuDuLignage(option, courts);
   const lignes = [];
-  const suivants = [];
-  for (const niveau of niveaux) {
-    /* le FORMAT RACCOURCI (fh-fiche, data[fiche_lineage_lvl1]) prime sur la
-       prose SRD — Eric, 27/08 : « raccourcis le texte au max », « c'est un
-       format raccourci pour entrer dans les fiches ». La règle longue reste
-       au SRD, intacte ; la fiche lit son condensé. */
-    if (niveau === "1") lignes.push([`At level 1 : ${(courts && courts[option.id]) || paliers[niveau]}`, null]);
-    else suivants.push(niveau);
-  }
+  if (texte !== null && texte !== undefined) lignes.push([`${tete} : ${texte}`, null]);
   if (suivants.length > 0) {
     lignes.push(["At subsequent levels you gain spells :", null]);
-    for (const niveau of suivants) lignes.push([`level ${niveau} : `, paliers[niveau]]);
+    for (const [niveau, sort] of suivants) lignes.push([`level ${niveau} : `, sort]);
   }
   return lignes;
 }
@@ -693,9 +761,14 @@ function renderLignesLignage(liste, option, query, act, courts) {
   }
 }
 
-/** Le même contenu, en TEXTE — le popup du tap/clic droit sur un token. */
+/** Le même contenu, en TEXTE — le popup du tap/clic droit sur un token.
+ *  ⚠️ Les marques de lien (`[[Nom]]`, la convention des textes de fiche) sont
+ *  RETIRÉES ici : le popup est du texte nu, et des crochets doubles à l'écran
+ *  ne sont pas un lien, c'est une fuite de balisage. */
 function texteDuLignage(option, courts) {
-  return lignesDuLignage(option, courts).map(([texte, nomSort]) => texte + (nomSort || "")).join("\n");
+  return lignesDuLignage(option, courts)
+    .map(([texte, nomSort]) => String(texte).replace(/\[\[([^\]]+)\]\]/g, "$1") + (nomSort || ""))
+    .join("\n");
 }
 
 /** LE LIEN D'UN SORT — un seul fabricant : FF interne (SRD), livre web si la
@@ -735,20 +808,23 @@ function linkifie(cible, texte, query, act) {
  *  suite) · At subsequent levels : Faerie Fire (link) at level 3 and
  *  Darkness (link) at level 5 ». Deux paragraphes, préfixe en gras, tout
  *  enchaîné. */
+/* 🔴 IL CONSOMME `contenuDuLignage`, IL NE RELIT PLUS L'OPTION. C'était le
+   défaut : deux lectures d'une même chose, dont une n'en connaissait qu'une
+   moitié. La PHRASE reste celle qu'Eric a dictée ; seule la lecture est
+   partagée. */
 function renderLignageBilan(option, query, act, courts) {
   const bloc = el("div", "species-lignage-bilan");
-  const paliers = (option && option.levels) || {};
+  const { tete, texte, suivants } = contenuDuLignage(option, courts);
   const p1 = el("p", "bilan-ligne");
-  p1.append(el("strong", null, [text("At level 1 : ")]));
-  linkifie(p1, (courts && courts[option.id]) || paliers["1"] || "", query, act);
+  p1.append(el("strong", null, [text(`${tete} : `)]));
+  linkifie(p1, texte || "", query, act);
   bloc.append(p1);
-  const suivants = Object.keys(paliers).filter((n) => n !== "1").sort((a, b) => Number(a) - Number(b));
   if (suivants.length > 0) {
     const p2 = el("p", "bilan-ligne");
     p2.append(el("strong", null, [text("At subsequent levels : ")]));
-    suivants.forEach((niveau, i) => {
+    suivants.forEach(([niveau, sort], i) => {
       if (i > 0) p2.append(text(i === suivants.length - 1 ? " and " : ", "));
-      p2.append(lienDeSort(paliers[niveau], query, act));
+      p2.append(lienDeSort(sort, query, act));
       p2.append(text(` at level ${niveau}`));
     });
     p2.append(text("."));
@@ -770,7 +846,12 @@ function courtsDe(record) {
  *
  *  ⚠️ ET LES BÉNÉFICES SONT AFFICHÉS, PAS CACHÉS DERRIÈRE LE TAP. Choisir
  *  entre dix ancêtres draconiques sans voir leurs dégâts n'est pas un choix,
- *  c'est un tirage. Le tap MARQUE l'option lue ; il ne la révèle pas. */
+ *  c'est un tirage. Le tap MARQUE l'option lue ; il ne la révèle pas.
+ *  ⚖️ …SAUF POUR L'ÉCRAN NOMMÉ DANS `LIGNAGES_SANS_TABLE`, et c'est Eric qui
+ *  l'a tranché le 02/09 en connaissance de la mesure : chez le Dragonborn les
+ *  bénéfices affichés ne sont PAS visibles (74 blg de fenêtre pour 316 de
+ *  table), donc l'argument ci-dessus n'y porte plus — une table sous le pli
+ *  n'a jamais été un affichage. Le tap y devient la voie normale de lecture. */
 function renderLineageBlock(ctx, record, act) {
   const options = lignagesDe(record);
   if (!options) return null;
@@ -795,6 +876,11 @@ function renderLineageBlock(ctx, record, act) {
   };
 
   const bloc = el("section", "species-lignage");
+  /* ⚖️ SUR L'ÉCRAN NOMMÉ, LE TAP OUVRE LA VERSION SYNTHÉTIQUE — Eric, 02/09 :
+     *« C'est là que vivra la version synthétique pour chaque choix. »* Ailleurs
+     la fenêtre du SB1 montre déjà les textes complets, et le popup les répète
+     tels quels (NORMES §4 quinquies, dictée du 27/08) : rien n'y bouge. */
+  const courts = LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx)) ? courtsDe(record) : null;
   const glisse = renderChoixGlisses({
     plan: groupe, slots: etape, titre: "Lineage", mot: "Lineage",
     labelOf: nomDe, onAction: act,
@@ -806,7 +892,7 @@ function renderLineageBlock(ctx, record, act) {
        comme celle d'un sort. glisser.mjs écoute déjà les deux gestes. */
     onInfo: (id) => {
       const option = options.find((o) => o && o.id === id);
-      if (option) act({ kind: "popup", titre: option.name, texte: texteDuLignage(option, null) });
+      if (option) act({ kind: "popup", titre: option.name, texte: texteDuLignage(option, courts) });
     }
   });
   if (glisse) bloc.append(glisse);
@@ -849,6 +935,17 @@ function renderLineageBlock(ctx, record, act) {
   const fenetre = el("div", "species-lignage-fenetre");
   const intro = record && record.data && record.data.lineage_intro;
   if (intro) fenetre.append(el("p", "species-lignage-intro", [text(intro)]));
+
+  /* ⚖️ L'EXCEPTION NOMMÉE (voir `LIGNAGES_SANS_TABLE`) : la fenêtre garde la
+     règle commune — celle que l'intro porte — et RIEN d'autre. Ce que chaque
+     lignée donne se lit au tap sur son jeton, par la même fenêtre FF que
+     partout ailleurs (NORMES §7 ter). ⛔ Pas de repli sur la prose : le `<dl>`
+     rendrait les mêmes dix entrées sous une autre forme, et le débord avec. */
+  if (LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx))) {
+    bloc.append(fenetre);
+    return bloc;
+  }
+
   const uneEntree = (o) => o && (typeof o.damage === "string" ||
     (o.levels && Object.keys(o.levels).length === 1 && o.levels["1"] !== undefined));
   if (options.every(uneEntree)) {
@@ -860,7 +957,10 @@ function renderLineageBlock(ctx, record, act) {
       if (option.fh) nom.append(el("span", "species-lignage-fh", [text("FH")]));
       tr.append(nom);
       const td = el("td", null);
-      linkifie(td, typeof option.damage === "string" ? option.damage : option.levels["1"], ctx.query, act);
+      /* la table lit la MÊME source que les trois voix — elle ne relit pas
+         l'option pour son compte (c'est cette relecture-là qui a vidé le
+         bilan du Dragonborn). */
+      linkifie(td, contenuDuLignage(option, null).texte || "", ctx.query, act);
       tr.append(td);
       table.append(tr);
     }

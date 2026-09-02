@@ -14,7 +14,7 @@
     "species": {
       "srd:species:en:dragonborn": {
         "op": "patch",
-        "note": "SRD 5.2.1 species data: creature_type Humanoid, size Medium, speed 30ft, Draconic Ancestry trait (10 named dragon colors) -> Lineages compressed to a count ('10 types') rather than listing all 10, for width. fh-species-en patch only touches destiny, not size/speed/type.",
+        "note": "SRD 5.2.1 species data: creature_type Humanoid, size Medium, speed 30ft, Draconic Ancestry trait (10 named dragon colors) -> Lineages compressed to a count ('10 types') rather than listing all 10, for width. fh-species-en patch only touches destiny, not size/speed/type. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
         "changes": {
           "data.blurb": {
             "text": "A dragonborn's ancestor is an idea more than a specific dragon—an inherited breath weapon, hide to match it, and a posture that never apologizes for the room it takes. Scale color spans the old dragon families, jet to gold, and matters less than a stranger's own bearing. Test either trait, and the temper shows up fast.",
@@ -52,7 +52,19 @@
               "label": "Ten lines",
               "value": "breath + resistance"
             }
-          ]
+          ],
+          "data[fiche_lineage_lvl1]": {
+            "black": "Acid breath — Resistance to Acid.",
+            "blue": "Lightning breath — Resistance to Lightning.",
+            "brass": "Fire breath — Resistance to Fire.",
+            "bronze": "Lightning breath — Resistance to Lightning.",
+            "copper": "Acid breath — Resistance to Acid.",
+            "gold": "Fire breath — Resistance to Fire.",
+            "green": "Poison breath — Resistance to Poison.",
+            "red": "Fire breath — Resistance to Fire.",
+            "silver": "Cold breath — Resistance to Cold.",
+            "white": "Cold breath — Resistance to Cold."
+          }
         }
       },
       "srd:species:en:dwarf": {
@@ -163,7 +175,7 @@
       },
       "srd:species:en:gnome": {
         "op": "patch",
-        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows.",
+        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
         "changes": {
           "data.blurb": {
             "text": "Meeting a Hoddon is rare, by design—the little folk keep their holds hidden and their business private. Charm, threats, and clever lies mostly bounce off a Hoddon's mind mid-sentence. Some lean toward the deep woods and what lives there, others toward small ingenious contraptions. Either way, trust is earned slowly.",
@@ -209,12 +221,17 @@
               "label": "Mole People",
               "value": "Darkvision 120 ft"
             }
-          ]
+          ],
+          "data[fiche_lineage_lvl1]": {
+            "forest-folk": "[[Minor Illusion]] known — [[Speak with Animals]] prepared, free twice per Long Rest.",
+            "rock-folk": "[[Mending]] and [[Prestidigitation]] known — plus up to three Tiny clockwork devices, one effect each.",
+            "mole-people": "Darkvision 120 ft — Meticulous (Advantage on Investigation), Novice in tinker's tools."
+          }
         }
       },
       "srd:species:en:goliath": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, Medium, speed 35ft (NB: differs from the 30ft default of every other species here). Giant Ancestry trait (6 named giant types) -> Lineages compressed to '6 types'.",
+        "note": "SRD 5.2.1: Humanoid, Medium, speed 35ft (NB: differs from the 30ft default of every other species here). Giant Ancestry trait (6 named giant types) -> Lineages compressed to '6 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
         "changes": {
           "data.blurb": {
             "text": "A goliath's home is wherever the giants haven't burned down yet—hence the build, tall enough to meet most threats eye to eye, and the habit of never settling. Giant blood surfaces when a fight turns ugly, lending power few humanoids can match. Underneath sits an oddly modest wish: a roof that won't need rebuilding next season.",
@@ -256,7 +273,15 @@
               "label": "Boon",
               "value": "a few uses per day"
             }
-          ]
+          ],
+          "data[fiche_lineage_lvl1]": {
+            "cloud": "Bonus Action — teleport 30 ft to a space you can see.",
+            "fire": "On a damaging hit — 1d10 extra Fire damage.",
+            "frost": "On a damaging hit — 1d6 extra Cold damage and Speed −10 ft until your next turn.",
+            "hill": "On a damaging hit — a Large or smaller target falls Prone.",
+            "stone": "Reaction when damaged — reduce it by 1d12 plus your Constitution modifier.",
+            "storm": "Reaction when damaged from within 60 ft — 1d8 Thunder damage back."
+          }
         }
       },
       "srd:species:en:halfling": {
@@ -375,7 +400,7 @@
       },
       "srd:species:en:tiefling": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'.",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
         "changes": {
           "data.blurb": {
             "text": "A tiefling's mark reads as trouble before they've done anything to earn it, which teaches most tieflings to charm early, since trust arrives slowly either way. Underneath the easy manner sits something genuinely uncanny: a bloodline granting its own resistance, eyes at home in full dark, and a small trick of magic worth one gesture.",
@@ -425,7 +450,12 @@
               "label": "Infernal",
               "value": "Fire"
             }
-          ]
+          ],
+          "data[fiche_lineage_lvl1]": {
+            "abyssal": "Resistance to Poison — [[Poison Spray]] cantrip known.",
+            "chthonic": "Resistance to Necrotic — [[Chill Touch]] cantrip known.",
+            "infernal": "Resistance to Fire — [[Fire Bolt]] cantrip known."
+          }
         }
       },
       "fh:species:en:araag": {

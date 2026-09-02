@@ -1527,6 +1527,53 @@ lineages on a la place, on peut garder le format, mais tu link les spells »*) ;
 FORMAT RACCOURCI** (`data[fiche_lineage_lvl1]`, couche fh-fiche — esprit SRFH : *« c'est un format
 raccourci pour entrer dans les fiches »* ; ⏳ migrera dans une vraie famille srfh de fh-srd).
 
+⚠️ **ET « UNE SOURCE » VEUT DIRE UNE LECTURE, PAS UNE PHRASE** *(lot 126, 02/09)*. Les trois voix
+ne disent pas la même phrase — SB1 énumère, le bilan enchaîne *« … at level 3 and … at level 5 »*,
+le popup est en texte nu — et c'est en croyant que la source était la PHRASE que le dépôt a laissé
+le bilan **relire l'option pour son compte**. Il ne connaissait alors qu'une des deux formes
+(`levels`), pas l'autre (`damage`), et le Dragonborn rendait *« At level 1 : »* suivi de **rien**,
+sur ses dix lignées. ⭐ Ce qui se partage est `contenuDuLignage` — **la lecture de l'option** ;
+chaque voix la met en mots à sa façon. ⛔ Une forme d'option neuve s'ajoute là, **une fois**.
+
+📏 **Mesuré sur les douze espèces avant de toucher une ligne** (sonde de rendu, pas déduction) :
+cinq portent des lignées, et **le Dragonborn était le seul à rendre vide** — 10/10. Les quatre
+autres rendaient un texte, mais **le mauvais** : faute de condensé, leur bilan servait la prose
+SRD entière (Hoddon **228 caractères** au niveau 1, Goliath 131). ✅ Les quatre condensés manquants
+sont écrits depuis — Eric, 02/09 : *« la décision c'est d'écrire les versions minimalistes et
+synthétiques qui n'existent pas, avec le moteur »*. Le témoin de longueur est l'Elfe (43–81 car.).
+
+### ⚖️ L'EXCEPTION NOMMÉE DU DRAGONBORN — le SB des lignages sans sa table *(Eric, 2026-09-02)*
+
+> **« Dragonborn, SB lignages : exception, on change le donné. Le texte de l'aiguilleur dit "il y a
+> 10 lignées, cliquer sur les tokens de choix pour regarder les options". Tu fais court, tu fais
+> plus joli que ça. C'est là que vivra la version synthétique pour chaque choix. »**
+
+📏 **L'ARGUMENT, MESURÉ** *(375 × 812, dalle de 500 blg)* : ses **dix jetons occupent quatre
+rangées**, et il ne reste que **74 blg** de fenêtre pour le texte — quand l'intro et la table en
+demandent **316**. L'intro seule s'y voit ; **la table entière vit sous le pli**. C'est la question
+du §1 quater — *« qu'est-ce que cet écran porte EN TROP ? »* — et la réponse d'Eric est : la table.
+
+| ce que l'écran garde | ce qui part |
+|---|---|
+| les **dix jetons** — intouchés, c'est le choix | 🔴 **la table des dix**, et aucun repli en prose (le `<dl>` rendrait les mêmes dix entrées) |
+| la **fenêtre** et son **intro** — la règle commune du souffle, qui ne varie pas | l'ancienne fin de l'intro (*« the table gives it for each lineage »*), qui renverrait à un tableau absent |
+| la **bande d'aiguilleur**, qui dit ce que la table disait | — |
+
+**Le mot exact de la bande** *(à la place de la bande commune)* :
+`Ten lineages, one element each — tap to read, drag one into the slot to choose.` puis le socle de
+prévention du gabarit, mot pour mot. ⭐ Le compte (*Ten*) **est gardé contre la couche** : un
+chiffre écrit à la main dans une phrase ment le jour où la donnée bouge, et il ment en silence.
+
+⭐ **LE GESTE N'EST PAS INVENTÉ** : §7 ter le ratifie déjà — *« tap au doigt · clic droit à la
+souris → la même fenêtre FF »*. L'écran nommé n'invente rien, il fait du tap **la voie normale de
+lecture**, et c'est là que vit la version synthétique de chaque lignée.
+
+⛔ **ELLE EST NOMMÉE, ET SA FRONTIÈRE EST GARDÉE.** `LIGNAGES_SANS_TABLE` (species-step) ne contient
+qu'un **id de record** — jamais un `:nth-child`, jamais un seuil chiffré, jamais *« les espèces à
+beaucoup de lignées »* : **le Goliath (6) et le Hoddon (3) gardent leur table**, et le garde le
+vérifie aussi fort que le reste (`tests/lignage-exception-dragonborn.test.mjs`). ⏳ Si un second
+écran cède un jour, il s'écrit **ici**, avec sa propre mesure à côté de son nom.
+
 ### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
 
 > ⚖️ **LA LOI-MÈRE, dictée le 2026-08-30** — Eric : *« Règle générale, partout dans le builder,

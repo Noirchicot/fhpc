@@ -476,7 +476,11 @@ export const LINEAGE_INTROS = {
     "energy in a 15-foot Cone or a 30-foot Line (Dexterity save, 1d10 damage, " +
     "half on a success), usable twice, plus one more use at character levels " +
     "5, 9, 13, and 17 — and Resistance to the same damage type. Only the " +
-    "element changes; the table gives it for each lineage.",
+    /* ⚖️ 2026-09-02 — la table des dix a quitté ce sous-écran (exception
+       nommée, `LIGNAGES_SANS_TABLE` dans species-step). L'intro ne peut plus
+       renvoyer à un tableau qui n'est plus là : elle renvoie au geste qui l'a
+       remplacé. Eric : *« on change le donné »*. */
+    "element changes; tap a lineage to read which.",
   goliath:
     "Each ancestry recalls a Giant forebear and grants its supernatural boon, " +
     "usable twice, plus one more use at character levels 5, 9, 13, and 17. " +
