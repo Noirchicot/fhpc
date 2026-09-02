@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "fca7c1b7510b7647e95850aa259dc0961fe3b2a571f3bcdc4a43f0e0883bb82f",
+  "layer_run": "64c7730fbb770185fe1f6873e58c00b2818fa56c9baa6849f9e07ae5106e965b",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -48,7 +48,7 @@
     {
       "id": "fh-lore-en",
       "version": "0.1.0",
-      "hash": "15a3bf89822e15087f71de69a14dd4ccac7ede97815a142f52996020af1b9055"
+      "hash": "35cc06758efa6b5d5b38b4babfdd02b380387e696b537ca647b0eae3bc9e5d38"
     }
   ],
   "genres": {
