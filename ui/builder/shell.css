@@ -7598,6 +7598,28 @@ button { font: inherit; }
    au banc le 30/08. La rangée de ces deux écrans lui garde sa place. */
 .card-porte .parcours-pied,
 .card-final .parcours-pied { padding-inline-end: var(--touch); }
+/* 🔴 LES BOUTONS DESCENDENT DE 8 — Eric, 2026-09-03 : *« ça va recouvrir les
+   boutons. ensuite tu descends les boutons pour qu'il y ait 8 px entre eux et le
+   texte de destiny score »*.
+   📏 D'OÙ VIENNENT CES 8, ET CE QU'ILS COÛTENT : ils étaient SOUS les boutons —
+   4 de marge du pied plus 4 de rembourrage bas de la dalle. Le corps ne pouvait
+   pas les rendre (la carte l'occupe entièrement), donc ils se prennent là.
+   ⚠️ ET ÇA MORD SUR UNE COTE DATÉE : NORMES §4 ter porte « 4 px sous les
+   boutons » (Eric, 26/08, dernière ligne de son gabarit d'Elf). Cet écran passe
+   donc à 0 dessous — c'est une exception à SON gabarit, demandée par lui en
+   connaissance du recouvrement qu'elle évite. Elle se nomme ici plutôt que de
+   se découvrir un jour comme une dérive. */
+/* 📏 16 = 8 + 8 — Eric, 2026-09-03 : *« répercute espace sous destiny score »*,
+   après avoir ajouté 8 entre le titre et Ability. L'écart du haut et celui du
+   bas bougent ensemble : le bloc du Score ferme la lecture comme le titre
+   l'ouvre, et une respiration qui ne vaut que d'un côté se voit. */
+/* 📏 Eric, 2026-09-03 : *« encore 16 sous les boutons et descend boutons de
+   16 »*. Le pied prend donc 40 au-dessus (24 + 16) et 32 en dessous (16 + 16),
+   soit 36 sous les boutons avec le rembourrage de la dalle. */
+/* 📏 16 DU BORD INFÉRIEUR — Eric, 2026-09-03. La dalle garde 4 de rembourrage
+   bas, la marge en pose donc 12 : 12 + 4 = 16 sous les boutons. */
+.card-final .parcours-pied { margin-top: calc(var(--sp-32) + var(--sp-8)); margin-bottom: var(--sp-12); }
+.card-final { padding-bottom: 0; }
 
 
 /* ── L'ÉCRAN FINAL — deux colonnes, et le texte reste DANS le cadre ─────
@@ -7616,7 +7638,19 @@ button { font: inherit; }
 .stage:has(> .decision-card > .card-step > .card-final) { height: 100%; }
 .decision-card:has(> .card-step > .card-final) { height: 100%; margin-block: 0; }
 .card-step:has(> .card-final) { height: 100%; min-height: 0; }
+/* 🔴 LA DALLE PREND SA HAUTEUR, ELLE NE S'ÉTIRE PLUS — lot 142, Eric :
+   *« adapte la taille de la dalle en respectant le plancher »*.
+   ⛔ AUCUNE RÈGLE NE LUI DONNAIT 500 : mesuré, elle était ÉTIRÉE par sa chaîne
+   (`align-items: stretch` est le défaut d'un conteneur flexible). C'est pour ça
+   que retirer les `height: 100%` du lot 116 n'a rien changé — je cherchais une
+   cote écrite, et le défaut n'était pas écrit.
+   ⭐ `align-self: start` sur les trois maillons suffit : chacun cesse de se
+   laisser tirer, la dalle vaut son contenu, et c'est `.stage` — dont
+   l'`overflow: auto` existait déjà — qui défile. */
+.card-step:has(> .card-final),
+.decision-card:has(> .card-step > .card-final) { align-self: start; height: auto; }
 .card-final {
+  align-self: start;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -7639,64 +7673,309 @@ button { font: inherit; }
   box-shadow: inset 0 0 0 1px var(--positive);
 }
 .card-final-corps {
-  /* 🔴 UNE SEULE COLONNE, TOUJOURS — lot 116, 2026-09-02.
-     📏 MESURÉ AU BANC, À 375 COMME À 1366 (quatre fenêtres, échelles 1 à 2,44) :
-     la carte tirée rendait DEUX colonnes dans un panneau de 375 blg — la
-     colonne de texte tombait à ~40 blg, un mot par ligne, avec une barre de
-     défilement horizontale. Identique à toutes les tailles, parce que le
-     panneau vaut toujours 375 blg (règle sacrée du 31/08).
-     ⛔ LA CAUSE : le `@container (max-width: 34em)` qui devait ramener à une
-     colonne était écrit SUR `.card-final-corps`, qui portait lui-même
-     `container-type`. Une requête de conteneur interroge l'ANCÊTRE conteneur
-     le plus proche, jamais l'élément lui-même : la règle « une colonne » ne
-     s'est jamais appliquée, depuis le 30/08.
-     ⭐ ET LA REQUÊTE N'A PLUS DE RAISON D'ÊTRE : depuis que le panneau vaut
-     375 blg partout, la carte n'a JAMAIS la place de deux colonnes. Une
-     branche que personne ne parcourt est une branche que personne ne teste
-     (§0.6) — le grid à deux colonnes est retiré, pas conditionné. La carte
-     au-dessus, le texte dessous, et c'est le texte qui défile. */
-  display: flex;
-  flex-direction: column;
+  /* 🔴 DEUX COLONNES, ET LE TEXTE REPASSE SOUS LA CARTE — croquis d'Eric,
+     2026-09-02. La carte tient le HAUT de la colonne droite ; tout ce qui vient
+     après elle reprend la pleine largeur, ce que le dessin montre avec la boîte
+     du Score, plus large que les autres.
+     ⭐ C'est une GRILLE À DEUX COLONNES dont la carte n'occupe que les premières
+     rangées — pas deux colonnes parallèles sur toute la hauteur. C'est ce qui
+     rend caduque la mesure du lot 116 (« la colonne de texte tombait à ~40 blg »)
+     sans la contredire : elle était juste pour DEUX COLONNES PLEINE HAUTEUR. */
+  display: grid;
+  /* 🔴 UN PLANCHER SOUS LA COLONNE DE TEXTE — mesuré cassé le 02/09 : avec
+     `1fr auto`, la carte en `height: 100%` réclamait une largeur proportionnelle
+     à la hauteur qu'elle venait d'obtenir, la colonne `auto` la lui donnait, et
+     `1fr` s'écrasait à **0 blg**. Le texte disparaissait sous la carte.
+     ⭐ LA BOUCLE EST VICIEUSE ET C'EST POURQUOI IL FAUT UN PLANCHER : la hauteur
+     de la carte dépend de la hauteur du texte, qui dépend de sa largeur, qui
+     dépend de ce que la carte lui laisse. `minmax()` casse le cycle par le bas —
+     la colonne de texte ne peut plus rien céder sous 180 blg, et la carte prend
+     ce qui reste. 📏 335 de champ − 8 de gouttière − 180 = **147 blg** au plus
+     pour la carte, soit 252 de haut à son rapport. */
+  grid-template-columns: minmax(180px, 1fr) auto;
   gap: var(--sp-8);
-  flex: 1 1 auto;
-  min-height: 0;
+  align-items: start;
+  /* 🔴 `start`, ET SANS LUI LA GRILLE FABRIQUE DES CREUX — mesuré le 2026-09-03 :
+     rangées **242 / 97 / 79** pour des contenus de **202 / 72 / 38**. La grille
+     reçoit toute la hauteur restante (`flex: 1 1 auto`) et, ses rangées étant en
+     `auto`, `align-content: normal` les ÉTIRE pour la remplir. Le vide était
+     donc réparti entre les rangées, pas posé par une marge — c'est pourquoi
+     aucune chasse aux marges ne l'aurait trouvé.
+     ⭐ `align-items` ne suffisait pas : il place l'enfant DANS sa rangée, il ne
+     dit rien de la taille des rangées. Deux propriétés qui se ressemblent et ne
+     font pas le même métier. */
+  align-content: start;
+  /* ⛔ PLUS DE `flex: 1 1 auto` NI D'`overflow-y` — lot 142, Eric : *« adapte la
+     taille de la dalle en respectant le plancher »*. Le corps prenait toute la
+     hauteur restante et cachait son dépassement en défilant DANS lui-même : le
+     bas du Score sortait de vue sans que rien ne le signale. Il prend maintenant
+     sa hauteur naturelle, la dalle grandit avec lui, et c'est la SCÈNE qui
+     défile — avec les chevrons du socle pour l'annoncer. */
 }
-.card-final-carte { flex: none; display: grid; place-items: center; }
+/* 🔴 LA CARTE TIENT TOUTE LA COLONNE DROITE, JUSQU'AUX VIBRATIONS — Eric,
+   2026-09-02 : *« la carte remonte jusqu'à être au-dessus du bloc Vibrations »*.
+   ⭐ ELLE NE PORTE DONC PLUS DE PLAFOND ÉCRIT. Sa hauteur est celle de la
+   colonne de gauche (les blocs Ability → Power), et sa largeur suit son rapport.
+   ⛔ Le `max-height: 42 %` du lot 116 est retiré : il datait d'un écran à UNE
+   colonne, où la carte était posée AU-DESSUS du texte et devait donc lui laisser
+   de la place. Ici elle est À CÔTÉ — un plafond qui vient d'une autre géométrie
+   est un orphelin, et il l'empêchait justement de remonter. */
+/* 📏 −16 blg, dicté par Eric le 2026-09-02 : *« remonte la carte de 16 blg »*.
+   ⭐ Elle le PEUT parce que le titre a quitté la pleine largeur pour la colonne
+   de gauche : plus rien ne la coiffe, le bord haut du corps est libre. */
+/* ⛔ PAS DE MARGE NÉGATIVE ICI, ET C'EST MESURÉ : le corps DÉFILE, donc tout ce
+   qu'on tire au-dessus de son bord haut se fait COUPER. Premier essai le 02/09 :
+   la carte remontée de −16 perdait son bandeau « IX », le titre perdait sa
+   moitié haute. On ne remonte pas en tirant hors du cadre, on remonte en
+   LIBÉRANT la place au-dessus.
+   ⭐ ET LA CARTE N'EN A PAS BESOIN : le titre vit dans la colonne de GAUCHE, la
+   colonne droite n'a donc rien au-dessus d'elle et la carte part du bord haut du
+   corps — soit exactement une hauteur de titre plus haut que `ABILITY`. Les
+   « 16 blg » demandés tombent par construction, sans un pixel de réglage. */
+/* ⛔ `start`, PAS `stretch` — et c'est ce qui débloque « vibrations ne bouge
+   pas » (Eric, 2026-09-03). En `stretch`, la carte prenait la hauteur de la
+   rangée ET la lui imposait : 262 blg contre 200 pour le texte. C'est donc ELLE
+   qui commandait, et le bloc Vibrations se calait sur son bas — 62 blg de creux
+   perdus sous POWER, qu'aucune marge négative de 16 ne pouvait rattraper.
+   ⭐ LA CARTE PORTE MAINTENANT SA PROPRE COTE, EN BLG, et ne dimensionne plus
+   rien : le TEXTE commande la rangée, et Vibrations remonte de tout le creux. */
+.card-final-carte {
+  grid-column: 2; grid-row: 1; align-self: start;
+  display: grid; place-items: start center; min-height: 0;
+  /* 📏 +12 blg — Eric, 2026-09-03 : *« descend la carte hermit de entre 8 et
+     16 blg, faut pas que ça recouvre le texte de vibrations »*. 12 est le milieu
+     de sa fourchette.
+     ⚠️ SA MISE EN GARDE EST JUSTE, ET ELLE SE MESURE : le bloc des Vibrations
+     s'arrête à 292 blg et la carte commence à 233 — ils SE CROISENT de 59 blg
+     en largeur. Un recouvrement est donc possible dès que la carte descend.
+     ⭐ CE QUI L'EN EMPÊCHE N'EST PAS CETTE MARGE, C'EST LA GRILLE : la carte est
+     en rangée 1, les Vibrations en rangée 2. La marge fait GRANDIR la rangée 1,
+     elle ne fait pas déborder la carte dessus. Le garde de non-recouvrement est
+     structurel, pas numérique — il tiendrait aussi à 16. */
+  margin-top: var(--sp-12);
+}
 .card-final-img {
-  /* La vignette prend 42 % de la hauteur du PANNEAU — l'intention du 30/08
-     (« 42 % de la fenêtre à tous les crans ») lue dans le jeton qui porte
-     désormais cette hauteur, au lieu d'un `vh` divisé par l'échelle : le
-     panneau fait toujours 560 blg, la cote est la même sur toute fenêtre. */
   width: auto;
-  height: auto;
+  /* 📏 36 % DE LA HAUTEUR DU PANNEAU = 201,6 blg. Eric a demandé « 5 % » deux
+     fois, et 5 % ne faisait rien bouger : tant que la carte dépasse le texte,
+     c'est elle qui tient la rangée. Il en fallait 24 pour lui rendre la main.
+     ⭐ La cote est en blg, sur `--panneau-h`, comme la carte de la cérémonie :
+     bonne sur un écran, bonne sur tous. */
+  /* 📏 42 % au lieu de 36 — Eric, 2026-09-03 : *« on a encore de la place en
+     hauteur, tu peux baisser le plancher de la carte »*. Les 34 blg qui
+     dormaient sous le Score passent à l'image. */
+  /* 📏 −5 % de sa taille — Eric, 2026-09-03 : 0,42 × 0,95 = **0,40**. Les 8 blg
+     répercutés sous le Score avaient poussé le texte sous la carte ; elle rend
+     ce qu'il faut pour qu'il repasse dessous. */
+  /* 📏 38 % — Eric, 2026-09-03 : *« augmente espace sous auspicious »*. L'écran
+     défilait déjà de 4 blg ; l'espace demandé en coûte 12 de plus. Les 16 se
+     prennent sur la carte, seul poste qui en dispose — le pied n'a plus que 4
+     sous lui, et le corps est plein. */
+  /* 📏 33 % — LE BUDGET EST SATURÉ, ET C'EST LA CARTE QUI LE BOUCLE. Chaque
+     espace demandé le 2026-09-03 se paie sur elle, parce que le pied et le
+     rembourrage n'ont plus rien à rendre. Compté avant de poser : il manquait 12
+     blg (l'écran défilait déjà), plus 4 au-dessus des Vibrations, plus 12 sous
+     les boutons — soit 28. La carte passe de 213 à 185 blg.
+     ⚠️ ELLE A PERDU 24 % DE SA HAUTEUR EN QUATRE RÉGLAGES (42 → 40 → 38 → 33),
+     et chacun était juste pris isolément. C'est le budget qu'il faut regarder,
+     pas le geste suivant. */
+  height: calc(var(--panneau-h) * 1px * 0.38);
   max-width: 100%;
-  max-height: calc(var(--panneau-h) * 1px * 0.42);
   object-fit: contain;
   border-radius: var(--radius-md);
   box-shadow: var(--ombre-dalle, 0 8px 24px var(--ceremonie-ombre));
 }
+/* le texte : colonne 1, il commence à côté de la carte */
 .card-final-texte {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: var(--sp-4);
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  min-width: 0;
 }
-.card-final-nom { margin: 0 0 var(--sp-8); font-size: var(--t4); }
-.card-final-sous { margin: var(--sp-12) 0 var(--sp-4); font-size: var(--t3); }
-.card-liste-rangs { margin: 0; font-size: var(--t2); }
-.card-liste-rangs dt { font-weight: 600; margin-top: var(--sp-4); }
-.card-liste-rangs dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
+/* 🔴 CENTRÉ SUR SA COLONNE, ET REMONTÉ DE 8 — Eric, 2026-09-02 : *« centre
+   le nom de la carte au-dessus des blocs texte 1 et 2 · remonte-le de 8 blg »*.
+   Il vit
+   dans `.card-final-texte`, donc « centré » veut dire centré sur la colonne de
+   GAUCHE — pas sur la dalle. */
+.card-final-nom {
+  /* 📏 +4 sous le titre — Eric, 2026-09-03 : *« augmente espace entre titre et
+     Ability de 4 »*. Il allonge la colonne de texte pour aller CHERCHER l'écart
+     au lieu de le retirer ailleurs : les deux gestes de sa phrase se rejoignent
+     au milieu, 4 par le haut et 4 par le bas. */
+  /* 📏 12 = 4 + 8 — Eric, 2026-09-03 : *« rajoute 8 px entre le titre et
+     Ability »*, après les 4 qu'il avait déjà demandés. */
+  margin: 0 0 var(--sp-12);
+  font-size: var(--t4);
+  text-align: center;
+}
+/* 📏 LES 8 BLG DU TITRE SE PRENNENT SUR LE VOYANT, PAS SUR LE TITRE — Eric :
+   *« remonte le nom de 8 blg »*. La tête rendait sa marge basse de 8 ; elle la
+   cède. Le titre remonte donc de 8 SANS sortir du cadre qui défile. */
+.card-final-tete { margin-bottom: 0; }
 
-/* ⭐ LE SCORE RÉUTILISE `.card-score`, l'organe qui existait déjà (lot 61) —
-   il porte la même chose au même endroit. Ce lot ne lui ajoute qu'un filet
-   au-dessus : « tu le mets tout en bas » (Eric, 2026-08-30), donc il ferme la
-   lecture, et un trait dit qu'on a fini de lire. */
-.card-final-texte .card-score {
-  margin-top: var(--sp-16);
-  padding-top: var(--sp-8);
-  border-top: 1px solid var(--border);
+/* 🏷️ L'ÉTIQUETTE — le mot en capitales du croquis, au-dessus de sa fenêtre. */
+/* 🔴 L'ÉTIQUETTE EST EN ENCRE PLEINE, LA VALEUR EN ENCRE DE CORPS — Eric,
+   2026-09-03 : *« Ability en blanc : intelligence corps · Impact en blanc : +2
+   couleur de corps · Power en blanc · Vibrations en blanc »*.
+   ⭐ C'EST LE CONTRASTE QUI PORTE LA STRUCTURE, une fois les cadres devenus
+   invisibles : sans liseré ni rembourrage, rien ne sépare plus un libellé de
+   son contenu que l'encre. L'étiquette prend `--text` (le blanc de la nuit),
+   le contenu garde `--text-soft`. ⛔ Elles étaient toutes deux en gris —
+   l'étiquette encore plus pâle que sa valeur, ce qui inversait la hiérarchie. */
+.card-final-etiq {
+  margin: 0;
+  /* 📏 T2 — Eric, 2026-09-03 : *« ABILITY IMPACT MEANING POWER en T2 »*.
+     ⚖️ IL EN NOMME QUATRE, LA RÈGLE EN SERT SIX : `VIBRATIONS` et `DESTINY
+     SCORE` portent la MÊME classe, donc la même cote. Deux tailles d'étiquette
+     sur un écran qui en compte six, ce serait l'hétérogénéité que tout le reste
+     de la soirée a servi à retirer — et il faudrait un second sélecteur pour la
+     produire. Si l'écart est voulu, il se dira. */
+  font-size: var(--t2);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text);
 }
+/* les deux lignes courtes : le mot, puis la valeur sur la même ligne */
+.card-final-ligne { margin: 0; display: flex; gap: var(--sp-8); align-items: baseline; }
+/* la valeur d'une ligne courte : encre de CORPS, comme les fenêtres (Eric) */
+.card-final-val { font-size: var(--t2); color: var(--text-soft); }
+
+/* 🪟 LA FENÊTRE ENCADRÉE — les boîtes que le croquis dessine sous chaque mot. */
+.card-final-bloc { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* 🧊 LE CADRE DES VIBRATIONS EST REDEVENU NU — Eric, 2026-09-03 : *« dégage les
+   marges et efface la ligne du bloc vibrations. le texte garde sa structure »*.
+   Il l'avait fait redessiner une heure plus tôt pour VOIR où le bloc s'arrêtait ;
+   le repère a servi, il repart. Tous les blocs de cet écran ont donc le bord
+   invisible, sans exception — la structure tient par l'encre des étiquettes et
+   par le gras des `N vp`, jamais par un trait. */
+/* 🔴 LE CADRE NE SE VOIT PAS, ET IL NE REMBOURRE RIEN — Eric, 2026-09-02 :
+   *« aucune marge à l'intérieur des blocs, le contour des blocs invisible »*.
+   ⭐ C'EST LA MÊME LOI QUE SON GABARIT DU 26/08 : *« la zone de scroll NE BOUGE
+   PAS, et son BORD EST INVISIBLE »*. Les boîtes qu'il dessine délimitent une
+   PLACE, elles ne demandent pas un trait. Ce que le croquis montre comme un
+   rectangle est une zone réservée, pas un encadrement.
+   📏 ET ÇA REND 16 BLG DE LARGEUR aux blocs pleine largeur — les deux
+   rembourrages latéraux. La première vibration, à qui il manquait exactement 5
+   blg pour tenir sur une ligne, les récupère. */
+.card-final-cadre {
+  margin: 0;
+  padding: 0;
+  font-size: var(--t2);
+  color: var(--text-soft);
+}
+/* 🔴 UNE VIBRATION = UNE LIGNE — son nom en tête, son effet à la suite.
+   📏 En colonne de gauche (190 blg) elle en prenait DEUX ; sur les 335 blg de la
+   pleine largeur elle en prend UNE. C'est la largeur qui paie la hauteur. */
+.card-final-rangs { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* 📏 T2, pas T1 — Eric, 2026-09-03 : *« reviens en T2 pour le corps de
+   vibrations »*. Elles étaient descendues à T1 quand elles vivaient dans la
+   colonne étroite ; en pleine largeur elles n'ont plus besoin de se serrer. */
+.card-final-rang { margin: 0; font-size: var(--t2); color: var(--text-soft); }
+/* 📏 GRAS, MAIS PAS BLANC — Eric, 2026-09-03. Le « N vp » se détache par la
+   GRAISSE seule ; il hérite de l'encre de corps de sa ligne. L'encre pleine est
+   réservée aux ÉTIQUETTES de section (ability, impact, meaning, power,
+   vibrations) — deux organes qui prendraient la même couleur cesseraient de se
+   distinguer, et c'est justement l'encre qui porte la structure depuis que les
+   cadres sont invisibles. */
+.card-final-rang-cout { font-weight: 600; }
+
+/* les blocs qui traversent les deux colonnes : Vibrations, puis le Score */
+.card-final-large { grid-column: 1 / -1; }
+/* 📏 LE BLOC DES VIBRATIONS VA JUSQU'À LA MOITIÉ DE LA CARTE — Eric,
+   2026-09-03, après deux repères essayés et abandonnés.
+   MESURÉ SUR LA PAGE : la carte occupe **233 → 351 blg** depuis le bord gauche
+   de la dalle ; sa moitié tombe à **292**. Le contenu commence à 16 (le
+   rembourrage du rang B), le bloc vaut donc **276**.
+   ⭐ ET CE REPÈRE-LÀ EST STABLE, ce que les deux précédents n'étaient pas. Eric
+   avait d'abord visé le dernier caractère du titre (relevé à 164) — mais le nom
+   est CENTRÉ et sa largeur change d'une carte à l'autre (de 46 à 146 blg selon
+   l'arcane, mesuré sur les vingt-deux), donc le bloc aurait changé de
+   largeur à chaque tirage. Puis la lettre imprimée SUR la carte (relevée au
+   pixel dans l'image : le cartouche du nom court de 252 à 332), qui
+   dépend de l'illustration de chacune des vingt-deux. La moitié de la carte,
+   elle, ne dépend que de la grille — elle vaut la même chose pour les 22. */
+.card-final-etale {
+  max-width: calc(292px - var(--sp-16));
+  /* 🧊 LE CENTRAGE A ÉTÉ ESSAYÉ PUIS RETIRÉ — Eric, 2026-09-03 : *« c'est le
+     bloc 6 "vibrations" que tu centres »*, puis, en le voyant : *« c'est moche
+     recadre à gauche »*.
+     ⭐ ET C'EST COHÉRENT AVEC LE RESTE DE L'ÉCRAN : les six blocs sont ferrés à
+     gauche, sur la colonne de texte. Le seul organe centré est le TITRE, qui
+     coiffe sa colonne. Un bloc de prose centré au milieu de cinq blocs ferrés se
+     lit comme une erreur, pas comme une intention. */
+  /* 📏 −8 blg — Eric, 2026-09-03 : *« remonte vibration du coup »*, après avoir
+     descendu la carte de 12.
+     ⚠️ ET 8 EST LE PLAFOND, PAS UN CHOIX. Mesuré : le bas de la carte tombe à
+     228, le haut du bloc à 236. Au-delà de 8, le bloc passe SOUS la carte — ils
+     se croisent de 59 blg en largeur depuis qu'il va jusqu'à sa moitié — et
+     c'est exactement ce qu'Eric a interdit dans la phrase d'avant.
+     ⭐ LES DEUX CONSIGNES SE TIENNENT PAR UN FIL : descendre la carte de 12
+     consomme la place que remonter le bloc réclame. Pour aller plus haut, il
+     faudrait que le bloc s'arrête au bord GAUCHE de la carte (217) au lieu de sa
+     moitié (292) — il gagnerait alors 22 au lieu de 8. */
+  /* 📏 −12 au lieu de −8 : les 4 blg de plus qu'Eric demande le 2026-09-03
+     (*« remonte vibrations de 4 »*), qui s'ajoutent aux 8 déjà pris. */
+  /* 📏 −4, PAS −12 — Eric, 2026-09-03 : *« espace entre le bloc power et
+     vibrations ? 8 px »*. Mesuré à 0 : la remontée de 12 avait mangé les 8 du
+     `gap`, et les quatre autres écarts de l'écran valent 8. On rend donc 8 des
+     12 pris. ⭐ Le −4 qui reste est ce que la CARTE impose : elle dépasse le
+     texte, et le bloc se cale sur le bas de la rangée, pas sur celui du texte. */
+  /* 📏 0 — Eric, 2026-09-03 : *« augmente espace au-dessus vibrations de 4px »*.
+     La remontée de 4 est rendue ; l'écart devient celui du `gap`, comme partout
+     ailleurs sur cet écran. */
+  margin-top: 0;
+}
+/* ⛔ LE −16 DU BLOC TEXTE 3 A ÉTÉ RETIRÉ — et c'est la bonne façon de lire une
+   demande de réglage. Eric, 02/09 : *« c'est le bloc texte 3 qui remonte de
+   16 blg »*. Je l'ai d'abord posé en marge négative ; il chevauchait POWER de
+   6 blg dès que la VRAIE cause a été trouvée.
+   ⭐ CETTE CAUSE ÉTAIT L'ÉTIREMENT DES RANGÉES (voir `align-content` plus haut) :
+   la grille distribuait 40 blg de vide au-dessus de ce bloc. Une fois le vide
+   supprimé, le bloc remonte de 40 TOUT SEUL — bien plus que les 16 demandés,
+   et sans qu'aucune marge ne le tire.
+   📌 LA LEÇON : un écart qu'on demande de réduire se répare à sa CAUSE, pas par
+   une marge qui l'annule. La marge, elle, reste quand la cause disparaît — et
+   devient le défaut suivant. */
+
+/* ➕ LE CALCUL DU SCORE — pleine largeur, il passe SOUS la carte (croquis). */
+/* 🔴 LE QUATRIÈME BLOC EST CENTRÉ, LUI ET SON TEXTE — Eric, 2026-09-03 :
+   *« le Bloc 4 tu vas le centrer, et centrer son texte »*.
+   ⭐ IL TRAVERSE TOUJOURS LES DEUX COLONNES (`1 / -1`), mais il ne s'y ÉTALE
+   plus : `fit-content` le ramène à la largeur de son contenu, `margin-inline:
+   auto` le pose au milieu. Sans `fit-content`, un bloc pleine largeur au texte
+   centré donne un bloc invisible avec du texte flottant — ce n'est pas la même
+   chose, et seul le second se voit.
+   ⚖️ C'est le SEUL des quatre à être centré : les trois autres restent ferrés à
+   gauche, sur la colonne de texte. Le Score n'appartient à aucune colonne — il
+   ferme la lecture, comme le titre l'ouvre. */
+.card-final-score { grid-column: 1 / -1; }
+/* 🔴 UN TERME PAR LIGNE, EN T1 — Eric, 2026-09-03. L'enroulement est abandonné :
+   il mettait deux ou trois termes par ligne selon la longueur des mots, donc la
+   forme du bloc changeait d'une carte à l'autre. Empilés, les termes se lisent
+   comme une addition posée, et la hauteur ne dépend que de leur NOMBRE. */
+.card-final-calcul {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* 📏 T2 — Eric, 2026-09-03. Les termes étaient descendus à T1 quand ils
+     s'enroulaient sur deux lignes ; empilés, ils se lisent et n'ont plus besoin
+     de se serrer. ⚠️ Il l'a annoncé lui-même : « ça va recouvrir les boutons ». */
+  font-size: var(--t2);
+  font-variant-numeric: tabular-nums;
+}
+/* l'étiquette porte le total à sa droite : « Destiny Score    10 » */
+.card-final-score-tete { display: flex; align-items: baseline; gap: var(--sp-8); }
+/* ⭐ LES TERMES SE SÉPARENT PAR UN « + » DESSINÉ, PAS ÉCRIT : un caractère de
+   plus par terme dans le DOM, c'est un texte que personne ne peut sélectionner
+   proprement ni traduire. Le signe vit dans la feuille. */
+/* chaque terme : sa valeur signée, puis le mot qui dit d'où elle vient */
+.card-final-terme { display: inline-flex; align-items: baseline; gap: var(--sp-4); }
+.card-final-terme-val { font-weight: 600; }
+.card-final-terme-mot { color: var(--text-muted); }
+.card-final-total { font-size: var(--t5); font-weight: 600; color: var(--text); }
+
 
 /* 🗑️ ET TRENTE-SEPT LIGNES EN DOUBLE ONT ÉTÉ RETIRÉES ICI — lot 138, 02/09.
    📏 MESURÉ, PAS SUPPOSÉ : les neuf règles ci-dessus (`.card-final-carte` →

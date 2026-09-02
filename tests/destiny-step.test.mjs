@@ -52,7 +52,7 @@ function ctxFrom(document, report, extra) {
 test("le Score affiché est resolved.stats['fh:destiny'].value, tel quel", () => {
   const report = rebuild(fixture.document);
   const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
-  const value = node.querySelectorAll(".card-score-value")[0];
+  const value = node.querySelectorAll(".card-final-total")[0];
   const stat = report.resolved.stats.find((s) => s.id === "fh:destiny");
   assert.ok(stat);
   assert.equal(value.textContent, String(stat.value));
@@ -66,7 +66,7 @@ test("⚔️ ATTAQUE — un Score menteur (value ≠ somme du détail) s'affiche
   stat.value = 9999;
   assert.notEqual(9999, vraieSomme, "9999 n'est pas la somme — sinon l'attaque ne prouve rien");
   const node = renderDestinyStep(ctxFrom(report.document, { resolved: menteur }), () => {});
-  const value = node.querySelectorAll(".card-score-value")[0];
+  const value = node.querySelectorAll(".card-final-total")[0];
   assert.equal(value.textContent, "9999", "l'écran affiche ce que `resolved` dit, jamais l'addition refaite");
 });
 
@@ -163,7 +163,7 @@ test("🔴 de dos, il n'y a RIEN D'AUTRE que la carte (l'héritage de B6.1b)", a
   const { renderCeremonie } = await import("../ui/builder/destiny-ceremonie.mjs");
   const fs = renderCeremonie({ phase: "seq3", drawnId: "fh:arcana:en:the-tower", face: "down" }, () => {});
   assert.equal(fs.querySelectorAll(".ceremonie-flip").length, 1);
-  assert.equal(fs.querySelectorAll(".card-score").length, 0, "pas de Score");
+  assert.equal(fs.querySelectorAll(".card-final-score").length, 0, "pas de Score");
   assert.equal(fs.querySelectorAll(".card-pied").length, 0, "pas de boutons");
   /* ⚠️ PAR MOTIF, PAS PAR ÉGALITÉ : les `src` portent la version du graphe,
      lue dans l'URL du module qui les fabrique — le test importe le sien par
@@ -233,7 +233,12 @@ test("l'écran final recopie les champs du record, jamais une reformulation", ()
   const view = query({ kind: "arcana", id });
   const node = renderDestinyStep(ctxFrom(report.document, report), () => {});
   assert.ok(node.querySelectorAll(".card-final-nom")[0].textContent.includes(view.record.name));
-  const valeurs = node.querySelectorAll(".card-final-texte dd").map((dd) => dd.textContent);
+  /* ⭐ ON LIT LE TEXTE, PAS UNE BALISE — corrigé au lot 142. Ce test exigeait des
+     `<dd>`, une forme que le croquis d'Eric du 02/09 a remplacée par des fenêtres
+     encadrées. La LOI qu'il porte n'a pas bougé d'un mot : le champ du record est
+     recopié TEL QUEL, jamais reformulé. Un test qui épelle une balise se casse au
+     premier redessin et emporte sa loi avec lui. */
+  const valeurs = node.querySelectorAll(".card-final-texte *").map((n) => n.textContent);
   for (const champ of ["meaning", "power", "ability"]) {
     const attendu = view.record.data[champ];
     if (attendu) assert.ok(valeurs.includes(String(attendu)), `« ${champ} » doit être recopié tel quel`);
@@ -264,7 +269,10 @@ test("le pied final nomme les deux gestes du croquis, et n'en commet aucun tout 
   const appels = [];
   const node = renderDestinyStep(ctxFrom(report.document, report), (a) => appels.push(a));
   const boutons = node.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre"));
-  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Next"]);
+  /* 🔴 « Done », PAS « Next » — croquis d'Eric du 2026-09-02. Le geste ne change
+     pas (`destinyNext`), c'est le MOT : NORMES §6 réserve `NEXT` à ce qui ne fait
+     que naviguer, et ce bouton-là ACTE la carte au document. */
+  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Done"]);
   boutons[0].click();
   boutons[1].click();
   assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyNext" }]);

@@ -136,6 +136,25 @@ export function rangMaxDeVibration(score) {
  *  gain de place »*. Ce n'est pas qu'une économie de pixels : une liste qui
  *  montre six rangs dont quatre sont hors de portée annonce des pouvoirs
  *  qu'on n'a pas. */
+/** Les TERMES du Score, tels que le socle les a calculés — jamais réadditionnés.
+ *  ⭐ Croquis d'Eric du 2026-09-02 : « CALCUL DU SCORE · X + X + X = SCORE ». Il
+ *  ne veut plus le total seul, il veut le voir se faire.
+ *  ⛔ ET LA CARTE PAS ENCORE ACTÉE EST LE SEUL TERME QUE CET ÉCRAN AJOUTE :
+ *  `resolved.stats[].breakdown` porte tout le reste (maîtrise, base d'espèce,
+ *  bonus de trait, dons, gloire), avec le libellé de chaque ligne. Le recopier
+ *  garde une seule vérité ; le recalculer en ferait une seconde. */
+export function detailDuScore(resolved, impact, record) {
+  const stats = resolved && Array.isArray(resolved.stats) ? resolved.stats : [];
+  const stat = stats.find((s) => s.id === DESTINY_STAT_ID);
+  const lignes = stat && Array.isArray(stat.breakdown)
+    ? stat.breakdown.filter((l) => Number.isFinite(Number(l.value)))
+      .map((l) => ({ label: String(l.label || ""), value: Number(l.value) }))
+    : [];
+  const ajout = Number(impact) || 0;
+  if (ajout !== 0) lignes.push({ label: record && record.name ? record.name : "Arcana", value: ajout });
+  return lignes;
+}
+
 export function vibrationsAccessibles(data, score) {
   const toutes = data && Array.isArray(data.vibrations) ? data.vibrations : [];
   const max = rangMaxDeVibration(score);
@@ -236,7 +255,17 @@ export function renderDestinyFinal(ctx, onAction) {
 
   const corps = el("div", "card-final-corps");
 
-  /* ── la colonne TAROT ── */
+  /* ── LA CARTE, EN HAUT À DROITE ──────────────────────────────────────────
+     🔴 DEUX COLONNES, ET C'EST LE CROQUIS QUI TRANCHE (2026-09-02). Le lot 116
+     avait ramené cet écran à UNE colonne, sur une mesure : à 375 blg la colonne
+     de texte tombait à ~40 blg. Eric avait alors dit « on y reviendra de manière
+     spécifique » — c'est ce croquis-ci, et il redessine deux colonnes.
+     ⭐ CE QUI CHANGE PAR RAPPORT AU 116, ET QUI REND LA MESURE CADUQUE : la
+     carte n'occupe plus la moitié de la largeur sur toute la hauteur. Elle tient
+     le HAUT de la colonne droite, et le texte reprend toute la largeur en
+     dessous d'elle — c'est ce que le dessin montre avec la boîte du Score, plus
+     large que les autres. La colonne de texte ne vaut donc plus « la moitié
+     moins les gouttières » sur toute la page. */
   const colonneCarte = el("div", "card-final-carte");
   if (id) {
     const img = document.createElement("img");
@@ -247,39 +276,124 @@ export function renderDestinyFinal(ctx, onAction) {
   }
   corps.append(colonneCarte);
 
-  /* ── la colonne TEXTE EXPLICATIF, qui défile dans son cadre ── */
+  /* ── LA COLONNE DE GAUCHE — les libellés et leurs fenêtres ───────────────
+     Croquis : `ABILITY` et `IMPACT` sont des lignes courtes (une valeur tient
+     à côté du mot) ; `MEANING`, `POWER` et `VIBRATIONS` portent chacun une
+     FENÊTRE encadrée sous leur libellé. */
   const fenetre = el("div", "card-final-texte");
+
+  /* 🔴 LE TITRE VIT DANS LA COLONNE DE GAUCHE — Eric, 2026-09-02 : *« centre
+     Hermit au-dessus des blocs texte 1 et 2 »*. Il ne coiffe donc pas la dalle
+     entière : il coiffe SA colonne, et il se centre sur elle.
+     ⭐ CE QUE ÇA LIBÈRE, ET C'EST LE POINT : la colonne de droite n'a plus de
+     titre au-dessus d'elle, donc la carte peut remonter jusqu'au bord haut du
+     corps — c'est ce qu'Eric demande dans la même phrase. Poser le titre en
+     pleine largeur l'en aurait empêché, quel que soit le réglage. */
   if (record) fenetre.append(el("h2", "card-final-nom", [text(record.name)]));
 
-  const rows = renderCardRows([
-    ["Signature Ability", data.ability || null],
-    ["Destiny Impact", Number.isFinite(impact) && impact !== 0 ? (impact > 0 ? `+${impact}` : String(impact)) : null],
-    ["Meaning", data.meaning || null],
-    ["Power", data.power || null]
-  ]);
-  if (rows) fenetre.append(rows);
+  const ligne = (libelle, valeur) => {
+    if (valeur === null || valeur === undefined || valeur === "") return null;
+    const l = el("p", "card-final-ligne");
+    l.append(el("span", "card-final-etiq", [text(libelle)]));
+    l.append(el("span", "card-final-val", [text(String(valeur))]));
+    return l;
+  };
+  const bloc = (libelle, contenu) => {
+    if (!contenu) return null;
+    const b = el("div", "card-final-bloc");
+    b.append(el("h3", "card-final-etiq", [text(libelle)]));
+    b.append(contenu);
+    return b;
+  };
 
+  const courtes = [
+    ligne("Ability", data.ability || null),
+    ligne("Impact", Number.isFinite(impact) && impact !== 0 ? (impact > 0 ? `+${impact}` : String(impact)) : null)
+  ].filter(Boolean);
+  for (const l of courtes) fenetre.append(l);
+
+  const meaning = bloc("Meaning", data.meaning ? el("p", "card-final-cadre", [text(data.meaning)]) : null);
+  if (meaning) fenetre.append(meaning);
+
+  const power = bloc("Power", data.power ? el("p", "card-final-cadre", [text(data.power)]) : null);
+  if (power) fenetre.append(power);
+
+  corps.append(fenetre);
+
+  /* ── LES VIBRATIONS, EN PLEINE LARGEUR SOUS LA CARTE ─────────────────────
+     🔴 Eric, 2026-09-02 : *« la carte remonte jusqu'à être au-dessus du bloc
+     Vibrations. le bloc prend la place en largeur sous la carte à droite. Avec
+     cet espace les vibrations tiennent en 3 lignes »*.
+     ⭐ ET C'EST LA LARGEUR QUI PAIE LA HAUTEUR. Dans la colonne de gauche (190
+     blg), chaque vibration prenait DEUX lignes — son nom, puis son effet en
+     dessous. Sur les 335 blg de la pleine largeur, le nom et l'effet tiennent
+     sur la MÊME ligne : trois vibrations, trois lignes. On ne gagne pas la
+     place en coupant du texte, on la gagne en cessant de le plier.
+     ⛔ Ce n'est donc plus une `<dl>` : un couple terme/définition s'empile par
+     nature. Une vibration est UNE phrase dont le début est son nom. */
   const vibs = vibrationsAccessibles(data, score);
   if (vibs.length > 0) {
-    fenetre.append(el("h3", "card-final-sous", [text("Vibrations within your reach")]));
-    const liste = el("dl", "card-liste-rangs");
+    const liste = el("div", "card-final-cadre card-final-rangs");
     for (const v of vibs) {
-      liste.append(el("dt", null, [text(`${v.rank} · ${v.name}`)]));
-      liste.append(el("dd", null, [text(String(v.effect).replace(/\*/g, ""))]));
+      /* 🔴 « 1 vp » EN GRAS, PUIS LE TEXTE — Eric, 2026-09-03 : *« 1 vp (en gras)
+         texte · 2 vp (en gras) texte · 3 vp idem »*. Le rang ouvre la ligne sous
+         sa forme de COÛT, et c'est lui seul qui porte le gras ; le nom de la
+         vibration repasse dans le texte courant avec son effet. */
+      const ligneVib = el("p", "card-final-rang");
+      ligneVib.append(el("b", "card-final-rang-cout", [text(`${v.rank} vp`)]));
+      ligneVib.append(text(` ${v.name} — ${String(v.effect).replace(/\*/g, "")}`));
+      liste.append(ligneVib);
     }
-    fenetre.append(liste);
+    const b = bloc("Vibrations", liste);
+    b.className += " card-final-large card-final-etale";
+    corps.append(b);
   }
 
-  /* 🔴 LE SCORE EST TOUT EN BAS — la place qu'Eric lui a donnée le 2026-08-30.
-     Il ferme la lecture : on découvre la carte, ses pouvoirs, puis ce qu'elle
-     pèse. */
+  /* ── LE CALCUL DU SCORE, EN PLEINE LARGEUR ───────────────────────────────
+     🔴 Croquis : « CALCUL DU SCORE », et sa boîte est plus LARGE que les autres
+     — elle passe sous la carte. Eric ne veut plus seulement le total : il veut
+     le voir se FAIRE, `X + X + X = SCORE`.
+     ⭐ LES TERMES SONT CEUX DU SOCLE, PAS UNE SECONDE ADDITION. `resolved.stats`
+     porte déjà son `breakdown`, terme par terme, avec le libellé de chacun ; on
+     le recopie. Recalculer ici en ferait une seconde vérité (loi du lot 39). */
   if (score !== null) {
-    const bloc = el("div", "card-score");
-    bloc.append(el("span", "card-score-label", [text("Destiny Score")]));
-    bloc.append(el("span", "card-score-value", [text(String(score))]));
-    fenetre.append(bloc);
+    /* 🔴 LE TOTAL MONTE SUR LA LIGNE DE L'ÉTIQUETTE — Eric, 2026-09-03 :
+       *« Destiny score. X · item 1 (en t1) · item 2 · item 3 · item 4 »*.
+       ⭐ CE QUE ÇA CHANGE DANS LA LECTURE : on lit d'abord CE QUE ÇA VAUT, puis
+       d'où ça vient. Le « = X » au bout d'un calcul enroulé faisait l'inverse —
+       il fallait suivre les termes jusqu'au bout pour trouver le résultat, et sa
+       place changeait avec l'enroulement. Ici le total est toujours au même
+       endroit, quel que soit le nombre de termes. */
+    const b = el("div", "card-final-bloc card-final-score");
+    const tete = el("h3", "card-final-etiq card-final-score-tete");
+    tete.append(el("span", null, [text("Destiny Score")]));
+    tete.append(el("span", "card-final-total", [text(String(score))]));
+    b.append(tete);
+    const calcul = el("p", "card-final-cadre card-final-calcul");
+    const termes = detailDuScore(ctx.resolved, dejaActee ? 0 : impact, record);
+    /* 🔴 CHAQUE TERME DIT D'OÙ IL VIENT — Eric, 2026-09-03 : *« tu fais le
+       détail : +2 feat (si c'est le cas) + 2 elf + 2 hermit + 2 PB (car lvl 1) »*.
+       ⛔ Le total muet (« 2 + 2 + 2 ») ne se conteste pas : on ne peut pas voir
+       QUEL terme est faux. Nommé, il devient vérifiable à la table.
+       ⭐ ET LE MOT EST CELUI DU SOCLE, RECOPIÉ. `resolved.stats[].breakdown`
+       porte déjà le libellé de chaque ligne — « Proficiency Bonus », le nom de
+       l'espèce, celui du trait, du don, de la carte. En fabriquer un plus court
+       ici serait une seconde vérité, et elle mentirait le jour où une règle
+       change de nom. */
+    for (const t of termes) {
+      const jeton = el("span", "card-final-terme");
+      jeton.append(el("span", "card-final-terme-val", [text(t.value > 0 ? `+${t.value}` : String(t.value))]));
+      jeton.append(el("span", "card-final-terme-mot", [text(t.label)]));
+      calcul.append(jeton);
+    }
+    b.append(calcul);
+    /* ⛔ SUR `corps`, PAS SUR `fenetre` — mesuré à l'écran le 02/09 : posé dans
+       la colonne de gauche, `grid-column: 1 / -1` ne pouvait rien faire, il
+       héritait de la largeur de sa colonne. Une propriété de grille ne parle
+       qu'aux ENFANTS DIRECTS de la grille. Le croquis le veut plus large que
+       les autres boîtes, donc il est l'enfant du corps. */
+    corps.append(b);
   }
-  corps.append(fenetre);
   dalle.append(corps);
 
   /* ── le pied : la paire du croquis ──
@@ -295,7 +409,12 @@ export function renderDestinyFinal(ctx, onAction) {
      un popup pendant vingt minutes, puis croire qu'il l'a cassé. */
   const rangee = pied(data.meaning ? { titre: record ? record.name : "Lore", texte: data.meaning } : null, act);
   rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
-  rangee.append(bouton("Next", "parcours-next", () => act({ kind: "destinyNext" })));
+  /* 🔴 « DONE », PAS « NEXT » — croquis d'Eric du 2026-09-02. Le geste n'a pas
+     changé (`destinyNext`), c'est le mot. ⚖️ NORMES §6 sépare les deux : `NEXT`
+     ne fait que NAVIGUER, `DONE` acte. Ici il ACTE — c'est lui qui pose la carte
+     au document — donc le croquis nomme juste, et l'ancien libellé mentait sur
+     ce que le bouton coûte. */
+  rangee.append(bouton("Done", "parcours-next", () => act({ kind: "destinyNext" })));
   dalle.append(rangee);
   return dalle;
 }

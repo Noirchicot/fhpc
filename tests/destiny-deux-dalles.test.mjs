@@ -69,14 +69,29 @@ test("2 — 📄 LA DALLE TEXTE PORTE LES ÉLÉMENTS CLASSIQUES", () => {
   const s = ecran();
   const texte = s.querySelector(".card-final-texte");
   assert.ok(texte, "témoin : la colonne de texte est là");
-  assert.ok(texte.querySelector(".card-score"), "le Score vit avec le texte — il EST du texte");
+  /* ⭐ RÉÉCRIT AU LOT 142, ET SA LOI NE BOUGE PAS D'UN MOT : le Score EST du
+     texte, il ne vit jamais dans la colonne de l'image. Ce qui a changé est sa
+     PLACE — le croquis d'Eric du 2026-09-02 le met en pleine largeur, sous la
+     carte, plus large que les autres blocs. Il est donc l'enfant du corps, plus
+     celui de la colonne de gauche.
+     ⛔ Le test exigeait `.card-score` DANS `.card-final-texte` : il épelait une
+     forme, pas la loi, et se serait cassé au premier redessin en emportant la
+     garantie avec lui. La forme est remplacée, la garantie reste. */
+  const score = s.querySelector(".card-final-score");
+  assert.ok(score, "le Score est rendu");
+  const colonneTarot = s.querySelector(".card-final-carte");
+  /* ⚠️ `querySelectorAll`, pas `contains` : le DOM du banc n'implémente pas
+     `Node.contains` — mesuré en le posant. Un test qui appelle une API absente
+     rougit sur lui-même, pas sur le code qu'il garde. */
+  assert.equal(colonneTarot.querySelectorAll(".card-final-score").length, 0,
+    "le Score vit avec le texte — il EST du texte, et jamais un élément de la colonne de l'image");
   /* la paire de boutons vit dans la DALLE, sous les deux colonnes : c'est le
      croquis d'Eric, et c'est la loi « un bouton se pose sur une dalle, jamais
      sur le fond ». */
   const pied = s.querySelector(".parcours-pied");
   assert.ok(pied, "la rangée de boutons est dans la dalle");
   const gestes = pied.querySelectorAll("button").filter((b) => !b.className.includes("fiche-livre"));
-  assert.equal(gestes.length, 2, "« I changed my mind » et « Next »");
+  assert.equal(gestes.length, 2, "« I changed my mind » et « Done » (croquis du 2026-09-02)");
   assert.ok(pied.querySelector(".fiche-livre"), "et le livre, l'organe des autres chapitres (Eric, 30/08)");
 });
 
