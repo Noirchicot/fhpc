@@ -89,10 +89,15 @@ test("🔴 la grandeur se calcule sur la fenêtre DIVISÉE par l'échelle", () =
      se lit sur le PANNEAU (375 blg), pas sur la fenêtre divisée — une fenêtre
      de 1920 au facteur 1,93 reste « etroite », parce que c'est la place du
      dessin qui décide, et le dessin fait toujours 375. */
+  /* RÉÉCRIT AU LOT 133 : la fenêtre de 1920 ne rend plus 1,93 (elle prenait
+     89 % de la hauteur d'écran, la bande haute et étroite qu'Eric a refusée).
+     Elle rend le barreau `moyen`. La clause garde ce qui compte ici — la
+     GRANDEUR ne lit pas la fenêtre — et la valeur se déduit du barreau. */
   window.innerWidth = 1920;
   window.innerHeight = 1080;
   const r = appliquerEchelle(window, racine);
-  assert.ok(r.cran > 1.9 && r.cran < 2, `1080 / 560 = 1,93 attendu, rendu ${r.cran}`);
+  assert.equal(r.cran, cranAuto(1920, 1080, racine), "l'échelle posée est celle du module");
+  assert.ok(r.cran > 1 && r.cran < 1.5, `un barreau de bureau, pas la hauteur d'écran — rendu ${r.cran}`);
   assert.equal(racine.dataset.grandeur, "etroite",
     "1920 de large et pourtant étroite : la grandeur mesure le panneau, jamais l'écran");
 });
@@ -131,37 +136,42 @@ test("🔴 le cran auto suit les JETONS — bouger --panneau-l change le résult
     "un panneau plus large doit faire BAISSER le cran — sinon la cote est figée quelque part");
 });
 
-test("🔴 et il suit AUSSI --panneau-h — en paysage c'est la HAUTEUR qui décide", () => {
+test("🔴 et il suit AUSSI --panneau-h — la hauteur fait DESCENDRE D'UN CRAN", () => {
   /* 📏 LE DÉFAUT QUE CETTE CLAUSE GARDE, mesuré le 31/08 sur l'iPad d'Eric
      couché (1366 × 1024) : sur la seule largeur, l'échelle rendait 3,64 —
-     panneau de 1365 px de large et 281 blg de haut pour 560 nécessaires. La
-     carte se serait coupée : le défaut qu'on venait de fermer, rouvert par
-     l'autre bout. */
-  const avant = cranAuto(1600, 1600, racine);
-  racine.__jetons.set("--panneau-h", "1200px");
-  const apres = cranAuto(1600, 1600, racine);
+     panneau de 1365 px de large et 281 blg de haut pour 560 nécessaires.
+     ⚠️ RÉÉCRIT AU LOT 133 : la hauteur n'est plus un rapport qui rabote, c'est
+     un PLANCHER qui fait sauter un cran (Eric : *« si ça passe pas on saute un
+     cran en dessous »*). Elle doit donc toujours faire BAISSER l'échelle, mais
+     par palier — et il faut une fenêtre qui ne porte pas le barreau posé. */
+  const avant = cranAuto(1600, 1000, racine);
+  racine.__jetons.set("--panneau-h", "1200px");   // le panneau exige soudain bien plus
+  const apres = cranAuto(1600, 1000, racine);
   racine.__jetons.set("--panneau-h", "560px");
-  assert.ok(apres < avant, "une hauteur exigée plus grande doit faire baisser l'échelle");
-
-  const arrondi = (x) => Math.round(x * 100) / 100;
-  assert.equal(arrondi(cranAuto(1366, 1024, racine)), 1.83,
-    "iPad COUCHÉ : la largeur en offrirait 3,64, la hauteur n'en porte que 1,83");
-  assert.equal(arrondi(cranAuto(1024, 1366, racine)), 2.44,
-    "le même iPad DEBOUT : 2,44 — tourner l'appareil change l'échelle, et c'est la hauteur qui le dit");
+  assert.ok(apres < avant, "une hauteur exigée plus grande doit faire descendre d'un cran");
 });
 
-test("🔴 L'ÉCHELLE EST CONTINUE — jamais arrondie à un cran du tableau", () => {
+test("🔴 EN PLEIN ÉCRAN L'ÉCHELLE RESTE CONTINUE — la règle sacrée du 31/08 intacte", () => {
   /* ⛔ LA RÈGLE SACRÉE D'ERIC (31/08) : « ce n'est pas 5 changements de
      tailles, c'est un redimensionnement qui suit la fenêtre dans toutes
-     situations. Le builder garde toujours son ratio. » Une échelle posée sur
-     le cran le plus proche ferait perdre au panneau les quelques pour cent qui
-     le séparent du bord — donc du ratio à l'écran. */
-  const f = cranAuto(1000, 900, racine);
-  /* Les cinq crans d'hier, gardés ici comme TÉMOIN — le tableau lui-même est
-     parti avec la rampe du Menu (lot 118). */
-  assert.ok(![1, 1.25, 1.5, 2, 3].includes(f), `${f} ne doit PAS être un des cinq crans d'hier — l'échelle est continue`);
-  assert.equal(Math.round(f * 1000) / 1000, Math.round(900 / 560 * 1000) / 1000,
+     situations. Le builder garde toujours son ratio. »
+     ⚠️ RÉÉCRIT AU LOT 133 : elle tient TOUJOURS là où Eric l'a laissée —
+     *« sur téléphone et tablette, l'appareil décide »* — et elle est amendée
+     au-dessus, où le partage d'Eric pose des barreaux. Le témoin doit donc
+     être une fenêtre de TÉLÉPHONE, pas un 1000 de large. */
+  const f = cranAuto(700, 900, racine);
+  assert.ok(![1, 1.25, 1.5, 2, 3].includes(f), `${f} ne doit PAS être un des cinq crans d'hier`);
+  assert.equal(Math.round(f * 1000) / 1000,
+    Math.round(Math.min(700 / 375, 900 / 560) * 1000) / 1000,
     "elle vaut exactement le plus contraignant des deux rapports, sans arrondi");
+});
+
+test("⚔️ ATTAQUE — au-dessus du plein écran elle ne l'est PLUS, et c'est tout le lot 133", () => {
+  /* Si cette clause tombe un jour parce que les deux régimes coïncident,
+     c'est que le décor a été choisi trop mollement. */
+  const f = cranAuto(1920, 1080, racine);
+  assert.notEqual(Math.round(f * 1000) / 1000, Math.round(Math.min(1920 / 375, 1080 / 560) * 1000) / 1000,
+    "la règle continue rendrait 1,93 — la bande haute et étroite qu'Eric a refusée");
 });
 
 test("🔴 elle descend SOUS 1 plutôt que de couper — le plancher est renversé", () => {
@@ -174,14 +184,22 @@ test("🔴 elle descend SOUS 1 plutôt que de couper — le plancher est renvers
   assert.equal(Math.round(f * 100) / 100, 0.96);
 });
 
-test("l'échelle suit la fenêtre dans les deux sens, sans jamais rien couper", () => {
+test("l'échelle ne fait jamais déborder le panneau, sur aucune des deux dimensions", () => {
+  /* ⚠️ RÉÉCRIT AU LOT 133 : la seconde moitié de cette clause exigeait que le
+     panneau TOUCHE un bord. C'était vrai d'une échelle continue ; le partage
+     d'Eric laisse justement du vide autour — *« combien la fenêtre donne au
+     builder, et combien elle laisse à côté »*. Ce qui reste vrai partout,
+     c'est qu'on ne déborde pas. Le bord touché reste exigé SOUS `mobile`. */
   for (const [l, h] of [[360, 640], [375, 812], [768, 1024], [1024, 1366],
                         [1366, 1024], [1440, 900], [1920, 1080], [3840, 2160]]) {
     const f = cranAuto(l, h, racine);
     assert.ok(f * 375 <= l + 1e-9 && f * 560 <= h + 1e-9,
       `à ${l} × ${h} l'échelle ${f} donne ${f * 375} × ${f * 560} blg — ça ne rentre pas`);
+  }
+  for (const [l, h] of [[360, 640], [375, 812], [700, 1024]]) {
+    const f = cranAuto(l, h, racine);
     assert.ok(f * 375 >= l - 1e-9 || f * 560 >= h - 1e-9,
-      `à ${l} × ${h} l'échelle ${f} laisse de la place des DEUX côtés : elle est trop petite`);
+      `à ${l} × ${h} — en plein écran le builder prend toute la place, il doit toucher un bord`);
   }
 });
 

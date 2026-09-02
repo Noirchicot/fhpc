@@ -73,7 +73,69 @@
 | ⭐ **`--touch` n'a plus de `max()`** | 44 blg valent toujours ≥ 44 px sur une échelle qui ne descend jamais. La loi d'Apple et celle d'Eric disent la même chose — *tant que le plancher tient*, et un garde le mesure |
 | ⛔ **le reflux survit, le redimensionnement meurt** | une rangée qui passe de 4 cases à 3 ne change **aucun** rapport (loi du 19/08, *« si on peut faire 4, on fait 4 »*). Une cote qui double sur grand écran, si |
 | ⛔ **jamais un `@media` de largeur** | il **ne se réévalue pas** sous `zoom` — mesuré au banc : à 1920 au cran 5, `min-width: 1140px` matchait encore et le rail rendait **600 px réels**. La grandeur passe par `data-grandeur`, calculé sur `innerWidth / échelle` |
-| ~~⚠️ **le cran est borné, jamais clampé**~~ | **renversé le 2026-09-02** — Eric : *« si l'auto fait bien son travail, effectivement les boutons sont obsolètes »*. La rampe de crans du Menu est **retirée** (lot 118) : depuis l'échelle continue, Auto rend déjà le plus grand facteur que la fenêtre porte, et un cran manuel ne pouvait que **rapetisser** (mesuré à 1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). La taille se règle en **redimensionnant la fenêtre** ; sur téléphone et tablette, l'appareil décide. Les clefs `fhpc.echelle.cran*` sont effacées à chaque lecture |
+| ~~⚠️ **le cran est borné, jamais clampé**~~ | **renversé le 2026-09-02** — Eric : *« si l'auto fait bien son travail, effectivement les boutons sont obsolètes »*. La rampe de crans du Menu est **retirée** (lot 118) : depuis l'échelle continue, Auto rend déjà le plus grand facteur que la fenêtre porte, et un cran manuel ne pouvait que **rapetisser** (mesuré à 1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). La taille se règle en **redimensionnant la fenêtre** ; sur téléphone et tablette, l'appareil décide. Les clefs `fhpc.echelle.cran*` sont effacées à chaque lecture. ⚖️ **Et la RAISON de ce retrait tombe le même jour** — voir l'amendement du 02/09 ci-dessous : avec le partage, un réglage joueur peut agrandir |
+
+### 🔴 AMENDEMENT DU 2026-09-02 — **LE BUILDER EST UN PARTAGE DE L'ÉCRAN**
+
+> **« Concept. Builder plein écran sur mobile. […] Etc… »**
+> **« Donc largeur plutôt basée sur la largeur, et un plancher à la hauteur ; si ça passe pas on
+> saute un cran en dessous. »** · **« Tout passe en mode widget pour desktops. »**
+> **« iPad tu suggères 1/2 donc, là où petit écran tu suggères 1/3. »** · **« 7 crans »**
+
+⭐ **Ce n'est pas une taille d'écran, c'est un PARTAGE** — et c'est le mot d'Eric du 31/08 :
+*« combien la fenêtre donne au builder, et combien elle laisse à côté »*. `1/4` dit « un quart pour
+le builder, trois pour le décor ». **La taille en découle, elle ne se décide pas ailleurs.**
+
+| # | cran | part | écran type | panneau | échelle | hauteur prise |
+|---|---|---|---|---|---|---|
+| 1 | le réduit | 96 % | 360 × 800 | 360 × 538 | ×0,96 | 67 % |
+| 2 | le plein écran | 1/1 | 375 × 812 | 375 × 560 | ×1,00 | 69 % |
+| 3 | la tablette | **1/2** | 1366 × 1024 | **683 × 1020** | ×1,82 | **100 %** |
+| 4 | le petit | 1/3 | 1440 × 900 | 480 × 717 | ×1,28 | 80 % |
+| 5 | le moyen | 1/4 | 1920 × 1080 | 480 × 717 | ×1,28 | 66 % |
+| 6 | le grand | 1/5 | 2560 × 1440 | 512 × 765 | ×1,37 | 53 % |
+| 7 | l'xtra | 1/6 | 3440 × 1440 | 573 × 856 | ×1,53 | 59 % |
+
+📌 **Les sept NOMS ne sont pas dans ce tableau, et c'est voulu** : ils vivent dans `BARREAUX`
+(`echelle.mjs`) et **nulle part ailleurs** — un renommage doit être une seule édition, et un garde
+le vérifie. Les chiffres ci-dessus sont une **mesure**, relevée au navigateur par émulation de
+viewport le 02/09 ; le même garde la refait.
+
+⭐ **DEUX FAITS QUI PROUVENT QUE LA TABLE EST JUSTE, mesurés :**
+
+| | |
+|---|---|
+| ⭐ **le petit sur un 1440 et le moyen sur un 1920 rendent la MÊME largeur : 480** | `1440/3 = 1920/4`. La fraction qui rétrécit **compense exactement** l'écran qui grandit — c'est ce qui justifie que les parts décroissent d'un cran à l'autre, et ce n'est pas une coïncidence |
+| ⭐ **deux panneaux au demi font exactement 100 % de la largeur** | `2 × W/2 = W`, sur les quatre formes d'iPad. Le *« 1/2 »* d'Eric et sa *« proposition de passage en affichage double d'office »* sont **la même idée par les deux bouts**. ➡️ **La vue double n'est pas une exception au partage : elle en est la conséquence au cran de la tablette** |
+
+### Le mécanisme, en deux temps
+
+| | |
+|---|---|
+| ① **la LARGEUR pose le cran** | l'écran choisit son cran, le cran donne sa part, la part donne la largeur. **Rien d'autre n'intervient à ce stade** |
+| ② **la HAUTEUR ne fait que DESCENDRE** | on calcule la hauteur qu'il faut (`largeur × 560/375`). Si la place ne la porte pas, ⛔ on ne rabote pas la largeur d'un continuum : **on saute un cran en dessous**, autant de fois qu'il le faut |
+| ⚠️ **« un cran en dessous » se compte en TAILLE RENDUE** | ⛔ pas en indice, et ⛔ pas « la part du cran d'en dessous appliquée à cet écran-ci » : cette seconde lecture donne une taille **plus grande** et inverse le saut |
+| 🔴 **le plancher est le DESSIN, pas un nombre** | un partage ne rend jamais moins que `--panneau-l`, **lu dans les jetons**. Sous le dessin, un builder n'est pas plus petit, il est **coupé**. Seul le plein écran y échappe — c'est là que vit le cran réduit |
+| 📌 **le 96 % est un QUOTIENT** | `360 / 375 = 0,96`, exactement. ⛔ Jamais écrit en littéral. Eric, 31/08 : *« si tu réduis de 4 % la taille sur mini mobile c'est ok »* |
+| ⚠️ **le résidu, nommé plutôt que masqué** | si même le DERNIER cran ne tient pas en hauteur, la descente n'a plus rien sous elle et le panneau déborde. Mesuré : `2999 × 700` demande 746 de haut. ⛔ **Aucun huitième cran inventé** — le garde le laisse visible |
+
+### ⚖️ Le saut de cran a un témoin, et un seul
+
+📏 **L'iPad Air couché, `1180 × 820`** : au demi il demande `590 × 881` pour 820 disponibles — **il
+déborde de 61**. Il saute un cran, retombe au tiers, et rend **`393 × 587`**, 72 % de la hauteur.
+⭐ **C'est le seul cas de toute la table où le saut se déclenche.** S'il cessait de se déclencher
+là, le mécanisme serait mort et la table seule le cacherait — d'où un garde qui prouve d'abord
+qu'il DÉBORDERAIT, puis qu'il descend, puis qu'il tient.
+
+### 🧊 Ce que cet amendement renverse, et pourquoi
+
+| renversé | remplacé par |
+|---|---|
+| ~~**la règle sacrée du 31/08** `min(L/375, H/560)` partout~~ | elle **tient toujours** en plein écran *(« sur téléphone et tablette, l'appareil décide »)* et **en vue double**, où deux panneaux font déjà l'écran. Elle est amendée **pour la vue simple à partir de la tablette** : elle rendait ×1,93 sur un 1920 × 1080 — un panneau de 723 × 1080, **89 % de la hauteur**, une bande haute et étroite. Eric : *« plus du tout respectée »* |
+| ~~**l'échelle est continue**~~ | au-dessus du plein écran elle est **discrète** — c'est ce que *« 7 crans »* veut dire, et c'est ce qui rend le réglage joueur possible |
+| ~~**la rampe de crans du Menu est obsolète** *(lot 118, ce matin)*~~ | ⚖️ **la raison du 118 tombe.** Elle était mesurée : *depuis l'échelle continue, l'auto rendait déjà le plus grand facteur que la fenêtre porte, donc un cran manuel ne pouvait que **rapetisser*** (1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). ⭐ **Avec le partage, l'auto rend ×0,96 à ×1,53 : un réglage joueur peut désormais AGRANDIR autant que réduire.** Eric : *« décision de le faire en auto, et laisser le joueur régler à sa guise »* — l'auto reste le **défaut**, jamais un mur. ⛔ Les clefs `fhpc.echelle.cran*` ne ressuscitent pas : le 118 les efface à chaque lecture, et deux mécanismes de réglage se battraient |
+| ~~**« 1/3 sur iPad »** *(première formulation du 02/09)*~~ | ⛔ **mort le jour même.** Mesuré : sur un iPad couché le tiers portait le vide de **50 à 67 %** — il rétrécissait le panneau **sans réduire le vide, il l'augmentait** ; et debout il tombait **sous le panneau nu** (`1024/3 = 341`). Le demi le remplace |
+| ~~**les six noms du 31/08** `mini · mobile · small · medium · large · extra`~~ | Eric a nommé cette échelle deux fois. **Liste retenue le 02/09**, sur sa réponse *« celle du 2/09 »*. ⚠️ **Le cran réduit, lui, revient** — il avait disparu d'une lecture intermédiaire qui le prenait pour un état et non pour un rang ; Eric a tranché *« 7 crans »*. Sa reprise n'est pas une erreur |
 
 ### ⏳ Le repli désigné, **écrit et non construit** *(30/08 au soir)*
 

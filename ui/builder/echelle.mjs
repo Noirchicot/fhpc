@@ -99,31 +99,212 @@ function cotesDeLApp(racine, colonnes) {
   };
 }
 
-/** 🔴 L'ÉCHELLE EST CONTINUE — Eric, 2026-08-31 :
- *  *« ce n'est pas 5 changements de tailles, c'est un redimensionnement qui
- *  suit la fenêtre dans toutes situations. RÈGLE SACRÉE : le builder garde
- *  toujours son ratio. »*
+/* ══ L'ÉCHELLE À BARREAUX — Eric, 2026-09-02 ════════════════════════════════
+   🔴 *« Concept. Builder plein écran sur mobile. […] Etc… »* · *« 6 crans »*
+   🔴 *« Donc largeur plutôt basée sur la largeur, et un plancher à la
+   hauteur ; si ça passe pas on saute un cran en dessous. »*
+   🔴 *« Tout passe en mode widget pour desktops. Mobile ça prend toute la
+   place. »* · *« iPad tu suggères 1/2 donc, là où petit écran tu suggères
+   1/3. »*
+
+   ⭐ CE QUE LA FRACTION DIT VRAIMENT, ET C'EST LE MOT D'ERIC DU 31/08 :
+   *« combien la fenêtre donne au builder, et combien elle laisse à côté »*.
+   Ce n'est pas une taille d'écran, c'est un PARTAGE — 1/4 dit « un quart pour
+   le builder, trois pour le décor ». La taille en découle, elle ne se décide
+   pas ailleurs.
+
+   ⭐ ET LES SIX PARTS SONT LA SUITE 1, 2, 3, 4, 5, 6 — un barreau, un
+   diviseur. C'est ce que « 6 crans » veut dire, et les deux cotes qu'Eric a
+   données (`tablette` 1/2, `petit` 1/3) tombent exactement dessus.
+
+   ⭐⭐ ET LE DEMI RÉCONCILIE SES DEUX PHRASES : **deux panneaux au demi font
+   exactement cent pour cent de la largeur**, sur les quatre formes d'iPad.
+   Son *« 1/2 »* et sa *« proposition de passage en affichage double d'office »*
+   sont la MÊME idée par les deux bouts — un panneau prend la moitié, deux
+   panneaux prennent l'écran. ⭐ La vue double n'est donc pas une exception au
+   partage : elle en est la CONSÉQUENCE au barreau `tablette`.
+
+   🔴 LE PARTAGE SE CALCULE SUR LA FENÊTRE COURANTE. C'est ce qui rend
+   l'identité ci-dessus vraie (`2 × W/2 = W`, quel que soit W), et c'est
+   l'arithmétique de toutes les cotes qu'Eric a validées : `1366/2 = 683`,
+   `1024/2 = 512`, `1180/3 = 393`. ⛔ Une taille figée par barreau la
+   casserait — et le seul argument qui la défendait (la bande de 375–430 blg
+   mesurée sur l'ancienne table) est mort le 02/09, quand Eric a validé
+   **683 blg** sur son iPad couché.
+
+   📏 CE QUE ÇA REND, mesuré (largeur du panneau, puis hauteur d'écran prise) :
+
+       barreau    part   768×1024   1024×1366   1366×1024   1920×1080   2560×1440
+       tablette   1/2    384 (56%)  512 (56%)   683 (100%)      —           —
+       petit      1/3        —          —           —       (voir moyen)     —
+       moyen      1/4        —          —           —       480 (66%)       —
+       grand      1/5        —          —           —           —       512 (53%)
+
+   ⚠️ `mini` N'EST PAS UN BARREAU, c'est l'état réduit de `mobile` sur les
+   écrans de 360 : `360 / 375 = 0,96` — le QUOTIENT, jamais un 0,96 écrit à la
+   main. Eric, 31/08 : *« si tu réduis de 4 % la taille sur mini mobile c'est
+   ok, donc ce palier s'appelle mini »*. Il sort tout seul du régime `mobile`,
+   qui rend la fenêtre telle quelle.
+
+   ⛔ LE `1/3` POUR L'iPAD EST MORT — il portait le vide de 50 à 67 % sur un
+   écran couché et tombait SOUS le panneau nu debout (`1024/3 = 341`). Il n'en
+   reste rien ici, et rien dans la norme : une règle qui décrit un état retiré
+   est pire qu'une règle absente.
+
+   ⛔ ET C'EST LA SEULE DÉCLARATION DES SIX NOMS. Rien ne les recopie — ni un
+   test, ni un libellé, ni un commentaire qui les énumère (le tableau
+   ci-dessus est une MESURE, un garde la refait). Un renommage est une seule
+   édition ; le réglage joueur du lot 134 les LIRA ici. Et si `mini` devait
+   redevenir un barreau, ce serait une ligne de plus, pas une refonte. */
+
+/** Les six barreaux, dans l'ordre de l'échelle — du plus GÉNÉREUX au plus
+ *  serré, ce qui est aussi l'ordre des écrans qui les posent.
  *
- *  ⭐ CE QUE ÇA SIMPLIFIE, ET C'EST LE CŒUR DU LOT : le panneau ne se serre
- *  plus jamais, ne se coupe plus jamais, ne perd plus jamais sa gouttière. Il
- *  vaut **toujours exactement `--panneau-l` × `--panneau-h` blg** ; c'est le
- *  PIXEL qui grandit ou rapetisse sous lui. La feuille n'a donc plus rien à
- *  arbitrer — plus de `min(100%, …)`, plus de plancher à défendre.
+ *  · `depuis` — la largeur de FENÊTRE à partir de laquelle ce barreau est posé ;
+ *  · `part`   — le dénominateur du partage, mot pour mot d'Eric.
  *
- *  ⛔ ET ÇA RENVERSE « LE PLANCHER EST 1 » (30/08). Sous 375 blg de large,
- *  le facteur descend sous 1 — un 360 rend 0,96. C'est VOULU et c'est mieux
- *  que ce qu'on avait : la règle d'hier faisait perdre 15 blg à la carte sur
- *  un téléphone de 360 (mesuré, et Eric l'avait accepté) ; ici rien n'est
- *  retiré, tout est simplement 4 % plus petit. La proportion, elle, ne cède
- *  jamais — c'est la règle sacrée.
- *  ⚠️ Rien ne borne le haut non plus : sur un mur de 4 000 px l'app suit. Si
- *  un plafond devient nécessaire, il se posera comme une cote d'Eric, pas
- *  comme une prudence d'architecte. */
+ *  ⏳ `moyen`, `grand` et `xtra` portent la suite de la série, qu'Eric n'a pas
+ *  redonnée après le resserrement du 02/09 ; leurs deux cotes validées
+ *  (`tablette` 1/2, `petit` 1/3) la fixent des deux bouts.
+ *  ⏳ Et `tablette` monte jusqu'à l'iPad Pro COUCHÉ (1366) : c'est la plus
+ *  grande tablette, et c'est la forme sur laquelle Eric a validé le demi. */
+export const BARREAUX = Object.freeze([
+  { nom: "mini",     depuis: null, part: 1 },
+  { nom: "mobile",   depuis: null, part: 1 },
+  { nom: "tablette", depuis:  768, part: 2 },
+  { nom: "petit",    depuis: 1367, part: 3 },
+  { nom: "moyen",    depuis: 1680, part: 4 },
+  { nom: "grand",    depuis: 2200, part: 5 },
+  { nom: "xtra",     depuis: 3000, part: 6 }
+].map(Object.freeze));
+
+/** Le barreau que la LARGEUR pose — premier temps du mécanisme, et rien
+ *  d'autre n'intervient ici. La hauteur ne parle qu'après. */
+export function barreauPour(largeurFenetre, panneau) {
+  /* ⭐ `depuis: null` VEUT DIRE « LE PANNEAU NU », lu dans les jetons. C'est
+     la frontière `mini` / `mobile`, et elle ne s'écrit pas en chiffre : `mini`
+     est exactement la bande où le partage plein écran rend MOINS que le
+     dessin, donc où l'échelle passe sous 1. `360 / 375 = 0,96` en sort tout
+     seul — le quotient, jamais un littéral.
+     ⚠️ `mini` est le premier de la liste, donc le repli naturel : un barreau
+     dont le seuil ne peut pas être résolu ne doit pas être choisi. */
+  const seuil = (b, i) => (b.depuis === null ? (i === 0 ? 0 : panneau) : b.depuis);
+  let choisi = BARREAUX[0];
+  BARREAUX.forEach((b, i) => { if (largeurFenetre >= seuil(b, i)) choisi = b; });
+  return choisi;
+}
+
+/** 🪜 LE VERBE POUR SE DÉPLACER SUR L'ÉCHELLE — un seul, et c'est celui que
+ *  le réglage joueur du lot 134 appellera.
+ *
+ *  🔴 `pas` SE COMPTE EN TAILLE RENDUE, PAS EN INDICE, et c'est le vocabulaire
+ *  d'Eric : `-1` est *« un cran en dessous »* — le builder RÉTRÉCIT, donc le
+ *  diviseur grandit. ⛔ Le confondre avec l'indice inverserait le saut de cran
+ *  et le ferait grossir au lieu de descendre : c'est la faute que ce lot a
+ *  failli écrire, et son témoin est l'iPad Air couché (voir `largeurVisee`).
+ *  ⛔ Rend `null` aux deux bouts : un appelant au bout n'est pas en erreur. */
+export function barreauVoisin(barreau, pas) {
+  const i = BARREAUX.indexOf(barreau);
+  if (i < 0) return null;
+  const j = i - (Number.isFinite(pas) ? pas : 0);
+  return j >= 0 && j < BARREAUX.length ? BARREAUX[j] : null;
+}
+
+/** La taille d'un barreau sur une fenêtre donnée, en blg — le partage, tout
+ *  simplement.
+ *  ⚠️ Le panneau nu est un PLANCHER, et il est LU dans les jetons
+ *  (`--panneau-l`) : un partage qui rendrait moins que le dessin ne rendrait
+ *  pas un builder plus petit, il rendrait un builder coupé. ⛔ Il ne s'applique
+ *  pas à `mobile` : c'est là que vit `mini`, et le 96 % y est légitime. */
+export function tailleDuBarreau(barreau, panneau, largeurFenetre) {
+  if (barreau.part === 1) return largeurFenetre;   /* plein écran : la fenêtre */
+  return Math.max(panneau, largeurFenetre / barreau.part);
+}
+
+/** 🔴 CE QUI EST AMENDÉ, ET CE QUI NE L'EST PAS — 2026-09-02.
+ *
+ *  La règle sacrée du 31/08 disait `min(largeur/375, hauteur/560)` : *« ce
+ *  n'est pas 5 changements de tailles, c'est un redimensionnement qui suit la
+ *  fenêtre dans toutes situations »*. Elle rendait ×1,93 sur un 1920 × 1080 —
+ *  un panneau de 723 × 1080, **89 % de la hauteur d'écran**, une bande haute
+ *  et étroite. C'est ce qu'Eric a vu et appelé *« plus du tout respectée »*.
+ *
+ *  ⭐ ELLE TIENT ENCORE, INTACTE, LÀ OÙ ERIC L'A LAISSÉE :
+ *    · sous `mobile` — *« sur téléphone et tablette, l'appareil décide »* ;
+ *    · en vue DOUBLE, quel que soit l'écran : le partage d'Eric parle de
+ *      l'*« affichage simple »*, et la vue double a son propre compte de
+ *      colonnes. On ne la casse pas.
+ *  ⛔ ELLE EST AMENDÉE POUR LA VUE SIMPLE À PARTIR DE `tablette` : la largeur
+ *  vient du barreau, et la hauteur ne rabote plus rien (voir `largeurVisee`).
+ *
+ *  ⛔ ET C'EST BIEN UN RENVERSEMENT DE LA CONTINUITÉ, PAS UN RÉGLAGE : au
+ *  delà de 768 l'échelle est DISCRÈTE, quatre valeurs pour toute la bande de
+ *  bureau (×1,00 · ×1,02 · ×1,14 · ×1,31). C'est ce que « six crans » veut
+ *  dire, et c'est ce qui rend le réglage joueur du lot 134 possible. */
+
+/** La largeur que le builder VISE, en blg — le mécanisme d'Eric en deux temps.
+ *
+ *  ① LA LARGEUR POSE LE BARREAU. L'écran choisit son barreau, le barreau
+ *     donne sa taille. Rien d'autre n'intervient à ce stade.
+ *  ② LA HAUTEUR NE FAIT QUE DESCENDRE. Si la place en hauteur ne porte pas la
+ *     taille (`taille × 560/375`), ⛔ on ne rabote pas la largeur d'un
+ *     continuum : on SAUTE UN CRAN EN DESSOUS, autant de fois qu'il le faut.
+ *
+ *  ⚠️ « UN CRAN EN DESSOUS » EST LE BARREAU PRÉCÉDENT DE L'ÉCHELLE, ⛔ jamais
+ *  « le partage du palier d'en dessous appliqué à cet écran-ci » : sur un
+ *  3440, `grand` appliqué à la fenêtre rendrait 573 contre 491 — la seconde
+ *  lecture MONTE, et elle casserait tout.
+ *  ⛔ La descente s'arrête sur un barreau qui ne rend pas moins : c'est le
+ *  plancher (`mobile`, cent pour cent) et ce sont les barreaux mous. Sous le
+ *  dernier barreau, il n'y a rien.
+ *  ⚠️ SI MÊME LE DERNIER NE PASSE PAS EN HAUTEUR — une fenêtre de bureau de
+ *  moins de 560 de haut — le builder garde 375 et déborde. C'est un cas à
+ *  signaler à Eric, pas un huitième barreau à inventer. */
+function largeurVisee(largeurFenetre, hauteurFenetre, p) {
+  /* ⛔ LA VUE DOUBLE NE PASSE PAS PAR LES BARREAUX : le partage d'Eric parle
+     de l'*« affichage simple »*, et deux panneaux au demi font déjà la
+     largeur de l'écran. La règle sacrée du 31/08 la gouverne, intacte — c'est
+     elle que `laPlaceDuDouble` interroge, et ce lot ne la referme pas. */
+  if (p.colonnes !== 1) return largeurFenetre;
+  let barreau = barreauPour(largeurFenetre, p.panneau);
+  /* ⛔ `mini` ET `mobile` NE SAUTENT PAS DE CRAN : ils prennent toute la place
+     et c'est la règle sacrée du 31/08 qui plafonne leur hauteur, en continu —
+     *« sur téléphone et tablette, l'appareil décide »*. Un saut de cran ici
+     rendrait un panneau de 375 sur un téléphone de 700, ce qui n'est plus
+     « plein écran ». */
+  if (barreau.part === 1) return largeurFenetre;
+  let taille = tailleDuBarreau(barreau, p.panneau, largeurFenetre);
+  const parHauteur = p.hauteur / p.panneau;   /* le ratio sacré, par l'autre bout */
+  while (taille * parHauteur > hauteurFenetre) {
+    const dessous = barreauVoisin(barreau, -1);
+    if (!dessous) break;                       /* passé le dernier, il n'y a rien */
+    barreau = dessous;
+    const moindre = tailleDuBarreau(barreau, p.panneau, largeurFenetre);
+    /* ⭐ UN BARREAU QUI NE RÉTRÉCIT PAS EST ENJAMBÉ, PAS UN POINT D'ARRÊT : le
+       plancher du panneau nu peut rattraper deux barreaux voisins, et un cran
+       qui rend la même chose ne sert à rien. Descendre veut dire RÉTRÉCIR. */
+    if (moindre < taille) taille = moindre;
+  }
+  return taille;
+}
+
+/** Le régime : sur les barreaux, ou sous la règle sacrée du 31/08 ?
+ *  ⛔ Les deux conditions sont NÉCESSAIRES, et les confondre casserait la vue
+ *  double : elle garde la règle sacrée sur tous les écrans. */
+function surLesBarreaux(largeurFenetre, p) {
+  return p.colonnes === 1 && barreauPour(largeurFenetre, p.panneau).part !== 1;
+}
+
 export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes) {
   const p = cotesDeLApp(racine, colonnes);
-  const parLargeur = largeurFenetre / p.largeur;
-  const parHauteur = hauteurFenetre / p.hauteur;
-  const f = Math.min(parLargeur, parHauteur);
+  const parLargeur = largeurVisee(largeurFenetre, hauteurFenetre, p) / p.largeur;
+  /* 🔴 PAS DE `min` SUR LES BARREAUX, ET C'EST LE CŒUR DE L'AMENDEMENT : la
+     hauteur a DÉJÀ parlé, en faisant descendre d'un cran. La reprendre ici en
+     rapport continu ramènerait exactement la bande haute et étroite qu'Eric
+     refuse — et ferait passer un 1920 × 1080 de ×1,02 à ×1,93. */
+  const f = surLesBarreaux(largeurFenetre, p)
+    ? parLargeur
+    : Math.min(parLargeur, hauteurFenetre / p.hauteur);
   return Number.isFinite(f) && f > 0 ? f : 1;
 }
 
