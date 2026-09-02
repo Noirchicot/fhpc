@@ -2374,7 +2374,7 @@ un nombre de crans visibles. ⭐ Une seule ligne de feuille bascule le tout —
 | | |
 |---|---|
 | **le dessin** | la **pastille numérotée** AU-DESSUS, le **nom** en dessous, centrés |
-| **le corps du nom** | 🔴 **T1** |
+| **le corps du nom** | 🔴 **T2**, interligne **1** |
 | **la hauteur** | **44** — `--touch`, le plancher, atteint pile |
 | **la largeur** | ⛔ **jamais écrite** — elle se déduit de la piste *(§1 ter)* |
 
@@ -2383,11 +2383,31 @@ une largeur qui suivait **le mot** — mesuré, `Class` 99 blg contre `Inheritan
 largeur ne dépend plus de rien, et *« toutes les tuiles font la même taille »* devient possible
 **par construction** plutôt que par réglage.
 
-📏 **ET C'EST LA LARGEUR QUI A CHOISI LE CORPS**, mesuré au `measureText` avec la police embarquée,
-sur le mot le plus long — `Inheritance` : **84 blg à T4** *(le corps d'avant)* · 74 à T3 ·
-63,6 à T2 · **53 à T1**. La tuile en offre **63**. ⛔ Seul T1 passe.
-⭐ Même arbitrage qu'au jeton le 26/08 *(« 13 T1, on aura moins d'emmerdes »)* : à T1 tout rentre,
-donc **aucun nom ne force à inventer une abréviation**.
+📏 **DEUX RANGS N'EST PAS UNE PRÉFÉRENCE : UN SEUL RANG NE RENTRE NULLE PART**, et c'est mesuré
+sur la page rendue. Un rang demande `2 + pastille 22 + 2 + le mot + 2` :
+
+| un seul rang | la tuile offre | le contenu demande | il manque |
+|---|---|---|---|
+| **T2**, belt étroit | 71 | **92** | 21 |
+| **T2**, belt déroulé | 78 | **92** | 14 |
+| **T1**, belt étroit | 71 | **81** | 10 |
+| **T1**, belt déroulé | 78 | **81** | **3** |
+
+⛔ **Aucune case ne passe** — pas même la plus favorable, le corps le plus petit dans la tuile la
+plus large. ⭐ **Et ça referme l'objection qui vaut la peine d'être posée** : *« une fois les tuiles
+égales, la piste double offre 78,5 — plus large que 71 — donc le mot y tient »*. Il y tient
+**seul** ; il n'y tient pas **à côté de la pastille**. Le déficit du lot 120 n'a pas disparu avec
+les tuiles à contenu, il a changé de forme.
+
+📏 **ET LE CORPS EST T2 PARCE QUE LES VIDES ONT CÉDÉ.** Le mot-témoin `Inheritance` demande
+**64 blg** ; à 8 de rembourrage la tuile n'en offrait que 63 — *il manquait un blg*.
+⛔ **La réponse n'est pas de rétrécir l'organe**, c'est §2 bis : *« quand un écran déborde, ce sont
+les VIDES qui cèdent, jamais les organes »*. Deux vides ont cédé — le rembourrage latéral
+*(4 → 2)* et l'interligne *(1,2 → 1)* — et la place est passée à **67** pour 64 demandés.
+⭐ **La leçon vaut au-delà de ce cran** : un organe qu'on descend d'un barreau *« parce qu'il
+manque un demi-pixel »* est presque toujours un vide qu'on n'a pas regardé.
+⚠️ **Et l'interligne n'est pas un détail** : c'est lui qui garde la tuile à **44** et donc la
+ceinture à **60**. À 1,2 la tuile rendait 46,4, et la ceinture 62 — deux blg pris à la scène.
 
 ⚖️ **ET ÇA RENVERSE UNE DÉCISION DU LOT 120, DONT LA CAUSE A DISPARU.** Le 120 rendait le cran en
 **numéro seul** en vue double, parce que les huit crans à un rang demandaient **995 blg pour

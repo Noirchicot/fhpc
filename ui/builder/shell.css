@@ -434,7 +434,7 @@ body {
          fonctionner en tactile »*), et 8 de rembourrage n'auraient laissé que
          55 blg au mot pour 53 mesurés — deux blg de marge, c'est-à-dire
          aucune. À 4, il en reste 63, et `Inheritance` en garde dix. */
-  padding: var(--sp-4);
+  padding: var(--sp-4) var(--sp-2);
   /* LOT 70 — le cran mesurait 38 px (padding 8+8 + pastille 22), sous le
      seuil tactile que le CADRE s'impose depuis le lot 58 (--touch, 44 px
      Apple). Défaut antérieur au lot 69, mesuré identique avant lui. La
@@ -495,8 +495,8 @@ body {
    d'emmerdes »*) : à T1 tout rentre, donc aucun nom ne force à inventer une
    abréviation. ⛔ Et T1 est le plancher du barème, jamais franchi (§0 bis). */
 .belt-label {
-  font-size: var(--t1);
-  line-height: 1.2;
+  font-size: var(--t2);
+  line-height: 1;
   white-space: nowrap;   /* ⛔ jamais deux lignes : le budget vertical n'en a pas */
 }
 

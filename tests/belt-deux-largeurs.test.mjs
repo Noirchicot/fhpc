@@ -75,13 +75,24 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
   }
 });
 
-test("🔴 le libellé tient à T1 — c'est la largeur qui a choisi le corps", () => {
-  /* 📏 `Inheritance`, le mot le plus long, mesuré au `measureText` avec la
-     police embarquée : 84 blg à T4, 74 à T3, 63,6 à T2, **53 à T1**. La tuile
-     en offre 63. Seul T1 passe. */
+test("🔴 le libellé tient à T2 — parce que ce sont les VIDES qui ont cédé", () => {
+  /* ⚖️ ARBITRAGE D'ARCHI 30, 2026-09-02, et il a renversé mon défaut : j'avais
+     pris T1 comme une fatalité (`Inheritance` demandait 63,6 blg pour 63
+     offerts — il en manquait 0,6). ⛔ *« Avant de faire tomber l'organe le
+     plus regardé du builder de T4 à T1, fais céder le VIDE »* — c'est la loi
+     du §2 bis : **quand un écran déborde, ce sont les vides qui cèdent,
+     jamais les organes.**
+     📏 DEUX VIDES ONT CÉDÉ, ET ÇA A SUFFI : le rembourrage latéral (4 → 2) et
+     l'interligne (1,2 → 1). Mesuré sur la page rendue : place offerte **67**,
+     `Inheritance` en demande **64** — trois blg de reste, et **aucun des huit
+     mots ne déborde**. La ceinture reste à 60, la tuile à 71 × 44.
+     ⭐ La leçon vaut au-delà : un organe qu'on rétrécit « parce qu'il manque
+     un demi-pixel » est presque toujours un vide qu'on n'a pas regardé. */
   const corps = regle(shellCss, /^\.belt-label$/);
   assert.ok(corps, "`.belt-label` doit porter son corps");
-  assert.match(corps, /font-size:\s*var\(--t1\)/, "T1, et rien d'autre ne rentre");
+  assert.match(corps, /font-size:\s*var\(--t2\)/, "T2 — le corps que les vides ont rendu possible");
+  assert.match(corps, /line-height:\s*1(?![.\d])/,
+    "et l'interligne à 1 : c'est lui qui garde la tuile à 44 blg, donc la ceinture à 60");
   assert.match(corps, /white-space:\s*nowrap/,
     "⛔ jamais deux lignes : le budget vertical du belt n'en a pas (44 blg, pile)");
 });
