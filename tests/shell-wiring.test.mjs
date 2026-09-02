@@ -507,8 +507,21 @@ test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pi
          et nomme, comme celui du guide. */
   assert.match(shellText, /function parentDeLItem\(/,
     "fermer un sous-écran du don rend son B emboîté — le parent est calculé, jamais null en dur");
-  assert.match(shellText, /parcoursNext[\s\S]{0,900}?action\.racine !== parcoursRacineCourante\(\)[\s\S]{0,200}?state\.parcoursItem = null/,
+  /* ⚠️ RÉÉCRIT LE 2026-09-02 — L'INVARIANT NE BOUGE PAS, SON ORTHOGRAPHE SI.
+     Cette clause épelait l'implémentation : `action.racine !==
+     parcoursRacineCourante()`. Or cette écriture était FAUSSE — elle répond
+     « emboîté » à toute étape SANS parcours, parce que la fonction y rend
+     `null`, et elle tuait le `Next` d'Identity (mesuré à l'écran : deux clics,
+     le cran ne bougeait pas). ⛔ Le garde tenait donc le défaut en place : il
+     aurait rougi sur la CORRECTION.
+     ⭐ Il vise maintenant le PRÉDICAT NOMMÉ, pas sa formule — et il tient les
+     DEUX moitiés du `parcoursNext`, là où il n'en tenait qu'une. C'est cette
+     moitié manquante qui a laissé vivre le défaut : personne ne vérifiait que
+     le cas NON emboîté avançait. */
+  assert.match(shellText, /parcoursNext[\s\S]{0,900}?racineEmboitee\(action\.racine\)[\s\S]{0,200}?state\.parcoursItem = null/,
     "le Next d'un B emboîté signe l'item et remonte au guide — il ne change pas d'étape");
+  assert.match(shellText, /parcoursNext[\s\S]{0,1400}?goToStep\(state\.step \+ 1\)/,
+    "🔴 et le Next d'un bilan NON emboîté avance d'une étape — la moitié que personne ne gardait");
   assert.match(shellText, /refusDuDone\(\{[\s\S]{0,120}?racine: ouvert\.path[\s\S]{0,300}?parcoursRefus = refusItem\.manquants/,
     "un item à branches ne se signe pas à moitié : le Done refuse et NOMME, comme au guide");
   /* ⚔️ LE TÉMOIN : Class reste une étape — son parcoursNext passe par

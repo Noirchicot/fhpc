@@ -938,7 +938,7 @@ function applyDecisionAction(action) {
     /* 🚪 « I changed my mind » sur le B EMBOÎTÉ du don (lot 77) ne quitte
        pas l'item : le don efface, on retombe sur le choix du jeton — c'est
        le retour au catalogue du species complexe, en une dalle. */
-    state.parcoursItem = action.racine !== parcoursRacineCourante()
+    state.parcoursItem = racineEmboitee(action.racine)
       ? { racine: parcoursRacineCourante(), path: action.racine }
       : null;
     state.parcoursRefus = null;
@@ -961,7 +961,7 @@ function applyDecisionAction(action) {
     /* 🚪 LE NEXT D'UN B EMBOÎTÉ (le don, lot 77) NE QUITTE PAS L'ÉTAPE : il
        signe l'item et remonte au guide de l'Inheritance — le « Done, direction
        R pour valider la totalité » du species complexe, pas un pas d'étape. */
-    if (action.racine !== parcoursRacineCourante()) {
+    if (racineEmboitee(action.racine)) {
       state.parcoursItem = null;
       openSurface();
       return;
@@ -2385,6 +2385,40 @@ function parcoursInheritance() { return INHERITANCE_PARCOURS.parcours; }
  *  (`cfg.parcours`), l'Inheritance vit à part (elle ne se choisit pas, donc
  *  elle n'a pas de catalogue). Une seule fonction pour les deux évite qu'un
  *  organe en connaisse une et pas l'autre — c'est déjà l'argument du belt. */
+/** 🚪 L'ACTION SIGNE-T-ELLE UN ITEM **EMBOÎTÉ** SOUS LE PARCOURS DE L'ÉTAPE ?
+ *
+ *  ⛔ CE PRÉDICAT EXISTE PARCE QUE DEUX ENDROITS POSAIENT LA MÊME QUESTION DE
+ *  TRAVERS, et que la réponse fausse coûtait un bouton mort. Ils écrivaient
+ *  `action.racine !== parcoursRacineCourante()`, c'est-à-dire *« la racine
+ *  n'est pas celle du parcours de l'étape »* — une phrase qui est VRAIE dès
+ *  qu'une étape n'a PAS de parcours, puisque la fonction rend alors `null`.
+ *
+ *  📏 CE QUE ÇA CASSAIT, MESURÉ À L'ÉCRAN (375 × 812, Identity) : `Done`
+ *  marchait — la rangée passait bien à `I changed my mind` / `Next` — et
+ *  **`Next` ne faisait rien, deux clics de suite**. La cause :
+ *  `parcoursRacineCourante()` rend `null` sur `concept` *(aucun
+ *  `CATALOGUES.concept`, et l'id n'est pas `background`)*, donc
+ *  `"concept" !== null` était vrai, donc la branche « B emboîté » prenait la
+ *  main, remettait `state.parcoursItem` à `null`, rouvrait la surface et
+ *  RENDAIT — le `goToStep(state.step + 1)` deux lignes plus bas n'était
+ *  jamais atteint.
+ *
+ *  ⭐ « EMBOÎTÉ » VEUT DIRE **SOUS**, ET LE DÉPÔT LE DIT DÉJÀ : c'est
+ *  exactement le test de `oublierSousLaRacine` et de la famille
+ *  `parcoursOublier` — `chemin.startsWith(racine + ".")` ou `+ "["`. Le don
+ *  d'origine (`background.originFeat[0]`) est sous `background` ; `concept`
+ *  n'est sous rien.
+ *  ⚠️ ET IL FAUT LES DEUX MOITIÉS : une étape SANS parcours ne peut rien
+ *  emboîter, donc `null` répond « non » avant même de comparer les chemins.
+ *  ⛔ Une racine étrangère — ni la racine de l'étape, ni sous elle — répond
+ *  « non » elle aussi, et le `Next` avance. C'est le défaut le plus sûr : un
+ *  bouton qui avance trop se voit, un bouton mort ne se voit pas. */
+function racineEmboitee(racine) {
+  const etape = parcoursRacineCourante();
+  if (etape === null || typeof racine !== "string") return false;
+  return racine.startsWith(`${etape}.`) || racine.startsWith(`${etape}[`);
+}
+
 function parcoursRacineCourante() {
   const cfg = catalogueCourant();
   if (cfg && cfg.parcours) return cfg.path;
