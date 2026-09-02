@@ -166,13 +166,27 @@ function cotesDeLApp(racine, colonnes) {
  *  ⏳ `moyen`, `grand` et `xtra` portent la suite de la série, qu'Eric n'a pas
  *  redonnée après le resserrement du 02/09 ; leurs deux cotes validées
  *  (`tablette` 1/2, `petit` 1/3) la fixent des deux bouts.
- *  ⏳ Et `tablette` monte jusqu'à l'iPad Pro COUCHÉ (1366) : c'est la plus
- *  grande tablette, et c'est la forme sur laquelle Eric a validé le demi. */
+ *  ✅ SES DEUX BORNES SONT MESURÉES, PAS CHOISIES, et c'est ce qui fait que le
+ *  mot « mini » n'apparaît nulle part dans ce fichier hors du nom d'un cran :
+ *    · EN BAS, 768. L'iPad mini debout fait 744 : au demi il rendrait
+ *      `744/2 = 372`, soit ×0,99 — **sous le panneau nu**. C'est le seul
+ *      appareil de la gamme dans ce cas. La règle ne l'exclut pas par
+ *      jugement, elle l'exclut parce qu'il NE PASSE PAS. L'iPad 9,7 juste
+ *      au-dessus fait 768. Eric : *« probablement un iPad mini va préférer un
+ *      affichage mobile »* · *« du classique au Pro 13 pouces, le 1/2
+ *      passera »* ;
+ *    · EN HAUT, 1440. `tablette` doit couvrir TOUTES les tablettes couchées,
+ *      et la plus large est l'iPad Pro 13 à **1376** ; 1440 est le premier
+ *      portable (MacBook Air). ⛔ Un seuil sous 1376 couperait la famille en
+ *      deux par la LARGEUR, alors que c'est la HAUTEUR qui doit la couper.
+ *  ⭐ ET LE MINI COUCHÉ SE RÈGLE TOUT SEUL : 1133 de large, donc `tablette`,
+ *  puis un saut de cran que sa hauteur de 744 impose — il rend 378 × 564.
+ *  ⛔ Aucun cas particulier n'est écrit pour lui, et il ne doit jamais l'être. */
 export const BARREAUX = Object.freeze([
   { nom: "mini",     depuis: null, part: 1 },
   { nom: "mobile",   depuis: null, part: 1 },
   { nom: "tablette", depuis:  768, part: 2 },
-  { nom: "petit",    depuis: 1367, part: 3 },
+  { nom: "petit",    depuis: 1440, part: 3 },
   { nom: "moyen",    depuis: 1680, part: 4 },
   { nom: "grand",    depuis: 2200, part: 5 },
   { nom: "xtra",     depuis: 3000, part: 6 }

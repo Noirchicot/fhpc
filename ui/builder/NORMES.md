@@ -108,6 +108,45 @@ viewport le 02/09 ; le même garde la refait.
 | ⭐ **le petit sur un 1440 et le moyen sur un 1920 rendent la MÊME largeur : 480** | `1440/3 = 1920/4`. La fraction qui rétrécit **compense exactement** l'écran qui grandit — c'est ce qui justifie que les parts décroissent d'un cran à l'autre, et ce n'est pas une coïncidence |
 | ⭐ **deux panneaux au demi font exactement 100 % de la largeur** | `2 × W/2 = W`, sur les quatre formes d'iPad. Le *« 1/2 »* d'Eric et sa *« proposition de passage en affichage double d'office »* sont **la même idée par les deux bouts**. ➡️ **La vue double n'est pas une exception au partage : elle en est la conséquence au cran de la tablette** |
 
+### ✅ LES DEUX BORNES DU CRAN DES TABLETTES — **mesurées, jamais choisies** *(ratifiées 02/09)*
+
+> **« probablement un iPad mini va préférer un affichage mobile »** · **« du classique au Pro 13
+> pouces, le 1/2 passera »**
+
+| borne | ce qui la pose |
+|---|---|
+| **en bas, `768`** | l'iPad mini debout fait **744** : au demi il rendrait `744/2 = 372`, soit ×0,99 — **sous le panneau nu**. C'est le **seul appareil de la gamme** dans ce cas. L'iPad classique 9,7 juste au-dessus fait 768 et rend 384. ⭐ **La règle ne l'exclut pas par jugement, elle l'exclut parce qu'il NE PASSE PAS** |
+| **en haut, `1440`** | le cran du demi doit couvrir **toutes les tablettes couchées**, et la plus large est l'iPad Pro 13 à **1376** ; 1440 est le premier portable. ⛔ Un seuil sous 1376 couperait la famille **par la largeur**, alors que c'est la **hauteur** qui doit la couper |
+
+⭐ **ET L'INVARIANT DERRIÈRE, qui vaut pour les cinq crans partagés** : à l'entrée de son cran, la
+part rend **au moins le dessin**. Mesuré : `768/2 = 384` · `1440/3 = 480` · `1680/4 = 420` ·
+`2200/5 = 440` · `3000/6 = 500`. ➡️ **Le plancher n'est jamais atteint à une entrée : c'est une
+défense, pas un mécanisme.**
+
+⛔ **ET LE MOT « MINI » N'EXISTE NULLE PART DANS LE CODE hors du nom d'un cran.** Le mini couché
+fait 1133, donc il est POSÉ sur le demi, puis sa hauteur de 744 le fait **sauter un cran** : il rend
+`378 × 564`, ×1,01. Aucun cas particulier n'est écrit pour lui, et il ne doit jamais l'être.
+
+### 📏 COUCHÉE, LA GAMME iPAD SE COUPE EN DEUX — et c'est le saut de cran qui coupe
+
+| appareil | couché | ratio | cran rendu | panneau | 2 panneaux |
+|---|---|---|---|---|---|
+| iPad 9,7 | 1024 × 768 | 1,33 | **demi** | 512 × 765 | **100 %** |
+| iPad Pro 12,9 *(celui d'Eric)* | 1366 × 1024 | 1,33 | **demi** | 683 × 1020 | **100 %** |
+| iPad Pro 13 | 1376 × 1032 | 1,33 | **demi** | 688 × 1027 | **100 %** |
+| iPad mini | 1133 × 744 | 1,52 | *saut* → tiers | 378 × 564 | 89 % |
+| iPad Air | 1180 × 820 | 1,44 | *saut* → tiers | 393 × 587 | 94 % |
+| iPad Pro 11 | 1194 × 834 | 1,43 | *saut* → tiers | 398 × 594 | 95 % |
+
+⭐ **L'iPad d'Eric est le meilleur cas de la gamme** — ce n'est ni un défaut ni à corriger, mais il
+doit le lire : c'est ce que verront les autres.
+
+🔴 **ET LES 4:3 TIENNENT LE DEMI À 0,4 % PRÈS.** Un 4:3 couché porte le demi si et seulement si
+`--panneau-h ≤ 1,5 × --panneau-l`, soit **562,5** pour un panneau de 375. Le dépôt est à **560** :
+il reste **2,5 blg**, mesurés **3 à 5 px** à l'écran. ⚠️ **Monter `--panneau-h` de trois blg ferait
+sauter d'un cran toute la famille 4:3 d'un coup**, et aucune autre règle ne broncherait. Un garde
+tient cette frontière dans les deux sens.
+
 ### Le mécanisme, en deux temps
 
 | | |

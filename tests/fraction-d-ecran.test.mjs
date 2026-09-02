@@ -267,3 +267,71 @@ test("🔴 les noms des crans n'existent QU'À UN ENDROIT du dépôt", () => {
       `« ${b.nom} » doit être écrit UNE fois, dans la table des barreaux — trouvé : ${ou.join(", ") || "nulle part"}`);
   }
 });
+
+/* ══ 8 — LES DEUX BORNES DU CRAN DES TABLETTES, RATIFIÉES LE 02/09 ═══════ */
+
+test("🔴 le seuil d'un cran est assez haut pour que sa part soit une VRAIE part", () => {
+  /* ⭐ L'INVARIANT QUI EXPLIQUE LE SEUIL D'ENTRÉE, et qui rend inutile tout
+     jugement sur les appareils : à l'entrée de son cran, le partage doit déjà
+     rendre AU MOINS le dessin. Un cran dont l'entrée serait plus basse
+     rendrait une part rabotée par le plancher — le joueur y verrait le même
+     panneau qu'au cran d'en dessous, pour un écran plus grand.
+     📏 Mesuré : 768/2 = 384 · 1440/3 = 480 · 1680/4 = 420 · 2200/5 = 440 ·
+     3000/6 = 500. Le plancher n'est donc JAMAIS atteint à une entrée : il est
+     une défense, pas un mécanisme. */
+  for (const b of BARREAUX) {
+    if (b.part === 1) continue;
+    assert.ok(b.depuis / b.part >= PANNEAU,
+      `${b.nom} entre à ${b.depuis} : sa part y rend ${(b.depuis / b.part).toFixed(0)}, sous le dessin`);
+  }
+});
+
+test("⚔️ ATTAQUE — l'iPad mini debout NE PASSE PAS le demi, et c'est ça qui l'exclut", () => {
+  /* Eric, 02/09 : *« probablement un iPad mini va préférer un affichage
+     mobile »* · *« du classique au Pro 13 pouces, le 1/2 passera »*.
+     ⭐ La règle ne l'exclut pas par jugement. 744 de large au demi rend 372 —
+     SOUS le dessin. L'iPad classique juste au-dessus fait 768 et rend 384.
+     ⛔ Si cette clause devenait verte, le seuil serait devenu arbitraire. */
+  const demi = BARREAUX.find((b) => b.part === 2);
+  assert.ok(744 / demi.part < PANNEAU,
+    "744 au demi doit tomber SOUS le dessin — sinon le seuil n'a plus de raison mesurée");
+  assert.ok(768 / demi.part >= PANNEAU, "et 768 doit passer");
+  assert.equal(barreauPour(744, PANNEAU).part, 1, "l'appareil de 744 reste en plein écran");
+  assert.equal(barreauPour(768, PANNEAU), demi, "celui de 768 prend le demi");
+});
+
+test("🔴 le cran du demi couvre TOUTES les tablettes couchées — la hauteur coupe la famille, jamais la largeur", () => {
+  /* ⭐ LE RÉSULTAT MESURÉ DU 02/09 : couchée, la gamme se coupe en deux, et
+     c'est le SAUT DE CRAN qui la coupe — pas un seuil. Les 4:3 tiennent le
+     demi ; les allongés (1,43 à 1,52) sautent. ⛔ Un seuil sous la plus large
+     des tablettes (l'iPad Pro 13, 1376) la couperait par la largeur, ce qui
+     mettrait deux mécanismes sur le même travail. */
+  const demi = BARREAUX.find((b) => b.part === 2);
+  for (const [l, h] of [[1024, 768], [1133, 744], [1180, 820], [1194, 834], [1366, 1024], [1376, 1032]]) {
+    assert.equal(barreauPour(l, PANNEAU), demi,
+      `une tablette de ${l} de large doit être POSÉE sur le demi — le saut décide ensuite`);
+  }
+  /* Et le saut fait bien la coupure, dans les deux sens. */
+  const rendu = (l, h) => Math.round(panneauPeint(l, h).l);
+  for (const [l, h] of [[1024, 768], [1366, 1024], [1376, 1032]])
+    assert.equal(rendu(l, h), Math.round(l / 2), `le 4:3 de ${l} tient le demi`);
+  for (const [l, h] of [[1133, 744], [1180, 820], [1194, 834]])
+    assert.ok(rendu(l, h) < l / 2 - 1, `l'allongé de ${l} doit sauter un cran`);
+});
+
+test("⚔️ ATTAQUE — les 4:3 tiennent le demi à 0,4 % près, et c'est `--panneau-h` qui le décide", () => {
+  /* 🔴 UNE COTE PORTEUSE QUE PERSONNE NE VERRAIT BOUGER : un écran 4:3 couché
+     porte le demi si et seulement si `(L/2) × (H_panneau/L_panneau) ≤ 0,75 L`,
+     soit `H_panneau ≤ 1,5 × L_panneau` — 562,5 pour un panneau de 375. Le
+     dépôt est à 560 : il reste **2,5 blg de marge**, mesurés 3 à 5 px à
+     l'écran. ⚠️ Monter `--panneau-h` de 3 blg ferait sauter d'un cran TOUTE la
+     famille 4:3 d'un coup, sans qu'aucune autre clause ne bronche. */
+  assert.ok(HAUTEUR <= 1.5 * PANNEAU,
+    "le dépôt doit être du bon côté de la frontière, sinon la mesure ci-dessus est périmée");
+  const juste = faireRacine({ ...JETONS, "--panneau-h": String(1.5 * PANNEAU + 1) });
+  for (const [l, h] of [[1024, 768], [1366, 1024], [1376, 1032]]) {
+    const f = cranAuto(l, h, juste);
+    assert.ok(PANNEAU * f < l / 2 - 1,
+      `avec un panneau de ${1.5 * PANNEAU + 1} de haut, le 4:3 de ${l} DOIT perdre le demi — sinon la frontière est ailleurs`);
+  }
+});
