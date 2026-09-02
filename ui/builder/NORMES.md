@@ -1574,6 +1574,44 @@ beaucoup de lignées »* : **le Goliath (6) et le Hoddon (3) gardent leur table*
 vérifie aussi fort que le reste (`tests/lignage-exception-dragonborn.test.mjs`). ⏳ Si un second
 écran cède un jour, il s'écrit **ici**, avec sa propre mesure à côté de son nom.
 
+### 📏 CE QU'UN TRAIT ACCORDE SE LIT D'UN COUP D'ŒIL — la bande des condensés *(lot 127, 02/09)*
+
+> Eric, devant la capture du Dragonborn : **« dragonborn S : granted texte pas conforme »**.
+
+⭐ **C'EST LA MÊME MALADIE QUE CI-DESSUS, UN CRAN PLUS LOIN.** Sous *Granted automatically*,
+l'écran S servait la **prose du SRD recopiée telle quelle** — Breath Weapon **833 caractères**,
+Draconic Flight 480 — et deux voix la lisaient chacune pour son compte : la ligne du parcours
+(*« **Mot :** texte »*) et la `<dl>` du panneau de choix. Elles lisent désormais **la même
+lecture** (`contenuDuTrait`), chacune la mettant en mots à sa façon.
+
+📏 **MESURÉ AU RENDU SUR LES DOUZE ESPÈCES** *(375 × 812, fenêtre du parcours 335 px)*, avant de
+toucher une ligne — et **ce n'est pas un défilement de confort, c'est un pavé** : Dragonborn
+**614 px de contenu pour 251 de fenêtre** (363 sous le pli), Dwarf 353, Orc 332, Halfling 301,
+Elf 283, Goliath 271. ⚠️ Et le Hoddon **n'en fait pas partie** malgré ses 1481 caractères de
+`Hoddon Lineage` : ce trait-là est **porté par la ligne Lineage** (`TRAITS_COUVERTS`), donc absent
+de cet écran. *Un total juste ne dit rien du contenu — c'est le rendu qu'on mesure, pas la donnée.*
+
+⭐ **LE TÉMOIN ÉTAIT DÉJÀ ÉCRIT, ET C'EST ERIC QUI L'AVAIT ÉCRIT.** Les traits qu'il a rédigés pour
+ses espèces tiennent en **39 à 77 caractères** (Araag : 39, 44, 45, 74 · Human : 46, 57, 77) ; les
+condensés de lignée du lot 126 en **33 à 102**. Les seules proses qui débordent sont **celles
+recopiées du SRD**.
+
+| la loi | le détail |
+|---|---|
+| 📐 **la bande** | un texte de trait servi à l'écran tient en **≤ 102 caractères** — la cote **DONNÉE** du plus long condensé du dépôt (`rock-folk`, Hoddon), jamais un seuil inventé |
+| 🏠 **le lieu** | `data[fiche_trait_text]` dans `layers/fh-fiche-en.layer.json`, **indexé par l'id du trait** — la même clef que `TRAITS_COUVERTS` |
+| ⛔ **ce que ce n'est pas** | `data[fiche_traits]` reste la poignée de faits saillants de la **carte du catalogue** (le Dragonborn n'y met qu'un trait sur cinq). Deux consommateurs, deux données — l'un ne se détourne pas pour l'autre |
+| ⚖️ **le repli** | un trait sans condensé **sert sa prose**. Un blanc serait pire que le pavé — même arbitrage qu'au lot 126 |
+| 🔗 **les sorts** | en `[[Nom]]`, comme les condensés de lignée, et **linkifiés dans les deux voix** : des crochets doubles à l'écran ne sont pas un lien, c'est une fuite de balisage |
+| ✍️ **les abréviations** | **ADV** et **SV** seulement (voir *abréviations ratifiées*) — aucune autre ne se crée en passant |
+
+⛔ **AUCUNE RÈGLE DE JEU N'EST INVENTÉE ICI** : un condensé est le **résumé fidèle** de ce que la
+couche accorde déjà. Un trait dont la règle n'est pas comprise **se signale**, il ne se comble pas.
+
+Les gardes : `tests/trait-accorde-bande.test.mjs` (la bande, **et le repli**, les deux branches
+de l'alternative) et `tests/trait-accorde-voix-unique.test.mjs` (les deux voix disent la même
+chose, avec les condensés **comme sans eux**).
+
 ### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
 
 > ⚖️ **LA LOI-MÈRE, dictée le 2026-08-30** — Eric : *« Règle générale, partout dans le builder,

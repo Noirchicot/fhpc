@@ -14,7 +14,7 @@
     "species": {
       "srd:species:en:dragonborn": {
         "op": "patch",
-        "note": "SRD 5.2.1 species data: creature_type Humanoid, size Medium, speed 30ft, Draconic Ancestry trait (10 named dragon colors) -> Lineages compressed to a count ('10 types') rather than listing all 10, for width. fh-species-en patch only touches destiny, not size/speed/type. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
+        "note": "SRD 5.2.1 species data: creature_type Humanoid, size Medium, speed 30ft, Draconic Ancestry trait (10 named dragon colors) -> Lineages compressed to a count ('10 types') rather than listing all 10, for width. fh-species-en patch only touches destiny, not size/speed/type. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "A dragonborn's ancestor is an idea more than a specific dragon—an inherited breath weapon, hide to match it, and a posture that never apologizes for the room it takes. Scale color spans the old dragon families, jet to gold, and matters less than a stranger's own bearing. Test either trait, and the temper shows up fast.",
@@ -64,12 +64,17 @@
             "red": "Fire breath — Resistance to Fire.",
             "silver": "Cold breath — Resistance to Cold.",
             "white": "Cold breath — Resistance to Cold."
+          },
+          "data[fiche_trait_text]": {
+            "draconic-ancestry": "Choose a dragon — it sets your Breath Weapon damage type and your Damage Resistance.",
+            "breath-weapon": "Replace an attack with a 15 ft Cone or 30 ft Line — DEX SV, 1d10, half on a save, twice a Long Rest.",
+            "draconic-flight": "From level 5, a Bonus Action grows wings for 10 min — Fly Speed equal to yours, once a Long Rest."
           }
         }
       },
       "srd:species:en:dwarf": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "Dwarves don't rush—they've outlasted enough hurried kingdoms; history is measured in mined seams, not crowned heads. Poison barely slows one down, and tunnel-bred eyes see deep into the dark. A dwarf never loses track of who owes what; settle a debt cleanly and the friendship lasts.",
@@ -106,12 +111,16 @@
               "name": "Stonecunning",
               "effect": "Tremorsense 60 ft on stone"
             }
-          ]
+          ],
+          "data[fiche_trait_text]": {
+            "dwarven-resilience": "Resistance to Poison damage, and ADV on SV against the Poisoned condition.",
+            "stonecunning": "Bonus Action on stone — Tremorsense 60 ft for 10 min, twice a Long Rest, more as you level."
+          }
         }
       },
       "srd:species:en:elf": {
         "op": "patch",
-        "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency. · 27/08 : fiche_lineage_lvl1 = le FORMAT RACCOURCI des niveaux 1 pour les fiches (esprit SRFH — ni SRD ni règle FH, un ajustement de confort ; Eric : « c'est un format raccourci pour entrer dans les fiches »). ⏳ Migrera dans une vraie famille srfh de fh-srd le jour où l'importeur la porte.",
+        "note": "SRD 5.2.1 + fh-species-en patch (destiny/description only, not size/speed/type): Humanoid, Medium, 30ft. Elven Lineage trait (3 named options: Drow/High Elf/Wood Elf) -> Lineages compressed to '3 types' for width/consistency. · 27/08 : fiche_lineage_lvl1 = le FORMAT RACCOURCI des niveaux 1 pour les fiches (esprit SRFH — ni SRD ni règle FH, un ajustement de confort ; Eric : « c'est un format raccourci pour entrer dans les fiches »). ⏳ Migrera dans une vraie famille srfh de fh-srd le jour où l'importeur la porte. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "An elf's lifespan makes 'old' beside the point—centuries wear one down the way a river wears a stone, without breaking it. Sleep is optional; a few hours of trance covers it, and charm slides off an elf's mind. Whatever lineage magic runs in the blood only deepens with age.",
@@ -170,12 +179,16 @@
             "drow": "Darkvision 120 ft — [[Dancing Lights]] cantrip known.",
             "high-elf": "[[Prestidigitation]] — can be replaced with any Wizard cantrip after a Long Rest.",
             "wood-elf": "Speed 35 ft — [[Druidcraft]] cantrip known."
+          },
+          "data[fiche_trait_text]": {
+            "elven-lineage": "Choose a lineage — its level 1 benefit, then a spell at levels 3 and 5 (INT, WIS or CHA).",
+            "trance": "You never sleep and magic cannot make you — a Long Rest takes 4 hours of trance."
           }
         }
       },
       "srd:species:en:gnome": {
         "op": "patch",
-        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
+        "note": "SRD key is srd:species:en:gnome; FH renames the species 'Hoddon' (fh-species-en patch changes data.name/slug). Stats: Humanoid, Small, 30ft, Hoddon Lineage (2 named options: Forest/Rock) -> Lineages compressed to '2 types' for width/consistency with other lineage rows. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "Meeting a Hoddon is rare, by design—the little folk keep their holds hidden and their business private. Charm, threats, and clever lies mostly bounce off a Hoddon's mind mid-sentence. Some lean toward the deep woods and what lives there, others toward small ingenious contraptions. Either way, trust is earned slowly.",
@@ -226,12 +239,15 @@
             "forest-folk": "[[Minor Illusion]] known — [[Speak with Animals]] prepared, free twice per Long Rest.",
             "rock-folk": "[[Mending]] and [[Prestidigitation]] known — plus up to three Tiny clockwork devices, one effect each.",
             "mole-people": "Darkvision 120 ft — Meticulous (Advantage on Investigation), Novice in tinker's tools."
+          },
+          "data[fiche_trait_text]": {
+            "gnomish-lineage": "Choose a lineage — the cantrips and gifts it grants (INT, WIS or CHA casts them)."
           }
         }
       },
       "srd:species:en:goliath": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, Medium, speed 35ft (NB: differs from the 30ft default of every other species here). Giant Ancestry trait (6 named giant types) -> Lineages compressed to '6 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
+        "note": "SRD 5.2.1: Humanoid, Medium, speed 35ft (NB: differs from the 30ft default of every other species here). Giant Ancestry trait (6 named giant types) -> Lineages compressed to '6 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "A goliath's home is wherever the giants haven't burned down yet—hence the build, tall enough to meet most threats eye to eye, and the habit of never settling. Giant blood surfaces when a fight turns ugly, lending power few humanoids can match. Underneath sits an oddly modest wish: a roof that won't need rebuilding next season.",
@@ -281,12 +297,17 @@
             "hill": "On a damaging hit — a Large or smaller target falls Prone.",
             "stone": "Reaction when damaged — reduce it by 1d12 plus your Constitution modifier.",
             "storm": "Reaction when damaged from within 60 ft — 1d8 Thunder damage back."
+          },
+          "data[fiche_trait_text]": {
+            "giant-ancestry": "Choose one Giant boon — usable twice a Long Rest, more as you level.",
+            "large-form": "Bonus Action from level 5 — Large for 10 min, ADV on STR checks, +10 ft Speed, once a Long Rest.",
+            "powerful-build": "ADV on checks to end Grappled, and you carry as if one size larger."
           }
         }
       },
       "srd:species:en:halfling": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, Small, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "note": "SRD 5.2.1: Humanoid, Small, 30ft. No lineage-choice trait -> Lineages omitted. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "Halflings prove patience beats size—the same valley farmed quietly long after the empire next door has fallen twice. Knocked down, a halfling gets up without drama, catching fewer bad breaks than seems fair. Small enough to vanish behind cover that wouldn't hide anyone else, a halfling is easy to underestimate exactly once.",
@@ -319,7 +340,11 @@
               "name": "Brave",
               "effect": "advantage vs Frightened"
             }
-          ]
+          ],
+          "data[fiche_trait_text]": {
+            "halfling-nimbleness": "You can move through the space of a larger creature, but not stop there.",
+            "naturally-stealthy": "You can Hide when a creature at least one size larger is all that hides you."
+          }
         }
       },
       "srd:species:en:human": {
@@ -362,7 +387,7 @@
       },
       "srd:species:en:orc": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted.",
+        "note": "SRD 5.2.1: Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "What outsiders call ferocity is usually just stamina nobody else can match—orcs hold the hard country because they refuse to quit first. The body backs it: a burst of speed under pressure, a refusal to drop the first time death looks likely. An orc sizes people up fast; the only real question is what they can carry, and how far.",
@@ -395,12 +420,16 @@
               "name": "Relentless Endurance",
               "effect": "drop to 1 HP, not 0"
             }
-          ]
+          ],
+          "data[fiche_trait_text]": {
+            "adrenaline-rush": "Dash as a Bonus Action for 2 Temporary HP — twice a Short or Long Rest, more as you level.",
+            "relentless-endurance": "Dropped to 0 HP without dying, you fall to 1 instead — once a Long Rest."
+          }
         }
       },
       "srd:species:en:tiefling": {
         "op": "patch",
-        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]].",
+        "note": "SRD 5.2.1: Humanoid, size is a level-1 player choice between Medium and Small -> written «Medium/Small»: the full «Medium or Small» measures 129.9 px for the 118 px stats column at the 360 floor (measured, garde 2), the slash renders 115.1 px and keeps both words whole. Fiendish Legacy trait (3 named legacies: Abyssal/Chthonic/Infernal) -> Lineages compressed to '3 types'. · 02/09 : fiche_lineage_lvl1 posé — le FORMAT RACCOURCI du niveau 1, condensé de la règle que la pile accorde déjà (SRD ou FH), jamais une règle neuve. Eric, 2026-09-02 : « la décision c'est d'écrire les versions minimalistes et synthétiques qui n'existent pas, avec le moteur ». Le registre est celui de l'Elfe, posé le 27/08 : ce que la lignée accorde, en une phrase, les sorts en [[lien]]. · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "A tiefling's mark reads as trouble before they've done anything to earn it, which teaches most tieflings to charm early, since trust arrives slowly either way. Underneath the easy manner sits something genuinely uncanny: a bloodline granting its own resistance, eyes at home in full dark, and a small trick of magic worth one gesture.",
@@ -455,6 +484,10 @@
             "abyssal": "Resistance to Poison — [[Poison Spray]] cantrip known.",
             "chthonic": "Resistance to Necrotic — [[Chill Touch]] cantrip known.",
             "infernal": "Resistance to Fire — [[Fire Bolt]] cantrip known."
+          },
+          "data[fiche_trait_text]": {
+            "fiendish-legacy": "Choose a legacy — its level 1 benefit, then a spell at levels 3 and 5 (INT, WIS or CHA).",
+            "otherworldly-presence": "You know [[Thaumaturgy]], cast with your Fiendish Legacy ability."
           }
         }
       },
@@ -502,7 +535,7 @@
       },
       "fh:species:en:elestu": {
         "op": "patch",
-        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en elestu lore (never-elf, elf+human/Araag parentage, university/Moonkeeper circles, fast learner, charm resistance, trance).",
+        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en elestu lore (never-elf, elf+human/Araag parentage, university/Moonkeeper circles, fast learner, charm resistance, trance). · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "An elf paired with a human, or with an Araag, never produces another elf—a fact Elestu spend energy correcting. Too mortal for elves, too strange for everyone else, they cluster around lecture halls and moonlit circles instead: fast learners, charm-resistant, needing no real sleep. Two worlds beats belonging fully to either.",
@@ -539,12 +572,15 @@
               "name": "Fast Learner",
               "effect": "+2 skill points at 1, 3, 6"
             }
-          ]
+          ],
+          "data[fiche_trait_text]": {
+            "trance": "You never sleep and magic cannot make you — a Long Rest takes 4 hours of trance."
+          }
         }
       },
       "fh:species:en:loroka": {
         "op": "patch",
-        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en loroka lore (Theymoron highlands, largest population in the capital, Relentless Endurance, soldiering when asked).",
+        "note": "fh-species-en (wholly FH-original record): Humanoid, Medium, 30ft. No lineage-choice trait -> Lineages omitted. Blurb consistent with fh-lore-en loroka lore (Theymoron highlands, largest population in the capital, Relentless Endurance, soldiering when asked). · 02/09 (lot 127) : fiche_trait_text posé — le FORMAT RACCOURCI d'un trait accordé, condensé de la règle que la pile accorde déjà, jamais une règle neuve. Le registre est celui des quatre espèces FH qu'Eric a écrites (39–77 car.) et des condensés de lignée (33–102 car.) ; les sorts en [[lien]]. Un trait sans condensé sert sa prose : c'est le repli, pas un blanc.",
         "changes": {
           "data.blurb": {
             "text": "Loroka worked these terraced hills long before the country had a name, and stayed—today they outnumber every other people in its capital. Knocked to the edge of death, a Loroka's body finds one more breath out of pure stubbornness. Called to the Front, a Loroka picks up a spear, then goes home and picks the hoe back up.",
@@ -577,7 +613,10 @@
               "name": "Versatile",
               "effect": "one Origin feat"
             }
-          ]
+          ],
+          "data[fiche_trait_text]": {
+            "relentless-endurance": "Dropped to 0 HP without dying, you fall to 1 instead — once a Long Rest."
+          }
         }
       }
     },

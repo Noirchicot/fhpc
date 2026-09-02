@@ -227,8 +227,11 @@ function resumeDeLItem(item, ctx, act) {
     for (const [chemin, ids] of Object.entries(TRAITS_COUVERTS)) {
       if (planAt(decisions, chemin)) for (const id of ids) couverts.add(id);
     }
+    /* 🔴 LE TEXTE D'UN TRAIT PASSE PAR `contenuDuTrait`, JAMAIS PAR
+       `trait.text` EN DIRECT — c'est la seule lecture (voir sa tête). */
+    const courts = courtsDeTraits(record);
     for (const trait of traitsDe(record)) {
-      if (!couverts.has(trait.id)) lignes.push([trait.name, trait.text || "—"]);
+      if (!couverts.has(trait.id)) lignes.push([trait.name, contenuDuTrait(trait, courts) || "—"]);
     }
     /* « mets en gras, deux-points, démarre le texte juste derrière » — Eric,
        27/08. Le tableau à deux colonnes dégage : chaque ligne devient
@@ -238,7 +241,11 @@ function resumeDeLItem(item, ctx, act) {
       if (valeur === null || valeur === undefined) continue;
       const ligne = el("p", "bilan-ligne");
       ligne.append(el("strong", null, [text(`${mot} : `)]));
-      ligne.append(text(String(valeur)));
+      /* ⚠️ `linkifie` ET PAS `text()` : un condensé écrit `[[Thaumaturgy]]`
+         comme ceux des lignées, et des crochets doubles à l'écran ne sont pas
+         un lien, c'est une fuite de balisage. Sur une valeur sans crochets —
+         Size, Speed, une prose SRD — il rend le MÊME nœud de texte qu'avant. */
+      linkifie(ligne, String(valeur), ctx.query, act || (() => {}));
       bloc.append(ligne);
     }
     return bloc;
@@ -1000,7 +1007,40 @@ function traitsDe(record) {
   return [...base, ...fh].filter((trait) => trait && trait.name);
 }
 
-function renderGrantedBlock(ctx, record) {
+/** Les condensés de trait, posés par fh-fiche (`data[fiche_trait_text]`),
+ *  indexés par l'id du trait — la même clef que `TRAITS_COUVERTS` lit déjà.
+ *
+ *  ⛔ CE N'EST PAS `data[fiche_traits]`, et les deux ne se remplacent pas :
+ *  celui-là est une poignée de faits saillants pour la CARTE du catalogue (le
+ *  Dragonborn n'y met qu'un trait sur cinq). Celui-ci dit, pour CHAQUE trait,
+ *  ce que ce trait accorde. Deux consommateurs, deux données. */
+function courtsDeTraits(record) {
+  return (record && record.data && record.data.fiche_trait_text) || null;
+}
+
+/* ── 🔴 LA LECTURE D'UN TRAIT — LA SOURCE, AVANT TOUTE MISE EN MOTS ───────
+   Même leçon que `contenuDuLignage` au lot 126, un cran plus loin : deux
+   voix lisaient `trait.text` chacune pour son compte (la ligne « Granted
+   automatically » du parcours, et la `<dl>` du panneau de choix). Deux
+   lectures d'une même chose finissent par diverger — c'est exactement ce qui
+   avait vidé le bilan du Dragonborn. Ici elles lisent LA MÊME fonction.
+
+   ⭐ CE QU'ELLE REND — le texte que le joueur doit lire, dans l'ordre :
+     1. le CONDENSÉ (`fiche_trait_text`) quand il existe. Eric, 02/09 :
+        *« dragonborn S : granted texte pas conforme »* — la prose du SRD y
+        était recopiée telle quelle (Breath Weapon : 833 caractères) ;
+     2. sinon la PROSE du record — le REPLI. ⛔ Un trait sans condensé garde sa
+        prose : un blanc serait pire que le pavé (lot 126, même arbitrage) ;
+     3. `null` s'il n'y a rien du tout, et l'appelant écrit son tiret.
+   ⛔ Toute nouvelle forme de texte de trait s'ajoute ICI, une fois. */
+function contenuDuTrait(trait, courts) {
+  const court = courts && trait ? courts[trait.id] : null;
+  if (typeof court === "string" && court.length > 0) return court;
+  const prose = trait && typeof trait.text === "string" ? trait.text : "";
+  return prose.length > 0 ? prose : null;
+}
+
+function renderGrantedBlock(ctx, record, act) {
   const data = (record && record.data) || {};
   const bloc = el("section", "species-acquis");
   bloc.append(el("h3", null, [text("Granted automatically")]));
@@ -1022,11 +1062,18 @@ function renderGrantedBlock(ctx, record) {
 
   const traits = traitsDe(record);
   if (traits.length > 0) {
+    const courts = courtsDeTraits(record);
     const liste = el("dl", "species-traits");
     for (const trait of traits) {
       liste.append(el("dt", null, [text(trait.name)]));
-      if (typeof trait.text === "string" && trait.text.length > 0) {
-        liste.append(el("dd", null, [text(trait.text)]));
+      /* la MÊME lecture que la ligne « Granted automatically » du parcours ;
+         seule la mise en mots diffère (une `<dd>` ici, « **Mot :** texte »
+         là-bas). ⛔ Ne pas relire `trait.text` pour son compte. */
+      const dit = contenuDuTrait(trait, courts);
+      if (dit) {
+        const dd = el("dd");
+        linkifie(dd, dit, ctx.query, act || (() => {}));
+        liste.append(dd);
       }
     }
     bloc.append(liste);
@@ -1095,7 +1142,7 @@ export function renderSpeciesChoices(ctx, onAction) {
 
   const lignage = record ? renderLineageBlock(ctx, record, act) : null;
   if (lignage) blocs.push(lignage);
-  if (record) blocs.push(renderGrantedBlock(ctx, record));
+  if (record) blocs.push(renderGrantedBlock(ctx, record, act));
 
   /* LES CHOIX À FAIRE — la bourse captive OU le QCM, jamais les deux (voir
      les états d'espèce en tête de fichier). Inchangés : ce lot les ENTOURE,
