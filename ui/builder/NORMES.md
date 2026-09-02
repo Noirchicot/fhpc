@@ -712,6 +712,36 @@ de la ligne de flottaison** n'est pas tranché.
 | **mauvaise pose** | idem, le doré reste | 🔴 **rouge, 2 px** | idem |
 | **tout posé** | idem | 🟢 **vert, 2 px, sur tous à la fois** | idem |
 
+#### 🔴 « TOUT POSÉ » = **LE CHOIX EST FINI**, jamais « toutes les cases remplies » *(lot 123, 02/09)*
+
+> Eric, 02/09 : *« SB skill budget (elestu, elf…) : le liseré autour des collecteurs ne passe pas
+> de bleu à vert quand j'ai dépensé tout le budget. »*
+
+⛔ **Les deux lectures se confondent tant qu'il y a autant de jetons que de cases, et divergent dès
+qu'il y en a MOINS.** Une **bourse captive** en est la preuve : Elestu a **2 points pour TROIS
+collecteurs**. Le code lisait *« toutes les cases remplies »* — donc le vert y était
+**structurellement inatteignable**, sur toute bourse, pour tout personnage.
+📏 **Mesuré** : `+2` sur Delve → consigne *« 2 of 2 points spent »*, `Done` du pied **vert**, et
+les collecteurs `data-complet="false"` — Delve bleu `rgb(95,144,199)`, les deux autres
+transparents. Deux organes du même écran répondaient à deux questions différentes.
+
+⭐ **LA VÉRITÉ EST CELLE DU PLAN** : `answered === expected`, exactement le test que la **porte du
+SB** portait déjà (`budgetDepense`, 27/08). L'écran ne juge rien de plus — il cesse de compter des
+cases pour lire le seul juge.
+
+⛔ **Trois refus survivent au vert, et chacun a payé son incident** :
+
+| le refus | ce qu'il empêche |
+|---|---|
+| **dépassement** *(`answered > expected`, ou un `lock` du noyau)* | un vert sur un budget explosé — *« 3 of 2 »*, 19/08 |
+| **un créneau verrouillé** | qu'un vert d'ensemble recouvre une **mauvaise pose** rouge |
+| **rien d'attendu** *(`expected` nul ou absent)* | qu'un champ vide naisse vert |
+
+📌 **Portée : TOUS les viviers du site** — la condition vit dans l'organe partagé (`glisser.mjs`),
+pas dans un écran. Témoins mesurés avant/après : *Gender* (une case, un choix) reste vert · un
+**vivier plein** (Languages, 2 de 2) reste vert · un budget **entamé** reste bleu · un
+**dépassement** reste rouge.
+
 ---
 
 #### ✅ TROIS PRÉCISIONS DU 26/08 — *« règle générale pour tout le site »*
@@ -1578,6 +1608,19 @@ garde sa forme quel que soit le lignage choisi**.
    déborde, ce qu'elle ne peut pas faire.
 2. **On doit VOIR qu'il y a plus** — sinon le joueur croit avoir tout lu. *(Le chevron du §6
    existe pour ça ; ⏳ reste à dire s'il s'applique aussi à une zone de prose.)*
+3. 🔴 **LA FENÊTRE EST UN NŒUD, PAS UNE FORME DE TEXTE** *(lot 123, 02/09)*. Le verrou du n°1
+   doit se poser **avant** de savoir de quoi le texte est fait — sinon il ne protège que la
+   forme qu'il connaissait.
+   📏 **Mesuré, et c'est ce que ce point coûte** : le sous-écran de lignage n'avait de fenêtre
+   que sous la forme **prose** *(le `<dl>` lui-même)*. La forme **table** posait son intro et sa
+   table nues dans la section, donc rien ne portait la hauteur. À 375 × 812, dalle de 500 blg :
+   Elf **500** · Tiefling **500** *(les deux témoins, en prose)* · Hoddon **639** · Dragonborn
+   **742** · Goliath **775** — le pied *(Cancel · Done · le livre)* poussé de **139**, **242** et
+   **275 blg SOUS l'écran**.
+   ⛔ **Et la ligne de partage n'était pas l'espèce** — Eric a écrit *« toutes sauf Elf »*, mais
+   Tiefling allait bien lui aussi. Ce que les deux avaient en commun n'était pas leur nom, c'était
+   leur **forme**. Une règle calée sur une forme du contenu ne dit jamais qu'elle en ignore une
+   autre.
 
 ---
 

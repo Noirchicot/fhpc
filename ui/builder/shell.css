@@ -5836,7 +5836,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=431");
+  background-image: url("./assets/tarot-dos.jpg?v=432");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7203,11 +7203,22 @@ button.tuto-point::before {
   display: flex;
   flex-direction: column;
 }
-.species-lignage-benefices {
+/* 🪟 LA FENÊTRE — ET C'EST ELLE QUI PORTE LE VERROU, PAS UNE FORME DE TEXTE
+   (lot 123, 2026-09-02). Avant, ces quatre lignes vivaient sur
+   `.species-lignage-benefices`, c'est-à-dire sur le `<dl>` de la forme PROSE :
+   la forme TABLE ne les recevait jamais, `.parcours-item-dalle > section
+   { flex: 0 0 auto }` la laissait grandir, et la dalle avec. Mesuré à
+   375 × 812, dalle de 500 blg : Hoddon **639**, Dragonborn **742**, Goliath
+   **775** — le pied poussé de 139, 242 et 275 blg SOUS `.app`.
+   ⭐ Le nœud est désormais posé par `renderLineageBlock` dans les deux cas :
+   la règle ne peut plus rater une forme qu'elle ne connaissait pas. */
+.species-lignage-fenetre {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+.species-lignage-benefices {
   /* la gouttière de la carte, portée par le cadre (voir `.decision-card`) */
   padding-inline: var(--sp-16);
   /* ⛔ PAS D'`align-items: center` ICI — ESSAYÉ (v396), MESURÉ, RETIRÉ.
@@ -7228,7 +7239,11 @@ button.tuto-point::before {
    entre la bande et le pied, qui reste au fond ; un corps À fenêtre
    absorbe le mou dedans et les 12/8 sont exacts. */
 .parcours-item-dalle > section { flex: 0 0 auto; }
-.parcours-item-dalle > section:has(.species-lignage-benefices) {
+/* 🪟 …ET LE `:has()` VISE LA FENÊTRE, PAS LA PROSE (lot 123, 2026-09-02) :
+   il disait `.species-lignage-benefices`, donc il ne reconnaissait le corps
+   d'un lignage que lorsqu'il était écrit en `<dl>`. Un sélecteur calé sur UNE
+   forme du contenu est la même faute que le verrou juste au-dessus. */
+.parcours-item-dalle > section:has(.species-lignage-fenetre) {
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -7299,8 +7314,13 @@ button.tuto-point::before {
 
 /* La table des lignées à valeur sèche (Dragonborn) — Eric, 28/08 : « un
    tableau plutôt qu'un long scroll ». Deux colonnes serrées, T2, un filet
-   discret entre les lignes ; elle vit dans la fenêtre du SB et n'a pas
-   besoin d'en déborder : dix lignes de T2 tiennent debout. */
+   discret entre les lignes. */
+/* ⛔ ET LA PHRASE QUI SUIVAIT ÉTAIT FAUSSE, mesurée fausse le 02/09 (lot 123) :
+   *« elle vit dans la fenêtre du SB et n'a pas besoin d'en déborder : dix
+   lignes de T2 tiennent debout »*. Elle ne vivait dans aucune fenêtre — la
+   fenêtre était le `<dl>` de la prose — et dix lignes de T2 font **404 blg**
+   chez le Goliath, dans une dalle de 500 qui en portait déjà 300. Une
+   affirmation de tenue qui n'a jamais été mesurée en est une de trop. */
 /* 🔴 COMPOSÉE, PAS ÉTIRÉE — Eric, 28/08, devant la v351 : la table à 100 %
    écartelait ses colonnes (les noms collés au bord, les dégâts perdus au
    milieu d'un blanc), un dump de données. Un tableau se dimensionne sur son

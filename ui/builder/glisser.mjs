@@ -25,10 +25,10 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=431";
+import { pageDeListe } from "./normes.mjs?v=432";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=431";
-import { swapContent } from "./socle.mjs?v=431";
+import { skillsRefusalWord as refusalWord } from "./skills-step.mjs?v=432";
+import { swapContent } from "./socle.mjs?v=432";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -818,7 +818,44 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     || (Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
       && plan.answered > plan.expected);
   bloc.dataset.trop = String(trop);
-  bloc.dataset.complet = String(!trop && slots.every((s) => choisiDe(s) && !s.lock));
+  /* 🟢 « TOUT POSÉ » EST LE VERDICT DU PLAN, PAS LE COMPTE DES CASES — Eric,
+     lot 123, 2026-09-02 : *« le liseré autour des collecteurs ne passe pas de
+     bleu à vert quand j'ai dépensé tout le budget »*.
+
+     ⛔ CE QUI ÉTAIT ÉCRIT : `slots.every(choisiDe)` — « complet » y voulait
+     dire TOUTES LES CASES REMPLIES. NORMES §2 ter dit *« tout posé »*,
+     c'est-à-dire **le choix est fini**. Les deux se confondent tant qu'il y a
+     autant de points que de cases, et divergent dès qu'il y en a moins.
+     📏 MESURÉ : Elestu, 2 points pour TROIS collecteurs. `+2` sur Delve →
+     la consigne dit « 2 of 2 points spent », le `Done` du pied est vert, et
+     `data-complet` rend **`false`** : Delve reste bleu `rgb(95,144,199)`, les
+     deux autres transparents. Même chose sur l'Elfe avec `+1` puis `+1`.
+     ⭐ LE VERT ÉTAIT STRUCTURELLEMENT INATTEIGNABLE sur toute bourse captive :
+     on ne remplit jamais trois cases avec deux points. Ce n'était donc pas un
+     réglage manquant, c'était une condition qu'aucun personnage ne pouvait
+     satisfaire.
+
+     ⭐ ET LA VÉRITÉ ÉTAIT DÉJÀ LÀ, DEUX LIGNES PLUS HAUT : `plan.answered` et
+     `plan.expected`, que `trop` lisait déjà pour rougir. L'écran ne se met pas
+     à juger — il finit de lire le seul juge, au lieu de compter des cases.
+     C'est mot pour mot le test que `budgetDepense` (species-step) porte depuis
+     le 27/08 pour la porte du SB : `answered === expected`, refusé sous verrou.
+     ⚠️ D'où la porte VERTE au-dessus de collecteurs BLEUS : deux organes du
+     même écran répondaient à deux questions différentes.
+
+     ⛔ TROIS REFUS SURVIVENT, et chacun a payé son incident :
+       · `!trop` — un budget explosé ne devient jamais vert (19/08, « 3 of 2 ») ;
+       · `!s.lock` — une mauvaise pose garde le rouge, elle ne se laisse pas
+         recouvrir par un vert d'ensemble (NORMES §2 ter) ;
+       · `attendu > 0` — même garde que `budgetDepense` : un plan qui n'attend
+         rien ne se déclare pas satisfait, sinon un champ vide naîtrait vert.
+     ⚠️ ET LE REPLI RESTE LE COMPTE DES CASES pour un plan qui ne publie aucun
+     nombre utilisable — il n'y a alors rien d'autre à lire, et c'est
+     exactement ce que faisait la ligne d'avant. */
+  const attendu = Number(plan.expected);
+  const chiffre = Number.isFinite(attendu) && attendu > 0;
+  const fini = chiffre ? Number(plan.answered) === attendu : slots.every((s) => choisiDe(s));
+  bloc.dataset.complet = String(!trop && fini && slots.every((s) => !s.lock));
 
   /* Le mot du gendarme REMPLACE la consigne : une consigne qui explique
      comment faire, sous un refus, dit la mauvaise chose au mauvais moment. */

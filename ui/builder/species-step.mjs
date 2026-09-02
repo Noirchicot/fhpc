@@ -28,15 +28,15 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=431";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=431";
-import { renderChoixGlisses } from "./glisser.mjs?v=431";
-import { spellInfo } from "./class-step.mjs?v=431";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=432";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=432";
+import { renderChoixGlisses } from "./glisser.mjs?v=432";
+import { spellInfo } from "./class-step.mjs?v=432";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { skillsRefusalWord } from "./skills-step.mjs?v=431";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=431";
+import { skillsRefusalWord } from "./skills-step.mjs?v=432";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=432";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -829,8 +829,26 @@ function renderLineageBlock(ctx, record, act) {
      phrase, le tableau ne porte que ce qui varie. Le texte vit dans la
      SOURCE des espèces (LINEAGE_INTROS → data[lineage_intro]) : l'écran le
      lit, il ne l'invente pas. */
+  /* 🪟 LA FENÊTRE DU SB — UN SEUL NŒUD, QUELLE QUE SOIT LA FORME DU TEXTE
+     (lot 123, 2026-09-02). NORMES §4 quinquies donne au sous-écran une
+     FENÊTRE qui « prend tout ce qui reste et défile », et §5 bis dit de qui
+     la hauteur est : *« la boîte qui défile porte une hauteur, pas la
+     dalle »*.
+     ⛔ CE QUI ÉTAIT FAUX : la fenêtre n'existait que sous la forme PROSE —
+     c'était le `<dl>` lui-même. La forme TABLE posait l'intro et la table
+     nues dans la section, donc rien ne portait le verrou, et la dalle
+     grandissait. Mesuré à 375 × 812, dalle de 500 blg : Hoddon 639
+     (**+139**), Dragonborn 742 (**+242**), Goliath 775 (**+275**) — et le
+     pied (Cancel · Done · le livre) tombait d'autant SOUS `.app`.
+     ⚠️ La ligne de partage n'était pas l'espèce : Elf ET Tiefling allaient
+     bien, parce qu'ils sont en prose. Une règle qui ne connaît qu'une des
+     deux formes d'un même bloc ne protège que la moitié des écrans.
+     ⭐ D'où un nœud STRUCTUREL : le corps du lignage entre dans la fenêtre
+     avant qu'on sache de quoi il est fait. La forme suivante en héritera
+     sans qu'on y pense. */
+  const fenetre = el("div", "species-lignage-fenetre");
   const intro = record && record.data && record.data.lineage_intro;
-  if (intro) bloc.append(el("p", "species-lignage-intro", [text(intro)]));
+  if (intro) fenetre.append(el("p", "species-lignage-intro", [text(intro)]));
   const uneEntree = (o) => o && (typeof o.damage === "string" ||
     (o.levels && Object.keys(o.levels).length === 1 && o.levels["1"] !== undefined));
   if (options.every(uneEntree)) {
@@ -846,7 +864,8 @@ function renderLineageBlock(ctx, record, act) {
       tr.append(td);
       table.append(tr);
     }
-    bloc.append(table);
+    fenetre.append(table);
+    bloc.append(fenetre);
     return bloc;
   }
   const liste = el("dl", "species-lignage-benefices");
@@ -862,7 +881,8 @@ function renderLineageBlock(ctx, record, act) {
        Le raccourci (fiche_lineage_lvl1) sert les FICHES : le bilan. */
     renderLignesLignage(liste, option, ctx.query, act, null);
   }
-  bloc.append(liste);
+  fenetre.append(liste);
+  bloc.append(fenetre);
   return bloc;
 }
 

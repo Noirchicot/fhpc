@@ -679,6 +679,117 @@ test("7 bis — ⚔️ dans le budget, rien ne rougit", () => {
   assert.equal(n.dataset.trop, "false", "sans dépassement, le garde ne doit pas mordre");
 });
 
+/* ══ 7 quater — « TOUT POSÉ » EST LE VERDICT DU PLAN (lot 123, 02/09) ═════
+   🔴 LE DÉFAUT D'ERIC : *« SB skill budget (elestu, elf…) : le liseré autour
+   des collecteurs ne passe pas de bleu à vert quand j'ai dépensé tout le
+   budget. »*
+   📏 MESURÉ au navigateur, Elestu, 2 points pour TROIS collecteurs : la
+   consigne disait « 2 of 2 points spent », le `Done` du pied était vert, et
+   l'attribut rendait `data-complet="false"` — Delve bleu `rgb(95,144,199)`,
+   les deux autres transparents.
+   ⛔ « Complet » voulait dire TOUTES LES CASES REMPLIES ; NORMES §2 ter dit
+   *« tout posé »*, c'est-à-dire **le choix est fini**. Sur toute bourse
+   captive le vert était donc INATTEIGNABLE : on ne remplit jamais trois cases
+   avec deux points.
+   ⭐ CE GARDE VA DANS LES DEUX SENS, comme la loi des gardes de ce dépôt : le
+   budget fini VERDIT, le budget entamé reste bleu, le dépassement rougit —
+   et un verrou de créneau interdit le vert quoi qu'en dise le compte. */
+
+/** La forme exacte d'une bourse captive : plus de RÉCEPTEURS que de POINTS.
+ *  C'est la seule forme où les deux définitions de « complet » divergent. */
+const bourseDe = (...poses) => ["delve", "survival", "vigilance"].map((slug, index) => ({
+  path: `species.skillBudget.${slug}`, index,
+  options: ["novice", "adept"], selected: poses[index] ? [poses[index]] : [], lock: null
+}));
+
+test("7 quater — un budget ENTIÈREMENT dépensé passe au vert, même avec une case libre", () => {
+  const plan = { path: "species.skillBudget", status: "pending", answered: 2, expected: 2,
+    options: ["novice", "adept"] };
+  const n = renderChoixGlisses({ plan, slots: bourseDe("novice", "novice"), titre: "Skill budget" });
+  assert.equal(n.dataset.complet, "true",
+    "2 points sur 2 dépensés : le choix est FINI, même si Vigilance reste vide");
+  assert.equal(n.dataset.trop, "false", "et rien n'est dépassé");
+  /* ⛔ LE CONTRE-EXEMPLE, DANS LE MÊME TEST : la condition d'AVANT, relue sur
+     ce même écran, dit « false ». C'est elle qui rendait le vert inatteignable
+     — la remettre fait rougir l'assertion du dessus. */
+  const ancienne = n.querySelectorAll(".glisse-creneau")
+    .every((c) => c.getAttribute("data-rempli") === "true");
+  assert.equal(ancienne, false,
+    "⭐ preuve de la divergence : « toutes les cases remplies » est FAUX ici, et « fini » est VRAI");
+});
+
+test("7 quinquies — un budget ENTAMÉ reste bleu : le vert ne se dépense pas trop tôt", () => {
+  /* Eric, 19/08 : *« un vert posé dès le premier dépôt ne laisse plus rien à
+     dire quand tout est fini — il dépense la récompense trop tôt. »* */
+  const plan = { path: "species.skillBudget", status: "pending", answered: 1, expected: 2,
+    options: ["novice", "adept"] };
+  const n = renderChoixGlisses({ plan, slots: bourseDe("novice"), titre: "Skill budget" });
+  assert.equal(n.dataset.complet, "false", "1 point sur 2 : le choix n'est pas fini");
+  assert.equal(n.dataset.trop, "false", "et ce n'est pas une faute non plus — juste un début");
+});
+
+test("7 sexies — un budget DÉPASSÉ rougit, et ne peut jamais verdir", () => {
+  const plan = { path: "species.skillBudget", status: "pending", answered: 3, expected: 2,
+    options: ["novice", "adept"] };
+  const n = renderChoixGlisses({ plan, slots: bourseDe("novice", "novice", "novice"), titre: "Skill budget" });
+  assert.equal(n.dataset.trop, "true", "3 de 2 : le plan l'a dit, l'écran le montre");
+  assert.equal(n.dataset.complet, "false",
+    "⛔ ici les trois cases SONT remplies — seul `!trop` empêche le vert");
+});
+
+test("7 sexies bis — un VERROU DU NOYAU interdit le vert, même quand le compte tombe juste", () => {
+  /* 🚨 LE CAS QUE `answered > expected` NE VOIT PAS — mesuré le 29/08, et il
+     est la raison d'être du `!trop` : on remplit deux collecteurs (2 de 2
+     RÉPONDUS, donc « pas trop » au sens des réponses) en dépensant cinq
+     points pour deux. Le noyau, lui, l'a dit : il pose `plan.lock`.
+     ⛔ Sans `!trop`, le nouveau verdict (`answered === expected`) rendrait
+     l'écran VERT au-dessus d'un refus du noyau. */
+  const plan = { path: "species.skillBudget", status: "pending", answered: 2, expected: 2,
+    lock: "skill-budget.overspent", options: ["novice", "adept"] };
+  const n = renderChoixGlisses({ plan, slots: bourseDe("adept", "adept"), titre: "Skill budget" });
+  assert.equal(n.dataset.trop, "true", "le verrou du noyau rougit l'écran");
+  assert.equal(n.dataset.complet, "false", "⛔ et un refus ne se laisse pas recouvrir par un vert");
+});
+
+test("7 septies — une MAUVAISE POSE garde le rouge, le compte a beau être juste", () => {
+  /* NORMES §2 ter : le liseré porte l'échelle, et un vert d'ensemble ne
+     recouvre pas un refus nommé par le noyau (`slot.lock`). */
+  const plan = { path: "species.skillBudget", status: "pending", answered: 2, expected: 2,
+    options: ["novice", "adept"] };
+  const slots = bourseDe("novice", "novice");
+  slots[1].lock = "skill-budget.overspent";
+  const n = renderChoixGlisses({ plan, slots, titre: "Skill budget" });
+  assert.equal(n.dataset.complet, "false", "un créneau verrouillé interdit le vert d'ensemble");
+});
+
+test("7 octies — le témoin d'UNE case ne bouge pas : un choix, une réponse, vert", () => {
+  /* 🔴 LE TÉMOIN D'ERIC POUR CE DÉFAUT : Identity › Gender — un collecteur,
+     un choix. Mesuré AVANT comme APRÈS : `complet="true"`, bord
+     `rgb(70,157,106)` = `--positive`. Le mécanisme du vert n'a jamais été en
+     cause ; c'était sa CONDITION. Ce garde tient le témoin en place, parce
+     que la ligne changée vaut pour TOUS les viviers du site. */
+  const plan = { path: "identity.gender", status: "answered", answered: 1, expected: 1,
+    options: ["Man", "Woman", "Other"], selected: ["Man"] };
+  const slot = { path: "identity.gender", index: 0, options: plan.options, selected: ["Man"], lock: null };
+  assert.equal(renderChoixGlisses({ plan, slots: [slot], titre: "Gender" }).dataset.complet, "true");
+  const vide = { ...slot, selected: [] };
+  assert.equal(renderChoixGlisses({ plan: { ...plan, answered: 0, selected: [] }, slots: [vide], titre: "Gender" })
+    .dataset.complet, "false", "et rien posé ne verdit rien");
+});
+
+test("7 nonies — sans nombre utilisable, le REPLI reste le compte des cases", () => {
+  /* ⚠️ Un plan qui n'attend rien ne se déclare pas satisfait — même garde que
+     `budgetDepense` (species-step, 27/08) : `attendu > 0`. Sinon un champ vide
+     naîtrait vert. */
+  const zero = { path: "x", status: "pending", answered: 0, expected: 0, options: ["a", "b"] };
+  const vide = [{ path: "x[0]", index: 0, options: ["a", "b"], selected: [], lock: null }];
+  assert.equal(renderChoixGlisses({ plan: zero, slots: vide, titre: "X" }).dataset.complet, "false",
+    "⛔ `expected: 0` ne vaut pas « tout est fait »");
+  const plein = [{ path: "x[0]", index: 0, options: ["a", "b"], selected: ["a"], lock: null }];
+  assert.equal(renderChoixGlisses({ plan: zero, slots: plein, titre: "X" }).dataset.complet, "true",
+    "…et sans nombre à lire, une case remplie reste la seule vérité disponible");
+});
+
 /* ══ 12 — LA CAPTURE NE SE PREND QU'AU SOULÈVEMENT (incident du 22/08) ════
    🔴 CE GARDE EXISTE PARCE QUE LA PANNE ÉTAIT MUETTE ET LOIN DE SA CAUSE.
    Eric, iPhone : *« défilement vertical toujours bloqué »* sur une liste dont
