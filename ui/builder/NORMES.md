@@ -1643,7 +1643,7 @@ une marge par une autre.
 | | écart au pied | **8** |
 | 3 | **le pied** — quatre boutons | **44** |
 | | rembourrage bas | **8** |
-| | **TOTAL mesuré** | **479**, soit **21 de marge** |
+| | **TOTAL mesuré** *(l'Ermite, 3 vibrations)* | **463**, soit **37 de marge** |
 
 ⚠️ **LE VOYANT COMPTE POUR 10, ET IL A ÉTÉ OUBLIÉ DEUX FOIS** dans le décompte de la séance — la
 somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans les marges.
@@ -1681,13 +1681,17 @@ toucher à un seul texte de règle.
 ⚖️ **HABIT DU LIEN** : `.lien-sort` — `--lien`, **non souligné**, rendu en `<button>` (§1 ter bis³).
 ⛔ Pas `--info` : un lien n'est pas une information qui crie.
 
-### Les écarts — **8**, et deux **16** qui séparent trois natures
+### Les écarts — **8 partout**, un seul écrivain, aucune exception
 
-    titre=8   ability=8   impact=8   meaning=8   power=16   vibrations=16
+    titre=8   ability=8   impact=8   meaning=8   power=8   vibrations=8
 
-⭐ Les deux 16 ne séparent pas deux blocs, ils séparent trois NATURES : ce que la carte **est**
-(ability, impact, sens, pouvoir) · ce qu'elle **ouvre** (les vibrations) · ce qu'elle **pèse** (le
-Score). Les cinq 8 séparent des lignes d'une même liste.
+🔴 **DEUX D'ENTRE EUX ONT VALU 16, ET ERIC A TRANCHÉ L'INVERSE** (03/09) : je les avais figés comme
+voulus — ils séparaient trois natures (ce que la carte **est**, ce qu'elle **ouvre**, ce qu'elle
+**pèse**). ⭐ **Ce que leur retrait rend : 16 blg**, soit **une ligne de règle**, et c'est le seul
+argument qui compte ici. Onze cartes sur vingt-deux portent un `power` plus long que celui de
+l'Ermite ; un écart décoratif payé par un texte de règle coupé n'est pas un arbitrage.
+⚖️ **La loi redevient simple** : l'écart entre deux blocs a UN SEUL écrivain, le `gap`, et aucune
+exception à retenir.
 
 ### 🎨 L'encre porte la structure, depuis que les cadres sont invisibles
 
@@ -1728,10 +1732,18 @@ porte.
 - **le voyant** : il n'est pas sur le croquis d'Eric, gardé faute de décision ;
 - **l'ancrage du livre et du `?`** : ancrés au bas de la DALLE (posés par la coquille) quand la
   paire vit dans le flux — 8 blg de décalage mesuré, et aucun espacement ne les alignera ;
-- 🔴 **le budget des 21 autres cartes.** Mesuré le 03/09 AVANT le passage des vibrations en
-  popup : 11 sur 22 débordaient à trois vibrations, 22 sur 22 à six. *L'Ermite est la MÉDIANE* —
-  c'est pourquoi tout tombait juste sur elle et sur aucune autre. ⏳ **À remesurer** depuis que
-  l'effet des vibrations est parti en popup.
+- 🔴 **LE BUDGET DES 21 AUTRES CARTES — REMESURÉ le 03/09 sur le gabarit final** (les 22 clonées
+  dans la dalle vivante, à sa largeur réelle) :
+
+  | vibrations affichées | débordent | la pire |
+  |---|---|---|
+  | 3 *(Score 7–10)* | **6 / 22** | *The Devil* **579** — 79 de trop |
+  | 4 *(Score 11–15)* | **9 / 22** | *The Devil* **598** — 98 de trop |
+
+  📏 **UNE LIGNE DE CORPS VAUT ~15 blg** : le budget se compte en LIGNES, pas en pixels.
+  ⭐ *L'Ermite est la MÉDIANE*, et c'est pourquoi tout tombait juste sur elle et sur aucune autre.
+  ⏳ **Ce qui reste à trancher est un arbitrage de RÈGLE, pas de mise en page** : les six qui
+  débordent portent un `power` de 5 à 7 lignes. Le raccourcir touche au jeu — c'est Eric.
 
 ---
 

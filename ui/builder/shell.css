@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=466");
+  background-image: url("./assets/tarot-dos.jpg?v=467");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8302,13 +8302,16 @@ button.tuto-point::before {
 .card-final-carte      { grid-area: image; }
 
 
-/* 📏 LES DEUX RESPIRATIONS DE L'ÉCRAN — 16 au lieu de 8, et elles sont nommées.
-   ⭐ CE QU'ELLES SÉPARENT N'EST PAS DEUX BLOCS, C'EST DEUX NATURES : au-dessus,
-   ce que la carte EST (son ability, son impact, son sens, son pouvoir) ; en
-   dessous, ce qu'elle OUVRE (les vibrations) puis ce qu'elle PÈSE (le Score).
-   Les cinq autres écarts restent à 8 — ils séparent des lignes d'une même liste.
-   ⚖️ OUI, C'EST UNE MARGE QUI S'AJOUTE AU `gap`, et c'est assumé ici : 8 + 8 = 16,
-   voulu et écrit. La faute de la nuit n'était pas d'additionner, c'était
-   d'additionner SANS LE SAVOIR. */
-.aire-rangs,
-.aire-score { margin-top: var(--sp-8); }
+/* 🔴 UN SEUL ÉCART SUR TOUT L'ÉCRAN, ET C'EST LE `gap` — Eric, 2026-09-03 :
+   *« 8 blg entre chacun des blocs texte ? »* puis *« les 2 à 16 passent à 8 »*.
+   ⛔ CE QUI ÉTAIT ÉCRIT ICI : deux marges de 8 qui s'AJOUTAIENT au gap pour
+   rendre 16 avant les Vibrations et avant le Score. Je les avais figées comme
+   voulues — elles séparaient trois natures (ce que la carte EST, ce qu'elle
+   OUVRE, ce qu'elle PÈSE) — et Eric a tranché l'inverse : une seule respiration,
+   partout la même.
+   ⭐ CE QUE ÇA REND, ET C'EST LA VRAIE RAISON : 16 blg de budget, qui vont aux
+   POWER longs. Onze cartes sur vingt-deux en ont un plus long que celui de
+   l'Ermite. Un écart décoratif payé par un texte de règle coupé n'est pas un
+   arbitrage, c'est un oubli.
+   ⚖️ ET LA LOI REDEVIENT SIMPLE : l'écart entre deux blocs a UN SEUL écrivain,
+   sans exception à retenir. Le garde D n'a plus de cas particulier à connaître. */
