@@ -351,6 +351,14 @@
      ⭐ Écrit dans ce sens, le jour où `--touch` bouge, le dessin suit ; écrit
      à l'envers, c'est la cible qui aurait menti. *« Un contrôle ne se laisse
      jamais dimensionner par un dessin »* (§1 ter). */
+  /* 🔴 L'ENCRE DE LA FLÈCHE — l'encre du site sous le voile simple (35 %).
+     Eric, 2026-09-02 : *« la flèche est un organe et a un voile à 35 % »*.
+     ⭐ DÉRIVÉE, JAMAIS ÉCRITE : c'est exactement la formule des trois dalles
+     (`color-mix(… var(--voile-simple), transparent)`), appliquée à `--text`
+     au lieu de `--surface`. Le jour où le voile du site bouge, la flèche
+     suit ; et elle bascule avec le thème sans redéclaration, puisque `--text`
+     le fait déjà. */
+  --chevron-trait: color-mix(in srgb, var(--text) var(--voile-simple), transparent);
   --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
   --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
   --fiche-dalle-w: 242px;

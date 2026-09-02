@@ -665,31 +665,55 @@ body {
 .belt-chevron[data-sens="avant"] { left: calc(var(--onglet-taille) / 2); }
 .belt-chevron[data-sens="apres"] { right: calc(var(--onglet-taille) / 2); }
 .belt-chevron:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
-/* La petite dalle — le voile d'un cran, la hauteur d'un cran. */
-.belt-chevron-dalle {
+/* 🔴 LA FLÈCHE EST L'ORGANE, ET IL N'Y A PAS DE TUILE — Eric, 2026-09-02 :
+   *« rends sa tuile invisible, voile 0 % ; je veux juste voir la flèche, qui
+   flotte au-dessus du background. La flèche est un organe (c'est un bouton
+   spécial) et a un voile à 35 %. »*
+
+   ⚖️ ET C'EST MA LECTURE QUI EST RENVERSÉE, pas la sienne qui a changé.
+   *« Transparence voile 35 % »*, sur son croquis, désignait la FLÈCHE ; j'avais
+   lu le voile d'une petite dalle POSÉE SOUS elle, au motif qu'un cran de belt
+   est une dalle à 35 % et que le chevron *« s'intercale entre les tuiles »*.
+   ⛔ Une dalle de plus était une SURFACE de plus dans une rangée qui en porte
+   déjà onze — et le croquis n'en dessinait aucune : il dessinait un trait nu.
+   📌 J'avais posé la question en « À TRANCHER » plutôt que de la trancher, et
+   c'est ce qui a permis de la corriger en une ligne.
+
+   ⭐ CE QUI SURVIT DE L'ANCIENNE LECTURE, ET C'EST L'ESSENTIEL : la CIBLE ne
+   bouge pas d'un blg (`--touch`, posée sur le bouton), et la place réservée
+   dans la piste non plus. **On retire une peinture, pas une cote** — c'est
+   la distinction du collecteur du 26/08, *« retirer le dessin, pas la cote »*.
+
+   ⛔ CE NŒUD N'EST DONC PLUS UNE DALLE, ET IL NE PORTE PLUS SON NOM. Il n'est
+   que la boîte qui centre le trait ; il ne peint rien. */
+.belt-chevron-fleche {
   position: relative;
   width: var(--belt-chevron);
   height: var(--touch);
-  border-radius: var(--radius-md);
-  background: var(--dalle-simple);
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
 /* ⛔ LE TRAIT EST DESSINÉ, JAMAIS UN GLYPHE — la loi du pouce de
    l'interrupteur et du livre (§6, §7 bis) : un caractère change de forme
    selon la police installée et rend une couleur qui n'est pas la nôtre.
    Deux bords d'un carré tournés de 45°, épaisseur `--sp-2`. */
-.belt-chevron-dalle::before {
+/* 🔴 ET C'EST LE TRAIT QUI PORTE LE VOILE — `--voile-simple`, le 35 % du
+   dépôt, appliqué à l'ENCRE au lieu d'une surface. La formule est celle des
+   trois dalles (`color-mix(… var(--voile-simple), transparent)`), transposée
+   d'un fond à un trait : ⛔ aucun pourcentage inventé, aucun jeton de plus.
+   ⭐ Une flèche qui flotte sur le décor sans rien sous elle doit être DISCRÈTE
+   — c'est ce que le 35 % dit, et c'est le mot d'Eric sur le chevron depuis le
+   26/08 : *« petit et discret »*. */
+.belt-chevron-fleche::before {
   content: "";
   position: absolute;
   inset: 0;
   margin: auto;
   width: var(--sp-8);
   height: var(--sp-8);
-  border-top: var(--sp-2) solid currentColor;
-  border-right: var(--sp-2) solid currentColor;
+  border-top: var(--sp-2) solid var(--chevron-trait);
+  border-right: var(--sp-2) solid var(--chevron-trait);
 }
-.belt-chevron[data-sens="avant"] .belt-chevron-dalle::before { transform: rotate(-135deg); }
-.belt-chevron[data-sens="apres"] .belt-chevron-dalle::before { transform: rotate(45deg); }
+.belt-chevron[data-sens="avant"] .belt-chevron-fleche::before { transform: rotate(-135deg); }
+.belt-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
 
 .belt-onglet {
   position: absolute;

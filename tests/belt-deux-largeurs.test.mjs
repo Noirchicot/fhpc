@@ -140,15 +140,33 @@ test("🔴 la cible du chevron vaut `--touch`, et le DESSIN se déduit d'elle", 
     "⛔ et le dessin se déduit de la cible, jamais l'inverse — « un contrôle ne se laisse jamais dimensionner par un dessin »");
 });
 
-test("🔴 le chevron porte le voile d'un CRAN — 35 %, aucune teinte", () => {
-  /* ⭐ *« qui s'intercalent parfaitement entre les tuiles »* se lit dans le
-     voile : un cran est une dalle à 35 % (15/08), le chevron en est une. */
-  const corps = regle(shellCss, /^\.belt-chevron-dalle$/);
-  assert.ok(corps, "la petite dalle du chevron doit exister");
-  assert.match(corps, /background:\s*var\(--dalle-simple\)/, "le barreau 35 %, celui d'un cran");
-  assert.match(corps, /height:\s*var\(--touch\)/, "et la hauteur d'un cran");
+test("🔴 LA FLÈCHE EST L'ORGANE — pas de tuile sous elle, et c'est ELLE qui porte le 35 %", () => {
+  /* ⚖️ RENVERSEMENT DU 2026-09-02, et c'est ma LECTURE qui était fausse, pas
+     la consigne d'Eric qui a changé : *« rends sa tuile invisible, voile 0 % ;
+     je veux juste voir la flèche, qui flotte au-dessus du background. La
+     flèche est un organe et a un voile à 35 %. »*
+     ⛔ J'avais lu son « transparence voile 35 % » comme le voile d'une petite
+     DALLE posée sous la flèche — une surface de plus dans une rangée qui en
+     porte onze, là où son croquis ne dessinait qu'un trait nu.
+     ⭐ CE QUI NE BOUGE PAS D'UN BLG, ET C'EST LE POINT : la CIBLE (`--touch`,
+     sur le bouton) et la place réservée dans la piste. On retire une PEINTURE,
+     pas une COTE — la distinction du collecteur du 26/08. */
+  const boite = regle(shellCss, /^\.belt-chevron-fleche$/);
+  assert.ok(boite, "la boîte qui centre le trait doit exister");
+  assert.ok(!/background/.test(boite),
+    "⛔ voile 0 % : la boîte ne peint RIEN — ni fond, ni arête de verre");
+  assert.ok(!/box-shadow/.test(boite), "⛔ ni arête de verre : il n'y a plus de tuile à border");
+  assert.match(boite, /height:\s*var\(--touch\)/, "et elle garde sa cote, qui n'est pas une peinture");
+
+  /* Et le TRAIT porte le voile — la formule des trois dalles, transposée
+     d'un fond à une encre. ⛔ Aucun pourcentage inventé. */
+  const trait = regle(shellCss, /\.belt-chevron-fleche::before$/);
+  assert.match(trait, /var\(--chevron-trait\)/, "le trait lit son encre voilée");
+  assert.match(tokensCss, /--chevron-trait:\s*color-mix\(in srgb, var\(--text\) var\(--voile-simple\), transparent\)/,
+    "l'encre du site sous le voile SIMPLE (35 %), dérivée — jamais un littéral");
   for (const teinte of ["--positive", "--info", "--critical", "--caution", "--accent"]) {
-    assert.ok(!corps.includes(teinte), `⛔ ${teinte} : le chevron ne dit pas où l'on en est`);
+    assert.ok(!tokensCss.includes(`--chevron-trait: color-mix(in srgb, var(${teinte})`),
+      `⛔ ${teinte} : le chevron ne dit pas où l'on en est`);
   }
 });
 

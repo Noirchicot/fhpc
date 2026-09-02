@@ -2193,7 +2193,7 @@ function monterBelt() {
     /* Un organe sans texte doit se NOMMER (§7 bis) — sinon il disparaît de la
        page pour qui ne voit pas le dessin. */
     bouton.setAttribute("aria-label", sens < 0 ? "Earlier steps" : "Later steps");
-    bouton.append(el("span", "belt-chevron-dalle"));
+    bouton.append(el("span", "belt-chevron-fleche"));
     belt.append(bouton);
     return bouton;
   });
