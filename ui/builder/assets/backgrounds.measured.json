@@ -113,8 +113,8 @@
       ]
     },
     "bg-ruins-day.jpg": {
-      "sha256": "2bfe217f189836c2d70182eea1ea273cf590c7dfe5a99f1931e358cd13814309",
-      "octets": 66851,
+      "sha256": "5e03e156963ba329ebd0fbc25ab4e9a8b3fa72947be86fe7cc9dac1a057ec430",
+      "octets": 66249,
       "dimensions": [
         1024,
         1792
@@ -133,12 +133,12 @@
       "pixel_le_plus_sombre": [
         142,
         131,
-        113
+        109
       ],
       "pixel_le_plus_clair": [
         169,
-        150,
-        120
+        149,
+        122
       ]
     },
     "bg-ruins-night.jpg": {
