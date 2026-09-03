@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=503");
+  background-image: url("./assets/tarot-dos.jpg?v=504");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8694,7 +8694,20 @@ button.tuto-point::before {
   flex-direction: column;
   justify-content: center;
 }
-.card-final[data-gabarit="apercu"] { height: auto; }
+/* 🔴 LES VINGT-DEUX FONT LA MÊME TAILLE — Eric, 2026-09-03 : *« mets-les tous
+   à la même taille »*.
+   ⛔ ELLES VALAIENT 265, 277, 288 ou 299 selon la longueur du texte de leur
+   carte. Au défilement aimanté, la dalle changeait donc de taille à chaque cran
+   — et comme elle est CENTRÉE, ses deux bords bougeaient en même temps. Un
+   catalogue qu'on parcourt doit être stable : c'est le contenu qui change, pas
+   le cadre.
+   📏 300, soit la plus haute (299) arrondie au pas de la grille. Le budget de la
+   scène est de 500 : il reste 100 de part et d'autre.
+   ⭐ ET LE PIED DESCEND AU FOND (`margin-top: auto`) : sur une carte au texte
+   court, l'air se met ENTRE le texte et les boutons, jamais sous les boutons —
+   les 8 blg qu'Eric a dictés sous eux ne bougent pas d'un cheveu. */
+.card-final[data-gabarit="apercu"] { height: 300px; }
+.card-final[data-gabarit="apercu"] > .parcours-pied { margin-top: auto; }
 
 /* 🔴 LE PIED RESTE À 100 %, ET C'EST LUI QUI RÉPARE LE `?` — ancré à la dalle
    par `position: absolute; bottom: var(--sp-8)`, il flottait à côté des boutons

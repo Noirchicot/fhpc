@@ -24,7 +24,7 @@ const cible = location.hash.slice(1) || "tout";
 localStorage.setItem("fhpc.personnage", await (await fetch("/fixture-banc.json")).text());
 
 const f = document.createElement("iframe");
-f.src = "./index.html?v=503";
+f.src = "./index.html?v=504";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const lignes = [];
 const note = (m) => { lignes.push(m); document.getElementById("rapport").textContent = lignes.join("\n"); };

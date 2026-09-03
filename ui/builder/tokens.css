@@ -683,8 +683,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=503");
-  --bg-nuit: url("./assets/bg-night.jpg?v=503");
+  --bg-jour: url("./assets/bg-day.jpg?v=504");
+  --bg-nuit: url("./assets/bg-night.jpg?v=504");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
