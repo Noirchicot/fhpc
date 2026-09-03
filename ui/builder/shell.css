@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=502");
+  background-image: url("./assets/tarot-dos.jpg?v=503");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8534,15 +8534,27 @@ button.tuto-point::before {
    ⭐ C'est le MÊME contrat que les fiches (`data-snap`, lot 60), appliqué à
    l'autre axe : un cran à moitié visible est un cran qu'on ne peut ni lire ni
    viser au doigt.
-   ⚖️ `proximity`, PAS `mandatory` : le rail fait 1 376 blg pour 500 de fenêtre,
-   et `mandatory` interdirait de s'arrêter entre deux crans pendant un grand
-   glissé — le geste deviendrait saccadé. `proximity` ne corrige que la fin de
-   course, quand on est déjà presque en place.
+   🔴 `mandatory`, ET J'AVAIS CHOISI `proximity` — Eric l'a vu sur son iPad :
+   *« la tuile chariot est coupée, ça ne va pas »*.
+   ⛔ MON ARGUMENT ÉTAIT JUSTE ET LA CONCLUSION FAUSSE. J'avais écrit que
+   `mandatory` rendrait un grand glissé saccadé, et c'est vrai — mais la demande
+   d'Eric était *« qu'elles ne s'arrêtent pas coupées »*, et `proximity` ne
+   recale QUE si l'on s'immobilise déjà presque en place. Après un vrai glissé,
+   il ne fait rien. J'avais donc posé l'organe qui ne répond pas à la demande, en
+   argumentant contre celui qui y répond.
+   ⭐ `start`, PAS `center` : aligner le HAUT du cran sur le haut de la piste
+   garantit que celui d'en haut est entier. `center` centrait un cran et coupait
+   les deux extrémités — exactement ce qu'on voit sur sa capture.
+   📏 ET LE PAS SUIT : cran 56 + écart 4 = **60**, et la piste offre 484 blg
+   (500 moins ses deux rembourrages de 8). `484 / 60 = 8,07` → huit crans
+   ENTIERS, et 4 blg qui dépassent — juste assez pour dire qu'il y en a d'autres.
+   ⚖️ Le cran passe de 58 à 56 : le contenu en demande 51 (15 de chiffre + trois
+   lignes de 12), il reste 5 d'air.
    ⛔ LE CONTENEUR QUI DÉFILE EST `.stage-aside`, PAS LE RAIL : c'est lui qui
    porte l'`overflow-y`. Poser le `scroll-snap-type` sur le rail ne ferait
    rien — et ne dirait rien en le faisant. */
-.stage-area[data-aside="etroit"] .stage-aside { scroll-snap-type: y proximity; }
-.catalogue-rail[data-etroit] .catalogue-rail-item { scroll-snap-align: center; }
+.stage-area[data-aside="etroit"] .stage-aside { scroll-snap-type: y mandatory; }
+.catalogue-rail[data-etroit] .catalogue-rail-item { scroll-snap-align: start; }
 .catalogue-rail[data-etroit] .catalogue-rail-item {
   display: flex;
   flex-direction: column;
@@ -8550,8 +8562,8 @@ button.tuto-point::before {
   justify-content: center;
   gap: 0;
   /* 🔴 la hauteur FIXE — voir plus haut : c'est elle qui rend le pas régulier */
-  height: 58px;
-  min-height: 58px;
+  height: 56px;
+  min-height: 56px;
   padding: 0 var(--sp-4);
   line-height: 1.15;
 }
