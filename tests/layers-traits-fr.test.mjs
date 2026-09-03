@@ -75,7 +75,7 @@ test("sous un rendu FRANÇAIS, la couche FH d'espèces REFUSE de se monter — e
   );
 });
 
-test("LE COÛT, CHIFFRÉ : 10 chemins sur 6 espèces — pas 9 espèces (élargi le 27/08 par la conversion PROF)", () => {
+test("LE COÛT, CHIFFRÉ : 10 chemins sur 7 espèces — pas 9 espèces (élargi le 27/08 par la conversion PROF)", () => {
   /* Le chiffre « 9 espèces sur 9 divergentes » mesure la DIVERGENCE. Ce qui
      coûte, c'est ce qui s'APPUIE dessus. Les six autres espèces divergent
      aussi et ne coûtent rien : aucune couche ne vise leurs clefs. */
@@ -103,6 +103,18 @@ test("LE COÛT, CHIFFRÉ : 10 chemins sur 6 espèces — pas 9 espèces (élargi
     "srd:species:en:human data.traits[skillful].text",
     "srd:species:en:orc data.traits[adrenaline-rush].text"
   ], "si cette liste grandit, la dette grandit avec elle — et le relevé de `fh-srd/docs/TRAIT-KEYS.md` est périmé");
+
+  /* ⚠️ 2026-09-03 — LE TITRE DISAIT « 6 espèces », LA LISTE EN PORTE 7. La liste
+     était juste, le libellé mentait : il avait été écrit à la main le 27/08 et
+     n'a pas suivi les quatre chemins que ce même lot ajoutait. Une règle qui
+     décrit un état inexact est pire qu'une absence — elle répond de travers à
+     qui la lit.
+     ⛔ La réparation n'est donc pas de corriger le chiffre : c'est de le
+     DÉRIVER, pour qu'aucun titre ne puisse plus mentir seul. */
+  const especes = new Set(chemins.map((c) => c.split(" ")[0]));
+  assert.equal(especes.size, 7, "SEPT adresses distinctes — le compte du titre se vérifie ici, il ne se recopie pas");
+  assert.deepEqual([...especes].map((a) => a.replace("srd:species:en:", "")).sort(),
+    ["dragonborn", "dwarf", "elf", "gnome", "goliath", "human", "orc"]);
 });
 
 test("⛔ ET LE PIÈGE : `brave` coïncide chez le halfling, et ça ne prouve RIEN", () => {
