@@ -98,7 +98,7 @@
      illisible. ⛔ Une dérivation n'est bonne que tant que sa prémisse tient.
      ⭐ Le sens est renversé : c'est la LIGNE qui est la cote mesurée, et les
      boîtes qui se comptent en lignes. */
-  --fiche-ligne: 14.4px; /* une ligne à T2, mesurée dans la police du builder */
+  --fiche-ligne: calc(var(--t2) * 1.2); /* une ligne à T2 — 14,4 blg, le corps est NOMMÉ, jamais recopié */
   --fiche-blurb-h: calc(var(--fiche-ligne) * 6); /* le blurb : SIX lignes (~50 mots) */
   --fiche-infos-h: calc(var(--fiche-ligne) * 5); /* la bande : intertitre + 4 */
   --fiche-stats-h: 168px; /* le BLOC 1 : 4 lignes de stats + 3 traits à 2 lignes */
@@ -1047,16 +1047,20 @@
   width: var(--carte-w);
   height: 440px; /* 396 de dessin + 44 de rangée tactile */
   margin: auto; /* centrée dans la scène, les deux axes */
-  padding: 8px;
-  gap: 8px;
+  padding: var(--sp-8);
+  gap: var(--sp-8);
 
   /* Les jetons locaux de la fiche, aux cotes du dessin de référence. */
   --fiche-image-w: 100px;
-  /* la ligne du blurb PORTRAIT : 13,2 = 11 × 1,2 — le corps est descendu à
-     11u (Eric, 27/08 : « on peut réduire les t s'il faut aussi ») pour
-     racheter la respiration latérale sans perdre la 8e ligne. La boîte
-     (rangée × 8) lit le MÊME jeton : les deux ne peuvent pas diverger. */
-  --fiche-ligne: 13.2px;
+  /* la ligne du blurb PORTRAIT — elle NOMME le corps qu'elle sert (T1) et
+     ne le recopie pas : 1,2 est un rapport, pas une cote. La boîte
+     (rangée × 8) lit le MÊME jeton : les deux ne peuvent pas diverger.
+     🔴 ELLE VALAIT 13,2 (= 11 × 1,2) JUSQU'AU 2026-09-03, et 11 n'était sur
+     aucun barreau : le corps était descendu à 11u le 27/08 (« on peut
+     réduire les t s'il faut aussi ») pour racheter la respiration latérale.
+     Le barreau immédiatement INFÉRIEUR est T1 — la règle du 03/09 (NORMES
+     §1 ter quinquies) : on descend, on ne s'arrête pas entre deux crans. */
+  --fiche-ligne: calc(var(--t1) * 1.2);
 
   /* ── L'HABIT PORTRAIT, dicté par Eric le 27/08 ──────────────────────────
      « titre en haut et à gauche centré au-dessus du bloc 1 · bloc 1 texte
@@ -1070,7 +1074,7 @@
      au pixel près. La boîte se compte en LIGNES, pas en pixels (la loi de ce
      fichier : c'est la ligne qui est la cote mesurée) : une ligne n'est
      jamais coupée aux deux tiers. Ce qu'elle rend va au bloc 1. */
-  grid-template-rows: auto minmax(0, 1fr) auto calc(var(--fiche-ligne) * 8) 44px;
+  grid-template-rows: auto minmax(0, 1fr) auto calc(var(--fiche-ligne) * 8) var(--touch);
 }
 /* La respiration GAUCHE du portrait — Eric, 27/08 : « bloc 2 trop près du
    bord gauche aussi » · « bloc 1 idem ». Le TEXTE s'arrête à 16u du bord
@@ -1078,19 +1082,22 @@
    c'est un visuel, pas une ligne à lire. */
 .fiche-dalle:not([data-dressing="prose"]) .catalogue-card-name {
   grid-column: 1; grid-row: 1;
-  font-size: 18px;
+  font-size: var(--t5); /* 18 blg — il était écrit `18px`, le MÊME nombre hors du jeton */
   align-self: end;
-  margin-left: 8px;
+  margin-left: var(--sp-8);
   /* Eric, 27/08, sur le banc : « titre un peu trop collé au paragraphe 1 » */
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-4);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-bloc1 {
   grid-column: 1; grid-row: 2;
-  margin-left: 8px;
-  /* 13 : descendu deux fois le 27/08 (16 → 14 → 13, « on peut réduire les t
-     s'il faut aussi ») — chaque respiration rend la colonne plus étroite, et
-     c'est le corps qui paie, jamais les boîtes du bas ni le pied. */
-  font-size: 13px;
+  margin-left: var(--sp-8);
+  /* 🔴 T2, ET LA PERTE VA DANS LE BON SENS. Ce corps était descendu deux fois
+     le 27/08 (16 → 14 → **13**, « on peut réduire les t s'il faut aussi »)
+     POUR FAIRE TENIR LA COLONNE — et 13 ne vit sur aucun barreau. Le cran
+     inférieur (T2 = 12) la fait tenir DAVANTAGE, pas moins : ce qui avait
+     motivé la descente est mieux servi par le barreau que par l'entre-deux.
+     Règle du 2026-09-03 (NORMES §1 ter quinquies). */
+  font-size: var(--t2);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-image {
   grid-column: 2; grid-row: 1 / 4;
@@ -1101,7 +1108,7 @@
 .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
   /* le bloc 2 vit dans la COLONNE du bloc 1 — même largeur, cadré à gauche */
   grid-column: 1; grid-row: 3;
-  margin-left: 8px;
+  margin-left: var(--sp-8);
   /* 🔴 10,5u ET NON 11 — Eric, 2026-08-28 : *« on garde la terminologie de
      base si elle passe, par PRIORITÉ sur les raccourcis »*. Le corps d'une
      bande n'est pas un goût : il se DÉDUIT de la colonne qu'elle occupe
@@ -1112,8 +1119,15 @@
      ⚠️ CE QUE ÇA NE SAUVE PAS, ET IL FAUT LE DIRE : « Rage into Violent fury »
      (−34) et « Mastered strikes » (−17) ne tiennent à AUCUN corps lisible —
      leurs raccourcis restent ceux d'Eric. La cote gagne des pixels, elle ne
-     fait pas de miracle. */
-  font-size: 10.5px;
+     fait pas de miracle — et le cran d'après ne le fait pas non plus.
+     🔴 2026-09-03 — 10,5 EST DEVENU T1 (= 10). Un demi-blg n'est sur aucun
+     barreau, et l'argument du 28/08 tient à l'identique un cran plus bas :
+     à 10, les deux mots entiers passent avec DAVANTAGE de marge qu'à 10,5.
+     📏 Mesuré sur les 24 fiches, aux trois crans : les quatre troncatures qui
+     restaient ont TOUTES reculé (Dragonborn −14 → −7 blg, Hoddon −20 → −13,
+     −18 → −11, −8 → −2) et l'Elfe (« grant a thread of spells », −1) est
+     redevenue entière. Aucune nouvelle. */
+  font-size: var(--t1);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
   /* la boîte basse du portrait — boîte FERMÉE en lignes entières : c'est
@@ -1121,8 +1135,13 @@
      La marge : Eric, 27/08 — « bloc texte 3 trop près du bord », même
      respiration que le paysage : le texte s'arrête à 16u du bord. */
   grid-column: 1 / -1; grid-row: 4;
-  margin-inline: 8px;
-  font-size: 11px;
+  margin-inline: var(--sp-8);
+  /* T1 — il était écrit `11px`, entre T1 (10) et T2 (12). La boîte reste
+     HUIT LIGNES : elle se compte en lignes, donc elle descend avec le corps
+     (8 × 12 au lieu de 8 × 13,2) et rend ses 9,6 blg au bloc 1. Le texte,
+     lui, y tient MIEUX : une ligne plus étroite en blg porte plus de
+     caractères. Règle du 2026-09-03 (NORMES §1 ter quinquies). */
+  font-size: var(--t1);
   /* Eric, 27/08 : « justifié plus joli, pour le texte 3 ». La césure évite
      les rivières que la justification creuse dans une colonne étroite. */
   text-align: justify;
