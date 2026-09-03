@@ -53,18 +53,25 @@ export const LAYER = {
   lang: "en",
 
   /* LES DRAPEAUX. Un drapeau ALLUME un module moteur ; il n'a pas de valeur.
-     Deux sont levés, et chacun se justifie par un contenu de CETTE couche :
+     Trois sont levés, et chacun se justifie par un contenu de CETTE couche :
      · `fh.destiny` — les douze espèces portent une Base de Destinée, et
        trois portent un pouvoir de Destinée. Sans le module, ces champs ne
        veulent rien dire.
      · `fh.chaos` — « Outlasting » (Halfelin) donne l'avantage aux jets de
        Chaos. Sans le module, le trait nomme une mécanique qui ne tourne pas,
        c'est-à-dire exactement la dégradation silencieuse que ce dépôt refuse.
+     · `fh.species` — AJOUTÉ AU LOT 148 BIS (2026-09-03, décision d'Eric).
+       Cette couche AJOUTE des traits (`data[fh_traits]`), et le pli ne
+       publie que `data.traits` : sans le module `species-traits.mjs`, les
+       trois traits FH s'appliquent sans jamais figurer sur la fiche. C'est
+       la MÊME justification que les deux précédentes, et c'est pour ça que
+       le drapeau est neuf : ni la Destinée ni le Chaos ne disent « cette
+       couche ajoute des traits, il faut quelqu'un pour les publier ».
      Les trois autres drapeaux FH (`fh.arcana`, `fh.exhaustion`,
      `fh.overreach`) ne sont PAS levés ici : aucun contenu de cette couche ne
      les appelle. Ils viendront avec le chapitre qui les porte. ⚠️ À ratifier
      (question Q15-2). */
-  flags: ["fh.chaos", "fh.destiny"],
+  flags: ["fh.chaos", "fh.destiny", "fh.species"],
 
   /* AUCUN `ruleValues`, et ce n'est pas un oubli.
      · La Base de Destinée est PAR ESPÈCE : ce n'est pas un réglage global du

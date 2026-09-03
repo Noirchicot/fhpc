@@ -6,7 +6,8 @@
   "lang": "en",
   "flags": [
     "fh.chaos",
-    "fh.destiny"
+    "fh.destiny",
+    "fh.species"
   ],
   "attribution": {
     "license": "all-rights-reserved",

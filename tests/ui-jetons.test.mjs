@@ -61,6 +61,7 @@ import { createLayers } from "../src/layers/index.mjs";
 import { createBuild } from "../src/build/index.mjs";
 import { createFhDestinyStat } from "../src/modules/fh/destiny-stat.mjs";
 import { createFhSkillPoolStat } from "../src/modules/fh/skill-pool.mjs";
+import { createFhSpeciesTraits } from "../src/modules/fh/species-traits.mjs";
 import { LAYER_FILES } from "../ui/builder/engine.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1064,7 +1065,7 @@ test("la pile montée avec les MÊMES modules et fichiers que la page rend fh:sk
   };
   const build = createBuild({
     bus, dispatch, now: () => "2026-08-13T00:00:00Z",
-    modules: [createFhDestinyStat(), createFhSkillPoolStat()]
+    modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()]
   });
 
   /* MÊME liste que `engine.mjs` (importée, pas recopiée) — lue sur disque
@@ -1088,14 +1089,38 @@ test("la pile montée avec les MÊMES modules et fichiers que la page rend fh:sk
     "le pool n'est pas juste PRÉSENT, il porte une valeur");
 });
 
-test("engine.mjs monte bien createFhDestinyStat et createFhSkillPoolStat dans `modules:` — pas seulement possible, réellement écrit", () => {
-  /* Le test précédent prouve que la pile PEUT rendre le pool. Celui-ci
-     prouve que `engine.mjs`, le fichier que la page charge vraiment, le
-     fait — sinon le test au-dessus serait vrai en théorie et faux à
-     l'écran, exactement le défaut d'origine. */
+/* LES MODULES QUE LA PAGE MONTE VRAIMENT — et ils sont NOMMÉS, pas comptés.
+
+   ⚠️ RÉÉCRIT LE 2026-09-03 (lot 148 bis). L'ancienne version recopiait la
+   ligne d'`engine.mjs` mot pour mot dans une expression régulière : elle
+   épelait une IMPLÉMENTATION, pas un invariant (TRAPS, lot 124). Elle a fait
+   exactement ce que ce piège annonce — elle a rougi sur une RÉPARATION, avec
+   l'air d'avoir raison, parce qu'un troisième module s'ajoutait à la liste.
+
+   Ce qu'elle garde vraiment, et qui n'a pas changé : `engine.mjs` est le
+   fichier que la PAGE charge, et un module absent d'ici rend le test
+   précédent vrai en théorie et faux à l'écran. La forme sûre est donc une
+   LISTE NOMMÉE comparée en ENSEMBLE — l'ordre d'injection n'a jamais rien
+   voulu dire, un module de plus ou de moins, si. */
+const MODULES_DE_LA_PAGE = ["createFhDestinyStat", "createFhSkillPoolStat", "createFhSpeciesTraits"];
+
+test("engine.mjs monte EXACTEMENT les modules nommés dans `modules:` — pas seulement possible, réellement écrit", () => {
   const engineText = stripComments(fs.readFileSync(path.join(UI_DIR, "engine.mjs"), "utf8"));
-  assert.match(engineText, /modules\s*:\s*\[\s*createFhDestinyStat\(\)\s*,\s*createFhSkillPoolStat\(\)\s*\]/,
-    "createBuild() doit recevoir modules: [createFhDestinyStat(), createFhSkillPoolStat()]");
+  const bloc = engineText.match(/modules\s*:\s*\[([^\]]*)\]/);
+  assert.ok(bloc, "createBuild() doit recevoir un tableau `modules:` — sans lui la page monte le pli SRD nu");
+
+  const montes = (bloc[1].match(/[A-Za-z0-9_$]+(?=\s*\()/g) || []).sort();
+  assert.deepEqual(montes, [...MODULES_DE_LA_PAGE].sort(),
+    "⛔ la page monte une autre liste de modules que celle-ci. Un module RETIRÉ éteint une capacité à\n" +
+    "   l'écran sans rien casser ailleurs ; un module AJOUTÉ sans passer par ici échappe à toute mesure.\n" +
+    "   La réparation est de mettre la liste à sa nouvelle vérité, ⛔ pas de relâcher l'assertion.");
+
+  /* ET CHACUN EST RÉELLEMENT IMPORTÉ — un nom dans le tableau qui ne serait
+     lié à rien jetterait à l'exécution, dans le navigateur seulement. */
+  for (const nom of MODULES_DE_LA_PAGE) {
+    assert.match(engineText, new RegExp(`\\{\\s*${nom}\\s*\\}\\s*=\\s*await import`),
+      `${nom} est monté sans être importé — la page jetterait au chargement`);
+  }
 });
 
 /* ══ 10 — UN PERSONNAGE SRD PUR NE CHANGE PAS DE RENDU ════════════════
@@ -1158,8 +1183,8 @@ test("⚔️ ATTAQUE — l'exception `fh-cd-` ne couvre QUE le moteur de dés re
    suite.
 
    ⭐ LE PATRON EST DÉJÀ DANS CE FICHIER, dix lignes plus haut : le garde
-   « engine.mjs monte bien createFhDestinyStat et createFhSkillPoolStat
-   dans `modules:` — pas seulement possible, réellement écrit ». Même
+   « engine.mjs monte EXACTEMENT les modules nommés dans `modules:` —
+   pas seulement possible, réellement écrit ». Même
    défaut, même parade : une suite qui prouve qu'une chose est POSSIBLE
    sans prouver qu'elle est FAITE laisse le produit faux à l'écran avec
    des tests verts.

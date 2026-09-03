@@ -83,12 +83,15 @@ test("la couche fh-species valide contre fh-layer/1", () => {
 
 test("les drapeaux levés sont exactement ceux qu'un contenu de CETTE couche appelle", () => {
   /* `fh.destiny` : les douze portent une Base. `fh.chaos` : « Outlasting »
-     donne l'avantage aux jets de Chaos. Les trois autres drapeaux FH ne sont
+     donne l'avantage aux jets de Chaos. `fh.species` (lot 148 bis, 03/09) :
+     cette couche AJOUTE des traits, et le pli ne publie que `data.traits` —
+     sans le module `species-traits.mjs`, les trois traits FH s'appliquent
+     sans jamais figurer sur la fiche. Les deux autres drapeaux FH ne sont
      pas levés — aucun contenu d'ici ne les appelle. */
-  assert.deepEqual(fhLayer().flags, ["fh.chaos", "fh.destiny"]);
+  assert.deepEqual(fhLayer().flags, ["fh.chaos", "fh.destiny", "fh.species"]);
 
   const { verbs } = pileFH();
-  assert.deepEqual(verbs.flags(), ["fh.chaos", "fh.destiny"],
+  assert.deepEqual(verbs.flags(), ["fh.chaos", "fh.destiny", "fh.species"],
     "la pile ne lève que les drapeaux de la couche FH — le SRD n'en lève aucun");
 });
 

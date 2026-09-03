@@ -45,6 +45,11 @@ export { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "./destiny-s
 export { resolveTilt, TILT_OUTCOMES, TILT_BONUS } from "./tilt.mjs";
 export { traitsDeLEspece } from "./traits.mjs";
 
+/* Le module qui publie sur la fiche les traits que la couche des espèces
+   AJOUTE (lot 148 bis). Injecté dans le bloc `build`, comme le Score de
+   Destinée, et activé par le seul drapeau `fh.species`. */
+export { createFhSpeciesTraits, FH_SPECIES_FLAG, FH_SPECIES_TRAITS_ID } from "./species-traits.mjs";
+
 /* Les deux chaînes face-machine que les entrées de sauvegarde portent en dur
    depuis la v1. Elles sont LUES ICI, pas recopiées : une seule table de
    verdicts, un seul mot sur le fil (invariant 7 du contrat `play`). */

@@ -31,6 +31,7 @@ import { createLayers } from "../layers/index.mjs";
 import { createBuild } from "../build/index.mjs";
 import { createFhDestinyStat } from "../modules/fh/destiny-stat.mjs";
 import { createFhSkillPoolStat } from "../modules/fh/skill-pool.mjs";
+import { createFhSpeciesTraits } from "../modules/fh/species-traits.mjs";
 import { itemsDeLEtape } from "../../ui/builder/parcours.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -216,7 +217,7 @@ export function exempleFhEn() {
     bus: b,
     dispatch,
     now,
-    modules: [createFhDestinyStat(), createFhSkillPoolStat()]
+    modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()]
   });
 
   for (const fichier of PILE) {

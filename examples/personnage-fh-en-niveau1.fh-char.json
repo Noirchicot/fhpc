@@ -30,7 +30,7 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "1bc54b54c69e1e91fc7a2910da02ac356e585591dbc53de3f990bb764dc30efb",
+        "hash": "afd4a9ea391e63e3acf7883d541687b89cce543264a6ff1d1c59e644097708dd",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -416,7 +416,7 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "1bc54b54c69e1e91fc7a2910da02ac356e585591dbc53de3f990bb764dc30efb",
+          "hash": "afd4a9ea391e63e3acf7883d541687b89cce543264a6ff1d1c59e644097708dd",
           "name": "Fate's Hand — Species (EN)"
         },
         {
@@ -865,6 +865,12 @@
         "name": "Trance",
         "source": "Elf",
         "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+      },
+      {
+        "id": "splinter-of-anon",
+        "name": "Splinter of Anon",
+        "source": "Elf",
+        "text": "Your Destiny Base increases by 2, for a Destiny Base of 4 at character creation."
       }
     ],
     "gear": [

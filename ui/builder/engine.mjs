@@ -66,6 +66,10 @@ export async function bootEngine({ root = "../.." } = {}) {
   const { createBuild } = await import("../../src/build/index.mjs?v=521");
   const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=521");
   const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=521");
+  /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
+     couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
+     `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=521");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -78,7 +82,7 @@ export async function bootEngine({ root = "../.." } = {}) {
     bus,
     dispatch,
     now: () => new Date().toISOString(),
-    modules: [createFhDestinyStat(), createFhSkillPoolStat()]
+    modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()]
   });
 
   for (const file of LAYER_FILES) {
