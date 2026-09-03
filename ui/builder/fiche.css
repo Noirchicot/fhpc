@@ -52,6 +52,33 @@
   /* ⏩ `--fiche-dalle-w` (242) VIT MAINTENANT DANS `tokens.css`, sur `:root` —
      `echelle.mjs` en a besoin pour borner les crans, et une variable descend.
      Les règles d'ici la lisent comme avant. */
+  /* ══ 🎨 L'ENCRE DU CORPS — Eric, 2026-09-04, en regardant l'écran ════════
+     *« dans le bloc 1 je ne vois pas de différence gras et corps. le corps
+     devrait être moins blanc »* · *« pour classes et species idem »*.
+
+     🔴 ET LE JETON DOUX DU SOCLE NE PEUT PAS SERVIR ICI — MESURÉ, pas supposé.
+     La fiche est une dalle de VERRE (`dalle-intermediaire`, voile 50 %), et
+     sous ce voile, sur les pires pixels des deux collections de fonds :
+       · `--text`       5,89:1 (jour) · 5,97:1 (nuit)  ✅
+       · `--text-soft`  **2,81:1** · **2,88:1**        ⛔
+       · `--text-muted` 2,56:1 · 2,66:1                ⛔
+     ⛔ Poser `--text-soft` ici aurait rendu le corps illisible sur le pire fond,
+     ET EN SILENCE : `tests/decor.test.mjs` mesure les JETONS, pas leurs
+     usages — il exige même que `--text-soft` ÉCHOUE (« le verre a un prix »),
+     donc il n'aurait pas rougi. La faute serait entrée sans un mot.
+     📌 CE N'EST PAS UNE DÉCOUVERTE, C'EST UNE RECHUTE ÉVITÉE : le lot 59 avait
+     déjà retiré une encre douce de la bande pour cette exact raison — la note
+     survit sur `.fiche-info-row dd` (« verre : plus de mention »).
+
+     ⭐ LA SORTIE EST UNE COTE DÉRIVÉE, PAS UNE COULEUR INVENTÉE : `--text`
+     déplacé VERS `--text-soft` d'une fraction, donc deux jetons existants et
+     aucun hexadécimal neuf. 📏 La fraction maximale qui tienne 4,5:1 est
+     **37,7 %** (calculée par dichotomie sur les 2 collections × 2 thèmes × 2
+     pixels extrêmes). 30 % est le cran retenu : il rend **4,77:1**, donc une
+     vraie marge sous le plafond, et l'écart se voit (#d8d3c9 → ~#c5bfb5 la
+     nuit). ⛔ Ne pas monter à 37 sans remesurer : c'est le bord de la falaise,
+     et un fond neuf déposé demain la déplace. */
+  --fiche-encre-corps: color-mix(in srgb, var(--text) 70%, var(--text-soft));
   --fiche-stats-w: 118px; /* la colonne de stats — `Weapons : Smpl+FL` fait 114,4 px */
   --fiche-image-w: 100px; /* l'image, DEBOUT — 242 − 8 − 118 − 8 − 8 */
   /* ⭐ L'IMAGE COUCHÉE A SA PROPRE LARGEUR IMPOSÉE — Eric, 2026-08-16 : *« il
@@ -98,7 +125,7 @@
      illisible. ⛔ Une dérivation n'est bonne que tant que sa prémisse tient.
      ⭐ Le sens est renversé : c'est la LIGNE qui est la cote mesurée, et les
      boîtes qui se comptent en lignes. */
-  --fiche-ligne: calc(var(--t2) * 1.2); /* une ligne à T2 — 14,4 blg, le corps est NOMMÉ, jamais recopié */
+  --fiche-ligne: calc(var(--t2) * var(--interligne-texte)); /* une ligne à T2 — 14,4 blg, le corps est NOMMÉ, jamais recopié */
   --fiche-blurb-h: calc(var(--fiche-ligne) * 6); /* le blurb : SIX lignes (~50 mots) */
   --fiche-infos-h: calc(var(--fiche-ligne) * 5); /* la bande : intertitre + 4 */
   --fiche-stats-h: 168px; /* le BLOC 1 : 4 lignes de stats + 3 traits à 2 lignes */
@@ -340,7 +367,13 @@
   white-space: nowrap;
 }
 .fiche-stat-row dt { margin: 0; font-weight: 600; }
-.fiche-stat-row dd { margin: 0; padding-left: var(--sp-4); }
+/* 🎨 L'étiquette garde l'encre pleine, la valeur prend l'encre douce — c'est
+   la DEUXIÈME moitié de la différence qu'Eric ne voyait pas. La première (le
+   gras) était déjà là et fonctionnait : mesuré au banc, `dt` rend 600 et `dd`
+   400, Inter variable 100-900 chargée, et le même mot rend 57,81 blg à 400
+   contre 59,27 à 600. ⛔ Le défaut n'était donc PAS une graisse absente — c'est
+   qu'à 12 blg, 600 contre 400 ne suffit pas à lui seul. */
+.fiche-stat-row dd { margin: 0; padding-left: var(--sp-4); color: var(--fiche-encre-corps); }
 
 /* ── L'IMAGE — quart haut-droit, du haut du nom au bas des stats ──────── */
 /* ⚠️ `aspect-ratio` ET PAS UNE HAUTEUR : la cote visée est 200 × 260 (Eric
@@ -618,11 +651,19 @@
    ait une hauteur et un ratio constants pour être portable »*. La fiche ne
    suit donc plus l'écran : **242 × 440**, ratio 0,55, partout.
 
-   ⭐ ET LE PAS VIENT DE L'ÉCART, PAS DE LA FICHE. C'est la seule façon de
-   tenir les DEUX exigences à la fois : une fiche fixe (portable) et jamais
-   une voisine à l'écran (sa décision d'avant). L'écart vaut « une scène
-   moins la fiche », donc le pas vaut exactement une scène — quelle que soit
-   la hauteur de l'écran, sans qu'aucun nombre ne le sache.
+   🧊 ~~ET LE PAS VIENT DE L'ÉCART, PAS DE LA FICHE~~ — **PÉRIMÉ, ET IL A
+   FAILLI COÛTER CHER LE 2026-09-04.** Cette phrase décrit `row-gap: 100% −
+   440`, le montage abandonné le 15/08 même (voir juste dessous : *« Plus
+   d'écart du tout »*). Elle est restée là, exacte le jour où elle a été
+   écrite, fausse dès le lendemain — et relue trois semaines après, elle
+   disait que retirer les 440 de la fiche ferait dériver le pas de l'aimant.
+   ⭐ CE QUI EST VRAI : le pas vient de `grid-auto-rows: 100%`, une rangée
+   d'une scène par fiche, `row-gap: 0`. Il ne dépend d'AUCUNE hauteur de
+   contenu — c'est pourquoi la fiche a pu passer en hauteur libre sans qu'un
+   seul cran bouge (mesuré sur les 24).
+   ⚠️ La leçon est sur le commentaire, pas sur la géométrie : **une note qui
+   décrit un montage mort ne se signale jamais toute seule**, et elle est lue
+   comme une loi.
 
    📐 Un pourcentage de `row-gap` se résout sur la HAUTEUR du conteneur (sa
    dimension de bloc), et `.catalogue-cards` a une hauteur définie par la
@@ -713,9 +754,27 @@
      ⛔ `dalle-majeure` a quitté cette carte pour la dalle intérieure : posé
      ici, le fond du verre couvrirait la scène entière. */
   height: 100%;
-  display: block;
+  /* 🔴 LA RANGÉE CENTRE SA DALLE — Eric, 2026-09-04 : *« elles vont s'adapter
+     en hauteur et seront centrées »*. La carte était `display: block`, et en
+     disposition de bloc RIEN ne centre verticalement : `margin: auto` y vaut
+     zéro. Il fallait donc que la RANGÉE le fasse.
+     ⭐ `safe center` ET PAS `center` : au-delà d'une certaine hauteur de
+     contenu (ou sous une scène courte — le paysage du téléphone rend 315), une
+     dalle centrée déborde des DEUX côtés et c'est le HAUT qu'on perd, avec le
+     nom de la fiche. `safe` retombe sur `start` dans ce cas exact : on préfère
+     perdre le bas, qu'on peut atteindre, au haut, qu'on ne peut pas. */
+  display: grid;
+  align-content: safe center;
   padding: 0;
 
+  /* ══ 🧊 ~~HORIZONTALEMENT CENTRÉE, VERTICALEMENT NON~~ — Eric, 2026-08-16,
+     RENVERSÉ LE 2026-09-04 (*« elles vont s'adapter en hauteur et seront
+     centrées »*, voir `align-content: safe center` juste au-dessus). Le bloc
+     ci-dessous reste pour son ARGUMENT, qui lui n'a pas bougé et qui est la
+     seule chose importante ici : ⭐ ce qui rend les voisines invisibles est la
+     RANGÉE d'une scène, jamais la position de la dalle dedans. C'est pourquoi
+     le centrage a pu revenir sans qu'aucune voisine n'entre dans le champ
+     (mesuré sur les 24 fiches le 04/09). ══════════════════════════════════ */
   /* ══ ✅ HORIZONTALEMENT CENTRÉE, VERTICALEMENT NON — Eric, 2026-08-16 ═════
      *« centré horizontalement mais pas verticalement »*, et il ajoute :
      *« par contre la petite règle qui empêche de voir les fiches au-dessus et
@@ -781,8 +840,12 @@
      ⛔ SUR LA DALLE, PAS SUR LE CONTENEUR : un rembourrage de conteneur
      décalerait toutes les rangées et le pas cesserait de valoir exactement
      une scène — la fiche du dessous reviendrait dans le champ. La rangée ne
-     bouge pas ; c'est la peinture qui se décolle. */
-  margin-block-start: var(--sp-8);
+     bouge pas ; c'est la peinture qui se décolle.
+     🔴 SYMÉTRIQUE DEPUIS LE 2026-09-04, et ce n'est pas cosmétique : la dalle
+     se centre maintenant dans sa rangée, et une marge posée d'un SEUL côté
+     décale ce centre de sa moitié. Les 8 du haut restent les 8 qu'Eric a
+     demandés ; les 8 du bas sont ce qui les empêche de mentir. */
+  margin-block: var(--sp-8);
 }
 
 /* ── ~~LES NOMS DU RAIL À T3~~ — PÉRIMÉ, VOIR `shell.css` ─────────────── */
@@ -835,7 +898,14 @@
    c'est la même nature d'information, elle se lit du même geste. */
 .fiche-info-row { display: flex; gap: var(--sp-4); }
 .fiche-info-row dt { margin: 0; font-weight: 600; color: var(--text); }
-.fiche-info-row dd { margin: 0; color: var(--text); }   /* verre : plus de mention (matrice lot 59) */
+/* 🎨 MÊME ENCRE DOUCE QUE LE BLOC 1 — Eric, 2026-09-04 : *« gras pour
+   l'étiquette, corps en encre douce »*, et *« pour classes et species idem »*.
+   ⚖️ CE QUI CHANGE DEPUIS LE LOT 59, qui avait remis `--text` ici : ce n'est pas
+   l'avis, c'est la COTE. Le lot 59 retirait `--text-muted` (2,56:1 sur ce
+   verre) ; ce qui entre est `--text` adouci de 30 % vers `--text-soft`, mesuré
+   à **4,77:1**. La loi (« sur du verre, seule une encre à 4,5 tient ») est
+   respectée, pas contournée — c'est la valeur qui a changé, pas la règle. */
+.fiche-info-row dd { margin: 0; color: var(--fiche-encre-corps); }
 
 /* ── LA MOITIÉ BASSE D'UNE ESPÈCE : SES TRAITS ────────────────────────── */
 /* ✅ Eric, 2026-08-15, croquis A. **Même boîte que le blurb, même place,
@@ -1045,8 +1115,40 @@
      moins ». */
   --carte-w: 269px;
   width: var(--carte-w);
-  height: 440px; /* 396 de dessin + 44 de rangée tactile */
-  margin: auto; /* centrée dans la scène, les deux axes */
+  /* 🔴 LA HAUTEUR SE CALCULE D'ELLE-MÊME — Eric, 2026-09-04 : *« on peut
+     laisser la hauteur de la dalle se calculer d'elle-même »*.
+
+     ⚠️ IL Y AVAIT DEUX ÉCRIVAINS, ET C'EST CE QUI RENDAIT LE RETRAIT PIÉGEUX :
+     `.fiche-dalle` porte `height: var(--fiche-h)` (440, depuis `tokens.css`),
+     et CETTE règle-ci le redoublait d'un `440px` **écrit en dur** — le même
+     nombre, deux fois, dont un hors de tout jeton. Retirer le littéral seul
+     n'aurait rien libéré : l'autre gagne. `auto` neutralise les deux ici, et
+     `--fiche-h` reste intacte pour qui la lit encore (`echelle.mjs` borne les
+     crans avec, l'habillage de prose la garde).
+
+     ⭐ CE QUI NE BOUGE PAS, ET C'EST TOUT L'ENJEU : le PAS de l'aimant. Il ne
+     vient PAS de la hauteur de la fiche — il vient de `grid-auto-rows: 100%`
+     sur `.catalogue-cards`, une rangée par fiche, chacune d'UNE SCÈNE. Le pas
+     vaut donc une scène PAR CONSTRUCTION, quelle que soit la hauteur du
+     contenu. ⛔ Le commentaire du 15/08 qui dit *« le pas vient de l'écart »*
+     décrit le montage ABANDONNÉ ce jour-là (`row-gap: 100% − 440`) : il est
+     périmé, et c'est lui qui faisait croire que ce retrait cassait l'aimant.
+     Il est corrigé sur place, plus bas. */
+  height: auto;
+  /* ⭐ ET LA DALLE SE CENTRE DANS SA RANGÉE — Eric, 2026-09-04, en apprenant
+     que les classes seraient plus courtes : *« mais elles vont s'adapter en
+     hauteur et seront centrées »*.
+     ⚖️ ÇA RENVERSE SON *« centré horizontalement mais pas verticalement »* du
+     16/08, et le renversement se comprend : à l'époque TOUTES les fiches
+     valaient 440, donc « en haut » et « au centre » ne différaient que par du
+     vide décoratif — il avait choisi de le mettre en bas. Des fiches de
+     hauteurs différentes changent la question : posées en haut, elles ne
+     s'alignent plus entre elles d'un cran à l'autre.
+     ⛔ Le centrage vit sur la RANGÉE (`align-content`, sur la carte), pas sur
+     un `margin: auto` vertical — en disposition de bloc, une marge automatique
+     verticale ne centre rien, elle vaut zéro. C'est le piège qui a fait croire
+     pendant trois semaines que cette dalle était centrée « les deux axes ». */
+  margin-inline: auto;
   padding: var(--sp-8);
   gap: var(--sp-8);
 
@@ -1060,7 +1162,7 @@
      réduire les t s'il faut aussi ») pour racheter la respiration latérale.
      Le barreau immédiatement INFÉRIEUR est T1 — la règle du 03/09 (NORMES
      §1 ter quinquies) : on descend, on ne s'arrête pas entre deux crans. */
-  --fiche-ligne: calc(var(--t1) * 1.2);
+  --fiche-ligne: calc(var(--t1) * var(--interligne-texte));
 
   /* 🔴 LE BLURB A SA PROPRE LIGNE — Eric, 2026-09-03 : *« le texte du blurb
      passe de t1 à t2 sur classes et species »*, *« idem pour subclasses »*.
@@ -1070,7 +1172,7 @@
      nombres qui décrivent la même chose et qui divergent au premier changement.
      ⛔ ET IL NE PEUT PAS SUIVRE `--fiche-ligne` : celle-là sert le bloc 1 et la
      bande, qui restent à T1. Le blurb monte SEUL. */
-  --fiche-ligne-blurb: calc(var(--t2) * 1.2);
+  --fiche-ligne-blurb: calc(var(--t2) * var(--interligne-texte));
 
   /* 🔴 LA BANDE A SA PROPRE LIGNE — Eric, 2026-09-03, croquis de la Tiefling :
      *« Legacies : passe en T2. Bloc de 4 lignes de haut »*. Même patron que le
@@ -1081,7 +1183,7 @@
      changement (la panne du 17/08).
      📏 14,4 blg la ligne, donc 57,6 la boîte de quatre. La bande rendait 5
      lignes de 12 (= 60) : le bloc 1 gagne 2,4 blg, il n'en perd pas. */
-  --fiche-ligne-infos: calc(var(--t2) * 1.2);
+  --fiche-ligne-infos: calc(var(--t2) * var(--interligne-texte));
 
   /* ── L'HABIT PORTRAIT, dicté par Eric le 27/08 ──────────────────────────
      « titre en haut et à gauche centré au-dessus du bloc 1 · bloc 1 texte
@@ -1125,96 +1227,85 @@
   font-size: var(--t2);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-image {
-  grid-column: 2; grid-row: 1 / 4;
+  grid-column: 2;
+  /* 🔴 L'IMAGE S'ARRÊTE AU-DESSUS DE LA BANDE — Eric, 2026-09-04, en donnant
+     la pleine largeur : *« il faudra peut-être faire une correction sur
+     l'image, on voit »*. Il l'avait anticipée ; la voici, et elle n'était pas
+     évitable : elle couvrait les rangées 1 à 3, et la rangée 3 est CELLE DE LA
+     BANDE. Tant que la bande s'arrêtait à 179,3 les deux ne se croisaient pas.
+     À 253 elle passe SOUS l'image — du texte sur une illustration, illisible et
+     silencieux (une grille ne signale jamais un recouvrement).
+     📏 MESURÉ : l'image rendait 100 × 248,8 et descendait jusqu'à 256,8, le bas
+     exact de la rangée de la bande. Elle s'arrête maintenant à la rangée 3
+     exclue. ⛔ CE N'EST PAS UN RECADRAGE : ni la largeur (100) ni le rapport ne
+     bougent, c'est la RANGÉE qu'elle occupe qui change. Le recadrage, s'il en
+     faut un, appartient à Eric — c'est le point qu'il a dit vouloir regarder. */
+  grid-row: 1 / 3;
   justify-self: end; align-self: start;
   width: var(--fiche-image-w);
   height: 100%;
 }
-.fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
-  /* le bloc 2 vit dans la COLONNE du bloc 1 — même largeur, cadré à gauche */
-  grid-column: 1; grid-row: 3;
-  margin-left: var(--sp-8);
-  /* 🔴 10,5u ET NON 11 — Eric, 2026-08-28 : *« on garde la terminologie de
-     base si elle passe, par PRIORITÉ sur les raccourcis »*. Le corps d'une
-     bande n'est pas un goût : il se DÉDUIT de la colonne qu'elle occupe
-     (§1 ter), et c'est déjà ce que le paysage fait — sa note dit *« suit la
-     colonne à 200 — la plus large ligne rend 197 »*. Le portrait gardait 11
-     et coupait deux mots ENTIERS pour 2 et 5 px : « Devotion : Sacred weapon »
-     et « Moonkeeper : Lunar Magic ». À 10,5 les deux passent.
-     ⚠️ CE QUE ÇA NE SAUVE PAS, ET IL FAUT LE DIRE : « Rage into Violent fury »
-     (−34) et « Mastered strikes » (−17) ne tiennent à AUCUN corps lisible —
-     leurs raccourcis restent ceux d'Eric. La cote gagne des pixels, elle ne
-     fait pas de miracle — et le cran d'après ne le fait pas non plus.
-     🔴 2026-09-03 — 10,5 EST DEVENU T1 (= 10). Un demi-blg n'est sur aucun
-     barreau, et l'argument du 28/08 tient à l'identique un cran plus bas :
-     à 10, les deux mots entiers passent avec DAVANTAGE de marge qu'à 10,5.
-     📏 Mesuré sur les 24 fiches, aux trois crans : les quatre troncatures qui
-     restaient ont TOUTES reculé (Dragonborn −14 → −7 blg, Hoddon −20 → −13,
-     −18 → −11, −8 → −2) et l'Elfe (« grant a thread of spells », −1) est
-     redevenue entière. Aucune nouvelle. */
-  font-size: var(--t1);
-}
-
-/* ══ LA BANDE D'UNE ESPÈCE — dictée d'Eric du 2026-09-03, croquis Tiefling ══
+/* ══ LA BANDE — dictée d'Eric du 2026-09-03, croquis Tiefling, ÉLARGIE AUX
+   CLASSES le 2026-09-04 ═══════════════════════════════════════════════════
    *« Legacies : passe en T2. Bloc de 4 lignes de haut, cadré à gauche, 8 blg
-   du bord gauche de la dalle. Il remplit les 2/3 gauche de la dalle. 8 blg le
-   séparent du bloc blurb. »*
+   du bord gauche de la dalle. »* · puis *« on prend donc toute la largeur avec
+   ce bloc lineages species »* · puis *« normalement on a fait le même
+   traitement aux deux là »*.
 
-   ⚠️ SERVIE AUX ESPÈCES SEULEMENT, et c'est délibéré : les 12 fiches de CLASSE
-   portent elles aussi une bande (`Subclasses`), et cette ligne-là est un
-   dossier OUVERT — SOCLE.md, *« la ligne attend le contenu »*. Recoter en
-   passant la géométrie d'un organe dont Eric vient de suspendre le rendu, ce
-   serait trancher à sa place. La classe garde donc, au blg près, la bande
-   d'avant ce lot.
-   ⭐ Le crochet est `[data-kind]`, posé par `renderCatalogueCards` sur la liste
-   — le même mécanisme nommé que `data-infos` et `data-dressing`, jamais un
-   `:has()` ni une devinette sur les nœuds (payé deux fois le 15 août). */
-.catalogue-cards[data-kind="species"] .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
+   ⚖️ ELLE A ÉTÉ SERVIE AUX ESPÈCES SEULEMENT PENDANT UNE PASSE, et j'avais
+   argumenté ce cadrage : la ligne `Subclasses` d'une classe est un dossier
+   ouvert (SOCLE.md, *« la ligne attend le contenu »*), donc je n'y touchais
+   pas. ⛔ C'ÉTAIT CONFONDRE DEUX CHOSES : ce qui attend le manuscrit est le
+   CONTENU de la ligne (les noms de sous-classes, le `and more`, les liens) —
+   son HABILLAGE, lui, n'attend rien. On habille ce qui existe déjà. La portée
+   `[data-kind="species"]` est donc retirée : une seule règle, les deux écrans.
+   ⛔ Et rien n'est ajouté au contenu : ni nom, ni `and more`, ni lien. */
+.fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
+  grid-row: 3;
   /* ⭐ LES 8 DU BORD GAUCHE SONT DÉJÀ PAYÉS — par le `padding: var(--sp-8)` de
      la dalle. UN SEUL ÉCRIVAIN PAR ÉCART : la bande portait EN PLUS un
      `margin-left: var(--sp-8)` et se posait donc à **16** du bord (mesuré au
      banc), pas à 8. Les deux s'additionnaient — le défaut le plus fréquent de
      cette feuille. Le second écrivain est supprimé, pas déplacé. */
   margin-left: 0;
-  /* Elle traverse les deux colonnes pour pouvoir dépasser la colonne de texte
-     (145) ; c'est `width` qui l'arrête, pas la grille. */
+  /* 🔴 PLEINE LARGEUR — Eric, 2026-09-04, APRÈS avoir lu les deux troncatures :
+     *« on prend donc toute la largeur avec ce bloc lineages species »*.
+     ⚖️ ÇA RENVERSE SES 2/3 DE LA VEILLE, et le renversement est une RÉPONSE À
+     UNE MESURE, pas un changement d'avis : à 179,3 les deux lignes repliées
+     demandaient 222 (Elf) et 224 (Tiefling) — −43 et −45, coupées par
+     l'ellipsis. La pleine largeur en offre 253 : les deux repassent entières.
+     ⭐ AUCUNE COTE ÉCRITE : la bande traverse les deux colonnes et s'étire.
+     253 = 269 − 2 × 8, et ces 8 sont le rembourrage de la dalle — le même
+     écrivain unique qu'au bord gauche. Écrire `width: 253px` remettrait un
+     second nombre en face du premier. */
   grid-column: 1 / -1;
-  /* 📏 LES 2/3 DE LA DALLE = 179,3 blg, dérivés du jeton de largeur de la
-     carte — aucun pixel brut. Elle rendait 137 (0,509 de la dalle) : +42.
-     ⚠️ ET CE +42 NE PAIE PAS LE REPLI, MESURÉ APRÈS COUP : j'avais écrit ici
-     que la largeur rachetait la remontée à T2 « sans rien tronquer ». C'était
-     écrit AVANT la mesure, et c'est faux. Les deux lignes de titre repliées
-     demandent 222 (Elf, « Elven Lineages · grant a thread of spells ») et 224
-     (Tiefling, « Fiendish Legacies · a resistance + spells ») pour 179,3
-     disponibles : **−43 et −45**. L'ellipsis les coupe, et elle le DIT.
-     ⭐ C'est le régime tranché par Eric le 28/08 sur la bande des classes et il
-     ne change pas : le moule impose la ligne, le contenu s'y taille, un
-     dépassement est un défaut de CONTENU que l'ellipsis rend visible — le
-     raccourci appartient à Eric, pas au code. Les 12 autres lignes des cinq
-     bandes passent, dont les trois lignées de chaque espèce.
-     ⛔ Ce n'est PAS une largeur à rallonger en douce : 2/3 est la cote dictée,
-     et à 224 il faudrait la pleine dalle (253) pour loger la Tiefling — ce
-     serait renverser la dictée pour sauver deux lignes. */
-  width: calc(var(--carte-w) * 2 / 3);
-  /* 🔴 UNE BOÎTE FERMÉE DE QUATRE LIGNES — *« bloc de 4 lignes de haut »*. La
-     boîte se compte en LIGNES, jamais en pixels (la loi de ce fichier).
-     ⛔ Elle ne peut pas être posée sur la RANGÉE de la grille : la rangée 3 est
-     partagée avec les fiches de classe et avec les espèces sans bande, à qui
-     elle imposerait 57,6 blg de vide. La cote appartient à l'organe. */
-  height: calc(var(--fiche-ligne-infos) * 4);
-  /* *« Legacies : passe en T2 »* — elle était à T1 (10) depuis le matin même,
-     descendue pour racheter des troncatures dans une colonne de 137. La
-     colonne fait maintenant 179 : ce qui motivait la descente est payé par la
-     largeur, et le corps peut remonter. */
+  /* 🔴 LA HAUTEUR SUIT LE NOMBRE DE LIGNES — Eric, 2026-09-04 : *« on laisse
+     3 lignes et 2 lignes »* (Goliath, Dragonborn).
+     ⚖️ ELLE A ÉTÉ UNE BOÎTE FERMÉE DE QUATRE LIGNES pendant une passe, d'après
+     le *« bloc de 4 lignes de haut »* du 03/09 — et ça donnait DEUX LIGNES DE
+     VIDE sous le Dragonborn, que j'ai montrées à Eric. Sa réponse tranche les
+     comptes naturels. Les 4 lignes restent VRAIES là où il y en a quatre (Elf,
+     Hoddon, Tiefling) : 4 était le maximum, pas un moule.
+     ⛔ Et une hauteur fixe n'aurait de toute façon plus de sens depuis que la
+     dalle se calcule d'elle-même : elle réserverait du vide dans une boîte qui
+     n'a plus de budget à défendre. */
+  /* *« Legacies : passe en T2 »* — elle était à T1 (10), descendue le matin
+     même pour racheter des troncatures dans une colonne de 137. La colonne
+     fait maintenant 253 : ce qui motivait la descente est payé par la largeur.
+     🧊 CE QUI DISPARAÎT ICI, pour que personne ne le cherche : la note du
+     28/08 qui déduisait le corps de la colonne (11 → 10,5 → T1) et listait ses
+     troncatures rachetées. Sa prémisse était une colonne de 137 ; à 253, les
+     quatre troncatures qu'elle nommait (Dragonborn, Hoddon ×2, Elfe) sont
+     payées par la largeur et l'argument n'a plus d'objet. */
   font-size: var(--t2);
   /* ⛔ AUCUNE MARGE VERS LE BLURB : les 8 blg qui l'en séparent sont le `gap`
-     de la grille de la dalle, déjà mesuré à 8 au banc. Une marge de plus en
+     de la grille de la dalle, mesuré à 8 au banc. Une marge de plus en
      ferait 16. */
 }
-/* L'interligne des lignes lit le MÊME jeton que la hauteur de la boîte —
-   sans quoi `1.2` serait écrit deux fois (ici et dans la règle `:is(...)` du
-   rythme commun) pour décrire le même nombre. */
-.catalogue-cards[data-kind="species"] .fiche-dalle:not([data-dressing="prose"]) :is(.fiche-info-row, .fiche-info-titre) {
+/* L'interligne des lignes lit le MÊME jeton que la hauteur d'une ligne — sans
+   quoi `1.2` serait écrit deux fois (ici et dans la règle `:is(...)` du rythme
+   commun) pour décrire le même nombre. */
+.fiche-dalle:not([data-dressing="prose"]) :is(.fiche-info-row, .fiche-info-titre) {
   line-height: var(--fiche-ligne-infos);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
@@ -1261,8 +1352,11 @@
      pendant que les traits lisaient la ligne du blurb (14,4u = 0,9 × leur
      corps portrait) : deux rythmes côte à côte. 1,2 RELATIF suit le corps de
      chaque habit — 14,4 au paysage (inchangé), 17 au portrait (celui des
-     stats). */
-  line-height: 1.2;
+     stats).
+     🔴 ET LE NOMBRE EST PARTI DANS UN JETON le 2026-09-04 — Eric : *« interligne
+     de la prose on peut normer comme pour destiny ? »*. Il valait 1,2 ici et
+     1,21 chez Destiny : le même rythme, écrit deux fois, à un centième près. */
+  line-height: var(--interligne-texte);
 }
 
 /* 🔴 RENVERSÉ LE 2026-08-28 — Eric, en regardant le Barbare : « R : subclass

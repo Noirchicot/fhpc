@@ -60,6 +60,11 @@ import { stripComments } from "./source-scan.mjs";
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CHEMIN = path.join(ROOT, "ui", "builder", "fiche.css");
 const FICHE = fs.readFileSync(CHEMIN, "utf8");
+/* Le socle des jetons — lu ici depuis le 2026-09-04 : la ligne de la fiche est
+   maintenant un multiple d'un jeton de rythme QUI VIT LÀ-BAS, donc le garde ne
+   peut plus se contenter de regarder `fiche.css`. Un garde qui ne lit qu'un
+   côté d'une dérivation n'en garde aucun. */
+const TOKENS = fs.readFileSync(path.join(ROOT, "ui", "builder", "tokens.css"), "utf8");
 
 /* ── LES DEUX FORMES ADMISES POUR UNE TAILLE DE TEXTE ─────────────────────
    Un barreau nu, ou un MULTIPLE écrit du barreau. La seconde forme n'est pas
@@ -68,8 +73,21 @@ const FICHE = fs.readFileSync(CHEMIN, "utf8");
    ⛔ Ce qui reste interdit est le nombre de TAILLE : `calc(var(--t1) + 2px)`
    et `calc(10px * 1.2)` sont des violations. L'attaque 5 le prouve. */
 const BARREAU = String.raw`var\(--t[1-7]\)`;
+/* 📌 ANCRE ÉLARGIE LE 2026-09-04 — Eric : *« interligne de la prose on peut
+   normer comme pour destiny ? »*. Le multiplicateur d'une ligne était forcément
+   un LITTÉRAL (`* 1.2`) ; il peut maintenant être le jeton de rythme partagé
+   avec Destiny (`* var(--interligne-texte)`).
+   ⭐ CE QUE LE GARDE ASSERTE N'A PAS BOUGÉ : une ligne reste un MULTIPLE de son
+   corps, jamais une longueur recopiée — la faute qui a coûté le lot (13.2px, la
+   recopie de 11 × 1,2 pour un corps sur aucun barreau) est refusée à
+   l'identique. Ce qui change est la forme du facteur.
+   ⛔ ET L'ÉLARGISSEMENT SERAIT UN TROU SANS SA SECONDE MOITIÉ : un jeton peut
+   porter n'importe quoi, `normal` compris. Le test « le jeton de rythme est un
+   RAPPORT sans unité » (plus bas) ferme la porte que celle-ci ouvre — les deux
+   se lisent ensemble. */
+const FACTEUR = String.raw`(?:[\d.]+|var\(--interligne-texte\))`;
 const TAILLE_OK = new RegExp(
-  String.raw`^(?:${BARREAU}|calc\(\s*${BARREAU}\s*\*\s*[\d.]+\s*\)|inherit)$`
+  String.raw`^(?:${BARREAU}|calc\(\s*${BARREAU}\s*\*\s*${FACTEUR}\s*\)|inherit)$`
 );
 
 /** Chaque `font-size` de la feuille dont la valeur n'est pas un barreau. */
@@ -141,6 +159,23 @@ test("fiche.css : aucune taille de texte hors des barreaux --t1..--t7", () => {
 
 test("fiche.css : aucun interligne écrit en dur", () => {
   assert.deepEqual(interlignesHorsEchelle(FICHE), []);
+});
+
+/* ⭐ LA SECONDE MOITIÉ DE L'ÉLARGISSEMENT DU 2026-09-04, et sans elle le garde
+   du dessus aurait un trou : il accepte désormais `calc(var(--tN) *
+   var(--interligne-texte))`, donc il fait CONFIANCE à ce jeton. Un jeton n'est
+   pas digne de confiance parce qu'il a un nom — il l'est parce que sa VALEUR
+   est vérifiée. ⛔ `--interligne-texte: normal` passerait le premier garde sans
+   un mot, et la hauteur de chaque boîte comptée en lignes se mettrait à
+   dépendre de la police (1,208 pour Inter, autre chose en repli). C'est
+   exactement la panne que Destiny a payée et écrite dans `shell.css`. */
+test("le jeton de rythme est un RAPPORT sans unité — sinon les lignes cessent d'être des lignes", () => {
+  const m = stripComments(TOKENS).match(/--interligne-texte:\s*([^;]+);/);
+  assert.ok(m, "`--interligne-texte` doit exister dans tokens.css : quatre cotes de fiche le multiplient");
+  assert.match(m[1].trim(), /^[\d.]+$/,
+    "`--interligne-texte` doit être un nombre NU (un rapport). Avec une unité il fige la ligne sur un "
+    + "seul barreau ; avec `normal` il la fait dépendre de la police, et une cote qui dépend d'un défaut "
+    + "de moteur n'est pas une cote.");
 });
 
 test("fiche.css : aucun écart hors des jetons --sp-*", () => {

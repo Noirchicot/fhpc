@@ -61,27 +61,30 @@ test("une ligne de lineage tient sur sa ligne — ≤ 31 caractères, corpus ent
    passait sous son radar, verte, pendant qu'elle s'amputait à l'écran. Un
    garde aveugle à la ligne qu'il est censé protéger n'est pas un garde.
 
-   📏 MESURÉ AU BANC (portrait 375, bande à 179,3 blg, corps T2) : les deux
-   lignes repliées demandent 222 (Elf) et 224 (Tiefling) — **−43 et −45**.
-   L'ellipsis les coupe, et c'est le régime tranché par Eric le 28/08 : un
-   dépassement est un défaut de CONTENU, le raccourci lui appartient.
-
-   ⭐ CE N'EST DONC PAS UNE EXCEPTION, C'EST UN REGISTRE DE DETTE, et il est
-   fermé des DEUX côtés : la liste est nommée ET plafonnée au compte exact.
-   Une TROISIÈME ligne repliée trop longue rougit ; une de ces deux raccourcie
-   par Eric rougit aussi, pour qu'on vienne la rayer d'ici. ⛔ Une liste
-   d'exceptions par nom ne dit jamais toute seule qu'elle est incomplète —
-   c'est le compte exact qui le dit.
+   🔴 LA DETTE A ÉTÉ PAYÉE LE 2026-09-04, ET PAR ERIC, PAS PAR LE CODE. Ce
+   garde a été écrit la veille avec DEUX lignes inscrites : à 179,3 blg (les 2/3
+   de la dalle), les lignes repliées demandaient 222 (Elf) et 224 (Tiefling) —
+   −43 et −45, coupées par l'ellipsis. Mis devant la mesure, Eric a donné la
+   pleine largeur : *« on prend donc toute la largeur avec ce bloc lineages
+   species »*. La bande offre 253, les deux lignes repassent entières.
+   ⭐ LE REGISTRE RESTE, VIDE, et c'est là tout son intérêt : c'est maintenant
+   un garde qui dit *« aucune ligne repliée ne déborde »*, et il rougira à la
+   première qui le fera. Un registre qu'on supprime le jour où il se vide est
+   un garde qu'on retire au moment exact où il devient utile.
    ══════════════════════════════════════════════════════════════════════════ */
-test("la ligne de titre repliée est mesurée, et sa dette est nommée au compte exact", () => {
-  /* Même cote que le garde du dessus (31 caractères), pour la même raison :
-     c'est la même boîte et le même corps. Le repli remplace le « : » par une
-     simple espace — un caractère de séparation au lieu de trois. */
-  const CAP = 31;
-  const DETTE = [
-    "srd:species:en:elf · Elven Lineages grant a thread of spells (39)",
-    "srd:species:en:tiefling · Fiendish Legacies a resistance + spells (39)",
-  ];
+test("aucune ligne de titre repliée ne déborde sa bande, et le compte des replis est exact", () => {
+  /* 📏 42 ET NON 31, ET LE CHIFFRE SE DÉRIVE D'UNE BOÎTE, PAS D'UN GOÛT. Le 31
+     du garde au-dessus est calibré sur 226 blg — la colonne de l'habit PAYSAGE,
+     ⚠️ qui a été retiré de la feuille le 2026-08-31 (« PLUS DE @media »). Il
+     est donc, aujourd'hui, plus strict que la seule boîte qui existe.
+     La bande rend 253 (mesuré au banc, sur les 24 fiches). Les lignes repliées
+     les plus longues font 39 caractères pour 222 et 224 blg — soit ~5,7 blg par
+     caractère. 42 caractères ≈ 240 blg : il reste ~13 blg de marge sous les 253,
+     la même prudence que le « 2 caractères de marge » du garde voisin.
+     ⛔ Ce n'est pas un relâchement du 31 : c'est une AUTRE boîte (la bande
+     pleine largeur) mesurée pour ce qu'elle est. Le 31 n'est pas touché. */
+  const CAP = 42;
+  const DETTE = [];
   const trop = [];
   let repliees = 0;
   for (const groupe of Object.values(LAYER.records)) {
@@ -155,10 +158,38 @@ test("la carte est une COMPOSITION EN BLG — plus une seule échelle locale", (
     "aucune échelle locale ne doit revenir dans la carte : le zoom global est la seule");
   assert.doesNotMatch(FICHE, /\b100cq[wh]\b/,
     "ni requête de conteneur : la carte ne se mesure plus sur sa scène");
-  /* La hauteur reste UNE cote, et c'est toujours la même : 396 de dessin plus
-     44 de rangée tactile. Elle grandit avec tout le reste, jamais seule. */
-  assert.match(FICHE, /height:\s*440px/,
-    "la hauteur de la carte reste 440 blg — 396 + 44, les cotes du dessin validé");
+  /* 🔴 ~~LA HAUTEUR RESTE 440~~ — LEVÉE PAR ERIC LE 2026-09-04 : *« on peut
+     laisser la hauteur de la dalle se calculer d'elle-même »*. Les 24 fiches
+     rendent maintenant de 371,6 (Loroka) à 429,6 (Elf, Hoddon).
+
+     ⚖️ ET CE QUE CE TEST PROTÉGEAIT NE DISPARAÎT PAS AVEC ELLE — il change de
+     porteur. La cote fixe servait DEUX choses : que la carte soit portable, et
+     que le pas de l'aimant soit régulier. La seconde n'a jamais dépendu d'elle
+     (c'est `grid-auto-rows: 100%` qui fait le pas, mesuré : 500 constant sur
+     les 24, écart au centre nul sur les 24) ; la première est devenue sans
+     objet le jour où Eric a demandé des fiches qui s'adaptent.
+
+     ⭐ CE QUI REMPLACE L'ASSERTION, ET QUI EST PLUS STRICT QUE CE QU'ELLE
+     DISAIT : plus AUCUNE hauteur en pixels bruts dans la feuille. L'ancienne
+     laissait passer n'importe quel autre `height: <n>px` du moment que 440 était
+     présent quelque part — elle cherchait une chaîne, pas une propriété.
+     ⛔ Le `440px` était d'ailleurs le SECOND écrivain de cette cote : la fiche
+     portait déjà `height: var(--fiche-h)`. C'est cette duplication que
+     l'assertion figeait. */
+  /* ⚠️ VISÉE SUR LA DALLE, PAS SUR LA FEUILLE. Ma première écriture cherchait
+     tout `height: <n>px` du fichier : elle attrapait les 22 et 10 px du halo du
+     scrollspy, qui sont un DESSIN de 22 blg de rond et n'ont jamais été une
+     cote de carte. Un garde qui crie au loup se fait retirer — on vise la
+     propriété de l'organe, pas une chaîne dans un fichier.
+     FICHE est déjà dépouillée de ses commentaires en tête de fichier. */
+  const portrait = FICHE.match(/\.fiche-dalle:not\(\[data-dressing="prose"\]\) \{([^}]*)\}/s);
+  assert.ok(portrait, "la règle de la carte n'a plus la forme attendue");
+  assert.match(portrait[1], /height:\s*auto/,
+    "la carte calcule sa hauteur (Eric, 2026-09-04 : « on peut laisser la hauteur de la dalle se "
+    + "calculer d'elle-même »)");
+  assert.doesNotMatch(portrait[1], /height:\s*\d/,
+    "une hauteur en pixels bruts est revenue sur la carte : une cote se NOMME (--fiche-h) ou se "
+    + "calcule (auto). Le 440px retiré le 2026-09-04 doublait déjà `height: var(--fiche-h)`.");
   /* Et le pied ne se donne toujours aucun corps à part. */
   const pied = FICHE.match(/\.fiche-dalle:not\(\[data-dressing="prose"\]\) \.fiche-actions \{[^}]*\}/gs) || [];
   for (const regle of pied) {

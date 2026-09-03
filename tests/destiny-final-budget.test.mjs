@@ -186,11 +186,28 @@ test("H — les deux fenêtres de prose défilent, et l'exception est BORNÉE", 
      personne n'a écrite et qui change avec la police. Le jour où Inter tombe en
      repli, « 4 lignes » cesse de valoir 4 lignes, et le budget des 22 cartes
      avec. ⛔ Une cote qui dépend d'un défaut de moteur n'est pas une cote. */
+  /* 📌 ANCRE ÉLARGIE LE 2026-09-04 — Eric : *« interligne de la prose on peut
+     normer comme pour destiny ? »*. Le nombre a quitté cette règle pour le
+     jeton `--interligne-texte`, partagé avec la fiche.
+     ⭐ CE QUE LE GARDE ASSERTE N'A PAS BOUGÉ D'UN CENTIÈME : l'interligne doit
+     être un NOMBRE, pas `normal`. Ce qui change est qu'il faut désormais SUIVRE
+     le jeton pour le savoir. ⛔ Accepter `var(...)` sans aller lire ce qu'il
+     porte aurait remplacé le garde par sa façade : `--interligne-texte: normal`
+     serait passé sans un mot, et « 4 lignes » aurait cessé de valoir 4 lignes
+     exactement comme avant — la panne serait juste devenue plus dure à voir. */
   const interligne = declaration(clef, "line-height");
-  assert.ok(interligne && /^[\d.]+$/.test(interligne),
-    `l'interligne des fenêtres vaut « ${interligne} ». Il doit être un NOMBRE écrit : ` +
-    "`normal` dépend de la police (1,208 pour Inter, autre chose en repli), et la hauteur de la " +
-    "fenêtre se calcule dessus. Une cote qui dépend d'un défaut de moteur n'est pas une cote.");
+  let valeur = interligne;
+  const jeton = /^var\(\s*(--[\w-]+)\s*\)$/.exec(interligne || "");
+  if (jeton) {
+    const tokens = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
+    const m = new RegExp(`${jeton[1]}:\\s*([^;]+);`).exec(tokens);
+    assert.ok(m, `l'interligne nomme ${jeton[1]}, qui n'existe pas dans tokens.css`);
+    valeur = m[1].trim();
+  }
+  assert.ok(valeur && /^[\d.]+$/.test(valeur),
+    `l'interligne des fenêtres vaut « ${interligne} »${jeton ? ` (soit « ${valeur} »)` : ""}. Il doit être ` +
+    "un NOMBRE écrit : `normal` dépend de la police (1,208 pour Inter, autre chose en repli), et la " +
+    "hauteur de la fenêtre se calcule dessus. Une cote qui dépend d'un défaut de moteur n'est pas une cote.");
 
   const plafond = declaration(clef, "max-height");
   assert.ok(plafond && plafond.includes(interligne) && /\b4\b/.test(plafond),

@@ -8483,7 +8483,12 @@ button.tuto-point::before {
    478 / 492 pour un budget de 500. Sans plafond, six débordaient, la pire de 79. */
 .aire-power .card-final-cadre,
 .aire-meaning .card-final-cadre {
-  line-height: 1.21;
+  /* 🔴 LE NOMBRE EST PARTI DANS UN JETON le 2026-09-04 — Eric : *« interligne
+     de la prose on peut normer comme pour destiny ? »*. La valeur ne change
+     pas d'un centième (1,21, l'arrondi d'Inter mesuré ci-dessus) ; ce qui
+     change est qu'elle n'est plus écrite ici SEULE. La fiche portait `1.2`
+     pour dire la même chose. */
+  line-height: var(--interligne-texte);
   /* ⚖️ `max-height` SUR LA BASE, ET LA RIGIDITÉ N'A PAS SURVÉCU À SON ESSAI.
      J'avais mis `height` — Eric : *« on peut rigidifier les blocs de texte ? »* —
      et c'était juste : le corps cessait de varier, le titre cessait de descendre.
@@ -8494,7 +8499,13 @@ button.tuto-point::before {
      ⭐ ET SUR L'ÉCRAN FINAL LE PLAFOND RESTE VITAL : c'est lui qui fait tenir les
      22 cartes dans les 500 blg — mesuré, la pire y est à 498. Rigide, il
      AJOUTERAIT de la hauteur aux cartes courtes et casserait ce budget. */
-  max-height: calc(4 * 1.21em);
+  /* 🔴 LE 1,21 ÉTAIT ÉCRIT DEUX FOIS DANS CETTE MÊME RÈGLE — l'interligne
+     au-dessus, et ce plafond « 4 lignes » qui le recopiait. Un garde
+     (`destiny-final-budget`) exigeait qu'ils soient TEXTUELLEMENT identiques,
+     ce qui prouve que le risque était connu : deux nombres qui doivent rester
+     égaux. Ils lisent maintenant le même jeton — il n'y a plus deux nombres.
+     2026-09-04, avec la normalisation demandée par Eric. */
+  max-height: calc(4 * var(--interligne-texte) * 1em);
   overflow-y: auto;
   /* ⛔ SANS `contain`, LE GESTE FUIT VERS LA SCÈNE : arrivé au bas de la
      fenêtre, le doigt continue et emporte la page derrière. Sur un écran qui ne

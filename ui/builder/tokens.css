@@ -362,6 +362,21 @@
   --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
   --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
   --fiche-dalle-w: 242px;
+  /* ══ 📏 L'INTERLIGNE DE PROSE — Eric, 2026-09-04 : *« interligne de la prose
+     on peut normer comme pour destiny ? »* ═══════════════════════════════════
+     Destiny écrivait `1.21`, la fiche `1.2` : deux nombres pour la même chose,
+     à un centième près — l'écart le plus dur à voir et le plus sûr à diverger.
+     ⭐ LA VALEUR RETENUE EST CELLE DE DESTINY, et pas par ancienneté : elle est
+     ARGUMENTÉE là-bas (`shell.css`, l'écran final) — `line-height: normal` rend
+     **1,208** pour Inter, une valeur que personne n'a écrite et qui change avec
+     la police ; l'écrire fige le budget des 4 lignes des 22 cartes. Le 1,2 de
+     la fiche, lui, n'était qu'un arrondi de confort. Entre deux nombres qui se
+     valent, on garde celui qui porte sa raison.
+     ⚠️ C'EST UN JETON DE RYTHME, PAS UNE COTE : sans unité, il se multiplie par
+     le corps de chaque organe — 12 × 1,21 à T2, 10 × 1,21 à T1. Lui donner des
+     pixels le figerait sur un seul barreau. */
+  --interligne-texte: 1.21;
+
   --fiche-h: 440px;           /* la carte : 242 × 440, ratio 0,55 — la cote d'Eric du 15/08 */
   --frame-w: 100%;            /* la ligne de commande et le plan : sans plafond à l'étroit */
   --card-pad: var(--sp-16);   /* remplissage de carte — B4.3 l'a mesuré : 16 à l'étroit */

@@ -691,9 +691,20 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      dérive la ligne du barreau, et le barreau vaut bien 12. Ainsi 14,4 reste
      PROUVÉ, et le jour où `--t2` bouge ce test rougit, ce qu'il ne faisait pas
      quand la ligne portait son propre nombre. */
-  assert.match(css, /--fiche-ligne:\s*calc\(var\(--t2\) \* 1\.2\)/,
-    "une ligne à T2 — le corps est NOMMÉ, jamais recopié");
-  assert.match(tokens, /--t2:\s*12px/, "et T2 vaut 12 : la ligne rend donc bien 14,4 blg");
+  /* 📌 ANCRE ÉLARGIE LE 2026-09-04 — Eric : *« interligne de la prose on peut
+     normer comme pour destiny ? »*. Le facteur `1.2` était écrit ici et `1.21`
+     chez Destiny : le même rythme, deux fois, à un centième près. Il vit
+     maintenant dans `--interligne-texte`.
+     ⭐ LE GARDE EXIGE TOUJOURS LES DEUX MOITIÉS, c'est tout son intérêt : le
+     corps NOMMÉ (jamais recopié) **et** la valeur qui rend le nombre vrai. Il
+     en vérifie simplement une de plus — le barreau, ET le rythme. Ainsi
+     « 14,52 blg » reste PROUVÉ, et le jour où l'un des deux bouge, ce test
+     rougit, ce qu'il ne ferait pas si la ligne portait ses propres nombres. */
+  assert.match(css, /--fiche-ligne:\s*calc\(var\(--t2\) \* var\(--interligne-texte\)\)/,
+    "une ligne à T2 — le corps est NOMMÉ, jamais recopié, et son rythme aussi");
+  assert.match(tokens, /--t2:\s*12px/, "et T2 vaut 12…");
+  assert.match(tokens, /--interligne-texte:\s*1\.21\b/,
+    "…et le rythme vaut 1,21 : la ligne rend donc bien 14,52 blg");
   assert.match(css, /--fiche-infos-h:\s*calc\(var\(--fiche-ligne\) \* 5\)/, "la bande : CINQ lignes");
   assert.match(css, /--fiche-blurb-h:\s*calc\(var\(--fiche-ligne\) \* 6\)/, "le blurb : SIX lignes de plancher");
   assert.match(css, /line-height:\s*var\(--fiche-ligne\)/,
