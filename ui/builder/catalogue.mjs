@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=486";
-import { versionQuery } from "./version.mjs?v=486";
+import { planAt } from "./carnet.mjs?v=487";
+import { versionQuery } from "./version.mjs?v=487";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -165,12 +165,25 @@ export function renderCatalogueRail(ctx, onAction) {
        serait exact et inutilisable. */
     const etiquette = typeof ctx.railEtiquette === "function" ? ctx.railEtiquette(id) : null;
     const nom = recordName(ctx.query, ctx.kind, id);
-    const cran = el("button", "catalogue-rail-item", [text(etiquette || nom)]);
-    if (etiquette) {
-      cran.setAttribute("aria-label", nom);
-      cran.dataset.etiquette = "courte";
-    }
+    /* 🔴 DEUX ÉTAGES QUAND L'ÉCRAN DONNE UNE ÉTIQUETTE — Eric, 2026-09-03 :
+       *« si on s'autorise 4 étages pour écrire le nom de l'arcane et le numéro
+       en haut »* puis *« le numéro en T2, le nom en T1 »*.
+       📏 QUATRE ÉTAGES ÉTAIT UN DE TROP, ET C'EST MESURÉ : aucun des 22 noms ne
+       fait plus de TROIS mots (*The High Priestess* en fait trois). Le quatrième
+       ne servirait jamais.
+       ⭐ ET CE N'EST PLUS LE NOM QUI COMMANDE LA LARGEUR, C'EST LE MOT LE PLUS
+       LARGE : dès qu'on autorise le retour à la ligne, la contrainte passe de
+       *The High Priestess* (107 blg à T2) à **Temperance** (59 à T1). C'est ce
+       renversement qui rend le nom écrit abordable. */
+    const cran = el("button", "catalogue-rail-item");
     cran.type = "button";
+    if (etiquette) {
+      cran.append(el("b", "cran-numero", [text(etiquette)]));
+      cran.append(el("span", "cran-nom", [text(nom)]));
+      cran.dataset.etiquette = "courte";
+    } else {
+      cran.append(text(nom));
+    }
     /* 🖼️ UN CRAN PEUT PORTER SA VIGNETTE — Eric, 2026-08-30, sur le scrollspy
        de Destiny : *« il y a un scrollspy avec les cartes de tarot »*, puis
        *« oui des cartes »*.

@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=486");
+  background-image: url("./assets/tarot-dos.jpg?v=487");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8448,64 +8448,77 @@ button.tuto-point::before {
    ⚖️ LE SYMBOLE EST GRATUIT DANS LES DEUX SENS : 24 de large contre 28,5 pour
    le chiffre, il ne commande pas la largeur ; empilé sous les 44 du plancher,
    il ne commande pas la hauteur. Il ne coûte donc rien à personne. */
-/* 🔴 LE RAIL ÉTROIT — 40 blg, et il DÉFILE. Eric, 2026-09-03 : *« tous les
-   items du scrollspy peuvent disparaître au-delà du plancher, on les scroll.
-   je n'en veux qu'une seule rangée »*.
-   📏 ET IL N'Y AVAIT PAS D'AUTRE CHOIX : **500 / 22 = 22,7** blg par cran,
-   moitié moins que le plancher `--touch` de 44. Aucune hauteur de cran ne fait
-   tenir les vingt-deux — donc il défile, et les agrandir n'achèterait que du
-   défilement. Le cran prend donc le plancher, pas un blg de plus.
-   ⚖️ « étroit » EST UNE GÉOMÉTRIE, PAS UN CATALOGUE : la feuille ne sait pas
-   qu'il s'agit d'arcanes, et un garde le lui interdit. */
-/* 📏 44, ET C'EST LE SYMBOLE QUI COMMANDE MAINTENANT — Eric, 2026-09-03 :
-   *« tu peux même agrandir les symboles qu'ils soient moins moches »* · *« x1,5 »*.
-   24 × 1,5 = **36**, donc plus large que `XVIII` (28,5) : le chiffre cesse de
-   dicter la largeur du cran, le symbole prend le relais. 8 de rembourrage + 36
-   = 44. ⚖️ La fiche descend de 319 à 315, soit un dézoom de 0,84 au lieu de
-   0,85 — un point de dézoom pour un symbole moitié plus grand. */
+/* ══ LE RAIL DES 22 — le chiffre et le nom, deux étages ═══════════════════
+   🔴 Eric, 2026-09-03, après cinq jeux de pictogrammes refusés : *« le numéro
+   en T2, le nom en T1 »*. Le rail cesse de porter un dessin.
+
+   📏 LA LARGEUR EST COMMANDÉE PAR LE MOT LE PLUS LARGE, PAS PAR LE NOM — et ce
+   renversement est TOUT ce qui rend le nom écrit abordable :
+       The High Priestess sur une ligne   107 blg
+       Temperance (le plus large des mots) 59 blg à T1
+   Dès qu'on autorise le retour à la ligne, c'est le MOT qui contraint. Le nom
+   entier ne contraint plus rien.
+   ⭐ ET TROIS ÉTAGES SUFFISENT, MESURÉ : aucun des 22 noms ne fait plus de trois
+   mots. Eric en proposait quatre — le quatrième n'aurait jamais servi.
+
+   📐 LA CHAÎNE, ET CHAQUE MAILLON TOMBE DE SON VOISIN :
+       tuile      64      (Temperance 59, plus l'air)
+       rail       72      (8 de rembourrage + 64)
+       fiche     287      (375 − 72 − 2×8)
+       dézoom  0,765      (287 / 375) — voir `--apercu-zoom`, et le garde I
+   ⚖️ Le nom coûte 28 blg de fiche par rapport au symbole (287 contre 315).
+   C'est le prix, il est connu, et Eric l'a payé en connaissance de cause.
+
+   🔴 LA HAUTEUR EST FIXE, ET CE N'EST PAS UN GOÛT : `The Fool` tient sur une
+   ligne, `The High Priestess` en prend trois. À hauteur libre, le pas du rail
+   saute de 40 à 64 selon le nom, et le halo du cran courant change de taille en
+   glissant. ⛔ Un repère dont le pas change n'est plus un repère. Tous les crans
+   valent donc `58` — trois lignes de nom (36) plus le chiffre (15) plus l'air —
+   et huit tiennent dans les 500 de la scène. */
 .stage-area[data-aside="etroit"] {
-  --rail-w: 44px;
-  /* 🔴 LE DÉZOOM SE DÉDUIT DE LA PLACE, IL NE SE POSE PLUS À CÔTÉ D'ELLE.
-     ⛔ MESURÉ CASSÉ le 2026-09-03 : `zoom: .85` était écrit en dur ; quand le
-     rail est passé de 40 à 44 pour le symbole ×1,5, la fiche est tombée à 307
-     et le corps en peignait toujours **319** — il débordait de 12 blg sans que
-     rien ne le dise. Une cote posée à côté de sa cause se périme à la première
-     autre décision.
-     📏 LA RELATION, ET ELLE EST ÉCRITE : `(375 − 44 − 2×8) / 375 = 0,84`.
-     ⚖️ CSS ne sait pas diviser deux longueurs — le zoom ne peut donc pas se
-     calculer ici. Alors il est ÉCRIT, et un garde refait la division : les deux
-     nombres ne peuvent plus diverger en silence. */
-  --apercu-zoom: .84;
+  --rail-w: 72px;
+  /* 🔴 LE DÉZOOM SE DÉDUIT DE LA PLACE, IL NE SE POSE PAS À CÔTÉ D'ELLE.
+     Mesuré cassé le 03/09 : écrit en dur, il a survécu à un changement de rail
+     et le corps débordait de 12 blg sans que rien ne le dise.
+     📏 (375 − 72 − 2×8) / 375 = 0,765. CSS ne sait pas diviser deux longueurs :
+     le nombre est écrit, et le garde I refait la division. */
+  --apercu-zoom: .765;
 }
 .stage-area[data-aside="etroit"] .stage {
   left: var(--rail-w);
   --colonne-ecran: calc(var(--panneau-l) * 1px - var(--rail-w) - 2 * var(--stage-gouttiere));
 }
-/* ⛔ LE REMBOURRAGE DROIT TOMBE À ZÉRO, ET C'EST DÉLIBÉRÉ : la gouttière de la
-   scène (8) fait déjà l'écart entre le rail et la fiche. Le garder ici en
-   ferait 16, et la fiche perdrait 8 des 319 qu'elle doit peindre. */
+/* ⛔ LE REMBOURRAGE DROIT TOMBE À ZÉRO : la gouttière de la scène fait déjà
+   l'écart entre le rail et la fiche. Le garder ici en ferait 16, et la fiche
+   perdrait 8 des 287 qu'elle doit peindre. */
 .catalogue-rail[data-etroit] {
   padding: var(--sp-8) 0 var(--sp-8) var(--sp-8);
-  gap: 0;
+  gap: var(--sp-4);
 }
 .catalogue-rail[data-etroit] .catalogue-rail-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-4);
-  /* 🔴 `--touch`, ET IL NE CÈDE JAMAIS — un cran est un CONTRÔLE. Le dessin
-     n'en demande que 35 (20 de symbole + 15 de chiffre) ; c'est le doigt qui
-     fixe la cote, pas le dessin (loi du 24/08). */
-  min-height: var(--touch);
-  padding: 0;
+  gap: 0;
+  /* 🔴 la hauteur FIXE — voir plus haut : c'est elle qui rend le pas régulier */
+  height: 58px;
+  min-height: 58px;
+  padding: 0 var(--sp-4);
+  line-height: 1.15;
 }
-/* ⛔ ET LE CRAN DES ARCANES NE PORTE PLUS DE VIGNETTE : `.catalogue-rail-img`
-   est cotée pour une carte de tarot (74 × 127). Le symbole est un SVG carré. */
-.catalogue-rail[data-etroit] .catalogue-rail-img {
-  width: 36px; height: 36px;
-  border-radius: 0;
-  object-fit: contain;
+.catalogue-rail[data-etroit] .cran-numero {
+  font-size: var(--t2);
+  font-weight: 600;
+  color: var(--text);
+}
+/* ⚖️ LE NOM EN ENCRE DE CORPS, LE CHIFFRE EN ENCRE PLEINE : c'est le contraste
+   qui porte la hiérarchie des deux étages, pas leur taille seule. */
+.catalogue-rail[data-etroit] .cran-nom {
+  font-size: var(--t1);
+  color: var(--text-soft);
+  text-align: center;
+  line-height: 1.2;
 }
 
 

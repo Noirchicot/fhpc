@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=486";
-import { renderCardRows } from "./catalogue.mjs?v=486";
+import { drawArcana } from "./dice.mjs?v=487";
+import { renderCardRows } from "./catalogue.mjs?v=487";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=486";
+import { versionQuery } from "./version.mjs?v=487";
 
 export { drawArcana };
 
@@ -52,25 +52,17 @@ export function arcanaImageSrc(id) {
 }
 export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.webp${versionQuery(import.meta.url)}`;
 
-/* 🔣 LE SYMBOLE D'UN ARCANE — 22 SVG bicolores, dessinés POUR 24 px.
-   🔴 Eric, 2026-09-03 : *« juste une numérotation des arcanes à gauche avec un
-   petit symbole. moins long qu'un mot »*.
-   📏 POURQUOI LE CHIFFRE ET PAS LE NOM, ET C'EST UNE MESURE : *The High
-   Priestess* fait **107** blg à T2 sur une ligne — plus large que la vignette
-   de 90 qu'on remplaçait. **XVIII**, le plus large des 22 chiffres, en fait
-   **28,5**. Le texte coûte plus cher que l'image ; le chiffre coûte trois fois
-   moins que les deux.
-   ⭐ ET LE SYMBOLE EST GRATUIT : 24 de large contre 28,5 pour le chiffre, il ne
-   commande donc pas la largeur ; 20 de haut sous les 44 du plancher `--touch`,
-   il ne commande pas la hauteur non plus.
-   ⚖️ L'ACCENT EST `var(--accent)`, LE JETON DU SOCLE — les fichiers livrés
-   portaient `var(--sp-accent)`, un nom que j'avais inventé dans la consigne
-   avant de vérifier ce qui existait. Corrigé à l'entrée au dépôt : une norme se
-   câble en défaut PARTAGÉ, elle ne se double pas d'un jeton privé. */
-export const ARCANA_SYMBOLES = `${ARCANA_DIR}/symboles`;
-export function arcanaSymboleSrc(id) {
-  return `${ARCANA_SYMBOLES}/${String(id).replace("fh:arcana:en:", "")}.svg${versionQuery(import.meta.url)}`;
-}
+/* 🧹 `arcanaSymboleSrc` ET LES 22 SVG SONT PARTIS — 2026-09-03, après cinq
+   jeux de pictogrammes que l'œil d'Eric a refusés l'un après l'autre. Le rail
+   porte désormais le chiffre et le NOM.
+   ⛔ Un asset que plus aucun écran n'appelle est une dette, pas une réserve :
+   il se maintient, il se déploie, et il fait croire à un lot futur qu'un organe
+   existe. Les fichiers vivent toujours dans le vault (`07-Symboles-v1`) et dans
+   l'historique — c'est là qu'on les reprendra si on y revient.
+   📌 CE QUI RESTE DE CETTE CHASSE, ET QUI VAUT PLUS QUE LES FICHIERS : ce qui
+   fait l'épaisseur d'une icône n'est ni sa toile ni son trait, c'est leur
+   RAPPORT. Une livraison a doublé les deux en croyant affiner. */
+
 /** Le chiffre romain d'un arcane, tel que la couche l'écrit (`0` … `XXI`). */
 export function arcanaNumeral(query, id) {
   const vue = query ? query({ kind: "arcana", id }) : null;
