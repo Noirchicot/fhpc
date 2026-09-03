@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=488");
+  background-image: url("./assets/tarot-dos.jpg?v=497");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -6790,7 +6790,7 @@ button { font: inherit; }
 .sortie-bouton,
 .species-done,
 .parcours-item-porte,
-.parcours-pied button:not(.fiche-livre),
+.parcours-pied button:not(.fiche-livre):where(:not(.tuto-point)),
 .card-pied button,
 .fiche-action, /* CHOOSE — un libellé, donc l'octogone (Eric, 28/08) */
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
@@ -6846,7 +6846,7 @@ button { font: inherit; }
 .sortie-bouton::before,
 .species-done::before,
 .parcours-item-porte::before,
-.parcours-pied button:not(.fiche-livre)::before,
+.parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::before,
 .card-pied button::before,
 .fiche-action::before,
 .ability-entry::before {
@@ -6875,7 +6875,7 @@ button { font: inherit; }
 .sortie-bouton::after,
 .species-done::after,
 .parcours-item-porte::after,
-.parcours-pied button:not(.fiche-livre)::after,
+.parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::after,
 .card-pied button::after,
 .fiche-action::after,
 .ability-entry::after {
@@ -6941,7 +6941,7 @@ button { font: inherit; }
    distraction — ⛔ un `Cancel` gris, ça s'appuie sans le vouloir. */
 /* ⚠️ `button.` N'EST PAS DU ZÈLE, C'EST LA SPÉCIFICITÉ — mesuré au banc le
    27/08 : « I changed my mind » rendait le GRIS du défaut (#928c7f). Le
-   défaut de la famille est porté par `.parcours-pied button:not(.fiche-livre)`
+   défaut de la famille est porté par `.parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))`
    (0,2,1) ; une règle d'état à (0,2,0) perd contre lui quel que soit l'ordre.
    L'état doit peser autant et venir après. */
 .parcours-pied button.parcours-annuler { --bouton-fond: var(--critical); }
@@ -6959,6 +6959,40 @@ button { font: inherit; }
 .parcours-pied button.parcours-next { max-width: var(--glisse-case); }
 .parcours-pied button.parcours-next,
 .parcours-pied button.sortie-back { --bouton-fond: var(--info); }
+/* 🔴 `Cancel` PORTE LE ROUGE DE CE QUI ABANDONNE — Eric, 2026-09-03 : *« cancel
+   annule donc rouge »* · *« c'est pas un back »*. Même teinte qu'`I changed my
+   mind`, parce que c'est le même geste : on quitte sans emporter.
+   ⚖️ Le BLEU reste au recul (`Back`), qui ne défait rien. */
+.parcours-pied button.sortie-annule { --bouton-fond: var(--critical); }
+/* ⚖️ LE `?` N'EST PAS UN BOUTON D'ACTION, ET IL NE PREND PAS L'OCTOGONE —
+   régression vue à l'œil le 2026-09-03, qu'aucune mesure n'a dite : en entrant
+   dans la rangée, la pastille a hérité de `.parcours-pied button:not(.fiche-livre)`
+   et rendait un troisième octogone gris, aussi lourd que `Choose` et `Cancel`.
+   ⛔ Trois boutons de même poids pour deux actes et une aide : la hiérarchie
+   disparaissait. Il garde sa forme ronde et discrète, comme partout ailleurs.
+   📌 C'est la même leçon que le vert de `Choose` quatre lignes plus bas : DÉPLACER
+   UN ORGANE, C'EST LE CHANGER DE CASCADE. Deux fois le même piège en une passe.
+
+   🔴 ET `:where()`, PAS `:not()` — TROISIÈME fois le même piège, dans le même
+   quart d'heure. `:not(.tuto-point)` PORTE LA SPÉCIFICITÉ DE SON ARGUMENT : les
+   quatre sélecteurs passaient de (0,2,1) à (0,3,1) et se mettaient à battre
+   `.parcours-pied button.fiche-action` (0,2,1). Résultat mesuré : `Choose` et
+   `Cancel` reperdaient leur vert et leur rouge, alors que je venais d'écrire le
+   commentaire qui prévient de ce défaut.
+   ⭐ `:where()` a une spécificité NULLE : il exclut sans peser. C'est le seul
+   outil qui retire un élément d'une règle sans déplacer la cascade sous les
+   autres. */
+
+/* 🟢 `CHOOSE` GARDE SON VERT DANS LA RANGÉE — Eric, 2026-09-03 : *« choose doit
+   être vert non ? »*. Il l'était : `.fiche-action { --bouton-fond: positive }`.
+   ⛔ MAIS UNE COLLISION DE SPÉCIFICITÉ LE LUI A PRIS, et c'est mesuré : la règle
+   de base `.parcours-pied button` vaut (0,1,1) et `.fiche-action` (0,1,0). Tant
+   que `Choose` vivait HORS du pied il gagnait ; rangé dans la ligne le 03/09, il
+   s'est mis à rendre `--text-muted` (#928c7f) sans qu'aucune règle ne soit
+   fausse. Personne n'a écrit « gris » — c'est la cascade qui l'a décidé.
+   ⭐ Il reprend donc la forme de ses voisins, `.parcours-pied button.X`, qui
+   existe précisément pour battre cette base. */
+.parcours-pied button.fiche-action { --bouton-fond: var(--positive); }
 
 /* ── LA PORTE D'UN ITEM — elle prend l'avancement de son voyant ──────────
    validé = vert · rien fait = le gris par défaut, hérité de l'organe. */
@@ -8495,6 +8529,20 @@ button.tuto-point::before {
   padding: var(--sp-8) 0 var(--sp-8) var(--sp-8);
   gap: var(--sp-4);
 }
+/* 🧲 LE RAIL S'AIMANTE — Eric, 2026-09-03 : *« je veux que les tuiles soient
+   magnétisées et ne s'arrêtent pas coupées par le haut ou le bas de l'écran »*.
+   ⭐ C'est le MÊME contrat que les fiches (`data-snap`, lot 60), appliqué à
+   l'autre axe : un cran à moitié visible est un cran qu'on ne peut ni lire ni
+   viser au doigt.
+   ⚖️ `proximity`, PAS `mandatory` : le rail fait 1 376 blg pour 500 de fenêtre,
+   et `mandatory` interdirait de s'arrêter entre deux crans pendant un grand
+   glissé — le geste deviendrait saccadé. `proximity` ne corrige que la fin de
+   course, quand on est déjà presque en place.
+   ⛔ LE CONTENEUR QUI DÉFILE EST `.stage-aside`, PAS LE RAIL : c'est lui qui
+   porte l'`overflow-y`. Poser le `scroll-snap-type` sur le rail ne ferait
+   rien — et ne dirait rien en le faisant. */
+.stage-area[data-aside="etroit"] .stage-aside { scroll-snap-type: y proximity; }
+.catalogue-rail[data-etroit] .catalogue-rail-item { scroll-snap-align: center; }
 .catalogue-rail[data-etroit] .catalogue-rail-item {
   display: flex;
   flex-direction: column;
@@ -8559,13 +8607,79 @@ button.tuto-point::before {
      est juste — c'est la marge du dessin, pas celle de l'écran. */
   padding: var(--sp-4) var(--sp-8) 0 var(--sp-16);
 }
+/* ══ LE PIED DE L'APERÇU — les quatre organes sur UNE ligne ═══════════════
+   🔴 Eric, 2026-09-03, capture d'iPad à l'appui : *« choose et cancel pas
+   centrés, livre et ? pas au bon endroit »*.
+   📏 CE QUE LA MESURE A DIT : le pied est à `y=247`, le livre et le `?` à
+   `y=448` — deux cents blg plus bas. Ils sont `position: absolute` et ancrés au
+   BAS DE LA DALLE, pas à la rangée. Tant que la dalle est plus haute que son
+   contenu, aucun espacement ne les fait se rejoindre.
+   ⭐ ILS REVIENNENT DANS LE FLUX : la coquille les a déjà déplacés DANS la
+   rangée (`garnirLaSortie`) ; il suffit de leur retirer leur ancre. */
+.card-final[data-gabarit="apercu"] .fiche-livre,
+.card-final[data-gabarit="apercu"] .tuto-point {
+  position: static;
+  inset: auto;
+}
+/* ⛔ ET LE RÉSERVOIR DU `?` DISPARAÎT AVEC LUI : `padding-inline-end: --touch`
+   gardait 44 blg à droite pour une pastille flottante. Elle est dans la ligne
+   maintenant — ces 44 blg décalaient `Choose` et `Cancel` vers la gauche, et
+   c'est exactement le « pas centrés » d'Eric. */
+.card-final[data-gabarit="apercu"] .parcours-pied {
+  padding-inline-end: 0;
+  display: flex;
+  align-items: center;
+}
+/* 🔴 QUATRE ORGANES, TROIS PLACES — Eric, 2026-09-03 : *« cancel choose centrés,
+   livre cadré à G, ? cadré à D »*. C'est la paire du 26/08, avec DEUX boutons au
+   milieu au lieu d'un.
+   ⭐ `display: contents` DISSOUT LA BOÎTE DE LA SORTIE : la coquille y a glissé
+   le livre, le retour et le `?`, et sans ça ils resteraient groupés dans un coin
+   pendant que `Choose`, qui vit dans la rangée, flotterait à côté. Dissoute, ses
+   trois enfants deviennent des enfants de la RANGÉE — et l'ordre se réécrit.
+   ⛔ SANS ÇA IL FAUDRAIT DÉPLACER DES NŒUDS EN JS, donc dupliquer le travail que
+   `garnirLaSortie` vient de faire, avec deux écrivains pour un même placement. */
+.card-final[data-gabarit="apercu"] .sortie { display: contents; }
+.card-final[data-gabarit="apercu"] .fiche-livre  { order: 1; margin-right: auto; }
+.card-final[data-gabarit="apercu"] .fiche-action { order: 2; }
+/* 📏 4 BLG ENTRE LES DEUX, ET PAS 8 : à 8 la rangée redéborde (264 + 8 = 272
+   pour 271 disponibles). Quatre suffisent à les décoller sans rien casser —
+   mesuré, ils se TOUCHAIENT à 146..146. */
+.card-final[data-gabarit="apercu"] .sortie-bouton { order: 3; margin-left: var(--sp-4); }
+.card-final[data-gabarit="apercu"] .tuto-point   { order: 4; margin-left: auto; }
+
+/* 🔴 LA DALLE ÉPOUSE SON CONTENU ET SE CENTRE — Eric : *« je veux que la dalle
+   s'arrête 8 blg sous les boutons, qu'elle soit centrée verticalement »*.
+   ⛔ Elle occupait les 500 de la scène pour un contenu de 300 : 200 blg de vide
+   en bas, que la capture montrait sans qu'aucun chiffre ne les nomme.
+   ⭐ LA RANGÉE GARDE SES 500 — c'est elle le cran d'aimantation, et le
+   défilement des 22 fiches en dépend (lot 60). C'est la DALLE qui rétrécit,
+   et la rangée qui la centre. Deux boîtes, deux métiers. */
+.catalogue-cards:has(.card-final[data-gabarit="apercu"]) .catalogue-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-final[data-gabarit="apercu"] { height: auto; }
+
 /* 🔴 LE PIED RESTE À 100 %, ET C'EST LUI QUI RÉPARE LE `?` — ancré à la dalle
    par `position: absolute; bottom: var(--sp-8)`, il flottait à côté des boutons
    depuis le lot 138 sans qu'aucun espacement ne le rattrape. Hors du zoom, il
    n'a plus le choix : il suit la rangée. */
 .card-final[data-gabarit="apercu"] > .parcours-pied {
-  padding: 0 var(--sp-8) var(--sp-8) var(--sp-16);
+  /* 📏 LE REMBOURRAGE GAUCHE PASSE DE 16 À 8, ET C'EST UNE MESURE, PAS UN GOÛT :
+     les quatre organes pèsent 44 + 91 + 85 + 44 = **264** blg incompressibles
+     (trois sont des contrôles, ils ne rétrécissent pas). À 16 de gauche il
+     restait **263** — le `?` sortait de la dalle de 17 blg.
+     ⚖️ La rangée est le seul organe de la dalle qui touche ses deux bords : lui
+     donner la même marge des deux côtés est plus juste que d'y appliquer le
+     rembourrage de texte du rang B. */
+  padding: 0 var(--sp-8) var(--sp-8);
   margin-top: 0;
+  /* ⛔ AUCUN `gap` : les marges automatiques du livre et du `?` font déjà les
+     trois écarts. Un `gap` s'y AJOUTERAIT — 24 blg de plus sur une ligne qui
+     n'en a pas. C'est l'addition silencieuse que cette nuit a défaite trois fois. */
+  gap: 0;
 }
 
 /* ⚖️ EN APERÇU, LA VIBRATION N'EST QUE NOMMÉE — Eric, 2026-09-03 : *« inertes »*.

@@ -305,7 +305,15 @@ const SORTIE_ETAPE = {
      paire de la coquille à un libellé, c'était se faire tromper le jour où deux
      choses portent le même nom. */
   back: '"Back"', cancel: '"Cancel"', done: '"Done"', producteur: "ui/builder/shell.mjs",
-  classeBack: '"sortie-bouton sortie-back"',
+  /* ⚠️ LE TÉMOIN SUIT LA CLASSE, PLUS LA CHAÎNE ENTIÈRE — lot 143. La coquille
+     compose maintenant le nom : `Cancel` prend `sortie-annule` (le rouge de ce
+     qui abandonne), `Back` garde `sortie-back` (le bleu du recul), et NORMES le
+     veut ainsi — *« les classes nomment des ACTES, pas des teintes »*.
+     ⭐ CE QUE LE GARDE TIENT N'A PAS BOUGÉ : il compte les PORTEURS, pas la
+     forme littérale. Un écran qui écrirait l'une ou l'autre de ces classes
+     rougirait exactement comme avant. */
+  classeBack: '"sortie-back"',
+  classeAnnule: '"sortie-annule"',
   classeDone: '"sortie-bouton sortie-done"'
 };
 
@@ -369,10 +377,21 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
      garder l'ORDRE des nœuds qu'on passe — c'était le détail, pas la règle. */
   assert.match(shellText, /swapContent\(frame\.stage,[\s\S]{0,160}poserLaSortie\(renderStepContent\(\), renderSortieEtape\(\)\)/,
     "⛔ elle est réellement POSÉE dans la scène — écrite sans être appelée, elle ne serait qu'un placeholder de plus");
-  assert.match(shellText, /const hote = contenu\.querySelector\("\[data-sortie-ici\]"\);/,
-    "et l'écran ne fait que DÉCLARER un hôte — il ne fabrique toujours aucune sortie (garde 17)");
-  assert.match(shellText, /if \(!hote\) return noeuds;/,
+  /* ⚠️ ÉLARGI AU LOT 143 : un écran peut déclarer PLUSIEURS hôtes — le catalogue
+     de Destiny en pose 22, une par fiche. Eric l'a vu avant moi, sur son iPad :
+     *« les autres dalles n'ont que choose »*. La coquille déposait sa sortie
+     dans le PREMIER hôte, et les 21 autres fiches n'avaient pas de retour.
+     ⭐ LA RÈGLE GARDÉE N'A PAS BOUGÉ D'UN MOT : l'écran DÉCLARE, la coquille
+     FABRIQUE. Elle en fabrique simplement autant qu'il y a d'hôtes — et une
+     par une, jamais par clonage : un clone perdrait ses écouteurs, et un bouton
+     muet est pire qu'un bouton absent. */
+  assert.match(shellText, /const hotes = \[\.\.\.contenu\.querySelectorAll\("\[data-sortie-ici\]"\)\];/,
+    "et l'écran ne fait que DÉCLARER ses hôtes — il ne fabrique toujours aucune sortie (garde 17)");
+  assert.match(shellText, /if \(hotes\.length === 0\) return noeuds;/,
     "⛔ un écran qui ne déclare rien garde le pied au bas de la scène : les neuf autres ne bougent pas");
+  assert.match(shellText, /hotes\.forEach\([\s\S]{0,140}?renderSortieEtape\(\)/,
+    "⛔ et les hôtes suivants reçoivent une sortie NEUVE, jamais un clone : " +
+    "`cloneNode` ne recopie pas les écouteurs, et le bouton répondrait à rien");
 });
 
 /* ══ 18 / 19 — LES DEUX CHAPITRES DU 2026-08-15, SUR LES OCTETS ══════════
@@ -447,6 +466,8 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      l'avait demandé mot pour mot). */
   assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.classeBack), [`${SORTIE_ETAPE.producteur} (1)`],
     "un retour posé par un ÉCRAN rouvrirait deux chemins — ce que I.5 interdit ; celui de la coquille les unifie");
+  assert.deepEqual(porteursDuLibelle(SORTIE_ETAPE.classeAnnule), [`${SORTIE_ETAPE.producteur} (1)`],
+    "⛔ et le retour qui ABANDONNE non plus : deux teintes, un seul producteur");
   assert.deepEqual(fichiersDuLibelle("pressBack()"), [SORTIE_ETAPE.producteur],
     "et le verbe du recul n'est appelé QUE dans la coquille — c'est lui, pas le mot affiché, qui fait le retour");
   /* ⭐ ET IL RECULE DU PLUS INTÉRIEUR VERS LE PLUS EXTÉRIEUR : c'est CET
@@ -753,7 +774,10 @@ test("17 bis — ⚔️ ATTAQUE : un écran qui poserait sa propre sortie fait r
      est une. Le geste redouté est donc bien celui-ci — un écran qui rebâtit la
      paire de la coquille, classe et verbe compris. */
   const ecranFautif = 'const b = button("Done", () => pressDone()); b.className = "sortie-bouton sortie-done";'
-    + ' const r = button("I changed my mind", () => pressBack()); r.className = "sortie-bouton sortie-back";';
+    /* ⚠️ L'ATTAQUE SUIT LA FORME COURANTE — lot 143 : la coquille compose
+       désormais le nom de classe (`sortie-back` ou `sortie-annule` selon
+       l'acte), donc le témoin est la classe seule, pas la chaîne complète. */
+    + ' const r = button("I changed my mind", () => pressBack()); r.className = "sortie-back";';
   assert.equal(ecranFautif.includes(SORTIE_ETAPE.classeDone), true, "l'attaque rebâtit bien la sortie `Done`");
   assert.equal(ecranFautif.includes(SORTIE_ETAPE.classeBack), true, "et le retour de la coquille");
   assert.equal(ecranFautif.includes("pressBack()"), true, "avec le verbe qui n'appartient qu'à elle");

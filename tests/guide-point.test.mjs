@@ -156,11 +156,31 @@ test("B1 — le `?` a bien DEUX aspects, et le plein est du parchemin", () => {
 });
 
 test("B2 — ⛔ le `?` n'emprunte AUCUNE couleur de l'échelle", () => {
+  /* ⚔️ LE LECTEUR SAIT-IL LIRE ? Un témoin avant de mesurer : une règle qui
+     EXCLUT la pastille ne doit pas compter, une règle qui la VISE doit compter.
+     Sans ce témoin, le correctif ci-dessous pourrait tout laisser passer. */
+  const essai = (sel) => sel.replace(/:not\([^)]*\)/g, "").includes(".tuto-point");
+  assert.equal(essai("button:not(.fiche-livre):not(.tuto-point)"), false,
+    "un sélecteur qui EXCLUT le `?` ne le style pas");
+  assert.equal(essai(".parcours-pied .tuto-point"), true,
+    "et un sélecteur qui le VISE compte toujours");
   /* §7 : *« le vert avait été envisagé puis écarté : dans l'échelle il dit
      "fini", ce qui est l'INVERSE de "jamais vu" »*. Et il ne crie pas : une
      couleur de signal réclamerait l'attention qu'un guide OPTIONNEL a le droit
      de ne pas prendre. */
-  const blocs = [...css.matchAll(/\.tuto-point[^{]*\{([^}]*)\}/g)].map((m) => m[1]).join("\n");
+  /* ⛔ UN SÉLECTEUR QUI L'EXCLUT N'EST PAS UN SÉLECTEUR QUI LE STYLE — corrigé
+     le 2026-09-03. Ce lecteur cherchait la chaîne `.tuto-point` dans le
+     sélecteur ; le jour où la rangée de boutons a écrit
+     `button:not(.fiche-livre):not(.tuto-point)` pour LUI ÉPARGNER l'octogone,
+     il a lu ces règles comme si elles peignaient la pastille — et a accusé une
+     feuille juste.
+     ⭐ La loi ne bouge pas d'un mot ; c'est le lecteur qui apprend à lire un
+     `:not()`. Même famille de faute que les trois lecteurs de feuille du
+     lot 142 : un lecteur qui ne sait pas lire accuse le mauvais. */
+  const vise = (sel) => sel.replace(/:not\([^)]*\)/g, "").includes(".tuto-point");
+  const blocs = [...css.matchAll(/([^{}]*)\{([^}]*)\}/g)]
+    .filter((m) => vise(m[1]))
+    .map((m) => m[2]).join("\n");
   for (const jeton of ["--positive", "--caution", "--critical", "--info", "--accent"]) {
     assert.ok(!blocs.includes(jeton),
       `le \`?\` porte ${jeton} — c'est une couleur de SIGNAL, et le guide ne signale rien`);
