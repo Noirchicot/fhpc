@@ -164,3 +164,33 @@ test("G — la cote de la carte se lit sur le jeton du panneau, jamais en vh", (
     "aucune unité de fenêtre : `zoom` ne les rebase pas, elles sont calculées sur la fenêtre brute " +
     "puis peintes × le cran (garde 5 ter de `ui-jetons.test.mjs`).");
 });
+
+test("H — les deux fenêtres de prose sont PLAFONNÉES, et ce n'est pas un défilement", () => {
+  /* 🔴 LA LOI D'ERIC, ET ELLE EST PLUS ANCIENNE QUE CET ÉCRAN : *« un contenu
+     qui ne tient pas : demander ce qu'il porte EN TROP, jamais un défilement
+     interne »* (palette FREE, 91 → 56 blg). ⭐ Ce qu'il portait en trop avait
+     déjà une maison : le LIVRE du pied porte la règle entière. Un défilement
+     mettrait deux organes sur le même travail, dont un invisible tant qu'on ne
+     le touche pas.
+     📏 CE QUE LE PLAFOND REND, MESURÉ SUR LES 22 CARTES le 2026-09-03 (3
+     vibrations et 5 lignes de bonus — le pire cas, verrouillé par Eric) :
+     **22 sur 22 tiennent**, hauteurs 449 / 463 / 478 / 492 pour un budget de
+     500. Sans lui, six débordaient, la pire de 79 blg.
+     ⚖️ ET LE PLAFOND DOIT SE VOIR : `line-clamp` pose les points de suspension.
+     Un texte de RÈGLE tronqué sans signe est pire que les deux options — le
+     joueur croit avoir lu. C'est pourquoi ce garde exige `line-clamp` et pas un
+     `max-height`, qui couperait en silence. */
+  const clamp = declaration(".aire-power .card-final-cadre", "-webkit-line-clamp");
+  assert.equal(clamp, "4",
+    `les fenêtres de prose sont plafonnées à « ${clamp} » ligne(s). Eric a dicté 4 le 2026-09-03 ` +
+    "(« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »), et c'est CE nombre " +
+    "qui fait tenir les 22 cartes : à 3 lignes elles perdaient une ligne de règle de plus, à 5 " +
+    "elles débordaient de nouveau.");
+
+  const corpsProse = corps(".aire-power .card-final-cadre") || "";
+  assert.match(corpsProse, /overflow:\s*hidden/,
+    "le plafond doit couper (`overflow: hidden`), pas laisser dépasser — sinon il ne plafonne rien.");
+  assert.doesNotMatch(corpsProse, /overflow[-a-z]*:\s*(auto|scroll)/,
+    "⛔ AUCUN DÉFILEMENT INTERNE ICI. C'est la loi d'Eric, et la réponse à « ça ne tient pas » est " +
+    "le LIVRE du pied, qui porte déjà la règle entière.");
+});

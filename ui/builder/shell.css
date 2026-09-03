@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=467");
+  background-image: url("./assets/tarot-dos.jpg?v=468");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8288,6 +8288,38 @@ button.tuto-point::before {
 .species-lignage-ligne:last-child { margin-bottom: 0; }
 .species-lignage-table tr + tr th, .species-lignage-table tr + tr td {
   border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+
+/* ══ LE PLAFOND DES DEUX FENÊTRES DE PROSE — 4 lignes ═══════════════════════
+   🔴 ERIC, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power :
+   donc 4 lignes »*. 📏 CE QUE ÇA REND, MESURÉ SUR LES 22 : **21 tiennent à 478
+   blg**, soit 22 de marge sous le budget de 500. Sans plafond, six débordaient,
+   la pire (*The Devil*, 11 lignes de `power`) de 79 blg.
+
+   ⛔ ET CE N'EST PAS UN DÉFILEMENT, PARCE QU'ERIC L'A INTERDIT : *« un contenu
+   qui ne tient pas : demander ce qu'il porte EN TROP, jamais un défilement
+   interne »* (palette FREE, 91 → 56). ⭐ Ici la réponse à « ce qu'il porte en
+   trop » existait déjà : **le livre** porte la règle entière, et il est dans le
+   pied. Une fenêtre qui défile mettrait deux organes sur le même travail, dont
+   un invisible tant qu'on ne le touche pas.
+
+   ⚖️ MAIS LA COUPE DOIT SE VOIR, et c'est la seule chose que ce plafond ajoute :
+   `line-clamp` pose les points de suspension tout seul. Un texte de RÈGLE
+   tronqué sans signe est pire que les deux options — le joueur croit avoir lu.
+
+   ⚠️ CE QUE CE PLAFOND COÛTE, ÉCRIT ICI PARCE QUE ÇA NE SE VOIT PAS DANS LA
+   FEUILLE : sept cartes perdent des lignes, et *The Devil* en perd SEPT sur
+   onze. À ce niveau ce n'est plus une décision d'affichage, c'est une règle
+   qu'on n'affiche plus. La réponse durable est de raccourcir CES textes-là,
+   dans le manuscrit ; ce plafond tient le cadre en attendant. */
+.aire-power .card-final-cadre,
+.aire-meaning .card-final-cadre {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
 }
 
 

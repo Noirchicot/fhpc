@@ -1735,15 +1735,22 @@ porte.
 - 🔴 **LE BUDGET DES 21 AUTRES CARTES — REMESURÉ le 03/09 sur le gabarit final** (les 22 clonées
   dans la dalle vivante, à sa largeur réelle) :
 
-  | vibrations affichées | débordent | la pire |
-  |---|---|---|
-  | 3 *(Score 7–10)* | **6 / 22** | *The Devil* **579** — 79 de trop |
-  | 4 *(Score 11–15)* | **9 / 22** | *The Devil* **598** — 98 de trop |
+  🔴 **LE PIRE CAS EST VERROUILLÉ, et c'est Eric qui l'a fermé** (03/09) : *« personne n'a plus de
+  3 vibrations, on a le max au lvl 1 »* et *« 5 lignes de bonus pour le score, donc ça c'est au max
+  aussi »*. ⭐ Un budget dont le pire cas est BORNÉ se vérifie une fois pour toutes — ce n'est plus
+  une estimation, c'est un calcul fermé.
 
-  📏 **UNE LIGNE DE CORPS VAUT ~15 blg** : le budget se compte en LIGNES, pas en pixels.
-  ⭐ *L'Ermite est la MÉDIANE*, et c'est pourquoi tout tombait juste sur elle et sur aucune autre.
-  ⏳ **Ce qui reste à trancher est un arbitrage de RÈGLE, pas de mise en page** : les six qui
-  débordent portent un `power` de 5 à 7 lignes. Le raccourcir touche au jeu — c'est Eric.
+  | | débordent | la pire |
+  |---|---|---|
+  | sans plafond | **6 / 22** | *The Devil* **579** — 79 de trop |
+  | **`power`/`meaning` plafonnés à 4 lignes** | **0 / 22** | *The Fool* **492** — 8 de marge |
+
+  📏 Hauteurs rendues : **449 · 463 · 478 · 492**. Une ligne de corps vaut **14,5 blg** : le budget
+  se compte en LIGNES, pas en pixels.
+  ⚠️ **CE QUE LE PLAFOND COÛTE, ET IL NE FAUT PAS QUE ÇA SE PERDE** : sept cartes perdent des
+  lignes, et *The Devil* en perd **SEPT sur onze**. À ce niveau ce n'est plus une décision
+  d'affichage, c'est une règle qu'on n'affiche plus. La réponse durable est de raccourcir CES
+  textes-là dans le manuscrit — le plafond tient le cadre en attendant.
 
 ---
 
