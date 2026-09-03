@@ -165,6 +165,44 @@ il n'est PAS la condition, le contenu l'est.
 qui existe + and more »* a tenu deux minutes dans ce fichier. **Une consigne
 recueillie au vol se relit avant d'être gravée** — le corpus n'est pas le fil.
 
+### ⛔ ET LE MANQUE PEUT ÊTRE DANS LA **FORME**, PAS SEULEMENT DANS LE CONTENU
+
+> **Mesuré le 2026-09-04**, en cherchant les sous-classes que le SRD porterait
+> « en plus ». Il n'en porte aucune de plus — et la raison n'est pas un contenu
+> incomplet, c'est **la forme du champ**.
+
+Les douze classes du SRD portent `data.subclass` : **un objet, au singulier**.
+Pas une liste d'un élément — un objet. Vérifié sur les douze, sans exception :
+`Path of the Berserker`, `College of Lore`, `Life Domain`, `Circle of the Land`,
+`Champion`, `Warrior of the Open Hand`, `Oath of Devotion`, `Hunter`, `Thief`,
+`Draconic Sorcery`, `Fiend Patron`, `Evoker`.
+
+🔴 **UN ÉCRAN QUI VEUT UNE LISTE NE DEMANDE PAS DU CONTENU, IL DEMANDE UN AUTRE
+SCHÉMA.** C'est un tout autre chantier : écrire trois sous-classes de plus ne
+suffirait pas, il faut d'abord que le champ puisse en porter plusieurs, que la
+couche FH pose les siennes à côté sans patcher le record SRD *(contrat ci-dessus)*,
+et que le lecteur cesse d'attendre un objet.
+⭐ **La parade, et elle est bon marché** : avant de spécifier un écran, ne
+regarde pas seulement *combien* la couche porte — regarde **de quelle forme**.
+Un compte à 1 se lit « il en manque » ; un champ singulier se lit « la question
+n'est pas encore posée ».
+
+### 🔴 UN NOM DANS UNE SPEC N'EST PAS DU CONTENU
+
+**Six** sous-classes FH sont NOMMÉES dans `FH-WEB/FHPC/FHPCv2 future updates.md` :
+`Silent Blade` et `Spell Rigger` (Rogue), `Black Chanters` (Cleric), `Moonkeeper`
+(Sorcerer), `Soulmongers` (Warlock), `Ritualists` (Wizard). La cible écrite est
+**24 — deux par classe**.
+
+Une seule est **écrite** : `Moonkeeper`, qui a son chapitre au vault et qui est la
+seule à avoir atteint une couche. Les cinq autres sont *« nommée seulement »*,
+et le document le dit lui-même avec un ⛔.
+
+⚖️ **Un nom dans un document de suivi mesure une INTENTION, pas un stock.** Un
+chantier qui compte les noms croit avoir six sous-classes et en a une. ⭐ Le seul
+inventaire qui vaut est **ce que les couches portent**, parce que c'est le seul
+que l'écran peut lire.
+
 ## Les trois verbes, et rien d'autre
 
 | Verbe | Quand | Ce qu'il fait au défilement |
