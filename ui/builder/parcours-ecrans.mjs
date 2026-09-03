@@ -129,17 +129,23 @@ export function motDe(libelle) {
 
 export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, onAction }) {
   const act = onAction || (() => {});
-  /* 🔴 VOILE 50 % — Eric, 2026-08-26, en montrant cet écran servi : *« tu mets
-     la dalle de ça à 50 % »*. ⛔ Pas 35 : il a désigné l'objet et donné le
-     nombre dans la même phrase.
-     ⭐ C'EST LE MÊME VOILE QUE LA FICHE D'ESPÈCE, et ce n'est pas un hasard :
-     les deux sont ce que le joueur LIT longuement. Le 50 est donc le barreau
-     de la dalle qu'on lit, pas un barreau vide — NORMES §4 écrivait
-     *« 50 % → aucun organe aujourd'hui »*, c'est faux et ça se corrige là.
-     🔴 ET C'EST LE CADRE SOUS ELLE QUI REND CE VOILE VISIBLE : tant que
-     `.decision-card` peignait, ce 50 % se posait sur de l'opaque et ne montrait
-     rien. Les deux changements ne valent QUE l'un avec l'autre. */
-  const page = el("section", "parcours-guide dalle-intermediaire");
+  /* 🔴 VOILE 35 % — Eric, 2026-09-03 : *« change le voile à 35 pour Species et
+     Classes »*, dit APRÈS avoir vu le comparatif des quatre écrans, où le 50
+     d'ici était le seul de la famille.
+     ⚖️ ET ÇA RENVERSE SA PROPRE CONSIGNE DU 2026-08-26 (*« tu mets la dalle de
+     ça à 50 % »*), donnée alors que Destiny n'avait pas encore ses écrans. La
+     consigne ancienne n'était pas fausse : elle était SEULE. Le mot du 03/09 a
+     un terme de comparaison que celui du 26/08 ne pouvait pas avoir.
+     ⛔ CE QUI TOMBE AVEC : l'argument *« le 50 est le barreau de la dalle qu'on
+     LIT »*. Il ne tient plus — le R de Species et l'écran final de Destiny se
+     lisent autant l'un que l'autre, et prennent désormais le même verre.
+     📌 CE QUI RESTE VRAI : c'est le cadre sous elle qui rend ce voile visible.
+     Tant que `.decision-card` peignait, un voile se posait sur de l'opaque et
+     ne montrait rien. Le 35 en dépend autant que le 50 en dépendait.
+     ⚠️ ET LE MÊME GESTE ATTEINT QUATRE ÉTAPES, pas deux : cette fonction sert
+     Species, Class, Inheritance et Origin feat. Le voile est celui de l'ORGANE
+     partagé, pas d'un écran — mesuré avant d'écrire. */
+  const page = el("section", "parcours-guide dalle-simple");
   page.dataset.objet = "dalle";
   page.dataset.racine = racine;
 
