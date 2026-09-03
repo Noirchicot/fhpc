@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=501";
-import { versionQuery } from "./version.mjs?v=501";
+import { planAt } from "./carnet.mjs?v=502";
+import { versionQuery } from "./version.mjs?v=502";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -278,7 +278,17 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        depuis toujours, Eric la regarde tous les jours, et il vient de la
        désigner comme la référence. §4 sera corrigé, pas la fiche. */
     const hote = ctx.fiche ? el("div", "fiche-dalle dalle-intermediaire") : card;
-    if (!ctx.fiche) card.className = "catalogue-card dalle-intermediaire";
+    /* 🔴 UNE SEULE PLAQUE SOUS LES YEUX — Eric, 2026-09-03, capture d'iPad à
+       l'appui : *« sous la dalle un autre voile, je n'en veux pas »*.
+       ⛔ DEUX VOILES S'EMPILAIENT, et c'était un reste juste devenu faux : quand
+       la rangée ÉTAIT la fiche, lui donner le régime d'une dalle avait du sens.
+       Depuis que le corps rend sa PROPRE dalle (l'aperçu de Destiny), la rangée
+       n'est plus qu'un cran d'aimantation — une boîte de défilement, pas un
+       objet. Un cran qui se peint, c'est une plaque sous une plaque.
+       ⭐ L'ÉCRAN LE DÉCLARE, on ne le devine pas d'après ce qu'il rend : même
+       porte étroite que `titreDansLaFiche`, et pour la même raison — deviner le
+       gabarit d'après les nœuds a coûté deux passes le 15 août. */
+    if (!ctx.fiche && !ctx.corpsEstUneDalle) card.className = "catalogue-card dalle-intermediaire";
     /* ⚖️ LA FICHE PEUT PORTER SON PROPRE TITRE — Eric, 2026-09-03 : la fiche de
        Destiny devient l'écran final dézoomé, et son titre vit DANS son gabarit,
        centré sur la dalle. Le rendre ici en plus en ferait deux.
