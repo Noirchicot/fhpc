@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=474";
-import { versionQuery } from "./version.mjs?v=474";
+import { planAt } from "./carnet.mjs?v=476";
+import { versionQuery } from "./version.mjs?v=476";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -135,13 +135,41 @@ export function renderCatalogueRail(ctx, onAction) {
   const cursor = Number.isInteger(ctx.cursor) ? ctx.cursor : 0;
   const list = el("ol", "catalogue-rail");
   list.setAttribute("aria-label", ctx.label || "Catalogue");
+  /* ⭐ LE RAIL DIT SON GENRE, comme la rangée de fiches le fait depuis toujours
+     (`cards.dataset.kind`). C'est le crochet du rail à deux colonnes des
+     arcanes. ⛔ PAS `:has()` : il échoue en silence là où il n'est pas porté, et
+     le rail prendrait la mauvaise géométrie sans un mot — payé deux fois le
+     15 août sur les fiches. Un attribut se lit partout. */
+  list.dataset.kind = ctx.kind;
+  /* 🔴 LA GÉOMÉTRIE SE DÉCLARE, ELLE NE SE DÉDUIT PAS DU GENRE — et un garde
+     me l'a imposé : `ui-jetons` interdit à la feuille de nommer une COUCHE, or
+     mon premier jet écrivait `[data-kind="arcana"]`. Il avait raison : le jour
+     où un autre catalogue veut deux colonnes, un sélecteur par genre ne lui
+     sert à rien et il faudrait l'élargir en le recopiant.
+     ⭐ L'écran déclare COMBIEN de colonnes, la feuille dessine des colonnes. */
+  if (ctx.railColonnes) list.dataset.colonnes = String(ctx.railColonnes);
   options.forEach((id, index) => {
     /* Le `<li>` est NU, le cran porte la classe : `.catalogue-rail-item` est
        coté (74 px de texte, garde 5 de `fiche-360`), et déplacer la cote sur
        une enveloppe la ferait mentir. Un `<button>` dans un `<li>` garde la
        liste une liste — un `<button>` enfant direct d'un `<ol>` n'en est pas. */
     const item = el("li", null);
-    const cran = el("button", "catalogue-rail-item", [text(recordName(ctx.query, ctx.kind, id))]);
+    /* 🔣 LE CRAN PEUT PORTER UNE ÉTIQUETTE COURTE À LA PLACE DU NOM — Eric,
+       2026-09-03, sur le rail des 22 arcanes : *« juste une numérotation des
+       arcanes à gauche avec un petit symbole. moins long qu'un mot »*.
+       ⭐ C'EST L'ÉCRAN QUI FOURNIT L'ÉTIQUETTE, PAS LE RAIL QUI LA DEVINE —
+       même porte étroite que `railImage`. Un rail qui irait chercher un chiffre
+       romain par genre serait un rail qui connaît les couches.
+       ⚠️ ET L'OREILLE NE PERD RIEN : le nom du record part en `aria-label`.
+       Un lecteur d'écran qui annoncerait « dix-huit » sur une liste de tarots
+       serait exact et inutilisable. */
+    const etiquette = typeof ctx.railEtiquette === "function" ? ctx.railEtiquette(id) : null;
+    const nom = recordName(ctx.query, ctx.kind, id);
+    const cran = el("button", "catalogue-rail-item", [text(etiquette || nom)]);
+    if (etiquette) {
+      cran.setAttribute("aria-label", nom);
+      cran.dataset.etiquette = "courte";
+    }
     cran.type = "button";
     /* 🖼️ UN CRAN PEUT PORTER SA VIGNETTE — Eric, 2026-08-30, sur le scrollspy
        de Destiny : *« il y a un scrollspy avec les cartes de tarot »*, puis
@@ -238,7 +266,15 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        désigner comme la référence. §4 sera corrigé, pas la fiche. */
     const hote = ctx.fiche ? el("div", "fiche-dalle dalle-intermediaire") : card;
     if (!ctx.fiche) card.className = "catalogue-card dalle-intermediaire";
-    hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
+    /* ⚖️ LA FICHE PEUT PORTER SON PROPRE TITRE — Eric, 2026-09-03 : la fiche de
+       Destiny devient l'écran final dézoomé, et son titre vit DANS son gabarit,
+       centré sur la dalle. Le rendre ici en plus en ferait deux.
+       ⛔ UN DRAPEAU NOMMÉ, PAS UN `:has()` NI UNE DEVINETTE SUR LES NŒUDS : le
+       15 août, deviner le gabarit d'une fiche d'après ce qu'elle rendait a coûté
+       deux passes. L'écran DIT ce qu'il porte. */
+    if (!ctx.titreDansLaFiche) {
+      hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
+    }
     const noeuds = renderCard(ctx.query, id) || [];
     /* ⭐ LA FICHE A-T-ELLE UNE ZONE D'INFOS ? Eric, 2026-08-15 : quand elle
        en a une, tout est à fleur ; quand elle n'en a pas, **le blurb se

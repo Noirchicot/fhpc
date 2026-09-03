@@ -357,7 +357,16 @@ test("CH6 quater — LES ARCANES PORTENT LEUR `CHOOSE` DEPUIS LE LOT 109", async
      choix n'avait AUCUNE porte — le `Done` de la coquille restait éteint faute
      de carte tirée, et le joueur regardait vingt-deux cartes sans pouvoir en
      prendre une. */
-  const { renderArcanaCardBody } = await import("../ui/builder/destiny-step.mjs");
+  /* ⛔ `renderArcanaCardBody` A ÉTÉ RETIRÉ AU LOT 143, et ce test le suit sans
+     perdre un mot de sa loi. C'était une SECONDE mise en page de la carte, à
+     côté de l'écran final ; la fiche du catalogue est désormais l'écran final
+     lui-même, en gabarit « aperçu » (Eric, 2026-09-03).
+     ⚠️ Un export que plus personne n'appelle mais que trois tests maintiennent
+     en vie est un orphelin : la suite reste verte pendant que le code est mort.
+     Le corps de fiche change, la CHAÎNE que ce test mesure ne change pas — le
+     `CHOOSE` naît éteint et c'est le catalogue qui l'allume. */
+  const { renderDestinyFinal } = await import("../ui/builder/destiny-step.mjs");
+  const corpsDeFiche = (query, id) => [renderDestinyFinal({ gabarit: "apercu", query, drawnId: id, document: {}, resolved: null })];
 
   /* Les arcanes : ⚠️ elles ne lisent pas `decisions[]` (aucun plan ne les
      publie, mesuré au lot 45) — elles passent par la porte étroite
@@ -367,7 +376,7 @@ test("CH6 quater — LES ARCANES PORTENT LEUR `CHOOSE` DEPUIS LE LOT 109", async
   const appels = [];
   const cartesArcanes = renderCatalogueCards(
     { decisions, query, path: "fh.destiny.arcana", kind: "arcana", cursor: 0, options: arcanes },
-    renderArcanaCardBody, (a) => appels.push(a)
+    corpsDeFiche, (a) => appels.push(a)
   );
   const choisirs = cartesArcanes.querySelectorAll('[data-action="choose"]');
   assert.equal(choisirs.length, arcanes.length, "chaque fiche d'arcane porte SON `CHOOSE`");

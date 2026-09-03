@@ -27,7 +27,7 @@ globalThis.document = createTestDocument();
 
 const {
   renderDestinyStep, drawArcana, currentArcanaId, destinyValidate,
-  renderArcanaCardBody, arcanaImageSrc, ARCANA_BACK_SRC, DESTINY_ARCANA_PATH
+  renderDestinyFinal, arcanaImageSrc, ARCANA_BACK_SRC, DESTINY_ARCANA_PATH
 } = await import("../ui/builder/destiny-step.mjs");
 const { renderCatalogueCards, catalogueOptions } = await import("../ui/builder/catalogue.mjs");
 
@@ -81,7 +81,7 @@ test("mode choix : les options viennent de query({kind:\"arcana\"}) — 22 sur l
   assert.equal(options.length, 22);
   const node = renderCatalogueCards(
     { decisions: [], query, path: DESTINY_ARCANA_PATH, kind: "arcana", options, cursor: 0 },
-    renderArcanaCardBody
+    (q, id) => [renderDestinyFinal({ gabarit: "apercu", query: q, drawnId: id, document: {}, resolved: null })]
   );
   assert.equal(node.querySelectorAll("[data-snap]").length, 22);
 });
@@ -90,7 +90,7 @@ test("un catalogue à 3 cartes (pile réduite) n'en affiche QUE 3 — jamais 22 
   const trois = (query({ kind: "arcana" }) || []).slice(0, 3).map((v) => v.id);
   const node = renderCatalogueCards(
     { decisions: [], query, path: DESTINY_ARCANA_PATH, kind: "arcana", options: trois, cursor: 0 },
-    renderArcanaCardBody
+    (q, id) => [renderDestinyFinal({ gabarit: "apercu", query: q, drawnId: id, document: {}, resolved: null })]
   );
   assert.equal(node.querySelectorAll("[data-snap]").length, 3);
 });

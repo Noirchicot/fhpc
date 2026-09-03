@@ -465,8 +465,21 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      dessinait sa PROPRE paire `BACK`/`DONE` : deux chemins de retour, ce que
      I.5 interdit. L'item déclare maintenant un hôte et reçoit celle de la
      coquille. */
-  assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,300}?if \(state\.palier > 1\)/,
-    "⛔ le LORE, puis le PALIER, puis l'ÉTAPE — du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
+  /* ⚠️ ÉLARGI AU LOT 143, PAS ASSOUPLI — quatrième fois, et toujours la même
+     opération : **le CATALOGUE de Destiny** s'intercale entre le lore et le
+     palier. Eric, 2026-09-03 : *« en B2 le back ramène à R »*.
+     ⭐ POURQUOI LÀ ET PAS AILLEURS : B2 vit SOUS le R de son étape, comme le
+     lore vit sous le palier. Reculer depuis le catalogue doit rendre le R —
+     placé après le palier, le bouton sauterait par-dessus l'écran qu'on vient
+     de traverser, le défaut exact que le lot 79 avait relevé.
+     ⛔ ET CE GARDE A FAIT SON TRAVAIL : il a refusé un premier jet où
+     `destiny-step` dessinait son PROPRE bouton `Back` à côté de `Choose`. La
+     demande d'Eric était juste, le chemin ne l'était pas — la rangée déclare
+     maintenant `data-sortie-ici` et reçoit le retour de la coquille, comme la
+     dalle d'item depuis le 19/08. Cinq crans, tenus DANS L'ORDRE. */
+  assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,1400}?destinyMode === "choice"[\s\S]{0,400}?if \(state\.palier > 1\)/,
+    "⛔ l'ITEM, le LORE, le CATALOGUE de Destiny, puis le PALIER, puis l'ÉTAPE — " +
+    "du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
   /* 🔴 RÉÉCRIT LE 2026-08-20. Ce garde interdisait `"Back"` en capitale douce,
      parce que c'était le libellé de la LIGNE DE COMMANDE disparue, et que la
      paire du croquis écrivait `BACK`. Eric a tranché la casse le même jour

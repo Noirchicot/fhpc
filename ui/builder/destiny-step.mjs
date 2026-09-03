@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=474";
-import { renderCardRows } from "./catalogue.mjs?v=474";
+import { drawArcana } from "./dice.mjs?v=476";
+import { renderCardRows } from "./catalogue.mjs?v=476";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=474";
+import { versionQuery } from "./version.mjs?v=476";
 
 export { drawArcana };
 
@@ -51,6 +51,32 @@ export function arcanaImageSrc(id) {
   return `${ARCANA_DIR}/${String(id).replace("fh:arcana:en:", "")}.webp${versionQuery(import.meta.url)}`;
 }
 export const ARCANA_BACK_SRC = `${ARCANA_DIR}/back.webp${versionQuery(import.meta.url)}`;
+
+/* 🔣 LE SYMBOLE D'UN ARCANE — 22 SVG bicolores, dessinés POUR 24 px.
+   🔴 Eric, 2026-09-03 : *« juste une numérotation des arcanes à gauche avec un
+   petit symbole. moins long qu'un mot »*.
+   📏 POURQUOI LE CHIFFRE ET PAS LE NOM, ET C'EST UNE MESURE : *The High
+   Priestess* fait **107** blg à T2 sur une ligne — plus large que la vignette
+   de 90 qu'on remplaçait. **XVIII**, le plus large des 22 chiffres, en fait
+   **28,5**. Le texte coûte plus cher que l'image ; le chiffre coûte trois fois
+   moins que les deux.
+   ⭐ ET LE SYMBOLE EST GRATUIT : 24 de large contre 28,5 pour le chiffre, il ne
+   commande donc pas la largeur ; 20 de haut sous les 44 du plancher `--touch`,
+   il ne commande pas la hauteur non plus.
+   ⚖️ L'ACCENT EST `var(--accent)`, LE JETON DU SOCLE — les fichiers livrés
+   portaient `var(--sp-accent)`, un nom que j'avais inventé dans la consigne
+   avant de vérifier ce qui existait. Corrigé à l'entrée au dépôt : une norme se
+   câble en défaut PARTAGÉ, elle ne se double pas d'un jeton privé. */
+export const ARCANA_SYMBOLES = `${ARCANA_DIR}/symboles`;
+export function arcanaSymboleSrc(id) {
+  return `${ARCANA_SYMBOLES}/${String(id).replace("fh:arcana:en:", "")}.svg${versionQuery(import.meta.url)}`;
+}
+/** Le chiffre romain d'un arcane, tel que la couche l'écrit (`0` … `XXI`). */
+export function arcanaNumeral(query, id) {
+  const vue = query ? query({ kind: "arcana", id }) : null;
+  const data = vue && vue.record ? vue.record.data : null;
+  return (data && data.numeral) || "";
+}
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -251,6 +277,17 @@ export function renderDestinyPorte(act) {
    « bouton vert de validation », et un lot pressé en aurait fait un contrôle. */
 export function renderDestinyFinal(ctx, onAction) {
   const act = onAction || (() => {});
+  /* 🔴 DEUX RANGS, UN SEUL ORGANE — Eric, 2026-09-03 : la fiche du catalogue
+     **EST** l'écran final, dézoomé à 0,85, moins trois choses (le voyant, le
+     Destiny Score, la paire de boutons) et plus une rangée à 100 %.
+     ⭐ CE N'EST PAS UNE SECONDE MISE EN PAGE : un `gabarit` qui retire, jamais
+     un écran jumeau qui recopie. Le jour où l'écran final bouge, la fiche du
+     catalogue bouge avec lui — sans quoi les deux divergeraient en silence,
+     et c'est le défaut que le lot 60 interdit (« un catalogue, un écrivain »).
+     📏 ET 0,85 N'EST PAS UN RÉGLAGE, C'EST UN RÉSULTAT : `375 × 0,85 = 318,75`,
+     et la place que laisse le rail vaut `375 − 8 − 32 − 8 − 8 = 319`. À un quart
+     de blg près. Le nombre est forcé par la géométrie, pas choisi à l'œil. */
+  const apercu = ctx.gabarit === "apercu";
   const query = ctx.query || (() => null);
   const id = ctx.drawnId || currentArcanaId(ctx.document);
   const view = id ? query({ kind: "arcana", id }) : null;
@@ -267,10 +304,18 @@ export function renderDestinyFinal(ctx, onAction) {
   dalle.dataset.objet = "dalle";
   dalle.dataset.allume = "true"; // une carte est là : le voyant s'allume
 
-  const tete = el("div", "card-final-tete");
-  tete.append(el("span", "parcours-voyant"));
-  tete.setAttribute("aria-hidden", "true");
-  dalle.append(tete);
+  /* ⛔ PAS DE VOYANT EN APERÇU — Eric : *« ce qui est retiré de la fiche : le
+     voyant vert »*. ⭐ Et c'est juste : le voyant DIT que la carte est retenue.
+     Au catalogue on parcourt, on n'a rien retenu — il mentirait vingt-deux fois. */
+  if (!apercu) {
+    const tete = el("div", "card-final-tete");
+    tete.append(el("span", "parcours-voyant"));
+    tete.setAttribute("aria-hidden", "true");
+    dalle.append(tete);
+  } else {
+    dalle.dataset.gabarit = "apercu";
+    dalle.dataset.allume = "false";
+  }
 
   const corps = el("div", "card-final-corps");
 
@@ -429,14 +474,29 @@ export function renderDestinyFinal(ctx, onAction) {
          arriverait souligné par défaut, et la norme a mesuré ce défaut le 29/08.
          ⭐ RIEN N'EST PERDU, TOUT EST DÉPLACÉ : le popup porte l'effet entier,
          le livre porte le chapitre. L'écran ne montre que ce qui tient. */
-      const lien = document.createElement("button");
-      lien.type = "button";
-      lien.className = "lien-sort";
-      lien.textContent = v.name;
+      /* ⛔ INERTES EN APERÇU — Eric, 2026-09-03 : *« inertes »*.
+         ⭐ DEUX RAISONS, ET LA SECONDE EST MESURÉE. La fiche du catalogue se
+         PARCOURT : on fait défiler les vingt-deux pour choisir, et ouvrir un
+         popup interrompt ce parcours pour une information qu'on relira en SB2.
+         📏 Et le dézoom rapetisse les cibles de 15 % : un lien déjà court y
+         devient une cible plus petite qu'ailleurs sur l'écran. Le rendre inerte
+         retire le problème au lieu de le compenser.
+         ⚖️ ALORS IL PERD SON HABIT DE LIEN : `--lien` sur un mot qui ne mène
+         nulle part apprend au joueur à ne plus y croire. En aperçu c'est un
+         `<span>` d'encre de corps ; en SB2 il redevient bouton et lien. */
+      let lien;
       const effet = String(v.effect).replace(/\*/g, "");
-      lien.addEventListener("click", () => act({
-        kind: "popup", titre: `${v.rank} vp · ${v.name}`, texte: effet
-      }));
+      if (apercu) {
+        lien = el("span", "card-final-rang-nom", [text(v.name)]);
+      } else {
+        lien = document.createElement("button");
+        lien.type = "button";
+        lien.className = "lien-sort";
+        lien.textContent = v.name;
+        lien.addEventListener("click", () => act({
+          kind: "popup", titre: `${v.rank} vp · ${v.name}`, texte: effet
+        }));
+      }
       ligneVib.append(text(" "));
       ligneVib.append(lien);
       liste.append(ligneVib);
@@ -453,7 +513,12 @@ export function renderDestinyFinal(ctx, onAction) {
      ⭐ LES TERMES SONT CEUX DU SOCLE, PAS UNE SECONDE ADDITION. `resolved.stats`
      porte déjà son `breakdown`, terme par terme, avec le libellé de chacun ; on
      le recopie. Recalculer ici en ferait une seconde vérité (loi du lot 39). */
-  if (score !== null) {
+  /* ⛔ PAS DE DESTINY SCORE EN APERÇU — Eric : *« ce qui est retiré de la
+     fiche : la partie destiny score »*. ⭐ Et c'est la même raison que le
+     voyant : le Score dit ce que la carte VAUT UNE FOIS PRISE. Au catalogue on
+     n'a rien pris, et l'afficher vingt-deux fois ferait vingt-deux promesses.
+     📏 Il pesait 100 blg plus son écart — le poste le plus lourd de l'écran. */
+  if (score !== null && !apercu) {
     /* 🔴 LE TOTAL MONTE SUR LA LIGNE DE L'ÉTIQUETTE — Eric, 2026-09-03 :
        *« Destiny score. X · item 1 (en t1) · item 2 · item 3 · item 4 »*.
        ⭐ CE QUE ÇA CHANGE DANS LA LECTURE : on lit d'abord CE QUE ÇA VAUT, puis
@@ -493,71 +558,77 @@ export function renderDestinyFinal(ctx, onAction) {
   }
   dalle.append(corps);
 
-  /* ── le pied : la paire du croquis ──
-     🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
-     tout »*) — donc il est ROUGE, et il rend au **R**, pas à l'étape d'avant.
-     ⚠️ CORRIGÉ AU LOT 138 : cette ligne annonçait *« il demande confirmation
-     avant de défaire […] la coquille porte le popup »*. **Elle décrivait une
-     architecture qui n'existe pas** — `destinyReset` (shell.mjs) efface sans
-     rien demander, et le builder n'a aucun organe de confirmation. Le commentaire
-     de la coquille, lui, est exact et nomme la dette : NORMES §6 veut « rouge ET
-     confirmé », et les CINQ écrans qui portent ce mot en sont là.
-     ⛔ Un commentaire qui promet un organe absent envoie le lot suivant chercher
-     un popup pendant vingt minutes, puis croire qu'il l'a cassé. */
-  /* 📖 LE LIVRE MÈNE À LA PAGE DE CETTE CARTE, sur le site des règles. Le slug
-     du record EST le nom de la page (`the-hermit` → `/chapters/arcana/the-hermit/`),
-     comme il est déjà le nom du fichier d'image. Une seule convention. */
+  /* ── LE PIED : DEUX RANGS, DEUX PAIRES, ET C'EST LE RANG QUI DÉCIDE ──────
+     🔴 Eric, 2026-09-03 : *« en B2 le back ramène à R »* · *« en SB2 : I changed
+     my mind dans le FF revient à B2 »*.
+     ⭐⭐ LE BOUTON NE RETIENT RIEN. J'avais proposé qu'il se souvienne d'où on
+     vient ; Eric a tranché autrement, et mieux : c'est le RANG où l'organe est
+     rendu qui porte sa sortie. Pas d'historique à relire, pas d'état à tenir à
+     jour — donc aucun chemin tordu ne peut le mettre en défaut. C'est la même
+     loi que `R`/`B`/`SB` : un rang se lit, il ne se mémorise pas.
+
+     ⚠️ ET LE PIED DE L'APERÇU VIT HORS DU ZOOM — Eric : *« ce qu'on rajoute sur
+     la fiche et NON DÉZOOMÉS : le bouton choose, le livre et le ? »*.
+     ⭐ CE QUE ÇA RÉPARE AU PASSAGE, ET C'EST OUVERT DEPUIS LE LOT 138 : le `?`
+     est `position: absolute; bottom: var(--sp-8)` — ancré à la DALLE, pas au
+     pied. Tant qu'il l'était, il flottait à côté des boutons au lieu de suivre
+     leur ligne, et aucun réglage d'espacement ne le rattrapait. Sorti du zoom,
+     il n'a plus le choix : il suit le pied. */
   const slug = record && record.slug ? record.slug : String(id || "").replace("fh:arcana:en:", "");
   const rangee = pied(slug ? { href: `${LIVRE_ARCANES}${slug}/` } : null, act);
-  rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
-  /* 🔴 « DONE », PAS « NEXT » — croquis d'Eric du 2026-09-02. Le geste n'a pas
-     changé (`destinyNext`), c'est le mot. ⚖️ NORMES §6 sépare les deux : `NEXT`
-     ne fait que NAVIGUER, `DONE` acte. Ici il ACTE — c'est lui qui pose la carte
-     au document — donc le croquis nomme juste, et l'ancien libellé mentait sur
-     ce que le bouton coûte. */
-  rangee.append(bouton("Done", "parcours-next", () => act({ kind: "destinyNext" })));
+  if (apercu) {
+    /* ⛔ CET ÉCRAN NE DESSINE PAS SON `Back`, ET UN GARDE ME L'A REFUSÉ —
+       `shell-wiring` 17 : *« UN SEUL retour dans tout ui/, et c'est la coquille
+       qui le pose »* (I.5). J'avais écrit le bouton ici parce qu'Eric le
+       demandait « à côté de Choose » ; le garde a raison et la demande aussi —
+       ce qui manquait, c'est le CHEMIN.
+       ⭐ IL EXISTE DÉJÀ, ET LE GARDE LE NOMME : *« l'item déclare un hôte et
+       reçoit la paire de la coquille »*. La rangée porte `data-sortie-ici`, la
+       coquille y pose SON retour, le livre passe à gauche et le `?` à droite
+       (`poserLaSortie`). Le bouton d'Eric arrive, sans second chemin de retour.
+       ⚖️ ET C'EST `pressBack()` QUI APPREND LE CRAN : le catalogue de Destiny
+       devient un cran de recul entre le palier et l'étape — même élargissement
+       que le lore au lot 82 et l'item au 19/08, pas un assouplissement. */
+    rangee.setAttribute("data-sortie-ici", "");
+    /* ⛔ `data-action="choose"` EST UN RÔLE, PAS UN CÂBLAGE : seul
+       `renderCatalogueCards` connaît l'index de la fiche qu'on touche. Le bouton
+       naît donc `disabled`, et c'est le catalogue qui l'allume — la loi posée au
+       lot 45, qu'on ne double pas ici. */
+    const choisir = el("button", "fiche-action");
+    choisir.type = "button";
+    choisir.dataset.action = "choose";
+    choisir.disabled = true;
+    choisir.append(text("Choose"));
+    rangee.append(choisir);
+  } else {
+    /* 🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
+       tout »*) — donc il est ROUGE. ⭐ SA DESTINATION SUIT LE RANG : en SB2 il
+       rend au catalogue (rien n'était acté), ailleurs il rend au R en effaçant.
+       C'est la coquille qui lit le rang, pas ce bouton — il n'émet qu'un verbe. */
+    rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
+    /* 🔴 « DONE », PAS « NEXT » — croquis d'Eric du 2026-09-02. Le geste n'a pas
+       changé (`destinyNext`), c'est le mot. ⚖️ NORMES §6 sépare les deux : `NEXT`
+       ne fait que NAVIGUER, `DONE` acte. Ici il ACTE. */
+    rangee.append(bouton("Done", "parcours-next", () => act({ kind: "destinyNext" })));
+  }
   dalle.append(rangee);
   return dalle;
 }
 
-/** LE CORPS D'UNE FICHE DE CARTE, pour la branche `CHOOSE` — le catalogue
- *  partagé rend le cadre, ceci en remplit une. */
-export function renderArcanaCardBody(query, id) {
-  const view = query({ kind: "arcana", id });
-  const data = (view && view.record && view.record.data) || {};
-  const img = document.createElement("img");
-  img.className = "card-choice-img";
-  /* ⭐ PARESSEUX, ET SEULEMENT ICI. Le catalogue liste les VINGT-DEUX faces ;
-     sans ça, ouvrir la branche `Choose` télécharge le jeu entier avant
-     d'afficher la première carte. */
-  img.loading = "lazy";
-  img.src = arcanaImageSrc(id);
-  img.alt = "";
-  const rows = renderCardRows([
-    ["Ability", data.ability || null],
-    ["Impact", data.destiny && typeof data.destiny === "object" ? String(data.destiny.impact) : null],
-    ["Meaning", data.meaning]
-  ]);
-  /* 🔴 LA FICHE PORTE SON `CHOOSE` — croquis « B2 » d'Eric (2026-08-30), et
-     c'est la loi des écrans à fiche depuis Ch6 : *« chaque écran valide chez
-     lui »*. Sans ce bouton, la branche du choix n'avait AUCUNE porte : le
-     `Done` de la coquille restait éteint faute de carte tirée, et le joueur
-     regardait vingt-deux cartes sans pouvoir en prendre une (mesuré au banc
-     le 30/08).
-     ⛔ IL NE SE CÂBLE PAS ICI : `data-action="choose"` est un RÔLE, et seul
-     `renderCatalogueCards` connaît l'index de la fiche qu'on touche. Il naît
-     donc `disabled`, et c'est le catalogue qui l'allume. */
-  const pied = document.createElement("div");
-  pied.className = "fiche-actions";
-  const choisir = document.createElement("button");
-  choisir.type = "button";
-  choisir.className = "fiche-action";
-  choisir.dataset.action = "choose";
-  choisir.disabled = true;
-  choisir.textContent = "Choose";
-  pied.append(choisir);
-  return [img, rows, pied].filter(Boolean);
-}
+/* 🧹 `renderArcanaCardBody` A ÉTÉ RETIRÉ — lot 143, 2026-09-03.
+   ⛔ C'ÉTAIT UNE SECONDE MISE EN PAGE DE LA MÊME CARTE : image, trois lignes,
+   un bouton — à côté de l'écran final qui montre la même carte en mieux. Deux
+   écrans qui disent la même chose se corrigent deux fois, et divergent la fois
+   où l'on oublie. C'est le défaut que le garde du lot 60 interdit aux
+   catalogues, et il vivait ici sans que personne le nomme.
+   ⭐ LA FICHE DU CATALOGUE EST DÉSORMAIS `renderDestinyFinal({ gabarit:
+   "apercu" })` : le MÊME organe, à qui l'on retire le voyant, le Score et la
+   paire de boutons. Ce qui bouge sur l'écran final bouge sur la fiche.
+   ⚠️ ET IL ÉTAIT DÉJÀ MORT QUAND JE L'AI RETIRÉ : plus aucun appel en
+   production, seulement trois tests qui le maintenaient vert. Un export que
+   seuls ses tests appellent est un orphelin — la suite reste verte pendant que
+   le code ne sert plus. */
+
 
 /**
  * L'aiguilleur de l'étape — il ne dessine rien lui-même.

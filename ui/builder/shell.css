@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=474");
+  background-image: url("./assets/tarot-dos.jpg?v=476");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8428,3 +8428,90 @@ button.tuto-point::before {
    arbitrage, c'est un oubli.
    ⚖️ ET LA LOI REDEVIENT SIMPLE : l'écart entre deux blocs a UN SEUL écrivain,
    sans exception à retenir. Le garde D n'a plus de cas particulier à connaître. */
+
+
+/* ══ LE RAIL DES 22 ARCANES — deux colonnes, et il ne défile plus ══════════
+   🔴 Eric, 2026-09-03 : *« juste une numérotation des arcanes à gauche avec un
+   petit symbole. moins long qu'un mot »*.
+
+   📏 CE QUE ÇA REMPLACE, ET POURQUOI, EN TROIS NOMBRES :
+   · le rail de vignettes coûtait **90** de large et **3 659** de course — les
+     22 crans ne tenaient pas dans les 500 de la scène, donc il défilait ;
+   · un rail de NOMS coûterait **105** (*The High Priestess*, 107 à T2) — plus
+     cher que la vignette. ⛔ Le texte est plus large que l'image, et c'est le
+     contraire de ce qu'on croit ;
+   · le CHIFFRE romain le plus large, **XVIII**, fait **28,5**.
+   ⭐ D'où deux colonnes de onze à `44` (le plancher `--touch`, qui ne cède
+   jamais) : `11 × 44 = 484` dans 500. **Les vingt-deux sont visibles d'un
+   coup**, pour la même largeur qu'avant et la course en moins.
+
+   ⚖️ LE SYMBOLE EST GRATUIT DANS LES DEUX SENS : 24 de large contre 28,5 pour
+   le chiffre, il ne commande pas la largeur ; empilé sous les 44 du plancher,
+   il ne commande pas la hauteur. Il ne coûte donc rien à personne. */
+.catalogue-rail[data-colonnes="2"] {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-content: start;
+  gap: var(--sp-4);
+}
+.catalogue-rail[data-colonnes="2"] .catalogue-rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  /* 🔴 `--touch`, ET IL NE CÈDE JAMAIS — un cran est un CONTRÔLE. Le dessin
+     n'en demande que 35 (20 de symbole + 15 de chiffre) ; c'est le doigt qui
+     fixe la cote, pas le dessin (loi du 24/08). */
+  min-height: var(--touch);
+  padding: var(--sp-4) 0;
+}
+/* ⛔ ET LE CRAN DES ARCANES NE PORTE PLUS DE VIGNETTE : `.catalogue-rail-img`
+   est cotée pour une carte de tarot (74 × 127). Le symbole est un SVG carré. */
+.catalogue-rail[data-colonnes="2"] .catalogue-rail-img {
+  width: 24px; height: 24px;
+  border-radius: 0;
+  object-fit: contain;
+}
+
+
+/* ══ LA FICHE DU CATALOGUE — l'écran final, dézoomé à 0,85 ════════════════
+   🔴 Eric, 2026-09-03 : *« dézoom de la fiche de 0,85 »* · *« ce qu'on rajoute
+   sur la fiche et NON DÉZOOMÉS : le bouton choose, le livre et le ? »*.
+
+   ⭐⭐ 0,85 N'EST PAS UN RÉGLAGE, C'EST UN RÉSULTAT :
+       375 × 0,85              = 318,75
+       375 − 8 − 32 − 8 − 8    = 319      (marges + rail + marges)
+   À un quart de blg près. Le dézoom choisi à l'œil EST la place que laisse le
+   rail. Le nombre est forcé par la géométrie — c'est ce qui dit qu'un dessin
+   est juste, et c'est pourquoi il est écrit ici plutôt que réglé ailleurs.
+
+   ⚠️ `zoom` ET NON `transform: scale()` : `scale` peint plus petit mais laisse
+   la boîte occuper sa taille d'origine — la fiche mangerait toujours 375 de
+   mise en page et le rail n'aurait pas sa place. `zoom` réduit la taille
+   UTILISÉE, donc la place réellement prise.
+   ⛔ ET AUCUNE UNITÉ DE FENÊTRE NE DOIT VIVRE LÀ-DEDANS : `zoom` ne rebase pas
+   `vw`/`vh` (garde 5 ter). Le gabarit final n'en porte aucune — sa carte se
+   lit sur `--panneau-h`, un jeton en px. Il traverse donc le zoom sans mentir. */
+.card-final[data-gabarit="apercu"] { padding: 0; }
+.card-final[data-gabarit="apercu"] > .card-final-corps {
+  width: calc(var(--panneau-l) * 1px);
+  zoom: .85;
+  /* le rembourrage du rang B, DANS le zoom : il rétrécit avec le reste, ce qui
+     est juste — c'est la marge du dessin, pas celle de l'écran. */
+  padding: var(--sp-4) var(--sp-8) 0 var(--sp-16);
+}
+/* 🔴 LE PIED RESTE À 100 %, ET C'EST LUI QUI RÉPARE LE `?` — ancré à la dalle
+   par `position: absolute; bottom: var(--sp-8)`, il flottait à côté des boutons
+   depuis le lot 138 sans qu'aucun espacement ne le rattrape. Hors du zoom, il
+   n'a plus le choix : il suit la rangée. */
+.card-final[data-gabarit="apercu"] > .parcours-pied {
+  padding: 0 var(--sp-8) var(--sp-8) var(--sp-16);
+  margin-top: 0;
+}
+
+/* ⚖️ EN APERÇU, LA VIBRATION N'EST QUE NOMMÉE — Eric, 2026-09-03 : *« inertes »*.
+   ⛔ ELLE PERD DONC L'HABIT DU LIEN : `--lien` sur un mot qui ne mène nulle part
+   apprend au joueur à ne plus y croire, et il ne le recroira pas en SB2 où le
+   lien, lui, ouvre vraiment. Encre de corps ici, `--lien` là-bas. */
+.card-final-rang-nom { color: var(--text-soft); }
