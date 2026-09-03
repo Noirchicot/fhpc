@@ -28,17 +28,17 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=511";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=511";
-import { renderChoixGlisses } from "./glisser.mjs?v=511";
-import { spellInfo } from "./class-step.mjs?v=511";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=512";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=512";
+import { renderChoixGlisses } from "./glisser.mjs?v=512";
+import { spellInfo } from "./class-step.mjs?v=512";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=511";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=511";
-import { etapeParId } from "./etapes.mjs?v=511";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=511";
+import { motDuVerrou } from "./skills-step.mjs?v=512";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=512";
+import { etapeParId } from "./etapes.mjs?v=512";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=512";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
