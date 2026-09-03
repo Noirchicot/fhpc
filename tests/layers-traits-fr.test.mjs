@@ -14,10 +14,36 @@
  *  silence — et un silence ici produirait des fiches FH amputées sans que
  *  personne l'apprenne.
  *
- *  ⛔ CE TEST NE DEMANDE PAS QUE LA PILE FRANÇAISE MARCHE. Il demande qu'elle
- *  ÉCHOUE BRUYAMMENT tant qu'elle ne marche pas. Le jour où Eric tranche
- *  l'arbitrage (§5 du relevé) et où les clefs migrent, ce test doit rougir :
- *  c'est le signal que la capacité est arrivée, pas une régression.
+ *  ⛔ CE TEST NE DEMANDAIT PAS QUE LA PILE FRANÇAISE MARCHE. Il demandait
+ *  qu'elle ÉCHOUE BRUYAMMENT tant qu'elle ne marchait pas — et il annonçait
+ *  depuis le lot 108 que le jour où les clefs seraient appariées, il rougirait,
+ *  et que ce rouge serait le SIGNAL que la capacité est arrivée.
+ *
+ *  ══ ✅ CE JOUR EST ARRIVÉ — 2026-09-04 ═══════════════════════════════════
+ *
+ *  Eric a tranché le 03/09 (« FH en français un jour OUI ! », puis
+ *  « maintenant »), puis ratifié la forme le 04/09 (« oui, id hors langue =
+ *  clé »). Le siège Versatilité a posé dans `fh-srd` un `slug` NEUTRE,
+ *  identique dans les deux langues, sur les 33 traits de chaque côté — dérivé
+ *  de l'extraction, jamais tenu à la main. La grammaire de chemins de ce dépôt
+ *  appariait déjà un élément sur `id` OU `slug` (`src/layers/paths.mjs:158`) :
+ *  la clef est donc lue telle quelle, sans une ligne de code neuve.
+ *
+ *  ⭐ CE FICHIER EST DONC RÉÉCRIT À SA NOUVELLE VÉRITÉ, PAS DÉSARMÉ. Le second
+ *  cas affirmait un REFUS ; il affirme maintenant que la pile MONTE et que le
+ *  retrait Fate's Hand traverse la langue. C'est le rouge annoncé, encaissé.
+ *
+ *  ⛔ ET LA GARANTIE QU'IL PORTAIT N'EST PAS RELÂCHÉE POUR AUTANT. « Un chemin
+ *  dans le vide est un échec, pas un silence » (§L7.2) reste vrai et reste
+ *  éprouvé — sur une PRIVATION DÉLIBÉRÉE, plus sur une pénurie de circonstance
+ *  (troisième cas ci-dessous). On ne relâche pas une garantie parce que la
+ *  source s'est améliorée : on la reprouve autrement.
+ *
+ *  ⚠️ CE QUE CE ROUGE NE DIT PAS. La pile devient MONTABLE, pas FRANÇAISE : les
+ *  règles Fate's Hand ne sont écrites qu'en anglais, donc un personnage
+ *  français porte ses traits SRD en français et les textes FH en anglais. Et
+ *  la violation du contrat est intacte — les dix chemins écrivent toujours des
+ *  règles FH dans des records `srd:`. ⛔ Le plafond des dix ne bouge pas.
  */
 
 import assert from "node:assert/strict";
@@ -52,22 +78,73 @@ test("la pile LIVRÉE monte, et la couche FH mord bien sur le SRD anglais", () =
     "et le second chemin du même retrait a mordu lui aussi");
 });
 
-test("sous un rendu FRANÇAIS, la couche FH d'espèces REFUSE de se monter — et nomme tout", () => {
-  const verbes = pile(SRD_EN, SRD_FR);
+test("✅ sous un rendu FRANÇAIS, la couche FH d'espèces SE MONTE — la clef hors langue a ouvert la route", () => {
+  /* ⚠️ RÉÉCRIT LE 2026-09-04, ET C'EST LE ROUGE ANNONCÉ DEPUIS LE LOT 108.
+     Ce cas affirmait un REFUS au montage, et c'était le bon comportement tant
+     qu'aucune clef n'appariait les deux langues. `fh-srd` a posé un `slug`
+     neutre sur les 33 traits de chaque côté : les dix chemins de la couche FH
+     trouvent désormais leur cible en français comme en anglais.
+     ⛔ Le garde n'est pas désarmé, il est mis à sa nouvelle vérité — et il
+     éprouve maintenant la chose qui compte vraiment : que la règle Fate's Hand
+     TRAVERSE la langue au lieu de disparaître en silence. */
+  const verbes = pile(SRD_FR, FH_ESPECES);
+  const humain = verbes.query({ kind: "species", id: "srd:species:en:human" });
 
-  /* ⭐ LE REFUS TOMBE AU MONTAGE, pas au rendu. Personne n'obtient une fiche
-     fausse : on n'obtient pas de fiche du tout. C'est la meilleure forme
-     d'échec possible, et c'est elle qu'on épingle. */
+  assert.equal(humain.provenance.from, "srd-5.2.1-fr", "c'est bien le rendu FRANÇAIS qui est servi");
+  assert.deepEqual(humain.record.data.traits.map((t) => t.id), ["competent", "polyvalent"],
+    "⭐ `ingenieux` — le Resourceful français — a été RETIRÉ par la couche FH. Le retrait a trouvé sa " +
+    "cible À TRAVERS LA LANGUE : c'est très exactement la capacité qui manquait.");
+  assert.equal(Object.hasOwn(humain.record.data, "granted_skill_choice"), false,
+    "et le second chemin du même retrait a mordu lui aussi, comme du côté anglais");
+
+  /* ⭐ ET C'EST BIEN LE `slug` QUI PORTE, PAS L'`id` — les ids divergent
+     toujours, et c'est voulu : la clef AJOUTE une poignée, elle n'en déplace
+     aucune. Sans ce contrôle, le test resterait vert le jour où quelqu'un
+     migrerait les ids et croirait que c'est la même chose. */
+  const ingenieux = verbes.query({ kind: "species", id: "srd:species:en:elf" })
+    .record.data.traits.find((t) => t.id === "sens-aiguises");
+  assert.equal(ingenieux.slug, "keen-senses",
+    "le trait français garde son id français et porte le slug anglais — c'est la poignée hors langue");
+});
+
+test("⛔ ET LA GARANTIE DU REFUS N'EST PAS RELÂCHÉE — un chemin dans le vide échoue toujours", () => {
+  /* Le cas au-dessus prouvait, jusqu'au 04/09, que « un chemin dans le vide est
+     un échec, pas un silence » (§L7.2). Il ne le prouve plus : les chemins ne
+     sont plus dans le vide. ⛔ On ne relâche pas une garantie parce que la
+     source s'est améliorée — on la reprouve sur une PRIVATION DÉLIBÉRÉE.
+     C'est la leçon du lot 13 : une preuve qui s'appuie sur une pénurie de
+     circonstance s'évapore EN RESTANT VERTE le jour où la pénurie cesse. */
+  const couche = {
+    schema: "fh-layer/1",
+    id: "scenario-chemin-dans-le-vide",
+    version: "1.0.0",
+    name: "Couche de scénario — un chemin qui ne vise rien",
+    lang: "en",
+    flags: [],
+    attribution: { license: "all-rights-reserved", text: "scénario de test" },
+    records: {
+      species: {
+        "srd:species:en:human": {
+          op: "patch",
+          changes: { "data.traits[trait-qui-n-existe-nulle-part].text": "…" },
+          note: "scénario — un chemin qui ne vise rien"
+        }
+      }
+    }
+  };
+  const couches = createLayers({ bus: { emit() {} } });
+  couches.verbs.register({ bytes: octets(SRD_EN), origin: SRD_EN });
+
   assert.throws(
-    () => verbes.register({ bytes: octets(FH_ESPECES), origin: FH_ESPECES }),
+    () => couches.verbs.register({
+      bytes: Buffer.from(JSON.stringify(couche, null, 2) + "\n", "utf8"),
+      origin: "couche du scénario"
+    }),
     (erreur) => {
       const dit = String(erreur.message);
-      assert.match(dit, /fh-species-en/, "le refus nomme LA COUCHE fautive");
-      /* 27/08 — le PREMIER chemin fautif a changé : la conversion PROF fait
-         du dragonborn (breath-weapon) le premier patch de trait rencontré.
-         Le SENS du garde ne bouge pas : couche, espèce, chemin, raison. */
-      assert.match(dit, /srd:species:en:dragonborn/, "et L'ESPÈCE visée");
-      assert.match(dit, /data\.traits\[breath-weapon\]/, "et LE CHEMIN qui ne vise rien");
+      assert.match(dit, /scenario-chemin-dans-le-vide/, "le refus nomme LA COUCHE fautive");
+      assert.match(dit, /srd:species:en:human/, "et L'ESPÈCE visée");
+      assert.match(dit, /trait-qui-n-existe-nulle-part/, "et LE CHEMIN qui ne vise rien");
       assert.match(dit, /ne devine pas la forme/, "et LA RAISON, en clair");
       return true;
     },

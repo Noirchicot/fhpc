@@ -1,8 +1,12 @@
-/* ══ LE PRÉALABLE DE LA ROUTE D — UN TRAIT N'A AUCUNE IDENTITÉ HORS LANGUE ══
+/* ══ LA CLEF DE TRAIT HORS LANGUE — la mesure qui manquait, puis la poignée ══
  *
- *  Lot 148, 2026-09-04. ⛔ Ce fichier ne répare rien : il TIENT une mesure qui
- *  décide si le lot 148 est faisable, et il rougira le jour où la réponse
- *  changera.
+ *  Lot 148 (04/09, matin) puis lot 151 (04/09, soir). ⛔ Ce fichier ne répare
+ *  rien : il tenait la mesure qui décidait si la route D était faisable, et il
+ *  tient maintenant la poignée qui l'a rendue possible.
+ *
+ *  ⚠️ SON TITRE A CHANGÉ LE MÊME JOUR, et c'est le sujet. Il s'appelait
+ *  « UN TRAIT N'A AUCUNE IDENTITÉ HORS LANGUE » — vrai le matin, faux le soir.
+ *  Un fichier dont le titre survit à sa mesure répond de travers à qui le lit.
  *
  *  ── POURQUOI IL EXISTE ────────────────────────────────────────────────
  *
@@ -59,12 +63,50 @@
  *  reste à faire ; elle cesse d'être ce qui BLOQUE une capacité pour devenir une
  *  remise d'aplomb d'architecture. Le plafond des dix ne bouge pas d'ici là.
  *
- *  ⭐ CE GARDE ROUGIRA SUR UNE BONNE NOUVELLE, et c'est voulu — même patron que
- *  `layers-traits-fr.test.mjs`. Le jour où `fh-srd` donnera aux traits une
- *  identité hors langue (une clef partagée, un genre `trait`, ou une arête
- *  `translation_of` — les trois sont absents aujourd'hui, mesurés), ce fichier
- *  rougira. ⛔ Ce rouge N'EST PAS une régression : c'est le signal que le
- *  préalable du lot 148 est levé et que la route D peut se faire.
+ *  ══ ✅ ET LA BONNE NOUVELLE EST ARRIVÉE — 2026-09-04, LE MÊME JOUR ═══════
+ *
+ *  Ce garde annonçait qu'il rougirait le jour où la poignée existerait, et que
+ *  ce rouge serait le SIGNAL, pas une régression. Il a rougi le soir même.
+ *
+ *  Le siège Versatilité a posé dans `fh-srd` un **`slug` neutre**, identique
+ *  dans les deux langues, sur les 33 traits de chaque côté — **dérivé de
+ *  l'extraction** (quatre signaux joués jusqu'au point fixe : les nombres, les
+ *  records déjà appariés, le recouvrement réciproque, le degré de mention entre
+ *  frères), ⛔ jamais tenu à la main, et **vérifié par une seconde lecture en
+ *  sens inverse** — 33 accords, 0 désaccord.
+ *
+ *  ⭐ Et il n'a fallu **aucune ligne de code ici** : `src/layers/paths.mjs:158`
+ *  appariait déjà un élément de tableau sur `item.id` OU `item.slug`.
+ *
+ *  Mesuré sur les couches régénérées, les trois piles montent :
+ *      `srd-fr + fh-species-en`            ✅ humain → competent, polyvalent
+ *      `srd-en + srd-fr + fh-species-en`   ✅  (idem)
+ *      `srd-en + fh-species-en`            ✅ humain → skillful, versatile
+ *  `ingenieux` — le Resourceful français — est retiré par la couche FH : **le
+ *  retrait a traversé la langue.** C'est la capacité qui manquait.
+ *
+ *  ── CE QUE CE FICHIER TIENT MAINTENANT ────────────────────────────────
+ *
+ *  ⛔ Il ne s'efface pas parce que sa mesure est devenue bonne — un garde qui
+ *  s'efface laisse la régression revenir sans témoin. Il **change d'objet** :
+ *
+ *    · les deux premiers cas gardent la MESURE D'ORIGINE (1 clef d'`id` sur 33,
+ *      un homographe). Elle reste vraie, et c'est elle qui explique POURQUOI le
+ *      slug a dû exister : la clef AJOUTE une poignée, elle n'en déplace aucune ;
+ *    · le troisième tient la PROPRIÉTÉ qui a coûté le chantier — le slug apparie
+ *      les deux langues, trait pour trait, **sans exception**.
+ *
+ *  ⚠️ ET ÇA NE SOLDE PAS TOUT. Les dix chemins sont fautifs pour DEUX raisons :
+ *  (a) ils visent un mot, donc une langue — ✅ la clef règle celle-là ;
+ *  (b) ils écrivent des règles FH dans des records `srd:` — ⛔ intact.
+ *  La route D reste à faire ; elle cesse d'être ce qui BLOQUE une capacité pour
+ *  devenir une remise d'aplomb d'architecture. ⛔ Le plafond des dix ne bouge
+ *  pas, et `chemin-par-le-mot-ferme` continue de refuser le onzième.
+ *
+ *  ⚠️ ET LA PILE DEVIENT MONTABLE, PAS FRANÇAISE : les règles Fate's Hand ne
+ *  sont écrites qu'en anglais, donc un personnage français porte ses traits SRD
+ *  en français et les textes FH en anglais. Traduire ces textes-là est du
+ *  contenu — l'écriture d'Eric, pas un lot.
  */
 
 import assert from "node:assert/strict";
@@ -145,22 +187,70 @@ test("⛔ ET L'HOMOGRAPHE NE PROUVE RIEN — deux traits de même clef ne disent
     "⛔ sur la MÊME espèce, aucune autre clef ne se retrouve : `brave` coïncide, il n'apparie pas");
 });
 
-test("⛔ AUCUNE AUTRE POIGNÉE NON PLUS — un trait ne porte que `id`, `name` et `text`", () => {
-  /* La question complète n'est pas « les clefs s'apparient-elles ? » mais
-     « existe-t-il UNE poignée hors langue ? ». Un champ neutre — un rang, une
-     clef canonique, un renvoi — répondrait oui sans que les clefs bougent.
-     ⛔ Mesuré : il n'y en a aucun. Sans ce troisième cas, le garde répondrait
-     à une question plus étroite que celle qu'il a l'air de poser. */
-  const champs = new Set();
-  for (const couche of ["srd-5.2.1-en.layer.json", "srd-5.2.1-fr.layer.json"]) {
-    for (const entree of Object.values(lis(couche).records.species || {})) {
+test("✅ LA POIGNÉE EST LÀ — un `slug` sur chaque trait, et il APPARIE 33 sur 33", () => {
+  /* ⚠️ RÉÉCRIT LE 2026-09-04 — C'EST LE ROUGE ANNONCÉ, ENCAISSÉ. Ce cas
+     affirmait qu'un trait ne portait que `id`, `name` et `text`. `fh-srd` a
+     posé un `slug` neutre, dérivé de l'extraction, et le préalable du lot 148
+     est levé.
+
+     ⭐ ET LE GARDE CHANGE D'OBJET AU LIEU DE DISPARAÎTRE. Il tenait une
+     ABSENCE ; il tient maintenant la PROPRIÉTÉ qui a coûté le chantier, et qui
+     est la seule chose qui doive rester vraie : **le slug apparie les deux
+     langues, trait pour trait, sans exception**. Un garde qui s'efface le jour
+     où sa mesure devient bonne laisse la régression revenir sans témoin.
+
+     ⛔ ET IL S'ÉPROUVE PAR LES DEUX BOUTS. Un slug manquant se voit ; un slug
+     PRÉSENT DES DEUX CÔTÉS MAIS DIFFÉRENT aussi — c'est celui-là qui serait
+     invisible à un simple compte, et c'est la famille « une bijection fausse
+     est cohérente ». */
+  const parLangue = {};
+  for (const [langue, couche] of [["en", "srd-5.2.1-en.layer.json"], ["fr", "srd-5.2.1-fr.layer.json"]]) {
+    const table = new Map();
+    for (const [adresse, entree] of Object.entries(lis(couche).records.species || {})) {
       for (const trait of ((entree.data || {}).traits) || []) {
-        for (const champ of Object.keys(trait)) champs.add(champ);
+        table.set(`${adresse}  ${trait.id}`, { adresse, slug: trait.slug });
       }
     }
+    parLangue[langue] = table;
   }
-  assert.deepEqual([...champs].sort(), ["id", "name", "text"],
-    "⭐ UN CHAMP NEUTRE EST APPARU sur les traits — s'il survit à la langue, c'est la poignée qui\n" +
-    "   manquait au lot 148, et la route D redevient faisable. ⛔ Sinon, c'est un champ localisé de\n" +
-    "   plus, et il ne change rien : la question est « survit-il à la langue ? », pas « existe-t-il ? ».");
+
+  /* ① AUCUN TRAIT SANS SLUG — dans l'une ou l'autre langue. */
+  const sansSlug = [];
+  for (const [langue, table] of Object.entries(parLangue)) {
+    for (const [clef, entree] of table) if (typeof entree.slug !== "string") sansSlug.push(`${langue}  ${clef}`);
+  }
+  assert.deepEqual(sansSlug, [],
+    "⛔ UN TRAIT A PERDU SA POIGNÉE. Sans slug, la couche FH ne le vise plus dans cette langue et la pile\n" +
+    "   REFUSE de se monter. La réparation est en amont (`fh-srd`, `src/pair_traits.py`), ⛔ pas ici.");
+
+  /* ② ET LES DEUX LANGUES PORTENT LE MÊME JEU DE SLUGS, ESPÈCE PAR ESPÈCE.
+     ⛔ Comparé par ENSEMBLE dans chaque espèce, jamais par position : deux jeux
+     triés séparément ne se contredisent jamais, même inversés. */
+  const desaccords = [];
+  const parEspece = (table) => {
+    const carte = new Map();
+    for (const { adresse, slug } of table.values()) {
+      if (!carte.has(adresse)) carte.set(adresse, new Set());
+      carte.get(adresse).add(slug);
+    }
+    return carte;
+  };
+  const en = parEspece(parLangue.en);
+  const fr = parEspece(parLangue.fr);
+  for (const [adresse, slugsEn] of en) {
+    const slugsFr = fr.get(adresse);
+    if (!slugsFr) { desaccords.push(`${adresse} : absente du français`); continue; }
+    const manquants = [...slugsEn].filter((s) => !slugsFr.has(s));
+    const en_trop = [...slugsFr].filter((s) => !slugsEn.has(s));
+    if (manquants.length || en_trop.length) {
+      desaccords.push(`${adresse} : fr sans ${JSON.stringify(manquants)} · fr en trop ${JSON.stringify(en_trop)}`);
+    }
+  }
+  assert.deepEqual(desaccords, [],
+    "⛔ LES DEUX LANGUES NE PORTENT PLUS LE MÊME JEU DE POIGNÉES. C'est la panne que ce chantier\n" +
+    "   existe pour empêcher : un slug qui diverge rend un chemin de couche FH muet dans UNE langue,\n" +
+    "   et un compte de slugs resterait juste pendant ce temps-là.");
+
+  assert.equal(parLangue.en.size, 33, "33 traits en anglais");
+  assert.equal(parLangue.fr.size, 33, "33 traits en français");
 });

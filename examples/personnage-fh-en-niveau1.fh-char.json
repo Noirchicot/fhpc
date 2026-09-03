@@ -18,7 +18,7 @@
       {
         "id": "srd-5.2.1-en",
         "version": "5.2.1",
-        "hash": "a68262ccdda6590494ecb4a30ec5dd49937233cd6ce0bc82e186afff6d838e07",
+        "hash": "1740e3738ec1792186eed396a795d88fdef08c949c2e6590da3842f1c0239330",
         "name": "SRD 5.2.1 (EN)"
       },
       {
@@ -30,7 +30,7 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "afd4a9ea391e63e3acf7883d541687b89cce543264a6ff1d1c59e644097708dd",
+        "hash": "8a3d4bf4b9d6593fe5e5c85dfdf8d7faf48924a53864f35dd37e9199c96b930b",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -404,7 +404,7 @@
         {
           "id": "srd-5.2.1-en",
           "version": "5.2.1",
-          "hash": "a68262ccdda6590494ecb4a30ec5dd49937233cd6ce0bc82e186afff6d838e07",
+          "hash": "1740e3738ec1792186eed396a795d88fdef08c949c2e6590da3842f1c0239330",
           "name": "SRD 5.2.1 (EN)"
         },
         {
@@ -416,7 +416,7 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "afd4a9ea391e63e3acf7883d541687b89cce543264a6ff1d1c59e644097708dd",
+          "hash": "8a3d4bf4b9d6593fe5e5c85dfdf8d7faf48924a53864f35dd37e9199c96b930b",
           "name": "Fate's Hand — Species (EN)"
         },
         {

@@ -37,6 +37,7 @@
             {
               "id": "darkvision",
               "name": "Darkvision",
+              "slug": "darkvision",
               "text": "You have Darkvision with a range of 60 feet."
             },
             {
@@ -170,6 +171,7 @@
             {
               "id": "darkvision",
               "name": "Darkvision",
+              "slug": "darkvision",
               "text": "You have Darkvision with a range of 60 feet."
             },
             {
@@ -180,16 +182,19 @@
             {
               "id": "fey-ancestry",
               "name": "Fey Ancestry",
+              "slug": "fey-ancestry",
               "text": "You have Advantage on saving throws you make to avoid or end the Charmed condition."
             },
             {
               "id": "keen-senses",
               "name": "Keen Senses",
+              "slug": "keen-senses",
               "text": "You have proficiency in the Survival, Delve, or Vigilance skill."
             },
             {
               "id": "trance",
               "name": "Trance",
+              "slug": "trance",
               "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
             }
           ],
@@ -397,16 +402,19 @@
             {
               "id": "darkvision",
               "name": "Darkvision",
+              "slug": "darkvision",
               "text": "You have Darkvision with a range of 120 feet."
             },
             {
               "id": "relentless-endurance",
               "name": "Relentless Endurance",
+              "slug": "relentless-endurance",
               "text": "When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead. Once you use this trait, you can’t do so again until you finish a Long Rest."
             },
             {
               "id": "versatile",
               "name": "Versatile",
+              "slug": "versatile",
               "text": "You gain an Origin feat of your choice (see “Feats”). Skilled is recommended."
             }
           ],
