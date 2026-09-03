@@ -5419,6 +5419,89 @@ button { font: inherit; }
 
 /* ② CE QUI NE CÈDE JAMAIS : la tête d'un item (son voyant et son bouton) et le
    pied. Ce sont des CONTRÔLES — §5 bis les nomme un par un. */
+
+/* ══ 🔲 TOUTES LES RANGÉES DE CONTRÔLES SONT DES GRILLES ═══════════════════
+   Eric, 2026-09-03 : *« tout passe en grid »*, après avoir lu le comparatif et
+   demandé ce qu'une cellule garantit.
+
+   ⭐ UNE CELLULE NE PROMET PAS L'IMMOBILITÉ, ELLE INTERDIT LA SUPERPOSITION.
+   Des organes en cellules se POUSSENT ; les deux autres montages échouent
+   autrement. Un organe en `position: absolute` n'a aucun rapport avec ses
+   voisins : il se laisse RECOUVRIR en silence. Une rangée `flex` avec des
+   réserves en rembourrage déborde PAR-DESSUS SON PROPRE REMBOURRAGE dès que le
+   contenu dépasse — `padding-inline` ne protège que tant qu'on tient dedans.
+
+   📏 MESURÉ DANS LES DEUX SENS, en allongeant les libellés sur les huit
+   étapes : la balance perdait **40 blg sur le livre ET 40 sur le `?`** sur
+   Species, Inheritance, Destiny et Class ; en anglais il ne restait qu'**1 blg**
+   de jeu. La grille rend 4 et 4.
+
+   🔴 LES DEUX BORNES SONT DES COLONNES, PAS DES RÉSERVES. Une colonne existe
+   même vide : la place du livre est tenue par le GABARIT, jamais négociée par
+   le contenu.
+
+   ⛔ ET LE `padding-inline: var(--touch)` DES RANGÉES DISPARAÎT AVEC : le
+   garder ajouterait une seconde réserve à celle des colonnes — deux marges
+   légitimes qui s'additionnent, le défaut le plus fréquent de cette feuille.
+
+   ⚠️ ET LA PLACE SE DIT PAR LE NOM DE L'ORGANE, JAMAIS PAR SON RANG.
+   Premier essai, mesuré et jeté : `:nth-of-type()`. Il compte **par BALISE** —
+   le livre est un `<button>` lui aussi, donc mon `:where(button:not(.fiche-livre))
+   :nth-of-type(1)` ne désignait pas la première ACTION mais le premier bouton
+   tout court. Résultat à l'écran : `Next` et le `?` empilés dans la MÊME
+   cellule, 44 blg de recouvrement sur quatre écrans — la grille reproduisait
+   exactement le défaut qu'elle venait réparer. Un compound selector ne change
+   pas ce que `nth-of-type` compte. */
+.parcours-pied,
+.sortie,
+.fiche-actions {
+  display: grid;
+  /* 🔴 SIX COLONNES, ET LES DEUX `1fr` SONT DES RESSORTS, PAS DES CASES.
+     ⛔ ESSAI PRÉCÉDENT, MESURÉ ET JETÉ : `--touch | 1fr | 1fr | --touch`, les
+     actions dans les deux `1fr`. Deux colonnes ÉGALES ne conviennent qu'à deux
+     boutons de largeurs proches — `I changed my mind` en demande 177 et `Next`
+     68. La colonne valait 139,5 : le premier a été ÉCRASÉ à 120 blg, son
+     libellé rogné. Aucun test ne l'aurait dit, rien ne débordait.
+     ⭐ Ici les actions sont en `auto` — elles ne cèdent jamais — et ce sont les
+     deux ressorts égaux de part et d'autre qui les centrent. Un ressort donne
+     ce qui reste ; une case impose ce qu'elle vaut. */
+  grid-template-columns: var(--touch) 1fr auto auto 1fr var(--touch);
+  align-items: center;
+  gap: 0;
+  padding-inline: 0;
+}
+
+/* ── LES DEUX BORNES ─────────────────────────────────────────────────────── */
+/* ⛔ ET ELLES SORTENT DU FLOTTEMENT. Le livre et la pastille étaient en
+   `position: absolute` : une cellule ne retient pas un organe hors flux, il
+   aurait gardé sa place d'avant en ignorant la grille. Leur `absolute` ne vaut
+   plus que sur une dalle SANS rangée, où il n'y a rien à pousser. */
+:is(.parcours-pied, .sortie, .fiche-actions) > .fiche-livre {
+  grid-column: 1; justify-self: start; position: static; inset: auto; margin: 0;
+}
+:is(.parcours-pied, .sortie, .fiche-actions) > .tuto-point {
+  grid-column: 6; justify-self: end; position: static; inset: auto; margin: 0;
+}
+
+/* ── LES ACTIONS, NOMMÉES UNE PAR UNE ────────────────────────────────────── */
+/* 🔴 LES DEUX `1fr` ÉGAUX SONT CE QUI CENTRE — pas une marge. Un centrage fait
+   de deux marges automatiques est une BALANCE : elle penche dès qu'un plateau
+   se vide. L'une finit au milieu, l'autre y commence. */
+:is(.parcours-pied, .sortie, .fiche-actions) > :is(.parcours-annuler, .sortie-annule) {
+  grid-column: 3; justify-self: end; margin: 0 var(--sp-4) 0 0;
+}
+:is(.parcours-pied, .sortie, .fiche-actions) > .parcours-next {
+  grid-column: 4; justify-self: start; margin: 0 0 0 var(--sp-4);
+}
+/* 🔴 UNE ACTION SEULE PREND LES DEUX COLONNES DU MILIEU. Sans elle, le `Done`
+   d'Identity se collerait au bord de la colonne 2, donc à GAUCHE du milieu —
+   la grille l'aurait décalé exactement comme la balance le décalait.
+   ⭐ `:has()` lit un FAIT de la rangée (« porte-t-elle deux actions ? »), pas
+   le nom d'un écran : toute rangée future est servie sans qu'on revienne ici. */
+:is(.parcours-pied, .sortie, .fiche-actions):not(:has(> :is(.parcours-annuler, .sortie-annule))) > :is(.sortie-done, .sortie-bouton, .fiche-action) {
+  grid-column: 3 / 5; justify-self: center; margin-inline: 0;
+}
+
 .parcours-item-tete,
 .parcours-pied { flex: none; }
 

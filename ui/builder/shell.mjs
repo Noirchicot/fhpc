@@ -2156,7 +2156,22 @@ function renderStepContent() {
        20/08), et deux `?` de la même étape ne peuvent pas se contredire. */
     const vu = guideVu(guide.etape);
     for (const hote of hotes) {
-      if (hote) hote.append(renderPointInterrogation(applyDecisionAction, { vu }));
+      if (!hote) continue;
+      const point = renderPointInterrogation(applyDecisionAction, { vu });
+      /* 🔴 LE `?` DESCEND DANS LA RANGÉE QUAND IL Y EN A UNE — Eric,
+         2026-09-03 : *« tout passe en grid »*.
+         ⛔ CE QU'IL FAISAIT POSÉ SUR LA DALLE : `position: absolute`, donc
+         AUCUN rapport avec ses voisins — il ne poussait rien et ne se laissait
+         pas pousser. Mesuré sous des libellés plus longs, les boutons le
+         recouvraient de **40 blg** sur quatre écrans. Il PARAISSAIT aligné
+         avec eux ; il ne l'était que par coïncidence de cotes.
+         ⭐ ET `garnirLaSortie` FAISAIT DÉJÀ EXACTEMENT CE GESTE pour `.sortie`
+         (il y déplace la pastille depuis la dalle). On ne fabrique rien : on
+         étend à toutes les rangées ce qu'une seule savait faire.
+         📌 Le lieu ne change pas — en bas à droite, voisin des gestes, comme
+         Eric l'a cadré le 19/08. Ce qui change est le MOYEN d'y être. */
+      const rangee = hote.querySelector(":scope .parcours-pied, :scope .sortie, :scope .fiche-actions");
+      (rangee || hote).append(point);
     }
   }
   effacerLesTitresEnDouble(card);
