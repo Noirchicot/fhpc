@@ -28,16 +28,17 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=518";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=518";
-import { renderChoixGlisses } from "./glisser.mjs?v=518";
-import { spellInfo } from "./class-step.mjs?v=518";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=519";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=519";
+import { renderChoixGlisses } from "./glisser.mjs?v=519";
+import { spellInfo } from "./class-step.mjs?v=519";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=518";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=518";
-import { etapeParId } from "./etapes.mjs?v=518";
+import { motDuVerrou } from "./skills-step.mjs?v=519";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=519";
+import { etapeParId } from "./etapes.mjs?v=519";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=519";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -1237,12 +1238,15 @@ function renderLineageBlock(ctx, record, act) {
  *  chemin de patch ne crée pas d'élément de collection (voir la tête de
  *  `patchEntry` dans `gen-fh-species-layer.mjs`). Les lire à un seul endroit,
  *  c'est en perdre la moitié. */
-function traitsDe(record) {
-  const data = (record && record.data) || {};
-  const base = Array.isArray(data.traits) ? data.traits : [];
-  const fh = Array.isArray(data.fh_traits) ? data.fh_traits : [];
-  return [...base, ...fh].filter((trait) => trait && trait.name);
-}
+/* REWRITTEN 2026-09-03 (lot 147) — LA LECTURE PART AU PLI, ET C'EST ELLE QUI
+   ÉTAIT LA BONNE. Trois sites fusionnaient les deux tableaux, dans DEUX ordres
+   contraires ; celui-ci était le seul à AFFICHER, donc le seul dont l'ordre se
+   voyait. C'est le sien qui a été retenu au pli — `base` d'abord — et rien ne
+   bouge à l'écran. Ce qui change n'est pas ce qui est LU mais ce qui GAGNE :
+   à identité égale, le trait FH supplante le trait SRD en gardant sa place.
+   ⛔ Aujourd'hui ça n'arrive jamais (zéro collision d'id, mesuré) ; c'est ce
+   que la route D rendra courant. Voir `src/modules/fh/traits.mjs`. */
+const traitsDe = traitsDeLEspece;
 
 /** Les condensés de trait, posés par fh-fiche (`data[fiche_trait_text]`),
  *  indexés par l'id du trait — la même clef que `TRAITS_COUVERTS` lit déjà.
