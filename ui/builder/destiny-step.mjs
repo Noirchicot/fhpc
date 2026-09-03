@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=499";
-import { renderCardRows } from "./catalogue.mjs?v=499";
+import { drawArcana } from "./dice.mjs?v=501";
+import { renderCardRows } from "./catalogue.mjs?v=501";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=499";
+import { versionQuery } from "./version.mjs?v=501";
 
 export { drawArcana };
 
@@ -415,7 +415,16 @@ export function renderDestinyFinal(ctx, onAction) {
      mot — plus en compensant une marge par une autre. */
   const courtes = [
     ligne("Ability", data.ability || null, "aire-ability"),
-    ligne("Impact", Number.isFinite(impact) && impact !== 0 ? (impact > 0 ? `+${impact}` : String(impact)) : null, "aire-impact")
+    /* 🔴 `+0` S'ÉCRIT, IL NE SE TAIT PAS — Eric, 2026-09-03 : *« manque impact
+       dans Strength »* · *« idem dans Death »* · *« +0 »*.
+       ⛔ LE CODE MASQUAIT LE BLOC QUAND L'IMPACT VALAIT ZÉRO, et c'est la faute
+       que le dépôt nomme depuis le 20/08 : **une absence n'est jamais une
+       réponse**. Un champ à `0` caché ne se lit pas « zéro », il se lit « cette
+       carte n'a pas d'impact » — et cinq arcanes sur vingt-deux racontaient
+       cette histoire fausse.
+       ⭐ La distinction reste faite là où elle a un sens : `null` (la couche ne
+       dit rien) se tait toujours, `0` s'écrit. Ce ne sont pas le même fait. */
+    ligne("Impact", Number.isFinite(impact) ? (impact >= 0 ? `+${impact}` : String(impact)) : null, "aire-impact")
   ].filter(Boolean);
   for (const l of courtes) corps.append(l);
 
