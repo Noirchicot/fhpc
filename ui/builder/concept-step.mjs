@@ -42,7 +42,7 @@
    valeur valide au prochain rendu — jamais une valeur à moitié écrite. */
 
 
-import { renderChoixGlisses } from "./glisser.mjs?v=521";
+import { renderChoixGlisses } from "./glisser.mjs?v=522";
 const ALIGNMENTS = [
   "Lawful Good", "Neutral Good", "Chaotic Good",
   "Lawful Neutral", "Neutral", "Chaotic Neutral",
