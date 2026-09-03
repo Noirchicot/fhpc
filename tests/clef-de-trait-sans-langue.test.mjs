@@ -28,6 +28,37 @@
  *  clef appariée : un rapprochement qui s'appuierait dessus marcherait sur une
  *  espèce sur neuf et donnerait l'illusion que la méthode tient.
  *
+ *  ── ✅ RATIFIÉ PAR ERIC LE 2026-09-04 ─────────────────────────────────
+ *
+ *      « oui, id hors langue = clé. il peut s'y mettre. »
+ *
+ *  La poignée manquante est donc COMMANDÉE, et le mandat est parti au siège
+ *  Versatilité (dépôt `fh-srd`, ⛔ hors mandat de l'architecte).
+ *
+ *  ⭐ ET LE CONSOMMATEUR EST DÉJÀ PRÊT — mesuré, pas supposé.
+ *  `src/layers/paths.mjs:158` apparie un élément de tableau sur `item.id` **OU**
+ *  `item.slug`. Une clef neutre posée en `slug` est donc lue par la grammaire de
+ *  chemins **sans une ligne de code à écrire ici**.
+ *
+ *  Éprouvé le 04/09 : neuf `slug` hors langue posés à la main sur la couche
+ *  française, puis la pile remontée —
+ *
+ *      AVANT  `srd-fr + fh-species-en`  ⛔ refus au montage
+ *      APRÈS  `srd-fr + fh-species-en`  ✅ monte · l'Humain rend
+ *             `competent, polyvalent` — `ingenieux` a DISPARU, donc le RETRAIT
+ *             Fate's Hand de `Resourceful` a traversé la langue.
+ *
+ *  ⛔ L'appariement de cette expérience était fait À LA MAIN et a été restauré
+ *  (`git diff` nul). Une table écrite à la main divergerait au premier
+ *  rafraîchissement de la source, et personne ne le verrait : la vraie clef doit
+ *  être DÉRIVÉE de l'extraction. C'est très exactement ce que le mandat demande.
+ *
+ *  ⚠️ ET ÇA NE SOLDE PAS TOUT. Les dix chemins sont fautifs pour DEUX raisons :
+ *  (a) ils visent un mot, donc une langue — c'est ce que la clef règle ;
+ *  (b) ils écrivent des règles FH dans des records `srd:` — ⛔ intact. La route D
+ *  reste à faire ; elle cesse d'être ce qui BLOQUE une capacité pour devenir une
+ *  remise d'aplomb d'architecture. Le plafond des dix ne bouge pas d'ici là.
+ *
  *  ⭐ CE GARDE ROUGIRA SUR UNE BONNE NOUVELLE, et c'est voulu — même patron que
  *  `layers-traits-fr.test.mjs`. Le jour où `fh-srd` donnera aux traits une
  *  identité hors langue (une clef partagée, un genre `trait`, ou une arête
