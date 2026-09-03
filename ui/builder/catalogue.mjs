@@ -605,7 +605,30 @@ export function renderFicheBody({ stats, blurb, traits, infos, image, imageSecou
 function renderFicheInfos(infos) {
   const bande = el("dl", "fiche-infos");
   bande.dataset.zone = "infos";   // ce que lit `renderCatalogueCards`
+
+  /* ⭐ LE `All` SE REPLIE SUR LE TITRE — Eric, 2026-09-03, croquis de la
+     Tiefling : *« Bloc de 4 lignes de haut »*, et les quatre lignes qu'il
+     dessine sont `Fiendish Legacies · resistance and spells`, puis Abyssal,
+     Chthonic, Infernal. La couche en porte CINQ : le titre, puis `All`, puis
+     les trois lignées. La quatrième ligne du croquis n'est pas une ligne
+     supprimée — c'est la valeur du `All` remontée à côté du titre, où elle dit
+     la même chose (« ce que TOUTES les lignées donnent ») en une ligne de
+     moins.
+     📏 MESURÉ, PAS SUPPOSÉ : 5 espèces sur 12 portent une bande (Dragonborn,
+     Elf, Hoddon, Goliath, Tiefling) et **2 seulement** ont une entrée `All`
+     (Elf et Tiefling). Les trois autres n'en ont pas — le repli est donc
+     CONDITIONNEL, et sans `All` la bande suit le chemin d'avant, inchangée
+     (Dragonborn 2 lignes, Goliath 3, Hoddon 4).
+     ⛔ Repérée PAR SON NOM, jamais par sa position : rien ne garantit que le
+     `All` soit toujours la première entrée après le titre, et une bande dont
+     on replierait la mauvaise ligne resterait parfaitement cohérente. */
+  const tout = infos.find(
+    (l) => l && typeof l.label === "string" && typeof l.value === "string"
+      && l.label.trim().toLowerCase() === "all",
+  );
+
   for (const ligne of infos) {
+    if (tout && ligne === tout) continue;   // sa valeur est partie sur le titre
     /* ⭐ UN INTERTITRE DANS LA BANDE — organe neuf du 2026-08-16, demandé par
        le test d'Eric : *« Subclasses (bold) »* au-dessus de trois lignes.
        ⛔ RENDU DANS UN `<div>`, PAS À NU : un `<dl>` n'accepte que `dt`, `dd`
@@ -618,6 +641,11 @@ function renderFicheInfos(infos) {
     if (ligne && typeof ligne.title === "string") {
       const titre = el("div", "fiche-info-row fiche-info-titre");
       titre.append(el("dt", null, [text(ligne.title)]));
+      /* Le titre est un `dt` SEUL quand il n'y a pas de `All` — il garde alors
+         exactement la forme du 16/08. Avec un `All`, il gagne un `dd` : le
+         `<div>` est déjà là (un `dl` n'accepte que dt/dd/div), et la règle
+         `.fiche-info-row` en fait une ligne en flex, gras puis normal. */
+      if (tout) titre.append(el("dd", null, [text(tout.value)]));
       bande.append(titre);
       continue;
     }

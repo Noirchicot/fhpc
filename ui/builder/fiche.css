@@ -1072,6 +1072,17 @@
      bande, qui restent à T1. Le blurb monte SEUL. */
   --fiche-ligne-blurb: calc(var(--t2) * 1.2);
 
+  /* 🔴 LA BANDE A SA PROPRE LIGNE — Eric, 2026-09-03, croquis de la Tiefling :
+     *« Legacies : passe en T2. Bloc de 4 lignes de haut »*. Même patron que le
+     blurb juste au-dessus, et pour la même raison : UN SEUL ÉCRIVAIN, DEUX
+     LECTEURS — l'interligne des lignes de la bande ET la hauteur de sa boîte
+     lisent ce jeton. Écrire « T2 » d'un côté et « 57,6 px » de l'autre, c'est
+     deux nombres qui décrivent la même chose et divergent au premier
+     changement (la panne du 17/08).
+     📏 14,4 blg la ligne, donc 57,6 la boîte de quatre. La bande rendait 5
+     lignes de 12 (= 60) : le bloc 1 gagne 2,4 blg, il n'en perd pas. */
+  --fiche-ligne-infos: calc(var(--t2) * 1.2);
+
   /* ── L'HABIT PORTRAIT, dicté par Eric le 27/08 ──────────────────────────
      « titre en haut et à gauche centré au-dessus du bloc 1 · bloc 1 texte
      centré · bloc 2 même largeur que le bloc 1, moins haut, texte cadré à
@@ -1142,6 +1153,69 @@
      −18 → −11, −8 → −2) et l'Elfe (« grant a thread of spells », −1) est
      redevenue entière. Aucune nouvelle. */
   font-size: var(--t1);
+}
+
+/* ══ LA BANDE D'UNE ESPÈCE — dictée d'Eric du 2026-09-03, croquis Tiefling ══
+   *« Legacies : passe en T2. Bloc de 4 lignes de haut, cadré à gauche, 8 blg
+   du bord gauche de la dalle. Il remplit les 2/3 gauche de la dalle. 8 blg le
+   séparent du bloc blurb. »*
+
+   ⚠️ SERVIE AUX ESPÈCES SEULEMENT, et c'est délibéré : les 12 fiches de CLASSE
+   portent elles aussi une bande (`Subclasses`), et cette ligne-là est un
+   dossier OUVERT — SOCLE.md, *« la ligne attend le contenu »*. Recoter en
+   passant la géométrie d'un organe dont Eric vient de suspendre le rendu, ce
+   serait trancher à sa place. La classe garde donc, au blg près, la bande
+   d'avant ce lot.
+   ⭐ Le crochet est `[data-kind]`, posé par `renderCatalogueCards` sur la liste
+   — le même mécanisme nommé que `data-infos` et `data-dressing`, jamais un
+   `:has()` ni une devinette sur les nœuds (payé deux fois le 15 août). */
+.catalogue-cards[data-kind="species"] .fiche-dalle:not([data-dressing="prose"]) .fiche-infos {
+  /* ⭐ LES 8 DU BORD GAUCHE SONT DÉJÀ PAYÉS — par le `padding: var(--sp-8)` de
+     la dalle. UN SEUL ÉCRIVAIN PAR ÉCART : la bande portait EN PLUS un
+     `margin-left: var(--sp-8)` et se posait donc à **16** du bord (mesuré au
+     banc), pas à 8. Les deux s'additionnaient — le défaut le plus fréquent de
+     cette feuille. Le second écrivain est supprimé, pas déplacé. */
+  margin-left: 0;
+  /* Elle traverse les deux colonnes pour pouvoir dépasser la colonne de texte
+     (145) ; c'est `width` qui l'arrête, pas la grille. */
+  grid-column: 1 / -1;
+  /* 📏 LES 2/3 DE LA DALLE = 179,3 blg, dérivés du jeton de largeur de la
+     carte — aucun pixel brut. Elle rendait 137 (0,509 de la dalle) : +42.
+     ⚠️ ET CE +42 NE PAIE PAS LE REPLI, MESURÉ APRÈS COUP : j'avais écrit ici
+     que la largeur rachetait la remontée à T2 « sans rien tronquer ». C'était
+     écrit AVANT la mesure, et c'est faux. Les deux lignes de titre repliées
+     demandent 222 (Elf, « Elven Lineages · grant a thread of spells ») et 224
+     (Tiefling, « Fiendish Legacies · a resistance + spells ») pour 179,3
+     disponibles : **−43 et −45**. L'ellipsis les coupe, et elle le DIT.
+     ⭐ C'est le régime tranché par Eric le 28/08 sur la bande des classes et il
+     ne change pas : le moule impose la ligne, le contenu s'y taille, un
+     dépassement est un défaut de CONTENU que l'ellipsis rend visible — le
+     raccourci appartient à Eric, pas au code. Les 12 autres lignes des cinq
+     bandes passent, dont les trois lignées de chaque espèce.
+     ⛔ Ce n'est PAS une largeur à rallonger en douce : 2/3 est la cote dictée,
+     et à 224 il faudrait la pleine dalle (253) pour loger la Tiefling — ce
+     serait renverser la dictée pour sauver deux lignes. */
+  width: calc(var(--carte-w) * 2 / 3);
+  /* 🔴 UNE BOÎTE FERMÉE DE QUATRE LIGNES — *« bloc de 4 lignes de haut »*. La
+     boîte se compte en LIGNES, jamais en pixels (la loi de ce fichier).
+     ⛔ Elle ne peut pas être posée sur la RANGÉE de la grille : la rangée 3 est
+     partagée avec les fiches de classe et avec les espèces sans bande, à qui
+     elle imposerait 57,6 blg de vide. La cote appartient à l'organe. */
+  height: calc(var(--fiche-ligne-infos) * 4);
+  /* *« Legacies : passe en T2 »* — elle était à T1 (10) depuis le matin même,
+     descendue pour racheter des troncatures dans une colonne de 137. La
+     colonne fait maintenant 179 : ce qui motivait la descente est payé par la
+     largeur, et le corps peut remonter. */
+  font-size: var(--t2);
+  /* ⛔ AUCUNE MARGE VERS LE BLURB : les 8 blg qui l'en séparent sont le `gap`
+     de la grille de la dalle, déjà mesuré à 8 au banc. Une marge de plus en
+     ferait 16. */
+}
+/* L'interligne des lignes lit le MÊME jeton que la hauteur de la boîte —
+   sans quoi `1.2` serait écrit deux fois (ici et dans la règle `:is(...)` du
+   rythme commun) pour décrire le même nombre. */
+.catalogue-cards[data-kind="species"] .fiche-dalle:not([data-dressing="prose"]) :is(.fiche-info-row, .fiche-info-titre) {
+  line-height: var(--fiche-ligne-infos);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
   /* la boîte basse du portrait — boîte FERMÉE en lignes entières : c'est

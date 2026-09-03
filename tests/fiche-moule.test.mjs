@@ -49,6 +49,68 @@ test("une ligne de lineage tient sur sa ligne — ≤ 31 caractères, corpus ent
   assert.deepEqual(fautifs, [], "des lignes de lineage débordent leur boîte");
 });
 
+/* ══════════════════════════════════════════════════════════════════════════
+   🔴 LA LIGNE DE TITRE REPLIÉE — Eric, 2026-09-03, croquis de la Tiefling :
+   *« Fiendish Legacies (gras) · resistance and spells (corps) »*, quatre lignes
+   au lieu de cinq. `renderFicheInfos` replie donc la valeur de l'entrée `All`
+   sur la ligne du titre.
+
+   ⚠️ CE GARDE EXISTE PARCE QUE LE PRÉCÉDENT NE VOYAIT PAS CETTE LIGNE. Celui
+   du dessus mesure `label + " : " + value` et saute les entrées à `title` :
+   la ligne la plus large de la bande — celle du titre replié, 39 caractères —
+   passait sous son radar, verte, pendant qu'elle s'amputait à l'écran. Un
+   garde aveugle à la ligne qu'il est censé protéger n'est pas un garde.
+
+   📏 MESURÉ AU BANC (portrait 375, bande à 179,3 blg, corps T2) : les deux
+   lignes repliées demandent 222 (Elf) et 224 (Tiefling) — **−43 et −45**.
+   L'ellipsis les coupe, et c'est le régime tranché par Eric le 28/08 : un
+   dépassement est un défaut de CONTENU, le raccourci lui appartient.
+
+   ⭐ CE N'EST DONC PAS UNE EXCEPTION, C'EST UN REGISTRE DE DETTE, et il est
+   fermé des DEUX côtés : la liste est nommée ET plafonnée au compte exact.
+   Une TROISIÈME ligne repliée trop longue rougit ; une de ces deux raccourcie
+   par Eric rougit aussi, pour qu'on vienne la rayer d'ici. ⛔ Une liste
+   d'exceptions par nom ne dit jamais toute seule qu'elle est incomplète —
+   c'est le compte exact qui le dit.
+   ══════════════════════════════════════════════════════════════════════════ */
+test("la ligne de titre repliée est mesurée, et sa dette est nommée au compte exact", () => {
+  /* Même cote que le garde du dessus (31 caractères), pour la même raison :
+     c'est la même boîte et le même corps. Le repli remplace le « : » par une
+     simple espace — un caractère de séparation au lieu de trois. */
+  const CAP = 31;
+  const DETTE = [
+    "srd:species:en:elf · Elven Lineages grant a thread of spells (39)",
+    "srd:species:en:tiefling · Fiendish Legacies a resistance + spells (39)",
+  ];
+  const trop = [];
+  let repliees = 0;
+  for (const groupe of Object.values(LAYER.records)) {
+    for (const [id, rec] of Object.entries(groupe)) {
+      const infos = rec && rec.changes && rec.changes["data[fiche_infos]"];
+      if (!Array.isArray(infos)) continue;
+      /* Le MÊME repérage que `renderFicheInfos` : par le NOM de l'étiquette,
+         jamais par sa position — rien ne garantit que le `All` soit la
+         première entrée après le titre, et une bande dont on replierait la
+         mauvaise ligne resterait parfaitement cohérente. */
+      const tout = infos.find(
+        (l) => l && typeof l.label === "string" && typeof l.value === "string"
+          && l.label.trim().toLowerCase() === "all",
+      );
+      const titre = infos.find((l) => l && typeof l.title === "string");
+      if (!tout || !titre) continue;
+      repliees += 1;
+      const ligne = `${titre.title} ${tout.value}`;
+      if (ligne.length > CAP) trop.push(`${id} · ${ligne} (${ligne.length})`);
+    }
+  }
+  /* 📏 5 bandes sur 12 espèces, et **2 seulement** portent un `All` (compté
+     dans la couche, pas supposé) : Dragonborn, Hoddon et Goliath n'en ont
+     pas et ne replient rien. Ce compte tient le garde en vie — le jour où une
+     bande neuve gagne un `All`, il faudra passer ici. */
+  assert.equal(repliees, 2, "exactement deux bandes replient un `All`");
+  assert.deepEqual(trop, DETTE, "la dette des lignes repliées a changé — mesurer, puis rayer ou inscrire");
+});
+
 test("le nowrap des lineages est posé — sans lui une ligne trop longue se replie en silence", () => {
   assert.match(
     FICHE,
