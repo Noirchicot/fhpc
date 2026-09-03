@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=497");
+  background-image: url("./assets/tarot-dos.jpg?v=499");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8616,11 +8616,11 @@ button.tuto-point::before {
    contenu, aucun espacement ne les fait se rejoindre.
    ⭐ ILS REVIENNENT DANS LE FLUX : la coquille les a déjà déplacés DANS la
    rangée (`garnirLaSortie`) ; il suffit de leur retirer leur ancre. */
+/* ⚖️ ILS SONT ANCRÉS À LA RANGÉE, PLUS À LA DALLE — c'est toute la différence
+   avec l'état d'avant : `bottom: 8` sur la dalle les envoyait 176 blg sous les
+   boutons. Ancrés ici, ils tiennent la ligne par construction. */
 .card-final[data-gabarit="apercu"] .fiche-livre,
-.card-final[data-gabarit="apercu"] .tuto-point {
-  position: static;
-  inset: auto;
-}
+.card-final[data-gabarit="apercu"] .tuto-point { inset-block: auto; }
 /* ⛔ ET LE RÉSERVOIR DU `?` DISPARAÎT AVEC LUI : `padding-inline-end: --touch`
    gardait 44 blg à droite pour une pastille flottante. Elle est dans la ligne
    maintenant — ces 44 blg décalaient `Choose` et `Cancel` vers la gauche, et
@@ -8640,13 +8640,35 @@ button.tuto-point::before {
    ⛔ SANS ÇA IL FAUDRAIT DÉPLACER DES NŒUDS EN JS, donc dupliquer le travail que
    `garnirLaSortie` vient de faire, avec deux écrivains pour un même placement. */
 .card-final[data-gabarit="apercu"] .sortie { display: contents; }
-.card-final[data-gabarit="apercu"] .fiche-livre  { order: 1; margin-right: auto; }
+/* 🔴 LA PAIRE SE CENTRE TOUTE SEULE, ET NE DÉPEND PLUS DE SES VOISINS — Eric,
+   2026-09-03, capture d'iPad à l'appui : *« faut centrer tes boutons »*.
+   ⛔ LA CAUSE ÉTAIT DANS SA SECONDE CAPTURE, PAS DANS LA PREMIÈRE : sur *The
+   Magician* il n'y a AUCUN `?` — la pastille n'existe qu'une fois pour l'étape,
+   pas une par fiche. Or c'était elle qui poussait depuis la droite
+   (`margin-left: auto`). Absente, le `margin-right: auto` du livre envoyait la
+   paire au bord droit. Vingt et une fiches sur vingt-deux étaient décalées, et
+   la première — la seule que je mesurais — était juste.
+   ⭐ CE QUE ÇA APPREND : un centrage obtenu par DEUX marges automatiques n'est
+   pas un centrage, c'est un équilibre. Il tient tant que les deux plateaux sont
+   chargés, et bascule dès que l'un manque. Les côtés sortent donc du flux, et
+   le milieu se centre sur la RANGÉE — quoi qu'il y ait aux extrémités. */
+.card-final[data-gabarit="apercu"] .parcours-pied {
+  position: relative;
+  justify-content: center;
+}
+.card-final[data-gabarit="apercu"] .fiche-livre {
+  position: absolute;
+  left: var(--sp-8);
+}
 .card-final[data-gabarit="apercu"] .fiche-action { order: 2; }
 /* 📏 4 BLG ENTRE LES DEUX, ET PAS 8 : à 8 la rangée redéborde (264 + 8 = 272
    pour 271 disponibles). Quatre suffisent à les décoller sans rien casser —
    mesuré, ils se TOUCHAIENT à 146..146. */
 .card-final[data-gabarit="apercu"] .sortie-bouton { order: 3; margin-left: var(--sp-4); }
-.card-final[data-gabarit="apercu"] .tuto-point   { order: 4; margin-left: auto; }
+.card-final[data-gabarit="apercu"] .tuto-point {
+  position: absolute;
+  right: var(--sp-8);
+}
 
 /* 🔴 LA DALLE ÉPOUSE SON CONTENU ET SE CENTRE — Eric : *« je veux que la dalle
    s'arrête 8 blg sous les boutons, qu'elle soit centrée verticalement »*.
