@@ -5350,22 +5350,56 @@ button { font: inherit; }
    en haut, 8 en bas à la cible) s'ajoutaient PAR-DESSUS et `.stage` gardait
    **509 de contenu pour 493** de fenêtre. Une hauteur en pourcentage ignore
    les marges de l'élément qui la porte ; `flex: 1 1 auto` les compte. */
+/* 🔴 LA DALLE NE S'ÉTIRE PLUS, ELLE VAUT SON CONTENU — Eric, 2026-09-03 :
+   *« passe en hauteur auto, et centrage vertical sur species et classes »*,
+   après le comparatif où B2 était le seul écran à respirer.
+   ⛔ ET LE `484` N'ÉTAIT ÉCRIT NULLE PART : c'est `flex: 1 1 auto` qui étirait
+   la dalle sur toute la scène. On ne remplace donc pas une hauteur, on retire
+   un DROIT DE GRANDIR — `1 1` devient `0 1` : ne grandis pas, rétrécis si tu
+   dois. La différence compte : une hauteur écrite se périme, un refus de
+   grandir ne se périme jamais.
+   ⭐ LE PLAFOND RESTE, ET C'EST LUI QUI REND LE GESTE SÛR : `max-height: 100%`
+   ne faisait RIEN sous une hauteur étirée (une dalle déjà à 100 % ne peut pas
+   la dépasser). Il redevient actif à la seconde où la dalle est libre, et
+   c'est lui qui garantit qu'aucun contenu ne débordera du panneau. Le filet
+   `overflow-y` des items est dessous, inchangé : il ne s'ouvre que si le
+   plafond est atteint.
+   📌 CENTRAGE : `justify-content: center` sur la scène. ⛔ Pas de marge auto —
+   deux marges automatiques sont une BALANCE, elle penche dès qu'un plateau se
+   vide ; ici la scène a un seul enfant et le centre est le centre. */
 .stage:has(> .decision-card > .catalogue-step > .parcours-guide),
 .stage:has(> .decision-card > .catalogue-step > .parcours-bilan) {
-  display: flex; flex-direction: column;
+  display: flex; flex-direction: column; justify-content: center;
 }
 .decision-card:has(> .catalogue-step > .parcours-guide),
 .decision-card:has(> .catalogue-step > .parcours-bilan) {
-  flex: 1 1 auto; min-height: 0;
+  flex: 0 1 auto; min-height: 0;
   display: flex; flex-direction: column;
 }
 .catalogue-step:has(> .parcours-guide),
 .catalogue-step:has(> .parcours-bilan) {
-  flex: 1 1 auto; min-height: 0;
+  flex: 0 1 auto; min-height: 0;
   display: flex; flex-direction: column;
 }
 .parcours-guide,
 .parcours-bilan { max-height: 100%; min-height: 0; }
+
+/* ⛔ ET LA MARGE BASSE DE 8 TOMBE AVEC LA CAUSE QUI L'AVAIT FAIT NAÎTRE.
+   Elle séparait la dalle du bas du panneau tant que celle-ci était collée en
+   haut. Centrée, elle n'est plus un écart : elle entre dans le calcul du
+   centre et fait pencher la dalle de 4 blg vers le haut. Mesuré sur
+   Inheritance : 103 au-dessus contre 111 en dessous.
+   ⭐ *Une marge de compensation survit à sa cause et devient le défaut
+   suivant* — c'est le cas d'école, pris sur le fait.
+   📌 ⚠️ ET CE N'EST PAS LE DÉFAUT DU 2026-08-19 : celui-là était un `margin:
+   0 0 8px` RACCOURCI qui écrasait le `margin-inline: auto` du centrage
+   horizontal. Ici on écrit un LONGHAND sur l'autre axe — le `auto` latéral
+   n'est pas touché, et `.parcours-item-dalle`, qui n'est jamais centrée
+   verticalement, garde la sienne intacte. */
+.stage:has(> .decision-card > .catalogue-step > .parcours-guide) .parcours-guide,
+.stage:has(> .decision-card > .catalogue-step > .parcours-bilan) .parcours-bilan {
+  margin-bottom: 0;
+}
 
 /* ② CE QUI NE CÈDE JAMAIS : la tête d'un item (son voyant et son bouton) et le
    pied. Ce sont des CONTRÔLES — §5 bis les nomme un par un. */
