@@ -17,7 +17,7 @@ const scenario = location.hash.slice(1) || "b3";
    bougent pas d'un pixel. */
 if (scenario === "dressing") {
   const f2 = document.createElement("iframe");
-  f2.src = "./ecran-b3.html?v=524";
+  f2.src = "./ecran-b3.html?v=525";
   f2.addEventListener("load", async () => {
     const d = f2.contentDocument;
     await new Promise((r) => setTimeout(r, 700));
@@ -42,7 +42,7 @@ const graine = scenario === "b3equipe" ? "/fixture-equipe.json"
   : "/fixture-banc.json";
 localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
 const f = document.createElement("iframe");
-f.src = "./index.html?v=524";
+f.src = "./index.html?v=525";
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
 const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
   for (const type of ["pointerdown", "pointerup"]) {
