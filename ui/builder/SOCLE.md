@@ -149,15 +149,21 @@ NOMME le trou avec son chiffre, et on rend à Eric la décision — *afficher ce
 existe*, ou *attendre le contenu*. Deux routes, chiffrées ; jamais un arbitrage
 silencieux enterré dans un rendu.
 
-📌 **CE QU'ERIC A TRANCHÉ SUR CE CAS-LÀ, le 2026-09-03** : *« more menu des
-subclasses »* · *« on va créer un menu subclasses dans FH Web »*. La ligne rend
-donc **ce que la couche porte**, chaque nom portant son lien, suivi de **`and
-more`** qui pointe vers le menu des sous-classes de la classe sur FH Web.
-⭐ Et ça vaut comme PATRON, pas comme exception : quand le contenu manque, la
-sortie est un **lien vers l'endroit qui l'aura**, jamais un blanc ni une
-invention. L'écran dit la vérité du jour et laisse une porte vers la suite.
-⏳ Le menu FH Web n'existe pas encore : c'est la dépendance de ce rendu, et elle
-est du côté du manuscrit.
+📌 **CE QU'ERIC A TRANCHÉ SUR CE CAS-LÀ, le 2026-09-03** — *« la ligne attend le
+contenu. Rien à l'écran tant que les sous-classes FH ne sont pas écrites, c'est
+du manuscrit »*. ⛔ **La ligne `Subclasses` ne se dessine pas.** Pas de nom seul,
+pas de `and more`, pas de lien de remplacement : rien.
+⭐ **ET C'EST LE PATRON, PAS UNE PRUDENCE** : le manque de contenu ne demande
+JAMAIS un ouvrage de code. Un écran qui affiche un nom sur trois donne à lire
+une vérité fausse — *« voilà les sous-classes »* — là où le silence n'en donne
+aucune. Un blanc se remplit le jour où le manuscrit est écrit ; un rendu de
+consolation, lui, se déracine.
+⏳ **Ce qui débloque** : les sous-classes FH écrites dans la couche. Un menu
+`subclasses` sur FH Web a été évoqué le même jour puis écarté avec la route —
+il n'est PAS la condition, le contenu l'est.
+⚠️ Et cette décision a d'abord été notée à l'envers ici : *« la ligne rend ce
+qui existe + and more »* a tenu deux minutes dans ce fichier. **Une consigne
+recueillie au vol se relit avant d'être gravée** — le corpus n'est pas le fil.
 
 ## Les trois verbes, et rien d'autre
 
