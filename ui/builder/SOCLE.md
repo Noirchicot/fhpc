@@ -71,6 +71,50 @@ ne réclame aujourd'hui.
 | Le **minuteur** des chevrons | la fermeture de `mountChevrons` | lui-même |
 | La **vérité « ça défile »** (lot 70) : `data-visible` sur l'hôte des chevrons, `data-more` sur la scène, `disabled` sur les deux boutons | des attributs, sur des nœuds qui ne meurent pas | **`mountChevrons` seul** — un garde le prouve (`tests/chevrons.test.mjs`) |
 
+## Qui possède quoi — côté DONNÉES : SRD · SRFH · SRFH+
+
+> **Ratifié par Eric le 2026-08-23.** ⚠️ **La source est sa note du vault**,
+> `FH-WEB/FHPC/FHPCv2 SRFH et SRFH+.md` — ce qui suit n'en est qu'un **tirage**.
+> ⛔ **On ne corrige JAMAIS le contrat ici** : on corrige la note d'Eric, puis on
+> resynchronise ce tirage. Un lot qui amenderait ce texte croirait amender la
+> règle et ne toucherait qu'une copie. *(Publié dans le dépôt le 03/09 parce
+> qu'un contrat qui ne vit que dans le vault n'existe pas pour qui le cherche :
+> `grep srfh+` rendait zéro sur les deux dépôts, dix jours après la ratification.)*
+
+| | ce que c'est | la loi |
+|---|---|---|
+| **SRD** | le livre, copié fidèlement | ⛔ **« On n'y écrit jamais rien de nous »** |
+| **SRFH** | la zone grise — *« les petits ajustements quality of life »* | quelqu'un doit pouvoir **jouer du SRD pur** avec elle |
+| **SRFH+** | *« la couche Fate's Hand, c'est tout »* | ce qui n'appartient qu'à nous et ne prétend rien être d'autre |
+
+**LE TEST, ET IL PORTE SUR LE NOM, PAS SUR LE CONTENU** — *« si on change ça,
+est-ce que ça s'appelle encore le SRD ? »* Oui, sans hésiter → **SRD** · On ne
+sait pas → **SRFH** · Non, clairement → **SRFH+**.
+
+### ⭐ CE QUE LE CONTRAT DIT À UNE COUCHE QUI PATCHE
+
+Une couche FH ne modifie pas un record `srd:` : elle **pose le sien** et pointe
+vers lui (`data.extends`), comme `srfh-shelving-en` le fait sur ses 416 objets.
+
+⭐ **Et ça a une conséquence que le chantier a payée avant de la comprendre :
+une couche qui respecte le contrat vise une ADRESSE ; une couche qui l'enfreint
+finit par viser un MOT — et un mot a une langue.**
+
+Mesuré le 03/09 sur les 89 patches des couches FH :
+
+| ce que le chemin vise | nombre | ce que ça donne |
+|---|---:|---|
+| un **champ de schéma** — `data[fiche_stats]`, `data.category`… | **79** | même nom dans les deux langues · ✅ insensible au rendu |
+| un **élément de contenu** désigné par un mot — `data.traits[keen-senses]` | **10** | ⛔ n'existe que dans une langue |
+
+Les dix sortent tous de **`fh-species-en`**, et ils portent des règles FH (le
+retrait de `Resourceful`, la conversion PROF…) — donc du **SRFH+ écrit dans le
+SRD**. Effet mesuré : la couche **refuse de se monter** au-dessus du SRD
+français, et un personnage FH en français est impossible à construire.
+⛔ Ce n'est pas un défaut de langue, c'est la violation qui se voit.
+📌 Le relevé complet et les routes chiffrées : `fh-srd/docs/TRAIT-KEYS.md` ·
+le garde : `tests/layers-traits-fr.test.mjs`.
+
 ## Les trois verbes, et rien d'autre
 
 | Verbe | Quand | Ce qu'il fait au défilement |
