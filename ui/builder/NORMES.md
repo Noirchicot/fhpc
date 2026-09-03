@@ -1864,6 +1864,114 @@ première mise en page, l'observateur pour ce qui bouge après.
 
 ---
 
+## 4 quater ter. 🗂️ LE CATALOGUE À RAIL — B2 de Destiny *(mesuré au banc, 2026-09-03)*
+
+> Eric, dans la nuit : *« juste une numérotation des arcanes à gauche »* · *« 8 tuiles tiennent
+> TOUJOURS dans un écran »* · *« la dalle s'arrête 8 blg sous les boutons, centrée verticalement »*
+> · *« cancel choose centrés, livre cadré à G, ? cadré à D »* · *« je veux que la dalle reste
+> minimaliste, pas qu'elle recouvre tout l'écran »*.
+> Chaque nombre ci-dessous est un **RELEVÉ** sur la page rendue, jamais une intention.
+
+### 🔴 LA FICHE **EST** L'ÉCRAN FINAL — un seul organe, deux rangs
+
+⛔ **IL N'Y A PAS DE SECONDE MISE EN PAGE.** La fiche du catalogue est
+`renderDestinyFinal({ gabarit: "apercu" })` : le MÊME rendu, à qui l'on **retire** le voyant, le
+Destiny Score et la paire `I changed my mind / Next`, et que l'on dézoome.
+⭐ **Un gabarit qui RETIRE, jamais un écran jumeau qui recopie** : le jour où l'écran final bouge,
+la fiche bouge avec lui. Deux écrans qui montrent la même chose se corrigent deux fois, et
+divergent la fois où l'on oublie — c'est ce que le garde du lot 60 interdit aux catalogues, et
+`renderArcanaCardBody` (retiré) vivait ici sans que personne le nomme.
+
+### 📐 LA CHAÎNE DES COTES — chaque maillon tombe de son voisin
+
+    tuile      64      Temperance (59), le mot le plus large des 22
+    rail       72      8 de rembourrage + 64
+    fiche     287      375 − 72 − 2×8
+    dézoom  0,765      287 / 375                    ← garde I refait la division
+
+🔴 **CE N'EST PAS LE NOM QUI COMMANDE LA LARGEUR, C'EST LE MOT LE PLUS LARGE**, et ce renversement
+est *tout* ce qui rend le nom écrit abordable : *The High Priestess* sur une ligne coûte **107** blg
+— plus cher que la vignette de 90 qu'on remplaçait. Dès qu'on autorise le retour à la ligne, la
+contrainte passe à **Temperance (59)**. ⭐ Et **trois étages suffisent** : aucun des 22 noms ne fait
+plus de trois mots.
+
+### 🧲 HUIT CRANS PAR ÉCRAN, PAR CONSTRUCTION
+
+    piste = (panneau − ceinture) − rembourrage haut = 500 − 4 = 496
+    cran  = (piste − 7 écarts) / 8                  = (496 − 28) / 8 = 58,5
+
+⛔ **UNE HAUTEUR ÉCRITE TIENT PAR COÏNCIDENCE** : à 56, la piste offrait 484 pour un pas de 60, soit
+**8,07** crans — douze blg du neuvième dépassaient. Dérivée, elle ne peut plus être fausse.
+📌 **UN REMBOURRAGE PLUS LARGE QUE L'ÉCART OUVRE UNE FENÊTRE SUR LE VOISIN.** À 8 en haut, après un
+glissé, **4 blg du cran précédent** reparaissaient : l'aimant pose le cran courant à 8, celui d'avant
+finit un écart plus tôt. **Rembourrage = écart.** Les deux bouts disaient la même chose.
+⚖️ `scroll-snap-type: y **mandatory**` et `scroll-snap-align: **start**` — `proximity` ne recale que
+si l'on s'immobilise déjà presque en place, et `center` coupe les DEUX extrémités.
+
+### 🪟 LA DALLE — libre, et jamais tout l'écran
+
+| | |
+|---|---|
+| hauteur | **`auto`** — elle vaut son contenu, de `273` à `373` |
+| la rangée | garde ses **500** : c'est elle le cran d'aimantation, la dalle s'y centre |
+| écarts autour des boutons | **`8`** au-dessus, **`8`** en dessous |
+
+⛔ **DEUX RÉGLAGES ONT VÉCU ICI ET SONT TOMBÉS AVEC LEUR CAUSE** : une hauteur figée (`312px`, un
+littéral qu'aucun garde ne surveillait) et un `margin-top: auto` qui faisait **descendre le titre de
+34 blg** sur les cartes courtes. ⭐ Le titre est stable parce que la dalle grandit vers le **bas**,
+pas parce qu'on pousse le mou ailleurs. **Une hauteur qu'on n'écrit pas ne peut pas devenir fausse.**
+
+### 🎛️ LA RANGÉE DE BOUTONS — quatre organes, une grille
+
+    grid-template-columns: --touch | 1fr | 1fr | --touch
+    livre → 1     Choose → 2 (fin)     Cancel → 3 (début)     ? → 4
+
+🔴 **UN ÉLÉMENT EN `position: absolute` N'A AUCUN RAPPORT AVEC SES VOISINS**, seulement avec sa
+boîte. Livre et `?` avaient été sortis du flux pour que la paire reste centrée quand le `?` manque —
+ils cessaient donc de pousser, donc de repousser : ils se laissaient **recouvrir**.
+⚔️ **MESURÉ EN TRADUISANT LES LIBELLÉS** (« Choisir cette carte » / « Annuler mon choix ») :
+recouvrement de **81 blg**, et la paire sortait de la dalle de 29 et 37. Il n'y avait qu'**1 blg** de
+jeu en anglais. Après la grille : `4` et `4`, aucun chevauchement.
+⛔ **TROIS COLONNES NE SUFFISENT PAS** — `Cancel` dans la colonne du `?` s'y **empile** (−77 mesuré).
+Deux organes dans une même cellule ne se poussent pas, ils se superposent : *la grille ne répare que
+ce qu'on lui donne à séparer.* Les deux `1fr` du milieu sont égaux, c'est **eux** qui centrent.
+⚖️ La rangée vaut **44**, comme sur les quatre autres écrans, et les 8 du bas viennent du
+rembourrage de la **dalle** — pas du sien. *Un écart identique obtenu par un autre écrivain n'est
+pas le même écart : il se comporte différemment dès qu'autre chose bouge.*
+
+### 🎨 CE QUE LE RANG CHANGE, ET RIEN D'AUTRE
+
+| | B2 (l'aperçu) | SB2 (l'écran final) |
+|---|---|---|
+| voyant · Score · `Done` | ⛔ absents | ✅ présents |
+| vibrations | **inertes**, encre de corps | liens `--lien`, popup |
+| fenêtres de prose | **libres** | plafonnées à 4 lignes, défilantes |
+| le retour | `Cancel` → le **R** | `I changed my mind` → **B2** |
+
+🔴 **LE PLAFOND DE PROSE RESTE VITAL EN SB2** : c'est lui qui fait tenir les 22 cartes dans les
+500 blg — la pire y est à **498**. Le lever là-bas casserait le budget ; l'aperçu, lui, flotte dans
+une rangée de 500 et peut grandir.
+⭐ **LE RANG DÉCIDE, AUCUN ÉTAT N'EST RETENU.** Le même bouton mène à deux endroits selon le rang où
+il est rendu — pas selon d'où l'on vient. Un rang se lit, il ne se mémorise pas, donc aucun chemin
+tordu ne peut le mettre en défaut.
+
+### 🚫 UN SEUL VOILE
+
+La **rangée** est nue (`catalogue-card`, aucun fond, aucune ombre) ; seule la **dalle** peint ses
+35 %. ⛔ Elle portait `dalle-intermediaire` — un reste juste devenu faux : quand la rangée ÉTAIT la
+fiche, le régime d'une dalle avait du sens ; depuis que le corps rend la sienne, c'était une plaque
+sous une plaque. 📌 **Aucune règle n'était fausse le jour où elle a été écrite. C'est le contexte qui
+a bougé sous elle, et rien ne le signale.**
+
+### ⛔ CE QUI NE SE DEVINE JAMAIS — sept drapeaux déclarés
+
+`railEtroit` · `railEtiquette` · `titreDansLaFiche` · `corpsEstUneDalle` · `retourInterne` ·
+`sansDone` · `motDuRetour`. ⭐ **L'écran DÉCLARE, le catalogue DESSINE.** Deviner le gabarit d'après
+les nœuds rendus a coûté deux passes le 15 août ; un sélecteur par GENRE (`[data-kind="arcana"]`) a
+été refusé par le garde du vocabulaire — la feuille décrit une **géométrie**, jamais une couche.
+
+---
+
 ## 4 quinquies. 📐 LE SOUS-ÉCRAN (SB) ET LE BILAN DU B *(dictés au banc, nuit du 27/08)*
 
 > Eric : **« en SB lineage : le texte doit être dans une fenêtre scroll »** · **« il faut une
