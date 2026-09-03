@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=468";
-import { renderCardRows } from "./catalogue.mjs?v=468";
+import { drawArcana } from "./dice.mjs?v=473";
+import { renderCardRows } from "./catalogue.mjs?v=473";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=468";
+import { versionQuery } from "./version.mjs?v=473";
 
 export { drawArcana };
 
@@ -324,6 +324,49 @@ export function renderDestinyFinal(ctx, onAction) {
     return b;
   };
 
+  /* 🔴 LES CHEVRONS QUI DISENT « IL Y EN A ENCORE » — Eric, 2026-09-03, a
+     ouvert une exception à sa loi du non-défilement pour les deux fenêtres de
+     prose, puis a nommé le signe : *« des chevrons sur le côté de boîte à
+     l'extérieur à droite »*.
+     ⭐ ALORS LE DÉFILEMENT DOIT SE VOIR : un joueur qui ne sait pas qu'il manque
+     du texte croit avoir lu la règle entière — ce qui est PIRE que la coupe
+     visible qu'on vient de retirer, parce que rien ne l'avertit.
+     ⛔ L'ASCENSEUR NE SUFFIT PAS, ET C'EST MESURABLE : sur iOS il est en
+     surimpression et n'apparaît QUE pendant le geste. Le chevron est le seul
+     signe qui existe AVANT qu'on touche.
+     ⚠️ POURQUOI CE N'EST PAS DU CSS : aucune règle ne sait dire « ce texte
+     dépasse sa boîte ». Il faut mesurer, donc du code — mais le code ne fait que
+     POSER UNE CLASSE, la feuille garde tout le dessin.
+     ⭐ ET LE HAUT COMPTE AUTANT QUE LE BAS : arrivé en bas, ce qui reste à dire
+     est qu'il y a du texte AU-DESSUS. Un seul chevron mentirait la moitié du
+     temps. */
+  const veilleLeDebordement = (cadre) => {
+    if (!cadre) return null;
+    const jauge = el("div", "card-final-defile");
+    jauge.setAttribute("aria-hidden", "true");
+    jauge.append(el("i", "card-final-chevron vers-le-haut"));
+    jauge.append(el("i", "card-final-chevron vers-le-bas"));
+    const relire = () => {
+      cadre.classList.toggle("deborde-haut", cadre.scrollTop > 1);
+      cadre.classList.toggle("deborde-bas",
+        cadre.scrollHeight - cadre.clientHeight - cadre.scrollTop > 1);
+    };
+    /* ⚠️ RIEN N'EST MESURABLE AVANT LA MISE EN PAGE : au moment où ce nœud est
+       fabriqué il n'est pas encore au document, et les trois hauteurs valent 0.
+       Un appel direct ICI rendrait « ne déborde pas », toujours.
+       ⛔ ET L'OBSERVATEUR SEUL NE SUFFIT PAS — mesuré au banc le 2026-09-03 : il
+       ne se déclenche que sur un changement de TAILLE, et la boîte est plafonnée
+       à 4 lignes. Un texte deux fois plus long n'en change pas la taille d'un
+       blg : le contenu déborde et aucun événement ne le dit.
+       ⭐ D'OÙ LES DEUX : une lecture programmée pour la première mise en page,
+       et l'observateur pour ce qui bouge après (largeur du panneau, cran de la
+       ceinture). Aucun des deux ne couvre le cas de l'autre. */
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(relire);
+    if (typeof ResizeObserver === "function") new ResizeObserver(relire).observe(cadre);
+    cadre.addEventListener("scroll", relire, { passive: true });
+    return jauge;
+  };
+
   /* 🔴 LES HUIT BLOCS SONT DES ENFANTS DIRECTS DE LA GRILLE — Eric, 2026-09-03 :
      *« tu as 7 blocs texte et un bloc image, place-les et fige-les »*.
      ⛔ CINQ D'ENTRE EUX VIVAIENT DANS UN CONTENEUR, et c'est ce qui rendait
@@ -340,10 +383,10 @@ export function renderDestinyFinal(ctx, onAction) {
   for (const l of courtes) corps.append(l);
 
   const meaning = bloc("Meaning", data.meaning ? el("p", "card-final-cadre", [text(data.meaning)]) : null, "aire-meaning");
-  if (meaning) corps.append(meaning);
+  if (meaning) { const j = veilleLeDebordement(meaning.lastChild); if (j) meaning.append(j); corps.append(meaning); }
 
   const power = bloc("Power", data.power ? el("p", "card-final-cadre", [text(data.power)]) : null, "aire-power");
-  if (power) corps.append(power);
+  if (power) { const j = veilleLeDebordement(power.lastChild); if (j) power.append(j); corps.append(power); }
 
   /* ── LES VIBRATIONS, EN PLEINE LARGEUR SOUS LA CARTE ─────────────────────
      🔴 Eric, 2026-09-02 : *« la carte remonte jusqu'à être au-dessus du bloc

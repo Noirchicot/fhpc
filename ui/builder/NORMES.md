@@ -1743,14 +1743,43 @@ porte.
   | | débordent | la pire |
   |---|---|---|
   | sans plafond | **6 / 22** | *The Devil* **579** — 79 de trop |
-  | **`power`/`meaning` plafonnés à 4 lignes** | **0 / 22** | *The Fool* **492** — 8 de marge |
+  | **`power`/`meaning` en fenêtre de 4 lignes** | **0 / 22** | *The Fool* **492** — 8 de marge |
 
   📏 Hauteurs rendues : **449 · 463 · 478 · 492**. Une ligne de corps vaut **14,5 blg** : le budget
   se compte en LIGNES, pas en pixels.
-  ⚠️ **CE QUE LE PLAFOND COÛTE, ET IL NE FAUT PAS QUE ÇA SE PERDE** : sept cartes perdent des
-  lignes, et *The Devil* en perd **SEPT sur onze**. À ce niveau ce n'est plus une décision
-  d'affichage, c'est une règle qu'on n'affiche plus. La réponse durable est de raccourcir CES
-  textes-là dans le manuscrit — le plafond tient le cadre en attendant.
+
+### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
+
+> Eric, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »* · *« si
+> c'est mécaniquement possible on passe à 4 lignes scrollable, on fait une exception à la règle du
+> non scrollable ici »* · *« pas des barres »* · *« ces chevrons n'apparaissent que quand la boîte
+> déborde, ils sont dans la marge gauche »* · *« entre le bloc et le bord de la dalle »*.
+
+🔴 **LA LOI GÉNÉRALE NE BOUGE PAS** : *« un contenu qui ne tient pas : demander ce qu'il porte EN
+TROP, jamais un défilement interne »* (palette FREE, 91 → 56 blg).
+⭐ **POURQUOI ELLE CÈDE ICI ET NULLE PART AILLEURS** : dans la palette, ce qui était en trop était
+de la **décoration**. Ici c'est une **règle du jeu** — mesuré, *The Devil* perdait **7 lignes sur
+11** à la coupe, soit 64 % de son pouvoir. La loi dit de retirer ce qui est en trop ; **rien n'est
+en trop dans un texte de règle.**
+
+| la condition | et pourquoi elle tient |
+|---|---|
+| **4 lignes exactement** | et l'**interligne est ÉCRIT** (`1.21`) : `normal` rend 1,208 pour Inter, une valeur que personne n'a posée. En repli de police, « 4 lignes » cesserait de valoir 4 lignes — et le budget des 22 avec |
+| **le geste ne fuit pas** | `overscroll-behavior: contain` — sans lui, le doigt arrivé en bas emporte la page derrière. Vérifié au vrai geste : `stage.scrollTop = 0` |
+| **ça se VOIT** | deux chevrons, **dans le rembourrage gauche de la dalle**, allumés seulement au débordement — et le haut compte autant que le bas |
+| **bornée** | à ces deux fenêtres. Le garde H la tient, conditions comprises |
+
+⛔ **L'ASCENSEUR N'EST PAS LE SIGNE, ET CE N'EST PAS UN GOÛT** : Eric l'a refusé, et sur iOS il est
+en surimpression — il n'apparaît **que pendant le geste**, donc jamais avant qu'on touche. Le
+chevron est le seul signe qui existe **avant**.
+⭐ **LA GOUTTIÈRE EST DE LARGEUR NULLE** : les chevrons débordent vers la gauche par une marge
+négative, dans les 16 blg du rembourrage. Ils ne prennent donc **aucune largeur au texte** — ni
+présents ni absents — et les lignes ne se recomposent pas d'une carte à l'autre.
+
+⚠️ **UN PIÈGE PAYÉ AU BANC** : `ResizeObserver` ne se déclenche que sur un changement de **taille**,
+et la fenêtre est plafonnée. Un texte deux fois plus long n'en change pas la taille d'un blg :
+le contenu déborde et **aucun événement ne le dit**. Il faut DEUX lectures — une programmée pour la
+première mise en page, l'observateur pour ce qui bouge après.
 
 ---
 

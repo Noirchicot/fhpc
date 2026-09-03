@@ -165,32 +165,61 @@ test("G — la cote de la carte se lit sur le jeton du panneau, jamais en vh", (
     "puis peintes × le cran (garde 5 ter de `ui-jetons.test.mjs`).");
 });
 
-test("H — les deux fenêtres de prose sont PLAFONNÉES, et ce n'est pas un défilement", () => {
-  /* 🔴 LA LOI D'ERIC, ET ELLE EST PLUS ANCIENNE QUE CET ÉCRAN : *« un contenu
-     qui ne tient pas : demander ce qu'il porte EN TROP, jamais un défilement
-     interne »* (palette FREE, 91 → 56 blg). ⭐ Ce qu'il portait en trop avait
-     déjà une maison : le LIVRE du pied porte la règle entière. Un défilement
-     mettrait deux organes sur le même travail, dont un invisible tant qu'on ne
-     le touche pas.
-     📏 CE QUE LE PLAFOND REND, MESURÉ SUR LES 22 CARTES le 2026-09-03 (3
-     vibrations et 5 lignes de bonus — le pire cas, verrouillé par Eric) :
-     **22 sur 22 tiennent**, hauteurs 449 / 463 / 478 / 492 pour un budget de
-     500. Sans lui, six débordaient, la pire de 79 blg.
-     ⚖️ ET LE PLAFOND DOIT SE VOIR : `line-clamp` pose les points de suspension.
-     Un texte de RÈGLE tronqué sans signe est pire que les deux options — le
-     joueur croit avoir lu. C'est pourquoi ce garde exige `line-clamp` et pas un
-     `max-height`, qui couperait en silence. */
-  const clamp = declaration(".aire-power .card-final-cadre", "-webkit-line-clamp");
-  assert.equal(clamp, "4",
-    `les fenêtres de prose sont plafonnées à « ${clamp} » ligne(s). Eric a dicté 4 le 2026-09-03 ` +
-    "(« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »), et c'est CE nombre " +
-    "qui fait tenir les 22 cartes : à 3 lignes elles perdaient une ligne de règle de plus, à 5 " +
-    "elles débordaient de nouveau.");
+test("H — les deux fenêtres de prose défilent, et l'exception est BORNÉE", () => {
+  /* ⚖️ CECI EST UNE EXCEPTION À UNE LOI D'ERIC, ET C'EST LUI QUI L'A OUVERTE :
+     *« si c'est mécaniquement possible on passe à 4 lignes scrollable, on fait
+     une exception à la règle du non scrollable ici »* (2026-09-03).
+     La loi : *« un contenu qui ne tient pas : demander ce qu'il porte EN TROP,
+     jamais un défilement interne »* (palette FREE, 91 → 56 blg).
+     ⭐ POURQUOI ELLE CÈDE ICI ET NULLE PART AILLEURS : dans la palette, ce qui
+     était en trop était de la DÉCORATION. Ici c'est une **règle du jeu** —
+     mesuré, *The Devil* perdait SEPT lignes sur onze à la coupe, soit 64 % de
+     son pouvoir. La loi dit de retirer ce qui est en trop ; rien n'est en trop
+     dans un texte de règle.
+     🔴 CE QUE CE GARDE TIENT, DU COUP : que l'exception reste BORNÉE à ces deux
+     fenêtres-là, et qu'elle garde ses deux conditions — 4 lignes exactement, et
+     un signe visible. Une exception sans borne n'est plus une exception. */
+  const clef = ".aire-power .card-final-cadre";
 
-  const corpsProse = corps(".aire-power .card-final-cadre") || "";
-  assert.match(corpsProse, /overflow:\s*hidden/,
-    "le plafond doit couper (`overflow: hidden`), pas laisser dépasser — sinon il ne plafonne rien.");
-  assert.doesNotMatch(corpsProse, /overflow[-a-z]*:\s*(auto|scroll)/,
-    "⛔ AUCUN DÉFILEMENT INTERNE ICI. C'est la loi d'Eric, et la réponse à « ça ne tient pas » est " +
-    "le LIVRE du pied, qui porte déjà la règle entière.");
+  /* 📏 4 LIGNES, ET L'INTERLIGNE DOIT ÊTRE ÉCRIT POUR QUE ÇA VEUILLE DIRE
+     QUELQUE CHOSE. `line-height: normal` rend 1,208 pour Inter — une valeur que
+     personne n'a écrite et qui change avec la police. Le jour où Inter tombe en
+     repli, « 4 lignes » cesse de valoir 4 lignes, et le budget des 22 cartes
+     avec. ⛔ Une cote qui dépend d'un défaut de moteur n'est pas une cote. */
+  const interligne = declaration(clef, "line-height");
+  assert.ok(interligne && /^[\d.]+$/.test(interligne),
+    `l'interligne des fenêtres vaut « ${interligne} ». Il doit être un NOMBRE écrit : ` +
+    "`normal` dépend de la police (1,208 pour Inter, autre chose en repli), et la hauteur de la " +
+    "fenêtre se calcule dessus. Une cote qui dépend d'un défaut de moteur n'est pas une cote.");
+
+  const plafond = declaration(clef, "max-height");
+  assert.ok(plafond && plafond.includes(interligne) && /\b4\b/.test(plafond),
+    `la fenêtre plafonne à « ${plafond} ». Elle doit valoir 4 × l'interligne écrit (${interligne}) — ` +
+    "c'est le nombre de lignes qu'Eric a dicté le 2026-09-03, et c'est LUI qui fait tenir les 22 " +
+    "cartes dans les 500 blg (mesuré : 449 / 463 / 478 / 492).");
+
+  const corpsProse = corps(clef) || "";
+  assert.match(corpsProse, /overflow-y:\s*auto/,
+    "la fenêtre doit DÉFILER — c'est l'exception qu'Eric a ouverte, et sans elle le texte est coupé.");
+  assert.match(corpsProse, /overscroll-behavior:\s*contain/,
+    "⛔ SANS `contain`, LE GESTE FUIT VERS LA SCÈNE : arrivé au bas de la fenêtre, le doigt " +
+    "continue et emporte la page. Sur un écran qui ne défile PAS, ça se lit comme un défaut.");
+
+  /* 🔴 ET LE DÉFILEMENT DOIT SE VOIR — c'est la moitié de la décision. Un joueur
+     qui ne sait pas qu'il manque du texte croit avoir lu la règle entière, ce qui
+     est PIRE que la coupe visible qu'on vient de retirer.
+     ⛔ L'ASCENSEUR N'EST PAS LE SIGNE : Eric l'a refusé (*« pas des barres »*), et
+     sur iOS il n'apparaît qu'en surimpression PENDANT le geste. */
+  assert.ok(css.includes(".card-final-chevron"),
+    "les chevrons doivent exister : ils sont le seul signe qui dit « il y en a encore » AVANT " +
+    "qu'on touche. Eric, 2026-09-03 : « des chevrons », « dans la marge gauche », « entre le bloc " +
+    "et le bord de la dalle ».");
+  const jauge = corps(".card-final-defile") || "";
+  assert.match(jauge, /margin-left:\s*-/,
+    "la jauge doit sortir vers la GAUCHE par une marge négative : elle vit dans une colonne de " +
+    "largeur NULLE et déborde dans le rembourrage de la dalle. C'est ce qui lui évite de prendre " +
+    "de la largeur au texte — donc de recomposer les lignes d'une carte à l'autre.");
+  assert.doesNotMatch(jauge, /display:\s*none/,
+    "⛔ pas de `display: none` : le garde 4 des jetons l'interdit dans cette feuille, et l'opacité " +
+    "rend ici exactement le même service sans demander d'exception.");
 });

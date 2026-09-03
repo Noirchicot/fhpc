@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=468");
+  background-image: url("./assets/tarot-dos.jpg?v=473");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8291,36 +8291,117 @@ button.tuto-point::before {
 }
 
 
-/* ══ LE PLAFOND DES DEUX FENÊTRES DE PROSE — 4 lignes ═══════════════════════
+/* ══ LES DEUX FENÊTRES DE PROSE — 4 lignes, ET ELLES DÉFILENT ══════════════
    🔴 ERIC, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power :
-   donc 4 lignes »*. 📏 CE QUE ÇA REND, MESURÉ SUR LES 22 : **21 tiennent à 478
-   blg**, soit 22 de marge sous le budget de 500. Sans plafond, six débordaient,
-   la pire (*The Devil*, 11 lignes de `power`) de 79 blg.
+   donc 4 lignes »* puis *« si c'est mécaniquement possible on passe à 4 lignes
+   scrollable, on fait une exception à la règle du non scrollable ici »*.
 
-   ⛔ ET CE N'EST PAS UN DÉFILEMENT, PARCE QU'ERIC L'A INTERDIT : *« un contenu
-   qui ne tient pas : demander ce qu'il porte EN TROP, jamais un défilement
-   interne »* (palette FREE, 91 → 56). ⭐ Ici la réponse à « ce qu'il porte en
-   trop » existait déjà : **le livre** porte la règle entière, et il est dans le
-   pied. Une fenêtre qui défile mettrait deux organes sur le même travail, dont
-   un invisible tant qu'on ne le touche pas.
+   ⚖️ C'EST UNE EXCEPTION À UNE LOI D'ERIC, ET ELLE EST NOMMÉE. La loi : *« un
+   contenu qui ne tient pas : demander ce qu'il porte EN TROP, jamais un
+   défilement interne »* (palette FREE, 91 → 56 blg). ⭐ POURQUOI ELLE CÈDE ICI
+   ET NULLE PART AILLEURS : dans la palette, le contenu en trop était de la
+   DÉCORATION, et le retirer ne coûtait rien. Ici c'est une **règle du jeu** —
+   la retirer, c'est jouer sans elle. Mesuré : *The Devil* perd SEPT lignes sur
+   onze à la coupe, soit 64 % de son pouvoir. La loi dit de retirer ce qui est
+   en trop ; rien n'est en trop dans un texte de règle.
 
-   ⚖️ MAIS LA COUPE DOIT SE VOIR, et c'est la seule chose que ce plafond ajoute :
-   `line-clamp` pose les points de suspension tout seul. Un texte de RÈGLE
-   tronqué sans signe est pire que les deux options — le joueur croit avoir lu.
+   📏 LE PLAFOND VAUT EXACTEMENT 4 LIGNES, ET C'EST POURQUOI L'INTERLIGNE EST
+   ÉCRIT : `line-height: normal` rend 1,208 pour Inter — une valeur que PERSONNE
+   n'a écrite et qui change avec la police. Le jour où Inter tombe en repli,
+   « 4 lignes » cesserait de valoir 4 lignes et le budget des 22 cartes avec.
+   ⛔ Une cote qui dépend d'un défaut de moteur n'est pas une cote.
 
-   ⚠️ CE QUE CE PLAFOND COÛTE, ÉCRIT ICI PARCE QUE ÇA NE SE VOIT PAS DANS LA
-   FEUILLE : sept cartes perdent des lignes, et *The Devil* en perd SEPT sur
-   onze. À ce niveau ce n'est plus une décision d'affichage, c'est une règle
-   qu'on n'affiche plus. La réponse durable est de raccourcir CES textes-là,
-   dans le manuscrit ; ce plafond tient le cadre en attendant. */
+   📏 CE QUE ÇA REND, MESURÉ SUR LES 22 (pire cas verrouillé par Eric : 3
+   vibrations, 5 lignes de bonus) : **22 sur 22 tiennent**, hauteurs 449 / 463 /
+   478 / 492 pour un budget de 500. Sans plafond, six débordaient, la pire de 79. */
 .aire-power .card-final-cadre,
 .aire-meaning .card-final-cadre {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  overflow: hidden;
+  line-height: 1.21;
+  max-height: calc(4 * 1.21em);
+  overflow-y: auto;
+  /* ⛔ SANS `contain`, LE GESTE FUIT VERS LA SCÈNE : arrivé au bas de la
+     fenêtre, le doigt continue et emporte la page derrière. Sur un écran qui ne
+     défile PAS (c'est tout l'objet du budget), ça se lit comme un défaut. */
+  overscroll-behavior: contain;
+  /* ⛔ AUCUNE BARRE — Eric, 2026-09-03 : *« pas des barres »*. Une barre est un
+     organe de bureau : elle vole de la largeur au texte, elle se dessine
+     différemment sur chaque système, et sur iOS elle n'existe qu'en
+     surimpression pendant le geste. Ce sont les chevrons qui portent le signe. */
+  scrollbar-width: none;
 }
+/* ⛔ `width: 0`, PAS `display: none` — le garde 4 des jetons interdit
+   `display: none` dans cette feuille (défaut n°3 : « effacer des mots »), et il
+   a raison de ne pas savoir que celui-ci n'effaçait qu'un ascenseur. ⭐ Une
+   exception se DEMANDE, elle ne se prend pas : il y a ici une écriture qui ne
+   la demande pas. */
+.aire-power .card-final-cadre::-webkit-scrollbar,
+.aire-meaning .card-final-cadre::-webkit-scrollbar { width: 0; height: 0; }
+
+/* 🔴 LE DÉFILEMENT DOIT SE VOIR, ET C'EST LA MOITIÉ DU TRAVAIL — sinon le
+   joueur croit avoir tout lu, ce qui est PIRE que la coupe et pire que le
+   défilement lui-même.
+
+   🔴 DEUX CORRECTIONS D'ERIC LE MÊME JOUR, ET LA SECONDE FAIT LOI :
+   *« des chevrons sur le côté de boîte »* · puis *« pas des barres. ces chevrons
+   n'apparaissent que quand la boîte déborde. ils sont dans la marge gauche »*.
+   ⛔ CE QUI EST DÉFAIT : un voile dégradé (il faisait fondre du TEXTE DE RÈGLE
+   pour annoncer qu'il en restait), une barre d'ascenseur, et une gouttière
+   réservée en permanence à droite.
+
+   ⭐ LA COLONNE EST DE LARGEUR NULLE, ET C'EST TOUTE L'ASTUCE : les chevrons
+   vivent dans une case de la grille qui ne mesure RIEN, et débordent vers la
+   gauche dans le rembourrage de 16 blg de la dalle. ⚖️ Ils ne prennent donc
+   aucune largeur au texte — ni quand ils sont là, ni quand ils n'y sont pas —
+   et les lignes ne se recomposent pas d'une carte à l'autre.
+   📏 12 blg pris sur les 16 du rembourrage : 8 de chevron, 4 d'écart.
+
+   ⚖️ ILS N'EXISTENT QUE QUAND LA BOÎTE DÉBORDE (`display: none` par défaut) :
+   un signe permanent qui ne signale rien devient du décor, et on cesse de le
+   voir le jour où il dit quelque chose.
+   📏 Le chevron est DESSINÉ (deux bords, une rotation), pas un caractère : un
+   glyphe dépend de la police, et l'interligne du dessus vient de payer ça. */
+.aire-power,
+.aire-meaning {
+  display: grid;
+  grid-template-columns: 0 1fr;
+  grid-template-areas: "etiq     etiq"
+                       "chevrons fenetre";
+}
+.aire-power > .card-final-etiq,
+.aire-meaning > .card-final-etiq { grid-area: etiq; }
+.aire-power > .card-final-cadre,
+.aire-meaning > .card-final-cadre { grid-area: fenetre; }
+.card-final-defile {
+  grid-area: chevrons;
+  align-self: center;
+  margin-left: -12px;
+  width: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.card-final-chevron {
+  width: 6px; height: 6px;
+  border-right: 1.5px solid var(--text-soft);
+  border-bottom: 1.5px solid var(--text-soft);
+  transform: rotate(45deg);
+  /* ⚖️ INVISIBLE PAR DÉFAUT, ET C'EST `opacity`, PAS `display` — Eric :
+     *« ces chevrons n'apparaissent que quand la boîte déborde »*. Le garde 4 des
+     jetons interdit `display: none` ici ; l'opacité rend le même service sans
+     demander d'exception, et la boîte de 8 blg vit de toute façon dans une
+     colonne de largeur NULLE — elle ne prend rien à personne, visible ou pas.
+     ⭐ Une fois la jauge allumée, celui qui n'a rien à dire reste à `.18` plutôt
+     que de disparaître : éteint, il dit « il n'y a rien de ce côté-là », et le
+     faire disparaître ferait sauter l'autre d'un demi-cran à chaque geste. */
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.card-final-chevron.vers-le-haut { transform: rotate(-135deg); }
+.card-final-cadre.deborde-bas  + .card-final-defile > .card-final-chevron,
+.card-final-cadre.deborde-haut + .card-final-defile > .card-final-chevron { opacity: .18; }
+.card-final-cadre.deborde-bas  + .card-final-defile > .vers-le-bas  { opacity: .85; }
+.card-final-cadre.deborde-haut + .card-final-defile > .vers-le-haut { opacity: .85; }
+@media (prefers-reduced-motion: reduce) { .card-final-chevron { transition: none; } }
 
 
 /* ══ LES HUIT CASES DE L'ÉCRAN FINAL — figées le 2026-09-03 ═══════════════ */
