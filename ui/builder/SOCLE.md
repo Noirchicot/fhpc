@@ -115,6 +115,50 @@ français, et un personnage FH en français est impossible à construire.
 📌 Le relevé complet et les routes chiffrées : `fh-srd/docs/TRAIT-KEYS.md` ·
 le garde : `tests/layers-traits-fr.test.mjs`.
 
+### 🔴 UN ÉCRAN NE PEUT PAS RENDRE UN CONTENU QUI N'EST PAS ÉCRIT
+
+> **Noté sur ordre d'Eric le 2026-09-03**, en butant dessus : la spec d'une ligne
+> *« Subclasses : Sub 1, Sub 2, Sub 3 and more »* a rencontré une couche qui ne
+> porte **qu'un seul nom** pour onze classes sur douze.
+
+Relevé sur `fh-fiche-en`, les douze classes :
+
+| | sous-classes portées |
+|---|---|
+| onze classes | **1** — Berserker · Lore · Life · Land · Champion · Open Hand · Devotion · Hunter · Thief · Fiend · Evoker |
+| sorcerer | **2** — Draconic, Moonkeeper |
+
+C'est le **SRD 5.2.1** qui n'en porte qu'une par classe, et la note de la couche
+le dit déjà mot pour mot pour le Wizard. Les autres sont du **SRFH+** à écrire —
+du manuscrit, pas du code.
+
+**LA LOI, ET ELLE VAUT BIEN AU-DELÀ DES SOUS-CLASSES :**
+
+⛔ **Un gabarit ne se dessine jamais sur un contenu supposé.** Avant d'écrire
+l'écran, on compte ce que la couche porte VRAIMENT — pas ce que la maquette
+montre, pas ce que le SRD « devrait » avoir. Une maquette dessine trois noms
+parce que trois noms se dessinent mieux qu'un ; la couche en a un.
+
+⛔ **Et un trou de contenu ne se bouche pas en code.** Ni en inventant les noms
+manquants, ni en masquant la ligne, ni en choisissant à la place d'Eric ce que
+l'écran raconte quand il n'a qu'un nom. *Une absence n'est jamais une réponse* —
+ici elle dit « ce contenu n'est pas encore écrit », jamais « il n'y en a qu'un ».
+
+⭐ **CE QU'ON FAIT À LA PLACE** : on livre tout ce qui ne dépend pas du trou, on
+NOMME le trou avec son chiffre, et on rend à Eric la décision — *afficher ce qui
+existe*, ou *attendre le contenu*. Deux routes, chiffrées ; jamais un arbitrage
+silencieux enterré dans un rendu.
+
+📌 **CE QU'ERIC A TRANCHÉ SUR CE CAS-LÀ, le 2026-09-03** : *« more menu des
+subclasses »* · *« on va créer un menu subclasses dans FH Web »*. La ligne rend
+donc **ce que la couche porte**, chaque nom portant son lien, suivi de **`and
+more`** qui pointe vers le menu des sous-classes de la classe sur FH Web.
+⭐ Et ça vaut comme PATRON, pas comme exception : quand le contenu manque, la
+sortie est un **lien vers l'endroit qui l'aura**, jamais un blanc ni une
+invention. L'écran dit la vérité du jour et laisse une porte vers la suite.
+⏳ Le menu FH Web n'existe pas encore : c'est la dépendance de ce rendu, et elle
+est du côté du manuscrit.
+
 ## Les trois verbes, et rien d'autre
 
 | Verbe | Quand | Ce qu'il fait au défilement |
