@@ -1740,13 +1740,31 @@ porte.
   aussi »*. ⭐ Un budget dont le pire cas est BORNÉ se vérifie une fois pour toutes — ce n'est plus
   une estimation, c'est un calcul fermé.
 
-  | | débordent | la pire |
-  |---|---|---|
-  | sans plafond | **6 / 22** | *The Devil* **579** — 79 de trop |
-  | **`power`/`meaning` en fenêtre de 4 lignes** | **0 / 22** | *The Fool* **492** — 8 de marge |
+  🔴 **LES 22 CAPTURÉES UNE PAR UNE DANS LE VRAI BANC**, Chrome headless piloté en CDP : écran R →
+  porte *Choose* → catalogue → sélection → validation. ⭐ **Le chemin B2 est donc traversé 22 fois**,
+  et ce ne sont pas des clones — ce sont les pages rendues.
 
-  📏 Hauteurs rendues : **449 · 463 · 478 · 492**. Une ligne de corps vaut **14,5 blg** : le budget
-  se compte en LIGNES, pas en pixels.
+  | | débordent | la scène défile | la plus haute |
+  |---|---|---|---|
+  | sans plafond *(mesuré sur clones)* | **6 / 22** | — | *The Devil* **579** — 79 de trop |
+  | **fenêtres de 4 lignes** *(capture réelle)* | **0 / 22** | **aucune** | *The Fool* **498** |
+
+  📏 Hauteurs réelles : **439 · 454 · 469 · 484 · 498**. Une ligne de corps vaut **14,5 blg**.
+
+  ⚠️ **LA MARGE EST DE 2 blg, PAS DE 8**, et mes clones l'avaient annoncée trop large. Deux
+  cartes saturent — *The Fool* et *Wheel of Fortune* — et **toute ligne ajoutée à cet écran les
+  casse**. ⛔ Un clone reste un clone : il portait le Score et les écarts de *l'Ermite* pour toutes
+  les cartes. Il a bien classé les 22, il n'a pas donné la bonne cote.
+
+  ⭐ **DEUX CHOSES QUE SEULE LA CAPTURE RÉELLE A DITES**, et elles expliquent tout l'écart de 60 blg
+  entre la plus basse et la plus haute :
+  1. **La fenêtre de prose n'est PAS fixe** — c'est un `max-height`. Le bloc mesure **63** blg à
+     trois lignes et **77** à quatre. Une carte au texte court ne paie pas le plafond.
+  2. 🔴 **LE BLOC `IMPACT` EST CONDITIONNEL** : il n'existe pas quand l'impact vaut `0`. Quatre
+     cartes (*Strength*, *Death*, *The Tower*, *Judgement*, *The Devil*) sont 23 blg plus légères
+     pour cette seule raison, Score compris. ⛔ **Le pire cas n'est donc pas « la carte au texte le
+     plus long »** — c'est *impact ≠ 0* **ET** `meaning` à 4 lignes **ET** `power` à 4 lignes. Deux
+     cartes réunissent les trois.
 
 ### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
 
