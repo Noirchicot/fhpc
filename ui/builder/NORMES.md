@@ -2228,6 +2228,93 @@ garde sa forme quel que soit le lignage choisi**.
 
 ---
 
+## 6 pré. 🔲 **LA RANGÉE DE CONTRÔLES — DEUX BORNES ET UN GROUPE** *(norme, 2026-09-04)*
+
+> Eric, après m'avoir vu échouer **trois fois de suite** : *« la règle est
+> toujours la même et la même erreur est faite. Boutons majeurs centrés, `?` et
+> livre sur les côtés. **Va falloir que t'y arrives systématiquement.** »* Puis :
+> *« tu trouves ta règle générale, tu rends cette installation de boutons une
+> norme, qu'on se plante plus »*.
+
+### 🔴 LA FORME, ET ELLE EST UNIQUE
+
+```
+grid-template-columns:  var(--touch) | 1fr | var(--touch)
+                        ↑ le livre     ↑ LE GROUPE   ↑ le « ? »
+```
+
+**Trois colonnes. Deux bornes. Un groupe.** Tout ce qui n'est pas une borne
+entre dans `.rangee-majeurs`, une **seule** cellule, en `flex` avec `gap: 8`.
+
+⭐ **ET C'EST CE GROUPE QUI SE CENTRE, PAS CHAQUE BOUTON.** La conséquence est
+toute la norme : **le nombre de boutons cesse d'être une question.** Un, deux ou
+cinq, ils se rangent et se centrent sans qu'une règle les compte.
+
+Les quatre rangées du site convergent ici : `.parcours-pied` · `.sortie` ·
+`.fiche-actions` · `.card-pied`.
+
+### ⛔ LES TROIS MÉTHODES QUI ONT ÉCHOUÉ — toutes VERTES aux tests
+
+Elles ont échoué **pour la même raison** : elles désignaient *une colonne par
+organe*. Le tableau est le cœur de cette norme.
+
+| la méthode | ce qui l'a tuée | mesuré |
+|---|---|---|
+| `flex` + réserves en `padding` | une boîte flex déborde **par-dessus son propre rembourrage** | **−40** sur le livre, **−40** sur le `?` ; **1 blg** de jeu en anglais |
+| colonne par **rang** (`:nth-of-type`) | il compte **par BALISE**, et le livre est un `<button>` | `Next` et le `?` **empilés**, −44 sur quatre écrans |
+| colonne par **nom de classe** | deux boutons peuvent porter la **même** classe | `Draw` et `Choose` sont tous deux `.parcours-next` → **empilés à 104** |
+
+🔴 **LA LOI QUI EN SORT : deux organes dans une même cellule s'EMPILENT ; trois
+dans un même GROUPE se POUSSENT.** Un groupe n'a pas besoin de savoir combien il
+porte ; une grille de colonnes nommées, si — et elle se trompera le jour où le
+contenu la démentira.
+
+📌 Et **une quatrième colonne est le signe qu'on recommence** : dès qu'on écrit
+`1fr | auto | auto | 1fr` pour serrer deux boutons autour du centre, on est
+revenu à désigner des organes. *(Mesuré aussi : deux `1fr` **égaux** écrasent le
+plus large des deux — `I changed my mind` est passé de 171 à **120 blg**, libellé
+rogné, sans que rien ne déborde.)*
+
+### ⛔ LA RÉSERVE EN REMBOURRAGE EST INTERDITE — les quatre écrivains
+
+Une borne a une **colonne**, jamais une réserve. Une colonne existe même vide :
+la place est tenue par le **gabarit**, jamais négociée par le contenu.
+
+Quatre réserves en `padding` ont été retirées le 04/09, écrites à quatre dates
+par quatre lots — `.parcours-pied`, `.fiche-actions` (×2, gauche et droite) et
+`.card-porte/.card-final .parcours-pied`. **Chacune avait raison le jour de son
+écriture, et aucune ne savait que les autres existaient.**
+
+⭐ *Un besoin satisfait quatre fois n'est pas quatre fois plus sûr : c'est trois
+occasions de diverger.* Symptôme mesuré une fois la grille posée : la rangée de
+Destiny R faisait **335** pour des colonnes de **291**, et le groupe se centrait
+**22 blg à gauche** du milieu. Eric l'a vu à l'œil avant toute mesure.
+
+### 📐 LES COTES, ET ELLES NE SE NÉGOCIENT PAS
+
+| | |
+|---|---|
+| borne (livre, `?`) | carré **`--touch`** — ⛔ jamais la largeur de son DESSIN. Mesuré avant : un livre à **31 blg**, parce qu'un glyphe est étroit |
+| hauteur de rangée | **44** |
+| écart dans le groupe | **8** |
+| **au-dessus** de la rangée | **8** |
+| **sous** la rangée, jusqu'au bord de la dalle | **8** |
+| position d'une borne | `absolute` **INTERDIT** dans une rangée — un organe hors flux ne pousse rien, donc il se laisse recouvrir. Son `absolute` ne vaut que sur une dalle SANS rangée |
+
+### ✅ LE TÉMOIN — comment on prouve qu'une rangée est juste
+
+⛔ **Une rangée juste en anglais ne prouve rien.** L'épreuve est en deux temps,
+et les deux comptent :
+
+1. **allonger les libellés** (« Je change finalement d'avis ») et relever les
+   positions : **zéro recouvrement** entre les quatre organes ;
+2. **relever le centre du groupe contre le centre de la DALLE** — pas contre le
+   centre de la rangée. Écart attendu : **0**. C'est ce second témoin qui a
+   attrapé le rembourrage survivant que le premier laissait passer.
+
+📌 Relevé de référence, 26 rangées du site le 04/09 : **0 recouvrement, 0 écart
+de centre, 0 organe en `absolute`**.
+
 ## 6. LES BOUTONS
 
 | gabarit | capacité | sa largeur |

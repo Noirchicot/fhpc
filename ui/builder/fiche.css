@@ -537,25 +537,18 @@
 .fiche-actions {
   grid-column: 1 / span 2;
   grid-row: 6;
-  display: flex;
   gap: var(--sp-8);
-  justify-content: space-between;
-  /* 🔴 LA RÉSERVE DU « ? », ET C'EST LA MÊME QUE CELLE DU PIED DU PARCOURS
-     (`.parcours-pied`, shell.css) — écrite là-bas le 19/08 après qu'Eric a vu
-     les boutons mordre sur le coin du rond. Le pied d'une fiche portait le
-     défaut à son tour dès que le « ? » est descendu sur chaque fiche : deux
-     boutons en `flex: 1 1 0` prennent TOUTE la ligne, cible tactile comprise.
-     ⭐ Réserver ici plutôt que rétrécir les boutons : la réserve sort la place
-     de la ligne flex, donc `LORE` et `CHOOSE` restent égaux entre eux — ce que
-     le pied du parcours ne pouvait pas faire, ses deux mots étant de longueurs
-     très différentes. */
-  padding-right: var(--touch);
-  /* 🔴 ET AUTANT À GAUCHE DEPUIS LE 26/08 : le livre y prend la place que le
-     `?` prend à droite. ⭐ La symétrie n'est pas décorative — sans elle,
-     `CHOOSE` se centrerait sur une ligne amputée d'un seul côté et paraîtrait
-     décalé. Deux réserves égales, un centre vrai. */
-  padding-left: var(--touch);
-  justify-content: center;
+  /* ⛔ LES DEUX RÉSERVES EN REMBOURRAGE SONT TOMBÉES — Eric, 2026-09-04 :
+     *« t'as tous tes livres et ? à cadrer proprement à gauche et à droite »*.
+     🔴 CE QU'ELLES FAISAIENT UNE FOIS LA RANGÉE PASSÉE EN GRILLE : un SECOND
+     écrivain sous le premier. Les colonnes de la grille commençaient APRÈS ces
+     44 blg de rembourrage — mesuré, le livre tombait à **52 du bord de la
+     dalle au lieu de 8**, et le `?` à 52 de l'autre. La réserve et la colonne
+     réservaient la même chose deux fois.
+     ⭐ Elles avaient raison EN FLEX (écrites le 19/08 puis le 26/08, chacune
+     après un défaut vu). Une colonne fait le même travail sans s'ajouter à
+     rien : *deux marges légitimes qui s'additionnent* est le défaut le plus
+     fréquent de cette feuille, et il ne se voit qu'en mesurant. */
 }
 
 /* 🔴 LE LIVRE — la jumelle GAUCHE du `?` (Eric, 2026-08-26).

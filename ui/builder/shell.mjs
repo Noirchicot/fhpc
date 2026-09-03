@@ -2174,6 +2174,7 @@ function renderStepContent() {
       (rangee || hote).append(point);
     }
   }
+  cadrerLesRangees(card);
   effacerLesTitresEnDouble(card);
   return card;
 }
@@ -4038,6 +4039,45 @@ function garnirLaSortie(hote, sortie) {
 /** LE SLOT HORIZONTAL (B0.19) — garni par l'écran qui en a un, vidé pour
  *  les autres. Aujourd'hui : Compétences seul. Le slot PERSISTE, ce qu'un
  *  écran y met peut changer — même loi que le rail. */
+/** LES BORNES AUX EXTRÉMITÉS, LES BOUTONS MAJEURS DANS UNE SEULE CELLULE.
+ *
+ *  🔴 ERIC, 2026-09-04, APRÈS DEUX RATÉS DE SUITE : *« la règle est toujours la
+ *  même et la même erreur est faite. Boutons majeurs centrés, `?` et livre sur
+ *  les côtés. Va falloir que t'y arrives systématiquement. »*
+ *
+ *  ⛔ MES DEUX MÉTHODES PRÉCÉDENTES ONT ÉCHOUÉ POUR LA MÊME RAISON : elles
+ *  désignaient une COLONNE PAR ORGANE. D'abord par rang (`:nth-of-type`, qui
+ *  compte par balise et confondait le livre avec une action), puis par NOM de
+ *  classe — et le R de Destiny porte DEUX boutons de la même classe,
+ *  `.parcours-next` : `Draw` et `Choose` recevaient la même colonne et
+ *  s'empilaient à 104. Mesuré, vu par Eric avant moi.
+ *
+ *  ⭐ CE QUI TIENT, ET POURQUOI : on ne nomme plus personne. Ce qui n'est pas
+ *  une borne est un MAJEUR, et tous les majeurs entrent dans UNE cellule. Deux
+ *  organes dans une même cellule s'empilent — trois dans un même GROUPE se
+ *  poussent. La grille n'a donc plus que trois colonnes, `--touch | 1fr |
+ *  --touch`, et le nombre de majeurs cesse d'être une question : un, deux ou
+ *  cinq, ils se rangent et se centrent tout seuls.
+ *
+ *  📌 Et c'est un FAIT du DOM qui décide (« est-ce une borne ? »), jamais un
+ *  écran, jamais un genre : une rangée future est servie sans qu'on revienne.
+ */
+const BORNES = ".fiche-livre, .tuto-point";
+function cadrerLesRangees(racine) {
+  for (const rangee of racine.querySelectorAll(".parcours-pied, .sortie, .fiche-actions, .card-pied")) {
+    /* Idempotent : repeindre deux fois ne doit pas emboîter deux groupes. */
+    if (rangee.querySelector(":scope > .rangee-majeurs")) continue;
+    const majeurs = [...rangee.children].filter((n) => !n.matches(BORNES));
+    if (majeurs.length === 0) continue;
+    const groupe = el("div", "rangee-majeurs");
+    /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
+       groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
+       suivrait le DOM, pas l'écran. */
+    rangee.insertBefore(groupe, majeurs[0]);
+    majeurs.forEach((n) => groupe.append(n));
+  }
+}
+
 function paintTopbar() {
   /* ⛔ L'ÉQUIPEMENT N'A PLUS DE BARRE DU HAUT — Eric, 2026-08-23, en montrant
      l'écran : *« dégage tout ce que je vois à l'écran, tu recâbleras après »*.

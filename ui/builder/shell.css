@@ -5420,86 +5420,81 @@ button { font: inherit; }
 /* ② CE QUI NE CÈDE JAMAIS : la tête d'un item (son voyant et son bouton) et le
    pied. Ce sont des CONTRÔLES — §5 bis les nomme un par un. */
 
-/* ══ 🔲 TOUTES LES RANGÉES DE CONTRÔLES SONT DES GRILLES ═══════════════════
-   Eric, 2026-09-03 : *« tout passe en grid »*, après avoir lu le comparatif et
-   demandé ce qu'une cellule garantit.
+/* ══ 🔲 TOUTES LES RANGÉES DE CONTRÔLES : DEUX BORNES ET UN GROUPE ═════════
+   Eric, 2026-09-04, après deux ratés de suite : *« la règle est toujours la
+   même et la même erreur est faite. Boutons majeurs centrés, `?` et livre sur
+   les côtés. Va falloir que t'y arrives systématiquement. »*
 
-   ⭐ UNE CELLULE NE PROMET PAS L'IMMOBILITÉ, ELLE INTERDIT LA SUPERPOSITION.
-   Des organes en cellules se POUSSENT ; les deux autres montages échouent
-   autrement. Un organe en `position: absolute` n'a aucun rapport avec ses
-   voisins : il se laisse RECOUVRIR en silence. Une rangée `flex` avec des
-   réserves en rembourrage déborde PAR-DESSUS SON PROPRE REMBOURRAGE dès que le
-   contenu dépasse — `padding-inline` ne protège que tant qu'on tient dedans.
+   ⭐ TROIS COLONNES, ET LE MILIEU EST UN GROUPE, PAS UNE CASE.
+   `--touch | 1fr | --touch` : la borne gauche, tous les majeurs ensemble, la
+   borne droite. Le nombre de majeurs cesse d'être une question.
 
-   📏 MESURÉ DANS LES DEUX SENS, en allongeant les libellés sur les huit
-   étapes : la balance perdait **40 blg sur le livre ET 40 sur le `?`** sur
-   Species, Inheritance, Destiny et Class ; en anglais il ne restait qu'**1 blg**
-   de jeu. La grille rend 4 et 4.
+   ⛔ DEUX MÉTHODES ONT ÉCHOUÉ AVANT, TOUTES DEUX VERTES AUX TESTS, et elles
+   ont échoué pour la MÊME raison — désigner une colonne PAR ORGANE :
+   ① par RANG (`:nth-of-type`) — il compte par BALISE, et le livre est un
+      `<button>` : `Next` et le `?` se sont retrouvés dans la même cellule,
+      44 blg de recouvrement sur quatre écrans ;
+   ② par NOM DE CLASSE — le R de Destiny porte DEUX boutons `.parcours-next`,
+      `Draw` et `Choose` : même classe, donc même colonne, donc EMPILÉS à 104.
+      Eric l'a vu avant moi.
+   🔴 LA LEÇON : **deux organes dans une même cellule s'empilent ; trois dans un
+   même GROUPE se poussent.** Un groupe n'a pas besoin de savoir combien il
+   porte, une grille de colonnes nommées, si.
 
-   🔴 LES DEUX BORNES SONT DES COLONNES, PAS DES RÉSERVES. Une colonne existe
-   même vide : la place du livre est tenue par le GABARIT, jamais négociée par
-   le contenu.
-
-   ⛔ ET LE `padding-inline: var(--touch)` DES RANGÉES DISPARAÎT AVEC : le
-   garder ajouterait une seconde réserve à celle des colonnes — deux marges
-   légitimes qui s'additionnent, le défaut le plus fréquent de cette feuille.
-
-   ⚠️ ET LA PLACE SE DIT PAR LE NOM DE L'ORGANE, JAMAIS PAR SON RANG.
-   Premier essai, mesuré et jeté : `:nth-of-type()`. Il compte **par BALISE** —
-   le livre est un `<button>` lui aussi, donc mon `:where(button:not(.fiche-livre))
-   :nth-of-type(1)` ne désignait pas la première ACTION mais le premier bouton
-   tout court. Résultat à l'écran : `Next` et le `?` empilés dans la MÊME
-   cellule, 44 blg de recouvrement sur quatre écrans — la grille reproduisait
-   exactement le défaut qu'elle venait réparer. Un compound selector ne change
-   pas ce que `nth-of-type` compte. */
+   📏 ET LE DÉFAUT D'ORIGINE, MESURÉ : en `flex` avec des réserves en
+   rembourrage, la rangée débordait PAR-DESSUS SON PROPRE REMBOURRAGE — 40 blg
+   sur le livre et 40 sur le `?` sous libellés allongés, 1 blg de jeu en
+   anglais. Une colonne existe même vide : la place est tenue par le GABARIT,
+   jamais négociée par le contenu. */
 .parcours-pied,
 .sortie,
-.fiche-actions {
+.fiche-actions,
+.card-pied {
   display: grid;
-  /* 🔴 SIX COLONNES, ET LES DEUX `1fr` SONT DES RESSORTS, PAS DES CASES.
-     ⛔ ESSAI PRÉCÉDENT, MESURÉ ET JETÉ : `--touch | 1fr | 1fr | --touch`, les
-     actions dans les deux `1fr`. Deux colonnes ÉGALES ne conviennent qu'à deux
-     boutons de largeurs proches — `I changed my mind` en demande 177 et `Next`
-     68. La colonne valait 139,5 : le premier a été ÉCRASÉ à 120 blg, son
-     libellé rogné. Aucun test ne l'aurait dit, rien ne débordait.
-     ⭐ Ici les actions sont en `auto` — elles ne cèdent jamais — et ce sont les
-     deux ressorts égaux de part et d'autre qui les centrent. Un ressort donne
-     ce qui reste ; une case impose ce qu'elle vaut. */
-  grid-template-columns: var(--touch) 1fr auto auto 1fr var(--touch);
+  grid-template-columns: var(--touch) 1fr var(--touch);
   align-items: center;
   gap: 0;
   padding-inline: 0;
 }
 
-/* ── LES DEUX BORNES ─────────────────────────────────────────────────────── */
-/* ⛔ ET ELLES SORTENT DU FLOTTEMENT. Le livre et la pastille étaient en
-   `position: absolute` : une cellule ne retient pas un organe hors flux, il
-   aurait gardé sa place d'avant en ignorant la grille. Leur `absolute` ne vaut
-   plus que sur une dalle SANS rangée, où il n'y a rien à pousser. */
-:is(.parcours-pied, .sortie, .fiche-actions) > .fiche-livre {
-  grid-column: 1; justify-self: start; position: static; inset: auto; margin: 0;
+/* 🔴 LES DEUX BORNES — Eric, 2026-09-04 : *« t'as tous tes livres et ? à cadrer
+   proprement à gauche et à droite »*.
+   ⛔ MESURÉ AVANT sur les fiches : le livre rendait **31 blg de large, à 52 du
+   bord** — deux fautes d'un coup. La largeur venait de son DESSIN (un glyphe
+   étroit), pas de sa cible ; la position, d'un `padding-inline: var(--touch)`
+   de `fiche.css` qui survivait SOUS les colonnes et les décalait toutes de 44.
+   ⭐ *Un contrôle ne se laisse jamais dimensionner par son dessin* (§2 bis) :
+   la borne vaut son carré tactile et se colle à son bord.
+   ⛔ ET ELLES SORTENT DU FLOTTEMENT : une cellule ne retient pas un organe hors
+   flux. Leur `absolute` ne vaut plus que sur une dalle SANS rangée. */
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > :is(.fiche-livre, .tuto-point) {
+  inline-size: var(--touch);
+  min-inline-size: var(--touch);
+  block-size: var(--touch);
+  position: static; inset: auto; margin: 0;
 }
-:is(.parcours-pied, .sortie, .fiche-actions) > .tuto-point {
-  grid-column: 6; justify-self: end; position: static; inset: auto; margin: 0;
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .fiche-livre {
+  grid-column: 1; justify-self: start;
+}
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .tuto-point {
+  grid-column: 3; justify-self: end;
 }
 
-/* ── LES ACTIONS, NOMMÉES UNE PAR UNE ────────────────────────────────────── */
-/* 🔴 LES DEUX `1fr` ÉGAUX SONT CE QUI CENTRE — pas une marge. Un centrage fait
-   de deux marges automatiques est une BALANCE : elle penche dès qu'un plateau
-   se vide. L'une finit au milieu, l'autre y commence. */
-:is(.parcours-pied, .sortie, .fiche-actions) > :is(.parcours-annuler, .sortie-annule) {
-  grid-column: 3; justify-self: end; margin: 0 var(--sp-4) 0 0;
-}
-:is(.parcours-pied, .sortie, .fiche-actions) > .parcours-next {
-  grid-column: 4; justify-self: start; margin: 0 0 0 var(--sp-4);
-}
-/* 🔴 UNE ACTION SEULE PREND LES DEUX COLONNES DU MILIEU. Sans elle, le `Done`
-   d'Identity se collerait au bord de la colonne 2, donc à GAUCHE du milieu —
-   la grille l'aurait décalé exactement comme la balance le décalait.
-   ⭐ `:has()` lit un FAIT de la rangée (« porte-t-elle deux actions ? »), pas
-   le nom d'un écran : toute rangée future est servie sans qu'on revienne ici. */
-:is(.parcours-pied, .sortie, .fiche-actions):not(:has(> :is(.parcours-annuler, .sortie-annule))) > :is(.sortie-done, .sortie-bouton, .fiche-action) {
-  grid-column: 3 / 5; justify-self: center; margin-inline: 0;
+/* 🔴 LE GROUPE DES MAJEURS — la colonne du milieu, et rien d'autre dedans.
+   ⭐ C'est LUI qui se centre, pas chaque bouton : le groupe prend sa largeur
+   naturelle et la colonne `1fr` le pose au milieu. Un bouton seul se centre
+   donc exactement comme deux, sans règle supplémentaire — c'est ce qu'aucune
+   de mes deux tentatives précédentes n'obtenait sans un cas particulier.
+   ⛔ `flex-wrap: nowrap` : une rangée de contrôles ne se replie pas sur deux
+   lignes, elle déborde visiblement (§5 bis). */
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .rangee-majeurs {
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--sp-8);
+  min-inline-size: 0;
 }
 
 .parcours-item-tete,
@@ -7760,11 +7755,19 @@ button { font: inherit; }
    l'organe des autres chapitres (Eric, 2026-08-30 : « I changed my mind comme
    dans les autres chapitres, organes livre et ? »). Il apporte l'octogone, le
    rouge du défaire, le bleu du mouvement, ses 4 px et la place du livre.
-   ⚠️ IL RESTE UNE CHOSE À RÉSERVER : le `?` de la coquille se pose en bas à
-   droite de la DALLE (Eric, 19/08) et tombait sur le dernier bouton — mesuré
-   au banc le 30/08. La rangée de ces deux écrans lui garde sa place. */
+   ⛔ ET SA RÉSERVE DE DROITE EST TOMBÉE — la QUATRIÈME de la même famille,
+   retirée le 2026-09-04. Elle gardait la place du `?` quand celui-ci flottait
+   sur la dalle en `absolute` ; depuis qu'il est un MEMBRE de la rangée, il a sa
+   colonne, et la réserve s'ajoutait à cette colonne au lieu de la remplacer.
+   📏 MESURÉ : la rangée faisait 335 pour des colonnes de 291, et le groupe de
+   `Draw`/`Choose` se centrait 22 blg à gauche du milieu de la dalle — Eric l'a
+   vu à l'œil (*« tu as cassé les boutons de destiny R »*).
+   ⭐ QUATRE RÉSERVES, QUATRE ÉCRIVAINS, LE MÊME BESOIN : `.parcours-pied`,
+   `.fiche-actions` ×2 et celle-ci. Chacune avait raison le jour de son écriture
+   et aucune ne savait que les autres existaient. *Un besoin satisfait quatre
+   fois n'est pas quatre fois plus sûr — c'est trois occasions de diverger.* */
 .card-porte .parcours-pied,
-.card-final .parcours-pied { padding-inline-end: var(--touch); }
+.card-final .parcours-pied { padding-inline-end: 0; }
 /* 🔴 LES BOUTONS DESCENDENT DE 8 — Eric, 2026-09-03 : *« ça va recouvrir les
    boutons. ensuite tu descends les boutons pour qu'il y ait 8 px entre eux et le
    texte de destiny score »*.
