@@ -187,21 +187,45 @@ regarde pas seulement *combien* la couche porte — regarde **de quelle forme**.
 Un compte à 1 se lit « il en manque » ; un champ singulier se lit « la question
 n'est pas encore posée ».
 
-### 🔴 UN NOM DANS UNE SPEC N'EST PAS DU CONTENU
+### 🔴 UN INVENTAIRE QUI NE VISITE PAS LES TROIS LIEUX NE COMPTE RIEN
 
-**Six** sous-classes FH sont NOMMÉES dans `FH-WEB/FHPC/FHPCv2 future updates.md` :
-`Silent Blade` et `Spell Rigger` (Rogue), `Black Chanters` (Cleric), `Moonkeeper`
-(Sorcerer), `Soulmongers` (Warlock), `Ritualists` (Wizard). La cible écrite est
-**24 — deux par classe**.
+> **Écrit faux le 2026-09-04, corrigé le jour même.** J'ai compté les
+> sous-classes FH dans le **vault** et dans les **couches**, conclu *« une seule
+> est écrite »*, et gravé ce chiffre. Eric : *« c'est dans FH web »*. Il y en a
+> **quatre**, publiées, avec leurs chapitres :
+> `moonkeeper` 4684 c · `college-of-banners` 4271 c · `silent-blade` 3372 c ·
+> `spell-rigger` 4816 c, toutes quatre au menu de `mkdocs.yml`.
 
-Une seule est **écrite** : `Moonkeeper`, qui a son chapitre au vault et qui est la
-seule à avoir atteint une couche. Les cinq autres sont *« nommée seulement »*,
-et le document le dit lui-même avec un ⛔.
+⛔ **Le contenu FH vit dans TROIS lieux, et un inventaire qui en oublie un se
+trompe dans le sens qui rassure** — il annonce moins, donc il a l'air prudent :
 
-⚖️ **Un nom dans un document de suivi mesure une INTENTION, pas un stock.** Un
-chantier qui compte les noms croit avoir six sous-classes et en a une. ⭐ Le seul
-inventaire qui vaut est **ce que les couches portent**, parce que c'est le seul
-que l'écran peut lire.
+| lieu | ce qu'il est | ce qu'il porte |
+|---|---|---|
+| le **vault** | le manuscrit | ce qu'Eric écrit |
+| **`fh-phb`** | l'imprimerie | ce qui est publié sur FH Web |
+| les **couches** (`layers/`) | ce que la machine lit | ce que le builder peut afficher |
+
+⭐ **Les trois divergent, et c'est normal** : un chapitre peut être publié sans
+qu'aucune couche ne le porte — c'est exactement le cas des quatre sous-classes,
+lisibles par un joueur sur FH Web et invisibles au builder. *« Écrit »*, *« publié »*
+et *« affichable »* sont trois états différents, jamais un seul.
+🔴 **Avant tout compte, dire lequel des trois on interroge.** Un compte sans son
+lieu est un chiffre sans unité.
+
+### ⚠️ ET UN CHAPITRE PEUT PERDRE SON AMONT SANS QUE RIEN NE CRIE
+
+Trouvé en corrigeant le compte : la table de `sync_from_vault.py` fait descendre
+`college-of-banners.md`, `silent-blade.md` et `spell-rigger.md` depuis
+`1. Build a Character/<nom>.md` — **et ces trois sources n'existent pas** dans le
+vault. Seule `Moonkeeper.md` y est.
+
+Ces trois chapitres vivent donc **uniquement dans l'imprimerie**, en aval du
+manuscrit. Une correction faite au vault ne les atteint jamais ; une correction
+faite dans `fh-phb` sera écrasée le jour où quelqu'un croit que la table dit vrai.
+⛔ **Une table de correspondance qui pointe vers un fichier absent ne prouve pas
+que le fichier existe** — elle prouve seulement qu'on a voulu qu'il existe.
+⏳ Le rapatriement appartient à Eric (*« ok pour plus tard »*, 04/09). Ce qui est
+noté ici est le **fait**, pour qu'il ne se redécouvre pas une troisième fois.
 
 ## Les trois verbes, et rien d'autre
 
