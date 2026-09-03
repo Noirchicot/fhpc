@@ -127,7 +127,7 @@ export function motDe(libelle) {
   return String(libelle);
 }
 
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, poseEnHaut, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 35 % — Eric, 2026-09-03 : *« change le voile à 35 pour Species et
      Classes »*, dit APRÈS avoir vu le comparatif des quatre écrans, où le 50
@@ -148,6 +148,16 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
   const page = el("section", "parcours-guide dalle-simple");
   page.dataset.objet = "dalle";
   page.dataset.racine = racine;
+  /* 🔴 LA POSE SE DÉCLARE — Eric, 2026-09-03 : *« inheritance doit rester collé
+     en haut »*, le lendemain d'avoir demandé le centrage sur Species et Class.
+     ⭐ L'ÉCRAN DÉCLARE, LA FEUILLE DESSINE. ⛔ Pas de sélecteur qui nomme
+     l'étape (`[data-racine="background"]`) : la feuille décrit une GÉOMÉTRIE,
+     jamais un contenu — le garde du vocabulaire a déjà refusé cet idiome pour
+     `[data-kind="arcana"]`. `data-pose` dit où la dalle se met, et n'importe
+     quel écran peut le demander sans que la feuille apprenne son nom.
+     📌 DÉFAUT = CENTRÉE : c'est la pose que Species et Class ont obtenue, donc
+     celle que tout nouvel écran hérite sans rien écrire. */
+  if (poseEnHaut) page.dataset.pose = "haut";
 
   if (titre) page.append(el("h2", "guide-titre", [text(titre)]));
   /* 🔴 LA BANDE D'AIGUILLEUR SE POSE EN BAS — Eric, 2026-08-26 : *« c'est trop

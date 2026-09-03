@@ -2613,6 +2613,8 @@ function renderParcoursGuide(cfg, ctx) {
        l'étape, qui seule sait où vit son lore. */
     gendarme: cfg.gendarme ? cfg.gendarme(ctx) : gendarmeParDefaut(cfg, ctx),
     livreDe: cfg.livreDe ? cfg.livreDe(ctx) : null,
+    /* La pose de la dalle : une déclaration de l'étape, pas une déduction. */
+    poseEnHaut: cfg.poseEnHaut === true,
     /* Le bilan de chaque ligne, et l'état de l'étape : ce sont eux qui font de
        B0 son propre bilan (Eric, 2026-08-19). */
     resumeDe: cfg.resumeItem ? (item) => cfg.resumeItem(item, ctx, applyDecisionAction) : null,
@@ -2773,6 +2775,12 @@ function parcoursDuChapitre(id) {
 
 const INHERITANCE_PARCOURS = {
   path: "background", kind: "background", label: "Inheritance", parcours: true,
+  /* 🔴 COLLÉE EN HAUT — Eric, 2026-09-03, en voyant l'écran centré : *« inheritance
+     doit rester collé en haut »*. C'est la SEULE étape du parcours dont le guide
+     ne remplit pas la scène : Species et Class valent 492 de contenu et n'ont
+     nulle part où se centrer, Inheritance vaut 287 et flottait au milieu.
+     ⚖️ Le centrage reste le DÉFAUT ; c'est cette étape qui déclare l'exception. */
+  poseEnHaut: true,
   choices: (ctx, act) => renderInheritanceStep(ctx, act),
   /* 🔴 UN ITEM EST UNE CHOSE — Eric, 2026-08-20, après Species et Class.
      📏 CE QUE LE REPLI DONNAIT, MESURÉ DANS LA PAGE : les DEUX items ouvraient
@@ -2851,6 +2859,9 @@ function livreDuDon(ctx) {
 
 const FEAT_PARCOURS = {
   path: FEAT_RACINE, kind: "feat", label: "Origin feat", parcours: true,
+  /* Le don d'origine est un sous-écran d'Inheritance : il prend la pose de son
+     étape, sinon la dalle sauterait du haut au milieu en changeant d'écran. */
+  poseEnHaut: true,
   livreDe: (ctx) => livreDuDon(ctx),
   /* 🔵 L'AIGUILLEUR DIT LE GESTE DE CHAQUE SOUS-ÉCRAN — Eric, 2026-08-28 :
      « Texte aiguilleur plus précis. » Le socle de prévention reste ; la

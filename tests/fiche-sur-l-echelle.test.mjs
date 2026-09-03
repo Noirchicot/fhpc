@@ -153,9 +153,27 @@ test("fiche.css : aucun écart hors des jetons --sp-*", () => {
    Une cote recopiée survit à la mort de sa raison ; celle-ci la NOMME. */
 test("fiche.css : la rangée tactile de la carte nomme --touch", () => {
   const texte = stripComments(FICHE);
-  const m = texte.match(/grid-template-rows:\s*auto minmax\(0, 1fr\) auto calc\(var\(--fiche-ligne\) \* 8\) ([^;]+);/);
+  /* 📌 ANCRE ÉLARGIE LE 2026-09-03 — Eric a fait remonter le blurb à T2, et la
+     rangée qui le porte lit désormais `--fiche-ligne-blurb` au lieu de
+     `--fiche-ligne`. Le garde épelait ce jeton : il refusait une grille JUSTE.
+     ⭐ CE QU'IL ASSERTE N'A PAS BOUGÉ D'UN POUCE — la dernière rangée nomme
+     `--touch`. Ce qui change est l'ANCRE qui l'y mène, et elle reste stricte :
+     quatre rangées avant la dernière, dont une boîte de HUIT lignes tirée d'un
+     jeton nommé. Un `.*` à la place aurait laissé passer n'importe quelle
+     grille — élargir une ancre n'est pas l'ouvrir. */
+  const m = texte.match(/grid-template-rows:\s*auto minmax\(0, 1fr\) auto calc\(var\((--[a-z-]+)\) \* (\d+)\) ([^;]+);/);
   assert.ok(m, "la grille du portrait n'a plus la forme attendue");
-  assert.equal(m[1].trim(), "var(--touch)");
+  assert.match(m[1], /^--fiche-ligne/,
+    "la boîte du blurb se compte en lignes : sa rangée nomme un jeton de LIGNE, "
+    + "jamais une cote en pixels — c'est la loi de ce fichier");
+  /* ⛔ ET LE NOMBRE DE LIGNES N'EST PAS ÉPELÉ NON PLUS. Il valait 8, il vaut 9
+     depuis que le blurb est monté à T2 (13 fiches sur 24 étaient tronquées
+     d'exactement une ligne, mesuré). Ce que le garde exige est qu'il soit un
+     COMPTE ENTIER — une ligne ne se coupe pas aux deux tiers, c'est la loi du
+     fichier — et non sa valeur du jour. */
+  assert.match(m[2], /^[1-9][0-9]*$/,
+    "la boîte se compte en lignes ENTIÈRES");
+  assert.equal(m[3].trim(), "var(--touch)");
 });
 
 /* ══ 2 — LES ATTAQUES : le garde doit ROUGIR sur du CSS synthétique ═══════

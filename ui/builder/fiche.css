@@ -1062,6 +1062,16 @@
      §1 ter quinquies) : on descend, on ne s'arrête pas entre deux crans. */
   --fiche-ligne: calc(var(--t1) * 1.2);
 
+  /* 🔴 LE BLURB A SA PROPRE LIGNE — Eric, 2026-09-03 : *« le texte du blurb
+     passe de t1 à t2 sur classes et species »*, *« idem pour subclasses »*.
+     ⭐ UN SEUL ÉCRIVAIN, DEUX LECTEURS : ce jeton sert l'interligne du texte ET
+     la rangée de la grille qui le contient. Écrire le corps d'un côté et la
+     hauteur de la boîte de l'autre, c'est la panne du 17/08 en germe — deux
+     nombres qui décrivent la même chose et qui divergent au premier changement.
+     ⛔ ET IL NE PEUT PAS SUIVRE `--fiche-ligne` : celle-là sert le bloc 1 et la
+     bande, qui restent à T1. Le blurb monte SEUL. */
+  --fiche-ligne-blurb: calc(var(--t2) * 1.2);
+
   /* ── L'HABIT PORTRAIT, dicté par Eric le 27/08 ──────────────────────────
      « titre en haut et à gauche centré au-dessus du bloc 1 · bloc 1 texte
      centré · bloc 2 même largeur que le bloc 1, moins haut, texte cadré à
@@ -1074,7 +1084,11 @@
      au pixel près. La boîte se compte en LIGNES, pas en pixels (la loi de ce
      fichier : c'est la ligne qui est la cote mesurée) : une ligne n'est
      jamais coupée aux deux tiers. Ce qu'elle rend va au bloc 1. */
-  grid-template-rows: auto minmax(0, 1fr) auto calc(var(--fiche-ligne) * 8) var(--touch);
+  /* 📏 ET LE 115u DU COMMENTAIRE REDEVIENT VRAI. Il ne l'était plus : quand le
+     corps du blurb est descendu à T1 le 03/09, la boîte a suivi à 8 × 12 = 96 —
+     l'arbitrage « 3/10 » d'Eric était périmé sans que rien ne le dise. Le
+     retour à T2 rend les 115u, donc les 3/10 de la zone. */
+  grid-template-rows: auto minmax(0, 1fr) auto calc(var(--fiche-ligne-blurb) * 8) var(--touch);
 }
 /* La respiration GAUCHE du portrait — Eric, 27/08 : « bloc 2 trop près du
    bord gauche aussi » · « bloc 1 idem ». Le TEXTE s'arrête à 16u du bord
@@ -1131,22 +1145,31 @@
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-blurb {
   /* la boîte basse du portrait — boîte FERMÉE en lignes entières : c'est
-     elle qui fait le moule, un blurb trop long se voit, il ne pousse pas.
-     La marge : Eric, 27/08 — « bloc texte 3 trop près du bord », même
-     respiration que le paysage : le texte s'arrête à 16u du bord. */
+     elle qui fait le moule, un blurb trop long se voit, il ne pousse pas. */
   grid-column: 1 / -1; grid-row: 4;
-  margin-inline: var(--sp-8);
-  /* T1 — il était écrit `11px`, entre T1 (10) et T2 (12). La boîte reste
-     HUIT LIGNES : elle se compte en lignes, donc elle descend avec le corps
-     (8 × 12 au lieu de 8 × 13,2) et rend ses 9,6 blg au bloc 1. Le texte,
-     lui, y tient MIEUX : une ligne plus étroite en blg porte plus de
-     caractères. Règle du 2026-09-03 (NORMES §1 ter quinquies). */
-  font-size: var(--t1);
-  /* Eric, 27/08 : « justifié plus joli, pour le texte 3 ». La césure évite
-     les rivières que la justification creuse dans une colonne étroite. */
-  text-align: justify;
-  hyphens: auto;
-  line-height: var(--fiche-ligne);
+  /* 🔴 8 DU BORD, PLUS 16 — Eric, 2026-09-03 : *« marges g et d passe à 8 »*.
+     ⚖️ ÇA RENVERSE SON *« bloc texte 3 trop près du bord »* du 27/08, et le
+     renversement se comprend : à l'époque le texte était JUSTIFIÉ et plus
+     petit, donc il formait un pavé dense qui touchait ses bords des deux
+     côtés. Sans justification et d'un barreau plus haut, la marge naturelle du
+     drapeau à droite fait le travail que ces 8 blg faisaient de force.
+     ⭐ ET C'EST LA DALLE QUI PAIE LES 8 QUI RESTENT, pas le blurb : son
+     rembourrage. Un seul écrivain pour cet écart — le blurb n'en pose plus
+     aucun, il ne peut donc plus s'ajouter à celui de la dalle. */
+  /* 🔴 T2 — Eric, 2026-09-03 : *« le texte du blurb passe de t1 à t2 sur
+     classes et species »* · *« idem pour subclasses »*. Le bloc 3 remonte d'un
+     barreau ; le bloc 1 et la bande restent à T1, eux.
+     ⚖️ ÇA RENVERSE LA DESCENTE DU MATIN MÊME (T1, « le texte y tient MIEUX »).
+     L'argument était juste sur la CAPACITÉ et muet sur la LISIBILITÉ — c'est
+     Eric qui a regardé, et c'est ce qu'on lit qui tranche, pas ce qui rentre. */
+  font-size: var(--t2);
+  /* ⛔ LA JUSTIFICATION DÉGAGE — Eric, 2026-09-03 : *« la justification du blurb
+     dégage »*, renversant son propre *« justifié plus joli »* du 27/08.
+     ⭐ ET LA CÉSURE PART AVEC : elle n'était là que pour boucher les rivières
+     que la justification creuse dans une colonne étroite. Sans justification,
+     plus de rivières — une compensation qui survit à sa cause devient le défaut
+     suivant, ici des mots coupés sans raison. */
+  line-height: var(--fiche-ligne-blurb);
 }
 .fiche-dalle:not([data-dressing="prose"]) .fiche-actions {
   grid-column: 1 / -1; grid-row: 5;

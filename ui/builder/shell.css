@@ -5401,6 +5401,22 @@ button { font: inherit; }
   margin-bottom: 0;
 }
 
+/* 🔴 ET UNE DALLE PEUT REFUSER LE CENTRE — Eric, 2026-09-03 : *« inheritance
+   doit rester collé en haut »*. La scène repasse en `flex-start` pour elle
+   seule, et la dalle reprend la marge basse qui la sépare du bord.
+   ⭐ LE DÉFAUT RESTE LE CENTRE : c'est l'écran qui déclare `data-pose="haut"`,
+   la feuille ne connaît le nom d'aucune étape. Un écran neuf est centré sans
+   rien écrire — la norme se câble en défaut partagé, jamais en mur qui refuse.
+   📌 ⚠️ ET LE `:has()` DOIT DESCENDRE JUSQU'À L'ATTRIBUT, pas seulement
+   jusqu'à la dalle : la scène est le seul élément qui porte l'alignement, et
+   elle ne voit son petit-fils que par là. */
+.stage:has(> .decision-card > .catalogue-step > .parcours-guide[data-pose="haut"]) {
+  justify-content: flex-start;
+}
+.stage:has(> .decision-card > .catalogue-step > .parcours-guide[data-pose="haut"]) .parcours-guide {
+  margin-bottom: var(--sp-8);
+}
+
 /* ② CE QUI NE CÈDE JAMAIS : la tête d'un item (son voyant et son bouton) et le
    pied. Ce sont des CONTRÔLES — §5 bis les nomme un par un. */
 .parcours-item-tete,
