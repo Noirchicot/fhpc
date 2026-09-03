@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=476";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=476";
-import { mountPopup } from "./popup.mjs?v=476";
-import { renderLorePanel } from "./lore.mjs?v=476";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=476";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=483";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=483";
+import { mountPopup } from "./popup.mjs?v=483";
+import { renderLorePanel } from "./lore.mjs?v=483";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=483";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=476";
-import { STEPS } from "./etapes.mjs?v=476";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=476";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=483";
+import { STEPS } from "./etapes.mjs?v=483";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=483";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=476";
+} from "./tutoriel.mjs?v=483";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=476";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=483";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=476";
+} from "./echelle.mjs?v=483";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=476";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=483";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=476";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=476";
+} from "./fonds.mjs?v=483";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=476";
-import { renderChoixGlisses } from "./glisser.mjs?v=476";
-import { renderConceptStep } from "./concept-step.mjs?v=476";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=476";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=476";
+import { planAt, planSlots } from "./carnet.mjs?v=483";
+import { renderChoixGlisses } from "./glisser.mjs?v=483";
+import { renderConceptStep } from "./concept-step.mjs?v=483";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=483";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=483";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=476";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=476";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=476";
+} from "./catalogue.mjs?v=483";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=483";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=483";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=476";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=476";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=483";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=483";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=476";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=483";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaSymboleSrc, arcanaNumeral
-} from "./destiny-step.mjs?v=476";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=476";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=476";
+} from "./destiny-step.mjs?v=483";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=483";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=483";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=476";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=476";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=483";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=483";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=476";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=483";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=476";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=476";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=483";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=476";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=476";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=483";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=483";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=476";
+import { versionQuery } from "./version.mjs?v=483";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1542,8 +1542,13 @@ const CATALOGUES = {
        faisait. La même largeur qu'avant, et la course en moins. */
     railImage: arcanaSymboleSrc,
     railEtiquette: (id) => arcanaNumeral(state.engine.layers.verbs.query, id),
-    railColonnes: 2,
-    titreDansLaFiche: true
+    railEtroit: true,
+    titreDansLaFiche: true,
+    /* ⬅️ ce catalogue s'ouvre DEPUIS le R de son étape : reculer doit rendre le
+       R, pas l'étape d'avant. Le seul à le déclarer aujourd'hui. */
+    retourInterne: true,
+    /* ⛔ et pas de `Done` : c'est `Choose` qui ouvre, et le `Done` de SB2 qui acte */
+    sansDone: true
   }
 };
 /** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
@@ -1592,7 +1597,7 @@ function catalogueCtx(cfg) {
     /* l'étiquette courte du cran (le chiffre romain) et le titre porté par la
        fiche elle-même — deux portes étroites, déclarées, jamais devinées. */
     railEtiquette: cfg.railEtiquette || null,
-    railColonnes: cfg.railColonnes || null,
+    railEtroit: Boolean(cfg.railEtroit),
     titreDansLaFiche: Boolean(cfg.titreDansLaFiche)
   };
 }
@@ -3302,8 +3307,17 @@ function pressBack() {
      saute par-dessus l'écran qu'on vient de traverser, le défaut exact que le
      lot 79 avait relevé sur les paliers.
      ⚖️ ET IL N'EFFACE RIEN : au catalogue rien n'est posé au document. C'est
-     `Done` qui acte, et lui seul (B6.2). */
-  if (STEPS[state.step].id === "destiny" && state.destinyMode === "choice") {
+     `Done` qui acte, et lui seul (B6.2).
+     🔴 ET LE FAIT EST DÉCLARÉ, PAS DEVINÉ D'UN ID D'ÉTAPE — un garde me l'a
+     imposé et il a raison : *« BACK naît d'un FAIT, jamais d'un id d'étape »*.
+     Mon premier jet testait `STEPS[state.step].id === "destiny"`. Le fait, c'est
+     qu'un catalogue a été OUVERT DEPUIS un écran de la même étape : la table des
+     catalogues le dit (`retourInterne`), et `catalogueCourant()` ne rend cette
+     config que quand ce catalogue est réellement ouvert. Species, dont le
+     catalogue EST l'entrée de son étape, ne le déclare pas — c'est la ceinture
+     qui l'y ramène, invariant I.5. */
+  const catalogueInterne = catalogueCourant();
+  if (catalogueInterne && catalogueInterne.retourInterne) {
     state.destinyMode = "draw";
     state.destinyPhase = "porte";
     state.destinyRang = null;
@@ -3781,16 +3795,34 @@ function renderSortieEtape() {
   const cfgRetour = catalogueCourant();
   const effaceAuRetour = Boolean(cfgRetour && cfgRetour.retourEfface && state.palier === 2);
   const motDuRetour = state.parcoursItem ? "Cancel" : effaceAuRetour ? "I changed my mind" : "Back";
-  const back = (state.palier > 1 || state.parcoursItem) ? button(motDuRetour, () => pressBack()) : null;
+  /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
+     deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le
+     catalogue de Destiny était devenu un cran de recul dans `pressBack()`, et
+     cette condition ne connaissait toujours que le palier et l'item. Résultat,
+     le geste existait et le bouton pas : `Back` était injoignable en B2, alors
+     qu'Eric venait de le demander.
+     ⭐ D'OÙ UN SEUL PRÉDICAT, LU AUX DEUX ENDROITS. Le jour où un cran s'ajoute,
+     il s'ajoute UNE fois — c'est le même remède que `data-snap` au lot 57 : une
+     brique, un écrivain, un garde. */
+  const back = (state.palier > 1 || state.parcoursItem || (cfgRetour && cfgRetour.retourInterne)) ? button(motDuRetour, () => pressBack()) : null;
   if (back) back.className = "sortie-bouton sortie-back";
 
-  const done = button("Done", () => pressDone());
-  done.className = "sortie-bouton sortie-done";
+  /* ⛔ PAS DE `Done` AU CATALOGUE DE DESTINY — Eric, 2026-09-03. Sa liste du
+     pied de B2 est *« le bouton choose, le livre et le ? »* plus *« le bouton
+     back à côté de choose »*. Pas de `Done`, et c'est juste : au catalogue,
+     c'est `Choose` qui ouvre, et c'est le `Done` de SB2 qui ACTE (B6.2 — rien
+     n'est écrit au document avant lui). Un `Done` ici serait un second organe
+     d'action sur un écran qui n'agit pas.
+     ⚖️ LE PIED RESTE UNE PAIRE AU PLUS, jamais moins strict : la ligne
+     `[back, done].filter(Boolean)` n'a pas bougé, et le garde 16 ter continue
+     d'interdire un TROISIÈME. Ici la paire n'a qu'un membre — c'est déjà le cas
+     partout où `Back` n'existe pas, dans l'autre sens. */
+  const done = (cfgRetour && cfgRetour.sansDone) ? null : button("Done", () => pressDone());
+  if (done) done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
      pourquoi par son apparence, jamais disparaître. */
-  done.dataset.lit = String(gate.ready);
-  done.disabled = !gate.ready;
+  if (done) { done.dataset.lit = String(gate.ready); done.disabled = !gate.ready; }
   /* 🟢 L'AVANCEMENT DE L'ITEM, LU AU CARNET — 27/08, revue d'Archi 28 :
      « Done reste GRIS à 3 of 3 chosen ». `gate.ready` dit si le bouton
      RÉPOND (toujours, sur un item) ; `data-avance` dit où en est le CONTENU —
@@ -3800,7 +3832,7 @@ function renderSortieEtape() {
     const plan = (state.decisions || []).find((p) => p && p.path === state.parcoursItem.path);
     const repondu = Boolean(plan && Number.isInteger(plan.answered) && Number.isInteger(plan.expected)
       && plan.answered >= plan.expected && !plan.lock);
-    done.dataset.avance = repondu ? "fait" : "en-cours";
+    if (done) done.dataset.avance = repondu ? "fait" : "en-cours";
     /* 🚨 ON NE SIGNE PAS UN SOUS-ÉCRAN QUE LE NOYAU REFUSE — Eric, 2026-08-29,
        capture du SB3 « 3 of 2 points spent » en rouge avec un `Done` armé :
        *« le blocage bouton et le gendarme ne font pas leur boulot, à faire idem
@@ -3816,9 +3848,7 @@ function renderSortieEtape() {
        dessous. Le retour (`Cancel`) reste armé — Eric : *« ainsi que la
        possibilité de revenir en arrière »*. */
     if (plan && plan.lock) {
-      done.disabled = true;
-      done.dataset.lit = "false";
-      done.dataset.verrou = "oui";
+      if (done) { done.disabled = true; done.dataset.lit = "false"; done.dataset.verrou = "oui"; }
     }
   }
 
@@ -3968,7 +3998,17 @@ function paintAside() {
      palier — donc le suivant repassait à travers. Mesuré dans la page. */
   const show = Boolean(rail) && state.palier < 2 && !state.lore && !enParcours; // le menu des choix (B2.3) n'a pas de rail : il n'y a plus douze fiches à suivre
   frame.aside.hidden = !show;
-  frame.area.dataset.aside = show ? "on" : "off";
+  /* 🔴 LE RAIL A DEUX LARGEURS, ET C'EST L'ÉCRAN QUI LE DIT — Eric,
+     2026-09-03 : le rail des 22 arcanes ne porte plus des vignettes mais un
+     chiffre et un symbole, et il tombe de 90 blg à 40.
+     📏 40 N'EST PAS CHOISI, IL EST CE QUI RESTE : `8 | rail | 8 | fiche | 8`
+     (Eric) et la fiche à `375 × 0,85 = 319` (son dézoom) laissent 32 de cran.
+     Avec les 8 de rembourrage à gauche : 40. À 4 blg près, `XVIII` (28,5) n'y
+     tenait plus.
+     ⚖️ « étroit » NOMME UNE GÉOMÉTRIE, PAS UN CATALOGUE : le jour où un autre
+     écran veut un rail de chiffres, il déclare `railColonnes`/`railEtroit` et
+     la feuille suit — un sélecteur par genre aurait été à recopier. */
+  frame.area.dataset.aside = show ? (cfg && cfg.railEtroit ? "etroit" : "on") : "off";
   /* ⭐ L'ÉCRAN DIT SA LETTRE, ET LUI SEUL (Eric, 2026-08-19) — c'est la moitié
      du modèle qui a tout réparé : une DALLE ne peut pas savoir s'il y a un
      rail, seul l'écran le sait. Le chapeau de chapitre s'est déclaré « FF3 »

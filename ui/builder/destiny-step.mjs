@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=476";
-import { renderCardRows } from "./catalogue.mjs?v=476";
+import { drawArcana } from "./dice.mjs?v=483";
+import { renderCardRows } from "./catalogue.mjs?v=483";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=476";
+import { versionQuery } from "./version.mjs?v=483";
 
 export { drawArcana };
 
@@ -606,10 +606,21 @@ export function renderDestinyFinal(ctx, onAction) {
        rend au catalogue (rien n'était acté), ailleurs il rend au R en effaçant.
        C'est la coquille qui lit le rang, pas ce bouton — il n'émet qu'un verbe. */
     rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
-    /* 🔴 « DONE », PAS « NEXT » — croquis d'Eric du 2026-09-02. Le geste n'a pas
-       changé (`destinyNext`), c'est le mot. ⚖️ NORMES §6 sépare les deux : `NEXT`
-       ne fait que NAVIGUER, `DONE` acte. Ici il ACTE. */
-    rangee.append(bouton("Done", "parcours-next", () => act({ kind: "destinyNext" })));
+    /* 🔴 « NEXT », ET C'EST UN RETOUR EN ARRIÈRE ASSUMÉ SUR LE 02/09.
+       Le croquis d'Eric disait *« DONE, pas NEXT »*, et le lot 142 l'a écrit.
+       Eric, 2026-09-03, après avoir fait mesurer Species : *« on peut skip le
+       done »* · *« c'est i changed my mind et next direct »*. La demande la plus
+       récente fait loi, et elle est datée ici pour que personne ne redéfasse
+       l'une en croyant réparer l'autre.
+       ⭐ CE QUE LA MESURE A MONTRÉ, ET QUI DONNE RAISON À ERIC : dans Species, le
+       pied vaut `I changed my mind` + `Done` tant que l'étape n'est pas faite,
+       puis `I changed my mind` + `Next`. Deux états pour un seul geste — ici le
+       `Next` ACTE ET AVANCE d'une pression (`destinyNext` ne change pas), donc
+       l'état intermédiaire n'a rien à montrer.
+       ⚖️ NORMES §6 sépare `NEXT` (naviguer) de `DONE` (acter) : la nuance reste
+       vraie partout ailleurs. Ici le même bouton fait les deux, et c'est le
+       parcours d'Eric qui le décide — pas une confusion des deux mots. */
+    rangee.append(bouton("Next", "parcours-next", () => act({ kind: "destinyNext" })));
   }
   dalle.append(rangee);
   return dalle;

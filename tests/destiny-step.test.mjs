@@ -272,7 +272,17 @@ test("le pied final nomme les deux gestes du croquis, et n'en commet aucun tout 
   /* 🔴 « Done », PAS « Next » — croquis d'Eric du 2026-09-02. Le geste ne change
      pas (`destinyNext`), c'est le MOT : NORMES §6 réserve `NEXT` à ce qui ne fait
      que naviguer, et ce bouton-là ACTE la carte au document. */
-  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Done"]);
+  /* 🔴 « NEXT », PAS « DONE » — Eric, 2026-09-03, après avoir fait mesurer
+     Species : *« le done c'est quand il y a des étapes intermédiaires »* ·
+     *« il n'y en a pas »* · *« c'est i changed my mind et next direct »*.
+     ⭐ CE N'EST DONC PAS UNE EXCEPTION DE DESTINY, C'EST LA RÈGLE APPLIQUÉE : la
+     coquille montre `Done` tant qu'un palier reste à faire, puis `Next`. Destiny
+     déclare `palier2: () => null` — aucun palier intermédiaire — donc elle est
+     d'emblée dans l'état où les autres finissent.
+     ⛔ CECI DÉFAIT LE CROQUIS DU 02/09 (*« DONE, pas NEXT »*) que le lot 142
+     avait écrit. La demande la plus récente fait loi, et les deux dates sont
+     ici pour que personne ne redéfasse l'une en croyant réparer l'autre. */
+  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Next"]);
   boutons[0].click();
   boutons[1].click();
   assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyNext" }]);

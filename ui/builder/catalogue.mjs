@@ -25,8 +25,8 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=476";
-import { versionQuery } from "./version.mjs?v=476";
+import { planAt } from "./carnet.mjs?v=483";
+import { versionQuery } from "./version.mjs?v=483";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -147,7 +147,7 @@ export function renderCatalogueRail(ctx, onAction) {
      où un autre catalogue veut deux colonnes, un sélecteur par genre ne lui
      sert à rien et il faudrait l'élargir en le recopiant.
      ⭐ L'écran déclare COMBIEN de colonnes, la feuille dessine des colonnes. */
-  if (ctx.railColonnes) list.dataset.colonnes = String(ctx.railColonnes);
+  if (ctx.railEtroit) list.dataset.etroit = "oui";
   options.forEach((id, index) => {
     /* Le `<li>` est NU, le cran porte la classe : `.catalogue-rail-item` est
        coté (74 px de texte, garde 5 de `fiche-360`), et déplacer la cote sur

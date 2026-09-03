@@ -477,7 +477,7 @@ test("17 — ⛔ UN SEUL retour dans tout ui/, et c'est la coquille qui le pose 
      demande d'Eric était juste, le chemin ne l'était pas — la rangée déclare
      maintenant `data-sortie-ici` et reçoit le retour de la coquille, comme la
      dalle d'item depuis le 19/08. Cinq crans, tenus DANS L'ORDRE. */
-  assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,1400}?destinyMode === "choice"[\s\S]{0,400}?if \(state\.palier > 1\)/,
+  assert.match(shellText, /function pressBack\(\) \{[\s\S]{0,600}?if \(state\.parcoursItem\)[\s\S]{0,400}?if \(state\.lore\)[\s\S]{0,1400}?retourInterne[\s\S]{0,400}?if \(state\.palier > 1\)/,
     "⛔ l'ITEM, le LORE, le CATALOGUE de Destiny, puis le PALIER, puis l'ÉTAPE — " +
     "du plus intérieur au plus extérieur, et cet ordre ne s'inverse pas");
   /* 🔴 RÉÉCRIT LE 2026-08-20. Ce garde interdisait `"Back"` en capitale douce,
@@ -641,8 +641,20 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      ailleurs. La règle gardée n'a pas bougé : il naît d'un FAIT, il est POSÉ
      PAR LA COQUILLE, et le pied reste une PAIRE. C'est le mot qui varie, pas
      le producteur ni le compte. */
-  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem\) \? button\(motDuRetour/,
+  /* ⚠️ ÉLARGI AU LOT 143, PAS ASSOUPLI — et ce garde a fait exactement son
+     travail. Le catalogue de Destiny s'ouvre DEPUIS le R de son étape : il y a
+     donc quelque chose derrière, et `Back` doit exister. Mon premier jet
+     l'écrivait `STEPS[state.step].id === "destiny"` — un ID D'ÉTAPE, ce que la
+     ligne ci-dessous interdit depuis toujours, et le garde l'a refusé.
+     ⭐ LE FAIT EST DÉCLARÉ PAR LA TABLE DES CATALOGUES (`retourInterne`), et
+     `catalogueCourant()` ne rend cette config que quand ce catalogue est
+     OUVERT. Species ne le déclare pas : son catalogue EST l'entrée de son
+     étape, et c'est la ceinture qui l'y ramène. La règle n'a pas bougé d'un
+     mot — `Back` naît d'un FAIT, et le pied reste une PAIRE. */
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem \|\| \(cfgRetour && cfgRetour\.retourInterne\)\) \? button\(motDuRetour/,
     "⭐ et le retour ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
+  assert.doesNotMatch(shellText, /const back = [^\n]*STEPS\[state\.step\]\.id/,
+    "⛔ et jamais d'un ID D'ÉTAPE : le jour où un écran veut son retour, il déclare un FAIT");
   /* 🔴 LE TÉMOIN DE LA DISTINCTION — Eric, 2026-08-20 : *« back n'efface pas ;
      pour effacer, c'est cancel ou i changed my mind »*. Les deux mots de la
      coquille NE DOIVENT PAS être celui du guide : ce bouton-ci recule ou
