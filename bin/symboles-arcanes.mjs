@@ -53,23 +53,28 @@ console.log(`\n${rapport.length - casses.length} / ${rapport.length} passent le 
    qui faisait échouer la capture). Une rangée en `flex-wrap` avec une largeur
    FIXE par case ne peut pas s'effondrer : chaque case occupe ce qu'on lui
    donne, quoi que contienne le SVG. */
-const cellule = (svg, taille, sous) =>
-  `<span class="c" style="width:${Math.max(taille + 18, 46)}px">` +
-  `<span class="s" style="--t:${taille}px">${svg}</span><b>${sous}</b></span>`;
-const bande = (taille) => recs.map((r) =>
-  cellule(fs.readFileSync(path.join(DEST, `${r.slug}.svg`), "utf8").trim(), taille, r.data.numeral)).join("");
+/* ⛔ LA PLANCHE SE CONSTRUIT PAR INTERPOLATION, PAS PAR `replace` — et c'est
+   un bug payé trois fois : je remplaçais des marqueurs `A`/`B`/`C` dans un
+   gabarit, et le SVG inséré au premier remplacement CONTIENT des `B` et des
+   `C`. Les remplacements suivants tapaient dedans, et la planche affichait des
+   bandes dupliquées. J'ai cru trois fois que les icônes étaient en double.
+   ⭐ Un gabarit qui s'interpole ne peut pas se manger lui-même. */
+const bande = (taille, larg) => recs.map((r) =>
+  `<span class="c" style="width:${larg}px"><span class="s" style="--t:${taille}px">` +
+  fs.readFileSync(path.join(DEST, `${r.slug}.svg`), "utf8").trim() +
+  `</span><b>${r.data.numeral}</b></span>`).join("");
 const page = `<style>*{box-sizing:border-box}html,body{overflow:hidden}
 body{margin:0;font:12px Inter,system-ui,sans-serif;--accent:#c9a24a;background:#14161b;color:#ece8df}
-.b{padding:14px}.jour{background:#f6f4ef;color:#1d1c19;--accent:#9a7420}
-h3{margin:0 0 10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.5}
-.r{display:flex;flex-wrap:wrap;gap:10px 2px;align-items:flex-end}
+.b{padding:16px}.jour{background:#f6f4ef;color:#1d1c19;--accent:#9a7420}
+h3{margin:0 0 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5}
+.r{display:flex;flex-wrap:wrap;gap:14px 2px}
 .c{display:inline-block;text-align:center}
 .s{display:block}.s svg{width:var(--t);height:var(--t)}
-.c b{display:block;font-size:8px;opacity:.45;margin-top:2px}</style>
-<div class="b"><h3>96 — la toile</h3><div class="r">${bande(96)}</div>
-<h3 style="margin-top:14px">36 — la cote du rail, c'est ELLE qui décide</h3><div class="r">${bande(36)}</div>
-<h3 style="margin-top:14px">24</h3><div class="r">${bande(24)}</div></div>
-<div class="b jour"><h3>le jour, à 36</h3><div class="r">${bande(36)}</div></div>`;
+.c b{display:block;font-size:8px;opacity:.4;margin-top:2px}</style>
+<div class="b"><h3>72 — pour voir le dessin</h3><div class="r">${bande(72, 82)}</div>
+<h3 style="margin-top:16px">36 — LA COTE DU RAIL, c'est elle qui décide</h3><div class="r">${bande(36, 46)}</div>
+<h3 style="margin-top:16px">24</h3><div class="r">${bande(24, 34)}</div></div>
+<div class="b jour"><h3>le jour, à 36</h3><div class="r">${bande(36, 46)}</div></div>`;
 const sortie = process.argv[2] || "/tmp/planche-symboles.html";
 fs.writeFileSync(sortie, page);
 console.log(`planche : ${sortie}`);

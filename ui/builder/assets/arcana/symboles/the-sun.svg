@@ -1,5 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="24" cy="20" r="8"/>
-  <path d="M24 4v4m0 24v4M8 20H4m40 0h-4M12.6 8.6l2.8 2.8m17.2 17.2 2.8 2.8m0-22.8-2.8 2.8m-17.2 17.2-2.8 2.8"/>
-  <path d="M6 42c6-6 12-6 18 0 6-6 12-6 18 0" stroke="var(--accent)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M48 32a16 16 0 0 1 0 32" />
+  <path d="M48 64a16 16 0 0 1 0-32" />
+  <path d="M 48 6 v 20" />
+  <path d="M 48 70 v 20" />
+  <path d="M 6 48 h 20" />
+  <path d="M 70 48 h 20" />
+  <path d="M18 18c8 2 10 8 12 14M78 78c-8-2-10-8-12-14" stroke="var(--accent)" />
+  <path d="M 78 18 c -8 2 -10 8 -12 14" />
+  <path d="M 18 78 c 8 -2 10 -8 12 -14" />
+  <circle cx="48" cy="48" r="12" />
 </svg>
