@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=511");
+  background-image: url("./assets/tarot-dos.jpg?v=517");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8351,6 +8351,16 @@ button.tuto-point::before {
 .aire-power .card-final-cadre,
 .aire-meaning .card-final-cadre {
   line-height: 1.21;
+  /* ⚖️ `max-height` SUR LA BASE, ET LA RIGIDITÉ N'A PAS SURVÉCU À SON ESSAI.
+     J'avais mis `height` — Eric : *« on peut rigidifier les blocs de texte ? »* —
+     et c'était juste : le corps cessait de varier, le titre cessait de descendre.
+     ⛔ MAIS L'ESSAI SUIVANT L'A RENDUE INUTILE : Eric a levé le plafond en B2
+     (*« lâche le max-height pour voir »*), donc le corps y varie de nouveau — et
+     le titre n'en bouge plus, parce que la dalle grandit vers le BAS au lieu de
+     pousser son contenu. La cause était traitée deux fois ; une a suffi.
+     ⭐ ET SUR L'ÉCRAN FINAL LE PLAFOND RESTE VITAL : c'est lui qui fait tenir les
+     22 cartes dans les 500 blg — mesuré, la pire y est à 498. Rigide, il
+     AJOUTERAIT de la hauteur aux cartes courtes et casserait ce budget. */
   max-height: calc(4 * 1.21em);
   overflow-y: auto;
   /* ⛔ SANS `contain`, LE GESTE FUIT VERS LA SCÈNE : arrivé au bas de la
@@ -8701,23 +8711,50 @@ button.tuto-point::before {
    pas un centrage, c'est un équilibre. Il tient tant que les deux plateaux sont
    chargés, et bascule dès que l'un manque. Les côtés sortent donc du flux, et
    le milieu se centre sur la RANGÉE — quoi qu'il y ait aux extrémités. */
+/* 🔴 TROIS COLONNES, PAS DEUX ANCRES — Eric, 2026-09-03 : *« si on fixe tous les
+   rapports entre les items, il ne doit pas y avoir de problème ? »*.
+   ⭐ SA QUESTION TOUCHE LA CAUSE : **un élément en `position: absolute` n'a aucun
+   rapport avec ses voisins**, seulement avec sa boîte. Je les avais sortis du
+   flux pour que la paire reste centrée quand le `?` manque — mais du coup ils ne
+   poussent plus, donc ils ne repoussent rien : ils se laissent RECOUVRIR.
+   ⚔️ MESURÉ EN ÉPROUVANT LA RANGÉE : avec des libellés traduits (« Choisir cette
+   carte » / « Annuler mon choix »), le livre et `Choose` se recouvraient de
+   **81 blg**, et la paire sortait de la dalle de 29 à gauche et 37 à droite. Il
+   n'y avait qu'**1 blg** de jeu de chaque côté en anglais.
+   ⭐ LA GRILLE RÉTABLIT LE RAPPORT : les côtés ont leur colonne (`--touch`, la
+   cote d'un contrôle), le milieu se centre dans la sienne. La paire reste donc
+   centrée MÊME SANS `?` — ce que les marges automatiques ne savaient pas faire —
+   et un libellé trop long déborde DANS sa colonne, visible, au lieu de passer
+   sous ses voisins.
+   ⚖️ Ce n'est pas un habillage : c'est la différence entre un écart qui tient
+   par arithmétique et un écart qui tient par construction. */
 .card-final[data-gabarit="apercu"] .parcours-pied {
-  position: relative;
-  justify-content: center;
+  display: grid;
+  /* 📐 QUATRE COLONNES, ET LES DEUX DU MILIEU SONT ÉGALES — c'est ça qui centre
+     la paire : `Choose` se cale à DROITE de la deuxième, `Cancel` à GAUCHE de la
+     troisième, et deux `1fr` identiques mettent leur frontière au milieu exact.
+     ⛔ MON PREMIER JET EN AVAIT TROIS, et mettait `Cancel` dans la colonne du
+     `?` : ils s'empilaient. Mesuré, −77 blg. Deux organes dans une même cellule
+     ne se poussent pas, ils se superposent — la grille ne répare que ce qu'on
+     lui donne à séparer.
+     ⚖️ Les deux colonnes de bout valent `--touch` : la cote d'un contrôle, pas
+     un nombre de circonstance. */
+  grid-template-columns: var(--touch) 1fr 1fr var(--touch);
+  align-items: center;
+  justify-items: center;
 }
-.card-final[data-gabarit="apercu"] .fiche-livre {
-  position: absolute;
-  left: var(--sp-8);
-}
-.card-final[data-gabarit="apercu"] .fiche-action { order: 2; }
+.card-final[data-gabarit="apercu"] .fiche-livre { grid-column: 1; justify-self: start; }
+/* ⭐ LA PAIRE PARTAGE LA COLONNE DU MILIEU : une boîte de plus n'est pas
+   nécessaire, `grid-column: 2` sur les deux les y empile — c'est un `flex`
+   interne qu'il faut. On le pose sur la colonne, pas sur les boutons. */
+.card-final[data-gabarit="apercu"] .fiche-action,
+.card-final[data-gabarit="apercu"] .sortie-bouton { grid-row: 1; }
+.card-final[data-gabarit="apercu"] .fiche-action { grid-column: 2; justify-self: end; }
 /* 📏 4 BLG ENTRE LES DEUX, ET PAS 8 : à 8 la rangée redéborde (264 + 8 = 272
    pour 271 disponibles). Quatre suffisent à les décoller sans rien casser —
    mesuré, ils se TOUCHAIENT à 146..146. */
-.card-final[data-gabarit="apercu"] .sortie-bouton { order: 3; margin-left: var(--sp-4); }
-.card-final[data-gabarit="apercu"] .tuto-point {
-  position: absolute;
-  right: var(--sp-8);
-}
+.card-final[data-gabarit="apercu"] .sortie-bouton { grid-column: 3; justify-self: start; margin-left: var(--sp-4); }
+.card-final[data-gabarit="apercu"] .tuto-point { grid-column: 4; justify-self: end; }
 
 /* 🔴 LA DALLE ÉPOUSE SON CONTENU ET SE CENTRE — Eric : *« je veux que la dalle
    s'arrête 8 blg sous les boutons, qu'elle soit centrée verticalement »*.
@@ -8748,30 +8785,36 @@ button.tuto-point::before {
    dessous — et l'œil ne voit plus qu'une seule chose bouger : le texte.
    📌 Un cadre constant qui laisse varier son contenu ne se lit pas comme
    constant. C'est l'écart au voisin qui se voit, jamais la boîte. */
-/* 🔴 LES DEUX À LA FOIS — Eric, 2026-09-03 : *« ba je veux les deux »*. La dalle
-   garde une hauteur unique ET les boutons gardent leurs deux écarts de 8.
-   ⭐ CES TROIS EXIGENCES NE LAISSENT QU'UNE PLACE AU MOU. Si la hauteur est
-   fixe et que le contenu ne l'est pas, il reste de l'air ; s'il ne doit être ni
-   SOUS les boutons (8, écrit) ni ENTRE le texte et eux (8, écrit), il ne peut
-   se loger qu'AU-DESSUS du titre. La géométrie le décide, pas le goût.
-   ⛔ CE QUE ÇA DÉFAIT : ma version d'avant collait les boutons au fond et
-   laissait l'air entre le texte et eux — de 0 à 35 blg selon la carte. Eric
-   l'a lu comme des boutons qui se baladent, et il avait raison : c'est
-   l'ÉCART qu'on voit, jamais la boîte.
-   ⚖️ Le prix, assumé : le titre descend un peu sur les cartes courtes. Un titre
-   qui glisse de quelques blg se remarque moins qu'un trou entre un texte et les
-   boutons qu'il commande. */
-/* 📏 312, ET 300 ÉTAIT TROP PETIT DE 7 — mesuré : le contenu de la plus haute
-   pèse 299 (corps 247 + écart 8 + rangée 44), et une dalle de 300 avec 8 de
-   rembourrage n'offre que **292** de boîte de contenu. Le pied débordait donc
-   dans le rembourrage, et les 8 sous les boutons tombaient à 1.
-   ⭐ 312 = 299 de contenu + 8 de rembourrage, arrondi au pas de 8. Il reste 5
-   blg de mou, qui remontent au-dessus du titre par le `margin-top: auto`.
-   ⛔ J'AVAIS CHOISI 300 EN ARRONDISSANT LA PLUS HAUTE DALLE MESURÉE (299) — mais
-   299 était une hauteur TOTALE, rembourrage compris. J'ai additionné une cote
-   de boîte à une cote de contenu. */
-.card-final[data-gabarit="apercu"] { height: 312px; }
-.card-final[data-gabarit="apercu"] > .card-final-corps { margin-top: auto; }
+/* 🔴 LA HAUTEUR EST LIBRE, ET POURTANT IDENTIQUE SUR LES 22 — parce que le
+   CONTENU l'est. Les fenêtres de prose sont rigides (voir plus haut), les
+   vibrations valent trois lignes à tous les niveaux jouables, et les deux lignes
+   courtes en font une chacune. La dalle est donc la somme d'un contenu constant.
+   ⛔ CE QUI TOMBE ICI : `height: 312px` et `margin-top: auto` sur le corps —
+   deux réglages posés pour tenir les symptômes d'une cause qu'on vient de
+   traiter. Le 312 était un littéral qu'aucun garde ne surveillait ; le
+   `margin-top: auto` faisait descendre le titre de 34 blg sur les cartes
+   courtes. Les deux disparaissent avec leur raison d'être.
+   📌 Une hauteur qu'on n'écrit pas ne peut pas devenir fausse. */
+.card-final[data-gabarit="apercu"] { height: auto; }
+/* ⚔️ ESSAI D'ERIC, 2026-09-03 : *« on autorise que ça grandisse en hauteur, on
+   lève le figeage de la dalle, et si y'a une ligne ou deux de plus c'est ok »*
+   · *« lâche le max-height pour voir »*.
+   ⛔ BORNÉ À L'APERÇU, ET C'EST VITAL : sur l'écran final (SB2) le plafond de
+   4 lignes est ce qui fait tenir les 22 cartes dans les 500 blg — mesuré, la
+   pire y est à 498. Le lâcher là-bas casserait le budget. Ici la dalle flotte
+   dans une rangée de 500 : elle a de la place pour grandir.
+   ⭐ ET TOUS LES ORGANES GARDENT LEUR POSITION RELATIVE, parce qu'ils sont dans
+   le FLUX : une ligne de plus pousse ce qui suit, elle ne recouvre rien. */
+.card-final[data-gabarit="apercu"] .aire-power .card-final-cadre,
+.card-final[data-gabarit="apercu"] .aire-meaning .card-final-cadre {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+/* ⚖️ LES CHEVRONS N'ONT RIEN À CACHER : ils sont ÉTEINTS par défaut (`opacity: 0`)
+   et ne s'allument que sur les classes `deborde-*`, que la veille ne pose plus
+   puisque rien ne déborde. ⛔ Un `display: none` ici aurait demandé une exception
+   au garde 4 pour un effet que la feuille obtient déjà. */
 /* ⚖️ LES DEUX 8 SONT ÉCRITS ICI ET NULLE PART AILLEURS : celui du dessus est la
    marge de la rangée, celui du dessous le rembourrage de la dalle. Un seul
    écrivain par écart — la loi de cette nuit, payée trois fois. */
