@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=504");
+  background-image: url("./assets/tarot-dos.jpg?v=506");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8525,8 +8525,36 @@ button.tuto-point::before {
 /* ⛔ LE REMBOURRAGE DROIT TOMBE À ZÉRO : la gouttière de la scène fait déjà
    l'écart entre le rail et la fiche. Le garder ici en ferait 16, et la fiche
    perdrait 8 des 287 qu'elle doit peindre. */
+/* 📐 LA HAUTEUR DU CRAN SE DÉDUIT DE LA PISTE — Eric, 2026-09-03 : *« élargis
+   ta marge de sorte que 8 tuiles tiennent TOUJOURS dans un écran, quel que soit
+   leur contenu »*.
+   ⛔ ELLE ÉTAIT ÉCRITE (56), ET LES HUIT TENAIENT PAR COÏNCIDENCE : la piste en
+   offrait 484 pour un pas de 60, soit 8,07 crans — douze blg du neuvième
+   dépassaient. Une cote écrite à côté de sa contrainte se périme au premier
+   changement de l'autre, et rien ne le dit.
+   ⭐ ELLE EST MAINTENANT LE RÉSULTAT D'UNE DIVISION, pas un nombre :
+       piste  = (panneau − ceinture) − rembourrage haut = 500 − 4 = 496
+       cran   = (piste − 7 écarts) / 8                  = (496 − 28) / 8 = 58,5
+   Huit crans et sept écarts remplissent la piste À L'UNITÉ, et le neuvième
+   commence à 504 — hors de l'écran, jamais entamé.
+   🔴 ET LE REMBOURRAGE HAUT VAUT L'ÉCART, PAS 8 — mesuré au banc : à 8, après un
+   glissé, **4 blg du cran précédent reparaissaient** dans cet air. L'aimant pose
+   le haut du cran courant à 8 ; celui d'avant finit un écart plus tôt, donc à 4,
+   donc VISIBLE. Rembourrage = écart : le précédent finit exactement à 0.
+   ⛔ C'est la même faute que le neuvième par le bas, dans l'autre sens — un
+   rembourrage plus large que l'écart ouvre une fenêtre sur le voisin.
+   ⚖️ LE REMBOURRAGE BAS TOMBE À ZÉRO : gardé à 8, il rognait la piste d'autant
+   et le neuvième reparaissait dans cet air.
+   ⭐ ET « QUEL QUE SOIT LEUR CONTENU » EST TENU PAR CONSTRUCTION : la hauteur ne
+   dépend plus du texte, c'est le texte qui dispose de 58. Trois lignes de nom
+   plus le chiffre en demandent 51 — il reste 7 blg d'air, et un nom plus long
+   n'agrandirait pas le cran, il déborderait DANS son cran (visible, corrigeable)
+   au lieu de repousser les sept autres (invisible, faux). */
 .catalogue-rail[data-etroit] {
-  padding: var(--sp-8) 0 var(--sp-8) var(--sp-8);
+  --rail-crans: 8;
+  --rail-piste: calc((var(--panneau-h) - 60) * 1px - var(--sp-4));
+  --rail-cran: calc((var(--rail-piste) - 7 * var(--sp-4)) / var(--rail-crans));
+  padding: var(--sp-4) 0 0 var(--sp-8);
   gap: var(--sp-4);
 }
 /* 🧲 LE RAIL S'AIMANTE — Eric, 2026-09-03 : *« je veux que les tuiles soient
@@ -8553,7 +8581,14 @@ button.tuto-point::before {
    ⛔ LE CONTENEUR QUI DÉFILE EST `.stage-aside`, PAS LE RAIL : c'est lui qui
    porte l'`overflow-y`. Poser le `scroll-snap-type` sur le rail ne ferait
    rien — et ne dirait rien en le faisant. */
-.stage-area[data-aside="etroit"] .stage-aside { scroll-snap-type: y mandatory; }
+/* ⚠️ `scroll-padding-top` OU LE CALCUL S'EFFONDRE : sans lui, l'aimant colle le
+   haut du cran au bord de la PISTE (0) et non au bord du contenu (4). Les huit
+   se décaleraient vers le haut, et le neuvième reparaîtrait par le bas
+   — le compte serait juste et le rendu faux. */
+.stage-area[data-aside="etroit"] .stage-aside {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: var(--sp-4);
+}
 .catalogue-rail[data-etroit] .catalogue-rail-item { scroll-snap-align: start; }
 .catalogue-rail[data-etroit] .catalogue-rail-item {
   display: flex;
@@ -8561,9 +8596,10 @@ button.tuto-point::before {
   align-items: center;
   justify-content: center;
   gap: 0;
-  /* 🔴 la hauteur FIXE — voir plus haut : c'est elle qui rend le pas régulier */
-  height: 56px;
-  min-height: 56px;
+  /* 🔴 LA HAUTEUR FIXE, ET DÉRIVÉE — voir le calcul plus haut. Fixe, elle rend
+     le pas régulier ; dérivée, elle garantit les huit quoi qu'il arrive. */
+  height: var(--rail-cran);
+  min-height: var(--rail-cran);
   padding: 0 var(--sp-4);
   line-height: 1.15;
 }
