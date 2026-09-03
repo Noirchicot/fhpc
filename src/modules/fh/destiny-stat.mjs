@@ -71,6 +71,7 @@ import { FH_EN, FH_UNDERIVED_FR } from "./labels.mjs";
    lui, vit à côté de `FH_EN` dans CE dossier — `src/build/` ne le voit
    jamais (§0.12). */
 import { underivedEntry, renderUnderived } from "../../labels.mjs";
+import { traitsDeLEspece } from "./traits.mjs";
 
 const t = createLabels(FH_EN);
 const frUnderivedFh = createLabels(FH_UNDERIVED_FR);
@@ -227,9 +228,8 @@ function speciesLines(species, lines, underived) {
       `${JSON.stringify(destiny.base_bonus)}, which is not a whole number.`);
   }
   const traitId = destiny.base_bonus_trait;
-  const traits = [...(Array.isArray(data.fh_traits) ? data.fh_traits : []),
-    ...(Array.isArray(data.traits) ? data.traits : [])];
-  const trait = traits.find((item) => item && item.id === traitId);
+  /* REWRITTEN 2026-09-03 (lot 147) — voir `src/modules/fh/traits.mjs`. */
+  const trait = traitsDeLEspece(species).find((item) => item && item.id === traitId);
   if (!trait || typeof trait.name !== "string") {
     /* Le nombre est CONNU et le mot manque : sauter la ligne rendrait un Score
        court d'exactement ce bonus, et personne ne verrait de quoi. Le refus est

@@ -43,6 +43,7 @@ export { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "./destiny-s
 /* Le Tilt (lot 21). Une table de cinq lignes, pure, sans état : elle est
    testable seule et la couche l'APPLIQUE, elle ne la réécrit pas. */
 export { resolveTilt, TILT_OUTCOMES, TILT_BONUS } from "./tilt.mjs";
+export { traitsDeLEspece } from "./traits.mjs";
 
 /* Les deux chaînes face-machine que les entrées de sauvegarde portent en dur
    depuis la v1. Elles sont LUES ICI, pas recopiées : une seule table de

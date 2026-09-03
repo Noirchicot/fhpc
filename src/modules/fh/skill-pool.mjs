@@ -111,6 +111,7 @@ import { FH_EN, FH_UNDERIVED_FR } from "./labels.mjs";
    (`derive.mjs` n'importe rien d'ici). LOT 41 : `underivedEntry`/`renderUnderived`
    suivent exactement le même sens — ce module en a déjà l'habitude. */
 import { buildViolation } from "../../build/validate.mjs";
+import { traitsDeLEspece } from "./traits.mjs";
 import { underivedEntry, renderUnderived } from "../../labels.mjs";
 
 const t = createLabels(FH_EN);
@@ -382,9 +383,10 @@ function speciesLines(species, level, lines, underived) {
      `data.traits` pour les espèces neuves et dans `data[fh_traits]` pour les
      espèces SRD que la couche patche — les deux sont lues, comme au lot 19. */
   const traitId = bumps.trait;
-  const traits = [...(Array.isArray(data.fh_traits) ? data.fh_traits : []),
-    ...(Array.isArray(data.traits) ? data.traits : [])];
-  const trait = traits.find((item) => item && item.id === traitId);
+  /* REWRITTEN 2026-09-03 (lot 147) — la lecture locale part au pli. Ce qui est
+     lu ne change pas ; ce qui est GAGNÉ change, le jour où `srfh+` portera un
+     homologue : voir `src/modules/fh/traits.mjs`. */
+  const trait = traitsDeLEspece(species).find((item) => item && item.id === traitId);
   if (!trait || typeof trait.name !== "string" || trait.name.trim() === "") {
     fail(`the species record "${species.id}" grants skill points through \`${SPECIES_FIELD}.trait\` = ` +
       `${JSON.stringify(traitId)}, and no trait of that id carries a name. Dropping the lines would leave the ` +
