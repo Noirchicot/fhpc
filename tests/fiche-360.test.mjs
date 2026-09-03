@@ -685,7 +685,15 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      est tombé à 8,8 px et les lignes se sont chevauchées — pendant que toutes
      les mesures de débordement restaient vertes. Le sens est renversé : la
      LIGNE est la cote mesurée, les boîtes se comptent en lignes. */
-  assert.match(css, /--fiche-ligne:\s*14\.4px/, "une ligne à T2, mesurée dans la police du builder");
+  /* 🔴 2026-09-03 — LA LIGNE NOMME SON CORPS AU LIEU DE LE RECOPIER (lot 143).
+     Elle s'écrivait `14.4px`, et 14,4 EST `--t2 × 1,2` : le nombre était juste
+     et l'écriture fausse. Le garde vérifie donc les DEUX moitiés — la feuille
+     dérive la ligne du barreau, et le barreau vaut bien 12. Ainsi 14,4 reste
+     PROUVÉ, et le jour où `--t2` bouge ce test rougit, ce qu'il ne faisait pas
+     quand la ligne portait son propre nombre. */
+  assert.match(css, /--fiche-ligne:\s*calc\(var\(--t2\) \* 1\.2\)/,
+    "une ligne à T2 — le corps est NOMMÉ, jamais recopié");
+  assert.match(tokens, /--t2:\s*12px/, "et T2 vaut 12 : la ligne rend donc bien 14,4 blg");
   assert.match(css, /--fiche-infos-h:\s*calc\(var\(--fiche-ligne\) \* 5\)/, "la bande : CINQ lignes");
   assert.match(css, /--fiche-blurb-h:\s*calc\(var\(--fiche-ligne\) \* 6\)/, "le blurb : SIX lignes de plancher");
   assert.match(css, /line-height:\s*var\(--fiche-ligne\)/,

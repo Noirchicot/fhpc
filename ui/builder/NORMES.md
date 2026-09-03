@@ -501,6 +501,60 @@ boîte.
 
 ---
 
+## 1 ter quinquies. 🔴 L'ÉCHELLE EST UN ESCALIER — **on descend TOUT le bloc, on ne sort jamais UNE valeur** *(dicté le 2026-09-03)*
+
+> **« Rajouter un cran à l'échelle si besoin, et toujours arrondir la GLOBALITÉ à l'inférieur,
+> si problème à un endroit. »**
+
+⭐ **QUAND UN SEUL ENDROIT NE TIENT PAS, C'EST TOUT LE BLOC QUI DESCEND D'UN CRAN.** Jamais une
+valeur locale qui sort de l'échelle pour sauver sa colonne. **L'homogénéité prime sur l'ajustement
+local** : un écran dont tous les organes sont sur des barreaux se lit comme un seul objet ; un
+écran où l'un d'eux est entre deux barreaux se lit comme un montage.
+
+| le geste | ce qu'il vaut |
+|---|---|
+| ✅ **descendre TOUT le bloc au barreau inférieur** | la forme normale. On perd un cran partout, on ne perd l'homogénéité nulle part |
+| ✅ **ajouter un cran à l'échelle** | légal **si aucun barreau existant ne convient** — et c'est une **décision d'Eric**, pas la conséquence d'un lot. Un lot qui croit en avoir besoin **s'arrête et le dit** |
+| ⛔ **poser la valeur qui manque, en dur, à cet endroit-là** | c'est la faute. Elle est invisible au cran 1 et **grandit avec le zoom** |
+
+### 🔴 Pourquoi la faute ne se voit QUE sur les grands écrans
+
+Eric, en regardant les fiches du rang R : *« sur mon iPhone les caractères et les espaces sont
+homogènes ; par contre sur l'iPad et sur le desktop les caractères et les espaces sont incohérents,
+tailles différentes »*. La cause est arithmétique, pas esthétique — **le cran multiplie l'écart** :
+
+| | iPhone ×1,00 | iPad ×1,4571 | bureau ×1,28 |
+|---|---|---|---|
+| `--t2` | 12,0 | 17,5 | 15,4 |
+| **13 en dur** | 13,0 | **18,9** ⛔ | **16,6** ⛔ |
+| `--t3` | 14,0 | 20,4 | 17,9 |
+
+Au cran 1, un 13 posé entre 12 et 14 est **indiscernable**. Au cran de l'iPad, il tombe **entre**
+deux barreaux au milieu d'organes qui, eux, sont dessus. ⛔ **Une valeur hors échelle n'est donc
+jamais « juste sur cet écran-là » : elle est fausse partout, et seulement visible ailleurs.**
+
+### ⭐ Et la perte va presque toujours dans le BON sens
+
+La raison qui pousse à sortir de l'échelle est presque toujours *« ça ne rentre pas »*. Or **le
+barreau inférieur fait rentrer DAVANTAGE**, pas moins. Mesuré le 03/09 sur la carte du rang R : le
+corps du bloc 1 avait été descendu deux fois (`16 → 14 → 13`) **pour faire tenir une colonne** ;
+en le posant sur `--t2` (12), les lignes qui débordaient tiennent mieux et **quatre troncatures
+mesurées ont reculé** (Dragonborn −14 → −7 blg, Hoddon −20 → −13, −18 → −11, −8 → −2), aucune
+nouvelle n'est apparue.
+
+📌 **Corollaire d'écriture** *(§1 ter, et le garde `tests/fiche-sur-l-echelle.test.mjs`)* : une
+taille de texte s'écrit `var(--t1..--t7)` ou un **multiple écrit** du barreau
+(`calc(var(--t1) * 1.2)` pour une ligne — le rapport est légal, la cote ne l'est pas), un écart
+s'écrit `var(--sp-*)`. ⛔ **Écrire le NOMBRE d'un barreau en littéral est la même faute** que d'en
+écrire un faux : `18px` valait exactement `--t5` sur la carte du R, et il survivait à la mort de sa
+raison.
+
+⚖️ **Ce que la règle ne recouvre pas** : les **cotes d'un dessin** (269 × 440 de la carte, 145 de
+sa colonne, 100 de son image — §4 quater) ne sont ni des tailles de texte ni des écarts. Elles ont
+leur propre loi et ne montent sur aucune échelle de type.
+
+---
+
 ## 1 quater. 📏 LE BUDGET DE LA PAGE — des cotes VOULUES, jamais écrites dans le code
 
 > ⚠️ **Ces nombres ne sont PAS des jetons CSS et ne doivent pas le devenir** *(§1 ter)*. Ce sont
@@ -1560,6 +1614,15 @@ PC d'un ami d'Eric.
 | ⭐ **le pied, et ce que « sacré » veut dire** | `height = 440 blg` (396 de dessin + 44 de rangée tactile). La hauteur s'écrivait `396u + 44px` parce que l'échelle locale pouvait **rétrécir** ; le zoom global ne descend jamais sous 1, donc 44 blg valent toujours ≥ 44 px. La loi ne dit plus *« fixe »*, elle dit **« jamais moins »** — même promesse au doigt, un seul nombre |
 | ⚠️ **renversement daté** | CADRES.md §8 (*« le corps de fiche ne se met pas à l'échelle avec la dalle »*) est **renversé pour cette carte seule** — la stabilité entre appareils prime, une carte-résumé se lit comme une image se regarde. §8 tient partout ailleurs |
 | 🔴 **le moule impose son format au CONTENU** | *« c'est un résumé de classe »* · *« transformer un player handbook de taille livre en ce petit condensé »* — le contenu se taille pour les boîtes, jamais l'inverse |
+
+### ✅ LES CORPS DE LA CARTE SONT SUR L'ÉCHELLE *(2026-09-03)*
+
+Les quatre corps du portrait étaient écrits en pixels bruts — `18px` (le nombre de `--t5`),
+`13px`, `10,5px`, `11px` — et les cinq écarts en `8px`/`4px`. Ils valent désormais
+**`--t5` · `--t2` · `--t1` · `--t1`**, écarts en `--sp-8`/`--sp-4`, ligne du blurb en
+`calc(var(--t1) * 1.2)`. C'est l'application de **§1 ter quinquies** : la globalité descend d'un
+cran, aucun cran neuf n'a été ajouté. ⭐ La boîte du blurb reste **HUIT LIGNES** — elle se compte
+en lignes, donc elle descend avec le corps (8 × 12) et rend ses 9,6 blg au bloc 1.
 
 ### Le format du contenu — les cotes du condensé
 
