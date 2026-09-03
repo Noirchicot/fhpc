@@ -223,3 +223,39 @@ test("H — les deux fenêtres de prose défilent, et l'exception est BORNÉE", 
     "⛔ pas de `display: none` : le garde 4 des jetons l'interdit dans cette feuille, et l'opacité " +
     "rend ici exactement le même service sans demander d'exception.");
 });
+
+test("I — la largeur du rail et le dézoom de la fiche sont LE MÊME FAIT, et il ne peut plus diverger", () => {
+  /* 🔴 CE GARDE EXISTE PARCE QUE LA DIVERGENCE A EU LIEU — mesurée au banc le
+     2026-09-03, deux fois. `zoom: .85` était écrit en dur ; quand le rail est
+     passé de 40 à 44 blg pour porter le symbole ×1,5, la fiche est tombée à 307
+     pendant que le corps en peignait toujours 319. Il débordait de 12 blg, et
+     RIEN ne le disait — ni la suite, ni l'œil sur une capture.
+     ⭐ LA RELATION, ET ELLE EST GÉOMÉTRIQUE, PAS ESTHÉTIQUE :
+         (panneau − rail − 2 × gouttière) / panneau = dézoom
+     Eric a choisi 0,85 à l'œil, et la place que laissait le rail valait 319 —
+     à un quart de blg près. Le nombre n'était pas arbitré, il était FORCÉ.
+     ⚖️ CSS NE SAIT PAS DIVISER DEUX LONGUEURS : le dézoom ne peut donc pas se
+     calculer dans la feuille. Il y est ÉCRIT — et c'est ce test qui refait la
+     division. Le jour où le rail bouge, ce garde rougit avant l'écran. */
+  const jeton = (nom, texte) => {
+    const m = (texte || css).match(new RegExp(`--${nom}:\\s*([\\d.]+)`));
+    return m ? Number(m[1]) : null;
+  };
+  const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+  const panneau = jeton("panneau-l", tokens);
+  const gouttiere = jeton("stage-gouttiere", tokens) ?? jeton("stage-gouttiere");
+  const rail = jeton("rail-w");
+  const zoom = jeton("apercu-zoom");
+  assert.ok(panneau && rail && zoom,
+    `il manque une des trois cotes : panneau=${panneau} rail=${rail} zoom=${zoom}. ` +
+    "Les trois vivent dans la feuille et se répondent — aucune ne peut disparaître seule.");
+
+  const place = panneau - rail - 2 * (gouttiere ?? 8);
+  const attendu = place / panneau;
+  const ecart = Math.abs(attendu - zoom) * panneau;
+  assert.ok(ecart <= 1,
+    `le rail laisse ${place} blg à la fiche (soit un dézoom de ${attendu.toFixed(3)}), et la feuille ` +
+    `écrit \`--apercu-zoom: ${zoom}\` — elle en peindrait ${Math.round(panneau * zoom)}. ` +
+    `Écart : ${ecart.toFixed(1)} blg. ⛔ Le corps déborderait d'autant, en silence. ` +
+    "Change les deux ensemble, ou l'un des deux ment.");
+});

@@ -668,8 +668,23 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      ⚠️ LE MOT QUI EFFACE NE S'ÉCRIT QUE LÀ OÙ ÇA EFFACE VRAIMENT : c'est la
      correction d'Eric du jour, et ce garde la tient en exigeant que le mot soit
      lié au drapeau `retourEfface`, jamais posé au hasard d'un écran. */
-  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel" : effaceAuRetour \? "I changed my mind" : "Back";/,
+  /* ⚠️ ÉLARGI AU LOT 143, PAS ASSOUPLI — et les TROIS MOTS n'ont pas bougé.
+     Eric, 2026-09-03 : *« cancel / choose »* au catalogue de Destiny. `Cancel`
+     y a exactement le sens que ce garde lui donne : on ABANDONNE la lecture des
+     vingt-deux, rien n'a été posé au document, donc rien n'est effacé.
+     ⭐ CE QUI CHANGE EST QUI CHOISIT LE MOT, PAS QUELS MOTS EXISTENT : la TABLE
+     des catalogues peut désigner lequel des trois s'applique chez elle. C'est le
+     même remède que `retourEfface` deux lignes plus bas — un fait DÉCLARÉ, pas
+     un id d'étape lu à la volée. Un quatrième mot resterait interdit : le
+     garde ci-dessous vérifie que le vocabulaire n'a pas grandi. */
+  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel"\s*\n?\s*: effaceAuRetour \? "I changed my mind"\s*\n?\s*: \(cfgRetour && cfgRetour\.motDuRetour\) \|\| "Back";/,
     "le mot suit le geste : abandonner, effacer, ou reculer");
+  /* ⛔ ET LE VOCABULAIRE NE GRANDIT PAS : les mots qu'un catalogue peut déclarer
+     sont ceux que ce garde nomme, pas un libellé neuf inventé dans une table. */
+  for (const m of (shellText.match(/motDuRetour: "[^"]+"/g) || [])) {
+    assert.ok(/"(Cancel|I changed my mind|Back)"/.test(m),
+      `${m} — un catalogue ne peut DÉSIGNER que l'un des trois mots du lot 79, jamais en créer un quatrième`);
+  }
   assert.match(shellText, /cfgRetour\.retourEfface && state\.palier === 2/,
     "et « effacer » est DÉCLARÉ par le catalogue, jamais deviné d'un id d'étape");
   assert.match(shellText, /function oublierSousLaRacine\(racine\)/,
