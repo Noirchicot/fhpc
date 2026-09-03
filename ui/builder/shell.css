@@ -6226,7 +6226,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=506");
+  background-image: url("./assets/tarot-dos.jpg?v=510");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8647,7 +8647,8 @@ button.tuto-point::before {
    rabotaient à 307 et le corps débordait d'autant. Mesuré : 24 avec les deux
    rembourrages, 8 avec celui-ci seul, 0 sans. */
 .catalogue-cards:has(.card-final[data-gabarit="apercu"]) { padding: 0; }
-.card-final[data-gabarit="apercu"] { padding: 0; }
+/* les 8 sous les boutons viennent de la DALLE, comme sur les quatre autres écrans */
+.card-final[data-gabarit="apercu"] { padding: 0 0 var(--sp-8); }
 .card-final[data-gabarit="apercu"] > .card-final-corps {
   width: calc(var(--panneau-l) * 1px);
   zoom: var(--apercu-zoom);
@@ -8730,20 +8731,51 @@ button.tuto-point::before {
   flex-direction: column;
   justify-content: center;
 }
-/* 🔴 LES VINGT-DEUX FONT LA MÊME TAILLE — Eric, 2026-09-03 : *« mets-les tous
-   à la même taille »*.
-   ⛔ ELLES VALAIENT 265, 277, 288 ou 299 selon la longueur du texte de leur
-   carte. Au défilement aimanté, la dalle changeait donc de taille à chaque cran
-   — et comme elle est CENTRÉE, ses deux bords bougeaient en même temps. Un
-   catalogue qu'on parcourt doit être stable : c'est le contenu qui change, pas
-   le cadre.
-   📏 300, soit la plus haute (299) arrondie au pas de la grille. Le budget de la
-   scène est de 500 : il reste 100 de part et d'autre.
-   ⭐ ET LE PIED DESCEND AU FOND (`margin-top: auto`) : sur une carte au texte
-   court, l'air se met ENTRE le texte et les boutons, jamais sous les boutons —
-   les 8 blg qu'Eric a dictés sous eux ne bougent pas d'un cheveu. */
-.card-final[data-gabarit="apercu"] { height: 300px; }
-.card-final[data-gabarit="apercu"] > .parcours-pied { margin-top: auto; }
+/* 🔴 LA DALLE ÉPOUSE SON CONTENU, ET LES BOUTONS SONT CADRÉS — Eric,
+   2026-09-03 : *« pourquoi tes boutons se baladent de manière aléatoire en
+   hauteur ? »* · *« c'était bon avant »* · *« cadrer les boutons à 8 blg du bas
+   et forcer 8 blg au-dessus »*.
+
+   ⛔ CE QUE J'AVAIS FAIT, ET POURQUOI C'ÉTAIT FAUX : il m'avait dit *« mets-les
+   tous à la même taille »*, et j'avais figé la dalle à 300. Les vingt-deux
+   avaient bien la même taille — mais leur CONTENU ne l'a pas, alors les boutons
+   collés au fond se retrouvaient à une distance variable du texte, entre 0 et
+   35 blg selon la carte. J'avais rendu le CADRE constant en laissant l'écart
+   varier, alors que c'est l'écart qu'on regarde.
+   ⭐ CE QUE LA CONSIGNE D'ERIC CORRIGE : ce n'est pas la hauteur de la dalle qui
+   doit être constante, ce sont les DEUX écarts autour des boutons. La dalle
+   redevient la somme de ce qu'elle contient — 8 au-dessus de la rangée, 8 en
+   dessous — et l'œil ne voit plus qu'une seule chose bouger : le texte.
+   📌 Un cadre constant qui laisse varier son contenu ne se lit pas comme
+   constant. C'est l'écart au voisin qui se voit, jamais la boîte. */
+/* 🔴 LES DEUX À LA FOIS — Eric, 2026-09-03 : *« ba je veux les deux »*. La dalle
+   garde une hauteur unique ET les boutons gardent leurs deux écarts de 8.
+   ⭐ CES TROIS EXIGENCES NE LAISSENT QU'UNE PLACE AU MOU. Si la hauteur est
+   fixe et que le contenu ne l'est pas, il reste de l'air ; s'il ne doit être ni
+   SOUS les boutons (8, écrit) ni ENTRE le texte et eux (8, écrit), il ne peut
+   se loger qu'AU-DESSUS du titre. La géométrie le décide, pas le goût.
+   ⛔ CE QUE ÇA DÉFAIT : ma version d'avant collait les boutons au fond et
+   laissait l'air entre le texte et eux — de 0 à 35 blg selon la carte. Eric
+   l'a lu comme des boutons qui se baladent, et il avait raison : c'est
+   l'ÉCART qu'on voit, jamais la boîte.
+   ⚖️ Le prix, assumé : le titre descend un peu sur les cartes courtes. Un titre
+   qui glisse de quelques blg se remarque moins qu'un trou entre un texte et les
+   boutons qu'il commande. */
+/* 📏 312, ET 300 ÉTAIT TROP PETIT DE 7 — mesuré : le contenu de la plus haute
+   pèse 299 (corps 247 + écart 8 + rangée 44), et une dalle de 300 avec 8 de
+   rembourrage n'offre que **292** de boîte de contenu. Le pied débordait donc
+   dans le rembourrage, et les 8 sous les boutons tombaient à 1.
+   ⭐ 312 = 299 de contenu + 8 de rembourrage, arrondi au pas de 8. Il reste 5
+   blg de mou, qui remontent au-dessus du titre par le `margin-top: auto`.
+   ⛔ J'AVAIS CHOISI 300 EN ARRONDISSANT LA PLUS HAUTE DALLE MESURÉE (299) — mais
+   299 était une hauteur TOTALE, rembourrage compris. J'ai additionné une cote
+   de boîte à une cote de contenu. */
+.card-final[data-gabarit="apercu"] { height: 312px; }
+.card-final[data-gabarit="apercu"] > .card-final-corps { margin-top: auto; }
+/* ⚖️ LES DEUX 8 SONT ÉCRITS ICI ET NULLE PART AILLEURS : celui du dessus est la
+   marge de la rangée, celui du dessous le rembourrage de la dalle. Un seul
+   écrivain par écart — la loi de cette nuit, payée trois fois. */
+.card-final[data-gabarit="apercu"] > .parcours-pied { margin-top: var(--sp-8); }
 
 /* 🔴 LE PIED RESTE À 100 %, ET C'EST LUI QUI RÉPARE LE `?` — ancré à la dalle
    par `position: absolute; bottom: var(--sp-8)`, il flottait à côté des boutons
@@ -8757,8 +8789,19 @@ button.tuto-point::before {
      ⚖️ La rangée est le seul organe de la dalle qui touche ses deux bords : lui
      donner la même marge des deux côtés est plus juste que d'y appliquer le
      rembourrage de texte du rang B. */
-  padding: 0 var(--sp-8) var(--sp-8);
-  margin-top: 0;
+  /* 📏 LA RANGÉE VAUT 44, COMME PARTOUT AILLEURS — Eric, 2026-09-03 : *« y'a
+     4 boutons, je veux qu'ils gardent le même positionnement par rapport aux
+     autres boutons »*. Mesuré : species, class, inheritance et l'écran final de
+     Destiny ont tous une rangée de **44** avec le livre à `8..52` ; la mienne en
+     faisait **52**.
+     ⛔ LA CAUSE : mes 8 blg sous les boutons venaient du rembourrage de la
+     RANGÉE ; partout ailleurs ils viennent de celui de la DALLE. Même écart à
+     l'œil, mais une rangée plus haute — et donc une paire qui ne tombe pas au
+     même endroit que sur les quatre autres écrans.
+     ⭐ Un écart identique obtenu par un autre écrivain n'est pas le même écart :
+     il se comporte différemment dès qu'autre chose bouge. */
+  padding: 0 var(--sp-8) 0;
+  margin-top: var(--sp-8);
   /* ⛔ AUCUN `gap` : les marges automatiques du livre et du `?` font déjà les
      trois écarts. Un `gap` s'y AJOUTERAIT — 24 blg de plus sur une ligne qui
      n'en a pas. C'est l'addition silencieuse que cette nuit a défaite trois fois. */
