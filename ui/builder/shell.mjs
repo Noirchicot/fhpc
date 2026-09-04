@@ -4117,7 +4117,20 @@ function cadrerUneRangee(rangee) {
   /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
      groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
      suivrait le DOM, pas l'écran. */
-  if (!groupe.isConnected) rangee.insertBefore(groupe, majeurs[0]);
+  /* ⛔ `insertBefore` VEUT UN ENFANT DIRECT — et `majeurs[0]` n'en est pas
+     toujours un : quand il vient d'une `.sortie` aplatie, il est petit-fils.
+     L'appel LÈVE alors, et le cadrage s'arrête net pour tout l'écran, sans un
+     mot. Mesuré sur le SB « Ability boosts » en v529 : `Cancel` et `Done`
+     superposés, livre et `?` justes — la moitié du travail faite, l'autre
+     avortée par une exception que personne n'attrape.
+     ⭐ On remonte donc jusqu'à l'enfant direct qui le PORTE. Et s'il n'y en a
+     pas, on ajoute en fin plutôt que de jeter : *un placement approximatif est
+     réparable, une exception silencieuse ne l'est pas.* */
+  if (!groupe.isConnected) {
+    let ancre = majeurs[0];
+    while (ancre && ancre.parentElement !== rangee) ancre = ancre.parentElement;
+    if (ancre) rangee.insertBefore(groupe, ancre); else rangee.append(groupe);
+  }
   majeurs.forEach((n) => groupe.append(n));
 }
 const RANGEES = ".parcours-pied, .sortie, .fiche-actions, .card-pied";
