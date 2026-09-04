@@ -2326,6 +2326,47 @@ chercher un `::before` ou un `::after` en `absolute` sur cet organe. S'il y en a
 un, la réponse est `relative`. On ne retire jamais une ancre en croyant ne
 retirer qu'un flottement.
 
+### 🔴🔴 L'ABSOLU DU 2026-09-04 — **LE LIVRE ET LE « ? » SONT DANS LA *DERNIÈRE* RANGÉE**
+
+> Eric : *« Livre et `?` toujours dans la dernière rangée. **Dernière rangée de
+> boutons = `?` et livre dedans. C'est un absolu.** »*
+
+⭐ **CE N'EST PAS UNE PRÉFÉRENCE DE PLACE, C'EST UNE DÉFINITION.** La dernière
+rangée de boutons d'un écran **est** celle qui porte les deux bornes. Il n'y a
+donc rien à décider écran par écran : la question *« où mettre le `?` ? »* ne se
+pose plus.
+
+⛔ **ET « DERNIÈRE » N'EST PAS « CELLE QU'ON TROUVE ».** `querySelector` rend la
+**première**. Les deux lectures du dépôt l'employaient : tant qu'un écran ne
+portait qu'une rangée, *première* et *dernière* désignaient le même nœud et la
+loi tenait **par coïncidence**. **R Abilities en porte deux depuis ce matin** —
+c'est le premier écran où la coïncidence cesse, et c'est ce qui a rendu la règle
+visible.
+
+| ce qui était écrit | ce qui l'est |
+|---|---|
+| ⛔ **trois écrivains** — `renderStepContent` posait le `?`, `poserLaSortie` le livre, `garnirLaSortie` les deux | ✅ **un seul**, `poserLesBornes`, au point que tout chemin traverse (le `cadrerLesRangees` que le garde 18 épingle) |
+| ⛔ le livre cherché **deux fois**, avec deux commentaires et deux raisons | ✅ une fois |
+| ⛔ quatre lectures en cascade pour retrouver une pastille *(l'hôte, sa dalle, la fiche qui l'enveloppe, une dalle sœur)* | ✅ aucune — **une règle qui ne dépend plus d'où l'organe se trouvait n'a plus besoin de le savoir** |
+
+🔴 **UN ABSOLU TENU À TROIS ENDROITS N'EN EST PAS UN.** C'est §6 pré mot pour
+mot : *« un besoin satisfait quatre fois n'est pas quatre fois plus sûr : c'est
+trois occasions de diverger. »* Les trois se rattrapaient l'un l'autre — **le
+résultat était juste, la règle ne l'était pas.**
+
+### ⚖️ LES DEUX SEULES BORNES DE L'ABSOLU, ET ELLES SE MESURENT
+
+| borne | pourquoi | mesuré |
+|---|---|---|
+| **le périmètre s'arrête à la FICHE** *(`.fiche-dalle`, `.catalogue-card`, un cran `[data-snap]`)* | là où les pages **alternent**, chacune porte SA pastille et SA rangée — leçon des cinq dons du 20/08 | sur Species et Class : **12 fiches, 12 rangées, 12 `?`, 12 livres, 0 hors rangée, 0 rangée qui en porte deux**. Sans cette borne, les vingt-deux `?` de Destiny descendraient dans la rangée de la dernière fiche, invisible sans faire défiler |
+| **aucune rangée ⇒ aucun déplacement** | §6 pré autorise l'`absolute` d'une borne *« sur une dalle SANS rangée »* | **Équipement** est dans ce cas depuis le virage B3 du 23/08 : zéro rangée de contrôles, le `?` reste posé sur sa dalle |
+
+📌 **ET L'ORDRE DES DEUX TEMPS N'EST PAS INTERCHANGEABLE** : on **place les
+bornes AVANT de grouper les majeurs**, pour que le `prepend` du livre le mette
+devant le futur groupe. ⛔ **Le clavier suit le DOM, pas l'écran.**
+
+---
+
 ### 📐 LES COTES, ET ELLES NE SE NÉGOCIENT PAS
 
 | | |

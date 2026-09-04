@@ -871,57 +871,62 @@ test("18 — le cadrage des rangées se fait à l'entrée dans le document", () 
     "une exception par nom se périme au premier organe neuf (leçon `Draw`/`Choose`, même classe).");
 });
 
-/* ══ 19 — LE `?` DESCEND DANS LA RANGÉE MÊME QUAND ELLE EST SUR UNE AUTRE DALLE
-   🔴 LE DÉFAUT, MESURÉ LE 2026-09-04 (écart du `?` au haut de sa rangée) :
+/* ══ 19 — L'ABSOLU : LE LIVRE ET LE « ? » DANS LA **DERNIÈRE** RANGÉE
+   🔴 ERIC, 2026-09-04 : *« livre et `?` toujours dans la dernière rangée.
+   Dernière rangée de boutons = `?` et livre dedans. C'est un absolu. »*
 
-       Identity                       +12   ✅  la rangée est DANS l'hôte
-       Abilities · FH 3D6 / FREE     −218   ⛔
-       Abilities · ARRAY             −289   ⛔
-       Skills                        −293   ⛔
+   ⛔ CE QUE ÇA A REMPLACÉ : **TROIS écrivains** posaient ces deux bornes —
+   `renderStepContent` (le `?`), `poserLaSortie` (le livre), `garnirLaSortie`
+   (les deux, avec quatre lectures en cascade). Ils se rattrapaient l'un
+   l'autre : le résultat était juste, la règle ne l'était pas.
+   ⛔ ET AUCUN NE CHERCHAIT LA **DERNIÈRE** : les deux lectures employaient
+   `querySelector`, qui rend la PREMIÈRE. Tant qu'un écran ne portait qu'une
+   rangée, les deux mots désignaient le même nœud et la loi tenait PAR
+   COÏNCIDENCE. R Abilities en porte deux depuis le 04/09 — c'est le premier
+   écran du dépôt où la coïncidence cesse.
 
-   ⛔ LA CAUSE N'ÉTAIT PAS UN OUBLI, C'ÉTAIT UNE PARENTÉ SUPPOSÉE. `garnirLaSortie`
-   cherchait la pastille sur l'hôte de la sortie et sur ses ANCÊTRES. Or
-   `renderStepContent` la pose sur la PREMIÈRE dalle de la carte, et ces écrans
-   portent leur rangée sur la DERNIÈRE : les deux dalles sont SŒURS, jamais
-   parentes. Aucune des trois lectures ne pouvait donc aboutir.
-   📏 CE QUE ÇA COÛTAIT : en `FREE`, la pastille recouvrait un dé du vivier sur
-   ses 44 × 44 entiers et `elementFromPoint` lui donnait le clic — une cible de
-   glisser rendue inatteignable. §6 pré, pris à l'envers : *un organe hors flux
-   ne pousse rien*, donc il couvre.
-   ⚠️ ET LE CORRECTIF NE POUVAIT PAS VIVRE DANS `renderStepContent` : là-bas la
-   rangée n'existe pas encore — c'est `poserLaSortie` qui la greffe. */
-test("19 — le `?` retombe sur la rangée de la CARTE, et seulement à un seul hôte", () => {
+   📏 CE QUE LE PASSAGE UNIQUE REND, mesuré sur la page : le `?` en colonne 3
+   sur les huit écrans qui portent une rangée ; sur les catalogues à douze
+   fiches (Species, Class), **12 rangées, 12 `?`, 12 livres, zéro hors rangée,
+   zéro rangée qui en porte deux**. */
+test("19 — l'absolu : les deux bornes vont dans la DERNIÈRE rangée, et un seul écrivain les place", () => {
   const t = stripComments(shellText);
-  assert.match(t, /function garnirLaSortie\(hote, sortie, carte\)/,
-    "la fonction reçoit la carte : sans elle, elle ne peut chercher que dans les ancêtres de l'hôte");
-  assert.match(t, /\|\| \(carte \? carte\.querySelector\("\.tuto-point"\) : null\);/,
-    "⛔ la retombée existe, et elle est CONDITIONNÉE — un `carte` absent la désarme");
 
-  /* 🔴 ET LA GARDE EST DANS L'APPELANT, PAS DANS LA FONCTION — c'est ce qui la
-     rend impossible à contourner par erreur : la branche à PLUSIEURS hôtes ne
-     passe simplement pas la carte.
-     ⛔ POURQUOI ELLE COMPTE : là où les pages ALTERNENT (un rail, une fiche
-     visible à la fois), chaque fiche porte SA pastille — leçon des cinq dons du
-     20/08. Une recherche à l'échelle de la carte les ramasserait toutes dans la
-     première rangée : vingt-deux `?` empilés, invisibles tant qu'on ne fait pas
-     défiler. */
-  assert.match(t, /hotes\.forEach\(\(h, i\) => garnirLaSortie\(h, i === 0 \? sortie : renderSortieEtape\(\)\)\);/,
-    "à plusieurs hôtes, aucune carte n'est passée — chaque fiche garde sa pastille");
-  assert.match(t, /garnirLaSortie\(hote, sortie, contenu\);/,
-    "à un seul hôte, la carte est passée");
+  /* ① LA DERNIÈRE, PAS LA PREMIÈRE. */
+  assert.match(t, /function derniereRangee\(perimetre\)/, "un lecteur nommé, pas une lecture en place");
+  assert.match(t, /return toutes\.length > 0 \? toutes\[toutes\.length - 1\] : null;/,
+    "⛔ le DERNIER élément — `querySelector` rendrait le premier, et la loi ne tiendrait plus que par coïncidence");
+  assert.match(t, /const RANGEES = "\.parcours-pied, \.sortie, \.fiche-actions, \.card-pied, \[data-rangee\]";/,
+    "les cinq rangées énumérées UNE fois — deux listes recopiées divergent (celle du `?` ignorait `.card-pied`)");
 
-  /* ⚔️ ATTAQUE — le garde mord-il ? Les deux appels doivent DIFFÉRER : s'ils
-     passaient tous deux la carte, la condition ci-dessus serait décorative et
-     le catalogue se casserait sans qu'aucune assertion ne bouge. */
-  /* ⚠️ LA DÉCLARATION N'EST PAS UN APPEL — ma première écriture les comptait
-     ensemble et rendait 2 pour 1 attendu. `function garnirLaSortie(hote, sortie,
-     carte)` porte le même nom, la même arité et le même dernier argument. Le
-     garde a rougi sur lui-même avant de rougir sur le code : c'est ce qu'on lui
-     demande. */
-  const appels = (t.match(/(?<!function )garnirLaSortie\([^)]*\)/g) || []);
-  const avecCarte = appels.filter((a) => /,\s*contenu\s*\)/.test(a));
-  assert.equal(avecCarte.length, 1,
-    "⛔ UN SEUL appel passe la carte — deux, et la garde du catalogue ne garde plus rien");
+  /* ② UN SEUL ÉCRIVAIN, ET IL EST AU POINT DE PASSAGE OBLIGÉ (garde 18). */
+  assert.match(t, /function cadrerLesRangees\(racine\) \{\s*poserLesBornes\(racine\);/,
+    "⛔ les bornes se posent AVANT le groupage : sinon le `prepend` du livre le mettrait derrière le groupe, "
+    + "et le clavier suit le DOM, pas l'écran");
+  assert.match(t, /if \(borne\.matches\("\.fiche-livre"\)\) rangee\.prepend\(borne\); else rangee\.append\(borne\);/,
+    "le livre à gauche, le `?` à droite — la paire d'Eric du 26/08");
+
+  /* ③ LE PÉRIMÈTRE S'ARRÊTE À LA FICHE. */
+  assert.match(t, /borne\.closest\("\.fiche-dalle, \.catalogue-card, \[data-snap\]"\)/,
+    "⛔ sur un catalogue, chaque fiche garde SA pastille — sans cette borne, les vingt-deux `?` "
+    + "descendraient dans la rangée de la dernière fiche, invisible sans faire défiler");
+
+  /* ④ ET UNE BORNE SANS RANGÉE NE BOUGE PAS — §6 pré autorise l'`absolute`
+     « sur une dalle SANS rangée », et c'est le cas d'Équipement depuis le 23/08. */
+  assert.match(t, /if \(!rangee \|\| borne\.parentElement === rangee\) continue;/,
+    "aucune rangée, aucun déplacement");
+
+  /* ⚔️ ATTAQUE — LE GARDE MORD-IL ? Il ne suffit pas que le bon écrivain
+     existe : il faut que les DEUX AUTRES aient disparu. Un placement survivant
+     ailleurs rendrait l'absolu dépendant de l'ordre d'exécution, ce qui est
+     exactement ce qu'on vient de retirer. */
+  const placements = (t.match(/\.(?:prepend|append)\((?:livre|point|borne|interro)\)/g) || []);
+  assert.deepEqual([...new Set(placements)].sort(), [".append(borne)", ".append(point)", ".prepend(borne)"],
+    "⛔ seul `poserLesBornes` place une borne (`borne`) ; `renderStepContent` ne fait plus que la DÉPOSER "
+    + "sur son hôte (`point`). Tout `prepend(livre)` ou `append(interro)` survivant est un second écrivain.");
+  assert.equal(/hote\.querySelector\(":scope > \.livre-de-sortie"\)/.test(t), false,
+    "⛔ le livre ne se cherche plus dans deux fonctions : il était placé DEUX FOIS, avec deux commentaires "
+    + "et deux raisons — la forme exacte du défaut que §6 pré nomme");
 });
 
 /* ══ 20 — AUCUNE RÉSERVE EN REMBOURRAGE SUR UNE RANGÉE DE CONTRÔLES

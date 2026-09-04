@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=541";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=541";
-import { mountPopup } from "./popup.mjs?v=541";
-import { renderLorePanel } from "./lore.mjs?v=541";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=541";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=544";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=544";
+import { mountPopup } from "./popup.mjs?v=544";
+import { renderLorePanel } from "./lore.mjs?v=544";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=544";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=541";
-import { STEPS } from "./etapes.mjs?v=541";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=541";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=544";
+import { STEPS } from "./etapes.mjs?v=544";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=544";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=541";
+} from "./tutoriel.mjs?v=544";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=541";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=544";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=541";
+} from "./echelle.mjs?v=544";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=541";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=544";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=541";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=541";
+} from "./fonds.mjs?v=544";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=541";
-import { renderChoixGlisses } from "./glisser.mjs?v=541";
-import { renderConceptStep } from "./concept-step.mjs?v=541";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=541";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=541";
+import { planAt, planSlots } from "./carnet.mjs?v=544";
+import { renderChoixGlisses } from "./glisser.mjs?v=544";
+import { renderConceptStep } from "./concept-step.mjs?v=544";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=544";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=544";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=541";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=541";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=541";
+} from "./catalogue.mjs?v=544";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=544";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=544";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=541";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=541";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=544";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=544";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=541";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=544";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=541";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=541";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=541";
+} from "./destiny-step.mjs?v=544";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=544";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=544";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=541";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=541";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=544";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=544";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=541";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=544";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=541";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=541";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=544";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=541";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=541";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=544";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=544";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=541";
+import { versionQuery } from "./version.mjs?v=544";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2158,28 +2158,22 @@ function renderStepContent() {
     for (const hote of hotes) {
       if (!hote) continue;
       const point = renderPointInterrogation(applyDecisionAction, { vu });
-      /* 🔴 LE `?` DESCEND DANS LA RANGÉE QUAND IL Y EN A UNE — Eric,
-         2026-09-03 : *« tout passe en grid »*.
-         ⛔ CE QU'IL FAISAIT POSÉ SUR LA DALLE : `position: absolute`, donc
-         AUCUN rapport avec ses voisins — il ne poussait rien et ne se laissait
-         pas pousser. Mesuré sous des libellés plus longs, les boutons le
-         recouvraient de **40 blg** sur quatre écrans. Il PARAISSAIT aligné
-         avec eux ; il ne l'était que par coïncidence de cotes.
-         ⭐ ET `garnirLaSortie` FAISAIT DÉJÀ EXACTEMENT CE GESTE pour `.sortie`
-         (il y déplace la pastille depuis la dalle). On ne fabrique rien : on
-         étend à toutes les rangées ce qu'une seule savait faire.
-         📌 Le lieu ne change pas — en bas à droite, voisin des gestes, comme
-         Eric l'a cadré le 19/08. Ce qui change est le MOYEN d'y être. */
-      /* ⭐ `[data-rangee]` — LA CINQUIÈME PORTE, ET C'EST UN ATTRIBUT PLUTÔT
-         QU'UN CINQUIÈME NOM (Eric, 04/09, en refaisant R Abilities). Les quatre
-         rangées du site sont énumérées à SEPT endroits (deux ici, cinq dans la
-         feuille) ; en ajouter une huitième fois un nom de classe, c'est sept
-         occasions de diverger. Un attribut ouvre la porte UNE fois : une rangée
-         neuve la DÉCLARE au lieu de se faire nommer. Même leçon que `data-rangs`
-         (§1 ter bis) — *« la forme sûre est un attribut, qui donne à tous les cas
-         la MÊME spécificité »*. */
-      const rangee = hote.querySelector(":scope .parcours-pied, :scope .sortie, :scope .fiche-actions, :scope [data-rangee]");
-      (rangee || hote).append(point);
+      /* 📌 LE LIEU NE CHANGE PAS depuis le 19/08 — en bas à droite, voisin des
+         gestes. Ce qui a changé deux fois, c'est le MOYEN d'y être : posé en
+         `absolute` sur la dalle (où il se laissait recouvrir de 40 blg sous des
+         libellés longs), puis descendu dans une rangée par ce bloc-ci le 03/09,
+         et depuis le 04/09 par un passage unique — voir `poserLesBornes`. */
+      /* 🔴 IL POSE, IL NE PLACE PAS — Eric, 2026-09-04 : *« livre et `?`
+         toujours dans la dernière rangée. C'est un absolu. »*
+         ⛔ CE BLOC CHERCHAIT LUI-MÊME SA RANGÉE, et il ne pouvait pas bien le
+         faire : **la rangée n'existe pas encore ici** (c'est `poserLaSortie` qui
+         la greffe, plus tard), et il prenait la PREMIÈRE trouvée quand elle
+         existait. Deux raisons de se tromper pour un geste qui n'était pas le
+         sien.
+         ⭐ La pastille est simplement DÉPOSÉE sur son hôte ; `poserLesBornes`,
+         qui tourne quand tout est monté, la descend dans la dernière rangée de
+         son périmètre. **Un seul écrivain pour un absolu.** */
+      hote.append(point);
     }
   }
   cadrerLesRangees(card);
@@ -3976,19 +3970,15 @@ function poserLaSortie(contenu, sortie) {
     return [contenu];
   }
   const hote = hotes[0];
-  /* 🔴 LE LIVRE DÉCLARÉ PAR L'ÉCRAN ENTRE EN TÊTE DE LA RANGÉE — Eric,
-     2026-08-26 : *« Rules dégage sous forme d'un livre dans la rangée de
-     boutons »*, et la paire ratifiée le même jour : *« le livre et le `?` sont
-     cadrés à gauche et à droite de la rangée »*.
-     ⭐ POURQUOI CE DÉTOUR AU LIEU D'UN `append` DANS L'ÉCRAN : la rangée est
-     produite ICI et nulle part ailleurs (garde 17). Un écran qui la
-     fabriquerait pour y glisser son livre reprendrait la main sur `Back` et
-     `Done` — c'est précisément ce que le garde interdit. Il pose donc un
-     NŒUD et la coquille le place, comme elle place tout le reste.
-     ⚠️ `prepend`, pas `append` : la gauche est la place du livre, la droite
-     celle du `?`. Et si aucun écran n'en déclare, il ne se passe rien. */
-  const livre = hote.querySelector(":scope > .livre-de-sortie");
-  if (livre) sortie.prepend(livre);
+  /* 🧊 LE PLACEMENT DU LIVRE A QUITTÉ CETTE FONCTION LE 2026-09-04 — il y était
+     écrit DEUX FOIS, ici et dans `garnirLaSortie` trois lignes plus bas, chacune
+     avec son commentaire et sa raison. C'est la forme exacte du défaut que §6 pré
+     nomme : *« un besoin satisfait quatre fois n'est pas quatre fois plus sûr :
+     c'est trois occasions de diverger. »*
+     ⭐ CE QUE LA RÈGLE DÉFENDAIT RESTE ENTIER : l'écran POSE un nœud
+     (`.livre-de-sortie`) et la coquille le place — le garde 17 tient toujours,
+     aucun écran ne fabrique sa rangée. Ce qui change est QUI place, et il n'y en
+     a plus qu'un : `poserLesBornes`, au point que tout chemin traverse. */
   /* 🔴 ET LE `?` ENTRE PAR LA DROITE — Eric, 2026-08-26 : *« on veut avoir une
      chance de tenir dans une hauteur de SE »*, et sa norme de la PAIRE :
      *« le livre et le `?` cadrés à gauche et à droite de la rangée »*.
@@ -4017,61 +4007,28 @@ function poserLaSortie(contenu, sortie) {
      ⭐ `append` pour le `?`, `prepend` pour le livre : c'est toute la paire, et
      elle tient en deux lignes symétriques. Un écran sans rangée hébergée ne
      change pas d'un pixel — le `?` y reste où il était. */
-  garnirLaSortie(hote, sortie, contenu);
+  garnirLaSortie(hote, sortie);
   return [contenu];
 }
 
-/** Le livre entre à GAUCHE, le `?` à DROITE, la sortie au milieu — la paire
- *  d'Eric du 26/08. Extrait pour que chaque hôte reçoive le même traitement. */
-function garnirLaSortie(hote, sortie, carte) {
-  const livre = hote.querySelector(":scope > .livre-de-sortie");
-  if (livre) sortie.prepend(livre);
-  /* ⚠️ LE `?` N'EST PAS TOUJOURS DANS L'HÔTE — mesuré au banc le 2026-09-03 :
-     sur une fiche de catalogue il est posé sur la DALLE (c'est la boucle des
-     hôtes de `renderStepContent` qui le place, une pastille par dalle), pas
-     dans la rangée. Le chercher en enfant direct ne le trouvait donc jamais, et
-     il restait ancré au bas de la dalle pendant que la rangée vivait 100 blg
-     plus haut. Aucun réglage d'espacement ne rattrape une ancre.
-     ⭐ On le cherche donc AUSSI sur la dalle qui contient la rangée — jamais
-     plus loin : `closest` s'arrête à la première, et deux dalles ne peuvent pas
-     se voler leur pastille. */
-  /* ⚠️ ET IL PEUT ÊTRE DEUX CRANS PLUS HAUT — mesuré : sur une fiche de
-     catalogue, la dalle porte `data-objet="dalle"` mais le `?` est posé sur la
-     RANGÉE qui l'enveloppe. Un `closest` qui s'arrête à la première dalle ne le
-     trouve pas ; il faut regarder les deux, de la plus proche à la plus large.
-     ⛔ JAMAIS PLUS LOIN QUE LA RANGÉE : au-delà, une fiche volerait la pastille
-     de sa voisine, et le défaut ne se verrait qu'en faisant défiler. */
-  const interro = [hote, hote.closest("[data-objet='dalle']"), hote.closest(".catalogue-card")]
-    .filter(Boolean)
-    .map((n) => n.querySelector(":scope > .tuto-point"))
-    .find(Boolean)
-    /* 🔴 ET EN DERNIER RECOURS, LA CARTE — le `?` peut vivre sur une AUTRE DALLE
-       QUE CELLE QUI PORTE LA RANGÉE, et les trois lectures ci-dessus ne
-       regardent que l'hôte et ses ANCÊTRES. Sur un écran à deux dalles, la
-       pastille est posée sur la PREMIÈRE (c'est la règle de `renderStepContent`)
-       et la rangée vit sur la DERNIÈRE : elles sont sœurs, jamais parentes.
-
-       📏 MESURÉ LE 2026-09-04, écart entre le `?` et sa rangée :
-           Identity  +12  ✅ (la rangée est dans l'hôte)
-           Abilities · FH 3D6 / FREE  **−218**   ·  ARRAY  **−289**
-           Skills                     **−293**
-       La colonne de droite de ces rangées restait VIDE pendant que la pastille
-       flottait trois cents blg plus haut, en `absolute`. ⛔ Et ce n'est pas un
-       défaut d'alignement : en `FREE` elle recouvrait un dé du vivier sur ses
-       44 × 44 entiers et `elementFromPoint` lui donnait le clic — **une cible de
-       glisser rendue inatteignable**. C'est la loi de §6 pré prise à l'envers :
-       *un organe hors flux ne pousse rien* — donc il couvre.
-
-       ⚠️ POURQUOI ICI ET PAS DANS `renderStepContent` : là-bas la rangée
-       **n'existe pas encore** (c'est cette fonction qui la greffe). Un correctif
-       posé au moment où l'on crée la pastille n'aurait rien eu à viser — le
-       commentaire de `poserLaSortie` le disait déjà : *« un `append` au moment de
-       sa fabrication ne pouvait viser qu'un nœud absent »*.
-       ⛔ BORNÉ AU CAS D'UN SEUL HÔTE, et la garde est au-dessus, pas ici : la
-       branche à plusieurs hôtes ne passe pas `carte`. */
-    || (carte ? carte.querySelector(".tuto-point") : null);
-  if (interro) sortie.append(interro);
-  /* 🔴 LE CADRAGE SE FAIT ICI, une fois les deux bornes en place — et pas
+/** LA SORTIE ENTRE DANS SON HÔTE, ET RIEN D'AUTRE NE SE DÉCIDE ICI.
+ *
+ *  🧊 CETTE FONCTION PLAÇAIT LES DEUX BORNES JUSQU'AU 2026-09-04 — le livre en
+ *  tête, le `?` en queue, avec quatre lectures en cascade pour retrouver une
+ *  pastille qui pouvait vivre sur l'hôte, sur sa dalle, sur la fiche qui
+ *  l'enveloppe ou sur une dalle SŒUR. Chacune avait été ajoutée le jour où la
+ *  précédente avait manqué, et la dernière (04/09) ne trouvait toujours pas
+ *  la DERNIÈRE rangée : elle trouvait UNE rangée.
+ *
+ *  ⭐ ERIC A TRANCHÉ LE MÊME JOUR, ET SA PHRASE SUPPRIME LA CASCADE ENTIÈRE :
+ *  *« livre et `?` toujours dans la dernière rangée. C'est un absolu. »* Une
+ *  règle qui ne dépend plus d'où l'organe se trouvait n'a plus besoin de savoir
+ *  où il se trouvait. `poserLesBornes` la tient en quatre lignes, une fois, pour
+ *  tout le site — voir plus bas.
+ *  ⛔ Ne pas remettre une lecture ici « au cas où » : deux écrivains sur une
+ *  même place, c'est le défaut que ce lot vient de retirer. */
+function garnirLaSortie(hote, sortie) {
+  /* 🔴 LE CADRAGE SE FAIT ICI AUSSI, une fois la rangée montée — et pas
      seulement au rendu de la carte : cette rangée-ci est greffée APRÈS elle. */
   cadrerUneRangee(sortie);
   hote.append(sortie);
@@ -4123,8 +4080,72 @@ function cadrerUneRangee(rangee) {
   rangee.insertBefore(groupe, majeurs[0]);
   majeurs.forEach((n) => groupe.append(n));
 }
+/** 🔴 LES CINQ RANGÉES, ÉNUMÉRÉES UNE SEULE FOIS DANS TOUT LE FICHIER.
+ *  Deux lectures existaient, et elles ne portaient pas la même liste : celle du
+ *  `?` ignorait `.card-pied`. Une liste recopiée est une liste qui divergera. */
+const RANGEES = ".parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]";
+
+/** 🔴 LA **DERNIÈRE** RANGÉE D'UN PÉRIMÈTRE — jamais la première.
+ *
+ *  ⛔ `querySelector` REND LA PREMIÈRE, ET C'EST TOUT LE PIÈGE. Les deux
+ *  lectures d'avant l'employaient : tant qu'un écran ne portait qu'une rangée,
+ *  « la première » et « la dernière » étaient le même nœud, et la loi d'Eric
+ *  tenait PAR COÏNCIDENCE. R Abilities en porte deux depuis ce matin — c'est le
+ *  premier écran du dépôt où les deux mots cessent de désigner la même chose.
+ *  ⭐ Écrit dans ce sens, un écran à trois rangées est servi sans qu'on y
+ *  revienne ; écrit à l'envers, il l'aurait été de travers en silence. */
+function derniereRangee(perimetre) {
+  if (!perimetre || typeof perimetre.querySelectorAll !== "function") return null;
+  const toutes = perimetre.querySelectorAll(RANGEES);
+  return toutes.length > 0 ? toutes[toutes.length - 1] : null;
+}
+
+/** 🔴 LE PÉRIMÈTRE D'UNE BORNE — jusqu'où elle a le droit de descendre.
+ *
+ *  ⛔ JAMAIS LA CARTE ENTIÈRE SUR UN CATALOGUE : là où les pages ALTERNENT (un
+ *  rail, une fiche visible à la fois), chaque fiche porte SA pastille et SA
+ *  rangée — leçon des cinq dons du 20/08. Sans cette borne-ci, les vingt-deux
+ *  `?` de Destiny descendraient tous dans la rangée de la dernière fiche, et
+ *  personne ne le verrait sans faire défiler.
+ *  ⭐ La fiche d'abord, la carte ensuite : `closest` s'arrête au premier
+ *  ancêtre qui correspond, donc l'ordre de la liste EST la règle. */
+function perimetreDeLaBorne(borne) {
+  return borne.closest(".fiche-dalle, .catalogue-card, [data-snap]")
+    || borne.closest(".decision-card")
+    || null;
+}
+
+/** 🔴 L'ABSOLU D'ERIC, 2026-09-04 : *« livre et `?` toujours dans la DERNIÈRE
+ *  rangée. Dernière rangée de boutons = `?` et livre dedans. C'est un absolu. »*
+ *
+ *  ⛔ CE QUE ÇA REMPLACE : **TROIS écrivains** posaient ces deux bornes —
+ *  `renderStepContent` pour le `?`, `poserLaSortie` pour le livre, et
+ *  `garnirLaSortie` pour les deux. Aucun ne cherchait la DERNIÈRE rangée, et
+ *  les trois se rattrapaient l'un l'autre : le résultat était juste, la règle
+ *  ne l'était pas. **Un absolu tenu à trois endroits n'en est pas un** — c'est
+ *  trois occasions de diverger (§6 pré, mot pour mot).
+ *  ⭐ D'où UN SEUL passage, et il est déjà le point que TOUT chemin traverse
+ *  (garde 18 : `cadrerLesRangees` suit immédiatement le `swapContent` de la
+ *  scène). Les rangées greffées après la carte y sont, celles qui sortent par le
+ *  retour anticipé de `poserLaSortie` aussi.
+ *
+ *  ⚠️ L'ORDRE DES DEUX TEMPS COMPTE, et il n'est pas interchangeable : on place
+ *  les bornes AVANT de grouper, pour que le `prepend` du livre le mette devant
+ *  le futur groupe. Le clavier suit le DOM, pas l'écran. */
+function poserLesBornes(racine) {
+  for (const borne of racine.querySelectorAll(BORNES)) {
+    const rangee = derniereRangee(perimetreDeLaBorne(borne));
+    /* ⛔ AUCUNE RANGÉE, AUCUN DÉPLACEMENT — et ce n'est pas un renoncement :
+       §6 pré autorise l'`absolute` d'une borne « sur une dalle SANS rangée ».
+       C'est le cas d'Équipement depuis le virage B3 du 23/08. */
+    if (!rangee || borne.parentElement === rangee) continue;
+    if (borne.matches(".fiche-livre")) rangee.prepend(borne); else rangee.append(borne);
+  }
+}
+
 function cadrerLesRangees(racine) {
-  for (const rangee of racine.querySelectorAll(".parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]")) {
+  poserLesBornes(racine);
+  for (const rangee of racine.querySelectorAll(RANGEES)) {
     cadrerUneRangee(rangee);
   }
 }

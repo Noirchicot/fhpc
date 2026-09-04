@@ -599,11 +599,16 @@ test("🔲 R ABILITIES — DEUX RANGÉES, ET LA SECONDE EST UNE RANGÉE DE CONTR
      `data-rangee`, la coquille ne lui descendrait plus le `?` et ne cadrerait
      plus son groupe : elle redeviendrait une file de boutons. On le prouve en
      relisant les DEUX lecteurs de cet attribut dans la coquille. */
+  /* ⚠️ CE QUE CE GARDE VÉRIFIAIT A CHANGÉ D'ADRESSE LE 04/09 — il lisait les
+     DEUX sélecteurs que la coquille employait alors. Les deux ont fusionné dans
+     une seule constante quand Eric a posé l'absolu (*« livre et `?` toujours
+     dans la dernière rangée »*) : une liste recopiée à deux endroits ne peut pas
+     tenir un absolu. Le garde lit donc la constante, et la porte qu'elle ouvre. */
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /:scope \[data-rangee\]/,
-    "la coquille descend le `?` dans une rangée déclarée");
-  assert.match(shellText, /querySelectorAll\("\.parcours-pied, \.sortie, \.fiche-actions, \.card-pied, \[data-rangee\]"\)/,
-    "et elle cadre son groupe comme les quatre autres rangées du site");
+  assert.match(shellText, /const RANGEES = "[^"]*\[data-rangee\]";/,
+    "`[data-rangee]` est une des cinq rangées du site — sans elle, cette rangée-ci n'en serait pas une");
+  assert.match(shellText, /function poserLesBornes\(racine\)/,
+    "et c'est un passage UNIQUE qui y descend le livre et le `?` (shell-wiring garde 19)");
 });
 
 test("🔲 LA CINQUIÈME PORTE EST OUVERTE PARTOUT — les cinq listes de la feuille", () => {
