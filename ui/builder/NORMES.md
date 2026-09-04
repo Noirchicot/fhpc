@@ -2351,6 +2351,102 @@ et les deux comptent :
 📌 Relevé de référence, 26 rangées du site le 04/09 : **0 recouvrement, 0 écart
 de centre, 0 organe en `absolute`**.
 
+## 6 pré bis. 🔲 **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(norme, 2026-09-04)*
+
+> Eric, en refaisant **R Abilities** : *« désormais tout est dans une boîte, toutes les boîtes sont
+> sur une grille **y compris les boutons**. Et dès qu'il y a du texte c'est dans une boîte. »* ·
+> *« Et on définit les espaces en général **8 blg**. Le plancher est défini par construction et on
+> sait ce qu'on ne doit pas dépasser. »*
+
+### 🔴 LES TROIS PHRASES, ET CE QU'ELLES INTERDISENT
+
+| la phrase | ce qu'elle retire |
+|---|---|
+| **tout est dans une boîte** | ⛔ plus d'organe posé « à côté ». Un texte nu entre deux blocs n'appartient à rien, donc rien ne le déplace quand ses voisins bougent |
+| **les boîtes sont sur une grille** | ⛔ plus de `flex-wrap` qui coupe où il peut. Une grille dit **combien** et **où** ; un repli le découvre à l'exécution, et le découvre autrement au premier libellé traduit |
+| **les espaces valent 8** | ⛔ plus de barème d'écarts à retenir par organe. `--sp-8` est le défaut ; s'en écarter se **nomme** |
+
+⭐ **ET LA GRILLE DEVIENT LE SEUL ÉCRIVAIN DE L'ÉCART.** C'est la conséquence
+qui coûte, et elle a été mesurée le jour même : une marge d'enfant **s'ajoute**
+au `gap`. Sur R Abilities, deux intervalles rendaient **16 blg** au lieu de 8 et
+la dalle **204** au lieu de 188, parce que le titre et l'aiguilleur portaient
+encore la marge qui les espaçait avant la grille.
+⛔ **Et le remède n'est pas un `.dalle > *`** : il pèse `(0,1,0)`, autant que
+`.guide-mot` — c'est donc **l'ordre du fichier** qui trancherait, et l'organe
+vit deux mille lignes plus bas. *« Une déclaration invalide crie, une
+déclaration PERDANTE se tait. »* L'exception se **nomme** (`.ability-methodes >
+.guide-mot`), elle ne se parie pas sur la cascade.
+
+### 📐 « LE PLANCHER EST DÉFINI PAR CONSTRUCTION »
+
+⭐ **Ça ne veut pas dire « il y a de la place », ça veut dire qu'on la CALCULE
+avant de dessiner** — §1 ter, appliqué. Le relevé de R Abilities, écrit avant la
+première ligne de code puis vérifié sur la page :
+
+    8 rembourrage + 15 titre + 8 + 45 aiguilleur + 8 + 44 rangée + 8 + 44 rangée + 8  =  188 blg
+    la scène en offre 436 sous la carte                             ➡️  le plancher n'est pas approché
+
+    en largeur :  3 × 87 + 2 × 8 = 277  ✅  dans 351 utiles
+                  4 × 87 + 3 × 8 = 372  ⛔  21 de trop
+
+🔴 **C'EST DONC LA LARGEUR QUI POSE LE TROIS**, pas un goût — la même
+arithmétique de 360 qui a fabriqué la cote du jeton (`tokens.css`). ⛔ Et le
+découpage se **déclare** (deux rangées écrites) au lieu de se **compter** (un
+`:nth-child` ou un repli) : §1 ter ter, *« une exception se nomme, elle ne se
+compte pas »*.
+⭐ **LE COMPTE N'EST ÉCRIT QU'À UN ENDROIT** : la feuille emploie
+`grid-auto-flow: column`, qui crée autant de colonnes qu'on lui donne d'enfants.
+Un `repeat(3, …)` en CSS face à un `slice(0, 3)` en JS aurait été **un nombre
+écrit deux fois, c'est-à-dire deux nombres**.
+
+### ⚖️ `data-rangee` — LA CINQUIÈME PORTE DE §6 pré
+
+La rangée de contrôles était énumérée par **quatre noms de classe**, à **sept
+endroits** (cinq dans `shell.css`, deux dans `shell.mjs`). La seconde rangée de
+R Abilities en est une cinquième — et lui donner un cinquième NOM aurait été
+sept éditions de plus, donc sept occasions de diverger.
+
+⭐ **Une rangée neuve DÉCLARE `data-rangee` et hérite de tout le bloc.** Même
+leçon que `data-rangs` (§1 ter bis) : *« la forme sûre est un attribut, qui donne
+à tous les cas la MÊME spécificité »*. ⛔ **Un cinquième nom de classe est
+désormais le signe qu'on recommence**, exactement comme la quatrième colonne
+l'était pour §6 pré.
+
+### 🔵 AMENDEMENT DE L'AIGUILLEUR — **sur du verre, il écrit en `--text`**
+
+> Eric, le même jour : *« le texte en dessous, ça devrait être en bleu :
+> l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin d'une boîte texte de
+> 3 de hauteur. »*
+
+⭐ **IL NE DEMANDE PAS UN ORGANE, IL EN NOMME UN QUI EXISTE.** L'aiguilleur est
+l'une des trois voix de §7, bleu par ratification du 26/08, et sa boîte de **3
+lignes T1** est déjà publiée deux fois dans ce fichier (§ du gabarit d'Elf, § du
+SB1). Son dessin est `.guide-mot`. ⛔ **Il n'a pas de sosie** — `destiny-step.mjs`
+l'avait déjà tranché : *« C'EST `.guide-mot`, L'ORGANE DU RANG B, PAS UN
+SOSIE »*. ⚠️ Et `.aiguilleur` est **un autre objet** : le recouvrement plein
+écran d'Équipement. Une classe de ce nom posée sur un paragraphe a rendu
+**375 × 500 blg** au banc — le commentaire de §7 l'interdisait déjà par écrit,
+c'est la MESURE qui l'a fait lire.
+
+🔴 **CE QUI EST NEUF EST UNE MESURE, PAS UN GOÛT.** Relevé sur la page rendue,
+sur le rendu **cumulé** (image de fond + voile 35 % + lavis d'info) :
+
+| | encre `--text-soft` | encre `--text` |
+|---|---|---|
+| **jour** | **2,63:1** ⛔ | **5,51:1** ✅ |
+| **nuit** | **2,74:1** ⛔ | **5,68:1** ✅ |
+
+pour une cible de **4,5**. ⭐ **Et le défaut n'est pas né avec R Abilities** :
+l'organe vit déjà sur une `dalle-simple` à **Destiny R** et à son écran final.
+La réparation est donc à l'**organe**, conditionnée au **voile**
+(`:is(.dalle-simple, .dalle-intermediaire) > .guide-mot`) — une exception par
+écran aurait laissé Destiny cassé. Sur fond opaque, l'encre douce tient ses 4,5
+et ne bouge pas.
+⛔ **C'est CADRES §8, déjà écrit** : *« un habillage qui passe en verre ne peut
+pas garder son texte gris »*.
+
+---
+
 ## 6. LES BOUTONS
 
 | gabarit | capacité | sa largeur |

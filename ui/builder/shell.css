@@ -2294,9 +2294,69 @@ button { font: inherit; }
    ⛔ ET ILS NE SE REPLIENT PAS : `flex-wrap` mettrait `INFO` seul sur une
    seconde ligne, où il se lirait comme une cinquième méthode. Le croquis les
    met tous les cinq côte à côte. */
-.ability-methodes { padding: var(--sp-8); margin-bottom: var(--sp-12); color: var(--text); }
+/* ══ 🔴 TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE ═══════════
+   Eric, 2026-09-04 : *« désormais tout est dans une boîte, toutes les boîtes
+   sont sur une grille y compris les boutons ; et dès qu'il y a du texte c'est
+   dans une boîte »*, *« on définit les espaces en général 8 blg »*.
+
+   ⭐ UN SEUL ÉCRIVAIN POUR L'ÉCART, ET C'EST LA GRILLE. Les marges des enfants
+   tombent donc à zéro : un `margin-bottom: 8` sous le titre PLUS le `gap: 8` de
+   la grille auraient rendu 16 sans que personne l'ait demandé. *« Un écart
+   identique obtenu par un autre écrivain n'est pas le même écart : il se
+   comporte différemment dès qu'autre chose bouge »* (§4 quater ter).
+   📏 LE BUDGET, DÉDUIT AVANT DE DESSINER (§1 ter) : 8 + 15 (titre T2) + 8 + 45
+   (aiguilleur, 3 lignes de T1 à 1,5) + 8 + 44 + 8 + 44 + 8 = **188 blg** ; la scène en
+   offre 436 sous la carte. Le plancher n'est pas approché. */
+.ability-methodes {
+  display: grid;
+  gap: var(--sp-8);
+  padding: var(--sp-8);
+  margin-bottom: var(--sp-8);
+  color: var(--text);
+}
+/* ⛔ LA MARGE DU TITRE PART AVEC L'ARRIVÉE DE LA GRILLE — elle valait
+   `0 0 var(--sp-8)` quand rien d'autre n'espaçait cette dalle. Deux écarts pour
+   un intervalle, c'est un intervalle qu'on ne sait plus régler. */
+/* 🔴 LA GRILLE EST LE SEUL ÉCRIVAIN DE L'ÉCART VERTICAL — la norme d'Eric du
+   04/09 (*« toutes les boîtes sont sur une grille »*, *« les espaces en général
+   8 blg »*). Une marge d'enfant s'AJOUTE au `gap` : mesuré avant ce correctif,
+   les deux intervalles du haut rendaient **16 blg** au lieu de 8, et la dalle
+   204 au lieu de 188.
+   ⛔ ET CE N'EST PAS UN `> *` : un `.ability-methodes > *` pèse (0,1,0), autant
+   que `.guide-mot` — donc c'est L'ORDRE DU FICHIER qui aurait tranché, et
+   `.guide-mot` vit 2 000 lignes plus bas. *« Une déclaration invalide crie, une
+   déclaration PERDANTE se tait. »* On nomme l'exception au lieu de parier sur
+   une cascade (§1 ter bis : *« nommer n'est pas mettre à l'abri »*, mais
+   deviner l'est encore moins).
+   ⭐ `.guide-mot` GARDE SA MARGE POUR SES AUTRES HÔTES — les écrans de parcours,
+   où rien d'autre ne l'espace. C'est ici qu'elle est en trop, pas là-bas. */
+.ability-methodes > .guide-mot { margin-block: 0; }
+/* ── LA PREMIÈRE RANGÉE — une grille de cases à leur cote, jamais des parts ──
+   ⛔ PAS DE `1fr` : des parts égales étireraient les trois boutons à 111,7 et
+   tueraient le gabarit `small` (87, la cote du jeton). *« Une case qui s'étire
+   ne laisse RIEN à centrer »* — ici c'est la GRILLE qui se centre dans sa boîte
+   (`justify-content`), et les cases gardent leur cote.
+
+   🔴 ET LE COMPTE DE COLONNES N'EST ÉCRIT NULLE PART — `grid-auto-flow: column`
+   en crée exactement autant qu'on lui donne d'enfants. C'est §1 ter appliqué à
+   la lettre : *« une cote de contenant ne s'écrit pas, elle se déduit »*.
+   ⛔ J'AVAIS D'ABORD POSÉ `--rang-colonnes` DEPUIS LE JS, et le garde 7 des
+   jetons l'a refusé — *aucun style EN LIGNE dans `ui/`*. Il avait raison deux
+   fois : le style en ligne, et surtout le NOMBRE écrit des deux côtés. Le
+   découpage vit dans `abilities-step.mjs` et nulle part ailleurs ; la grille
+   n'a pas à le savoir, elle a à le SUIVRE. */
+.ability-methodes-rang {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--glisse-case);
+  justify-content: center;
+  gap: var(--sp-8);
+}
 .ability-methodes-titre {
-  margin: 0 0 var(--sp-8);
+  /* ⛔ MARGE À ZÉRO DEPUIS LE 04/09 : la grille de la dalle porte l'écart
+     (`gap: var(--sp-8)`). Deux écrivains pour un intervalle, c'est un
+     intervalle qu'on ne sait plus régler — et ici il rendait 16. */
+  margin: 0;
   font-size: var(--t2); letter-spacing: .06em; text-transform: uppercase;
   color: var(--text); font-weight: 600; text-align: center;
 }
@@ -2312,13 +2372,16 @@ button { font: inherit; }
    EXACTEMENT la largeur d'un jeton. Les deux se déduisent de la MÊME rangée de
    278 avec la MÊME gouttière. »* C'est pourquoi il se lit `--glisse-case` et
    non un littéral : le jour où la rangée change, les deux suivent ensemble.
-   📌 ILS PASSENT DONC À LA LIGNE plutôt que de s'étirer — trois puis deux, et
-   §5 centre le reliquat. C'est la loi des listes appliquée à une bande de
-   boutons : *« la grille ne s'étire pas pour combler le vide »*. */
-.ability-methodes-boutons {
-  display: flex; flex-wrap: wrap; justify-content: center;
-  gap: var(--sp-4);
-}
+   🧊 `.ability-methodes-boutons` EST PARTIE AVEC SON BALISAGE (loi §0.6),
+   le 2026-09-04. C'était `display: flex; flex-wrap: wrap; gap: 4` — et sa note
+   promettait *« trois puis deux »*, un compte qui datait des CINQ boutons
+   d'avant que `INFO` devienne le livre. À quatre, le repli mettait `FREE` seul
+   sur la seconde ligne : exactement le mode d'échec que cette même note
+   redoutait pour `INFO` (*« il se lirait comme une cinquième méthode »*).
+   ⭐ Deux rangées DÉCLARÉES la remplacent — `.ability-methodes-rang` et une
+   rangée de contrôles — parce qu'Eric a tranché que la seconde porte le livre
+   et le `?`. Un repli ne peut pas produire une rangée de contrôles : il ne sait
+   que couper une file. */
 /* 🔴 « Choix identique ⇒ dalle de taille identique » (III.2) : `1 1 0` donne
    cinq parts ÉGALES, aucun classement implicite par la largeur. */
 /* ⛔ CE BLOC NE POSE PLUS QUE LA GÉOMÉTRIE. Son habit — fond, liseré, rayon,
@@ -2327,7 +2390,15 @@ button { font: inherit; }
    gagneraient par la place dans la pile et désarmeraient la coupe en silence,
    *« une déclaration invalide crie, une déclaration PERDANTE se tait »*. */
 .ability-entry {
-  flex: 0 1 var(--glisse-case); max-width: var(--glisse-case); min-width: 0;
+  /* 🔴 `0 0`, JAMAIS `0 1` — §1 ter bis : *« un organe ne rétrécit jamais sous
+     sa cote ; un `shrink` non nul rend la cote partagée décorative »*.
+     📏 MESURÉ LE 04/09, une fois `FREE` seul dans le groupe d'une rangée de
+     contrôles : il rendait **33 × 44** au lieu de 87 — le groupe se dimensionne
+     sur son contenu (`justify-self: center`), et un item qui accepte de
+     rétrécir lui donne sa largeur de MOT, pas sa cote. Le `shrink` datait du
+     `flex-wrap` d'avant, où une case pouvait céder ; la grille l'a rendu inutile
+     et il est devenu nuisible le jour même. */
+  flex: 0 0 var(--glisse-case); max-width: var(--glisse-case); min-width: 0;
   min-height: var(--touch);
   font-family: inherit;
   font-size: var(--t2);
@@ -2365,13 +2436,29 @@ button { font: inherit; }
    et personne ne l'avait vu : `tests/decor.test.mjs` mesure les JETONS, pas
    quelle classe les emploie sur quelle dalle. *« Un habillage qui passe en
    verre ne peut pas garder son texte gris »* (CADRES.md §8) — appliqué. */
-.ability-methodes-mot {
-  margin: var(--sp-8) 0 0;
-  font-size: var(--t3);
-  color: var(--text);
-  text-align: center;
-  text-wrap: balance;
-}
+/* 🧊 `.ability-methodes-mot` EST PARTIE AVEC SON BALISAGE (loi §0.6), le
+   2026-09-04 — et ce qui la remplace n'est PAS une classe neuve.
+
+   🔴 ERIC : *« le texte en dessous, ça devrait être en bleu : L'AIGUILLEUR. Pas
+   en noir. L'aiguilleur a toujours besoin d'une boîte texte de 3 de hauteur. »*
+
+   ⭐ IL NE DEMANDE PAS UN ORGANE, IL EN NOMME UN QUI EXISTE. L'aiguilleur est
+   l'une des trois voix de §7 (guide · aiguilleur · gendarme), il est bleu par
+   ratification du 26/08, et sa boîte de **trois lignes** a été dictée le 27/08 :
+   *« tu pourras même donner 3 lignes à l'aiguilleur »*. Son dessin vit dans
+   `.guide-mot`, plus bas dans cette feuille — filet `--info` à gauche, lavis
+   d'info à 12 %, `min-height: calc(3 * 1,5em)`. **La phrase d'Eric d'aujourd'hui
+   est cette cote-là, redite.**
+
+   ⛔ J'AVAIS ÉCRIT UNE CLASSE `.aiguilleur`, ET LA PAGE L'A REFUSÉE AVANT MOI :
+   le nom est DÉJÀ PRIS par le recouvrement plein écran d'Équipement
+   (`position: absolute; inset: 0`). 📏 Mesuré au banc : le `<p>` rendait
+   **375 × 500 blg à (0, 60)** — la scène entière. Le commentaire du §7 le disait
+   déjà en toutes lettres (*« ⛔ ON NE RÉUTILISE PAS `.aiguilleur` »*) ; c'est la
+   MESURE qui me l'a fait lire.
+   ⭐ Et `destiny-step.mjs` avait déjà tranché le principe : *« C'EST
+   `.guide-mot`, L'ORGANE DU RANG B, PAS UN SOSIE »*. Deux dessins pour une voix,
+   c'est la divergence garantie au premier réglage. */
 
 /* ══ LE TITRE D'UNE DALLE — UN SEUL, POUR LES DEUX ═══════════════════════
    Eric, 2026-08-17 : *« Free doit être en titre de la première dalle et à
@@ -4244,6 +4331,27 @@ button { font: inherit; }
   line-height: var(--aiguilleur-interligne);
   min-height: calc(3 * var(--aiguilleur-interligne) * 1em);
 }
+/* ══ 🔴 SUR DU VERRE, L'AIGUILLEUR ÉCRIT EN `--text` — mesuré le 2026-09-04 ══
+   📏 LE RELEVÉ, PRIS SUR LA PAGE RENDUE (règle §0, et sur le rendu CUMULÉ :
+   image de fond + voile de dalle + lavis d'info) :
+
+       jour  encre rgb(96,92,84)   sur le pire fond mesuré  →  **2,63:1**
+       nuit  encre rgb(152,146,134) sur le pire fond mesuré →  **2,74:1**
+
+   pour une cible de **4,5**. `--text-soft` ne survit à AUCUN des deux voiles —
+   c'est la matrice du lot 59, en tête de ce fichier, et CADRES §8 l'écrit déjà
+   en toutes lettres : *« un habillage qui passe en verre ne peut pas garder son
+   texte gris »*.
+
+   ⚠️ ET LE DÉFAUT N'EST PAS NÉ AVEC R ABILITIES : l'organe vit déjà sur une
+   `dalle-simple` à **Destiny R** (`card-porte`, `destiny-step.mjs`) et à son
+   écran final. Le mettre sur la racine d'Abilities l'a seulement rendu visible.
+   ⛔ La réparation est donc à L'ORGANE, conditionnée au VOILE — pas une
+   exception par écran, qui aurait laissé Destiny cassé et créé la divergence
+   que ce fichier passe son temps à éviter.
+   📌 Sur un fond OPAQUE (les écrans de parcours, `--surface` plein), l'encre
+   douce tient ses 4,5 et ne bouge pas : la règle ne mord que là où le verre est. */
+:is(.dalle-simple, .dalle-intermediaire) > .guide-mot { color: var(--text); }
 
 /* ② LE GUIDE SPÉCIFIQUE */
 /* 🔴 4 px SOUS LE PIED — Eric, 2026-08-26, dernière ligne de son gabarit d'Elf :
@@ -5446,10 +5554,18 @@ button { font: inherit; }
    sur le livre et 40 sur le `?` sous libellés allongés, 1 blg de jeu en
    anglais. Une colonne existe même vide : la place est tenue par le GABARIT,
    jamais négociée par le contenu. */
+/* ⭐ `[data-rangee]` — LA CINQUIÈME PORTE, ET C'EST UN ATTRIBUT (Eric, 04/09,
+   en refaisant R Abilities). Quatre noms énumérés à cinq endroits ici et deux
+   dans `shell.mjs` : en ajouter un cinquième, c'est sept occasions de diverger.
+   Une rangée neuve DÉCLARE `data-rangee` et hérite de tout ce bloc — même
+   leçon que `data-rangs` (§1 ter bis), *« un attribut donne à tous les cas la
+   MÊME spécificité »*. ⛔ Un nom de classe de plus est désormais le signe qu'on
+   recommence. */
 .parcours-pied,
 .sortie,
 .fiche-actions,
-.card-pied {
+.card-pied,
+[data-rangee] {
   display: grid;
   grid-template-columns: var(--touch) 1fr var(--touch);
   align-items: center;
@@ -5481,7 +5597,7 @@ button { font: inherit; }
    la borne vaut son carré tactile et se colle à son bord.
    ⛔ ET ELLES SORTENT DU FLOTTEMENT : une cellule ne retient pas un organe hors
    flux. Leur `absolute` ne vaut plus que sur une dalle SANS rangée. */
-:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > :is(.fiche-livre, .tuto-point) {
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > :is(.fiche-livre, .tuto-point) {
   inline-size: var(--touch);
   min-inline-size: var(--touch);
   block-size: var(--touch);
@@ -5496,10 +5612,10 @@ button { font: inherit; }
      📌 *Une mesure de POSITION ne voit pas un dessin qui se décroche.* */
   position: relative; inset: auto; margin: 0;
 }
-:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .fiche-livre {
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .fiche-livre {
   grid-column: 1; justify-self: start;
 }
-:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .tuto-point {
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .tuto-point {
   grid-column: 3; justify-self: end;
 }
 
@@ -5510,7 +5626,7 @@ button { font: inherit; }
    de mes deux tentatives précédentes n'obtenait sans un cas particulier.
    ⛔ `flex-wrap: nowrap` : une rangée de contrôles ne se replie pas sur deux
    lignes, elle déborde visiblement (§5 bis). */
-:is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .rangee-majeurs {
+:is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .rangee-majeurs {
   grid-column: 2;
   justify-self: center;
   display: flex;
@@ -6377,7 +6493,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=528");
+  background-image: url("./assets/tarot-dos.jpg?v=534");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

@@ -489,27 +489,27 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend LE 
      `?` de la dalle. Une consigne se lit AVANT le geste qu'elle commande. */
   const MOT = "Pick one of the methods below to begin. The book explains the key differences.";
   const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
-  const note = racine.querySelectorAll(".ability-methodes-mot")[0];
+  const note = racine.querySelectorAll(".guide-mot")[0];
   assert.ok(note, "la racine porte son mot");
   assert.equal(note.textContent, MOT);
 
   /* ⭐ ET IL VIT DANS LA DALLE DU SÉLECTEUR — *« texte à intégrer dedans »*.
      Posé à côté, il flotterait sur le fond au lieu d'appartenir au bloc. */
   const dalle = racine.querySelectorAll(".ability-methodes")[0];
-  assert.equal(dalle.querySelectorAll(".ability-methodes-mot").length, 1,
+  assert.equal(dalle.querySelectorAll(".guide-mot").length, 1,
     "il est DANS la dalle, pas en dessous d'elle");
 
   /* ⭐ IL RESTE QUAND UNE MÉTHODE EST DÉJÀ CHOISIE : la racine sert aussi à
      CHANGER d'avis, et « quoi faire » ne cesse pas d'être vrai. */
   const revenu = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
-  assert.equal(revenu.querySelectorAll(".ability-methodes-mot")[0].textContent, MOT);
+  assert.equal(revenu.querySelectorAll(".guide-mot")[0].textContent, MOT);
 
   /* ⛔ MAIS PAS SUR LA PAGE D'UNE MÉTHODE : là, le sélecteur n'est plus, et
      son mot part avec lui. */
   const page = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(page.querySelectorAll(".ability-methodes-mot").length, 0);
+  assert.equal(page.querySelectorAll(".guide-mot").length, 0);
 
   /* 🔴 ET LE MOT NOMME LE LIVRE, PLUS `INFO` — Eric, 2026-08-26 : *« Abilities :
      info doit disparaître et devenir un bouton livre ! »*
@@ -526,20 +526,138 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend LE 
   assert.equal(livre(racine).textContent, "", "et il n'écrit pas « INFO » : le mot a disparu de l'écran");
 });
 
-test("🔴 SUR DU VERRE, SEULE `--text` TIENT — le mot de la racine n'écrit pas en gris", () => {
-  /* La dalle du sélecteur est un verre à 35 %, et la matrice du lot 59 (en
-     tête de `shell.css`) mesure que `--text-soft` y rend **3,0 à 3,6:1**,
-     sous les 4,5 exigés. Ce mot y était écrit en `--text-soft`.
-     ⛔ `tests/decor.test.mjs` ne pouvait PAS l'attraper : il mesure les
-     JETONS, pas quelle classe les emploie sur quelle dalle. D'où ce garde-ci,
-     posé sur l'octet de la règle. */
+test("🔴 SUR DU VERRE, L'AIGUILLEUR ÉCRIT EN `--text` — 2,63:1 mesuré avant", () => {
+  /* ⚠️ CE GARDE A CHANGÉ D'OBJET LE 2026-09-04, ET C'EST LA LOI §0.6.
+     Il tenait `.ability-methodes-mot`, une classe locale ; cette classe est
+     partie avec son balisage quand Eric a nommé l'organe : *« le texte en
+     dessous, ça devrait être en bleu : L'AIGUILLEUR »*. Le BESOIN, lui, n'a pas
+     bougé d'un mot — il a seulement changé d'adresse.
+
+     📏 ET IL S'EST AVÉRÉ PLUS LARGE QUE SON ANCIEN OBJET. Mesuré sur la page
+     rendue, sur le rendu CUMULÉ (fond + voile 35 % + lavis d'info) : l'encre
+     de l'organe (`--text-soft`) rendait **2,63:1 le jour** et **2,74:1 la
+     nuit**, pour 4,5 exigés — et pas seulement ici : `.guide-mot` vit déjà sur
+     une `dalle-simple` à **Destiny R**. La réparation est donc à l'organe,
+     conditionnée au voile, et elle répare les deux écrans d'un coup.
+     📏 APRÈS : **5,51:1** et **5,68:1**. */
   const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
-  const regle = css.slice(css.indexOf(".ability-methodes-mot {"));
-  const corps = regle.slice(0, regle.indexOf("}"));
-  assert.match(corps, /color:\s*var\(--text\);/,
+  assert.match(css, /:is\(\.dalle-simple, \.dalle-intermediaire\) > \.guide-mot \{ color: var\(--text\); \}/,
     "sur du verre, seule --text tient les 4,5:1 (CADRES.md §8)");
-  assert.equal(/--text-soft|--text-muted/.test(corps), false,
-    "⛔ aucune encre douce sur une dalle de verre — c'est le défaut que ce garde existe pour tenir");
+
+  /* ⚔️ ATTAQUE — le garde mord-il ? On relit la règle de l'organe NU : si elle
+     portait déjà `--text`, la règle ci-dessus serait décorative et sa
+     disparition ne se verrait jamais. */
+  /* ⚠️ ANCRÉ EN DÉBUT DE LIGNE : `.ability-methodes > .guide-mot` contient la
+     même chaîne et arrive AVANT dans le fichier — un `indexOf` naïf lisait la
+     règle de marge et croyait l'organe sans encre. */
+  const nu = css.slice(css.indexOf("\n.guide-mot {"));
+  assert.match(nu.slice(0, nu.indexOf("}")), /color:\s*var\(--text-soft\)/,
+    "témoin : l'organe écrit bien en encre douce SUR FOND OPAQUE — c'est ce que la règle du verre corrige");
+});
+
+test("🔲 R ABILITIES — DEUX RANGÉES, ET LA SECONDE EST UNE RANGÉE DE CONTRÔLES", () => {
+  /* 🔴 ERIC, 2026-09-04 : *« 2 rangées de bouton : 1ère rangée nickel ; 2ème
+     rangée contient un élément centré avec livre et ? là où il faut. »*
+
+     ⛔ CE QUE ÇA REMPLACE ÉTAIT JUSTE PAR HASARD : une seule rangée en
+     `flex-wrap` coupait à trois, et le livre comme le `?` étaient posés en
+     `absolute` aux deux coins BAS de la dalle. Mesuré avant — livre y=177,
+     `?` y=177, `FREE` y=177 : trois organes alignés par coïncidence de cotes,
+     que la moindre ligne de plus dans la dalle aurait séparés. */
+  const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), () => {});
+
+  const rang1 = racine.querySelectorAll(".ability-methodes-rang");
+  assert.equal(rang1.length, 1, "une première rangée, déclarée");
+  const controles = racine.querySelectorAll("[data-rangee]");
+  assert.equal(controles.length, 1, "une seconde rangée, et elle DÉCLARE ce qu'elle est");
+
+  /* ⭐ LE DÉCOUPAGE EST DÉDUIT DE LA LARGEUR, PAS COMPTÉ : 3 × 87 + 2 × 8 = 277
+     tiennent dans les 351 utiles ; quatre en demanderaient 372. Le garde relit
+     donc la SOMME des deux rangées, jamais un nombre écrit ici. */
+  const enRang1 = rang1[0].querySelectorAll(".ability-entry").length;
+  const enControles = controles[0].querySelectorAll(".ability-entry").length;
+  assert.equal(enRang1 + enControles, ABILITY_ENTRIES.length,
+    "toutes les méthodes sont rendues, et une seule fois");
+  assert.ok(enControles >= 1, "le reste tombe dans la rangée de contrôles — §6 pré la centre sans savoir combien");
+
+  /* 🔴 LE LIVRE EST UNE BORNE DE CETTE RANGÉE, plus une pastille sur un coin. */
+  assert.equal(controles[0].querySelectorAll(".fiche-livre").length, 1,
+    "le livre est DANS la rangée : une borne a une colonne, jamais une réserve");
+  assert.equal(rang1[0].querySelectorAll(".fiche-livre").length, 0,
+    "⛔ et pas dans la première : elle ne porte que des méthodes");
+
+  /* ⭐ ET LE COMPTE N'EST ÉCRIT QUE DANS LE DÉCOUPAGE : la feuille ne le
+     connaît pas, elle emploie `grid-auto-flow: column`. Le garde le tient à
+     l'envers — si un `repeat(N, …)` réapparaissait, le nombre serait écrit deux
+     fois et divergerait au premier réglage. */
+  const feuille = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
+  const bloc = feuille.slice(feuille.indexOf(".ability-methodes-rang {"));
+  assert.match(bloc.slice(0, bloc.indexOf("}")), /grid-auto-flow:\s*column;/,
+    "la grille déduit ses colonnes de ses enfants — elle ne compte pas");
+
+  /* ⚔️ ATTAQUE — le garde mord-il ? Si la seconde rangée cessait de déclarer
+     `data-rangee`, la coquille ne lui descendrait plus le `?` et ne cadrerait
+     plus son groupe : elle redeviendrait une file de boutons. On le prouve en
+     relisant les DEUX lecteurs de cet attribut dans la coquille. */
+  const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  assert.match(shellText, /:scope \[data-rangee\]/,
+    "la coquille descend le `?` dans une rangée déclarée");
+  assert.match(shellText, /querySelectorAll\("\.parcours-pied, \.sortie, \.fiche-actions, \.card-pied, \[data-rangee\]"\)/,
+    "et elle cadre son groupe comme les quatre autres rangées du site");
+});
+
+test("🔲 LA CINQUIÈME PORTE EST OUVERTE PARTOUT — les cinq listes de la feuille", () => {
+  /* ⛔ LA RANGÉE DE CONTRÔLES EST ÉNUMÉRÉE À CINQ ENDROITS DANS `shell.css` :
+     la géométrie, les deux bornes, le livre, le `?`, le groupe. Une porte
+     ouverte dans quatre listes sur cinq ne se voit pas — elle rend juste UN
+     organe de travers, et §6 pré dit que ce défaut a déjà coûté trois passes.
+     ⭐ D'où un garde qui compte, plutôt qu'un œil qui relit. */
+  const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
+  const listes = css.match(/\.parcours-pied,\s*\n\.sortie,\s*\n\.fiche-actions,\s*\n\.card-pied,\s*\n\[data-rangee\]|:is\(\.parcours-pied, \.sortie, \.fiche-actions, \.card-pied, \[data-rangee\]\)/g) || [];
+  assert.equal(listes.length, 5,
+    "les CINQ listes portent la cinquième porte — pas quatre, pas six");
+
+  /* ⚔️ ATTAQUE — et aucune liste des quatre ne survit sans elle. */
+  const orphelines = css.match(/:is\(\.parcours-pied, \.sortie, \.fiche-actions, \.card-pied\)/g) || [];
+  assert.equal(orphelines.length, 0,
+    "⛔ aucune liste n'est restée à quatre : c'est exactement comme ça qu'un organe se retrouve seul de travers");
+});
+
+test("🔲 LA DALLE DE R EST UNE GRILLE, ET ELLE SEULE ÉCRIT SES ÉCARTS", () => {
+  /* 🔴 ERIC, 2026-09-04 : *« désormais tout est dans une boîte, toutes les
+     boîtes sont sur une grille y compris les boutons »* · *« on définit les
+     espaces en général 8 blg »*.
+     📏 MESURÉ APRÈS : la dalle rend **188 blg** — 8 + 15 + 8 + 45 + 8 + 44 + 8
+     + 44 + 8 — et les quatre intervalles valent 8. AVANT le zérotage des marges
+     d'enfants, deux d'entre eux rendaient **16** (le `gap` PLUS la marge), et
+     la dalle 204. */
+  const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
+  const dalle = css.slice(css.indexOf(".ability-methodes {"));
+  const corps = dalle.slice(0, dalle.indexOf("}"));
+  assert.match(corps, /display:\s*grid;/, "la dalle est une grille");
+  assert.match(corps, /gap:\s*var\(--sp-8\);/, "et son écart vaut 8 — le général d'Eric");
+
+  /* ⭐ UN SEUL ÉCRIVAIN : les enfants qui portent une marge pour leurs AUTRES
+     hôtes la rendent ici, et l'exception est NOMMÉE — jamais un `> *` qui
+     parierait sur l'ordre du fichier. */
+  assert.match(css, /\.ability-methodes > \.guide-mot \{ margin-block: 0; \}/,
+    "l'aiguilleur rend sa marge à la grille, nommément");
+
+  /* ⛔ ET LES BOUTONS SONT SUR UNE GRILLE, À LEUR COTE — jamais des parts. */
+  const rang = css.slice(css.indexOf(".ability-methodes-rang {"));
+  const rangCorps = rang.slice(0, rang.indexOf("}"));
+  assert.match(rangCorps, /grid-auto-columns:\s*var\(--glisse-case\);/,
+    "des colonnes à la cote du jeton — jamais une part, jamais un compte écrit");
+  assert.equal(/1fr/.test(rangCorps), false,
+    "⛔ pas de parts : « une case qui s'étire ne laisse RIEN à centrer »");
+  assert.match(rangCorps, /gap:\s*var\(--sp-8\);/);
+
+  /* ⚔️ ATTAQUE — l'ancienne rangée est bien partie AVEC son balisage (§0.6). */
+  const ecran = stripComments(fs.readFileSync(path.join(UI_DIR, "abilities-step.mjs"), "utf8"));
+  assert.equal(/ability-methodes-boutons|ability-methodes-mot/.test(ecran), false,
+    "⛔ le balisage d'avant ne survit pas au lot qui le remplace");
+  assert.equal(/"aiguilleur"/.test(ecran), false,
+    "⛔ et aucun sosie de l'aiguilleur : `.aiguilleur` est le recouvrement d'Équipement (mesuré : 375 × 500 blg)");
 });
 
 test("garde d'octets — la coquille écrit TOUJOURS `abilities.mode` quand la méthode change", () => {

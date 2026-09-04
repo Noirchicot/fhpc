@@ -64,12 +64,12 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=528";
-import { renderTray } from "./abilities-tray.mjs?v=528";
-import { armerJeton } from "./glisser.mjs?v=528";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=528";
-import { createDieHost, mount } from "./dice3d.mjs?v=528";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=528";
+import { markPressed } from "./carnet.mjs?v=534";
+import { renderTray } from "./abilities-tray.mjs?v=534";
+import { armerJeton } from "./glisser.mjs?v=534";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=534";
+import { createDieHost, mount } from "./dice3d.mjs?v=534";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=534";
 
 export { rollAbilitySet };
 
@@ -727,65 +727,117 @@ function renderCollecteur(ctx) {
   return bloc;
 }
 
-/* ══ LE SÉLECTEUR DE MÉTHODE — FF2, dalle 35 % (croquis) ═════════════════ */
+/* ══ LE SÉLECTEUR DE MÉTHODE — R Abilities, dalle 35 % ═══════════════════
+   📐 REFAIT LE 2026-09-04 SUR LA DICTÉE D'ERIC : *« 2 rangées de bouton : 1ère
+   rangée nickel ; 2ème rangée contient un élément centré avec livre et ? là où
+   il faut »*, *« désormais tout est dans une boîte, toutes les boîtes sont sur
+   une grille y compris les boutons »*, *« on définit les espaces en général
+   8 blg »*.
+
+   ⛔ CE QUE ÇA REMPLACE, ET CE N'ÉTAIT JUSTE QUE PAR HASARD. La rangée unique
+   était un `flex-wrap` : trois boutons tenaient sur la première ligne, `FREE`
+   tombait seul sur la seconde, et le livre comme le `?` étaient posés en
+   `absolute` aux deux coins BAS de la dalle (`fiche.css`, `shell.css`). Ils
+   arrivaient au niveau de `FREE` parce que la dalle mesurait 165 blg — pas
+   parce qu'une rangée les y mettait. 📏 Mesuré avant : livre à y=177, `?` à
+   y=177, `FREE` à y=177. **Trois organes alignés par coïncidence de cotes**,
+   exactement ce que NORMES §6 pré nomme : *« il PARAISSAIT aligné avec eux ; il
+   ne l'était que par coïncidence »*. Une dalle plus haute d'un blg les
+   séparait, et rien n'aurait crié.
+
+   ⭐ LA SECONDE RANGÉE EST DONC UNE VRAIE RANGÉE DE CONTRÔLES — la forme unique
+   de §6 pré, `--touch | 1fr | --touch`, deux bornes et un groupe. Elle ne
+   fabrique rien : elle DÉCLARE `data-rangee`, et la coquille lui descend le `?`
+   et cadre son groupe comme elle le fait déjà pour les quatre autres rangées du
+   site. */
+
+/* 🔴 COMBIEN DE MÉTHODES PAR RANGÉE — DÉDUIT, JAMAIS CHOISI (§1 ter).
+   📏 LA DALLE OFFRE 351 BLG (367 de carte − 2 × 8 de rembourrage), un bouton du
+   gabarit `small` en vaut 87 (`--glisse-case`, la cote du jeton) et l'écart
+   général vaut 8 depuis le 04/09 :
+
+       3 × 87 + 2 × 8 = 277   ✅  il reste 74
+       4 × 87 + 3 × 8 = 372   ⛔  21 de trop
+
+   ➡️ **C'est la LARGEUR qui pose le trois**, et c'est la même arithmétique de
+   360 qui a fabriqué la cote du jeton (`tokens.css`) — pas un goût, pas un
+   `:nth-child` qui compte (§1 ter ter : *« une exception se nomme, elle ne se
+   compte pas »*).
+   ⭐ ET LE RESTE TOMBE DANS LA RANGÉE DE CONTRÔLES, quel qu'il soit : §6 pré
+   dit que le groupe se centre sans savoir combien il porte. Une cinquième
+   méthode n'aurait donc aucune règle à rouvrir. */
+const METHODES_PAR_RANGEE = 3;
+
 function renderSelecteurMethode(actif, infoOuvert, act) {
   const bloc = el("section", "ability-methodes dalle-simple");
   bloc.append(el("h3", "ability-methodes-titre", [text("Choose an ability generation method")]));
-  /* 🔴 LE MOT EST EN HAUT, PAS EN BAS — Eric, 2026-08-26, capture à l'appui :
-     *« ici la barre de texte recouvre la zone de boutons ; le texte devait être
-     en haut »*. En bas, la phrase courait sous le `?` que la dalle pose à son
-     coin, et les deux se chevauchaient sur un écran large.
-     ⭐ ET C'EST AUSSI L'ORDRE DE LECTURE JUSTE : elle dit QUOI FAIRE avec les
-     boutons ; une consigne se lit avant le geste qu'elle commande, pas après.
-     Elle reste DANS la dalle — *« texte à intégrer dedans »* (16/08) tient
-     toujours, c'est sa place dans la dalle qui change, pas sa dalle. */
-  /* ⚠️ « BELOW », PAS « ABOVE » — et ce mot a dû changer AVEC la place. La
-     phrase d'Eric disait *« pick one of the methods ABOVE »* quand elle vivait
-     SOUS la rangée ; remontée au-dessus, le même mot désignait la barre
-     d'étapes. Un déplacement peut rendre faux un texte qu'on n'a pas touché :
-     la phrase ne parlait pas d'elle-même, elle POINTAIT. */
-  bloc.append(el("p", "ability-methodes-mot", [text(
+  /* 🔴 L'AIGUILLEUR — Eric, 2026-09-04 : *« le texte en dessous, ça devrait
+     être en bleu : l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin
+     d'une boîte texte de 3 de hauteur. »*
+     ⭐ ET C'EST `.guide-mot`, L'ORGANE QUI EXISTE — pas un sosie. L'aiguilleur
+     est l'une des trois voix de §7, bleu par ratification du 26/08, et ses trois
+     lignes ont été dictées le 27/08 (*« tu pourras même donner 3 lignes à
+     l'aiguilleur »*). La phrase d'aujourd'hui est cette cote redite ; il n'y
+     avait rien à inventer, seulement à reconnaître.
+     ⛔ `.aiguilleur` EST UN AUTRE OBJET — le recouvrement plein écran
+     d'Équipement. Mesuré : le `<p>` qui portait ce nom rendait 375 × 500 blg.
+     Même arbitrage que `destiny-step.mjs` : *« C'EST `.guide-mot`, L'ORGANE DU
+     RANG B, PAS UN SOSIE »*.
+     ⚠️ « BELOW », PAS « ABOVE » — et ce mot a dû changer AVEC la place le
+     26/08 : la phrase ne parle pas d'elle-même, elle POINTE. Les deux rangées
+     restent sous elle, le mot reste juste. */
+  bloc.append(el("p", "guide-mot", [text(
     "Pick one of the methods below to begin. The book explains the key differences."
   )]));
-  const rangee = el("div", "ability-methodes-boutons");
-  for (const entry of ABILITY_ENTRIES) {
+
+  const tuileDe = (entry) => {
     const tuile = el("button", "ability-entry");
     tuile.type = "button";
     tuile.dataset.entry = entry.id;
     markPressed(tuile, entry.id === actif);
     tuile.append(el("span", "ability-entry-label", [text(entry.label)]));
     tuile.addEventListener("click", () => act({ kind: "abilityMethod", value: entry.id }));
-    rangee.append(tuile);
-  }
-  /* 🔴 `INFO` EST DEVENU LE LIVRE — Eric, 2026-08-26 : *« info doit devenir un
-     livre et disparaître »*. Les deux moitiés comptent : il prend la forme du
-     livre, ET le mot « INFO » quitte l'écran.
+    return tuile;
+  };
 
-     ⛔ IL N'A JAMAIS ÉTÉ UNE CINQUIÈME MÉTHODE, et c'était tout le problème :
-     porter `ability-entry` lui donnait le gabarit, l'octogone et le pan coupé
-     des quatre autres, si bien qu'un cinquième bouton identique proposait
-     quelque chose qui n'est pas un choix. Un commentaire de 2026-08-16
-     l'admettait déjà à demi-mot — *« il ne se distingue plus par sa forme »*,
-     et il fallait une phrase sous la rangée pour le rendre découvrable.
-     ⭐ LE LIVRE RÈGLE LES DEUX D'UN COUP : c'est l'organe du dépôt qui veut
-     dire « le texte est là » (`.fiche-livre`, registre §2), rond, de la taille
-     du `?`, et il ne ressemble à aucune méthode. La phrase peut donc le
-     nommer au lieu de rattraper une confusion.
+  /* ── LA PREMIÈRE RANGÉE — une grille, pas un `flex-wrap` ─────────────────
+     ⭐ LE COMPTE DE COLONNES N'EST ÉCRIT QU'ICI, ET LA FEUILLE NE LE SAIT PAS :
+     elle emploie `grid-auto-flow: column`, qui crée exactement autant de
+     colonnes qu'on lui donne d'enfants. Un `repeat(3, …)` en CSS face à un
+     `slice(0, 3)` en JS aurait été un nombre écrit deux fois, c'est-à-dire deux
+     nombres qui divergent au premier réglage.
+     ⛔ ET LES BOUTONS NE S'ÉTIRENT PAS : les colonnes valent `--glisse-case`,
+     pas `1fr`. *« Une case qui s'étire ne laisse RIEN à centrer »* — c'est la
+     grille qui se centre dans sa boîte, jamais les cases qui comblent. */
+  const rang = el("div", "ability-methodes-rang");
+  for (const entry of ABILITY_ENTRIES.slice(0, METHODES_PAR_RANGEE)) rang.append(tuileDe(entry));
+  bloc.append(rang);
+
+  /* ── LA SECONDE RANGÉE — la forme unique de §6 pré ───────────────────────
+     🔴 `INFO` EST DEVENU LE LIVRE — Eric, 2026-08-26 : *« info doit devenir un
+     livre et disparaître »*. Les deux moitiés comptent : il prend la forme du
+     livre, ET le mot « INFO » quitte l'écran. Porter `ability-entry` lui
+     donnait l'octogone des quatre méthodes, si bien qu'un cinquième bouton
+     identique proposait quelque chose qui n'est pas un choix.
      ⚠️ IL GARDE SON ÉTAT : c'est un interrupteur (le panneau est ouvert ou
      non), donc `aria-pressed` reste — un livre qui bascule doit le dire.
-     ⭐⭐ ET IL SE CADRE À UN BOUT DE LA RANGÉE, comme Eric l'a ratifié le
-     26/08 : *« le livre doit être dans un bouton rond, même taille que ? ; ils
-     sont tous deux cadrés à gauche et à droite de la rangée de boutons »*. Le
-     `?` tient la droite (la dalle le pose à son coin) — le livre prend la
-     gauche, et les quatre méthodes restent centrées entre eux. */
+
+     ⭐ ET IL EST UNE BORNE, PAS UN VOISIN. `data-rangee` suffit à le dire :
+     la coquille reconnaît `.fiche-livre` et `.tuto-point` comme les deux
+     bornes (`BORNES`, shell.mjs), pousse tout le reste dans un `.rangee-majeurs`
+     et laisse la grille les cadrer. ⛔ Aucune colonne n'est nommée ici — c'est
+     la faute que §6 pré a payée trois fois. */
+  const controles = el("div", null, []);
+  controles.dataset.rangee = "controles";
   const info = el("button", "fiche-livre ability-methodes-livre");
   info.type = "button";
   info.dataset.entry = "info";
   markPressed(info, infoOuvert);
   info.setAttribute("aria-label", "Compare the methods");
   info.addEventListener("click", () => act({ kind: "abilityInfo", value: !infoOuvert }));
-  rangee.prepend(info);
-  bloc.append(rangee);
+  controles.append(info);
+  for (const entry of ABILITY_ENTRIES.slice(METHODES_PAR_RANGEE)) controles.append(tuileDe(entry));
+  bloc.append(controles);
   return bloc;
 }
 
