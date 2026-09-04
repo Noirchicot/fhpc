@@ -5630,11 +5630,19 @@ button { font: inherit; }
      📌 *Une mesure de POSITION ne voit pas un dessin qui se décroche.* */
   position: relative; inset: auto; margin: 0;
 }
+/* 🔴 ET TOUS SUR LE MÊME RANG — `grid-row: 1`, explicite. Sans lui, un organe
+   qui ne fixe QUE sa colonne est placé automatiquement au premier rang LIBRE
+   après le curseur : le groupe prend (1,2), puis le livre, qui demande la
+   colonne 1, se replie sur un DEUXIÈME RANG. Mesuré sur B2 le 2026-09-05 —
+   `Choose` et `Cancel` sur une ligne, le livre et le `?` cent blg plus bas.
+   ⭐ Une rangée de contrôles est une LIGNE : elle le dit.
+   📌 `[data-rangee]` est la cinquième porte (04/09) : le rang vaut pour elle
+   aussi, sans quoi la rangée neuve serait la seule à pouvoir se replier. */
 :is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .fiche-livre {
-  grid-column: 1; justify-self: start;
+  grid-column: 1; grid-row: 1; justify-self: start;
 }
 :is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .tuto-point {
-  grid-column: 3; justify-self: end;
+  grid-column: 3; grid-row: 1; justify-self: end;
 }
 
 /* 🔴 LE GROUPE DES MAJEURS — la colonne du milieu, et rien d'autre dedans.
@@ -5645,7 +5653,7 @@ button { font: inherit; }
    ⛔ `flex-wrap: nowrap` : une rangée de contrôles ne se replie pas sur deux
    lignes, elle déborde visiblement (§5 bis). */
 :is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .rangee-majeurs {
-  grid-column: 2;
+  grid-column: 2; grid-row: 1;
   justify-self: center;
   display: flex;
   flex-wrap: nowrap;
@@ -6526,7 +6534,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=546");
+  background-image: url("./assets/tarot-dos.jpg?v=547");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7968,7 +7976,16 @@ button { font: inherit; }
    budget de 500 sont pris SOUS les boutons (Eric, 2026-09-03). Le bas vaut donc
    le seul rembourrage de la dalle. */
 .card-final .parcours-pied { margin-top: var(--sp-8); margin-bottom: 0; }
-.card-final { padding-bottom: 0; }
+/* 🔴 LE CORPS DE LA FICHE EST UN JETON, PAS UNE VALEUR RECOPIÉE — 2026-09-05.
+   ⭐ Eric : *« comme ça on n'a pas un mouton à cinq pattes »*. Avant ce jeton,
+   descendre le rang B2 d'un barreau demandait de reprendre NEUF organes un par
+   un — neuf écrivains pour une seule décision, et le premier organe neuf serait
+   passé à travers. Ici le rang change UN nombre ; les organes ne savent pas
+   qu'il y a deux rangs.
+   📌 La valeur par défaut est celle d'aujourd'hui : rien ne bouge au rang SB2. */
+.card-final {
+  --corps-fiche: var(--t2);
+  --titre-fiche: var(--t4); padding-bottom: 0; }
 
 
 /* ── L'ÉCRAN FINAL — deux colonnes, et le texte reste DANS le cadre ─────
@@ -8024,7 +8041,18 @@ button { font: inherit; }
      ⛔ ET C'EST LE REMBOURRAGE QUI L'ÉCRIT, PAS UNE MARGE SUR LE PIED : 4 + 4
      aurait rendu les mêmes 8 avec DEUX écrivains, et c'est précisément la faute
      que cette nuit a défaite trois fois. */
-  padding: var(--sp-4) var(--sp-8) var(--sp-8) var(--sp-16);
+  /* ⚖️ ET LA GAUCHE REVIENT À 8 — Eric, 2026-09-05 : *« la dalle SB2 n'a pas de
+     problèmes, mais tu peux rendre le rembourrage symétrique à 8 blg de chaque
+     côté »*. L'entorse du rang B (16 à gauche, 8 à droite) est levée.
+     📏 CE QU'ELLE COÛTAIT, MESURÉ : la RANGÉE DE BOUTONS est fille de la dalle,
+     donc elle héritait de ces 16/8 — elle rendait 343 blg dans une dalle de 367
+     et son groupe se centrait **4 blg à gauche** du milieu. Le seul écran du
+     site où le centre n'était pas exact, et aucun réglage de la rangée n'aurait
+     pu le rattraper : *une rangée centrée dans une boîte décentrée est
+     décentrée*.
+     ⭐ Symétrique, la rangée vaut 351, ses bornes tombent à 8 comme partout
+     ailleurs, et le centre est exact sans qu'on écrive un second nombre. */
+  padding: var(--sp-4) var(--sp-8) var(--sp-8) var(--sp-8);
 }
 .card-final-tete {
   display: flex;
@@ -8055,7 +8083,7 @@ button { font: inherit; }
      la colonne de texte ne peut plus rien céder sous 180 blg, et la carte prend
      ce qui reste. 📏 335 de champ − 8 de gouttière − 180 = **147 blg** au plus
      pour la carte, soit 252 de haut à son rapport. */
-  grid-template-columns: minmax(180px, 1fr) auto;
+  grid-template-columns: minmax(var(--corps-colonne-min, 180px), 1fr) auto;
   /* 🔴 LES HUIT CASES, NOMMÉES — Eric, 2026-09-03 : *« tu as 7 blocs texte et un
      bloc image, place-les et fige-les »*. Le dessin de l'écran se lit ICI, en
      sept lignes, et se change en déplaçant un mot.
@@ -8236,7 +8264,7 @@ button { font: inherit; }
      sur un écran qui en compte six, ce serait l'hétérogénéité que tout le reste
      de la soirée a servi à retirer — et il faudrait un second sélecteur pour la
      produire. Si l'écart est voulu, il se dira. */
-  font-size: var(--t2);
+  font-size: var(--corps-fiche);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text);
@@ -8244,7 +8272,7 @@ button { font: inherit; }
 /* les deux lignes courtes : le mot, puis la valeur sur la même ligne */
 .card-final-ligne { margin: 0; display: flex; gap: var(--sp-8); align-items: baseline; }
 /* la valeur d'une ligne courte : encre de CORPS, comme les fenêtres (Eric) */
-.card-final-val { font-size: var(--t2); color: var(--text-soft); }
+.card-final-val { font-size: var(--corps-fiche); color: var(--text-soft); }
 
 /* 🪟 LA FENÊTRE ENCADRÉE — les boîtes que le croquis dessine sous chaque mot. */
 .card-final-bloc { display: flex; flex-direction: column; gap: var(--sp-4); }
@@ -8266,7 +8294,7 @@ button { font: inherit; }
 .card-final-cadre {
   margin: 0;
   padding: 0;
-  font-size: var(--t2);
+  font-size: var(--corps-fiche);
   color: var(--text-soft);
 }
 /* 🔴 UNE VIBRATION = UNE LIGNE — son nom en tête, son effet à la suite.
@@ -8276,7 +8304,7 @@ button { font: inherit; }
 /* 📏 T2, pas T1 — Eric, 2026-09-03 : *« reviens en T2 pour le corps de
    vibrations »*. Elles étaient descendues à T1 quand elles vivaient dans la
    colonne étroite ; en pleine largeur elles n'ont plus besoin de se serrer. */
-.card-final-rang { margin: 0; font-size: var(--t2); color: var(--text-soft); }
+.card-final-rang { margin: 0; font-size: var(--corps-fiche); color: var(--text-soft); }
 /* 📏 GRAS, MAIS PAS BLANC — Eric, 2026-09-03. Le « N vp » se détache par la
    GRAISSE seule ; il hérite de l'encre de corps de sa ligne. L'encre pleine est
    réservée aux ÉTIQUETTES de section (ability, impact, meaning, power,
@@ -8349,7 +8377,7 @@ button { font: inherit; }
   /* 📏 T2 — Eric, 2026-09-03. Les termes étaient descendus à T1 quand ils
      s'enroulaient sur deux lignes ; empilés, ils se lisent et n'ont plus besoin
      de se serrer. ⚠️ Il l'a annoncé lui-même : « ça va recouvrir les boutons ». */
-  font-size: var(--t2);
+  font-size: var(--corps-fiche);
   font-variant-numeric: tabular-nums;
 }
 /* l'étiquette porte le total à sa droite : « Destiny Score    10 » */
@@ -8978,12 +9006,39 @@ button.tuto-point::before {
 .catalogue-cards:has(.card-final[data-gabarit="apercu"]) { padding: 0; }
 /* les 8 sous les boutons viennent de la DALLE, comme sur les quatre autres écrans */
 .card-final[data-gabarit="apercu"] { padding: 0 0 var(--sp-8); }
+/* ══ 🔍 B2 SORT DU ZOOM — Eric, 2026-09-05 ════════════════════════════════
+   *« tu prends toutes les boîtes avec les règles fixées ainsi que l'image avec
+   le dézoom approprié, tu colles ça sur une dalle unique, mais tout en T1, et
+   ses propres boutons règles identiques à partout ? ça simplifie le problème ? »*
+   Oui, et ça retire une CAUSE au lieu d'un symptôme.
+
+   ⛔ CE QUE LE `zoom` FAISAIT : un SECOND SYSTÈME DE COTES. Dans cet écran un
+   `8` ne valait pas 8 (il peignait 6,1), un `44` n'était plus une cible
+   tactile, et c'est exactement pourquoi la rangée de boutons avait dû se
+   réécrire une recette à elle — celle qui a résisté trois tours à la norme et
+   qu'il a fallu traquer jusqu'à un `display: flex` plus spécifique.
+   ⭐ Sans zoom : 8 vaut 8, la rangée du socle s'applique telle quelle, et cet
+   écran cesse d'avoir la moindre exception.
+
+   📏 ET LE CORPS DESCEND D'UN BARREAU, PAS D'UN FACTEUR. `T2 × 0,765` peignait
+   **9,2 blg**, une taille qui n'est sur AUCUN barreau de l'échelle — c'était du
+   T2 rétréci par une opération, pas une taille choisie. T1 en est un
+   (§1 ter quinquies : on descend, on ne s'arrête pas entre deux crans).
+   📐 CE QUE ÇA COÛTE, ET C'EST PEU : le zoom rétrécissait la largeur ET la
+   police ensemble, donc le nombre de caractères par ligne ne bouge que du
+   rapport des corps — **9,2 → 10, soit 8 % de moins**. Une ligne de plus ici ou
+   là, pas un écran à refaire.
+   ⭐ ET LES BOÎTES SUIVENT SANS QU'ON LES TOUCHE : ce fichier compte les boîtes
+   en LIGNES, jamais en pixels. Le corps change, la ligne change, la boîte
+   change — un seul écrivain, comme partout. */
 .card-final[data-gabarit="apercu"] > .card-final-corps {
-  width: calc(var(--panneau-l) * 1px);
-  zoom: var(--apercu-zoom);
   /* le rembourrage du rang B, DANS le zoom : il rétrécit avec le reste, ce qui
-     est juste — c'est la marge du dessin, pas celle de l'écran. */
-  padding: var(--sp-4) var(--sp-8) 0 var(--sp-16);
+     est juste — c'est la marge du dessin, pas celle de l'écran.
+     ⚖️ SYMÉTRIQUE À 8 depuis le 2026-09-05, comme la dalle du rang au-dessus :
+     Eric a levé l'entorse des 16 à gauche. Sous le dézoom de 0,765 ces 8 se
+     peignent à 6,1 des deux côtés — c'est la marge du DESSIN, elle a le droit
+     de rétrécir avec lui. */
+  padding: var(--sp-4) var(--sp-8) 0 var(--sp-8);
 }
 /* ══ LE PIED DE L'APERÇU — les quatre organes sur UNE ligne ═══════════════
    🔴 Eric, 2026-09-03, capture d'iPad à l'appui : *« choose et cancel pas
@@ -9003,11 +9058,14 @@ button.tuto-point::before {
    gardait 44 blg à droite pour une pastille flottante. Elle est dans la ligne
    maintenant — ces 44 blg décalaient `Choose` et `Cancel` vers la gauche, et
    c'est exactement le « pas centrés » d'Eric. */
-.card-final[data-gabarit="apercu"] .parcours-pied {
-  padding-inline-end: 0;
-  display: flex;
-  align-items: center;
-}
+/* ⛔ ET CE BLOC TOMBE AVEC — 2026-09-05. Il remettait la rangée en `display:
+   flex` avec une spécificité SUPÉRIEURE à la norme : sur B2 la rangée n'a donc
+   JAMAIS été une grille, et tous les `grid-column` du socle y étaient lettre
+   morte. Mesuré : le livre rendu à **192 blg** du bord au lieu de 8, le groupe
+   décentré de 44.
+   ⭐ *Une règle qui survit à la loi qu'elle amendait ne se voit pas — elle
+   gagne en silence.* Les trois déclarations sont désormais au socle : la grille,
+   le rembourrage à zéro, et l'alignement vertical. */
 /* 🔴 QUATRE ORGANES, TROIS PLACES — Eric, 2026-09-03 : *« cancel choose centrés,
    livre cadré à G, ? cadré à D »*. C'est la paire du 26/08, avec DEUX boutons au
    milieu au lieu d'un.
@@ -9047,47 +9105,33 @@ button.tuto-point::before {
    sous ses voisins.
    ⚖️ Ce n'est pas un habillage : c'est la différence entre un écart qui tient
    par arithmétique et un écart qui tient par construction. */
-.card-final[data-gabarit="apercu"] .parcours-pied {
-  display: grid;
-  /* 📐 QUATRE COLONNES, ET LES DEUX DU MILIEU SONT ÉGALES — c'est ça qui centre
-     la paire : `Choose` se cale à DROITE de la deuxième, `Cancel` à GAUCHE de la
-     troisième, et deux `1fr` identiques mettent leur frontière au milieu exact.
-     ⛔ MON PREMIER JET EN AVAIT TROIS, et mettait `Cancel` dans la colonne du
-     `?` : ils s'empilaient. Mesuré, −77 blg. Deux organes dans une même cellule
-     ne se poussent pas, ils se superposent — la grille ne répare que ce qu'on
-     lui donne à séparer.
-     ⚖️ Les deux colonnes de bout valent `--touch` : la cote d'un contrôle, pas
-     un nombre de circonstance. */
-  grid-template-columns: var(--touch) 1fr 1fr var(--touch);
-  align-items: center;
-  justify-items: center;
-}
-.card-final[data-gabarit="apercu"] .fiche-livre { grid-column: 1; justify-self: start; }
-/* ⭐ LA PAIRE PARTAGE LA COLONNE DU MILIEU : une boîte de plus n'est pas
-   nécessaire, `grid-column: 2` sur les deux les y empile — c'est un `flex`
-   interne qu'il faut. On le pose sur la colonne, pas sur les boutons. */
-.card-final[data-gabarit="apercu"] .fiche-action,
-.card-final[data-gabarit="apercu"] .sortie-bouton { grid-row: 1; }
-.card-final[data-gabarit="apercu"] .fiche-action { grid-column: 2; justify-self: end; }
-/* 📏 4 BLG ENTRE LES DEUX, ET PAS 8 : à 8 la rangée redéborde (264 + 8 = 272
-   pour 271 disponibles). Quatre suffisent à les décoller sans rien casser —
-   mesuré, ils se TOUCHAIENT à 146..146. */
-.card-final[data-gabarit="apercu"] .sortie-bouton { grid-column: 3; justify-self: start; margin-left: var(--sp-4); }
-.card-final[data-gabarit="apercu"] .tuto-point { grid-column: 4; justify-self: end; }
-
-/* 🔴 LA DALLE ÉPOUSE SON CONTENU ET SE CENTRE — Eric : *« je veux que la dalle
-   s'arrête 8 blg sous les boutons, qu'elle soit centrée verticalement »*.
-   ⛔ Elle occupait les 500 de la scène pour un contenu de 300 : 200 blg de vide
-   en bas, que la capture montrait sans qu'aucun chiffre ne les nomme.
-   ⭐ LA RANGÉE GARDE SES 500 — c'est elle le cran d'aimantation, et le
-   défilement des 22 fiches en dépend (lot 60). C'est la DALLE qui rétrécit,
-   et la rangée qui la centre. Deux boîtes, deux métiers. */
+/* 🔴 LA FICHE SE CENTRE DANS SON CRAN — règle du lot 143, restaurée le
+   2026-09-05 après que ma coupe l'a emportée avec l'exception voisine.
+   ⚠️ Elle n'appartenait PAS au bloc que je retirais : une coupe se relit
+   AVANT d'être écrite, pas après que la mesure a bougé de 138 blg. */
 .catalogue-cards:has(.card-final[data-gabarit="apercu"]) .catalogue-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-/* 🔴 LA DALLE ÉPOUSE SON CONTENU, ET LES BOUTONS SONT CADRÉS — Eric,
+
+/* ⛔ TOUTE L'EXCEPTION B2 EST TOMBÉE — 2026-09-05, Eric : *« B2 si »*, en
+   nommant le dernier écran dont les boutons restaient faux.
+   📏 CE QU'ELLE FAISAIT ENCORE, MESURÉ : ce bloc écrivait `44px | 1fr | 1fr |
+   44px` et donnait UNE COLONNE PAR ORGANE. La norme (§6 pré) pose depuis
+   `--touch | 1fr | --touch` avec un GROUPE au milieu — les deux se
+   superposaient, le groupe tombait dans la colonne 2 et se centrait **45,7 blg
+   à gauche** du milieu de la dalle.
+   ⭐ CE N'EST PAS UNE PERTE : tout ce que ce bloc obtenait, la norme l'obtient
+   mieux. Les bornes ont leur colonne, le milieu se centre, un libellé long
+   déborde DANS sa cellule au lieu de passer sous ses voisins — et le nombre de
+   boutons cesse d'être une question (ce bloc devait nommer `Choose` et `Cancel`
+   un par un ; le jour où un troisième arrivait, il fallait revenir ici).
+   🧊 LES DEUX LIGNES QUI RESTENT : dissoudre la boîte de la sortie pour que ses
+   enfants deviennent enfants de la RANGÉE, et retirer l'ancre verticale des deux
+   bornes. Le reste est au socle. */
+/* (les deux règles utiles vivent plus haut : `display: contents` sur la sortie
+   et le retrait de l'ancre verticale des deux bornes.) */
    2026-09-03 : *« pourquoi tes boutons se baladent de manière aléatoire en
    hauteur ? »* · *« c'était bon avant »* · *« cadrer les boutons à 8 blg du bas
    et forcer 8 blg au-dessus »*.
@@ -9114,6 +9158,30 @@ button.tuto-point::before {
    `margin-top: auto` faisait descendre le titre de 34 blg sur les cartes
    courtes. Les deux disparaissent avec leur raison d'être.
    📌 Une hauteur qu'on n'écrit pas ne peut pas devenir fausse. */
+/* ── B2 SANS ZOOM : LE CORPS D'UN BARREAU PLUS BAS ─────────────────────── */
+/* ⭐ UN SEUL JETON COMMANDE TOUT LE RANG. Les organes ne sont pas repris un par
+   un — ils lisent `--corps-fiche`, et l'aperçu le descend d'un cran. Reprendre
+   chaque organe aurait fait autant d'écrivains que d'organes, et le premier
+   organe neuf aurait été oublié. */
+.card-final[data-gabarit="apercu"] {
+  --corps-fiche: var(--t1);
+  --titre-fiche: var(--t3);
+  /* 📐 LE PLANCHER DE LA COLONNE DE TEXTE ÉTAIT UNE COTE ZOOMÉE : 180 sous un
+     zoom de 0,765 peignait **137**. Sans zoom il faut écrire ce que l'œil
+     recevait, pas ce que la feuille disait. */
+  --corps-colonne-min: 137px;
+}
+.card-final[data-gabarit="apercu"] :is(.card-final-etiq, .card-final-val, .card-final-cadre,
+  .card-final-rang, .card-final-rang-nom, .card-final-rang-cout, .card-final-terme,
+  .card-final-terme-val, .card-final-terme-mot) { font-size: var(--corps-fiche); }
+.card-final[data-gabarit="apercu"] .card-final-nom { font-size: var(--titre-fiche); }
+/* 📏 L'IMAGE GARDE LA TAILLE QU'ELLE PEIGNAIT — Eric : *« l'image avec le dézoom
+   approprié »*. Sa hauteur était un pourcentage du panneau, RÉDUIT par le zoom.
+   Le zoom parti, le facteur s'écrit : c'est la seule cote que la conversion ne
+   déduit pas toute seule, et elle est donc nommée. */
+.card-final[data-gabarit="apercu"] .card-final-img {
+  height: calc(var(--panneau-h) * 0.40 * var(--apercu-zoom) * 1px);
+}
 .card-final[data-gabarit="apercu"] { height: auto; }
 /* ⚔️ ESSAI D'ERIC, 2026-09-03 : *« on autorise que ça grandisse en hauteur, on
    lève le figeage de la dalle, et si y'a une ligne ou deux de plus c'est ok »*

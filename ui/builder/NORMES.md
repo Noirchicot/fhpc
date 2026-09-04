@@ -1316,6 +1316,139 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 
 ---
 
+### 🔒 SACRÉ n° 2 — **LE DUO `?` + LIVRE VIT DANS LA DERNIÈRE RANGÉE** *(Eric, 2026-09-04)*
+
+> ⚠️ **CONSIGNÉE ICI PAR L'ARCHITECTE LE 2026-09-05, ET IL FAUT SAVOIR D'OÙ ELLE VIENT.**
+> Eric l'a ratifiée le 04/09 devant une session distante, qui l'a écrite **dans son
+> conteneur** — un travail que personne n'a poussé et que ce dépôt n'a jamais vu.
+> Mesuré le 05/09 : **zéro occurrence** de ces lois dans `NORMES.md`.
+> ⭐ *Une règle qui ne vit que dans le conteneur qui l'a écrite n'existe pas* — c'est la
+> loi « une règle restée ORALE n'existe pas » appliquée à une session au lieu d'une
+> conversation. Le texte ci-dessous est donc **la règle**, pas un compte rendu.
+>
+> ✅ **ET LE CODE EST REVENU LE 2026-09-05 — cette note ne dit plus « à refaire ».**
+> La session distante a transmis ses **quatre commits** par le Drop, en `format-patch`.
+> Ils se sont appliqués **sans un seul conflit sur leur base exacte** (v528), parce que
+> les blobs de cette base vivaient encore dans le dépôt. ⭐ *Un travail qu'on croit perdu
+> parce qu'il n'est pas sur une branche peut n'être qu'ailleurs* — la question à poser
+> n'était pas « que faut-il refaire », mais « le conteneur peut-il encore parler ».
+> ⛔ Et ce que la récupération NE change pas : la loi qui ouvre cette note reste vraie.
+> Une règle qui ne vit que dans le conteneur qui l'a écrite n'existe pas — c'est bien
+> parce qu'elle avait été recopiée ICI qu'elle a survécu à la nuit où le code, lui,
+> ne tenait qu'à un fil.
+
+> ⭐ **DICTÉE MOT POUR MOT PAR ERIC LE 2026-09-05**, et c'est cette version qui fait foi :
+> *« les boutons tj en bas, toujours bouton(s) cadré centre, duo ? et livre cadrés à d et
+> a g dans une cellule à 8 blg du bas de la dalle »*.
+> ⚠️ Elle **corrige** le tirage que j'avais fait du rapport : j'avais écrit « 8 blg du
+> **bord** de la dalle » et j'avais **omis « toujours en bas »**. Un bord n'est pas le
+> bas, et « en bas » n'est pas une conséquence — c'est une clause.
+
+🔴 **LA LOI, EN CINQ CLAUSES.**
+
+| | |
+|---|---|
+| **la rangée** | **TOUJOURS EN BAS** de la dalle — ⛔ ce n'est pas une conséquence de l'ordre du DOM, c'est une clause |
+| **les majeurs** | **toujours cadrés au CENTRE**, un ou plusieurs, c'est le GROUPE qui se centre |
+| **le duo** | `?` et livre **cadrés à droite et à gauche**, dans une **cellule** de cette rangée |
+| **à quelle distance** | **8 blg du BAS de la dalle** |
+| **combien** | **UNE FOIS DANS UN ÉCRAN** — Eric, 05/09, confirmé une seconde fois — ⛔ pas par dalle · et dans la **DERNIÈRE** rangée |
+
+### 🔴 ET S'IL Y A PLUSIEURS DALLES — **LA DERNIÈRE, OU UNE DALLE FLOTTANTE FIXE**
+
+> Eric, 2026-09-05, en réponse au seul cas que les cinq clauses ne tranchaient pas :
+> *« s'il y'a plusieurs dales, la dernière ou dans un dalle flottante fixe »*.
+
+**Deux formes autorisées, et deux seulement.** Un écran à plusieurs dalles pose le duo
+soit **dans la dernière dalle**, soit dans une **dalle flottante fixe** — ⛔ jamais une
+pastille par dalle.
+
+⚠️ **ET LE CHOIX ENTRE LES DEUX SE MESURE, IL NE SE PRÉFÈRE PAS.** Le critère est le
+**défilement** : sur un écran qui tient dans la fenêtre, la dernière dalle EST visible et
+suffit. Sur un catalogue qui défile — Species porte **12 fiches** — une pastille posée
+sur la dernière dalle est hors de vue pour toutes les autres, et c'est très exactement le
+défaut que la règle existe pour retirer. ⭐ *La dernière dalle est le défaut ; la dalle
+flottante est ce qu'un défilement impose.*
+
+⛔ **UN PRÉCÉDENT À NE PAS CITER DE TRAVERS, mesuré le 05/09.** Le rapport du 04/09
+nommait `skills-pied` comme *« seule dalle du dépôt hors du flux qui défile »*. C'est
+faux : `skills-pied` n'a **qu'une seule déclaration** dans toute la feuille, `flex: none`,
+et **aucun** `position: fixed` ni `sticky`. Son effet de pied fixe vient de la **colonne
+flex** qui l'entoure — un frère défile, lui ne se comprime pas.
+🔴 La conséquence pour qui construira la dalle flottante : **ce n'est pas un `position`
+à recopier, c'est une structure à poser** — une colonne dont le milieu défile. Species,
+Class et Destiny ne sont pas bâtis comme ça aujourd'hui, et le coût annoncé (« ~60 blg de
+hauteur de fiche ») ne compte pas cette restructuration.
+
+⛔ **« UNE FOIS DANS UN ÉCRAN » A ÉTÉ REDIT, ET CE N'EST PAS UNE REDITE.** Eric l'avait
+déjà dit le 04/09 ; il l'a répété seul, le 05/09, après avoir dicté le reste. Une clause
+qu'on répète est une clause qu'on a vue se faire contourner. ⛔ Elle ferme la lecture
+« une pastille par fiche » que le 03/09 pouvait laisser croire.
+
+⭐ **ET « TOUJOURS EN BAS » TRANCHE UNE QUESTION QU'ON CROYAIT OUVERTE.** Le rapport du
+04/09 demandait à l'architecte d'arbitrer entre *« une seule fois par écran »* et le
+catalogue à rail. Eric a tranché lui-même, et pas par un compromis : le duo n'est jamais
+un organe à placer à part — **il est DANS la rangée de boutons, et cette rangée est en
+bas**. Ce qui restait à décider n'était donc pas *où mettre le duo*, mais **où mettre la
+rangée quand il y a plusieurs dalles** — et c'est la clause ci-dessus qui y répond :
+la dernière dalle, ou une dalle flottante fixe.
+
+⚠️ **CORRECTION DE L'ARCHITECTE, 05/09** : j'avais d'abord écrit ici qu'il n'y avait
+« pas de dalle flottante à inventer ». C'était faux, et Eric l'a corrigé dans la minute —
+la dalle flottante est l'**une des deux formes autorisées**, pas une option écartée.
+
+⛔ **ET « LA DERNIÈRE » N'EST PAS UN DÉTAIL DE RÉDACTION — C'EST LE CŒUR.** Tant qu'un
+écran ne portait **qu'une** rangée, « la première » et « la dernière » désignaient le
+même nœud : la loi tenait par **coïncidence**, et trois écrivains employaient
+`querySelector` (qui rend la première) sans que rien ne rougisse. Le premier écran à
+porter **deux** rangées fait cesser la coïncidence.
+⭐ *Une loi qui tient par coïncidence est indiscernable d'une loi qui tient — jusqu'au
+jour où le cas qui les sépare arrive.*
+
+### 🔒 SACRÉ n° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(Eric, 2026-09-04)*
+
+**Les boutons compris.** Les écarts valent **8 blg**, et c'est **la grille** qui les
+écrit — jamais une marge posée organe par organe.
+
+⭐ **CE QU'UN « SACRÉ » AJOUTE AU VOCABULAIRE, ET POURQUOI IL FALLAIT UN MOT.** Une
+**norme** est un **défaut**, pas un mur (26/08) : un écran qui n'entre pas peut s'en
+écarter en argumentant. Un **sacré**, non. Un lot qui n'arrive pas à faire tenir un
+écran **retire du contenu** (§1 quater) ou **descend tout le bloc d'un cran**
+(§1 ter quinquies) — ⛔ il ne rogne pas un sacré.
+
+🔴 **ET IL EST BORNÉ PAR UNE RÈGLE PLUS HAUTE — Eric, 2026-09-05 :**
+
+> **« on fera comme ça désormais, on laisse tout tranquille tant que ça marche »**
+
+⛔ **UN SACRÉ DIT COMMENT ON CONSTRUIT, ⛔ PAS QU'IL FAUT ALLER RÉÉCRIRE CE QUI TOURNE.**
+Un écran conforme par construction est la règle pour tout ce qu'on pose ; un écran qui
+**marche** ne se convertit pas pour la seule raison qu'il n'est pas conforme. La
+conversion d'une dalle existante demande **un défaut mesuré à l'écran**, ou un mot
+d'Eric — jamais un relevé de non-conformité.
+
+⭐ **POURQUOI C'EST UNE RÈGLE ET PAS DE LA PARESSE**, et le chantier venait de le
+démontrer : le relevé du 04/09 nommait huit dalles non conformes et concluait qu'il
+fallait les convertir. Or **chaque conversion se remesure** — passer un écart de 0 à 8 sur
+`card-final` pousse la pire carte d'arcane (498 blg) au-delà des 500 du panneau. ⛔ Une
+mise en conformité qui casse un écran qui marchait n'est pas un progrès : c'est une
+régression avec une bonne raison. *Le coût d'une harmonisation se paie à l'écran, pas dans
+un tableau de conformité.*
+
+📌 Corollaire pour tout lot : une liste de « ce qui n'est pas conforme » est un
+**inventaire**, jamais une **commande**.
+
+⚠️ **ET CELUI-CI EST UN CHANTIER, PAS UNE CASE À COCHER.** Relevé du 04/09, dalle par
+dalle : **une seule dalle du dépôt est conforme**. `concept-step`, `skills-tete` et
+`skills-group` sont en `display: block` ; `parcours-guide` (Species · Inheritance ·
+Class), `card-final`, `dressing`, `ability-organe` et `choix-glisse` sont en `flex`
+avec des écarts à 0.
+🔴 **Chaque dalle convertie se REMESURE** : passer un écart de 0 à 8 sur `card-final`
+pousse la pire carte d'arcane (**498 blg** mesurés) au-delà des **500** du panneau, et
+Identity en demande déjà **483**. ⛔ L'ordre de conversion est une **décision d'Eric**,
+pas une conséquence — voir la dette ouverte au bas de ce fichier.
+
+---
+
 ### ⚖️ LES EXCEPTIONS EXISTENT, ET ELLES S'ARGUMENTENT — 26/08
 
 > Eric, 2026-08-26 : **« il y aura des exceptions pour tokens et collecteurs, mais ils doivent être
@@ -2495,7 +2628,84 @@ et les deux comptent :
 📌 Relevé de référence, 26 rangées du site le 04/09 : **0 recouvrement, 0 écart
 de centre, 0 organe en `absolute`**.
 
-## 6 pré bis. 🔲 **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(norme, 2026-09-04)*
+## 6 pré bis. 🧭 **L'AIGUILLEUR — LE TEXTE QUI DIT OÙ ALLER** *(Eric, 2026-09-04)*
+
+> ⚠️ **CONSIGNÉE PAR L'ARCHITECTE LE 2026-09-05.** Même origine que les sacrés n° 2 et
+> n° 3 : ratifiée le 04/09 devant une session distante, écrite dans son conteneur, et
+> **jamais poussée**. Ce texte est la règle.
+> ✅ **Le code est revenu le 2026-09-05** — les quatre commits du conteneur, transmis par
+> le Drop et fusionnés. L'organe de cette section est `.guide-mot` ; son encre sur verre
+> est réparée, et l'amendement qui suit porte le sélecteur exact.
+
+🔴 **DEUX CLAUSES, ET AUCUNE N'EST COSMÉTIQUE.**
+
+| | la clause | ce qu'elle empêche |
+|---|---|---|
+| **la couleur** | l'aiguilleur est **BLEU**, ⛔ jamais l'encre du corps | qu'un texte qui MÈNE quelque part se confonde avec un texte qui se LIT |
+| **la boîte** | il a **toujours** une boîte de **3 lignes** | que l'écran se réorganise sous l'œil selon la longueur du libellé |
+
+⭐ **LA BOÎTE FIXE N'EST PAS DU CONFORT : C'EST CE QUI REND LE BUDGET D'UN ÉCRAN
+CALCULABLE D'AVANCE.** Un organe dont la hauteur dépend de son contenu se mesure après
+coup, écran par écran, et se remesure à chaque mot changé. Trois lignes réservées, et le
+budget se **déduit** (§1 ter) au lieu de se relever.
+
+⚠️ **ET LA COULEUR A UN DÉFAUT MESURÉ QUI DÉBORDE CE CHAPITRE.** Sur un voile de verre,
+le bleu de l'aiguilleur rendait **2,63:1 le jour et 2,74:1 la nuit** — sous le plancher
+de lisibilité, et mesuré **sur le rendu cumulé**, pas sur la déclaration. Réparé à
+**5,51 / 5,68** en conditionnant l'encre au voile.
+🔴 **La réparation va à l'ORGANE, pas à l'écran** : `.guide-mot` vit déjà sur une
+`dalle-simple` à Destiny R, donc le défaut n'est pas né avec Abilities et une correction
+locale en aurait laissé la moitié debout. ⭐ *Quand un défaut se lit sur deux écrans, il
+appartient à l'organe qu'ils partagent.*
+
+⛔ **ET LE NOM `.aiguilleur` EST PRIS** — il désigne le recouvrement plein écran
+d'Équipement (375 × 500 blg), et ce fichier l'interdisait **déjà par écrit**. La session
+distante a écrit la classe, l'a mesurée au banc, et c'est **la mesure qui l'a envoyée
+lire la norme** — pas l'inverse. ⭐ C'est la règle universelle « Google headless » (§0)
+qui a payé : *on regarde avant de conclure, même quand on croit connaître le nom.*
+
+---
+
+### 🔵 AMENDEMENT DE L'AIGUILLEUR — **sur du verre, il écrit en `--text`**
+
+> Eric, le même jour : *« le texte en dessous, ça devrait être en bleu :
+> l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin d'une boîte texte de
+> 3 de hauteur. »*
+
+⭐ **IL NE DEMANDE PAS UN ORGANE, IL EN NOMME UN QUI EXISTE.** L'aiguilleur est
+l'une des trois voix de §7, bleu par ratification du 26/08, et sa boîte de **3
+lignes T1** est déjà publiée deux fois dans ce fichier (§ du gabarit d'Elf, § du
+SB1). Son dessin est `.guide-mot`. ⛔ **Il n'a pas de sosie** — `destiny-step.mjs`
+l'avait déjà tranché : *« C'EST `.guide-mot`, L'ORGANE DU RANG B, PAS UN
+SOSIE »*. ⚠️ Et `.aiguilleur` est **un autre objet** : le recouvrement plein
+écran d'Équipement. Une classe de ce nom posée sur un paragraphe a rendu
+**375 × 500 blg** au banc — le commentaire de §7 l'interdisait déjà par écrit,
+c'est la MESURE qui l'a fait lire.
+
+🔴 **CE QUI EST NEUF EST UNE MESURE, PAS UN GOÛT.** Relevé sur la page rendue,
+sur le rendu **cumulé** (image de fond + voile 35 % + lavis d'info) :
+
+| | encre `--text-soft` | encre `--text` |
+|---|---|---|
+| **jour** | **2,63:1** ⛔ | **5,51:1** ✅ |
+| **nuit** | **2,74:1** ⛔ | **5,68:1** ✅ |
+
+pour une cible de **4,5**. ⭐ **Et le défaut n'est pas né avec R Abilities** :
+l'organe vit déjà sur une `dalle-simple` à **Destiny R** et à son écran final.
+La réparation est donc à l'**organe**, conditionnée au **voile**
+(`:is(.dalle-simple, .dalle-intermediaire) > .guide-mot`) — une exception par
+écran aurait laissé Destiny cassé. Sur fond opaque, l'encre douce tient ses 4,5
+et ne bouge pas.
+⛔ **C'est CADRES §8, déjà écrit** : *« un habillage qui passe en verre ne peut
+pas garder son texte gris »*.
+
+---
+
+## 6 pré ter. 🔲 **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(norme, 2026-09-04)*
+
+> 📌 **C'est la MESURE du SACRÉ n° 3**, pas un second énoncé : la règle est
+> dictée plus haut (§ sacré n° 3) ; ici on montre ce qu'elle coûte et comment on
+> la tient, relevé sur R Abilities. ⛔ Une règle énoncée deux fois est deux règles.
 
 > Eric, en refaisant **R Abilities** : *« désormais tout est dans une boîte, toutes les boîtes sont
 > sur une grille **y compris les boutons**. Et dès qu'il y a du texte c'est dans une boîte. »* ·
@@ -2555,39 +2765,6 @@ leçon que `data-rangs` (§1 ter bis) : *« la forme sûre est un attribut, qui 
 à tous les cas la MÊME spécificité »*. ⛔ **Un cinquième nom de classe est
 désormais le signe qu'on recommence**, exactement comme la quatrième colonne
 l'était pour §6 pré.
-
-### 🔵 AMENDEMENT DE L'AIGUILLEUR — **sur du verre, il écrit en `--text`**
-
-> Eric, le même jour : *« le texte en dessous, ça devrait être en bleu :
-> l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin d'une boîte texte de
-> 3 de hauteur. »*
-
-⭐ **IL NE DEMANDE PAS UN ORGANE, IL EN NOMME UN QUI EXISTE.** L'aiguilleur est
-l'une des trois voix de §7, bleu par ratification du 26/08, et sa boîte de **3
-lignes T1** est déjà publiée deux fois dans ce fichier (§ du gabarit d'Elf, § du
-SB1). Son dessin est `.guide-mot`. ⛔ **Il n'a pas de sosie** — `destiny-step.mjs`
-l'avait déjà tranché : *« C'EST `.guide-mot`, L'ORGANE DU RANG B, PAS UN
-SOSIE »*. ⚠️ Et `.aiguilleur` est **un autre objet** : le recouvrement plein
-écran d'Équipement. Une classe de ce nom posée sur un paragraphe a rendu
-**375 × 500 blg** au banc — le commentaire de §7 l'interdisait déjà par écrit,
-c'est la MESURE qui l'a fait lire.
-
-🔴 **CE QUI EST NEUF EST UNE MESURE, PAS UN GOÛT.** Relevé sur la page rendue,
-sur le rendu **cumulé** (image de fond + voile 35 % + lavis d'info) :
-
-| | encre `--text-soft` | encre `--text` |
-|---|---|---|
-| **jour** | **2,63:1** ⛔ | **5,51:1** ✅ |
-| **nuit** | **2,74:1** ⛔ | **5,68:1** ✅ |
-
-pour une cible de **4,5**. ⭐ **Et le défaut n'est pas né avec R Abilities** :
-l'organe vit déjà sur une `dalle-simple` à **Destiny R** et à son écran final.
-La réparation est donc à l'**organe**, conditionnée au **voile**
-(`:is(.dalle-simple, .dalle-intermediaire) > .guide-mot`) — une exception par
-écran aurait laissé Destiny cassé. Sur fond opaque, l'encre douce tient ses 4,5
-et ne bouge pas.
-⛔ **C'est CADRES §8, déjà écrit** : *« un habillage qui passe en verre ne peut
-pas garder son texte gris »*.
 
 ---
 

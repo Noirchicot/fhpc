@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=546";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=546";
-import { mountPopup } from "./popup.mjs?v=546";
-import { renderLorePanel } from "./lore.mjs?v=546";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=546";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=547";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=547";
+import { mountPopup } from "./popup.mjs?v=547";
+import { renderLorePanel } from "./lore.mjs?v=547";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=547";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=546";
-import { STEPS } from "./etapes.mjs?v=546";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=546";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=547";
+import { STEPS } from "./etapes.mjs?v=547";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=547";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=546";
+} from "./tutoriel.mjs?v=547";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=546";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=547";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=546";
+} from "./echelle.mjs?v=547";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=546";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=547";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=546";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=546";
+} from "./fonds.mjs?v=547";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=546";
-import { renderChoixGlisses } from "./glisser.mjs?v=546";
-import { renderConceptStep } from "./concept-step.mjs?v=546";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=546";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=546";
+import { planAt, planSlots } from "./carnet.mjs?v=547";
+import { renderChoixGlisses } from "./glisser.mjs?v=547";
+import { renderConceptStep } from "./concept-step.mjs?v=547";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=547";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=547";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=546";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=546";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=546";
+} from "./catalogue.mjs?v=547";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=547";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=547";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=546";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=546";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=547";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=547";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=546";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=547";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=546";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=546";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=546";
+} from "./destiny-step.mjs?v=547";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=547";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=547";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=546";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=546";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=547";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=547";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=546";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=547";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=546";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=546";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=547";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=546";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=546";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=547";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=547";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=546";
+import { versionQuery } from "./version.mjs?v=547";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2176,7 +2176,11 @@ function renderStepContent() {
       hote.append(point);
     }
   }
-  cadrerLesRangees(card);
+  /* ⛔ PLUS DE CADRAGE AU RENDU DE LA CARTE — retiré le 2026-09-05. Il courait
+     AVANT que `poserLaSortie` greffe sa rangée, donc il cadrait un état
+     incomplet et laissait la moitié des organes dehors. Le point d'entrée
+     (`cadrerLesRangees(frame.stage)`) le fait une fois le DOM assemblé.
+     ⭐ *Un seul point de passage, et il est le DERNIER.* */
   effacerLesTitresEnDouble(card);
   return card;
 }
@@ -4028,9 +4032,19 @@ function poserLaSortie(contenu, sortie) {
  *  ⛔ Ne pas remettre une lecture ici « au cas où » : deux écrivains sur une
  *  même place, c'est le défaut que ce lot vient de retirer. */
 function garnirLaSortie(hote, sortie) {
-  /* 🔴 LE CADRAGE SE FAIT ICI AUSSI, une fois la rangée montée — et pas
-     seulement au rendu de la carte : cette rangée-ci est greffée APRÈS elle. */
-  cadrerUneRangee(sortie);
+  /* ⛔ PLUS RIEN ICI, ET C'EST LA CONVERGENCE DE DEUX TRAVAUX D'UN JOUR D'ÉCART.
+     ⑴ Les deux LECTURES qui posaient le livre et le `?` sont mortes le 04/09 :
+     `poserLesBornes` les tient une fois pour tout le site, depuis la DERNIÈRE
+     rangée. Ne pas en remettre une « au cas où » — deux écrivains sur une même
+     place, c'est très exactement le défaut que ce lot a retiré.
+     ⑵ Et le CADRAGE a été retiré le 05/09, sur une mesure de B2 : il cadrait la
+     sortie À LA CONSTRUCTION, donc avant de savoir si elle allait être greffée
+     DANS une autre rangée — et il y fabriquait un second groupe imbriqué.
+     ⭐ `cadrerLesRangees(frame.stage)` fait le travail une fois le DOM assemblé,
+     le seul moment où l'imbrication est connaissable. *Un traitement posé à la
+     construction juge sur un état qui n'est pas encore le bon.*
+     🔴 Les deux moitiés viennent de deux sièges qui ne se voyaient pas, et elles
+     disent la même chose : `garnirLaSortie` GREFFE, elle ne place rien. */
   hote.append(sortie);
 }
 
@@ -4069,21 +4083,83 @@ const BORNES = ".fiche-livre, .tuto-point";
  *  celui de Skills était écrasé à **44×44**, libellé invisible — il tombait dans
  *  la colonne d'une borne faute de groupe pour le porter. */
 function cadrerUneRangee(rangee) {
-  /* Idempotent : repeindre deux fois ne doit pas emboîter deux groupes. */
-  if (rangee.querySelector(":scope > .rangee-majeurs")) return;
-  const majeurs = [...rangee.children].filter((n) => !n.matches(BORNES));
+  /* 🔴 IDEMPOTENT **ET COMPLÉTANT** — ce n'est pas la même chose, et la
+     différence a coûté un tour. Un simple `return` quand un groupe existe déjà
+     laissait la rangée À MOITIÉ cadrée : sur B2, la carte est cadrée d'abord
+     (le groupe reçoit `Choose`), PUIS `poserLaSortie` greffe la sortie dans
+     cette même rangée. Au passage suivant, le groupe existait — donc on rendait
+     la main, et `Cancel`, le livre et le `?` restaient dehors.
+     ⭐ On REPREND le groupe en place et on y verse ce qui manque. Repeindre
+     deux fois ne doit ni emboîter ni figer un état partiel. */
+  const dejaLa = rangee.querySelector(":scope > .rangee-majeurs");
+  /* 🔴 UNE BOÎTE `display: contents` EST TRANSPARENTE À L'ŒIL, PAS AU DOM.
+     ⛔ Mesuré sur B2 le 2026-09-05 : la rangée porte un `.sortie` dissous par
+     `display: contents` — ses enfants (le retour, le `?`) s'affichent comme
+     enfants de la rangée, mais `rangee.children` rend la BOÎTE. Elle n'est pas
+     une borne, elle entrait donc dans le groupe AVEC le `?` dedans, et le
+     groupe se centrait 43 blg à gauche.
+     ⭐ On l'aplatit ici, à la lecture : ce que l'écran voit comme un enfant de
+     la rangée, le cadrage doit le voir pareil. */
+  const enfants = [...rangee.children].flatMap((n) => (n.matches(".sortie") ? [...n.children] : [n]));
+  const majeurs = enfants.filter((n) => !n.matches(BORNES) && !n.matches(".rangee-majeurs"));
   if (majeurs.length === 0) return;
-  const groupe = el("div", "rangee-majeurs");
+  /* 🔴 LES BORNES REMONTENT DANS LA RANGÉE, elles aussi — et ce n'est pas du
+     zèle. Mesuré sur B2 le 2026-09-05 : une `.sortie` en `display: contents`
+     disparaît de la MISE EN PAGE mais reste le parent DOM de ses enfants. Le
+     sélecteur `rangée > borne` ne les atteignait donc pas, le `?` se plaçait
+     tout seul et le groupe se centrait **43 blg trop à gauche**.
+     ⭐ On aligne le DOM sur ce que l'œil voit, une fois pour toutes : après ce
+     geste, `display: contents` n'a plus rien à dissoudre et aucune règle n'a
+     besoin de connaître son existence. *Une boîte transparente à l'œil et
+     opaque au sélecteur est un piège qui se retend à chaque écran.* */
+  enfants.filter((n) => n.matches(BORNES)).forEach((n) => rangee.append(n));
+  const groupe = dejaLa || el("div", "rangee-majeurs");
   /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
      groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
      suivrait le DOM, pas l'écran. */
-  rangee.insertBefore(groupe, majeurs[0]);
+  /* ⛔ `insertBefore` VEUT UN ENFANT DIRECT — et `majeurs[0]` n'en est pas
+     toujours un : quand il vient d'une `.sortie` aplatie, il est petit-fils.
+     L'appel LÈVE alors, et le cadrage s'arrête net pour tout l'écran, sans un
+     mot. Mesuré sur le SB « Ability boosts » en v529 : `Cancel` et `Done`
+     superposés, livre et `?` justes — la moitié du travail faite, l'autre
+     avortée par une exception que personne n'attrape.
+     ⭐ On remonte donc jusqu'à l'enfant direct qui le PORTE. Et s'il n'y en a
+     pas, on ajoute en fin plutôt que de jeter : *un placement approximatif est
+     réparable, une exception silencieuse ne l'est pas.* */
+  if (!groupe.isConnected) {
+    let ancre = majeurs[0];
+    while (ancre && ancre.parentElement !== rangee) ancre = ancre.parentElement;
+    if (ancre) rangee.insertBefore(groupe, ancre); else rangee.append(groupe);
+  }
   majeurs.forEach((n) => groupe.append(n));
 }
 /** 🔴 LES CINQ RANGÉES, ÉNUMÉRÉES UNE SEULE FOIS DANS TOUT LE FICHIER.
  *  Deux lectures existaient, et elles ne portaient pas la même liste : celle du
  *  `?` ignorait `.card-pied`. Une liste recopiée est une liste qui divergera. */
 const RANGEES = ".parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]";
+
+/** 🔴 LES RANGÉES **EXTÉRIEURES** — une rangée imbriquée dans une rangée n'en est
+ *  pas une. Mesuré sur B2 le 2026-09-05 : sa `.parcours-pied` CONTIENT une
+ *  `.sortie` (dissoute par `display: contents`), les deux répondent au même
+ *  sélecteur, et le cadrage fabriquait DEUX `.rangee-majeurs` emboîtés —
+ *  `Choose | livre | Cancel | ?`, groupe décentré de **43 blg**.
+ *  ⭐ Seule l'EXTÉRIEURE compte : c'est elle qui porte la grille, donc elle
+ *  seule décide des places. L'intérieure est un contenant de transport, et son
+ *  contenu est déjà aplati par `cadrerUneRangee`.
+ *
+ *  🔴 ET C'EST ÉCRIT ICI, UNE FOIS, PARCE QUE DEUX LECTEURS EN DÉPENDENT —
+ *  le cadrage ET `derniereRangee`. La garde est née le 05/09 dans la boucle du
+ *  cadrage seule ; `poserLesBornes`, arrivé du 04/09 par un autre siège, prend
+ *  la DERNIÈRE rangée d'un périmètre — et sur B2 la dernière au sens du document
+ *  est l'INTÉRIEURE. Les deux bornes seraient descendues dans le contenant de
+ *  transport. ⭐ *Une règle vraie à deux endroits qui n'est écrite qu'à un seul
+ *  est fausse au second dès que le cas qui les sépare arrive.* */
+function rangeesDe(racine) {
+  if (!racine || typeof racine.querySelectorAll !== "function") return [];
+  return [...racine.querySelectorAll(RANGEES)]
+    .filter((r) => !(r.parentElement && r.parentElement.closest(RANGEES)));
+}
+
 
 /** 🔴 LA **DERNIÈRE** RANGÉE D'UN PÉRIMÈTRE — jamais la première.
  *
@@ -4095,8 +4171,7 @@ const RANGEES = ".parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rang
  *  ⭐ Écrit dans ce sens, un écran à trois rangées est servi sans qu'on y
  *  revienne ; écrit à l'envers, il l'aurait été de travers en silence. */
 function derniereRangee(perimetre) {
-  if (!perimetre || typeof perimetre.querySelectorAll !== "function") return null;
-  const toutes = perimetre.querySelectorAll(RANGEES);
+  const toutes = rangeesDe(perimetre);
   return toutes.length > 0 ? toutes[toutes.length - 1] : null;
 }
 
@@ -4155,7 +4230,7 @@ function poserLesBornes(racine) {
 
 function cadrerLesRangees(racine) {
   poserLesBornes(racine);
-  for (const rangee of racine.querySelectorAll(RANGEES)) {
+  for (const rangee of rangeesDe(racine)) {
     cadrerUneRangee(rangee);
   }
 }

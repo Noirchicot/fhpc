@@ -139,9 +139,23 @@ test("C — CHAQUE dalle de Destiny se rembourre comme la dalle du rang B", () =
        bornée n'est plus une exception, c'est une porte — et la nuit du 03/09 a
        vu cette cote valoir 42, 40, 38, 33 puis 42 % en six heures.
        ⭐ CE QUI GARDE TOUTE SA MORSURE : le HAUT et la GAUCHE, strictement. */
+    /* 📌 ⚖️ ÉLARGI LE 2026-09-05 — LA GAUCHE CÈDE À SON TOUR. Eric : *« la dalle
+       SB2 n'a pas de problèmes, mais tu peux rendre le rembourrage symétrique à
+       8 blg de chaque côté »*. L'entorse des 16 à gauche est LEVÉE, pas
+       assouplie : le garde exigeait `--sp-16` à gauche et refusait donc une
+       dalle SYMÉTRIQUE — c'est-à-dire la forme qu'Eric vient de demander.
+       📏 CE QUE LE 16 COÛTAIT, MESURÉ : la rangée de boutons est fille de la
+       dalle, donc elle héritait de ce 16/8. Elle rendait 343 blg dans une dalle
+       de 367 et son groupe se centrait **4 blg à gauche** du milieu — le seul
+       écran du site où le centre n'était pas exact. *Une rangée centrée dans
+       une boîte décentrée est décentrée*, et aucun réglage de la rangée ne
+       pouvait le rattraper.
+       ⭐ CE QUI GARDE TOUTE SA MORSURE : le HAUT, strictement. Et les trois
+       autres côtés ne s'ouvrent pas sur « n'importe quoi » — ils valent le
+       témoin OU `var(--sp-8)`, épelé. Une exception non bornée est une porte. */
     const cote = (p, i) => { const t = p.split(/\s+/); return (t.length === 2 ? [t[0], t[1], t[0], t[1]] : t)[i]; };
-    const bordsTenus = [0, 3].every((i) => cote(pose, i) === cote(temoin, i));
-    const cessions = [1, 2].every((i) => cote(pose, i) === cote(temoin, i) || cote(pose, i) === "var(--sp-8)");
+    const bordsTenus = [0].every((i) => cote(pose, i) === cote(temoin, i));
+    const cessions = [1, 2, 3].every((i) => cote(pose, i) === cote(temoin, i) || cote(pose, i) === "var(--sp-8)");
     if (pose !== temoin && bordsTenus && cessions) continue;
     assert.equal(pose, temoin,
       `${dalle} rembourre en « ${pose} » là où la dalle du rang B rembourre en « ${temoin} ». ` +
