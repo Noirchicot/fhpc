@@ -97,10 +97,22 @@ test("C — le rembourrage de la dalle tient le rang B sur trois côtés, et la 
   assert.ok(cote(pad, 2) === cote(temoin, 2) || cote(pad, 2) === "var(--sp-8)",
     `le BAS vaut « ${cote(pad, 2)} » ici, « ${cote(temoin, 2)} » au rang B, et la seule cession ` +
     "admise est `var(--sp-8)` — la cote qu'Eric a dictée le 03/09.");
-  assert.equal(cote(pad, 3), cote(temoin, 3),
-    `la GAUCHE vaut « ${cote(pad, 3)} » ici et « ${cote(temoin, 3)} » au rang B — elle ne cède pas. ` +
-    "Le haut et la gauche ne cèdent jamais ; la droite et le bas sont deux exceptions " +
-    "nommées, datées, et toutes deux bornées à `var(--sp-8)`.");
+  /* 📌 ⚖️ ÉLARGI LE 2026-09-05 — LA GAUCHE CÈDE À SON TOUR, sur ordre d'Eric :
+     *« tu peux rendre le rembourrage symétrique à 8 blg de chaque côté »*.
+     ⛔ CE GARDE REFUSAIT UNE DALLE SYMÉTRIQUE — c'est-à-dire exactement la forme
+     demandée. Il avait raison hier (l'entorse était le 16 à gauche) et tort
+     aujourd'hui : ce n'est pas une exception de plus, c'est la LEVÉE de
+     l'exception.
+     📏 CE QUE LE 16 COÛTAIT : la rangée de boutons est fille de la dalle et
+     héritait de ce 16/8 — 343 blg dans une dalle de 367, groupe centré **4 blg
+     trop à gauche**. Le seul écran du site où le centre n'était pas exact.
+     *Une rangée centrée dans une boîte décentrée est décentrée.*
+     ⭐ CE QUI GARDE SA MORSURE : le HAUT, strictement. Et la gauche reste
+     BORNÉE — le témoin OU `var(--sp-8)`, épelé, jamais « n'importe quoi ». */
+  assert.ok(cote(pad, 3) === cote(temoin, 3) || cote(pad, 3) === "var(--sp-8)",
+    `la GAUCHE vaut « ${cote(pad, 3)} » ici et « ${cote(temoin, 3)} » au rang B — les deux seules ` +
+    "valeurs admises sont celle du rang B et `var(--sp-8)`, la symétrie dictée le 2026-09-05. " +
+    "Le HAUT, lui, ne cède jamais.");
 });
 
 test("D — l'écart entre blocs a UN seul écrivain, et c'est le gap", () => {
@@ -129,7 +141,16 @@ test("E — la grille protège la colonne de texte par un plancher", () => {
      `height: 100%` réclamait une largeur proportionnelle, la colonne `auto` la
      lui donnait, et `1fr` s'écrasait — le texte disparaissait sous l'image. */
   const cols = declaration(".card-final-corps", "grid-template-columns");
-  assert.match(cols, /minmax\(\s*\d+px\s*,\s*1fr\s*\)\s+auto/,
+  /* 📌 ⚖️ ÉLARGI LE 2026-09-05 : le plancher peut être un JETON. B2 est sorti du
+     `zoom` (Eric : *« tout en T1 »*), et son plancher n'est plus le même que
+     celui de SB2 — 180 sous un zoom de 0,765 peignait 137, et sans zoom il faut
+     écrire ce que l'œil recevait. Un rang le change donc par un jeton au lieu
+     de recopier la règle entière.
+     ⭐ CE QUE LE GARDE EXIGE N'A PAS BOUGÉ : la forme `minmax(<plancher>, 1fr)
+     auto` — c'est elle qui casse le cycle largeur/hauteur. Seule la façon
+     d'écrire le plancher s'ouvre, et elle reste bornée : un nombre en px OU un
+     `var()`, jamais `auto` ni `min-content`, qui rouvriraient le cycle. */
+  assert.match(cols, /minmax\(\s*(?:\d+px|var\(--[\w-]+(?:\s*,\s*\d+px)?\))\s*,\s*1fr\s*\)\s+auto/,
     `la grille déclare « ${cols} ». Elle doit être \`minmax(<plancher>, 1fr) auto\` : la hauteur ` +
     "de la carte dépend de celle du texte, qui dépend de sa largeur, qui dépend de ce que la carte " +
     "lui laisse. `minmax()` casse ce cycle par le bas ; sans lui la colonne s'écrase à 0.");

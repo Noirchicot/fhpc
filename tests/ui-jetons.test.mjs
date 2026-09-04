@@ -96,13 +96,43 @@ const tokensCssRaw = fs.readFileSync(TOKENS_CSS_PATH, "utf8");
 const BARREAU = String.raw`var\(--t[1-7]\)`;
 const MULTIPLE_DE_BARREAU = new RegExp(String.raw`^calc\(\s*${BARREAU}\s*\*\s*[\d.]+\s*\)$`);
 
+/* 📌 ⚖️ ÉLARGI LE 2026-09-05 — LE GARDE SUIT LE JETON JUSQU'À SON BARREAU.
+   Eric a demandé que le rang B2 descende d'un cran sans qu'on reprenne les
+   organes un par un : *« comme ça on n'a pas un mouton à cinq pattes »*. La
+   feuille pose donc `--corps-fiche: var(--t2)` sur la dalle, les organes lisent
+   ce jeton, et un rang qui veut un autre barreau change UN nombre.
+   ⛔ CE GARDE REFUSAIT CETTE ÉCRITURE : il exigeait `var(--t1..7)` ÉPELÉ dans
+   le `font-size` et ne voyait pas une indirection — il était donc plus strict
+   que la loi qu'il protège, exactement comme en août avec `calc(var(--t5) * 1.5)`.
+   ⭐ IL N'EST PAS ASSOUPLI, IL EST PLUS FIN : un jeton n'est admis que si TOUTES
+   ses déclarations dans la feuille sont elles-mêmes des barreaux. Un jeton qui
+   vaudrait `13px` quelque part reste une violation, et un jeton jamais déclaré
+   aussi — c'est le cas « une absence n'est pas une réponse ».
+   ⛔ UN SEUL SAUT : on ne suit pas une chaîne de jetons. Deux indirections
+   cachent la valeur au lecteur autant qu'un nombre en dur. */
+function jetonsQuiValentUnBarreau(text) {
+  const bons = new Set();
+  const tous = new Map();
+  for (const m of text.matchAll(/(--[\w-]+)\s*:\s*([^;{}]+);/g)) {
+    const nom = m[1].trim(), val = m[2].trim();
+    if (!tous.has(nom)) tous.set(nom, []);
+    tous.get(nom).push(val);
+  }
+  for (const [nom, valeurs] of tous) {
+    if (valeurs.every((v) => new RegExp(`^${BARREAU}$`).test(v))) bons.add(nom);
+  }
+  return bons;
+}
 function fontSizeViolations(cssText) {
   const text = stripComments(cssText);
+  const jetons = jetonsQuiValentUnBarreau(text);
   const hits = [];
   for (const match of text.matchAll(/font-size\s*:\s*([^;]+);/g)) {
     const value = match[1].trim();
     if (new RegExp(`^${BARREAU}$`).test(value)) continue;
     if (MULTIPLE_DE_BARREAU.test(value)) continue;
+    const indirect = /^var\((--[\w-]+)\)$/.exec(value);
+    if (indirect && jetons.has(indirect[1])) continue;
     hits.push(value);
   }
   return hits;

@@ -866,7 +866,20 @@ test("18 — le cadrage des rangées se fait à l'entrée dans le document", () 
      borne entre dans `.rangee-majeurs`. Le garde lit la LOI, pas le résultat. */
   assert.match(t, /const BORNES = "\.fiche-livre, \.tuto-point";/,
     "les deux bornes sont nommées une seule fois");
-  assert.match(t, /const majeurs = \[\.\.\.rangee\.children\]\.filter\(\(n\) => !n\.matches\(BORNES\)\);/,
+  /* 📌 ANCRE ÉLARGIE LE 2026-09-05 : la LISTE lue a changé — elle aplatit
+     désormais les boîtes `display: contents` (une `.sortie` dissoute affiche ses
+     enfants comme enfants de la rangée, mais `children` rend la BOÎTE ; elle
+     entrait donc dans le groupe avec le `?` dedans, groupe décentré de 43 blg).
+     ⭐ CE QUE LE GARDE EXIGE N'A PAS BOUGÉ D'UN POUCE : le FILTRE est
+     exactement `!n.matches(BORNES)`, sans condition ajoutée. C'est la loi —
+     tout ce qui n'est pas une borne entre dans le groupe. Ce qui change est la
+     SOURCE de la liste, pas le critère. */
+  /* 📌 ANCRE RÉÉLARGIE LE 2026-09-05 : le filtre exclut aussi le GROUPE lui-même,
+     parce que le cadrage est devenu complétant — il reprend un groupe existant
+     au lieu de rendre la main, et sans cette exclusion il se remettrait dedans.
+     ⭐ La LOI ne bouge pas : `!n.matches(BORNES)` reste le critère, et la seule
+     exclusion tolérée est celle du contenant lui-même — jamais un organe. */
+  assert.match(t, /const majeurs = [A-Za-z\[\].\s]*\.filter\(\(n\) => !n\.matches\(BORNES\)(?: && !n\.matches\("\.rangee-majeurs"\))?\);/,
     "⛔ TOUT ce qui n'est pas une borne entre dans le groupe — sans exception listée : " +
     "une exception par nom se périme au premier organe neuf (leçon `Draw`/`Choose`, même classe).");
 });

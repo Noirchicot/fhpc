@@ -2174,7 +2174,11 @@ function renderStepContent() {
       (rangee || hote).append(point);
     }
   }
-  cadrerLesRangees(card);
+  /* ⛔ PLUS DE CADRAGE AU RENDU DE LA CARTE — retiré le 2026-09-05. Il courait
+     AVANT que `poserLaSortie` greffe sa rangée, donc il cadrait un état
+     incomplet et laissait la moitié des organes dehors. Le point d'entrée
+     (`cadrerLesRangees(frame.stage)`) le fait une fois le DOM assemblé.
+     ⭐ *Un seul point de passage, et il est le DERNIER.* */
   effacerLesTitresEnDouble(card);
   return card;
 }
@@ -4033,9 +4037,14 @@ function garnirLaSortie(hote, sortie) {
     .map((n) => n.querySelector(":scope > .tuto-point"))
     .find(Boolean);
   if (interro) sortie.append(interro);
-  /* 🔴 LE CADRAGE SE FAIT ICI, une fois les deux bornes en place — et pas
-     seulement au rendu de la carte : cette rangée-ci est greffée APRÈS elle. */
-  cadrerUneRangee(sortie);
+  /* ⛔ PLUS DE CADRAGE ICI — retiré le 2026-09-05. Il cadrait la sortie À LA
+     CONSTRUCTION, donc AVANT de savoir si elle allait être greffée DANS une
+     autre rangée. Sur B2 c'est exactement ce qui arrive, et le cadrage y
+     fabriquait un second groupe imbriqué.
+     ⭐ Le point d'entrée (`cadrerLesRangees(frame.stage)`) fait le travail une
+     fois le DOM assemblé — c'est-à-dire au seul moment où l'imbrication est
+     connaissable. *Un traitement posé à la construction juge sur un état qui
+     n'est pas encore le bon.* */
   hote.append(sortie);
 }
 
@@ -4074,19 +4083,56 @@ const BORNES = ".fiche-livre, .tuto-point";
  *  celui de Skills était écrasé à **44×44**, libellé invisible — il tombait dans
  *  la colonne d'une borne faute de groupe pour le porter. */
 function cadrerUneRangee(rangee) {
-  /* Idempotent : repeindre deux fois ne doit pas emboîter deux groupes. */
-  if (rangee.querySelector(":scope > .rangee-majeurs")) return;
-  const majeurs = [...rangee.children].filter((n) => !n.matches(BORNES));
+  /* 🔴 IDEMPOTENT **ET COMPLÉTANT** — ce n'est pas la même chose, et la
+     différence a coûté un tour. Un simple `return` quand un groupe existe déjà
+     laissait la rangée À MOITIÉ cadrée : sur B2, la carte est cadrée d'abord
+     (le groupe reçoit `Choose`), PUIS `poserLaSortie` greffe la sortie dans
+     cette même rangée. Au passage suivant, le groupe existait — donc on rendait
+     la main, et `Cancel`, le livre et le `?` restaient dehors.
+     ⭐ On REPREND le groupe en place et on y verse ce qui manque. Repeindre
+     deux fois ne doit ni emboîter ni figer un état partiel. */
+  const dejaLa = rangee.querySelector(":scope > .rangee-majeurs");
+  /* 🔴 UNE BOÎTE `display: contents` EST TRANSPARENTE À L'ŒIL, PAS AU DOM.
+     ⛔ Mesuré sur B2 le 2026-09-05 : la rangée porte un `.sortie` dissous par
+     `display: contents` — ses enfants (le retour, le `?`) s'affichent comme
+     enfants de la rangée, mais `rangee.children` rend la BOÎTE. Elle n'est pas
+     une borne, elle entrait donc dans le groupe AVEC le `?` dedans, et le
+     groupe se centrait 43 blg à gauche.
+     ⭐ On l'aplatit ici, à la lecture : ce que l'écran voit comme un enfant de
+     la rangée, le cadrage doit le voir pareil. */
+  const enfants = [...rangee.children].flatMap((n) => (n.matches(".sortie") ? [...n.children] : [n]));
+  const majeurs = enfants.filter((n) => !n.matches(BORNES) && !n.matches(".rangee-majeurs"));
   if (majeurs.length === 0) return;
-  const groupe = el("div", "rangee-majeurs");
+  /* 🔴 LES BORNES REMONTENT DANS LA RANGÉE, elles aussi — et ce n'est pas du
+     zèle. Mesuré sur B2 le 2026-09-05 : une `.sortie` en `display: contents`
+     disparaît de la MISE EN PAGE mais reste le parent DOM de ses enfants. Le
+     sélecteur `rangée > borne` ne les atteignait donc pas, le `?` se plaçait
+     tout seul et le groupe se centrait **43 blg trop à gauche**.
+     ⭐ On aligne le DOM sur ce que l'œil voit, une fois pour toutes : après ce
+     geste, `display: contents` n'a plus rien à dissoudre et aucune règle n'a
+     besoin de connaître son existence. *Une boîte transparente à l'œil et
+     opaque au sélecteur est un piège qui se retend à chaque écran.* */
+  enfants.filter((n) => n.matches(BORNES)).forEach((n) => rangee.append(n));
+  const groupe = dejaLa || el("div", "rangee-majeurs");
   /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
      groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
      suivrait le DOM, pas l'écran. */
-  rangee.insertBefore(groupe, majeurs[0]);
+  if (!groupe.isConnected) rangee.insertBefore(groupe, majeurs[0]);
   majeurs.forEach((n) => groupe.append(n));
 }
+const RANGEES = ".parcours-pied, .sortie, .fiche-actions, .card-pied";
 function cadrerLesRangees(racine) {
-  for (const rangee of racine.querySelectorAll(".parcours-pied, .sortie, .fiche-actions, .card-pied")) {
+  for (const rangee of racine.querySelectorAll(RANGEES)) {
+    /* 🔴 UNE RANGÉE IMBRIQUÉE DANS UNE RANGÉE N'EST PAS UNE RANGÉE — mesuré sur
+       B2 le 2026-09-05. Sa `.parcours-pied` CONTIENT une `.sortie` (dissoute par
+       `display: contents`), et les deux répondent au même sélecteur : le
+       cadrage fabriquait DEUX `.rangee-majeurs` emboîtés, `Cancel` dans celui du
+       dedans et le `?` à côté. Rendu : `Choose | livre | Cancel | ?`, groupe
+       décentré de **43 blg**.
+       ⭐ Seule la rangée EXTÉRIEURE compte : c'est elle qui porte la grille,
+       donc elle seule décide des places. L'intérieure est un contenant de
+       transport, et son contenu est déjà aplati par `cadrerUneRangee`. */
+    if (rangee.parentElement && rangee.parentElement.closest(RANGEES)) continue;
     cadrerUneRangee(rangee);
   }
 }
