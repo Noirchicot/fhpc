@@ -1303,6 +1303,27 @@ jour où le cas qui les sépare arrive.*
 écran **retire du contenu** (§1 quater) ou **descend tout le bloc d'un cran**
 (§1 ter quinquies) — ⛔ il ne rogne pas un sacré.
 
+🔴 **ET IL EST BORNÉ PAR UNE RÈGLE PLUS HAUTE — Eric, 2026-09-05 :**
+
+> **« on fera comme ça désormais, on laisse tout tranquille tant que ça marche »**
+
+⛔ **UN SACRÉ DIT COMMENT ON CONSTRUIT, ⛔ PAS QU'IL FAUT ALLER RÉÉCRIRE CE QUI TOURNE.**
+Un écran conforme par construction est la règle pour tout ce qu'on pose ; un écran qui
+**marche** ne se convertit pas pour la seule raison qu'il n'est pas conforme. La
+conversion d'une dalle existante demande **un défaut mesuré à l'écran**, ou un mot
+d'Eric — jamais un relevé de non-conformité.
+
+⭐ **POURQUOI C'EST UNE RÈGLE ET PAS DE LA PARESSE**, et le chantier venait de le
+démontrer : le relevé du 04/09 nommait huit dalles non conformes et concluait qu'il
+fallait les convertir. Or **chaque conversion se remesure** — passer un écart de 0 à 8 sur
+`card-final` pousse la pire carte d'arcane (498 blg) au-delà des 500 du panneau. ⛔ Une
+mise en conformité qui casse un écran qui marchait n'est pas un progrès : c'est une
+régression avec une bonne raison. *Le coût d'une harmonisation se paie à l'écran, pas dans
+un tableau de conformité.*
+
+📌 Corollaire pour tout lot : une liste de « ce qui n'est pas conforme » est un
+**inventaire**, jamais une **commande**.
+
 ⚠️ **ET CELUI-CI EST UN CHANTIER, PAS UNE CASE À COCHER.** Relevé du 04/09, dalle par
 dalle : **une seule dalle du dépôt est conforme**. `concept-step`, `skills-tete` et
 `skills-group` sont en `display: block` ; `parcours-guide` (Species · Inheritance ·
