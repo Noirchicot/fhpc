@@ -4033,6 +4033,9 @@ function garnirLaSortie(hote, sortie) {
     .map((n) => n.querySelector(":scope > .tuto-point"))
     .find(Boolean);
   if (interro) sortie.append(interro);
+  /* 🔴 LE CADRAGE SE FAIT ICI, une fois les deux bornes en place — et pas
+     seulement au rendu de la carte : cette rangée-ci est greffée APRÈS elle. */
+  cadrerUneRangee(sortie);
   hote.append(sortie);
 }
 
@@ -4063,18 +4066,28 @@ function garnirLaSortie(hote, sortie) {
  *  écran, jamais un genre : une rangée future est servie sans qu'on revienne.
  */
 const BORNES = ".fiche-livre, .tuto-point";
+/** Une rangée. ⚠️ Séparée de `cadrerLesRangees` parce qu'une rangée peut naître
+ *  APRÈS la carte : `poserLaSortie` greffe `.sortie` sur un contenu déjà rendu,
+ *  donc un cadrage qui ne balaie que la carte ne la voit jamais.
+ *  📏 CE QUE ÇA A DONNÉ EN LIGNE, mesuré à l'audit du 04/09 : le `Done`
+ *  d'Identity s'étirait à **263 blg** (il occupait seul la colonne `1fr`) et
+ *  celui de Skills était écrasé à **44×44**, libellé invisible — il tombait dans
+ *  la colonne d'une borne faute de groupe pour le porter. */
+function cadrerUneRangee(rangee) {
+  /* Idempotent : repeindre deux fois ne doit pas emboîter deux groupes. */
+  if (rangee.querySelector(":scope > .rangee-majeurs")) return;
+  const majeurs = [...rangee.children].filter((n) => !n.matches(BORNES));
+  if (majeurs.length === 0) return;
+  const groupe = el("div", "rangee-majeurs");
+  /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
+     groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
+     suivrait le DOM, pas l'écran. */
+  rangee.insertBefore(groupe, majeurs[0]);
+  majeurs.forEach((n) => groupe.append(n));
+}
 function cadrerLesRangees(racine) {
   for (const rangee of racine.querySelectorAll(".parcours-pied, .sortie, .fiche-actions, .card-pied")) {
-    /* Idempotent : repeindre deux fois ne doit pas emboîter deux groupes. */
-    if (rangee.querySelector(":scope > .rangee-majeurs")) continue;
-    const majeurs = [...rangee.children].filter((n) => !n.matches(BORNES));
-    if (majeurs.length === 0) continue;
-    const groupe = el("div", "rangee-majeurs");
-    /* ⚠️ INSÉRÉ À LA PLACE DU PREMIER MAJEUR, pas ajouté à la fin : sinon le
-       groupe passerait APRÈS le `?` dans le flux, et l'ordre du clavier
-       suivrait le DOM, pas l'écran. */
-    rangee.insertBefore(groupe, majeurs[0]);
-    majeurs.forEach((n) => groupe.append(n));
+    cadrerUneRangee(rangee);
   }
 }
 
