@@ -1224,14 +1224,35 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 > conversation. Le texte ci-dessous est donc **la règle**, pas un compte rendu ; le code
 > qui l'appliquait, lui, reste à refaire ou à récupérer.
 
-🔴 **LA LOI, EN QUATRE CLAUSES.** Le `?` et le livre :
+> ⭐ **DICTÉE MOT POUR MOT PAR ERIC LE 2026-09-05**, et c'est cette version qui fait foi :
+> *« les boutons tj en bas, toujours bouton(s) cadré centre, duo ? et livre cadrés à d et
+> a g dans une cellule à 8 blg du bas de la dalle »*.
+> ⚠️ Elle **corrige** le tirage que j'avais fait du rapport : j'avais écrit « 8 blg du
+> **bord** de la dalle » et j'avais **omis « toujours en bas »**. Un bord n'est pas le
+> bas, et « en bas » n'est pas une conséquence — c'est une clause.
+
+🔴 **LA LOI, EN CINQ CLAUSES.**
 
 | | |
 |---|---|
-| **où** | dans la **DERNIÈRE** rangée de contrôles de l'écran — pas la première |
-| **combien** | **une seule fois par écran**, ⛔ pas par dalle |
-| **dans quoi** | une cellule d'une rangée **qui porte au moins un bouton majeur** |
-| **à quelle distance** | **8 blg** du bord de la dalle, cadrés à gauche et à droite |
+| **la rangée** | **TOUJOURS EN BAS** de la dalle — ⛔ ce n'est pas une conséquence de l'ordre du DOM, c'est une clause |
+| **les majeurs** | **toujours cadrés au CENTRE**, un ou plusieurs, c'est le GROUPE qui se centre |
+| **le duo** | `?` et livre **cadrés à droite et à gauche**, dans une **cellule** de cette rangée |
+| **à quelle distance** | **8 blg du BAS de la dalle** |
+| **combien** | **UNE FOIS DANS UN ÉCRAN** — Eric, 05/09, confirmé une seconde fois — ⛔ pas par dalle · et dans la **DERNIÈRE** rangée |
+
+⛔ **« UNE FOIS DANS UN ÉCRAN » A ÉTÉ REDIT, ET CE N'EST PAS UNE REDITE.** Eric l'avait
+déjà dit le 04/09 ; il l'a répété seul, le 05/09, après avoir dicté le reste. Une clause
+qu'on répète est une clause qu'on a vue se faire contourner. ⛔ Elle ferme la lecture
+« une pastille par fiche » que le 03/09 pouvait laisser croire.
+
+⭐ **ET « TOUJOURS EN BAS » TRANCHE UNE QUESTION QU'ON CROYAIT OUVERTE.** Le rapport du
+04/09 posait à l'architecte un arbitrage entre *« une seule fois par écran »* et le
+catalogue à rail — fallait-il une pastille par fiche, ou une dalle flottante ? La phrase
+d'Eric ferme la question **par le haut** : la rangée de boutons est **en bas de la
+dalle**, et le duo est **dans cette rangée**. Il n'y a donc pas de duo à placer
+séparément, ni de dalle flottante à inventer : *le duo suit les boutons, et les boutons
+sont toujours au même endroit.*
 
 ⛔ **ET « LA DERNIÈRE » N'EST PAS UN DÉTAIL DE RÉDACTION — C'EST LE CŒUR.** Tant qu'un
 écran ne portait **qu'une** rangée, « la première » et « la dernière » désignaient le
