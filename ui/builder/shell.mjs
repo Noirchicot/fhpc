@@ -4335,6 +4335,20 @@ function refresh() {
   paintTopbar();
   paintPopup();
   swapContent(frame.stage, poserLaSortie(renderStepContent(), renderSortieEtape()));
+  /* 🔴 LE CADRAGE SE FAIT ICI, ET SEULEMENT ICI — au moment où le contenu ENTRE
+     DANS LE DOCUMENT. Eric, 2026-09-04, après trois réparations partielles :
+     *« c'est toujours pas bon »*.
+     ⛔ CE QUE LES DEUX POINTS PRÉCÉDENTS RATAIENT : `renderCard` ne voit pas une
+     rangée greffée après lui, et `garnirLaSortie` n'est PAS TRAVERSÉ quand
+     `poserLaSortie` sort par son retour anticipé (`hotes.length === 0`) — c'est
+     le cas de Skills, dont la rangée part en frère de la carte et arrive à la
+     scène sans être passée par aucun des deux. Mesuré : `Done` à **44×44**,
+     `scrollWidth` 55 pour `clientWidth` 44, libellé rogné.
+     ⭐ ET C'EST MA PROPRE LOI D'UN CRAN PLUS HAUT : *un besoin satisfait
+     plusieurs fois n'est pas plus sûr, c'est autant d'occasions de diverger.*
+     Un seul point de passage obligé, et tout chemin futur y passera aussi sans
+     qu'on ait à y penser. */
+  cadrerLesRangees(frame.stage);
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`

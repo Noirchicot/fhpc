@@ -836,3 +836,37 @@ test("22 — 🔴 LE PERSONNAGE SURVIT AU RECHARGEMENT, et la sauvegarde se voit
   assert.doesNotMatch(universeText, /localStorage/,
     "⛔ aucun écran ne lit le magasin lui-même");
 });
+
+/* ══ 18. 🔲 TOUTE RANGÉE DE CONTRÔLES EST CADRÉE, PAR UN SEUL POINT ═══════════
+   Eric, 2026-09-04, après TROIS réparations partielles : *« c'est toujours pas
+   bon »*. Le défaut a survécu deux fois parce que le cadrage était posé là où
+   on CONSTRUIT une rangée, et qu'il existait à chaque fois un chemin de plus.
+
+   📏 CE QUE ÇA DONNAIT, MESURÉ EN LIGNE EN v527 : sur Skills, `poserLaSortie`
+   sort par son retour anticipé (`hotes.length === 0`), la rangée part en frère
+   de la carte et n'a traversé NI `renderCard` NI `garnirLaSortie`. Grille à
+   trois colonnes, un enfant sans groupe → placement automatique en colonne 1,
+   celle du livre : `Done` rendu **44×44**, `scrollWidth` 55 pour `clientWidth`
+   44 — libellé rogné. 1777 tests étaient verts.
+
+   ⭐ CE QUE CE GARDE EXIGE : le cadrage est appelé sur `frame.stage` APRÈS le
+   `swapContent`, c'est-à-dire au moment où le contenu ENTRE DANS LE DOCUMENT.
+   C'est le seul point par lequel tout chemin passe, présent ou futur.
+   ⛔ Il ne vérifie pas QU'IL EXISTE un appel — il vérifie qu'il est au point de
+   passage obligé. Un appel de plus ailleurs ne le dérange pas (le cadrage est
+   idempotent) ; c'est celui-ci qui ne doit jamais disparaître. */
+test("18 — le cadrage des rangées se fait à l'entrée dans le document", () => {
+  const t = stripComments(shellText);
+  assert.match(t, /swapContent\(frame\.stage,[^;]*\);\s*cadrerLesRangees\(frame\.stage\);/,
+    "⛔ `cadrerLesRangees(frame.stage)` doit suivre IMMÉDIATEMENT le `swapContent` de la scène : " +
+    "c'est le seul point que TOUT chemin traverse. Posé ailleurs, il rate les rangées greffées " +
+    "après la carte (Identity) et celles qui sortent par le retour anticipé de `poserLaSortie` (Skills).");
+  /* ⑵ ET LE CADRAGE NE DOIT PAS LAISSER UN MAJEUR HORS DU GROUPE : c'est la
+     forme même de la fonction qui le garantit — tout enfant qui n'est pas une
+     borne entre dans `.rangee-majeurs`. Le garde lit la LOI, pas le résultat. */
+  assert.match(t, /const BORNES = "\.fiche-livre, \.tuto-point";/,
+    "les deux bornes sont nommées une seule fois");
+  assert.match(t, /const majeurs = \[\.\.\.rangee\.children\]\.filter\(\(n\) => !n\.matches\(BORNES\)\);/,
+    "⛔ TOUT ce qui n'est pas une borne entre dans le groupe — sans exception listée : " +
+    "une exception par nom se périme au premier organe neuf (leçon `Draw`/`Choose`, même classe).");
+});

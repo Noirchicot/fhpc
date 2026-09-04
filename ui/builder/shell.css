@@ -5455,6 +5455,20 @@ button { font: inherit; }
   align-items: center;
   gap: 0;
   padding-inline: 0;
+  /* 🔴 ET LA RANGÉE PREND TOUTE LA LARGEUR DE SON HÔTE — sans ça, le `1fr` du
+     milieu n'a rien à distribuer. Mesuré sur le SB « Ability boosts » : les
+     colonnes rendaient **`44px 0px 44px`**, la rangée valait 88 pour un groupe
+     de 165, et le débordement partait vers la GAUCHE — `Cancel` à **x = −41**,
+     coupé par le bord, et le `?` posé SUR `Done`. Eric : *« t'as cassé les
+     fantômes de ability boosts, cancel et done pas au bon endroit »*.
+     ⭐ EN `flex` LA RANGÉE SE DIMENSIONNAIT SUR SON CONTENU ; en grille elle se
+     dimensionne sur SA BOÎTE. Passer de l'un à l'autre déplace la question
+     « qui décide de la largeur ? » — et un `1fr` posé dans une boîte que
+     personne n'étire ne vaut rien du tout.
+     📌 Les deux axes sont nommés parce que les hôtes diffèrent : `justify-self`
+     sert les hôtes en grille, `align-self` les colonnes flex. */
+  justify-self: stretch;
+  align-self: stretch;
 }
 
 /* 🔴 LES DEUX BORNES — Eric, 2026-09-04 : *« t'as tous tes livres et ? à cadrer
