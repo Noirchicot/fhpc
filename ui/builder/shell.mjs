@@ -3850,8 +3850,14 @@ function renderSortieEtape() {
      ⛔ ET CE N'EST PAS UN QUATRIÈME MOT : les trois du lot 79 ne bougent pas, et
      leur loi non plus. C'est la TABLE des catalogues qui dit lequel des trois
      s'applique chez elle — un fait déclaré, pas un id d'étape lu à la volée. */
-  const motDuRetour = state.parcoursItem ? "Cancel"
-    : effaceAuRetour ? "I changed my mind"
+  /* ⚠️ DEUX MOTS DEPUIS LE 2026-09-05, ET PAS TROIS. Eric : *« cancel est clair
+     et court »*, puis *« remplace par cancel partout »*. `Cancel` et
+     `I changed my mind` étaient DÉJÀ la même famille au corpus (DÉFAIRE, rouge)
+     et ne se distinguaient que par leur DESTINATION — jamais par leur verbe.
+     ⭐ Cette distinction-là ne disparaît pas : elle cesse simplement d'être
+     portée par le MOT. C'est la coquille qui lit le rang et décide où le geste
+     rend, exactement comme avant. Un bouton n'émet qu'un verbe. */
+  const motDuRetour = (state.parcoursItem || effaceAuRetour) ? "Cancel"
     : (cfgRetour && cfgRetour.motDuRetour) || "Back";
   /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
      deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le

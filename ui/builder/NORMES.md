@@ -2653,6 +2653,37 @@ informations, aucune redondance**.
 dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
 
+### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
+
+> **« back = navigation = bleu · cancel = annulation = rouge »**
+> puis, pour fermer toute lecture molle : **« back n'annule rien »**.
+
+| le mot | le geste | la teinte | la classe |
+|---|---|---|---|
+| **`Back`** | ⛔ **il ne touche à rien** — il recule, c'est tout | 🔵 bleu | `sortie-back` → `--info` |
+| **`Cancel`** | 🔴 il **abandonne ou efface** du travail fait | 🔴 rouge | `sortie-annule` → `--critical` |
+
+⛔ **DEUX MOTS, PAS TROIS.** `I changed my mind` a été retiré le 05/09 — Eric : *« cancel est
+clair et court »*, puis *« remplace par cancel partout »*. ⭐ Ce n'est pas un appauvrissement :
+les deux mots étaient **déjà la même famille** au corpus (DÉFAIRE, rouge) et ne se distinguaient
+que par leur **destination**. Cette distinction-là ne disparaît pas — elle cesse simplement
+d'être portée par le MOT. C'est la coquille qui lit le rang et décide où le geste rend.
+
+🔴 **ET LA FUSION A RÉPARÉ UN DÉFAUT VIVANT, LIVRÉ EN LIGNE.** La teinte se déduit du mot
+(`motDuRetour === "Cancel" ? "sortie-annule" : "sortie-back"`). Tant que le geste qui EFFACE
+s'appelait `I changed my mind`, il n'était pas `Cancel` — il recevait donc `sortie-back`,
+c'est-à-dire **du BLEU, la couleur de la navigation**. ⛔ Un bouton qui détruit du travail était
+peint comme un bouton qui recule.
+
+⭐ **LA LEÇON, ET ELLE DÉBORDE CE CAS** : *quand une TEINTE se déduit d'un MOT, changer le
+vocabulaire change le dessin.* Un renommage qu'on croyait cosmétique a corrigé une couleur —
+il aurait tout aussi bien pu en casser une. ⛔ Avant de renommer un libellé, chercher qui LIT
+ce libellé : ici, une ligne de `shell.mjs` en tirait une classe CSS.
+
+📌 Gardé par `tests/shell-wiring.test.mjs` §16 ter, qui vérifie la LOI (le mot du geste, et la
+teinte déduite du mot) — ⛔ plus la forme de la ternaire, qu'il épelait avant et qui l'a fait
+rougir sur cette réparation même.
+
 ### 🔴 LA FAMILLE « DÉFAIRE » — rouge, toujours, quel que soit l'état
 
 > Eric, 2026-08-26 : *« le **cancel** est rouge »* · *« **j'ai changé d'avis** est rouge »*.

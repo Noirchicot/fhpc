@@ -602,11 +602,14 @@ export function renderDestinyFinal(ctx, onAction) {
     choisir.append(text("Choose"));
     rangee.append(choisir);
   } else {
-    /* 🔴 `I changed my mind` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
-       tout »*) — donc il est ROUGE. ⭐ SA DESTINATION SUIT LE RANG : en SB2 il
+    /* 🔴 `Cancel` EFFACE TOUT (Eric, 2026-08-30 : *« oui rouge efface
+       tout »*) — donc il est ROUGE. ⚠️ Il s'appelait `I changed my mind`
+       jusqu'au 2026-09-05 ; Eric : *« cancel est clair et court »*, puis
+       *« remplace par cancel partout »*. Le VERBE n'a pas bougé — les deux
+       mots étaient déjà la même famille au corpus (DÉFAIRE, rouge). ⭐ SA DESTINATION SUIT LE RANG : en SB2 il
        rend au catalogue (rien n'était acté), ailleurs il rend au R en effaçant.
        C'est la coquille qui lit le rang, pas ce bouton — il n'émet qu'un verbe. */
-    rangee.append(bouton("I changed my mind", "parcours-annuler", () => act({ kind: "destinyReset" })));
+    rangee.append(bouton("Cancel", "parcours-annuler", () => act({ kind: "destinyReset" })));
     /* 🔴 « NEXT », ET C'EST UN RETOUR EN ARRIÈRE ASSUMÉ SUR LE 02/09.
        Le croquis d'Eric disait *« DONE, pas NEXT »*, et le lot 142 l'a écrit.
        Eric, 2026-09-03, après avoir fait mesurer Species : *« on peut skip le
