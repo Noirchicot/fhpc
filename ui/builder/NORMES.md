@@ -1241,18 +1241,48 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 | **à quelle distance** | **8 blg du BAS de la dalle** |
 | **combien** | **UNE FOIS DANS UN ÉCRAN** — Eric, 05/09, confirmé une seconde fois — ⛔ pas par dalle · et dans la **DERNIÈRE** rangée |
 
+### 🔴 ET S'IL Y A PLUSIEURS DALLES — **LA DERNIÈRE, OU UNE DALLE FLOTTANTE FIXE**
+
+> Eric, 2026-09-05, en réponse au seul cas que les cinq clauses ne tranchaient pas :
+> *« s'il y'a plusieurs dales, la dernière ou dans un dalle flottante fixe »*.
+
+**Deux formes autorisées, et deux seulement.** Un écran à plusieurs dalles pose le duo
+soit **dans la dernière dalle**, soit dans une **dalle flottante fixe** — ⛔ jamais une
+pastille par dalle.
+
+⚠️ **ET LE CHOIX ENTRE LES DEUX SE MESURE, IL NE SE PRÉFÈRE PAS.** Le critère est le
+**défilement** : sur un écran qui tient dans la fenêtre, la dernière dalle EST visible et
+suffit. Sur un catalogue qui défile — Species porte **12 fiches** — une pastille posée
+sur la dernière dalle est hors de vue pour toutes les autres, et c'est très exactement le
+défaut que la règle existe pour retirer. ⭐ *La dernière dalle est le défaut ; la dalle
+flottante est ce qu'un défilement impose.*
+
+⛔ **UN PRÉCÉDENT À NE PAS CITER DE TRAVERS, mesuré le 05/09.** Le rapport du 04/09
+nommait `skills-pied` comme *« seule dalle du dépôt hors du flux qui défile »*. C'est
+faux : `skills-pied` n'a **qu'une seule déclaration** dans toute la feuille, `flex: none`,
+et **aucun** `position: fixed` ni `sticky`. Son effet de pied fixe vient de la **colonne
+flex** qui l'entoure — un frère défile, lui ne se comprime pas.
+🔴 La conséquence pour qui construira la dalle flottante : **ce n'est pas un `position`
+à recopier, c'est une structure à poser** — une colonne dont le milieu défile. Species,
+Class et Destiny ne sont pas bâtis comme ça aujourd'hui, et le coût annoncé (« ~60 blg de
+hauteur de fiche ») ne compte pas cette restructuration.
+
 ⛔ **« UNE FOIS DANS UN ÉCRAN » A ÉTÉ REDIT, ET CE N'EST PAS UNE REDITE.** Eric l'avait
 déjà dit le 04/09 ; il l'a répété seul, le 05/09, après avoir dicté le reste. Une clause
 qu'on répète est une clause qu'on a vue se faire contourner. ⛔ Elle ferme la lecture
 « une pastille par fiche » que le 03/09 pouvait laisser croire.
 
 ⭐ **ET « TOUJOURS EN BAS » TRANCHE UNE QUESTION QU'ON CROYAIT OUVERTE.** Le rapport du
-04/09 posait à l'architecte un arbitrage entre *« une seule fois par écran »* et le
-catalogue à rail — fallait-il une pastille par fiche, ou une dalle flottante ? La phrase
-d'Eric ferme la question **par le haut** : la rangée de boutons est **en bas de la
-dalle**, et le duo est **dans cette rangée**. Il n'y a donc pas de duo à placer
-séparément, ni de dalle flottante à inventer : *le duo suit les boutons, et les boutons
-sont toujours au même endroit.*
+04/09 demandait à l'architecte d'arbitrer entre *« une seule fois par écran »* et le
+catalogue à rail. Eric a tranché lui-même, et pas par un compromis : le duo n'est jamais
+un organe à placer à part — **il est DANS la rangée de boutons, et cette rangée est en
+bas**. Ce qui restait à décider n'était donc pas *où mettre le duo*, mais **où mettre la
+rangée quand il y a plusieurs dalles** — et c'est la clause ci-dessus qui y répond :
+la dernière dalle, ou une dalle flottante fixe.
+
+⚠️ **CORRECTION DE L'ARCHITECTE, 05/09** : j'avais d'abord écrit ici qu'il n'y avait
+« pas de dalle flottante à inventer ». C'était faux, et Eric l'a corrigé dans la minute —
+la dalle flottante est l'**une des deux formes autorisées**, pas une option écartée.
 
 ⛔ **ET « LA DERNIÈRE » N'EST PAS UN DÉTAIL DE RÉDACTION — C'EST LE CŒUR.** Tant qu'un
 écran ne portait **qu'une** rangée, « la première » et « la dernière » désignaient le
