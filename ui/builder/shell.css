@@ -5859,6 +5859,21 @@ button { font: inherit; }
 .ability-des-gardes,
 .ability-collecteur { flex: none; }
 
+/* 🔴 LES 8 BLG SOUS LA RANGÉE — Eric, 2026-09-04 : *« le duo est dans une
+   cellule contenant au moins un bouton, **à 8 blg du bord de la dernière
+   dalle** »*. §6 pré cotait déjà cet écart (*« sous la rangée, jusqu'au bord de
+   la dalle : 8 »*) ; cette dalle-ci ne l'avait jamais reçu.
+   📏 MESURÉ AVANT : **0** — la rangée touchait le bord bas de sa dalle, seule
+   des huit étapes dans ce cas. La cote existait, personne ne la lui appliquait.
+   ⭐ ET C'EST LA « DALLE FLOTTANTE FIXE DU BAS » qu'Eric nomme le même jour :
+   Skills est le seul écran du dépôt qui en porte une (`skills-pied`,
+   `dalle-intermediaire`, hors du flux qui défile). Le motif existe donc déjà —
+   c'est lui qu'un catalogue reprendrait le jour où l'on voudra une pastille
+   unique sur un écran qui défile.
+   ⛔ LES QUATRE CÔTÉS, pas seulement le bas : une dalle porte ses gouttières
+   sur les quatre côtés, systématiquement (CADRES §2 bis). */
+.skills-pied { padding: var(--sp-8); }
+
 /* ②bis 🔴 `width: 100%` N'EST PAS UN ORNEMENT : IL REND LEUR LARGEUR AUX
    DALLES, et il répare un défaut que ce lot a FABRIQUÉ avant de le voir.
 
@@ -6511,7 +6526,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=544");
+  background-image: url("./assets/tarot-dos.jpg?v=546");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

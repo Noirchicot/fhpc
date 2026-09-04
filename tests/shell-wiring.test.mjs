@@ -916,6 +916,14 @@ test("19 — l'absolu : les deux bornes vont dans la DERNIÈRE rangée, et un se
   assert.match(t, /if \(!rangee \|\| borne\.parentElement === rangee\) continue;/,
     "aucune rangée, aucun déplacement");
 
+  /* ⑤ « UNE CELLULE CONTENANT AU MOINS UN BOUTON » — Eric, 04/09. Le duo
+     ENCADRE des gestes ; deux bornes autour d'une colonne vide se liraient comme
+     les boutons de l'écran, ce qu'elles ne sont pas.
+     ⛔ Et la recherche exclut les bornes elles-mêmes : se compter soi-même
+     n'aurait rien prouvé, et la condition aurait été vraie partout. */
+  assert.match(t, /rangee\.querySelector\("button:not\(\.fiche-livre\):not\(\.tuto-point\)"\)/,
+    "⛔ le duo ne descend que dans une rangée qui porte au moins un MAJEUR");
+
   /* ⚔️ ATTAQUE — LE GARDE MORD-IL ? Il ne suffit pas que le bon écrivain
      existe : il faut que les DEUX AUTRES aient disparu. Un placement survivant
      ailleurs rendrait l'absolu dépendant de l'ordre d'exécution, ce qui est

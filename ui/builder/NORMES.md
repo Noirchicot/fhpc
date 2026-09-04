@@ -1174,6 +1174,109 @@ c'est un jeton ordinaire dont le libellé est un nombre.
 
 ---
 
+### 🔒 LA CATÉGORIE DES SACRÉS — trois lois, et elles ne se négocient dans aucun lot
+
+> Eric, 2026-09-04 : *« Donc **ranger dans la catégorie des sacrés** si ce n'est pas le cas. »*
+
+⭐ **UN SACRÉ N'EST PAS UNE NORME FORTE, C'EST UNE LOI QUI NE CÈDE PAS QUAND UN
+ÉCRAN DÉBORDE.** C'est ce qui le distingue du reste du fichier : *« une norme est
+un DÉFAUT, pas un mur »* (26/08) — un sacré, si. ⛔ Un lot qui n'arrive pas à
+faire tenir un écran **retire du contenu** (§1 quater) ou **descend tout le bloc
+d'un cran** (§1 ter quinquies) ; il ne rogne pas un sacré.
+
+| # | la loi | depuis |
+|---|---|---|
+| 1 | **les jetons et les boutons** — cote, corps, cible tactile, gabarit | 26/08 *(ci-dessous)* |
+| 2 | **le duo `?` + livre** — une fois par écran, dans la dernière rangée | **04/09** |
+| 3 | **tout est dans une boîte, les boîtes sont sur une grille, ≥ 8 blg** | **04/09** |
+
+---
+
+### 🔒 SACRÉ N° 2 — **LE DUO EST DANS LA DERNIÈRE RANGÉE, UNE FOIS PAR ÉCRAN** *(04/09)*
+
+> *« Une seule fois **par écran**. **Pas par dalle**. »*
+> *« Le duo est toujours dans une **cellule contenant au moins un bouton**, à
+> **8 blg du bord de la dernière dalle** ; ils sont **cadrés à g et à d**. »*
+> *« **Dernière dalle** ou **dalle flottante fixe du bas**. »*
+
+| ce que la loi fixe | et ce que ça interdit |
+|---|---|
+| **une fois par ÉCRAN** | ⛔ une pastille par dalle, par fiche, par bloc |
+| la cellule porte **au moins un bouton** | ⛔ une rangée de bornes toute seule : le duo encadre des gestes, il n'en est pas un |
+| **8 blg** du bord bas de la dalle | ⛔ collé au bord — c'est déjà la cote de §6 pré, redite |
+| **cadrés à gauche et à droite** | ⛔ dans le groupe des majeurs : ils ne participent pas au centrage |
+| **la dernière dalle**, ou **la dalle flottante fixe du bas** si l'écran en a une | ⛔ n'importe quelle rangée « trouvée » — voir l'absolu du même jour, plus bas |
+
+📏 **CE QUI EST CONFORME AUJOURD'HUI, mesuré le 04/09** : les huit étapes rendent
+le duo à **8 blg** du bord bas de sa dalle. ⚖️ *Skills rendait **0** — sa dalle
+fixe du bas n'avait jamais reçu la gouttière que §6 pré cote pourtant ; corrigé
+le jour même.* **Équipement n'a aucune rangée** depuis le virage B3 du 23/08 :
+sa pastille reste posée en `absolute`, ce que §6 pré autorise sur une dalle SANS
+rangée.
+
+⭐ **ET « DALLE FLOTTANTE FIXE DU BAS » DÉSIGNE UN MOTIF QUI EXISTE DÉJÀ** :
+`skills-pied`, une `dalle-intermediaire` hors du flux qui défile. C'est le seul
+écran du dépôt qui en porte une.
+
+#### ⏳ LE POINT OUVERT, ET IL EST MESURÉ — *« une fois par écran »* CONTRE LE CATALOGUE À RAIL
+
+⚠️ **DEUX PHRASES D'ERIC SE CROISENT ICI, ET IL FAUT LE DIRE PLUTÔT QUE DE
+CHOISIR À SA PLACE.**
+
+| | |
+|---|---|
+| **03/09** | en voyant **une** pastille pour vingt-deux fiches : *« il y a toujours `?` et livre »* ➡️ une par fiche, parce qu'un rail n'en montre **qu'une à la fois** |
+| **04/09** | *« une seule fois par écran, pas par dalle »* |
+
+📏 **LA MESURE QUI ARBITRE, prise sur Species en mode catalogue** : 12 fiches,
+contenu de **6 500 blg** dans une fenêtre de 500. Une pastille unique posée sur
+la **dernière dalle** serait à **y = 6 462** — *treize écrans plus bas*, donc
+absente pour onze fiches sur douze. ⛔ **C'est exactement le défaut que la règle
+du 03/09 a été écrite pour retirer.**
+
+⭐ **LES DEUX PHRASES SE RÉCONCILIENT PAR LA SECONDE BRANCHE DE LA LOI, ET PAR
+ELLE SEULE** : *« ou dalle flottante fixe du bas »*. Un écran qui **défile** ne
+peut pas porter son duo sur sa dernière dalle — il lui faut la dalle fixe, celle
+de Skills. ➡️ **Décision d'Eric, pas d'un lot** : elle coûte ~60 blg de hauteur
+de fiche (44 de rangée + 2 × 8) sur Species, Class et Destiny.
+
+---
+
+### 🔒 SACRÉ N° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(04/09)*
+
+> *« Désormais tout ce qu'il y a sur une dalle est dans une boîte, qui est sur
+> une grille, espacée d'**au moins 8 blg** avec ses voisines. »* · *« Absolu aussi. »*
+
+⭐ **TROIS EXIGENCES, ET LA TROISIÈME EST LA PLUS DURE À TENIR** : être une
+**boîte** *(rien ne flotte à côté)* · vivre sur une **grille** *(le rangement est
+déclaré, jamais découvert à l'exécution)* · être à **≥ 8 blg** de ses voisines.
+
+🔴 **ET LA GRILLE DEVIENT LE SEUL ÉCRIVAIN DE L'ÉCART.** Une marge d'enfant
+s'**ajoute** au `gap` : mesuré sur R Abilities le jour même, deux intervalles
+rendaient **16 blg** au lieu de 8 et la dalle **204** au lieu de 188. ⛔ Le remède
+n'est pas un `.dalle > *` — il pèse `(0,1,0)`, autant que l'organe qu'il vise,
+donc c'est **l'ordre du fichier** qui trancherait. L'exception se **nomme**.
+
+📏 **L'ÉTAT DU DÉPÔT LE 04/09, mesuré dalle par dalle sur les huit étapes.**
+⛔ **Une seule dalle est conforme** — celle de **R Abilities**, refaite ce jour :
+
+| dalle | ce qui manque |
+|---|---|
+| `concept-step` *(Identity)* · `skills-tete` · `skills-group` | `display: block` — aucune grille |
+| `parcours-guide` *(Species · Inheritance · Class)* | `flex`, et **deux écarts à 0** |
+| `card-final` *(Destiny)* | `flex`, **un écart à 0** |
+| `dressing` *(Équipement)* | `flex`, **un écart à 0** |
+| `ability-organe` · `choix-glisse` *(pages de méthode)* | `flex` |
+
+⏳ **CE N'EST DONC PAS UN LOT, C'EST UN CHANTIER — et il touche un budget que
+plusieurs écrans ont déjà payé cher.** Passer un écart de 0 à 8 sur `card-final`
+pousse la pire carte d'arcane (**498 blg** mesurés) au-delà des **500** que le
+panneau offre ; Identity a demandé 483 des 500 disponibles. ⛔ **Chaque dalle
+convertie doit être remesurée**, et l'ordre de conversion est une décision
+d'Eric — pas la conséquence d'avoir écrit la loi.
+
+---
+
 ### 🔒 LES JETONS ET LES BOUTONS SONT **SACRÉS** — 26/08
 
 > Eric, 2026-08-26, au milieu d'une chasse aux pixels : **« les jetons et les boutons
