@@ -870,3 +870,106 @@ test("18 — le cadrage des rangées se fait à l'entrée dans le document", () 
     "⛔ TOUT ce qui n'est pas une borne entre dans le groupe — sans exception listée : " +
     "une exception par nom se périme au premier organe neuf (leçon `Draw`/`Choose`, même classe).");
 });
+
+/* ══ 19 — LE `?` DESCEND DANS LA RANGÉE MÊME QUAND ELLE EST SUR UNE AUTRE DALLE
+   🔴 LE DÉFAUT, MESURÉ LE 2026-09-04 (écart du `?` au haut de sa rangée) :
+
+       Identity                       +12   ✅  la rangée est DANS l'hôte
+       Abilities · FH 3D6 / FREE     −218   ⛔
+       Abilities · ARRAY             −289   ⛔
+       Skills                        −293   ⛔
+
+   ⛔ LA CAUSE N'ÉTAIT PAS UN OUBLI, C'ÉTAIT UNE PARENTÉ SUPPOSÉE. `garnirLaSortie`
+   cherchait la pastille sur l'hôte de la sortie et sur ses ANCÊTRES. Or
+   `renderStepContent` la pose sur la PREMIÈRE dalle de la carte, et ces écrans
+   portent leur rangée sur la DERNIÈRE : les deux dalles sont SŒURS, jamais
+   parentes. Aucune des trois lectures ne pouvait donc aboutir.
+   📏 CE QUE ÇA COÛTAIT : en `FREE`, la pastille recouvrait un dé du vivier sur
+   ses 44 × 44 entiers et `elementFromPoint` lui donnait le clic — une cible de
+   glisser rendue inatteignable. §6 pré, pris à l'envers : *un organe hors flux
+   ne pousse rien*, donc il couvre.
+   ⚠️ ET LE CORRECTIF NE POUVAIT PAS VIVRE DANS `renderStepContent` : là-bas la
+   rangée n'existe pas encore — c'est `poserLaSortie` qui la greffe. */
+test("19 — le `?` retombe sur la rangée de la CARTE, et seulement à un seul hôte", () => {
+  const t = stripComments(shellText);
+  assert.match(t, /function garnirLaSortie\(hote, sortie, carte\)/,
+    "la fonction reçoit la carte : sans elle, elle ne peut chercher que dans les ancêtres de l'hôte");
+  assert.match(t, /\|\| \(carte \? carte\.querySelector\("\.tuto-point"\) : null\);/,
+    "⛔ la retombée existe, et elle est CONDITIONNÉE — un `carte` absent la désarme");
+
+  /* 🔴 ET LA GARDE EST DANS L'APPELANT, PAS DANS LA FONCTION — c'est ce qui la
+     rend impossible à contourner par erreur : la branche à PLUSIEURS hôtes ne
+     passe simplement pas la carte.
+     ⛔ POURQUOI ELLE COMPTE : là où les pages ALTERNENT (un rail, une fiche
+     visible à la fois), chaque fiche porte SA pastille — leçon des cinq dons du
+     20/08. Une recherche à l'échelle de la carte les ramasserait toutes dans la
+     première rangée : vingt-deux `?` empilés, invisibles tant qu'on ne fait pas
+     défiler. */
+  assert.match(t, /hotes\.forEach\(\(h, i\) => garnirLaSortie\(h, i === 0 \? sortie : renderSortieEtape\(\)\)\);/,
+    "à plusieurs hôtes, aucune carte n'est passée — chaque fiche garde sa pastille");
+  assert.match(t, /garnirLaSortie\(hote, sortie, contenu\);/,
+    "à un seul hôte, la carte est passée");
+
+  /* ⚔️ ATTAQUE — le garde mord-il ? Les deux appels doivent DIFFÉRER : s'ils
+     passaient tous deux la carte, la condition ci-dessus serait décorative et
+     le catalogue se casserait sans qu'aucune assertion ne bouge. */
+  /* ⚠️ LA DÉCLARATION N'EST PAS UN APPEL — ma première écriture les comptait
+     ensemble et rendait 2 pour 1 attendu. `function garnirLaSortie(hote, sortie,
+     carte)` porte le même nom, la même arité et le même dernier argument. Le
+     garde a rougi sur lui-même avant de rougir sur le code : c'est ce qu'on lui
+     demande. */
+  const appels = (t.match(/(?<!function )garnirLaSortie\([^)]*\)/g) || []);
+  const avecCarte = appels.filter((a) => /,\s*contenu\s*\)/.test(a));
+  assert.equal(avecCarte.length, 1,
+    "⛔ UN SEUL appel passe la carte — deux, et la garde du catalogue ne garde plus rien");
+});
+
+/* ══ 20 — AUCUNE RÉSERVE EN REMBOURRAGE SUR UNE RANGÉE DE CONTRÔLES
+   🔴 NORMES §6 pré, 2026-09-04 : *« Une borne a une COLONNE, jamais une
+   réserve. Une colonne existe même vide : la place est tenue par le GABARIT,
+   jamais négociée par le contenu. »*
+
+   ⚖️ LE LOT DE §6 pré EN A RETIRÉ QUATRE, ET IL EN RESTAIT TROIS — c'est
+   exactement ce que la norme prédit d'un besoin satisfait plusieurs fois :
+     · `.ability-collecteur > .sortie` : `padding-right: var(--touch)`, VIVANTE
+       (spécificité 0,2,0 contre 0,1,0). Mesuré : colonnes `44 219 44` et le
+       groupe centré **−22 blg** du milieu de la dalle — le témoin n° 2 de la
+       norme, au chiffre près ;
+     · `.sortie` et sa jumelle de grandeur étroite : MORTES, mais présentes.
+       Une déclaration qui perd ne crie pas — elle attend qu'on déplace un bloc.
+   ⭐ D'où un garde qui lit la SOURCE et non le rendu : le rendu ne montre que
+   celle qui gagne aujourd'hui. */
+test("20 — une borne a une colonne, jamais une réserve en rembourrage", () => {
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  const RANGEE = /(parcours-pied|\.sortie|fiche-actions|card-pied|data-rangee)/;
+  const coupables = [];
+  for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const sel = m[1].trim(), corps = m[2];
+    /* ⛔ on ne juge que les règles qui visent la RANGÉE elle-même : un
+       `.parcours-pied button` habille un bouton, pas la rangée. */
+    if (!RANGEE.test(sel)) continue;
+    if (/(bouton|button|majeurs|livre|tuto-point|item)/.test(sel)) continue;
+    for (const decl of corps.split(";")) {
+      if (!/padding/.test(decl)) continue;
+      /* 🔴 LA FAUTE EST NOMMÉE : réserver LA LARGEUR D'UNE BORNE. Une gouttière
+         symétrique n'en est pas une — c'est `--touch` dans un rembourrage
+         d'axe inline qui dit « je garde la place d'un rond ». */
+      if (/--touch/.test(decl) && !/padding-block/.test(decl)) coupables.push(`${sel.split("\n")[0]} → ${decl.trim()}`);
+    }
+  }
+  assert.deepEqual(coupables, [],
+    "⛔ une rangée de contrôles ne réserve JAMAIS la largeur d'une borne en rembourrage (§6 pré)");
+
+  /* ⚔️ ATTAQUE — le garde lit-il vraiment quelque chose ? On lui donne la règle
+     qui vient d'être retirée, et il doit la voir. */
+  const faux = ".ability-collecteur > .sortie {\n  padding-right: var(--touch);\n}";
+  const vus = [];
+  for (const m of faux.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const sel = m[1].trim();
+    if (!RANGEE.test(sel) || /(bouton|button|majeurs|livre|tuto-point|item)/.test(sel)) continue;
+    for (const decl of m[2].split(";")) if (/padding/.test(decl) && /--touch/.test(decl)) vus.push(decl.trim());
+  }
+  assert.deepEqual(vus, ["padding-right: var(--touch)"],
+    "⛔ le garde doit voir la réserve qu'on vient de retirer — sinon il passe pour vert en ne lisant rien");
+});

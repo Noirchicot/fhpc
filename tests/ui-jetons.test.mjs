@@ -1209,3 +1209,52 @@ test("garde 11 — la branche `roll` de shell.mjs REMET la carte d'assignation �
   assert.doesNotMatch(shellText, /assign\s*:\s*[^,}]*\|\|\s*emptyAbilityAssign\(\)/,
     "un repli devant l'appel garderait les index du lot précédent : la relance cesserait de remettre à zéro");
 });
+
+/* ══ GARDE 12 — UN PLANCHER TACTILE SE LIT, IL NE SE RECOPIE PAS ═══════════
+   🔴 NORMES §1 ter : *« un ORGANE porte sa cote, un CONTENANT la déduit »* — et
+   `--touch` est LA cote d'organe que le dépôt cite le plus (dix familles la
+   lisent, §1 quater). §1 ter quinquies ajoute la raison qui mord :
+   *« écrire le NOMBRE d'un barreau en littéral est la même faute que d'en
+   écrire un faux — c'est invisible au cran 1 et ça GRANDIT avec le zoom. »*
+
+   ⛔ CE QUI A ÉCHAPPÉ AUX ONZE GARDES PRÉCÉDENTS, jusqu'au 2026-09-04 : ils
+   couvrent `font-size`, `padding`, `margin`, `gap`, `border-radius` et les
+   couleurs. Un `min-height: 44px` ne tombe dans aucune de ces familles — et
+   c'est exactement là que le dernier littéral de la feuille s'était logé
+   (`.tray-bouton`, les quatre boutons du plateau d'Abilities). Il valait
+   `--touch` au pixel près : le jour où Eric bouge la cible tactile, ces
+   quatre-là seraient restés seuls derrière, sans qu'une ligne ne change.
+
+   ⚖️ ET LE GARDE NE JUGE QUE LES PIXELS. `min-height: 0` est un IDIOME flex
+   (« ce bloc a le droit d'être comprimé »), pas une cote ; `min-height: 1.2em`
+   est un RYTHME, qui suit son corps. Ni l'un ni l'autre ne se fige.
+
+   ⚠️ ET IL NE JUGE QUE L'AXE DE BLOC, DÉLIBÉRÉMENT — ma première écriture prenait
+   aussi `min-width`, et elle a immédiatement accusé un innocent : la bascule du
+   Menu porte `min-width: 72px` pour que `ON` et `OFF` rendent la même boîte.
+   Ce n'est pas un plancher TACTILE (sa cible est le `min-height: var(--touch)`
+   d'à côté) — c'est une largeur de bouton, qui relève de §6 et de son gabarit en
+   COMPTE DE CARACTÈRES, pas de ce garde-ci. ⛔ Élargir un garde jusqu'à ce qu'il
+   crie sur des règles justes est la meilleure façon de le faire désarmer par le
+   lot suivant. ⏳ Le `72` reste une cote écrite qui n'est ni 87 ni 135 : c'est
+   une question ouverte pour Eric, pas une faute que ce garde puisse trancher. */
+test("garde 12 — aucun plancher TACTILE en pixels dans les feuilles de `ui/builder`", () => {
+  const coupables = [];
+  for (const nom of fs.readdirSync(UI_DIR).filter((f) => f.endsWith(".css"))) {
+    const texte = fs.readFileSync(path.join(UI_DIR, nom), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const m of texte.matchAll(/min-(?:height|block-size)\s*:\s*(-?[\d.]+)px/g)) {
+      coupables.push(`${nom} → ${m[0]}`);
+    }
+  }
+  assert.deepEqual(coupables, [],
+    "⛔ un plancher se LIT dans un jeton (`--touch`, `--glisse-h`…) — un nombre recopié ne suit pas celui qu'il copie");
+
+  /* ⚔️ ATTAQUE — le garde mord-il, ou passe-t-il en ne lisant rien ? On lui
+     donne la déclaration qu'on vient de retirer, et il doit la voir ; et on lui
+     donne les deux formes LÉGALES, qu'il doit laisser passer. */
+  const vu = (src) => [...src.matchAll(/min-(?:height|block-size)\s*:\s*(-?[\d.]+)px/g)].map((m) => m[0]);
+  assert.deepEqual(vu("  min-height: 44px;"), ["min-height: 44px"],
+    "témoin : le garde voit bien le littéral qui vient de partir");
+  assert.deepEqual(vu("  min-height: 0;\n  min-height: 1.2em;\n  min-height: var(--touch);"), [],
+    "⛔ et il laisse passer l'idiome flex, le rythme en `em` et le jeton — sinon il crierait sur trente règles justes");
+});

@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=534";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=534";
-import { mountPopup } from "./popup.mjs?v=534";
-import { renderLorePanel } from "./lore.mjs?v=534";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=534";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=541";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=541";
+import { mountPopup } from "./popup.mjs?v=541";
+import { renderLorePanel } from "./lore.mjs?v=541";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=541";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=534";
-import { STEPS } from "./etapes.mjs?v=534";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=534";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=541";
+import { STEPS } from "./etapes.mjs?v=541";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=541";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=534";
+} from "./tutoriel.mjs?v=541";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=534";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=541";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=534";
+} from "./echelle.mjs?v=541";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=534";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=541";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=534";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=534";
+} from "./fonds.mjs?v=541";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=534";
-import { renderChoixGlisses } from "./glisser.mjs?v=534";
-import { renderConceptStep } from "./concept-step.mjs?v=534";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=534";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=534";
+import { planAt, planSlots } from "./carnet.mjs?v=541";
+import { renderChoixGlisses } from "./glisser.mjs?v=541";
+import { renderConceptStep } from "./concept-step.mjs?v=541";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=541";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=541";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=534";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=534";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=534";
+} from "./catalogue.mjs?v=541";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=541";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=541";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=534";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=534";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=541";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=541";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=534";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=541";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=534";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=534";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=534";
+} from "./destiny-step.mjs?v=541";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=541";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=541";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=534";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=534";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=541";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=541";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=534";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=541";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=534";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=534";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=541";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=534";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=534";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=541";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=541";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=534";
+import { versionQuery } from "./version.mjs?v=541";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -3967,6 +3967,11 @@ function poserLaSortie(contenu, sortie) {
   const hotes = [...contenu.querySelectorAll("[data-sortie-ici]")];
   if (hotes.length === 0) return noeuds;
   if (hotes.length > 1) {
+    /* ⛔ AUCUNE RETOMBÉE SUR LA CARTE ICI, ET C'EST LA CONDITION DE TOUT LE
+       CORRECTIF D'EN DESSOUS : quand les pages ALTERNENT, chaque fiche porte SA
+       pastille (leçon des cinq dons du 20/08). Une recherche à l'échelle de la
+       carte les ramasserait toutes dans la première rangée — vingt-deux `?`
+       empilés, et le défaut ne se verrait qu'en faisant défiler. */
     hotes.forEach((h, i) => garnirLaSortie(h, i === 0 ? sortie : renderSortieEtape()));
     return [contenu];
   }
@@ -4012,13 +4017,13 @@ function poserLaSortie(contenu, sortie) {
      ⭐ `append` pour le `?`, `prepend` pour le livre : c'est toute la paire, et
      elle tient en deux lignes symétriques. Un écran sans rangée hébergée ne
      change pas d'un pixel — le `?` y reste où il était. */
-  garnirLaSortie(hote, sortie);
+  garnirLaSortie(hote, sortie, contenu);
   return [contenu];
 }
 
 /** Le livre entre à GAUCHE, le `?` à DROITE, la sortie au milieu — la paire
  *  d'Eric du 26/08. Extrait pour que chaque hôte reçoive le même traitement. */
-function garnirLaSortie(hote, sortie) {
+function garnirLaSortie(hote, sortie, carte) {
   const livre = hote.querySelector(":scope > .livre-de-sortie");
   if (livre) sortie.prepend(livre);
   /* ⚠️ LE `?` N'EST PAS TOUJOURS DANS L'HÔTE — mesuré au banc le 2026-09-03 :
@@ -4039,7 +4044,32 @@ function garnirLaSortie(hote, sortie) {
   const interro = [hote, hote.closest("[data-objet='dalle']"), hote.closest(".catalogue-card")]
     .filter(Boolean)
     .map((n) => n.querySelector(":scope > .tuto-point"))
-    .find(Boolean);
+    .find(Boolean)
+    /* 🔴 ET EN DERNIER RECOURS, LA CARTE — le `?` peut vivre sur une AUTRE DALLE
+       QUE CELLE QUI PORTE LA RANGÉE, et les trois lectures ci-dessus ne
+       regardent que l'hôte et ses ANCÊTRES. Sur un écran à deux dalles, la
+       pastille est posée sur la PREMIÈRE (c'est la règle de `renderStepContent`)
+       et la rangée vit sur la DERNIÈRE : elles sont sœurs, jamais parentes.
+
+       📏 MESURÉ LE 2026-09-04, écart entre le `?` et sa rangée :
+           Identity  +12  ✅ (la rangée est dans l'hôte)
+           Abilities · FH 3D6 / FREE  **−218**   ·  ARRAY  **−289**
+           Skills                     **−293**
+       La colonne de droite de ces rangées restait VIDE pendant que la pastille
+       flottait trois cents blg plus haut, en `absolute`. ⛔ Et ce n'est pas un
+       défaut d'alignement : en `FREE` elle recouvrait un dé du vivier sur ses
+       44 × 44 entiers et `elementFromPoint` lui donnait le clic — **une cible de
+       glisser rendue inatteignable**. C'est la loi de §6 pré prise à l'envers :
+       *un organe hors flux ne pousse rien* — donc il couvre.
+
+       ⚠️ POURQUOI ICI ET PAS DANS `renderStepContent` : là-bas la rangée
+       **n'existe pas encore** (c'est cette fonction qui la greffe). Un correctif
+       posé au moment où l'on crée la pastille n'aurait rien eu à viser — le
+       commentaire de `poserLaSortie` le disait déjà : *« un `append` au moment de
+       sa fabrication ne pouvait viser qu'un nœud absent »*.
+       ⛔ BORNÉ AU CAS D'UN SEUL HÔTE, et la garde est au-dessus, pas ici : la
+       branche à plusieurs hôtes ne passe pas `carte`. */
+    || (carte ? carte.querySelector(".tuto-point") : null);
   if (interro) sortie.append(interro);
   /* 🔴 LE CADRAGE SE FAIT ICI, une fois les deux bornes en place — et pas
      seulement au rendu de la carte : cette rangée-ci est greffée APRÈS elle. */

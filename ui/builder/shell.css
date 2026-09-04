@@ -873,7 +873,13 @@ body {
      réserver **autant à gauche qu'à droite** rend le centre du contenu égal au
      centre de la rangée. Done est centré sur la dalle, et les deux ronds
      restent hors du centrage. Rien n'est arbitré, c'est de l'arithmétique. */
-  padding-inline: calc(var(--sp-16) + var(--touch));
+  /* 🧊 LA RÉSERVE DE 16 + 44 A ÉTÉ RETIRÉE LE 2026-09-04 — morte depuis §6 pré,
+     qui pose `padding-inline: 0` sur les cinq rangées plus bas dans le fichier,
+     à spécificité égale. Mesuré avant retrait : 0 px calculé partout.
+     ⭐ CE QU'ELLE DÉFENDAIT N'EST PAS PERDU, C'EST MIEUX TENU : la colonne du
+     `?` est désormais une COLONNE de la grille (`--touch | 1fr | --touch`), pas
+     un creux dans une boîte flex. Une colonne existe même vide ; un rembourrage
+     se fait déborder par-dessus — mesuré −40 blg au lot de §6 pré. */
   max-width: var(--frame-w);
   margin-inline: auto;
 }
@@ -2182,10 +2188,15 @@ button { font: inherit; }
    valeur — une gouttière de 4 peinte, une colonne calculée sur 16. */
 :where(:root[data-grandeur="etroite"]) .stage { --stage-gouttiere: var(--sp-4); }
 :where(:root[data-grandeur="etroite"]) .decision-card { margin-inline: 0; }
-/* ⚠️ `padding-inline` REPOSE LES DEUX CÔTÉS — il effacerait la colonne du
-   `?`. On garde donc la gauche à 8 et on redonne la droite : gouttière
-   étroite + `--touch`. ⛔ Ne pas revenir à `padding-inline` ici. */
-:where(:root[data-grandeur="etroite"]) .sortie { padding-inline: calc(var(--sp-8) + var(--touch)); }
+/* 🧊 LA RÉSERVE DE `.sortie` A ÉTÉ RETIRÉE ICI LE 2026-09-04, ET ELLE ÉTAIT
+   DÉJÀ MORTE : le bloc de §6 pré pose `padding-inline: 0` sur les cinq rangées,
+   il pèse la même chose (0,1,0) et il vit **plus bas dans le fichier** — donc il
+   gagnait déjà. 📏 Mesuré avant retrait : `padding-left` et `padding-right`
+   calculés à **0 px** sur les six écrans qui portent une rangée.
+   ⛔ Une déclaration qui perd ne crie pas — elle attend qu'on déplace un bloc
+   pour se réveiller. C'est la loi §0.6 appliquée à une cote : elle part avec la
+   raison qui la portait, et §6 pré est cette raison (*« une borne a une COLONNE,
+   jamais une réserve »*). */
 
 @media (prefers-reduced-motion: reduce) {
   /* Invariant de la bible (§5) : le recentrage de la molette devient
@@ -2995,23 +3006,25 @@ button { font: inherit; }
      quand elle vit au bas de la scène (largeur pleine, plafond `--frame-w`) ;
      dans une dalle, c'est la dalle qui centre déjà. */
   margin-inline: 0;
-  /* 🔴 MAIS LA COLONNE DU « ? » SE RÉSERVE ICI AUSSI — croquis du 26/08 :
-     *« les deux petits organes ne participent pas au centrage »*. Le raccourci
-     ci-dessus remettait la droite à ZÉRO, et le `padding-right` que `.sortie`
-     déclare en tête de feuille était donc PERDU sur cet écran (spécificité 2
-     contre 1). Mesuré en `FREE` : les deux boutons se centraient sur 16..344,
-     donc sur 180 — le milieu de la dalle, `?` compris, pendant que le rappel
-     occupe 308..352 dans la MÊME rangée (y 501..545 contre 489..533).
-     ⚠️ Aucun conflit ne se voyait avec `Back · Done` (259 contre 308) — et
-     c'est exactement pourquoi il fallait le réserver : le mot le plus long de
-     cette famille, *« I changed my mind »*, mesure 40 px de plus à lui seul.
-     ⭐ LA RÉSERVE VAUT UNE CIBLE TACTILE, PAS UN CHIFFRE CHOISI — `--touch`,
-     la même que `.parcours-pied` depuis le 19/08, sans la gouttière de 16 que
-     `.sortie` ajoute au bas de la SCÈNE : ici, la dalle porte déjà la sienne.
-     ⛔ ET APRÈS LE RACCOURCI, jamais avant : une déclaration invalide crie,
-     une déclaration PERDANTE se tait (la leçon est déjà écrite en tête). */
-  padding-right: var(--touch);
 }
+/* 🧊 `padding-right: var(--touch)` A ÉTÉ RETIRÉ LE 2026-09-04 — c'était la
+   CINQUIÈME réserve, et le lot de §6 pré n'en avait retiré que quatre.
+
+   ⚖️ ELLE AVAIT RAISON LE JOUR DE SON ÉCRITURE (26/08) : la rangée était alors
+   en `flex`, et sans réserve le `?` recouvrait les boutons. §6 pré a renversé le
+   régime — *« une borne a une COLONNE, jamais une réserve ; une colonne existe
+   même vide, la place est tenue par le gabarit »*. Depuis, la grille réserve
+   déjà 44 à droite : le rembourrage en prenait **44 de plus**.
+   📏 MESURÉ AVANT LE RETRAIT, sur les trois pages de méthode : colonnes
+   `44px 219px 44px` dans une rangée de 351, et le groupe se centrait **−22 blg**
+   du milieu de la DALLE. C'est le témoin n° 2 de §6 pré, au chiffre près —
+   *« la rangée de Destiny R faisait 335 pour des colonnes de 291, et le groupe
+   se centrait 22 blg à gauche »*. Le même défaut, le même écart, un autre
+   écrivain.
+   ⭐ ET C'EST POURQUOI LA NORME DIT « INTERDITE » PLUTÔT QUE « ÉVITER » : quatre
+   réserves retirées le même jour, une cinquième qui survit parce qu'elle pèse
+   (0,2,0) contre (0,1,0) — *« un besoin satisfait quatre fois n'est pas quatre
+   fois plus sûr : c'est trois occasions de diverger »*. Ici c'était quatre. */
 
 /* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
    FF2, dalle 50 %, qu'on ferme en cliquant (III.4).
@@ -3633,7 +3646,15 @@ button { font: inherit; }
                                    CENTRER (Eric). À largeur naturelle, les
                                    64 px de reste se partagent de part et
                                    d'autre — c'est ça, centrés. */
-  min-height: 44px;             /* ⛔ LA CIBLE TACTILE NE SE NÉGOCIE JAMAIS */
+  /* ⛔ LA CIBLE TACTILE NE SE NÉGOCIE JAMAIS — et elle se LIT, elle ne se
+     recopie pas. Ce `44` était le DERNIER plancher écrit en littéral de la
+     feuille (relevé le 2026-09-04 : tous les autres valent `0`, l'idiome flex,
+     ou un `em`). Il valait juste `--touch` au pixel près, et c'est précisément
+     ce qui le rendait invisible : *« une valeur hors échelle n'est jamais juste
+     sur cet écran-là — elle est fausse partout, et seulement visible ailleurs »*
+     (§1 ter quinquies). Le jour où Eric bouge `--touch`, ces quatre boutons
+     seraient restés seuls derrière. */
+  min-height: var(--touch);
   padding: 0 var(--sp-8);
   font: inherit;
   font-size: var(--t3);         /* le gabarit : les actions sont à T3 */
@@ -4549,25 +4570,22 @@ button { font: inherit; }
      sur Identity ce matin — troisième fois aujourd'hui. Ici le pied cesse de
      poser la sienne : c'est le bloc qui PRÉCÈDE qui décide de l'écart. */
   margin: 0;
-  /* 🔴 LA MÊME COLONNE DES DEUX CÔTÉS — Eric, 2026-08-26 : *« bien mais Done
-     centré »*, puis *« fais comme pour tous les panels »*.
-     ⛔ MESURÉ AVANT : `0 px / 44 px`. Les boutons de Species, Inheritance et
-     Class se centraient donc sur la rangée MOINS la colonne du `?`, c'est-à-dire
-     **22 px à gauche du milieu de la dalle** — exactement le défaut qu'Eric
-     vient de faire corriger sur Identity, à un autre endroit du code.
-     ⭐ ET LES DEUX PIEDS DU SITE CONVERGENT ICI : `.sortie` (Identity, Destiny,
-     Skills) et `.parcours-pied` (Species, Inheritance, Class) sont deux pieds
-     nés séparément qui font le même métier. Ils réservent désormais la même
-     chose de la même façon.
-     ⚠️ `--touch` SANS LA GOUTTIÈRE, et c'est délibéré : ce pied vit DANS une
-     dalle qui porte déjà son rembourrage, comme `.ability-collecteur > .sortie`
-     (exception argumentée, §2 bis). Ce qui compte n'est pas le chiffre, c'est
-     qu'il soit LE MÊME à gauche et à droite.
-     📌 ⚠️ ET IL Y AVAIT DEUX `padding-right: var(--touch)` DANS LA FEUILLE —
-     mon premier remplacement a été refusé par son propre garde. L'autre est
-     ligne 2241 et ne concerne pas ce pied. Chercher la DÉCLARATION ne suffit
-     pas non plus : il faut la situer. */
-  padding-inline: var(--touch);
+  /* 🧊 LA RÉSERVE DES DEUX CÔTÉS A ÉTÉ RETIRÉE LE 2026-09-04, ET ELLE ÉTAIT
+     DÉJÀ MORTE — sixième et dernière du dépôt, trouvée par le garde 20 de
+     `tests/shell-wiring.test.mjs` et non par une relecture.
+
+     ⚖️ ELLE AVAIT RAISON LE 26/08 : la rangée était en `flex`, et sans réserve
+     les boutons de Species, Inheritance et Class se centraient sur la rangée
+     MOINS la colonne du `?`, soit 22 px à gauche du milieu de la dalle. §6 pré
+     a renversé le régime le 04/09 — *« une borne a une COLONNE, jamais une
+     réserve »* — et pose `padding-inline: 0` sur les cinq rangées, plus bas dans
+     ce fichier, à spécificité égale : elle gagnait déjà.
+     📏 Mesuré avant retrait, sur les trois écrans concernés : `padding-left` et
+     `padding-right` calculés à **0 px**, colonnes `44px 247px 44px`, groupe
+     centré à **0** du milieu de la dalle. Le retrait ne déplace rien.
+     ⛔ ET C'EST TOUT L'INTÉRÊT DE LA RETIRER : une déclaration qui perd ne crie
+     pas. Elle attend qu'on déplace un bloc — et ce jour-là, trois écrans
+     repartiraient de travers sans qu'une seule ligne ait été touchée. */
   margin-bottom: var(--sp-4);
 }
 
@@ -6493,7 +6511,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=534");
+  background-image: url("./assets/tarot-dos.jpg?v=541");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
