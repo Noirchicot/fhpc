@@ -1213,6 +1213,57 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 
 ---
 
+### 🔒 SACRÉ n° 2 — **LE DUO `?` + LIVRE VIT DANS LA DERNIÈRE RANGÉE** *(Eric, 2026-09-04)*
+
+> ⚠️ **CONSIGNÉE ICI PAR L'ARCHITECTE LE 2026-09-05, ET IL FAUT SAVOIR D'OÙ ELLE VIENT.**
+> Eric l'a ratifiée le 04/09 devant une session distante, qui l'a écrite **dans son
+> conteneur** — un travail que personne n'a poussé et que ce dépôt n'a jamais vu.
+> Mesuré le 05/09 : **zéro occurrence** de ces lois dans `NORMES.md`.
+> ⭐ *Une règle qui ne vit que dans le conteneur qui l'a écrite n'existe pas* — c'est la
+> loi « une règle restée ORALE n'existe pas » appliquée à une session au lieu d'une
+> conversation. Le texte ci-dessous est donc **la règle**, pas un compte rendu ; le code
+> qui l'appliquait, lui, reste à refaire ou à récupérer.
+
+🔴 **LA LOI, EN QUATRE CLAUSES.** Le `?` et le livre :
+
+| | |
+|---|---|
+| **où** | dans la **DERNIÈRE** rangée de contrôles de l'écran — pas la première |
+| **combien** | **une seule fois par écran**, ⛔ pas par dalle |
+| **dans quoi** | une cellule d'une rangée **qui porte au moins un bouton majeur** |
+| **à quelle distance** | **8 blg** du bord de la dalle, cadrés à gauche et à droite |
+
+⛔ **ET « LA DERNIÈRE » N'EST PAS UN DÉTAIL DE RÉDACTION — C'EST LE CŒUR.** Tant qu'un
+écran ne portait **qu'une** rangée, « la première » et « la dernière » désignaient le
+même nœud : la loi tenait par **coïncidence**, et trois écrivains employaient
+`querySelector` (qui rend la première) sans que rien ne rougisse. Le premier écran à
+porter **deux** rangées fait cesser la coïncidence.
+⭐ *Une loi qui tient par coïncidence est indiscernable d'une loi qui tient — jusqu'au
+jour où le cas qui les sépare arrive.*
+
+### 🔒 SACRÉ n° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(Eric, 2026-09-04)*
+
+**Les boutons compris.** Les écarts valent **8 blg**, et c'est **la grille** qui les
+écrit — jamais une marge posée organe par organe.
+
+⭐ **CE QU'UN « SACRÉ » AJOUTE AU VOCABULAIRE, ET POURQUOI IL FALLAIT UN MOT.** Une
+**norme** est un **défaut**, pas un mur (26/08) : un écran qui n'entre pas peut s'en
+écarter en argumentant. Un **sacré**, non. Un lot qui n'arrive pas à faire tenir un
+écran **retire du contenu** (§1 quater) ou **descend tout le bloc d'un cran**
+(§1 ter quinquies) — ⛔ il ne rogne pas un sacré.
+
+⚠️ **ET CELUI-CI EST UN CHANTIER, PAS UNE CASE À COCHER.** Relevé du 04/09, dalle par
+dalle : **une seule dalle du dépôt est conforme**. `concept-step`, `skills-tete` et
+`skills-group` sont en `display: block` ; `parcours-guide` (Species · Inheritance ·
+Class), `card-final`, `dressing`, `ability-organe` et `choix-glisse` sont en `flex`
+avec des écarts à 0.
+🔴 **Chaque dalle convertie se REMESURE** : passer un écart de 0 à 8 sur `card-final`
+pousse la pire carte d'arcane (**498 blg** mesurés) au-delà des **500** du panneau, et
+Identity en demande déjà **483**. ⛔ L'ordre de conversion est une **décision d'Eric**,
+pas une conséquence — voir la dette ouverte au bas de ce fichier.
+
+---
+
 ### ⚖️ LES EXCEPTIONS EXISTENT, ET ELLES S'ARGUMENTENT — 26/08
 
 > Eric, 2026-08-26 : **« il y aura des exceptions pour tokens et collecteurs, mais ils doivent être
@@ -2351,6 +2402,40 @@ et les deux comptent :
 📌 Relevé de référence, 26 rangées du site le 04/09 : **0 recouvrement, 0 écart
 de centre, 0 organe en `absolute`**.
 
+## 6 pré bis. 🧭 **L'AIGUILLEUR — LE TEXTE QUI DIT OÙ ALLER** *(Eric, 2026-09-04)*
+
+> ⚠️ **CONSIGNÉE PAR L'ARCHITECTE LE 2026-09-05.** Même origine que les sacrés n° 2 et
+> n° 3 : ratifiée le 04/09 devant une session distante, écrite dans son conteneur, et
+> **jamais poussée**. Ce texte est la règle ; le code qui l'appliquait est à refaire.
+
+🔴 **DEUX CLAUSES, ET AUCUNE N'EST COSMÉTIQUE.**
+
+| | la clause | ce qu'elle empêche |
+|---|---|---|
+| **la couleur** | l'aiguilleur est **BLEU**, ⛔ jamais l'encre du corps | qu'un texte qui MÈNE quelque part se confonde avec un texte qui se LIT |
+| **la boîte** | il a **toujours** une boîte de **3 lignes** | que l'écran se réorganise sous l'œil selon la longueur du libellé |
+
+⭐ **LA BOÎTE FIXE N'EST PAS DU CONFORT : C'EST CE QUI REND LE BUDGET D'UN ÉCRAN
+CALCULABLE D'AVANCE.** Un organe dont la hauteur dépend de son contenu se mesure après
+coup, écran par écran, et se remesure à chaque mot changé. Trois lignes réservées, et le
+budget se **déduit** (§1 ter) au lieu de se relever.
+
+⚠️ **ET LA COULEUR A UN DÉFAUT MESURÉ QUI DÉBORDE CE CHAPITRE.** Sur un voile de verre,
+le bleu de l'aiguilleur rendait **2,63:1 le jour et 2,74:1 la nuit** — sous le plancher
+de lisibilité, et mesuré **sur le rendu cumulé**, pas sur la déclaration. Réparé à
+**5,51 / 5,68** en conditionnant l'encre au voile.
+🔴 **La réparation va à l'ORGANE, pas à l'écran** : `.guide-mot` vit déjà sur une
+`dalle-simple` à Destiny R, donc le défaut n'est pas né avec Abilities et une correction
+locale en aurait laissé la moitié debout. ⭐ *Quand un défaut se lit sur deux écrans, il
+appartient à l'organe qu'ils partagent.*
+
+⛔ **ET LE NOM `.aiguilleur` EST PRIS** — il désigne le recouvrement plein écran
+d'Équipement (375 × 500 blg), et ce fichier l'interdisait **déjà par écrit**. La session
+distante a écrit la classe, l'a mesurée au banc, et c'est **la mesure qui l'a envoyée
+lire la norme** — pas l'inverse. ⭐ C'est la règle universelle « Google headless » (§0)
+qui a payé : *on regarde avant de conclure, même quand on croit connaître le nom.*
+
+---
 ## 6. LES BOUTONS
 
 | gabarit | capacité | sa largeur |
