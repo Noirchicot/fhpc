@@ -1354,6 +1354,41 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 | **à quelle distance** | **8 blg du BAS de la dalle** |
 | **combien** | **UNE FOIS DANS UN ÉCRAN** — Eric, 05/09, confirmé une seconde fois — ⛔ pas par dalle · et dans la **DERNIÈRE** rangée |
 
+### 🔴 CE QUE CHAQUE BORNE **FAIT** — et ce n'est pas la même chose *(Eric, 2026-09-05)*
+
+> *« le livre doit emmener vers le site FH WEB »* · *« le point d'interrogation est le
+> guide et fait un popup »*.
+
+⛔ **LES CINQ CLAUSES CI-DESSUS NE DISENT QUE LA PLACE.** Deux organes ronds, de même
+cote, aux deux bouts de la même rangée : rien dans leur géométrie ne dit qu'ils ne font
+pas le même geste. Ils n'en font pas le même, et c'est une clause à part entière.
+
+| | l'organe | ce qu'il FAIT | où ça mène |
+|---|---|---|---|
+| 📖 | **le livre** (`.fiche-livre`) | **SORT du builder** vers la règle publiée | le site **FH WEB** — `FH_WEB`, `liens-fh.mjs` |
+| ❓ | **le `?`** (`.tuto-point`) | **le GUIDE**, et il ouvre un **popup** | il reste dans l'écran |
+
+⭐ **ET LA DIFFÉRENCE N'EST PAS COSMÉTIQUE : ELLE DIT OÙ VIT LA RÈGLE.** Un texte de
+règle écrit dans l'interface est une règle publiée PAR l'interface — sans source, sans
+version, sans empreinte (§0.8, et `concept-step.mjs` l'a déjà payé : *« connecte le livre
+à la section alignement dans le SRD »*). Le livre ne RACONTE pas la règle, il y **mène**.
+Le `?`, lui, ne publie rien : il rappelle comment se sert l'écran qu'on a sous les yeux.
+🔴 *Le livre parle du JEU, le `?` parle de l'ÉCRAN.* C'est ce qui les rend inéchangeables,
+et c'est pourquoi ils tiennent les deux bouts au lieu de se suivre.
+
+⚖️ **LE PATRON EXISTE DÉJÀ, ET IL EST À `destiny-step.mjs`** — un `href` ouvre FH WEB
+(`window.open(href, "_blank", "noopener")`), son absence retombe sur le popup de lore.
+⭐ Ce qui manque ailleurs n'est donc PAS une mécanique : c'est la **cible**.
+
+⏳ **ÉTAT MESURÉ LE 2026-09-05 — c'est un INVENTAIRE, pas une commande** (§ sacré n° 3 :
+*« on laisse tout tranquille tant que ça marche »*). Sur les six livres du dépôt, **deux**
+sortent vers une règle publiée — `destiny-step.mjs` (FH WEB) et `concept-step.mjs` (le
+SRD). Les quatre autres ouvrent un popup ou un panneau local : `parcours-ecrans.mjs`
+(deux : le rang B et B2), `catalogue.mjs`, et `abilities-step.mjs` (le livre de
+R Abilities bascule `abilityInfo`, un panneau interne).
+⛔ **Chaque conversion demande une CIBLE, et une cible est une décision** : quel chapitre
+de FH WEB pour quel écran. Aucune ne se déduit du code.
+
 ### 🔴 ET S'IL Y A PLUSIEURS DALLES — **LA DERNIÈRE, OU UNE DALLE FLOTTANTE FIXE**
 
 > Eric, 2026-09-05, en réponse au seul cas que les cinq clauses ne tranchaient pas :
