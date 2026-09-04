@@ -5471,7 +5471,16 @@ button { font: inherit; }
   inline-size: var(--touch);
   min-inline-size: var(--touch);
   block-size: var(--touch);
-  position: static; inset: auto; margin: 0;
+  /* ⛔ `relative`, JAMAIS `static` — et ça a coûté une livraison. Ces deux
+     bornes portent leur cercle en `::before` ABSOLU. Passées en `static`, elles
+     cessent d'être son bloc conteneur : le cercle va s'ancrer sur l'ancêtre
+     positionné le plus proche et se dessine À CÔTÉ du glyphe. Eric l'a vu sur
+     son iPad — **deux cercles superposés** sur le livre comme sur le `?` — là
+     où toutes mes mesures de position et de recouvrement disaient « juste ».
+     ⭐ `relative` retire le flottement SANS retirer l'ancre : l'organe reprend
+     sa place dans le flux, et son dessin reste accroché à lui.
+     📌 *Une mesure de POSITION ne voit pas un dessin qui se décroche.* */
+  position: relative; inset: auto; margin: 0;
 }
 :is(.parcours-pied, .sortie, .fiche-actions, .card-pied) > .fiche-livre {
   grid-column: 1; justify-self: start;

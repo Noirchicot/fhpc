@@ -2290,6 +2290,42 @@ occasions de diverger.* Symptôme mesuré une fois la grille posée : la rangée
 Destiny R faisait **335** pour des colonnes de **291**, et le groupe se centrait
 **22 blg à gauche** du milieu. Eric l'a vu à l'œil avant toute mesure.
 
+### 🔴🔴 `position: relative`, **JAMAIS** `static` — la faute qu'on refait à chaque fois
+
+> Eric, 2026-09-04, en majuscules : *« note ce relative pas static, car cette
+> erreur est faite à chaque fois !!! »*
+
+Sortir une borne du flottement se fait en `relative`. **Pas en `static`.**
+
+```css
+/* ✅ */  position: relative; inset: auto;
+/* ⛔ */  position: static;   inset: auto;
+```
+
+**POURQUOI, ET C'EST LA SEULE RAISON QUI COMPTE :** le livre et le `?` portent
+leur **cercle** dans un `::before` en `position: absolute`. Une borne en
+`relative` est le **bloc conteneur** de ce cercle. Passée en `static`, elle
+cesse de l'être — le cercle va chercher l'ancêtre positionné le plus proche et
+se dessine **à côté** du glyphe.
+
+📏 **CE QUE ÇA DONNE À L'ÉCRAN** : *deux cercles superposés*, sur le livre comme
+sur le `?`, sur **tous** les écrans du site. Eric l'a vu sur son iPad ; **aucune
+de mes mesures ne l'avait attrapé** — position, largeur, recouvrement, centre du
+groupe, tout était vert. La v525 est partie en ligne avec le défaut.
+
+⚠️ **ET C'EST LA LEÇON GÉNÉRALE, PAS UN DÉTAIL DE CE BOUTON-LÀ :
+
+> **Une mesure de POSITION ne voit pas un dessin qui se décroche.**
+
+Un organe peut être exactement à sa place et *paraître* faux parce que sa
+décoration, elle, n'y est plus. Aucun relevé de `getBoundingClientRect()` ne
+le dira — il faut **regarder l'image**.
+
+📌 **LE RÉFLEXE** : avant d'écrire `position: static` sur quoi que ce soit,
+chercher un `::before` ou un `::after` en `absolute` sur cet organe. S'il y en a
+un, la réponse est `relative`. On ne retire jamais une ancre en croyant ne
+retirer qu'un flottement.
+
 ### 📐 LES COTES, ET ELLES NE SE NÉGOCIENT PAS
 
 | | |
