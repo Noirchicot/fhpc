@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=563") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=564") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4170,7 +4170,12 @@ button { font: inherit; }
    l'échelle 1, l'image fait 41 et la face 28 : la même que le podium et que la
    dépression qu'il remplace. */
 .ability-creneau .fs-de .fh-cd-static-die[data-sides="6"] { transform: none; }
-.ability-creneau .glisse-cible-vide { color: var(--text); }
+/* 🖋️ « drop here moins blanc » (Eric, 05/09) — et c'est la règle du 26/08 pour toute
+   consigne d'attente : la couleur de l'ÉTIQUETTE (`--text-muted`) et l'italique,
+   pour qu'elle ne se lise jamais comme une réponse. Au podium, sur le vert du
+   disque, l'encre-tapis estompée dit la même chose. */
+.ability-creneau .glisse-cible-vide { color: var(--text-muted); font-style: italic; }
+.ability-des-gardes[data-podium] .fs-vide .glisse-cible-vide { font-style: italic; opacity: .7; }
 /* ⛔ PLUS DE VOILE SUR L'ÎLOT VIDÉ AU PODIUM : `.fs[data-vide]` estompe à 45 % un trou
    qui « garde sa place » — mais ici le trou est un COLLECTEUR (Eric : *« l'origine
    devient un collecteur quand quitté par le dé »*), et une case qui attend un dé
@@ -6779,7 +6784,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=563");
+  background-image: url("./assets/tarot-dos.jpg?v=564");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
