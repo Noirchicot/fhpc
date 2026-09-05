@@ -75,6 +75,7 @@ ne réclame aujourd'hui.
 | La **vérité « ça défile »** (lot 70) : `data-visible` sur l'hôte des chevrons, `data-more` sur la scène, `disabled` sur les deux boutons | des attributs, sur des nœuds qui ne meurent pas | **`mountChevrons` seul** — un garde le prouve (`tests/chevrons.test.mjs`) |
 
 ## Qui possède quoi — côté DONNÉES : SRD · SRFH · SRFH+
+📍 `socle-qui-possede-quoi-cote-donnees-srd-srfh-srfh` · vivante · 23/08
 
 > **Ratifié par Eric le 2026-08-23.** ⚠️ **La source est sa note du vault**,
 > `FH-WEB/FHPC/FHPCv2 SRFH et SRFH+.md` — ce qui suit n'en est qu'un **tirage**.
@@ -95,6 +96,7 @@ est-ce que ça s'appelle encore le SRD ? »* Oui, sans hésiter → **SRD** · O
 sait pas → **SRFH** · Non, clairement → **SRFH+**.
 
 ### ⭐ CE QUE LE CONTRAT DIT À UNE COUCHE QUI PATCHE
+📍 `socle-ce-que-contrat-dit-a-couche-qui-patche` · vivante · 03/09
 
 Une couche FH ne modifie pas un record `srd:` : elle **pose le sien** et pointe
 vers lui (`data.extends`), comme `srfh-shelving-en` le fait sur ses 416 objets.
@@ -119,6 +121,7 @@ français, et un personnage FH en français est impossible à construire.
 le garde : `tests/layers-traits-fr.test.mjs`.
 
 ### 🔴 UN ÉCRAN NE PEUT PAS RENDRE UN CONTENU QUI N'EST PAS ÉCRIT
+📍 `socle-ecran-ne-peut-pas-rendre-contenu-qui-n-est-pas-ecrit` · vivante · 03/09
 
 > **Noté sur ordre d'Eric le 2026-09-03**, en butant dessus : la spec d'une ligne
 > *« Subclasses : Sub 1, Sub 2, Sub 3 and more »* a rencontré une couche qui ne
@@ -169,6 +172,7 @@ qui existe + and more »* a tenu deux minutes dans ce fichier. **Une consigne
 recueillie au vol se relit avant d'être gravée** — le corpus n'est pas le fil.
 
 ### ⛔ ET LE MANQUE PEUT ÊTRE DANS LA **FORME**, PAS SEULEMENT DANS LE CONTENU
+📍 `socle-et-manque-peut-etre-dans-forme-pas-seulement-dans` · vivante · 04/09
 
 > **Mesuré le 2026-09-04**, en cherchant les sous-classes que le SRD porterait
 > « en plus ». Il n'en porte aucune de plus — et la raison n'est pas un contenu
@@ -191,6 +195,7 @@ Un compte à 1 se lit « il en manque » ; un champ singulier se lit « la quest
 n'est pas encore posée ».
 
 ### 🔴 UN INVENTAIRE QUI NE VISITE PAS LES TROIS LIEUX NE COMPTE RIEN
+📍 `socle-inventaire-qui-ne-visite-pas-trois-lieux-ne-compte` · vivante · 04/09
 
 > **Écrit faux le 2026-09-04, corrigé le jour même.** J'ai compté les
 > sous-classes FH dans le **vault** et dans les **couches**, conclu *« une seule
@@ -216,6 +221,7 @@ et *« affichable »* sont trois états différents, jamais un seul.
 lieu est un chiffre sans unité.
 
 ### ⚠️ ET UN CHAPITRE PEUT PERDRE SON AMONT SANS QUE RIEN NE CRIE
+📍 `socle-et-chapitre-peut-perdre-son-amont-sans-que-rien-ne` · vivante · 04/09
 
 Trouvé en corrigeant le compte : la table de `sync_from_vault.py` fait descendre
 `college-of-banners.md`, `silent-blade.md` et `spell-rigger.md` depuis

@@ -162,6 +162,38 @@ test("④ bis une règle BORNÉE reste vivante, une règle REMPLACÉE ne l'est p
     "le statut et le lien se contredisent — c'est le lien qui dit ce qui est vrai.");
 });
 
+test("⑥ TOUTE SECTION DU CORPUS PORTE UNE ADRESSE — sinon on ne peut ni la citer, ni la périmer", () => {
+  /* 🔴 LE PREMIER REFUS QUE LE MANDAT DEMANDE : « une règle neuve sans ancre ».
+     Une section sans adresse ne peut ni être citée par Eric, ni être périmée par
+     une loi plus récente : elle s'EMPILE, et c'est la maladie entière.
+
+     ⭐ ON COMPTE EN HIÉRARCHIE, PAS LIGNE À LIGNE. Un `##` dont les adresses
+     vivent dans ses `###` est couvert — exiger une adresse sur chaque niveau
+     forcerait à en inventer pour des titres qui ne portent aucune règle. La
+     portée d'une section va jusqu'au prochain titre de niveau ÉGAL OU SUPÉRIEUR.
+
+     ⛔ ET LE COMPTE EST EXACT, PAS UN PLAFOND : zéro. Une dette qui se répand
+     est pire qu'une dette qui grandit — si un jour il faut rouvrir une brèche,
+     elle se nomme ici, ligne par ligne, jamais par un seuil qui glisse. */
+  const nues = [];
+  for (const f of ["NORMES.md", "CADRES.md", "SOCLE.md"]) {
+    const L = lire(f).split("\n");
+    const H = [];
+    L.forEach((l, i) => { const m = /^(#{2,4}) /.exec(l); if (m) H.push([i, m[1].length]); });
+    H.forEach(([i, niv], n) => {
+      const suite = H.slice(n + 1).find(([, nj]) => nj <= niv);
+      const fin = suite ? suite[0] : L.length;
+      if (!L.slice(i, fin).some((l) => l.startsWith("📍 ")))
+        nues.push(`${f}:${i + 1}  ${L[i].replace(/[*`]/g, "").slice(0, 72)}`);
+    });
+  }
+  assert.deepEqual(nues, [],
+    "une section du corpus sans adresse. Pose ``📍 `famille-ce-que-dit-le-titre` " +
+    "· vivante · JJ/MM`` juste sous son titre — la famille se prend dans celles " +
+    "qui existent déjà (⛔ ne pas en inventer une : AMENDEMENT n° 1), et le reste " +
+    "de l'adresse se lit dans le titre lui-même, négations comprises.");
+});
+
 test("⑤ un amendement NEUF porte son lien retour", () => {
   /* ⚠️ `\b` EST ASCII EN JAVASCRIPT : `\bétait` ne matche JAMAIS, parce que `é`
      n'est pas un caractère de mot — la borne exigée devant lui ne peut pas
