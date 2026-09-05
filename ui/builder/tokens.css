@@ -662,14 +662,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=562");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=563");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=562");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=563");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -702,7 +702,7 @@
   /* 🎲 LA CELLULE D'UN DÉ POSÉ — §1 ter bis : *« un collecteur = un jeton en taille,
      ne varie jamais »*. Le jeton, ici, est le DÉ (Eric, 05/09 : *« le dé = un token
      spécial »*). Sa boîte au podium MESURE 40,9 (îlot 54,5 × `.75`), et sa face
-     28 — l'étalon ci-dessus. La dépression (28) vit dans une cellule de cette
+     28 — l'étalon ci-dessus. La dépression fait cette cellule ENTIÈRE (Eric, le soir : *« en proportion à la taille du dé »*) et remplit une cellule de cette
      cote, le dé posé la lit aussi : quand il arrive, rien ne bouge (Eric : *« il
      ne doit pas bouger une fois le dé posé »*). Si la cote du podium change,
      celle-ci se REMESURE avec la face. */
@@ -756,8 +756,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=562");
-  --bg-nuit: url("./assets/bg-night.jpg?v=562");
+  --bg-jour: url("./assets/bg-day.jpg?v=563");
+  --bg-nuit: url("./assets/bg-night.jpg?v=563");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

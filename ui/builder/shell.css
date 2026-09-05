@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=562") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=563") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4100,13 +4100,10 @@ button { font: inherit; }
    faire la hauteur de ce qu'elle contient — un dé, puis sa ligne de détail.
    ⛔ Ne pas « réparer » en masquant le débordement : le détail disparaîtrait
    au lieu de se poser. */
-/* 🔲 LA CIBLE EST UN CARRÉ À LA TAILLE DE LA FACE DU DÉ DU PODIUM, ET IL DIT
-   « drop here » — Eric, 05/09 : *« collecteurs = tokens = face sup du dé »*. La
-   face mesure 28 (tokens.css) ; la colonne de 52 reste la zone de dépôt. Le
-   liseré est celui du verre, et `[data-vise]` allume la bordure comme avant. */
-.ability-creneau .glisse-cible-vide {
-  width: var(--collecteur-face); aspect-ratio: 1;   /* l'étalon d'Eric — tokens.css */
-}
+/* 🧊 La cible « carré de 28 à la face du dé » (05/09 au matin, *« collecteurs =
+   tokens = face sup du dé »*) a vécu jusqu'au soir : elle est devenue la
+   DÉPRESSION dans la cellule du dé (`--de-pose`), plus bas. Sa règle est partie
+   avec elle — un second écrivain sur la même largeur n'a rien à faire ici. */
 /* 📏 LE DÉ POSÉ LIT LA MÊME CELLULE QUE LA DÉPRESSION (`--de-pose`) — et jamais la
    colonne : à 100 % de 52 il faisait 48, sa face 33, et la colonne changeait de
    hauteur au dépôt. `flex: 0 0 auto` : un organe ne rétrécit jamais sous sa cote. */
@@ -4151,13 +4148,18 @@ button { font: inherit; }
   display: grid; place-items: center; height: auto;
   width: var(--de-pose); aspect-ratio: 1;
   padding: 0; border: 0; background: none; box-shadow: none;
-  font-size: var(--t0); line-height: 1.1; text-align: center; white-space: nowrap;
+  /* T1 : dans une dépression de 41, « drop » / « here » (20 de large) se lit ; T0
+     n'était que le prix des 28. */
+  font-size: var(--t1); line-height: 1.1; text-align: center; white-space: nowrap;
   color: var(--encre-tapis);
 }
 .ability-creneau .glisse-cible-vide::before,
 .ability-des-gardes[data-podium] .fs-vide .glisse-cible-vide::before {
   content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: var(--collecteur-face); height: var(--collecteur-face);
+  /* 📏 LA DÉPRESSION FAIT LA CELLULE DU DÉ, pas sa seule face — Eric, 05/09 :
+     *« agrandis la dépression en proportion à la taille du dé, c'est trop petit »*.
+     À 28 (la face), le cube de 29 × 33 la débordait ; à 41 (sa boîte), il s'y pose. */
+  width: var(--de-pose); height: var(--de-pose);
   border: 1px solid transparent; border-radius: var(--radius-sm);
   box-shadow: var(--creux);
 }
@@ -6777,7 +6779,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=562");
+  background-image: url("./assets/tarot-dos.jpg?v=563");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
