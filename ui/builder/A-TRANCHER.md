@@ -4,7 +4,7 @@
 > comme vrais**, qui servent tous les deux de base à un budget, à un garde ou à un écran.
 > Les deux citations sont là avec leurs dates. ⚖️ **C'est Eric qui décide, personne d'autre.**
 >
-> 📍 **LES ADRESSES ENTRE `dos d'âne` SONT DES ANCRES DU CORPUS** — cherchables telles quelles
+> 🔖 **LES ADRESSES ENTRE `dos d'âne` SONT DES ANCRES DU CORPUS** — cherchables telles quelles
 > dans `NORMES.md`, `CADRES.md`, `SOCLE.md`, `ECRANS.md`. C'est l'adressage posé par le lot 161.
 >
 > 🗓 **Mesuré le 2026-09-02**, sauvé du tirage `fh-phb/docs/bible/a-trancher.md` le 2026-09-05
