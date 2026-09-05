@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=577") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=578") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4307,8 +4307,13 @@ button { font: inherit; }
    de verre avec l'aiguilleur et la rangée `livre · Cancel · Next · ?`. */
 .ability-bilan { display: grid; gap: var(--sp-8); }
 .ability-bilan-tapis {
-  aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=577") center / contain no-repeat;
+  /* 🖼️ SON PROPRE TAPIS — Eric, 06/09 : *« il faut récrire le tapis vert pour qu'il
+     donne plus de place aux caracs »*. Le stade du tirage mangeait les cellules des
+     bouts avec ses demi-cercles ; `tapis-bilan.webp` (ChatGPT, 552 × 184, mesuré :
+     coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
+     la même place. Le stade reste au tirage, où il est juste. */
+  aspect-ratio: 552 / 184;
+  background: url("./assets/abilities/tapis-bilan.webp?v=578") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6895,7 +6900,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=577");
+  background-image: url("./assets/tarot-dos.jpg?v=578");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

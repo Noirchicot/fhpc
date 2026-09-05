@@ -4818,7 +4818,8 @@ quelque chose à abandonner (le premier jet). Règle de la coquille (`renderSort
 ### 7.9 Le bilan — R2, l'écran de la racine une fois l'étape validée *(06/09)*
 📍 `cadre-bilan-du-glisser-des-des` · vivante · 06/09
 Eric : *« quand j'appuie sur Done, on remonte en R avec les résultats. R1 (l'ancien choix) disparaît,
-devient R2 un bilan »*. Sur le **tapis du tirage** (552 × 176), six cellules — **nom** (accent, T1
+devient R2 un bilan »*. Sur **son tapis** (`tapis-bilan`, 552 × 184, rectangle à coins courts — le stade du tirage mangeait les
+cellules des bouts), six cellules — **nom** (accent, T1
 gras, libre de sortir de sa cellule comme au collecteur) · **le score sur un dé** (cellule `--de-pose`) · **bonus signé** et son mot — le même dessin que
 les colonnes du collecteur. Dessous, une dalle de verre : l'aiguilleur (*l'étape est validée*) et la
 rangée `livre · Cancel · Next · ?`. `Next` est la même porte que `Done` (`next: "step"`) ; `Cancel`
