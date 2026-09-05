@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=550";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=550";
-import { mountPopup } from "./popup.mjs?v=550";
-import { renderLorePanel } from "./lore.mjs?v=550";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=550";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=551";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=551";
+import { mountPopup } from "./popup.mjs?v=551";
+import { renderLorePanel } from "./lore.mjs?v=551";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=551";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=550";
-import { STEPS } from "./etapes.mjs?v=550";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=550";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=551";
+import { STEPS } from "./etapes.mjs?v=551";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=551";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=550";
+} from "./tutoriel.mjs?v=551";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=550";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=551";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=550";
+} from "./echelle.mjs?v=551";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=550";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=551";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=550";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=550";
+} from "./fonds.mjs?v=551";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=550";
-import { renderChoixGlisses } from "./glisser.mjs?v=550";
-import { renderConceptStep } from "./concept-step.mjs?v=550";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=550";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=550";
+import { planAt, planSlots } from "./carnet.mjs?v=551";
+import { renderChoixGlisses } from "./glisser.mjs?v=551";
+import { renderConceptStep } from "./concept-step.mjs?v=551";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=551";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=551";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=550";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=550";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=550";
+} from "./catalogue.mjs?v=551";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=551";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=551";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=550";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=550";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=551";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=551";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=550";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=551";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=550";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=550";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=550";
+} from "./destiny-step.mjs?v=551";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=551";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=551";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=550";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=550";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=551";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=551";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=550";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=551";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=550";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=550";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=551";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=550";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=550";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=551";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=551";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=550";
+import { versionQuery } from "./version.mjs?v=551";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2973,13 +2973,19 @@ const GUIDES = {
       "Only the name is really asked of you — gender and alignment can wait.\n" +
       "Nothing here is final: you can come back to this step at any time."
   },
+  /* ⚠️ CES DEUX TUTORIELS ONT ÉTÉ PÉRIMÉS PAR UN RENOMMAGE (2026-09-05) : ils
+     disaient encore « I changed my mind » quand le bouton s'appelait déjà
+     `Cancel` depuis le lot du même jour. Le lot qui a renommé n'a touché que
+     `parcours-ecrans.mjs` — le texte qui NOMME le bouton vivait ici.
+     ➡️ La règle : `ui/builder/NORMES.md` § 6 pré bis, « l'aiguilleur et le
+     tutoriel disent la même étape ». ⛔ Elle n'est pas recopiée ici. */
   species: {
     titre: "Species",
     texte:
       "The rail on the left lists the species; the panel shows one at a time.\n" +
       "What the species grants on its own is displayed as it is — nothing to settle there.\n" +
       "What it asks of you is listed as openable lines: open each one and mark it Done.\n" +
-      "I changed my mind releases the species and gives the rail back."
+      "Cancel releases the species and gives the rail back."
   },
   background: {
     titre: "Inheritance",
@@ -3002,7 +3008,7 @@ const GUIDES = {
       "The rail on the left lists the classes; the panel shows one at a time.\n" +
       "What the class grants at level 1 is displayed as it is — nothing to settle there.\n" +
       "What it asks of you is listed as openable lines: open each one and mark it Done.\n" +
-      "I changed my mind releases the class and gives the rail back."
+      "Cancel releases the class and gives the rail back."
   },
   /* 🔴 RÉÉCRIT LE 2026-09-05, POUR DEUX RAISONS QUI N'EN FONT QU'UNE.
      ⑴ Il citait `INFO`, un panneau qui n'existe plus : le livre mène désormais
@@ -3848,8 +3854,14 @@ function renderSortieEtape() {
      ⛔ ET CE N'EST PAS UN QUATRIÈME MOT : les trois du lot 79 ne bougent pas, et
      leur loi non plus. C'est la TABLE des catalogues qui dit lequel des trois
      s'applique chez elle — un fait déclaré, pas un id d'étape lu à la volée. */
-  const motDuRetour = state.parcoursItem ? "Cancel"
-    : effaceAuRetour ? "I changed my mind"
+  /* ⚠️ DEUX MOTS DEPUIS LE 2026-09-05, ET PAS TROIS. Eric : *« cancel est clair
+     et court »*, puis *« remplace par cancel partout »*. `Cancel` et
+     `I changed my mind` étaient DÉJÀ la même famille au corpus (DÉFAIRE, rouge)
+     et ne se distinguaient que par leur DESTINATION — jamais par leur verbe.
+     ⭐ Cette distinction-là ne disparaît pas : elle cesse simplement d'être
+     portée par le MOT. C'est la coquille qui lit le rang et décide où le geste
+     rend, exactement comme avant. Un bouton n'émet qu'un verbe. */
+  const motDuRetour = (state.parcoursItem || effaceAuRetour) ? "Cancel"
     : (cfgRetour && cfgRetour.motDuRetour) || "Back";
   /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
      deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le

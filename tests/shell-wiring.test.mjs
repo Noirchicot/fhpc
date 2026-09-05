@@ -698,18 +698,35 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      même remède que `retourEfface` deux lignes plus bas — un fait DÉCLARÉ, pas
      un id d'étape lu à la volée. Un quatrième mot resterait interdit : le
      garde ci-dessous vérifie que le vocabulaire n'a pas grandi. */
-  assert.match(shellText, /const motDuRetour = state\.parcoursItem \? "Cancel"\s*\n?\s*: effaceAuRetour \? "I changed my mind"\s*\n?\s*: \(cfgRetour && cfgRetour\.motDuRetour\) \|\| "Back";/,
-    "le mot suit le geste : abandonner, effacer, ou reculer");
+  /* ⚠️ RÉÉCRIT LE 2026-09-05 — CE GARDE ÉPELAIT LA TERNAIRE MOT POUR MOT. Il a
+     donc rougi quand Eric a dit *« remplace par cancel partout »*, alors que la
+     propriété qu'il défend — LE MOT SUIT LE GESTE — n'avait pas bougé d'un pouce.
+     ⭐ ERIC A ÉNONCÉ LA LOI LE MÊME JOUR, ET C'EST ELLE QU'ON GARDE :
+         « back = navigation = bleu · cancel = annulation = rouge »
+         « back n'annule rien »
+     DEUX mots, pas trois : `Cancel` et `I changed my mind` étaient déjà la même
+     famille au corpus (DÉFAIRE, rouge) et ne se distinguaient que par leur
+     DESTINATION — jamais par leur verbe.
+     🔴 ET LA FUSION A RÉPARÉ UN DÉFAUT VIVANT : la teinte se déduit du MOT
+     (`motDuRetour === "Cancel"`), donc `I changed my mind` — qui EFFACE —
+     recevait `sortie-back`, c'est-à-dire du BLEU, la couleur de la navigation.
+     Un bouton qui détruit du travail était peint comme un bouton qui recule. */
+  assert.match(shellText, /\(state\.parcoursItem \|\| effaceAuRetour\) \? "Cancel"/,
+    "⛔ un retour qui ABANDONNE ou qui EFFACE se dit `Cancel` — c'est de l'annulation, pas de la navigation");
+  assert.match(shellText, /motDuRetour === "Cancel" \? "sortie-annule" : "sortie-back"/,
+    "⛔ LA TEINTE SE DÉDUIT DU MOT : `Cancel` → `sortie-annule` (rouge) · sinon `sortie-back` (bleu)");
+  assert.doesNotMatch(shellText, /motDuRetour\s*=\s*[^;]*"I changed my mind"/,
+    "⛔ `I changed my mind` ne nomme plus aucun retour depuis le 2026-09-05");
   /* ⛔ ET LE VOCABULAIRE NE GRANDIT PAS : les mots qu'un catalogue peut déclarer
      sont ceux que ce garde nomme, pas un libellé neuf inventé dans une table. */
   for (const m of (shellText.match(/motDuRetour: "[^"]+"/g) || [])) {
-    assert.ok(/"(Cancel|I changed my mind|Back)"/.test(m),
-      `${m} — un catalogue ne peut DÉSIGNER que l'un des trois mots du lot 79, jamais en créer un quatrième`);
+    assert.ok(/"(Cancel|Back)"/.test(m),
+      `${m} — un catalogue ne peut DÉSIGNER que l'un des DEUX mots (Cancel, Back), jamais en créer un troisième`);
   }
   assert.match(shellText, /cfgRetour\.retourEfface && state\.palier === 2/,
     "et « effacer » est DÉCLARÉ par le catalogue, jamais deviné d'un id d'étape");
   assert.match(shellText, /function oublierSousLaRacine\(racine\)/,
-    "⭐ et il efface pour de vrai — signatures ET choix, comme le `I changed my mind` du guide (canon §5)");
+    "⭐ et il efface pour de vrai — signatures ET choix, comme le `Cancel` du guide (canon §5)");
   /* Et le budget de libellé, proxy assumé (voir l'en-tête). */
   const libelles = [SORTIE_ETAPE.cancel, SORTIE_ETAPE.done].map((l) => l.replace(/"/g, ""));
   const total = libelles.join("").length;

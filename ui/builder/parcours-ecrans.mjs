@@ -425,7 +425,7 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
     livre.disabled = true;
   }
   pied.append(livre);
-  pied.append(bouton("I changed my mind", "parcours-annuler",
+  pied.append(bouton("Cancel", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
   /* ⛔ PLUS DE BLOC DE CONCLUSION SÉPARÉ — son texte est passé dans la bande
      d'aiguilleur (voir sa note plus haut). `conclusion()` reste écrite : elle
@@ -554,7 +554,7 @@ export function renderBilan({ racine, titre, lignes, onAction }) {
   page.append(...conclusion(true));
 
   const pied = el("div", "parcours-pied");
-  pied.append(bouton("I changed my mind", "parcours-annuler",
+  pied.append(bouton("Cancel", "parcours-annuler",
     () => act({ kind: "parcoursCancel", racine })));
   pied.append(bouton("Next", "parcours-next", () => act({ kind: "parcoursNext", racine })));
   page.append(pied);

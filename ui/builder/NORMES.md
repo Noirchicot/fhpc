@@ -233,6 +233,53 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 
 ## 1. ⛔ LES QUATRE VOCABULAIRES — ils ne se mélangent jamais
 
+> ## 🚪 AMENDEMENT n° 1 — **LE VOCABULAIRE EST UNE PORTE, PAS UNE ANNEXE** *(Eric, 2026-09-05)*
+>
+> **« il faut que tout le monde sache, avant d'écrire quoi que ce soit dedans, respecte sa
+> terminologie »**
+>
+> 🔴 **AVANT D'ÉCRIRE UNE LIGNE DANS CE CORPUS — ou dans le builder — ON APPREND SES MOTS.**
+> Ce n'est pas une politesse de rédaction : c'est la **condition d'entrée**. Un lot qui écrit
+> avec ses propres mots produit une règle que personne ne retrouvera, et qui contredira sans
+> qu'on le voie une règle déjà là sous un autre nom.
+>
+> ⛔ **ET ÇA VAUT DANS LES DEUX SENS.** Employer un mot du corpus pour autre chose est aussi
+> grave que d'en inventer un : le nom `aiguilleur` était **déjà pris** (le recouvrement plein
+> écran d'Équipement) quand une session l'a repris pour un texte de guide — le banc l'a rendu
+> 375 × 500 blg, et c'est la MESURE qui a envoyé lire la norme, pas l'inverse.
+>
+> ⭐ **CE QUE CET AMENDEMENT COÛTE À CELUI QUI ÉCRIT** : une lecture. ⭐ **CE QU'IL ÉVITE** :
+> une règle orpheline qu'on ne peut ni citer, ni périmer, ni comparer — c'est-à-dire une
+> règle qui **s'empile** au lieu de remplacer. C'est la maladie que tout ce corpus paie.
+>
+> 📌 **PREMIER AMENDEMENT DU RÉGIME DES ANCRES** : à partir d'ici, une règle a une adresse, un
+> statut et un lien. Un mot juste est ce qui rend l'adresse trouvable — sans lui, les trois
+> autres ne servent à rien.
+
+
+> ## 🧭 AMENDEMENT n° 2 — **TOUT PROMPT D'ARCHITECTE MÈNE À LA BIBLE** *(Eric, 2026-09-05)*
+>
+> **« tout prompt fixé par un architecte doit mener à la bible »**
+>
+> 🔴 **UN PROMPT N'EST PAS UNE SOURCE, C'EST UN CHEMIN.** Un mandat, une passation, une
+> commande à un siège : ces textes **désignent** les règles, ⛔ ils ne les redisent pas. Le
+> lecteur doit finir **dans le corpus**, à l'adresse exacte — pas dans un résumé du corpus.
+>
+> ⛔ **ET CETTE RÈGLE ACCUSE D'ABORD L'ARCHITECTE.** Les mandats écrits jusqu'ici recopiaient
+> des pans entiers de règles « pour que le siège n'ait pas à chercher ». Chacun est devenu une
+> **copie de plus** — exactement la maladie que le chantier de la source unique existe pour
+> soigner. Un mandat qui recopie une règle en crée une seconde, et la seconde dérive.
+>
+> ⭐ **CE QU'UN PROMPT PORTE LÉGITIMEMENT** : ce que le corpus **ne peut pas** porter — la
+> mesure du jour, l'état du terrain, le geste attendu, la question à poser à Eric. ⛔ **Ce
+> qu'il ne porte jamais** : l'énoncé d'une règle. Pour ça, il donne son **adresse**.
+>
+> 📌 **CONSÉQUENCE DIRECTE DE L'AMENDEMENT n° 1** : un prompt ne peut mener à une règle que si
+> cette règle a une **adresse** et que l'auteur du prompt en connaît le **mot juste**. Les deux
+> amendements sont une seule loi prise par ses deux bouts — le vocabulaire à l'entrée,
+> l'adressage à la sortie.
+
+
 | vocabulaire | ce qu'il nomme |
 |---|---|
 | **`R` / `B` / `SB`** | un **RANG** dans une arborescence (la profondeur). ⛔ **JAMAIS un nom de page** — une page a un **nom** |
@@ -2980,6 +3027,37 @@ informations, aucune redondance**.
 📌 **Ce qui se garde** : qu'aucune couleur ne soit figée dans le balisage, et que la couleur se
 dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
+
+### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
+
+> **« back = navigation = bleu · cancel = annulation = rouge »**
+> puis, pour fermer toute lecture molle : **« back n'annule rien »**.
+
+| le mot | le geste | la teinte | la classe |
+|---|---|---|---|
+| **`Back`** | ⛔ **il ne touche à rien** — il recule, c'est tout | 🔵 bleu | `sortie-back` → `--info` |
+| **`Cancel`** | 🔴 il **abandonne ou efface** du travail fait | 🔴 rouge | `sortie-annule` → `--critical` |
+
+⛔ **DEUX MOTS, PAS TROIS.** `I changed my mind` a été retiré le 05/09 — Eric : *« cancel est
+clair et court »*, puis *« remplace par cancel partout »*. ⭐ Ce n'est pas un appauvrissement :
+les deux mots étaient **déjà la même famille** au corpus (DÉFAIRE, rouge) et ne se distinguaient
+que par leur **destination**. Cette distinction-là ne disparaît pas — elle cesse simplement
+d'être portée par le MOT. C'est la coquille qui lit le rang et décide où le geste rend.
+
+🔴 **ET LA FUSION A RÉPARÉ UN DÉFAUT VIVANT, LIVRÉ EN LIGNE.** La teinte se déduit du mot
+(`motDuRetour === "Cancel" ? "sortie-annule" : "sortie-back"`). Tant que le geste qui EFFACE
+s'appelait `I changed my mind`, il n'était pas `Cancel` — il recevait donc `sortie-back`,
+c'est-à-dire **du BLEU, la couleur de la navigation**. ⛔ Un bouton qui détruit du travail était
+peint comme un bouton qui recule.
+
+⭐ **LA LEÇON, ET ELLE DÉBORDE CE CAS** : *quand une TEINTE se déduit d'un MOT, changer le
+vocabulaire change le dessin.* Un renommage qu'on croyait cosmétique a corrigé une couleur —
+il aurait tout aussi bien pu en casser une. ⛔ Avant de renommer un libellé, chercher qui LIT
+ce libellé : ici, une ligne de `shell.mjs` en tirait une classe CSS.
+
+📌 Gardé par `tests/shell-wiring.test.mjs` §16 ter, qui vérifie la LOI (le mot du geste, et la
+teinte déduite du mot) — ⛔ plus la forme de la ternaire, qu'il épelait avant et qui l'a fait
+rougir sur cette réparation même.
 
 ### 🔴 LA FAMILLE « DÉFAIRE » — rouge, toujours, quel que soit l'état
 

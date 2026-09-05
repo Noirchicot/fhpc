@@ -136,7 +136,7 @@ test("🔴 c'est la SORTIE qui acte, et elle pose le MÊME `choose` qu'au lot 45
 
 test("🔴 DESTINY NE LAISSE PAS LA COQUILLE POSER SA PAIRE — `exists: false`", () => {
   /* Les deux écrans portent leur propre pied (`Draw`/`Choose` au R,
-     `I changed my mind`/`Next` à la fin). La paire de la coquille en plus
+     `Cancel`/`Next` à la fin). La paire de la coquille en plus
      serait le doublon du 19/08 : deux commandes pour un geste. */
   assert.equal(destinyValidate({ drawnId: "fh:arcana:en:the-tower" }).exists, false);
   assert.equal(destinyValidate({ drawnId: null }).ready, false,
@@ -282,7 +282,7 @@ test("le pied final nomme les deux gestes du croquis, et n'en commet aucun tout 
      ⛔ CECI DÉFAIT LE CROQUIS DU 02/09 (*« DONE, pas NEXT »*) que le lot 142
      avait écrit. La demande la plus récente fait loi, et les deux dates sont
      ici pour que personne ne redéfasse l'une en croyant réparer l'autre. */
-  assert.deepEqual(boutons.map((b) => b.textContent), ["I changed my mind", "Next"]);
+  assert.deepEqual(boutons.map((b) => b.textContent), ["Cancel", "Next"]);
   boutons[0].click();
   boutons[1].click();
   assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyNext" }]);
