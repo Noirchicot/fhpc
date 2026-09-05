@@ -2695,6 +2695,37 @@ de lisibilité, et mesuré **sur le rendu cumulé**, pas sur la déclaration. R�
 locale en aurait laissé la moitié debout. ⭐ *Quand un défaut se lit sur deux écrans, il
 appartient à l'organe qu'ils partagent.*
 
+### 🔵 L'AIGUILLEUR ET LE TUTORIEL DISENT LA MÊME ÉTAPE — PAS DE LA MÊME FAÇON *(Eric, 2026-09-05)*
+
+> *« le `?` est un tutoriel plus verbeux, plus agréable à lire, que l'aiguilleur, c'est
+> un popup »*.
+
+⛔ **LES DEUX PARLENT DE L'ÉCRAN, ET C'EST CE QUI LES REND CONFONDABLES.** Le livre, lui,
+se distingue tout seul : il parle du JEU et il SORT (sacré n° 2). L'aiguilleur et le
+tutoriel, non — ils s'adressent au même joueur, sur le même écran, au même moment. Ce qui
+les sépare n'est donc pas leur sujet : c'est leur **format**, et il se décide.
+
+| | l'aiguilleur (`.guide-mot`) | le tutoriel (le `?`) |
+|---|---|---|
+| **où** | **dans** la dalle, sous le titre | un **popup**, ouvert à la demande |
+| **combien** | une boîte de **3 lignes**, jamais plus | il **respire** — verbeux, et c'est voulu |
+| **le ton** | il **POINTE** : *« choisis une méthode ci-dessous »* | il **EXPLIQUE**, et il doit être agréable à lire |
+| **qui le voit** | tout le monde, tout le temps | celui qui le demande |
+
+⭐ **ET LA BRIÈVETÉ DE L'UN EST CE QUI PAIE LA LONGUEUR DE L'AUTRE.** L'aiguilleur est
+sous les yeux en permanence : trois lignes est un plafond, pas une cible, parce qu'un
+texte permanent qui s'allonge devient du décor qu'on cesse de lire. Le tutoriel s'ouvre
+sur un geste — celui qui le demande a *décidé* de lire, et lui servir trois lignes sèches
+est une réponse avare à une question franche.
+🔴 *Un texte qu'on subit se compte en lignes ; un texte qu'on demande se juge au plaisir
+de le lire.*
+
+⚠️ **CE QUE ÇA INTERDIT EN PRATIQUE, et ç'a été mesuré le 05/09** : le tutoriel
+d'Abilities tenait en trois lignes sèches, dont une citait `INFO` — un organe retiré le
+matin même. ⛔ Un tutoriel qui NOMME un organe se périme avec lui, et il envoie le joueur
+chercher ce qui n'est plus là. Il décrit ce qu'on peut FAIRE et où ça mène ; les noms
+propres d'organes n'y entrent que s'ils sont écrits sur le bouton.
+
 ⛔ **ET LE NOM `.aiguilleur` EST PRIS** — il désigne le recouvrement plein écran
 d'Équipement (375 × 500 blg), et ce fichier l'interdisait **déjà par écrit**. La session
 distante a écrit la classe, l'a mesurée au banc, et c'est **la mesure qui l'a envoyée
