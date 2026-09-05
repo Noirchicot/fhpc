@@ -109,41 +109,58 @@ test("④ LE LIEN VA DANS LES DEUX SENS — c'est tout le sujet", () => {
     "un lien à sens unique. Les deux règles se citent, ou aucune.");
 });
 
-/* ⚠️ LES AMENDEMENTS ANAMNÉSIQUES — compte EXACT, liste NOMMÉE.
-   Chacun réécrit une règle dont le texte a été écrasé : il n'y a plus d'ancre
-   à laquelle se lier. ⛔ Cette liste ne grandit pas. Un amendement NEUF pose
-   son lien, ou ce test rougit. */
+/* ⚠️ LES AMENDEMENTS ANTÉRIEURS AU RÉGIME — compte EXACT, liste NOMMÉE.
+   Chacun réécrit une règle dont le texte a été écrasé : il n'y a plus d'ancre à
+   laquelle se lier. ⛔ Cette liste ne grandit pas. Un amendement NEUF pose son
+   lien, ou ⑤ rougit.
+
+   ⛔ ET ON NE LES ÉPINGLE PAS PAR NUMÉRO DE LIGNE. La première version le
+   faisait : les 334 lignes qu'un autre siège a ajoutées au-dessus, le même
+   jour, ont décalé les cinq d'un coup et rendu le garde rouge sans qu'aucun
+   amendement ait bougé. Un garde ancré sur une POSITION casse à chaque édition
+   étrangère — et pousse le suivant à « remettre les numéros à jour », ce qui
+   est la façon ordinaire dont un garde se fait désarmer. On épingle donc sur
+   l'EMPREINTE du passage : une édition ailleurs ne le voit pas, une réécriture
+   DE CE PASSAGE le fait rougir, et c'est précisément ce qu'on veut. */
 const AMENDEMENTS_SANS_LIEN = [
-  "CADRES.md:65",    // « les gardes ont été RÉÉCRITS à cette vérité » — porte sur des tests, pas sur une règle
-  "NORMES.md:1745",  // « un choix que le lot a pris, et qu'un mot d'Eric RENVERSE » — le choix n'a jamais été écrit
-  "NORMES.md:3123",  // « CECI AMENDE UNE LIGNE QUE J'AVAIS GRAVÉE LE MATIN MÊME » — la ligne est écrasée
-  "NORMES.md:3591",  // « ÇA RENVERSE UNE DÉCISION DU LOT 120, DONT LA CAUSE A DISPARU »
-  "NORMES.md:4163",  // « le centrage était FAUX par construction » — constat, la règle fausse n'existe plus
+  "ont été RÉÉCRITS à cette vérité",              // porte sur des gardes, pas sur une règle
+  "QU'UN MOT D'ERIC RENVERSE",                    // le choix renversé n'a jamais été écrit
+  "CECI AMENDE UNE LIGNE QUE J'AVAIS GRAVÉE",     // la ligne visée est écrasée
+  "RENVERSE UNE DÉCISION DU LOT 120",             // sa cause a disparu avec elle
+  "le centrage était FAUX par construction",      // un constat : la règle fausse n'existe plus
 ];
 
 test("⑤ un amendement NEUF porte son lien retour", () => {
   /* ⚠️ `\b` EST ASCII EN JAVASCRIPT : `\bétait` ne matche JAMAIS, parce que `é`
      n'est pas un caractère de mot — la borne exigée devant lui ne peut pas
      exister. Le garde a été écrit avec, et il ne voyait pas le seul site du
-     corpus qui porte ce mot. Même famille que « un garde se teste sur les
-     FORMES QUE LE TEXTE EMPLOIE » (TRAPS.md). */
+     corpus qui porte ce mot, en restant vert. Même famille que « un garde se
+     teste sur les FORMES QUE LE TEXTE EMPLOIE » (TRAPS.md). */
   const MOTS = /(\bAMENDE\b|\bRENVERSE\b|\bRÉÉCRITS?\b|CECI DÉFAIT|était FAUX)/;
   /* ⛔ « AMENDEMENT » en TITRE est autre chose : il amende le corpus entier,
      pas une règle nommée. Ce garde vise la supersession d'UNE règle. */
-  const trouves = [];
+  const sites = [];
   for (const f of ["NORMES.md", "CADRES.md", "SOCLE.md"])
     lire(f).split("\n").forEach((l, i) => {
       if (/AMENDEMENT/.test(l)) return;
-      if (MOTS.test(l)) trouves.push(`${f}:${i + 1}`);
+      if (MOTS.test(l)) sites.push({ ou: `${f}:${i + 1}`, texte: l });
     });
-  const neufs = trouves.filter((t) => !AMENDEMENTS_SANS_LIEN.includes(t));
+
+  const neufs = sites
+    .filter((s) => !AMENDEMENTS_SANS_LIEN.some((e) => s.texte.includes(e)))
+    .map((s) => `${s.ou}  ${s.texte.trim().slice(0, 90)}`);
   assert.deepEqual(neufs, [],
     "un passage qui en PÉRIME un autre sans que les deux se citent. Pose " +
     "``· remplace `ancre-de-l-ancienne` `` sur la neuve et ``· remplacée par " +
     "`ancre-de-la-neuve` `` sur l'ancienne — dans LES DEUX SENS, sinon la " +
     "périmée continue de se lire comme si elle valait.");
-  const partis = AMENDEMENTS_SANS_LIEN.filter((t) => !trouves.includes(t));
-  assert.deepEqual(partis, [],
-    "un amendement de la liste nommée a disparu : la liste doit être mise à " +
-    "jour dans le même commit — sinon elle protège un site qui n'existe plus.");
+
+  /* ⭐ ET LA LISTE NE PROTÈGE QUE CE QUI EXISTE. Une empreinte qui ne trouve
+     plus son passage est une exception qui couvre le vide : elle se retire
+     dans le commit qui a fait disparaître le passage, jamais plus tard. */
+  const orphelines = AMENDEMENTS_SANS_LIEN
+    .filter((e) => !sites.some((s) => s.texte.includes(e)));
+  assert.deepEqual(orphelines, [],
+    "une exception nommée ne trouve plus son passage : le retirer de la liste " +
+    "dans le même commit que la disparition, sinon elle couvre du vide.");
 });
