@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=564") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=565") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4159,7 +4159,7 @@ button { font: inherit; }
   /* 📏 LA DÉPRESSION FAIT LA CELLULE DU DÉ, pas sa seule face — Eric, 05/09 :
      *« agrandis la dépression en proportion à la taille du dé, c'est trop petit »*.
      À 28 (la face), le cube de 29 × 33 la débordait ; à 41 (sa boîte), il s'y pose. */
-  width: var(--de-pose); height: var(--de-pose);
+  width: var(--collecteur-creux); height: var(--collecteur-creux);   /* 85 % de la cellule — tokens.css */
   border: 1px solid transparent; border-radius: var(--radius-sm);
   box-shadow: var(--creux);
 }
@@ -6784,7 +6784,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=564");
+  background-image: url("./assets/tarot-dos.jpg?v=565");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

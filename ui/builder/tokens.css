@@ -662,14 +662,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=564");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=565");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=564");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=565");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -707,6 +707,11 @@
      ne doit pas bouger une fois le dé posé »*). Si la cote du podium change,
      celle-ci se REMESURE avec la face. */
   --de-pose: 41px;
+  /* 🕳️ LA DÉPRESSION, UN RAPPORT SUR LA CELLULE — Eric, 05/09 : *« réduis la taille
+     du collecteur de 15 % »* après l'avoir voulue « en proportion du dé ». 41 × 0,85
+     = 34,85 : le creux fait 85 % de la cellule, la cellule ne bouge pas (§1 ter
+     bis : c'est elle que le dé posé lit). */
+  --collecteur-creux: calc(var(--de-pose) * .85);
   /* LOT 77 — 84 → 78. Le gabarit à 360 l'a MESURÉ : `Barbarian` à T3 fait
      62 px, plus 8 de rembourrage de chaque côté, soit 78. Les 6 px rendus
      vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
@@ -756,8 +761,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=564");
-  --bg-nuit: url("./assets/bg-night.jpg?v=564");
+  --bg-jour: url("./assets/bg-day.jpg?v=565");
+  --bg-nuit: url("./assets/bg-night.jpg?v=565");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
