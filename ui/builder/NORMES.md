@@ -4430,6 +4430,18 @@ Au survol, **rien ne se peint** : ni contour de colonne, ni outline de rangée, 
 autour du dé à échanger — au podium comme aux collecteurs. Le retour visuel du geste est le fantôme.
 *(Le liseré bleu / rouge / vert du §2 ter n'est pas demandé ici.)*
 
+### 7.8 `Roll Options` — trois boutons, et la scène 1 seulement *(06/09)*
+> *« 3d6, Flash et Reset = trois boutons de taille identique de type next (en bleu) et centrés dans une
+> même cellule. L'aiguilleur doit expliquer ce que font ces trois boutons. Roll Options peut disparaître
+> avec les trois boutons et les dés mobiles en scène 2. »*
+
+- **De type `Next`** : `.tray-bouton` entre dans la **famille octogone**, et prend le **bleu du mouvement** (`--info`) — jeter ou balayer ne signe rien au document. ⚠️ La teinte se pose **après** le bloc de la famille : à spécificité égale, écrite avant, elle perdrait en silence.
+- **Taille identique** : `flex: 0 0 var(--glisse-case)` — la cote partagée du dépôt, celle que `Next` plafonne. ⛔ Jamais la largeur naturelle : trois libellés de longueurs différentes font trois boutons différents.
+- **Centrés dans une cellule** : la rangée s'**étire** (`justify-self: stretch`) et son contenu se centre — la leçon de `FREE` (05/09).
+- **L'aiguilleur les nomme**, en scène 1 seulement : la règle de la méthode (`explicationDe`) **puis** ce que font les trois boutons. Les libellés ne sont pas recopiés — le premier vient de la mécanique, `Flash` et `Reset` de `LIBELLES` (abilities-tray.mjs). ⛔ Un texte qui NOMME un organe se périme avec lui.
+- **Tout le bloc part en scène 2** — titre, boutons, tapis vert et dés mobiles ensemble. ⚖️ `Reset` ramenait en scène 1 (05/09) ; c'est désormais `Cancel` (verbe `abilityClear`). *Le geste survit, il change de bouton parce que sa dalle a changé.*
+- 📏 Mesuré à 375 : trois boutons **87 × 44**, 29 blg de reste de chaque côté ; aiguilleur **3 lignes** (le plafond) en scène 1, 2 en scène 2.
+
 ### 7.7 La sortie de l'écran
 `Done` **bleu** dès qu'il est allumé (six poses) — il avance sans rien défaire, l'écran reste modifiable ;
 `Cancel` **rouge** dès qu'il a quelque chose à abandonner (le premier jet). Règle de la coquille

@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=573";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=573";
-import { swapContent } from "./socle.mjs?v=573";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=574";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=574";
+import { swapContent } from "./socle.mjs?v=574";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -241,6 +241,14 @@ function etatDuJet(jet) {
    demande depuis le matin (*« les 4 non sélectionnés passent en gris »*) est le
    clair du moteur, `ash` (`#c9cdd2`). Son chiffre redevient sombre (`num`
    `#3a3f45`) : l'encre blanche n'est plus forcée sur lui (shell.css). */
+/** ⌨️ LES DEUX LIBELLÉS COMMUNS AUX DEUX MÉCANIQUES — d'Eric, recopiés tels quels
+ *  (le premier bouton, lui, vient de la mécanique : `3d6` ou `4d6`).
+ *  ⭐ EXPORTÉS PARCE QUE L'AIGUILLEUR LES NOMME (`abilities-step.mjs`, 06/09 :
+ *  *« l'aiguilleur doit expliquer ce que font ces trois boutons »*). Deux
+ *  écrivains pour un même mot, c'est exactement la faute que `TAILLE_DE_RESULTAT`
+ *  a coûtée le 05/09 — un libellé changé d'un côté, une phrase qui ment de l'autre. */
+export const LIBELLES = { flash: "Flash", reset: "Reset" };
+
 const MATERIAU_PAR_ETAT = { garde: "white", ecarte: "ash", haut: "azure", bas: "white" };
 /* 📏 26 : dix dés de 26 et neuf écarts de 2 font 278 sur les ~327 utiles du tapis
    bleu (351 moins ses deux bouts arrondis). Le détail `6+6+6` mesure 31,8 en T1 :
@@ -319,8 +327,8 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   const reste = total - revele;
 
   const roll = bouton(meca.boutonUn, "tray-roll", () => sequence(1));
-  const flash = bouton("Flash", "tray-flash", () => flashRoll());
-  const reset = bouton("Reset", "tray-reset", () => { annule = true; onClear(); });
+  const flash = bouton(LIBELLES.flash, "tray-flash", () => flashRoll());
+  const reset = bouton(LIBELLES.reset, "tray-reset", () => { annule = true; onClear(); });
   /* 🎬 UN LOT COMPLET (scène 2) : il n'y a plus rien à tirer. `3d6` et `Flash`
      s'éteignent ; `Reset` reste armé — Eric, 05/09 : *« le bouton reset, lui
      aussi, ramène à la scène 1 »*. Éteint, un bouton reste lisible (§6). */

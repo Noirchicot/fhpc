@@ -91,6 +91,36 @@ test("7.6 — aucun artefact brun pendant le geste : rien de peint en --accent a
   }
 });
 
+test("7.8 — les trois boutons du plateau : famille octogone, bleu du mouvement, une seule cote", () => {
+  for (const suffixe of ["", "::before", "::after"]) {
+    const famille = REGLES.find((r) => r.sel.includes(`.sortie-bouton${suffixe},`) && r.sel.includes(".species-done"));
+    assert.ok(famille && famille.sel.includes(`.tray-bouton${suffixe},`),
+      `.tray-bouton${suffixe} doit être dans la famille octogone — « de type next »`);
+  }
+  assert.match(corpsDe(".tray-bouton"), /flex:\s*0 0 var\(--glisse-case\)/, "trois boutons identiques, à la cote partagée");
+  /* ⚠️ LE BLEU SE POSE APRÈS LA FAMILLE : le défaut gris vit dans son bloc, à
+     spécificité égale — écrit avant, il gagnerait et la règle serait perdante. */
+  const bleu = SHELL.indexOf(".tray-bouton { --bouton-fond: var(--info); }");
+  const famille = SHELL.indexOf("--bouton-fond: var(--text-muted)");
+  assert.ok(bleu > 0 && famille > 0 && bleu > famille, "la teinte du plateau doit être écrite APRÈS le défaut de la famille");
+  assert.match(corpsDe(".tray-boutons"), /justify-self:\s*stretch/, "la cellule s'étire…");
+  assert.match(corpsDe(".tray-boutons"), /justify-content:\s*center/, "…et son contenu se centre");
+  /* ⛔ Aucune apparence en double : la famille pose fond, liseré, rayon et encre. */
+  for (const interdit of [/background:/, /border:/, /border-radius:/, /color:\s*var\(--text\)/]) {
+    assert.ok(!interdit.test(corpsDe(".tray-bouton")), `.tray-bouton réécrit ${interdit} que la famille pose déjà`);
+  }
+});
+
+test("7.8 — les libellés n'ont qu'un écrivain : l'aiguilleur les LIT, il ne les recopie pas", () => {
+  assert.match(TRAY, /export const LIBELLES = \{ flash: "Flash", reset: "Reset" \};/);
+  assert.match(TRAY, /bouton\(LIBELLES\.flash,/);
+  assert.match(TRAY, /bouton\(LIBELLES\.reset,/);
+  assert.match(STEP, /\$\{LIBELLES\.flash\}/, "la phrase de l'aiguilleur lit le libellé du plateau");
+  assert.match(STEP, /\$\{meca\.boutonUn\}/, "…et le premier vient de la mécanique, jamais recopié");
+  assert.match(STEP, /meca && !scene2 \? " " \+ motDesBoutons\(meca\)/, "et il ne les nomme qu'en scène 1");
+  assert.match(STEP, /if \(!scene2\) flux\.append\(plateau\.commandes\)/, "le bloc entier part en scène 2");
+});
+
 test("7.7 — la sortie : Done bleu quand allumé, Cancel rouge quand armé — et la coquille arme Cancel dès le premier jet", () => {
   assert.match(corpsDe('.sortie-bouton.sortie-done[data-lit="true"]'), /--bouton-fond:\s*var\(--info\)/);
   assert.match(corpsDe('.sortie-bouton.sortie-annule[data-arme="true"]'), /--bouton-fond:\s*var\(--critical\)/);

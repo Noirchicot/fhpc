@@ -2634,7 +2634,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=573") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=574") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3710,15 +3710,25 @@ button { font: inherit; }
   color: var(--text);
 }
 
-.tray-boutons { display: flex; gap: var(--sp-16); justify-content: center; }  /* « 16 blg entre chaque » — 05/09 */
+/* 🔵 LES TROIS BOUTONS DU PLATEAU — Eric, 06/09 : *« 3d6, Flash et Reset = trois
+   boutons de taille identique, de type next (en bleu), centrés dans une même
+   cellule »*. Trois clauses, trois mécaniques déjà existantes :
+   · « de type next » → la FAMILLE OCTOGONE (`.tray-bouton` y entre, plus bas dans
+     cette feuille) et le bleu du mouvement — aucun des trois ne signe le document,
+     ils jettent ou balaient. La teinte se pose APRÈS la famille (§ du bleu).
+   · « taille identique » → la cote partagée du dépôt (`--glisse-case`), celle que
+     `Next` plafonne déjà. ⛔ Plus de largeur naturelle : trois libellés de
+     longueurs différentes donnaient trois boutons différents, et le registre veut
+     l'inverse (une bande où l'un s'étire dit qu'il compte plus).
+   · « dans une même cellule » → la rangée EST une cellule de la grille du flux :
+     elle s'ÉTIRE et c'est son contenu qui se centre — la leçon de `FREE` du 05/09
+     (`justify-self: center` centrait la boîte sur son propre contenu). */
+.tray-boutons {
+  display: flex; gap: var(--sp-16);   /* « 16 blg entre chaque » — 05/09 */
+  justify-self: stretch; justify-content: center;
+}
 .tray-bouton {
-  flex: 0 0 auto;               /* ⛔ NI ÉTIRÉS NI COMPRIMÉS. `1 1 0` donnait
-                                   quatre parts ÉGALES et écrasait le plus long
-                                   des libellés ; `1 0 auto` les étirait pour
-                                   remplir la rangée, ce qui empêche de les
-                                   CENTRER (Eric). À largeur naturelle, les
-                                   64 px de reste se partagent de part et
-                                   d'autre — c'est ça, centrés. */
+  flex: 0 0 var(--glisse-case);   /* identiques, à la cote partagée — jamais une largeur naturelle */
   /* ⛔ LA CIBLE TACTILE NE SE NÉGOCIE JAMAIS — et elle se LIT, elle ne se
      recopie pas. Ce `44` était le DERNIER plancher écrit en littéral de la
      feuille (relevé le 2026-09-04 : tous les autres valent `0`, l'idiome flex,
@@ -3732,11 +3742,10 @@ button { font: inherit; }
   font: inherit;
   font-size: var(--t3);         /* le gabarit : les actions sont à T3 */
   white-space: nowrap;
-  color: var(--text);
-  background: var(--dalle-simple);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
   cursor: pointer;
+  /* ⛔ NI FOND, NI LISERÉ, NI RAYON, NI ENCRE ICI : la famille octogone les pose
+     (plus bas, donc elle gagnerait de toute façon). Les laisser aurait été deux
+     écritures pour une seule apparence — la faute que ce fichier paie en boucle. */
 }
 .tray-bouton:disabled { opacity: 0.45; cursor: default; }
 
@@ -6854,7 +6863,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=573");
+  background-image: url("./assets/tarot-dos.jpg?v=574");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7416,6 +7425,7 @@ button { font: inherit; }
    exactement ces libellés sur dix écrans : il n'avait aucune raison de faire
    exception, seulement une histoire différente. */
 .sortie-bouton,
+.tray-bouton,
 .species-done,
 .parcours-item-porte,
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point)),
@@ -7472,6 +7482,7 @@ button { font: inherit; }
    un contexte d'empilement, donc le corps reste sous l'ÉTIQUETTE et rien
    d'autre. */
 .sortie-bouton::before,
+.tray-bouton::before,
 .species-done::before,
 .parcours-item-porte::before,
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::before,
@@ -7501,6 +7512,7 @@ button { font: inherit; }
    une boîte, qui fait suivre l'arête aux huit côtés. La coupe extérieure reste
    exactement `--bouton-coupe` ; ce retrait ne change aucune cote du bouton. */
 .sortie-bouton::after,
+.tray-bouton::after,
 .species-done::after,
 .parcours-item-porte::after,
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::after,
@@ -7587,6 +7599,12 @@ button { font: inherit; }
 .parcours-pied button.parcours-next { max-width: var(--glisse-case); }
 .parcours-pied button.parcours-next,
 .parcours-pied button.sortie-back { --bouton-fond: var(--info); }
+/* 🔵 ET LES TROIS DU PLATEAU — *« de type next (en bleu) »* (Eric, 06/09). Jeter
+   des dés ou balayer un lot ne signe rien au document : c'est le même bleu que
+   `Next` et `Back`. ⚠️ LA TEINTE SE POSE ICI, APRÈS LA FAMILLE : le défaut gris
+   (`--bouton-fond: --text-muted`) vit dans le bloc de la famille, à spécificité
+   égale — écrite plus haut, la règle aurait perdu en silence. */
+.tray-bouton { --bouton-fond: var(--info); }
 /* 🔴 `Cancel` PORTE LE ROUGE DE CE QUI ABANDONNE — Eric, 2026-09-03 : *« cancel
    annule donc rouge »* · *« c'est pas un back »*. Même teinte qu'`I changed my
    mind`, parce que c'est le même geste : on quitte sans emporter.

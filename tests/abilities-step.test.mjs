@@ -798,14 +798,23 @@ test("les quatre explications sont DIFFÉRENTES, et celles des dés viennent de 
     .querySelectorAll(".ability-organe-mot")[0].textContent;
   const phrases = ["fh3d6", "4d6", "standard", "free"].map(mot);
   assert.equal(new Set(phrases).size, 4, "quatre méthodes, quatre explications — jamais la même phrase");
-  /* ⌨️ Celle de FH 3D6 est validée MOT POUR MOT par Eric le 2026-08-16. */
-  assert.equal(phrases[0],
-    "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; your lowest always becomes 8.");
+  /* ⌨️ Celle de FH 3D6 est validée MOT POUR MOT par Eric le 2026-08-16 — elle OUVRE
+     toujours l'aiguilleur, et depuis le 06/09 la phrase des trois boutons la suit
+     (*« l'aiguilleur doit expliquer ce que font ces trois boutons »*), en scène 1
+     seulement : c'est là que les boutons existent. */
+  assert.ok(phrases[0].startsWith(
+    "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; your lowest always becomes 8."),
+    "la phrase d'Eric ouvre l'aiguilleur");
+  assert.match(phrases[0], /\. 3d6 rolls the next one, Flash rolls them all, Reset starts over\.$/,
+    "…et les trois boutons sont nommés, le premier par sa MÉCANIQUE");
   /* ⌨️ CELLES DE `4D6` ET `ARRAY` SONT LES FORMULATIONS DU PANNEAU INFO, et
      c'est délibéré : entre deux textes d'agent, on garde celui qui est passé
      sous l'œil d'Eric (il a relu le panneau et en a fait corriger une phrase).
      Les miennes, proposées au mandat §5 bis, n'ont jamais été ratifiées. */
-  assert.equal(phrases[1], "Roll four dice six times, drop the lowest die each time.");
+  assert.ok(phrases[1].startsWith("Roll four dice six times, drop the lowest die each time."));
+  assert.match(phrases[1], /\. 4d6 rolls the next one, /, "⭐ le premier bouton suit la mécanique, il n'est pas recopié");
+  /* ⛔ ET LES DEUX MÉTHODES SANS DÉS N'ONT PAS DE BOUTONS : leur aiguilleur ne
+     parle donc pas d'organes qu'elles n'ont pas. */
   assert.equal(phrases[2], "Six numbers, handed to everyone.");
   assert.match(phrases[3], /never runs out/);
 });
@@ -840,10 +849,17 @@ test("un redessin REPOSE les dés du plateau, il ne les efface pas — et il n'a
   assert.equal(collecteur.getAttribute("data-sortie-sans-done"), null, "et `Done` est là : il y a six dés à valider");
   assert.equal(collecteur.querySelectorAll(".livre-de-sortie").length, 1, "le livre a transité avec elle");
   assert.equal(node.querySelectorAll(".ability-des-gardes[data-podium]").length, 1, "le podium est apparu");
-  /* 🔒 `Reset` ramène en scène 1 (Eric) ; `3d6` et `Flash` n'ont plus rien à tirer. */
-  assert.equal(node.querySelectorAll(".tray-roll")[0].disabled, true, "scène 2 : `3d6` éteint");
-  assert.equal(node.querySelectorAll(".tray-flash")[0].disabled, true, "scène 2 : `Flash` éteint");
-  assert.equal(node.querySelectorAll(".tray-reset")[0].disabled, false, "scène 2 : `Reset` reste armé — il ramène en scène 1");
+  /* 🎬 `ROLL OPTIONS` PART AVEC SES BOUTONS — Eric, 06/09 : *« Roll Options peut
+     disparaître avec les trois boutons et les dés mobiles en scène 2 »*. Il n'y a
+     plus rien à jeter, et la place va au podium et à la sélection.
+     ⚖️ Le retour en scène 1 ne se perd pas, il change de bouton : `Reset` le
+     faisait, `Cancel` le fait — son verbe `abilityClear` est vérifié plus haut. */
+  assert.equal(node.querySelectorAll(".tray-titre").length, 0, "scène 2 : `Roll Options` a disparu");
+  assert.equal(node.querySelectorAll(".tray-bouton").length, 0, "…et les trois boutons avec lui");
+  /* ⛔ ET L'AIGUILLEUR NE LES NOMME PLUS : un texte qui nomme un organe se périme
+     avec lui (la faute du 05/09, prise par l'autre bout). */
+  assert.ok(!node.querySelectorAll(".ability-organe-mot")[0].textContent.includes("Flash"),
+    "scène 2 : l'aiguilleur ne parle plus de boutons absents");
 });
 
 test("le lot tiré : dix cases PLEINES sans qu'aucune salve n'ait tourné, six marquées gardées", () => {

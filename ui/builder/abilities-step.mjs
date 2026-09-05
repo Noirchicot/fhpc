@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=573";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=573";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=573";
-import { armerJeton } from "./glisser.mjs?v=573";
-import { facteurZoomCourant } from "./echelle.mjs?v=573";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=573";
-import { createDieHost, mount } from "./dice3d.mjs?v=573";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=573";
+import { markPressed } from "./carnet.mjs?v=574";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=574";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=574";
+import { armerJeton } from "./glisser.mjs?v=574";
+import { facteurZoomCourant } from "./echelle.mjs?v=574";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=574";
+import { createDieHost, mount } from "./dice3d.mjs?v=574";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=574";
 
 export { rollAbilitySet };
 
@@ -192,6 +192,15 @@ export const ABILITY_ENTRIES = [
 function explicationDe(entry) {
   if (entry.mecanique) return mecaniqueDeJet(entry.mecanique).summary;
   return entry.blurb;
+}
+
+/** CE QUE FONT LES TROIS BOUTONS — Eric, 06/09 : *« l'aiguilleur doit expliquer ce
+ *  que font ces trois boutons »*. Les libellés ne sont pas recopiés : le premier
+ *  vient de la mécanique, les deux autres du plateau (`LIBELLES`). Une phrase qui
+ *  NOMME un organe se périme avec lui — elle n'est donc dite qu'en scène 1, là où
+ *  les boutons existent. */
+function motDesBoutons(meca) {
+  return `${meca.boutonUn} rolls the next one, ${LIBELLES.flash} rolls them all, ${LIBELLES.reset} starts over.`;
 }
 
 /* ⛔ DEUX EXPORTS SONT PARTIS AU LOT 80, ET C'EST LA LOI §0.6 (le code s'en
@@ -1176,7 +1185,8 @@ export function renderAbilitiesStep(ctx, onAction) {
      comment se sert l'écran est un aiguilleur, où qu'il se trouve — c'est
      exactement la faute que R Abilities a payée la veille avec `.aiguilleur`,
      prise par l'autre bout : là un nom était pris, ici un organe était ignoré. */
-  flux.append(el("p", "guide-mot ability-organe-mot", [text(explicationDe(entry))]));
+  /* 📌 IL EST POSÉ PLUS BAS, une fois la scène connue : depuis le 06/09 il DIT LES
+     BOUTONS, et les boutons ne sont là qu'en scène 1. */
 
   /* ══ 🎬 DEUX SCÈNES — Eric, 2026-09-05 ═══════════════════════════════════
      *« Scène 1 : ça s'arrête à la dalle 3 + boutons livre · Cancel · ?. Scène 2 :
@@ -1197,6 +1207,14 @@ export function renderAbilitiesStep(ctx, onAction) {
      c'est ce que le vivier et le collecteur faisaient déjà avant les scènes. Le
      plateau, lui, ne repeint que le lot de SA mécanique. */
   const scene2 = Boolean(meca && rollBatch && Array.isArray(rollBatch.rolls) && rollBatch.rolls.length > 0);
+  /* 🔵 L'AIGUILLEUR, MAINTENANT QUE LA SCÈNE EST CONNUE. Il dit la règle de la
+     méthode (`explicationDe`, la même phrase que sa tuile à la racine) PUIS ce que
+     font les trois boutons — mais seulement là où ils sont. ⛔ Un aiguilleur qui
+     parlerait d'organes absents est la faute du 05/09, prise par l'autre bout : un
+     texte qui NOMME un organe se périme avec lui. */
+  flux.append(el("p", "guide-mot ability-organe-mot", [text(
+    explicationDe(entry) + (meca && !scene2 ? " " + motDesBoutons(meca) : "")
+  )]));
   let plateau = null;
   if (meca) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES — trois dés et dix jets, ou quatre
@@ -1208,12 +1226,15 @@ export function renderAbilitiesStep(ctx, onAction) {
       onRevele: (valeur) => act({ kind: "abilityRevele", valeur }),
       onClear: () => act({ kind: "abilityClear" })
     });
-    /* Les commandes vivent dans la première dalle, sous l'aiguilleur — dans les
-       DEUX scènes : en scène 2 `3d6` et `Flash` sont éteints par le plateau, et
-       `Reset` reste armé — Eric, 05/09 : *« le bouton reset, lui aussi, ramène à
-       la scène 1 »*. Une dalle qui garde sa silhouette d'une scène à l'autre
-       laisse l'œil sur ce qui change : le tapis qui part, le podium qui vient. */
-    flux.append(plateau.commandes);
+    /* 🎬 LES COMMANDES NE VIVENT QU'EN SCÈNE 1 — Eric, 06/09 : *« Roll Options peut
+       disparaître avec les trois boutons et les dés mobiles en scène 2 »*. Le titre,
+       les trois boutons et le tapis vert partent ensemble : il n'y a plus rien à
+       jeter, et la place va au podium et à la sélection.
+       ⚖️ CE QUE ÇA RETIRE, ET QUI LE REPREND : `Reset` ramenait à la scène 1
+       (Eric, 05/09) ; en scène 2 c'est `Cancel` qui le fait — il efface le lot
+       (verbe `abilityClear` déclaré sur la dalle de sélection). Le geste survit,
+       il change de bouton parce que sa dalle a changé. */
+    if (!scene2) flux.append(plateau.commandes);
   }
 
   /* ══ LE CONTEXTE PARTAGÉ DES TROIS ÉTAGES DU BAS ═══════════════════════
