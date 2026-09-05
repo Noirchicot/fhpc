@@ -720,7 +720,7 @@ test("garde d'octets — la coquille écrit TOUJOURS `abilities.mode` quand la m
 
 /* ══ 5 — LES QUATRE ORGANES, ET UN SEUL PLATEAU ═════════════════════════ */
 
-test("🔴 `FH 3D6` : le PLATEAU est sur le chemin vivant, avec les quatre libellés d'Eric", () => {
+test("🔴 `FH 3D6` : le PLATEAU est sur le chemin vivant, avec les trois libellés d'Eric — et la scène 1", () => {
   /* Le défaut qui a résisté à quatre branchements : `renderTray` était
      importé et câblé dans une fonction que PERSONNE n'appelait. Ce test passe
      donc par la porte du joueur, jamais par `renderTray` en direct. */
@@ -728,18 +728,32 @@ test("🔴 `FH 3D6` : le PLATEAU est sur le chemin vivant, avec les quatre libel
   assert.equal(node.querySelectorAll(".tray").length, 1, "le plateau est sur le chemin vivant de l'écran");
   assert.equal(node.querySelectorAll(".tray-titre")[0].textContent, "Roll Options", "le titre est à Eric");
   const libelles = node.querySelectorAll(".tray-bouton").map((b) => b.textContent);
-  assert.deepEqual(libelles, ["3d6", "10x3D6", "Flash", "Reset"],
-    "les quatre libellés sont ceux d'Eric, mot pour mot (2026-08-15, après essai sur iPhone SE)");
+  /* ⛔ `10x3D6` EST PARTI LE 2026-09-05 — Eric : *« exit 10x3d6 »*. Trois
+     libellés, toujours les siens, à sa casse. Un jet par pression, ou `Flash`. */
+  assert.deepEqual(libelles, ["3d6", "Flash", "Reset"],
+    "les trois libellés sont ceux d'Eric, mot pour mot (2026-08-15, puis « exit 10x3d6 » le 2026-09-05)");
   assert.equal(node.querySelectorAll(".tray-case").length, 10, "les dix cases existent DÈS LE DÉPART, vides");
+  assert.deepEqual(node.querySelectorAll(".tray-case-num").map((n) => n.textContent).slice(0, 2), ["roll 1", "roll 2"],
+    "⌨️ et chacune dit `roll N` — Eric, 05/09 : « roll 1 (en T1) … roll 10 »");
   assert.equal(node.querySelectorAll(".tray-des")[0].childNodes.length, 0,
     "sans lot, le plateau est vide — il n'invente pas de dés");
+  /* 🎬 SCÈNE 1 — sans lot complet : le tapis vert porte les dés, la sortie vit
+     sous les résultats, et elle DÉCLARE `Cancel` sans `Done` (rien à valider). */
+  assert.equal(node.querySelectorAll(".ability-tapis").length, 1, "scène 1 : le tapis vert est là");
+  const hote = node.querySelectorAll(".ability-resultats [data-sortie-ici]")[0];
+  assert.ok(hote, "scène 1 : la rangée de contrôles est la dernière cellule des résultats");
+  assert.equal(hote.getAttribute("data-sortie-mot"), "Cancel");
+  assert.equal(hote.getAttribute("data-sortie-sans-done"), "true");
+  assert.equal(hote.querySelectorAll(".livre-de-sortie").length, 1, "et l'écran y DÉPOSE son livre");
+  assert.equal(node.querySelectorAll(".ability-collecteur").length, 0, "scène 1 s'arrête aux résultats : pas de sélection");
+  assert.equal(node.querySelectorAll(".ability-des-gardes").length, 0, "ni podium");
   /* ⚠️ LE BUDGET DE LARGEUR — `Reset` est parti COUPÉ au bord droit de
      l'iPhone SE d'Eric, et la suite était verte : la largeur ne vivait que
      dans un commentaire. Ce garde est un PROXY (Node n'a pas de
      `measureText`) : il compte des caractères là où le navigateur compte des
      pixels, et il attrape le cas qui a réellement mordu. */
   const totalCar = libelles.join("").length;
-  assert.ok(totalCar <= 24, `les quatre libellés font ${totalCar} caractères : au-delà de 24, la rangée déborde à 360`);
+  assert.ok(totalCar <= 24, `les trois libellés font ${totalCar} caractères : au-delà de 24, la rangée déborde à 360`);
 });
 
 test("⭐ `4D6` EST LE MÊME PLATEAU, une autre mécanique — plus jamais un second organe", () => {
@@ -750,8 +764,8 @@ test("⭐ `4D6` EST LE MÊME PLATEAU, une autre mécanique — plus jamais un se
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "4d6" }), () => {});
   assert.equal(node.querySelectorAll(".tray").length, 1, "le MÊME plateau sert 4D6");
   assert.equal(node.querySelectorAll(".ability-roll-batch").length, 0, "et les pastilles plates ont disparu");
-  assert.deepEqual(node.querySelectorAll(".tray-bouton").map((b) => b.textContent), ["4d6", "6x4D6", "Flash", "Reset"],
-    "⌨️ ses deux premiers libellés viennent de SA mécanique, à la casse d'Eric");
+  assert.deepEqual(node.querySelectorAll(".tray-bouton").map((b) => b.textContent), ["4d6", "Flash", "Reset"],
+    "⌨️ son premier libellé vient de SA mécanique, à la casse d'Eric — et `6x4D6` est parti avec `10x3D6` (un seul plateau)");
   assert.equal(node.querySelectorAll(".tray-case").length, 6, "SIX cases : six jets, pas dix");
   assert.equal(node.querySelectorAll(".tray")[0].dataset.des, "4",
     "et la feuille sait combien de dés elle héberge — quatre ne tiennent pas à la cote de trois");
@@ -793,11 +807,33 @@ test("un redessin REPOSE les dés du plateau, il ne les efface pas — et il n'a
   const rollBatch = lotScripte();
   assert.equal(rollBatch.rolls[9].dice.length, 3, "mesure : un jet FH porte bien trois dés");
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "fh3d6", rollBatch }), () => {});
-  const hote = node.querySelectorAll(".tray-des")[0];
-  assert.equal(hote.children.length, 3, "les trois dés du dernier jet sont reposés");
-  assert.deepEqual(hote.children.map((d) => d.getAttribute("data-animate")), ["0", "0", "0"],
-    "et AUCUN ne tombe : un redessin prend la pose, il ne rejoue pas la scène");
-  assert.deepEqual(hote.children.map((d) => d.getAttribute("data-result")), rollBatch.rolls[9].dice.map(String));
+  /* 🎬 SCÈNE 2 — 2026-09-05, Eric : *« disparition de la dalle 3d6 de tirage une
+     fois tous les jets effectués »*. Un lot dans `state` est toujours complet :
+     le tapis et ses trois dés vivants ne sont PLUS là. Ce que le redessin
+     repose, ce sont les DIX instantanés des résultats — et aucun ne tombe :
+     un redessin prend la pose, il ne rejoue pas la scène (la propriété d'avant,
+     déplacée avec l'organe qu'elle gardait). */
+  assert.equal(node.querySelectorAll(".ability-tapis").length, 0, "scène 2 : le tapis de tirage a disparu");
+  assert.equal(node.querySelectorAll(".tray-des").length, 0, "et ses dés vivants avec lui");
+  const socles = node.querySelectorAll(".tray-case .porte-de");
+  assert.equal(socles.length, 10, "les dix résultats portent chacun leur dé-socle");
+  assert.ok(node.querySelectorAll(".tray-case .fh-cd-static-die, .tray-case [data-animate]")
+    .every((d) => d.getAttribute("data-animate") !== "1"), "et AUCUN ne tombe");
+  assert.deepEqual(node.querySelectorAll(".tray-case .valeur").map((v) => v.textContent),
+    rollBatch.rolls.map((r) => String(r.total)), "chaque socle porte le total de son jet");
+  /* ⭐ ET LA SORTIE A TRANSITÉ : plus d'hôte sous les résultats, la sélection
+     déclare `Cancel` qui EFFACE (verbe déclaré) et garde `Done`. */
+  assert.equal(node.querySelectorAll(".ability-resultats [data-sortie-ici]").length, 0, "la rangée a quitté les résultats");
+  const collecteur = node.querySelectorAll(".ability-collecteur")[0];
+  assert.equal(collecteur.getAttribute("data-sortie-mot"), "Cancel");
+  assert.equal(collecteur.getAttribute("data-sortie-verbe"), "abilityClear", "en scène 2, `Cancel` efface le lot — il ne recule pas d'un palier");
+  assert.equal(collecteur.getAttribute("data-sortie-sans-done"), null, "et `Done` est là : il y a six dés à valider");
+  assert.equal(collecteur.querySelectorAll(".livre-de-sortie").length, 1, "le livre a transité avec elle");
+  assert.equal(node.querySelectorAll(".ability-des-gardes[data-podium]").length, 1, "le podium est apparu");
+  /* 🔒 `Reset` ramène en scène 1 (Eric) ; `3d6` et `Flash` n'ont plus rien à tirer. */
+  assert.equal(node.querySelectorAll(".tray-roll")[0].disabled, true, "scène 2 : `3d6` éteint");
+  assert.equal(node.querySelectorAll(".tray-flash")[0].disabled, true, "scène 2 : `Flash` éteint");
+  assert.equal(node.querySelectorAll(".tray-reset")[0].disabled, false, "scène 2 : `Reset` reste armé — il ramène en scène 1");
 });
 
 test("le lot tiré : dix cases PLEINES sans qu'aucune salve n'ait tourné, six marquées gardées", () => {
@@ -809,7 +845,9 @@ test("le lot tiré : dix cases PLEINES sans qu'aucune salve n'ait tourné, six m
   /* ⭐ LE GARDE QUI COMPTE : un lot rangé dans `state` est TOUJOURS FINI, donc
      il se peint ENTIER. La version d'avant ne peignait que `revele` cases — et
      `revele` vaut 0 ici. La moitié des dix disparaissait au premier redessin. */
-  assert.equal(cases.filter((c) => c.getAttribute("data-etat") === "plein").length, 10,
+  /* `plein` est devenu quatre états le 05/09 (garde · ecarte · haut · bas) :
+     « pleine » se lit comme « pas vide ». */
+  assert.equal(cases.filter((c) => c.getAttribute("data-etat") !== "vide").length, 10,
     "`revele` ne décrit qu'une salve EN COURS, jamais ce qu'on affiche");
 });
 
@@ -836,6 +874,12 @@ test("⭐ LES DEUX PLANCHERS SE VOIENT — un jet ajusté ne se fait pas passer 
   const marquees = node.querySelectorAll(".tray-case").filter((c) => c.getAttribute("data-ajuste"));
   assert.deepEqual(marquees.map((c) => c.getAttribute("data-ajuste")).sort(), ["bas", "haut"],
     "la case dit LEQUEL des deux planchers l'a touchée");
+  /* 🎨 ET L'ÉTAT DIT LA COULEUR — Eric, 05/09 : gris pour les écartés, blanc pour
+     les gardés, orange pour le plancher bas (8), bleu pour le 14 garanti. */
+  const etats = node.querySelectorAll(".tray-case").map((c) => c.getAttribute("data-etat"));
+  assert.deepEqual([...new Set(etats)].sort(), ["bas", "ecarte", "garde", "haut"], "les quatre états sont à l'écran");
+  assert.equal(etats.filter((e) => e === "ecarte").length, 4, "quatre écartés en gris");
+  assert.equal(node.querySelectorAll(".tray-case .tray-case-detail").length, 10, "et chaque case porte son détail `a+b+c`");
   /* ⛔ ET AU VIVIER, UNE SEULE NOMENCLATURE : ce qui est TOMBÉ, rien d'autre.
      Le test le vérifie sur un jet AJUSTÉ et sur un jet ordinaire, sinon
      « minimaliste » ne serait prouvé que d'un côté. */

@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=553";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=553";
-import { renderTray } from "./abilities-tray.mjs?v=553";
-import { armerJeton } from "./glisser.mjs?v=553";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=553";
-import { createDieHost, mount } from "./dice3d.mjs?v=553";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=553";
+import { markPressed } from "./carnet.mjs?v=555";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=555";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=555";
+import { armerJeton } from "./glisser.mjs?v=555";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=555";
+import { createDieHost, mount } from "./dice3d.mjs?v=555";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=555";
 
 export { rollAbilitySet };
 
@@ -319,16 +319,9 @@ export function renderFinalColumn(resolved, key, rawValue, options) {
    ⛔ ET AUCUN STYLE EN LIGNE : la taille du chiffre vit dans la feuille
    (`--fs-de`), pas dans un `style.fontSize` — le banc s'en dispensait, la
    production non (garde 7 des jetons). */
-function poserUnDe(hote, valeur, taille, index) {
-  const porte = el("span", "porte-de");
-  porte.append(createDieHost({
-    /* `result: 6` — la POSE du dé, honnête : c'est la face qu'il montre. */
-    sides: 6, result: 6, sizePx: taille, index, animate: false, snapshot: true
-  }));
-  porte.append(el("b", "valeur", [text(String(valeur))]));
-  hote.append(porte);
-  mount(porte);
-}
+/* 🧊 `poserUnDe` VIT AU PLATEAU depuis le 2026-09-05 — il sert les dix résultats
+   ET les six gardés, donc il a un seul écrivain, et c'est le module qui écrit les
+   dix. Importé ci-dessus. */
 
 /* ══ LE FANTÔME — le dé qui suit le doigt ════════════════════════════════
    Eric, 2026-08-16 : *« je veux voir l'image du dé qui se déplace »*.
@@ -524,6 +517,13 @@ function renderVivier(ctx) {
   const rangee = el("ul", "ability-des-gardes fs-rangee");
   rangee.dataset.creneau = RETOUR_VIVIER;
   rangee.dataset.pool = "fini";
+  /* 🏆 LE PODIUM — Eric, 2026-09-05 : *« 6 îlots idem au code actuel sauf que la
+     dalle est invisible ; sur chaque îlot un cercle vert (image) ; sur chaque
+     cercle, à la fin du tirage, vient se poser un d6 issu de la sélection »*.
+     La feuille lit ce drapeau : fond de cercle, plus de verre, et l'animation
+     de pose au montage. La pastille bleue est une OPTION DE CONSTRUCTION (Eric)
+     — un jeton la commute, `--podium-pastille`. */
+  rangee.dataset.podium = "true";
 
   for (const roll of gardes) {
     const item = el("li", "fs");
@@ -662,7 +662,8 @@ function renderCibleVide() {
 
 function renderCollecteur(ctx) {
   const { document: doc, resolved } = ctx;
-  const bloc = el("section", "choix-glisse ability-glisse ability-collecteur dalle-intermediaire");
+  /* 📐 35 % (Eric, 05/09 : « toutes les dalles 35 % ») — 50 % avant. */
+  const bloc = el("section", "choix-glisse ability-glisse ability-collecteur dalle-simple");
   /* Le pied de la coquille vient s'accrocher ici, sous la consigne (voir la
      note de section). Une DÉCLARATION, pas une fabrication. */
   bloc.dataset.sortieIci = "true";
@@ -724,7 +725,12 @@ function renderCollecteur(ctx) {
     rangee.append(creneau);
   }
   bloc.append(rangee);
-  bloc.append(el("p", "glisse-consigne", [text(ctx.consigne)]));
+  /* 🧊 LA CONSIGNE EST PARTIE LE 2026-09-05 : la dalle de sélection d'Eric est
+     *« six collecteurs · 16 · la cellule livre/Back/Done/? · 8 »* — rien entre
+     les cibles et la rangée. Ce qu'elle disait (*« drag a die onto an ability,
+     dropping one that is already placed swaps the two »*) vit dans le tutoriel
+     du `?`, qui a le droit de respirer (§6 pré bis). Et ses ~30 blg sont ce qui
+     fait tenir la scène 2 dans les 492 de l'iPhone SE. */
   return bloc;
 }
 
@@ -1042,7 +1048,8 @@ export function renderAbilitiesStep(ctx, onAction) {
   section.dataset.bandes = "true";
 
   /* ── L'ORGANE : l'explication, et le jet quand il y en a un ────────── */
-  const organe = el("section", "ability-organe dalle-intermediaire");
+  /* 📐 35 %, PLUS 50 — Eric, 2026-09-05 : *« toutes les dalles 35 % / grid »*. */
+  const organe = el("section", "ability-organe dalle-simple");
   organe.dataset.methode = entry.id;
   /* ⭐ LA PAGE DIT DE QUELLE MÉTHODE ELLE EST. Sans le sélecteur au-dessus,
      c'est la seule chose qui replace le joueur après un `BACK` mal visé — et
@@ -1089,19 +1096,43 @@ export function renderAbilitiesStep(ctx, onAction) {
      exactement la faute que R Abilities a payée la veille avec `.aiguilleur`,
      prise par l'autre bout : là un nom était pris, ici un organe était ignoré. */
   flux.append(el("p", "guide-mot ability-organe-mot", [text(explicationDe(entry))]));
-  if (entry.mecanique) {
-    /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES depuis ce lot — trois dés et dix
-       jets, ou quatre dés et six jets. C'est le tableau qui le dit, jamais un
-       `if` ici. ⛔ Ses rappels ne passent PAS par `refresh()` : voir l'en-tête
-       d'`abilities-tray.mjs` et les actions du shell. */
-    flux.append(renderTray({
-      mecanique: mecaniqueDeJet(entry.mecanique),
-      lot: rollBatch && rollBatch.method === entry.mecanique ? rollBatch : null,
-      revele: ctx.revele || 0,
-      onNouveauLot: (lot) => act({ kind: "abilityLot", lot }),
+
+  /* ══ 🎬 DEUX SCÈNES — Eric, 2026-09-05 ═══════════════════════════════════
+     *« Scène 1 : ça s'arrête à la dalle 3 + boutons livre · Cancel · ?. Scène 2 :
+     disparition de la dalle 3d6 de tirage une fois tous les jets effectués, et
+     apparition de la dalle podium et de la dalle sélection ; les boutons
+     transitent vers la dalle sélection — livre · Cancel · Done · ? »*.
+
+     ⭐ LA BASCULE EXISTAIT DÉJÀ, ELLE N'AVAIT PAS DE NOM : `abilityLot` est *la
+     seule exception* qui redessine (shell.mjs), posée le jour où l'écran était
+     une impasse sans elle. Un lot rangé dans `state` est toujours COMPLET
+     (en-tête du plateau) — donc « il y a un lot » EST « les dix sont tombés ».
+     La scène se lit sur ce fait, jamais sur un compteur.
+     ⛔ Et rien ne redessine EN COURS de salve : la scène 1 est écrite à la main
+     par le plateau, jet après jet, dans des nœuds qui existent déjà. */
+  const meca = entry.mecanique ? mecaniqueDeJet(entry.mecanique) : null;
+  const lot = rollBatch && rollBatch.method === entry.mecanique ? rollBatch : null;
+  /* La scène se lit sur « un lot existe » — pas sur la méthode qui l'a produit :
+     c'est ce que le vivier et le collecteur faisaient déjà avant les scènes. Le
+     plateau, lui, ne repeint que le lot de SA mécanique. */
+  const scene2 = Boolean(meca && rollBatch && Array.isArray(rollBatch.rolls) && rollBatch.rolls.length > 0);
+  let plateau = null;
+  if (meca) {
+    /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES — trois dés et dix jets, ou quatre
+       dés et six jets. C'est le tableau qui le dit, jamais un `if` ici. ⛔ Ses
+       rappels ne passent PAS par `refresh()` : voir l'en-tête du plateau. */
+    plateau = renderTray({
+      mecanique: meca, lot, revele: ctx.revele || 0,
+      onNouveauLot: (lotNeuf) => act({ kind: "abilityLot", lot: lotNeuf }),
       onRevele: (valeur) => act({ kind: "abilityRevele", valeur }),
       onClear: () => act({ kind: "abilityClear" })
-    }));
+    });
+    /* Les commandes vivent dans la première dalle, sous l'aiguilleur — dans les
+       DEUX scènes : en scène 2 `3d6` et `Flash` sont éteints par le plateau, et
+       `Reset` reste armé — Eric, 05/09 : *« le bouton reset, lui aussi, ramène à
+       la scène 1 »*. Une dalle qui garde sa silhouette d'une scène à l'autre
+       laisse l'œil sur ce qui change : le tapis qui part, le podium qui vient. */
+    flux.append(plateau.commandes);
   }
 
   /* ══ LE CONTEXTE PARTAGÉ DES TROIS ÉTAGES DU BAS ═══════════════════════
@@ -1201,8 +1232,7 @@ export function renderAbilitiesStep(ctx, onAction) {
          de sens qu'entre dés en nombre fini, et la palette est inépuisable. */
       if (composable) { glisseCtx.poserDepuisPalette(ou, roll.total); return; }
       glisseCtx.poser(ou, roll);
-    },
-    consigne: "Drag a die onto an ability · dropping one that is already placed swaps the two"
+    }
   };
 
   /* ⭐ LA PALETTE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le
@@ -1214,6 +1244,41 @@ export function renderAbilitiesStep(ctx, onAction) {
      céder — la dalle, son titre et le collecteur ne bougent pas d'un pixel. */
   if (composable) flux.append(renderPalette(glisseCtx, act));
   section.append(organe);
+
+  if (plateau) {
+    /* ── DALLE 2 — le tapis vert porte les trois dés 3D. Invisible, centrée :
+       *« la dalle est invisible centrée horizontalement / l'image porte les dés /
+       elle remplit l'intégralité de la cellule »* (Eric, 05/09). Scène 1 seule :
+       en scène 2 le tirage est fini, le tapis disparaît. */
+    if (!scene2) {
+      const tapis = el("section", "ability-tapis");
+      tapis.append(plateau.des);
+      section.append(tapis);
+    }
+    /* ── DALLE RÉSULTATS — *« îlot large, continu, voile 0, image tapis bleu,
+       dans une cellule »*. Les dix cases vivent SUR l'image. En scène 1, la
+       rangée de contrôles (livre · Cancel · ?) est sa dernière cellule — sacré
+       n° 2, 8 blg du bas ; en scène 2 elle a transité vers la sélection. */
+    const resultats = el("section", "ability-resultats");
+    const tapisBleu = el("div", "ability-tapis-bleu");
+    tapisBleu.append(plateau.cases);
+    resultats.append(tapisBleu);
+    if (!scene2) {
+      const hote = el("div", "ability-sortie-hote");
+      hote.dataset.sortieIci = "true";
+      /* 🗣️ LA DÉCLARATION, PAS LA FABRICATION (garde 17) : l'hôte DIT ce qu'il
+         attend de la coquille — `Cancel` (on abandonne, rien n'est posé) et pas de
+         `Done` (rien à valider avant le dixième jet). La coquille produit. */
+      hote.dataset.sortieMot = "Cancel";
+      hote.dataset.sortieSansDone = "true";
+      hote.append(renderLivreDeLaMethode());
+      resultats.append(hote);
+    }
+    section.append(resultats);
+    /* Scène 1 s'arrête ici : ni podium ni sélection tant que les dix ne sont
+       pas tombés — *« ça s'arrête à la dalle 3 »*. */
+    if (!scene2) return section;
+  }
 
   const vivier = renderVivier(glisseCtx);
   if (vivier) {
@@ -1227,8 +1292,32 @@ export function renderAbilitiesStep(ctx, onAction) {
        diffère est ce qui remplit le vivier — et seize valeurs, ça se loge. */
     section.append(vivier);
   }
-  section.append(renderCollecteur(glisseCtx));
+  const collecteur = renderCollecteur(glisseCtx);
+  if (plateau) {
+    /* 🗣️ SCÈNE 2 : `Cancel` EFFACE LE LOT et ramène en scène 1 — c'est ce que le
+       mot promet (rouge : *« il abandonne ou efface du travail fait »*). Reculer
+       jusqu'au R se fait ensuite, du même bouton, depuis la scène 1 : une échelle
+       où chaque `Cancel` défait le dernier pas. `Done` valide les six posés. */
+    collecteur.dataset.sortieMot = "Cancel";
+    collecteur.dataset.sortieVerbe = "abilityClear";
+    collecteur.append(renderLivreDeLaMethode());
+  }
+  section.append(collecteur);
   return section;
+}
+
+/** 📖 LE LIVRE DE LA MÉTHODE — il SORT vers la section `3d6 × 10` de FH WEB
+ *  (sacré n° 2 : le livre mène, il ne raconte pas). L'écran le DÉPOSE dans
+ *  l'hôte de sa sortie ; `poserLesBornes` le range en tête de la dernière rangée.
+ *  Même patron qu'à `destiny-step.mjs` et qu'au R d'Abilities. */
+function renderLivreDeLaMethode() {
+  const livre = el("button", "fiche-livre livre-de-sortie");
+  livre.type = "button";
+  livre.setAttribute("aria-label", "Ability scores — read the 3d6 × 10 rules on FH Web");
+  livre.addEventListener("click", () => {
+    window.open(lienAbilityScoresFhWeb("the-3d6-10-method"), "_blank", "noopener");
+  });
+  return livre;
 }
 
 /** LA PORTE DE B5 — il n'y en a plus qu'UNE : *avancer quand les six scores

@@ -649,6 +649,26 @@
      simplement ignoré. Même famille que la règle perdante d'hier — le
      navigateur seul pouvait le dire. */
   --fs-de-max: 80px;
+  /* 🎲 B1 — Eric, 2026-09-05. `--encre-tapis` : l'encre qu'on ÉCRIT SUR une image
+     (tapis bleu, tapis vert) — *« écris en blanc dessus »*. Elle ne suit PAS le
+     thème : l'image est la même le jour et la nuit, donc l'encre aussi ; `--text`
+     rendrait sombre sur le tapis bleu en thème clair. `--podium-pastille` : le
+     cercle sous chaque dé gardé — la verte par défaut, *« la bleue est une
+     alternative, une option de construction »* : on commute ici, jamais dans la
+     règle qui la lit. */
+  --encre-tapis: #ffffff;
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=555");
+  /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
+     · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
+       son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
+       elle perdait la cascade du gabarit trois bandes ; retirée.
+     · `--tray-carre` : le carré au trait rouge d'un résultat vide. `roll 10`
+       mesure 27,6 en T1 Inter (measureText de la page) : 30 le loge.
+     · `--tray-de-resultat` : dix dés de 26 et neuf écarts de 2 font 278, sur
+       les ~327 utiles du tapis bleu — et le détail `6+6+6` (31,8) qui fixe la
+       colonne passe encore. */
+  --tray-carre: 30px;
+  --tray-de-resultat: 26px;
   /* LOT 77 — 84 → 78. Le gabarit à 360 l'a MESURÉ : `Barbarian` à T3 fait
      62 px, plus 8 de rembourrage de chaque côté, soit 78. Les 6 px rendus
      vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
@@ -698,8 +718,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=553");
-  --bg-nuit: url("./assets/bg-night.jpg?v=553");
+  --bg-jour: url("./assets/bg-day.jpg?v=555");
+  --bg-nuit: url("./assets/bg-night.jpg?v=555");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

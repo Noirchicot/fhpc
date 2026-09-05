@@ -360,7 +360,10 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
      une raison qui n'est pas la sienne. */
   assert.deepEqual(fichiersDuLibelle("pressDone()"), [SORTIE_ETAPE.producteur],
     "le verbe de l'avance n'est appelé QUE dans la coquille — c'est elle qui possède l'enchaînement des paliers (I.4)");
-  assert.match(shellText, /function renderSortieEtape\(\)/,
+  /* 🗣️ `(hote)` DEPUIS LE 2026-09-05 : la paire lit la DÉCLARATION de son hôte
+     (mot du retour, `Done` ou pas, verbe). Le producteur reste unique — c'est
+     ce que cette ligne garde, pas sa signature. */
+  assert.match(shellText, /function renderSortieEtape\((?:hote)?\)/,
     "et la paire a un producteur nommé : un écran qui la recopierait en ferait la sortie d'UN écran");
   /* ⚠️ CE QUE CETTE LIGNE GARDE A CHANGÉ DE FORME LE 2026-08-17, PAS DE FOND.
      La sortie ne se pose plus toujours au bas de la scène : un écran peut
@@ -389,7 +392,7 @@ test("16 bis — ⭐ ET LA SORTIE D'ÉTAPE EXISTE : le garde ne garde pas du vid
     "et l'écran ne fait que DÉCLARER ses hôtes — il ne fabrique toujours aucune sortie (garde 17)");
   assert.match(shellText, /if \(hotes\.length === 0\) return noeuds;/,
     "⛔ un écran qui ne déclare rien garde le pied au bas de la scène : les neuf autres ne bougent pas");
-  assert.match(shellText, /hotes\.forEach\([\s\S]{0,140}?renderSortieEtape\(\)/,
+  assert.match(shellText, /hotes\.forEach\([\s\S]{0,140}?renderSortieEtape\((?:h)?\)/,
     "⛔ et les hôtes suivants reçoivent une sortie NEUVE, jamais un clone : " +
     "`cloneNode` ne recopie pas les écouteurs, et le bouton répondrait à rien");
 });

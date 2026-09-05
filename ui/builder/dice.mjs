@@ -168,7 +168,7 @@ export const ROLLING_METHODS = [
   {
     id: "fh3d6", label: "FH 3D6",
     des: 3, jets: 10,
-    boutonUn: "3d6", boutonTous: "10x3D6",
+    boutonUn: "3d6",   /* ⛔ `10x3D6` retiré le 2026-09-05 — Eric : « exit 10x3d6 » */
     jeter: rollThreeD6,
     finir: (jets) => appliquerLesPlanchers(markKept(jets)),
     summary: "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, "
@@ -177,7 +177,7 @@ export const ROLLING_METHODS = [
   {
     id: "4d6", label: "4D6",
     des: 4, jets: 6,
-    boutonUn: "4d6", boutonTous: "6x4D6",
+    boutonUn: "4d6",   /* `6x4D6` parti avec lui : un seul plateau, une seule rangée */
     jeter: rollFourD6DropLowest,
     /* ⛔ AUCUNE RÈGLE DE GARDE ICI, ET C'EST LA MÉTHODE : six jets, six
        scores, rien à trier et rien à rattraper (§4.2 du mandat). `kept: true`

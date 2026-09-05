@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=553";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=553";
-import { swapContent } from "./socle.mjs?v=553";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=555";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=555";
+import { swapContent } from "./socle.mjs?v=555";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -116,7 +116,11 @@ export const REGLAGES = {
   /* ⚖️ `tailleBureau` (82) A ÉTÉ RETIRÉE avec le seuil qui la choisissait —
      30/08 au soir. UNE cote de dé, désormais, et c'est l'échelle qui la
      fait grandir. Voir `tailleDeDe` plus bas pour la raison complète. */
-  taille: 72,
+  /* 📐 56, PLUS 72 — Eric, 2026-09-05 : *« réduis la taille des dés pour gagner de
+     l'espace »*. Le tapis vert qui les porte (ratio réel 3,14) ne peut pas tenir
+     16 blg de bord dans les deux sens à 72 ; à 56, trois dés et leurs 16 font
+     200 de large, et le tapis 276 × 88 les loge avec 16 au-dessus et en dessous. */
+  taille: 56,
   /* 🔴 QUATRE DÉS NE TIENNENT PAS À LA COTE DE TROIS, et c'est de
      l'arithmétique, pas un goût — même famille que l'écart de 4 des îlots FS.
      La largeur utile du plateau est **294** (mesurée en tête de ce fichier,
@@ -124,8 +128,9 @@ export const REGLAGES = {
      de 4 demandent **300**. Il déborderait de 6 px sur l'iPhone SE d'Eric —
      exactement la faute que `Reset` coupé au bord droit a déjà coûtée.
      ⭐ (294 − 3×4) ÷ 4 = 70,5 → **70**,  */
-  taille4: 70,
-  ecart: 4,
+  taille4: 56,
+  /* 16, plus 4 — *« espacés de 16 blg les uns des autres »* (Eric, 05/09). */
+  ecart: 16,
   pauseMs: 2500,   // « pause 2500 bien » — il a essayé 2000 et a préféré plus lent
   /* ⚡ FLASH ROLL — Eric, 2026-08-15 : « on voit le résultat et c'est tout,
      on ne voit pas le process et les erreurs ».
@@ -181,14 +186,61 @@ function poserLesDes(hote, des, anime) {
 /** Une case de résultat, dans la rangée des dix. Elle existe DÈS LE DÉPART,
  *  vide : c'est ce qui permet à la révélation d'écrire dedans sans
  *  reconstruire la rangée (et donc sans toucher aux canvas voisins). */
+/* 🔴 REDESSINÉE LE 2026-09-05 SUR LA DICTÉE D'ERIC : *« texte blanc dans carrés
+   rouges — roll 1 (en T1) … roll 10 »*, puis *« c'est un trait qui délimite une
+   zone »*. Vide, la case est un carré au TRAIT rouge, sans fond, qui dit `roll N`.
+   Pleine, elle porte un petit dé (instantané, sans WebGL) et le détail du jet.
+   📏 `roll 10` mesure 27,6 en T1 Inter — il tient sur UNE ligne dans un carré
+   de 30 (mesuré au `measureText` de la page, pas estimé). */
 function caseDeResultat(numero) {
   const box = el("li", "tray-case");
   box.dataset.numero = String(numero);
   box.dataset.etat = "vide";
-  box.append(el("span", "tray-case-num", [texte(String(numero))]));
-  box.append(el("span", "tray-case-total", [texte("—")]));
+  box.append(etiquetteDeCase(numero));
   return box;
 }
+/** L'ÉTIQUETTE d'une case vide — `roll N` dans son carré au trait. ⛔ Elle n'est
+ *  jamais CACHÉE sous le dé : la case ÉCHANGE son contenu (étiquette ↔ dé), parce
+ *  que la feuille n'a droit à aucun `display: none` (défaut n° 3) et qu'un nœud
+ *  qu'on garde « au cas où » est un nœud qu'on finit par oublier. */
+function etiquetteDeCase(numero) {
+  return el("span", "tray-case-num", [texte(`roll ${numero}`)]);
+}
+
+/** LE DÉ-SOCLE — un instantané du moteur (`result: 6`, la pose honnête) avec le
+ *  score écrit PAR-DESSUS. Levé d'`abilities-step.mjs` le 05/09 : le plateau en
+ *  a besoin pour ses dix résultats, le podium pour ses six gardés — une brique,
+ *  un écrivain. ⛔ Le moteur refuse d'écrire 15 sur un d6 et il a raison : c'est
+ *  l'écran qui écrit le score, l'incrustation du moteur se tait (`.valeur`).
+ *  `material` dit la COULEUR du socle : `white` gardé, `slate` écarté, `azure`
+ *  monté à 14 ; le plancher bas (orange) se teinte en feuille — `dice3d.mjs`
+ *  est une copie verbatim de `fh-phb`, on n'y ajoute pas un matériau ici. */
+export function poserUnDe(hote, valeur, taille, index, material = "ivory") {
+  const porte = el("span", "porte-de");
+  porte.append(createDieHost({
+    sides: 6, result: 6, sizePx: taille, index, animate: false, snapshot: true, material
+  }));
+  porte.append(el("b", "valeur", [texte(String(valeur))]));
+  hote.append(porte);
+  mount(porte);
+}
+
+/** L'ÉTAT D'UN JET POUR L'ŒIL — Eric, 05/09 : *« les 4 non sélectionnés passent
+ *  en gris, les sélectionnés restent en blanc. Le plus bas de la sélection passe
+ *  en orange et devient un 8. Si absence de 14, le plus haut est remplacé par un
+ *  14 et le dé est bleu. »* Tant que le lot n'est pas clos, `kept` n'existe pas
+ *  et le jet est simplement blanc. */
+function etatDuJet(jet) {
+  if (jet.ajuste === "bas") return "bas";
+  if (jet.ajuste === "haut") return "haut";
+  if (jet.kept === false) return "ecarte";
+  return "garde";
+}
+const MATERIAU_PAR_ETAT = { garde: "white", ecarte: "slate", haut: "azure", bas: "white" };
+/* 📏 26 : dix dés de 26 et neuf écarts de 2 font 278 sur les ~327 utiles du tapis
+   bleu (351 moins ses deux bouts arrondis). Le détail `6+6+6` mesure 31,8 en T1 :
+   c'est LUI qui fixe la colonne à 32, pas le dé. */
+const TAILLE_DE_RESULTAT = 26;
 
 /**
  * Le plateau entier. Rend un nœud, et ne connaît ni la coquille ni les
@@ -208,11 +260,24 @@ function caseDeResultat(numero) {
  *        se contente de le RANGER dans `state`, SANS redessiner.
  * @param {()=>void} o.onClear       remet les tirages à zéro
  */
+/* ══ 🔴 LE PLATEAU RENDU EN TROIS SURFACES — Eric, 2026-09-05 ═══════════════
+   Sa dictée découpe l'écran en dalles : les COMMANDES (« Roll Options » et ses
+   boutons) dans la première, les DÉS 3D sur un tapis vert dans la deuxième, les
+   RÉSULTATS sur un tapis bleu dans la troisième. Le plateau reste UN module —
+   une séquence, un lot, une règle — mais il rend trois nœuds au lieu d'une
+   dalle, et c'est l'écran qui les pose chacun dans sa cellule.
+   ⛔ Ce n'est pas trois plateaux : la séquence écrit dans les trois surfaces
+   depuis la même fermeture, exactement comme avant dans la même dalle.
+   ⛔ `10x3D6` EST PARTI (*« exit 10x3d6 »*) : un jet par pression, ou `Flash`.
+   Le même plateau sert 4D6, donc `6x4D6` part avec lui — un seul organe. */
 export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, onNouveauLot, onClear }) {
   /* ⛔ JAMAIS `undefined` ICI : `mecaniqueDeJet` retombe sur la première
      entrée plutôt que de laisser un appelant lire `.jets` sur du vide. */
   const meca = mecanique && mecanique.jets ? mecanique : mecaniqueDeJet(mecanique && mecanique.id);
-  const dalle = el("section", "tray dalle-intermediaire");
+  /* ⛔ PLUS `dalle-intermediaire` — Eric, 05/09 : *« on ne voit pas les contours
+     des boîtes qui composent la dalle »*. Le plateau est une BOÎTE dans la
+     première dalle, pas une dalle : ni verre, ni liseré. */
+  const dalle = el("section", "tray");
   /* La feuille a besoin de savoir combien de dés elle héberge : quatre dés ne
      tiennent pas à la cote de trois (voir `REGLAGES.taille4`). */
   dalle.dataset.des = String(meca.des);
@@ -244,10 +309,13 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   const reste = total - revele;
 
   const roll = bouton(meca.boutonUn, "tray-roll", () => sequence(1));
-  const roll10 = bouton(meca.boutonTous, "tray-roll10", () => sequence(reste || total));
   const flash = bouton("Flash", "tray-flash", () => flashRoll());
   const reset = bouton("Reset", "tray-reset", () => { annule = true; onClear(); });
-  barre.append(roll, roll10, flash, reset);
+  /* 🎬 UN LOT COMPLET (scène 2) : il n'y a plus rien à tirer. `3d6` et `Flash`
+     s'éteignent ; `Reset` reste armé — Eric, 05/09 : *« le bouton reset, lui
+     aussi, ramène à la scène 1 »*. Éteint, un bouton reste lisible (§6). */
+  if (lotInitial) { roll.disabled = true; flash.disabled = true; }
+  barre.append(roll, flash, reset);
   dalle.append(barre);
 
   /* ⛔ LA MENTION DE RELANCE A DISPARU AVEC LA RELANCE (lot 80, §3).
@@ -257,16 +325,16 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
 
   /* ── Le plateau : les dés, au centre ───────────────────────────────── */
   const hote = el("div", "tray-des");
-  dalle.append(hote);
+  hote.dataset.des = String(meca.des);
 
   /* ── Les cases, créées vides et remplies par la révélation ─────────── */
   const rangee = el("ol", "tray-cases");
+  rangee.dataset.cases = String(total);
   const cases = Array.from({ length: total }, (_, i) => {
     const c = caseDeResultat(i + 1);
     rangee.append(c);
     return c;
   });
-  dalle.append(rangee);
 
   /* ── ⭐ UN LOT RANGÉ DANS `state` EST TOUJOURS FINI ────────────────────
      `revele` ne décrit qu'une salve EN COURS — jamais ce qu'on affiche. Un
@@ -305,7 +373,7 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   async function sequence(combien) {
     if (enCours) return;
     enCours = true; annule = false;
-    roll.disabled = roll10.disabled = flash.disabled = true;
+    roll.disabled = flash.disabled = true;
     let faits = 0;
     while (faits < combien && !annule) {
       /* Une salve qui repart d'un lot COMPLET recommence à zéro : on ne
@@ -338,7 +406,7 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
       break;
     }
     enCours = false;
-    if (roll.isConnected) roll.disabled = roll10.disabled = flash.disabled = false;
+    if (roll.isConnected) roll.disabled = flash.disabled = false;
   }
 
   /* ⚡ LE FLASH — aucun dé ne roule, aucun jet ne se regarde tomber.
@@ -370,7 +438,10 @@ export function renderTray({ mecanique, lot: lotInitial, revele = 0, onRevele, o
   const minuteurs = [];
   dalle.addEventListener("tray:stop", () => { annule = true; minuteurs.forEach((f) => f()); });
 
-  return dalle;
+  /* ⭐ TROIS SURFACES, UNE FERMETURE. `commandes` est la boîte « Roll Options »
+     (le `.tray` d'avant, sans les dés ni les cases), `des` l'hôte des dés 3D,
+     `cases` la rangée des résultats. L'écran les pose ; la séquence les écrit. */
+  return { commandes: dalle, des: hote, cases: rangee };
 }
 
 /** Remet les cases à vide — un lot balayé disparaît de l'écran, il ne se
@@ -380,7 +451,7 @@ function videLesCases(cases) {
     c.dataset.etat = "vide";
     delete c.dataset.garde;
     delete c.dataset.ajuste;
-    c.querySelector(".tray-case-total").textContent = "—";
+    swapContent(c, [etiquetteDeCase(Number(c.dataset.numero))]);
     c.removeAttribute("title");
   }
 }
@@ -418,10 +489,21 @@ function peinsLeLot(cases, lot) {
  *  case · trancher sur le lot entier) n'a pas de signature honnête — l'une des
  *  deux finit appelée avec les paramètres de l'autre. Une brique, un écrivain. */
 function ecrisCase(box, jet) {
-  box.dataset.etat = "plein";
-  box.querySelector(".tray-case-total").textContent = String(jet.total);
+  const etat = etatDuJet(jet);
+  box.dataset.etat = etat;
   if (jet.ajuste) box.dataset.ajuste = jet.ajuste;
   else delete box.dataset.ajuste;
+  /* 🎲 LE DÉ-SOCLE ET LE DÉTAIL — *« une image de d6 avec le total marqué sur
+     son sommet, en dessous le détail du jet 4+2+1 »* (Eric, 05/09). Le socle se
+     REPEINT à chaque écriture parce que sa couleur dit l'état, et l'état change
+     au dixième jet. Sur un jet remplacé par un plancher, le détail est BARRÉ
+     (feuille, `data-ajuste`) : les dés sont tombés ainsi, le total dit autre chose. */
+  const logement = el("span", "tray-case-de");
+  poserUnDe(logement, jet.total, TAILLE_DE_RESULTAT, Number(box.dataset.numero) - 1, MATERIAU_PAR_ETAT[etat]);
+  if (Array.isArray(jet.dice) && jet.dice.length) {
+    logement.append(el("span", "tray-case-detail", [texte(jet.dice.join("+"))]));
+  }
+  swapContent(box, [logement]);
   /* L'infobulle dit les dés ET, si le plancher a mordu, ce que le jet valait
      avant lui. C'est le seul endroit où les deux nombres se lisent ensemble. */
   const des = jet.dice.join(" + ");

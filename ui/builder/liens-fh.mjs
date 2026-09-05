@@ -38,8 +38,11 @@ const ANCRES_SKILLS = {
  *  c'est la loi de ce fichier, et c'est pour ça qu'il existe.
  *  ⛔ Aucune ancre : le chapitre se lit en entier, et une ancre morte ne se
  *  voit qu'en cliquant. */
-export function lienAbilityScoresFhWeb() {
-  return `${FH_WEB}/chapters/ability-scores/`;
+export function lienAbilityScoresFhWeb(ancre) {
+  /* ⭐ L'ANCRE EST MESURÉE, PAS DEVINÉE — `#the-3d6-10-method` existe sur la page
+     publiée (relevé au `curl` le 2026-09-05). B1 y mène ; la racine reste sur
+     le chapitre entier. ⛔ Ne pas en inventer d'autre sans la relever. */
+  return `${FH_WEB}/chapters/ability-scores/` + (ancre ? `#${ancre}` : "");
 }
 
 /** L'URL FH web d'un skill, par son slug ou son nom. */
