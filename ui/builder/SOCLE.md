@@ -34,6 +34,8 @@
 ---
 
 ## La règle de rendu tranchée : **B**
+📍 `socle-fiche-vs-stage` · vivante · ?
+📍 `socle-regle-de-rendu-b` · vivante · ?
 
 `ERGONOMIE-BUILDER.md` §RENDU laissait trois issues à `app.innerHTML = ""` :
 **A** mémoriser/restaurer le défilement · **B** ne redessiner que ce qui
@@ -61,6 +63,7 @@ le mini-framework de 2 000 lignes que la commande interdit. Le cadre suffit
 ne réclame aujourd'hui.
 
 ## Qui possède quoi
+📍 `socle-qui-possede-quoi` · vivante · ?
 
 | L'état | Où il vit | Qui l'écrit |
 |---|---|---|
@@ -228,6 +231,7 @@ que le fichier existe** — elle prouve seulement qu'on a voulu qu'il existe.
 noté ici est le **fait**, pour qu'il ne se redécouvre pas une troisième fois.
 
 ## Les trois verbes, et rien d'autre
+📍 `socle-trois-verbes-du-rendu` · vivante · ?
 
 | Verbe | Quand | Ce qu'il fait au défilement |
 |---|---|---|
@@ -240,6 +244,7 @@ appelle `refresh()` se mord la queue : le redessin bouge le défilement, qui
 rappelle le spy. Le spy **écrit `state`, touche un attribut, et s'arrête là.**
 
 ## Ce qui ne se redessine JAMAIS
+📍 `socle-ce-qui-ne-se-redessine-jamais` · vivante · ?
 
 - `.belt` et ses dix crans — **les nœuds sont créés une fois**, seuls
   `data-status` / `aria-current` changent ;
@@ -251,6 +256,7 @@ rappelle le spy. Le spy **écrit `state`, touche un attribut, et s'arrête là.*
   persiste, ce qu'un écran y met peut changer.
 
 ## Ce qui doit survivre à une mise à jour
+📍 `socle-cinq-choses-qui-survivent` · vivante · ?
 
 Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 
@@ -263,6 +269,11 @@ Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 | le palier de `Validate` (**I.4**) | `state.palier`, hors du DOM par construction |
 
 ## Les quatre fonctions du socle
+📍 `socle-chevrons-machine-a-etats` · vivante · ?
+📍 `socle-keepinview-remplace-scrollintoview` · vivante · ?
+📍 `socle-quatre-fonctions` · vivante · ?
+📍 `socle-rien-sans-un-ecran-qui-en-a-besoin` · vivante · ?
+📍 `socle-un-seul-ecrivain-par-brique` · vivante · ?
 
 `socle.mjs` — et le fichier doit rester lisible d'un coup d'œil.
 
@@ -295,6 +306,8 @@ nommé par la commande du lot : un socle écrit pour des besoins imaginés,
 avant qu'un seul écran fonctionne.
 
 ## L'échelle — un organe hors socle, mais qui obéit à sa loi
+📍 `socle-echelle-hors-socle` · vivante · ?
+📍 `socle-resize-avant-refresh` · vivante · ?
 
 `echelle.mjs` (lot 85) pose **deux attributs sur `<html>`** — `--echelle` et
 `data-grandeur` — et **aucun nœud**. C'est la règle du cadre appliquée telle
@@ -310,6 +323,10 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 ---
 
 ## Le contrat d'un écran
+📍 `socle-contrat-d-un-ecran` · vivante · 39/42
+📍 `socle-data-snap` · vivante · ?
+📍 `socle-paliers` · vivante · ?
+📍 `socle-rail-vertical-seulement` · à trancher · ?
 
 Un module d'écran exporte une fonction qui **rend un nœud** et ne connaît
 ni la coquille ni les verbes du moteur (loi des lots 39/42, inchangée).
