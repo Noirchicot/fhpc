@@ -927,6 +927,17 @@ body {
    c'est sa peinture colorée qui s'en va. */
 .sortie-bouton[data-lit="true"] { font-weight: 600; }
 .sortie-bouton:disabled { opacity: .5; cursor: default; }
+/* 🔵🔴 LES DEUX COULEURS D'ÉTAT DE LA SORTIE — Eric, 06/09 : *« Done passe en bleu
+   quand tous les dés sont placés, mais ça ne bloque en rien si on veut continuer
+   à modifier ; le Cancel est rouge dès le début des tirages »*. Le 17/08 disait
+   « aucune couleur dans Back et Done » ; le 03/09 a rendu le rouge à Cancel et le
+   bleu à Back ; ce jour, Done ALLUMÉ prend le bleu du mouvement (il avance sans
+   rien défaire — l'écran reste modifiable derrière), Cancel ARMÉ le rouge de ce
+   qui abandonne. Un seul producteur (`renderSortieEtape`), une seule règle : les
+   dix écrans changent d'un geste. Le vert « fait » d'un item (parcours-pied, plus
+   lourd) reste au-dessus. */
+.sortie-bouton.sortie-done[data-lit="true"] { --bouton-fond: var(--info); }
+.sortie-bouton.sortie-annule[data-arme="true"] { --bouton-fond: var(--critical); }
 
 /* ── LE SLOT HORIZONTAL (B0.19) — la navigation interne, FIXE ─────
    « Certaines fiches auront EN PLUS une navigation interne, fixe elle
@@ -2623,7 +2634,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=572") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=573") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4218,13 +4229,17 @@ button { font: inherit; }
 /* LE BONUS, SOUS LE CARRÉ ET À L'EXTÉRIEUR — il n'apparaît qu'avec un dé
    (`renderCollecteur`), donc cette règle n'habille jamais du vide. */
 .ability-creneau .ability-row-final-value { font-size: var(--t3); font-weight: 600; }
-.ability-creneau[data-vise="true"] .glisse-cible-vide::before { border-color: var(--accent); }
+/* ⛔ PLUS AUCUN BRUN AU SURVOL D'UN COLLECTEUR NON PLUS — Eric, 06/09 : *« dégager
+   les artefacts marrons »* (et *« je ne demande pas le liseré bleu rouge vert »*).
+   Le retour visuel du geste, c'est le fantôme sous le doigt ; la dépression ne
+   change pas de couleur, le dé qu'on va échanger ne prend pas d'anneau. */
+.ability-creneau[data-vise="true"] .glisse-cible-vide::before { border-color: transparent; }
 /* ⛔ ET PLUS DE CONTOUR DE COLONNE (`.glisse-creneau[data-vise]`, 2 px accent) : le
    second rectangle brun. La colonne reste la zone de dépôt, invisible ; ce qui
    s'allume est la dépression — ou, sur une case déjà pleine (l'échange), un fin
    anneau autour du dé qu'on va prendre en retour. */
 .glisse-creneau.ability-creneau[data-vise="true"] { border-color: transparent; }
-.ability-creneau[data-vise="true"][data-rempli="true"] .porte-de { outline: 1px solid var(--accent); border-radius: var(--radius-sm); }
+.ability-creneau[data-vise="true"][data-rempli="true"] .porte-de { outline: none; }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */
 .ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
@@ -6839,7 +6854,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=572");
+  background-image: url("./assets/tarot-dos.jpg?v=573");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

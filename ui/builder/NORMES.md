@@ -4373,5 +4373,69 @@ chemins**. Détail : `FH-WEB/FHPC/FHPCv2 hebergement donnees.md`.
 
 ---
 
+## 7. 🎲 LE GLISSER DES DÉS — Abilities › B1, **FIGÉ** *(Eric, 2026-09-06 : « je veux que tu figes »)*
+
+> Eric, 06/09, B1 en ligne et validé au pouce : *« tu figes la manière de faire fonctionner les
+> fantômes, et le drag and drop versatile : aller-retour source/destination, déplacement latéral ;
+> taille des collecteurs versus la taille des dés ; l'architecture des dés — taille du texte, son
+> centrage versus taille du dé, pour les grands dés et les petits dés ; position du collecteur sur le
+> podium ; et dégager les artefacts marrons. Ici je ne demande pas le liseré bleu rouge vert. »*
+
+**Garde** : `tests/abilities-b1-fige.test.mjs` (les cotes et les règles), `tests/abilities-step.test.mjs`
+(les gestes). Adresses : `ui/builder/abilities-step.mjs`, `abilities-tray.mjs`, `tokens.css`, `shell.css`.
+
+### 7.1 Le dé est le token, le collecteur est une dépression
+| objet | ce qu'il est | la cote | où |
+|---|---|---|---|
+| **le dé** | le token de cet écran — un token spécial, le cube 3D avec son relief à lui | cellule **`--de-pose` = 41** (sa boîte au podium, îlot 54,5 × `.75`), face **`--collecteur-face` = 28** | `tokens.css` |
+| **le collecteur** | une **dépression carrée** (`--creux`), pas un jeton en relief | **80 % de la cellule** (`--collecteur-creux`), dessinée par `::before` dans une cellule de 41 | `shell.css` |
+| **la cellule** | §1 ter bis : *un collecteur = un jeton en taille* — la dépression ET le dé posé lisent `--de-pose` | 41, jamais la colonne | `.ability-creneau .fs-de`, `.glisse-cible-vide` |
+| **le signe** | « drop » / « here », deux lignes figées, T1, `--text-muted` italique | — | `renderCibleVide` |
+
+⛔ **Rien ne bouge au dépôt** : la colonne s'ancre en haut, la ligne du bonus est réservée même vide à la
+métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques avant / après (520 · 534 · 82 · 196,4).
+
+### 7.2 Le podium
+- Six pastilles (`--podium-pastille`) ; le dé y est réduit à `.75` (le `.8` du moteur repris, `data-sides="6"`), cube 29 × 32,6, **face 28** — c'est l'étalon de `--collecteur-face` : *si le dé du podium change, la face se remesure*.
+- **L'origine devient un collecteur** quand le dé l'a quitté : la même dépression, centrée dans le disque (dx 0, dy 0), sans voile.
+- **Chaque pastille est une cible** `podium:<index du jet>` ; l'ordre vit dans le lot (`rollBatch.podium`). Lâcher entre les pastilles (`vivier`) rend le dé à sa place.
+- **La pose ne joue qu'à l'arrivée d'un lot** (`data-pose`, reconnu par l'identité de `rolls`) — jamais à un redessin.
+
+### 7.3 Le glisser versatile — les quatre gestes, jusqu'à `Done`
+| geste | verbe | ce que le document apprend |
+|---|---|---|
+| **poser** (podium → collecteur vide) | `assignAbilityRoll` | la valeur, par `set` |
+| **déplacer** (collecteur → collecteur vide) | `assignAbilityRoll` (la source rend `null`) | la valeur, par `set` |
+| **échanger** (collecteur ↔ collecteur plein, ou podium ↔ collecteur plein) | `assignAbilityRoll` (§1b, `holderKey`) | deux `set` |
+| **revenir** (collecteur → podium, par glisser ou par tap) | `unassignAbilityRoll` | **rien** — `rebuild()` jette sur une valeur manquante ; la porte compte les POSES (`abilitiesValidate`) |
+| **d'un podium à l'autre** (pastille → pastille, ou collecteur → une pastille) | `abilityPodium {rollIndex, slotOf, key}` | **rien** — un rangement |
+
+🔒 Le tap sur un dé posé = revenir. `Done` s'allume quand six poses existent et **ne bloque rien** : on peut continuer à déplacer.
+
+### 7.4 Le fantôme
+- Il est **identique à l'objet** : `FS.fantome` = `--de-pose` (41), ses `.porte-de` / image ramenés à `width: 100 %`, le `.8` du moteur repris — ⛔ sinon il est monté à la résolution (96) et son centre tombe 24 px sous le doigt.
+- Il vit dans `.app`, qui porte le zoom : **on divise par `facteurZoomCourant()` avant de poser** (`fantomeBouger`). ⛔ Le lot 125 avait fermé cette faute dans `glisser.mjs` « dernier site » — faux : celui-ci la portait. *Une faute « fermée partout » se vérifie par grep sur la forme, pas en croyant le commentaire.*
+- Le fantôme **vise** (`fantomeCentre`) : la cible est celle qu'il recouvre, mesurée à (−3,1 ; −3,1) du doigt à zoom 1. C'est ce qui rend la case A → B exacte.
+- ⛔ Une épreuve de geste se **dispatche d'un coup, sans `await`** : un onglet masqué bride les minuteurs et ne joue pas les animations.
+
+### 7.5 Le chiffre sur le dé — par taille de dé
+| dé | boîte | chiffre (`.valeur`) | centrage |
+|---|---|---|---|
+| **grand** (podium, collecteur, fantôme) | 41 | **T2**, serif du moteur, 500 | sur la **face** : `translateY(−8,75 %)`, mesuré au canvas (centre de la face à 41,25 %) |
+| **petit** (tapis de sélection) | 26 (= `TAILLE_DE_RESULTAT`, = `--tray-de-resultat`) | **T1** | idem |
+| la somme sous un petit dé | — | **T0** (le huitième barreau, né pour elle) | — |
+
+### 7.6 Aucun artefact brun pendant le geste
+Au survol, **rien ne se peint** : ni contour de colonne, ni outline de rangée, ni dépression allumée, ni anneau
+autour du dé à échanger — au podium comme aux collecteurs. Le retour visuel du geste est le fantôme.
+*(Le liseré bleu / rouge / vert du §2 ter n'est pas demandé ici.)*
+
+### 7.7 La sortie de l'écran
+`Done` **bleu** dès qu'il est allumé (six poses) — il avance sans rien défaire, l'écran reste modifiable ;
+`Cancel` **rouge** dès qu'il a quelque chose à abandonner (le premier jet). Règle de la coquille
+(`renderSortieEtape`, `data-lit` / `data-arme`), un producteur pour dix écrans.
+
+---
+
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·
 `FHPCv2 entree R cahier charges` · `FHPCv2 hebergement donnees` · `FHPC norme des organes`.
