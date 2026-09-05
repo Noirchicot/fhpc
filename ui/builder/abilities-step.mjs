@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=560";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=560";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=560";
-import { armerJeton } from "./glisser.mjs?v=560";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=560";
-import { createDieHost, mount } from "./dice3d.mjs?v=560";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=560";
+import { markPressed } from "./carnet.mjs?v=561";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=561";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=561";
+import { armerJeton } from "./glisser.mjs?v=561";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=561";
+import { createDieHost, mount } from "./dice3d.mjs?v=561";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=561";
 
 export { rollAbilitySet };
 
@@ -534,10 +534,14 @@ function renderVivier(ctx) {
     const vide = roll.total === null || roll.total === undefined || ctx.tenuPar(roll) !== null;
     item.dataset.vide = String(vide);
     if (vide) {
-      /* Le disque seul — Eric, 05/09 au soir. Le tiret disait « vide » sur une
-         pastille qui le dit déjà d'elle-même. Le nœud reste : il tient la place
-         (`.fs-vide`, la hauteur d'un dé) et reçoit le dé qui revient. */
-      item.append(el("span", "fs-vide"));
+      /* 🕳️ L'ORIGINE DEVIENT UN COLLECTEUR QUAND LE DÉ L'A QUITTÉE — Eric, 05/09
+         au soir : *« un token = un collecteur = 1 dé = un carré de la forme du dé
+         = une dépression carrée. Toujours possible de bouger les tokens entre
+         l'origine (qui devient un collecteur quand quitté par le dé) et la
+         destination, idem »*. Le disque porte donc la MÊME dépression que les
+         six cases d'en bas (`renderCibleVide`), et le dé y revient. Le nœud
+         `.fs-vide` tient la place, la hauteur d'un dé. */
+      item.append(el("span", "fs-vide", [renderCibleVide()]));
       rangee.append(item);
       continue;
     }
@@ -645,7 +649,12 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
    coquille reste seule à savoir ce qu'est une sortie et quand elle existe.
    📌 Conséquence voulue : sur la page racine, où la coquille ne produit AUCUNE
    sortie, ce marqueur ne reçoit rien — il n'y a rien à accorder entre eux. */
-/** LA CIBLE VIDE — un CARRÉ qui dit « drop here ». Eric, 2026-09-05, devant
+/** LA CIBLE VIDE — une DÉPRESSION CARRÉE à la forme du dé, qui dit « drop here ».
+ *  Eric, 05/09 au soir : *« un token = un collecteur = 1 dé = un carré de la
+ *  forme du dé = une dépression carrée »* — le creux de la famille §2 (là où
+ *  quelque chose SE POSE), jamais le relief (là où quelque chose EST posé) :
+ *  le dé, lui, a son relief. La même cible sert le collecteur d'en bas et le
+ *  podium quand son dé l'a quitté. Et plus tôt le même jour, devant
  *  les mires à trois cercles : *« tes collecteurs = carrés avec drop here, pas
  *  les trucs moches que t'as là »*. Sa dictée du même soir : *« six collecteurs
  *  carrés pouvant accueillir les dés, même taille que la face supérieure des dés
