@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=571") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=572") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4254,10 +4254,14 @@ button { font: inherit; }
    l'écart des colonnes à 375, mesuré et assumé. */
 .ability-creneau .glisse-creneau-nom {
   color: var(--oxblood); text-transform: none; letter-spacing: 0;
-  /* T0 GRAS — Eric, 05/09, devant le débordement de « Constitution » en T1 (57 sur
-     51,8) : *« alors en T0 gras »*. En T0 le plus long fait 45,6 : tout tient. */
-  font-size: var(--t0); font-weight: 700; white-space: nowrap; text-align: center;
+  /* T1 GRAS, ET LE NOM PEUT SORTIR DE SA CELLULE — Eric, 06/09 : *« mets Strength
+     en T1 et autorise la sortie de la cellule »* (le T0 gras de la veille était le
+     prix du débordement ; il préfère le lire). « Constitution » déborde de ~4 px
+     de chaque côté dans l'écart de 8 entre colonnes ; rien ne le coupe. */
+  font-size: var(--t1); font-weight: 700; white-space: nowrap; text-align: center;
+  overflow: visible;
 }
+.glisse-creneau.ability-creneau { overflow: visible; }
 /* 🎨 LE BONUS SIGNÉ — *« +1/+x en vert, 0 en noir, −1/−x »* (rouge). Le signe
    l'emporte sur l'accent du boost (sélecteur plus lourd, et c'est voulu : la
    règle d'Eric est celle du signe). Dessous, « bonus » en T1 italique. */
@@ -6835,7 +6839,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=571");
+  background-image: url("./assets/tarot-dos.jpg?v=572");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

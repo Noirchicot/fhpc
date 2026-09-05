@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=571";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=571";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=571";
-import { armerJeton } from "./glisser.mjs?v=571";
-import { facteurZoomCourant } from "./echelle.mjs?v=571";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=571";
-import { createDieHost, mount } from "./dice3d.mjs?v=571";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=571";
+import { markPressed } from "./carnet.mjs?v=572";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=572";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=572";
+import { armerJeton } from "./glisser.mjs?v=572";
+import { facteurZoomCourant } from "./echelle.mjs?v=572";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=572";
+import { createDieHost, mount } from "./dice3d.mjs?v=572";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=572";
 
 export { rollAbilitySet };
 
@@ -215,7 +215,8 @@ function explicationDe(entry) {
    en entier, centré sur chaque dé »*. Mesuré à 375, colonne de 51,8 : en T1
    « Constitution » fait 57 et « Intelligence » 54,3 — ils débordent de 1 à 3 px
    de chaque côté dans l'écart de 8 entre colonnes ; les quatre autres tiennent.
-   Eric a tranché : *« alors en T0 gras »* — tout tient (45,6 au plus). */
+   Eric a tranché T0 gras le 05/09, puis le 06/09 : *« Strength en T1, et autorise la
+   sortie de la cellule »* — T1 gras, le nom déborde dans l'écart, rien ne le coupe. */
 const NOMS_DE_CARAC = { str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" };
 function abilityLabel(key) { return NOMS_DE_CARAC[key] || key.toUpperCase(); }
 
