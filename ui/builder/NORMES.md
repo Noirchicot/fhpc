@@ -735,16 +735,31 @@ tête.
 
 ### ⚠️ Le dropdown : la hauteur est juste, le reste est en écart
 📍 `dropdown-habit` · vivante · 26/08
-📍 `dropdown-ecart-avec-le-code` · à trancher · 26/08
+📍 `dropdown-ecart-avec-le-code` · dépréciée · 26/08
 
-| | la norme *(26/08)* | le code aujourd'hui |
+| | la norme *(26/08)* | le code, **remesuré le 2026-09-05** |
 |---|---|---|
 | hauteur | 44 | ✅ `min-height: var(--touch)` sur les **deux** dropdowns existants |
-| liseré | ⛔ **aucun** | 🔴 **1 px** — et `.pipeline-dropdown` porte même **`--ok`, une bordure VERTE conditionnelle**, exactement le liseré vert supprimé |
-| fond | **transparence 20 %** | 🔴 **opaque** (`--surface`, `--sunken`) |
-| caractères | **gras** | 🔴 `font: inherit`, pas de gras |
+| liseré | ⛔ **aucun** | ✅ `border: 0` sur les **six** sites du dropdown |
+| fond | **transparence 20 %** | ✅ `--dropdown-fond: color-mix(… var(--voile-dropdown) …)`, `--voile-dropdown: 20%` |
+| caractères | **gras** | ✅ `font-weight: 600` sur `.pipeline-dropdown` |
 
-⏳ Trois corrections à faire quand les organes seront refaits. **La hauteur, elle, n'a pas à bouger.**
+✅ **LES TROIS ÉCARTS SONT RÉPARÉS.** La hauteur n'avait jamais bougé.
+
+> ⏩ **CE QUE CETTE TABLE DISAIT JUSQU'AU 2026-09-05, ET POURQUOI ON LE GARDE.** Elle
+> annonçait trois écarts du code : *« liseré 1 px — et `.pipeline-dropdown` porte même
+> `--ok`, une bordure VERTE conditionnelle »*, *« fond opaque (`--surface`, `--sunken`) »*,
+> *« `font: inherit`, pas de gras »*, avec la mention ⏳ *« trois corrections à faire quand
+> les organes seront refaits »*.
+>
+> 🔴 **AUCUNE DES TROIS N'ÉTAIT ENCORE VRAIE**, et `shell.css` porte lui-même, en
+> commentaire au-dessus de `.pipeline-dropdown`, la trace des trois réparations. La règle
+> décrivait un code qui n'existait plus — et c'est le corpus, pas le code, qui avait tort.
+>
+> ⚠️ **C'EST LA MALADIE QUE L'ADRESSAGE EXISTE POUR SOIGNER, PRISE EN FLAGRANT DÉLIT.** Un
+> écran se répare, la règle qui le décrit ne le sait pas, et la description périmée continue
+> de se lire comme une loi. ⛔ Un écart écrit dans le corpus se **remesure** avant d'être
+> cité, jamais recopié sur la foi de sa date.
 
 ### Le budget d'une page de jetons *(les 15, en rangées de 3)*
 📍 `budget-chevrons-non-comptes` · vivante · 26/08

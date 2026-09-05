@@ -142,7 +142,7 @@
 - **CADRES.md § 8, table du fond** : **35 %** = `--voile-simple` → *« verre léger — les choix, les gros affichages »* · **50 %** = `--voile-inter` → *« verre moyen — un peu de texte »*.
 - Règles concernées : `cadre-voile-de-la-dalle` · `cadre-voile-des-blocs-interieurs`
 - ⚠️ CADRES décrit 35 % comme le voile des écrans de choix, NORMES comme celui des blocs intérieurs.
-- 📐 **TRANCHÉE PAR LA MESURE (05/09) — CADRES a raison.** `tokens.css:710` porte le commentaire de la feuille elle-même : `--voile-simple: 35%; /* verre léger — les choix, les gros affichages */`. C'est la description de CADRES, pas celle de NORMES (« le barreau des petits blocs intérieurs »). ⚠️ Réserve honnête : `--voile-simple` n'a qu'**un seul** usage dans `shell.css`, et `--voile-inter` aucun — la feuille tranche le mot, pas l'usage.
+- 📐 **⚠️ MON RELEVÉ DU 05/09 OPPOSAIT DEUX CHOSES QUI NE S'OPPOSENT PAS.** CADRES dit à quoi 35 % SERT (« verre léger — les choix »). NORMES §1788 dit qui l'EMPLOIE aujourd'hui, composant par composant, **et porte un ⏳** : *« le barreau des petits blocs INTÉRIEURS (mesuré : `ability-methodes`, `card-reveal`, …) »*. Une intention et un relevé d'usage ne se contredisent pas. ⛔ Corriger NORMES effacerait une mesure datée. `tokens.css:710` porte le commentaire de la feuille elle-même : `--voile-simple: 35%; /* verre léger — les choix, les gros affichages */`. C'est la description de CADRES, pas celle de NORMES (« le barreau des petits blocs intérieurs »). ⚠️ Réserve honnête : `--voile-simple` n'a qu'**un seul** usage dans `shell.css`, et `--voile-inter` aucun — la feuille tranche le mot, pas l'usage.
 
 ## C14 — `.decision-card` : dalle majeure opaque, ou cadre nu ? { #c14 }
 
@@ -172,7 +172,7 @@
 - **NORMES.md § 6, table des couleurs** et **§ LES TROIS VERBES, seconde table** : *« `done` : il **valide** ce qui est là, **puis remonte d'un cran** »* · *« il signe ce qui est là, puis remonte d'un cran »*.
 - Règles concernées : `bouton-trois-verbes` · `bouton-done-signe`
 - ⚠️ « Remonter d'un cran » est un mouvement ; la table qui l'interdit et celle qui le décrit sont à quelques lignes l'une de l'autre.
-- 📐 **TRANCHÉE PAR LA MESURE (05/09) — `Done` AVANCE.** `shell.mjs`, `pressDone()` se termine par `goToStep(state.step + 1)`, en porte un second dans une branche, et fait `state.palier += 1` dans une troisième. ⛔ La table du corpus qui écrit « il ne fait pas avancer » décrit un code qui n'existe pas.
+- 📐 **⛔ MON RELEVÉ DU 05/09 CONCLUAIT TROP VITE.** `pressDone()` finit bien par `goToStep(state.step + 1)` — mais la table que j'accusais n'est pas une description du code : c'est la glose de la phrase d'Eric du 26/08, *« Done valide les choix · I changed my mind les annule · Next : navigation »*. Elle dit ce que `Done` a pour RÔLE, pas ce que la fonction exécute. ⭐ Ce n'est donc pas une description périmée à corriger : c'est un **écart entre la règle et le code**, et c'est un lot d'écran, pas une correction de corpus. `shell.mjs`, `pressDone()` se termine par `goToStep(state.step + 1)`, en porte un second dans une branche, et fait `state.palier += 1` dans une troisième. ⛔ La table du corpus qui écrit « il ne fait pas avancer » décrit un code qui n'existe pas.
 
 ## C17 — La règle A du vivier : accident ou loi ? { #c17 }
 
@@ -202,7 +202,7 @@
 - Règles concernées : `cadre-tuile-ecart-4` — seule règle dont l'énoncé porte un écart de 4. ⛔ La gouttière de 8 n'est l'énoncé d'aucune règle : elle vit dans NORMES § 1 quater et CADRES § 2 bis.
 - Mentionnée en passant dans : `budget-table-des-hauteurs` · `chevron-cout-en-largeur` — l'écart de 8 et le `--sp-4` des chevrons sont dans leurs *Valeur*, pas dans leur énoncé.
 - ⚠️ L'exception de la tuile est argumentée et mesurée ; celle de `--sp-4` autour des chevrons ne l'est nulle part.
-- 📐 **TRANCHÉE PAR LA MESURE (05/09) — l'exception a disparu.** Les chevrons n'emploient **aucun** `--sp-4` : `--sp-2` pour l'épaisseur du trait (`shell.css:730-731`), `--sp-8` pour la pose (`1189-1190`), `--sp-12` pour la taille. L'écart de 8 est respecté. C'est la règle qui décrit une faute **déjà réparée**.
+- 📐 **⛔ MON RELEVÉ DU 05/09 ÉTAIT FAUX, ET LA CONTRADICTION TIENT.** J'avais écrit que les chevrons n'employaient aucun `--sp-4`. J'avais mesuré `--sp-8` sur `.stage-chevron:first-of-type { top: … }` — une **position VERTICALE** — alors que le corpus décrit une **gouttière HORIZONTALE** : `2 × --touch + 2 × --sp-4 = 96 px`, mesurée par le lot A le 26/08. ⚠️ La mesure était juste, le **point de comparaison** faux — « nommer le témoin avant de mesurer ». La question reste entière. Les chevrons n'emploient **aucun** `--sp-4` : `--sp-2` pour l'épaisseur du trait (`shell.css:730-731`), `--sp-8` pour la pose (`1189-1190`), `--sp-12` pour la taille. L'écart de 8 est respecté. C'est la règle qui décrit une faute **déjà réparée**.
 
 ## C20 — 440 : px ou blg ? { #c20 }
 
