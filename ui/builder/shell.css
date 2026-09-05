@@ -2592,7 +2592,10 @@ button { font: inherit; }
    utilisateur.** Il en a eu un pendant une heure.
    ⛔ Et rien ne remplace la cote : c'est l'absence de règle qui fait le `2`.
    Écrire `height: auto` serait déclarer ce qui est déjà vrai. */
-.ability-organe-mot { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text); }
+/* ⛔ PLUS DE MARGE ICI : la grille du flux écrit l'écart (05/09). Ce qui reste
+   est ce que la classe locale dit en propre — rien que `.guide-mot` ne dise
+   déjà, donc elle ne survit que comme crochet de mesure. */
+.ability-organe-mot { margin: 0; }
 /* Le plateau vit DANS l'organe : il n'a plus sa dalle à lui, sinon deux
    verres se superposeraient et le fond cesserait de traverser. */
 .ability-organe .tray { background: none; padding: 0; margin-bottom: 0; }
@@ -4311,7 +4314,19 @@ button { font: inherit; }
    que ce fichier passe son temps à éviter.
    📌 Sur un fond OPAQUE (les écrans de parcours, `--surface` plein), l'encre
    douce tient ses 4,5 et ne bouge pas : la règle ne mord que là où le verre est. */
-:is(.dalle-simple, .dalle-intermediaire) > .guide-mot { color: var(--text); }
+/* 🔴 DESCENDANT, PAS ENFANT DIRECT — corrigé le 2026-09-05, sur ce que l'œil a
+   vu. La règle s'écrivait `> .guide-mot` : elle ne voyait donc QUE les
+   aiguilleurs posés au premier rang d'une dalle. Celui de B1 (`FH 3D6`) vit
+   dans `.ability-flux`, un cran plus bas — la dalle est bien du verre, la règle
+   ne l'attrapait pas, et il rendait `--text-soft` : **2,63:1**, le défaut même
+   que cette règle existe pour retirer, servi en ligne sous sa garde.
+   ⭐ CE QUI DÉCIDE N'EST PAS LA PROFONDEUR, C'EST LE FOND : si la dalle est du
+   verre, tout aiguilleur qu'elle contient est sur du verre, à un rang comme à
+   trois. Le combinateur `>` encodait une STRUCTURE là où la règle parle d'un
+   MILIEU — et une structure change au premier emboîtement.
+   📌 Même famille que le garde qui épelle une implémentation : ce qui est écrit
+   doit être la propriété, jamais la forme qu'elle avait le jour de l'écriture. */
+:is(.dalle-simple, .dalle-intermediaire) .guide-mot { color: var(--text); }
 
 /* ② LE GUIDE SPÉCIFIQUE */
 /* 🔴 4 px SOUS LE PIED — Eric, 2026-08-26, dernière ligne de son gabarit d'Elf :
@@ -5879,9 +5894,18 @@ button { font: inherit; }
    la dalle (Eric, 17/08) et c'est le corps de la dalle qui défile — la même
    forme que `.parcours-guide`, où `.guide-titre` ne bouge pas pendant que
    `.parcours-items` cède. */
+/* 🔴 L'ORGANE EST UNE GRILLE — Eric, 2026-09-05 : *« on est sur un Grid ! tout
+   est dans une boite »* (sacré n° 3, appliqué à B1).
+   ⛔ IL ÉTAIT EN `flex` AVEC `gap: normal` : rien n'écrivait ses écarts, donc
+   chaque enfant posait sa propre marge — le paragraphe en avait une, le
+   plateau une autre, et l'intervalle ne se réglait plus d'un seul endroit.
+   ⭐ `auto 1fr` garde ce que le `flex` servait : le titre prend sa hauteur, le
+   flux prend CE QUI RESTE (§1 ter — la cote ne s'écrit pas, elle se déduit). */
 .ability-organe:has(> .ability-flux) {
-  flex: 1 1 auto; min-height: 0;
-  display: flex; flex-direction: column;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--sp-8);
 }
 
 /* ④ LA ZONE DE SCROLL — « NE BOUGE PAS · BORD INVISIBLE », ses mots.
@@ -5895,10 +5919,22 @@ button { font: inherit; }
    une fois au bout : sans lui, la page bougerait derrière, ce qu'elle ne doit
    jamais faire (§1 quater). */
 .skills-flux,
+/* 🔴 ET LE FLUX AUSSI — même dictée du 05/09. Ses deux enfants (l'aiguilleur
+   et le plateau) sont des BOÎTES sur une grille, espacées par elle seule.
+   ⛔ `align-content: start` : sans lui, une grille plus haute que son contenu
+   RÉPARTIT ses lignes, et les 8 blg voulus deviennent le reste de la place. */
 .ability-flux {
-  flex: 1 1 auto; min-height: 0;
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: var(--sp-8);
   overflow-y: auto; overscroll-behavior: contain;
 }
+/* ⛔ L'AIGUILLEUR REND SA MARGE À LA GRILLE — même exception nommée qu'à
+   `.ability-methodes` : une marge d'enfant s'AJOUTE au `gap`, et `.guide-mot`
+   garde la sienne pour ses hôtes qui n'ont pas de grille. */
+.ability-flux > .guide-mot { margin-block: 0; }
 /* 🔴 L'AIMANTATION SUIT LE CADRE QUI DÉFILE. `.stage` porte
    `scroll-snap-type: y mandatory` pour les catalogues ; les groupes de
    compétences portent déjà `scroll-snap-align: start`, et leur scrollport
@@ -6500,7 +6536,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=552");
+  background-image: url("./assets/tarot-dos.jpg?v=553");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

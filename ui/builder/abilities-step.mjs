@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=552";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=552";
-import { renderTray } from "./abilities-tray.mjs?v=552";
-import { armerJeton } from "./glisser.mjs?v=552";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=552";
-import { createDieHost, mount } from "./dice3d.mjs?v=552";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=552";
+import { markPressed } from "./carnet.mjs?v=553";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=553";
+import { renderTray } from "./abilities-tray.mjs?v=553";
+import { armerJeton } from "./glisser.mjs?v=553";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=553";
+import { createDieHost, mount } from "./dice3d.mjs?v=553";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=553";
 
 export { rollAbilitySet };
 
@@ -1080,7 +1080,15 @@ export function renderAbilitiesStep(ctx, onAction) {
      glisser ; une cible qu'il faut aller chercher n'est plus une cible. */
   const flux = el("div", "ability-flux");
   organe.append(flux);
-  flux.append(el("p", "ability-organe-mot", [text(explicationDe(entry))]));
+  /* 🔵 CE TEXTE EST L'AIGUILLEUR — Eric, 2026-09-05, en le désignant sur
+     l'écran : *« Ten rolls of 3d6 … = aiguilleur »*.
+     ⭐ IL N'Y AVAIT RIEN À INVENTER, SEULEMENT À RECONNAÎTRE : la classe locale
+     `.ability-organe-mot` décrivait un paragraphe ; l'organe, lui, s'appelle
+     `.guide-mot` et il existe depuis le 26/08 (§6 pré bis). Un texte qui dit
+     comment se sert l'écran est un aiguilleur, où qu'il se trouve — c'est
+     exactement la faute que R Abilities a payée la veille avec `.aiguilleur`,
+     prise par l'autre bout : là un nom était pris, ici un organe était ignoré. */
+  flux.append(el("p", "guide-mot ability-organe-mot", [text(explicationDe(entry))]));
   if (entry.mecanique) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES depuis ce lot — trois dés et dix
        jets, ou quatre dés et six jets. C'est le tableau qui le dit, jamais un

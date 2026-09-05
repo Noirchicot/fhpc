@@ -516,10 +516,28 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend LE 
   assert.equal(revenu.querySelectorAll(".guide-mot")[0].textContent, MOT);
 
   /* ⛔ MAIS PAS SUR LA PAGE D'UNE MÉTHODE : là, le sélecteur n'est plus, et
-     son mot part avec lui. */
+     son mot part avec lui.
+
+     🔴 CE GARDE A CHANGÉ DE FORME LE 2026-09-05, PAS DE PROPRIÉTÉ. Il exigeait
+     **zéro** `.guide-mot` sur la page d'une méthode — ce qui disait la bonne
+     chose tant que la racine était la SEULE à en porter un. Eric a désigné la
+     prose de B1 comme un aiguilleur (*« Ten rolls of 3d6 … = aiguilleur »*),
+     donc la page en porte un désormais, et « zéro » cesserait de défendre la
+     règle pour défendre un état du monde.
+     ⭐ CE QUI EST GARDÉ RESTE EXACTEMENT LE MÊME : le mot de la RACINE ne fuit
+     pas sur la page d'une méthode. On le vérifie donc sur son TEXTE, la seule
+     chose qui l'identifie — ⛔ jamais sur un compte, qui confond deux organes
+     que rien n'oblige à rester seuls. */
   const page = renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
-  assert.equal(page.querySelectorAll(".guide-mot").length, 0);
+  const motsDeLaPage = [...page.querySelectorAll(".guide-mot")].map((n) => n.textContent);
+  assert.equal(motsDeLaPage.includes(MOT), false,
+    "⛔ le mot de la racine ne suit pas sur la page d'une méthode — le sélecteur parti, sa consigne aussi");
+  /* ⭐ ET LA PAGE PORTE BIEN LE SIEN : l'aiguilleur de la méthode, qui dit sa
+     règle à elle. Un garde qui n'éprouve qu'une moitié d'alternative laisse
+     l'autre libre de mentir (TRAPS, lot 124). */
+  assert.equal(motsDeLaPage.length, 1,
+    "et elle porte SON aiguilleur, celui de la méthode");
 
   /* 🔴 ET LE MOT NOMME LE LIVRE, PLUS `INFO` — Eric, 2026-08-26 : *« Abilities :
      info doit disparaître et devenir un bouton livre ! »*
@@ -550,9 +568,23 @@ test("🔴 SUR DU VERRE, L'AIGUILLEUR ÉCRIT EN `--text` — 2,63:1 mesuré avan
      une `dalle-simple` à **Destiny R**. La réparation est donc à l'organe,
      conditionnée au voile, et elle répare les deux écrans d'un coup.
      📏 APRÈS : **5,51:1** et **5,68:1**. */
+  /* 🔴 CE GARDE CITAIT LE SÉLECTEUR AU CARACTÈRE PRÈS, `>` COMPRIS — et il a
+     donc rougi sur sa propre réparation, le 2026-09-05, avec l'air d'avoir
+     raison. L'enfant direct ne voyait que les aiguilleurs posés au premier rang
+     d'une dalle ; celui de B1 vit un cran plus bas et rendait `--text-soft`,
+     **2,63:1**, sous la garde de ce test.
+     ⭐ *Un garde décrit ce qui doit RESTER VRAI, jamais comment c'est écrit*
+     (TRAPS, lot 124). La promesse est : sur du verre, l'aiguilleur écrit en
+     `--text` — à un rang comme à trois. */
   const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
-  assert.match(css, /:is\(\.dalle-simple, \.dalle-intermediaire\) > \.guide-mot \{ color: var\(--text\); \}/,
+  const regleDuVerre = /:is\(\.dalle-simple, \.dalle-intermediaire\)( >)? \.guide-mot \{ color: var\(--text\); \}/;
+  assert.match(css, regleDuVerre,
     "sur du verre, seule --text tient les 4,5:1 (CADRES.md §8)");
+  /* ⛔ ET ELLE NE SE LIMITE PAS À L'ENFANT DIRECT : le combinateur `>` encode
+     une STRUCTURE là où la règle parle d'un MILIEU, et une structure change au
+     premier emboîtement. C'est ce qui a laissé passer le défaut de B1. */
+  assert.doesNotMatch(css, /:is\(\.dalle-simple, \.dalle-intermediaire\) > \.guide-mot \{ color: var\(--text\); \}/,
+    "⛔ pas `>` : ce qui décide est le FOND de la dalle, pas la profondeur de l'organe dedans");
 
   /* ⚔️ ATTAQUE — le garde mord-il ? On relit la règle de l'organe NU : si elle
      portait déjà `--text`, la règle ci-dessus serait décorative et sa
