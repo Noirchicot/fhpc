@@ -2425,19 +2425,6 @@ button { font: inherit; }
    ne sont pas posées. */
 .ability-entry[data-active="true"] { --bouton-fond: var(--info); font-weight: 600; }
 .ability-entry-label { display: block; overflow-wrap: anywhere; }
-/* ⛔ ET `INFO` PREND UNE PART COMME LES AUTRES — Eric, 2026-08-16 : *« je veux
-   que les 4 boutons soient de dimension égale »*.
-   📏 CE QUE LA MESURE A DIT AVANT DE TOUCHER, et ça change ce qu'il fallait
-   corriger : les QUATRE méthodes étaient DÉJÀ égales (62 × 44 chacune, relevé
-   sur le déployé). La seule inégalité de la rangée était `INFO`, à 44 — c'est
-   donc lui que l'œil attrapait, pas les quatre.
-   ⚠️ CE QU'ON PERD, DIT PLUTÔT QUE TU : il était plus étroit exprès, parce
-   qu'il n'est PAS une méthode et qu'une taille différente le disait sans un
-   mot. À part égale, la rangée est régulière mais `INFO` se lit comme un
-   cinquième choix. ⏳ Si ça gêne à l'usage, ce qui le distinguera sera un
-   TRAITEMENT (encre, bordure), jamais une taille — la régularité, elle, est
-   demandée. */
-.ability-info-bouton { min-width: var(--touch); }
 /* LE MOT DE LA RACINE — il vit DANS la dalle du sélecteur (Eric : *« texte à
    intégrer dedans »*), et il y est en permanence : il ne décrit plus un état
    d'attente, il dit quoi faire.
@@ -2558,7 +2545,6 @@ button { font: inherit; }
    📌 Bord à bord avec les dalles, pas avec leur CONTENU : ce sont des objets
    du même étage, ils partagent donc la même colonne. */
 .ability-methodes,
-.ability-info,
 .ability-organe,
 .ability-collecteur,
 .abilities-step > .fs-rangee {
@@ -3026,58 +3012,11 @@ button { font: inherit; }
    (0,2,0) contre (0,1,0) — *« un besoin satisfait quatre fois n'est pas quatre
    fois plus sûr : c'est trois occasions de diverger »*. Ici c'était quatre. */
 
-/* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ══════════
-   FF2, dalle 50 %, qu'on ferme en cliquant (III.4).
-   🔴 SUR DU VERRE, SEULE `--text` TIENT : le banc pouvait se payer du gris
-   (il n'était tenu par aucun garde), la production non. Toutes les encres du
-   panneau sont donc `--text` ; ce qui distinguait les registres passe par le
-   CORPS et la graisse, jamais par la pâleur. */
-.ability-info {
-  padding: var(--sp-16);
-  margin-bottom: var(--sp-12);
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
-  color: var(--text);
-  cursor: pointer;                    /* le panneau entier ferme (III.4) */
-}
-.ability-info-tete { display: flex; align-items: baseline; gap: var(--sp-8); margin-bottom: var(--sp-4); }
-.ability-info-titre { font-size: var(--t6); line-height: 1.15; margin: 0; }
-.ability-info-fermer {
-  margin-left: auto; flex: none;
-  font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase;
-}
-.ability-info-chapeau { margin: 0 0 var(--sp-20); font-size: var(--t3); }
-.ability-info-methode { margin-bottom: var(--sp-16); }
-.ability-info-methode-tete { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; margin-bottom: var(--sp-4); }
-.ability-info-methode h4 { font-size: var(--t4); margin: 0; font-weight: 600; }
-.ability-info-des { font-size: var(--t1); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
-.ability-info-regle {
-  margin: 0 0 var(--sp-4); padding-left: var(--sp-12);
-  border-left: 2px solid var(--accent);
-  font-size: var(--t3);
-}
-.ability-info-methode p { margin: 0; font-size: var(--t3); }
-.ability-info-methode p + p { margin-top: var(--sp-4); }
-/* ⚠️ LE TABLEAU DÉFILE DANS SA BOÎTE, jamais en emportant la page : un
-   débordement horizontal casserait le glisser autant que la lecture. */
-.ability-info-tableau { overflow-x: auto; margin: var(--sp-20) 0; }
-.ability-info-tableau table { border-collapse: collapse; width: 100%; font-size: var(--t2); }
-.ability-info-tableau caption {
-  text-align: left; font-size: var(--t1);
-  letter-spacing: .08em; text-transform: uppercase; padding-bottom: var(--sp-8);
-}
-.ability-info-tableau th, .ability-info-tableau td {
-  text-align: right; padding: var(--sp-4);
-  border-bottom: 1px solid var(--verre-lisere);
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-}
-.ability-info-tableau thead th { font-size: var(--t1); font-weight: 600; }
-.ability-info-tableau tbody th { text-align: left; font-weight: 400; white-space: normal; min-width: 8ch; }
-.ability-info-tableau td.fort { font-weight: 600; }
-.ability-info-chute { margin-top: var(--sp-20); padding-top: var(--sp-12); border-top: 1px solid var(--verre-lisere); font-size: var(--t3); }
-.ability-info-chute p { margin: 0 0 var(--sp-8); }
-.ability-info-chute p:last-child { margin-bottom: 0; }
-.ability-info-note { font-size: var(--t2); font-style: italic; }
-.ability-info-pied { font-size: var(--t1); letter-spacing: .04em; }
+/* ⛔ LE PANNEAU INFO N'A PLUS DE FEUILLE — son bloc est parti avec lui le
+   2026-09-05 (le livre mène désormais au chapitre `ability-scores` de FH WEB).
+   ⭐ Ce qu'il avait appris reste vrai ailleurs et ne se perd pas : *sur du verre,
+   seule `--text` tient* — c'est la règle de `.guide-mot`, gardée, pas une
+   particularité de ce panneau-ci. */
 
 /* La colonne « Final » — corrigée sur mesure d'architecte (INVENTAIRE-
    LOT-45.md, « correction post-fusion ») : le choix brut et le score final
@@ -6534,7 +6473,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=548");
+  background-image: url("./assets/tarot-dos.jpg?v=549");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

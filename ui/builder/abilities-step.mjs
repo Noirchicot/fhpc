@@ -5,7 +5,7 @@
    ⭐ CE LOT N'A RIEN INVENTÉ, IL A ASSEMBLÉ. Tous les organes existaient,
    déployés et éprouvés au banc : le glisser (`glisser.mjs`), la rangée FS et
    le collecteur (`ilots-lab.html`), le panneau INFO
-   (`abilities-info-lab.html`), le plateau de dés (`abilities-tray.mjs`), la
+   le plateau de dés (`abilities-tray.mjs`), la
    règle de tirage (`dice.mjs`). Ce qui manquait, c'était **l'écran qui les
    tient ensemble**.
 
@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=548";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=548";
-import { renderTray } from "./abilities-tray.mjs?v=548";
-import { armerJeton } from "./glisser.mjs?v=548";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=548";
-import { createDieHost, mount } from "./dice3d.mjs?v=548";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=548";
+import { markPressed } from "./carnet.mjs?v=549";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=549";
+import { renderTray } from "./abilities-tray.mjs?v=549";
+import { armerJeton } from "./glisser.mjs?v=549";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=549";
+import { createDieHost, mount } from "./dice3d.mjs?v=549";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=549";
 
 export { rollAbilitySet };
 
