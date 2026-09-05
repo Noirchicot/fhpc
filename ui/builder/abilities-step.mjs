@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=559";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=559";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=559";
-import { armerJeton } from "./glisser.mjs?v=559";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=559";
-import { createDieHost, mount } from "./dice3d.mjs?v=559";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=559";
+import { markPressed } from "./carnet.mjs?v=560";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=560";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=560";
+import { armerJeton } from "./glisser.mjs?v=560";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=560";
+import { createDieHost, mount } from "./dice3d.mjs?v=560";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=560";
 
 export { rollAbilitySet };
 
@@ -476,11 +476,12 @@ function gestesDuFantome(valeur) {
    · en **FREE**, le vivier est INÉPUISABLE : y ramener un dé posé le
      **DÉTRUIT**. C'est le geste de retrait qu'Eric décrit — *« tu peux
      dégager les dés posés en les glissant dans le vide »* ;
-   · dans les **trois autres**, il ne se passe RIEN, et ce n'est pas un oubli :
-     `rebuild()` JETTE si l'une des six valeurs manque au document (mesuré,
-     `derive.mjs` : « un score ne se dérive de rien »). Il n'existe donc aucune
-     action qui VIDE une cible sans en remplir une autre — on réarrange en
-     posant, jamais en vidant (loi du lot 45, tenue depuis).
+   · dans les **trois autres**, y ramener un dé posé le REND au podium
+     (05/09 au soir, *« aller-retour »*). `rebuild()` JETTE si l'une des six
+     valeurs manque au document (`derive.mjs`) — donc le retour ne vide PAS le
+     document, il vide la carte `assign` ; la porte compte les poses. La loi du
+     lot 45 (« on réarrange en posant, jamais en vidant ») ne visait que le
+     document : elle tient toujours, à l'étage où elle est vraie.
    ⭐ FREE peut se le permettre PARCE QUE SA PORTE COMPTE LES POSES, pas les
    valeurs du document (voir `abilitiesValidate`). Le document y garde sa
    dernière valeur — il le doit —, l'écran dit « rien de posé », et `DONE`
@@ -533,7 +534,10 @@ function renderVivier(ctx) {
     const vide = roll.total === null || roll.total === undefined || ctx.tenuPar(roll) !== null;
     item.dataset.vide = String(vide);
     if (vide) {
-      item.append(el("span", "fs-vide", [text("—")]));
+      /* Le disque seul — Eric, 05/09 au soir. Le tiret disait « vide » sur une
+         pastille qui le dit déjà d'elle-même. Le nœud reste : il tient la place
+         (`.fs-vide`, la hauteur d'un dé) et reçoit le dé qui revient. */
+      item.append(el("span", "fs-vide"));
       rangee.append(item);
       continue;
     }
@@ -1201,26 +1205,33 @@ export function renderAbilitiesStep(ctx, onAction) {
       const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
       if (libre) glisseCtx.poser(libre, roll);
     },
-    /** LE TAP SUR UN DÉ POSÉ. En FREE il le retire ; ailleurs il ne fait
-     *  rien — voir `RETOUR_VIVIER`, il n'existe aucune action qui vide une
-     *  cible sans en remplir une autre. */
-    /** ⛔ AUCUN RETRAIT, DANS AUCUNE MÉTHODE — et ce n'est pas un oubli :
-     *  `rebuild()` jette si l'une des six valeurs manque au document
-     *  (`derive.mjs`), et il n'existe aucune action qui VIDE une cible sans en
-     *  remplir une autre. On réarrange en posant, jamais en vidant (loi du
-     *  lot 45, tenue depuis).
-     *  ⭐ EN FREE, LE RETRAIT A CHANGÉ D'ÉTAGE : on ne dégage plus un dé d'une
-     *  caractéristique, on RECOUVRE un créneau du vivier depuis la palette.
-     *  Le geste d'Eric (*« tu peux dégager les dés posés »*) est tenu là où il
-     *  ne casse rien. */
-    reprendre() {},
+    /** LE RETOUR — un dé posé REVIENT au podium, par tap ou par glisser.
+     *  Eric, 2026-08-16 : *« je veux pouvoir les remettre dans le conteneur
+     *  d'origine — que ça marche dans les 2 sens »* ; et le 05/09 au soir, devant
+     *  un écran qui ne le faisait toujours pas : *« le drag and drop doit se
+     *  faire en aller-retour »*.
+     *  🔴 CE QUI L'INTERDISAIT, ET POURQUOI ÇA NE TIENT PAS : « `rebuild()` jette
+     *  si l'une des six valeurs manque au document ». Vrai — et c'est pour ça que
+     *  le retour NE TOUCHE PAS LE DOCUMENT : il retire la clef de la carte
+     *  `assign` (hors document, elle meurt avec le lot), le document garde sa
+     *  dernière valeur, l'écran montre le collecteur vide, et `Done` s'éteint
+     *  parce que la porte compte les POSES quand un lot existe
+     *  (`abilitiesValidate`). C'est exactement la mécanique que FREE tenait
+     *  déjà seul (*« deux vérités qui ne parlent pas de la même chose »*) —
+     *  elle vaut pour les quatre méthodes. En FREE, le vivier n'existe pas :
+     *  reprendre y vide la case, comme la palette l'aurait recouverte. */
+    reprendre(key) {
+      act({ kind: "unassignAbilityRoll", key });
+    },
     /** LE GLISSER D'UNE CIBLE VERS AILLEURS. Sur une autre cible, il ÉCHANGE
      *  (lot 51) ou, en FREE, il RECOUVRE — l'échange n'a de sens que si les
      *  dés sont en nombre fini ; ici le vivier est inépuisable, il n'y a rien
      *  à rendre (§5.3, divergence voulue n° 1). Sur le vivier, il retire —
      *  en FREE seulement (divergence voulue n° 2). */
     deplacer(key, roll, ou) {
-      if (ou === RETOUR_VIVIER || ou === key) return;
+      if (ou === key) return;
+      /* ⭐ LÂCHER SUR LE PODIUM = REPRENDRE — le retour du geste (voir `reprendre`). */
+      if (ou === RETOUR_VIVIER) { glisseCtx.reprendre(key); return; }
       /* ⭐ EN `FREE`, DÉPLACER UN DÉ POSÉ LE RECOPIE : la source garde le sien,
          la cible reçoit la valeur. C'est la divergence §5.3 — un ÉCHANGE n'a
          de sens qu'entre dés en nombre fini, et la palette est inépuisable. */
@@ -1343,7 +1354,14 @@ function renderLivreDeLaMethode() {
  *  parce que sa cause a disparu, pas parce qu'on l'a désarmée. */
 export function abilitiesValidate(ctx) {
   const document = ctx.document;
-  const toutesPosees = ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
+  /* ⭐ QUAND UN LOT EXISTE, LA PORTE COMPTE LES POSES, PAS LES VALEURS — c'est ce
+     qui rend le RETOUR possible (05/09) : un dé repris laisse sa valeur au
+     document (sinon `rebuild()` jette), et c'est la carte `assign` qui dit
+     qu'il manque. Sans lot (saisie d'un score à la main), les valeurs décident. */
+  const assign = ctx.rollBatch && ctx.rollBatch.assign ? ctx.rollBatch.assign : null;
+  const toutesPosees = assign
+    ? ABILITY_KEYS.every((key) => Number.isInteger(assign[key]))
+    : ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
   return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };
 }
 

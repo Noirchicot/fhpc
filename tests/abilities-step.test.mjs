@@ -1017,31 +1017,53 @@ test("⭐ RECOUVRIR REMPLACE, là où les trois autres ÉCHANGENT (§5.3)", asyn
     "⛔ pas d'`assignAbilityRoll` : en FREE on recopie, on n'échange pas");
 });
 
-test("⛔ AUCUN RETRAIT, DANS AUCUNE MÉTHODE — et le geste d'Eric a changé d'étage", async () => {
-  /* `rebuild()` jette si l'une des six valeurs manque au document
-     (`derive.mjs`), et il n'existe aucune action qui VIDE une cible sans en
-     remplir une autre. On réarrange en posant, jamais en vidant.
-     ⭐ En FREE, ce qu'Eric décrivait (*« tu peux dégager les dés posés »*) se
-     fait maintenant là où ça ne casse rien : on RECOUVRE un créneau du vivier
-     depuis la palette. */
+test("⭐ LE RETOUR — ramener un dé sur le vivier le REPREND, dans toutes les méthodes", async () => {
+  /* Eric, 2026-08-16 : *« que ça marche dans les 2 sens »* ; 2026-09-05 au soir,
+     devant un écran qui ne le faisait toujours pas : *« le drag and drop doit se
+     faire en aller-retour »*. Le retour ne touche PAS le document (`rebuild()`
+     jette sur une valeur manquante) : il retire la clef de la carte `assign`,
+     et c'est la porte qui compte les poses. Ce test a remplacé « AUCUN RETRAIT,
+     DANS AUCUNE MÉTHODE », la loi que ce soir a retournée. */
   const lot = freeBatch();
   lot.rolls.forEach((r, i) => { r.total = [15, 14, 13, 12, 10, 8][i]; });
   lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
   await glisser(deDeLaCible(node, "str"), node.querySelectorAll(".fs-rangee")[1]);
-  assert.deepEqual(calls, [], "ramener un dé sur le vivier ne commet rien, dans aucune méthode");
+  assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "str" }],
+    "FREE : ramener un dé posé le reprend — la clef quitte la carte, rien d'autre");
+
+  const tableau = standardArrayBatch();
+  tableau.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
+  const calls2 = [];
+  const node2 = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: tableau }), (a) => calls2.push(a));
+  await glisser(deDeLaCible(node2, "dex"), node2.querySelector(".ability-des-gardes[data-podium]"));
+  assert.deepEqual(calls2, [{ kind: "unassignAbilityRoll", key: "dex" }],
+    "ARRAY : lâcher sur le podium reprend le dé — même verbe, aucune valeur dedans");
+  assert.ok(!calls2.some((c) => c.kind === "assignAbilityRoll"),
+    "⛔ et surtout pas un `set` déguisé : le document n'apprend rien d'un retour");
 });
 
-test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — l'exception de FREE est tombée", () => {
-  /* Elle comptait les POSES au lieu de lire le document, et il le fallait tant
-     que sa palette écrivait directement sur les caractéristiques. Depuis
-     qu'il COMPOSE un vivier, il n'écrit qu'à l'affectation — la porte commune
-     redit la vérité pour lui aussi. Une exception qui tombe parce que sa cause
-     a disparu, pas parce qu'on l'a désarmée. */
-  for (const m of ["fh3d6", "4d6", "standard", "free"]) {
-    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: lotSansDes(m) }).ready, true,
-      `${m} : les six scores du personnage d'exemple sont posés, la porte s'ouvre`);
+test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — et quand un lot existe, elle compte les POSES", () => {
+  /* Sans lot (un score saisi à la main), les valeurs du document décident.
+     Avec un lot, ce sont les poses : un dé REPRIS (05/09, l'aller-retour)
+     laisse sa valeur au document — `rebuild()` jette sur une valeur manquante —
+     et seule la carte `assign` sait qu'il manque. Une porte qui lirait le
+     document laisserait `Done` allumé sur un collecteur vide. */
+  for (const m of ["fh3d6", "4d6"]) {
+    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: null }).ready, true,
+      `${m} sans lot : les six scores du personnage d'exemple sont posés, la porte s'ouvre`);
+  }
+  for (const m of ["standard", "free"]) {
+    const lot = lotSansDes(m);
+    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: lot }).ready, false,
+      `${m} : un lot sans aucune pose ferme la porte, même si le document porte six scores`);
+    lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
+    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: lot }).ready, true,
+      `${m} : six poses, la porte s'ouvre`);
+    delete lot.assign.wis;
+    assert.equal(abilitiesValidate({ document: fixture.document, method: m, rollBatch: lot }).ready, false,
+      `${m} : un dé repris (WIS) la referme — la valeur est encore au document, la pose non`);
   }
   assert.equal(abilitiesValidate({ document: fixture.document, method: null, rollBatch: null }).ready, false,
     "…et aucune méthode choisie la referme");

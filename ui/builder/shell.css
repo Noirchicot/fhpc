@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=559") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=560") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4123,18 +4123,36 @@ button { font: inherit; }
    tout d'un pixel au moment le plus mouvant du geste.
    📌 Le rembourrage et la cote ne bougent pas : le carré reste de la taille du
    dé qui viendra s'y poser, c'est ce qui fait qu'on voit la place. */
+/* 🪙 LE COLLECTEUR EST UN JETON EN RELIEF — Eric, 05/09 au soir : *« collecteurs
+   relief, drop here sign »*. La famille du §2 (26/08) : matière `--jeton-teinte`,
+   `--relief`, rayon d'organe, liseré fort — le même objet que tout jeton du
+   site, à la cote de la face du dé (28, l'étalon). Le signe « drop here » est
+   en T0 : un signe sur un jeton de 28, pas une ligne à lire. Quand le dé se
+   pose, il PREND LA PLACE du jeton — sa face est le jeton ; la colonne autour
+   reste invisible (voir `[data-rempli]` plus bas). */
 .ability-creneau .glisse-cible-vide {
   display: grid; place-items: center; height: auto;
   padding: 0;
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
-  border: 1px solid transparent; border-radius: var(--radius-sm);
-  font-size: var(--t1); line-height: 1.1; text-align: center; white-space: normal;
-  color: var(--text); opacity: .75;
+  /* CARRÉ, pas le rayon d'organe : à 28, `--organe-rayon` en faisait une pièce
+     ronde ; Eric a dit « carrés » (05/09 au matin) et le dé qui vient s'y poser
+     est carré. */
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  font-size: var(--t0); line-height: 1.1; text-align: center; white-space: normal;
+  color: var(--text);
+}
+/* ⛔ LA COLONNE PLEINE N'EST PAS UN JETON NON PLUS : `.choix-glisse .glisse-creneau
+   [data-rempli]` lui donnait le relief, la teinte ET le liseré `--info` — six
+   boîtes bleues autour des dés posés (vu le 05/09 au soir). Le dé posé EST le
+   jeton ; rien ne se dessine autour de lui. Sélecteur à quatre classes : il gagne
+   sur celui du §2 (trois classes + attribut) parce qu'il en dit plus. */
+.choix-glisse .glisse-creneau.ability-creneau[data-rempli="true"] {
+  border-color: transparent; background: none; box-shadow: none;
 }
 /* LE BONUS, SOUS LE CARRÉ ET À L'EXTÉRIEUR — il n'apparaît qu'avec un dé
    (`renderCollecteur`), donc cette règle n'habille jamais du vide. */
 .ability-creneau .ability-row-final-value { font-size: var(--t3); font-weight: 600; }
-.ability-creneau[data-vise="true"] .glisse-cible-vide { border-color: var(--accent); border-style: solid; opacity: 1; }
+.ability-creneau[data-vise="true"] .glisse-cible-vide { border-color: var(--accent); border-style: solid; }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */
 .ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
@@ -6720,7 +6738,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=559");
+  background-image: url("./assets/tarot-dos.jpg?v=560");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
