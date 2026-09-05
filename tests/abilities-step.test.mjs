@@ -1044,6 +1044,31 @@ test("⭐ LE RETOUR — ramener un dé sur le vivier le REPREND, dans toutes les
     "⛔ et surtout pas un `set` déguisé : le document n'apprend rien d'un retour");
 });
 
+test("🔁 D'UN PODIUM À L'AUTRE — lâcher un dé sur une pastille échange les places, depuis le podium comme depuis un collecteur", async () => {
+  /* Eric, 05/09 : *« manque la possibilité de se déplacer d'un podium à l'autre »*.
+     Chaque pastille est une cible `podium:<index du jet>` ; le verbe porte les
+     deux index, et la clef du collecteur quand le dé en vient. Aucun `set`. */
+  const tableau = standardArrayBatch();
+  tableau.assign = { ...emptyAbilityAssign(), dex: 1 };
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: tableau }), (a) => calls.push(a));
+  const pastilles = node.querySelectorAll(".ability-des-gardes[data-podium] .fs");
+  assert.equal(pastilles.length, 6, "six pastilles");
+  assert.ok([...pastilles].every((p) => /^podium:\d+$/.test(p.dataset.creneau)), "chacune est une cible nommée par son jet");
+  const deDuPodium = pastilles[0].querySelector(".fs-de");
+  await glisser(deDuPodium, pastilles[3]);
+  assert.deepEqual(calls, [{ kind: "abilityPodium", rollIndex: 0, slotOf: 3, key: null }],
+    "podium → pastille : un échange de places, sans clef");
+  calls.length = 0;
+  await glisser(deDeLaCible(node, "dex"), pastilles[1]);
+  assert.deepEqual(calls, [{ kind: "abilityPodium", rollIndex: 1, slotOf: 1, key: "dex" }],
+    "collecteur → sa propre pastille : il revient, la clef sort");
+  calls.length = 0;
+  await glisser(deDeLaCible(node, "dex"), pastilles[5]);
+  assert.deepEqual(calls, [{ kind: "abilityPodium", rollIndex: 1, slotOf: 5, key: "dex" }],
+    "collecteur → une autre pastille : il revient LÀ, et les places s'échangent");
+});
+
 test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — et quand un lot existe, elle compte les POSES", () => {
   /* Sans lot (un score saisi à la main), les valeurs du document décident.
      Avec un lot, ce sont les poses : un dé REPRIS (05/09, l'aller-retour)

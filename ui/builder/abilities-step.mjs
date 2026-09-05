@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=568";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=568";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=568";
-import { armerJeton } from "./glisser.mjs?v=568";
-import { facteurZoomCourant } from "./echelle.mjs?v=568";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=568";
-import { createDieHost, mount } from "./dice3d.mjs?v=568";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=568";
+import { markPressed } from "./carnet.mjs?v=569";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=569";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=569";
+import { armerJeton } from "./glisser.mjs?v=569";
+import { facteurZoomCourant } from "./echelle.mjs?v=569";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=569";
+import { createDieHost, mount } from "./dice3d.mjs?v=569";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=569";
 
 export { rollAbilitySet };
 
@@ -506,6 +506,8 @@ function gestesDuFantome(valeur) {
    s'éteint. Les deux vérités ne se contredisent pas : elles ne parlent pas de
    la même chose. */
 const RETOUR_VIVIER = "vivier";
+/** Le préfixe des cibles-pastilles du podium : `podium:<index du jet>`. */
+const PODIUM = "podium:";
 /* ⛔ `CRENEAU_VIVIER` A VÉCU UNE HEURE. Il nommait les six créneaux que la
    palette de `FREE` remplissait, avant qu'Eric ne reprenne : *« les îlots vont
    être utiles dans 4D6 et 3D6 mais pas ici »*. Sa page n'a que deux dalles, et
@@ -551,8 +553,20 @@ function renderVivier(ctx) {
      recrée. Le drapeau `data-pose` n'est posé que cette fois-là. */
   if (rollBatch.rolls !== dernierLotPose) { rangee.dataset.pose = "true"; dernierLotPose = rollBatch.rolls; }
 
-  for (const roll of gardes) {
+  /* 🔁 L'ORDRE DU PODIUM VIT DANS LE LOT (`rollBatch.podium`, des index de jets) —
+     Eric, 05/09 : *« manque la possibilité de se déplacer d'un podium à l'autre »*.
+     Sans cette carte, l'ordre était celui des jets et un dé revenait toujours à
+     SA place. Chaque pastille est désormais une cible à elle (`podium:<index du
+     jet dont c'est la place>`), et lâcher un dé dessus ÉCHANGE les deux places —
+     que la pastille soit pleine ou vidée. La rangée reste la cible « vivier »
+     entre les pastilles : lâcher là rend le dé à sa place. */
+  const parIndexGarde = new Map(gardes.map((r) => [r.index, r]));
+  const ordre = Array.isArray(rollBatch.podium) && rollBatch.podium.every((i) => parIndexGarde.has(i)) && rollBatch.podium.length === gardes.length
+    ? rollBatch.podium.map((i) => parIndexGarde.get(i))
+    : gardes;
+  for (const roll of ordre) {
     const item = el("li", "fs");
+    item.dataset.creneau = `${PODIUM}${roll.index}`;
     /* Un dé PARTI sur une caractéristique laisse un trou — et le trou GARDE SA
        PLACE : la rangée ne se referme pas, sinon les cinq autres bougeraient
        sous le doigt en plein geste. */
@@ -573,7 +587,11 @@ function renderVivier(ctx) {
     item.append(renderJetonDe(roll, FS.resolution, {
       chezSoi: true,
       onTap: () => ctx.poserAuPremierLibre(roll),
-      onDepot: (ou) => { if (ou !== RETOUR_VIVIER) ctx.poser(ou, roll); }
+      onDepot: (ou) => {
+        if (ou === RETOUR_VIVIER) return;
+        if (ou.startsWith(PODIUM)) { ctx.placerAuPodium(roll, ou, null); return; }
+        ctx.poser(ou, roll);
+      }
     }));
     rangee.append(item);
   }
@@ -1274,10 +1292,21 @@ export function renderAbilitiesStep(ctx, onAction) {
      *  dés sont en nombre fini ; ici le vivier est inépuisable, il n'y a rien
      *  à rendre (§5.3, divergence voulue n° 1). Sur le vivier, il retire —
      *  en FREE seulement (divergence voulue n° 2). */
+    /** UN DÉ PREND UNE PASTILLE DU PODIUM — depuis le podium (échange de places)
+     *  ou depuis un collecteur (il revient, ET prend cette place-là). Le shell
+     *  échange les deux index dans `podium` et, si `key` est donné, retire la
+     *  clef de `assign`. */
+    placerAuPodium(roll, ou, key) {
+      const slotOf = Number(ou.slice(PODIUM.length));
+      if (!Number.isInteger(slotOf)) return;
+      act({ kind: "abilityPodium", rollIndex: roll.index, slotOf, key: key || null });
+    },
     deplacer(key, roll, ou) {
       if (ou === key) return;
-      /* ⭐ LÂCHER SUR LE PODIUM = REPRENDRE — le retour du geste (voir `reprendre`). */
+      /* ⭐ LÂCHER SUR LE PODIUM = REPRENDRE — le retour du geste (voir `reprendre`) ;
+         sur UNE pastille, il prend cette place-là (Eric, 05/09). */
       if (ou === RETOUR_VIVIER) { glisseCtx.reprendre(key); return; }
+      if (ou.startsWith(PODIUM)) { glisseCtx.placerAuPodium(roll, ou, key); return; }
       /* ⭐ EN `FREE`, DÉPLACER UN DÉ POSÉ LE RECOPIE : la source garde le sien,
          la cible reçoit la valeur. C'est la divergence §5.3 — un ÉCHANGE n'a
          de sens qu'entre dés en nombre fini, et la palette est inépuisable. */
