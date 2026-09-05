@@ -4790,9 +4790,24 @@ autour du dé à échanger — au podium comme aux collecteurs. Le retour visuel
 
 ### 7.7 La sortie de l'écran
 📍 `cadre-sortie-de-l-ecran-du-glisser-des-des` · vivante · 06/09
-`Done` **bleu** dès qu'il est allumé (six poses) — il avance sans rien défaire, l'écran reste modifiable ;
-`Cancel` **rouge** dès qu'il a quelque chose à abandonner (le premier jet). Règle de la coquille
-(`renderSortieEtape`, `data-lit` / `data-arme`), un producteur pour dix écrans.
+`Done` **vert** dès qu'il est allumé (six poses) — Eric, 06/09 : *« mieux en vert finalement »* (bleu
+le matin même) ; il mène au **bilan** (7.9), pas à l'étape suivante. `Cancel` **rouge** dès qu'il a
+quelque chose à abandonner (le premier jet). Règle de la coquille (`renderSortieEtape`, `data-lit` /
+`data-arme`), un producteur pour dix écrans.
+
+### 7.9 Le bilan — R2, l'écran de la racine une fois l'étape validée *(06/09)*
+📍 `cadre-bilan-du-glisser-des-des` · vivante · 06/09
+Eric : *« quand j'appuie sur Done, on remonte en R avec les résultats. R1 (l'ancien choix) disparaît,
+devient R2 un bilan »*. Sur le **tapis du tirage** (552 × 176), six cellules — **nom** (accent, T0
+gras) · **le score sur un dé** (cellule `--de-pose`) · **bonus signé** et son mot — le même dessin que
+les colonnes du collecteur. Dessous, une dalle de verre : l'aiguilleur (*l'étape est validée*) et la
+rangée `livre · Cancel · Next · ?`. `Next` est la même porte que `Done` (`next: "step"`) ; `Cancel`
+(verbe déclaré `abilityBilanCancel`) rend le choix, **R1**, sans jeter le lot. Le bilan est un
+drapeau de la coquille (`abilityBilan`), jamais déduit d'un lot complet. ⭐ **R2 est la destination COMMUNE de
+B1 / B2 / B3 / B4** (Eric, 06/09) : il lit le document et la fiche dérivée, pas la méthode — un seul bilan,
+quatre chemins pour y arriver.
+**Les noms de caractéristiques sont en `--accent`** (06/09 : l'oxblood *« passe pour un message
+d'erreur »*), partout où ils nomment une cellule — collecteur et bilan.
 
 ---
 

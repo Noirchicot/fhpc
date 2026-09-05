@@ -675,8 +675,12 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      OUVERT. Species ne le déclare pas : son catalogue EST l'entrée de son
      étape, et c'est la ceinture qui l'y ramène. La règle n'a pas bougé d'un
      mot — `Back` naît d'un FAIT, et le pied reste une PAIRE. */
-  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem \|\| \(cfgRetour && cfgRetour\.retourInterne\)\) \? button\(motDuRetour/,
-    "⭐ et le retour ne naît que s'il y a quelque chose derrière : entre étapes, c'est la ceinture qui ramène (I.5)");
+  /* 🏁 ÉLARGI LE 06/09, PAS ASSOUPLI — même famille que le lot 143 : le bilan
+     d'Abilities (R2) vit AU PALIER 1 et son `Cancel` rend le choix (R1). Le palier
+     ne le voit pas ; l'hôte le DÉCLARE (`data-sortie-verbe`) — un fait, pas un
+     id d'étape, et la ligne d'après continue de l'interdire. */
+  assert.match(shellText, /const back = \(state\.palier > 1 \|\| state\.parcoursItem \|\| \(cfgRetour && cfgRetour\.retourInterne\) \|\| decl\.sortieVerbe\) \? button\(motDuRetour/,
+    "⭐ et le retour ne naît que s'il y a quelque chose derrière — un palier, un item, un catalogue interne, ou un verbe DÉCLARÉ par l'hôte : entre étapes, c'est la ceinture qui ramène (I.5)");
   assert.doesNotMatch(shellText, /const back = [^\n]*STEPS\[state\.step\]\.id/,
     "⛔ et jamais d'un ID D'ÉTAPE : le jour où un écran veut son retour, il déclare un FAIT");
   /* 🔴 LE TÉMOIN DE LA DISTINCTION — Eric, 2026-08-20 : *« back n'efface pas ;
@@ -800,7 +804,9 @@ test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 �
      n'a que deux paliers, donc `!== 2` et `< 2` y disaient la même chose. Ce qui
      a changé est ailleurs : un 3ᵉ palier EXISTE maintenant (les sorts d'un don),
      et une borne qui nomme un palier rouille au premier cran ajouté. */
-  assert.match(shellText, /function surUneRacineQuiBranche\(\) \{[\s\S]*?return STEPS\[state\.step\]\.id === "abilities" && state\.palier < 2;/,
+  /* 🏁 06/09 — la racine d'Abilities qui porte le BILAN (R2) ne branche plus :
+     elle a une sortie (`Next`, `Cancel`). Le drapeau est celui de la coquille. */
+  assert.match(shellText, /function surUneRacineQuiBranche\(\) \{[\s\S]*?return STEPS\[state\.step\]\.id === "abilities" && state\.palier < 2 && !state\.abilityBilan;/,
     "…et la condition est NOMMÉE, pas un `if` anonyme de plus dans le rendu");
   /* ⚔️ ET ELLE EST BORNÉE : c'est la RACINE qui n'a pas de sortie, pas
      l'étape. La page d'une méthode (palier 2) garde la sienne — sans quoi

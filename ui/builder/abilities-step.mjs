@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=574";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=574";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=574";
-import { armerJeton } from "./glisser.mjs?v=574";
-import { facteurZoomCourant } from "./echelle.mjs?v=574";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=574";
-import { createDieHost, mount } from "./dice3d.mjs?v=574";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=574";
+import { markPressed } from "./carnet.mjs?v=575";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=575";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=575";
+import { armerJeton } from "./glisser.mjs?v=575";
+import { facteurZoomCourant } from "./echelle.mjs?v=575";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=575";
+import { createDieHost, mount } from "./dice3d.mjs?v=575";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=575";
 
 export { rollAbilitySet };
 
@@ -1116,6 +1116,10 @@ export function renderAbilitiesStep(ctx, onAction) {
   const surLaRacine = ctx.palier !== 2;
 
   if (surLaRacine) {
+    /* 🏁 R2 — LE BILAN REMPLACE LE CHOIX (Eric, 06/09 : *« on remonte en R avec les
+       résultats, R1 l'ancien choix disparaît, devient R2 un bilan »*). La coquille
+       dit lequel des deux (`ctx.bilan`) ; l'écran ne le déduit pas d'un lot. */
+    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved })); return section; }
     section.append(renderSelecteurMethode(ctx.method || null, act));
     return section;
   }
@@ -1438,6 +1442,50 @@ export function renderAbilitiesStep(ctx, onAction) {
  *  (sacré n° 2 : le livre mène, il ne raconte pas). L'écran le DÉPOSE dans
  *  l'hôte de sa sortie ; `poserLesBornes` le range en tête de la dernière rangée.
  *  Même patron qu'à `destiny-step.mjs` et qu'au R d'Abilities. */
+/* ══ 🏁 LE BILAN — R2, l'écran de la racine une fois l'étape validée ═══════════
+   Eric, 06/09 : *« les résultats des abilities sont disposés sur un tapis vert,
+   comme en fin B1 : strength / 14 sur un dé / +2 / bonus, × 6 caracs. L'aiguilleur
+   dans une dalle en dessous expliquant que cette étape est validée. Dans une
+   cellule en dessous, les boutons : livre · Cancel · Next · ? Le Cancel revient à
+   R1 »*. Le tapis est celui du tirage (552 × 176, il loge les trois lignes) ; les
+   cellules sont celles du collecteur — nom en accent, dé dans sa cellule
+   (`--de-pose`), bonus signé et son mot — un seul dessin pour un même objet. */
+function renderBilan({ document: doc, resolved }) {
+  const section = el("section", "ability-bilan");
+  section.dataset.bandes = "true";
+  const tapis = el("section", "ability-bilan-tapis");
+  const cellules = el("div", "ability-bilan-cellules");
+  ABILITY_KEYS.forEach((key, i) => {
+    const valeur = currentAbilityValue(doc, key);
+    const cellule = el("div", "ability-bilan-cellule");
+    cellule.dataset.carac = key;
+    cellule.append(el("span", "ability-bilan-nom", [text(abilityLabel(key))]));
+    const de = el("span", "ability-bilan-de");
+    if (Number.isInteger(valeur)) poserUnDe(de, valeur, FS.resolution, i);
+    cellule.append(de);
+    const final = renderFinalColumn(resolved, key, valeur, { compact: true });
+    if (final) cellule.append(final);
+    cellule.setAttribute("aria-label", `${abilityLabel(key)} — ${Number.isInteger(valeur) ? valeur : "not set"}`);
+    cellules.append(cellule);
+  });
+  tapis.append(cellules);
+  section.append(tapis);
+
+  const dalle = el("section", "ability-bilan-dalle dalle-simple");
+  dalle.append(el("p", "guide-mot ability-bilan-mot", [text(
+    "Your six ability scores are set. Next moves on to Skills; Cancel reopens the choice of method."
+  )]));
+  /* 🗣️ La déclaration, pas la fabrication : `Cancel` rend le choix (verbe déclaré),
+     le bouton d'avance s'appelle `Next`, le livre ouvre la règle publiée. */
+  dalle.dataset.sortieIci = "true";
+  dalle.dataset.sortieMot = "Cancel";
+  dalle.dataset.sortieVerbe = "abilityBilanCancel";
+  dalle.dataset.sortieDoneMot = "Next";
+  dalle.append(renderLivreDeLaMethode());
+  section.append(dalle);
+  return section;
+}
+
 function renderLivreDeLaMethode() {
   const livre = el("button", "fiche-livre livre-de-sortie");
   livre.type = "button";
@@ -1477,6 +1525,10 @@ export function abilitiesValidate(ctx) {
   const toutesPosees = assign
     ? ABILITY_KEYS.every((key) => Number.isInteger(assign[key]))
     : ABILITY_KEYS.every((key) => Number.isInteger(currentAbilityValue(document, key)));
-  return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: "step" };
+  /* 🏁 DEUX SORTIES POUR UN MÊME BOUTON (Eric, 06/09) : sur la page d'une méthode,
+     `Done` mène au BILAN (`next: "bilan"`) ; sur le bilan, `Next` avance
+     (`next: "step"`). Sans lot (un score saisi à la main), on avance comme avant. */
+  if (ctx.bilan) return { exists: true, ready: true, action: null, next: "step" };
+  return { exists: true, ready: Boolean(ctx.method) && toutesPosees, action: null, next: assign ? "bilan" : "step" };
 }
 

@@ -19,26 +19,26 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=574";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=574";
-import { mountPopup } from "./popup.mjs?v=574";
-import { renderLorePanel } from "./lore.mjs?v=574";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=574";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=575";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=575";
+import { mountPopup } from "./popup.mjs?v=575";
+import { renderLorePanel } from "./lore.mjs?v=575";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=575";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=574";
-import { STEPS } from "./etapes.mjs?v=574";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=574";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=575";
+import { STEPS } from "./etapes.mjs?v=575";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=575";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=574";
+} from "./tutoriel.mjs?v=575";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=574";
+import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=575";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -49,14 +49,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=574";
+} from "./echelle.mjs?v=575";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=574";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=575";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -67,45 +67,45 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=574";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=574";
+} from "./fonds.mjs?v=575";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=574";
-import { renderChoixGlisses } from "./glisser.mjs?v=574";
-import { renderConceptStep } from "./concept-step.mjs?v=574";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=574";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=574";
+import { planAt, planSlots } from "./carnet.mjs?v=575";
+import { renderChoixGlisses } from "./glisser.mjs?v=575";
+import { renderConceptStep } from "./concept-step.mjs?v=575";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=575";
+import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=575";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=574";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=574";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=574";
+} from "./catalogue.mjs?v=575";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=575";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=575";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=574";
-import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=574";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=575";
+import { renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes } from "./abilities-step.mjs?v=575";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=574";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=575";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=574";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=574";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=574";
+} from "./destiny-step.mjs?v=575";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=575";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=575";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=574";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=574";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=575";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=575";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=574";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=575";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -124,16 +124,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=574";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=574";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=575";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=574";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=574";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=575";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=575";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=574";
+import { versionQuery } from "./version.mjs?v=575";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -266,6 +266,11 @@ const state = {
   /* LOT 63 — B5.1c : « il faut CLIQUER pour faire apparaître les rollers ».
      Tant que `abilityMethod` est nul, l'écran ne montre que ses tuiles. */
   abilityMethod: null,   // "roll" | "standard" | "manual"
+  /* 🏁 LE BILAN D'ABILITIES (Eric, 06/09) : après `Done` sur la page d'une méthode,
+     la racine ne montre plus le choix (R1) mais le BILAN (R2) — six scores sur
+     un tapis, `Next` avance, `Cancel` rend le choix. Un drapeau, pas une
+     déduction : un lot complet peut vivre SANS bilan (on est revenu au choix). */
+  abilityBilan: false,
   /* LOT PLATEAU (2026-08-15) — combien des dix jets sont DÉCOUVERTS. Il vit
      ici et pas dans `abilityRoll` parce qu'il survit à un lot rejeté : le
      plateau remet à zéro lui-même quand il balaie. */
@@ -653,6 +658,7 @@ function applyDecisionAction(action) {
        joueur est la TUILE, pas le bouton de sortie. `pressDone` garde son
        enchaînement (I.4) ; il n'y a toujours qu'un propriétaire par porte. */
     state.palier = 2;
+    state.abilityBilan = false;   // on rouvre une page : le bilan n'est plus l'écran de la racine
     openSurface();
     return;
   }
@@ -737,6 +743,16 @@ function applyDecisionAction(action) {
        caractéristiques doivent se vider avec lui. */
     state.abilityRoll = null;
     state.abilityRevele = 0;
+    state.abilityBilan = false;
+    openSurface();
+    return;
+  }
+  /* 🏁 `Cancel` SUR LE BILAN REND LE CHOIX (R1) — Eric, 06/09 : *« le cancel
+     revient à R1 »*. Le lot et ses poses restent : rouvrir la même méthode les
+     retrouve (la règle du 16/08), en changer les jette (la même). */
+  if (action.kind === "abilityBilanCancel") {
+    state.abilityBilan = false;
+    state.palier = 1;
     openSurface();
     return;
   }
@@ -2004,7 +2020,9 @@ function renderStepContent() {
       /* ⭐ LE PALIER DÉCIDE DE LA PAGE (Eric, 2026-08-16) : 1 = la racine, le
          sélecteur seul ; 2 = la page de la méthode choisie. L'écran le LIT, il
          ne le possède pas — l'enchaînement appartient à la coquille (I.4). */
-      palier: state.palier
+      palier: state.palier,
+      /* 🏁 Le bilan est un ÉCRAN DE LA RACINE (R2) — l'écran le lit, la coquille le tient. */
+      bilan: state.abilityBilan
     }, applyDecisionAction));
   } else if (step.id === "abilities" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -3148,7 +3166,8 @@ function currentGate(palier = state.palier) {
   /* B5 — sur Abilities, `Validate` JETTE au premier palier, puis avance. */
   if (STEPS[state.step].id === "abilities" && state.engine) {
     return abilitiesValidate({
-      document: state.document, method: state.abilityMethod, rollBatch: state.abilityRoll
+      document: state.document, method: state.abilityMethod, rollBatch: state.abilityRoll,
+      bilan: state.abilityBilan
     });
   }
   /* B7.3d — sur Compétences, `Validate` s'illumine quand le compte est bon. */
@@ -3303,6 +3322,16 @@ function pressDone() {
       openSurface();
       return;
     }
+  }
+  /* 🏁 `Done` SUR LA PAGE D'UNE MÉTHODE MÈNE AU BILAN, PAS À SKILLS — Eric, 06/09 :
+     *« quand j'appuie sur Done, je suis directement envoyé dans Skills ; j'aimerais
+     qu'on remonte en R avec les résultats »*. La racine devient R2, le bilan ; c'est
+     son `Next` (la même porte, `next: "step"`) qui avance. */
+  if (gate.next === "bilan") {
+    state.abilityBilan = true;
+    state.palier = 1;
+    openSurface();
+    return;
   }
   if (gate.next === "close") { fermerLePanneau(); return; }
   /* ⭐ REMONTER D'UN CRAN — Eric, 2026-08-20. Le `Done` du fond ne sort pas du
@@ -3655,7 +3684,7 @@ function surUneRacineQuiBranche() {
   /* `< 2`, pas `!== 2` — même correction que le pied et le rail le 2026-08-20.
      Abilities n'a que deux paliers aujourd'hui, donc les deux écritures disent
      la même chose ; l'une reste vraie si un cran s'ajoute, l'autre non. */
-  return STEPS[state.step].id === "abilities" && state.palier < 2;
+  return STEPS[state.step].id === "abilities" && state.palier < 2 && !state.abilityBilan;
 }
 
 /** Traduit un refus du noyau en une phrase de JOUEUR — ou en une phrase honnête
@@ -3910,7 +3939,9 @@ function renderSortieEtape(hote) {
      pas suivant. Le bouton n'émet qu'un verbe ; c'est la coquille qui l'exécute. */
   const auRetour = decl.sortieVerbe === "abilityClear"
     ? () => applyDecisionAction({ kind: "abilityClear" })
-    : () => pressBack();
+    : decl.sortieVerbe === "abilityBilanCancel"
+      ? () => applyDecisionAction({ kind: "abilityBilanCancel" })
+      : () => pressBack();
   /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
      deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le
      catalogue de Destiny était devenu un cran de recul dans `pressBack()`, et
@@ -3920,7 +3951,10 @@ function renderSortieEtape(hote) {
      ⭐ D'OÙ UN SEUL PRÉDICAT, LU AUX DEUX ENDROITS. Le jour où un cran s'ajoute,
      il s'ajoute UNE fois — c'est le même remède que `data-snap` au lot 57 : une
      brique, un écrivain, un garde. */
-  const back = (state.palier > 1 || state.parcoursItem || (cfgRetour && cfgRetour.retourInterne)) ? button(motDuRetour, auRetour) : null;
+  /* 🏁 …ou quand l'hôte DÉCLARE un verbe de retour : le bilan d'Abilities est au
+     palier 1 (la racine) et son `Cancel` rend le choix — le prédicat du palier ne
+     le voit pas, la déclaration le dit. */
+  const back = (state.palier > 1 || state.parcoursItem || (cfgRetour && cfgRetour.retourInterne) || decl.sortieVerbe) ? button(motDuRetour, auRetour) : null;
   /* 🔴 LA COULEUR SUIT L'ACTE, ET NORMES LE DIT DEPUIS TOUJOURS : *« les
      classes nomment des ACTES, pas des teintes »*. Eric, 2026-09-03 : *« cancel
      annule donc rouge »* · *« c'est pas un back ».*
@@ -3951,7 +3985,9 @@ function renderSortieEtape(hote) {
      `[back, done].filter(Boolean)` n'a pas bougé, et le garde 16 ter continue
      d'interdire un TROISIÈME. Ici la paire n'a qu'un membre — c'est déjà le cas
      partout où `Back` n'existe pas, dans l'autre sens. */
-  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null : button("Done", () => pressDone());
+  /* 🏁 LE MOT DU `Done` SE DÉCLARE AUSSI (`data-sortie-done-mot`) : sur le bilan
+     d'Abilities il dit `Next` — la même porte, le même geste, le mot du croquis. */
+  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null : button(decl.sortieDoneMot || "Done", () => pressDone());
   if (done) done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
@@ -4042,7 +4078,7 @@ function poserLaSortie(contenu, sortie) {
   /* 🗣️ UN HÔTE QUI DÉCLARE reçoit une paire fabriquée pour lui (mot du retour,
      `Done` ou pas, verbe du retour) : la paire faite d'avance ne le connaissait
      pas encore. Un hôte muet garde la paire d'avance — rien ne change pour lui. */
-  const declare = hote.dataset && (hote.dataset.sortieMot || hote.dataset.sortieSansDone || hote.dataset.sortieVerbe);
+  const declare = hote.dataset && (hote.dataset.sortieMot || hote.dataset.sortieSansDone || hote.dataset.sortieVerbe || hote.dataset.sortieDoneMot);
   const paire = declare ? renderSortieEtape(hote) : sortie;
   if (!paire) return noeuds;
   /* 🧊 LE PLACEMENT DU LIVRE A QUITTÉ CETTE FONCTION LE 2026-09-04 — il y était

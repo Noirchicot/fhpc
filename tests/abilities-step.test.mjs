@@ -1092,6 +1092,39 @@ test("🔁 D'UN PODIUM À L'AUTRE — lâcher un dé sur une pastille échange l
     "collecteur → une autre pastille : il revient LÀ, et les places s'échangent");
 });
 
+test("🏁 LE BILAN (R2) — Done mène au bilan, le bilan porte Next et un Cancel déclaré, et il est commun aux quatre méthodes", () => {
+  /* Eric, 06/09 : *« quand j'appuie sur Done, je suis envoyé dans Skills ; je veux
+     qu'on remonte en R avec les résultats — R1 disparaît, devient R2 un bilan »*,
+     puis *« le R2 sera une destination commune à B1 / B2 / B3 / B4 »*. */
+  for (const m of ["standard", "free"]) {
+    const lot = lotSansDes(m);
+    lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
+    const surLaPage = abilitiesValidate({ document: fixture.document, method: m, rollBatch: lot, bilan: false });
+    assert.deepEqual([surLaPage.ready, surLaPage.next], [true, "bilan"], `${m} : six poses → Done mène au BILAN, pas à l'étape suivante`);
+    const surLeBilan = abilitiesValidate({ document: fixture.document, method: m, rollBatch: lot, bilan: true });
+    assert.deepEqual([surLeBilan.ready, surLeBilan.next], [true, "step"], `${m} : sur le bilan, Next avance`);
+  }
+  /* L'écran : à la racine avec le drapeau, le bilan remplace le sélecteur. */
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1, bilan: true }), () => {});
+  assert.equal(node.querySelectorAll(".ability-methodes").length, 0, "R1 (le choix) a disparu");
+  const bilan = node.querySelectorAll(".ability-bilan")[0];
+  assert.ok(bilan, "R2, le bilan, est là");
+  assert.equal(bilan.querySelectorAll(".ability-bilan-cellule").length, 6, "six cellules — nom, dé, bonus");
+  assert.deepEqual(bilan.querySelectorAll(".ability-bilan-nom").map((n) => n.textContent),
+    ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"], "dans l'ordre du SRD");
+  assert.equal(bilan.querySelectorAll(".ability-row-final-value").length, 6, "un bonus par cellule");
+  const dalle = bilan.querySelectorAll(".ability-bilan-dalle")[0];
+  assert.ok(dalle && dalle.dataset.sortieIci === "true", "la dalle du dessous héberge la sortie");
+  assert.equal(dalle.dataset.sortieMot, "Cancel");
+  assert.equal(dalle.dataset.sortieVerbe, "abilityBilanCancel", "Cancel rend le choix — un verbe déclaré, la coquille l'exécute");
+  assert.equal(dalle.dataset.sortieDoneMot, "Next", "et le bouton d'avance dit Next");
+  assert.equal(dalle.querySelectorAll(".guide-mot").length, 1, "l'aiguilleur dit que l'étape est validée");
+  /* Sans le drapeau, la racine reste le choix — un lot complet ne suffit pas. */
+  const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
+  assert.equal(racine.querySelectorAll(".ability-bilan").length, 0, "pas de bilan sans le drapeau de la coquille");
+  assert.equal(racine.querySelectorAll(".ability-methodes").length, 1, "…c'est le choix");
+});
+
 test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — et quand un lot existe, elle compte les POSES", () => {
   /* Sans lot (un score saisi à la main), les valeurs du document décident.
      Avec un lot, ce sont les poses : un dé REPRIS (05/09, l'aller-retour)

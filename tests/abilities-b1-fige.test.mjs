@@ -121,8 +121,8 @@ test("7.8 — les libellés n'ont qu'un écrivain : l'aiguilleur les LIT, il ne 
   assert.match(STEP, /if \(!scene2\) flux\.append\(plateau\.commandes\)/, "le bloc entier part en scène 2");
 });
 
-test("7.7 — la sortie : Done bleu quand allumé, Cancel rouge quand armé — et la coquille arme Cancel dès le premier jet", () => {
-  assert.match(corpsDe('.sortie-bouton.sortie-done[data-lit="true"]'), /--bouton-fond:\s*var\(--info\)/);
+test("7.7 — la sortie : Done VERT quand allumé (Eric, 06/09 : « mieux en vert »), Cancel rouge quand armé — et la coquille arme Cancel dès le premier jet", () => {
+  assert.match(corpsDe('.sortie-bouton.sortie-done[data-lit="true"]'), /--bouton-fond:\s*var\(--positive\)/);
   assert.match(corpsDe('.sortie-bouton.sortie-annule[data-arme="true"]'), /--bouton-fond:\s*var\(--critical\)/);
   assert.match(COQUILLE, /back\.dataset\.arme = String\(surAbilities \? \(state\.abilityRevele > 0 \|\| Boolean\(state\.abilityRoll\)\) : true\)/);
 });
