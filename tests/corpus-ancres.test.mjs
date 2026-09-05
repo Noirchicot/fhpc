@@ -11,6 +11,16 @@
 
    ⛔ SA LIMITE, ET IL LA DIT LUI-MÊME : il ne juge pas si une règle est VRAIE,
    ni si deux règles s'accordent. Il juge que le DISPOSITIF d'adressage tient.
+
+   ⛔ ET UNE SECONDE LIMITE, MESURÉE LE 2026-09-06 par le siège Archi 31 : il voit
+   les SECTIONS, pas leurs ENTRAILLES. Une section peut être périmée à l'intérieur
+   d'elle-même — le TITRE portant la décision neuve et le CORPS gardant le mot mort,
+   dans la même phrase. Le cas trouvé : un trait dont le corps dit « nommé X » et
+   « le mot X est banni » d'un seul souffle, sous un titre qui l'a déjà renommé.
+   ⚠️ Aucun des sept refus ne peut voir ça : l'adresse est posée, le statut est
+   `vivante`, et la contradiction est SOUS l'adresse. ⭐ Une adresse par section est
+   le grain que ce garde tient ; descendre plus bas demanderait une adresse par
+   ÉNONCÉ, et personne ne l'a décidé.
    Les contradictions de fond vivent dans `ui/builder/A-TRANCHER.md`, et c'est
    Eric qui les tranche — pas un test.
 
