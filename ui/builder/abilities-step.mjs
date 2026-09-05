@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=578";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=578";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=578";
-import { armerJeton } from "./glisser.mjs?v=578";
-import { facteurZoomCourant } from "./echelle.mjs?v=578";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=578";
-import { createDieHost, mount } from "./dice3d.mjs?v=578";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=578";
+import { markPressed } from "./carnet.mjs?v=579";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=579";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=579";
+import { armerJeton } from "./glisser.mjs?v=579";
+import { facteurZoomCourant } from "./echelle.mjs?v=579";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=579";
+import { createDieHost, mount } from "./dice3d.mjs?v=579";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=579";
 
 export { rollAbilitySet };
 
@@ -189,6 +189,26 @@ export const ABILITY_ENTRIES = [
 /** L'explication d'une méthode — celle de sa mécanique de jet quand elle en
  *  a une, la sienne sinon. ⛔ Jamais un `if` sur un id : l'entrée porte soit
  *  `mecanique`, soit `blurb`. */
+/* ══ 🌱 LATE BLOOMER — le trait que les dés accordent ══════════════════════════
+   Règle publiée (`ability-scores`, PHB) : si AUCUN jet naturel n'atteint 14 — le
+   plancher haut a dû intervenir, ≈ 17 % des lots — l'Inheritance porte le trait
+   Late Bloomer : +2 points libres, et l'option d'acheter Expertise au niveau 1.
+   Eric, 06/09 : *« l'aiguilleur pourra l'annoncer dans B1 en gras — et il
+   justifie »*, puis : *« reste à trois lignes, annonce Late Bloomer en lettres
+   d'or comme pour les caracs, mets ce texte en dessous des caracs »* — donc sous
+   la rangée des six collecteurs en B1, sous les six cellules au bilan. Le moteur des jets sait déjà quand c'est le cas (`ajuste: "haut"`,
+   dice.mjs) : l'écran LIT ce drapeau, il ne recalcule rien.
+   ⏳ L'ANNONCE SEULE EST CÂBLÉE : l'effet (+2 au pool de Skills, l'option
+   Expertise au verrou) attend trois réponses d'Eric (`FHPCv2 future updates.md`,
+   PRODIGY : le palier `expertise`, la seconde exception au verrou, le cas du
+   Rogue). Le nom, lui, est tranché : *« je valide Late Bloomer »* (Eric, 06/09). */
+/* 📏 TROIS LIGNES, mesurées à 375 dans la dalle du collecteur (127 signes en gras) —
+   Eric : *« reste à trois lignes »*. L'effet (+2, Expertise) est dans le chapitre. */
+const LATE_BLOOMER = "Late Bloomer — no roll hit 14 on its own: the dice were unkind, you learned faster elsewhere. Your Inheritance gains the trait.";
+export function lotRattrape(rollBatch) {
+  return Boolean(rollBatch && Array.isArray(rollBatch.rolls) && rollBatch.rolls.some((r) => r.ajuste === "haut"));
+}
+
 function explicationDe(entry) {
   if (entry.mecanique) return mecaniqueDeJet(entry.mecanique).summary;
   return entry.blurb;
@@ -815,6 +835,9 @@ function renderCollecteur(ctx) {
     rangee.append(creneau);
   }
   bloc.append(rangee);
+  /* 🌱 LATE BLOOMER, EN LETTRES D'OR SOUS LES SIX — Eric, 06/09. Le drapeau est celui
+     du moteur des jets (`ajuste: "haut"`) ; l'écran le lit. */
+  if (lotRattrape(ctx.rollBatch)) bloc.append(el("p", "guide-mot ability-bloomer-mot", [el("strong", "ability-bloomer", [text(LATE_BLOOMER)])]));
   /* 🧊 LA CONSIGNE EST PARTIE LE 2026-09-05 : la dalle de sélection d'Eric est
      *« six collecteurs · 16 · la cellule livre/Back/Done/? · 8 »* — rien entre
      les cibles et la rangée. Ce qu'elle disait (*« drag a die onto an ability,
@@ -1119,7 +1142,7 @@ export function renderAbilitiesStep(ctx, onAction) {
     /* 🏁 R2 — LE BILAN REMPLACE LE CHOIX (Eric, 06/09 : *« on remonte en R avec les
        résultats, R1 l'ancien choix disparaît, devient R2 un bilan »*). La coquille
        dit lequel des deux (`ctx.bilan`) ; l'écran ne le déduit pas d'un lot. */
-    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved })); return section; }
+    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved, rollBatch })); return section; }
     section.append(renderSelecteurMethode(ctx.method || null, act));
     return section;
   }
@@ -1216,9 +1239,13 @@ export function renderAbilitiesStep(ctx, onAction) {
      font les trois boutons — mais seulement là où ils sont. ⛔ Un aiguilleur qui
      parlerait d'organes absents est la faute du 05/09, prise par l'autre bout : un
      texte qui NOMME un organe se périme avec lui. */
-  flux.append(el("p", "guide-mot ability-organe-mot", [text(
-    explicationDe(entry) + (meca && !scene2 ? " " + motDesBoutons(meca) : "")
-  )]));
+  /* 🌱 En scène 2, si le plancher haut a rattrapé le lot, l'aiguilleur le CITE en
+     bref et en gras — Eric : *« l'aiguilleur peut citer rapidement "you gained a
+     trait" »* — la ligne d'or sous les collecteurs dit le reste ; trois lignes tiennent. */
+  flux.append(el("p", "guide-mot ability-organe-mot", [
+    text(explicationDe(entry) + (meca && !scene2 ? " " + motDesBoutons(meca) : "")),
+    ...(scene2 && lotRattrape(rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
+  ]));
   let plateau = null;
   if (meca) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES — trois dés et dix jets, ou quatre
@@ -1450,7 +1477,7 @@ export function renderAbilitiesStep(ctx, onAction) {
    R1 »*. Le tapis est celui du tirage (552 × 176, il loge les trois lignes) ; les
    cellules sont celles du collecteur — nom en accent, dé dans sa cellule
    (`--de-pose`), bonus signé et son mot — un seul dessin pour un même objet. */
-function renderBilan({ document: doc, resolved }) {
+function renderBilan({ document: doc, resolved, rollBatch }) {
   const section = el("section", "ability-bilan");
   section.dataset.bandes = "true";
   const tapis = el("section", "ability-bilan-tapis");
@@ -1472,6 +1499,9 @@ function renderBilan({ document: doc, resolved }) {
   section.append(tapis);
 
   const dalle = el("section", "ability-bilan-dalle dalle-simple");
+  /* 🌱 La ligne sous le tapis quand un dé est bleu (Eric, 06/09) — le même mot
+     qu'en B1, en gras : le bilan est le second endroit où on l'apprend. */
+  if (lotRattrape(rollBatch)) dalle.append(el("p", "guide-mot ability-bilan-trait", [el("strong", "ability-bloomer", [text(LATE_BLOOMER)])]));
   dalle.append(el("p", "guide-mot ability-bilan-mot", [text(
     "Your six ability scores are set. Next moves on to Skills; Cancel reopens the choice of method."
   )]));

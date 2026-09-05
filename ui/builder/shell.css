@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=578") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=579") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4284,11 +4284,11 @@ button { font: inherit; }
      et passe pour un message d'erreur »* ; proposition validée : `--accent`, l'ocre
      doré des titres et des jetons, déjà thémé jour et nuit. */
   color: var(--accent); text-transform: none; letter-spacing: 0;
-  /* T1 GRAS, ET LE NOM PEUT SORTIR DE SA CELLULE — Eric, 06/09 : *« mets Strength
-     en T1 et autorise la sortie de la cellule »* (le T0 gras de la veille était le
-     prix du débordement ; il préfère le lire). « Constitution » déborde de ~4 px
-     de chaque côté dans l'écart de 8 entre colonnes ; rien ne le coupe. */
-  font-size: var(--t1); font-weight: 700; white-space: nowrap; text-align: center;
+  /* T0 GRAS, DE NOUVEAU — Eric, 06/09 au matin : *« en T1 ça déborde dans la version
+     mobile, on revient donc en T0 gras »*. (Le T1 du même jour — *« autorise la
+     sortie de la cellule »* — a vécu deux heures : sur son téléphone, « Constitution »
+     et « Intelligence » se touchaient.) En T0 le plus long fait 48,3 sur 51,8. */
+  font-size: var(--t0); font-weight: 700; white-space: nowrap; text-align: center;
   overflow: visible;
 }
 .glisse-creneau.ability-creneau { overflow: visible; }
@@ -4313,7 +4313,7 @@ button { font: inherit; }
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=578") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=579") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -4330,6 +4330,11 @@ button { font: inherit; }
 .ability-bilan-de .porte-de { position: relative; display: inline-block; line-height: 0; }
 .ability-bilan-dalle { padding: var(--sp-8); display: grid; gap: var(--sp-8); }
 .ability-bilan-mot { margin: 0; }
+/* 🌱 LATE BLOOMER EN LETTRES D'OR — Eric, 06/09 : *« annonce Late Bloomer en lettres
+   d'or comme tu suggérais pour les caracs, mets ce texte en dessous des caracs »*.
+   L'accent du site (les noms, les titres), en gras ; trois lignes à 375, mesuré. */
+.ability-bloomer { color: var(--accent); font-weight: 700; }
+.ability-bloomer-mot, .ability-bilan-trait { margin: 0; }
 /* La ligne d'attente mime les DEUX lignes du bonus (valeur T3 600, mot T1). */
 .ability-creneau .ability-row-final-attente { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
 .ability-creneau .ability-row-final-attente-valeur { font-size: var(--t3); font-weight: 600; }
@@ -6900,7 +6905,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=578");
+  background-image: url("./assets/tarot-dos.jpg?v=579");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

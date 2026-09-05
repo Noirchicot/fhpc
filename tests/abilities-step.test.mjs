@@ -1123,6 +1123,25 @@ test("🏁 LE BILAN (R2) — Done mène au bilan, le bilan porte Next et un Canc
   const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
   assert.equal(racine.querySelectorAll(".ability-bilan").length, 0, "pas de bilan sans le drapeau de la coquille");
   assert.equal(racine.querySelectorAll(".ability-methodes").length, 1, "…c'est le choix");
+  /* 🌱 LATE BLOOMER — Eric, 06/09 : *« l'aiguilleur pourra l'annoncer dans B1 en
+     gras, et il justifie »* + la ligne sous le tapis du bilan. Le drapeau est celui
+     du moteur des jets (`ajuste: "haut"`) ; l'écran le lit, jamais ne le recalcule. */
+  const rattrape = standardArrayBatch();
+  rattrape.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
+  rattrape.rolls[2] = { ...rattrape.rolls[2], ajuste: "haut", brut: 12, total: 14 };
+  const bilanRattrape = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: rattrape, palier: 1, bilan: true }), () => {});
+  const ligne = bilanRattrape.querySelectorAll(".ability-bilan-trait strong.ability-bloomer");
+  assert.equal(ligne.length, 1, "un dé bleu : la ligne sous le tapis, en gras");
+  assert.match(ligne[0].textContent, /^Late Bloomer — no roll hit 14 on its own: the dice were unkind/, "et elle justifie");
+  assert.equal(bilan.querySelectorAll(".ability-bilan-trait").length, 0, "sans dé bleu : rien");
+  /* En B1 (une méthode À DÉS — le plancher n'existe pas sur ARRAY ni FREE), scène 2. */
+  const lotFh = makeRollBatch([16, 14, 13, 12, 10, 8], emptyAbilityAssign());
+  lotFh.rolls = lotFh.rolls.map((r, i) => i === 1 ? { ...r, ajuste: "haut", brut: 12, total: 14 } : r);
+  const pageRattrapee = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch: lotFh }), () => {});
+  assert.equal(pageRattrapee.querySelectorAll(".ability-collecteur .ability-bloomer-mot strong.ability-bloomer").length, 1, "en B1, scène 2 : la ligne d'or sous les six collecteurs");
+  assert.equal(pageRattrapee.querySelectorAll(".ability-organe-mot strong.ability-bloomer")[0]?.textContent, "You gained a trait.", "et l'aiguilleur de l'organe le cite en bref, en gras");
+  const pageSage = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch: makeRollBatch([16, 14, 13, 12, 10, 8], emptyAbilityAssign()) }), () => {});
+  assert.equal(pageSage.querySelectorAll(".ability-organe-mot strong.ability-bloomer").length, 0, "…et se tait quand aucun plancher n'a parlé");
   /* 🟢 LA PASTILLE DU BELT — Eric, 06/09 : *« pourtant on a complété le chapitre »*.
      La ceinture lit `estConfirme(document, "abilities")` : le passage au bilan
      signe, Cancel / lot jeté / autre méthode lèvent la signature. */
