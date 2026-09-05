@@ -2619,7 +2619,7 @@ button { font: inherit; }
      avait été posée ici le 05/09 : elle PERDAIT la cascade et se taisait. On ne
      laisse pas une déclaration perdante en place — on l'enlève. */
   aspect-ratio: 1637 / 522;
-  background: url("./assets/abilities/tapis-vert.webp?v=555") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=556") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2633,16 +2633,16 @@ button { font: inherit; }
 .ability-tapis-bleu {
   aspect-ratio: 6 / 1;
   padding-inline: var(--sp-12);
-  background: url("./assets/abilities/tapis-bleu.webp?v=555") center / 100% 100% no-repeat;
+  background: url("./assets/abilities/tapis-bleu.webp?v=556") center / 100% 100% no-repeat;
   display: grid; align-items: center;
 }
-/* La rangée de contrôles de la scène 1 — dernière cellule de la dalle, 8 du bas
-   (sacré n° 2). L'écran ne la fabrique pas : il déclare l'hôte, la coquille pose. */
-.ability-sortie-hote { display: grid; padding-bottom: var(--sp-8); }
-/* 📏 8 du bas, 0 au-dessus (le `gap` de la dalle sépare déjà du tapis bleu), et la
-   gouttière de 8 sur les côtés — la même que celle de la dalle 1 au-dessus. Le
-   `.sortie` générique porte 20 / 12 : ici c'est la grille qui espace. */
-.ability-sortie-hote > .sortie { padding: 0 var(--sp-8); }
+/* La rangée de contrôles de la scène 1 — SUR SA DALLE (Eric, 05/09 : *« ton cancel
+   doit être sur une dalle »*) : du verre à 35 %, 8 de rembourrage sur les quatre
+   côtés, donc la rangée à 8 du bas (sacré n° 2). L'écran ne la fabrique pas : il
+   déclare l'hôte, la coquille pose. Le `.sortie` générique porte 20 / 12 : ici
+   c'est la dalle qui espace. */
+.ability-sortie-dalle { flex: none; padding: var(--sp-8); }
+.ability-sortie-dalle > .sortie { padding: 0; }
 /* 📏 8 ENTRE LE TITRE ET L'AIGUILLEUR, PAS 16 : le titre gardait sa marge basse et
    la grille de l'organe posait son `gap` — deux écrivains pour un intervalle
    (§6 pré ter, mesuré à 16 le 05/09). La grille écrit, le titre se tait. */
@@ -2659,6 +2659,12 @@ button { font: inherit; }
   background: var(--podium-pastille) center / contain no-repeat;
   box-shadow: none;
   padding: var(--sp-4);
+  /* 📏 LE DÉ SUR LE CERCLE, UN PEU PLUS BAS QUE SON CENTRE — Eric, 05/09 : *« dés
+     sur cercles verts un peu plus bas »*. Le détail parti, l'îlot centre ce qu'il
+     porte ; les 4 de plus en haut posent le cube sur le disque au lieu de le
+     faire flotter dessus (un cube dessiné a sa masse en haut). */
+  justify-content: center;
+  padding-top: var(--sp-8);
 }
 @keyframes ability-se-poser {
   from { transform: translateY(-18px) scale(1.12); opacity: 0; }
@@ -3720,7 +3726,7 @@ button { font: inherit; }
   --tray-cases: 10;             /* redit ici : la rangée ne vit plus dans `.tray` */
   display: grid;
   grid-template-columns: repeat(var(--tray-cases), minmax(0, 1fr));
-  gap: var(--sp-2);
+  gap: 0;                       /* « moins d'espace entre eux » — 05/09 ; la colonne espace déjà */
   margin: 0;
   padding: 0;
   list-style: none;
@@ -3770,6 +3776,11 @@ button { font: inherit; }
 .tray-case[data-etat="bas"] .porte-de canvas,
 .tray-case[data-etat="bas"] .porte-de img { filter: sepia(1) saturate(9) hue-rotate(-32deg) brightness(.98); }  /* regardé le 05/09 : à −18° il rendait jaune, pas orange */
 .tray-case[data-etat="ecarte"] .porte-de { opacity: .8; }
+/* 🖋️ L'ENCRE SUIT LE SOCLE : brune sur l'ivoire et le blanc (celle du moteur), mais
+   BLANCHE sur l'ardoise et l'azur — mesuré le 05/09, `rgb(58,38,6)` sur `slate`
+   ne se lisait pas. */
+.tray-case[data-etat="ecarte"] .valeur,
+.tray-case[data-etat="haut"] .valeur { color: var(--encre-tapis); }
 /* ⛔ « la somme est barrée » sur les dés remplacés : les dés sont tombés ainsi,
    le total dit autre chose, et la barre dit que ce n'est pas un oubli. Les
    liserés `--accent` (gardé) et `--tier-2` (ajusté) d'avant sont partis : la
@@ -4014,6 +4025,12 @@ button { font: inherit; }
    cases. ⛔ Et le fond des cases remplies part avec : une case pleine peinte
    redessinerait la moitié du quadrillage qu'on vient d'enlever. */
 .glisse-creneau.ability-creneau { border-color: transparent; background: none; }
+/* 🔴 LA COLONNE N'EST PAS UN JETON — Eric, 05/09 : *« pas les trucs moches que t'as
+   là »*. Mesuré : elle héritait le RELIEF du jeton (quatre ombres internes, rayon
+   16) — c'est lui qui dessinait six boîtes arrondies autour des cibles. Le seul
+   objet dessiné est le carré « drop here » (et le dé quand il est posé) ; la
+   colonne reste la zone de dépôt, invisible, et `[data-vise]` allume sa bordure. */
+.glisse-creneau.ability-creneau { box-shadow: none; border-radius: var(--radius-sm); }
 .glisse-creneau.ability-creneau[data-rempli="true"] { background: none; }
 /* 🔴 LE CARRÉ EST À LA CIBLE VIDE, PAS À LA TUILE DU DÉ — défaut mesuré sur
    l'iPad d'Eric le 2026-08-17, *« un problème de recouvrement sur desktop mais
@@ -4032,8 +4049,12 @@ button { font: inherit; }
    faire la hauteur de ce qu'elle contient — un dé, puis sa ligne de détail.
    ⛔ Ne pas « réparer » en masquant le débordement : le détail disparaîtrait
    au lieu de se poser. */
+/* 🔲 LA CIBLE EST UN CARRÉ À LA TAILLE DE LA FACE DU DÉ DU PODIUM, ET IL DIT
+   « drop here » — Eric, 05/09 : *« collecteurs = tokens = face sup du dé »*. La
+   face mesure 28 (tokens.css) ; la colonne de 52 reste la zone de dépôt. Le
+   liseré est celui du verre, et `[data-vise]` allume la bordure comme avant. */
 .ability-creneau .glisse-cible-vide {
-  width: 100%; max-width: var(--fs-de-max); aspect-ratio: 1;
+  width: var(--collecteur-face); aspect-ratio: 1;   /* l'étalon d'Eric — tokens.css */
 }
 .ability-creneau .fs-de {
   width: 100%; max-width: var(--fs-de-max);
@@ -4052,10 +4073,12 @@ button { font: inherit; }
    📌 Le rembourrage et la cote ne bougent pas : le carré reste de la taille du
    dé qui viendra s'y poser, c'est ce qui fait qu'on voit la place. */
 .ability-creneau .glisse-cible-vide {
-  display: block; height: auto;
-  padding: var(--sp-8);
-  border: 1px solid transparent; border-radius: var(--radius-md);
-  color: var(--text); opacity: .55;
+  display: grid; place-items: center; height: auto;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  font-size: var(--t1); line-height: 1.1; text-align: center; white-space: normal;
+  color: var(--text); opacity: .75;
 }
 /* LE BONUS, SOUS LE CARRÉ ET À L'EXTÉRIEUR — il n'apparaît qu'avec un dé
    (`renderCollecteur`), donc cette règle n'habille jamais du vide. */
@@ -6646,7 +6669,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=555");
+  background-image: url("./assets/tarot-dos.jpg?v=556");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

@@ -657,7 +657,7 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=555");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=556");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -668,7 +668,15 @@
        les ~327 utiles du tapis bleu — et le détail `6+6+6` (31,8) qui fixe la
        colonne passe encore. */
   --tray-carre: 30px;
-  --tray-de-resultat: 26px;
+  --tray-de-resultat: 30px;      /* 26 → 30 le 05/09 : « dés de sélection un peu plus gros » */
+  /* 🎯 L'ÉTALON D'ERIC — 2026-09-05 : *« collecteurs = tokens = face sup du dé du
+     podium (considère la face sup du dé comme étalon = ça reste une exception
+     relative à la règle) »*. MESURÉE dans les pixels de l'instantané du podium à
+     375 blg : la face claire fait 28,7 × 27,1 → 28. ⚠️ C'est une exception
+     ASSUMÉE au plancher tactile (`--touch`, 44) : le carré DESSINÉ fait 28, la
+     zone qui reçoit le dé reste la colonne entière (52). Si la cote du dé du
+     podium change, celle-ci se REMESURE — elle ne se déduit pas. */
+  --collecteur-face: 28px;
   /* LOT 77 — 84 → 78. Le gabarit à 360 l'a MESURÉ : `Barbarian` à T3 fait
      62 px, plus 8 de rembourrage de chaque côté, soit 78. Les 6 px rendus
      vont à la fiche, qui en avait besoin pour tenir sa colonne de stats à
@@ -718,8 +726,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=555");
-  --bg-nuit: url("./assets/bg-night.jpg?v=555");
+  --bg-jour: url("./assets/bg-day.jpg?v=556");
+  --bg-nuit: url("./assets/bg-night.jpg?v=556");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

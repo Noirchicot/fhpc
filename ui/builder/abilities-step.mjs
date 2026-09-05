@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=555";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=555";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=555";
-import { armerJeton } from "./glisser.mjs?v=555";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=555";
-import { createDieHost, mount } from "./dice3d.mjs?v=555";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=555";
+import { markPressed } from "./carnet.mjs?v=556";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=556";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=556";
+import { armerJeton } from "./glisser.mjs?v=556";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=556";
+import { createDieHost, mount } from "./dice3d.mjs?v=556";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=556";
 
 export { rollAbilitySet };
 
@@ -614,9 +614,12 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
      14 ; votre pire devient toujours 8 »*), et l'infobulle du plateau garde la
      forme longue (`abilities-tray.mjs` : `4+4+4 = 12 → 14`). L'écart n'est donc
      ni caché ni répété — il est dit une fois, à l'endroit qui l'explique. */
-  if (Array.isArray(roll.dice) && roll.dice.length > 0) {
-    jeton.append(el("span", "ability-de-detail", [text(roll.dice.join("+"))]));
-  }
+  /* 🧊 LE DÉTAIL « 5+5+6 » NE VIT PLUS SOUS LE DÉ — Eric, 2026-09-05 : *« ne mets
+     pas les calculs sous les podiums »*. Depuis ce jour les DIX cases du tapis
+     bleu portent chaque détail, barré quand un plancher a parlé : le dire une
+     seconde fois sous le dé gardé serait le même nombre à trente blg d'écart —
+     la faute que le 16/08 avait déjà retirée pour le total. ⛔ L'ajustement
+     reste VISIBLE, à l'endroit qui l'explique : la case. */
   armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
   return jeton;
 }
@@ -638,26 +641,17 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
    coquille reste seule à savoir ce qu'est une sortie et quand elle existe.
    📌 Conséquence voulue : sur la page racine, où la coquille ne produit AUCUNE
    sortie, ce marqueur ne reçoit rien — il n'y a rien à accorder entre eux. */
-/** LE SYMBOLE DE CIBLE — levé du banc `ilots-lab.html`, à l'octet.
- *  ⛔ Dessiné, jamais un glyphe : un glyphe change de dessin selon la police
- *  installée, et celui-ci doit dire « dépose ici » sur tous les appareils. */
+/** LA CIBLE VIDE — un CARRÉ qui dit « drop here ». Eric, 2026-09-05, devant
+ *  les mires à trois cercles : *« tes collecteurs = carrés avec drop here, pas
+ *  les trucs moches que t'as là »*. Sa dictée du même soir : *« six collecteurs
+ *  carrés pouvant accueillir les dés, même taille que la face supérieure des dés
+ *  du podium »*. Le carré fait `--touch` (44) : la face d'un dé du podium en
+ *  fait ~42, et 44 est le plancher tactile — une cible se vise au pouce.
+ *  🧊 Le dessin SVG à trois cercles (banc `ilots-lab`, validé le 16/08) part :
+ *  la demande plus récente l'emporte. Le nom de classe reste — c'est lui que
+ *  `[data-vise]` allume et que les gardes comptent. */
 function renderCibleVide() {
-  const svg = document.createElementNS
-    ? document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    : document.createElement("svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true");
-  svg.setAttribute("class", "glisse-cible-vide");
-  for (const [r, plein] of [[10, false], [5.5, false], [1.5, true]]) {
-    const c = document.createElementNS
-      ? document.createElementNS("http://www.w3.org/2000/svg", "circle")
-      : document.createElement("circle");
-    c.setAttribute("cx", "12"); c.setAttribute("cy", "12"); c.setAttribute("r", String(r));
-    c.setAttribute("fill", plein ? "currentColor" : "none");
-    if (!plein) { c.setAttribute("stroke", "currentColor"); c.setAttribute("stroke-width", "1.5"); }
-    svg.append(c);
-  }
-  return svg;
+  return el("span", "glisse-cible-vide", [text("drop here")]);
 }
 
 function renderCollecteur(ctx) {
@@ -1263,18 +1257,23 @@ export function renderAbilitiesStep(ctx, onAction) {
     const tapisBleu = el("div", "ability-tapis-bleu");
     tapisBleu.append(plateau.cases);
     resultats.append(tapisBleu);
+    section.append(resultats);
     if (!scene2) {
-      const hote = el("div", "ability-sortie-hote");
-      hote.dataset.sortieIci = "true";
+      /* 🟦 LA RANGÉE DE SCÈNE 1 EST SUR SA DALLE — Eric, 05/09, en la voyant flotter
+         sur le fond sous le tapis bleu (voile 0) : *« ton cancel doit être sur une
+         dalle »*. C'est la dalle flottante du sacré n° 2, sixième clause, posée
+         ici sans défilement : du verre à 35 %, 8 de rembourrage, la rangée à 8 du
+         bas. Elle disparaît avec la scène — en scène 2 la rangée a transité. */
+      const dalleSortie = el("section", "ability-sortie-dalle dalle-simple");
+      dalleSortie.dataset.sortieIci = "true";
       /* 🗣️ LA DÉCLARATION, PAS LA FABRICATION (garde 17) : l'hôte DIT ce qu'il
          attend de la coquille — `Cancel` (on abandonne, rien n'est posé) et pas de
          `Done` (rien à valider avant le dixième jet). La coquille produit. */
-      hote.dataset.sortieMot = "Cancel";
-      hote.dataset.sortieSansDone = "true";
-      hote.append(renderLivreDeLaMethode());
-      resultats.append(hote);
+      dalleSortie.dataset.sortieMot = "Cancel";
+      dalleSortie.dataset.sortieSansDone = "true";
+      dalleSortie.append(renderLivreDeLaMethode());
+      section.append(dalleSortie);
     }
-    section.append(resultats);
     /* Scène 1 s'arrête ici : ni podium ni sélection tant que les dix ne sont
        pas tombés — *« ça s'arrête à la dalle 3 »*. */
     if (!scene2) return section;

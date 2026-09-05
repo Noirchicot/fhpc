@@ -740,8 +740,11 @@ test("🔴 `FH 3D6` : le PLATEAU est sur le chemin vivant, avec les trois libell
   /* 🎬 SCÈNE 1 — sans lot complet : le tapis vert porte les dés, la sortie vit
      sous les résultats, et elle DÉCLARE `Cancel` sans `Done` (rien à valider). */
   assert.equal(node.querySelectorAll(".ability-tapis").length, 1, "scène 1 : le tapis vert est là");
-  const hote = node.querySelectorAll(".ability-resultats [data-sortie-ici]")[0];
-  assert.ok(hote, "scène 1 : la rangée de contrôles est la dernière cellule des résultats");
+  /* 🟦 Eric, 05/09 : *« ton cancel doit être sur une dalle »* — la rangée vit sur SA
+     dalle de verre, après les résultats (qui sont à voile 0). */
+  const hote = node.querySelectorAll(".ability-sortie-dalle[data-sortie-ici]")[0];
+  assert.ok(hote, "scène 1 : la rangée de contrôles est sur sa propre dalle");
+  assert.ok(hote.className.includes("dalle-simple"), "et c'est du verre à 35 %, pas le fond nu");
   assert.equal(hote.getAttribute("data-sortie-mot"), "Cancel");
   assert.equal(hote.getAttribute("data-sortie-sans-done"), "true");
   assert.equal(hote.querySelectorAll(".livre-de-sortie").length, 1, "et l'écran y DÉPOSE son livre");
@@ -883,11 +886,20 @@ test("⭐ LES DEUX PLANCHERS SE VOIENT — un jet ajusté ne se fait pas passer 
   /* ⛔ ET AU VIVIER, UNE SEULE NOMENCLATURE : ce qui est TOMBÉ, rien d'autre.
      Le test le vérifie sur un jet AJUSTÉ et sur un jet ordinaire, sinon
      « minimaliste » ne serait prouvé que d'un côté. */
-  const detailAjuste = deDuVivier(node, ajustes[0].index).querySelectorAll(".ability-de-detail")[0].textContent;
-  assert.equal(detailAjuste, "3+3+3", "le jet ajusté s'écrit comme les autres — le dé porte le total");
+  /* 🧊 LE DÉTAIL A QUITTÉ LE PODIUM LE 2026-09-05 (Eric : *« ne mets pas les calculs
+     sous les podiums »*) : il vit sur la CASE du tapis bleu, barré quand un plancher
+     a parlé. Ce que ce garde exige n'a pas bougé — l'ajustement reste visible, à
+     l'endroit qui l'explique — seul l'endroit a changé. */
+  assert.equal(node.querySelectorAll(".ability-des-gardes .ability-de-detail").length, 0,
+    "aucun calcul sous un dé du podium");
+  const caseAjustee = node.querySelectorAll(".tray-case").find((c) => c.getAttribute("data-numero") === String(ajustes[0].index + 1));
+  assert.equal(caseAjustee.querySelectorAll(".tray-case-detail")[0].textContent, "3+3+3",
+    "la case du jet ajusté dit ce qui est tombé — le socle porte le total");
+  assert.ok(caseAjustee.getAttribute("data-ajuste"), "et elle est marquée : le détail se barre en feuille");
   const ordinaire = rollBatch.rolls.find((r) => r.kept && !r.ajuste);
-  const detailOrdinaire = deDuVivier(node, ordinaire.index).querySelectorAll(".ability-de-detail")[0].textContent;
-  assert.doesNotMatch(detailOrdinaire, /→/, "et l'ordinaire n'a jamais eu de flèche : les deux formes sont UNE");
+  const caseOrdinaire = node.querySelectorAll(".tray-case").find((c) => c.getAttribute("data-numero") === String(ordinaire.index + 1));
+  assert.doesNotMatch(caseOrdinaire.querySelectorAll(".tray-case-detail")[0].textContent, /→/,
+    "et l'ordinaire n'a jamais eu de flèche : les deux formes sont UNE");
 });
 
 /* ══ 6 — `ARRAY` : SIX VALEURS, SANS DÉS ════════════════════════════════ */
