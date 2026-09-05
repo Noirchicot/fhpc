@@ -233,6 +233,30 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 
 ## 1. ⛔ LES QUATRE VOCABULAIRES — ils ne se mélangent jamais
 
+> ## 🚪 AMENDEMENT n° 1 — **LE VOCABULAIRE EST UNE PORTE, PAS UNE ANNEXE** *(Eric, 2026-09-05)*
+>
+> **« il faut que tout le monde sache, avant d'écrire quoi que ce soit dedans, respecte sa
+> terminologie »**
+>
+> 🔴 **AVANT D'ÉCRIRE UNE LIGNE DANS CE CORPUS — ou dans le builder — ON APPREND SES MOTS.**
+> Ce n'est pas une politesse de rédaction : c'est la **condition d'entrée**. Un lot qui écrit
+> avec ses propres mots produit une règle que personne ne retrouvera, et qui contredira sans
+> qu'on le voie une règle déjà là sous un autre nom.
+>
+> ⛔ **ET ÇA VAUT DANS LES DEUX SENS.** Employer un mot du corpus pour autre chose est aussi
+> grave que d'en inventer un : le nom `aiguilleur` était **déjà pris** (le recouvrement plein
+> écran d'Équipement) quand une session l'a repris pour un texte de guide — le banc l'a rendu
+> 375 × 500 blg, et c'est la MESURE qui a envoyé lire la norme, pas l'inverse.
+>
+> ⭐ **CE QUE CET AMENDEMENT COÛTE À CELUI QUI ÉCRIT** : une lecture. ⭐ **CE QU'IL ÉVITE** :
+> une règle orpheline qu'on ne peut ni citer, ni périmer, ni comparer — c'est-à-dire une
+> règle qui **s'empile** au lieu de remplacer. C'est la maladie que tout ce corpus paie.
+>
+> 📌 **PREMIER AMENDEMENT DU RÉGIME DES ANCRES** : à partir d'ici, une règle a une adresse, un
+> statut et un lien. Un mot juste est ce qui rend l'adresse trouvable — sans lui, les trois
+> autres ne servent à rien.
+
+
 | vocabulaire | ce qu'il nomme |
 |---|---|
 | **`R` / `B` / `SB`** | un **RANG** dans une arborescence (la profondeur). ⛔ **JAMAIS un nom de page** — une page a un **nom** |
