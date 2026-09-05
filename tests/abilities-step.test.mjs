@@ -536,8 +536,15 @@ test("⌨️ LE MOT DE LA RACINE — celui d'Eric, dans SA dalle, et il rend LE 
   /* ⭐ ET LA PAGE PORTE BIEN LE SIEN : l'aiguilleur de la méthode, qui dit sa
      règle à elle. Un garde qui n'éprouve qu'une moitié d'alternative laisse
      l'autre libre de mentir (TRAPS, lot 124). */
-  assert.equal(motsDeLaPage.length, 1,
-    "et elle porte SON aiguilleur, celui de la méthode");
+  const motDeLaMethode = page.querySelectorAll(".ability-organe .guide-mot");
+  assert.equal(motDeLaMethode.length, 1,
+    "et elle porte SON aiguilleur, celui de la méthode, dans SA dalle");
+  /* 📌 Depuis le 05/09 la dalle du collecteur porte le sien aussi (la FINALITÉ du
+     geste — Eric : *« l'aiguilleur peut expliquer plus précisément la finalité de
+     ce processus »*) : on compte celui de la méthode dans sa dalle, pas les
+     aiguilleurs de la page. */
+  assert.equal(page.querySelectorAll(".ability-collecteur .guide-mot").length, 1,
+    "et le collecteur porte le sien, celui de la finalité");
 
   /* 🔴 ET LE MOT NOMME LE LIVRE, PLUS `INFO` — Eric, 2026-08-26 : *« Abilities :
      info doit disparaître et devenir un bouton livre ! »*
@@ -1169,8 +1176,10 @@ test("🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES — c'est
     assert.ok(vivier(node), `${id} : un vivier`);
     assert.equal(node.querySelectorAll(".ability-collecteur").length, 1, `${id} : un collecteur`);
     assert.equal(node.querySelectorAll(".ability-creneau").length, 6, `${id} : six cibles, dans l'ordre SRD`);
+    /* Le nom ENTIER depuis le 05/09 (Eric : *« Strength / Intelligence, en entier »*),
+       toujours dans l'ordre du SRD. */
     assert.deepEqual(node.querySelectorAll(".glisse-creneau-nom").map((n) => n.textContent),
-      ABILITY_KEYS.map((k) => k.toUpperCase()), `${id} : et l'ordre est celui du SRD`);
+      ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"], `${id} : et l'ordre est celui du SRD`);
   }
 });
 

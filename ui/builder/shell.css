@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=569") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=570") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4248,6 +4248,26 @@ button { font: inherit; }
 /* La ligne d'attente du bonus a LA MÊME MÉTRIQUE que le bonus (T3, 600) : mesuré en
    T1 elle laissait la rangée remonter de 5 au premier dépôt. */
 .ability-creneau .ability-row-final-attente { font-size: var(--t3); font-weight: 600; }
+/* 🩸 LE NOM ENTIER, EN OXBLOOD, CENTRÉ SUR LE DÉ — Eric, 05/09. Ni capitales ni
+   encre d'étiquette ici : le nom est la chose qu'on dote, pas une étiquette. Pas
+   de repli (un nom ne se coupe pas) ; « Constitution » déborde de ~3 px dans
+   l'écart des colonnes à 375, mesuré et assumé. */
+.ability-creneau .glisse-creneau-nom {
+  color: var(--oxblood); text-transform: none; letter-spacing: 0;
+  font-size: var(--t1); white-space: nowrap; text-align: center;
+}
+/* 🎨 LE BONUS SIGNÉ — *« +1/+x en vert, 0 en noir, −1/−x »* (rouge). Le signe
+   l'emporte sur l'accent du boost (sélecteur plus lourd, et c'est voulu : la
+   règle d'Eric est celle du signe). Dessous, « bonus » en T1 italique. */
+.ability-creneau .ability-row-final[data-signe="plus"] .ability-row-final-value { color: var(--positive); }
+.ability-creneau .ability-row-final[data-signe="zero"] .ability-row-final-value { color: var(--text); }
+.ability-creneau .ability-row-final[data-signe="moins"] .ability-row-final-value { color: var(--critical); }
+.ability-creneau .ability-row-final-mot { font-size: var(--t1); font-style: italic; font-weight: 400; color: var(--text-muted); line-height: 1.2; }
+/* La ligne d'attente mime les DEUX lignes du bonus (valeur T3 600, mot T1). */
+.ability-creneau .ability-row-final-attente { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
+.ability-creneau .ability-row-final-attente-valeur { font-size: var(--t3); font-weight: 600; }
+/* L'aiguilleur du collecteur : la finalité du geste, sous le titre. */
+.ability-collecteur-mot { margin: 0; }
 
 /* LES CRÉNEAUX — cibles du glisser, et seul endroit qui vide. */
 .glisse-creneaux { display: flex; gap: var(--sp-8); }
@@ -6813,7 +6833,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=569");
+  background-image: url("./assets/tarot-dos.jpg?v=570");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

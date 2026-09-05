@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=569";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=569";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=569";
-import { armerJeton } from "./glisser.mjs?v=569";
-import { facteurZoomCourant } from "./echelle.mjs?v=569";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=569";
-import { createDieHost, mount } from "./dice3d.mjs?v=569";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=569";
+import { markPressed } from "./carnet.mjs?v=570";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=570";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=570";
+import { armerJeton } from "./glisser.mjs?v=570";
+import { facteurZoomCourant } from "./echelle.mjs?v=570";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=570";
+import { createDieHost, mount } from "./dice3d.mjs?v=570";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=570";
 
 export { rollAbilitySet };
 
@@ -211,7 +211,13 @@ function explicationDe(entry) {
      `tests/abilities-step.test.mjs` le prouve maintenant à travers le rendu
      plutôt qu'à travers une fonction que plus personne n'appelait. */
 
-function abilityLabel(key) { return key.toUpperCase(); }
+/* ⌨️ LE NOM ENTIER — Eric, 05/09 au soir : *« Strength / Intelligence (rouge oxblood),
+   en entier, centré sur chaque dé »*. Mesuré à 375, colonne de 51,8 : en T1
+   « Constitution » fait 57 et « Intelligence » 54,3 — ils débordent de 1 à 3 px
+   de chaque côté dans l'écart de 8 entre colonnes ; les quatre autres tiennent.
+   En T0 tout tiendrait (45,6 au plus), mais un nom se LIT — T1 reste. */
+const NOMS_DE_CARAC = { str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" };
+function abilityLabel(key) { return NOMS_DE_CARAC[key] || key.toUpperCase(); }
 
 /** Le modificateur, écrit comme un joueur l'écrit : `+2`, `0`, `-1`. */
 function motDuMod(mod) {
@@ -281,7 +287,11 @@ export function renderFinalColumn(resolved, key, rawValue, options) {
      donne, et les deux sont à deux endroits distincts.
      ⛔ Ne pas remettre le score : ce serait rouvrir un arbitrage tranché. */
   if (options && options.compact) {
+    /* 🎨 LE SIGNE DIT LA COULEUR — Eric, 05/09 : *« +1/+x en vert, 0 en noir,
+       −1/−x »* (rouge), et *« sous le bonus, en italique T1, "bonus" »*. */
+    cell.dataset.signe = mod > 0 ? "plus" : mod < 0 ? "moins" : "zero";
     cell.append(el("span", "ability-row-final-value", [text(motDuMod(mod))]));
+    cell.append(el("span", "ability-row-final-mot", [text("bonus")]));
     return cell;
   }
   /* ⌨️ PLUS DE MOT « Final » — Eric, 2026-08-16, en montrant le collecteur du
@@ -723,7 +733,12 @@ function renderCollecteur(ctx) {
   /* Le pied de la coquille vient s'accrocher ici, sous la consigne (voir la
      note de section). Une DÉCLARATION, pas une fabrication. */
   bloc.dataset.sortieIci = "true";
-  bloc.append(el("h3", "ability-dalle-titre", [text("Drag and drop here")]));
+  /* ⌨️ Eric, 05/09 : *« glissez les scores dans chacune des caractéristiques de votre
+     personnage »* — et l'aiguilleur dit la FINALITÉ du geste, pas le geste. */
+  bloc.append(el("h3", "ability-dalle-titre", [text("Drag a score onto each of your character's abilities")]));
+  bloc.append(el("p", "guide-mot ability-collecteur-mot", [text(
+    "The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."
+  )]));
 
   const rangee = el("div", "glisse-creneaux ability-creneaux");
   for (const key of ABILITY_KEYS) {
@@ -783,7 +798,10 @@ function renderCollecteur(ctx) {
        quand le PREMIER bonus apparaissait (la dalle recentrait des colonnes plus
        hautes). Une ligne blanche de la même hauteur tient la place ; elle ne porte
        aucune valeur (`.ability-row-final-value`), donc rien à lire. */
-    else creneau.append(el("span", "ability-row-final ability-row-final-attente", [text("\u00a0")]));
+    else creneau.append(el("span", "ability-row-final ability-row-final-attente", [
+      el("span", "ability-row-final-attente-valeur", [text("\u00a0")]),
+      el("span", "ability-row-final-mot", [text("\u00a0")])
+    ]));
     rangee.append(creneau);
   }
   bloc.append(rangee);
