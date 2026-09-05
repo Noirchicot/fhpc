@@ -90,6 +90,7 @@
 | ~~⚠️ **le cran est borné, jamais clampé**~~ | **renversé le 2026-09-02** — Eric : *« si l'auto fait bien son travail, effectivement les boutons sont obsolètes »*. La rampe de crans du Menu est **retirée** (lot 118) : depuis l'échelle continue, Auto rend déjà le plus grand facteur que la fenêtre porte, et un cran manuel ne pouvait que **rapetisser** (mesuré à 1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). La taille se règle en **redimensionnant la fenêtre** ; sur téléphone et tablette, l'appareil décide. Les clefs `fhpc.echelle.cran*` sont effacées à chaque lecture. ⚖️ **Et la RAISON de ce retrait tombe le même jour** — voir l'amendement du 02/09 ci-dessous : avec le partage, un réglage joueur peut agrandir |
 
 ### 🔴 AMENDEMENT DU 2026-09-02 — **LE BUILDER EST UN PARTAGE DE L'ÉCRAN**
+📍 `panneau-amendement-2026-09-02` · vivante · 02/09
 
 > **« Concept. Builder plein écran sur mobile. […] Etc… »**
 > **« Donc largeur plutôt basée sur la largeur, et un plancher à la hauteur ; si ça passe pas on
@@ -132,6 +133,7 @@ viewport le 02/09 ; le même garde la refait.
 | ⭐ **deux panneaux au demi font exactement 100 % de la largeur** | `2 × W/2 = W`, sur les quatre formes d'iPad. Le *« 1/2 »* d'Eric et sa *« proposition de passage en affichage double d'office »* sont **la même idée par les deux bouts**. ➡️ **La vue double n'est pas une exception au partage : elle en est la conséquence au cran de la tablette** |
 
 ### ✅ LES DEUX BORNES DU CRAN DES TABLETTES — **mesurées, jamais choisies** *(ratifiées 02/09)*
+📍 `panneau-deux-bornes-cran-tablettes` · vivante · 02/09
 
 > **« probablement un iPad mini va préférer un affichage mobile »** · **« du classique au Pro 13
 > pouces, le 1/2 passera »**
@@ -151,6 +153,7 @@ fait 1133, donc il est POSÉ sur le demi, puis sa hauteur de 744 le fait **saute
 `378 × 564`, ×1,01. Aucun cas particulier n'est écrit pour lui, et il ne doit jamais l'être.
 
 ### 📏 COUCHÉE, LA GAMME iPAD SE COUPE EN DEUX — et c'est le saut de cran qui coupe
+📍 `panneau-couchee-gamme-ipad-se-coupe-en-deux` · vivante · ?
 
 | appareil | couché | ratio | cran rendu | panneau | 2 panneaux |
 |---|---|---|---|---|---|
@@ -171,6 +174,7 @@ sauter d'un cran toute la famille 4:3 d'un coup**, et aucune autre règle ne bro
 tient cette frontière dans les deux sens.
 
 ### Le mécanisme, en deux temps
+📍 `panneau-mecanisme-en-deux-temps` · vivante · 31/08
 
 | | |
 |---|---|
@@ -182,6 +186,7 @@ tient cette frontière dans les deux sens.
 | ⚠️ **le résidu, nommé plutôt que masqué** | si même le DERNIER cran ne tient pas en hauteur, la descente n'a plus rien sous elle et le panneau déborde. Mesuré : `2999 × 700` demande 746 de haut. ⛔ **Aucun huitième cran inventé** — le garde le laisse visible |
 
 ### ⚖️ Le saut de cran a un témoin, et un seul
+📍 `panneau-saut-cran-a-temoin-et-seul` · vivante · 31/08
 
 📏 **L'iPad Air couché, `1180 × 820`** : au demi il demande `590 × 881` pour 820 disponibles — **il
 déborde de 61**. Il saute un cran, retombe au tiers, et rend **`393 × 587`**, 72 % de la hauteur.
@@ -190,6 +195,7 @@ là, le mécanisme serait mort et la table seule le cacherait — d'où un garde
 qu'il DÉBORDERAIT, puis qu'il descend, puis qu'il tient.
 
 ### 🧊 Ce que cet amendement renverse, et pourquoi
+📍 `panneau-ce-que-cet-amendement-renverse-et-pourquoi` · vivante · 31/08
 
 | renversé | remplacé par |
 |---|---|
@@ -596,6 +602,7 @@ boîte.
 ---
 
 ## 1 ter quinquies. 🔴 L'ÉCHELLE EST UN ESCALIER — **on descend TOUT le bloc, on ne sort jamais UNE valeur** *(dicté le 2026-09-03)*
+📍 `panneau-echelle-est-escalier` · vivante · 03/09
 
 > **« Rajouter un cran à l'échelle si besoin, et toujours arrondir la GLOBALITÉ à l'inférieur,
 > si problème à un endroit. »**
@@ -612,6 +619,7 @@ local** : un écran dont tous les organes sont sur des barreaux se lit comme un 
 | ⛔ **poser la valeur qui manque, en dur, à cet endroit-là** | c'est la faute. Elle est invisible au cran 1 et **grandit avec le zoom** |
 
 ### 🔴 Pourquoi la faute ne se voit QUE sur les grands écrans
+📍 `panneau-pourquoi-faute-ne-se-voit-que-sur-grands-ecrans` · vivante · ?
 
 Eric, en regardant les fiches du rang R : *« sur mon iPhone les caractères et les espaces sont
 homogènes ; par contre sur l'iPad et sur le desktop les caractères et les espaces sont incohérents,
@@ -628,6 +636,7 @@ deux barreaux au milieu d'organes qui, eux, sont dessus. ⛔ **Une valeur hors �
 jamais « juste sur cet écran-là » : elle est fausse partout, et seulement visible ailleurs.**
 
 ### ⭐ Et la perte va presque toujours dans le BON sens
+📍 `panneau-et-perte-va-presque-toujours-dans-bon-sens` · vivante · 03/09
 
 La raison qui pousse à sortir de l'échelle est presque toujours *« ça ne rentre pas »*. Or **le
 barreau inférieur fait rentrer DAVANTAGE**, pas moins. Mesuré le 03/09 sur la carte du rang R : le
@@ -994,6 +1003,7 @@ de la ligne de flottaison** n'est pas tranché.
 > ⛔ Deux organes qui se ressemblent sont deux organes qu'on confondra.
 
 ### Les quatre du glisser *(validé 26/08 sur maquette)*
+📍 `jeton-quatre-glisser` · vivante · 26/08
 
 | organe | forme | remplissage | voile |
 |---|---|---|---|
@@ -1017,6 +1027,7 @@ de la ligne de flottaison** n'est pas tranché.
 | **tout posé** | idem | 🟢 **vert, 2 px, sur tous à la fois** | idem |
 
 #### 🔴 « TOUT POSÉ » = **LE CHOIX EST FINI**, jamais « toutes les cases remplies » *(lot 123, 02/09)*
+📍 `collecteur-tout-pose-choix-est-fini-jamais-toutes-cases-remplies` · vivante · 02/09
 
 > Eric, 02/09 : *« SB skill budget (elestu, elf…) : le liseré autour des collecteurs ne passe pas
 > de bleu à vert quand j'ai dépensé tout le budget. »*
@@ -1190,6 +1201,7 @@ extérieure reste `--bouton-coupe` **10**, les cotes et l'opacité ne bougent pa
 ce qu'elle accepte avant qu'on lâche.
 
 ### Combien de modèles *(26/08)*
+📍 `jeton-combien-modeles` · vivante · 26/08
 
 **bouton = 3 couleurs · jeton = UN SEUL modèle · collecteur = UN SEUL modèle.**
 ⭐ La variété vit dans les **boutons**, pas dans les jetons.
@@ -1341,6 +1353,7 @@ c'est un jeton ordinaire dont le libellé est un nombre.
 ---
 
 ### 🔒 LA CATÉGORIE DES SACRÉS — trois lois, et elles ne se négocient dans aucun lot
+📍 `socle-categorie-sacres` · vivante · 04/09
 
 > Eric, 2026-09-04 : *« Donc **ranger dans la catégorie des sacrés** si ce n'est pas le cas. »*
 
@@ -1359,6 +1372,7 @@ d'un cran** (§1 ter quinquies) ; il ne rogne pas un sacré.
 ---
 
 ### 🔒 SACRÉ N° 2 — **LE DUO EST DANS LA DERNIÈRE RANGÉE, UNE FOIS PAR ÉCRAN** *(04/09)*
+📍 `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran` · vivante · 04/09
 
 > *« Une seule fois **par écran**. **Pas par dalle**. »*
 > *« Le duo est toujours dans une **cellule contenant au moins un bouton**, à
@@ -1385,6 +1399,7 @@ rangée.
 écran du dépôt qui en porte une.
 
 #### ⏳ LE POINT OUVERT, ET IL EST MESURÉ — *« une fois par écran »* CONTRE LE CATALOGUE À RAIL
+📍 `socle-point-ouvert-et-il-est-mesure` · vivante · 03/09
 
 ⚠️ **DEUX PHRASES D'ERIC SE CROISENT ICI, ET IL FAUT LE DIRE PLUTÔT QUE DE
 CHOISIR À SA PLACE.**
@@ -1409,6 +1424,7 @@ de fiche (44 de rangée + 2 × 8) sur Species, Class et Destiny.
 ---
 
 ### 🔒 SACRÉ N° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(04/09)*
+📍 `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
 
 > *« Désormais tout ce qu'il y a sur une dalle est dans une boîte, qui est sur
 > une grille, espacée d'**au moins 8 blg** avec ses voisines. »* · *« Absolu aussi. »*
@@ -1485,6 +1501,7 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 ---
 
 ### 🔒 SACRÉ n° 2 — **LE DUO `?` + LIVRE VIT DANS LA DERNIÈRE RANGÉE** *(Eric, 2026-09-04)*
+📍 `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee` · vivante · 04/09
 
 > ⚠️ **CONSIGNÉE ICI PAR L'ARCHITECTE LE 2026-09-05, ET IL FAUT SAVOIR D'OÙ ELLE VIENT.**
 > Eric l'a ratifiée le 04/09 devant une session distante, qui l'a écrite **dans son
@@ -1523,6 +1540,7 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 | **combien** | **UNE FOIS DANS UN ÉCRAN** — Eric, 05/09, confirmé une seconde fois — ⛔ pas par dalle · et dans la **DERNIÈRE** rangée |
 
 ### 🔴 CE QUE CHAQUE BORNE **FAIT** — et ce n'est pas la même chose *(Eric, 2026-09-05)*
+📍 `socle-ce-que-chaque-borne-fait` · vivante · 05/09
 
 > *« le livre doit emmener vers le site FH WEB »* · *« le point d'interrogation est le
 > guide et fait un popup »*.
@@ -1560,6 +1578,7 @@ et B2) et `catalogue.mjs`. Ils attendent une cible, pas une mécanique.
 de FH WEB pour quel écran. Aucune ne se déduit du code.
 
 ### 🔴 ET S'IL Y A PLUSIEURS DALLES — **LA DERNIÈRE, OU UNE DALLE FLOTTANTE FIXE**
+📍 `cadre-et-s-il-y-a-plusieurs-dalles` · vivante · 05/09
 
 > Eric, 2026-09-05, en réponse au seul cas que les cinq clauses ne tranchaient pas :
 > *« s'il y'a plusieurs dales, la dernière ou dans un dalle flottante fixe »*.
@@ -1611,6 +1630,7 @@ porter **deux** rangées fait cesser la coïncidence.
 jour où le cas qui les sépare arrive.*
 
 ### 🔒 SACRÉ n° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(Eric, 2026-09-04)*
+📍 `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
 
 **Les boutons compris.** Les écarts valent **8 blg**, et c'est **la grille** qui les
 écrit — jamais une marge posée organe par organe.
@@ -2031,6 +2051,7 @@ fenêtre**. C'est le but qu'Eric a fini par nommer — *« on fait de l'espace p
 ceux du bas où ils sont »*. 📏 **Mesuré : 78 px au départ, 184 à l'arrivée.**
 
 ### ⛔ Ce qui n'est PAS négociable dans ce gabarit
+📍 `budget-ce-qui-n-est-pas-negociable-dans-ce-gabarit` · vivante · 27/08
 
 | | |
 |---|---|
@@ -2098,6 +2119,7 @@ PC d'un ami d'Eric.
 | 🔴 **le moule impose son format au CONTENU** | *« c'est un résumé de classe »* · *« transformer un player handbook de taille livre en ce petit condensé »* — le contenu se taille pour les boîtes, jamais l'inverse |
 
 ### ✅ LES CORPS DE LA CARTE SONT SUR L'ÉCHELLE *(2026-09-03)*
+📍 `budget-corps-carte-sont-sur-echelle` · vivante · 03/09
 
 Les quatre corps du portrait étaient écrits en pixels bruts — `18px` (le nombre de `--t5`),
 `13px`, `10,5px`, `11px` — et les cinq écarts en `8px`/`4px`. Ils valent désormais
@@ -2147,6 +2169,7 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 ---
 
 ## 4 quater bis. 📐 LE GABARIT DE L'ÉCRAN FINAL DE DESTINY *(figé au banc, 2026-09-03)*
+📍 `budget-gabarit-ecran-final-destiny` · vivante · 03/09
 
 > Eric : **« tu mesures tout précisément »** · **« tu figes tout ça »** · **« tu as 7 blocs texte
 > et un bloc image, place-les et fige-les »**.
@@ -2154,6 +2177,7 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 > Gardes : `tests/destiny-final-budget.test.mjs` et `tests/dalle-du-rang.test.mjs`.
 
 ### 🔴 LE BUDGET, ET IL EST FERMÉ
+📍 `budget-et-il-est-ferme` · vivante · 31/08
 
     panneau      560 blg      (règle sacrée du 31/08)
     ceinture     − 60
@@ -2166,6 +2190,7 @@ reste du panneau une fois la ceinture posée ; le panneau de 560 est calibré po
 appareils** — un iPad ne donne pas plus de blg, il les peint plus gros.
 
 ### 🔴 HUIT BLOCS, HUIT CASES NOMMÉES
+📍 `budget-huit-blocs-huit-cases-nommees` · vivante · ?
 
 ⛔ **CINQ BLOCS VIVAIENT DANS UN CONTENEUR**, et c'est ce qui rendait l'écran irréglable : un bloc
 enfermé ne peut pas être PLACÉ, il subit le flux de sa boîte. Une soirée entière s'est passée à
@@ -2185,6 +2210,7 @@ pousser des marges pour déplacer des blocs qui n'avaient pas d'adresse.
 une marge par une autre.
 
 ### La colonne des postes — 475 sur 500
+📍 `budget-colonne-postes` · vivante · ?
 
 | | poste | blg |
 |---|---|---|
@@ -2200,6 +2226,7 @@ une marge par une autre.
 somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans les marges.
 
 ### Les blocs, leur forme et leur cote
+📍 `budget-blocs-leur-forme-et-leur-cote` · vivante · ?
 
 | bloc | largeur | hauteur | forme |
 |---|---|---|---|
@@ -2214,6 +2241,7 @@ somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans
 | *(le pied)* | 343 | 44 | quatre boutons — frère de la grille, hors budget des cases |
 
 ### 🔴 CE QUE L'ÉCRAN NE MONTRE PAS, ET OÙ ÇA VIT
+📍 `budget-ce-que-ecran-ne-montre-pas-et-ou-ca-vit` · vivante · 03/09
 
 > Eric, 2026-09-03 : *« les vibrations peuvent n'être que nommées »* · *« les vibrations = popup »*
 > · *« le livre mène aux règles dans FH Web »*.
@@ -2233,6 +2261,7 @@ toucher à un seul texte de règle.
 ⛔ Pas `--info` : un lien n'est pas une information qui crie.
 
 ### Les écarts — **8 partout**, un seul écrivain, aucune exception
+📍 `budget-ecarts-8-partout-seul-ecrivain-aucune-exception` · vivante · 03/09
 
     titre=8   ability=8   impact=8   meaning=8   power=8   vibrations=8
 
@@ -2245,6 +2274,7 @@ l'Ermite ; un écart décoratif payé par un texte de règle coupé n'est pas un
 exception à retenir.
 
 ### 🎨 L'encre porte la structure, depuis que les cadres sont invisibles
+📍 `ecriture-encre-porte-structure-depuis-que-cadres-sont` · vivante · 26/08
 
 | | |
 |---|---|
@@ -2266,6 +2296,7 @@ boutons : il est POSÉ par la coquille au bas de la dalle, il rendait 8 quand le
 porte.
 
 ### ⛔ TROIS PIÈGES PAYÉS CETTE NUIT, ET ILS SE RESSEMBLENT
+📍 `budget-trois-pieges-payes-cette-nuit-et-ils-se-ressemblent` · vivante · 97/79
 
 1. **`align-self: center` RÉTRÉCIT la cellule** à son contenu : il ne reste alors rien à répartir,
    et le centrage ne déplace rien. Mesuré : cellule 235 pour une image de 235. La cellule doit
@@ -2278,6 +2309,7 @@ porte.
    faisait mesurer 0 là où on lisait 8.
 
 ### ⏳ Ce qui n'est PAS figé
+📍 `budget-ce-qui-n-est-pas-fige` · vivante · 03/09
 
 - **la hauteur de l'image** — elle a valu 42, 40, 38, 33 puis 42 % du panneau dans la même soirée ;
 - **le voyant** : il n'est pas sur le croquis d'Eric, gardé faute de décision ;
@@ -2318,6 +2350,7 @@ porte.
      cartes réunissent les trois.
 
 ### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
+📍 `liste-exception-au-non-defilement` · vivante · 03/09
 
 > Eric, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »* · *« si
 > c'est mécaniquement possible on passe à 4 lignes scrollable, on fait une exception à la règle du
@@ -2353,6 +2386,7 @@ première mise en page, l'observateur pour ce qui bouge après.
 ---
 
 ## 4 quater ter. 🗂️ LE CATALOGUE À RAIL — B2 de Destiny *(mesuré au banc, 2026-09-03)*
+📍 `cadre-catalogue-a-rail` · vivante · 03/09
 
 > Eric, dans la nuit : *« juste une numérotation des arcanes à gauche »* · *« 8 tuiles tiennent
 > TOUJOURS dans un écran »* · *« la dalle s'arrête 8 blg sous les boutons, centrée verticalement »*
@@ -2361,6 +2395,7 @@ première mise en page, l'observateur pour ce qui bouge après.
 > Chaque nombre ci-dessous est un **RELEVÉ** sur la page rendue, jamais une intention.
 
 ### 🔴 LA FICHE **EST** L'ÉCRAN FINAL — un seul organe, deux rangs
+📍 `cadre-fiche-est-ecran-final` · vivante · ?
 
 ⛔ **IL N'Y A PAS DE SECONDE MISE EN PAGE.** La fiche du catalogue est
 `renderDestinyFinal({ gabarit: "apercu" })` : le MÊME rendu, à qui l'on **retire** le voyant, le
@@ -2371,6 +2406,7 @@ divergent la fois où l'on oublie — c'est ce que le garde du lot 60 interdit a
 `renderArcanaCardBody` (retiré) vivait ici sans que personne le nomme.
 
 ### 📐 LA CHAÎNE DES COTES — chaque maillon tombe de son voisin
+📍 `cadre-chaine-cotes` · vivante · ?
 
     tuile      64      Temperance (59), le mot le plus large des 22
     rail       72      8 de rembourrage + 64
@@ -2384,6 +2420,7 @@ contrainte passe à **Temperance (59)**. ⭐ Et **trois étages suffisent** : au
 plus de trois mots.
 
 ### 🧲 HUIT CRANS PAR ÉCRAN, PAR CONSTRUCTION
+📍 `cadre-huit-crans-par-ecran-par-construction` · vivante · ?
 
     piste = (panneau − ceinture) − rembourrage haut = 500 − 4 = 496
     cran  = (piste − 7 écarts) / 8                  = (496 − 28) / 8 = 58,5
@@ -2397,6 +2434,7 @@ finit un écart plus tôt. **Rembourrage = écart.** Les deux bouts disaient la 
 si l'on s'immobilise déjà presque en place, et `center` coupe les DEUX extrémités.
 
 ### 🪟 LA DALLE — libre, et jamais tout l'écran
+📍 `cadre-dalle-libre-et-jamais-tout-ecran` · vivante · ?
 
 | | |
 |---|---|
@@ -2410,6 +2448,7 @@ littéral qu'aucun garde ne surveillait) et un `margin-top: auto` qui faisait **
 pas parce qu'on pousse le mou ailleurs. **Une hauteur qu'on n'écrit pas ne peut pas devenir fausse.**
 
 ### 🎛️ LA RANGÉE DE BOUTONS — quatre organes, une grille
+📍 `bouton-rangee-boutons` · vivante · ?
 
     grid-template-columns: --touch | 1fr | 1fr | --touch
     livre → 1     Choose → 2 (fin)     Cancel → 3 (début)     ? → 4
@@ -2428,6 +2467,7 @@ rembourrage de la **dalle** — pas du sien. *Un écart identique obtenu par un 
 pas le même écart : il se comporte différemment dès qu'autre chose bouge.*
 
 ### 🎨 CE QUE LE RANG CHANGE, ET RIEN D'AUTRE
+📍 `cadre-ce-que-rang-change-et-rien-autre` · vivante · ?
 
 | | B2 (l'aperçu) | SB2 (l'écran final) |
 |---|---|---|
@@ -2444,6 +2484,7 @@ il est rendu — pas selon d'où l'on vient. Un rang se lit, il ne se mémorise 
 tordu ne peut le mettre en défaut.
 
 ### 🚫 UN SEUL VOILE
+📍 `cadre-seul-voile` · vivante · 27/08
 
 La **rangée** est nue (`catalogue-card`, aucun fond, aucune ombre) ; seule la **dalle** peint ses
 35 %. ⛔ Elle portait `dalle-intermediaire` — un reste juste devenu faux : quand la rangée ÉTAIT la
@@ -2452,6 +2493,7 @@ sous une plaque. 📌 **Aucune règle n'était fausse le jour où elle a été �
 a bougé sous elle, et rien ne le signale.**
 
 ### ⛔ CE QUI NE SE DEVINE JAMAIS — sept drapeaux déclarés
+📍 `socle-ce-qui-ne-se-devine-jamais` · vivante · 27/08
 
 `railEtroit` · `railEtiquette` · `titreDansLaFiche` · `corpsEstUneDalle` · `retourInterne` ·
 `sansDone` · `motDuRetour`. ⭐ **L'écran DÉCLARE, le catalogue DESSINE.** Deviner le gabarit d'après
@@ -2522,6 +2564,7 @@ sont écrits depuis — Eric, 02/09 : *« la décision c'est d'écrire les versi
 synthétiques qui n'existent pas, avec le moteur »*. Le témoin de longueur est l'Elfe (43–81 car.).
 
 ### ⚖️ L'EXCEPTION NOMMÉE DU DRAGONBORN — le SB des lignages sans sa table *(Eric, 2026-09-02)*
+📍 `cadre-exception-nommee-dragonborn` · vivante · 02/09
 
 > **« Dragonborn, SB lignages : exception, on change le donné. Le texte de l'aiguilleur dit "il y a
 > 10 lignées, cliquer sur les tokens de choix pour regarder les options". Tu fais court, tu fais
@@ -2554,6 +2597,7 @@ vérifie aussi fort que le reste (`tests/lignage-exception-dragonborn.test.mjs`)
 écran cède un jour, il s'écrit **ici**, avec sa propre mesure à côté de son nom.
 
 ### 📏 CE QU'UN TRAIT ACCORDE SE LIT D'UN COUP D'ŒIL — la bande des condensés *(lot 127, 02/09)*
+📍 `ecriture-ce-qu-trait-accorde-se-lit-coup-il` · vivante · 02/09
 
 > Eric, devant la capture du Dragonborn : **« dragonborn S : granted texte pas conforme »**.
 
@@ -2592,6 +2636,7 @@ de l'alternative) et `tests/trait-accorde-voix-unique.test.mjs` (les deux voix d
 chose, avec les condensés **comme sans eux**).
 
 ### 🧬 UN TRAIT QUI DÉPEND DU CHOIX APPARTIENT À LA LIGNÉE *(lot 128, 02/09)*
+📍 `socle-trait-qui-depend-choix-appartient-a-lignee` · vivante · 02/09
 
 > Eric : **« Un trait dont le CONTENU dépend du choix de lignée appartient à la lignée, pas au
 > bloc *Granted automatically*. »**
@@ -2731,6 +2776,7 @@ garde sa forme quel que soit le lignage choisi**.
 ---
 
 ## 6 pré. 🔲 **LA RANGÉE DE CONTRÔLES — DEUX BORNES ET UN GROUPE** *(norme, 2026-09-04)*
+📍 `bouton-rangee-controles` · vivante · 04/09
 
 > Eric, après m'avoir vu échouer **trois fois de suite** : *« la règle est
 > toujours la même et la même erreur est faite. Boutons majeurs centrés, `?` et
@@ -2739,6 +2785,7 @@ garde sa forme quel que soit le lignage choisi**.
 > norme, qu'on se plante plus »*.
 
 ### 🔴 LA FORME, ET ELLE EST UNIQUE
+📍 `bouton-forme-et-elle-est-unique` · vivante · ?
 
 ```
 grid-template-columns:  var(--touch) | 1fr | var(--touch)
@@ -2756,6 +2803,7 @@ Les quatre rangées du site convergent ici : `.parcours-pied` · `.sortie` ·
 `.fiche-actions` · `.card-pied`.
 
 ### ⛔ LES TROIS MÉTHODES QUI ONT ÉCHOUÉ — toutes VERTES aux tests
+📍 `bouton-trois-methodes-qui-ont-echoue` · vivante · ?
 
 Elles ont échoué **pour la même raison** : elles désignaient *une colonne par
 organe*. Le tableau est le cœur de cette norme.
@@ -2778,6 +2826,7 @@ plus large des deux — `I changed my mind` est passé de 171 à **120 blg**, li
 rogné, sans que rien ne déborde.)*
 
 ### ⛔ LA RÉSERVE EN REMBOURRAGE EST INTERDITE — les quatre écrivains
+📍 `bouton-reserve-en-rembourrage-est-interdite` · vivante · 04/09
 
 Une borne a une **colonne**, jamais une réserve. Une colonne existe même vide :
 la place est tenue par le **gabarit**, jamais négociée par le contenu.
@@ -2793,6 +2842,7 @@ Destiny R faisait **335** pour des colonnes de **291**, et le groupe se centrait
 **22 blg à gauche** du milieu. Eric l'a vu à l'œil avant toute mesure.
 
 ### 🔴🔴 `position: relative`, **JAMAIS** `static` — la faute qu'on refait à chaque fois
+📍 `bouton-position-relative-jamais-static` · vivante · 04/09
 
 > Eric, 2026-09-04, en majuscules : *« note ce relative pas static, car cette
 > erreur est faite à chaque fois !!! »*
@@ -2829,6 +2879,7 @@ un, la réponse est `relative`. On ne retire jamais une ancre en croyant ne
 retirer qu'un flottement.
 
 ### 🔴🔴 L'ABSOLU DU 2026-09-04 — **LE LIVRE ET LE « ? » SONT DANS LA *DERNIÈRE* RANGÉE**
+📍 `livre-absolu-2026-09-04` · vivante · 04/09
 
 > Eric : *« Livre et `?` toujours dans la dernière rangée. **Dernière rangée de
 > boutons = `?` et livre dedans. C'est un absolu.** »*
@@ -2857,6 +2908,7 @@ trois occasions de diverger. »* Les trois se rattrapaient l'un l'autre — **le
 résultat était juste, la règle ne l'était pas.**
 
 ### ⚖️ LES DEUX SEULES BORNES DE L'ABSOLU, ET ELLES SE MESURENT
+📍 `livre-deux-seules-bornes-absolu-et-elles-se-mesurent` · vivante · 20/08
 
 | borne | pourquoi | mesuré |
 |---|---|---|
@@ -2870,6 +2922,7 @@ devant le futur groupe. ⛔ **Le clavier suit le DOM, pas l'écran.**
 ---
 
 ### 📐 LES COTES, ET ELLES NE SE NÉGOCIENT PAS
+📍 `bouton-cotes-et-elles-ne-se-negocient-pas` · vivante · 04/09
 
 | | |
 |---|---|
@@ -2881,6 +2934,7 @@ devant le futur groupe. ⛔ **Le clavier suit le DOM, pas l'écran.**
 | position d'une borne | `absolute` **INTERDIT** dans une rangée — un organe hors flux ne pousse rien, donc il se laisse recouvrir. Son `absolute` ne vaut que sur une dalle SANS rangée |
 
 ### ✅ LE TÉMOIN — comment on prouve qu'une rangée est juste
+📍 `bouton-temoin-comment-on-prouve-qu-rangee-est-juste` · vivante · 04/09
 
 ⛔ **Une rangée juste en anglais ne prouve rien.** L'épreuve est en deux temps,
 et les deux comptent :
@@ -2895,6 +2949,7 @@ et les deux comptent :
 de centre, 0 organe en `absolute`**.
 
 ## 6 pré bis. 🧭 **L'AIGUILLEUR — LE TEXTE QUI DIT OÙ ALLER** *(Eric, 2026-09-04)*
+📍 `aide-aiguilleur-texte-qui-dit-ou-aller` · vivante · 04/09
 
 > ⚠️ **CONSIGNÉE PAR L'ARCHITECTE LE 2026-09-05.** Même origine que les sacrés n° 2 et
 > n° 3 : ratifiée le 04/09 devant une session distante, écrite dans son conteneur, et
@@ -2925,6 +2980,7 @@ locale en aurait laissé la moitié debout. ⭐ *Quand un défaut se lit sur deu
 appartient à l'organe qu'ils partagent.*
 
 ### 🔵 L'AIGUILLEUR ET LE TUTORIEL DISENT LA MÊME ÉTAPE — PAS DE LA MÊME FAÇON *(Eric, 2026-09-05)*
+📍 `aide-aiguilleur-et-tutoriel-disent-meme-etape` · vivante · 05/09
 
 > *« le `?` est un tutoriel plus verbeux, plus agréable à lire, que l'aiguilleur, c'est
 > un popup »*.
@@ -2964,6 +3020,7 @@ qui a payé : *on regarde avant de conclure, même quand on croit connaître le 
 ---
 
 ### 🔵 AMENDEMENT DE L'AIGUILLEUR — **sur du verre, il écrit en `--text`**
+📍 `aide-amendement-aiguilleur` · vivante · 26/08
 
 > Eric, le même jour : *« le texte en dessous, ça devrait être en bleu :
 > l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin d'une boîte texte de
@@ -2999,6 +3056,7 @@ pas garder son texte gris »*.
 ---
 
 ## 6 pré ter. 🔲 **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(norme, 2026-09-04)*
+📍 `cadre-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
 
 > 📌 **C'est la MESURE du SACRÉ n° 3**, pas un second énoncé : la règle est
 > dictée plus haut (§ sacré n° 3) ; ici on montre ce qu'elle coûte et comment on
@@ -3010,6 +3068,7 @@ pas garder son texte gris »*.
 > sait ce qu'on ne doit pas dépasser. »*
 
 ### 🔴 LES TROIS PHRASES, ET CE QU'ELLES INTERDISENT
+📍 `cadre-trois-phrases-et-ce-qu-elles-interdisent` · vivante · ?
 
 | la phrase | ce qu'elle retire |
 |---|---|
@@ -3029,6 +3088,7 @@ déclaration PERDANTE se tait. »* L'exception se **nomme** (`.ability-methodes 
 .guide-mot`), elle ne se parie pas sur la cascade.
 
 ### 📐 « LE PLANCHER EST DÉFINI PAR CONSTRUCTION »
+📍 `cadre-plancher-est-defini-par-construction` · vivante · ?
 
 ⭐ **Ça ne veut pas dire « il y a de la place », ça veut dire qu'on la CALCULE
 avant de dessiner** — §1 ter, appliqué. Le relevé de R Abilities, écrit avant la
@@ -3051,6 +3111,7 @@ Un `repeat(3, …)` en CSS face à un `slice(0, 3)` en JS aurait été **un nomb
 écrit deux fois, c'est-à-dire deux nombres**.
 
 ### ⚖️ `data-rangee` — LA CINQUIÈME PORTE DE §6 pré
+📍 `cadre-data-rangee-cinquieme-porte-6-pre` · vivante · ?
 
 La rangée de contrôles était énumérée par **quatre noms de classe**, à **sept
 endroits** (cinq dans `shell.css`, deux dans `shell.mjs`). La seconde rangée de
@@ -3140,6 +3201,7 @@ se verrait que sur ce gabarit-là.
 pas. C'est encore *« un contrôle ne se laisse jamais dimensionner par un dessin »*.
 
 ### 🔴 `+` / `−` : le dessin le plus petit possible, la cible au minimum tactile
+📍 `bouton-dessin-plus-petit-possible-cible-au-minimum-tactile` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« boutons + / − : **le plus petit possible / minimum acceptable sur
 > tactile** »*.
@@ -3221,6 +3283,7 @@ dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
 
 ### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
+📍 `bouton-deux-mots-retour-et-couleur-se-deduit-mot` · vivante · 05/09
 
 > **« back = navigation = bleu · cancel = annulation = rouge »**
 > puis, pour fermer toute lecture molle : **« back n'annule rien »**.
@@ -3864,6 +3927,7 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 ---
 
 ## 6 ter. 🎗️ LE BELT — DEUX LARGEURS, ET CE QUI CHANGE DANS CHACUNE *(2026-09-02)*
+📍 `cadre-belt-deux-largeurs-et-ce-qui-change-dans-chacune` · vivante · 02/09
 
 > Eric, 2026-09-02, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` :
 > **« TOUTES LES TUILES DU MENU FONT LA MÊME TAILLE »** · *« sur la version courte je rajoute ces
@@ -3878,6 +3942,7 @@ visible**, elle fait **60 blg**, et le panneau garde ses **500**. Tout ce qui su
 **9 blg** de mou.
 
 ### ⭐ LA LOI, EN UNE PHRASE : **une tuile vaut la piste divisée par ce qu'elle montre**
+📍 `cadre-loi-en-phrase-tuile-vaut-piste-divisee-par-ce-qu-elle` · vivante · ?
 
 | | **le belt ÉTROIT** *(vue simple)* | **le belt DÉROULÉ** *(vue double)* |
 |---|---|---|
@@ -3893,6 +3958,7 @@ un nombre de crans visibles. ⭐ Une seule ligne de feuille bascule le tout —
 `--belt-chevron-zone`, qui vaut 24 en étroit et 0 en double.
 
 ### 📐 LA TUILE — deux rangs, et c'est ce qui rend « la même taille » possible
+📍 `cadre-tuile-deux-rangs-et-c-est-ce-qui-rend-meme-taille` · vivante · ?
 
 | | |
 |---|---|
@@ -3939,6 +4005,7 @@ un `textContent`. ⭐ C'est exactement ce que *« ça va en partie s'extrapoler 
 voulait dire.
 
 ### ⭐ LA LEÇON À PART : **UN VIDE SE PAIE AILLEURS QU'OÙ ON LE REGARDE** *(02/09)*
+📍 `budget-lecon-a-part-vide-se-paie-ailleurs-qu-ou-on-regarde` · vivante · 02/09
 
 > Relevée en mesurant la tuile, et sortie de sa section à la demande de l'architecte : elle ne
 > parle pas du belt, elle parle de tous les budgets.
@@ -3966,6 +4033,7 @@ verticale de sa boîte** et regarder lequel de ses termes est un vide. Un organe
 *« parce qu'il manque un demi-pixel »* est presque toujours un vide qu'on n'a pas décomposé.
 
 ### 🎚️ LE CHEVRON DU BELT — un organe du seul format étroit
+📍 `chevron-belt` · vivante · 02/09
 
 | | |
 |---|---|
@@ -4022,6 +4090,7 @@ contredire la règle du 15/08 : *« une dalle tranchée net fait une arête, pas
 n'y a jamais de dalle tranchée.
 
 ### 🔒 TROIS TUILES, ET T2 — la question est FERMÉE PAR LA MESURE *(02/09)*
+📍 `cadre-trois-tuiles-et-t2` · vivante · 02/09
 
 > Eric : *« regarde si tu peux mettre 4 boutons sur une vue sans que rien ne se chevauche »*, puis,
 > après l'avoir essayé lui-même : *« ça ne passe pas, on reste à 3 visibles d'un coup »* · *« essaie
@@ -4065,6 +4134,7 @@ la moitié visible des onglets *(19/08)* et l'air entre tuiles *(15/08, « la ta
 Barde »)*. En libérer une est une décision d'Eric, jamais une conséquence d'un lot.
 
 ### 🎛️ LES DEUX BOUTS — `Menu` et `Sheet`, à 100 %
+📍 `cadre-deux-bouts-menu-et-sheet-a-100` · vivante · 02/09
 
 | | |
 |---|---|
@@ -4073,6 +4143,7 @@ Barde »)*. En libérer une est une décision d'Eric, jamais une conséquence d'
 | le reste | inchangé : demi-pastille happée par le bord, mot vertical, liseré 1 px |
 
 ### ⚠️ CE QUE LE BANC NE SAIT PAS MESURER, dit plutôt que masqué
+📍 `cadre-ce-que-banc-ne-sait-pas-mesurer-dit-plutot-que-masque` · vivante · 02/09
 
 📏 Mesuré le 02/09 dans le navigateur du banc : **aucun défilement lissé de script ne bouge** —
 ni sur la piste, ni sur la scène, dont les chevrons sont pourtant en production depuis le lot 70 ;
