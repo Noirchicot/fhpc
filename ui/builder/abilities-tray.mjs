@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=557";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=557";
-import { swapContent } from "./socle.mjs?v=557";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=558";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=558";
+import { swapContent } from "./socle.mjs?v=558";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -236,7 +236,12 @@ function etatDuJet(jet) {
   if (jet.kept === false) return "ecarte";
   return "garde";
 }
-const MATERIAU_PAR_ETAT = { garde: "white", ecarte: "slate", haut: "azure", bas: "white" };
+/* 🎨 `ash`, PAS `slate`, POUR L'ÉCARTÉ — Eric, 05/09 au soir, devant la capture :
+   *« dé trop noir ici »*. `slate` (`#4a4f55`) est un anthracite ; le gris qu'il
+   demande depuis le matin (*« les 4 non sélectionnés passent en gris »*) est le
+   clair du moteur, `ash` (`#c9cdd2`). Son chiffre redevient sombre (`num`
+   `#3a3f45`) : l'encre blanche n'est plus forcée sur lui (shell.css). */
+const MATERIAU_PAR_ETAT = { garde: "white", ecarte: "ash", haut: "azure", bas: "white" };
 /* 📏 26 : dix dés de 26 et neuf écarts de 2 font 278 sur les ~327 utiles du tapis
    bleu (351 moins ses deux bouts arrondis). Le détail `6+6+6` mesure 31,8 en T1 :
    c'est LUI qui fixe la colonne à 32, pas le dé.

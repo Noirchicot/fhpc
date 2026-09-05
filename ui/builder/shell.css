@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=557") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=558") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2634,10 +2634,13 @@ button { font: inherit; }
    ses deux bouts arrondis reçoivent un retrait pour que la première et la
    dernière case ne mordent pas la courbe. */
 .ability-resultats { display: grid; gap: var(--sp-8); }
-.ability-tapis-bleu {
+/* Nommé par son RÔLE, plus par sa couleur : il fut `.ability-tapis-bleu` jusqu'au
+   05/09 au soir, où Eric l'a voulu vert (*« plus cohérent visuellement »*). La
+   couleur est un jeton (`--tapis-selection`, tokens.css), le bleu une option. */
+.ability-tapis-selection {
   aspect-ratio: 6 / 1;
   padding-inline: var(--sp-12);
-  background: url("./assets/abilities/tapis-bleu.webp?v=557") center / 100% 100% no-repeat;
+  background: var(--tapis-selection) center / 100% 100% no-repeat;
   display: grid; align-items: center;
 }
 /* La rangée de contrôles de la scène 1 — SUR SA DALLE (Eric, 05/09 : *« ton cancel
@@ -3794,12 +3797,20 @@ button { font: inherit; }
    utiles du tapis, et Eric refuse deux lignes. Le logement reste 30 dans sa
    colonne de 34,3 ; l'espace entre logements reste 4,3. */
 .tray-case-de .porte-de .fh-cd-static-die[data-sides="6"] { transform: none; }
+/* 📏 LE CHIFFRE DU DÉ DE SÉLECTION, UN BARREAU SOUS CELUI DU PODIUM — Eric, 05/09
+   au soir : *« réduis le texte sur dés de sélection de 1 incrément »*, juste après
+   *« positionnement et taille sur podium parfait »*. Le calque `.valeur` est en T2
+   partout (la décision du 17/08) ; le podium le garde, le tapis bleu descend d'un
+   barreau : T1. ⛔ La somme dessous (`.tray-case-detail`) est DÉJÀ en T1, le
+   plancher des sept tailles — *« réduis la somme d'un incrément »* n'a pas de
+   barreau où aller sans en créer un huitième (T0) : question rendue à Eric. */
+.tray-case-de .valeur { font-size: var(--t1); }
 .tray-case-de .porte-de canvas,
 .tray-case-de .porte-de img { width: 100%; height: auto; display: block; }
 .tray-case-detail { font-size: var(--t1); line-height: 1.2; color: var(--encre-tapis); white-space: nowrap; }
 /* 🎨 L'ÉTAT DIT LA COULEUR — Eric, 05/09 : gris (écarté) · blanc (gardé) · orange
    (plancher bas, 8) · bleu (14 garanti). Blanc, gris et bleu sont des MATÉRIAUX
-   du moteur (`white`, `slate`, `azure`). L'orange n'en est pas un, et
+   du moteur (`white`, `ash`, `azure`). L'orange n'en est pas un, et
    `dice3d.mjs` est une copie verbatim de `fh-phb` où l'on n'ajoute rien : le
    socle blanc se teinte ici. ⛔ Le filtre vise l'IMAGE du dé, jamais `.valeur`
    ni le détail — l'encre reste nette. */
@@ -3807,15 +3818,23 @@ button { font: inherit; }
 .tray-case[data-etat="bas"] .porte-de img { filter: sepia(1) saturate(9) hue-rotate(-32deg) brightness(.98); }  /* regardé le 05/09 : à −18° il rendait jaune, pas orange */
 .tray-case[data-etat="ecarte"] .porte-de { opacity: .8; }
 /* 🖋️ L'ENCRE SUIT LE SOCLE : brune sur l'ivoire et le blanc (celle du moteur), mais
-   BLANCHE sur l'ardoise et l'azur — mesuré le 05/09, `rgb(58,38,6)` sur `slate`
-   ne se lisait pas. */
-.tray-case[data-etat="ecarte"] .valeur,
+   BLANCHE sur l'azur — mesuré le 05/09, `rgb(58,38,6)` sur un socle sombre ne se
+   lisait pas. L'écarté n'est plus dans cette règle : il était `slate` (*« dé trop
+   noir »*, Eric le soir), il est `ash`, un gris clair sur lequel l'encre du
+   moteur se lit. */
 .tray-case[data-etat="haut"] .valeur { color: var(--encre-tapis); }
 /* ⛔ « la somme est barrée » sur les dés remplacés : les dés sont tombés ainsi,
    le total dit autre chose, et la barre dit que ce n'est pas un oubli. Les
    liserés `--accent` (gardé) et `--tier-2` (ajusté) d'avant sont partis : la
    couleur du socle dit tout ce qu'ils disaient. */
 .tray-case[data-ajuste] .tray-case-detail { text-decoration: line-through; }
+/* 🌫️ LE CALCUL S'EFFACE AVEC SON DÉ — Eric, 05/09 au soir : *« tous les dés non
+   sélectionnés, griser le calcul ainsi que le dé ; la somme barrée grisée aussi »*.
+   L'encre reste `--encre-tapis` (elle ne suit pas le thème, l'image non plus) :
+   c'est l'OPACITÉ qui grise, la même sur l'écarté et sur la somme barrée. Les
+   sommes des dés gardés et intacts restent pleines — ce sont elles qu'on lit. */
+.tray-case[data-etat="ecarte"] .tray-case-detail,
+.tray-case[data-ajuste] .tray-case-detail { opacity: .55; }
 
 /* ══ L'ORGANE DE GLISSER-DÉPOSER — lot 79, étape 2 ═══════════════════════
    📐 Croquis C, 2ᵉ écran. Le vivier au-dessus, les créneaux en dessous, la
@@ -6699,7 +6718,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=557");
+  background-image: url("./assets/tarot-dos.jpg?v=558");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

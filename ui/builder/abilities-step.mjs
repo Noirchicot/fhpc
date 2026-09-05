@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=557";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=557";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=557";
-import { armerJeton } from "./glisser.mjs?v=557";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=557";
-import { createDieHost, mount } from "./dice3d.mjs?v=557";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=557";
+import { markPressed } from "./carnet.mjs?v=558";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=558";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=558";
+import { armerJeton } from "./glisser.mjs?v=558";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=558";
+import { createDieHost, mount } from "./dice3d.mjs?v=558";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=558";
 
 export { rollAbilitySet };
 
@@ -1252,11 +1252,14 @@ export function renderAbilitiesStep(ctx, onAction) {
     /* ── DALLE RÉSULTATS — *« îlot large, continu, voile 0, image tapis bleu,
        dans une cellule »*. Les dix cases vivent SUR l'image. En scène 1, la
        rangée de contrôles (livre · Cancel · ?) est sa dernière cellule — sacré
-       n° 2, 8 blg du bas ; en scène 2 elle a transité vers la sélection. */
+       n° 2, 8 blg du bas ; en scène 2 elle a transité vers la sélection.
+       🟢 Le tapis est VERT depuis le 05/09 au soir (*« plus cohérent visuellement »*),
+       le bleu du croquis reste une option (`--tapis-selection`, tokens.css) : la
+       dalle porte le nom de son rôle, pas de sa couleur. */
     const resultats = el("section", "ability-resultats");
-    const tapisBleu = el("div", "ability-tapis-bleu");
-    tapisBleu.append(plateau.cases);
-    resultats.append(tapisBleu);
+    const tapisSelection = el("div", "ability-tapis-selection");
+    tapisSelection.append(plateau.cases);
+    resultats.append(tapisSelection);
     section.append(resultats);
     if (!scene2) {
       /* 🟦 LA RANGÉE DE SCÈNE 1 EST SUR SA DALLE — Eric, 05/09, en la voyant flotter
