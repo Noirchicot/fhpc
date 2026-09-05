@@ -257,6 +257,29 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 > autres ne servent à rien.
 
 
+> ## 🧭 AMENDEMENT n° 2 — **TOUT PROMPT D'ARCHITECTE MÈNE À LA BIBLE** *(Eric, 2026-09-05)*
+>
+> **« tout prompt fixé par un architecte doit mener à la bible »**
+>
+> 🔴 **UN PROMPT N'EST PAS UNE SOURCE, C'EST UN CHEMIN.** Un mandat, une passation, une
+> commande à un siège : ces textes **désignent** les règles, ⛔ ils ne les redisent pas. Le
+> lecteur doit finir **dans le corpus**, à l'adresse exacte — pas dans un résumé du corpus.
+>
+> ⛔ **ET CETTE RÈGLE ACCUSE D'ABORD L'ARCHITECTE.** Les mandats écrits jusqu'ici recopiaient
+> des pans entiers de règles « pour que le siège n'ait pas à chercher ». Chacun est devenu une
+> **copie de plus** — exactement la maladie que le chantier de la source unique existe pour
+> soigner. Un mandat qui recopie une règle en crée une seconde, et la seconde dérive.
+>
+> ⭐ **CE QU'UN PROMPT PORTE LÉGITIMEMENT** : ce que le corpus **ne peut pas** porter — la
+> mesure du jour, l'état du terrain, le geste attendu, la question à poser à Eric. ⛔ **Ce
+> qu'il ne porte jamais** : l'énoncé d'une règle. Pour ça, il donne son **adresse**.
+>
+> 📌 **CONSÉQUENCE DIRECTE DE L'AMENDEMENT n° 1** : un prompt ne peut mener à une règle que si
+> cette règle a une **adresse** et que l'auteur du prompt en connaît le **mot juste**. Les deux
+> amendements sont une seule loi prise par ses deux bouts — le vocabulaire à l'entrée,
+> l'adressage à la sortie.
+
+
 | vocabulaire | ce qu'il nomme |
 |---|---|
 | **`R` / `B` / `SB`** | un **RANG** dans une arborescence (la profondeur). ⛔ **JAMAIS un nom de page** — une page a un **nom** |
