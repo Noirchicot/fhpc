@@ -1123,6 +1123,15 @@ test("🏁 LE BILAN (R2) — Done mène au bilan, le bilan porte Next et un Canc
   const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
   assert.equal(racine.querySelectorAll(".ability-bilan").length, 0, "pas de bilan sans le drapeau de la coquille");
   assert.equal(racine.querySelectorAll(".ability-methodes").length, 1, "…c'est le choix");
+  /* 🟢 LA PASTILLE DU BELT — Eric, 06/09 : *« pourtant on a complété le chapitre »*.
+     La ceinture lit `estConfirme(document, "abilities")` : le passage au bilan
+     signe, Cancel / lot jeté / autre méthode lèvent la signature. */
+  const coquille = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "shell.mjs"), "utf8");
+  const blocBilan = coquille.slice(coquille.indexOf('if (gate.next === "bilan")'), coquille.indexOf('if (gate.next === "close")'));
+  assert.match(blocBilan, /docWriters\.confirm\(\{ document: state\.document, path: "abilities" \}\)/, "le bilan SIGNE l'étape");
+  assert.match(coquille, /function leverLaSignatureDAbilities\(\) \{[\s\S]*?revoke\(\{ document: state\.document, path: "abilities" \}\)/, "et une seule fonction la lève");
+  const blocCancel = coquille.slice(coquille.indexOf('if (action.kind === "abilityBilanCancel")'), coquille.indexOf('/* ⛔ L\'ACTION `roll` A DISPARU'));
+  assert.match(blocCancel, /leverLaSignatureDAbilities\(\)/, "Cancel sur le bilan la lève");
 });
 
 test("⭐ UNE SEULE PORTE POUR LES QUATRE MÉTHODES — et quand un lot existe, elle compte les POSES", () => {
