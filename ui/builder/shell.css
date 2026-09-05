@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=558") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=559") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3801,13 +3801,15 @@ button { font: inherit; }
    au soir : *« réduis le texte sur dés de sélection de 1 incrément »*, juste après
    *« positionnement et taille sur podium parfait »*. Le calque `.valeur` est en T2
    partout (la décision du 17/08) ; le podium le garde, le tapis bleu descend d'un
-   barreau : T1. ⛔ La somme dessous (`.tray-case-detail`) est DÉJÀ en T1, le
-   plancher des sept tailles — *« réduis la somme d'un incrément »* n'a pas de
-   barreau où aller sans en créer un huitième (T0) : question rendue à Eric. */
+   barreau : T1. La somme dessous (`.tray-case-detail`) était DÉJÀ en T1, le
+   plancher des sept tailles — *« réduis la somme d'un incrément »* n'avait pas de
+   barreau où aller ; Eric a tranché *« passe en T0 »*, huitième barreau (tokens.css). */
 .tray-case-de .valeur { font-size: var(--t1); }
 .tray-case-de .porte-de canvas,
 .tray-case-de .porte-de img { width: 100%; height: auto; display: block; }
-.tray-case-detail { font-size: var(--t1); line-height: 1.2; color: var(--encre-tapis); white-space: nowrap; }
+/* 📏 T0 — Eric, 05/09 au soir : *« réduis la somme d'un incrément »*, et comme T1 était
+   le plancher : *« passe en T0 »*. Le barreau est né pour cette ligne (tokens.css). */
+.tray-case-detail { font-size: var(--t0); line-height: 1.2; color: var(--encre-tapis); white-space: nowrap; }
 /* 🎨 L'ÉTAT DIT LA COULEUR — Eric, 05/09 : gris (écarté) · blanc (gardé) · orange
    (plancher bas, 8) · bleu (14 garanti). Blanc, gris et bleu sont des MATÉRIAUX
    du moteur (`white`, `ash`, `azure`). L'orange n'en est pas un, et
@@ -6718,7 +6720,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=558");
+  background-image: url("./assets/tarot-dos.jpg?v=559");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

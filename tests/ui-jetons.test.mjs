@@ -93,7 +93,8 @@ const tokensCssRaw = fs.readFileSync(TOKENS_CSS_PATH, "utf8");
  *  dans la valeur. `calc(var(--t5) + 2px)` reste une violation, `calc(16px *
  *  1.5)` aussi — le facteur est un rapport, pas une cote. L'attaque 2 bis le
  *  prouve plus bas. */
-const BARREAU = String.raw`var\(--t[1-7]\)`;
+const BARREAU = /* T0 entré dans l'échelle le 2026-09-05 (« passe en T0 ») : le garde nomme les barreaux, il apprend le nouveau. */
+String.raw`var\(--t[0-7]\)`;
 const MULTIPLE_DE_BARREAU = new RegExp(String.raw`^calc\(\s*${BARREAU}\s*\*\s*[\d.]+\s*\)$`);
 
 /* 📌 ⚖️ ÉLARGI LE 2026-09-05 — LE GARDE SUIT LE JETON JUSQU'À SON BARREAU.

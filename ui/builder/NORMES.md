@@ -285,7 +285,7 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 | **`R` / `B` / `SB`** | un **RANG** dans une arborescence (la profondeur). ⛔ **JAMAIS un nom de page** — une page a un **nom** |
 | **`F` / `FF` / `FS`** | le **CADRE**. Seul l'écran porte la lettre |
 | **carte · dalle · tuile** | l'**OBJET**. ⛔ ne porte jamais de lettre. Une **carte** a une hauteur imposée |
-| **`T1`…`T7`** | les tailles de texte. ⛔ pas `H1`/`H2` |
+| **`T0`…`T7`** | les tailles de texte (T0 = 8 px, un renfort sous un dé, ajouté le 05/09 sur *« passe en T0 »* — jamais une ligne à lire). ⛔ pas `H1`/`H2` |
 
 ⛔ **« R1 » n'existe pas.** Cette faute a coûté un lot entier le 2026-08-23.
 ⛔ Écrire **« Entrée › B2 »** ou **« Équipement › B2 »**, jamais « B2 » seul : chaque chapitre a
@@ -590,7 +590,7 @@ mesurées ont reculé** (Dragonborn −14 → −7 blg, Hoddon −20 → −13, 
 nouvelle n'est apparue.
 
 📌 **Corollaire d'écriture** *(§1 ter, et le garde `tests/fiche-sur-l-echelle.test.mjs`)* : une
-taille de texte s'écrit `var(--t1..--t7)` ou un **multiple écrit** du barreau
+taille de texte s'écrit `var(--t0..--t7)` ou un **multiple écrit** du barreau
 (`calc(var(--t1) * 1.2)` pour une ligne — le rapport est légal, la cote ne l'est pas), un écart
 s'écrit `var(--sp-*)`. ⛔ **Écrire le NOMBRE d'un barreau en littéral est la même faute** que d'en
 écrire un faux : `18px` valait exactement `--t5` sur la carte du R, et il survivait à la mort de sa

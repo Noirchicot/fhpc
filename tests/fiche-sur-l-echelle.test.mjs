@@ -72,7 +72,8 @@ const TOKENS = fs.readFileSync(path.join(ROOT, "ui", "builder", "tokens.css"), "
    taille — 1,2 est un rapport, et le jour où `--t1` bouge, la ligne suit.
    ⛔ Ce qui reste interdit est le nombre de TAILLE : `calc(var(--t1) + 2px)`
    et `calc(10px * 1.2)` sont des violations. L'attaque 5 le prouve. */
-const BARREAU = String.raw`var\(--t[1-7]\)`;
+const BARREAU = /* T0 entré dans l'échelle le 2026-09-05 (« passe en T0 ») : le garde nomme les barreaux, il apprend le nouveau. */
+String.raw`var\(--t[0-7]\)`;
 /* 📌 ANCRE ÉLARGIE LE 2026-09-04 — Eric : *« interligne de la prose on peut
    normer comme pour destiny ? »*. Le multiplicateur d'une ligne était forcément
    un LITTÉRAL (`* 1.2`) ; il peut maintenant être le jeton de rythme partagé
@@ -153,7 +154,7 @@ export function ecartsHorsJeton(css) {
 
 /* ══ 1 — LA FEUILLE RÉELLE ═══════════════════════════════════════════════ */
 
-test("fiche.css : aucune taille de texte hors des barreaux --t1..--t7", () => {
+test("fiche.css : aucune taille de texte hors des barreaux --t0..--t7", () => {
   assert.deepEqual(taillesHorsEchelle(FICHE), []);
 });
 
