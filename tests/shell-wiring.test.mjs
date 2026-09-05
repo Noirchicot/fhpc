@@ -771,12 +771,19 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      📌 La leçon générale est déjà au corpus : un garde n'est vert qu'après avoir
      été vu ROUGE. Celui-ci n'avait jamais pu l'être.
 
-     ⚠️ CE QU'IL RESTE À TRANCHER, ET CE N'EST PAS UN CORRECTIF DE TEST : ce
-     libellé est le cas qui a MOTIVÉ la recalibration à 22 — il débordait la
-     dalle d'item de 28 px en tenant sous l'ancien budget de 24. Il tient encore
-     sous 22. **Le budget ne refuse toujours pas le cas qui l'a fait naître.**
-     Si 22 avait été choisi pour le refuser, il est trop lâche d'au moins 1.
-     ⛔ Arbitrage d'Eric sur un BUDGET, pas une ligne à changer ici.
+     ⛔ ET LA FAUSSE ALARME DU 06/09, ÉCRITE ICI POUR QU'ON NE LA REPOSE PAS.
+     L'architecte a lu « il tient encore sous 22 » et en a conclu que le budget
+     ne refusait pas le cas qui l'a fait naître, donc qu'il était trop lâche.
+     C'EST FAUX, et la réponse était douze lignes plus haut : 22 n'a JAMAIS été
+     choisi pour refuser ce libellé. Il a été choisi parce que, une fois le
+     rembourrage nommé et la mesure refaite sur le bon champ, **21 caractères
+     rendent 223 px pour 234 disponibles — 4 px de mou, et un caractère de plus
+     les mange.** Le libellé ne débordait pas à cause de sa LONGUEUR, il
+     débordait parce que le proxy était calibré sur le champ le plus LARGE.
+     ⭐ Donc 22 est exact : 21 passe avec 4 px, 23 déborde. Rien à arbitrer.
+     📌 La leçon : quand un garde a l'air incohérent, LIRE SON EN-TÊTE AVANT
+     d'accuser son chiffre — ici la démonstration complète était déjà écrite,
+     au-dessus, dans le même bloc.
 
      📌 ET LE MOT EST MORT DEPUIS LE 05/09 : l'organe s'appelle `Cancel`, donc
      `CancelDone` fait 10. Le témoin reste écrit avec l'ANCIEN libellé, et c'est
@@ -785,7 +792,7 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      jamais débordé, et la démonstration disparaîtrait. */
   assert.equal("I changed my mindDone".length > 22, false,
     "le témoin historique de la recalibration : 21 caractères, il PASSE sous 22 — " +
-    "c'est le fait qui reste à arbitrer, pas une erreur du garde");
+    "et c'est JUSTE : 223 px mesurés pour 234 disponibles, 4 px de mou");
 });
 
 test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 étendu", () => {

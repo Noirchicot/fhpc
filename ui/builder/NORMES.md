@@ -2399,7 +2399,7 @@ première mise en page, l'observateur pour ce qui bouge après.
 
 ⛔ **IL N'Y A PAS DE SECONDE MISE EN PAGE.** La fiche du catalogue est
 `renderDestinyFinal({ gabarit: "apercu" })` : le MÊME rendu, à qui l'on **retire** le voyant, le
-Destiny Score et la paire `I changed my mind / Next`, et que l'on dézoome.
+Destiny Score et la paire `Cancel / Next`, et que l'on dézoome.
 ⭐ **Un gabarit qui RETIRE, jamais un écran jumeau qui recopie** : le jour où l'écran final bouge,
 la fiche bouge avec lui. Deux écrans qui montrent la même chose se corrigent deux fois, et
 divergent la fois où l'on oublie — c'est ce que le garde du lot 60 interdit aux catalogues, et
@@ -2474,7 +2474,7 @@ pas le même écart : il se comporte différemment dès qu'autre chose bouge.*
 | voyant · Score · `Done` | ⛔ absents | ✅ présents |
 | vibrations | **inertes**, encre de corps | liens `--lien`, popup |
 | fenêtres de prose | **libres** | plafonnées à 4 lignes, défilantes |
-| le retour | `Cancel` → le **R** | `I changed my mind` → **B2** |
+| le retour | `Cancel` → le **R** | `Cancel` → **B2** |
 
 🔴 **LE PLAFOND DE PROSE RESTE VITAL EN SB2** : c'est lui qui fait tenir les 22 cartes dans les
 500 blg — la pire y est à **498**. Le lever là-bas casserait le budget ; l'aperçu, lui, flotte dans
@@ -2822,7 +2822,7 @@ contenu la démentira.
 📌 Et **une quatrième colonne est le signe qu'on recommence** : dès qu'on écrit
 `1fr | auto | auto | 1fr` pour serrer deux boutons autour du centre, on est
 revenu à désigner des organes. *(Mesuré aussi : deux `1fr` **égaux** écrasent le
-plus large des deux — `I changed my mind` est passé de 171 à **120 blg**, libellé
+plus large des deux — `Cancel` est passé de 171 à **120 blg**, libellé
 rogné, sans que rien ne déborde.)*
 
 ### ⛔ LA RÉSERVE EN REMBOURRAGE EST INTERDITE — les quatre écrivains
@@ -3342,7 +3342,7 @@ rougir sur cette réparation même.
 | le bouton | |
 |---|---|
 | `Cancel` | 🔴 rouge |
-| `I changed my mind` / *« je ne veux pas ça »* | 🔴 rouge |
+| `Cancel` / *« je ne veux pas ça »* | 🔴 rouge |
 | *« je veux refaire mon perso »* | 🔴 rouge |
 
 ⭐ **C'est la seule famille où la couleur ne dit PAS où on en est — elle dit ce que le bouton
@@ -3354,12 +3354,12 @@ pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans l
 📍 `bouton-done-et-next-jamais-ensemble` · vivante · 26/08
 
 > Eric, 2026-08-26, en trois lignes :
-> **« `Done` valide les choix · `I changed my mind` les annule · `Next` : navigation »**
+> **« `Done` valide les choix · `Cancel` les annule · `Next` : navigation »**
 
 | le bouton | ce qu'il FAIT | ce qu'il ne fait pas |
 |---|---|---|
 | **`Done`** | **valide** les choix de l'étape | ⛔ il ne fait pas avancer |
-| **`I changed my mind`** | **annule** ces choix | ⛔ il ne recule pas — il DÉFAIT |
+| **`Cancel`** | **annule** ces choix | ⛔ il ne recule pas — il DÉFAIT |
 | **`Next`** | **navigation**, rien d'autre | ⛔ il ne valide rien |
 | **`Back`** | **navigation**, et **UNIQUEMENT dans les sous-menus** | ⛔ il n'existe pas au rang R |
 
@@ -3380,11 +3380,11 @@ NAVIGUER. D'où la séquence, qu'Eric a lui-même reformulée en question :
 
 | où l'on est | l'étape est… | la rangée porte |
 |---|---|---|
-| **rang R** *(entrée)* | en cours | `I changed my mind` · **`Done`** |
-| **rang R** *(entrée)* | validée | `I changed my mind` · **`Next`** |
+| **rang R** *(entrée)* | en cours | `Cancel` · **`Done`** |
+| **rang R** *(entrée)* | validée | `Cancel` · **`Next`** |
 | **sous-menu** *(B, SB)* | — | **`Back`** · `Done` — ⭐ c'est le SEUL endroit où `Back` paraît |
 
-⚠️ **ET `I changed my mind` NE BOUGE PAS ENTRE LES DEUX** : c'est la seule porte
+⚠️ **ET `Cancel` NE BOUGE PAS ENTRE LES DEUX** : c'est la seule porte
 ouverte dans tous les états, celle qui défait. Elle reste rouge dans les deux
 *(§6, la famille « défaire »)*.
 
@@ -3467,11 +3467,11 @@ réponse.** Le compte d'une bourse est EXACT (`===`), et un plan verrouillé n'e
 📌 **Où c'est câblé** : crochet `cfg.gendarme(ctx) → {mot, chemin}` (le catalogue nomme le verrou
 et l'item fautif) ; `renderGuideSpecifique` fait le reste. Gardes : `tests/budget-verrou.test.mjs`.
 
-### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
+### ✅ `Cancel` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
 📍 `bouton-i-changed-my-mind-jamais-seul` · vivante · 26/08
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
-> côté de I changed my mind »**.
+> côté de Cancel »**.
 
 **La règle tient en une phrase, et c'est ce qui la rend sûre** :
 
@@ -3541,7 +3541,7 @@ confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 |---|---|---|---|
 | **`Back` · `Next`** | **NAVIGUER** | ⛔ **rien** | 🔵 bleu |
 | **`Done`** | 🔴 **VALIDER** | ✅ il **signe** ce qui est là, puis **remonte d'un cran** | 🟢 vert |
-| **`Cancel` · `I changed my mind`** | **DÉFAIRE** | 🔴 il **détruit** du travail fait | 🔴 rouge **+ popup** |
+| **`Cancel`** | **DÉFAIRE** | 🔴 il **détruit** du travail fait | 🔴 rouge **+ popup** |
 
 ⭐⭐ **Trois familles, trois verbes, aucun recouvrement.** ⛔ Un bouton qui fait deux de ces choses
 est un bouton mal nommé — c'est la discipline qu'Eric applique depuis le 17/08 : **il ne règle pas
@@ -3574,7 +3574,7 @@ dessin : c'est **ce que ces deux mots ont le droit de faire.**
 ⭐⭐ **ET ÇA SUPPRIME UN CAS QU'ON AVAIT OUVERT.** J'avais écrit *(§ « le critère »)* qu'un `Back`
 « qui détruit du travail » serait rouge. ⛔ **Ce cas n'existe plus** : un bouton qui détruit du
 travail **n'est pas un `Back`**, c'est un bouton de la famille **DÉFAIRE**, et il doit **porter un
-autre mot** — `Cancel`, `I changed my mind`.
+autre mot** — `Cancel`.
 
 ➡️ **Le libellé cesse d'être ambigu** : on ne se demande plus *« ce back-là coûte-t-il quelque
 chose ? »*. **Un `Back` ne coûte rien, par définition. S'il coûte, ce n'est pas un `Back`.**
@@ -3788,7 +3788,7 @@ et c'est cette divergence qui les rend reconnaissables :
 |---|---|---|
 | `Back` · `Next` | **octogone à coupe** | 🔵 bleu — *mouvement non impactant* |
 | `Done` | octogone | ⚪ gris inachevé → 🟢 vert fini |
-| `Cancel` · `I changed my mind` | octogone | 🔴 rouge **+ popup** |
+| `Cancel` | octogone | 🔴 rouge **+ popup** |
 | **`+`** | 🔴 **carré ou petit cercle** | 🟢 **VERT** |
 | **`−`** | la **même** forme que le `+` | 🔴 **ROUGE** |
 | **le `?`** | un **rond** de 22 px | ⛔ **aucune couleur de l'échelle** — parchemin ou contour |
