@@ -3138,6 +3138,26 @@ l'était pour §6 pré.
 | **no constraint** | libre | — |
 | 🔴 **`+` / `−`** | un glyphe | **le plus petit possible** *(voir ci-dessous)* |
 
+#### ✅ LA FORME EST L'OCTOGONE, TEL QU'IL EST DESSINÉ AUJOURD'HUI *(Eric, 2026-09-06)*
+📍 `bouton-forme-octogone-ratifiee` · vivante · 06/09
+
+> Eric, 2026-09-06 : **« garde le gabarit, mais la forme octogone actuelle est la norme »**.
+
+🔴 **CE QUE ÇA FERME** : la forme du bouton ne se rediscute plus. C'est l'octogone que la feuille
+dessine **aujourd'hui** — une coupe d'angle de `--bouton-coupe` sur les quatre coins, posée en
+`clip-path`. ⛔ Aucun nombre ne se recopie ici : la cote vit dans `tokens.css`, et c'est elle qui
+fait foi *(§1 ter)*.
+
+⭐ **ET LES TROIS GABARITS NE BOUGENT PAS.** Eric a d'abord dit *« 14 caractères »* pour `medium`,
+puis **« garde le 12 carac »** dans le même échange. La table ci-dessus est donc inchangée :
+`small` **6** · `medium` **12** · `no constraint`. 📌 On garde la trace des deux phrases parce que
+la seconde corrige la première — ⛔ ce n'est pas une hésitation à effacer, c'est une décision datée.
+
+⚖️ **CE QUI RESTE OUVERT, ET CE N'EST PAS LA FORME** : le **corps du texte** d'un bouton n'est
+toujours pas nommé *(⏳ ci-dessus, « T-quoi ? »)*. Tant qu'il ne l'est pas, les largeurs de `small`
+et `medium` restent **non calculables** — un compte de caractères ne devient une largeur qu'une fois
+la police et le corps connus.
+
 🔴 **`large` A ÉTÉ RENOMMÉ `medium`** *(Eric, 26/08)*. Sur trois gabarits, *« large »* se lisait
 comme **le plus grand** alors que c'est **celui du milieu** — le plus grand est `no constraint`.
 **small · medium · no constraint** : l'ordre se lit tout seul, et un lot ne peut plus se tromper
