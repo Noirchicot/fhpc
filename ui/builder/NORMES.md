@@ -8,6 +8,11 @@
 > par défaut »*). Un écran qui dévie le fait **explicitement**, et c'est légal. Un garde vérifie
 > **que le défaut vaut la bonne valeur** et **que personne ne recopie le nombre en littéral** —
 > jamais que tous les écrans l'emploient.
+📍 `socle-norme-est-un-defaut` · vivante · 26/08
+📍 `socle-exceptions-argumentees` · vivante · 26/08
+📍 `socle-corpus-unique` · vivante · 29/08
+📍 `socle-portee-builder` · vivante · 29/08
+📍 `socle-nommer-n-est-pas-mettre-a-l-abri` · vivante · 29/08
 
 ---
 
@@ -48,6 +53,8 @@
 > **« Le plancher c'est la taille 360 sur laquelle on travaille. »**
 
 ### Le mot
+📍 `panneau-blg` · vivante · 30/08
+📍 `panneau-blg-a-l-ecrit` · vivante · 30/08
 
 ⭐ **Un `blg`** — *« blurg »*, le mot d'Eric — **est l'unité de dessin du builder** : ce que vaut un
 `px` de feuille de style une fois le zoom appliqué. `--t4: 16px` se lit **« T4 = 16 blg »**.
@@ -65,6 +72,13 @@
 `--bg` est déjà le parchemin (`tokens.css`), et un nom qui dit deux choses n'a pas sa place ici.
 
 ### Les six lois
+📍 `panneau-crans-manuels-retires` · remplacée · 02/09
+📍 `ecriture-aucun-texte-sous-t1` · vivante · 30/08
+📍 `panneau-jamais-de-media-largeur` · vivante · 30/08
+📍 `panneau-plancher` · vivante · 30/08
+📍 `panneau-reflux-oui-redimensionnement-non` · vivante · 30/08
+📍 `panneau-touch-sans-max` · vivante · 30/08
+📍 `panneau-zoom-sans-exception` · vivante · 30/08
 
 | loi | détail |
 |---|---|
@@ -186,6 +200,9 @@ qu'il DÉBORDERAIT, puis qu'il descend, puis qu'il tient.
 | ~~**les six noms du 31/08** `mini · mobile · small · medium · large · extra`~~ | Eric a nommé cette échelle deux fois. **Liste retenue le 02/09**, sur sa réponse *« celle du 2/09 »*. ⚠️ **Le cran réduit, lui, revient** — il avait disparu d'une lecture intermédiaire qui le prenait pour un état et non pour un rang ; Eric a tranché *« 7 crans »*. Sa reprise n'est pas une erreur |
 
 ### ⏳ Le repli désigné, **écrit et non construit** *(30/08 au soir)*
+📍 `panneau-repli-ce-qui-change` · en standby · 30/08
+📍 `panneau-repli-transform` · en standby · 30/08
+📍 `socle-pas-de-code-mort` · vivante · 30/08
 
 Si un moteur n'honorait pas `zoom` — improbable : la propriété vient d'Internet
 Explorer, **WebKit l'a implémentée très tôt** et Safari l'honore depuis ses
@@ -216,6 +233,9 @@ pas besoin d'être détectée.
 le rapport des deux familles de lecture. Cinq minutes sur l'appareil.
 
 ### Ce que ça supprime
+📍 `ecriture-t1-t4-bougent-desormais` · remplacée · 30/08
+📍 `panneau-grandeur-large-supprimee` · remplacée · 30/08
+📍 `panneau-zoom-universel` · vivante · 30/08
 
 ⚖️ **Trois renversements datés du 30/08**, chacun écrit à sa place :
 
@@ -232,6 +252,9 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 ---
 
 ## 1. ⛔ LES QUATRE VOCABULAIRES — ils ne se mélangent jamais
+📍 `ecriture-t1-a-t7` · vivante · 26/08
+📍 `socle-quatre-vocabulaires` · vivante · 26/08
+📍 `socle-r1-n-existe-pas` · vivante · 26/08
 
 > ## 🚪 AMENDEMENT n° 1 — **LE VOCABULAIRE EST UNE PORTE, PAS UNE ANNEXE** *(Eric, 2026-09-05)*
 >
@@ -294,6 +317,8 @@ son propre `R`, ses propres `B`.
 ---
 
 ## 0. 🔴 LA RÈGLE UNIVERSELLE — **« GOOGLE HEADLESS »**
+📍 `socle-chrome-headless-ne-fabrique-pas-de-pdf` · vivante · 26/08
+📍 `socle-google-headless` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« et la règle universelle désormais : **GOOGLE HEADLESS** »*.
 
@@ -318,6 +343,7 @@ sur la source au lieu de regarder la chose.*
 déjà le premier — **le second manque.**
 
 ### Ce qu'on a sous la main *(mesuré le 26/08)*
+📍 `socle-le-garde-qui-manque` · à trancher · 26/08
 
 | | |
 |---|---|
@@ -331,6 +357,7 @@ REGARDER une page, pas à en fabriquer une.**
 ---
 
 ## 1 bis. 🔴 RIEN N'EST JAMAIS DANS LA MARGE
+📍 `cadre-rien-dans-la-marge` · vivante · 26/08
 
 > Eric, 2026-08-26, en majuscules : *« **RIEN ne doit jamais être dans la marge !!!** »* ·
 > *« à part des dalles et des tuiles »*.
@@ -351,6 +378,7 @@ marge si possible »*, corrigé par Eric le jour même.
 ---
 
 ## 1 ter. 🔴 UNE COTE DE CONTENANT NE S'ÉCRIT PAS — ELLE SE DÉDUIT D'AVANCE
+📍 `budget-contenant-se-deduit` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« **on ne note pas la cote dans le code, mais on doit chercher à la déduire
 > à l'avance** »*.
@@ -369,6 +397,8 @@ La déduction, elle, reste vraie — elle suit la cause.
 autres — c'est la même faute que « constater à l'œil qu'il n'y a pas de conflit ».
 
 ### ⛔ La distinction, elle, ne bouge pas
+📍 `budget-cote-donnee-bat-cote-deduite` · vivante · 26/08
+📍 `budget-un-organe-porte-sa-cote` · vivante · 26/08
 
 | ce qui se DÉDUIT | ce qui reste une COTE ÉCRITE |
 |---|---|
@@ -382,6 +412,7 @@ Et ⭐ **une cote DONNÉE bat toujours une cote DÉDUITE** — si Eric a dit un 
 ---
 
 ## 1 ter bis. 🔴 UN COLLECTEUR ET SON JETON ONT UNE SEULE COTE *(dicté le 29/08)*
+📍 `collecteur-cote` · vivante · 29/08
 
 > Eric, 2026-08-29 : *« taille du collecteur toujours la même que le jeton, partout — règle à
 > faire respecter sur tout le site »*, puis *« règle universelle : **un collecteur = un jeton en
@@ -393,6 +424,8 @@ cadre**, une seule fois, et **les deux organes la lisent** (`--collecteur-case`,
 ne peut pas diverger.
 
 ### ⛔ TROIS FAÇONS DE LA FAIRE DIVERGER — les trois ont été commises, toutes mesurées
+📍 `collecteur-cote-sur-l-ancetre-commun` · vivante · 29/08
+📍 `jeton-un-organe-ne-retrecit-jamais` · vivante · 29/08
 
 | ce qui a été écrit | ce que ça a rendu |
 |---|---|
@@ -414,6 +447,7 @@ nul rend la cote partagée décorative.
 ---
 
 ### ⚠️ La leçon d'« Unseen Servant » *(29/08)* — une cote dictée par un VOISIN n'est pas une cote
+📍 `collecteur-cote-dictee-par-un-voisin` · vivante · 29/08
 
 Mesuré : un jeton à **87×60** contre une case à **87×48**, avec UNE ligne de texte (76×12). Ce
 n'était pas le nom qui poussait — la colonne du **chevron** (flèche + compte, 60 px) étirait le
@@ -425,6 +459,8 @@ jetons côte à côte, un nom qui se replie) vit un niveau plus bas et reste int
 ---
 
 ## 1 ter bis². ✍️ LES MÊMES RÈGLES D'ÉCRITURE POUR LE JETON ET LE COLLECTEUR *(29/08)*
+📍 `collecteur-ecriture-comme-le-jeton` · vivante · 29/08
+📍 `ecriture-capitale-distingue-l-etiquette` · vivante · 26/08
 
 > Eric, 2026-08-29 : *« Norme : **les mêmes règles d'écriture s'appliquent aux tokens et aux
 > collecteurs** »*, et sa raison, donnée juste avant : *« comme les collecteurs se transforment
@@ -452,6 +488,11 @@ déclaration, pas son sauveteur.
 ---
 
 ## 1 ter bis³. 🔗 UN LIEN HORS JETON EST BLEU *(29/08)*
+📍 `ecriture-couleur-du-lien` · vivante · 29/08
+📍 `ecriture-lien-hors-jeton-est-bleu` · vivante · 29/08
+📍 `ecriture-pas-de-soulignement` · vivante · 29/08
+📍 `jeton-texte-en-encre` · vivante · 28/08
+📍 `ecriture-option-soulignage-daltoniens` · à trancher · 29/08
 
 > Eric, 2026-08-29 : *« Règle générale : **liens hors token en bleu**. »* — pour tous les écrans.
 > Et son complément du 28/08 : *« pas besoin de mettre le texte des tokens en bleu, la carac d'un
@@ -490,6 +531,9 @@ complète, pas partielle — et le garde vérifie qu'aucune troisième n'apparai
 ---
 
 ## 1 ter ter. 📐 COMMENT UNE RANGÉE DE COLLECTEURS SE RANGE *(dicté le 29/08)*
+📍 `collecteur-quatre-par-ligne` · vivante · 29/08
+📍 `collecteur-six-caracs-une-ligne` · vivante · 29/08
+📍 `jeton-six-des-sur-une-ligne` · vivante · 29/08
 
 > ⚖️ **PRÉCISION DU 29/08 AU SOIR — « JAMAIS PLUS, JAMAIS MOINS »** (Eric) : les **JETONS** ne
 > dépassent **jamais 3 par ligne** ; les **COLLECTEURS** jamais **4**. Ce sont **deux lois**, pas
@@ -520,6 +564,7 @@ socle plafonne, à l'étroit le quart gagne et **le vide cède, jamais l'organe*
 ---
 
 ## 1 ter quater. 📏 360 EST LA LARGEUR DE RÉFÉRENCE — et la marge cède la dernière *(29/08)*
+📍 `panneau-compatibilite-360` · vivante · 29/08
 
 > Eric : *« on vise toujours la compatibilité avec **360** sur tout le site »* · *« ce que je veux
 > est simple : que ça **tienne toujours en largeur sur 360**, et que les grands écrans soient
@@ -530,6 +575,8 @@ le garde le vérifie — si le banc changeait de largeur en silence, toutes les 
 parleraient d'un autre écran.
 
 ### La gouttière cède si et seulement si un organe ne rentre pas sans elle
+📍 `cadre-marge-cede-la-derniere` · vivante · 29/08
+📍 `cadre-pas-de-width-100-sur-boite-a-marge` · vivante · 29/08
 
 Eric, en deux temps le même jour : *« pour les 360 on se passe de marge, mais faut que ça
 rentre »*, puis *« **si en 360 la marge est possible sans impacter tout le monde, on
@@ -603,11 +650,17 @@ leur propre loi et ne montent sur aucune échelle de type.
 ---
 
 ## 1 quater. 📏 LE BUDGET DE LA PAGE — des cotes VOULUES, jamais écrites dans le code
+📍 `chevron-cout-en-largeur` · vivante · 26/08
+📍 `panneau-jamais-de-defilement` · vivante · 26/08
 
 > ⚠️ **Ces nombres ne sont PAS des jetons CSS et ne doivent pas le devenir** *(§1 ter)*. Ce sont
 > les cotes que la page **doit tenir**, connues **d'avance**, pour dessiner sans se tromper.
 
 ### La cible
+📍 `jeton-la-case-ne-s-etire-pas` · vivante · 26/08
+📍 `jeton-trois-colonnes-toujours` · vivante · 26/08
+📍 `panneau-hauteurs-de-reference` · vivante · 26/08
+📍 `panneau-largeur-cible` · vivante · 26/08
 
 | | |
 |---|---|
@@ -646,6 +699,8 @@ conclusion qui tient sur **553** tient partout ; une conclusion qui n'a besoin q
 fragile.
 
 ### La ceinture (`.belt`)
+📍 `budget-ceinture-deduite` · vivante · 26/08
+📍 `budget-entree-r-sans-ceinture` · vivante · 26/08
 
 | | |
 |---|---|
@@ -655,6 +710,8 @@ fragile.
 | **et elle n'est PAS sur tous les écrans** | ⛔ **Entrée › R n'en a pas** : c'est un **seuil**, pas une étape du parcours à 8 temps. **60 px récupérés.** |
 
 ### 📐 LA TABLE DES HAUTEURS — pour calculer un budget sans rien mesurer
+📍 `budget-table-des-hauteurs` · vivante · 26/08
+📍 `geste-cible-tactile-44` · vivante · 26/08
 
 | la bande | hauteur | d'où elle vient |
 |---|---|---|
@@ -677,6 +734,8 @@ tête.
 **100 px**, toujours, quel que soit l'écran.
 
 ### ⚠️ Le dropdown : la hauteur est juste, le reste est en écart
+📍 `dropdown-habit` · vivante · 26/08
+📍 `dropdown-ecart-avec-le-code` · à trancher · 26/08
 
 | | la norme *(26/08)* | le code aujourd'hui |
 |---|---|---|
@@ -688,6 +747,13 @@ tête.
 ⏳ Trois corrections à faire quand les organes seront refaits. **La hauteur, elle, n'a pas à bouger.**
 
 ### Le budget d'une page de jetons *(les 15, en rangées de 3)*
+📍 `budget-chevrons-non-comptes` · vivante · 26/08
+📍 `budget-page-de-jetons` · vivante · 26/08
+📍 `budget-trois-jetons-a-360` · vivante · 26/08
+📍 `jeton-base-en-tiers-de-rangee` · vivante · 26/08
+📍 `jeton-la-case-cede-en-pagination` · vivante · 26/08
+📍 `budget-dette-de-l-abrege-a-62` · à trancher · 26/08
+📍 `budget-en-trop` · à trancher · 26/08
 
 | bande | px |
 |---|---|
@@ -738,6 +804,7 @@ la ceinture réduite aux numéros (−16) · **les collecteurs (48), qui dispara
 un écran où chaque emplacement porte un nom** *(mesuré sur Species : zéro collecteur)*.
 
 ### Le budget de **Entrée › R**
+📍 `budget-entree-r` · à trancher · 26/08
 
 **≈ 380 sur 553 — il reste 173.** Avec la raison exigée sous chaque porte muette *(§ du cahier
 de R)* : **125** dans le cas le plus étroit. ⭐ **R a de la place**, et la conclusion tient sur les
@@ -750,6 +817,7 @@ trois portes, dont la forme n'est pas tranchée. **Il ne peut que descendre.**
 ---
 
 ## 1 quinquies. 🔴 LE TITRE EST UN NOM DE SECOURS, PAS UN NOM PAR DÉFAUT
+📍 `budget-titre-de-secours` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« le seuil a un titre **quand un autre objet ne le désigne pas** : exemple
 > équipement, où le tambour désigne. »*
@@ -774,6 +842,7 @@ de ceinture, **le titre n'est pas du gras : c'est la seule chose qui dise où on
 ---
 
 ## 1 quinquies bis. 🔴 LE CADRE D'ÉCRAN NE PORTE NI FOND, NI LISERÉ, NI REMBOURRAGE *(26/08)*
+📍 `cadre-cadre-d-ecran-nu` · vivante · 26/08
 
 > Eric, 2026-08-26, en regardant v298 servie : **« le cadre en blanc pourquoi ? derrière la dalle
 > que fait-il là ? »**
@@ -800,6 +869,8 @@ confiance de l'avoir appliquée.
 ---
 
 ## 1 sexies. ✅ LE SEUIL — sa sortie et son défilement *(tranché 26/08)*
+📍 `cadre-seuil-est-un-fs` · vivante · 26/08
+📍 `geste-seuil-defile` · vivante · 26/08
 
 > Eric : *« la première fenêtre qui amène sur FH Web propose d'ouvrir **une autre fenêtre** vers le
 > site. **Le titre est la sortie = économie d'espace, donc OK.** Je pense que cette fenêtre doit
@@ -818,6 +889,7 @@ une règle sur FH Web **ne perd pas** son personnage à moitié créé : il revi
 resté vivant. ⛔ Une sortie qui navigue aurait rendu le titre dangereux au lieu d'utile.
 
 ### ✅ L'ORDRE DES BLOCS DU SEUIL — tranché 26/08, option ②
+📍 `cadre-seuil-ordre-des-blocs` · vivante · 26/08
 
 | # | le bloc | |
 |---|---|---|
@@ -846,6 +918,8 @@ donc **les deux refus tombent au MILIEU de l'écran**, pas à la fin. C'est le b
 avant de figer.
 
 ### 🔴 CE QUE LE DÉFILEMENT DU SEUIL IMPOSE
+📍 `aide-bas-a-droite` · vivante · 26/08
+📍 `geste-un-ecran-qui-defile-a-trois-bandes` · vivante · 26/08
 
 Le Seuil est **l'exception** à *« la page ne défile jamais »* — et il l'est parce qu'il n'est pas
 une page de travail : c'est **un vestibule**, dont le contenu grandit *(des personnages, des
@@ -863,6 +937,7 @@ campagnes)* sans qu'aucun compte n'ait à se lire d'un coup d'œil.
 ne porte pas les organes fixes.** Deux couches — **le flux**, et **ce qui reste**.
 
 ### ✅ LE DRESSING défile aussi *(Eric, 26/08 — « un dressing qui scrolle, des boutons fixes »)*
+📍 `geste-dressing-defile` · vivante · 26/08
 
 **`Équipement › B3`** est le **second** écran à défiler, et il applique la même loi :
 
@@ -896,6 +971,7 @@ de la ligne de flottaison** n'est pas tranché.
 ---
 
 ## 2. LES ORGANES — forme ET remplissage
+📍 `jeton-forme` · vivante · 26/08
 
 > 🔴 **UN ORGANE SE RECONNAÎT À SA FORME, PAS À SA COULEUR.** C'est la loi qui gouverne toute
 > cette section : la couleur peut changer *(elle porte l'état, §6)*, **la forme ne change jamais**.
@@ -911,6 +987,7 @@ de la ligne de flottaison** n'est pas tranché.
 | **collecteur** | comme le jeton | 🔴 **vide : creux, tireté · REMPLI : l'habit du jeton** *(voir §2 ter)* | — |
 
 ### 🔴 2 ter — LE COLLECTEUR : LE FOND DIT CE QU'IL PORTE, LE LISERÉ DIT SON ÉTAT
+📍 `collecteur-relief-remplace-le-creux` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« rempli prend le **doré ET LE RELIEF** du jeton, juste un **liseré bleu**
 > autour pour rappeler que c'est un collecteur »*, puis : *« ce même liseré peut appliquer **les
@@ -956,6 +1033,15 @@ pas dans un écran. Témoins mesurés avant/après : *Gender* (une case, un choi
 ---
 
 #### ✅ TROIS PRÉCISIONS DU 26/08 — *« règle générale pour tout le site »*
+📍 `collecteur-deux-canaux` · vivante · 26/08
+📍 `collecteur-drop-it-here` · vivante · 26/08
+📍 `collecteur-equipement-44` · vivante · 26/08
+📍 `collecteur-lisere-2px` · vivante · 26/08
+📍 `collecteur-lisere-entoure-ne-recouvre-pas` · vivante · 26/08
+📍 `collecteur-lisere-etats` · vivante · 26/08
+📍 `collecteur-rempli-prend-l-habit-du-jeton` · vivante · 26/08
+📍 `collecteur-vide-est-creux-et-sans-lisere` · vivante · 26/08
+📍 `ecriture-italique-dit-pas-une-donnee` · vivante · 26/08
 
 > Eric : *« le collecteur doit **doubler son épaisseur** de liseré, trop fin pas assez visible »* ·
 > *« on voit bien le liseré quand il est rempli, **ton pointillé sert à rien** »* ·
@@ -1036,6 +1122,10 @@ pas cette cote.
 ---
 
 ### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
+📍 `bouton-octogone` · vivante · 26/08
+📍 `interrupteur-deux-especes` · vivante · 26/08
+📍 `popup-parle-on-ne-l-appuie-pas` · vivante · 26/08
+📍 `voyant-non-cliquable` · vivante · 26/08
 
 | organe | forme | ce qui le distingue | où il est décrit |
 |---|---|---|---|
@@ -1060,6 +1150,8 @@ ne signale rien)*. ➡️ **Un organe qui n'emprunte pas à l'échelle ne peut p
 jeton, quelle que soit la couleur.
 
 ### 🔴 LES QUATRE PANS COUPÉS PORTENT L'ARÊTE — rouvert et tranché 02/09
+📍 `bouton-pans-coupes-nus` · vivante · 26/08
+📍 `collecteur-zone-de-drop` · vivante · 26/08
 
 > Eric, 2026-09-02 : **« le relief est mal fait, tous les boutons octogonaux ont ce problème »**.
 
@@ -1089,11 +1181,15 @@ ce qu'elle accepte avant qu'on lâche.
 ---
 
 ## 2 bis. ✅ LE JETON AUJOURD'HUI : LA COULEUR DE BASE ET LE RELIEF — RIEN D'AUTRE
+📍 `jeton-standard-d-abreviations` · à trancher · 26/08
 
 > Eric, 2026-08-26, sur les variantes, l'échelle de valeur du liseré et ce que porte le fond :
 > **« on ne fait rien pour le moment, juste la couleur de base et le relief »**.
 
 ### 🔴 ⛔ IL N'Y A PAS DE VARIANTES DE JETON — tranché 26/08
+📍 `jeton-habit` · vivante · 26/08
+📍 `jeton-modele-unique` · vivante · 26/08
+📍 `jeton-forme-du-craft` · à trancher · 26/08
 
 > Eric, 2026-08-26 : **« il n'y a pas de variantes de jetons (juste une exception : les jetons
 > craft) »**.
@@ -1135,6 +1231,8 @@ c'est le vocabulaire des abrégés qui manque)* et la **forme du jeton craft**.
 **n'engage aucun choix futur**.
 
 ### ✅ LE CORPS DU JETON EST **T1** — tranché 26/08, appliqué le 26/08
+📍 `jeton-corps-t1` · vivante · 26/08
+📍 `jeton-specificite-du-corps` · vivante · 26/08
 
 > Eric, 2026-08-26, à la question *« T1 ou T2 dans le jeton ? »* : **« 13 T1 on aura moins
 > d'enmerdes on jugera apres coup »**. *(Le « 13 » était le numéro de la question dans une liste,
@@ -1173,6 +1271,8 @@ la langue par défaut du Seuil.
 | ⛔ **un compte de caractères n'est pas une largeur** | `supplémentaires` fait **15** car. et **80** px — il sort ; `Prestidigitation` en fait **16** et **73** — il tient. **Aucun seuil en caractères ne sépare ces deux-là** ; le repli (`overflow-wrap: break-word`) rattrape le cas, la case garde ses 48 px |
 
 ### ✅ LA CASE DE LA GRILLE **EST** UN JETON — tranché 26/08
+📍 `jeton-case-de-grille-est-un-jeton` · vivante · 26/08
+📍 `jeton-case-de-grille-habit-non-tranche` · à trancher · 26/08
 
 > Eric, 2026-08-26 : **« c'est un jeton — aligne-la sur T1 »**.
 
@@ -1194,6 +1294,9 @@ Eric a tranché **le CORPS**, pas l'habit complet. ⛔ Ne pas aligner le reste s
 ---
 
 ### ✅ LA TAILLE STANDARD — **le token ET son collecteur**, ratifié 26/08
+📍 `jeton-bonus-token` · vivante · 26/08
+📍 `jeton-cote` · vivante · 26/08
+📍 `jeton-deux-lecteurs-un-jeton-de-mesure` · vivante · 26/08
 
 > Eric, 2026-08-26, en quatre messages successifs :
 > **« les +1 / +2 / +x sont des tokens »** · **« on va les appeler des BONUS TOKENS, taille
@@ -1325,6 +1428,8 @@ d'Eric — pas la conséquence d'avoir écrit la loi.
 ---
 
 ### 🔒 LES JETONS ET LES BOUTONS SONT **SACRÉS** — 26/08
+📍 `budget-les-vides-cedent` · vivante · 26/08
+📍 `jeton-sacre` · vivante · 26/08
 
 > Eric, 2026-08-26, au milieu d'une chasse aux pixels : **« les jetons et les boutons
 > sont sacrés »** · **« on les laisse en paix »**.
@@ -1534,6 +1639,7 @@ pas une conséquence — voir la dette ouverte au bas de ce fichier.
 ---
 
 ### ⚖️ LES EXCEPTIONS EXISTENT, ET ELLES S'ARGUMENTENT — 26/08
+📍 `jeton-exceptions-nommees` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« il y aura des exceptions pour tokens et collecteurs, mais ils doivent être
 > argumentés. Notamment pour les augmentations des caractéristiques, ou les ability rolls. »**
@@ -1556,6 +1662,9 @@ seulement *« ici c'est différent »* n'est pas argumentée, c'est un écart.
 ---
 
 ### ✅ TROIS MAX POUR UNE **SÉLECTION** — les collecteurs, eux, sont libres *(26/08)*
+📍 `collecteur-rangee-libre-en-nombre` · vivante · 26/08
+📍 `jeton-jamais-de-base-en-pourcentage` · vivante · 26/08
+📍 `jeton-trois-par-ligne` · vivante · 26/08
 
 > Eric, 2026-08-26, la mesure sous les yeux : **« oui, 4 collecteurs à côté sur une ligne on peut ;
 > mais pas une SÉLECTION de 4 tokens, là c'est 3 max »**.
@@ -1586,6 +1695,9 @@ unique.** Six mesures sur le même objet restent une mesure.
 ---
 
 ### ✅ LE SEUIL D'ABRÉVIATION SUIT LE CORPS — **16**, ratifié 26/08
+📍 `jeton-abrege-16` · vivante · 26/08
+📍 `jeton-un-compte-n-est-pas-une-largeur` · vivante · 26/08
+📍 `socle-une-norme-qui-ne-vit-que-dans-un-document-n-existe-pas` · vivante · 26/08
 
 > Eric, 2026-08-26, les deux options chiffrées devant lui : **« 16 — garde ce que tu as fait »**.
 
@@ -1615,6 +1727,8 @@ pas* — celle-ci ne vivait même pas là.
 ---
 
 ## 3. 🔴 LE BOUTON EST OPAQUE — mesuré, pas préféré
+📍 `bouton-opaque` · vivante · 26/08
+📍 `socle-une-dette-recopiee-n-est-pas-une-dette-verifiee` · vivante · 26/08
 
 | le bouton sur une dalle *(mesuré à 35 %, avant la norme du 26/08 — ⏳ à remesurer sur 50)* | cumulé | étiquette jour | étiquette nuit |
 |---|---|---|---|
@@ -1634,6 +1748,7 @@ patron octogone à deux étages, exactement comme `.parcours-item-porte` et `.pa
 parce que personne n'avait refait la mesure.
 
 ### ✅ L'OMBRE DU BOUTON DEVIENT UNE LUEUR LA NUIT — tranché 26/08
+📍 `bouton-ombre-devient-lueur-la-nuit` · vivante · 26/08
 
 > Eric, 2026-08-26, la mesure posée devant lui : **« une lueur claire la nuit »**.
 
@@ -1659,6 +1774,7 @@ nuit — même teinte, deux forces, parce que la marge n'est pas la même. Ici o
 ---
 
 ## 4. LES VOILES — et la loi qui les gouverne
+📍 `cadre-voile-du-fond` · vivante · 26/08
 
 > 🔴 **LA NORME DU SITE, RATIFIÉE LE 2026-08-26 devant la page déployée** — Eric, après avoir
 > regardé v299 : *« voilà c'est ça la norme du site en terme de transparence : **50 %** (c'est pas
@@ -1672,6 +1788,12 @@ nuit — même teinte, deux forces, parce que la marge n'est pas la même. Ici o
 | **100 %** | le **bouton**, et lui seul |
 
 ### 🔴 UNE RÈGLE ÉCRITE PAR **RESSEMBLANCE** DOIT NOMMER SA SOURCE, JAMAIS RECOPIER SA VALEUR
+📍 `cadre-jamais-deux-voiles-empiles` · vivante · 26/08
+📍 `cadre-modele-a-copier` · vivante · 26/08
+📍 `cadre-regle-par-ressemblance-nomme-sa-source` · vivante · 26/08
+📍 `cadre-voile-de-la-dalle` · vivante · 26/08
+📍 `cadre-voile-des-blocs-interieurs` · vivante · 26/08
+📍 `socle-corriger-l-objet-d-apres-le-document` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« Identity n'a pas sa transparence ni ses boutons »**.
 
@@ -1732,6 +1854,11 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 ---
 
 ## 5. LES LISTES
+📍 `liste-ordre-vertical` · vivante · 26/08
+📍 `liste-pagination-jamais-defilement` · vivante · 26/08
+📍 `liste-quinze-est-un-defaut` · vivante · 26/08
+📍 `liste-quinze-par-page` · vivante · 26/08
+📍 `liste-set-incomplet-se-centre` · vivante · 26/08
 
 | | |
 |---|---|
@@ -1744,6 +1871,10 @@ cumulés). ⛔ 48 % **n'est pas** le barreau « 50 » — deux mécaniques diff�
 | **cible** | tout tient sur un **iPhone SE** |
 
 ### 🔴 SA PORTÉE : LE SITE ENTIER — et elle n'est appliquée que dans UN chapitre
+📍 `liste-pagination-a-porter-aux-huit-autres` · vivante · 26/08
+📍 `liste-portee-site-entier` · vivante · 23/08
+📍 `liste-trois-par-rangee-etait-un-accident` · vivante · 26/08
+📍 `liste-un-seul-organe-pagine` · vivante · 26/08
 
 > Eric, **2026-08-23** : *« il faudra normaliser **l'ensemble du site** sur 15 items glissables max
 > … donc pour la liste des sorts niveau 1 on fera ça, pour les maîtrises idem »*.
@@ -1776,6 +1907,7 @@ listes *(sorts niveau 1 : 4 pages · outils : 2 · dons : 2 · compétences : 2 
 et quatre listes tiennent déjà sur une page)*.
 
 ### ⚠️ LE 15 VIT À DEUX ENDROITS, ET C'EST UNE DETTE MESURÉE
+📍 `liste-quinze-vit-a-deux-endroits` · à trancher · 26/08
 
 | où | ce qui est écrit |
 |---|---|
@@ -1786,6 +1918,7 @@ et quatre listes tiennent déjà sur une page)*.
 grille qui en réserve 15, ou l'inverse. ⏳ Aucun garde ne les tient d'accord.
 
 ### ⏳ CE QUI N'EST TOUJOURS PAS TRANCHÉ
+📍 `liste-etagere-trop-grosse` · à trancher · ?
 
 | | |
 |---|---|
@@ -1797,6 +1930,10 @@ case »* — `ABREGE_MAX = 16` *(§2 bis)* — et les flèches à une seule page
 ---
 
 ### ✅ UNE SEULE PAGE N'A PAS DE FLÈCHES — tranché 26/08
+📍 `liste-exception-etat-d-attente-equipement` · vivante · 26/08
+📍 `liste-jamais-display-none` · vivante · 26/08
+📍 `liste-pages-sans-plafond` · vivante · 26/08
+📍 `liste-une-seule-page-pas-de-fleches` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« quand il y a 3 tokens, on n'affiche que 3 tokens, pas besoin de flèches
 > ni de titre s'il est déjà présent »**.
@@ -1838,6 +1975,8 @@ explicitement, et le garde reste muet. Ce qu'il interdit, c'est de **recopier le
 ---
 
 ## 4 ter. 📐 LE GABARIT DU RANG **B** — le menu d'une étape *(dicté par Eric, 27/08)*
+📍 `bouton-la-paire-encadre-la-rangee` · vivante · 26/08
+📍 `budget-gabarit-b-non-negociable` · vivante · 27/08
 
 > Eric, 2026-08-27 : **« note bien aussi toutes les cotes de ce niveau B : tout Species va en
 > hériter »** · **« et potentiellement Classes aussi »** · **« c'est proof of concept À METTRE À
@@ -1858,6 +1997,7 @@ menu d'étape. Il sert **déjà** trois étapes : **Species** *(les 12 espèces)
 **Class**. Une cote posée ici est posée quinze fois.
 
 ### L'ordre vertical, et les écarts *(mesurés à 375 × 553, iPhone SE)*
+📍 `budget-gabarit-du-rang-b` · à trancher · 27/08
 
 | | bloc | cote |
 |---|---|---|
@@ -1883,6 +2023,7 @@ ceux du bas où ils sont »*. 📏 **Mesuré : 78 px au départ, 184 à l'arriv�
 | **la fenêtre** | elle **défile**, elle ne se tronque pas *(§5 bis)* |
 
 ### 📌 Les postes qui ont payé, et où les reprendre
+📍 `budget-deux-marges-qui-s-additionnent` · vivante · 27/08
 
 | poste | avant | après | ce qu'il était |
 |---|---|---|---|
@@ -1898,6 +2039,11 @@ marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne 
 ---
 
 ## 4 quater. 📐 LA CARTE DU RANG R EST UN DESSIN PROPORTIONNEL *(dicté au banc, 27/08)*
+📍 `panneau-homothetie-u-retiree` · remplacée · 30/08
+📍 `panneau-plafond-u-leve` · remplacée · 30/08
+📍 `budget-carte-r-est-un-dessin` · vivante · 27/08
+📍 `budget-carte-r-hauteur` · vivante · 30/08
+📍 `budget-pas-de-seconde-echelle` · vivante · 30/08
 
 > Eric, 2026-08-27, une séance entière en direct : **« je voudrais que les blocs gardent leurs
 > proportions d'un écran à l'autre »** · **« stabiliser tout ça d'un appareil à l'autre »** ·
@@ -1945,6 +2091,8 @@ cran, aucun cran neuf n'a été ajouté. ⭐ La boîte du blurb reste **HUIT LIG
 en lignes, donc elle descend avec le corps (8 × 12) et rend ses 9,6 blg au bloc 1.
 
 ### Le format du contenu — les cotes du condensé
+📍 `ecriture-condense-de-la-carte-r` · vivante · 27/08
+📍 `ecriture-nom-court-sans-prefixe-generique` · vivante · 27/08
 
 | boîte | cote | source |
 |---|---|---|
@@ -1954,6 +2102,7 @@ en lignes, donc elle descend avec le corps (8 × 12) et rend ses 9,6 blg au bloc
 | **abréviations ratifiées** | **ADV** (advantage) · **SV** (saves) | *« saves pourrait s'écrire SV, advantage ADV »* |
 
 ### Le paysage, dernier réglage d'Eric
+📍 `budget-paysage-de-la-carte-r` · vivante · 27/08
 
 `220 (image) | bloc 1 | 200 (texte) | 16 (respiration)` — *« une symétrie entre la largeur du blurb
 et le png »* puis *« rapetisser un peu le blurb, agrandir un peu le barbare »*. Image **220 × 340**,
@@ -1962,6 +2111,7 @@ tiennent). Interligne **unique 1,2** sur tout le bloc 1 (*« espacement pas homo
 chelou »*).
 
 ### 🔦 Le halo du scrollspy
+📍 `budget-halo-du-scrollspy` · vivante · 27/08
 
 > Eric : *« le scrollspy n'est pas assez visible — un halo de luminance autour de Elf dans les
 > tuiles à gauche »*, puis *« pas mal mais un peu moins large »*.
@@ -1970,6 +2120,8 @@ Jeton **`--spy-halo`**, un par thème : **lueur blanche la nuit, encre le jour**
 parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current="true"]` du rail.
 
 ### ⛔ Deux pièges de géométrie, payés le jour même
+📍 `budget-rangee-vide-garde-ses-gouttieres` · vivante · 27/08
+📍 `budget-une-regle-d-habit-se-borne-a-son-media` · vivante · 27/08
 
 | piège | ce qui s'est passé |
 |---|---|
@@ -2293,12 +2445,14 @@ les nœuds rendus a coûté deux passes le 15 août ; un sélecteur par GENRE (`
 ---
 
 ## 4 quinquies. 📐 LE SOUS-ÉCRAN (SB) ET LE BILAN DU B *(dictés au banc, nuit du 27/08)*
+📍 `budget-gabarit-du-sb` · vivante · 27/08
 
 > Eric : **« en SB lineage : le texte doit être dans une fenêtre scroll »** · **« il faut une
 > place pour l'aiguilleur sous la fenêtre »** · **« une harmonie de principe B, SB1 et SB2 »** ·
 > **« c'est le scroll qui récupère le rab »**.
 
 ### Le gabarit du SB — le squelette du B, transposé
+📍 `budget-sb-ancienne-consigne-degagee` · remplacée · 27/08
 
 | bloc | cote |
 |---|---|
@@ -2313,6 +2467,7 @@ de guidage du SB. ⛔ **La saignée d'avant-pied aussi** : le B n'a pas de trait
 17 px pour un gabarit à 12.
 
 ### Le bilan du B parle en MODE TEXTE
+📍 `ecriture-bilan-en-mode-texte` · vivante · 27/08
 
 > Eric : **« si on met tout en mode texte : "High Elf Lineage" · "Skill budget" · en dessous les
 > niveaux — Delve novice (en italique), Survival novice (en italique) »**.
@@ -2323,6 +2478,7 @@ de guidage du SB. ⛔ **La saignée d'avant-pied aussi** : le B n'a pas de trait
 | la bourse | **Skill budget**, nu — le « spent » de la porte n'a plus rien à dire | *Delve novice, Survival novice* — **une ligne, en italique**, chaque skill étant un lien |
 
 ### La mise en mots d'un lignage — UNE source, trois consommateurs
+📍 `ecriture-une-source-trois-consommateurs` · vivante · 27/08
 
 > Eric : **« At level 1 : the range of your darkvision… / At subsequent levels you gain spells : /
 > level 3 : Faerie Fire (lien) / level 5 : Darkness (lien) »** — et il y tient : *« je tiens à
@@ -2457,6 +2613,12 @@ d'une lignée à l'autre** — puis exige de ces noms-là l'absence du bloc acco
 servie au SB.
 
 ### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
+📍 `ecriture-ancre-avant-lien` · vivante · 30/08
+📍 `ecriture-lien-en-phrase-se-note` · vivante · 29/08
+📍 `ecriture-loi-des-liens` · vivante · 30/08
+📍 `ecriture-pas-de-faux-lien` · vivante · 30/08
+📍 `geste-tap-info-clic-droit-info` · vivante · ?
+📍 `ecriture-mode-srd-non-cable` · à trancher · 30/08
 
 > ⚖️ **LA LOI-MÈRE, dictée le 2026-08-30** — Eric : *« Règle générale, partout dans le builder,
 > dans FH web, dans la future fiche de perso : dès qu'un **skill, feat, trait, feature, spell,
@@ -2500,6 +2662,10 @@ Les cas réels se comptent (deux sur 35 phrases de bilan) et vivent dans `LIENS_
 ---
 
 ## 5 bis. 🔴 LE DÉFILEMENT INTERNE — autorisé, et à UNE seule condition
+📍 `geste-deux-gardes-fous-du-defilement-interne` · vivante · 26/08
+📍 `geste-la-page-ne-defile-jamais` · vivante · 26/08
+📍 `geste-la-prose-defile-les-controles-non` · vivante · 26/08
+📍 `chevron-sur-une-zone-de-prose` · à trancher · 26/08
 
 > Eric, 2026-08-26 : *« quand on a un long bloc de texte, comme celui pour la description des
 > inheritances, je voudrais un **scrollable interne — pas la dalle, mais uniquement la ZONE DE
@@ -2884,6 +3050,9 @@ l'était pour §6 pré.
 ---
 
 ## 6. LES BOUTONS
+📍 `bouton-gabarit-est-un-compte-de-caracteres` · vivante · 26/08
+📍 `bouton-large-renomme-medium` · vivante · 26/08
+📍 `bouton-trois-gabarits` · vivante · 26/08
 
 | gabarit | capacité | sa largeur |
 |---|---|---|
@@ -2909,6 +3078,8 @@ pour un bouton** — `.species-done` porte `font: inherit`. Tant que le corps d'
 nommé *(T-quoi ?)*, **les largeurs de `small` et `medium` ne sont pas calculables.** ⏳ À trancher.
 
 ### 📐 LES COTES DES BOUTONS — extrapolées le 26/08
+📍 `bouton-meme-largeur-par-ligne` · vivante · 26/08
+📍 `bouton-cotes-extrapolees` · à trancher · 26/08
 
 > ⚠️ **EXTRAPOLATION, pas mesure.** Elle repose sur un ratio de **0,58 em par caractère**
 > *(semi-gras, casse mixte)*. 🔴 **À vérifier au navigateur sans écran** *(§0)* avant d'être gravée.
@@ -2929,6 +3100,7 @@ jetons partagent une seule grille**, et une bande de boutons s'aligne sous une r
 sans réglage.
 
 ### Le corps du texte
+📍 `bouton-corps-du-texte` · à trancher · 26/08
 
 | gabarit | à **T3** (14) | à **T4** (16) |
 |---|---|---|
@@ -2940,6 +3112,7 @@ gabarits**. ⚠️ À T4, `medium` n'a plus que 8 px — **un mot un peu large d
 se verrait que sur ce gabarit-là.
 
 ### La hauteur
+📍 `bouton-hauteur` · vivante · 26/08
 
 | | |
 |---|---|
@@ -2977,6 +3150,7 @@ Position : **en bas de page, centrés**. 🔴 **Même largeur pour tous les bout
 | **`+` / `−`** | **`+` vert · `−` rouge** — 🔴 **carré OU petit cercle** *(Eric, 26/08)* |
 
 ### 🔴 LES QUATRE COULEURS SONT UNE ÉCHELLE D'AVANCEMENT *(tranché 26/08)*
+📍 `bouton-echelle-des-quatre-couleurs` · vivante · 26/08
 
 > Eric : *« le bleu on garde, ce sont les actions sous les états intermédiaires. **Un bouton va
 > passer de bleu à vert voire à rouge** dans les zones de choix — quand on prend +4 alors qu'on a
@@ -3004,6 +3178,8 @@ FINI**, **`next` est BLEU parce qu'on CONTINUE**. Ce ne sont pas deux convention
 c'est **l'échelle elle-même**, et c'est elle qui a tranché.
 
 ### 🔴 LE LIBELLÉ ET LA COULEUR SONT DEUX AXES INDÉPENDANTS
+📍 `bouton-deux-axes` · vivante · 26/08
+📍 `bouton-jamais-de-couleur-dans-le-balisage` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« **mais un même bouton peut changer de couleur, à voir dans l'acte** »*.
 
@@ -3060,6 +3236,7 @@ teinte déduite du mot) — ⛔ plus la forme de la ternaire, qu'il épelait ava
 rougir sur cette réparation même.
 
 ### 🔴 LA FAMILLE « DÉFAIRE » — rouge, toujours, quel que soit l'état
+📍 `bouton-famille-defaire` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« le **cancel** est rouge »* · *« **j'ai changé d'avis** est rouge »*.
 
@@ -3074,6 +3251,8 @@ FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défa
 pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
 
 ### 🔴 LES TROIS VERBES DE LA RANGÉE — la définition d'Eric, mot pour mot *(26/08)*
+📍 `bouton-back-dans-les-sous-menus-seulement` · vivante · 26/08
+📍 `bouton-done-et-next-jamais-ensemble` · vivante · 26/08
 
 > Eric, 2026-08-26, en trois lignes :
 > **« `Done` valide les choix · `I changed my mind` les annule · `Next` : navigation »**
@@ -3113,6 +3292,9 @@ ouverte dans tous les états, celle qui défait. Elle reste rouge dans les deux
 ---
 
 ### 🔴 LA LOI DE LA PORTE — voyant et texte disent la MÊME chose *(27/08)*
+📍 `bouton-gabarit-des-deux-lignes` · vivante · 27/08
+📍 `bouton-loi-de-la-porte` · vivante · 27/08
+📍 `bouton-resolution-n-est-pas-toujours-un-nom` · vivante · 27/08
 
 > Eric, 2026-08-27, en deux lignes :
 > **« condition remplie → voyant vert / texte de RÉSOLUTION »**
@@ -3152,6 +3334,8 @@ porte **disparaît** et c'est le résumé qui parle *(§ « soit la porte, soit 
 ---
 
 ### 🚨 LE VERROU, LE GENDARME, ET LES BOUTONS BLOQUÉS *(dicté au banc, nuit du 27/08)*
+📍 `bouton-tete-de-bilan-redevient-une-porte` · vivante · 27/08
+📍 `bouton-verrou` · vivante · 27/08
 
 > Eric, devant le cas réel (un budget à 3 points pour 2, conclu avant le correctif) :
 > **« tu peux bloquer le Next et faire parler le gendarme en rouge à la place de l'aiguilleur »** ·
@@ -3185,6 +3369,7 @@ réponse.** Le compte d'une bourse est EXACT (`===`), et un plan verrouillé n'e
 et l'item fautif) ; `renderGuideSpecifique` fait le reste. Gardes : `tests/budget-verrou.test.mjs`.
 
 ### ✅ `I changed my mind` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
+📍 `bouton-i-changed-my-mind-jamais-seul` · vivante · 26/08
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
 > côté de I changed my mind »**.
@@ -3214,6 +3399,7 @@ exigeant un `if/else` complet.
 pour ce qui **détruit du travail déjà fait** — là, elle suit **l'acte**, et elle prévient.
 
 ### ⭐ LE CRITÈRE : ce n'est pas le MOT, c'est ce que le geste COÛTE
+📍 `bouton-critere-du-cout` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« un bouton **back** sera bleu je pense, **s'il n'impacte rien** »*.
 
@@ -3231,6 +3417,7 @@ il ne s'applique simplement plus à `Back`, mais **au choix du LIBELLÉ**.
 bouton **détruit** — et « détruit » se mesure au **travail perdu**, pas au vocabulaire du libellé.
 
 ### ⭐ LA DÉFINITION DU BLEU, en trois mots
+📍 `bouton-definition-du-bleu` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« bleu = mouvement non impactant »**.
 
@@ -3246,6 +3433,8 @@ avec popup.
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 
 ### 🔴 LES TROIS VERBES — chaque famille de boutons en porte UN
+📍 `bouton-done-signe` · vivante · 26/08
+📍 `bouton-trois-verbes` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« back et next = **navigation** uniquement »* · **« done = validation »**.
 
@@ -3270,6 +3459,7 @@ la… »*.
 **sur une intention**. ⛔ Un commentaire de code dit comment ça marche, **pas ce que ça veut dire**.
 
 ### 🔴 `BACK` ET `NEXT` NE FONT QUE NAVIGUER — c'est une définition, pas une couleur
+📍 `bouton-back-next-n-ecrivent-jamais` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« back et next = navigation uniquement »**.
 
@@ -3298,6 +3488,7 @@ coût est un bouton mal nommé.
 mécaniquement, et ça vaut mieux qu'une relecture.
 
 ### ✅ `BACK` ET `DONE` PRENNENT LEUR COULEUR — le 26/08 renverse le 17/08
+📍 `bouton-back-bleu-done-vert` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« back bleu, done vert »**.
 
@@ -3320,6 +3511,7 @@ tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleur
 pourquoi elle avait été écrite avant de la retirer.
 
 ### ✅ LE GRIS EST `--text-muted`, ET UN `DONE` INACHEVÉ EST GRIS *(tranché 26/08)*
+📍 `bouton-done-gris-inacheve` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« gris c'est mieux, **le bleu impliquerait un mouvement** »*.
 
@@ -3342,6 +3534,7 @@ d'être illisible »* : **le joueur doit pouvoir lire ce qu'il n'a pas encore fa
 cinq teintes.
 
 ### 🟣 Le rouge peut être accompagné
+📍 `bouton-rouge-signale-violet-explique` · vivante · ?
 
 > Eric : *« le rouge c'est pas bon — **tu peux me mettre un flic en même temps** »*.
 
@@ -3351,6 +3544,7 @@ place ; le gendarme prend la parole et coûte une interruption. **Le rouge signa
 explique.**
 
 ### ✅ QUAND LE GENDARME PARLE — tranché 26/08
+📍 `bouton-gendarme-quand-ca-bloque` · vivante · 26/08
 
 > Eric : *« le gendarme **quand ça risque de bloquer**, pas tout rouge je pense »*.
 
@@ -3372,6 +3566,7 @@ C'est vérifiable — le juge qui décide « on peut avancer » est le même qui
 parle ».
 
 ### 🔴 L'INTERRUPTEUR — un organe à part entière *(tranché 26/08)*
+📍 `interrupteur-n-est-pas-un-bouton` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« les boutons on/off, il y en a plein dans le menu »* · **« on/off
 > interrupteur, oui »**.
@@ -3388,6 +3583,7 @@ D'AVANCEMENT** — gris, bleu, vert, rouge — et **un interrupteur ne la parcou
 se règle donc **par la FORME**, exactement comme la coupe d'angle distingue le bouton du jeton.
 
 ### 🔴 DEUX ESPÈCES D'INTERRUPTEUR — et une seule pose une question
+📍 `interrupteur-trois-sens-du-vert` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« certains s'allument et **conditionnent l'éteinte de l'autre** : langues,
 > impérial/métrique »*.
@@ -3406,6 +3602,8 @@ dans `shell.css:792` :
 Le bloc porte son titre : **« LES LIGNES À BASCULE — un état, pas deux actions »**.
 
 ### 🔴 SA RÈGLE DE DESSIN — ⛔ AUCUNE COULEUR
+📍 `interrupteur-dessine-jamais-un-glyphe` · vivante · 26/08
+📍 `interrupteur-selecteur-sans-couleur` · vivante · 17/08
 
 > `shell.css:803` : *« ⚠️ **AUCUNE COULEUR NON PLUS ICI** : l'allumé se dit par la **POSITION du
 > pouce** et par l'**encre pleine**, l'éteint par une encre sourde. **Deux canaux, pas un** — et
@@ -3426,6 +3624,7 @@ qu'il n'apparaisse.
 | son écrivain unique | `markPressed`, tenu par `tests/aria-pressed-guard.test.mjs` |
 
 ### ✅ LA BASCULE SIMPLE GARDE SON BOUTON — tranché 26/08
+📍 `interrupteur-bascule-simple` · vivante · 26/08
 
 > Eric, 26/08, sur le choix entre la ligne à bascule et le bouton : **« bouton On/Off (19/08,
 > 72 × 44, liseré vert) »**, puis, l'objection du vert posée : **« a »** — *on l'assume*.
@@ -3453,6 +3652,7 @@ l'un des deux** : le **PORTEUR** diffère, comme pour le rouge du gendarme.
 d'un bouton de parcours.** Ce sont deux mécaniques distinctes qui rendent la même teinte.
 
 ### ✅ LE TROISIÈME SENS DU VERT — la pastille de coffre *(tranché 26/08)*
+📍 `cadre-pastille-de-coffre` · vivante · 26/08
 
 > Eric, 2026-08-26, les trois formes rendues devant lui : **« C — la pastille et la date »**.
 
@@ -3502,6 +3702,8 @@ et c'est cette divergence qui les rend reconnaissables :
 ---
 
 #### 🚪 LES DEUX BOUTONS DE MENU DE CRÉATION *(Eric, 27/08)*
+📍 `bouton-porte-a-deux-ages` · vivante · 27/08
+📍 `bouton-troisieme-age-est-l-absence` · vivante · 27/08
 
 > **« nouvelles normes aussi pour les boutons de menus de création : bouton de PROPOSITION /
 > bouton de RÉSOLUTION »**
@@ -3549,6 +3751,7 @@ une seule règle portant `border: 1px solid var(--critical)`. **Le `+` était ro
 ---
 
 ### 🔴 LE QUATRIÈME GABARIT — `+` et `−`
+📍 `bouton-plus-moins` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« les boutons + et − peuvent être dans des petits cercles (+ vert) (− rouge) »*
 > · **« ce sont des boutons »**.
@@ -3566,6 +3769,10 @@ une seule règle portant `border: 1px solid var(--critical)`. **Le `+` était ro
 dimensionner par son dessin : le rond peut faire 24 px, **sa cible en fait 44**.
 
 ### 🔴 LE VOYANT D'AVANCEMENT — c'est le CRAN DE LA CEINTURE *(tranché 26/08)*
+📍 `voyant-anneau-vs-disque` · vivante · 19/08
+📍 `voyant-est-le-cran-de-la-ceinture` · vivante · 26/08
+📍 `voyant-traverser-n-est-pas-finir` · vivante · 26/08
+📍 `voyant-bleu-et-rouge-a-construire` · à trancher · 26/08
 
 > Eric, 2026-08-26 : *« le voyant d'avancement (dans le belt) : **rouge erreur / bleu avancement /
 > vert fin** »*.
@@ -3598,6 +3805,11 @@ une fois »*.
 « erreur » sur une étape ?
 
 ### 🔴 LES CHEVRONS — un seul objet, deux rôles *(tranché 26/08)*
+📍 `chevron-apparition-et-zone` · vivante · 26/08
+📍 `chevron-compte-sous-le-chevron` · vivante · 26/08
+📍 `chevron-gauche-et-droite` · vivante · 26/08
+📍 `chevron-un-objet-deux-roles` · vivante · 26/08
+📍 `chevron-ecart-avec-le-code` · à trancher · 26/08
 
 > Eric : *« pour le moment le chevron est une aide à la navigation latérale **AUSSI** »*.
 
@@ -3858,6 +4070,10 @@ mentirait pendant toute l'animation mentirait précisément pendant qu'on le reg
 ---
 
 ## 7. LES TROIS POPUPS — trois rôles, trois couleurs *(26/08)*
+📍 `popup-application-en-standby` · en standby · 26/08
+📍 `popup-fenetres-derriere-non-reglees` · en standby · 26/08
+📍 `geste-le-popup-ne-doit-pas-capter-le-lacher` · vivante · 26/08
+📍 `popup-violet-est-pris-par-la-magie` · vivante · 26/08
 
 > 🔴 **C'EST L'APPLICATION QUI EST EN STANDBY, PAS LA NORME** — Eric, 2026-08-26 : *« les guide
 > gendarme aiguilleur, toujours en standby et à l'étude »*, puis, sur ce paragraphe même :
@@ -3889,6 +4105,8 @@ mentirait pendant toute l'animation mentirait précisément pendant qu'on le reg
 > ⏳ Le chantier est ouvert au vault, `0.TASKS/Tasks RPG.md` — *« FHPC : les trois voix »*.
 
 ### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
+📍 `popup-aiguilleur-nom-et-critere` · vivante · 26/08
+📍 `popup-trois-roles-trois-couleurs` · vivante · 26/08
 
 > Eric : **« c'est plutôt un aiguilleur, on a TOUJOURS besoin de lui »**.
 
@@ -3928,6 +4146,7 @@ qui relève du magique dans l'Équipement. ⛔ Il ne peut donc pas servir à un 
 redevient rouge.**
 
 ### ⚠️ Le code est en ÉCART sur ce point — et c'est le code qui a tort
+📍 `popup-magie-teinte-a-creer` · à trancher · 26/08
 
 | | |
 |---|---|
@@ -3949,6 +4168,9 @@ d'un **bouton** dit *« ce bouton défait »* ou *« cet état est faux »* ; le
 ⭐ **Un composant, trois teintes, trois intentions** — la plomberie `.popup` existe déjà.
 
 ### ✅ LES TROIS COEXISTENT — UN SEUL POPUP, TROIS PASTILLES *(tranché 26/08)*
+📍 `popup-pastille-seulement-si-l-autre-parle` · vivante · 26/08
+📍 `popup-pile-et-pastilles` · vivante · 26/08
+📍 `popup-points-non-tranches` · à trancher · 26/08
 
 > Eric : *« c'est **le vrai problème**, ça. **Le rouge est au-dessus, le bleu au-dessus du
 > parchemin.** Une pastille permet de naviguer d'une couleur à l'autre **SANS FERMER**, sur chacun
@@ -3987,6 +4209,8 @@ obligerait à se souvenir. **Naviguer entre trois voix d'une même bulle, non.**
 quand **un seul** des trois parle *(zéro pastille, sans doute)*.
 
 ### 🔴 LE GUIDE EST UN POPUP — il ne vit JAMAIS dans le flux *(tranché 26/08)*
+📍 `budget-guide-hors-budget` · vivante · 26/08
+📍 `popup-guide-est-un-popup` · vivante · 26/08
 
 > Eric, 2026-08-26, en réponse à « Class › guide déborde de 553 » : **« le guide devient un popup,
 > donc il ne déborde pas »**.
@@ -4015,6 +4239,8 @@ qu'il est optionnel**, pas parce qu'il est encombrant. Un bilan, une liste, une 
 trop ? »* garde toute sa force.
 
 ### 🔴 Le `?` — le rappel permanent
+📍 `aide-borne-aux-ecrans-qui-ont-un-guide` · vivante · 26/08
+📍 `aide-entre-dans-la-rangee` · vivante · 26/08
 
 | | |
 |---|---|
@@ -4027,6 +4253,7 @@ trop ? »* garde toute sa force.
 | ⛔ **borné** | aux écrans qui **ont** un guide. Un `?` qui n'ouvre rien apprend à ne plus le regarder |
 
 ### 🔴 POURQUOI « BORNER LA LARGEUR » NE RÉPARAIT RIEN — mesuré le 26/08
+📍 `bouton-borner-la-largeur-ne-reparait-rien` · vivante · 26/08
 
 Ce paragraphe demandait de **borner la largeur de la rangée par calcul**. ⛔ **La largeur n'était
 pas la variable.**
@@ -4050,6 +4277,9 @@ inventé : on a étendu une recette qui marchait sur un écran à celle qui ne l
 ---
 
 ### 🔴 7 bis — LE LIVRE : la jumelle gauche du `?` *(organe neuf, 26/08)*
+📍 `livre-aria-label` · vivante · 26/08
+📍 `livre-dessine-pas-un-glyphe` · vivante · 26/08
+📍 `livre-jumelle-gauche-du-question` · vivante · 26/08
 
 > Eric, 2026-08-26 : *« plutôt qu'un bouton rules ou lore, on crée un bouton de même dimension que
 > `?` mais à ma gauche, **il contient un livre**… et exit le bouton lore »*, puis : *« **deux petits
@@ -4073,6 +4303,7 @@ côte, ils disaient qu'ils se valaient. ➡️ **⭕ à gauche on LIT · le bout
 voit pas le dessin. Le garde l'exige.
 
 ### 🔴 UN BOUTON SE POSE SUR UNE DALLE, JAMAIS SUR LE FOND *(tranché 26/08)*
+📍 `bouton-sur-une-dalle-jamais-sur-le-fond` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« aucun bouton dans le fond »** · *« Destiny, la carte TEXTE doit avoir sa
 > rangée de boutons »*.
@@ -4095,6 +4326,8 @@ qu'un écran mal rangé* — et le code le dit à l'endroit où ça se produit.
 ---
 
 ### 🔴 LE FLUX NE PORTE AUCUN BOUTON — ce sont les BANDES FIXES qui les portent *(26/08)*
+📍 `bouton-le-flux-ne-porte-aucun-bouton` · vivante · 26/08
+📍 `bouton-les-lignes-gardent-leurs-commandes` · vivante · 26/08
 
 > Eric, 2026-08-26, en montrant l'écran des Compétences : *« les listes restent identiques et
 > scrollables. **Exception : elles ne portent pas de bouton. C'est la carte FIXE qui les porte.** »*
@@ -4129,6 +4362,7 @@ ligne**, pas des contrôles **de l'écran**. La règle vise ce qui commande la P
 ---
 
 ### ⚖️ L'EXCEPTION DU TAROT — argumentée, parce qu'une norme en admet *(26/08)*
+📍 `bouton-tarot-exception` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« les normes peuvent avoir des exceptions, elles sont argumentées »**, puis,
 > sur ce cas : **« tu as raison, le tarot est un bouton exception »**.
@@ -4143,6 +4377,7 @@ déroge à trois normes, et voici pourquoi chacune cède :
 | §1 quinquies — un objet **porte un titre** | ⛔ **aucun texte** | *« on ne nomme pas deux fois »* : la carte se nomme par son image, et son nom accessible est sur le bouton *(`aria-label`)*. ⭐ Le texte, lui, vit sur la carte d'à côté — **une carte montre, l'autre explique** |
 
 ### 🔴 LA RÈGLE DES DEUX DALLES, dans les mots d'Eric
+📍 `bouton-deux-dalles-de-destiny` · vivante · 26/08
 
 > Eric, 2026-08-26 : **« la dalle tarot ne porte AUCUN AUTRE bouton que le tarot. C'est la dalle
 > TEXTE qui porte les éléments classiques. »**
@@ -4175,6 +4410,7 @@ une : c'est un oubli qui se défend.
 ---
 
 ### 🔴 LA PAIRE — les deux ronds encadrent la rangée *(tranché 26/08)*
+📍 `bouton-dans-la-rangee-mais-pas-de-son-habit` · vivante · 27/08
 
 > Eric, 2026-08-26 : *« ils sont tous deux **cadrés à gauche et à droite de la rangée de
 > boutons** »* · *« le livre n'est pas toujours câblé, **il le sera** »*.
@@ -4208,6 +4444,8 @@ ils se lisent comme **les deux bornes d'un même geste** — ⭕ à gauche on **
 **AGIT** · ⭕ à droite on demande de l'**AIDE**.
 
 ### ✅ PREMIER CÂBLAGE RÉEL DU LIVRE — **Abilities**, 26/08
+📍 `livre-abilities-info-devient-livre` · vivante · 26/08
+📍 `livre-un-deplacement-rend-faux-un-texte` · vivante · 26/08
 
 > Eric, 2026-08-26, deux fois pour lever tout doute : **« Info doit devenir un livre et
 > disparaître »**, puis **« Abilities : info doit disparaître et devenir un bouton livre ! »**
@@ -4242,6 +4480,10 @@ rendre faux un texte qu'on n'a pas touché** : la phrase ne parlait pas d'elle-m
 ---
 
 ### ✅ LA RÉSERVE EST SYMÉTRIQUE, ET C'EST CE QUI CENTRE LES BOUTONS *(26/08, second temps)*
+📍 `aide-cycle-de-vie` · vivante · 26/08
+📍 `bouton-reserve-symetrique` · vivante · 26/08
+📍 `livre-peut-exister-sans-etre-cable` · vivante · 26/08
+📍 `livre-rangee-encore-vide` · à trancher · 26/08
 
 > Eric, 2026-08-26, devant Identity : **« bien mais Done centré »**, puis **« fais
 > comme pour tous les panels »**.
@@ -4293,6 +4535,7 @@ désactivation = « plus jamais, et c'est dans le menu ». **La seconde est la s
 personnage suivant.**
 
 ### ✅ SON ASPECT — tranché 26/08
+📍 `aide-aspect` · vivante · 26/08
 
 > Eric : *« le `?` **en parchemin quand jamais vu**, juste **un cercle quand consommé** »*.
 
@@ -4315,8 +4558,12 @@ l'attention qu'il a précisément **le droit de ne pas prendre**.
 ---
 
 ## 8. AUTRES ORGANES ET TEXTES
+📍 `ecriture-page-unique` · vivante · 26/08
 
 ### 🔴 LES DEUX DROPDOWNS — ils ne font pas le même métier *(tranché 26/08)*
+📍 `dropdown-defaut-obligatoire-au-directionnel` · vivante · 26/08
+📍 `dropdown-deux-metiers` · vivante · 26/08
+📍 `saisie-zone-d-ecriture` · vivante · 26/08
 
 | | **de CHOIX** | **DIRECTIONNEL** |
 |---|---|---|
@@ -4337,6 +4584,9 @@ se demander.*
 le liseré rose de sa dictée, qui n'existait dans aucune palette)*.
 
 ### Les textes qui changent
+📍 `ecriture-pas-de-noir-litteral` · vivante · 26/08
+📍 `ecriture-trois-etats-de-texte` · vivante · 26/08
+📍 `ecriture-une-valeur-inchangee-ne-se-colore-pas` · vivante · 26/08
 
 > ✅ **Simplifié par Eric le 26/08 : « normal noir / gain vert / perte rouge ».**
 > **Trois états, pas quatre** — le *bleu* de la dictée disparaît des textes.
@@ -4363,6 +4613,7 @@ aller »*.
 ---
 
 ## 9. LE SEUIL D'ENTRÉE *(26/08)*
+📍 `socle-pas-de-compte` · vivante · 26/08
 
 ⛔ **`login` et `pass` sont MORTS.** Le site n'a **aucun compte**. Ils sont remplacés par
 **`Nom de joueur`** *(libre, changeable)* + **`Connecter mon coffre`** *(un bouton → un écran
