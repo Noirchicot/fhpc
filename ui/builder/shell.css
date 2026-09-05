@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=566") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=567") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3055,12 +3055,11 @@ button { font: inherit; }
    reste visible du geste. */
 .ability-fantome {
   position: fixed; left: 0; top: 0;
-  /* ⭐ LUI SEUL PORTE UNE COTE ÉCRITE, et il le doit : il vit hors de toute
-     colonne, donc il n'a aucune largeur à hériter. La valeur est RECOPIÉE de
-     `FS.fantome` (abilities-step.mjs), qui la passe au moteur 3D — c'est la
-     seule cote que le JS et la feuille partagent ici, et elle est nommée des
-     deux côtés. */
-  width: 46px;
+  /* ⭐ IL VIT HORS DE TOUTE COLONNE, donc il n'a aucune largeur à hériter : il
+     lit la cellule du dé posé (`--de-pose`, 41), la même que `FS.fantome`
+     (abilities-step.mjs) donne au moteur 3D — le fantôme est identique à
+     l'objet qu'on déplace. Il faisait 46 pour un dé de 41 (Eric, 05/09). */
+  width: var(--de-pose);
   z-index: 50; pointer-events: none;
   line-height: 0;
   /* 🔴 AUCUN `scale:` ICI, ET C'EST UNE CORRECTION MESURÉE (2026-08-17).
@@ -3074,6 +3073,16 @@ button { font: inherit; }
   filter: drop-shadow(0 6px 10px var(--scrim));
   transform-origin: center;
 }
+/* 🔴 LE DÉ DU FANTÔME PREND LA CELLULE, PAS SA RÉSOLUTION — mesuré le 05/09 : le
+   moteur monte le dé à `FS.resolution` (96, la netteté de l'image) et rien ne le
+   ramenait à la boîte de 41 : le fantôme faisait 47 de large et **110 de haut**,
+   son centre 24 px sous le doigt à zoom 1 (*« le fantôme n'est pas sous les
+   dés »*). La même reprise que pour un dé posé (`.fs-de .porte-de…`), et le
+   `scale(.8)` du moteur repris comme partout ici : le fantôme est le dé. */
+.ability-fantome .porte-de,
+.ability-fantome .fh-cd-static-die,
+.ability-fantome img.fh-cd-static-snap { width: 100%; height: auto; aspect-ratio: 1; }
+.ability-fantome .fh-cd-static-die[data-sides="6"] { transform: none; }
 
 /* ── ÉTAGE 3 · LE COLLECTEUR — FF2, dalle 50 % ────────────────────────
    `DRAG AND DROP HERE`, puis les six cibles. */
@@ -4184,6 +4193,10 @@ button { font: inherit; }
 /* Le podium visé (la rangée entière est la cible, `data-creneau="vivier"`) allume
    ses dépressions comme une case d'en bas allume la sienne. */
 .ability-des-gardes[data-podium][data-vise="true"] .glisse-cible-vide::before { border-color: var(--accent); }
+/* ⛔ PLUS D'OUTLINE AUTOUR DE LA RANGÉE DU PODIUM au survol (`.fs-rangee[data-vise]`) :
+   c'était l'un des *« rectangles marrons qui apparaissent lors du drag »* (Eric,
+   05/09). Ici, seule la dépression s'allume. */
+.ability-des-gardes[data-podium][data-vise="true"] { outline: none; }
 /* ⛔ LA COLONNE PLEINE N'EST PAS UN JETON NON PLUS : `.choix-glisse .glisse-creneau
    [data-rempli]` lui donnait le relief, la teinte ET le liseré `--info` — six
    boîtes bleues autour des dés posés (vu le 05/09 au soir). Le dé posé EST le
@@ -4196,6 +4209,12 @@ button { font: inherit; }
    (`renderCollecteur`), donc cette règle n'habille jamais du vide. */
 .ability-creneau .ability-row-final-value { font-size: var(--t3); font-weight: 600; }
 .ability-creneau[data-vise="true"] .glisse-cible-vide::before { border-color: var(--accent); }
+/* ⛔ ET PLUS DE CONTOUR DE COLONNE (`.glisse-creneau[data-vise]`, 2 px accent) : le
+   second rectangle brun. La colonne reste la zone de dépôt, invisible ; ce qui
+   s'allume est la dépression — ou, sur une case déjà pleine (l'échange), un fin
+   anneau autour du dé qu'on va prendre en retour. */
+.glisse-creneau.ability-creneau[data-vise="true"] { border-color: transparent; }
+.ability-creneau[data-vise="true"][data-rempli="true"] .porte-de { outline: 1px solid var(--accent); border-radius: var(--radius-sm); }
 /* Une valeur qui ne vient pas de ce tirage se LIT différemment — sinon un
    score posé à la main passerait pour un dé qu'on aurait déjà placé. */
 .ability-creneau[data-source="hors-lot"] .glisse-creneau-valeur { color: var(--text-muted); }
@@ -6784,7 +6803,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=566");
+  background-image: url("./assets/tarot-dos.jpg?v=567");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

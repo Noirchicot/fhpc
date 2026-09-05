@@ -64,13 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=566";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=566";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=566";
-import { armerJeton } from "./glisser.mjs?v=566";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=566";
-import { createDieHost, mount } from "./dice3d.mjs?v=566";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=566";
+import { markPressed } from "./carnet.mjs?v=567";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=567";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=567";
+import { armerJeton } from "./glisser.mjs?v=567";
+import { facteurZoomCourant } from "./echelle.mjs?v=567";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=567";
+import { createDieHost, mount } from "./dice3d.mjs?v=567";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=567";
 
 export { rollAbilitySet };
 
@@ -116,7 +117,12 @@ const ABILITY_CAP = CREATION_SCORE_MAX; // le 18 arbitré, LU au moteur — jama
    deux, pour rien. */
 const FS = {
   resolution: 96,     // la NETTETÉ de l'image du dé, jamais sa place à l'écran
-  fantome: 46         // ⚠️ la seule cote d'affichage écrite — voir `fantomeLever`
+  /* 41 = `--de-pose` (tokens.css), la cellule du dé posé : le fantôme est
+     IDENTIQUE à l'objet qu'on déplace (règle ② d'Eric). Il faisait 46 quand le
+     dé faisait 41 — vu par Eric le 05/09 : *« le fantôme n'est pas sous les
+     dés »*. Les deux nombres se nomment l'un l'autre ; en changer un sans
+     l'autre refait ce soir-là. */
+  fantome: 41         // ⚠️ la seule cote d'affichage écrite — voir `fantomeLever`
 };
 
 function el(tag, className, children) {
@@ -444,8 +450,18 @@ function fantomeBouger(x, y) {
      dans la propriété `scale` de la feuille multiplierait cette translation
      par 1,15 (mesuré : voir l'en-tête de section). Le banc les tient
      ensemble ; on les tient ensemble. */
+  /* 🔴 LE DOIGT PARLE EN PIXELS DE FENÊTRE, LE FANTÔME EN BLG — le fantôme vit
+     dans `.app`, qui porte le zoom : un `translate(N px)` y est peint à N × zoom.
+     Le lot 125 avait fermé cette faute dans `glisser.mjs` en croyant que c'était
+     *« le dernier site du dépôt »* ; celui-ci la portait encore, et Eric l'a vue
+     sur l'iPad (zoom > 1) : *« le fantôme n'est pas sous les dés »*, et le dé
+     n'arrivait pas *« de la case A à la case B »* — on vise avec un fantôme qui
+     n'est pas là où la page dépose. On divise donc AVANT de poser, par le facteur
+     lu sur la racine d'échelle (jamais sur le fantôme). Sans `.app`, le facteur
+     vaut 1 et l'expression est celle d'avant. */
+  const z = facteurZoomCourant() || 1;
   fantome.style.transform =
-    `translate(${x - fantomeDemi}px, ${y - fantomeDemi}px) scale(${FANTOME_ECHELLE})`;
+    `translate(${x / z - fantomeDemi}px, ${y / z - fantomeDemi}px) scale(${FANTOME_ECHELLE})`;
 }
 
 /** Les quatre rappels du fantôme, les mêmes pour tout dé armé. */
