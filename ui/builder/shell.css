@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=575") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=576") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4308,13 +4308,15 @@ button { font: inherit; }
 .ability-bilan { display: grid; gap: var(--sp-8); }
 .ability-bilan-tapis {
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=575") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=576") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
 .ability-bilan-cellules { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--sp-8); }
 .ability-bilan-cellule { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); min-width: 0; }
-.ability-bilan-nom { color: var(--accent); font-size: var(--t0); font-weight: 700; white-space: nowrap; text-align: center; }
+/* T1 gras, comme au collecteur (v572) — Eric, 06/09 : *« j'ai autorisé les mots à sortir des
+   cellules, ils ne se recouvrent pas à l'œil »*. Le bilan ne dit pas les noms autrement. */
+.ability-bilan-nom { color: var(--accent); font-size: var(--t1); font-weight: 700; white-space: nowrap; text-align: center; overflow: visible; }
 .ability-bilan-de { display: block; width: var(--de-pose); aspect-ratio: 1; line-height: 0; }
 .ability-bilan-de .porte-de,
 .ability-bilan-de .fh-cd-static-die,
@@ -6893,7 +6895,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=575");
+  background-image: url("./assets/tarot-dos.jpg?v=576");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
