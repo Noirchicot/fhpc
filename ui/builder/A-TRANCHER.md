@@ -29,6 +29,7 @@
 - **NORMES.md § 4, 26/08** : *« Le jeton n'est sur aucun des trois barreaux : il ajoute 20 % d'accent à sa dalle (**48 %** cumulés). ⛔ 48 % n'est pas le barreau « 50 » — deux mécaniques différentes. »*
 - Règles concernées : `jeton-habit`
 - ⚠️ 50 + 20 ne donne ni 68 ni 48 par la même arithmétique ; les deux nombres sont écrits dans le même fichier, à la même date.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — les DEUX nombres sont faux.** `tokens.css:497` : `--jeton-teinte: color-mix(… var(--accent) 20%, transparent)`. Le jeton ne s'AJOUTE pas à un pourcentage, il se COMPOSE par-dessus : `1 − (1−0,50)(1−0,20) = 0,60`. Ni 68 ni 48 — **60**. ⛔ L'écrire dans le corpus serait réécrire le texte de deux règles : c'est à Eric.
 
 ## C3 — Un collecteur fait-il toujours la taille d'un jeton ? { #c3 }
 
@@ -48,6 +49,7 @@
 - Règles concernées : `panneau-largeur-cible` · `panneau-compatibilite-360` — les deux disent « 360 » dans leur énoncé. ⛔ Aucune règle ne porte le camp « 375 » : il ne vit que dans les gabarits mesurés (NORMES § 4 ter, § 2 ter, CADRES § 3).
 - Mentionnée en passant dans : `budget-gabarit-du-rang-b` · `budget-carte-r-est-un-dessin` — leur énoncé ne dit ni 360 ni 375 ; le 375 est dans les cotes qu'elles portent, pas dans ce qu'elles affirment.
 - ⚠️ Le corpus dit lui-même *« Tout budget calculé sur 375 est faux : il donne du mou qui n'existe pas »*, et calcule pourtant deux gabarits sur 375.
+- 📐 **NON TRANCHÉE PAR LA MESURE.** Les deux vivent dans le code : `360` sur 5 sites de `shell.css`, `375` sur 2 (`tokens.css`, `shell.css`). Le code ne départage pas — il porte les deux.
 
 ## C5 — Combien la rangée offre-t-elle à 360 : 278, 320 ou 344 ? { #c5 }
 
@@ -60,6 +62,7 @@
 - Mentionnée en passant dans : `panneau-largeur-cible` · `collecteur-quatre-par-ligne` · `cadre-pied-76` — elles énoncent la cible 360, le maximum de quatre par ligne et la hauteur du pied, pas la largeur utile de la rangée.
 - 👀 Non alertée mais à regarder : `budget-trois-jetons-a-360` énonce *« la rangée dispose de 278 »* et ne porte aucune alerte. À Eric de dire si elle entre dans la dispute.
 - ⚠️ Trois nombres pour la même largeur d'écran, chacun servant de base à un budget différent.
+- 📐 **LA MESURE RETOURNE LA QUESTION.** Les TROIS nombres existent dans le code, à des endroits différents : `278` (shell.css ×3, tokens.css, fiche.css, equipement-pipeline.mjs) · `320` (shell.css ×2, class-step.mjs) · `344` (shell.css ×6, abilities-step.mjs). ⭐ Ce ne sont donc pas trois avis sur une même largeur, ce sont **trois grandeurs différentes** que la prose du corpus a confondues. Il faut lire les sites un par un, pas choisir un chiffre.
 
 ## C6 — Les chevrons : à gauche/droite, ou en haut/bas ? { #c6 }
 
@@ -78,6 +81,7 @@
 - **code aujourd'hui** : liseré 1 px, et `.pipeline-dropdown` porte *« `--ok`, une bordure VERTE conditionnelle, exactement le liseré vert supprimé »* · fond opaque (`--surface`, `--sunken`) · `font: inherit`.
 - Règles concernées : `dropdown-habit` · `dropdown-ecart-avec-le-code`
 - ⚠️ L'écart est déclaré, les trois corrections sont ⏳ *« à faire quand les organes seront refaits »* — sans date.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — il n'y a PLUS de contradiction.** Le code respecte déjà la norme du 26/08 : `border: 0` sur les quatre sites du dropdown, et `--dropdown-fond: color-mix(… var(--voile-dropdown) …)` avec `--voile-dropdown: 20%`. ⛔ Le liseré vert conditionnel décrit par le corpus **n'existe plus**. C'est la DESCRIPTION du code, dans le corpus, qui est périmée.
 
 ## C8 — Le corps du texte d'un bouton est-il tranché ? { #c8 }
 
@@ -99,6 +103,7 @@
 - Mentionnée en passant dans : `cadre-belt-toujours-visible` · `socle-ce-qui-ne-se-redessine-jamais` · `jeton-cote` — elles énoncent respectivement que la ceinture n'est jamais couverte, que cinq nœuds ne se redessinent pas, et qu'un jeton mesure 87 × 48 ; le compte des étapes est dans leur *Valeur* ou leur *Pourquoi*.
 - 👀 Non alertée mais à regarder : `livre-rangee-encore-vide` énonce *« les dix écrans »* et *« cinq écrans sur dix »* et ne porte aucune alerte.
 - ⚠️ Les deux comptes servent de base à des budgets et à des gardes.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — et les deux comptes sont VRAIS.** `etapes.mjs:32`, `STEPS` porte exactement **10** entrées : Menu · Identity · Species · Inheritance · Destiny · Class · Abilities · Skills · Equipment · Sheet. La ceinture a bien dix crans. Et `10 − Menu − Sheet = 8` : ce sont les huit qui portent des jetons et des collecteurs. ⭐ **Ce n'est pas une contradiction, c'est une collision de vocabulaire** — le mot « étape » sert à deux comptes. Même maladie que C12.
 
 ## C10 — La ceinture est-elle vraiment TOUJOURS visible ? { #c10 }
 
@@ -137,6 +142,7 @@
 - **CADRES.md § 8, table du fond** : **35 %** = `--voile-simple` → *« verre léger — les choix, les gros affichages »* · **50 %** = `--voile-inter` → *« verre moyen — un peu de texte »*.
 - Règles concernées : `cadre-voile-de-la-dalle` · `cadre-voile-des-blocs-interieurs`
 - ⚠️ CADRES décrit 35 % comme le voile des écrans de choix, NORMES comme celui des blocs intérieurs.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — CADRES a raison.** `tokens.css:710` porte le commentaire de la feuille elle-même : `--voile-simple: 35%; /* verre léger — les choix, les gros affichages */`. C'est la description de CADRES, pas celle de NORMES (« le barreau des petits blocs intérieurs »). ⚠️ Réserve honnête : `--voile-simple` n'a qu'**un seul** usage dans `shell.css`, et `--voile-inter` aucun — la feuille tranche le mot, pas l'usage.
 
 ## C14 — `.decision-card` : dalle majeure opaque, ou cadre nu ? { #c14 }
 
@@ -156,6 +162,7 @@
 - Règles concernées : `bouton-reserve-symetrique` — seule règle dont l'énoncé porte la réserve. ⛔ L'autre camp (le 60 d'Identity présenté comme un défaut) ne vit que dans NORMES § 4.
 - Mentionnée en passant dans : `cadre-regle-par-ressemblance-nomme-sa-source` — le 60 contre 52 y est l'EXEMPLE d'une règle écrite par ressemblance, pas son énoncé.
 - ⚠️ Le 60 d'Identity est décrit comme une faute dans un paragraphe et comme la mesure juste dans l'autre. Le 52 (la « grandeur étroite ») n'existe plus depuis que `data-grandeur` a remplacé les `@media`.
+- 📐 **NON MESURABLE PAR CE CHEMIN.** Aucun jeton `--pied` / `--reserve` / `--footer` dans `tokens.css`, et aucune déclaration `44/52/60px` de hauteur de pied dans `shell.css`. La réserve n'est pas une cote déclarée : elle se mesure au banc, sur l'écran, pas dans la feuille.
 
 ## C16 — `Done` fait-il avancer ? { #c16 }
 
@@ -165,6 +172,7 @@
 - **NORMES.md § 6, table des couleurs** et **§ LES TROIS VERBES, seconde table** : *« `done` : il **valide** ce qui est là, **puis remonte d'un cran** »* · *« il signe ce qui est là, puis remonte d'un cran »*.
 - Règles concernées : `bouton-trois-verbes` · `bouton-done-signe`
 - ⚠️ « Remonter d'un cran » est un mouvement ; la table qui l'interdit et celle qui le décrit sont à quelques lignes l'une de l'autre.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — `Done` AVANCE.** `shell.mjs`, `pressDone()` se termine par `goToStep(state.step + 1)`, en porte un second dans une branche, et fait `state.palier += 1` dans une troisième. ⛔ La table du corpus qui écrit « il ne fait pas avancer » décrit un code qui n'existe pas.
 
 ## C17 — La règle A du vivier : accident ou loi ? { #c17 }
 
@@ -194,6 +202,7 @@
 - Règles concernées : `cadre-tuile-ecart-4` — seule règle dont l'énoncé porte un écart de 4. ⛔ La gouttière de 8 n'est l'énoncé d'aucune règle : elle vit dans NORMES § 1 quater et CADRES § 2 bis.
 - Mentionnée en passant dans : `budget-table-des-hauteurs` · `chevron-cout-en-largeur` — l'écart de 8 et le `--sp-4` des chevrons sont dans leurs *Valeur*, pas dans leur énoncé.
 - ⚠️ L'exception de la tuile est argumentée et mesurée ; celle de `--sp-4` autour des chevrons ne l'est nulle part.
+- 📐 **TRANCHÉE PAR LA MESURE (05/09) — l'exception a disparu.** Les chevrons n'emploient **aucun** `--sp-4` : `--sp-2` pour l'épaisseur du trait (`shell.css:730-731`), `--sp-8` pour la pose (`1189-1190`), `--sp-12` pour la taille. L'écart de 8 est respecté. C'est la règle qui décrit une faute **déjà réparée**.
 
 ## C20 — 440 : px ou blg ? { #c20 }
 
