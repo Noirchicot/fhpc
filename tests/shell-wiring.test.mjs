@@ -750,12 +750,35 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
   /* ⚔️ ET LE TÉMOIN DE LA RECALIBRATION : les libellés d'Eric passaient sous
      l'ancien budget et débordaient pourtant. Sous le nouveau, ils passent tout
      juste — un mot de plus ne passerait pas. */
-  /* ⚔️ ET LE TÉMOIN DE LA RECALIBRATION SURVIT À SA CAUSE : « I changed my
-     mind » + « Done » font 21 caractères et TENAIENT sous l'ancien budget de
-     24, alors qu'ils débordaient la dalle d'item de 28 px. Le mot est parti,
-     la démonstration reste — c'est elle qui justifie le 22. */
-  assert.equal("I changed my mindDone".length > 22, false === true ? true : "I changed my mindDone".length > 22,
-    "le libellé qui a débordé la page passait sous l'ancien budget de 24 — le nouveau le refuse");
+  /* 🔴 CE GARDE ÉTAIT CREUX, ET IL A VÉCU SEIZE JOURS — réparé le 2026-09-05.
+     Il s'écrivait `assert.equal(X, false === true ? true : X)`. `false === true`
+     est une constante fausse : le ternaire rend TOUJOURS son `else`, qui est la
+     MÊME expression que le premier argument. Donc `assert.equal(X, X)` — ⛔ un
+     garde qui ne peut JAMAIS rougir, quoi qu'on lui donne.
+
+     ⭐ ET C'EST LA TAUTOLOGIE QUI A LAISSÉ MENTIR LE MESSAGE. Il annonçait « le
+     nouveau le refuse » ; mesuré : 21 ≤ 22, donc il l'ACCEPTE. Le commentaire
+     trois lignes plus haut disait déjà le contraire (« ils passent tout juste »),
+     et les deux ont cohabité sans se contredire — parce qu'une assertion qui ne
+     s'exécute jamais vraiment ne confronte jamais son message à son voisin.
+     📌 La leçon générale est déjà au corpus : un garde n'est vert qu'après avoir
+     été vu ROUGE. Celui-ci n'avait jamais pu l'être.
+
+     ⚠️ CE QU'IL RESTE À TRANCHER, ET CE N'EST PAS UN CORRECTIF DE TEST : ce
+     libellé est le cas qui a MOTIVÉ la recalibration à 22 — il débordait la
+     dalle d'item de 28 px en tenant sous l'ancien budget de 24. Il tient encore
+     sous 22. **Le budget ne refuse toujours pas le cas qui l'a fait naître.**
+     Si 22 avait été choisi pour le refuser, il est trop lâche d'au moins 1.
+     ⛔ Arbitrage d'Eric sur un BUDGET, pas une ligne à changer ici.
+
+     📌 ET LE MOT EST MORT DEPUIS LE 05/09 : l'organe s'appelle `Cancel`, donc
+     `CancelDone` fait 10. Le témoin reste écrit avec l'ANCIEN libellé, et c'est
+     voulu — c'est un témoin HISTORIQUE, daté, qui documente pourquoi le budget
+     vaut 22. Le réécrire au mot d'aujourd'hui lui ferait mesurer un cas qui n'a
+     jamais débordé, et la démonstration disparaîtrait. */
+  assert.equal("I changed my mindDone".length > 22, false,
+    "le témoin historique de la recalibration : 21 caractères, il PASSE sous 22 — " +
+    "c'est le fait qui reste à arbitrer, pas une erreur du garde");
 });
 
 test("16 quater — ⭐ UNE RACINE QUI BRANCHE N'A PAS DE SORTIE, et c'est CH6 étendu", () => {
