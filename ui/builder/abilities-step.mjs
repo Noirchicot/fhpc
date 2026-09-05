@@ -64,13 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=561";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=561";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=561";
-import { armerJeton } from "./glisser.mjs?v=561";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=561";
-import { createDieHost, mount } from "./dice3d.mjs?v=561";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=561";
+import { markPressed } from "./carnet.mjs?v=562";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=562";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=562";
+import { armerJeton } from "./glisser.mjs?v=562";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=562";
+import { createDieHost, mount } from "./dice3d.mjs?v=562";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=562";
 
 export { rollAbilitySet };
 
@@ -664,7 +664,13 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
  *  la demande plus récente l'emporte. Le nom de classe reste — c'est lui que
  *  `[data-vise]` allume et que les gardes comptent. */
 function renderCibleVide() {
-  return el("span", "glisse-cible-vide", [text("drop here")]);
+  /* Deux lignes FIGÉES, « drop » sur « here » : à 28 de large, la phrase se
+     repliait au gré de la cascade — sur une ligne au repos, sur deux au moment
+     du dépôt (Eric, 05/09 : *« un désalignement au moment du posage »*). Le
+     signe ne se replie plus : il est écrit tel qu'il se lit. */
+  /* Le mot dans son propre nœud : la dépression est dessinée par `::before`
+     (shell.css) et le mot doit passer PAR-DESSUS — un nœud positionné après. */
+  return el("span", "glisse-cible-vide", [el("span", "glisse-cible-mot", [text("drop"), el("br"), text("here")])]);
 }
 
 function renderCollecteur(ctx) {
@@ -729,6 +735,12 @@ function renderCollecteur(ctx) {
        se met à jour à chaque `rebuild`, c'est-à-dire à chaque dé posé. */
     const final = pose !== null ? renderFinalColumn(resolved, key, valeur, { compact: true }) : null;
     if (final) creneau.append(final);
+    /* 📏 LA LIGNE DU BONUS EST RÉSERVÉE MÊME VIDE — Eric, 05/09 : *« il ne doit pas
+       bouger une fois le dé posé »*. Mesuré : la rangée entière montait de 7,7
+       quand le PREMIER bonus apparaissait (la dalle recentrait des colonnes plus
+       hautes). Une ligne blanche de la même hauteur tient la place ; elle ne porte
+       aucune valeur (`.ability-row-final-value`), donc rien à lire. */
+    else creneau.append(el("span", "ability-row-final ability-row-final-attente", [text("\u00a0")]));
     rangee.append(creneau);
   }
   bloc.append(rangee);
