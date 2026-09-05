@@ -2618,8 +2618,12 @@ button { font: inherit; }
      l'intégralité de la cellule en hauteur et en largeur »*. Une cote de 276
      avait été posée ici le 05/09 : elle PERDAIT la cascade et se taisait. On ne
      laisse pas une déclaration perdante en place — on l'enlève. */
-  aspect-ratio: 1637 / 522;
-  background: url("./assets/abilities/tapis-vert.webp?v=556") center / contain no-repeat;
+  /* 📏 La cote de l'IMAGE, pas une cote déduite : `tapis-vert.webp` fait 552 × 176
+     (livrée par ChatGPT le 05/09 sur le prompt du Drop, mesurée avant la pose).
+     `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
+     on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
+  aspect-ratio: 552 / 176;
+  background: url("./assets/abilities/tapis-vert.webp?v=557") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2633,7 +2637,7 @@ button { font: inherit; }
 .ability-tapis-bleu {
   aspect-ratio: 6 / 1;
   padding-inline: var(--sp-12);
-  background: url("./assets/abilities/tapis-bleu.webp?v=556") center / 100% 100% no-repeat;
+  background: url("./assets/abilities/tapis-bleu.webp?v=557") center / 100% 100% no-repeat;
   display: grid; align-items: center;
 }
 /* La rangée de contrôles de la scène 1 — SUR SA DALLE (Eric, 05/09 : *« ton cancel
@@ -2658,14 +2662,30 @@ button { font: inherit; }
 .ability-des-gardes[data-podium] .fs {
   background: var(--podium-pastille) center / contain no-repeat;
   box-shadow: none;
-  padding: var(--sp-4);
-  /* 📏 LE DÉ SUR LE CERCLE, UN PEU PLUS BAS QUE SON CENTRE — Eric, 05/09 : *« dés
-     sur cercles verts un peu plus bas »*. Le détail parti, l'îlot centre ce qu'il
-     porte ; les 4 de plus en haut posent le cube sur le disque au lieu de le
-     faire flotter dessus (un cube dessiné a sa masse en haut). */
+  /* 📏 LE DÉ PREND TOUT L'ÎLOT — Eric, 05/09 au soir : *« les dés podium plus
+     grands, mieux centrés »*. MESURÉ avant, à 375 : îlot 54,5 de large, dé 46,5
+     (4 de rembourrage de chaque côté), image 37,2 (le `scale(.8)` du moteur), et
+     le cube OPAQUE de l'instantané 26 × 30 — la moitié du disque. Le rembourrage
+     latéral part, le `.8` est repris juste dessous : le cube passe à ~39 × 43.
+     Le « mieux centrés » n'était pas une cote à changer : l'ANCIENNE pastille
+     avait une marge transparente, son disque tombait ~16 sous le centre de
+     l'îlot ; la pastille livrée le 05/09 est bord à bord — disque et îlot ont le
+     même centre (mesuré : dx 0, dy +1,3 avec 4 de rembourrage en haut). Puis, le
+     dé retombé sous ses yeux : *« taille podium parfaite — remonte les dés podium
+     de 2 blg »* : les 4 du haut (qui valaient +2) partent, le dé est au centre
+     du disque. Plus aucun rembourrage : l'îlot EST le disque. */
+  padding: 0;
   justify-content: center;
-  padding-top: var(--sp-8);
 }
+/* ⭐ ICI, ET SEULEMENT ICI, ON REPREND LE `scale(.8)` DU MOTEUR. La règle de
+   `dice3d.css` (`.fh-cd-static-die[data-sides="6"]{transform:scale(.8)}`) vient
+   du dock à l'octet et reste intacte ; ce sélecteur, plus lourd, gagne sur le
+   podium et nulle part ailleurs — la palette et le tapis bleu gardent leur `.8`.
+   📏 `.75`, PAS `1` : à l'image pleine (54,5), le cube opaque faisait 38,6 × 43,4
+   — 80 % du disque, et Eric devant la capture : *« 25 % plus petits les dés »*.
+   Le quart en moins le ramène à ~29 × 33, la face sup à ~28 : l'étalon de
+   `--collecteur-face` (tokens.css), remesuré, ne bouge pas. */
+.ability-des-gardes[data-podium] .fh-cd-static-die[data-sides="6"] { transform: scale(.75); }
 @keyframes ability-se-poser {
   from { transform: translateY(-18px) scale(1.12); opacity: 0; }
   to   { transform: none; opacity: 1; }
@@ -2860,7 +2880,9 @@ button { font: inherit; }
    📌 Ce qu'on NE reprend pas : le `transform: scale(.8)` que le moteur
    applique à tout d6 (`[data-sides="6"]`). Il vient du dock, à l'octet
    (`fh-phb/docs/stylesheets/companion-dock.css`, et sa sœur sur le sélecteur
-   d'image) — rien qui vienne d'ici.
+   d'image) — rien qui vienne d'ici. UNE EXCEPTION, nommée là où elle vit : le
+   podium de B1 le reprend (`.ability-des-gardes[data-podium]`, Eric 05/09,
+   *« dés podium plus grands »*).
    🔴 ET ON NE SAIT PAS POURQUOI IL VAUT .8 : le source ne le dit nulle part,
    vérifié par l'architecte du lot 79 aussi bien que par moi. Une première
    version de ce commentaire lui prêtait une raison (« un cube se lit plus
@@ -3764,6 +3786,14 @@ button { font: inherit; }
    étiquette quand elle est vide, dé quand elle est pleine, jamais les deux. */
 .tray-case-de { display: grid; justify-items: center; line-height: 0; }
 .tray-case-de .porte-de { width: var(--tray-de-resultat); aspect-ratio: 1; }
+/* 📏 « 25 % PLUS GRANDS, LES DÉS DE SÉLECTION » — Eric, 05/09 au soir. MESURÉ à
+   375 : logement 30, mais le moteur (`dice3d.css`, `[data-sides="6"]
+   {transform:scale(.8)}`) rend l'image à 24, cube opaque ~17 × 19. On reprend
+   ce `.8` ici, comme au podium : 1 / 0,8 = 1,25 — le quart demandé, au chiffre.
+   ⛔ Pas en grossissant le logement : dix logements de 38 font 380 sur les 343
+   utiles du tapis, et Eric refuse deux lignes. Le logement reste 30 dans sa
+   colonne de 34,3 ; l'espace entre logements reste 4,3. */
+.tray-case-de .porte-de .fh-cd-static-die[data-sides="6"] { transform: none; }
 .tray-case-de .porte-de canvas,
 .tray-case-de .porte-de img { width: 100%; height: auto; display: block; }
 .tray-case-detail { font-size: var(--t1); line-height: 1.2; color: var(--encre-tapis); white-space: nowrap; }
@@ -6669,7 +6699,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=556");
+  background-image: url("./assets/tarot-dos.jpg?v=557");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

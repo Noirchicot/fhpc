@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=556";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=556";
-import { swapContent } from "./socle.mjs?v=556";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=557";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=557";
+import { swapContent } from "./socle.mjs?v=557";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -239,7 +239,12 @@ function etatDuJet(jet) {
 const MATERIAU_PAR_ETAT = { garde: "white", ecarte: "slate", haut: "azure", bas: "white" };
 /* 📏 26 : dix dés de 26 et neuf écarts de 2 font 278 sur les ~327 utiles du tapis
    bleu (351 moins ses deux bouts arrondis). Le détail `6+6+6` mesure 31,8 en T1 :
-   c'est LUI qui fixe la colonne à 32, pas le dé. */
+   c'est LUI qui fixe la colonne à 32, pas le dé.
+   🔴 ET `--tray-de-resultat` (tokens.css) DIT LE MÊME 26 : le logement suit le dé.
+   Le 05/09 au matin, « un peu plus gros » avait été écrit 30 là-bas seulement — le
+   dé est resté à 26 ici, quatre pixels de vide autour, personne ne l'a vu. Le
+   « 25 % plus grands » du soir ne passe par aucun des deux : c'est le `scale(.8)`
+   du moteur, repris dans shell.css (`.tray-case-de .porte-de`). */
 const TAILLE_DE_RESULTAT = 26;
 
 /**

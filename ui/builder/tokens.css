@@ -657,7 +657,7 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=556");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=557");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -668,7 +668,17 @@
        les ~327 utiles du tapis bleu — et le détail `6+6+6` (31,8) qui fixe la
        colonne passe encore. */
   --tray-carre: 30px;
-  --tray-de-resultat: 30px;      /* 26 → 30 le 05/09 : « dés de sélection un peu plus gros » */
+  /* 🔴 26, ET C'EST LA COTE DU DÉ (`TAILLE_DE_RESULTAT`, abilities-tray.mjs) : le
+     logement suit le dé. Ce matin, « un peu plus gros » avait été écrit 30 ICI
+     seulement — le dé, qui lit sa constante JS, est resté à 26 ; quatre pixels de
+     vide autour, et personne ne l'a vu (deux écrivains pour une cote). Les deux
+     nombres disent 26 ; en changer un sans l'autre refait ce matin. */
+  --tray-de-resultat: 26px;
+  /* ⚠️ « 25 % plus grands » (Eric, 05/09 au soir) N'EST PAS ICI : dix logements de
+     38 font 380 sur les 343 utiles du tapis bleu — ça ne tient pas, et Eric ne
+     veut PAS deux lignes. Le quart en plus vient du `scale(.8)` que le moteur
+     applique à tout d6, repris dans shell.css (`.tray-case-de .porte-de`) :
+     1 / 0,8 = 1,25 exactement, le logement et la colonne ne bougent pas. */
   /* 🎯 L'ÉTALON D'ERIC — 2026-09-05 : *« collecteurs = tokens = face sup du dé du
      podium (considère la face sup du dé comme étalon = ça reste une exception
      relative à la règle) »*. MESURÉE dans les pixels de l'instantané du podium à
@@ -726,8 +736,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=556");
-  --bg-nuit: url("./assets/bg-night.jpg?v=556");
+  --bg-jour: url("./assets/bg-day.jpg?v=557");
+  --bg-nuit: url("./assets/bg-night.jpg?v=557");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
