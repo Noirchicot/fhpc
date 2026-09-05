@@ -2623,7 +2623,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=567") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=568") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2693,12 +2693,15 @@ button { font: inherit; }
   from { transform: translateY(-18px) scale(1.12); opacity: 0; }
   to   { transform: none; opacity: 1; }
 }
-.ability-des-gardes[data-podium] .fs-de { animation: ability-se-poser .5s cubic-bezier(.2, .8, .3, 1.15) both; }
-.ability-des-gardes[data-podium] .fs:nth-child(2) .fs-de { animation-delay: 70ms; }
-.ability-des-gardes[data-podium] .fs:nth-child(3) .fs-de { animation-delay: 140ms; }
-.ability-des-gardes[data-podium] .fs:nth-child(4) .fs-de { animation-delay: 210ms; }
-.ability-des-gardes[data-podium] .fs:nth-child(5) .fs-de { animation-delay: 280ms; }
-.ability-des-gardes[data-podium] .fs:nth-child(6) .fs-de { animation-delay: 350ms; }
+/* `[data-pose]` : posé par l'écran à l'ARRIVÉE d'un lot seulement — un redessin
+   (dépôt, retour, échange) ne le reçoit pas, les dés ne rejouent rien (Eric,
+   05/09 : *« pas un blink de tous les dés quand je déplace un dé »*). */
+.ability-des-gardes[data-podium][data-pose="true"] .fs-de { animation: ability-se-poser .5s cubic-bezier(.2, .8, .3, 1.15) both; }
+.ability-des-gardes[data-podium][data-pose="true"] .fs:nth-child(2) .fs-de { animation-delay: 70ms; }
+.ability-des-gardes[data-podium][data-pose="true"] .fs:nth-child(3) .fs-de { animation-delay: 140ms; }
+.ability-des-gardes[data-podium][data-pose="true"] .fs:nth-child(4) .fs-de { animation-delay: 210ms; }
+.ability-des-gardes[data-podium][data-pose="true"] .fs:nth-child(5) .fs-de { animation-delay: 280ms; }
+.ability-des-gardes[data-podium][data-pose="true"] .fs:nth-child(6) .fs-de { animation-delay: 350ms; }
 @media (prefers-reduced-motion: reduce) {
   .ability-des-gardes[data-podium] .fs-de { animation: none; }
 }
@@ -6803,7 +6806,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=567");
+  background-image: url("./assets/tarot-dos.jpg?v=568");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

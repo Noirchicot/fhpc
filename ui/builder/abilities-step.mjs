@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=567";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=567";
-import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=567";
-import { armerJeton } from "./glisser.mjs?v=567";
-import { facteurZoomCourant } from "./echelle.mjs?v=567";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=567";
-import { createDieHost, mount } from "./dice3d.mjs?v=567";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=567";
+import { markPressed } from "./carnet.mjs?v=568";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=568";
+import { renderTray, poserUnDe } from "./abilities-tray.mjs?v=568";
+import { armerJeton } from "./glisser.mjs?v=568";
+import { facteurZoomCourant } from "./echelle.mjs?v=568";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=568";
+import { createDieHost, mount } from "./dice3d.mjs?v=568";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=568";
 
 export { rollAbilitySet };
 
@@ -383,6 +383,8 @@ const FANTOME_ECHELLE = 1.15;
 
 let fantome = null;
 let fantomeDemi = 0;
+/** Les jets du dernier lot dont le podium a joué la pose — voir `renderVivier`. */
+let dernierLotPose = null;
 
 function fantomeRanger() {
   if (!fantome) return;
@@ -541,6 +543,13 @@ function renderVivier(ctx) {
      de pose au montage. La pastille bleue est une OPTION DE CONSTRUCTION (Eric)
      — un jeton la commute, `--podium-pastille`. */
   rangee.dataset.podium = "true";
+  /* 🎬 LA POSE NE JOUE QU'À L'ARRIVÉE DU LOT — Eric, 05/09 : *« je ne veux pas un
+     blink de tous les dés quand je déplace un dé »*. Chaque geste redessine
+     l'écran, et les six dés rejouaient leur animation. Le lot est reconnu par
+     l'identité de ses DIX JETS (`rolls`) : un dépôt, un retour, un échange
+     recréent la carte `assign`, jamais les jets ; seul un nouveau tirage les
+     recrée. Le drapeau `data-pose` n'est posé que cette fois-là. */
+  if (rollBatch.rolls !== dernierLotPose) { rangee.dataset.pose = "true"; dernierLotPose = rollBatch.rolls; }
 
   for (const roll of gardes) {
     const item = el("li", "fs");
