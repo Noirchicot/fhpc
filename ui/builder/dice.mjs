@@ -189,11 +189,14 @@ export const ROLLING_METHODS = [
        §5 bis, jamais ratifiée. Celle-ci est celle du panneau, qu'Eric a lue de
        près (il en a fait corriger une phrase). Entre deux textes d'agent, on
        garde celui qui est passé sous un œil humain.
-       🔴 Et surtout : le panneau et cette page se lisent dans le MÊME écran, à
-       un clic l'un de l'autre. Deux formulations de la même règle, écrites par
-       la même main, à deux endroits — c'est la divergence que ce dépôt passe
-       son temps à éviter ailleurs. Elles ne sont plus deux : le panneau LIT
-       cette chaîne (`renderPanneauInfo`). */
+       🔴 IL Y AVAIT UN SECOND LECTEUR, ET IL A DÉMÉNAGÉ (2026-09-05) : le
+       panneau INFO de R Abilities lisait cette chaîne, pour que la règle ne
+       soit pas écrite deux fois dans le même écran. Le panneau est parti au
+       chapitre `ability-scores` de FH WEB, où le livre mène maintenant.
+       ⭐ La raison d'être de cette chaîne ne change pas : elle reste LA
+       formulation de la règle côté builder, et c'est elle que l'écran affiche.
+       ⛔ Si un jour quelqu'un veut la redire ailleurs, il la LIT ici — il ne la
+       recopie pas. C'est ce qui a évité la divergence, pas le panneau. */
     summary: "Roll four dice six times, drop the lowest die each time."
   }
 ];

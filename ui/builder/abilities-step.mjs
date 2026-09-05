@@ -64,12 +64,13 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=547";
-import { renderTray } from "./abilities-tray.mjs?v=547";
-import { armerJeton } from "./glisser.mjs?v=547";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=547";
-import { createDieHost, mount } from "./dice3d.mjs?v=547";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=547";
+import { markPressed } from "./carnet.mjs?v=548";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=548";
+import { renderTray } from "./abilities-tray.mjs?v=548";
+import { armerJeton } from "./glisser.mjs?v=548";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=548";
+import { createDieHost, mount } from "./dice3d.mjs?v=548";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=548";
 
 export { rollAbilitySet };
 
@@ -768,7 +769,7 @@ function renderCollecteur(ctx) {
    méthode n'aurait donc aucune règle à rouvrir. */
 const METHODES_PAR_RANGEE = 3;
 
-function renderSelecteurMethode(actif, infoOuvert, act) {
+function renderSelecteurMethode(actif, act) {
   const bloc = el("section", "ability-methodes dalle-simple");
   bloc.append(el("h3", "ability-methodes-titre", [text("Choose an ability generation method")]));
   /* 🔴 L'AIGUILLEUR — Eric, 2026-09-04 : *« le texte en dessous, ça devrait
@@ -829,151 +830,59 @@ function renderSelecteurMethode(actif, infoOuvert, act) {
      la faute que §6 pré a payée trois fois. */
   const controles = el("div", null, []);
   controles.dataset.rangee = "controles";
+  /* 📖 LE LIVRE SORT DU BUILDER — Eric, 2026-09-05 : *« le livre doit emmener
+     vers le site FH WEB »* · *« en tout cas ton livre doit pointer là »*.
+
+     ⛔ CE QU'IL FAISAIT : il basculait un panneau interne qui comparait les
+     trois méthodes. Le panneau n'était pas faux — il était au mauvais ENDROIT.
+     Un texte de règle écrit dans l'interface est une règle publiée PAR
+     l'interface : sans source, sans version, sans empreinte (§0.8).
+     ⭐ Le livre ne RACONTE pas la règle, il y MÈNE (sacré n° 2). Son
+     argumentaire part au chapitre `ability-scores` de FH WEB, où il a une
+     adresse citable.
+
+     ⚠️ IL N'EST PLUS UN INTERRUPTEUR, donc plus d'`aria-pressed` : un organe qui
+     ouvre un onglet n'a pas d'état à dire. Le mettre quand même apprendrait au
+     lecteur d'écran une bascule qui n'existe pas.
+     📌 `noopener` n'est pas décoratif : sans lui la page ouverte reçoit
+     `window.opener` sur le builder et peut le renaviguer (même note qu'à
+     `destiny-step.mjs`, dont ceci est le patron). */
   const info = el("button", "fiche-livre ability-methodes-livre");
   info.type = "button";
   info.dataset.entry = "info";
-  markPressed(info, infoOuvert);
-  info.setAttribute("aria-label", "Compare the methods");
-  info.addEventListener("click", () => act({ kind: "abilityInfo", value: !infoOuvert }));
+  info.setAttribute("aria-label", "Ability scores — read the rules on FH Web");
+  info.addEventListener("click", () => {
+    window.open(lienAbilityScoresFhWeb(), "_blank", "noopener");
+  });
   controles.append(info);
   for (const entry of ABILITY_ENTRIES.slice(METHODES_PAR_RANGEE)) controles.append(tuileDe(entry));
   bloc.append(controles);
   return bloc;
 }
 
-/* ══ LE PANNEAU INFO — levé du banc `abilities-info-lab.html` ════════════
-   L'argumentaire des trois façons de trouver ses six, en FF2, qu'on ferme en
-   cliquant (III.4, « un popup se ferme en cliquant »).
+/* ══ LE PANNEAU INFO A DÉMÉNAGÉ — 2026-09-05 ════════════════════════════
+   ⛔ IL N'Y A PLUS DE PANNEAU ICI, et ce n'est pas un oubli. Eric : *« ce qui
+   est écrit actuellement dans le livre ne trouve pas son équivalent dans
+   Ability scores ; il faut écrire ce texte là et effacer l'obsolète. En tout
+   cas ton livre doit pointer là. »*
 
-   ⛔ LES CHIFFRES VIENNENT D'UNE SIMULATION DE 3 000 000 DE TIRAGES
-   (2026-08-16), et aucun n'est arrondi à la louche : ils sont recopiés. Le
-   moyen de les revérifier est de rejouer la simulation, pas de les relire.
-   📌 Ils ont été REVÉRIFIÉS le 2026-08-16 contre l'implémentation de la règle
-   telle qu'elle est écrite dans `dice.mjs` : moyenne 71,79 · un 18 dans
-   4,5 % · un 16+ dans 38 % · un 15+ dans 62 %. Les quatre concordent.
+   ⭐ CE QUI EST PARTI, ET OÙ : l'argumentaire des trois façons de trouver ses
+   six — le tableau mesuré sur 3 000 000 de tirages, la chute, la commission de
+   la maison — s'en va au chapitre `ability-scores` de FH WEB. Il n'était pas
+   faux, il était au mauvais ENDROIT : un texte de règle écrit dans l'interface
+   est une règle publiée PAR l'interface, sans source, sans version, sans
+   empreinte (§0.8). Le livre ne raconte plus, il MÈNE (sacré n° 2).
 
-   ⚠️ LES DEUX LECTURES DU MÊME ÉCART, ET IL FAUT LES DEUX. « Trois
-   millièmes » est une FRACTION du total (0,21 sur 72) ; dit seul, il se lit
-   comme trois millièmes DE POINT, ce qui est faux d'un facteur soixante-dix.
-   On donne donc la valeur ET la proportion. */
-/* 🔴 AUCUNE RÈGLE N'EST RECOPIÉE ICI — `methode` dit de quelle méthode chaque
-   entrée parle, et sa règle se LIT au même endroit que l'explication de sa
-   page (`explicationDe`). Le panneau et la page se lisent dans le MÊME écran,
-   à un clic l'un de l'autre : deux formulations de la même règle, écrites par
-   la même main, à deux endroits, c'est la divergence que ce dépôt passe son
-   temps à éviter ailleurs. Relevé par l'architecte du lot 79, qui avait les
-   deux textes sous les yeux et a vu qu'ils ne disaient pas la même chose.
-   ⛔ Ce qui reste écrit ici est ce que le panneau SEUL raconte : le
-   commentaire, les chiffres, la chute. Pas la règle. */
-const INFO_METHODES = [
-  {
-    methode: "standard", titre: "Standard array", des: "15 · 14 · 13 · 12 · 10 · 8",
-    corps: ["No luck, no regret, and nothing to tell anyone about afterwards. You will play the "
-      + "character you meant to play — not the one the dice gave you."]
-  },
-  {
-    methode: "fh3d6", titre: "Fate's Hand", des: "3d6 × 10",
-    corps: ["On average it lands exactly where the array lands — 71.8 against 72.0 — but you rolled "
-      + "for it. A 14 is promised, an 8 is owed, and nothing caps the top: one character in "
-      + "twenty-two rolls an 18."],
-    note: "That fifth of a point between 71.8 and 72.0 — three thousandths of your total — is the "
-      + "house's commission. A casino has to pay for itself somehow; call it the price of the thrill."
-  },
-  {
-    methode: "4d6", titre: "Four dice, six times", des: "4d6 × 6, drop the lowest",
-    corps: ["The most generous method, and the least fair. Half of these characters have no real "
-      + "weakness at all — and some end up plainly worse off than the array would have made them."]
-  }
-];
+   📌 LES CHIFFRES SONT SAUVÉS, PAS PERDUS : ils sont transmis mot pour mot à
+   l'écrivain de FH WEB, avec leur provenance (simulation du 2026-08-16,
+   revérifiée contre `dice.mjs` : moyenne 71,79 · un 18 dans 4,5 % · un 16+
+   dans 38 % · un 15+ dans 62 %). ⛔ Le moyen de les revérifier reste de rejouer
+   la simulation, jamais de relire la page.
 
-/** La règle d'une méthode, LUE là où sa page la lit. Une seule chaîne, deux
- *  surfaces — elles ne peuvent plus diverger sans qu'on le fasse exprès. */
-function regleDe(methodeId) {
-  const entry = ABILITY_ENTRIES.find((e) => e.id === methodeId);
-  return entry ? explicationDe(entry) : "";
-}
-
-const INFO_TABLEAU = [
-  ["Average total", "72.0", "71.8", "73.5"],
-  ["Two characters alike", "always", "rarely", "never"],
-  ["At least one 15", "always", "62%", "79%"],
-  ["At least one 16", "never", "38%", "57%"],
-  ["An 18", "never", "4.5%", "9.3%"],
-  ["A real weakness", "always", "always", "48%"]
-];
-
-function renderPanneauInfo(act) {
-  const bloc = el("section", "ability-info dalle-intermediaire");
-  bloc.setAttribute("role", "dialog");
-  bloc.setAttribute("aria-label", "How ability scores are found");
-
-  const tete = el("div", "ability-info-tete");
-  tete.append(el("h3", "ability-info-titre", [text("Three ways to find your six")]));
-  const fermer = el("span", "ability-info-fermer", [text("tap to close")]);
-  fermer.setAttribute("aria-hidden", "true");
-  tete.append(fermer);
-  bloc.append(tete);
-  bloc.append(el("p", "ability-info-chapeau", [text(
-    "They are not equally generous — and the generous one is not the fairest."
-  )]));
-
-  for (const methode of INFO_METHODES) {
-    const bloc2 = el("div", "ability-info-methode");
-    const enTete = el("div", "ability-info-methode-tete");
-    enTete.append(el("h4", null, [text(methode.titre)]));
-    enTete.append(el("span", "ability-info-des", [text(methode.des)]));
-    bloc2.append(enTete);
-    bloc2.append(el("p", "ability-info-regle", [text(regleDe(methode.methode))]));
-    for (const paragraphe of methode.corps) bloc2.append(el("p", null, [text(paragraphe)]));
-    if (methode.note) bloc2.append(el("p", "ability-info-note", [text(methode.note)]));
-    bloc.append(bloc2);
-  }
-
-  /* ⚠️ LE TABLEAU DÉFILE DANS SA BOÎTE, jamais en emportant la page : un
-     débordement horizontal casserait le glisser autant que la lecture. */
-  const boite = el("div", "ability-info-tableau");
-  boite.dataset.scroller = "info";
-  const table = el("table");
-  table.append(el("caption", null, [text("Measured over three million characters")]));
-  const thead = el("thead");
-  const ligneTete = el("tr");
-  for (const titre of ["", "Array", "Fate's Hand", "4d6 × 6"]) {
-    const th = el("th", null, [text(titre)]);
-    th.setAttribute("scope", "col");
-    ligneTete.append(th);
-  }
-  thead.append(ligneTete);
-  table.append(thead);
-  const tbody = el("tbody");
-  for (const [intitule, array, fh, quatre] of INFO_TABLEAU) {
-    const tr = el("tr");
-    const th = el("th", null, [text(intitule)]);
-    th.setAttribute("scope", "row");
-    tr.append(th);
-    tr.append(el("td", null, [text(array)]));
-    /* La colonne du milieu est celle de la maison : elle se lit en premier. */
-    tr.append(el("td", "fort", [text(fh)]));
-    tr.append(el("td", null, [text(quatre)]));
-    tbody.append(tr);
-  }
-  table.append(tbody);
-  boite.append(table);
-  bloc.append(boite);
-
-  const chute = el("div", "ability-info-chute");
-  chute.append(el("p", null, [text(
-    "The array is a decision. Fate's Hand is a wager with a floor and a ceiling. "
-    + "Four dice is a wager with neither."
-  )]));
-  chute.append(el("p", "ability-info-note", [text(
-    "Note the last line: the most generous method is also the only one that lets you off without a flaw."
-  )]));
-  chute.append(el("p", "ability-info-pied", [text("Tap anywhere to close.")]));
-  bloc.append(chute);
-
-  bloc.addEventListener("click", () => act({ kind: "abilityInfo", value: false }));
-  return bloc;
-}
+   ⚠️ ET LE TROU EST CONNU : tant que le chapitre ne porte pas ce texte, le
+   joueur qui clique le livre arrive sur une page qui ne compare pas les
+   méthodes. C'est le prix de la séquence, il est nommé, et il se referme quand
+   l'écrivain publie. */
 
 /* ══ LES DEUX LOTS QUI NE SE TIRENT PAS ══════════════════════════════════ */
 
@@ -1077,7 +986,6 @@ export function lotSansDes(methodId) {
  * @param {object} [ctx.rollBatch] le lot en cours, ou `null` ; `assign` (lot 50) est la carte
  *   `clef → index`, HORS document — voir l'en-tête de ce fichier
  * @param {number} [ctx.revele]   combien de jets sont découverts
- * @param {boolean} [ctx.info]    le panneau INFO est ouvert
  * @param {(action: object) => void} onAction
  */
 export function renderAbilitiesStep(ctx, onAction) {
@@ -1112,8 +1020,7 @@ export function renderAbilitiesStep(ctx, onAction) {
   const surLaRacine = ctx.palier !== 2;
 
   if (surLaRacine) {
-    section.append(renderSelecteurMethode(ctx.method || null, Boolean(ctx.info), act));
-    if (ctx.info) section.append(renderPanneauInfo(act));
+    section.append(renderSelecteurMethode(ctx.method || null, act));
     return section;
   }
 

@@ -456,9 +456,19 @@ test("⚔️ le nom accessible d'une tuile est le libellé humain, jamais l'id",
      d'Eric (*« et disparaître »*). Le livre ne porte plus de libellé visible ;
      son nom vit dans `aria-label`, qui est fait pour ça. */
   assert.equal(livre(node).textContent, "", "le livre ne porte aucun mot");
-  assert.equal(livre(node).getAttribute("aria-label"), "Compare the methods",
+  /* 🔴 LIBELLÉ RÉÉCRIT LE 2026-09-05, ET LA PROPRIÉTÉ N'A PAS BOUGÉ. Ce garde
+     tenait « Compare the methods » — le livre comparait alors les méthodes dans
+     un panneau interne. Il MÈNE désormais au chapitre `ability-scores` de FH
+     WEB (sacré n° 2 : le livre ne raconte pas la règle, il y mène), donc le nom
+     dit la destination, pas un geste qui n'existe plus.
+     ⭐ Ce qui est gardé ici est inchangé : un bouton muet à l'écran ne doit pas
+     l'être pour un lecteur d'écran. C'est la PROPRIÉTÉ, pas le mot. */
+  assert.equal(livre(node).getAttribute("aria-label"), "Ability scores — read the rules on FH Web",
     "⚠️ mais il se NOMME pour qui ne voit pas le dessin — un bouton muet à "
     + "l'écran ne doit pas l'être aussi pour un lecteur d'écran");
+  assert.equal(livre(node).hasAttribute("aria-pressed"), false,
+    "⛔ et il n'est PLUS un interrupteur : un organe qui ouvre un onglet n'a pas "
+    + "d'état à dire, et l'annoncer apprendrait une bascule qui n'existe pas");
 });
 
 test("B5.1b/c — une tuile commet `abilityMethod`, et RIEN n'est déplié d'avance", () => {
@@ -961,51 +971,46 @@ test("la porte ne JETTE plus rien — le plateau est le seul jeteur", () => {
 
 /* ══ 8 — LE PANNEAU INFO (§5.4) ═════════════════════════════════════════ */
 
-test("⭐ §5.4 — `INFO` ouvre le panneau déjà écrit, et le panneau se ferme au clic", () => {
-  const calls = [];
-  const ferme = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), (a) => calls.push(a));
-  assert.equal(ferme.querySelectorAll(".ability-info").length, 0, "fermé par défaut : il ne s'impose pas");
-  livre(ferme).click();
-  assert.deepEqual(calls, [{ kind: "abilityInfo", value: true }]);
+test("📖 LE LIVRE SORT DU BUILDER — il ouvre le chapitre `ability-scores` de FH WEB", () => {
+  /* 🔴 CE QUE CE GARDE REMPLACE, ET POURQUOI IL NE LE PROLONGE PAS.
+     Deux gardes tenaient ici le PANNEAU INFO : *« `INFO` ouvre le panneau »* et
+     *« le panneau porte les chiffres mesurés »*. Leur objet n'existe plus —
+     Eric, 2026-09-05 : *« le livre doit emmener vers le site FH WEB »* · *« en
+     tout cas ton livre doit pointer là »*.
+     ⛔ Ils ne sont pas relâchés, ils sont RÉÉCRITS À LA NOUVELLE VÉRITÉ (TRAPS,
+     la note `// REWRITTEN`). La propriété qu'ils servaient — *le livre donne
+     accès à l'argumentaire des méthodes* — n'est pas abandonnée : elle a changé
+     d'adresse. Ce qu'ils gardaient EN PLUS (les chiffres de la simulation de
+     3 000 000 de tirages) part avec le texte au chapitre, et c'est là qu'il
+     faudra le garder — ⛔ un garde d'ici ne peut rien dire d'une page publiée
+     par un autre dépôt, et prétendre le contraire serait un garde qui ment.
 
-  const ouvert = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null, info: true }), (a) => calls.push(a));
-  const panneau = ouvert.querySelectorAll(".ability-info")[0];
-  assert.ok(panneau, "ouvert, le panneau est là");
-  assert.equal(panneau.getAttribute("role"), "dialog");
-  /* III.4 — « un popup se ferme en cliquant ». */
-  panneau.dispatchEvent({ type: "click" });
-  assert.deepEqual(calls[1], { kind: "abilityInfo", value: false });
-});
-
-test("le panneau INFO porte les chiffres MESURÉS, et la règle qu'il annonce est celle que le code applique", () => {
-  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null, info: true }), () => {});
-  const texte = node.querySelectorAll(".ability-info")[0].textContent;
-  /* ⛔ Ces nombres viennent d'une simulation de 3 000 000 de tirages
-     (2026-08-16) et sont RECOPIÉS, jamais arrondis à la louche. */
-  for (const chiffre of ["71.8", "72.0", "4.5%", "38%", "62%"]) {
-    assert.ok(texte.includes(chiffre), `le panneau porte « ${chiffre} »`);
+     ⭐ CE QU'IL TIENT MAINTENANT : la SORTIE. C'est la moitié du sacré n° 2 que
+     rien ne gardait — le livre parle du JEU et sort, le `?` parle de l'ÉCRAN et
+     reste. Deux organes ronds de même cote aux deux bouts d'une rangée : rien
+     dans leur géométrie ne les distingue, seul un garde le peut. */
+  const ouvertures = [];
+  const avant = globalThis.window;
+  globalThis.window = { open: (...args) => ouvertures.push(args) };
+  try {
+    const calls = [];
+    const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: null }), (a) => calls.push(a));
+    assert.equal(node.querySelectorAll(".ability-info").length, 0,
+      "⛔ plus aucun panneau interne : le texte de règle a quitté l'interface");
+    livre(node).click();
+    assert.equal(ouvertures.length, 1, "le livre ouvre, une fois");
+    assert.equal(ouvertures[0][0], "https://noirchicot.github.io/fh-phb/chapters/ability-scores/",
+      "⛔ et il ouvre LE chapitre des caractéristiques — l'adresse vient de "
+      + "`lienAbilityScoresFhWeb`, jamais d'une URL recopiée ici");
+    assert.equal(ouvertures[0][2], "noopener",
+      "⛔ `noopener` : sans lui la page ouverte reçoit `window.opener` sur le "
+      + "builder et peut le renaviguer (même note qu'à `destiny-step.mjs`)");
+    assert.deepEqual(calls, [],
+      "⛔ et il ne commet AUCUNE action : sortir n'est pas changer l'état de l'écran");
+  } finally {
+    if (avant === undefined) delete globalThis.window; else globalThis.window = avant;
   }
-  /* ⭐ ET LES TROIS RÈGLES DU PANNEAU SONT CELLES DES PAGES, AU MOT PRÈS.
-     🔴 ELLES NE L'ÉTAIENT PAS : relevé par l'architecte du lot 79, qui avait
-     les deux textes sous les yeux — `4D6` et `ARRAY` étaient écrites DEUX
-     FOIS, différemment, et le joueur peut avoir les deux surfaces dans le même
-     écran, à un clic l'une de l'autre. C'est la divergence que ce dépôt passe
-     son temps à éviter ailleurs.
-     ⛔ Le remède n'est pas de choisir laquelle gagne, c'est qu'il n'y en ait
-     PLUS QU'UNE : le panneau LIT l'explication de la page (`regleDe`). */
-  for (const id of ["fh3d6", "4d6", "standard"]) {
-    const page = renderAbilitiesStep(
-      ctxFrom(fixture.document, fixture.report, { method: id, rollBatch: lotSansDes(id) }), () => {})
-      .querySelectorAll(".ability-organe-mot")[0].textContent;
-    assert.ok(texte.includes(page),
-      `« ${page} » : la règle du panneau et celle de la page ${id} doivent être la MÊME phrase`);
-  }
-  /* ⚔️ Le témoin : les trois règles du panneau sont bien TROIS, pas une seule
-     recopiée — un `includes` passerait sur du vide. */
-  assert.equal(node.querySelectorAll(".ability-info-regle").length, 3);
 });
-
-/* ══ 9 — L'ENTONNOIR : TROIS ÉTAGES, LES MÊMES POUR LES QUATRE ══════════ */
 
 test("🔴 LES TROIS ÉTAGES SONT LES MÊMES POUR LES QUATRE MÉTHODES — c'est ce qui rend le lot faisable", () => {
   /* ⛔ Si un jour une méthode gagne son propre collecteur, ce test rougit — et

@@ -1381,11 +1381,13 @@ et c'est pourquoi ils tiennent les deux bouts au lieu de se suivre.
 ⭐ Ce qui manque ailleurs n'est donc PAS une mécanique : c'est la **cible**.
 
 ⏳ **ÉTAT MESURÉ LE 2026-09-05 — c'est un INVENTAIRE, pas une commande** (§ sacré n° 3 :
-*« on laisse tout tranquille tant que ça marche »*). Sur les six livres du dépôt, **deux**
-sortent vers une règle publiée — `destiny-step.mjs` (FH WEB) et `concept-step.mjs` (le
-SRD). Les quatre autres ouvrent un popup ou un panneau local : `parcours-ecrans.mjs`
-(deux : le rang B et B2), `catalogue.mjs`, et `abilities-step.mjs` (le livre de
-R Abilities bascule `abilityInfo`, un panneau interne).
+*« on laisse tout tranquille tant que ça marche »*). Sur les six livres du dépôt, **trois**
+sortent vers une règle publiée : `destiny-step.mjs` (FH WEB), `concept-step.mjs` (le SRD),
+et **`abilities-step.mjs` depuis le 05/09** — Eric : *« en tout cas ton livre doit pointer
+là »*. Son panneau interne est parti avec ; ce qu'il disait s'écrit au chapitre
+`ability-scores`, et le trou est nommé dans le code tant que l'écrivain n'a pas publié.
+⛔ **Les trois autres ouvrent encore un popup de lore** : `parcours-ecrans.mjs` (le rang B
+et B2) et `catalogue.mjs`. Ils attendent une cible, pas une mécanique.
 ⛔ **Chaque conversion demande une CIBLE, et une cible est une décision** : quel chapitre
 de FH WEB pour quel écran. Aucune ne se déduit du code.
 

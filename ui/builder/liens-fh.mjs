@@ -29,6 +29,19 @@ const ANCRES_SKILLS = {
   "history": "knowledge-by-creature-type"
 };
 
+/** 🔴 L'URL FH web du chapitre des CARACTÉRISTIQUES — Eric, 2026-09-05 :
+ *  *« ton livre doit pointer là »*.
+ *
+ *  ⭐ POURQUOI UNE FONCTION ET PAS UNE CONSTANTE EN LIGNE : le livre de
+ *  R Abilities est le premier lecteur, il ne sera pas le dernier (le bilan de
+ *  l'étape, le rappel du rang B). Une URL écrite deux fois est deux URL —
+ *  c'est la loi de ce fichier, et c'est pour ça qu'il existe.
+ *  ⛔ Aucune ancre : le chapitre se lit en entier, et une ancre morte ne se
+ *  voit qu'en cliquant. */
+export function lienAbilityScoresFhWeb() {
+  return `${FH_WEB}/chapters/ability-scores/`;
+}
+
 /** L'URL FH web d'un skill, par son slug ou son nom. */
 export function lienSkillFhWeb(slugOuNom) {
   const slug = String(slugOuNom || "").toLowerCase().replace(/\s+/g, "-");
