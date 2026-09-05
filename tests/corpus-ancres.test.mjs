@@ -39,7 +39,18 @@ const STATUTS = new Set(["vivante", "dépréciée", "remplacée", "à trancher",
 /* La ligne d'adresse, telle qu'elle est posée par le lot 161 :
      📍 `mon-ancre` · vivante · 26/08 · remplace `autre-ancre`            */
 const LIGNE = /^>?\s*📍\s+`([a-z0-9-]+)`\s+·\s+([^·]+?)\s+·\s+([0-9]{2}\/[0-9]{2}|\?)\s*(·.*)?$/;
-const LIEN  = /\b(remplace|remplacée par)\s+`([a-z0-9-]+)`/g;
+/* ⭐ DEUX RELATIONS, ET ELLES NE DISENT PAS LA MÊME CHOSE (Eric, 2026-09-05).
+     · `remplace` / `remplacée par` — la neuve TUE l'ancienne. L'ancienne passe
+       au statut `remplacée` : plus personne ne doit s'en servir.
+     · `borne`    / `bornée par`    — la neuve N'EN TUE AUCUNE : elle découpe une
+       exception nommée dans une règle qui reste VIVANTE partout ailleurs.
+     ⛔ Écrire « remplacée par » là où il fallait « bornée par » est un mensonge
+     qui tue une règle encore valable sur huit écrans sur dix ; laisser une règle
+     bornée toute seule en « vivante » est ce qui a causé la faute de CADRES §8,
+     qu'un lot appliquait à l'envers sans pouvoir le savoir. */
+const LIEN  = /(remplacée par|remplace|bornée par|borne)\s+`([a-z0-9-]+)`/g;
+const MIROIR = { "remplace": "remplacée par", "remplacée par": "remplace",
+                 "borne": "bornée par", "bornée par": "borne" };
 
 function ancres() {
   const out = [];
@@ -101,12 +112,13 @@ test("④ LE LIEN VA DANS LES DEUX SENS — c'est tout le sujet", () => {
     for (const l of a.liens) {
       const autre = par.get(l.vers);
       if (!autre) continue;
-      const attendu = l.sens === "remplace" ? "remplacée par" : "remplace";
+      const attendu = MIROIR[l.sens];
       if (!autre.liens.some((x) => x.sens === attendu && x.vers === a.ancre))
         boiteux.push(`${a.ancre} dit « ${l.sens} ${l.vers} » — mais ${l.vers} ne dit pas « ${attendu} ${a.ancre} »`);
     }
   assert.deepEqual(boiteux, [],
-    "un lien à sens unique. Les deux règles se citent, ou aucune.");
+    "un lien à sens unique. Les deux règles se citent, ou aucune. ⭐ Une règle " +
+    "peut être bornée par PLUSIEURS autres : chaque borne doit répondre.");
 });
 
 /* ⚠️ LES AMENDEMENTS ANTÉRIEURS AU RÉGIME — compte EXACT, liste NOMMÉE.
@@ -129,6 +141,26 @@ const AMENDEMENTS_SANS_LIEN = [
   "RENVERSE UNE DÉCISION DU LOT 120",             // sa cause a disparu avec elle
   "le centrage était FAUX par construction",      // un constat : la règle fausse n'existe plus
 ];
+
+test("④ bis une règle BORNÉE reste vivante, une règle REMPLACÉE ne l'est plus", () => {
+  /* ⚖️ C'est toute la différence entre les deux relations, et elle se vérifie.
+     Une règle qu'on borne vaut encore partout ailleurs — la dire `remplacée`
+     la retirerait des écrans où elle est la loi. */
+  const tous = ancres().filter((a) => a.ok);
+  const fautes = [];
+  for (const a of tous) {
+    const borne = a.liens.some((l) => l.sens === "bornée par");
+    const mort  = a.liens.some((l) => l.sens === "remplacée par");
+    if (borne && a.statut !== "vivante")
+      fautes.push(`${a.ancre} est bornée mais porte « ${a.statut} » — une borne ne tue pas.`);
+    if (mort && a.statut !== "remplacée")
+      fautes.push(`${a.ancre} est remplacée mais porte « ${a.statut} » — son statut doit le dire.`);
+    if (borne && mort)
+      fautes.push(`${a.ancre} est à la fois bornée ET remplacée : choisir laquelle est vraie.`);
+  }
+  assert.deepEqual(fautes, [],
+    "le statut et le lien se contredisent — c'est le lien qui dit ce qui est vrai.");
+});
 
 test("⑤ un amendement NEUF porte son lien retour", () => {
   /* ⚠️ `\b` EST ASCII EN JAVASCRIPT : `\bétait` ne matche JAMAIS, parce que `é`
