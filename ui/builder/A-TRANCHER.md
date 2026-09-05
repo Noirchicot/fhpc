@@ -133,6 +133,13 @@
 - **CADRES.md § 2 bis** : *« **IL N'Y A PAS UNE MESURE, IL Y EN A TROIS, ET C'EST VOULU** : une grille de compétences n'est pas un paragraphe. »* (`--card-w`, `--panel-w`, `--grid-w`)
 - Règles concernées : `cadre-measure-unique` · `cadre-trois-largeurs`
 - ⚠️ Les deux phrases sont dans le même fichier, à deux sections d'écart, et emploient le même mot « mesure » pour deux choses.
+- 🗣 **ERIC, 2026-09-06 — LA QUESTION ÉTAIT MAL POSÉE, ET C'EST LUI QUI LE DIT.** *« `measure`
+  c'est un terme de code que tu utilises, pas sûr qu'il y ait une règle là. La règle, c'est plutôt
+  **la largeur maximale définie pour l'ensemble des dalles. En général 62ch**. Mais remettre ça
+  entre les mains de l'archi pour décider de où ça se range est approprié. »*
+  ⭐ **CE QUI EST TRANCHÉ** : la règle n'est pas un nom de jeton CSS, c'est *« la largeur maximale
+  de l'ensemble des dalles, en général 62ch »*. ⛔ **CE QUI RESTE À L'ARCHI** : où cette règle se
+  range, et sous quel mot. Le nom du jeton `--measure` est du code, pas une loi.
 
 ## C13 — 35 % et 50 % : qui porte quoi ? { #c13 }
 
