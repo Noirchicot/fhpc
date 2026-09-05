@@ -5591,12 +5591,39 @@ button { font: inherit; }
    de mes deux tentatives précédentes n'obtenait sans un cas particulier.
    ⛔ `flex-wrap: nowrap` : une rangée de contrôles ne se replie pas sur deux
    lignes, elle déborde visiblement (§5 bis). */
+/* 🔴 LE GROUPE OCCUPE SA CELLULE, ET C'EST LA CELLULE QUI CENTRE — Eric,
+   2026-09-05 : *« si t'es sur un grid, tes boutons doivent être dans une
+   cellule »* · *« tout doit être dans une boîte et une grille maintenant »*.
+
+   ⛔ CE QUE `justify-self: center` FAISAIT, ET POURQUOI ÇA A TENU SI LONGTEMPS :
+   il centre la BOÎTE DU GROUPE dans sa piste — donc la position du contenu se
+   déduit de la LARGEUR du groupe, qui se déduit elle-même de son contenu. Tant
+   qu'un groupe ne porte qu'un bouton, sa largeur EST celle du bouton et le
+   résultat est juste. **Par coïncidence.**
+   📏 Mesuré sur R Abilities le 05/09 : chez moi le groupe rendait 87 (la cote
+   du jeton) et `FREE` tombait pile au centre ; sur l'iPad d'Eric le même groupe
+   rendait plus large et `FREE` partait **32 blg à droite** — à cheval entre deux
+   colonnes de la grille du dessus, dans aucune cellule. Eric l'a vu à l'œil ;
+   mes quatre relevés disaient `écart = 0` parce qu'ils mesuraient le CENTRAGE,
+   pas l'ALIGNEMENT. *Une mesure juste sur le mauvais critère est une mesure
+   fausse.*
+
+   ⭐ LA FORME QUI NE PEUT PLUS MENTIR : le groupe s'ÉTIRE sur sa piste
+   (`stretch`) et centre son contenu dedans (`justify-content: center`). Le
+   centre est alors celui de la CELLULE — une constante de la grille — et il ne
+   dépend plus de ce que le groupe porte. Un bouton, cinq boutons, un libellé
+   traduit deux fois plus long : le centre ne bouge pas.
+   ⛔ Ne pas revenir à `justify-self: center` « parce que c'est plus direct » :
+   c'est exactement la faute que §6 pré nomme sous une autre forme — *un `1fr`
+   posé dans une boîte que personne n'étire ne vaut rien*. Ici c'était l'inverse
+   et le même mal : une piste que personne n'occupe ne centre rien. */
 :is(.parcours-pied, .sortie, .fiche-actions, .card-pied, [data-rangee]) > .rangee-majeurs {
   grid-column: 2; grid-row: 1;
-  justify-self: center;
+  justify-self: stretch;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: center;
   gap: var(--sp-8);
   min-inline-size: 0;
 }
@@ -6473,7 +6500,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=551");
+  background-image: url("./assets/tarot-dos.jpg?v=552");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
