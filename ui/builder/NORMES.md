@@ -700,7 +700,7 @@ fragile.
 
 ### La ceinture (`.belt`)
 📍 `budget-ceinture-deduite` · vivante · 26/08
-📍 `budget-entree-r-sans-ceinture` · vivante · 26/08
+📍 `budget-entree-r-sans-ceinture` · vivante · 26/08 · borne `cadre-belt-toujours-visible`
 
 | | |
 |---|---|
@@ -869,7 +869,7 @@ confiance de l'avoir appliquée.
 ---
 
 ## 1 sexies. ✅ LE SEUIL — sa sortie et son défilement *(tranché 26/08)*
-📍 `cadre-seuil-est-un-fs` · vivante · 26/08
+📍 `cadre-seuil-est-un-fs` · vivante · 26/08 · borne `cadre-belt-toujours-visible`
 📍 `geste-seuil-defile` · vivante · 26/08
 
 > Eric : *« la première fenêtre qui amène sur FH Web propose d'ouvrir **une autre fenêtre** vers le
@@ -967,6 +967,7 @@ entière »)*. C'est **une contrainte à respecter le jour où ce chantier s'ouv
 ⚠️ Et le budget du Seuil *(≈380 px, §1 quater)* **cesse d'être une contrainte dure** : il devient
 la hauteur du **premier écran vu**, pas celle de l'écran entier. ⏳ Ce qui doit tenir **au-dessus
 de la ligne de flottaison** n'est pas tranché.
+📍 `budget-seuil-n-est-plus-une-contrainte-dure` · vivante · 26/08
 
 ---
 
@@ -2041,7 +2042,7 @@ marges légitimes qui s'additionnaient** — chacune juste de son côté. On ne 
 ## 4 quater. 📐 LA CARTE DU RANG R EST UN DESSIN PROPORTIONNEL *(dicté au banc, 27/08)*
 📍 `panneau-homothetie-u-retiree` · remplacée · 30/08
 📍 `panneau-plafond-u-leve` · remplacée · 30/08
-📍 `budget-carte-r-est-un-dessin` · vivante · 27/08
+📍 `budget-carte-r-est-un-dessin` · vivante · 27/08 · borne `ecriture-corps-de-lecture-ne-se-met-pas-a-l-echelle`
 📍 `budget-carte-r-hauteur` · vivante · 30/08
 📍 `budget-pas-de-seconde-echelle` · vivante · 30/08
 

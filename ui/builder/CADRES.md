@@ -119,7 +119,7 @@
    qui se vérifie doit être vérifiée : celle-ci ne tenait pas.
 
 ## 0. LA CONSTANTE, ET ELLE EST AU-DESSUS DE TOUT
-📍 `cadre-belt-toujours-visible` · vivante · 16/08
+📍 `cadre-belt-toujours-visible` · vivante · 16/08 · bornée par `budget-entree-r-sans-ceinture` · bornée par `cadre-seuil-est-un-fs`
 
 > *« BELT IS ALWAYS VISIBLE »* — première ligne du croquis.
 
@@ -621,7 +621,7 @@ justement pour qu'elles puissent cesser de l'être sans rien renommer.
 
 ### 📏 LA BOÎTE DONNE-T-ELLE LE CONTRÔLE ? OUI — MAIS PAS PAR LA PROPORTION
 📍 `cadre-boite-achete-une-cote-reservee` · vivante · 16/08
-📍 `ecriture-corps-de-lecture-ne-se-met-pas-a-l-echelle` · vivante · 16/08
+📍 `ecriture-corps-de-lecture-ne-se-met-pas-a-l-echelle` · vivante · 16/08 · bornée par `budget-carte-r-est-un-dessin`
 
 Eric, 2026-08-16 : *« si on met le texte et les images dans des boîtes, a-t-on
 un meilleur contrôle du rendu ? La même boîte texte 1 des classes fait-elle la
