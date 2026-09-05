@@ -72,6 +72,19 @@
 - **le code du 15/08, cité dans le même paragraphe** : `.stage-chevrons` est *« en haut et en bas (`position: absolute; inset: 0`, 36 × 14, non tactile) »*, décrit comme *« une amorce redondante avec le geste de défilement, pas un contrôle »*.
 - Règles concernées : `chevron-gauche-et-droite` · `chevron-ecart-avec-le-code`
 - ⚠️ Le corpus marque l'écart ⏳ *« à revérifier maintenant qu'il devient aussi un contrôle de pagination »* — mais les deux descriptions restent écrites comme normatives.
+- 🗣 **ERIC A DÉJÀ RÉPONDU — LE 2026-09-03, ET JE L'AI REDEMANDÉ LE 06/09.** Sa phrase est dans
+  NORMES § 4 quater ter : *« ces chevrons n'apparaissent que quand la boîte déborde, **ils sont dans
+  la marge gauche** »* · *« entre le bloc et le bord de la dalle »*. Le corpus en tire la
+  conséquence, mesurée : ⭐ **« LA GOUTTIÈRE EST DE LARGEUR NULLE »** — les chevrons débordent vers
+  la gauche par une marge négative, dans les 16 blg du rembourrage, et **ne prennent aucune largeur
+  au texte, ni présents ni absents**.
+  ⛔ **CE QUI TOMBE AVEC** : l'objection des « 96 px » (2 × `--touch` + 2 × `--sp-4`, lot A, 26/08)
+  ne s'applique plus — elle décrivait une pose *sur* la dalle, pas dans son rembourrage.
+- ⚠️ **CE QUI RESTE, ET CE N'EST PLUS LA MÊME QUESTION.** La table du 26/08 écrit ⛔ *« pas dans la
+  marge — il se pose SUR la dalle, au ras de son bord »*, quand la décision du 03/09 le met
+  **dans** la marge. Le corpus dit lui-même *« un seul objet, deux rôles — ⛔ ne pas en fabriquer
+  deux »*, donc les deux passages parlent bien du même organe. C'est une **borne** à poser, pas un
+  arbitrage à demander.
 
 ## C7 — Le dropdown : la norme ou le code ? { #c7 }
 
