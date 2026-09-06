@@ -336,14 +336,58 @@ test("D3 — 🔴 UNE PERTE SE DIT : un personnage illisible laisse un message, 
   assert.match(perdu.textContent, /could not be read/, "et il porte la raison");
 });
 
-test("D4 — ⛔ AUCUN BOUTON ICI : le builder n'a pas de personnage vierge", () => {
-  /* « Recommencer » rendrait le Magicien d'exemple. Une porte qui ne mène pas
-     là où elle dit est pire que pas de porte (loi §0.6). Ce garde tombera le
-     jour où un personnage VIERGE existera — et il faudra alors le retirer
-     exprès, pas le découvrir. */
+test("D4 — ⛔ AUCUNE PORTE ICI NE PROMET UN PERSONNAGE NEUF", () => {
+  /* 🔴 CE GARDE A ÉTÉ RÉÉCRIT LE 2026-09-06, ET IL EST PLUS STRICT QU'AVANT,
+     PAS PLUS LÂCHE. Il comptait les boutons (« zéro ») ; il nomme maintenant
+     le DANGER. La décision du 20/08 n'a pas bougé d'un mot : le builder n'a
+     AUCUN personnage vierge — il naît de l'exemple commité — donc « Start
+     over » rendrait un Magicien tout fait, et une porte qui ne mène pas là où
+     elle dit est pire que pas de porte (loi §0.6).
+     ⭐ CE QUI A CHANGÉ, C'EST QU'UN AUTRE GESTE EXISTE : « oublier ce que ce
+     navigateur garde » ne promet aucun personnage neuf. Compter les organes
+     l'interdisait par accident ; nommer la promesse l'autorise sans rien
+     relâcher. ⛔ Un garde qui compte protège la forme du jour où il a été
+     écrit ; un garde qui nomme protège la décision. */
   const doc = draftDocument();
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  assert.equal(node.querySelectorAll(".universe-memoire button").length, 0);
+  const menteurs = node.querySelectorAll(".universe-memoire button")
+    .map((b) => b.textContent.trim())
+    .filter((mot) => /\b(new|start over|restart|reset|fresh|blank)\b/i.test(mot));
+  assert.deepEqual(menteurs, [],
+    "ces libellés promettent un personnage neuf, que le builder ne sait pas fabriquer : " + menteurs.join(", "));
+});
+
+test("D6 — 🔴 LA SORTIE DE SECOURS EXISTE, et elle dit le geste, pas une promesse", () => {
+  /* Eric, 2026-09-06 : *« un bouton reset du perso, dans le menu, qui permet
+     de vider le cache quand ça bloque »*. Mesuré le même jour sur le site
+     déployé : un personnage gardé avant un changement de couche de données
+     rend SIX écrans sur huit muets, et rien dans l'interface n'en sortait. */
+  const doc = draftDocument();
+  const gestes = [];
+  const node = renderUniverseStep(
+    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } },
+    (a) => gestes.push(a)
+  );
+  const bouton = node.querySelectorAll(".universe-memoire .universe-oubli")[0];
+  assert.ok(bouton, "le bouton d'oubli vit dans la section « This character »");
+  assert.match(bouton.textContent, /Forget/, "son mot porte le geste");
+  bouton.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "oublierPersonnage" }],
+    "il émet un verbe, il n'efface pas lui-même — l'écran ne touche jamais le magasin");
+});
+
+test("D7 — ⛔ ET IL N'EST JAMAIS GRISÉ, même quand la mémoire refuse", () => {
+  /* 🔴 `memoire.ok` dit si la dernière ÉCRITURE a réussi, jamais s'il y a
+     quelque chose à jeter. Un magasin qui refuse d'écrire peut très bien
+     garder un personnage périmé — c'est le cas exact qu'on répare. Le griser
+     là-dessus retirerait la sortie de secours au moment précis où elle sert. */
+  const doc = draftDocument();
+  for (const memoire of [{ ok: true }, { ok: false, raison: "QuotaExceededError" }]) {
+    const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire }, () => {});
+    const bouton = node.querySelectorAll(".universe-memoire .universe-oubli")[0];
+    assert.ok(bouton, `le bouton existe aussi quand ok=${memoire.ok}`);
+    assert.notEqual(bouton.disabled, true, `il reste pressable quand ok=${memoire.ok}`);
+  }
 });
 
 test("D5 — sans `memoire` dans le ctx, l'écran ne ment pas : il se tait sur l'échec", () => {

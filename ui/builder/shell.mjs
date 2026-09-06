@@ -38,7 +38,7 @@ import {
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=591";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=591";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -918,6 +918,33 @@ function applyDecisionAction(action) {
      ⛔ AUCUN N'ÉCRIT DANS LE DOCUMENT : ce sont des préférences de lecteur,
      pas des faits du personnage (voir la tête de `tutoriel.mjs`). */
   if (action.kind === "tutoBascule") { setTutorielActif(Boolean(action.value)); refresh(); return; }
+  /* ══ 🔴 OUBLIER LE PERSONNAGE GARDÉ — Eric, 2026-09-06 ═══════════════════
+     *« un bouton reset du perso, dans le menu, qui permet de vider le cache
+     quand ça bloque »*.
+
+     🔴 IL FAIT DEUX CHOSES, ET LA SECONDE EST LA MOITIÉ QUI SERT : il OUBLIE
+     (`memoire.mjs`), puis il RECHARGE. Oublier sans recharger laisserait le
+     joueur devant le personnage cassé qu'il vient de jeter — la mémoire serait
+     propre et l'écran toujours mort. C'est le rechargement qui rouvre sur
+     l'exemple, et c'est lui qu'Eric appelle « débloquer ».
+
+     ⭐ `oublierPersonnage` EXISTAIT DEPUIS LE 20/08, SANS APPELANT — sa propre
+     tête l'annonçait : *« le jour où un geste existera, il n'aura rien à
+     écrire ici »*. Il n'a rien eu à y écrire. Une moitié de clef qui attend
+     son geste n'est pas du code mort ; celle-ci vient de trouver le sien.
+
+     ⚠️ ET UN REFUS NE BLOQUE PAS LE RECHARGEMENT. Si le magasin refuse
+     d'effacer (mode privé, magasin cloisonné), on recharge quand même : le
+     rechargement seul répare déjà les pannes qui ne viennent pas du stockage,
+     et rendre la main sans rien faire serait, ici précisément, un bouton mort
+     de plus sur un builder déjà bloqué. */
+  if (action.kind === "oublierPersonnage") {
+    oublierPersonnage();
+    if (typeof window !== "undefined" && window.location && window.location.reload) {
+      window.location.reload();
+    }
+    return;
+  }
   /* ══ L'INTERRUPTEUR DU DOUBLE AFFICHAGE — lot 120 ════════════════════════
      Même famille que le tutoriel : une PRÉFÉRENCE DE LECTEUR, jamais un fait
      du personnage (voir la tête de `vue.mjs`).
