@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=583";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=583";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=583";
-import { armerJeton } from "./glisser.mjs?v=583";
-import { facteurZoomCourant } from "./echelle.mjs?v=583";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=583";
-import { createDieHost, mount } from "./dice3d.mjs?v=583";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=583";
+import { markPressed } from "./carnet.mjs?v=584";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=584";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=584";
+import { armerJeton } from "./glisser.mjs?v=584";
+import { facteurZoomCourant } from "./echelle.mjs?v=584";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=584";
+import { createDieHost, mount } from "./dice3d.mjs?v=584";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=584";
 
 export { rollAbilitySet };
 
@@ -181,6 +181,19 @@ export const ABILITY_ENTRIES = [
   },
   {
     id: "free", label: "FREE",
+    /* ⏳ CETTE PHRASE N'EST PAS À L'ÉCRAN AUJOURD'HUI, et c'est une DETTE MESURÉE,
+       pas un abandon. Eric la veut (*« dans FREE, il faut un aiguilleur sous le
+       titre »*, 06/09) ; la page ne l'a pas : sa carte fait 486 blg et elle est
+       pleine à 486 pile (organe 46 · palette 205 · collecteur 219 · écarts 16).
+       📏 Un aiguilleur coûte **45 de boîte** — son plancher, même pour une seule
+       ligne de texte : raccourci à 32 signes, il demande toujours 45 — plus 8
+       d'écart, soit **53**. Les seuls postes qui pourraient les payer sont des
+       cotes d'Eric : le titre du collecteur (28+8), la ligne de bonus réservée
+       (31, sa règle du 05/09 — *« il ne doit pas bouger une fois le dé posé »*),
+       le rembourrage du tapis (8). ⛔ Aucune n'est à moi.
+       ⭐ En attendant, le `?` porte la règle en entier (`GUIDES.abilities`) — pas
+       le vide. Et la phrase reste ICI, entière, parce que c'est la SOURCE : le
+       jour où un poste se libère, l'aiguilleur la retrouve sans être réécrit. */
     blurb: "Sixteen dice, 3 to 18 — take any value, as often as you like; the pool never runs out. "
       + "Drag a die off to discard it, or drop another on top to replace it."
   }
@@ -687,7 +700,7 @@ function renderVivier(ctx) {
  *  ⭐ LE MODIFICATEUR QUI COMPTE EST DANS LA CIBLE, et il y était déjà : le
  *  FINAL, boosts compris, lu dans `resolved.abilities` par `renderFinalColumn`
  *  — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
-function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
+function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, onHorsCible }) {
   /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
      hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
      pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
@@ -732,7 +745,14 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot }) {
      seconde fois sous le dé gardé serait le même nombre à trente blg d'écart —
      la faute que le 16/08 avait déjà retirée pour le total. ⛔ L'ajustement
      reste VISIBLE, à l'endroit qui l'explique : la case. */
-  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot }));
+  /* 🗑️ LÂCHÉ HORS DE TOUTE CIBLE — Eric, 06/09 : *« il faut qu'on puisse balancer
+     un dé dans le vide pour évacuer un collecteur »*. `glisser.mjs` distingue
+     déjà les deux cas depuis le 20/08 (*« pour un jeton du VIVIER c'est un
+     non-geste ; pour le contenu d'un RÉCEPTEUR c'est le geste d'annulation »*) —
+     il attendait seulement qu'un appelant le lui dise. ⛔ Rien n'est passé quand
+     l'appelant n'en veut pas : un dé du podium lâché dans le vide rentre chez lui,
+     et B1 est figé. */
+  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot, onHorsCible }));
   return jeton;
 }
 
@@ -872,7 +892,11 @@ function renderCollecteur(ctx) {
       creneau.append(renderJetonDe(pose, FS.resolution, {
         chezSoi: false,
         onTap: () => ctx.reprendre(key),
-        onDepot: (ou) => ctx.deplacer(key, pose, ou)
+        onDepot: (ou) => ctx.deplacer(key, pose, ou),
+        /* 🗑️ EN FREE SEULEMENT : le vide ÉVACUE la case (Eric, 06/09). Les trois
+           autres méthodes ont un podium — leur dé y retourne, et « le vide » n'y
+           est pas un lieu. ⛔ B1 est figé (§7.3) : on ne lui ajoute pas un geste. */
+        onHorsCible: ctx.composable ? () => ctx.reprendre(key) : undefined
       }));
     } else {
       /* ⭐ UNE CIBLE VIDE MONTRE UNE CIBLE — trois cercles concentriques,
@@ -1493,10 +1517,24 @@ export function renderAbilitiesStep(ctx, onAction) {
          sur UNE pastille, il prend cette place-là (Eric, 05/09). */
       if (ou === RETOUR_VIVIER) { glisseCtx.reprendre(key); return; }
       if (ou.startsWith(PODIUM)) { glisseCtx.placerAuPodium(roll, ou, key); return; }
-      /* ⭐ EN `FREE`, DÉPLACER UN DÉ POSÉ LE RECOPIE : la source garde le sien,
-         la cible reçoit la valeur. C'est la divergence §5.3 — un ÉCHANGE n'a
-         de sens qu'entre dés en nombre fini, et la palette est inépuisable. */
-      if (composable) { glisseCtx.poserDepuisPalette(ou, roll.total); return; }
+      /* 🔴 EN `FREE`, UN DÉPLACEMENT LATÉRAL VIDE SA SOURCE — Eric, 06/09 :
+         *« il faut qu'on puisse déplacer un dé posé latéralement, vider le
+         collecteur et le poser ailleurs ; ici, pas fait, on duplique »*.
+         ⛔ CE QUE ÇA RENVERSE, ET LA RAISON D'ALORS ÉTAIT INCOMPLÈTE. On lisait
+         *« la palette est inépuisable, donc déplacer RECOPIE »* — vrai de la
+         PALETTE, faux du COLLECTEUR. Prendre une valeur au magasin ne l'épuise
+         pas ; prendre un dé POSÉ, si : le geste dit « celui-là, ailleurs », et
+         un geste de déplacement qui laisse l'objet derrière lui n'est pas un
+         déplacement. Les deux origines ne portent pas le même verbe, et c'est
+         l'origine qui décide — pas la nature du vivier.
+         ⭐ DEUX ÉCRITURES, ET L'ORDRE COMPTE : on POSE d'abord (la valeur est
+         lue sur `roll`, pas relue du document), on VIDE ensuite. L'inverse
+         laisserait un instant où la valeur n'est nulle part. */
+      if (composable) {
+        glisseCtx.poserDepuisPalette(ou, roll.total);
+        glisseCtx.reprendre(key);
+        return;
+      }
       glisseCtx.poser(ou, roll);
     }
   };

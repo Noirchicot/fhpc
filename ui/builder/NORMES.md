@@ -4956,9 +4956,56 @@ y peindre un fond n'ajoute pas un pixel *(mesuré : palette 197, carte 473, inch
 ⛔ **Sur l'îlot, ça aurait coûté 59** : le rapport de B1 est *dé = 75 % du disque*, donc 44 / .75 =
 58,7 par rangée, soit `4 × 58,7 + 24 = 259` — 59 de trop pour une page qui a 3 de reste. **Le même
 dessin à un étage près, et l'un des deux ne rentre pas.**
-⭐ Le `.75` du podium est repris tel quel : cube **32,6** dans un disque de **43,4**. Ce qui rétrécit
-est le **dessin** ; la **cible** reste le bouton de 44 — §1 ter, *un dessin ne dimensionne pas un
-contrôle*.
+⭐ Le `.75` du podium est repris tel quel. ⛔ **Les seize disques sont partis le même soir**, quand
+le TAPIS est arrivé : un dé sur un cercle sur un tapis fait deux fonds verts empilés. C'est le
+partage de B1 — les dés du **tapis** n'ont pas de pastille, les dés du **podium** n'ont pas de tapis.
+Le `.75`, lui, reste : il laisse le feutre se voir entre les seize.
+
+🟢 **LE TAPIS** *(`tapis-4x4.webp`, 552 × 313, livré sur commande chiffrée)* : son rembourrage est
+**déduit du rapport de l'image**, jamais choisi — image 552/313 = **1,764**, grille nue
+362,4/197,5 = 1,835 *(plus large que le tapis)*, avec **4 tout autour** 362,4/205,5 = **1,764**. Le
+`contain` remplit donc exactement la boîte, sans bande vide ni recadrage, et les dés des coins ont
+4 blg avant le filet. Coût : **8 blg**.
+⚠️ **Le fichier n'était pas où ChatGPT disait l'avoir rangé** — il ne peut pas écrire sur le disque.
+Une livraison se **vérifie au disque**, jamais sur la parole de qui l'annonce.
+
+⏳ **CE QUI MANQUE, ET C'EST UNE DETTE MESURÉE** : Eric veut *« un aiguilleur sous le titre »* sur
+FREE. La carte fait **486** et elle est pleine à **486 pile** *(organe 46 · palette 205 ·
+collecteur 219 · écarts 16)*. Un aiguilleur coûte **45 de boîte — son plancher, même à 32 signes de
+texte** — plus 8 d'écart : **53**. Les seuls postes qui peuvent les payer sont des cotes d'Eric : le
+titre du collecteur *(28+8)*, la ligne de bonus réservée *(31, sa règle du 05/09)*, le rembourrage
+du tapis *(8)*. **Aucune n'appartient à un lot.** En attendant, le `?` porte la règle entière.
+
+⭐ Le `.75` du podium : cube **32,6** dans un disque de **43,4**. Ce qui rétrécit est le **dessin** ;
+la **cible** reste le bouton de 44 — §1 ter, *un dessin ne dimensionne pas un contrôle*.
+
+### 7.13 🖐️ LES GESTES DE FREE — le collecteur se vide, il ne se duplique pas *(06/09)*
+📍 `geste-free-collecteur-se-vide-jamais-ne-duplique` · vivante · 06/09
+> Eric : *« il faut qu'on puisse recouvrir par un autre dé (c'est câblé) · il faut qu'on puisse
+> balancer un dé dans le vide pour évacuer un collecteur (pas fait) · il faut qu'on puisse déplacer
+> un dé posé latéralement, vider le collecteur et le poser ailleurs (ici pas fait, on duplique) »*.
+
+| geste | ce qui se passe |
+|---|---|
+| **recouvrir** *(palette → collecteur plein)* | la valeur remplace — déjà câblé |
+| **balancer dans le vide** *(collecteur → nulle part)* | 🆕 la case se **vide** (`onHorsCible`) |
+| **déplacer latéralement** *(collecteur → collecteur)* | 🆕 la cible reçoit, **puis la source se vide** — deux écritures, dans cet ordre |
+
+🔴 **CE QUE ÇA CORRIGE, ET LA RAISON D'ALORS ÉTAIT INCOMPLÈTE.** On lisait *« la palette est
+inépuisable, donc déplacer RECOPIE »* — **vrai de la palette, faux du collecteur**.
+📌 *La règle corrigée n'avait pas d'adresse au corpus : elle vivait dans `abilities-step.mjs`
+(« divergence voulue n° 1 ») et dans son test. Il n'y a donc rien à citer en retour — mais il fallait
+le dire, sinon le lien manquant passerait pour un oubli.* Prendre une
+valeur au magasin ne l'épuise pas ; prendre un dé **posé**, si : le geste dit *« celui-là,
+ailleurs »*, et un déplacement qui laisse l'objet derrière lui n'est pas un déplacement. **C'est
+l'ORIGINE du geste qui décide, pas la nature du vivier.**
+⭐ Le vide était **déjà distingué** dans `glisser.mjs` depuis le 20/08 *(« pour un jeton du VIVIER
+c'est un non-geste ; pour le contenu d'un RÉCEPTEUR c'est le geste d'annulation »)* — il attendait
+qu'un appelant le lui dise. ⛔ **Seul FREE le dit** : les trois autres ont un podium où le dé
+retourne, et **B1 est figé** (§7.3).
+⚠️ **Un test de ce geste ne s'écrit pas `glisser(de, null)`** : sans cible, aucun `pointermove`
+n'est dispatché, le seuil de 6 px n'est pas franchi et `armerJeton` lit un **TAP**. Le test passait
+en mesurant le tap. Le vrai vide fait **bouger** le pointeur et rend `elementFromPoint` vide.
 
 ---
 

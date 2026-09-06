@@ -155,6 +155,20 @@ async function glisser(de, cible, attendreLeMaintien) {
   de.dispatchEvent({ type: "pointerup", clientX: cible ? 40 : 0, clientY: 0, pointerId: 1 });
 }
 
+/** 🗑️ LÂCHER DANS LE VIDE — et ce n'est PAS `glisser(de, null)`.
+ *  ⛔ La faute est instructive : sans cible, `glisser` ne dispatche aucun
+ *  `pointermove`, donc le seuil de 6 px n'est jamais franchi et `armerJeton` lit
+ *  un **TAP**. Un test écrit ainsi mesure le tap en croyant mesurer le vide — et
+ *  il passe, parce que les deux appellent `reprendre`. Ici le pointeur BOUGE, et
+ *  c'est `elementFromPoint` qui ne rend rien : le geste est un vrai glisser qui
+ *  n'atterrit nulle part. */
+async function glisserDansLeVide(de) {
+  globalThis.document.elementFromPoint = () => null;
+  de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  de.dispatchEvent({ type: "pointermove", clientX: 90, clientY: 90, pointerId: 1 });
+  de.dispatchEvent({ type: "pointerup", clientX: 90, clientY: 90, pointerId: 1 });
+}
+
 /* ⚠️ `method` VIT DANS LE `ctx`, PAS DANS LE DOCUMENT (B5.1c, lot 63) : « il
    faut CLIQUER pour faire apparaître les rollers/choosers — rien n'est déplié
    d'avance ». Les tests la posent explicitement : c'est le geste du joueur. */
@@ -1101,18 +1115,49 @@ test("⭐ LA PALETTE POSE DIRECTEMENT SUR UNE CARACTÉRISTIQUE — sans étape i
     "📌 le créneau d'une clef est son RANG — chacune a le sien, donc jamais deux sur le même index");
 });
 
-test("⭐ RECOUVRIR REMPLACE, là où les trois autres ÉCHANGENT (§5.3)", async () => {
-  /* Un ÉCHANGE n'a de sens qu'entre dés en NOMBRE FINI : chacun doit retrouver
-     une place. La palette étant inépuisable, il n'y a rien à rendre — déplacer
-     un dé posé le RECOPIE, et la source garde le sien. */
+test("🔴 EN FREE, UN DÉPLACEMENT LATÉRAL VIDE SA SOURCE — il ne duplique plus", async () => {
+  /* Eric, 06/09 : *« il faut qu'on puisse déplacer un dé posé latéralement, vider
+     le collecteur et le poser ailleurs ; ici, pas fait, on duplique »*.
+     ⛔ CE QUE ÇA RENVERSE, et la raison d'alors était INCOMPLÈTE : on lisait
+     *« la palette est inépuisable, donc déplacer RECOPIE »* — vrai de la PALETTE,
+     faux du COLLECTEUR. Prendre une valeur au magasin ne l'épuise pas ; prendre un
+     dé POSÉ, si. C'est l'ORIGINE du geste qui décide, pas la nature du vivier.
+     ⭐ Et l'ordre des deux écritures compte : on POSE avant de VIDER, sinon la
+     valeur n'est nulle part pendant un instant. */
   const lot = freeBatch();
   lot.rolls[0].total = 15;
   lot.assign = { ...emptyAbilityAssign(), str: 0 };
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
   await glisser(deDeLaCible(node, "str"), creneauPour(node, "wis"));
-  assert.deepEqual(calls, [{ kind: "abilityFreeDirect", key: "wis", value: 15 }],
-    "⛔ pas d'`assignAbilityRoll` : en FREE on recopie, on n'échange pas");
+  assert.deepEqual(calls, [
+    { kind: "abilityFreeDirect", key: "wis", value: 15 },
+    { kind: "unassignAbilityRoll", key: "str" }
+  ], "la cible reçoit, PUIS la source se vide — et toujours pas d'`assignAbilityRoll` (on ne s'échange pas, on se déplace)");
+});
+
+test("🗑️ EN FREE, UN DÉ LÂCHÉ DANS LE VIDE ÉVACUE SON COLLECTEUR", async () => {
+  /* Eric, 06/09 : *« il faut qu'on puisse balancer un dé dans le vide pour évacuer
+     un collecteur »*. `glisser.mjs` distinguait déjà les deux cas depuis le 20/08
+     (« pour un jeton du VIVIER c'est un non-geste ; pour le contenu d'un RÉCEPTEUR
+     c'est le geste d'annulation ») — il attendait qu'un appelant le lui dise.
+     ⛔ ET SEULEMENT EN FREE : les trois autres ont un podium, leur dé y retourne,
+     et B1 est FIGÉ (§7.3). Le témoin ci-dessous le prouve dans les deux sens. */
+  const lot = freeBatch();
+  lot.rolls[0].total = 15;
+  lot.assign = { ...emptyAbilityAssign(), str: 0 };
+  const calls = [];
+  const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
+  await glisserDansLeVide(deDeLaCible(node, "str"));
+  assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "str" }],
+    "le vide vide la case");
+
+  /* ⚔️ LE TÉMOIN — en B1 le même geste ne fait RIEN : le dé rentre chez lui. */
+  const lotB1 = makeRollBatch([16, 14, 13, 12, 10, 8], { ...emptyAbilityAssign(), str: 0 });
+  const appelsB1 = [];
+  const b1 = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch: lotB1 }), (a) => appelsB1.push(a));
+  await glisserDansLeVide(deDeLaCible(b1, "str"));
+  assert.deepEqual(appelsB1, [], "⛔ B1 est figé : le vide n'y est pas un lieu");
 });
 
 test("⭐ LE RETOUR — ramener un dé sur le vivier le REPREND, dans toutes les méthodes", async () => {

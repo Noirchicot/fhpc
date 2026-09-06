@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=583") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=584") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2875,6 +2875,24 @@ button { font: inherit; }
    dé ne change pas de taille — il était DÉJÀ à son plafond de 48, c'est le
    vide autour qui part. */
 .ability-palette .fs { background: none; box-shadow: none; padding: 0; }
+/* 🟢 LE TAPIS DE LA PALETTE — Eric, 06/09 : *« un grand tapis vert sous les dés
+   posés sur une grande dalle avec grid »*. Livré par ChatGPT sur commande chiffrée :
+   `tapis-4x4.png`, **552 × 313**, fond transparent, coins courts, filet fin — vérifié
+   à la réception, et ⚠️ pas là où il disait l'avoir rangé (il ne peut pas écrire sur
+   le disque : le fichier est venu par Claude Drop). WebP sans perte au dépôt.
+   📐 LE REMBOURRAGE EST DÉDUIT DU RAPPORT DE L'IMAGE, pas choisi (§1 ter) :
+       image ......... 552 / 313 = **1,764**
+       grille nue .... 362,4 / 197,5 = 1,835   ⛔ plus large que le tapis
+       avec 4 tout autour → 362,4 / 205,5 = **1,764** ✅ le rapport de l'image
+   Le `contain` remplit donc exactement la boîte, sans bande vide ni recadrage, et
+   les quatre dés des coins ont 4 blg avant le filet. **Coût : 8 blg de hauteur.**
+   ⛔ Les seize pastilles s'en vont : un dé sur un cercle sur un tapis fait deux
+   fonds verts l'un sur l'autre. C'est le partage de B1 — les dés du TAPIS n'ont pas
+   de pastille (scène 1), les dés du PODIUM n'ont pas de tapis. */
+.ability-palette {
+  padding: var(--sp-4);
+  background: url("./assets/abilities/tapis-4x4.webp?v=584") center / contain no-repeat;
+}
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
    perdre de place » tient à UN choix : **le disque est peint sur le BOUTON du dé**,
@@ -2892,9 +2910,9 @@ button { font: inherit; }
    rétrécit est le DESSIN du dé (~33 dans son disque) ; la CIBLE, elle, reste le
    bouton de 44 — c'est la distinction de §1 ter, un dessin ne dimensionne pas un
    contrôle. */
-.ability-palette .fs-de {
-  background: var(--podium-pastille) center / contain no-repeat;
-}
+/* ⛔ ET PLUS DE DISQUE SOUS CHAQUE DÉ depuis que le tapis est là (v582 → v584) :
+   deux fonds verts empilés. Le `.75` reste : il donne au dé la même respiration
+   qu'au podium, et c'est lui qui laisse le feutre se voir entre les seize. */
 .ability-palette .fh-cd-static-die[data-sides="6"] { transform: scale(.75); }
 /* ⛔ LA PALETTE N'A PLUS DE RÈGLE À ELLE POUR SA GRILLE, ET C'EST UN GAIN.
    Elle portait des colonnes plafonnées à la cote du dé et un centrage — deux
@@ -4369,7 +4387,7 @@ button { font: inherit; }
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=583") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=584") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7030,7 +7048,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=583");
+  background-image: url("./assets/tarot-dos.jpg?v=584");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
