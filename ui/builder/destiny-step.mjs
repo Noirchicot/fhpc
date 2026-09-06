@@ -624,7 +624,23 @@ export function renderDestinyFinal(ctx, onAction) {
        ⚖️ NORMES §6 sépare `NEXT` (naviguer) de `DONE` (acter) : la nuance reste
        vraie partout ailleurs. Ici le même bouton fait les deux, et c'est le
        parcours d'Eric qui le décide — pas une confusion des deux mots. */
-    rangee.append(bouton("Next", "parcours-next", () => act({ kind: "destinyNext" })));
+    /* 🔴 `DONE` PUIS `NEXT`, ET C'EST LE RETOUR À LA NORME — Eric, 2026-09-06 :
+       *« il faut un Done pour allumer la pastille verte de R2, et un Next pour
+       circuler »* · *« le Next suit toujours le Done ou le remplace »*.
+       ⛔ CE QUI EST RENVERSÉ, ET IL FAUT LE LIRE AVANT DE REDÉFAIRE : la demande
+       du 2026-09-03 — *« on peut skip le done »* · *« c'est i changed my mind et
+       next direct »* — est **PÉRIMÉE**. Elle avait sa raison (un seul geste pour
+       acter et avancer) ; elle a coûté la pastille verte, parce qu'un `Next` qui
+       part n'a plus le temps de signer quoi que ce soit.
+       ⭐ ET IL N'Y A AUCUNE RÈGLE NEUVE ICI. `NORMES` l'écrit déjà, mot pour mot :
+       *« pourquoi Done et Next ne coexistent jamais — ce n'est pas deux façons
+       d'avancer, c'est le MÊME MOMENT VU AVANT ET APRÈS »*, avec sa table
+       (`rang R en cours : Cancel · Done` / `rang R validée : Cancel · Next`).
+       Destiny était l'exception ; il rentre dans le rang.
+       📌 R2 est le **R d'ARRIVÉE** (Eric, 06/09) : la racine une fois l'étape
+       validée. C'est ici, et nulle part ailleurs, que Destiny se signe. */
+    if (ctx.signe) rangee.append(bouton("Next", "parcours-next", () => act({ kind: "destinyNext" })));
+    else rangee.append(bouton("Done", "parcours-done", () => act({ kind: "destinyDone" })));
   }
   dalle.append(rangee);
   return dalle;
@@ -654,6 +670,10 @@ export function renderDestinyFinal(ctx, onAction) {
  * @param {object} ctx.resolved        la fiche dérivée — le Score, à l'octet
  * @param {Function} ctx.query         `layers.verbs.query`
  * @param {string} [ctx.drawnId]       la carte tirée ou choisie, pas actée
+ * @param {boolean} [ctx.signe]        l'étape est-elle SIGNÉE (pastille verte du
+ *   belt) ? ⛔ ce n'est pas « une carte est posée » : une carte peut être tirée,
+ *   relue, retirée sans que le joueur ait dit oui. C'est la coquille qui lit
+ *   `estConfirme(document, "destiny")` — cet écran ne connaît pas le carnet.
  */
 export function renderDestinyStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});

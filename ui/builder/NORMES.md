@@ -316,7 +316,35 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 | **carte · dalle · tuile** | l'**OBJET**. ⛔ ne porte jamais de lettre. Une **carte** a une hauteur imposée |
 | **`T0`…`T7`** | les tailles de texte (T0 = 8 px, un renfort sous un dé, ajouté le 05/09 sur *« passe en T0 »* — jamais une ligne à lire). ⛔ pas `H1`/`H2` |
 
-⛔ **« R1 » n'existe pas.** Cette faute a coûté un lot entier le 2026-08-23.
+⛔ ~~**« R1 » n'existe pas.** Cette faute a coûté un lot entier le 2026-08-23.~~
+📍 `vocabulaire-r1-n-existe-pas` · remplacée · 23/08 · remplacée par `vocabulaire-r-de-depart-r-d-arrivee`
+
+### ⭐ LE `R` A DEUX TEMPS — **R de DÉPART et R d'ARRIVÉE** *(Eric, 2026-09-06)*
+📍 `vocabulaire-r-de-depart-r-d-arrivee` · vivante · 06/09 · remplace `vocabulaire-r1-n-existe-pas`
+
+> Eric, 2026-09-06 : *« j'ai changé la terminologie avec le R d'arrivée et de départ,
+> mais ça fait plus sens »* · *« je l'ai utilisé pour Abilities aussi »*.
+
+| | |
+|---|---|
+| **R1 — le R de DÉPART** | la racine telle qu'on l'aborde : le CHOIX à faire |
+| **R2 — le R d'ARRIVÉE** | la même racine une fois l'étape validée : le **BILAN** |
+
+⭐ **CE QUE LE RENVERSEMENT CORRIGE, ET POURQUOI IL EST JUSTE.** La loi du 23/08
+interdisait `R1` parce qu'à l'époque **un rang n'avait qu'un seul écran** : un chiffre
+derrière `R` ne pouvait donc désigner qu'une PAGE, et `R`/`B`/`SB` est un rang, jamais
+un nom de page (loi ci-dessus, elle, **toujours vivante**). Le bilan du 06/09 a créé le
+cas que la loi ne connaissait pas : **une racine qui a deux états successifs**. Le
+chiffre ne nomme plus une page — il nomme **un TEMPS du même rang**.
+
+⛔ **CE QUI RESTE INTERDIT, ET N'A PAS BOUGÉ D'UN MOT** : `B1`, `B2`, `SB2` restent des
+RANGS, jamais des noms de page ; et on écrit toujours **« Entrée › B2 »**, jamais « B2 »
+seul. Le renversement ne touche QUE le `R`, et seulement parce qu'il a deux temps.
+
+📌 **Déjà en usage** : `NORMES §7.9` (le bilan d'Abilities, 06/09) et l'écran final de
+Destiny. ⚠️ Cette section existe parce que le corpus se contredisait : §7.9 employait
+`R1`/`R2` le matin même où la ligne du 23/08 les interdisait encore. **Les deux étaient
+écrites, aucune ne pointait vers l'autre.**
 ⛔ Écrire **« Entrée › B2 »** ou **« Équipement › B2 »**, jamais « B2 » seul : chaque chapitre a
 son propre `R`, ses propres `B`.
 

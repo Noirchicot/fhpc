@@ -1214,6 +1214,12 @@ function applyDecisionAction(action) {
       return;
     }
     annulerDestiny();
+    /* 🔴 ET IL LÈVE LA SIGNATURE — sinon la pastille resterait verte sur une étape
+       qu'on vient de vider. Même loi que `leverLaSignatureDAbilities` : tout geste
+       qui peut encore changer le résultat éteint le voyant. */
+    if (state.docWriters && state.document && estConfirme(state.document, "destiny")) {
+      state.document = state.docWriters.revoke({ document: state.document, path: "destiny" });
+    }
     state.destinyPhase = "porte";
     state.destinyMode = "draw";
     state.destinyDraw = null;
@@ -1235,6 +1241,30 @@ function applyDecisionAction(action) {
   }
   /* `Next` ACTE LA CARTE puis avance — c'est le seul point d'écriture de
      l'étape (B6.2 tient depuis le lot 61). */
+  /* 🟢 LE `DONE` DE DESTINY — Eric, 2026-09-06 : *« il faut un Done pour allumer la
+     pastille verte de R2 »* · *« tu devras toujours cliquer un Done pour avoir droit
+     à un Next »*. Il fait DEUX choses et il reste sur place : il ACTE la carte dans
+     le document, et il SIGNE l'étape. C'est la signature que la ceinture lit
+     (`estConfirme(document, "destiny")`) — rien ne la posait avant ce jour, et c'est
+     tout le défaut qu'Eric a vu : *« Destiny ne validait pas l'étape 4 par un feu
+     vert dans le belt »*.
+     ⛔ IL NE NAVIGUE PAS. Le `Next` qui le remplace ensuite s'en charge : deux gestes,
+     deux verbes, la loi de `NORMES` (*« Done acte, Next navigue »*). */
+  if (action.kind === "destinyDone") {
+    annulerDestiny();
+    const id = state.destinyDraw || currentArcanaId(state.document);
+    if (id && state.engine && currentArcanaId(state.document) !== id) {
+      const suivant = state.engine.build.verbs.choose({
+        document: state.document, path: DESTINY_ARCANA_PATH, ref: { kind: "arcana", id }
+      });
+      state.document = suivant.document || suivant;
+    }
+    if (state.docWriters && state.document && !estConfirme(state.document, "destiny")) {
+      state.document = state.docWriters.confirm({ document: state.document, path: "destiny" });
+    }
+    rebuild();
+    return;
+  }
   if (action.kind === "destinyNext") {
     annulerDestiny();
     const id = state.destinyDraw || currentArcanaId(state.document);
@@ -2054,7 +2084,11 @@ function renderStepContent() {
         document: state.document,
         resolved: state.resolved,
         query: state.engine.layers.verbs.query,
-        drawnId: state.destinyDraw
+        drawnId: state.destinyDraw,
+        /* 🟢 LA SIGNATURE VIENT DE LA COQUILLE, JAMAIS DE L'ÉCRAN — c'est elle qui
+           tient le carnet. `destiny-step` ne sait pas lire un document, et il ne
+           doit pas l'apprendre pour un bouton. */
+        signe: estConfirme(state.document, "destiny")
       }, applyDecisionAction));
     }
   } else if (step.id === "destiny" && state.engineError) {

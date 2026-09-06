@@ -269,23 +269,39 @@ test("le pied final nomme les deux gestes du croquis, et n'en commet aucun tout 
   const appels = [];
   const node = renderDestinyStep(ctxFrom(report.document, report), (a) => appels.push(a));
   const boutons = node.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre"));
-  /* 🔴 « Done », PAS « Next » — croquis d'Eric du 2026-09-02. Le geste ne change
-     pas (`destinyNext`), c'est le MOT : NORMES §6 réserve `NEXT` à ce qui ne fait
-     que naviguer, et ce bouton-là ACTE la carte au document. */
-  /* 🔴 « NEXT », PAS « DONE » — Eric, 2026-09-03, après avoir fait mesurer
-     Species : *« le done c'est quand il y a des étapes intermédiaires »* ·
-     *« il n'y en a pas »* · *« c'est i changed my mind et next direct »*.
-     ⭐ CE N'EST DONC PAS UNE EXCEPTION DE DESTINY, C'EST LA RÈGLE APPLIQUÉE : la
-     coquille montre `Done` tant qu'un palier reste à faire, puis `Next`. Destiny
-     déclare `palier2: () => null` — aucun palier intermédiaire — donc elle est
-     d'emblée dans l'état où les autres finissent.
-     ⛔ CECI DÉFAIT LE CROQUIS DU 02/09 (*« DONE, pas NEXT »*) que le lot 142
-     avait écrit. La demande la plus récente fait loi, et les deux dates sont
-     ici pour que personne ne redéfasse l'une en croyant réparer l'autre. */
-  assert.deepEqual(boutons.map((b) => b.textContent), ["Cancel", "Next"]);
+  /* 🔴 TROISIÈME ÉTAT DE CETTE MÊME RANGÉE, ET LE DERNIER FAIT LOI. Les trois
+     dates sont ici pour que personne ne redéfasse l'une en croyant réparer l'autre :
+       · 02/09, croquis d'Eric : *« DONE, pas NEXT »* — écrit par le lot 142 ;
+       · 03/09, Eric après avoir fait mesurer Species : *« le done c'est quand il y a
+         des étapes intermédiaires »* · *« il n'y en a pas »* · *« c'est i changed my
+         mind et next direct »* — le `Done` saute ;
+       · **06/09, Eric** : *« il faut un Done pour allumer la pastille verte de R2, et
+         un Next pour circuler »* · *« le Next suit toujours le Done ou le remplace »*
+         · *« tu devras toujours cliquer un Done pour avoir droit à un Next »*.
+     ⛔ LE 03/09 EST PÉRIMÉ, et sa raison est mesurable : sans `Done`, **rien ne signe
+     l'étape** — `Next` part avant d'avoir pu poser quoi que ce soit, et la pastille
+     verte du belt reste éteinte sur un chapitre fini. C'est le défaut qu'Eric a vu le
+     06/09 : *« Destiny ne validait pas l'étape 4 par un feu vert dans le belt »*.
+     ⭐ ET IL N'Y A AUCUNE RÈGLE NEUVE : `NORMES` porte déjà la table
+     (`rang R en cours : Cancel · Done` / `rang R validée : Cancel · Next`) et la
+     phrase qui l'explique — *« Done et Next ne coexistent jamais, c'est le même
+     moment vu avant et après »*. Destiny était l'exception ; il rentre dans le rang.
+
+     ⚠️ ET ON GARDE LES DEUX BRANCHES DANS LE MÊME TEST — leçon du lot 124 : un garde
+     qui n'éprouve qu'une moitié d'une alternative laisse l'autre libre de mentir. */
+  assert.deepEqual(boutons.map((b) => b.textContent), ["Cancel", "Done"],
+    "pas encore signée : la rangée offre de VALIDER");
   boutons[0].click();
   boutons[1].click();
-  assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyNext" }]);
+  assert.deepEqual(appels, [{ kind: "destinyReset" }, { kind: "destinyDone" }]);
+
+  const apres = [];
+  const signe = renderDestinyStep(ctxFrom(report.document, report, { signe: true }), (a) => apres.push(a));
+  const boutons2 = signe.querySelectorAll(".parcours-pied button").filter((b) => !b.className.includes("fiche-livre"));
+  assert.deepEqual(boutons2.map((b) => b.textContent), ["Cancel", "Next"],
+    "signée : il n'y a plus rien à valider, la rangée offre de NAVIGUER");
+  boutons2[1].click();
+  assert.deepEqual(apres, [{ kind: "destinyNext" }]);
 });
 
 test("le voyant est un VOYANT — jamais un bouton (Eric : « idem voyant dans species »)", () => {

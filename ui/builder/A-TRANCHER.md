@@ -269,3 +269,13 @@
 - **Eric, 2026-08-24** : *« la fenêtre doit lui dire qu'il a son équipement **ou** 50 po à débourser »* — câblé en aiguilleur **exclusif** (`kit` | `purse`), et la coquille écrit en toutes lettres « kit de classe OU 50 po ».
 - Règles concernées : `equipement-depart-kit-ou-bourse`
 - ⚠️ Le module porte **encore les deux lectures** : la règle additive dans son commentaire de tête, la règle exclusive dans son code. Aucune des deux n'a été retirée. ⛔ Cette contradiction ne vient pas du corpus des 310 — elle vient du code et des commits, et c'est la première de cette origine.
+
+## C23 — Quitter une étape non validée par le belt : silence, ou avertissement ? { #c23 }
+
+**Question : quand le joueur quitte par le belt une étape dont il n'a pas cliqué `Done`, le laisse-t-on partir en silence, ou un gendarme l'avertit-il ?**
+
+- **Eric, 2026-09-06, dans l'ordre où il l'a dit** : *« si il clique le belt pour aller ailleurs on laisse comme c'est »* · *« le gendarme lance un popup pour prévenir, mais ne bloque pas »* · *« le popup empêche une fois la sortie via le belt et c'est tout »* · puis, **la même minute** : *« ok on peut quitter une étape via le belt, pas de gendarme »*.
+- **⚖️ TRANCHÉE POUR AUJOURD'HUI — pas de gendarme.** La dernière phrase fait loi : on quitte une étape par le belt sans être averti, comme avant. ⛔ **Rien n'a été écrit** : le comportement du belt est inchangé.
+- Règles concernées : `voyant-belt-signature` · `bouton-done-puis-next`
+- ⭐ **ET C'EST ERIC QUI A NOMMÉ LA VRAIE RAISON DE NE PAS LE FAIRE MAINTENANT** : *« on l'a pas fait ailleurs ? dans ce cas il faudrait le faire partout »*. Le gendarme de sortie n'est pas une affaire de Destiny — c'est **une loi transverse** sur toute étape qu'on quitte sans valider. La poser dans un seul écran en ferait une **exception de plus**, exactement ce que ce lot vient de défaire en faisant rentrer Destiny dans le rang du `Done`/`Next`.
+- ⏳ **CE QUI RESTE À TRANCHER LE JOUR OÙ ON LE FERA**, et qui n'a aucune réponse aujourd'hui : le *« une fois »* se compte-t-il **par étape** (Skills redemandera après Destiny) ou **par session** (un seul avertissement dans toute la création) ? ⚠️ Question posée le 06/09, **restée sans réponse** — c'est elle qui bloquera, pas le mécanisme.
