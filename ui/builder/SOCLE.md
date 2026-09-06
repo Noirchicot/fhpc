@@ -399,6 +399,8 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 ⚖️ 🔒 **Tout agent a en mémoire TOUS les sacrés, avant d'écrire une ligne.**
 📍 `socle-bible-lue-avant-de-coder` · vivante · 06/09
 ⚖️ 🔒 **Un agent qui va coder lit la Bible d'abord — toujours, sans exception.**
+📍 `socle-franchir-la-frontiere-oblige-a-lire-l-autre-bible` · vivante · 06/09
+⚖️ 🔒 **Un lot qui touche à FH WEB en travaillant sur le builder DOIT lire la Web Bible avant d'écrire — et réciproquement.**
 
 > Eric, 2026-09-06 : *« la règle d'écriture de la Bible : respecter les formats d'écriture
 > (sacré) »* · *« avoir en mémoire tous les sacrés »* · *« la Bible doit toujours être lue par
@@ -430,6 +432,21 @@ pour laquelle le sacré est un niveau à part : ⛔ **un sacré qu'il faut cherc
 sacré**. Si cette liste devient longue, c'est qu'on y a mis des règles — et il faut les en sortir.
 
 🔒 **③ LA BIBLE SE LIT AVANT DE CODER, PAS APRÈS.**
+
+🔒 **④ ET FRANCHIR LA FRONTIÈRE OBLIGE À LIRE L'AUTRE BIBLE.**
+
+> Eric, 2026-09-06 : *« quand on touche à FH WEB alors qu'on bossait sur le builder, on a
+> l'obligation de lire la Bible FH WEB. L'inverse à mettre dans la Web Bible. »*
+
+⛔ **CE N'EST PLUS UN RENVOI, C'EST UNE OBLIGATION.** Le renvoi croisé existait déjà des deux
+côtés — mais devant un renvoi, **on peut ne pas aller voir**. Devant un sacré, non.
+⚠️ **ET LE PRIX EST MESURÉ** : le 2026-09-06, la ligne éditoriale d'Eric a été violée **six
+fois dans un seul chapitre** du livre. Trois sièges y avaient écrit ce jour-là, et **aucun
+n'avait de corpus à lire**. C'est cet incident-là que ce sacré rend impossible.
+📌 **La frontière se franchit dans les deux sens** : le bouton 📖 et ses sorties, `LIVRE_*`,
+la loi des liens, les ancres de `sync_from_vault.py`, la voix du texte publié.
+⭐ **Le jumeau vit dans la Web Bible**, et il dit la même chose en sens inverse. ⛔ Un sacré à
+sens unique n'en serait pas un.
 
 ⛔ **« Je n'y ai pas pensé » cesse d'être recevable.** Un lot qui écrit sans avoir lu produit une
 règle que personne ne retrouvera, et qui en contredira une autre sans qu'on le voie.
