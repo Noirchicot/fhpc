@@ -3674,7 +3674,22 @@ rappeler de poser **sera oublié par ceux qui l'oublient** — et le corpus l'é
 `?` seulement** : *« il est posé par la coquille, une fois, sur toutes les étapes — jamais par un
 écran, qui pourrait l'oublier »*. **La règle existait ; personne ne l'avait appliquée au livre.**
 
-⏳ **LE REMÈDE EST VALIDÉ SUR LE PRINCIPE ET REMIS À PLUS TARD** *(Eric : « si un autre agent doit
+⭐⭐ **ET ERIC A DONNÉ LE REMÈDE LE MÊME JOUR, EN UNE PHRASE** : *« les deux, livre et `?`,
+doivent être dans **la même entité** »* · *« on ne veut pas se disperser »*.
+
+🔴 **CE N'EST PAS UNE PRÉFÉRENCE DE RANGEMENT, C'EST CE QUI SUPPRIME LE DÉFAUT.** Le `?` ne
+manque **jamais** — parce que la coquille le pose. Le livre manque **cinq fois sur douze** — parce
+que sept écrans le fabriquent. ➡️ **Un organe unique n'a qu'un seul écrivain, donc un seul endroit
+où être oublié — et cet endroit est la coquille, qui ne l'oublie pas.** Le lot d'architecture qu'on
+croyait devoir ouvrir **n'existe plus** : il suffit que le duo soit **une entité**, et le livre suit
+le `?` partout où il va déjà.
+
+📌 **C'EST AUSSI LE SACRÉ N° 2 RENDU RÉEL.** Le duo `?` + livre était déjà déclaré **sacré** ; il
+était sacré **dans le corpus** et **séparé dans le code**. ⛔ Une norme qui ne vit que dans un
+document n'existe pas.
+
+⏳ **CE QUI RESTE — l'écriture, pas la décision** *(Eric : « si un autre agent doit faire le travail
+de la coquille, après, on fait ça »)* *(Eric : « si un autre agent doit
 faire le travail de la coquille, après, on fait ça »)* : **la coquille pose le livre comme elle pose
 le `?`**, l'écran ne déclarant que **sa destination**. 📌 Le motif existe déjà — *« l'item déclare un
 hôte et reçoit la paire de la coquille »* — et `shell.mjs:4407` **sait déjà** placer un livre à
