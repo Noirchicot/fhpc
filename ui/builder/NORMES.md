@@ -3727,9 +3727,23 @@ d'un autre organe ment : la première a pris un onglet du belt, police 16 et rem
 
 | le mot le plus large de sa famille | largeur à `--sp-8` | dans sa cote |
 |---|---:|---|
-| `Choose` *(le petit le plus large de tout le dépôt)* | **67,9** | 77 → **9,1 de marge** |
+| **`Cancel`** *(le petit le plus large **au rendu**)* | **69,4** | 77 → **7,6 de marge** |
+| `Choose` | 66,9 | 77 → 10,1 |
 | `Inheritance` | **92,7** | 105 → **12,3 de marge** |
 | `Equipment` | **88,6** | 105 → **16,4 de marge** |
+
+⛔ **CORRECTION DU 06/09, 15:0x — L'ARCHITECTE AVAIT NOMMÉ LE MAUVAIS TÉMOIN.** Cette section a
+d'abord écrit que **`Choose`** était « le petit le plus large du dépôt ». **C'est faux au rendu.**
+Le siège BOUTONS l'a mesuré : `Cancel` vit dans `.parcours-annuler` à **16 px / 600**, `Choose`
+dans `.fiche-action` à **14 / 400**. À corps égal `Choose` gagne ; **à l'écran c'est `Cancel`** —
+69,4 contre 66,9. ⭐ **Le témoin d'une cote n'est pas le mot le plus long, c'est le mot le plus
+large DANS SA PROPRE CLASSE** — et c'est exactement le piège que la ligne suivante annonce, payé
+par celui qui l'écrivait.
+
+⚠️ **ET LA FAMILLE NE REND PAS T3.** `.parcours-pied button` rend **16 px / 600** là où cette loi
+dit T3 (14). C'est ce qui ramène la marge de `Cancel` à **7,6** au lieu de ~15. ⏳ Deux vérités
+coexistent donc ici : la loi dit T3, le code dit 16/600. **Non tranché** — ce n'est pas un réglage,
+c'est le corps d'une famille entière.
 
 ⚠️ **ET LE REMBOURRAGE EST LE VRAI LEVIER, PAS LA LARGEUR.** À `--sp-20` *(l'ancien)*, `Choose`
 réclamait **89,7** — aucune largeur ne pouvait satisfaire à la fois « le plus gros mot rentre » et
