@@ -323,3 +323,20 @@
   📌 **L'ORDRE EST FIXÉ, ET IL COMPTE** : ⑴ les quatre écrans à reconstruire passent *« à la moulinette »* **quand on les reconstruira**, pas avant ; ⑵ **le travail de coquille** *(la coquille pose le livre comme elle pose le `?`, l'écran ne déclarant que sa destination)* est **validé sur le principe** et **remis à APRÈS** — c'est un lot à part, il touche `shell.mjs` sur sept écrans et ⛔ deux sièges écrivent dans la feuille en ce moment.
   ⚠️ **CE QUI RESTE OUVERT EST DONC UNE SEULE CHOSE, ET C'EST UN CONTENU, PAS UNE STRUCTURE** : quelle destination le livre du **bilan d'Identity** ouvre-t-il ? La trilogie lui est due ; le chapitre qu'elle pointe n'est pas nommé.
 - ⏳ *(historique — l'état de la question avant qu'Eric ne la referme)* **CE QUI RESTAIT À TRANCHER** : ⑴ le bilan d'Identity **doit-il** un livre, ou n'a-t-il légitimement rien à ouvrir ? ⑵ si oui, on le pose à la main *(un écran réparé, six qui peuvent encore oublier)* ou **la coquille pose le livre comme elle pose le `?`**, l'écran ne déclarant que **sa destination** — le motif *« l'item déclare un hôte et reçoit la paire de la coquille »* existe déjà. 📌 `shell.mjs:4407` sait **déjà** placer un livre à gauche ; il ne sait pas le créer.
+
+## C26 — Le chantier du MENU, et tout ce qui l'attend { #c26 }
+
+**Question : le Menu est à reconstruire — que doit porter sa reconstruction, et dans quel ordre ?**
+
+- 🔴 **CE N'EST PAS UNE QUESTION OUVERTE, C'EST UNE LISTE QUI GROSSIT.** Eric a reporté **quatre** chantiers vers le Menu dans la seule journée du 06/09, chacun pour la même raison : *« réparer le pied d'un écran qu'on va démonter, c'est payer deux fois »*. ⛔ Cette entrée existe pour qu'aucun ne se perde d'ici là — **un report non écrit est un abandon.**
+- 📏 **L'ÉTAT, mesuré le 06/09** : `universe-step.mjs` fait **608 lignes** et le Menu porte **sept sections** — `Rules` · `Background` · `Interface size` · `Sheet language & units` · `Tutorials` · `Double view` · `This character`. Eric, le même jour : *« le Menu est un vrai bordel en scroll, on aura du rangement à faire à un moment »*.
+- ⏳ **CE QUI ATTEND LA RECONSTRUCTION** *(rien de tout ceci n'est commencé)* :
+  | | ce qui attend | pourquoi c'est là |
+  |---|---|---|
+  | ① | **la trilogie** — le Menu n'a **pas de livre** | `rangee-trilogie-due-partout` : report, ⛔ **pas dispense** |
+  | ② | **les interrupteurs on/off en vert / rouge** | Eric le 06/09 à 03:2x, puis *« c'est surtout dans le menu, qui devra être refait un jour — chantier à part »* |
+  | ③ | **un bouton de déblocage** *(efface les cinq préférences et recharge)* | ⚠️ **et il ne doit PAS vivre là** — voir l'avertissement ci-dessous |
+  | ④ | **`My characters`** — la liste des personnages | ⛔ bloqué en amont : rien ne sauvegarde un personnage aujourd'hui |
+  | ⑤ | **le rangement du scroll lui-même** | sept sections, aucune hiérarchie déclarée |
+- ⛔ **L'AVERTISSEMENT QUI VAUT POUR ③, ET QUI EST UN PRINCIPE** : **un organe de secours ne vit pas dans ce qu'il répare.** Un bouton « débloquer » posé dans le Menu est inatteignable le jour où c'est le Menu qui bloque. Sa mécanique doit vivre **ailleurs** (une entrée d'URL, atteignable même écran figé) ; le bouton du Menu ne fait alors que l'appeler, et il peut disparaître à la reconstruction **sans emporter la fonction**.
+- ⭐ **ET ④ N'EST PAS UN PROBLÈME DE MENU DU TOUT.** 📏 Mesuré le 06/09 : **le personnage n'est sauvegardé nulle part** — il vit en mémoire et meurt à chaque rechargement ; `Export JSON` écrit les **octets canoniques du moteur** (donc le format existe et il est juste) mais **rien ne sait le relire**. Eric a tranché la voie : *« B — dans un fichier que je range où je veux »*, avec un **sélecteur de rangement** et un **rangement par défaut** si aucune zone n'est choisie. ⚠️ Le sélecteur de dossier n'existe que sur Chrome/Edge de bureau (File System Access) — **à vérifier sur l'iPad d'Eric avant d'en dépendre**, et à concevoir en dégradé : le téléchargement et le sélecteur de FICHIER marchent partout.
