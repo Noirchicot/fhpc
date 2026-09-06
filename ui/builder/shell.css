@@ -2618,7 +2618,22 @@ button { font: inherit; }
    La colonne porte l'écart entre dalles (le « line bleed » de 8 : le fond passe
    entre, CADRES §8 bis). Chaque dalle est une boîte ; le tapis et le podium
    sont INVISIBLES (aucun verre), les autres sont du verre à 35 %. */
-.abilities-step[data-bandes="true"] { gap: var(--sp-8); }
+/* 🔴 LE LINE BLEED PASSE DE 8 À 4 — Eric, 2026-09-06 : *« faut récupérer des blg :
+   réduire les espaces entre les rangées de dés / podiums, réduire le line bleed —
+   4 en haut, 4 en bas »*.
+   📏 « 4 EN HAUT, 4 EN BAS » NOMME LES DEUX SAIGNÉES DE `FREE`, pas deux moitiés
+   d'une seule : sa colonne porte trois dalles (organe · palette · collecteur),
+   donc DEUX écarts — un au-dessus de la palette, un au-dessous. Chacun tombe à 4.
+   ⚠️ ⛔ ET CE N'EST PAS `.saignee` — mesuré au banc le 06/09 à 14:17 : le filet
+   `<hr>` (celui que `--saignee-debord` fait courir bord à bord) n'existe sur AUCUN
+   des quatre écrans d'Abilities, et sa réécriture en 4/4 rend **0 blg** ici pour
+   4 blg pris à la cote d'Eric du 26/08 sur Species (*« lineage à 8 px de Elf »*).
+   Le dépôt emploie « line bleed » pour les deux objets (tokens.css l. 159 pour le
+   filet, cette section pour l'écart) ; c'est la MESURE qui départage, pas le mot.
+   📏 GAIN MESURÉ SUR `FREE` : 8 blg (16 → 8 pour les deux écarts).
+   ⛔ Le gain ne rend pas la page pleine pour autant — voir le relevé complet en
+   tête de `.fs-rangee[data-pool="inepuisable"]`. */
+.abilities-step[data-bandes="true"] { gap: var(--sp-4); }
 .ability-tapis,
 .ability-resultats { flex: none; }
 
@@ -2817,15 +2832,13 @@ button { font: inherit; }
    comment se sert la palette ; séparée d'elle, elle se lit deux fois. C'est
    donc l'organe (dalle FF2, hauteur de son contenu, mesure de l'écran) qui
    la porte — plus de fenêtre à elle. */
-/* 🔴 SIX COLONNES DEPUIS LE 2026-09-06, ET C'EST LA COTE DU PODIUM DE B1 —
-   Eric : *« toujours un grid, prends B1 en exemple »* + *« 3 rangées »*.
-   📐 DÉDUITE, PAS CHOISIE (§1 ter) : la rangée fait 362 blg hors de la dalle, le
-   podium de B1 y loge SIX colonnes de 53,7 pour des dés plafonnés à 48. Seize
-   valeurs sur six colonnes tombent donc en **3 rangées** (6 · 6 · 4), là où le
-   4 × 4 en demandait quatre — 166 blg au lieu de 340, dans une fenêtre qui n'en
-   offre que ~110 à ce bloc. ⛔ Le 4 × 4 du croquis du 16/08 valait quand la
-   palette vivait DANS une dalle de 351 ; elle est passée au rang du podium, sa
-   largeur a changé, donc son compte de colonnes aussi. */
+/* 🧊 UN ESSAI À SIX COLONNES A VÉCU QUELQUES HEURES LE 2026-09-06, ET ERIC L'A
+   REPRIS LE JOUR MÊME (*« c'est 4×4 »*). Sa démonstration — seize valeurs sur six
+   colonnes tombent en 3 rangées, 166 blg au lieu de 340 — décrivait donc une
+   architecture MORTE, posée juste au-dessus d'une règle qui écrit 4 : un orphelin
+   qui contredit son propre code. Retiré le 06/09 par le siège des blg, qui aurait
+   lu 3 rangées là où le banc en montre 4. La cote qui vaut est celle de la règle,
+   et elle est justifiée dans son propre bloc, juste dessous. */
 .fs-rangee[data-pool="inepuisable"] {
   /* 🔴 QUATRE COLONNES, QUATRE RANGÉES — Eric le dit deux fois : son croquis du
      2026-08-16 (*« 4×4 dés en 3d »*) et, le 06/09 après avoir essayé 3 × 5 à voix
@@ -2851,6 +2864,36 @@ button { font: inherit; }
      ⭐ La colonne, elle, vaut 84 : le dé s'y centre. Le vide autour n'est pas une
      perte — c'est ce qui reste quand une cote de contrôle refuse de plier. */
   --fs-de-max: 44px;
+  /* 🔴 L'ÉCART ENTRE LES RANGÉES TOMBE À 4 — Eric, 2026-09-06 : *« réduire les
+     espaces entre les rangées de dés / podiums »*, dans un but qu'il nomme :
+     *« faut récupérer des blg … on arrivera bien à lui donner 2 lignes »*.
+
+     📏 SA COTE N'ÉTAIT ÉCRITE SOUS AUCUNE CLASSE `podium` — elle vient du `gap`
+     de `.fs-rangee`, le cran unique de 8 posé le 2026-08-17 (*« je veux des
+     marges de 8 px partout »*). ⛔ Elle a donc été RELEVÉE au banc avant d'être
+     touchée (`getComputedStyle`, 06/09 à 14:16 : `row-gap: 8px`), jamais supposée.
+
+     ⛔ `row-gap` SEUL, ET C'EST TOUT LE SOIN. Le raccourci `gap` de `.fs-rangee`
+     écrit les DEUX axes ; le réécrire ici pour sa seule valeur verticale aurait
+     emporté l'horizontale en silence — la faute que cette feuille a déjà payée
+     trois fois dans la journée du 26/08 (`padding` de `.sortie`, `margin` de
+     `.saignee`, celui du titre). Une longhand dans une règle PLUS SPÉCIFIQUE ne
+     touche que son axe : l'écart entre COLONNES reste à 8, mesuré (14:31).
+
+     📏 GAIN MESURÉ : trois écarts, 24 → 12, soit **12 blg**. La palette passe de
+     207,97 à 195,96 (banc, 375 × 553, 06/09 à 14:17).
+
+     ⚠️ ET CE QUE ÇA COÛTE, PARCE QU'UNE COTE GAGNÉE SE PAIE QUELQUE PART : le
+     rembourrage de 4 juste au-dessus était DÉDUIT du rapport de `tapis-4x4.webp`
+     (552 / 313 = 1,764) pour qu'un `contain` remplisse la boîte au pixel. La boîte
+     passe à 367 / 196 = **1,872** — plus large que l'image, donc le tapis se peint
+     désormais à **345,6 de large au lieu de 366,8** et ne touche plus les bords de
+     la dalle (10,7 blg de vide de chaque côté ; les seize dés, eux, restent sur le
+     feutre — mesuré). ⛔ Ni `background-size: 100% 100%` (il écraserait l'image de
+     6 %) ni un rembourrage rehaussé à 10 (il rendrait les 12 blg) ne sont pris ici :
+     la sortie propre est un RECADRAGE de l'image au nouveau rapport, et c'est un
+     asset, donc un mot d'Eric. */
+  row-gap: var(--sp-4);
   margin-bottom: 0;
 }
 /* ⛔ LA PALETTE N'A PLUS D'ÎLOTS VISIBLES (Eric, 2026-08-17 : *« tu enlèves

@@ -1374,6 +1374,25 @@ export function renderAbilitiesStep(ctx, onAction) {
      qu'il se lisait aussi sur la tuile du sélecteur — **mesuré : faux**,
      `renderSelecteurMethode` ne rend que les libellés. Il descend donc dans le `?`,
      qui a le droit de respirer (§6 pré bis), pas dans le vide.
+     🔵 06/09, 14:23 — LE BUDGET A BOUGÉ, ET IL NE SUFFIT TOUJOURS PAS. Eric a
+     nommé deux postes à reprendre (*« réduire les espaces entre les rangées de dés /
+     podiums, réduire le line bleed — 4 en haut, 4 en bas »*) ; les deux sont faits,
+     RELEVÉS AU BANC à 375 × 553, empreinte de contenu vérifiée :
+
+         place libre dans la carte (492,02) ....  4,85  ➜  24,87   (+20,02 blg)
+           · line bleed 8 → 4, deux écarts ................  8
+           · écart entre les rangées de la palette 8 → 4 ... 12
+
+     ⛔ ET IL EN FAUT 38 POUR DEUX LIGNES : 2 × 15 d'interligne + 8 de rembourrage.
+     **Il manque 13,13 blg** — mesuré, pas déduit : l'aiguilleur posé pour de vrai à
+     14:23, le flux de l'organe s'est refermé sur lui (`scrollHeight` 38 pour
+     `clientHeight` 25) et l'écran a montré **une ligne et un huitième**, la phrase
+     coupée en deux. C'est exactement la panne du 05/09, servie par le même organe.
+     ⚠️ ET DEUX LIGNES DEMANDENT AUSSI UN TEXTE PLUS COURT : le `blurb` ci-dessus
+     fait 155 signes pour 349 blg de large, soit **3 lignes** (boîte 53). Même avec
+     la place, il en faudrait ≤ ~126. La coupe est une décision d'Eric, pas la
+     mienne. ⛔ Et le plancher de `.guide-mot` vaut 3 lignes (45) : le descendre à 2
+     pour cet organe est aussi son mot — c'est sa cote du 27/08.
      ⭐ ET LE TITRE DU COLLECTEUR RESTE LA CONSIGNE : *« Drag a score onto each of
      your character's abilities »* dit le geste. La page garde une phrase, pas zéro. */
   if (!scene2 && !composable) {
