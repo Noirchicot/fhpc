@@ -5043,6 +5043,27 @@ button { font: inherit; }
 .parcours-guide,
 .parcours-item-dalle,
 .parcours-bilan { max-width: var(--measure); }
+/* 🔴 ET LA DALLE EXTÉRIEURE PREND LA BOÎTE QU'ON LUI DONNE — Eric, 2026-09-06, en
+   voyant `Inheritance` : *« il a perdu de la largeur »* · *« 367 »* · *« pour qu'il y
+   ait des marges »*.
+   📏 LA CHAÎNE, MESURÉE SUR `Inheritance R` AVANT CORRECTION (banc empreinté par
+   CONTENU, 5 md5 identiques au disque) :
+     `.stage`           375 blg   (gouttière 4 de chaque côté)
+     `.decision-card`   367 blg   ✅ la cote donnée
+     `.catalogue-step`  367 blg   ✅
+     `.parcours-guide`  **356,1** ⛔ elle seule rétrécit
+   ⭐ Aucune cote neuve n'est nécessaire, et c'est tout l'intérêt : ses parents portent
+   DÉJÀ 367. Sans `width`, elle n'avait que `max-width: 62ch` (625, qui ne mord jamais)
+   et elle ÉPOUSAIT SON TEXTE LE PLUS LONG — d'où 367 sur Species (« High Elf Lineage »)
+   contre 356 ici (« Auspicious (fh) Origin feat »), deux largeurs que personne n'avait
+   choisies. C'est « une cote DONNÉE bat une cote DÉDUITE » : la cote existait, la dalle
+   ne la prenait pas.
+   ⛔ ET SEULEMENT L'EXTÉRIEURE. Mon premier jet l'avait posée sur les trois sélecteurs
+   du groupe ci-dessus : `.parcours-item-dalle` est IMBRIQUÉE dans le guide, sa boîte de
+   contenu vaut 335 — forcée à 367 elle débordait de 16 blg de chaque côté, et le texte
+   des items sortait de la carte. **La suite est restée verte pendant ce temps-là** ;
+   c'est la capture d'écran qui l'a dit, pas un test. */
+.parcours-guide { width: 100%; }
 
 /* ⛔ PLUS DE MESURE À PART POUR LES ÉCRANS À RAIL (Eric, 2026-08-19) : « 62
    fonctionne sur le plus petit comme le plus grand, avec et sans rail ». Le
