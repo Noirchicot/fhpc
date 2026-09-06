@@ -420,7 +420,7 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 * ⛔ **Une adresse sans phrase.** Elle dit *où*, pas *quoi* — et on ne peut ni la citer, ni la périmer, ni l'apparier. **237 adresses ont vécu comme ça.**
 * ⛔ **Un lien à sens unique.** `remplace` ⇄ `remplacée par`, `borne` ⇄ `bornée par` — les deux se citent, ou aucune.
 * ⛔ **Un statut hors du jeu fermé** : `vivante` · `remplacée` · `dépréciée` · `à trancher` · `en standby` · `déployée, hors corpus`.
-* ⛔ **Une règle corrigée dans une copie.** On corrige la **source**, jamais son tirage.
+* ⛔ **Une règle corrigée dans une COPIE.** On amende la Bible **dans la source** — `ui/builder/` — puis on relance `node tools/bible.mjs`. ⚠️ **Depuis le 2026-09-06 la Builder Bible est GÉNÉRÉE** : une ligne écrite dedans n'est plus seulement fausse, elle est **effacée à la génération suivante**, sans un mot. ⭐ Et c'est voulu — c'est ce qui rend la source unique *vérifiable* et non seulement *déclarée*.
 
 ⭐ **ET CE PARAGRAPHE OBÉIT À CE QU'IL ÉNONCE.** Trois adresses, trois phrases, un incident
 dessous. Une règle de format qui ne se respecte pas elle-même n'est pas une règle, c'est un avis.

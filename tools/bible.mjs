@@ -70,6 +70,100 @@ export function empreinte(regles) {
   return { n: regles.length, sha: crypto.createHash("sha256").update(corps).digest("hex") };
 }
 
+
+/** LA PAGE DES RÉFÉRENCES — sur quoi la FORME de cette Bible est bâtie.
+    ⭐ Eric, 2026-09-06 : *« mets les références sur lesquelles la Bible est
+    construite dans la Bible. »* Une Bible qui ne dit pas d'où elle tient sa forme
+    demande qu'on la croie sur parole. */
+function references(regles) {
+  const sacres = regles.filter((r) => r.sacre).length;
+  return `# Références
+
+*Sur quoi la **forme** de cette Bible est bâtie.* ⛔ Pas son contenu — le contenu vient
+du corpus. Ceci dit d'où viennent l'adresse, le statut, le niveau et la supersession.
+
+> [!info]+ 📖 POURQUOI CETTE PAGE EXISTE
+> Eric, 2026-09-06 : *« mets les références sur lesquelles la Bible est construite dans
+> la Bible. »* Une Bible qui ne dit pas d'où elle tient sa forme demande qu'on la croie
+> sur parole — et le premier reproche fait à celle d'avant était justement qu'elle était
+> **la Bible de l'architecte**, pas une pratique partagée.
+
+---
+
+## Ce qu'on a repris, et à qui
+
+### 1. L'adresse stable et le statut — *Architecture Decision Records*
+
+Un enregistrement est **immuable** : on ne le corrige pas, on le **supersède**. L'ancien
+passe à *« superseded by … »* et pointe vers le neuf. Le champ statut est *« ce qui permet
+à un lecteur de balayer un répertoire et de savoir lesquels font encore autorité »*.
+
+➡️ **Chez nous** : \`📍 ancre · statut · date\`, le jeu fermé des six statuts, et la
+**loi des deux âges** — la plus récente fait foi, l'ancienne s'archive.
+
+* [Backstage — Architecture Decision Records](https://backstage.io/docs/architecture-decisions/)
+* [Microsoft Azure Well-Architected — maintenir un ADR](https://learn.microsoft.com/en-us/azure/well-architected/architect-role/architecture-decision-record)
+
+### 2. La supersession passe à l'échelle — *Kafka KIP*
+
+Plus de **mille** propositions déposées en dix ans, plusieurs centaines formellement
+supersédées. *« Pour toute équipe qui craint que la discipline de supersession ne passe
+pas l'échelle, l'index KIP est la réfutation. »*
+
+➡️ **Chez nous** : ${regles.length} règles ne sont pas un problème de volume. La revue est
+**périodique**, pas continue — on balaie l'index, on marque, on écrit les supersessions.
+
+### 3. Normatif contre informatif — *rédaction de standards*
+
+Les standards séparent **deux classes de texte** : le **normatif**, qui détermine la
+conformité — précis, testable — et l'**informatif**, qui explique sans obliger.
+*« Si le mandat et la justification sont mélangés, il faut les scinder. »*
+
+➡️ **Chez nous** : \`⚖️\` porte **une phrase** normative ; la prose en dessous porte
+l'incident daté et la mesure. C'est ce qui manquait à 237 adresses, qui disaient *où*
+sans dire *quoi*.
+
+* [The Open Group — rédiger un standard](https://pubs.opengroup.org/standards-guide/handbook-publications-development/latest/chap03-intro.html)
+* [Language.Foundation — normatif vs informatif](https://language.foundation/Eliminating-Ambiguity-in-Requirements-What-Is-Normative-vs-Informative-Language)
+
+### 4. Déprécier sans effacer — *design systems*
+
+Une section pour ce qui est déprécié, avec **le motif et l'alternative** ; les équipes ne
+doivent pas avoir à deviner si ce qu'elles lisent est courant ou périmé depuis six mois.
+
+➡️ **Chez nous** : rien ne se supprime, tout s'archive — et le reliquat garde son incident.
+
+* [zeroheight — déprécier dans un design system](https://learninghub.zeroheight.com/hc/en-us/articles/8772962477851-Deprecating-in-design-systems-When-it-s-time-to-say-goodbye)
+* [Brad Frost — maintenir un design system](https://atomicdesign.bradfrost.com/chapter-5/)
+
+---
+
+## Ce qu'on n'a repris de personne
+
+⭐ **Le niveau SACRÉ.** Les standards ont \`MUST\` et \`SHOULD\` ; nous avons **sacré** et
+**règle** — mais avec une exigence qu'aucune des références ne pose : *« tout agent a en
+mémoire TOUS les sacrés »*. C'est ce qui les oblige à rester **peu** : ils sont ${sacres}.
+⛔ Un sacré qu'il faut chercher n'est pas un sacré.
+
+⭐ **L'incident daté sous chaque règle.** Les références recommandent le *rationale* ;
+ici il est **obligatoire**, et c'est ce qui rend une règle obéie plutôt que subie.
+
+---
+
+## La source, et rien d'autre
+
+| fichier | ce qu'il porte |
+|---|---|
+| \`fhpc/ui/builder/NORMES.md\` | les organes, les voiles, les cotes, l'écriture, les gestes |
+| \`fhpc/ui/builder/CADRES.md\` | les écrans, les objets, les largeurs |
+| \`fhpc/ui/builder/SOCLE.md\` | le mécanisme, et les lois de la Bible elle-même |
+| \`fhpc/ui/builder/ECRANS.md\` | les règles d'écran déployées, ⛔ jamais ratifiées |
+| \`fhpc/ui/builder/A-TRANCHER.md\` | les contradictions vivantes |
+| \`fhpc/tests/corpus-ancres.test.mjs\` | les sept refus qui tiennent le format |
+| \`fhpc/tools/bible.mjs\` | ce qui a écrit la page que vous lisez |
+`;
+}
+
 /* ── la sortie ─────────────────────────────────────────────────────────────── */
 const esc = (s) => s.replace(/\|/g, "\\|");
 
@@ -119,11 +213,13 @@ export function generer(dest) {
   });
   const orphelines = regles.filter((r) => !PLAN.some(([, , , f]) => f.includes(r.famille)));
   idx += `| 8 | [À trancher](8-a-trancher.md) | les contradictions | 26 |\n`;
+  idx += `| — | [Références](0-references.md) | sur quoi sa forme est bâtie | — |\n`;
   if (orphelines.length) idx += `\n⚠️ **${orphelines.length} règles hors plan** : familles `
     + [...new Set(orphelines.map((r) => `\`${r.famille}\``))].join(" · ") + ".\n";
 
   pages.push(["8-a-trancher.md", "# À trancher\n\n*les contradictions vivantes* — copie de `fhpc/ui/builder/A-TRANCHER.md`.\n\n"
     + fs.readFileSync(path.join(UI, "A-TRANCHER.md"), "utf8")]);
+  pages.push(["0-references.md", references(regles)]);
   pages.push(["index.md", idx]);
 
   for (const [nom, contenu] of pages) fs.writeFileSync(path.join(dest, nom), contenu);
