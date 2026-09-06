@@ -390,6 +390,53 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 
 ---
 
+---
+
+## 🔒 COMMENT LA BIBLE S'ÉCRIT — trois sacrés *(Eric, 2026-09-06)*
+📍 `socle-format-d-ecriture-est-sacre` · vivante · 06/09
+⚖️ 🔒 **Le format d'écriture d'une règle est SACRÉ : une adresse, une phrase normative, l'incident dessous.**
+📍 `socle-tout-agent-connait-les-sacres` · vivante · 06/09
+⚖️ 🔒 **Tout agent a en mémoire TOUS les sacrés, avant d'écrire une ligne.**
+📍 `socle-bible-lue-avant-de-coder` · vivante · 06/09
+⚖️ 🔒 **Un agent qui va coder lit la Bible d'abord — toujours, sans exception.**
+
+> Eric, 2026-09-06 : *« la règle d'écriture de la Bible : respecter les formats d'écriture
+> (sacré) »* · *« avoir en mémoire tous les sacrés »* · *« la Bible doit toujours être lue par
+> un agent qui va coder »*.
+
+🔒 **① LE FORMAT — il est sacré, et le voici en entier.**
+
+| ligne | ce qu'elle porte | forme exacte |
+|---|---|---|
+| **l'adresse** | qui est cette règle | `📍 ⟨famille-propriete⟩ · ⟨statut⟩ · ⟨JJ/MM⟩` |
+| **le normatif** | ce qu'elle **oblige**, en **UNE** phrase | `⚖️ **…**` — et `⚖️ 🔒 **…**` si c'est un sacré |
+| **l'informatif** | le pourquoi, l'incident daté, la mesure | la prose en dessous, libre |
+
+⛔ **CE QUI NE SE FAIT JAMAIS** — chacun a coûté un incident daté :
+* ⛔ **Une famille inventée.** Elle se prend parmi celles en usage *(amendement n° 1)*.
+* ⛔ **Deux phrases normatives.** Une règle qui en demande deux est deux règles.
+* ⛔ **Une adresse sans phrase.** Elle dit *où*, pas *quoi* — et on ne peut ni la citer, ni la périmer, ni l'apparier. **237 adresses ont vécu comme ça.**
+* ⛔ **Un lien à sens unique.** `remplace` ⇄ `remplacée par`, `borne` ⇄ `bornée par` — les deux se citent, ou aucune.
+* ⛔ **Un statut hors du jeu fermé** : `vivante` · `remplacée` · `dépréciée` · `à trancher` · `en standby` · `déployée, hors corpus`.
+* ⛔ **Une règle corrigée dans une copie.** On corrige la **source**, jamais son tirage.
+
+⭐ **ET CE PARAGRAPHE OBÉIT À CE QU'IL ÉNONCE.** Trois adresses, trois phrases, un incident
+dessous. Une règle de format qui ne se respecte pas elle-même n'est pas une règle, c'est un avis.
+
+🔒 **② LES SACRÉS SE CONNAISSENT PAR CŒUR — donc ils sont peu.**
+
+⚠️ **Un agent ne peut pas retenir 500 règles. Il peut en retenir dix.** C'est la seule raison
+pour laquelle le sacré est un niveau à part : ⛔ **un sacré qu'il faut chercher n'est pas un
+sacré**. Si cette liste devient longue, c'est qu'on y a mis des règles — et il faut les en sortir.
+
+🔒 **③ LA BIBLE SE LIT AVANT DE CODER, PAS APRÈS.**
+
+⛔ **« Je n'y ai pas pensé » cesse d'être recevable.** Un lot qui écrit sans avoir lu produit une
+règle que personne ne retrouvera, et qui en contredira une autre sans qu'on le voie.
+📌 **C'est la conséquence directe des amendements n° 1 et n° 2** : le vocabulaire à l'entrée,
+l'adressage à la sortie — et entre les deux, la lecture.
+
+
 ## Le contrat d'un écran
 📍 `socle-contrat-d-un-ecran` · vivante · 39/42
 ⚖️ **Un module d'écran exporte une fonction qui rend un nœud et ne connaît ni la coquille ni les verbes du moteur.**
