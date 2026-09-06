@@ -63,6 +63,25 @@
 > que la surface. C'est ce qui doit ramener le corpus sous le seuil des **200 règles**
 > qu'un lecteur suit vraiment.
 >
+>
+> ## 🔒 **DEUX NIVEAUX DE NORMATIF** *(Eric, 2026-09-06)*
+>
+> **« Sacré : les règles qu'on respecte toujours, partout — ça doit être connu de tout agent.
+> Règle : ce qu'on respecte la plupart du temps, et où on autorise des exceptions
+> argumentées. »**
+>
+> | niveau | ce qu'il oblige | comment il se marque |
+> |---|---|---|
+> | 🔒 **SACRÉ** | **toujours, partout.** ⛔ Aucune exception, jamais, dans aucun lot. Un lot qui le trouve gênant a tort — c'est le lot qui change | `⚖️ 🔒` sur la ligne normative |
+> | ⚖️ **RÈGLE** | **par défaut.** Un écran qui dévie le fait **explicitement**, et c'est légal — mais l'exception se **nomme** et se pose **à côté de son argument** | `⚖️` seul — c'est le défaut |
+>
+> ⭐ **UN SACRÉ N'EST PAS UNE RÈGLE FORTE, C'EST UNE LOI QUI NE CÈDE PAS.** La différence
+> n'est pas d'intensité, elle est de nature : devant une règle on argumente, devant un sacré
+> on obéit. ⛔ Un lot qui hésite entre les deux n'a pas à choisir — il lit le marqueur.
+>
+> 📌 **ET UN SACRÉ SE CONNAÎT SANS AVOIR À LE CHERCHER.** Ils sont peu nombreux et se lisent
+> d'un coup : c'est la condition pour qu'un agent les respecte sans avoir lu tout le corpus.
+>
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
 >
@@ -1622,9 +1641,9 @@ d'Eric — pas la conséquence d'avoir écrit la loi.
 
 ### 🔒 LES JETONS ET LES BOUTONS SONT **SACRÉS** — 26/08
 📍 `budget-les-vides-cedent` · vivante · 26/08
-⚖️ **Quand un écran déborde, ce sont les VIDES qui cèdent, jamais les ORGANES.**
+⚖️ 🔒 **Quand un écran déborde, ce sont les VIDES qui cèdent, jamais les ORGANES.**
 📍 `jeton-sacre` · vivante · 26/08
-⚖️ **Les jetons et les boutons sont SACRÉS : leur cote et leur corps ne cèdent jamais.**
+⚖️ 🔒 **Les jetons et les boutons sont SACRÉS : leur cote et leur corps ne cèdent jamais.**
 
 > Eric, 2026-08-26, au milieu d'une chasse aux pixels : **« les jetons et les boutons
 > sont sacrés »** · **« on les laisse en paix »**.
