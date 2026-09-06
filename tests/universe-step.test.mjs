@@ -376,6 +376,49 @@ test("D6 — 🔴 LA SORTIE DE SECOURS EXISTE, et elle dit le geste, pas une pro
     "il émet un verbe, il n'efface pas lui-même — l'écran ne touche jamais le magasin");
 });
 
+test("D8 — 📂 OUVRIR UN PERSONNAGE : le bouton existe, il émet un verbe, et il n'est pas rouge", () => {
+  /* ⚖️ Eric, 2026-09-06 : *« chacun est propriétaire de ses données […] je
+     choisis où je range mes persos »*. Le builder savait SORTIR un personnage
+     et rien ne savait le relire — un fichier qu'on ne peut pas rouvrir n'est
+     pas une sauvegarde.
+     ⛔ ET IL N'EST PAS ROUGE : `--critical` est la teinte de ce qui DÉFAIT.
+     La donner à un geste qui ouvre la rendrait illisible partout ailleurs. */
+  const doc = draftDocument();
+  const gestes = [];
+  const node = renderUniverseStep(
+    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } },
+    (a) => gestes.push(a)
+  );
+  const bouton = node.querySelectorAll(".universe-memoire .universe-ouvrir")[0];
+  assert.ok(bouton, "le bouton d'ouverture vit dans la section « This character »");
+  assert.match(bouton.textContent, /Open/, "son mot porte le geste");
+  assert.ok(!bouton.className.includes("universe-oubli"),
+    "⛔ il ne porte pas la classe de ce qui efface — la teinte suit le verbe");
+  bouton.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirUnFichier" }],
+    "il émet un verbe : c'est la coquille qui touche le disque, jamais l'écran");
+});
+
+test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause", () => {
+  /* Un fichier choisi qui ne rentre pas et un écran qui ne bouge pas, c'est un
+     bouton mort du point de vue du joueur : il ne saura pas s'il a raté son
+     geste ou son fichier. Même loi que le personnage illisible du navigateur. */
+  const doc = draftDocument();
+  const sansRefus = renderUniverseStep(
+    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
+  assert.equal(sansRefus.querySelectorAll(".universe-memoire .doc-field-error").length, 0,
+    "⛔ rien à dire tant que rien n'a été refusé — un message permanent ne serait plus un message");
+
+  const avecRefus = renderUniverseStep({
+    document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true },
+    ouvertureRefusee: 'this file says it is "roll20/2", not a Fate\'s Hand character'
+  }, () => {});
+  const dit = avecRefus.querySelectorAll(".universe-memoire .doc-field-error")
+    .map((p) => p.textContent).join(" ");
+  assert.match(dit, /not opened/, "l'écran dit que le fichier n'est pas entré");
+  assert.match(dit, /roll20\/2/, "et il RECOPIE la cause, il ne la résume pas");
+});
+
 test("D7 — ⛔ ET IL N'EST JAMAIS GRISÉ, même quand la mémoire refuse", () => {
   /* 🔴 `memoire.ok` dit si la dernière ÉCRITURE a réussi, jamais s'il y a
      quelque chose à jeter. Un magasin qui refuse d'écrire peut très bien
