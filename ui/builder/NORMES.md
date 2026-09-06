@@ -4949,6 +4949,16 @@ avec son écart) part **sur FREE seulement** ; son **titre** reste et dit le ges
 ⭐ **ARRAY ne bouge pas** — son vivier tient sur une rangée, il garde ses deux textes. Eric :
 *« Array, t'y touches pas, il est bien. »*
 
+🔴 **ET LEUR RETOUR DIT `Cancel`, PAS `Back`** *(Eric, 06/09 : « remplacer le back par un cancel
+rouge », « idem dans array », « cancel est toujours rouge »)*. §6 tranche par le sens — *« back
+n'annule rien · cancel abandonne ou efface du travail fait »* — et **quitter cette page abandonne
+les scores qu'on vient d'y poser** : le mot était faux, et la teinte l'était avec lui *(la teinte se
+déduit du mot)*.
+⛔ **Aucun verbe déclaré, et c'est voulu** : `abilityClear` jette le LOT, or sur ces deux méthodes
+le lot n'est pas tiré — **il EST la méthode** (`lotSansDes`). Le jeter laisserait une page sans
+vivier. C'est le retour par défaut de la coquille qui vaut ici, exactement comme la dalle de
+scène 1 de B1 : **le mot seul, le geste de la coquille.**
+
 🟢 **ET LE DÉ EST SUR UN CERCLE VERT, À COÛT NUL** *(Eric : « tu peux mettre les dés sur des cercles
 verts ? sans perdre davantage de place ? »)*. Le disque est peint **sur le BOUTON du dé**, pas sur
 l'îlot qui le porte : le bouton fait déjà 44 × 44 et c'est lui qui donne la hauteur de la rangée —

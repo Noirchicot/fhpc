@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=584";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=584";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=584";
-import { armerJeton } from "./glisser.mjs?v=584";
-import { facteurZoomCourant } from "./echelle.mjs?v=584";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=584";
-import { createDieHost, mount } from "./dice3d.mjs?v=584";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=584";
+import { markPressed } from "./carnet.mjs?v=585";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=585";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=585";
+import { armerJeton } from "./glisser.mjs?v=585";
+import { facteurZoomCourant } from "./echelle.mjs?v=585";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=585";
+import { createDieHost, mount } from "./dice3d.mjs?v=585";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=585";
 
 export { rollAbilitySet };
 
@@ -1626,6 +1626,19 @@ export function renderAbilitiesStep(ctx, onAction) {
        où chaque `Cancel` défait le dernier pas. `Done` valide les six posés. */
     collecteur.dataset.sortieMot = "Cancel";
     collecteur.dataset.sortieVerbe = "abilityClear";
+  } else {
+    /* 🔴 ARRAY ET FREE DISENT `Cancel`, PAS `Back` — Eric, 06/09 : *« remplacer le
+       back par un cancel rouge »*, *« idem dans array »*, *« cancel est toujours
+       rouge »*. §6 : *« back n'annule rien · cancel abandonne ou efface du travail
+       fait »* — et quitter cette page ABANDONNE les scores qu'on vient d'y poser.
+       Le mot était donc faux, et la teinte l'était avec lui : *« quand une teinte
+       se déduit d'un MOT, changer le vocabulaire change le dessin »*.
+       ⛔ AUCUN VERBE, ET C'EST VOULU : `abilityClear` jette le LOT — sur ces deux
+       méthodes, le lot n'est pas tiré, il EST la méthode (`lotSansDes`). Le jeter
+       laisserait une page sans vivier, mesurée vide. C'est le retour par défaut de
+       la coquille (un palier en arrière) qui vaut ici — exactement ce que la dalle
+       de scène 1 de B1 déclare déjà : le mot seul, le geste de la coquille. */
+    collecteur.dataset.sortieMot = "Cancel";
   }
   /* 🔴🔴 L'ABSOLU DU 04/09 — *« dernière rangée de boutons = `?` ET livre dedans.
      C'est un absolu »* (§6 pré). ARRAY et FREE ne le tenaient pas : leur rangée
