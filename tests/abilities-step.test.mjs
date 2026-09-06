@@ -41,6 +41,12 @@ import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { ABILITY_KEYS, CREATION_SCORES } from "../src/build/index.mjs";
 import { stripComments } from "./source-scan.mjs";
+/* 🔴 LU À SA SOURCE — depuis le 06/09 deux pages sur quatre ne rendent plus
+   d'aiguilleur, donc « les quatre explications » ne se comptent plus à l'écran :
+   elles se comptent là où elles VIVENT (la mécanique pour les deux méthodes à dés,
+   `ABILITY_ENTRIES` pour les deux autres), et l'écran n'est plus interrogé que sur
+   celles qu'il montre encore. */
+import { mecaniqueDeJet } from "../ui/builder/dice.mjs";
 
 globalThis.document = createTestDocument();
 
@@ -793,10 +799,22 @@ test("⚔️ ATTAQUE — plus aucun jet en dur dans la coquille : c'est le plate
 });
 
 test("les quatre explications sont DIFFÉRENTES, et celles des dés viennent de leur mécanique", () => {
-  const mot = (m) => renderAbilitiesStep(
+  /* 🔴 LES QUATRE PHRASES SE COMPTENT À LEUR SOURCE, PLUS À L'ÉCRAN — depuis le
+     06/09, B1 et B2 n'ont d'aiguilleur qu'en scène 1 et FREE n'en a plus du tout
+     (sa palette de seize prend la place, le budget est dans `renderAbilitiesStep`).
+     Les LIRE aux quatre organes ne dit donc plus rien sur les quatre phrases : ça
+     dirait seulement lesquelles sont à l'écran ce jour-là.
+     ⭐ La source, elle, n'a pas bougé : `ROLLING_METHODS` pour les deux méthodes à
+     dés, `ABILITY_ENTRIES.blurb` pour les deux autres — exactement ce que
+     `explicationDe` choisit, sans le `if` sur un id. */
+  const phrases = ABILITY_ENTRIES.map((e) => (e.mecanique ? mecaniqueDeJet(e.mecanique).summary : e.blurb));
+  /* ⚔️ ET L'ÉCRAN EST INTERROGÉ SUR CE QU'IL MONTRE ENCORE : la scène 1 des deux
+     méthodes à dés (leur phrase PLUS les trois boutons) et ARRAY (la sienne, nue). */
+  const auxOrganes = ["fh3d6", "4d6", "standard"].map((m) => renderAbilitiesStep(
     ctxFrom(fixture.document, fixture.report, { method: m, rollBatch: lotSansDes(m) }), () => {})
-    .querySelectorAll(".ability-organe-mot")[0].textContent;
-  const phrases = ["fh3d6", "4d6", "standard", "free"].map(mot);
+    .querySelectorAll(".ability-organe-mot")[0].textContent);
+  auxOrganes.forEach((mot, i) => assert.ok(mot.startsWith(phrases[i]),
+    `l'organe de ${ABILITY_ENTRIES[i].id} OUVRE sur la phrase de sa source, il ne la réécrit pas`));
   assert.equal(new Set(phrases).size, 4, "quatre méthodes, quatre explications — jamais la même phrase");
   /* ⌨️ Celle de FH 3D6 est validée MOT POUR MOT par Eric le 2026-08-16 — elle OUVRE
      toujours l'aiguilleur, et depuis le 06/09 la phrase des trois boutons la suit
@@ -805,17 +823,18 @@ test("les quatre explications sont DIFFÉRENTES, et celles des dés viennent de 
   assert.ok(phrases[0].startsWith(
     "Ten rolls of 3d6 — keep the six best. If your highest falls short of 14, it becomes 14; your lowest always becomes 8."),
     "la phrase d'Eric ouvre l'aiguilleur");
-  assert.match(phrases[0], /\. 3d6 rolls the next one, Flash rolls them all, Reset starts over\.$/,
+  assert.match(auxOrganes[0], /\. 3d6 rolls the next one, Flash rolls them all, Reset starts over\.$/,
     "…et les trois boutons sont nommés, le premier par sa MÉCANIQUE");
   /* ⌨️ CELLES DE `4D6` ET `ARRAY` SONT LES FORMULATIONS DU PANNEAU INFO, et
      c'est délibéré : entre deux textes d'agent, on garde celui qui est passé
      sous l'œil d'Eric (il a relu le panneau et en a fait corriger une phrase).
      Les miennes, proposées au mandat §5 bis, n'ont jamais été ratifiées. */
   assert.ok(phrases[1].startsWith("Roll four dice six times, drop the lowest die each time."));
-  assert.match(phrases[1], /\. 4d6 rolls the next one, /, "⭐ le premier bouton suit la mécanique, il n'est pas recopié");
+  assert.match(auxOrganes[1], /\. 4d6 rolls the next one, /, "⭐ le premier bouton suit la mécanique, il n'est pas recopié");
   /* ⛔ ET LES DEUX MÉTHODES SANS DÉS N'ONT PAS DE BOUTONS : leur aiguilleur ne
      parle donc pas d'organes qu'elles n'ont pas. */
   assert.equal(phrases[2], "Six numbers, handed to everyone.");
+  assert.equal(auxOrganes[2], phrases[2], "ARRAY n'a pas de boutons : son aiguilleur est sa phrase, nue");
   assert.match(phrases[3], /never runs out/);
 });
 
@@ -980,12 +999,35 @@ test("🔴 `FREE` — DEUX dalles, et aucune rangée d'îlots entre les deux", (
   assert.equal(node.querySelectorAll(".ability-palette").length, 1);
 
   /* LA PALETTE — seize valeurs, celles PUBLIÉES par le moteur (lot 74), jamais
-     un `for (let i = 3; i <= 18; …)` réécrit dans l'écran. Et elle vit DANS la
-     dalle FF1, avec le mot qui l'explique (« CHOOSE EXPLICATION »). */
+     un `for (let i = 3; i <= 18; …)` réécrit dans l'écran. */
   const palette = node.querySelectorAll(".ability-palette .ability-de-garde");
   assert.equal(palette.length, 16);
   assert.deepEqual(palette.map((j) => j.querySelectorAll(".valeur")[0].textContent), CREATION_SCORES.map(String));
-  assert.equal(node.querySelectorAll(".ability-organe")[0].querySelectorAll(".ability-palette").length, 1);
+  /* 🎨 06/09 — ELLE EST UNE RANGÉE À ELLE, SUR LE MODÈLE DU PODIUM DE B1 (Eric :
+     *« toujours un grid, prends B1 en exemple »*). Elle vivait DANS l'organe,
+     donc dans la zone qui défile : mesuré à 375, 344 blg de palette dans un flux
+     qui n'en montrait que ~90 — on ne voyait que la première rangée. Elle est
+     désormais FILLE DE L'ÉTAPE, entre les deux dalles, hors de tout défilement.
+     ⛔ Ce test dit son PARENT, pas seulement sa présence : c'est le parent qui
+     décide si on la voit. */
+  assert.equal(node.querySelectorAll(".ability-organe")[0].querySelectorAll(".ability-palette").length, 0,
+    "⛔ plus dans l'organe — elle y était sous le défilement du gabarit trois bandes");
+  assert.equal([...node.children].filter((e) => (e.className || "").includes("ability-palette")).length, 1,
+    "…elle est une rangée de l'étape, comme le podium de B1");
+  /* 📏 ET L'ORGANE N'A PLUS D'AIGUILLEUR — le budget mesuré ne l'admet pas (494 de
+     fenêtre : organe 14 + aiguilleur 53 + palette 177 + collecteur 279 + 16 = 53 de
+     trop) et §7.10 le nomme : un écran, un aiguilleur. Celui du collecteur reste. */
+  assert.equal(node.querySelectorAll(".ability-organe-mot").length, 0, "FREE : la dalle ne garde que son titre");
+  assert.equal(node.querySelectorAll(".ability-methode-titre")[0].textContent, "FREE");
+  /* 📏 ET SON COLLECTEUR NON PLUS : il faut les DEUX aiguilleurs (53 + 52) pour que
+     le 4 × 4 et `Done` tiennent dans les 486 de la carte. Le TITRE du collecteur
+     reste, et c'est lui qui dit le geste. */
+  assert.equal(node.querySelectorAll(".ability-collecteur-mot").length, 0, "FREE : pas d'aiguilleur au collecteur non plus");
+  assert.equal(node.querySelectorAll(".ability-collecteur .ability-dalle-titre")[0].textContent,
+    "Drag a score onto each of your character's abilities", "…mais son titre dit le geste");
+  /* ⚔️ LE TÉMOIN — les trois autres le gardent. */
+  const arrayCol = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});
+  assert.equal(arrayCol.querySelectorAll(".ability-collecteur-mot").length, 1, "ARRAY garde le sien");
 
   /* ⚔️ LE TÉMOIN — les trois autres méthodes GARDENT leur rangée d'îlots. */
   const array = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch() }), () => {});

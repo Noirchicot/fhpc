@@ -4883,6 +4883,44 @@ attendent Eric dans `FHPCv2 future updates.md` § PRODIGY. ⚠️ L'info **dit**
 le chapitre `ability-scores` les publie ; le builder ne les applique pas. **L'écart est nommé**, et
 il se referme au même endroit que PRODIGY — jamais en retirant la phrase du chapitre.
 
+### 7.12 🎨 B4 `FREE` — la palette est une RANGÉE, et son budget est fermé *(06/09)*
+📍 `cadre-palette-de-free-est-une-rangee` · vivante · 06/09
+> Eric : *« toujours un grid, prends B1 en exemple »* · *« c'est 4×4 »* · *« la taille des dés idem à
+> B1, ça passe en hauteur »* — puis, de lui-même : *« ou pas »*.
+
+**La palette quitte la dalle et prend la place du podium** : rangée `.fs-rangee` fille de l'étape,
+entre l'organe et le collecteur, **hors de tout défilement** — la structure de B1 en scène 2, à la
+lettre : *dalle · rangée de valeurs · dalle*.
+📏 **Ce que ça répare, mesuré** : dans `.ability-flux` (la zone qui défile du gabarit trois bandes)
+elle pesait **344 blg pour ~90 montrés** — on ne voyait que `3 · 4 · 5 · 6`, et les douze autres
+valeurs vivaient sous un défilement que rien n'annonce. *« Un jeton hors écran est introuvable »*
+(§5 bis) : un vivier dont on voit un quart n'est pas un vivier.
+
+**LE BUDGET, ET IL EST FERMÉ** — carte de **486 blg** à 375 × 553, la borne basse :
+
+| poste | blg |
+|---|---|
+| palette **4 × 4**, dés à **44** | 200 |
+| collecteur **sans son aiguilleur** | 227 |
+| organe, **titre seul** | 40 |
+| écarts | 16 |
+| **total** | **483** — il reste 3 |
+
+🔴 **Le 4 × 4 est la seule division RÉGULIÈRE de seize** (3 × 5 laisse un orphelin sur une quatrième
+rangée, 7 × 3 en laisse deux) — et c'est le croquis d'Eric du 16/08, retrouvé le 06/09.
+⛔ **Le dé ne prend PAS la cote de B1 (54)** : `4 × 54 + 24 = 240`, **37 de trop**. Il ne descend pas
+non plus sous **44** — un dé de la palette est un **contrôle**, on le prend au doigt, et `--touch`
+ne cède jamais (deux essais tués par elle : 36 sur 6 colonnes, 38 sur 8). La colonne vaut 84 et le
+dé s'y centre : le vide autour est **ce qui reste quand une cote de contrôle refuse de plier**.
+⚠️ **LE PRIX EST DEUX AIGUILLEURS, ET IL FAUT LE DIRE.** Celui de l'organe (53) portait la seule
+écriture du produit disant *« take any value, as often as you like »* et *« drag a die off to
+discard it »* — ⛔ j'ai failli le retirer en affirmant qu'on le relisait sur la tuile du sélecteur :
+**mesuré, c'est faux**, `renderSelecteurMethode` ne rend que les libellés, et le chapitre FH Web ne
+décrit que le 3d6 × 10. Il descend donc dans le **`?`**, pas dans le vide. Celui du collecteur (52
+avec son écart) part **sur FREE seulement** ; son **titre** reste et dit le geste.
+⭐ **ARRAY ne bouge pas** — son vivier tient sur une rangée, il garde ses deux textes. Eric :
+*« Array, t'y touches pas, il est bien. »*
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·

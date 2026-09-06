@@ -121,8 +121,8 @@ test("7.8 — les libellés n'ont qu'un écrivain : l'aiguilleur les LIT, il ne 
      *« le premier aiguilleur disparaît quand le 2ᵉ apparaît, il ne reste que le
      titre »*). Il ne suffit donc plus de ne pas NOMMER les boutons : le paragraphe
      entier est sous la porte de la scène, et c'est ce que ce garde lit. */
-  assert.match(STEP, /if \(!scene2\) \{\n\s*flux\.append\(el\("p", "guide-mot ability-organe-mot"/,
-    "l'aiguilleur de l'organe est SOUS la porte de la scène 1, pas seulement raccourci");
+  assert.match(STEP, /if \(!scene2 && !composable\) \{\n\s*flux\.append\(el\("p", "guide-mot ability-organe-mot"/,
+    "l'aiguilleur de l'organe est SOUS une porte — scène 1, et pas la palette de FREE");
   assert.match(STEP, /meca \? " " \+ motDesBoutons\(meca\)/, "et il nomme les boutons tant qu'ils sont là");
   assert.match(STEP, /if \(!scene2\) flux\.append\(plateau\.commandes\)/, "le bloc entier part en scène 2");
 });

@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=580";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=580";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=580";
-import { armerJeton } from "./glisser.mjs?v=580";
-import { facteurZoomCourant } from "./echelle.mjs?v=580";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=580";
-import { createDieHost, mount } from "./dice3d.mjs?v=580";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=580";
+import { markPressed } from "./carnet.mjs?v=581";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=581";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=581";
+import { armerJeton } from "./glisser.mjs?v=581";
+import { facteurZoomCourant } from "./echelle.mjs?v=581";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=581";
+import { createDieHost, mount } from "./dice3d.mjs?v=581";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=581";
 
 export { rollAbilitySet };
 
@@ -829,10 +829,18 @@ function renderCollecteur(ctx) {
      dans l'aiguilleur de l'organe ; l'organe n'en a plus en scène 2, et « l'unique
      aiguilleur dit juste qu'il existe » (Eric) — l'unique, en scène 2, c'est
      celui-ci. Le token juste dessous porte le nom, l'info porte la règle. */
-  bloc.append(el("p", "guide-mot ability-collecteur-mot", [
-    text("The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."),
-    ...(lotRattrape(ctx.rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
-  ]));
+  /* 📏 SAUF EN FREE — sa palette de seize prend 200 blg là où les autres viviers en
+     prennent 62, et les 52 de cet aiguilleur (écart compris) sont la seconde moitié
+     de ce qu'il faut rendre pour que `Done` reste à l'écran (le calcul est dans
+     `renderAbilitiesStep`). ⭐ Le TITRE juste au-dessus dit déjà le geste ; cette
+     phrase-ci en explique la conséquence, et c'est elle qu'on peut lire ailleurs —
+     les trois autres méthodes la gardent, et le `?` la porte pour tout le monde. */
+  if (!ctx.composable) {
+    bloc.append(el("p", "guide-mot ability-collecteur-mot", [
+      text("The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."),
+      ...(lotRattrape(ctx.rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
+    ]));
+  }
 
   const rangee = el("div", "glisse-creneaux ability-creneaux");
   for (const key of ABILITY_KEYS) {
@@ -1293,6 +1301,11 @@ export function renderAbilitiesStep(ctx, onAction) {
      La scène se lit sur ce fait, jamais sur un compteur.
      ⛔ Et rien ne redessine EN COURS de salve : la scène 1 est écrite à la main
      par le plateau, jet après jet, dans des nœuds qui existent déjà. */
+  /* ⭐ `composable` REMONTE ICI (il vivait avec le contexte du glisser) : depuis le
+     06/09 il ne dit plus seulement *« FREE compose son vivier »*, il décide aussi si
+     l'organe porte un aiguilleur. Une donnée lue plus haut qu'avant, pas une donnée
+     nouvelle — et surtout pas un `if` sur un id (§ « une exception se nomme »). */
+  const composable = Boolean(rollBatch && rollBatch.palette);
   const meca = entry.mecanique ? mecaniqueDeJet(entry.mecanique) : null;
   const lot = rollBatch && rollBatch.method === entry.mecanique ? rollBatch : null;
   /* La scène se lit sur « un lot existe » — pas sur la méthode qui l'a produit :
@@ -1320,7 +1333,26 @@ export function renderAbilitiesStep(ctx, onAction) {
      il n'y a pas de bascule, et c'est le seul endroit où la méthode s'explique.
      ⏳ Qu'ils portent EUX AUSSI deux aiguilleurs à la fois est vrai, mesuré, et
      c'est une question pour Eric — pas une déduction à prendre ici. */
-  if (!scene2) {
+  /* 📏 FREE N'EN A PAS, ET C'EST LE BUDGET QUI LE DIT — 06/09, Eric ayant tranché
+     *« c'est 4×4 »* pour les seize valeurs. La carte fait 486 blg à 375 × 553 :
+
+         palette 4 × 4, dés à 44 ........... 200
+         collecteur COMPLET ................ 279
+         organe, titre seul .................  40
+         écarts .............................  16   ➜  535, soit 49 de TROP
+
+     Les deux aiguilleurs de la page valent 53 (l'organe) et 52 (le collecteur avec
+     son écart) : il faut les deux pour rentrer, et aucun autre poste ne bouge —
+     le collecteur est figé (§7), et un dé de contrôle ne descend pas sous 44.
+     ⚠️ CE QUI PART N'EST PAS RIEN, ET IL FAUT LE DIRE : cet aiguilleur était le
+     SEUL endroit du produit qui écrive *« take any value, as often as you like »*
+     et *« drag a die off to discard it »*. ⛔ J'ai failli le retirer en écrivant
+     qu'il se lisait aussi sur la tuile du sélecteur — **mesuré : faux**,
+     `renderSelecteurMethode` ne rend que les libellés. Il descend donc dans le `?`,
+     qui a le droit de respirer (§6 pré bis), pas dans le vide.
+     ⭐ ET LE TITRE DU COLLECTEUR RESTE LA CONSIGNE : *« Drag a score onto each of
+     your character's abilities »* dit le geste. La page garde une phrase, pas zéro. */
+  if (!scene2 && !composable) {
     flux.append(el("p", "guide-mot ability-organe-mot", [
       text(explicationDe(entry) + (meca ? " " + motDesBoutons(meca) : ""))
     ]));
@@ -1358,7 +1390,6 @@ export function renderAbilitiesStep(ctx, onAction) {
      la SEULE chose qui le distingue désormais des trois autres méthodes : ses
      six créneaux sont des CIBLES que la palette remplit. Tout le reste — le
      glisser vers une caractéristique, l'échange, la porte — est identique. */
-  const composable = Boolean(rollBatch && rollBatch.palette);
   const assign = (rollBatch && rollBatch.assign) || {};
   const parIndex = new Map((rollBatch && rollBatch.rolls ? rollBatch.rolls : []).map((r) => [r.index, r]));
 
@@ -1470,15 +1501,29 @@ export function renderAbilitiesStep(ctx, onAction) {
     }
   };
 
-  /* ⭐ LA PALETTE VIT DANS LA DALLE FF1, avec le mot qui l'explique — le
-     croquis les dessine dans UN SEUL cadre (« CHOOSE EXPLICATION »). Elle a
-     besoin du contexte, d'où l'organe posé ICI et non plus haut. */
-  /* ⚠️ DANS LE FLUX, PAS DANS LA DALLE : la palette de seize valeurs est le
-     plus gros bloc de la page (328 px mesurés, pour 493 de fenêtre). C'est
-     elle qui faisait déborder `FREE` de 200 px, et c'est donc elle qui doit
-     céder — la dalle, son titre et le collecteur ne bougent pas d'un pixel. */
-  if (composable) flux.append(renderPalette(glisseCtx, act));
   section.append(organe);
+  /* 🎨 LA PALETTE EST UNE RANGÉE À ELLE, SUR LE MODÈLE DU PODIUM DE B1 — Eric,
+     2026-09-06 : *« toujours un grid, prends B1 en exemple »*.
+
+     🔴 CE QUE ÇA RENVERSE, ET LA RAISON D'ALORS ÉTAIT BONNE : elle vivait DANS
+     `.ability-flux`, la zone de défilement du gabarit trois bandes, parce que le
+     croquis du 16/08 dessine la palette et son explication dans UN SEUL cadre
+     (« CHOOSE EXPLICATION ») et parce qu'elle était le plus gros bloc de la page —
+     c'était donc à elle de céder plutôt qu'au collecteur.
+     📏 MAIS LE PRIX SE VOIT À L'ÉCRAN, et c'est ce qu'Eric a repris : mesuré à
+     375, la palette fait **344 blg** dans un flux qui n'en montre que ~90 — on ne
+     voyait QUE la première rangée (3 · 4 · 5 · 6), et les douze autres valeurs
+     étaient sous un défilement que rien n'annonce. **Un vivier dont on ne voit
+     qu'un quart n'est pas un vivier** — c'est NORMES §5 bis, mot pour mot :
+     *« on lit un texte de haut en bas ; on CHOISIT parmi des jetons, et un jeton
+     hors écran est introuvable »*.
+     ⭐ ELLE PREND DONC LA PLACE EXACTE DU PODIUM : rangée `.fs-rangee` fille de
+     l'étape, entre l'organe et le collecteur, hors de tout défilement. C'est la
+     structure de B1 en scène 2, à la lettre — dalle · rangée de valeurs · dalle.
+     ⛔ Et l'explication ne se perd pas : elle reste l'aiguilleur de l'organe,
+     juste au-dessus. Ce que le croquis voulait — la phrase À CÔTÉ des valeurs —
+     tient toujours ; c'est le CADRE commun qui s'en va, pas la proximité. */
+  if (composable) section.append(renderPalette(glisseCtx, act));
 
   if (plateau) {
     /* ── DALLE 2 — le tapis vert porte les trois dés 3D. Invisible, centrée :

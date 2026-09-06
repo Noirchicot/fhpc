@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=580") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=581") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2817,7 +2817,42 @@ button { font: inherit; }
    comment se sert la palette ; séparée d'elle, elle se lit deux fois. C'est
    donc l'organe (dalle FF2, hauteur de son contenu, mesure de l'écran) qui
    la porte — plus de fenêtre à elle. */
-.fs-rangee[data-pool="inepuisable"] { --fs-colonnes: 4; margin-bottom: 0; }
+/* 🔴 SIX COLONNES DEPUIS LE 2026-09-06, ET C'EST LA COTE DU PODIUM DE B1 —
+   Eric : *« toujours un grid, prends B1 en exemple »* + *« 3 rangées »*.
+   📐 DÉDUITE, PAS CHOISIE (§1 ter) : la rangée fait 362 blg hors de la dalle, le
+   podium de B1 y loge SIX colonnes de 53,7 pour des dés plafonnés à 48. Seize
+   valeurs sur six colonnes tombent donc en **3 rangées** (6 · 6 · 4), là où le
+   4 × 4 en demandait quatre — 166 blg au lieu de 340, dans une fenêtre qui n'en
+   offre que ~110 à ce bloc. ⛔ Le 4 × 4 du croquis du 16/08 valait quand la
+   palette vivait DANS une dalle de 351 ; elle est passée au rang du podium, sa
+   largeur a changé, donc son compte de colonnes aussi. */
+.fs-rangee[data-pool="inepuisable"] {
+  /* 🔴 QUATRE COLONNES, QUATRE RANGÉES — Eric le dit deux fois : son croquis du
+     2026-08-16 (*« 4×4 dés en 3d »*) et, le 06/09 après avoir essayé 3 × 5 à voix
+     haute, *« c'est 4×4 »*. C'est la seule division RÉGULIÈRE de seize : 3 × 5
+     laisse un orphelin sur une quatrième rangée, 7 × 3 en laisse deux.
+  */
+  --fs-colonnes: 4;
+  /* 📏 ET LE DÉ PLAFONNE À 44, PAS À CELUI DE B1 — Eric, 06/09 : *« la taille des
+     dés idem à B1, ça passe en hauteur »*, puis *« ou pas »*. **Ou pas** : mesuré.
+
+     LE BUDGET DE LA PAGE (carte de 486 blg à 375 × 553, la borne basse) :
+         collecteur, sans son aiguilleur .... 227
+         organe, titre seul .................  40
+         écarts .............................  16
+         ───────────────────────────────────────
+         il reste pour la palette .......... 203
+     Quatre rangées, trois écarts de 8 : **(203 − 24) / 4 = 44,75**.
+       · au dé de B1 (54) ....... 4 × 54 + 24 = **240**, soit **37 de trop** ⛔
+       · à 44 ................... 4 × 44 + 24 = **200** ✅ et il reste 3
+     ⛔ ET IL NE DESCEND PAS PLUS BAS : un dé de la palette est un CONTRÔLE — on le
+     prend au doigt — donc `--touch` 44, la cote qui ne cède jamais. C'est elle qui
+     a tué mes deux essais d'avant (36 sur 6 colonnes, 38 sur 8).
+     ⭐ La colonne, elle, vaut 84 : le dé s'y centre. Le vide autour n'est pas une
+     perte — c'est ce qui reste quand une cote de contrôle refuse de plier. */
+  --fs-de-max: 44px;
+  margin-bottom: 0;
+}
 /* ⛔ LA PALETTE N'A PLUS D'ÎLOTS VISIBLES (Eric, 2026-08-17 : *« tu enlèves
    tous les quadrillages dans les deux dalles »*). Seize petites boîtes en
    4 × 4 SONT un quadrillage : elles dessinaient une grille sur la dalle, et
@@ -4313,7 +4348,7 @@ button { font: inherit; }
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=580") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=581") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6953,7 +6988,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=580");
+  background-image: url("./assets/tarot-dos.jpg?v=581");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
