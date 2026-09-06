@@ -433,6 +433,29 @@ sacré**. Si cette liste devient longue, c'est qu'on y a mis des règles — et 
 
 🔒 **③ LA BIBLE SE LIT AVANT DE CODER, PAS APRÈS.**
 
+🔒 **⑤ DEUX SACRÉS QUI SE CONTREDISENT : ON LES REFOND, OU ON FUSIONNE.**
+
+📍 `socle-deux-sacres-contradictoires-se-fusionnent` · vivante · 06/09
+⚖️ 🔒 **Deux sacrés qui se contredisent se réécrivent tous les deux ou fusionnent en un seul ; le reliquat s'archive.**
+
+> Eric, 2026-09-06 : *« quand deux sacrés se contredisent, il faut réécrire les deux ou
+> fusionner. On archive le reliquat. »*
+
+⛔ **ET CE N'EST PAS LA LOI DES DEUX ÂGES.** Entre deux **règles**, la plus récente l'emporte et
+l'ancienne s'archive — un lot tranche seul et continue. ⛔ **Entre deux SACRÉS, non** : un sacré
+ne cède jamais, donc *« le plus récent gagne »* n'a pas de sens ici. Si deux sacrés se
+contredisent, **l'un des deux n'aurait jamais dû être déclaré sacré**, ou les deux disent la
+même loi de deux façons.
+
+⭐ **DEUX ISSUES, ET UNE SEULE INTERDITE.**
+* **Réécrire les deux** — chacun garde son adresse, et les deux énoncés cessent de se mordre.
+* **Fusionner** — un seul sacré survit, l'autre passe à `remplacée`, les deux se citent.
+* ⛔ **Les laisser cohabiter.** Deux sacrés qui se contredisent, c'est **zéro sacré** : un agent
+  qui doit choisir entre deux lois qui ne cèdent pas n'obéit plus, il arbitre.
+
+📌 **LE RELIQUAT S'ARCHIVE, IL NE S'EFFACE PAS** — comme tout le reste : il porte son incident,
+et l'incident se repaie si on l'oublie.
+
 🔒 **④ ET FRANCHIR LA FRONTIÈRE OBLIGE À LIRE L'AUTRE BIBLE.**
 
 > Eric, 2026-09-06 : *« quand on touche à FH WEB alors qu'on bossait sur le builder, on a
