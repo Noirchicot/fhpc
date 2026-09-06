@@ -56,6 +56,29 @@ globalThis.document = createTestDocument();
    pour la même raison). Les gardes d'octets de ce fichier passent par là. */
 const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 
+/** Le CORPS d'une fonction de premier niveau, découpé sur ses accolades.
+ *
+ *  🔴 POURQUOI IL EXISTE (lot 169) : les gardes d'octets de ce fichier
+ *  cherchaient un appel « dans » une fonction avec un `[\s\S]*?` non borné. Ce
+ *  motif ne s'arrête pas à l'accolade fermante — il traverse le reste du
+ *  fichier et se satisfait d'une occurrence n'importe où. Mesuré : le garde du
+ *  trait est resté VERT alors que l'appel avait été retiré de la fonction.
+ *  ⛔ Un garde de FORME doit au moins garder la bonne portée. */
+function corpsDe(source, nom) {
+  const debut = source.indexOf(`function ${nom}(`);
+  assert.notEqual(debut, -1, `témoin — la fonction ${nom} doit exister dans shell.mjs`);
+  let i = source.indexOf("{", debut);
+  let profondeur = 0;
+  for (let j = i; j < source.length; j += 1) {
+    if (source[j] === "{") profondeur += 1;
+    else if (source[j] === "}") {
+      profondeur -= 1;
+      if (profondeur === 0) return source.slice(i, j + 1);
+    }
+  }
+  throw new Error(`la fonction ${nom} n'est pas refermée`);
+}
+
 const {
   renderAbilitiesStep, rollAbilitySet, currentAbilityValue, emptyAbilityAssign,
   abilitiesValidate, standardArrayBatch, freeBatch, lotSansDes, ABILITY_ENTRIES
@@ -1325,7 +1348,12 @@ test("🏁 LE BILAN (R2) — Done mène au bilan, le bilan porte Next et un Canc
   const coquille = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "shell.mjs"), "utf8");
   const blocBilan = coquille.slice(coquille.indexOf('if (gate.next === "bilan")'), coquille.indexOf('if (gate.next === "close")'));
   assert.match(blocBilan, /docWriters\.confirm\(\{ document: state\.document, path: "abilities" \}\)/, "le bilan SIGNE l'étape");
-  assert.match(coquille, /function leverLaSignatureDAbilities\(\) \{[\s\S]*?revoke\(\{ document: state\.document, path: "abilities" \}\)/, "et une seule fonction la lève");
+  /* REWRITTEN 2026-09-06 (lot 169) — ce garde portait le MÊME défaut que son
+     jumeau du trait, découvert en éprouvant celui-ci : `[\s\S]*?` n'était borné
+     par rien, donc il traversait la fin de la fonction et retrouvait l'appel
+     ailleurs dans le fichier. L'assertion ne change pas de sens, elle cesse
+     seulement de pouvoir répondre oui pour la mauvaise raison. */
+  assert.match(corpsDe(coquille, "leverLaSignatureDAbilities"), /revoke\(\{ document: state\.document, path: "abilities" \}\)/, "et une seule fonction la lève");
   const blocCancel = coquille.slice(coquille.indexOf('if (action.kind === "abilityBilanCancel")'), coquille.indexOf('/* ⛔ L\'ACTION `roll` A DISPARU'));
   assert.match(blocCancel, /leverLaSignatureDAbilities\(\)/, "Cancel sur le bilan la lève");
 });
@@ -1498,4 +1526,87 @@ test("`lotSansDes` ne connaît que les deux méthodes qui n'en jettent pas", () 
   assert.equal(lotSansDes("free").method, "free");
   assert.equal(lotSansDes("fh3d6"), null, "FH 3D6 attend son plateau — pas de lot posé d'avance");
   assert.equal(lotSansDes("4d6"), null);
+});
+
+/* ══ 🌱 LATE BLOOMER — LE DÉCLENCHEUR SURVIT AU FICHIER (lot 169) ═════════
+   🔴 LE DÉFAUT MESURÉ AVANT CE LOT : les trois endroits qui montrent le trait
+   lisaient `ctx.rollBatch`, c'est-à-dire un état d'ÉCRAN. Un personnage rouvert
+   depuis son fichier n'a pas de lot de dés — le token disparaissait, et le
+   moteur n'avait aucun moyen de savoir que le trait s'était déclenché.
+
+   ⚠️ CE TEST NE VÉRIFIE PAS QUE L'ÉCRAN A CHANGÉ D'AVIS : il vérifie que le
+   trait se montre à partir de CHACUNE des deux sources, séparément, et qu'il se
+   tait quand AUCUNE des deux ne parle. Trois cas, trois assertions — c'est
+   l'alternative gardée des deux côtés. */
+
+test("🌱 le token du trait se montre depuis le PERSONNAGE seul, sans un dé en mémoire", () => {
+  const avecLeTrait = {
+    ...fixture.document,
+    build: {
+      ...fixture.document.build,
+      choices: fixture.document.build.choices.concat([
+        { path: "fh.skills.trait.late-bloomer", value: true }
+      ])
+    }
+  };
+  /* ⛔ AUCUN LOT DE DÉS — c'est exactement l'état d'un fichier rouvert : six
+     scores, et rien qui dise comment ils ont été tirés. */
+  const bilan = renderAbilitiesStep(
+    ctxFrom(avecLeTrait, fixture.report, { method: "standard", rollBatch: null, palier: 1, bilan: true }), () => {});
+  const token = bilan.querySelectorAll(".ability-bilan-dalle .ability-trait .glisse-jeton");
+  assert.equal(token.length, 1, "le trait est là — il vient du personnage, pas de la session");
+  assert.equal(token[0].textContent, "Late Bloomer");
+
+  /* 🔴 LE TÉMOIN CONTRAIRE — le MÊME rendu, le MÊME personnage privé du seul
+     choix qui change. Sans lui, un token posé inconditionnellement passerait. */
+  const sansLeTrait = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: null, palier: 1, bilan: true }), () => {});
+  assert.equal(sansLeTrait.querySelectorAll(".ability-trait").length, 0,
+    "sans le choix au personnage et sans lot rattrapé, RIEN ne s'affiche");
+
+  /* ⭐ ET LA SECONDE SOURCE TIENT TOUJOURS : le lot de dés seul, sur un
+     personnage qui ne porte pas encore le choix — c'est la scène 2 de B1, AVANT
+     que `Done` n'écrive quoi que ce soit. Les deux lectures, pas une. */
+  const lot = standardArrayBatch();
+  lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
+  lot.rolls[2] = { ...lot.rolls[2], ajuste: "haut", brut: 12, total: 14 };
+  const parLeLot = renderAbilitiesStep(
+    ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: lot, palier: 1, bilan: true }), () => {});
+  assert.equal(parLeLot.querySelectorAll(".ability-trait .glisse-jeton").length, 1,
+    "avant `Done`, c'est le lot de dés qui porte le drapeau");
+});
+
+test("🌱 garde d'octets — la coquille POSE le trait au bilan et le LÈVE avec la signature", () => {
+  /* `shell.mjs` n'a aucun harnais de rendu (voir la tête de ce fichier) : la
+     seule preuve possible est sur les octets. ⚠️ Ce garde décrit un INVARIANT
+     — « le trait s'écrit là où l'étape se signe, et s'efface là où elle se
+     dessigne » —, pas la forme d'une ligne : il n'exige ni l'ordre des
+     arguments ni le nom d'une variable, seulement que les deux moitiés vivent
+     dans les deux blocs qui les rendent symétriques. Un trait posé ailleurs, ou
+     jamais effacé, le fait rougir. */
+  const coquille = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
+  const blocBilan = coquille.slice(coquille.indexOf('if (gate.next === "bilan")'), coquille.indexOf('if (gate.next === "close")'));
+  assert.match(blocBilan, /poserLeTraitTardif\(\)/, "le passage au bilan POSE le trait");
+  /* 🔴 LE CORPS DE LA FONCTION, DÉCOUPÉ — jamais un `[\s\S]*?` lâché dans tout le
+     fichier. Mesuré en éprouvant ce garde : la version non ancrée est restée
+     VERTE alors que `effacerLeTraitTardif()` avait été RETIRÉ de la fonction —
+     le point-quelconque paresseux traversait l'accolade fermante et retrouvait
+     l'appel dans la DÉFINITION de la fonction, plus bas. Un garde qui répond
+     OUI trop facilement achète la confiance sans la mériter. */
+  assert.match(corpsDe(coquille, "leverLaSignatureDAbilities"), /effacerLeTraitTardif\(\)/,
+    "et la seule fonction qui dessigne l'étape l'EFFACE — un lot jeté ne laisse pas un trait derrière lui");
+
+  /* ⛔ UN SEUL ÉCRIVAIN DE CHAQUE CÔTÉ. Deux `set` sur ce chemin, ou un `set`
+     hors de `poserLeTraitTardif`, et la symétrie ne tiendrait plus. */
+  const poses = coquille.match(/set\(\{ document: state\.document, path: CHEMIN_TRAIT_TARDIF/g) || [];
+  assert.equal(poses.length, 1, "un seul endroit écrit le trait");
+  const effacements = coquille.match(/clear\(\{ document: state\.document, path: CHEMIN_TRAIT_TARDIF/g) || [];
+  assert.equal(effacements.length, 1, "un seul endroit l'efface");
+
+  /* 🔴 ET LA CONDITION EST LUE AU LOT DE DÉS, JAMAIS RECALCULÉE ICI : la
+     coquille ne connaît ni le 14, ni le plancher, ni les 17 %. */
+  assert.match(coquille, /function poserLeTraitTardif\(\)[\s\S]*?lotRattrape\(state\.abilityRoll\)/,
+    "la coquille LIT le drapeau du moteur des dés, elle ne le refait pas");
+  assert.equal(/ajuste/.test(coquille), false,
+    "⛔ et elle ne connaît pas le nom du drapeau — c'est `abilities-step` qui le lit");
 });

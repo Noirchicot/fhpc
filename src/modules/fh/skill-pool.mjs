@@ -300,15 +300,55 @@ function tierPointCost(classRef, costs, tier) {
 /* ── LE VERROU D'EXPERTISE (lot 34) ──────────────────────────────────
    `expertise_from_level` était lu par personne avant ce lot (mesuré,
    commande du lot). Il vit sur le MÊME record que le reste de la grille —
-   pas un nombre de plus dans ce fichier. */
-function expertiseFromLevel(classRef, pool) {
+   pas un nombre de plus dans ce fichier.
+
+   ⭐ LOT 169 — ET IL A UNE SECONDE SOURCE, JAMAIS UN SECOND NOMBRE. Un grant
+   de TRAIT ouvert (`trait_grants`, plus bas) peut porter la même permission,
+   à son propre niveau : le verrou effectif est le PLUS BAS des deux. Les deux
+   niveaux sont lus sur le record ; ce fichier n'en écrit aucun. */
+function expertiseFromLevel(classRef, pool, traitGrantsOuverts) {
   const level = pool.expertise_from_level;
   if (!Number.isInteger(level) || level < 1) {
     fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].expertise_from_level\` = ` +
       `${JSON.stringify(level)}, which is not a whole level — the expertise lock cannot compare a character's ` +
       "level to a rule it cannot read.");
   }
-  return level;
+  const parLeTrait = (Array.isArray(traitGrantsOuverts) ? traitGrantsOuverts : [])
+    .filter((grant) => grant.unlocksExpertise === true)
+    .map((grant) => grant.level);
+  return parLeTrait.length > 0 ? Math.min(level, ...parLeTrait) : level;
+}
+
+/* ── LE PLAFOND D'EXPERTISES DU NIVEAU 1 (lot 169) ───────────────────
+   Eric, 2026-09-06, en tranchant Late Bloomer : *« deux expertises max au
+   niveau 1 »*, *« pour lui comme pour n'importe qui »*. C'est une règle NEUVE
+   — elle n'existait pas avant ce jour-là, et le Rogue en achetait trois si son
+   pool suivait.
+
+   ⛔ LES DEUX NOMBRES SE LISENT, exactement comme `expertise_from_level` :
+   `through_level` est le niveau JUSQU'AUQUEL le plafond mord, `max` le nombre
+   toléré. Écrire « 2 » ou « niveau 1 » ici referait la faute que le verrou
+   d'à côté répare depuis le lot 34 — *« une valeur LUE, jamais figée »*.
+
+   ⚠️ ET IL N'EST PAS UNE CLAUSE DE LATE BLOOMER : il s'applique à quiconque
+   peut acheter l'expertise à ce niveau-là, Late Bloomer ou pas. Le lier au
+   trait laisserait le Rogue sans plafond, ce qu'Eric a explicitement refusé. */
+function expertiseCap(classRef, pool) {
+  const cap = pool.expertise_cap;
+  if (cap === null || typeof cap !== "object" || Array.isArray(cap)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].expertise_cap\` = ` +
+      `${JSON.stringify(cap)}, which is not an object — the convention is \`{through_level, max}\`, and a cap ` +
+      "the engine cannot read is a character it would let out of creation above the rule, silently.");
+  }
+  if (!Number.isInteger(cap.through_level) || cap.through_level < 1 || cap.through_level > MAX_LEVEL) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].expertise_cap.through_level\` = ` +
+      `${JSON.stringify(cap.through_level)}, which is not a whole level between 1 and ${MAX_LEVEL}.`);
+  }
+  if (!Number.isInteger(cap.max) || cap.max < 0) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].expertise_cap.max\` = ` +
+      `${JSON.stringify(cap.max)}, which is not a whole number of expertises, zero or more.`);
+  }
+  return cap;
 }
 
 /* ── LE COÛT D'UN TRAINING (lot 36) ──────────────────────────────────
@@ -431,6 +471,32 @@ function speciesLines(species, level, lines, underived) {
    canon §A.5) ; le barbare reçoit du BOUND et pas de point (*Primal
    Knowledge* nomme une liste). Ni l'un ni l'autre n'a de ligne dans le pool :
    une ligne à zéro serait du bruit qui ressemble à un gain. */
+/* ⭐ LOT 169 — LES QUATRE CONTRÔLES DE FORME D'UN GRANT, PARTAGÉS. Deux listes
+   portent désormais la même forme (`grants`, les aptitudes de classe ;
+   `trait_grants`, les traits du personnage). En écrire deux jeux de contrôles
+   les ferait diverger au premier changement — la faute que `traversedTiers`
+   évite déjà en servant la classe ET l'espèce. `quoi` nomme la liste fautive
+   dans le refus, pour que le message ne mente pas sur sa provenance. */
+function verifierLaFormeDUnGrant(classRef, grant, quoi) {
+  if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
+    fail(`the class record "${classRef.id}" carries a ${quoi} that is not an object: ${JSON.stringify(grant)}.`);
+  }
+  if (!Number.isInteger(grant.level) || grant.level < 1 || grant.level > MAX_LEVEL) {
+    fail(`the class record "${classRef.id}" carries a ${quoi} at level ${JSON.stringify(grant.level)}, outside ` +
+      `1–${MAX_LEVEL}. A grant the engine cannot date is a grant it cannot know the character has reached.`);
+  }
+  if (!Number.isInteger(grant.points) || grant.points < 0) {
+    fail(`the class record "${classRef.id}" carries a ${quoi} worth ${JSON.stringify(grant.points)} points — not a ` +
+      "whole number, zero or more. Zero is a real case (the rogue gets the permission and no point); negative " +
+      "is nonsense.");
+  }
+  if (typeof grant.feature !== "string" || grant.feature.trim() === "") {
+    fail(`the class record "${classRef.id}" carries a ${quoi} with no usable \`feature\` name. The breakdown line ` +
+      "is labelled with it, copied from the record (loi §0.13) — without it the player would read points " +
+      "arriving from nowhere.");
+  }
+}
+
 function classGrantLines(classRef, pool, level, lines, underived) {
   const grants = pool.grants;
   if (grants === undefined) return;
@@ -440,23 +506,7 @@ function classGrantLines(classRef, pool, level, lines, underived) {
       "one entry per class feature that hands over points or bound placements (canon §B.1ter).");
   }
   for (const grant of grants) {
-    if (grant === null || typeof grant !== "object" || Array.isArray(grant)) {
-      fail(`the class record "${classRef.id}" carries a grant that is not an object: ${JSON.stringify(grant)}.`);
-    }
-    if (!Number.isInteger(grant.level) || grant.level < 1 || grant.level > MAX_LEVEL) {
-      fail(`the class record "${classRef.id}" carries a grant at level ${JSON.stringify(grant.level)}, outside ` +
-        `1–${MAX_LEVEL}. A grant the engine cannot date is a grant it cannot know the character has reached.`);
-    }
-    if (!Number.isInteger(grant.points) || grant.points < 0) {
-      fail(`the class record "${classRef.id}" carries a grant worth ${JSON.stringify(grant.points)} points — not a ` +
-        "whole number, zero or more. Zero is a real case (the rogue gets the permission and no point); negative " +
-        "is nonsense.");
-    }
-    if (typeof grant.feature !== "string" || grant.feature.trim() === "") {
-      fail(`the class record "${classRef.id}" carries a grant with no usable \`feature\` name. The breakdown line ` +
-        "is labelled with it, copied from the record (loi §0.13) — without it the player would read points " +
-        "arriving from nowhere.");
-    }
+    verifierLaFormeDUnGrant(classRef, grant, "grant");
     /* LA RÈGLE Q15-8, la même ligne que pour les paliers. */
     if (grant.level > level) continue;
     if (grant.points > 0) {
@@ -480,6 +530,101 @@ function classGrantLines(classRef, pool, level, lines, underived) {
           classId: classRef.id, feature: grant.feature, level: grant.level, points: grant.boundSkill,
           from: from.join(", ")
         }));
+    }
+  }
+}
+
+/* ── 🌱 LES GRANTS D'UN TRAIT (lot 169) ──────────────────────────────
+   Canon §B.1ter, appliqué à un trait plutôt qu'à une aptitude de classe. Un
+   grant de trait tend les MÊMES deux choses — des points, et la permission
+   d'acheter l'expertise avant l'heure — et il porte une clef de plus : `trait`,
+   le slug que le DOCUMENT doit déclarer pour que le grant s'ouvre.
+
+   🔴 CE QUE CE BLOC NE FAIT PAS, ET C'EST TOUT SON INTÉRÊT : il ne connaît le
+   nom d'AUCUN trait. « late-bloomer » n'est écrit nulle part dans ce fichier —
+   le document le nomme (`fh.skills.trait.<slug>`), la couche le chiffre
+   (`trait_grants`), et ce module apparie les deux. Le jour où Eric ajoute un
+   second trait à points, il n'y a pas une ligne à changer ici.
+
+   ⛔ UN TRAIT DÉCLARÉ QUE LA COUCHE NE CONNAÎT PAS EST UN REFUS QUI LE NOMME,
+   jamais une ligne silencieusement sautée (loi §0.5) : sinon une faute de
+   frappe dans un document coûterait au joueur son trait entier, sans un mot.
+
+   ⚠️ ET LA DISTINCTION DES DEUX MANQUES EST LA MÊME QU'EN TÊTE DE FICHIER :
+   AUCUNE classe ne porte `trait_grants` → la couche qui les pose n'est pas
+   montée, ça se DÉCLARE. D'autres en portent et pas celle-ci → le record est
+   amputé, ça JETTE.
+
+   Rend la liste des grants OUVERTS (trait déclaré ET niveau atteint) : le
+   verrou d'expertise la relit, elle n'est donc pas seulement une source de
+   lignes. */
+function traitGrantsOuverts(classRef, pool, records, traitsDeclares, level, underived, violations) {
+  const grants = pool.trait_grants;
+  if (grants === undefined) {
+    if (traitsDeclares.size === 0) return [];
+    const porteurs = (typeof records === "function" ? records("class") : [])
+      .filter((view) => view && view.data && view.data[POOL_FIELD]
+        && view.data[POOL_FIELD].trait_grants !== undefined);
+    if (porteurs.length > 0) {
+      fail(`the class record "${classRef.id}" carries no \`data[${POOL_FIELD}].trait_grants\`, and ` +
+        `${porteurs.length} other class records of the stack do — so the layer IS mounted and this record is ` +
+        "amputated. A character who declares a trait would silently lose everything that trait hands over.");
+    }
+    underived.push(declareUnderived(`stats[${FH_SKILL_POOL_ID}].traits`, "underived.fh.skillpool-trait-grants-absent",
+      { classId: classRef.id, traits: [...traitsDeclares.keys()].sort().join(", ") }));
+    return [];
+  }
+  if (!Array.isArray(grants)) {
+    fail(`the class record "${classRef.id}" carries \`data[${POOL_FIELD}].trait_grants\` = ` +
+      `${JSON.stringify(grants)}, which is not a list — the convention is a list of \`{trait, level, feature, ` +
+      "points, boundSkill, unlocksExpertise}`, one entry per trait that hands over points or a permission.");
+  }
+  const parTrait = new Map();
+  for (const grant of grants) {
+    verifierLaFormeDUnGrant(classRef, grant, "trait grant");
+    if (typeof grant.trait !== "string" || grant.trait.trim() === "") {
+      fail(`the class record "${classRef.id}" carries a trait grant with no usable \`trait\` key ` +
+        `(${JSON.stringify(grant.trait)}) — that key IS what a character's choice names, and a grant nothing can ` +
+        "name is a grant nothing can open.");
+    }
+    if (parTrait.has(grant.trait)) {
+      fail(`the class record "${classRef.id}" carries TWO trait grants for "${grant.trait}" — the character ` +
+        "would receive its points twice.");
+    }
+    parTrait.set(grant.trait, grant);
+  }
+  const ouverts = [];
+  for (const { slug, path } of traitsDeclares.values()) {
+    const grant = parTrait.get(slug);
+    /* Un slug que la couche ne connaît pas : NOMMÉ, avec la liste de ce qu'elle
+       connaît — le même patron que `skill-spend.option-unavailable`. Ce module
+       ne JETTE pas pour un choix de joueur. */
+    if (!grant) {
+      violations.push(buildViolation("skill-trait.unknown",
+        { path, selected: slug, options: [...parTrait.keys()].sort().join(", ") }, path));
+      continue;
+    }
+    /* LA RÈGLE Q15-8, la même ligne que partout ailleurs : un grant daté d'un
+       niveau que le personnage n'a pas atteint ne s'ouvre pas. */
+    if (grant.level > level) continue;
+    ouverts.push(grant);
+  }
+  return ouverts;
+}
+
+/* Les lignes de pool que les grants ouverts tendent. Séparé de la lecture
+   ci-dessus parce que le verrou d'expertise a besoin des grants AVANT que la
+   dépense commence, et que les lignes, elles, se posent une seule fois.
+   ⭐ ET UN GRANT PEUT NE PORTER AUCUN POINT — la même loi que pour le rogue :
+   une ligne à zéro serait du bruit qui ressemble à un gain. */
+function traitGrantLines(classRef, ouverts, lines) {
+  for (const grant of ouverts) {
+    if (grant.points > 0) {
+      lines.push({
+        label: t("fh.skills.term.trait", { trait: grant.feature }),
+        value: grant.points,
+        source: { kind: "class", id: classRef.id }
+      });
     }
   }
 }
@@ -646,6 +791,11 @@ export function createFhSkillPoolStat() {
     contribute({ level, species, choices, records, refs, imposedSkillSlugs, proficiency }) {
       const underived = [];
       const lines = [];
+      /* REWRITTEN 2026-09-06 (lot 169) — `violations` était déclaré au §5, juste
+         avant la dépense. Il l'est maintenant en tête : la LECTURE des choix (§0)
+         peut déjà refuser — un `trait.<slug>` qui ne porte pas un booléen — et un
+         refus n'attend pas son tour. */
+      const violations = [];
       /* Les chemins HORS namespace que ce module a réellement lus — seul le
          don d'origine (lot 24) alimente cette liste : `class`, `species` et
          `background` sont déjà consommés par le pli lui-même (`takeRef`), les
@@ -676,10 +826,19 @@ export function createFhSkillPoolStat() {
          `spend.*` accepterait un mot de la grille sur un objet qui n'en a
          pas — un mensonge de forme que la commande interdit nommément. */
       const TRAIN_PREFIX = "train.";
+      /* 🌱 LOT 169 — LE QUATRIÈME TERME, ET IL N'EST PAS UNE DÉPENSE. `trait.<slug>`
+         porte un BOOLÉEN et ne coûte rien : il DÉCLARE ce que le personnage porte,
+         là où `spend.*` et `train.*` disent ce qu'il achète. C'est le seul canal par
+         lequel un fait établi ailleurs (ici : le plancher haut a dû rattraper le
+         tirage des caractéristiques) peut atteindre ce module — un module ne voit
+         que son propre namespace, et le document ne garde du tirage que les six
+         scores finaux, jamais le lot de dés. */
+      const TRAIT_PREFIX = "trait.";
       const TIER_ORDER = ["none", "novice", "adept", "expert"];
       const tierRank = (tier) => TIER_ORDER.indexOf(tier);
       const spendEntries = [];
       const trainEntries = [];
+      const traitsDeclares = new Map();
       for (const entry of Array.isArray(choices) ? choices : []) {
         if (typeof entry.tail === "string" && entry.tail.startsWith(SPEND_PREFIX)) {
           spendEntries.push({ slug: entry.tail.slice(SPEND_PREFIX.length), value: entry.value, path: entry.path });
@@ -689,10 +848,23 @@ export function createFhSkillPoolStat() {
           trainEntries.push({ slug: entry.tail.slice(TRAIN_PREFIX.length), value: entry.value, path: entry.path });
           continue;
         }
-        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module only carries two ` +
-          `terms a choice can set: "${FH_SKILLS_FLAG}.spend.<skill>" (half, proficient or expertise) or ` +
-          `"${FH_SKILLS_FLAG}.train.<training>" (true). A path it cannot read is a refusal, not a line it quietly ` +
-          "drops.");
+        if (typeof entry.tail === "string" && entry.tail.startsWith(TRAIT_PREFIX)) {
+          const slug = entry.tail.slice(TRAIT_PREFIX.length);
+          /* Même discipline que `train.*` : `true` ET `false` sont légaux —
+             `false` a le même effet que l'absence du choix —, tout le reste est
+             un refus nommé, jamais une acceptation silencieuse. */
+          if (typeof entry.value !== "boolean") {
+            violations.push(buildViolation("skill-trait.value-invalid",
+              { path: entry.path, value: String(entry.value) }, entry.path));
+            continue;
+          }
+          if (entry.value === true) traitsDeclares.set(slug, { slug, path: entry.path });
+          continue;
+        }
+        fail(`the choice "${entry.path}" is in the "${FH_SKILLS_FLAG}" namespace, and this module only carries three ` +
+          `terms a choice can set: "${FH_SKILLS_FLAG}.spend.<skill>" (half, proficient or expertise), ` +
+          `"${FH_SKILLS_FLAG}.train.<training>" (true) or "${FH_SKILLS_FLAG}.trait.<trait>" (true). A path it ` +
+          "cannot read is a refusal, not a line it quietly drops.");
       }
 
       const outside = Array.isArray(refs) ? refs : [];
@@ -759,6 +931,11 @@ export function createFhSkillPoolStat() {
          grant d'espèce trié par la contrainte qu'il porte, pas par sa source. */
       tierCosts(classRef, pool);
       classGrantLines(classRef, pool, level, lines, underived);
+      /* 🌱 4b. LES GRANTS DE TRAIT (lot 169) — lus AVANT la dépense, parce que
+         le verrou d'expertise les relit ; leurs lignes se posent ici, avec les
+         autres gains, pour que `preSpendTotal` les compte. */
+      const ouverts = traitGrantsOuverts(classRef, pool, records, traitsDeclares, level, underived, violations);
+      traitGrantLines(classRef, ouverts, lines);
       boundLines(classRef, pool, species, lines, underived);
 
       /* 5. LA GRILLE À QUATRE PALIERS (lot 34) — le plancher, puis la dépense.
@@ -769,7 +946,6 @@ export function createFhSkillPoolStat() {
          chaque slug — le plancher d'abord, la dépense du joueur ensuite. */
       const tierBySlug = {}; // slug → nom de palier, USAGE INTERNE seulement
       for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "novice";
-      const violations = [];
       /* LOT 36 — les trainings acquis, à publier dans `resolved.traits[]`
          par le canal générique que `derive.mjs` recopie sans jamais nommer
          la mécanique qui l'a produit (§0.12, même discipline que
@@ -839,11 +1015,26 @@ export function createFhSkillPoolStat() {
             violations.push(buildViolation("skill-spend.below-floor", { path, value, floor }, path));
             continue;
           }
-          if (value === "expert" && level < expertiseFromLevel(classRef, pool)) {
+          if (value === "expert" && level < expertiseFromLevel(classRef, pool, ouverts)) {
             violations.push(buildViolation("skill-spend.tier-locked", {
-              path, skillId: slug, level, unlockLevel: expertiseFromLevel(classRef, pool)
+              path, skillId: slug, level, unlockLevel: expertiseFromLevel(classRef, pool, ouverts)
             }, path));
             continue;
+          }
+          /* 🌱 LE PLAFOND (lot 169), APRÈS LE VERROU ET JAMAIS AVANT : un achat
+             que le verrou refuse déjà n'a pas à être compté, et le compter
+             ferait refuser le SUIVANT pour une expertise qui n'existe pas.
+             ⛔ Il ne compte que ce que ce module a RÉELLEMENT posé — le bound
+             ne passe jamais par `expert`, et un refus a déjà `continue`. */
+          if (value === "expert") {
+            const cap = expertiseCap(classRef, pool);
+            const deja = Object.values(tierBySlug).filter((tier) => tier === "expert").length;
+            if (level <= cap.through_level && tierBySlug[slug] !== "expert" && deja >= cap.max) {
+              violations.push(buildViolation("skill-spend.expertise-capped", {
+                path, skillId: slug, level, max: cap.max, throughLevel: cap.through_level
+              }, path));
+              continue;
+            }
           }
           tierBySlug[slug] = value;
           const costs = pool.tier_costs;

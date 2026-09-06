@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=590";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=590";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=590";
-import { armerJeton } from "./glisser.mjs?v=590";
-import { facteurZoomCourant } from "./echelle.mjs?v=590";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=590";
-import { createDieHost, mount } from "./dice3d.mjs?v=590";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=590";
+import { markPressed } from "./carnet.mjs?v=591";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=591";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=591";
+import { armerJeton } from "./glisser.mjs?v=591";
+import { facteurZoomCourant } from "./echelle.mjs?v=591";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=591";
+import { createDieHost, mount } from "./dice3d.mjs?v=591";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=591";
 
 export { rollAbilitySet };
 
@@ -259,13 +259,16 @@ export const ABILITY_ENTRIES = [
    un écran qui en porte déjà un. Un écran a un aiguilleur, pas deux (§6 pré bis).
    La prose descend donc dans l'info du token, là où on va la chercher.
 
-   ⏳ L'ANNONCE SEULE EST CÂBLÉE : l'effet (+2 au pool de Skills, l'option
-   Expertise au verrou) attend trois réponses d'Eric (`FHPCv2 future updates.md`,
-   PRODIGY : le palier `expertise`, la seconde exception au verrou, le cas du
-   Rogue). Le nom, lui, est tranché : *« je valide Late Bloomer »* (Eric, 06/09).
-   ⚠️ L'info DIT les deux dons parce que le CHAPITRE les publie ; le builder ne les
-   applique pas encore. L'écart est nommé ici et porté à Eric — il se referme au
-   même endroit que PRODIGY, jamais en retirant la phrase du chapitre. */
+   ✅ L'EFFET EST CÂBLÉ (lot 169, 06/09 au soir) — les trois points ouverts ont été
+   tranchés par Eric le jour même : *« le droit de l'acheter »* et *« deux
+   expertises max au niveau 1 »*. Le trait donne +2 points libres au pool de
+   Skills et le DROIT d'acheter l'Expertise au niveau 1, au prix normal. ⛔ RIEN
+   n'est offert. L'info du token dit donc exactement ce que le builder fait, et
+   l'écart d'avant est refermé.
+   ⚠️ CET ÉCRAN N'APPLIQUE TOUJOURS RIEN, et c'est la même loi qu'avant : il
+   ÉCRIT un fait au personnage (`CHEMIN_TRAIT_TARDIF`, posé par la coquille au
+   moment de la signature), et c'est la couche qui chiffre, le module qui
+   applique. Le nom, lui, est tranché : *« je valide Late Bloomer »* (Eric, 06/09). */
 const TRAIT_TARDIF = {
   nom: "Late Bloomer",
   /* ⌨️ La prose vient du chapitre `ability-scores` (l'encadré « Late Bloomer —
@@ -277,6 +280,45 @@ const TRAIT_TARDIF = {
 };
 export function lotRattrape(rollBatch) {
   return Boolean(rollBatch && Array.isArray(rollBatch.rolls) && rollBatch.rolls.some((r) => r.ajuste === "haut"));
+}
+
+/** 🌱 LE CHEMIN OÙ LE TRAIT S'ÉCRIT AU PERSONNAGE — lot 169.
+ *
+ *  🔴 POURQUOI IL VIT DANS LE NAMESPACE DES COMPÉTENCES ET PAS SOUS `abilities`.
+ *  Mesuré avant d'écrire une ligne : `ajuste: "haut"` n'existe QUE dans l'écran
+ *  (`abilities-tray.mjs`, le lot de dés) ; le personnage sauvegardé, lui, ne
+ *  garde que `abilities.<clef>`, six scores finaux. Un personnage rouvert
+ *  demain n'a donc AUCUNE mémoire de la façon dont il a été tiré — et le moteur
+ *  ne pouvait pas savoir que Late Bloomer s'était déclenché.
+ *
+ *  ⛔ ET `abilities.lateBloomer` N'AURAIT RIEN RÉPARÉ : un module de statistique
+ *  ne reçoit QUE les choix de son propre namespace (`contracts/build.md`,
+ *  « Ce qu'il reçoit »). Un champ sous `abilities` serait un second
+ *  `abilities.mode` — écrit, gardé, et lu par personne. C'est exactement ce que
+ *  ce lot existe pour ne pas faire.
+ *
+ *  ⭐ CE QUI EST ÉCRIT ICI EST DONC UN FAIT, PAS UN EFFET : « ce personnage porte
+ *  le trait `late-bloomer` ». Ce que le trait ACCORDE (+2 points libres, le droit
+ *  d'acheter l'expertise au niveau 1) est chiffré dans la couche
+ *  (`fh_skill_pool.trait_grants`) et appliqué par le module. L'écran ne calcule
+ *  rien et n'offre rien. */
+export const CHEMIN_TRAIT_TARDIF = "fh.skills.trait.late-bloomer";
+
+/** Le trait est-il écrit au personnage ? ⚠️ Ce n'est PAS la même question que
+ *  `lotRattrape` : celle-là interroge le lot de dés qui vit dans l'écran, et
+ *  qui meurt avec la session. Les deux se répondent OUI en même temps tant
+ *  qu'on est sur l'étape ; seule celle-ci survit à un fichier rouvert. */
+export function traitTardifAcquis(doc) {
+  const choix = doc && doc.build && Array.isArray(doc.build.choices) ? doc.build.choices : [];
+  return choix.some((c) => c && c.path === CHEMIN_TRAIT_TARDIF && c.value === true);
+}
+
+/** 🌱 LE TRAIT SE MONTRE-T-IL SUR CET ÉCRAN ? Les deux lectures, jamais une
+ *  seule : le lot de dés le sait AVANT que l'étape soit validée (scène 2 de B1),
+ *  le personnage le sait APRÈS et pour toujours. Une seule des deux laisserait
+ *  un trou — l'écran muet avant `Done`, ou le token disparu au rechargement. */
+function traitTardifVisible(ctx) {
+  return lotRattrape(ctx && ctx.rollBatch) || traitTardifAcquis(ctx && ctx.document);
 }
 
 function explicationDe(entry) {
@@ -894,7 +936,7 @@ function renderCollecteur(ctx) {
   if (!ctx.composable) {
     bloc.append(el("p", "guide-mot ability-collecteur-mot", [
       text("The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."),
-      ...(lotRattrape(ctx.rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
+      ...(traitTardifVisible(ctx) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
     ]));
   }
 
@@ -970,7 +1012,7 @@ function renderCollecteur(ctx) {
   /* 🌱 LATE BLOOMER — LE TOKEN SOUS LES SIX CARACS (Eric, 06/09 au soir, en
      renversant la ligne d'or du matin). Le drapeau est celui du moteur des jets
      (`ajuste: "haut"`) ; l'écran le lit. */
-  if (lotRattrape(ctx.rollBatch)) bloc.append(renderTraitTardif(ctx.act));
+  if (traitTardifVisible(ctx)) bloc.append(renderTraitTardif(ctx.act));
   /* 🧊 LA CONSIGNE EST PARTIE LE 2026-09-05 : la dalle de sélection d'Eric est
      *« six collecteurs · 16 · la cellule livre/Back/Done/? · 8 »* — rien entre
      les cibles et la rangée. Ce qu'elle disait (*« drag a die onto an ability,
@@ -1752,7 +1794,7 @@ function renderBilan({ document: doc, resolved, rollBatch, act }) {
      quatre méthodes (§7.9) : le trait s'y présente comme il se présente en B1,
      jamais dans une seconde forme. Il vient AVANT l'aiguilleur : sous le tapis,
      donc sous les caracs, exactement là où Eric le place. */
-  if (lotRattrape(rollBatch)) dalle.append(renderTraitTardif(act));
+  if (traitTardifVisible({ rollBatch, document: doc })) dalle.append(renderTraitTardif(act));
   dalle.append(el("p", "guide-mot ability-bilan-mot", [text(
     "Your six ability scores are set. Next moves on to Skills; Cancel reopens the choice of method."
   )]));

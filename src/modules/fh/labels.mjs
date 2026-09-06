@@ -209,6 +209,12 @@ export const FH_EN = {
      palier à afficher : un training est acquis, un point. Le mot source
      est le `name` du record, comme tous les autres (§0.13). */
   "fh.skills.term.train": (d) => d.training,
+  /* 🌱 LOT 169 — un grant de TRAIT (`fh.skills.trait.<slug>`). ⛔ PAS DE NIVEAU
+     dans le libellé, contrairement à `term.feature` : un trait n'est pas daté
+     d'un palier de progression, il est acquis ou il ne l'est pas. Y coller
+     « · Level 1 » ferait lire au joueur qu'il en gagnera un autre plus tard.
+     Le mot source est le `feature` du record (§0.13). */
+  "fh.skills.term.trait": (d) => d.trait,
 
   /* ── Les raisons portées par `destiny.lastChange` ─────────────────── */
   "fh.reason.arcane-critical-success": (d) => "Arcane Critical d" + d.sides,
@@ -372,6 +378,11 @@ export const FH_UNDERIVED_FR = {
     `aucun des dons choisis ne porte \`data.skill_points.bonus\` (${d.featIds}) : seul \`srd:feat:en:skilled\` ` +
     "en porte un, patché par la couche `fh-feats-en` — les autres dons du SRD n'en donnent aucun, et c'est un " +
     "FAIT, pas un trou."
+,
+  "underived.fh.skillpool-trait-grants-absent": (d) =>
+    `le personnage déclare le(s) trait(s) « ${d.traits} », et AUCUNE classe de la pile ne porte ` +
+    "`data[fh_skill_pool].trait_grants` — la couche qui chiffre ce qu'un trait accorde n'est pas montée. " +
+    `Le trait est donc sans effet sur le pool de « ${d.classId} », et c'est dit plutôt que subi.`
 };
 
 /* Le paquet ANGLAIS — même jeu de clefs (gardé par `tests/underived-fh-labels.test.mjs`). */
@@ -457,4 +468,9 @@ export const FH_UNDERIVED_EN = {
   "underived.fh.skillpool-feat-no-bonus": (d) =>
     `none of the chosen feats carries \`data.skill_points.bonus\` (${d.featIds}): only \`srd:feat:en:skilled\` ` +
     "carries one, patched by the `fh-feats-en` layer — the other SRD feats grant none, and that is a FACT, not a gap."
+,
+  "underived.fh.skillpool-trait-grants-absent": (d) =>
+    `the character declares the trait(s) "${d.traits}", and NO class record of the stack carries ` +
+    "`data[fh_skill_pool].trait_grants` — the layer that prices what a trait hands over is not mounted. " +
+    `The trait therefore does nothing to "${d.classId}"'s pool, and that is said rather than suffered.`
 };

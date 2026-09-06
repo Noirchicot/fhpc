@@ -138,6 +138,13 @@ export const REFUSAL_WORDS = {
   "skill-spend.tier-invalid": (p) => `“${p.value}” isn't a valid tier.`,
   "skill-spend.below-floor": (p) => `Can't drop below the locked floor (${p.floor}).`,
   "skill-spend.tier-locked": (p) => `Expertise unlocks at level ${p.unlockLevel} — this character is ${p.level}.`,
+  /* 🌱 LOT 169 — le plafond du niveau 1 (Eric, 06/09 : « deux expertises max au
+     niveau 1 »). ⛔ Ce n'est PAS le verrou de niveau : celui-là est ouvert, c'est
+     le COMPTE qui refuse — et la phrase le dit, sinon le joueur cherche un niveau
+     à atteindre qu'il a déjà. */
+  "skill-spend.expertise-capped": (p) => `Only ${p.max} Expertises at level ${p.throughLevel} — this one is one too many.`,
+  "skill-trait.value-invalid": () => "A trait is carried or it isn't — true or false.",
+  "skill-trait.unknown": (p) => `“${p.selected}” isn't a trait this stack prices.`,
   "skill-train.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
   "skill-train.value-invalid": () => "A training only takes true or false.",
   "skill-train.level-locked": (p) => `Unlocks at level ${p.unlockLevel} — this character is ${p.level}.`,
@@ -183,8 +190,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=590";
-import { keepInView, scrollParent } from "./socle.mjs?v=590";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=591";
+import { keepInView, scrollParent } from "./socle.mjs?v=591";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

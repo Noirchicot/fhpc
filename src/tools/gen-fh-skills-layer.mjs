@@ -453,6 +453,55 @@ function buildClasses(srd, skillIdsDeLaPile) {
       fail(`« ${entry.target} » reçoit un \`expertiseFromLevel\` qui n'est pas un entier positif ` +
         `(${entry.expertiseFromLevel}).`);
     }
+    /* 🌱 LE PLAFOND D'EXPERTISES (2026-09-06) — deux nombres, vérifiés SÉPARÉMENT
+       comme les trois totaux plus haut. `through_level` doit être un niveau ;
+       `max` peut valoir 0 (un plafond qui interdit tout est une règle possible),
+       jamais un négatif ni un flottant. Un plafond illisible laisserait passer un
+       personnage hors règle sans un mot. */
+    const cap = entry.expertiseCap;
+    if (cap === null || typeof cap !== "object" || Array.isArray(cap)) {
+      fail(`« ${entry.target} » reçoit un \`expertiseCap\` qui n'est pas un objet ` +
+        `(${JSON.stringify(cap)}) — la convention est \`{through_level, max}\`.`);
+    }
+    if (!Number.isInteger(cap.through_level) || cap.through_level < 1 || cap.through_level > 20) {
+      fail(`« ${entry.target} » reçoit un \`expertiseCap.through_level\` qui n'est pas un niveau 1–20 ` +
+        `(${JSON.stringify(cap.through_level)}).`);
+    }
+    if (!Number.isInteger(cap.max) || cap.max < 0) {
+      fail(`« ${entry.target} » reçoit un \`expertiseCap.max\` qui n'est pas un entier positif ou nul ` +
+        `(${JSON.stringify(cap.max)}).`);
+    }
+    /* 🌱 LES GRANTS DE TRAIT — ils ne se confrontent PAS au SRD (un trait n'est
+       l'aptitude d'aucune classe), mais leur FORME se vérifie ici, et surtout
+       leur clef : deux grants pour le même trait donneraient les points deux
+       fois, et un `trait` illisible donnerait un grant que rien n'ouvre. */
+    if (!Array.isArray(entry.traitGrants)) {
+      fail(`« ${entry.target} » reçoit un \`traitGrants\` qui n'est pas une liste ` +
+        `(${JSON.stringify(entry.traitGrants)}).`);
+    }
+    const vusParTrait = new Set();
+    for (const grant of entry.traitGrants) {
+      if (typeof grant.trait !== "string" || !/^[a-z][a-z0-9-]*$/.test(grant.trait)) {
+        fail(`« ${entry.target} » porte un grant de trait dont la clef \`trait\` n'est pas un slug ` +
+          `(${JSON.stringify(grant.trait)}) — c'est elle que le document nomme, elle ne peut pas être libre.`);
+      }
+      if (vusParTrait.has(grant.trait)) {
+        fail(`« ${entry.target} » porte DEUX grants pour le trait « ${grant.trait} » — le personnage recevrait ` +
+          "ses points deux fois.");
+      }
+      vusParTrait.add(grant.trait);
+      if (!Number.isInteger(grant.level) || grant.level < 1 || grant.level > 20) {
+        fail(`le grant de trait « ${grant.trait} » porte un niveau illisible (${JSON.stringify(grant.level)}).`);
+      }
+      if (!Number.isInteger(grant.points) || grant.points < 0) {
+        fail(`le grant de trait « ${grant.trait} » porte un \`points\` qui n'est pas un entier positif ou nul ` +
+          `(${JSON.stringify(grant.points)}). Zéro est un cas réel — un grant peut ne porter QUE la permission.`);
+      }
+      if (typeof grant.feature !== "string" || grant.feature.trim() === "") {
+        fail(`le grant de trait « ${grant.trait} » n'a pas de \`feature\` utilisable — c'est le mot que le ` +
+          "joueur lira dans le détail de son pool (loi §0.13).");
+      }
+    }
     /* ⛔ CHAQUE GRANT EST CONFRONTÉ AU SRD, JAMAIS CRU SUR PAROLE (lot 82).
        Le canon nomme une aptitude et un niveau ; la couche SRD les porte tous
        les deux. Un grant qui viserait une aptitude inexistante — ou la bonne
@@ -584,7 +633,20 @@ function buildClasses(srd, skillIdsDeLaPile) {
              de l'échelle ET son aptitude d'Expertise — deux règles, deux
              lignes, jamais un « +5 » qui les avale. */
           grants: entry.grants,
+          /* 🌱 LES GRANTS D'UN TRAIT (2026-09-06) — même forme que `grants`, plus
+             la clef `trait` qui NOMME ce que le document doit déclarer pour que
+             le grant s'ouvre. Aujourd'hui un seul : Late Bloomer, +2 points
+             libres et la permission d'acheter l'expertise au niveau 1.
+             ⛔ Ils ne sont pas dans `grants` : celle-ci se dit « une entrée par
+             aptitude de classe » et chacune est confrontée au SRD. Un trait n'est
+             l'aptitude d'aucune classe. */
+          trait_grants: entry.traitGrants,
           tier_costs: { ...TIER_COSTS },
+          /* 🌱 LE PLAFOND DU NIVEAU 1 (Eric, 06/09 : *« deux expertises max au
+             niveau 1 »*, *« pour lui comme pour n'importe qui »*). Deux nombres
+             LUS, comme `expertise_from_level` juste dessous — figer le 2 dans le
+             moteur referait la faute que celui-ci répare. */
+          expertise_cap: entry.expertiseCap,
           /* PAR CLASSE, jamais une constante unique. TROIS classes dérogent
              depuis le lot 82 (canon §B.1ter — un trait qui accorde
              l'Expertise tend aussi la permission de l'acheter tôt) : Rogue 1,

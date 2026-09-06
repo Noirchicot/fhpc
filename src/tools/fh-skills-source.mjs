@@ -443,9 +443,56 @@ function echelleDeClasse({ bardePlusUnParNiveau = false } = {}) {
  *  permission. Ce qu'il n'a PAS, ce sont des free points en plus : ses deux
  *  expertises sont déjà payées dans son kit de niveau 1 (§A.5).
  *
- *  Aucun plafond de compte n'existe pour personne : seul le niveau de
- *  déverrouillage change, le pool reste la seule économie qui arbitre. */
+ *  REWRITTEN 2026-09-06 (lot 169) — la phrase d'origine, « aucun plafond de
+ *  compte n'existe pour personne : seul le niveau de déverrouillage change »,
+ *  est devenue FAUSSE le jour où Eric a tranché Late Bloomer : *« deux
+ *  expertises max au niveau 1 »*, et il l'a dit *« pour lui comme pour tout le
+ *  monde »*. Le plafond existe désormais, il vaut 2, et il vit dans
+ *  `EXPERTISE_CAP` ci-dessous. Ce qui reste vrai : au-delà du niveau qu'il
+ *  borne, le pool est la seule économie qui arbitre. */
 export const DEFAULT_EXPERTISE_FROM_LEVEL = 4;
+
+/* ══ 🌱 LE PLAFOND D'EXPERTISES DU NIVEAU 1 — RÈGLE NEUVE DU 2026-09-06 ═══
+   Eric, en tranchant Late Bloomer : *« deux expertises max au niveau 1 »*, et
+   *« pour lui comme pour n'importe qui »*. Ce n'est donc PAS une clause de
+   Late Bloomer : c'est un plafond absolu qui mord sur quiconque peut acheter
+   l'expertise à ce niveau-là — le Rogue le premier, qui pouvait en acheter
+   trois jusqu'à aujourd'hui si son pool suivait.
+
+   ⛔ LES DEUX NOMBRES SONT DE LA DONNÉE, PAS DU MOTEUR. `through_level` est le
+   niveau JUSQU'AUQUEL le plafond s'applique (1 : le niveau où les deux seules
+   dérogations existent), `max` est le nombre d'expertises tolérées. Les écrire
+   dans `skill-pool.mjs` referait la faute que `expertise_from_level` répare
+   déjà — *« une valeur LUE, jamais figée »*.
+
+   ⚠️ ET IL EST PORTÉ PAR CHAQUE RECORD DE CLASSE, comme `tier_costs` que les
+   douze portent à l'identique : c'est là que vit la grammaire du pool, et le
+   module ne lit de grammaire nulle part ailleurs. Une sous-classe ou une couche
+   homebrew qui voudrait déroger n'a donc qu'un record à patcher. */
+export const EXPERTISE_CAP = { through_level: 1, max: 2 };
+
+/* ══ 🌱 LES GRANTS D'UN TRAIT — LE CANAL DE LATE BLOOMER ══════════════
+   Canon §B.1ter appliqué à un trait plutôt qu'à une aptitude de classe. Un
+   grant de trait a EXACTEMENT la forme d'un grant de classe (`{level, feature,
+   points, boundSkill, boundSkillFrom, unlocksExpertise}`) plus une clef de
+   plus, `trait`, qui NOMME le trait que le personnage doit porter pour que le
+   grant s'ouvre.
+
+   🔴 POURQUOI UNE LISTE À PART ET PAS UNE ENTRÉE DE `grants` : `grants` se dit
+   « une entrée par APTITUDE DE CLASSE », et chacune est confrontée au SRD par
+   le générateur (l'aptitude doit exister, au bon niveau). Late Bloomer n'est
+   l'aptitude d'aucune classe — l'y glisser ferait rougir ce garde-là pour la
+   mauvaise raison, ou l'obligerait à s'ouvrir une exception. Deux natures,
+   deux listes.
+
+   ⭐ LATE BLOOMER TEND LES DEUX CHOSES QUE LE CANON DÉCRIT : des points (2) ET
+   la permission d'acheter l'expertise tôt (`unlocksExpertise`, au niveau 1).
+   ⛔ ET LA PERMISSION N'EST PAS UN CADEAU : le joueur paie l'expertise au pool,
+   au prix normal (Eric, 06/09 : *« le droit de l'acheter »*). Il peut dépenser
+   ses deux points ailleurs et ne jamais en prendre. */
+export const TRAIT_GRANTS = [
+  { trait: "late-bloomer", feature: "Late Bloomer", level: 1, points: 2, unlocksExpertise: true }
+];
 
 /* ══ LES TRAININGS — LE CATALOGUE, ENFIN REMPLI (lot 82) ══════════════
    Le genre `training` existe depuis le 2026-08-12 (genre 16 du schéma), sa
@@ -641,6 +688,19 @@ export const CLASS_POOLS = [
       unlocksExpertise: Boolean(grant.unlocksExpertise)
     }))
     .sort((a, b) => a.level - b.level),
+  /* 🌱 LES GRANTS DE TRAIT — les mêmes pour les douze, comme `tier_costs`. Un
+     trait n'appartient à aucune classe : c'est le personnage qui le porte, et
+     c'est le DOCUMENT qui dit s'il le porte. */
+  traitGrants: TRAIT_GRANTS.map((grant) => ({
+    trait: grant.trait,
+    level: grant.level,
+    feature: grant.feature,
+    points: grant.points,
+    boundSkill: grant.boundSkill || 0,
+    boundSkillFrom: Array.isArray(grant.boundSkillFrom) ? grant.boundSkillFrom.slice().sort() : [],
+    unlocksExpertise: Boolean(grant.unlocksExpertise)
+  })).sort((a, b) => (a.trait < b.trait ? -1 : a.trait > b.trait ? 1 : 0)),
+  expertiseCap: { ...EXPERTISE_CAP },
   /* ⛔ PLUS ÉCRIT À LA MAIN — DÉDUIT du grant qui porte la permission. */
   expertiseFromLevel: expertiseFromLevelOf(entry.target)
 }));

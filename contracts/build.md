@@ -1026,6 +1026,77 @@ puisque le refus vit dans un canal différent — et une vérification que le
 pool principal ne bouge pas quand le budget captif déborde ; un test SRD pur
 qui prouve qu'aucun des trois refus ne peut apparaître sans la couche FH.
 
+#### 🌱 LOT 169 — LE QUATRIÈME TERME DU NAMESPACE : `fh.skills.trait.<slug>`
+
+**Ratifié par Eric le 2026-09-06**, en tranchant l'effet de **Late Bloomer** :
+*« le droit de l'acheter »* — **+2 points libres** et **le DROIT d'acheter
+l'expertise dès le niveau 1, au pool, au prix normal**. ⛔ Rien n'est offert :
+le joueur peut dépenser ses deux points ailleurs et ne jamais prendre
+d'Expertise. Et une règle **NEUVE** du même jour : **deux Expertises au maximum
+au niveau 1**, *« pour lui comme pour n'importe qui »*.
+
+🔴 **LE BLOCAGE QUE CE LOT A DÛ LEVER, ET IL COMMANDE TOUTE LA FORME.** Le
+déclencheur (« aucun jet naturel n'atteint 14, le plancher haut a dû
+intervenir ») vit dans `ajuste: "haut"`, un champ du **lot de dés**, qui est de
+l'**état d'écran** (`ui/builder/abilities-tray.mjs`). Le personnage sauvegardé,
+lui, ne garde que `abilities.<clef>` — six scores finaux. **Un personnage
+rouvert n'a donc aucune mémoire de la façon dont il a été tiré**, et le moteur
+ne peut pas savoir que le trait s'est déclenché.
+
+⛔ **ET `abilities.lateBloomer` N'AURAIT RIEN RÉPARÉ** : un module de
+statistique ne reçoit QUE les choix de **son** namespace (§« Ce qu'il reçoit »).
+Un champ sous `abilities` serait un second `abilities.mode` — écrit, gardé, et
+lu par personne. Le déclencheur va donc **dans le namespace de celui qui le
+consomme**.
+
+| | |
+|---|---|
+| **Le terme** | `fh.skills.trait.<slug>` = `true`. Un **booléen**, jamais un palier : un trait est porté ou il ne l'est pas. `false` a le même effet que l'absence du choix. Toute autre valeur est un refus nommé (`skill-trait.value-invalid`). |
+| **Ce qu'il déclare** | un **FAIT** (« ce personnage porte `late-bloomer` »), jamais un effet. L'écran ne calcule rien et n'offre rien. |
+| **Qui l'écrit** | `ui/builder/shell.mjs`, au moment où Abilities se **signe** (le passage au bilan R2), et il l'**efface** dans `leverLaSignatureDAbilities` — un lot jeté ou une méthode changée ne laissent jamais derrière eux un trait qu'aucun dé ne justifie. |
+| **Ce qui le chiffre** | la couche, jamais le moteur : `data[fh_skill_pool].trait_grants`. |
+
+**`trait_grants` — la MÊME forme que `grants`, plus une clef.** `{trait, level,
+feature, points, boundSkill, boundSkillFrom, unlocksExpertise}`. La clef `trait`
+NOMME ce que le personnage doit déclarer pour que le grant s'ouvre ; la règle
+Q15-8 s'y applique comme partout (un grant daté d'un niveau non atteint ne
+s'ouvre pas). ⭐ **Un grant de trait tend les deux mêmes choses qu'une aptitude
+de classe** : des points ET la permission — et, comme pour le rogue, **un grant
+peut ne porter aucun point**.
+
+⛔ **POURQUOI UNE LISTE À PART ET PAS UNE ENTRÉE DE `grants`** : `grants` se dit
+« une entrée par **aptitude de classe** », et le générateur confronte chacune au
+SRD (l'aptitude doit exister, à ce niveau). Late Bloomer n'est l'aptitude
+d'aucune classe. Deux natures, deux listes.
+
+⭐ **LE MODULE NE CONNAÎT LE NOM D'AUCUN TRAIT.** « late-bloomer » n'est écrit
+nulle part dans `src/modules/fh/skill-pool.mjs` : le personnage le nomme, la
+couche le chiffre, le module apparie les deux. Un second trait à points
+ne demandera pas une ligne de moteur.
+
+**`expertise_cap: {through_level, max}` — le plafond, et les DEUX nombres se
+LISENT.** Même loi qu'`expertise_from_level` (*« une valeur LUE, jamais
+figée »*) : `through_level` est le niveau jusqu'auquel le plafond mord, `max` le
+nombre d'Expertises toléré. ⚠️ **Il n'est PAS une clause de Late Bloomer** : il
+s'applique à quiconque peut acheter l'expertise à ce niveau-là — le **Rogue le
+premier**, qui en achetait trois jusqu'au 06/09 si son pool suivait. Le lier au
+trait aurait laissé le Rogue sans plafond, ce qu'Eric a explicitement refusé.
+
+**Le verrou effectif** est le **plus bas** de `expertise_from_level` et des
+niveaux des grants de trait ouverts qui portent `unlocksExpertise`. Deux
+sources, jamais un second nombre.
+
+**Trois clefs de refus neuves**, rendues par le module dans `outcome.violations`
+comme les autres : `skill-spend.expertise-capped` *(le verrou de niveau est
+ouvert, c'est le COMPTE qui ferme — et la phrase le dit, sinon le joueur cherche
+un niveau qu'il a déjà)*, `skill-trait.value-invalid`, `skill-trait.unknown`
+*(qui NOMME les traits que la couche connaît)*.
+
+**Tests** — `tests/late-bloomer.test.mjs` : les huit propriétés, chacune avec
+son **témoin contraire dans le même test**. `tests/abilities-step.test.mjs` : le
+token se montre depuis le **personnage seul** (aucun lot de dés en mémoire), et
+la symétrie poser/effacer de la coquille.
+
 ## Obligations de test
 
 1. **Le test d'acceptation** (`build-acceptance`), sur la vraie matière et

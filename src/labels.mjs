@@ -87,6 +87,15 @@ export const FR_BUILD = {
     `« ${d.floor} » déjà imposé — un palier imposé se MONTE, il ne descend pas.`,
   "skill-spend.tier-locked": (d) => `le choix « ${d.path} » achète le palier le plus haut sur « ${d.skillId} » au ` +
     `niveau ${d.level}, alors que la classe ne l'autorise qu'à partir du niveau ${d.unlockLevel}.`,
+  /* ── LOT 169 — LE PLAFOND DU NIVEAU 1, ET LES DEUX TERMES DU TRAIT ── */
+  "skill-spend.expertise-capped": (d) => `le choix « ${d.path} » achète le palier le plus haut sur ` +
+    `« ${d.skillId} », alors que le personnage en porte déjà ${d.max} — le maximum toléré jusqu'au niveau ` +
+    `${d.throughLevel}, et il est à ${d.level}. Le verrou de niveau est ouvert ; c'est le COMPTE qui ferme.`,
+  "skill-trait.value-invalid": (d) => `le choix « ${d.path} » porte la valeur « ${d.value} », qui n'est ni vrai ` +
+    "ni faux — un trait est porté ou il ne l'est pas, il n'a pas de degré.",
+  "skill-trait.unknown": (d) => `le choix « ${d.path} » déclare le trait « ${d.selected} », qu'aucun grant de la ` +
+    `pile ne chiffre (connus : ${d.options || "aucun"}). Un trait que la couche ne connaît pas n'accorde rien, ` +
+    "et le taire coûterait au joueur tout ce que ce trait devait lui donner.",
 
   /* ── LOT 36 — LES TRAININGS, LA TROISIÈME DÉPENSE DU POOL ─────────── */
   "skill-train.option-unavailable": (d) => `le choix « ${d.path} » désigne le training « ${d.selected} », que la ` +

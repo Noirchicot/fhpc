@@ -13,9 +13,10 @@
         n'achète rien et n'en possède qu'un garde UNE seule ligne.
      5. le Rogue achète l'expertise dès le niveau 1 ; les onze autres classes
         restent verrouillées jusqu'au niveau 4 (`skill-spend.tier-locked`).
-     6. le Rogue n'a AUCUN plafond de compte : deux expertises niveau 1
-        passent si le pool suit — la notification est un travail d'UI, le
-        moteur ne refuse que sur le pool.
+     6. le Rogue place DEUX expertises au niveau 1 — le maximum tranché par
+        Eric le 2026-09-06 — et le pool les débite. ⛔ La ligne d'avant disait
+        « AUCUN plafond de compte » : c'était vrai jusqu'à ce jour-là. Le refus
+        de la troisième est gardé dans `tests/late-bloomer.test.mjs`.
 
    ⚠️ AUCUNE ÉCRITURE HORS MÉMOIRE : les couches de scénario sont fabriquées
    en mémoire et montées par-dessus, comme `fh-skill-tiers.test.mjs` (lot 34)
@@ -254,9 +255,17 @@ test("les onze autres classes restent verrouillées au niveau 1 — `skill-spend
   assert.equal(violation.params.unlockLevel, 4, "et il nomme le niveau de déverrouillage du Wizard — pas 1");
 });
 
-/* ══ 6 — LE ROGUE, SANS PLAFOND DE COMPTE ═══════════════════════════ */
+/* ══ 6 — LE ROGUE, ET LE PLAFOND DE COMPTE ══════════════════════════ */
+/* REWRITTEN 2026-09-06 (lot 169) — ce bloc s'appelait « LE ROGUE, SANS PLAFOND
+   DE COMPTE » et son test affirmait qu'aucun plafond n'existait. Eric a tranché
+   le contraire le 06/09, en tranchant Late Bloomer : *« deux expertises max au
+   niveau 1 »*, *« pour lui comme pour n'importe qui »*. L'assertion n'est pas
+   relâchée, elle est réécrite à la nouvelle vérité — et ce qu'elle mesurait
+   (deux expertises PASSENT, et le pool les débite) reste vrai mot pour mot :
+   deux est exactement le maximum. Le REFUS de la troisième vit dans
+   `tests/late-bloomer.test.mjs`, avec le reste de la règle neuve. */
 
-test("le Rogue n'a AUCUN plafond de compte : deux expertises passent au niveau 1 si le pool suit", () => {
+test("le Rogue place DEUX expertises au niveau 1 — le maximum, et le pool les débite", () => {
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
@@ -270,11 +279,17 @@ test("le Rogue n'a AUCUN plafond de compte : deux expertises passent au niveau 1
   assert.equal(out.resolved.skills.find((s) => s.id === "stealth").proficiency, "expert");
   assert.equal(out.resolved.skills.find((s) => s.id === "investigation").proficiency, "expert");
   assert.equal(out.moduleViolations.some((v) => v.key === "skill-spend.tier-locked"), false,
-    "aucun verrou de NIVEAU — SRD 5.2.1 limite le Rogue SRD à deux, Fate's Hand n'y met aucun plafond de compte, " +
-    "seul le pool arbitre (addendums §1)");
+    "aucun verrou de NIVEAU : le Rogue est la 1ʳᵉ exception, son `expertise_from_level` vaut 1");
+  /* REWRITTEN 2026-09-06 (lot 169) — la phrase d'avant disait « Fate's Hand n'y
+     met aucun plafond de compte, seul le pool arbitre ». Elle est morte le 06/09.
+     DEUX passent parce que deux EST le plafond, pas parce qu'il n'y en a pas :
+     l'assertion le dit maintenant, et son contraire (la troisième refusée) est
+     gardé ailleurs. */
+  assert.equal(out.moduleViolations.some((v) => v.key === "skill-spend.expertise-capped"), false,
+    "et aucun plafond non plus : deux est le maximum toléré au niveau 1, donc deux passe");
   /* Le pool ARBITRE bel et bien : le Rogue nu a 14 (18 − 4 d'imposés de
      classe, lot 35), et deux montées ½ → expertise coûtent 3 chacune — 6 au
      total, ce qui laisse 8, un nombre positif. Le pool n'est pas contourné,
      il suit. */
-  assert.equal(poolDe(out.resolved).value, 14 - 3 - 3, "le pool DÉBITE les deux montées, sans plafond de compte à côté");
+  assert.equal(poolDe(out.resolved).value, 14 - 3 - 3, "le pool DÉBITE les deux montées");
 });

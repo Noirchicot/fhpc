@@ -593,10 +593,25 @@
                 "unlocksExpertise": false
               }
             ],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -660,10 +675,25 @@
                 "unlocksExpertise": true
               }
             ],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 2
           }
@@ -690,10 +720,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -731,10 +776,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -773,10 +833,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -803,10 +878,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -833,10 +923,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -891,10 +996,25 @@
                 "unlocksExpertise": true
               }
             ],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 2
           }
@@ -944,10 +1064,25 @@
                 "unlocksExpertise": true
               }
             ],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 1
           }
@@ -974,10 +1109,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -1004,10 +1154,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }
@@ -1034,10 +1199,25 @@
             },
             "by_class_level": {},
             "grants": [],
+            "trait_grants": [
+              {
+                "trait": "late-bloomer",
+                "level": 1,
+                "feature": "Late Bloomer",
+                "points": 2,
+                "boundSkill": 0,
+                "boundSkillFrom": [],
+                "unlocksExpertise": true
+              }
+            ],
             "tier_costs": {
               "novice": 1,
               "adept": 2,
               "expert": 4
+            },
+            "expertise_cap": {
+              "through_level": 1,
+              "max": 2
             },
             "expertise_from_level": 4
           }

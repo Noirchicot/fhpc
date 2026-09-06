@@ -5085,10 +5085,16 @@ fois avant d'être juste : d'abord étiré sur les 351 blg de la dalle *(règle 
 perdante — le piège de 7.8, le même jour)*, puis coupé en deux lignes au bilan *(le rembourrage de
 12 de la règle nue)*. **Un objet qui se dessine de deux façons selon la dalle qui le porte est deux
 objets**, et §2 bis n'en admet qu'un.
-⏳ **L'EFFET N'EST PAS CÂBLÉ** (+2 au pool de Skills, l'option Expertise au niveau 1) : trois points
-attendent Eric dans `FHPCv2 future updates.md` § PRODIGY. ⚠️ L'info **dit** les deux dons, parce que
-le chapitre `ability-scores` les publie ; le builder ne les applique pas. **L'écart est nommé**, et
-il se referme au même endroit que PRODIGY — jamais en retirant la phrase du chapitre.
+✅ **L'EFFET EST CÂBLÉ — 2026-09-06 au soir, lot 169.** Les trois points ouverts ont été tranchés par
+Eric le jour même (*« le droit de l'acheter »*, *« deux expertises max au niveau 1 »*), et le builder
+les applique : **+2 points libres** au pool de Skills et **le DROIT d'acheter l'Expertise au niveau 1,
+au prix normal**. ⛔ **Rien n'est offert** — le joueur peut dépenser ses deux points ailleurs. L'info du
+token dit donc désormais exactement ce que le builder fait, et l'écart d'avant est refermé.
+🔴 **ET LE TOKEN SE MONTRE DÉSORMAIS DEPUIS LE PERSONNAGE, PLUS SEULEMENT DEPUIS LE LOT DE DÉS.**
+`ajuste: "haut"` vit dans l'écran et meurt avec la session : un personnage rouvert perdait son token,
+et le moteur ne pouvait rien appliquer. Le trait s'écrit au personnage (`fh.skills.trait.late-bloomer`)
+au moment où l'étape se **signe**, et s'efface quand elle se **dessigne**. L'écran lit **les deux
+sources** — le lot avant `Done`, le personnage après et pour toujours.
 
 ### 7.12 🎨 B4 `FREE` — la palette est une RANGÉE, et son budget est fermé *(06/09)*
 📍 `cadre-palette-de-free-est-une-rangee` · vivante · 06/09
