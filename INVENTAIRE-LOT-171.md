@@ -130,3 +130,37 @@ Aucune Bible n'a été éditée, aucune ne devait l'être pour ce relevé. **Tro
 
 - L'écran (« on traite l'UI après ça ») : la ligne liée qui affiche ◐ pour un expert, les ronds, la molette qui déborde, le livre absent — le relevé ① reste le point de départ.
 - Le banc n'a pas été rallumé pour ce ② : le changement est au moteur et dans un mot de refus ; `mot-du-verrou` garde que chaque clef a son mot.
+
+---
+
+# ③ LE CROQUIS, ET LES RÉPONSES D'ERIC — 2026-09-07, 00:56 → 01:10
+
+Croquis : `fh-phb/croquis/2026-09-07-skills-reconstruction.jpg` (copie vault `FH-WEB/FHPC/Croquis/`), md5 `4d2d29c1…`.
+Les croquis priment sur le texte. Ce qui suit est **la parole d'Eric**, question par question ; ce qui n'est pas cité est ma lecture, marquée *(lecture)*.
+
+## L'écran, tranché
+
+| organe | ce qu'Eric a dit | ce que ça fixe |
+|---|---|---|
+| **le titre** | *« le titre est déjà dans le belt »* | plus de bande titre — la règle `skills-trois-bandes-et-un-titre` perd sa seconde moitié |
+| **la molette** | *« un tambour (pas de 3D) mais ça tourne à l'infini. La position au centre a un halo et est agrandie de 5 %, le halo ne bouge pas. Les autres items, à l'extérieur, sont un peu grisés »* · Q2 *« oui »* | 6 catégories en boucle (Knowledge · Social · Exploration · Physical · Tools · Trainings), 3 en vue, le cran central fixe (halo + ×1,05), voisins grisés ; chevrons = un cran, tap sur un voisin = y aller |
+| **la page** | *« swipe latéral pour bouger d'une catégorie à l'autre, pour défiler la page »* | **une page par catégorie** ; le glisser latéral change de page et fait tourner le tambour |
+| **la fenêtre** | Q3 *« on voit ce qu'on peut faire avec notre budget de blg, oui sinon c'est du scroll »* · Q1 *« on voit combien on en fait tenir »* | hauteur = ce qui reste (§1 quater), 8 lignes est la cible du téléphone, défilement vertical au-delà |
+| **la ligne** | Q6 *« un demi, un plein, un plein entouré, c'est bien »* · Q1 *« boutons ronds plus petits que dans la page originale, limite inf du tactile »* | ◐ ● ◉ restent ; *(lecture)* cible tactile 44 — la loi du dépôt —, **dessin réduit** (32 blg proposé), on compte ensuite combien tiennent |
+| **lié / libre sur la ligne** | *« le bound est un halo violet, les free points remplissent les cases en vert. Si tu as 1 point bound : premier cercle halo violet rempli en vert, le point d'adept vert. Le vert dans le bound est captif, pas les autres »* | halo violet = plancher lié (captif, ne se retire pas ici) ; remplissage vert = acquis ; plus de ligne « verrouillée » à part |
+| **Bound points** | *« Bound / Skills / Tools / Trainings (T1 ou T0 en fonction de la place) »* · Q4 *« ça informe juste que les bounds sont comptabilisés, on ne peut pas les bouger dans cette fenêtre »* · *« au lvl 1 il y aura les langues dans le popup (ce sont des trainings) »* | trois lignes, corps T1 ou T0 selon la place ; tap = popup « Bound » par source (From Rogue… From Keen Senses… les langues d'origine) ; lecture seule |
+| **Free points** | croquis : Budget · Spent, *« becomes blue during process, green at [budget], red beyond »* | Invested et Left disparaissent ; le Spent porte l'échelle bleu / vert / rouge |
+| **l'aiguilleur** | Q9 *« oui ces choses-là (il a 3 lignes) »* · Q8 *« le gendarme parle dans la case de l'aiguilleur, l'aiguilleur s'efface en présence du gendarme »* | 3 lignes T1 : la consigne des paliers et le droit d'Expertise du personnage ; en dépassement, le gendarme rouge prend la case |
+| **Done** | Q7 *« Done en gris tant que le compte n'est pas là »* · Q11 *« Done on valide, confirmation que c'est bon : phrase dans l'aiguilleur en vert (c'est la validation), le belt devient vert. Next on part »* | **règle neuve : Done exige Spent = Budget** ; Done = signature (aiguilleur vert, belt vert) ; puis **Next** pour partir |
+| **Reset** | Q10 *« oui rouge, et reset tout sauf le bound »* | rouge (famille DÉFAIRE) ; efface dépenses, outils et trainings ajoutés ; le lié reste |
+| **le livre** | Q12 *« chapitre skills, sur le tableau »* | destination : Skills & Tools, ancre du tableau des 26 |
+| **Tools · Trainings** | Q13 *« il n'y a dans la page trainings et tools que ceux qu'on va chercher »* · Q5 *« il y a un “add a tool” qui fait pop un écran FS avec toute la liste, on en choisit un ou plus, Done — idem que pour un choix de sorts. Pour les enlever on tape sur le tool ou le training dans la page R pour avoir le popup, il y a une fonction remove »* · *« les trainings n'ont pas de bonus mais ce sera en bleu donc cliquable + popup »* | la page ne liste que l'acquis (lié + ajouté) ; un bouton **Add** ouvre un **FS** catalogue (choix multiple, Done) ; retrait par le popup de la ligne ; le nom d'un training est bleu (lien + popup) |
+| **Languages** | *« languages étant dans training, on peut les citer »* | le bloc Languages disparaît ; les langues sont des trainings liés, listées dans la page Trainings et dans le popup Bound |
+
+## Ce qui reste OUVERT après ses réponses
+
+1. **Les points d'outil liés** — Q5 : *« les points d'outils sont bound. Ou alors c'est des free points dépensables partout »*. ⛔ Alternative non tranchée, et elle touche le moteur : `bound_tool_points` (Rogue 1, Bard 2) n'a **aucune porte** aujourd'hui — le record le déclare, rien ne le place. Lié → une porte à construire (Class, comme la bourse de compétences). Libre → il fond dans le pool (Rogue 14 → 15, Bard 12 → 14), la couche et le canon §B.1 changent, la ligne Tools du Bound disparaît.
+2. **« Add a tool »** — l'outil ajouté arrive à Novice (1 pt débité) ou vide (rien débité, cercles à remplir) ? Un maximum (*« 4 max »* comme les sorts) ou le pool seul arbitre ?
+3. **Après Done** — le pied devient Reset · Next ? Un cercle touché après Done dé-signe (belt bleu, Done revient) ?
+
+*(lecture, à valider d'un mot)* : tap sur un cercle captif = le popup Bound · un training lié se marque du même halo violet sur son nom · Add et le FS suivent le patron du choix de sorts (`catalogue.mjs`).
