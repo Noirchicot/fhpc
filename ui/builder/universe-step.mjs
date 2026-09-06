@@ -573,12 +573,15 @@ export function renderUniverseStep(ctx, onAction) {
      personnage vit dans CE navigateur et meurt avec ses données de site.
      La seule copie durable est l'export, qui existe déjà sur la fiche.
 
-     ⛔ AUCUN GESTE ICI, ET C'EST MESURÉ : il n'y a pas de bouton « nouveau
-     personnage », parce que le builder n'a AUCUN personnage vierge — il naît
-     du personnage d'exemple commité. Offrir « recommencer » qui rend un
-     Magicien tout fait serait un bouton qui ment. Le geste viendra avec le
-     personnage vierge, pas avant (loi §0.6 : pas de code mort, pas de porte
-     qui ne mène pas là où elle dit). */
+     ⛔ TOUJOURS PAS DE « NOUVEAU PERSONNAGE », ET LA RAISON DU 20/08 TIENT :
+     le builder n'a AUCUN personnage vierge — il naît du personnage d'exemple
+     commité. Offrir « recommencer » qui rend un Magicien tout fait serait un
+     bouton qui ment (loi §0.6 : pas de porte qui ne mène pas là où elle dit).
+     ⭐ MAIS « OUBLIER » N'EST PAS « RECOMMENCER », et c'est pourquoi le bouton
+     posé plus bas ne renverse pas cette décision-là : il ne promet aucun
+     personnage neuf, il dit exactement ce qu'il fait — il jette ce que CE
+     navigateur garde, et la page rouvre sur l'exemple. Le libellé porte le
+     geste, jamais une promesse. */
   const memoire = ctx.memoire || { ok: true };
   const ou = el("div", "universe-memoire");
   ou.append(el("h3", null, [text("This character")]));
@@ -602,6 +605,50 @@ export function renderUniverseStep(ctx, onAction) {
       text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
     ]));
   }
+
+  /* ══ 🔴 OUBLIER CE QUI EST GARDÉ ICI — Eric, 2026-09-06 ═══════════════════
+     *« Peut-on mettre un bouton reset du perso, dans le menu — qui permet de
+     vider le cache, quand ça bloque. »*
+
+     🔴 CE N'EST PAS UN CONFORT, C'EST UNE SORTIE DE SECOURS, et elle a été
+     MESURÉE le 06/09 sur le site déployé : un personnage gardé AVANT un
+     changement de couche de données ne dérive plus (le moteur refuse — *« la
+     pile montée ne correspond pas à `build.layers` »*), et SIX ÉCRANS SUR
+     HUIT ne disent plus qu'une phrase, *« it cannot be derived yet »*
+     (Inheritance · Abilities · Destiny · Skills · Equipment · Review). Sans ce
+     bouton, la seule issue était de vider les données de site à la main — ce
+     qu'un joueur ne fera jamais. Il était enfermé dans son propre builder.
+
+     ⭐ ET C'EST CET ÉCRAN-LÀ QUI POUVAIT LE PORTER, PAS UN AUTRE : le Menu ne
+     lit que le DOCUMENT, jamais la fiche dérivée (`ECRANS_QUI_LISENT_LA_FICHE`
+     ne le contient pas). Il reste donc debout exactement dans le cas où tous
+     les autres tombent. Une sortie de secours posée sur un écran qui s'éteint
+     avec la panne n'aurait secouru personne.
+
+     ⚖️ IL EST ROUGE ET IL NE DEMANDE PAS, comme tous les gestes qui défont
+     dans ce builder (`Cancel`). ⛔ Inventer une confirmation ici en ferait un
+     geste à part, et NORMES §6 le dit : *« rouge ET confirmé »* est une dette
+     COLLECTIVE, portée par les cinq écrans qui effacent — elle se paiera d'un
+     coup ou pas du tout. ⏳ Si Eric veut la payer, c'est ce bouton-ci le
+     meilleur premier client : il efface plus que tous les autres.
+
+     ⛔ ET IL N'EST JAMAIS GRISÉ, contrairement au `Double view` d'au-dessus :
+     `memoire.ok` dit si la dernière ÉCRITURE a réussi, pas s'il y a quelque
+     chose à jeter. Un magasin qui refuse d'écrire peut très bien garder un
+     personnage périmé — c'est même le cas exact qu'on répare. Le griser sur
+     `ok === false` aurait retiré la sortie de secours au moment précis où elle
+     sert. Sans rien à oublier, le geste ne coûte qu'un rechargement. */
+  const oubli = document.createElement("button");
+  oubli.type = "button";
+  oubli.className = "universe-oubli";
+  oubli.append(text("Forget this character"));
+  oubli.addEventListener("click", () => onAction({ kind: "oublierPersonnage" }));
+  ou.append(oubli);
+  ou.append(el("p", "universe-note", [
+    text("Throws away what this browser keeps and reopens on the example character. "
+      + "Use it if a screen says the sheet cannot be derived. Files you exported are not touched.")
+  ]));
+
   section.append(ou);
 
   return section;

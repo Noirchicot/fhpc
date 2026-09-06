@@ -38,7 +38,7 @@ import {
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage } from "./memoire.mjs?v=591";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=591";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -918,6 +918,33 @@ function applyDecisionAction(action) {
      ⛔ AUCUN N'ÉCRIT DANS LE DOCUMENT : ce sont des préférences de lecteur,
      pas des faits du personnage (voir la tête de `tutoriel.mjs`). */
   if (action.kind === "tutoBascule") { setTutorielActif(Boolean(action.value)); refresh(); return; }
+  /* ══ 🔴 OUBLIER LE PERSONNAGE GARDÉ — Eric, 2026-09-06 ═══════════════════
+     *« un bouton reset du perso, dans le menu, qui permet de vider le cache
+     quand ça bloque »*.
+
+     🔴 IL FAIT DEUX CHOSES, ET LA SECONDE EST LA MOITIÉ QUI SERT : il OUBLIE
+     (`memoire.mjs`), puis il RECHARGE. Oublier sans recharger laisserait le
+     joueur devant le personnage cassé qu'il vient de jeter — la mémoire serait
+     propre et l'écran toujours mort. C'est le rechargement qui rouvre sur
+     l'exemple, et c'est lui qu'Eric appelle « débloquer ».
+
+     ⭐ `oublierPersonnage` EXISTAIT DEPUIS LE 20/08, SANS APPELANT — sa propre
+     tête l'annonçait : *« le jour où un geste existera, il n'aura rien à
+     écrire ici »*. Il n'a rien eu à y écrire. Une moitié de clef qui attend
+     son geste n'est pas du code mort ; celle-ci vient de trouver le sien.
+
+     ⚠️ ET UN REFUS NE BLOQUE PAS LE RECHARGEMENT. Si le magasin refuse
+     d'effacer (mode privé, magasin cloisonné), on recharge quand même : le
+     rechargement seul répare déjà les pannes qui ne viennent pas du stockage,
+     et rendre la main sans rien faire serait, ici précisément, un bouton mort
+     de plus sur un builder déjà bloqué. */
+  if (action.kind === "oublierPersonnage") {
+    oublierPersonnage();
+    if (typeof window !== "undefined" && window.location && window.location.reload) {
+      window.location.reload();
+    }
+    return;
+  }
   /* ══ L'INTERRUPTEUR DU DOUBLE AFFICHAGE — lot 120 ════════════════════════
      Même famille que le tutoriel : une PRÉFÉRENCE DE LECTEUR, jamais un fait
      du personnage (voir la tête de `vue.mjs`).
@@ -1207,10 +1234,44 @@ function applyDecisionAction(action) {
      confirmé » : la dette est la même sur les cinq écrans qui portent ce mot,
      elle se paiera d'un coup ou pas du tout. */
   if (action.kind === "destinyReset") {
-    /* 🔴 EN SB2, IL REND AU CATALOGUE — et il n'efface pas plus que `Back` :
-       la carte n'est actée qu'au `Done`. ⭐ Le rang décide, pas une mémoire :
-       même verbe, même bouton, deux sorties selon où l'organe est rendu. */
+    /* 🔴 UN SEUL EFFACEUR POUR LES DEUX SORTIES — Eric, 2026-09-06 : *« répare la
+       boucle de validation de Destiny B1 et B2, c'était en cours et pas fini »*.
+       ⛔ CE QUI ÉTAIT CASSÉ, ET POURQUOI ÇA A TENU SANS QU'UNE LIGNE NE BOUGE :
+       la sortie B2 ci-dessous a été écrite le 2026-09-03, **quand aucun `Done`
+       n'existait sur cet écran**. Son commentaire disait vrai ce jour-là — *« il
+       n'efface pas plus que Back : la carte n'est actée qu'au Done »*. Le `Done`
+       du 06/09 a rendu cette phrase FAUSSE sans toucher ce bloc : depuis, un
+       joueur venu du catalogue pouvait signer, changer d'avis, et repartir avec
+       **la pastille verte allumée sur une étape qu'il vient d'abandonner**, et
+       l'arcane encore écrit à sa fiche. ⭐ Une phrase vraie le jour où on l'écrit
+       devient un mensonge le jour où l'écran d'à côté gagne un bouton.
+       ⭐⭐ LA RÉPARATION N'EST PAS UN SECOND EFFACEMENT DANS LA BRANCHE B2 : c'est
+       UN SEUL effaceur que les deux sorties traversent. Deux effacements écrits
+       côte à côte divergent à la première correction — c'est la loi du dépôt
+       (« un organe, un seul écrivain »), et c'est elle qui a coûté cette panne.
+       ⚖️ CE QUI NE CHANGE PAS : la DESTINATION reste au rang. B2 rend au
+       catalogue (Eric, 03/09 : *« en SB2, I changed my mind revient à B2 »*), B1
+       rend à la porte. Le rang décide d'OÙ l'on repart, jamais de ce qu'on
+       efface — sans quoi le même bouton rouge tiendrait deux promesses. */
+    const effacerLaDestinee = () => {
+      annulerDestiny();
+      /* IL LÈVE LA SIGNATURE — sinon la pastille resterait verte sur une étape
+         qu'on vient de vider. Même loi que `leverLaSignatureDAbilities` : tout
+         geste qui peut encore changer le résultat éteint le voyant. */
+      if (state.docWriters && state.document && estConfirme(state.document, "destiny")) {
+        state.document = state.docWriters.revoke({ document: state.document, path: "destiny" });
+      }
+      /* et la carte déjà écrite au document part avec le reste — sinon l'écran
+         dirait « tu n'as rien » pendant que la fiche porterait encore l'arcane. */
+      if (state.engine && currentArcanaId(state.document)) {
+        state.document = state.engine.build.verbs.clear({
+          document: state.document, path: DESTINY_ARCANA_PATH, kind: "choice"
+        }).document;
+        rebuild();
+      }
+    };
     if (state.destinyRang === "SB2") {
+      effacerLaDestinee();
       state.destinyMode = "choice";
       state.destinyPhase = "porte";
       state.destinyDraw = null;
@@ -1219,13 +1280,7 @@ function applyDecisionAction(action) {
       refresh();
       return;
     }
-    annulerDestiny();
-    /* 🔴 ET IL LÈVE LA SIGNATURE — sinon la pastille resterait verte sur une étape
-       qu'on vient de vider. Même loi que `leverLaSignatureDAbilities` : tout geste
-       qui peut encore changer le résultat éteint le voyant. */
-    if (state.docWriters && state.document && estConfirme(state.document, "destiny")) {
-      state.document = state.docWriters.revoke({ document: state.document, path: "destiny" });
-    }
+    effacerLaDestinee();
     state.destinyPhase = "porte";
     state.destinyMode = "draw";
     state.destinyDraw = null;
@@ -1234,14 +1289,6 @@ function applyDecisionAction(action) {
     state.destinyTaps = [];
     state.destinyRang = null;
     state.palier = 1;
-    /* la carte déjà écrite au document part avec le reste — sinon l'écran
-       dirait « tu n'as rien » pendant que la fiche porterait encore l'arcane. */
-    if (state.engine && currentArcanaId(state.document)) {
-      state.document = state.engine.build.verbs.clear({
-        document: state.document, path: DESTINY_ARCANA_PATH, kind: "choice"
-      }).document;
-      rebuild();
-    }
     refresh();
     return;
   }
@@ -1269,6 +1316,17 @@ function applyDecisionAction(action) {
       state.document = state.docWriters.confirm({ document: state.document, path: "destiny" });
     }
     rebuild();
+    /* 🔴 ET IL REDESSINE — c'est le défaut qu'Eric voyait, et il rendait le
+       `Done` du 06/09 INVISIBLE : `rebuild()` recalcule la fiche, il ne rend
+       RIEN à l'écran. Sans ce `refresh()`, la signature était bel et bien
+       posée au document (mesuré : `data-fait` passait à `true` dès qu'un
+       autre geste forçait un rendu) — mais le joueur voyait un bouton qui ne
+       faisait rien, et le `Next` n'apparaissait jamais. Il ne pouvait donc
+       plus circuler : la boucle était coupée là.
+       ⚠️ `destinyNext` n'en a pas besoin, lui : `goToStep()` redessine en
+       partant. `Done` reste sur place — c'est TOUTE la différence entre les
+       deux mots, et c'est exactement ce qui a été oublié en les séparant. */
+    refresh();
     return;
   }
   if (action.kind === "destinyNext") {

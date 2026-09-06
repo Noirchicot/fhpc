@@ -5418,6 +5418,26 @@ button { font: inherit; }
   content: "●"; margin-left: var(--sp-8); color: var(--critical); font-size: var(--t4);
 }
 
+/* 🔴 LA SORTIE DE SECOURS — `Forget this character` (Eric, 2026-09-06).
+   ⭐ IL COPIE LE GABARIT DE `.universe-bascule`, ET C'EST VOULU : c'est un
+   bouton du Menu, pas une invention. Même hauteur `--touch`, même rayon, même
+   graisse — seule la COULEUR change, parce que seul le GESTE change.
+   ⚖️ `--critical`, la teinte de la famille DÉFAIRE : c'est le même rouge que
+   `Cancel` (`.parcours-annuler`, `.sortie-annule`), et la loi du 05/09 dit
+   que le mot et la teinte suivent le verbe, jamais l'écran. Un bouton qui
+   jette doit se lire rouge avant d'être lu tout court.
+   ⛔ PAS DE `min-width` DE LA FAMILLE 77/105 : ces deux cotes sont celles du
+   PIED, où les boutons se rangent par paires dans une rangée mesurée. Ici le
+   bouton est seul dans une section qui coule, et son libellé décide — lui
+   imposer un plancher de pied appliquerait une règle hors de son écran. */
+.universe-oubli {
+  margin-top: var(--sp-8);
+  min-height: var(--touch); padding: 0 var(--sp-16);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--critical); color: var(--text);
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
    le récepteur »* · *« il faut un fantôme identique à l'objet »* · *« quand un
