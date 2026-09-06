@@ -181,21 +181,55 @@ export const ABILITY_ENTRIES = [
   },
   {
     id: "free", label: "FREE",
-    /* ⏳ CETTE PHRASE N'EST PAS À L'ÉCRAN AUJOURD'HUI, et c'est une DETTE MESURÉE,
-       pas un abandon. Eric la veut (*« dans FREE, il faut un aiguilleur sous le
-       titre »*, 06/09) ; la page ne l'a pas : sa carte fait 486 blg et elle est
-       pleine à 486 pile (organe 46 · palette 205 · collecteur 219 · écarts 16).
-       📏 Un aiguilleur coûte **45 de boîte** — son plancher, même pour une seule
-       ligne de texte : raccourci à 32 signes, il demande toujours 45 — plus 8
-       d'écart, soit **53**. Les seuls postes qui pourraient les payer sont des
-       cotes d'Eric : le titre du collecteur (28+8), la ligne de bonus réservée
-       (31, sa règle du 05/09 — *« il ne doit pas bouger une fois le dé posé »*),
-       le rembourrage du tapis (8). ⛔ Aucune n'est à moi.
+    /* ⏳ CETTE PHRASE N'EST PAS À L'ÉCRAN AUJOURD'HUI, et c'est une DETTE CHIFFRÉE
+       À 6,39 blg PRÈS, pas un abandon. Eric la veut (*« dans FREE, il faut un
+       aiguilleur sous le titre »*, 06/09).
+
+       🔵 ELLE A ÉTÉ RACCOURCIE LE 06/09 (lot 168), sur l'ordre de l'architecte au
+       nom d'Eric : *« un contenu qui ne tient pas, on demande ce qu'il porte EN
+       TROP — jamais un défilement ni une police plus petite »*. Elle faisait 155
+       signes et **3 lignes** (boîte 53) ; sa première phrase seule en fait 86 et
+       **2 lignes** (boîte 38) — mesuré au banc, pas déduit. ⛔ Le geste qui part
+       avec la seconde phrase (*« drag a die off to discard it »*) n'est PAS perdu :
+       il descend dans `GUIDES.abilities` (shell.mjs), le `?`, qui a le droit de
+       respirer. Une phrase qu'on raccourcit sans la rattraper ailleurs n'est pas
+       raccourcie, elle est supprimée en silence.
+
+       📏 LE RECENSEMENT DU 06/09 À 14:53, RELEVÉ AU BANC (375 × 720, carte 492,
+       empreinte de CONTENU vérifiée sur shell.css / shell.mjs / index.html /
+       tokens.css / abilities-step.mjs avant chaque relevé) :
+
+           organe (4 + titre 21,59 + écart 8 + flux 0 + 8) ....  41,59
+           écart de l'étape .................................. +  4
+           palette 4 × 4 (4 + 4×44 + 3×4 + 4) ................ +196
+           écart de l'étape .................................. +  4
+           collecteur (8 + 28,80 + 8 + 94 + 8 + 68 + 8) ...... +222,80
+           ──────────────────────────────────────────────────────────
+           contenu ...........................................  468,39   dans 492
+                                                        place libre   23,61
+
+       ⛔ ET L'AIGUILLEUR EN DEMANDE 38 (4 + 2 × 15 + 4), plancher ramené à deux
+       lignes. Le rembourrage HAUT de `.ability-collecteur > .sortie` (16 → 8) en
+       rend 8 : **31,61 pour 38, il manque 6,39**. Mesuré en le POSANT, pas calculé :
+       `.ability-flux` a rendu `scrollHeight` 38 pour `clientHeight` 32 et la bande
+       bleue est sortie coupée. C'est pourquoi le câblage n'est PAS ici.
+
+       🎯 LES POSTES QUI PORTENT CES 6,39, CHACUN MESURÉ EN LE RETIRANT AU BANC —
+       et chacun est une cote d'Eric, donc un arbitrage, pas une marge :
+           · rembourrage vertical du tapis 4/4 → 0 .... +8   ✅ referme PILE (38/38)
+           · titre du collecteur retiré .............. +36,8 ✅ mais il dit le geste
+           · ligne de bonus réservée (31) retirée .... +31   ✅ sa règle du 05/09
+           · écart titre ↔ aiguilleur 8 → 4 .......... +4    ⛔ insuffisant seul
+       ⭐ LE MOINS CHER EST LE PREMIER, ET IL EST DÉJÀ ORPHELIN : ce 4/4 était
+       DÉDUIT du rapport de `tapis-4x4.webp` (1,764) pour qu'un `contain` remplisse
+       la boîte au pixel — le `row-gap` 8 → 4 du 06/09 a porté la boîte à 1,872, le
+       tapis ne touche donc DÉJÀ plus les bords (10,7 de vide de chaque côté). Le
+       rembourrage ne sert plus ce qu'il servait. ⛔ Il reste l'asset d'Eric : c'est
+       à lui de dire recadrage ou rembourrage, pas à moi.
        ⭐ En attendant, le `?` porte la règle en entier (`GUIDES.abilities`) — pas
-       le vide. Et la phrase reste ICI, entière, parce que c'est la SOURCE : le
-       jour où un poste se libère, l'aiguilleur la retrouve sans être réécrit. */
-    blurb: "Sixteen dice, 3 to 18 — take any value, as often as you like; the pool never runs out. "
-      + "Drag a die off to discard it, or drop another on top to replace it."
+       le vide. Et la phrase reste ICI parce que c'est la SOURCE : le jour où l'un
+       de ces postes se libère, l'aiguilleur la retrouve sans être réécrit. */
+    blurb: "Sixteen dice, 3 to 18 — take any value, as often as you like; the pool never runs out."
   }
 ];
 
@@ -1358,41 +1392,27 @@ export function renderAbilitiesStep(ctx, onAction) {
      ⏳ Qu'ils portent EUX AUSSI deux aiguilleurs à la fois est vrai, mesuré, et
      c'est une question pour Eric — pas une déduction à prendre ici. */
   /* 📏 FREE N'EN A PAS, ET C'EST LE BUDGET QUI LE DIT — 06/09, Eric ayant tranché
-     *« c'est 4×4 »* pour les seize valeurs. La carte fait 486 blg à 375 × 553 :
+     *« c'est 4×4 »* pour les seize valeurs. ⚠️ LA COTE DE LA CARTE EST **492**, pas
+     486 : le 486 traînait ici depuis le 05/09 et personne ne l'avait remesuré.
 
-         palette 4 × 4, dés à 44 ........... 200
-         collecteur COMPLET ................ 279
-         organe, titre seul .................  40
-         écarts .............................  16   ➜  535, soit 49 de TROP
+     🔵 06/09, LOT 168 — LE CÂBLAGE A ÉTÉ FAIT POUR DE VRAI, PUIS DÉFAIT. C'est le
+     seul relevé qui vaille : l'aiguilleur posé, `.ability-flux` a rendu
+     `scrollHeight` **38** pour `clientHeight` **32**, et la bande bleue est sortie
+     coupée à la deuxième ligne. Un aiguilleur qui défile est le défaut qu'Eric
+     interdit nommément — il ne part donc pas en ligne. Le recensement complet, à
+     14:53, et les quatre postes qui portent les 6,39 manquants sont écrits en tête
+     de fichier, sur l'entrée `free` de `ABILITY_ENTRIES`.
 
-     Les deux aiguilleurs de la page valent 53 (l'organe) et 52 (le collecteur avec
-     son écart) : il faut les deux pour rentrer, et aucun autre poste ne bouge —
-     le collecteur est figé (§7), et un dé de contrôle ne descend pas sous 44.
-     ⚠️ CE QUI PART N'EST PAS RIEN, ET IL FAUT LE DIRE : cet aiguilleur était le
-     SEUL endroit du produit qui écrive *« take any value, as often as you like »*
-     et *« drag a die off to discard it »*. ⛔ J'ai failli le retirer en écrivant
-     qu'il se lisait aussi sur la tuile du sélecteur — **mesuré : faux**,
-     `renderSelecteurMethode` ne rend que les libellés. Il descend donc dans le `?`,
-     qui a le droit de respirer (§6 pré bis), pas dans le vide.
-     🔵 06/09, 14:23 — LE BUDGET A BOUGÉ, ET IL NE SUFFIT TOUJOURS PAS. Eric a
-     nommé deux postes à reprendre (*« réduire les espaces entre les rangées de dés /
-     podiums, réduire le line bleed — 4 en haut, 4 en bas »*) ; les deux sont faits,
-     RELEVÉS AU BANC à 375 × 553, empreinte de contenu vérifiée :
-
-         place libre dans la carte (492,02) ....  4,85  ➜  24,87   (+20,02 blg)
-           · line bleed 8 → 4, deux écarts ................  8
-           · écart entre les rangées de la palette 8 → 4 ... 12
-
-     ⛔ ET IL EN FAUT 38 POUR DEUX LIGNES : 2 × 15 d'interligne + 8 de rembourrage.
-     **Il manque 13,13 blg** — mesuré, pas déduit : l'aiguilleur posé pour de vrai à
-     14:23, le flux de l'organe s'est refermé sur lui (`scrollHeight` 38 pour
-     `clientHeight` 25) et l'écran a montré **une ligne et un huitième**, la phrase
-     coupée en deux. C'est exactement la panne du 05/09, servie par le même organe.
-     ⚠️ ET DEUX LIGNES DEMANDENT AUSSI UN TEXTE PLUS COURT : le `blurb` ci-dessus
-     fait 155 signes pour 349 blg de large, soit **3 lignes** (boîte 53). Même avec
-     la place, il en faudrait ≤ ~126. La coupe est une décision d'Eric, pas la
-     mienne. ⛔ Et le plancher de `.guide-mot` vaut 3 lignes (45) : le descendre à 2
-     pour cet organe est aussi son mot — c'est sa cote du 27/08.
+     ⛔ CE QUI A ÉTÉ TENTÉ ET RENDU, parce que ça n'achetait plus rien une fois le
+     câblage retiré : le rembourrage HAUT de `.ability-collecteur > .sortie`
+     (16 → 8, +8 blg, la cote d'Eric du 05/09) et un plancher de deux lignes borné à
+     `.ability-organe[data-methode="free"] .guide-mot`. ⭐ Une cote d'Eric qu'on
+     change pour financer un organe qui ne part pas est une cote changée pour rien :
+     les deux reviendront ENSEMBLE, avec le câblage, le jour où le sixième blg est
+     tranché.
+     ⚠️ ET LE TEXTE, LUI, EST DÉJÀ COUPÉ (`blurb`, 155 → 86 signes) : c'est la
+     seule des trois décisions qui ne dépend d'aucune cote, et elle prépare
+     exactement les deux lignes attendues.
      ⭐ ET LE TITRE DU COLLECTEUR RESTE LA CONSIGNE : *« Drag a score onto each of
      your character's abilities »* dit le geste. La page garde une phrase, pas zéro. */
   if (!scene2 && !composable) {

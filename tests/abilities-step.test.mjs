@@ -1057,10 +1057,35 @@ test("🔴 `FREE` — DEUX dalles, et aucune rangée d'îlots entre les deux", (
     "⛔ plus dans l'organe — elle y était sous le défilement du gabarit trois bandes");
   assert.equal([...node.children].filter((e) => (e.className || "").includes("ability-palette")).length, 1,
     "…elle est une rangée de l'étape, comme le podium de B1");
-  /* 📏 ET L'ORGANE N'A PLUS D'AIGUILLEUR — le budget mesuré ne l'admet pas (494 de
-     fenêtre : organe 14 + aiguilleur 53 + palette 177 + collecteur 279 + 16 = 53 de
-     trop) et §7.10 le nomme : un écran, un aiguilleur. Celui du collecteur reste. */
+  /* 📏 ET L'ORGANE N'A PLUS D'AIGUILLEUR — le budget MESURÉ ne l'admet pas, et le
+     chiffre d'ici était périmé (il disait 494 de fenêtre et un aiguilleur à 53).
+     🔵 RELEVÉ AU BANC LE 06/09 À 14:53, l'aiguilleur POSÉ pour de vrai (lot 168) :
+     carte **492**, contenu 468,39 — organe 41,59 · écart 4 · palette 196 · écart 4 ·
+     collecteur 222,80 — donc **23,61 de place libre**. La bande en demande **38**
+     (4 + 2 × 15 + 4, plancher ramené à deux lignes) ; même en rendant les 8 du
+     rembourrage haut de sa `.sortie`, elle n'en reçoit que 31,61.
+     ⛔ LE TÉMOIN QUI TRANCHE : `.ability-flux` a rendu `scrollHeight` 38 pour
+     `clientHeight` 32 — **6,39 blg coupés**, la deuxième ligne tronquée à l'écran.
+     Un aiguilleur qui défile est le défaut qu'Eric interdit nommément.
+     ⚠️ CE TEST N'EST DONC PAS UNE PRÉFÉRENCE, C'EST UNE MESURE : le jour où l'un des
+     quatre postes nommés dans `ABILITY_ENTRIES` (entrée `free`) est tranché par
+     Eric, il rougira — et c'est LUI qu'il faudra réécrire, pas le câblage. */
   assert.equal(node.querySelectorAll(".ability-organe-mot").length, 0, "FREE : la dalle ne garde que son titre");
+  /* ⌨️ ET SA PHRASE EST DÉJÀ TAILLÉE POUR LES DEUX LIGNES QU'ELLE AURA — l'architecte,
+     06/09, au nom d'Eric : *« on ne réduit JAMAIS une police et on ne tronque pas un
+     mot pour gagner de la place — on raccourcit le texte »*. Mesuré à 351 blg de
+     large : 155 signes tombent en 3 lignes, 86 en 2. Le plafond est la cote donnée
+     par l'architecte (≤ ~126), pas la longueur du jour — un garde qui épellerait 86
+     rougirait sur une reformulation légitime. */
+  const motFree = ABILITY_ENTRIES.find((e) => e.id === "free").blurb;
+  assert.ok(motFree.length <= 126,
+    `la phrase de FREE tient en deux lignes : ${motFree.length} signes pour un plafond de 126`);
+  /* ⛔ ET LE GESTE QUI A QUITTÉ CETTE PHRASE N'A PAS QUITTÉ LE PRODUIT : raccourcir
+     sans rattraper ailleurs, c'est supprimer en silence. Il est dans le `?`. */
+  const shellSrc = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "shell.mjs"), "utf8");
+  const guideAbilities = shellSrc.slice(shellSrc.indexOf("  abilities: {"), shellSrc.indexOf("  skills: {"));
+  assert.match(guideAbilities, /drag a die off to discard it/i,
+    "…et « drag a die off to discard it » est descendu dans le tutoriel du `?` (GUIDES.abilities)");
   assert.equal(node.querySelectorAll(".ability-methode-titre")[0].textContent, "FREE");
   /* 📏 ET SON COLLECTEUR NON PLUS : il faut les DEUX aiguilleurs (53 + 52) pour que
      le 4 × 4 et `Done` tiennent dans les 486 de la carte. Le TITRE du collecteur

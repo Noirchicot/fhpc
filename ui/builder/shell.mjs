@@ -3113,13 +3113,20 @@ const GUIDES = {
      often as you like; the pool never runs out »* et *« drop another on top to
      replace it »*. ⛔ Le sélecteur ne rend que les libellés — vérifié, pas supposé —
      et le chapitre FH Web ne décrit que le 3d6 × 10. Sans cette ligne-ci, la règle
-     n'était écrite NULLE PART. */
+     n'était écrite NULLE PART.
+     ⑷ 06/09 au soir, lot 168 — ET IL RECUEILLE LE GESTE QUI MANQUAIT ENCORE. Le
+     `blurb` de `FREE` a été ramené à sa première phrase (l'architecte, en son nom :
+     *« on ne réduit jamais une police, on raccourcit le texte »*), ce qui a retiré
+     de la SOURCE le seul *« drag a die off to discard it »* du produit. ⚠️ Et il
+     n'était déjà lisible NULLE PART : cette ligne-ci ne portait que le
+     recouvrement. Une phrase qu'on raccourcit ailleurs se rattrape ICI, sinon
+     raccourcir devient supprimer sans le dire. */
   abilities: {
     titre: "Abilities",
     texte:
       "Six numbers decide what your character is naturally good at — and here, you roll for them.\n" +
       "Start by choosing how they are found. That one choice shapes the rest of the step, so it comes first.\n" +
-      "Fate's Hand rolls 3d6 ten times and keeps your best six, with a floor at each end: your highest is never under 14, your lowest is always 8. Array hands you the same six numbers every time. Four dice is the most generous, and the least fair. Free lets you place any value you like, as often as you like — its pool never runs out, and dropping a die onto one already placed replaces it.\n" +
+      "Fate's Hand rolls 3d6 ten times and keeps your best six, with a floor at each end: your highest is never under 14, your lowest is always 8. Array hands you the same six numbers every time. Four dice is the most generous, and the least fair. Free lets you place any value you like, as often as you like — its pool never runs out; drag a die off to discard it, and drop another on top to replace it.\n" +
       "The book, bottom left, opens the full rules on FH Web — including what separates the methods, measured rather than argued.\n" +
       "Once a method is picked you assign the values yourself, one at a time, and nothing is locked: the six only become the character's when the step is settled."
   },

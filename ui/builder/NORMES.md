@@ -5103,15 +5103,43 @@ elle pesait **344 blg pour ~90 montrés** — on ne voyait que `3 · 4 · 5 · 6
 valeurs vivaient sous un défilement que rien n'annonce. *« Un jeton hors écran est introuvable »*
 (§5 bis) : un vivier dont on voit un quart n'est pas un vivier.
 
-**LE BUDGET, ET IL EST FERMÉ** — carte de **486 blg** à 375 × 553, la borne basse :
+**LE BUDGET, RECENSÉ AU BANC LE 06/09 À 14:53** *(lot 168 — chaque poste relevé par
+`getBoundingClientRect`, jamais déduit)*. ⚠️ **La carte fait 492**, pas 486 : le 486 était la cote
+du 05/09 et personne ne l'avait remesurée.
 
-| poste | blg |
-|---|---|
-| palette **4 × 4**, dés à **44** | 200 |
-| collecteur **sans son aiguilleur** | 227 |
-| organe, **titre seul** | 40 |
-| écarts | 16 |
-| **total** | **483** — il reste 3 |
+| poste | blg | ce qui le compose |
+|---|---|---|
+| organe, **titre seul** | 41,59 | 4 + titre 21,59 + écart 8 + flux 0 + 8 |
+| palette **4 × 4**, dés à **44** | 196 | 4 + 4 × 44 + 3 × 4 + 4 |
+| collecteur **sans son aiguilleur** | 222,80 | 8 + titre 28,80 + 8 + créneaux 94 + 8 + sortie 68 + 8 |
+| écarts de l'étape | 8 | 2 × 4 *(le line bleed ramené à 4 le 06/09)* |
+| **total** | **468,39** dans **492** | **il reste 23,61** |
+
+🔵 **L'AIGUILLEUR DE L'ORGANE : IL MANQUE 6,39 blg, ET C'EST MESURÉ EN LE POSANT** *(lot 168)*.
+Sa boîte à **deux lignes** vaut **38** *(4 + 2 × 15 + 4, plancher ramené à deux lignes pour ce seul
+organe)*. Le rembourrage HAUT de sa `.sortie` *(16 → 8, la cote d'Eric du 05/09)* en rend 8 : il en
+reçoit **31,61**. ⛔ **Le témoin** : `.ability-flux` a rendu `scrollHeight` **38** pour
+`clientHeight` **32** — la seconde ligne sortait coupée. Un aiguilleur qui défile est le défaut
+qu'Eric interdit nommément, donc **le câblage a été défait**, pas livré tronqué.
+⚖️ **LES QUATRE POSTES QUI PORTENT CES 6,39**, chacun mesuré **en le retirant au banc**, et chacun
+une cote d'Eric — donc un arbitrage qui lui revient, jamais une marge à grignoter :
+
+| poste | rend | referme ? |
+|---|---|---|
+| rembourrage **vertical du tapis** 4/4 → 0 | +8 | ✅ **pile** — 38 pour 38 |
+| **titre du collecteur** retiré | +36,8 | ✅ mais c'est lui qui dit le geste |
+| **ligne de bonus réservée** (31) retirée | +31 | ✅ mais c'est sa règle du 05/09 |
+| écart **titre ↔ aiguilleur** 8 → 4 | +4 | ⛔ insuffisant seul |
+
+⭐ **LE MOINS CHER EST DÉJÀ ORPHELIN** : ce rembourrage de 4 était **déduit** du rapport de
+`tapis-4x4.webp` (1,764) pour qu'un `contain` remplisse la boîte au pixel — le `row-gap` 8 → 4 du
+06/09 a porté la boîte à **1,872**, et le tapis ne touche **déjà plus** les bords (10,7 de vide de
+chaque côté). Le rembourrage ne sert plus ce qu'il servait. ⛔ Mais l'image est **l'asset d'Eric** :
+recadrage ou rembourrage, c'est lui qui tranche.
+⭐ **ET LE TEXTE, LUI, EST DÉJÀ COUPÉ** *(la seule des trois décisions qui ne coûte aucune cote)* :
+155 signes tombaient en **3 lignes**, sa première phrase seule en fait 86 et **2** — mesuré à 351 blg
+de large. C'est la loi d'Eric appliquée à la lettre : *« un contenu qui ne tient pas, on demande ce
+qu'il porte EN TROP — jamais un défilement ni une police plus petite »*.
 
 🔴 **Le 4 × 4 est la seule division RÉGULIÈRE de seize** (3 × 5 laisse un orphelin sur une quatrième
 rangée, 7 × 3 en laisse deux) — et c'est le croquis d'Eric du 16/08, retrouvé le 06/09.
@@ -5123,8 +5151,11 @@ dé s'y centre : le vide autour est **ce qui reste quand une cote de contrôle r
 écriture du produit disant *« take any value, as often as you like »* et *« drag a die off to
 discard it »* — ⛔ j'ai failli le retirer en affirmant qu'on le relisait sur la tuile du sélecteur :
 **mesuré, c'est faux**, `renderSelecteurMethode` ne rend que les libellés, et le chapitre FH Web ne
-décrit que le 3d6 × 10. Il descend donc dans le **`?`**, pas dans le vide. Celui du collecteur (52
-avec son écart) part **sur FREE seulement** ; son **titre** reste et dit le geste.
+décrit que le 3d6 × 10. Il descend donc dans le **`?`**, pas dans le vide. 🔵 **06/09, lot 168 —
+et il y est VRAIMENT descendu** : `GUIDES.abilities` ne portait que le recouvrement, pas le rejet.
+*« Drag a die off to discard it »* n'était donc lisible **nulle part** ; il y est maintenant, gardé.
+Celui du collecteur (52 avec son écart) part **sur FREE seulement** ; son **titre** reste et dit le
+geste.
 ⭐ **ARRAY ne bouge pas** — son vivier tient sur une rangée, il garde ses deux textes. Eric :
 *« Array, t'y touches pas, il est bien. »*
 
