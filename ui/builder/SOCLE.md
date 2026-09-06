@@ -31,15 +31,17 @@
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
 >
-> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *FH WEB BIBLE*.** Eric, ce jour-là :
-> *« crée un fil qui construit une Bible pour le site web — FH WEB Bible, différente de la Builder
+> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *WEB BIBLE*.** Eric, ce jour-là :
+> *« crée un fil qui construit une Bible pour le site web — Web Bible, différente de la Builder
 > Bible. **Cite quand même dans le builder que quand on parle du site il faut visiter l'autre
 > Bible.** »*
 > ➡️ **Dès qu'un lot parle du LIVRE** — le bouton 📖 et où il mène, `LIVRE_ARCANES` et les autres
 > sorties vers un chapitre, la loi des liens, les ancres que `sync_from_vault.py` fabrique, la voix
 > du texte publié — **il va lire `fh-phb/docs/bible-web/`** *(en ligne :
-> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la FH WEB
-> Bible renvoie ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
+> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la Web Bible
+> renvoyait ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
+>
+> ⚠️ **CETTE ADRESSE NE RÉPOND PLUS DEPUIS LE 2026-09-06** — Eric : *« tu efface la bible sur le site WEB »*, *« les deux »*, *« uniquement sur le site »*. Les deux tirages ont quitté `fh-phb/docs/` ; la **source unique** est le corpus que vous lisez. ⛔ Le contenu de la Web Bible n'existe plus qu'à `fh-phb` `7dc6e76` — 62 adresses sans amont.
 
 ---
 
@@ -390,15 +392,15 @@ règle du livre existait depuis le 25/08 ; elle a été écrite, puis ignorée d
 | | ce qu'elle couvre | sa source |
 |---|---|---|
 | **Builder Bible** | l'application FHPC — les organes, les cadres, le mécanisme, les écrans | **ces quatre fichiers** ; `fh-phb/docs/bible/` n'en est qu'un **tirage** |
-| **FH WEB Bible** | le livre publié — la voix, la citation du SRD, la fabrique, l'appareil de fin | `fh-phb/docs/bible-web/` — **elle est sa propre source, elle n'a aucun amont** |
+| **Web Bible** | le livre publié — la voix, la citation du SRD, la fabrique, l'appareil de fin | `fh-phb/docs/bible-web/` — **elle est sa propre source, elle n'a aucun amont** |
 
 ⚖️ **Et la question a une réponse par défaut, pas une échappatoire** : un lot qui touche à un
 organe, une cote, un geste ou un écran édite **la Builder Bible** ; un lot qui touche à un chapitre
-publié, à une citation du SRD, à un bandeau de pied ou à une sortie 📖 édite **la FH WEB Bible** ;
+publié, à une citation du SRD, à un bandeau de pied ou à une sortie 📖 édite **la Web Bible** ;
 un lot qui touche aux deux les édite **toutes les deux**. ⛔ *« Aucune »* est une réponse légitime
 — **écrite**, jamais tue.
 
-⚠️ **Cette règle a un jumeau, et c'est délibéré** : la FH WEB Bible porte le même énoncé sous
+⚠️ **Cette règle a un jumeau, et c'est délibéré** : la Web Bible porte le même énoncé sous
 `bible-question-avant-de-rendre`, parce qu'une loi qui ne vit que dans le corpus qu'on ne lit pas
 ne s'applique jamais. ⛔ **Les deux se citent : modifier l'une oblige l'autre.**
 

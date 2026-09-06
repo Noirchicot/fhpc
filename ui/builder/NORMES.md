@@ -43,15 +43,17 @@
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
 >
-> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *FH WEB BIBLE*.** Eric, ce jour-là :
-> *« crée un fil qui construit une Bible pour le site web — FH WEB Bible, différente de la Builder
+> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *WEB BIBLE*.** Eric, ce jour-là :
+> *« crée un fil qui construit une Bible pour le site web — Web Bible, différente de la Builder
 > Bible. **Cite quand même dans le builder que quand on parle du site il faut visiter l'autre
 > Bible.** »*
 > ➡️ **Dès qu'un lot parle du LIVRE** — le bouton 📖 et où il mène, `LIVRE_ARCANES` et les autres
 > sorties vers un chapitre, la loi des liens, les ancres que `sync_from_vault.py` fabrique, la voix
 > du texte publié — **il va lire `fh-phb/docs/bible-web/`** *(en ligne :
-> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la FH WEB
-> Bible renvoie ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
+> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la Web Bible
+> renvoyait ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
+>
+> ⚠️ **CETTE ADRESSE NE RÉPOND PLUS DEPUIS LE 2026-09-06** — Eric : *« tu efface la bible sur le site WEB »*, *« les deux »*, *« uniquement sur le site »*. Les deux tirages ont quitté `fh-phb/docs/` ; la **source unique** est le corpus que vous lisez. ⛔ Le contenu de la Web Bible n'existe plus qu'à `fh-phb` `7dc6e76` — 62 adresses sans amont.
 
 ---
 
@@ -1594,8 +1596,7 @@ pas le même geste. Ils n'en font pas le même, et c'est une clause à part enti
 
 📖 **ET CE QUI SE PASSE DE L'AUTRE CÔTÉ DE LA PORTE N'EST PAS RÉGI ICI.** Le chapitre où le livre
 atterrit — sa voix, ce qu'il a le droit de citer du SRD, son bandeau de pied, l'ancre sur laquelle
-il ouvre — obéit à la **[FH WEB Bible](https://noirchicot.github.io/fh-phb/bible-web/)**
-(`fh-phb/docs/bible-web/`). ⛔ **Choisir une cible sans la lire, c'est ce qui a coûté six phrases
+il ouvre — obéissait à la **Web Bible**, ⚠️ **retirée du site le 2026-09-06** *(voir l'en-tête)*. ⛔ **Choisir une cible sans la lire, c'est ce qui a coûté six phrases
 le 06/09.** ➡️ Lire en particulier `citation-declare-la-substitution` *(⛔ on ne recopie pas la
 prose du SRD)* et `fabrique-code-n-est-pas-la-source` *(⛔ on n'écrit pas le livre depuis le code)*.
 
@@ -2722,7 +2723,7 @@ servie au SB.
 
 📖 **CETTE LOI TRAVERSE LA FRONTIÈRE, ET LE LIVRE A SON PROPRE CORPUS.** Elle oblige des cibles qui
 vivent sur **FH WEB**, et l'ancre qu'elle exige est fabriquée par `fh-phb/sync_from_vault.py`, pas
-ici. ➡️ **Côté livre, elle se lit dans la [FH WEB Bible](https://noirchicot.github.io/fh-phb/bible-web/)**,
+ici. ➡️ **Côté livre, elle se lisait dans la Web Bible** — ⚠️ **retirée du site le 2026-09-06** —
 § *La fabrique — ce qui vit chez le voisin*. ⚠️ Et la tension entre cette loi et le
 **📌 PORTÉE : LE BUILDER** de l'en-tête y est posée telle quelle, non tranchée, en `W4`.
 📍 `ecriture-ancre-avant-lien` · vivante · 30/08
