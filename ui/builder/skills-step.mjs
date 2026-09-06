@@ -143,6 +143,9 @@ export const REFUSAL_WORDS = {
      le COMPTE qui refuse — et la phrase le dit, sinon le joueur cherche un niveau
      à atteindre qu'il a déjà. */
   "skill-spend.expertise-capped": (p) => `Only ${p.max} Expertises at level ${p.throughLevel} — this one is one too many.`,
+  /* 🔒 LOT 171 — le plafond du TRAIT (Eric, 07/09 : « une Expertise grâce à Late
+     Bloomer »). Le mot nomme le trait et le niveau où la classe prend le relais. */
+  "skill-spend.trait-expertise-capped": (p) => `${p.feature} grants ${p.max} Expertise${p.max === 1 ? "" : "s"} before level ${p.unlockLevel} — this one is one too many.`,
   "skill-trait.value-invalid": () => "A trait is carried or it isn't — true or false.",
   "skill-trait.unknown": (p) => `“${p.selected}” isn't a trait this stack prices.`,
   "skill-train.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
@@ -190,8 +193,8 @@ function refusalWord(violation) {
    trois écrans les lisent maintenant (Compétences, Class, Species) : sorties
    dans `ui/builder/carnet.mjs`, importées telles quelles — extraction
    neutre, aucun comportement changé, voir INVENTAIRE-LOT-42.md. */
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=592";
-import { keepInView, scrollParent } from "./socle.mjs?v=592";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=593";
+import { keepInView, scrollParent } from "./socle.mjs?v=593";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

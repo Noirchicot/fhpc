@@ -491,7 +491,12 @@ export const EXPERTISE_CAP = { through_level: 1, max: 2 };
    au prix normal (Eric, 06/09 : *« le droit de l'acheter »*). Il peut dépenser
    ses deux points ailleurs et ne jamais en prendre. */
 export const TRAIT_GRANTS = [
-  { trait: "late-bloomer", feature: "Late Bloomer", level: 1, points: 2, unlocksExpertise: true }
+  /* 🔒 `maxExpertise: 1` — Eric, 2026-09-07 : *« les autres auront droit à UNE
+     Expertise grâce à Late Bloomer »*. Le trait ouvre le verrou de classe avant
+     l'heure, mais il ne l'ouvre que pour UNE ; le jour où la classe ouvre
+     elle-même (`expertiseFromLevel`), c'est elle qui compte. Le Rogue, dont la
+     classe ouvre au niveau 1, ne passe jamais par ce nombre. */
+  { trait: "late-bloomer", feature: "Late Bloomer", level: 1, points: 2, unlocksExpertise: true, maxExpertise: 1 }
 ];
 
 /* ══ LES TRAININGS — LE CATALOGUE, ENFIN REMPLI (lot 82) ══════════════
@@ -698,7 +703,8 @@ export const CLASS_POOLS = [
     points: grant.points,
     boundSkill: grant.boundSkill || 0,
     boundSkillFrom: Array.isArray(grant.boundSkillFrom) ? grant.boundSkillFrom.slice().sort() : [],
-    unlocksExpertise: Boolean(grant.unlocksExpertise)
+    unlocksExpertise: Boolean(grant.unlocksExpertise),
+    maxExpertise: grant.maxExpertise
   })).sort((a, b) => (a.trait < b.trait ? -1 : a.trait > b.trait ? 1 : 0)),
   expertiseCap: { ...EXPERTISE_CAP },
   /* ⛔ PLUS ÉCRIT À LA MAIN — DÉDUIT du grant qui porte la permission. */

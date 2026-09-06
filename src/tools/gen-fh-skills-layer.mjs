@@ -501,6 +501,14 @@ function buildClasses(srd, skillIdsDeLaPile) {
         fail(`le grant de trait « ${grant.trait} » n'a pas de \`feature\` utilisable — c'est le mot que le ` +
           "joueur lira dans le détail de son pool (loi §0.13).");
       }
+      /* 🔒 LOT 171 — un trait qui OUVRE l'Expertise dit COMBIEN (Eric, 07/09 :
+         *« une Expertise grâce à Late Bloomer »*). Un grant qui ouvre sans
+         compter laisserait un Wizard de niveau 1 en acheter autant que son pool
+         en paie — et rien ne le dirait. */
+      if (grant.unlocksExpertise === true && (!Number.isInteger(grant.maxExpertise) || grant.maxExpertise < 0)) {
+        fail(`le grant de trait « ${grant.trait} » ouvre l'Expertise sans porter un \`maxExpertise\` entier ` +
+          `positif ou nul (${JSON.stringify(grant.maxExpertise)}) — une permission sans compte est un plafond absent.`);
+      }
     }
     /* ⛔ CHAQUE GRANT EST CONFRONTÉ AU SRD, JAMAIS CRU SUR PAROLE (lot 82).
        Le canon nomme une aptitude et un niveau ; la couche SRD les porte tous

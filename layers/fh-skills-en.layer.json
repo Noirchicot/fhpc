@@ -601,7 +601,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -683,7 +684,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -728,7 +730,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -784,7 +787,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -841,7 +845,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -886,7 +891,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -931,7 +937,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -1004,7 +1011,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -1072,7 +1080,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -1117,7 +1126,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -1162,7 +1172,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {
@@ -1207,7 +1218,8 @@
                 "points": 2,
                 "boundSkill": 0,
                 "boundSkillFrom": [],
-                "unlocksExpertise": true
+                "unlocksExpertise": true,
+                "maxExpertise": 1
               }
             ],
             "tier_costs": {

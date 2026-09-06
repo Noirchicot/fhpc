@@ -84,3 +84,49 @@ Aucune Bible n'a été éditée, aucune ne devait l'être pour ce relevé. **Tro
 - **Le mot d'Eric** sur (a) : deux Expertises **au total** ou deux **au pool** ? Puis sur la forme : les ronds sont-ils un organe ? les outils et trainings restent-ils sur cet écran ?
 - Mesurer la porte du retour sous dépassement (erreur 2) et regarder les collecteurs de Species (erreur 3) — dix minutes chacune, le jour où l'on reconstruit.
 - Le personnage du volet est désormais mon Rogue de mesure (`Mesure Rogue`) ; le Wizard qu'il remplaçait n'est pas récupérable.
+
+---
+
+# ② LE MOT D'ERIC, ET CE QUI EST CÂBLÉ — 2026-09-07, 00:05 → 00:17
+
+> Eric, 07/09, devant le relevé ① : *« pas possible ça, c'est 2 max. Les points de Late Bloomer tu les
+> dépenses ailleurs. Plus de limite au-delà du lvl 1 si t'es un Rogue. Les autres auront droit à une
+> Expertise grâce à Late Bloomer. On traite l'UI après ça. »*
+
+## Les trois règles, et où chacune vit
+
+| règle | où elle est LUE | où elle est jugée |
+|---|---|---|
+| **2 Expertises max au niveau 1, kit lié compris** | `expertise_cap {through_level: 1, max: 2}` sur le record de classe (inchangé) | `skill-pool.mjs`, `plafondDExpertise` : le compte `deja` voit désormais la bourse, parce que le pli la lui tend (`derive.mjs` → `placedSkillTiers`) |
+| **Plus de limite au-delà du niveau 1 pour le Rogue** | `through_level: 1` (inchangé) | même fonction : au-delà de `through_level`, rien ne borne |
+| **Les autres : UNE Expertise grâce à Late Bloomer, ses 2 points vont ailleurs** | `trait_grants[].maxExpertise: 1` — **champ neuf**, écrit dans `fh-skills-source.mjs`, généré dans la couche, exigé par le générateur ET par le module dès que `unlocksExpertise` est vrai | même fonction : tant que la classe n'ouvre pas (`level < expertise_from_level`), c'est le plus petit `maxExpertise` des traits ouverts qui compte ; refus keyé `skill-spend.trait-expertise-capped`, mot dans `REFUSAL_WORDS` |
+
+⭐ **Et la bourse devient un PLANCHER** — ce qui ferme les cas C, E, G du relevé sans une règle de plus : un palier posé par `class.skillBudget.*` ou `species.skillBudget.*` est semé dans `tierBySlug` avant la dépense. Le pool ne le redescend plus (`below-floor`), ne le repaie plus (delta 0), et monte au prix de la différence.
+
+## Avant / après, le même script de mesure (`rogue-cap.mjs`, Rogue niveau 1, Halfling)
+
+| cas | 06/09 23:52 | 07/09 00:17 |
+|---|---|---|
+| A · bourse Stealth expert + pool 2 experts | 3 Expertises, aucun refus | **2** ; Deception refusée `expertise-capped` |
+| C · bourse expert + pool expert sur Stealth | 1 Expertise, **4 pts payés pour rien** | 1 ; pool intact (14) |
+| G · bourse expert + pool novice sur Stealth | **0** — le pool écrasait la bourse | 1 ; `below-floor` (plancher expert) |
+| E · bourse novice + pool expert sur Acrobatics | payé 4 | payé **3** |
+| H · + Late Bloomer | 3 | 2 ; le trait ne change rien au Rogue |
+
+## Les gardes — vus ROUGES avant le code
+
+`tests/lot-171-deux-max.test.mjs`, **7 tests**, chacun avec son témoin contraire. Rouges sur la base (`git stash` + `npm test` : 1822 / 8, les 7 + `tree-immuable` qui les suit), verts après. Suite entière : **1830 / 1830** à 00:16:56.
+
+## Ce qui a bougé
+
+`src/modules/fh/skill-pool.mjs` (+70) · `src/build/derive.mjs` (+5) · `src/tools/fh-skills-source.mjs`, `gen-fh-skills-layer.mjs` · `layers/fh-skills-en.layer.json` (régénérée : 12 × `maxExpertise`) · `exports/fh-changes.json` et `examples/personnage-fh-en-niveau1.fh-char.json` (régénérés : seul le hash de couche change, aucun contenu) · `ui/builder/skills-step.mjs` (un mot de refus) · version **592 → 593** (35 fichiers, la même ligne).
+
+## Pour AGENT BIBLE (via Archi) — deux phrases, je ne pose rien
+
+- NORMES, § Late Bloomer (`✅ L'EFFET EST CÂBLÉ — lot 169`) : *« le DROIT d'acheter l'Expertise au niveau 1 »* devient **« le droit d'acheter UNE Expertise avant que sa classe n'ouvre — `maxExpertise` sur le grant, lu, jamais figé ; ses 2 points se dépensent où l'on veut »** (Eric, 07/09).
+- Le plafond du lot 169 (*« deux expertises max au niveau 1 »*) : **« deux AU TOTAL, kit lié compris — la bourse compte et fait plancher »** (Eric, 07/09, lot 171).
+
+## Ce qui reste
+
+- L'écran (« on traite l'UI après ça ») : la ligne liée qui affiche ◐ pour un expert, les ronds, la molette qui déborde, le livre absent — le relevé ① reste le point de départ.
+- Le banc n'a pas été rallumé pour ce ② : le changement est au moteur et dans un mot de refus ; `mot-du-verrou` garde que chaque clef a son mot.
