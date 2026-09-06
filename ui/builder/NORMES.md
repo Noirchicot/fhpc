@@ -324,7 +324,7 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 | vocabulaire | ce qu'il nomme |
 |---|---|
 | **`R` / `B` / `SB`** | un **RANG** dans une arborescence (la profondeur). ⛔ **JAMAIS un nom de page** — une page a un **nom** |
-| **`F` / `FF` / `FS`** | le **CADRE**. Seul l'écran porte la lettre |
+| **`F` / `FF`** | le **CADRE**, et il n'y en a que DEUX par défaut *(Eric, 06/09)*. Seul l'écran porte la lettre. ⛔ `FS` et les chiffres (`F1`, `FF2`…) sont des **subtilités** : elles se discutent **quand on travaille sur la page concernée**, jamais dans la nomenclature générale |
 | **carte · dalle · tuile** | l'**OBJET**. ⛔ ne porte jamais de lettre. Une **carte** a une hauteur imposée |
 | **`T0`…`T7`** | les tailles de texte (T0 = 8 px, un renfort sous un dé, ajouté le 05/09 sur *« passe en T0 »* — jamais une ligne à lire). ⛔ pas `H1`/`H2` |
 
