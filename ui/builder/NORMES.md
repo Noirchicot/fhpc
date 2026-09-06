@@ -3637,6 +3637,49 @@ l'origine — **un état qui demeure n'a rien à dire à une échelle qui mesure
 tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleurs**. ⛔ Vérifier
 pourquoi elle avait été écrite avant de la retirer.
 
+### 🔴 LA TRILOGIE EST DUE À TOUT ÉCRAN — livre · bouton(s) · `?` *(Eric, 2026-09-06)*
+📍 `rangee-trilogie-due-partout` · vivante · 06/09
+
+> Eric, 2026-09-06 : *« **ils doivent tous avoir la trilogie.** Mais c'est les autres qu'on passe
+> à la moulinette. »*
+
+| place | organe |
+|---|---|
+| **gauche** | 📖 le **livre** |
+| **centre** | les **boutons majeurs** — ⛔ jamais `Done` et `Next` ensemble |
+| **droite** | ❓ le **`?`** |
+
+⭐ **ET C'EST LA CHARGE DE LA PREUVE QUI CHANGE DE CAMP.** Avant, un écran sans livre posait la
+question *« celui-ci en mérite-t-il un ? »* — chaque absence se discutait, donc aucune ne se
+réparait. Désormais **un écran sans trilogie est un DÉFAUT**, et c'est l'exception qui doit
+s'argumenter et se dater.
+
+📏 **L'ÉTAT AU JOUR DE LA LOI, mesuré écran par écran le 06/09 à 14:31** — douze rangées, **cinq
+sans livre** :
+
+| écran | ce qui manque | statut |
+|---|---|---|
+| `Skills R` · onglet `Menu` | pas de livre | ⏳ **à reconstruire** — on n'y touche pas |
+| `Equipment R` · onglet `Sheet` | **aucune rangée** | ⏳ **à reconstruire** — on n'y touche pas |
+| **`Identity` — le bilan (R2)** | pas de livre | 🔴 **défaut** — l'écran porte sa trilogie en **R1** et la perd en **R2** |
+
+⚠️ **« À reconstruire » N'EST PAS « CONFORME ».** Eric : *« on peut les laisser tranquille pour le
+moment »* — ⛔ c'est un **report**, pas une dispense. Réparer le pied d'un écran qu'on va démonter,
+c'est payer deux fois ; **mais la trilogie leur est due au jour de leur reconstruction.**
+
+🔴 **ET LA CAUSE DU DÉFAUT EST STRUCTURELLE, PAS LOCALE.** Le `?` est posé **par la coquille**, une
+fois, pour tous ; le **livre est fabriqué par SEPT écrans** (`abilities-step` · `catalogue` ·
+`concept-step` · `destiny-step` · `parcours-ecrans` ×2). ⛔ Un organe que chaque écran doit se
+rappeler de poser **sera oublié par ceux qui l'oublient** — et le corpus l'écrivait déjà, **pour le
+`?` seulement** : *« il est posé par la coquille, une fois, sur toutes les étapes — jamais par un
+écran, qui pourrait l'oublier »*. **La règle existait ; personne ne l'avait appliquée au livre.**
+
+⏳ **LE REMÈDE EST VALIDÉ SUR LE PRINCIPE ET REMIS À PLUS TARD** *(Eric : « si un autre agent doit
+faire le travail de la coquille, après, on fait ça »)* : **la coquille pose le livre comme elle pose
+le `?`**, l'écran ne déclarant que **sa destination**. 📌 Le motif existe déjà — *« l'item déclare un
+hôte et reçoit la paire de la coquille »* — et `shell.mjs:4407` **sait déjà** placer un livre à
+gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cotes.
+
 ### 🔴 DEUX LARGEURS DE BOUTON, ET DEUX SEULEMENT — **77 et 105** *(Eric, 2026-09-06)*
 📍 `bouton-deux-largeurs` · vivante · 06/09
 
