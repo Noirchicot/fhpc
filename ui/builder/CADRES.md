@@ -41,6 +41,16 @@
 >
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
+>
+> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *FH WEB BIBLE*.** Eric, ce jour-là :
+> *« crée un fil qui construit une Bible pour le site web — FH WEB Bible, différente de la Builder
+> Bible. **Cite quand même dans le builder que quand on parle du site il faut visiter l'autre
+> Bible.** »*
+> ➡️ **Dès qu'un lot parle du LIVRE** — le bouton 📖 et où il mène, `LIVRE_ARCANES` et les autres
+> sorties vers un chapitre, la loi des liens, les ancres que `sync_from_vault.py` fabrique, la voix
+> du texte publié — **il va lire `fh-phb/docs/bible-web/`** *(en ligne :
+> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la FH WEB
+> Bible renvoie ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
 
 ---
 

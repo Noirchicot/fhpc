@@ -30,6 +30,16 @@
 >
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
+>
+> 📖 **ET SA FEUILLE A UN NOM DEPUIS LE 2026-09-06 : LA *FH WEB BIBLE*.** Eric, ce jour-là :
+> *« crée un fil qui construit une Bible pour le site web — FH WEB Bible, différente de la Builder
+> Bible. **Cite quand même dans le builder que quand on parle du site il faut visiter l'autre
+> Bible.** »*
+> ➡️ **Dès qu'un lot parle du LIVRE** — le bouton 📖 et où il mène, `LIVRE_ARCANES` et les autres
+> sorties vers un chapitre, la loi des liens, les ancres que `sync_from_vault.py` fabrique, la voix
+> du texte publié — **il va lire `fh-phb/docs/bible-web/`** *(en ligne :
+> `noirchicot.github.io/fh-phb/bible-web/`)*. ⛔ Un lien à sens unique ne vaut rien : la FH WEB
+> Bible renvoie ici de son côté, à ce paragraphe et à `ecriture-loi-des-liens`.
 
 ---
 
@@ -350,3 +360,48 @@ Ce que le lot 58 ajoute, et **seulement pour les écrans qui en ont besoin** :
   elle demandera son propre slot, et ce lot ne l'invente pas d'avance ;
 - **`data-snap`** sur les fiches d'un défilement aimanté. C'est ce que
   `watchSnap` lit — le seul contrat entre un écran et le spy.
+
+## 📖 LA LOI DES BIBLES — un lot qui change quelque chose demande AVANT de rendre
+📍 `socle-une-bible-se-demande-avant-de-rendre` · vivante · 06/09
+
+> Eric, 2026-09-06 : *« et **dès qu'on change des choses, on se pose la question d'éditer une
+> Bible**. »*
+
+**Tout lot qui change quelque chose se demande, AVANT de rendre : « est-ce qu'une Bible doit être
+éditée ? » — et il RÉPOND dans son rapport, même si la réponse est non.**
+
+⛔ *« Je n'y ai pas pensé »* cesse d'être possible : la question est **au programme**, et **son
+absence dans un rapport est elle-même un défaut**.
+
+🔴 **L'INCIDENT QUI LA CRÉE, ET IL N'EST PAS DE CE DÉPÔT.** Le 2026-09-06, la ligne éditoriale
+d'Eric a été violée **six fois dans un seul chapitre du livre**. Trois sièges y avaient écrit ce
+jour-là, et **aucun n'avait de corpus à lire** :
+
+| | son corpus | ce qui arrive |
+|---|---|---|
+| **le builder** | `NORMES` · `CADRES` · `SOCLE` · `ECRANS` — **493 adresses** *(mesuré le 06/09 à 20:33)*, un garde qui **refuse** une section sans adresse | une règle mal écrite **rougit** |
+| **le livre** *(avant le 06/09)* | ⛔ **rien** — des notes de logbook que personne n'ouvre avant d'écrire | une règle violée **passe** |
+
+⭐ **Une règle violée deux fois n'est pas une règle mal suivie : c'est une règle mal rangée.** La
+règle du livre existait depuis le 25/08 ; elle a été écrite, puis ignorée douze jours plus tard.
+
+📌 **DEUX BIBLES, ET IL FAUT SAVOIR LAQUELLE ON ÉDITE :**
+
+| | ce qu'elle couvre | sa source |
+|---|---|---|
+| **Builder Bible** | l'application FHPC — les organes, les cadres, le mécanisme, les écrans | **ces quatre fichiers** ; `fh-phb/docs/bible/` n'en est qu'un **tirage** |
+| **FH WEB Bible** | le livre publié — la voix, la citation du SRD, la fabrique, l'appareil de fin | `fh-phb/docs/bible-web/` — **elle est sa propre source, elle n'a aucun amont** |
+
+⚖️ **Et la question a une réponse par défaut, pas une échappatoire** : un lot qui touche à un
+organe, une cote, un geste ou un écran édite **la Builder Bible** ; un lot qui touche à un chapitre
+publié, à une citation du SRD, à un bandeau de pied ou à une sortie 📖 édite **la FH WEB Bible** ;
+un lot qui touche aux deux les édite **toutes les deux**. ⛔ *« Aucune »* est une réponse légitime
+— **écrite**, jamais tue.
+
+⚠️ **Cette règle a un jumeau, et c'est délibéré** : la FH WEB Bible porte le même énoncé sous
+`bible-question-avant-de-rendre`, parce qu'une loi qui ne vit que dans le corpus qu'on ne lit pas
+ne s'applique jamais. ⛔ **Les deux se citent : modifier l'une oblige l'autre.**
+
+📌 **Le corollaire, qui est l'amendement n° 2 du 05/09 appliqué au livre** : tout mandat d'écriture
+dans le livre **nomme sa Bible en PREMIÈRE LIGNE**, comme les mandats de code nomment `TRAPS.md`.
+C'est cette ligne, absente le 06/09, qui a coûté les six phrases.
