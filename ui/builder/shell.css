@@ -2956,8 +2956,25 @@ button { font: inherit; }
    axe chacun, rien de deviné.
    ⛔ ET L'IMAGE N'EST PAS TOUCHÉE : recadrer `tapis-4x4.webp` reste un mot d'Eric,
    et il a choisi l'autre branche. */
+/* 🔴 ET SON REMBOURRAGE VERTICAL EST PARTI LE 06/09 — Eric, tranchant le dernier
+   poste de l'aiguilleur de FREE : *« il manque 6,39 blg ; le rembourrage du tapis
+   en rend 8 et ne sert déjà plus à rien depuis hier — je le retire, ou tu recadres
+   l'image ? »* → **« A »**.
+   ⭐ ET LA RAISON EST MESURÉE, PAS ESTHÉTIQUE : ces 4 étaient DÉDUITS du rapport de
+   l'image (1,764) pour qu'un `contain` remplisse la boîte au pixel. Le `row-gap`
+   8 → 4 de la veille a porté la boîte à **1,872** — le tapis ne touchait DÉJÀ plus
+   les bords (10,7 blg de vide de chaque côté, mesuré). Le rembourrage ne servait
+   donc plus ce qu'il servait : **c'est un orphelin**, et le retirer ne casse rien
+   qui vive encore. Il rend **8 blg**, exactement les 6,39 qui manquaient.
+   ⛔ LE LATÉRAL RESTE À 4, ET C'EST TOUT LE SOIN : `padding` écrivait les quatre
+   côtés ; le réécrire pour sa seule valeur verticale aurait emporté l'horizontale
+   en silence — la faute que cette feuille a payée quatre fois. Deux longhands, un
+   axe chacun, rien de deviné.
+   ⛔ ET L'IMAGE N'EST PAS TOUCHÉE : recadrer `tapis-4x4.webp` reste un mot d'Eric,
+   et il a choisi l'autre branche. */
 .ability-palette {
-  padding: var(--sp-4);
+  padding-block: 0;
+  padding-inline: var(--sp-4);
   background: url("./assets/abilities/tapis-4x4.webp?v=589") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
