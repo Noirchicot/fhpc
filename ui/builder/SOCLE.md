@@ -461,6 +461,44 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 ⭐ **ET CE PARAGRAPHE OBÉIT À CE QU'IL ÉNONCE.** Trois adresses, trois phrases, un incident
 dessous. Une règle de format qui ne se respecte pas elle-même n'est pas une règle, c'est un avis.
 
+### 🧭 LA FAMILLE D'UNE ADRESSE NE DIT PAS LE FICHIER QUI LA PORTE
+📍 `socle-famille-ne-dit-pas-le-fichier` · vivante · 06/09
+⚖️ **Un renvoi qui envoie quelqu'un LIRE une règle donne `fichier:ancre`, jamais l'ancre seule — la famille d'une adresse ne dit pas où elle vit.**
+
+🔴 **L'INCIDENT, LE 2026-09-06 AU SOIR.** J'ai donné à l'architecte l'ancre
+`socle-on-laisse-tranquille-ce-qui-marche` sans son fichier. Il a ouvert `SOCLE.md` — la
+déduction évidente — et n'a **rien trouvé** : elle vit dans `NORMES.md`. ⛔ **Aucune erreur ne
+s'est produite, rien ne l'a averti** : chercher au mauvais endroit rend exactement le même
+silence qu'une ancre morte.
+
+📏 **ET CE N'EST PAS UN CAS ISOLÉ, C'EST PRESQUE UNE SUR DEUX.** Mesuré le 06/09 sur les deux
+familles dont le nom ressemble à un fichier — `socle` et `cadre` :
+
+| | |
+|---|---:|
+| adresses qui vivent dans le fichier homonyme | **72** |
+| adresses qui vivent **ailleurs** | **61** |
+| dont `cadre-…` dans `NORMES.md` | 37 |
+| dont `socle-…` dans `NORMES.md` | 23 |
+
+🔴 **ET LA COÏNCIDENCE TIENT DANS UN SENS, CE QUI EST PIRE QU'UNE RÈGLE FAUSSE.** `SOCLE.md`
+porte **30** adresses, et **les 30 sont de famille `socle`**. Qui l'ouvre voit donc sa déduction
+*confirmée* — elle ne casse qu'en partant de l'ancre. ⭐ *Une loi qui tient par coïncidence est
+indiscernable d'une loi qui tient, jusqu'au jour où le cas qui les sépare arrive.*
+
+⚖️ **CE QUE LA RÈGLE VISE, ET CE QU'ELLE NE VISE PAS** — la distinction est le cœur :
+
+| | forme | pourquoi |
+|---|---|---|
+| ✅ **un renvoi qu'un HUMAIN ou un AGENT doit suivre** — un mandat, un prompt, un rapport, un message à un autre siège | **`fichier:ancre`** | personne ne résout l'ancre à sa place : il ouvre un fichier, et il ouvre le mauvais |
+| ✅ **un LIEN de supersession** — `remplace`, `remplacée par`, `borne`, `bornée par` | l'**ancre seule**, inchangé | c'est le garde ③ qui le résout, sur tout le corpus à la fois — le fichier y serait du bruit, et un bruit qui se périme au premier déplacement |
+
+⭐ **ET L'ANNUAIRE EXISTE DÉJÀ, IL SUFFIT DE NE PAS DEVINER À SA PLACE.** La Builder Bible écrit
+`source ⟨fichier⟩` sous chaque règle *(`tools/bible.mjs`)*. ⛔ Deviner le fichier d'après la
+famille n'était donc jamais nécessaire — c'était un raccourci, et il tombe une fois sur deux.
+📌 **Le découpage en quatre fichiers sert à TROUVER, pas à CLOISONNER** *(en-tête de ce fichier,
+29/08)* : la famille dit **de quoi** la règle parle, jamais **où** elle est écrite.
+
 🔒 **② LES SACRÉS SE CONNAISSENT PAR CŒUR — donc ils sont peu.**
 
 ⚠️ **Un agent ne peut pas retenir 500 règles. Il peut en retenir dix.** C'est la seule raison
